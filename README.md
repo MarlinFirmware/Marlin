@@ -45,6 +45,7 @@ The current Marlin dev team consists of:
  - David Braam [@daid]
  - Bernhard Kubicek [@bkubicek]
  - Richard Wackerbarth [@Wackerbarth] - English
+ - Roxanne Neufeld [@Roxy-3DPrintBoard] - English
 
 More features have been added by:
   - Alberto Cotronei [@MagoKimbra]
