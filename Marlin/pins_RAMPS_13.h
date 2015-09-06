@@ -40,7 +40,6 @@
 #define Z_ENABLE_PIN       62
 #define Z_MIN_PIN          18
 #define Z_MAX_PIN          19
-#define Z_MIN_PROBE_PIN    -1
 
 #define E0_STEP_PIN        26
 #define E0_DIR_PIN         28

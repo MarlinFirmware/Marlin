@@ -135,7 +135,7 @@
     #if !PIN_EXISTS(Z_MIN)
       #if !PIN_EXISTS(Z_MIN_PROBE) || (DISABLED(Z_MIN_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z probe, but not enable it.
         #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-          #error You must have a Z min or Z probe endstop to enable Z_MIN_PROBE_REPEATABILITY_TEST.
+          #error You must have a Z_MIN or Z_PROBE endstop to enable Z_MIN_PROBE_REPEATABILITY_TEST.
         #else
           #error AUTO_BED_LEVELING_FEATURE requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin.
         #endif
@@ -146,11 +146,8 @@
      * Require a Z probe pin if Z_MIN_PROBE_ENDSTOP is enabled.
      */
     #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-      #ifndef Z_MIN_PROBE_PIN
-        #error You must have a Z_MIN_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_MIN_PROBE_ENDSTOP.
-      #endif
       #if !PIN_EXISTS(Z_MIN_PROBE)
-        #error You must set Z_MIN_PROBE_PIN to a valid pin if you enable Z_MIN_PROBE_ENDSTOP.
+        #error You must have a Z_MIN_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_MIN_PROBE_ENDSTOP.
       #endif
 // Forcing Servo definitions can break some hall effect sensor setups. Leaving these here for further comment.
 //      #ifndef NUM_SERVOS
