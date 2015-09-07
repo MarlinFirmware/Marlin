@@ -18,7 +18,7 @@ class TemperatureControl
 
 	private:
 		float m_current_temperature;
-		uint16_t m_target_temp;	
+		uint16_t m_target_temperature;	
 		float m_kp;
 		float m_ki;
 		float m_kb;	

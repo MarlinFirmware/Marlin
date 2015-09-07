@@ -36,7 +36,7 @@ void TemperatureControl::manageControl()
 	static uint32_t prev_millis = millis();
 	static uint16_t max_time = 0;
 
-	control_input = constrain (m_target_temp, 0, HEATER_0_MAXTEMP);
+	control_input = constrain (m_target_temperature, 0, HEATER_0_MAXTEMP);
 
 	if (control_input <= HEATER_0_MINTEMP)
 	{
@@ -65,7 +65,7 @@ void TemperatureControl::manageControl()
 
 		bTerm = m_kb * ( m_control_output - control_output );
 	}
-	/*SERIAL_ECHO("PID_INPUT: ");
+	SERIAL_ECHO("PID_INPUT: ");
 	SERIAL_ECHOLN(control_input);
 	SERIAL_ECHO("PID_OUTPUT: ");
 	SERIAL_ECHOLN(m_control_output);
@@ -76,9 +76,9 @@ void TemperatureControl::manageControl()
 	SERIAL_ECHO("I_term: ");
 	SERIAL_ECHOLN(iTerm);
 	SERIAL_ECHO("m_ki*error: ");
-	SERIAL_ECHOLN(Ki*error);
+	SERIAL_ECHOLN(m_ki*error);
 	SERIAL_ECHO("B_term: ");
-	SERIAL_ECHOLN(bTerm);*/
+	SERIAL_ECHOLN(bTerm);
 	/*uint32_t time = millis() - prev_millis;
 	prev_millis += time;
 	if (time > max_time)
