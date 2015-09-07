@@ -9,8 +9,8 @@ class TemperatureControl
 		TemperatureControl();
 		~TemperatureControl();
 
-		void setTargetControl(uint16_t target);
-		uint16_t getTargetControl();
+		void setTargetControl(uint16_t const & target);
+		const uint16_t & getTargetControl() const;
 		void manageControl();
 
 	public:
@@ -18,7 +18,7 @@ class TemperatureControl
 
 	private:
 		float m_current_temperature;
-		uint16_t m_target_temperature;	
+		uint16_t m_target_temp;	
 		float m_kp;
 		float m_ki;
 		float m_kb;	

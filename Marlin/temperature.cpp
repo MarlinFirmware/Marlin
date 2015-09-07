@@ -173,7 +173,6 @@ static int bed_maxttemp_raw = HEATER_BED_RAW_HI_TEMP;
 
 static float analog2temp(int raw, uint8_t e);
 static float analog2tempBed(int raw);
-static void updateTemperaturesFromRawValues();
 
 #ifdef WATCH_TEMP_PERIOD
 int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0,0);
@@ -482,9 +481,8 @@ void manage_heater()
   if(temp_meas_ready != true)   //better readability
     return; 
 
-  updateTemperaturesFromRawValues();
-  SERIAL_ECHO("current_temperature: ");
-    SERIAL_ECHOLN(current_temperature[0]);
+  //updateTemperaturesFromRawValues();
+
   #ifdef HEATER_0_USES_MAX6675
     if (current_temperature[0] > 1023 || current_temperature[0] > HEATER_0_MAXTEMP) {
       max_temp_error(0);
@@ -801,7 +799,7 @@ static float analog2tempBed(int raw) {
 
 /* Called to get the raw values into the the actual temperatures. The raw values are created in interrupt context,
     and this function is called from normal context as it is too slow to run in interrupts and will block the stepper routine otherwise */
-static void updateTemperaturesFromRawValues()
+void updateTemperaturesFromRawValues()
 {
     #ifdef HEATER_0_USES_MAX6675
         current_temperature_raw[0] = read_max6675();
