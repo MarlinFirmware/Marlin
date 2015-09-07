@@ -477,36 +477,81 @@ void lcd_set_home_offsets() {
 
 static void lcd_tune_menu() {
   START_MENU();
+
+  //
+  // ^ Main
+  //
   MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+
+  //
+  // Speed:
+  //
   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_multiplier, 10, 999);
+
+  //
+  // Nozzle:
+  // Nozzle 2:
+  // Nozzle 3:
+  // Nozzle 4:
+  //
   #if TEMP_SENSOR_0 != 0
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
   #endif
-  #if TEMP_SENSOR_1 != 0
-    MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE MSG_N2, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
-  #endif
-  #if TEMP_SENSOR_2 != 0
-    MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE MSG_N3, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
-  #endif
-  #if TEMP_SENSOR_3 != 0
-    MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE MSG_N4, &target_temperature[3], 0, HEATER_3_MAXTEMP - 15);
-  #endif
+  #if EXTRUDERS > 1
+    #if TEMP_SENSOR_1 != 0
+      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE MSG_N2, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
+    #endif
+    #if EXTRUDERS > 2
+      #if TEMP_SENSOR_2 != 0
+        MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE MSG_N3, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
+      #endif
+      #if EXTRUDERS > 3
+        #if TEMP_SENSOR_3 != 0
+          MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE MSG_N4, &target_temperature[3], 0, HEATER_3_MAXTEMP - 15);
+        #endif
+      #endif //EXTRUDERS > 3
+    #endif //EXTRUDERS > 2
+  #endif //EXTRUDERS > 1
+
+  //
+  // Bed:
+  //
   #if TEMP_SENSOR_BED != 0
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
   #endif
-  MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
-  MENU_ITEM_EDIT(int3, MSG_FLOW, &extruder_multiplier[active_extruder], 10, 999);
-  MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N0, &extruder_multiplier[0], 10, 999);
-  #if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N1, &extruder_multiplier[1], 10, 999);
-  #endif
-  #if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N2, &extruder_multiplier[2], 10, 999);
-  #endif
-  #if TEMP_SENSOR_3 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N3, &extruder_multiplier[3], 10, 999);
-  #endif
 
+  //
+  // Fan Speed:
+  //
+  MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+
+  //
+  // Flow:
+  //
+  MENU_ITEM_EDIT(int3, MSG_FLOW, &extruder_multiplier[active_extruder], 10, 999);
+
+  //
+  // Flow 0:
+  // Flow 1:
+  // Flow 2:
+  // Flow 3:
+  //
+  MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N0, &extruder_multiplier[0], 10, 999);
+  #if EXTRUDERS > 1
+    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N1, &extruder_multiplier[1], 10, 999);
+    #if EXTRUDERS > 2
+      MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N2, &extruder_multiplier[2], 10, 999);
+      #if EXTRUDERS > 3
+        MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N3, &extruder_multiplier[3], 10, 999);
+      #endif //EXTRUDERS > 3
+    #endif //EXTRUDERS > 2
+  #endif //EXTRUDERS > 1
+
+  //
+  // Babystep X:
+  // Babystep Y:
+  // Babystep Z:
+  //
   #if ENABLED(BABYSTEPPING)
     #if ENABLED(BABYSTEP_XY)
       MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
@@ -514,9 +559,14 @@ static void lcd_tune_menu() {
     #endif //BABYSTEP_XY
     MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
   #endif
+
+  //
+  // Change filament
+  //
   #if ENABLED(FILAMENTCHANGEENABLE)
      MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
   #endif
+
   END_MENU();
 }
 
