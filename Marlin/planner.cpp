@@ -799,7 +799,6 @@ float junction_deviation = 0.1;
 
   // Max segement time in us.
   #ifdef XY_FREQUENCY_LIMIT
-    #define MAX_FREQ_TIME (1000000.0 / XY_FREQUENCY_LIMIT)
 
     // Check and limit the xy direction change frequency
     unsigned char direction_change = block->direction_bits ^ old_direction_bits;
