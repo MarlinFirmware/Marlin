@@ -35,16 +35,16 @@
 
 namespace screen
 {
-	class ScreenFile : public ScreenMenu , public Observer<SDState_t>
+	class ScreenFile : public ScreenMenu , public Observer<bool>
 	{
 		public:
-			ScreenFile(const char * title = 0, Subject<SDState_t> * model = 0);
+			ScreenFile(const char * title = 0, Subject<bool> * model = 0);
 			virtual ~ScreenFile();
 
 			void draw();
 
 		private:
-			void update(SDState_t state);
+			void update(bool state);
 	};
 }
 #endif //SCREEN_FILE_H

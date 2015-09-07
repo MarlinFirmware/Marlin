@@ -32,9 +32,9 @@
 
 namespace screen
 {
-	ScreenFile::ScreenFile(const char * title , Subject<SDState_t> * model)
+	ScreenFile::ScreenFile(const char * title , Subject<bool> * model)
 		: ScreenMenu(title)
-		, Observer<SDState_t>(model)
+		, Observer<bool>(model)
 	{ }
 
 	ScreenFile::~ScreenFile()
@@ -163,9 +163,9 @@ namespace screen
 		}
 	}
 
-	void ScreenFile::update(SDState_t state)
+	void ScreenFile::update(bool is_inserted)
 	{
-		if(state == SD_IS_NOT_INSERTED)
+		if(is_inserted == false)
 		{
 			card.release();
 			ViewManager::getInstance().activeView(screen_main);

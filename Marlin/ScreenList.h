@@ -35,10 +35,10 @@
 
 namespace screen
 {
-	class ScreenList : public Screen , public Observer<SDState_t>
+	class ScreenList : public Screen , public Observer<bool>
 	{
 		public:
-			ScreenList(const char * title, Subject<SDState_t> * model);
+			ScreenList(const char * title, Subject<bool> * model);
 			virtual ~ScreenList();
 
 			void left();
@@ -50,7 +50,7 @@ namespace screen
 
 		private:
 			//void updateSdcardStatus();
-			void update(SDState_t state);
+			void update(bool is_inserted);
 
 		public:
 			static uint8_t directory_index;

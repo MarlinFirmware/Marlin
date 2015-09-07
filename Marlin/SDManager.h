@@ -4,14 +4,7 @@
 #include "Singleton.h"
 #include "Subject.h"
 
-typedef enum
-{
-	SD_IS_NOT_INSERTED,
-	SD_IS_INSERTED,
-	NUM_SD_STATES
-} SDState_t;
-
-class SDManager : public Subject<SDState_t>
+class SDManager : public Subject<bool>
 {
 	public:
 		typedef Singleton<SDManager> single;
@@ -20,20 +13,14 @@ class SDManager : public Subject<SDState_t>
 		SDManager();
 
 		static void updateSDStatus();
-		SDState_t getSDStatus();
 
-		bool getSDInit();
-		void setSDInit(bool init);
+		bool const & isInserted() const;
+		void setInserted(bool state);
 
 		void notify();
 
 	private:
-		void state(SDState_t state);
-		SDState_t state();
-
-	private:
-		SDState_t m_state;
-		bool m_init;
+		bool m_is_inserted;
 };
 
 #endif //SD_MANAGER_H
