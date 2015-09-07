@@ -9,6 +9,7 @@ class TemperatureControl
 		TemperatureControl();
 		~TemperatureControl();
 
+		void setCurrentTemperature(uint16_t temp);
 		void setTargetControl(uint16_t const & target);
 		const uint16_t & getTargetControl() const;
 		void manageControl();

@@ -649,6 +649,9 @@ void setup()
   Config_RetrieveSettings();
 
   tp_init();    // Initialize temperature loop
+  #ifdef DOGLCD
+    TemperatureManager::single::instance().init();
+  #endif
   plan_init();  // Initialize planner;
   watchdog_init();
   st_init();    // Initialize stepper, this enables interrupts!

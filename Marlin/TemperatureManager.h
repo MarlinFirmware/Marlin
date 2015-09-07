@@ -17,6 +17,7 @@ class TemperatureManager : public Subject<float>
 		TemperatureManager();
 		~TemperatureManager();
 
+		void init();
 		void updateCurrentTemperature(float temp);
 		uint16_t getCurrentTemperature();
 		void setTargetTemperature(uint16_t target);

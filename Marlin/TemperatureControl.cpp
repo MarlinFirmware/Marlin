@@ -14,6 +14,11 @@ TemperatureControl::TemperatureControl()
 TemperatureControl::~TemperatureControl()
 { }
 
+void TemperatureControl::setCurrentTemperature(uint16_t temp)
+{
+	m_current_temperature = temp;
+}
+
 void TemperatureControl::setTargetControl(uint16_t const & target)
 {
 	m_target_temperature = target;
@@ -65,7 +70,9 @@ void TemperatureControl::manageControl()
 
 		bTerm = m_kb * ( m_control_output - control_output );
 	}
-	SERIAL_ECHO("PID_INPUT: ");
+	OCR2B = (uint8_t) m_control_output;
+
+	/*SERIAL_ECHO("PID_INPUT: ");
 	SERIAL_ECHOLN(control_input);
 	SERIAL_ECHO("PID_OUTPUT: ");
 	SERIAL_ECHOLN(m_control_output);
@@ -78,7 +85,7 @@ void TemperatureControl::manageControl()
 	SERIAL_ECHO("m_ki*error: ");
 	SERIAL_ECHOLN(m_ki*error);
 	SERIAL_ECHO("B_term: ");
-	SERIAL_ECHOLN(bTerm);
+	SERIAL_ECHOLN(bTerm);*/
 	/*uint32_t time = millis() - prev_millis;
 	prev_millis += time;
 	if (time > max_time)

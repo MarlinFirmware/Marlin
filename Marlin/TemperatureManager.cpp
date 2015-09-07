@@ -28,8 +28,15 @@ TemperatureManager::~TemperatureManager()
 	delete m_control;
 }
 
+void TemperatureManager::init()
+{
+	TCCR2A = 0x23;
+	TCCR2B = 0x07;
+}
+
 void TemperatureManager::updateCurrentTemperature(float temp)
 {
+	m_control->setCurrentTemperature(temp);
 	if (m_current_temperature != temp)
 	{
 		m_current_temperature = temp;
