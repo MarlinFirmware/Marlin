@@ -1,6 +1,5 @@
 # Marlin 3D Printer Firmware
-<img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
-
+<img align="top" width=175 src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
  Documentation has moved to [marlinfirmware.org](http://www.marlinfirmware.org).
 
 ## Development Only
@@ -37,7 +36,7 @@ The current Marlin dev team consists of:
  - Scott Lahteine [@thinkyhead] - English
  - Andreas Hardtung [@AnHardt] - Deutsch, English
  - [@Wurstnase] - Deutsch, English
- - [@fmalpartida] - English, Spanish
+ - F. Malpartida [@fmalpartida] - English, Spanish
  - [@CONSULitAS] - Deutsch, English
  - [@maverikou]
  - Chris Palmer [@nophead]
