@@ -561,24 +561,24 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_X 30.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y DELTA_PRINTABLE_RADIUS
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE HOMING_FEEDRATE_X
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE HOMING_FEEDRATE_XYZ
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 0.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y DELTA_PRINTABLE_RADIUS
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_X/10)
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
 
     //#define Z_PROBE_ALLEN_KEY_STOW_1_X -64.0 // Move the probe into position
     //#define Z_PROBE_ALLEN_KEY_STOW_1_Y 56.0
     //#define Z_PROBE_ALLEN_KEY_STOW_1_Z 23.0
-    //#define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE HOMING_FEEDRATE_X
+    //#define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE HOMING_FEEDRATE_XYZ
     //#define Z_PROBE_ALLEN_KEY_STOW_2_X -64.0 // Push it down
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Y 56.0
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Z 3.0
-    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_X/10)
+    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
     //#define Z_PROBE_ALLEN_KEY_STOW_3_X -64.0 // Move it up to clear
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Y 56.0
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Z 50.0
-    //#define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE HOMING_FEEDRATE_X
+    //#define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE HOMING_FEEDRATE_XYZ
 
     // Kossel Mini
     #define Z_PROBE_ALLEN_KEY_DEPLOY_1_X 30.0
@@ -611,28 +611,28 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_X -105.00 // Move left but not quite so far that we'll bump the belt
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y 0.00
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE HOMING_FEEDRATE_X
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE HOMING_FEEDRATE_XYZ
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_X -110.00 // Move outward to position deploy pin to the left of the arm
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y -125.00
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE HOMING_FEEDRATE_X
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE HOMING_FEEDRATE_XYZ
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_3_X 45.00 // Move right to trigger deploy pin
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_3_Y -125.00
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_3_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE (HOMING_FEEDRATE_X/2)
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE (HOMING_FEEDRATE_XYZ/2)
 
     //#define Z_PROBE_ALLEN_KEY_STOW_1_X 36.00 // Line up with bed retaining clip
     //#define Z_PROBE_ALLEN_KEY_STOW_1_Y -122.00
     //#define Z_PROBE_ALLEN_KEY_STOW_1_Z 75.0
-    //#define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE HOMING_FEEDRATE_X
+    //#define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE HOMING_FEEDRATE_XYZ
     //#define Z_PROBE_ALLEN_KEY_STOW_2_X 36.00 // move down to retract probe
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Y -122.00
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Z 25.0
-    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_Z/2)
+    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ/2)
     //#define Z_PROBE_ALLEN_KEY_STOW_3_X 0.0  // return to 0,0,100
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Y 0.0
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE HOMING_FEEDRATE_Z
+    //#define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE HOMING_FEEDRATE_XYZ
   #endif
 
 // If you have enabled the bed auto leveling and are using the same Z probe for Z homing,
@@ -707,7 +707,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
  */
 
 // delta homing speeds must be the same on xyz
-#define HOMING_FEEDRATE {200*60, 200*60, 200*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE_XYZ (200*60)
+#define HOMING_FEEDRATE_E 0
+#define HOMING_FEEDRATE { HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_E }
 
 // default settings
 // delta speeds must be the same on xyz
