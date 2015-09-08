@@ -319,3 +319,5 @@ extern void digipot_i2c_init();
 
 extern void calculate_volumetric_multipliers();
 #endif
+
+extern bool initial_wizard;

@@ -693,3 +693,13 @@ void action_save_offset()
 
 	action_move_to_rest();
 }
+
+void action_wizard_init()
+{
+	initial_wizard = true;
+}
+
+void action_wizard_finish()
+{
+	initial_wizard = false;
+}
