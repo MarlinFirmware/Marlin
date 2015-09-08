@@ -1,35 +1,39 @@
-#include "LightManager.h"
+#include "SerialManager.h"
 
 #include <Arduino.h>
 #include "Configuration.h"
 
-LightManager::LightManager()
+SerialManager::SerialManager()
 	: Subject<bool>()
-{ 
-	pinMode(LIGHT_PIN, OUTPUT);
-	state(ReadFromEEPROM());
+{
+	int i = EEPROM_POS;
+	uint8_t dummy = 0;
+	_EEPROM_readData(i, (uint8_t*)&dummy, sizeof(dummy));
+	if(dummy != 0)
+	{
+		state(true);
+	}
 }
 
-void LightManager::setState()
+void SerialManager::setState()
 {
 	//Switch current status
-	LightManager::single::instance().state(!LightManager::single::instance().state());
+	SerialManager::single::instance().state(!SerialManager::single::instance().state());
 }
 
-void LightManager::state(bool state)
+void SerialManager::state(bool state)
 {
-	digitalWrite(LIGHT_PIN, state);
 	WriteToEEPROM(state);
 	m_state = state;
 	notify();
 }
 
-bool LightManager::state()
+const bool & SerialManager::state() const
 {
 	return m_state;
 }
 
-bool LightManager::ReadFromEEPROM()
+bool SerialManager::ReadFromEEPROM()
 {
 	int i = EEPROM_POS;
 	uint8_t dummy = 0;
@@ -43,7 +47,7 @@ bool LightManager::ReadFromEEPROM()
 	return false;
 }
 
-void LightManager::WriteToEEPROM(bool state)
+void SerialManager::WriteToEEPROM(bool state)
 {
 	int i = EEPROM_POS;
 	uint8_t dummy = 0;
@@ -54,7 +58,7 @@ void LightManager::WriteToEEPROM(bool state)
 	_EEPROM_writeData(i, (uint8_t*)&dummy, sizeof(dummy));
 }
 
-void LightManager::notify()
+void SerialManager::notify()
 {
 	if (this->m_observer != 0)
 	{

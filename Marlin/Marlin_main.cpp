@@ -63,6 +63,7 @@
   #include "GuiManager.h"
   #include "PrintManager.h"
   #include "StorageManager.h"
+  #include "SerialManager.h"
   #include "ViewManager.h"
 #else // DOGLCD
   #include "ultralcd.h"
@@ -799,7 +800,7 @@ void get_command()
     serial_char = MYSERIAL.read();
 
 #ifdef DOGLCD
-		if(eeprom::StorageManager::getScreenSerialState() == eeprom::SCREEN_SERIAL_ACTIVE && !serial_mode)
+		if(SerialManager::single::instance().state() && !serial_mode)
 		{
 			serial_mode = true;
 			if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial)

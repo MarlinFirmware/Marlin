@@ -27,7 +27,7 @@ bool AutoLevelManager::state()
 bool AutoLevelManager::ReadFromEEPROM()
 {
 	int i = EEPROM_POS;
-	int dummy = 0;
+	uint8_t dummy = 0;
 
 	_EEPROM_readData(i, (uint8_t*)&dummy, sizeof(dummy));
 	if(dummy == 1)
@@ -40,7 +40,7 @@ bool AutoLevelManager::ReadFromEEPROM()
 void AutoLevelManager::WriteToEEPROM(bool state)
 {
 	int i = EEPROM_POS;
-	int dummy = 0;
+	uint8_t dummy = 0;
 	if(state)
 	{
 		dummy = 1;

@@ -156,6 +156,7 @@ const char PT_ICON_MOVE_01MM[] PROGMEM                  = "Move 0.1mm";
 const char PT_OPTION_LIGHTLED[] PROGMEM                 = "Led";
 const char PT_OPTION_INFO[] PROGMEM                     = "Version";
 const char PT_OPTION_AUTOLEVEL[] PROGMEM                = "Auto-Level";
+const char PT_OPTION_SERIAL[] PROGMEM                   = "Serial Control";
 const char PT_OPTION_OFFSET[] PROGMEM                   = "Set Offset";
 const char PT_OPTION_LANGUAGE[] PROGMEM                 = "Language";
 const char PT_PUSH_TO_CONFIRM[] PROGMEM                 = "Push to confirm";
