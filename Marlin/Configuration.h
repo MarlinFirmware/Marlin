@@ -67,7 +67,7 @@ Here are some standard links for getting your machine calibrated:
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "Wilson II"
+#define CUSTOM_MACHINE_NAME "Wilson"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -362,6 +362,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
+#ifdef WILSON_II_TYPE
+#define NEVER_DISABLE_Z
+#endif
+#define MOVE_MENU_PRECISE_MOVE_ITEMS
+    
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false
@@ -391,7 +396,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define Z_MIN_POS 0
 #define X_MAX_POS 200
 #define Y_MAX_POS 300
-#define Z_MAX_POS 195
+#define Z_MAX_POS 200
 
 //===========================================================================
 //============================= Filament Runout Sensor ======================
@@ -458,9 +463,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   #ifdef AUTO_BED_LEVELING_GRID
 
     #define LEFT_PROBE_BED_POSITION 15
-    #define RIGHT_PROBE_BED_POSITION 140 // **
+    #define RIGHT_PROBE_BED_POSITION (X_MAX_POS - 60)
     #define FRONT_PROBE_BED_POSITION 20
-    #define BACK_PROBE_BED_POSITION 250
+    #define BACK_PROBE_BED_POSITION (Y_MAX_POS - 50)
 
     #define MIN_PROBE_EDGE 10 // The probe square sides can be no smaller than this
 
@@ -485,18 +490,27 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   // X and Y offsets must be integers
   #define X_PROBE_OFFSET_FROM_EXTRUDER -54     // Probe on: -left  +right
   #define Y_PROBE_OFFSET_FROM_EXTRUDER -7     // Probe on: -front +behind
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -7.7  // -below (always!) // mrice: for jhead use -18 for e3dlite use -7.7
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -5.5  // -below (always!) // mrice: for wilson ts [ jhead use -18 for e3dlite use -7.7 ]
 
   #define Z_RAISE_BEFORE_HOMING 10       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
   #define XY_TRAVEL_SPEED (100*60)         // X and Y axis travel speed between probes, in mm/min
 
-  #define Z_RAISE_BEFORE_PROBING 15   //How much the extruder will be raised before traveling to the first probing point.
-  #define Z_RAISE_BETWEEN_PROBINGS 15  //How much the extruder will be raised when traveling from between next probing points
-  #define Z_RAISE_AFTER_PROBING 15    //How much the extruder will be raised after the last probing point.
-  #define NO_RETRACT_BETWEEN_PROBINGS
+  #define Z_RAISE_BEFORE_PROBING 10   //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BETWEEN_PROBINGS 10  //How much the extruder will be raised when traveling from between next probing points
+  #define Z_RAISE_AFTER_PROBING 10    //How much the extruder will be raised after the last probing point.
+  #define NO_RETRACT_BETWEEN_PROBINGS // Define this unless you want to waste time moving the servo probe up and down between each point.
+
+  // sometimes the weight of the servo arm and the shaking of he extruder causes the servo to slowly descend during printing until it 
+  // interferes with the print.  
   
+  // There are two things I could do.  The first one (not using) just keeps the servo attached all the time.
+  //#define DONT_DETACH_SERVOS  // If you use this to keep the servos rigidly in place, make sure you are powering the servos from an adequate source (not the arduino 5V regulator)
+  // But this one seems to work nicely, it will just periodically put the servo back to where it is supposed to be:
+  #define PERIODICALLY_REFRESH_SERVO
+  #define SERVO_REFRESH_INTERVAL 10000 // ms
+
 //   #define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" //These commands will be executed in the end of G29 routine.
                                                                             //Useful to retract a deployable probe.
                                                                            
@@ -565,7 +579,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
  #define MANUAL_FEEDRATE               {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min) from panel
 #else
  #ifdef WILSON_II_TYPE
-  #define HOMING_FEEDRATE              {50*60, 50*60, 6*60, 0}  // set the homing speeds (mm/min)
+  #define HOMING_FEEDRATE              {50*60, 50*60, 3*60, 0}  // set the homing speeds (mm/min)
   #define DEFAULT_AXIS_STEPS_PER_UNIT  {80,80,400,105}  // default steps per unit for Wilson II
   #define DEFAULT_MAX_FEEDRATE         {120, 120, 6, 25}    // (mm/sec)
   #define MANUAL_FEEDRATE              {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min) from panel
@@ -619,7 +633,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
   #define EEPROM_CHITCHAT // please keep turned on if you can.
 #endif
-
 
 // @section temperature
 

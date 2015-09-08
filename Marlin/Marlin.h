@@ -174,7 +174,11 @@ void manage_inactivity(bool ignore_stepper_queue=false);
     #define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN,!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
   #else
     #define  enable_z() WRITE(Z_ENABLE_PIN, Z_ENABLE_ON)
+    #ifdef NEVER_DISABLE_Z
+    #define disable_z() ;
+    #else
     #define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
+    #endif
   #endif
 #else
   #define enable_z() ;
@@ -309,4 +313,6 @@ extern void digipot_i2c_init();
 #endif
 
 extern void calculate_volumetric_multipliers();
+
+void lcd_display_msg_modal();
 

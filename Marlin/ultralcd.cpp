@@ -19,6 +19,8 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+char msgscreen_1[20],msgscreen_2[20],msgscreen_3[20];
+
 #ifdef FILAMENT_LCD_DISPLAY
   unsigned long message_millis = 0;
 #endif
@@ -125,6 +127,7 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
     bool wasClicked = LCD_CLICKED;\
     for(uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
         _menuItemNr = 0;
+        
 #define MENU_ITEM(type, label, args...) do { \
     if (_menuItemNr == _lineNr) { \
         if (lcdDrawUpdate) { \
@@ -143,6 +146,7 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
     }\
     _menuItemNr++;\
 } while(0)
+
 #define MENU_ITEM_DUMMY() do { _menuItemNr++; } while(0)
 #define MENU_ITEM_EDIT(type, label, args...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label) , ## args )
 #define MENU_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label) , ## args )
@@ -682,7 +686,8 @@ float move_menu_scale;
 static void lcd_move_menu_axis();
 
 static void _lcd_move(const char *name, int axis, int min, int max) {
-  if (encoderPosition != 0) {
+  if (encoderPosition != 0) 
+  {
     refresh_cmd_timeout();
     current_position[axis] += float((int)encoderPosition) * move_menu_scale;
     if (min_software_endstops && current_position[axis] < min) current_position[axis] = min;
@@ -735,6 +740,7 @@ static void lcd_move_menu_axis()
         MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
         MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
     }
+   
     END_MENU();
 }
 
@@ -762,6 +768,18 @@ static void lcd_move_menu()
     MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
     MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
     //TODO:X,Y,Z,E
+
+    // the movement jogging from the lcd seems horribly inaccurate, so for testing
+    // I would like to have these movements easy to go to:
+    #ifdef MOVE_MENU_PRECISE_MOVE_ITEMS
+    MENU_ITEM(gcode, "Go to X=150",PSTR("G1 X150"));
+    MENU_ITEM(gcode, "Go to X=0",PSTR("G1 X0"));
+    MENU_ITEM(gcode, "Go to Y=150",PSTR("G1 Y150"));
+    MENU_ITEM(gcode, "Go to Y=0",PSTR("G1 Y0"));
+    MENU_ITEM(gcode, "Go to Z=150",PSTR("G1 Z150"));
+    MENU_ITEM(gcode, "Go to Z=1",PSTR("G1 Z0"));
+    #endif
+
     END_MENU();
 }
 
@@ -1201,10 +1219,10 @@ void lcd_init()
 #endif
 }
 
+static unsigned long timeoutToStatus = 0;
+
 void lcd_update()
 {
-    static unsigned long timeoutToStatus = 0;
-
     #ifdef LCD_HAS_SLOW_BUTTONS
     slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
     #endif
@@ -1744,6 +1762,30 @@ void copy_and_scalePID_d()
   Kd = scalePID_d(raw_Kd);
   updatePID();
 #endif
+}
+
+static void lcd_msg_screen()
+{
+  START_MENU();
+  MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
+  lcd.setCursor(0,1);
+  lcd.print(msgscreen_1);
+  #if (LCD_HEIGHT>2)
+  lcd.setCursor(0,2);  
+  lcd.print(msgscreen_2);
+  #endif
+  #if (LCD_HEIGHT>3)
+  lcd.setCursor(0,3);
+  lcd.print(msgscreen_3);
+  #endif
+  END_MENU();
+}
+
+void lcd_display_msg_modal()
+{
+  lcdDrawUpdate=2;
+  timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+  lcd_goto_menu(lcd_msg_screen,encoderPosition,false);
 }
 
 #endif //ULTRA_LCD
