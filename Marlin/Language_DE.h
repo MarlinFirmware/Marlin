@@ -156,6 +156,7 @@ const char DE_ICON_MOVE_01MM[] PROGMEM                  = "0,1 mm bewegen";
 const char DE_OPTION_LIGHTLED[] PROGMEM                 = "0";
 const char DE_OPTION_INFO[] PROGMEM                     = "0";
 const char DE_OPTION_AUTOLEVEL[] PROGMEM                = "0";
+const char DE_OPTION_SERIAL[] PROGMEM                   = "0";
 const char DE_OPTION_OFFSET[] PROGMEM                   = "0";
 const char DE_OPTION_LANGUAGE[] PROGMEM                 = "0";
 const char DE_PUSH_TO_CONFIRM[] PROGMEM                 = "Zum Annehmen dr""\xfc""cken";

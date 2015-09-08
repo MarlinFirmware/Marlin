@@ -156,6 +156,7 @@ const char IT_ICON_MOVE_01MM[] PROGMEM                  = "Spostare 0,1mm";
 const char IT_OPTION_LIGHTLED[] PROGMEM                 = "0";
 const char IT_OPTION_INFO[] PROGMEM                     = "0";
 const char IT_OPTION_AUTOLEVEL[] PROGMEM                = "0";
+const char IT_OPTION_SERIAL[] PROGMEM                   = "0";
 const char IT_OPTION_OFFSET[] PROGMEM                   = "0";
 const char IT_OPTION_LANGUAGE[] PROGMEM                 = "0";
 const char IT_PUSH_TO_CONFIRM[] PROGMEM                 = "Premi per confermare";
