@@ -32,7 +32,7 @@ bool LightManager::state()
 bool LightManager::ReadFromEEPROM()
 {
 	int i = EEPROM_POS;
-	int dummy = 0;
+	uint8_t dummy = 0;
 
 	_EEPROM_readData(i, (uint8_t*)&dummy, sizeof(dummy));
 	if(dummy == 1)
@@ -46,7 +46,7 @@ bool LightManager::ReadFromEEPROM()
 void LightManager::WriteToEEPROM(bool state)
 {
 	int i = EEPROM_POS;
-	int dummy = 0;
+	uint8_t dummy = 0;
 	if(state)
 	{
 		dummy = 1;
