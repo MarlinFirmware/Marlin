@@ -38,6 +38,7 @@
 #include "SDManager.h"
 #include "SteppersManager.h"
 #include "TemperatureManager.h"
+#include "SerialManager.h"
 
 #include "Language.h"
 
@@ -485,6 +486,7 @@ namespace screen
 		option_back->add(screen_main);
 		OptionToggle * option_autolevel   = new OptionToggle(option_size, MSG_OPTION_AUTOLEVEL(), AutoLevelManager::setState, &AutoLevelManager::single::instance());
 		OptionToggle * option_led         = new OptionToggle(option_size, MSG_OPTION_LIGHTLED(), LightManager::setState, &LightManager::single::instance());
+		OptionToggle * option_serial      = new OptionToggle(option_size, MSG_OPTION_SERIAL(), SerialManager::setState, &SerialManager::single::instance());
 		OptionLaunch * option_offset      = new OptionLaunch(option_size, MSG_OPTION_OFFSET());
 		option_offset->add(screen_offset);
 		OptionLaunch * option_about       = new OptionLaunch(option_size, MSG_OPTION_INFO());
@@ -496,6 +498,7 @@ namespace screen
 		local_view->add(option_back);
 		local_view->add(option_autolevel);
 		local_view->add(option_led);
+		local_view->add(option_serial);
 		local_view->add(option_offset);
 		local_view->add(option_language);
 		local_view->add(option_about);
