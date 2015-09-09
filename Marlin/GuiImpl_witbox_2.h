@@ -20,6 +20,7 @@ namespace screen
 		screen_wizard_offset_finish,
 		screen_wizard_step3,
 		screen_wizard_step4,
+		screen_wizard_finish,
 		screen_emergency,
 		screen_main,
 		screen_SD_list,

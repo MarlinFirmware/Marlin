@@ -145,6 +145,13 @@ namespace screen
 	static ScreenDialog<void> * make_screen_wizard_step4()
 	{
 		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_WIZARD_TITLE(), MSG_SCREEN_WIZARD_TEXT4(), MSG_PUSH_TO_FINISH(), do_nothing);
+		local_view->add(screen_wizard_finish);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_wizard_finish()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_wizard_finish);
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -1082,6 +1089,9 @@ namespace screen
 				break;
 			case screen_wizard_step4:
 				new_view = make_screen_wizard_step4();
+				break;
+			case screen_wizard_finish:
+				new_view = make_screen_wizard_finish();
 				break;
 
 			// Emergency stop

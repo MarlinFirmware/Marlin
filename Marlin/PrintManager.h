@@ -24,6 +24,7 @@ typedef enum
 	LEVELING,
 	READY,
 	SERIAL_CONTROL,
+	INITIALIZING,
 	NUM_PRINTER_STATES
 } PrinterState_t;
 

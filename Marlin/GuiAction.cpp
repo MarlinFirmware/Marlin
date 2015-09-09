@@ -693,3 +693,9 @@ void action_save_offset()
 
 	action_move_to_rest();
 }
+
+void action_wizard_finish()
+{
+	PrintManager::resetInactivity();
+	PrintManager::single::instance().state(STOPPED);
+}

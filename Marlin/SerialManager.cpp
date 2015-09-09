@@ -5,6 +5,7 @@
 
 SerialManager::SerialManager()
 	: Subject<bool>()
+	, m_state(false)
 {
 	int i = EEPROM_POS;
 	uint8_t dummy = 0;
