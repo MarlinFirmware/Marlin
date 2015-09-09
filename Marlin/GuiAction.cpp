@@ -698,4 +698,5 @@ void action_wizard_finish()
 {
 	PrintManager::resetInactivity();
 	PrintManager::single::instance().state(STOPPED);
+	AutoLevelManager::single::instance().state(true);
 }
