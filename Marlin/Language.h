@@ -9,7 +9,9 @@
 #include "Language_FR.h"
 #include "Language_PT.h"
 #include "Language_IT.h"
-#include "Language_PL.h"
+#include "Language_SE.h"
+
+#undef SE;
 
 enum class Language
 {
@@ -19,7 +21,7 @@ enum class Language
 	FR,     // French
 	PT,     // Portuguese
 	IT,     // Italian
-	PL,     // Polish
+	SE,     // Swedish
 };
 extern Language LANG;
 
@@ -51,9 +53,9 @@ const char * MSG_##label() \
    { \
       text = IT_##label; \
    } \
-   else if (LANG == Language::PL) \
+   else if (LANG == Language::SE) \
    { \
-      text = PL_##label; \
+      text = SE_##label; \
    } \
    return text; \
 }
