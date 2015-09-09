@@ -24,7 +24,7 @@ void LightManager::state(bool state)
 	notify();
 }
 
-bool LightManager::state()
+const bool & LightManager::state() const
 {
 	return m_state;
 }
