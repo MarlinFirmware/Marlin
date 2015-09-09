@@ -693,3 +693,15 @@ void action_save_offset()
 
 	action_move_to_rest();
 }
+
+bool action_check_preheat_temp()
+{
+	if(TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
