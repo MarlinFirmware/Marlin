@@ -54,20 +54,10 @@ namespace screen
 	{
 		if(SDManager::single::instance().isInserted() == false)
 		{
-			card.release();
-
-			m_num_list = 1;
-			m_index = 0;
-			m_directory_is_root = true;
-			m_scroll_size = 47;
-
 			ViewManager::getInstance().activeView(m_back_screen);
 		}
-		else
+		else 
 		{
-			card.initsd();
-			SDManager::single::instance().setInserted(true);
-
 			m_num_list = card.getnrfilenames();
 			m_index = 0;
 

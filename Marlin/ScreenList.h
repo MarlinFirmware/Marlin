@@ -52,12 +52,12 @@ namespace screen
 			//void updateSdcardStatus();
 			void update(bool is_inserted);
 
-		public:
+
+		private:
 			static uint8_t directory_index;
 			static uint8_t directory_array[10];
 			static bool from_updir;
 
-		private:
 			uint16_t m_index;
 			uint16_t m_num_list;
 			uint8_t m_icon_index;
