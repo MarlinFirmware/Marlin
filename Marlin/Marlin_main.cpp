@@ -648,9 +648,10 @@ void setup()
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
 
-  tp_init();    // Initialize temperature loop
   #ifdef DOGLCD
     TemperatureManager::single::instance().init();
+  #else
+    tp_init();    // Initialize temperature loop
   #endif
   plan_init();  // Initialize planner;
   watchdog_init();

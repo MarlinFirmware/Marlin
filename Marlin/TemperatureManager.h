@@ -6,6 +6,7 @@
 #include "Singleton.h"
 #include "Subject.h"
 
+
 class TemperatureControl;
 
 class TemperatureManager : public Subject<float>
@@ -13,11 +14,26 @@ class TemperatureManager : public Subject<float>
 	public:
 		typedef Singleton<TemperatureManager> single;
 
+		struct LookUpTableEntry
+		{
+			LookUpTableEntry()
+			: raw(0)
+			, temperature(0)
+			{ };
+
+			short raw;
+			short temperature;
+		};
+
 	public:
 		TemperatureManager();
 		~TemperatureManager();
 
 		void init();
+		void TemperatureConversion(uint16_t accumulate);
+		void updateLUTCache();
+		short getRawLUTCache(uint8_t index);
+		short getTemperatureLUTCache(uint8_t index);
 		void updateCurrentTemperature(float temp);
 		uint16_t getCurrentTemperature();
 		void setTargetTemperature(uint16_t target);
@@ -25,9 +41,13 @@ class TemperatureManager : public Subject<float>
 		void notify();
 		void manageTemperatureControl();
 
+	public: 
+		uint16_t m_accumulate;
+
 	private:
 		float m_current_temperature;
 		TemperatureControl * m_control;
+		LookUpTableEntry m_cache[4];
 };
 
 #endif //TEMPERATURE_MANAGER_H

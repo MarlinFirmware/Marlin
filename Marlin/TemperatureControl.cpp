@@ -92,7 +92,7 @@ void TemperatureControl::manageControl()
 	{
 		max_time = time;
 	}
-	SERIAL_ECHOLN("max_time: ");
-	SERIAL_ECHOLN(max_time);	
+	SERIAL_ECHOLN("time: ");
+	SERIAL_ECHOLN(time);	
 	SERIAL_ECHOLN(" ");	*/
 }

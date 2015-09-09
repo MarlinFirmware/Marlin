@@ -481,7 +481,7 @@ void manage_heater()
   if(temp_meas_ready != true)   //better readability
     return; 
 
-  //updateTemperaturesFromRawValues();
+  updateTemperaturesFromRawValues();
 
   #ifdef HEATER_0_USES_MAX6675
     if (current_temperature[0] > 1023 || current_temperature[0] > HEATER_0_MAXTEMP) {
