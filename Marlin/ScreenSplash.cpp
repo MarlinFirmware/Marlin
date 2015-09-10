@@ -49,11 +49,11 @@ namespace screen
 	{
 		if (millis() > m_destroy_time)
 		{
-			if (eeprom::StorageManager::getEmergencyFlag() != eeprom::EMERGENCY_STOP_INACTIVE)
+			if (eeprom::StorageManager::getEmergency() != eeprom::EMERGENCY_STOP_INACTIVE)
 			{
 				ViewManager::getInstance().activeView(m_block_screen);
 			}
-			else if (!OffsetManager::single::instance().isOffsetOnEEPROM() && eeprom::StorageManager::getLanguage() == 0xFF)
+			else if (!eeprom::StorageManager::single::instance().getInitialized())
 			{
 				PrintManager::single::instance().state(INITIALIZING);
 				ViewManager::getInstance().activeView(m_alt_screen);
