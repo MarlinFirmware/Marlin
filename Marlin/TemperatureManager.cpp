@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "TemperatureManager.h"
 #include "temperature.h"
 
@@ -26,9 +28,10 @@ void TemperatureManager::updateCurrentTemperature(float temp)
 	}
 }
 
-uint16_t TemperatureManager::getCurrentTemperature()
+uint16_t const & TemperatureManager::getCurrentTemperature()
 {
-	return m_current_temperature;
+	m_round_temperature = round(m_current_temperature);
+	return m_round_temperature;
 }
 
 void TemperatureManager::setTargetTemperature(uint16_t target)
@@ -37,7 +40,7 @@ void TemperatureManager::setTargetTemperature(uint16_t target)
 	target_temperature[0] = m_target_temperature;
 }
 
-uint16_t TemperatureManager::getTargetTemperature()
+uint16_t const & TemperatureManager::getTargetTemperature() const
 {
 	return m_target_temperature;
 }

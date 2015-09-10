@@ -15,13 +15,14 @@ class TemperatureManager : public Subject<float>
 		TemperatureManager();
 
 		void updateCurrentTemperature(float temp);
-		uint16_t getCurrentTemperature();
+		uint16_t const & getCurrentTemperature();
 		void setTargetTemperature(uint16_t target);
-		uint16_t getTargetTemperature();
+		uint16_t const & getTargetTemperature() const;
 		void notify();
 
 	private:
 		float m_current_temperature;
+		uint16_t m_round_temperature;
 		uint16_t m_target_temperature;
 };
 
