@@ -1054,7 +1054,7 @@ void st_init()
 void st_synchronize()
 {
     while( blocks_queued()) {
-    TemperatureManager::single::instance().manageTemperatureControl();
+    //TemperatureManager::single::instance().manageTemperatureControl();
     manage_inactivity();
     lcd_update();
   }

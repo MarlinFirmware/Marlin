@@ -30,10 +30,11 @@ class TemperatureManager : public Subject<float>
 		~TemperatureManager();
 
 		void init();
-		void TemperatureConversion(uint16_t accumulate);
+
 		void updateLUTCache();
 		short getRawLUTCache(uint8_t index);
 		short getTemperatureLUTCache(uint8_t index);
+
 		void updateCurrentTemperature(float temp);
 		uint16_t getCurrentTemperature();
 		void setTargetTemperature(uint16_t target);
@@ -41,12 +42,11 @@ class TemperatureManager : public Subject<float>
 		void notify();
 		void manageTemperatureControl();
 
-	public: 
-		uint16_t m_accumulate;
+	public:
+		TemperatureControl * m_control;
 
 	private:
 		float m_current_temperature;
-		TemperatureControl * m_control;
 		LookUpTableEntry m_cache[4];
 };
 

@@ -8,7 +8,6 @@
 TemperatureManager::TemperatureManager()
 	: Subject<float>()
 	, m_current_temperature(0)
-	, m_accumulate(0)
 	, m_control()
 
 {	
@@ -73,23 +72,6 @@ void TemperatureManager::init()
 	TIMSK2 = 0x01;
 }
 
-void TemperatureManager::TemperatureConversion(uint16_t accumulate)
-{
-	for (uint8_t i = 0; i < 4; i++)
-		{
-			if ( accumulate < TemperatureManager::single::instance().getRawLUTCache(i) )
-			{
-				float temperature = TemperatureManager::single::instance().getTemperatureLUTCache(i-1) +
-					(accumulate - TemperatureManager::single::instance().getRawLUTCache(i-1)) *
-					( (float) (TemperatureManager::single::instance().getTemperatureLUTCache(i) - TemperatureManager::single::instance().getTemperatureLUTCache(i-1)) ) /
-					( (float) (TemperatureManager::single::instance().getRawLUTCache(i) - TemperatureManager::single::instance().getRawLUTCache(i-1)) );
-
-				updateCurrentTemperature(temperature);
-				break;
-			}
-		}
-}
-
 void TemperatureManager::updateLUTCache()
 {
 	uint8_t i;
@@ -126,11 +108,9 @@ void TemperatureManager::updateCurrentTemperature(float temp)
 	m_control->setCurrentTemperature(temp);
 	if (m_current_temperature != temp)
 	{
-		//SERIAL_ECHOLN(m_current_temperature);
 		m_current_temperature = temp;
 		notify();
 	}
-	updateLUTCache();
 }
 
 uint16_t TemperatureManager::getCurrentTemperature()
@@ -166,10 +146,8 @@ void TemperatureManager::notify()
 
 void TemperatureManager::manageTemperatureControl()
 {
-	//updateTemperaturesFromRawValues();
-	//TemperatureConversion(m_accumulate);
 	#ifdef DOGLCD
-		m_control->manageControl();
+		updateLUTCache();
 	#else
 		manage_heater();
 	#endif
@@ -182,7 +160,7 @@ ISR(TIMER2_OVF_vect)
 	static uint8_t temp_counter = 0;
 	if (control_flag == true)
 	{
-		TemperatureManager::single::instance().manageTemperatureControl();
+		TemperatureManager::single::instance().m_control->manageControl();
 	 	control_flag = false;
 	}
 
@@ -219,8 +197,6 @@ ISR(ADC_vect)
 				break;
 			}
 		}
-		TemperatureManager::single::instance().updateLUTCache();
-		//TemperatureManager::single::instance().m_accumulate = accumulate;
 		control_flag = true;
 		sample_number = 0;
 		accumulate = 0;
