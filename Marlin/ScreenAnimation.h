@@ -28,8 +28,9 @@
 #ifndef SCREEN_ANIMATION_H
 #define SCREEN_ANIMATION_H
 
-#include "Screen.h"
+#include <math.h>
 
+#include "Screen.h"
 #include "GuiManager.h"
 #include "TemperatureManager.h"
 #include "ViewManager.h"
@@ -224,13 +225,25 @@ namespace screen
 		switch(m_condition)
 		{
 			case LESS_OR_EQUAL:
-				return ((uint16_t) m_observed <= m_target);
+			{
+				return (round(m_observed <= m_target));
+				break;
+			}
 			case EQUAL:
-				return ((uint16_t) m_observed == m_target);
+			{
+				return (round(m_observed == m_target));
+				break;
+			}
 			case GREATER_OR_EQUAL:
-				return ((uint16_t) m_observed >= m_target);
+			{
+				return (round(m_observed >= m_target));
+				break;
+			}
 			default:
+			{
 				return false;
+				break;
+			}
 		}
 	}
 }
