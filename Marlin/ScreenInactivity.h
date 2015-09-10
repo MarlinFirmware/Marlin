@@ -54,7 +54,7 @@ namespace screen
 			void right();
 
 		private:
-			bool isConditionMeet();
+			bool isConditionMet();
 	};
 }
 

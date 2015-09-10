@@ -62,7 +62,7 @@ namespace screen
 			void update(T value);
 
 		private:
-			bool isConditionMeet();
+			bool isConditionMet();
 
 		protected:
 			const char * m_text;
@@ -182,7 +182,7 @@ namespace screen
 			} while ( painter.nextPage() );
 		}
 
-		if ( isConditionMeet() )
+		if ( isConditionMet() )
 		{
 			lcd_enable_button();
 			ViewManager::getInstance().activeView(m_next_screen);
@@ -220,7 +220,7 @@ namespace screen
 	}
 
 	template<typename T>
-		bool ScreenAnimation<T>::isConditionMeet()
+		bool ScreenAnimation<T>::isConditionMet()
 	{
 		switch(m_condition)
 		{
