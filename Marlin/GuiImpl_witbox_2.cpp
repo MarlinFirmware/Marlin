@@ -508,9 +508,9 @@ namespace screen
 		OptionLaunch * option_back        = new OptionLaunch(option_size, MSG_BACK());
 		option_back->add(screen_main);
 		OptionToggle * option_autolevel   = new OptionToggle(option_size, MSG_OPTION_AUTOLEVEL(), AutoLevelManager::setState, &AutoLevelManager::single::instance());
-#ifdef LED_LIGHT
+#ifdef LIGHT_ENABLED
 		OptionToggle * option_led         = new OptionToggle(option_size, MSG_OPTION_LIGHTLED(), LightManager::setState, &LightManager::single::instance());
-#endif // LED_LIGHT
+#endif // LIGHT_ENABLED
 		OptionToggle * option_serial      = new OptionToggle(option_size, MSG_OPTION_SERIAL(), SerialManager::setState, &SerialManager::single::instance());
 		OptionLaunch * option_offset      = new OptionLaunch(option_size, MSG_OPTION_OFFSET());
 		option_offset->add(screen_offset);
@@ -522,9 +522,9 @@ namespace screen
 		ScreenSetting * local_view = new ScreenSetting(MSG_SCREEN_SETTINGS_TITLE());
 		local_view->add(option_back);
 		local_view->add(option_autolevel);
-#ifdef LED_LIGHT
+#ifdef LIGHT_ENABLED
 		local_view->add(option_led);
-#endif // LED_LIGHT
+#endif // LIGHT_ENABLED
 		local_view->add(option_serial);
 		local_view->add(option_offset);
 		local_view->add(option_language);

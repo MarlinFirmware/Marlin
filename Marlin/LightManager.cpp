@@ -5,8 +5,10 @@
 
 LightManager::LightManager()
 	: Subject<bool>()
-{ 
+{
+#ifdef LIGHT_ENABLED && LIGHT_PIN
 	pinMode(LIGHT_PIN, OUTPUT);
+#endif
 	state(ReadFromEEPROM());
 }
 
@@ -18,7 +20,9 @@ void LightManager::setState()
 
 void LightManager::state(bool state)
 {
+#ifdef LIGHT_ENABLED && LIGHT_PIN
 	digitalWrite(LIGHT_PIN, state);
+#endif
 	WriteToEEPROM(state);
 	m_state = state;
 	notify();
