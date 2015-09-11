@@ -32,6 +32,7 @@
 // kana     Japanese
 // kana_utf Japanese
 // cn       Chinese
+// cz       Czech
 
 // fallback if no language is set, don't change
 #ifndef LANGUAGE_INCLUDE
