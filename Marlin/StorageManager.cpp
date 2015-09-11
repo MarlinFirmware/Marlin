@@ -86,6 +86,19 @@ namespace eeprom
 		return false;
 	}
 
+	void StorageManager::setAutoLevel(bool state)
+	{
+		StorageManager::single::instance().writeByte(DIR_AUTOLEVEL, state);
+	}
+
+	bool StorageManager::getAutoLevel()
+	{
+		if(StorageManager::single::instance().readByte(DIR_AUTOLEVEL) == AUTOLEVEL_ON)
+		{
+			return true;
+		}
+		return false;
+	}
 
 	uint8_t StorageManager::readByte(uint8_t* address)
 	{

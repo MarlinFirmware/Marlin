@@ -11,6 +11,7 @@ namespace eeprom
 	const uint8_t EMERGENCY_STOP_INACTIVE = 0xFF;
 	const uint8_t INITIALIZED = 0x00;
 	const uint8_t LIGHT_ON = 0x01;
+	const uint8_t AUTOLEVEL_ON = 0x01;
 
 	class StorageManager
 	{
@@ -35,6 +36,9 @@ namespace eeprom
 
 			static void setLight(bool state);
 			static bool getLight();
+
+			static void setAutoLevel(bool state);
+			static bool getAutoLevel();
 
 		private:
 			uint8_t readByte(uint8_t* address);
