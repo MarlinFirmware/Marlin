@@ -504,27 +504,31 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
   lcd_print(value);
 }
 
-static void _drawmenu_sd(bool isSelected, uint8_t row, const char* pstr, const char* filename, char * const longFilename, bool isDir) {
-  char c;
-  uint8_t n = LCD_WIDTH - 1;
+#if ENABLED(SDSUPPORT)
 
-  if (longFilename[0]) {
-    filename = longFilename;
-    longFilename[n] = '\0';
+  static void _drawmenu_sd(bool isSelected, uint8_t row, const char* pstr, const char* filename, char * const longFilename, bool isDir) {
+    char c;
+    uint8_t n = LCD_WIDTH - 1;
+
+    if (longFilename[0]) {
+      filename = longFilename;
+      longFilename[n] = '\0';
+    }
+
+    lcd_implementation_mark_as_selected(row, isSelected);
+
+    if (isDir) lcd_print(LCD_STR_FOLDER[0]);
+    while ((c = *filename)) {
+      n -= lcd_print(c);
+      filename++;
+    }
+    while (n--) lcd_print(' ');
   }
 
-  lcd_implementation_mark_as_selected(row, isSelected);
+  #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)
+  #define lcd_implementation_drawmenu_sddirectory(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, true)
 
-  if (isDir) lcd_print(LCD_STR_FOLDER[0]);
-  while ((c = *filename)) {
-    n -= lcd_print(c);
-    filename++;
-  }
-  while (n--) lcd_print(' ');
-}
-
-#define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)
-#define lcd_implementation_drawmenu_sddirectory(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, true)
+#endif //SDSUPPORT
 
 #define lcd_implementation_drawmenu_back(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
 #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])

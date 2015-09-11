@@ -794,30 +794,34 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
   lcd_print(value);
 }
 
-static void lcd_implementation_drawmenu_sd(bool sel, uint8_t row, const char* pstr, const char* filename, char* longFilename, uint8_t concat, char post_char) {
-  char c;
-  uint8_t n = LCD_WIDTH - concat;
-  lcd.setCursor(0, row);
-  lcd.print(sel ? '>' : ' ');
-  if (longFilename[0]) {
-    filename = longFilename;
-    longFilename[n] = '\0';
-  }
-  while ((c = *filename) && n > 0) {
-    n -= lcd_print(c);
-    filename++;
-  }
-  while (n--) lcd.print(' ');
-  lcd.print(post_char);
-}
+#if ENABLED(SDSUPPORT)
 
-static void lcd_implementation_drawmenu_sdfile(bool sel, uint8_t row, const char* pstr, const char* filename, char* longFilename) {
-  lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, ' ');
-}
+  static void lcd_implementation_drawmenu_sd(bool sel, uint8_t row, const char* pstr, const char* filename, char* longFilename, uint8_t concat, char post_char) {
+    char c;
+    uint8_t n = LCD_WIDTH - concat;
+    lcd.setCursor(0, row);
+    lcd.print(sel ? '>' : ' ');
+    if (longFilename[0]) {
+      filename = longFilename;
+      longFilename[n] = '\0';
+    }
+    while ((c = *filename) && n > 0) {
+      n -= lcd_print(c);
+      filename++;
+    }
+    while (n--) lcd.print(' ');
+    lcd.print(post_char);
+  }
 
-static void lcd_implementation_drawmenu_sddirectory(bool sel, uint8_t row, const char* pstr, const char* filename, char* longFilename) {
-  lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, LCD_STR_FOLDER[0]);
-}
+  static void lcd_implementation_drawmenu_sdfile(bool sel, uint8_t row, const char* pstr, const char* filename, char* longFilename) {
+    lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, ' ');
+  }
+
+  static void lcd_implementation_drawmenu_sddirectory(bool sel, uint8_t row, const char* pstr, const char* filename, char* longFilename) {
+    lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, LCD_STR_FOLDER[0]);
+  }
+
+#endif //SDSUPPORT
 
 #define lcd_implementation_drawmenu_back(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
 #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
