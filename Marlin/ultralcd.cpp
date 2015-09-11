@@ -55,13 +55,14 @@ static void lcd_status_screen();
   static void lcd_control_temperature_preheat_abs_settings_menu();
   static void lcd_control_motion_menu();
   static void lcd_control_volumetric_menu();
+
   #if ENABLED(HAS_LCD_CONTRAST)
     static void lcd_set_contrast();
   #endif
+
   #if ENABLED(FWRETRACT)
     static void lcd_control_retract_menu();
   #endif
-  static void lcd_sdcard_menu();
 
   #if ENABLED(DELTA_CALIBRATION_MENU)
     static void lcd_delta_calibrate_menu();
@@ -79,8 +80,6 @@ static void lcd_status_screen();
   static void menu_action_submenu(menuFunc_t data);
   static void menu_action_gcode(const char* pgcode);
   static void menu_action_function(menuFunc_t data);
-  static void menu_action_sdfile(const char* filename, char* longFilename);
-  static void menu_action_sddirectory(const char* filename, char* longFilename);
   static void menu_action_setting_edit_bool(const char* pstr, bool* ptr);
   static void menu_action_setting_edit_int3(const char* pstr, int* ptr, int minValue, int maxValue);
   static void menu_action_setting_edit_float3(const char* pstr, float* ptr, float minValue, float maxValue);
@@ -99,6 +98,12 @@ static void lcd_status_screen();
   static void menu_action_setting_edit_callback_float51(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
   static void menu_action_setting_edit_callback_float52(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
   static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue, menuFunc_t callbackFunc);
+
+  #if ENABLED(SDSUPPORT)
+    static void lcd_sdcard_menu();
+    static void menu_action_sdfile(const char* filename, char* longFilename);
+    static void menu_action_sddirectory(const char* filename, char* longFilename);
+  #endif
 
   #define ENCODER_FEEDRATE_DEADZONE 10
 
@@ -578,8 +583,11 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
   fanSpeed = fan;
   lcd_return_to_status();
 }
-void lcd_preheat_pla0() { _lcd_preheat(0, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
-void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
+
+#if TEMP_SENSOR_0 != 0
+  void lcd_preheat_pla0() { _lcd_preheat(0, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
+  void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
+#endif
 
 #if EXTRUDERS > 1
   void lcd_preheat_pla1() { _lcd_preheat(1, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
@@ -613,14 +621,15 @@ void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTem
   void lcd_preheat_abs_bedonly() { _lcd_preheat(0, 0, absPreheatHPBTemp, absPreheatFanSpeed); }
 #endif
 
-static void lcd_preheat_pla_menu() {
-  START_MENU();
-  MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-  #if EXTRUDERS == 1
-    MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla0);
-  #else
-    MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H1, lcd_preheat_pla0);
-    #if EXTRUDERS > 1
+#if TEMP_SENSOR_0 != 0 && (TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_BED != 0)
+
+  static void lcd_preheat_pla_menu() {
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    #if EXTRUDERS == 1
+      MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla0);
+    #else
+      MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H1, lcd_preheat_pla0);
       MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H2, lcd_preheat_pla1);
       #if EXTRUDERS > 2
         MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H3, lcd_preheat_pla2);
@@ -628,23 +637,21 @@ static void lcd_preheat_pla_menu() {
           MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H4, lcd_preheat_pla3);
         #endif
       #endif
+      MENU_ITEM(function, MSG_PREHEAT_PLA_ALL, lcd_preheat_pla0123);
     #endif
-    MENU_ITEM(function, MSG_PREHEAT_PLA_ALL, lcd_preheat_pla0123);
-  #endif
-  #if TEMP_SENSOR_BED != 0
-    MENU_ITEM(function, MSG_PREHEAT_PLA_BEDONLY, lcd_preheat_pla_bedonly);
-  #endif
-  END_MENU();
-}
+    #if TEMP_SENSOR_BED != 0
+      MENU_ITEM(function, MSG_PREHEAT_PLA_BEDONLY, lcd_preheat_pla_bedonly);
+    #endif
+    END_MENU();
+  }
 
-static void lcd_preheat_abs_menu() {
-  START_MENU();
-  MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-  #if EXTRUDERS == 1
-    MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs0);
-  #else
-    MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H1, lcd_preheat_abs0);
-    #if EXTRUDERS > 1
+  static void lcd_preheat_abs_menu() {
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    #if EXTRUDERS == 1
+      MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs0);
+    #else
+      MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H1, lcd_preheat_abs0);
       MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H2, lcd_preheat_abs1);
       #if EXTRUDERS > 2
         MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H3, lcd_preheat_abs2);
@@ -652,14 +659,15 @@ static void lcd_preheat_abs_menu() {
           MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H4, lcd_preheat_abs3);
         #endif
       #endif
+      MENU_ITEM(function, MSG_PREHEAT_ABS_ALL, lcd_preheat_abs0123);
     #endif
-    MENU_ITEM(function, MSG_PREHEAT_ABS_ALL, lcd_preheat_abs0123);
-  #endif
-  #if TEMP_SENSOR_BED != 0
-    MENU_ITEM(function, MSG_PREHEAT_ABS_BEDONLY, lcd_preheat_abs_bedonly);
-  #endif
-  END_MENU();
-}
+    #if TEMP_SENSOR_BED != 0
+      MENU_ITEM(function, MSG_PREHEAT_ABS_BEDONLY, lcd_preheat_abs_bedonly);
+    #endif
+    END_MENU();
+  }
+
+#endif // TEMP_SENSOR_0 && (TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_BED)
 
 void lcd_cooldown() {
   disable_all_heaters();
@@ -1441,24 +1449,25 @@ static void menu_action_back(menuFunc_t func) { lcd_goto_menu(func); }
 static void menu_action_submenu(menuFunc_t func) { lcd_goto_menu(func); }
 static void menu_action_gcode(const char* pgcode) { enqueuecommands_P(pgcode); }
 static void menu_action_function(menuFunc_t func) { (*func)(); }
-static void menu_action_sdfile(const char* filename, char* longFilename) {
-  char cmd[30];
-  char* c;
-  sprintf_P(cmd, PSTR("M23 %s"), filename);
-  for(c = &cmd[4]; *c; c++) *c = tolower(*c);
-  enqueuecommand(cmd);
-  enqueuecommands_P(PSTR("M24"));
-  lcd_return_to_status();
-}
 
 #if ENABLED(SDSUPPORT)
+
+  static void menu_action_sdfile(const char* filename, char* longFilename) {
+    char cmd[30];
+    char* c;
+    sprintf_P(cmd, PSTR("M23 %s"), filename);
+    for(c = &cmd[4]; *c; c++) *c = tolower(*c);
+    enqueuecommand(cmd);
+    enqueuecommands_P(PSTR("M24"));
+    lcd_return_to_status();
+  }
 
   static void menu_action_sddirectory(const char* filename, char* longFilename) {
     card.chdir(filename);
     encoderPosition = 0;
   }
 
-#endif
+#endif //SDSUPPORT
 
 static void menu_action_setting_edit_bool(const char* pstr, bool* ptr) { *ptr = !(*ptr); }
 static void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, menuFunc_t callback) {
