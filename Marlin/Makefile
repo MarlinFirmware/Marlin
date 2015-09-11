@@ -41,7 +41,6 @@ AVRDUDE_PROGRAMMER ?= wiring
 UPLOAD_RATE        ?= 115200
 UPLOAD_PORT        ?= /dev/ttyUSB*
 
-
 ############################################################################
 # Below here nothing should be changed.
 
@@ -234,6 +233,53 @@ else
  P=
 endif
 
+# Custom functions
+define check_language_1gen
+	@case $(UPPER_LANGUAGE) in \
+		DE) \
+			echo "Language selected: German [DE]" ;; \
+		EN) \
+			echo "Language selected: English [EN]" ;; \
+		ES) \
+			echo "Language selected: Spanish [ES]" ;; \
+		FI) \
+			echo "Language selected: Finnish [FI]" ;; \
+		FR) \
+			echo "Language selected: French [FR]" ;; \
+		IT) \
+			echo "Language selected: Italian [IT]" ;; \
+		PL) \
+			echo "Language selected: Polish [PL]" ;; \
+		PT) \
+			echo "Language selected: Portuguese [PT]" ;; \
+		*)  \
+			echo "Invalid language: $(UPPER_LANGUAGE)" ; \
+			echo "Language selected: English [EN] (default)" ;; \
+	esac
+endef
+
+define check_language_2gen
+	@case $(UPPER_LANGUAGE) in \
+		DE) \
+			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
+		EN) \
+			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
+		ES) \
+			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
+		FR) \
+			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
+		IT) \
+			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
+		PT) \
+			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
+		SE) \
+			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
+		*) \
+			echo "Invalid language: $(UPPER_LANGUAGE)" ; \
+			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE] (default)" ;; \
+	esac
+endef
+
 # Default target.
 all: sizeafter
 
@@ -343,15 +389,16 @@ witbox:
 	@echo Language: ${UPPER_LANGUAGE}
 	@cp config/witbox/Makefile .config
 	@echo >> .config
-	@echo GENERATION = 1 >> .config
 	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
+	$(call check_language_1gen)
+
 hephestos:
 	@echo Configurating for $@ printer...
 	@echo Language: ${UPPER_LANGUAGE}
 	@cp config/hephestos/Makefile .config
 	@echo >> .config
-	@echo GENERATION = 1 >> .config
 	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
+	$(call check_language_1gen)
 
 hephestos_xl:
 	@cp config/hephestos_xl/Makefile .config
@@ -359,8 +406,8 @@ hephestos_xl:
 	@echo Configurating for $@ printer...
 	@cp config/hephestos_xl/Makefile .config
 	@echo >> .config
-	@echo GENERATION = 1 >> .config
 	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
+	$(call check_language_1gen)
 
 # 2nd Generation printers
 witbox_2:
@@ -368,16 +415,16 @@ witbox_2:
 	@echo Language: ${UPPER_LANGUAGE}
 	@cp config/witbox_2/Makefile .config
 	@echo >> .config
-	@echo GENERATION = 2 >> .config
 	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
+	$(call check_language_2gen)
 
 hephestos_2:
 	@echo Configurating for $@ printer...
 	@echo Language: ${UPPER_LANGUAGE}
 	@cp config/hephestos_2/Makefile .config
 	@echo >> .config
-	@echo GENERATION = 2 >> .config
 	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
+	$(call check_language_2gen)
 
 # Define .PHONY targets
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter upload
