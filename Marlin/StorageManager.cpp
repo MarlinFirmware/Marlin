@@ -100,6 +100,20 @@ namespace eeprom
 		return false;
 	}
 
+	void StorageManager::setSerialScreen(bool state)
+	{
+		StorageManager::single::instance().writeByte(DIR_SERIAL, state);
+	}
+
+	bool StorageManager::getSerialScreen()
+	{
+		if(StorageManager::single::instance().readByte(DIR_SERIAL) == SERIAL_SCREEN_ON)
+		{
+			return true;
+		}
+		return false;
+	}
+
 	uint8_t StorageManager::readByte(uint8_t* address)
 	{
 		while ( !eeprom_is_ready() ) {}

@@ -12,6 +12,7 @@ namespace eeprom
 	const uint8_t INITIALIZED = 0x00;
 	const uint8_t LIGHT_ON = 0x01;
 	const uint8_t AUTOLEVEL_ON = 0x01;
+	const uint8_t SERIAL_SCREEN_ON = 0x01;
 
 	class StorageManager
 	{
@@ -39,6 +40,9 @@ namespace eeprom
 
 			static void setAutoLevel(bool state);
 			static bool getAutoLevel();
+
+			static void setSerialScreen(bool state);
+			static bool getSerialScreen();
 
 		private:
 			uint8_t readByte(uint8_t* address);
