@@ -55,7 +55,7 @@ namespace eeprom
 
 	bool StorageManager::getInitialized()
 	{
-		if(StorageManager::single::instance().readByte(DIR_FIRST_POWER_ON) == 0)
+		if(StorageManager::single::instance().readByte(DIR_FIRST_POWER_ON) == INITIALIZED)
 		{
 			return true;
 		}
@@ -71,6 +71,21 @@ namespace eeprom
 	{
 		return StorageManager::single::instance().readByte(DIR_LANGUAGE);
 	}
+
+	void StorageManager::setLight(bool state)
+	{
+		StorageManager::single::instance().writeByte(DIR_LIGHT, state);
+	}
+
+	bool StorageManager::getLight()
+	{
+		if(StorageManager::single::instance().readByte(DIR_LIGHT) == LIGHT_ON)
+		{
+			return true;
+		}
+		return false;
+	}
+
 
 	uint8_t StorageManager::readByte(uint8_t* address)
 	{
