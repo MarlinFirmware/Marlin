@@ -58,6 +58,9 @@ VPATH += $(BUILD_DIR)
 
 -include .config
 
+LANGUAGE ?= EN
+UPPER_LANGUAGE = $(shell echo $(LANGUAGE) | tr a-z A-Z)
+
 # Machine setup
 ifeq ($(MACHINE_MODEL), Witbox)
 	VPATH += config/witbox
@@ -336,26 +339,45 @@ cleanall: clean
 # Configuration build enviroment targets
 # 1st Generation printers
 witbox:
+	@echo Configurating for $@ printer...
+	@echo Language: ${UPPER_LANGUAGE}
 	@cp config/witbox/Makefile .config
-	@echo Configurating for $@ printer in ${DEFAULT_LANGUAGE}
-
+	@echo >> .config
+	@echo GENERATION = 1 >> .config
+	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
 hephestos:
+	@echo Configurating for $@ printer...
+	@echo Language: ${UPPER_LANGUAGE}
 	@cp config/hephestos/Makefile .config
-	@echo Configurating for $@ printer in ${DEFAULT_LANGUAGE}
+	@echo >> .config
+	@echo GENERATION = 1 >> .config
+	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
 
 hephestos_xl:
 	@cp config/hephestos_xl/Makefile .config
-	@echo Configurating for $@ printer in ${DEFAULT_LANGUAGE}
+	@echo Language: ${UPPER_LANGUAGE}
+	@echo Configurating for $@ printer...
+	@cp config/hephestos_xl/Makefile .config
+	@echo >> .config
+	@echo GENERATION = 1 >> .config
+	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
 
 # 2nd Generation printers
 witbox_2:
+	@echo Configurating for $@ printer...
+	@echo Language: ${UPPER_LANGUAGE}
 	@cp config/witbox_2/Makefile .config
-	@echo Configurating for $@ printer in ${DEFAULT_LANGUAGE}
+	@echo >> .config
+	@echo GENERATION = 2 >> .config
+	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
 
 hephestos_2:
+	@echo Configurating for $@ printer...
+	@echo Language: ${UPPER_LANGUAGE}
 	@cp config/hephestos_2/Makefile .config
-	@echo Configurating for $@ printer in ${DEFAULT_LANGUAGE}
-
+	@echo >> .config
+	@echo GENERATION = 2 >> .config
+	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
 
 # Define .PHONY targets
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter upload
