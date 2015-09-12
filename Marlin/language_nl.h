@@ -81,7 +81,7 @@
 #define MSG_TEMPERATURE                     "Temperatuur"
 #define MSG_MOTION                          "Beweging"
 #define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm3"
+#define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #define MSG_FILAMENT_DIAM                   "Fil. Dia."
 #define MSG_CONTRAST                        "LCD contrast"
 #define MSG_STORE_EPROM                     "Geheugen opslaan"
