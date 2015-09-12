@@ -8,7 +8,7 @@
 #ifndef LANGUAGE_CA_H
 #define LANGUAGE_CA_H
 
-//#define MAPPER_NON 
+//#define MAPPER_NON
 #define MAPPER_C2C3  // because of "ó"
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
@@ -83,9 +83,7 @@
 #define MSG_MOTION                          "Moviment"
 #define MSG_VOLUMETRIC                      "Filament"
 #define MSG_VOLUMETRIC_ENABLED              "E in mm3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
-#define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
-#define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
+#define MSG_FILAMENT_DIAM                   "Fil. Dia."
 #define MSG_CONTRAST                        "Contrast de LCD"
 #define MSG_STORE_EPROM                     "Desar a memoria"
 #define MSG_LOAD_EPROM                      "Carregar de mem."

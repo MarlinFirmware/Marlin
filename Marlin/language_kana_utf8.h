@@ -5,7 +5,7 @@
  * See also documentation/LCDLanguageFont.md
  *
  */
- 
+
 #ifndef LANGUAGE_KANA_UTF_H
 #define LANGUAGE_KANA_UTF_H
 
@@ -15,7 +15,7 @@
 #define DISPLAY_CHARSET_ISO10646_KANA
 
 // This is very crude replacement of the codes used in language_kana.h from somebody who really does not know what he is doing.
-// Just to show the potential benefit of unicode. 
+// Just to show the potential benefit of unicode.
 // This translation can be improved by using the full charset of unicode codeblock U+30A0 to U+30FF.
 
 // 片仮名表示定義
@@ -88,10 +88,7 @@
 #define MSG_MOTION                          "ウゴキセツテイ"                // "Motion"
 #define MSG_VOLUMETRIC                      "フィラナント"                    // "Filament"
 #define MSG_VOLUMETRIC_ENABLED              "E in mm3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
-#define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
-#define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_3        "Fil. Dia. 4"
+#define MSG_FILAMENT_DIAM                   "Fil. Dia."
 #define MSG_CONTRAST                        "LCDコントラスト"                 // "LCD contrast"
 #define MSG_STORE_EPROM                     "ナモリヘセケノウ"                 // "Store memory"
 #define MSG_LOAD_EPROM                      "ナモリセラヨミbaミ"               // "Load memory"

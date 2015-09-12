@@ -5,7 +5,7 @@
  * See also documentation/LCDLanguageFont.md
  *
  */
- 
+
 #ifndef LANGUAGE_KANA_H
 #define LANGUAGE_KANA_H
 
@@ -84,10 +84,7 @@
 #define MSG_MOTION                          "\xb3\xba\xde\xb7\xbe\xaf\xc3\xb2"                             // "Motion"
 #define MSG_VOLUMETRIC                      "\xcc\xa8\xd7\xd2\xdd\xc4"                                     // "Filament"
 #define MSG_VOLUMETRIC_ENABLED              "E in mm3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
-#define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
-#define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_3        "Fil. Dia. 4"
+#define MSG_FILAMENT_DIAM                   "Fil. Dia."
 #define MSG_CONTRAST                        "LCD\xba\xdd\xc4\xd7\xbd\xc4"                                  // "LCD contrast"
 #define MSG_STORE_EPROM                     "\xd2\xd3\xd8\xcd\xb6\xb8\xc9\xb3"                             // "Store memory"
 #define MSG_LOAD_EPROM                      "\xd2\xd3\xd8\xb6\xd7\xd6\xd0\ba\xd0"                          // "Load memory"
