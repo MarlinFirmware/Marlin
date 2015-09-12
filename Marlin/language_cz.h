@@ -2,7 +2,7 @@
  * Czech
  *
  * LCD Menu Messages
- * Se also documentation/LCDLanguageFont.md
+ * See also documentation/LCDLanguageFont.md
  *
  * Translated by Petr Zahradnik, Computer Laboratory
  * Blog and video blog Zahradnik se bavi
@@ -36,10 +36,6 @@
 #define MSG_PREHEAT_ABS_ALL                 MSG_PREHEAT_ABS " Vse"
 #define MSG_PREHEAT_ABS_BEDONLY             MSG_PREHEAT_ABS " Podloz"
 #define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " Nast"
-#define MSG_H1                              "1"
-#define MSG_H2                              "2"
-#define MSG_H3                              "3"
-#define MSG_H4                              "4"
 #define MSG_COOLDOWN                        "Zchladit"
 #define MSG_SWITCH_PS_ON                    "Zapnout napajeni"
 #define MSG_SWITCH_PS_OFF                   "Vypnout napajeni"
@@ -51,19 +47,11 @@
 #define MSG_MOVE_Y                          "Posunout Y"
 #define MSG_MOVE_Z                          "Posunout Z"
 #define MSG_MOVE_E                          "Extruder"
-#define MSG_MOVE_E1                         "Extruder1"
-#define MSG_MOVE_E2                         "Extruder2"
-#define MSG_MOVE_E3                         "Extruder3"
 #define MSG_MOVE_01MM                       "Posunout o 0,1mm"
 #define MSG_MOVE_1MM                        "Posunout o 1mm"
 #define MSG_MOVE_10MM                       "Posunout o 10mm"
 #define MSG_SPEED                           "Rychlost"
 #define MSG_NOZZLE                          "Tryska"
-#define MSG_N0                              " 0"
-#define MSG_N1                              " 1"
-#define MSG_N2                              " 2"
-#define MSG_N3                              " 3"
-#define MSG_N4                              " 4"
 #define MSG_BED                             "Podlozka"
 #define MSG_FAN_SPEED                       "Rychlost vent."
 #define MSG_FLOW                            "Prutok"
@@ -78,9 +66,6 @@
 #define MSG_PID_I                           "PID-I"
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
-#define MSG_E2                              " E2"
-#define MSG_E3                              " E3"
-#define MSG_E4                              " E4"
 #define MSG_ACC                             "Zrychl"
 #define MSG_VXY_JERK                        "Vxy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
@@ -103,10 +88,7 @@
 #define MSG_MOTION                          "Pohyb"
 #define MSG_VOLUMETRIC                      "Filament"
 #define MSG_VOLUMETRIC_ENABLED              "E na mm3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Prum. 1"
-#define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Prum. 2"
-#define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Prum. 3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_3        "Fil. Prum. 4"
+#define MSG_FILAMENT_DIAM                   "Fil. Prum."
 #define MSG_CONTRAST                        "Kontrast LCD"
 #define MSG_STORE_EPROM                     "Ulozit nastaveni"
 #define MSG_LOAD_EPROM                      "Nacist nastaveni"

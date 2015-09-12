@@ -120,21 +120,18 @@
 #ifndef MSG_MOVE_E
 #define MSG_MOVE_E                          "Extruder"
 #endif
-#if EXTRUDERS > 1
-  #ifndef MSG_MOVE_E1
-  #define MSG_MOVE_E1                       "Extruder1"
-  #endif
-  #if EXTRUDERS > 2
-    #ifndef MSG_MOVE_E2
-    #define MSG_MOVE_E2                     "Extruder2"
-    #endif
-    #if EXTRUDERS > 3
-      #ifndef MSG_MOVE_E3
-      #define MSG_MOVE_E3                   "Extruder3"
-      #endif
-    #endif
-  #endif // EXTRUDERS > 2
-#endif // EXTRUDERS > 1
+#ifndef MSG_MOVE_E1
+#define MSG_MOVE_E1                         "1"
+#endif
+#ifndef MSG_MOVE_E2
+#define MSG_MOVE_E2                         "2"
+#endif
+#ifndef MSG_MOVE_E3
+#define MSG_MOVE_E3                         "3"
+#endif
+#ifndef MSG_MOVE_E4
+#define MSG_MOVE_E4                         "4"
+#endif
 #ifndef MSG_MOVE_01MM
 #define MSG_MOVE_01MM                       "Move 0.1mm"
 #endif
@@ -149,9 +146,6 @@
 #endif
 #ifndef MSG_NOZZLE
 #define MSG_NOZZLE                          "Nozzle"
-#endif
-#ifndef MSG_N0
-#define MSG_N0                              " 0"
 #endif
 #ifndef MSG_N1
 #define MSG_N1                              " 1"
@@ -206,6 +200,9 @@
 #endif
 #ifndef MSG_PID_C
 #define MSG_PID_C                           "PID-C"
+#endif
+#ifndef MSG_E1
+#define MSG_E1                              " E1"
 #endif
 #ifndef MSG_E2
 #define MSG_E2                              " E2"
@@ -282,17 +279,20 @@
 #ifndef MSG_VOLUMETRIC_ENABLED
 #define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #endif
-#ifndef MSG_FILAMENT_SIZE_EXTRUDER_0
-#define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
+#ifndef MSG_FILAMENT_DIAM
+#define MSG_FILAMENT_DIAM                   "Fil. Dia."
 #endif
-#ifndef MSG_FILAMENT_SIZE_EXTRUDER_1
-#define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
+#ifndef MSG_DIAM_E1
+#define MSG_DIAM_E1                         " 1"
 #endif
-#ifndef MSG_FILAMENT_SIZE_EXTRUDER_2
-#define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
+#ifndef MSG_DIAM_E2
+#define MSG_DIAM_E2                         " 2"
 #endif
-#ifndef MSG_FILAMENT_SIZE_EXTRUDER_3
-#define MSG_FILAMENT_SIZE_EXTRUDER_3        "Fil. Dia. 4"
+#ifndef MSG_DIAM_E3
+#define MSG_DIAM_E3                         " 3"
+#endif
+#ifndef MSG_DIAM_E4
+#define MSG_DIAM_E4                         " 4"
 #endif
 #ifndef MSG_CONTRAST
 #define MSG_CONTRAST                        "LCD contrast"
