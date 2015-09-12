@@ -5,7 +5,7 @@
  * See also documentation/LCDLanguageFont.md
  *
  */
- 
+
 #ifndef LANGUAGE_KANA_UTF_H
 #define LANGUAGE_KANA_UTF_H
 
@@ -15,7 +15,7 @@
 #define DISPLAY_CHARSET_ISO10646_KANA
 
 // This is very crude replacement of the codes used in language_kana.h from somebody who really does not know what he is doing.
-// Just to show the potential benefit of unicode. 
+// Just to show the potential benefit of unicode.
 // This translation can be improved by using the full charset of unicode codeblock U+30A0 to U+30FF.
 
 // 片仮名表示定義

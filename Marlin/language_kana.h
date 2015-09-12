@@ -5,7 +5,7 @@
  * See also documentation/LCDLanguageFont.md
  *
  */
- 
+
 #ifndef LANGUAGE_KANA_H
 #define LANGUAGE_KANA_H
 
