@@ -227,7 +227,7 @@ static void lcd_status_screen();
   uint8_t lastEncoderBits;
   uint32_t encoderPosition;
   #if PIN_EXISTS(SD_DETECT)
-    bool lcd_oldcardstatus;
+    bool lcd_sd_status;
   #endif
 
 #endif // ULTIPANEL
@@ -1516,7 +1516,7 @@ void lcd_init() {
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     pinMode(SD_DETECT_PIN, INPUT);
     WRITE(SD_DETECT_PIN, HIGH);
-    lcd_oldcardstatus = IS_SD_INSERTED;
+    lcd_sd_status = false;
   #endif
 
   #if ENABLED(LCD_HAS_SLOW_BUTTONS)
@@ -1574,16 +1574,17 @@ void lcd_update() {
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
 
-    if (IS_SD_INSERTED != lcd_oldcardstatus && lcd_detected()) {
+    bool sd_status = IS_SD_INSERTED;
+    if (sd_status != lcd_sd_status && lcd_detected()) {
       lcdDrawUpdate = 2;
-      lcd_oldcardstatus = IS_SD_INSERTED;
+      lcd_sd_status = sd_status;
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
         #if ENABLED(LCD_PROGRESS_BAR)
           currentMenu == lcd_status_screen
         #endif
       );
 
-      if (lcd_oldcardstatus) {
+      if (lcd_sd_status) {
         card.initsd();
         LCD_MESSAGEPGM(MSG_SD_INSERTED);
       }
