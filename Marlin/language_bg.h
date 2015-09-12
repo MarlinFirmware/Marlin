@@ -7,12 +7,12 @@
  */
 #ifndef LANGUAGE_BG_H
 #define LANGUAGE_BG_H
- 
+
 #define MAPPER_D0D1                // For Cyrillic
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_5
- 
+
 #define WELCOME_MSG                         MACHINE_NAME " Готов."
 #define MSG_SD_INSERTED                     "Картата е поставена"
 #define MSG_SD_REMOVED                      "Картата е извадена"
@@ -83,9 +83,7 @@
 #define MSG_MOTION                          "Движение"
 #define MSG_VOLUMETRIC                      "Нишка"
 #define MSG_VOLUMETRIC_ENABLED              "E in mm3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_0        "Диам. нишка 1"
-#define MSG_FILAMENT_SIZE_EXTRUDER_1        "Диам. нишка 2"
-#define MSG_FILAMENT_SIZE_EXTRUDER_2        "Диам. нишка 3"
+#define MSG_FILAMENT_DIAM                   "Диам. нишка"
 #define MSG_CONTRAST                        "LCD контраст"
 #define MSG_STORE_EPROM                     "Запази в EPROM"
 #define MSG_LOAD_EPROM                      "Зареди от EPROM"
@@ -126,7 +124,7 @@
 #define MSG_ENDSTOP_ABORT                   "Стоп Кр.Изключватели"
 #define MSG_END_HOUR                        "часа"
 #define MSG_END_MINUTE                      "минути"
- 
+
 #if ENABLED(DELTA_CALIBRATION_MENU)
     #define MSG_DELTA_CALIBRATE             "Делта Калибровка"
     #define MSG_DELTA_CALIBRATE_X           "Калибровка X"
@@ -134,5 +132,5 @@
     #define MSG_DELTA_CALIBRATE_Z           "Калибровка Z"
     #define MSG_DELTA_CALIBRATE_CENTER      "Калибровка Център"
 #endif // DELTA_CALIBRATION_MENU
- 
+
 #endif // LANGUAGE_BG_H
