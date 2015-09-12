@@ -420,6 +420,10 @@ bool target_direction;
   boolean chdkActive = false;
 #endif
 
+#if ENABLED(PID_ADD_EXTRUSION_RATE)
+  int lpq_len = 20;
+#endif
+
 //===========================================================================
 //================================ Functions ================================
 //===========================================================================
@@ -4770,7 +4774,16 @@ inline void gcode_M226() {
 #if ENABLED(PIDTEMP)
 
   /**
-   * M301: Set PID parameters P I D (and optionally C)
+   * M301: Set PID parameters P I D (and optionally C, L)
+   *
+   *   P[float] Kp term
+   *   I[float] Ki term (unscaled)
+   *   D[float] Kd term (unscaled)
+   *
+   * With PID_ADD_EXTRUSION_RATE:
+   *
+   *   C[float] Kc term
+   *   L[float] LPQ length
    */
   inline void gcode_M301() {
 
@@ -4784,6 +4797,8 @@ inline void gcode_M226() {
       if (code_seen('D')) PID_PARAM(Kd, e) = scalePID_d(code_value());
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
         if (code_seen('C')) PID_PARAM(Kc, e) = code_value();
+        if (code_seen('L')) lpq_len = code_value();
+        NOMORE(lpq_len, LPQ_MAX_LEN);
       #endif
 
       updatePID();

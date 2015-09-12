@@ -329,6 +329,10 @@ extern int fanSpeed;
   extern int meas_delay_cm; //delay distance
 #endif
 
+#if ENABLED(PID_ADD_EXTRUSION_RATE)
+  extern int lpq_len;
+#endif
+
 #if ENABLED(FWRETRACT)
   extern bool autoretract_enabled;
   extern bool retracted[EXTRUDERS]; // extruder[n].retracted
