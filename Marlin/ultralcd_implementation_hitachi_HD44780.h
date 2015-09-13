@@ -486,7 +486,7 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
     lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 1);                    lcd_printPGM(PSTR("|Marlin|"));
     lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x03');
 
-    lcd_scroll(0, 3, PSTR("www.marlinfirmware.org"), LCD_WIDTH, 3000);
+    lcd_scroll(0, 3, PSTR("marlinfirmware.org"), LCD_WIDTH, 3000);
 
     #ifdef STRING_SPLASH_LINE1
       lcd_erase_line(3);
