@@ -6978,7 +6978,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     // Check to see if we have to home, use poor man's debouncer
     // ---------------------------------------------------------
     static int homeDebounceCount = 0;   // poor man's debouncing count
-    const int HOME_DEBOUNCE_DELAY = 750;
+    const int HOME_DEBOUNCE_DELAY = 2500;
     if (!READ(HOME_PIN)) {
       if (!homeDebounceCount) {
         enqueuecommands_P(PSTR("G28"));
