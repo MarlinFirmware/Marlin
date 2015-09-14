@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file Screen.h
+/// \file ScreenSetting.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Implementation of base class for Screen interface.
+/// \brief Definition of Setting screen class.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,55 +25,38 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_H
-#define SCREEN_H
+#ifndef SCREEN_SETTING_H
+#define SCREEN_SETTING_H
 
-#include <new.h>
 #include <stdint.h>
 
-#include "GuiPainter.h"
-#include "ViewManager.h"
+#include "Screen.h"
+#include "Option.h"
 
 namespace screen
 {
-	class Screen
+	class ScreenSetting : public Screen
 	{
 		public:
-			typedef enum
-			{
-				SIMPLE = 0,
-				ACTION,
-				STATUS,
-				MENU,
-				PRINT,
-				DIALOG,
-				LIST,
-				SELECTOR,
-				NUM_SCREEN_TYPES,
-			} ScreenType_t;
+			ScreenSetting(const char * title);
+			virtual ~ScreenSetting();
 
-		public:
-			Screen(const char * title = 0, ScreenType_t const & type = SIMPLE);
-			virtual ~Screen();
+			void left();
+			void right();
+			void draw();
+			void press();
+			void add(Option * view);
+			void init(uint16_t index = 0);
 
-			const char * title() const;
-			ScreenType_t const & type() const;
+		private:
+			uint16_t m_index;
 
-			virtual void left() {};
-			virtual void right() {};
-			virtual void press() {};
-			virtual void draw() {};
-			virtual void init(uint16_t index = 0) {};
-			virtual void add(ScreenIndex_t const & view);
-			virtual void text(const char * text) {};
+			static const uint16_t m_max_items = 10;
+			Option * m_item[m_max_items];
+			uint8_t m_num_items;
 
-		public:
-			bool m_needs_drawing;
+			float m_scroll_size;
 
-		protected:
-			ScreenType_t m_type;
-			const char * m_title;
-			ScreenIndex_t m_next_screen;
 	};
 }
-#endif //SCREEN_H
+#endif //SCREEN_SETTING_H

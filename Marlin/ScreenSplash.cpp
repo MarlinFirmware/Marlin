@@ -52,7 +52,7 @@ namespace screen
 			{
 				ViewManager::getInstance().activeView(m_block_screen);
 			}
-			else if (!OffsetManager::single::instance().isOffsetOnEEPROM())
+			else if (!OffsetManager::single::instance().isOffsetOnEEPROM() && eeprom::StorageManager::getLanguage() == 0xFF)
 			{
 				ViewManager::getInstance().activeView(m_alt_screen);
 			}

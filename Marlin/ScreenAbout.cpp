@@ -28,19 +28,13 @@
 #include "ScreenAbout.h"
 #include "GuiBitmaps_witbox_2.h"
 #include "Serial.h"
-#include "Language.h"
 
 namespace screen
 {
 	ScreenAbout::ScreenAbout(const char * title, const char * message, const char * box, const unsigned char * bitmap)
 		: ScreenDialog<void>(title, message, box)
 		, m_bitmap(bitmap)
-	{
-		if (LANG == Language::ES)	
-			LANG = Language::EN;
-		else
-			LANG = Language::ES;
-	}
+	{ }
 
 	ScreenAbout::~ScreenAbout()
 	{ }
