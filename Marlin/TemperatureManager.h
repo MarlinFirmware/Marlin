@@ -6,7 +6,7 @@
 #include "Singleton.h"
 #include "Subject.h"
 
-namespace temperature
+namespace temp
 {
 	// Temperature parameters
 	const static uint8_t default_temp_change_filament = 220;

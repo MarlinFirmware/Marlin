@@ -90,9 +90,9 @@ namespace screen
 		}
 
 		char t_target[4] = { 0 };
-		if(temperature::TemperatureManager::single::instance().getTargetTemperature() != m_target_temperature)
+		if(temp::TemperatureManager::single::instance().getTargetTemperature() != m_target_temperature)
 		{
-			m_target_temperature = temperature::TemperatureManager::single::instance().getTargetTemperature();
+			m_target_temperature = temp::TemperatureManager::single::instance().getTargetTemperature();
 			m_needs_drawing = true;
 		}
 		dtostrf(m_target_temperature, 3, 0, t_target);

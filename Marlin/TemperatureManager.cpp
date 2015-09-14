@@ -3,7 +3,7 @@
 #include "TemperatureManager.h"
 #include "temperature.h"
 
-namespace temperature
+namespace temp
 {
 	TemperatureManager::TemperatureManager()
 		: Subject<float>()
