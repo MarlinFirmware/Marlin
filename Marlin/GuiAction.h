@@ -33,5 +33,7 @@ extern void action_set_offset(uint8_t axis, float value);
 extern void action_save_offset();
 
 extern bool action_check_preheat_temp();
+extern bool action_check_cooling();
+extern bool action_check_min_temp();
 
 #endif // GUI_ACTION_H

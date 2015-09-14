@@ -51,7 +51,7 @@ namespace screen
 			void draw();
 			void press();
 
-		private:
+		protected:
 			uint16_t m_select;
 			uint16_t m_minimum_value;
 			uint16_t m_maximum_value;

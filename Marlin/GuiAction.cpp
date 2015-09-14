@@ -48,7 +48,7 @@ void action_preheat()
 
 void action_cooldown()
 {
-	TemperatureManager::single::instance().setTargetTemperature(30);
+	TemperatureManager::single::instance().setTargetTemperature(0);
 }
 
 void action_filament_unload()
@@ -698,6 +698,32 @@ bool action_check_preheat_temp()
 {
 	if(TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
 	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool action_check_cooling()
+{
+	if(TemperatureManager::single::instance().getTargetTemperature() <= TemperatureManager::single::instance().getCurrentTemperature())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool action_check_min_temp()
+{
+	if(TemperatureManager::single::instance().getTargetTemperature() <= TemperatureManager::single::instance().min_temp_cooling
+		|| TemperatureManager::single::instance().getCurrentTemperature() <= TemperatureManager::single::instance().min_temp_cooling)
+	{
+		action_cooldown();
 		return true;
 	}
 	else

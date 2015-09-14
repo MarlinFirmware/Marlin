@@ -31,6 +31,7 @@
 #include "ScreenSwitch.h"
 #include "ScreenSetting.h"
 #include "ScreenLanguage.h"
+#include "ScreenTemperature.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -224,7 +225,7 @@ namespace screen
 
 	static ScreenSelector<void, uint16_t> * make_screen_unload_select()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_SELECT_TITLE(), MSG_PUSH_TO_CONFIRM(), min_temp_operation, max_temp_operation, 1, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_SELECT_TITLE(), MSG_PUSH_TO_CONFIRM(), TemperatureManager::single::instance().min_temp_operation, TemperatureManager::single::instance().max_temp_operation, 1, TemperatureManager::single::instance().default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_unload_heating);
 		return local_view;
 	}
@@ -300,7 +301,7 @@ namespace screen
 
 	static ScreenSelector<void, uint16_t> * make_screen_load_select()
 	{
-		ScreenSelector<void, uint16_t> * local_view  = new ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_SELECT_TITLE(), MSG_PUSH_TO_CONFIRM(), min_temp_operation, max_temp_operation, 1, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view  = new ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_SELECT_TITLE(), MSG_PUSH_TO_CONFIRM(), TemperatureManager::single::instance().min_temp_operation, TemperatureManager::single::instance().max_temp_operation, 1, TemperatureManager::single::instance().default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_load_heating);
 		return local_view;
 	}
@@ -739,16 +740,40 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenSelector<void, uint16_t> * make_screen_temperature_main()
+	static ScreenTemperature * make_screen_temperature_main()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), 0, max_temp_operation, 10, default_temp_change_filament, action_set_temperature);
+		ScreenTemperature * local_view = new ScreenTemperature(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), TemperatureManager::single::instance().min_temp_cooling, TemperatureManager::single::instance().max_temp_operation, 10, TemperatureManager::single::instance().default_temp_change_filament, action_set_temperature);
+		local_view->add(screen_temperature_main_switch);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_temperature_main_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_cooling);
+		local_view->add(screen_cooling_switch);
 		local_view->add(screen_heating_main);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_cooling_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_min_temp);
+		local_view->add(screen_main);
+		local_view->add(screen_cooling_main);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_cooling_main()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_TEMP_HEATING_TITLE(), MSG_PUSH_TO_CONTINUE(), screen::ScreenAnimation<float>::LESS_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_main);
+		local_view->add(screen_main);
 		return local_view;
 	}
 
 	static ScreenAnimation<float> * make_screen_heating_main()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_TEMP_HEATING_TITLE(), MSG_PUSH_TO_CONTINUE(), screen::ScreenAnimation<float>::EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_TEMP_HEATING_TITLE(), MSG_PUSH_TO_CONTINUE(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_main);
 		local_view->add(screen_main);
 		return local_view;
@@ -965,7 +990,7 @@ namespace screen
 
 	static ScreenSelector<void, uint16_t> * make_screen_change_select()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_CHANGE_SELECT_TITLE(), MSG_PUSH_TO_CONFIRM(), min_temp_operation, max_temp_operation, 1, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_CHANGE_SELECT_TITLE(), MSG_PUSH_TO_CONFIRM(), TemperatureManager::single::instance().min_temp_operation, TemperatureManager::single::instance().max_temp_operation, 1, TemperatureManager::single::instance().default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_change_heating);
 		return local_view;
 	}
@@ -1034,7 +1059,7 @@ namespace screen
 
    static ScreenSelector<void, uint16_t> * make_screen_temperature_print()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), min_temp_operation, max_temp_operation, 1, TemperatureManager::single::instance().getTargetTemperature(), action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), TemperatureManager::single::instance().min_temp_operation, TemperatureManager::single::instance().max_temp_operation, 1, TemperatureManager::single::instance().getTargetTemperature(), action_set_temperature);
 		local_view->add(screen_print);
 		return local_view;
 	}
@@ -1307,6 +1332,15 @@ namespace screen
 			// Temperature
 			case screen_temperature_main:
 				new_view = make_screen_temperature_main();
+				break;
+			case screen_temperature_main_switch:
+				new_view = make_screen_temperature_main_switch();
+				break;
+			case screen_cooling_switch:
+				new_view = make_screen_cooling_switch();
+				break;
+			case screen_cooling_main:
+				new_view = make_screen_cooling_main();
 				break;
 			case screen_heating_main:
 				new_view = make_screen_heating_main();

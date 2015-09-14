@@ -20,6 +20,13 @@ class TemperatureManager : public Subject<float>
 		uint16_t const & getTargetTemperature() const;
 		void notify();
 
+	public:
+		// Temperature parameters
+		const static uint8_t default_temp_change_filament = 220;
+		const static uint8_t min_temp_cooling = 50;
+		const static uint8_t min_temp_operation = 170;
+		const static uint8_t max_temp_operation = 250;
+
 	private:
 		float m_current_temperature;
 		uint16_t m_round_temperature;
