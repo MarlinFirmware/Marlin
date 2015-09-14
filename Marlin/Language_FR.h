@@ -156,6 +156,7 @@ const char FR_ICON_MOVE_01MM[] PROGMEM                  = "D""\xe9""placer 0,1 m
 const char FR_OPTION_LIGHTLED[] PROGMEM                 = "0";
 const char FR_OPTION_INFO[] PROGMEM                     = "0";
 const char FR_OPTION_AUTOLEVEL[] PROGMEM                = "0";
+const char FR_OPTION_SERIAL[] PROGMEM                   = "Serial Control";
 const char FR_OPTION_OFFSET[] PROGMEM                   = "0";
 const char FR_OPTION_LANGUAGE[] PROGMEM                 = "0";
 const char FR_PUSH_TO_CONFIRM[] PROGMEM                 = "Appuy. pr confirmer";

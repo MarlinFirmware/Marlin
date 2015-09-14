@@ -5,7 +5,6 @@
 namespace eeprom
 {
 	static uint8_t * const EMERGENCY_STOP_FLAG = (uint8_t *) 499;
-	static uint8_t * const SCREEN_SERIAL_FLAG = (uint8_t *) 509;
 	static uint8_t * const LANGUAGE_FLAG = (uint8_t *) 510;
 
 	StorageManager::StorageManager()
@@ -24,21 +23,6 @@ namespace eeprom
 	uint8_t StorageManager::getEmergencyFlag()
 	{
 		return StorageManager::single::instance().readByte(EMERGENCY_STOP_FLAG);
-	}
-
-	void StorageManager::enableScreenSerial()
-	{
-		StorageManager::single::instance().writeByte(SCREEN_SERIAL_FLAG, SCREEN_SERIAL_ACTIVE);
-	}
-
-	void StorageManager::disableScreenSerial()
-	{
-		StorageManager::single::instance().writeByte(SCREEN_SERIAL_FLAG, SCREEN_SERIAL_INACTIVE);
-	}
-
-	uint8_t StorageManager::getScreenSerialState()
-	{
-		return StorageManager::single::instance().readByte(SCREEN_SERIAL_FLAG);
 	}
 
 	void StorageManager::setLanguage(uint8_t language)

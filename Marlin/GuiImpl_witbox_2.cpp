@@ -38,6 +38,7 @@
 #include "SDManager.h"
 #include "SteppersManager.h"
 #include "TemperatureManager.h"
+#include "SerialManager.h"
 
 #include "Language.h"
 
@@ -144,6 +145,13 @@ namespace screen
 	static ScreenDialog<void> * make_screen_wizard_step4()
 	{
 		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_WIZARD_TITLE(), MSG_SCREEN_WIZARD_TEXT4(), MSG_PUSH_TO_FINISH(), do_nothing);
+		local_view->add(screen_wizard_finish);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_wizard_finish()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_wizard_finish);
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -204,7 +212,7 @@ namespace screen
 		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_SD_LIST_CONFIRM(), &SDManager::single::instance());
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_back);
-		local_view->add(screen_print_preheat);
+		local_view->add(screen_print_switch);
 		local_view->icon(icon_ok);
 		return local_view;
 	}
@@ -369,8 +377,16 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_INIT_TITLE(), MSG_SCREEN_LEVEL_INIT_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
-		local_view->add(screen_level_preheat);
+		local_view->add(screen_level_switch_preheat);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_level_switch_preheat()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
+		local_view->add(screen_level_preheating);
+		local_view->add(screen_level_preheat);
 		return local_view;
 	}
 
@@ -383,7 +399,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_level_preheating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, PREHEAT_HOTEND_TEMP, &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_level_switch);
 		return local_view;
 	}
@@ -452,8 +468,16 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_AUTOHOME_INIT_TITLE(), MSG_SCREEN_AUTOHOME_INIT_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
-		local_view->add(screen_autohome_heating);
+		local_view->add(screen_autohome_switch);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_autohome_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
+		local_view->add(screen_autohome_animation);
+		local_view->add(screen_autohome_heating);
 		return local_view;
 	}
 
@@ -466,7 +490,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_autohome_animation()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_AUTOHOME_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, PREHEAT_HOTEND_TEMP, &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_AUTOHOME_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_autohome_homing);
 		return local_view;
 	}
@@ -484,7 +508,10 @@ namespace screen
 		OptionLaunch * option_back        = new OptionLaunch(option_size, MSG_BACK());
 		option_back->add(screen_main);
 		OptionToggle * option_autolevel   = new OptionToggle(option_size, MSG_OPTION_AUTOLEVEL(), AutoLevelManager::setState, &AutoLevelManager::single::instance());
+#ifdef LIGHT_ENABLED
 		OptionToggle * option_led         = new OptionToggle(option_size, MSG_OPTION_LIGHTLED(), LightManager::setState, &LightManager::single::instance());
+#endif // LIGHT_ENABLED
+		OptionToggle * option_serial      = new OptionToggle(option_size, MSG_OPTION_SERIAL(), SerialManager::setState, &SerialManager::single::instance());
 		OptionLaunch * option_offset      = new OptionLaunch(option_size, MSG_OPTION_OFFSET());
 		option_offset->add(screen_offset);
 		OptionLaunch * option_about       = new OptionLaunch(option_size, MSG_OPTION_INFO());
@@ -495,7 +522,10 @@ namespace screen
 		ScreenSetting * local_view = new ScreenSetting(MSG_SCREEN_SETTINGS_TITLE());
 		local_view->add(option_back);
 		local_view->add(option_autolevel);
+#ifdef LIGHT_ENABLED
 		local_view->add(option_led);
+#endif // LIGHT_ENABLED
+		local_view->add(option_serial);
 		local_view->add(option_offset);
 		local_view->add(option_language);
 		local_view->add(option_about);
@@ -738,20 +768,6 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenAction<void> * make_screen_autolevel()
-	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, AutoLevelManager::setState); 
-		local_view->add(screen_settings);
-		return local_view;
-	}
-
-	static ScreenAction<void> * make_screen_light()
-	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, LightManager::setState);
-		local_view->add(screen_settings);
-		return local_view;
-	}
-
 	static ScreenAbout * make_screen_info()
 	{
 		ScreenAbout * local_view = new ScreenAbout(MSG_SCREEN_INFO_TITLE(), NULL, MSG_PUSH_TO_BACK(), bits_logo_about);
@@ -774,8 +790,16 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_INIT_TITLE(), MSG_SCREEN_OFFSET_INIT_TEXT());
 		local_view->add(screen_settings);
 		local_view->icon(icon_back);
-		local_view->add(screen_offset_preheat);
+		local_view->add(screen_offset_switch);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_offset_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
+		local_view->add(screen_offset_preheating);
+		local_view->add(screen_offset_preheat);
 		return local_view;
 	}
 
@@ -838,6 +862,14 @@ namespace screen
 		local_view->icon(icon_back);
 		local_view->add(screen_main);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_print_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
+		local_view->add(screen_print_preheating);
+		local_view->add(screen_print_preheat);
 		return local_view;
 	}
 
@@ -1080,6 +1112,9 @@ namespace screen
 			case screen_wizard_step4:
 				new_view = make_screen_wizard_step4();
 				break;
+			case screen_wizard_finish:
+				new_view = make_screen_wizard_finish();
+				break;
 
 			// Emergency stop
 			case screen_emergency:
@@ -1161,6 +1196,9 @@ namespace screen
 			case screen_level_init:
 				new_view = make_screen_level_init();
 				break;
+			case screen_level_switch_preheat:
+				new_view = make_screen_level_switch_preheat();
+				break;
 			case screen_level_preheat:
 				new_view = make_screen_level_preheat();
 				break;
@@ -1193,7 +1231,9 @@ namespace screen
 			case screen_autohome_init:
 				new_view = make_screen_autohome_init();
 				break;
-
+			case screen_autohome_switch:
+				new_view = make_screen_autohome_switch();
+				break;
 			case screen_autohome_heating:
 				new_view = make_screen_autohome_heating();
 				break;
@@ -1289,16 +1329,6 @@ namespace screen
 				new_view = make_screen_heating_main();
 				break;
 
-			// Autolevel
-			case screen_autolevel:
-				new_view = make_screen_autolevel();
-				break;
-
-			// Light
-			case screen_light:
-				new_view = make_screen_light();
-				break;
-
 			// Info
 			case screen_info:
 				new_view = make_screen_info();
@@ -1312,6 +1342,9 @@ namespace screen
 			// Offset
 			case screen_offset:
 				new_view = make_screen_offset();
+				break;
+			case screen_offset_switch:
+				new_view = make_screen_offset_switch();
 				break;
 			case screen_offset_preheat:
 				new_view = make_screen_offset_preheat();
@@ -1339,6 +1372,9 @@ namespace screen
 				break;
 
 			// Print menu and control
+			case screen_print_switch:
+				new_view = make_screen_print_switch();
+				break;
 			case screen_print_preheat:
 				new_view = make_screen_print_preheat();
 				break;

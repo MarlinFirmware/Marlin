@@ -693,3 +693,22 @@ void action_save_offset()
 
 	action_move_to_rest();
 }
+
+void action_wizard_finish()
+{
+	PrintManager::resetInactivity();
+	PrintManager::single::instance().state(STOPPED);
+	AutoLevelManager::single::instance().state(true);
+}
+
+bool action_check_preheat_temp()
+{
+	if(TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}

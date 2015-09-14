@@ -26,8 +26,15 @@ bool const & SDManager::isInserted() const
 
 void SDManager::setInserted(bool state)
 {
-	m_is_inserted = state;
-	notify();
+	if (state != m_is_inserted)
+	{
+		m_is_inserted = state;
+		if (m_is_inserted)
+		{
+			card.initsd();
+		}
+		notify();
+	}
 }
 
 void SDManager::notify()

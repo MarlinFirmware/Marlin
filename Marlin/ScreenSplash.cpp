@@ -29,6 +29,7 @@
 #include "OffsetManager.h"
 #include "StorageManager.h"
 #include "LightManager.h"
+#include "PrintManager.h"
 
 namespace screen
 {
@@ -54,6 +55,7 @@ namespace screen
 			}
 			else if (!OffsetManager::single::instance().isOffsetOnEEPROM() && eeprom::StorageManager::getLanguage() == 0xFF)
 			{
+				PrintManager::single::instance().state(INITIALIZING);
 				ViewManager::getInstance().activeView(m_alt_screen);
 			}
 			else

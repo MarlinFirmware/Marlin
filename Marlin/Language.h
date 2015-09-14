@@ -216,6 +216,7 @@ enum class Label
 	OPTION_LIGHTLED,
 	OPTION_INFO,
 	OPTION_AUTOLEVEL,
+	OPTION_SERIAL,
 	OPTION_OFFSET,
 	OPTION_LANGUAGE,
 	PUSH_TO_CONFIRM,
@@ -382,6 +383,7 @@ extern const char * MSG_ICON_MOVE_01MM();
 extern const char * MSG_OPTION_LIGHTLED();
 extern const char * MSG_OPTION_INFO();
 extern const char * MSG_OPTION_AUTOLEVEL();
+extern const char * MSG_OPTION_SERIAL();
 extern const char * MSG_OPTION_OFFSET();
 extern const char * MSG_OPTION_LANGUAGE();
 extern const char * MSG_PUSH_TO_CONFIRM();
