@@ -13,8 +13,12 @@
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
 #define FIRMWARE_VER "2.0.0"
 #define BUILD_VER ""
+
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
+#define MACHINE_NAME_M115 "Witbox_2"
+#define SOURCE_CODE_URL_M115 "http%3A//github.com/bq/Marlin"
+#define FIRMWARE_LANGUAGE_M115 ""
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -454,6 +458,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define RETRACT_ON_PAUSE 2.2
 #define EXTRUDE_ON_RESUME 2
 
+//Led light support
+#define LIGHT_ENABLED
 //LCD and SD support
 //#define ULTRA_LCD  //general LCD support, also 16x2
 #define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)

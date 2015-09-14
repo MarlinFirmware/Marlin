@@ -49,6 +49,7 @@ namespace screen
 				DIALOG,
 				LIST,
 				SELECTOR,
+				SWITCH,
 				NUM_SCREEN_TYPES,
 			} ScreenType_t;
 

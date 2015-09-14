@@ -28,11 +28,13 @@
 #include "ScreenFile.h"
 
 #include "cardreader.h"
+#include "GuiImpl_witbox_2.h"
 
 namespace screen
 {
-	ScreenFile::ScreenFile(const char * title)
+	ScreenFile::ScreenFile(const char * title , Subject<bool> * model)
 		: ScreenMenu(title)
+		, Observer<bool>(model)
 	{ }
 
 	ScreenFile::~ScreenFile()
@@ -158,6 +160,15 @@ namespace screen
 					}
 				}
 			} while( painter.nextPage() );
+		}
+	}
+
+	void ScreenFile::update(bool is_inserted)
+	{
+		if(is_inserted == false)
+		{
+			card.release();
+			ViewManager::getInstance().activeView(screen_main);
 		}
 	}
 }

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenList.h
+/// \file ScreenInactivity.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of SD screen list class.
+/// \brief Definition of inactivity-type screens.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,50 +25,37 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_LIST_H
-#define SCREEN_LIST_H
+#ifndef SCREEN_INACTIVITY_H
+#define SCREEN_INACTIVITY_H
 
-#include <stdint.h>
+#include "ScreenAnimation.h"
 
-#include "Screen.h"
-#include "SDManager.h"
+#include "GuiManager.h"
+#include "TemperatureManager.h"
+#include "ViewManager.h"
 
 namespace screen
 {
-	class ScreenList : public Screen , public Observer<bool>
+	class ScreenInactivity : public ScreenAnimation<float>
 	{
 		public:
-			ScreenList(const char * title, Subject<bool> * model);
-			virtual ~ScreenList();
+			ScreenInactivity(const char * title, const char * text, uint16_t target, Subject<float> * model = 0);
+			virtual ~ScreenInactivity();
+
+			void init(uint16_t index = 0);
+
+			void draw();
+			void press();
+
+			void add(ScreenIndex_t const & component);
+			void update(float value);
 
 			void left();
 			void right();
-			void draw();
-			void press();
-			void add(ScreenIndex_t const & view);
-			void init(uint16_t index = 0);
 
 		private:
-			//void updateSdcardStatus();
-			void update(bool is_inserted);
-
-
-		private:
-			static uint8_t directory_index;
-			static uint8_t directory_array[10];
-			static bool from_updir;
-
-			uint16_t m_index;
-			uint16_t m_num_list;
-			uint8_t m_icon_index;
-
-			ScreenIndex_t m_back_screen;
-			uint8_t m_num_item_added;
-
-			char m_directory[20];
-			bool m_directory_is_root;
-
-			float m_scroll_size;
+			bool isConditionMeet();
 	};
 }
-#endif //SCREEN_LIST_H
+
+#endif //SCREEN_INACTIVITY_H

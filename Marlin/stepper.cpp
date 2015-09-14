@@ -1055,7 +1055,9 @@ void st_synchronize()
 {
     while( blocks_queued()) {
     //TemperatureManager::single::instance().manageTemperatureControl();
-    manage_inactivity();
+#ifndef DOGLCD
+        manage_inactivity();
+#endif //DOGCLD
     lcd_update();
   }
 }

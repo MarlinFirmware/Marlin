@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenList.h
+/// \file ScreenSwitch.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of SD screen list class.
+/// \brief Implementation of switch-type screens.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,50 +25,41 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_LIST_H
-#define SCREEN_LIST_H
+#include "ScreenSwitch.h"
 
-#include <stdint.h>
-
-#include "Screen.h"
-#include "SDManager.h"
+#include "GuiManager.h"
 
 namespace screen
 {
-	class ScreenList : public Screen , public Observer<bool>
+	ScreenSwitch::ScreenSwitch(const char * title, Functor<bool>::FuncPtr fptr)
+		: ScreenAction<bool>(title, fptr)
+		, m_num_items(0)
 	{
-		public:
-			ScreenList(const char * title, Subject<bool> * model);
-			virtual ~ScreenList();
+		m_type = SWITCH;
+	}
 
-			void left();
-			void right();
-			void draw();
-			void press();
-			void add(ScreenIndex_t const & view);
-			void init(uint16_t index = 0);
+	ScreenSwitch::~ScreenSwitch()
+	{ }
 
-		private:
-			//void updateSdcardStatus();
-			void update(bool is_inserted);
+	void ScreenSwitch::init(uint16_t index)
+	{
+		if( this->action() == true )
+		{
+			ViewManager::getInstance().activeView(m_items[0]);
+		}
+		else
+		{
+			ViewManager::getInstance().activeView(m_items[1]);
+		}
+		
+	}
 
-
-		private:
-			static uint8_t directory_index;
-			static uint8_t directory_array[10];
-			static bool from_updir;
-
-			uint16_t m_index;
-			uint16_t m_num_list;
-			uint8_t m_icon_index;
-
-			ScreenIndex_t m_back_screen;
-			uint8_t m_num_item_added;
-
-			char m_directory[20];
-			bool m_directory_is_root;
-
-			float m_scroll_size;
-	};
+	void ScreenSwitch::add(ScreenIndex_t const & component)
+	{
+		if (m_num_items < m_max_items)
+		{
+			m_items[m_num_items] = component;
+			++m_num_items;
+		}
+	}
 }
-#endif //SCREEN_LIST_H

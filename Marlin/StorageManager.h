@@ -9,8 +9,6 @@ namespace eeprom
 {
 	const uint8_t EMERGENCY_STOP_ACTIVE = 0x00;
 	const uint8_t EMERGENCY_STOP_INACTIVE = 0xFF;
-	const uint8_t SCREEN_SERIAL_ACTIVE = 0xFF;
-	const uint8_t SCREEN_SERIAL_INACTIVE = 0x00;
 
 	class StorageManager
 	{
@@ -23,10 +21,6 @@ namespace eeprom
 			static void setEmergencyFlag();
 			static void clearEmergencyFlag();
 			static uint8_t getEmergencyFlag();
-
-			static void enableScreenSerial();
-			static void disableScreenSerial();
-			static uint8_t getScreenSerialState();
 
 			static void setLanguage(uint8_t language);
 			static uint8_t getLanguage();

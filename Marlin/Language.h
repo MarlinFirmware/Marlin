@@ -9,7 +9,9 @@
 #include "Language_FR.h"
 #include "Language_PT.h"
 #include "Language_IT.h"
-#include "Language_PL.h"
+#include "Language_SE.h"
+
+#undef SE;
 
 enum class Language
 {
@@ -19,7 +21,7 @@ enum class Language
 	FR,     // French
 	PT,     // Portuguese
 	IT,     // Italian
-	PL,     // Polish
+	SE,     // Swedish
 };
 extern Language LANG;
 
@@ -51,9 +53,9 @@ const char * MSG_##label() \
    { \
       text = IT_##label; \
    } \
-   else if (LANG == Language::PL) \
+   else if (LANG == Language::SE) \
    { \
-      text = PL_##label; \
+      text = SE_##label; \
    } \
    return text; \
 }
@@ -70,6 +72,8 @@ enum class Label
 	SCREEN_SD_LIST_PREV,
 	SCREEN_UNLOAD_INIT_TITLE,
 	SCREEN_UNLOAD_INIT_TEXT,
+	SCREEN_UNLOAD_HOME_TITLE,
+	SCREEN_UNLOAD_HOME_TEXT,
 	SCREEN_UNLOAD_SELECT_TITLE,
 	SCREEN_UNLOAD_HEATING_TITLE,
 	SCREEN_UNLOAD_INFO_TITLE,
@@ -80,6 +84,8 @@ enum class Label
 	SCREEN_UNLOAD_CONFIRM_TEXT,
 	SCREEN_LOAD_INIT_TITLE,
 	SCREEN_LOAD_INIT_TEXT,
+	SCREEN_LOAD_HOME_TITLE,
+	SCREEN_LOAD_HOME_TEXT,
 	SCREEN_LOAD_SELECT_TITLE,
 	SCREEN_LOAD_HEATING_TITLE,
 	SCREEN_LOAD_INFO_TITLE,
@@ -90,7 +96,7 @@ enum class Label
 	SCREEN_LOAD_CONFIRM_TEXT,
 	SCREEN_LEVEL_INIT_TITLE,
 	SCREEN_LEVEL_INIT_TEXT,
-	SCREEN_LEVEL_HEATING_TITLE,
+	SCREEN_LEVEL_PREHEATING_TITLE,
 	SCREEN_LEVEL_HOMING_TITLE,
 	SCREEN_LEVEL_HOMING_TEXT,
 	SCREEN_LEVEL1_TITLE,
@@ -108,6 +114,8 @@ enum class Label
 	SCREEN_AUTOHOME_HOMING_TEXT,
 	SCREEN_SETTINGS_TITLE,
 	SCREEN_SETTINGS_TEXT,
+	SCREEN_MOVE_INFO_TITLE,
+	SCREEN_MOVE_INFO_TEXT,
 	SCREEN_MOVE_TITLE,
 	SCREEN_MOVE_TEXT,
 	SCREEN_MOVE_CONFIRM_TITLE,
@@ -137,6 +145,7 @@ enum class Label
 	SCREEN_INFO_TITLE,
 	SCREEN_OFFSET_INIT_TITLE,
 	SCREEN_OFFSET_INIT_TEXT,
+	SCREEN_OFFSET_PREHEATING_TITLE,
 	SCREEN_OFFSET_HOME_TITLE,
 	SCREEN_OFFSET_HOME_TEXT,
 	SCREEN_OFFSET_PLANE_TITLE,
@@ -207,6 +216,7 @@ enum class Label
 	OPTION_LIGHTLED,
 	OPTION_INFO,
 	OPTION_AUTOLEVEL,
+	OPTION_SERIAL,
 	OPTION_OFFSET,
 	OPTION_LANGUAGE,
 	PUSH_TO_CONFIRM,
@@ -216,6 +226,8 @@ enum class Label
 	PUSH_TO_FINISH,
 	PLEASE_WAIT,
 	BACK,
+	MODE,
+	INACTIVE,
 };
 
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
@@ -227,6 +239,8 @@ extern const char * MSG_SCREEN_SD_LIST_BACK();
 extern const char * MSG_SCREEN_SD_LIST_PREV();
 extern const char * MSG_SCREEN_UNLOAD_INIT_TITLE();
 extern const char * MSG_SCREEN_UNLOAD_INIT_TEXT();
+extern const char * MSG_SCREEN_UNLOAD_HOME_TITLE();
+extern const char * MSG_SCREEN_UNLOAD_HOME_TEXT();
 extern const char * MSG_SCREEN_UNLOAD_SELECT_TITLE();
 extern const char * MSG_SCREEN_UNLOAD_HEATING_TITLE();
 extern const char * MSG_SCREEN_UNLOAD_INFO_TITLE();
@@ -237,6 +251,8 @@ extern const char * MSG_SCREEN_UNLOAD_CONFIRM_TITLE();
 extern const char * MSG_SCREEN_UNLOAD_CONFIRM_TEXT();
 extern const char * MSG_SCREEN_LOAD_INIT_TITLE();
 extern const char * MSG_SCREEN_LOAD_INIT_TEXT();
+extern const char * MSG_SCREEN_LOAD_HOME_TITLE();
+extern const char * MSG_SCREEN_LOAD_HOME_TEXT();
 extern const char * MSG_SCREEN_LOAD_SELECT_TITLE();
 extern const char * MSG_SCREEN_LOAD_HEATING_TITLE();
 extern const char * MSG_SCREEN_LOAD_INFO_TITLE();
@@ -247,7 +263,7 @@ extern const char * MSG_SCREEN_LOAD_CONFIRM_TITLE();
 extern const char * MSG_SCREEN_LOAD_CONFIRM_TEXT();
 extern const char * MSG_SCREEN_LEVEL_INIT_TITLE();
 extern const char * MSG_SCREEN_LEVEL_INIT_TEXT();
-extern const char * MSG_SCREEN_LEVEL_HEATING_TITLE();
+extern const char * MSG_SCREEN_LEVEL_PREHEATING_TITLE();
 extern const char * MSG_SCREEN_LEVEL_HOMING_TITLE();
 extern const char * MSG_SCREEN_LEVEL_HOMING_TEXT();
 extern const char * MSG_SCREEN_LEVEL1_TITLE();
@@ -265,6 +281,8 @@ extern const char * MSG_SCREEN_AUTOHOME_HOMING_TITLE();
 extern const char * MSG_SCREEN_AUTOHOME_HOMING_TEXT();
 extern const char * MSG_SCREEN_SETTINGS_TITLE();
 extern const char * MSG_SCREEN_SETTINGS_TEXT();
+extern const char * MSG_SCREEN_MOVE_INFO_TITLE();
+extern const char * MSG_SCREEN_MOVE_INFO_TEXT();
 extern const char * MSG_SCREEN_MOVE_TITLE();
 extern const char * MSG_SCREEN_MOVE_TEXT();
 extern const char * MSG_SCREEN_MOVE_CONFIRM_TITLE();
@@ -294,6 +312,7 @@ extern const char * MSG_SCREEN_TEMP_HEATING_TITLE();
 extern const char * MSG_SCREEN_INFO_TITLE();
 extern const char * MSG_SCREEN_OFFSET_INIT_TITLE();
 extern const char * MSG_SCREEN_OFFSET_INIT_TEXT();
+extern const char * MSG_SCREEN_OFFSET_PREHEATING_TITLE();
 extern const char * MSG_SCREEN_OFFSET_HOME_TITLE();
 extern const char * MSG_SCREEN_OFFSET_HOME_TEXT();
 extern const char * MSG_SCREEN_OFFSET_PLANE_TITLE();
@@ -364,6 +383,7 @@ extern const char * MSG_ICON_MOVE_01MM();
 extern const char * MSG_OPTION_LIGHTLED();
 extern const char * MSG_OPTION_INFO();
 extern const char * MSG_OPTION_AUTOLEVEL();
+extern const char * MSG_OPTION_SERIAL();
 extern const char * MSG_OPTION_OFFSET();
 extern const char * MSG_OPTION_LANGUAGE();
 extern const char * MSG_PUSH_TO_CONFIRM();
@@ -373,5 +393,7 @@ extern const char * MSG_PUSH_TO_BACK();
 extern const char * MSG_PUSH_TO_FINISH();
 extern const char * MSG_PLEASE_WAIT();
 extern const char * MSG_BACK();
+extern const char * MSG_MODE();
+extern const char * MSG_INACTIVE();
 
 #endif // ifndef LANGUAGE_H

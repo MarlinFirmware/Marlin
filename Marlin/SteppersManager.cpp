@@ -1,11 +1,12 @@
 #include <stdint.h>
 
 #include "SteppersManager.h"
+#include "PrintManager.h"
 #include "Configuration.h"
 
 SteppersManager::SteppersManager()
 	: Subject<bool>()
-	, m_steppers_disabled(false)
+	, m_steppers_disabled(true)
 {
 	m_steppers[AXIS_X] = Stepper(X_ENABLE_PIN, X_ENABLE_ON);
 	m_steppers[AXIS_Y] = Stepper(Y_ENABLE_PIN, Y_ENABLE_ON);
@@ -21,6 +22,7 @@ void SteppersManager::disableAllSteppers()
 		{
 			SteppersManager::single::instance().m_steppers[i].disable();
 		}
+		PrintManager::knownPosition(false);
 		SteppersManager::single::instance().m_steppers_disabled = true;
 		SteppersManager::single::instance().notify();
 	}
@@ -50,6 +52,7 @@ void SteppersManager::disableStepper(Stepper_t stepper)
 				m_steppers_disabled = false;
 			}
 		}
+		PrintManager::knownPosition(false);
 		notify();
 	}
 }

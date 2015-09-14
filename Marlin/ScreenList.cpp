@@ -35,9 +35,9 @@ namespace screen
 	uint8_t ScreenList::directory_array[10] = { 0 };
 	bool ScreenList::from_updir = false;
 
-	ScreenList::ScreenList(const char * title, Subject<SDState_t> * model)
+	ScreenList::ScreenList(const char * title, Subject<bool> * model)
 		: Screen(title, LIST)
-		, Observer<SDState_t>(model)
+		, Observer<bool>(model)
 		, m_index(0)
 		, m_icon_index(0)
 		, m_num_list(0)
@@ -52,25 +52,12 @@ namespace screen
 
 	void ScreenList::init(uint16_t index)
 	{
-		if(SDManager::single::instance().getSDStatus() == SD_IS_NOT_INSERTED)
+		if(SDManager::single::instance().isInserted() == false)
 		{
-			card.release();
-
-			m_num_list = 1;
-			m_index = 0;
-			m_directory_is_root = true;
-			m_scroll_size = 47;
-
 			ViewManager::getInstance().activeView(m_back_screen);
 		}
-		else
+		else 
 		{
-			if(!SDManager::single::instance().getSDInit())
-			{
-				card.initsd();
-				SDManager::single::instance().setSDInit(true);
-			}
-
 			m_num_list = card.getnrfilenames();
 			m_index = 0;
 
@@ -320,9 +307,9 @@ namespace screen
 		m_num_item_added++;
 	}
 
-	void ScreenList::update(SDState_t state)
+	void ScreenList::update(bool is_inserted)
 	{
-		if(state == SD_IS_NOT_INSERTED)
+		if(is_inserted == false)
 		{
 			card.release();
 			ViewManager::getInstance().activeView(m_back_screen);

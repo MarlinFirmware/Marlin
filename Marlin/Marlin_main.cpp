@@ -63,6 +63,7 @@
   #include "GuiManager.h"
   #include "PrintManager.h"
   #include "StorageManager.h"
+  #include "SerialManager.h"
   #include "ViewManager.h"
 #else // DOGLCD
   #include "ultralcd.h"
@@ -406,7 +407,6 @@ static char serial_char;
 static int serial_count = 0;
 static boolean comment_mode = false;
 static char *strchr_pointer; ///< A pointer to find chars in the command string (X, Y, Z, E, etc.)
-static bool serial_mode = false;
 
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
 
@@ -788,9 +788,14 @@ void loop()
   }
   //check heater every n milliseconds
   TemperatureManager::single::instance().manageTemperatureControl();
-  manage_inactivity();
   checkHitEndstops();
   lcd_update();
+#ifndef DOGLCD
+  manage_inactivity();
+#else
+  PrintManager::updateInactivity();
+#endif //DOGCLD
+
 }
 
 void get_command()
@@ -799,14 +804,16 @@ void get_command()
     serial_char = MYSERIAL.read();
 
 #ifdef DOGLCD
-		if(eeprom::StorageManager::getScreenSerialState() == eeprom::SCREEN_SERIAL_ACTIVE && !serial_mode)
+		if(SerialManager::single::instance().state()
+			&& PrintManager::single::instance().state() != SERIAL_CONTROL
+			&& PrintManager::single::instance().state() != INITIALIZING)
 		{
-			serial_mode = true;
 			if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial)
 			{
+				PrintManager::single::instance().state(SERIAL_CONTROL);
 				screen::ViewManager::getInstance().activeView(screen::screen_serial);
-		 	}
-	 	}
+			}
+		}
 #endif
 
     if(serial_char == '\n' ||
@@ -1552,7 +1559,9 @@ void process_commands()
       previous_millis_cmd = millis();
       while(millis() < codenum) {
         TemperatureManager::single::instance().manageTemperatureControl();
+#ifndef DOGLCD
         manage_inactivity();
+#endif //DOGLCD
       }
       break;
       #ifdef FWRETRACT
@@ -1724,7 +1733,7 @@ void process_commands()
       break;
     case 24: //M24 - Start SD print
 #ifdef DOGLCD
-      if(PrintManager::single::instance().state() == HEATING)
+      if(PrintManager::single::instance().state() == READY)
       {
         card.startFileprint();
         starttime=millis();
@@ -2337,7 +2346,9 @@ Sigma_Exit:
             codenum = millis();
           }
           TemperatureManager::single::instance().manageTemperatureControl();
+#ifndef DOGLCD
           manage_inactivity();
+#endif //DOGLCD
           lcd_update();
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
@@ -2392,7 +2403,9 @@ Sigma_Exit:
             codenum = millis();
           }
           TemperatureManager::single::instance().manageTemperatureControl();
+#ifndef DOGLCD
           manage_inactivity();
+#endif //DOGLCD
           lcd_update();
         }
         LCD_MESSAGEPGM(MSG_BED_HEATING_DONE);
@@ -2924,7 +2937,9 @@ Sigma_Exit:
 
             while(digitalRead(pin_number) != target){
               TemperatureManager::single::instance().manageTemperatureControl();
+#ifndef DOGLCD
               manage_inactivity();
+#endif //DOGLCD
             }
           }
         }
@@ -3755,6 +3770,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_clear_triggered_flags();
     			while(!LCD_CLICKED) {          
       				TemperatureManager::single::instance().manageTemperatureControl();
+#ifndef DOGLCD
+              manage_inactivity();
+#endif //DOGLCD
     			}
 
           //point 2
@@ -3765,7 +3783,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
   	  				TemperatureManager::single::instance().manageTemperatureControl();
-  	  				manage_inactivity();
+#ifndef DOGLCD
+              manage_inactivity();
+#endif //DOGLCD
   				}
   				
           //point 3
@@ -3776,7 +3796,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_clear_triggered_flags();
   	 			while(!LCD_CLICKED) {
   	  				TemperatureManager::single::instance().manageTemperatureControl();
-  	  				manage_inactivity();
+#ifndef DOGLCD
+              manage_inactivity();
+#endif //DOGLCD
   				}
 
           //3 or 4 points based on the printer
@@ -3788,7 +3810,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
                 TemperatureManager::single::instance().manageTemperatureControl();
+#ifndef DOGLCD
                 manage_inactivity();
+#endif //DOGLCD
             }
           #else
             lcd_wizard_set_page(4);
@@ -3798,7 +3822,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
                 TemperatureManager::single::instance().manageTemperatureControl();;
+#ifndef DOGLCD
                 manage_inactivity();
+#endif //DOGLCD
             }
 
             lcd_wizard_set_page(5);
@@ -3808,7 +3834,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
                 TemperatureManager::single::instance().manageTemperatureControl();
+#ifndef DOGLCD
                 manage_inactivity();
+#endif //DOGLCD
             }
           #endif
 
@@ -4475,9 +4503,9 @@ void handle_status_leds(void) {
 
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument set in Marlin.h
 {
-	
+  
 #if defined(KILL_PIN) && KILL_PIN > -1
-	static int killCount = 0;   // make the inactivity button a bit less responsive
+  static int killCount = 0;   // make the inactivity button a bit less responsive
    const int KILL_DELAY = 10000;
 #endif
 
@@ -4491,19 +4519,19 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
   if( (millis() - previous_millis_cmd) >  max_inactive_time )
     if(max_inactive_time)
       kill();
-  if(stepper_inactive_time)  {
-    if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
-    {
-      if(blocks_queued() == false && ignore_stepper_queue == false) {
-        disable_x();
-        disable_y();
-        disable_z();
-        disable_e0();
-        disable_e1();
-        disable_e2();
-      }
-    }
-  }
+  // if(stepper_inactive_time)  {
+  //   if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
+  //   {
+  //     if(blocks_queued() == false && ignore_stepper_queue == false) {
+  //       disable_x();
+  //       disable_y();
+  //       disable_z();
+  //       disable_e0();
+  //       disable_e1();
+  //       disable_e2();
+  //     }
+  //   }
+  // }
   
   #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
     if (chdkActive && (millis() - chdkHigh > CHDK_DELAY))

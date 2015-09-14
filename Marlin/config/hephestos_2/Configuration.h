@@ -15,6 +15,9 @@
 #define BUILD_VER ""
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
+#define MACHINE_NAME_M115 "Hephestos_2"
+#define SOURCE_CODE_URL_M115 "http%3A//github.com/bq/Marlin"
+#define FIRMWARE_LANGUAGE_M115 ""
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -388,8 +391,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000,2*100.47095761381482}  // default steps per unit for Ultimaker
 #define DEFAULT_MAX_FEEDRATE          {250, 250, 3.3, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {3000,3000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_MAX_ACCELERATION      {3000,2500,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_ACCELERATION          500    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).

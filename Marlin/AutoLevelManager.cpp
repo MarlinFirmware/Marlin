@@ -2,8 +2,15 @@
 
 AutoLevelManager::AutoLevelManager()
 	: Subject<bool>()
+	, m_state(false)
 {
-	state(ReadFromEEPROM());
+	int i = EEPROM_POS;
+	uint8_t dummy = 0;
+	_EEPROM_readData(i, (uint8_t*)&dummy, sizeof(dummy));
+	if(dummy != 0)
+	{
+		state(true);
+	}
 }
 
 void AutoLevelManager::setState()
@@ -19,7 +26,7 @@ void AutoLevelManager::state(bool state)
 	notify();
 }
 
-bool AutoLevelManager::state()
+const bool & AutoLevelManager::state() const
 {
 	return m_state;
 }
@@ -27,7 +34,7 @@ bool AutoLevelManager::state()
 bool AutoLevelManager::ReadFromEEPROM()
 {
 	int i = EEPROM_POS;
-	int dummy = 0;
+	uint8_t dummy = 0;
 
 	_EEPROM_readData(i, (uint8_t*)&dummy, sizeof(dummy));
 	if(dummy == 1)
@@ -40,7 +47,7 @@ bool AutoLevelManager::ReadFromEEPROM()
 void AutoLevelManager::WriteToEEPROM(bool state)
 {
 	int i = EEPROM_POS;
-	int dummy = 0;
+	uint8_t dummy = 0;
 	if(state)
 	{
 		dummy = 1;

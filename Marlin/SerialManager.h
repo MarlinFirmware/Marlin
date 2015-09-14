@@ -1,5 +1,5 @@
-#ifndef AUTOLEVEL_MANAGER_H
-#define AUTOLEVEL_MANAGER_H
+#ifndef SERIAL_MANAGER_H
+#define SERIAL_MANAGER_H
 
 #include "Singleton.h"
 #include "Subject.h"
@@ -9,13 +9,13 @@
 extern void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size);
 extern void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size);
 
-class AutoLevelManager : public Subject<bool>
+class SerialManager : public Subject<bool>
 {
 	public:
-		typedef Singleton<AutoLevelManager> single;
+		typedef Singleton<SerialManager> single;
 
 	public:
-		AutoLevelManager();
+		SerialManager();
 
 		void state(bool state);
 		const bool & state() const;
@@ -27,10 +27,9 @@ class AutoLevelManager : public Subject<bool>
 		bool ReadFromEEPROM();
 		void WriteToEEPROM(bool state);
 
-
 	private:
 		bool m_state;
-		static const int EEPROM_POS = 501;
+		static const int EEPROM_POS = 509;
 };
 
-#endif //AUTOLEVEL_MANAGER_H
+#endif //SERIAL_MANAGER_H
