@@ -168,5 +168,6 @@ const char SE_PLEASE_WAIT[] PROGMEM                     = "V""\xe4""nta";
 const char SE_BACK[] PROGMEM                            = "0";
 const char SE_MODE[] PROGMEM                            = "0";
 const char SE_INACTIVE[] PROGMEM                        = "0";
+const char SE_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_SE_H

@@ -168,5 +168,6 @@ const char PT_PLEASE_WAIT[] PROGMEM                     = "Por favor, aguarde";
 const char PT_BACK[] PROGMEM                            = "0";
 const char PT_MODE[] PROGMEM                            = "0";
 const char PT_INACTIVE[] PROGMEM                        = "0";
+const char PT_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_PT_H

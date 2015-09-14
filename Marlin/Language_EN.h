@@ -168,5 +168,6 @@ const char EN_PLEASE_WAIT[] PROGMEM                     = "Please wait";
 const char EN_BACK[] PROGMEM                            = "0";
 const char EN_MODE[] PROGMEM                            = "0";
 const char EN_INACTIVE[] PROGMEM                        = "0";
+const char EN_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_EN_H

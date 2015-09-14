@@ -168,5 +168,6 @@ const char FR_PLEASE_WAIT[] PROGMEM                     = "Patientez svp";
 const char FR_BACK[] PROGMEM                            = "0";
 const char FR_MODE[] PROGMEM                            = "0";
 const char FR_INACTIVE[] PROGMEM                        = "0";
+const char FR_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_FR_H

@@ -168,5 +168,6 @@ const char IT_PLEASE_WAIT[] PROGMEM                     = "Attendere, prego";
 const char IT_BACK[] PROGMEM                            = "0";
 const char IT_MODE[] PROGMEM                            = "0";
 const char IT_INACTIVE[] PROGMEM                        = "0";
+const char IT_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_IT_H
