@@ -1,13 +1,36 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
-#ifndef LANGUAGE_CHOICE
-       #define LANGUAGE_CHOICE 1  // Pick your language from the list above
+//
+// LCD Menu Messages: Language list
+//
+
+#define DE  0 // German
+#define EN  1 // English
+#define ES  2 // Spanish
+#define FI  3 // Finnish
+#define FR  4 // French
+#define IT  5 // Italian
+#define NL  6 // Dutch
+#define PL  7 // Polish
+#define PT  8 // Portuguese
+
+
+// Select a language
+
+#define LANGUAGE ES
+
+
+//
+// Language texts
+//
+
+#ifndef LANGUAGE
+	#define LANGUAGE EN
 #endif
 
-
-// LCD Menu Messages
-#if LANGUAGE_CHOICE == 1
+// English
+#if LANGUAGE == EN
 	#define WELCOME_MSG MACHINE_NAME         " ready"
 	#define MSG_SD_INSERTED                  "Card inserted"
 	#define MSG_SD_REMOVED                   "Card removed"
@@ -166,9 +189,10 @@
 	#define MSG_WIZARD_CHANGEFILAMENT_3_2    "  button to resume  "
 	#define MSG_WIZARD_CHANGEFILAMENT_3_3    "      printing      "
 	#define MSG_SD_BAD_FILENAME              "Bad filename!"
+#endif
 
-
-#if LANGUAGE_CHOICE == 2
+// Polish
+#if LANGUAGE == PL
 	#define WELCOME_MSG MACHINE_NAME         " gotowy."
 	#define MSG_SD_INSERTED                  "Karta wlozona"
 	#define MSG_SD_REMOVED                   "Karta usunieta"
@@ -329,8 +353,8 @@
 	#define MSG_SD_BAD_FILENAME              "Bad filename!"
 #endif
 
-
-#if LANGUAGE_CHOICE == 3
+// French
+#if LANGUAGE == FR
 	#define WELCOME_MSG MACHINE_NAME         " prete"
 	#define MSG_SD_INSERTED                  "Carte inseree"
 	#define MSG_SD_REMOVED                   "Carte retiree"
@@ -492,7 +516,8 @@
 #endif
 
 
-#if LANGUAGE_CHOICE == 4
+// German
+#if LANGUAGE == DE
 	#define WELCOME_MSG MACHINE_NAME         " fertig"
 	#define MSG_SD_INSERTED                  "Karte eingesetzt"
 	#define MSG_SD_REMOVED                   "Karte entfernt"
@@ -653,8 +678,8 @@
 	#define MSG_SD_BAD_FILENAME              "Unguelt. Dateiname!"
 #endif
 
-
-#if LANGUAGE_CHOICE == 5
+// Spanish
+#if LANGUAGE == ES
 	#define WELCOME_MSG MACHINE_NAME         " lista"
 	#define MSG_SD_INSERTED                  "Tarjeta insertada"
 	#define MSG_SD_REMOVED                   "Tarjeta retirada"
@@ -815,8 +840,8 @@
 	#define MSG_SD_BAD_FILENAME              "Nombre ilegal"
 #endif
 
-
-#if LANGUAGE_CHOICE == 7
+// Italian
+#if LANGUAGE == IT
 	#define WELCOME_MSG MACHINE_NAME         " pronta"
 	#define MSG_SD_INSERTED                  "SD Card inserita"
 	#define MSG_SD_REMOVED                   "SD Card rimossa"
@@ -977,8 +1002,8 @@
 	#define MSG_SD_BAD_FILENAME              "Nome del file non valido!"
 #endif
 
-
-#if LANGUAGE_CHOICE == 8
+// Portuguese
+#if LANGUAGE == PT
 	#define WELCOME_MSG MACHINE_NAME         " pronta"
 	#define MSG_SD_INSERTED                  "Cartao inserido"
 	#define MSG_SD_REMOVED                   "Cartao extraido"
@@ -1139,8 +1164,8 @@
 	#define MSG_SD_BAD_FILENAME              "Nome de fich. nulo!"
 #endif
 
-
-#if LANGUAGE_CHOICE == 9
+// Finnish
+#if LANGUAGE == FI
 	#define WELCOME_MSG MACHINE_NAME         " valmis."
 	#define MSG_SD_INSERTED                  "Kortti asetettu"
 	#define MSG_SD_REMOVED                   "Kortti poistettu"
@@ -1301,8 +1326,8 @@
 	#define MSG_SD_BAD_FILENAME              "Bad filename!"
 #endif
 
-
-#if LANGUAGE_CHOICE == 11 //Dutch
+// Dutch
+#if LANGUAGE == NL
 	#define WELCOME_MSG MACHINE_NAME         " gereed."
 	#define MSG_SD_INSERTED                  "Kaart ingestoken"
 	#define MSG_SD_REMOVED                   "Kaart verwijderd"
@@ -1463,4 +1488,4 @@
 	#define MSG_SD_BAD_FILENAME              "Bad filename!"
 #endif
 
-#endif // ifndef LANGUAGE_H
+#endif // LANGUAGE_H
