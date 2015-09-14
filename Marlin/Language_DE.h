@@ -167,5 +167,6 @@ const char DE_PLEASE_WAIT[] PROGMEM                     = "Bitte warten";
 const char DE_BACK[] PROGMEM                            = "0";
 const char DE_MODE[] PROGMEM                            = "0";
 const char DE_INACTIVE[] PROGMEM                        = "0";
+const char DE_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_DE_H
