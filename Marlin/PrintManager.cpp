@@ -207,7 +207,7 @@ void PrintManager::updateInactivity()
 
 void PrintManager::inactivityTriggered()
 {
-	TemperatureManager::single::instance().setTargetTemperature(0);
+	temperature::TemperatureManager::single::instance().setTargetTemperature(0);
 	SteppersManager::disableAllSteppers();
 
 	screen::ViewManager::getInstance().activeView(screen::screen_inactivity);

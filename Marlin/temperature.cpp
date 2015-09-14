@@ -813,7 +813,7 @@ static void updateTemperaturesFromRawValues()
     }
 
 #ifdef DOGLCD
-    TemperatureManager::single::instance().updateCurrentTemperature(current_temperature[0]);
+    temperature::TemperatureManager::single::instance().updateCurrentTemperature(current_temperature[0]);
 #endif
 
     current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
@@ -836,7 +836,7 @@ void setTargetHotend(const float &celsius, uint8_t extruder)
 #ifdef DOGLCD
   if (extruder == 0)
   {
-    TemperatureManager::single::instance().setTargetTemperature((uint16_t) celsius);
+    temperature::TemperatureManager::single::instance().setTargetTemperature((uint16_t) celsius);
   }
   else
 #endif
@@ -1213,7 +1213,7 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 void disable_heater()
 {
 #ifdef DOGLCD
-  TemperatureManager::single::instance().setTargetTemperature(0);
+  temperature::TemperatureManager::single::instance().setTargetTemperature(0);
 #endif
 
   for(int i=0;i<EXTRUDERS;i++)

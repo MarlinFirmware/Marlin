@@ -38,17 +38,17 @@ extern float probe_pt(float x, float y, float z_before, int retract_action = 0);
 
 void action_set_temperature(uint16_t degrees)
 {
-	TemperatureManager::single::instance().setTargetTemperature(degrees);
+	temperature::TemperatureManager::single::instance().setTargetTemperature(degrees);
 }
 
 void action_preheat()
 {
-	TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
+	temperature::TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
 }
 
 void action_cooldown()
 {
-	TemperatureManager::single::instance().setTargetTemperature(0);
+	temperature::TemperatureManager::single::instance().setTargetTemperature(0);
 }
 
 void action_filament_unload()
@@ -530,7 +530,7 @@ void action_stop_print()
 	card.sdprinting = false;
 	card.closefile();
 
-	TemperatureManager::single::instance().setTargetTemperature(0);
+	temperature::TemperatureManager::single::instance().setTargetTemperature(0);
 
 	flush_commands();
 	quickStop();
@@ -696,7 +696,7 @@ void action_save_offset()
 
 bool action_check_preheat_temp()
 {
-	if(TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
+	if(temperature::TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
 	{
 		return true;
 	}
@@ -708,7 +708,7 @@ bool action_check_preheat_temp()
 
 bool action_check_cooling()
 {
-	if(TemperatureManager::single::instance().getTargetTemperature() <= TemperatureManager::single::instance().getCurrentTemperature())
+	if(temperature::TemperatureManager::single::instance().getTargetTemperature() <= temperature::TemperatureManager::single::instance().getCurrentTemperature())
 	{
 		return true;
 	}
@@ -720,8 +720,8 @@ bool action_check_cooling()
 
 bool action_check_min_temp()
 {
-	if(TemperatureManager::single::instance().getTargetTemperature() <= TemperatureManager::single::instance().min_temp_cooling
-		|| TemperatureManager::single::instance().getCurrentTemperature() <= TemperatureManager::single::instance().min_temp_cooling)
+	if(temperature::TemperatureManager::single::instance().getTargetTemperature() <= temperature::min_temp_cooling
+		|| temperature::TemperatureManager::single::instance().getCurrentTemperature() <= temperature::min_temp_cooling)
 	{
 		action_cooldown();
 		return true;
