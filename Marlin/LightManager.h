@@ -18,7 +18,7 @@ class LightManager : public Subject<bool>
 		LightManager();
 
 		void state(bool state);
-		bool state();
+		const bool & state() const;
 		void notify();
 
 		static void setState();

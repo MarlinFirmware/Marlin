@@ -63,6 +63,7 @@
   #include "GuiManager.h"
   #include "PrintManager.h"
   #include "StorageManager.h"
+  #include "SerialManager.h"
   #include "ViewManager.h"
 #else // DOGLCD
   #include "ultralcd.h"
@@ -405,7 +406,6 @@ static char serial_char;
 static int serial_count = 0;
 static boolean comment_mode = false;
 static char *strchr_pointer; ///< A pointer to find chars in the command string (X, Y, Z, E, etc.)
-static bool serial_mode = false;
 
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
 
@@ -799,15 +799,16 @@ void get_command()
     serial_char = MYSERIAL.read();
 
 #ifdef DOGLCD
-		if(eeprom::StorageManager::getScreenSerialState() == eeprom::SCREEN_SERIAL_ACTIVE && !serial_mode)
+		if(SerialManager::single::instance().state()
+			&& PrintManager::single::instance().state() != SERIAL_CONTROL
+			&& PrintManager::single::instance().state() != INITIALIZING)
 		{
-			serial_mode = true;
 			if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial)
 			{
 				PrintManager::single::instance().state(SERIAL_CONTROL);
 				screen::ViewManager::getInstance().activeView(screen::screen_serial);
-		 	}
-	 	}
+			}
+		}
 #endif
 
     if(serial_char == '\n' ||
