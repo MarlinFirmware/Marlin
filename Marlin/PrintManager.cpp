@@ -14,7 +14,12 @@ PrintManager::PrintManager()
 	, m_known_position(false)
 	, m_inactivity_time(0)
 	, m_inactivity_flag(true)
-{ }
+{
+#ifdef FAN_BOX_PIN
+	pinMode(FAN_BOX_PIN, OUTPUT);
+	digitalWrite(FAN_BOX_PIN, LOW);
+#endif //FAN_BOX_PIN
+}
 
 void PrintManager::state(PrinterState_t state)
 {

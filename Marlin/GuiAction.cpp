@@ -486,6 +486,10 @@ void action_move_to_rest()
 
 void action_start_print()
 {
+#ifdef FAN_BOX_PIN
+	digitalWrite(FAN_BOX_PIN, HIGH);
+#endif //FAN_BOX_PIN
+
 	char cmd[30];
 	char* c;
 	strcpy(cmd, card.longFilename);
@@ -527,6 +531,10 @@ void action_start_print()
 
 void action_stop_print()
 {
+#ifdef FAN_BOX_PIN
+	digitalWrite(FAN_BOX_PIN, LOW);
+#endif //FAN_BOX_PIN
+
 	card.sdprinting = false;
 	card.closefile();
 
@@ -575,7 +583,6 @@ void action_finish_print()
 {
 	action_stop_print();
 	temp::TemperatureManager::single::instance().setTargetTemperature(0);
-
 }
 
 extern float target[4];

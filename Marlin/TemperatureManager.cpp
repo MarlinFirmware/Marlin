@@ -11,11 +11,6 @@ namespace temp
 		, m_current_temperature(0)
 		, m_target_temperature(0)
 	{
-	#ifdef FAN_BOX_PIN
-		pinMode(FAN_BOX_PIN, OUTPUT);
-		digitalWrite(FAN_BOX_PIN, HIGH);
-	#endif //FAN_BOX_PIN
-
 	#ifdef FAN_BLOCK_PIN
 		pinMode(FAN_BLOCK_PIN, OUTPUT);
 		digitalWrite(FAN_BLOCK_PIN, LOW);
