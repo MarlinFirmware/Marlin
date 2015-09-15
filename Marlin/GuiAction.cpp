@@ -738,3 +738,8 @@ bool action_check_min_temp()
 		return false;
 	}
 }
+
+void action_close_inactivity()
+{
+	PrintManager::single::instance().state(STOPPED);
+}

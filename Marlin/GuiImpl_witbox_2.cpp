@@ -951,6 +951,13 @@ namespace screen
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
 		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETE_TITLE(), MSG_SCREEN_PRINT_COMPLETE_TEXT(), MSG_PUSH_TO_CONTINUE(), PrintManager::printingTime());
+		local_view->add(screen_close_inactivity);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_close_inactivity()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_close_inactivity);
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -1487,6 +1494,9 @@ namespace screen
 			// Inactivity screen
 			case screen_inactivity:
 				new_view = make_screen_inactivity();
+				break;
+			case screen_close_inactivity:
+				new_view = make_screen_close_inactivity();
 				break;
 		}
 		return new_view; 
