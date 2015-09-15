@@ -91,9 +91,9 @@
     // GLCD features
     //#define LCD_CONTRAST 190
     // Uncomment screen orientation
-      // #define LCD_SCREEN_ROT_90
-      // #define LCD_SCREEN_ROT_180
-      // #define LCD_SCREEN_ROT_270
+      //#define LCD_SCREEN_ROT_90
+      //#define LCD_SCREEN_ROT_180
+      //#define LCD_SCREEN_ROT_270
     //The encoder and click button
     #define BTN_EN1 48
     #define BTN_EN2 11

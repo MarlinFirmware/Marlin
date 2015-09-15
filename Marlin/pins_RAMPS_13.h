@@ -181,9 +181,9 @@
        // GLCD features
        //#define LCD_CONTRAST 190
        // Uncomment screen orientation
-         // #define LCD_SCREEN_ROT_90
-         // #define LCD_SCREEN_ROT_180
-         // #define LCD_SCREEN_ROT_270
+         //#define LCD_SCREEN_ROT_90
+         //#define LCD_SCREEN_ROT_180
+         //#define LCD_SCREEN_ROT_270
        //The encoder and click button
        #define BTN_EN1 40
        #define BTN_EN2 63
@@ -226,10 +226,10 @@
 
     // Buttons are attached to a shift register
     // Not wired yet
-    // #define SHIFT_CLK 38
-    // #define SHIFT_LD 42
-    // #define SHIFT_OUT 40
-    // #define SHIFT_EN 17
+    //#define SHIFT_CLK 38
+    //#define SHIFT_LD 42
+    //#define SHIFT_OUT 40
+    //#define SHIFT_EN 17
 
     #define LCD_PINS_RS 16
     #define LCD_PINS_ENABLE 17
