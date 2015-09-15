@@ -127,7 +127,7 @@ const char SE_SCREEN_WIZARD_LANGUAGE[] PROGMEM          = "Spanska";
 const char SE_SCREEN_WIZARD_TEXT1[] PROGMEM             = "V""\xe4""lkommen! L""\xe5""t oss f""\xf6""rbereda skrivaren";
 const char SE_SCREEN_WIZARD_TEXT2[] PROGMEM             = "Vi b""\xf6""rjar med att kalibrera sensorn genom att justera f""\xf6""rskjutningen";
 const char SE_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Kom ih""\xe5""g att h""\xe5""lla extrudern och basen fria fr""\xe5""n smuts";
-const char SE_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Ha roligt med din MACHINE_NAME! Om du kan f""\xf6""rest""\xe4""lla dig det kan du g""\xf6""ra det.";
+const char SE_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Ha roligt med din " MACHINE_NAME "! Om du kan f""\xf6""rest""\xe4""lla dig det kan du g""\xf6""ra det.";
 const char SE_ICON_SD_NOSD[] PROGMEM                    = "S""\xe4""tt in SD-kortet";
 const char SE_ICON_SD_SD[] PROGMEM                      = "Skriv ut fr""\xe5""n SD";
 const char SE_ICON_FILAMENT_UNLOAD[] PROGMEM            = "Ta bort tr""\xe5""d";
@@ -168,5 +168,6 @@ const char SE_PLEASE_WAIT[] PROGMEM                     = "V""\xe4""nta";
 const char SE_BACK[] PROGMEM                            = "0";
 const char SE_MODE[] PROGMEM                            = "0";
 const char SE_INACTIVE[] PROGMEM                        = "0";
+const char SE_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_SE_H
