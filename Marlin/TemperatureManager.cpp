@@ -18,7 +18,7 @@ namespace temp
 
 	#ifdef FAN_BLOCK_PIN
 		pinMode(FAN_BLOCK_PIN, OUTPUT);
-		digitalWrite(FAN_BLOCK_PIN, HIGH);
+		digitalWrite(FAN_BLOCK_PIN, LOW);
 	#endif //FAN_BLOCK_PIN
 	}
 
@@ -30,13 +30,23 @@ namespace temp
 			notify();
 		}
 
-		if (m_target_temperature < min_temp_cooling && m_current_temperature > min_temp_cooling)
+		if (m_current_temperature > min_temp_cooling)
 		{
-			fanSpeed = 255;
+			digitalWrite(FAN_BLOCK_PIN, HIGH);
+
+			if (m_target_temperature < min_temp_cooling)
+			{
+				fanSpeed = 255;
+			}
+			else
+			{
+				fanSpeed = 0;
+			}
 		}
 		else
 		{
-			fanSpeed = 0;
+			digitalWrite(FAN_BLOCK_PIN, LOW);	
+			fanSpeed = 0;		
 		}
 	}
 
