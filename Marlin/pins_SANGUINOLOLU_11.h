@@ -113,9 +113,9 @@
   
     // Uncomment screen orientation
     #define LCD_SCREEN_ROT_0
-    // #define LCD_SCREEN_ROT_90
-    // #define LCD_SCREEN_ROT_180
-    // #define LCD_SCREEN_ROT_270
+    //#define LCD_SCREEN_ROT_90
+    //#define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROT_270
 
   #else // !DOGLCD - Standard Hitachi LCD controller
 
@@ -157,9 +157,9 @@
   #define LCD_CONTRAST           1
   // Uncomment screen orientation
   #define LCD_SCREEN_ROT_0
-  // #define LCD_SCREEN_ROT_90
-  // #define LCD_SCREEN_ROT_180
-  // #define LCD_SCREEN_ROT_270
+  //#define LCD_SCREEN_ROT_90
+  //#define LCD_SCREEN_ROT_180
+  //#define LCD_SCREEN_ROT_270
   //The encoder and click button
   #define BTN_EN1               11
   #define BTN_EN2               10
@@ -170,5 +170,5 @@
 #endif // MAKRPANEL
 
 // #if FAN_PIN == 12 || FAN_PIN ==13
-//   #define FAN_SOFT_PWM
+//#define FAN_SOFT_PWM
 // #endif
