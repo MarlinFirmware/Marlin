@@ -55,7 +55,6 @@ namespace screen
 			}
 			else if (!eeprom::StorageManager::single::instance().getInitialized())
 			{
-				PrintManager::single::instance().state(INITIALIZING);
 				ViewManager::getInstance().activeView(m_alt_screen);
 			}
 			else

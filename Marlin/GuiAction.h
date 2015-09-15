@@ -32,6 +32,7 @@ extern void action_offset();
 extern void action_set_offset(uint8_t axis, float value);
 extern void action_save_offset();
 
+extern void action_wizard_init();
 extern void action_wizard_finish();
 extern bool action_check_preheat_temp();
 extern bool action_check_cooling();

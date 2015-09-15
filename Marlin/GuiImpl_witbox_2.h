@@ -9,6 +9,7 @@ namespace screen
 	typedef enum
 	{
 		screen_splash = 0,
+		screen_wizard_init,
 		screen_wizard_language,
 		screen_wizard_step1,
 		screen_wizard_step2,

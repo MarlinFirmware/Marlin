@@ -14,6 +14,7 @@
 #include "AutoLevelManager.h"
 #include "PrintManager.h"
 #include "StorageManager.h"
+#include "LightManager.h"
 
 bool raised = false;
 extern bool home_all_axis;
@@ -689,6 +690,12 @@ void action_save_offset()
 	OffsetManager::single::instance().saveOffset();
 
 	action_move_to_rest();
+}
+
+void action_wizard_init()
+{
+	PrintManager::single::instance().state(INITIALIZING);
+	LightManager::single::instance().state(true);
 }
 
 void action_wizard_finish()
