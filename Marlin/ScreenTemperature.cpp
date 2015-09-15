@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenSelector.h
+/// \file ScreenTemperature.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of selector-type screens.
+/// \brief Implementation of screen temperature.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,96 +25,23 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_SELECTOR_H
-#define SCREEN_SELECTOR_H
+#include "ScreenTemperature.h"
 
-#include <stdint.h>
-
-#include "Screen.h"
-#include "Functor.h"
-
+#include "TemperatureManager.h"
 #include "Language.h"
 
 namespace screen
-{
-	template <typename R, typename... Args>
-		class ScreenSelector : public Screen , public Functor<R, Args...>
+{	
+	ScreenTemperature::ScreenTemperature(const char * title, const char * box, uint16_t min, uint16_t max, uint16_t scale, uint16_t dflt, Functor<void, uint16_t>::FuncPtr fptr)
+		: ScreenSelector<void, uint16_t>(title, box, min, max, scale, dflt, fptr)
 	{
-		public:
-			ScreenSelector(const char * title, const char * box, uint16_t min, uint16_t max, uint16_t scale, uint16_t dflt, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
-			virtual ~ScreenSelector();
+		m_minimum_value = min - scale;
+	}
 
-			void init(uint16_t index = 0);
-
-			void left();
-			void right();
-			void draw();
-			void press();
-
-		protected:
-			uint16_t m_select;
-			uint16_t m_minimum_value;
-			uint16_t m_maximum_value;
-			uint16_t m_scale;
-			uint16_t m_default;
-			const char * m_box;
-	};
-
-	template <typename R, typename... Args>
-		ScreenSelector<R, Args...>::ScreenSelector(const char * title, const char * box, uint16_t min, uint16_t max, uint16_t scale, uint16_t dflt, typename Functor<R, Args...>::FuncPtr fptr)
-		: Screen(title, SELECTOR)
-		, m_box(box)
-		, Functor<R, Args...>(fptr)
-		, m_minimum_value(min)
-		, m_maximum_value(max)
-		, m_scale(scale)
-		, m_default(dflt)
-		, m_select(dflt)
+	ScreenTemperature::~ScreenTemperature()
 	{ }
 
-	template <typename R, typename... Args>
-		ScreenSelector<R, Args...>::~ScreenSelector()
-	{ }
-
-	template <typename R, typename... Args>
-		void ScreenSelector<R, Args...>::init(uint16_t index)
-	{
-		m_select = m_default;
-	}
-
-	template <typename R, typename... Args>
-		void ScreenSelector<R, Args...>::left()
-	{
-		if (m_select != m_minimum_value)
-		{
-			m_select -= m_scale;
-			m_needs_drawing = true;
-		}
-
-		if (m_select < m_minimum_value)
-		{
-			m_select = m_minimum_value;
-		}
-	}
-
-	template <typename R, typename... Args>
-		void ScreenSelector<R, Args...>::right()
-	{
-		if (m_select != m_maximum_value)
-		{
-			m_select += m_scale;
-			m_needs_drawing = true;
-		}
-
-		if (m_select > m_maximum_value)
-		{
-			m_select = m_maximum_value;
-		}
-
-	}
-
-	template <typename R, typename... Args>
-		void ScreenSelector<R, Args...>::draw()
+	void ScreenTemperature::draw()
 	{
 		if (m_needs_drawing)
 		{
@@ -164,8 +91,7 @@ namespace screen
 				}
 				else if (m_select != m_maximum_value)
 				{
-					strcat(info, tmp_selected);
-					strcat(info, units);
+					strcat_P(info, MSG_TEMP_OFF());
 					strcat(info, " >");
 				}
 
@@ -177,11 +103,17 @@ namespace screen
 		}
 	}
 
-	template <typename R, typename... Args>
-		void ScreenSelector<R, Args...>::press()
+	void ScreenTemperature::press()
 	{
-		this->action(m_select);
+		if(m_select == m_minimum_value)
+		{
+			this->action(0);
+		}
+		else
+		{
+			this->action(m_select);
+		}
+
 		ViewManager::getInstance().activeView(m_next_screen);
 	}
 }
-#endif //SCREEN_SELECTOR_H

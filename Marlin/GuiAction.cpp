@@ -38,17 +38,17 @@ extern float probe_pt(float x, float y, float z_before, int retract_action = 0);
 
 void action_set_temperature(uint16_t degrees)
 {
-	TemperatureManager::single::instance().setTargetTemperature(degrees);
+	temp::TemperatureManager::single::instance().setTargetTemperature(degrees);
 }
 
 void action_preheat()
 {
-	TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
+	temp::TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
 }
 
 void action_cooldown()
 {
-	TemperatureManager::single::instance().setTargetTemperature(30);
+	temp::TemperatureManager::single::instance().setTargetTemperature(0);
 }
 
 void action_filament_unload()
@@ -530,7 +530,7 @@ void action_stop_print()
 	card.sdprinting = false;
 	card.closefile();
 
-	TemperatureManager::single::instance().setTargetTemperature(0);
+	temp::TemperatureManager::single::instance().setTargetTemperature(0);
 
 	flush_commands();
 	quickStop();
@@ -703,8 +703,34 @@ void action_wizard_finish()
 
 bool action_check_preheat_temp()
 {
-	if(TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
+	if(temp::TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
 	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool action_check_cooling()
+{
+	if(temp::TemperatureManager::single::instance().getTargetTemperature() <= temp::TemperatureManager::single::instance().getCurrentTemperature())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool action_check_min_temp()
+{
+	if(temp::TemperatureManager::single::instance().getTargetTemperature() <= temp::min_temp_cooling
+		|| temp::TemperatureManager::single::instance().getCurrentTemperature() <= temp::min_temp_cooling)
+	{
+		action_cooldown();
 		return true;
 	}
 	else

@@ -207,7 +207,7 @@ void PrintManager::updateInactivity()
 
 void PrintManager::inactivityTriggered()
 {
-	TemperatureManager::single::instance().setTargetTemperature(0);
+	temp::TemperatureManager::single::instance().setTargetTemperature(0);
 	SteppersManager::disableAllSteppers();
 
 	if(m_state != INITIALIZING && m_state != SERIAL_CONTROL)
