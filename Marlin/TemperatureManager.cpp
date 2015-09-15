@@ -2,6 +2,7 @@
 
 #include "TemperatureManager.h"
 #include "temperature.h"
+#include "Marlin.h"
 
 namespace temp
 {
@@ -27,6 +28,15 @@ namespace temp
 		{
 			m_current_temperature = temp;
 			notify();
+		}
+
+		if (m_target_temperature < min_temp_cooling && m_current_temperature > min_temp_cooling)
+		{
+			fanSpeed = 255;
+		}
+		else
+		{
+			fanSpeed = 0;
 		}
 	}
 

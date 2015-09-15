@@ -530,7 +530,7 @@ void action_stop_print()
 	card.sdprinting = false;
 	card.closefile();
 
-	temp::TemperatureManager::single::instance().setTargetTemperature(0);
+	temp::TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
 
 	flush_commands();
 	quickStop();
@@ -569,6 +569,13 @@ void action_stop_print()
 
 	cancel_heatup = true;
 	stop_planner_buffer = true;
+}
+
+void action_finish_print()
+{
+	action_stop_print();
+	temp::TemperatureManager::single::instance().setTargetTemperature(0);
+
 }
 
 extern float target[4];
