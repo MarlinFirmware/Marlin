@@ -50,15 +50,16 @@ MAKEFILE = Makefile
 # Output format
 FORMAT = ihex
 
-AVR_TOOLS_PATH ?= $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/
+AVR_TOOLS_PATH = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/
 
 VPATH = .
 VPATH += $(BUILD_DIR)
 
--include .config
+-include .config_mach
+-include .config_lang
 
-LANGUAGE ?= EN
-UPPER_LANGUAGE = $(shell echo $(LANGUAGE) | tr a-z A-Z)
+DEFAULT_LANGUAGE = EN
+LANGUAGE ?= $(shell echo $(DEFAULT_LANGUAGE) | tr a-z A-Z)
 
 # Machine setup
 ifeq ($(MACHINE_MODEL), Witbox)
@@ -88,7 +89,7 @@ MCU              ?= atmega2560
 F_CPU            ?= 16000000
 
 # bq ZUM Mega 3D
-else ifeq ($(HARDWARE_MOTHERBOARD), BQ_ZUM_MEGA)
+else ifeq ($(HARDWARE_MOTHERBOARD), BQ_ZUM_MEGA_3D)
 MCU              ?= atmega2560
 F_CPU            ?= 16000000
 
@@ -142,7 +143,7 @@ ifeq ($(HARDWARE_DISPLAY), Graphic)
 		ScreenSplash.cpp ScreenTransition.cpp ScreenSerial.cpp ScreenSetting.cpp ScreenSwitch.cpp \
 		Stepper.cpp Language.cpp
 
-	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SteppersManager.cpp StorageManager.cpp \
+	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp StorageManager.cpp \
 		TemperatureManager.cpp ViewManager.cpp
 endif
 
@@ -176,7 +177,7 @@ COPY = cp
 REMOVE = rm -f
 
 # Place -D or -U options here
-CDEFS    = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)}
+CDEFS    = -DF_CPU=$(F_CPU) -DLANGUAGE=$(LANGUAGE) ${addprefix -D , $(DEFINES)}
 CXXDEFS  = $(CDEFS)
 
 # Add all the source directories as include directories too
@@ -191,9 +192,9 @@ CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct \
 	-fshort-enums -w -ffunction-sections -fdata-sections \
 	-DARDUINO=$(ARDUINO_VERSION)
 
-ifneq ($(HARDWARE_MOTHERBOARD),)
-#CTUNING += -DMOTHERBOARD=${HARDWARE_MOTHERBOARD}
-endif
+#ifneq ($(HARDWARE_MOTHERBOARD),)
+#CTUNING += -DMOTHERBOARD=$(HARDWARE_MOTHERBOARD)
+#endif
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 CEXTRA = -fno-use-cxa-atexit
 
@@ -283,7 +284,7 @@ endef
 # Default target.
 all: sizeafter
 
-build: $(BUILD_DIR) elf hex .config
+build: $(BUILD_DIR) elf hex defconfig
 
 # Creates the object directory
 $(BUILD_DIR):
@@ -379,52 +380,93 @@ clean:
 	$P rm -rf $(BUILD_DIR)
 
 cleanall: clean
-	$(Pecho) "  RM    .config"
-	$P $(REMOVE) .config
+	$(Pecho) "  RM    .config_mach"
+	$P $(REMOVE) .config_mach
+	$(Pecho) "  RM    .config_lang"
+	$P $(REMOVE) .config_lang
 
 # Configuration build enviroment targets
-# 1st Generation printers
+
+### Configure machine targets
+#1st Generation printers
 witbox:
 	@echo Configurating for $@ printer...
-	@echo Language: ${UPPER_LANGUAGE}
-	@cp config/witbox/Makefile .config
-	@echo >> .config
-	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
-	$(call check_language_1gen)
+	@echo Language selected: English [EN] \(by default\)
+	@ $(COPY) config/witbox/Makefile .config_mach
+	@ $(COPY) language/en/Makefile .config_lang
 
 hephestos:
 	@echo Configurating for $@ printer...
-	@echo Language: ${UPPER_LANGUAGE}
-	@cp config/hephestos/Makefile .config
-	@echo >> .config
-	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
-	$(call check_language_1gen)
+	@echo Language selected: English [EN] \(by default\)
+	@ $(COPY) config/hephestos/Makefile .config_mach
+	@ $(COPY) language/en/Makefile .config_lang
 
 hephestos_xl:
-	@cp config/hephestos_xl/Makefile .config
-	@echo Language: ${UPPER_LANGUAGE}
 	@echo Configurating for $@ printer...
-	@cp config/hephestos_xl/Makefile .config
-	@echo >> .config
-	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
-	$(call check_language_1gen)
+	@echo Language selected: English [EN] \(by default\)
+	@ $(COPY) config/hephestos_xl/Makefile .config_mach
+	@ $(COPY) language/en/Makefile .config_lang
 
 # 2nd Generation printers
 witbox_2:
 	@echo Configurating for $@ printer...
-	@echo Language: ${UPPER_LANGUAGE}
-	@cp config/witbox_2/Makefile .config
-	@echo >> .config
-	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
-	$(call check_language_2gen)
+	@echo Language selected: English [EN] \(by default\)
+	@ $(COPY) config/witbox_2/Makefile .config_mach
+	@ $(COPY) language/en/Makefile .config_lang
 
 hephestos_2:
 	@echo Configurating for $@ printer...
-	@echo Language: ${UPPER_LANGUAGE}
-	@cp config/hephestos_2/Makefile .config
-	@echo >> .config
-	@echo LANGUAGE ?= ${UPPER_LANGUAGE} >> .config
-	$(call check_language_2gen)
+	@echo Language selected: English [EN] \(by default\)
+	@ $(COPY) config/hephestos_2/Makefile .config_mach
+	@ $(COPY) language/en/Makefile .config_lang
+
+
+### Configure language targets
+DE:
+	@echo Changing language to: German [$@]
+	@ $(COPY) language/de/Makefile .config_lang
+
+EN:
+	@echo Changing language to: English [$@]
+	@ $(COPY) language/en/Makefile .config_lang
+
+ES:
+	@echo Changing language to: Spanish [$@]
+	@ $(COPY) language/es/Makefile .config_lang
+
+FI:
+	@echo Changing language to: Finnish [$@]
+	@ $(COPY) language/fi/Makefile .config_lang
+
+FR:
+	@echo Changing language to: French [$@]
+	@ $(COPY) language/fi/Makefile .config_lang
+
+IT:
+	@echo Changing language to: Italian [$@]
+	@ $(COPY) language/it/Makefile .config_lang
+
+NL:
+	@echo Changing language to: Dutch [$@]
+	@ $(COPY) language/nl/Makefile .config_lang
+
+PL:
+	@echo Changing language to: Polish [$@]
+	@ $(COPY) language/pl/Makefile .config_lang
+
+PT:
+	@echo Changing language to: Portuguese [$@]
+	@ $(COPY) language/pt/Makefile .config_lang
+
+defconfig: .config_mach .config_lang
+
+verbose:
+	@echo VPATH:
+	@echo $(VPATH)
+	@echo CSRC:
+	@echo $(CSRC)
+	@echo CXXSRC:
+	@echo $(CXXSRC)
 
 # Define .PHONY targets
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter upload
