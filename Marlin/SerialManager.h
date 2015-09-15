@@ -6,9 +6,6 @@
 
 #include <stdint.h>
 
-extern void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size);
-extern void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size);
-
 class SerialManager : public Subject<bool>
 {
 	public:
@@ -18,18 +15,13 @@ class SerialManager : public Subject<bool>
 		SerialManager();
 
 		void state(bool state);
-		const bool & state() const;
+		bool state();
 		void notify();
 
 		static void setState();
 
 	private:
-		bool ReadFromEEPROM();
-		void WriteToEEPROM(bool state);
-
-	private:
 		bool m_state;
-		static const int EEPROM_POS = 509;
 };
 
 #endif //SERIAL_MANAGER_H

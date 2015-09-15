@@ -13,6 +13,7 @@
 #include "OffsetManager.h"
 #include "AutoLevelManager.h"
 #include "PrintManager.h"
+#include "StorageManager.h"
 
 bool raised = false;
 extern bool home_all_axis;
@@ -686,19 +687,21 @@ void action_set_offset(uint8_t axis, float value)
 void action_save_offset()
 {
 	OffsetManager::single::instance().saveOffset();
-	if(!OffsetManager::single::instance().isOffsetOnEEPROM())
-	{
-		OffsetManager::single::instance().offsetOnEEPROM();
-	}
 
 	action_move_to_rest();
 }
 
 void action_wizard_finish()
 {
-	PrintManager::resetInactivity();
+	//Set printer as initialized
+	eeprom::StorageManager::single::instance().setInitialized();
+
+	//Set default values
 	PrintManager::single::instance().state(STOPPED);
 	AutoLevelManager::single::instance().state(true);
+
+	//Reset inactivity
+	PrintManager::resetInactivity();
 }
 
 bool action_check_preheat_temp()

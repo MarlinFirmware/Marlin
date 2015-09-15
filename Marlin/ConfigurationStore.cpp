@@ -68,7 +68,7 @@
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
 
-#include "OffsetManager.h"
+#include "StorageManager.h"
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
@@ -407,12 +407,12 @@ void Config_ResetDefault() {
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
   #endif
 #ifdef LEVEL_SENSOR
-    if(OffsetManager::single::instance().isOffsetOnEEPROM())
+    if(eeprom::StorageManager::single::instance().getInitialized())
     {
-      int k = 232;
-      EEPROM_READ_VAR(k,zprobe_zoffset);
+      zprobe_zoffset = eeprom::StorageManager::single::instance().getOffset();
       if(zprobe_zoffset < 0 || zprobe_zoffset > 10)
       {
+        SERIAL_ECHOLN("Prevented out of range offset!");
         zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
       }
     }
