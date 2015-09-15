@@ -101,11 +101,9 @@ namespace screen
 				//Print temp
 				char temp[21] = "";
 				strcat(temp, c_current);
-				strcat(temp, "\xb0/");
-				strcat(temp, c_target);
 				strcat(temp, "\xb0");
 
-				painter.setPrintPos(x_init - strlen(temp)*6 - 5, y_init + (max_font_height + 1)*2 - 5);
+				painter.setPrintPos(x_init - strlen(temp)*6 - 4, y_init + (max_font_height + 1)*2 - 5);
 				painter.print(temp);
 
 				//Draw progress bar
