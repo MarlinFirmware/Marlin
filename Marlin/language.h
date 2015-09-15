@@ -81,7 +81,7 @@
 #endif
 
 #ifndef MACHINE_UUID
-   #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
+  #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 #endif
 
 
@@ -91,7 +91,7 @@
 
 // Common LCD messages
 
-  /* nothing here yet */
+/* nothing here yet */
 
 // Common serial messages
 #define MSG_MARLIN "Marlin"

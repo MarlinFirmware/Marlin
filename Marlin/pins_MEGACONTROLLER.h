@@ -25,7 +25,7 @@
 #define Y_DIR_PIN 66 // A12
 #define Y_ENABLE_PIN 64//A10
 #define Y_MIN_PIN 38
-#define Y_MAX_PIN 41 
+#define Y_MAX_PIN 41
 
 #define Z_STEP_PIN 68 // A14
 #define Z_DIR_PIN 69 // A15
@@ -81,24 +81,24 @@
 #endif
 
 #if ENABLED(MINIPANEL)
-    #define BEEPER_PIN 46
-    // Pins for DOGM SPI LCD Support
-    #define DOGLCD_A0  47
-    #define DOGLCD_CS  45
-    #define LCD_PIN_BL 44  // backlight LED on PA3
-    
-    #define KILL_PIN 12
-    // GLCD features
-    //#define LCD_CONTRAST 190
-    // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-    //The encoder and click button
-    #define BTN_EN1 48
-    #define BTN_EN2 11
-    #define BTN_ENC 10  //the click switch
-    //not connected to a pin
-    #define SD_DETECT_PIN 49
+  #define BEEPER_PIN 46
+  // Pins for DOGM SPI LCD Support
+  #define DOGLCD_A0  47
+  #define DOGLCD_CS  45
+  #define LCD_PIN_BL 44  // backlight LED on PA3
+
+  #define KILL_PIN 12
+  // GLCD features
+  //#define LCD_CONTRAST 190
+  // Uncomment screen orientation
+  //#define LCD_SCREEN_ROT_90
+  //#define LCD_SCREEN_ROT_180
+  //#define LCD_SCREEN_ROT_270
+  //The encoder and click button
+  #define BTN_EN1 48
+  #define BTN_EN2 11
+  #define BTN_ENC 10  //the click switch
+  //not connected to a pin
+  #define SD_DETECT_PIN 49
 #endif //Minipanel
 

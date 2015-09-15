@@ -55,14 +55,12 @@ int16_t SdFile::write(const void* buf, uint16_t nbyte) {
  * Use writeError to check for errors.
  */
 #if ARDUINO >= 100
-size_t SdFile::write(uint8_t b)
-{
-    return SdBaseFile::write(&b, 1);
+size_t SdFile::write(uint8_t b) {
+  return SdBaseFile::write(&b, 1);
 }
 #else
-void SdFile::write(uint8_t b)
-{
-    SdBaseFile::write(&b, 1);
+void SdFile::write(uint8_t b) {
+  SdBaseFile::write(&b, 1);
 }
 #endif
 //------------------------------------------------------------------------------

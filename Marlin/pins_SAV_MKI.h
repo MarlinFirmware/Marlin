@@ -32,7 +32,7 @@
 #define HEATER_2_PIN       -1
 #define HEATER_BED_PIN     20  // Bed
 #define FAN_PIN            16  // Fan   -- from Teensyduino environment.
-                               // For the fan and Teensyduino uses a different pin mapping.
+// For the fan and Teensyduino uses a different pin mapping.
 
 #define X_STOP_PIN         13
 #define Y_STOP_PIN         14
@@ -46,7 +46,7 @@
 #define TEMP_2_PIN         -1
 
 #if DISABLED(SDSUPPORT)
-   // these pins are defined in the SD library if building with SD support
+  // these pins are defined in the SD library if building with SD support
   #define SCK_PIN          9
   #define MISO_PIN         11
   #define MOSI_PIN         10

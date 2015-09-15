@@ -15,7 +15,7 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  
+
   Modified 23 November 2006 by David A. Mellis
   Modified 28 September 2010 by Mark Sproul
 */
@@ -24,17 +24,16 @@
 #include "MarlinSerial.h"
 
 #ifndef USBCON
-// this next line disables the entire HardwareSerial.cpp, 
+// this next line disables the entire HardwareSerial.cpp,
 // this is so I can support Attiny series and any other chip without a UART
 #if defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H)
 
 #if UART_PRESENT(SERIAL_PORT)
-  ring_buffer rx_buffer  =  { { 0 }, 0, 0 };
+ring_buffer rx_buffer  =  { { 0 }, 0, 0 };
 #endif
 
 FORCE_INLINE void store_char(unsigned char c) {
   int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
-
   // if we should be storing the received character into the location
   // just before the tail (meaning that the head would advance to the
   // current location of the tail), we're about to overflow the buffer
@@ -48,12 +47,12 @@ FORCE_INLINE void store_char(unsigned char c) {
 
 //#elif defined(SIG_USART_RECV)
 #if defined(M_USARTx_RX_vect)
-  // fixed by Mark Sproul this is on the 644/644p
-  //SIGNAL(SIG_USART_RECV)
-  SIGNAL(M_USARTx_RX_vect) {
-    unsigned char c  =  M_UDRx;
-    store_char(c);
-  }
+// fixed by Mark Sproul this is on the 644/644p
+//SIGNAL(SIG_USART_RECV)
+SIGNAL(M_USARTx_RX_vect) {
+  unsigned char c  =  M_UDRx;
+  store_char(c);
+}
 #endif
 
 // Constructors ////////////////////////////////////////////////////////////////
@@ -65,16 +64,13 @@ MarlinSerial::MarlinSerial() { }
 void MarlinSerial::begin(long baud) {
   uint16_t baud_setting;
   bool useU2X = true;
-
-  #if F_CPU == 16000000UL && SERIAL_PORT == 0
-    // hard-coded exception for compatibility with the bootloader shipped
-    // with the Duemilanove and previous boards and the firmware on the 8U2
-    // on the Uno and Mega 2560.
-    if (baud == 57600) {
-      useU2X = false;
-    }
-  #endif
-  
+#if F_CPU == 16000000UL && SERIAL_PORT == 0
+  // hard-coded exception for compatibility with the bootloader shipped
+  // with the Duemilanove and previous boards and the firmware on the 8U2
+  // on the Uno and Mega 2560.
+  if (baud == 57600)
+    useU2X = false;
+#endif
   if (useU2X) {
     M_UCSRxA = BIT(M_U2Xx);
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
@@ -82,11 +78,9 @@ void MarlinSerial::begin(long baud) {
     M_UCSRxA = 0;
     baud_setting = (F_CPU / 8 / baud - 1) / 2;
   }
-
   // assign the baud_setting, a.k.a. ubbr (USART Baud Rate Register)
   M_UBRRxH = baud_setting >> 8;
   M_UBRRxL = baud_setting;
-
   sbi(M_UCSRxB, M_RXENx);
   sbi(M_UCSRxB, M_TXENx);
   sbi(M_UCSRxB, M_RXCIEx);
@@ -95,23 +89,20 @@ void MarlinSerial::begin(long baud) {
 void MarlinSerial::end() {
   cbi(M_UCSRxB, M_RXENx);
   cbi(M_UCSRxB, M_TXENx);
-  cbi(M_UCSRxB, M_RXCIEx);  
+  cbi(M_UCSRxB, M_RXCIEx);
 }
 
 
 int MarlinSerial::peek(void) {
-  if (rx_buffer.head == rx_buffer.tail) {
-    return -1;
-  } else {
+  if (rx_buffer.head == rx_buffer.tail)
+    return -1; else
     return rx_buffer.buffer[rx_buffer.tail];
-  }
 }
 
 int MarlinSerial::read(void) {
   // if the head isn't ahead of the tail, we don't have any characters
-  if (rx_buffer.head == rx_buffer.tail) {
+  if (rx_buffer.head == rx_buffer.tail)
     return -1;
-  }
   else {
     unsigned char c = rx_buffer.buffer[rx_buffer.tail];
     rx_buffer.tail = (unsigned int)(rx_buffer.tail + 1) % RX_BUFFER_SIZE;
@@ -153,18 +144,16 @@ void MarlinSerial::print(unsigned int n, int base) {
 }
 
 void MarlinSerial::print(long n, int base) {
-  if (base == 0) {
+  if (base == 0)
     write(n);
-  }
   else if (base == 10) {
     if (n < 0) {
       print('-');
       n = -n;
     }
     printNumber(n, 10);
-  } else {
+  } else
     printNumber(n, base);
-  }
 }
 
 void MarlinSerial::print(unsigned long n, int base) {
@@ -178,10 +167,10 @@ void MarlinSerial::print(double n, int digits) {
 
 void MarlinSerial::println(void) {
   print('\r');
-  print('\n');  
+  print('\n');
 }
 
-void MarlinSerial::println(const String &s) {
+void MarlinSerial::println(const String& s) {
   print(s);
   println();
 }
@@ -229,54 +218,46 @@ void MarlinSerial::println(double n, int digits) {
 // Private Methods /////////////////////////////////////////////////////////////
 
 void MarlinSerial::printNumber(unsigned long n, uint8_t base) {
-  unsigned char buf[8 * sizeof(long)]; // Assumes 8-bit chars. 
+  unsigned char buf[8 * sizeof(long)]; // Assumes 8-bit chars.
   unsigned long i = 0;
-
   if (n == 0) {
     print('0');
     return;
-  } 
-
+  }
   while (n > 0) {
     buf[i++] = n % base;
     n /= base;
   }
-
   for (; i > 0; i--)
-    print((char) (buf[i - 1] < 10 ?
-      '0' + buf[i - 1] :
-      'A' + buf[i - 1] - 10));
+    print((char)(buf[i - 1] < 10 ?
+                 '0' + buf[i - 1] :
+                 'A' + buf[i - 1] - 10));
 }
 
 void MarlinSerial::printFloat(double number, uint8_t digits) {
   // Handle negative numbers
   if (number < 0.0) {
-     print('-');
-     number = -number;
+    print('-');
+    number = -number;
   }
-
   // Round correctly so that print(1.999, 2) prints as "2.00"
   double rounding = 0.5;
   for (uint8_t i = 0; i < digits; ++i)
     rounding /= 10.0;
-  
   number += rounding;
-
   // Extract the integer part of the number and print it
   unsigned long int_part = (unsigned long)number;
   double remainder = number - (double)int_part;
   print(int_part);
-
   // Print the decimal point, but only if there are digits beyond
   if (digits > 0) print('.');
-
   // Extract digits from the remainder one at a time
   while (digits-- > 0) {
     remainder *= 10.0;
     int toPrint = int(remainder);
     print(toPrint);
-    remainder -= toPrint; 
-  } 
+    remainder -= toPrint;
+  }
 }
 // Preinstantiate Objects //////////////////////////////////////////////////////
 

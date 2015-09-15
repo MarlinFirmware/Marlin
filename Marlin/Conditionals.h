@@ -74,15 +74,15 @@
   #endif
 
   #if ENABLED(MINIPANEL)
-   #define DOGLCD
-   #define ULTIPANEL
-   #define NEWPANEL
-   #define DEFAULT_LCD_CONTRAST 17
+    #define DOGLCD
+    #define ULTIPANEL
+    #define NEWPANEL
+    #define DEFAULT_LCD_CONTRAST 17
   #endif
 
   /**
-   * I2C PANELS
-   */
+  * I2C PANELS
+  */
 
   #if ENABLED(LCD_I2C_SAINSMART_YWROBOT)
     // This uses the LiquidCrystal_I2C library ( https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home )
@@ -135,9 +135,9 @@
   // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 
   #if ENABLED(SAV_3DLCD)
-     #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
-     #define ULTIPANEL
-     #define NEWPANEL
+    #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
+    #define ULTIPANEL
+    #define NEWPANEL
   #endif
 
   #if ENABLED(ULTIPANEL)
@@ -192,8 +192,8 @@
   #endif
 
   /**
-   * Default LCD contrast for dogm-like LCD displays
-   */
+  * Default LCD contrast for dogm-like LCD displays
+  */
   #if ENABLED(DOGLCD) && DISABLED(DEFAULT_LCD_CONTRAST)
     #define DEFAULT_LCD_CONTRAST 32
   #endif
@@ -205,7 +205,7 @@
     #endif
     #if ENABLED(U8GLIB_SSD1306)
       #undef HAS_LCD_CONTRAST
-    #endif  
+    #endif
   #endif
 
 #else // CONFIGURATION_LCD
@@ -221,8 +221,8 @@
   #include "Arduino.h"
 
   /**
-   * ENDSTOPPULLUPS
-   */
+  * ENDSTOPPULLUPS
+  */
   #if ENABLED(ENDSTOPPULLUPS)
     #if DISABLED(DISABLE_MAX_ENDSTOPS)
       #define ENDSTOPPULLUP_XMAX
@@ -240,23 +240,23 @@
   #endif
 
   /**
-   * Axis lengths
-   */
+  * Axis lengths
+  */
   #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
   #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
   #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 
   /**
-   * SCARA
-   */
+  * SCARA
+  */
   #if ENABLED(SCARA)
     #undef SLOWDOWN
     #define QUICK_HOME //SCARA needs Quickhome
   #endif
 
   /**
-   * AUTOSET LOCATIONS OF LIMIT SWITCHES
-   */
+  * AUTOSET LOCATIONS OF LIMIT SWITCHES
+  */
   #if ENABLED(MANUAL_HOME_POSITIONS)  // Use manual limit switch locations
     #define X_HOME_POS MANUAL_X_HOME_POS
     #define Y_HOME_POS MANUAL_Y_HOME_POS
@@ -273,8 +273,8 @@
   #endif //!MANUAL_HOME_POSITIONS
 
   /**
-   * Auto Bed Leveling
-   */
+  * Auto Bed Leveling
+  */
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     // Boundaries for probing based on set limits
     #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
@@ -285,16 +285,16 @@
 
   #define SERVO_LEVELING (defined(AUTO_BED_LEVELING_FEATURE) && defined(Z_ENDSTOP_SERVO_NR))
 
-   /**
-    * Sled Options
-    */ 
+  /**
+  * Sled Options
+  */
   #if ENABLED(Z_PROBE_SLED)
     #define Z_SAFE_HOMING
   #endif
-  
+
   /**
-   * MAX_STEP_FREQUENCY differs for TOSHIBA
-   */
+  * MAX_STEP_FREQUENCY differs for TOSHIBA
+  */
   #if ENABLED(CONFIG_STEPPERS_TOSHIBA)
     #define MAX_STEP_FREQUENCY 10000 // Max step frequency for Toshiba Stepper Controllers
   #else
@@ -309,8 +309,8 @@
   #define MICROSTEP16 HIGH,HIGH
 
   /**
-   * Advance calculated values
-   */
+  * Advance calculated values
+  */
   #if ENABLED(ADVANCE)
     #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * M_PI)
     #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS] / EXTRUSION_AREA)
@@ -335,8 +335,8 @@
   #define HAS_POWER_SWITCH (POWER_SUPPLY > 0 && PIN_EXISTS(PS_ON))
 
   /**
-   * Temp Sensor defines
-   */
+  * Temp Sensor defines
+  */
   #if TEMP_SENSOR_0 == -2
     #define HEATER_0_USES_MAX6675
   #elif TEMP_SENSOR_0 == -1
@@ -390,8 +390,8 @@
   #endif
 
   /**
-   * ARRAY_BY_EXTRUDERS based on EXTRUDERS
-   */
+  * ARRAY_BY_EXTRUDERS based on EXTRUDERS
+  */
   #if EXTRUDERS > 3
     #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3, v4 }
   #elif EXTRUDERS > 2
@@ -405,8 +405,8 @@
   #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1)
 
   /**
-   * Shorthand for pin tests, used wherever needed
-   */
+  * Shorthand for pin tests, used wherever needed
+  */
   #define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 != -2)
   #define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0)
   #define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0)
@@ -484,8 +484,8 @@
   #define HAS_E3_STEP (PIN_EXISTS(E3_STEP))
 
   /**
-   * Helper Macros for heaters and extruder fan
-   */
+  * Helper Macros for heaters and extruder fan
+  */
   #define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, v)
   #if EXTRUDERS > 1 || ENABLED(HEATERS_PARALLEL)
     #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, v)
