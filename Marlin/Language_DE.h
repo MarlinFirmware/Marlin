@@ -127,7 +127,7 @@ const char DE_SCREEN_WIZARD_LANGUAGE[] PROGMEM          = "Deutsch";
 const char DE_SCREEN_WIZARD_TEXT1[] PROGMEM             = "Willkommen! Wir beginnen mit der Vorbereitung des Druckers";
 const char DE_SCREEN_WIZARD_TEXT2[] PROGMEM             = "Wir beginnen mit dem Kalibrieren des Sensors mit der Offset-Einstellung";
 const char DE_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Achte darauf, den Extruder und die Platte r""\xfc""ckstandsfrei zu halten";
-const char DE_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Viel Spa""\xdf"" mit deinem MACHINE_NAME! Deiner Phantasie sind keine Grenzen gesetzt";
+const char DE_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Viel Spa""\xdf"" mit deinem " MACHINE_NAME "! Deiner Phantasie sind keine Grenzen gesetzt";
 const char DE_ICON_SD_NOSD[] PROGMEM                    = "SD-Karte einsetzen";
 const char DE_ICON_SD_SD[] PROGMEM                      = "Von SDKarte drucken";
 const char DE_ICON_FILAMENT_UNLOAD[] PROGMEM            = "Filament entfernen";
@@ -156,7 +156,7 @@ const char DE_ICON_MOVE_01MM[] PROGMEM                  = "0,1 mm bewegen";
 const char DE_OPTION_LIGHTLED[] PROGMEM                 = "0";
 const char DE_OPTION_INFO[] PROGMEM                     = "0";
 const char DE_OPTION_AUTOLEVEL[] PROGMEM                = "0";
-const char DE_OPTION_SERIAL[] PROGMEM                   = "Serial Control";
+const char DE_OPTION_SERIAL[] PROGMEM                   = "0";
 const char DE_OPTION_OFFSET[] PROGMEM                   = "0";
 const char DE_OPTION_LANGUAGE[] PROGMEM                 = "0";
 const char DE_PUSH_TO_CONFIRM[] PROGMEM                 = "Zum Annehmen dr""\xfc""cken";
@@ -168,5 +168,6 @@ const char DE_PLEASE_WAIT[] PROGMEM                     = "Bitte warten";
 const char DE_BACK[] PROGMEM                            = "0";
 const char DE_MODE[] PROGMEM                            = "0";
 const char DE_INACTIVE[] PROGMEM                        = "0";
+const char DE_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_DE_H

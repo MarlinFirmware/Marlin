@@ -174,7 +174,7 @@ namespace screen
 		m_observed = value;
 	}
 
-	bool ScreenInactivity::isConditionMeet()
+	bool ScreenInactivity::isConditionMet()
 	{
 		switch(m_condition)
 		{

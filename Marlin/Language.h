@@ -228,6 +228,7 @@ enum class Label
 	BACK,
 	MODE,
 	INACTIVE,
+	TEMP_OFF,
 };
 
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
@@ -395,5 +396,6 @@ extern const char * MSG_PLEASE_WAIT();
 extern const char * MSG_BACK();
 extern const char * MSG_MODE();
 extern const char * MSG_INACTIVE();
+extern const char * MSG_TEMP_OFF();
 
 #endif // ifndef LANGUAGE_H

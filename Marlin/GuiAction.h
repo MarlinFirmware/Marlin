@@ -34,5 +34,7 @@ extern void action_save_offset();
 
 extern void action_wizard_finish();
 extern bool action_check_preheat_temp();
+extern bool action_check_cooling();
+extern bool action_check_min_temp();
 
 #endif // GUI_ACTION_H
