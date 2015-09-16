@@ -32,6 +32,7 @@
 #include "ScreenSetting.h"
 #include "ScreenLanguage.h"
 #include "ScreenTemperature.h"
+#include "ScreenCooldown.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -764,22 +765,14 @@ namespace screen
 	static ScreenSwitch * make_screen_temperature_main_switch()
 	{
 		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_cooling);
-		local_view->add(screen_cooling_switch);
+		local_view->add(screen_cooling_main);
 		local_view->add(screen_heating_main);
 		return local_view;
 	}
 
-	static ScreenSwitch * make_screen_cooling_switch()
+	static ScreenCooldown * make_screen_cooling_main()
 	{
-		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_min_temp);
-		local_view->add(screen_main);
-		local_view->add(screen_cooling_main);
-		return local_view;
-	}
-
-	static ScreenAnimation<float> * make_screen_cooling_main()
-	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_TEMP_HEATING_TITLE(), MSG_PUSH_TO_CONTINUE(), screen::ScreenAnimation<float>::LESS_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenCooldown * local_view = new ScreenCooldown(MSG_SCREEN_TEMP_HEATING_TITLE(), MSG_PUSH_TO_CONTINUE(), temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_main);
 		local_view->add(screen_main);
 		return local_view;
@@ -1352,9 +1345,6 @@ namespace screen
 				break;
 			case screen_temperature_main_switch:
 				new_view = make_screen_temperature_main_switch();
-				break;
-			case screen_cooling_switch:
-				new_view = make_screen_cooling_switch();
 				break;
 			case screen_cooling_main:
 				new_view = make_screen_cooling_main();

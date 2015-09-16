@@ -28,8 +28,6 @@ namespace temp
 			uint16_t const & getTargetTemperature() const;
 			void notify();
 
-		public:
-
 		private:
 			float m_current_temperature;
 			uint16_t m_round_temperature;
