@@ -127,7 +127,7 @@ const char ES_SCREEN_WIZARD_LANGUAGE[] PROGMEM          = "Espa""\xf1""ol";
 const char ES_SCREEN_WIZARD_TEXT1[] PROGMEM             = """\xa1""Bienvenido! Vamos a empezar preparando la impesora";
 const char ES_SCREEN_WIZARD_TEXT2[] PROGMEM             = "Comencemos calibrando el sensor ajustando el offset";
 const char ES_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Recuerda mantener el extrusor y la base libre de residuos";
-const char ES_SCREEN_WIZARD_TEXT4[] PROGMEM             = """\xa1""Disfruta de tu MACHINE_NAME! Si puedes imaginarlo puedes hacerlo";
+const char ES_SCREEN_WIZARD_TEXT4[] PROGMEM             = """\xa1""Disfruta de tu " MACHINE_NAME "! Si puedes imaginarlo puedes hacerlo";
 const char ES_ICON_SD_NOSD[] PROGMEM                    = "Inserta tarjeta SD";
 const char ES_ICON_SD_SD[] PROGMEM                      = "Imprimir desde SD";
 const char ES_ICON_FILAMENT_UNLOAD[] PROGMEM            = "Retirar filamento";
@@ -168,5 +168,6 @@ const char ES_PLEASE_WAIT[] PROGMEM                     = "Por favor, espera";
 const char ES_BACK[] PROGMEM                            = "Volver";
 const char ES_MODE[] PROGMEM                            = "Modo";
 const char ES_INACTIVE[] PROGMEM                        = "inactivo";
+const char ES_TEMP_OFF[] PROGMEM                        = "Off";
 
 #endif //LANGUAGE_ES_H

@@ -127,7 +127,7 @@ const char EN_SCREEN_WIZARD_LANGUAGE[] PROGMEM          = "English";
 const char EN_SCREEN_WIZARD_TEXT1[] PROGMEM             = "Welcome! We will start off by preparing the printer";
 const char EN_SCREEN_WIZARD_TEXT2[] PROGMEM             = "We will start calibrating the sensor, adjusting the offset";
 const char EN_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Ensure that the extruder and base are free from debris";
-const char EN_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Enjoy your MACHINE_NAME! If you can imagine it, you can create it";
+const char EN_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Enjoy your " MACHINE_NAME "! If you can imagine it, you can create it";
 const char EN_ICON_SD_NOSD[] PROGMEM                    = "Insert SD card";
 const char EN_ICON_SD_SD[] PROGMEM                      = "Print from SD";
 const char EN_ICON_FILAMENT_UNLOAD[] PROGMEM            = "Remove filament";
@@ -156,7 +156,7 @@ const char EN_ICON_MOVE_01MM[] PROGMEM                  = "Move 0.1 mm";
 const char EN_OPTION_LIGHTLED[] PROGMEM                 = "0";
 const char EN_OPTION_INFO[] PROGMEM                     = "0";
 const char EN_OPTION_AUTOLEVEL[] PROGMEM                = "0";
-const char EN_OPTION_SERIAL[] PROGMEM                   = "Serial Control";
+const char EN_OPTION_SERIAL[] PROGMEM                   = "0";
 const char EN_OPTION_OFFSET[] PROGMEM                   = "0";
 const char EN_OPTION_LANGUAGE[] PROGMEM                 = "0";
 const char EN_PUSH_TO_CONFIRM[] PROGMEM                 = "Press to confirm";
@@ -168,5 +168,6 @@ const char EN_PLEASE_WAIT[] PROGMEM                     = "Please wait";
 const char EN_BACK[] PROGMEM                            = "0";
 const char EN_MODE[] PROGMEM                            = "0";
 const char EN_INACTIVE[] PROGMEM                        = "0";
+const char EN_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_EN_H

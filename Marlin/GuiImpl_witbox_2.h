@@ -84,6 +84,9 @@ namespace screen
 		screen_move_heating,
 		screen_stepper,
 		screen_temperature_main,
+		screen_temperature_main_switch,
+		screen_cooling_switch,
+		screen_cooling_main,
 		screen_heating_main,
 		screen_info,
 		screen_settings_language,
@@ -144,9 +147,5 @@ namespace screen
 	const static uint8_t max_font_width = 6;
 	const static uint8_t max_font_height = 9;
 
-	// Temperature parameters
-	const static uint8_t default_temp_change_filament = 220;
-	const static uint8_t min_temp_operation = 170;
-	const static uint8_t max_temp_operation = 250;
 }
 #endif //GUI_IMPL_WITBOX_2_H

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenInactivity.h
+/// \file ScreenTemperature.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of inactivity-type screens.
+/// \brief Definition of screen temperature.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,37 +25,24 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_INACTIVITY_H
-#define SCREEN_INACTIVITY_H
+#ifndef SCREEN_TEMPERATURE_H
+#define SCREEN_TEMPERATURE_H
 
-#include "ScreenAnimation.h"
+#include <stdint.h>
 
-#include "GuiManager.h"
-#include "TemperatureManager.h"
-#include "ViewManager.h"
+#include "ScreenSelector.h"
 
 namespace screen
 {
-	class ScreenInactivity : public ScreenAnimation<float>
+	class ScreenTemperature : public ScreenSelector<void, uint16_t>
 	{
 		public:
-			ScreenInactivity(const char * title, const char * text, uint16_t target, Subject<float> * model = 0);
-			virtual ~ScreenInactivity();
-
-			void init(uint16_t index = 0);
+			ScreenTemperature(const char * title, const char * box, uint16_t min, uint16_t max, uint16_t scale, uint16_t dflt, Functor<void, uint16_t>::FuncPtr fptr = 0);
+			virtual ~ScreenTemperature();
 
 			void draw();
 			void press();
-
-			void add(ScreenIndex_t const & component);
-			void update(float value);
-
-			void left();
-			void right();
-
-		private:
-			bool isConditionMet();
 	};
 }
 
-#endif //SCREEN_INACTIVITY_H
+#endif //SCREEN_TEMPERATURE_H

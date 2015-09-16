@@ -127,7 +127,7 @@ const char FR_SCREEN_WIZARD_LANGUAGE[] PROGMEM          = "Fran""\xe7""ais";
 const char FR_SCREEN_WIZARD_TEXT1[] PROGMEM             = "Bienvenue ! Pr""\xe9""parons ensemble l'imprimante";
 const char FR_SCREEN_WIZARD_TEXT2[] PROGMEM             = "Commencez par calibrer le capteur en r""\xe9""glant l'offset";
 const char FR_SCREEN_WIZARD_TEXT3[] PROGMEM             = "N'oubliez pas de nettoyer les r""\xe9""sidus de l'extrudeuse et du plateau";
-const char FR_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Vous ""\xea""tes pr""\xea""t ""\xe0"" utiliser votre MACHINE_NAME. Imprimez toutes vos id""\xe9""es !";
+const char FR_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Vous ""\xea""tes pr""\xea""t ""\xe0"" utiliser votre " MACHINE_NAME ". Imprimez toutes vos id""\xe9""es !";
 const char FR_ICON_SD_NOSD[] PROGMEM                    = "Ins""\xe9""rez carte SD";
 const char FR_ICON_SD_SD[] PROGMEM                      = "Impr. depuis SD";
 const char FR_ICON_FILAMENT_UNLOAD[] PROGMEM            = "Retirer filament";
@@ -156,7 +156,7 @@ const char FR_ICON_MOVE_01MM[] PROGMEM                  = "D""\xe9""placer 0,1 m
 const char FR_OPTION_LIGHTLED[] PROGMEM                 = "0";
 const char FR_OPTION_INFO[] PROGMEM                     = "0";
 const char FR_OPTION_AUTOLEVEL[] PROGMEM                = "0";
-const char FR_OPTION_SERIAL[] PROGMEM                   = "Serial Control";
+const char FR_OPTION_SERIAL[] PROGMEM                   = "0";
 const char FR_OPTION_OFFSET[] PROGMEM                   = "0";
 const char FR_OPTION_LANGUAGE[] PROGMEM                 = "0";
 const char FR_PUSH_TO_CONFIRM[] PROGMEM                 = "Appuy. pr confirmer";
@@ -168,5 +168,6 @@ const char FR_PLEASE_WAIT[] PROGMEM                     = "Patientez svp";
 const char FR_BACK[] PROGMEM                            = "0";
 const char FR_MODE[] PROGMEM                            = "0";
 const char FR_INACTIVE[] PROGMEM                        = "0";
+const char FR_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_FR_H
