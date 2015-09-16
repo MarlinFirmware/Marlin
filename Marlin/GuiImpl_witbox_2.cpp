@@ -62,8 +62,15 @@ namespace screen
 	{
 		ScreenSplash * local_view = new ScreenSplash(2000);
 		local_view->add(screen_main);
-		local_view->add(screen_wizard_language);
+		local_view->add(screen_wizard_init);
 		local_view->add(screen_emergency);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_wizard_init()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_wizard_init);
+		local_view->add(screen_wizard_language);
 		return local_view;
 	}
 
@@ -1111,6 +1118,9 @@ namespace screen
 				break;
 			
 			//Initial wizard
+			case screen_wizard_init:
+				new_view = make_screen_wizard_init();
+				break;
 			case screen_wizard_language:
 				new_view = make_screen_wizard_language();
 				break;
