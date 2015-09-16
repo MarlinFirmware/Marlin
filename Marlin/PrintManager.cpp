@@ -136,6 +136,7 @@ void PrintManager::togglePause()
 
 Time_t PrintManager::printingTime()
 {
+	PrintManager::single::instance().state(COMPLETE);
 	return PrintManager::single::instance().m_printing_time;
 }
 
@@ -195,7 +196,8 @@ void PrintManager::resetInactivity()
 void PrintManager::updateInactivity()
 {
 	if ( (PrintManager::single::instance().getInactivityFlag() == false)
-		&& (PrintManager::single::instance().state() == STOPPED) )
+		&& ( (PrintManager::single::instance().state() == STOPPED)
+		|| ( PrintManager::single::instance().state() == COMPLETE) ) )
 	{
 		if (millis() > PrintManager::single::instance().getInactivityTime())
 		{
@@ -210,7 +212,7 @@ void PrintManager::inactivityTriggered()
 	temp::TemperatureManager::single::instance().setTargetTemperature(0);
 	SteppersManager::disableAllSteppers();
 
-	if(m_state != INITIALIZING && m_state != SERIAL_CONTROL)
+	if(m_state != INITIALIZING && m_state != SERIAL_CONTROL && m_state != COMPLETE)
 	{
 		screen::ViewManager::getInstance().activeView(screen::screen_inactivity);
 	}
