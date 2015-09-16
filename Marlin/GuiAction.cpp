@@ -229,7 +229,6 @@ void action_level_plate()
 
 		case 4:
 			lcd_disable_button();
-			action_move_to_rest();
 			lcd_enable_button();
 
 			break;
@@ -241,6 +240,12 @@ void action_level_plate()
 void gui_action_homing()
 {
 	action_homing();
+	action_move_to_rest();
+}
+
+void gui_action_z_homing()
+{
+	action_z_homing();
 	action_move_to_rest();
 }
 
