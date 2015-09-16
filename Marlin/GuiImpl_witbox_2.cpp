@@ -943,7 +943,7 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_print_action_complete()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_stop_print);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_finish_print);
 		local_view->add(screen_print_complete);
 		return local_view;
 	}
