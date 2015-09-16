@@ -125,12 +125,12 @@ namespace screen
 
 	static ScreenMenu * make_screen_wizard_offset_finish()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
+		Icon * icon_retry = new Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_ICON_RETRY());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_FINISH_TITLE(), MSG_SCREEN_OFFSET_FINISH_TEXT());
 		local_view->add(screen_wizard_offset_home);
-		local_view->icon(icon_back);
+		local_view->icon(icon_retry);
 		local_view->add(screen_wizard_step3);
 		local_view->icon(icon_ok);
 		return local_view;
@@ -879,12 +879,12 @@ namespace screen
 
 	static ScreenMenu * make_screen_offset_finish()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
+		Icon * icon_retry = new Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_ICON_RETRY());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_FINISH_TITLE(), MSG_SCREEN_OFFSET_FINISH_TEXT());
 		local_view->add(screen_offset_home);
-		local_view->icon(icon_back);
+		local_view->icon(icon_retry);
 		local_view->add(screen_main);
 		local_view->icon(icon_ok);
 		return local_view;
