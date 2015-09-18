@@ -26,13 +26,24 @@ install:
   - mv LiquidCrystal_I2C/LiquidCrystal_I2C /usr/local/share/arduino/libraries/LiquidCrystal_I2C
   - git clone https://github.com/lincomatic/LiquidTWI2.git
   - mv LiquidTWI2 /usr/local/share/arduino/libraries/LiquidTWI2
+  # Install astyle
+  - wget https://github.com/timonwong/astyle-mirror/archive/master.zip
+  - unzip master.zip
+  - cd astyle-mirror-master/build/gcc/
+  - make prefix=$HOME astyle install
 before_script:
   # arduino requires an X server even with command line
   # https://github.com/arduino/Arduino/issues/1981
   - Xvfb :1 -screen 0 1024x768x16 &> xvfb.log &
   # change back to home directory for compiling
   - cd $TRAVIS_BUILD_DIR
+  # Check style
+  # ~/bin/astyle --recursive --options=.astylerc "Marlin/*.h" "Marlin/*.cpp"
 script:
+  # Abort on style errors
+  # if [ "0" != `find . -name "*.orig" | wc -l` ] ; then echo "Improperly styled source -- run astyle" ; exit -999; fi
+  # Relaxed Travis check
+  # if [ "0" != `find . -name "*.orig" | wc -l` ] ; then echo "Improperly styled source -- run astyle" ; fi
   # build default config
   - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
   # backup configuration.h
