@@ -29,37 +29,96 @@
 #
 
 # Arduino source install directory and Arduino SDK version:
-ARDUINO_INSTALL_DIR  ?= ${ARDUINO}
-ARDUINO_VERSION      ?= 164
+#ARDUINO_INSTALL_DIR           =
 
 # Directory used to build files in. It contains all the build files, from
 # object files to the final hex file:
-BUILD_DIR            ?= applet
+#BUILD_DIR                     =
 
 # Programmer configuration:
-AVRDUDE_PROGRAMMER ?= wiring
-UPLOAD_RATE        ?= 115200
-UPLOAD_PORT        ?= /dev/ttyUSB*
+#UPLOAD_PORT                   =
 
 ############################################################################
 # Below here nothing should be changed.
 
-# Makefile Setings
-MAKEFILE = Makefile
 
+#
+# Check user configuration:
+#
+
+# If there are any user-configured variable not defined, set a default value.
+ARDUINO_INSTALL_DIR ?= ${ARDUINO}
+ARDUINO_VERSION = 164
+
+BUILD_DIR ?= applet
+
+AVRDUDE_PROGRAMMER = wiring
+UPLOAD_RATE = 115200
+UPLOAD_PORT ?= /dev/ttyUSB*
+
+
+#
+# Build Settings:
+#
+
+# Language:
+DEFAULT_LANGUAGE = EN
+LANGUAGE ?= $(shell echo $(DEFAULT_LANGUAGE) | tr a-z A-Z)
+# Main Makefile
+MAKEFILE = Makefile
 # Output format
 FORMAT = ihex
+# Output file
+TARGET = $(notdir $(CURDIR))
 
+# AVR tools path:
 AVR_TOOLS_PATH = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/
+# AVR tool binaries:
+OBJCOPY = $(AVR_TOOLS_PATH)avr-objcopy
+OBJDUMP = $(AVR_TOOLS_PATH)avr-objdump
+AR  = $(AVR_TOOLS_PATH)avr-ar
+SIZE = $(AVR_TOOLS_PATH)avr-size
+NM = $(AVR_TOOLS_PATH)avr-nm
+AVRDUDE = $(AVR_TOOLS_PATH)avrdude
+# Other tools:
+CC = $(AVR_TOOLS_PATH)avr-gcc
+CXX = $(AVR_TOOLS_PATH)avr-g++
+MOVE = mv -f
+COPY = cp
+REMOVE = rm -f
 
-VPATH = .
-VPATH += $(BUILD_DIR)
+# set V=1 (eg, "make V=1") to print the full commands etc.
+ifneq ($V,1)
+ Pecho=@echo
+ P=@
+else
+ Pecho=@:
+ P=
+endif
+
+
+#
+# Include defconfig files:
+#
 
 -include .config_mach
 -include .config_lang
 
-DEFAULT_LANGUAGE = EN
-LANGUAGE ?= $(shell echo $(DEFAULT_LANGUAGE) | tr a-z A-Z)
+
+#
+# Add headers and source files and set some variables
+#
+
+# Arduino core
+HARDWARE_DIR = $(ARDUINO_INSTALL_DIR)/hardware
+HARDWARE_SRC = $(HARDWARE_DIR)/arduino/avr/cores/arduino
+
+VPATH = $(HARDWARE_SRC)
+CXXSRC = main.cpp
+
+CSRC = wiring.c wiring_analog.c wiring_digital.c wiring_pulse.c wiring_shift.c \
+      WInterrupts.c hooks.c
+CXXSRC += WMath.cpp WString.cpp Print.cpp Tone.cpp abi.cpp new.cpp
 
 # Machine setup
 ifeq ($(MACHINE_MODEL), Witbox)
@@ -74,49 +133,27 @@ else ifeq ($(MACHINE_MODEL), Hephestos 2)
 	VPATH += config/hephestos_2
 endif
 
-#
 # Microcontroller setup
-#
-
-# RAMPS
 ifeq ($(HARDWARE_MOTHERBOARD), RAMPS)
 MCU              ?= atmega2560
 F_CPU            ?= 16000000
-
-# bq CNC
 else ifeq  ($(HARDWARE_MOTHERBOARD), BQ_CNC)
 MCU              ?= atmega2560
 F_CPU            ?= 16000000
-
-# bq ZUM Mega 3D
 else ifeq ($(HARDWARE_MOTHERBOARD), BQ_ZUM_MEGA_3D)
 MCU              ?= atmega2560
 F_CPU            ?= 16000000
-
 endif
 
-
-HARDWARE_DIR = $(ARDUINO_INSTALL_DIR)/hardware
-HARDWARE_SRC = $(HARDWARE_DIR)/arduino/avr/cores/arduino
-
-TARGET = $(notdir $(CURDIR))
-
-VPATH += $(HARDWARE_SRC)
-CXXSRC = main.cpp
-
+# ATmega2560
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/variants/mega
-CSRC = wiring.c wiring_analog.c wiring_digital.c wiring_pulse.c wiring_shift.c \
-      WInterrupts.c hooks.c
-CXXSRC += WMath.cpp WString.cpp Print.cpp Tone.cpp abi.cpp new.cpp
 
+# SPI library
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
 CXXSRC += SPI.cpp
 
-
-#
+VPATH += .
 # Display setup
-#
-
 ifeq ($(HARDWARE_DISPLAY), Graphic)
 	VPATH += libraries/U8glib
 	VPATH += libraries/U8glib/utility
@@ -131,9 +168,11 @@ else ifeq ($(HARDWARE_DISPLAY), Character)
 	CXXSRC += ultralcd.cpp
 endif
 
+# SD library
 VPATH += libraries/SdFat
 CXXSRC += Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp SdFile.cpp SdVolume.cpp
 
+# Generation specific files
 ifeq ($(HARDWARE_DISPLAY), Graphic)
 	CXXSRC += GuiManager.cpp GuiPainter.cpp GuiImpl_witbox_2.cpp \
 		Icon.cpp \
@@ -147,6 +186,7 @@ ifeq ($(HARDWARE_DISPLAY), Graphic)
 		TemperatureManager.cpp ViewManager.cpp
 endif
 
+# Common files
 CXXSRC += HelpersC++.cpp 
 
 CXXSRC += motion_control.cpp planner.cpp stepper.cpp temperature.cpp cardreader.cpp \
@@ -156,68 +196,46 @@ CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp
 
 CXXSRC += Marlin_main.cpp MarlinSerial.cpp
 
+
 # Define all object files.
 OBJ = ${patsubst %.c, $(BUILD_DIR)/%.o, ${CSRC}}
 OBJ += ${patsubst %.cpp, $(BUILD_DIR)/%.o, ${CXXSRC}}
 OBJ += ${patsubst %.S, $(BUILD_DIR)/%.o, ${ASRC}}
-
-# Program settings
-CC = $(AVR_TOOLS_PATH)avr-gcc
-CXX = $(AVR_TOOLS_PATH)avr-g++
-
-OBJCOPY = $(AVR_TOOLS_PATH)avr-objcopy
-OBJDUMP = $(AVR_TOOLS_PATH)avr-objdump
-AR  = $(AVR_TOOLS_PATH)avr-ar
-SIZE = $(AVR_TOOLS_PATH)avr-size
-NM = $(AVR_TOOLS_PATH)avr-nm
-AVRDUDE = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/avrdude
-
-MOVE = mv -f
-COPY = cp
-REMOVE = rm -f
-
-# Place -D or -U options here
-CDEFS    = -DF_CPU=$(F_CPU) -DLANGUAGE=$(LANGUAGE) ${addprefix -D , $(DEFINES)}
-CXXDEFS  = $(CDEFS)
-
 # Add all the source directories as include directories too
 CINCS = ${addprefix -I ,${VPATH}}
 CXXINCS = ${addprefix -I ,${VPATH}}
 
-# C Compiler flags.
-#CSTANDARD = -std=gnu99
-CDEBUG = -g$(DEBUG)
-CWARN = -Wall -Wstrict-prototypes
-CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct \
-	-fshort-enums -w -ffunction-sections -fdata-sections \
-	-DARDUINO=$(ARDUINO_VERSION)
 
-#ifneq ($(HARDWARE_MOTHERBOARD),)
-#CTUNING += -DMOTHERBOARD=$(HARDWARE_MOTHERBOARD)
-#endif
+# Tools Configuration:
+# avrdude configuration:
+AVRDUDE_PORT = $(UPLOAD_PORT)
+AVRDUDE_WRITE_FLASH = -D -U flash:w:$(BUILD_DIR)/$(TARGET).hex:i
+AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
+AVRDUDE_FLAGS = -v -C $(AVRDUDE_CONF) -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b $(UPLOAD_RATE)
+
+# Compile tools configuration:
+# C compiler:
+CDEBUG = -g
+CDEFS    = -DARDUINO=$(ARDUINO_VERSION) -DF_CPU=$(F_CPU) -DLANGUAGE=$(LANGUAGE) ${addprefix -D , $(DEFINES)}
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
-CEXTRA = -fno-use-cxa-atexit
+#CSTANDARD =
+CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -w -ffunction-sections -fdata-sections -fno-use-cxa-atexit
+CWARN = -Wall -Wstrict-prototypes
 
-CFLAGS := $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING)
+# C compiler flags:
+CFLAGS := $(CDEFS) $(CDEBUG) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING)
+
+# C++ compiler:
+CXXDEFS  = $(CDEFS)
 
 # C++ Compiler flags.
 CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) -Wall -std=c++11 $(CEXTRA) $(CTUNING)
+
+# Assembly compiler:
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 
-# Linker flags
+# Linker flags:
 LDFLAGS = -lm
-
-# Programming support using avrdude. Settings and variables.
-AVRDUDE_PORT = $(UPLOAD_PORT)
-AVRDUDE_WRITE_FLASH = -D -U flash:w:$(BUILD_DIR)/$(TARGET).hex:i
-ifeq ($(shell uname -s), Linux)
-AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
-else
-AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
-endif
-AVRDUDE_FLAGS = -v -C $(AVRDUDE_CONF) \
-	-p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
-	-b $(UPLOAD_RATE)
 
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
@@ -225,61 +243,10 @@ ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS)
 ALL_CXXFLAGS = -mmcu=$(MCU) $(CXXFLAGS)
 ALL_ASFLAGS = -mmcu=$(MCU) -x assembler-with-cpp $(ASFLAGS)
 
-# set V=1 (eg, "make V=1") to print the full commands etc.
-ifneq ($V,1)
- Pecho=@echo
- P=@
-else
- Pecho=@:
- P=
-endif
 
-# Custom functions
-define check_language_1gen
-	@case $(UPPER_LANGUAGE) in \
-		DE) \
-			echo "Language selected: German [DE]" ;; \
-		EN) \
-			echo "Language selected: English [EN]" ;; \
-		ES) \
-			echo "Language selected: Spanish [ES]" ;; \
-		FI) \
-			echo "Language selected: Finnish [FI]" ;; \
-		FR) \
-			echo "Language selected: French [FR]" ;; \
-		IT) \
-			echo "Language selected: Italian [IT]" ;; \
-		PL) \
-			echo "Language selected: Polish [PL]" ;; \
-		PT) \
-			echo "Language selected: Portuguese [PT]" ;; \
-		*)  \
-			echo "Invalid language: $(UPPER_LANGUAGE)" ; \
-			echo "Language selected: English [EN] (default)" ;; \
-	esac
-endef
-
-define check_language_2gen
-	@case $(UPPER_LANGUAGE) in \
-		DE) \
-			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
-		EN) \
-			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
-		ES) \
-			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
-		FR) \
-			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
-		IT) \
-			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
-		PT) \
-			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
-		SE) \
-			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE]" ;; \
-		*) \
-			echo "Invalid language: $(UPPER_LANGUAGE)" ; \
-			echo "Language selected: Multilanguage [DE EN ES FR IT PT SE] (default)" ;; \
-	esac
-endef
+#
+# Make targerts
+#
 
 # Default target.
 all: sizeafter
@@ -370,7 +337,7 @@ ifeq (${AVRDUDE_PROGRAMMER}, arduino)
 	stty -hup < $(UPLOAD_PORT); true
 endif
 
-# Clean the output files generated
+# Clean the output files generated.
 clean:
 	$(Pecho) "  RM    $(BUILD_DIR)/*"
 	$P $(REMOVE) $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).eep $(BUILD_DIR)/$(TARGET).cof $(BUILD_DIR)/$(TARGET).elf \
@@ -379,16 +346,15 @@ clean:
 	$(Pecho) "  RMDIR $(BUILD_DIR)/"
 	$P rm -rf $(BUILD_DIR)
 
+# Clean the output generated files and the board configuration.
 cleanall: clean
 	$(Pecho) "  RM    .config_mach"
 	$P $(REMOVE) .config_mach
 	$(Pecho) "  RM    .config_lang"
 	$P $(REMOVE) .config_lang
 
-# Configuration build enviroment targets
-
 ### Configure machine targets
-#1st Generation printers
+# 1st Generation printers
 witbox:
 	@echo Configurating for $@ printer...
 	@echo Language selected: English [EN] \(by default\)
