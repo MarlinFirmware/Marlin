@@ -1742,6 +1742,16 @@ void process_commands()
 #endif
       break;
     case 25: //M25 - Pause SD print
+#ifdef DOGLCD
+        if(stop_buffer == false)
+        {
+            lcd_disable_button();
+            card.sdprinting = false;
+            stop_buffer = true;
+            stop_buffer_code = 1;
+            break;
+        }
+#endif
         current_position[X_AXIS] = st_get_position_mm(X_AXIS);
         current_position[Y_AXIS] = st_get_position_mm(Y_AXIS);
         current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
@@ -1793,7 +1803,10 @@ void process_commands()
 				lcd_enable_button();
 				stop_buffer = false;
 #else //DOGLCD
-        PrintManager::single::instance().state(PAUSED);
+        if(stop_buffer == true)
+        {
+          PrintManager::single::instance().state(PAUSED);
+        }
 #endif//DOGLCD
       break;
     case 26: //M26 - Set SD index
