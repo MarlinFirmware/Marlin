@@ -695,7 +695,7 @@ void action_save_offset()
 	{
 		OffsetManager::single::instance().offsetOnEEPROM();
 	}
-
+	action_z_homing();
 	action_move_to_rest();
 }
 
