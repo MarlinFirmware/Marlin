@@ -589,7 +589,7 @@ void action_resume_print()
 
 	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], lastpos[E_AXIS], 100, active_extruder); //move xy back
 	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], 60, active_extruder); //move z back
-	lastpos[E_AXIS] += EXTRUDE_ON_RESUME;
+
 	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], 10, active_extruder); //extrude on resume
 	st_synchronize();
 

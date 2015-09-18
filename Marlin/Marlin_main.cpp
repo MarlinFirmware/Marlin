@@ -3374,6 +3374,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     #ifdef FILAMENTCHANGEENABLE
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
     {
+#ifndef DOGLCD
   			lcd_disable_display_timeout();
       
         float target[4];
@@ -3531,6 +3532,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   			lcd_enable_button();
 
   			stop_buffer = false;
+#else
+        screen::ViewManager::getInstance().activeView(screen::screen_change_pausing);
+#endif
     }
     break;
     #endif //FILAMENTCHANGEENABLE
