@@ -1,7 +1,11 @@
 # Marlin 3D Printer Firmware
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
- Documentation has moved to [marlinfirmware.org](http://www.marlinfirmware.org).
+## Marlin 1.1 Release Candidate is now available
+19 September 2015
+Please see the [RC branch](https://github.com/MarlinFirmware/Marlin/tree/RC) of this repository for access to this new pre-release version of the Marlin firmware.
+
+Documentation has moved to [marlinfirmware.org](http://www.marlinfirmware.org).
 
 ## Release Branch
 
