@@ -8,16 +8,16 @@
 #ifndef LANGUAGE_TEST_H
 #define LANGUAGE_TEST_H
 
-// Select ONE of the following Mappers. 
-// They decide what to do with a symbol in the area of [0x80:0xFF]. They take a symbol of this language file and make them point 
+// Select ONE of the following Mappers.
+// They decide what to do with a symbol in the area of [0x80:0xFF]. They take a symbol of this language file and make them point
 // into an array with 128 cells, where they'll find the place of the symbol of the font in use.
 //
-// a.)For ASCII coded Language_xx.h files like (en) there are no occurrences of symbols above 0x7F so no mapper is needed. 
+// a.)For ASCII coded Language_xx.h files like (en) there are no occurrences of symbols above 0x7F so no mapper is needed.
 //   If such a symbol appears it is mapped directly into the font. This is the case for the language files we used until now, with all the STR_XX or
 //   "\xxx" symbols. All Symbols are only one byte long.
 // b.) For Unicoded Language_xx.h files (currently ru, de and kana_utf8 ) the non ASCII [0x00-0x7F] symbols are represented by more then one byte.
 //   In the case of two bytes the first is pointing to a 'codepage' and the second to a place in the codepage. These codepages contain 64 symbols.
-//   So two of them can be mapped. For most of the European languages the necessary symbols are contained in the pages C2 and C3. Cyrillic uses D0 
+//   So two of them can be mapped. For most of the European languages the necessary symbols are contained in the pages C2 and C3. Cyrillic uses D0
 //   and D1.
 // c.) For katakana (one of the Japanese symbol sets) Unicode uses 3 bytes. Here the second byte also points to a codepage and byte 3 to the symbol.
 //   I hope the pages E282 and E283 are sufficient to write katakana.
@@ -100,7 +100,7 @@
 #define STRG_OKTAL_e "\340\341\342\343\344\345\346\347\350\351\352\353\354\355\356\357"
 #define STRG_OKTAL_f "\360\361\362\363\364\365\366\367\370\371\372\373\374\375\376\377"
 
-#ifdef DISPLAYTEST
+#if ENABLED(DISPLAYTEST)
   #define WELCOME_MSG                         "Language TEST"
 
   #define MSG_WATCH                           "Display test"
@@ -108,7 +108,7 @@
   #define MSG_CONTROL                         STRG_OKTAL_c
 #endif
 
-#ifdef WEST
+#if ENABLED(WEST)
   #define WELCOME_MSG                         "Language TEST"
 
   #define MSG_WATCH                           "\001\002\003\004\005\006\007\010\011"
@@ -124,14 +124,14 @@
   #define MSG_COOLDOWN                        STRG_C3_9
   #define MSG_SWITCH_PS_OFF                   STRG_C3_a
   #define MSG_MOVE_AXIS                       STRG_C3_b
-  
+
   #define MSG_MAIN                            STRG_OKTAL_2
   #define MSG_TEMPERATURE                     STRG_OKTAL_3
   #define MSG_MOTION                          STRG_OKTAL_4
   #define MSG_VOLUMETRIC                      STRG_OKTAL_5
   #define MSG_CONTRAST                        STRG_OKTAL_6
   #define MSG_RESTORE_FAILSAFE                STRG_OKTAL_7
-  
+
   #define MSG_NOZZLE                          STRG_OKTAL_8
   #define MSG_FAN_SPEED                       STRG_OKTAL_9
   #define MSG_AUTOTEMP                        STRG_OKTAL_a
@@ -143,7 +143,7 @@
 
 #endif
 
-#ifdef CYRIL
+#if ENABLED(CYRIL)
   #define WELCOME_MSG                         "Language TEST"
 
   #define MSG_WATCH                           "\001\002\003\004\005\006\007\010\011"
@@ -159,14 +159,14 @@
   #define MSG_COOLDOWN                        STRG_D1_9
   #define MSG_SWITCH_PS_OFF                   STRG_D1_a
   #define MSG_MOVE_AXIS                       STRG_D1_b
-  
+
   #define MSG_MAIN                            STRG_OKTAL_2
   #define MSG_TEMPERATURE                     STRG_OKTAL_3
   #define MSG_MOTION                          STRG_OKTAL_4
   #define MSG_VOLUMETRIC                      STRG_OKTAL_5
   #define MSG_CONTRAST                        STRG_OKTAL_6
   #define MSG_RESTORE_FAILSAFE                STRG_OKTAL_7
-  
+
   #define MSG_NOZZLE                          STRG_OKTAL_8
   #define MSG_FAN_SPEED                       STRG_OKTAL_9
   #define MSG_AUTOTEMP                        STRG_OKTAL_a
@@ -178,7 +178,7 @@
 
 #endif
 
-#if defined( KANA )
+#if ENABLED(KANA)
   #define WELCOME_MSG                         "Language TEST"
 
   #define MSG_WATCH                           "\001\002\003\004\005\006\007\010\011"
@@ -194,14 +194,14 @@
   #define MSG_COOLDOWN                        STRG_E383_9
   #define MSG_SWITCH_PS_OFF                   STRG_E383_a
   #define MSG_MOVE_AXIS                       STRG_E383_b
-  
+
   #define MSG_MAIN                            STRG_OKTAL_2
   #define MSG_TEMPERATURE                     STRG_OKTAL_3
   #define MSG_MOTION                          STRG_OKTAL_4
   #define MSG_VOLUMETRIC                      STRG_OKTAL_5
   #define MSG_CONTRAST                        STRG_OKTAL_6
   #define MSG_RESTORE_FAILSAFE                STRG_OKTAL_7
-  
+
   #define MSG_NOZZLE                          STRG_OKTAL_8
   #define MSG_FAN_SPEED                       STRG_OKTAL_9
   #define MSG_AUTOTEMP                        STRG_OKTAL_a

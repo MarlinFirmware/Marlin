@@ -18,7 +18,7 @@
   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// This module is to be considered a sub-module of stepper.c. Please don't include 
+// This module is to be considered a sub-module of stepper.c. Please don't include
 // this file from any other module.
 
 #ifndef PLANNER_H
@@ -26,7 +26,7 @@
 
 #include "Marlin.h"
 
-// This struct is used when buffering the setup for each linear movement "nominal" values are as specified in 
+// This struct is used when buffering the setup for each linear movement "nominal" values are as specified in
 // the source g-code and may never actually be reached if acceleration management is active.
 typedef struct {
   // Fields used by the bresenham algorithm for tracing the line
@@ -37,16 +37,16 @@ typedef struct {
   long acceleration_rate;                   // The acceleration rate used for acceleration calculation
   unsigned char direction_bits;             // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
   unsigned char active_extruder;            // Selects the active extruder
-  #ifdef ADVANCE
-    long advance_rate;
-    volatile long initial_advance;
-    volatile long final_advance;
-    float advance;
-  #endif
+#if ENABLED(ADVANCE)
+  long advance_rate;
+  volatile long initial_advance;
+  volatile long final_advance;
+  float advance;
+#endif
 
   // Fields used by the motion planner to manage acceleration
   // float speed_x, speed_y, speed_z, speed_e;          // Nominal mm/sec for each axis
-  float nominal_speed;                               // The nominal speed for this block in mm/sec 
+  float nominal_speed;                               // The nominal speed for this block in mm/sec
   float entry_speed;                                 // Entry speed at previous-current junction in mm/sec
   float max_entry_speed;                             // Maximum allowable junction entry speed in mm/sec
   float millimeters;                                 // The total travel of this block in mm
@@ -55,21 +55,21 @@ typedef struct {
   unsigned char nominal_length_flag;                 // Planner flag for nominal speed always reached
 
   // Settings for the trapezoid generator
-  unsigned long nominal_rate;                        // The nominal step rate for this block in step_events/sec 
-  unsigned long initial_rate;                        // The jerk-adjusted step rate at start of block  
+  unsigned long nominal_rate;                        // The nominal step rate for this block in step_events/sec
+  unsigned long initial_rate;                        // The jerk-adjusted step rate at start of block
   unsigned long final_rate;                          // The minimal rate at exit
   unsigned long acceleration_st;                     // acceleration steps/sec^2
   unsigned long fan_speed;
-  #ifdef BARICUDA
-    unsigned long valve_pressure;
-    unsigned long e_to_p_pressure;
-  #endif
+#if ENABLED(BARICUDA)
+  unsigned long valve_pressure;
+  unsigned long e_to_p_pressure;
+#endif
   volatile char busy;
 } block_t;
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
 
-// Initialize the motion plan subsystem      
+// Initialize the motion plan subsystem
 void plan_init();
 
 void check_axes_activity();
@@ -79,41 +79,41 @@ extern volatile unsigned char block_buffer_head;
 extern volatile unsigned char block_buffer_tail;
 FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
-#if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
+#if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
 
-  #if defined(ENABLE_AUTO_BED_LEVELING)
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     #include "vector_3.h"
 
     // Transform required to compensate for bed level
     extern matrix_3x3 plan_bed_level_matrix;
 
     /**
-     * Get the position applying the bed level matrix
-     */
+    * Get the position applying the bed level matrix
+    */
     vector_3 plan_get_position();
-  #endif  // ENABLE_AUTO_BED_LEVELING
+  #endif  // AUTO_BED_LEVELING_FEATURE
 
   /**
-   * Add a new linear movement to the buffer. x, y, z are the signed, absolute target position in
-   * millimeters. Feed rate specifies the (target) speed of the motion.
-   */
-  void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder);
+  * Add a new linear movement to the buffer. x, y, z are the signed, absolute target position in
+  * millimeters. Feed rate specifies the (target) speed of the motion.
+  */
+  void plan_buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder);
 
   /**
-   * Set the planner positions. Used for G92 instructions.
-   * Multiplies by axis_steps_per_unit[] to set stepper positions.
-   * Clears previous speed values.
-   */
-  void plan_set_position(float x, float y, float z, const float &e);
+  * Set the planner positions. Used for G92 instructions.
+  * Multiplies by axis_steps_per_unit[] to set stepper positions.
+  * Clears previous speed values.
+  */
+  void plan_set_position(float x, float y, float z, const float& e);
 
 #else
 
-  void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder);
-  void plan_set_position(const float &x, const float &y, const float &z, const float &e);
+  void plan_buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder);
+  void plan_set_position(const float& x, const float& y, const float& z, const float& e);
 
-#endif // ENABLE_AUTO_BED_LEVELING || MESH_BED_LEVELING
+#endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
 
-void plan_set_e_position(const float &e);
+void plan_set_e_position(const float& e);
 
 //===========================================================================
 //============================= public variables ============================
@@ -133,7 +133,7 @@ extern float max_e_jerk;
 extern float mintravelfeedrate;
 extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
-#ifdef AUTOTEMP
+#if ENABLED(AUTOTEMP)
   extern bool autotemp_enabled;
   extern float autotemp_max;
   extern float autotemp_min;
@@ -142,7 +142,7 @@ extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
 extern block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instructions
 extern volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
-extern volatile unsigned char block_buffer_tail; 
+extern volatile unsigned char block_buffer_tail;
 
 // Returns true if the buffer has a queued block, false otherwise
 FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
@@ -155,13 +155,12 @@ FORCE_INLINE void plan_discard_current_block() {
 }
 
 // Gets the current block. Returns NULL if buffer empty
-FORCE_INLINE block_t *plan_get_current_block() {
+FORCE_INLINE block_t* plan_get_current_block() {
   if (blocks_queued()) {
-    block_t *block = &block_buffer[block_buffer_tail];
+    block_t* block = &block_buffer[block_buffer_tail];
     block->busy = true;
     return block;
-  }
-  else
+  } else
     return NULL;
 }
 

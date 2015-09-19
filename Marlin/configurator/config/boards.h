@@ -16,6 +16,7 @@
 #define BOARD_RAMPS_13_EEF      36   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Fan)
 #define BOARD_RAMPS_13_SF       38   // RAMPS 1.3 / 1.4 (Power outputs: Spindle, Controller Fan)
 #define BOARD_FELIX2            37   // Felix 2.0+ Electronics Board (RAMPS like)
+#define BOARD_RIGIDBOARD        42   // Invent-A-Part RigidBoard
 #define BOARD_GEN6              5    // Gen6
 #define BOARD_GEN6_DELUXE       51   // Gen6 deluxe
 #define BOARD_SANGUINOLOLU_11   6    // Sanguinololu < 1.2
@@ -23,7 +24,7 @@
 #define BOARD_MELZI             63   // Melzi
 #define BOARD_STB_11            64   // STB V1.1
 #define BOARD_AZTEEG_X1         65   // Azteeg X1
-#define BOARD_MELZI_1284        66   // Melzi with ATmega1284 (MaKr3d version)
+#define BOARD_MELZI_MAKR3D      66   // Melzi with ATmega1284 (MaKr3d version)
 #define BOARD_AZTEEG_X3         67   // Azteeg X3
 #define BOARD_AZTEEG_X3_PRO     68   // Azteeg X3 Pro
 #define BOARD_ULTIMAKER         7    // Ultimaker
@@ -42,11 +43,13 @@
 #define BOARD_GEN3_MONOLITHIC   22   // Gen3 Monolithic Electronics
 #define BOARD_MEGATRONICS       70   // Megatronics
 #define BOARD_MEGATRONICS_2     701  // Megatronics v2.0
-#define BOARD_MEGATRONICS_1     702  // Minitronics v1.0
+#define BOARD_MINITRONICS       702  // Minitronics v1.0/1.1
 #define BOARD_MEGATRONICS_3     703  // Megatronics v3.0
 #define BOARD_OMCA_A            90   // Alpha OMCA board
 #define BOARD_OMCA              91   // Final OMCA board
 #define BOARD_RAMBO             301  // Rambo
+#define BOARD_MINIRAMBO         302  // Mini-Rambo
+#define BOARD_MEGACONTROLLER    310  // Mega controller
 #define BOARD_ELEFU_3           21   // Elefu Ra Board (v3)
 #define BOARD_5DPRINT           88   // 5DPrint D8 Driver Board
 #define BOARD_LEAPFROG          999  // Leapfrog

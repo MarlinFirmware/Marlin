@@ -29,33 +29,33 @@
 
 #define HEATER_BED_PIN     9    // BED
 
-#if defined(ULTRA_LCD) && defined(NEWPANEL)
-  #undef BEEPER
-  #define BEEPER -1
+#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
+#undef BEEPER_PIN
+#define BEEPER_PIN -1
 
-  #undef LCD_PINS_RS
-  #undef LCD_PINS_ENABLE
-  #undef LCD_PINS_D4
-  #undef LCD_PINS_D5
-  #undef LCD_PINS_D6
-  #undef LCD_PINS_D7
-  #define LCD_PINS_RS 27
-  #define LCD_PINS_ENABLE 29
-  #define LCD_PINS_D4 37
-  #define LCD_PINS_D5 35
-  #define LCD_PINS_D6 33
-  #define LCD_PINS_D7 31
+#undef LCD_PINS_RS
+#undef LCD_PINS_ENABLE
+#undef LCD_PINS_D4
+#undef LCD_PINS_D5
+#undef LCD_PINS_D6
+#undef LCD_PINS_D7
+#define LCD_PINS_RS 27
+#define LCD_PINS_ENABLE 29
+#define LCD_PINS_D4 37
+#define LCD_PINS_D5 35
+#define LCD_PINS_D6 33
+#define LCD_PINS_D7 31
 
-  // Buttons
-  #undef BTN_EN1
-  #undef BTN_EN2
-  #undef BTN_ENC
-  #define BTN_EN1 16
-  #define BTN_EN2 17
-  #define BTN_ENC 23 //the click
+// Buttons
+#undef BTN_EN1
+#undef BTN_EN2
+#undef BTN_ENC
+#define BTN_EN1 16
+#define BTN_EN2 17
+#define BTN_ENC 23 //the click
 
 #else
 
-  #define BEEPER 33
+#define BEEPER_PIN 33
 
 #endif // ULTRA_LCD && NEWPANEL

@@ -3,7 +3,7 @@
  *
  * These Pins are assigned for the modified GEN7 Board from Alfons3.
  * Please review the pins and adjust them for your needs.
- */ 
+ */
 
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
   #error Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu.
@@ -13,34 +13,34 @@
 #define X_STEP_PIN      21                  // different from standard GEN7
 #define X_DIR_PIN       20                  // different from standard GEN7
 #define X_ENABLE_PIN    24
-#define X_STOP_PIN      0
+#define X_STOP_PIN       0
 
 //y axis pins
 #define Y_STEP_PIN      23
 #define Y_DIR_PIN       22
 #define Y_ENABLE_PIN    24
-#define Y_STOP_PIN      1
+#define Y_STOP_PIN       1
 
 //z axis pins
 #define Z_STEP_PIN      26
 #define Z_DIR_PIN       25
 #define Z_ENABLE_PIN    24
-#define Z_STOP_PIN      2
+#define Z_STOP_PIN       2
 
 //extruder pins
 #define E0_STEP_PIN     28
 #define E0_DIR_PIN      27
 #define E0_ENABLE_PIN   24
 
-#define TEMP_0_PIN      2
+#define TEMP_0_PIN       2
 #define TEMP_1_PIN      -1
 #define TEMP_2_PIN      -1
-#define TEMP_BED_PIN    1   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
+#define TEMP_BED_PIN     1   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
 
-#define HEATER_0_PIN    4
+#define HEATER_0_PIN     4
 #define HEATER_1_PIN    -1
 #define HEATER_2_PIN    -1
-#define HEATER_BED_PIN  3  // (bed)
+#define HEATER_BED_PIN   3  // (bed)
 
 #define SDPOWER         -1
 #define SDSS            31                  // SCL pin of I2C header || CS Pin for SD Card support
@@ -56,9 +56,9 @@
 //#define TX_ENABLE_PIN       12
 //#define RX_ENABLE_PIN       13
 
-#define BEEPER -1
-#define SDCARDDETECT -1
-#define SUICIDE_PIN -1    //has to be defined; otherwise Power_off doesn't work
+#define BEEPER_PIN       -1
+#define SD_DETECT_PIN    -1
+#define SUICIDE_PIN      -1    //has to be defined; otherwise Power_off doesn't work
 
 #define KILL_PIN -1
 //Pins for 4bit LCD Support

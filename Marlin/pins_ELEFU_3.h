@@ -13,14 +13,14 @@
 #define X_MAX_PIN          34
 
 #define Y_STEP_PIN         11
-#define Y_DIR_PIN          9
+#define Y_DIR_PIN           9
 #define Y_ENABLE_PIN       12
 #define Y_MIN_PIN          33
 #define Y_MAX_PIN          32
 
-#define Z_STEP_PIN         7
-#define Z_DIR_PIN          6
-#define Z_ENABLE_PIN       8
+#define Z_STEP_PIN          7
+#define Z_DIR_PIN           6
+#define Z_ENABLE_PIN        8
 #define Z_MIN_PIN          31
 #define Z_MAX_PIN          30
 
@@ -48,12 +48,12 @@
 #define HEATER_1_PIN       46 //12V PWM2
 #define HEATER_2_PIN       17 //12V PWM3
 #define HEATER_BED_PIN     44 //DOUBLE 12V PWM
-#define TEMP_0_PIN         3  //ANALOG NUMBERING
-#define TEMP_1_PIN         2  //ANALOG NUMBERING
-#define TEMP_2_PIN         1  //ANALOG NUMBERING
-#define TEMP_BED_PIN       0  //ANALOG NUMBERING
+#define TEMP_0_PIN          3 //ANALOG NUMBERING
+#define TEMP_1_PIN          2 //ANALOG NUMBERING
+#define TEMP_2_PIN          1 //ANALOG NUMBERING
+#define TEMP_BED_PIN        0 //ANALOG NUMBERING
 
-#define BEEPER             36
+#define BEEPER_PIN         36
 
 #define KILL_PIN           -1
 
@@ -61,22 +61,22 @@
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
 #define PHOTOGRAPH_PIN     29
 
-#ifdef RA_CONTROL_PANEL
+#if ENABLED(RA_CONTROL_PANEL)
 
   #define SDSS             53
-  #define SDCARDDETECT     28
+  #define SD_DETECT_PIN    28
 
   #define BTN_EN1          14
   #define BTN_EN2          39
   #define BTN_ENC          15  //the click
 
-  #define BLEN_C           2
-  #define BLEN_B           1
-  #define BLEN_A           0
+  #define BLEN_C            2
+  #define BLEN_B            1
+  #define BLEN_A            0
 
 #endif // RA_CONTROL_PANEL
 
-#ifdef RA_DISCO
+#if ENABLED(RA_DISCO)
   //variables for which pins the TLC5947 is using
   #define TLC_CLOCK_PIN    25
   #define TLC_BLANK_PIN    23

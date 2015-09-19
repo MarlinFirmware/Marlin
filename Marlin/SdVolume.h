@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 #include "Marlin.h"
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 #ifndef SdVolume_h
 #define SdVolume_h
 /**
@@ -35,21 +35,21 @@
  * \brief Cache for an SD data block
  */
 union cache_t {
-           /** Used to access cached file data blocks. */
+  /** Used to access cached file data blocks. */
   uint8_t  data[512];
-           /** Used to access cached FAT16 entries. */
+  /** Used to access cached FAT16 entries. */
   uint16_t fat16[256];
-           /** Used to access cached FAT32 entries. */
+  /** Used to access cached FAT32 entries. */
   uint32_t fat32[128];
-           /** Used to access cached directory entries. */
+  /** Used to access cached directory entries. */
   dir_t    dir[16];
-           /** Used to access a cached Master Boot Record. */
+  /** Used to access a cached Master Boot Record. */
   mbr_t    mbr;
-           /** Used to access to a cached FAT boot sector. */
+  /** Used to access to a cached FAT boot sector. */
   fat_boot_t fbs;
-           /** Used to access to a cached FAT32 boot sector. */
+  /** Used to access to a cached FAT32 boot sector. */
   fat32_boot_t fbs32;
-           /** Used to access to a cached FAT32 FSINFO sector. */
+  /** Used to access to a cached FAT32 FSINFO sector. */
   fat32_fsinfo_t fsinfo;
 };
 //------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ class SdVolume {
    * \return true for success or false for failure
    */
   bool dbgFat(uint32_t n, uint32_t* v) {return fatGet(n, v);}
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
  private:
   // Allow SdBaseFile access to SdVolume private data.
   friend class SdBaseFile;
@@ -154,12 +154,15 @@ class SdVolume {
   //----------------------------------------------------------------------------
   bool allocContiguous(uint32_t count, uint32_t* curCluster);
   uint8_t blockOfCluster(uint32_t position) const {
-          return (position >> 9) & (blocksPerCluster_ - 1);}
+    return (position >> 9) & (blocksPerCluster_ - 1);
+  }
   uint32_t clusterStartBlock(uint32_t cluster) const {
-           return dataStartBlock_ + ((cluster - 2) << clusterSizeShift_);}
+    return dataStartBlock_ + ((cluster - 2) << clusterSizeShift_);
+  }
   uint32_t blockNumber(uint32_t cluster, uint32_t position) const {
-           return clusterStartBlock(cluster) + blockOfCluster(position);}
-  cache_t *cache() {return &cacheBuffer_;}
+    return clusterStartBlock(cluster) + blockOfCluster(position);
+  }
+  cache_t* cache() {return &cacheBuffer_;}
   uint32_t cacheBlockNumber() {return cacheBlockNumber_;}
 #if USE_MULTIPLE_CARDS
   bool cacheFlush();
@@ -187,11 +190,12 @@ class SdVolume {
     return  cluster >= FAT32EOC_MIN;
   }
   bool readBlock(uint32_t block, uint8_t* dst) {
-    return sdCard_->readBlock(block, dst);}
+    return sdCard_->readBlock(block, dst);
+  }
   bool writeBlock(uint32_t block, const uint8_t* dst) {
     return sdCard_->writeBlock(block, dst);
   }
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
   // Deprecated functions  - suppress cpplint warnings with NOLINT comment
 #if ALLOW_DEPRECATED_FUNCTIONS && !defined(DOXYGEN)
  public:

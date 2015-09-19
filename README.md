@@ -1,24 +1,40 @@
 # Marlin 3D Printer Firmware
-<img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
-
+<img align="top" width=175 src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
  Documentation has moved to [marlinfirmware.org](http://www.marlinfirmware.org).
 
-## Development Branch
+## Release Candidate -- Marlin 1.1 RC1 - 19 September 2015
 
 __Not for production use – use with caution!__
 
-The Development branch contains the most up-to-date Marlin code. When reporting any issues, please check to see if they are resolved in this branch first. But let us know if issues exist in tagged releases so that we can document and patch them.
-
-There is now also an ["Integration" branch](https://github.com/MarlinFirmware/Marlin/tree/Integration) which will be used in development to migrate changes for wider testing from the Development branch on their way to Release. It's a nascent branch, so for now please rely on Development and Release for issues and features under most active discussion.
-
 For the latest tagged version of Marlin (currently 1.0.2 – January 2015) you should switch to the [Release branch](https://github.com/MarlinFirmware/Marlin/tree/Release).
 
-## Current Status: Bug Fixing
+[This branch, "RC"](https://github.com/MarlinFirmware/MarlinDev/tree/RC), is our current pre-release candidate.
 
-Marlin development is being accelerated to catch up with a long list of issues. Check the Issues and Pull Requests links on the right to to see what we are currently working on.
+Future development takes place in the [MarlinDev repository](https://github.com/MarlinFirmware/MarlinDev/).
+
+## Known Issues
+19 Sep 2015
+RC Branch published for testing
+
+## Coding Style
+The formatting of the source code is now controlled by the [astyle](http://astyle.sourceforge.net/astyle.html) program.
+The options which specify the style in use are found in the .astylerc file which is located in the top level folder of this repository.
+To reformat a file, run ```astyle --options=.astylerc <file_name>```.
+You will need to do this before committing the file to the git repository.
+
+## Submitting Patches
+Proposed patches should be submitted as a Pull Request against the [RCBugFix](https://github.com/MarlinFirmware/MarlinDev/tree/RCBugFix) branch
+Note: Do not propose added features. Patches to the Release Candidate are limited to corrections of coding errors for the functions that have been implemented.
+Be sure to check that all files are properly styled. Pull requests containing styling errors will fail the automated tests which are performed on all submissions.
+
+
+
+## Current Status: Testing
+
+Please test this firmware and inform us of any issues where it fails to perform in a manner consistent with the designed functionality.
 
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
-[![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
+[![Travis Build Status](https://travis-ci.org/MarlinFirmware/MarlinDev.svg)](https://travis-ci.org/MarlinFirmware/MarlinDev)
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
@@ -31,10 +47,10 @@ __Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo22
 The current Marlin dev team consists of:
 
  - Scott Lahteine [@thinkyhead] - English
- - Andreas Hardtung [@AnHardt]
- - [@Wurstnase]
- - [@fmalpartida] - English, Spanish
- - [@CONSULitAS]
+ - Andreas Hardtung [@AnHardt] - Deutsch, English
+ - [@Wurstnase] - Deutsch, English
+ - F. Malpartida [@fmalpartida] - English, Spanish
+ - [@CONSULitAS] - Deutsch, English
  - [@maverikou]
  - Chris Palmer [@nophead]
  - [@paclema]
@@ -42,15 +58,19 @@ The current Marlin dev team consists of:
  - Erik van der Zalm [@ErikZalm]
  - David Braam [@daid]
  - Bernhard Kubicek [@bkubicek]
+ - Richard Wackerbarth [@Wackerbarth] - English
+ - Roxanne Neufeld [@Roxy-3DPrintBoard] - English
 
 More features have been added by:
+  - Alberto Cotronei [@MagoKimbra]
   - Lampmaker,
   - Bradley Feldman,
   - and others...
 
 ## License
 
-Marlin is published under the [GPL license](/Documentation/COPYING.md) because We believe in open development.
-Do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.
+Marlin is published under the [GPL license](/Documentation/COPYING.md) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
+
+While we can't prevent the use of this code in products (3D printers, CNC, etc.) that are closed source or crippled by a patent, we would prefer that you choose another firmware or, better yet, make your own.
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)

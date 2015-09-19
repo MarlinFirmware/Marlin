@@ -9,20 +9,12 @@
 #define LARGE_FLASH true
 
 // Servo support
-#ifdef NUM_SERVOS
-  #define SERVO0_PIN       22 //motor header MX1
-  #if NUM_SERVOS > 1
-    #define SERVO1_PIN     23 //Motor header MX2
-    #if NUM_SERVOS > 2
-      #define SERVO2_PIN   24 //Motor header MX3
-      #if NUM_SERVOS > 3
-        #define SERVO2_PIN  5 //pwm header pin 5
-      #endif
-    #endif
-  #endif
-#endif
+#define SERVO0_PIN 22 // Motor header MX1
+#define SERVO1_PIN 23 // Motor header MX2
+#define SERVO2_PIN 24 // Motor header MX3
+#define SERVO2_PIN  5 // PWM header pin 5
 
-#ifdef Z_PROBE_SLED
+#if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
 #endif
 
@@ -36,7 +28,7 @@
 #undef E0_MS2_PIN
 #undef E1_MS1_PIN
 #undef E1_MS2_PIN
- 
+
 #define X_STEP_PIN 37
 #define X_DIR_PIN 48
 #define X_MIN_PIN 12
@@ -70,7 +62,7 @@
 #define HEATER_1_PIN 7
 #define TEMP_1_PIN 1
 
-#ifdef BARICUDA
+#if ENABLED(BARICUDA)
   #define HEATER_2_PIN 6
 #else
   #define HEATER_2_PIN -1
@@ -97,7 +89,7 @@
 #define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
-#define FAN_PIN            8  
+#define FAN_PIN            8
 
 /**********************************************************
   Fan Pins
@@ -109,11 +101,14 @@
 #define KILL_PIN           -1 //80 with Smart Controller LCD
 #define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
 
-#ifdef ULTRA_LCD
+#if ENABLED(ULTRA_LCD)
+
   #define KILL_PIN 80
-  #ifdef NEWPANEL
-   //arduino pin which triggers an piezzo beeper
-    #define BEEPER 79      // Beeper on AUX-4
+
+  #if ENABLED(NEWPANEL)
+
+    #define BEEPER_PIN 79      // Beeper on AUX-4
+
     #define LCD_PINS_RS 70
     #define LCD_PINS_ENABLE 71
     #define LCD_PINS_D4 72
@@ -130,17 +125,18 @@
     #define BLEN_B 1
     #define BLEN_A 0
 
-    #define SDCARDDETECT 81    // Ramps does not use this port
+    #define SD_DETECT_PIN 81 // Ramps doesn't use this
 
   #else //!NEWPANEL - old style panel with shift register
-    //arduino pin witch triggers an piezzo beeper
-    #define BEEPER 33    No Beeper added
+
+    #define BEEPER_PIN 33    // No Beeper added
+
     //buttons are attached to a shift register
-    // Not wired this yet
-    // #define SHIFT_CLK 38
-    // #define SHIFT_LD 42
-    // #define SHIFT_OUT 40
-    // #define SHIFT_EN 17
+    // Not wired yet
+    //#define SHIFT_CLK 38
+    //#define SHIFT_LD 42
+    //#define SHIFT_OUT 40
+    //#define SHIFT_EN 17
 
     #define LCD_PINS_RS 75
     #define LCD_PINS_ENABLE 17
@@ -164,27 +160,27 @@
 
 #endif // ULTRA_LCD
 
-#if defined(VIKI2) || defined(miniVIKI)
- #define BEEPER 44
- // Pins for DOGM SPI LCD Support
- #define DOGLCD_A0  70 
- #define DOGLCD_CS  71 
- #define LCD_SCREEN_ROT_180
-  
- //The encoder and click button 
- #define BTN_EN1 85 
- #define BTN_EN2 84
- #define BTN_ENC 83  //the click switch
+#if ENABLED(VIKI2) || ENABLED(miniVIKI)
+  #define BEEPER_PIN 44
+  // Pins for DOGM SPI LCD Support
+  #define DOGLCD_A0  70
+  #define DOGLCD_CS  71
+  #define LCD_SCREEN_ROT_180
 
- #define SDCARDDETECT -1 // Pin 72 if using easy adapter board   
+  //The encoder and click button
+  #define BTN_EN1 85
+  #define BTN_EN2 84
+  #define BTN_ENC 83  //the click switch
 
-  #ifdef TEMP_STAT_LEDS
-   #define STAT_LED_RED      22
-   #define STAT_LED_BLUE     32 
+  #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
+
+  #if ENABLED(TEMP_STAT_LEDS)
+    #define STAT_LED_RED      22
+    #define STAT_LED_BLUE     32
   #endif
 #endif // VIKI2/miniVIKI
 
-#ifdef FILAMENT_SENSOR
-  //Filip added pin for Filament sensor analog input 
+#if ENABLED(FILAMENT_SENSOR)
+  //Filip added pin for Filament sensor analog input
   #define FILWIDTH_PIN        3
 #endif

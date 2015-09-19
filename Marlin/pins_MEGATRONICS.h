@@ -39,19 +39,18 @@
 #define LED_PIN            13
 
 
-#define FAN_PIN            7 // IO pin. Buffer needed
+#define FAN_PIN             7   // IO pin. Buffer needed
 #define PS_ON_PIN          12
 #define KILL_PIN           -1
 
-#define HEATER_0_PIN       9    // EXTRUDER 1
-#define HEATER_1_PIN       8    // EXTRUDER 2 (FAN On Sprinter)
+#define HEATER_0_PIN        9
+#define HEATER_1_PIN        8
 #define HEATER_2_PIN       -1
 
 #if TEMP_SENSOR_0 == -1
-#define TEMP_0_PIN         8   // ANALOG NUMBERING
+  #define TEMP_0_PIN        8   // ANALOG NUMBERING
 #else
-#define TEMP_0_PIN         13   // ANALOG NUMBERING
-
+  #define TEMP_0_PIN       13   // ANALOG NUMBERING
 #endif
 
 #define TEMP_1_PIN         15   // ANALOG NUMBERING
@@ -59,28 +58,26 @@
 #define HEATER_BED_PIN     10   // BED
 #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
-#define BEEPER 33     // Beeper on AUX-4
+#define BEEPER_PIN         33   // AUX-4
 
+#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
-#if defined(ULTRA_LCD) && defined(NEWPANEL)
-  //arduino pin which triggers an piezzo beeper
-
-  #define LCD_PINS_RS 16
+  #define LCD_PINS_RS     16
   #define LCD_PINS_ENABLE 17
-  #define LCD_PINS_D4 23
-  #define LCD_PINS_D5 25
-  #define LCD_PINS_D6 27
-  #define LCD_PINS_D7 29
+  #define LCD_PINS_D4     23
+  #define LCD_PINS_D5     25
+  #define LCD_PINS_D6     27
+  #define LCD_PINS_D7     29
 
-  //buttons are directly attached using AUX-2
-  #define BTN_EN1 59
-  #define BTN_EN2 64
-  #define BTN_ENC 43  //the click
+  // Buttons directly attached using AUX-2
+  #define BTN_EN1         59
+  #define BTN_EN2         64
+  #define BTN_ENC         43
 
-  #define BLEN_C 2
-  #define BLEN_B 1
-  #define BLEN_A 0
+  #define BLEN_C           2
+  #define BLEN_B           1
+  #define BLEN_A           0
 
-  #define SDCARDDETECT -1   // Ramps does not use this port
+  #define SD_DETECT_PIN   -1   // RAMPS doesn't use this
 
 #endif // ULTRA_LCD && NEWPANEL

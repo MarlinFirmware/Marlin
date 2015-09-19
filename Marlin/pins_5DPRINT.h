@@ -8,8 +8,6 @@
   #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
 #endif
 
-#define AT90USB 1286  // Disable MarlinSerial etc.
-
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN          0
@@ -54,8 +52,8 @@
 // The SDSS pin uses a different pin mapping from file Sd2PinMap.h
 #define SDSS               20
 
-#ifndef SDSUPPORT
-// these pins are defined in the SD library if building with SD support
+#if DISABLED(SDSUPPORT)
+  // these pins are defined in the SD library if building with SD support
   #define SCK_PIN           9
   #define MISO_PIN         11
   #define MOSI_PIN         10
