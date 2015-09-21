@@ -429,6 +429,8 @@ void Config_ResetDefault() {
     updatePID();
   #endif // PIDTEMP
 
+  zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+
   #ifdef FWRETRACT
     autoretract_enabled = false;
     retract_length = RETRACT_LENGTH;
@@ -536,7 +538,8 @@ void Config_PrintSettings(bool forReplay) {
 
   SERIAL_ECHO_START;
   if (!forReplay) {
-    SERIAL_ECHOLNPGM("Home offset (mm):");
+    SERIAL_ECHOPAIR("Home offset (mm):", zprobe_zoffset);
+    SERIAL_EOL;
     SERIAL_ECHO_START;
   }
   SERIAL_ECHOPAIR("  M206 X", add_homing[X_AXIS] );
