@@ -256,7 +256,7 @@ float add_homing[3] = { 0, 0, 0 };
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = { false, false, false };
-float zprobe_zoffset;
+float zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 
 // Extruder offset
 #if EXTRUDERS > 1
