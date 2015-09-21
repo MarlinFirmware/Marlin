@@ -1753,6 +1753,8 @@ void process_commands()
             break;
         }
 #endif
+        st_synchronize();
+
         current_position[X_AXIS] = st_get_position_mm(X_AXIS);
         current_position[Y_AXIS] = st_get_position_mm(Y_AXIS);
         current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
@@ -1791,15 +1793,12 @@ void process_commands()
 				LCD_MESSAGEPGM(MSG_PRINTING);
 				lcd_update();
 
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 5, active_extruder); //should do nothing
 				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, active_extruder); //move xy back
 				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], 60, active_extruder); //move z back
 
 				current_position[E_AXIS] += EXTRUDE_ON_RESUME;
 				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], 10, active_extruder); //extrude on resume
-
 				st_synchronize();
-
 
 				lcd_enable_button();
 				stop_buffer = false;
