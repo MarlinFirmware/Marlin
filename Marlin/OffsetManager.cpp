@@ -12,7 +12,7 @@ OffsetManager::OffsetManager()
 	m_offset = zprobe_zoffset;
 #endif
 
-	if(m_offset < 0 || m_offset > 10)
+	if(m_offset > 0.0f || m_offset < -10.0f)
 	{
 		SERIAL_ECHOLN("Prevented out of range offset!");
 		m_offset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
