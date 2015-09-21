@@ -28,7 +28,11 @@ namespace temp
 			uint16_t const & getTargetTemperature() const;
 			void notify();
 
+			void setBlowerControlState(bool state);
+			void fanControl();
+
 		private:
+			bool m_blower_control;
 			float m_current_temperature;
 			uint16_t m_round_temperature;
 			uint16_t m_target_temperature;

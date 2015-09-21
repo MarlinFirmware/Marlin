@@ -275,10 +275,6 @@ extern int ValvePressure;
 extern int EtoPPressure;
 #endif
 
-#ifdef FAN_SOFT_PWM
-extern unsigned char fanSpeedSoftPwm;
-#endif
-
 #ifdef FILAMENT_SENSOR
   extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
