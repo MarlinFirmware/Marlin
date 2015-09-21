@@ -54,6 +54,7 @@ namespace screen
 		screen_level2,
 		screen_level3,
 		screen_level4,
+		screen_level_z_homing,
 		screen_level_confirm,
 		screen_autohome_init,
 		screen_autohome_switch,

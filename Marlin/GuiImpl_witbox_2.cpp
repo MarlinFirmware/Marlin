@@ -451,6 +451,13 @@ namespace screen
 	static ScreenAction<void> * make_screen_level4()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_level_plate);
+		local_view->add(screen_level_z_homing);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_level_z_homing()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LEVEL_HOMING_TITLE(), MSG_SCREEN_LEVEL_HOMING_TEXT(), MSG_PLEASE_WAIT(), gui_action_z_homing);
 		local_view->add(screen_level_confirm);
 		return local_view;
 	}
@@ -1264,6 +1271,9 @@ namespace screen
 				break;
 			case screen_level4:
 				new_view = make_screen_level4();
+				break;
+			case screen_level_z_homing:
+				new_view = make_screen_level_z_homing();
 				break;
 			case screen_level_confirm:
 				new_view = make_screen_level_confirm();
