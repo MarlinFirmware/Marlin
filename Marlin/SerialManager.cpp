@@ -1,5 +1,7 @@
 #include "SerialManager.h"
 
+#include "StorageManager.h"
+
 #include <Arduino.h>
 #include "Configuration.h"
 
@@ -7,13 +9,7 @@ SerialManager::SerialManager()
 	: Subject<bool>()
 	, m_state(false)
 {
-	int i = EEPROM_POS;
-	uint8_t dummy = 0;
-	_EEPROM_readData(i, (uint8_t*)&dummy, sizeof(dummy));
-	if(dummy != 0)
-	{
-		state(true);
-	}
+	state(eeprom::StorageManager::single::instance().getSerialScreen());
 }
 
 void SerialManager::setState()
@@ -24,39 +20,14 @@ void SerialManager::setState()
 
 void SerialManager::state(bool state)
 {
-	WriteToEEPROM(state);
+	eeprom::StorageManager::single::instance().setSerialScreen(state);
 	m_state = state;
 	notify();
 }
 
-const bool & SerialManager::state() const
+bool SerialManager::state()
 {
 	return m_state;
-}
-
-bool SerialManager::ReadFromEEPROM()
-{
-	int i = EEPROM_POS;
-	uint8_t dummy = 0;
-
-	_EEPROM_readData(i, (uint8_t*)&dummy, sizeof(dummy));
-	if(dummy == 1)
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void SerialManager::WriteToEEPROM(bool state)
-{
-	int i = EEPROM_POS;
-	uint8_t dummy = 0;
-	if(state)
-	{
-		dummy = 1;
-	}
-	_EEPROM_writeData(i, (uint8_t*)&dummy, sizeof(dummy));
 }
 
 void SerialManager::notify()

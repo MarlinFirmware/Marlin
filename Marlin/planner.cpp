@@ -509,7 +509,7 @@ void check_axes_activity()
     }
   #endif//FAN_KICKSTART_TIME
   #ifdef FAN_SOFT_PWM
-  fanSpeedSoftPwm = tail_fan_speed;
+  //fanSpeed = tail_fan_speed;
   #else
   analogWrite(FAN_PIN,tail_fan_speed);
   #endif//!FAN_SOFT_PWM

@@ -9,6 +9,7 @@ namespace screen
 	typedef enum
 	{
 		screen_splash = 0,
+		screen_wizard_init,
 		screen_wizard_language,
 		screen_wizard_step1,
 		screen_wizard_step2,
@@ -53,6 +54,7 @@ namespace screen
 		screen_level2,
 		screen_level3,
 		screen_level4,
+		screen_level_z_homing,
 		screen_level_confirm,
 		screen_autohome_init,
 		screen_autohome_switch,
@@ -123,6 +125,7 @@ namespace screen
 		screen_temperature_print,
 		screen_serial,
 		screen_inactivity,
+		screen_close_inactivity,
 		screen_none,
 	} ScreenIndex_t;
 

@@ -62,8 +62,15 @@ namespace screen
 	{
 		ScreenSplash * local_view = new ScreenSplash(2000);
 		local_view->add(screen_main);
-		local_view->add(screen_wizard_language);
+		local_view->add(screen_wizard_init);
 		local_view->add(screen_emergency);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_wizard_init()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_wizard_init);
+		local_view->add(screen_wizard_language);
 		return local_view;
 	}
 
@@ -444,6 +451,13 @@ namespace screen
 	static ScreenAction<void> * make_screen_level4()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_level_plate);
+		local_view->add(screen_level_z_homing);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_level_z_homing()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LEVEL_HOMING_TITLE(), MSG_SCREEN_LEVEL_HOMING_TEXT(), MSG_PLEASE_WAIT(), gui_action_z_homing);
 		local_view->add(screen_level_confirm);
 		return local_view;
 	}
@@ -943,7 +957,7 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_print_action_complete()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_stop_print);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_finish_print);
 		local_view->add(screen_print_complete);
 		return local_view;
 	}
@@ -951,6 +965,13 @@ namespace screen
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
 		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETE_TITLE(), MSG_SCREEN_PRINT_COMPLETE_TEXT(), MSG_PUSH_TO_CONTINUE(), PrintManager::printingTime());
+		local_view->add(screen_close_inactivity);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_close_inactivity()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_close_inactivity);
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -1104,6 +1125,9 @@ namespace screen
 				break;
 			
 			//Initial wizard
+			case screen_wizard_init:
+				new_view = make_screen_wizard_init();
+				break;
 			case screen_wizard_language:
 				new_view = make_screen_wizard_language();
 				break;
@@ -1247,6 +1271,9 @@ namespace screen
 				break;
 			case screen_level4:
 				new_view = make_screen_level4();
+				break;
+			case screen_level_z_homing:
+				new_view = make_screen_level_z_homing();
 				break;
 			case screen_level_confirm:
 				new_view = make_screen_level_confirm();
@@ -1487,6 +1514,9 @@ namespace screen
 			// Inactivity screen
 			case screen_inactivity:
 				new_view = make_screen_inactivity();
+				break;
+			case screen_close_inactivity:
+				new_view = make_screen_close_inactivity();
 				break;
 		}
 		return new_view; 
