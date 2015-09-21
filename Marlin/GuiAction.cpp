@@ -45,11 +45,14 @@ void action_set_temperature(uint16_t degrees)
 
 void action_preheat()
 {
+	temp::TemperatureManager::single::instance().setBlowerControlState(true);
 	temp::TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
 }
 
 void action_cooldown()
 {
+
+	temp::TemperatureManager::single::instance().setBlowerControlState(true);
 	temp::TemperatureManager::single::instance().setTargetTemperature(0);
 }
 
@@ -488,6 +491,12 @@ void action_move_to_rest()
 
 void action_start_print()
 {
+	temp::TemperatureManager::single::instance().setBlowerControlState(false);
+
+#ifdef FAN_BOX_PIN
+	digitalWrite(FAN_BOX_PIN, HIGH);
+#endif //FAN_BOX_PIN
+
 	char cmd[30];
 	char* c;
 	strcpy(cmd, card.longFilename);
@@ -529,10 +538,14 @@ void action_start_print()
 
 void action_stop_print()
 {
+#ifdef FAN_BOX_PIN
+	digitalWrite(FAN_BOX_PIN, LOW);
+#endif //FAN_BOX_PIN
+
 	card.sdprinting = false;
 	card.closefile();
 
-	temp::TemperatureManager::single::instance().setTargetTemperature(0);
+	action_preheat();
 
 	flush_commands();
 	quickStop();
@@ -571,6 +584,12 @@ void action_stop_print()
 
 	cancel_heatup = true;
 	stop_planner_buffer = true;
+}
+
+void action_finish_print()
+{
+	action_stop_print();
+	action_cooldown();
 }
 
 extern float target[4];
