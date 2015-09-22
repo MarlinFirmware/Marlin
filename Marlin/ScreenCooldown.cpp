@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenAnimation.h
+/// \file ScreenCooldown.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of animation-type screens.
+/// \brief Implementation of cooldown screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,96 +25,43 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_ANIMATION_H
-#define SCREEN_ANIMATION_H
+#include "ScreenCooldown.h"
 
-#include <math.h>
-
-#include "Screen.h"
-#include "GuiManager.h"
-#include "TemperatureManager.h"
-#include "ViewManager.h"
+#include "Language.h"
+#include "GuiBitmaps_witbox_2.h"
 
 namespace screen
 {
-	template <typename T>
-		class ScreenAnimation : public Screen , public Observer<T>
-	{
-		public:
-			typedef enum
-			{
-				LESS_OR_EQUAL,
-				EQUAL,
-				GREATER_OR_EQUAL,
-				NUM_CONDITIONS
-			} Condition_t;
-
-		public:
-			ScreenAnimation(const char * title, const char * text, Condition_t condition, uint16_t target, Subject<T> * model = 0);
-			virtual ~ScreenAnimation();
-
-			void init(uint16_t index = 0);
-
-			void draw();
-			void press();
-
-			void add(ScreenIndex_t const & component);
-			void update(T value);
-
-		protected:
-			bool isConditionMet();
-
-		protected:
-			const char * m_text;
-
-			uint16_t m_target;
-			T m_observed;
-
-			ScreenIndex_t m_back_screen;
-			uint8_t m_num_item_added;
-
-			Condition_t m_condition;
-			uint32_t m_previous_time;
-			uint32_t m_current_time;
-			uint8_t m_frame;
-	};
-
-	template <typename T>
-		ScreenAnimation<T>::ScreenAnimation(const char * title, const char * text, Condition_t condition, uint16_t target, Subject<T> * model)
-		: Screen(title, SELECTOR)
-		, Observer<T>(model)
-		, m_text(text)
-		, m_num_item_added(0)
-		, m_observed(0)
-		, m_back_screen(screen_none)
-		, m_condition(condition)
-		, m_target(target)
-		, m_previous_time(0)
-		, m_current_time(0)
-		, m_frame(0)
+	ScreenCooldown::ScreenCooldown(const char * title, const char * text, uint16_t target, Subject<float> * model)
+		: ScreenAnimation(title, text, LESS_OR_EQUAL, target, model)
 	{
 		this->connect();
-		lcd_disable_button();
+		lcd_enable_button();
 	}
 
-	template <typename T>
-		ScreenAnimation<T>::~ScreenAnimation()
+	ScreenCooldown::~ScreenCooldown()
 	{ }
 
-	template <typename T>
-		void ScreenAnimation<T>::init(uint16_t index)
+	void ScreenCooldown::draw()
 	{
-		this->connect();
-	}
-
-	template <typename T>
-		void ScreenAnimation<T>::draw()
-	{
-		char c_target[4] = { 0 };
-		snprintf(c_target, 4, "%d", m_target);
-
+		char temp[21] = { 0 };
 		char c_current[4] = { 0 };
 		dtostrf(m_observed, 3, 0, c_current);
+		strcat(temp, c_current);
+		strcat(temp, "\xb0");
+		strcat(temp, " / ");
+
+		if(temp::TemperatureManager::single::instance().getTargetTemperature() >= temp::min_temp_cooling)
+		{
+			char c_target[4] = { 0 };
+			snprintf(c_target, 4, "%d", m_target);
+			strcat(temp, c_target);
+			strcat(temp, "\xb0");
+		}
+		else
+		{
+			strcat_P(temp, MSG_TEMP_OFF());
+		}
 
 		//Check time for next progress bar frame
 		m_current_time = millis();
@@ -136,13 +83,8 @@ namespace screen
 				uint8_t y_end = painter.coordinateYEnd();
 
 				painter.setColorIndex(1);
-				painter.setPrintPos(31,(y_end + y_init)/2 - 9/2 - 3);
-
-				painter.print(c_current);
-				painter.print("\xb0");
-				painter.print(" / ");
-				painter.print(c_target);
-				painter.print("\xb0");
+				painter.setPrintPos(64 - strlen(temp)*6/2, (y_end + y_init)/2 - 9/2 - 3);
+				painter.print(temp);
 
 				//Draw progress bar
 				painter.setColorIndex(1);
@@ -189,44 +131,20 @@ namespace screen
 		}
 	}
 
-	template <typename T>
-		void ScreenAnimation<T>::press()
-	{
-		if(m_back_screen != screen_none)
-		{
-			ViewManager::getInstance().activeView(m_back_screen);
-		}
-	}
-
-	template <typename T>
-		void ScreenAnimation<T>::add(ScreenIndex_t const & component)
-	{
-		if ((m_num_item_added % 2) == 0)
-		{
-			m_next_screen = component;
-		}
-		else
-		{
-			m_back_screen = component;
-			lcd_enable_button();
-		}
-		m_num_item_added++;
-	}
-
-	template<typename T>
-		void ScreenAnimation<T>::update(T value)
-	{
-		m_observed = value;
-	}
-
-	template<typename T>
-		bool ScreenAnimation<T>::isConditionMet()
+	bool ScreenCooldown::isConditionMet()
 	{
 		switch(m_condition)
 		{
 			case LESS_OR_EQUAL:
 			{
-				return (round(m_observed <= m_target));
+				if(temp::TemperatureManager::single::instance().getTargetTemperature() >= temp::min_temp_cooling)
+				{
+					return (round(m_observed <= m_target));
+				}
+				else
+				{
+					return (round(m_observed <= temp::min_temp_cooling));
+				}
 				break;
 			}
 			case EQUAL:
@@ -247,4 +165,3 @@ namespace screen
 		}
 	}
 }
-#endif //SCREEN_ANIMATION_H

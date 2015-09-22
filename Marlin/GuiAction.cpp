@@ -759,20 +759,6 @@ bool action_check_cooling()
 	}
 }
 
-bool action_check_min_temp()
-{
-	if(temp::TemperatureManager::single::instance().getTargetTemperature() <= temp::min_temp_cooling
-		|| temp::TemperatureManager::single::instance().getCurrentTemperature() <= temp::min_temp_cooling)
-	{
-		action_cooldown();
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 void action_close_inactivity()
 {
 	PrintManager::single::instance().state(STOPPED);
