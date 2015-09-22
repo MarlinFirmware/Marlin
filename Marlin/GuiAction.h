@@ -15,6 +15,7 @@ extern void action_filament_load();
 extern void action_level_plate();
 
 extern void gui_action_homing();
+extern void gui_action_z_homing();
 extern void action_get_plane();
 
 extern void action_move_axis_to(uint8_t axis, float position);
@@ -22,6 +23,7 @@ extern void action_move_to_rest();
 
 extern void action_start_print();
 extern void action_stop_print();
+extern void action_finish_print();
 extern void action_pause_print();
 extern void action_resume_print();
 extern void action_set_feedrate_multiply(uint16_t value);
@@ -32,7 +34,12 @@ extern void action_offset();
 extern void action_set_offset(uint8_t axis, float value);
 extern void action_save_offset();
 
+extern void action_wizard_init();
 extern void action_wizard_finish();
 extern bool action_check_preheat_temp();
+extern bool action_check_cooling();
+extern bool action_check_min_temp();
+
+extern void action_close_inactivity();
 
 #endif // GUI_ACTION_H

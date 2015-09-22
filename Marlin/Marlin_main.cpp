@@ -69,6 +69,7 @@
   #include "ultralcd.h"
 #endif
 
+#include "TemperatureManager.h"
 #include "AutoLevelManager.h"
 
 #include "Action.h"
@@ -655,7 +656,7 @@ void setup()
   servo_init();
 
 #ifdef DOGLCD
-  if (eeprom::StorageManager::getEmergencyFlag() != eeprom::EMERGENCY_STOP_INACTIVE)
+  if (eeprom::StorageManager::getEmergency() != eeprom::EMERGENCY_STOP_INACTIVE)
   {
     SERIAL_ECHOLN("--- EMERGENCY STOP ACTIVE ---");
   }
@@ -2410,6 +2411,7 @@ Sigma_Exit:
 
     #if defined(FAN_PIN) && FAN_PIN > -1
       case 106: //M106 Fan On
+        temp::TemperatureManager::single::instance().setBlowerControlState(false);
         if (code_seen('S')){
            fanSpeed=constrain(code_value(),0,255);
         }
@@ -2418,6 +2420,7 @@ Sigma_Exit:
         }
         break;
       case 107: //M107 Fan Off
+        temp::TemperatureManager::single::instance().setBlowerControlState(false);
         fanSpeed = 0;
         break;
     #endif //FAN_PIN

@@ -13,6 +13,8 @@
 #include "OffsetManager.h"
 #include "AutoLevelManager.h"
 #include "PrintManager.h"
+#include "StorageManager.h"
+#include "LightManager.h"
 
 bool raised = false;
 extern bool home_all_axis;
@@ -38,17 +40,20 @@ extern float probe_pt(float x, float y, float z_before, int retract_action = 0);
 
 void action_set_temperature(uint16_t degrees)
 {
-	TemperatureManager::single::instance().setTargetTemperature(degrees);
+	temp::TemperatureManager::single::instance().setTargetTemperature(degrees);
 }
 
 void action_preheat()
 {
-	TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
+	temp::TemperatureManager::single::instance().setBlowerControlState(true);
+	temp::TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
 }
 
 void action_cooldown()
 {
-	TemperatureManager::single::instance().setTargetTemperature(30);
+
+	temp::TemperatureManager::single::instance().setBlowerControlState(true);
+	temp::TemperatureManager::single::instance().setTargetTemperature(0);
 }
 
 void action_filament_unload()
@@ -229,7 +234,6 @@ void action_level_plate()
 
 		case 4:
 			lcd_disable_button();
-			action_move_to_rest();
 			lcd_enable_button();
 
 			break;
@@ -241,6 +245,12 @@ void action_level_plate()
 void gui_action_homing()
 {
 	action_homing();
+	action_move_to_rest();
+}
+
+void gui_action_z_homing()
+{
+	action_z_homing();
 	action_move_to_rest();
 }
 
@@ -486,6 +496,12 @@ void action_move_to_rest()
 
 void action_start_print()
 {
+	temp::TemperatureManager::single::instance().setBlowerControlState(false);
+
+#ifdef FAN_BOX_PIN
+	digitalWrite(FAN_BOX_PIN, HIGH);
+#endif //FAN_BOX_PIN
+
 	char cmd[30];
 	char* c;
 	strcpy(cmd, card.longFilename);
@@ -527,10 +543,14 @@ void action_start_print()
 
 void action_stop_print()
 {
+#ifdef FAN_BOX_PIN
+	digitalWrite(FAN_BOX_PIN, LOW);
+#endif //FAN_BOX_PIN
+
 	card.sdprinting = false;
 	card.closefile();
 
-	TemperatureManager::single::instance().setTargetTemperature(0);
+	action_preheat();
 
 	flush_commands();
 	quickStop();
@@ -569,6 +589,12 @@ void action_stop_print()
 
 	cancel_heatup = true;
 	stop_planner_buffer = true;
+}
+
+void action_finish_print()
+{
+	action_stop_print();
+	action_cooldown();
 }
 
 extern float target[4];
@@ -686,24 +712,32 @@ void action_set_offset(uint8_t axis, float value)
 void action_save_offset()
 {
 	OffsetManager::single::instance().saveOffset();
-	if(!OffsetManager::single::instance().isOffsetOnEEPROM())
-	{
-		OffsetManager::single::instance().offsetOnEEPROM();
-	}
-
+	action_z_homing();
 	action_move_to_rest();
+}
+
+void action_wizard_init()
+{
+	PrintManager::single::instance().state(INITIALIZING);
+	LightManager::single::instance().state(true);
 }
 
 void action_wizard_finish()
 {
-	PrintManager::resetInactivity();
+	//Set printer as initialized
+	eeprom::StorageManager::single::instance().setInitialized();
+
+	//Set default values
 	PrintManager::single::instance().state(STOPPED);
 	AutoLevelManager::single::instance().state(true);
+
+	//Reset inactivity
+	PrintManager::resetInactivity();
 }
 
 bool action_check_preheat_temp()
 {
-	if(TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
+	if(temp::TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
 	{
 		return true;
 	}
@@ -711,4 +745,35 @@ bool action_check_preheat_temp()
 	{
 		return false;
 	}
+}
+
+bool action_check_cooling()
+{
+	if(temp::TemperatureManager::single::instance().getTargetTemperature() <= temp::TemperatureManager::single::instance().getCurrentTemperature())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool action_check_min_temp()
+{
+	if(temp::TemperatureManager::single::instance().getTargetTemperature() <= temp::min_temp_cooling
+		|| temp::TemperatureManager::single::instance().getCurrentTemperature() <= temp::min_temp_cooling)
+	{
+		action_cooldown();
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void action_close_inactivity()
+{
+	PrintManager::single::instance().state(STOPPED);
 }

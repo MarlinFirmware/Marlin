@@ -6,9 +6,6 @@
 
 #include <stdint.h>
 
-extern void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size);
-extern void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size);
-
 class OffsetManager : public Subject<float>
 {
 	public:
@@ -19,15 +16,9 @@ class OffsetManager : public Subject<float>
 
 		void offset(float value);
 		float offset();
-		bool isOffsetOnEEPROM();
-		void offsetOnEEPROM();
-
 		void saveOffset();
 
 	private:
-		float ReadFromEEPROM();
-		void WriteToEEPROM(float value);
-
 		void notify();
 
 	private:

@@ -68,52 +68,6 @@ void action_homing()
     }
 #endif //Z_HOME_DIR > 0
 
-#ifdef QUICK_HOME
-    if((home_all_axis)||( code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS])) )  
-    {
-		current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
-
-	#ifndef DUAL_X_CARRIAGE
-		int x_axis_home_dir = home_dir(X_AXIS);
-	#else //DUAL_X_CARRIAGE
-		int x_axis_home_dir = x_home_dir(active_extruder);
-		extruder_duplication_enabled = false;
-	#endif //DUAL_X_CARRIAGE
-
-		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		destination[X_AXIS] = 1.5 * max_length(X_AXIS) * x_axis_home_dir;destination[Y_AXIS] = 1.5 * max_length(Y_AXIS) * home_dir(Y_AXIS);
-		feedrate = homing_feedrate[X_AXIS];
-		if(homing_feedrate[Y_AXIS]<feedrate)
-		{
-			feedrate = homing_feedrate[Y_AXIS];
-		}
-		if (max_length(X_AXIS) > max_length(Y_AXIS))
-		{
-			feedrate *= sqrt(pow(max_length(Y_AXIS) / max_length(X_AXIS), 2) + 1);
-		}
-		else
-		{
-			feedrate *= sqrt(pow(max_length(X_AXIS) / max_length(Y_AXIS), 2) + 1);
-		}
-		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
-		st_synchronize();
-
-		axis_is_at_home(X_AXIS);
-		axis_is_at_home(Y_AXIS);
-		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-		destination[X_AXIS] = current_position[X_AXIS];
-		destination[Y_AXIS] = current_position[Y_AXIS];
-		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
-		feedrate = 0.0;
-		st_synchronize();
-		endstops_hit_on_purpose();
-
-		current_position[X_AXIS] = destination[X_AXIS];
-		current_position[Y_AXIS] = destination[Y_AXIS];
-		current_position[Z_AXIS] = destination[Z_AXIS];
-	}
-#endif //QUICK_HOME
-
 	if((home_all_axis) || (code_seen(axis_codes[X_AXIS])))
     {
 #ifdef DUAL_X_CARRIAGE
@@ -178,6 +132,69 @@ void action_homing()
 	{
 		enquecommand("G28 X0 Y0 Z0");
 	}
+#endif //Z_HOME_DIR < 0
+
+#ifdef LEVEL_SENSOR
+	current_position[Z_AXIS] += zprobe_zoffset;
+#endif //LEVEL_SENSOR
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+#ifdef ENDSTOPS_ONLY_FOR_HOMING
+	enable_endstops(false);
+#endif //ENDSTOPS_ONLY_FOR_HOMING
+
+	feedrate = saved_feedrate;
+	feedmultiply = saved_feedmultiply;
+	endstops_hit_on_purpose();
+
+	previous_millis_cmd = millis();
+#ifdef DOGLCD
+	PrintManager::knownPosition(true);
+#endif //DOGLCD
+	lcd_enable_button();
+}
+
+void action_z_homing()
+{
+	lcd_disable_button();
+
+	float saved_feedrate = feedrate;
+	int saved_feedmultiply = feedmultiply;
+	feedmultiply = 100;
+
+	enable_endstops(true);
+
+	for(int8_t i=0; i < NUM_AXIS; i++)
+	{
+		current_position[i] = plan_get_axis_position(i);
+	}
+
+	// plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	// st_synchronize();
+
+	for(int8_t i=0; i < NUM_AXIS; i++)
+	{
+		destination[i] = current_position[i];
+	}
+
+#if Z_HOME_DIR < 0
+
+	destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT);
+	destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT);
+	destination[Z_AXIS] = 5 * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+
+	feedrate = XY_TRAVEL_SPEED/3;
+	current_position[Z_AXIS] = 0;
+
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	st_synchronize();
+	current_position[X_AXIS] = destination[X_AXIS];
+	current_position[Y_AXIS] = destination[Y_AXIS];
+
+	HOMEAXIS(Z);
+	raised = false;
+
 #endif //Z_HOME_DIR < 0
 
 #ifdef LEVEL_SENSOR
