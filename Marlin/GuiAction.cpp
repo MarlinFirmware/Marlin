@@ -83,9 +83,6 @@ void action_filament_unload()
 	current_position[E_AXIS] -= 60.0;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
 	st_synchronize();
-
-	current_position[E_AXIS] = lastpos[E_AXIS];
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
 void action_filament_load()
@@ -112,8 +109,9 @@ void action_filament_load()
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
 	st_synchronize();
 
-	current_position[E_AXIS] = lastpos[E_AXIS];
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	current_position[E_AXIS] -= RETRACT_ON_PAUSE;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 5, active_extruder);
+	st_synchronize();
 }
 
 void action_level_plate()
@@ -613,16 +611,19 @@ void action_resume_print()
 {
 	lcd_disable_button();
 
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], lastpos[E_AXIS], 100, active_extruder); //move xy back
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], 60, active_extruder); //move z back
-	lastpos[E_AXIS] += EXTRUDE_ON_RESUME;
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], 10, active_extruder); //extrude on resume
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, active_extruder); //move xy back
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], 60, active_extruder); //move z back
+
 	st_synchronize();
 
 	vector_3 update_position = plan_get_position();
 	current_position[X_AXIS] = update_position.x;
 	current_position[Y_AXIS] = update_position.y;
 	current_position[Z_AXIS] = update_position.z;
+
+	current_position[E_AXIS] += EXTRUDE_ON_RESUME;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 10, active_extruder);
+	st_synchronize();
 
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
