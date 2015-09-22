@@ -3801,15 +3801,16 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
           //3 or 4 points based on the printer
           #if X_MAX_POS > 250 || Z_MAX_POS > 200 //witbox 1 & 2 or hephestos 2
-            lcd_wizard_set_page(5);
+            lcd_wizard_set_page(6);
             lcd_update();
-
             action_level_plate();
+            action_move_to_rest();
+
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
-                manage_heater();
+              manage_heater();
 #ifndef DOGLCD
-                manage_inactivity();
+              manage_inactivity();
 #endif //DOGLCD
             }
           #else
@@ -3825,25 +3826,22 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 #endif //DOGLCD
             }
 
-            lcd_wizard_set_page(5);
+            lcd_wizard_set_page(6);
             lcd_update();
-
             action_level_plate();
+            action_move_to_rest();
+
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
-                manage_heater();
+              manage_heater();
 #ifndef DOGLCD
-                manage_inactivity();
+              manage_inactivity();
 #endif //DOGLCD
             }
           #endif
-
-  				lcd_wizard_set_page(6);
+        	lcd_wizard_set_page(7);
     			lcd_update();
-          action_level_plate();
 
-    			lcd_wizard_set_page(7);
-    			lcd_update();      
     			lcd_enable_display_timeout();
     		}
     		break;
