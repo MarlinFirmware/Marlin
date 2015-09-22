@@ -86,7 +86,6 @@ namespace screen
 		screen_stepper,
 		screen_temperature_main,
 		screen_temperature_main_switch,
-		screen_cooling_switch,
 		screen_cooling_main,
 		screen_heating_main,
 		screen_info,

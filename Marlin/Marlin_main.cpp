@@ -256,7 +256,7 @@ float add_homing[3] = { 0, 0, 0 };
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = { false, false, false };
-float zprobe_zoffset;
+float zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -1743,6 +1743,18 @@ void process_commands()
 #endif
       break;
     case 25: //M25 - Pause SD print
+#ifdef DOGLCD
+        if(stop_buffer == false)
+        {
+            lcd_disable_button();
+            card.sdprinting = false;
+            stop_buffer = true;
+            stop_buffer_code = 1;
+            break;
+        }
+#endif
+        st_synchronize();
+
         current_position[X_AXIS] = st_get_position_mm(X_AXIS);
         current_position[Y_AXIS] = st_get_position_mm(Y_AXIS);
         current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
@@ -1781,20 +1793,20 @@ void process_commands()
 				LCD_MESSAGEPGM(MSG_PRINTING);
 				lcd_update();
 
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 5, active_extruder); //should do nothing
 				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, active_extruder); //move xy back
 				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], 60, active_extruder); //move z back
 
 				current_position[E_AXIS] += EXTRUDE_ON_RESUME;
 				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], 10, active_extruder); //extrude on resume
-
 				st_synchronize();
-
 
 				lcd_enable_button();
 				stop_buffer = false;
 #else //DOGLCD
-        PrintManager::single::instance().state(PAUSED);
+        if(stop_buffer == true)
+        {
+          PrintManager::single::instance().state(PAUSED);
+        }
 #endif//DOGLCD
       break;
     case 26: //M26 - Set SD index
@@ -3377,6 +3389,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     #ifdef FILAMENTCHANGEENABLE
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
     {
+#ifndef DOGLCD
   			lcd_disable_display_timeout();
       
         float target[4];
@@ -3534,6 +3547,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   			lcd_enable_button();
 
   			stop_buffer = false;
+#else
+        screen::ViewManager::getInstance().activeView(screen::screen_change_pausing);
+#endif
     }
     break;
     #endif //FILAMENTCHANGEENABLE
@@ -3801,15 +3817,16 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
           //3 or 4 points based on the printer
           #if X_MAX_POS > 250 || Z_MAX_POS > 200 //witbox 1 & 2 or hephestos 2
-            lcd_wizard_set_page(5);
+            lcd_wizard_set_page(6);
             lcd_update();
-
             action_level_plate();
+            action_move_to_rest();
+
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
-                manage_heater();
+              manage_heater();
 #ifndef DOGLCD
-                manage_inactivity();
+              manage_inactivity();
 #endif //DOGLCD
             }
           #else
@@ -3825,25 +3842,22 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 #endif //DOGLCD
             }
 
-            lcd_wizard_set_page(5);
+            lcd_wizard_set_page(6);
             lcd_update();
-
             action_level_plate();
+            action_move_to_rest();
+
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
-                manage_heater();
+              manage_heater();
 #ifndef DOGLCD
-                manage_inactivity();
+              manage_inactivity();
 #endif //DOGLCD
             }
           #endif
-
-  				lcd_wizard_set_page(6);
+        	lcd_wizard_set_page(7);
     			lcd_update();
-          action_level_plate();
 
-    			lcd_wizard_set_page(7);
-    			lcd_update();      
     			lcd_enable_display_timeout();
     		}
     		break;

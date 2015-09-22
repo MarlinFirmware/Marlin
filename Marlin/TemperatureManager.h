@@ -31,8 +31,6 @@ namespace temp
 			void setBlowerControlState(bool state);
 			void fanControl();
 
-		public:
-
 		private:
 			bool m_blower_control;
 			float m_current_temperature;

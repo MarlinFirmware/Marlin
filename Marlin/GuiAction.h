@@ -38,7 +38,6 @@ extern void action_wizard_init();
 extern void action_wizard_finish();
 extern bool action_check_preheat_temp();
 extern bool action_check_cooling();
-extern bool action_check_min_temp();
 
 extern void action_close_inactivity();
 
