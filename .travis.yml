@@ -38,7 +38,7 @@ before_script:
   # change back to home directory for compiling
   - cd $TRAVIS_BUILD_DIR
   # Check style
-  - ~/bin/astyle --recursive --options=.astylerc "Marlin/*.h" "Marlin/*.cpp" "Marlin/example_configurations/*.h"
+  - ~/bin/astyle --recursive --options=.astylerc "Marlin/*.h" "Marlin/*.cpp"
 script:
   # Abort on style errors
   - if [ "0" != `find Marlin -name "*.orig" | wc -l` ] ; then  exit -999; fi
