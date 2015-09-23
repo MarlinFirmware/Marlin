@@ -406,6 +406,22 @@ void Config_ResetDefault() {
     absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
   #endif
+#ifdef LEVEL_SENSOR
+    if(eeprom::StorageManager::single::instance().getInitialized())
+    {
+      zprobe_zoffset = eeprom::StorageManager::single::instance().getOffset();
+      if(zprobe_zoffset < 0 || zprobe_zoffset > 10)
+      {
+        SERIAL_ECHOLN("Prevented out of range offset!");
+        zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+      }
+    }
+    else
+    {
+      zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+    }
+    
+  #endif
 
   #ifdef DOGLCD
     lcd_contrast = DEFAULT_LCD_CONTRAST;
@@ -428,8 +444,6 @@ void Config_ResetDefault() {
     // call updatePID (similar to when we have processed M301)
     updatePID();
   #endif // PIDTEMP
-
-  zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 
   #ifdef FWRETRACT
     autoretract_enabled = false;
@@ -538,8 +552,7 @@ void Config_PrintSettings(bool forReplay) {
 
   SERIAL_ECHO_START;
   if (!forReplay) {
-    SERIAL_ECHOPAIR("Home offset (mm):", zprobe_zoffset);
-    SERIAL_EOL;
+    SERIAL_ECHOLNPGM("Home offset (mm):");
     SERIAL_ECHO_START;
   }
   SERIAL_ECHOPAIR("  M206 X", add_homing[X_AXIS] );
