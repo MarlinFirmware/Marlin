@@ -4195,7 +4195,7 @@ void controllerFan()
     #if EXTRUDERS > 2
        || !READ(E2_ENABLE_PIN)
     #endif
-    #if EXTRUDER > 1
+    #if EXTRUDERS > 1
       #if defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
        || !READ(X2_ENABLE_PIN)
       #endif

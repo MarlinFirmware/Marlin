@@ -562,7 +562,7 @@ void manage_heater()
 
   #if TEMP_SENSOR_BED != 0
   
-    #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+    #ifdef THERMAL_RUNAWAY_PROTECTION_BED_PERIOD && THERMAL_RUNAWAY_PROTECTION_BED_PERIOD > 0
       thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS);
     #endif
 
@@ -1013,7 +1013,7 @@ void setWatch()
 #endif 
 }
 
-#if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+#if (defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0) || (defined (THERMAL_RUNAWAY_PROTECTION_BED_PERIOD) && THERMAL_RUNAWAY_PROTECTION_BED_PERIOD > 0)
 void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc)
 {
 /*
@@ -1052,8 +1052,11 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
       else if ( (millis() - *timer) > ((unsigned long) period_seconds) * 1000)
       {
         SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM("Thermal Runaway, system stopped! Heater_ID: ");
-        SERIAL_ERRORLN((int)heater_id);
+        SERIAL_ERRORPGM("Thermal Runaway, system stopped! Heater_ID: ");
+        if (heater_id == 9)
+          SERIAL_ERRORLNPGM("bed");
+        else
+          SERIAL_ERRORLN((int)heater_id);
         LCD_ALERTMESSAGEPGM("THERMAL RUNAWAY");
         thermal_runaway = true;
         while(1)
