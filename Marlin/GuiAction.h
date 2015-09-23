@@ -20,6 +20,7 @@ extern void action_get_plane();
 
 extern void action_move_axis_to(uint8_t axis, float position);
 extern void action_move_to_rest();
+extern void action_move_to_filament_change();
 
 extern void action_start_print();
 extern void action_stop_print();

@@ -58,22 +58,8 @@ void action_cooldown()
 
 void action_filament_unload()
 {
-	st_synchronize();
-	vector_3 update_position = plan_get_position();
-	current_position[X_AXIS] = update_position.x;
-	current_position[Y_AXIS] = update_position.y;
-	current_position[Z_AXIS] = update_position.z;
+	action_move_to_filament_change();
 
-	if ((change_filament == false) || (current_position[Z_AXIS] < POSITION_FILAMENT_Z))
-	{
-		current_position[Z_AXIS] = POSITION_FILAMENT_Z;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 60, active_extruder);
-		st_synchronize();
-	}
-
-	current_position[X_AXIS] = POSITION_FILAMENT_X;
-	current_position[Y_AXIS] = POSITION_FILAMENT_Y;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 	st_synchronize();
 
 	current_position[E_AXIS] += 50.0;
@@ -87,22 +73,8 @@ void action_filament_unload()
 
 void action_filament_load()
 {
-	st_synchronize();
-	vector_3 update_position = plan_get_position();
-	current_position[X_AXIS] = update_position.x;
-	current_position[Y_AXIS] = update_position.y;
-	current_position[Z_AXIS] = update_position.z;
+	action_move_to_filament_change();
 
-	if ((change_filament == false) || (current_position[Z_AXIS] < POSITION_FILAMENT_Z))
-	{
-		current_position[Z_AXIS] = POSITION_FILAMENT_Z;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 60, active_extruder);
-		st_synchronize();
-	}
-
-	current_position[X_AXIS] = POSITION_FILAMENT_X;
-	current_position[Y_AXIS] = POSITION_FILAMENT_Y;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 	st_synchronize();
 
 	current_position[E_AXIS] += 140.0;
@@ -492,6 +464,29 @@ void action_move_to_rest()
 	st_synchronize();
 }
 
+void action_move_to_filament_change()
+{
+	st_synchronize();
+
+	vector_3 update_position = plan_get_position();
+	current_position[X_AXIS] = update_position.x;
+	current_position[Y_AXIS] = update_position.y;
+	current_position[Z_AXIS] = update_position.z;
+
+	if ((change_filament == false) || (current_position[Z_AXIS] < POSITION_FILAMENT_Z))
+	{
+		current_position[Z_AXIS] = POSITION_FILAMENT_Z;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 60, active_extruder);
+		st_synchronize();
+	}
+
+	current_position[X_AXIS] = POSITION_FILAMENT_X;
+	current_position[Y_AXIS] = POSITION_FILAMENT_Y;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
+
+	st_synchronize();
+}
+
 void action_start_print()
 {
 	temp::TemperatureManager::single::instance().setBlowerControlState(false);
@@ -526,7 +521,8 @@ void action_start_print()
 #endif //DOGLCD
 		action_get_plane();
 	}
-	enquecommand_P(PSTR("G1 Z10"));
+
+	action_move_to_rest();
 
 	for(c = &cmd[4]; *c; c++)
 	*c = tolower(*c);
