@@ -8,7 +8,7 @@ __Not for production use – use with caution!__
 
 For the latest tagged version of Marlin (currently 1.0.2 – January 2015) you should switch to the [Release branch](https://github.com/MarlinFirmware/Marlin/tree/Release).
 
-[This branch, "RC"](https://github.com/MarlinFirmware/MarlinDev/tree/RC), is our current pre-release candidate.
+[This branch, "RC"](https://github.com/MarlinFirmware/Marlin/tree/RC), is our current pre-release candidate.
 
 Future development takes place in the [MarlinDev repository](https://github.com/MarlinFirmware/MarlinDev/).
 
