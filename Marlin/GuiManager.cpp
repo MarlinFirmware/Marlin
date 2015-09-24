@@ -143,7 +143,6 @@ void lcd_init()
 	pinMode(BTN_ENC,INPUT);
 	WRITE(BTN_ENC,HIGH);
 
-
 	painter.begin();
 
 	// Low level init libraries for lcd & encoder
@@ -492,7 +491,7 @@ void lcd_emergency_stop()
 {
 	if (eeprom::StorageManager::getEmergency() != eeprom::EMERGENCY_STOP_ACTIVE)
 	{
-		SERIAL_ECHOLN("KILLED: Emergency stop active!");
+		SERIAL_ECHOLN("KILLED: Requested Emergency Stop!");
 		eeprom::StorageManager::setEmergency();
 		stop_buffer = true;
 		stop_buffer_code = 999;
@@ -517,7 +516,9 @@ void lcd_emergency_stop()
 	else
 	{
 		eeprom::StorageManager::clearEmergency();
+		SERIAL_ECHOLN("Clear Emergency Stop flag");
 	}
+	_delay_us(5U);
 	cli();
 
 	wdt_enable(WDTO_15MS);
