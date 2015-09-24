@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenInactivity.h
+/// \file ScreenCooldown.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of inactivity-type screens.
+/// \brief Definition of cooldown-type screens.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,8 +25,8 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_INACTIVITY_H
-#define SCREEN_INACTIVITY_H
+#ifndef SCREEN_COOLDOWN_H
+#define SCREEN_COOLDOWN_H
 
 #include "ScreenAnimation.h"
 
@@ -36,26 +36,16 @@
 
 namespace screen
 {
-	class ScreenInactivity : public ScreenAnimation<float>
+	class ScreenCooldown : public ScreenAnimation<float>
 	{
 		public:
-			ScreenInactivity(const char * title, const char * text, uint16_t target, Subject<float> * model = 0);
-			virtual ~ScreenInactivity();
-
-			void init(uint16_t index = 0);
+			ScreenCooldown(const char * title, const char * text, uint16_t target, Subject<float> * model = 0);
+			virtual ~ScreenCooldown();
 
 			void draw();
-			void press();
-
-			void add(ScreenIndex_t const & component);
-			void update(float value);
-
-			void left();
-			void right();
-
 		private:
 			bool isConditionMet();
 	};
 }
 
-#endif //SCREEN_INACTIVITY_H
+#endif //SCREEN_COOLDOWN_H

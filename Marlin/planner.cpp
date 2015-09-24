@@ -510,7 +510,7 @@ void check_axes_activity()
     }
   #endif//FAN_KICKSTART_TIME
   #ifdef FAN_SOFT_PWM
-  fanSpeedSoftPwm = tail_fan_speed;
+  //fanSpeed = tail_fan_speed;
   #else
   analogWrite(FAN_PIN,tail_fan_speed);
   #endif//!FAN_SOFT_PWM
@@ -554,7 +554,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   {
     next_buffer_head = next_block_index(block_buffer_head);
 
-    TemperatureManager::single::instance().manageTemperatureControl(); 
+    temp::TemperatureManager::single::instance().manageTemperatureControl(); 
 #ifndef DOGLCD
         manage_inactivity(); 
 #endif //DOGLCD

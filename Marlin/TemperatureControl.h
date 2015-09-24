@@ -3,27 +3,30 @@
 
 #include <stdint.h>
 
-class TemperatureControl 
+namespace temp
 {
-	public:
-		TemperatureControl();
-		~TemperatureControl();
+	class TemperatureControl 
+	{
+		public:
+			TemperatureControl();
+			~TemperatureControl();
 
-		void setCurrentTemperature(uint16_t temp);
-		void setTargetControl(uint16_t const & target);
-		const uint16_t & getTargetControl() const;
-		void manageControl();
+			void setCurrentTemperature(uint16_t temp);
+			void setTargetControl(uint16_t const & target);
+			const uint16_t & getTargetControl() const;
+			void manageControl();
 
-	public:
-		float m_control_output;
+		public:
+			float m_control_output;
 
-	private:
-		float m_current_temperature;
-		uint16_t m_target_temperature;	
-		float m_kp;
-		float m_ki;
-		float m_kb;	
+		private:
+			float m_current_temperature;
+			uint16_t m_target_temperature;	
+			float m_kp;
+			float m_ki;
+			float m_kb;	
+	};
+}
 
-};
 
 #endif //TEMPERATURE_CONTROL_H

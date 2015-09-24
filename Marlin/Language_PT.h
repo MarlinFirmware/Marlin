@@ -127,7 +127,7 @@ const char PT_SCREEN_WIZARD_LANGUAGE[] PROGMEM          = "Espanhol";
 const char PT_SCREEN_WIZARD_TEXT1[] PROGMEM             = "Bem-vindo! Vamos come""\xe7""ar a preparar a impressora";
 const char PT_SCREEN_WIZARD_TEXT2[] PROGMEM             = "Comecemos por calibrar o sensor ajustando o offset";
 const char PT_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Lembre-se de manter a extrusora e a base sem res""\xed""duos";
-const char PT_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Desfrute da sua MACHINE_NAME! Se conseguir imaginar, pode faz""\xea""-lo";
+const char PT_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Desfrute da sua " MACHINE_NAME "! Se conseguir imaginar, pode faz""\xea""-lo";
 const char PT_ICON_SD_NOSD[] PROGMEM                    = "Inserir cart""\xe3""o SD";
 const char PT_ICON_SD_SD[] PROGMEM                      = "Imprimir do SD";
 const char PT_ICON_FILAMENT_UNLOAD[] PROGMEM            = "Retirar filamento";
@@ -156,7 +156,7 @@ const char PT_ICON_MOVE_01MM[] PROGMEM                  = "Deslocar 0,1 mm";
 const char PT_OPTION_LIGHTLED[] PROGMEM                 = "0";
 const char PT_OPTION_INFO[] PROGMEM                     = "0";
 const char PT_OPTION_AUTOLEVEL[] PROGMEM                = "0";
-const char PT_OPTION_SERIAL[] PROGMEM                   = "Serial Control";
+const char PT_OPTION_SERIAL[] PROGMEM                   = "0";
 const char PT_OPTION_OFFSET[] PROGMEM                   = "0";
 const char PT_OPTION_LANGUAGE[] PROGMEM                 = "0";
 const char PT_PUSH_TO_CONFIRM[] PROGMEM                 = "Premir p/ confirmar";
@@ -168,5 +168,6 @@ const char PT_PLEASE_WAIT[] PROGMEM                     = "Por favor, aguarde";
 const char PT_BACK[] PROGMEM                            = "0";
 const char PT_MODE[] PROGMEM                            = "0";
 const char PT_INACTIVE[] PROGMEM                        = "0";
+const char PT_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_PT_H

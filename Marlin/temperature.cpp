@@ -64,10 +64,6 @@ float current_temperature_bed = 0.0;
   float bedKi=(DEFAULT_bedKi*PID_dT);
   float bedKd=(DEFAULT_bedKd/PID_dT);
 #endif //PIDTEMPBED
-  
-#ifdef FAN_SOFT_PWM
-  unsigned char fanSpeedSoftPwm;
-#endif
 
 unsigned char soft_pwm_bed;
   
@@ -809,7 +805,7 @@ void updateTemperaturesFromRawValues()
         current_temperature[e] = analog2temp(current_temperature_raw[e], e);
     }
 
-    TemperatureManager::single::instance().updateCurrentTemperature(current_temperature[0]);
+    temp::TemperatureManager::single::instance().updateCurrentTemperature(current_temperature[0]);
 
     current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
@@ -830,7 +826,7 @@ void setTargetHotend(const float &celsius, uint8_t extruder)
 {
   if (extruder == 0)
   {
-    TemperatureManager::single::instance().setTargetTemperature((uint16_t) celsius);
+    temp::TemperatureManager::single::instance().setTargetTemperature((uint16_t) celsius);
   }
   else
   {
@@ -911,7 +907,7 @@ void tp_init()
     setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
     #ifdef FAN_SOFT_PWM
-    soft_pwm_fan = fanSpeedSoftPwm / 2;
+    soft_pwm_fan = fanSpeed / 2;
     #endif
   #endif  
 
@@ -1198,6 +1194,10 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 
 void disable_heater()
 {
+#ifdef DOGLCD
+  temp::TemperatureManager::single::instance().setTargetTemperature(0);
+#endif
+
   for(int i=0;i<EXTRUDERS;i++)
     setTargetHotend(0,i);
   setTargetBed(0);
@@ -1258,8 +1258,6 @@ void max_temp_error(uint8_t e) {
 
 void min_temp_error(uint8_t e) {
   disable_heater();
-  SERIAL_ECHO("error: ");
-  SERIAL_ECHOLN((int)e);
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLN((int)e);
@@ -1428,7 +1426,7 @@ ISR(TIMER0_COMPB_vect)
     if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1); else WRITE(HEATER_BED_PIN,0);
 #endif
 #ifdef FAN_SOFT_PWM
-    soft_pwm_fan = fanSpeedSoftPwm / 2;
+    soft_pwm_fan = fanSpeed / 2;
     if(soft_pwm_fan > 0) WRITE(FAN_PIN,1); else WRITE(FAN_PIN,0);
 #endif
   }
@@ -1682,7 +1680,7 @@ ISR(TIMER0_COMPB_vect)
   
 #ifdef FAN_SOFT_PWM
   if (pwm_count == 0){
-    soft_pwm_fan = fanSpeedSoftPwm / 2;
+    soft_pwm_fan = fanSpeed/ 2;
     if (soft_pwm_fan > 0) WRITE(FAN_PIN,1); else WRITE(FAN_PIN,0);
   }
   if (soft_pwm_fan < pwm_count) WRITE(FAN_PIN,0);
@@ -1913,7 +1911,6 @@ ISR(TIMER0_COMPB_vect)
     if(current_temperature_raw[0] <= minttemp_raw[0]) {
 #endif
 #ifndef HEATER_0_USES_MAX6675
-      SERIAL_ECHOLN("ERROR");
         min_temp_error(0);
 #endif
     }

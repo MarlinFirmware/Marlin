@@ -127,7 +127,7 @@ const char IT_SCREEN_WIZARD_LANGUAGE[] PROGMEM          = "Spagnolo";
 const char IT_SCREEN_WIZARD_TEXT1[] PROGMEM             = "Benvenuti! Cominciamo a preparare la stampante";
 const char IT_SCREEN_WIZARD_TEXT2[] PROGMEM             = "Cominciamo calibrando il sensore e regolando l'offset";
 const char IT_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Ricorda di mantenere l'estrusore e la base liberi da residui";
-const char IT_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Goditi la tua MACHINE_NAME! Se riesci a immaginarlo, puoi farlo";
+const char IT_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Goditi la tua " MACHINE_NAME "! Se riesci a immaginarlo, puoi farlo";
 const char IT_ICON_SD_NOSD[] PROGMEM                    = "Inserisci scheda SD";
 const char IT_ICON_SD_SD[] PROGMEM                      = "Stampare da SD";
 const char IT_ICON_FILAMENT_UNLOAD[] PROGMEM            = "Ritirare filamento";
@@ -156,7 +156,7 @@ const char IT_ICON_MOVE_01MM[] PROGMEM                  = "Spostare 0,1mm";
 const char IT_OPTION_LIGHTLED[] PROGMEM                 = "0";
 const char IT_OPTION_INFO[] PROGMEM                     = "0";
 const char IT_OPTION_AUTOLEVEL[] PROGMEM                = "0";
-const char IT_OPTION_SERIAL[] PROGMEM                   = "Serial Control";
+const char IT_OPTION_SERIAL[] PROGMEM                   = "0";
 const char IT_OPTION_OFFSET[] PROGMEM                   = "0";
 const char IT_OPTION_LANGUAGE[] PROGMEM                 = "0";
 const char IT_PUSH_TO_CONFIRM[] PROGMEM                 = "Premi per confermare";
@@ -168,5 +168,6 @@ const char IT_PLEASE_WAIT[] PROGMEM                     = "Attendere, prego";
 const char IT_BACK[] PROGMEM                            = "0";
 const char IT_MODE[] PROGMEM                            = "0";
 const char IT_INACTIVE[] PROGMEM                        = "0";
+const char IT_TEMP_OFF[] PROGMEM                        = "0";
 
 #endif //LANGUAGE_IT_H

@@ -91,7 +91,7 @@ extern float current_temperature_bed;
 
 FORCE_INLINE float degHotend(uint8_t extruder) {  
 #ifdef DOGLCD
-  return TemperatureManager::single::instance().getCurrentTemperature();
+  return temp::TemperatureManager::single::instance().getCurrentTemperature();
 #else
   return current_temperature[extruder];
 #endif
@@ -113,7 +113,7 @@ FORCE_INLINE float degBed() {
 
 FORCE_INLINE float degTargetHotend(uint8_t extruder) {  
 #ifdef DOGLCD
-  return TemperatureManager::single::instance().getTargetTemperature();
+  return temp::TemperatureManager::single::instance().getTargetTemperature();
 #else
   return target_temperature[extruder];
 #endif
@@ -131,8 +131,8 @@ FORCE_INLINE void setTargetBed(const float &celsius) {
 
 FORCE_INLINE bool isHeatingHotend(uint8_t extruder){  
 #ifdef DOGLCD
-  float target_temp = TemperatureManager::single::instance().getTargetTemperature();
-  float current_temp = TemperatureManager::single::instance().getCurrentTemperature();
+  float target_temp = temp::TemperatureManager::single::instance().getTargetTemperature();
+  float current_temp = temp::TemperatureManager::single::instance().getCurrentTemperature();
   return target_temp > current_temp;
 #else
   return target_temperature[extruder] > current_temperature[extruder];
@@ -145,8 +145,8 @@ FORCE_INLINE bool isHeatingBed() {
 
 FORCE_INLINE bool isCoolingHotend(uint8_t extruder) {  
 #ifdef DOGLCD
-  float target_temp = TemperatureManager::single::instance().getTargetTemperature();
-  float current_temp = TemperatureManager::single::instance().getCurrentTemperature();
+  float target_temp = temp::TemperatureManager::single::instance().getTargetTemperature();
+  float current_temp = temp::TemperatureManager::single::instance().getCurrentTemperature();
   return target_temp < current_temp;
 #else
   return target_temperature[extruder] < current_temperature[extruder];

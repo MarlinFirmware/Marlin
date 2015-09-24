@@ -7,12 +7,22 @@
 #include "Subject.h"
 
 
-class TemperatureControl;
-
-class TemperatureManager : public Subject<float>
+namespace temp
 {
-	public:
-		typedef Singleton<TemperatureManager> single;
+
+	class TemperatureControl;
+
+
+	// Temperature parameters
+	const static uint8_t default_temp_change_filament = 220;
+	const static uint8_t min_temp_cooling = 50;
+	const static uint8_t min_temp_operation = 170;
+	const static uint8_t max_temp_operation = 250;
+
+	class TemperatureManager : public Subject<float>
+	{
+		public:
+			typedef Singleton<TemperatureManager> single;
 
 		struct LookUpTableEntry
 		{
@@ -25,29 +35,37 @@ class TemperatureManager : public Subject<float>
 			short temperature;
 		};
 
-	public:
-		TemperatureManager();
-		~TemperatureManager();
+		public:
+			TemperatureManager();
+			~TemperatureManager();
 
-		void init();
+			void init();
 
-		void updateLUTCache();
-		short getRawLUTCache(uint8_t index);
-		short getTemperatureLUTCache(uint8_t index);
+			void updateLUTCache();
+			short getRawLUTCache(uint8_t index);
+			short getTemperatureLUTCache(uint8_t index);
 
-		void updateCurrentTemperature(float temp);
-		uint16_t getCurrentTemperature();
-		void setTargetTemperature(uint16_t target);
-		const uint16_t getTargetTemperature();
-		void notify();
-		void manageTemperatureControl();
+			void updateCurrentTemperature(float temp);
+			uint16_t const & getCurrentTemperature();
+			void setTargetTemperature(uint16_t target);
+			uint16_t const & getTargetTemperature() const;
+			void notify();
+			void setBlowerControlState(bool state);
+			void fanControl();
 
-	public:
-		TemperatureControl * m_control;
+			void manageTemperatureControl();
 
-	private:
-		float m_current_temperature;
-		LookUpTableEntry m_cache[4];
-};
+		public:
+
+			TemperatureControl * m_control;	
+
+		private:
+			float m_target_temperature;
+			bool m_blower_control;
+			float m_current_temperature;
+			LookUpTableEntry m_cache[4];
+			uint16_t m_round_temperature;
+	};
+}
 
 #endif //TEMPERATURE_MANAGER_H
