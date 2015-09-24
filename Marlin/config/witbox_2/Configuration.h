@@ -160,8 +160,8 @@
 //#define  DEFAULT_Kd 0
 
 // - Original-DDG (PI back-calculation parameters)
-#define DEFAULT_Kp 10
-#define DEFAULT_Ki 0.53
+#define DEFAULT_Kp 10.7
+#define DEFAULT_Ki 0.45
 #define DEFAULT_Kd 0
 #define DEFAULT_Kb 10
 
