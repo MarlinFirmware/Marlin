@@ -5,7 +5,7 @@
 
 OffsetManager::OffsetManager()
 	: Subject<float>()
-	, m_offset(-Z_PROBE_OFFSET_FROM_EXTRUDER)
+	, m_offset(Z_PROBE_OFFSET_FROM_EXTRUDER)
 {
 #ifdef DOGLCD
 	m_offset = eeprom::StorageManager::single::instance().getOffset();
@@ -13,10 +13,10 @@ OffsetManager::OffsetManager()
 	m_offset = zprobe_zoffset;
 #endif
 
-	if(m_offset > 0.0f || m_offset < -10.0f)
+	if(m_offset < 0.0f || m_offset > 10.0f)
 	{
 		SERIAL_ECHOLN("Prevented out of range offset!");
-		m_offset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+		m_offset = Z_PROBE_OFFSET_FROM_EXTRUDER;
 	}
 }
 
