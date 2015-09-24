@@ -2,8 +2,8 @@
 
 #include "TemperatureManager.h" 
 #include "Configuration.h"
-#include "TemperatureManager.h"
 #include "temperature.h"
+#include "Marlin.h"
 
 #ifdef DOGLCD
 	#include "TemperatureControl.h"
@@ -195,6 +195,7 @@ namespace temp
 				fanSpeed = 0;	
 			}	
 		}
+		analogWrite(FAN_BLOWER_PIN,fanSpeed);
 	}
 
 	void TemperatureManager::manageTemperatureControl()
