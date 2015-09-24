@@ -410,7 +410,7 @@ void Config_ResetDefault() {
     if(eeprom::StorageManager::single::instance().getInitialized())
     {
       zprobe_zoffset = eeprom::StorageManager::single::instance().getOffset();
-      if(zprobe_zoffset < 0 || zprobe_zoffset > 10)
+      if(zprobe_zoffset > 0.0f || zprobe_zoffset < -10.0f)
       {
         SERIAL_ECHOLN("Prevented out of range offset!");
         zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
