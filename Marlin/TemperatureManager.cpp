@@ -195,7 +195,9 @@ namespace temp
 				fanSpeed = 0;	
 			}	
 		}
+#ifdef FAN_BLOWER_PIN
 		analogWrite(FAN_BLOWER_PIN,fanSpeed);
+#endif
 	}
 
 	void TemperatureManager::manageTemperatureControl()
