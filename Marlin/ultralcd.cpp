@@ -1603,7 +1603,8 @@ void lcd_update() {
       } while (u8g.nextPage());
     }
 #else
-    (*currentMenu)();
+    if (lcdDrawUpdate)
+        (*currentMenu)();
 #endif
 #if ENABLED(LCD_HAS_STATUS_INDICATORS)
     lcd_implementation_update_indicators();
