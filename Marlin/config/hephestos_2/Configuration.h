@@ -144,7 +144,7 @@
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
-  #define PID_dT ((OVERSAMPLENR * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
+  #define PID_dT ((OVERSAMPLENR)/(F_CPU / 1024.0 / 256.0)) //sampling period of the temperature routine
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 // - Harley
@@ -153,9 +153,15 @@
 //#define  DEFAULT_Kd 66.47
 
 // - MK4
-#define  DEFAULT_Kp 5.72
-#define  DEFAULT_Ki 0.19
-#define  DEFAULT_Kd 0
+//#define  DEFAULT_Kp 5.72
+//#define  DEFAULT_Ki 0.19
+//#define  DEFAULT_Kd 0
+
+// - Original-DDG (PI back-calculation parameters)
+#define DEFAULT_Kp 10.7
+#define DEFAULT_Ki 0.45
+#define DEFAULT_Kd 0
+#define DEFAULT_Kb 10
 
 #endif // PIDTEMP
 
