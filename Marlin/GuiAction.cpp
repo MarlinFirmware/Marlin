@@ -14,6 +14,7 @@
 #include "AutoLevelManager.h"
 #include "PrintManager.h"
 #include "StorageManager.h"
+#include "SerialManager.h"
 #include "LightManager.h"
 
 bool raised = false;
@@ -717,6 +718,7 @@ void action_wizard_init()
 {
 	PrintManager::single::instance().state(INITIALIZING);
 	LightManager::single::instance().state(true);
+	SerialManager::single::instance().state(true);
 }
 
 void action_wizard_finish()
