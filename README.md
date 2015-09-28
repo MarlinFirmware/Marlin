@@ -2,23 +2,34 @@
 <img align="top" width=175 src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
  Documentation has moved to [marlinfirmware.org](http://www.marlinfirmware.org).
 
-## Development Only
+## Release Candidate -- Marlin 1.1.0-RC2 - 29 September 2015
 
 __Not for production use – use with caution!__
 
-The [dev branch](https://github.com/MarlinFirmware/MarlinDev/tree/dev) contains the most up-to-date Marlin code. When reporting any issues, please check to see if they are resolved in this branch first. But let us know if issues exist in tagged releases so that we can document and patch them.
+For the latest tagged version of Marlin (currently 1.0.2 – January 2015) you should switch to the [Release branch](https://github.com/MarlinFirmware/Marlin/tree/Release).
 
-## Testing
-The [RC branch](https://github.com/MarlinFirmware/MarlinDev/tree/RC) will contain the latest pre-release candidate.
+[This branch, "RC"](https://github.com/MarlinFirmware/Marlin/tree/RC), is our current pre-release candidate.
+
+Future development takes place in the [MarlinDev repository](https://github.com/MarlinFirmware/MarlinDev/).
+
+## Recent Changes
+RC2 - 29 Sep 2015
+      File styling reverted
+      LCD update frequency reduced
+
+RC1 - 19 Sep 2015
+      Published for testing
 
 ## Submitting Patches
-Development patches should be submitted as a Pull Request against the [master](https://github.com/MarlinFirmware/MarlinDev/tree/master) branch
- 
-For the latest tagged version of Marlin (currently 1.0.2 – January 2015) you should switch to the [Release Repository](https://github.com/MarlinFirmware/Marlin).
+Proposed patches should be submitted as a Pull Request against the [RCBugFix](https://github.com/MarlinFirmware/Marlin/tree/RCBugFix) branch
+Note: Do not propose added features. Patches to the Release Candidate are limited to corrections of coding errors for the functions that have been implemented.
+Please follow the proper style. Pull requests containing styling errors will have to be reworked.
 
-## Current Status: Bug Fixing
 
-Marlin development is being accelerated to catch up with a long list of issues. Check the Issues and Pull Requests links on the right to to see what we are currently working on.
+
+## Current Status: Testing
+
+Please test this firmware and inform us of any issues where it fails to perform in a manner consistent with the designed functionality.
 
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/MarlinDev.svg)](https://travis-ci.org/MarlinFirmware/MarlinDev)
@@ -41,7 +52,7 @@ The current Marlin dev team consists of:
  - [@maverikou]
  - Chris Palmer [@nophead]
  - [@paclema]
- - [@epatel]
+ - Edward Patel [@epatel] - Swedish, English
  - Erik van der Zalm [@ErikZalm]
  - David Braam [@daid]
  - Bernhard Kubicek [@bkubicek]
