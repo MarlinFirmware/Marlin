@@ -83,7 +83,7 @@ void action_filament_load()
 	st_synchronize();
 
 	current_position[E_AXIS] -= RETRACT_ON_PAUSE;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 5, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
 	st_synchronize();
 }
 
@@ -619,10 +619,10 @@ void action_resume_print()
 	current_position[Z_AXIS] = update_position.z;
 
 	current_position[E_AXIS] += EXTRUDE_ON_RESUME;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 10, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
 	st_synchronize();
 
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	plan_set_e_position(lastpos[E_AXIS]);
 
 	card.sdprinting = true;
 	lcd_enable_button();
