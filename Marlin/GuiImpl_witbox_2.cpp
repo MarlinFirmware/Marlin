@@ -532,6 +532,8 @@ namespace screen
 		option_offset->add(screen_offset);
 		OptionLaunch * option_about       = new OptionLaunch(option_size, MSG_OPTION_INFO());
 		option_about->add(screen_info);
+		OptionLaunch * option_contact     = new OptionLaunch(option_size, MSG_OPTION_CONTACT());
+		option_contact->add(screen_contact);
 		OptionLaunch * option_language    = new OptionLaunch(option_size, MSG_OPTION_LANGUAGE());
 		option_language->add(screen_settings_language);
 
@@ -545,6 +547,7 @@ namespace screen
 		local_view->add(option_offset);
 		local_view->add(option_language);
 		local_view->add(option_about);
+		local_view->add(option_contact);
 		return local_view;
 	}
 
@@ -803,6 +806,13 @@ namespace screen
 	static ScreenAbout * make_screen_info()
 	{
 		ScreenAbout * local_view = new ScreenAbout(MSG_SCREEN_INFO_TITLE(), NULL, MSG_PUSH_TO_BACK(), bits_logo_about);
+		local_view->add(screen_settings);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_contact()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CONTACT_TITLE(), MSG_SCREEN_CONTACT_TEXT(), MSG_PUSH_TO_BACK(), do_nothing);
 		local_view->add(screen_settings);
 		return local_view;
 	}
@@ -1383,6 +1393,10 @@ namespace screen
 			// Info
 			case screen_info:
 				new_view = make_screen_info();
+				break;
+			// Contact
+			case screen_contact:
+				new_view = make_screen_contact();
 				break;
 
 			//Language

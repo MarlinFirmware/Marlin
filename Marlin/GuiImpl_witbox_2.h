@@ -89,6 +89,7 @@ namespace screen
 		screen_cooling_main,
 		screen_heating_main,
 		screen_info,
+		screen_contact,
 		screen_settings_language,
 		screen_offset,
 		screen_offset_switch,
