@@ -143,6 +143,8 @@ enum class Label
 	SCREEN_TEMP_TITLE,
 	SCREEN_TEMP_HEATING_TITLE,
 	SCREEN_INFO_TITLE,
+	SCREEN_CONTACT_TITLE,
+	SCREEN_CONTACT_TEXT,
 	SCREEN_OFFSET_INIT_TITLE,
 	SCREEN_OFFSET_INIT_TEXT,
 	SCREEN_OFFSET_PREHEATING_TITLE,
@@ -215,6 +217,7 @@ enum class Label
 	ICON_MOVE_01MM,
 	OPTION_LIGHTLED,
 	OPTION_INFO,
+	OPTION_CONTACT,
 	OPTION_AUTOLEVEL,
 	OPTION_SERIAL,
 	OPTION_OFFSET,
@@ -311,6 +314,8 @@ extern const char * MSG_SCREEN_MOVE_E_1MM_TITLE();
 extern const char * MSG_SCREEN_TEMP_TITLE();
 extern const char * MSG_SCREEN_TEMP_HEATING_TITLE();
 extern const char * MSG_SCREEN_INFO_TITLE();
+extern const char * MSG_SCREEN_CONTACT_TITLE();
+extern const char * MSG_SCREEN_CONTACT_TEXT();
 extern const char * MSG_SCREEN_OFFSET_INIT_TITLE();
 extern const char * MSG_SCREEN_OFFSET_INIT_TEXT();
 extern const char * MSG_SCREEN_OFFSET_PREHEATING_TITLE();
@@ -383,6 +388,7 @@ extern const char * MSG_ICON_MOVE_1MM();
 extern const char * MSG_ICON_MOVE_01MM();
 extern const char * MSG_OPTION_LIGHTLED();
 extern const char * MSG_OPTION_INFO();
+extern const char * MSG_OPTION_CONTACT();
 extern const char * MSG_OPTION_AUTOLEVEL();
 extern const char * MSG_OPTION_SERIAL();
 extern const char * MSG_OPTION_OFFSET();
