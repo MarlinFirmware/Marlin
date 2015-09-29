@@ -77,7 +77,7 @@ namespace screen
 
 	static ScreenLanguage * make_screen_wizard_language()
 	{
-		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::ES);
+		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::EN);
 		local_view->add(screen_wizard_step1);
 		return local_view;
 	}
@@ -809,7 +809,7 @@ namespace screen
 
 	static ScreenLanguage * make_screen_settings_language()
 	{
-		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::ES);
+		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::EN);
 		local_view->add(screen_settings);
 		return local_view;
 	}
