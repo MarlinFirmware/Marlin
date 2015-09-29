@@ -437,6 +437,7 @@ void action_get_plane()
 
 void action_move_axis_to(uint8_t axis, float position)
 {
+	enable_endstops(true);
 	current_position[axis] = position;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
 }
@@ -538,6 +539,7 @@ void action_start_print()
 
 void action_stop_print()
 {
+	st_synchronize();
 #ifdef FAN_BOX_PIN
 	digitalWrite(FAN_BOX_PIN, LOW);
 #endif //FAN_BOX_PIN
@@ -559,9 +561,6 @@ void action_stop_print()
 
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-	current_position[X_AXIS] = POSITION_REST_X;
-	current_position[Y_AXIS] = POSITION_REST_Y;
-
 #if X_MAX_POS < 250
 	current_position[Z_AXIS] += 20;
 #else // X_MAX_POS < 250
@@ -572,6 +571,15 @@ void action_stop_print()
 	{
 		current_position[Z_AXIS] = Z_MAX_POS;
 	}
+	enable_endstops(true);
+
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	st_synchronize();
+
+	enable_endstops(false);
+
+	current_position[X_AXIS] = POSITION_REST_X;
+	current_position[Y_AXIS] = POSITION_REST_Y;
 
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 	st_synchronize();
