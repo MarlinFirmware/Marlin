@@ -21,7 +21,7 @@
 //
 
 #ifndef LANGUAGE
-	#define LANGUAGE 5
+	#define LANGUAGE EN
 #endif
 
 // English
