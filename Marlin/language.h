@@ -27,6 +27,7 @@
 // fi       Finnish
 // an       Aragonese
 // nl       Dutch
+// gl       Galician
 // ca       Catalan
 // eu       Basque-Euskera
 // kana     Japanese
