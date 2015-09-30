@@ -110,7 +110,7 @@ long position[NUM_AXIS];               // Rescaled from extern when axis_steps_p
 static float previous_speed[NUM_AXIS]; // Speed of previous path line segment
 static float previous_nominal_speed;   // Nominal speed of previous path line segment
 
-unsigned char g_uc_extruder_last_move[4] = {0,0,0,0};
+uint8_t g_uc_extruder_last_move[EXTRUDERS] = { 0 };
 
 #ifdef XY_FREQUENCY_LIMIT
   // Used for the frequency limit
@@ -123,6 +123,10 @@ unsigned char g_uc_extruder_last_move[4] = {0,0,0,0};
 
 #if ENABLED(FILAMENT_SENSOR)
   static char meas_sample; //temporary variable to hold filament measurement sample
+#endif
+
+#if ENABLED(DUAL_X_CARRIAGE)
+  extern bool extruder_duplication_enabled;
 #endif
 
 //===========================================================================
@@ -628,6 +632,12 @@ float junction_deviation = 0.1;
       switch(extruder) {
         case 0:
           enable_e0();
+          #if ENABLED(DUAL_X_CARRIAGE)
+            if (extruder_duplication_enabled) {
+              enable_e1();
+              g_uc_extruder_last_move[1] = BLOCK_BUFFER_SIZE * 2;
+            }
+          #endif
           g_uc_extruder_last_move[0] = BLOCK_BUFFER_SIZE * 2;
           #if EXTRUDERS > 1
             if (g_uc_extruder_last_move[1] == 0) disable_e1();
