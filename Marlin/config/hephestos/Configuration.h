@@ -546,8 +546,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
 // Extrusion control on pause/resume. Distances in mm.
-#define RETRACT_ON_PAUSE 2.2
-#define EXTRUDE_ON_RESUME 2
+#define RETRACT_ON_PAUSE 4
+#define EXTRUDE_ON_RESUME 4
 
 //==============================LCD and SD support=============================
 
