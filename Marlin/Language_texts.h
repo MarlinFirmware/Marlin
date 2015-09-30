@@ -16,17 +16,12 @@
 #define PL  9 // Polish
 
 
-// Select a language
-
-#define LANGUAGE ES
-
-
 //
 // Language texts
 //
 
 #ifndef LANGUAGE
-	#define LANGUAGE EN
+	#define LANGUAGE 5
 #endif
 
 // English
