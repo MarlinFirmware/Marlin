@@ -111,7 +111,6 @@ uint8_t display_view_wizard_page = 0;
 //
 // General API definitions
 // 
-
 uint8_t lcd_implementation_update_buttons()
 {
   uint8_t buttons_vector = 0x00;
@@ -518,11 +517,7 @@ void lcd_emergency_stop()
 		eeprom::StorageManager::clearEmergency();
 		SERIAL_ECHOLN("Clear Emergency Stop flag");
 	}
-	_delay_us(5U);
-	cli();
-
-	wdt_enable(WDTO_15MS);
-	while (1) { }
+	RESET();
 }
 
 ISR(TIMER5_OVF_vect) // Every 125 us
@@ -546,3 +541,6 @@ ISR(TIMER5_OVF_vect) // Every 125 us
         lcd_timer = 0;
     }
 }
+
+
+

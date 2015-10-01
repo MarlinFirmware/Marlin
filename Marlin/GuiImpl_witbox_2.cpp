@@ -77,7 +77,7 @@ namespace screen
 
 	static ScreenLanguage * make_screen_wizard_language()
 	{
-		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::ES);
+		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::EN);
 		local_view->add(screen_wizard_step1);
 		return local_view;
 	}
@@ -119,7 +119,7 @@ namespace screen
 
 	static ScreenDynamicAxis<float> * make_screen_wizard_offset_set()
 	{
-		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, 0.0, 5.0, 0.02, action_set_offset);
 		local_view->add(screen_wizard_offset_save);
 		return local_view;
 	}
@@ -819,7 +819,7 @@ namespace screen
 
 	static ScreenLanguage * make_screen_settings_language()
 	{
-		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::ES);
+		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::EN);
 		local_view->add(screen_settings);
 		return local_view;
 	}
@@ -882,7 +882,7 @@ namespace screen
 
 	static ScreenDynamicAxis<float> * make_screen_offset_set()
 	{
-		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, 0.0, 5.0, 0.02, action_set_offset);
 		local_view->add(screen_offset_save);
 		return local_view;
 	}
