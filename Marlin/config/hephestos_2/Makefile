@@ -132,8 +132,8 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 CXXSRC += new.cpp HelpersC++.cpp Action.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp Option.cpp OptionToggle.cpp OptionLaunch.cpp \
    Screen.cpp ScreenAbout.cpp ScreenComplete.cpp ScreenEmergency.cpp ScreenFile.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp ScreenSplash.cpp ScreenTransition.cpp ScreenSerial.cpp ScreenSwitch.cpp ScreenInactivity.cpp ScreenLanguage.cpp ScreenSetting.cpp ScreenTemperature.cpp ScreenCooldown.cpp \
 	Stepper.cpp Language.cpp \
-   AutoLevelManager.cpp LightManager.cpp OffsetManager.cpp PrintManager.cpp SDManager.cpp SteppersManager.cpp StorageManager.cpp TemperatureManager.cpp ViewManager.cpp SerialManager.cpp \
-	ultralcd_st7920_u8glib_rrd.cpp
+	AutoLevelManager.cpp LightManager.cpp OffsetManager.cpp PrintManager.cpp SDManager.cpp SteppersManager.cpp StorageManager.cpp TemperatureManager.cpp TemperatureControl.cpp ViewManager.cpp SerialManager.cpp \
+	ultralcd_st7920_u8glib_rrd.cpp\
 
 ifeq ($(DOGLCD), 1)
 SRC += u8g_com_arduino_common.c u8g_com_arduino_st7920_spi.c u8g_dev_st7920_128x64.c \

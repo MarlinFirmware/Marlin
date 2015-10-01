@@ -29,6 +29,7 @@
 #include "Serial.h"
 #include "cardreader.h"
 #include "speed_lookuptable.h"
+#include "TemperatureManager.h"
 #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
 #include <SPI.h>
 #endif
@@ -1053,7 +1054,7 @@ void st_init()
 void st_synchronize()
 {
     while( blocks_queued()) {
-    manage_heater();
+    temp::TemperatureManager::single::instance().manageTemperatureControl();
 #ifndef DOGLCD
         manage_inactivity();
 #endif //DOGCLD

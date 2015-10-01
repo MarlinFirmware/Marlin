@@ -33,10 +33,8 @@
 #include "ultralcd.h"
 #include "temperature.h"
 #include "watchdog.h"
-
-#ifdef DOGLCD
 #include "TemperatureManager.h"
-#endif
+
 #include "Sd2PinMap.h"
 
 
@@ -45,10 +43,10 @@
 //===========================================================================
 
 // Sampling period of the temperature routine
-#ifdef PID_dT
-  #undef PID_dT
-#endif
-#define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
+// #ifdef PID_dT
+//   #undef PID_dT
+// #endif
+// #define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
 
 int target_temperature[EXTRUDERS] = { 0 };
 int target_temperature_bed = 0;
@@ -171,7 +169,6 @@ static int bed_maxttemp_raw = HEATER_BED_RAW_HI_TEMP;
 
 static float analog2temp(int raw, uint8_t e);
 static float analog2tempBed(int raw);
-static void updateTemperaturesFromRawValues();
 
 #ifdef WATCH_TEMP_PERIOD
 int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0,0);
@@ -798,7 +795,7 @@ static float analog2tempBed(int raw) {
 
 /* Called to get the raw values into the the actual temperatures. The raw values are created in interrupt context,
     and this function is called from normal context as it is too slow to run in interrupts and will block the stepper routine otherwise */
-static void updateTemperaturesFromRawValues()
+void updateTemperaturesFromRawValues()
 {
     #ifdef HEATER_0_USES_MAX6675
         current_temperature_raw[0] = read_max6675();
@@ -808,9 +805,7 @@ static void updateTemperaturesFromRawValues()
         current_temperature[e] = analog2temp(current_temperature_raw[e], e);
     }
 
-#ifdef DOGLCD
     temp::TemperatureManager::single::instance().updateCurrentTemperature(current_temperature[0]);
-#endif
 
     current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
@@ -829,23 +824,14 @@ static void updateTemperaturesFromRawValues()
 
 void setTargetHotend(const float &celsius, uint8_t extruder)
 {
-#ifdef DOGLCD
   if (extruder == 0)
   {
     temp::TemperatureManager::single::instance().setTargetTemperature((uint16_t) celsius);
   }
   else
-#endif
   {
     target_temperature[extruder] = celsius;
   }
-
-#ifdef WITBOX_CE
-  if (celsius > 0)
-    OCR3BL = 204;   // Fan speed set to the 80% (100% = 255)
-  else
-    OCR3BL = 0;     // Stop the fan
-#endif // WITBOX_CE
 };
 
 

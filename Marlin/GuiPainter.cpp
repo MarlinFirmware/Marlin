@@ -234,13 +234,16 @@ namespace screen
 						chars_per_line[num_line] = strlen(line_buffer);
 
 						num_line++;
-						total_num_lines++;
+						if(total_num_lines < 4)
+						{
+							total_num_lines++;
+						}
 						memset(line_buffer, 0, msg_length);
 
 						strcat(line_buffer, word_buffer);
 						strcat(line_buffer, " ");
 					}
-				} while ( (word_buffer != NULL) && (total_num_lines <= max_num_lines) );
+				} while ( (word_buffer != NULL) && (total_num_lines < max_num_lines) );
 
 				line_buffer[strlen(line_buffer) - 1] = '\0';
 				chars_per_line[num_line] = strlen(line_buffer);
@@ -260,7 +263,14 @@ namespace screen
 				{
 					char line[max_chars_per_line + 1];
 					memset(line, 0, max_chars_per_line + 1);
-					strncpy(line, text_buffer, chars_per_line[i]);
+					if(chars_per_line[i] < (max_chars_per_line + 1))
+					{
+						strncpy(line, text_buffer, chars_per_line[i]);
+					}
+					else
+					{
+						strncpy(line, text_buffer, max_chars_per_line);
+					}
 					line[max_chars_per_line] = '\0';
 					text_buffer += chars_per_line[i] + 1;
 
@@ -331,13 +341,16 @@ namespace screen
 						chars_per_line[num_line] = strlen(line_buffer);
 
 						num_line++;
-						total_num_lines++;
+						if(total_num_lines < 4)
+						{
+							total_num_lines++;
+						}
 						memset(line_buffer, 0, msg_length);
 
 						strcat(line_buffer, word_buffer);
 						strcat(line_buffer, " ");
 					}
-				} while ( (word_buffer != NULL) && (total_num_lines <= max_num_lines) );
+				} while ( (word_buffer != NULL) && (total_num_lines < max_num_lines) );
 
 				line_buffer[strlen(line_buffer) - 1] = '\0';
 				chars_per_line[num_line] = strlen(line_buffer);
@@ -357,7 +370,14 @@ namespace screen
 				{
 					char line[max_chars_per_line + 1];
 					memset(line, 0, max_chars_per_line + 1);
-					strncpy(line, text_buffer, chars_per_line[i]);
+					if(chars_per_line[i] < (max_chars_per_line + 1))
+					{
+						strncpy(line, text_buffer, chars_per_line[i]);
+					}
+					else
+					{
+						strncpy(line, text_buffer, max_chars_per_line);
+					}
 					line[max_chars_per_line] = '\0';
 					text_buffer += chars_per_line[i] + 1;
 
