@@ -172,5 +172,6 @@ const char ES_BACK[] PROGMEM                            = "Volver";
 const char ES_MODE[] PROGMEM                            = "Modo";
 const char ES_INACTIVE[] PROGMEM                        = "inactivo";
 const char ES_TEMP_OFF[] PROGMEM                        = "Off";
+const char ES_TOTAL_TIME[] PROGMEM                      = "Tiempo total: ";
 
 #endif //LANGUAGE_ES_H

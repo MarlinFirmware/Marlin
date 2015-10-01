@@ -172,5 +172,6 @@ const char FR_BACK[] PROGMEM                            = "Retour";
 const char FR_MODE[] PROGMEM                            = "Mode";
 const char FR_INACTIVE[] PROGMEM                        = "veille";
 const char FR_TEMP_OFF[] PROGMEM                        = """\xc9""teindre";
+const char FR_TOTAL_TIME[] PROGMEM                      = "0";
 
 #endif //LANGUAGE_FR_H

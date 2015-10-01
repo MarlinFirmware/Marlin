@@ -172,5 +172,6 @@ const char DE_BACK[] PROGMEM                            = "Zur""\xfc""ck";
 const char DE_MODE[] PROGMEM                            = "Modus";
 const char DE_INACTIVE[] PROGMEM                        = "inaktiv";
 const char DE_TEMP_OFF[] PROGMEM                        = "Aus";
+const char DE_TOTAL_TIME[] PROGMEM                      = "0";
 
 #endif //LANGUAGE_DE_H

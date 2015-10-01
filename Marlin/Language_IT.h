@@ -172,5 +172,6 @@ const char IT_BACK[] PROGMEM                            = "Torna";
 const char IT_MODE[] PROGMEM                            = "Modalit""\xe0""";
 const char IT_INACTIVE[] PROGMEM                        = "inattiva";
 const char IT_TEMP_OFF[] PROGMEM                        = "Off";
+const char IT_TOTAL_TIME[] PROGMEM                      = "0";
 
 #endif //LANGUAGE_IT_H

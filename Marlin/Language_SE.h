@@ -172,5 +172,6 @@ const char SE_BACK[] PROGMEM                            = "Tillbaka";
 const char SE_MODE[] PROGMEM                            = "L""\xe4""ge";
 const char SE_INACTIVE[] PROGMEM                        = "inaktiv";
 const char SE_TEMP_OFF[] PROGMEM                        = "Av";
+const char SE_TOTAL_TIME[] PROGMEM                      = "0";
 
 #endif //LANGUAGE_SE_H

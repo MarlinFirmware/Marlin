@@ -172,5 +172,6 @@ const char PT_BACK[] PROGMEM                            = "Voltar";
 const char PT_MODE[] PROGMEM                            = "Modo";
 const char PT_INACTIVE[] PROGMEM                        = "inativo";
 const char PT_TEMP_OFF[] PROGMEM                        = "Desligar";
+const char PT_TOTAL_TIME[] PROGMEM                      = "0";
 
 #endif //LANGUAGE_PT_H
