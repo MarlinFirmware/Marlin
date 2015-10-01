@@ -3900,10 +3900,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         unsigned char value = 0xFF;
         _EEPROM_writeData(p, (uint8_t*)&value, sizeof(value));
       };
-      // Reset
-      cli();
-      wdt_enable(WDTO_15MS);
-      while (1) { }
+		RESET();
     }
     break;
 
@@ -4800,4 +4797,26 @@ void calculate_volumetric_multipliers() {
 #endif //EXTRUDERS > 3
 #endif //EXTRUDERS > 2
 #endif //EXTRUDERS > 1
+}
+
+void RESET()
+{
+   SERIAL_ECHOLN("RESET: Disable interrupts");
+   cli();
+
+   SERIAL_ECHOLN("RESET: Wait for watchdog reset");
+   wdt_enable(WDTO_15MS);
+   while (1) {};
+}
+
+void reset(void)
+{
+	cli();
+	// Note that for newer devices (any AVR that has the option to also
+	// generate WDT interrupts), the watchdog timer remains active even
+	// after a system reset (except a power-on condition), using the fastest
+	// prescaler value (approximately 15 ms). It is therefore required
+	// to turn off the watchdog early during program startup.
+	MCUSR = 0; // clear reset flags
+	wdt_disable();
 }
