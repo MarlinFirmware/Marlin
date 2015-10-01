@@ -243,7 +243,7 @@ namespace screen
 						strcat(line_buffer, word_buffer);
 						strcat(line_buffer, " ");
 					}
-				} while ( (word_buffer != NULL) && (total_num_lines < max_num_lines) );
+				} while ( (word_buffer != NULL) && (total_num_lines <= max_num_lines) );
 
 				line_buffer[strlen(line_buffer) - 1] = '\0';
 				chars_per_line[num_line] = strlen(line_buffer);
@@ -350,7 +350,7 @@ namespace screen
 						strcat(line_buffer, word_buffer);
 						strcat(line_buffer, " ");
 					}
-				} while ( (word_buffer != NULL) && (total_num_lines < max_num_lines) );
+				} while ( (word_buffer != NULL) && (total_num_lines <= max_num_lines) );
 
 				line_buffer[strlen(line_buffer) - 1] = '\0';
 				chars_per_line[num_line] = strlen(line_buffer);
