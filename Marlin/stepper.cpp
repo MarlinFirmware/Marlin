@@ -66,9 +66,12 @@ static unsigned short step_loops_nominal;
 
 volatile long endstops_trigsteps[3]={0,0,0};
 volatile long endstops_stepsTotal,endstops_stepsDone;
-static volatile bool endstop_x_hit=false;
-static volatile bool endstop_y_hit=false;
-static volatile bool endstop_z_hit=false;
+static volatile bool endstop_xmin_hit=false;
+static volatile bool endstop_xmax_hit=false;
+static volatile bool endstop_ymin_hit=false;
+static volatile bool endstop_ymax_hit=false;
+static volatile bool endstop_zmin_hit=false;
+static volatile bool endstop_zmax_hit=false;
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 bool abort_on_endstop_hit = false;
 #endif
@@ -172,32 +175,35 @@ asm volatile ( \
 
 void checkHitEndstops()
 {
- if( endstop_x_hit || endstop_y_hit || endstop_z_hit) {
+ if( endstop_xmin_hit || endstop_xmax_hit || endstop_ymin_hit || endstop_ymax_hit || endstop_zmin_hit || endstop_zmax_hit) {
    SERIAL_ECHO_START;
    SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
-   if(endstop_x_hit) {
+   if(endstop_xmin_hit || endstop_xmax_hit) {
      SERIAL_ECHOPAIR(" X:",(float)endstops_trigsteps[X_AXIS]/axis_steps_per_unit[X_AXIS]);
      LCD_MESSAGEPGM(MSG_ENDSTOPS_TOUCH "X");
    }
-   if(endstop_y_hit) {
+   if(endstop_ymin_hit || endstop_ymax_hit) {
      SERIAL_ECHOPAIR(" Y:",(float)endstops_trigsteps[Y_AXIS]/axis_steps_per_unit[Y_AXIS]);
      LCD_MESSAGEPGM(MSG_ENDSTOPS_TOUCH "Y");
    }
-   if(endstop_z_hit) {
+   if(endstop_zmin_hit || endstop_zmax_hit) {
      SERIAL_ECHOPAIR(" Z:",(float)endstops_trigsteps[Z_AXIS]/axis_steps_per_unit[Z_AXIS]);
      LCD_MESSAGEPGM(MSG_ENDSTOPS_TOUCH "Z");
    }
    SERIAL_ECHOLN("");
-   endstop_x_hit=false;
-   endstop_y_hit=false;
-   endstop_z_hit=false;
+   endstop_xmin_hit=false;
+   endstop_xmax_hit=false;
+   endstop_ymin_hit=false;
+   endstop_ymax_hit=false;
+   endstop_zmin_hit=false;
+   endstop_zmax_hit=false;
 #if defined(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && defined(SDSUPPORT)
    if (abort_on_endstop_hit)
    {
      card.sdprinting = false;
      card.closefile();
      quickStop();
-     setTargetHotend0(0);
+     setTargetHotend0(0); 
      setTargetHotend1(0);
      setTargetHotend2(0);
      setTargetHotend3(0);
@@ -209,9 +215,12 @@ void checkHitEndstops()
 
 void endstops_hit_on_purpose()
 {
-  endstop_x_hit=false;
-  endstop_y_hit=false;
-  endstop_z_hit=false;
+  endstop_xmin_hit=false;
+  endstop_xmax_hit=false;
+  endstop_ymin_hit=false;
+  endstop_ymax_hit=false;
+  endstop_zmin_hit=false;
+  endstop_zmax_hit=false;
 }
 
 void enable_endstops(bool check)
@@ -418,7 +427,7 @@ ISR(TIMER1_COMPA_vect)
             bool x_min_endstop=(READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING);
             if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
               endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-              endstop_x_hit=true;
+              endstop_xmin_hit=true;
               step_events_completed = current_block->step_event_count;
             }
             old_x_min_endstop = x_min_endstop;
@@ -440,7 +449,7 @@ ISR(TIMER1_COMPA_vect)
             bool x_max_endstop=(READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING);
             if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
               endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-              endstop_x_hit=true;
+              endstop_xmax_hit=true;
               step_events_completed = current_block->step_event_count;
             }
             old_x_max_endstop = x_max_endstop;
@@ -461,7 +470,7 @@ ISR(TIMER1_COMPA_vect)
           bool y_min_endstop=(READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING);
           if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_y_hit=true;
+            endstop_ymin_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_y_min_endstop = y_min_endstop;
@@ -476,7 +485,7 @@ ISR(TIMER1_COMPA_vect)
           bool y_max_endstop=(READ(Y_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING);
           if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_y_hit=true;
+            endstop_ymin_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_y_max_endstop = y_max_endstop;
@@ -498,7 +507,7 @@ ISR(TIMER1_COMPA_vect)
           bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
           if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_hit=true;
+            endstop_zmin_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_z_min_endstop = z_min_endstop;
@@ -519,7 +528,7 @@ ISR(TIMER1_COMPA_vect)
           bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
           if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_hit=true;
+            endstop_zmin_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_z_max_endstop = z_max_endstop;
