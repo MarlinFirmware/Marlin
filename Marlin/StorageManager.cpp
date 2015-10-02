@@ -116,6 +116,18 @@ namespace eeprom
 		return false;
 	}
 
+	void StorageManager::eraseEEPROM()
+	{
+		uint8_t * address = (uint8_t *) 0;
+		uint8_t * max_address = (uint8_t *) 4080;
+
+		while (address < max_address)
+		{
+			StorageManager::single::instance().writeByte(address, 0xFF);
+			address++;
+		}
+	}
+
 	uint8_t StorageManager::readByte(uint8_t * address)
 	{
 		while ( !eeprom_is_ready() ) {}

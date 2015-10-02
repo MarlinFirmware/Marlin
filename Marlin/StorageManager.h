@@ -44,6 +44,8 @@ namespace eeprom
 			static void setSerialScreen(bool state);
 			static bool getSerialScreen();
 
+			static void eraseEEPROM();
+
 		private:
 			uint8_t readByte(uint8_t * address);
 			void writeByte(uint8_t * address, uint8_t data);
