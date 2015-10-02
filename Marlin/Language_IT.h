@@ -83,6 +83,8 @@ const char IT_SCREEN_MOVE_E_1MM_TITLE[] PROGMEM         = "Estrusore / 1 mm";
 const char IT_SCREEN_TEMP_TITLE[] PROGMEM               = "Temperatura";
 const char IT_SCREEN_TEMP_HEATING_TITLE[] PROGMEM       = "Temperatura";
 const char IT_SCREEN_INFO_TITLE[] PROGMEM               = "Versione";
+const char IT_SCREEN_CONTACT_TITLE[] PROGMEM            = "0";
+const char IT_SCREEN_CONTACT_TEXT[] PROGMEM             = "0";
 const char IT_SCREEN_OFFSET_INIT_TITLE[] PROGMEM        = "Regolare offset";
 const char IT_SCREEN_OFFSET_INIT_TEXT[] PROGMEM         = "Avviare processo?";
 const char IT_SCREEN_OFFSET_PREHEATING_TITLE[] PROGMEM  = "Temperatura";
@@ -155,6 +157,7 @@ const char IT_ICON_MOVE_1MM[] PROGMEM                   = "Spostare 1mm";
 const char IT_ICON_MOVE_01MM[] PROGMEM                  = "Spostare 0,1mm";
 const char IT_OPTION_LIGHTLED[] PROGMEM                 = "Led";
 const char IT_OPTION_INFO[] PROGMEM                     = "Versione";
+const char IT_OPTION_CONTACT[] PROGMEM                  = "0";
 const char IT_OPTION_AUTOLEVEL[] PROGMEM                = "Autolivellamento";
 const char IT_OPTION_SERIAL[] PROGMEM                   = "Schermo serie";
 const char IT_OPTION_OFFSET[] PROGMEM                   = "Regolare offset";
@@ -169,5 +172,6 @@ const char IT_BACK[] PROGMEM                            = "Torna";
 const char IT_MODE[] PROGMEM                            = "Modalit""\xe0""";
 const char IT_INACTIVE[] PROGMEM                        = "inattiva";
 const char IT_TEMP_OFF[] PROGMEM                        = "Off";
+const char IT_TOTAL_TIME[] PROGMEM                      = "0";
 
 #endif //LANGUAGE_IT_H

@@ -83,6 +83,8 @@ const char EN_SCREEN_MOVE_E_1MM_TITLE[] PROGMEM         = "Extruder / 1 mm";
 const char EN_SCREEN_TEMP_TITLE[] PROGMEM               = "Temperature";
 const char EN_SCREEN_TEMP_HEATING_TITLE[] PROGMEM       = "Temperature";
 const char EN_SCREEN_INFO_TITLE[] PROGMEM               = "Version";
+const char EN_SCREEN_CONTACT_TITLE[] PROGMEM            = "0";
+const char EN_SCREEN_CONTACT_TEXT[] PROGMEM             = "0";
 const char EN_SCREEN_OFFSET_INIT_TITLE[] PROGMEM        = "Adjust offset";
 const char EN_SCREEN_OFFSET_INIT_TEXT[] PROGMEM         = "Start process?";
 const char EN_SCREEN_OFFSET_PREHEATING_TITLE[] PROGMEM  = "Temperature";
@@ -155,6 +157,7 @@ const char EN_ICON_MOVE_1MM[] PROGMEM                   = "Move 1 mm";
 const char EN_ICON_MOVE_01MM[] PROGMEM                  = "Move 0.1 mm";
 const char EN_OPTION_LIGHTLED[] PROGMEM                 = "LED";
 const char EN_OPTION_INFO[] PROGMEM                     = "Version";
+const char EN_OPTION_CONTACT[] PROGMEM                  = "0";
 const char EN_OPTION_AUTOLEVEL[] PROGMEM                = "Auto-levelling";
 const char EN_OPTION_SERIAL[] PROGMEM                   = "Serial screen";
 const char EN_OPTION_OFFSET[] PROGMEM                   = "Adjust offset";
@@ -169,5 +172,6 @@ const char EN_BACK[] PROGMEM                            = "Back";
 const char EN_MODE[] PROGMEM                            = "Mode";
 const char EN_INACTIVE[] PROGMEM                        = "inactive";
 const char EN_TEMP_OFF[] PROGMEM                        = "Off";
+const char EN_TOTAL_TIME[] PROGMEM                      = "0";
 
 #endif //LANGUAGE_EN_H
