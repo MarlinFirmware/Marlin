@@ -83,6 +83,8 @@ const char PT_SCREEN_MOVE_E_1MM_TITLE[] PROGMEM         = "Extrusora / 1 mm";
 const char PT_SCREEN_TEMP_TITLE[] PROGMEM               = "Temperatura";
 const char PT_SCREEN_TEMP_HEATING_TITLE[] PROGMEM       = "Temperatura";
 const char PT_SCREEN_INFO_TITLE[] PROGMEM               = "Vers""\xe3""o";
+const char PT_SCREEN_CONTACT_TITLE[] PROGMEM            = "0";
+const char PT_SCREEN_CONTACT_TEXT[] PROGMEM             = "0";
 const char PT_SCREEN_OFFSET_INIT_TITLE[] PROGMEM        = "Ajustar offset";
 const char PT_SCREEN_OFFSET_INIT_TEXT[] PROGMEM         = "Iniciar processo?";
 const char PT_SCREEN_OFFSET_PREHEATING_TITLE[] PROGMEM  = "Temperatura";
@@ -155,6 +157,7 @@ const char PT_ICON_MOVE_1MM[] PROGMEM                   = "Deslocar 1 mm";
 const char PT_ICON_MOVE_01MM[] PROGMEM                  = "Deslocar 0,1 mm";
 const char PT_OPTION_LIGHTLED[] PROGMEM                 = "Led";
 const char PT_OPTION_INFO[] PROGMEM                     = "Vers""\xe3""o";
+const char PT_OPTION_CONTACT[] PROGMEM                  = "0";
 const char PT_OPTION_AUTOLEVEL[] PROGMEM                = "Autonivelamento";
 const char PT_OPTION_SERIAL[] PROGMEM                   = "Ecr""\xe3"" s""\xe9""rie";
 const char PT_OPTION_OFFSET[] PROGMEM                   = "Ajustar offset";
@@ -169,5 +172,6 @@ const char PT_BACK[] PROGMEM                            = "Voltar";
 const char PT_MODE[] PROGMEM                            = "Modo";
 const char PT_INACTIVE[] PROGMEM                        = "inativo";
 const char PT_TEMP_OFF[] PROGMEM                        = "Desligar";
+const char PT_TOTAL_TIME[] PROGMEM                      = "0";
 
 #endif //LANGUAGE_PT_H
