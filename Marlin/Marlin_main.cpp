@@ -2522,6 +2522,9 @@ Sigma_Exit:
       break;
     case 18: //compatibility
     case 84: // M84
+
+      PrintManager::knownPosition(false);
+
       if(code_seen('S')){
         stepper_inactive_time = code_value() * 1000;
       }
