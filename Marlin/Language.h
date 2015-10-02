@@ -190,6 +190,12 @@ enum class Label
 	SCREEN_WIZARD_TEXT2,
 	SCREEN_WIZARD_TEXT3,
 	SCREEN_WIZARD_TEXT4,
+	SCREEN_RESET_INIT_TITLE,
+	SCREEN_RESET_INIT_TEXT,
+	SCREEN_RESET_INFO_TITLE,
+	SCREEN_RESET_INFO_TEXT,
+	SCREEN_RESET_TITLE,
+	SCREEN_RESET_TEXT,
 	ICON_SD_NOSD,
 	ICON_SD_SD,
 	ICON_FILAMENT_UNLOAD,
@@ -222,6 +228,7 @@ enum class Label
 	OPTION_SERIAL,
 	OPTION_OFFSET,
 	OPTION_LANGUAGE,
+	OPTION_RESET,
 	PUSH_TO_CONFIRM,
 	PUSH_TO_CONTINUE,
 	PUSH_TO_START,
@@ -362,6 +369,12 @@ extern const char * MSG_SCREEN_WIZARD_TEXT1();
 extern const char * MSG_SCREEN_WIZARD_TEXT2();
 extern const char * MSG_SCREEN_WIZARD_TEXT3();
 extern const char * MSG_SCREEN_WIZARD_TEXT4();
+extern const char * MSG_SCREEN_RESET_INIT_TITLE();
+extern const char * MSG_SCREEN_RESET_INIT_TEXT();
+extern const char * MSG_SCREEN_RESET_INFO_TITLE();
+extern const char * MSG_SCREEN_RESET_INFO_TEXT();
+extern const char * MSG_SCREEN_RESET_TITLE();
+extern const char * MSG_SCREEN_RESET_TEXT();
 extern const char * MSG_ICON_SD_NOSD();
 extern const char * MSG_ICON_SD_SD();
 extern const char * MSG_ICON_FILAMENT_UNLOAD();
@@ -394,6 +407,7 @@ extern const char * MSG_OPTION_AUTOLEVEL();
 extern const char * MSG_OPTION_SERIAL();
 extern const char * MSG_OPTION_OFFSET();
 extern const char * MSG_OPTION_LANGUAGE();
+extern const char * MSG_OPTION_RESET();
 extern const char * MSG_PUSH_TO_CONFIRM();
 extern const char * MSG_PUSH_TO_CONTINUE();
 extern const char * MSG_PUSH_TO_START();
