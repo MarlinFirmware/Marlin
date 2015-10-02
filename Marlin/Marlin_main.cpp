@@ -3894,13 +3894,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
     case 710: // M710 Set the EEPROM and reset the board.
     {
-      int p=0;
-      while(p < 4096)
-      {
-        unsigned char value = 0xFF;
-        _EEPROM_writeData(p, (uint8_t*)&value, sizeof(value));
-      };
-		RESET();
+		  action_erase_EEPROM();
     }
     break;
 
