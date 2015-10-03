@@ -2983,7 +2983,7 @@ inline void gcode_G28() {
           #endif
 
           probePointCounter++;
-  
+
           idle();
 
         } //xProbe

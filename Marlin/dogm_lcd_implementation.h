@@ -283,7 +283,7 @@ static void lcd_implementation_status_screen() {
 
   // Symbols menu graphics, animated fan
   u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT, (blink % 2) && fanSpeed ? status_screen0_bmp : status_screen1_bmp);
- 
+
   #if ENABLED(SDSUPPORT)
     // SD Card Symbol
     u8g.drawBox(42, 42 - TALL_FONT_CORRECTION, 8, 7);
@@ -296,7 +296,7 @@ static void lcd_implementation_status_screen() {
 
     // SD Card Progress bar and clock
     lcd_setFont(FONT_STATUSMENU);
- 
+
     if (IS_SD_PRINTING) {
       // Progress bar solid part
       u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2 - TALL_FONT_CORRECTION);
@@ -373,7 +373,7 @@ static void lcd_implementation_status_screen() {
   else
     lcd_printPGM(PSTR("---.--"));
   u8g.setColorIndex(1); // black on white
- 
+
   // Feedrate
   lcd_setFont(FONT_MENU);
   u8g.setPrintPos(3, 49);

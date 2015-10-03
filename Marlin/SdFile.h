@@ -42,7 +42,7 @@ class SdFile : public SdBaseFile, public Print {
   #else
    void write(uint8_t b);
   #endif
-  
+
   int16_t write(const void* buf, uint16_t nbyte);
   void write(const char* str);
   void write_P(PGM_P str);

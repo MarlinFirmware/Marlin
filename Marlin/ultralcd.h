@@ -53,7 +53,7 @@
   extern int absPreheatFanSpeed;
 
   extern bool cancel_heatup;
-  
+
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     extern millis_t previous_lcd_status_ms;
   #endif
@@ -97,7 +97,7 @@
     #define B_ST BIT(BL_ST)
     #define EN_B BIT(BLEN_B)
     #define EN_A BIT(BLEN_A)
-    
+
     #define LCD_CLICKED ((buttons&B_MI)||(buttons&B_ST))
   #endif//NEWPANEL
 

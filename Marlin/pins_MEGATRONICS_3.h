@@ -23,7 +23,7 @@
 #define X_DIR_PIN          57
 #define X_ENABLE_PIN       59
 #define X_MIN_PIN          37
-#define X_MAX_PIN          40 // put to -1 to disable  
+#define X_MAX_PIN          40 // put to -1 to disable
 
 #define Y_STEP_PIN         5
 #define Y_DIR_PIN          17

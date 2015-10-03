@@ -91,18 +91,18 @@
     cli();
     // output pin high - like sending 0XFF
     fastDigitalWrite(SPI_MOSI_PIN, HIGH);
-  
+
     for (uint8_t i = 0; i < 8; i++) {
       fastDigitalWrite(SPI_SCK_PIN, HIGH);
-  
+
       // adjust so SCK is nice
       nop;
       nop;
-  
+
       data <<= 1;
-  
+
       if (fastDigitalRead(SPI_MISO_PIN)) data |= 1;
-  
+
       fastDigitalWrite(SPI_SCK_PIN, LOW);
     }
     // enable interrupts
@@ -122,11 +122,11 @@
     cli();
     for (uint8_t i = 0; i < 8; i++) {
       fastDigitalWrite(SPI_SCK_PIN, LOW);
-  
+
       fastDigitalWrite(SPI_MOSI_PIN, data & 0X80);
-  
+
       data <<= 1;
-  
+
       fastDigitalWrite(SPI_SCK_PIN, HIGH);
     }
     // hold SCK high for a few ns
@@ -134,7 +134,7 @@
     nop;
     nop;
     nop;
-  
+
     fastDigitalWrite(SPI_SCK_PIN, LOW);
     // enable interrupts
     sei();

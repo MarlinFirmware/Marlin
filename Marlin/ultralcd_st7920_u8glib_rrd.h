@@ -26,13 +26,13 @@ static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
   for (i = 0; i < 8; i++) {
     WRITE(ST7920_CLK_PIN,0);
     #if F_CPU == 20000000
-      __asm__("nop\n\t"); 
+      __asm__("nop\n\t");
     #endif
-    WRITE(ST7920_DAT_PIN,val&0x80); 
+    WRITE(ST7920_DAT_PIN,val&0x80);
     val<<=1;
     WRITE(ST7920_CLK_PIN,1);
     #if F_CPU == 20000000
-      __asm__("nop\n\t""nop\n\t"); 
+      __asm__("nop\n\t""nop\n\t");
     #endif
   }
 }

@@ -50,8 +50,8 @@ static unsigned char out_bits = 0;        // The next stepping-bits to be output
 static unsigned int cleaning_buffer_counter;
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  static bool performing_homing = false, 
-              locked_z_motor = false, 
+  static bool performing_homing = false,
+              locked_z_motor = false,
               locked_z2_motor = false;
 #endif
 
@@ -288,7 +288,7 @@ void enable_endstops(bool check) { check_endstops = check; }
 
 // Check endstops
 inline void update_endstops() {
-  
+
   #if ENABLED(Z_DUAL_ENDSTOPS)
     uint16_t
   #else
@@ -316,7 +316,7 @@ inline void update_endstops() {
       _ENDSTOP_HIT(AXIS); \
       step_events_completed = current_block->step_event_count; \
     }
-  
+
   #if ENABLED(COREXY)
     // Head direction in -X axis for CoreXY bots.
     // If DeltaX == -DeltaY, the movement is only in Y axis
@@ -536,7 +536,7 @@ void set_stepper_direction() {
     Y_APPLY_DIR(!INVERT_Y_DIR, 0);
     count_direction[Y_AXIS] = 1;
   }
-  
+
   if (TEST(out_bits, Z_AXIS)) { // C_AXIS
     Z_APPLY_DIR(INVERT_Z_DIR, 0);
     count_direction[Z_AXIS] = -1;
@@ -545,7 +545,7 @@ void set_stepper_direction() {
     Z_APPLY_DIR(!INVERT_Z_DIR, 0);
     count_direction[Z_AXIS] = 1;
   }
-  
+
   #if DISABLED(ADVANCE)
     if (TEST(out_bits, E_AXIS)) {
       REV_E_DIR();
@@ -566,7 +566,7 @@ FORCE_INLINE void trapezoid_generator_reset() {
     out_bits = current_block->direction_bits;
     set_stepper_direction();
   }
-  
+
   #if ENABLED(ADVANCE)
     advance = current_block->initial_advance;
     final_advance = current_block->final_advance;
@@ -1056,7 +1056,7 @@ void st_init() {
 
   enable_endstops(true); // Start with endstops active. After homing they can be disabled
   sei();
-  
+
   set_stepper_direction(); // Init directions to out_bits = 0
 }
 
@@ -1134,7 +1134,7 @@ void quickStop() {
       case Y_AXIS:
         BABYSTEP_AXIS(y, Y, false);
         break;
- 
+
       case Z_AXIS: {
 
         #if DISABLED(DELTA)
@@ -1171,7 +1171,7 @@ void quickStop() {
         #endif
 
       } break;
- 
+
       default: break;
     }
   }

@@ -74,7 +74,7 @@ void MarlinSerial::begin(long baud) {
       useU2X = false;
     }
   #endif
-  
+
   if (useU2X) {
     M_UCSRxA = BIT(M_U2Xx);
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
@@ -261,7 +261,7 @@ void MarlinSerial::printFloat(double number, uint8_t digits) {
   double rounding = 0.5;
   for (uint8_t i = 0; i < digits; ++i)
     rounding /= 10.0;
-  
+
   number += rounding;
 
   // Extract the integer part of the number and print it
