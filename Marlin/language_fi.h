@@ -125,11 +125,11 @@
 #define MSG_END_MINUTE                      "minutes"
 
 #if ENABLED(DELTA_CALIBRATION_MENU)
-    #define MSG_DELTA_CALIBRATE             "Delta Kalibrointi"
-    #define MSG_DELTA_CALIBRATE_X           "Kalibroi X"
-    #define MSG_DELTA_CALIBRATE_Y           "Kalibroi Y"
-    #define MSG_DELTA_CALIBRATE_Z           "Kalibroi Z"
-    #define MSG_DELTA_CALIBRATE_CENTER      "Kalibroi Center"
+  #define MSG_DELTA_CALIBRATE               "Delta Kalibrointi"
+  #define MSG_DELTA_CALIBRATE_X             "Kalibroi X"
+  #define MSG_DELTA_CALIBRATE_Y             "Kalibroi Y"
+  #define MSG_DELTA_CALIBRATE_Z             "Kalibroi Z"
+  #define MSG_DELTA_CALIBRATE_CENTER        "Kalibroi Center"
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_FI_H
