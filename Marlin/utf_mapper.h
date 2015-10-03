@@ -190,7 +190,7 @@
 #elif ENABLED(MAPPER_D0D1)
   uint8_t utf_hi_char; // UTF-8 high part
   bool seen_d5 = false;
-  char charset_mapper(char c){
+  char charset_mapper(char c) {
     uint8_t d = c;
     if ( d >= 0x80u ) { // UTF-8 handling
       if ((d >= 0xd0u) && (!seen_d5)) {
@@ -218,7 +218,7 @@
   bool seen_e3 = false;
   bool seen_82_83 = false;
   char charset_mapper(char c){
-  uint8_t d = c;
+    uint8_t d = c;
     if ( d >= 0x80 ) { // UTF-8 handling
       if ( (d == 0xe3) && (seen_e3 == false)) {
         seen_e3 = true;

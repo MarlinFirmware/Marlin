@@ -128,11 +128,11 @@
 #define MSG_BED_DONE                        "Bett aufgeheizt"
 
 #if ENABLED(DELTA_CALIBRATION_MENU)
-    #define MSG_DELTA_CALIBRATE             "Delta kalibrieren"
-    #define MSG_DELTA_CALIBRATE_X           "Kalibriere X"
-    #define MSG_DELTA_CALIBRATE_Y           "Kalibriere Y"
-    #define MSG_DELTA_CALIBRATE_Z           "Kalibriere Z"
-    #define MSG_DELTA_CALIBRATE_CENTER      "Kalibriere Mitte"
+  #define MSG_DELTA_CALIBRATE               "Delta kalibrieren"
+  #define MSG_DELTA_CALIBRATE_X             "Kalibriere X"
+  #define MSG_DELTA_CALIBRATE_Y             "Kalibriere Y"
+  #define MSG_DELTA_CALIBRATE_Z             "Kalibriere Z"
+  #define MSG_DELTA_CALIBRATE_CENTER        "Kalibriere Mitte"
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_DE_H

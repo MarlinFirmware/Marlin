@@ -92,15 +92,15 @@ extern const char echomagic[] PROGMEM;
 
 #define SERIAL_ECHOPAIR(name,value) do{ serial_echopair_P(PSTR(name),(value)); }while(0)
 
-void serial_echopair_P(const char *s_P, int v);
-void serial_echopair_P(const char *s_P, long v);
-void serial_echopair_P(const char *s_P, float v);
-void serial_echopair_P(const char *s_P, double v);
-void serial_echopair_P(const char *s_P, unsigned long v);
+void serial_echopair_P(const char* s_P, int v);
+void serial_echopair_P(const char* s_P, long v);
+void serial_echopair_P(const char* s_P, float v);
+void serial_echopair_P(const char* s_P, double v);
+void serial_echopair_P(const char* s_P, unsigned long v);
 
 
 // Things to write to serial from Program memory. Saves 400 to 2k of RAM.
-FORCE_INLINE void serialprintPGM(const char *str) {
+FORCE_INLINE void serialprintPGM(const char* str) {
   char ch;
   while ((ch = pgm_read_byte(str))) {
     MYSERIAL.write(ch);
@@ -112,7 +112,7 @@ void get_command();
 
 void idle(); // the standard idle routine calls manage_inactivity(false)
 
-void manage_inactivity(bool ignore_stepper_queue=false);
+void manage_inactivity(bool ignore_stepper_queue = false);
 
 #if ENABLED(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
   #define  enable_x() do { X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); } while (0)
@@ -194,9 +194,9 @@ void manage_inactivity(bool ignore_stepper_queue=false);
  * A_AXIS and B_AXIS are used by COREXY printers
  * X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship between X_AXIS and X Head movement, like CoreXY bots.
  */
-enum AxisEnum {X_AXIS=0, A_AXIS=0, Y_AXIS=1, B_AXIS=1, Z_AXIS=2, C_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5, Z_HEAD=5};
+enum AxisEnum {X_AXIS = 0, A_AXIS = 0, Y_AXIS = 1, B_AXIS = 1, Z_AXIS = 2, C_AXIS = 2, E_AXIS = 3, X_HEAD = 4, Y_HEAD = 5, Z_HEAD = 5};
 
-enum EndstopEnum {X_MIN=0, Y_MIN=1, Z_MIN=2, Z_MIN_PROBE=3, X_MAX=4, Y_MAX=5, Z_MAX=6, Z2_MIN=7, Z2_MAX=8};
+enum EndstopEnum {X_MIN = 0, Y_MIN = 1, Z_MIN = 2, Z_MIN_PROBE = 3, X_MAX = 4, Y_MAX = 5, Z_MAX = 6, Z2_MIN = 7, Z2_MAX = 8};
 
 void enable_all_steppers();
 void disable_all_steppers();
@@ -206,7 +206,7 @@ void ok_to_send();
 
 void reset_bed_level();
 void prepare_move();
-void kill(const char *);
+void kill(const char*);
 void Stop();
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -230,8 +230,8 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-bool enqueuecommand(const char *cmd); //put a single ASCII command at the end of the current buffer or return false when it is full
-void enqueuecommands_P(const char *cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
+bool enqueuecommand(const char* cmd); //put a single ASCII command at the end of the current buffer or return false when it is full
+void enqueuecommands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
 
 void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
@@ -347,7 +347,7 @@ extern millis_t print_job_stop_ms;
 extern uint8_t active_extruder;
 
 #if ENABLED(DIGIPOT_I2C)
-  extern void digipot_i2c_set_current( int channel, float current );
+  extern void digipot_i2c_set_current(int channel, float current);
   extern void digipot_i2c_init();
 #endif
 
