@@ -117,7 +117,7 @@ class SdVolume {
    * \return true for success or false for failure
    */
   bool dbgFat(uint32_t n, uint32_t* v) {return fatGet(n, v);}
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
  private:
   // Allow SdBaseFile access to SdVolume private data.
   friend class SdBaseFile;
@@ -154,12 +154,15 @@ class SdVolume {
   //----------------------------------------------------------------------------
   bool allocContiguous(uint32_t count, uint32_t* curCluster);
   uint8_t blockOfCluster(uint32_t position) const {
-          return (position >> 9) & (blocksPerCluster_ - 1);}
+    return (position >> 9) & (blocksPerCluster_ - 1);
+  }
   uint32_t clusterStartBlock(uint32_t cluster) const {
-           return dataStartBlock_ + ((cluster - 2) << clusterSizeShift_);}
+    return dataStartBlock_ + ((cluster - 2) << clusterSizeShift_);
+  }
   uint32_t blockNumber(uint32_t cluster, uint32_t position) const {
-           return clusterStartBlock(cluster) + blockOfCluster(position);}
-  cache_t *cache() {return &cacheBuffer_;}
+    return clusterStartBlock(cluster) + blockOfCluster(position);
+  }
+  cache_t* cache() {return &cacheBuffer_;}
   uint32_t cacheBlockNumber() {return cacheBlockNumber_;}
 #if USE_MULTIPLE_CARDS
   bool cacheFlush();
@@ -187,11 +190,12 @@ class SdVolume {
     return  cluster >= FAT32EOC_MIN;
   }
   bool readBlock(uint32_t block, uint8_t* dst) {
-    return sdCard_->readBlock(block, dst);}
+    return sdCard_->readBlock(block, dst);
+  }
   bool writeBlock(uint32_t block, const uint8_t* dst) {
     return sdCard_->writeBlock(block, dst);
   }
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
   // Deprecated functions  - suppress cpplint warnings with NOLINT comment
 #if ALLOW_DEPRECATED_FUNCTIONS && !defined(DOXYGEN)
  public:

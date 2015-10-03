@@ -55,9 +55,9 @@ struct partitionTable {
            */
   uint8_t  boot;
           /**
-            * Head part of Cylinder-head-sector address of the first block in
-            * the partition. Legal values are 0-255. Only used in old PC BIOS.
-            */
+           * Head part of Cylinder-head-sector address of the first block in
+           * the partition. Legal values are 0-255. Only used in old PC BIOS.
+           */
   uint8_t  beginHead;
           /**
            * Sector part of Cylinder-head-sector address of the first block in
@@ -337,10 +337,10 @@ struct fat32_boot {
            * Bits 0-3 -- Zero-based number of active FAT.
            *             Only valid if mirroring is disabled.
            * Bits 4-6 -- Reserved.
-           * Bit 7	-- 0 means the FAT is mirrored at runtime into all FATs.
-	         *        -- 1 means only one FAT is active; it is the one referenced
-	         *             in bits 0-3.
-           * Bits 8-15 	-- Reserved.
+           * Bit 7  -- 0 means the FAT is mirrored at runtime into all FATs.
+           *        -- 1 means only one FAT is active; it is the one referenced
+           *             in bits 0-3.
+           * Bits 8-15  -- Reserved.
            */
   uint16_t fat32Flags;
           /**
@@ -468,29 +468,29 @@ uint32_t const FAT32MASK = 0X0FFFFFFF;
  * \brief FAT short directory entry
  *
  * Short means short 8.3 name, not the entry size.
- *  
- * Date Format. A FAT directory entry date stamp is a 16-bit field that is 
+ *
+ * Date Format. A FAT directory entry date stamp is a 16-bit field that is
  * basically a date relative to the MS-DOS epoch of 01/01/1980. Here is the
- * format (bit 0 is the LSB of the 16-bit word, bit 15 is the MSB of the 
+ * format (bit 0 is the LSB of the 16-bit word, bit 15 is the MSB of the
  * 16-bit word):
- *   
- * Bits 9-15: Count of years from 1980, valid value range 0-127 
+ *
+ * Bits 9-15: Count of years from 1980, valid value range 0-127
  * inclusive (1980-2107).
- *   
+ *
  * Bits 5-8: Month of year, 1 = January, valid value range 1-12 inclusive.
  *
  * Bits 0-4: Day of month, valid value range 1-31 inclusive.
  *
  * Time Format. A FAT directory entry time stamp is a 16-bit field that has
- * a granularity of 2 seconds. Here is the format (bit 0 is the LSB of the 
+ * a granularity of 2 seconds. Here is the format (bit 0 is the LSB of the
  * 16-bit word, bit 15 is the MSB of the 16-bit word).
- *   
+ *
  * Bits 11-15: Hours, valid value range 0-23 inclusive.
- * 
+ *
  * Bits 5-10: Minutes, valid value range 0-59 inclusive.
- *      
+ *
  * Bits 0-4: 2-second count, valid value range 0-29 inclusive (0 - 58 seconds).
- *   
+ *
  * The valid time range is from Midnight 00:00:00 to 23:59:58.
  */
 struct directoryEntry {
@@ -548,7 +548,7 @@ struct directoryEntry {
  *
  * directoryVFATEntries are found in the same list as normal directoryEntry.
  * But have the attribute field set to DIR_ATT_LONG_NAME.
- * 
+ *
  * Long filenames are saved in multiple directoryVFATEntries.
  * Each entry containing 13 UTF-16 characters.
  */

@@ -3,7 +3,7 @@
  *
  * These Pins are assigned for the modified GEN7 Board from Alfons3.
  * Please review the pins and adjust them for your needs.
- */ 
+ */
 
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
   #error Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu.

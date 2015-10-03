@@ -67,7 +67,7 @@
   //          À    Á    Â    Ã    Ä    Å    Æ    Ç    È    É    Ê    Ë    Ì    Í    Î    Ï
              0xd0,0xd1,0xd2,0xd3,0xd4,0xd5,0xd6,0xd7,0xd8,0xd9,0xda,0xdb,0xdc,0xdd,0xde,0xdf,  // c39 ÐÑÓÔÕÖ×ØÙÚÛÜÝÞß
   //          Ð    Ñ    Ò    Ó    Ô    Õ    Ö    ×    Ø    Ù    Ú    Û    Ü    Ý    Þ    ß
-             0xe0,0xe1,0xe2,0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,0xeb,0xec,0xed,0xee,0xef,  // c3a àáãäåæçèéêëìíîï 
+             0xe0,0xe1,0xe2,0xe3,0xe4,0xe5,0xe6,0xe7,0xe8,0xe9,0xea,0xeb,0xec,0xed,0xee,0xef,  // c3a àáãäåæçèéêëìíîï
   //          à    á    â    ã    ä    å    æ    ç    è    é    ê    ë    ì    í    î    ï
              0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff   // c3b ðñóôõö÷øùúûüýþÿ
   //          ð    ñ    ò    ó    ô    õ    ö    ÷    ø    ù    ú    û    ü    ý    þ    ÿ
@@ -190,7 +190,7 @@
 #elif ENABLED(MAPPER_D0D1)
   uint8_t utf_hi_char; // UTF-8 high part
   bool seen_d5 = false;
-  char charset_mapper(char c){
+  char charset_mapper(char c) {
     uint8_t d = c;
     if ( d >= 0x80u ) { // UTF-8 handling
       if ((d >= 0xd0u) && (!seen_d5)) {
@@ -218,7 +218,7 @@
   bool seen_e3 = false;
   bool seen_82_83 = false;
   char charset_mapper(char c){
-  uint8_t d = c;
+    uint8_t d = c;
     if ( d >= 0x80 ) { // UTF-8 handling
       if ( (d == 0xe3) && (seen_e3 == false)) {
         seen_e3 = true;

@@ -155,339 +155,339 @@
 #define E3_ENABLE_READ READ(E3_ENABLE_PIN)
 
 //////////////////////////////////
-// Pin redefines for TMC drivers. 
+// Pin redefines for TMC drivers.
 // TMC26X drivers have step and dir on normal pins, but everything else via SPI
 //////////////////////////////////
 #if ENABLED(HAVE_TMCDRIVER)
-#include <SPI.h>
-#include <TMC26XStepper.h>
+  #include <SPI.h>
+  #include <TMC26XStepper.h>
 
   void tmc_init();
-#if ENABLED(X_IS_TMC)
-   extern TMC26XStepper stepperX;
-   #undef X_ENABLE_INIT 
-   #define X_ENABLE_INIT ((void)0)
-   
-   #undef X_ENABLE_WRITE
-   #define X_ENABLE_WRITE(STATE) stepperX.setEnabled(STATE)
-   
-   #undef X_ENABLE_READ
-   #define X_ENABLE_READ stepperX.isEnabled()
-   
-#endif
-#if ENABLED(X2_IS_TMC)
-   extern TMC26XStepper stepperX2;
-   #undef X2_ENABLE_INIT
-   #define X2_ENABLE_INIT ((void)0)
-   
-   #undef X2_ENABLE_WRITE
-   #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
-   
-   #undef X2_ENABLE_READ
-   #define X2_ENABLE_READ stepperX2.isEnabled()   
-#endif
-#if ENABLED(Y_IS_TMC)
-   extern TMC26XStepper stepperY;
-   #undef Y_ENABLE_INIT
-   #define Y_ENABLE_INIT ((void)0)
-   
-   #undef Y_ENABLE_WRITE
-   #define Y_ENABLE_WRITE(STATE) stepperY.setEnabled(STATE)
-   
-   #undef Y_ENABLE_READ
-   #define Y_ENABLE_READ stepperY.isEnabled()   
-#endif
-#if ENABLED(Y2_IS_TMC)
-   extern TMC26XStepper stepperY2;
-   #undef Y2_ENABLE_INIT
-   #define Y2_ENABLE_INIT ((void)0)
-   
-   #undef Y2_ENABLE_WRITE
-   #define Y2_ENABLE_WRITE(STATE) stepperY2.setEnabled(STATE)
-   
-   #undef Y2_ENABLE_READ
-   #define Y2_ENABLE_READ stepperY2.isEnabled()     
-#endif
-#if ENABLED(Z_IS_TMC)
-   extern TMC26XStepper stepperZ;
-   #undef Z_ENABLE_INIT
-   #define Z_ENABLE_INIT ((void)0)
-   
-   #undef Z_ENABLE_WRITE
-   #define Z_ENABLE_WRITE(STATE) stepperZ.setEnabled(STATE)
-   
-   #undef Z_ENABLE_READ
-   #define Z_ENABLE_READ stepperZ.isEnabled()       
-#endif
-#if ENABLED(Z2_IS_TMC)
-   extern TMC26XStepper stepperZ2;
-   #undef Z2_ENABLE_INIT
-   #define Z2_ENABLE_INIT ((void)0)
-   
-   #undef Z2_ENABLE_WRITE
-   #define Z2_ENABLE_WRITE(STATE) stepperZ2.setEnabled(STATE)
-   
-   #undef Z2_ENABLE_READ
-   #define Z2_ENABLE_READ stepperZ2.isEnabled()   
-#endif
-#if ENABLED(E0_IS_TMC)
-   extern TMC26XStepper stepperE0;
-   #undef E0_ENABLE_INIT
-   #define E0_ENABLE_INIT ((void)0)
-   
-   #undef E0_ENABLE_WRITE
-   #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
-   
-   #undef E0_ENABLE_READ
-   #define E0_ENABLE_READ stepperE0.isEnabled()   
-#endif
-#if ENABLED(E1_IS_TMC)
-   extern TMC26XStepper stepperE1;
-   #undef E1_ENABLE_INIT
-   #define E1_ENABLE_INIT ((void)0)
-   
-   #undef E1_ENABLE_WRITE
-   #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
-   
-   #undef E1_ENABLE_READ
-   #define E1_ENABLE_READ stepperE1.isEnabled()   
-#endif
-#if ENABLED(E2_IS_TMC)
-   extern TMC26XStepper stepperE2;
-   #undef E2_ENABLE_INIT
-   #define E2_ENABLE_INIT ((void)0)
-   
-   #undef E2_ENABLE_WRITE
-   #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
-   
-   #undef E2_ENABLE_READ
-   #define E2_ENABLE_READ stepperE2.isEnabled()   
-#endif
-#if ENABLED(E3_IS_TMC)
-   extern TMC26XStepper stepperE3;
-   #undef E3_ENABLE_INIT
-   #define E3_ENABLE_INIT ((void)0)
-   
-   #undef E3_ENABLE_WRITE
-   #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
-   
-   #undef E3_ENABLE_READ
-   #define E3_ENABLE_READ stepperE3.isEnabled()   
-#endif
+  #if ENABLED(X_IS_TMC)
+    extern TMC26XStepper stepperX;
+    #undef X_ENABLE_INIT
+    #define X_ENABLE_INIT ((void)0)
+
+    #undef X_ENABLE_WRITE
+    #define X_ENABLE_WRITE(STATE) stepperX.setEnabled(STATE)
+
+    #undef X_ENABLE_READ
+    #define X_ENABLE_READ stepperX.isEnabled()
+
+  #endif
+  #if ENABLED(X2_IS_TMC)
+    extern TMC26XStepper stepperX2;
+    #undef X2_ENABLE_INIT
+    #define X2_ENABLE_INIT ((void)0)
+
+    #undef X2_ENABLE_WRITE
+    #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
+
+    #undef X2_ENABLE_READ
+    #define X2_ENABLE_READ stepperX2.isEnabled()
+  #endif
+  #if ENABLED(Y_IS_TMC)
+    extern TMC26XStepper stepperY;
+    #undef Y_ENABLE_INIT
+    #define Y_ENABLE_INIT ((void)0)
+
+    #undef Y_ENABLE_WRITE
+    #define Y_ENABLE_WRITE(STATE) stepperY.setEnabled(STATE)
+
+    #undef Y_ENABLE_READ
+    #define Y_ENABLE_READ stepperY.isEnabled()
+  #endif
+  #if ENABLED(Y2_IS_TMC)
+    extern TMC26XStepper stepperY2;
+    #undef Y2_ENABLE_INIT
+    #define Y2_ENABLE_INIT ((void)0)
+
+    #undef Y2_ENABLE_WRITE
+    #define Y2_ENABLE_WRITE(STATE) stepperY2.setEnabled(STATE)
+
+    #undef Y2_ENABLE_READ
+    #define Y2_ENABLE_READ stepperY2.isEnabled()
+  #endif
+  #if ENABLED(Z_IS_TMC)
+    extern TMC26XStepper stepperZ;
+    #undef Z_ENABLE_INIT
+    #define Z_ENABLE_INIT ((void)0)
+
+    #undef Z_ENABLE_WRITE
+    #define Z_ENABLE_WRITE(STATE) stepperZ.setEnabled(STATE)
+
+    #undef Z_ENABLE_READ
+    #define Z_ENABLE_READ stepperZ.isEnabled()
+  #endif
+  #if ENABLED(Z2_IS_TMC)
+    extern TMC26XStepper stepperZ2;
+    #undef Z2_ENABLE_INIT
+    #define Z2_ENABLE_INIT ((void)0)
+
+    #undef Z2_ENABLE_WRITE
+    #define Z2_ENABLE_WRITE(STATE) stepperZ2.setEnabled(STATE)
+
+    #undef Z2_ENABLE_READ
+    #define Z2_ENABLE_READ stepperZ2.isEnabled()
+  #endif
+  #if ENABLED(E0_IS_TMC)
+    extern TMC26XStepper stepperE0;
+    #undef E0_ENABLE_INIT
+    #define E0_ENABLE_INIT ((void)0)
+
+    #undef E0_ENABLE_WRITE
+    #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
+
+    #undef E0_ENABLE_READ
+    #define E0_ENABLE_READ stepperE0.isEnabled()
+  #endif
+  #if ENABLED(E1_IS_TMC)
+    extern TMC26XStepper stepperE1;
+    #undef E1_ENABLE_INIT
+    #define E1_ENABLE_INIT ((void)0)
+
+    #undef E1_ENABLE_WRITE
+    #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
+
+    #undef E1_ENABLE_READ
+    #define E1_ENABLE_READ stepperE1.isEnabled()
+  #endif
+  #if ENABLED(E2_IS_TMC)
+    extern TMC26XStepper stepperE2;
+    #undef E2_ENABLE_INIT
+    #define E2_ENABLE_INIT ((void)0)
+
+    #undef E2_ENABLE_WRITE
+    #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
+
+    #undef E2_ENABLE_READ
+    #define E2_ENABLE_READ stepperE2.isEnabled()
+  #endif
+  #if ENABLED(E3_IS_TMC)
+    extern TMC26XStepper stepperE3;
+    #undef E3_ENABLE_INIT
+    #define E3_ENABLE_INIT ((void)0)
+
+    #undef E3_ENABLE_WRITE
+    #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
+
+    #undef E3_ENABLE_READ
+    #define E3_ENABLE_READ stepperE3.isEnabled()
+  #endif
 
 #endif  // HAVE_TMCDRIVER
 
 //////////////////////////////////
-// Pin redefines for L6470 drivers. 
+// Pin redefines for L6470 drivers.
 // L640 drivers have step on normal pins, but dir and everything else via SPI
 //////////////////////////////////
 #if ENABLED(HAVE_L6470DRIVER)
 
-#include <SPI.h>
-#include <L6470.h>
+  #include <SPI.h>
+  #include <L6470.h>
 
   void L6470_init();
-#if ENABLED(X_IS_L6470)
-   extern L6470 stepperX;
-   #undef X_ENABLE_INIT 
-   #define X_ENABLE_INIT ((void)0)
-   
-   #undef X_ENABLE_WRITE
-   #define X_ENABLE_WRITE(STATE) {if(STATE) stepperX.Step_Clock(stepperX.getStatus() & STATUS_HIZ); else stepperX.softFree();}
-   
-   #undef X_ENABLE_READ
-   #define X_ENABLE_READ (stepperX.getStatus() & STATUS_HIZ)
-   
-   #undef X_DIR_INIT 
-   #define X_DIR_INIT ((void)0)
-   
-   #undef X_DIR_WRITE
-   #define X_DIR_WRITE(STATE) stepperX.Step_Clock(STATE)
-   
-   #undef X_DIR_READ
-   #define X_DIR_READ (stepperX.getStatus() & STATUS_DIR)
-   
-#endif
-#if ENABLED(X2_IS_L6470)
-   extern L6470 stepperX2;
-   #undef X2_ENABLE_INIT
-   #define X2_ENABLE_INIT ((void)0)
-   
-   #undef X2_ENABLE_WRITE
-   #define X2_ENABLE_WRITE(STATE) (if(STATE) stepperX2.Step_Clock(stepperX2.getStatus() & STATUS_HIZ); else stepperX2.softFree();)
-   
-   #undef X2_ENABLE_READ
-   #define X2_ENABLE_READ (stepperX2.getStatus() & STATUS_HIZ)
-   
-   #undef X2_DIR_INIT 
-   #define X2_DIR_INIT ((void)0)
-   
-   #undef X2_DIR_WRITE
-   #define X2_DIR_WRITE(STATE) stepperX2.Step_Clock(STATE)
-   
-   #undef X2_DIR_READ
-   #define X2_DIR_READ (stepperX2.getStatus() & STATUS_DIR)
-#endif
-#if ENABLED(Y_IS_L6470)
-   extern L6470 stepperY;
-   #undef Y_ENABLE_INIT
-   #define Y_ENABLE_INIT ((void)0)
-   
-   #undef Y_ENABLE_WRITE
-   #define Y_ENABLE_WRITE(STATE) (if(STATE) stepperY.Step_Clock(stepperY.getStatus() & STATUS_HIZ); else stepperY.softFree();)
-   
-   #undef Y_ENABLE_READ
-   #define Y_ENABLE_READ (stepperY.getStatus() & STATUS_HIZ)
-   
-   #undef Y_DIR_INIT 
-   #define Y_DIR_INIT ((void)0)
-   
-   #undef Y_DIR_WRITE
-   #define Y_DIR_WRITE(STATE) stepperY.Step_Clock(STATE)
-   
-   #undef Y_DIR_READ
-   #define Y_DIR_READ (stepperY.getStatus() & STATUS_DIR)  
-#endif
-#if ENABLED(Y2_IS_L6470)
-   extern L6470 stepperY2;
-   #undef Y2_ENABLE_INIT
-   #define Y2_ENABLE_INIT ((void)0)
-   
-   #undef Y2_ENABLE_WRITE
-   #define Y2_ENABLE_WRITE(STATE) (if(STATE) stepperY2.Step_Clock(stepperY2.getStatus() & STATUS_HIZ); else stepperY2.softFree();)
-   
-   #undef Y2_ENABLE_READ
-   #define Y2_ENABLE_READ (stepperY2.getStatus() & STATUS_HIZ)
-   
-   #undef Y2_DIR_INIT 
-   #define Y2_DIR_INIT ((void)0)
-   
-   #undef Y2_DIR_WRITE
-   #define Y2_DIR_WRITE(STATE) stepperY2.Step_Clock(STATE)
-   
-   #undef Y2_DIR_READ
-   #define Y2_DIR_READ (stepperY2.getStatus() & STATUS_DIR)   
-#endif
-#if ENABLED(Z_IS_L6470)
-   extern L6470 stepperZ;
-   #undef Z_ENABLE_INIT
-   #define Z_ENABLE_INIT ((void)0)
-   
-   #undef Z_ENABLE_WRITE
-   #define Z_ENABLE_WRITE(STATE) (if(STATE) stepperZ.Step_Clock(stepperZ.getStatus() & STATUS_HIZ); else stepperZ.softFree();)
-   
-   #undef Z_ENABLE_READ
-   #define Z_ENABLE_READ (stepperZ.getStatus() & STATUS_HIZ)
-   
-   #undef Z_DIR_INIT 
-   #define Z_DIR_INIT ((void)0)
-   
-   #undef Z_DIR_WRITE
-   #define Z_DIR_WRITE(STATE) stepperZ.Step_Clock(STATE)
-   
-   #undef Y_DIR_READ
-   #define Y_DIR_READ (stepperZ.getStatus() & STATUS_DIR)      
-#endif
-#if ENABLED(Z2_IS_L6470)
-   extern L6470 stepperZ2;
-   #undef Z2_ENABLE_INIT
-   #define Z2_ENABLE_INIT ((void)0)
-   
-   #undef Z2_ENABLE_WRITE
-   #define Z2_ENABLE_WRITE(STATE) (if(STATE) stepperZ2.Step_Clock(stepperZ2.getStatus() & STATUS_HIZ); else stepperZ2.softFree();)
-   
-   #undef Z2_ENABLE_READ
-   #define Z2_ENABLE_READ (stepperZ2.getStatus() & STATUS_HIZ)
-   
-   #undef Z2_DIR_INIT 
-   #define Z2_DIR_INIT ((void)0)
-   
-   #undef Z2_DIR_WRITE
-   #define Z2_DIR_WRITE(STATE) stepperZ2.Step_Clock(STATE)
-   
-   #undef Y2_DIR_READ
-   #define Y2_DIR_READ (stepperZ2.getStatus() & STATUS_DIR)       
-#endif
-#if ENABLED(E0_IS_L6470)
-   extern L6470 stepperE0;
-   #undef E0_ENABLE_INIT
-   #define E0_ENABLE_INIT ((void)0)
-   
-   #undef E0_ENABLE_WRITE
-   #define E0_ENABLE_WRITE(STATE) (if(STATE) stepperE0.Step_Clock(stepperE0.getStatus() & STATUS_HIZ); else stepperE0.softFree();)
-   
-   #undef E0_ENABLE_READ
-   #define E0_ENABLE_READ (stepperE0.getStatus() & STATUS_HIZ)
-   
-   #undef E0_DIR_INIT 
-   #define E0_DIR_INIT ((void)0)
-   
-   #undef E0_DIR_WRITE
-   #define E0_DIR_WRITE(STATE) stepperE0.Step_Clock(STATE)
-   
-   #undef E0_DIR_READ
-   #define E0_DIR_READ (stepperE0.getStatus() & STATUS_DIR)    
-#endif
-#if ENABLED(E1_IS_L6470)
-   extern L6470 stepperE1;
-   #undef E1_ENABLE_INIT
-   #define E1_ENABLE_INIT ((void)0)
-   
-   #undef E1_ENABLE_WRITE
-   #define E1_ENABLE_WRITE(STATE) (if(STATE) stepperE1.Step_Clock(stepperE1.getStatus() & STATUS_HIZ); else stepperE1.softFree();)
-   
-   #undef E1_ENABLE_READ
-   #define E1_ENABLE_READ (stepperE1.getStatus() & STATUS_HIZ)
-   
-   #undef E1_DIR_INIT 
-   #define E1_DIR_INIT ((void)0)
-   
-   #undef E1_DIR_WRITE
-   #define E1_DIR_WRITE(STATE) stepperE1.Step_Clock(STATE)
-   
-   #undef E1_DIR_READ
-   #define E1_DIR_READ (stepperE1.getStatus() & STATUS_DIR)  
-#endif
-#if ENABLED(E2_IS_L6470)
-   extern L6470 stepperE2;
-   #undef E2_ENABLE_INIT
-   #define E2_ENABLE_INIT ((void)0)
-   
-   #undef E2_ENABLE_WRITE
-   #define E2_ENABLE_WRITE(STATE) (if(STATE) stepperE2.Step_Clock(stepperE2.getStatus() & STATUS_HIZ); else stepperE2.softFree();)
-   
-   #undef E2_ENABLE_READ
-   #define E2_ENABLE_READ (stepperE2.getStatus() & STATUS_HIZ)
-   
-   #undef E2_DIR_INIT 
-   #define E2_DIR_INIT ((void)0)
-   
-   #undef E2_DIR_WRITE
-   #define E2_DIR_WRITE(STATE) stepperE2.Step_Clock(STATE)
-   
-   #undef E2_DIR_READ
-   #define E2_DIR_READ (stepperE2.getStatus() & STATUS_DIR)  
-#endif
-#if ENABLED(E3_IS_L6470)
-   extern L6470 stepperE3;
-   #undef E3_ENABLE_INIT
-   #define E3_ENABLE_INIT ((void)0)
-   
-   #undef E3_ENABLE_WRITE
-   #define E3_ENABLE_WRITE(STATE) (if(STATE) stepperE3.Step_Clock(stepperE3.getStatus() & STATUS_HIZ); else stepperE3.softFree();)
-   
-   #undef E3_ENABLE_READ
-   #define E3_ENABLE_READ (stepperE3.getStatus() & STATUS_HIZ)
-   
-   #undef E3_DIR_INIT 
-   #define E3_DIR_INIT ((void)0)
-   
-   #undef E3_DIR_WRITE
-   #define E3_DIR_WRITE(STATE) stepperE3.Step_Clock(STATE)
-   
-   #undef E3_DIR_READ
-   #define E3_DIR_READ (stepperE3.getStatus() & STATUS_DIR)  
-#endif
+  #if ENABLED(X_IS_L6470)
+    extern L6470 stepperX;
+    #undef X_ENABLE_INIT
+    #define X_ENABLE_INIT ((void)0)
+
+    #undef X_ENABLE_WRITE
+    #define X_ENABLE_WRITE(STATE) {if(STATE) stepperX.Step_Clock(stepperX.getStatus() & STATUS_HIZ); else stepperX.softFree();}
+
+    #undef X_ENABLE_READ
+    #define X_ENABLE_READ (stepperX.getStatus() & STATUS_HIZ)
+
+    #undef X_DIR_INIT
+    #define X_DIR_INIT ((void)0)
+
+    #undef X_DIR_WRITE
+    #define X_DIR_WRITE(STATE) stepperX.Step_Clock(STATE)
+
+    #undef X_DIR_READ
+    #define X_DIR_READ (stepperX.getStatus() & STATUS_DIR)
+
+  #endif
+  #if ENABLED(X2_IS_L6470)
+    extern L6470 stepperX2;
+    #undef X2_ENABLE_INIT
+    #define X2_ENABLE_INIT ((void)0)
+
+    #undef X2_ENABLE_WRITE
+    #define X2_ENABLE_WRITE(STATE) (if(STATE) stepperX2.Step_Clock(stepperX2.getStatus() & STATUS_HIZ); else stepperX2.softFree();)
+
+    #undef X2_ENABLE_READ
+    #define X2_ENABLE_READ (stepperX2.getStatus() & STATUS_HIZ)
+
+    #undef X2_DIR_INIT
+    #define X2_DIR_INIT ((void)0)
+
+    #undef X2_DIR_WRITE
+    #define X2_DIR_WRITE(STATE) stepperX2.Step_Clock(STATE)
+
+    #undef X2_DIR_READ
+    #define X2_DIR_READ (stepperX2.getStatus() & STATUS_DIR)
+  #endif
+  #if ENABLED(Y_IS_L6470)
+    extern L6470 stepperY;
+    #undef Y_ENABLE_INIT
+    #define Y_ENABLE_INIT ((void)0)
+
+    #undef Y_ENABLE_WRITE
+    #define Y_ENABLE_WRITE(STATE) (if(STATE) stepperY.Step_Clock(stepperY.getStatus() & STATUS_HIZ); else stepperY.softFree();)
+
+    #undef Y_ENABLE_READ
+    #define Y_ENABLE_READ (stepperY.getStatus() & STATUS_HIZ)
+
+    #undef Y_DIR_INIT
+    #define Y_DIR_INIT ((void)0)
+
+    #undef Y_DIR_WRITE
+    #define Y_DIR_WRITE(STATE) stepperY.Step_Clock(STATE)
+
+    #undef Y_DIR_READ
+    #define Y_DIR_READ (stepperY.getStatus() & STATUS_DIR)
+  #endif
+  #if ENABLED(Y2_IS_L6470)
+    extern L6470 stepperY2;
+    #undef Y2_ENABLE_INIT
+    #define Y2_ENABLE_INIT ((void)0)
+
+    #undef Y2_ENABLE_WRITE
+    #define Y2_ENABLE_WRITE(STATE) (if(STATE) stepperY2.Step_Clock(stepperY2.getStatus() & STATUS_HIZ); else stepperY2.softFree();)
+
+    #undef Y2_ENABLE_READ
+    #define Y2_ENABLE_READ (stepperY2.getStatus() & STATUS_HIZ)
+
+    #undef Y2_DIR_INIT
+    #define Y2_DIR_INIT ((void)0)
+
+    #undef Y2_DIR_WRITE
+    #define Y2_DIR_WRITE(STATE) stepperY2.Step_Clock(STATE)
+
+    #undef Y2_DIR_READ
+    #define Y2_DIR_READ (stepperY2.getStatus() & STATUS_DIR)
+  #endif
+  #if ENABLED(Z_IS_L6470)
+    extern L6470 stepperZ;
+    #undef Z_ENABLE_INIT
+    #define Z_ENABLE_INIT ((void)0)
+
+    #undef Z_ENABLE_WRITE
+    #define Z_ENABLE_WRITE(STATE) (if(STATE) stepperZ.Step_Clock(stepperZ.getStatus() & STATUS_HIZ); else stepperZ.softFree();)
+
+    #undef Z_ENABLE_READ
+    #define Z_ENABLE_READ (stepperZ.getStatus() & STATUS_HIZ)
+
+    #undef Z_DIR_INIT
+    #define Z_DIR_INIT ((void)0)
+
+    #undef Z_DIR_WRITE
+    #define Z_DIR_WRITE(STATE) stepperZ.Step_Clock(STATE)
+
+    #undef Y_DIR_READ
+    #define Y_DIR_READ (stepperZ.getStatus() & STATUS_DIR)
+  #endif
+  #if ENABLED(Z2_IS_L6470)
+    extern L6470 stepperZ2;
+    #undef Z2_ENABLE_INIT
+    #define Z2_ENABLE_INIT ((void)0)
+
+    #undef Z2_ENABLE_WRITE
+    #define Z2_ENABLE_WRITE(STATE) (if(STATE) stepperZ2.Step_Clock(stepperZ2.getStatus() & STATUS_HIZ); else stepperZ2.softFree();)
+
+    #undef Z2_ENABLE_READ
+    #define Z2_ENABLE_READ (stepperZ2.getStatus() & STATUS_HIZ)
+
+    #undef Z2_DIR_INIT
+    #define Z2_DIR_INIT ((void)0)
+
+    #undef Z2_DIR_WRITE
+    #define Z2_DIR_WRITE(STATE) stepperZ2.Step_Clock(STATE)
+
+    #undef Y2_DIR_READ
+    #define Y2_DIR_READ (stepperZ2.getStatus() & STATUS_DIR)
+  #endif
+  #if ENABLED(E0_IS_L6470)
+    extern L6470 stepperE0;
+    #undef E0_ENABLE_INIT
+    #define E0_ENABLE_INIT ((void)0)
+
+    #undef E0_ENABLE_WRITE
+    #define E0_ENABLE_WRITE(STATE) (if(STATE) stepperE0.Step_Clock(stepperE0.getStatus() & STATUS_HIZ); else stepperE0.softFree();)
+
+    #undef E0_ENABLE_READ
+    #define E0_ENABLE_READ (stepperE0.getStatus() & STATUS_HIZ)
+
+    #undef E0_DIR_INIT
+    #define E0_DIR_INIT ((void)0)
+
+    #undef E0_DIR_WRITE
+    #define E0_DIR_WRITE(STATE) stepperE0.Step_Clock(STATE)
+
+    #undef E0_DIR_READ
+    #define E0_DIR_READ (stepperE0.getStatus() & STATUS_DIR)
+  #endif
+  #if ENABLED(E1_IS_L6470)
+    extern L6470 stepperE1;
+    #undef E1_ENABLE_INIT
+    #define E1_ENABLE_INIT ((void)0)
+
+    #undef E1_ENABLE_WRITE
+    #define E1_ENABLE_WRITE(STATE) (if(STATE) stepperE1.Step_Clock(stepperE1.getStatus() & STATUS_HIZ); else stepperE1.softFree();)
+
+    #undef E1_ENABLE_READ
+    #define E1_ENABLE_READ (stepperE1.getStatus() & STATUS_HIZ)
+
+    #undef E1_DIR_INIT
+    #define E1_DIR_INIT ((void)0)
+
+    #undef E1_DIR_WRITE
+    #define E1_DIR_WRITE(STATE) stepperE1.Step_Clock(STATE)
+
+    #undef E1_DIR_READ
+    #define E1_DIR_READ (stepperE1.getStatus() & STATUS_DIR)
+  #endif
+  #if ENABLED(E2_IS_L6470)
+    extern L6470 stepperE2;
+    #undef E2_ENABLE_INIT
+    #define E2_ENABLE_INIT ((void)0)
+
+    #undef E2_ENABLE_WRITE
+    #define E2_ENABLE_WRITE(STATE) (if(STATE) stepperE2.Step_Clock(stepperE2.getStatus() & STATUS_HIZ); else stepperE2.softFree();)
+
+    #undef E2_ENABLE_READ
+    #define E2_ENABLE_READ (stepperE2.getStatus() & STATUS_HIZ)
+
+    #undef E2_DIR_INIT
+    #define E2_DIR_INIT ((void)0)
+
+    #undef E2_DIR_WRITE
+    #define E2_DIR_WRITE(STATE) stepperE2.Step_Clock(STATE)
+
+    #undef E2_DIR_READ
+    #define E2_DIR_READ (stepperE2.getStatus() & STATUS_DIR)
+  #endif
+  #if ENABLED(E3_IS_L6470)
+    extern L6470 stepperE3;
+    #undef E3_ENABLE_INIT
+    #define E3_ENABLE_INIT ((void)0)
+
+    #undef E3_ENABLE_WRITE
+    #define E3_ENABLE_WRITE(STATE) (if(STATE) stepperE3.Step_Clock(stepperE3.getStatus() & STATUS_HIZ); else stepperE3.softFree();)
+
+    #undef E3_ENABLE_READ
+    #define E3_ENABLE_READ (stepperE3.getStatus() & STATUS_HIZ)
+
+    #undef E3_DIR_INIT
+    #define E3_DIR_INIT ((void)0)
+
+    #undef E3_DIR_WRITE
+    #define E3_DIR_WRITE(STATE) stepperE3.Step_Clock(STATE)
+
+    #undef E3_DIR_READ
+    #define E3_DIR_READ (stepperE3.getStatus() & STATUS_DIR)
+  #endif
 
 #endif  //HAVE_L6470DRIVER
 

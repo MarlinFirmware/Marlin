@@ -19,7 +19,7 @@
 #undef E0_MS2_PIN
 #undef E1_MS1_PIN
 #undef E1_MS2_PIN
- 
+
 #define X_STEP_PIN          37
 #define X_DIR_PIN           48
 #define X_MIN_PIN           12

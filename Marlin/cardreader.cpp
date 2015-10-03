@@ -248,9 +248,8 @@ void CardReader::release() {
 }
 
 void CardReader::startFileprint() {
-  if (cardOK) {
+  if (cardOK)
     sdprinting = true;
-  }
 }
 
 void CardReader::pauseSDPrint() {
@@ -267,7 +266,7 @@ void CardReader::getAbsFilename(char *t) {
   *t = '/'; t++; cnt++;
   for (uint8_t i = 0; i < workDirDepth; i++) {
     workDirParents[i].getFilename(t); //SDBaseFile.getfilename!
-    while(*t && cnt < MAXPATHNAMELENGTH) { t++; cnt++; } //crawl counter forward.
+    while (*t && cnt < MAXPATHNAMELENGTH) { t++; cnt++; } //crawl counter forward.
   }
   if (cnt < MAXPATHNAMELENGTH - FILENAME_LENGTH)
     file.getFilename(t);
@@ -279,34 +278,34 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
   if (!cardOK) return;
   if (file.isOpen()) { //replacing current file by new file, or subfile call
     if (!replace_current) {
-     if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
-       SERIAL_ERROR_START;
-       SERIAL_ERRORPGM("trying to call sub-gcode files with too many levels. MAX level is:");
-       SERIAL_ERRORLN(SD_PROCEDURE_DEPTH);
-       kill(PSTR(MSG_KILLED));
-       return;
+      if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORPGM("trying to call sub-gcode files with too many levels. MAX level is:");
+        SERIAL_ERRORLN(SD_PROCEDURE_DEPTH);
+        kill(PSTR(MSG_KILLED));
+        return;
+      }
+
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPGM("SUBROUTINE CALL target:\"");
+      SERIAL_ECHO(name);
+      SERIAL_ECHOPGM("\" parent:\"");
+
+      //store current filename and position
+      getAbsFilename(filenames[file_subcall_ctr]);
+
+      SERIAL_ECHO(filenames[file_subcall_ctr]);
+      SERIAL_ECHOPGM("\" pos");
+      SERIAL_ECHOLN(sdpos);
+      filespos[file_subcall_ctr] = sdpos;
+      file_subcall_ctr++;
      }
-
-     SERIAL_ECHO_START;
-     SERIAL_ECHOPGM("SUBROUTINE CALL target:\"");
-     SERIAL_ECHO(name);
-     SERIAL_ECHOPGM("\" parent:\"");
-
-     //store current filename and position
-     getAbsFilename(filenames[file_subcall_ctr]);
-
-     SERIAL_ECHO(filenames[file_subcall_ctr]);
-     SERIAL_ECHOPGM("\" pos");
-     SERIAL_ECHOLN(sdpos);
-     filespos[file_subcall_ctr] = sdpos;
-     file_subcall_ctr++;
-    }
-    else {
-     SERIAL_ECHO_START;
-     SERIAL_ECHOPGM("Now doing file: ");
-     SERIAL_ECHOLN(name);
-    }
-    file.close();
+     else {
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPGM("Now doing file: ");
+      SERIAL_ECHOLN(name);
+     }
+     file.close();
   }
   else { //opening fresh file
     file_subcall_ctr = 0; //resetting procedure depth in case user cancels print while in procedure
