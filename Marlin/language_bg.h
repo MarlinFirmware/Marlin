@@ -126,11 +126,11 @@
 #define MSG_END_MINUTE                      "минути"
 
 #if ENABLED(DELTA_CALIBRATION_MENU)
-    #define MSG_DELTA_CALIBRATE             "Делта Калибровка"
-    #define MSG_DELTA_CALIBRATE_X           "Калибровка X"
-    #define MSG_DELTA_CALIBRATE_Y           "Калибровка Y"
-    #define MSG_DELTA_CALIBRATE_Z           "Калибровка Z"
-    #define MSG_DELTA_CALIBRATE_CENTER      "Калибровка Център"
+  #define MSG_DELTA_CALIBRATE               "Делта Калибровка"
+  #define MSG_DELTA_CALIBRATE_X             "Калибровка X"
+  #define MSG_DELTA_CALIBRATE_Y             "Калибровка Y"
+  #define MSG_DELTA_CALIBRATE_Z             "Калибровка Z"
+  #define MSG_DELTA_CALIBRATE_CENTER        "Калибровка Център"
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_BG_H

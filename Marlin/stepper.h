@@ -19,7 +19,7 @@
 */
 
 #ifndef stepper_h
-#define stepper_h 
+#define stepper_h
 
 #include "planner.h"
 #include "stepper_indirection.h"
@@ -42,7 +42,7 @@
     #define E_STEP_WRITE(v) { if(extruder_duplication_enabled) { E0_STEP_WRITE(v); E1_STEP_WRITE(v); } else if(current_block->active_extruder == 1) { E1_STEP_WRITE(v); } else { E0_STEP_WRITE(v); }}
     #define NORM_E_DIR() { if(extruder_duplication_enabled) { E0_DIR_WRITE(!INVERT_E0_DIR); E1_DIR_WRITE(!INVERT_E1_DIR); } else if(current_block->active_extruder == 1) { E1_DIR_WRITE(!INVERT_E1_DIR); } else { E0_DIR_WRITE(!INVERT_E0_DIR); }}
     #define REV_E_DIR() { if(extruder_duplication_enabled) { E0_DIR_WRITE(INVERT_E0_DIR); E1_DIR_WRITE(INVERT_E1_DIR); } else if(current_block->active_extruder == 1) { E1_DIR_WRITE(INVERT_E1_DIR); } else { E0_DIR_WRITE(INVERT_E0_DIR); }}
-  #endif  
+  #endif
 #else
   #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
   #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
@@ -60,8 +60,8 @@ void st_init();
 void st_synchronize();
 
 // Set current position in steps
-void st_set_position(const long &x, const long &y, const long &z, const long &e);
-void st_set_e_position(const long &e);
+void st_set_position(const long& x, const long& y, const long& z, const long& e);
+void st_set_e_position(const long& e);
 
 // Get current position in steps
 long st_get_position(uint8_t axis);
@@ -73,7 +73,7 @@ float st_get_position_mm(AxisEnum axis);
 // to notify the subsystem that it is time to go to work.
 void st_wake_up();
 
-  
+
 void checkHitEndstops(); //call from somewhere to create an serial error message with the locations the endstops where hit, in case they were triggered
 void endstops_hit_on_purpose(); //avoid creation of the message, i.e. after homing and before a routine call of checkHitEndstops();
 
@@ -83,7 +83,7 @@ void checkStepperErrors(); //Print errors detected by the stepper
 
 void finishAndDisableSteppers();
 
-extern block_t *current_block;  // A pointer to the block currently being traced
+extern block_t* current_block;  // A pointer to the block currently being traced
 
 void quickStop();
 
@@ -102,7 +102,7 @@ void microstep_readings();
 #endif
 
 #if ENABLED(BABYSTEPPING)
-  void babystep(const uint8_t axis,const bool direction); // perform a short step with a single stepper motor, outside of any convention
+  void babystep(const uint8_t axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
 #endif
-     
+
 #endif

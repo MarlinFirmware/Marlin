@@ -13,7 +13,7 @@
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
-#define WELCOME_MSG							MACHINE_NAME " pronto."
+#define WELCOME_MSG                         MACHINE_NAME " pronto."
 #define MSG_SD_INSERTED                     "Cartao inserido"
 #define MSG_SD_REMOVED                      "Cartao removido"
 #define MSG_MAIN                            " Menu principal"
@@ -125,11 +125,11 @@
 #define MSG_END_MINUTE                      "minutos"
 
 #if ENABLED(DELTA_CALIBRATION_MENU)
-    #define MSG_DELTA_CALIBRATE             "Delta Calibration"
-    #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
-    #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
-    #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
-    #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
+  #define MSG_DELTA_CALIBRATE               "Delta Calibration"
+  #define MSG_DELTA_CALIBRATE_X             "Calibrate X"
+  #define MSG_DELTA_CALIBRATE_Y             "Calibrate Y"
+  #define MSG_DELTA_CALIBRATE_Z             "Calibrate Z"
+  #define MSG_DELTA_CALIBRATE_CENTER        "Calibrate Center"
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_PT_BR_H

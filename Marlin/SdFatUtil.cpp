@@ -33,7 +33,7 @@ int SdFatUtil::FreeRam() {
   return &top - reinterpret_cast<char*>(sbrk(0));
 }
 #else  // __arm__
-extern char *__brkval;
+extern char* __brkval;
 extern char __bss_end;
 /** Amount of free RAM
  * \return The number of free bytes.
@@ -50,7 +50,7 @@ int SdFatUtil::FreeRam() {
  * \param[in] pr Print object for output.
  * \param[in] str Pointer to string stored in flash memory.
  */
-void SdFatUtil::print_P( PGM_P str) {
+void SdFatUtil::print_P(PGM_P str) {
   for (uint8_t c; (c = pgm_read_byte(str)); str++) MYSERIAL.write(c);
 }
 //------------------------------------------------------------------------------
@@ -59,8 +59,8 @@ void SdFatUtil::print_P( PGM_P str) {
  * \param[in] pr Print object for output.
  * \param[in] str Pointer to string stored in flash memory.
  */
-void SdFatUtil::println_P( PGM_P str) {
-  print_P( str);
+void SdFatUtil::println_P(PGM_P str) {
+  print_P(str);
   MYSERIAL.println();
 }
 //------------------------------------------------------------------------------
@@ -77,6 +77,6 @@ void SdFatUtil::SerialPrint_P(PGM_P str) {
  * \param[in] str Pointer to string stored in flash memory.
  */
 void SdFatUtil::SerialPrintln_P(PGM_P str) {
-  println_P( str);
+  println_P(str);
 }
 #endif
