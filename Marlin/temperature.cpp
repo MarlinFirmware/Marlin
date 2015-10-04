@@ -796,6 +796,7 @@ static float analog2tempBed(int raw) {
 
   #else
 
+    UNUSED(raw);
     return 0;
 
   #endif
