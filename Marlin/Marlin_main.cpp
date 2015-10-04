@@ -7056,6 +7056,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 void kill(const char* lcd_msg) {
   #if ENABLED(ULTRA_LCD)
     lcd_setalertstatuspgm(lcd_msg);
+  #else
+    UNUSED(lcd_msg);
   #endif
 
   cli(); // Stop interrupts
