@@ -15,10 +15,10 @@
 #define EXTRUDER_3_AUTO_FAN_PIN   5
 //
 //This section is to swap the MIN and MAX pins because the X3 Pro comes with only
-//MIN endstops soldered onto the board. Delta code wants the homing endstops to be 
+//MIN endstops soldered onto the board. Delta code wants the homing endstops to be
 //the MAX so I swapped them here.
 //
- #if ENABLED(DELTA)
+#if ENABLED(DELTA)
   #undef X_MIN_PIN
   #undef X_MAX_PIN
   #undef Y_MIN_PIN
@@ -32,14 +32,14 @@
   #define Y_MAX_PIN        14
   #define Z_MIN_PIN        19
   #define Z_MAX_PIN        18
- #endif
+#endif
 //
- #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-//#undef Z_MIN_PIN
-//#define Z_MIN_PIN        15
+#if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  //#undef Z_MIN_PIN
+  //#define Z_MIN_PIN        15
   // Define a pin to use as the signal pin on Arduino for the Z probe endstop.
   #define Z_MIN_PROBE_PIN  19
- #endif
+#endif
 //
 #define E2_STEP_PIN        23
 #define E2_DIR_PIN         25
@@ -74,32 +74,32 @@
 
 //
 //These Servo pins are for when they are defined. Tested for usage with bed leveling
-//on a Delta with 1 servo. Running through the Z servo endstop in code. 
+//on a Delta with 1 servo. Running through the Z servo endstop in code.
 //Physical wire attachment was done on EXT1 on the GND, 5V, and D47 pins.
 //
 #define SERVO0_PIN         47
 
 //LCD Pins//
 
- #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+#if ENABLED(VIKI2) || ENABLED(miniVIKI)
   #define BEEPER_PIN       33
- // Pins for DOGM SPI LCD Support
+  // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0        44
   #define DOGLCD_CS        45
   #define LCD_SCREEN_ROT_180
-  
- //The encoder and click button
+
+  //The encoder and click button
   #define BTN_EN1          22
   #define BTN_EN2           7
   #define BTN_ENC          39  //the click switch
- 
+
   #define SDSS             53
   #define SD_DETECT_PIN 49
-  
-  #define KILL_PIN         31
- #endif
 
- #if ENABLED(TEMP_STAT_LEDS)
+  #define KILL_PIN         31
+#endif
+
+#if ENABLED(TEMP_STAT_LEDS)
   #define STAT_LED_RED     32
   #define STAT_LED_BLUE    35
- #endif
+#endif

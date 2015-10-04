@@ -28,7 +28,7 @@
 #undef E0_MS2_PIN
 #undef E1_MS1_PIN
 #undef E1_MS2_PIN
- 
+
 #define X_STEP_PIN 37
 #define X_DIR_PIN 48
 #define X_MIN_PIN 12
@@ -89,7 +89,7 @@
 #define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
-#define FAN_PIN            8  
+#define FAN_PIN            8
 
 /**********************************************************
   Fan Pins
@@ -161,26 +161,26 @@
 #endif // ULTRA_LCD
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
- #define BEEPER_PIN 44
- // Pins for DOGM SPI LCD Support
- #define DOGLCD_A0  70 
- #define DOGLCD_CS  71 
- #define LCD_SCREEN_ROT_180
-  
- //The encoder and click button 
- #define BTN_EN1 85 
- #define BTN_EN2 84
- #define BTN_ENC 83  //the click switch
+  #define BEEPER_PIN 44
+  // Pins for DOGM SPI LCD Support
+  #define DOGLCD_A0  70
+  #define DOGLCD_CS  71
+  #define LCD_SCREEN_ROT_180
 
- #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board   
+  //The encoder and click button
+  #define BTN_EN1 85
+  #define BTN_EN2 84
+  #define BTN_ENC 83  //the click switch
+
+  #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
 
   #if ENABLED(TEMP_STAT_LEDS)
-   #define STAT_LED_RED      22
-   #define STAT_LED_BLUE     32 
+    #define STAT_LED_RED      22
+    #define STAT_LED_BLUE     32
   #endif
 #endif // VIKI2/miniVIKI
 
 #if ENABLED(FILAMENT_SENSOR)
-  //Filip added pin for Filament sensor analog input 
+  //Filip added pin for Filament sensor analog input
   #define FILWIDTH_PIN        3
 #endif

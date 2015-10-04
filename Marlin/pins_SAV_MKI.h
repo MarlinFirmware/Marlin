@@ -46,7 +46,7 @@
 #define TEMP_2_PIN         -1
 
 #if DISABLED(SDSUPPORT)
-   // these pins are defined in the SD library if building with SD support
+  // these pins are defined in the SD library if building with SD support
   #define SCK_PIN          9
   #define MISO_PIN         11
   #define MOSI_PIN         10

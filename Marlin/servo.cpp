@@ -43,7 +43,7 @@
  detach()    - Stops an attached servos from pulsing its i/o pin.
 
 */
-#include "Configuration.h" 
+#include "Configuration.h"
 
 #if HAS_SERVOS
 
@@ -76,23 +76,23 @@ uint8_t ServoCount = 0;                                     // the total number 
 
 /************ static functions common to all instances ***********************/
 
-static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t *TCNTn, volatile uint16_t* OCRnA) {
+static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t* TCNTn, volatile uint16_t* OCRnA) {
   if (Channel[timer] < 0)
     *TCNTn = 0; // channel set to -1 indicated that refresh interval completed so reset the timer
   else {
-    if (SERVO_INDEX(timer,Channel[timer]) < ServoCount && SERVO(timer,Channel[timer]).Pin.isActive)
-      digitalWrite( SERVO(timer,Channel[timer]).Pin.nbr,LOW); // pulse this channel low if activated
+    if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && SERVO(timer, Channel[timer]).Pin.isActive)
+      digitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, LOW); // pulse this channel low if activated
   }
 
   Channel[timer]++;    // increment to the next channel
-  if (SERVO_INDEX(timer,Channel[timer]) < ServoCount && Channel[timer] < SERVOS_PER_TIMER) {
-    *OCRnA = *TCNTn + SERVO(timer,Channel[timer]).ticks;
-    if (SERVO(timer,Channel[timer]).Pin.isActive)     // check if activated
-      digitalWrite( SERVO(timer,Channel[timer]).Pin.nbr,HIGH); // its an active channel so pulse it high
+  if (SERVO_INDEX(timer, Channel[timer]) < ServoCount && Channel[timer] < SERVOS_PER_TIMER) {
+    *OCRnA = *TCNTn + SERVO(timer, Channel[timer]).ticks;
+    if (SERVO(timer, Channel[timer]).Pin.isActive)    // check if activated
+      digitalWrite(SERVO(timer, Channel[timer]).Pin.nbr, HIGH); // its an active channel so pulse it high
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    if ( ((unsigned)*TCNTn) + 4 < usToTicks(REFRESH_INTERVAL) )  // allow a few ticks to ensure the next OCR1A not missed
+    if (((unsigned)*TCNTn) + 4 < usToTicks(REFRESH_INTERVAL))    // allow a few ticks to ensure the next OCR1A not missed
       *OCRnA = (unsigned int)usToTicks(REFRESH_INTERVAL);
     else
       *OCRnA = *TCNTn + 4;  // at least REFRESH_INTERVAL has elapsed
@@ -159,7 +159,7 @@ static void initISR(timer16_Sequence_t timer) {
       TCNT3 = 0;              // clear the timer count
       #ifdef __AVR_ATmega128__
         TIFR |= _BV(OCF3A);     // clear any pending interrupts;
-      	ETIMSK |= _BV(OCIE3A);  // enable the output compare interrupt
+        ETIMSK |= _BV(OCIE3A);  // enable the output compare interrupt
       #else
         TIFR3 = _BV(OCF3A);     // clear any pending interrupts;
         TIMSK3 =  _BV(OCIE3A) ; // enable the output compare interrupt
@@ -219,8 +219,8 @@ static void finISR(timer16_Sequence_t timer) {
 
 static boolean isTimerActive(timer16_Sequence_t timer) {
   // returns true if any servo is active on this timer
-  for(uint8_t channel=0; channel < SERVOS_PER_TIMER; channel++) {
-    if (SERVO(timer,channel).Pin.isActive)
+  for (uint8_t channel = 0; channel < SERVOS_PER_TIMER; channel++) {
+    if (SERVO(timer, channel).Pin.isActive)
       return true;
   }
   return false;
@@ -230,7 +230,7 @@ static boolean isTimerActive(timer16_Sequence_t timer) {
 /****************** end of static functions ******************************/
 
 Servo::Servo() {
-  if ( ServoCount < MAX_SERVOS) {
+  if (ServoCount < MAX_SERVOS) {
     this->servoIndex = ServoCount++;                    // assign a servo index to this instance
     servo_info[this->servoIndex].ticks = usToTicks(DEFAULT_PULSE_WIDTH);   // store default values  - 12 Aug 2009
   }
@@ -285,7 +285,7 @@ void Servo::writeMicroseconds(int value) {
     else if (value > SERVO_MAX())
       value = SERVO_MAX();
 
-  	value = value - TRIM_DURATION;
+    value = value - TRIM_DURATION;
     value = usToTicks(value);  // convert to ticks after compensating for interrupt overhead - 12 Aug 2009
 
     uint8_t oldSREG = SREG;
@@ -296,7 +296,7 @@ void Servo::writeMicroseconds(int value) {
 }
 
 // return the value as degrees
-int Servo::read() { return map( this->readMicroseconds()+1, SERVO_MIN(), SERVO_MAX(), 0, 180); }
+int Servo::read() { return map(this->readMicroseconds() + 1, SERVO_MIN(), SERVO_MAX(), 0, 180); }
 
 int Servo::readMicroseconds() {
   return (this->servoIndex == INVALID_SERVO) ? 0 : ticksToUs(servo_info[this->servoIndex].ticks) + TRIM_DURATION;

@@ -95,9 +95,9 @@
         #define LCD_PINS_D4     17 //SCK (CLK) clock
         #define BEEPER_PIN      27 // Pin 27 is taken by LED_PIN, but Melzi LED does nothing with Marlin so this can be used for BEEPER_PIN. You can use this pin with M42 instead of BEEPER_PIN.
       #else         // Sanguinololu 1.3
-        #define LCD_PINS_RS      4 
-        #define LCD_PINS_ENABLE 17 
-        #define LCD_PINS_D4     30 
+        #define LCD_PINS_RS      4
+        #define LCD_PINS_ENABLE 17
+        #define LCD_PINS_D4     30
         #define LCD_PINS_D5     29
         #define LCD_PINS_D6     28
         #define LCD_PINS_D7     27
@@ -110,7 +110,7 @@
       #define LCD_CONTRAST       1
 
     #endif
-  
+
     // Uncomment screen orientation
     #define LCD_SCREEN_ROT_0
     //#define LCD_SCREEN_ROT_90
