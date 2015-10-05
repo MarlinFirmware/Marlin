@@ -33,7 +33,7 @@ namespace eeprom
 			static bool getInitialized();
 
 			static void setLanguage(uint8_t language);
-			static uint8_t getLanguage();
+			static const uint8_t getLanguage();
 
 			static void setLight(bool state);
 			static bool getLight();

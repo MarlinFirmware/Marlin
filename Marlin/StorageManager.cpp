@@ -2,7 +2,10 @@
 
 #include <avr/eeprom.h>
 #include "Configuration.h"
-#include "Language.h"
+
+#ifdef DOGLCD
+	#include "Language.h"
+#endif //DOGLCD
 
 namespace eeprom
 {
@@ -69,15 +72,25 @@ namespace eeprom
 		return false;
 	}
 
+#ifdef DOGLCD
+
 	void StorageManager::setLanguage(uint8_t language)
 	{
 		StorageManager::single::instance().writeByte(ADDR_LANGUAGE, language);
 	}
 
-	uint8_t StorageManager::getLanguage()
+	const uint8_t StorageManager::getLanguage()
 	{
-		return StorageManager::single::instance().readByte(ADDR_LANGUAGE);
+		uint8_t language = StorageManager::single::instance().readByte(ADDR_LANGUAGE);
+
+		if(language < static_cast<uint8_t>(Language::MAX_LANGUAGES))
+		{
+			return language;
+		}
+		return static_cast<uint8_t>(Language::EN);
 	}
+
+#endif // DOGLCD
 
 	void StorageManager::setLight(bool state)
 	{

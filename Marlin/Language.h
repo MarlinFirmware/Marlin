@@ -22,6 +22,7 @@ enum class Language
 	PT,     // Portuguese
 	IT,     // Italian
 	SE,     // Swedish
+	MAX_LANGUAGES
 };
 extern Language LANG;
 
