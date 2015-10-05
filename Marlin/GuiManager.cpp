@@ -488,7 +488,7 @@ static void lcd_set_encoder_position(int8_t position)
 
 void lcd_emergency_stop()
 {
-	if (eeprom::StorageManager::getEmergency() != eeprom::EMERGENCY_STOP_ACTIVE)
+	if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_INACTIVE)
 	{
 		SERIAL_ECHOLN("KILLED: Requested Emergency Stop!");
 		eeprom::StorageManager::setEmergency();

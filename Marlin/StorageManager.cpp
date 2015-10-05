@@ -2,6 +2,7 @@
 
 #include <avr/eeprom.h>
 #include "Configuration.h"
+#include "Language.h"
 
 namespace eeprom
 {
@@ -26,9 +27,13 @@ namespace eeprom
 		StorageManager::single::instance().writeByte(ADDR_EMERGENCY_STOP, EMERGENCY_STOP_INACTIVE);
 	}
 
-	uint8_t StorageManager::getEmergency()
+	const uint8_t StorageManager::getEmergency()
 	{
-		return StorageManager::single::instance().readByte(ADDR_EMERGENCY_STOP);
+		if(StorageManager::single::instance().readByte(ADDR_EMERGENCY_STOP) == EMERGENCY_STOP_ACTIVE)
+		{
+			return EMERGENCY_STOP_ACTIVE;
+		}
+		return EMERGENCY_STOP_INACTIVE;
 	}
 
 	void StorageManager::setOffset(float value)

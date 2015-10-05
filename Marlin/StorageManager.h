@@ -24,7 +24,7 @@ namespace eeprom
 
 			static void setEmergency();
 			static void clearEmergency();
-			static uint8_t getEmergency();
+			static const uint8_t getEmergency();
 
 			static void setOffset(float value);
 			static float getOffset();

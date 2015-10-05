@@ -49,7 +49,7 @@ namespace screen
 	{
 		if (millis() > m_destroy_time)
 		{
-			if (eeprom::StorageManager::getEmergency() != eeprom::EMERGENCY_STOP_INACTIVE)
+			if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_ACTIVE)
 			{
 				ViewManager::getInstance().activeView(m_block_screen);
 			}
