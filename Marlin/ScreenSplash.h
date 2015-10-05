@@ -38,6 +38,7 @@ namespace screen
 			ScreenSplash(uint32_t timeout);
 			~ScreenSplash();
 
+			void init(uint16_t index = 0);
 			void draw();
 			void add(ScreenIndex_t const & component);
 

@@ -13,6 +13,8 @@ namespace eeprom
 	const uint8_t LIGHT_ON = 0x01;
 	const uint8_t AUTOLEVEL_ON = 0x01;
 	const uint8_t SERIAL_SCREEN_ON = 0x01;
+	const uint8_t EEPROM_ENABLED = 0x00;
+	const uint8_t EEPROM_DISABLED = 0x01;
 
 	class StorageManager
 	{
@@ -45,8 +47,13 @@ namespace eeprom
 			static bool getSerialScreen();
 
 			static void eraseEEPROM();
+			static const uint8_t getEEPROMVersion();
+			static const uint8_t checkEEPROMState();
 
 		private:
+			void updateEEPROMVersion();
+			void setEEPROMState(uint8_t state);
+
 			uint8_t readByte(uint8_t * address);
 			void writeByte(uint8_t * address, uint8_t data);
 

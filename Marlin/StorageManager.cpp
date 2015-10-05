@@ -16,6 +16,9 @@ namespace eeprom
 	static uint8_t * const ADDR_LIGHT          = (uint8_t *) 502;
 	static uint8_t * const ADDR_SERIAL         = (uint8_t *) 503;
 	static uint8_t * const ADDR_LANGUAGE       = (uint8_t *) 504;
+	static uint8_t * const ADDR_PROTECTED_ZONE = (uint8_t *) 4071;
+	static uint8_t * const ADDR_EEPROM_VERSION = (uint8_t *) 4072;
+	static uint8_t * const ADDR_EEPROM_FLAG    = (uint8_t *) 4073;
 
 	StorageManager::StorageManager()
 	{ }
@@ -137,13 +140,43 @@ namespace eeprom
 	void StorageManager::eraseEEPROM()
 	{
 		uint8_t * address = (uint8_t *) 0;
-		uint8_t * max_address = (uint8_t *) 4080;
 
-		while (address < max_address)
+		StorageManager::single::instance().setEEPROMState(EEPROM_DISABLED);
+
+		while (address <= ADDR_PROTECTED_ZONE)
 		{
 			StorageManager::single::instance().writeByte(address, 0xFF);
 			address++;
 		}
+
+		StorageManager::single::instance().updateEEPROMVersion();
+		StorageManager::single::instance().setEEPROMState(EEPROM_ENABLED);
+	}
+
+	const uint8_t StorageManager::getEEPROMVersion()
+	{
+		return StorageManager::single::instance().readByte(ADDR_EEPROM_VERSION);
+	}
+
+	const uint8_t StorageManager::checkEEPROMState()
+	{
+		if(StorageManager::single::instance().readByte(ADDR_EEPROM_FLAG) != EEPROM_ENABLED)
+		{
+			return EEPROM_DISABLED;
+		}
+		return EEPROM_ENABLED;
+	}
+
+	void StorageManager::updateEEPROMVersion()
+	{
+#ifdef BQ_EEPROM_VERSION
+		StorageManager::single::instance().writeByte(ADDR_EEPROM_VERSION, BQ_EEPROM_VERSION);
+#endif
+	}
+
+	void StorageManager::setEEPROMState(uint8_t state)
+	{
+		StorageManager::single::instance().writeByte(ADDR_EEPROM_FLAG, state);
 	}
 
 	uint8_t StorageManager::readByte(uint8_t * address)

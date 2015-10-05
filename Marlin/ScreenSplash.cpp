@@ -30,6 +30,7 @@
 #include "StorageManager.h"
 #include "LightManager.h"
 #include "PrintManager.h"
+#include "GuiManager.h"
 
 namespace screen
 {
@@ -44,6 +45,18 @@ namespace screen
 
 	ScreenSplash::~ScreenSplash()
 	{ }
+
+	void ScreenSplash::init(uint16_t index)
+	{
+		lcd_disable_button();
+		
+		if (eeprom::StorageManager::getEEPROMVersion() != BQ_EEPROM_VERSION || eeprom::StorageManager::checkEEPROMState() == eeprom::EEPROM_DISABLED)
+		{
+			eeprom::StorageManager::eraseEEPROM();
+		}
+
+		lcd_enable_button();
+	}
 
 	void ScreenSplash::draw()
 	{
