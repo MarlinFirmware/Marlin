@@ -213,6 +213,41 @@ void checkHitEndstops()
  }
 }
 
+bool checkXminEndstop()
+{
+  return endstop_xmin_hit;
+}
+
+bool checkXmaxEndstop()
+{
+  return endstop_xmax_hit;
+}
+
+bool checkYminEndstop()
+{
+  return endstop_ymin_hit;
+}
+
+bool checkYmaxEndstop()
+{
+  return endstop_ymax_hit;
+}
+
+bool checkZminEndstop()
+{
+  return endstop_zmin_hit;
+}
+
+bool checkZmaxEndstop()
+{
+  return endstop_zmax_hit;
+}
+
+float getRealPosAxis(uint8_t axis)
+{
+  return (float)count_position[axis]/axis_steps_per_unit[axis];
+}
+
 void endstops_hit_on_purpose()
 {
   endstop_xmin_hit=false;
