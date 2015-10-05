@@ -435,6 +435,66 @@ void action_get_plane()
 	#endif // Z_PROBE_SLED
 }
 
+void action_correct_movement(float &x_pos, float &y_pos, float &z_pos)
+{
+	if (checkXminEndstop() == true)
+	{
+		if (plan_get_axis_position(Y_AXIS) != getRealPosAxis(Y_AXIS))
+		{
+			y_pos = getRealPosAxis(Y_AXIS);
+			plan_set_axis_position(Y_AXIS,y_pos);
+		}
+		if (plan_get_axis_position(Z_AXIS) != getRealPosAxis(Z_AXIS))
+		{
+			z_pos = getRealPosAxis(Z_AXIS);
+			plan_set_axis_position(Z_AXIS,z_pos);
+		}
+	}
+	if (checkYminEndstop() == true)
+	{
+		if (plan_get_axis_position(X_AXIS) != getRealPosAxis(X_AXIS))
+		{
+			x_pos = getRealPosAxis(X_AXIS);
+			plan_set_axis_position(X_AXIS,x_pos);
+		}
+		if (plan_get_axis_position(Z_AXIS) != getRealPosAxis(Z_AXIS))
+		{
+			z_pos = getRealPosAxis(Z_AXIS);
+			plan_set_axis_position(Z_AXIS,z_pos);
+		}
+	}
+	if (checkZminEndstop() == true)
+	{
+		if (plan_get_axis_position(X_AXIS) != getRealPosAxis(X_AXIS))
+		{
+			x_pos = getRealPosAxis(X_AXIS);
+			plan_set_axis_position(X_AXIS,x_pos);
+		}
+		if (plan_get_axis_position(Y_AXIS) != getRealPosAxis(Y_AXIS))
+		{
+			y_pos = getRealPosAxis(Y_AXIS);
+			plan_set_axis_position(Y_AXIS,y_pos);
+		}
+	}
+	if (checkZmaxEndstop() == true)
+	{
+		if (plan_get_axis_position(X_AXIS) != getRealPosAxis(X_AXIS))
+		{
+			x_pos = getRealPosAxis(X_AXIS);
+			plan_set_axis_position(X_AXIS,x_pos);
+		}
+		if (plan_get_axis_position(Y_AXIS) != getRealPosAxis(Y_AXIS))
+		{
+			y_pos = getRealPosAxis(Y_AXIS);
+			plan_set_axis_position(Y_AXIS,y_pos);
+		}
+	}
+	st_synchronize();
+	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
+	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+}
+
 void action_move_axis_to(uint8_t axis, float position)
 {
 	enable_endstops(true);
