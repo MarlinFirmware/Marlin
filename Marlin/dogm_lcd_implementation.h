@@ -357,7 +357,7 @@ static void lcd_implementation_status_screen() {
           lcd_printPGM(PSTR("~"));
         else
       #endif  
-      lcd_printPGM(PSTR("X');
+      lcd_printPGM(PSTR("X"));
   }
   u8g.drawPixel(8, XYZ_BASELINE - 5);
   u8g.drawPixel(8, XYZ_BASELINE - 3);
