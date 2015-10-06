@@ -186,10 +186,10 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu();
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_sd);
-		local_view->add(screen_unload_init);
-		local_view->icon(icon_filament_unload);
 		local_view->add(screen_load_init);
 		local_view->icon(icon_filament_load);
+		local_view->add(screen_unload_init);
+		local_view->icon(icon_filament_unload);
 		local_view->add(screen_level_init);
 		local_view->icon(icon_leveling);
 		local_view->add(screen_autohome_init);
