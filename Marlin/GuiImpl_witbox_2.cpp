@@ -548,9 +548,9 @@ namespace screen
 		local_view->add(option_serial);
 		local_view->add(option_offset);
 		local_view->add(option_language);
-		local_view->add(option_about);
-		local_view->add(option_contact);
 		local_view->add(option_reset);
+		local_view->add(option_contact);
+		local_view->add(option_about);
 		return local_view;
 	}
 
