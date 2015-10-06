@@ -19,6 +19,7 @@ namespace eeprom
 	static uint8_t * const ADDR_PROTECTED_ZONE = (uint8_t *) 4071;
 	static uint8_t * const ADDR_EEPROM_VERSION = (uint8_t *) 4072;
 	static uint8_t * const ADDR_EEPROM_FLAG    = (uint8_t *) 4073;
+	static uint8_t * const ADDR_BOARD_FAMILY   = (uint8_t *) 4081;
 
 	StorageManager::StorageManager()
 	{ }
@@ -177,6 +178,23 @@ namespace eeprom
 	void StorageManager::setEEPROMState(uint8_t state)
 	{
 		StorageManager::single::instance().writeByte(ADDR_EEPROM_FLAG, state);
+	}
+
+	const uint8_t StorageManager::getBoardType()
+	{
+		char board_type[4];
+		StorageManager::single::instance().readData(ADDR_BOARD_FAMILY, (uint8_t*)&board_type, sizeof(board_type)/sizeof(board_type[0]));
+		board_type[3] = '\0';
+
+		if(strcmp(board_type, "ZM3") == 0)
+		{
+			return BOARD_BQ_ZUM_MEGA_3D;
+		}
+		else if(strcmp(board_type, "CNC") == 0)
+		{
+			return BOARD_BQCNC;
+		}
+		return BOARD_RAMPS_13_EFB;
 	}
 
 	uint8_t StorageManager::readByte(uint8_t * address)

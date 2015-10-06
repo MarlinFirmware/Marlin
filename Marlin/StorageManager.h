@@ -49,6 +49,8 @@ namespace eeprom
 			static void eraseEEPROM();
 			static const uint8_t getEEPROMVersion();
 			static const uint8_t checkEEPROMState();
+			
+			static const uint8_t getBoardType();
 
 		private:
 			void updateEEPROMVersion();
