@@ -520,7 +520,7 @@ ISR(TIMER1_COMPA_vect)
           bool y_max_endstop=(READ(Y_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING);
           if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_ymin_hit=true;
+            endstop_ymax_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_y_max_endstop = y_max_endstop;
@@ -563,7 +563,7 @@ ISR(TIMER1_COMPA_vect)
           bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
           if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_zmin_hit=true;
+            endstop_zmax_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_z_max_endstop = z_max_endstop;
@@ -1113,6 +1113,13 @@ void st_set_position(const long &x, const long &y, const long &z, const long &e)
   count_position[Y_AXIS] = y;
   count_position[Z_AXIS] = z;
   count_position[E_AXIS] = e;
+  CRITICAL_SECTION_END;
+}
+
+void st_set_axis_position(uint8_t axis, const long &value)
+{
+  CRITICAL_SECTION_START;
+  count_position[axis] = value;
   CRITICAL_SECTION_END;
 }
 

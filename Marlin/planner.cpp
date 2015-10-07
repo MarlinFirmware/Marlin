@@ -1125,7 +1125,7 @@ void plan_set_position(const float &x, const float &y, const float &z, const flo
 void plan_set_axis_position(uint8_t axis, float value)
 {
   position[axis] = lround(value * axis_steps_per_unit[axis]);
-  st_set_position(position[X_AXIS], position[Y_AXIS], position[Z_AXIS], position[E_AXIS]);
+  st_set_axis_position(axis,position[axis]);
 }
 
 void plan_set_e_position(const float &e)
