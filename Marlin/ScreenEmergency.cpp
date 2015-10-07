@@ -13,6 +13,7 @@ namespace screen
 		, m_message(message)
 		, m_box(box)
 		, m_bitmap(bitmap)
+		, m_next_screen(screen_none)
 	{
 		stop_buffer = true;
 		stop_buffer_code = 999;
@@ -20,6 +21,16 @@ namespace screen
 
 	ScreenEmergency::~ScreenEmergency()
 	{ }
+
+	void ScreenEmergency::init(uint16_t index)
+	{
+		draw();
+
+		if(m_next_screen != screen_none)
+		{
+			ViewManager::getInstance().activeView(m_next_screen);
+		}
+	}
 
 	void ScreenEmergency::draw()
 	{
@@ -44,5 +55,10 @@ namespace screen
 			painter.setWorkingArea(text_area);
 			painter.multiText_P(m_message);
 		} while (painter.nextPage());
+	}
+
+	void ScreenEmergency::add(ScreenIndex_t const & component)
+	{
+		m_next_screen = component;
 	}
 }

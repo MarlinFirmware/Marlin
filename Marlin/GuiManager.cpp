@@ -147,7 +147,8 @@ void lcd_init()
 	// Low level init libraries for lcd & encoder
 	pinMode(39, OUTPUT);   //Contraste = 4.5V
 	digitalWrite(39, HIGH);
-	pinMode(43, OUTPUT);           //RESET DEL LCD A HIGH
+	digitalWrite(43, LOW);
+	delay(10);
 	digitalWrite(43, HIGH);
 
 
@@ -488,7 +489,7 @@ static void lcd_set_encoder_position(int8_t position)
 
 void lcd_emergency_stop()
 {
-	if (eeprom::StorageManager::getEmergency() != eeprom::EMERGENCY_STOP_ACTIVE)
+	if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_INACTIVE)
 	{
 		SERIAL_ECHOLN("KILLED: Requested Emergency Stop!");
 		eeprom::StorageManager::setEmergency();
