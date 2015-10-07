@@ -26,10 +26,14 @@
 #ifdef PID_ADD_EXTRUSION_RATE
   #include "stepper.h"
 #endif
+#ifdef DOGLCD
+  #include "TemperatureManager.h"
+#endif
 
 // public functions
 void tp_init();  //initialize the heating
 void manage_heater(); //it is critical that this is called periodically.
+void updateTemperaturesFromRawValues();
 
 #ifdef FILAMENT_SENSOR
 // For converting raw Filament Width to milimeters 
@@ -86,7 +90,11 @@ extern float current_temperature_bed;
 //deg=degreeCelsius
 
 FORCE_INLINE float degHotend(uint8_t extruder) {  
+#ifdef DOGLCD
+  return temp::TemperatureManager::single::instance().getCurrentTemperature();
+#else
   return current_temperature[extruder];
+#endif
 };
 
 #ifdef SHOW_TEMP_ADC_VALUES
@@ -94,7 +102,7 @@ FORCE_INLINE float degHotend(uint8_t extruder) {
     return current_temperature_raw[extruder];
   };
 
-  FORCE_INLINE float rawBedTemp() {  
+FORCE_INLINE float rawBedTemp() {  
     return current_temperature_bed_raw;
   };
 #endif
@@ -104,7 +112,11 @@ FORCE_INLINE float degBed() {
 };
 
 FORCE_INLINE float degTargetHotend(uint8_t extruder) {  
+#ifdef DOGLCD
+  return temp::TemperatureManager::single::instance().getTargetTemperature();
+#else
   return target_temperature[extruder];
+#endif
 };
 
 FORCE_INLINE float degTargetBed() {   
@@ -118,7 +130,13 @@ FORCE_INLINE void setTargetBed(const float &celsius) {
 };
 
 FORCE_INLINE bool isHeatingHotend(uint8_t extruder){  
+#ifdef DOGLCD
+  float target_temp = temp::TemperatureManager::single::instance().getTargetTemperature();
+  float current_temp = temp::TemperatureManager::single::instance().getCurrentTemperature();
+  return target_temp > current_temp;
+#else
   return target_temperature[extruder] > current_temperature[extruder];
+#endif
 };
 
 FORCE_INLINE bool isHeatingBed() {
@@ -126,7 +144,13 @@ FORCE_INLINE bool isHeatingBed() {
 };
 
 FORCE_INLINE bool isCoolingHotend(uint8_t extruder) {  
+#ifdef DOGLCD
+  float target_temp = temp::TemperatureManager::single::instance().getTargetTemperature();
+  float current_temp = temp::TemperatureManager::single::instance().getCurrentTemperature();
+  return target_temp < current_temp;
+#else
   return target_temperature[extruder] < current_temperature[extruder];
+#endif
 };
 
 FORCE_INLINE bool isCoolingBed() {

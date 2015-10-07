@@ -55,6 +55,7 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+#include "TemperatureManager.h"
 #include "ultralcd.h"
 #include "Serial.h"
 
@@ -509,7 +510,7 @@ void check_axes_activity()
     }
   #endif//FAN_KICKSTART_TIME
   #ifdef FAN_SOFT_PWM
-  fanSpeedSoftPwm = tail_fan_speed;
+  //fanSpeed = tail_fan_speed;
   #else
   analogWrite(FAN_PIN,tail_fan_speed);
   #endif//!FAN_SOFT_PWM
@@ -553,7 +554,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   {
     next_buffer_head = next_block_index(block_buffer_head);
 
-    manage_heater();
+    temp::TemperatureManager::single::instance().manageTemperatureControl(); 
 #ifndef DOGLCD
         manage_inactivity(); 
 #endif //DOGLCD
@@ -1119,6 +1120,12 @@ void plan_set_position(const float &x, const float &y, const float &z, const flo
   previous_speed[1] = 0.0;
   previous_speed[2] = 0.0;
   previous_speed[3] = 0.0;
+}
+
+void plan_set_axis_position(uint8_t axis, float value)
+{
+  position[axis] = lround(value * axis_steps_per_unit[axis]);
+  st_set_axis_position(axis,position[axis]);
 }
 
 void plan_set_e_position(const float &e)

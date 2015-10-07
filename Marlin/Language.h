@@ -22,6 +22,7 @@ enum class Language
 	PT,     // Portuguese
 	IT,     // Italian
 	SE,     // Swedish
+	MAX_LANGUAGES
 };
 extern Language LANG;
 
@@ -143,6 +144,8 @@ enum class Label
 	SCREEN_TEMP_TITLE,
 	SCREEN_TEMP_HEATING_TITLE,
 	SCREEN_INFO_TITLE,
+	SCREEN_CONTACT_TITLE,
+	SCREEN_CONTACT_TEXT,
 	SCREEN_OFFSET_INIT_TITLE,
 	SCREEN_OFFSET_INIT_TEXT,
 	SCREEN_OFFSET_PREHEATING_TITLE,
@@ -188,6 +191,12 @@ enum class Label
 	SCREEN_WIZARD_TEXT2,
 	SCREEN_WIZARD_TEXT3,
 	SCREEN_WIZARD_TEXT4,
+	SCREEN_RESET_INIT_TITLE,
+	SCREEN_RESET_INIT_TEXT,
+	SCREEN_RESET_INFO_TITLE,
+	SCREEN_RESET_INFO_TEXT,
+	SCREEN_RESET_TITLE,
+	SCREEN_RESET_TEXT,
 	ICON_SD_NOSD,
 	ICON_SD_SD,
 	ICON_FILAMENT_UNLOAD,
@@ -215,10 +224,12 @@ enum class Label
 	ICON_MOVE_01MM,
 	OPTION_LIGHTLED,
 	OPTION_INFO,
+	OPTION_CONTACT,
 	OPTION_AUTOLEVEL,
 	OPTION_SERIAL,
 	OPTION_OFFSET,
 	OPTION_LANGUAGE,
+	OPTION_RESET,
 	PUSH_TO_CONFIRM,
 	PUSH_TO_CONTINUE,
 	PUSH_TO_START,
@@ -229,6 +240,7 @@ enum class Label
 	MODE,
 	INACTIVE,
 	TEMP_OFF,
+	TOTAL_TIME,
 };
 
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
@@ -311,6 +323,8 @@ extern const char * MSG_SCREEN_MOVE_E_1MM_TITLE();
 extern const char * MSG_SCREEN_TEMP_TITLE();
 extern const char * MSG_SCREEN_TEMP_HEATING_TITLE();
 extern const char * MSG_SCREEN_INFO_TITLE();
+extern const char * MSG_SCREEN_CONTACT_TITLE();
+extern const char * MSG_SCREEN_CONTACT_TEXT();
 extern const char * MSG_SCREEN_OFFSET_INIT_TITLE();
 extern const char * MSG_SCREEN_OFFSET_INIT_TEXT();
 extern const char * MSG_SCREEN_OFFSET_PREHEATING_TITLE();
@@ -356,6 +370,12 @@ extern const char * MSG_SCREEN_WIZARD_TEXT1();
 extern const char * MSG_SCREEN_WIZARD_TEXT2();
 extern const char * MSG_SCREEN_WIZARD_TEXT3();
 extern const char * MSG_SCREEN_WIZARD_TEXT4();
+extern const char * MSG_SCREEN_RESET_INIT_TITLE();
+extern const char * MSG_SCREEN_RESET_INIT_TEXT();
+extern const char * MSG_SCREEN_RESET_INFO_TITLE();
+extern const char * MSG_SCREEN_RESET_INFO_TEXT();
+extern const char * MSG_SCREEN_RESET_TITLE();
+extern const char * MSG_SCREEN_RESET_TEXT();
 extern const char * MSG_ICON_SD_NOSD();
 extern const char * MSG_ICON_SD_SD();
 extern const char * MSG_ICON_FILAMENT_UNLOAD();
@@ -383,10 +403,12 @@ extern const char * MSG_ICON_MOVE_1MM();
 extern const char * MSG_ICON_MOVE_01MM();
 extern const char * MSG_OPTION_LIGHTLED();
 extern const char * MSG_OPTION_INFO();
+extern const char * MSG_OPTION_CONTACT();
 extern const char * MSG_OPTION_AUTOLEVEL();
 extern const char * MSG_OPTION_SERIAL();
 extern const char * MSG_OPTION_OFFSET();
 extern const char * MSG_OPTION_LANGUAGE();
+extern const char * MSG_OPTION_RESET();
 extern const char * MSG_PUSH_TO_CONFIRM();
 extern const char * MSG_PUSH_TO_CONTINUE();
 extern const char * MSG_PUSH_TO_START();
@@ -397,5 +419,6 @@ extern const char * MSG_BACK();
 extern const char * MSG_MODE();
 extern const char * MSG_INACTIVE();
 extern const char * MSG_TEMP_OFF();
+extern const char * MSG_TOTAL_TIME();
 
 #endif // ifndef LANGUAGE_H

@@ -5,20 +5,21 @@
 // LCD Menu Messages: Language list
 //
 
-#define DE  1 // German
-#define EN  2 // English
-#define ES  3 // Spanish
-#define FI  4 // Finnish
-#define FR  5 // French
+#define EN  1 // English
+#define ES  2 // Spanish
+#define DE  3 // German
+#define FR  4 // French
+#define PT  5 // Portuguese
 #define IT  6 // Italian
-#define NL  7 // Dutch
-#define PL  8 // Polish
-#define PT  9 // Portuguese
+#define FI  7 // Finnish
+#define NL  8 // Dutch
+#define PL  9 // Polish
 
 
 //
 // Language texts
 //
+
 #ifndef LANGUAGE
 	#define LANGUAGE EN
 #endif

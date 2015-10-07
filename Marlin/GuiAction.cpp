@@ -13,6 +13,9 @@
 #include "OffsetManager.h"
 #include "AutoLevelManager.h"
 #include "PrintManager.h"
+#include "StorageManager.h"
+#include "SerialManager.h"
+#include "LightManager.h"
 
 bool raised = false;
 extern bool home_all_axis;
@@ -26,7 +29,9 @@ extern uint16_t stop_buffer_code;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 
-
+bool x_hit = false;
+bool y_hit = false;
+bool z_hit = false;
 
 float z_offset;
 
@@ -43,32 +48,21 @@ void action_set_temperature(uint16_t degrees)
 
 void action_preheat()
 {
+	temp::TemperatureManager::single::instance().setBlowerControlState(true);
 	temp::TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
 }
 
 void action_cooldown()
 {
+
+	temp::TemperatureManager::single::instance().setBlowerControlState(true);
 	temp::TemperatureManager::single::instance().setTargetTemperature(0);
 }
 
 void action_filament_unload()
 {
-	st_synchronize();
-	vector_3 update_position = plan_get_position();
-	current_position[X_AXIS] = update_position.x;
-	current_position[Y_AXIS] = update_position.y;
-	current_position[Z_AXIS] = update_position.z;
+	action_move_to_filament_change();
 
-	if ((change_filament == false) || (current_position[Z_AXIS] < POSITION_FILAMENT_Z))
-	{
-		current_position[Z_AXIS] = POSITION_FILAMENT_Z;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 60, active_extruder);
-		st_synchronize();
-	}
-
-	current_position[X_AXIS] = POSITION_FILAMENT_X;
-	current_position[Y_AXIS] = POSITION_FILAMENT_Y;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 	st_synchronize();
 
 	current_position[E_AXIS] += 50.0;
@@ -78,37 +72,21 @@ void action_filament_unload()
 	current_position[E_AXIS] -= 60.0;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
 	st_synchronize();
-
-	current_position[E_AXIS] = lastpos[E_AXIS];
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
 void action_filament_load()
 {
-	st_synchronize();
-	vector_3 update_position = plan_get_position();
-	current_position[X_AXIS] = update_position.x;
-	current_position[Y_AXIS] = update_position.y;
-	current_position[Z_AXIS] = update_position.z;
+	action_move_to_filament_change();
 
-	if ((change_filament == false) || (current_position[Z_AXIS] < POSITION_FILAMENT_Z))
-	{
-		current_position[Z_AXIS] = POSITION_FILAMENT_Z;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 60, active_extruder);
-		st_synchronize();
-	}
-
-	current_position[X_AXIS] = POSITION_FILAMENT_X;
-	current_position[Y_AXIS] = POSITION_FILAMENT_Y;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 	st_synchronize();
 
 	current_position[E_AXIS] += 140.0;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
 	st_synchronize();
 
-	current_position[E_AXIS] = lastpos[E_AXIS];
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	current_position[E_AXIS] -= RETRACT_ON_PAUSE;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+	st_synchronize();
 }
 
 void action_level_plate()
@@ -229,7 +207,6 @@ void action_level_plate()
 
 		case 4:
 			lcd_disable_button();
-			action_move_to_rest();
 			lcd_enable_button();
 
 			break;
@@ -241,6 +218,12 @@ void action_level_plate()
 void gui_action_homing()
 {
 	action_homing();
+	action_move_to_rest();
+}
+
+void gui_action_z_homing()
+{
+	action_z_homing();
 	action_move_to_rest();
 }
 
@@ -454,8 +437,63 @@ void action_get_plane()
 	#endif // Z_PROBE_SLED
 }
 
+void action_correct_movement(float &x_pos, float &y_pos, float &z_pos)
+{
+	if (checkXminEndstop() == true || checkXmaxEndstop() == true)
+	{
+		if (plan_get_axis_position(Y_AXIS) != getRealPosAxis(Y_AXIS) && y_hit == false)
+		{
+			y_pos = getRealPosAxis(Y_AXIS);
+			plan_set_axis_position(Y_AXIS,y_pos);
+		}
+		if (plan_get_axis_position(Z_AXIS) != getRealPosAxis(Z_AXIS) && z_hit == false)
+		{
+			z_pos = getRealPosAxis(Z_AXIS);
+			plan_set_axis_position(Z_AXIS,z_pos);
+		}
+		x_hit = true;
+		endstops_hit_on_purpose();
+	}
+	if (checkYminEndstop() == true || checkYmaxEndstop() == true)
+	{
+		if (plan_get_axis_position(X_AXIS) != getRealPosAxis(X_AXIS) && x_hit == false)
+		{
+			x_pos = getRealPosAxis(X_AXIS);
+			plan_set_axis_position(X_AXIS,x_pos);
+		}
+		if (plan_get_axis_position(Z_AXIS) != getRealPosAxis(Z_AXIS) && z_hit == false)
+		{
+			z_pos = getRealPosAxis(Z_AXIS);
+			plan_set_axis_position(Z_AXIS,z_pos);
+		}
+		y_hit = true;
+		endstops_hit_on_purpose();
+	}
+	if (checkZminEndstop() == true || checkZmaxEndstop() == true)
+	{
+		if (plan_get_axis_position(X_AXIS) != getRealPosAxis(X_AXIS) && x_hit == false)
+		{
+			x_pos = getRealPosAxis(X_AXIS);
+			plan_set_axis_position(X_AXIS,x_pos);
+		}
+		if (plan_get_axis_position(Y_AXIS) != getRealPosAxis(Y_AXIS) && y_hit == false)
+		{
+			y_pos = getRealPosAxis(Y_AXIS);
+			plan_set_axis_position(Y_AXIS,y_pos);
+		}
+		z_hit = true;
+		endstops_hit_on_purpose();
+	}
+
+	st_synchronize();
+	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
+	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+}
+
 void action_move_axis_to(uint8_t axis, float position)
 {
+	enable_endstops(true);
 	current_position[axis] = position;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
 }
@@ -467,25 +505,71 @@ void action_move_to_rest()
 	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 
+	enable_endstops(true);
+
 	if (current_position[Z_AXIS] < 20)
 	{
-		current_position[Z_AXIS] = 20;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
+		target[Z_AXIS] = 20;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
+		st_synchronize();
+		current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+	}
+
+	target[X_AXIS] = POSITION_REST_X;
+	target[Y_AXIS] = POSITION_REST_Y;
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
+	st_synchronize();
+
+	action_correct_movement(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]);
+
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
+	st_synchronize();
+
+	target[Z_AXIS] = POSITION_REST_Z;
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
+	st_synchronize();
+
+	enable_endstops(false);
+
+	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
+	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+	x_hit = false;
+	y_hit = false;
+	z_hit = false;
+}
+
+void action_move_to_filament_change()
+{
+	st_synchronize();
+
+	vector_3 update_position = plan_get_position();
+	current_position[X_AXIS] = update_position.x;
+	current_position[Y_AXIS] = update_position.y;
+	current_position[Z_AXIS] = update_position.z;
+
+	if ((change_filament == false) || (current_position[Z_AXIS] < POSITION_FILAMENT_Z))
+	{
+		current_position[Z_AXIS] = POSITION_FILAMENT_Z;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 60, active_extruder);
 		st_synchronize();
 	}
 
-	current_position[X_AXIS] = POSITION_REST_X;
-	current_position[Y_AXIS] = POSITION_REST_Y;
+	current_position[X_AXIS] = POSITION_FILAMENT_X;
+	current_position[Y_AXIS] = POSITION_FILAMENT_Y;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
-	st_synchronize();
 
-	current_position[Z_AXIS] = POSITION_REST_Z;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 60, active_extruder);
 	st_synchronize();
 }
 
 void action_start_print()
 {
+	temp::TemperatureManager::single::instance().setBlowerControlState(false);
+
+#ifdef FAN_BOX_PIN
+	digitalWrite(FAN_BOX_PIN, HIGH);
+#endif //FAN_BOX_PIN
+
 	char cmd[30];
 	char* c;
 	strcpy(cmd, card.longFilename);
@@ -512,7 +596,8 @@ void action_start_print()
 #endif //DOGLCD
 		action_get_plane();
 	}
-	enquecommand_P(PSTR("G1 Z10"));
+
+	action_move_to_rest();
 
 	for(c = &cmd[4]; *c; c++)
 	*c = tolower(*c);
@@ -527,10 +612,15 @@ void action_start_print()
 
 void action_stop_print()
 {
+	st_synchronize();
+#ifdef FAN_BOX_PIN
+	digitalWrite(FAN_BOX_PIN, LOW);
+#endif //FAN_BOX_PIN
+
 	card.sdprinting = false;
 	card.closefile();
 
-	temp::TemperatureManager::single::instance().setTargetTemperature(0);
+	action_preheat();
 
 	flush_commands();
 	quickStop();
@@ -539,27 +629,46 @@ void action_stop_print()
 
 	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
 	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
-	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS) + 10;
-	current_position[E_AXIS] = plan_get_axis_position(E_AXIS) - 10;
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
 
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	target[Z_AXIS] = current_position[Z_AXIS] + 10;
+	target[E_AXIS] = current_position[E_AXIS] -10;
 
-	current_position[X_AXIS] = POSITION_REST_X;
-	current_position[Y_AXIS] = POSITION_REST_Y;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
+
+	target[X_AXIS] = POSITION_REST_X;
+	target[Y_AXIS] = POSITION_REST_Y;
 
 #if X_MAX_POS < 250
-	current_position[Z_AXIS] += 20;
-#else // X_MAX_POS < 250
-	current_position[Z_AXIS] = Z_MAX_POS;
+	target[Z_AXIS] += 20;
+#else // X_MAX_POS < 250*/
+	target[Z_AXIS] = Z_MAX_POS;
 #endif // X_MAX_POS < 250
 
 	if (current_position[Z_AXIS] > Z_MAX_POS)
 	{
-		current_position[Z_AXIS] = Z_MAX_POS;
+		target[Z_AXIS] = Z_MAX_POS;
 	}
+	enable_endstops(true);
 
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 	st_synchronize();
+
+	action_correct_movement(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	st_synchronize();
+
+	action_correct_movement(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	st_synchronize();
+
+	enable_endstops(false);
 
 	if (SD_FINISHED_STEPPERRELEASE)
 	{
@@ -569,6 +678,15 @@ void action_stop_print()
 
 	cancel_heatup = true;
 	stop_planner_buffer = true;
+	x_hit = false;
+	y_hit = false;
+	z_hit = false;
+}
+
+void action_finish_print()
+{
+	action_stop_print();
+	action_cooldown();
 }
 
 extern float target[4];
@@ -587,10 +705,9 @@ void action_resume_print()
 {
 	lcd_disable_button();
 
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], lastpos[E_AXIS], 100, active_extruder); //move xy back
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], 60, active_extruder); //move z back
-	lastpos[E_AXIS] += EXTRUDE_ON_RESUME;
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], 10, active_extruder); //extrude on resume
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, active_extruder); //move xy back
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], 60, active_extruder); //move z back
+
 	st_synchronize();
 
 	vector_3 update_position = plan_get_position();
@@ -598,7 +715,11 @@ void action_resume_print()
 	current_position[Y_AXIS] = update_position.y;
 	current_position[Z_AXIS] = update_position.z;
 
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	current_position[E_AXIS] += EXTRUDE_ON_RESUME;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+	st_synchronize();
+
+	plan_set_e_position(lastpos[E_AXIS]);
 
 	card.sdprinting = true;
 	lcd_enable_button();
@@ -686,19 +807,28 @@ void action_set_offset(uint8_t axis, float value)
 void action_save_offset()
 {
 	OffsetManager::single::instance().saveOffset();
-	if(!OffsetManager::single::instance().isOffsetOnEEPROM())
-	{
-		OffsetManager::single::instance().offsetOnEEPROM();
-	}
-
+	action_z_homing();
 	action_move_to_rest();
+}
+
+void action_wizard_init()
+{
+	PrintManager::single::instance().state(INITIALIZING);
+	LightManager::single::instance().state(true);
+	SerialManager::single::instance().state(true);
 }
 
 void action_wizard_finish()
 {
-	PrintManager::resetInactivity();
+	//Set printer as initialized
+	eeprom::StorageManager::single::instance().setInitialized();
+
+	//Set default values
 	PrintManager::single::instance().state(STOPPED);
 	AutoLevelManager::single::instance().state(true);
+
+	//Reset inactivity
+	PrintManager::resetInactivity();
 }
 
 bool action_check_preheat_temp()
@@ -725,16 +855,14 @@ bool action_check_cooling()
 	}
 }
 
-bool action_check_min_temp()
+void action_close_inactivity()
 {
-	if(temp::TemperatureManager::single::instance().getTargetTemperature() <= temp::min_temp_cooling
-		|| temp::TemperatureManager::single::instance().getCurrentTemperature() <= temp::min_temp_cooling)
-	{
-		action_cooldown();
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	PrintManager::single::instance().state(STOPPED);
+}
+
+void action_erase_EEPROM()
+{
+	lcd_disable_button();
+	eeprom::StorageManager::eraseEEPROM();
+	RESET();
 }

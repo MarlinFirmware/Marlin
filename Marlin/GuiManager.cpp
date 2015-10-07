@@ -111,7 +111,6 @@ uint8_t display_view_wizard_page = 0;
 //
 // General API definitions
 // 
-
 uint8_t lcd_implementation_update_buttons()
 {
   uint8_t buttons_vector = 0x00;
@@ -131,25 +130,27 @@ static void lcd_implementation_quick_feedback()
 }
 void lcd_init()
 {
-    painter.begin();
+	// Init SD card hardware
+	pinMode(SDCARDDETECT,INPUT);
+	WRITE(SDCARDDETECT, HIGH);
+
+	// Init encoder button
+	pinMode(BTN_EN1,INPUT);
+	WRITE(BTN_EN1,HIGH);
+	pinMode(BTN_EN2,INPUT);
+	WRITE(BTN_EN2,HIGH);
+	pinMode(BTN_ENC,INPUT);
+	WRITE(BTN_ENC,HIGH);
+
+	painter.begin();
 
 	// Low level init libraries for lcd & encoder
 	pinMode(39, OUTPUT);   //Contraste = 4.5V
 	digitalWrite(39, HIGH);
-	pinMode(43, OUTPUT);           //RESET DEL LCD A HIGH
+	digitalWrite(43, LOW);
+	delay(10);
 	digitalWrite(43, HIGH);
 
-	pinMode(BTN_EN1,INPUT);
-	pinMode(BTN_EN2,INPUT);
-	WRITE(BTN_EN1,HIGH);
-	WRITE(BTN_EN2,HIGH);
-
-	pinMode(BTN_ENC,INPUT);
-	WRITE(BTN_ENC,HIGH);
-
-	// Init for SD card library
-	pinMode(SDCARDDETECT,INPUT);
-	WRITE(SDCARDDETECT, HIGH);
 
 	// Init Timer 5 and set the OVF interrupt (triggered every 125 us)
 	TCCR5A = 0x03;
@@ -488,40 +489,36 @@ static void lcd_set_encoder_position(int8_t position)
 
 void lcd_emergency_stop()
 {
-    if (eeprom::StorageManager::getEmergencyFlag() != eeprom::EMERGENCY_STOP_ACTIVE)
-    {
-        SERIAL_ECHOLN("KILLED: Emergency stop active!");
-        eeprom::StorageManager::setEmergencyFlag();
-        cli();
+	if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_INACTIVE)
+	{
+		SERIAL_ECHOLN("KILLED: Requested Emergency Stop!");
+		eeprom::StorageManager::setEmergency();
+		stop_buffer = true;
+		stop_buffer_code = 999;
 
-        stop_buffer = true;
-        stop_buffer_code = 999;
+		if (IS_SD_PRINTING)
+		{
+			card.sdprinting = false;
+			card.closefile();
+		}
 
-        if (IS_SD_PRINTING)
-        {
-            card.sdprinting = false;
-            card.closefile();
-        }
+		quickStop();
+		disable_x();
+		disable_y();
+		disable_z();
+		disable_e0();
+		disable_e1();
+		disable_e2();
 
-        quickStop();
-        disable_x();
-        disable_y();
-        disable_z();
-        disable_e0();
-        disable_e1();
-        disable_e2();
-
-        cancel_heatup = true;
-
-        action_cooldown();
-    }
-    else
-    {
-        eeprom::StorageManager::clearEmergencyFlag();
-    }
-
-    wdt_enable(WDTO_15MS);
-    while (1) { }
+		cancel_heatup = true;
+		action_cooldown();
+	}
+	else
+	{
+		eeprom::StorageManager::clearEmergency();
+		SERIAL_ECHOLN("Clear Emergency Stop flag");
+	}
+	RESET();
 }
 
 ISR(TIMER5_OVF_vect) // Every 125 us
@@ -545,3 +542,6 @@ ISR(TIMER5_OVF_vect) // Every 125 us
         lcd_timer = 0;
     }
 }
+
+
+

@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenSplash.h
+/// \file ScreenCooldown.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of splas
+/// \brief Definition of cooldown-type screens.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,29 +25,27 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_SPLASH_H
-#define SCREEN_SPLASH_H
+#ifndef SCREEN_COOLDOWN_H
+#define SCREEN_COOLDOWN_H
 
-#include "Screen.h"
+#include "ScreenAnimation.h"
+
+#include "GuiManager.h"
+#include "TemperatureManager.h"
+#include "ViewManager.h"
 
 namespace screen
 {
-	class ScreenSplash : public Screen
+	class ScreenCooldown : public ScreenAnimation<float>
 	{
 		public:
-			ScreenSplash(uint32_t timeout);
-			~ScreenSplash();
+			ScreenCooldown(const char * title, const char * text, uint16_t target, Subject<float> * model = 0);
+			virtual ~ScreenCooldown();
 
-			void init(uint16_t index = 0);
 			void draw();
-			void add(ScreenIndex_t const & component);
-
 		private:
-			uint32_t m_destroy_time;
-
-			ScreenIndex_t m_alt_screen;
-			ScreenIndex_t m_block_screen;
-			uint8_t m_num_item_added;
+			bool isConditionMet();
 	};
 }
-#endif // SCREEN_SPLASH_H
+
+#endif //SCREEN_COOLDOWN_H

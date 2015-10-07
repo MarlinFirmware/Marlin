@@ -120,8 +120,8 @@
   #include "pins/pins_5DPRINT.h"
 #elif MB(LEAPFROG)
   #include "pins/pins_LEAPFROG.h"
-#elif MB(BQCNC)
-  #include "pins/pins_BQCNC.h"
+#elif MB(BQ_CNC)
+  #include "pins/pins_BQ_CNC.h"
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins/pins_BQ_ZUM_MEGA_3D.h"
 #elif MB(HEPHESTOS)

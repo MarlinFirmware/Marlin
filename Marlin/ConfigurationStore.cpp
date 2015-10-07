@@ -68,7 +68,7 @@
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
 
-#include "OffsetManager.h"
+#include "StorageManager.h"
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
@@ -407,18 +407,13 @@ void Config_ResetDefault() {
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
   #endif
 #ifdef LEVEL_SENSOR
-    if(OffsetManager::single::instance().isOffsetOnEEPROM())
+    if(eeprom::StorageManager::single::instance().getInitialized())
     {
-      int k = 232;
-      EEPROM_READ_VAR(k,zprobe_zoffset);
-      if(zprobe_zoffset < 0 || zprobe_zoffset > 10)
-      {
-        zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
-      }
+      zprobe_zoffset = eeprom::StorageManager::single::instance().getOffset();
     }
     else
     {
-      zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+      zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
     }
     
   #endif
@@ -672,10 +667,10 @@ void Config_PrintSettings(bool forReplay) {
         SERIAL_ECHO_START;
       }
       SERIAL_ECHOPAIR("  M", (unsigned long)CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
-      SERIAL_ECHOPAIR(" Z", -zprobe_zoffset);
+      SERIAL_ECHOPAIR(" Z", zprobe_zoffset);
     #else
       if (!forReplay) {
-        SERIAL_ECHOPAIR("Z-Probe Offset (mm):", -zprobe_zoffset);
+        SERIAL_ECHOPAIR("Z-Probe Offset (mm):", zprobe_zoffset);
       }
     #endif
     SERIAL_EOL;

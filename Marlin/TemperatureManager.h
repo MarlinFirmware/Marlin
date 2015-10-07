@@ -6,8 +6,13 @@
 #include "Singleton.h"
 #include "Subject.h"
 
+
 namespace temp
 {
+
+	class TemperatureControl;
+
+
 	// Temperature parameters
 	const static uint8_t default_temp_change_filament = 220;
 	const static uint8_t min_temp_cooling = 50;
@@ -19,21 +24,47 @@ namespace temp
 		public:
 			typedef Singleton<TemperatureManager> single;
 
+		struct LookUpTableEntry
+		{
+			LookUpTableEntry()
+			: raw(0)
+			, temperature(0)
+			{ };
+
+			short raw;
+			short temperature;
+		};
+
 		public:
 			TemperatureManager();
+			~TemperatureManager();
+
+			void init();
+
+			void updateLUTCache();
+			short getRawLUTCache(uint8_t index);
+			short getTemperatureLUTCache(uint8_t index);
 
 			void updateCurrentTemperature(float temp);
 			uint16_t const & getCurrentTemperature();
 			void setTargetTemperature(uint16_t target);
 			uint16_t const & getTargetTemperature() const;
 			void notify();
+			void setBlowerControlState(bool state);
+			void fanControl();
+
+			void manageTemperatureControl();
 
 		public:
 
+			TemperatureControl * m_control;	
+
 		private:
+			float m_target_temperature;
+			bool m_blower_control;
 			float m_current_temperature;
+			LookUpTableEntry m_cache[4];
 			uint16_t m_round_temperature;
-			uint16_t m_target_temperature;
 	};
 }
 

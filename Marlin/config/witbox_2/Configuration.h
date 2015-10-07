@@ -11,14 +11,15 @@
 #define MACHINE_NAME "Witbox 2"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.0"
+#define FIRMWARE_VER "2.0.0b4"
 #define BUILD_VER ""
-
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
 #define MACHINE_NAME_M115 "Witbox_2"
 #define SOURCE_CODE_URL_M115 "http%3A//github.com/bq/Marlin"
 #define FIRMWARE_LANGUAGE_M115 ""
+
+#define BQ_EEPROM_VERSION 1
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -145,7 +146,7 @@
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
-  #define PID_dT ((OVERSAMPLENR * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
+  #define PID_dT ((OVERSAMPLENR)/(F_CPU / 1024.0 / 256.0)) //sampling period of the temperature routine
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 
@@ -155,9 +156,15 @@
 //#define  DEFAULT_Kd 114
 
 // - MK4
-#define  DEFAULT_Kp 5.72
-#define  DEFAULT_Ki 0.19
-#define  DEFAULT_Kd 0
+//#define  DEFAULT_Kp 5.72
+//#define  DEFAULT_Ki 0.19
+//#define  DEFAULT_Kd 0
+
+// - Original-DDG (PI back-calculation parameters)
+#define DEFAULT_Kp 10.7
+#define DEFAULT_Ki 0.45
+#define DEFAULT_Kd 0
+#define DEFAULT_Kb 10
 
 #endif // PIDTEMP
 
@@ -266,11 +273,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR false  // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
-#define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_Y_DIR true    // for Mendel set to true, for Orca set to false
+#define INVERT_Z_DIR true    // for Mendel set to false, for Orca set to true
+#define INVERT_E0_DIR false  // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E1_DIR false  // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E2_DIR false  // for direct drive extruder v9 set to true, for geared extruder set to false
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -455,8 +462,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
 // Extrusion control on pause/resume. Distances in mm.
-#define RETRACT_ON_PAUSE 2.2
-#define EXTRUDE_ON_RESUME 2
+#define RETRACT_ON_PAUSE 4
+#define EXTRUDE_ON_RESUME 4
 
 //Led light support
 #define LIGHT_ENABLED

@@ -220,6 +220,8 @@ extern float delta[3];
 void calculate_delta(float cartesian[3]);
 void calculate_SCARA_forward_Transform(float f_scara[3]);
 #endif
+extern void RESET(void);
+void reset(void) __attribute__((naked)) __attribute__((section(".init3")));
 void prepare_move();
 void kill();
 void Stop();
@@ -273,10 +275,6 @@ extern int fanSpeed;
 #ifdef BARICUDA
 extern int ValvePressure;
 extern int EtoPPressure;
-#endif
-
-#ifdef FAN_SOFT_PWM
-extern unsigned char fanSpeedSoftPwm;
 #endif
 
 #ifdef FILAMENT_SENSOR

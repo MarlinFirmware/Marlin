@@ -1,13 +1,13 @@
 #include "ScreenComplete.h"
 
+#include "Language.h"
+
 namespace screen
 {
 	ScreenComplete::ScreenComplete(const char * title, const char * message,  const char * box, Time_t time)
 		: ScreenDialog<void>(title, message, box)
 		, m_time(time)
-	{
-
-	}
+	{ }
 
 	ScreenComplete::~ScreenComplete()
 	{ }
@@ -15,7 +15,11 @@ namespace screen
 	void ScreenComplete::draw()
 	{
 		char c_time[24];
-		snprintf(c_time, 24, "Total time: %02d:%02d", m_time.hours, m_time.minutes);
+		char total_time[24];
+		strcpy_P(total_time, MSG_TOTAL_TIME());
+		snprintf(c_time, 24, "%02d:%02d", m_time.hours, m_time.minutes);
+		strcat(total_time, c_time);
+		
 		painter.firstPage();
 		do
 		{
@@ -30,7 +34,7 @@ namespace screen
 
 			Area time_area(0, 42, 127, 54);
 			painter.setWorkingArea(time_area);
-			painter.text(c_time);
+			painter.text(total_time);
 
 		} while( painter.nextPage() );
 	}

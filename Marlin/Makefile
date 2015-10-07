@@ -177,13 +177,13 @@ ifeq ($(HARDWARE_DISPLAY), Graphic)
 	CXXSRC += GuiManager.cpp GuiPainter.cpp GuiImpl_witbox_2.cpp \
 		Icon.cpp \
 		Option.cpp OptionToggle.cpp OptionLaunch.cpp\
-		Screen.cpp ScreenAbout.cpp ScreenComplete.cpp ScreenEmergency.cpp ScreenFile.cpp \
+		Screen.cpp ScreenAbout.cpp ScreenComplete.cpp ScreenCooldown.cpp ScreenEmergency.cpp ScreenFile.cpp \
 		ScreenInactivity.cpp ScreenLanguage.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp \
 		ScreenSplash.cpp ScreenTemperature.cpp ScreenTransition.cpp ScreenSerial.cpp ScreenSetting.cpp ScreenSwitch.cpp \
 		Stepper.cpp Language.cpp
 
-	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp StorageManager.cpp \
-		TemperatureManager.cpp ViewManager.cpp
+	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp  \
+		TemperatureControl.cpp ViewManager.cpp
 endif
 
 # Common files
@@ -192,7 +192,7 @@ CXXSRC += HelpersC++.cpp
 CXXSRC += motion_control.cpp planner.cpp stepper.cpp temperature.cpp cardreader.cpp \
 		watchdog.cpp digipot_mcp4451.cpp vector_3.cpp qr_solve.cpp ConfigurationStore.cpp
 
-CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp
+CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp TemperatureManager.cpp StorageManager.cpp
 
 CXXSRC += Marlin_main.cpp MarlinSerial.cpp
 
@@ -217,6 +217,7 @@ AVRDUDE_FLAGS = -v -C $(AVRDUDE_CONF) -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_
 # C compiler:
 CDEBUG = -g
 CDEFS    = -DARDUINO=$(ARDUINO_VERSION) -DF_CPU=$(F_CPU) -DLANGUAGE=$(LANGUAGE) ${addprefix -D , $(DEFINES)}
+
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 #CSTANDARD =
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -w -ffunction-sections -fdata-sections -fno-use-cxa-atexit
@@ -406,7 +407,7 @@ FI:
 
 FR:
 	@echo Changing language to: French [$@]
-	@ $(COPY) language/fi/Makefile .config_lang
+	@ $(COPY) language/fr/Makefile .config_lang
 
 IT:
 	@echo Changing language to: Italian [$@]
