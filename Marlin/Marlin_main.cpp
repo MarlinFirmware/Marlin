@@ -957,24 +957,6 @@ void get_command()
        (serial_char == ':' && comment_mode == false) ||
        serial_count >= (MAX_CMD_SIZE - 1)||n==-1)
     {
-      if(card.eof()){
-#ifdef DOGLCD
-        PrintManager::endPrint();
-#endif
-        SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
-        stoptime=millis();
-        char time[30];
-        unsigned long t=(stoptime-starttime)/1000;
-        int hours, minutes;
-        minutes=(t/60)%60;
-        hours=t/60/60;
-        sprintf_P(time, PSTR("%i "MSG_END_HOUR" %i "MSG_END_MINUTE),hours, minutes);
-        SERIAL_ECHO_START;
-        SERIAL_ECHOLN(time);
-        lcd_setstatus(time);
-        card.printingHasFinished();
-        card.checkautostart(true);
-      }
       if(serial_char=='#')
         stop_buffering=true;
 
@@ -997,6 +979,27 @@ void get_command()
       if(serial_char == ';') comment_mode = true;
       if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
+  }
+
+  if(card.eof() && buflen == 0){
+
+    st_synchronize();
+#ifdef DOGLCD
+    PrintManager::endPrint();
+#endif
+    SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+    stoptime=millis();
+    char time[30];
+    unsigned long t=(stoptime-starttime)/1000;
+    int hours, minutes;
+    minutes=(t/60)%60;
+    hours=t/60/60;
+    sprintf_P(time, PSTR("%i "MSG_END_HOUR" %i "MSG_END_MINUTE),hours, minutes);
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLN(time);
+    lcd_setstatus(time);
+    card.printingHasFinished();
+    card.checkautostart(true);
   }
 
   #endif //SDSUPPORT
@@ -2522,9 +2525,9 @@ Sigma_Exit:
       break;
     case 18: //compatibility
     case 84: // M84
-
+#ifdef DOGLCD
       PrintManager::knownPosition(false);
-
+#endif //DOGLCD
       if(code_seen('S')){
         stepper_inactive_time = code_value() * 1000;
       }
@@ -3906,6 +3909,24 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 		RESET();
     }
     break;
+
+#ifdef DOGLCD
+    case 800:
+      if(card.isFileOpen() == false)
+      {
+        action_start_print();
+      }
+      break;
+
+    case 801:
+      st_synchronize();
+
+      if(card.isFileOpen() == false)
+      {
+        action_finish_print();
+      }
+      break;
+#endif // DOGLCD
 
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
