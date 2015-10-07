@@ -1,5 +1,3 @@
-
-
 #include "temperature.h"
 #include "ultralcd.h"
 #ifdef ULTRA_LCD
@@ -20,8 +18,6 @@ int plaPreheatFanSpeed;
 int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
-
-int prePauseTemp = -1; //Flag to detect filament change and remembers old temperature
 
 #ifdef FILAMENT_LCD_DISPLAY
   unsigned long message_millis = 0;
@@ -317,14 +313,7 @@ static void lcd_return_to_status() { lcd_goto_menu(lcd_status_screen, 0, false);
 
 static void lcd_sdcard_pause() { card.pauseSDPrint(); }
 
-static void lcd_sdcard_resume() {
-	//EZ-Maker addition
-	if (prePauseTemp != -1)
-	{
-		setTargetHotend0(prePauseTemp);
-		prePauseTemp = -1;
-	}
-	card.startFileprint(); }
+static void lcd_sdcard_resume() { card.startFileprint(); }
 
 static void lcd_sdcard_stop()
 {
@@ -347,7 +336,17 @@ static void lcd_main_menu()
 {
     START_MENU();
     MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
-    #ifdef SDSUPPORT
+    if (movesplanned() || IS_SD_PRINTING)
+    {
+        MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
+    }else{
+        MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
+#ifdef DELTA_CALIBRATION_MENU
+        MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
+#endif // DELTA_CALIBRATION_MENU
+    }
+    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
+#ifdef SDSUPPORT
     if (card.cardOK)
     {
         if (card.isFileOpen())
@@ -359,37 +358,17 @@ static void lcd_main_menu()
             MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
         }else{
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
-		////SD card menu start
-
-		#if SDCARDDETECT < 1
-		            MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
-		#endif
-		        }
-		    }else{
-		        MENU_ITEM(submenu, MSG_NO_CARD, lcd_sdcard_menu);
-		#if SDCARDDETECT < 1
-		        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
-		#endif
-		    }
-		#endif
-
-	   ////SD card menu end
-
-    if (movesplanned() || IS_SD_PRINTING)
-    {
-        MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
-        MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_filament_change_print);
-
+#if SDCARDDETECT < 1
+            MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
+#endif
+        }
     }else{
-        MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
-        //EZ-Maker changes
-	    MENU_ITEM(function, "Change Filament", lcd_filament_change_idle);
-		MENU_ITEM(function, "Cool Down", lcd_cooldown);
-#ifdef DELTA_CALIBRATION_MENU
-        MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
-#endif // DELTA_CALIBRATION_MENU
+        MENU_ITEM(submenu, MSG_NO_CARD, lcd_sdcard_menu);
+#if SDCARDDETECT < 1
+        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
+#endif
     }
-    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
+#endif
     END_MENU();
 }
 
@@ -444,25 +423,24 @@ static void lcd_tune_menu()
 #if TEMP_SENSOR_0 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
 #endif
-// Change for dual
-//~ #if TEMP_SENSOR_1 != 0
-    //~ MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
-//~ #endif
-//~ #if TEMP_SENSOR_2 != 0
-    //~ MENU_ITEM_EDIT(int3, MSG_NOZZLE2, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
-//~ #endif
+#if TEMP_SENSOR_1 != 0
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
+#endif
+#if TEMP_SENSOR_2 != 0
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE2, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
+#endif
 #if TEMP_SENSOR_BED != 0
     MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
 #endif
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
     MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
-    //~ MENU_ITEM_EDIT(int3, MSG_FLOW0, &extruder_multiply[0], 10, 999);
-//~ #if TEMP_SENSOR_1 != 0fil
-    //~ MENU_ITEM_EDIT(int3, MSG_FLOW1, &extruder_multiply[1], 10, 999);
-//~ #endif
-//~ #if TEMP_SENSOR_2 != 0
-    //~ MENU_ITEM_EDIT(int3, MSG_FLOW2, &extruder_multiply[2], 10, 999);
-//~ #endif
+    MENU_ITEM_EDIT(int3, MSG_FLOW0, &extruder_multiply[0], 10, 999);
+#if TEMP_SENSOR_1 != 0
+    MENU_ITEM_EDIT(int3, MSG_FLOW1, &extruder_multiply[1], 10, 999);
+#endif
+#if TEMP_SENSOR_2 != 0
+    MENU_ITEM_EDIT(int3, MSG_FLOW2, &extruder_multiply[2], 10, 999);
+#endif
 
 #ifdef BABYSTEPPING
     #ifdef BABYSTEP_XY
@@ -471,40 +449,10 @@ static void lcd_tune_menu()
     #endif //BABYSTEP_XY
     MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
 #endif
-// M600 filament change. Not cool
-//~ #ifdef FILAMENTCHANGEENABLE
-     //~ MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
-//~ #endif
+#ifdef FILAMENTCHANGEENABLE
+     MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
+#endif
     END_MENU();
-}
-
-//EZ Maker changes
-void lcd_filament_change_idle() //Filament change when idle
-{
-    setTargetHotend0(220);
-    lcd_buzz(500,100);
-    lcd_buzz(200,100);
-    lcd_buzz(500,100);
-    lcd_buzz(200,100);
-    lcd_buzz(500,100);
-    lcd_buzz(200,100);
-    lcd_return_to_status();
-    setWatch(); // heater sanity check timer
-}
-void lcd_filament_change_print() //Filament change while printing
-{
-	card.pauseSDPrint();
-    prePauseTemp = target_temperature[0];
-    setTargetHotend0(220);
-    enquecommand_P(PSTR("G1 X10"));
-    lcd_buzz(500,100);
-    lcd_buzz(200,100);
-    lcd_buzz(500,100);
-    lcd_buzz(200,100);
-    lcd_buzz(500,100);
-    lcd_buzz(200,100);
-    lcd_return_to_status();
-    setWatch(); // heater sanity check timer
 }
 
 void lcd_preheat_pla0()
@@ -728,15 +676,6 @@ static void _lcd_move(const char *name, int axis, int min, int max) {
 static void lcd_move_x() { _lcd_move(PSTR("X"), X_AXIS, X_MIN_POS, X_MAX_POS); }
 static void lcd_move_y() { _lcd_move(PSTR("Y"), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
 static void lcd_move_z() { _lcd_move(PSTR("Z"), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
-//EZ-MAKER
-void show_prints() {
-  int rttnp = return_tnp();
-  lcd_implementation_drawedit(PSTR("Prints"), itostr3(rttnp));
-
-  if (LCD_CLICKED) lcd_goto_menu(lcd_main_menu);
-
-}
-
 
 static void lcd_move_e()
 {
@@ -808,10 +747,10 @@ static void lcd_control_menu()
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
 	MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
 
-//~ #ifdef DOGLCD  //LCD contrast is manual in our board
-//~ //    MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
-    //~ MENU_ITEM(submenu, MSG_CONTRAST, lcd_set_contrast);
-//~ #endif
+#ifdef DOGLCD
+//    MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
+    MENU_ITEM(submenu, MSG_CONTRAST, lcd_set_contrast);
+#endif
 #ifdef FWRETRACT
     MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
 #endif
@@ -820,8 +759,6 @@ static void lcd_control_menu()
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
 #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
-    //EZ-MAKER
-    MENU_ITEM(submenu, "Show Total Prints", show_prints);
     END_MENU();
 }
 
@@ -838,12 +775,12 @@ static void lcd_control_temperature_menu()
 #if TEMP_SENSOR_0 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
 #endif
-//~ #if TEMP_SENSOR_1 != 0  //EZ-Maker customization, removed option for extra nozzles.
-    //~ MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
-//~ #endif
-//~ #if TEMP_SENSOR_2 != 0
-    //~ MENU_ITEM_EDIT(int3, MSG_NOZZLE2, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
-//~ #endif
+#if TEMP_SENSOR_1 != 0
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
+#endif
+#if TEMP_SENSOR_2 != 0
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE2, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
+#endif
 #if TEMP_SENSOR_BED != 0
     MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
 #endif
@@ -1597,7 +1534,7 @@ char *ftostr43(const float &x)
 char *ftostr12ns(const float &x)
 {
   long xx=x*100;
-
+  
   xx=abs(xx);
   conv[0]=(xx/100)%10+'0';
   conv[1]='.';
