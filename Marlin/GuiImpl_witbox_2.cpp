@@ -186,10 +186,10 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu();
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_sd);
-		local_view->add(screen_unload_init);
-		local_view->icon(icon_filament_unload);
 		local_view->add(screen_load_init);
 		local_view->icon(icon_filament_load);
+		local_view->add(screen_unload_init);
+		local_view->icon(icon_filament_unload);
 		local_view->add(screen_level_init);
 		local_view->icon(icon_leveling);
 		local_view->add(screen_autohome_init);
@@ -536,6 +536,8 @@ namespace screen
 		option_contact->add(screen_contact);
 		OptionLaunch * option_language    = new OptionLaunch(option_size, MSG_OPTION_LANGUAGE());
 		option_language->add(screen_settings_language);
+		OptionLaunch * option_reset       = new OptionLaunch(option_size, MSG_OPTION_RESET());
+		option_reset->add(screen_reset_init);
 
 		ScreenSetting * local_view = new ScreenSetting(MSG_SCREEN_SETTINGS_TITLE());
 		local_view->add(option_back);
@@ -546,8 +548,9 @@ namespace screen
 		local_view->add(option_serial);
 		local_view->add(option_offset);
 		local_view->add(option_language);
-		local_view->add(option_about);
+		local_view->add(option_reset);
 		local_view->add(option_contact);
+		local_view->add(option_about);
 		return local_view;
 	}
 
@@ -1115,6 +1118,39 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenMenu * make_screen_reset_init()
+	{
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_RESET_INIT_TITLE(), MSG_SCREEN_RESET_INIT_TEXT());
+		local_view->add(screen_settings);
+		local_view->icon(icon_back);
+		local_view->add(screen_reset_info);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_reset_info()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_RESET_INFO_TITLE(), MSG_SCREEN_RESET_INFO_TEXT(), MSG_PUSH_TO_CONTINUE(), do_nothing);
+		local_view->add(screen_reset);
+		return local_view;
+	}
+
+	static ScreenEmergency * make_screen_reset()
+	{
+		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_RESET_TITLE(), MSG_SCREEN_RESET_TEXT(), MSG_PLEASE_WAIT(), bits_emergency);
+		local_view->add(screen_resetting);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_resetting()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_erase_EEPROM);
+		return local_view;
+	}
+
 	Screen * new_view;
 
 	// Build the UI
@@ -1126,7 +1162,7 @@ namespace screen
 			case screen_splash:
 				new_view = make_screen_splash();
 				break;
-			
+
 			//Initial wizard
 			case screen_wizard_init:
 				new_view = make_screen_wizard_init();
@@ -1171,6 +1207,20 @@ namespace screen
 			// Emergency stop
 			case screen_emergency:
 				new_view = make_screen_emergency();
+				break;
+
+			// Reset EEPROM
+			case screen_reset_init:
+				new_view = make_screen_reset_init();
+				break;
+			case screen_reset_info:
+				new_view = make_screen_reset_info();
+				break;
+			case screen_reset:
+				new_view = make_screen_reset();
+				break;
+			case screen_resetting:
+				new_view = make_screen_resetting();
 				break;
 
 			// Main menu

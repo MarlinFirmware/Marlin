@@ -13,6 +13,8 @@ namespace eeprom
 	const uint8_t LIGHT_ON = 0x01;
 	const uint8_t AUTOLEVEL_ON = 0x01;
 	const uint8_t SERIAL_SCREEN_ON = 0x01;
+	const uint8_t EEPROM_ENABLED = 0x00;
+	const uint8_t EEPROM_DISABLED = 0x01;
 
 	class StorageManager
 	{
@@ -24,7 +26,7 @@ namespace eeprom
 
 			static void setEmergency();
 			static void clearEmergency();
-			static uint8_t getEmergency();
+			static const uint8_t getEmergency();
 
 			static void setOffset(float value);
 			static float getOffset();
@@ -33,7 +35,7 @@ namespace eeprom
 			static bool getInitialized();
 
 			static void setLanguage(uint8_t language);
-			static uint8_t getLanguage();
+			static const uint8_t getLanguage();
 
 			static void setLight(bool state);
 			static bool getLight();
@@ -44,9 +46,21 @@ namespace eeprom
 			static void setSerialScreen(bool state);
 			static bool getSerialScreen();
 
+			static void eraseEEPROM();
+			static const uint8_t getEEPROMVersion();
+			static const uint8_t checkEEPROMState();
+			
+			static const uint8_t getBoardType();
+
 		private:
-			uint8_t readByte(uint8_t* address);
-			void writeByte(uint8_t* address, uint8_t data);
+			void updateEEPROMVersion();
+			void setEEPROMState(uint8_t state);
+
+			uint8_t readByte(uint8_t * address);
+			void writeByte(uint8_t * address, uint8_t data);
+
+			void readData(uint8_t * address, uint8_t * value, uint8_t size);
+			void writeData(uint8_t * address, uint8_t * value, uint8_t size);
 	};
 }
 

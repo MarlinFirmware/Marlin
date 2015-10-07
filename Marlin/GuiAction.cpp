@@ -781,3 +781,10 @@ void action_close_inactivity()
 {
 	PrintManager::single::instance().state(STOPPED);
 }
+
+void action_erase_EEPROM()
+{
+	lcd_disable_button();
+	eeprom::StorageManager::eraseEEPROM();
+	RESET();
+}

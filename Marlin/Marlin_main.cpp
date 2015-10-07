@@ -62,7 +62,6 @@
 #ifdef DOGLCD
   #include "GuiManager.h"
   #include "PrintManager.h"
-  #include "StorageManager.h"
   #include "SerialManager.h"
   #include "ViewManager.h"
 #else // DOGLCD
@@ -71,6 +70,7 @@
 
 #include "TemperatureManager.h"
 #include "AutoLevelManager.h"
+#include "StorageManager.h"
 
 #include "Action.h"
 #include "GuiAction.h"
@@ -622,6 +622,11 @@ void setup()
   if(mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
   MCUSR=0;
 
+  if(eeprom::StorageManager::getBoardType() != MOTHERBOARD)
+  {
+    while(1);
+  }
+
   SERIAL_ECHOPGM(MSG_MARLIN);
   SERIAL_ECHOLNPGM(STRING_VERSION_CONFIG_H);
   #ifdef STRING_VERSION_CONFIG_H
@@ -660,7 +665,7 @@ void setup()
   servo_init();
 
 #ifdef DOGLCD
-  if (eeprom::StorageManager::getEmergency() != eeprom::EMERGENCY_STOP_INACTIVE)
+  if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_ACTIVE)
   {
     SERIAL_ECHOLN("--- EMERGENCY STOP ACTIVE ---");
   }
@@ -3897,16 +3902,12 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
       			break;  
 			#endif //WITBOX
-
+    case 703:
+      eeprom::StorageManager::getBoardType();
+      break;
     case 710: // M710 Set the EEPROM and reset the board.
     {
-      int p=0;
-      while(p < 4096)
-      {
-        unsigned char value = 0xFF;
-        _EEPROM_writeData(p, (uint8_t*)&value, sizeof(value));
-      };
-		RESET();
+		  action_erase_EEPROM();
     }
     break;
 

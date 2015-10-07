@@ -41,5 +41,6 @@ extern bool action_check_preheat_temp();
 extern bool action_check_cooling();
 
 extern void action_close_inactivity();
+extern void action_erase_EEPROM();
 
 #endif // GUI_ACTION_H

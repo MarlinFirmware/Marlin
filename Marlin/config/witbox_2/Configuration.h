@@ -13,12 +13,13 @@
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
 #define FIRMWARE_VER "2.0.0b4"
 #define BUILD_VER ""
-
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
 #define MACHINE_NAME_M115 "Witbox_2"
 #define SOURCE_CODE_URL_M115 "http%3A//github.com/bq/Marlin"
 #define FIRMWARE_LANGUAGE_M115 ""
+
+#define BQ_EEPROM_VERSION 1
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.

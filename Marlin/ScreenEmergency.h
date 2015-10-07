@@ -13,11 +13,16 @@ namespace screen
 
 			void draw();
 
+			void init(uint16_t index);
+			void add(ScreenIndex_t const & component);
+
 		private:
 			const char * m_box;
 			const char * m_message;
 
 			const unsigned char * m_bitmap;
+
+			ScreenIndex_t m_next_screen;
 	};
 }
 
