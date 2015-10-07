@@ -98,6 +98,8 @@ void plan_set_position(float x, float y, float z, const float &e);
 void plan_set_position(const float &x, const float &y, const float &z, const float &e);
 #endif // LEVEL_SENSOR
 
+void plan_set_axis_position(uint8_t axis, float value);
+
 void plan_set_e_position(const float &e);
 
 void plan_reset_position();

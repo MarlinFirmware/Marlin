@@ -45,9 +45,7 @@ extern bool cancel_heatup;
 // LCD API
 //
 void lcd_init();
-
 void lcd_update(bool force = false);
-
 void lcd_emergency_stop();
 
 // Get and clear trigger functions

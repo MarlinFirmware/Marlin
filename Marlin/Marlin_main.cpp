@@ -62,7 +62,6 @@
 #ifdef DOGLCD
   #include "GuiManager.h"
   #include "PrintManager.h"
-  #include "StorageManager.h"
   #include "SerialManager.h"
   #include "ViewManager.h"
 #else // DOGLCD
@@ -71,6 +70,7 @@
 
 #include "TemperatureManager.h"
 #include "AutoLevelManager.h"
+#include "StorageManager.h"
 
 #include "Action.h"
 #include "GuiAction.h"
@@ -622,6 +622,11 @@ void setup()
   if(mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
   MCUSR=0;
 
+  if(eeprom::StorageManager::getBoardType() != MOTHERBOARD)
+  {
+    while(1);
+  }
+
   SERIAL_ECHOPGM(MSG_MARLIN);
   SERIAL_ECHOLNPGM(STRING_VERSION_CONFIG_H);
   #ifdef STRING_VERSION_CONFIG_H
@@ -660,7 +665,7 @@ void setup()
   servo_init();
 
 #ifdef DOGLCD
-  if (eeprom::StorageManager::getEmergency() != eeprom::EMERGENCY_STOP_INACTIVE)
+  if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_ACTIVE)
   {
     SERIAL_ECHOLN("--- EMERGENCY STOP ACTIVE ---");
   }
@@ -2522,6 +2527,11 @@ Sigma_Exit:
       break;
     case 18: //compatibility
     case 84: // M84
+
+#ifdef DOGLCD
+      PrintManager::knownPosition(false);
+#endif
+
       if(code_seen('S')){
         stepper_inactive_time = code_value() * 1000;
       }
@@ -3891,19 +3901,12 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
       			break;  
 			#endif //WITBOX
-
+    case 703:
+      eeprom::StorageManager::getBoardType();
+      break;
     case 710: // M710 Set the EEPROM and reset the board.
     {
-      int p=0;
-      while(p < 4096)
-      {
-        unsigned char value = 0xFF;
-        _EEPROM_writeData(p, (uint8_t*)&value, sizeof(value));
-      };
-      // Reset
-      cli();
-      wdt_enable(WDTO_15MS);
-      while (1) { }
+		  action_erase_EEPROM();
     }
     break;
 
@@ -4800,4 +4803,26 @@ void calculate_volumetric_multipliers() {
 #endif //EXTRUDERS > 3
 #endif //EXTRUDERS > 2
 #endif //EXTRUDERS > 1
+}
+
+void RESET()
+{
+   SERIAL_ECHOLN("RESET: Disable interrupts");
+   cli();
+
+   SERIAL_ECHOLN("RESET: Wait for watchdog reset");
+   wdt_enable(WDTO_15MS);
+   while (1) {};
+}
+
+void reset(void)
+{
+	cli();
+	// Note that for newer devices (any AVR that has the option to also
+	// generate WDT interrupts), the watchdog timer remains active even
+	// after a system reset (except a power-on condition), using the fastest
+	// prescaler value (approximately 15 ms). It is therefore required
+	// to turn off the watchdog early during program startup.
+	MCUSR = 0; // clear reset flags
+	wdt_disable();
 }

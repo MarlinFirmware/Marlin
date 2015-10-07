@@ -111,7 +111,6 @@ uint8_t display_view_wizard_page = 0;
 //
 // General API definitions
 // 
-
 uint8_t lcd_implementation_update_buttons()
 {
   uint8_t buttons_vector = 0x00;
@@ -148,7 +147,8 @@ void lcd_init()
 	// Low level init libraries for lcd & encoder
 	pinMode(39, OUTPUT);   //Contraste = 4.5V
 	digitalWrite(39, HIGH);
-	pinMode(43, OUTPUT);           //RESET DEL LCD A HIGH
+	digitalWrite(43, LOW);
+	delay(10);
 	digitalWrite(43, HIGH);
 
 
@@ -489,7 +489,7 @@ static void lcd_set_encoder_position(int8_t position)
 
 void lcd_emergency_stop()
 {
-	if (eeprom::StorageManager::getEmergency() != eeprom::EMERGENCY_STOP_ACTIVE)
+	if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_INACTIVE)
 	{
 		SERIAL_ECHOLN("KILLED: Requested Emergency Stop!");
 		eeprom::StorageManager::setEmergency();
@@ -518,11 +518,7 @@ void lcd_emergency_stop()
 		eeprom::StorageManager::clearEmergency();
 		SERIAL_ECHOLN("Clear Emergency Stop flag");
 	}
-	_delay_us(5U);
-	cli();
-
-	wdt_enable(WDTO_15MS);
-	while (1) { }
+	RESET();
 }
 
 ISR(TIMER5_OVF_vect) // Every 125 us
@@ -546,3 +542,6 @@ ISR(TIMER5_OVF_vect) // Every 125 us
         lcd_timer = 0;
     }
 }
+
+
+

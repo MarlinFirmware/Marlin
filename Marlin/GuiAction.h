@@ -18,6 +18,7 @@ extern void gui_action_homing();
 extern void gui_action_z_homing();
 extern void action_get_plane();
 
+extern void action_correct_movement(float &x_pos, float &y_pos, float &z_pos);
 extern void action_move_axis_to(uint8_t axis, float position);
 extern void action_move_to_rest();
 extern void action_move_to_filament_change();
@@ -41,5 +42,6 @@ extern bool action_check_preheat_temp();
 extern bool action_check_cooling();
 
 extern void action_close_inactivity();
+extern void action_erase_EEPROM();
 
 #endif // GUI_ACTION_H
