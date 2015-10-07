@@ -509,9 +509,10 @@ void action_move_to_rest()
 
 	if (current_position[Z_AXIS] < 20)
 	{
-		current_position[Z_AXIS] = 20;
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
+		target[Z_AXIS] = 20;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 		st_synchronize();
+		current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 	}
 
 	target[X_AXIS] = POSITION_REST_X;
@@ -628,33 +629,46 @@ void action_stop_print()
 
 	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
 	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
-	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS) + 10;
-	current_position[E_AXIS] = plan_get_axis_position(E_AXIS) - 10;
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
 
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	target[Z_AXIS] = current_position[Z_AXIS] + 10;
+	target[E_AXIS] = current_position[E_AXIS] -10;
+
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
+
+	target[X_AXIS] = POSITION_REST_X;
+	target[Y_AXIS] = POSITION_REST_Y;
 
 #if X_MAX_POS < 250
-	current_position[Z_AXIS] += 20;
-#else // X_MAX_POS < 250
-	current_position[Z_AXIS] = Z_MAX_POS;
+	target[Z_AXIS] += 20;
+#else // X_MAX_POS < 250*/
+	target[Z_AXIS] = Z_MAX_POS;
 #endif // X_MAX_POS < 250
 
 	if (current_position[Z_AXIS] > Z_MAX_POS)
 	{
-		current_position[Z_AXIS] = Z_MAX_POS;
+		target[Z_AXIS] = Z_MAX_POS;
 	}
 	enable_endstops(true);
 
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	st_synchronize();
+
+	action_correct_movement(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	st_synchronize();
+
+	action_correct_movement(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 	st_synchronize();
 
 	enable_endstops(false);
-
-	current_position[X_AXIS] = POSITION_REST_X;
-	current_position[Y_AXIS] = POSITION_REST_Y;
-
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
-	st_synchronize();
 
 	if (SD_FINISHED_STEPPERRELEASE)
 	{
