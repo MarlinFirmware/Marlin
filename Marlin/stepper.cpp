@@ -34,6 +34,12 @@
 #include <SPI.h>
 #endif
 
+#ifdef MAX_STEP_FREQUENCY
+  #undef MAX_STEP_FREQUENCY
+#endif
+
+#define MAX_STEP_FREQUENCY 32000
+
 //===========================================================================
 //=============================public variables  ============================
 //===========================================================================
@@ -242,22 +248,41 @@ void st_wake_up() {
 
 FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   unsigned short timer;
-  if(step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
+  if (step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
 
-  if(step_rate > 20000) { // If steprate > 20kHz >> step 4 times
-    step_rate = (step_rate >> 2)&0x3fff;
+  if(step_rate > 16000)     // If steprate > 16kHz >> step 32 times
+  {
+    step_rate = (step_rate >> 5) & 0x07ff;
+    step_loops = 32;
+  }
+  else if(step_rate > 8000) // If steprate > 8kHz >> step 16 times
+  {
+    step_rate = (step_rate >> 4) & 0x0fff;
+    step_loops = 16;
+  }
+  else if(step_rate > 4000) // If steprate > 4kHz >> step 8 times
+  {
+    step_rate = (step_rate >> 3) & 0x1fff;
+    step_loops = 8;
+  }
+  else if(step_rate > 2000) // If steprate > 2kHz >> step 4 times
+  {
+    step_rate = (step_rate >> 2) & 0x3fff;
     step_loops = 4;
   }
-  else if(step_rate > 10000) { // If steprate > 10kHz >> step 2 times
-    step_rate = (step_rate >> 1)&0x7fff;
+  else if(step_rate > 1000) // If steprate > 1kHz >> step 2 times
+  {
+    step_rate = (step_rate >> 1) & 0x7fff;
     step_loops = 2;
   }
-  else {
+  else                      // If steprate < 1kHz >> step 1 times
+  {
     step_loops = 1;
   }
 
   if(step_rate < (F_CPU/500000)) step_rate = (F_CPU/500000);
   step_rate -= (F_CPU/500000); // Correct for minimal speed
+
   if(step_rate >= (8*256)){ // higher step rate
     unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate>>8)][0];
     unsigned char tmp_step_rate = (step_rate & 0x00ff);
@@ -271,7 +296,7 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
     timer = (unsigned short)pgm_read_word_near(table_address);
     timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
   }
-  if(timer < 100) { timer = 100; MYSERIAL.print(MSG_STEPPER_TOO_HIGH); MYSERIAL.println(step_rate); }//(20kHz this should never happen)
+  if(timer < 1000) { timer = 1000; MYSERIAL.print(MSG_STEPPER_TOO_HIGH); MYSERIAL.println(step_rate); }//(20kHz this should never happen)
   return timer;
 }
 
@@ -293,17 +318,6 @@ FORCE_INLINE void trapezoid_generator_reset() {
   acc_step_rate = current_block->initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
   OCR1A = acceleration_time;
-
-//    SERIAL_ECHO_START;
-//    SERIAL_ECHOPGM("advance :");
-//    SERIAL_ECHO(current_block->advance/256.0);
-//    SERIAL_ECHOPGM("advance rate :");
-//    SERIAL_ECHO(current_block->advance_rate/256.0);
-//    SERIAL_ECHOPGM("initial advance :");
-//    SERIAL_ECHO(current_block->initial_advance/256.0);
-//    SERIAL_ECHOPGM("final advance :");
-//    SERIAL_ECHOLN(current_block->final_advance/256.0);
-
 }
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
@@ -835,6 +849,7 @@ ISR(TIMER1_COMPA_vect)
 
 void st_init()
 {
+    //SET_OUTPUT(ISR_STEPPER_PIN);
   digipot_init(); //Initialize Digipot Motor Current
   microstep_init(); //Initialize Microstepping Pins
 
