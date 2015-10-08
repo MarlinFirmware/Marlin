@@ -617,13 +617,13 @@ static void lcd_implementation_status_screen() {
       #else
 
         lcd.print('X');
-        if (axis_known_position[X_AXIS] || (blink & 1))
+        if (axis_homed[X_AXIS] || (blink & 1))
           lcd.print(ftostr4sign(current_position[X_AXIS]));
         else
           lcd_printPGM(PSTR(" ---"));
 
         lcd_printPGM(PSTR("  Y"));
-        if (axis_known_position[Y_AXIS] || (blink & 1))
+        if (axis_homed[Y_AXIS] || (blink & 1))
           lcd.print(ftostr4sign(current_position[Y_AXIS]));
         else
           lcd_printPGM(PSTR(" ---"));
@@ -634,7 +634,7 @@ static void lcd_implementation_status_screen() {
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
     lcd_printPGM(PSTR("Z "));
-    if (axis_known_position[Z_AXIS] || (blink & 1))
+    if (axis_homed[Z_AXIS] || (blink & 1))
       lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
     else
       lcd_printPGM(PSTR("---.--"));

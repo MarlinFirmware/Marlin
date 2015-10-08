@@ -245,6 +245,7 @@ static float feedrate = 1500.0, saved_feedrate;
 float current_position[NUM_AXIS] = { 0.0 };
 static float destination[NUM_AXIS] = { 0.0 };
 bool axis_known_position[3] = { false };
+bool axis_homed[3] = { false };
 
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
@@ -1981,6 +1982,7 @@ static void homeaxis(AxisEnum axis) {
     feedrate = 0.0;
     endstops_hit_on_purpose(); // clear endstop hit flags
     axis_known_position[axis] = true;
+    axis_homed[axis] = true;
 
     #if ENABLED(Z_PROBE_SLED)
       // bring Z probe back
