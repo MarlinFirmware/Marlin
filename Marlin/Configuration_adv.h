@@ -234,7 +234,7 @@
 // Default stepper release if idle. Set to 0 to deactivate.
 // Steppers will shut down DEFAULT_STEPPER_DEACTIVE_TIME seconds after the last move when DISABLE_INACTIV_? is true.
 // Time can be set by M18 and M84.
-#define DEFAULT_STEPPER_DEACTIVE_TIME 120
+#define DEFAULT_STEPPER_DEACTIVE_TIME 60
 #define DISABLE_INACTIV_X true
 #define DISABLE_INACTIV_Y true
 #define DISABLE_INACTIV_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
