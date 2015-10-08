@@ -569,19 +569,29 @@ void action_start_print()
 	digitalWrite(FAN_BOX_PIN, HIGH);
 #endif //FAN_BOX_PIN
 
+	bool serial_printing = true;
+
 	char cmd[30];
 	char* c;
-	strcpy(cmd, card.longFilename);
-	for (c = &cmd[0]; *c; c++)
+
+	if(PrintManager::single::instance().state() == PRINTING)
 	{
-		if ((uint8_t)*c > 127)
+		serial_printing = false;
+
+		strcpy(cmd, card.longFilename);
+		for (c = &cmd[0]; *c; c++)
 		{
-			SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
-			return;
+			if ((uint8_t)*c > 127)
+			{
+				SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
+				return;
+			}
 		}
+
+		sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 	}
+
 	fanSpeed = PREHEAT_FAN_SPEED;
-	sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 
 #ifdef DOGLCD
 	PrintManager::single::instance().state(HOMING);
@@ -598,15 +608,21 @@ void action_start_print()
 
 	action_move_to_rest();
 
-	for(c = &cmd[4]; *c; c++)
-	*c = tolower(*c);
-	enquecommand(cmd);
+	if(serial_printing == false)
+	{
+		for(c = &cmd[4]; *c; c++)
+		*c = tolower(*c);
+		enquecommand(cmd);
+	}
 
 #ifdef DOGLCD
 		PrintManager::single::instance().state(READY);
 #endif //DOGLCD
 
-	enquecommand_P(PSTR("M24"));
+	if(serial_printing == false)
+	{
+		enquecommand_P(PSTR("M24"));
+	}
 }
 
 void action_stop_print()
@@ -616,8 +632,11 @@ void action_stop_print()
 	digitalWrite(FAN_BOX_PIN, LOW);
 #endif //FAN_BOX_PIN
 
-	card.sdprinting = false;
-	card.closefile();
+	if(card.sdprinting == true || stop_buffer_code == 1)
+	{
+		card.sdprinting = false;
+		card.closefile();
+	}
 
 	action_preheat();
 
