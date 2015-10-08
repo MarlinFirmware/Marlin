@@ -1,15 +1,15 @@
 # Marlin 3D Printer Firmware
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
-  * [Configuration & Compilation](/Documentation/Compilation.md)
+  * [Configuration & Compilation](Documentation/Compilation.md)
   * Supported
-    * [Features](/Documentation/Features.md)
-    * [Hardware](/Documentation/Hardware.md)
-    * [GCodes](/Documentation/GCodes.md)
+    * [Features](Documentation/Features.md)
+    * [Hardware](Documentation/Hardware.md)
+    * [GCodes](Documentation/GCodes.md)
   * Notes
-    * [Auto Bed Leveling](/Documentation/BedLeveling.md)
-    * [Filament Sensor](/Documentation/FilamentSensor.md)
-    * [Ramps Servo Power](/Documentation/RampsServoPower.md)
+    * [Auto Bed Leveling](Documentation/BedLeveling.md)
+    * [Filament Sensor](Documentation/FilamentSensor.md)
+    * [Ramps Servo Power](Documentation/RampsServoPower.md)
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
