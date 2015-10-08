@@ -3,14 +3,10 @@
 
 /**
 * Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
-* When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
 
-//#if DISABLED(REPRAPWORLD_KEYPAD)
-//  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
-//#else
-  extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
-//#endif
+static unsigned char blink = 0; // Variable for animation
+extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
 
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable
@@ -617,13 +613,13 @@ static void lcd_implementation_status_screen() {
       #else
 
         lcd.print('X');
-        if (axis_known_position[X_AXIS])
+        if (axis_known_position[X_AXIS] || (blink & 1))
           lcd.print(ftostr3(current_position[X_AXIS]));
         else
           lcd_printPGM(PSTR("---"));
 
         lcd_printPGM(PSTR("  Y"));
-        if (axis_known_position[Y_AXIS])
+        if (axis_known_position[Y_AXIS] || (blink & 1))
           lcd.print(ftostr3(current_position[Y_AXIS]));
         else
           lcd_printPGM(PSTR("---"));
@@ -634,7 +630,7 @@ static void lcd_implementation_status_screen() {
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
     lcd.print('Z');
-    if (axis_known_position[Z_AXIS])
+    if (axis_known_position[Z_AXIS] || (blink & 1))
       lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
     else
       lcd_printPGM(PSTR("---.--"));
