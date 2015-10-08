@@ -324,23 +324,17 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
     step_loops = 1;
   }
 
-  if(step_rate < (F_CPU/500000)) step_rate = (F_CPU/500000);
-  step_rate -= (F_CPU/500000); // Correct for minimal speed
+  unsigned short table_address = (unsigned short)&speed_lookuptable[step_rate];
+  timer = (unsigned short)pgm_read_word_near(table_address);
 
-  if(step_rate >= (8*256)){ // higher step rate
-    unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate>>8)][0];
-    unsigned char tmp_step_rate = (step_rate & 0x00ff);
-    unsigned short gain = (unsigned short)pgm_read_word_near(table_address+2);
-    MultiU16X8toH16(timer, tmp_step_rate, gain);
-    timer = (unsigned short)pgm_read_word_near(table_address) - timer;
+  // Check frequency generated (1kHz this should never happen)
+  if(timer < 2000)
+  {
+    timer = 2000;
+    MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
+    MYSERIAL.println(step_rate);
   }
-  else { // lower step rates
-    unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
-    table_address += ((step_rate)>>1) & 0xfffc;
-    timer = (unsigned short)pgm_read_word_near(table_address);
-    timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
-  }
-  if(timer < 1000) { timer = 1000; MYSERIAL.print(MSG_STEPPER_TOO_HIGH); MYSERIAL.println(step_rate); }//(20kHz this should never happen)
+
   return timer;
 }
 
