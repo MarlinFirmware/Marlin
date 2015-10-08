@@ -2,7 +2,7 @@
 #define CONFIG_STORE_H
 
 #include "Configuration.h"
-
+// Total_Prints
 void Config_ResetDefault();
 
 #ifndef DISABLE_M503
@@ -14,9 +14,18 @@ FORCE_INLINE void Config_PrintSettings() {}
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings();
 void Config_RetrieveSettings();
+void totalprints();
+void showtotalprints();
+int incrementtnp();
+int return_tnp();
+void resetTNP();
+
+
 #else
 FORCE_INLINE void Config_StoreSettings() {}
 FORCE_INLINE void Config_RetrieveSettings() { Config_ResetDefault(); Config_PrintSettings(); }
 #endif
+
+
 
 #endif//CONFIG_STORE_H

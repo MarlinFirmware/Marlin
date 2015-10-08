@@ -89,6 +89,7 @@ extern const char echomagic[] PROGMEM;
 void serial_echopair_P(const char *s_P, float v);
 void serial_echopair_P(const char *s_P, double v);
 void serial_echopair_P(const char *s_P, unsigned long v);
+void serial_echopair_P(const char *s_P, int v); // Total_prints
 
 
 //Things to write to serial from Program memory. Saves 400 to 2k of RAM.
@@ -273,4 +274,3 @@ extern void digipot_i2c_init();
 #endif
 
 extern void calculate_volumetric_multipliers();
-

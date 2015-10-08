@@ -4,6 +4,9 @@
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
 
+uint32_t tnp=0;
+// Total_Prints
+
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size)
 {
     do
@@ -29,8 +32,9 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 
 
 
-#define EEPROM_OFFSET 100
-
+#define EEPROM_OFFSET 150
+// Total_Prints (safe from settings MEM location)
+// #define EEPROM_OFFSET 100
 
 // IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
 // in the functions below, also increment the version number. This makes sure that
@@ -41,13 +45,13 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 #define EEPROM_VERSION "V13"
 
 #ifdef EEPROM_SETTINGS
-void Config_StoreSettings() 
+void Config_StoreSettings()
 {
   char ver[4]= "000";
   int i=EEPROM_OFFSET;
-  EEPROM_WRITE_VAR(i,ver); // invalidate data first 
+  EEPROM_WRITE_VAR(i,ver); // invalidate data first
   EEPROM_WRITE_VAR(i,axis_steps_per_unit);
-  EEPROM_WRITE_VAR(i,max_feedrate);  
+  EEPROM_WRITE_VAR(i,max_feedrate);
   EEPROM_WRITE_VAR(i,max_acceleration_units_per_sq_second);
   EEPROM_WRITE_VAR(i,acceleration);
   EEPROM_WRITE_VAR(i,retract_acceleration);
@@ -117,13 +121,51 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i, filament_size[2]);
   #endif
   #endif
-  
+
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM("Settings Stored");
 }
+
+void totalprints() {
+  int i=100;
+  tnp=incrementtnp();
+  EEPROM_WRITE_VAR(i,tnp);
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPAIR(" Total: ",tnp);
+} // Total_Prints
+
+void resetTNP() {
+  int zero=0;
+  int i=100;
+  EEPROM_WRITE_VAR(i,zero);
+  SERIAL_ECHOLN("Counter Reset!");
+} // Total_Prints
+
+int incrementtnp() {
+  int i=100;
+  int itnp;
+  EEPROM_READ_VAR(i,itnp);
+  itnp=itnp+1;
+  return itnp;
+} // Total_Prints
+
+int return_tnp() {
+  int i=100;
+  int Rtnp;
+  EEPROM_READ_VAR(i,Rtnp);
+  return Rtnp;
+} // Total_Prints
+
+void showtotalprints() {
+  int i=100;
+  EEPROM_READ_VAR(i,tnp);
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPAIR("Total Number of Prints : ",tnp);
+} // Total_Prints
+
 #endif //EEPROM_SETTINGS
 
 
@@ -138,7 +180,7 @@ void Config_PrintSettings()
     SERIAL_ECHOPAIR(" Z",axis_steps_per_unit[Z_AXIS]);
     SERIAL_ECHOPAIR(" E",axis_steps_per_unit[E_AXIS]);
     SERIAL_ECHOLN("");
-      
+
     SERIAL_ECHO_START;
 #ifdef SCARA
 SERIAL_ECHOLNPGM("Scaling factors:");
@@ -147,42 +189,42 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHOPAIR(" Y",axis_scaling[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z",axis_scaling[Z_AXIS]);
     SERIAL_ECHOLN("");
-      
+
     SERIAL_ECHO_START;
 #endif
     SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
     SERIAL_ECHO_START;
     SERIAL_ECHOPAIR("  M203 X", max_feedrate[X_AXIS]);
-    SERIAL_ECHOPAIR(" Y", max_feedrate[Y_AXIS]); 
-    SERIAL_ECHOPAIR(" Z", max_feedrate[Z_AXIS]); 
+    SERIAL_ECHOPAIR(" Y", max_feedrate[Y_AXIS]);
+    SERIAL_ECHOPAIR(" Z", max_feedrate[Z_AXIS]);
     SERIAL_ECHOPAIR(" E", max_feedrate[E_AXIS]);
     SERIAL_ECHOLN("");
 
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M201 X" ,max_acceleration_units_per_sq_second[X_AXIS] ); 
-    SERIAL_ECHOPAIR(" Y" , max_acceleration_units_per_sq_second[Y_AXIS] ); 
+    SERIAL_ECHOPAIR("  M201 X" ,max_acceleration_units_per_sq_second[X_AXIS] );
+    SERIAL_ECHOPAIR(" Y" , max_acceleration_units_per_sq_second[Y_AXIS] );
     SERIAL_ECHOPAIR(" Z" ,max_acceleration_units_per_sq_second[Z_AXIS] );
     SERIAL_ECHOPAIR(" E" ,max_acceleration_units_per_sq_second[E_AXIS]);
     SERIAL_ECHOLN("");
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Acceleration: S=acceleration, T=retract acceleration");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M204 S",acceleration ); 
+    SERIAL_ECHOPAIR("  M204 S",acceleration );
     SERIAL_ECHOPAIR(" T" ,retract_acceleration);
     SERIAL_ECHOLN("");
 
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum XY jerk (mm/s),  Z=maximum Z jerk (mm/s),  E=maximum E jerk (mm/s)");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M205 S",minimumfeedrate ); 
-    SERIAL_ECHOPAIR(" T" ,mintravelfeedrate ); 
-    SERIAL_ECHOPAIR(" B" ,minsegmenttime ); 
-    SERIAL_ECHOPAIR(" X" ,max_xy_jerk ); 
+    SERIAL_ECHOPAIR("  M205 S",minimumfeedrate );
+    SERIAL_ECHOPAIR(" T" ,mintravelfeedrate );
+    SERIAL_ECHOPAIR(" B" ,minsegmenttime );
+    SERIAL_ECHOPAIR(" X" ,max_xy_jerk );
     SERIAL_ECHOPAIR(" Z" ,max_z_jerk);
     SERIAL_ECHOPAIR(" E" ,max_e_jerk);
-    SERIAL_ECHOLN(""); 
+    SERIAL_ECHOLN("");
 
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Home offset (mm):");
@@ -211,19 +253,19 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("   M301 P",Kp); 
-    SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki)); 
+    SERIAL_ECHOPAIR("   M301 P",Kp);
+    SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki));
     SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd));
-    SERIAL_ECHOLN(""); 
+    SERIAL_ECHOLN("");
 #endif
 #ifdef FWRETRACT
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Retract: S=Length (mm) F:Speed (mm/m) Z: ZLift (mm)");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("   M207 S",retract_length); 
-    SERIAL_ECHOPAIR(" F" ,retract_feedrate*60); 
+    SERIAL_ECHOPAIR("   M207 S",retract_length);
+    SERIAL_ECHOPAIR(" F" ,retract_feedrate*60);
     SERIAL_ECHOPAIR(" Z" ,retract_zlift);
-    SERIAL_ECHOLN(""); 
+    SERIAL_ECHOLN("");
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Recover: S=Extra length (mm) F:Speed (mm/m)");
     SERIAL_ECHO_START;
@@ -250,11 +292,11 @@ SERIAL_ECHOLNPGM("Scaling factors:");
         SERIAL_ECHOLNPGM("Filament settings:");
         SERIAL_ECHO_START;
         SERIAL_ECHOPAIR("   M200 D", filament_size[0]);
-        SERIAL_ECHOLN(""); 
+        SERIAL_ECHOLN("");
 #if EXTRUDERS > 1
 		SERIAL_ECHO_START;
         SERIAL_ECHOPAIR("   M200 T1 D", filament_size[1]);
-        SERIAL_ECHOLN(""); 
+        SERIAL_ECHOLN("");
 #if EXTRUDERS > 2
 		SERIAL_ECHO_START;
         SERIAL_ECHOPAIR("   M200 T2 D", filament_size[2]);
@@ -281,12 +323,12 @@ void Config_RetrieveSettings()
     {
         // version number match
         EEPROM_READ_VAR(i,axis_steps_per_unit);
-        EEPROM_READ_VAR(i,max_feedrate);  
+        EEPROM_READ_VAR(i,max_feedrate);
         EEPROM_READ_VAR(i,max_acceleration_units_per_sq_second);
-        
+
         // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
 		reset_acceleration_rates();
-        
+
         EEPROM_READ_VAR(i,acceleration);
         EEPROM_READ_VAR(i,retract_acceleration);
         EEPROM_READ_VAR(i,minimumfeedrate);
@@ -316,7 +358,7 @@ void Config_RetrieveSettings()
         #ifndef PIDTEMP
         float Kp,Ki,Kd;
         #endif
-        // do not need to scale PID values as the values in EEPROM are already scaled		
+        // do not need to scale PID values as the values in EEPROM are already scaled
         EEPROM_READ_VAR(i,Kp);
         EEPROM_READ_VAR(i,Ki);
         EEPROM_READ_VAR(i,Kd);
@@ -372,23 +414,23 @@ void Config_ResetDefault()
     float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
     float tmp2[]=DEFAULT_MAX_FEEDRATE;
     long tmp3[]=DEFAULT_MAX_ACCELERATION;
-    for (short i=0;i<4;i++) 
+    for (short i=0;i<4;i++)
     {
-        axis_steps_per_unit[i]=tmp1[i];  
-        max_feedrate[i]=tmp2[i];  
+        axis_steps_per_unit[i]=tmp1[i];
+        max_feedrate[i]=tmp2[i];
         max_acceleration_units_per_sq_second[i]=tmp3[i];
 		#ifdef SCARA
 		axis_scaling[i]=1;
 		#endif
     }
-    
+
     // steps per sq second need to be updated to agree with the units per sq second
     reset_acceleration_rates();
-    
+
     acceleration=DEFAULT_ACCELERATION;
     retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
     minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
-    minsegmenttime=DEFAULT_MINSEGMENTTIME;       
+    minsegmenttime=DEFAULT_MINSEGMENTTIME;
     mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
     max_xy_jerk=DEFAULT_XYJERK;
     max_z_jerk=DEFAULT_ZJERK;
@@ -419,10 +461,10 @@ void Config_ResetDefault()
     Kp = DEFAULT_Kp;
     Ki = scalePID_i(DEFAULT_Ki);
     Kd = scalePID_d(DEFAULT_Kd);
-    
+
     // call updatePID (similar to when we have processed M301)
     updatePID();
-    
+
 #ifdef PID_ADD_EXTRUSION_RATE
     Kc = DEFAULT_Kc;
 #endif//PID_ADD_EXTRUSION_RATE

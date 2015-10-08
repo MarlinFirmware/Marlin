@@ -677,6 +677,16 @@ static void lcd_move_x() { _lcd_move(PSTR("X"), X_AXIS, X_MIN_POS, X_MAX_POS); }
 static void lcd_move_y() { _lcd_move(PSTR("Y"), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
 static void lcd_move_z() { _lcd_move(PSTR("Z"), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
 
+// Total_prints
+void show_prints() {
+  int rttnp = return_tnp();
+  lcd_implementation_drawedit(PSTR("Prints"), itostr3(rttnp));
+
+  if (LCD_CLICKED) lcd_goto_menu(lcd_main_menu);
+}
+
+
+
 static void lcd_move_e()
 {
     if (encoderPosition != 0)
@@ -759,6 +769,8 @@ static void lcd_control_menu()
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
 #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
+    // Total_prints
+    MENU_ITEM(submenu, "Show Total Prints", show_prints);
     END_MENU();
 }
 
@@ -1534,7 +1546,7 @@ char *ftostr43(const float &x)
 char *ftostr12ns(const float &x)
 {
   long xx=x*100;
-  
+
   xx=abs(xx);
   conv[0]=(xx/100)%10+'0';
   conv[1]='.';
