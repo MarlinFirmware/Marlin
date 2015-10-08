@@ -612,28 +612,57 @@ static void lcd_implementation_status_screen() {
 
       #else
 
-        lcd.print('X');
-        if (axis_homed[X_AXIS] || (blink & 1))
-          lcd.print(ftostr3(current_position[X_AXIS]));
-        else
-          lcd_printPGM(PSTR("---"));
+        if ((axis_homed[X_AXIS] && axis_known_position[X_AXIS]) || (blink & 1))
+          lcd_printPGM(PSTR("X"));
+        else {
+          if (!axis_homed[X_AXIS])
+            lcd_printPGM(PSTR("?"));
+          else 
+            #if ENABLED(WARN_REDUCED_ACCURACY)  
+              if (!axis_known_position[X_AXIS])
+                lcd_printPGM(PSTR("~"));
+              else
+            #endif  
+            lcd_printPGM(PSTR("X"));
+        }
 
-        lcd_printPGM(PSTR("  Y"));
-        if (axis_homed[Y_AXIS] || (blink & 1))
-          lcd.print(ftostr3(current_position[Y_AXIS]));
-        else
-          lcd_printPGM(PSTR("---"));
+        lcd.print(ftostr3(current_position[X_AXIS]));
+
+        lcd_printPGM(PSTR("  "));
+        if ((axis_homed[Y_AXIS] && axis_known_position[Y_AXIS]) || (blink & 1))
+          lcd_printPGM(PSTR("Y"));
+        else {
+          if (!axis_homed[Y_AXIS])
+            lcd_printPGM(PSTR("?"));
+          else 
+            #if ENABLED(WARN_REDUCED_ACCURACY)  
+              if (!axis_known_position[Y_AXIS])
+                lcd_printPGM(PSTR("~"));
+              else
+            #endif
+            lcd_printPGM(PSTR("Y"));
+        }
+        lcd.print(ftostr3(current_position[Y_AXIS]));
 
       #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 
     #endif // LCD_WIDTH >= 20
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
-    lcd.print('Z');
-    if (axis_homed[Z_AXIS] || (blink & 1))
-      lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
-    else
-      lcd_printPGM(PSTR("---.--"));
+    if ((axis_homed[Z_AXIS] && axis_known_position[Z_AXIS]) || (blink & 1))
+      lcd_printPGM(PSTR("Z"));
+    else {
+      if (!axis_homed[Z_AXIS])
+        lcd_printPGM(PSTR("?"));
+      else 
+        #if ENABLED(WARN_REDUCED_ACCURACY)  
+          if (!axis_known_position[Z_AXIS])
+            lcd_printPGM(PSTR("~"));
+          else
+        #endif
+        lcd_printPGM(PSTR("Z"));
+    }
+    lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
 
   #endif // LCD_HEIGHT > 2
 
