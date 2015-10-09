@@ -46,6 +46,8 @@ namespace temp
 			short getTemperatureLUTCache(uint8_t index);
 
 			void updateCurrentTemperature(float temp);
+			void updateCurrentTemperatureRaw(uint16_t temp);
+
 			uint16_t const & getCurrentTemperature();
 			void setTargetTemperature(uint16_t target);
 			uint16_t const & getTargetTemperature() const;
@@ -55,14 +57,19 @@ namespace temp
 
 			void manageTemperatureControl();
 
+		private:
+
 		public:
 
 			TemperatureControl * m_control;	
 
 		private:
 			float m_target_temperature;
-			bool m_blower_control;
 			float m_current_temperature;
+			uint16_t m_current_temperature_raw;
+
+			bool m_blower_control;
+
 			LookUpTableEntry m_cache[4];
 			uint16_t m_round_temperature;
 	};

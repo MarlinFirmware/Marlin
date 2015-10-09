@@ -15,6 +15,7 @@ namespace temp
 		: Subject<float>()
 		, m_target_temperature(0)
 		, m_current_temperature(0)
+		, m_current_temperature_raw(0)
 #ifdef DOGLCD
 		, m_control()
 #endif
@@ -72,6 +73,7 @@ namespace temp
 			(float)((short)pgm_read_word(&(*tt)[i][0]) - (short)pgm_read_word(&(*tt)[i-1][0]));
 
 		updateCurrentTemperature(initial_temperature);
+		updateCurrentTemperatureRaw(initial_raw);
 		updateLUTCache();
 
 
@@ -88,7 +90,7 @@ namespace temp
 
 		for (i = 1; i < 61; i++)
 		{
-			if ((short)pgm_read_word(&(*tt)[i][1]) <= m_current_temperature)
+			if ((short)pgm_read_word(&(*tt)[i][0]) >= m_current_temperature_raw)
 			{
 				i -= 2;
 				break;
@@ -123,6 +125,11 @@ namespace temp
 			notify();
 		}
 		fanControl();
+	}
+
+	void TemperatureManager::updateCurrentTemperatureRaw(uint16_t temp)
+	{
+		m_current_temperature_raw = temp;
 	}
 
 	uint16_t const & TemperatureManager::getCurrentTemperature()
@@ -252,6 +259,7 @@ ISR(ADC_vect)
 					( (float) (temp::TemperatureManager::single::instance().getRawLUTCache(i) - temp::TemperatureManager::single::instance().getRawLUTCache(i-1)) );
 
 				temp::TemperatureManager::single::instance().updateCurrentTemperature(temperature);
+				temp::TemperatureManager::single::instance().updateCurrentTemperatureRaw(accumulate);
 				break;
 			}
 		}
