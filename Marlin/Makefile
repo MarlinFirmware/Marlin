@@ -180,7 +180,7 @@ ifeq ($(HARDWARE_DISPLAY), Graphic)
 		Screen.cpp ScreenAbout.cpp ScreenComplete.cpp ScreenCooldown.cpp ScreenEmergency.cpp ScreenFile.cpp \
 		ScreenInactivity.cpp ScreenLanguage.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp \
 		ScreenSplash.cpp ScreenTemperature.cpp ScreenTransition.cpp ScreenSerial.cpp ScreenSetting.cpp ScreenSwitch.cpp \
-		Stepper.cpp Language.cpp
+		StepperClass.cpp Language.cpp
 
 	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp  \
 		TemperatureControl.cpp ViewManager.cpp
