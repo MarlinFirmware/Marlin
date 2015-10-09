@@ -197,6 +197,8 @@ enum class Label
 	SCREEN_RESET_INFO_TEXT,
 	SCREEN_RESET_TITLE,
 	SCREEN_RESET_TEXT,
+	SCREEN_ERROR_TITLE,
+	SCREEN_ERROR_TEMPERATURE_TEXT,
 	ICON_SD_NOSD,
 	ICON_SD_SD,
 	ICON_FILAMENT_UNLOAD,
@@ -376,6 +378,8 @@ extern const char * MSG_SCREEN_RESET_INFO_TITLE();
 extern const char * MSG_SCREEN_RESET_INFO_TEXT();
 extern const char * MSG_SCREEN_RESET_TITLE();
 extern const char * MSG_SCREEN_RESET_TEXT();
+extern const char * MSG_SCREEN_ERROR_TITLE();
+extern const char * MSG_SCREEN_ERROR_TEMPERATURE_TEXT();
 extern const char * MSG_ICON_SD_NOSD();
 extern const char * MSG_ICON_SD_SD();
 extern const char * MSG_ICON_FILAMENT_UNLOAD();

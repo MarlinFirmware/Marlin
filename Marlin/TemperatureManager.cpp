@@ -1,12 +1,15 @@
 #include <math.h>
 
 #include "TemperatureManager.h" 
+
 #include "Configuration.h"
 #include "temperature.h"
 #include "Marlin.h"
 
 #ifdef DOGLCD
+	#include "GuiManager.h"
 	#include "TemperatureControl.h"
+	#include "ViewManager.h"
 #endif
 
 namespace temp
@@ -87,6 +90,17 @@ namespace temp
 	{
 		uint8_t i;
 		short (*tt)[][2] = (short (*)[][2]) temptable_99;
+
+		if ( (m_current_temperature_raw < (22 * OVERSAMPLENR)) ||
+		     (m_current_temperature_raw > (1009 * OVERSAMPLENR)) )
+		{
+			setTargetTemperature(0);
+#ifdef DOGLCD
+			lcd_disable_button();
+			screen::ViewManager::getInstance().activeView(screen::screen_error_temperature);
+#endif
+			return;
+		}
 
 		for (i = 1; i < 61; i++)
 		{
@@ -249,6 +263,8 @@ ISR(ADC_vect)
 
 	if (sample_number == OVERSAMPLENR)
 	{
+		temp::TemperatureManager::single::instance().updateCurrentTemperatureRaw(accumulate);
+
 		for (uint8_t i = 0; i < 4; i++)
 		{
 			if ( accumulate < temp::TemperatureManager::single::instance().getRawLUTCache(i) )
@@ -259,10 +275,10 @@ ISR(ADC_vect)
 					( (float) (temp::TemperatureManager::single::instance().getRawLUTCache(i) - temp::TemperatureManager::single::instance().getRawLUTCache(i-1)) );
 
 				temp::TemperatureManager::single::instance().updateCurrentTemperature(temperature);
-				temp::TemperatureManager::single::instance().updateCurrentTemperatureRaw(accumulate);
 				break;
 			}
 		}
+
 		control_flag = true;
 		sample_number = 0;
 		accumulate = 0;

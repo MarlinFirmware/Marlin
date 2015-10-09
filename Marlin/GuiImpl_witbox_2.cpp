@@ -982,6 +982,12 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenEmergency * make_screen_error_temperature()
+	{
+		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_ERROR_TITLE(), MSG_SCREEN_ERROR_TEMPERATURE_TEXT(), MSG_SCREEN_EMERGENCY_BOX(), bits_emergency);
+		return local_view;
+	}
+
 	static ScreenAction<void> * make_screen_play_pause()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_PRINT_PAUSE(), PrintManager::togglePause);
@@ -1571,6 +1577,11 @@ namespace screen
 				break;
 			case screen_close_inactivity:
 				new_view = make_screen_close_inactivity();
+				break;
+
+			// Error screens
+			case screen_error_temperature:
+				new_view = make_screen_error_temperature();
 				break;
 		}
 		return new_view; 
