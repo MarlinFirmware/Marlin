@@ -619,6 +619,8 @@ void action_start_print()
 		PrintManager::single::instance().state(READY);
 #endif //DOGLCD
 
+	enquecommand_P(PSTR("G90"));
+	enquecommand_P(PSTR("G92 E0"));
 	if(serial_printing == false)
 	{
 		enquecommand_P(PSTR("M24"));
@@ -627,7 +629,13 @@ void action_start_print()
 
 void action_stop_print()
 {
+
+	enquecommand_P(PSTR("G91"));
+	enquecommand_P(PSTR("G1 E-20 F300"));
+	enquecommand_P(PSTR("G90"));
+
 	st_synchronize();
+	temp::TemperatureManager::single::instance().setBlowerControlState(true);
 #ifdef FAN_BOX_PIN
 	digitalWrite(FAN_BOX_PIN, LOW);
 #endif //FAN_BOX_PIN
