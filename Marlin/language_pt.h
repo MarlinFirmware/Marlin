@@ -61,7 +61,7 @@
 #define MSG_MAX                             "\002 Max:"
 #define MSG_FACTOR                          "\002 Fact:"
 #define MSG_AUTOTEMP                        "Autotemp:"
-#define MSG_ON                              "On"
+#define MSG_ON                              "On "
 #define MSG_OFF                             "Off"
 #define MSG_PID_P                           "PID-P: "
 #define MSG_PID_I                           "PID-I: "
