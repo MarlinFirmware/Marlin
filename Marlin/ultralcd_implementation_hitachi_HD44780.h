@@ -866,7 +866,7 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
           if ((slow_buttons & (B_MI | B_RI)) && millis() < next_button_update_ms) // LCD clicked
             slow_buttons &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
         #endif
-        next_slow_b_update += LCD_UPDATE_INTERVAL / 10; 
+        next_slow_b_update = millis() + LCD_UPDATE_INTERVAL / 10; 
         return slow_buttons;
       }
     #endif
