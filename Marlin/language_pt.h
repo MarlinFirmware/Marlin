@@ -31,7 +31,7 @@
 #define MSG_PREHEAT_ABS_N                   "Pre-aquecer ABS "
 #define MSG_PREHEAT_ABS_ALL                 "Pre-aq. ABS Tudo"
 #define MSG_PREHEAT_ABS_BEDONLY             "Pre-aq. ABS " LCD_STR_THERMOMETER "Base"
-#define MSG_PREHEAT_ABS_SETTINGS            "Definicoes PLA"
+#define MSG_PREHEAT_ABS_SETTINGS            "Definicoes ABS"
 #define MSG_COOLDOWN                        "Arrefecer"
 #define MSG_SWITCH_PS_ON                    "Ligar"
 #define MSG_SWITCH_PS_OFF                   "Desligar"
