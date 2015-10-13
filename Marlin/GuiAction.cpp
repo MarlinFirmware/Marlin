@@ -638,6 +638,8 @@ void action_start_print()
 
 void action_stop_print()
 {
+	plan_bed_level_matrix.set_to_identity();
+
 	enquecommand_P(PSTR("G90"));
 
 	st_synchronize();
@@ -690,17 +692,22 @@ void action_stop_print()
 	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 	st_synchronize();
 
-	action_correct_movement(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+	action_correct_movement(target[X_AXIS], target[Y_AXIS], target[Z_AXIS]);
 
 	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 	st_synchronize();
 
-	action_correct_movement(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+	action_correct_movement(target[X_AXIS], target[Y_AXIS], target[Z_AXIS]);
 
 	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 	st_synchronize();
 
 	enable_endstops(false);
+
+	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
+	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
 
 	if (SD_FINISHED_STEPPERRELEASE)
 	{
