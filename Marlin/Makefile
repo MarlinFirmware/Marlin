@@ -71,7 +71,7 @@ space +=
 
 ARDUINO_VERSION = 164
 
-BUILD_DIR ?= applet
+BUILD_DIR ?= bin
 
 AVRDUDE_PROGRAMMER = wiring
 UPLOAD_RATE = 115200
