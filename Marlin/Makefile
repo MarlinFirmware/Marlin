@@ -333,7 +333,7 @@ endif
 
 sizeafter: build
 ifeq ($(OS_TYPE), UNIX)
-	$P if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
+	$(L) if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
 endif
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
