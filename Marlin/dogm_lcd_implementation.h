@@ -197,12 +197,12 @@ char lcd_printPGM(const char* str) {
 /* Warning: This function is called from interrupt context */
 static void lcd_implementation_init() {
 
-  #if ENABLED(LCD_PIN_BL) // Enable LCD backlight
+  #if defined(LCD_PIN_BL) && LCD_PIN_BL > -1 // Enable LCD backlight
     pinMode(LCD_PIN_BL, OUTPUT);
     digitalWrite(LCD_PIN_BL, HIGH);
   #endif
 
-  #if ENABLED(LCD_PIN_RESET)
+  #if defined(LCD_PIN_RESET) && LCD_PIN_RESET > -1
     pinMode(LCD_PIN_RESET, OUTPUT);
     digitalWrite(LCD_PIN_RESET, HIGH);
   #endif
