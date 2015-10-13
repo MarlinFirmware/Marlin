@@ -209,7 +209,7 @@ void PID_autotune(float temp, int extruder, int ncycles) {
 
   long bias, d;
   float Ku, Tu;
-  float Kp, Ki, Kd;
+  float Kp = 0, Ki = 0, Kd = 0;
   float max = 0, min = 10000;
 
   #if HAS_AUTO_FAN
