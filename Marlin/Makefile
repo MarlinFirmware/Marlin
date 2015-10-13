@@ -41,20 +41,45 @@
 ############################################################################
 # Below here nothing should be changed.
 
+# Check platform:
+ifdef ComSpec
+	OS_TYPE = WIN
+else
+	OS_TYPE = UNIX
+endif
+
+# Set Makefile platform-dependencies:
+ifeq ($(OS_TYPE), WIN)
+	PATHSEP_TMP=\\
+else
+	PATHSEP_TMP=/
+endif
+PATHSEP = $(strip $(PATHSEP_TMP))
 
 #
 # Check user configuration:
 #
 
 # If there are any user-configured variable not defined, set a default value.
-ARDUINO_INSTALL_DIR ?= ${ARDUINO}
+ifeq ($(OS_TYPE), WIN)
+	ARDUINO_INSTALL_DIR ?= C:\Arduino
+else
+	ARDUINO_INSTALL_DIR ?= ${ARDUINO}
+endif
+space :=
+space +=
+
 ARDUINO_VERSION = 164
 
 BUILD_DIR ?= applet
 
 AVRDUDE_PROGRAMMER = wiring
 UPLOAD_RATE = 115200
-UPLOAD_PORT ?= /dev/ttyUSB*
+ifeq ($(OS_TYPE), WIN)
+	UPLOAD_PORT ?= COM$(COM)
+else
+	UPLOAD_PORT ?= /dev/ttyUSB*
+endif
 
 
 #
@@ -71,30 +96,43 @@ FORMAT = ihex
 # Output file
 TARGET = $(notdir $(CURDIR))
 
-# AVR tools path:
-AVR_TOOLS_PATH = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/
-# AVR tool binaries:
-OBJCOPY = $(AVR_TOOLS_PATH)avr-objcopy
-OBJDUMP = $(AVR_TOOLS_PATH)avr-objdump
-AR  = $(AVR_TOOLS_PATH)avr-ar
-SIZE = $(AVR_TOOLS_PATH)avr-size
-NM = $(AVR_TOOLS_PATH)avr-nm
-AVRDUDE = $(AVR_TOOLS_PATH)avrdude
-# Other tools:
-CC = $(AVR_TOOLS_PATH)avr-gcc
-CXX = $(AVR_TOOLS_PATH)avr-g++
-MOVE = mv -f
-COPY = cp
-REMOVE = rm -f
-
-# set V=1 (eg, "make V=1") to print the full commands etc.
-ifneq ($V,1)
- Pecho=@echo
- P=@
-else
- Pecho=@:
- P=
+# Verbose make
+ifndef LOG
+	LOG=no
 endif
+
+ifeq ($(LOG), no)
+	L = @
+endif
+
+# AVR tools path:
+AVR_TOOLS_PATH = $(ARDUINO_INSTALL_DIR)$(PATHSEP)hardware$(PATHSEP)tools$(PATHSEP)avr$(PATHSEP)bin
+# AVR tool binaries:
+OBJCOPY = $(AVR_TOOLS_PATH)$(PATHSEP)avr-objcopy
+OBJDUMP = $(AVR_TOOLS_PATH)$(PATHSEP)avr-objdump
+AR  = $(AVR_TOOLS_PATH)$(PATHSEP)avr-ar
+SIZE = $(AVR_TOOLS_PATH)$(PATHSEP)avr-size
+NM = $(AVR_TOOLS_PATH)$(PATHSEP)avr-nm
+AVRDUDE = $(AVR_TOOLS_PATH)$(PATHSEP)avrdude
+# Other tools:
+ifeq ($(OS_TYPE), WIN)
+	MOVE = move
+	COPY = copy
+	REMOVE = del /F /Q
+	MAKE_DIR = mkdir
+	REMOVE_DIR = del /F /Q
+	ECHO = echo
+else
+	MAKE_DIR = mkdir -p
+	MOVE = mv -f
+	COPY = cp
+	REMOVE = rm -f
+	REMOVE_DIR = rm -fr
+	ECHO = echo
+endif
+
+CC = $(AVR_TOOLS_PATH)$(PATHSEP)avr-gcc
+CXX = $(AVR_TOOLS_PATH)$(PATHSEP)avr-g++
 
 
 #
@@ -110,10 +148,10 @@ endif
 #
 
 # Arduino core
-HARDWARE_DIR = $(ARDUINO_INSTALL_DIR)/hardware
-HARDWARE_SRC = $(HARDWARE_DIR)/arduino/avr/cores/arduino
+HARDWARE_DIR = $(ARDUINO_INSTALL_DIR)$(PATHSEP)hardware
+HARDWARE_SRC = $(HARDWARE_DIR)$(PATHSEP)arduino$(PATHSEP)avr$(PATHSEP)cores$(PATHSEP)arduino
 
-VPATH = $(HARDWARE_SRC)
+VPATHTEMP += $(HARDWARE_SRC)
 CXXSRC = main.cpp
 
 CSRC = wiring.c wiring_analog.c wiring_digital.c wiring_pulse.c wiring_shift.c \
@@ -122,15 +160,15 @@ CXXSRC += WMath.cpp WString.cpp Print.cpp Tone.cpp abi.cpp new.cpp
 
 # Machine setup
 ifeq ($(MACHINE_MODEL), Witbox)
-	VPATH += config/witbox
+	VPATHTEMP += config/witbox
 else ifeq ($(MACHINE_MODEL), Hephestos)
-	VPATH += config/hephestos
+	VPATHTEMP += config/hephestos
 else ifeq ($(MACHINE_MODEL), Hephestos XL)
-	VPATH += config/hephestos_xl
+	VPATHTEMP += config/hephestos_xl
 else ifeq ($(MACHINE_MODEL), Witbox 2)
-	VPATH += config/witbox_2
+	VPATHTEMP += config/witbox_2
 else ifeq ($(MACHINE_MODEL), Hephestos 2)
-	VPATH += config/hephestos_2
+	VPATHTEMP += config/hephestos_2
 endif
 
 # Microcontroller setup
@@ -146,30 +184,31 @@ F_CPU            ?= 16000000
 endif
 
 # ATmega2560
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/variants/mega
+VPATHTEMP += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/variants/mega
 
 # SPI library
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
+VPATHTEMP += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
 CXXSRC += SPI.cpp
 
-VPATH += .
+VPATHTEMP += .
+
 # Display setup
 ifeq ($(HARDWARE_DISPLAY), Graphic)
-	VPATH += libraries/U8glib
-	VPATH += libraries/U8glib/utility
+	VPATHTEMP += libraries/U8glib
+	VPATHTEMP += libraries/U8glib/utility
 	CSRC += u8g_com_arduino_common.c u8g_com_arduino_st7920_spi.c u8g_dev_st7920_128x64.c \
 		u8g_com_api.c u8g_com_null.c u8g_ll_api.c u8g_pb.c u8g_pb32h1.c u8g_pb8h1.c u8g_page.c \
 		u8g_bitmap.c u8g_clip.c u8g_delay.c u8g_font.c u8g_font_data.c u8g_state.c u8g_rect.c u8g_line.c
 	CXXSRC += U8glib.cpp
 	CXXSRC += ultralcd_st7920_u8glib_rrd.cpp
 else ifeq ($(HARDWARE_DISPLAY), Character)
-	VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal/src
+	VPATHTEMP += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal/src
 	CXXSRC += LiquidCrystal.cpp 
 	CXXSRC += ultralcd.cpp
 endif
 
 # SD library
-VPATH += libraries/SdFat
+VPATHTEMP += libraries/SdFat
 CXXSRC += Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp SdFile.cpp SdVolume.cpp
 
 # Generation specific files
@@ -182,8 +221,8 @@ ifeq ($(HARDWARE_DISPLAY), Graphic)
 		ScreenSplash.cpp ScreenTemperature.cpp ScreenTransition.cpp ScreenSerial.cpp ScreenSetting.cpp ScreenSwitch.cpp \
 		StepperClass.cpp Language.cpp
 
-	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp  \
-		TemperatureControl.cpp ViewManager.cpp
+	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp StorageManager.cpp \
+		TemperatureManager.cpp ViewManager.cpp TemperatureControl.cpp
 endif
 
 # Common files
@@ -192,16 +231,36 @@ CXXSRC += HelpersC++.cpp
 CXXSRC += motion_control.cpp planner.cpp stepper.cpp temperature.cpp cardreader.cpp \
 		watchdog.cpp digipot_mcp4451.cpp vector_3.cpp qr_solve.cpp ConfigurationStore.cpp
 
-CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp TemperatureManager.cpp StorageManager.cpp
+CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp
 
 CXXSRC += Marlin_main.cpp MarlinSerial.cpp
 
 
 # Define all object files.
-OBJ = ${patsubst %.c, $(BUILD_DIR)/%.o, ${CSRC}}
-OBJ += ${patsubst %.cpp, $(BUILD_DIR)/%.o, ${CXXSRC}}
-OBJ += ${patsubst %.S, $(BUILD_DIR)/%.o, ${ASRC}}
+OBJ = ${patsubst %.c,$(BUILD_DIR)/%.o,${CSRC}}
+OBJ += ${patsubst %.cpp,$(BUILD_DIR)/%.o,${CXXSRC}}
+OBJ += ${patsubst %.S,$(BUILD_DIR)/%.o,${ASRC}}
+
+ifeq ($(OS_TYPE), WIN)
+	OBJ_CORRECT = $(subst /,\,$(OBJ))
+else
+	OBJ_CORRECT = $(OBJ)
+endif
+
 # Add all the source directories as include directories too
+
+# Format vpath in according to system
+ifeq ($(OS_TYPE), WIN)
+	VPATH_TMP = $(subst \\,\,${VPATHTEMP})
+	VPATH_TMP2 = $(subst /,\,${VPATH_TMP})
+	#VPATH_TMP3 = ${addsuffix ",${VPATH_TMP2}}
+	#VPATH_TMP4 = ${addprefix ",${VPATH_TMP3}}
+	#VPATH_TMP5 = $(subst $(space),;,${VPATH_TMP2})
+	VPATH = $(subst ___,$(space),${VPATH_TMP2})
+else
+	VPATH = ${VPATHTEMP}
+endif
+
 CINCS = ${addprefix -I ,${VPATH}}
 CXXINCS = ${addprefix -I ,${VPATH}}
 
@@ -217,7 +276,6 @@ AVRDUDE_FLAGS = -v -C $(AVRDUDE_CONF) -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_
 # C compiler:
 CDEBUG = -g
 CDEFS    = -DARDUINO=$(ARDUINO_VERSION) -DF_CPU=$(F_CPU) -DLANGUAGE=$(LANGUAGE) ${addprefix -D , $(DEFINES)}
-
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 #CSTANDARD =
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -w -ffunction-sections -fdata-sections -fno-use-cxa-atexit
@@ -256,7 +314,7 @@ build: $(BUILD_DIR) elf hex defconfig
 
 # Creates the object directory
 $(BUILD_DIR):
-	$P mkdir -p $(BUILD_DIR)
+	$(L) $(MAKE_DIR) $(BUILD_DIR)
 
 elf: $(BUILD_DIR)/$(TARGET).elf
 hex: $(BUILD_DIR)/$(TARGET).hex
@@ -266,14 +324,17 @@ sym: $(BUILD_DIR)/$(TARGET).sym
 
 # Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) $(BUILD_DIR)/$(TARGET).hex
-ELFSIZE = $(SIZE) --mcu=$(MCU) -C $(BUILD_DIR)/$(TARGET).elf; \
-          $(SIZE)  $(BUILD_DIR)/$(TARGET).elf
+ELFSIZE = $(SIZE) --mcu=$(MCU) -C $(BUILD_DIR)$(PATHSEP)$(TARGET).elf; \
+          $(SIZE)  $(BUILD_DIR)$(PATHSEP)$(TARGET).elf
 sizebefore:
-	$P if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
+ifeq ($(OS_TYPE), UNIX)
+	$(L) if [ -f $(BUILD_DIR)$(PATHSEP)$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
+endif
 
 sizeafter: build
+ifeq ($(OS_TYPE), UNIX)
 	$P if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
-
+endif
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
 COFFCONVERT=$(OBJCOPY) --debugging \
@@ -284,19 +345,19 @@ COFFCONVERT=$(OBJCOPY) --debugging \
 
 
 coff: $(BUILD_DIR)/$(TARGET).elf
-	$(COFFCONVERT) -O coff-avr $(BUILD_DIR)/$(TARGET).elf $(TARGET).cof
+	$(COFFCONVERT) -O coff-avr $(BUILD_DIR)$(PATHSEP)$(TARGET).elf $(TARGET).cof
 
 
 extcoff: $(TARGET).elf
-	$(COFFCONVERT) -O coff-ext-avr $(BUILD_DIR)/$(TARGET).elf $(TARGET).cof
+	$(COFFCONVERT) -O coff-ext-avr $(BUILD_DIR)$(PATHSEP)$(TARGET).elf $(TARGET).cof
 
 
 .SUFFIXES: .elf .hex .eep .lss .sym
 .PRECIOUS: .o
 
 .elf.hex:
-	$(Pecho) "  COPY  $@"
-	$P $(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
+	$(L) $(ECHO) "  COPY  $@"
+	$(L) $(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
 
 .elf.eep:
 	-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
@@ -310,23 +371,18 @@ extcoff: $(TARGET).elf
 .elf.sym:
 	$(NM) -n $< > $@
 
-	# Link: create ELF output file from library.
+# Link: create ELF output file from library.
 $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Configuration.h
-	$(Pecho) "  CXX   $@"
-	$P $(CC) $(ALL_CXXFLAGS) -Wl,--gc-sections -o $@ -L. $(OBJ) $(LDFLAGS)
+	$(L) $(ECHO) "  CXX   $@"
+	$(L) $(CC) $(ALL_CXXFLAGS) -Wl,--gc-sections -o $@ -L. $(OBJ_CORRECT) $(LDFLAGS)
 
 $(BUILD_DIR)/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
-	$(Pecho) "  CC    $<"
-	$P $(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
-
-$(BUILD_DIR)/%.o: $(BUILD_DIR)/%.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
-	$(Pecho) "  CXX   $<"
-	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
+	$(L) $(ECHO) "  CC    $<"
+	$(L) $(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
 
 $(BUILD_DIR)/%.o: %.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
-	$(Pecho) "  CXX   $<"
-	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
-
+	$(L) $(ECHO) "  CXX   $<"
+	$(L) $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
 
 # Flash the device
 upload: $(BUILD_DIR)/$(TARGET).elf
@@ -340,103 +396,110 @@ endif
 
 # Clean the output files generated.
 clean:
-	$(Pecho) "  RM    $(BUILD_DIR)/*"
-	$P $(REMOVE) $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).eep $(BUILD_DIR)/$(TARGET).cof $(BUILD_DIR)/$(TARGET).elf \
-		$(BUILD_DIR)/$(TARGET).map $(BUILD_DIR)/$(TARGET).sym $(BUILD_DIR)/$(TARGET).lss $(BUILD_DIR)/$(TARGET).cpp \
-		$(OBJ) $(LST) $(CSRC:.c=.s) $(CSRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
-	$(Pecho) "  RMDIR $(BUILD_DIR)/"
-	$P rm -rf $(BUILD_DIR)
+	$(L) $(ECHO) "  RMDIR $(BUILD_DIR)/"
+	$(L) $(REMOVE_DIR) $(BUILD_DIR)
 
 # Clean the output generated files and the board configuration.
 cleanall: clean
-	$(Pecho) "  RM    .config_mach"
-	$P $(REMOVE) .config_mach
-	$(Pecho) "  RM    .config_lang"
-	$P $(REMOVE) .config_lang
+	$(L) $(ECHO) "  RM    .config_mach"
+	$(L) $(REMOVE) .config_mach
+	$(L) $(ECHO) "  RM    .config_lang"
+	$(L) $(REMOVE) .config_lang
 
 ### Configure machine targets
 # 1st Generation printers
 witbox:
-	@echo Configurating for $@ printer...
-	@echo Language selected: English [EN] \(by default\)
-	@ $(COPY) config/witbox/Makefile .config_mach
-	@ $(COPY) language/en/Makefile .config_lang
+	$(L) $(ECHO) Configurating for $@ printer...
+	$(L) $(ECHO) Language selected: English [EN] \(by default\)
+	$(L) $(COPY) config$(PATHSEP)witbox$(PATHSEP)Makefile .config_mach
+	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
 
 hephestos:
-	@echo Configurating for $@ printer...
-	@echo Language selected: English [EN] \(by default\)
-	@ $(COPY) config/hephestos/Makefile .config_mach
-	@ $(COPY) language/en/Makefile .config_lang
+	$(L) $(ECHO) Configurating for $@ printer...
+	$(L) $(ECHO) Language selected: English [EN] \(by default\)
+	$(L) $(COPY) config$(PATHSEP)hephestos$(PATHSEP)Makefile .config_mach
+	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
 
 hephestos_xl:
-	@echo Configurating for $@ printer...
-	@echo Language selected: English [EN] \(by default\)
-	@ $(COPY) config/hephestos_xl/Makefile .config_mach
-	@ $(COPY) language/en/Makefile .config_lang
+	$(L) $(ECHO) Configurating for $@ printer...
+	$(L) $(ECHO) Language selected: English [EN] \(by default\)
+	$(L) $(COPY) config$(PATHSEP)hephestos_xl$(PATHSEP)Makefile .config_mach
+	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
 
 # 2nd Generation printers
 witbox_2:
-	@echo Configurating for $@ printer...
-	@echo Language selected: English [EN] \(by default\)
-	@ $(COPY) config/witbox_2/Makefile .config_mach
-	@ $(COPY) language/en/Makefile .config_lang
+	$(L) $(ECHO) Configurating for $@ printer...
+	$(L) $(ECHO) Language selected: English [EN] \(by default\)
+	$(L) $(COPY) config$(PATHSEP)witbox_2$(PATHSEP)Makefile .config_mach
+	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
 
 hephestos_2:
-	@echo Configurating for $@ printer...
-	@echo Language selected: English [EN] \(by default\)
-	@ $(COPY) config/hephestos_2/Makefile .config_mach
-	@ $(COPY) language/en/Makefile .config_lang
+	$(L) $(ECHO) Configurating for $@ printer...
+	$(L) $(ECHO) Language selected: English [EN] \(by default\)
+	$(L) $(COPY) config$(PATHSEP)hephestos_2$(PATHSEP)Makefile .config_mach
+	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
 
 
 ### Configure language targets
 DE:
-	@echo Changing language to: German [$@]
-	@ $(COPY) language/de/Makefile .config_lang
+	$(L) $(ECHO) Changing language to: German [$@]
+	$(L) $(COPY) language$(PATHSEP)de$(PATHSEP)Makefile .config_lang
 
 EN:
-	@echo Changing language to: English [$@]
-	@ $(COPY) language/en/Makefile .config_lang
+	$(L) $(ECHO) Changing language to: English [$@]
+	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
 
 ES:
-	@echo Changing language to: Spanish [$@]
-	@ $(COPY) language/es/Makefile .config_lang
+	$(L) $(ECHO) Changing language to: Spanish [$@]
+	$(L) $(COPY) language$(PATHSEP)es$(PATHSEP)Makefile .config_lang
 
 FI:
-	@echo Changing language to: Finnish [$@]
-	@ $(COPY) language/fi/Makefile .config_lang
+	$(L) $(ECHO) Changing language to: Finnish [$@]
+	$(L) $(COPY) language$(PATHSEP)fi$(PATHSEP)Makefile .config_lang
 
 FR:
-	@echo Changing language to: French [$@]
-	@ $(COPY) language/fr/Makefile .config_lang
+	$(L) $(ECHO) Changing language to: French [$@]
+	$(L) $(COPY) language$(PATHSEP)fr$(PATHSEP)Makefile .config_lang
 
 IT:
-	@echo Changing language to: Italian [$@]
-	@ $(COPY) language/it/Makefile .config_lang
+	$(L) $(ECHO) Changing language to: Italian [$@]
+	$(L) $(COPY) language$(PATHSEP)it$(PATHSEP)Makefile .config_lang
 
 NL:
-	@echo Changing language to: Dutch [$@]
-	@ $(COPY) language/nl/Makefile .config_lang
+	$(L) $(ECHO) Changing language to: Dutch [$@]
+	@ $(COPY) language$(PATHSEP)nl$(PATHSEP)Makefile .config_lang
 
 PL:
-	@echo Changing language to: Polish [$@]
-	@ $(COPY) language/pl/Makefile .config_lang
+	$(L) $(ECHO) Changing language to: Polish [$@]
+	$(L) $(COPY) language$(PATHSEP)pl$(PATHSEP)Makefile .config_lang
 
 PT:
-	@echo Changing language to: Portuguese [$@]
-	@ $(COPY) language/pt/Makefile .config_lang
+	$(L) $(ECHO) Changing language to: Portuguese [$@]
+	$(L) $(COPY) language$(PATHSEP)pt$(PATHSEP)Makefile .config_lang
 
 defconfig: .config_mach .config_lang
 
 verbose:
-	@echo VPATH:
-	@echo $(VPATH)
-	@echo CSRC:
-	@echo $(CSRC)
-	@echo CXXSRC:
-	@echo $(CXXSRC)
+	$(L) $(ECHO) ARDUINO_INSTALL_DIR:
+	$(L) $(ECHO) $(ARDUINO_INSTALL_DIR)		
+	$(L) $(ECHO) CSRC:
+	$(L) $(ECHO) $(CSRC)
+	$(L) $(ECHO) CXXSRC:
+	$(L) $(ECHO) $(CXXSRC)
+	$(L) $(ECHO) OBJ:
+	$(L) $(ECHO) $(OBJ)
+	$(L) $(ECHO) OBJ_CORRECT:
+	$(L) $(ECHO) $(OBJ_CORRECT)
+	$(L) $(ECHO) VPATHTEMP:
+	$(L) $(ECHO) $(VPATHTEMP)
+	$(L) $(ECHO) VPATH:
+	$(L) $(ECHO) $(VPATH)
+
 
 # Define .PHONY targets
-.PHONY:	all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter upload
+.PHONY:	all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter upload verbose
 
 # Automaticaly include the dependency files created by gcc
 -include ${wildcard $(BUILD_DIR)/*.d}
+
+
