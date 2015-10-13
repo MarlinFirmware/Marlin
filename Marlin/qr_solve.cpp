@@ -1024,7 +1024,7 @@ void dqrlss(double a[], int lda, int m, int n, int kr, double b[], double x[],
 
   if (kr != 0) {
     job = 110;
-    info = dqrsl(a, lda, m, kr, qraux, b, rsd, rsd, x, rsd, rsd, job);
+    info = dqrsl(a, lda, m, kr, qraux, b, rsd, rsd, x, rsd, rsd, job); UNUSED(info);
   }
 
   for (i = 0; i < n; i++)
@@ -1569,7 +1569,7 @@ void qr_solve(double x[], int m, int n, double a[], double b[])
   tol = r8_epsilon() / r8mat_amax(m, n, a_qr);
   itask = 1;
 
-  ind = dqrls(a_qr, lda, m, n, tol, &kr, b, x, r, jpvt, qraux, itask);
+  ind = dqrls(a_qr, lda, m, n, tol, &kr, b, x, r, jpvt, qraux, itask); UNUSED(ind);
 }
 /******************************************************************************/
 
