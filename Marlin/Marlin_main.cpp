@@ -4666,13 +4666,8 @@ inline void gcode_M220() {
 inline void gcode_M221() {
   if (code_seen('S')) {
     int sval = code_value();
-    if (code_seen('T')) {
-      if (setTargetedHotend(221)) return;
-      extruder_multiplier[target_extruder] = sval;
-    }
-    else {
-      extruder_multiplier[active_extruder] = sval;
-    }
+    if (setTargetedHotend(221)) return;
+    extruder_multiplier[target_extruder] = sval;
   }
 }
 
