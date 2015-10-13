@@ -590,7 +590,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // default settings
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {400, 400, 400, 163}     // default steps per unit for ***** MakiBox A6 *****
-#define DEFAULT_MAX_FEEDRATE          {60, 60, 20, 45}         // (mm/sec)    
+#define DEFAULT_MAX_FEEDRATE          {60, 60, 20, 45}         // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {2000,2000,30,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
@@ -744,7 +744,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
 //#define LCD_I2C_VIKI
-  
+
 // SSD1306 OLED generic display support
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
 //#define U8GLIB_SSD1306
@@ -853,11 +853,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
 //#define FILAMENT_LCD_DISPLAY
-
-
-
-
-
 
 #include "Configuration_adv.h"
 #include "thermistortables.h"
