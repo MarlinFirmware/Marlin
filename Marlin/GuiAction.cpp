@@ -504,9 +504,10 @@ void action_move_axis_to(uint8_t axis, float position)
 void action_move_to_rest()
 {
 	st_synchronize();
-	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
-	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
-	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+	vector_3 update_position = plan_get_position();
+	current_position[X_AXIS] = update_position.x;
+	current_position[Y_AXIS] = update_position.y;
+	current_position[Z_AXIS] = update_position.z;
 
 	enable_endstops(true);
 
@@ -515,7 +516,8 @@ void action_move_to_rest()
 		target[Z_AXIS] = 20;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 		st_synchronize();
-		current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+		vector_3 update_position_2 = plan_get_position();
+		current_position[Z_AXIS] = update_position_2.z;
 	}
 
 	target[X_AXIS] = POSITION_REST_X;
@@ -523,20 +525,22 @@ void action_move_to_rest()
 	plan_buffer_line(target[X_AXIS], target[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 	st_synchronize();
 
-	action_correct_movement(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]);
+	action_correct_movement(target[X_AXIS], target[Y_AXIS], target[Z_AXIS]);
 
 	plan_buffer_line(target[X_AXIS], target[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 	st_synchronize();
+
+	enable_endstops(false);
 
 	target[Z_AXIS] = POSITION_REST_Z;
 	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 	st_synchronize();
 
-	enable_endstops(false);
+	vector_3 update_position_3 = plan_get_position();
+	current_position[X_AXIS] = update_position_3.x;
+	current_position[Y_AXIS] = update_position_3.y;
+	current_position[Z_AXIS] = update_position_3.z;
 
-	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
-	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
-	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 	x_hit = false;
 	y_hit = false;
 	z_hit = false;
