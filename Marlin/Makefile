@@ -221,8 +221,8 @@ ifeq ($(HARDWARE_DISPLAY), Graphic)
 		ScreenSplash.cpp ScreenTemperature.cpp ScreenTransition.cpp ScreenSerial.cpp ScreenSetting.cpp ScreenSwitch.cpp \
 		StepperClass.cpp Language.cpp
 
-	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp StorageManager.cpp \
-		TemperatureManager.cpp ViewManager.cpp TemperatureControl.cpp
+	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp \
+		ViewManager.cpp TemperatureControl.cpp
 endif
 
 # Common files
@@ -231,7 +231,7 @@ CXXSRC += HelpersC++.cpp
 CXXSRC += motion_control.cpp planner.cpp stepper.cpp temperature.cpp cardreader.cpp \
 		watchdog.cpp digipot_mcp4451.cpp vector_3.cpp qr_solve.cpp ConfigurationStore.cpp
 
-CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp
+CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp StorageManager.cpp TemperatureManager.cpp
 
 CXXSRC += Marlin_main.cpp MarlinSerial.cpp
 
