@@ -410,7 +410,7 @@ void Config_RetrieveSettings() {
 
     EEPROM_READ_VAR(i, dummy); // bedKp
     if (dummy != DUMMY_PID_VALUE) {
-      bedKp = dummy;
+      bedKp = dummy; UNUSED(bedKp);
       EEPROM_READ_VAR(i, bedKi);
       EEPROM_READ_VAR(i, bedKd);
     }
@@ -540,7 +540,7 @@ void Config_ResetDefault() {
     #if ENABLED(PID_PARAMS_PER_EXTRUDER)
       for (int e = 0; e < EXTRUDERS; e++)
     #else
-      int e = 0; // only need to write once
+      int e = 0; UNUSED(e); // only need to write once
     #endif
     {
       PID_PARAM(Kp, e) = DEFAULT_Kp;
