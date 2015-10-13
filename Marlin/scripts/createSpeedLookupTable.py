@@ -22,27 +22,16 @@ print
 print '#include "Marlin.h"'
 print
 
-print "const uint16_t speed_lookuptable_fast[256][2] PROGMEM = {"
-a = [ timer_freq / ((i*256)+(args.cpu_freq*2)) for i in range(256) ]
-b = [ a[i] - a[i+1] for i in range(255) ]
-b.append(b[-1])
-for i in range(32):
-    print "  ",
-    for j in range(8):
-        print "{%d, %d}," % (a[8*i+j], b[8*i+j]),
-    print 
-print "};"
-print
+print "const uint16_t speed_lookuptable[1024] PROGMEM = {"
+for step_rate in range(1024):
+	if step_rate < 32:
+		count = 65535
+	else:
+		count = (timer_freq / step_rate)
+	print "\t%d," % count,
 
-print "const uint16_t speed_lookuptable_slow[256][2] PROGMEM = {"
-a = [ timer_freq / ((i*8)+(args.cpu_freq*2)) for i in range(256) ]
-b = [ a[i] - a[i+1] for i in range(255) ]
-b.append(b[-1])
-for i in range(32):
-    print "  ",
-    for j in range(8):
-        print "{%d, %d}," % (a[8*i+j], b[8*i+j]),
-    print 
+	if step_rate % 8 == 7:
+		print
 print "};"
 print
 

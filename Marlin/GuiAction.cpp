@@ -493,7 +493,6 @@ void action_correct_movement(float &x_pos, float &y_pos, float &z_pos)
 
 void action_move_axis_to(uint8_t axis, float position)
 {
-	enable_endstops(true);
 	current_position[axis] = position;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
 }
@@ -570,19 +569,29 @@ void action_start_print()
 	digitalWrite(FAN_BOX_PIN, HIGH);
 #endif //FAN_BOX_PIN
 
+	bool serial_printing = true;
+
 	char cmd[30];
 	char* c;
-	strcpy(cmd, card.longFilename);
-	for (c = &cmd[0]; *c; c++)
+
+	if(PrintManager::single::instance().state() == PRINTING)
 	{
-		if ((uint8_t)*c > 127)
+		serial_printing = false;
+
+		strcpy(cmd, card.longFilename);
+		for (c = &cmd[0]; *c; c++)
 		{
-			SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
-			return;
+			if ((uint8_t)*c > 127)
+			{
+				SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
+				return;
+			}
 		}
+
+		sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 	}
+
 	fanSpeed = PREHEAT_FAN_SPEED;
-	sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 
 #ifdef DOGLCD
 	PrintManager::single::instance().state(HOMING);
@@ -599,26 +608,41 @@ void action_start_print()
 
 	action_move_to_rest();
 
-	for(c = &cmd[4]; *c; c++)
-	*c = tolower(*c);
-	enquecommand(cmd);
+	if(serial_printing == false)
+	{
+		for(c = &cmd[4]; *c; c++)
+		*c = tolower(*c);
+		enquecommand(cmd);
+	}
 
 #ifdef DOGLCD
 		PrintManager::single::instance().state(READY);
 #endif //DOGLCD
 
-	enquecommand_P(PSTR("M24"));
+	enquecommand_P(PSTR("G90"));
+	enquecommand_P(PSTR("G92 E0"));
+
+	if(serial_printing == false)
+	{
+		enquecommand_P(PSTR("M24"));
+	}
 }
 
 void action_stop_print()
 {
+	enquecommand_P(PSTR("G90"));
+
 	st_synchronize();
+	temp::TemperatureManager::single::instance().setBlowerControlState(true);
 #ifdef FAN_BOX_PIN
 	digitalWrite(FAN_BOX_PIN, LOW);
 #endif //FAN_BOX_PIN
 
-	card.sdprinting = false;
-	card.closefile();
+	if(card.sdprinting == true || stop_buffer_code == 1)
+	{
+		card.sdprinting = false;
+		card.closefile();
+	}
 
 	action_preheat();
 
@@ -633,7 +657,7 @@ void action_stop_print()
 	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
 
 	target[Z_AXIS] = current_position[Z_AXIS] + 10;
-	target[E_AXIS] = current_position[E_AXIS] -10;
+	target[E_AXIS] = current_position[E_AXIS] - RETRACT_ON_PAUSE;
 
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 

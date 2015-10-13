@@ -54,12 +54,11 @@ namespace eeprom
 		float offset = 0;
 		StorageManager::single::instance().readData(ADDR_ZOFFSET_ZPROBE, (uint8_t*)&offset, sizeof(offset));
 
-		if(offset < 0.0f || offset > 10.0f)
+		if(offset >= 0.0f && offset <= 10.0f)
 		{
-			offset = Z_PROBE_OFFSET_FROM_EXTRUDER;
+			return offset;
 		}
-
-		return offset;
+		return  Z_PROBE_OFFSET_FROM_EXTRUDER;
 	}
 
 	void StorageManager::setInitialized()

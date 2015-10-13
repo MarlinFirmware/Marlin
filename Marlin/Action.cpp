@@ -169,9 +169,6 @@ void action_z_homing()
 		current_position[i] = plan_get_axis_position(i);
 	}
 
-	// plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-	// st_synchronize();
-
 	for(int8_t i=0; i < NUM_AXIS; i++)
 	{
 		destination[i] = current_position[i];
@@ -183,7 +180,7 @@ void action_z_homing()
 	destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT);
 	destination[Z_AXIS] = 5 * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
 
-	feedrate = XY_TRAVEL_SPEED/3;
+	feedrate = XY_TRAVEL_SPEED;
 	current_position[Z_AXIS] = 0;
 
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);

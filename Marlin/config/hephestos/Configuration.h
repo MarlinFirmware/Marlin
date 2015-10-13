@@ -13,7 +13,7 @@
 #define MACHINE_NAME "Hephestos"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.0b4"
+#define FIRMWARE_VER "2.0.0b5"
 #define BUILD_VER ""
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
@@ -464,7 +464,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 // default settings
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {80, 80, 4000,100.47095761381482}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.3, 25}    // (mm/sec)
+#define DEFAULT_MAX_FEEDRATE          {200, 200, 3.3, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {3000,3000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
