@@ -159,6 +159,7 @@ CSRC = wiring.c wiring_analog.c wiring_digital.c wiring_pulse.c wiring_shift.c \
 CXXSRC += WMath.cpp WString.cpp Print.cpp Tone.cpp abi.cpp new.cpp
 
 # Machine setup
+VPATHTEMP += language
 ifeq ($(MACHINE_MODEL), Witbox)
 	VPATHTEMP += config/witbox
 else ifeq ($(MACHINE_MODEL), Hephestos)
