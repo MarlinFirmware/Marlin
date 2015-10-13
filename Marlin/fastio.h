@@ -30,15 +30,15 @@
 
 #define _WRITE_C(IO, v)   do { if (v) { \
                                          CRITICAL_SECTION_START; \
-                                         {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); }\
+                                         {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); } \
                                          CRITICAL_SECTION_END; \
-                                       }\
-                                       else {\
+                                       } \
+                                       else { \
                                          CRITICAL_SECTION_START; \
-                                         {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); }\
+                                         {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); } \
                                          CRITICAL_SECTION_END; \
-                                       }\
-                                     }\
+                                       } \
+                                     } \
                                      while (0)
 
 #define _WRITE(IO, v)  do {  if (&(DIO ##  IO ## _RPORT) >= (uint8_t *)0x100) {_WRITE_C(IO, v); } else {_WRITE_NC(IO, v); }; } while (0)

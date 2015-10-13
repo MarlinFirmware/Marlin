@@ -139,11 +139,13 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
       if (Z_HOME_DIR > 0) {\
         if (!(TEST(old_endstop_bits, Z_MAX) && (count_direction[Z_AXIS] > 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
         if (!(TEST(old_endstop_bits, Z2_MAX) && (count_direction[Z_AXIS] > 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
-      } else {\
+      } \
+      else { \
         if (!(TEST(old_endstop_bits, Z_MIN) && (count_direction[Z_AXIS] < 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
         if (!(TEST(old_endstop_bits, Z2_MIN) && (count_direction[Z_AXIS] < 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
       } \
-    } else { \
+    } \
+    else { \
       Z_STEP_WRITE(v); \
       Z2_STEP_WRITE(v); \
     }
