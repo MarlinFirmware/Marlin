@@ -511,7 +511,8 @@ float get_pid_output(int e) {
             if (e_position > last_position[e]) {
               lpq[lpq_ptr++] = e_position - last_position[e];
               last_position[e] = e_position;
-            } else {
+            }
+            else {
               lpq[lpq_ptr++] = 0;
             }
             if (lpq_ptr >= lpq_len) lpq_ptr = 0;
