@@ -130,9 +130,10 @@
   }
 
 #elif ENABLED(MAPPER_C2C3)
-  uint8_t utf_hi_char; // UTF-8 high part
-  bool seen_c2 = false;
-  char charset_mapper(char c){
+
+  char charset_mapper(char c) {
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_c2 = false;
     uint8_t d = c;
     if ( d >= 0x80 ) { // UTF-8 handling
       if ( (d >= 0xc0) && (!seen_c2) ) {
@@ -160,12 +161,12 @@
   }
 
 #elif ENABLED(MAPPER_D0D1_MOD)
-  uint8_t utf_hi_char; // UTF-8 high part
-  bool seen_d5 = false;
 
   char charset_mapper(char c) {
     // it is a Russian alphabet translation
     // except 0401 --> 0xa2 = Ё, 0451 --> 0xb5 = ё
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_d5 = false;
     uint8_t d = c;
     if (d >= 0x80) { // UTF-8 handling
       if (d >= 0xd0 && !seen_d5) {
@@ -197,9 +198,10 @@
   }
 
 #elif ENABLED(MAPPER_D0D1)
-  uint8_t utf_hi_char; // UTF-8 high part
-  bool seen_d5 = false;
+
   char charset_mapper(char c) {
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_d5 = false;
     uint8_t d = c;
     if (d >= 0x80u) { // UTF-8 handling
       if (d >= 0xd0u && !seen_d5) {
@@ -227,10 +229,11 @@
   }
 
 #elif ENABLED(MAPPER_E382E383)
-  uint8_t utf_hi_char; // UTF-8 high part
-  bool seen_e3 = false;
-  bool seen_82_83 = false;
-  char charset_mapper(char c){
+
+  char charset_mapper(char c) {
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_e3 = false;
+    static bool seen_82_83 = false;
     uint8_t d = c;
     if (d >= 0x80) { // UTF-8 handling
       if (d == 0xe3 && !seen_e3) {
