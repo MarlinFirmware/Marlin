@@ -6,7 +6,7 @@
 ///         Victor Andueza
 ///         Joaquin Herrero
 ///
-/// \brief Interface for Icon objects.
+/// \brief Interface definition of Icon objects.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -63,4 +63,4 @@ namespace screen
 			const char * m_text;
 	};
 }
-#endif
+#endif //ICON_H

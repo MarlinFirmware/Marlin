@@ -6,7 +6,7 @@
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of Print Complete Screen.
+/// \brief Definition of Print Complete screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com

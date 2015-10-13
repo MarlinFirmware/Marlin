@@ -6,7 +6,7 @@
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief About Screen.
+/// \brief About screen implementation.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com

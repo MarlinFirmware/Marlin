@@ -6,7 +6,7 @@
 ///         Victor Andueza
 ///         Joaquin Herrero
 ///
-/// \brief Implementation for Icon objects.
+/// \brief Implementation of Icon objects.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
