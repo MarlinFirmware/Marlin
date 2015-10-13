@@ -1488,16 +1488,10 @@ void dswap(int n, double x[], int incx, double y[], int incy)
       x[i + 2] = y[i + 2];
       y[i + 2] = temp;
     }
-    if (0 <= incx)
-      ix = 0;
-    else
-      ix = (- n + 1) * incx;
-    if (0 <= incy)
-      iy = 0;
-    else
-      iy = (- n + 1) * incy;
   }
   else {
+    ix = (incx >= 0) ? 0 : (-n + 1) * incx;
+    iy = (incy >= 0) ? 0 : (-n + 1) * incy;
     for (i = 0; i < n; i++) {
       temp = x[ix];
       x[ix] = y[iy];
