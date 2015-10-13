@@ -439,14 +439,17 @@ void action_get_plane()
 
 void action_correct_movement(float &x_pos, float &y_pos, float &z_pos)
 {
+	st_synchronize();
+	vector_3 update_position = plan_get_position();
+
 	if (checkXminEndstop() == true || checkXmaxEndstop() == true)
 	{
-		if (plan_get_axis_position(Y_AXIS) != getRealPosAxis(Y_AXIS) && y_hit == false)
+		if (update_position.y != getRealPosAxis(Y_AXIS) && y_hit == false)
 		{
 			y_pos = getRealPosAxis(Y_AXIS);
 			plan_set_axis_position(Y_AXIS,y_pos);
 		}
-		if (plan_get_axis_position(Z_AXIS) != getRealPosAxis(Z_AXIS) && z_hit == false)
+		if (update_position.z != getRealPosAxis(Z_AXIS) && z_hit == false)
 		{
 			z_pos = getRealPosAxis(Z_AXIS);
 			plan_set_axis_position(Z_AXIS,z_pos);
@@ -456,12 +459,12 @@ void action_correct_movement(float &x_pos, float &y_pos, float &z_pos)
 	}
 	if (checkYminEndstop() == true || checkYmaxEndstop() == true)
 	{
-		if (plan_get_axis_position(X_AXIS) != getRealPosAxis(X_AXIS) && x_hit == false)
+		if (update_position.x != getRealPosAxis(X_AXIS) && x_hit == false)
 		{
 			x_pos = getRealPosAxis(X_AXIS);
 			plan_set_axis_position(X_AXIS,x_pos);
 		}
-		if (plan_get_axis_position(Z_AXIS) != getRealPosAxis(Z_AXIS) && z_hit == false)
+		if (update_position.z != getRealPosAxis(Z_AXIS) && z_hit == false)
 		{
 			z_pos = getRealPosAxis(Z_AXIS);
 			plan_set_axis_position(Z_AXIS,z_pos);
@@ -471,12 +474,12 @@ void action_correct_movement(float &x_pos, float &y_pos, float &z_pos)
 	}
 	if (checkZminEndstop() == true || checkZmaxEndstop() == true)
 	{
-		if (plan_get_axis_position(X_AXIS) != getRealPosAxis(X_AXIS) && x_hit == false)
+		if (update_position.x != getRealPosAxis(X_AXIS) && x_hit == false)
 		{
 			x_pos = getRealPosAxis(X_AXIS);
 			plan_set_axis_position(X_AXIS,x_pos);
 		}
-		if (plan_get_axis_position(Y_AXIS) != getRealPosAxis(Y_AXIS) && y_hit == false)
+		if (update_position.y != getRealPosAxis(Y_AXIS) && y_hit == false)
 		{
 			y_pos = getRealPosAxis(Y_AXIS);
 			plan_set_axis_position(Y_AXIS,y_pos);
@@ -485,10 +488,11 @@ void action_correct_movement(float &x_pos, float &y_pos, float &z_pos)
 		endstops_hit_on_purpose();
 	}
 
+	vector_3 update_position_2 = plan_get_position();
+	current_position[X_AXIS] = update_position_2.x;
+	current_position[Y_AXIS] = update_position_2.y;
+	current_position[Z_AXIS] = update_position_2.z;
 	st_synchronize();
-	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
-	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
-	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 }
 
 void action_move_axis_to(uint8_t axis, float position)
