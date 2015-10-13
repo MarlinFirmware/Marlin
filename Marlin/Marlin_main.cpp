@@ -834,8 +834,10 @@ void get_command() {
         fromsd[cmd_queue_index_w] = false;
       #endif
 
-      char *npos = strchr(command, 'N');
-      char *apos = strchr(command, '*');
+      while (*command == ' ') command++; // skip any leading spaces
+      char* npos = (*command == 'N') ? command : NULL; // Require the N parameter to start the line
+      char* apos = strchr(command, '*');
+
       if (npos) {
 
         boolean M110 = strstr_P(command, PSTR("M110")) != NULL;
