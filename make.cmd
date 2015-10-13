@@ -34,33 +34,7 @@ ECHO "%avr_tools%"
 CD Marlin
 
 :: Start of updater menu
-:menu1
-echo.
-echo.
-echo BUILD MENU FOR BQ 3D PRINTERS
-echo     FOR USE WITH WINDOWS     
-echo -----------------------------
-echo.
-echo	Choose the COM port of your 3d Printer:
-echo.
-echo	3- COM3
-echo	4- COM4
-echo.
-echo	Q- Exit updater
-choice /c:34Q>nul
-if errorlevel 3 goto quit
-if errorlevel 2 goto com4
-if errorlevel 1 goto com3
-
-:com3
-SET COM=3
-goto menu2
-
-:com4
-SET COM=4
-goto menu2
-
-:menu2
+:menu
 cls
 echo BUILD MENU FOR BQ 3D PRINTERS
 echo     FOR USE WITH WINDOWS
@@ -109,6 +83,7 @@ goto make
 @RD /S /Q ".\applet"
 echo.
 echo.
+SET /p COM=Enter the COM port for your arduino board: COM
 CALL "C:\Program Files (x86)\GnuWin32\bin\make.exe" %TARGET%
 CALL "C:\Program Files (x86)\GnuWin32\bin\make.exe"
 CALL "C:\Program Files (x86)\GnuWin32\bin\make.exe" upload COM=%COM%
