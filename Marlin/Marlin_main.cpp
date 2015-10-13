@@ -45,12 +45,15 @@
 #include "stepper.h"
 #include "temperature.h"
 #include "cardreader.h"
-#include "watchdog.h"
 #include "configuration_store.h"
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
 #include "buzzer.h"
+
+#if ENABLED(USE_WATCHDOG)
+  #include "watchdog.h"
+#endif
 
 #if ENABLED(BLINKM)
   #include "blinkm.h"
@@ -681,7 +684,11 @@ void setup() {
 
   tp_init();    // Initialize temperature loop
   plan_init();  // Initialize planner;
-  watchdog_init();
+
+  #if ENABLED(USE_WATCHDOG)
+    watchdog_init();
+  #endif
+
   st_init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
   servo_init();
