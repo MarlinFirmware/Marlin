@@ -8,7 +8,8 @@ Make is a utility that automatically builds executable programs and libraries fr
 
 ##### How to install it?
 1. Install the package `build-essential` which contains the Make utility.
-```shell
+
+```
 sudo apt-get install build-essential
 ```
 
