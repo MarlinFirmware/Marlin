@@ -130,6 +130,7 @@ namespace screen
 		screen_serial,
 		screen_inactivity,
 		screen_close_inactivity,
+		screen_error_temperature,
 		screen_none,
 	} ScreenIndex_t;
 
