@@ -34,7 +34,7 @@ ECHO "%avr_tools%"
 CD Marlin
 
 :: Start of updater menu
-:menu
+:menu_device
 cls
 echo BUILD MENU FOR BQ 3D PRINTERS
 echo     FOR USE WITH WINDOWS
@@ -58,24 +58,94 @@ if errorlevel 3 goto heph
 if errorlevel 2 goto wit2
 if errorlevel 1 goto wit
 
+:menu_language
+cls
+echo BUILD MENU FOR BQ 3D PRINTERS
+echo     FOR USE WITH WINDOWS
+echo -----------------------------
+echo.
+echo	Choose the language:
+echo.
+echo	1- DE - German
+echo	2- EN - English
+echo	3- ES - Spanish
+echo	4- FI - Finnish
+echo	5- FR - French
+echo	6- IT - Italian
+echo	7- NL - Dutch
+echo	8- PL - Polish
+echo	9- PT - Portuguse
+echo.
+echo	Q- Exit updater
+echo.
+choice /c:123456789Q>nul
+if errorlevel 10 goto quit
+if errorlevel 9 goto language_pt
+if errorlevel 8 goto language_pl
+if errorlevel 7 goto language_nl
+if errorlevel 6 goto language_it
+if errorlevel 5 goto language_fr
+if errorlevel 4 goto language_fi
+if errorlevel 3 goto language_es
+if errorlevel 2 goto language_en
+if errorlevel 1 goto language_de
+
+:: Device targets
 :hep2
 SET TARGET=hephestos_2
-goto make
+goto language_en
 
 :hepxl
 SET TARGET=hephestos_xl
-goto make
+goto menu_language
 
 :heph
 SET TARGET=hephestos
-goto make
+goto menu_language
 
 :wit2
 SET TARGET=witbox_2
-goto make
+goto language_en
 
 :wit
 SET TARGET=witbox
+goto menu_language
+
+:: Language targets
+:language_de
+SET LANGUAGE=DE
+goto make
+
+:language_en
+SET LANGUAGE=EN
+goto make
+
+:language_es
+SET LANGUAGE=ES
+goto make
+
+:language_fi:
+SET LANGUAGE=FI
+goto make
+
+:language_fr
+SET LANGUAGE=FR
+goto make
+
+:language_it
+SET LANGUAGE=IT
+goto make
+
+:language_nl
+SET LANGUAGE=NL
+goto make
+
+:language_pl
+SET LANGUAGE=PL
+goto make
+
+:language_pt
+SET LANGUAGE=PT
 goto make
 
 :make
@@ -84,9 +154,11 @@ goto make
 echo.
 echo.
 SET /p COM=Enter the COM port for your arduino board: COM
-CALL "C:\Program Files (x86)\GnuWin32\bin\make.exe" %TARGET%
+CALL "C:\Program Files (x86)\GnuWin32\bin\make.exe" cleanall
+CALL "C:\Program Files (x86)\GnuWin32\bin\make.exe" %TARGET% %LANGUAGE%
 CALL "C:\Program Files (x86)\GnuWin32\bin\make.exe"
 CALL "C:\Program Files (x86)\GnuWin32\bin\make.exe" upload COM=%COM%
+CALL "C:\Program Files (x86)\GnuWin32\bin\make.exe" cleanall
 goto exit
 
 :quit
