@@ -434,6 +434,61 @@ namespace screen
 		}
 	}
 
+	void GuiPainter::animate(const char * text, uint8_t window, uint32_t delay_ms)
+	{
+
+		if(window < strlen(text))
+		{
+			if(m_animation_loop)
+			{
+				uint8_t diff = strlen(text) - window;
+
+				if(m_animation_index < diff)
+				{
+					m_current_update_time = millis();
+					if( m_current_update_time - m_previous_update_time > delay_ms)
+					{
+						const char * cadena = text + m_animation_index;
+						print(cadena);
+
+						m_animation_index++;
+						m_previous_update_time = m_current_update_time;
+					}
+					else
+					{
+						const char * cadena = text + m_animation_index;
+						print(cadena);
+					}
+				}
+				else
+				{
+					const char * cadena = text + m_animation_index;
+					print(cadena);
+				}
+
+				m_animation_loop = !m_animation_loop;
+			}
+			else
+			{
+				const char * cadena = text + m_animation_index;
+				print(cadena);
+				m_animation_loop = !m_animation_loop;
+			}
+		}
+		else
+		{
+			print(text);
+			m_animation_index = 0;
+		}
+
+	}
+
+	void GuiPainter::animationReset(uint32_t timeout)
+	{
+		m_previous_update_time = 0;
+		m_animation_index = 0;
+	}
+
 	void GuiPainter::drawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 	{
 		m_impl.drawLine(x1, y1, x2, y2);

@@ -80,6 +80,9 @@ namespace screen
 			void print(const char * text);
 			void print_P(const char * text);
 
+			void animate(const char * text, uint8_t window, uint32_t delay_ms);
+			void animationReset(uint32_t timeout);
+
 			void drawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
 			void drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 			void drawBitmap(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const unsigned char* bitmap);
@@ -112,6 +115,13 @@ namespace screen
 			uint8_t m_y_end;
 
 			Area m_working_area;
+
+			char m_animation_index;
+			bool m_animation_dir;
+			char m_animation_text[64];
+			bool m_animation_loop;
+			uint32_t m_current_update_time;
+			uint32_t m_previous_update_time;
 	};
 }
 #define painter screen::GuiPainter::singleton::instance()

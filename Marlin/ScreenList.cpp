@@ -45,6 +45,7 @@ namespace screen
 	{
 		memset(m_directory, 0, sizeof(m_directory));
 		m_directory_is_root = false;
+		m_previous_time = millis();
 	}
 
 	ScreenList::~ScreenList()
@@ -121,6 +122,8 @@ namespace screen
 		{
 			--m_index;
 		}
+		painter.animationReset(2000);
+		m_previous_time = millis();
 	}
 
 	void ScreenList::right()
@@ -133,6 +136,8 @@ namespace screen
 		{
 			++m_index;
 		}
+		painter.animationReset(2000);
+		m_previous_time = millis();
 	}
 
 	void ScreenList::draw()
@@ -223,11 +228,41 @@ namespace screen
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
 					if(strcmp(card.longFilename,"") != 0)
 					{
-						painter.print(card.longFilename);
+						if (i == window_selector)
+						{
+							m_current_time = millis();
+							if (m_current_time > m_previous_time + 1200)
+							{
+								painter.animate(card.longFilename, 18, 100);
+							}
+							else
+							{
+								painter.print(card.longFilename);
+							}
+						}
+						else
+						{
+							painter.print(card.longFilename);
+						}
 					}
 					else
 					{
-						painter.print(card.filename);
+						if (i == window_selector)
+						{
+							m_current_time = millis();
+							if (m_current_time > m_previous_time + 1200)
+							{
+								painter.animate(card.filename, 18, 100);
+							}
+							else
+							{
+								painter.print(card.filename);
+							}
+						}
+						else
+						{
+							painter.print(card.filename);
+						}
 					}
 				}
 			}
