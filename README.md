@@ -29,7 +29,7 @@ Besides the BQ team, focused on specific changes and improvements for Witbox and
  - [@daid](https://github.com/daid)
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
- 
+
 Sprinters lead developers are Kliment and caru.
 Grbls lead developer is Simen Svale Skogsrud.
 Sonney Jeon (Chamnit) improved some parts of grbl

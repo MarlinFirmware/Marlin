@@ -5,7 +5,7 @@ The compilation process has two stages:
 1. Choose the target device.
 
   If the target device is Witbox, Hephestos or Hephestos XL, the firmware language can be set. For Witbox 2 and Hephestos 2, the firmware image is multilanguage and this option has no effect.
-    
+
   ```shell
   make <target> [<language>]
   ```
@@ -31,7 +31,7 @@ The compilation process has two stages:
   * PT: Portuguese
 
 2. Build the image for the selected target.
-    
+
   ```shell
   make
   ```
