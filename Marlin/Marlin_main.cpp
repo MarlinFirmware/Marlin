@@ -1591,7 +1591,10 @@ void process_commands()
       #endif //FWRETRACT
 
     case 28: //G28 Home all Axis one at a time
-      action_homing();
+      if (PrintManager::single::instance().state() != PRINTING && AutoLevelManager::single::instance().state() == false)
+      {
+        action_homing();
+      }
     break;
 #ifdef LEVEL_SENSOR
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
