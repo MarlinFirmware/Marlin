@@ -85,7 +85,7 @@ void action_filament_load()
 	st_synchronize();
 
 	current_position[E_AXIS] -= RETRACT_ON_PAUSE;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[E_AXIS], active_extruder);
 	st_synchronize();
 }
 
@@ -644,11 +644,6 @@ void action_stop_print()
 		card.closefile();
 	}
 
-	action_preheat();
-
-	flush_commands();
-	quickStop();
-
 	plan_reset_position();
 
 	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
@@ -656,16 +651,25 @@ void action_stop_print()
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
 
-	target[Z_AXIS] = current_position[Z_AXIS] + 10;
 	target[E_AXIS] = current_position[E_AXIS] - RETRACT_ON_PAUSE;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], target[E_AXIS], max_feedrate[E_AXIS], active_extruder);
+	st_synchronize();
 
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	target[Z_AXIS] = current_position[Z_AXIS] + 10;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS], target[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+	st_synchronize();
 
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
 
 	target[X_AXIS] = POSITION_REST_X;
 	target[Y_AXIS] = POSITION_REST_Y;
+
+	action_preheat();
+
+	flush_commands();
+	quickStop();
+
 
 #if X_MAX_POS < 250
 	target[Z_AXIS] += 20;
