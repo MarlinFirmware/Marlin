@@ -415,9 +415,19 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
   //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
   // You MUST HAVE the SERVO_ENDSTOPS defined to use here a value higher than zero otherwise your code will not compile.
-
 //  #define PROBE_SERVO_DEACTIVATION_DELAY 300
 
+
+  /* RAPID AUTO BED LEVELLING Z PROBING (by Gruvin)
+     Uncomment the following #define to enable rapid Z-probing during auto bed levelling.
+     This will perform a single slow probe sense move at each location, instead of the usual 2.
+     If you are using a Z-probe servo, this feature will keep it engaged throughout the entire probing
+     instead of retracting between each probing XY location.
+     If you have a low mechanical resistance Z probe switch/sensor (like a proximity sensor)
+     then you may like to also double the speed of the probing moves, by uncommenting the
+     second define here, as well. */
+//#define AUTO_BED_LEVELLING_RAPID_Z_PROBE
+//#define RAPID_Z_DOUBLE_FEEDRATE
 
 //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
 //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
