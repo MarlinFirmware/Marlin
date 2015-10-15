@@ -1046,27 +1046,43 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
 
 #endif // AUTO_BED_LEVELING_GRID
 
-static void run_z_probe() {
+static void run_z_probe(bool bed_levelling = false) {
     plan_bed_level_matrix.set_to_identity();
     feedrate = homing_feedrate[Z_AXIS];
 
-    // move down until you find the bed
     float zPosition = -10;
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
+    
+#ifdef AUTO_BED_LEVELLING_RAPID_Z_PROBE
+    if (!bed_levelling) /*BJR*/ {
+#endif
+      // move down until you find the bed
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
+      st_synchronize();
+    
+      // we have to let the planner know where we are right now as it is not where we said to go.
+      zPosition = st_get_position_mm(Z_AXIS);
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
+  
+      // move up the retract distance
+      zPosition += home_retract_mm(Z_AXIS);
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
+      st_synchronize();
+#ifdef AUTO_BED_LEVELLING_RAPID_Z_PROBE
+    }
 
-        // we have to let the planner know where we are right now as it is not where we said to go.
-    zPosition = st_get_position_mm(Z_AXIS);
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
+    if (bed_levelling) zPosition = st_get_position_mm(Z_AXIS); // BJR: avoid bouncy probing during bed levelling
 
-    // move up the retract distance
-    zPosition += home_retract_mm(Z_AXIS);
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
+  #ifdef RAPID_Z_DOUBLE_FEEDRATE
+    feedrate = homing_feedrate[Z_AXIS]/2; // go half as slow for bed levelling
+  #else
+    feedrate = homing_feedrate[Z_AXIS]/4;
+  #endif
+#else
+    feedrate = homing_feedrate[Z_AXIS]/4;
+#endif
 
     // move back down slowly to find bed
-    feedrate = homing_feedrate[Z_AXIS]/4;
-    zPosition -= home_retract_mm(Z_AXIS) * 2;
+    zPosition -= home_retract_mm(Z_AXIS) * 2;      
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 
@@ -1119,18 +1135,26 @@ static void clean_up_after_endstop_move() {
 
 static void engage_z_probe() {
     // Engage Z Servo endstop if enabled
-    #ifdef SERVO_ENDSTOPS
+#ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+    #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         servos[servo_endstops[Z_AXIS]].attach(0);
-#endif
+    #endif
+        if (current_position[Z_AXIS] < Z_RAISE_BEFORE_PROBING)
+        {
+          int z_loc = Z_RAISE_BEFORE_PROBING;
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_loc);
+        }
+
+        // engage probe
         servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2]);
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+ 
+  #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         delay(PROBE_SERVO_DEACTIVATION_DELAY);
         servos[servo_endstops[Z_AXIS]].detach();
-#endif
+  #endif
     }
-    #endif
+#endif
 }
 
 static void retract_z_probe() {
@@ -1155,14 +1179,8 @@ static float probe_pt(float x, float y, float z_before) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
-#ifndef Z_PROBE_SLED
-  engage_z_probe();   // Engage Z Servo endstop if available
-#endif // Z_PROBE_SLED
-  run_z_probe();
+  run_z_probe(true); // BJR "true" here prevents the double retract bounce thingy happening during bedlevelling
   float measured_z = current_position[Z_AXIS];
-#ifndef Z_PROBE_SLED
-  retract_z_probe();
-#endif // Z_PROBE_SLED
 
   SERIAL_PROTOCOLPGM(MSG_BED);
   SERIAL_PROTOCOLPGM(" x: ");
@@ -1198,15 +1216,12 @@ static void homeaxis(int axis) {
 #ifndef Z_PROBE_SLED
     // Engage Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
-      #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-        if (axis==Z_AXIS) {
-          engage_z_probe();
-        }
-	    else
-      #endif
-      if (servo_endstops[axis] > -1) {
-        servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
-      }
+    if (axis==Z_AXIS) {
+        engage_z_probe(); // takes care of raising Z if needed
+    }
+    else if (servo_endstops[axis] > -1) {
+      servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
+    }
     #endif
 #endif // Z_PROBE_SLED
     destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
@@ -1679,6 +1694,8 @@ void process_commands()
 
 #ifdef Z_PROBE_SLED
             dock_sled(false);
+#else
+            engage_z_probe();   // Engage Z Servo endstop if available
 #endif // Z_PROBE_SLED
             st_synchronize();
             // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
@@ -1755,8 +1772,8 @@ void process_commands()
                 eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
                 probePointCounter++;
                 xProbe += xInc;
-              }
-            }
+              } // X
+            } // Y
             clean_up_after_endstop_move();
 
             // solve lsq problem
@@ -1807,6 +1824,8 @@ void process_commands()
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #ifdef Z_PROBE_SLED
             dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
+#else
+            retract_z_probe(); // ... if available
 #endif // Z_PROBE_SLED
         }
         break;
@@ -3407,7 +3426,7 @@ Sigma_Exit:
       st_synchronize();
     }
     break;
-#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
+#if defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
     case 401:
     {
         engage_z_probe();    // Engage Z Servo endstop if available
