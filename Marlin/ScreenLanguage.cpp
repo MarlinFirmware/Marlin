@@ -92,7 +92,7 @@ namespace screen
 				uint8_t y_end = painter.coordinateYEnd();
 
 				painter.setColorIndex(1);
-				painter.setFont(u8g_font_6x9);
+				painter.setFont(FontType_t::BODY_FONT);
 
 				char info[21] = { 0 };
 				char value[17] = { 0 };
