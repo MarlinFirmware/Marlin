@@ -19,7 +19,6 @@
 #include <math.h>
 #include "Marlin.h"
 
-#ifdef LEVEL_SENSOR
 #include "vector_3.h"
 
 vector_3::vector_3() : x(0), y(0), z(0) { }
@@ -162,6 +161,3 @@ void matrix_3x3::debug(char* title)
 		SERIAL_PROTOCOLPGM("\n");
 	}
 }
-
-#endif // #ifdef LEVEL_SENSOR
-
