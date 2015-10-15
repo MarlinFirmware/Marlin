@@ -1591,7 +1591,12 @@ void process_commands()
       #endif //FWRETRACT
 
     case 28: //G28 Home all Axis one at a time
-      action_homing();
+#ifdef DOGLCD
+      if (PrintManager::single::instance().state() != PRINTING && AutoLevelManager::single::instance().state() == false)
+#endif //DOGLCD
+      {
+        action_homing();
+      }
     break;
 #ifdef LEVEL_SENSOR
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
@@ -1778,7 +1783,7 @@ void process_commands()
         lastpos[E_AXIS] = current_position[E_AXIS];
 
 				current_position[E_AXIS]-= RETRACT_ON_PAUSE;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[E_AXIS], active_extruder);
 
 				current_position[Z_AXIS]+= FILAMENTCHANGE_ZADD;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, active_extruder);

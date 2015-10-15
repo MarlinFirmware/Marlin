@@ -95,18 +95,22 @@ namespace eeprom
 
 #endif // DOGLCD
 
-	void StorageManager::setLight(bool state)
+	void StorageManager::setLight(uint8_t state)
 	{
 		StorageManager::single::instance().writeByte(ADDR_LIGHT, state);
 	}
 
-	bool StorageManager::getLight()
+	uint8_t StorageManager::getLight()
 	{
-		if(StorageManager::single::instance().readByte(ADDR_LIGHT) == LIGHT_ON)
+		if(StorageManager::single::instance().readByte(ADDR_LIGHT) == LIGHT_OFF)
 		{
-			return true;
+			return LIGHT_OFF;
 		}
-		return false;
+		else if(StorageManager::single::instance().readByte(ADDR_LIGHT) == LIGHT_ON)
+		{
+			return LIGHT_ON;
+		}
+		return LIGHT_AUTO;
 	}
 
 	void StorageManager::setAutoLevel(bool state)

@@ -78,6 +78,7 @@ namespace screen
 		if (m_select != m_minimum_value)
 		{
 			m_select -= m_scale;
+			m_needs_drawing = true;
 		}
 
 		if (m_select < m_minimum_value)
@@ -92,6 +93,7 @@ namespace screen
 		if (m_select != m_maximum_value)
 		{
 			m_select += m_scale;
+			m_needs_drawing = true;
 		}
 
 		if (m_select > m_maximum_value)
@@ -103,62 +105,66 @@ namespace screen
 	template <typename T>
 		void ScreenDynamicFeedrate<T>::draw()
 	{
-		painter.firstPage();
-		do
+		if (m_needs_drawing)
 		{
-			painter.title(m_title);
-			painter.box(MSG_PUSH_TO_CONTINUE());
-
-			uint8_t x_init = painter.coordinateXInit();
-			uint8_t x_end = painter.coordinateXEnd();
-			uint8_t y_init = painter.coordinateYInit();
-			uint8_t y_end = painter.coordinateYEnd();
-
-			painter.setColorIndex(1);
-			painter.setFont(u8g_font_6x9);
-
-			char tmp_selected[7] = { 0 };
-			int number_size = 3;
-			if(m_select < 100)
+			m_needs_drawing = false;
+			painter.firstPage();
+			do
 			{
-				number_size = 2;
-			}
-			else if(m_select > 10)
-			{
-				number_size = 1;
-			}
+				painter.title(m_title);
+				painter.box(MSG_PUSH_TO_CONTINUE());
 
-			dtostrf(m_select, number_size, 0, tmp_selected);
-			char info[20] = { 0 };
-			char units[] = "%";
+				uint8_t x_init = painter.coordinateXInit();
+				uint8_t x_end = painter.coordinateXEnd();
+				uint8_t y_init = painter.coordinateYInit();
+				uint8_t y_end = painter.coordinateYEnd();
 
-			if (m_select != m_minimum_value && m_select != m_maximum_value)
-			{
-				strcat(info, "< ");
-				strcat(info, tmp_selected);
-				strcat(info, units);
-				strcat(info, " >");
-			}
-			else if (m_select != m_minimum_value)
-			{
-				strcat(info, "< ");
-				strcat(info, tmp_selected);
-				strcat(info, units);
-			}
-			else if (m_select != m_maximum_value)
-			{
-				strcat(info, tmp_selected);
-				strcat(info, units);
-				strcat(info, " >");
-			}
+				painter.setColorIndex(1);
+				painter.setFont(u8g_font_6x9);
 
-			Area info_area(0, ((y_end + y_init)/2 - 9/2), 128, 9);
-			painter.setWorkingArea(info_area);
-			painter.text(info);
+				char tmp_selected[7] = { 0 };
+				int number_size = 3;
+				if(m_select < 100)
+				{
+					number_size = 2;
+				}
+				else if(m_select > 10)
+				{
+					number_size = 1;
+				}
 
-		} while( painter.nextPage() );
+				dtostrf(m_select, number_size, 0, tmp_selected);
+				char info[20] = { 0 };
+				char units[] = "%";
 
-		this->action(m_select);
+				if (m_select != m_minimum_value && m_select != m_maximum_value)
+				{
+					strcat(info, "< ");
+					strcat(info, tmp_selected);
+					strcat(info, units);
+					strcat(info, " >");
+				}
+				else if (m_select != m_minimum_value)
+				{
+					strcat(info, "< ");
+					strcat(info, tmp_selected);
+					strcat(info, units);
+				}
+				else if (m_select != m_maximum_value)
+				{
+					strcat(info, tmp_selected);
+					strcat(info, units);
+					strcat(info, " >");
+				}
+
+				Area info_area(0, ((y_end + y_init)/2 - 9/2), 128, 9);
+				painter.setWorkingArea(info_area);
+				painter.text(info);
+
+			} while( painter.nextPage() );
+
+			this->action(m_select);
+		}
 	}
 
 	template <typename T>

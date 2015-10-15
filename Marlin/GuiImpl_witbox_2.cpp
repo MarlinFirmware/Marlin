@@ -523,11 +523,11 @@ namespace screen
 	{
 		OptionLaunch * option_back        = new OptionLaunch(option_size, MSG_BACK());
 		option_back->add(screen_main);
-		OptionToggle * option_autolevel   = new OptionToggle(option_size, MSG_OPTION_AUTOLEVEL(), AutoLevelManager::setState, &AutoLevelManager::single::instance());
+		OptionToggle<bool> * option_autolevel   = new OptionToggle<bool> (option_size, MSG_OPTION_AUTOLEVEL(), AutoLevelManager::setState, &AutoLevelManager::single::instance());
 #ifdef LIGHT_ENABLED
-		OptionToggle * option_led         = new OptionToggle(option_size, MSG_OPTION_LIGHTLED(), LightManager::setState, &LightManager::single::instance());
+		OptionToggle<uint8_t>  * option_led         = new OptionToggle<uint8_t>(option_size, MSG_OPTION_LIGHTLED(), LightManager::setMode, &LightManager::single::instance());
 #endif // LIGHT_ENABLED
-		OptionToggle * option_serial      = new OptionToggle(option_size, MSG_OPTION_SERIAL(), SerialManager::setState, &SerialManager::single::instance());
+		OptionToggle<bool>  * option_serial      = new OptionToggle<bool> (option_size, MSG_OPTION_SERIAL(), SerialManager::setState, &SerialManager::single::instance());
 		OptionLaunch * option_offset      = new OptionLaunch(option_size, MSG_OPTION_OFFSET());
 		option_offset->add(screen_offset);
 		OptionLaunch * option_about       = new OptionLaunch(option_size, MSG_OPTION_INFO());

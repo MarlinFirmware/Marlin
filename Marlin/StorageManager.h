@@ -10,7 +10,9 @@ namespace eeprom
 	const uint8_t EMERGENCY_STOP_ACTIVE = 0x00;
 	const uint8_t EMERGENCY_STOP_INACTIVE = 0xFF;
 	const uint8_t INITIALIZED = 0x00;
+	const uint8_t LIGHT_OFF = 0x00;
 	const uint8_t LIGHT_ON = 0x01;
+	const uint8_t LIGHT_AUTO = 0x02;
 	const uint8_t AUTOLEVEL_ON = 0x01;
 	const uint8_t SERIAL_SCREEN_ON = 0x01;
 	const uint8_t EEPROM_ENABLED = 0x00;
@@ -37,8 +39,8 @@ namespace eeprom
 			static void setLanguage(uint8_t language);
 			static const uint8_t getLanguage();
 
-			static void setLight(bool state);
-			static bool getLight();
+			static void setLight(uint8_t state);
+			static uint8_t getLight();
 
 			static void setAutoLevel(bool state);
 			static bool getAutoLevel();

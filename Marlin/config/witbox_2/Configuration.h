@@ -388,13 +388,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {120*60, 120*60, 15*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {200*60, 200*60, 30*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 800, 204.146}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {200, 200, 30, 30}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000, 1000, 30, 1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 800, 204.146}   // default steps per unit for Ultimaker
+#define DEFAULT_MAX_FEEDRATE          {200, 200, 30, 200}        // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {1000, 1000, 1000, 1000}   // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
@@ -406,9 +406,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // #define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
-#define DEFAULT_XYJERK                10.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.4     // (mm/sec)
-#define DEFAULT_EJERK                 5.0    // (mm/sec)
+#define DEFAULT_XYJERK                5.0    // (mm/sec)
+#define DEFAULT_ZJERK                 0.0     // (mm/sec)
+#define DEFAULT_EJERK                 0.0    // (mm/sec)
 
 //===========================================================================
 //=============================WITBOX Features===============================
@@ -435,7 +435,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
-  #define XY_TRAVEL_SPEED 150//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/s
+  #define XY_TRAVEL_SPEED 200//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/s
 #endif
 //===========================================================================
 //=============================Additional Features===========================

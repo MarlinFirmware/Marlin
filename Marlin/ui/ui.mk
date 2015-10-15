@@ -2,7 +2,6 @@ CXXSRC += \
 	Icon.cpp \
 	Option.cpp \
 	OptionLaunch.cpp \
-	OptionToggle.cpp \
 	Screen.cpp \
 	ScreenAbout.cpp \
 	ScreenComplete.cpp \
