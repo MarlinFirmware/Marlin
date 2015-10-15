@@ -1591,7 +1591,9 @@ void process_commands()
       #endif //FWRETRACT
 
     case 28: //G28 Home all Axis one at a time
+#ifdef DOGLCD
       if (PrintManager::single::instance().state() != PRINTING && AutoLevelManager::single::instance().state() == false)
+#endif //DOGLCD
       {
         action_homing();
       }
