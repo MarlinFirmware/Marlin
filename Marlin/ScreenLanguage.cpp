@@ -120,6 +120,9 @@ namespace screen
 					case 6:
 						strcpy_P(value, MSG_SCREEN_WIZARD_LANGUAGE());
 						break;
+					case 7:
+						strcpy_P(value, MSG_SCREEN_WIZARD_LANGUAGE());
+						break;
 				}
 				if (m_language != 0 && m_language != m_max)
 				{

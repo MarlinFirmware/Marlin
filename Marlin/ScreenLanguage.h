@@ -53,7 +53,7 @@ namespace screen
 			const Language m_default;
 			uint8_t m_language;
 			const uint8_t m_min = 0;
-			const uint8_t m_max = 6;
+			const uint8_t m_max = 7;
 	};
 }
 #endif //SCREEN_LANGUAGE_H
