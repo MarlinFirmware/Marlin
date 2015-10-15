@@ -1135,18 +1135,26 @@ static void clean_up_after_endstop_move() {
 
 static void engage_z_probe() {
     // Engage Z Servo endstop if enabled
-    #ifdef SERVO_ENDSTOPS
+#ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+    #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         servos[servo_endstops[Z_AXIS]].attach(0);
-#endif
+    #endif
+        if (current_position[Z_AXIS] < Z_RAISE_BEFORE_PROBING)
+        {
+          int z_loc = Z_RAISE_BEFORE_PROBING;
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_loc);
+        }
+
+        // engage probe
         servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2]);
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+ 
+  #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         delay(PROBE_SERVO_DEACTIVATION_DELAY);
         servos[servo_endstops[Z_AXIS]].detach();
-#endif
+  #endif
     }
-    #endif
+#endif
 }
 
 static void retract_z_probe() {
@@ -1208,15 +1216,12 @@ static void homeaxis(int axis) {
 #ifndef Z_PROBE_SLED
     // Engage Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
-      #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-        if (axis==Z_AXIS) {
-          engage_z_probe();
-        }
-	    else
-      #endif
-      if (servo_endstops[axis] > -1) {
-        servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
-      }
+    if (axis==Z_AXIS) {
+        engage_z_probe(); // takes care of raising Z if needed
+    }
+    else if (servo_endstops[axis] > -1) {
+      servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
+    }
     #endif
 #endif // Z_PROBE_SLED
     destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
@@ -3421,7 +3426,7 @@ Sigma_Exit:
       st_synchronize();
     }
     break;
-#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
+#if defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
     case 401:
     {
         engage_z_probe();    // Engage Z Servo endstop if available
