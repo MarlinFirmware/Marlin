@@ -3,6 +3,8 @@
 #include "Arduino.h"
 #include "GuiAction.h"
 
+#include "LightManager.h"
+#include "StorageManager.h"
 #include "TemperatureManager.h"
 #include "SteppersManager.h"
 #include "ViewManager.h"
@@ -196,13 +198,16 @@ void PrintManager::resetInactivity()
 {
 	PrintManager::single::instance().resetInactivityTime();
 	PrintManager::single::instance().setInactivityFlag(false);
+
+	if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)
+	{
+		LightManager::single::instance().state(true);
+	}
 }
 
 void PrintManager::updateInactivity()
 {
-	if ( (PrintManager::single::instance().getInactivityFlag() == false)
-		&& ( (PrintManager::single::instance().state() == STOPPED)
-		|| ( PrintManager::single::instance().state() == COMPLETE) ) )
+	if ( PrintManager::single::instance().getInactivityFlag() == false )
 	{
 		if (millis() > PrintManager::single::instance().getInactivityTime())
 		{
@@ -214,12 +219,46 @@ void PrintManager::updateInactivity()
 
 void PrintManager::inactivityTriggered()
 {
-	temp::TemperatureManager::single::instance().setTargetTemperature(0);
-	SteppersManager::disableAllSteppers();
-
-	if(m_state != INITIALIZING && m_state != SERIAL_CONTROL && m_state != COMPLETE)
+	switch(m_state)
 	{
-		screen::ViewManager::getInstance().activeView(screen::screen_inactivity);
+		case COMPLETE:
+			temp::TemperatureManager::single::instance().setTargetTemperature(0);
+			SteppersManager::disableAllSteppers();
+			if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)
+			{
+				LightManager::single::instance().state(false);
+			}
+			break;
+		case STOPPED:
+			temp::TemperatureManager::single::instance().setTargetTemperature(0);
+			SteppersManager::disableAllSteppers();
+			screen::ViewManager::getInstance().activeView(screen::screen_inactivity);
+			if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)
+			{
+				LightManager::single::instance().state(false);
+			}
+			break;
+		case SERIAL_CONTROL:
+			temp::TemperatureManager::single::instance().setTargetTemperature(0);
+			SteppersManager::disableAllSteppers();
+			if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)
+			{
+				LightManager::single::instance().state(false);
+			}
+			break;
+		case LEVELING:
+		case READY:
+		case HOMING:
+		case PAUSING:
+		case PAUSED:
+		case PRINTING:
+			if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)
+			{
+				LightManager::single::instance().state(false);
+			}
+			break;
+		default:
+			break;
 	}
 }
 
