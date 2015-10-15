@@ -564,6 +564,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     if (stop_planner_buffer == true)
     {
       stop_planner_buffer = false;
+      planner_buffer_stopped = true;
       return;
     }
 #endif // DOGLCD

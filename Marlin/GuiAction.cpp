@@ -23,6 +23,7 @@ extern bool bed_leveling;
 extern const char axis_codes[NUM_AXIS];
 extern bool cancel_heatup;
 extern bool stop_planner_buffer;
+extern bool planner_buffer_stopped;
 extern bool stop_buffer;
 bool change_filament = false; 
 extern uint16_t stop_buffer_code;
@@ -640,9 +641,10 @@ void action_stop_print()
 {
 	plan_bed_level_matrix.set_to_identity();
 
-	enquecommand_P(PSTR("G90"));
+	flush_commands();
+	stop_planner_buffer = true;
+	quickStop();
 
-	st_synchronize();
 	temp::TemperatureManager::single::instance().setBlowerControlState(true);
 #ifdef FAN_BOX_PIN
 	digitalWrite(FAN_BOX_PIN, LOW);
@@ -656,8 +658,7 @@ void action_stop_print()
 
 	action_preheat();
 
-	flush_commands();
-	quickStop();
+	set_relative_mode(false);
 
 	plan_reset_position();
 
@@ -716,10 +717,11 @@ void action_stop_print()
 	// autotempShutdown();
 
 	cancel_heatup = true;
-	stop_planner_buffer = true;
 	x_hit = false;
 	y_hit = false;
 	z_hit = false;
+
+	PrintManager::knownPosition(true);
 }
 
 void action_finish_print()

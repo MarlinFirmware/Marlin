@@ -693,6 +693,7 @@ uint8_t buffer_recursivity = 0;
 #else // DOGLCD
 bool stop_planner_buffer = false;
 #endif // DOGLCD
+bool planner_buffer_stopped = false;
 
 bool stop_buffer = false;
 uint16_t stop_buffer_code = 0;
@@ -4368,8 +4369,12 @@ for (int s = 1; s <= steps; s++) {
   }
 #endif // !(DELTA || SCARA)
 
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
+  if (!planner_buffer_stopped){
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+      current_position[i] = destination[i];
+    }
+  } else {
+    planner_buffer_stopped = false; // Reset flag
   }
 }
 
@@ -4851,4 +4856,8 @@ void reset(void)
 	// to turn off the watchdog early during program startup.
 	MCUSR = 0; // clear reset flags
 	wdt_disable();
+}
+
+void set_relative_mode(bool value){
+  relative_mode = value;
 }
