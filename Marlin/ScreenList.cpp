@@ -153,7 +153,7 @@ namespace screen
 			if (m_directory_is_root == true)
 			{
 				painter.setColorIndex(1);
-				painter.setFont(u8g_font_6x9);
+				painter.setFont(FontType_t::BODY_FONT);
 				painter.setPrintPos(x_init, y_init + 3);
 				painter.print("/");
 				painter.setPrintPos(x_init + 6, y_init + 3);
@@ -164,7 +164,7 @@ namespace screen
 			else
 			{
 				painter.setColorIndex(1);
-				painter.setFont(u8g_font_6x9);
+				painter.setFont(FontType_t::BODY_FONT);
 				painter.drawBitmap(x_init, y_init + 3, little_icon_width, little_icon_height, bits_updir_small);
 				painter.setPrintPos(x_init + 6, y_init + 3);
 				painter.print("/");
