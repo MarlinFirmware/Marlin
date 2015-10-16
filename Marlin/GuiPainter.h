@@ -46,6 +46,11 @@ namespace screen
 		BOTH,
 		NUM_SCREEN_TYPES,
 	} ArrowType_t;
+	
+	typedef enum
+	{
+		BODY_FONT,
+	} FontType_t;
 
 	class GuiPainter
 	{
@@ -73,7 +78,7 @@ namespace screen
 			void multiText(const char * msg);
 			void multiText_P(const char * msg);
 
-			void setFont(const u8g_fntpgm_uint8_t* font);
+			void setFont(FontType_t font);
 			void setColorIndex(uint8_t color);
 			void setPrintPos(uint8_t x, uint8_t y);
 

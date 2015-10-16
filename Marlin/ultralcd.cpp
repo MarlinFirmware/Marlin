@@ -611,7 +611,7 @@ static void lcd_set_encoder_position(int8_t position)
     if (display_refresh_mode == UPDATE_SCREEN) {\
         u8g.firstPage(); \
         do { \
-            u8g.setFont(u8g_font_6x10_marlin);\
+            u8g.setFont(u8g_font_6x9);\
             if (encoder_position > 0x8000) encoder_position = 0;\
             if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM < display_view_menu_offset) {\
                 display_view_menu_offset = encoder_position / ENCODER_STEPS_PER_MENU_ITEM;\

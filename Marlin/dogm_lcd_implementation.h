@@ -57,7 +57,7 @@
 
 #define USE_BIG_EDIT_FONT                // save 3120 bytes of PROGMEM by commenting out this line
 #define FONT_STATUSMENU u8g_font_6x9
-#define FONT_MENU u8g_font_6x10_marlin
+#define FONT_MENU u8g_font_6x9
 
 // DOGM parameters (size in pixels)
 #define DOG_CHAR_WIDTH         6
@@ -68,7 +68,7 @@
   #define DOG_CHAR_HEIGHT_EDIT 18
   #define LCD_WIDTH_EDIT       14
 #else
-  #define FONT_MENU_EDIT u8g_font_6x10_marlin
+  #define FONT_MENU_EDIT u8g_font_6x9
   #define DOG_CHAR_WIDTH_EDIT  6
   #define DOG_CHAR_HEIGHT_EDIT 12
   #define LCD_WIDTH_EDIT       22
