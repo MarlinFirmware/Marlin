@@ -236,6 +236,8 @@ void clamp_to_software_endstops(float target[3]);
 
 void refresh_cmd_timeout(void);
 
+void set_relative_mode(bool);
+
 #ifdef FAST_PWM_FAN
 void setPwmFrequency(uint8_t pin, int val);
 #endif
