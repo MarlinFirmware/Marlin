@@ -394,7 +394,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 800, 204.146}   // default steps per unit for Ultimaker
 #define DEFAULT_MAX_FEEDRATE          {200, 200, 30, 200}        // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000, 1000, 1000, 1000}   // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_ACCELERATION      {1000, 1000, 1000, 500}   // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
@@ -406,7 +406,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // #define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
-#define DEFAULT_XYJERK                5.0    // (mm/sec)
+#define DEFAULT_XYJERK                25.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.0     // (mm/sec)
 #define DEFAULT_EJERK                 0.0    // (mm/sec)
 
