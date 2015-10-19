@@ -275,16 +275,19 @@ void planner_reverse_pass_kernel(block_t *previous, block_t *current, block_t *n
         current->entry_speed = current->max_entry_speed;
       }
 */
+      // vx_jerk_max = max_jerk_xy/cos(angle)
       float vx_jerk_max = fabs( (max_xy_jerk * current->millimeters) / current->delta_mm[X_AXIS] );
       float vy_jerk_max = fabs( (max_xy_jerk * current->millimeters) / current->delta_mm[Y_AXIS] );
 
       bool change_x = false;
       bool change_y = false;
-      if( (next->delta_mm[X_AXIS] - current->delta_mm[X_AXIS] ) <= 0)
+      if( ((next->delta_mm[X_AXIS] <= 0 && current->delta_mm[X_AXIS] ) > 0) &&
+          ((next->delta_mm[X_AXIS] >= 0 && current->delta_mm[X_AXIS] ) < 0) )
       {
         change_x = true;
       }
-      if( (next->delta_mm[Y_AXIS] - current->delta_mm[Y_AXIS] ) <= 0)
+      if( ((next->delta_mm[Y_AXIS] <= 0 && current->delta_mm[Y_AXIS] ) > 0) &&
+          ((next->delta_mm[Y_AXIS] >= 0 && current->delta_mm[Y_AXIS] ) < 0) )
       {
         change_y = true;
       }
@@ -303,7 +306,7 @@ void planner_reverse_pass_kernel(block_t *previous, block_t *current, block_t *n
       }
       else
       {
-        current->vmax_junction = constrain( max( vx_jerk_max, vy_jerk_max ), max_xy_jerk, 200);
+        current->vmax_junction = current->entry_speed;//constrain( max( vx_jerk_max, vy_jerk_max ), max_xy_jerk, 200);
       }
       current->entry_speed = current->vmax_junction;
 
@@ -1039,13 +1042,14 @@ Having the real displacement of the head, we can calculate the total movement le
     //    }
     if (jerk > max_xy_jerk) {
       vmax_junction_factor = (max_xy_jerk/jerk);
-    }/*
-    if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
-      vmax_junction_factor= min(vmax_junction_factor, (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS])));
     }
-    if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
-      vmax_junction_factor = min(vmax_junction_factor, (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS])));
-    }*/
+    // if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
+    //   vmax_junction_factor= min(vmax_junction_factor, (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS])));
+    // }
+    // if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
+    //   vmax_junction_factor = min(vmax_junction_factor, (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS])));
+    // }
+
     block->vmax_junction = min(previous_nominal_speed, block->vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
 
   }
