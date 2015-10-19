@@ -281,13 +281,13 @@ void planner_reverse_pass_kernel(block_t *previous, block_t *current, block_t *n
 
       bool change_x = false;
       bool change_y = false;
-      if( ((next->delta_mm[X_AXIS] <= 0 && current->delta_mm[X_AXIS] ) > 0) &&
-          ((next->delta_mm[X_AXIS] >= 0 && current->delta_mm[X_AXIS] ) < 0) )
+      if( (next->delta_mm[X_AXIS] <= 0 && current->delta_mm[X_AXIS] > 0) ||
+          (next->delta_mm[X_AXIS] >= 0 && current->delta_mm[X_AXIS] < 0) )
       {
         change_x = true;
       }
-      if( ((next->delta_mm[Y_AXIS] <= 0 && current->delta_mm[Y_AXIS] ) > 0) &&
-          ((next->delta_mm[Y_AXIS] >= 0 && current->delta_mm[Y_AXIS] ) < 0) )
+      if( (next->delta_mm[Y_AXIS] <= 0 && current->delta_mm[Y_AXIS] > 0) ||
+          (next->delta_mm[Y_AXIS] >= 0 && current->delta_mm[Y_AXIS] < 0) )
       {
         change_y = true;
       }
@@ -1056,7 +1056,10 @@ Having the real displacement of the head, we can calculate the total movement le
   block->max_entry_speed = block->vmax_junction;
 
   // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
-  double v_allowable = max_allowable_speed(-block->acceleration,MINIMUM_PLANNER_SPEED,block->millimeters);
+  float vx_jerk_max = fabs( (max_xy_jerk * block->millimeters) / block->delta_mm[X_AXIS] );
+  float vy_jerk_max = fabs( (max_xy_jerk * block->millimeters) / block->delta_mm[Y_AXIS] );
+
+  double v_allowable = max_allowable_speed(-block->acceleration,min(vx_jerk_max, vy_jerk_max),block->millimeters);
   block->entry_speed = min(block->vmax_junction, v_allowable);
 
   // Initialize planner efficiency flags
