@@ -1463,7 +1463,6 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_TEMP_0
         START_ADC(TEMP_0_PIN);
       #endif
-      lcd_buttons_update();
       temp_state = MeasureTemp_0;
       break;
     case MeasureTemp_0:
@@ -1477,7 +1476,6 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_TEMP_BED
         START_ADC(TEMP_BED_PIN);
       #endif
-      lcd_buttons_update();
       temp_state = MeasureTemp_BED;
       break;
     case MeasureTemp_BED:
@@ -1491,7 +1489,6 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_TEMP_1
         START_ADC(TEMP_1_PIN);
       #endif
-      lcd_buttons_update();
       temp_state = MeasureTemp_1;
       break;
     case MeasureTemp_1:
@@ -1505,7 +1502,6 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_TEMP_2
         START_ADC(TEMP_2_PIN);
       #endif
-      lcd_buttons_update();
       temp_state = MeasureTemp_2;
       break;
     case MeasureTemp_2:
@@ -1519,7 +1515,6 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_TEMP_3
         START_ADC(TEMP_3_PIN);
       #endif
-      lcd_buttons_update();
       temp_state = MeasureTemp_3;
       break;
     case MeasureTemp_3:
@@ -1533,7 +1528,6 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_FILAMENT_SENSOR
         START_ADC(FILWIDTH_PIN);
       #endif
-      lcd_buttons_update();
       temp_state = Measure_FILWIDTH;
       break;
     case Measure_FILWIDTH:
