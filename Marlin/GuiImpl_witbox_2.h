@@ -23,6 +23,10 @@ namespace screen
 		screen_wizard_step4,
 		screen_wizard_finish,
 		screen_emergency,
+		screen_reset_init,
+		screen_reset_info,
+		screen_reset,
+		screen_resetting,
 		screen_main,
 		screen_SD_list,
 		screen_SD_confirm,
@@ -89,6 +93,7 @@ namespace screen
 		screen_cooling_main,
 		screen_heating_main,
 		screen_info,
+		screen_contact,
 		screen_settings_language,
 		screen_offset,
 		screen_offset_switch,
@@ -125,6 +130,7 @@ namespace screen
 		screen_serial,
 		screen_inactivity,
 		screen_close_inactivity,
+		screen_error_temperature,
 		screen_none,
 	} ScreenIndex_t;
 

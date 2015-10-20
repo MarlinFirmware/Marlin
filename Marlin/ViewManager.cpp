@@ -19,7 +19,8 @@ namespace screen
 			
 		// Delete last view
 		delete m_active_view;
-	
+		m_index = index;
+
 		// Build new active view
 		m_active_view = GuiBuild(index);
 
@@ -32,8 +33,6 @@ namespace screen
 		{
 			m_active_view->init();
 		}
-
-		m_index = index;
 	}
 
 	Screen * ViewManager::activeView()

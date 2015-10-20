@@ -45,6 +45,7 @@ namespace screen
 	{
 		memset(m_directory, 0, sizeof(m_directory));
 		m_directory_is_root = false;
+		m_previous_time = millis();
 	}
 
 	ScreenList::~ScreenList()
@@ -121,6 +122,8 @@ namespace screen
 		{
 			--m_index;
 		}
+		painter.animationReset(2000);
+		m_previous_time = millis();
 	}
 
 	void ScreenList::right()
@@ -133,6 +136,8 @@ namespace screen
 		{
 			++m_index;
 		}
+		painter.animationReset(2000);
+		m_previous_time = millis();
 	}
 
 	void ScreenList::draw()
@@ -148,7 +153,7 @@ namespace screen
 			if (m_directory_is_root == true)
 			{
 				painter.setColorIndex(1);
-				painter.setFont(u8g_font_6x9);
+				painter.setFont(FontType_t::BODY_FONT);
 				painter.setPrintPos(x_init, y_init + 3);
 				painter.print("/");
 				painter.setPrintPos(x_init + 6, y_init + 3);
@@ -159,7 +164,7 @@ namespace screen
 			else
 			{
 				painter.setColorIndex(1);
-				painter.setFont(u8g_font_6x9);
+				painter.setFont(FontType_t::BODY_FONT);
 				painter.drawBitmap(x_init, y_init + 3, little_icon_width, little_icon_height, bits_updir_small);
 				painter.setPrintPos(x_init + 6, y_init + 3);
 				painter.print("/");
@@ -223,11 +228,41 @@ namespace screen
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
 					if(strcmp(card.longFilename,"") != 0)
 					{
-						painter.print(card.longFilename);
+						if (i == window_selector)
+						{
+							m_current_time = millis();
+							if (m_current_time > m_previous_time + 1200)
+							{
+								painter.animate(card.longFilename, 18, 100);
+							}
+							else
+							{
+								painter.print(card.longFilename);
+							}
+						}
+						else
+						{
+							painter.print(card.longFilename);
+						}
 					}
 					else
 					{
-						painter.print(card.filename);
+						if (i == window_selector)
+						{
+							m_current_time = millis();
+							if (m_current_time > m_previous_time + 1200)
+							{
+								painter.animate(card.filename, 18, 100);
+							}
+							else
+							{
+								painter.print(card.filename);
+							}
+						}
+						else
+						{
+							painter.print(card.filename);
+						}
 					}
 				}
 			}

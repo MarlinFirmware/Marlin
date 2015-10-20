@@ -3,7 +3,7 @@
 
 #include "Singleton.h"
 #include "Subject.h"
-#include "Stepper.h"
+#include "StepperClass.h"
 
 class SteppersManager : public Subject<bool>
 {

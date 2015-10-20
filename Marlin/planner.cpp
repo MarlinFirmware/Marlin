@@ -81,6 +81,7 @@ extern uint8_t buffer_recursivity;
 #else // DOGLCD
 extern bool stop_planner_buffer;
 #endif //DOGLCD
+extern bool planner_buffer_stopped;
 
 // this holds the required transform to compensate for bed level
 matrix_3x3 plan_bed_level_matrix = {
@@ -564,6 +565,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     if (stop_planner_buffer == true)
     {
       stop_planner_buffer = false;
+      planner_buffer_stopped = true;
       return;
     }
 #endif // DOGLCD
@@ -1006,13 +1008,13 @@ Having the real displacement of the head, we can calculate the total movement le
     //    }
     if (jerk > max_xy_jerk) {
       vmax_junction_factor = (max_xy_jerk/jerk);
-    } 
+    }/*
     if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
       vmax_junction_factor= min(vmax_junction_factor, (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS])));
     } 
     if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
       vmax_junction_factor = min(vmax_junction_factor, (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS])));
-    } 
+    }*/
     vmax_junction = min(previous_nominal_speed, vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
   }
   block->max_entry_speed = vmax_junction;
@@ -1120,6 +1122,12 @@ void plan_set_position(const float &x, const float &y, const float &z, const flo
   previous_speed[1] = 0.0;
   previous_speed[2] = 0.0;
   previous_speed[3] = 0.0;
+}
+
+void plan_set_axis_position(uint8_t axis, float value)
+{
+  position[axis] = lround(value * axis_steps_per_unit[axis]);
+  st_set_axis_position(axis,position[axis]);
 }
 
 void plan_set_e_position(const float &e)

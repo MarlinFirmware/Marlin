@@ -186,10 +186,10 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu();
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_sd);
-		local_view->add(screen_unload_init);
-		local_view->icon(icon_filament_unload);
 		local_view->add(screen_load_init);
 		local_view->icon(icon_filament_load);
+		local_view->add(screen_unload_init);
+		local_view->icon(icon_filament_unload);
 		local_view->add(screen_level_init);
 		local_view->icon(icon_leveling);
 		local_view->add(screen_autohome_init);
@@ -408,7 +408,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_level_preheating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_level_switch);
 		return local_view;
 	}
@@ -506,7 +506,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_autohome_animation()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_AUTOHOME_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_AUTOHOME_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_autohome_homing);
 		return local_view;
 	}
@@ -523,17 +523,21 @@ namespace screen
 	{
 		OptionLaunch * option_back        = new OptionLaunch(option_size, MSG_BACK());
 		option_back->add(screen_main);
-		OptionToggle * option_autolevel   = new OptionToggle(option_size, MSG_OPTION_AUTOLEVEL(), AutoLevelManager::setState, &AutoLevelManager::single::instance());
+		OptionToggle<bool> * option_autolevel   = new OptionToggle<bool> (option_size, MSG_OPTION_AUTOLEVEL(), AutoLevelManager::setState, &AutoLevelManager::single::instance());
 #ifdef LIGHT_ENABLED
-		OptionToggle * option_led         = new OptionToggle(option_size, MSG_OPTION_LIGHTLED(), LightManager::setState, &LightManager::single::instance());
+		OptionToggle<uint8_t>  * option_led         = new OptionToggle<uint8_t>(option_size, MSG_OPTION_LIGHTLED(), LightManager::setMode, &LightManager::single::instance());
 #endif // LIGHT_ENABLED
-		OptionToggle * option_serial      = new OptionToggle(option_size, MSG_OPTION_SERIAL(), SerialManager::setState, &SerialManager::single::instance());
+		OptionToggle<bool>  * option_serial      = new OptionToggle<bool> (option_size, MSG_OPTION_SERIAL(), SerialManager::setState, &SerialManager::single::instance());
 		OptionLaunch * option_offset      = new OptionLaunch(option_size, MSG_OPTION_OFFSET());
 		option_offset->add(screen_offset);
 		OptionLaunch * option_about       = new OptionLaunch(option_size, MSG_OPTION_INFO());
 		option_about->add(screen_info);
+		OptionLaunch * option_contact     = new OptionLaunch(option_size, MSG_OPTION_CONTACT());
+		option_contact->add(screen_contact);
 		OptionLaunch * option_language    = new OptionLaunch(option_size, MSG_OPTION_LANGUAGE());
 		option_language->add(screen_settings_language);
+		OptionLaunch * option_reset       = new OptionLaunch(option_size, MSG_OPTION_RESET());
+		option_reset->add(screen_reset_init);
 
 		ScreenSetting * local_view = new ScreenSetting(MSG_SCREEN_SETTINGS_TITLE());
 		local_view->add(option_back);
@@ -544,6 +548,8 @@ namespace screen
 		local_view->add(option_serial);
 		local_view->add(option_offset);
 		local_view->add(option_language);
+		local_view->add(option_reset);
+		local_view->add(option_contact);
 		local_view->add(option_about);
 		return local_view;
 	}
@@ -614,7 +620,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_move_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_MOVE_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_MOVE_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_move_e);
 		return local_view;
 	}
@@ -807,6 +813,13 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenDialog<void> * make_screen_contact()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CONTACT_TITLE(), MSG_SCREEN_CONTACT_TEXT(), MSG_PUSH_TO_BACK(), do_nothing);
+		local_view->add(screen_settings);
+		return local_view;
+	}
+
 	static ScreenLanguage * make_screen_settings_language()
 	{
 		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::EN);
@@ -844,7 +857,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_offset_preheating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_OFFSET_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_OFFSET_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_offset_home);
 		return local_view;
 	}
@@ -966,6 +979,12 @@ namespace screen
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_close_inactivity);
 		local_view->add(screen_main);
+		return local_view;
+	}
+
+	static ScreenEmergency * make_screen_error_temperature()
+	{
+		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_ERROR_TITLE(), MSG_SCREEN_ERROR_TEMPERATURE_TEXT(), MSG_SCREEN_EMERGENCY_BOX(), bits_emergency);
 		return local_view;
 	}
 
@@ -1105,6 +1124,39 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenMenu * make_screen_reset_init()
+	{
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_RESET_INIT_TITLE(), MSG_SCREEN_RESET_INIT_TEXT());
+		local_view->add(screen_settings);
+		local_view->icon(icon_back);
+		local_view->add(screen_reset_info);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_reset_info()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_RESET_INFO_TITLE(), MSG_SCREEN_RESET_INFO_TEXT(), MSG_PUSH_TO_CONTINUE(), do_nothing);
+		local_view->add(screen_reset);
+		return local_view;
+	}
+
+	static ScreenEmergency * make_screen_reset()
+	{
+		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_RESET_TITLE(), MSG_SCREEN_RESET_TEXT(), MSG_PLEASE_WAIT(), bits_emergency);
+		local_view->add(screen_resetting);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_resetting()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_erase_EEPROM);
+		return local_view;
+	}
+
 	Screen * new_view;
 
 	// Build the UI
@@ -1116,7 +1168,7 @@ namespace screen
 			case screen_splash:
 				new_view = make_screen_splash();
 				break;
-			
+
 			//Initial wizard
 			case screen_wizard_init:
 				new_view = make_screen_wizard_init();
@@ -1161,6 +1213,20 @@ namespace screen
 			// Emergency stop
 			case screen_emergency:
 				new_view = make_screen_emergency();
+				break;
+
+			// Reset EEPROM
+			case screen_reset_init:
+				new_view = make_screen_reset_init();
+				break;
+			case screen_reset_info:
+				new_view = make_screen_reset_info();
+				break;
+			case screen_reset:
+				new_view = make_screen_reset();
+				break;
+			case screen_resetting:
+				new_view = make_screen_resetting();
 				break;
 
 			// Main menu
@@ -1384,6 +1450,10 @@ namespace screen
 			case screen_info:
 				new_view = make_screen_info();
 				break;
+			// Contact
+			case screen_contact:
+				new_view = make_screen_contact();
+				break;
 
 			//Language
 			case screen_settings_language:
@@ -1507,6 +1577,11 @@ namespace screen
 				break;
 			case screen_close_inactivity:
 				new_view = make_screen_close_inactivity();
+				break;
+
+			// Error screens
+			case screen_error_temperature:
+				new_view = make_screen_error_temperature();
 				break;
 		}
 		return new_view; 

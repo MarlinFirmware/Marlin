@@ -10,6 +10,7 @@
 #include "Language_PT.h"
 #include "Language_IT.h"
 #include "Language_SE.h"
+#include "Language_RU.h"
 
 #undef SE;
 
@@ -22,6 +23,8 @@ enum class Language
 	PT,     // Portuguese
 	IT,     // Italian
 	SE,     // Swedish
+	RU,		// Russian
+	MAX_LANGUAGES
 };
 extern Language LANG;
 
@@ -56,6 +59,10 @@ const char * MSG_##label() \
    else if (LANG == Language::SE) \
    { \
       text = SE_##label; \
+   } \
+   else if (LANG == Language::RU) \
+   { \
+      text = RU_##label; \
    } \
    return text; \
 }
@@ -196,6 +203,8 @@ enum class Label
 	SCREEN_RESET_INFO_TEXT,
 	SCREEN_RESET_TITLE,
 	SCREEN_RESET_TEXT,
+	SCREEN_ERROR_TITLE,
+	SCREEN_ERROR_TEMPERATURE_TEXT,
 	ICON_SD_NOSD,
 	ICON_SD_SD,
 	ICON_FILAMENT_UNLOAD,
@@ -375,6 +384,8 @@ extern const char * MSG_SCREEN_RESET_INFO_TITLE();
 extern const char * MSG_SCREEN_RESET_INFO_TEXT();
 extern const char * MSG_SCREEN_RESET_TITLE();
 extern const char * MSG_SCREEN_RESET_TEXT();
+extern const char * MSG_SCREEN_ERROR_TITLE();
+extern const char * MSG_SCREEN_ERROR_TEMPERATURE_TEXT();
 extern const char * MSG_ICON_SD_NOSD();
 extern const char * MSG_ICON_SD_SD();
 extern const char * MSG_ICON_FILAMENT_UNLOAD();

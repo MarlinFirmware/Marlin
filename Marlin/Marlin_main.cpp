@@ -62,7 +62,6 @@
 #ifdef DOGLCD
   #include "GuiManager.h"
   #include "PrintManager.h"
-  #include "StorageManager.h"
   #include "SerialManager.h"
   #include "ViewManager.h"
 #else // DOGLCD
@@ -71,6 +70,7 @@
 
 #include "TemperatureManager.h"
 #include "AutoLevelManager.h"
+#include "StorageManager.h"
 
 #include "Action.h"
 #include "GuiAction.h"
@@ -622,6 +622,11 @@ void setup()
   if(mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
   MCUSR=0;
 
+  if(eeprom::StorageManager::getBoardType() != MOTHERBOARD)
+  {
+    while(1);
+  }
+
   SERIAL_ECHOPGM(MSG_MARLIN);
   SERIAL_ECHOLNPGM(STRING_VERSION_CONFIG_H);
   #ifdef STRING_VERSION_CONFIG_H
@@ -660,7 +665,7 @@ void setup()
   servo_init();
 
 #ifdef DOGLCD
-  if (eeprom::StorageManager::getEmergency() != eeprom::EMERGENCY_STOP_INACTIVE)
+  if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_ACTIVE)
   {
     SERIAL_ECHOLN("--- EMERGENCY STOP ACTIVE ---");
   }
@@ -688,6 +693,7 @@ uint8_t buffer_recursivity = 0;
 #else // DOGLCD
 bool stop_planner_buffer = false;
 #endif // DOGLCD
+bool planner_buffer_stopped = false;
 
 bool stop_buffer = false;
 uint16_t stop_buffer_code = 0;
@@ -804,11 +810,11 @@ void get_command()
     serial_char = MYSERIAL.read();
 
 #ifdef DOGLCD
-		if(SerialManager::single::instance().state()
-			&& PrintManager::single::instance().state() != SERIAL_CONTROL
-			&& PrintManager::single::instance().state() != INITIALIZING)
+		if ( SerialManager::single::instance().state() &&
+		     PrintManager::single::instance().state() != SERIAL_CONTROL &&
+		     PrintManager::single::instance().state() != INITIALIZING )
 		{
-			if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial)
+			if (screen::ViewManager::getInstance().getViewIndex() == screen::screen_main)
 			{
 				PrintManager::single::instance().state(SERIAL_CONTROL);
 				screen::ViewManager::getInstance().activeView(screen::screen_serial);
@@ -957,24 +963,6 @@ void get_command()
        (serial_char == ':' && comment_mode == false) ||
        serial_count >= (MAX_CMD_SIZE - 1)||n==-1)
     {
-      if(card.eof()){
-#ifdef DOGLCD
-        PrintManager::endPrint();
-#endif
-        SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
-        stoptime=millis();
-        char time[30];
-        unsigned long t=(stoptime-starttime)/1000;
-        int hours, minutes;
-        minutes=(t/60)%60;
-        hours=t/60/60;
-        sprintf_P(time, PSTR("%i "MSG_END_HOUR" %i "MSG_END_MINUTE),hours, minutes);
-        SERIAL_ECHO_START;
-        SERIAL_ECHOLN(time);
-        lcd_setstatus(time);
-        card.printingHasFinished();
-        card.checkautostart(true);
-      }
       if(serial_char=='#')
         stop_buffering=true;
 
@@ -997,6 +985,27 @@ void get_command()
       if(serial_char == ';') comment_mode = true;
       if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
+  }
+
+  if(card.eof() && buflen == 0){
+
+    st_synchronize();
+#ifdef DOGLCD
+    PrintManager::endPrint();
+#endif
+    SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+    stoptime=millis();
+    char time[30];
+    unsigned long t=(stoptime-starttime)/1000;
+    int hours, minutes;
+    minutes=(t/60)%60;
+    hours=t/60/60;
+    sprintf_P(time, PSTR("%i "MSG_END_HOUR" %i "MSG_END_MINUTE),hours, minutes);
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLN(time);
+    lcd_setstatus(time);
+    card.printingHasFinished();
+    card.checkautostart(true);
   }
 
   #endif //SDSUPPORT
@@ -1583,7 +1592,12 @@ void process_commands()
       #endif //FWRETRACT
 
     case 28: //G28 Home all Axis one at a time
-      action_homing();
+#ifdef DOGLCD
+      if (PrintManager::single::instance().state() != PRINTING && AutoLevelManager::single::instance().state() == false)
+#endif //DOGLCD
+      {
+        action_homing();
+      }
     break;
 #ifdef LEVEL_SENSOR
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
@@ -1770,7 +1784,7 @@ void process_commands()
         lastpos[E_AXIS] = current_position[E_AXIS];
 
 				current_position[E_AXIS]-= RETRACT_ON_PAUSE;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[E_AXIS], active_extruder);
 
 				current_position[Z_AXIS]+= FILAMENTCHANGE_ZADD;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, active_extruder);
@@ -2522,6 +2536,11 @@ Sigma_Exit:
       break;
     case 18: //compatibility
     case 84: // M84
+
+#ifdef DOGLCD
+      PrintManager::knownPosition(false);
+#endif //DOGLCD
+
       if(code_seen('S')){
         stepper_inactive_time = code_value() * 1000;
       }
@@ -3891,18 +3910,32 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
       			break;  
 			#endif //WITBOX
-
+    case 703:
+      eeprom::StorageManager::getBoardType();
+      break;
     case 710: // M710 Set the EEPROM and reset the board.
     {
-      int p=0;
-      while(p < 4096)
-      {
-        unsigned char value = 0xFF;
-        _EEPROM_writeData(p, (uint8_t*)&value, sizeof(value));
-      };
-		RESET();
+		  action_erase_EEPROM();
     }
     break;
+
+#ifdef DOGLCD
+    case 800:
+      if(card.isFileOpen() == false)
+      {
+        action_start_print();
+      }
+      break;
+
+    case 801:
+      st_synchronize();
+
+      if(card.isFileOpen() == false)
+      {
+        action_finish_print();
+      }
+      break;
+#endif // DOGLCD
 
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
@@ -4336,8 +4369,12 @@ for (int s = 1; s <= steps; s++) {
   }
 #endif // !(DELTA || SCARA)
 
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
+  if (!planner_buffer_stopped){
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+      current_position[i] = destination[i];
+    }
+  } else {
+    planner_buffer_stopped = false; // Reset flag
   }
 }
 
@@ -4819,4 +4856,8 @@ void reset(void)
 	// to turn off the watchdog early during program startup.
 	MCUSR = 0; // clear reset flags
 	wdt_disable();
+}
+
+void set_relative_mode(bool value){
+  relative_mode = value;
 }

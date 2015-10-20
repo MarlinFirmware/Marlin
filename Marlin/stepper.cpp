@@ -34,6 +34,12 @@
 #include <SPI.h>
 #endif
 
+#ifdef MAX_STEP_FREQUENCY
+  #undef MAX_STEP_FREQUENCY
+#endif
+
+#define MAX_STEP_FREQUENCY 32000
+
 //===========================================================================
 //=============================public variables  ============================
 //===========================================================================
@@ -66,9 +72,12 @@ static unsigned short step_loops_nominal;
 
 volatile long endstops_trigsteps[3]={0,0,0};
 volatile long endstops_stepsTotal,endstops_stepsDone;
-static volatile bool endstop_x_hit=false;
-static volatile bool endstop_y_hit=false;
-static volatile bool endstop_z_hit=false;
+static volatile bool endstop_xmin_hit=false;
+static volatile bool endstop_xmax_hit=false;
+static volatile bool endstop_ymin_hit=false;
+static volatile bool endstop_ymax_hit=false;
+static volatile bool endstop_zmin_hit=false;
+static volatile bool endstop_zmax_hit=false;
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 bool abort_on_endstop_hit = false;
 #endif
@@ -172,32 +181,35 @@ asm volatile ( \
 
 void checkHitEndstops()
 {
- if( endstop_x_hit || endstop_y_hit || endstop_z_hit) {
+ if( endstop_xmin_hit || endstop_xmax_hit || endstop_ymin_hit || endstop_ymax_hit || endstop_zmin_hit || endstop_zmax_hit) {
    SERIAL_ECHO_START;
    SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
-   if(endstop_x_hit) {
+   if(endstop_xmin_hit || endstop_xmax_hit) {
      SERIAL_ECHOPAIR(" X:",(float)endstops_trigsteps[X_AXIS]/axis_steps_per_unit[X_AXIS]);
      LCD_MESSAGEPGM(MSG_ENDSTOPS_TOUCH "X");
    }
-   if(endstop_y_hit) {
+   if(endstop_ymin_hit || endstop_ymax_hit) {
      SERIAL_ECHOPAIR(" Y:",(float)endstops_trigsteps[Y_AXIS]/axis_steps_per_unit[Y_AXIS]);
      LCD_MESSAGEPGM(MSG_ENDSTOPS_TOUCH "Y");
    }
-   if(endstop_z_hit) {
+   if(endstop_zmin_hit || endstop_zmax_hit) {
      SERIAL_ECHOPAIR(" Z:",(float)endstops_trigsteps[Z_AXIS]/axis_steps_per_unit[Z_AXIS]);
      LCD_MESSAGEPGM(MSG_ENDSTOPS_TOUCH "Z");
    }
    SERIAL_ECHOLN("");
-   endstop_x_hit=false;
-   endstop_y_hit=false;
-   endstop_z_hit=false;
+   endstop_xmin_hit=false;
+   endstop_xmax_hit=false;
+   endstop_ymin_hit=false;
+   endstop_ymax_hit=false;
+   endstop_zmin_hit=false;
+   endstop_zmax_hit=false;
 #if defined(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && defined(SDSUPPORT)
    if (abort_on_endstop_hit)
    {
      card.sdprinting = false;
      card.closefile();
      quickStop();
-     setTargetHotend0(0);
+     setTargetHotend0(0); 
      setTargetHotend1(0);
      setTargetHotend2(0);
      setTargetHotend3(0);
@@ -207,11 +219,49 @@ void checkHitEndstops()
  }
 }
 
+bool checkXminEndstop()
+{
+  return endstop_xmin_hit;
+}
+
+bool checkXmaxEndstop()
+{
+  return endstop_xmax_hit;
+}
+
+bool checkYminEndstop()
+{
+  return endstop_ymin_hit;
+}
+
+bool checkYmaxEndstop()
+{
+  return endstop_ymax_hit;
+}
+
+bool checkZminEndstop()
+{
+  return endstop_zmin_hit;
+}
+
+bool checkZmaxEndstop()
+{
+  return endstop_zmax_hit;
+}
+
+float getRealPosAxis(uint8_t axis)
+{
+  return (float)count_position[axis]/axis_steps_per_unit[axis];
+}
+
 void endstops_hit_on_purpose()
 {
-  endstop_x_hit=false;
-  endstop_y_hit=false;
-  endstop_z_hit=false;
+  endstop_xmin_hit=false;
+  endstop_xmax_hit=false;
+  endstop_ymin_hit=false;
+  endstop_ymax_hit=false;
+  endstop_zmin_hit=false;
+  endstop_zmax_hit=false;
 }
 
 void enable_endstops(bool check)
@@ -242,36 +292,49 @@ void st_wake_up() {
 
 FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   unsigned short timer;
-  if(step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
+  if (step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
 
-  if(step_rate > 20000) { // If steprate > 20kHz >> step 4 times
-    step_rate = (step_rate >> 2)&0x3fff;
+  if(step_rate > 16000)     // If steprate > 16kHz >> step 32 times
+  {
+    step_rate = (step_rate >> 5) & 0x07ff;
+    step_loops = 32;
+  }
+  else if(step_rate > 8000) // If steprate > 8kHz >> step 16 times
+  {
+    step_rate = (step_rate >> 4) & 0x0fff;
+    step_loops = 16;
+  }
+  else if(step_rate > 4000) // If steprate > 4kHz >> step 8 times
+  {
+    step_rate = (step_rate >> 3) & 0x1fff;
+    step_loops = 8;
+  }
+  else if(step_rate > 2000) // If steprate > 2kHz >> step 4 times
+  {
+    step_rate = (step_rate >> 2) & 0x3fff;
     step_loops = 4;
   }
-  else if(step_rate > 10000) { // If steprate > 10kHz >> step 2 times
-    step_rate = (step_rate >> 1)&0x7fff;
+  else if(step_rate > 1000) // If steprate > 1kHz >> step 2 times
+  {
+    step_rate = (step_rate >> 1) & 0x7fff;
     step_loops = 2;
   }
-  else {
+  else                      // If steprate < 1kHz >> step 1 times
+  {
     step_loops = 1;
   }
 
-  if(step_rate < (F_CPU/500000)) step_rate = (F_CPU/500000);
-  step_rate -= (F_CPU/500000); // Correct for minimal speed
-  if(step_rate >= (8*256)){ // higher step rate
-    unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate>>8)][0];
-    unsigned char tmp_step_rate = (step_rate & 0x00ff);
-    unsigned short gain = (unsigned short)pgm_read_word_near(table_address+2);
-    MultiU16X8toH16(timer, tmp_step_rate, gain);
-    timer = (unsigned short)pgm_read_word_near(table_address) - timer;
+  unsigned short table_address = (unsigned short)&speed_lookuptable[step_rate];
+  timer = (unsigned short)pgm_read_word_near(table_address);
+
+  // Check frequency generated (1kHz this should never happen)
+  if(timer < 2000)
+  {
+    timer = 2000;
+    MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
+    MYSERIAL.println(step_rate);
   }
-  else { // lower step rates
-    unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
-    table_address += ((step_rate)>>1) & 0xfffc;
-    timer = (unsigned short)pgm_read_word_near(table_address);
-    timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
-  }
-  if(timer < 100) { timer = 100; MYSERIAL.print(MSG_STEPPER_TOO_HIGH); MYSERIAL.println(step_rate); }//(20kHz this should never happen)
+
   return timer;
 }
 
@@ -293,17 +356,6 @@ FORCE_INLINE void trapezoid_generator_reset() {
   acc_step_rate = current_block->initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
   OCR1A = acceleration_time;
-
-//    SERIAL_ECHO_START;
-//    SERIAL_ECHOPGM("advance :");
-//    SERIAL_ECHO(current_block->advance/256.0);
-//    SERIAL_ECHOPGM("advance rate :");
-//    SERIAL_ECHO(current_block->advance_rate/256.0);
-//    SERIAL_ECHOPGM("initial advance :");
-//    SERIAL_ECHO(current_block->initial_advance/256.0);
-//    SERIAL_ECHOPGM("final advance :");
-//    SERIAL_ECHOLN(current_block->final_advance/256.0);
-
 }
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
@@ -418,7 +470,7 @@ ISR(TIMER1_COMPA_vect)
             bool x_min_endstop=(READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING);
             if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
               endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-              endstop_x_hit=true;
+              endstop_xmin_hit=true;
               step_events_completed = current_block->step_event_count;
             }
             old_x_min_endstop = x_min_endstop;
@@ -440,7 +492,7 @@ ISR(TIMER1_COMPA_vect)
             bool x_max_endstop=(READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING);
             if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
               endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-              endstop_x_hit=true;
+              endstop_xmax_hit=true;
               step_events_completed = current_block->step_event_count;
             }
             old_x_max_endstop = x_max_endstop;
@@ -461,7 +513,7 @@ ISR(TIMER1_COMPA_vect)
           bool y_min_endstop=(READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING);
           if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_y_hit=true;
+            endstop_ymin_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_y_min_endstop = y_min_endstop;
@@ -476,7 +528,7 @@ ISR(TIMER1_COMPA_vect)
           bool y_max_endstop=(READ(Y_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING);
           if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_y_hit=true;
+            endstop_ymax_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_y_max_endstop = y_max_endstop;
@@ -498,7 +550,7 @@ ISR(TIMER1_COMPA_vect)
           bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
           if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_hit=true;
+            endstop_zmin_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_z_min_endstop = z_min_endstop;
@@ -519,7 +571,7 @@ ISR(TIMER1_COMPA_vect)
           bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
           if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_hit=true;
+            endstop_zmax_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_z_max_endstop = z_max_endstop;
@@ -835,6 +887,7 @@ ISR(TIMER1_COMPA_vect)
 
 void st_init()
 {
+    //SET_OUTPUT(ISR_STEPPER_PIN);
   digipot_init(); //Initialize Digipot Motor Current
   microstep_init(); //Initialize Microstepping Pins
 
@@ -1069,6 +1122,13 @@ void st_set_position(const long &x, const long &y, const long &z, const long &e)
   count_position[Y_AXIS] = y;
   count_position[Z_AXIS] = z;
   count_position[E_AXIS] = e;
+  CRITICAL_SECTION_END;
+}
+
+void st_set_axis_position(uint8_t axis, const long &value)
+{
+  CRITICAL_SECTION_START;
+  count_position[axis] = value;
   CRITICAL_SECTION_END;
 }
 
