@@ -111,7 +111,7 @@
       #define LCD_FEEDBACK_FREQUENCY_HZ 1000
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100
     #endif
-
+    #define TWI_FREQ 100000
     #define ULTIPANEL
     #define NEWPANEL
   #endif
@@ -125,6 +125,7 @@
     #define LCD_I2C_TYPE_MCP23017
     #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
     #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
+    #define TWI_FREQ 100000
     #define ULTIPANEL
     #define NEWPANEL
   #endif
