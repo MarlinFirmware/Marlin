@@ -360,6 +360,7 @@ static void lcd_implementation_init(
 
   #if ENABLED(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+    TWBR = ((F_CPU / TWI_FREQ) - 16) / 2;   // TWI_FREQ 100000-1000000
     #ifdef LCD_I2C_PIN_BL
       lcd.setBacklightPin(LCD_I2C_PIN_BL, POSITIVE);
       lcd.setBacklight(HIGH);
@@ -368,14 +369,17 @@ static void lcd_implementation_init(
   #elif ENABLED(LCD_I2C_TYPE_MCP23017)
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+    TWBR = ((F_CPU / TWI_FREQ) - 16) / 2;   // TWI_FREQ 100000-1000000
     lcd.setBacklight(0); //set all the LEDs off to begin with
 
   #elif ENABLED(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+    TWBR = ((F_CPU / TWI_FREQ) - 16) / 2;   // TWI_FREQ 100000-1000000
 
   #elif ENABLED(LCD_I2C_TYPE_PCA8574)
     lcd.init();
+    TWBR = ((F_CPU / TWI_FREQ) - 16) / 2;   // TWI_FREQ 100000-1000000
     lcd.backlight();
 
   #else
