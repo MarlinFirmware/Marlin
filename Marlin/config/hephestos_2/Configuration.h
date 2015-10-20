@@ -11,7 +11,7 @@
 #define MACHINE_NAME "Hephestos 2"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.0b5"
+#define FIRMWARE_VER "2.0.0b6"
 #define BUILD_VER ""
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
@@ -391,10 +391,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000,2*100.47095761381482}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {200, 200, 3.3, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000, 204.146} // default steps per unit for Ultimaker
+#define DEFAULT_MAX_FEEDRATE          {200, 200, 3.3, 200}      // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {1000, 1000, 100, 200}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_ACCELERATION          1000   // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
@@ -404,9 +404,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // #define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
-#define DEFAULT_XYJERK                10.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.4     // (mm/sec)
-#define DEFAULT_EJERK                 5.0    // (mm/sec)
+#define DEFAULT_XYJERK                20.0    // (mm/sec)
+#define DEFAULT_ZJERK                 0.0     // (mm/sec)
+#define DEFAULT_EJERK                 0.0    // (mm/sec)
 
 //===========================================================================
 //=============================WITBOX Features===============================

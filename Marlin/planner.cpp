@@ -81,6 +81,7 @@ extern uint8_t buffer_recursivity;
 #else // DOGLCD
 extern bool stop_planner_buffer;
 #endif //DOGLCD
+extern bool planner_buffer_stopped;
 
 // this holds the required transform to compensate for bed level
 matrix_3x3 plan_bed_level_matrix = {
@@ -564,6 +565,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     if (stop_planner_buffer == true)
     {
       stop_planner_buffer = false;
+      planner_buffer_stopped = true;
       return;
     }
 #endif // DOGLCD

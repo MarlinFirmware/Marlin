@@ -46,6 +46,7 @@ namespace screen
 				LESS_OR_EQUAL,
 				EQUAL,
 				GREATER_OR_EQUAL,
+				RANGE,
 				NUM_CONDITIONS
 			} Condition_t;
 
@@ -226,19 +227,23 @@ namespace screen
 		{
 			case LESS_OR_EQUAL:
 			{
-				return (round(m_observed <= m_target));
+				return (round(m_observed) <= m_target);
 				break;
 			}
 			case EQUAL:
 			{
-				return (round(m_observed == m_target));
+				return (round(m_observed) == m_target);
 				break;
 			}
 			case GREATER_OR_EQUAL:
 			{
-				return (round(m_observed >= m_target));
+				return (round(m_observed) >= m_target);
 				break;
 			}
+			case RANGE:
+				return ( ((round(m_observed) + 5) > m_target) &&
+				         ((round(m_observed) - 5) < m_target) );
+				break;
 			default:
 			{
 				return false;

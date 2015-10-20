@@ -606,7 +606,7 @@ void CardReader::chdir(const char * relpath)
     {
       strcpy(folderName, filename);
     }
-    folderName[LONG_FILENAME_LENGTH-1] = '0';
+    folderName[LONG_FILENAME_LENGTH-1] = '\0';
 
     if (workDirDepth < MAX_DIR_DEPTH) {
       for (int d = ++workDirDepth; d--;)

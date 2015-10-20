@@ -120,7 +120,7 @@ namespace screen
 				uint8_t y_end = painter.coordinateYEnd();
 
 				painter.setColorIndex(1);
-				painter.setFont(u8g_font_6x9);
+			painter.setFont(FontType_t::BODY_FONT);
 
 				char tmp_selected[7] = { 0 };
 				int number_size = 3;
