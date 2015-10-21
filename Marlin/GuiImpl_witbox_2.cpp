@@ -1,6 +1,7 @@
 #include "GuiImpl_witbox_2.h"
 #include "GuiBitmaps_witbox_2.h"
 #include "GuiAction.h"
+#include "Action.h"
 
 #include "Icon.h"
 #include "IconWidget.h"
@@ -263,7 +264,14 @@ namespace screen
 
 	static ScreenTransition * make_screen_unload_home()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOAD_HOME_TITLE(), MSG_SCREEN_UNLOAD_HOME_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOAD_HOME_TITLE(), MSG_SCREEN_UNLOAD_HOME_TEXT(), MSG_PLEASE_WAIT(), action_homing);
+		local_view->add(screen_move_to_unload);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_move_to_unload()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_MOVE_TO_UNLOAD_TITLE(), MSG_SCREEN_MOVE_TO_UNLOAD_TEXT(), MSG_PLEASE_WAIT(), action_move_to_filament_change);
 		local_view->add(screen_unload_info);
 		return local_view;
 	}
@@ -339,7 +347,14 @@ namespace screen
 
 	static ScreenTransition * make_screen_load_home()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOAD_HOME_TITLE(), MSG_SCREEN_LOAD_HOME_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOAD_HOME_TITLE(), MSG_SCREEN_LOAD_HOME_TEXT(), MSG_PLEASE_WAIT(), action_homing);
+		local_view->add(screen_move_to_load);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_move_to_load()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_MOVE_TO_LOAD_TITLE(), MSG_SCREEN_MOVE_TO_LOAD_TEXT(), MSG_PLEASE_WAIT(), action_move_to_filament_change);
 		local_view->add(screen_load_info);
 		return local_view;
 	}
@@ -1052,6 +1067,13 @@ namespace screen
 	static ScreenDialog<void> * make_screen_change_pullout_info()
 	{
 		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_INFO1_TITLE(), MSG_SCREEN_CHANGE_INFO1_TEXT(), MSG_PUSH_TO_CONTINUE(), do_nothing);
+		local_view->add(screen_move_to_change);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_move_to_change()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_MOVE_TO_CHANGE_TITLE(), MSG_SCREEN_MOVE_TO_CHANGE_TEXT(), MSG_PLEASE_WAIT(), action_move_to_filament_change);
 		local_view->add(screen_change_unloading);
 		return local_view;
 	}
@@ -1258,6 +1280,9 @@ namespace screen
 			case screen_unload_home:
 				new_view = make_screen_unload_home();
 				break;
+			case screen_move_to_unload:
+				new_view = make_screen_move_to_unload();
+				break;
 			case screen_unload_info:
 				new_view = make_screen_unload_info();
 				break;
@@ -1286,6 +1311,9 @@ namespace screen
 				break;
 			case screen_load_home:
 				new_view = make_screen_load_home();
+				break;
+			case screen_move_to_load:
+				new_view = make_screen_move_to_load();
 				break;
 			case screen_load_info:
 				new_view = make_screen_load_info();
@@ -1539,6 +1567,9 @@ namespace screen
 				break;
 			case screen_change_pullout_info:
 				new_view = make_screen_change_pullout_info();
+				break;
+			case screen_move_to_change:
+				new_view = make_screen_move_to_change();
 				break;
 			case screen_change_unloading:
 				new_view = make_screen_change_unloading();
