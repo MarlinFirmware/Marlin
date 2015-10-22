@@ -382,6 +382,7 @@ void Config_ResetDefault() {
 
   acceleration = DEFAULT_ACCELERATION;
   retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
+  travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   minimumfeedrate = DEFAULT_MINIMUMFEEDRATE;
   minsegmenttime = DEFAULT_MINSEGMENTTIME;
   mintravelfeedrate = DEFAULT_MINTRAVELFEEDRATE;
