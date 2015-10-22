@@ -576,7 +576,7 @@ void action_start_print()
 
 	bool serial_printing = true;
 
-	char cmd[30];
+	char cmd[LONG_FILENAME_LENGTH];
 	char* c;
 
 	if(PrintManager::single::instance().state() == PRINTING)
