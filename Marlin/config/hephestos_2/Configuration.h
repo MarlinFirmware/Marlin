@@ -159,11 +159,13 @@
 //#define  DEFAULT_Ki 0.19
 //#define  DEFAULT_Kd 0
 
-// - Original-DDG (PI back-calculation parameters)
+// - Original-DDG (I-PD back-calculation parameters)
 #define DEFAULT_Kp 10.7
 #define DEFAULT_Ki 0.45
-#define DEFAULT_Kd 0
+#define DEFAULT_Kd 0.3
 #define DEFAULT_Kb 10
+#define DEFAULT_bW 0
+#define DEFAULT_cW 0.5
 
 #endif // PIDTEMP
 
