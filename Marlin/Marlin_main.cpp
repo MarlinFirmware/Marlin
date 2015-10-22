@@ -727,44 +727,38 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE - 1) get_command();
-
+  if (commands_in_queue < BUFSIZE) get_command();
+//  if (commands_in_queue < BUFSIZE - 1) get_command();
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);
   #endif
 
-  if (commands_in_queue) {
-
-    #if ENABLED(SDSUPPORT)
-
-      if (card.saving) {
-        char* command = command_queue[cmd_queue_index_r];
-        if (strstr_P(command, PSTR("M29"))) {
-          // M29 closes the file
-          card.closefile();
-          SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
-        }
-        else {
-          // Write the string from the read buffer to SD
-          card.write_command(command);
-          if (card.logging)
-            process_next_command(); // The card is saving because it's logging
-          else
-            SERIAL_PROTOCOLLNPGM(MSG_OK);
-        }
+  while (commands_in_queue) {
+#if ENABLED(SDSUPPORT)
+    if (card.saving) {
+      char* command = command_queue[cmd_queue_index_r];
+      if (strstr_P(command, PSTR("M29"))) {
+        // M29 closes the file
+        card.closefile();
+        SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+      } else {
+        // Write the string from the read buffer to SD
+        card.write_command(command);
+        if (card.logging)
+          process_next_command(); // The card is saving because it's logging
+        else
+          SERIAL_PROTOCOLLNPGM(MSG_OK);
       }
-      else
-        process_next_command();
-
-    #else
-
+    } else
       process_next_command();
-
-    #endif // SDSUPPORT
-
+#else
+    process_next_command();
+#endif // SDSUPPORT
+        
     commands_in_queue--;
     cmd_queue_index_r = (cmd_queue_index_r + 1) % BUFSIZE;
-  }
+    }
+
   checkHitEndstops();
   idle();
 }
@@ -6905,7 +6899,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       filrunout();
   #endif
 
-  if (commands_in_queue < BUFSIZE - 1) get_command();
+  if (commands_in_queue < BUFSIZE) get_command();
 
   millis_t ms = millis();
 
