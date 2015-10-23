@@ -257,7 +257,7 @@ namespace screen
 	static ScreenSwitch * make_screen_unload_switch()
 	{
 		ScreenSwitch * local_view = new ScreenSwitch(NULL, PrintManager::knownPosition);
-		local_view->add(screen_unload_info);
+		local_view->add(screen_move_to_unload);
 		local_view->add(screen_unload_home);
 		return local_view;
 	}
@@ -340,7 +340,7 @@ namespace screen
 	static ScreenSwitch * make_screen_load_switch()
 	{
 		ScreenSwitch * local_view = new ScreenSwitch(NULL, PrintManager::knownPosition);
-		local_view->add(screen_load_info);
+		local_view->add(screen_move_to_load);
 		local_view->add(screen_load_home);
 		return local_view;
 	}
