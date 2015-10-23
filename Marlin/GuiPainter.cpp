@@ -430,7 +430,20 @@ namespace screen
 
 	void GuiPainter::print(const char * text)
 	{
-		if ( (text != NULL) && (strlen(text) > 0) )
+		if ( (text == NULL) && !(strlen(text) > 0) )
+		{
+			return;
+		}
+
+		if (strlen(text) > 21)
+		{
+			char tmp_text[22];
+			strncpy(tmp_text, text, 21);
+			tmp_text[21] = '\0';
+
+			m_impl.print(tmp_text);
+		}
+		else
 		{
 			m_impl.print(text);
 		}
@@ -452,19 +465,21 @@ namespace screen
 	void GuiPainter::animate(const char * text, uint8_t window, uint32_t delay_ms)
 	{
 
-		if(window < strlen(text))
+		if ( window < strlen(text) )
 		{
-			if(m_animation_loop)
+			if (m_animation_loop)
 			{
 				uint8_t diff = strlen(text) - window;
 
-				if(m_animation_index < diff)
+				if (m_animation_index < diff)
 				{
 					m_current_update_time = millis();
 					if( m_current_update_time - m_previous_update_time > delay_ms)
 					{
 						const char * cadena = text + m_animation_index;
-						print(cadena);
+						strncpy(m_animation_text, cadena, window * sizeof(char));
+						m_animation_text[window] = '\0';
+						print(m_animation_text);
 
 						m_animation_index++;
 						m_previous_update_time = m_current_update_time;
@@ -472,22 +487,28 @@ namespace screen
 					else
 					{
 						const char * cadena = text + m_animation_index;
-						print(cadena);
+						strncpy(m_animation_text, cadena, window * sizeof(char));
+						m_animation_text[window] = '\0';
+						print(m_animation_text);
 					}
 				}
 				else
 				{
-					const char * cadena = text + m_animation_index;
-					print(cadena);
+						const char * cadena = text + m_animation_index;
+						strncpy(m_animation_text, cadena, window * sizeof(char));
+						m_animation_text[window] = '\0';
+						print(m_animation_text);
 				}
 
 				m_animation_loop = !m_animation_loop;
 			}
 			else
 			{
-				const char * cadena = text + m_animation_index;
-				print(cadena);
-				m_animation_loop = !m_animation_loop;
+						const char * cadena = text + m_animation_index;
+						strncpy(m_animation_text, cadena, window * sizeof(char));
+						m_animation_text[window] = '\0';
+						print(m_animation_text);
+						m_animation_loop = !m_animation_loop;
 			}
 		}
 		else
