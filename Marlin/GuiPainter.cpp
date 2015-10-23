@@ -4,6 +4,7 @@
 #include <avr/pgmspace.h>
 
 #include "PrintManager.h"
+#include "Language.h"
 
 namespace screen
 {
@@ -59,7 +60,7 @@ namespace screen
 			uint8_t save_color_index = m_impl.getColorIndex();
 
 			setColorIndex(1);
-			setFont(u8g_font_6x9);
+			setFont(FontType_t::BODY_FONT);
 			setPrintPos(0, 3);
 			print_P(title);
 
@@ -79,7 +80,7 @@ namespace screen
 		m_impl.drawBox(0, ((screen_height - 1) - (box_height - 1)), box_width, box_height);
 
 		//Set font and color
-		setFont(u8g_font_6x9);
+		setFont(FontType_t::BODY_FONT);
 		setColorIndex(0);
 
 		//Print arrows
@@ -125,7 +126,7 @@ namespace screen
 		Area status_area(0, 19, 127, 25);
 		setWorkingArea(status_area);
 		setColorIndex(1);
-		setFont(u8g_font_6x9);
+		setFont(FontType_t::BODY_FONT);
 
 		// Draw SD small icon
 		drawBitmap(m_working_area.x_init, m_working_area.y_init, little_icon_width, little_icon_height, bits_sd_small);
@@ -166,7 +167,7 @@ namespace screen
 		if ( (msg != NULL) && (strlen(msg) > 0) )
 		{
 			setColorIndex(1);
-			setFont(u8g_font_6x9);
+			setFont(FontType_t::BODY_FONT);
 			setPrintPos(m_working_area.x_init + (m_working_area.width() / 2) - (strlen(msg) * max_font_width / 2), m_working_area.y_init);
 			print(msg);
 		}
@@ -177,7 +178,7 @@ namespace screen
 		if ( (msg != NULL) && (strlen_P(msg) > 0) )
 		{
 			setColorIndex(1);
-			setFont(u8g_font_6x9);
+			setFont(FontType_t::BODY_FONT);
 			setPrintPos(m_working_area.x_init + (m_working_area.width() - strlen_P(msg) * max_font_width) / 2, m_working_area.y_init);
 			print_P(msg);
 		}
@@ -397,9 +398,23 @@ namespace screen
 		}
 	}
 
-	void GuiPainter::setFont(const u8g_fntpgm_uint8_t* font)
+	void GuiPainter::setFont(FontType_t font)
 	{
-		m_impl.setFont(font);
+		switch(font)
+		{
+			
+		 case FontType_t::BODY_FONT:
+			if(LANG == Language::RU)
+			{
+				m_impl.setFont(u8g_font_6x9_rus);
+			}
+			else //Latin font
+			{	
+				m_impl.setFont(u8g_font_6x9);
+			}
+			break;
+			
+		}
 	}
 
 	void GuiPainter::setColorIndex(uint8_t color)
@@ -432,6 +447,61 @@ namespace screen
 				text++;
 			}
 		}
+	}
+
+	void GuiPainter::animate(const char * text, uint8_t window, uint32_t delay_ms)
+	{
+
+		if(window < strlen(text))
+		{
+			if(m_animation_loop)
+			{
+				uint8_t diff = strlen(text) - window;
+
+				if(m_animation_index < diff)
+				{
+					m_current_update_time = millis();
+					if( m_current_update_time - m_previous_update_time > delay_ms)
+					{
+						const char * cadena = text + m_animation_index;
+						print(cadena);
+
+						m_animation_index++;
+						m_previous_update_time = m_current_update_time;
+					}
+					else
+					{
+						const char * cadena = text + m_animation_index;
+						print(cadena);
+					}
+				}
+				else
+				{
+					const char * cadena = text + m_animation_index;
+					print(cadena);
+				}
+
+				m_animation_loop = !m_animation_loop;
+			}
+			else
+			{
+				const char * cadena = text + m_animation_index;
+				print(cadena);
+				m_animation_loop = !m_animation_loop;
+			}
+		}
+		else
+		{
+			print(text);
+			m_animation_index = 0;
+		}
+
+	}
+
+	void GuiPainter::animationReset(uint32_t timeout)
+	{
+		m_previous_update_time = 0;
+		m_animation_index = 0;
 	}
 
 	void GuiPainter::drawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)

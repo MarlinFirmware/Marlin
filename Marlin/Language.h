@@ -10,6 +10,7 @@
 #include "Language_PT.h"
 #include "Language_IT.h"
 #include "Language_SE.h"
+#include "Language_RU.h"
 
 #undef SE;
 
@@ -22,6 +23,7 @@ enum class Language
 	PT,     // Portuguese
 	IT,     // Italian
 	SE,     // Swedish
+	RU,		// Russian
 	MAX_LANGUAGES
 };
 extern Language LANG;
@@ -58,6 +60,10 @@ const char * MSG_##label() \
    { \
       text = SE_##label; \
    } \
+   else if (LANG == Language::RU) \
+   { \
+      text = RU_##label; \
+   } \
    return text; \
 }
 
@@ -75,6 +81,8 @@ enum class Label
 	SCREEN_UNLOAD_INIT_TEXT,
 	SCREEN_UNLOAD_HOME_TITLE,
 	SCREEN_UNLOAD_HOME_TEXT,
+	SCREEN_MOVE_TO_UNLOAD_TITLE,
+	SCREEN_MOVE_TO_UNLOAD_TEXT,
 	SCREEN_UNLOAD_SELECT_TITLE,
 	SCREEN_UNLOAD_HEATING_TITLE,
 	SCREEN_UNLOAD_INFO_TITLE,
@@ -87,6 +95,8 @@ enum class Label
 	SCREEN_LOAD_INIT_TEXT,
 	SCREEN_LOAD_HOME_TITLE,
 	SCREEN_LOAD_HOME_TEXT,
+	SCREEN_MOVE_TO_LOAD_TITLE,
+	SCREEN_MOVE_TO_LOAD_TEXT,
 	SCREEN_LOAD_SELECT_TITLE,
 	SCREEN_LOAD_HEATING_TITLE,
 	SCREEN_LOAD_INFO_TITLE,
@@ -172,6 +182,8 @@ enum class Label
 	SCREEN_CHANGE_PAUSE_TEXT,
 	SCREEN_CHANGE_SELECT_TITLE,
 	SCREEN_CHANGE_HEATING_TITLE,
+	SCREEN_MOVE_TO_CHANGE_TITLE,
+	SCREEN_MOVE_TO_CHANGE_TEXT,
 	SCREEN_CHANGE_INFO1_TITLE,
 	SCREEN_CHANGE_INFO1_TEXT,
 	SCREEN_CHANGE_UNLOAD_TITLE,
@@ -258,6 +270,8 @@ extern const char * MSG_SCREEN_UNLOAD_HOME_TITLE();
 extern const char * MSG_SCREEN_UNLOAD_HOME_TEXT();
 extern const char * MSG_SCREEN_UNLOAD_SELECT_TITLE();
 extern const char * MSG_SCREEN_UNLOAD_HEATING_TITLE();
+extern const char * MSG_SCREEN_MOVE_TO_UNLOAD_TITLE();
+extern const char * MSG_SCREEN_MOVE_TO_UNLOAD_TEXT();
 extern const char * MSG_SCREEN_UNLOAD_INFO_TITLE();
 extern const char * MSG_SCREEN_UNLOAD_INFO_TEXT();
 extern const char * MSG_SCREEN_UNLOADING_TITLE();
@@ -270,6 +284,8 @@ extern const char * MSG_SCREEN_LOAD_HOME_TITLE();
 extern const char * MSG_SCREEN_LOAD_HOME_TEXT();
 extern const char * MSG_SCREEN_LOAD_SELECT_TITLE();
 extern const char * MSG_SCREEN_LOAD_HEATING_TITLE();
+extern const char * MSG_SCREEN_MOVE_TO_LOAD_TITLE();
+extern const char * MSG_SCREEN_MOVE_TO_LOAD_TEXT();
 extern const char * MSG_SCREEN_LOAD_INFO_TITLE();
 extern const char * MSG_SCREEN_LOAD_INFO_TEXT();
 extern const char * MSG_SCREEN_LOADING_TITLE();
@@ -353,6 +369,8 @@ extern const char * MSG_SCREEN_CHANGE_PAUSE_TITLE();
 extern const char * MSG_SCREEN_CHANGE_PAUSE_TEXT();
 extern const char * MSG_SCREEN_CHANGE_SELECT_TITLE();
 extern const char * MSG_SCREEN_CHANGE_HEATING_TITLE();
+extern const char * MSG_SCREEN_MOVE_TO_CHANGE_TITLE();
+extern const char * MSG_SCREEN_MOVE_TO_CHANGE_TEXT();
 extern const char * MSG_SCREEN_CHANGE_INFO1_TITLE();
 extern const char * MSG_SCREEN_CHANGE_INFO1_TEXT();
 extern const char * MSG_SCREEN_CHANGE_UNLOAD_TITLE();

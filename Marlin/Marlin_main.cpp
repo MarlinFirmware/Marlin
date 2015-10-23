@@ -693,6 +693,7 @@ uint8_t buffer_recursivity = 0;
 #else // DOGLCD
 bool stop_planner_buffer = false;
 #endif // DOGLCD
+bool planner_buffer_stopped = false;
 
 bool stop_buffer = false;
 uint16_t stop_buffer_code = 0;
@@ -809,11 +810,11 @@ void get_command()
     serial_char = MYSERIAL.read();
 
 #ifdef DOGLCD
-		if(SerialManager::single::instance().state()
-			&& PrintManager::single::instance().state() != SERIAL_CONTROL
-			&& PrintManager::single::instance().state() != INITIALIZING)
+		if ( SerialManager::single::instance().state() &&
+		     PrintManager::single::instance().state() != SERIAL_CONTROL &&
+		     PrintManager::single::instance().state() != INITIALIZING )
 		{
-			if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial)
+			if (screen::ViewManager::getInstance().getViewIndex() == screen::screen_main)
 			{
 				PrintManager::single::instance().state(SERIAL_CONTROL);
 				screen::ViewManager::getInstance().activeView(screen::screen_serial);
@@ -1783,7 +1784,7 @@ void process_commands()
         lastpos[E_AXIS] = current_position[E_AXIS];
 
 				current_position[E_AXIS]-= RETRACT_ON_PAUSE;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[E_AXIS], active_extruder);
 
 				current_position[Z_AXIS]+= FILAMENTCHANGE_ZADD;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, active_extruder);
@@ -4368,8 +4369,12 @@ for (int s = 1; s <= steps; s++) {
   }
 #endif // !(DELTA || SCARA)
 
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
+  if (!planner_buffer_stopped){
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+      current_position[i] = destination[i];
+    }
+  } else {
+    planner_buffer_stopped = false; // Reset flag
   }
 }
 
@@ -4851,4 +4856,8 @@ void reset(void)
 	// to turn off the watchdog early during program startup.
 	MCUSR = 0; // clear reset flags
 	wdt_disable();
+}
+
+void set_relative_mode(bool value){
+  relative_mode = value;
 }

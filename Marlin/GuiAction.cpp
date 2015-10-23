@@ -23,6 +23,7 @@ extern bool bed_leveling;
 extern const char axis_codes[NUM_AXIS];
 extern bool cancel_heatup;
 extern bool stop_planner_buffer;
+extern bool planner_buffer_stopped;
 extern bool stop_buffer;
 bool change_filament = false; 
 extern uint16_t stop_buffer_code;
@@ -61,8 +62,6 @@ void action_cooldown()
 
 void action_filament_unload()
 {
-	action_move_to_filament_change();
-
 	st_synchronize();
 
 	current_position[E_AXIS] += 50.0;
@@ -76,8 +75,6 @@ void action_filament_unload()
 
 void action_filament_load()
 {
-	action_move_to_filament_change();
-
 	st_synchronize();
 
 	current_position[E_AXIS] += 140.0;
@@ -85,7 +82,7 @@ void action_filament_load()
 	st_synchronize();
 
 	current_position[E_AXIS] -= RETRACT_ON_PAUSE;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[E_AXIS], active_extruder);
 	st_synchronize();
 }
 
@@ -640,9 +637,10 @@ void action_stop_print()
 {
 	plan_bed_level_matrix.set_to_identity();
 
-	enquecommand_P(PSTR("G90"));
+	flush_commands();
+	stop_planner_buffer = true;
+	quickStop();
 
-	st_synchronize();
 	temp::TemperatureManager::single::instance().setBlowerControlState(true);
 #ifdef FAN_BOX_PIN
 	digitalWrite(FAN_BOX_PIN, LOW);
@@ -654,10 +652,7 @@ void action_stop_print()
 		card.closefile();
 	}
 
-	action_preheat();
-
-	flush_commands();
-	quickStop();
+	set_relative_mode(false);
 
 	plan_reset_position();
 
@@ -666,16 +661,25 @@ void action_stop_print()
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
 
-	target[Z_AXIS] = current_position[Z_AXIS] + 10;
 	target[E_AXIS] = current_position[E_AXIS] - RETRACT_ON_PAUSE;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], target[E_AXIS], max_feedrate[E_AXIS], active_extruder);
+	st_synchronize();
 
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	target[Z_AXIS] = current_position[Z_AXIS] + 10;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS], target[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+	st_synchronize();
 
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
 
 	target[X_AXIS] = POSITION_REST_X;
 	target[Y_AXIS] = POSITION_REST_Y;
+
+	action_preheat();
+
+	flush_commands();
+	quickStop();
+
 
 #if X_MAX_POS < 250
 	target[Z_AXIS] += 20;
@@ -716,10 +720,11 @@ void action_stop_print()
 	// autotempShutdown();
 
 	cancel_heatup = true;
-	stop_planner_buffer = true;
 	x_hit = false;
 	y_hit = false;
 	z_hit = false;
+
+	PrintManager::knownPosition(true);
 }
 
 void action_finish_print()

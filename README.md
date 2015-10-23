@@ -1,15 +1,13 @@
-# Marlin 3D Printer Firmware
+# Marlin 3D Printer Firmware for BQ printers
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
-  * [Configuration & Compilation](Documentation/Compilation.md)
-  * Supported
-    * [Features](Documentation/Features.md)
-    * [GCodes](Documentation/GCodes.md)
-  * Notes
-    * [Auto Bed Leveling](Documentation/BedLeveling.md)
-    * [Filament Sensor](Documentation/FilamentSensor.md)
-
-##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
+  * Enviroment Configuration:
+    * [Linux](Documentation/Linux_Configuration.md)
+    * [Windows](Documentation/Windows_Configuration.md)
+  * Compiling and flashing:
+    * [Linux](Documentation/Linux_Compilation.md)
+    * [Windows](Documentation/Windows_Compilation.md)
+  * [Supported GCodes](Documentation/GCodes.md)
 
 ## Quick Information
 
@@ -29,7 +27,9 @@ Besides the BQ team, focused on specific changes and improvements for Witbox and
 
  - Erik van der Zalm ([@ErikZalm](https://github.com/ErikZalm))
  - [@daid](https://github.com/daid)
- 
+
+##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
+
 Sprinters lead developers are Kliment and caru.
 Grbls lead developer is Simen Svale Skogsrud.
 Sonney Jeon (Chamnit) improved some parts of grbl
@@ -42,5 +42,5 @@ More features have been added by:
 
 ## Licence
 
-Marlin is published unde the [GPL license](Documentation/COPYING.md) because I believe in open development.
+Marlin is published under the [GPL license](Documentation/COPYING.md) because I believe in open development.
 Please do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.

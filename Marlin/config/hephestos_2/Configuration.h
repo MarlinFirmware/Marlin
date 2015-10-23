@@ -11,7 +11,7 @@
 #define MACHINE_NAME "Hephestos 2"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.0b5"
+#define FIRMWARE_VER "2.0.0b6"
 #define BUILD_VER ""
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
@@ -387,7 +387,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {200*60, 200*60, 3.3*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {150*60, 150*60, 3.3*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
 
 // default settings
 

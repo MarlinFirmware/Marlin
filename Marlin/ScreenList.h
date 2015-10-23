@@ -69,6 +69,9 @@ namespace screen
 			bool m_directory_is_root;
 
 			float m_scroll_size;
+
+			uint32_t m_current_time;
+			uint32_t m_previous_time;
 	};
 }
 #endif //SCREEN_LIST_H
