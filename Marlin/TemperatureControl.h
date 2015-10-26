@@ -24,7 +24,10 @@ namespace temp
 			uint16_t m_target_temperature;	
 			float m_kp;
 			float m_ki;
-			float m_kb;	
+			float m_kd;
+			float m_kb;
+			float m_bW;
+			float m_cW;
 	};
 }
 
