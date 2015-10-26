@@ -159,11 +159,13 @@
 //#define  DEFAULT_Ki 0.19
 //#define  DEFAULT_Kd 0
 
-// - Original-DDG (PI back-calculation parameters)
+// - Original-DDG (I-PD back-calculation parameters)
 #define DEFAULT_Kp 10.7
 #define DEFAULT_Ki 0.45
-#define DEFAULT_Kd 0
+#define DEFAULT_Kd 3
 #define DEFAULT_Kb 10
+#define DEFAULT_bW 0
+#define DEFAULT_cW 1
 
 #endif // PIDTEMP
 
@@ -387,7 +389,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {200*60, 200*60, 3.3*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {150*60, 150*60, 3.3*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
 
 // default settings
 

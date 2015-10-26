@@ -160,11 +160,13 @@
 //#define  DEFAULT_Ki 0.19
 //#define  DEFAULT_Kd 0
 
-// - Original-DDG (PI back-calculation parameters)
+// - Original-DDG (I-PD back-calculation parameters)
 #define DEFAULT_Kp 10.7
 #define DEFAULT_Ki 0.45
-#define DEFAULT_Kd 0
+#define DEFAULT_Kd 3
 #define DEFAULT_Kb 10
+#define DEFAULT_bW 0
+#define DEFAULT_cW 1
 
 #endif // PIDTEMP
 
@@ -388,12 +390,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {200*60, 200*60, 30*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {200*60, 200*60, 40*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
 
 // default settings
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 800, 204.146}   // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {200, 200, 30, 200}        // (mm/sec)
+#define DEFAULT_MAX_FEEDRATE          {200, 200, 40, 200}        // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {1000, 1000, 1000, 200}   // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
