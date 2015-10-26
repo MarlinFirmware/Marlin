@@ -94,7 +94,7 @@
 // Load/Unload Filament Position
 #define POSITION_FILAMENT_X 87.5
 #define POSITION_FILAMENT_Y  15.0
-#define POSITION_FILAMENT_Z 60.0
+#define POSITION_FILAMENT_Z 15.0
 
 
 #define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
