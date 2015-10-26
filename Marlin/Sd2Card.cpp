@@ -192,11 +192,13 @@ uint32_t Sd2Card::cardSize() {
     uint8_t c_size_mult = (csd.v1.c_size_mult_high << 1)
                           | csd.v1.c_size_mult_low;
     return (uint32_t)(c_size + 1) << (c_size_mult + read_bl_len - 7);
-  } else if (csd.v2.csd_ver == 1) {
+  }
+  else if (csd.v2.csd_ver == 1) {
     uint32_t c_size = ((uint32_t)csd.v2.c_size_high << 16)
                       | (csd.v2.c_size_mid << 8) | csd.v2.c_size_low;
     return (c_size + 1) << 10;
-  } else {
+  }
+  else {
     error(SD_CARD_ERROR_BAD_CSD);
     return 0;
   }
