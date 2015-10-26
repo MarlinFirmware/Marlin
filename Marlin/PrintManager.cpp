@@ -126,6 +126,7 @@ void PrintManager::endPrint()
 	}
 
 	PrintManager::single::instance().state(STOPPED);
+	screen::ViewManager::getInstance().activeView(screen::screen_print_action_complete);
 }
 
 void PrintManager::togglePause()

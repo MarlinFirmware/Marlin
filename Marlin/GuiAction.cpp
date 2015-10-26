@@ -62,8 +62,6 @@ void action_cooldown()
 
 void action_filament_unload()
 {
-	action_move_to_filament_change();
-
 	st_synchronize();
 
 	current_position[E_AXIS] += 50.0;
@@ -77,8 +75,6 @@ void action_filament_unload()
 
 void action_filament_load()
 {
-	action_move_to_filament_change();
-
 	st_synchronize();
 
 	current_position[E_AXIS] += 140.0;
