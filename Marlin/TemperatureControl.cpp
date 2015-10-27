@@ -11,7 +11,10 @@ namespace temp
 	{
 		m_kp = DEFAULT_Kp; 
 		m_ki = DEFAULT_Ki * PID_dT;
+		m_kd = DEFAULT_Kd / PID_dT;
 		m_kb = DEFAULT_Kb * PID_dT;
+		m_bW = DEFAULT_bW;
+		m_cW = DEFAULT_cW;
 	}
 
 	TemperatureControl::~TemperatureControl()
@@ -36,8 +39,12 @@ namespace temp
 	{
 		float pTerm = 0;
 		static float iTerm = 0;
+		float dTerm = 0;
 		static float bTerm = 0;
-		float error = 0;
+		float errorP = 0;
+		float errorI = 0;
+		float errorD = 0;
+		static float lastErrorD = 0;
 		uint16_t control_input = 0;
 		float control_output = 0;
 
@@ -50,13 +57,17 @@ namespace temp
 		{
 			m_control_output = 0;
 			iTerm = 0;
+			lastErrorD = 0;
 		} 
 		else
 		{
-			error = control_input - m_current_temperature;
-			pTerm = m_kp * error;
-			iTerm += error * m_ki + bTerm;
-			control_output = pTerm + iTerm;
+			errorP = control_input * m_bW - m_current_temperature;
+			errorI = control_input - m_current_temperature;
+			errorD = control_input * m_cW - m_current_temperature;
+			pTerm = m_kp * errorP;
+			iTerm += errorI * m_ki + bTerm;
+			dTerm = m_kd *(errorD - lastErrorD);
+			control_output = pTerm + iTerm + dTerm;
 			
 			if ( control_output >= PID_MAX )
 			{
@@ -72,31 +83,8 @@ namespace temp
 			}
 
 			bTerm = m_kb * ( m_control_output - control_output );
+			lastErrorD = errorD;
 		}
 		OCR2B = (uint8_t) m_control_output;
-
-		/*SERIAL_ECHO("PID_INPUT: ");
-		SERIAL_ECHOLN(control_input);
-		SERIAL_ECHO("PID_OUTPUT: ");
-		SERIAL_ECHOLN(m_control_output);
-		SERIAL_ECHO("Error: ");
-		SERIAL_ECHOLN(error);
-		SERIAL_ECHO("P_term: ");
-		SERIAL_ECHOLN(pTerm);
-		SERIAL_ECHO("I_term: ");
-		SERIAL_ECHOLN(iTerm);
-		SERIAL_ECHO("m_ki*error: ");
-		SERIAL_ECHOLN(m_ki*error);
-		SERIAL_ECHO("B_term: ");
-		SERIAL_ECHOLN(bTerm);*/
-		/*uint32_t time = millis() - prev_millis;
-		prev_millis += time;
-		if (time > max_time)
-		{
-			max_time = time;
-		}
-		SERIAL_ECHOLN("time: ");
-		SERIAL_ECHOLN(time);	
-		SERIAL_ECHOLN(" ");	*/
 	}
 }

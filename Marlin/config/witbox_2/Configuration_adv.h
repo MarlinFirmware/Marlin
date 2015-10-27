@@ -247,7 +247,7 @@
 
 // Feedrates for manual moves along X, Y, Z, E from panel
 #ifdef ULTIPANEL
-#define MANUAL_FEEDRATE {200*60, 200*60, 30*60, 5*60}  // set the speeds for manual moves (mm/min)
+#define MANUAL_FEEDRATE {200*60, 200*60, 40*60, 5*60}  // set the speeds for manual moves (mm/min)
 #endif
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.
