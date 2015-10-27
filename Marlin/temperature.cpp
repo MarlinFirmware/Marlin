@@ -21,12 +21,10 @@
 #include "Marlin.h"
 #include "ultralcd.h"
 #include "temperature.h"
+#include "watchdog.h"
 #include "language.h"
-#include "Sd2PinMap.h"
 
-#if ENABLED(USE_WATCHDOG)
-  #include "watchdog.h"
-#endif
+#include "Sd2PinMap.h"
 
 //===========================================================================
 //================================== macros =================================
@@ -209,7 +207,7 @@ void PID_autotune(float temp, int extruder, int ncycles) {
 
   long bias, d;
   float Ku, Tu;
-  float Kp = 0, Ki = 0, Kd = 0;
+  float Kp, Ki, Kd;
   float max = 0, min = 10000;
 
   #if HAS_AUTO_FAN
@@ -513,8 +511,7 @@ float get_pid_output(int e) {
             if (e_position > last_position[e]) {
               lpq[lpq_ptr++] = e_position - last_position[e];
               last_position[e] = e_position;
-            }
-            else {
+            } else {
               lpq[lpq_ptr++] = 0;
             }
             if (lpq_ptr >= lpq_len) lpq_ptr = 0;
@@ -821,11 +818,8 @@ static void updateTemperaturesFromRawValues() {
   #if HAS_FILAMENT_SENSOR
     filament_width_meas = analog2widthFil();
   #endif
-
-  #if ENABLED(USE_WATCHDOG)
-    // Reset the watchdog after we know we have a temperature measurement.
-    watchdog_reset();
-  #endif
+  //Reset the watchdog after we know we have a temperature measurement.
+  watchdog_reset();
 
   CRITICAL_SECTION_START;
   temp_meas_ready = false;
