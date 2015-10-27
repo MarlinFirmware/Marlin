@@ -508,9 +508,9 @@ void action_move_to_rest()
 
 	enable_endstops(true);
 
-	if (current_position[Z_AXIS] < 20)
+	if (current_position[Z_AXIS] < POSITION_REST_Z)
 	{
-		target[Z_AXIS] = 20;
+		target[Z_AXIS] = POSITION_REST_Z;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 		st_synchronize();
 		vector_3 update_position_2 = plan_get_position();
