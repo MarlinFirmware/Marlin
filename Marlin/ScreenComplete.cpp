@@ -17,6 +17,8 @@ namespace screen
 		char c_time[24];
 		char total_time[24];
 		strcpy_P(total_time, MSG_TOTAL_TIME());
+		const char space[2] {' '};
+		strcat(total_time, space);
 		snprintf(c_time, 24, "%02d:%02d", m_time.hours, m_time.minutes);
 		strcat(total_time, c_time);
 		
