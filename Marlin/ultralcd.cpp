@@ -110,7 +110,8 @@ bool folder_is_root = false;
 uint8_t list_length;
 uint8_t window_size, cache_size;
 uint8_t item_selected, new_item_selected;
-uint8_t window_min, window_max, cache_min, cache_max;
+uint8_t window_min, window_max;
+int16_t cache_min, cache_max;
 
 uint8_t window_offset, cursor_offset;
 
