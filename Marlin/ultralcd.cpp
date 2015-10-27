@@ -10,7 +10,7 @@
 // Only for new LCD
 typedef struct {
     uint8_t type;
-    char text[18];
+    char text[LONG_FILENAME_LENGTH];
     func_p action;
     void * data;
 } cache_entry;
@@ -83,7 +83,7 @@ bool    button_input_updated;
 bool    button_clicked_triggered;
 
 // Beeper related variables
-uint32_t beeper_duration = 0;
+int32_t beeper_duration = 0;
 
 // ISR related variables
 uint16_t lcd_timer = 0;
@@ -107,10 +107,10 @@ bool cache_update = false;
 bool cache_menu_first_time = false;
 bool folder_is_root = false;
 
-int8_t list_length;
+uint8_t list_length;
 uint8_t window_size, cache_size;
-int8_t item_selected, new_item_selected;
-int8_t window_min, window_max, cache_min, cache_max;
+uint8_t item_selected, new_item_selected;
+uint8_t window_min, window_max, cache_min, cache_max;
 
 uint8_t window_offset, cursor_offset;
 
@@ -542,7 +542,6 @@ void lcd_beep()
 void lcd_beep_ms(uint16_t ms)
 {
     beeper_duration = 8 * ms;
-
 }
 
 void lcd_set_refresh(uint8_t mode)
@@ -997,46 +996,6 @@ static void view_menu_sdcard()
 #endif // DEBUG_DYNAMIC_MENU
 
         // Draw the cache content
-#ifdef DOGLCD
-        u8g.firstPage();
-        do {
-            for (uint8_t k = 0; k < window_size; k++) {
-                switch (cache[window_offset+k].type) {
-                case 1:
-                    if (k == cursor_offset)
-                        lcd_implementation_drawmenu_back_selected_R(k, cache[window_offset+k].text, NULL);
-                    else
-
-                        lcd_implementation_drawmenu_back_R(k, cache[window_offset+k].text, NULL);
-                    break;
-                case 2:
-                    if (k == cursor_offset)
-                        lcd_implementation_drawmenu_function_selected_R(k, cache[window_offset+k].text, NULL);
-                    else
-
-                        lcd_implementation_drawmenu_function_R(k, cache[window_offset+k].text, NULL);
-                    break;
-
-                case 3:
-                    if (k == cursor_offset)
-                        lcd_implementation_drawmenu_sddirectory_selected(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
-                    else
-
-                        lcd_implementation_drawmenu_sddirectory(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
-                    break;
-                case 4:
-                    if (k == cursor_offset)
-                        lcd_implementation_drawmenu_sdfile_selected(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
-                    else
-
-                        lcd_implementation_drawmenu_sdfile(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
-                    break;
-                default:
-                    break;
-                }
-            }
-        } while(u8g.nextPage());
-#else
         if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {
             lcd_implementation_clear();
             display_refresh_mode = NO_UPDATE_SCREEN;
@@ -1076,7 +1035,6 @@ static void view_menu_sdcard()
                 break;
             }
         }
-#endif // DOGLCD
 
         item_selected = new_item_selected;
         cache_menu_first_time = false;
@@ -2860,18 +2818,24 @@ ISR(TIMER5_OVF_vect) // Every 125 us
     lcd_timer++;
 
 #if ( defined(BEEPER) && (BEEPER > 0) )
-    if (beeper_duration) {
+    if (beeper_duration > 0) {
         WRITE(BEEPER, HIGH);
         beeper_duration--;
-    } else {
+    }
+    else
+    {
         WRITE(BEEPER, LOW);
+        beeper_duration = 0;
     }
 #endif // ( defined(BEEPER) && (BEEPER > 0) )
 
-    if (lcd_timer % 4 == 0)     // Every 500 us
+    if (lcd_timer % 4 == 0)            // Every 500 us
+    {
         lcd_update_encoder();
+    }
 
-    if (lcd_timer % 80 == 0) {  // Every 10 ms
+    if (lcd_timer % 80 == 0)           // Every 10 ms
+    {
         lcd_update_button();
         lcd_timer = 0;
     }
