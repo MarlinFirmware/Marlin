@@ -910,3 +910,18 @@ void action_erase_EEPROM()
 	eeprom::StorageManager::eraseEEPROM();
 	RESET();
 }
+
+bool action_check_wizard()
+{
+	if( (eeprom::StorageManager::single::instance().getBoardType() == BOARD_BQ_CNC) && 
+			(eeprom::StorageManager::single::instance().getOffset() != Z_PROBE_OFFSET_FROM_EXTRUDER) )
+	{
+		return true;
+	}
+	return false;
+}
+
+void action_reset_wizard()
+{
+	eeprom::StorageManager::single::instance().setUninitialized();
+}

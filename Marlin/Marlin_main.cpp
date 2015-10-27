@@ -3935,6 +3935,10 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         action_finish_print();
       }
       break;
+
+    case 811:
+      action_reset_wizard();
+      break;
 #endif // DOGLCD
 
     case 907: // M907 Set digital trimpot motor current using axis codes.

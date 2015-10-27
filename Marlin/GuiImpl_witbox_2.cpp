@@ -79,6 +79,14 @@ namespace screen
 	static ScreenLanguage * make_screen_wizard_language()
 	{
 		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::EN);
+		local_view->add(screen_wizard_switch);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_wizard_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_wizard);
+		local_view->add(screen_wizard_step3);
 		local_view->add(screen_wizard_step1);
 		return local_view;
 	}
@@ -1197,6 +1205,9 @@ namespace screen
 				break;
 			case screen_wizard_language:
 				new_view = make_screen_wizard_language();
+				break;
+			case screen_wizard_switch:
+				new_view = make_screen_wizard_switch();
 				break;
 			case screen_wizard_step1:
 				new_view = make_screen_wizard_step1();
