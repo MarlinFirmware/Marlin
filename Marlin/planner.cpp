@@ -263,7 +263,7 @@ void planner_reverse_pass_kernel(block_t *previous, block_t *current, block_t *n
     // If not, block in state of acceleration or deceleration. Reset entry speed to maximum and
     // check for maximum allowable speed reductions to ensure maximum possible planned speed.
     if (current->entry_speed != current->max_entry_speed) {
-      /*
+
       // If nominal length true, max junction speed is guaranteed to be reached. Only compute
       // for max allowable speed if block is decelerating and nominal length is false.
       if ((!current->nominal_length_flag) && (current->max_entry_speed > next->entry_speed)) {
@@ -271,46 +271,8 @@ void planner_reverse_pass_kernel(block_t *previous, block_t *current, block_t *n
         max_allowable_speed(-current->acceleration,next->entry_speed,current->millimeters));
       } 
       else {
-
-
         current->entry_speed = current->max_entry_speed;
       }
-*/
-      // vx_jerk_max = max_jerk_xy/cos(angle)
-      float vx_jerk_max = fabs( (max_xy_jerk * current->millimeters) / current->delta_mm[X_AXIS] );
-      float vy_jerk_max = fabs( (max_xy_jerk * current->millimeters) / current->delta_mm[Y_AXIS] );
-
-      bool change_x = false;
-      bool change_y = false;
-      if( (next->delta_mm[X_AXIS] <= 0 && current->delta_mm[X_AXIS] > 0) ||
-          (next->delta_mm[X_AXIS] >= 0 && current->delta_mm[X_AXIS] < 0) )
-      {
-        change_x = true;
-      }
-      if( (next->delta_mm[Y_AXIS] <= 0 && current->delta_mm[Y_AXIS] > 0) ||
-          (next->delta_mm[Y_AXIS] >= 0 && current->delta_mm[Y_AXIS] < 0) )
-      {
-        change_y = true;
-      }
-
-      if(change_x == true && change_y == false)
-      {
-        current->vmax_junction = constrain( vx_jerk_max, max_xy_jerk, 200);
-      }
-      else if(change_x == false && change_y == true)
-      {
-        current->vmax_junction = constrain( vy_jerk_max, max_xy_jerk, 200);
-      }
-      else if(change_x == true && change_y == true)
-      {
-        current->vmax_junction = constrain( min( vx_jerk_max, vy_jerk_max ), max_xy_jerk, 200);
-      }
-      else
-      {
-        current->vmax_junction = current->entry_speed;//constrain( max( vx_jerk_max, vy_jerk_max ), max_xy_jerk, 200);
-      }
-      current->entry_speed = current->vmax_junction;
-
       current->recalculate_flag = true;
 
     }
@@ -811,26 +773,28 @@ So we need to create other 2 "AXIS", named X_HEAD and Y_HEAD, meaning the real d
 Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
 */ 
   #ifndef COREXY
-    block->delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
-    block->delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
+    float delta_mm[4];
+    delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
+    delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
   #else
-    block->delta_mm[X_HEAD] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
-    block->delta_mm[Y_HEAD] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
-    block->delta_mm[X_AXIS] = ((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]))/axis_steps_per_unit[X_AXIS];
-    block->delta_mm[Y_AXIS] = ((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]))/axis_steps_per_unit[Y_AXIS];
+    float delta_mm[6];
+    delta_mm[X_HEAD] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
+    delta_mm[Y_HEAD] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
+    delta_mm[X_AXIS] = ((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]))/axis_steps_per_unit[X_AXIS];
+    delta_mm[Y_AXIS] = ((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]))/axis_steps_per_unit[Y_AXIS];
   #endif
-  block->delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
-  block->delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*volumetric_multiplier[active_extruder]*extrudemultiply/100.0;
+  delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
+  delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*volumetric_multiplier[active_extruder]*extrudemultiply/100.0;
   if ( block->steps_x <=dropsegments && block->steps_y <=dropsegments && block->steps_z <=dropsegments )
   {
-    block->millimeters = fabs(block->delta_mm[E_AXIS]);
+    block->millimeters = fabs(delta_mm[E_AXIS]);
   } 
   else
   {
     #ifndef COREXY
-      block->millimeters = sqrt(square(block->delta_mm[X_AXIS]) + square(block->delta_mm[Y_AXIS]) + square(block->delta_mm[Z_AXIS]));
+      block->millimeters = sqrt(square(delta_mm[X_AXIS]) + square(delta_mm[Y_AXIS]) + square(delta_mm[Z_AXIS]));
 	#else
-	  block->millimeters = sqrt(square(block->delta_mm[X_HEAD]) + square(block->delta_mm[Y_HEAD]) + square(block->delta_mm[Z_AXIS]));
+	  block->millimeters = sqrt(square(delta_mm[X_HEAD]) + square(delta_mm[Y_HEAD]) + square(delta_mm[Z_AXIS]));
     #endif	
   }
   float inverse_millimeters = 1.0/block->millimeters;  // Inverse millimeters to remove multiple divides 
@@ -914,7 +878,7 @@ Having the real displacement of the head, we can calculate the total movement le
   float speed_factor = 1.0; //factor <=1 do decrease speed
   for(int i=0; i < 4; i++)
   {
-    current_speed[i] = block->delta_mm[i] * inverse_second;
+    current_speed[i] = delta_mm[i] * inverse_second;
     if(fabs(current_speed[i]) > max_feedrate[i])
       speed_factor = min(speed_factor, max_feedrate[i] / fabs(current_speed[i]));
   }
@@ -979,10 +943,10 @@ Having the real displacement of the head, we can calculate the total movement le
       block->acceleration_st = axis_steps_per_sqr_second[X_AXIS];
     if(((float)block->acceleration_st * (float)block->steps_y / (float)block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[Y_AXIS];
-    // if(((float)block->acceleration_st * (float)block->steps_e / (float)block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
-    //   block->acceleration_st = axis_steps_per_sqr_second[E_AXIS];
-    // if(((float)block->acceleration_st * (float)block->steps_z / (float)block->step_event_count ) > axis_steps_per_sqr_second[Z_AXIS])
-    //   block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
+    if(((float)block->acceleration_st * (float)block->steps_e / (float)block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
+      block->acceleration_st = axis_steps_per_sqr_second[E_AXIS];
+    if(((float)block->acceleration_st * (float)block->steps_z / (float)block->step_event_count ) > axis_steps_per_sqr_second[Z_AXIS])
+      block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
   }
   block->acceleration = block->acceleration_st / steps_per_mm;
   block->acceleration_rate = (long)((float)block->acceleration_st * (16777216.0 / (F_CPU / 8.0)));
@@ -1028,41 +992,36 @@ Having the real displacement of the head, we can calculate the total movement le
   }
 #endif
   // Start with a safe speed
-  block->vmax_junction = max_xy_jerk/2;
+  float vmax_junction = max_xy_jerk/2; 
   float vmax_junction_factor = 1.0; 
   if(fabs(current_speed[Z_AXIS]) > max_z_jerk/2) 
-    block->vmax_junction = min(block->vmax_junction, max_z_jerk/2);
+    vmax_junction = min(vmax_junction, max_z_jerk/2);
   if(fabs(current_speed[E_AXIS]) > max_e_jerk/2) 
-    block->vmax_junction = min(block->vmax_junction, max_e_jerk/2);
-  block->vmax_junction = min(block->vmax_junction, block->nominal_speed);
-  float safe_speed = block->vmax_junction;
+    vmax_junction = min(vmax_junction, max_e_jerk/2);
+  vmax_junction = min(vmax_junction, block->nominal_speed);
+  float safe_speed = vmax_junction;
 
   if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
     float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
     //    if((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
-    block->vmax_junction = block->nominal_speed;
+    vmax_junction = block->nominal_speed;
     //    }
     if (jerk > max_xy_jerk) {
       vmax_junction_factor = (max_xy_jerk/jerk);
-    }
-    // if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
-    //   vmax_junction_factor= min(vmax_junction_factor, (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS])));
-    // }
-    // if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
-    //   vmax_junction_factor = min(vmax_junction_factor, (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS])));
-    // }
-
-    block->vmax_junction = min(previous_nominal_speed, block->vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
-
+    }/*
+    if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
+      vmax_junction_factor= min(vmax_junction_factor, (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS])));
+    } 
+    if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
+      vmax_junction_factor = min(vmax_junction_factor, (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS])));
+    }*/
+    vmax_junction = min(previous_nominal_speed, vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
   }
-  block->max_entry_speed = block->vmax_junction;
+  block->max_entry_speed = vmax_junction;
 
   // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
-  float vx_jerk_max = fabs( (max_xy_jerk * block->millimeters) / block->delta_mm[X_AXIS] );
-  float vy_jerk_max = fabs( (max_xy_jerk * block->millimeters) / block->delta_mm[Y_AXIS] );
-
-  double v_allowable = max_allowable_speed(-block->acceleration,min(vx_jerk_max, vy_jerk_max),block->millimeters);
-  block->entry_speed = min(block->vmax_junction, v_allowable);
+  double v_allowable = max_allowable_speed(-block->acceleration,MINIMUM_PLANNER_SPEED,block->millimeters);
+  block->entry_speed = min(vmax_junction, v_allowable);
 
   // Initialize planner efficiency flags
   // Set flag if block will always reach maximum junction speed regardless of entry/exit speeds.
