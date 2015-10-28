@@ -120,9 +120,9 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 260
-#define HEATER_1_MAXTEMP 260
-#define HEATER_2_MAXTEMP 260
+#define HEATER_0_MAXTEMP 250
+#define HEATER_1_MAXTEMP 250
+#define HEATER_2_MAXTEMP 250
 #define BED_MAXTEMP 150
 
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
@@ -159,11 +159,13 @@
 //#define  DEFAULT_Ki 0.19
 //#define  DEFAULT_Kd 0
 
-// - Original-DDG (PI back-calculation parameters)
+// - Original-DDG (I-PD back-calculation parameters)
 #define DEFAULT_Kp 10.7
 #define DEFAULT_Ki 0.45
-#define DEFAULT_Kd 0
+#define DEFAULT_Kd 3
 #define DEFAULT_Kb 10
+#define DEFAULT_bW 0
+#define DEFAULT_cW 1
 
 #endif // PIDTEMP
 
@@ -391,7 +393,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000, 210.02} // default steps per unit for Ultimaker
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000, 204.146} // default steps per unit for Ultimaker
 #define DEFAULT_MAX_FEEDRATE          {200, 200, 3.3, 200}      // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {1000, 1000, 100, 3000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
