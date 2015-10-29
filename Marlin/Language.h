@@ -255,6 +255,8 @@ enum class Label
 	INACTIVE,
 	TEMP_OFF,
 	TOTAL_TIME,
+	SCREEN_PRINT_STOP_TITLE,
+	SCREEN_PRINT_STOP_TEXT,
 };
 
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
@@ -442,5 +444,7 @@ extern const char * MSG_MODE();
 extern const char * MSG_INACTIVE();
 extern const char * MSG_TEMP_OFF();
 extern const char * MSG_TOTAL_TIME();
+extern const char * MSG_SCREEN_PRINT_STOP_TITLE();
+extern const char * MSG_SCREEN_PRINT_STOP_TEXT();
 
 #endif // ifndef LANGUAGE_H
