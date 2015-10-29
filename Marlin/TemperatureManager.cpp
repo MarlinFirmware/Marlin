@@ -91,7 +91,7 @@ namespace temp
 		uint8_t i;
 		short (*tt)[][2] = (short (*)[][2]) temptable_99;
 
-		if ( (m_current_temperature_raw < (22 * OVERSAMPLENR)) ||
+		if ( (m_current_temperature_raw < (34 * OVERSAMPLENR)) ||
 		     (m_current_temperature_raw > (1009 * OVERSAMPLENR)) )
 		{
 			setTargetTemperature(0);

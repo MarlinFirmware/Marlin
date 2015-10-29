@@ -47,8 +47,13 @@
  #define Y_MIN_PIN          14
  #define Y_MAX_PIN          15
 
+#ifdef LEVEL_SENSOR
+ #define Z_MIN_PIN          19
+ #define Z_MAX_PIN          18
+#else
  #define Z_MIN_PIN          18
  #define Z_MAX_PIN          19
+#endif
 
  // Heaters
  #define HEATER_0_PIN       9
