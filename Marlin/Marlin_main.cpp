@@ -1818,6 +1818,9 @@ void process_commands()
 				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], 10, active_extruder); //extrude on resume
 				st_synchronize();
 
+        current_position[Z_AXIS] = lastpos[Z_AXIS];
+        plan_set_e_position(lastpos[E_AXIS]);
+
 				lcd_enable_button();
 				stop_buffer = false;
 #else //DOGLCD

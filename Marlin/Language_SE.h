@@ -188,5 +188,7 @@ const char SE_TEMP_OFF[] PROGMEM                        = "Av";
 const char SE_TOTAL_TIME[] PROGMEM                      = "Total tid";
 const char SE_SCREEN_ERROR_TITLE[] PROGMEM              = "Fel";
 const char SE_SCREEN_ERROR_TEMPERATURE_TEXT[] PROGMEM   = "Fel i temperaturavl""\xe4""sningen";
+const char SE_SCREEN_PRINT_STOP_TITLE[] PROGMEM			= "0";
+const char SE_SCREEN_PRINT_STOP_TEXT[] PROGMEM			= "0";
 
 #endif //LANGUAGE_SE_H

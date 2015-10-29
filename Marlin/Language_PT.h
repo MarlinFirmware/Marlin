@@ -188,5 +188,7 @@ const char PT_TEMP_OFF[] PROGMEM                        = "Desligar";
 const char PT_TOTAL_TIME[] PROGMEM                      = "Tempo total";
 const char PT_SCREEN_ERROR_TITLE[] PROGMEM              = "Erro";
 const char PT_SCREEN_ERROR_TEMPERATURE_TEXT[] PROGMEM   = "Falha na leitura da temperatura";
+const char PT_SCREEN_PRINT_STOP_TITLE[] PROGMEM			= "0";
+const char PT_SCREEN_PRINT_STOP_TEXT[] PROGMEM			= "0";
 
 #endif //LANGUAGE_PT_H
