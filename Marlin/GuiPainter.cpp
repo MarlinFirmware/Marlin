@@ -123,7 +123,7 @@ namespace screen
 		Area save_working_area = m_working_area;
 		uint8_t save_color_index = m_impl.getColorIndex();
 
-		Area status_area(0, 19, 127, 25);
+		Area status_area(0, 19, 95, 25);
 		setWorkingArea(status_area);
 		setColorIndex(1);
 		setFont(FontType_t::BODY_FONT);

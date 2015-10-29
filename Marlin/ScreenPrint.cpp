@@ -38,6 +38,7 @@ namespace screen
 		, Observer<float>(model)
 		, m_observed(0)
 		, m_printed_time( { 0, 0, 0, 0 })
+		, m_previous_time(0)
 		, m_percent_done(0)
 		, m_printing_status(PRINTING)
 		, m_target_temperature(0)
@@ -59,12 +60,18 @@ namespace screen
 	void ScreenPrint::draw()
 	{
 		PrintManager::updateTime();
+		m_printed_time = PrintManager::printingTime();
+
+		if (m_printed_time.minutes != m_previous_time)
+		{
+			m_previous_time = m_printed_time.minutes;
+			m_needs_drawing = true;
+		}
 
 		uint8_t percent_done = card.percentDone();
 		if (m_percent_done < percent_done)
 		{
 			m_percent_done = percent_done;
-
 			m_needs_drawing = true;
 		}
 
@@ -120,6 +127,16 @@ namespace screen
 
 				// Draw status progress bar
 				painter.printingStatus(m_percent_done);
+
+				char hours[4] = { 0 };
+				char minutes[4] = { 0 };
+				strcpy(hours, painter.itostr2(m_printed_time.hours));//itoa(m_printed_time.hours, hours, 10);
+				strcpy(minutes, painter.itostr2(m_printed_time.minutes));//itoa(m_printed_time.minutes, minutes, 10);
+
+				painter.setPrintPos(127 - (strlen(hours) + strlen(minutes) + 1) * 6 + 1, 19);
+				painter.print(hours);
+				painter.print(":");
+				painter.print(minutes);
 
 				if ( m_index != (m_num_items -1) && m_index != 0)
 				{
