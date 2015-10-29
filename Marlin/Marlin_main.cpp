@@ -3456,7 +3456,10 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         else
         {
           #ifdef FILAMENTCHANGE_ZADD
-            target[Z_AXIS]+= FILAMENTCHANGE_ZADD ;
+            if((current_position[Z_AXIS] < FILAMENTCHANGE_ZADD))
+            {
+              target[Z_AXIS]+= FILAMENTCHANGE_ZADD ;
+            }
           #endif
         }
         RUNPLAN;
