@@ -866,7 +866,7 @@ namespace screen
 	static ScreenSwitch * make_screen_offset_switch()
 	{
 		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
-		local_view->add(screen_offset_preheating);
+		local_view->add(screen_offset_home);
 		local_view->add(screen_offset_preheat);
 		return local_view;
 	}
@@ -936,7 +936,7 @@ namespace screen
 	static ScreenSwitch * make_screen_print_switch()
 	{
 		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
-		local_view->add(screen_print_preheating);
+		local_view->add(screen_print_prepare);
 		local_view->add(screen_print_preheat);
 		return local_view;
 	}
