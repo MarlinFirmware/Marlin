@@ -129,6 +129,12 @@ void PrintManager::endPrint()
 	screen::ViewManager::getInstance().activeView(screen::screen_print_action_complete);
 }
 
+Time_t PrintManager::completePrint()
+{
+	PrintManager::single::instance().state(COMPLETE);
+	return PrintManager::single::instance().m_printing_time;
+}
+
 void PrintManager::togglePause()
 {
 	if (PrintManager::single::instance().state() == PRINTING)
@@ -144,7 +150,6 @@ void PrintManager::togglePause()
 
 Time_t PrintManager::printingTime()
 {
-	PrintManager::single::instance().state(COMPLETE);
 	return PrintManager::single::instance().m_printing_time;
 }
 
