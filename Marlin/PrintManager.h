@@ -56,6 +56,7 @@ class PrintManager : public Subject<PrinterState_t>
 		static void resumePrint();
 		static void togglePause();
 		static void endPrint();
+		static Time_t completePrint();
 
 		static void startTime();
 		static void updateTime();
