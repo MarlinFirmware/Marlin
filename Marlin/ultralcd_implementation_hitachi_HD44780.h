@@ -1,6 +1,8 @@
 #ifndef ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
 #define ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
 
+static void lcd_implementation_update_indicators();
+
 /**
 * Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
 * When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
@@ -370,7 +372,9 @@ static void lcd_implementation_init(
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     TWBR = ((F_CPU / TWI_FREQ) - 16) / 2;   // TWI_FREQ 100000-1000000
-    lcd.setBacklight(0); //set all the LEDs off to begin with
+    // lcd.setBacklight(0); //set all the LEDs off to begin with
+    lcd_implementation_update_indicators(); // update indicators to current state
+
 
   #elif ENABLED(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
