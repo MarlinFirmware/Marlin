@@ -118,7 +118,7 @@ namespace screen
 		setColorIndex(save_color_index);
 	}
 
-	void GuiPainter::printingStatus(const uint8_t percentage)
+	void GuiPainter::printingStatus(const uint8_t percentage, bool progress_bar)
 	{
 		Area save_working_area = m_working_area;
 		uint8_t save_color_index = m_impl.getColorIndex();
@@ -139,25 +139,29 @@ namespace screen
 		print(s_percentage);
 		print("%");
 
-		// Draw the progress bar
-		m_working_area.x_init += (strlen(s_percentage) + 1) * max_font_width + 1;
-		m_working_area.y_init += 1;
-		m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width(), m_working_area.height());
+		if(progress_bar == true)
+		{
 
-		setColorIndex(0);
-		m_working_area.x_init += 1;
-		m_working_area.x_end -= 1;
-		m_working_area.y_init += 1;
-		m_working_area.y_end -= 1;
-		m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width(), m_working_area.height());
+			// Draw the progress bar
+			m_working_area.x_init += (strlen(s_percentage) + 1) * max_font_width + 1;
+			m_working_area.y_init += 1;
+			m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width(), m_working_area.height());
 
-		setColorIndex(1);
-		m_working_area.x_init += 1;
-		m_working_area.x_end -= 1;
-		m_working_area.y_init += 1;
-		m_working_area.y_end -= 1;
-		m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width() * percentage / 100, m_working_area.height());
+			setColorIndex(0);
+			m_working_area.x_init += 1;
+			m_working_area.x_end -= 1;
+			m_working_area.y_init += 1;
+			m_working_area.y_end -= 1;
+			m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width(), m_working_area.height());
 
+			setColorIndex(1);
+			m_working_area.x_init += 1;
+			m_working_area.x_end -= 1;
+			m_working_area.y_init += 1;
+			m_working_area.y_end -= 1;
+			m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width() * percentage / 100, m_working_area.height());
+		}
+		
 		setWorkingArea(save_working_area);
 		setColorIndex(save_color_index);
 	}
