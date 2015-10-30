@@ -647,7 +647,9 @@ ISR(TIMER1_COMPA_vect) {
     // Take multiple steps per interrupt (For high speed moves)
     for (int8_t i = 0; i < step_loops; i++) {
       #ifndef USBCON
-        customizedSerial.checkRx(); // Check for serial chars.
+      #if BAUDRATE > 115200
+        customizedSerial.checkRx(); // This is probably an old hack that is needed if Baudrate is high due to USART buffer limit
+      #endif
       #endif
 
       #if ENABLED(ADVANCE)

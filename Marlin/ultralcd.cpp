@@ -1796,7 +1796,6 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
   /**
    * Read encoder buttons from the hardware registers
-   * Warning: This function is called from interrupt context!
    */
   void lcd_buttons_update() {
     #if ENABLED(NEWPANEL)
