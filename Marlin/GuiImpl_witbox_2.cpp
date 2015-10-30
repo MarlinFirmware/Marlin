@@ -616,15 +616,23 @@ namespace screen
 		local_view->icon(icon_move_y);
 		local_view->add(screen_move_z);
 		local_view->icon(icon_move_z);
-		local_view->add(screen_move_heat_confirm);
+		local_view->add(screen_move_heat_switch);
 		local_view->icon(icon_move_e);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_move_heat_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
+		local_view->add(screen_move_e);
+		local_view->add(screen_move_heat_confirm);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_move_heat_confirm()
 	{
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_CONFIRM_TITLE(), MSG_SCREEN_MOVE_CONFIRM_TEXT());
 		local_view->add(screen_move);
@@ -1455,6 +1463,9 @@ namespace screen
 				break;
 			case screen_move_z_10:
 				new_view = make_screen_move_z_10();
+				break;
+			case screen_move_heat_switch:
+				new_view = make_screen_move_heat_switch();
 				break;
 			case screen_move_heat_confirm:
 				new_view = make_screen_move_heat_confirm();
