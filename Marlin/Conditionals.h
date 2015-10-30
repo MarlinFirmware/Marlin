@@ -69,6 +69,7 @@
   #if ENABLED(RA_CONTROL_PANEL)
     #define LCD_I2C_TYPE_PCA8574
     #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
+    #define TWI_FREQ 100000
     #define ULTIPANEL
     #define NEWPANEL
   #endif
@@ -89,6 +90,7 @@
     // Make sure it is placed in the Arduino libraries directory.
     #define LCD_I2C_TYPE_PCF8575
     #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
+    #define TWI_FREQ 100000
     #define ULTIPANEL
     #define NEWPANEL
   #endif
