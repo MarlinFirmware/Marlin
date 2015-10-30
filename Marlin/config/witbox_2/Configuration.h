@@ -11,7 +11,7 @@
 #define MACHINE_NAME "Witbox 2"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.0b6"
+#define FIRMWARE_VER "2.0.0b7"
 #define BUILD_VER ""
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
@@ -120,9 +120,9 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 260
-#define HEATER_1_MAXTEMP 260
-#define HEATER_2_MAXTEMP 260
+#define HEATER_0_MAXTEMP 250
+#define HEATER_1_MAXTEMP 250
+#define HEATER_2_MAXTEMP 250
 #define BED_MAXTEMP 150
 
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
@@ -160,11 +160,13 @@
 //#define  DEFAULT_Ki 0.19
 //#define  DEFAULT_Kd 0
 
-// - Original-DDG (PI back-calculation parameters)
+// - Original-DDG (I-PD back-calculation parameters)
 #define DEFAULT_Kp 10.7
 #define DEFAULT_Ki 0.45
-#define DEFAULT_Kd 0
+#define DEFAULT_Kd 3
 #define DEFAULT_Kb 10
+#define DEFAULT_bW 0
+#define DEFAULT_cW 1
 
 #endif // PIDTEMP
 
@@ -388,16 +390,18 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {200*60, 200*60, 30*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {200*60, 200*60, 40*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 800, 204.146}   // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {200, 200, 30, 200}        // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000, 1000, 1000, 200}   // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 800, 210.02}   // default steps per unit for Ultimaker
+#define DEFAULT_MAX_FEEDRATE          {200, 200, 40, 200}        // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {1000, 1000, 1000, 3000}   // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+
+#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000   // X, Y max acceleration in mm/s^2 for non extrusion movements
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
@@ -407,8 +411,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.0     // (mm/sec)
-#define DEFAULT_EJERK                 0.0    // (mm/sec)
+#define DEFAULT_ZJERK                 0.4     // (mm/sec)
+#define DEFAULT_EJERK                 2.0    // (mm/sec)
 
 //===========================================================================
 //=============================WITBOX Features===============================
@@ -435,7 +439,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
-  #define XY_TRAVEL_SPEED 200//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/s
+  #define XY_TRAVEL_SPEED 280//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/s
 #endif
 //===========================================================================
 //=============================Additional Features===========================

@@ -94,7 +94,7 @@
 // Load/Unload Filament Position
 #define POSITION_FILAMENT_X 87.5
 #define POSITION_FILAMENT_Y  15.0
-#define POSITION_FILAMENT_Z 60.0
+#define POSITION_FILAMENT_Z 15.0
 
 
 #define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
@@ -417,9 +417,9 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #ifdef ULTIPANEL
   #define FILAMENTCHANGEENABLE
   #ifdef FILAMENTCHANGEENABLE
-    #define FILAMENTCHANGE_XPOS 3
-    #define FILAMENTCHANGE_YPOS 50
-    #define FILAMENTCHANGE_ZADD 10
+    #define FILAMENTCHANGE_XPOS 87.5
+    #define FILAMENTCHANGE_YPOS 15.0
+    #define FILAMENTCHANGE_ZADD 15.0
     #define FILAMENTCHANGE_FIRSTRETRACT -2
     #define FILAMENTCHANGE_FINALRETRACT -100
   #endif

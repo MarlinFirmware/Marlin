@@ -79,6 +79,14 @@ namespace screen
 	static ScreenLanguage * make_screen_wizard_language()
 	{
 		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::EN);
+		local_view->add(screen_wizard_switch);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_wizard_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_wizard);
+		local_view->add(screen_wizard_step3);
 		local_view->add(screen_wizard_step1);
 		return local_view;
 	}
@@ -120,7 +128,7 @@ namespace screen
 
 	static ScreenDynamicAxis<float> * make_screen_wizard_offset_set()
 	{
-		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, 0.0, 5.0, 0.02, action_set_offset);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, 0.0, 5.0, 0.02, action_set_offset, true);
 		local_view->add(screen_wizard_offset_save);
 		return local_view;
 	}
@@ -230,7 +238,7 @@ namespace screen
 	static ScreenMenu * make_screen_unload_init()
 	{
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_INIT_TITLE(), MSG_SCREEN_UNLOAD_INIT_TEXT());
 		local_view->add(screen_main);
@@ -249,7 +257,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_unload_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_unload_switch);
 		return local_view;
 	}
@@ -332,7 +340,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_load_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_load_switch);
 		return local_view;
 	}
@@ -608,15 +616,23 @@ namespace screen
 		local_view->icon(icon_move_y);
 		local_view->add(screen_move_z);
 		local_view->icon(icon_move_z);
-		local_view->add(screen_move_heat_confirm);
+		local_view->add(screen_move_heat_switch);
 		local_view->icon(icon_move_e);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_move_heat_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
+		local_view->add(screen_move_e);
+		local_view->add(screen_move_heat_confirm);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_move_heat_confirm()
 	{
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_CONFIRM_TITLE(), MSG_SCREEN_MOVE_CONFIRM_TEXT());
 		local_view->add(screen_move);
@@ -858,7 +874,7 @@ namespace screen
 	static ScreenSwitch * make_screen_offset_switch()
 	{
 		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
-		local_view->add(screen_offset_preheating);
+		local_view->add(screen_offset_home);
 		local_view->add(screen_offset_preheat);
 		return local_view;
 	}
@@ -900,7 +916,7 @@ namespace screen
 
 	static ScreenDynamicAxis<float> * make_screen_offset_set()
 	{
-		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, 0.0, 5.0, 0.02, action_set_offset);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, -5.0, 5.0, 0.02, action_set_offset, true);
 		local_view->add(screen_offset_save);
 		return local_view;
 	}
@@ -928,7 +944,7 @@ namespace screen
 	static ScreenSwitch * make_screen_print_switch()
 	{
 		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
-		local_view->add(screen_print_preheating);
+		local_view->add(screen_print_prepare);
 		local_view->add(screen_print_preheat);
 		return local_view;
 	}
@@ -942,7 +958,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_print_preheating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_PRINT_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_PRINT_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_print_prepare);
 		return local_view;
 	}
@@ -985,7 +1001,7 @@ namespace screen
 
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
-		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETE_TITLE(), MSG_SCREEN_PRINT_COMPLETE_TEXT(), MSG_PUSH_TO_CONTINUE(), PrintManager::printingTime());
+		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETE_TITLE(), MSG_SCREEN_PRINT_COMPLETE_TEXT(), MSG_PUSH_TO_CONTINUE(), PrintManager::completePrint());
 		local_view->add(screen_close_inactivity);
 		return local_view;
 	}
@@ -1197,6 +1213,9 @@ namespace screen
 				break;
 			case screen_wizard_language:
 				new_view = make_screen_wizard_language();
+				break;
+			case screen_wizard_switch:
+				new_view = make_screen_wizard_switch();
 				break;
 			case screen_wizard_step1:
 				new_view = make_screen_wizard_step1();
@@ -1444,6 +1463,9 @@ namespace screen
 				break;
 			case screen_move_z_10:
 				new_view = make_screen_move_z_10();
+				break;
+			case screen_move_heat_switch:
+				new_view = make_screen_move_heat_switch();
 				break;
 			case screen_move_heat_confirm:
 				new_view = make_screen_move_heat_confirm();

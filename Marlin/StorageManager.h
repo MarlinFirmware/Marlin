@@ -10,6 +10,7 @@ namespace eeprom
 	const uint8_t EMERGENCY_STOP_ACTIVE = 0x00;
 	const uint8_t EMERGENCY_STOP_INACTIVE = 0xFF;
 	const uint8_t INITIALIZED = 0x00;
+	const uint8_t UNINITIALIZED = 0xFF;
 	const uint8_t LIGHT_OFF = 0x00;
 	const uint8_t LIGHT_ON = 0x01;
 	const uint8_t LIGHT_AUTO = 0x02;
@@ -34,6 +35,7 @@ namespace eeprom
 			static float getOffset();
 
 			static void setInitialized();
+			static void setUninitialized();
 			static bool getInitialized();
 
 			static void setLanguage(uint8_t language);

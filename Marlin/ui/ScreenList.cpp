@@ -233,7 +233,7 @@ namespace screen
 							m_current_time = millis();
 							if (m_current_time > m_previous_time + 1200)
 							{
-								painter.animate(card.longFilename, 18, 100);
+								painter.animate(card.longFilename, 18, 300);
 							}
 							else
 							{
@@ -247,22 +247,7 @@ namespace screen
 					}
 					else
 					{
-						if (i == window_selector)
-						{
-							m_current_time = millis();
-							if (m_current_time > m_previous_time + 1200)
-							{
-								painter.animate(card.filename, 18, 100);
-							}
-							else
-							{
-								painter.print(card.filename);
-							}
-						}
-						else
-						{
-							painter.print(card.filename);
-						}
+						painter.print(card.filename);
 					}
 				}
 			}

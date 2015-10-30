@@ -188,5 +188,7 @@ const char ES_TEMP_OFF[] PROGMEM                        = "Off";
 const char ES_TOTAL_TIME[] PROGMEM                      = "Tiempo total";
 const char ES_SCREEN_ERROR_TITLE[] PROGMEM              = "Error";
 const char ES_SCREEN_ERROR_TEMPERATURE_TEXT[] PROGMEM   = "Fallo en la lectura de la temperatura";
+const char ES_SCREEN_PRINT_STOP_TITLE[] PROGMEM			= "Impresi""\xf3""n detenida";
+const char ES_SCREEN_PRINT_STOP_TEXT[] PROGMEM			= "Retira los residuos de la base";
 
 #endif //LANGUAGE_ES_H

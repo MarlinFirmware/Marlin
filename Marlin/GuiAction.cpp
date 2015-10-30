@@ -35,6 +35,7 @@ bool y_hit = false;
 bool z_hit = false;
 
 float z_offset;
+float z_saved_homing;
 
 extern float current_position[NUM_AXIS];
 extern void clean_up_after_endstop_move();
@@ -508,9 +509,9 @@ void action_move_to_rest()
 
 	enable_endstops(true);
 
-	if (current_position[Z_AXIS] < 20)
+	if (current_position[Z_AXIS] < POSITION_REST_Z)
 	{
-		target[Z_AXIS] = 20;
+		target[Z_AXIS] = POSITION_REST_Z;
 		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 		st_synchronize();
 		vector_3 update_position_2 = plan_get_position();
@@ -576,7 +577,7 @@ void action_start_print()
 
 	bool serial_printing = true;
 
-	char cmd[30];
+	char cmd[LONG_FILENAME_LENGTH];
 	char* c;
 
 	if(PrintManager::single::instance().state() == PRINTING)
@@ -790,7 +791,8 @@ void action_offset()
 	current_position[X_AXIS] = uncorrected_position.x;
 	current_position[Y_AXIS] = uncorrected_position.y;
 	current_position[Z_AXIS] = 0;
-	float z_saved_homing = current_position[Z_AXIS];
+	z_saved_homing = OffsetManager::single::instance().offset();
+
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	setup_for_endstop_move();
 
@@ -822,9 +824,6 @@ void action_offset()
 	current_position[Y_AXIS] = Z_SAFE_HOMING_Y_POINT;
 	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BETWEEN_PROBINGS);
 
-	current_position[Z_AXIS] = z_saved_homing;
-	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
-
 	plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
 	vector_3 vector_offsets = vector_3(X_PROBE_OFFSET_FROM_EXTRUDER, Y_PROBE_OFFSET_FROM_EXTRUDER, 0);
 	
@@ -832,6 +831,17 @@ void action_offset()
 	z_offset = vector_offsets.z;
 
 	plan_bed_level_matrix.set_to_identity();
+
+	if(z_saved_homing == 0)
+	{
+		current_position[Z_AXIS] = 0;
+	}
+	else
+	{
+		current_position[Z_AXIS] = -(z_saved_homing - z_offset);
+	}
+	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 }
 
@@ -843,8 +853,16 @@ void action_offset_homing()
 
 void action_set_offset(uint8_t axis, float value)
 {
-	action_move_axis_to(Z_AXIS,-value);
-	zprobe_zoffset = value + z_offset;
+	if(z_saved_homing == 0)
+	{
+		action_move_axis_to(Z_AXIS,-value);
+		zprobe_zoffset = value + z_offset;
+	}
+	else
+	{
+		action_move_axis_to(Z_AXIS,-(value + z_saved_homing - z_offset));
+		zprobe_zoffset = value + z_saved_homing;
+	}
 	OffsetManager::single::instance().offset(zprobe_zoffset);
 }
 
@@ -909,4 +927,19 @@ void action_erase_EEPROM()
 	lcd_disable_button();
 	eeprom::StorageManager::eraseEEPROM();
 	RESET();
+}
+
+bool action_check_wizard()
+{
+	if( (eeprom::StorageManager::single::instance().getBoardType() == BOARD_BQ_CNC) && 
+			(eeprom::StorageManager::single::instance().getOffset() != Z_PROBE_OFFSET_FROM_EXTRUDER) )
+	{
+		return true;
+	}
+	return false;
+}
+
+void action_reset_wizard()
+{
+	eeprom::StorageManager::single::instance().setUninitialized();
 }

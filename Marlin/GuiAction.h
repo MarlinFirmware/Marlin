@@ -44,4 +44,7 @@ extern bool action_check_cooling();
 extern void action_close_inactivity();
 extern void action_erase_EEPROM();
 
+extern bool action_check_wizard();
+extern void action_reset_wizard();
+
 #endif // GUI_ACTION_H

@@ -36,7 +36,7 @@ namespace screen
 		class ScreenDynamicAxis : public Screen , public Functor<void, uint8_t, T>
 	{
 		public:
-			ScreenDynamicAxis(const char * title, uint8_t axis, T min, T max, T scale, typename Functor<void, uint8_t, T>::FuncPtr fptr);
+			ScreenDynamicAxis(const char * title, uint8_t axis, T min, T max, T scale, typename Functor<void, uint8_t, T>::FuncPtr fptr, bool reset = false);
 			virtual ~ScreenDynamicAxis();
 
 			void init(uint16_t index = 0);
@@ -52,12 +52,13 @@ namespace screen
 			T m_minimum_value;
 			T m_maximum_value;
 			T m_scale;
+			bool m_reset;
 
 			uint32_t m_next_time;
 	};
 
 	template <typename T>
-		ScreenDynamicAxis<T>::ScreenDynamicAxis(const char * title, uint8_t axis, T min, T max, T scale, typename Functor<void, uint8_t, T>::FuncPtr fptr)
+		ScreenDynamicAxis<T>::ScreenDynamicAxis(const char * title, uint8_t axis, T min, T max, T scale, typename Functor<void, uint8_t, T>::FuncPtr fptr, bool reset)
 		: Screen(title, SELECTOR)
 		, Functor<void, uint8_t, T>(fptr)
 		, m_minimum_value(min)
@@ -65,6 +66,7 @@ namespace screen
 		, m_scale(scale)
 		, m_axis(axis)
 		, m_next_time(0)
+		, m_reset(reset)
 	{ }
 
 	template <typename T>
@@ -74,7 +76,14 @@ namespace screen
 	template <typename T>
 		void ScreenDynamicAxis<T>::init(uint16_t index)
 	{
-		m_select = current_position[m_axis];
+		if(m_reset == true)
+		{
+			m_select = 0;
+		}
+		else
+		{
+			m_select = current_position[m_axis];
+		}
 		m_next_time = millis() + 500;
 	}
 

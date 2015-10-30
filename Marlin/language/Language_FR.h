@@ -188,5 +188,7 @@ const char FR_TEMP_OFF[] PROGMEM                        = """\xc9""teindre";
 const char FR_TOTAL_TIME[] PROGMEM                      = "Dur""\xe9""e";
 const char FR_SCREEN_ERROR_TITLE[] PROGMEM              = "Erreur";
 const char FR_SCREEN_ERROR_TEMPERATURE_TEXT[] PROGMEM   = "Erreur lors de la lecture de la temp""\xe9""rature ";
+const char FR_SCREEN_PRINT_STOP_TITLE[] PROGMEM			= "0";
+const char FR_SCREEN_PRINT_STOP_TEXT[] PROGMEM			= "0";
 
 #endif //LANGUAGE_FR_H

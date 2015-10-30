@@ -50,6 +50,7 @@ namespace screen
 		private:
 			float m_observed;
 			Time_t m_printed_time;
+			uint8_t m_previous_time;
 			uint8_t m_percent_done;
 			uint16_t m_target_temperature;
 			PrinterState_t m_printing_status;

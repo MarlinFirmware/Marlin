@@ -66,6 +66,11 @@ namespace eeprom
 		StorageManager::single::instance().writeByte(ADDR_FIRST_POWER_ON, INITIALIZED);
 	}
 
+	void StorageManager::setUninitialized()
+	{
+		StorageManager::single::instance().writeByte(ADDR_FIRST_POWER_ON, UNINITIALIZED);
+	}
+
 	bool StorageManager::getInitialized()
 	{
 		if(StorageManager::single::instance().readByte(ADDR_FIRST_POWER_ON) == INITIALIZED)
