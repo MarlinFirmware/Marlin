@@ -217,7 +217,7 @@ ifeq ($(HARDWARE_DISPLAY), Graphic)
 		Icon.cpp \
 		Option.cpp OptionLaunch.cpp\
 		Screen.cpp ScreenAbout.cpp ScreenComplete.cpp ScreenCooldown.cpp ScreenEmergency.cpp ScreenFile.cpp \
-		ScreenInactivity.cpp ScreenLanguage.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp \
+		ScreenInactivity.cpp ScreenLanguage.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp ScreenStop.cpp \
 		ScreenSplash.cpp ScreenTemperature.cpp ScreenTransition.cpp ScreenSerial.cpp ScreenSetting.cpp ScreenSwitch.cpp \
 		StepperClass.cpp Language.cpp
 

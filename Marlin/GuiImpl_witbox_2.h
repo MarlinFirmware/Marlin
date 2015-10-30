@@ -118,6 +118,7 @@ namespace screen
 		screen_play_pause,
 		screen_stop_confirm,
 		screen_stop_OK,
+		screen_stop_info,
 		screen_change_init,
 		screen_change_pausing,
 		screen_change_select,
