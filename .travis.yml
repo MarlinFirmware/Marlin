@@ -187,6 +187,13 @@ script:
   - cp Marlin/example_configurations/delta/generic/Configuration* Marlin/
   - rm -rf .build/
   - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
+  # Delta Config (generic) + ABL + ALLEN_KEY
+  - cp Marlin/example_configurations/delta/generic/Configuration* Marlin/
+  - sed -i 's/#define DISABLE_MIN_ENDSTOPS/\/\/#define DISABLE_MIN_ENDSTOPS/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define AUTO_BED_LEVELING_FEATURE/#define AUTO_BED_LEVELING_FEATURE/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define Z_PROBE_ALLEN_KEY/#define Z_PROBE_ALLEN_KEY/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
   # Delta Config (Mini Kossel)
   - cp Marlin/example_configurations/delta/kossel_mini/Configuration* Marlin/
   - rm -rf .build/
