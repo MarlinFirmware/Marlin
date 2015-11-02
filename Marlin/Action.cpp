@@ -104,6 +104,54 @@ void action_homing()
 #endif //defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
 		HOMEAXIS(Z);
 #else //LEVEL_SENSOR
+
+#ifdef BED_DETECTION
+
+		destination[X_AXIS] = round(BED_DETECTION_X_POINT);
+		destination[Y_AXIS] = round(BED_DETECTION_Y_POINT);
+		destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+		feedrate = XY_TRAVEL_SPEED;
+		current_position[Z_AXIS] = 0;
+
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		st_synchronize();
+		current_position[X_AXIS] = destination[X_AXIS];
+		current_position[Y_AXIS] = destination[Y_AXIS];
+		current_position[Z_AXIS] = destination[Z_AXIS];
+
+		HOMEAXIS(Z);
+		raised = false;
+
+		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+		destination[Z_AXIS] = BED_DETECTION_RAISE;
+		feedrate = max_feedrate[Z_AXIS];
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		st_synchronize();
+
+		destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT);
+		destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT);
+		feedrate = XY_TRAVEL_SPEED;
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		st_synchronize();
+
+		destination[Z_AXIS] = BED_DETECTION_Z_POINT;
+		feedrate = max_feedrate[Z_AXIS];
+		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+		st_synchronize();
+
+		current_position[X_AXIS] = destination[X_AXIS];
+		current_position[Y_AXIS] = destination[Y_AXIS];
+		current_position[Z_AXIS] = destination[Z_AXIS];
+
+		if(checkZminEndstop() == false)
+		{
+			return;
+		}
+
+#endif //BED_DETECTION
+
 		destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT);
 		destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT);
 		destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
@@ -118,6 +166,7 @@ void action_homing()
 
 		HOMEAXIS(Z);
 		raised = false;
+
 #endif //LEVEL_SENSOR
 	}
 	else if (axis_known_position[X_AXIS]==true && code_seen(axis_codes[Z_AXIS]))
