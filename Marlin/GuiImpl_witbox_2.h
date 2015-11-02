@@ -87,6 +87,7 @@ namespace screen
 		screen_move_x_10,
 		screen_move_y_10,
 		screen_move_z_10,
+		screen_move_heat_switch,
 		screen_move_heat_confirm,
 		screen_move_heat,
 		screen_move_heating,

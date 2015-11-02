@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenInactivity.h
+/// \file ScreenComplete.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of inactivity-type screens.
+/// \brief Implementation of Print Complete screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,37 +25,46 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_INACTIVITY_H
-#define SCREEN_INACTIVITY_H
+#include "ScreenComplete.h"
 
-#include "ScreenAnimation.h"
-
-#include "GuiManager.h"
-#include "TemperatureManager.h"
-#include "ViewManager.h"
+#include "Language.h"
 
 namespace screen
 {
-	class ScreenInactivity : public ScreenAnimation<float>
+	ScreenComplete::ScreenComplete(const char * title, const char * message,  const char * box, Time_t time)
+		: ScreenDialog<void>(title, message, box)
+		, m_time(time)
+	{ }
+
+	ScreenComplete::~ScreenComplete()
+	{ }
+
+	void ScreenComplete::draw()
 	{
-		public:
-			ScreenInactivity(const char * title, const char * text, uint16_t target, Subject<float> * model = 0);
-			virtual ~ScreenInactivity();
+		char c_time[24];
+		char total_time[24];
+		strcpy_P(total_time, MSG_TOTAL_TIME());
+		const char space[2] {' '};
+		strcat(total_time, space);
+		snprintf(c_time, 24, "%02d:%02d", m_time.hours, m_time.minutes);
+		strcat(total_time, c_time);
+		
+		painter.firstPage();
+		do
+		{
+			painter.title(m_title);
+			painter.box(m_box);
 
-			void init(uint16_t index = 0);
+			painter.setColorIndex(1);
 
-			void draw();
-			void press();
+			Area text_area(0, 14, 127, 41);
+			painter.setWorkingArea(text_area);
+			painter.multiText_P(m_message);
 
-			void add(ScreenIndex_t const & component);
-			void update(float value);
+			Area time_area(0, 42, 127, 54);
+			painter.setWorkingArea(time_area);
+			painter.text(total_time);
 
-			void left();
-			void right();
-
-		private:
-			bool isConditionMet();
-	};
+		} while( painter.nextPage() );
+	}
 }
-
-#endif //SCREEN_INACTIVITY_H

@@ -25,8 +25,8 @@ namespace screen
 			~ViewManager();
 
 		private:
-			ViewManager(ViewManager const & orig);
-			ViewManager & operator=(ViewManager & orig);
+			ViewManager(ViewManager const & orig) = delete;
+			ViewManager & operator=(ViewManager & orig) = delete;
 
 		private:
 			Screen * m_active_view;

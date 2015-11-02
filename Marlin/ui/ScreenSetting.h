@@ -6,7 +6,7 @@
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of Setting screen class.
+/// \brief Definition of Settings screen class.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com

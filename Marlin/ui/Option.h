@@ -1,21 +1,21 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file Icon.cpp
+/// \file Option.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza
 ///         Joaquin Herrero
 ///
-/// \brief Implementation for Icon objects.
-///
+/// \brief Interface definition for Option objects.
+///   
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
-/// http://www.bq.com
-///
+/// http://www.bq.com 
+/// 
 /// This file is free software; you can redistribute it and/or modify
 /// it under the terms of either the GNU General Public License version 2 or
 /// later or the GNU Lesser General Public License version 2.1 or later, both
 /// as published by the Free Software Foundation.
-///
+///      
 /// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 /// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 /// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -25,42 +25,44 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "Icon.h"
-#include "GuiPainter.h"
+#ifndef OPTION
+#define OPTION
+
+#include <stdint.h>
 
 namespace screen
 {
-	Icon::Icon (Size const & size, const unsigned char* bitmap, const unsigned char * focused_bitmap, const char * text)
-		: m_size(size)
-		, m_bitmap(bitmap)
-		, m_focused_bitmap(focused_bitmap)
-		, m_text(text)
-	{ }
-
-	Icon::~Icon()
-	{ };
-
-	uint8_t const & Icon::width() const
+	namespace option
 	{
-		return m_size.width;
+		struct Size
+		{
+			Size(uint8_t width, uint8_t height)
+				: width(width)
+				, height(height)
+			{ };
+
+			uint8_t width;
+			uint8_t height;
+		};
 	}
 
-	uint8_t const & Icon::height() const
+	class Option
 	{
-		return m_size.height;
-	}
+		public:
+			Option(option::Size const & size, const char * text = 0);
+			virtual ~Option();
 
-	const char * Icon::text() const
-	{
-		return m_text;
-	}
+			uint8_t const & width() const;
+			uint8_t const & height() const;
+			virtual const char * text() const;
+			virtual void draw() = 0;
 
-	void Icon::draw(uint8_t x, uint8_t y, bool focused)
-	{
-		painter.setColorIndex(1);
-		painter.drawBitmap(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap : m_bitmap);
-	}
-
-	void Icon::show()
-	{ }
+			virtual void press();
+		
+		protected:
+			option::Size m_size;
+			const char * m_text;
+	};
 }
+
+#endif //OPTION

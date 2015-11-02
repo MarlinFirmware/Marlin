@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenAbout.h
+/// \file ScreenCooldown.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief About Screen.
+/// \brief Definition of cooldown screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,25 +25,27 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_ABOUT_H
-#define SCREEN_ABOUT_H
+#ifndef SCREEN_COOLDOWN_H
+#define SCREEN_COOLDOWN_H
 
-#include <stdint.h>
+#include "ScreenAnimation.h"
 
-#include "ScreenDialog.h"
+#include "GuiManager.h"
+#include "TemperatureManager.h"
+#include "ViewManager.h"
 
 namespace screen
 {
-	class ScreenAbout : public ScreenDialog<void>
+	class ScreenCooldown : public ScreenAnimation<float>
 	{
 		public:
-			ScreenAbout(const char * title = 0, const char * message = 0, const char * box = 0, const unsigned char * bitmap = 0);
-			virtual ~ScreenAbout();
+			ScreenCooldown(const char * title, const char * text, uint16_t target, Subject<float> * model = 0);
+			virtual ~ScreenCooldown();
 
 			void draw();
-
-		protected:
-			const unsigned char * m_bitmap;
+		private:
+			bool isConditionMet();
 	};
 }
-#endif //SCREEN_ABOUT_H
+
+#endif //SCREEN_COOLDOWN_H

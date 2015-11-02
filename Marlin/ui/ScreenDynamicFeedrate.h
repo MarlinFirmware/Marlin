@@ -6,7 +6,7 @@
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of dynamic-type screensto change the feedrate.
+/// \brief Definition of dynamic-type screens to change the feedrate.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com

@@ -1,26 +1,30 @@
-#include "ScreenComplete.h"
+#include "ScreenStop.h"
 
 #include "Language.h"
 
 namespace screen
 {
-	ScreenComplete::ScreenComplete(const char * title, const char * message,  const char * box, Time_t time)
+	ScreenStop::ScreenStop(const char * title, const char * message,  const char * box, float height, Time_t time)
 		: ScreenDialog<void>(title, message, box)
+		, m_height(height)
 		, m_time(time)
 	{ }
 
-	ScreenComplete::~ScreenComplete()
+	ScreenStop::~ScreenStop()
 	{ }
 
-	void ScreenComplete::draw()
+	void ScreenStop::draw()
 	{
 		char c_time[24];
 		char total_time[24];
-		strcpy_P(total_time, MSG_TOTAL_TIME());
-		const char space[2] {' '};
-		strcat(total_time, space);
+		strcpy(total_time, "T:");
 		snprintf(c_time, 24, "%02d:%02d", m_time.hours, m_time.minutes);
 		strcat(total_time, c_time);
+
+		char height[8] = "Z:";
+		char z_value[6] = { 0 };
+		dtostrf(m_height, 5, 2, z_value);
+		strcat(height, z_value);
 		
 		painter.firstPage();
 		do
@@ -34,9 +38,11 @@ namespace screen
 			painter.setWorkingArea(text_area);
 			painter.multiText_P(m_message);
 
-			Area time_area(0, 42, 127, 54);
-			painter.setWorkingArea(time_area);
-			painter.text(total_time);
+			painter.setPrintPos( 0, 41);
+			painter.print(height);
+
+			painter.setPrintPos( 127 - strlen(total_time) * 6, 41);
+			painter.print(total_time);
 
 		} while( painter.nextPage() );
 	}
