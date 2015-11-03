@@ -147,6 +147,7 @@ void action_homing()
 
 		if(checkZminEndstop() == false)
 		{
+			lcd_enable_button();
 			return;
 		}
 
