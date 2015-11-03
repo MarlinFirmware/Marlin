@@ -1281,6 +1281,8 @@ static void setup_for_endstop_move() {
 
   static void run_z_probe() {
 
+    refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
+
     #if ENABLED(DELTA)
 
       float start_z = current_position[Z_AXIS];
