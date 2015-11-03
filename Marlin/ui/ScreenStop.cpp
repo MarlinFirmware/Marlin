@@ -1,6 +1,7 @@
 #include "ScreenStop.h"
 
 #include "Language.h"
+#include "GuiBitmaps_witbox_2.h"
 
 namespace screen
 {
@@ -15,15 +16,27 @@ namespace screen
 
 	void ScreenStop::draw()
 	{
+		uint8_t padding = 13;
+
 		char c_time[24];
-		char total_time[24];
-		strcpy(total_time, "T:");
+		char total_time[24] = "";
 		snprintf(c_time, 24, "%02d:%02d", m_time.hours, m_time.minutes);
 		strcat(total_time, c_time);
 
-		char height[8] = "Z:";
-		char z_value[6] = { 0 };
-		dtostrf(m_height, 5, 2, z_value);
+		char height[9] = "Z:";
+		char z_value[7] = { 0 };
+		uint8_t number_size = 5;
+
+		if(m_height < 100)
+		{
+			number_size = 4;
+		}
+		else if(m_height < 10)
+		{
+			number_size = 3;
+		}
+
+		dtostrf(m_height, number_size, 2, z_value);
 		strcat(height, z_value);
 		
 		painter.firstPage();
@@ -38,10 +51,11 @@ namespace screen
 			painter.setWorkingArea(text_area);
 			painter.multiText_P(m_message);
 
-			painter.setPrintPos( 0, 41);
+			painter.setPrintPos(padding, 41);
 			painter.print(height);
 
-			painter.setPrintPos( 127 - strlen(total_time) * 6, 41);
+			painter.drawBitmap(127 - strlen(total_time) * 6 - padding - icon_clock_width - 2, 41, icon_clock_width, icon_clock_height, icon_clock);
+			painter.setPrintPos( 127 - strlen(total_time) * 6 - padding, 41);
 			painter.print(total_time);
 
 		} while( painter.nextPage() );
