@@ -18,4 +18,5 @@ CXXSRC += \
 	ScreenSplash.cpp \
 	ScreenSwitch.cpp \
 	ScreenTemperature.cpp \
-	ScreenTransition.cpp 
+	ScreenTransition.cpp \
+	ScreenStop.cpp
