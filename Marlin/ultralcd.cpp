@@ -1882,10 +1882,11 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
 char conv[8];
 
-// Convert float to string with +123.4 format
-char* ftostr3(const float& x) {
-  return itostr3((int)x);
-}
+// Convert float to rj string with 123 or -12 format
+char *ftostr3(const float& x) { return itostr3((int)x); }
+
+// Convert float to rj string with _123, -123, _-12, or __-1 format
+char *ftostr4sign(const float& x) { return itostr4sign((int)x); }
 
 // Convert int to string with 12 format
 char* itostr2(const uint8_t& x) {
@@ -1922,8 +1923,8 @@ char* ftostr31ns(const float& x) {
   return conv;
 }
 
-// Convert float to string with 123.4 format
-char* ftostr32(const float& x) {
+// Convert float to string with 123.45 format
+char *ftostr32(const float& x) {
   long xx = abs(x * 100);
   conv[0] = x >= 0 ? (xx / 10000) % 10 + '0' : '-';
   conv[1] = (xx / 1000) % 10 + '0';
@@ -2062,6 +2063,30 @@ char* itostr4(const int& xx) {
   conv[0] = xx >= 1000 ? (xx / 1000) % 10 + '0' : ' ';
   conv[1] = xx >= 100 ? (xx / 100) % 10 + '0' : ' ';
   conv[2] = xx >= 10 ? (xx / 10) % 10 + '0' : ' ';
+  conv[3] = xx % 10 + '0';
+  conv[4] = 0;
+  return conv;
+}
+
+// Convert int to rj string with _123, -123, _-12, or __-1 format
+char *itostr4sign(const int& x) {
+  int xx = abs(x);
+  int sign = 0;
+  if (xx >= 100) {
+    conv[1] = (xx / 100) % 10 + '0';
+    conv[2] = (xx / 10) % 10 + '0';
+  }
+  else if (xx >= 10) {
+    conv[0] = ' ';
+    sign = 1;
+    conv[2] = (xx / 10) % 10 + '0';
+  }
+  else {
+    conv[0] = ' ';
+    conv[1] = ' ';
+    sign = 2;
+  }
+  conv[sign] = x < 0 ? '-' : ' ';
   conv[3] = xx % 10 + '0';
   conv[4] = 0;
   return conv;
