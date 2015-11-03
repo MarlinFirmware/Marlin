@@ -504,7 +504,7 @@ Possible status screens:
        |0123456789012345|
 
 16x4   |000/000 B000/000|
-       |SD100%  Z000.00 |
+       |SD100%  Z 000.00|
        |F100%     T--:--|
        |0123456789012345|
 
@@ -512,12 +512,12 @@ Possible status screens:
        |01234567890123456789|
 
 20x4   |T000/000D B000/000D |
-       |X000  Y000  Z000.00 |
+       |X 000 Y 000 Z 000.00|
        |F100%  SD100% T--:--|
        |01234567890123456789|
 
 20x4   |T000/000D B000/000D |
-       |T000/000D   Z000.00 |
+       |T000/000D   Z 000.00|
        |F100%  SD100% T--:--|
        |01234567890123456789|
 */
@@ -618,22 +618,22 @@ static void lcd_implementation_status_screen() {
 
         lcd.print('X');
         if (axis_known_position[X_AXIS])
-          lcd.print(ftostr3(current_position[X_AXIS]));
+          lcd.print(ftostr4sign(current_position[X_AXIS]));
         else
-          lcd_printPGM(PSTR("---"));
+          lcd_printPGM(PSTR(" ---"));
 
-        lcd_printPGM(PSTR("  Y"));
+        lcd_printPGM(PSTR(" Y"));
         if (axis_known_position[Y_AXIS])
-          lcd.print(ftostr3(current_position[Y_AXIS]));
+          lcd.print(ftostr4sign(current_position[Y_AXIS]));
         else
-          lcd_printPGM(PSTR("---"));
+          lcd_printPGM(PSTR(" ---"));
 
       #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 
     #endif // LCD_WIDTH >= 20
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
-    lcd.print('Z');
+    lcd_printPGM(PSTR("Z "));
     if (axis_known_position[Z_AXIS])
       lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
     else

@@ -121,8 +121,10 @@ char* itostr31(const int& xx);
 char* itostr3(const int& xx);
 char* itostr3left(const int& xx);
 char* itostr4(const int& xx);
+char* itostr4sign(const int& x);
 
 char* ftostr3(const float& x);
+char* ftostr4sign(const float& x);
 char* ftostr31ns(const float& x); // float to string without sign character
 char* ftostr31(const float& x);
 char* ftostr32(const float& x);
