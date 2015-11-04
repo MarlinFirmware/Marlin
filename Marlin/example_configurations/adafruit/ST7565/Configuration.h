@@ -355,7 +355,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define DISABLE_Y false
 #define DISABLE_Z false
 // Warn on display about possibly reduced accuracy
-//#define WARN_REDUCED_ACCURACY
+//#define DISABLE_REDUCED_ACCURACY_WARNING
 
 // @section extruder
 
