@@ -188,7 +188,7 @@ const char EN_SCREEN_MOVE_TO_LOAD_TITLE[] PROGMEM       = "Insert filament";
 const char EN_SCREEN_MOVE_TO_LOAD_TEXT[] PROGMEM        = "Adjusting position...";
 const char EN_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Change filament";
 const char EN_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Adjusting position...";
-const char EN_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "0";
-const char EN_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "0";
+const char EN_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Printing stopped";
+const char EN_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Remove residue from the base";
 
 #endif //LANGUAGE_EN_H
