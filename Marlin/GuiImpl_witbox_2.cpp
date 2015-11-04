@@ -34,6 +34,7 @@
 #include "ScreenLanguage.h"
 #include "ScreenTemperature.h"
 #include "ScreenCooldown.h"
+#include "ScreenStop.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -1042,6 +1043,13 @@ namespace screen
 	static ScreenAction<void> * make_screen_stop_OK()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, PrintManager::stopPrint);
+		local_view->add(screen_stop_info);
+		return local_view;
+	}
+
+	static ScreenStop * make_screen_stop_info()
+	{
+		ScreenStop * local_view = new ScreenStop(MSG_SCREEN_PRINT_STOP_TITLE(), MSG_SCREEN_PRINT_STOP_TEXT(), MSG_PUSH_TO_CONTINUE(), action_get_height(), PrintManager::printingTime());
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -1572,6 +1580,9 @@ namespace screen
 				break;
 			case screen_stop_OK:
 				new_view = make_screen_stop_OK();
+				break;
+			case screen_stop_info:
+				new_view = make_screen_stop_info();
 				break;
 
 			// Change filament

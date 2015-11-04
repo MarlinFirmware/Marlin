@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenCooldown.h
+/// \file ScreenEmergency.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of cooldown-type screens.
+/// \brief Definition of Emergency screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,27 +25,32 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_COOLDOWN_H
-#define SCREEN_COOLDOWN_H
+#ifndef SCREEN_EMERGENCY_H
+#define SCREEN_EMERGENCY_H
 
-#include "ScreenAnimation.h"
-
-#include "GuiManager.h"
-#include "TemperatureManager.h"
-#include "ViewManager.h"
+#include "Screen.h"
 
 namespace screen
 {
-	class ScreenCooldown : public ScreenAnimation<float>
+	class ScreenEmergency : public Screen
 	{
 		public:
-			ScreenCooldown(const char * title, const char * text, uint16_t target, Subject<float> * model = 0);
-			virtual ~ScreenCooldown();
+			ScreenEmergency(const char * title, const char * message, const char * box, const unsigned char * bitmap);
+			~ScreenEmergency();
 
 			void draw();
+
+			void init(uint16_t index);
+			void add(ScreenIndex_t const & component);
+
 		private:
-			bool isConditionMet();
+			const char * m_box;
+			const char * m_message;
+
+			const unsigned char * m_bitmap;
+
+			ScreenIndex_t m_next_screen;
 	};
 }
 
-#endif //SCREEN_COOLDOWN_H
+#endif // SCREEN_EMERGENCY_H

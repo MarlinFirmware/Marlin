@@ -22,6 +22,7 @@ extern void action_correct_movement(float &x_pos, float &y_pos, float &z_pos);
 extern void action_move_axis_to(uint8_t axis, float position);
 extern void action_move_to_rest();
 extern void action_move_to_filament_change();
+extern float action_get_height();
 
 extern void action_start_print();
 extern void action_stop_print();

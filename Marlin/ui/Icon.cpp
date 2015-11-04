@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file Icon.h
+/// \file Icon.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza
 ///         Joaquin Herrero
 ///
-/// \brief Interface for Icon objects.
+/// \brief Implementation of Icon objects.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,42 +25,42 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef ICON_H
-#define ICON_H
-
-#include <stdint.h>
+#include "Icon.h"
+#include "GuiPainter.h"
 
 namespace screen
 {
-	struct Size
+	Icon::Icon (Size const & size, const unsigned char* bitmap, const unsigned char * focused_bitmap, const char * text)
+		: m_size(size)
+		, m_bitmap(bitmap)
+		, m_focused_bitmap(focused_bitmap)
+		, m_text(text)
+	{ }
+
+	Icon::~Icon()
+	{ };
+
+	uint8_t const & Icon::width() const
 	{
-		Size(uint8_t width, uint8_t height)
-			: width(width)
-			, height(height)
-		{ };
+		return m_size.width;
+	}
 
-		uint8_t width;
-		uint8_t height;
-	};
+	uint8_t const & Icon::height() const
+	{
+		return m_size.height;
+	}
 
-	class Icon 
-	{	
-		public:
-			Icon(Size const & size, const unsigned char * bitmap, const unsigned char * focused_bitmap = 0, const char * text = 0);
-			virtual ~Icon();
+	const char * Icon::text() const
+	{
+		return m_text;
+	}
 
-			uint8_t const & width() const;
-			uint8_t const & height() const;
-			virtual const char * text() const;
-			virtual void draw(uint8_t x, uint8_t y, bool focused = false);
+	void Icon::draw(uint8_t x, uint8_t y, bool focused)
+	{
+		painter.setColorIndex(1);
+		painter.drawBitmap(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap : m_bitmap);
+	}
 
-			virtual void show();
-
-		protected:
-			Size m_size;
-			const unsigned char * m_bitmap;
-			const unsigned char * m_focused_bitmap;
-			const char * m_text;
-	};
+	void Icon::show()
+	{ }
 }
-#endif

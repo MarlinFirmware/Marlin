@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenSplash.h
+/// \file ScreenComplete.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of splas
+/// \brief Definition of Print Complete screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,29 +25,26 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_SPLASH_H
-#define SCREEN_SPLASH_H
+#ifndef SCREEN_COMPLETE_H
+#define SCREEN_COMPLETE_H
 
-#include "Screen.h"
+#include "ScreenDialog.h"
+
+#include "PrintManager.h"
 
 namespace screen
 {
-	class ScreenSplash : public Screen
+	class ScreenComplete : public ScreenDialog<void>
 	{
 		public:
-			ScreenSplash(uint32_t timeout);
-			~ScreenSplash();
+			ScreenComplete(const char * title, const char * message,  const char * box, Time_t time);
+			virtual ~ScreenComplete();
 
-			void init(uint16_t index = 0);
 			void draw();
-			void add(ScreenIndex_t const & component);
 
 		private:
-			uint32_t m_destroy_time;
-
-			ScreenIndex_t m_alt_screen;
-			ScreenIndex_t m_block_screen;
-			uint8_t m_num_item_added;
+			Time_t m_time;
 	};
 }
-#endif // SCREEN_SPLASH_H
+
+#endif // SCREEN_COMPLETE_H

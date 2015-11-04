@@ -567,6 +567,11 @@ void action_move_to_filament_change()
 	st_synchronize();
 }
 
+float action_get_height()
+{
+	return z_height;
+}
+
 void action_start_print()
 {
 	temp::TemperatureManager::single::instance().setBlowerControlState(false);

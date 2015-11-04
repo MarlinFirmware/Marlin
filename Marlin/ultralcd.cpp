@@ -116,7 +116,6 @@ int16_t cache_min, cache_max;
 uint8_t window_offset, cursor_offset;
 
 
-// TODO : Review & delete if possible
 // Variables used when editing values.
 const char* editLabel;
 void* editValue;
@@ -127,13 +126,7 @@ bool lcd_oldcardstatus;
 #    endif // (SDCARDDETECT > 0)
 // 
 
-// TODO : Review structure of this file to include it above.
-#ifdef DOGLCD
-#include "dogm_lcd_implementation.h"
-#else
 #include "ultralcd_implementation_hitachi_HD44780.h"
-#endif
-//
 
 
 

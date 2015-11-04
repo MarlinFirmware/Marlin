@@ -71,7 +71,7 @@ space +=
 
 ARDUINO_VERSION = 164
 
-BUILD_DIR ?= applet
+BUILD_DIR ?= bin
 
 AVRDUDE_PROGRAMMER = wiring
 UPLOAD_RATE = 115200
@@ -159,6 +159,7 @@ CSRC = wiring.c wiring_analog.c wiring_digital.c wiring_pulse.c wiring_shift.c \
 CXXSRC += WMath.cpp WString.cpp Print.cpp Tone.cpp abi.cpp new.cpp
 
 # Machine setup
+VPATHTEMP += language
 ifeq ($(MACHINE_MODEL), Witbox)
 	VPATHTEMP += config/witbox
 else ifeq ($(MACHINE_MODEL), Hephestos)
@@ -214,15 +215,11 @@ CXXSRC += Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp SdFile.cpp SdVolume.cpp
 # Generation specific files
 ifeq ($(HARDWARE_DISPLAY), Graphic)
 	CXXSRC += GuiManager.cpp GuiPainter.cpp GuiImpl_witbox_2.cpp \
-		Icon.cpp \
-		Option.cpp OptionLaunch.cpp\
-		Screen.cpp ScreenAbout.cpp ScreenComplete.cpp ScreenCooldown.cpp ScreenEmergency.cpp ScreenFile.cpp \
-		ScreenInactivity.cpp ScreenLanguage.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp \
-		ScreenSplash.cpp ScreenTemperature.cpp ScreenTransition.cpp ScreenSerial.cpp ScreenSetting.cpp ScreenSwitch.cpp \
 		StepperClass.cpp Language.cpp
-
 	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp \
 		ViewManager.cpp TemperatureControl.cpp
+	include ui/ui.mk
+	VPATHTEMP += ui
 endif
 
 # Common files

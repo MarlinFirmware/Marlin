@@ -71,7 +71,7 @@ namespace screen
 
 			void title(const char * title);
 			void box(const char* text, ArrowType_t arrow = NONE);
-			void printingStatus(const uint8_t percentage);
+			void printingStatus(const uint8_t percentage, bool progress_bar);
 
 			void text(const char * msg);
 			void text_P(const char * msg);

@@ -30,6 +30,7 @@
 #include "cardreader.h"
 #include "TemperatureManager.h"
 #include "Language.h"
+#include "Marlin.h"
 
 namespace screen
 {
@@ -125,13 +126,28 @@ namespace screen
 				painter.print(t_target);
 				painter.print("\xb0");
 
-				// Draw status progress bar
-				painter.printingStatus(m_percent_done);
+				if(PrintManager::single::instance().state() == PRINTING)
+				{
+					// Draw status progress bar
+					painter.printingStatus(m_percent_done, true);
+				}
+				else
+				{
+					//Draw status and Z height
+					painter.printingStatus(m_percent_done, false);
 
+					char height[8] = "Z:";
+					char z_value[6] = { 0 };
+					dtostrf(z_height, 5, 2, z_value);
+					strcat(height, z_value);
+					painter.setPrintPos( (127 - strlen(height) * 6) / 2, 19);
+					painter.print(height);
+				}
+				
 				char hours[4] = { 0 };
 				char minutes[4] = { 0 };
-				strcpy(hours, painter.itostr2(m_printed_time.hours));//itoa(m_printed_time.hours, hours, 10);
-				strcpy(minutes, painter.itostr2(m_printed_time.minutes));//itoa(m_printed_time.minutes, minutes, 10);
+				strcpy(hours, painter.itostr2(m_printed_time.hours));
+				strcpy(minutes, painter.itostr2(m_printed_time.minutes));
 
 				painter.setPrintPos(127 - (strlen(hours) + strlen(minutes) + 1) * 6 + 1, 19);
 				painter.print(hours);

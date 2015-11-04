@@ -250,6 +250,7 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
 };
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homing[3] = { 0, 0, 0 };
+float z_height = 0;
 #ifdef DELTA
   float endstop_adj[3] = { 0, 0, 0 };
 #endif
@@ -4163,6 +4164,10 @@ void get_coordinates()
     {
       destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
       seen[i]=true;
+      if(axis_codes[i] == 'Z')
+      {
+        z_height = code_value();
+      }
     }
     else destination[i] = current_position[i]; //Are these else lines really needed?
   }

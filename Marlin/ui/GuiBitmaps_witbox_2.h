@@ -1,7 +1,35 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file GuiBitmaps_witbox_2.h
+///
+/// \author Ivan Galvez Junquera
+///         Ruy Garcia
+///         Victor Andueza 
+///         Joaquin Herrero
+///
+/// \brief Bitmaps for Witbox 2 and Hephestos 2 UI
+///
+/// Copyright (c) 2015 BQ - Mundo Reader S.L.
+/// http://www.bq.com
+///
+/// This file is free software; you can redistribute it and/or modify
+/// it under the terms of either the GNU General Public License version 2 or 
+/// later or the GNU Lesser General Public License version 2.1 or later, both
+/// as published by the Free Software Foundation.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+/// DEALINGS IN THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////
+
 #ifndef GUI_BITMAPS_WITBOX_2_H
 #define GUI_BITMAPS_WITBOX_2_H
 
 #include <stdint.h>
+
 #include "Marlin.h" //Required for PROGMEM macro
 
 const static uint8_t icon_width = 24;
@@ -22,6 +50,8 @@ const static uint8_t progress_width = 108;
 const static uint8_t progress_height = 2;
 const static uint8_t inactivity_width = 16;
 const static uint8_t inactivity_height = 18;
+const static uint8_t icon_clock_width = 7;
+const static uint8_t icon_clock_height = 7;
 
 const unsigned char bits_nosd_normal[] PROGMEM = {
   0xfc, 0xff, 0x3f, 0x02, 0x00, 0x40, 0x01, 0x00, 0x80, 0x01, 0xfe, 0x83,
@@ -616,5 +646,8 @@ const unsigned char icon_inactivity[] PROGMEM = {
   0x00, 0x00, 0xc0, 0x03, 0x40, 0x02, 0x40, 0x42, 0x70, 0x2e, 0xfc, 0x17,
   0x04, 0x28, 0xfc, 0x35, 0xf8, 0x1a, 0x78, 0x1d, 0xb8, 0x1e, 0x58, 0x1f,
   0xa8, 0x1f, 0xd0, 0x1f, 0xe8, 0x3f, 0x04, 0x20, 0xfa, 0x3f, 0x00, 0x00 };
+
+const unsigned char icon_clock[] PROGMEM = {
+  0x1c, 0x22, 0x49, 0x59, 0x41, 0x22, 0x1c };
 
 #endif //GUI_BITMAPS_WITBOX_2_H
