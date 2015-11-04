@@ -39,7 +39,7 @@ namespace screen
 
 	ScreenMenu::~ScreenMenu()
 	{ 
-		for (unsigned int i = 0;i < m_num_icons; ++i)
+		for (uint8_t i = 0;i < m_num_icons; ++i)
 		{
 			delete m_icons[i];
 		}
@@ -47,7 +47,7 @@ namespace screen
 
 	void ScreenMenu::init(uint16_t index)
 	{
-		for (unsigned int i = 0;i < m_num_icons; ++i)
+		for (uint8_t i = 0;i < m_num_icons; ++i)
 		{
 			m_icons[i]->show();
 		}
@@ -99,7 +99,7 @@ namespace screen
 			int max_width = 128;
 
 			//Get total width of icons
-			for(unsigned int i = 0; i < m_num_icons; i++)
+			for(uint8_t i = 0; i < m_num_icons; i++)
 			{
 				total_width_1 += m_icons[i]->width() + 2;
 			}
@@ -180,7 +180,7 @@ namespace screen
 				uint8_t x_end = icons_area.x_end;
 				uint8_t y_end = icons_area.y_end;
 
-				for (unsigned int i = 0; i < m_num_icons; i++)
+				for (uint8_t i = 0; i < m_num_icons; i++)
 				{
 					uint8_t row = i / items_per_row_0;
 					uint8_t x = 0;

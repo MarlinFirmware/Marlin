@@ -52,7 +52,7 @@ namespace screen
 	{
 		this->connect();
 
-		for (unsigned int i = 0;i <= m_num_icons -1; ++i)
+		for (uint8_t i = 0;i <= m_num_icons -1; ++i)
 		{
 			m_icons[i]->show();
 		}
@@ -176,7 +176,7 @@ namespace screen
 				uint8_t x_end = icons_area.x_end;
 				uint8_t y_end = icons_area.y_end;
 
-				for (unsigned int i = 0; i < m_num_items; i++)
+				for (uint8_t i = 0; i < m_num_items; i++)
 				{
 					int x = x_init + (icons_area.width() / 2) - ((m_num_items * (icon_width + 2) - 2) / 2) + (i * (icon_width + 2));
 					int y = y_init;
