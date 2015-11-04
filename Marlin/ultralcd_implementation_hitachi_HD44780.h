@@ -618,7 +618,7 @@ static void lcd_implementation_status_screen() {
           if (!axis_homed[X_AXIS])
             lcd_printPGM(PSTR("?"));
           else 
-            #if ENABLED(WARN_REDUCED_ACCURACY)  
+            #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)  
               if (!axis_known_position[X_AXIS])
                 lcd_printPGM(PSTR(" "));
               else
@@ -635,7 +635,7 @@ static void lcd_implementation_status_screen() {
           if (!axis_homed[Y_AXIS])
             lcd_printPGM(PSTR("?"));
           else 
-            #if ENABLED(WARN_REDUCED_ACCURACY)  
+            #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)  
               if (!axis_known_position[Y_AXIS])
                 lcd_printPGM(PSTR(" "));
               else
@@ -655,7 +655,7 @@ static void lcd_implementation_status_screen() {
       if (!axis_homed[Z_AXIS])
         lcd_printPGM(PSTR("?"));
       else 
-        #if ENABLED(WARN_REDUCED_ACCURACY)  
+        #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)  
           if (!axis_known_position[Z_AXIS])
             lcd_printPGM(PSTR(" "));
           else
