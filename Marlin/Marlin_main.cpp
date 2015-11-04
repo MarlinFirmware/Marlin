@@ -209,6 +209,7 @@
 #endif
 
 float homing_feedrate[] = HOMING_FEEDRATE;
+float homing_slow_feedrate[] = HOMING_SLOW_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply = 100; //100->1 200->2
 int saved_feedmultiply;
@@ -1237,7 +1238,7 @@ static void run_z_probe() {
     st_synchronize();
 
     // move back down slowly to find bed
-    feedrate = homing_feedrate[Z_AXIS]/2;
+    feedrate = homing_slow_feedrate[Z_AXIS];
     zPosition -= home_retract_mm(Z_AXIS) * 2;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -1379,7 +1380,7 @@ void homeaxis(int axis) {
 #ifdef DELTA
     feedrate = homing_feedrate[axis]/10;
 #else
-    feedrate = homing_feedrate[axis]/2 ;
+    feedrate = homing_slow_feedrate[axis];
 #endif
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
