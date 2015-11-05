@@ -64,7 +64,11 @@ PATHSEP = $(strip $(PATHSEP_TMP))
 ifeq ($(OS_TYPE), WIN)
 	ARDUINO_INSTALL_DIR ?= C:\Arduino
 else
+ifndef ARDUINO
+	ARDUINO_INSTALL_DIR ?= ${HOME}/arduino
+else
 	ARDUINO_INSTALL_DIR ?= ${ARDUINO}
+endif
 endif
 space :=
 space +=
