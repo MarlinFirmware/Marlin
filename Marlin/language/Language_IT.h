@@ -188,7 +188,7 @@ const char IT_SCREEN_MOVE_TO_LOAD_TITLE[] PROGMEM       = "Inserire filamento";
 const char IT_SCREEN_MOVE_TO_LOAD_TEXT[] PROGMEM        = "Regolazione posizione in corso";
 const char IT_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Cambiare filamento";
 const char IT_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Regolazione posizione in corso";
-const char IT_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "0";
-const char IT_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "0";
+const char IT_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Stampa arrestata";
+const char IT_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Ritirare i residui dal piano";
 
 #endif //LANGUAGE_IT_H

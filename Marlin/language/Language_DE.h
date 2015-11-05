@@ -188,7 +188,7 @@ const char DE_SCREEN_MOVE_TO_LOAD_TITLE[] PROGMEM       = "Filament einf""\xfc""
 const char DE_SCREEN_MOVE_TO_LOAD_TEXT[] PROGMEM        = "Positionsausrichtung...";
 const char DE_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Filament wechseln";
 const char DE_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Positionsausrichtung...";
-const char DE_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "0";
-const char DE_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "0";
+const char DE_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Druck angehalten";
+const char DE_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Entferne die R""\xfc""ckst""\xe4""nde von der Platte";
 
 #endif //LANGUAGE_DE_H
