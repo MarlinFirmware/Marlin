@@ -17,6 +17,7 @@
 #include "StorageManager.h"
 #include "SDManager.h"
 #include "ViewManager.h"
+#include "PrintManager.h"
 
 #include <avr/wdt.h>
 
@@ -304,6 +305,12 @@ static void lcd_update_encoder()
 void lcd_update(bool force)
 {
     SDManager::updateSDStatus();
+
+    if (PrintManager::single::instance().state() == PRINTING)
+    {
+        PrintManager::single::instance().updateTime();
+    }
+
     // Manage the events triggered in ISR (Timer 5 Overflow)
     for (int8_t times = lcd_get_encoder_right(); times > 0; times--)
     {
