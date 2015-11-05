@@ -58,6 +58,7 @@ namespace screen
 	template <typename R, typename... Args>
 		void ScreenAction<R, Args...>::init(uint16_t index)
 	{
+		ViewManager::getInstance().setLastFocus(0);
 		this->action();
 		ViewManager::getInstance().activeView(m_next_screen);
 	}
