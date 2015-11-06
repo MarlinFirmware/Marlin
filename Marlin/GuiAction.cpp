@@ -225,6 +225,7 @@ void gui_action_z_homing()
 	action_move_to_rest();
 }
 
+#ifdef LEVEL_SENSOR
 static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) 
 {
 
@@ -434,6 +435,7 @@ void action_get_plane()
 		dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
 	#endif // Z_PROBE_SLED
 }
+#endif //LEVEL_SENSOR
 
 void action_correct_movement(float &x_pos, float &y_pos, float &z_pos)
 {
@@ -787,6 +789,7 @@ uint16_t action_get_feedrate_multiply()
 	return feedmultiply;
 }
 
+#ifdef LEVEL_SENSOR
 void action_offset()
 {
 	st_synchronize();
@@ -849,6 +852,7 @@ void action_offset()
 
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 }
+#endif //LEVEL_SENSOR
 
 void action_offset_homing()
 {
