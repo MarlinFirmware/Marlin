@@ -3,6 +3,7 @@
 #include "SteppersManager.h"
 #include "PrintManager.h"
 #include "Configuration.h"
+#include "ViewManager.h"
 
 SteppersManager::SteppersManager()
 	: Subject<bool>()
@@ -26,6 +27,7 @@ void SteppersManager::disableAllSteppers()
 		SteppersManager::single::instance().m_steppers_disabled = true;
 		SteppersManager::single::instance().notify();
 	}
+	screen::ViewManager::getInstance().setLastFocus(7);
 }
 
 void SteppersManager::enableStepper(Stepper_t stepper)
