@@ -461,6 +461,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define HOMING_FEEDRATE {120*60, 120*60, 7.2*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
+#define HOMING_SLOW_FEEDRATE {120*60, 120*60, 7.2*60, 0} 
 
 // default settings
 
