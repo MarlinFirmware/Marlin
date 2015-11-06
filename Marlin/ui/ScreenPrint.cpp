@@ -60,7 +60,6 @@ namespace screen
 
 	void ScreenPrint::draw()
 	{
-		PrintManager::updateTime();
 		m_printed_time = PrintManager::printingTime();
 
 		if (m_printed_time.minutes != m_previous_time)
