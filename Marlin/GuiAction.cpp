@@ -91,7 +91,7 @@ void action_level_plate()
 {
 	static uint8_t level_plate_step = 0;
 
-	#ifndef ABL_PROBE_PT_4_X
+	#ifndef ABL_MANUAL_PT_4_X
 		uint8_t max_steps = 4;
 		uint8_t order[4] = {0,1,2,4};
 	#else
@@ -114,8 +114,8 @@ void action_level_plate()
 			target[Z_AXIS] = 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[X_AXIS] = ABL_PROBE_PT_1_X;
-			target[Y_AXIS] = ABL_PROBE_PT_1_Y;
+			target[X_AXIS] = ABL_MANUAL_PT_1_X;
+			target[Y_AXIS] = ABL_MANUAL_PT_1_Y;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[Z_AXIS] = 0 + OffsetManager::single::instance().offset();
@@ -139,8 +139,8 @@ void action_level_plate()
 			target[Z_AXIS] = 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[X_AXIS] = ABL_PROBE_PT_2_X;
-			target[Y_AXIS] = ABL_PROBE_PT_2_Y;
+			target[X_AXIS] = ABL_MANUAL_PT_2_X;
+			target[Y_AXIS] = ABL_MANUAL_PT_2_Y;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[Z_AXIS] = 0 + OffsetManager::single::instance().offset();
@@ -164,8 +164,8 @@ void action_level_plate()
 			target[Z_AXIS] = 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[X_AXIS] = ABL_PROBE_PT_3_X;
-			target[Y_AXIS] = ABL_PROBE_PT_3_Y;
+			target[X_AXIS] = ABL_MANUAL_PT_3_X;
+			target[Y_AXIS] = ABL_MANUAL_PT_3_Y;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[Z_AXIS] = 0 + OffsetManager::single::instance().offset();
@@ -177,7 +177,7 @@ void action_level_plate()
 			break;
 
 		case 3:
-			#ifdef ABL_PROBE_PT_4_X
+			#ifdef ABL_MANUAL_PT_4_X
 				lcd_disable_button();
 
 				target[X_AXIS] = plan_get_axis_position(X_AXIS);
@@ -190,8 +190,8 @@ void action_level_plate()
 				target[Z_AXIS] = 10;
 				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-				target[X_AXIS] = ABL_PROBE_PT_4_X;
-				target[Y_AXIS] = ABL_PROBE_PT_4_Y;
+				target[X_AXIS] = ABL_MANUAL_PT_4_X;
+				target[Y_AXIS] = ABL_MANUAL_PT_4_Y;
 				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 				target[Z_AXIS] = 0 + OffsetManager::single::instance().offset();;
@@ -199,7 +199,7 @@ void action_level_plate()
 				st_synchronize();
 
 				lcd_enable_button();
-			#endif // ABL_PROBE_PT_4_X
+			#endif // ABL_MANUAL_PT_4_X
 
 			break;
 
@@ -225,6 +225,7 @@ void gui_action_z_homing()
 	action_move_to_rest();
 }
 
+#ifdef LEVEL_SENSOR
 static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) 
 {
 
@@ -434,6 +435,7 @@ void action_get_plane()
 		dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
 	#endif // Z_PROBE_SLED
 }
+#endif //LEVEL_SENSOR
 
 void action_correct_movement(float &x_pos, float &y_pos, float &z_pos)
 {
@@ -787,6 +789,7 @@ uint16_t action_get_feedrate_multiply()
 	return feedmultiply;
 }
 
+#ifdef LEVEL_SENSOR
 void action_offset()
 {
 	st_synchronize();
@@ -849,6 +852,7 @@ void action_offset()
 
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 }
+#endif //LEVEL_SENSOR
 
 void action_offset_homing()
 {

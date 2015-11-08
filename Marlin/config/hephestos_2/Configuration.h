@@ -353,6 +353,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
       #define ABL_PROBE_PT_3_X (X_MAX_POS+X_MIN_POS)/2 + X_PROBE_OFFSET_FROM_EXTRUDER
       #define ABL_PROBE_PT_3_Y Y_MAX_POS - 40 + Y_PROBE_OFFSET_FROM_EXTRUDER
 
+      #define ABL_MANUAL_PT_1_X ABL_PROBE_PT_1_X
+      #define ABL_MANUAL_PT_1_Y ABL_PROBE_PT_1_Y
+      #define ABL_MANUAL_PT_2_X ABL_PROBE_PT_2_X 
+      #define ABL_MANUAL_PT_2_Y ABL_PROBE_PT_2_Y
+      #define ABL_MANUAL_PT_3_X ABL_PROBE_PT_3_X
+      #define ABL_MANUAL_PT_3_Y ABL_PROBE_PT_3_Y
+
   #endif // AUTO_BED_LEVELING_GRID
 
   #define Z_RAISE_BEFORE_HOMING 0       // (in mm) Raise Z before homing (G28) for Probe Clearance.
@@ -390,6 +397,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define HOMING_FEEDRATE {150*60, 150*60, 3.3*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
+#define HOMING_SLOW_FEEDRATE {150*60, 150*60, 3.3*60, 0}
 
 // default settings
 
