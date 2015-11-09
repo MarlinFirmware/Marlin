@@ -3802,14 +3802,9 @@ inline void gcode_M104() {
   }
 }
 
-/**
- * M105: Read hot end and bed temperature
- */
-inline void gcode_M105() {
-  if (setTargetedHotend(105)) return;
+#if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
 
-  #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
-    SERIAL_PROTOCOLPGM(MSG_OK);
+  void print_heaterstates() {
     #if HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675)
       SERIAL_PROTOCOLPGM(" T:");
       SERIAL_PROTOCOL_F(degHotend(target_extruder), 1);
@@ -3822,50 +3817,76 @@ inline void gcode_M105() {
       SERIAL_PROTOCOLPGM(" /");
       SERIAL_PROTOCOL_F(degTargetBed(), 1);
     #endif
-    for (int8_t e = 0; e < EXTRUDERS; ++e) {
-      SERIAL_PROTOCOLPGM(" T");
-      SERIAL_PROTOCOL(e);
-      SERIAL_PROTOCOLCHAR(':');
-      SERIAL_PROTOCOL_F(degHotend(e), 1);
-      SERIAL_PROTOCOLPGM(" /");
-      SERIAL_PROTOCOL_F(degTargetHotend(e), 1);
-    }
+    #if EXTRUDERS > 1
+      for (int8_t e = 0; e < EXTRUDERS; ++e) {
+        SERIAL_PROTOCOLPGM(" T");
+        SERIAL_PROTOCOL(e);
+        SERIAL_PROTOCOLCHAR(':');
+        SERIAL_PROTOCOL_F(degHotend(e), 1);
+        SERIAL_PROTOCOLPGM(" /");
+        SERIAL_PROTOCOL_F(degTargetHotend(e), 1);
+      }
+    #endif
+    #if HAS_TEMP_BED
+      SERIAL_PROTOCOLPGM(" B@:");
+      #ifdef BED_WATTS
+        SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1)) / 127);
+        SERIAL_PROTOCOLCHAR('W');
+      #else
+        SERIAL_PROTOCOL(getHeaterPower(-1));
+      #endif
+    #endif
+    SERIAL_PROTOCOLPGM(" @:");
+    #ifdef EXTRUDER_WATTS
+      SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(target_extruder)) / 127);
+      SERIAL_PROTOCOLCHAR('W');
+    #else
+      SERIAL_PROTOCOL(getHeaterPower(target_extruder));
+    #endif
+    #if EXTRUDERS > 1
+      for (int8_t e = 0; e < EXTRUDERS; ++e) {
+        SERIAL_PROTOCOLPGM(" @");
+        SERIAL_PROTOCOL(e);
+        SERIAL_PROTOCOLCHAR(':');
+        #ifdef EXTRUDER_WATTS
+          SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(e)) / 127);
+          SERIAL_PROTOCOLCHAR('W');
+        #else
+          SERIAL_PROTOCOL(getHeaterPower(e));
+        #endif
+      }    
+    #endif
+    #if ENABLED(SHOW_TEMP_ADC_VALUES)
+      #if HAS_TEMP_BED
+        SERIAL_PROTOCOLPGM("    ADC B:");
+        SERIAL_PROTOCOL_F(degBed(), 1);
+        SERIAL_PROTOCOLPGM("C->");
+        SERIAL_PROTOCOL_F(rawBedTemp() / OVERSAMPLENR, 0);
+      #endif
+      for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
+        SERIAL_PROTOCOLPGM("  T");
+        SERIAL_PROTOCOL(cur_extruder);
+        SERIAL_PROTOCOLCHAR(':');
+        SERIAL_PROTOCOL_F(degHotend(cur_extruder), 1);
+        SERIAL_PROTOCOLPGM("C->");
+        SERIAL_PROTOCOL_F(rawHotendTemp(cur_extruder) / OVERSAMPLENR, 0);
+      }
+    #endif
+  }
+#endif
+
+/**
+ * M105: Read hot end and bed temperature
+ */
+inline void gcode_M105() {
+  if (setTargetedHotend(105)) return;
+
+  #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+    SERIAL_PROTOCOLPGM(MSG_OK);
+    print_heaterstates();
   #else // !HAS_TEMP_0 && !HAS_TEMP_BED
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
-  #endif
-
-  SERIAL_PROTOCOLPGM(" @:");
-  #ifdef EXTRUDER_WATTS
-    SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(target_extruder)) / 127);
-    SERIAL_PROTOCOLCHAR('W');
-  #else
-    SERIAL_PROTOCOL(getHeaterPower(target_extruder));
-  #endif
-
-  SERIAL_PROTOCOLPGM(" B@:");
-  #ifdef BED_WATTS
-    SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1)) / 127);
-    SERIAL_PROTOCOLCHAR('W');
-  #else
-    SERIAL_PROTOCOL(getHeaterPower(-1));
-  #endif
-
-  #if ENABLED(SHOW_TEMP_ADC_VALUES)
-    #if HAS_TEMP_BED
-      SERIAL_PROTOCOLPGM("    ADC B:");
-      SERIAL_PROTOCOL_F(degBed(), 1);
-      SERIAL_PROTOCOLPGM("C->");
-      SERIAL_PROTOCOL_F(rawBedTemp() / OVERSAMPLENR, 0);
-    #endif
-    for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
-      SERIAL_PROTOCOLPGM("  T");
-      SERIAL_PROTOCOL(cur_extruder);
-      SERIAL_PROTOCOLCHAR(':');
-      SERIAL_PROTOCOL_F(degHotend(cur_extruder), 1);
-      SERIAL_PROTOCOLPGM("C->");
-      SERIAL_PROTOCOL_F(rawHotendTemp(cur_extruder) / OVERSAMPLENR, 0);
-    }
   #endif
 
   SERIAL_EOL;
@@ -3932,10 +3953,9 @@ inline void gcode_M109() {
 
   { // while loop
     if (millis() > temp_ms + 1000UL) { //Print temp & remaining time every 1s while waiting
-      SERIAL_PROTOCOLPGM("T:");
-      SERIAL_PROTOCOL_F(degHotend(target_extruder), 1);
-      SERIAL_PROTOCOLPGM(" E:");
-      SERIAL_PROTOCOL((int)target_extruder);
+      #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+        print_heaterstates();
+      #endif
       #ifdef TEMP_RESIDENCY_TIME
         SERIAL_PROTOCOLPGM(" W:");
         if (residency_start_ms > -1) {
@@ -3996,13 +4016,10 @@ inline void gcode_M109() {
       if (ms > temp_ms + 1000UL) { //Print Temp Reading every 1 second while heating up.
         temp_ms = ms;
         float tt = degHotend(active_extruder);
-        SERIAL_PROTOCOLPGM("T:");
-        SERIAL_PROTOCOL(tt);
-        SERIAL_PROTOCOLPGM(" E:");
-        SERIAL_PROTOCOL((int)active_extruder);
-        SERIAL_PROTOCOLPGM(" B:");
-        SERIAL_PROTOCOL_F(degBed(), 1);
-        SERIAL_EOL;
+        #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+          print_heaterstates();
+          SERIAL_EOL;
+        #endif
       }
       idle();
     }
@@ -4915,6 +4932,9 @@ inline void gcode_M303() {
   int e = code_seen('E') ? code_value_short() : 0;
   int c = code_seen('C') ? code_value_short() : 5;
   float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
+
+  if (e >=0 && e < EXTRUDERS) 
+    target_extruder = e;
   PID_autotune(temp, e, c);
 }
 
