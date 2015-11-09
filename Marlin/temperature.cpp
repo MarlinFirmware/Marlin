@@ -328,19 +328,10 @@ void PID_autotune(float temp, int extruder, int ncycles) {
     }
     // Every 2 seconds...
     if (ms > temp_ms + 2000) {
-      int p;
-      if (extruder < 0) {
-        p = soft_pwm_bed;
-        SERIAL_PROTOCOLPGM(MSG_B);
-      }
-      else {
-        p = soft_pwm[extruder];
-        SERIAL_PROTOCOLPGM(MSG_T);
-      }
-
-      SERIAL_PROTOCOL(input);
-      SERIAL_PROTOCOLPGM(MSG_AT);
-      SERIAL_PROTOCOLLN(p);
+      #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+        print_heaterstates();
+        SERIAL_EOL;
+      #endif
 
       temp_ms = ms;
     } // every 2 seconds
