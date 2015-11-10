@@ -381,6 +381,8 @@ bool cancel_heatup = false;
   bool bed_leveling = false;
 #endif //ENABLE_AUTO_BED_LEVELING
 
+  vector_3 update_position = vector_3(0,0,0);
+
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 
@@ -1772,11 +1774,12 @@ void process_commands()
         }
 #endif
         st_synchronize();
+        enable_endstops(true);
 
-        current_position[X_AXIS] = st_get_position_mm(X_AXIS);
-        current_position[Y_AXIS] = st_get_position_mm(Y_AXIS);
-        current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
-        current_position[E_AXIS] = st_get_position_mm(E_AXIS);
+        update_position = plan_get_position();
+        current_position[X_AXIS] = update_position.x;
+        current_position[Y_AXIS] = update_position.y;
+        current_position[Z_AXIS] = update_position.z;
 
         lastpos[X_AXIS] = current_position[X_AXIS];
         lastpos[Y_AXIS] = current_position[Y_AXIS];
@@ -1829,6 +1832,7 @@ void process_commands()
           PrintManager::single::instance().state(PAUSED);
         }
 #endif//DOGLCD
+        enable_endstops(false);
       break;
     case 26: //M26 - Set SD index
       if(card.cardOK && code_seen('S')) {
