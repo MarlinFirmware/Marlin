@@ -33,7 +33,7 @@
 #include "Screen.h"
 #include "Functor.h"
 
-namespace screen
+namespace ui
 {
 	template <typename R, typename... Args>
 		class ScreenAction : public Screen, public Functor<R, Args...>

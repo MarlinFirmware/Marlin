@@ -816,10 +816,10 @@ void get_command()
 		     PrintManager::single::instance().state() != SERIAL_CONTROL &&
 		     PrintManager::single::instance().state() != INITIALIZING )
 		{
-			if (screen::ViewManager::getInstance().getViewIndex() == screen::screen_main)
+			if (ui::ViewManager::getInstance().getViewIndex() == ui::screen_main)
 			{
 				PrintManager::single::instance().state(SERIAL_CONTROL);
-				screen::ViewManager::getInstance().activeView(screen::screen_serial);
+				ui::ViewManager::getInstance().activeView(ui::screen_serial);
 			}
 		}
 #endif
@@ -2612,8 +2612,8 @@ Sigma_Exit:
         *(starpos)='\0';
 
       #ifdef DOGLCD
-        if (screen::ViewManager::getInstance().getViewIndex() == screen::screen_serial){
-          screen::ViewManager::getInstance().activeView()->text(strchr_pointer + 5);
+        if (ui::ViewManager::getInstance().getViewIndex() == ui::screen_serial){
+          ui::ViewManager::getInstance().activeView()->text(strchr_pointer + 5);
         }
       #else
         lcd_setstatus(strchr_pointer + 5);
@@ -3579,7 +3579,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   			stop_buffer = false;
 #else
-        screen::ViewManager::getInstance().activeView(screen::screen_change_pausing);
+        ui::ViewManager::getInstance().activeView(ui::screen_change_pausing);
 #endif
     }
     break;

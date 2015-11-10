@@ -175,8 +175,8 @@ void lcd_init()
 	lcd_get_button_updated();
 	lcd_get_button_clicked();
 
-	screen::ViewManager::getInstance().activeView(screen::screen_splash);
-	screen::ViewManager::getInstance().activeView()->draw();
+	ui::ViewManager::getInstance().activeView(ui::screen_splash);
+	ui::ViewManager::getInstance().activeView()->draw();
 
 	SERIAL_ECHOLN("LCD initialized!");
 }
@@ -314,21 +314,21 @@ void lcd_update(bool force)
     // Manage the events triggered in ISR (Timer 5 Overflow)
     for (int8_t times = lcd_get_encoder_right(); times > 0; times--)
     {
-        screen::ViewManager::getInstance().activeView()->right();
+        ui::ViewManager::getInstance().activeView()->right();
     }
 
     for (int8_t times = lcd_get_encoder_left(); times > 0; times--)
     {
-        screen::ViewManager::getInstance().activeView()->left();
+        ui::ViewManager::getInstance().activeView()->left();
     }
 
     if (lcd_get_button_clicked())
     {
-        screen::ViewManager::getInstance().activeView()->press();
+        ui::ViewManager::getInstance().activeView()->press();
     }
 
     // Refresh the content of the display
-    screen::ViewManager::getInstance().activeView()->draw();
+    ui::ViewManager::getInstance().activeView()->draw();
 }
 
 // Get and clear trigger functions

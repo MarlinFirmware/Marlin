@@ -27,7 +27,7 @@
 
 #include "ScreenMenu.h"
 
-namespace screen
+namespace ui
 {
 	ScreenMenu::ScreenMenu(const char * title, const char * text)
 		: Screen(title, MENU)

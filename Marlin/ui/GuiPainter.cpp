@@ -33,7 +33,7 @@
 #include "PrintManager.h"
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	GuiPainter::GuiPainter()
 		: m_impl(0)

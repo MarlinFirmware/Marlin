@@ -28,7 +28,7 @@
 #include "ScreenLanguage.h"
 #include "StorageManager.h"
 
-namespace screen
+namespace ui
 {
 	ScreenLanguage::ScreenLanguage(const char * title, Language dflt)
 		: Screen(title, SELECTOR)

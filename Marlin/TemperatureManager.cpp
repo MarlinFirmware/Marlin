@@ -97,7 +97,7 @@ namespace temp
 			setTargetTemperature(0);
 #ifdef DOGLCD
 			lcd_disable_button();
-			screen::ViewManager::getInstance().activeView(screen::screen_error_temperature);
+			ui::ViewManager::getInstance().activeView(ui::screen_error_temperature);
 #endif
 			return;
 		}

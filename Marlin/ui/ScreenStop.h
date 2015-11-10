@@ -5,7 +5,7 @@
 
 #include "PrintManager.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenStop : public ScreenDialog<void>
 	{

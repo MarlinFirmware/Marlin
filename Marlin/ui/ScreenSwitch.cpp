@@ -29,7 +29,7 @@
 
 #include "GuiManager.h"
 
-namespace screen
+namespace ui
 {
 	ScreenSwitch::ScreenSwitch(const char * title, Functor<bool>::FuncPtr fptr)
 		: ScreenAction<bool>(title, fptr)

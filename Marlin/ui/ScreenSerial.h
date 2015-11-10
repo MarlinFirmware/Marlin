@@ -32,7 +32,7 @@
 
 #include "Screen.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenSerial : public Screen
 	{

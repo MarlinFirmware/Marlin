@@ -32,7 +32,7 @@
 #include "Language.h"
 #include "Marlin.h"
 
-namespace screen
+namespace ui
 {
 	ScreenPrint::ScreenPrint(const char * title, Subject<float> * model)
 		: ScreenMenu(title)

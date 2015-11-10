@@ -31,7 +31,7 @@
 #include "Option.h"
 #include "Screen.h"
 
-namespace screen
+namespace ui
 {
 	class OptionLaunch : public Option
 	{

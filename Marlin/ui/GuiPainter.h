@@ -37,7 +37,7 @@
 // Specify the printer UI implementation
 #include "GuiImpl_witbox_2.h"
 
-namespace screen
+namespace ui
 {
 	struct Area
 	{
@@ -81,7 +81,7 @@ namespace screen
 	class GuiPainter
 	{
 		public:
-			typedef Singleton<screen::GuiPainter> singleton;
+			typedef Singleton<ui::GuiPainter> singleton;
 
 		public:
 			GuiPainter();
@@ -155,6 +155,6 @@ namespace screen
 			uint32_t m_previous_update_time;
 	};
 }
-#define painter screen::GuiPainter::singleton::instance()
+#define painter ui::GuiPainter::singleton::instance()
 
 #endif // GUI_PAINTER_H

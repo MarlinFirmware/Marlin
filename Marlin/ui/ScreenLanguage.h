@@ -34,7 +34,7 @@
 
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenLanguage : public Screen
 	{

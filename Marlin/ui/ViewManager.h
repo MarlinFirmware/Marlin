@@ -33,7 +33,7 @@
 #include "Screen.h"
 #include "GuiImpl_witbox_2.h"
 
-namespace screen
+namespace ui
 {
 	class ViewManager
 	{

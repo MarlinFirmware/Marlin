@@ -33,7 +33,7 @@
 
 #include "GuiPainter.h"
 
-namespace screen
+namespace ui
 {
 	template <typename T>
 		class IconStatus : public Icon, public Observer<T>

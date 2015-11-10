@@ -27,7 +27,7 @@
 
 #include "ViewManager.h"
 
-namespace screen
+namespace ui
 {
 	ViewManager & ViewManager::getInstance()
 	{

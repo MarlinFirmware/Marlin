@@ -33,7 +33,7 @@
 #include "ScreenMenu.h"
 #include "PrintManager.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenPrint : public ScreenMenu , public Observer<float>
 	{

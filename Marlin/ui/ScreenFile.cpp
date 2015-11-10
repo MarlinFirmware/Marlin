@@ -30,7 +30,7 @@
 #include "cardreader.h"
 #include "GuiImpl_witbox_2.h"
 
-namespace screen
+namespace ui
 {
 	ScreenFile::ScreenFile(const char * title , Subject<bool> * model)
 		: ScreenMenu(title)

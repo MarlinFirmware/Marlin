@@ -126,7 +126,7 @@ void PrintManager::endPrint()
 	}
 
 	PrintManager::single::instance().state(STOPPED);
-	screen::ViewManager::getInstance().activeView(screen::screen_print_action_complete);
+	ui::ViewManager::getInstance().activeView(ui::screen_print_action_complete);
 }
 
 Time_t PrintManager::completePrint()
@@ -238,7 +238,7 @@ void PrintManager::inactivityTriggered()
 		case STOPPED:
 			temp::TemperatureManager::single::instance().setTargetTemperature(0);
 			SteppersManager::disableAllSteppers();
-			screen::ViewManager::getInstance().activeView(screen::screen_inactivity);
+			ui::ViewManager::getInstance().activeView(ui::screen_inactivity);
 			if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)
 			{
 				LightManager::single::instance().state(false);
