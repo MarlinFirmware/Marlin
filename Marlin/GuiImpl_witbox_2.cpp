@@ -258,7 +258,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_unload_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_unload_switch);
 		return local_view;
 	}
@@ -341,7 +341,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_load_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_load_switch);
 		return local_view;
 	}
@@ -1083,7 +1083,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_change_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_change_pullout_info);
 		return local_view;
 	}
