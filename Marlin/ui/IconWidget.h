@@ -32,7 +32,7 @@
 #include "Observer.h"
 #include "GuiPainter.h"
 
-namespace screen
+namespace ui
 {
 	template <typename T>
 		class IconWidget : public Icon, public Observer<T>

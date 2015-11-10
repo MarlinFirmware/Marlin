@@ -29,7 +29,7 @@
 #include "cardreader.h"
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	uint8_t ScreenList::directory_index = 0;
 	uint8_t ScreenList::directory_array[10] = { 0 };

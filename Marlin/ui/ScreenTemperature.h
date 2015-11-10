@@ -32,7 +32,7 @@
 
 #include "ScreenSelector.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenTemperature : public ScreenSelector<void, uint16_t>
 	{

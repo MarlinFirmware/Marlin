@@ -30,7 +30,7 @@
 
 #include <stdint.h>
 
-namespace screen
+namespace ui
 {
 	namespace option
 	{

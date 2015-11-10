@@ -33,7 +33,7 @@
 
 #include "GuiManager.h"
 
-namespace screen
+namespace ui
 {
 	template <typename R, typename... Args>
 		class ScreenDialog : public Screen , public Functor<R, Args ...>

@@ -34,7 +34,7 @@
 #include "GuiPainter.h"
 #include "ViewManager.h"
 
-namespace screen
+namespace ui
 {
 	class Screen
 	{
