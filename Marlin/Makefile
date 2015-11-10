@@ -218,7 +218,7 @@ CXXSRC += Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp SdFile.cpp SdVolume.cpp
 
 # Generation specific files
 ifeq ($(HARDWARE_DISPLAY), Graphic)
-	CXXSRC += GuiManager.cpp GuiPainter.cpp \
+	CXXSRC += GuiManager.cpp \
 		StepperClass.cpp Language.cpp
 	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp \
 		TemperatureControl.cpp

@@ -1,5 +1,6 @@
 CXXSRC += \
 	GuiImpl_witbox_2.cpp \
+	GuiPainter.cpp \
 	Icon.cpp \
 	Option.cpp \
 	OptionLaunch.cpp \
