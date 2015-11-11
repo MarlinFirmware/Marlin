@@ -79,9 +79,9 @@ namespace screen
 
 	void ScreenList::right()
 	{
-		if ( m_index == (SDCache::single::instance().getListLenght() -1) )
+		if ( m_index == (SDCache::single::instance().getListLength() -1) )
 		{
-			m_index = SDCache::single::instance().getListLenght() -1;
+			m_index = SDCache::single::instance().getListLength() -1;
 		}
 		else
 		{
@@ -187,7 +187,7 @@ namespace screen
 			painter.setColorIndex(0);
 			painter.drawBox(123, 14, 4, 49);
 			
-			m_scroll_size = (float) 47 / SDCache::single::instance().getListLenght();
+			m_scroll_size = (float) 47 / SDCache::single::instance().getListLength();
 
 			int8_t scroll_bottom_bar = (m_index + 1) * m_scroll_size;
 			if (scroll_bottom_bar < 1)
@@ -213,7 +213,6 @@ namespace screen
 		if(type == CacheEntryType_t::BACK_ENTRY)
 		{
 			ViewManager::getInstance().activeView(m_back_screen);
-			return;
 		}
 		else if(type == CacheEntryType_t::FILE_ENTRY)
 		{
