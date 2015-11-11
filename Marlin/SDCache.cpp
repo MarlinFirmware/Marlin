@@ -9,7 +9,6 @@ SDCache::SDCache()
 	, m_cache_size(0)
 	, m_list_length(0)
 	, m_selected_file(0)
-	, m_folder_is_root(true)
 	, m_window_size(0) 
 	, m_directory_depth(0)
 { 
@@ -120,7 +119,7 @@ void SDCache::updateCachePosition(int16_t index)
         // Cache entry for either "Back" or .. option
         if ((m_cache_min + i) == 0)
         {
-			if(m_folder_is_root)
+			if(getFolderIsRoot())
 			{
 				m_cache[i].type = 1;
 				strcpy(m_cache[i].longFilename, "Back");
@@ -132,11 +131,6 @@ void SDCache::updateCachePosition(int16_t index)
 				strcpy(m_cache[i].longFilename, "..");
 				strcpy(m_cache[i].filename, "..");
 			}
-			
-		#ifdef DEBUG_DYNAMIC_MENU
-			SERIAL_ECHOPAIR("cache[", (float)(m_cache_min+i)); SERIAL_ECHO("]:");
-			SERIAL_ECHOLN((m_cache + i)->longFilename);
-		#endif // DEBUG_DYNAMIC_MENU
 			
 			offset++;
 			i++;
@@ -202,7 +196,6 @@ void SDCache::changeDir()
 		if(m_directory_depth < MAX_DIR_DEPTH-1)
 		{
 			++m_directory_depth;
-			m_folder_is_root = false;
 			if(strlen(card.longFilename) != 0)
 			{
 				strncpy(m_directory, getSelectedEntry()->longFilename, 19);
@@ -234,7 +227,6 @@ void SDCache::updateDirectoryName()
 	if(card.filename[0] == '/')
 	{
 		m_directory_depth = 0;
-		m_folder_is_root = true;
 		m_directory[0] = '/';
 		return;
 	}

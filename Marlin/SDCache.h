@@ -5,7 +5,7 @@
 #include "cardreader.h"
 
 #ifndef SD_CACHE_SIZE
-	#define SD_CACHE_SIZE LCD_HEIGHT+1
+	#define SD_CACHE_SIZE LCD_HEIGHT+2
 #endif //SD_CACHE_SIZE
 
 typedef struct {
@@ -29,7 +29,7 @@ class SDCache
 		
 		inline cache_entry const * getSelectedEntry() { return window_cache_begin + m_selected_file; };
 		inline uint16_t getListLenght() { return m_list_length; };
-		inline bool getFolderIsRoot() { return m_folder_is_root; };
+		inline bool getFolderIsRoot() { return (m_directory_depth == 0); };
 		inline char * getDirectoryName() { return m_directory; };
 		inline bool showingFirstItem() { return !m_window_min; };
 		inline bool maxDirectoryReached() { return (m_directory_depth == MAX_DIR_DEPTH-1); };
@@ -51,7 +51,6 @@ class SDCache
 		uint8_t m_selected_file;
 
 		char m_directory[20];
-		bool m_folder_is_root;
 		uint8_t	m_directory_depth;
 		
 		uint8_t m_cache_size;
