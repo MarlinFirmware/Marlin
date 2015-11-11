@@ -8,16 +8,27 @@
 	#define SD_CACHE_SIZE LCD_HEIGHT+2
 #endif //SD_CACHE_SIZE
 
-typedef struct {
-		uint8_t type;	//make enum for action type
-		void * action;		///probably can be removed
-		char filename[13];
-		char longFilename[LONG_FILENAME_LENGTH];
+typedef enum
+{
+	NOACTION = 0,
+	BACK_ENTRY,
+	UPDIR_ENTRY,
+	FOLDER_ENTRY,
+	FILE_ENTRY,
+} CacheEntryType_t;
+
+typedef struct 
+{
+	CacheEntryType_t type;
+	void * action;		//Used in 1st gen, probably can be removed
+	char filename[13];
+	char longFilename[LONG_FILENAME_LENGTH];
 } cache_entry;
 
 class SDCache
 {
 	public:
+	
 		typedef Singleton<SDCache> single;
 
 	public:
@@ -25,7 +36,7 @@ class SDCache
 		
 		void ReloadCache();
 		void updateCachePosition(int16_t index);
-		uint8_t press(uint16_t index);
+		CacheEntryType_t press(uint16_t index);
 		
 		inline cache_entry const * getSelectedEntry() { return window_cache_begin + m_selected_file; };
 		inline uint16_t getListLenght() { return m_list_length; };

@@ -121,13 +121,13 @@ void SDCache::updateCachePosition(int16_t index)
         {
 			if(getFolderIsRoot())
 			{
-				m_cache[i].type = 1;
+				m_cache[i].type = BACK_ENTRY;
 				strcpy(m_cache[i].longFilename, "Back");
 				strcpy(m_cache[i].filename, "Back");
 			}
 			else
 			{
-				m_cache[i].type = 2;
+				m_cache[i].type = UPDIR_ENTRY;
 				strcpy(m_cache[i].longFilename, "..");
 				strcpy(m_cache[i].filename, "..");
 			}
@@ -145,7 +145,7 @@ void SDCache::updateCachePosition(int16_t index)
 			strcpy(m_cache[i].filename, card.filename);
 			if (card.filenameIsDir) 
 			{
-				m_cache[i].type = 3;
+				m_cache[i].type = FOLDER_ENTRY;
 				if(strlen(card.longFilename) == 0)
 				{
 					strcpy(m_cache[i].longFilename, card.filename);
@@ -157,7 +157,7 @@ void SDCache::updateCachePosition(int16_t index)
 			} 
 			else 
 			{
-				m_cache[i].type = 4;
+				m_cache[i].type = FILE_ENTRY;
 				strcpy(m_cache[i].longFilename, card.longFilename);
 			}
 
@@ -173,25 +173,30 @@ void SDCache::updateCachePosition(int16_t index)
 	}
 }
 
-uint8_t SDCache::press(uint16_t index)
+CacheEntryType_t SDCache::press(uint16_t index)
 {
 	//first a check for possible update
 	updateCachePosition(index);
 
 	switch(window_cache_begin[m_selected_file].type)
 	{
-		case 1: return window_cache_begin[m_selected_file].type; break;
-		case 2: changeDir(); //previous dir
-				return 0; break;
-		case 3: changeDir(); //target dir
-				return 0; break;
-		case 4: return window_cache_begin[m_selected_file].type; break;
+		case BACK_ENTRY:
+		case FILE_ENTRY:
+			return window_cache_begin[m_selected_file].type; 
+			break;
+		
+		//Cases handled internally
+		case UPDIR_ENTRY: 
+		case FOLDER_ENTRY: 
+				changeDir();
+				return CacheEntryType_t::NOACTION; 
+				break;
 	}
 }
 
 void SDCache::changeDir()
 {
-	if(window_cache_begin[m_selected_file].type == 3)
+	if(window_cache_begin[m_selected_file].type == FOLDER_ENTRY)
 	{
 		if(m_directory_depth < MAX_DIR_DEPTH-1)
 		{
