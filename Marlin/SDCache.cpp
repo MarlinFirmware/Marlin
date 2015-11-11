@@ -65,7 +65,7 @@ void SDCache::updateCachePosition(int16_t index)
 	
 	if(index != m_index)
 	{		
-		if(index < m_cache_min)	//bajando
+		if(index < m_cache_min)
 		{
 			if(index + m_window_size - m_cache_size + 1 > 0)
 			{
@@ -79,7 +79,7 @@ void SDCache::updateCachePosition(int16_t index)
 			}
 			m_cache_update = true;			
 		}
-		else if(index > m_cache_max) //subiendo
+		else if(index > m_cache_max)
 		{
 			m_cache_min = index - m_window_size + 1;
             m_cache_max = m_cache_min + m_cache_size - 1;
