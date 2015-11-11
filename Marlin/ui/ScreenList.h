@@ -33,7 +33,7 @@
 #include "Screen.h"
 #include "SDManager.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenList : public Screen , public Observer<bool>
 	{

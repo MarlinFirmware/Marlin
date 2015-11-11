@@ -30,7 +30,7 @@
 
 #include "Screen.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenSplash : public Screen
 	{

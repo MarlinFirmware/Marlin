@@ -28,7 +28,7 @@
 #include "Icon.h"
 #include "GuiPainter.h"
 
-namespace screen
+namespace ui
 {
 	Icon::Icon (Size const & size, const unsigned char* bitmap, const unsigned char * focused_bitmap, const char * text)
 		: m_size(size)

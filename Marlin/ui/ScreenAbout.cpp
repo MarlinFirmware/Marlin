@@ -29,7 +29,7 @@
 #include "GuiBitmaps_witbox_2.h"
 #include "Serial.h"
 
-namespace screen
+namespace ui
 {
 	ScreenAbout::ScreenAbout(const char * title, const char * message, const char * box, const unsigned char * bitmap)
 		: ScreenDialog<void>(title, message, box)

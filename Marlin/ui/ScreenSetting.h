@@ -33,7 +33,7 @@
 #include "Screen.h"
 #include "Option.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenSetting : public Screen
 	{

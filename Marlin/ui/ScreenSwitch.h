@@ -32,7 +32,7 @@
 
 #include "ScreenAction.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenSwitch : public ScreenAction<bool>
 	{

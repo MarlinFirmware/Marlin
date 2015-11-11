@@ -28,7 +28,7 @@
 #include "ScreenSetting.h"
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 
 	ScreenSetting::ScreenSetting(const char * title)

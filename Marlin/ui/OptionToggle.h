@@ -35,7 +35,7 @@
 #include "GuiPainter.h"
 #include "ViewManager.h"
 
-namespace screen
+namespace ui
 {
 	typedef enum
 	{

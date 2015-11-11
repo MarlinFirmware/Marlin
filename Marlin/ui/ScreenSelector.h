@@ -35,7 +35,7 @@
 
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	template <typename R, typename... Args>
 		class ScreenSelector : public Screen , public Functor<R, Args...>

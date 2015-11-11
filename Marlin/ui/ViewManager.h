@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenSerial.h
+/// \file ViewManager.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of serial screen.
+/// \brief A manager class to keep track of active view.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,32 +25,40 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_SERIAL_H
-#define SCREEN_SERIAL_H
+#ifndef VIEW_MANAGER_H
+#define VIEW_MANAGER_H
 
 #include <stdint.h>
 
 #include "Screen.h"
+#include "GuiImpl_witbox_2.h"
 
 namespace ui
 {
-	class ScreenSerial : public Screen
+	class ViewManager
 	{
 		public:
-			ScreenSerial(const char * title = 0, const char * text = 0);
-			virtual ~ScreenSerial();
+			static ViewManager & getInstance();
 
-			void init(uint16_t index = 0);
-			void left();
-			void right();
-			void press();
-			virtual void draw();
-			void text(const char * text);
+			void activeView(ScreenIndex_t const & index);
+			Screen * activeView();
+			void setLastFocus(uint16_t last_focus);
+			ScreenIndex_t const & getViewIndex() const;
+
+			void displayRefresh();
 
 		protected:
-			uint16_t m_index;
-			uint16_t m_num_items;
-			char m_text[64];
+			ViewManager();
+			~ViewManager();
+
+		private:
+			ViewManager(ViewManager const & orig) = delete;
+			ViewManager & operator=(ViewManager & orig) = delete;
+
+		private:
+			Screen * m_active_view;
+			uint16_t m_last_focus;
+			ScreenIndex_t m_index;
 	};
 }
-#endif //SCREEN_SERIAL_H
+#endif //VIEW_MANAGER_H

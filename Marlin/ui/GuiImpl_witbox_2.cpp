@@ -1,3 +1,30 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file GuiImpl_witbox_2.h
+///
+/// \author Ivan Galvez Junquera
+///         Ruy Garcia
+///         Victor Andueza 
+///         Joaquin Herrero
+///
+/// \brief Specific implementation of UI for BQ Witbox 2 and Hephestos 2 printers
+///
+/// Copyright (c) 2015 BQ - Mundo Reader S.L.
+/// http://www.bq.com
+///
+/// This file is free software; you can redistribute it and/or modify
+/// it under the terms of either the GNU General Public License version 2 or 
+/// later or the GNU Lesser General Public License version 2.1 or later, both
+/// as published by the Free Software Foundation.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+/// DEALINGS IN THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////
+
 #include "GuiImpl_witbox_2.h"
 #include "GuiBitmaps_witbox_2.h"
 #include "GuiAction.h"
@@ -46,7 +73,7 @@
 
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	///////////////////////
 	// Instantiate Icons //
@@ -144,7 +171,7 @@ namespace screen
 	static ScreenMenu * make_screen_wizard_offset_finish()
 	{
 		Icon * icon_retry = new Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_ICON_RETRY());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_FINISH_TITLE(), MSG_SCREEN_OFFSET_FINISH_TEXT());
 		local_view->add(screen_wizard_offset_home);
@@ -183,7 +210,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_main()
 	{
-	IconStatus<bool> * icon_sd = new IconStatus<bool>(icon_size, bits_nosd_normal, bits_nosd_focused, bits_sd_normal, bits_sd_focused, MSG_ICON_SD_NOSD(), MSG_ICON_SD_SD(), &SDManager::single::instance());
+		IconStatus<bool> * icon_sd = new IconStatus<bool>(icon_size, bits_nosd_normal, bits_nosd_focused, bits_sd_normal, bits_sd_focused, MSG_ICON_SD_NOSD(), MSG_ICON_SD_SD(), &SDManager::single::instance());
 		Icon * icon_filament_unload = new Icon(icon_size, bits_filament_unload_normal, bits_filament_unload_focused, MSG_ICON_FILAMENT_UNLOAD());
 		Icon * icon_filament_load = new Icon(icon_size, bits_filament_load_normal, bits_filament_load_focused, MSG_ICON_FILAMENT_LOAD());
 		Icon * icon_leveling = new Icon(icon_size, bits_leveling_normal, bits_leveling_focused, MSG_ICON_LEVELING());
@@ -258,7 +285,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_unload_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_unload_switch);
 		return local_view;
 	}
@@ -302,7 +329,7 @@ namespace screen
 	static ScreenMenu * make_screen_unload_confirm()
 	{
 		Icon * icon_retry = new Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_ICON_RETRY());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_CONFIRM_TITLE(), MSG_SCREEN_UNLOAD_CONFIRM_TEXT());
 		local_view->add(screen_unload_info);
@@ -322,7 +349,7 @@ namespace screen
 	static ScreenMenu * make_screen_load_init()
 	{
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_INIT_TITLE(), MSG_SCREEN_LOAD_INIT_TEXT());
 		local_view->add(screen_main);
@@ -341,7 +368,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_load_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_load_switch);
 		return local_view;
 	}
@@ -385,7 +412,7 @@ namespace screen
 	static ScreenMenu * make_screen_load_confirm()
 	{
 		Icon * icon_retry = new Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_ICON_RETRY());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_CONFIRM_TITLE(), MSG_SCREEN_LOAD_CONFIRM_TEXT());
 		local_view->add(screen_load_info);
@@ -405,7 +432,7 @@ namespace screen
 	static ScreenMenu * make_screen_level_init()
 	{
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_INIT_TITLE(), MSG_SCREEN_LEVEL_INIT_TEXT());
 		local_view->add(screen_main);
@@ -432,7 +459,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_level_preheating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_level_switch);
 		return local_view;
 	}
@@ -490,7 +517,7 @@ namespace screen
 	static ScreenMenu * make_screen_level_confirm()
 	{
 		Icon * icon_retry = new Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_ICON_RETRY());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_CONFIRM_TITLE(), MSG_SCREEN_LEVEL_CONFIRM_TEXT());
 		local_view->add(screen_level_homing);
@@ -530,7 +557,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_autohome_animation()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_AUTOHOME_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_AUTOHOME_HEATING_TITLE(), MSG_PLEASE_WAIT(), ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_autohome_homing);
 		return local_view;
 	}
@@ -652,7 +679,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_move_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_MOVE_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_MOVE_HEATING_TITLE(), MSG_PLEASE_WAIT(), ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_move_e);
 		return local_view;
 	}
@@ -832,7 +859,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_heating_main()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_TEMP_HEATING_TITLE(), MSG_PUSH_TO_CONTINUE(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_TEMP_HEATING_TITLE(), MSG_PUSH_TO_CONTINUE(), ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_main);
 		local_view->add(screen_main);
 		return local_view;
@@ -862,7 +889,7 @@ namespace screen
 	static ScreenMenu * make_screen_offset()
 	{
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_INIT_TITLE(), MSG_SCREEN_OFFSET_INIT_TEXT());
 		local_view->add(screen_settings);
@@ -889,7 +916,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_offset_preheating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_OFFSET_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_OFFSET_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_offset_home);
 		return local_view;
 	}
@@ -932,7 +959,7 @@ namespace screen
 	static ScreenMenu * make_screen_offset_finish()
 	{
 		Icon * icon_retry = new Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_ICON_RETRY());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_FINISH_TITLE(), MSG_SCREEN_OFFSET_FINISH_TEXT());
 		local_view->add(screen_offset_home);
@@ -959,7 +986,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_print_preheating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_PRINT_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_PRINT_HEATING_TITLE(), MSG_PLEASE_WAIT(), ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_print_prepare);
 		return local_view;
 	}
@@ -1030,7 +1057,7 @@ namespace screen
 	static ScreenFile * make_screen_stop_confirm()
 	{
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_STOP_CONFIRM_TITLE());
 		local_view->add(screen_print);
@@ -1057,7 +1084,7 @@ namespace screen
 	static ScreenMenu * make_screen_change_init()
 	{
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_CHANGE_INIT_TITLE(), MSG_SCREEN_CHANGE_INIT_TEXT());
 		local_view->add(screen_print);
@@ -1083,7 +1110,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_change_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_HEATING_TITLE(), MSG_PLEASE_WAIT(), ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
 		local_view->add(screen_change_pullout_info);
 		return local_view;
 	}
@@ -1126,7 +1153,7 @@ namespace screen
 	static ScreenMenu * make_screen_change_confirm()
 	{
 		Icon * icon_retry = new Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_ICON_RETRY());
-      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_CHANGE_CONFIRM_TITLE(), MSG_SCREEN_CHANGE_CONFIRM_TEXT());
 		local_view->add(screen_change_pullout_info);
@@ -1143,14 +1170,14 @@ namespace screen
 		return local_view;
 	}
 
-   static ScreenDynamicFeedrate<uint16_t> * make_screen_speed()
+	static ScreenDynamicFeedrate<uint16_t> * make_screen_speed()
 	{
 		ScreenDynamicFeedrate<uint16_t> * local_view = new ScreenDynamicFeedrate<uint16_t>(MSG_SCREEN_SPEED_TITLE(), 10, 400, 10, action_set_feedrate_multiply);
 		local_view->add(screen_print);
 		return local_view;
 	}
 
-   static ScreenSelector<void, uint16_t> * make_screen_temperature_print()
+	static ScreenSelector<void, uint16_t> * make_screen_temperature_print()
 	{
 		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), temp::min_temp_operation, temp::max_temp_operation, 1, temp::TemperatureManager::single::instance().getTargetTemperature(), action_set_temperature);
 		local_view->add(screen_print);

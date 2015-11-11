@@ -32,7 +32,7 @@
 #include "Functor.h"
 #include "PrintManager.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenTransition : public Screen , public Functor<void>, public Observer<PrinterState_t>
 	{

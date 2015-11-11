@@ -382,6 +382,8 @@ bool cancel_heatup = false;
   bool bed_leveling = false;
 #endif //ENABLE_AUTO_BED_LEVELING
 
+  vector_3 update_position = vector_3(0,0,0);
+
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 
@@ -816,10 +818,10 @@ void get_command()
 		     PrintManager::single::instance().state() != SERIAL_CONTROL &&
 		     PrintManager::single::instance().state() != INITIALIZING )
 		{
-			if (screen::ViewManager::getInstance().getViewIndex() == screen::screen_main)
+			if (ui::ViewManager::getInstance().getViewIndex() == ui::screen_main)
 			{
 				PrintManager::single::instance().state(SERIAL_CONTROL);
-				screen::ViewManager::getInstance().activeView(screen::screen_serial);
+				ui::ViewManager::getInstance().activeView(ui::screen_serial);
 			}
 		}
 #endif
@@ -1650,7 +1652,6 @@ void process_commands()
       relative_mode = true;
       break;
     case 92: // G92
-      if(!code_seen(axis_codes[E_AXIS]))
         st_synchronize();
       for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) {
@@ -1774,11 +1775,12 @@ void process_commands()
         }
 #endif
         st_synchronize();
+        enable_endstops(true);
 
-        current_position[X_AXIS] = st_get_position_mm(X_AXIS);
-        current_position[Y_AXIS] = st_get_position_mm(Y_AXIS);
-        current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
-        current_position[E_AXIS] = st_get_position_mm(E_AXIS);
+        update_position = plan_get_position();
+        current_position[X_AXIS] = update_position.x;
+        current_position[Y_AXIS] = update_position.y;
+        current_position[Z_AXIS] = update_position.z;
 
         lastpos[X_AXIS] = current_position[X_AXIS];
         lastpos[Y_AXIS] = current_position[Y_AXIS];
@@ -1831,6 +1833,7 @@ void process_commands()
           PrintManager::single::instance().state(PAUSED);
         }
 #endif//DOGLCD
+        enable_endstops(false);
       break;
     case 26: //M26 - Set SD index
       if(card.cardOK && code_seen('S')) {
@@ -2612,8 +2615,8 @@ Sigma_Exit:
         *(starpos)='\0';
 
       #ifdef DOGLCD
-        if (screen::ViewManager::getInstance().getViewIndex() == screen::screen_serial){
-          screen::ViewManager::getInstance().activeView()->text(strchr_pointer + 5);
+        if (ui::ViewManager::getInstance().getViewIndex() == ui::screen_serial){
+          ui::ViewManager::getInstance().activeView()->text(strchr_pointer + 5);
         }
       #else
         lcd_setstatus(strchr_pointer + 5);
@@ -3579,7 +3582,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   			stop_buffer = false;
 #else
-        screen::ViewManager::getInstance().activeView(screen::screen_change_pausing);
+        ui::ViewManager::getInstance().activeView(ui::screen_change_pausing);
 #endif
     }
     break;

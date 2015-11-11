@@ -3,7 +3,7 @@
 #include "Language.h"
 #include "GuiBitmaps_witbox_2.h"
 
-namespace screen
+namespace ui
 {
 	ScreenStop::ScreenStop(const char * title, const char * message,  const char * box, float height, Time_t time)
 		: ScreenDialog<void>(title, message, box)

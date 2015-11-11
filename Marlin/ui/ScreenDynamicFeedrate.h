@@ -30,7 +30,7 @@
 
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	template <typename T>
 		class ScreenDynamicFeedrate : public Screen , public Functor<void, T>
