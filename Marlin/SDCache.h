@@ -35,11 +35,11 @@ class SDCache
 		SDCache();
 		
 		void reloadCache();
-		void updateCachePosition(int16_t index);
+		bool updateCachePosition(int16_t index);
 		CacheEntryType_t press(uint16_t index);
 		
 		inline cache_entry const * getSelectedEntry() { return window_cache_begin + m_selected_file; };
-		inline uint16_t getListLenght() { return m_list_length; };
+		inline uint16_t getListLength() { return m_list_length; };
 		inline bool getFolderIsRoot() { return (m_directory_depth == 0); };
 		inline char * getDirectoryName() { return m_directory; };
 		inline bool showingFirstItem() { return !m_window_min; };

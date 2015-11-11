@@ -51,8 +51,10 @@ void SDCache::reloadCache()
 	updateCachePosition(0);
 }
 
-void SDCache::updateCachePosition(int16_t index)
+bool SDCache::updateCachePosition(int16_t index)
 {	
+	//return_value is set to true if window has moved
+    bool return_value = false;
 	if(index < 0)
 	{
 		index = 0;
@@ -70,11 +72,13 @@ void SDCache::updateCachePosition(int16_t index)
 			{
 				m_cache_max = index + m_window_size - 1;
 				m_cache_min = m_cache_max - m_cache_size + 1;
+				return_value = true;
 			}
 			else
 			{
 				m_cache_min = 0;
                 m_cache_max = m_cache_size - 1;
+                return_value = true;
 			}
 			m_cache_update = true;			
 		}
@@ -171,6 +175,7 @@ void SDCache::updateCachePosition(int16_t index)
 		// The content of the cache is up-to-date
 		m_cache_update = false;
 	}
+	return return_value;
 }
 
 CacheEntryType_t SDCache::press(uint16_t index)
