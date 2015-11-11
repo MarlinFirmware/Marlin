@@ -540,20 +540,17 @@ void action_move_to_rest()
 	plan_buffer_line(target[X_AXIS], target[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 	st_synchronize();
 
-	enable_endstops(false);
+	action_correct_movement(target[X_AXIS], target[Y_AXIS], target[Z_AXIS]);
 
-	target[Z_AXIS] = POSITION_REST_Z;
-	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 	st_synchronize();
+
+	enable_endstops(false);
 
 	vector_3 update_position_3 = plan_get_position();
 	current_position[X_AXIS] = update_position_3.x;
 	current_position[Y_AXIS] = update_position_3.y;
 	current_position[Z_AXIS] = update_position_3.z;
-
-	x_hit = false;
-	y_hit = false;
-	z_hit = false;
 }
 
 void action_move_to_filament_change()
