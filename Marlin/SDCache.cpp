@@ -17,10 +17,7 @@ SDCache::SDCache()
 
 void SDCache::ReloadCache()
 {
-	if(m_folder_is_root)
-	{
-		card.initsd();
-	}
+	card.reloadDir();
 	
 	m_index = 0;
 	m_selected_file = 0;
