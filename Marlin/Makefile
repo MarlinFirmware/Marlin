@@ -230,7 +230,7 @@ CXXSRC += motion_control.cpp planner.cpp stepper.cpp temperature.cpp cardreader.
 
 CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp StorageManager.cpp TemperatureManager.cpp
 
-CXXSRC += Marlin_main.cpp MarlinSerial.cpp
+CXXSRC += Marlin_main.cpp MarlinSerial.cpp SDCache.cpp
 
 
 # Define all object files.
