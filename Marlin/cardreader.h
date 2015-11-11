@@ -51,6 +51,7 @@ public:
   FORCE_INLINE uint8_t percentDone(){if(!isFileOpen()) return 0; if(filesize) return sdpos/((filesize+99)/100); else return 0;};
   FORCE_INLINE char* getWorkDirName(){workDir.getFilename(filename);return filename;};
   FORCE_INLINE char* getCurrentDirName(){curDir->getFilename(filename); return filename;};
+  FORCE_INLINE void reloadDir(){newDir=true;};
 
 public:
   bool saving;
