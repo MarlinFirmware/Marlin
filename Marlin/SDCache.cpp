@@ -14,7 +14,7 @@ SDCache::SDCache()
 { 
 }
 
-void SDCache::ReloadCache()
+void SDCache::reloadCache()
 {
 	card.reloadDir();
 	
@@ -211,7 +211,7 @@ void SDCache::changeDir()
 			}
 			card.chdir(window_cache_begin[m_selected_file].filename);
 			
-			ReloadCache();
+			reloadCache();
 		}
 	}
 	else //return to previous directory
@@ -219,7 +219,7 @@ void SDCache::changeDir()
 		--m_directory_depth;
 		card.updir();
 		updateDirectoryName();
-		ReloadCache();
+		reloadCache();
 	}
 }
 

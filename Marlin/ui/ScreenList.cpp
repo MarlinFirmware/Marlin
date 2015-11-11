@@ -59,7 +59,7 @@ namespace screen
 		}
 		else 
 		{
-			SDCache::single::instance().ReloadCache();
+			SDCache::single::instance().reloadCache();
 		}
 	}
 

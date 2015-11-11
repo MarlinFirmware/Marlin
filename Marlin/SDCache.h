@@ -34,7 +34,7 @@ class SDCache
 	public:
 		SDCache();
 		
-		void ReloadCache();
+		void reloadCache();
 		void updateCachePosition(int16_t index);
 		CacheEntryType_t press(uint16_t index);
 		
