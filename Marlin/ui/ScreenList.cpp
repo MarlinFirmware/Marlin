@@ -26,7 +26,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ScreenList.h"
-#include "cardreader.h"
+#include "SDCache.h"
 #include "Language.h"
 
 namespace screen
@@ -59,56 +59,7 @@ namespace screen
 		}
 		else 
 		{
-			m_num_list = card.getnrfilenames();
-			m_index = 0;
-
-			card.getWorkDirName();
-			strncpy(m_directory, card.filename, 19);
-			m_directory[19] = '\0';
-
-			if (card.filename[0] != '/')
-			{
-				if(from_updir)
-				{
-					if(directory_index > 0)
-					{
-						char prev_folder[20];
-						strncpy(prev_folder, card.filename, 19);
-						card.updir();
-						card.getfilename(directory_array[directory_index-1]-1);
-						if ( (card.longFilename != NULL) && (strlen(card.longFilename) > 0) )
-						{
-							strncpy(m_directory, card.longFilename, sizeof(m_directory));
-						}
-						else
-						{
-							strncpy(m_directory, card.filename, sizeof(m_directory));
-						}
-						card.chdir(prev_folder);
-						painter.print(m_directory);
-						from_updir = false;
-					}
-				}
-				else
-				{
-					if ( (card.folderName != NULL) && (strlen(card.folderName) > 0) )
-					{
-						strncpy(m_directory, card.folderName, 19);
-					}
-					else
-					{
-						strncpy(m_directory, card.filename, 19);
-					}
-				}
-				m_directory_is_root = false;
-			}
-			else
-			{
-				m_directory_is_root = true;
-			}
-
-			m_num_list++;
-			m_scroll_size = (float) 47 / m_num_list;
+			SDCache::single::instance().ReloadCache();
 		}
 	}
 
@@ -128,9 +79,9 @@ namespace screen
 
 	void ScreenList::right()
 	{
-		if ( m_index == (m_num_list -1) )
+		if ( m_index == (SDCache::single::instance().getListLenght() -1) )
 		{
-			m_index = m_num_list -1;
+			m_index = SDCache::single::instance().getListLenght() -1;
 		}
 		else
 		{
@@ -142,15 +93,16 @@ namespace screen
 
 	void ScreenList::draw()
 	{
+		SDCache::single::instance().updateCachePosition(m_index);
 		painter.firstPage();
 		do
 		{
 			// Draw title
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t y_init = painter.coordinateYInit();
-			uint8_t x_end = painter.coordinateXEnd();
-
-			if (m_directory_is_root == true)
+			uint8_t x_end = painter.coordinateXEnd();			
+			
+			if (SDCache::single::instance().getFolderIsRoot() == true)
 			{
 				painter.setColorIndex(1);
 				painter.setFont(FontType_t::BODY_FONT);
@@ -158,8 +110,6 @@ namespace screen
 				painter.print("/");
 				painter.setPrintPos(x_init + 6, y_init + 3);
 				painter.print_P(m_title);
-				memset(directory_array,0,sizeof(directory_array));
-				directory_index = 0;
 			}
 			else
 			{
@@ -169,24 +119,17 @@ namespace screen
 				painter.setPrintPos(x_init + 6, y_init + 3);
 				painter.print("/");
 				painter.setPrintPos(x_init + 12, y_init + 3);
-				painter.print(m_directory);
+				painter.print(SDCache::single::instance().getDirectoryName());
 			}
 
 			//Draw line separator
 			painter.drawLine(x_init, y_init + 13, x_end, y_init + 13);
 			painter.coordinateYInit(14);
-
-			// Draw list
-			uint8_t window_size = 50 / (max_font_height + 1);
-			uint8_t window_selector = window_size / 2;
-			if (window_size % 2 == 0)
+			
+			const cache_entry * entry = SDCache::single::instance().window_cache_begin;
+			for(uint8_t i = 0; entry != SDCache::single::instance().window_cache_end ; i++, entry++)
 			{
-				window_selector--;
-			}
-
-			for (uint8_t i = 0; i < window_size; i++)
-			{
-				if (i == window_selector)
+				if (entry == SDCache::single::instance().getSelectedEntry())
 				{
 					painter.setColorIndex(1);
 					painter.drawBox(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), 128, max_font_height);
@@ -196,15 +139,10 @@ namespace screen
 				{
 					painter.setColorIndex(1);
 				}
-
-				if ((int)(m_index + i - window_selector) < 0 || (m_index + i - window_selector) >= m_num_list)
+				
+				if (SDCache::single::instance().showingFirstItem() && i == 0)
 				{
-					continue;
-				}
-
-				if ((m_index + i - window_selector) == 0)
-				{
-					if(m_directory_is_root)
+					if(entry->type == CacheEntryType_t::BACK_ENTRY)
 					{
 						painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_back_small);
 						painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
@@ -219,35 +157,26 @@ namespace screen
 				}
 				else
 				{
-					card.getfilename(m_index + i - window_selector - 1);
-
-					if (card.filenameIsDir == true)
+					if (entry->type == FOLDER_ENTRY)
 					{
 						painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_folder_small);
 					}
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-					if(strcmp(card.longFilename,"") != 0)
+					if (entry == SDCache::single::instance().getSelectedEntry())
 					{
-						if (i == window_selector)
+						m_current_time = millis();
+						if (m_current_time > m_previous_time + 1200)
 						{
-							m_current_time = millis();
-							if (m_current_time > m_previous_time + 1200)
-							{
-								painter.animate(card.longFilename, 18, 300);
-							}
-							else
-							{
-								painter.print(card.longFilename);
-							}
+							painter.animate(entry->longFilename, 18, 300);
 						}
 						else
 						{
-							painter.print(card.longFilename);
+							painter.print(entry->longFilename);
 						}
 					}
 					else
 					{
-						painter.print(card.filename);
+						painter.print(entry->longFilename);
 					}
 				}
 			}
@@ -257,6 +186,8 @@ namespace screen
 			painter.drawBox(122, 13, 6, 51);
 			painter.setColorIndex(0);
 			painter.drawBox(123, 14, 4, 49);
+			
+			m_scroll_size = (float) 47 / SDCache::single::instance().getListLenght();
 
 			int8_t scroll_bottom_bar = (m_index + 1) * m_scroll_size;
 			if (scroll_bottom_bar < 1)
@@ -277,40 +208,20 @@ namespace screen
 
 	void ScreenList::press()
 	{
-		if (m_index == 0)
+		CacheEntryType_t type = SDCache::single::instance().press(m_index);
+		
+		if(type == CacheEntryType_t::BACK_ENTRY)
 		{
-			if (m_directory_is_root == true)
-			{
-				directory_index = 0;
-				ViewManager::getInstance().activeView(m_back_screen);
-				return;
-			}
-			else
-			{
-				directory_index--;
-				from_updir = true;
-
-				card.updir();
-				ViewManager::getInstance().activeView(screen_SD_list);
-				return;
-			}
+			ViewManager::getInstance().activeView(m_back_screen);
+			return;
 		}
-		else
+		else if(type == CacheEntryType_t::FILE_ENTRY)
 		{
-			card.getfilename(m_index - 1);
-			if (card.filenameIsDir == true)
-			{
-				if(directory_index < 9)
-				{
-					directory_array[directory_index] = m_index;
-					directory_index++;
-					from_updir = false;
-				}
-				card.chdir(card.filename);
-				ViewManager::getInstance().activeView(screen_SD_list);
-				return;
-			}
 			ViewManager::getInstance().activeView(m_next_screen);
+		}
+		else if(!SDCache::single::instance().maxDirectoryReached())
+		{
+			m_index = 0;
 		}
 	}
 
