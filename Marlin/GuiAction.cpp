@@ -30,10 +30,6 @@ extern uint16_t stop_buffer_code;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 
-bool x_hit = false;
-bool y_hit = false;
-bool z_hit = false;
-
 float z_offset;
 float z_saved_homing;
 
@@ -444,47 +440,61 @@ void action_correct_movement(float &x_pos, float &y_pos, float &z_pos)
 
 	if (checkXminEndstop() == true || checkXmaxEndstop() == true)
 	{
-		if (update_position.y != getRealPosAxis(Y_AXIS) && y_hit == false)
+		if (update_position.y != y_pos)
 		{
-			y_pos = getRealPosAxis(Y_AXIS);
-			plan_set_axis_position(Y_AXIS,y_pos);
+			plan_set_axis_position(Y_AXIS,getRealPosAxis(Y_AXIS));
 		}
-		if (update_position.z != getRealPosAxis(Z_AXIS) && z_hit == false)
+		if (update_position.z != z_pos)
 		{
-			z_pos = getRealPosAxis(Z_AXIS);
-			plan_set_axis_position(Z_AXIS,z_pos);
+			plan_set_axis_position(Z_AXIS,getRealPosAxis(Z_AXIS));
 		}
-		x_hit = true;
+
+		if (checkXminEndstop() == true)
+		{
+			plan_set_axis_position(X_AXIS,X_MIN_POS);
+		}
+		else
+		{
+			plan_set_axis_position(X_AXIS,X_MAX_POS);
+		}
 		endstops_hit_on_purpose();
 	}
 	if (checkYminEndstop() == true || checkYmaxEndstop() == true)
 	{
-		if (update_position.x != getRealPosAxis(X_AXIS) && x_hit == false)
+		if (update_position.x != x_pos)
 		{
-			x_pos = getRealPosAxis(X_AXIS);
-			plan_set_axis_position(X_AXIS,x_pos);
+			plan_set_axis_position(X_AXIS,getRealPosAxis(X_AXIS));
 		}
-		if (update_position.z != getRealPosAxis(Z_AXIS) && z_hit == false)
+		if (update_position.z != z_pos)
 		{
-			z_pos = getRealPosAxis(Z_AXIS);
-			plan_set_axis_position(Z_AXIS,z_pos);
+			plan_set_axis_position(Z_AXIS,getRealPosAxis(Z_AXIS));
 		}
-		y_hit = true;
+
+		if (checkYminEndstop() == true)
+		{
+			plan_set_axis_position(Y_AXIS,Y_MIN_POS);
+		}
+		else
+		{
+			plan_set_axis_position(Y_AXIS,Y_MAX_POS);
+		}
 		endstops_hit_on_purpose();
 	}
-	if (checkZminEndstop() == true || checkZmaxEndstop() == true)
+	if (checkZmaxEndstop() == true)
 	{
-		if (update_position.x != getRealPosAxis(X_AXIS) && x_hit == false)
+		if (update_position.x != x_pos)
 		{
-			x_pos = getRealPosAxis(X_AXIS);
-			plan_set_axis_position(X_AXIS,x_pos);
+			plan_set_axis_position(X_AXIS,getRealPosAxis(X_AXIS));
 		}
-		if (update_position.y != getRealPosAxis(Y_AXIS) && y_hit == false)
+		if (update_position.y != y_pos)
 		{
-			y_pos = getRealPosAxis(Y_AXIS);
-			plan_set_axis_position(Y_AXIS,y_pos);
+			plan_set_axis_position(Y_AXIS,getRealPosAxis(Y_AXIS));
 		}
-		z_hit = true;
+
+		if (checkZmaxEndstop() == true)
+		{
+			plan_set_axis_position(Z_AXIS,Z_MAX_POS);
+		}
 		endstops_hit_on_purpose();
 	}
 
@@ -728,9 +738,6 @@ void action_stop_print()
 	// autotempShutdown();
 
 	cancel_heatup = true;
-	x_hit = false;
-	y_hit = false;
-	z_hit = false;
 
 	PrintManager::knownPosition(true);
 }
