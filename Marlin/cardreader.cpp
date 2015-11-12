@@ -204,6 +204,7 @@ void CardReader::initsd()
   }
   workDir=root;
   curDir=&root;
+  workDirDepth = 0;
   /*
   if(!workDir.openRoot(&volume))
   {
