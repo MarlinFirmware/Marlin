@@ -766,7 +766,13 @@ static void view_menu_main()
 void draw_menu_sdcard()
 {
 	if(browsing_cache == NULL)
+	{
 		browsing_cache = new SDCache();
+	}
+	else
+	{
+		browsing_cache->returnToRoot();
+	}
 	
     item_selected = -1;
     encoder_position = 0;
