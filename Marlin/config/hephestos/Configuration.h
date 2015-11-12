@@ -60,7 +60,7 @@
 // #define PS_DEFAULT_OFF
 
 // Define this to have hotbed support
-//#define HEATED_BED_SUPPORT
+#define HEATED_BED_SUPPORT
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -763,6 +763,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
   #endif
   #endif
 #endif
+
+// sd browsing cache is set to twice LCD height
+#define SD_CACHE_SIZE LCD_HEIGHT*2
+
 
 // default LCD contrast for dogm-like LCD displays
 #ifdef DOGLCD

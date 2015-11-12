@@ -767,6 +767,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
   #endif
 #endif
 
+// sd browsing cache is set to twice LCD height
+#define SD_CACHE_SIZE LCD_HEIGHT*2
+
 // default LCD contrast for dogm-like LCD displays
 #ifdef DOGLCD
 # ifndef DEFAULT_LCD_CONTRAST
