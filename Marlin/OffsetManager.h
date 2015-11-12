@@ -17,6 +17,7 @@ class OffsetManager : public Subject<float>
 		void offset(float value);
 		float offset();
 		void saveOffset();
+		float getOffset();
 
 	private:
 		void notify();
