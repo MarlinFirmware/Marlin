@@ -12,6 +12,11 @@ SDCache::SDCache()
 	, m_window_size(0) 
 	, m_directory_depth(0)
 { 
+	card.initsd();
+}
+
+SDCache::~SDCache()
+{
 }
 
 void SDCache::reloadCache()
@@ -37,7 +42,7 @@ void SDCache::reloadCache()
 		m_window_size = LCD_HEIGHT;
 		m_cache_size = SD_CACHE_SIZE;
 	}
-	
+
 	window_cache_end = window_cache_begin + m_window_size;
 
 	// Set the edges of the windows
@@ -185,8 +190,10 @@ CacheEntryType_t SDCache::press(uint16_t index)
 
 	switch(window_cache_begin[m_selected_file].type)
 	{
-		case BACK_ENTRY:
+		//cases handled outside of SDCache
 		case FILE_ENTRY:
+			card.getfilename(m_index-1);
+		case BACK_ENTRY:		
 			return window_cache_begin[m_selected_file].type; 
 			break;
 		

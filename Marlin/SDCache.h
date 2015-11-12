@@ -1,7 +1,6 @@
 #ifndef SD_CACHE_H
 #define SD_CACHE_H
 
-#include "Singleton.h"
 #include "cardreader.h"
 
 #ifndef SD_CACHE_SIZE
@@ -20,19 +19,16 @@ typedef enum
 typedef struct 
 {
 	CacheEntryType_t type;
-	void * action;		//Used in 1st gen, probably can be removed
 	char filename[13];
 	char longFilename[LONG_FILENAME_LENGTH];
 } cache_entry;
 
 class SDCache
 {
-	public:
-	
-		typedef Singleton<SDCache> single;
 
 	public:
 		SDCache();
+		~SDCache();
 		
 		void reloadCache();
 		bool updateCachePosition(int16_t index);
