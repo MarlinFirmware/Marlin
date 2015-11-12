@@ -31,20 +31,12 @@
 
 namespace screen
 {
-	uint8_t ScreenList::directory_index = 0;
-	uint8_t ScreenList::directory_array[10] = { 0 };
-	bool ScreenList::from_updir = false;
-
 	ScreenList::ScreenList(const char * title, Subject<bool> * model)
 		: Screen(title, LIST)
 		, Observer<bool>(model)
 		, m_index(0)
-		, m_icon_index(0)
-		, m_num_list(0)
 		, m_num_item_added(0)
 	{
-		memset(m_directory, 0, sizeof(m_directory));
-		m_directory_is_root = false;
 		m_previous_time = millis();
 	}
 
