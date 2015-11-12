@@ -879,11 +879,15 @@ void action_set_offset(uint8_t axis, float value)
 	OffsetManager::single::instance().offset(zprobe_zoffset);
 }
 
+void action_offset_rest()
+{
+	action_z_homing();
+	action_move_to_rest();
+}
+
 void action_save_offset()
 {
 	OffsetManager::single::instance().saveOffset();
-	action_z_homing();
-	action_move_to_rest();
 }
 
 void action_wizard_init()
