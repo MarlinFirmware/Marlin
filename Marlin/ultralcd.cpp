@@ -2,18 +2,11 @@
 
 #include "Marlin.h"
 #include "cardreader.h"
+#include "SDCache.h"
 #include "ConfigurationStore.h"
 #include "temperature.h"
 #include "Serial.h"
 #include "Language_texts.h"
-
-// Only for new LCD
-typedef struct {
-    uint8_t type;
-    char text[LONG_FILENAME_LENGTH];
-    func_p action;
-    void * data;
-} cache_entry;
 
 // Only for new LCD
 typedef struct {
@@ -97,24 +90,8 @@ char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 uint8_t display_view_menu_offset = 0;
 uint8_t display_view_wizard_page = 0;
 
-
-// SD cacheable menu variables
-cache_entry cache[MAX_CACHE_SIZE];
-cache_entry_data cache_data[MAX_CACHE_SIZE];
-const cache_entry* cache_index = &cache[0];
-
-bool cache_update = false;
 bool cache_menu_first_time = false;
-bool folder_is_root = false;
-
-uint8_t list_length;
-uint8_t window_size, cache_size;
 uint8_t item_selected, new_item_selected;
-uint8_t window_min, window_max;
-int16_t cache_min, cache_max;
-
-uint8_t window_offset, cursor_offset;
-
 
 // Variables used when editing values.
 const char* editLabel;
@@ -675,8 +652,8 @@ static void menu_action_submenu(func_t function);
 static void menu_action_gcode(const char* pgcode);
 static void menu_action_function(func_t function);
 static void menu_action_wizard(func_t function);
-static void funct_sdfile(void* data);
-static void menu_action_sdfile(const char* filename, char* longFilename);
+static void funct_sdfile();
+static void menu_action_sdfile();
 static void funct_sddirectory(void* data);
 static void menu_action_sddirectory(const char* filename, char* longFilename);
 static void menu_action_setting_edit_bool(const char* pstr, bool* ptr);
@@ -786,56 +763,18 @@ static void view_menu_main()
 void draw_menu_sdcard()
 {
     item_selected = -1;
-    cache_menu_first_time = true;
+    encoder_position = 0;
+    SDCache::single::instance().reloadCache();
+    display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
 
     lcd_set_menu(view_menu_sdcard);
 }
+
 static void view_menu_sdcard()
 {
-    if (cache_menu_first_time == true) {
-        // Gets the number of files on the current folder
-        list_length = card.getnrfilenames();
-
-        // Checks if the current folder is the root of the SD
-        card.getWorkDirName();
-        if (card.filename[0] != '/') {
-            folder_is_root = false;
-            list_length += 2;           // Space for "Back" & ".." options added to the list
-        } else {
-            folder_is_root = true;
-            list_length += 1;           // Space for "Back" option added to the list
-        }
-
-        // Calculates the size of the cache and the window.
-        if (list_length < MAX_WINDOW_SIZE) {
-            window_size = list_length;
-            cache_size = list_length;
-        } else if (list_length < MAX_CACHE_SIZE) {
-            window_size = MAX_WINDOW_SIZE;
-            cache_size = list_length;
-        } else {
-            window_size = MAX_WINDOW_SIZE;
-            cache_size = MAX_CACHE_SIZE;
-        }
-
-        // Reset the encoder position
-        encoder_position = 0;
-
-        // Set the edges of the windows
-        window_min = 0;
-        window_max = window_size - 1;
-        cache_min = 0;
-        cache_max = cache_size - 1;
-
-        // The content of the cache must be updated
-        cache_update = true;
-
-        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
-    }
-
-    // Input Adquisition
-
+	// Input Adquisition
     // Gets the encoder position into a shadow register
+    
     int16_t encoder_position_shadow = encoder_position;
 
     // Corrects the encoder position if it is pointing out of the list
@@ -843,201 +782,104 @@ static void view_menu_sdcard()
         encoder_position = 0;
         encoder_position_shadow = 0;
     }
-    else if (encoder_position_shadow > ENCODER_STEPS_PER_MENU_ITEM * list_length - 1) {
-        encoder_position = ENCODER_STEPS_PER_MENU_ITEM * list_length - 1;
-        encoder_position_shadow = ENCODER_STEPS_PER_MENU_ITEM * list_length - 1;
-    }
+    else if (encoder_position_shadow > ENCODER_STEPS_PER_MENU_ITEM * SDCache::single::instance().getListLength() - 1) {
+        encoder_position = ENCODER_STEPS_PER_MENU_ITEM * SDCache::single::instance().getListLength() - 1;
+        encoder_position_shadow = ENCODER_STEPS_PER_MENU_ITEM * SDCache::single::instance().getListLength() - 1;
+	}
+	
+	new_item_selected = encoder_position_shadow / ENCODER_STEPS_PER_MENU_ITEM;
+	
+	//update cache
+	bool window_updated = SDCache::single::instance().updateCachePosition(new_item_selected);
+	
+	//check if redraw needed
+	if (window_updated)
+	{
+		display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
+		item_selected = new_item_selected;
+	}
+	
+	item_selected = new_item_selected;
 
-    // Algorithm for scrolling the window and the cache along the list
-    new_item_selected = encoder_position_shadow / ENCODER_STEPS_PER_MENU_ITEM;
+	// Draw the cache content
+	if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {
+		lcd_implementation_clear();
+		display_refresh_mode = NO_UPDATE_SCREEN;
+	}
+	
+	const cache_entry * entry = SDCache::single::instance().window_cache_begin;
+	for(uint8_t i = 0; entry != SDCache::single::instance().window_cache_end ; i++, entry++)
+	{		
+		bool isSelected = (entry == SDCache::single::instance().getSelectedEntry());
+		
+		char entryLongFilename[LONG_FILENAME_LENGTH];
+		char entryFilename[13];
+		strcpy(entryLongFilename, entry->longFilename);
+		strcpy(entryFilename, entry->filename);
+		
+		switch(entry->type)
+		{
+			case CacheEntryType_t::BACK_ENTRY:
+				if(isSelected)
+					lcd_implementation_drawmenu_back_selected_R(i, entry->longFilename, NULL);
+				else
+					lcd_implementation_drawmenu_back_R(i, entry->longFilename, NULL);
+				break;
+				
+			case CacheEntryType_t::UPDIR_ENTRY:
+				if(isSelected)
+					lcd_implementation_drawmenu_function_selected_R(i, entry->longFilename, NULL);
+				else
+					lcd_implementation_drawmenu_function_R(i, entry->longFilename, NULL);
+				break;	
+
+			case CacheEntryType_t::FOLDER_ENTRY:
+				if(isSelected)
+				{
+					lcd_implementation_drawmenu_sddirectory_selected(i, NULL, entryFilename, entryLongFilename);
+				}
+				else
+				{
+					lcd_implementation_drawmenu_sddirectory(i, NULL, entryFilename, entryLongFilename);
+				}
+				break;
+			
+			case CacheEntryType_t::FILE_ENTRY:
+				if(isSelected)
+				{
+					lcd_implementation_drawmenu_sdfile_selected(i, NULL, entryFilename, entryLongFilename);
+				}
+				else
+				{
+					lcd_implementation_drawmenu_sdfile(i, NULL, entryFilename, entryLongFilename);
+				}
+				break;
+			
+			default: SERIAL_ECHOLNPGM("default"); break;
+				
+		}		
+	}
+	
+	if (lcd_get_button_clicked()) 
+	{
+        CacheEntryType_t type = SDCache::single::instance().press(new_item_selected);
+		
+		if(type == CacheEntryType_t::BACK_ENTRY)
+		{
+			draw_menu_main();
+		}
+		else if(type == CacheEntryType_t::FILE_ENTRY)
+		{
+			menu_action_sdfile();
+		}
+		else if(!SDCache::single::instance().maxDirectoryReached())
+		{
+			encoder_position = 0;
+		}
+		
+		display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
+    }
     
-    if (new_item_selected != item_selected) {
-        if (new_item_selected < window_min) {
-            window_min = new_item_selected;
-            window_max = window_min + window_size - 1;
-        } else if (new_item_selected > window_max) {
-            window_max = new_item_selected;
-            window_min = window_max - window_size + 1;
-        }
-
-        if (window_min < cache_min) {
-            cache_max = window_max;
-            cache_min = cache_max - cache_size + 1;
-            if (cache_min < 0) {
-                cache_min = 0;
-                cache_max = cache_size - 1;
-            }
-            cache_update = true;
-        } else if (window_max > cache_max) {
-            cache_min = window_min;
-            cache_max = cache_min + cache_size - 1;
-            if (cache_max > list_length - 1) {
-                cache_max = list_length - 1;
-                cache_min = list_length - 1 - cache_size + 1;
-            }
-            cache_update = true;
-        }
-
-        // Calculates the relative position between cache index and window index
-        window_offset = window_min - cache_min;
-        // Calculates the relative position between window index and cursor
-        cursor_offset = new_item_selected - window_min;
-
-#ifdef DEBUG_DYNAMIC_MENU
-        SERIAL_ECHO("List Size: "); SERIAL_ECHOLN(itostr3(list_length));
-        SERIAL_ECHO("Cursor: "); SERIAL_ECHOLN(itostr3(new_item_selected));
-        SERIAL_ECHO("Window Min: "); SERIAL_ECHOLN(itostr3(window_min));
-        SERIAL_ECHO("Window Max: "); SERIAL_ECHOLN(itostr3(window_max));
-        SERIAL_ECHO("Cache Min: "); SERIAL_ECHOLN(itostr3(cache_min));
-        SERIAL_ECHO("Cache Max: "); SERIAL_ECHOLN(itostr3(cache_max));
-        SERIAL_ECHOLN("----------");
-
-        SERIAL_ECHO("Window Offset: "); SERIAL_ECHOLN(itostr3(window_offset));
-        SERIAL_ECHO("Cursor Offset: "); SERIAL_ECHOLN(itostr3(cursor_offset));
-        SERIAL_ECHOLN("----------");
-#endif // DEBUG_DYNAMIC_MENU
-
-        // Cache: Memory Management
-        if (cache_update == true) {
-            // Clears the cache content
-            memset(cache, 0, sizeof(cache));
-            memset(cache_data, 0, sizeof(cache_data));
-
-#ifdef DEBUG_DYNAMIC_MENU
-            SERIAL_ECHOLN("Caching:");
-#endif // DEBUG_DYNAMIC_MENU
-            
-            // Fills the cache with new entries
-            uint8_t i = 0;
-            int8_t offset = 0;  // Relative position between cache index and file list
-
-            // Cache entry for "Back" option
-            if ((cache_min + i) == 0) {
-                cache[i].type = 1;
-                strcpy(cache[i].text, MSG_BACK);
-                cache[i].action = funct_draw_menu_main;
-                cache[i].data = NULL;
-#ifdef DEBUG_DYNAMIC_MENU
-                SERIAL_ECHO("cache["); SERIAL_ECHO(itostr3(i)); SERIAL_ECHO("]:");
-                SERIAL_ECHOLN((cache_index + i)->text);
-#endif // DEBUG_DYNAMIC_MENU
-                i++;
-            } else {
-                offset--;
-            }
-
-            // Cache entry for ".." option
-            if (folder_is_root == false) {
-                if ((cache_min + i) == 1) {
-                    cache[i].type = 2;
-                    strcpy(cache[i].text, "..");
-                    cache[i].action = function_menu_sdcard_updir;
-                    cache[i].data = NULL;
-#ifdef DEBUG_DYNAMIC_MENU
-                    SERIAL_ECHO("cache["); SERIAL_ECHO(itostr3(i)); SERIAL_ECHO("]:");
-                    SERIAL_ECHOLN((cache_index + i)->text);
-#endif // DEBUG_DYNAMIC_MENU
-                    i++;
-                } else {
-                    offset--;
-                }
-            }
-
-            // Cache entries for the files in the current directory
-            uint8_t j = 0;
-            while (i < cache_size) {
-                card.getfilename(cache_min + offset + j);
-
-                cache_entry tmp;
-                if (card.filenameIsDir) {
-                    cache[i].type = 3;
-                    strcpy(cache[i].text, card.longFilename);
-                    cache[i].action = funct_sddirectory;
-                    strcpy(cache_data[i].filename, card.filename);
-                    strcpy(cache_data[i].longFilename, card.longFilename);
-                    cache[i].data = (void*) &cache_data[i];
-                } else {
-                    cache[i].type = 4;
-                    strcpy(cache[i].text, card.longFilename);
-                    cache[i].action = funct_sdfile;
-                    strcpy(cache_data[i].filename, card.filename);
-                    strcpy(cache_data[i].longFilename, card.longFilename);
-                    cache[i].data = (void*) &cache_data[i];
-                }
-#ifdef DEBUG_DYNAMIC_MENU
-                SERIAL_ECHO("cache["); SERIAL_ECHO(itostr3(i)); SERIAL_ECHO("]:");
-                SERIAL_ECHOLN((cache_index + i)->text);
-#endif // DEBUG_DYNAMIC_MENU
-
-                i++;
-                j++;
-            }
-#ifdef DEBUG_DYNAMIC_MENU
-            SERIAL_ECHOLN("----------");
-#endif // DEBUG_DYNAMIC_MENU
-
-            // The content of the cache is up-to-date
-            cache_update = false;
-        }
-
-#ifdef DEBUG_DYNAMIC_MENU
-        SERIAL_ECHOLN("Memory Cache:");
-        for (uint8_t z = 0; z < cache_size; z++) {
-            SERIAL_ECHO("cache["); SERIAL_ECHO(itostr3(z)); SERIAL_ECHO("]:");
-            SERIAL_ECHOLN((cache_index + z)->text);
-        }
-        SERIAL_ECHOLN("----------");
-#endif // DEBUG_DYNAMIC_MENU
-
-        // Draw the cache content
-        if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {
-            lcd_implementation_clear();
-            display_refresh_mode = NO_UPDATE_SCREEN;
-        }
-        for (uint8_t k = 0; k < window_size; k++) {
-            switch (cache[window_offset+k].type) {
-            case 1:
-                if (k == cursor_offset)
-                    lcd_implementation_drawmenu_back_selected_R(k, cache[window_offset+k].text, NULL);
-                else
-
-                    lcd_implementation_drawmenu_back_R(k, cache[window_offset+k].text, NULL);
-                break;
-            case 2:
-                if (k == cursor_offset)
-                    lcd_implementation_drawmenu_function_selected_R(k, cache[window_offset+k].text, NULL);
-                else
-
-                    lcd_implementation_drawmenu_function_R(k, cache[window_offset+k].text, NULL);
-                break;
-
-            case 3:
-                if (k == cursor_offset)
-                    lcd_implementation_drawmenu_sddirectory_selected(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
-                else
-
-                    lcd_implementation_drawmenu_sddirectory(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
-                break;
-            case 4:
-                if (k == cursor_offset)
-                    lcd_implementation_drawmenu_sdfile_selected(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
-                else
-
-                    lcd_implementation_drawmenu_sdfile(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
-                break;
-            default:
-                break;
-            }
-        }
-
-        item_selected = new_item_selected;
-        cache_menu_first_time = false;
-    }
-
-    // If button has been clicked, executes the action asociated to the selected item
-    if (lcd_get_button_clicked()) {
-        cache[window_offset+cursor_offset].action(cache[window_offset+cursor_offset].data);
-    }
 }
 
 #if (SDCARDDETECT == -1)
@@ -1052,9 +894,8 @@ static void function_menu_sdcard_updir(void *)
 {
     display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
     card.updir();
-
+    
     item_selected = -1;
-    cache_menu_first_time = true;
 }
 
 static void function_sdcard_pause()
@@ -2499,19 +2340,18 @@ static void menu_action_wizard(func_t function)
     lcd_wizard_set_page(0);
 }
 
-static void funct_sdfile(void* data)
+static void funct_sdfile()
 {
-    cache_entry_data* params = (cache_entry_data*) data;
-    menu_action_sdfile(params->filename, params->longFilename);
+    menu_action_sdfile();
 }
 
-
-static void menu_action_sdfile(const char* filename, char* longFilename)
+static void menu_action_sdfile()
 {
     char cmd[30];
     char* c;
 
-    strcpy(cmd, longFilename);
+	//get selected file from cache
+    strcpy(cmd, SDCache::single::instance().getSelectedEntry()->longFilename);
     for (c = &cmd[0]; *c; c++) {
         if ((uint8_t)*c > 127) {
             SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
@@ -2524,7 +2364,7 @@ static void menu_action_sdfile(const char* filename, char* longFilename)
 
     setTargetHotend0(200);
     fanSpeed = PREHEAT_FAN_SPEED;
-    sprintf_P(cmd, PSTR("M23 %s"), filename);
+    sprintf_P(cmd, PSTR("M23 %s"), SDCache::single::instance().getSelectedEntry()->filename);
 
     enquecommand_P(PSTR("G28"));
     enquecommand_P(PSTR("G1 Z10"));
@@ -2541,6 +2381,7 @@ static void funct_sddirectory(void* data)
 {
     cache_entry_data* params = (cache_entry_data*) data;
     menu_action_sddirectory(params->filename, params->longFilename);
+
 }
 
 static void menu_action_sddirectory(const char* filename, char* longFilename)
