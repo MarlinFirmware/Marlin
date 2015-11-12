@@ -803,7 +803,7 @@ void action_offset()
 	current_position[X_AXIS] = uncorrected_position.x;
 	current_position[Y_AXIS] = uncorrected_position.y;
 	current_position[Z_AXIS] = 0;
-	z_saved_homing = OffsetManager::single::instance().offset();
+	z_saved_homing = OffsetManager::single::instance().getOffset();
 
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	setup_for_endstop_move();
