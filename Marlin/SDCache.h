@@ -33,6 +33,7 @@ class SDCache
 		void reloadCache();
 		bool updateCachePosition(int16_t index);
 		CacheEntryType_t press(uint16_t index);
+		void returnToRoot();
 		
 		inline cache_entry const * getSelectedEntry() { return window_cache_begin + m_selected_file; };
 		inline uint16_t getListLength() { return m_list_length; };

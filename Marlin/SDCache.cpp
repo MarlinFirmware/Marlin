@@ -206,6 +206,17 @@ CacheEntryType_t SDCache::press(uint16_t index)
 	}
 }
 
+void SDCache::returnToRoot()
+{
+	card.initsd();
+	
+	m_cache_update = true;
+	m_index = 0;
+	m_directory_depth = 0;
+	
+	reloadCache();
+}
+
 void SDCache::changeDir()
 {
 	if(window_cache_begin[m_selected_file].type == FOLDER_ENTRY)
