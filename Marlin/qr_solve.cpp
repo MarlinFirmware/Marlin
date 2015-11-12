@@ -494,7 +494,8 @@ double dnrm2(int n, double x[], int incx)
         if (scale < absxi) {
           ssq = 1.0 + ssq * (scale / absxi) * (scale / absxi);
           scale = absxi;
-        } else
+        }
+        else
           ssq = ssq + (absxi / scale) * (absxi / scale);
       }
       ix += incx;
@@ -1023,7 +1024,7 @@ void dqrlss(double a[], int lda, int m, int n, int kr, double b[], double x[],
 
   if (kr != 0) {
     job = 110;
-    info = dqrsl(a, lda, m, kr, qraux, b, rsd, rsd, x, rsd, rsd, job);
+    info = dqrsl(a, lda, m, kr, qraux, b, rsd, rsd, x, rsd, rsd, job); UNUSED(info);
   }
 
   for (i = 0; i < n; i++)
@@ -1404,7 +1405,8 @@ void dscal(int n, double sa, double x[], int incx)
       x[i + 3] = sa * x[i + 3];
       x[i + 4] = sa * x[i + 4];
     }
-  } else {
+  }
+  else {
     if (0 <= incx)
       ix = 0;
     else
@@ -1486,15 +1488,10 @@ void dswap(int n, double x[], int incx, double y[], int incy)
       x[i + 2] = y[i + 2];
       y[i + 2] = temp;
     }
-  } else {
-    if (0 <= incx)
-      ix = 0;
-    else
-      ix = (- n + 1) * incx;
-    if (0 <= incy)
-      iy = 0;
-    else
-      iy = (- n + 1) * incy;
+  }
+  else {
+    ix = (incx >= 0) ? 0 : (-n + 1) * incx;
+    iy = (incy >= 0) ? 0 : (-n + 1) * incy;
     for (i = 0; i < n; i++) {
       temp = x[ix];
       x[ix] = y[iy];
@@ -1566,7 +1563,7 @@ void qr_solve(double x[], int m, int n, double a[], double b[])
   tol = r8_epsilon() / r8mat_amax(m, n, a_qr);
   itask = 1;
 
-  ind = dqrls(a_qr, lda, m, n, tol, &kr, b, x, r, jpvt, qraux, itask);
+  ind = dqrls(a_qr, lda, m, n, tol, &kr, b, x, r, jpvt, qraux, itask); UNUSED(ind);
 }
 /******************************************************************************/
 

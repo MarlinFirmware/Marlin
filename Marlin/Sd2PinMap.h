@@ -396,7 +396,8 @@ static inline __attribute__((always_inline))
   bool getPinMode(uint8_t pin) {
   if (__builtin_constant_p(pin) && pin < digitalPinCount) {
     return (*digitalPinMap[pin].ddr >> digitalPinMap[pin].bit) & 1;
-  } else {
+  }
+  else {
     return badPinNumber();
   }
 }
@@ -405,10 +406,12 @@ static inline __attribute__((always_inline))
   if (__builtin_constant_p(pin) && pin < digitalPinCount) {
     if (mode) {
       *digitalPinMap[pin].ddr |= BIT(digitalPinMap[pin].bit);
-    } else {
+    }
+    else {
       *digitalPinMap[pin].ddr &= ~BIT(digitalPinMap[pin].bit);
     }
-  } else {
+  }
+  else {
     badPinNumber();
   }
 }
@@ -416,7 +419,8 @@ static inline __attribute__((always_inline))
   bool fastDigitalRead(uint8_t pin) {
   if (__builtin_constant_p(pin) && pin < digitalPinCount) {
     return (*digitalPinMap[pin].pin >> digitalPinMap[pin].bit) & 1;
-  } else {
+  }
+  else {
     return badPinNumber();
   }
 }
@@ -425,10 +429,12 @@ static inline __attribute__((always_inline))
   if (__builtin_constant_p(pin) && pin < digitalPinCount) {
     if (value) {
       *digitalPinMap[pin].port |= BIT(digitalPinMap[pin].bit);
-    } else {
+    }
+    else {
       *digitalPinMap[pin].port &= ~BIT(digitalPinMap[pin].bit);
     }
-  } else {
+  }
+  else {
     badPinNumber();
   }
 }

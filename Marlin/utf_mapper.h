@@ -123,14 +123,17 @@
 #endif // SIMULATE_ROMFONT
 
 #if ENABLED(MAPPER_NON)
-  char charset_mapper(char c){
+
+  char charset_mapper(char c) {
     HARDWARE_CHAR_OUT( c );
     return 1;
   }
+
 #elif ENABLED(MAPPER_C2C3)
-  uint8_t utf_hi_char; // UTF-8 high part
-  bool seen_c2 = false;
-  char charset_mapper(char c){
+
+  char charset_mapper(char c) {
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_c2 = false;
     uint8_t d = c;
     if ( d >= 0x80 ) { // UTF-8 handling
       if ( (d >= 0xc0) && (!seen_c2) ) {
@@ -138,16 +141,16 @@
         seen_c2 = true;
         return 0;
       }
-      else if (seen_c2){
+      else if (seen_c2) {
         d &= 0x3f;
         #ifndef MAPPER_ONE_TO_ONE
-          HARDWARE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
+          HARDWARE_CHAR_OUT((char)pgm_read_byte_near(utf_recode + d + (utf_hi_char << 6) - 0x20));
         #else
-          HARDWARE_CHAR_OUT( (char) (0x80 + ( utf_hi_char << 6 ) + d) ) ;
+          HARDWARE_CHAR_OUT((char)(0x80 + (utf_hi_char << 6) + d)) ;
         #endif
       }
       else {
-          HARDWARE_CHAR_OUT('?');
+        HARDWARE_CHAR_OUT('?');
       }
     }
     else {
@@ -156,96 +159,116 @@
     seen_c2 = false;
     return 1;
   }
+
 #elif ENABLED(MAPPER_D0D1_MOD)
-  uint8_t utf_hi_char; // UTF-8 high part
-  bool seen_d5 = false;
-  char charset_mapper(char c){
+
+  char charset_mapper(char c) {
     // it is a Russian alphabet translation
     // except 0401 --> 0xa2 = Ё, 0451 --> 0xb5 = ё
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_d5 = false;
     uint8_t d = c;
-    if ( d >= 0x80 ) { // UTF-8 handling
-      if ((d >= 0xd0) && (!seen_d5)) {
+    if (d >= 0x80) { // UTF-8 handling
+      if (d >= 0xd0 && !seen_d5) {
         utf_hi_char = d - 0xd0;
         seen_d5 = true;
         return 0;
-      } else if (seen_d5) {
-          d &= 0x3f;
-          if ( !utf_hi_char && ( d == 1 )) {
-            HARDWARE_CHAR_OUT((char) 0xa2 ); // Ё
-        } else if ((utf_hi_char == 1) && (d == 0x11)) {
-            HARDWARE_CHAR_OUT((char) 0xb5 ); // ё
-          } else {
-            HARDWARE_CHAR_OUT((char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x10 ) );
-          }
+      }
+      else if (seen_d5) {
+        d &= 0x3f;
+        if (!utf_hi_char && d == 1) {
+          HARDWARE_CHAR_OUT((char) 0xa2); // Ё
+        }
+        else if (utf_hi_char == 1 && d == 0x11) {
+          HARDWARE_CHAR_OUT((char)0xb5); // ё
         }
         else {
-          HARDWARE_CHAR_OUT('?');
+          HARDWARE_CHAR_OUT((char)pgm_read_byte_near(utf_recode + d + (utf_hi_char << 6) - 0x10));
         }
-    } else {
+      }
+      else {
+        HARDWARE_CHAR_OUT('?');
+      }
+    }
+    else {
       HARDWARE_CHAR_OUT((char) c );
     }
     seen_d5 = false;
     return 1;
   }
+
 #elif ENABLED(MAPPER_D0D1)
-  uint8_t utf_hi_char; // UTF-8 high part
-  bool seen_d5 = false;
+
   char charset_mapper(char c) {
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_d5 = false;
     uint8_t d = c;
-    if ( d >= 0x80u ) { // UTF-8 handling
-      if ((d >= 0xd0u) && (!seen_d5)) {
+    if (d >= 0x80u) { // UTF-8 handling
+      if (d >= 0xd0u && !seen_d5) {
         utf_hi_char = d - 0xd0u;
         seen_d5 = true;
         return 0;
-      } else if (seen_d5) {
-          d &= 0x3fu;
+      }
+      else if (seen_d5) {
+        d &= 0x3fu;
         #ifndef MAPPER_ONE_TO_ONE
-          HARDWARE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
+          HARDWARE_CHAR_OUT((char)pgm_read_byte_near(utf_recode + d + (utf_hi_char << 6) - 0x20));
         #else
-          HARDWARE_CHAR_OUT( (char) (0xa0u + ( utf_hi_char << 6 ) + d ) ) ;
+          HARDWARE_CHAR_OUT((char)(0xa0u + (utf_hi_char << 6) + d)) ;
         #endif
-      } else {
+      }
+      else {
         HARDWARE_CHAR_OUT('?');
       }
-    } else {
+    }
+    else {
       HARDWARE_CHAR_OUT((char) c );
     }
     seen_d5 = false;
     return 1;
   }
+
 #elif ENABLED(MAPPER_E382E383)
-  uint8_t utf_hi_char; // UTF-8 high part
-  bool seen_e3 = false;
-  bool seen_82_83 = false;
-  char charset_mapper(char c){
+
+  char charset_mapper(char c) {
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_e3 = false;
+    static bool seen_82_83 = false;
     uint8_t d = c;
-    if ( d >= 0x80 ) { // UTF-8 handling
-      if ( (d == 0xe3) && (seen_e3 == false)) {
+    if (d >= 0x80) { // UTF-8 handling
+      if (d == 0xe3 && !seen_e3) {
         seen_e3 = true;
         return 0;      // eat 0xe3
-      } else if ( (d >= 0x82) && (seen_e3 == true) && (seen_82_83 == false)) {
+      }
+      else if (d >= 0x82 && seen_e3 && !seen_82_83) {
         utf_hi_char = d - 0x82;
         seen_82_83 = true;
         return 0;
-      } else if ((seen_e3 == true) && (seen_82_83 == true)){
+      }
+      else if (seen_e3 && seen_82_83) {
         d &= 0x3f;
         #ifndef MAPPER_ONE_TO_ONE
-          HARDWARE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
+          HARDWARE_CHAR_OUT((char)pgm_read_byte_near(utf_recode + d + (utf_hi_char << 6) - 0x20));
         #else
-          HARDWARE_CHAR_OUT( (char) (0x80 + ( utf_hi_char << 6 ) + d ) ) ;
+          HARDWARE_CHAR_OUT((char)(0x80 + (utf_hi_char << 6) + d)) ;
         #endif
-      } else {
+      }
+      else {
         HARDWARE_CHAR_OUT((char) '?' );
       }
-    } else {
+    }
+    else {
       HARDWARE_CHAR_OUT((char) c );
     }
     seen_e3 = false;
     seen_82_83 = false;
     return 1;
   }
+
 #else
+
   #error "You have to define one of the DISPLAY_INPUT_CODE_MAPPERs in your language_xx.h file" // should not occur because (en) will set.
+
 #endif // code mappers
 
 #endif // UTF_MAPPER_H
