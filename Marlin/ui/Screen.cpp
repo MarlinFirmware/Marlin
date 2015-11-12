@@ -27,7 +27,7 @@
 
 #include "Screen.h"
 
-namespace screen
+namespace ui
 {
 	Screen::Screen(const char * title, ScreenType_t const & type)
 		: m_title(title)

@@ -1,9 +1,6 @@
 # Marlin 3D Printer Firmware for BQ printers
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
-  * Enviroment Configuration:
-    * [Linux](Documentation/Linux_Configuration.md)
-    * [Windows](Documentation/Windows_Configuration.md)
   * Compiling and flashing:
     * [Linux](Documentation/Linux_Compilation.md)
     * [Windows](Documentation/Windows_Compilation.md)

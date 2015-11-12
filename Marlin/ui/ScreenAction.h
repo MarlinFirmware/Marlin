@@ -33,7 +33,7 @@
 #include "Screen.h"
 #include "Functor.h"
 
-namespace screen
+namespace ui
 {
 	template <typename R, typename... Args>
 		class ScreenAction : public Screen, public Functor<R, Args...>
@@ -58,6 +58,7 @@ namespace screen
 	template <typename R, typename... Args>
 		void ScreenAction<R, Args...>::init(uint16_t index)
 	{
+		ViewManager::getInstance().setLastFocus(0);
 		this->action();
 		ViewManager::getInstance().activeView(m_next_screen);
 	}

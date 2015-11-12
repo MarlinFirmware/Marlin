@@ -29,7 +29,7 @@
 #include "SDCache.h"
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	ScreenList::ScreenList(const char * title, Subject<bool> * model)
 		: Screen(title, LIST)

@@ -32,7 +32,7 @@
 #include "Language.h"
 #include "Marlin.h"
 
-namespace screen
+namespace ui
 {
 	ScreenPrint::ScreenPrint(const char * title, Subject<float> * model)
 		: ScreenMenu(title)
@@ -52,7 +52,7 @@ namespace screen
 	{
 		this->connect();
 
-		for (unsigned int i = 0;i <= m_num_icons -1; ++i)
+		for (uint8_t i = 0;i <= m_num_icons -1; ++i)
 		{
 			m_icons[i]->show();
 		}
@@ -60,7 +60,6 @@ namespace screen
 
 	void ScreenPrint::draw()
 	{
-		PrintManager::updateTime();
 		m_printed_time = PrintManager::printingTime();
 
 		if (m_printed_time.minutes != m_previous_time)
@@ -176,7 +175,7 @@ namespace screen
 				uint8_t x_end = icons_area.x_end;
 				uint8_t y_end = icons_area.y_end;
 
-				for (unsigned int i = 0; i < m_num_items; i++)
+				for (uint8_t i = 0; i < m_num_items; i++)
 				{
 					int x = x_init + (icons_area.width() / 2) - ((m_num_items * (icon_width + 2) - 2) / 2) + (i * (icon_width + 2));
 					int y = y_init;

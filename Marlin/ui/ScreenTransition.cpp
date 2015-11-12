@@ -30,7 +30,7 @@
 #include "GuiManager.h"
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	ScreenTransition::ScreenTransition(const char * title, const char * message, const char * box, typename Functor<void>::FuncPtr fptr, Subject<PrinterState_t> * model)
 		: Screen(title, DIALOG)

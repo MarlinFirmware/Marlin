@@ -13,7 +13,7 @@
 #define MACHINE_NAME "Hephestos"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.0b7"
+#define FIRMWARE_VER "2.0.0rc"
 #define BUILD_VER ""
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
@@ -409,14 +409,14 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
 
-      #define ABL_PROBE_PT_1_X X_MIN_POS + 30 + X_PROBE_OFFSET_FROM_EXTRUDER
-      #define ABL_PROBE_PT_1_Y Y_MIN_POS + 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
-      #define ABL_PROBE_PT_2_X X_MAX_POS - 30 + X_PROBE_OFFSET_FROM_EXTRUDER 
-      #define ABL_PROBE_PT_2_Y Y_MIN_POS + 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
-      #define ABL_PROBE_PT_3_X X_MAX_POS - 30 + X_PROBE_OFFSET_FROM_EXTRUDER
-      #define ABL_PROBE_PT_3_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
-      #define ABL_PROBE_PT_4_X X_MIN_POS + 30 + X_PROBE_OFFSET_FROM_EXTRUDER
-      #define ABL_PROBE_PT_4_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_MANUAL_PT_1_X X_MIN_POS + 30 + X_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_MANUAL_PT_1_Y Y_MIN_POS + 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_MANUAL_PT_2_X X_MAX_POS - 30 + X_PROBE_OFFSET_FROM_EXTRUDER 
+      #define ABL_MANUAL_PT_2_Y Y_MIN_POS + 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_MANUAL_PT_3_X X_MAX_POS - 30 + X_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_MANUAL_PT_3_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_MANUAL_PT_4_X X_MIN_POS + 30 + X_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_MANUAL_PT_4_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
 
   #endif // AUTO_BED_LEVELING_GRID
 
@@ -459,6 +459,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
  */
 
 #define HOMING_FEEDRATE {2000, 2000, 150, 0} // set the homing speeds (mm/min)
+#define HOMING_SLOW_FEEDRATE {2000, 2000, 150, 0} 
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 
 // default settings

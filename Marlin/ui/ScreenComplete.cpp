@@ -29,7 +29,7 @@
 
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	ScreenComplete::ScreenComplete(const char * title, const char * message,  const char * box, Time_t time)
 		: ScreenDialog<void>(title, message, box)
