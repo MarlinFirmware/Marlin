@@ -34,6 +34,7 @@ extern uint16_t action_get_feedrate_multiply();
 
 extern void action_offset_homing();
 extern void action_offset();
+extern void action_offset_rest();
 extern void action_set_offset(uint8_t axis, float value);
 extern void action_save_offset();
 
