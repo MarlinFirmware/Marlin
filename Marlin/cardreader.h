@@ -50,6 +50,8 @@ public:
   FORCE_INLINE void setIndex(long index) {sdpos = index;file.seekSet(index);};
   FORCE_INLINE uint8_t percentDone(){if(!isFileOpen()) return 0; if(filesize) return sdpos/((filesize+99)/100); else return 0;};
   FORCE_INLINE char* getWorkDirName(){workDir.getFilename(filename);return filename;};
+  FORCE_INLINE char* getCurrentDirName(){curDir->getFilename(filename); return filename;};
+  FORCE_INLINE void reloadDir(){newDir=true;};
 
 public:
   bool saving;
@@ -62,6 +64,11 @@ public:
   bool filenameIsDir;
   int autostart_index;
 private:
+  bool newDir;
+  SdFile curFolder;
+  dir_t p;
+  uint8_t count;
+  
   SdFile root,*curDir,workDir,workDirParents[MAX_DIR_DEPTH];
   uint16_t workDirDepth;
   Sd2Card card;

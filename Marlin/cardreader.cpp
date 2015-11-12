@@ -17,6 +17,7 @@ CardReader::CardReader()
    cardOK = false;
    saving = false;
    logging = false;
+
    autostart_atmillis=0;
    workDirDepth = 0;
    file_subcall_ctr=0;
@@ -33,6 +34,8 @@ CardReader::CardReader()
   #endif
   
   autostart_atmillis=millis()+5000;
+  
+  newDir = true;
 }
 
 char *createFilename(char *buffer,const dir_t &p) //buffer>12characters
@@ -51,17 +54,31 @@ char *createFilename(char *buffer,const dir_t &p) //buffer>12characters
   return buffer;
 }
 
-
 void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/)
 {
-  dir_t p;
- uint8_t cnt=0;
- 
-  while (parent.readDir(p, longFilename) > 0)
+	if(lsAction == LS_GetFilename)
+	{
+	  if(newDir == true || nrFiles < count)
+	  {
+        newDir = false;
+	    curFolder = parent;
+	    count = 0;
+	    dir_t newP;
+	    p = newP;
+	  }
+	}
+	else
+	{
+	  count = 0;
+	  dir_t newP;
+	  p = newP;
+	  curFolder = parent;
+	}
+
+  while (curFolder.readDir(p, longFilename) > 0)
   {
     if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename) // hence LS_SerialPrint
     {
-
       char path[FILENAME_LENGTH*2];
       char lfilename[FILENAME_LENGTH];
       createFilename(lfilename,p);
@@ -89,8 +106,6 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       }
       lsDive(path,dir);
       //close done automatically by destructor of SdFile
-
-      
     }
     else
     {
@@ -125,9 +140,12 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
         if (match != NULL) {
           if (strcasecmp(match, filename) == 0) return;
         }
-        else if (cnt == nrFiles) return;
-        cnt++;
-        
+        else if (count == nrFiles) 
+        {
+			count++;
+			return;
+		}
+        count++; 
       }
     }
   }
@@ -146,6 +164,7 @@ void CardReader::ls()
 
 void CardReader::initsd()
 {
+  newDir = true;
   cardOK = false;
   if(root.isOpen())
     root.close();
@@ -614,6 +633,7 @@ void CardReader::chdir(const char * relpath)
       workDirParents[0]=*parent;
     }
     workDir=newfile;
+    newDir = true;
   }
 }
 
@@ -626,6 +646,7 @@ void CardReader::updir()
     int d;
     for (int d = 0; d < workDirDepth; d++)
       workDirParents[d] = workDirParents[d+1];
+    newDir = true;
   }
 }
 

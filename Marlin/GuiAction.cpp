@@ -1,7 +1,6 @@
 #include "GuiAction.h"
 
 #include "Marlin.h"
-#include "cardreader.h"
 #include "ConfigurationStore.h"
 #include "planner.h"
 #include "stepper.h"
@@ -16,6 +15,7 @@
 #include "StorageManager.h"
 #include "SerialManager.h"
 #include "LightManager.h"
+#include "SDCache.h"
 
 bool raised = false;
 extern bool home_all_axis;
@@ -598,7 +598,7 @@ void action_start_print()
 	{
 		serial_printing = false;
 
-		strcpy(cmd, card.longFilename);
+		strcpy(cmd, SDCache::single::instance().getSelectedEntry()->longFilename);
 		for (c = &cmd[0]; *c; c++)
 		{
 			if ((uint8_t)*c > 127)
@@ -608,7 +608,7 @@ void action_start_print()
 			}
 		}
 
-		sprintf_P(cmd, PSTR("M23 %s"), card.filename);
+		sprintf_P(cmd, PSTR("M23 %s"), SDCache::single::instance().getSelectedEntry()->filename);
 	}
 
 	fanSpeed = PREHEAT_FAN_SPEED;
@@ -803,7 +803,7 @@ void action_offset()
 	current_position[X_AXIS] = uncorrected_position.x;
 	current_position[Y_AXIS] = uncorrected_position.y;
 	current_position[Z_AXIS] = 0;
-	z_saved_homing = OffsetManager::single::instance().offset();
+	z_saved_homing = OffsetManager::single::instance().getOffset();
 
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	setup_for_endstop_move();
@@ -879,11 +879,15 @@ void action_set_offset(uint8_t axis, float value)
 	OffsetManager::single::instance().offset(zprobe_zoffset);
 }
 
+void action_offset_rest()
+{
+	action_z_homing();
+	action_move_to_rest();
+}
+
 void action_save_offset()
 {
 	OffsetManager::single::instance().saveOffset();
-	action_z_homing();
-	action_move_to_rest();
 }
 
 void action_wizard_init()

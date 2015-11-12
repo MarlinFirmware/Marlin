@@ -19,6 +19,12 @@ void OffsetManager::saveOffset()
 	eeprom::StorageManager::single::instance().setOffset(m_offset);
 }
 
+float OffsetManager::getOffset()
+{
+	m_offset = eeprom::StorageManager::single::instance().getOffset();
+	return m_offset;
+}
+
 void OffsetManager::offset(float value)
 {
 	m_offset = value;

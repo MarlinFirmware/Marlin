@@ -27,7 +27,7 @@
 
 #include "ScreenFile.h"
 
-#include "cardreader.h"
+#include "SDCache.h"
 #include "GuiImpl_witbox_2.h"
 
 namespace ui
@@ -85,7 +85,7 @@ namespace ui
 		}
 
 		char text[18];
-		strncpy(text,card.longFilename,18);
+		strncpy(text,SDCache::single::instance().getSelectedEntry()->longFilename,18);
 		text[17] = '\0';
 
 		Area text_area(0, 18, 127, 30);

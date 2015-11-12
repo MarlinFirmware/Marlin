@@ -157,13 +157,13 @@ namespace ui
 	static ScreenDynamicAxis<float> * make_screen_wizard_offset_set()
 	{
 		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, 0.0, 5.0, 0.02, action_set_offset, true);
-		local_view->add(screen_wizard_offset_save);
+		local_view->add(screen_wizard_offset_rest);
 		return local_view;
 	}
 
-	static ScreenAction<void> * make_screen_wizard_offset_save()
+	static ScreenAction<void> * make_screen_wizard_offset_rest()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_save_offset);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_offset_rest);
 		local_view->add(screen_wizard_offset_finish);
 		return local_view;
 	}
@@ -176,8 +176,15 @@ namespace ui
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_FINISH_TITLE(), MSG_SCREEN_OFFSET_FINISH_TEXT());
 		local_view->add(screen_wizard_offset_home);
 		local_view->icon(icon_retry);
-		local_view->add(screen_wizard_step3);
+		local_view->add(screen_wizard_offset_save);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_wizard_offset_save()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_save_offset);
+		local_view->add(screen_wizard_step3);
 		return local_view;
 	}
 
@@ -945,13 +952,13 @@ namespace ui
 	static ScreenDynamicAxis<float> * make_screen_offset_set()
 	{
 		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, -5.0, 5.0, 0.02, action_set_offset, true);
-		local_view->add(screen_offset_save);
+		local_view->add(screen_offset_rest);
 		return local_view;
 	}
 
-	static ScreenAction<void> * make_screen_offset_save()
+	static ScreenAction<void> * make_screen_offset_rest()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_save_offset);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_offset_rest);
 		local_view->add(screen_offset_finish);
 		return local_view;
 	}
@@ -964,8 +971,15 @@ namespace ui
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_FINISH_TITLE(), MSG_SCREEN_OFFSET_FINISH_TEXT());
 		local_view->add(screen_offset_home);
 		local_view->icon(icon_retry);
-		local_view->add(screen_main);
+		local_view->add(screen_offset_save);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_offset_save()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_save_offset);
+		local_view->add(screen_main);
 		return local_view;
 	}
 
@@ -1270,11 +1284,14 @@ namespace ui
 			case screen_wizard_offset_set:
 				new_view = make_screen_wizard_offset_set();
 				break;
-			case screen_wizard_offset_save:
-				new_view = make_screen_wizard_offset_save();
+			case screen_wizard_offset_rest:
+				new_view = make_screen_wizard_offset_rest();
 				break;
 			case screen_wizard_offset_finish:
 				new_view = make_screen_wizard_offset_finish();
+				break;
+			case screen_wizard_offset_save:
+				new_view = make_screen_wizard_offset_save();
 				break;
 			case screen_wizard_step3:
 				new_view = make_screen_wizard_step3();
@@ -1569,6 +1586,9 @@ namespace ui
 				break;
       		case screen_offset_set:
 				new_view = make_screen_offset_set();
+				break;
+			case screen_offset_rest:
+				new_view = make_screen_offset_rest();
 				break;
       		case screen_offset_finish:
 				new_view = make_screen_offset_finish();
