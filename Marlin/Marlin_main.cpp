@@ -2243,9 +2243,11 @@ Sigma_Exit:
     case 112: //  M112 -Emergency Stop
       kill();
       break;
+#ifdef HEATED_BED_SUPPORT
     case 140: // M140 set bed temp
       if (code_seen('S')) setTargetBed(code_value());
       break;
+#endif //HEATED_BED_SUPPORT
     case 105 : // M105
       if(setTargetedHotend(105)){
         break;
