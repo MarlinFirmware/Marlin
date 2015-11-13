@@ -11,6 +11,8 @@ SDCache::SDCache()
 	, m_selected_file(0)
 	, m_window_size(0) 
 	, m_directory_depth(0)
+	, m_window_is_centered(false)
+	, m_window_offset(0)
 { 
 	card.initsd();
 }
@@ -60,22 +62,34 @@ bool SDCache::updateCachePosition(int16_t index)
 {	
 	//return_value is set to true if window has moved
     bool return_value = false;
-	if(index < 0)
-	{
-		index = 0;
+    bool update_window = false;
+    
+    int16_t upper_index = index;
+    int16_t lower_index = index;
+    
+    if(m_window_is_centered)
+    {
+		upper_index = index + m_window_offset;
+		lower_index = index - m_window_offset;
 	}
-	else if(index >= m_list_length -1)
+    
+	if(lower_index < 0)
 	{
-		index = m_list_length -1;
+		lower_index = 0;
+	}
+	else if(upper_index >= m_list_length -1)
+	{
+		upper_index = m_list_length - 1;
 	}
 	
 	if(index != m_index)
-	{		
-		if(index < m_cache_min)
+	{
+		update_window = true;
+		if(lower_index < m_cache_min)
 		{
-			if(index + m_window_size - m_cache_size + 1 > 0)
+			if(lower_index + m_window_size - m_cache_size + 1 > 0)
 			{
-				m_cache_max = index + m_window_size - 1;
+				m_cache_max = lower_index + m_window_size - 1;
 				m_cache_min = m_cache_max - m_cache_size + 1;
 				return_value = true;
 			}
@@ -87,29 +101,58 @@ bool SDCache::updateCachePosition(int16_t index)
 			}
 			m_cache_update = true;			
 		}
-		else if(index > m_cache_max)
+		else if(upper_index > m_cache_max)
 		{
-			m_cache_min = index - m_window_size + 1;
+			m_cache_min = upper_index - m_window_size + 1;
             m_cache_max = m_cache_min + m_cache_size - 1;
             if (m_cache_max >= m_list_length - 1) {
-                m_cache_max = m_list_length;
+                m_cache_max = m_list_length - 1;
                 m_cache_min = m_list_length - m_cache_size;
             }
 			m_cache_update = true;
 		}
 		
-		if(index < m_window_min)
+		if(m_window_is_centered)
 		{
-			m_window_min = index;
-			m_window_max = m_window_min + m_window_size - 1;
+			//cases to be changed
+			if(lower_index < m_window_min)
+			{
+				if(lower_index - m_window_offset > 0)
+				{
+					m_window_min = lower_index;// - m_window_offset;
+				} 
+				else
+				{
+					m_window_min = 0;
+				}
+								
+				m_window_max = m_window_min + m_window_size - 1;
+			}
+			else if(upper_index > m_window_max)
+			{
+				m_window_max = upper_index;// + m_window_offset;
+				if(m_window_max >= m_list_length - 1)
+				{
+					m_window_max = m_list_length - 1;
+				}
+				m_window_min = m_window_max - m_window_size + 1;
+			}
 		}
-		else if(index > m_window_max)
+		else
 		{
-			m_window_max = index;
-			m_window_min = m_window_max - m_window_size + 1;
+			if(index < m_window_min)
+			{
+				m_window_min = index;
+				m_window_max = m_window_min + m_window_size - 1;
+			}
+			else if(index > m_window_max)
+			{
+				m_window_max = index;
+				m_window_min = m_window_max - m_window_size + 1;
+			}
 		}
-		
 		m_selected_file = index - m_window_min;
+		
 		window_cache_begin = m_cache + (m_window_min - m_cache_min);
 		window_cache_end = window_cache_begin + m_window_size;
 		
@@ -117,10 +160,10 @@ bool SDCache::updateCachePosition(int16_t index)
 	}
 	
 	if(m_cache_update == true)
-	{
+	{		
 		// Clears the cache content
         memset(m_cache, 0, sizeof(m_cache));
-		m_cache_update = false;
+		//m_cache_update = false;
 	
         uint8_t i = 0;
         int8_t offset = -1; 
@@ -173,6 +216,11 @@ bool SDCache::updateCachePosition(int16_t index)
 			i++;
 			j++;
 		}
+	}
+	
+	if(update_window || m_cache_update)
+	{
+		m_cache_update = false;
 		
 		window_cache_begin = m_cache + (m_window_min - m_cache_min);
 		window_cache_end = window_cache_begin + m_window_size;

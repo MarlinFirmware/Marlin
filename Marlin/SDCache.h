@@ -37,10 +37,15 @@ class SDCache
 		
 		inline cache_entry const * getSelectedEntry() { return window_cache_begin + m_selected_file; };
 		inline uint16_t getListLength() { return m_list_length; };
+		inline uint8_t getWindowSize() { return m_window_size; };
+		inline uint8_t getIndex() { return m_index; };
 		inline bool getFolderIsRoot() { return (m_directory_depth == 0); };
 		inline char * getDirectoryName() { return m_directory; };
 		inline bool showingFirstItem() { return !m_window_min; };
 		inline bool maxDirectoryReached() { return (m_directory_depth == MAX_DIR_DEPTH-1); };
+		
+		inline void setWindowCentered() { m_window_is_centered = true; m_window_offset = 2; };
+		inline void setWindowNotCentered() { m_window_is_centered = false; }
 		
 	private:
 		void changeDir();
@@ -67,6 +72,9 @@ class SDCache
 		uint8_t m_window_size;
 		uint16_t m_window_min;
 		uint16_t m_window_max;
+		
+		bool m_window_is_centered;
+		uint8_t m_window_offset;
 };
 
 #endif //SD_CACHE_H
