@@ -117,7 +117,7 @@ bool SDCache::updateCachePosition(int16_t index)
 			//cases to be changed
 			if(lower_index < m_window_min)
 			{
-				if(lower_index - m_window_offset > 0)
+				if(lower_index > 0)
 				{
 					m_window_min = lower_index;// - m_window_offset;
 				} 
