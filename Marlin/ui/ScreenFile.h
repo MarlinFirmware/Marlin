@@ -33,7 +33,7 @@
 #include "ScreenMenu.h"
 #include "SDManager.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenFile : public ScreenMenu , public Observer<bool>
 	{

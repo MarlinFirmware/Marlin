@@ -29,7 +29,7 @@
 
 #include "GuiPainter.h"
 
-namespace screen
+namespace ui
 {
 	Option::Option (option::Size const & size, const char * text)
 		: m_size(size)

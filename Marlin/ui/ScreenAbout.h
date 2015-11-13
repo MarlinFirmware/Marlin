@@ -32,7 +32,7 @@
 
 #include "ScreenDialog.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenAbout : public ScreenDialog<void>
 	{

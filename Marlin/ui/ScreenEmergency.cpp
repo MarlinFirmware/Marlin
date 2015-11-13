@@ -33,7 +33,7 @@
 extern bool stop_buffer;
 extern uint16_t stop_buffer_code;
 
-namespace screen
+namespace ui
 {
 	ScreenEmergency::ScreenEmergency(const char * title, const char * message, const char * box, const unsigned char * bitmap)
 		: Screen(title, SIMPLE)

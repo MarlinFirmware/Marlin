@@ -87,7 +87,7 @@
 //===========================================================================
 
 // Rest Position
-#define POSITION_REST_X 0.0
+#define POSITION_REST_X 4
 #define POSITION_REST_Y 297.0
 #define POSITION_REST_Z  15.0
 

@@ -35,7 +35,7 @@
 #include "TemperatureManager.h"
 #include "ViewManager.h"
 
-namespace screen
+namespace ui
 {
 	template <typename T>
 		class ScreenAnimation : public Screen , public Observer<T>

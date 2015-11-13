@@ -32,7 +32,7 @@
 #include "PrintManager.h"
 #include "GuiManager.h"
 
-namespace screen
+namespace ui
 {
 	ScreenSplash::ScreenSplash(uint32_t timeout)
 		: Screen()

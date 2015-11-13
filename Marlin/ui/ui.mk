@@ -1,11 +1,13 @@
 CXXSRC += \
+	GuiImpl_witbox_2.cpp \
+	GuiPainter.cpp \
 	Icon.cpp \
 	Option.cpp \
 	OptionLaunch.cpp \
-	Screen.cpp \
 	ScreenAbout.cpp \
 	ScreenComplete.cpp \
 	ScreenCooldown.cpp \
+	Screen.cpp \
 	ScreenEmergency.cpp \
 	ScreenFile.cpp \
 	ScreenInactivity.cpp \
@@ -16,6 +18,8 @@ CXXSRC += \
 	ScreenSerial.cpp \
 	ScreenSetting.cpp \
 	ScreenSplash.cpp \
+	ScreenStop.cpp \
 	ScreenSwitch.cpp \
 	ScreenTemperature.cpp \
-	ScreenTransition.cpp 
+	ScreenTransition.cpp \
+	ViewManager.cpp

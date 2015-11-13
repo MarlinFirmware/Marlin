@@ -33,7 +33,7 @@
 #include "Screen.h"
 #include "SDManager.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenList : public Screen , public Observer<bool>
 	{
@@ -54,19 +54,10 @@ namespace screen
 
 
 		private:
-			static uint8_t directory_index;
-			static uint8_t directory_array[10];
-			static bool from_updir;
-
 			uint16_t m_index;
-			uint16_t m_num_list;
-			uint8_t m_icon_index;
 
 			ScreenIndex_t m_back_screen;
 			uint8_t m_num_item_added;
-
-			char m_directory[20];
-			bool m_directory_is_root;
 
 			float m_scroll_size;
 

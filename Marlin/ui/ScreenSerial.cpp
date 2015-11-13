@@ -31,7 +31,7 @@
 
 #include "GuiManager.h"
 
-namespace screen
+namespace ui
 {
 	ScreenSerial::ScreenSerial(const char * title, const char * text)
 		: Screen(title, MENU)

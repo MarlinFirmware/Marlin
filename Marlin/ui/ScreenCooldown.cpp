@@ -30,7 +30,7 @@
 #include "Language.h"
 #include "GuiBitmaps_witbox_2.h"
 
-namespace screen
+namespace ui
 {
 	ScreenCooldown::ScreenCooldown(const char * title, const char * text, uint16_t target, Subject<float> * model)
 		: ScreenAnimation(title, text, LESS_OR_EQUAL, target, model)

@@ -149,8 +149,6 @@ SET LANGUAGE=PT
 goto make
 
 :make
-::remove applet for correct building after target change
-@RD /S /Q ".\applet"
 echo.
 echo.
 SET /p COM=Enter the COM port for your arduino board: COM

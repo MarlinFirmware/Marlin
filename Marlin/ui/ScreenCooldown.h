@@ -34,7 +34,7 @@
 #include "TemperatureManager.h"
 #include "ViewManager.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenCooldown : public ScreenAnimation<float>
 	{

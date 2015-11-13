@@ -30,7 +30,7 @@
 #include "TemperatureManager.h"
 #include "Language.h"
 
-namespace screen
+namespace ui
 {	
 	ScreenTemperature::ScreenTemperature(const char * title, const char * box, uint16_t min, uint16_t max, uint16_t scale, uint16_t dflt, Functor<void, uint16_t>::FuncPtr fptr)
 		: ScreenSelector<void, uint16_t>(title, box, min, max, scale, dflt, fptr)

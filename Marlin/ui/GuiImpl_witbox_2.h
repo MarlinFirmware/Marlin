@@ -1,10 +1,37 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file GuiImpl_witbox_2.h
+///
+/// \author Ivan Galvez Junquera
+///         Ruy Garcia
+///         Victor Andueza 
+///         Joaquin Herrero
+///
+/// \brief Specific implementation of UI for BQ Witbox 2 and Hephestos 2 printers
+///
+/// Copyright (c) 2015 BQ - Mundo Reader S.L.
+/// http://www.bq.com
+///
+/// This file is free software; you can redistribute it and/or modify
+/// it under the terms of either the GNU General Public License version 2 or 
+/// later or the GNU Lesser General Public License version 2.1 or later, both
+/// as published by the Free Software Foundation.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+/// DEALINGS IN THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////
+
 #ifndef GUI_IMPL_WITBOX_2_H
 #define GUI_IMPL_WITBOX_2_H
 
 #include "GuiBitmaps_witbox_2.h"
 #include "dogm_font_data_marlin.h"
 
-namespace screen
+namespace ui
 {
 	typedef enum
 	{
@@ -18,8 +45,9 @@ namespace screen
 		screen_wizard_offset_calculate,
 		screen_wizard_offset_info,
 		screen_wizard_offset_set,
-		screen_wizard_offset_save,
+		screen_wizard_offset_rest,
 		screen_wizard_offset_finish,
+		screen_wizard_offset_save,
 		screen_wizard_step3,
 		screen_wizard_step4,
 		screen_wizard_finish,
@@ -107,6 +135,7 @@ namespace screen
 		screen_offset_calculate,
 		screen_offset_info,
 		screen_offset_set,
+		screen_offset_rest,
 		screen_offset_finish,
 		screen_offset_save,
 		screen_print_switch,
@@ -119,6 +148,7 @@ namespace screen
 		screen_play_pause,
 		screen_stop_confirm,
 		screen_stop_OK,
+		screen_stop_info,
 		screen_change_init,
 		screen_change_pausing,
 		screen_change_select,

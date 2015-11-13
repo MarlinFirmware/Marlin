@@ -30,7 +30,7 @@
 
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	template <typename T>
 		class ScreenDynamicAxis : public Screen , public Functor<void, uint8_t, T>

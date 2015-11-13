@@ -1,3 +1,30 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file GuiPainter.cpp
+///
+/// \author Ivan Galvez Junquera
+///         Ruy Garcia
+///         Victor Andueza 
+///         Joaquin Herrero
+///
+/// \brief Painting interface class to U8glib
+///
+/// Copyright (c) 2015 BQ - Mundo Reader S.L.
+/// http://www.bq.com
+///
+/// This file is free software; you can redistribute it and/or modify
+/// it under the terms of either the GNU General Public License version 2 or 
+/// later or the GNU Lesser General Public License version 2.1 or later, both
+/// as published by the Free Software Foundation.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+/// DEALINGS IN THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////
+
 #include "GuiPainter.h"
 #include "GuiBitmaps_witbox_2.h"
 
@@ -6,7 +33,7 @@
 #include "PrintManager.h"
 #include "Language.h"
 
-namespace screen
+namespace ui
 {
 	GuiPainter::GuiPainter()
 		: m_impl(0)
@@ -89,22 +116,22 @@ namespace screen
 			case LEFT:
 				setPrintPos(2, ((screen_height - 1) - (max_font_height - 1)));
 				print("<");
-			break;
+				break;
 
 			case RIGHT:
 				setPrintPos(((screen_width - 1) - 2 - (max_font_width - 1)), ((screen_height - 1) - (max_font_height - 1)));
 				print(">");
-			break;
+				break;
 
 			case BOTH:
 				setPrintPos(2, ((screen_height - 1) - (max_font_height - 1)));
 				print("<");
 				setPrintPos(((screen_width - 1) - 2 - (max_font_width - 1)), ((screen_height - 1) - (max_font_height - 1)));
 				print(">");
-			break;
+				break;
 
 			case NONE:
-			break;
+				break;
 		}
 
 		//Print text label
@@ -118,7 +145,7 @@ namespace screen
 		setColorIndex(save_color_index);
 	}
 
-	void GuiPainter::printingStatus(const uint8_t percentage)
+	void GuiPainter::printingStatus(const uint8_t percentage, bool progress_bar)
 	{
 		Area save_working_area = m_working_area;
 		uint8_t save_color_index = m_impl.getColorIndex();
@@ -139,24 +166,28 @@ namespace screen
 		print(s_percentage);
 		print("%");
 
-		// Draw the progress bar
-		m_working_area.x_init += (strlen(s_percentage) + 1) * max_font_width + 1;
-		m_working_area.y_init += 1;
-		m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width(), m_working_area.height());
+		if(progress_bar == true)
+		{
 
-		setColorIndex(0);
-		m_working_area.x_init += 1;
-		m_working_area.x_end -= 1;
-		m_working_area.y_init += 1;
-		m_working_area.y_end -= 1;
-		m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width(), m_working_area.height());
+			// Draw the progress bar
+			m_working_area.x_init += (strlen(s_percentage) + 1) * max_font_width + 1;
+			m_working_area.y_init += 1;
+			m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width(), m_working_area.height());
 
-		setColorIndex(1);
-		m_working_area.x_init += 1;
-		m_working_area.x_end -= 1;
-		m_working_area.y_init += 1;
-		m_working_area.y_end -= 1;
-		m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width() * percentage / 100, m_working_area.height());
+			setColorIndex(0);
+			m_working_area.x_init += 1;
+			m_working_area.x_end -= 1;
+			m_working_area.y_init += 1;
+			m_working_area.y_end -= 1;
+			m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width(), m_working_area.height());
+
+			setColorIndex(1);
+			m_working_area.x_init += 1;
+			m_working_area.x_end -= 1;
+			m_working_area.y_init += 1;
+			m_working_area.y_end -= 1;
+			m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width() * percentage / 100, m_working_area.height());
+		}
 
 		setWorkingArea(save_working_area);
 		setColorIndex(save_color_index);
@@ -402,18 +433,18 @@ namespace screen
 	{
 		switch(font)
 		{
-			
-		 case FontType_t::BODY_FONT:
-			if(LANG == Language::RU)
-			{
-				m_impl.setFont(u8g_font_6x9_rus);
-			}
-			else //Latin font
-			{	
-				m_impl.setFont(u8g_font_6x9);
-			}
-			break;
-			
+
+			case FontType_t::BODY_FONT:
+				if(LANG == Language::RU)
+				{
+					m_impl.setFont(u8g_font_6x9_rus);
+				}
+				else //Latin font
+				{	
+					m_impl.setFont(u8g_font_6x9);
+				}
+				break;
+
 		}
 	}
 
@@ -494,21 +525,21 @@ namespace screen
 				}
 				else
 				{
-						const char * cadena = text + m_animation_index;
-						strncpy(m_animation_text, cadena, window * sizeof(char));
-						m_animation_text[window] = '\0';
-						print(m_animation_text);
+					const char * cadena = text + m_animation_index;
+					strncpy(m_animation_text, cadena, window * sizeof(char));
+					m_animation_text[window] = '\0';
+					print(m_animation_text);
 				}
 
 				m_animation_loop = !m_animation_loop;
 			}
 			else
 			{
-						const char * cadena = text + m_animation_index;
-						strncpy(m_animation_text, cadena, window * sizeof(char));
-						m_animation_text[window] = '\0';
-						print(m_animation_text);
-						m_animation_loop = !m_animation_loop;
+				const char * cadena = text + m_animation_index;
+				strncpy(m_animation_text, cadena, window * sizeof(char));
+				m_animation_text[window] = '\0';
+				print(m_animation_text);
+				m_animation_loop = !m_animation_loop;
 			}
 		}
 		else
@@ -580,41 +611,46 @@ namespace screen
 		return m_y_end;
 	}
 
-char conv[8];
+	char conv[8];
 
-char * GuiPainter::itostr2(const int &xx)
-{
-    if (xx >= 100)
-    {
-    	conv[0]=(xx/100)%10+'0';
-        conv[1]=(xx/10)%10+'0';
-        conv[2]=(xx)%10+'0';
-        conv[3]=0;
-    }
-    else
-    {
-    	conv[0]=(xx/10)%10+'0';
-    	conv[1]=(xx)%10+'0';
-    	conv[2]=0;
-    }
-    return conv;
-}
+	char * GuiPainter::itostr2(const int &xx)
+	{
+		if (xx >= 100)
+		{
+			conv[0]=(xx/100)%10+'0';
+			conv[1]=(xx/10)%10+'0';
+			conv[2]=(xx)%10+'0';
+			conv[3]=0;
+		}
+		else
+		{
+			conv[0]=(xx/10)%10+'0';
+			conv[1]=(xx)%10+'0';
+			conv[2]=0;
+		}
+		return conv;
+	}
 
-char * GuiPainter::itostr3left(const int &xx)
-{
-    if (xx >= 100) {
-        conv[0]=(xx/100)%10+'0';
-        conv[1]=(xx/10)%10+'0';
-        conv[2]=(xx)%10+'0';
-        conv[3]=0;
-    } else if (xx >= 10) {
-        conv[0]=(xx/10)%10+'0';
-        conv[1]=(xx)%10+'0';
-        conv[2]=0;
-    } else {
-        conv[0]=(xx)%10+'0';
-        conv[1]=0;
-    }
-    return conv;
-}
+	char * GuiPainter::itostr3left(const int &xx)
+	{
+		if (xx >= 100) 
+		{
+			conv[0]=(xx/100)%10+'0';
+			conv[1]=(xx/10)%10+'0';
+			conv[2]=(xx)%10+'0';
+			conv[3]=0;
+		}
+		else if (xx >= 10)
+		{
+			conv[0]=(xx/10)%10+'0';
+			conv[1]=(xx)%10+'0';
+			conv[2]=0;
+		}
+		else
+		{
+			conv[0]=(xx)%10+'0';
+			conv[1]=0;
+		}
+		return conv;
+	}
 }

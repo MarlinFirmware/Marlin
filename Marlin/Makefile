@@ -64,7 +64,11 @@ PATHSEP = $(strip $(PATHSEP_TMP))
 ifeq ($(OS_TYPE), WIN)
 	ARDUINO_INSTALL_DIR ?= C:\Arduino
 else
+ifndef ARDUINO
+	ARDUINO_INSTALL_DIR ?= ${HOME}/arduino
+else
 	ARDUINO_INSTALL_DIR ?= ${ARDUINO}
+endif
 endif
 space :=
 space +=
@@ -214,10 +218,10 @@ CXXSRC += Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp SdFile.cpp SdVolume.cpp
 
 # Generation specific files
 ifeq ($(HARDWARE_DISPLAY), Graphic)
-	CXXSRC += GuiManager.cpp GuiPainter.cpp GuiImpl_witbox_2.cpp \
+	CXXSRC += GuiManager.cpp \
 		StepperClass.cpp Language.cpp
 	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp \
-		ViewManager.cpp TemperatureControl.cpp
+		TemperatureControl.cpp
 	include ui/ui.mk
 	VPATHTEMP += ui
 endif
@@ -230,7 +234,7 @@ CXXSRC += motion_control.cpp planner.cpp stepper.cpp temperature.cpp cardreader.
 
 CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp StorageManager.cpp TemperatureManager.cpp
 
-CXXSRC += Marlin_main.cpp MarlinSerial.cpp
+CXXSRC += Marlin_main.cpp MarlinSerial.cpp SDCache.cpp
 
 
 # Define all object files.

@@ -32,7 +32,7 @@
 
 #include "PrintManager.h"
 
-namespace screen
+namespace ui
 {
 	class ScreenComplete : public ScreenDialog<void>
 	{

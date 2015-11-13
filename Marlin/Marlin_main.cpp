@@ -209,6 +209,7 @@
 #endif
 
 float homing_feedrate[] = HOMING_FEEDRATE;
+float homing_slow_feedrate[] = HOMING_SLOW_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply = 100; //100->1 200->2
 int saved_feedmultiply;
@@ -249,6 +250,7 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
 };
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homing[3] = { 0, 0, 0 };
+float z_height = 0;
 #ifdef DELTA
   float endstop_adj[3] = { 0, 0, 0 };
 #endif
@@ -379,6 +381,8 @@ bool cancel_heatup = false;
 #else
   bool bed_leveling = false;
 #endif //ENABLE_AUTO_BED_LEVELING
+
+  vector_3 update_position = vector_3(0,0,0);
 
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
@@ -814,10 +818,10 @@ void get_command()
 		     PrintManager::single::instance().state() != SERIAL_CONTROL &&
 		     PrintManager::single::instance().state() != INITIALIZING )
 		{
-			if (screen::ViewManager::getInstance().getViewIndex() == screen::screen_main)
+			if (ui::ViewManager::getInstance().getViewIndex() == ui::screen_main)
 			{
 				PrintManager::single::instance().state(SERIAL_CONTROL);
-				screen::ViewManager::getInstance().activeView(screen::screen_serial);
+				ui::ViewManager::getInstance().activeView(ui::screen_serial);
 			}
 		}
 #endif
@@ -1237,7 +1241,7 @@ static void run_z_probe() {
     st_synchronize();
 
     // move back down slowly to find bed
-    feedrate = homing_feedrate[Z_AXIS]/2;
+    feedrate = homing_slow_feedrate[Z_AXIS];
     zPosition -= home_retract_mm(Z_AXIS) * 2;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -1379,7 +1383,7 @@ void homeaxis(int axis) {
 #ifdef DELTA
     feedrate = homing_feedrate[axis]/10;
 #else
-    feedrate = homing_feedrate[axis]/2 ;
+    feedrate = homing_slow_feedrate[axis];
 #endif
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -1648,7 +1652,6 @@ void process_commands()
       relative_mode = true;
       break;
     case 92: // G92
-      if(!code_seen(axis_codes[E_AXIS]))
         st_synchronize();
       for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) {
@@ -1772,11 +1775,12 @@ void process_commands()
         }
 #endif
         st_synchronize();
+        enable_endstops(true);
 
-        current_position[X_AXIS] = st_get_position_mm(X_AXIS);
-        current_position[Y_AXIS] = st_get_position_mm(Y_AXIS);
-        current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
-        current_position[E_AXIS] = st_get_position_mm(E_AXIS);
+        update_position = plan_get_position();
+        current_position[X_AXIS] = update_position.x;
+        current_position[Y_AXIS] = update_position.y;
+        current_position[Z_AXIS] = update_position.z;
 
         lastpos[X_AXIS] = current_position[X_AXIS];
         lastpos[Y_AXIS] = current_position[Y_AXIS];
@@ -1786,8 +1790,15 @@ void process_commands()
 				current_position[E_AXIS]-= RETRACT_ON_PAUSE;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[E_AXIS], active_extruder);
 
-				current_position[Z_AXIS]+= FILAMENTCHANGE_ZADD;
-				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, active_extruder);
+        if (current_position[Z_AXIS] < Z_MAX_POS - FILAMENTCHANGE_ZADD)
+        {
+          current_position[Z_AXIS]+= FILAMENTCHANGE_ZADD;
+        }
+        else
+        {
+          current_position[Z_AXIS] += Z_MAX_POS - current_position[Z_AXIS];
+        }
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, active_extruder);
 
         current_position[X_AXIS] = POSITION_REST_X;
 				current_position[Y_AXIS] = POSITION_REST_Y;
@@ -1829,6 +1840,7 @@ void process_commands()
           PrintManager::single::instance().state(PAUSED);
         }
 #endif//DOGLCD
+        enable_endstops(false);
       break;
     case 26: //M26 - Set SD index
       if(card.cardOK && code_seen('S')) {
@@ -2231,9 +2243,11 @@ Sigma_Exit:
     case 112: //  M112 -Emergency Stop
       kill();
       break;
+#ifdef HEATED_BED_SUPPORT
     case 140: // M140 set bed temp
       if (code_seen('S')) setTargetBed(code_value());
       break;
+#endif //HEATED_BED_SUPPORT
     case 105 : // M105
       if(setTargetedHotend(105)){
         break;
@@ -2610,8 +2624,8 @@ Sigma_Exit:
         *(starpos)='\0';
 
       #ifdef DOGLCD
-        if (screen::ViewManager::getInstance().getViewIndex() == screen::screen_serial){
-          screen::ViewManager::getInstance().activeView()->text(strchr_pointer + 5);
+        if (ui::ViewManager::getInstance().getViewIndex() == ui::screen_serial){
+          ui::ViewManager::getInstance().activeView()->text(strchr_pointer + 5);
         }
       #else
         lcd_setstatus(strchr_pointer + 5);
@@ -3577,7 +3591,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   			stop_buffer = false;
 #else
-        screen::ViewManager::getInstance().activeView(screen::screen_change_pausing);
+        ui::ViewManager::getInstance().activeView(ui::screen_change_pausing);
 #endif
     }
     break;
@@ -4162,6 +4176,10 @@ void get_coordinates()
     {
       destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
       seen[i]=true;
+      if(axis_codes[i] == 'Z')
+      {
+        z_height = code_value();
+      }
     }
     else destination[i] = current_position[i]; //Are these else lines really needed?
   }
