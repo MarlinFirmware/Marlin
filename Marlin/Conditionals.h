@@ -275,6 +275,12 @@
   /**
    * Auto Bed Leveling
    */
+
+  #ifndef min
+    #define min(a,b) (a<b?a:b)
+    #define max(a,b) (a>b?a:b)
+  #endif
+
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     // Boundaries for probing based on set limits
     #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
