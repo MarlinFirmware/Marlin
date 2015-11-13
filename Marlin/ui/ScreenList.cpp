@@ -121,13 +121,9 @@ namespace ui
 			//Draw line separator
 			painter.drawLine(x_init, y_init + 13, x_end, y_init + 13);
 			painter.coordinateYInit(14);
-			
-			uint8_t i = 0;
+						
 			const cache_entry * entry = m_browsing_cache->window_cache_begin;			
-			if(browsing_cache->getIndex() < 2)
-				i += 2;
-				
-			for(; i != m_browsing_cache.getWindowSize() || entry != m_browsing_cache->window_cache_end ; i++, entry++)
+			for(uint8_t i = 0; entry != m_browsing_cache->window_cache_end ; i++, entry++)
 			{
 				
 				if (entry == m_browsing_cache->getSelectedEntry())
