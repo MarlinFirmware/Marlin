@@ -26,10 +26,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ScreenList.h"
-#include "SDCache.h"
 #include "Language.h"
 
-SDCache * browsing_cache;
 
 namespace ui
 {
@@ -38,14 +36,15 @@ namespace ui
 		, Observer<bool>(model)
 		, m_index(0)
 		, m_num_item_added(0)
+		, m_browsing_cache(0)
 	{
 		m_previous_time = millis();
-		browsing_cache = new SDCache();
+		m_browsing_cache = new SDCache();
 	}
 
 	ScreenList::~ScreenList()
 	{ 
-		delete browsing_cache;
+		delete m_browsing_cache;
 	}
 
 	void ScreenList::init(uint16_t index)
@@ -56,7 +55,7 @@ namespace ui
 		}
 		else 
 		{
-			browsing_cache->reloadCache();
+			m_browsing_cache->reloadCache();
 		}
 	}
 
@@ -76,9 +75,9 @@ namespace ui
 
 	void ScreenList::right()
 	{
-		if ( m_index == (browsing_cache->getListLength() -1) )
+		if ( m_index == (m_browsing_cache->getListLength() -1) )
 		{
-			m_index = browsing_cache->getListLength() -1;
+			m_index = m_browsing_cache->getListLength() -1;
 		}
 		else
 		{
@@ -90,7 +89,7 @@ namespace ui
 
 	void ScreenList::draw()
 	{
-		browsing_cache->updateCachePosition(m_index);
+		m_browsing_cache->updateCachePosition(m_index);
 		painter.firstPage();
 		do
 		{
@@ -99,7 +98,7 @@ namespace ui
 			uint8_t y_init = painter.coordinateYInit();
 			uint8_t x_end = painter.coordinateXEnd();			
 			
-			if (browsing_cache->getFolderIsRoot() == true)
+			if (m_browsing_cache->getFolderIsRoot() == true)
 			{
 				painter.setColorIndex(1);
 				painter.setFont(FontType_t::BODY_FONT);
@@ -116,17 +115,22 @@ namespace ui
 				painter.setPrintPos(x_init + 6, y_init + 3);
 				painter.print("/");
 				painter.setPrintPos(x_init + 12, y_init + 3);
-				painter.print(browsing_cache->getDirectoryName());
+				painter.print(m_browsing_cache->getDirectoryName());
 			}
 
 			//Draw line separator
 			painter.drawLine(x_init, y_init + 13, x_end, y_init + 13);
 			painter.coordinateYInit(14);
 			
-			const cache_entry * entry = browsing_cache->window_cache_begin;
-			for(uint8_t i = 0; entry != browsing_cache->window_cache_end ; i++, entry++)
+			uint8_t i = 0;
+			const cache_entry * entry = m_browsing_cache->window_cache_begin;			
+			if(browsing_cache->getIndex() < 2)
+				i += 2;
+				
+			for(; i != m_browsing_cache.getWindowSize() || entry != m_browsing_cache->window_cache_end ; i++, entry++)
 			{
-				if (entry == browsing_cache->getSelectedEntry())
+				
+				if (entry == m_browsing_cache->getSelectedEntry())
 				{
 					painter.setColorIndex(1);
 					painter.drawBox(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), 128, max_font_height);
@@ -137,7 +141,7 @@ namespace ui
 					painter.setColorIndex(1);
 				}
 				
-				if (browsing_cache->showingFirstItem() && i == 0)
+				if (m_browsing_cache->showingFirstItem() && i == 0)
 				{
 					if(entry->type == CacheEntryType_t::BACK_ENTRY)
 					{
@@ -159,7 +163,7 @@ namespace ui
 						painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_folder_small);
 					}
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-					if (entry == browsing_cache->getSelectedEntry())
+					if (entry == m_browsing_cache->getSelectedEntry())
 					{
 						m_current_time = millis();
 						if (m_current_time > m_previous_time + 1200)
@@ -184,7 +188,7 @@ namespace ui
 			painter.setColorIndex(0);
 			painter.drawBox(123, 14, 4, 49);
 			
-			m_scroll_size = (float) 47 / browsing_cache->getListLength();
+			m_scroll_size = (float) 47 / m_browsing_cache->getListLength();
 
 			int8_t scroll_bottom_bar = (m_index + 1) * m_scroll_size;
 			if (scroll_bottom_bar < 1)
@@ -205,7 +209,7 @@ namespace ui
 
 	void ScreenList::press()
 	{
-		CacheEntryType_t type = browsing_cache->press(m_index);
+		CacheEntryType_t type = m_browsing_cache->press(m_index);
 		
 		if(type == CacheEntryType_t::BACK_ENTRY)
 		{
@@ -215,7 +219,7 @@ namespace ui
 		{
 			ViewManager::getInstance().activeView(m_next_screen);
 		}
-		else if(!browsing_cache->maxDirectoryReached())
+		else if(!m_browsing_cache->maxDirectoryReached())
 		{
 			m_index = 0;
 		}
