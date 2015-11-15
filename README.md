@@ -1,6 +1,6 @@
 # Marlin 3D Printer Firmware
 <img align="top" width=175 src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
- Documentation has moved to [marlinfirmware.org](http://www.marlinfirmware.org).
+ Additional documentation can be found in [our wiki](https://github.com/MarlinFirmware/Marlin/wiki/Main-Page).
 
 ## Release Candidate -- Marlin 1.1.0-RC2 - 29 September 2015
 
