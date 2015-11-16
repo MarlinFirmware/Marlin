@@ -112,45 +112,30 @@ bool SDCache::updateCachePosition(int16_t index)
 			m_cache_update = true;
 		}
 		
-		if(m_window_is_centered)
+		//check if screen window has to be moved
+		if(lower_index < m_window_min)
 		{
-			//cases to be changed
-			if(lower_index < m_window_min)
+			if(lower_index > 0)
 			{
-				if(lower_index > 0)
-				{
-					m_window_min = lower_index;
-				} 
-				else
-				{
-					m_window_min = 0;
-				}
-								
-				m_window_max = m_window_min + m_window_size - 1;
-			}
-			else if(upper_index > m_window_max)
+				m_window_min = lower_index;
+			} 
+			else
 			{
-				m_window_max = upper_index;
-				if(m_window_max >= m_list_length - 1)
-				{
-					m_window_max = m_list_length - 1;
-				}
-				m_window_min = m_window_max - m_window_size + 1;
+				m_window_min = 0;
 			}
+							
+			m_window_max = m_window_min + m_window_size - 1;
 		}
-		else
+		else if(upper_index > m_window_max)
 		{
-			if(index < m_window_min)
+			m_window_max = upper_index;
+			if(m_window_max >= m_list_length - 1)
 			{
-				m_window_min = index;
-				m_window_max = m_window_min + m_window_size - 1;
+				m_window_max = m_list_length - 1;
 			}
-			else if(index > m_window_max)
-			{
-				m_window_max = index;
-				m_window_min = m_window_max - m_window_size + 1;
-			}
+			m_window_min = m_window_max - m_window_size + 1;
 		}
+		
 		m_selected_file = index - m_window_min;
 		
 		window_cache_begin = m_cache + (m_window_min - m_cache_min);
@@ -321,7 +306,6 @@ void SDCache::updateDirectoryName()
 	while(i < folderLength)
 	{
 		card.getfilename(i);
-		SERIAL_ECHOLN(card.filename);
 		if(strcmp(curDir, card.filename) == 0)
 		{
 			if(strlen(card.longFilename) != 0)
