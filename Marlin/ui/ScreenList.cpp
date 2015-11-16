@@ -40,6 +40,7 @@ namespace ui
 	{
 		m_previous_time = millis();
 		m_browsing_cache = new SDCache();
+		m_browsing_cache->setWindowCentered();
 	}
 
 	ScreenList::~ScreenList()
@@ -90,6 +91,7 @@ namespace ui
 	void ScreenList::draw()
 	{
 		m_browsing_cache->updateCachePosition(m_index);
+		uint16_t list_length = m_browsing_cache->getListLength();
 		painter.firstPage();
 		do
 		{
@@ -121,10 +123,28 @@ namespace ui
 			//Draw line separator
 			painter.drawLine(x_init, y_init + 13, x_end, y_init + 13);
 			painter.coordinateYInit(14);
-						
-			const cache_entry * entry = m_browsing_cache->window_cache_begin;			
-			for(uint8_t i = 0; entry != m_browsing_cache->window_cache_end ; i++, entry++)
+
+			int8_t i = 0;
+			uint8_t screen_end = m_browsing_cache->getWindowSize();
+			const cache_entry * entry = m_browsing_cache->window_cache_begin;	
+			
+			if(m_browsing_cache->showingFirstItem())
 			{
+				i += 2 - m_browsing_cache->getIndex();
+				screen_end += i;
+			}
+			else if(m_browsing_cache->showingLastItem()) 
+			{
+				i -= 3 - (list_length - m_browsing_cache->getIndex());
+			}
+			
+			for(int8_t j = 0 ; (i != screen_end) && (entry != m_browsing_cache->window_cache_end) ; i++, j++, entry++)
+			{
+				//Skip entries left outside window drawing space
+				if(i < 0)
+				{
+					continue;
+				}
 				
 				if (entry == m_browsing_cache->getSelectedEntry())
 				{
@@ -137,7 +157,7 @@ namespace ui
 					painter.setColorIndex(1);
 				}
 				
-				if (m_browsing_cache->showingFirstItem() && i == 0)
+				if (m_browsing_cache->showingFirstItem() && j == 0)
 				{
 					if(entry->type == CacheEntryType_t::BACK_ENTRY)
 					{
@@ -152,7 +172,7 @@ namespace ui
 						painter.print_P(MSG_SCREEN_SD_LIST_PREV());
 					}
 				}
-				else
+				else 
 				{
 					if (entry->type == FOLDER_ENTRY)
 					{
