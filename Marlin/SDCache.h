@@ -34,7 +34,6 @@ class SDCache
 		bool updateCachePosition(int16_t index);
 		CacheEntryType_t press(uint16_t index);
 		void returnToRoot();
-		void setWindowCentered();// { m_window_is_centered = true; m_window_offset = 2; }; //(m_window_size/2);}
 		
 		inline cache_entry const * getSelectedEntry() { return window_cache_begin + m_selected_file; };
 		inline uint16_t getListLength() { return m_list_length; };
@@ -46,6 +45,7 @@ class SDCache
 		inline bool showingLastItem() { return m_window_max == m_list_length-1;};
 		inline bool maxDirectoryReached() { return (m_directory_depth == MAX_DIR_DEPTH-1); };
 		
+		void setWindowCentered();
 		inline void setWindowNotCentered() { m_window_is_centered = false; }
 		
 	private:
