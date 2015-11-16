@@ -550,7 +550,7 @@ namespace ui
 	static ScreenSwitch * make_screen_autohome_switch()
 	{
 		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
-		local_view->add(screen_autohome_animation);
+		local_view->add(screen_autohome_homing);
 		local_view->add(screen_autohome_heating);
 		return local_view;
 	}
