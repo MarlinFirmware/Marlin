@@ -119,7 +119,7 @@ bool SDCache::updateCachePosition(int16_t index)
 			{
 				if(lower_index > 0)
 				{
-					m_window_min = lower_index;// - m_window_offset;
+					m_window_min = lower_index;
 				} 
 				else
 				{
@@ -130,7 +130,7 @@ bool SDCache::updateCachePosition(int16_t index)
 			}
 			else if(upper_index > m_window_max)
 			{
-				m_window_max = upper_index;// + m_window_offset;
+				m_window_max = upper_index;
 				if(m_window_max >= m_list_length - 1)
 				{
 					m_window_max = m_list_length - 1;
@@ -163,7 +163,6 @@ bool SDCache::updateCachePosition(int16_t index)
 	{		
 		// Clears the cache content
         memset(m_cache, 0, sizeof(m_cache));
-		//m_cache_update = false;
 	
         uint8_t i = 0;
         int8_t offset = -1; 
@@ -263,6 +262,14 @@ void SDCache::returnToRoot()
 	m_directory_depth = 0;
 	
 	reloadCache();
+}
+
+void SDCache::setWindowCentered()
+{
+#ifdef DOGLCD 
+	m_window_is_centered = true; 
+	m_window_offset = 2; 
+#endif
 }
 
 void SDCache::changeDir()
