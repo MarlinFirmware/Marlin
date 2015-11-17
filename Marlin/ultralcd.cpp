@@ -14,6 +14,9 @@ typedef struct {
     char longFilename[LONG_FILENAME_LENGTH];
 } cache_entry_data;
 
+// SD browsing cache
+SDCache * browsing_cache = NULL;
+
 /*******************************************************************************
 **   Variables
 *******************************************************************************/
@@ -762,9 +765,18 @@ static void view_menu_main()
 
 void draw_menu_sdcard()
 {
+	if(browsing_cache == NULL)
+	{
+		browsing_cache = new SDCache();
+	}
+	else
+	{
+		browsing_cache->returnToRoot();
+	}
+	
     item_selected = -1;
     encoder_position = 0;
-    SDCache::single::instance().reloadCache();
+    browsing_cache->reloadCache();
     display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
 
     lcd_set_menu(view_menu_sdcard);
@@ -782,15 +794,15 @@ static void view_menu_sdcard()
         encoder_position = 0;
         encoder_position_shadow = 0;
     }
-    else if (encoder_position_shadow > ENCODER_STEPS_PER_MENU_ITEM * SDCache::single::instance().getListLength() - 1) {
-        encoder_position = ENCODER_STEPS_PER_MENU_ITEM * SDCache::single::instance().getListLength() - 1;
-        encoder_position_shadow = ENCODER_STEPS_PER_MENU_ITEM * SDCache::single::instance().getListLength() - 1;
+    else if (encoder_position_shadow > ENCODER_STEPS_PER_MENU_ITEM * browsing_cache->getListLength() - 1) {
+        encoder_position = ENCODER_STEPS_PER_MENU_ITEM * browsing_cache->getListLength() - 1;
+        encoder_position_shadow = ENCODER_STEPS_PER_MENU_ITEM * browsing_cache->getListLength() - 1;
 	}
 	
 	new_item_selected = encoder_position_shadow / ENCODER_STEPS_PER_MENU_ITEM;
 	
 	//update cache
-	bool window_updated = SDCache::single::instance().updateCachePosition(new_item_selected);
+	bool window_updated = browsing_cache->updateCachePosition(new_item_selected);
 	
 	//check if redraw needed
 	if (window_updated)
@@ -807,10 +819,10 @@ static void view_menu_sdcard()
 		display_refresh_mode = NO_UPDATE_SCREEN;
 	}
 	
-	const cache_entry * entry = SDCache::single::instance().window_cache_begin;
-	for(uint8_t i = 0; entry != SDCache::single::instance().window_cache_end ; i++, entry++)
+	const cache_entry * entry = browsing_cache->window_cache_begin;
+	for(uint8_t i = 0; entry != browsing_cache->window_cache_end ; i++, entry++)
 	{		
-		bool isSelected = (entry == SDCache::single::instance().getSelectedEntry());
+		bool isSelected = (entry == browsing_cache->getSelectedEntry());
 		
 		char entryLongFilename[LONG_FILENAME_LENGTH];
 		char entryFilename[13];
@@ -862,7 +874,7 @@ static void view_menu_sdcard()
 	
 	if (lcd_get_button_clicked()) 
 	{
-        CacheEntryType_t type = SDCache::single::instance().press(new_item_selected);
+        CacheEntryType_t type = browsing_cache->press(new_item_selected);
 		
 		if(type == CacheEntryType_t::BACK_ENTRY)
 		{
@@ -872,7 +884,7 @@ static void view_menu_sdcard()
 		{
 			menu_action_sdfile();
 		}
-		else if(!SDCache::single::instance().maxDirectoryReached())
+		else if(!browsing_cache->maxDirectoryReached())
 		{
 			encoder_position = 0;
 		}
@@ -2351,7 +2363,7 @@ static void menu_action_sdfile()
     char* c;
 
 	//get selected file from cache
-    strcpy(cmd, SDCache::single::instance().getSelectedEntry()->longFilename);
+    strcpy(cmd, browsing_cache->getSelectedEntry()->longFilename);
     for (c = &cmd[0]; *c; c++) {
         if ((uint8_t)*c > 127) {
             SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
@@ -2364,7 +2376,7 @@ static void menu_action_sdfile()
 
     setTargetHotend0(200);
     fanSpeed = PREHEAT_FAN_SPEED;
-    sprintf_P(cmd, PSTR("M23 %s"), SDCache::single::instance().getSelectedEntry()->filename);
+    sprintf_P(cmd, PSTR("M23 %s"), browsing_cache->getSelectedEntry()->filename);
 
     enquecommand_P(PSTR("G28"));
     enquecommand_P(PSTR("G1 Z10"));

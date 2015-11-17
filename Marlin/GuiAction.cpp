@@ -15,7 +15,7 @@
 #include "StorageManager.h"
 #include "SerialManager.h"
 #include "LightManager.h"
-#include "SDCache.h"
+#include "cardreader.h"
 
 bool raised = false;
 extern bool home_all_axis;
@@ -598,7 +598,7 @@ void action_start_print()
 	{
 		serial_printing = false;
 
-		strcpy(cmd, SDCache::single::instance().getSelectedEntry()->longFilename);
+		strcpy(cmd, card.longFilename);
 		for (c = &cmd[0]; *c; c++)
 		{
 			if ((uint8_t)*c > 127)
@@ -608,7 +608,7 @@ void action_start_print()
 			}
 		}
 
-		sprintf_P(cmd, PSTR("M23 %s"), SDCache::single::instance().getSelectedEntry()->filename);
+		sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 	}
 
 	fanSpeed = PREHEAT_FAN_SPEED;
@@ -912,7 +912,8 @@ void action_wizard_finish()
 
 bool action_check_preheat_temp()
 {
-	if(temp::TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
+	temp::TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
+	if(temp::TemperatureManager::single::instance().getCurrentTemperature() >= PREHEAT_HOTEND_TEMP)
 	{
 		return true;
 	}

@@ -1,7 +1,6 @@
 #ifndef SD_CACHE_H
 #define SD_CACHE_H
 
-#include "Singleton.h"
 #include "cardreader.h"
 
 #ifndef SD_CACHE_SIZE
@@ -20,30 +19,34 @@ typedef enum
 typedef struct 
 {
 	CacheEntryType_t type;
-	void * action;		//Used in 1st gen, probably can be removed
 	char filename[13];
 	char longFilename[LONG_FILENAME_LENGTH];
 } cache_entry;
 
 class SDCache
 {
-	public:
-	
-		typedef Singleton<SDCache> single;
 
 	public:
 		SDCache();
+		~SDCache();
 		
 		void reloadCache();
 		bool updateCachePosition(int16_t index);
 		CacheEntryType_t press(uint16_t index);
+		void returnToRoot();
 		
 		inline cache_entry const * getSelectedEntry() { return window_cache_begin + m_selected_file; };
 		inline uint16_t getListLength() { return m_list_length; };
+		inline uint8_t getWindowSize() { return m_window_size; };
+		inline uint8_t getIndex() { return m_index; };
 		inline bool getFolderIsRoot() { return (m_directory_depth == 0); };
 		inline char * getDirectoryName() { return m_directory; };
 		inline bool showingFirstItem() { return !m_window_min; };
+		inline bool showingLastItem() { return m_window_max == m_list_length-1;};
 		inline bool maxDirectoryReached() { return (m_directory_depth == MAX_DIR_DEPTH-1); };
+		
+		void setWindowCentered();
+		inline void setWindowNotCentered() { m_window_is_centered = false; }
 		
 	private:
 		void changeDir();
@@ -70,6 +73,9 @@ class SDCache
 		uint8_t m_window_size;
 		uint16_t m_window_min;
 		uint16_t m_window_max;
+		
+		bool m_window_is_centered;
+		uint8_t m_window_offset;
 };
 
 #endif //SD_CACHE_H

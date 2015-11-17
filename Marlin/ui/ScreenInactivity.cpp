@@ -29,6 +29,7 @@
 
 #include "Language.h"
 #include "GuiBitmaps_witbox_2.h"
+#include "PrintManager.h"
 
 namespace ui
 {
@@ -144,6 +145,11 @@ namespace ui
 				}
 
 			} while ( painter.nextPage() );
+		}
+
+		if(!PrintManager::single::instance().getInactivityFlag())
+		{
+			ViewManager::getInstance().activeView(m_next_screen);
 		}
 	}
 

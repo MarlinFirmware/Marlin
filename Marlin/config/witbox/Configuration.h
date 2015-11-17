@@ -11,7 +11,7 @@
 #define MACHINE_NAME "Witbox"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/witbox"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.0rc"
+#define FIRMWARE_VER "2.0.0rc2"
 #define BUILD_VER ""
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
@@ -766,6 +766,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
   #endif
   #endif
 #endif
+
+// sd browsing cache is set to twice LCD height
+#define SD_CACHE_SIZE LCD_HEIGHT*2
 
 // default LCD contrast for dogm-like LCD displays
 #ifdef DOGLCD
