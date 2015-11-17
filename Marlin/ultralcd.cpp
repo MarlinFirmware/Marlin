@@ -477,19 +477,33 @@ void lcd_set_home_offsets() {
 /**
  * Watch temperature callbacks
  */
-#if TEMP_SENSOR_0 != 0
-  void watch_temp_callback_E0() { start_watching_heater(0); }
-#endif
-#if EXTRUDERS > 1 && TEMP_SENSOR_1 != 0
-  void watch_temp_callback_E1() { start_watching_heater(1); }
+#if ENABLED(THERMAL_PROTECTION_HOTENDS)
+  #if TEMP_SENSOR_0 != 0
+    void watch_temp_callback_E0() { start_watching_heater(0); }
+  #endif
+  #if EXTRUDERS > 1 && TEMP_SENSOR_1 != 0
+    void watch_temp_callback_E1() { start_watching_heater(1); }
+  #endif // EXTRUDERS > 1
   #if EXTRUDERS > 2 && TEMP_SENSOR_2 != 0
     void watch_temp_callback_E2() { start_watching_heater(2); }
-    #if EXTRUDERS > 3 && TEMP_SENSOR_3 != 0
-      void watch_temp_callback_E3() { start_watching_heater(3); }
-    #endif // EXTRUDERS > 3
   #endif // EXTRUDERS > 2
-#endif // EXTRUDERS > 1
-
+  #if EXTRUDERS > 3 && TEMP_SENSOR_3 != 0
+    void watch_temp_callback_E3() { start_watching_heater(3); }
+  #endif // EXTRUDERS > 3
+#else
+  #if TEMP_SENSOR_0 != 0
+    void watch_temp_callback_E0() {}
+  #endif
+  #if EXTRUDERS > 1 && TEMP_SENSOR_1 != 0
+    void watch_temp_callback_E1() {}
+  #endif // EXTRUDERS > 1
+  #if EXTRUDERS > 2 && TEMP_SENSOR_2 != 0
+    void watch_temp_callback_E2() {}
+  #endif // EXTRUDERS > 2
+  #if EXTRUDERS > 3 && TEMP_SENSOR_3 != 0
+    void watch_temp_callback_E3() {}
+  #endif // EXTRUDERS > 3
+#endif
 /**
  * Items shared between Tune and Temperature menus
  */
