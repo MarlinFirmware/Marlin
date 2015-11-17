@@ -585,10 +585,6 @@ void action_start_print()
 {
 	temp::TemperatureManager::single::instance().setBlowerControlState(false);
 
-#ifdef FAN_BOX_PIN
-	digitalWrite(FAN_BOX_PIN, HIGH);
-#endif //FAN_BOX_PIN
-
 	bool serial_printing = true;
 
 	char cmd[LONG_FILENAME_LENGTH];
