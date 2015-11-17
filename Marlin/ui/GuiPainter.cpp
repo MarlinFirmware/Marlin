@@ -254,7 +254,7 @@ namespace ui
 					word_buffer = strsep(&text_buffer, " ");
 
 					// The current line is not full yet.
-					if (strlen(line_buffer) + strlen(word_buffer) <= max_chars_per_line)
+					if (strlen(line_buffer) + strlen(word_buffer) <= (max_chars_per_line + 1) )
 					{
 						strcat(line_buffer, word_buffer);
 						strcat(line_buffer, " ");
