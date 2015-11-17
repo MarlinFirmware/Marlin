@@ -22,6 +22,7 @@ public:
   //this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
 
   void checkautostart(bool x); 
+  bool checkAutoFile();
   void openFile(char* name,bool read,bool replace_current=true);
   void openLogFile(char* name);
   void removeFile(char* name);

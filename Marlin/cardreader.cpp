@@ -5,6 +5,10 @@
 #include "temperature.h"
 #include "Serial.h"
 
+#ifdef DOGLCD
+#include "PrintManager.h"
+#endif // DOGLCD
+
 #ifdef SDSUPPORT
 
 
@@ -562,6 +566,42 @@ void CardReader::checkautostart(bool force)
   else
     autostart_index++;
 }
+
+#ifdef DOGLCD
+
+bool CardReader::checkAutoFile()
+{
+  char autoname[30] = "auto0.g";
+
+  for(int8_t i=0;i<(int8_t)strlen(autoname);i++)
+    autoname[i]=tolower(autoname[i]);
+  dir_t p;
+
+  root.rewind();
+
+  while (root.readDir(p, NULL) > 0)
+  {
+    for(int8_t i=0;i<(int8_t)strlen((char*)p.name);i++)
+    p.name[i]=tolower(p.name[i]);
+
+    if(p.name[9]!='~') //skip safety copies
+    if(strncmp((char*)p.name,autoname,5) == 0)
+    {
+      char cmd[30];
+
+      PrintManager::single::instance().state(READY);
+      sprintf_P(cmd, PSTR("M23 %s"), autoname);
+      enquecommand(cmd);
+      enquecommand_P(PSTR("M24"));
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+#endif // DOGLCD
 
 void CardReader::closefile(bool store_location)
 {

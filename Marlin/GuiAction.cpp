@@ -960,3 +960,8 @@ void action_reset_wizard()
 {
 	eeprom::StorageManager::single::instance().setUninitialized();
 }
+
+bool action_check_auto_gcode()
+{
+	return card.checkAutoFile();
+}
