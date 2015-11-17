@@ -960,5 +960,10 @@ void action_reset_wizard()
 
 bool action_check_auto_gcode()
 {
-	return card.checkAutoFile();
+	if(card.checkAutoFile() == true)
+	{
+		allow_home = true;
+		return true;
+	}
+	return false;
 }

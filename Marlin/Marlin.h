@@ -248,6 +248,7 @@ void setPwmFrequency(uint8_t pin, int val);
 #endif //CRITICAL_SECTION_START
 
 extern bool home_all_axis;
+extern bool allow_home;
 extern const char axis_codes[NUM_AXIS];
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
