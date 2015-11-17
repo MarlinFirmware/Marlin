@@ -72,6 +72,7 @@ namespace ui
 			}
 			else
 			{
+				PrintManager::single::instance().resetInactivity();
 				ViewManager::getInstance().activeView(m_next_screen);
 			}
 			return;
