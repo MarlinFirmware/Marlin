@@ -1,6 +1,7 @@
 #include "SDManager.h"
 
 #include "cardreader.h"
+#include "PrintManager.h"
 
 SDManager::SDManager()
 	: Subject<bool>()
@@ -34,6 +35,8 @@ void SDManager::setInserted(bool state)
 			card.initsd();
 		}
 		notify();
+			
+		PrintManager::single::instance().resetInactivity();
 	}
 }
 
