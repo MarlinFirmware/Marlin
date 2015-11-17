@@ -204,8 +204,6 @@ bool SDCache::updateCachePosition(int16_t index)
 	
 	if(update_window || m_cache_update)
 	{
-		m_cache_update = false;
-		
 		window_cache_begin = m_cache + (m_window_min - m_cache_min);
 		window_cache_end = window_cache_begin + m_window_size;
 

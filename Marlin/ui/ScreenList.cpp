@@ -225,6 +225,7 @@ namespace ui
 
 	void ScreenList::press()
 	{
+		bool maxDirReached = m_browsing_cache->maxDirectoryReached();
 		CacheEntryType_t type = m_browsing_cache->press(m_index);
 		
 		if(type == CacheEntryType_t::BACK_ENTRY)
@@ -235,7 +236,7 @@ namespace ui
 		{
 			ViewManager::getInstance().activeView(m_next_screen);
 		}
-		else if(!m_browsing_cache->maxDirectoryReached())
+		else if(!maxDirReached)
 		{
 			m_index = 0;
 		}
