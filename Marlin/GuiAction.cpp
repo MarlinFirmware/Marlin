@@ -912,7 +912,8 @@ void action_wizard_finish()
 
 bool action_check_preheat_temp()
 {
-	if(temp::TemperatureManager::single::instance().getTargetTemperature() >= PREHEAT_HOTEND_TEMP)
+	temp::TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
+	if(temp::TemperatureManager::single::instance().getCurrentTemperature() >= PREHEAT_HOTEND_TEMP)
 	{
 		return true;
 	}
