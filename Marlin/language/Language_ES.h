@@ -162,6 +162,7 @@ const char ES_ICON_MOVE_10MM[] PROGMEM                  = "Mover 10mm";
 const char ES_ICON_MOVE_1MM[] PROGMEM                   = "Mover 1mm";
 const char ES_ICON_MOVE_01MM[] PROGMEM                  = "Mover 0.1mm";
 const char ES_OPTION_LIGHTLED[] PROGMEM                 = "Led";
+const char ES_OPTION_BOX_FAN[] PROGMEM                  = "Ventilador";
 const char ES_OPTION_INFO[] PROGMEM                     = "Versi""\xf3""n";
 const char ES_OPTION_CONTACT[] PROGMEM                  = "Soporte";
 const char ES_OPTION_AUTOLEVEL[] PROGMEM                = "Auto-Nivelado";

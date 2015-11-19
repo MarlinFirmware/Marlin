@@ -162,6 +162,7 @@ const char RU_ICON_MOVE_10MM[] PROGMEM                  = """\xbf""""\xd5""""\xe
 const char RU_ICON_MOVE_1MM[] PROGMEM                   = """\xbf""""\xd5""""\xe0""""\xd5""""\xdc""""\xd5""""\xe1""""\xe2"". ""\xdd""""\xd0"" 1 ""\xdc""""\xdc""";
 const char RU_ICON_MOVE_01MM[] PROGMEM                  = """\xbf""""\xd5""""\xe0""""\xd5""""\xdc"". ""\xdd""""\xd0"" 0.1 ""\xdc""""\xdc""";
 const char RU_OPTION_LIGHTLED[] PROGMEM                 = """\xc1""""\xd2""""\xd5""""\xe2""""\xde""""\xd4""""\xd8""""\xde""""\xd4""";
+const char RU_OPTION_BOX_FAN[] PROGMEM                  = "";
 const char RU_OPTION_INFO[] PROGMEM                     = """\xb2""""\xd5""""\xe0""""\xe1""""\xd8""""\xef""";
 const char RU_OPTION_CONTACT[] PROGMEM                  = """\xbf""""\xde""""\xd4""""\xd4""""\xd5""""\xe0""""\xd6""""\xda""""\xd0""";
 const char RU_OPTION_AUTOLEVEL[] PROGMEM                = "A""\xd2""""\xe2""""\xde""""\xd2""""\xeb""""\xe0""""\xd0""""\xd2""""\xdd"".";
