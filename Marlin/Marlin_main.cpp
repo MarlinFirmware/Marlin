@@ -2416,6 +2416,8 @@ Sigma_Exit:
 					lcd_update();
 				}
       break;
+
+#ifdef HEATED_BED_SUPPORT
     case 190: // M190 - Wait for bed heater to reach target.
     #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
         LCD_MESSAGEPGM(MSG_BED_HEATING_PROCESS);
@@ -2455,6 +2457,7 @@ Sigma_Exit:
         previous_millis_cmd = millis();
     #endif
         break;
+#endif // HEATED_BED_SUPPORT
 
     #if defined(FAN_PIN) && FAN_PIN > -1
       case 106: //M106 Fan On
