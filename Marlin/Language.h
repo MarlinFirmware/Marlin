@@ -237,6 +237,7 @@ enum class Label
 	ICON_MOVE_1MM,
 	ICON_MOVE_01MM,
 	OPTION_LIGHTLED,
+	OPTION_BOX_FAN,
 	OPTION_INFO,
 	OPTION_CONTACT,
 	OPTION_AUTOLEVEL,
@@ -426,6 +427,7 @@ extern const char * MSG_ICON_MOVE_10MM();
 extern const char * MSG_ICON_MOVE_1MM();
 extern const char * MSG_ICON_MOVE_01MM();
 extern const char * MSG_OPTION_LIGHTLED();
+extern const char * MSG_OPTION_BOX_FAN();
 extern const char * MSG_OPTION_INFO();
 extern const char * MSG_OPTION_CONTACT();
 extern const char * MSG_OPTION_AUTOLEVEL();
