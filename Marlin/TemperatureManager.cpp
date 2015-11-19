@@ -5,6 +5,7 @@
 #include "Configuration.h"
 #include "temperature.h"
 #include "Marlin.h"
+#include "cardreader.h"
 
 #ifdef DOGLCD
 	#include "GuiManager.h"
@@ -219,6 +220,17 @@ namespace temp
 #ifdef FAN_BLOWER_PIN
 		analogWrite(FAN_BLOWER_PIN,fanSpeed);
 #endif
+
+#ifdef FAN_BOX_PIN
+		if(card.isFileOpen() == true)
+		{
+			digitalWrite(FAN_BOX_PIN, HIGH);
+		}
+		else
+		{
+			digitalWrite(FAN_BOX_PIN, LOW);
+		}
+#endif //FAN_BOX_PIN
 	}
 
 	void TemperatureManager::manageTemperatureControl()

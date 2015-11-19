@@ -31,6 +31,7 @@
 #include "LightManager.h"
 #include "PrintManager.h"
 #include "GuiManager.h"
+#include "GuiAction.h"
 
 namespace ui
 {
@@ -62,7 +63,11 @@ namespace ui
 	{
 		if (millis() > m_destroy_time)
 		{
-			if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_ACTIVE)
+			if (action_check_auto_gcode())
+			{
+				ViewManager::getInstance().activeView(ui::screen_print);
+			}
+			else if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_ACTIVE)
 			{
 				ViewManager::getInstance().activeView(m_block_screen);
 			}

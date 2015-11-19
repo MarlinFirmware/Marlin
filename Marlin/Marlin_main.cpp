@@ -396,6 +396,7 @@ float destination[NUM_AXIS] = { 0, 0, 0, 0 };
 
 static float offset[3] = { 0, 0, 0 };
 bool home_all_axis = true;
+bool allow_home = false;
 float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
@@ -1597,9 +1598,10 @@ void process_commands()
 
     case 28: //G28 Home all Axis one at a time
 #ifdef DOGLCD
-      if (PrintManager::single::instance().state() != PRINTING && AutoLevelManager::single::instance().state() == false)
+      if ( (PrintManager::single::instance().state() != PRINTING && AutoLevelManager::single::instance().state() == false) || allow_home == true )
 #endif //DOGLCD
       {
+        allow_home = false;
         action_homing();
       }
     break;

@@ -585,10 +585,6 @@ void action_start_print()
 {
 	temp::TemperatureManager::single::instance().setBlowerControlState(false);
 
-#ifdef FAN_BOX_PIN
-	digitalWrite(FAN_BOX_PIN, HIGH);
-#endif //FAN_BOX_PIN
-
 	bool serial_printing = true;
 
 	char cmd[LONG_FILENAME_LENGTH];
@@ -962,4 +958,14 @@ bool action_check_wizard()
 void action_reset_wizard()
 {
 	eeprom::StorageManager::single::instance().setUninitialized();
+}
+
+bool action_check_auto_gcode()
+{
+	if(card.checkAutoFile() == true)
+	{
+		allow_home = true;
+		return true;
+	}
+	return false;
 }

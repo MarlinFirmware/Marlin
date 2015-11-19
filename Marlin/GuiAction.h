@@ -49,4 +49,6 @@ extern void action_erase_EEPROM();
 extern bool action_check_wizard();
 extern void action_reset_wizard();
 
+extern bool action_check_auto_gcode();
+
 #endif // GUI_ACTION_H
