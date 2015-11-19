@@ -1789,6 +1789,7 @@ void process_commands()
 
 				current_position[E_AXIS]-= RETRACT_ON_PAUSE;
 				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[E_AXIS], active_extruder);
+				st_synchronize();
 
         if (current_position[Z_AXIS] < Z_MAX_POS - FILAMENTCHANGE_ZADD)
         {
