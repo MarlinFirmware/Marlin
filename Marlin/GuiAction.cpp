@@ -641,6 +641,7 @@ void action_start_print()
 
 	enquecommand_P(PSTR("G90"));
 	enquecommand_P(PSTR("G92 E0"));
+	enquecommand_P(PSTR("G1 F1800")); // sets slow initial feedrate
 
 	if(serial_printing == false)
 	{
