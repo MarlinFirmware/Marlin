@@ -475,7 +475,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // Extrusion control on pause/resume. Distances in mm.
 #define RETRACT_ON_PAUSE 4
-#define EXTRUDE_ON_RESUME 4
+#define EXTRUDE_ON_RESUME 4.75
 
 //Led light support
 #define LIGHT_ENABLED

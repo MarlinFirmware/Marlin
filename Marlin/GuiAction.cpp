@@ -770,9 +770,10 @@ void action_resume_print()
 	current_position[Z_AXIS] = update_position.z;
 
 	current_position[E_AXIS] += EXTRUDE_ON_RESUME;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 50, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 25, active_extruder);
 	st_synchronize();
 
+	current_position[E_AXIS] = lastpos[E_AXIS];
 	plan_set_e_position(lastpos[E_AXIS]);
 
 	card.sdprinting = true;
