@@ -16,6 +16,7 @@ namespace eeprom
 	static uint8_t * const ADDR_LIGHT          = (uint8_t *) 502;
 	static uint8_t * const ADDR_SERIAL         = (uint8_t *) 503;
 	static uint8_t * const ADDR_LANGUAGE       = (uint8_t *) 504;
+	static uint8_t * const ADDR_BOX_FAN        = (uint8_t *) 505;
 	static uint8_t * const ADDR_PROTECTED_ZONE = (uint8_t *) 4071;
 	static uint8_t * const ADDR_EEPROM_VERSION = (uint8_t *) 4072;
 	static uint8_t * const ADDR_EEPROM_FLAG    = (uint8_t *) 4073;
@@ -116,6 +117,20 @@ namespace eeprom
 			return LIGHT_ON;
 		}
 		return LIGHT_AUTO;
+	}
+
+	void StorageManager::setBoxFan(bool state)
+	{
+		StorageManager::single::instance().writeByte(ADDR_BOX_FAN, state);
+	}
+
+	bool StorageManager::getBoxFan()
+	{
+		if(StorageManager::single::instance().readByte(ADDR_BOX_FAN) == BOX_FAN_DISABLED)
+		{
+			return false;
+		}
+		return true;
 	}
 
 	void StorageManager::setAutoLevel(bool state)

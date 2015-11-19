@@ -11,6 +11,7 @@
 	#include "GuiManager.h"
 	#include "TemperatureControl.h"
 	#include "ViewManager.h"
+	#include "FanManager.h"
 #endif
 
 namespace temp
@@ -222,13 +223,16 @@ namespace temp
 #endif
 
 #ifdef FAN_BOX_PIN
-		if(card.isFileOpen() == true)
+		if(FanManager::single::instance().state() == true)
 		{
-			digitalWrite(FAN_BOX_PIN, HIGH);
-		}
-		else
-		{
-			digitalWrite(FAN_BOX_PIN, LOW);
+			if(card.isFileOpen() == true)
+			{
+				digitalWrite(FAN_BOX_PIN, HIGH);
+			}
+			else
+			{
+				digitalWrite(FAN_BOX_PIN, LOW);
+			}
 		}
 #endif //FAN_BOX_PIN
 	}

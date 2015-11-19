@@ -14,6 +14,8 @@ namespace eeprom
 	const uint8_t LIGHT_OFF = 0x00;
 	const uint8_t LIGHT_ON = 0x01;
 	const uint8_t LIGHT_AUTO = 0x02;
+	const uint8_t BOX_FAN_ENABLED = 0x01;
+	const uint8_t BOX_FAN_DISABLED = 0x00;
 	const uint8_t AUTOLEVEL_ON = 0x01;
 	const uint8_t SERIAL_SCREEN_ON = 0x01;
 	const uint8_t EEPROM_ENABLED = 0x00;
@@ -43,6 +45,9 @@ namespace eeprom
 
 			static void setLight(uint8_t state);
 			static uint8_t getLight();
+
+			static void setBoxFan(bool state);
+			static bool getBoxFan();
 
 			static void setAutoLevel(bool state);
 			static bool getAutoLevel();
