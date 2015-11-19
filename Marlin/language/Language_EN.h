@@ -162,6 +162,7 @@ const char EN_ICON_MOVE_10MM[] PROGMEM                  = "Move 10 mm";
 const char EN_ICON_MOVE_1MM[] PROGMEM                   = "Move 1 mm";
 const char EN_ICON_MOVE_01MM[] PROGMEM                  = "Move 0.1 mm";
 const char EN_OPTION_LIGHTLED[] PROGMEM                 = "LED";
+const char EN_OPTION_BOX_FAN[] PROGMEM                  = "";
 const char EN_OPTION_INFO[] PROGMEM                     = "Version";
 const char EN_OPTION_CONTACT[] PROGMEM                  = "Support";
 const char EN_OPTION_AUTOLEVEL[] PROGMEM                = "Auto-levelling";

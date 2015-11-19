@@ -162,6 +162,7 @@ const char PT_ICON_MOVE_10MM[] PROGMEM                  = "Deslocar 10 mm";
 const char PT_ICON_MOVE_1MM[] PROGMEM                   = "Deslocar 1 mm";
 const char PT_ICON_MOVE_01MM[] PROGMEM                  = "Deslocar 0,1 mm";
 const char PT_OPTION_LIGHTLED[] PROGMEM                 = "Led";
+const char PT_OPTION_BOX_FAN[] PROGMEM                  = "";
 const char PT_OPTION_INFO[] PROGMEM                     = "Vers""\xe3""o";
 const char PT_OPTION_CONTACT[] PROGMEM                  = "Suporte";
 const char PT_OPTION_AUTOLEVEL[] PROGMEM                = "Autonivelamento";

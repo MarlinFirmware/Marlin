@@ -162,6 +162,7 @@ const char SE_ICON_MOVE_10MM[] PROGMEM                  = "Flytta 10 mm";
 const char SE_ICON_MOVE_1MM[] PROGMEM                   = "Flytta 1 mm";
 const char SE_ICON_MOVE_01MM[] PROGMEM                  = "Flytta 0,1 mm";
 const char SE_OPTION_LIGHTLED[] PROGMEM                 = "Lysdiod";
+const char SE_OPTION_BOX_FAN[] PROGMEM                  = "";
 const char SE_OPTION_INFO[] PROGMEM                     = "Version";
 const char SE_OPTION_CONTACT[] PROGMEM                  = "Support";
 const char SE_OPTION_AUTOLEVEL[] PROGMEM                = "Sj""\xe4""lvniveller.";
