@@ -661,7 +661,7 @@ void action_stop_print()
 	digitalWrite(FAN_BOX_PIN, LOW);
 #endif //FAN_BOX_PIN
 
-	if(card.sdprinting == true || stop_buffer_code == 1)
+	if(card.isFileOpen() == true)
 	{
 		card.sdprinting = false;
 		card.closefile();
@@ -737,6 +737,8 @@ void action_stop_print()
 	cancel_heatup = true;
 
 	PrintManager::knownPosition(true);
+	
+	stop_buffer = false;
 }
 
 void action_finish_print()
