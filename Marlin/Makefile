@@ -220,7 +220,7 @@ CXXSRC += Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp SdFile.cpp SdVolume.cpp
 ifeq ($(HARDWARE_DISPLAY), Graphic)
 	CXXSRC += GuiManager.cpp \
 		StepperClass.cpp Language.cpp
-	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp \
+	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp FanManager.cpp \
 		TemperatureControl.cpp
 	include ui/ui.mk
 	VPATHTEMP += ui
