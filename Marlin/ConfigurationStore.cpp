@@ -407,16 +407,9 @@ void Config_ResetDefault() {
     absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
   #endif
-#ifdef LEVEL_SENSOR
-    if(eeprom::StorageManager::single::instance().getInitialized())
-    {
-      zprobe_zoffset = eeprom::StorageManager::single::instance().getOffset();
-    }
-    else
-    {
-      zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
-    }
-    
+
+  #ifdef LEVEL_SENSOR
+    zprobe_zoffset = eeprom::StorageManager::single::instance().getOffset();
   #endif
 
   #ifdef DOGLCD
