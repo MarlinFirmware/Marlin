@@ -188,7 +188,7 @@ const char FR_SCREEN_MOVE_TO_UNLOAD_TEXT[] PROGMEM      = "R""\xe9""glage positi
 const char FR_SCREEN_MOVE_TO_LOAD_TITLE[] PROGMEM       = "Ins""\xe9""rer le filament";
 const char FR_SCREEN_MOVE_TO_LOAD_TEXT[] PROGMEM        = "R""\xe9""glage position";
 const char FR_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Changer le filament";
-const char FR_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "R""\xe9""glage position en cours";
+const char FR_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "R""\xe9""glage position";
 const char FR_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Impression arr""\xea""t""\xe9""e";
 const char FR_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Retirez les r""\xe9""sidus du plateau";
 
