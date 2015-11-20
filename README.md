@@ -24,18 +24,9 @@ Besides the BQ team, focused on specific changes and improvements for Witbox and
 
  - Erik van der Zalm ([@ErikZalm](https://github.com/ErikZalm))
  - [@daid](https://github.com/daid)
+ - And many others...
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
-
-Sprinters lead developers are Kliment and caru.
-Grbls lead developer is Simen Svale Skogsrud.
-Sonney Jeon (Chamnit) improved some parts of grbl
-A fork by bkubicek for the Ultimaker was merged.
-
-More features have been added by:
-  - Lampmaker,
-  - Bradley Feldman,
-  - and many others...
 
 ## Licence
 
