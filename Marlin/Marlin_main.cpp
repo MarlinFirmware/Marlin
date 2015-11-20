@@ -4877,10 +4877,10 @@ void RESET()
 
    SERIAL_ECHOLN("RESET: Wait for watchdog reset");
    wdt_enable(WDTO_15MS);
-   while (1) {};
+   while (1);
 }
 
-void reset(void)
+void wdt_init(void)
 {
 	cli();
 	// Note that for newer devices (any AVR that has the option to also
@@ -4890,6 +4890,7 @@ void reset(void)
 	// to turn off the watchdog early during program startup.
 	MCUSR = 0; // clear reset flags
 	wdt_disable();
+	return;
 }
 
 void set_relative_mode(bool value){
