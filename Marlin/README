@@ -1,4 +1,0 @@
-bq Witbox/Hephestos firmware: https://github.com/bq/Marlin
-Based on Marlin from Erik Zalm: https://github.com/ErikZalm/Marlin
-
-In order to build the firmware, copy all files for the specific printer you want to compile (under config/$PRINTER_NAME) to the main folder of the source code.
