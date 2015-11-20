@@ -60,7 +60,7 @@
 // #define PS_DEFAULT_OFF
 
 // Define this to have hotbed support
-#define HEATED_BED_SUPPORT
+//#define HEATED_BED_SUPPORT
 
 //===========================================================================
 //============================= Thermal Settings ============================
