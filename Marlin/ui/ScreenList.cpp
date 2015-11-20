@@ -39,8 +39,6 @@ namespace ui
 		, m_browsing_cache(0)
 	{
 		m_previous_time = millis();
-		m_browsing_cache = new SDCache();
-		m_browsing_cache->setWindowCentered();
 	}
 
 	ScreenList::~ScreenList()
@@ -56,6 +54,8 @@ namespace ui
 		}
 		else 
 		{
+			m_browsing_cache = new SDCache();
+			m_browsing_cache->setWindowCentered();
 			m_browsing_cache->reloadCache();
 		}
 	}
