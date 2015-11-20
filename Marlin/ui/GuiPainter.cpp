@@ -249,12 +249,12 @@ namespace ui
 				strcpy(text_buffer, msg);
 
 				//First pass to get number of lines
-				do
-				{
-					word_buffer = strsep(&text_buffer, " ");
+				word_buffer = strsep(&text_buffer, " ");
 
+				while ( (word_buffer != NULL) && (total_num_lines <= max_num_lines) )
+				{
 					// The current line is not full yet.
-					if (strlen(line_buffer) + strlen(word_buffer) <= (max_chars_per_line + 1) )
+					if (strlen(line_buffer) + strlen(word_buffer) <= max_chars_per_line )
 					{
 						strcat(line_buffer, word_buffer);
 						strcat(line_buffer, " ");
@@ -262,6 +262,7 @@ namespace ui
 					// The current line is full.
 					else
 					{
+
 						line_buffer[strlen(line_buffer) - 1] = '\0';
 						chars_per_line[num_line] = strlen(line_buffer);
 
@@ -275,7 +276,9 @@ namespace ui
 						strcat(line_buffer, word_buffer);
 						strcat(line_buffer, " ");
 					}
-				} while ( (word_buffer != NULL) && (total_num_lines <= max_num_lines) );
+
+					word_buffer = strsep(&text_buffer, " ");
+				}
 
 				line_buffer[strlen(line_buffer) - 1] = '\0';
 				chars_per_line[num_line] = strlen(line_buffer);
@@ -356,10 +359,10 @@ namespace ui
 				strcpy_P(text_buffer, msg);
 
 				//First pass to get number of lines
-				do
-				{
-					word_buffer = strsep(&text_buffer, " ");
+				word_buffer = strsep(&text_buffer, " ");
 
+				while ( (word_buffer != NULL) && (total_num_lines <= max_num_lines) )
+				{
 					// The current line is not full yet.
 					if (strlen(line_buffer) + strlen(word_buffer) <= max_chars_per_line)
 					{
@@ -382,7 +385,9 @@ namespace ui
 						strcat(line_buffer, word_buffer);
 						strcat(line_buffer, " ");
 					}
-				} while ( (word_buffer != NULL) && (total_num_lines <= max_num_lines) );
+
+					word_buffer = strsep(&text_buffer, " ");
+				}
 
 				line_buffer[strlen(line_buffer) - 1] = '\0';
 				chars_per_line[num_line] = strlen(line_buffer);
