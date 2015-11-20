@@ -35,12 +35,15 @@ namespace ui
 		: Screen(title, LIST)
 		, m_index(0)
 		, m_num_items(0)
-	{
-		memset(m_item, 0, m_max_items); 
-	}
+	{ }
 
 	ScreenSetting::~ScreenSetting()
-	{ }
+	{
+		for (uint8_t i = 0;i < m_num_items; ++i)
+		{
+			delete m_item[i];
+		}
+	}
 
 	void ScreenSetting::init(uint16_t index)
 	{ }
