@@ -51,11 +51,11 @@ namespace ui
 			painter.setWorkingArea(text_area);
 			painter.multiText_P(m_message);
 
-			painter.setPrintPos(padding, 41);
+			painter.setPrintPos(padding, 43);
 			painter.print(height);
 
-			painter.drawBitmap(127 - strlen(total_time) * 6 - padding - icon_clock_width - 2, 41, icon_clock_width, icon_clock_height, icon_clock);
-			painter.setPrintPos( 127 - strlen(total_time) * 6 - padding, 41);
+			painter.drawBitmap(127 - strlen(total_time) * 6 - padding - icon_clock_width - 2, 43, icon_clock_width, icon_clock_height, icon_clock);
+			painter.setPrintPos( 127 - strlen(total_time) * 6 - padding, 43);
 			painter.print(total_time);
 
 		} while( painter.nextPage() );
