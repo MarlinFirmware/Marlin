@@ -586,9 +586,9 @@ namespace ui
 #ifdef LIGHT_ENABLED
 		OptionToggle<uint8_t>  * option_led         = new OptionToggle<uint8_t>(option_size, MSG_OPTION_LIGHTLED(), LightManager::setMode, &LightManager::single::instance());
 #endif // LIGHT_ENABLED
-#ifdef FAN_BLOCK_PIN
+#ifdef FAN_BOX_PIN
 		OptionToggle<bool>  * option_fan         = new OptionToggle<bool>(option_size, MSG_OPTION_BOX_FAN(), FanManager::toogleState, &FanManager::single::instance());
-#endif // FAN_BLOCK_PIN
+#endif // FAN_BOX_PIN
 		OptionToggle<bool>  * option_serial      = new OptionToggle<bool> (option_size, MSG_OPTION_SERIAL(), SerialManager::setState, &SerialManager::single::instance());
 		OptionLaunch * option_offset      = new OptionLaunch(option_size, MSG_OPTION_OFFSET());
 		option_offset->add(screen_offset);
@@ -607,9 +607,9 @@ namespace ui
 #ifdef LIGHT_ENABLED
 		local_view->add(option_led);
 #endif // LIGHT_ENABLED
-#ifdef FAN_BLOCK_PIN
+#ifdef FAN_BOX_PIN
 		local_view->add(option_fan);
-#endif // FAN_BLOCK_PIN
+#endif // FAN_BOX_PIN
 		local_view->add(option_serial);
 		local_view->add(option_offset);
 		local_view->add(option_language);
