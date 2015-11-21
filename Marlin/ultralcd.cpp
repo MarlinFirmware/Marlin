@@ -117,6 +117,25 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 #endif
 
 
+
+#ifdef JOYSTICK
+
+#ifndef ENCODER_STEPS_PER_MENU_ITEM
+#define ENCODER_STEPS_PER_MENU_ITEM 5
+#endif
+#ifndef ENCODER_PULSES_PER_STEP
+#define ENCODER_PULSES_PER_STEP 5
+#endif
+#else
+#ifndef ENCODER_STEPS_PER_MENU_ITEM
+#define ENCODER_STEPS_PER_MENU_ITEM 5 // VIKI LCD rotary encoder uses a different number of steps per rotation
+#endif
+#ifndef ENCODER_PULSES_PER_STEP
+#define ENCODER_PULSES_PER_STEP 5
+#endif
+
+#endif
+
 /* Helper macros for menus */
 #define START_MENU() do { \
     if (encoderPosition > 0x8000) encoderPosition = 0; \
