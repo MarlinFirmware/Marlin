@@ -773,6 +773,12 @@
         #define BTN_EN2 33
         #define BTN_ENC 35
 
+        #ifdef JOYSTICK
+          #define JOY_Y A10
+          #define JOY_X A9
+
+        #endif
+
         #define SDCARDDETECT 49
       #elif defined(LCD_I2C_PANELOLU2)
         #define BTN_EN1 47  //reverse if the encoder turns the wrong way.

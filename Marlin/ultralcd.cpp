@@ -1131,6 +1131,14 @@ void lcd_init()
     SET_INPUT(BTN_EN2);
     WRITE(BTN_EN1,HIGH);
     WRITE(BTN_EN2,HIGH);
+
+  #ifdef JOYSTICK
+
+  pinMode(JOY_Y, INPUT);
+  pinMode(JOY_X, INPUT);
+
+  #endif
+    
   #if BTN_ENC > 0
     SET_INPUT(BTN_ENC);
     WRITE(BTN_ENC,HIGH);
@@ -1422,6 +1430,49 @@ void lcd_buttons_update()
         }
     }
     lastEncoderBits = enc;
+
+
+
+    #ifdef JOYSTICK
+
+ // TEXTO
+ newbutton=0;
+
+  float jaxisy, jaxisx;
+  jaxisy = analogRead(JOY_Y);
+  jaxisx = analogRead(JOY_X);
+  if (READ(BTN_EN1) == 0)  newbutton |= EN_A;
+  if (READ(BTN_EN2) == 0)  newbutton |= EN_B;
+
+  if (jaxisx > 900) {
+    newbutton |= EN_C;
+  }
+  else if (jaxisx < 200) {
+    //buttons = newbutton;
+    newbutton |= EN_C;
+  }
+  #if BTN_ENC > 0
+    if ((blocking_enc < millis()) && (READ(BTN_ENC) == 0)) {
+      newbutton |= EN_C;
+    }
+  #endif
+  
+  buttons = newbutton;
+
+
+
+  if (abs(lastY - jaxisy) > JOYSTICK_SENSIBILITY) {
+
+    if (jaxisy > 600) {
+        encoderDiff++;
+    } else if (jaxisy < 450) {
+       encoderDiff--;
+    }
+        lastY = jaxisy;
+  }
+  lastEncoderBits = enc;
+
+#endif
 }
 
 bool lcd_detected(void)
