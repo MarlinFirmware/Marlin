@@ -2622,6 +2622,8 @@ Sigma_Exit:
       break;
     case 115: // M115
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
+      SERIAL_PROTOCOL(" X-SERIAL_NUM:");
+      SERIAL_PROTOCOLLN(eeprom::StorageManager::getSerialNumber());
       break;
     case 117: // M117 display message
 
