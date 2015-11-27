@@ -7161,7 +7161,7 @@ void kill(const char* lcd_msg) {
           break;
       #endif
   }
-
+}
 #endif // FAST_PWM_FAN
 
 void Stop() {
