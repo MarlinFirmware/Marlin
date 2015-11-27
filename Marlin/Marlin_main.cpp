@@ -7160,8 +7160,8 @@ void kill(const char* lcd_msg) {
           TCCR5B |= val;
           break;
       #endif
+    }
   }
-
 #endif // FAST_PWM_FAN
 
 void Stop() {
