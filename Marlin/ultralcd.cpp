@@ -117,7 +117,7 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 #endif
 
 
-
+//this need to be tested on a 128x61 lcd because i made this setting to work on a 16x2 lcd
 #ifdef JOYSTICK
 
 #ifndef ENCODER_STEPS_PER_MENU_ITEM

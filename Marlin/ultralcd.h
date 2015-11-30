@@ -94,6 +94,9 @@
     #define LCD_CLICKED ((buttons&B_MI)||(buttons&B_ST))
   #endif//NEWPANEL
 
+#ifdef JOYSTICK
+#define JOYSTICK_SENSIBILITY = 100;
+#endif
 #else //no LCD
   FORCE_INLINE void lcd_update() {}
   FORCE_INLINE void lcd_init() {}
