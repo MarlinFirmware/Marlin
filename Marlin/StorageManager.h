@@ -87,6 +87,7 @@ namespace eeprom
 			static const uint8_t checkEEPROMState();
 			
 			static const uint8_t getBoardType();
+			static const char * getSerialNumber();
 
 		private:
 			void updateEEPROMVersion();
