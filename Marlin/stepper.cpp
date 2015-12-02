@@ -84,7 +84,11 @@ static volatile char endstop_hit_bits = 0; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_
     old_endstop_bits = 0; // use X_MIN, X_MAX... Z_MAX, Z_MIN_PROBE, Z2_MIN, Z2_MAX
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-  bool abort_on_endstop_hit = false;
+  #if ENABLED(ABORT_ON_ENDSTOP_HIT_INIT)
+    bool abort_on_endstop_hit = ABORT_ON_ENDSTOP_HIT_INIT;
+  #else
+    bool abort_on_endstop_hit = false;
+  #endif
 #endif
 
 #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
@@ -251,23 +255,30 @@ void endstops_hit_on_purpose() {
 
 void checkHitEndstops() {
   if (endstop_hit_bits) {
-    SERIAL_ECHO_START;
+    #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
+      if (abort_on_endstop_hit)
+        SERIAL_ERROR_START;
+      else
+        SERIAL_ECHO_START;
+    #else
+      SERIAL_ECHO_START;
+    #endif
     SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
     if (endstop_hit_bits & BIT(X_MIN)) {
-      SERIAL_ECHOPAIR(" X:", (float)endstops_trigsteps[X_AXIS] / axis_steps_per_unit[X_AXIS]);
+      SERIAL_ECHOPAIR(" X=", (float)endstops_trigsteps[X_AXIS] / axis_steps_per_unit[X_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
     }
     if (endstop_hit_bits & BIT(Y_MIN)) {
-      SERIAL_ECHOPAIR(" Y:", (float)endstops_trigsteps[Y_AXIS] / axis_steps_per_unit[Y_AXIS]);
+      SERIAL_ECHOPAIR(" Y=", (float)endstops_trigsteps[Y_AXIS] / axis_steps_per_unit[Y_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
     }
     if (endstop_hit_bits & BIT(Z_MIN)) {
-      SERIAL_ECHOPAIR(" Z:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
+      SERIAL_ECHOPAIR(" Z=", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
     }
     #if ENABLED(Z_MIN_PROBE_ENDSTOP)
       if (endstop_hit_bits & BIT(Z_MIN_PROBE)) {
-        SERIAL_ECHOPAIR(" Z_MIN_PROBE:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
+        SERIAL_ECHOPAIR(" Z_MIN_PROBE=", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
         LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "ZP");
       }
     #endif
@@ -275,12 +286,15 @@ void checkHitEndstops() {
 
     endstops_hit_on_purpose();
 
-    #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
+    #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
       if (abort_on_endstop_hit) {
-        card.sdprinting = false;
-        card.closefile();
-        quickStop();
-        disable_all_heaters(); // switch off all heaters.
+        #if ENABLED(SDSUPPORT)
+          card.sdprinting = false;
+          card.closefile();
+        #endif
+        axis_known_position[3] = { false }; // not homed anymore
+        quickStop(); // kill the planner buffer
+        Stop();      // restart by M999
       }
     #endif
   }
