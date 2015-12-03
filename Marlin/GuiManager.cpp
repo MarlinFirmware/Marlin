@@ -526,7 +526,6 @@ void lcd_emergency_stop()
 	if (eeprom::StorageManager::getEmergency() == eeprom::EMERGENCY_STOP_INACTIVE)
 	{
 		SERIAL_ECHOLN("KILLED: Requested Emergency Stop!");
-		eeprom::StorageManager::setEmergency();
 		stop_buffer = true;
 		stop_buffer_code = 999;
 
@@ -546,6 +545,7 @@ void lcd_emergency_stop()
 
 		cancel_heatup = true;
 		action_cooldown();
+		eeprom::StorageManager::setEmergency();
 	}
 	else
 	{
