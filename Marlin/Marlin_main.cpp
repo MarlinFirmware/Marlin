@@ -447,6 +447,10 @@ void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); 
   float extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 
+#if ENABLED(HAS_Z_MIN_PROBE)
+  extern volatile bool z_probe_is_active;
+#endif
+
 #if ENABLED(SDSUPPORT)
   #include "SdFatUtil.h"
   int freeMemory() { return SdFatUtil::FreeRam(); }
@@ -596,7 +600,8 @@ void servo_init() {
   #if HAS_SERVO_ENDSTOPS
     for (int i = 0; i < 3; i++)
       if (servo_endstop_id[i] >= 0)
-        servo[servo_endstop_id[i]].move(servo_endstop_angle[i][1]);
+        servo[servo_endstop_id[i]].move(servo_endstop_angle[i][1]); // unsafe! could be deployed and to deep to stow. No way to know where we are before homing - no homing with z-probe without init!
+    z_probe_is_active = false;
   #endif
 
 }
@@ -1414,6 +1419,8 @@ static void setup_for_endstop_move() {
     refresh_cmd_timeout();
   }
 
+  #if ENABLED(HAS_Z_MIN_PROBE)
+
   static void deploy_z_probe() {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1421,6 +1428,8 @@ static void setup_for_endstop_move() {
         print_xyz("deploy_z_probe > current_position", current_position);
       }
     #endif
+
+    if(z_probe_is_active) return;
 
     #if HAS_SERVO_ENDSTOPS
 
@@ -1461,20 +1470,19 @@ static void setup_for_endstop_move() {
             if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
               feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
 
-          // Move to trigger deployment
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
-            feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_3_X != Z_PROBE_ALLEN_KEY_DEPLOY_2_X)
-            destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_X;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Y != Z_PROBE_ALLEN_KEY_DEPLOY_2_Y)
-            destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Y;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Z != Z_PROBE_ALLEN_KEY_DEPLOY_2_Z)
-            destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Z;
+            // Move to trigger deployment
+            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
+              feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
+            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_X != Z_PROBE_ALLEN_KEY_DEPLOY_2_X)
+              destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_X;
+            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Y != Z_PROBE_ALLEN_KEY_DEPLOY_2_Y)
+              destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Y;
+            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Z != Z_PROBE_ALLEN_KEY_DEPLOY_2_Z)
+              destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Z;
 
-          prepare_move_raw();
-
-        #endif
-      }
+            prepare_move_raw();
+          #endif
+        }
 
       // Partially Home X,Y for safety
       destination[X_AXIS] = destination[X_AXIS] * 0.75;
@@ -1501,6 +1509,12 @@ static void setup_for_endstop_move() {
 
     #endif // Z_PROBE_ALLEN_KEY
 
+    #if ENABLED(FIX_MOUNTED_PROBE)
+      // Noting to be done. Just set z_probe_is_active
+    #endif
+
+    z_probe_is_active = true;
+
   }
 
   static void stow_z_probe(bool doRaise = true) {
@@ -1509,6 +1523,8 @@ static void setup_for_endstop_move() {
         print_xyz("stow_z_probe > current_position", current_position);
       }
     #endif
+
+    if(!z_probe_is_active) return;
 
     #if HAS_SERVO_ENDSTOPS
 
@@ -1594,7 +1610,14 @@ static void setup_for_endstop_move() {
           Stop();
         }
     #endif // Z_PROBE_ALLEN_KEY
+
+    #if ENABLED(FIX_MOUNTED_PROBE)
+      // Noting to be done. Just set z_probe_is_active
+    #endif
+
+    z_probe_is_active = false;
   }
+  #endif // HAS_Z_MIN_PROBE
 
   enum ProbeAction {
     ProbeStay          = 0,
@@ -1779,6 +1802,9 @@ static void setup_for_endstop_move() {
         SERIAL_EOL;
       }
     #endif
+
+    if(z_probe_is_active == dock) return;
+
     if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
       LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
       SERIAL_ECHO_START;
@@ -1801,6 +1827,8 @@ static void setup_for_endstop_move() {
       digitalWrite(SLED_PIN, HIGH); // turn on magnet
     }
     do_blocking_move_to_x(oldXpos); // return to position before docking
+
+    z_probe_is_active = dock;
   }
 
 #endif // Z_PROBE_SLED
@@ -1841,9 +1869,7 @@ static void homeaxis(AxisEnum axis) {
       if (axis == Z_AXIS) {
         if (axis_home_dir < 0) dock_sled(false);
       }
-    #endif
-
-    #if SERVO_LEVELING && DISABLED(Z_PROBE_SLED)
+    #elif SERVO_LEVELING || ENABLED(FIX_MOUNTED_PROBE)
 
       // Deploy a Z probe if there is one, and homing towards the bed
       if (axis == Z_AXIS) {
@@ -1854,8 +1880,10 @@ static void homeaxis(AxisEnum axis) {
 
     #if HAS_SERVO_ENDSTOPS
       // Engage Servo endstop if enabled
-      if (axis != Z_AXIS && servo_endstop_id[axis] >= 0)
+      if (axis != Z_AXIS && servo_endstop_id[axis] >= 0) {
         servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][0]);
+        z_probe_is_active = true;
+      }
     #endif
 
     // Set a flag for Z motor locking
@@ -1987,9 +2015,7 @@ static void homeaxis(AxisEnum axis) {
       if (axis == Z_AXIS) {
         if (axis_home_dir < 0) dock_sled(true);
       }
-    #endif
-
-    #if SERVO_LEVELING && DISABLED(Z_PROBE_SLED)
+    #elif SERVO_LEVELING || ENABLED(FIX_MOUNTED_PROBE)
 
       // Deploy a Z probe if there is one, and homing towards the bed
       if (axis == Z_AXIS) {
@@ -2016,6 +2042,7 @@ static void homeaxis(AxisEnum axis) {
             }
           #endif
           servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][1]);
+          z_probe_is_active = false;
         }
       #endif
     }
@@ -3131,7 +3158,7 @@ inline void gcode_G28() {
       #if ENABLED(Z_PROBE_ALLEN_KEY)
         stow_z_probe();
       #elif Z_RAISE_AFTER_PROBING > 0
-        raise_z_after_probing();
+        raise_z_after_probing(); // ???
       #endif
     #else // !DELTA
       if (verbose_level > 0)
@@ -3210,6 +3237,9 @@ inline void gcode_G28() {
         }
       #endif
       enqueuecommands_P(PSTR(Z_PROBE_END_SCRIPT));
+      #if ENABLED(HAS_Z_MIN_PROBE)
+        z_probe_is_active = false;
+      #endif
       st_synchronize();
     #endif
 
@@ -3221,7 +3251,7 @@ inline void gcode_G28() {
 
   }
 
-  #if DISABLED(Z_PROBE_SLED)
+  #if DISABLED(Z_PROBE_SLED) // could be avoided
 
     /**
      * G30: Do a single Z probe at the current XY
@@ -3230,11 +3260,11 @@ inline void gcode_G28() {
       #if HAS_SERVO_ENDSTOPS
         raise_z_for_servo();
       #endif
-      deploy_z_probe(); // Engage Z Servo endstop if available
+      deploy_z_probe(); // Engage Z Servo endstop if available. Z_PROBE_SLED is missed her.
 
       st_synchronize();
       // TODO: clear the leveling matrix or the planner will be set incorrectly
-      setup_for_endstop_move();
+      setup_for_endstop_move(); // to late. Must be done before deploying.
 
       feedrate = homing_feedrate[Z_AXIS];
 
@@ -3247,12 +3277,12 @@ inline void gcode_G28() {
       SERIAL_PROTOCOL(current_position[Z_AXIS] + 0.0001);
       SERIAL_EOL;
 
-      clean_up_after_endstop_move();
+      clean_up_after_endstop_move(); // to early. must be done after the stowing.
 
       #if HAS_SERVO_ENDSTOPS
         raise_z_for_servo();
       #endif
-      stow_z_probe(false); // Retract Z Servo endstop if available
+      stow_z_probe(false); // Retract Z Servo endstop if available. Z_PROBE_SLED is missed her.
     }
 
   #endif //!Z_PROBE_SLED
