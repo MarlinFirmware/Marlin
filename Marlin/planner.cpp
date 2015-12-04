@@ -931,18 +931,18 @@ float junction_deviation = 0.1;
   float safe_speed = vmax_junction;
 
   if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
-    float dx = current_speed[X_AXIS] - previous_speed[X_AXIS],
-          dy = current_speed[Y_AXIS] - previous_speed[Y_AXIS],
-          dz = fabs(csz - previous_speed[Z_AXIS]),
-          de = fabs(cse - previous_speed[E_AXIS]),
-          jerk = sqrt(dx * dx + dy * dy);
+    float dsx = current_speed[X_AXIS] - previous_speed[X_AXIS],
+          dsy = current_speed[Y_AXIS] - previous_speed[Y_AXIS],
+          dsz = fabs(csz - previous_speed[Z_AXIS]),
+          dse = fabs(cse - previous_speed[E_AXIS]),
+          jerk = sqrt(dsx * dsx + dsy * dsy);
 
     //    if ((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
     vmax_junction = block->nominal_speed;
     //    }
     if (jerk > max_xy_jerk) vmax_junction_factor = max_xy_jerk / jerk;
-    if (dz > max_z_jerk) vmax_junction_factor = min(vmax_junction_factor, max_z_jerk / dz);
-    if (de > max_e_jerk) vmax_junction_factor = min(vmax_junction_factor, max_e_jerk / de);
+    if (dsz > max_z_jerk) vmax_junction_factor = min(vmax_junction_factor, max_z_jerk / dsz);
+    if (dse > max_e_jerk) vmax_junction_factor = min(vmax_junction_factor, max_e_jerk / dse);
 
     vmax_junction = min(previous_nominal_speed, vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
   }
