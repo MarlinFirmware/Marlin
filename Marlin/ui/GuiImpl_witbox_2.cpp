@@ -453,7 +453,7 @@ namespace ui
 	static ScreenSwitch * make_screen_level_switch_preheat()
 	{
 		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_preheat_temp);
-		local_view->add(screen_level_preheating);
+		local_view->add(screen_level_switch);
 		local_view->add(screen_level_preheat);
 		return local_view;
 	}
