@@ -147,7 +147,7 @@ void action_homing()
 		current_position[Y_AXIS] = destination[Y_AXIS];
 		current_position[Z_AXIS] = destination[Z_AXIS];
 
-		HOMEAXIS(Z);
+		bedDetectionHomeZ(true);
 		raised = false;
 
 		plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -163,23 +163,13 @@ void action_homing()
 		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
 		st_synchronize();
 
-		destination[Z_AXIS] = BED_DETECTION_Z_POINT;
-		feedrate = max_feedrate[Z_AXIS];
-		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-		st_synchronize();
-
 		current_position[X_AXIS] = destination[X_AXIS];
 		current_position[Y_AXIS] = destination[Y_AXIS];
 		current_position[Z_AXIS] = destination[Z_AXIS];
+		
+		bedDetectionHomeZ(false);
 
-		if(checkZminEndstop() == false)
-		{
-			lcd_enable_button();
-			lcd_emergency_stop();
-			return;
-		}
-
-#endif //BED_DETECTION
+#else //no BED_DETECTION
 
 		destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT);
 		destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT);
@@ -192,8 +182,10 @@ void action_homing()
 		st_synchronize();
 		current_position[X_AXIS] = destination[X_AXIS];
 		current_position[Y_AXIS] = destination[Y_AXIS];
-
+		
 		HOMEAXIS(Z);
+#endif //BED_DETECTION
+
 		raised = false;
 
 #endif //LEVEL_SENSOR
