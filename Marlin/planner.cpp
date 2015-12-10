@@ -227,16 +227,17 @@ void planner_reverse_pass_kernel(block_t* previous, block_t* current, block_t* n
     // If entry speed is already at the maximum entry speed, no need to recheck. Block is cruising.
     // If not, block in state of acceleration or deceleration. Reset entry speed to maximum and
     // check for maximum allowable speed reductions to ensure maximum possible planned speed.
-    if (current->entry_speed != current->max_entry_speed) {
+    float max_entry_speed = current->max_entry_speed;
+    if (current->entry_speed != max_entry_speed) {
 
       // If nominal length true, max junction speed is guaranteed to be reached. Only compute
       // for max allowable speed if block is decelerating and nominal length is false.
-      if (!current->nominal_length_flag && current->max_entry_speed > next->entry_speed) {
-        current->entry_speed = min(current->max_entry_speed,
+      if (!current->nominal_length_flag && max_entry_speed > next->entry_speed) {
+        current->entry_speed = min(max_entry_speed,
                                    max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
       }
       else {
-        current->entry_speed = current->max_entry_speed;
+        current->entry_speed = max_entry_speed;
       }
       current->recalculate_flag = true;
 
