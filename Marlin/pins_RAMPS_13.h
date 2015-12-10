@@ -232,7 +232,7 @@
       #if ENABLED(G3D_PANEL)
         #define SD_DETECT_PIN 49
       #else
-        #define SD_DETECT_PIN -1  // Ramps doesn't use this
+        //        #define SD_DETECT_PIN -1  // Ramps doesn't use this
       #endif
 
     #endif
