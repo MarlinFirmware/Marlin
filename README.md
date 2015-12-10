@@ -14,9 +14,9 @@ Based on [Marlin](https://github.com/ErikZalm/Marlin), from Erik Zalm, this firm
 
 ## Contact
 
-__IRC:__ #marlin-firmware @freenode ([WebChat Client](https://webchat.freenode.net/?channels=marlin-firmware), [Archive](http://energymonitor-dk.dns4e.net/marlin-firmware-log/))
+__Community forum:__  [Mibqyyo](http://www.mibqyyo.com/comunidad/?lang=en)
 
-__Mailing List:__ marlin@lists.0l.de ([Subscribe](http://lists.0l.de/mailman/listinfo/marlin), [Archive](http://lists.0l.de/pipermail/marlin/))
+__Email support:__ support3d@bq.com
 
 ## Credits
 
