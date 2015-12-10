@@ -1419,47 +1419,6 @@ void homeaxis(int axis) {
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
-#ifdef BED_DETECTION
-void bedDetectionHomeZ(bool firstHoming) 
-{
-	int axis_home_dir = home_dir(Z_AXIS);
-	
-	current_position[Z_AXIS] = 0;
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-	
-	if(firstHoming)
-	{
-		feedrate = homing_feedrate[Z_AXIS];
-		destination[Z_AXIS] = 1.5 * max_length(Z_AXIS) * axis_home_dir;
-	}
-	else
-	{
-		feedrate = homing_slow_feedrate[Z_AXIS];
-		destination[Z_AXIS] = 2.5*home_retract_mm(Z_AXIS) * axis_home_dir;
-	}
-	
-	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
-    
-    if(checkZminEndstop() == false)
-	{
-		lcd_enable_button();
-		lcd_emergency_stop();
-		return;
-	}
-    
-    if(!firstHoming)
-    {
-		axis_is_at_home(Z_AXIS);
-		destination[Z_AXIS] = current_position[Z_AXIS];
-		axis_known_position[Z_AXIS] = true;
-	}
-	
-	endstops_hit_on_purpose();
-	feedrate = 0.0;
-}
-#endif
-
 void refresh_cmd_timeout(void)
 {
   previous_millis_cmd = millis();

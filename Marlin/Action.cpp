@@ -46,6 +46,52 @@ extern unsigned long previous_millis_cmd;
 
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
+#ifdef BED_DETECTION
+void bedDetectionHomeZ(bool firstHoming) 
+{
+	int axis_home_dir = home_dir(Z_AXIS);
+	
+	current_position[Z_AXIS] = 0;
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	
+	if(firstHoming)
+	{
+		feedrate = homing_feedrate[Z_AXIS];
+		destination[Z_AXIS] = 1.5 * Z_MAX_POS * axis_home_dir;
+	}
+	else
+	{
+		float homing_slow_feedrate[] = HOMING_SLOW_FEEDRATE;
+		feedrate = homing_slow_feedrate[Z_AXIS];
+		destination[Z_AXIS] = 2.5*Z_HOME_RETRACT_MM * axis_home_dir;
+	}
+	
+	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+	st_synchronize();
+
+	if(checkZminEndstop() == false)
+	{
+		lcd_enable_button();
+		lcd_emergency_stop();
+		return;
+	}
+
+	if(!firstHoming)
+	{
+		//Z axis is at home
+		current_position[Z_AXIS] = Z_HOME_POS + add_homing[Z_AXIS];
+		min_pos[Z_AXIS] = Z_MIN_POS + add_homing[Z_AXIS];
+		max_pos[Z_AXIS] = Z_MAX_POS + add_homing[Z_AXIS];
+					
+		destination[Z_AXIS] = current_position[Z_AXIS];
+		axis_known_position[Z_AXIS] = true;
+	}
+
+	endstops_hit_on_purpose();
+	feedrate = 0.0;
+}
+#endif
+
 void action_homing()
 {
 	lcd_disable_button();
@@ -283,3 +329,4 @@ void action_z_homing()
 #endif //DOGLCD
 	lcd_enable_button();
 }
+

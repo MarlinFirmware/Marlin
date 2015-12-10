@@ -311,9 +311,6 @@ extern float destination[4];
 extern int feedmultiply;
 
 extern void homeaxis(int axis);
-#ifdef BED_DETECTION
-	extern void bedDetectionHomeZ(bool firstHoming);
-#endif
 extern signed char home_dir(int axis);
 extern bool code_seen(char code);
 
