@@ -957,7 +957,7 @@ const short temptable_60[][2] PROGMEM = {
   {1008 * OVERSAMPLENR, 0},
 };
 #endif
-#if (THERMISTORBED == 12)
+#if (THERMISTORHEATER_0 == 12) || (THERMISTORHEATER_1 == 12) || (THERMISTORHEATER_2 == 12) || (THERMISTORHEATER_3 == 12) || (THERMISTORBED == 12)
 //100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
 const short temptable_12[][2] PROGMEM = {
   {35 * OVERSAMPLENR, 180}, //top rating 180C
