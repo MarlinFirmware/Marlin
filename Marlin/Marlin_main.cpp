@@ -4015,7 +4015,6 @@ inline void gcode_M109() {
       millis_t ms = millis();
       if (ms > temp_ms + 1000UL) { //Print Temp Reading every 1 second while heating up.
         temp_ms = ms;
-        float tt = degHotend(active_extruder);
         #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
           print_heaterstates();
           SERIAL_EOL;
