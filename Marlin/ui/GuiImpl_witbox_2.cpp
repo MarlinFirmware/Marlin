@@ -62,6 +62,7 @@
 #include "ScreenTemperature.h"
 #include "ScreenCooldown.h"
 #include "ScreenStop.h"
+#include "ScreenNameError.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -255,9 +256,10 @@ namespace ui
 		ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST_TITLE(), &SDManager::single::instance());
 		local_view->add(screen_main);
 		local_view->add(screen_SD_confirm);
+		local_view->add(screen_SD_name_error);
 		return local_view;
 	}
-
+	
 	static ScreenFile * make_screen_SD_confirm()
 	{
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
@@ -268,6 +270,13 @@ namespace ui
 		local_view->icon(icon_back);
 		local_view->add(screen_print_switch);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+	
+	static ScreenNameError * make_screen_SD_name_error()
+	{
+		ScreenNameError * local_view = new ScreenNameError(MSG_SCREEN_ERROR_TITLE(), MSG_SCREEN_NAME_ERROR_TEXT(), MSG_PUSH_TO_BACK(), bits_emergency);
+		local_view->add(screen_main);
 		return local_view;
 	}
 
@@ -1337,9 +1346,12 @@ namespace ui
 			// SD Management
 			case screen_SD_list:
 				new_view = make_screen_SD_list();
-				break;
+				break;			
 			case screen_SD_confirm:
 				new_view = make_screen_SD_confirm();
+				break;
+			case screen_SD_name_error:
+				new_view = make_screen_SD_name_error();
 				break;
 
 			// Unload filament

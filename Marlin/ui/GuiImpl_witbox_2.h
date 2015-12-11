@@ -58,6 +58,7 @@ namespace ui
 		screen_resetting,
 		screen_main,
 		screen_SD_list,
+		screen_SD_name_error,
 		screen_SD_confirm,
 		screen_unload_init,
 		screen_unload_switch,
