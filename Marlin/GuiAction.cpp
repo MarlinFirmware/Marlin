@@ -620,17 +620,7 @@ void action_start_print()
 	if(PrintManager::single::instance().state() == PRINTING)
 	{
 		serial_printing = false;
-
-		strcpy(cmd, card.longFilename);
-		for (c = &cmd[0]; *c; c++)
-		{
-			if ((uint8_t)*c > 127)
-			{
-				SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
-				return;
-			}
-		}
-
+		
 		sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 	}
 
