@@ -70,6 +70,8 @@ namespace ui
 			char m_directory[20];
 			bool m_directory_is_root;
 
+			ScreenIndex_t m_error_screen;
+
 			float m_scroll_size;
 
 			uint32_t m_current_time;
