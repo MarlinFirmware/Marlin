@@ -2,19 +2,19 @@
 
 This is a fork of Marlin firmware distributed by DYZE DESIGN
 
-visit us at [DYZE DESIGN Home Page](dyzedesign.com)
+visit us at [DYZE DESIGN Home Page](http://www.dyzedesign.com)
 <img align="right" src="Documentation/Logo/Dyze-logo_small.png" />
 
-# Marlin 3D Printer Firmware
+## Marlin 3D Printer Firmware
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
-## Contact
+### Contact
 
 __Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo223yimsiforia" target="_blank">. Hangout</a> We have a hangout every 2 weeks. Search the issue list for "Hangout" to determine the time and date of the next event.
 
-## Credits
+### Credits
 
 The current Marlin dev team consists of:
 
@@ -39,7 +39,7 @@ More features have been added by:
   - Bradley Feldman,
   - and others...
 
-## License
+### License
 
 Marlin is published under the [GPL license](/COPYING.md) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
 
