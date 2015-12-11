@@ -28,6 +28,12 @@
 #endif
 
 // public functions
+
+// preheating functions
+bool is_preheating();
+void start_preheat_time(int extruder);
+void reset_preheat_time(int extruder);
+
 void tp_init();  //initialize the heating
 void manage_heater(); //it is critical that this is called periodically.
 

@@ -2,11 +2,11 @@
 
 This is a fork of Marlin firmware distributed by DYZE DESIGN
 
-visit us at ##### [DYZE DESIGN Home Page](dyzedesign.com)
+visit us at [DYZE DESIGN Home Page](dyzedesign.com)
 <img align="right" src="Documentation/Logo/dyze-logo_100x100.png" />
 
 # Marlin 3D Printer Firmware
-<img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
+<img align="right" src="Documentation/Logo/Marlin%20Logo.png" />
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
