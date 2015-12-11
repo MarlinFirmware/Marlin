@@ -3,7 +3,7 @@
 This is a fork of Marlin firmware distributed by DYZE DESIGN
 
 visit us at [DYZE DESIGN Home Page](dyzedesign.com)
-<img align="right" src="Documentation/Logo/dyze-logo_small.png" />
+<img align="right" src="Documentation/Logo/Dyze-logo_small.png" />
 
 # Marlin 3D Printer Firmware
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
