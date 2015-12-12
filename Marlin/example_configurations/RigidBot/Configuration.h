@@ -219,6 +219,11 @@ Here are some standard links for getting your machine calibrated:
   //#define  DEFAULT_Ki 0.85
   //#define  DEFAULT_Kd 245
 
+  // E3D w/ rigidbot cartridge
+  //#define  DEFAULT_Kp 16.30
+  //#define  DEFAULT_Ki 0.95
+  //#define  DEFAULT_Kd 69.69
+
 #endif // PIDTEMP
 
 //===========================================================================
@@ -611,7 +616,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-//#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS
 
 #if ENABLED(EEPROM_SETTINGS)
   // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
@@ -651,10 +656,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 //#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
+#define SDSUPPORT // Enable SD Card Support in Hardware Console
 // Changed behaviour! If you need SDSUPPORT uncomment it!
 //#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
-//#define SDEXTRASLOW // Use even slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
+#define SDEXTRASLOW // Use even slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 //#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
 //#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
@@ -674,13 +679,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // The Panucatt Devices Viki 2.0 and mini Viki with Graphic LCD
 // http://panucatt.com
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
 //#define VIKI2
 //#define miniVIKI
 
 // This is a new controller currently under development.  https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
 //
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
 //#define ELB_FULL_GRAPHIC_CONTROLLER
 //#define SD_DETECT_INVERTED
 
@@ -695,7 +700,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // The RepRapDiscount FULL GRAPHIC Smart Controller (quadratic white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
 //
 // RigidBoard: To rewire this for a RigidBot see http://rigidtalk.com/wiki/index.php?title=LCD_Smart_Controller
 //
@@ -734,7 +739,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define LCD_I2C_VIKI
 
 // SSD1306 OLED generic display support
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
 //#define U8GLIB_SSD1306
 
 // Shift register panels
