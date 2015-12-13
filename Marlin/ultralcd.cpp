@@ -218,9 +218,6 @@ static void lcd_status_screen();
   #if ENABLED(REPRAPWORLD_KEYPAD)
     volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
   #endif
-  #if ENABLED(RIGIDBOT_PANEL)
-    volatile millis_t next_fake_encoder_update_ms;
-  #endif
 
   #if ENABLED(LCD_HAS_SLOW_BUTTONS)
     volatile uint8_t slow_buttons; // Bits of the pressed buttons.
@@ -1555,7 +1552,6 @@ void lcd_init() {
       pinMode(BTN_DWN,INPUT);
       pinMode(BTN_LFT,INPUT);
       pinMode(BTN_RT,INPUT);
-      next_fake_encoder_update_ms = 0;
     #endif
 
   #else  // Not NEWPANEL
@@ -1685,7 +1681,7 @@ void lcd_update() {
               int32_t encoderMovementSteps = abs(encoderDiff) / ENCODER_PULSES_PER_STEP;
 
               if (lastEncoderMovementMillis != 0) {
-                // Note that the rate is always calculated between to passes through the 
+                // Note that the rate is always calculated between to passes through the
                 // loop and that the abs of the encoderDiff value is tracked.
                 float encoderStepRate = (float)(encoderMovementSteps) / ((float)(ms - lastEncoderMovementMillis)) * 1000.0;
 
@@ -1865,24 +1861,26 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         if (READ(BTN_EN2) == 0) newbutton |= EN_B;
       #endif
       #if ENABLED(RIGIDBOT_PANEL)
-        if (millis() > next_fake_encoder_update_ms && READ(BTN_UP) == 0) {
-          encoderDiff = -1 * ENCODER_STEPS_PER_MENU_ITEM;
-          next_fake_encoder_update_ms = millis() + 300;
-        }
-        if (millis() > next_fake_encoder_update_ms && READ(BTN_DWN) == 0) {
-          encoderDiff = ENCODER_STEPS_PER_MENU_ITEM;
-          next_fake_encoder_update_ms = millis() + 300;
-        }
-        if (millis() > next_fake_encoder_update_ms && READ(BTN_LFT) == 0) {
-          encoderDiff = -1 * ENCODER_PULSES_PER_STEP;
-          next_fake_encoder_update_ms = millis() + 300;
-        }
-        if (millis() > next_fake_encoder_update_ms && READ(BTN_RT) == 0) {
-          encoderDiff = ENCODER_PULSES_PER_STEP;
-          next_fake_encoder_update_ms = millis() + 300;
+        millis_t now = millis();
+        if (now > next_button_update_ms) {
+          if (READ(BTN_UP) == 0) {
+            encoderDiff = -1 * ENCODER_STEPS_PER_MENU_ITEM;
+            next_button_update_ms = now + 300;
+          }
+          else if (READ(BTN_DWN) == 0) {
+            encoderDiff = ENCODER_STEPS_PER_MENU_ITEM;
+            next_button_update_ms = now + 300;
+          }
+          else if (READ(BTN_LFT) == 0) {
+            encoderDiff = -1 * ENCODER_PULSES_PER_STEP;
+            next_button_update_ms = now + 300;
+          }
+          else if (READ(BTN_RT) == 0) {
+            encoderDiff = ENCODER_PULSES_PER_STEP;
+            next_button_update_ms = now + 300;
+          }
         }
       #endif
-
 
       #if BTN_ENC > 0
         if (millis() > next_button_update_ms && READ(BTN_ENC) == 0) newbutton |= EN_C;
