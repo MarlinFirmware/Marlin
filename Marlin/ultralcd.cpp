@@ -218,6 +218,9 @@ static void lcd_status_screen();
   #if ENABLED(REPRAPWORLD_KEYPAD)
     volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
   #endif
+  #if ENABLED(RIGIDBOT_PANEL)
+    volatile millis_t next_fake_encoder_update_ms;
+  #endif
 
   #if ENABLED(LCD_HAS_SLOW_BUTTONS)
     volatile uint8_t slow_buttons; // Bits of the pressed buttons.
@@ -1524,11 +1527,15 @@ void lcd_init() {
   lcd_implementation_init();
 
   #if ENABLED(NEWPANEL)
+    #if BTN_EN1 > 0
+      SET_INPUT(BTN_EN1);
+      WRITE(BTN_EN1, HIGH);
+    #endif
 
-    SET_INPUT(BTN_EN1);
-    SET_INPUT(BTN_EN2);
-    WRITE(BTN_EN1, HIGH);
-    WRITE(BTN_EN2, HIGH);
+    #if BTN_EN2 > 0
+      SET_INPUT(BTN_EN2);
+      WRITE(BTN_EN2, HIGH);
+    #endif
 
     #if BTN_ENC > 0
       SET_INPUT(BTN_ENC);
@@ -1541,6 +1548,14 @@ void lcd_init() {
       pinMode(SHIFT_OUT, INPUT);
       WRITE(SHIFT_OUT, HIGH);
       WRITE(SHIFT_LD, HIGH);
+    #endif
+
+    #ifdef RIGIDBOT_PANEL
+      pinMode(BTN_UP,INPUT);
+      pinMode(BTN_DWN,INPUT);
+      pinMode(BTN_LFT,INPUT);
+      pinMode(BTN_RT,INPUT);
+      next_fake_encoder_update_ms = 0;
     #endif
 
   #else  // Not NEWPANEL
@@ -1843,8 +1858,32 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   void lcd_buttons_update() {
     #if ENABLED(NEWPANEL)
       uint8_t newbutton = 0;
-      if (READ(BTN_EN1) == 0) newbutton |= EN_A;
-      if (READ(BTN_EN2) == 0) newbutton |= EN_B;
+      #if BTN_EN1 > 0
+        if (READ(BTN_EN1) == 0) newbutton |= EN_A;
+      #endif
+      #if BTN_EN2 > 0
+        if (READ(BTN_EN2) == 0) newbutton |= EN_B;
+      #endif
+      #if ENABLED(RIGIDBOT_PANEL)
+        if (millis() > next_fake_encoder_update_ms && READ(BTN_UP) == 0) {
+          encoderDiff = -1 * ENCODER_STEPS_PER_MENU_ITEM;
+          next_fake_encoder_update_ms = millis() + 300;
+        }
+        if (millis() > next_fake_encoder_update_ms && READ(BTN_DWN) == 0) {
+          encoderDiff = ENCODER_STEPS_PER_MENU_ITEM;
+          next_fake_encoder_update_ms = millis() + 300;
+        }
+        if (millis() > next_fake_encoder_update_ms && READ(BTN_LFT) == 0) {
+          encoderDiff = -1 * ENCODER_PULSES_PER_STEP;
+          next_fake_encoder_update_ms = millis() + 300;
+        }
+        if (millis() > next_fake_encoder_update_ms && READ(BTN_RT) == 0) {
+          encoderDiff = ENCODER_PULSES_PER_STEP;
+          next_fake_encoder_update_ms = millis() + 300;
+        }
+      #endif
+
+
       #if BTN_ENC > 0
         if (millis() > next_button_update_ms && READ(BTN_ENC) == 0) newbutton |= EN_C;
       #endif
