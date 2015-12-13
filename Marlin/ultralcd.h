@@ -41,6 +41,9 @@
     #if ENABLED(REPRAPWORLD_KEYPAD)
       extern volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
     #endif
+    #if ENABLED(RIGIDBOT_PANEL)
+      extern volatile millis_t next_fake_encoder_update_ms;
+    #endif
   #else
     FORCE_INLINE void lcd_buttons_update() {}
   #endif
