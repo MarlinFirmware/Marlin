@@ -1860,8 +1860,10 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       #if BTN_EN2 > 0
         if (READ(BTN_EN2) == 0) newbutton |= EN_B;
       #endif
-      #if ENABLED(RIGIDBOT_PANEL)
+      #if ENABLED(RIGIDBOT_PANEL) || BTN_ENC > 0
         millis_t now = millis();
+      #endif
+      #if ENABLED(RIGIDBOT_PANEL)
         if (now > next_button_update_ms) {
           if (READ(BTN_UP) == 0) {
             encoderDiff = -1 * ENCODER_STEPS_PER_MENU_ITEM;
@@ -1881,9 +1883,8 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
           }
         }
       #endif
-
       #if BTN_ENC > 0
-        if (millis() > next_button_update_ms && READ(BTN_ENC) == 0) newbutton |= EN_C;
+        if (now > next_button_update_ms && READ(BTN_ENC) == 0) newbutton |= EN_C;
       #endif
       buttons = newbutton;
       #if ENABLED(LCD_HAS_SLOW_BUTTONS)
