@@ -78,4 +78,6 @@ extern void action_reset_wizard();
 
 extern bool action_check_auto_gcode();
 
+extern bool action_check_pause_state();
+
 #endif // GUI_ACTION_H
