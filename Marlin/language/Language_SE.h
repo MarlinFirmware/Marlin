@@ -191,5 +191,7 @@ const char SE_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Byta filament";
 const char SE_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Justerar positionen";
 const char SE_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Utskrift stoppad";
 const char SE_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Ta bort resterna fr""\xe5""n plattan";
+const char SE_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Byta filament";
+const char SE_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "Justerar l""\xe4""ge";
 
 #endif //LANGUAGE_SE_H

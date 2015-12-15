@@ -191,5 +191,7 @@ const char PT_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Mudar filamento";
 const char PT_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "A ajustar posi""\xe7""""\xe3""o";
 const char PT_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Impress""\xe3""o em pausa";
 const char PT_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Retire os res""\xed""duos da base";
+const char PT_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Mudar filamento";
+const char PT_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "A ajustar posi""\xe7""""\xe3""o";
 
 #endif //LANGUAGE_PT_H
