@@ -63,7 +63,7 @@ void bedDetectionHomeZ(bool firstHoming)
 	{
 		float homing_slow_feedrate[] = HOMING_SLOW_FEEDRATE;
 		feedrate = homing_slow_feedrate[Z_AXIS];
-		destination[Z_AXIS] = 2.5*Z_HOME_RETRACT_MM * axis_home_dir;
+		destination[Z_AXIS] = 3*Z_HOME_RETRACT_MM * axis_home_dir;
 	}
 	
 	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
