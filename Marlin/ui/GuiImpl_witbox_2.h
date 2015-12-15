@@ -153,6 +153,8 @@ namespace ui
 		screen_change_pausing,
 		screen_change_select,
 		screen_change_heating,
+		screen_change_pause_switch,
+		screen_change_wait_pause,
 		screen_move_to_change,
 		screen_change_pullout_info,
 		screen_change_unloading,
