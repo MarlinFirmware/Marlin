@@ -637,7 +637,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
  #define BED_DETECTION_X_POINT 175
  #define BED_DETECTION_Y_POINT 123
  #define BED_DETECTION_Z_POINT -5
- #define BED_DETECTION_RAISE 15
+ #define BED_DETECTION_RAISE 3.5
+ #define BED_DETECTION_MAX_LOWER 6.5
 #endif // BED_DETECTION
 
 #include "Configuration_adv.h"
