@@ -15,6 +15,9 @@
 
 #define LARGE_FLASH        true
 
+//Disable JTAG pins so they can be used for the Extrudrboard
+#define DISABLE_JTAG       true
+
 #define X_STEP_PIN          0
 #define X_DIR_PIN           1
 #define X_ENABLE_PIN       39
@@ -64,7 +67,7 @@
 ////LCD Pin Setup////
 
 #define SDPOWER            -1
-#define SDSS                8
+#define SDSS               26
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
@@ -89,6 +92,18 @@
   #endif // LCD_I2C_PANELOLU2
   //not connected to a pin
   #define SD_DETECT_PIN -1
+  
+  #define LCD_PINS_RS 9
+  #define LCD_PINS_ENABLE 8
+  #define LCD_PINS_D4 7
+  #define LCD_PINS_D5 6
+  #define LCD_PINS_D6 5
+  #define LCD_PINS_D7 4
+
+  #define BTN_EN1   16
+  #define BTN_EN2   17
+  #define BTN_ENC   18//the click
+
 #endif // ULTRA_LCD && NEWPANEL
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
