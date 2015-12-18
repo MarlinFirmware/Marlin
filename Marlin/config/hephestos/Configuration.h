@@ -418,6 +418,13 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
       #define ABL_MANUAL_PT_4_X X_MIN_POS + 30 + X_PROBE_OFFSET_FROM_EXTRUDER
       #define ABL_MANUAL_PT_4_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
 
+      #define ABL_PROBE_PT_1_X ABL_MANUAL_PT_1_X
+      #define ABL_PROBE_PT_1_Y ABL_MANUAL_PT_1_Y
+      #define ABL_PROBE_PT_2_X ABL_MANUAL_PT_2_X
+      #define ABL_PROBE_PT_2_Y ABL_MANUAL_PT_2_Y
+      #define ABL_PROBE_PT_3_X (X_MAX_POS+X_MIN_POS)/2 + X_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_PROBE_PT_3_Y ABL_MANUAL_PT_3_Y
+
   #endif // AUTO_BED_LEVELING_GRID
 
   #define Z_RAISE_BEFORE_HOMING 0       // (in mm) Raise Z before homing (G28) for Probe Clearance.
