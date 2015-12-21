@@ -191,6 +191,6 @@ const char FR_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Changer le filament";
 const char FR_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "R""\xe9""glage position";
 const char FR_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Impression arr""\xea""t""\xe9""e";
 const char FR_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Retirez les r""\xe9""sidus du plateau";
-const char FR_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "0";
+const char FR_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Le nom du fichier contient des caract""\xe8""res non valides";
 
 #endif //LANGUAGE_FR_H

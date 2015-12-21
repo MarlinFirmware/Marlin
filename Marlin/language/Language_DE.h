@@ -191,6 +191,6 @@ const char DE_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Filament wechseln";
 const char DE_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Positionsausrichtung ";
 const char DE_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Druck angehalten";
 const char DE_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Entferne die R""\xfc""ckst""\xe4""nde von der Platte";
-const char DE_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "0";
+const char DE_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Der Name enth""\xe4""lt ung""\xfc""ltige Zeichen";
 
 #endif //LANGUAGE_DE_H
