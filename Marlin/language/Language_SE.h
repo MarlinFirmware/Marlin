@@ -191,5 +191,10 @@ const char SE_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Byta filament";
 const char SE_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Justerar positionen";
 const char SE_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Utskrift stoppad";
 const char SE_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Ta bort resterna fr""\xe5""n plattan";
+const char SE_OPTION_STATS[] PROGMEM					= "0";
+const char SE_SCREEN_VIEW_STATS_TITLE[] PROGMEM			= "0";
+const char SE_SCREEN_VIEW_STATS_TEXT1[]	PROGMEM			= "0";
+const char SE_SCREEN_VIEW_STATS_TEXT2[]	PROGMEM			= "0";
+const char SE_SCREEN_VIEW_STATS_TEXT3[]	PROGMEM			= "0";
 
 #endif //LANGUAGE_SE_H

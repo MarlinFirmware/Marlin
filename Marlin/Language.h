@@ -285,6 +285,11 @@ enum class Label
 	TOTAL_TIME,
 	SCREEN_PRINT_STOP_TITLE,
 	SCREEN_PRINT_STOP_TEXT,
+	OPTION_STATS,
+	SCREEN_VIEW_STATS_TITLE,
+	SCREEN_VIEW_STATS_TEXT1,
+	SCREEN_VIEW_STATS_TEXT2,
+	SCREEN_VIEW_STATS_TEXT3,
 };
 
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
@@ -475,5 +480,10 @@ extern const char * MSG_TEMP_OFF();
 extern const char * MSG_TOTAL_TIME();
 extern const char * MSG_SCREEN_PRINT_STOP_TITLE();
 extern const char * MSG_SCREEN_PRINT_STOP_TEXT();
+extern const char * MSG_OPTION_STATS();
+extern const char * MSG_SCREEN_VIEW_STATS_TITLE();
+extern const char * MSG_SCREEN_VIEW_STATS_TEXT1();
+extern const char * MSG_SCREEN_VIEW_STATS_TEXT2();
+extern const char * MSG_SCREEN_VIEW_STATS_TEXT3();
 
 #endif // ifndef LANGUAGE_H

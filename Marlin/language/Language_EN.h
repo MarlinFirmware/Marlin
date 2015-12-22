@@ -191,5 +191,10 @@ const char EN_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Change filament";
 const char EN_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Adjusting position";
 const char EN_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Printing stopped";
 const char EN_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Remove residue from the base";
+const char EN_OPTION_STATS[] PROGMEM					= "0";
+const char EN_SCREEN_VIEW_STATS_TITLE[] PROGMEM			= "0";
+const char EN_SCREEN_VIEW_STATS_TEXT1[]	PROGMEM			= "0";
+const char EN_SCREEN_VIEW_STATS_TEXT2[]	PROGMEM			= "0";
+const char EN_SCREEN_VIEW_STATS_TEXT3[]	PROGMEM			= "0";
 
 #endif //LANGUAGE_EN_H
