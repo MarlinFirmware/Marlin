@@ -87,6 +87,19 @@ namespace eeprom
 			static const uint8_t checkEEPROMState();
 			
 			static const uint8_t getBoardType();
+			
+			static bool checkStatsInitialized();
+			static void InitilializeStats();
+			
+			static const uint16_t getStatHours();
+			static const uint8_t getStatMinutes();
+			static const uint16_t getStatTotalPrints();
+			static const uint16_t getStatSucceded();
+			
+			static void setStatHours(uint16_t hours);
+			static void setStatMinutes(uint8_t minutes);
+			static void setStatTotalPrints(uint16_t total_prints);
+			static void setStatSucceded(uint16_t succedded_prints);
 
 		private:
 			void updateEEPROMVersion();
