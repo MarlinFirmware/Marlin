@@ -22,4 +22,5 @@ CXXSRC += \
 	ScreenSwitch.cpp \
 	ScreenTemperature.cpp \
 	ScreenTransition.cpp \
+	ScreenStats.cpp \
 	ViewManager.cpp
