@@ -221,7 +221,7 @@ ifeq ($(HARDWARE_DISPLAY), Graphic)
 	CXXSRC += GuiManager.cpp \
 		StepperClass.cpp Language.cpp
 	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp FanManager.cpp \
-		TemperatureControl.cpp
+		TemperatureControl.cpp StatsManager.cpp
 	include ui/ui.mk
 	VPATHTEMP += ui
 endif
