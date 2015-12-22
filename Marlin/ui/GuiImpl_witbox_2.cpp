@@ -62,6 +62,7 @@
 #include "ScreenTemperature.h"
 #include "ScreenCooldown.h"
 #include "ScreenStop.h"
+#include "ScreenStats.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -600,6 +601,8 @@ namespace ui
 		option_language->add(screen_settings_language);
 		OptionLaunch * option_reset       = new OptionLaunch(option_size, MSG_OPTION_RESET());
 		option_reset->add(screen_reset_init);
+		OptionLaunch * option_stats       = new OptionLaunch(option_size, MSG_OPTION_STATS());
+		option_stats->add(screen_view_stats);
 
 		ScreenSetting * local_view = new ScreenSetting(MSG_SCREEN_SETTINGS_TITLE());
 		local_view->add(option_back);
@@ -614,6 +617,7 @@ namespace ui
 		local_view->add(option_offset);
 		local_view->add(option_language);
 		local_view->add(option_reset);
+		local_view->add(option_stats);
 		local_view->add(option_contact);
 		local_view->add(option_about);
 		return local_view;
@@ -1250,6 +1254,13 @@ namespace ui
 		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_erase_EEPROM);
 		return local_view;
 	}
+	
+	static ScreenStats * make_screen_view_stats()
+	{
+		ScreenStats * local_view = new ScreenStats(MSG_SCREEN_VIEW_STATS_TITLE(), MSG_PUSH_TO_BACK());
+		local_view->add(screen_settings);
+		return local_view;
+	}
 
 	Screen * new_view;
 
@@ -1700,6 +1711,11 @@ namespace ui
 			// Error screens
 			case screen_error_temperature:
 				new_view = make_screen_error_temperature();
+				break;
+			
+			// Statistics screen	
+			case screen_view_stats:
+				new_view = make_screen_view_stats();
 				break;
 		}
 		return new_view; 

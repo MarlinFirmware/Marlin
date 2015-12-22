@@ -167,6 +167,7 @@ namespace ui
 		screen_close_inactivity,
 		screen_error_temperature,
 		screen_none,
+		screen_view_stats,
 	} ScreenIndex_t;
 
 	class Screen;
