@@ -43,7 +43,10 @@
 #include "SerialManager.h"
 #include "LightManager.h"
 #include "cardreader.h"
-#include "StatsManager.h"
+
+#ifdef DOGLCD
+	#include "StatsManager.h"
+#endif
 
 bool raised = false;
 extern bool home_all_axis;
@@ -933,12 +936,14 @@ void action_wizard_init()
 	LightManager::single::instance().state(true);
 	SerialManager::single::instance().state(true);
 	
-	if(!eeprom::StorageManager::checkStatsInitialized())
-	{
-		SERIAL_ECHOLN("GuiAct initializing stats");
-		eeprom::StorageManager::InitilializeStats();
-		StatsManager::single::instance().loadStats();
-	}
+	#ifdef DOGLCD
+		if(!eeprom::StorageManager::checkStatsInitialized())
+		{
+			SERIAL_ECHOLN("GuiAct initializing stats");
+			eeprom::StorageManager::InitilializeStats();
+			StatsManager::single::instance().loadStats();
+		}
+	#endif //DOGLCD
 }
 
 void action_wizard_finish()
