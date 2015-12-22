@@ -69,6 +69,7 @@
 #include "ConfigurationStore.h"
 
 #include "StorageManager.h"
+#include "StatsManager.h"
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
@@ -414,6 +415,7 @@ void Config_ResetDefault() {
 
   #ifdef DOGLCD
     lcd_contrast = DEFAULT_LCD_CONTRAST;
+    StatsManager::single::instance().loadStats();
   #endif
 
   #ifdef PIDTEMP
