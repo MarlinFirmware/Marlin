@@ -886,9 +886,16 @@ void get_command()
         }
         gcode_LastN = gcode_N;
         //if no errors, continue parsing
-
-        char *startchar = strchr(cmdbuffer[bufindw], ' ') + 1;
-        strcpy(cmdbuffer[bufindw], startchar);
+		
+		// Format proof parsing to remove line number
+		char *startchar = &(cmdbuffer[bufindw][1]);
+		while( (*startchar >= '0' && *startchar <= '9') 
+			|| (*startchar == ' '))
+		{
+			startchar++;
+		}
+		
+		strcpy(cmdbuffer[bufindw], startchar);
 
       }
       else  // if we don't receive 'N' but still see '*'
