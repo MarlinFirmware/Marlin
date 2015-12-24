@@ -1548,10 +1548,10 @@ void lcd_init() {
     #endif
 
     #ifdef RIGIDBOT_PANEL
-      pinMode(BTN_UP,INPUT);
-      pinMode(BTN_DWN,INPUT);
-      pinMode(BTN_LFT,INPUT);
-      pinMode(BTN_RT,INPUT);
+      SET_INPUT(BTN_UP);
+      SET_INPUT(BTN_DWN);
+      SET_INPUT(BTN_LFT);
+      SET_INPUT(BTN_RT);
     #endif
 
   #else  // Not NEWPANEL
