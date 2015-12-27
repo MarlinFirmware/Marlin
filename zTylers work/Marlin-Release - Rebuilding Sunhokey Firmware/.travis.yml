@@ -1,0 +1,160 @@
+---
+language: c
+
+before_install:
+  - pwd
+  - wget https://bootstrap.pypa.io/get-pip.py
+  - wget https://bintray.com/artifact/download/olikraus/u8glib/u8glib_arduino_v1.17.zip
+install:
+  - sudo python get-pip.py
+  - sudo pip install ino
+  # add ppa for newer version of Arduino than available in ubuntu 12.04
+  - sudo add-apt-repository ppa:michael-gruz/elektronik -y
+  - sudo apt-get update -q 
+  - sudo apt-get install arduino
+before_script:
+ # add U8glib, LiquidCrystal_I2C & LiquidTWI2 libraries 
+  - sudo unzip u8glib_arduino_v1.17.zip -d /usr/share/arduino/libraries/
+  - cd /usr/share/arduino/libraries/
+  - sudo git clone https://github.com/kiyoshigawa/LiquidCrystal_I2C.git
+  - ls -la
+  - ls -la LiquidCrystal_I2C/
+  - sudo git clone https://github.com/lincomatic/LiquidTWI2.git
+  # remove Robot_Control library to stop compile error!
+  - sudo rm -rf /usr/share/arduino/libraries/Robot_Control
+  # change back to home directory for compiling
+  - cd $TRAVIS_BUILD_DIR
+  # ino needs files in src directory
+  - ln -s Marlin src
+  # remove Marlin.pde as it confuses ino after it finds Marlin.ino
+  - rm Marlin/Marlin.pde
+script:
+  # build default config
+  - ino build -m mega2560
+  # backup configuration.h
+  - cp Marlin/Configuration.h Marlin/Configuration.h.backup
+  - cp Marlin/Configuration_adv.h Marlin/Configuration_adv.h.backup
+  # change extruder numbers from 1 to 2
+  # commented out for the moment fails build but compiles fine in Arduino
+  #- sed -i 's/#define EXTRUDERS 1/#define EXTRUDERS 2/g' Marlin/Configuration.h
+  #- rm -rf .build/
+  #- ino build -m mega2560
+  # change extruder numbers from 2 to 3, needs to be a board with 3 extruders defined in pins.h 
+  #- sed -i 's/#define MOTHERBOARD BOARD_ULTIMAKER/#define MOTHERBOARD BOARD_AZTEEG_X3_PRO/g' Marlin/Configuration.h
+  #- sed -i 's/#define EXTRUDERS 2/#define EXTRUDERS 3/g' Marlin/Configuration.h
+  #- rm -rf .build/
+  #- ino build -m mega2560
+  # enable PIDTEMPBED 
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define PIDTEMPBED/#define PIDTEMPBED/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  # enable THERMAL RUNAWAY PROTECTION for extruders & bed
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define THERMAL_RUNAWAY_PROTECTION_PERIOD/#define THERMAL_RUNAWAY_PROTECTION_PERIOD/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS/#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD/#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS/#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  # enable AUTO_BED_LEVELING
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define ENABLE_AUTO_BED_LEVELING/#define ENABLE_AUTO_BED_LEVELING/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  # enable EEPROM_SETTINGS & EEPROM_CHITCHAT
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define EEPROM_SETTINGS/#define EEPROM_SETTINGS/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define EEPROM_CHITCHAT/#define EEPROM_CHITCHAT/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  ### LCDS ###
+  # ULTIMAKERCONTROLLER
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define ULTIMAKERCONTROLLER/#define ULTIMAKERCONTROLLER/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  # MAKRPANEL
+  # Needs to use melzi and sanguino hardware
+  #- cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  #- sed -i 's/\/\/#define MAKRPANEL/#define MAKRPANEL/g' Marlin/Configuration.h
+  #- rm -rf .build/
+  #- ino build -m mega2560
+  # REPRAP_DISCOUNT_SMART_CONTROLLER
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define REPRAP_DISCOUNT_SMART_CONTROLLER/#define REPRAP_DISCOUNT_SMART_CONTROLLER/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  # G3D_PANE
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define G3D_PANEL/#define G3D_PANEL/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER/#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  # REPRAPWORLD_KEYPAD 
+  # Cant find configuration details to get it to compile
+  #- cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  #- sed -i 's/\/\/#define ULTRA_LCD/#define ULTRA_LCD/g' Marlin/Configuration.h
+  #- sed -i 's/\/\/#define REPRAPWORLD_KEYPAD/#define REPRAPWORLD_KEYPAD/g' Marlin/Configuration.h
+  #- sed -i 's/\/\/#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0/#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0/g' Marlin/Configuration.h
+  #- rm -rf .build/
+  #- ino build -m mega2560
+  # RA_CONTROL_PANEL
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define RA_CONTROL_PANEL/#define RA_CONTROL_PANEL/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  ### I2C PANELS ###
+  # LCD_I2C_SAINSMART_YWROBOT
+  # Failing at the moment needs different library 
+  #- cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  #- sed -i 's/\/\/#define LCD_I2C_SAINSMART_YWROBOT/#define LCD_I2C_SAINSMART_YWROBOT/g' Marlin/Configuration.h
+  #- rm -rf .build/
+  #- ino build -m mega2560
+  # LCD_I2C_PANELOLU2
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define LCD_I2C_PANELOLU2/#define LCD_I2C_PANELOLU2/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  # LCD_I2C_VIKI
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define LCD_I2C_VIKI/#define LCD_I2C_VIKI/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  # Enable filament sensor
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define FILAMENT_SENSOR/#define FILAMENT_SENSOR/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+   # Enable filament sensor with LCD display
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define ULTIMAKERCONTROLLER/#define ULTIMAKERCONTROLLER/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define FILAMENT_SENSOR/#define FILAMENT_SENSOR/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define FILAMENT_LCD_DISPLAY/#define FILAMENT_LCD_DISPLAY/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m mega2560
+  ######## Example Configurations ##############
+  # Delta Config
+  - cp Marlin/example_configurations/delta/Configuration* Marlin/
+  - rm -rf .build/
+  - ino build -m mega2560
+  # Makibox Config  need to check board type for Teensy++ 2.0
+  #- cp Marlin/example_configurations/makibox/Configuration* Marlin/
+  #- rm -rf .build/
+  #- ino build -m mega2560
+  # SCARA Config
+  - cp Marlin/example_configurations/SCARA/Configuration* Marlin/
+  - rm -rf .build/
+  - ino build -m mega2560
+  # tvrrug Config need to check board type for sanguino atmega644p
+  #- cp Marlin/example_configurations/tvrrug/Round2/Configuration* Marlin/
+  #- rm -rf .build/
+  #- ino build -m mega2560
+  ######## Board Types #############
+  - sed -i 's/#define MOTHERBOARD BOARD_RAMPS_13_EFB/#define MOTHERBOARD BOARD_DUEMILANOVE_328P/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m atmega328
