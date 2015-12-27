@@ -1,0 +1,50 @@
+Connecting...
+start
+Printer is now online.
+echo: External Reset
+1.0.0
+echo: Last Updated: May 15 2015 11:18:12 | Author: (none, default config)
+Compiled: May 15 2015
+echo: Free Memory: 3800  PlannerBufferBytes: 1232
+echo:Hardcoded Default Settings Loaded
+echo:Steps per unit:
+echo:  M92 X80.50 Y80.50 Z405.60 E80.50
+echo:Maximum feedrates (mm/s):
+echo:  M203 X100.00 Y100.00 Z5.00 E50.00
+echo:Maximum Acceleration (mm/s2):
+echo:  M201 X5000 Y5000 Z90 E10000
+echo:Acceleration: S=acceleration, T=retract acceleration
+echo:  M204 S950.00 T950.00
+echo:Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum XY jerk (mm/s),  Z=maximum Z jerk (mm/s),  E=maximum E jerk (mm/s)
+echo:  M205 S0.00 T0.00 B20000 X20.00 Z0.40 E5.00
+echo:Home offset (mm):
+echo:  M206 X0.00 Y0.00 Z0.00
+echo:PID settings:
+echo:   M301 P22.20 I1.08 D114.00
+echo:SD card ok
+
+Accel	950
+Vxy-jerk	20
+Vz-jerk		+000.40
+Ve-jerk		5
+Vmax x		100
+Vmax y		100
+Vmax z		5
+Vmax e		50
+Vmin		0
+VTrav min	0
+Amax x		5000
+Amax y		5000
+Amax z		90
+Amax e		10000
+A-retract	950
+Xsteps/mm	+080.50
+Ysteps/mm	+080.50
+Zsteps/mm	+0405.6
+Esteps/mm	+0080.5
+
+TEMPERATURE
+PID-P	+22.2
+PID-I	+1.08
+PID-D	+114.00
+PID-C	1
