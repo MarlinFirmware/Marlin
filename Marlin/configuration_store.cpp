@@ -102,7 +102,7 @@
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
-  while(size--) {
+  while (size--) {
     eeprom_write_byte((unsigned char*)pos, *value);
     c = eeprom_read_byte((unsigned char*)pos);
     if (c != *value) {
@@ -156,7 +156,7 @@ void Config_StoreSettings()  {
   uint8_t mesh_num_y = 3;
   #if ENABLED(MESH_BED_LEVELING)
     // Compile time test that sizeof(mbl.z_values) is as expected
-    typedef char c_assert[(sizeof(mbl.z_values) == MESH_NUM_X_POINTS*MESH_NUM_Y_POINTS*sizeof(dummy)) ? 1 : -1];
+    typedef char c_assert[(sizeof(mbl.z_values) == MESH_NUM_X_POINTS * MESH_NUM_Y_POINTS * sizeof(dummy)) ? 1 : -1];
     mesh_num_x = MESH_NUM_X_POINTS;
     mesh_num_y = MESH_NUM_Y_POINTS;
     EEPROM_WRITE_VAR(i, mbl.active);
@@ -169,7 +169,7 @@ void Config_StoreSettings()  {
     EEPROM_WRITE_VAR(i, mesh_num_x);
     EEPROM_WRITE_VAR(i, mesh_num_y);
     dummy = 0.0f;
-    for (uint8_t q=0; q<mesh_num_x*mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
+    for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
   #endif // MESH_BED_LEVELING
 
   #if DISABLED(AUTO_BED_LEVELING_FEATURE)
@@ -185,10 +185,10 @@ void Config_StoreSettings()  {
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     EEPROM_WRITE_VAR(i, z_endstop_adj);            // 1 floats
     dummy = 0.0f;
-    for (int q=5; q--;) EEPROM_WRITE_VAR(i, dummy);
+    for (int q = 5; q--;) EEPROM_WRITE_VAR(i, dummy);
   #else
     dummy = 0.0f;
-    for (int q=6; q--;) EEPROM_WRITE_VAR(i, dummy);
+    for (int q = 6; q--;) EEPROM_WRITE_VAR(i, dummy);
   #endif
 
   #if DISABLED(ULTIPANEL)
@@ -410,7 +410,7 @@ void Config_RetrieveSettings() {
 
     EEPROM_READ_VAR(i, dummy); // bedKp
     if (dummy != DUMMY_PID_VALUE) {
-      bedKp = dummy;
+      bedKp = dummy; UNUSED(bedKp);
       EEPROM_READ_VAR(i, bedKi);
       EEPROM_READ_VAR(i, bedKd);
     }
@@ -540,7 +540,7 @@ void Config_ResetDefault() {
     #if ENABLED(PID_PARAMS_PER_EXTRUDER)
       for (int e = 0; e < EXTRUDERS; e++)
     #else
-      int e = 0; // only need to write once
+      int e = 0; UNUSED(e); // only need to write once
     #endif
     {
       PID_PARAM(Kp, e) = DEFAULT_Kp;
@@ -579,7 +579,7 @@ void Config_ResetDefault() {
   #endif
 
   volumetric_enabled = false;
-  for (uint8_t q=0; q<COUNT(filament_size); q++)
+  for (uint8_t q = 0; q < COUNT(filament_size); q++)
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
   calculate_volumetric_multipliers();
 
@@ -686,8 +686,8 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOPAIR(" X", (unsigned long)MESH_NUM_X_POINTS);
     SERIAL_ECHOPAIR(" Y", (unsigned long)MESH_NUM_Y_POINTS);
     SERIAL_EOL;
-    for (int y=0; y<MESH_NUM_Y_POINTS; y++) {
-      for (int x=0; x<MESH_NUM_X_POINTS; x++) {
+    for (int y = 0; y < MESH_NUM_Y_POINTS; y++) {
+      for (int x = 0; x < MESH_NUM_X_POINTS; x++) {
         CONFIG_ECHO_START;
         SERIAL_ECHOPAIR("  M421 X", mbl.get_x(x));
         SERIAL_ECHOPAIR(" Y", mbl.get_y(y));
@@ -721,7 +721,7 @@ void Config_PrintSettings(bool forReplay) {
       CONFIG_ECHO_START;
     }
     SERIAL_ECHOPAIR("  M666 Z", z_endstop_adj);
-    SERIAL_EOL;  
+    SERIAL_EOL;
   #endif // DELTA
 
   #if ENABLED(ULTIPANEL)
@@ -810,7 +810,7 @@ void Config_PrintSettings(bool forReplay) {
     #if EXTRUDERS > 1
       SERIAL_ECHOPAIR(" W", retract_length_swap);
     #endif
-    SERIAL_ECHOPAIR(" F", retract_feedrate*60);
+    SERIAL_ECHOPAIR(" F", retract_feedrate * 60);
     SERIAL_ECHOPAIR(" Z", retract_zlift);
     SERIAL_EOL;
     CONFIG_ECHO_START;
@@ -822,7 +822,7 @@ void Config_PrintSettings(bool forReplay) {
     #if EXTRUDERS > 1
       SERIAL_ECHOPAIR(" W", retract_recover_length_swap);
     #endif
-    SERIAL_ECHOPAIR(" F", retract_recover_feedrate*60);
+    SERIAL_ECHOPAIR(" F", retract_recover_feedrate * 60);
     SERIAL_EOL;
     CONFIG_ECHO_START;
     if (!forReplay) {

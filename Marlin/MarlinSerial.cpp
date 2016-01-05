@@ -15,7 +15,7 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  
+
   Modified 23 November 2006 by David A. Mellis
   Modified 28 September 2010 by Mark Sproul
 */
@@ -24,7 +24,7 @@
 #include "MarlinSerial.h"
 
 #ifndef USBCON
-// this next line disables the entire HardwareSerial.cpp, 
+// this next line disables the entire HardwareSerial.cpp,
 // this is so I can support Attiny series and any other chip without a UART
 #if defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H)
 
@@ -74,11 +74,12 @@ void MarlinSerial::begin(long baud) {
       useU2X = false;
     }
   #endif
-  
+
   if (useU2X) {
     M_UCSRxA = BIT(M_U2Xx);
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
-  } else {
+  }
+  else {
     M_UCSRxA = 0;
     baud_setting = (F_CPU / 8 / baud - 1) / 2;
   }
@@ -95,14 +96,15 @@ void MarlinSerial::begin(long baud) {
 void MarlinSerial::end() {
   cbi(M_UCSRxB, M_RXENx);
   cbi(M_UCSRxB, M_TXENx);
-  cbi(M_UCSRxB, M_RXCIEx);  
+  cbi(M_UCSRxB, M_RXCIEx);
 }
 
 
 int MarlinSerial::peek(void) {
   if (rx_buffer.head == rx_buffer.tail) {
     return -1;
-  } else {
+  }
+  else {
     return rx_buffer.buffer[rx_buffer.tail];
   }
 }
@@ -162,7 +164,8 @@ void MarlinSerial::print(long n, int base) {
       n = -n;
     }
     printNumber(n, 10);
-  } else {
+  }
+  else {
     printNumber(n, base);
   }
 }
@@ -178,10 +181,10 @@ void MarlinSerial::print(double n, int digits) {
 
 void MarlinSerial::println(void) {
   print('\r');
-  print('\n');  
+  print('\n');
 }
 
-void MarlinSerial::println(const String &s) {
+void MarlinSerial::println(const String& s) {
   print(s);
   println();
 }
@@ -229,13 +232,13 @@ void MarlinSerial::println(double n, int digits) {
 // Private Methods /////////////////////////////////////////////////////////////
 
 void MarlinSerial::printNumber(unsigned long n, uint8_t base) {
-  unsigned char buf[8 * sizeof(long)]; // Assumes 8-bit chars. 
+  unsigned char buf[8 * sizeof(long)]; // Assumes 8-bit chars.
   unsigned long i = 0;
 
   if (n == 0) {
     print('0');
     return;
-  } 
+  }
 
   while (n > 0) {
     buf[i++] = n % base;
@@ -243,23 +246,23 @@ void MarlinSerial::printNumber(unsigned long n, uint8_t base) {
   }
 
   for (; i > 0; i--)
-    print((char) (buf[i - 1] < 10 ?
-      '0' + buf[i - 1] :
-      'A' + buf[i - 1] - 10));
+    print((char)(buf[i - 1] < 10 ?
+                 '0' + buf[i - 1] :
+                 'A' + buf[i - 1] - 10));
 }
 
 void MarlinSerial::printFloat(double number, uint8_t digits) {
   // Handle negative numbers
   if (number < 0.0) {
-     print('-');
-     number = -number;
+    print('-');
+    number = -number;
   }
 
   // Round correctly so that print(1.999, 2) prints as "2.00"
   double rounding = 0.5;
   for (uint8_t i = 0; i < digits; ++i)
     rounding /= 10.0;
-  
+
   number += rounding;
 
   // Extract the integer part of the number and print it
@@ -275,8 +278,8 @@ void MarlinSerial::printFloat(double number, uint8_t digits) {
     remainder *= 10.0;
     int toPrint = int(remainder);
     print(toPrint);
-    remainder -= toPrint; 
-  } 
+    remainder -= toPrint;
+  }
 }
 // Preinstantiate Objects //////////////////////////////////////////////////////
 

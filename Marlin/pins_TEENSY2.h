@@ -11,32 +11,32 @@
  *
  *                               USB
  *           GND       GND |-----#####-----| +5V              ATX +5SB
- *     ATX PS_ON    PWM 27 |b7   #####   b6| 26    PWM*       Stepper Enable 
- *                  PWM  0 |d0           b5| 25    PWM*        
- *                  PWM  1 |d1           b4| 24    PWM        
+ *     ATX PS_ON    PWM 27 |b7   #####   b6| 26    PWM*       Stepper Enable
+ *                  PWM  0 |d0           b5| 25    PWM*
+ *                  PWM  1 |d1           b4| 24    PWM
  *         X_MIN         2 |d2           b3| 23               MISO_PIN
  *         Y_MIN         3 |d3           b2| 22               MOSI_PIN
- *         Z_MIN         4 |d4  * *      b1| 21               SCK_PIN       
- *                       5 |d5  e e      b0| 20               SDSS              
- *                LED    6 |d6  5 4      e7| 19               
- *                       7 |d7           e6| 18               
- *       LCD  RS         8 |e0             | GND              
- *       LCD  EN         9 |e1   a4 a0    R| AREF             
- *       LCD  D4        10 |c0   a5 a1   f0| 38 A0            ENC_1           
+ *         Z_MIN         4 |d4  * *      b1| 21               SCK_PIN
+ *                       5 |d5  e e      b0| 20               SDSS
+ *                LED    6 |d6  5 4      e7| 19
+ *                       7 |d7           e6| 18
+ *       LCD  RS         8 |e0             | GND
+ *       LCD  EN         9 |e1   a4 a0    R| AREF
+ *       LCD  D4        10 |c0   a5 a1   f0| 38 A0            ENC_1
  *       LCD  D5        11 |c1   a6 a2   f1| 39 A1            ENC_2
  *       LCD  D6        12 |c2   a7 a3   f2| 40 A2            ENC_CLK
- *       LCD  D6        13 |c3           f3| 41 A3            
- *      Bed Heat    PWM 14 |c4   V G R   f4| 42 A4            
- * Extruder Heat    PWM 15 |c5   c n S   f5| 43 A5            
+ *       LCD  D6        13 |c3           f3| 41 A3
+ *      Bed Heat    PWM 14 |c4   V G R   f4| 42 A4
+ * Extruder Heat    PWM 15 |c5   c n S   f5| 43 A5
  *           Fan    PWM 16 |c6   c d T   f6| 44 A6            Bed TC
- *                      17 |c7   * * *   f7| 45 A7            Extruder TC * 4.7k * +5        
- *                         -----------------                  
+ *                      17 |c7   * * *   f7| 45 A7            Extruder TC * 4.7k * +5
+ *                         -----------------
  *
  *      Interior E4: 36, INT4
  *      Interior E5: 37, INT5
  *      Interior PA0-7: 28-35  -- Printrboard and Teensylu use these pins for step & direction:
  *             T++ PA Signal  Marlin
- *    
+ *
  *       Z STEP  32 a4  a0 28 X STEP
  *       Z DIR   33 a5  a1 29 X DIR
  *       E STEP  34 a6  a2 30 Y STEP
@@ -56,7 +56,7 @@
 
 #define X_STEP_PIN         28 //  0 Marlin
 #define X_DIR_PIN          29 //  1 Marlin
-#define X_ENABLE_PIN       26 
+#define X_ENABLE_PIN       26
 
 #define Y_STEP_PIN         30 //  2 Marlin
 #define Y_DIR_PIN          31 //  3
@@ -86,7 +86,7 @@
 #define TEMP_2_PIN         -1
 
 #define SDPOWER            -1
-#define SD_DETECT_PIN      -1   
+#define SD_DETECT_PIN      -1
 #define SDSS               20 // 8
 #define LED_PIN             6
 #define PS_ON_PIN          27
@@ -94,7 +94,7 @@
 #define ALARM_PIN          -1
 
 #if DISABLED(SDSUPPORT)
-// these pins are defined in the SD library if building with SD support
+  // these pins are defined in the SD library if building with SD support
   #define SCK_PIN         21 // 9
   #define MISO_PIN        23 // 11
   #define MOSI_PIN        22 // 10

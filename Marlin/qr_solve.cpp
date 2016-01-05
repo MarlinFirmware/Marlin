@@ -7,7 +7,7 @@
 
 //# include "r8lib.h"
 
-int i4_min ( int i1, int i2 )
+int i4_min(int i1, int i2)
 
 /******************************************************************************/
 /*
@@ -34,20 +34,10 @@ int i4_min ( int i1, int i2 )
     Output, int I4_MIN, the smaller of I1 and I2.
 */
 {
-  int value;
-
-  if ( i1 < i2 )
-  {
-    value = i1;
-  }
-  else
-  {
-    value = i2;
-  }
-  return value;
+  return (i1 < i2) ? i1 : i2;
 }
 
-double r8_epsilon ( void )
+double r8_epsilon(void)
 
 /******************************************************************************/
 /*
@@ -81,11 +71,10 @@ double r8_epsilon ( void )
 */
 {
   const double value = 2.220446049250313E-016;
-
   return value;
 }
 
-double r8_max ( double x, double y )
+double r8_max(double x, double y)
 
 /******************************************************************************/
 /*
@@ -112,20 +101,10 @@ double r8_max ( double x, double y )
     Output, double R8_MAX, the maximum of X and Y.
 */
 {
-  double value;
-
-  if ( y < x )
-  {
-    value = x;
-  }
-  else
-  {
-    value = y;
-  }
-  return value;
+  return (y < x) ? x : y;
 }
 
-double r8_abs ( double x )
+double r8_abs(double x)
 
 /******************************************************************************/
 /*
@@ -152,20 +131,10 @@ double r8_abs ( double x )
     Output, double R8_ABS, the absolute value of X.
 */
 {
-  double value;
-
-  if ( 0.0 <= x )
-  {
-    value = + x;
-  }
-  else
-  {
-    value = - x;
-  }
-  return value;
+  return (x < 0.0) ? -x : x;
 }
 
-double r8_sign ( double x )
+double r8_sign(double x)
 
 /******************************************************************************/
 /*
@@ -192,20 +161,10 @@ double r8_sign ( double x )
     Output, double R8_SIGN, the sign of X.
 */
 {
-  double value;
-
-  if ( x < 0.0 )
-  {
-    value = - 1.0;
-  }
-  else
-  {
-    value = + 1.0;
-  }
-  return value;
+  return (x < 0.0) ? -1.0 : 1.0;
 }
 
-double r8mat_amax ( int m, int n, double a[] )
+double r8mat_amax(int m, int n, double a[])
 
 /******************************************************************************/
 /*
@@ -241,26 +200,17 @@ double r8mat_amax ( int m, int n, double a[] )
     Output, double R8MAT_AMAX, the maximum absolute value entry of A.
 */
 {
-  int i;
-  int j;
-  double value;
-
-  value = r8_abs ( a[0+0*m] );
-
-  for ( j = 0; j < n; j++ )
-  {
-    for ( i = 0; i < m; i++ )
-    {
-      if ( value < r8_abs ( a[i+j*m] ) )
-      {
-        value = r8_abs ( a[i+j*m] );
-      }
+  double value = r8_abs(a[0 + 0 * m]);
+  for (int j = 0; j < n; j++) {
+    for (int i = 0; i < m; i++) {
+      if (value < r8_abs(a[i + j * m]))
+        value = r8_abs(a[i + j * m]);
     }
   }
   return value;
 }
 
-void r8mat_copy( double a2[], int m, int n, double a1[] )
+void r8mat_copy(double a2[], int m, int n, double a1[])
 
 /******************************************************************************/
 /*
@@ -294,21 +244,15 @@ void r8mat_copy( double a2[], int m, int n, double a1[] )
     Output, double R8MAT_COPY_NEW[M*N], the copy of A1.
 */
 {
-  int i;
-  int j;
-
-  for ( j = 0; j < n; j++ )
-  {
-    for ( i = 0; i < m; i++ )
-    {
-      a2[i+j*m] = a1[i+j*m];
-    }
+  for (int j = 0; j < n; j++) {
+    for (int i = 0; i < m; i++)
+      a2[i + j * m] = a1[i + j * m];
   }
 }
 
 /******************************************************************************/
 
-void daxpy ( int n, double da, double dx[], int incx, double dy[], int incy )
+void daxpy(int n, double da, double dx[], int incx, double dy[], int incy)
 
 /******************************************************************************/
 /*
@@ -322,7 +266,7 @@ void daxpy ( int n, double da, double dx[], int incx, double dy[], int incy )
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -340,8 +284,8 @@ void daxpy ( int n, double da, double dx[], int incx, double dy[], int incy )
 
     Charles Lawson, Richard Hanson, David Kincaid, Fred Krogh,
     Basic Linear Algebra Subprograms for Fortran Usage,
-    Algorithm 539, 
-    ACM Transactions on Mathematical Software, 
+    Algorithm 539,
+    ACM Transactions on Mathematical Software,
     Volume 5, Number 3, September 1979, pages 308-323.
 
   Parameters:
@@ -360,76 +304,46 @@ void daxpy ( int n, double da, double dx[], int incx, double dy[], int incy )
     Input, int INCY, the increment between successive entries of DY.
 */
 {
-  int i;
-  int ix;
-  int iy;
-  int m;
+  if (n <= 0 || da == 0.0) return;
 
-  if ( n <= 0 )
-  {
-    return;
-  }
-
-  if ( da == 0.0 )
-  {
-    return;
-  }
-/*
-  Code for unequal increments or equal increments
-  not equal to 1.
-*/
-  if ( incx != 1 || incy != 1 )
-  {
-    if ( 0 <= incx )
-    {
+  int i, ix, iy, m;
+  /*
+    Code for unequal increments or equal increments
+    not equal to 1.
+  */
+  if (incx != 1 || incy != 1) {
+    if (0 <= incx)
       ix = 0;
-    }
     else
-    {
-      ix = ( - n + 1 ) * incx;
-    }
-
-    if ( 0 <= incy )
-    {
+      ix = (- n + 1) * incx;
+    if (0 <= incy)
       iy = 0;
-    }
     else
-    {
-      iy = ( - n + 1 ) * incy;
-    }
-
-    for ( i = 0; i < n; i++ )
-    {
+      iy = (- n + 1) * incy;
+    for (i = 0; i < n; i++) {
       dy[iy] = dy[iy] + da * dx[ix];
       ix = ix + incx;
       iy = iy + incy;
     }
   }
-/*
-  Code for both increments equal to 1.
-*/
-  else
-  {
+  /*
+    Code for both increments equal to 1.
+  */
+  else {
     m = n % 4;
-
-    for ( i = 0; i < m; i++ )
-    {
+    for (i = 0; i < m; i++)
       dy[i] = dy[i] + da * dx[i];
-    }
-
-    for ( i = m; i < n; i = i + 4 )
-    {
+    for (i = m; i < n; i = i + 4) {
       dy[i  ] = dy[i  ] + da * dx[i  ];
-      dy[i+1] = dy[i+1] + da * dx[i+1];
-      dy[i+2] = dy[i+2] + da * dx[i+2];
-      dy[i+3] = dy[i+3] + da * dx[i+3];
+      dy[i + 1] = dy[i + 1] + da * dx[i + 1];
+      dy[i + 2] = dy[i + 2] + da * dx[i + 2];
+      dy[i + 3] = dy[i + 3] + da * dx[i + 3];
     }
   }
-  return;
 }
 /******************************************************************************/
 
-double ddot ( int n, double dx[], int incx, double dy[], int incy )
+double ddot(int n, double dx[], int incx, double dy[], int incy)
 
 /******************************************************************************/
 /*
@@ -443,7 +357,7 @@ double ddot ( int n, double dx[], int incx, double dy[], int incy )
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -461,8 +375,8 @@ double ddot ( int n, double dx[], int incx, double dy[], int incy )
 
     Charles Lawson, Richard Hanson, David Kincaid, Fred Krogh,
     Basic Linear Algebra Subprograms for Fortran Usage,
-    Algorithm 539, 
-    ACM Transactions on Mathematical Software, 
+    Algorithm 539,
+    ACM Transactions on Mathematical Software,
     Volume 5, Number 3, September 1979, pages 308-323.
 
   Parameters:
@@ -481,75 +395,45 @@ double ddot ( int n, double dx[], int incx, double dy[], int incy )
     entries of DX and DY.
 */
 {
-  double dtemp;
-  int i;
-  int ix;
-  int iy;
-  int m;
 
-  dtemp = 0.0;
+  if (n <= 0) return 0.0;
 
-  if ( n <= 0 )
-  {
-    return dtemp;
-  }
-/*
-  Code for unequal increments or equal increments
-  not equal to 1.
-*/
-  if ( incx != 1 || incy != 1 )
-  {
-    if ( 0 <= incx )
-    {
-      ix = 0;
-    }
-    else
-    {
-      ix = ( - n + 1 ) * incx;
-    }
+  int i, m;
+  double dtemp = 0.0;
 
-    if ( 0 <= incy )
-    {
-      iy = 0;
-    }
-    else
-    {
-      iy = ( - n + 1 ) * incy;
-    }
-
-    for ( i = 0; i < n; i++ )
-    {
-      dtemp = dtemp + dx[ix] * dy[iy];
+  /*
+    Code for unequal increments or equal increments
+    not equal to 1.
+  */
+  if (incx != 1 || incy != 1) {
+    int ix = (incx >= 0) ? 0 : (-n + 1) * incx,
+        iy = (incy >= 0) ? 0 : (-n + 1) * incy;
+    for (i = 0; i < n; i++) {
+      dtemp += dx[ix] * dy[iy];
       ix = ix + incx;
       iy = iy + incy;
     }
   }
-/*
-  Code for both increments equal to 1.
-*/
-  else
-  {
+  /*
+    Code for both increments equal to 1.
+  */
+  else {
     m = n % 5;
-
-    for ( i = 0; i < m; i++ )
-    {
-      dtemp = dtemp + dx[i] * dy[i];
-    }
-
-    for ( i = m; i < n; i = i + 5 )
-    {
-      dtemp = dtemp + dx[i  ] * dy[i  ] 
-                    + dx[i+1] * dy[i+1] 
-                    + dx[i+2] * dy[i+2] 
-                    + dx[i+3] * dy[i+3] 
-                    + dx[i+4] * dy[i+4];
+    for (i = 0; i < m; i++)
+      dtemp += dx[i] * dy[i];
+    for (i = m; i < n; i = i + 5) {
+      dtemp += dx[i] * dy[i]
+              + dx[i + 1] * dy[i + 1]
+              + dx[i + 2] * dy[i + 2]
+              + dx[i + 3] * dy[i + 3]
+              + dx[i + 4] * dy[i + 4];
     }
   }
   return dtemp;
 }
 /******************************************************************************/
 
-double dnrm2 ( int n, double x[], int incx )
+double dnrm2(int n, double x[], int incx)
 
 /******************************************************************************/
 /*
@@ -563,7 +447,7 @@ double dnrm2 ( int n, double x[], int incx )
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -596,54 +480,34 @@ double dnrm2 ( int n, double x[], int incx )
     Output, double DNRM2, the Euclidean norm of X.
 */
 {
-  double absxi;
-  int i;
-  int ix;
   double norm;
-  double scale;
-  double ssq;
-
-  if ( n < 1 || incx < 1 )
-  {
+  if (n < 1 || incx < 1)
     norm = 0.0;
-  }
-  else if ( n == 1 )
-  {
-    norm = r8_abs ( x[0] );
-  }
-  else
-  {
-    scale = 0.0;
-    ssq = 1.0;
-    ix = 0;
-
-    for ( i = 0; i < n; i++ )
-    {
-      if ( x[ix] != 0.0 )
-      {
-        absxi = r8_abs ( x[ix] );
-        if ( scale < absxi )
-        {
-          ssq = 1.0 + ssq * ( scale / absxi ) * ( scale / absxi );
+  else if (n == 1)
+    norm = r8_abs(x[0]);
+  else {
+    double scale = 0.0, ssq = 1.0;
+    int ix = 0;
+    for (int i = 0; i < n; i++) {
+      if (x[ix] != 0.0) {
+        double absxi = r8_abs(x[ix]);
+        if (scale < absxi) {
+          ssq = 1.0 + ssq * (scale / absxi) * (scale / absxi);
           scale = absxi;
         }
         else
-        {
-          ssq = ssq + ( absxi / scale ) * ( absxi / scale );
-        }
+          ssq = ssq + (absxi / scale) * (absxi / scale);
       }
-      ix = ix + incx;
+      ix += incx;
     }
-
-    norm  = scale * sqrt ( ssq );
+    norm = scale * sqrt(ssq);
   }
-
   return norm;
 }
 /******************************************************************************/
 
-void dqrank ( double a[], int lda, int m, int n, double tol, int *kr, 
-  int jpvt[], double qraux[] )
+void dqrank(double a[], int lda, int m, int n, double tol, int* kr,
+            int jpvt[], double qraux[])
 
 /******************************************************************************/
 /*
@@ -667,7 +531,7 @@ void dqrank ( double a[], int lda, int m, int n, double tol, int *kr,
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -717,39 +581,27 @@ void dqrank ( double a[], int lda, int m, int n, double tol, int *kr,
     the QR factorization.
 */
 {
-  int i;
-  int j;
-  int job;
-  int k;
   double work[n];
 
-  for ( i = 0; i < n; i++ )
-  {
+  for (int i = 0; i < n; i++)
     jpvt[i] = 0;
-  }
 
-  job = 1;
+  int job = 1;
 
-  dqrdc ( a, lda, m, n, qraux, jpvt, work, job );
+  dqrdc(a, lda, m, n, qraux, jpvt, work, job);
 
   *kr = 0;
-  k = i4_min ( m, n );
-
-  for ( j = 0; j < k; j++ )
-  {
-    if ( r8_abs ( a[j+j*lda] ) <= tol * r8_abs ( a[0+0*lda] ) )
-    {
+  int k = i4_min(m, n);
+  for (int j = 0; j < k; j++) {
+    if (r8_abs(a[j + j * lda]) <= tol * r8_abs(a[0 + 0 * lda]))
       return;
-    }
     *kr = j + 1;
   }
-
-  return;
 }
 /******************************************************************************/
 
-void dqrdc ( double a[], int lda, int n, int p, double qraux[], int jpvt[], 
-  double work[], int job )
+void dqrdc(double a[], int lda, int n, int p, double qraux[], int jpvt[],
+           double work[], int job)
 
 /******************************************************************************/
 /*
@@ -766,7 +618,7 @@ void dqrdc ( double a[], int lda, int n, int p, double qraux[], int jpvt[],
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -829,176 +681,121 @@ void dqrdc ( double a[], int lda, int n, int p, double qraux[], int jpvt[],
     nonzero, pivoting is done.
 */
 {
-  int j;
   int jp;
-  int l;
+  int j;
   int lup;
   int maxj;
-  double maxnrm;
-  double nrmxl;
-  int pl;
-  int pu;
-  int swapj;
-  double t;
-  double tt;
+  double maxnrm, nrmxl, t, tt;
 
-  pl = 1;
-  pu = 0;
-/*
-  If pivoting is requested, rearrange the columns.
-*/
-  if ( job != 0 )
-  {
-    for ( j = 1; j <= p; j++ )
-    {
-      swapj = ( 0 < jpvt[j-1] );
-
-      if ( jpvt[j-1] < 0 )
-      {
-        jpvt[j-1] = -j;
-      }
-      else
-      {
-        jpvt[j-1] = j;
-      }
-
-      if ( swapj )
-      {
-        if ( j != pl )
-        {
-          dswap ( n, a+0+(pl-1)*lda, 1, a+0+(j-1), 1 );
-        }
-        jpvt[j-1] = jpvt[pl-1];
-        jpvt[pl-1] = j;
-        pl = pl + 1;
+  int pl = 1, pu = 0;
+  /*
+    If pivoting is requested, rearrange the columns.
+  */
+  if (job != 0) {
+    for (j = 1; j <= p; j++) {
+      int swapj = (0 < jpvt[j - 1]);
+      jpvt[j - 1] = (jpvt[j - 1] < 0) ? -j : j;
+      if (swapj) {
+        if (j != pl)
+          dswap(n, a + 0 + (pl - 1)*lda, 1, a + 0 + (j - 1), 1);
+        jpvt[j - 1] = jpvt[pl - 1];
+        jpvt[pl - 1] = j;
+        pl++;
       }
     }
     pu = p;
-
-    for ( j = p; 1 <= j; j-- )
-    {
-      if ( jpvt[j-1] < 0 )
-      {
-        jpvt[j-1] = -jpvt[j-1];
-
-        if ( j != pu )
-        {
-          dswap ( n, a+0+(pu-1)*lda, 1, a+0+(j-1)*lda, 1 );
-          jp = jpvt[pu-1];
-          jpvt[pu-1] = jpvt[j-1];
-          jpvt[j-1] = jp;
+    for (j = p; 1 <= j; j--) {
+      if (jpvt[j - 1] < 0) {
+        jpvt[j - 1] = -jpvt[j - 1];
+        if (j != pu) {
+          dswap(n, a + 0 + (pu - 1)*lda, 1, a + 0 + (j - 1)*lda, 1);
+          jp = jpvt[pu - 1];
+          jpvt[pu - 1] = jpvt[j - 1];
+          jpvt[j - 1] = jp;
         }
         pu = pu - 1;
       }
     }
   }
-/*
-  Compute the norms of the free columns.
-*/
-  for ( j = pl; j <= pu; j++ )
-  {
-    qraux[j-1] = dnrm2 ( n, a+0+(j-1)*lda, 1 );
-  }
-
-  for ( j = pl; j <= pu; j++ )
-  {
-    work[j-1] = qraux[j-1];
-  }
-/*
-  Perform the Householder reduction of A.
-*/
-  lup = i4_min ( n, p );
-
-  for ( l = 1; l <= lup; l++ )
-  {
-/*
-  Bring the column of largest norm into the pivot position.
-*/
-    if ( pl <= l && l < pu )
-    {
+  /*
+    Compute the norms of the free columns.
+  */
+  for (j = pl; j <= pu; j++)
+    qraux[j - 1] = dnrm2(n, a + 0 + (j - 1) * lda, 1);
+  for (j = pl; j <= pu; j++)
+    work[j - 1] = qraux[j - 1];
+  /*
+    Perform the Householder reduction of A.
+  */
+  lup = i4_min(n, p);
+  for (int l = 1; l <= lup; l++) {
+    /*
+      Bring the column of largest norm into the pivot position.
+    */
+    if (pl <= l && l < pu) {
       maxnrm = 0.0;
       maxj = l;
-      for ( j = l; j <= pu; j++ )
-      {
-        if ( maxnrm < qraux[j-1] )
-        {
-          maxnrm = qraux[j-1];
+      for (j = l; j <= pu; j++) {
+        if (maxnrm < qraux[j - 1]) {
+          maxnrm = qraux[j - 1];
           maxj = j;
         }
       }
-
-      if ( maxj != l )
-      {
-        dswap ( n, a+0+(l-1)*lda, 1, a+0+(maxj-1)*lda, 1 );
-        qraux[maxj-1] = qraux[l-1];
-        work[maxj-1] = work[l-1];
-        jp = jpvt[maxj-1];
-        jpvt[maxj-1] = jpvt[l-1];
-        jpvt[l-1] = jp;
+      if (maxj != l) {
+        dswap(n, a + 0 + (l - 1)*lda, 1, a + 0 + (maxj - 1)*lda, 1);
+        qraux[maxj - 1] = qraux[l - 1];
+        work[maxj - 1] = work[l - 1];
+        jp = jpvt[maxj - 1];
+        jpvt[maxj - 1] = jpvt[l - 1];
+        jpvt[l - 1] = jp;
       }
     }
-/*
-  Compute the Householder transformation for column L.
-*/
-    qraux[l-1] = 0.0;
-
-    if ( l != n )
-    {
-      nrmxl = dnrm2 ( n-l+1, a+l-1+(l-1)*lda, 1 );
-
-      if ( nrmxl != 0.0 )
-      {
-        if ( a[l-1+(l-1)*lda] != 0.0 )
-        {
-          nrmxl = nrmxl * r8_sign ( a[l-1+(l-1)*lda] );
-        }
-
-        dscal ( n-l+1, 1.0 / nrmxl, a+l-1+(l-1)*lda, 1 );
-        a[l-1+(l-1)*lda] = 1.0 + a[l-1+(l-1)*lda];
-/*
-  Apply the transformation to the remaining columns, updating the norms.
-*/
-        for ( j = l + 1; j <= p; j++ )
-        {
-          t = -ddot ( n-l+1, a+l-1+(l-1)*lda, 1, a+l-1+(j-1)*lda, 1 ) 
-            / a[l-1+(l-1)*lda];
-          daxpy ( n-l+1, t, a+l-1+(l-1)*lda, 1, a+l-1+(j-1)*lda, 1 );
-
-          if ( pl <= j && j <= pu )
-          {
-            if ( qraux[j-1] != 0.0 )
-            {
-              tt = 1.0 - pow ( r8_abs ( a[l-1+(j-1)*lda] ) / qraux[j-1], 2 );
-              tt = r8_max ( tt, 0.0 );
+    /*
+      Compute the Householder transformation for column L.
+    */
+    qraux[l - 1] = 0.0;
+    if (l != n) {
+      nrmxl = dnrm2(n - l + 1, a + l - 1 + (l - 1) * lda, 1);
+      if (nrmxl != 0.0) {
+        if (a[l - 1 + (l - 1)*lda] != 0.0)
+          nrmxl = nrmxl * r8_sign(a[l - 1 + (l - 1) * lda]);
+        dscal(n - l + 1, 1.0 / nrmxl, a + l - 1 + (l - 1)*lda, 1);
+        a[l - 1 + (l - 1)*lda] = 1.0 + a[l - 1 + (l - 1) * lda];
+        /*
+          Apply the transformation to the remaining columns, updating the norms.
+        */
+        for (j = l + 1; j <= p; j++) {
+          t = -ddot(n - l + 1, a + l - 1 + (l - 1) * lda, 1, a + l - 1 + (j - 1) * lda, 1)
+              / a[l - 1 + (l - 1) * lda];
+          daxpy(n - l + 1, t, a + l - 1 + (l - 1)*lda, 1, a + l - 1 + (j - 1)*lda, 1);
+          if (pl <= j && j <= pu) {
+            if (qraux[j - 1] != 0.0) {
+              tt = 1.0 - pow(r8_abs(a[l - 1 + (j - 1) * lda]) / qraux[j - 1], 2);
+              tt = r8_max(tt, 0.0);
               t = tt;
-              tt = 1.0 + 0.05 * tt * pow ( qraux[j-1] / work[j-1], 2 );
-
-              if ( tt != 1.0 )
-              {
-                qraux[j-1] = qraux[j-1] * sqrt ( t );
-              }
-              else
-              {
-                qraux[j-1] = dnrm2 ( n-l, a+l+(j-1)*lda, 1 );
-                work[j-1] = qraux[j-1];
+              tt = 1.0 + 0.05 * tt * pow(qraux[j - 1] / work[j - 1], 2);
+              if (tt != 1.0)
+                qraux[j - 1] = qraux[j - 1] * sqrt(t);
+              else {
+                qraux[j - 1] = dnrm2(n - l, a + l + (j - 1) * lda, 1);
+                work[j - 1] = qraux[j - 1];
               }
             }
           }
         }
-/*
-  Save the transformation.
-*/
-        qraux[l-1] = a[l-1+(l-1)*lda];
-        a[l-1+(l-1)*lda] = -nrmxl;
+        /*
+          Save the transformation.
+        */
+        qraux[l - 1] = a[l - 1 + (l - 1) * lda];
+        a[l - 1 + (l - 1)*lda] = -nrmxl;
       }
     }
   }
-  return;
 }
 /******************************************************************************/
 
-int dqrls ( double a[], int lda, int m, int n, double tol, int *kr, double b[], 
-  double x[], double rsd[], int jpvt[], double qraux[], int itask )
+int dqrls(double a[], int lda, int m, int n, double tol, int* kr, double b[],
+          double x[], double rsd[], int jpvt[], double qraux[], int itask)
 
 /******************************************************************************/
 /*
@@ -1033,7 +830,7 @@ int dqrls ( double a[], int lda, int m, int n, double tol, int *kr, double b[],
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -1106,9 +903,7 @@ int dqrls ( double a[], int lda, int m, int n, double tol, int *kr, double b[],
 */
 {
   int ind;
-
-  if ( lda < m )
-  {
+  if (lda < m) {
     /*fprintf ( stderr, "\n" );
     fprintf ( stderr, "DQRLS - Fatal error!\n" );
     fprintf ( stderr, "  LDA < M.\n" );*/
@@ -1116,8 +911,7 @@ int dqrls ( double a[], int lda, int m, int n, double tol, int *kr, double b[],
     return ind;
   }
 
-  if ( n <= 0 )
-  {
+  if (n <= 0) {
     /*fprintf ( stderr, "\n" );
     fprintf ( stderr, "DQRLS - Fatal error!\n" );
     fprintf ( stderr, "  N <= 0.\n" );*/
@@ -1125,8 +919,7 @@ int dqrls ( double a[], int lda, int m, int n, double tol, int *kr, double b[],
     return ind;
   }
 
-  if ( itask < 1 )
-  {
+  if (itask < 1) {
     /*fprintf ( stderr, "\n" );
     fprintf ( stderr, "DQRLS - Fatal error!\n" );
     fprintf ( stderr, "  ITASK < 1.\n" );*/
@@ -1135,24 +928,21 @@ int dqrls ( double a[], int lda, int m, int n, double tol, int *kr, double b[],
   }
 
   ind = 0;
-/*
-  Factor the matrix.
-*/
-  if ( itask == 1 )
-  {
-    dqrank ( a, lda, m, n, tol, kr, jpvt, qraux );
-  }
-/*
-  Solve the least-squares problem.
-*/
-  dqrlss ( a, lda, m, n, *kr, b, x, rsd, jpvt, qraux );
-
+  /*
+    Factor the matrix.
+  */
+  if (itask == 1)
+    dqrank(a, lda, m, n, tol, kr, jpvt, qraux);
+  /*
+    Solve the least-squares problem.
+  */
+  dqrlss(a, lda, m, n, *kr, b, x, rsd, jpvt, qraux);
   return ind;
 }
 /******************************************************************************/
 
-void dqrlss ( double a[], int lda, int m, int n, int kr, double b[], double x[], 
-  double rsd[], int jpvt[], double qraux[] )
+void dqrlss(double a[], int lda, int m, int n, int kr, double b[], double x[],
+            double rsd[], int jpvt[], double qraux[])
 
 /******************************************************************************/
 /*
@@ -1181,7 +971,7 @@ void dqrlss ( double a[], int lda, int m, int n, int kr, double b[], double x[],
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -1232,45 +1022,36 @@ void dqrlss ( double a[], int lda, int m, int n, int kr, double b[], double x[],
   int k;
   double t;
 
-  if ( kr != 0 )
-  {
+  if (kr != 0) {
     job = 110;
-    info = dqrsl ( a, lda, m, kr, qraux, b, rsd, rsd, x, rsd, rsd, job );
+    info = dqrsl(a, lda, m, kr, qraux, b, rsd, rsd, x, rsd, rsd, job); UNUSED(info);
   }
 
-  for ( i = 0; i < n; i++ )
-  {
+  for (i = 0; i < n; i++)
     jpvt[i] = - jpvt[i];
-  }
 
-  for ( i = kr; i < n; i++ )
-  {
+  for (i = kr; i < n; i++)
     x[i] = 0.0;
-  }
 
-  for ( j = 1; j <= n; j++ )
-  {
-    if ( jpvt[j-1] <= 0 )
-    {
-      k = - jpvt[j-1];
-      jpvt[j-1] = k;
+  for (j = 1; j <= n; j++) {
+    if (jpvt[j - 1] <= 0) {
+      k = - jpvt[j - 1];
+      jpvt[j - 1] = k;
 
-      while ( k != j )
-      {
-        t = x[j-1];
-        x[j-1] = x[k-1];
-        x[k-1] = t;
-        jpvt[k-1] = -jpvt[k-1];
-        k = jpvt[k-1];
+      while (k != j) {
+        t = x[j - 1];
+        x[j - 1] = x[k - 1];
+        x[k - 1] = t;
+        jpvt[k - 1] = -jpvt[k - 1];
+        k = jpvt[k - 1];
       }
     }
   }
-  return;
 }
 /******************************************************************************/
 
-int dqrsl ( double a[], int lda, int n, int k, double qraux[], double y[], 
-  double qy[], double qty[], double b[], double rsd[], double ab[], int job )
+int dqrsl(double a[], int lda, int n, int k, double qraux[], double y[],
+          double qy[], double qty[], double b[], double rsd[], double ab[], int job)
 
 /******************************************************************************/
 /*
@@ -1335,7 +1116,7 @@ int dqrsl ( double a[], int lda, int n, int k, double qraux[], double y[],
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -1420,217 +1201,151 @@ int dqrsl ( double a[], int lda, int n, int k, double qraux[], double y[],
   int ju;
   double t;
   double temp;
-/*
-  Set INFO flag.
-*/
+  /*
+    Set INFO flag.
+  */
   info = 0;
-/*
-  Determine what is to be computed.
-*/
-  cqy =  (   job / 10000          != 0 );
-  cqty = ( ( job %  10000 )       != 0 );
-  cb =   ( ( job %   1000 ) / 100 != 0 );
-  cr =   ( ( job %    100 ) /  10 != 0 );
-  cab =  ( ( job %     10 )       != 0 );
 
-  ju = i4_min ( k, n-1 );
-/*
-  Special action when N = 1.
-*/
-  if ( ju == 0 )
-  {
-    if ( cqy )
-    {
+  /*
+    Determine what is to be computed.
+  */
+  cqy  = ( job / 10000        != 0);
+  cqty = ((job % 10000)       != 0);
+  cb   = ((job %  1000) / 100 != 0);
+  cr   = ((job %   100) /  10 != 0);
+  cab  = ((job %    10)       != 0);
+  ju = i4_min(k, n - 1);
+
+  /*
+    Special action when N = 1.
+  */
+  if (ju == 0) {
+    if (cqy)
       qy[0] = y[0];
-    }
-
-    if ( cqty )
-    {
+    if (cqty)
       qty[0] = y[0];
-    }
-
-    if ( cab )
-    {
+    if (cab)
       ab[0] = y[0];
-    }
-
-    if ( cb )
-    {
-      if ( a[0+0*lda] == 0.0 )
-      {
+    if (cb) {
+      if (a[0 + 0 * lda] == 0.0)
         info = 1;
-      }
       else
-      {
-        b[0] = y[0] / a[0+0*lda];
-      }
+        b[0] = y[0] / a[0 + 0 * lda];
     }
-
-    if ( cr )
-    {
+    if (cr)
       rsd[0] = 0.0;
-    }
     return info;
   }
-/*
-  Set up to compute QY or QTY.
-*/
-  if ( cqy )
-  {
-    for ( i = 1; i <= n; i++ )
-    {
-      qy[i-1] = y[i-1];
-    }
+  /*
+    Set up to compute QY or QTY.
+  */
+  if (cqy) {
+    for (i = 1; i <= n; i++)
+      qy[i - 1] = y[i - 1];
   }
-
-  if ( cqty )
-  {
-    for ( i = 1; i <= n; i++ )
-    {
-      qty[i-1] = y[i-1];
-    }
+  if (cqty) {
+    for (i = 1; i <= n; i++)
+      qty[i - 1] = y[i - 1];
   }
-/*
-  Compute QY.
-*/
-  if ( cqy )
-  {
-    for ( jj = 1; jj <= ju; jj++ )
-    {
+  /*
+    Compute QY.
+  */
+  if (cqy) {
+    for (jj = 1; jj <= ju; jj++) {
       j = ju - jj + 1;
-
-      if ( qraux[j-1] != 0.0 )
-      {
-        temp = a[j-1+(j-1)*lda];
-        a[j-1+(j-1)*lda] = qraux[j-1];
-        t = -ddot ( n-j+1, a+j-1+(j-1)*lda, 1, qy+j-1, 1 ) / a[j-1+(j-1)*lda];
-        daxpy ( n-j+1, t, a+j-1+(j-1)*lda, 1, qy+j-1, 1 );
-        a[j-1+(j-1)*lda] = temp;
+      if (qraux[j - 1] != 0.0) {
+        temp = a[j - 1 + (j - 1) * lda];
+        a[j - 1 + (j - 1)*lda] = qraux[j - 1];
+        t = -ddot(n - j + 1, a + j - 1 + (j - 1) * lda, 1, qy + j - 1, 1) / a[j - 1 + (j - 1) * lda];
+        daxpy(n - j + 1, t, a + j - 1 + (j - 1)*lda, 1, qy + j - 1, 1);
+        a[j - 1 + (j - 1)*lda] = temp;
       }
     }
   }
-/*
-  Compute Q'*Y.
-*/
-  if ( cqty )
-  {
-    for ( j = 1; j <= ju; j++ )
-    {
-      if ( qraux[j-1] != 0.0 )
-      {
-        temp = a[j-1+(j-1)*lda];
-        a[j-1+(j-1)*lda] = qraux[j-1];
-        t = -ddot ( n-j+1, a+j-1+(j-1)*lda, 1, qty+j-1, 1 ) / a[j-1+(j-1)*lda];
-        daxpy ( n-j+1, t, a+j-1+(j-1)*lda, 1, qty+j-1, 1 );
-        a[j-1+(j-1)*lda] = temp;
+  /*
+    Compute Q'*Y.
+  */
+  if (cqty) {
+    for (j = 1; j <= ju; j++) {
+      if (qraux[j - 1] != 0.0) {
+        temp = a[j - 1 + (j - 1) * lda];
+        a[j - 1 + (j - 1)*lda] = qraux[j - 1];
+        t = -ddot(n - j + 1, a + j - 1 + (j - 1) * lda, 1, qty + j - 1, 1) / a[j - 1 + (j - 1) * lda];
+        daxpy(n - j + 1, t, a + j - 1 + (j - 1)*lda, 1, qty + j - 1, 1);
+        a[j - 1 + (j - 1)*lda] = temp;
       }
     }
   }
-/*
-  Set up to compute B, RSD, or AB.
-*/
-  if ( cb )
-  {
-    for ( i = 1; i <= k; i++ )
-    {
-      b[i-1] = qty[i-1];
-    }
+  /*
+    Set up to compute B, RSD, or AB.
+  */
+  if (cb) {
+    for (i = 1; i <= k; i++)
+      b[i - 1] = qty[i - 1];
   }
-
-  if ( cab )
-  {
-    for ( i = 1; i <= k; i++ )
-    {
-      ab[i-1] = qty[i-1];
-    }
+  if (cab) {
+    for (i = 1; i <= k; i++)
+      ab[i - 1] = qty[i - 1];
   }
-
-  if ( cr && k < n )
-  {
-    for ( i = k+1; i <= n; i++ )
-    {
-      rsd[i-1] = qty[i-1];
-    }
+  if (cr && k < n) {
+    for (i = k + 1; i <= n; i++)
+      rsd[i - 1] = qty[i - 1];
   }
-
-  if ( cab && k+1 <= n )
-  {
-    for ( i = k+1; i <= n; i++ )
-    {
-      ab[i-1] = 0.0;
-    }
+  if (cab && k + 1 <= n) {
+    for (i = k + 1; i <= n; i++)
+      ab[i - 1] = 0.0;
   }
-
-  if ( cr )
-  {
-    for ( i = 1; i <= k; i++ )
-    {
-      rsd[i-1] = 0.0;
-    }
+  if (cr) {
+    for (i = 1; i <= k; i++)
+      rsd[i - 1] = 0.0;
   }
-/*
-  Compute B.
-*/
-  if ( cb )
-  {
-    for ( jj = 1; jj <= k; jj++ )
-    {
+  /*
+    Compute B.
+  */
+  if (cb) {
+    for (jj = 1; jj <= k; jj++) {
       j = k - jj + 1;
-
-      if ( a[j-1+(j-1)*lda] == 0.0 )
-      {
+      if (a[j - 1 + (j - 1)*lda] == 0.0) {
         info = j;
         break;
       }
-
-      b[j-1] = b[j-1] / a[j-1+(j-1)*lda];
-
-      if ( j != 1 )
-      {
-        t = -b[j-1];
-        daxpy ( j-1, t, a+0+(j-1)*lda, 1, b, 1 );
+      b[j - 1] = b[j - 1] / a[j - 1 + (j - 1) * lda];
+      if (j != 1) {
+        t = -b[j - 1];
+        daxpy(j - 1, t, a + 0 + (j - 1)*lda, 1, b, 1);
       }
     }
   }
-/*
-  Compute RSD or AB as required.
-*/
-  if ( cr || cab )
-  {
-    for ( jj = 1; jj <= ju; jj++ )
-    {
+  /*
+    Compute RSD or AB as required.
+  */
+  if (cr || cab) {
+    for (jj = 1; jj <= ju; jj++) {
       j = ju - jj + 1;
-
-      if ( qraux[j-1] != 0.0 )
-      {
-        temp = a[j-1+(j-1)*lda];
-        a[j-1+(j-1)*lda] = qraux[j-1];
-
-        if ( cr )
-        {
-          t = -ddot ( n-j+1, a+j-1+(j-1)*lda, 1, rsd+j-1, 1 ) 
-            / a[j-1+(j-1)*lda];
-          daxpy ( n-j+1, t, a+j-1+(j-1)*lda, 1, rsd+j-1, 1 );
+      if (qraux[j - 1] != 0.0) {
+        temp = a[j - 1 + (j - 1) * lda];
+        a[j - 1 + (j - 1)*lda] = qraux[j - 1];
+        if (cr) {
+          t = -ddot(n - j + 1, a + j - 1 + (j - 1) * lda, 1, rsd + j - 1, 1)
+              / a[j - 1 + (j - 1) * lda];
+          daxpy(n - j + 1, t, a + j - 1 + (j - 1)*lda, 1, rsd + j - 1, 1);
         }
-
-        if ( cab )
-        {
-          t = -ddot ( n-j+1, a+j-1+(j-1)*lda, 1, ab+j-1, 1 ) 
-            / a[j-1+(j-1)*lda];
-          daxpy ( n-j+1, t, a+j-1+(j-1)*lda, 1, ab+j-1, 1 );
+        if (cab) {
+          t = -ddot(n - j + 1, a + j - 1 + (j - 1) * lda, 1, ab + j - 1, 1)
+              / a[j - 1 + (j - 1) * lda];
+          daxpy(n - j + 1, t, a + j - 1 + (j - 1)*lda, 1, ab + j - 1, 1);
         }
-        a[j-1+(j-1)*lda] = temp;
+        a[j - 1 + (j - 1)*lda] = temp;
       }
     }
   }
-
   return info;
 }
 /******************************************************************************/
 
 /******************************************************************************/
 
-void dscal ( int n, double sa, double x[], int incx )
+void dscal(int n, double sa, double x[], int incx)
 
 /******************************************************************************/
 /*
@@ -1640,7 +1355,7 @@ void dscal ( int n, double sa, double x[], int incx )
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -1677,50 +1392,35 @@ void dscal ( int n, double sa, double x[], int incx )
   int ix;
   int m;
 
-  if ( n <= 0 )
-  {
-  }
-  else if ( incx == 1 )
-  {
+  if (n <= 0) return;
+
+  if (incx == 1) {
     m = n % 5;
-
-    for ( i = 0; i < m; i++ )
-    {
+    for (i = 0; i < m; i++)
       x[i] = sa * x[i];
-    }
-
-    for ( i = m; i < n; i = i + 5 )
-    {
+    for (i = m; i < n; i = i + 5) {
       x[i]   = sa * x[i];
-      x[i+1] = sa * x[i+1];
-      x[i+2] = sa * x[i+2];
-      x[i+3] = sa * x[i+3];
-      x[i+4] = sa * x[i+4];
+      x[i + 1] = sa * x[i + 1];
+      x[i + 2] = sa * x[i + 2];
+      x[i + 3] = sa * x[i + 3];
+      x[i + 4] = sa * x[i + 4];
     }
   }
-  else
-  {
-    if ( 0 <= incx )
-    {
+  else {
+    if (0 <= incx)
       ix = 0;
-    }
     else
-    {
-      ix = ( - n + 1 ) * incx;
-    }
-
-    for ( i = 0; i < n; i++ )
-    {
+      ix = (- n + 1) * incx;
+    for (i = 0; i < n; i++) {
       x[ix] = sa * x[ix];
       ix = ix + incx;
     }
   }
-  return;
 }
 /******************************************************************************/
 
 
-void dswap ( int n, double x[], int incx, double y[], int incy )
+void dswap(int n, double x[], int incx, double y[], int incy)
 
 /******************************************************************************/
 /*
@@ -1730,7 +1430,7 @@ void dswap ( int n, double x[], int incx, double y[], int incy )
 
   Licensing:
 
-    This code is distributed under the GNU LGPL license. 
+    This code is distributed under the GNU LGPL license.
 
   Modified:
 
@@ -1748,8 +1448,8 @@ void dswap ( int n, double x[], int incx, double y[], int incy )
 
     Charles Lawson, Richard Hanson, David Kincaid, Fred Krogh,
     Basic Linear Algebra Subprograms for Fortran Usage,
-    Algorithm 539, 
-    ACM Transactions on Mathematical Software, 
+    Algorithm 539,
+    ACM Transactions on Mathematical Software,
     Volume 5, Number 3, September 1979, pages 308-323.
 
   Parameters:
@@ -1765,79 +1465,47 @@ void dswap ( int n, double x[], int incx, double y[], int incy )
     Input, int INCY, the increment between successive elements of Y.
 */
 {
-  int i;
-  int ix;
-  int iy;
-  int m;
+  if (n <= 0) return;
+
+  int i, ix, iy, m;
   double temp;
 
-  if ( n <= 0 )
-  {
-  }
-  else if ( incx == 1 && incy == 1 )
-  {
+  if (incx == 1 && incy == 1) {
     m = n % 3;
-
-    for ( i = 0; i < m; i++ )
-    {
+    for (i = 0; i < m; i++) {
       temp = x[i];
       x[i] = y[i];
       y[i] = temp;
     }
-
-    for ( i = m; i < n; i = i + 3 )
-    {
+    for (i = m; i < n; i = i + 3) {
       temp = x[i];
       x[i] = y[i];
       y[i] = temp;
-
-      temp = x[i+1];
-      x[i+1] = y[i+1];
-      y[i+1] = temp;
-
-      temp = x[i+2];
-      x[i+2] = y[i+2];
-      y[i+2] = temp;
+      temp = x[i + 1];
+      x[i + 1] = y[i + 1];
+      y[i + 1] = temp;
+      temp = x[i + 2];
+      x[i + 2] = y[i + 2];
+      y[i + 2] = temp;
     }
   }
-  else
-  {
-    if ( 0 <= incx )
-    {
-      ix = 0;
-    }
-    else
-    {
-      ix = ( - n + 1 ) * incx;
-    }
-
-    if ( 0 <= incy )
-    {
-      iy = 0;
-    }
-    else
-    {
-      iy = ( - n + 1 ) * incy;
-    }
-
-    for ( i = 0; i < n; i++ )
-    {
+  else {
+    ix = (incx >= 0) ? 0 : (-n + 1) * incx;
+    iy = (incy >= 0) ? 0 : (-n + 1) * incy;
+    for (i = 0; i < n; i++) {
       temp = x[ix];
       x[ix] = y[iy];
       y[iy] = temp;
       ix = ix + incx;
       iy = iy + incy;
     }
-
   }
-
-  return;
 }
 /******************************************************************************/
 
 /******************************************************************************/
 
-void qr_solve ( double x[], int m, int n, double a[], double b[] )
+void qr_solve(double x[], int m, int n, double a[], double b[])
 
 /******************************************************************************/
 /*
@@ -1887,22 +1555,15 @@ void qr_solve ( double x[], int m, int n, double a[], double b[] )
     Output, double QR_SOLVE[N], the least squares solution.
 */
 {
-  double a_qr[n*m];
-  int ind;
-  int itask;
-  int jpvt[n];
-  int kr;
-  int lda;
-  double qraux[n];
-  double r[m];
-  double tol;
+  double a_qr[n * m], qraux[n], r[m], tol;
+  int ind, itask, jpvt[n], kr, lda;
 
-  r8mat_copy( a_qr, m, n, a );
+  r8mat_copy(a_qr, m, n, a);
   lda = m;
-  tol = r8_epsilon ( ) / r8mat_amax ( m, n, a_qr );
+  tol = r8_epsilon() / r8mat_amax(m, n, a_qr);
   itask = 1;
 
-  ind = dqrls ( a_qr, lda, m, n, tol, &kr, b, x, r, jpvt, qraux, itask );
+  ind = dqrls(a_qr, lda, m, n, tol, &kr, b, x, r, jpvt, qraux, itask); UNUSED(ind);
 }
 /******************************************************************************/
 

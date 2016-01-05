@@ -118,35 +118,35 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
  */
 //------------------------------------------------------------------------------
 #if MEGA_SOFT_SPI && (defined(__AVR_ATmega1280__)||defined(__AVR_ATmega2560__))
-#define SOFTWARE_SPI
+  #define SOFTWARE_SPI
 #elif USE_SOFTWARE_SPI
-#define SOFTWARE_SPI
+  #define SOFTWARE_SPI
 #endif  // MEGA_SOFT_SPI
 //------------------------------------------------------------------------------
 // SPI pin definitions - do not edit here - change in SdFatConfig.h
 //
 #if DISABLED(SOFTWARE_SPI)
-// hardware pin defs
-/** The default chip select pin for the SD card is SS. */
-uint8_t const  SD_CHIP_SELECT_PIN = SS_PIN;
-// The following three pins must not be redefined for hardware SPI.
-/** SPI Master Out Slave In pin */
-uint8_t const  SPI_MOSI_PIN = MOSI_PIN;
-/** SPI Master In Slave Out pin */
-uint8_t const  SPI_MISO_PIN = MISO_PIN;
-/** SPI Clock pin */
-uint8_t const  SPI_SCK_PIN = SCK_PIN;
+  // hardware pin defs
+  /** The default chip select pin for the SD card is SS. */
+  uint8_t const  SD_CHIP_SELECT_PIN = SS_PIN;
+  // The following three pins must not be redefined for hardware SPI.
+  /** SPI Master Out Slave In pin */
+  uint8_t const  SPI_MOSI_PIN = MOSI_PIN;
+  /** SPI Master In Slave Out pin */
+  uint8_t const  SPI_MISO_PIN = MISO_PIN;
+  /** SPI Clock pin */
+  uint8_t const  SPI_SCK_PIN = SCK_PIN;
 
 #else  // SOFTWARE_SPI
 
-/** SPI chip select pin */
-uint8_t const SD_CHIP_SELECT_PIN = SOFT_SPI_CS_PIN;
-/** SPI Master Out Slave In pin */
-uint8_t const SPI_MOSI_PIN = SOFT_SPI_MOSI_PIN;
-/** SPI Master In Slave Out pin */
-uint8_t const SPI_MISO_PIN = SOFT_SPI_MISO_PIN;
-/** SPI Clock pin */
-uint8_t const SPI_SCK_PIN = SOFT_SPI_SCK_PIN;
+  /** SPI chip select pin */
+  uint8_t const SD_CHIP_SELECT_PIN = SOFT_SPI_CS_PIN;
+  /** SPI Master Out Slave In pin */
+  uint8_t const SPI_MOSI_PIN = SOFT_SPI_MOSI_PIN;
+  /** SPI Master In Slave Out pin */
+  uint8_t const SPI_MISO_PIN = SOFT_SPI_MISO_PIN;
+  /** SPI Clock pin */
+  uint8_t const SPI_SCK_PIN = SOFT_SPI_SCK_PIN;
 #endif  // SOFTWARE_SPI
 //------------------------------------------------------------------------------
 /**
@@ -178,12 +178,12 @@ class Sd2Card {
    * \return true for success or false for failure.
    */
   bool init(uint8_t sckRateID = SPI_FULL_SPEED,
-    uint8_t chipSelectPin = SD_CHIP_SELECT_PIN);
+            uint8_t chipSelectPin = SD_CHIP_SELECT_PIN);
   bool readBlock(uint32_t block, uint8_t* dst);
   /**
    * Read a card's CID register. The CID contains card identification
    * information such as Manufacturer ID, Product name, Product serial
-   * number and Manufacturing date. 
+   * number and Manufacturing date.
    *
    * \param[out] cid pointer to area for returned data.
    *
@@ -203,7 +203,7 @@ class Sd2Card {
   bool readCSD(csd_t* csd) {
     return readRegister(CMD9, csd);
   }
-  bool readData(uint8_t *dst);
+  bool readData(uint8_t* dst);
   bool readStart(uint32_t blockNumber);
   bool readStop();
   bool setSckRate(uint8_t sckRateID);

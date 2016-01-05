@@ -29,9 +29,9 @@
 
 // The presence of the UBRRH register is used to detect a UART.
 #define UART_PRESENT(port) ((port == 0 && (defined(UBRRH) || defined(UBRR0H))) || \
-						(port == 1 && defined(UBRR1H)) || (port == 2 && defined(UBRR2H)) || \
-						(port == 3 && defined(UBRR3H)))				
-						
+                            (port == 1 && defined(UBRR1H)) || (port == 2 && defined(UBRR2H)) || \
+                            (port == 3 && defined(UBRR3H)))
+
 // These are macros to build serial port register names for the selected SERIAL_PORT (C preprocessor
 // requires two levels of indirection to expand macro values properly)
 #define SERIAL_REGNAME(registerbase,number,suffix) SERIAL_REGNAME_INTERNAL(registerbase,number,suffix)
@@ -41,15 +41,15 @@
   #define SERIAL_REGNAME_INTERNAL(registerbase,number,suffix) registerbase##number##suffix
 #endif
 
-// Registers used by MarlinSerial class (these are expanded 
+// Registers used by MarlinSerial class (these are expanded
 // depending on selected serial port
 #define M_UCSRxA SERIAL_REGNAME(UCSR,SERIAL_PORT,A) // defines M_UCSRxA to be UCSRnA where n is the serial port number
-#define M_UCSRxB SERIAL_REGNAME(UCSR,SERIAL_PORT,B) 
-#define M_RXENx SERIAL_REGNAME(RXEN,SERIAL_PORT,)    
-#define M_TXENx SERIAL_REGNAME(TXEN,SERIAL_PORT,)    
-#define M_RXCIEx SERIAL_REGNAME(RXCIE,SERIAL_PORT,)    
-#define M_UDREx SERIAL_REGNAME(UDRE,SERIAL_PORT,)    
-#define M_UDRx SERIAL_REGNAME(UDR,SERIAL_PORT,)  
+#define M_UCSRxB SERIAL_REGNAME(UCSR,SERIAL_PORT,B)
+#define M_RXENx SERIAL_REGNAME(RXEN,SERIAL_PORT,)
+#define M_TXENx SERIAL_REGNAME(TXEN,SERIAL_PORT,)
+#define M_RXCIEx SERIAL_REGNAME(RXCIE,SERIAL_PORT,)
+#define M_UDREx SERIAL_REGNAME(UDRE,SERIAL_PORT,)
+#define M_UDRx SERIAL_REGNAME(UDR,SERIAL_PORT,)
 #define M_UBRRxH SERIAL_REGNAME(UBRR,SERIAL_PORT,H)
 #define M_UBRRxL SERIAL_REGNAME(UBRR,SERIAL_PORT,L)
 #define M_RXCx SERIAL_REGNAME(RXC,SERIAL_PORT,)
@@ -99,7 +99,6 @@ class MarlinSerial { //: public Stream
     FORCE_INLINE void write(uint8_t c) {
       while (!TEST(M_UCSRxA, M_UDREx))
         ;
-
       M_UDRx = c;
     }
 
@@ -124,10 +123,10 @@ class MarlinSerial { //: public Stream
     void printFloat(double, uint8_t);
 
   public:
-    FORCE_INLINE void write(const char *str) { while (*str) write(*str++); }
-    FORCE_INLINE void write(const uint8_t *buffer, size_t size) { while (size--) write(*buffer++); }
-    FORCE_INLINE void print(const String &s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-    FORCE_INLINE void print(const char *str) { write(str); }
+    FORCE_INLINE void write(const char* str) { while (*str) write(*str++); }
+    FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
+    FORCE_INLINE void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
+    FORCE_INLINE void print(const char* str) { write(str); }
 
     void print(char, int = BYTE);
     void print(unsigned char, int = BYTE);
@@ -137,7 +136,7 @@ class MarlinSerial { //: public Stream
     void print(unsigned long, int = DEC);
     void print(double, int = 2);
 
-    void println(const String &s);
+    void println(const String& s);
     void println(const char[]);
     void println(char, int = BYTE);
     void println(unsigned char, int = BYTE);

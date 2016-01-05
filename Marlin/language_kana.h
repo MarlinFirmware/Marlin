@@ -17,7 +17,7 @@
 // 片仮名表示定義
 #define WELCOME_MSG                         MACHINE_NAME " ready."
 #define MSG_SD_INSERTED                     "\xb6\xb0\xc4\xde\x20\xbf\xb3\xc6\xad\xb3\xbb\xda\xcf\xbc\xc0" // "Card inserted"
-#define MSG_SD_REMOVED                      "\xb6\xb0\xc4\xde\xb6xde\xb1\xd8\xcf\xbe\xdd"                  // "Card removed"
+#define MSG_SD_REMOVED                      "\xb6\xb0\xc4\xde\xb6\xde\xb1\xd8\xcf\xbe\xdd"                  // "Card removed"
 #define MSG_MAIN                            "\xd2\xb2\xdd"                                                 // "Main"
 #define MSG_AUTOSTART                       "\xbc\xde\xc4\xde\xb3\xb6\xb2\xbc"                             // "Autostart"
 #define MSG_DISABLE_STEPPERS                "\xd3\xb0\xc0\xb0\xc3\xde\xdd\xb9\xde\xdd\x20\xb5\xcc"         // "Disable steppers"
@@ -35,8 +35,8 @@
 #define MSG_PREHEAT_ABS_BEDONLY             MSG_PREHEAT_ABS " \xcd\xde\xaf\xc4\xde"                        // "Bed"
 #define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " \xbe\xaf\xc3\xb2"                            // "conf"
 #define MSG_COOLDOWN                        "\xb6\xc8\xc2\xc3\xb2\xbc"                                     // "Cooldown"
-#define MSG_SWITCH_PS_ON                    "\xc3\xde\xdd\xb9\xdd\xde\x20\xb5\xdd"                         // "Switch power on"
-#define MSG_SWITCH_PS_OFF                   "\xc3\xde\xdd\xb9\xdd\xde\x20\xb5\xcc"                         // "Switch power off"
+#define MSG_SWITCH_PS_ON                    "\xc3\xde\xdd\xb9\xde\xdd\x20\xb5\xdd"                         // "Switch power on"
+#define MSG_SWITCH_PS_OFF                   "\xc3\xde\xdd\xb9\xde\xdd\x20\xb5\xcc"                         // "Switch power off"
 #define MSG_EXTRUDE                         "\xb5\xbc\xc0\xde\xbc"                                         // "Extrude"
 #define MSG_RETRACT                         "\xd8\xc4\xd7\xb8\xc4"                                         // "Retract"
 #define MSG_MOVE_AXIS                       "\xbc\xde\xb8\xb2\xc4\xde\xb3"                                 // "Move axis"
@@ -87,7 +87,7 @@
 #define MSG_FILAMENT_DIAM                   "Fil. Dia."
 #define MSG_CONTRAST                        "LCD\xba\xdd\xc4\xd7\xbd\xc4"                                  // "LCD contrast"
 #define MSG_STORE_EPROM                     "\xd2\xd3\xd8\xcd\xb6\xb8\xc9\xb3"                             // "Store memory"
-#define MSG_LOAD_EPROM                      "\xd2\xd3\xd8\xb6\xd7\xd6\xd0\ba\xd0"                          // "Load memory"
+#define MSG_LOAD_EPROM                      "\xd2\xd3\xd8\xb6\xd7\xd6\xd0\xba\xd0"                          // "Load memory"
 #define MSG_RESTORE_FAILSAFE                "\xbe\xaf\xc3\xb2\xd8\xbe\xaf\xc4"                             // "Restore failsafe"
 #define MSG_REFRESH                         "\xd8\xcc\xda\xaf\xbc\xad"                                     // "Refresh"
 #define MSG_WATCH                           "\xb2\xdd\xcc\xab"                                             // "Info screen"
@@ -99,7 +99,7 @@
 #define MSG_CARD_MENU                       "SD\xb6\xb0\xc4\xde\xb6\xd7\xcc\xdf\xd8\xdd\xc4"               // "Print from SD"
 #define MSG_NO_CARD                         "SD\xb6\xb0\xc4\xde\xb6\xde\xb1\xd8\xcf\xbe\xdd"               // "No SD card"
 #define MSG_DWELL                           "\xbd\xd8\xb0\xcc\xdf"                                         // "Sleep..."
-#define MSG_USERWAIT                        "\xbc\xca\xde\xd7\xb9\xb5\xcf\xc1\xb8\xc0\xde\xbb\xb2"         // "Wait for user..."
+#define MSG_USERWAIT                        "\xbc\xca\xde\xd7\xb8\xb5\xcf\xc1\xb8\xc0\xde\xbb\xb2"         // "Wait for user..."
 #define MSG_RESUMING                        "\xcc\xdf\xd8\xdd\xc4\xbb\xb2\xb6\xb2"                         // "Resuming print"
 #define MSG_PRINT_ABORTED                   "\xcc\xdf\xd8\xdd\xc4\xc1\xad\xb3\xbc\xbb\xda\xcf\xbc\xc0"     // "Print aborted"
 #define MSG_NO_MOVE                         "\xb3\xba\xde\xb7\xcf\xbe\xdd"                                 // "No move."
@@ -116,7 +116,7 @@
 #define MSG_FILAMENTCHANGE                  "\xcc\xa8\xd7\xd2\xdd\xc4\xba\xb3\xb6\xdd"                     // "Change filament"
 #define MSG_INIT_SDCARD                     "SD\xb6\xb0\xc4\xde\xbb\xb2\xd6\xd0\xba\xd0"                   // "Init. SD card"
 #define MSG_CNG_SDCARD                      "SD\xb6\xb0\xc4\xde\xba\xb3\xb6\xdd"                           // "Change SD card"
-#define MSG_ZPROBE_OUT                      "Z\xcc\xdf\xdb\xb0\xcc\xde \xcd\xde\xaf\xc4\xee\xb6\xde\xb2"   // "Z probe out. bed"
+#define MSG_ZPROBE_OUT                      "Z\xcc\xdf\xdb\xb0\xcc\xde \xcd\xde\xaf\xc4\xde\xb6\xde\xb2"   // "Z probe out. bed"
 #define MSG_POSITION_UNKNOWN                "\xb9\xde\xdd\xc3\xdd\xcaXY\xb2\xc4\xde\xb3\xba\xdeZ"           // "Home X/Y before Z"
 #define MSG_ZPROBE_ZOFFSET                  "Z\xb5\xcc\xbe\xaf\xc4"                                        // "Z Offset"
 #define MSG_BABYSTEP_X                      "\xcb\xde\xc4\xde\xb3 X"                                       // "Babystep X"
@@ -128,19 +128,19 @@
 
 /* These are from language.h. PLEASE DON'T TRANSLATE! All translatable messages can be found in language_en.h
 #define MSG_HEATING                         "\xb6\xc8\xc2\xc1\xad\xb3..."                                  // "Heating..."
-#define MSG_HEATING_COMPLETE                "\xb6\xc8\xc2\xb6\xdd\xd8x\xae\xb3"                            // "Heating done."
+#define MSG_HEATING_COMPLETE                "\xb6\xc8\xc2\xb6\xdd\xd8\xae\xb3"                            // "Heating done."
 #define MSG_BED_HEATING                     "\xcd\xde\xaf\xc4\xde\xb6\xc8\xc2\xc1\xad\xb3"                 // "Bed Heating."
-#define MSG_BED_DONE                        "\xcd\xde\xaf\xc4\xde\xb6\xc8\xc2\xb6\xdd\xd8x\xae\xb3"        // "Bed done."
+#define MSG_BED_DONE                        "\xcd\xde\xaf\xc4\xde\xb6\xc8\xc2\xb6\xdd\xd8\xae\xb3"        // "Bed done."
 #define MSG_ENDSTOPS_HIT                    "endstops hit: "
                    ^ typho
 */
 
 #if ENABLED(DELTA_CALIBRATION_MENU)
-    #define MSG_DELTA_CALIBRATE             "Delta Calibration"
-    #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
-    #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
-    #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
-    #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
+  #define MSG_DELTA_CALIBRATE               "Delta Calibration"
+  #define MSG_DELTA_CALIBRATE_X             "Calibrate X"
+  #define MSG_DELTA_CALIBRATE_Y             "Calibrate Y"
+  #define MSG_DELTA_CALIBRATE_Z             "Calibrate Z"
+  #define MSG_DELTA_CALIBRATE_CENTER        "Calibrate Center"
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_KANA_H

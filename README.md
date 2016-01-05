@@ -1,18 +1,23 @@
 # Marlin 3D Printer Firmware
 <img align="top" width=175 src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
- Documentation has moved to [marlinfirmware.org](http://www.marlinfirmware.org).
+ Additional documentation can be found in [our wiki](https://github.com/MarlinFirmware/Marlin/wiki/Main-Page).
 
-## Release Candidate -- Marlin 1.1.0-RC2 - 29 September 2015
+## Release Candidate -- Marlin 1.1.0-RC3 - 01 December 2015
 
 __Not for production use – use with caution!__
 
-For the latest tagged version of Marlin (currently 1.0.2 – January 2015) you should switch to the [Release branch](https://github.com/MarlinFirmware/Marlin/tree/Release).
+Previously tagged versions of Marlin are not recommended. However, the latest patches to the Marlin 1.0 series can be found in the [1.0.x](https://github.com/MarlinFirmware/Marlin/tree/1.0.x) branch.
 
 [This branch, "RC"](https://github.com/MarlinFirmware/Marlin/tree/RC), is our current pre-release candidate.
 
 Future development takes place in the [MarlinDev repository](https://github.com/MarlinFirmware/MarlinDev/).
 
 ## Recent Changes
+RC3 - 01 Dec 2015
+      A number of language sensitive strings have been revised
+      Formatting of the LCD display has been improved to handle negative coordinates better
+      Various compiler-related issues have been corrected
+
 RC2 - 29 Sep 2015
       File styling reverted
       LCD update frequency reduced
@@ -44,8 +49,8 @@ __Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo22
 
 The current Marlin dev team consists of:
 
- - Scott Lahteine [@thinkyhead] - English
  - Andreas Hardtung [@AnHardt] - Deutsch, English
+ - Scott Lahteine [@thinkyhead] - English
  - [@Wurstnase] - Deutsch, English
  - F. Malpartida [@fmalpartida] - English, Spanish
  - [@CONSULitAS] - Deutsch, English
@@ -67,7 +72,7 @@ More features have been added by:
 
 ## License
 
-Marlin is published under the [GPL license](/Documentation/COPYING.md) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
+Marlin is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
 
 While we can't prevent the use of this code in products (3D printers, CNC, etc.) that are closed source or crippled by a patent, we would prefer that you choose another firmware or, better yet, make your own.
 

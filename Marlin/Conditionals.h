@@ -74,10 +74,10 @@
   #endif
 
   #if ENABLED(MINIPANEL)
-   #define DOGLCD
-   #define ULTIPANEL
-   #define NEWPANEL
-   #define DEFAULT_LCD_CONTRAST 17
+    #define DOGLCD
+    #define ULTIPANEL
+    #define NEWPANEL
+    #define DEFAULT_LCD_CONTRAST 17
   #endif
 
   /**
@@ -135,9 +135,9 @@
   // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 
   #if ENABLED(SAV_3DLCD)
-     #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
-     #define ULTIPANEL
-     #define NEWPANEL
+    #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
+    #define ULTIPANEL
+    #define NEWPANEL
   #endif
 
   #if ENABLED(ULTIPANEL)
@@ -205,7 +205,7 @@
     #endif
     #if ENABLED(U8GLIB_SSD1306)
       #undef HAS_LCD_CONTRAST
-    #endif  
+    #endif
   #endif
 
 #else // CONFIGURATION_LCD
@@ -285,13 +285,13 @@
 
   #define SERVO_LEVELING (defined(AUTO_BED_LEVELING_FEATURE) && defined(Z_ENDSTOP_SERVO_NR))
 
-   /**
-    * Sled Options
-    */ 
+  /**
+   * Sled Options
+   */
   #if ENABLED(Z_PROBE_SLED)
     #define Z_SAFE_HOMING
   #endif
-  
+
   /**
    * MAX_STEP_FREQUENCY differs for TOSHIBA
    */
