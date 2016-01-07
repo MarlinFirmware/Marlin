@@ -191,10 +191,10 @@ const char ES_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Cambiar filamento";
 const char ES_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Ajustando posici""\xf3""n";
 const char ES_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Impresi""\xf3""n detenida";
 const char ES_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Retira los residuos de la base";
-const char ES_OPTION_STATS[] PROGMEM					= "Estadisticas";
-const char ES_SCREEN_VIEW_STATS_TITLE[] PROGMEM			= "Estadisticas";
-const char ES_SCREEN_VIEW_STATS_TEXT1[]	PROGMEM			= "Tiempo";
-const char ES_SCREEN_VIEW_STATS_TEXT2[]	PROGMEM			= "Completados";
-const char ES_SCREEN_VIEW_STATS_TEXT3[]	PROGMEM			= "Fallidos";
+const char ES_OPTION_STATS[] PROGMEM                    = "Estadisticas";
+const char ES_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Estadisticas";
+const char ES_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tiempo";
+const char ES_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Completados";
+const char ES_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fallidos";
 
 #endif //LANGUAGE_ES_H

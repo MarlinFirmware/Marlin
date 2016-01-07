@@ -191,10 +191,11 @@ const char IT_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Cambiare filamento";
 const char IT_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Regolaz. posizione";
 const char IT_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Stampa arrestata";
 const char IT_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Ritirare i residui dal piano";
-const char IT_OPTION_STATS[] PROGMEM					= "0";
-const char IT_SCREEN_VIEW_STATS_TITLE[] PROGMEM			= "0";
-const char IT_SCREEN_VIEW_STATS_TEXT1[]	PROGMEM			= "0";
-const char IT_SCREEN_VIEW_STATS_TEXT2[]	PROGMEM			= "0";
+const char IT_OPTION_STATS[] PROGMEM                    = "Statistiche";
+const char IT_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistiche";
+const char IT_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tempo";
+const char IT_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Completati";
+const char IT_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Non riusciti";
 const char IT_SCREEN_VIEW_STATS_TEXT3[]	PROGMEM			= "0";
 
 #endif //LANGUAGE_IT_H
