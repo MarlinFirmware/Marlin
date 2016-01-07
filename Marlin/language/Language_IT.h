@@ -196,6 +196,5 @@ const char IT_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistiche";
 const char IT_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tempo";
 const char IT_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Completati";
 const char IT_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Non riusciti";
-const char IT_SCREEN_VIEW_STATS_TEXT3[]	PROGMEM			= "0";
 
 #endif //LANGUAGE_IT_H
