@@ -1,12 +1,9 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file OffsetManager.cpp
+/// \file StatsManager.h
 ///
-/// \author Ivan Galvez Junquera
-///         Ruy Garcia
-///         Victor Andueza
-///         Joaquin Herrero
+/// \author Koldo Imanol de Miguel
 ///
-/// \brief Management class for the value of the extruder's offset.
+/// \brief Management class for management of printing statistics
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
