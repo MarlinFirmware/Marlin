@@ -1164,10 +1164,8 @@ inline void line_to_z(float zPosition) {
 inline void line_to_destination(float mm_m) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
   if (marlin_debug_flags & DEBUG_LEVELING) {
-  SERIAL_ECHO("> line_to_destination, M119 to check endstops");
-  enqueuecommands_P(PSTR("M119"));
-  print_xyz("destination", destination);	// displays the destination values
-  }
+ print_xyz("> line_to_destination(), destination", destination);	// displays the destination values
+   }
   #endif
   plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], mm_m / 60, active_extruder);
 }
