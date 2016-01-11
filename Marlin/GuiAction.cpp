@@ -44,6 +44,10 @@
 #include "LightManager.h"
 #include "cardreader.h"
 
+#ifdef DOGLCD
+	#include "StatsManager.h"
+#endif
+
 bool raised = false;
 extern bool home_all_axis;
 extern bool bed_leveling;
@@ -660,6 +664,7 @@ void action_start_print()
 
 #ifdef DOGLCD
 		PrintManager::single::instance().state(READY);
+		StatsManager::single::instance().increaseTotalPrints();
 #endif //DOGLCD
 
 	enquecommand_P(PSTR("G90"));
@@ -763,12 +768,20 @@ void action_stop_print()
 	PrintManager::knownPosition(true);
 	
 	stop_buffer = false;
+	
+	#ifdef DOGLCD
+		Time_t printTime = PrintManager::single::instance().printingTime();
+		StatsManager::single::instance().updateTotalTime(printTime);
+	#endif
 }
 
 void action_finish_print()
 {
 	action_stop_print();
 	action_cooldown();
+	#ifdef DOGLCD
+		StatsManager::single::instance().increaseSuccededPrints();
+	#endif
 }
 
 extern float target[4];
@@ -922,6 +935,15 @@ void action_wizard_init()
 	PrintManager::single::instance().state(INITIALIZING);
 	LightManager::single::instance().state(true);
 	SerialManager::single::instance().state(true);
+	
+	#ifdef DOGLCD
+		if(!eeprom::StorageManager::checkStatsInitialized())
+		{
+			SERIAL_ECHOLN("GuiAct initializing stats");
+			eeprom::StorageManager::InitilializeStats();
+			StatsManager::single::instance().loadStats();
+		}
+	#endif //DOGLCD
 }
 
 void action_wizard_finish()

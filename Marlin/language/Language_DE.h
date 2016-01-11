@@ -193,5 +193,10 @@ const char DE_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Druck angehalten";
 const char DE_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Entferne die R""\xfc""ckst""\xe4""nde von der Platte";
 const char DE_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Filament wechseln";
 const char DE_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "Positionsausrichtung";
+const char DE_OPTION_STATS[] PROGMEM                    = "Statistiken";
+const char DE_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistiken";
+const char DE_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Druckdauer";
+const char DE_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Abgeschlossen";
+const char DE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fehlgeschlagen";
 
 #endif //LANGUAGE_DE_H

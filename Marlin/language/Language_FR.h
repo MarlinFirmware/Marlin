@@ -193,5 +193,10 @@ const char FR_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Impression arr""\xea"
 const char FR_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Retirez les r""\xe9""sidus du plateau";
 const char FR_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Changer le filament";
 const char FR_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "R""\xe9""glage position";
+const char FR_OPTION_STATS[] PROGMEM                    = "Statistiques";
+const char FR_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistiques";
+const char FR_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Temps d'impr.";
+const char FR_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "R""\xe9""ussites";
+const char FR_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = """\xc9""checs";
 
 #endif //LANGUAGE_FR_H

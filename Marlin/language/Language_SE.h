@@ -193,5 +193,10 @@ const char SE_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Utskrift stoppad";
 const char SE_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Ta bort resterna fr""\xe5""n plattan";
 const char SE_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Byta filament";
 const char SE_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "Justerar l""\xe4""ge";
+const char SE_OPTION_STATS[] PROGMEM                    = "Statistik";
+const char SE_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistik";
+const char SE_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tid";
+const char SE_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Avslutade";
+const char SE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Misslyckade";
 
 #endif //LANGUAGE_SE_H

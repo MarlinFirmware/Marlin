@@ -1,12 +1,13 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenSetting.h
+/// \file ScreenStats.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
+///			Koldo Imanol de Miguel
 ///
-/// \brief Definition of Settings screen class.
+/// \brief Definition of Print Complete screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,38 +26,30 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_SETTING_H
-#define SCREEN_SETTING_H
+#ifndef SCREEN_STATS_H
+#define SCREEN_STATS_H
 
-#include <stdint.h>
-
-#include "Screen.h"
-#include "Option.h"
+#include "ScreenDialog.h"
 
 namespace ui
 {
-	class ScreenSetting : public Screen
+	class ScreenStats : public Screen
 	{
 		public:
-			ScreenSetting(const char * title);
-			virtual ~ScreenSetting();
+			ScreenStats(const char * title, const char * box);
+			virtual ~ScreenStats();
 
-			void left();
-			void right();
 			void draw();
 			void press();
-			void add(Option * view);
 			void init(uint16_t index = 0);
 
 		private:
-			uint16_t m_index;
-
-			static const uint16_t m_max_items = 11;
-			Option * m_item[m_max_items];
-			uint8_t m_num_items;
-
-			float m_scroll_size;
-
+			const char * m_box;
+			
+			uint16_t m_hours;
+			uint16_t m_failed_prints;
+			uint16_t m_succeded_prints;
 	};
 }
-#endif //SCREEN_SETTING_H
+
+#endif // SCREEN_STATS_H

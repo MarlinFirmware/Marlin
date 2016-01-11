@@ -193,5 +193,10 @@ const char PT_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Impress""\xe3""o em p
 const char PT_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Retire os res""\xed""duos da base";
 const char PT_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Mudar filamento";
 const char PT_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "A ajustar posi""\xe7""""\xe3""o";
+const char PT_OPTION_STATS[] PROGMEM                    = "Estat""\xed""sticas";
+const char PT_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Estat""\xed""sticas";
+const char PT_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tempo";
+const char PT_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Conclu""\xed""das";
+const char PT_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Falhadas";
 
 #endif //LANGUAGE_PT_H
