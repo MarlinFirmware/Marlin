@@ -28,6 +28,10 @@
 #ifndef ACTION_H
 #define ACTION_H
 
+#ifdef BED_DETECTION
+	extern void bedDetectionHomeZ(bool firstHoming);
+#endif
+
 void action_homing();
 void action_z_homing();
 
