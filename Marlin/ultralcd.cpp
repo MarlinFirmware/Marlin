@@ -2379,6 +2379,9 @@ static void menu_action_sdfile()
     sprintf_P(cmd, PSTR("M23 %s"), browsing_cache->getSelectedEntry()->filename);
 
     enquecommand_P(PSTR("G28"));
+#ifdef LEVEL_SENSOR
+	enquecommand_P(PSTR("G29"));
+#endif
     enquecommand_P(PSTR("G1 Z10"));
 
     for(c = &cmd[4]; *c; c++)
