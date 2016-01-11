@@ -48,6 +48,7 @@ namespace eeprom
 	static uint8_t * const ADDR_EEPROM_VERSION = (uint8_t *) 4072;
 	static uint8_t * const ADDR_EEPROM_FLAG    = (uint8_t *) 4073;
 	static uint8_t * const ADDR_BOARD_FAMILY   = (uint8_t *) 4081;
+	static uint8_t * const ADDR_SERIAL_NUMBER  = (uint8_t *) 4080;
 
 	StorageManager::StorageManager()
 	{ }
@@ -245,6 +246,14 @@ namespace eeprom
 			return BOARD_BQ_CNC;
 		}
 		return BOARD_RAMPS_13_EFB;
+	}
+
+	const char * StorageManager::getSerialNumber()
+	{
+		static char serial_number[14];
+		StorageManager::single::instance().readData(ADDR_SERIAL_NUMBER, (uint8_t*)&serial_number, sizeof(serial_number)/sizeof(serial_number[0]));
+		serial_number[13] = '\0';
+		return serial_number;
 	}
 
 	uint8_t StorageManager::readByte(uint8_t * address)

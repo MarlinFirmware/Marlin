@@ -811,7 +811,7 @@ void loop()
 
 void get_command()
 {
-  while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
+  while( !card.sdprinting && MYSERIAL.available() > 0  && buflen < BUFSIZE) {
     serial_char = MYSERIAL.read();
 
 #ifdef DOGLCD
@@ -2622,6 +2622,8 @@ Sigma_Exit:
       break;
     case 115: // M115
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
+      SERIAL_PROTOCOL(" X-SERIAL_NUM:");
+      SERIAL_PROTOCOLLN(eeprom::StorageManager::getSerialNumber());
       break;
     case 117: // M117 display message
 
@@ -3572,7 +3574,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   			while (!LCD_CLICKED) {
     			temp::TemperatureManager::single::instance().manageTemperatureControl();
     			current_position[E_AXIS]+=0.04;
-    			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
+    			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
     			st_synchronize();
 					enable_x();
 					enable_y();
