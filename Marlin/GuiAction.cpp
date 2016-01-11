@@ -998,3 +998,12 @@ bool action_check_auto_gcode()
 	}
 	return false;
 }
+
+bool action_check_pause_state()
+{
+	if(PrintManager::single::instance().state() == PrinterState_t::PAUSED)
+	{
+		return true;
+	}
+	return false;
+}

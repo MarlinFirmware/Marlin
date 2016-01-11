@@ -1132,6 +1132,21 @@ namespace ui
 	static ScreenAnimation<float> * make_screen_change_heating()
 	{
 		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_HEATING_TITLE(), MSG_PLEASE_WAIT(), ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		local_view->add(screen_change_pause_switch);
+		return local_view;
+	}
+	
+	static ScreenSwitch * make_screen_change_pause_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_pause_state);
+		local_view->add(screen_change_pullout_info);
+		local_view->add(screen_change_wait_pause);
+		return local_view;
+	}
+	
+	static ScreenTransition * make_screen_change_wait_pause()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_WAIT_PAUSE_TITLE(), MSG_SCREEN_CHANGE_WAIT_PAUSE_TEXT(), MSG_PLEASE_WAIT(), do_nothing, &PrintManager::single::instance());
 		local_view->add(screen_change_pullout_info);
 		return local_view;
 	}
@@ -1651,6 +1666,12 @@ namespace ui
 				break;
 			case screen_change_heating:
 				new_view = make_screen_change_heating();
+				break;
+			case screen_change_pause_switch:
+				new_view = make_screen_change_pause_switch();
+				break;
+			case screen_change_wait_pause:
+				new_view = make_screen_change_wait_pause();
 				break;
 			case screen_change_pullout_info:
 				new_view = make_screen_change_pullout_info();
