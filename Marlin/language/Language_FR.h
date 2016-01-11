@@ -198,5 +198,6 @@ const char FR_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistiques";
 const char FR_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Temps d'impr.";
 const char FR_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "R""\xe9""ussites";
 const char FR_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = """\xc9""checs";
+const char FR_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Le nom du fichier contient des caract""\xe8""res non valides";
 
 #endif //LANGUAGE_FR_H

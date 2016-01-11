@@ -198,5 +198,6 @@ const char SE_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistik";
 const char SE_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tid";
 const char SE_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Avslutade";
 const char SE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Misslyckade";
+const char SE_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Namnet inneh""\xe5""ller ogiltiga tecken";
 
 #endif //LANGUAGE_SE_H

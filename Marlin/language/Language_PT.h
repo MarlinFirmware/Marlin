@@ -198,5 +198,6 @@ const char PT_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Estat""\xed""sticas";
 const char PT_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tempo";
 const char PT_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Conclu""\xed""das";
 const char PT_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Falhadas";
+const char PT_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Carateres inv""\xe1""lidos no nome";
 
 #endif //LANGUAGE_PT_H

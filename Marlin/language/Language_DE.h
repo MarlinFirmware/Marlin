@@ -198,5 +198,6 @@ const char DE_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistiken";
 const char DE_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Druckdauer";
 const char DE_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Abgeschlossen";
 const char DE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fehlgeschlagen";
+const char DE_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Der Name enth""\xe4""lt ung""\xfc""ltige Zeichen";
 
 #endif //LANGUAGE_DE_H

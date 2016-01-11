@@ -198,5 +198,6 @@ const char RU_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = """\xc1""""\xe2""""\xd
 const char RU_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = """\xb2""""\xe0""""\xd5""""\xdc""""\xef""";
 const char RU_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = """\xb2""""\xeb""""\xdf""""\xde""""\xdb""""\xdd""""\xd5""""\xdd""""\xde""";
 const char RU_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = """\xbd""""\xd5"" ""\xd2""""\xeb""""\xdf""""\xde""""\xdb""""\xdd""""\xd5""""\xdd""""\xde""";
+const char RU_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = """\xbd""""\xd5""""\xd4""""\xde""""\xdf""""\xe3""""\xe1""""\xe2""""\xd8""""\xdc""""\xeb""""\xd5"" ""\xe1""""\xd8""""\xdc""""\xd2""""\xde""""\xdb""""\xeb"" ""\xd2"" ""\xdd""""\xd0""""\xd7""""\xd2""""\xd0""""\xdd""""\xd8""""\xd8"" ""\xe4""""\xd0""""\xd9""""\xdb""""\xd0""";
 
 #endif //LANGUAGE_RU_H

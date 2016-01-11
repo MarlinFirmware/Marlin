@@ -238,25 +238,38 @@ bool SDCache::updateCachePosition(int16_t index)
 }
 
 CacheEntryType_t SDCache::press(uint16_t index)
-{
+{	
 	//first a check for possible update
 	updateCachePosition(index);
 
+	char* c;
+	char cmd[LONG_FILENAME_LENGTH];
+	strcpy(cmd, window_cache_begin[m_selected_file].longFilename);
+	
+	//check first for name validity
+	for (c = &cmd[0]; *c; c++)
+	{
+		if ((uint8_t)*c > 127)
+		{
+			return CacheEntryType_t::INVALID_NAME;
+		}
+	}
+		
 	switch(window_cache_begin[m_selected_file].type)
 	{
 		//cases handled outside of SDCache
 		case FILE_ENTRY:
 			card.getfilename(m_index-1);
-		case BACK_ENTRY:		
+		case BACK_ENTRY:
 			return window_cache_begin[m_selected_file].type; 
 			break;
 		
 		//Cases handled internally
 		case UPDIR_ENTRY: 
 		case FOLDER_ENTRY: 
-				changeDir();
-				return CacheEntryType_t::NOACTION; 
-				break;
+			changeDir();
+			return CacheEntryType_t::NOACTION; 
+			break;
 	}
 }
 

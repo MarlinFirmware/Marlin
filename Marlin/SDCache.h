@@ -39,6 +39,7 @@ typedef enum
 	UPDIR_ENTRY,
 	FOLDER_ENTRY,
 	FILE_ENTRY,
+	INVALID_NAME,
 } CacheEntryType_t;
 
 typedef struct 

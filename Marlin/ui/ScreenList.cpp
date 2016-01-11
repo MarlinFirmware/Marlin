@@ -228,7 +228,11 @@ namespace ui
 		bool maxDirReached = m_browsing_cache->maxDirectoryReached();
 		CacheEntryType_t type = m_browsing_cache->press(m_index);
 		
-		if(type == CacheEntryType_t::BACK_ENTRY)
+		if(type == CacheEntryType_t::INVALID_NAME)
+		{
+			ViewManager::getInstance().activeView(m_error_screen);
+		}
+		else if(type == CacheEntryType_t::BACK_ENTRY)
 		{
 			ViewManager::getInstance().activeView(m_back_screen);
 		}
@@ -244,13 +248,17 @@ namespace ui
 
 	void ScreenList::add(ScreenIndex_t const & view)
 	{
-		if (m_num_item_added % 2)
+		if (m_num_item_added == 0)
+		{
+			m_back_screen = view;
+		}
+		else if(m_num_item_added == 1)
 		{
 			m_next_screen = view;
 		}
-		else
+		else if(m_num_item_added == 2)
 		{
-			m_back_screen = view;
+			m_error_screen = view;
 		}
 		m_num_item_added++;
 	}

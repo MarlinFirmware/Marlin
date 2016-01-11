@@ -198,5 +198,6 @@ const char ES_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Estadisticas";
 const char ES_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tiempo";
 const char ES_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Completados";
 const char ES_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fallidos";
+const char ES_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Caracteres no v""\xe1""lidos en el nombre";
 
 #endif //LANGUAGE_ES_H

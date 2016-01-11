@@ -1,12 +1,13 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenList.h
+/// \file ScreenNameError.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
+///			Koldo Imanol de Miguel
 ///
-/// \brief Definition of SD screen list class.
+/// \brief Definition of Name error screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,57 +26,33 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_LIST_H
-#define SCREEN_LIST_H
-
-#include <stdint.h>
+#ifndef SCREEN_NAME_ERROR_H
+#define SCREEN_NAME_ERROR_H
 
 #include "Screen.h"
-#include "SDCache.h"
-#include "SDManager.h"
 
 namespace ui
 {
-	class ScreenList : public Screen , public Observer<bool>
+	class ScreenNameError : public Screen
 	{
 		public:
-			ScreenList(const char * title, Subject<bool> * model);
-			virtual ~ScreenList();
+			ScreenNameError(const char * title, const char * message, const char * box, const unsigned char * bitmap);
+			~ScreenNameError();
 
-			void left();
-			void right();
 			void draw();
+
+			void init(uint16_t index);
+			void add(ScreenIndex_t const & component);
 			void press();
-			void add(ScreenIndex_t const & view);
-			void init(uint16_t index = 0);
 
 		private:
-			//void updateSdcardStatus();
-			void update(bool is_inserted);
+			const char * m_box;
+			const char * m_message;
 
+			const unsigned char * m_bitmap;
 
-		private:
-			static uint8_t directory_index;
-			static uint8_t directory_array[10];
-			static bool from_updir;
-
-			uint16_t m_index;
-			uint16_t m_num_list;
-			uint8_t m_icon_index;
-
-			ScreenIndex_t m_back_screen;
-			SDCache * m_browsing_cache;
-			uint8_t m_num_item_added;
-
-			char m_directory[20];
-			bool m_directory_is_root;
-
-			ScreenIndex_t m_error_screen;
-
-			float m_scroll_size;
-
-			uint32_t m_current_time;
-			uint32_t m_previous_time;
+			ScreenIndex_t m_next_screen;
 	};
 }
-#endif //SCREEN_LIST_H
+
+#endif // SCREEN_NAME_ERROR_H

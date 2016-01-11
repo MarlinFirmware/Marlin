@@ -198,5 +198,6 @@ const char EN_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistics";
 const char EN_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Time";
 const char EN_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Completed";
 const char EN_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Failed";
+const char EN_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "The name contains invalid characters";
 
 #endif //LANGUAGE_EN_H
