@@ -2473,7 +2473,14 @@ Sigma_Exit:
       case 106: //M106 Fan On
         temp::TemperatureManager::single::instance().setBlowerControlState(false);
         if (code_seen('S')){
-           fanSpeed=constrain(code_value(),0,255);
+			if(code_value() > 0)
+			{
+				fanSpeed=255;
+			}
+			else
+			{
+				fanSpeed=0;
+			}
         }
         else {
           fanSpeed=255;
