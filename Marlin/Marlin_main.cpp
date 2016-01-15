@@ -938,8 +938,10 @@ void get_command()
 
       serial_count = 0; //clear buffer
       
-      //Reset inactivity timer on serial command read
-      PrintManager::single::instance().resetInactivity();
+      #ifdef DOGLCD
+		//Reset inactivity timer on serial command read
+		PrintManager::single::instance().resetInactivity();
+      #endif // DOGLCD
     }
     else if(serial_char == '\\') {  //Handle escapes
       SERIAL_ECHO("Escape char: ");
