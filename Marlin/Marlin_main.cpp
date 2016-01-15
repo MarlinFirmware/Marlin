@@ -937,6 +937,9 @@ void get_command()
       buflen += 1;
 
       serial_count = 0; //clear buffer
+      
+      //Reset inactivity timer on serial command read
+      PrintManager::single::instance().resetInactivity();
     }
     else if(serial_char == '\\') {  //Handle escapes
       SERIAL_ECHO("Escape char: ");
