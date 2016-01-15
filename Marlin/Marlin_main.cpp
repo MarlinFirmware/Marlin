@@ -939,10 +939,7 @@ void get_command()
       serial_count = 0; //clear buffer
       
       //Reset inactivity timer on serial command read
-      if(strstr_P(cmdbuffer[bufindw-1], PSTR("M105")) == NULL)
-      {
-		PrintManager::single::instance().resetInactivity();
-	  }
+      PrintManager::single::instance().resetInactivity();
     }
     else if(serial_char == '\\') {  //Handle escapes
       SERIAL_ECHO("Escape char: ");
