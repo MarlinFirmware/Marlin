@@ -2317,7 +2317,7 @@ inline void gcode_G28() {
 
         // Raise Z before homing any other axes
         // (Does this need to be "negative home direction?" Why not just use Z_RAISE_BEFORE_HOMING?)
-        destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS);
+        destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS); //raise Z in an arbitrary system with unknown position set to 0,0,0 at power-up
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (marlin_debug_flags & DEBUG_LEVELING) {
             SERIAL_ECHOPAIR("Raise Z (before homing) by ", (float)Z_RAISE_BEFORE_HOMING);
@@ -2327,7 +2327,7 @@ inline void gcode_G28() {
         #endif
         feedrate = max_feedrate[Z_AXIS] * 60;
         line_to_destination();
-		destination[Z_AXIS] = current_position[Z_AXIS]; // reset destination that still contains Z_RAISE_BEFORE_HOMING
+		current_position[Z_AXIS] = destination[Z_AXIS]; //record Z position in the arbitrary system...that will be reset to physical 0,0,0 when all 3 axis have been homed.
         st_synchronize();
 
       #endif
