@@ -57,7 +57,7 @@ namespace ui
 		strcpy_P(total_time, MSG_SCREEN_VIEW_STATS_TEXT1());
 		str_lenght = strnlen(total_time,24);
 		
-		snprintf(temp_str, 24, "%01dh",m_hours);
+		snprintf(temp_str, 24, "%01uh",m_hours);
 		temp_lenght = strnlen(temp_str,24);
 				
 		num_spaces = 21-(str_lenght+temp_lenght);
@@ -70,7 +70,7 @@ namespace ui
 		strcpy_P(successful_prints, MSG_SCREEN_VIEW_STATS_TEXT2());	
 		str_lenght = strnlen(successful_prints,24);
 		
-		snprintf(temp_str, 24, "%01d", m_succeded_prints);
+		snprintf(temp_str, 24, "%01u", m_succeded_prints);
 		temp_lenght = strnlen(temp_str,24);
 		
 		num_spaces = 21-(str_lenght+temp_lenght);
@@ -83,7 +83,7 @@ namespace ui
 		strcpy_P(failed_prints, MSG_SCREEN_VIEW_STATS_TEXT3());	
 		str_lenght = strnlen(failed_prints,24);
 		
-		snprintf(temp_str, 24, "%01d", m_failed_prints);
+		snprintf(temp_str, 24, "%01u", m_failed_prints);
 		temp_lenght = strnlen(temp_str,24);
 		
 		num_spaces = 21-(str_lenght+temp_lenght);
