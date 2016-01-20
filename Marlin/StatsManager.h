@@ -48,8 +48,10 @@ class StatsManager
 		inline uint8_t getMinutes() { return m_minutes; };
 		inline uint16_t getFailedPrints() { return (m_total_prints - m_succeded); };
 		inline uint16_t getSuccededPrints() { return m_succeded; };
+		inline uint16_t getTotalPrints() { return m_total_prints; };
 		
 	private:
+	
 		uint16_t m_hours;
 		uint8_t m_minutes;
 		uint16_t m_total_prints;
