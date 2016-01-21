@@ -32,6 +32,7 @@
 #include "PrintManager.h"
 #include "GuiManager.h"
 #include "GuiAction.h"
+#include "StatsManager.h"
 
 namespace ui
 {
@@ -55,7 +56,14 @@ namespace ui
 		{
 			eeprom::StorageManager::eraseEEPROM();
 		}
-
+		
+		if(eeprom::StorageManager::checkStatsInitialized() == false)
+		{
+			SERIAL_ECHOLN("Screen splash initializing stats");
+			eeprom::StorageManager::InitilializeStats();
+			StatsManager::single::instance().loadStats();
+		}
+		
 		lcd_enable_button();
 	}
 
