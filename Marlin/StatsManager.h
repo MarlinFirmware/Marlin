@@ -51,6 +51,7 @@ class StatsManager
 		inline uint16_t getTotalPrints() { return m_total_prints; };
 		
 	private:
+		void resetStats();
 	
 		uint16_t m_hours;
 		uint8_t m_minutes;
