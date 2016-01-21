@@ -272,6 +272,7 @@ namespace eeprom
 	
 	void StorageManager::InitilializeStats()
 	{
+		SERIAL_ECHOLN("Initializing stats to zero");
 		StorageManager::single::instance().writeByte(ADDR_STAT_FLAG, 0x00);
 		StorageManager::single::instance().setStatHours(0);
 		StorageManager::single::instance().setStatMinutes(0);
@@ -283,26 +284,56 @@ namespace eeprom
 	{
 		uint16_t hours;
 		StorageManager::single::instance().readData(ADDR_STAT_HOURS, (uint8_t*)&hours, sizeof(hours));
+		
+		if(hours == 0xFFFF)
+		{
+			hours = 0;
+			StorageManager::single::instance().setStatHours(hours);
+		}
+		
 		return hours;
 	}
 	
 	const uint8_t StorageManager::getStatMinutes()
 	{
-		return StorageManager::single::instance().readByte(ADDR_STAT_MINUTES);
+		uint8_t minutes;
+		minutes = StorageManager::single::instance().readByte(ADDR_STAT_MINUTES);
+		
+		if(minutes > 60)
+		{
+			minutes = 0;
+			StorageManager::single::instance().setStatMinutes(minutes);
+		}
+		
+		return minutes;
 	}
 	
 	const uint16_t StorageManager::getStatTotalPrints()
 	{
 		uint16_t total_prints;
 		StorageManager::single::instance().readData(ADDR_STAT_TOTAL_PRINTS, (uint8_t*)&total_prints, sizeof(total_prints));
+		
+		if(total_prints == 0xFFFF)
+		{
+			total_prints = 0;
+			StorageManager::single::instance().setStatTotalPrints(total_prints);
+		}
+		
 		return total_prints;
 	}
 	
 	const uint16_t StorageManager::getStatSucceded()
 	{
-		uint16_t succedded_prints;
-		StorageManager::single::instance().readData(ADDR_STAT_SUCCEDED, (uint8_t*)&succedded_prints, sizeof(succedded_prints));
-		return succedded_prints;
+		uint16_t succeded_prints;
+		StorageManager::single::instance().readData(ADDR_STAT_SUCCEDED, (uint8_t*)&succeded_prints, sizeof(succeded_prints));
+		
+		if(succeded_prints == 0xFFFF)
+		{
+			succeded_prints = 0;
+			StorageManager::single::instance().setStatSucceded(succeded_prints);
+		}
+		
+		return succeded_prints;
 	}
 	
 	void StorageManager::setStatHours(uint16_t hours)
