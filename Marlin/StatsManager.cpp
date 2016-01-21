@@ -70,3 +70,19 @@ void StatsManager::increaseSuccededPrints()
 	//update succeded prints in memory
 	eeprom::StorageManager::single::instance().setStatSucceded(m_succeded);
 }
+
+void StatsManager::resetStats()
+{
+	SERIAL_ECHOLN("Reseting stats due to data overflow");
+	
+	m_hours = 0;
+	m_minutes = 0;
+	m_total_prints = 0;
+	m_succeded = 0;
+	
+	//update stats in memory
+	eeprom::StorageManager::single::instance().setStatHours(m_hours);
+	eeprom::StorageManager::single::instance().setStatMinutes(m_minutes);
+	eeprom::StorageManager::single::instance().setStatSucceded(m_succeded);
+	eeprom::StorageManager::single::instance().setStatTotalPrints(m_total_prints);
+}
