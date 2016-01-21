@@ -925,15 +925,6 @@ void action_wizard_init()
 	PrintManager::single::instance().state(INITIALIZING);
 	LightManager::single::instance().state(true);
 	SerialManager::single::instance().state(true);
-	
-	#ifdef DOGLCD
-		if(!eeprom::StorageManager::checkStatsInitialized())
-		{
-			SERIAL_ECHOLN("GuiAct initializing stats");
-			eeprom::StorageManager::InitilializeStats();
-			StatsManager::single::instance().loadStats();
-		}
-	#endif //DOGLCD
 }
 
 void action_wizard_finish()
