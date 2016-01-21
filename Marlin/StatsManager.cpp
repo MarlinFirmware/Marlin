@@ -39,42 +39,68 @@ void StatsManager::loadStats()
 
 void StatsManager::updateTotalTime(Time_t printTime)
 { 
-	bool carry = 0;
-	
-	m_minutes += printTime.minutes;
+	uint16_t new_hours = m_hours + printTime.hours;
+
+	m_minutes += printTime.minutes;	
 	if(m_minutes >= 60)
 	{
 		m_minutes -= 60;
-		carry = 1;
+		++new_hours;
 	}
 	
-	m_hours = m_hours + printTime.hours + carry;
+	// check for time overflow
+	if(new_hours < m_hours)
+	{
+		resetStats();
+		
+		//show only the data for the new print after overflow
+		m_hours = printTime.hours;
+		m_minutes = printTime.minutes;
+		increaseTotalPrints();
+	}
+	else
+	{
+		m_hours = new_hours;
+	}
 	
 	//update time in memory
 	eeprom::StorageManager::single::instance().setStatHours(m_hours);
 	eeprom::StorageManager::single::instance().setStatMinutes(m_minutes);
+
 }
 
 void StatsManager::increaseTotalPrints()
 { 
 	++m_total_prints;
 	
-	//update total prints in memory
-	eeprom::StorageManager::single::instance().setStatTotalPrints(m_total_prints);
+	if(m_total_prints == 0xFFFF)
+	{
+		resetStats();
+	}
+	else
+	{
+		//update total prints in memory
+		eeprom::StorageManager::single::instance().setStatTotalPrints(m_total_prints);
+	}
 }
 
 void StatsManager::increaseSuccededPrints()
 { 
 	++m_succeded;
 	
-	//update succeded prints in memory
-	eeprom::StorageManager::single::instance().setStatSucceded(m_succeded);
+	if(m_succeded == 0xFFFF)
+	{
+		resetStats();
+	}
+	else
+	{
+		//update succeded prints in memory
+		eeprom::StorageManager::single::instance().setStatSucceded(m_succeded);
+	}
 }
 
 void StatsManager::resetStats()
 {
-	SERIAL_ECHOLN("Reseting stats due to data overflow");
-	
 	m_hours = 0;
 	m_minutes = 0;
 	m_total_prints = 0;
