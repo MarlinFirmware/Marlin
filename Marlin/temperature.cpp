@@ -1737,6 +1737,9 @@ ISR(TIMER0_COMPB_vect)
             min_temp_error(1);
          }
       }
+      else {
+         consecutive_low_temperature_error[1] = 0;
+      }
 #endif
 #if EXTRUDERS > 2
 #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
@@ -1756,6 +1759,9 @@ ISR(TIMER0_COMPB_vect)
          if (consecutive_low_temperature_error[2] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED) {
             min_temp_error(2);
          }
+      }
+      else {
+         consecutive_low_temperature_error[2] = 0;
       }
 #endif
   
