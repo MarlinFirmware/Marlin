@@ -1750,7 +1750,8 @@ static void setup_for_endstop_move() {
 
     void raise_z_for_servo() {
       float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_PROBING;
-      z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset : zpos;
+	  z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset*Z_HOME_DIR : zpos; //zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER a negative number for a switch on servo arm
+																				//so combine with Z_HOME_DIR -1 to move enough away from bed for the probe
       if (zpos < z_dest) do_blocking_move_to_z(z_dest); // also updates current_position
     }
 
