@@ -1751,7 +1751,9 @@ static void setup_for_endstop_move() {
 
     void raise_z_for_servo() {
       float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_PROBING;
-      z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset : zpos;
+      // The zprobe_zoffset is negative any switch below the nozzle, so
+      // multiply by Z_HOME_DIR (-1) to move enough away from bed for the probe
+      z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset * Z_HOME_DIR : zpos;
       if (zpos < z_dest) do_blocking_move_to_z(z_dest); // also updates current_position
     }
 
