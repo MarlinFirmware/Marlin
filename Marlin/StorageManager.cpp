@@ -44,16 +44,16 @@ namespace eeprom
 	static uint8_t * const ADDR_SERIAL         = (uint8_t *) 503;
 	static uint8_t * const ADDR_LANGUAGE       = (uint8_t *) 504;
 	static uint8_t * const ADDR_BOX_FAN        = (uint8_t *) 505;
-	static uint8_t * const ADDR_PROTECTED_ZONE = (uint8_t *) 4070;
+	static uint8_t * const ADDR_PROTECTED_ZONE = (uint8_t *) 4068;
+	static uint8_t * const ADDR_STAT_SUCCEDED  = (uint8_t *) 4069;
 	static uint8_t * const ADDR_STAT_FLAG      = (uint8_t *) 4071;
 	static uint8_t * const ADDR_EEPROM_VERSION = (uint8_t *) 4072;
 	static uint8_t * const ADDR_EEPROM_FLAG    = (uint8_t *) 4073;
 	static uint8_t * const ADDR_STAT_HOURS     = (uint8_t *) 4074;
 	static uint8_t * const ADDR_STAT_MINUTES   = (uint8_t *) 4076;
 	static uint8_t * const ADDR_STAT_TOTAL_PRINTS  = (uint8_t *) 4077;
-	static uint8_t * const ADDR_STAT_SUCCEDED  = (uint8_t *) 4079;
-	static uint8_t * const ADDR_BOARD_FAMILY   = (uint8_t *) 4081;
 	static uint8_t * const ADDR_SERIAL_NUMBER  = (uint8_t *) 4080;
+	static uint8_t * const ADDR_BOARD_FAMILY   = (uint8_t *) 4081;
 
 	StorageManager::StorageManager()
 	{ }
