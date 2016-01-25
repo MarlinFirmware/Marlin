@@ -153,12 +153,12 @@ Here are some standard links for getting your machine calibrated:
 // :{ '0': "Not used", '4': "10k !! do not use for a hotend. Bad resolution at high temp. !!", '1': "100k / 4.7k - EPCOS", '51': "100k / 1k - EPCOS", '6': "100k / 4.7k EPCOS - Not as accurate as Table 1", '5': "100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '7': "100k / 4.7k Honeywell 135-104LAG-J01", '71': "100k / 4.7k Honeywell 135-104LAF-J01", '8': "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9': "100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10': "100k / 4.7k RS 198-961", '11': "100k / 4.7k beta 3950 1%", '12': "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13': "100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '60': "100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '55': "100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '2': "200k / 4.7k - ATC Semitec 204GT-2", '52': "200k / 1k - ATC Semitec 204GT-2", '-2': "Thermocouple + MAX6675 (only for sensor 0)", '-1': "Thermocouple + AD595", '3': "Mendel-parts / 4.7k", '1047': "Pt1000 / 4.7k", '1010': "Pt1000 / 1k (non standard)", '20': "PT100 (Ultimainboard V2.x)", '147': "Pt100 / 4.7k", '110': "Pt100 / 1k (non-standard)", '998': "Dummy 1", '999': "Dummy 2" }
 #define TEMP_SENSOR_0 1
 
-//LG changed SENSOR_1 and SENSOR_2 to type 1 - 100k 
+//LG changed SENSOR_1 and SENSOR_2 to type 1 - 100k
 #define TEMP_SENSOR_1 1
 #define TEMP_SENSOR_2 1
 #define TEMP_SENSOR_3 0
 
-//LG disabled bed temperature sensor. 
+//LG disabled bed temperature sensor.
 //#define TEMP_SENSOR_BED 0
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
@@ -414,7 +414,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // X_MIN_POS -30 interacts with X_PROBE_OFFSET_FROM_EXTRUDER 30 and with Z_SAFE_HOMING_X_POINT 0 to get us the position we want both after G28 and after G29
 // notice how after G28 Y the bed extends forward a bit to get under the probe. that's the safe homing in flagranti
 
-#define X_MIN_POS -30  // this is big trick - to use negative value... 
+#define X_MIN_POS -30  // this is big trick - to use negative value...
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS 176 // bed starts at 10mm from X_MIN_POS  (0 after X homing. It is important that nozzle is out of bed after homing).
@@ -481,7 +481,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   // Enable this to sample the bed in a grid (least squares solution).
   // Note: this feature generates 10KB extra code size.
- 
+
   // LG disabled grid - for leveling will be used "3 points"
   // #define AUTO_BED_LEVELING_GRID
 
@@ -499,21 +499,21 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     // You probably don't need more than 3 (squared=9).
     #define AUTO_BED_LEVELING_GRID_POINTS 2
 
-  #else  // !AUTO_BED_LEVELING_GRID
+  #else  // !AUTO_BED_LEVELING_GRI -> Use CUSTOM points below
 
       //LG for leveling will be used 3 points as defined below
-      
-      // FG points for Jellybox 0.9 style bed alredy in place below. neat. 
+
+      // FG points for Jellybox 0.9 style bed alredy in place below. neat.
       // Arbitrary points to probe.
-      
+
       // A simple cross-product is used to estimate the plane of the bed.
       #define ABL_PROBE_PT_1_X 70
       #define ABL_PROBE_PT_1_Y 150
       #define ABL_PROBE_PT_2_X 140
-      #define ABL_PROBE_PT_2_Y 20
-      #define ABL_PROBE_PT_3_X 0 //experimentally checked min X requires  X_MIN_POS -30  and 
-                                // X_PROBE_OFFSET_FROM_EXTRUDER 30
-      #define ABL_PROBE_PT_3_Y 20
+      #define ABL_PROBE_PT_2_Y 10
+      //experimentally checked min X requires X_MIN_POS -30 while our X_PROBE_OFFSET_FROM_EXTRUDER 30
+      #define ABL_PROBE_PT_3_X 0
+      #define ABL_PROBE_PT_3_Y 10
 
   #endif // AUTO_BED_LEVELING_GRID
 
@@ -533,7 +533,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #define Z_RAISE_BETWEEN_PROBINGS 5  // How much the Z axis will be raised when traveling from between next probing points.
   #define Z_RAISE_AFTER_PROBING 15    // How much the Z axis will be raised after the last probing point.
 
-//LG will be used for nozzle cleaning 
+//LG will be used for nozzle cleaning
 //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
                                                                             // Useful to retract a deployable Z probe.
 
@@ -755,7 +755,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
 
-//LG enabled JellyBox LCD controler LCD12864 
+//LG enabled JellyBox LCD controler LCD12864
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
 #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
@@ -790,7 +790,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
 //#define LCD_I2C_VIKI
-  
+
 // SSD1306 OLED generic display support
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
 //#define U8GLIB_SSD1306
