@@ -112,6 +112,11 @@ FORCE_INLINE float degTargetBed() {
 
 FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {  
   target_temperature[extruder] = celsius;
+
+  if (celsius == 0.0)
+     reset_preheat_time(extruder);
+  else
+     start_preheat_time(extruder);
 };
 
 FORCE_INLINE void setTargetBed(const float &celsius) {  

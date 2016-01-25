@@ -61,7 +61,7 @@
 #include <SPI.h>
 #endif
 
-#define VERSION_STRING  "1.0.2"
+#define VERSION_STRING  "1.0.0"
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -2372,16 +2372,7 @@ Sigma_Exit:
       if(setTargetedHotend(104)){
         break;
       }
-      if (code_seen('S'))
-      {
-         if (code_value() == 0.0)
-            reset_preheat_time(tmp_extruder);
-         else
-            start_preheat_time(tmp_extruder);
-
-         setTargetHotend(code_value(), tmp_extruder);
-
-      }
+      if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
 #ifdef DUAL_X_CARRIAGE
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
         setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
@@ -2467,13 +2458,7 @@ Sigma_Exit:
       #ifdef AUTOTEMP
         autotemp_enabled=false;
       #endif
- if (code_seen('S'))
-      {
-         if (code_value() == 0.0)
-            reset_preheat_time(tmp_extruder);
-         else
-            start_preheat_time(tmp_extruder);
-
+ if (code_seen('S')) {
          setTargetHotend(code_value(), tmp_extruder);
 #ifdef DUAL_X_CARRIAGE
         if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)

@@ -24,9 +24,6 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-
-//#define STRING_VERSION "1.0.2"
-
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 #define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
 
@@ -259,6 +256,33 @@ your extruder heater takes 2 minutes to hit the target on heating.
 //#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
 //===========================================================================
 
+/*================== High Temperature Thermistor Support ====================
+Thermistors able to support high temperature tend to have a hard time getting
+good readings at room and lower temperatures. This means HEATER_X_RAW_LO_TEMP 
+will probably be caught when the heating element first turns on during the 
+preheating process, which will trigger a min_temp_error as a safety measure 
+and force stop everything.
+
+To circumvent this limitation, we allow for a preheat time (during which, 
+min_temp_error won't be triggered) and add a min_temp buffer to handle 
+aberrant readings.
+*/
+// if you want to enable this feature for your hot end(s) thermistor(s)
+// set values > 0 in the constants below
+
+// How many consecutive low temperature error can occur before a min_temp_error
+// is triggered. Shouldn't be more than 10.
+static const unsigned short MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED = 0;
+
+// How many milliseconds a hot end will preheat before starting to check the 
+// temperature. This value should NOT be set to the time it takes the
+// hot end to reach the target temperature, but should be set to the time it 
+// takes to reach the minimum temperature your thermistor can read. The lower
+// the better/safer, and shouldn't need to be more than 30 seconds (30000)
+static const unsigned long MILLISECONDS_PREHEAT_TIME = 0;
+
+
+//===========================================================================
 
 //===========================================================================
 //=============================Mechanical Settings===========================

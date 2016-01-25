@@ -169,8 +169,6 @@ unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 #endif
 
 int consecutive_low_temperature_error[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0, 0, 0);
-static const int MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED = 40;
-static const unsigned long MILLISECONDS_PREHEAT_TIME = 30000;
 static unsigned long preheatStartTime[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0, 0, 0);
 //===========================================================================
 //=============================   functions      ============================
