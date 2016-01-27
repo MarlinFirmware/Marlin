@@ -12,6 +12,8 @@ This is a firmware for reprap single-processor electronics setups, but this part
 
 Based on [Marlin](https://github.com/ErikZalm/Marlin), from Erik Zalm, this firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter), [grbl](https://github.com/simen/grbl) and many original parts.
 
+See the [changelog](Documentation/Changelog.md) file for version details.
+
 ## Contact
 
 __Community forum:__  [Mibqyyo](http://www.mibqyyo.com/comunidad/?lang=en)
