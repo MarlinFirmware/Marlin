@@ -5,7 +5,10 @@
 #include "pins_RAMPS_13.h"
 
 #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-  #define Z_MIN_PROBE_PIN  19
+  #undef Z_MAX_PIN
+  #define Z_MAX_PIN -1
+  #undef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  19    // Z-MAX pin J14 End Stops
 #endif
 
 #undef HEATER_0_PIN
@@ -25,23 +28,21 @@
   #undef BEEPER_PIN
   #define BEEPER_PIN -1
 
-  #undef SD_DETECT_PIN
-  #define SD_DETECT_PIN 22
+  // Direction buttons
+  #define BTN_UP           37
+  #define BTN_DWN          35
+  #define BTN_LFT          33
+  #define BTN_RT           32
 
-  // Extra button definitions, substitute for EN1 / EN2
-  #define BTN_UP  37 // BTN_EN1
-  #define BTN_DWN 35 // BTN_EN2
-  #define BTN_LFT 33
-  #define BTN_RT  32
-
-  // Marlin can respond to UP/DOWN by default
-  // #undef  BTN_EN1
-  // #undef  BTN_EN2
-  //#define BTN_EN1 -1
-  //#define BTN_EN2 -1
-
+  // 'R' button
   #undef  BTN_ENC
   #define BTN_ENC 31
+
+  // Disable encoder
+  #undef  BTN_EN1
+  #define BTN_EN1 -1
+  #undef  BTN_EN2
+  #define BTN_EN2 -1
 
   #undef  SD_DETECT_PIN
   #define SD_DETECT_PIN 22
