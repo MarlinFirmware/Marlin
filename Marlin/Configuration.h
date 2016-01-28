@@ -135,6 +135,7 @@ Here are some standard links for getting your machine calibrated:
 // 51 is 100k thermistor - EPCOS (1k pullup)
 // 52 is 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
 // 55 is 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (1k pullup)
+// 66 is 4.7M thermistor - Dyze Design High Temperature 500 degreesC
 //
 // 1047 is Pt1000 with 4k7 pullup
 // 1010 is Pt1000 with 1k pullup (non standard)
@@ -298,6 +299,31 @@ Here are some standard links for getting your machine calibrated:
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
 #define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
+
+/*================== High Temperature Thermistor Support ====================
+Thermistors able to support high temperature tend to have a hard time getting
+good readings at room and lower temperatures. This means HEATER_X_RAW_LO_TEMP 
+will probably be caught when the heating element first turns on during the 
+preheating process, which will trigger a min_temp_error as a safety measure 
+and force stop everything.
+
+To circumvent this limitation, we allow for a preheat time (during which, 
+min_temp_error won't be triggered) and add a min_temp buffer to handle 
+aberrant readings.
+*/
+// if you want to enable this feature for your hot end(s) thermistor(s)
+// set values > 0 in the constants below
+
+// How many consecutive low temperature error can occur before a min_temp_error
+// is triggered. Shouldn't be more than 10.
+static const unsigned short MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED = 0;
+
+// How many milliseconds a hot end will preheat before starting to check the 
+// temperature. This value should NOT be set to the time it takes the
+// hot end to reach the target temperature, but should be set to the time it 
+// takes to reach the minimum temperature your thermistor can read. The lower
+// the better/safer, and shouldn't need to be more than 30 seconds (30000)
+static const unsigned long MILLISECONDS_PREHEAT_TIME = 0;
 
 //===========================================================================
 //============================= Mechanical Settings =========================
