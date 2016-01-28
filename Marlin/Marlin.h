@@ -6,7 +6,7 @@
 
 #define  FORCE_INLINE __attribute__((always_inline)) inline
 /**
- * Compiler warning on unused varable.
+ * Compiler warning on unused variable.
  */
 #define UNUSED(x) (void) (x)
 
@@ -320,7 +320,7 @@ extern int fanSpeed;
 #endif
 
 #if ENABLED(FILAMENT_SENSOR)
-  extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75
+  extern float filament_width_nominal;  //holds the theoretical filament diameter i.e., 3.00 or 1.75
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
   extern float filament_width_meas; //holds the filament diameter as accurately measured
   extern signed char measurement_delay[];  //ring buffer to delay measurement
