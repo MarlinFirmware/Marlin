@@ -1524,11 +1524,15 @@ void lcd_init() {
   lcd_implementation_init();
 
   #if ENABLED(NEWPANEL)
+    #if BTN_EN1 > 0
+      SET_INPUT(BTN_EN1);
+      WRITE(BTN_EN1, HIGH);
+    #endif
 
-    SET_INPUT(BTN_EN1);
-    SET_INPUT(BTN_EN2);
-    WRITE(BTN_EN1, HIGH);
-    WRITE(BTN_EN2, HIGH);
+    #if BTN_EN2 > 0
+      SET_INPUT(BTN_EN2);
+      WRITE(BTN_EN2, HIGH);
+    #endif
 
     #if BTN_ENC > 0
       SET_INPUT(BTN_ENC);
@@ -1541,6 +1545,13 @@ void lcd_init() {
       pinMode(SHIFT_OUT, INPUT);
       WRITE(SHIFT_OUT, HIGH);
       WRITE(SHIFT_LD, HIGH);
+    #endif
+
+    #ifdef RIGIDBOT_PANEL
+      SET_INPUT(BTN_UP);
+      SET_INPUT(BTN_DWN);
+      SET_INPUT(BTN_LFT);
+      SET_INPUT(BTN_RT);
     #endif
 
   #else  // Not NEWPANEL
@@ -1670,7 +1681,7 @@ void lcd_update() {
               int32_t encoderMovementSteps = abs(encoderDiff) / ENCODER_PULSES_PER_STEP;
 
               if (lastEncoderMovementMillis != 0) {
-                // Note that the rate is always calculated between to passes through the 
+                // Note that the rate is always calculated between to passes through the
                 // loop and that the abs of the encoderDiff value is tracked.
                 float encoderStepRate = (float)(encoderMovementSteps) / ((float)(ms - lastEncoderMovementMillis)) * 1000.0;
 
@@ -1843,10 +1854,37 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   void lcd_buttons_update() {
     #if ENABLED(NEWPANEL)
       uint8_t newbutton = 0;
-      if (READ(BTN_EN1) == 0) newbutton |= EN_A;
-      if (READ(BTN_EN2) == 0) newbutton |= EN_B;
+      #if BTN_EN1 > 0
+        if (READ(BTN_EN1) == 0) newbutton |= EN_A;
+      #endif
+      #if BTN_EN2 > 0
+        if (READ(BTN_EN2) == 0) newbutton |= EN_B;
+      #endif
+      #if ENABLED(RIGIDBOT_PANEL) || BTN_ENC > 0
+        millis_t now = millis();
+      #endif
+      #if ENABLED(RIGIDBOT_PANEL)
+        if (now > next_button_update_ms) {
+          if (READ(BTN_UP) == 0) {
+            encoderDiff = -1 * ENCODER_STEPS_PER_MENU_ITEM;
+            next_button_update_ms = now + 300;
+          }
+          else if (READ(BTN_DWN) == 0) {
+            encoderDiff = ENCODER_STEPS_PER_MENU_ITEM;
+            next_button_update_ms = now + 300;
+          }
+          else if (READ(BTN_LFT) == 0) {
+            encoderDiff = -1 * ENCODER_PULSES_PER_STEP;
+            next_button_update_ms = now + 300;
+          }
+          else if (READ(BTN_RT) == 0) {
+            encoderDiff = ENCODER_PULSES_PER_STEP;
+            next_button_update_ms = now + 300;
+          }
+        }
+      #endif
       #if BTN_ENC > 0
-        if (millis() > next_button_update_ms && READ(BTN_ENC) == 0) newbutton |= EN_C;
+        if (now > next_button_update_ms && READ(BTN_ENC) == 0) newbutton |= EN_C;
       #endif
       buttons = newbutton;
       #if ENABLED(LCD_HAS_SLOW_BUTTONS)
