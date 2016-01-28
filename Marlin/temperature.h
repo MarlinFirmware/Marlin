@@ -28,6 +28,12 @@
 #endif
 
 // public functions
+
+// preheating functions
+bool is_preheating();
+void start_preheat_time(int extruder);
+void reset_preheat_time(int extruder);
+
 void tp_init();  //initialize the heating
 void manage_heater(); //it is critical that this is called periodically.
 
@@ -105,6 +111,10 @@ FORCE_INLINE void setTargetHotend(const float& celsius, uint8_t extruder) {
   #if ENABLED(THERMAL_PROTECTION_HOTENDS)
     start_watching_heater(extruder);
   #endif
+  if (celsius == 0.0)
+    reset_preheat_time(extruder);
+  else
+    start_preheat_time(extruder);
 }
 FORCE_INLINE void setTargetBed(const float& celsius) { target_temperature_bed = celsius; }
 

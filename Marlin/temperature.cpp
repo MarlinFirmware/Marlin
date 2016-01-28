@@ -195,6 +195,8 @@ static void updateTemperaturesFromRawValues();
   static int read_max6675();
 #endif
 
+int consecutive_low_temperature_error[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0, 0, 0, 0);
+static unsigned long preheatStartTime[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0, 0, 0, 0);
 //===========================================================================
 //================================ Functions ================================
 //===========================================================================
@@ -377,6 +379,19 @@ void updatePID() {
 
 int getHeaterPower(int heater) {
   return heater < 0 ? soft_pwm_bed : soft_pwm[heater];
+}
+
+bool is_preheating(int extruder) {
+  return (preheatStartTime[extruder] > 0) &&
+    (millis() - preheatStartTime[extruder]) <= MILLISECONDS_PREHEAT_TIME;
+}
+
+void start_preheat_time(int extruder) {
+  preheatStartTime[extruder] = millis();
+}
+
+void reset_preheat_time(int extruder) {
+  preheatStartTime[extruder] = 0;
 }
 
 #if HAS_AUTO_FAN
@@ -636,7 +651,7 @@ void manage_heater() {
     float pid_output = get_pid_output(e);
 
     // Check if temperature is within the correct range
-    soft_pwm[e] = current_temperature[e] > minttemp[e] && current_temperature[e] < maxttemp[e] ? (int)pid_output >> 1 : 0;
+    soft_pwm[e] = (current_temperature[e] > minttemp[e] || is_preheating(e)) && current_temperature[e] < maxttemp[e] ? (int)pid_output >> 1 : 0;
 
     // Check if the temperature is failing to increase
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
@@ -1584,7 +1599,13 @@ ISR(TIMER0_COMPB_vect) {
         #define GE0 >=
       #endif
       if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
-      if (minttemp_raw[0] GE0 current_temperature_raw[0]) min_temp_error(0);
+      if (minttemp_raw[0] GE0 current_temperature_raw[0] && !is_preheating(0) && target_temperature[0] > 0.0f) {
+         ++(consecutive_low_temperature_error[0]);
+         if (consecutive_low_temperature_error[0] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+		   min_temp_error(0);
+		 else
+           consecutive_low_temperature_error[0] = 0;
+      }
     #endif
 
     #if HAS_TEMP_1 && EXTRUDERS > 1
@@ -1594,7 +1615,13 @@ ISR(TIMER0_COMPB_vect) {
         #define GE1 >=
       #endif
       if (current_temperature_raw[1] GE1 maxttemp_raw[1]) max_temp_error(1);
-      if (minttemp_raw[1] GE1 current_temperature_raw[1]) min_temp_error(1);
+      if (minttemp_raw[1] GE1 current_temperature_raw[1] && !is_preheating(1) && target_temperature[1] > 0.0f) {
+         ++(consecutive_low_temperature_error[1]);
+         if (consecutive_low_temperature_error[1] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+		   min_temp_error(1);
+		 else
+           consecutive_low_temperature_error[1] = 0;
+      }
     #endif // TEMP_SENSOR_1
 
     #if HAS_TEMP_2 && EXTRUDERS > 2
@@ -1604,7 +1631,13 @@ ISR(TIMER0_COMPB_vect) {
         #define GE2 >=
       #endif
       if (current_temperature_raw[2] GE2 maxttemp_raw[2]) max_temp_error(2);
-      if (minttemp_raw[2] GE2 current_temperature_raw[2]) min_temp_error(2);
+      if (minttemp_raw[2] GE2 current_temperature_raw[2] && !is_preheating(2) && target_temperature[2] > 0.0f) {
+         ++(consecutive_low_temperature_error[2]);
+         if (consecutive_low_temperature_error[2] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+		   min_temp_error(2);
+		 else
+           consecutive_low_temperature_error[2] = 0;
+      }
     #endif // TEMP_SENSOR_2
 
     #if HAS_TEMP_3 && EXTRUDERS > 3
@@ -1614,7 +1647,13 @@ ISR(TIMER0_COMPB_vect) {
         #define GE3 >=
       #endif
       if (current_temperature_raw[3] GE3 maxttemp_raw[3]) max_temp_error(3);
-      if (minttemp_raw[3] GE3 current_temperature_raw[3]) min_temp_error(3);
+      if (minttemp_raw[3] GE3 current_temperature_raw[3] && !is_preheating(3) && target_temperature[3] > 0.0f) {
+         ++(consecutive_low_temperature_error[3]);
+         if (consecutive_low_temperature_error[3] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+		   min_temp_error(3);
+		 else
+           consecutive_low_temperature_error[3] = 0;
+      }
     #endif // TEMP_SENSOR_3
 
     #if HAS_TEMP_BED
