@@ -195,11 +195,7 @@ void CardReader::initsd() {
   cardOK = false;
   if (root.isOpen()) root.close();
 
-  #if ENABLED(SDEXTRASLOW)
-    #define SPI_SPEED SPI_QUARTER_SPEED
-  #elif ENABLED(SDSLOW)
-    #define SPI_SPEED SPI_HALF_SPEED
-  #else
+  #ifndef SPI_SPEED
     #define SPI_SPEED SPI_FULL_SPEED
   #endif
 
