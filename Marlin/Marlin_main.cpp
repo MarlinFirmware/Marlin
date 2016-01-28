@@ -2458,8 +2458,8 @@ Sigma_Exit:
       #ifdef AUTOTEMP
         autotemp_enabled=false;
       #endif
- if (code_seen('S')) {
-         setTargetHotend(code_value(), tmp_extruder);
+      if (code_seen('S')) {
+        setTargetHotend(code_value(), tmp_extruder);
 #ifdef DUAL_X_CARRIAGE
         if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
           setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
