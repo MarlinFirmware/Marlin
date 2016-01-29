@@ -39,11 +39,7 @@ typedef unsigned long millis_t;
   #define analogInputToDigitalPin(p) ((p) + 0xA0)
 #endif
 
-#ifdef USBCON
-  #include "HardwareSerial.h"
-#endif
-
-#include "MarlinSerial.h"
+#include "HardwareSerial.h"
 
 #ifndef cbi
   #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -54,15 +50,11 @@ typedef unsigned long millis_t;
 
 #include "WString.h"
 
-#ifdef USBCON
-  #if ENABLED(BLUETOOTH)
-    #define MYSERIAL bluetoothSerial
-  #else
-    #define MYSERIAL Serial
-  #endif // BLUETOOTH
+#if ENABLED(BLUETOOTH)
+  #define MYSERIAL bluetoothSerial
 #else
-  #define MYSERIAL customizedSerial
-#endif
+  #define MYSERIAL Serial
+#endif // BLUETOOTH
 
 #define SERIAL_CHAR(x) MYSERIAL.write(x)
 #define SERIAL_EOL SERIAL_CHAR('\n')

@@ -790,7 +790,7 @@ window.configuratorApp = (function(){
 
       // Add options to the popup menus
       // $('#SERIAL_PORT').addOptions([0,1,2,3,4,5,6,7]);
-      // $('#BAUDRATE').addOptions([2400,9600,19200,38400,57600,115200,250000]);
+      // $('#BAUDRATE').addOptions([2400,9600,19200,38400,57600,115200]);
       // $('#EXTRUDERS').addOptions([1,2,3,4]);
       // $('#POWER_SUPPLY').addOptions({'1':'ATX','2':'Xbox 360'});
 

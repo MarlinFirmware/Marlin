@@ -214,10 +214,6 @@
 
   #include "pins.h"
 
-  #ifndef USBCON
-    #define HardwareSerial_h // trick to disable the standard HWserial
-  #endif
-
   #include "Arduino.h"
 
   /**
