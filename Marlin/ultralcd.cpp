@@ -1180,7 +1180,11 @@ static void lcd_control_motion_menu() {
   #endif
   MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 10, 99000);
   MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &max_xy_jerk, 1, 990);
-  MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &max_z_jerk, 0.1, 990);
+  #if ENABLED(DELTA)
+    MENU_ITEM_EDIT(float3, MSG_VZ_JERK, &max_z_jerk, 1, 990);
+  #else
+    MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &max_z_jerk, 0.1, 990);
+  #endif
   MENU_ITEM_EDIT(float3, MSG_VE_JERK, &max_e_jerk, 1, 990);
   MENU_ITEM_EDIT(float3, MSG_VMAX MSG_X, &max_feedrate[X_AXIS], 1, 999);
   MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Y, &max_feedrate[Y_AXIS], 1, 999);
@@ -1196,7 +1200,11 @@ static void lcd_control_motion_menu() {
   MENU_ITEM_EDIT(float5, MSG_A_TRAVEL, &travel_acceleration, 100, 99000);
   MENU_ITEM_EDIT(float52, MSG_XSTEPS, &axis_steps_per_unit[X_AXIS], 5, 9999);
   MENU_ITEM_EDIT(float52, MSG_YSTEPS, &axis_steps_per_unit[Y_AXIS], 5, 9999);
-  MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
+  #if ENABLED(DELTA)
+    MENU_ITEM_EDIT(float52, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
+  #else
+    MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
+  #endif
   MENU_ITEM_EDIT(float51, MSG_ESTEPS, &axis_steps_per_unit[E_AXIS], 5, 9999);
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &abort_on_endstop_hit);
