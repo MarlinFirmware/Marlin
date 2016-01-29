@@ -41,7 +41,9 @@
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
 #define X_MIN_PIN           3
-#define X_MAX_PIN           2
+#ifndef X_MAX_PIN
+  #define X_MAX_PIN         2
+#endif
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
@@ -98,8 +100,6 @@
 
 #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) || ENABLED(G3D_PANEL)
   #define KILL_PIN         41
-#else
-  #define KILL_PIN         -1
 #endif
 
 #if MB(RAMPS_13_EFF)
@@ -232,7 +232,7 @@
       #if ENABLED(G3D_PANEL)
         #define SD_DETECT_PIN 49
       #else
-        #define SD_DETECT_PIN -1  // Ramps doesn't use this
+        //        #define SD_DETECT_PIN -1  // Ramps doesn't use this
       #endif
 
     #endif
@@ -270,4 +270,8 @@
   #define SCK_PIN          52
   #define MISO_PIN         50
   #define MOSI_PIN         51
+#endif
+
+#ifndef KILL_PIN
+  //  #define KILL_PIN         -1
 #endif
