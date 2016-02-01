@@ -60,6 +60,8 @@ char *createFilename(char *buffer,const dir_t &p) //buffer>12characters
 
 void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/)
 {
+	SdFile *par = &parent;
+	
 	if(lsAction == LS_GetFilename)
 	{
 	  if(newDir == true || nrFiles < count)
@@ -70,6 +72,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 	    dir_t newP;
 	    p = newP;
 	  }
+	  par = &curFolder;
 	}
 	else
 	{
@@ -79,7 +82,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 	  curFolder = parent;
 	}
 
-  while (curFolder.readDir(p, longFilename) > 0)
+  while (par->readDir(p, longFilename) > 0)
   {
     if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename) // hence LS_SerialPrint
     {
