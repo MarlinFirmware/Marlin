@@ -111,7 +111,11 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
           SERIAL_ECHOLN(lfilename);
         }
       }
-      lsDive(path,dir);
+      
+      if(strlen(longFilename) > 0 && longFilename[0] != '.')
++     {
++               lsDive(path,dir);
++     }
       //close done automatically by destructor of SdFile
     }
     else
