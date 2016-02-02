@@ -1605,7 +1605,7 @@ void process_commands()
 
     case 28: //G28 Home all Axis one at a time
 #ifdef DOGLCD
-      if ( (PrintManager::single::instance().state() != PRINTING && AutoLevelManager::single::instance().state() == false) || allow_home == true )
+      if ( PrintManager::single::instance().state() != PRINTING || allow_home == true )
 #endif //DOGLCD
       {
         allow_home = false;
