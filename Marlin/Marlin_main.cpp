@@ -1619,10 +1619,15 @@ void process_commands()
     break;
 #ifdef LEVEL_SENSOR
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
-      if (bed_leveling == true || (bed_leveling == false && AutoLevelManager::single::instance().state() == true))
-      {
-        action_get_plane();
-      }
+#ifdef DOGLCD
+	  if ( PrintManager::single::instance().state() != PRINTING )
+#endif //DOGLCD
+	  {
+		  if (bed_leveling == true || (bed_leveling == false && AutoLevelManager::single::instance().state() == true))
+		  {
+			action_get_plane();
+		  }
+	  }
     break;
 #ifndef Z_PROBE_SLED
 
