@@ -33,7 +33,7 @@
 #endif
 
 FORCE_INLINE void store_char(unsigned char c) {
-  int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
+  uint8_t i = (uint8_t)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
 
   // if we should be storing the received character into the location
   // just before the tail (meaning that the head would advance to the
@@ -116,7 +116,7 @@ int MarlinSerial::read(void) {
   }
   else {
     unsigned char c = rx_buffer.buffer[rx_buffer.tail];
-    rx_buffer.tail = (unsigned int)(rx_buffer.tail + 1) % RX_BUFFER_SIZE;
+    rx_buffer.tail = (uint8_t)(rx_buffer.tail + 1) % RX_BUFFER_SIZE;
     return c;
   }
 }
