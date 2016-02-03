@@ -811,7 +811,7 @@ void loop()
 
 void get_command()
 {
-  while( !card.sdprinting && MYSERIAL.available() > 0  && buflen < BUFSIZE) {
+  while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
     serial_char = MYSERIAL.read();
 
 #ifdef DOGLCD
