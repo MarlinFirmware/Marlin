@@ -52,8 +52,11 @@ PrintManager::PrintManager()
 
 void PrintManager::state(PrinterState_t state)
 {
-	m_state = state;
-	notify();
+	if( PrintManager::single::instance().state() != SERIAL_CONTROL )
+	{
+		m_state = state;
+		notify();
+	}
 }
 
 PrinterState_t PrintManager::state()
