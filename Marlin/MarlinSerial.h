@@ -69,13 +69,14 @@
 // using a ring buffer (I think), in which rx_buffer_head is the index of the
 // location to which to write the next incoming character and rx_buffer_tail
 // is the index of the location from which to read.
+// 256 is the max limit due to uint8_t head and tail. Thats needed to make them atomic.
 #define RX_BUFFER_SIZE 128
 
 
 struct ring_buffer {
   unsigned char buffer[RX_BUFFER_SIZE];
-  int head;
-  int tail;
+  volatile uint8_t head;
+  volatile uint8_t tail;
 };
 
 #if UART_PRESENT(SERIAL_PORT)
@@ -92,8 +93,8 @@ class MarlinSerial { //: public Stream
     int read(void);
     void flush(void);
 
-    FORCE_INLINE int available(void) {
-      return (unsigned int)(RX_BUFFER_SIZE + rx_buffer.head - rx_buffer.tail) % RX_BUFFER_SIZE;
+    FORCE_INLINE uint8_t available(void) {
+      return (uint8_t)(RX_BUFFER_SIZE + rx_buffer.head - rx_buffer.tail) % RX_BUFFER_SIZE;
     }
 
     FORCE_INLINE void write(uint8_t c) {
@@ -105,7 +106,7 @@ class MarlinSerial { //: public Stream
     FORCE_INLINE void checkRx(void) {
       if (TEST(M_UCSRxA, M_RXCx)) {
         unsigned char c  =  M_UDRx;
-        int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
+        uint8_t i = (uint8_t)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
 
         // if we should be storing the received character into the location
         // just before the tail (meaning that the head would advance to the
