@@ -35,6 +35,7 @@
 #include "TemperatureManager.h"
 #include "SteppersManager.h"
 #include "ViewManager.h"
+#include "cardreader.h"
 
 #define INACTIVITY_TIME_MINUTES 10
 
@@ -275,8 +276,11 @@ void PrintManager::inactivityTriggered()
 			}
 			break;
 		case SERIAL_CONTROL:
-			temp::TemperatureManager::single::instance().setTargetTemperature(0);
-			SteppersManager::disableAllSteppers();
+			if(!card.sdprinting)
+			{			
+				temp::TemperatureManager::single::instance().setTargetTemperature(0);
+				SteppersManager::disableAllSteppers();
+			}
 			if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)
 			{
 				LightManager::single::instance().state(false);
