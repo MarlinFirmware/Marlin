@@ -3974,7 +3974,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
 #ifdef DOGLCD
     case 800:
-      if(card.isFileOpen() == false)
+      if( card.isFileOpen() == false || (card.isFileOpen() == true && PrintManager::single::instance().state() == SERIAL_CONTROL) )
       {
         action_start_print();
       }
@@ -3983,7 +3983,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     case 801:
       st_synchronize();
 
-      if(card.isFileOpen() == false)
+      if( card.isFileOpen() == false || (card.isFileOpen() == true && PrintManager::single::instance().state() == SERIAL_CONTROL) )
       {
         action_finish_print();
       }
