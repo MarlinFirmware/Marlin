@@ -959,9 +959,15 @@ void get_command()
         if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
   }
+  
   #ifdef SDSUPPORT
-  if(!card.sdprinting || serial_count!=0){
+  if(!card.sdprinting)
+  { 
     return;
+  } 
+  else
+  {
+	  serial_count = 0; // Incomplete messages from serial would make commands read from SD fail  
   }
 
   //'#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
