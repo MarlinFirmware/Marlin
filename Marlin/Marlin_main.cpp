@@ -1830,6 +1830,11 @@ void process_commands()
 				LCD_MESSAGEPGM(MSG_PAUSED);
 				lcd_update();
 				lcd_enable_button();
+				
+		if( PrintManager::single::instance().state() == SERIAL_CONTROL)
+		{
+			stop_buffer = false;
+		}
 
 #ifndef DOGLCD
   			while(!LCD_CLICKED){
