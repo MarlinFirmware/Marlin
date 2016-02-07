@@ -361,6 +361,10 @@
   #error HAS_AUTOMATIC_VERSIONING deprecated - use USE_AUTOMATIC_VERSIONING instead
 #elif defined(ENABLE_AUTO_BED_LEVELING)
   #error ENABLE_AUTO_BED_LEVELING deprecated - use AUTO_BED_LEVELING_FEATURE instead
+#elif defined(SDSLOW)
+  #error SDSLOW deprecated - set SPI_SPEED to SPI_HALF_SPEED instead
+#elif defined(SDEXTRASLOW)
+  #error SDEXTRASLOW deprecated - set SPI_SPEED to SPI_QUARTER_SPEED instead
 #endif
 
 #endif //SANITYCHECK_H
