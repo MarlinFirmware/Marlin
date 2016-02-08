@@ -1770,13 +1770,17 @@ void process_commands()
       break;
     case 24: //M24 - Start SD print
 #ifdef DOGLCD
-      if(PrintManager::single::instance().state() == READY || PrintManager::single::instance().state() == SERIAL_CONTROL)
-      {
-        card.startFileprint();
-        starttime=millis();
-        feedmultiply = 100;
-        PrintManager::single::instance().state(PRINTING);
-      }
+	  if( PrintManager::single::instance().state() == READY || ( PrintManager::single::instance().state() == SERIAL_CONTROL && card.isFileAtBegin() ))
+	  {
+		card.startFileprint();
+		starttime=millis();
+		feedmultiply = 100;
+		PrintManager::single::instance().state(PRINTING);
+	  }
+      else if(PrintManager::single::instance().state() == SERIAL_CONTROL && card.isFileAtBegin() == false)
+	  {
+	    action_resume_print();
+	  }
 #else
       card.startFileprint();
       starttime=millis();
