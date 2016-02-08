@@ -83,9 +83,16 @@ namespace ui
 			items_per_row_1 = m_num_icons - items_per_row_0;
 			aux_width_0 -= 2;
 		}
-
+		
 		char text[18];
-		strncpy(text,card.longFilename,18);
+		if(strlen(card.longFilename) == 0)
+		{
+			strncpy(text,card.filename,18);
+		}
+		else
+		{
+			strncpy(text,card.longFilename,18);
+		}
 		text[17] = '\0';
 
 		Area text_area(0, 18, 127, 30);
