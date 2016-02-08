@@ -5649,9 +5649,24 @@ inline void gcode_T(uint8_t tmp_extruder) {
             delayed_move_time = 0;
           }
         #else // !DUAL_X_CARRIAGE
-          // Offset extruder (only by XY)
-          for (int i = X_AXIS; i <= Y_AXIS; i++)
-            current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
+          #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+            // Offset extruder, make sure to apply the bed level rotation matrix
+            vector_3 tmp_offset_vec = vector_3(extruder_offset[X_AXIS][tmp_extruder],
+                                               extruder_offset[Y_AXIS][tmp_extruder],
+                                               extruder_offset[Z_AXIS][tmp_extruder]),
+                     act_offset_vec = vector_3(extruder_offset[X_AXIS][active_extruder],
+                                               extruder_offset[Y_AXIS][active_extruder],
+                                               extruder_offset[Z_AXIS][active_extruder]),
+                     offset_vec = tmp_offset_vec - act_offset_vec;
+            offset_vec.apply_rotation(plan_bed_level_matrix.transpose(plan_bed_level_matrix));
+            current_position[X_AXIS] += offset_vec.x;
+            current_position[Y_AXIS] += offset_vec.y;
+            current_position[Z_AXIS] += offset_vec.z;
+          #else // !AUTO_BED_LEVELING_FEATURE
+            // Offset extruder (only by XY)
+            for (int i=X_AXIS; i<=Y_AXIS; i++)
+              current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
+          #endif // !AUTO_BED_LEVELING_FEATURE
           // Set the new active extruder and position
           active_extruder = tmp_extruder;
         #endif // !DUAL_X_CARRIAGE
