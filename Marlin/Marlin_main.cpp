@@ -6263,7 +6263,13 @@ void ok_to_send() {
   #endif
   SERIAL_PROTOCOLPGM(MSG_OK);
   #if ENABLED(ADVANCED_OK)
-    SERIAL_PROTOCOLPGM(" N"); SERIAL_PROTOCOL(gcode_LastN);
+    char* p = command_queue[cmd_queue_index_r];
+    if (*p == 'N') {
+      SERIAL_PROTOCOL(' ');
+      SERIAL_ECHO(*p++);
+      while ((*p >= '0' && *p <= '9') || *p == '-')
+        SERIAL_ECHO(*p++);
+    }
     SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(int(BLOCK_BUFFER_SIZE - movesplanned() - 1));
     SERIAL_PROTOCOLPGM(" B"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
   #endif
