@@ -250,9 +250,9 @@ bool axis_homed[3] = { false };
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
 static char* current_command, *current_command_args;
-static int cmd_queue_index_r = 0;
-static int cmd_queue_index_w = 0;
-static int commands_in_queue = 0;
+static uint8_t cmd_queue_index_r = 0;
+static uint8_t cmd_queue_index_w = 0;
+static uint8_t commands_in_queue = 0;
 static char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
 const float homing_feedrate[] = HOMING_FEEDRATE;
@@ -409,9 +409,7 @@ static uint8_t target_extruder;
   static bool filrunoutEnqueued = false;
 #endif
 
-#if ENABLED(SDSUPPORT)
-  static bool fromsd[BUFSIZE];
-#endif
+static bool send_ok[BUFSIZE];
 
 #if HAS_SERVOS
   Servo servo[NUM_SERVOS];
@@ -499,27 +497,28 @@ static bool drain_queued_commands_P() {
  */
 void enqueuecommands_P(const char* pgcode) {
   queued_commands_P = pgcode;
-  drain_queued_commands_P(); // first command executed asap (when possible)
+  if (!serial_count) { // if we have a fresh line
+    drain_queued_commands_P(); // first command executed asap (when possible)
+  }
 }
 
 /**
  * Copy a command directly into the main command buffer, from RAM.
  *
- * This is done in a non-safe way and needs a rework someday.
  * Returns false if it doesn't add any command
  */
 bool enqueuecommand(const char* cmd) {
-  if (*cmd == ';' || commands_in_queue >= BUFSIZE) return false;
+  if (serial_count || *cmd == ';' || commands_in_queue >= BUFSIZE) return false;
 
-  // This is dangerous if a mixing of serial and this happens
   char* command = command_queue[cmd_queue_index_w];
   strcpy(command, cmd);
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM(MSG_Enqueueing);
   SERIAL_ECHO(command);
   SERIAL_ECHOLNPGM("\"");
-  cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
   commands_in_queue++;
+  send_ok[cmd_queue_index_w] = false;
+  cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
   return true;
 }
 
@@ -679,9 +678,7 @@ void setup() {
   SERIAL_ECHOPGM(MSG_PLANNER_BUFFER_BYTES);
   SERIAL_ECHOLN((int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
 
-  #if ENABLED(SDSUPPORT)
-    for (int8_t i = 0; i < BUFSIZE; i++) fromsd[i] = false;
-  #endif
+  for (int8_t i = 0; i < BUFSIZE; i++) send_ok[i] = true;
 
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
@@ -800,7 +797,9 @@ void gcode_line_error(const char* err, bool doFlush = true) {
  */
 void get_command() {
 
-  if (drain_queued_commands_P()) return; // priority is given to non-serial commands
+  if (!serial_count) { // if we have a fresh line
+    if (drain_queued_commands_P()) return; // priority is given to non-serial commands
+  }
 
   #if ENABLED(NO_TIMEOUTS)
     static millis_t last_command_time = 0;
@@ -836,10 +835,8 @@ void get_command() {
       char* command = command_queue[cmd_queue_index_w];
       command[serial_count] = 0; // terminate string
 
-      // this item in the queue is not from sd
-      #if ENABLED(SDSUPPORT)
-        fromsd[cmd_queue_index_w] = false;
-      #endif
+      // this item in the queue is from the serial line
+      send_ok[cmd_queue_index_w] = true;
 
       while (*command == ' ') command++; // skip any leading spaces
       char* npos = (*command == 'N') ? command : NULL; // Require the N parameter to start the line
@@ -904,8 +901,8 @@ void get_command() {
       // If command was e-stop process now
       if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
 
+      commands_in_queue++;
       cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
-      commands_in_queue += 1;
 
       serial_count = 0; //clear buffer
     }
@@ -962,8 +959,8 @@ void get_command() {
         }
         command_queue[cmd_queue_index_w][serial_count] = 0; //terminate string
         // if (!comment_mode) {
-        fromsd[cmd_queue_index_w] = true;
-        commands_in_queue += 1;
+        commands_in_queue++;
+        send_ok[cmd_queue_index_w] = false;
         cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
         // }
         comment_mode = false; //for new command
@@ -6295,9 +6292,7 @@ void FlushSerialRequestResend() {
 
 void ok_to_send() {
   refresh_cmd_timeout();
-  #if ENABLED(SDSUPPORT)
-    if (fromsd[cmd_queue_index_r]) return;
-  #endif
+  if (!send_ok[cmd_queue_index_r]) return;
   SERIAL_PROTOCOLPGM(MSG_OK);
   #if ENABLED(ADVANCED_OK)
     char* p = command_queue[cmd_queue_index_r];
