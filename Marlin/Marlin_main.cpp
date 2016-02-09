@@ -4749,19 +4749,18 @@ inline void gcode_M226() {
       if (servo_index >= 0 && servo_index < NUM_SERVOS)
         servo[servo_index].move(servo_position);
       else {
-        SERIAL_ECHO_START;
-        SERIAL_ECHO("Servo ");
-        SERIAL_ECHO(servo_index);
-        SERIAL_ECHOLN(" out of range");
+        SERIAL_ERROR_START;
+        SERIAL_ERROR("Servo ");
+        SERIAL_ERROR(servo_index);
+        SERIAL_ERRORLN(" out of range");
       }
     }
     else if (servo_index >= 0) {
-      SERIAL_PROTOCOL(MSG_OK);
-      SERIAL_PROTOCOL(" Servo ");
-      SERIAL_PROTOCOL(servo_index);
-      SERIAL_PROTOCOL(": ");
-      SERIAL_PROTOCOL(servo[servo_index].read());
-      SERIAL_EOL;
+      SERIAL_ECHO_START;
+      SERIAL_ECHO(" Servo ");
+      SERIAL_ECHO(servo_index);
+      SERIAL_ECHO(": ");
+      SERIAL_ECHOLN(servo[servo_index].read());
     }
   }
 
@@ -4812,27 +4811,27 @@ inline void gcode_M226() {
       #endif
 
       updatePID();
-      SERIAL_PROTOCOL(MSG_OK);
+      SERIAL_ECHO_START;
       #if ENABLED(PID_PARAMS_PER_EXTRUDER)
-        SERIAL_PROTOCOL(" e:"); // specify extruder in serial output
-        SERIAL_PROTOCOL(e);
+        SERIAL_ECHO(" e:"); // specify extruder in serial output
+        SERIAL_ECHO(e);
       #endif // PID_PARAMS_PER_EXTRUDER
-      SERIAL_PROTOCOL(" p:");
-      SERIAL_PROTOCOL(PID_PARAM(Kp, e));
-      SERIAL_PROTOCOL(" i:");
-      SERIAL_PROTOCOL(unscalePID_i(PID_PARAM(Ki, e)));
-      SERIAL_PROTOCOL(" d:");
-      SERIAL_PROTOCOL(unscalePID_d(PID_PARAM(Kd, e)));
+      SERIAL_ECHO(" p:");
+      SERIAL_ECHO(PID_PARAM(Kp, e));
+      SERIAL_ECHO(" i:");
+      SERIAL_ECHO(unscalePID_i(PID_PARAM(Ki, e)));
+      SERIAL_ECHO(" d:");
+      SERIAL_ECHO(unscalePID_d(PID_PARAM(Kd, e)));
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
-        SERIAL_PROTOCOL(" c:");
+        SERIAL_ECHO(" c:");
         //Kc does not have scaling applied above, or in resetting defaults
-        SERIAL_PROTOCOL(PID_PARAM(Kc, e));
+        SERIAL_ECHO(PID_PARAM(Kc, e));
       #endif
       SERIAL_EOL;
     }
     else {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLN(MSG_INVALID_EXTRUDER);
     }
   }
 
@@ -4846,14 +4845,13 @@ inline void gcode_M226() {
     if (code_seen('D')) bedKd = scalePID_d(code_value());
 
     updatePID();
-    SERIAL_PROTOCOL(MSG_OK);
-    SERIAL_PROTOCOL(" p:");
-    SERIAL_PROTOCOL(bedKp);
-    SERIAL_PROTOCOL(" i:");
-    SERIAL_PROTOCOL(unscalePID_i(bedKi));
-    SERIAL_PROTOCOL(" d:");
-    SERIAL_PROTOCOL(unscalePID_d(bedKd));
-    SERIAL_EOL;
+    SERIAL_ECHO_START;
+    SERIAL_ECHO(" p:");
+    SERIAL_ECHO(bedKp);
+    SERIAL_ECHO(" i:");
+    SERIAL_ECHO(unscalePID_i(bedKi));
+    SERIAL_ECHO(" d:");
+    SERIAL_ECHOLN(unscalePID_d(bedKd));
   }
 
 #endif // PIDTEMPBED
@@ -5285,7 +5283,7 @@ inline void gcode_M503() {
       float value = code_value();
       if (Z_PROBE_OFFSET_RANGE_MIN <= value && value <= Z_PROBE_OFFSET_RANGE_MAX) {
         zprobe_zoffset = value;
-        SERIAL_ECHOPGM(MSG_OK);
+        SERIAL_ECHO(zprobe_zoffset);
       }
       else {
         SERIAL_ECHOPGM(MSG_Z_MIN);
