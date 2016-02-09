@@ -9,8 +9,8 @@ ENV WWW_DIR='/usr/src/build'
 ENV ARDUINO='/usr/src/myapp/arduino'
 ENV WORKSPACE='/usr/src/myapp'
 ENV FW_DIR='/usr/src/myapp/firmware'
-ENV CONFIG_DIR_DEST='/usr/src/myapp/firmware/Marlin/config'
-ENV CONFIG_DIR='/usr/src/myapp/firmware/Marlin'
+ENV CONFIG_DIR_DEST='/usr/src/myapp/firmware/Marlin'
+ENV CONFIG_DIR='/usr/src/myapp/firmware/Marlin/config'
 
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +rx /entrypoint.sh
