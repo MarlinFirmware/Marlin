@@ -973,6 +973,7 @@ void get_command() {
 bool code_has_value() {
   int i = 1;
   char c = seen_pointer[i];
+  while (c == ' ') c = seen_pointer[++i];
   if (c == '-' || c == '+') c = seen_pointer[++i];
   if (c == '.') c = seen_pointer[++i];
   return (c >= '0' && c <= '9');
