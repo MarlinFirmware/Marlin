@@ -133,6 +133,7 @@ extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 extern block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
 extern volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
 extern volatile unsigned char block_buffer_tail; 
+extern bool planner_priority;
 // Called when the current block is no longer needed. Discards the block and makes the memory
 // availible for new blocks.    
 FORCE_INLINE void plan_discard_current_block()  
@@ -150,6 +151,10 @@ FORCE_INLINE block_t *plan_get_current_block()
   }
   block_t *block = &block_buffer[block_buffer_tail];
   block->busy = true;
+  if( ((block_buffer_head + BLOCK_BUFFER_SIZE - block_buffer_tail) % BLOCK_BUFFER_SIZE) < (BLOCK_BUFFER_SIZE * 0.6) )
+  {
+    planner_priority = true;
+  }
   return(block);
 }
 

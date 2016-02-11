@@ -50,10 +50,15 @@ namespace ui
 		private:
 			float m_observed;
 			Time_t m_printed_time;
-			uint8_t m_previous_time;
+			uint8_t m_previous_minutes;
+			uint32_t m_previous_millis;
 			uint8_t m_percent_done;
 			uint16_t m_target_temperature;
 			PrinterState_t m_printing_status;
+
+			char m_temperature_info[9];
+			char m_time_info[8];
+			char m_pause_info[9];
 	};
 }
 #endif //SCREEN_PRINT_H

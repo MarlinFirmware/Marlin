@@ -11,7 +11,7 @@
 #define MACHINE_NAME "Witbox 2"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.0"
+#define FIRMWARE_VER "2.0.1"
 #define BUILD_VER ""
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
@@ -637,7 +637,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
  #define BED_DETECTION_X_POINT 175
  #define BED_DETECTION_Y_POINT 123
  #define BED_DETECTION_Z_POINT -5
- #define BED_DETECTION_RAISE 15
+ #define BED_DETECTION_RAISE 3.5
+ #define BED_DETECTION_MAX_LOWER 6.5
 #endif // BED_DETECTION
 
 #include "Configuration_adv.h"

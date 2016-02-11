@@ -113,6 +113,8 @@ volatile unsigned char block_buffer_head;           // Index of the next block t
 volatile unsigned char block_buffer_tail;           // Index of the block to process now
 volatile unsigned char next_buffer_head;
 
+bool planner_priority = false;
+
 //===========================================================================
 //=============================private variables ============================
 //===========================================================================
@@ -551,6 +553,11 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 #ifndef DOGLCD
   buffer_recursivity++;
 #endif // DOGLCD
+
+  if( ((block_buffer_head + BLOCK_BUFFER_SIZE - block_buffer_tail) % BLOCK_BUFFER_SIZE) >= BLOCK_BUFFER_SIZE - 1 )
+  {
+    planner_priority = false;
+  }
 
   while(block_buffer_tail == next_buffer_head)
   {
