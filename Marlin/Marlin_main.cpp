@@ -1765,7 +1765,14 @@ void process_commands()
     case 23: //M23 - Select file
       starpos = (strchr(strchr_pointer + 4,'*'));
       if(starpos!=NULL)
+      {
+		  if(*(starpos-1) == ' ') //solve repetier format problem
+		  {
+			SERIAL_ECHOLN("wrong file format");
+			starpos--;
+		  }
         *(starpos)='\0';
+       }
       card.openFile(strchr_pointer + 4,true);
       break;
     case 24: //M24 - Start SD print
