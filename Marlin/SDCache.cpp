@@ -206,18 +206,18 @@ bool SDCache::updateCachePosition(int16_t index)
 			if (card.filenameIsDir) 
 			{
 				m_cache[i].type = FOLDER_ENTRY;
-				if(strlen(card.longFilename) == 0)
-				{
-					strcpy(m_cache[i].longFilename, card.filename);
-				}
-				else
-				{
-					strcpy(m_cache[i].longFilename, card.longFilename);
-				}
 			} 
 			else 
 			{
 				m_cache[i].type = FILE_ENTRY;
+			}
+			
+			if(strlen(card.longFilename) == 0)
+			{
+				strcpy(m_cache[i].longFilename, card.filename);
+			}
+			else
+			{
 				strcpy(m_cache[i].longFilename, card.longFilename);
 			}
 
