@@ -785,6 +785,7 @@ void loop()
         {
           card.closefile();
           SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+          SERIAL_PROTOCOLLNPGM(MSG_OK);
         }
       }
       else
