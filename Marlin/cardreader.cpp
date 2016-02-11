@@ -60,6 +60,8 @@ char *createFilename(char *buffer,const dir_t &p) //buffer>12characters
 
 void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/)
 {
+	SdFile *par = &parent;
+	
 	if(lsAction == LS_GetFilename)
 	{
 	  if(newDir == true || nrFiles < count)
@@ -70,6 +72,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 	    dir_t newP;
 	    p = newP;
 	  }
+	  par = &curFolder;
 	}
 	else
 	{
@@ -79,7 +82,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 	  curFolder = parent;
 	}
 
-  while (curFolder.readDir(p, longFilename) > 0)
+  while (par->readDir(p, longFilename) > 0)
   {
     if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename) // hence LS_SerialPrint
     {
@@ -108,7 +111,11 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
           SERIAL_ECHOLN(lfilename);
         }
       }
-      lsDive(path,dir);
+      
+      if(strlen(longFilename) > 0 && longFilename[0] != '.')
+      {
+		lsDive(path,dir);
+      }
       //close done automatically by destructor of SdFile
     }
     else
@@ -125,8 +132,46 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       
       if(!filenameIsDir)
       {
-        if(p.name[8]!='G') continue;
-        if(p.name[9]=='~') continue;
+		if(p.name[8]!='G') continue;
+		if(p.name[9]!='C') continue;
+		if(p.name[10]!='O') continue;
+
+		if(p.name[9]=='~') continue;
+		
+		int8_t type_size = 1;
+		if(strlen(longFilename) > 0 )
+		{
+			char* char_pos = (strchr(longFilename,'\0')-1);
+			if( *(char_pos) == '~' ) 
+			{
+				continue;
+			}
+			
+			while(*char_pos != '.')
+			{
+				type_size++;
+				char_pos--;
+				
+				if(char_pos == &longFilename[0] || type_size > 6)
+					break;
+			}
+			
+			if(type_size != 6)
+			{
+				continue;
+			}
+			
+			if(*(char_pos+4) != 'd' && *(char_pos+4) != 'D')
+			{
+				continue;
+			}
+			
+			if(*(char_pos+5) != 'e' && *(char_pos+5) != 'E')
+			{
+				continue;
+			}
+						
+		}			
       }
       //if(cnt++!=nr) continue;
       createFilename(filename,p);
