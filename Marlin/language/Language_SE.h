@@ -161,7 +161,7 @@ const char SE_ICON_MOVE_E[] PROGMEM                     = "Flytta extruder";
 const char SE_ICON_MOVE_10MM[] PROGMEM                  = "Flytta 10 mm";
 const char SE_ICON_MOVE_1MM[] PROGMEM                   = "Flytta 1 mm";
 const char SE_ICON_MOVE_01MM[] PROGMEM                  = "Flytta 0,1 mm";
-const char SE_OPTION_LIGHTLED[] PROGMEM                 = "Lysdiod";
+const char SE_OPTION_LIGHTLED[] PROGMEM                 = "Ljus";
 const char SE_OPTION_BOX_FAN[] PROGMEM                  = "Fl""\xe4""kt";
 const char SE_OPTION_INFO[] PROGMEM                     = "Version";
 const char SE_OPTION_CONTACT[] PROGMEM                  = "Support";
@@ -191,5 +191,13 @@ const char SE_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Byta filament";
 const char SE_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Justerar positionen";
 const char SE_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Utskrift stoppad";
 const char SE_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Ta bort resterna fr""\xe5""n plattan";
+const char SE_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Byta filament";
+const char SE_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "Justerar l""\xe4""ge";
+const char SE_OPTION_STATS[] PROGMEM                    = "Statistik";
+const char SE_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistik";
+const char SE_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tid";
+const char SE_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Avslutade";
+const char SE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Misslyckade";
+const char SE_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Namnet inneh""\xe5""ller ogiltiga tecken";
 
 #endif //LANGUAGE_SE_H

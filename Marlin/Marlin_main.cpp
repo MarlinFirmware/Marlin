@@ -886,9 +886,16 @@ void get_command()
         }
         gcode_LastN = gcode_N;
         //if no errors, continue parsing
-
-        char *startchar = strchr(cmdbuffer[bufindw], ' ') + 1;
-        strcpy(cmdbuffer[bufindw], startchar);
+		
+		// Format proof parsing to remove line number
+		char *startchar = &(cmdbuffer[bufindw][1]);
+		while( (*startchar >= '0' && *startchar <= '9') 
+			|| (*startchar == ' '))
+		{
+			startchar++;
+		}
+		
+		strcpy(cmdbuffer[bufindw], startchar);
 
       }
       else  // if we don't receive 'N' but still see '*'
@@ -930,6 +937,11 @@ void get_command()
       buflen += 1;
 
       serial_count = 0; //clear buffer
+      
+      #ifdef DOGLCD
+		//Reset inactivity timer on serial command read
+		PrintManager::single::instance().resetInactivity();
+      #endif // DOGLCD
     }
     else if(serial_char == '\\') {  //Handle escapes
       SERIAL_ECHO("Escape char: ");
@@ -2466,7 +2478,14 @@ Sigma_Exit:
       case 106: //M106 Fan On
         temp::TemperatureManager::single::instance().setBlowerControlState(false);
         if (code_seen('S')){
-           fanSpeed=constrain(code_value(),0,255);
+			if(code_value() > 0)
+			{
+				fanSpeed=255;
+			}
+			else
+			{
+				fanSpeed=0;
+			}
         }
         else {
           fanSpeed=255;

@@ -62,6 +62,8 @@
 #include "ScreenTemperature.h"
 #include "ScreenCooldown.h"
 #include "ScreenStop.h"
+#include "ScreenStats.h"
+#include "ScreenNameError.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -255,9 +257,10 @@ namespace ui
 		ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST_TITLE(), &SDManager::single::instance());
 		local_view->add(screen_main);
 		local_view->add(screen_SD_confirm);
+		local_view->add(screen_SD_name_error);
 		return local_view;
 	}
-
+	
 	static ScreenFile * make_screen_SD_confirm()
 	{
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
@@ -268,6 +271,13 @@ namespace ui
 		local_view->icon(icon_back);
 		local_view->add(screen_print_switch);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+	
+	static ScreenNameError * make_screen_SD_name_error()
+	{
+		ScreenNameError * local_view = new ScreenNameError(MSG_SCREEN_ERROR_TITLE(), MSG_SCREEN_NAME_ERROR_TEXT(), MSG_PUSH_TO_BACK(), bits_emergency);
+		local_view->add(screen_main);
 		return local_view;
 	}
 
@@ -600,6 +610,8 @@ namespace ui
 		option_language->add(screen_settings_language);
 		OptionLaunch * option_reset       = new OptionLaunch(option_size, MSG_OPTION_RESET());
 		option_reset->add(screen_reset_init);
+		OptionLaunch * option_stats       = new OptionLaunch(option_size, MSG_OPTION_STATS());
+		option_stats->add(screen_view_stats);
 
 		ScreenSetting * local_view = new ScreenSetting(MSG_SCREEN_SETTINGS_TITLE());
 		local_view->add(option_back);
@@ -614,6 +626,7 @@ namespace ui
 		local_view->add(option_offset);
 		local_view->add(option_language);
 		local_view->add(option_reset);
+		local_view->add(option_stats);
 		local_view->add(option_contact);
 		local_view->add(option_about);
 		return local_view;
@@ -1132,6 +1145,21 @@ namespace ui
 	static ScreenAnimation<float> * make_screen_change_heating()
 	{
 		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_HEATING_TITLE(), MSG_PLEASE_WAIT(), ScreenAnimation<float>::RANGE, temp::TemperatureManager::single::instance().getTargetTemperature(), &temp::TemperatureManager::single::instance());
+		local_view->add(screen_change_pause_switch);
+		return local_view;
+	}
+	
+	static ScreenSwitch * make_screen_change_pause_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, action_check_pause_state);
+		local_view->add(screen_change_pullout_info);
+		local_view->add(screen_change_wait_pause);
+		return local_view;
+	}
+	
+	static ScreenTransition * make_screen_change_wait_pause()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_WAIT_PAUSE_TITLE(), MSG_SCREEN_CHANGE_WAIT_PAUSE_TEXT(), MSG_PLEASE_WAIT(), do_nothing, &PrintManager::single::instance());
 		local_view->add(screen_change_pullout_info);
 		return local_view;
 	}
@@ -1250,6 +1278,13 @@ namespace ui
 		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_erase_EEPROM);
 		return local_view;
 	}
+	
+	static ScreenStats * make_screen_view_stats()
+	{
+		ScreenStats * local_view = new ScreenStats(MSG_SCREEN_VIEW_STATS_TITLE(), MSG_PUSH_TO_BACK());
+		local_view->add(screen_settings);
+		return local_view;
+	}
 
 	Screen * new_view;
 
@@ -1337,9 +1372,12 @@ namespace ui
 			// SD Management
 			case screen_SD_list:
 				new_view = make_screen_SD_list();
-				break;
+				break;			
 			case screen_SD_confirm:
 				new_view = make_screen_SD_confirm();
+				break;
+			case screen_SD_name_error:
+				new_view = make_screen_SD_name_error();
 				break;
 
 			// Unload filament
@@ -1652,6 +1690,12 @@ namespace ui
 			case screen_change_heating:
 				new_view = make_screen_change_heating();
 				break;
+			case screen_change_pause_switch:
+				new_view = make_screen_change_pause_switch();
+				break;
+			case screen_change_wait_pause:
+				new_view = make_screen_change_wait_pause();
+				break;
 			case screen_change_pullout_info:
 				new_view = make_screen_change_pullout_info();
 				break;
@@ -1700,6 +1744,11 @@ namespace ui
 			// Error screens
 			case screen_error_temperature:
 				new_view = make_screen_error_temperature();
+				break;
+			
+			// Statistics screen	
+			case screen_view_stats:
+				new_view = make_screen_view_stats();
 				break;
 		}
 		return new_view; 

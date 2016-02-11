@@ -58,6 +58,7 @@ namespace ui
 		screen_resetting,
 		screen_main,
 		screen_SD_list,
+		screen_SD_name_error,
 		screen_SD_confirm,
 		screen_unload_init,
 		screen_unload_switch,
@@ -153,6 +154,8 @@ namespace ui
 		screen_change_pausing,
 		screen_change_select,
 		screen_change_heating,
+		screen_change_pause_switch,
+		screen_change_wait_pause,
 		screen_move_to_change,
 		screen_change_pullout_info,
 		screen_change_unloading,
@@ -167,6 +170,7 @@ namespace ui
 		screen_close_inactivity,
 		screen_error_temperature,
 		screen_none,
+		screen_view_stats,
 	} ScreenIndex_t;
 
 	class Screen;

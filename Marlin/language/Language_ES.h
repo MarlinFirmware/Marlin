@@ -161,7 +161,7 @@ const char ES_ICON_MOVE_E[] PROGMEM                     = "Mover extrusor";
 const char ES_ICON_MOVE_10MM[] PROGMEM                  = "Mover 10mm";
 const char ES_ICON_MOVE_1MM[] PROGMEM                   = "Mover 1mm";
 const char ES_ICON_MOVE_01MM[] PROGMEM                  = "Mover 0.1mm";
-const char ES_OPTION_LIGHTLED[] PROGMEM                 = "Led";
+const char ES_OPTION_LIGHTLED[] PROGMEM                 = "Luz";
 const char ES_OPTION_BOX_FAN[] PROGMEM                  = "Ventilador";
 const char ES_OPTION_INFO[] PROGMEM                     = "Versi""\xf3""n";
 const char ES_OPTION_CONTACT[] PROGMEM                  = "Soporte";
@@ -191,5 +191,13 @@ const char ES_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Cambiar filamento";
 const char ES_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Ajustando posici""\xf3""n";
 const char ES_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Impresi""\xf3""n detenida";
 const char ES_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Retira los residuos de la base";
+const char ES_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Cambiar filamento";
+const char ES_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "Ajustando posici""\xf3""n";
+const char ES_OPTION_STATS[] PROGMEM                    = "Estadisticas";
+const char ES_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Estadisticas";
+const char ES_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tiempo";
+const char ES_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Completados";
+const char ES_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fallidos";
+const char ES_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Caracteres no v""\xe1""lidos en el nombre";
 
 #endif //LANGUAGE_ES_H

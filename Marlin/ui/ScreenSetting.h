@@ -51,7 +51,7 @@ namespace ui
 		private:
 			uint16_t m_index;
 
-			static const uint16_t m_max_items = 10;
+			static const uint16_t m_max_items = 11;
 			Option * m_item[m_max_items];
 			uint8_t m_num_items;
 

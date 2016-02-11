@@ -13,7 +13,7 @@
 #define MACHINE_NAME "Hephestos"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.1"
+#define FIRMWARE_VER "2.1.0"
 #define BUILD_VER ""
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
@@ -417,6 +417,13 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
       #define ABL_MANUAL_PT_3_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
       #define ABL_MANUAL_PT_4_X X_MIN_POS + 30 + X_PROBE_OFFSET_FROM_EXTRUDER
       #define ABL_MANUAL_PT_4_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
+
+      #define ABL_PROBE_PT_1_X ABL_MANUAL_PT_1_X
+      #define ABL_PROBE_PT_1_Y ABL_MANUAL_PT_1_Y
+      #define ABL_PROBE_PT_2_X ABL_MANUAL_PT_2_X
+      #define ABL_PROBE_PT_2_Y ABL_MANUAL_PT_2_Y
+      #define ABL_PROBE_PT_3_X (X_MAX_POS+X_MIN_POS)/2 + X_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_PROBE_PT_3_Y ABL_MANUAL_PT_3_Y
 
   #endif // AUTO_BED_LEVELING_GRID
 

@@ -161,7 +161,7 @@ const char PT_ICON_MOVE_E[] PROGMEM                     = "Deslocar extrusora";
 const char PT_ICON_MOVE_10MM[] PROGMEM                  = "Deslocar 10 mm";
 const char PT_ICON_MOVE_1MM[] PROGMEM                   = "Deslocar 1 mm";
 const char PT_ICON_MOVE_01MM[] PROGMEM                  = "Deslocar 0,1 mm";
-const char PT_OPTION_LIGHTLED[] PROGMEM                 = "Led";
+const char PT_OPTION_LIGHTLED[] PROGMEM                 = "Luz";
 const char PT_OPTION_BOX_FAN[] PROGMEM                  = "Ventoinha";
 const char PT_OPTION_INFO[] PROGMEM                     = "Vers""\xe3""o";
 const char PT_OPTION_CONTACT[] PROGMEM                  = "Suporte";
@@ -191,5 +191,13 @@ const char PT_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Mudar filamento";
 const char PT_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "A ajustar posi""\xe7""""\xe3""o";
 const char PT_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Impress""\xe3""o em pausa";
 const char PT_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Retire os res""\xed""duos da base";
+const char PT_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Mudar filamento";
+const char PT_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "A ajustar posi""\xe7""""\xe3""o";
+const char PT_OPTION_STATS[] PROGMEM                    = "Estat""\xed""sticas";
+const char PT_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Estat""\xed""sticas";
+const char PT_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tempo";
+const char PT_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Conclu""\xed""das";
+const char PT_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Falhadas";
+const char PT_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Carateres inv""\xe1""lidos no nome";
 
 #endif //LANGUAGE_PT_H

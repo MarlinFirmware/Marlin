@@ -44,6 +44,10 @@
 #include "LightManager.h"
 #include "cardreader.h"
 
+#ifdef DOGLCD
+	#include "StatsManager.h"
+#endif
+
 bool raised = false;
 extern bool home_all_axis;
 extern bool bed_leveling;
@@ -620,17 +624,7 @@ void action_start_print()
 	if(PrintManager::single::instance().state() == PRINTING)
 	{
 		serial_printing = false;
-
-		strcpy(cmd, card.longFilename);
-		for (c = &cmd[0]; *c; c++)
-		{
-			if ((uint8_t)*c > 127)
-			{
-				SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
-				return;
-			}
-		}
-
+		
 		sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 	}
 
@@ -660,6 +654,7 @@ void action_start_print()
 
 #ifdef DOGLCD
 		PrintManager::single::instance().state(READY);
+		StatsManager::single::instance().increaseTotalPrints();
 #endif //DOGLCD
 
 	enquecommand_P(PSTR("G90"));
@@ -763,12 +758,20 @@ void action_stop_print()
 	PrintManager::knownPosition(true);
 	
 	stop_buffer = false;
+	
+	#ifdef DOGLCD
+		Time_t printTime = PrintManager::single::instance().printingTime();
+		StatsManager::single::instance().updateTotalTime(printTime);
+	#endif
 }
 
 void action_finish_print()
 {
 	action_stop_print();
 	action_cooldown();
+	#ifdef DOGLCD
+		StatsManager::single::instance().increaseSuccededPrints();
+	#endif
 }
 
 extern float target[4];
@@ -994,6 +997,15 @@ bool action_check_auto_gcode()
 	if(card.checkAutoFile() == true)
 	{
 		allow_home = true;
+		return true;
+	}
+	return false;
+}
+
+bool action_check_pause_state()
+{
+	if(PrintManager::single::instance().state() == PrinterState_t::PAUSED)
+	{
 		return true;
 	}
 	return false;

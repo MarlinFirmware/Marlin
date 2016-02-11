@@ -161,7 +161,7 @@ const char EN_ICON_MOVE_E[] PROGMEM                     = "Move extruder";
 const char EN_ICON_MOVE_10MM[] PROGMEM                  = "Move 10 mm";
 const char EN_ICON_MOVE_1MM[] PROGMEM                   = "Move 1 mm";
 const char EN_ICON_MOVE_01MM[] PROGMEM                  = "Move 0.1 mm";
-const char EN_OPTION_LIGHTLED[] PROGMEM                 = "LED";
+const char EN_OPTION_LIGHTLED[] PROGMEM                 = "Light";
 const char EN_OPTION_BOX_FAN[] PROGMEM                  = "Fan";
 const char EN_OPTION_INFO[] PROGMEM                     = "Version";
 const char EN_OPTION_CONTACT[] PROGMEM                  = "Support";
@@ -191,5 +191,13 @@ const char EN_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Change filament";
 const char EN_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Adjusting position";
 const char EN_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Printing stopped";
 const char EN_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Remove residue from the base";
+const char EN_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Change filament";
+const char EN_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "Adjusting position";
+const char EN_OPTION_STATS[] PROGMEM                    = "Statistics";
+const char EN_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistics";
+const char EN_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Time";
+const char EN_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Completed";
+const char EN_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Failed";
+const char EN_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "The name contains invalid characters";
 
 #endif //LANGUAGE_EN_H

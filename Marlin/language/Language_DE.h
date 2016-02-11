@@ -161,7 +161,7 @@ const char DE_ICON_MOVE_E[] PROGMEM                     = "Extruder bewegen";
 const char DE_ICON_MOVE_10MM[] PROGMEM                  = "10 mm bewegen";
 const char DE_ICON_MOVE_1MM[] PROGMEM                   = "1 mm bewegen";
 const char DE_ICON_MOVE_01MM[] PROGMEM                  = "0,1 mm bewegen";
-const char DE_OPTION_LIGHTLED[] PROGMEM                 = "LED";
+const char DE_OPTION_LIGHTLED[] PROGMEM                 = "Licht";
 const char DE_OPTION_BOX_FAN[] PROGMEM                  = "L""\xfc""fter";
 const char DE_OPTION_INFO[] PROGMEM                     = "Version";
 const char DE_OPTION_CONTACT[] PROGMEM                  = "Hilfe";
@@ -191,5 +191,13 @@ const char DE_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Filament wechseln";
 const char DE_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "Positionsausrichtung ";
 const char DE_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Druck angehalten";
 const char DE_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Entferne die R""\xfc""ckst""\xe4""nde von der Platte";
+const char DE_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Filament wechseln";
+const char DE_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "Positionsausrichtung";
+const char DE_OPTION_STATS[] PROGMEM                    = "Statistiken";
+const char DE_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistiken";
+const char DE_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Druckdauer";
+const char DE_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Abgeschlossen";
+const char DE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fehlgeschlagen";
+const char DE_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Der Name enth""\xe4""lt ung""\xfc""ltige Zeichen";
 
 #endif //LANGUAGE_DE_H

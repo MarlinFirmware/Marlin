@@ -161,7 +161,7 @@ const char FR_ICON_MOVE_E[] PROGMEM                     = "D""\xe9""placer extru
 const char FR_ICON_MOVE_10MM[] PROGMEM                  = "D""\xe9""placer 10 mm";
 const char FR_ICON_MOVE_1MM[] PROGMEM                   = "D""\xe9""placer 1 mm";
 const char FR_ICON_MOVE_01MM[] PROGMEM                  = "D""\xe9""placer 0,1 mm";
-const char FR_OPTION_LIGHTLED[] PROGMEM                 = "LED";
+const char FR_OPTION_LIGHTLED[] PROGMEM                 = "Lumi""\xe8""re";
 const char FR_OPTION_BOX_FAN[] PROGMEM                  = "Ventilateur";
 const char FR_OPTION_INFO[] PROGMEM                     = "Version";
 const char FR_OPTION_CONTACT[] PROGMEM                  = "Aide";
@@ -191,5 +191,13 @@ const char FR_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Changer le filament";
 const char FR_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "R""\xe9""glage position";
 const char FR_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Impression arr""\xea""t""\xe9""e";
 const char FR_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Retirez les r""\xe9""sidus du plateau";
+const char FR_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Changer le filament";
+const char FR_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "R""\xe9""glage position";
+const char FR_OPTION_STATS[] PROGMEM                    = "Statistiques";
+const char FR_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Statistiques";
+const char FR_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Temps d'impr.";
+const char FR_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "R""\xe9""ussites";
+const char FR_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = """\xc9""checs";
+const char FR_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Le nom du fichier contient des caract""\xe8""res non valides";
 
 #endif //LANGUAGE_FR_H

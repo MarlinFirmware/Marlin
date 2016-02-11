@@ -44,11 +44,16 @@ namespace eeprom
 	static uint8_t * const ADDR_SERIAL         = (uint8_t *) 503;
 	static uint8_t * const ADDR_LANGUAGE       = (uint8_t *) 504;
 	static uint8_t * const ADDR_BOX_FAN        = (uint8_t *) 505;
-	static uint8_t * const ADDR_PROTECTED_ZONE = (uint8_t *) 4071;
+	static uint8_t * const ADDR_PROTECTED_ZONE = (uint8_t *) 4068;
+	static uint8_t * const ADDR_STAT_SUCCEDED  = (uint8_t *) 4069;
+	static uint8_t * const ADDR_STAT_FLAG      = (uint8_t *) 4071;
 	static uint8_t * const ADDR_EEPROM_VERSION = (uint8_t *) 4072;
 	static uint8_t * const ADDR_EEPROM_FLAG    = (uint8_t *) 4073;
-	static uint8_t * const ADDR_BOARD_FAMILY   = (uint8_t *) 4081;
+	static uint8_t * const ADDR_STAT_HOURS     = (uint8_t *) 4074;
+	static uint8_t * const ADDR_STAT_MINUTES   = (uint8_t *) 4076;
+	static uint8_t * const ADDR_STAT_TOTAL_PRINTS  = (uint8_t *) 4077;
 	static uint8_t * const ADDR_SERIAL_NUMBER  = (uint8_t *) 4080;
+	static uint8_t * const ADDR_BOARD_FAMILY   = (uint8_t *) 4081;
 
 	StorageManager::StorageManager()
 	{ }
@@ -255,7 +260,102 @@ namespace eeprom
 		serial_number[13] = '\0';
 		return serial_number;
 	}
-
+	
+	bool StorageManager::checkStatsInitialized()
+	{
+		if(StorageManager::single::instance().readByte(ADDR_STAT_FLAG) == 0x00)
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	void StorageManager::InitilializeStats()
+	{
+		SERIAL_ECHOLN("Initializing stats to zero");
+		StorageManager::single::instance().writeByte(ADDR_STAT_FLAG, 0x00);
+		StorageManager::single::instance().setStatHours(0);
+		StorageManager::single::instance().setStatMinutes(0);
+		StorageManager::single::instance().setStatTotalPrints(0);
+		StorageManager::single::instance().setStatSucceded(0);
+	}
+	
+	const uint16_t StorageManager::getStatHours()
+	{
+		uint16_t hours;
+		StorageManager::single::instance().readData(ADDR_STAT_HOURS, (uint8_t*)&hours, sizeof(hours));
+		
+		if(hours == 0xFFFF)
+		{
+			hours = 0;
+			StorageManager::single::instance().setStatHours(hours);
+		}
+		
+		return hours;
+	}
+	
+	const uint8_t StorageManager::getStatMinutes()
+	{
+		uint8_t minutes;
+		minutes = StorageManager::single::instance().readByte(ADDR_STAT_MINUTES);
+		
+		if(minutes > 60)
+		{
+			minutes = 0;
+			StorageManager::single::instance().setStatMinutes(minutes);
+		}
+		
+		return minutes;
+	}
+	
+	const uint16_t StorageManager::getStatTotalPrints()
+	{
+		uint16_t total_prints;
+		StorageManager::single::instance().readData(ADDR_STAT_TOTAL_PRINTS, (uint8_t*)&total_prints, sizeof(total_prints));
+		
+		if(total_prints == 0xFFFF)
+		{
+			total_prints = 0;
+			StorageManager::single::instance().setStatTotalPrints(total_prints);
+		}
+		
+		return total_prints;
+	}
+	
+	const uint16_t StorageManager::getStatSucceded()
+	{
+		uint16_t succeded_prints;
+		StorageManager::single::instance().readData(ADDR_STAT_SUCCEDED, (uint8_t*)&succeded_prints, sizeof(succeded_prints));
+		
+		if(succeded_prints == 0xFFFF)
+		{
+			succeded_prints = 0;
+			StorageManager::single::instance().setStatSucceded(succeded_prints);
+		}
+		
+		return succeded_prints;
+	}
+	
+	void StorageManager::setStatHours(uint16_t hours)
+	{
+		StorageManager::single::instance().writeData(ADDR_STAT_HOURS, (uint8_t*)&hours, sizeof(hours));
+	}
+	
+	void StorageManager::setStatMinutes(uint8_t minutes)
+	{
+		StorageManager::single::instance().writeByte(ADDR_STAT_MINUTES, minutes);
+	}
+	
+	void StorageManager::setStatTotalPrints(uint16_t total_prints)
+	{
+		StorageManager::single::instance().writeData(ADDR_STAT_TOTAL_PRINTS, (uint8_t*)&total_prints, sizeof(total_prints));
+	}
+	
+	void StorageManager::setStatSucceded(uint16_t succedded_prints)
+	{
+		StorageManager::single::instance().writeData(ADDR_STAT_SUCCEDED, (uint8_t*)&succedded_prints, sizeof(succedded_prints));
+	}
+	
 	uint8_t StorageManager::readByte(uint8_t * address)
 	{
 		while ( !eeprom_is_ready() ) {}
