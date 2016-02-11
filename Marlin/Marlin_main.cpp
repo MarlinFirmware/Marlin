@@ -811,7 +811,7 @@ void loop()
 
 void get_command()
 {
-  while( !card.sdprinting && MYSERIAL.available() > 0  && buflen < BUFSIZE) {
+  while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
     serial_char = MYSERIAL.read();
 
 #ifdef DOGLCD
@@ -959,9 +959,15 @@ void get_command()
         if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
   }
+  
   #ifdef SDSUPPORT
-  if(!card.sdprinting || serial_count!=0){
+  if(!card.sdprinting)
+  { 
     return;
+  } 
+  else
+  {
+	  serial_count = 0; // Incomplete messages from serial would make commands read from SD fail  
   }
 
   //'#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
@@ -1764,13 +1770,17 @@ void process_commands()
       break;
     case 24: //M24 - Start SD print
 #ifdef DOGLCD
-      if(PrintManager::single::instance().state() == READY)
-      {
-        card.startFileprint();
-        starttime=millis();
-        feedmultiply = 100;
-        PrintManager::single::instance().state(PRINTING);
-      }
+	  if( PrintManager::single::instance().state() == READY || ( PrintManager::single::instance().state() == SERIAL_CONTROL && card.isFileAtBegin() ))
+	  {
+		card.startFileprint();
+		starttime=millis();
+		feedmultiply = 100;
+		PrintManager::single::instance().state(PRINTING);
+	  }
+      else if(PrintManager::single::instance().state() == SERIAL_CONTROL && card.isFileAtBegin() == false)
+	  {
+	    action_resume_print();
+	  }
 #else
       card.startFileprint();
       starttime=millis();
@@ -1824,6 +1834,11 @@ void process_commands()
 				LCD_MESSAGEPGM(MSG_PAUSED);
 				lcd_update();
 				lcd_enable_button();
+				
+		if( PrintManager::single::instance().state() == SERIAL_CONTROL)
+		{
+			stop_buffer = false;
+		}
 
 #ifndef DOGLCD
   			while(!LCD_CLICKED){
@@ -3968,7 +3983,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
 #ifdef DOGLCD
     case 800:
-      if(card.isFileOpen() == false)
+      if( card.isFileOpen() == false || (card.isFileOpen() == true && PrintManager::single::instance().state() == SERIAL_CONTROL) )
       {
         action_start_print();
       }
@@ -3977,7 +3992,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     case 801:
       st_synchronize();
 
-      if(card.isFileOpen() == false)
+      if( card.isFileOpen() == false || (card.isFileOpen() == true && PrintManager::single::instance().state() == SERIAL_CONTROL) )
       {
         action_finish_print();
       }

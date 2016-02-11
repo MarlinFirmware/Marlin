@@ -53,7 +53,7 @@ public:
   FORCE_INLINE char* getWorkDirName(){workDir.getFilename(filename);return filename;};
   FORCE_INLINE char* getCurrentDirName(){curDir->getFilename(filename); return filename;};
   FORCE_INLINE void reloadDir(){newDir=true;};
-
+  FORCE_INLINE bool isFileAtBegin() {if(isFileOpen()) return (sdpos==0); else return 0;};
 public:
   bool saving;
   bool logging;
