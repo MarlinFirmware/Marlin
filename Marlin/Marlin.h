@@ -116,10 +116,10 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 
 #if ENABLED(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
   #define  enable_x() do { X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); } while (0)
-  #define disable_x() do { X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
+  #define disable_x() do { X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); BITCLR(axis_known_position, X_AXIS); } while (0)
 #elif HAS_X_ENABLE
   #define  enable_x() X_ENABLE_WRITE( X_ENABLE_ON)
-  #define disable_x() { X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }
+  #define disable_x() { X_ENABLE_WRITE(!X_ENABLE_ON); BITCLR(axis_known_position, X_AXIS); }
 #else
   #define enable_x() ;
   #define disable_x() ;
@@ -128,10 +128,10 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 #if HAS_Y_ENABLE
   #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
     #define  enable_y() { Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }
-    #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
+    #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); BITCLR(axis_known_position, Y_AXIS); }
   #else
     #define  enable_y() Y_ENABLE_WRITE( Y_ENABLE_ON)
-    #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
+    #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); BITCLR(axis_known_position, Y_AXIS); }
   #endif
 #else
   #define enable_y() ;
@@ -141,10 +141,10 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 #if HAS_Z_ENABLE
   #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
     #define  enable_z() { Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }
-    #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
+    #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); BITCLR(axis_known_position, Z_AXIS); }
   #else
     #define  enable_z() Z_ENABLE_WRITE( Z_ENABLE_ON)
-    #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
+    #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); BITCLR(axis_known_position, Z_AXIS); }
   #endif
 #else
   #define enable_z() ;
@@ -255,10 +255,11 @@ extern int extruder_multiplier[EXTRUDERS]; // sets extrude multiply factor (in p
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS];
-extern float home_offset[3]; // axis[n].home_offset
-extern float min_pos[3]; // axis[n].min_pos
-extern float max_pos[3]; // axis[n].max_pos
-extern bool axis_known_position[3]; // axis[n].is_known
+extern float home_offset[3];
+extern float min_pos[3];
+extern float max_pos[3];
+extern uint8_t axis_known_position;
+extern uint8_t axis_was_homed;
 
 #if ENABLED(DELTA)
   extern float delta[3];

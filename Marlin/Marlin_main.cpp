@@ -244,7 +244,8 @@ uint8_t marlin_debug_flags = DEBUG_INFO | DEBUG_ERRORS;
 static float feedrate = 1500.0, saved_feedrate;
 float current_position[NUM_AXIS] = { 0.0 };
 static float destination[NUM_AXIS] = { 0.0 };
-bool axis_known_position[3] = { false };
+uint8_t axis_known_position = 0;
+uint8_t axis_was_homed = 0;
 
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
@@ -1750,7 +1751,7 @@ static void setup_for_endstop_move() {
 
     void raise_z_for_servo() {
       float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_PROBING;
-      z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset : zpos;
+      z_dest += TEST(axis_was_homed, Z_AXIS) ? zprobe_zoffset : zpos;
       if (zpos < z_dest) do_blocking_move_to_z(z_dest); // also updates current_position
     }
 
@@ -1778,7 +1779,7 @@ static void setup_for_endstop_move() {
         SERIAL_EOL;
       }
     #endif
-    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
+    if (axis_known_position & (BIT(X_AXIS)|BIT(Y_AXIS)) != BIT(X_AXIS)|BIT(Y_AXIS)) {
       LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
@@ -1979,7 +1980,8 @@ static void homeaxis(AxisEnum axis) {
     destination[axis] = current_position[axis];
     feedrate = 0.0;
     endstops_hit_on_purpose(); // clear endstop hit flags
-    axis_known_position[axis] = true;
+    BITSET(axis_was_homed, axis);
+    BITSET(axis_known_position, axis);
 
     #if ENABLED(Z_PROBE_SLED)
       // bring Z probe back
@@ -2477,7 +2479,7 @@ inline void gcode_G28() {
           else if (homeZ) { // Don't need to Home Z twice
 
             // Let's see if X and Y are homed
-            if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS]) {
+            if (axis_was_homed & (BIT(X_AXIS)|BIT(Y_AXIS)) == BIT(X_AXIS)|BIT(Y_AXIS)) {
 
               // Make sure the Z probe is within the physical limits
               // NOTE: This doesn't necessarily ensure the Z probe is also within the bed!
@@ -2789,7 +2791,7 @@ inline void gcode_G28() {
     #endif
 
     // Don't allow auto-leveling without homing first
-    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
+    if (axis_known_position & (BIT(X_AXIS)|BIT(Y_AXIS)) != BIT(X_AXIS)|BIT(Y_AXIS)) {
       LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
@@ -5203,7 +5205,7 @@ inline void gcode_M428() {
   memcpy(new_pos, current_position, sizeof(new_pos));
   memcpy(new_offs, home_offset, sizeof(new_offs));
   for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
-    if (axis_known_position[i]) {
+    if (TEST(axis_known_position, i)) {
       float base = (new_pos[i] > (min_pos[i] + max_pos[i]) / 2) ? base_home_pos(i) : 0,
             diff = new_pos[i] - base;
       if (diff > -20 && diff < 20) {

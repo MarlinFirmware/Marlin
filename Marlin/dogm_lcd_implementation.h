@@ -337,7 +337,11 @@ static void lcd_implementation_status_screen() {
       lcd_printPGM(PSTR("---"));
     }
 
-  // X, Y, Z-Coordinates
+  //
+  // Print XYZ Coordinates
+  // If the axis was not homed, show "---"
+  // If the position is untrusted, show "?"
+  //
   #define XYZ_BASELINE 38
   lcd_setFont(FONT_STATUSMENU);
 
@@ -347,33 +351,37 @@ static void lcd_implementation_status_screen() {
     u8g.drawBox(0, 30, LCD_PIXEL_WIDTH, 9);
   #endif
   u8g.setColorIndex(0); // white on black
+
   u8g.setPrintPos(2, XYZ_BASELINE);
-  lcd_print('X');
+  lcd_print(TEST(axis_known_position, X_AXIS) || !TEST(axis_was_homed, X_AXIS) ? 'X' : '?');
   u8g.drawPixel(8, XYZ_BASELINE - 5);
   u8g.drawPixel(8, XYZ_BASELINE - 3);
   u8g.setPrintPos(10, XYZ_BASELINE);
-  if (axis_known_position[X_AXIS])
+  if (TEST(axis_was_homed, X_AXIS))
     lcd_print(ftostr31ns(current_position[X_AXIS]));
   else
     lcd_printPGM(PSTR("---"));
+
   u8g.setPrintPos(43, XYZ_BASELINE);
-  lcd_print('Y');
+  lcd_print(TEST(axis_known_position, Y_AXIS) || !TEST(axis_was_homed, Y_AXIS) ? 'Y' : '?');
   u8g.drawPixel(49, XYZ_BASELINE - 5);
   u8g.drawPixel(49, XYZ_BASELINE - 3);
   u8g.setPrintPos(51, XYZ_BASELINE);
-  if (axis_known_position[Y_AXIS])
+  if (TEST(axis_was_homed, Y_AXIS))
     lcd_print(ftostr31ns(current_position[Y_AXIS]));
   else
     lcd_printPGM(PSTR("---"));
+
   u8g.setPrintPos(83, XYZ_BASELINE);
-  lcd_print('Z');
+  lcd_print(TEST(axis_known_position, Z_AXIS) || !TEST(axis_was_homed, Z_AXIS) ? 'Z' : '?');
   u8g.drawPixel(89, XYZ_BASELINE - 5);
   u8g.drawPixel(89, XYZ_BASELINE - 3);
   u8g.setPrintPos(91, XYZ_BASELINE);
-  if (axis_known_position[Z_AXIS])
+  if (TEST(axis_was_homed, Z_AXIS))
     lcd_print(ftostr32sp(current_position[Z_AXIS]));
   else
     lcd_printPGM(PSTR("---.--"));
+
   u8g.setColorIndex(1); // black on white
 
   // Feedrate

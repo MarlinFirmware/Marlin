@@ -735,7 +735,7 @@ static void lcd_prepare_menu() {
   // Level Bed
   //
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS])
+    if (axis_known_position & (BIT(X_AXIS)|BIT(Y_AXIS)) == BIT(X_AXIS)|BIT(Y_AXIS)) {
       MENU_ITEM(gcode, MSG_LEVEL_BED, PSTR("G29"));
   #elif ENABLED(MANUAL_BED_LEVELING)
     MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
@@ -2271,7 +2271,7 @@ char* ftostr52(const float& x) {
    */
   static void _lcd_level_bed_homing() {
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("XYZ"), "Homing");
-    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
+    if (axis_known_position & (BIT(X_AXIS)|BIT(Y_AXIS)|BIT(Z_AXIS)) == BIT(X_AXIS)|BIT(Y_AXIS)|BIT(Z_AXIS)) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       current_position[X_AXIS] = MESH_MIN_X;
@@ -2287,7 +2287,7 @@ char* ftostr52(const float& x) {
    * MBL entry-point
    */
   static void lcd_level_bed() {
-    axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
+    axis_was_homed = axis_known_position = 0;
     mbl.reset();
     enqueuecommands_P(PSTR("G28"));
     lcdDrawUpdate = 2;
