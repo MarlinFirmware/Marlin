@@ -17,9 +17,10 @@
 #define EEPROM_VERSION "V21"
 
 /**
- * V19 EEPROM Layout:
+ * V21 EEPROM Layout:
  *
- *  ver
+ *  Version   4 bytes
+ *
  *  M92 XYZE  axis_steps_per_unit (x4)
  *  M203 XYZE max_feedrate (x4)
  *  M201 XYZE max_acceleration_units_per_sq_second (x4)
@@ -34,7 +35,7 @@
  *  M205 E    max_e_jerk
  *  M206 XYZ  home_offset (x3)
  *
- * Mesh bed leveling:
+ * MESH_BED_LEVELING:
  *  M420 S    active
  *            mesh_num_x (set in firmware)
  *            mesh_num_y (set in firmware)
@@ -46,6 +47,9 @@
  *  M665 R    delta_radius
  *  M665 L    delta_diagonal_rod
  *  M665 S    delta_segments_per_second
+ *
+ * Z_DUAL_ENDSTOPS:
+ *  M666 Z    z_endstop_adj
  *
  * ULTIPANEL:
  *  M145 S0 H plaPreheatHotendTemp
@@ -84,9 +88,6 @@
  *  M200 D    volumetric_enabled (D>0 makes this enabled)
  *
  *  M200 T D  filament_size (x4) (T0..3)
- *
- * Z_DUAL_ENDSTOPS:
- *  M666 Z    z_endstop_adj
  *
  */
 #include "Marlin.h"
@@ -708,8 +709,10 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOPAIR(" Z", endstop_adj[Z_AXIS]);
     SERIAL_EOL;
     CONFIG_ECHO_START;
-    SERIAL_ECHOLNPGM("Delta settings: L=delta_diagonal_rod, R=delta_radius, S=delta_segments_per_second");
-    CONFIG_ECHO_START;
+    if (!forReplay) {
+      SERIAL_ECHOLNPGM("Delta settings: L=delta_diagonal_rod, R=delta_radius, S=delta_segments_per_second");
+      CONFIG_ECHO_START;
+    }
     SERIAL_ECHOPAIR("  M665 L", delta_diagonal_rod);
     SERIAL_ECHOPAIR(" R", delta_radius);
     SERIAL_ECHOPAIR(" S", delta_segments_per_second);

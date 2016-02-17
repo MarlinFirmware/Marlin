@@ -68,9 +68,9 @@ volatile static unsigned long step_events_completed; // The number of step event
 static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
 static unsigned short acc_step_rate; // needed for deceleration start point
-static char step_loops;
+static uint8_t step_loops;
+static uint8_t step_loops_nominal;
 static unsigned short OCR1A_nominal;
-static unsigned short step_loops_nominal;
 
 volatile long endstops_trigsteps[3] = { 0 };
 volatile long endstops_stepsTotal, endstops_stepsDone;
@@ -480,7 +480,8 @@ void st_wake_up() {
 
 FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   unsigned short timer;
-  if (step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
+
+  NOMORE(step_rate, MAX_STEP_FREQUENCY);
 
   if (step_rate > 20000) { // If steprate > 20kHz >> step 4 times
     step_rate = (step_rate >> 2) & 0x3fff;
@@ -494,8 +495,8 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
     step_loops = 1;
   }
 
-  if (step_rate < (F_CPU / 500000)) step_rate = (F_CPU / 500000);
-  step_rate -= (F_CPU / 500000); // Correct for minimal speed
+  NOLESS(step_rate, F_CPU / 500000);
+  step_rate -= F_CPU / 500000; // Correct for minimal speed
   if (step_rate >= (8 * 256)) { // higher step rate
     unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
     unsigned char tmp_step_rate = (step_rate & 0x00ff);
@@ -699,8 +700,7 @@ ISR(TIMER1_COMPA_vect) {
       acc_step_rate += current_block->initial_rate;
 
       // upper limit
-      if (acc_step_rate > current_block->nominal_rate)
-        acc_step_rate = current_block->nominal_rate;
+      NOMORE(acc_step_rate, current_block->nominal_rate);
 
       // step_rate to timer interval
       timer = calc_timer(acc_step_rate);
@@ -709,10 +709,9 @@ ISR(TIMER1_COMPA_vect) {
 
       #if ENABLED(ADVANCE)
 
-        for (int8_t i = 0; i < step_loops; i++) {
-          advance += advance_rate;
-        }
-        //if (advance > current_block->advance) advance = current_block->advance;
+        advance += advance_rate * step_loops;
+        //NOLESS(advance, current_block->advance);
+
         // Do E steps + advance steps
         e_steps[current_block->active_extruder] += ((advance >> 8) - old_advance);
         old_advance = advance >> 8;
@@ -722,29 +721,26 @@ ISR(TIMER1_COMPA_vect) {
     else if (step_events_completed > (unsigned long)current_block->decelerate_after) {
       MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
 
-      if (step_rate > acc_step_rate) { // Check step_rate stays positive
-        step_rate = current_block->final_rate;
+      if (step_rate <= acc_step_rate) { // Still decelerating?
+        step_rate = acc_step_rate - step_rate;
+        NOLESS(step_rate, current_block->final_rate);
       }
-      else {
-        step_rate = acc_step_rate - step_rate; // Decelerate from aceleration end point.
-      }
-
-      // lower limit
-      if (step_rate < current_block->final_rate)
+      else
         step_rate = current_block->final_rate;
 
       // step_rate to timer interval
       timer = calc_timer(step_rate);
       OCR1A = timer;
       deceleration_time += timer;
+
       #if ENABLED(ADVANCE)
-        for (int8_t i = 0; i < step_loops; i++) {
-          advance -= advance_rate;
-        }
-        if (advance < final_advance) advance = final_advance;
+        advance -= advance_rate * step_loops;
+        NOLESS(advance, final_advance);
+
         // Do E steps + advance steps
-        e_steps[current_block->active_extruder] += ((advance >> 8) - old_advance);
-        old_advance = advance >> 8;
+        uint32_t advance_whole = advance >> 8;
+        e_steps[current_block->active_extruder] += advance_whole - old_advance;
+        old_advance = advance_whole;
       #endif //ADVANCE
     }
     else {
@@ -944,6 +940,13 @@ void st_init() {
     SET_INPUT(Z_MIN_PIN);
     #if ENABLED(ENDSTOPPULLUP_ZMIN)
       WRITE(Z_MIN_PIN,HIGH);
+    #endif
+  #endif
+  
+  #if HAS_Z2_MIN
+    SET_INPUT(Z2_MIN_PIN);
+    #if ENABLED(ENDSTOPPULLUP_ZMIN)
+      WRITE(Z2_MIN_PIN,HIGH);
     #endif
   #endif
 
@@ -1201,7 +1204,7 @@ void digipot_init() {
 
     SPI.begin();
     pinMode(DIGIPOTSS_PIN, OUTPUT);
-    for (int i = 0; i <= 4; i++) {
+    for (int i = 0; i < COUNT(digipot_motor_current); i++) {
       //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
       digipot_current(i, digipot_motor_current[i]);
     }
