@@ -973,6 +973,7 @@ void get_command() {
 bool code_has_value() {
   int i = 1;
   char c = seen_pointer[i];
+  while (c == ' ') c = seen_pointer[++i];
   if (c == '-' || c == '+') c = seen_pointer[++i];
   if (c == '.') c = seen_pointer[++i];
   return (c >= '0' && c <= '9');
@@ -5691,7 +5692,7 @@ void process_next_command() {
 
   // Sanitize the current command:
   //  - Skip leading spaces
-  //  - Bypass N[0-9][0-9]*[ ]*
+  //  - Bypass N[-0-9][0-9]*[ ]*
   //  - Overwrite * with nul to mark the end
   while (*current_command == ' ') ++current_command;
   if (*current_command == 'N' && ((current_command[1] >= '0' && current_command[1] <= '9') || current_command[1] == '-')) {
@@ -5716,7 +5717,7 @@ void process_next_command() {
   // Args pointer optimizes code_seen, especially those taking XYZEF
   // This wastes a little cpu on commands that expect no arguments.
   current_command_args = current_command;
-  while (*current_command_args && *current_command_args != ' ') ++current_command_args;
+  while (*current_command_args >= '0' && *current_command_args <= '9') ++current_command_args;
   while (*current_command_args == ' ') ++current_command_args;
 
   // Interpret the code int
