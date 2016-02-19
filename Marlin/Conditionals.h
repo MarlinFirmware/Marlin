@@ -462,6 +462,7 @@
   #define HAS_E1_ENABLE (PIN_EXISTS(E1_ENABLE))
   #define HAS_E2_ENABLE (PIN_EXISTS(E2_ENABLE))
   #define HAS_E3_ENABLE (PIN_EXISTS(E3_ENABLE))
+  #define HAS_E4_ENABLE (PIN_EXISTS(E4_ENABLE))
   #define HAS_X_DIR (PIN_EXISTS(X_DIR))
   #define HAS_X2_DIR (PIN_EXISTS(X2_DIR))
   #define HAS_Y_DIR (PIN_EXISTS(Y_DIR))
@@ -472,6 +473,7 @@
   #define HAS_E1_DIR (PIN_EXISTS(E1_DIR))
   #define HAS_E2_DIR (PIN_EXISTS(E2_DIR))
   #define HAS_E3_DIR (PIN_EXISTS(E3_DIR))
+  #define HAS_E4_DIR (PIN_EXISTS(E4_DIR))
   #define HAS_X_STEP (PIN_EXISTS(X_STEP))
   #define HAS_X2_STEP (PIN_EXISTS(X2_STEP))
   #define HAS_Y_STEP (PIN_EXISTS(Y_STEP))
@@ -482,6 +484,7 @@
   #define HAS_E1_STEP (PIN_EXISTS(E1_STEP))
   #define HAS_E2_STEP (PIN_EXISTS(E2_STEP))
   #define HAS_E3_STEP (PIN_EXISTS(E3_STEP))
+  #define HAS_E4_STEP (PIN_EXISTS(E4_STEP))
 
   /**
    * Helper Macros for heaters and extruder fan
