@@ -1427,6 +1427,35 @@ static void setup_for_endstop_move() {
       // Engage Z Servo endstop if enabled
       if (servo_endstop_id[Z_AXIS] >= 0) servo[servo_endstop_id[Z_AXIS]].move(servo_endstop_angle[Z_AXIS][0]);
 
+    #elif ENABLED(Z_PROBE_i3BOXed)
+             
+      // Move to the start position to initiate deployment
+      feedrate = XY_TRAVEL_SPEED;
+      destination[X_AXIS] = Z_PROBE_i3BOXed_DEPLOY_1_X-X_PROBE_OFFSET_FROM_EXTRUDER;
+      destination[Y_AXIS] = Z_PROBE_i3BOXed_DEPLOY_1_Y-Y_PROBE_OFFSET_FROM_EXTRUDER;
+      destination[Z_AXIS] = Z_PROBE_i3BOXed_DEPLOY_1_Z;
+      prepare_move(); // this will also set_current_to_destination
+      st_synchronize();
+
+      // Move to trigger deployment
+      feedrate = XY_TRAVEL_SPEED;
+      if (Z_PROBE_i3BOXed_DEPLOY_2_X != Z_PROBE_i3BOXed_DEPLOY_1_X)
+        destination[X_AXIS] = Z_PROBE_i3BOXed_DEPLOY_2_X;
+      if (Z_PROBE_i3BOXed_DEPLOY_2_Y != Z_PROBE_i3BOXed_DEPLOY_1_Y)
+        destination[Y_AXIS] = Z_PROBE_i3BOXed_DEPLOY_2_Y;
+      if (Z_PROBE_i3BOXed_DEPLOY_2_Z != Z_PROBE_i3BOXed_DEPLOY_1_Z)
+        destination[Z_AXIS] = Z_PROBE_i3BOXed_DEPLOY_2_Z;
+      prepare_move();
+      st_synchronize();
+ 
+      // Move to center of bed
+      feedrate = XY_TRAVEL_SPEED;
+      destination[X_AXIS] = 100;
+      destination[Y_AXIS] = 100;
+      destination[Z_AXIS] = 20;
+      prepare_move();
+      st_synchronize();
+  
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
       feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
 
@@ -1533,6 +1562,42 @@ static void setup_for_endstop_move() {
         // Change the Z servo angle
         servo[servo_endstop_id[Z_AXIS]].move(servo_endstop_angle[Z_AXIS][1]);
       }
+      
+    #elif ENABLED(Z_PROBE_i3BOXed)
+
+      #if Z_RAISE_AFTER_PROBING > 0
+        feedrate=XY_TRAVEL_SPEED;
+        destination[Z_AXIS] = current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING;
+        prepare_move(); // this will also set_current_to_destination
+      #endif
+              
+        // Move to the start position to initiate retraction
+      feedrate = XY_TRAVEL_SPEED;
+      destination[X_AXIS] = Z_PROBE_i3BOXed_STOW_1_X-X_PROBE_OFFSET_FROM_EXTRUDER;
+      destination[Y_AXIS] = Z_PROBE_i3BOXed_STOW_1_Y-Y_PROBE_OFFSET_FROM_EXTRUDER;
+      destination[Z_AXIS] = Z_PROBE_i3BOXed_STOW_1_Z-Z_PROBE_OFFSET_FROM_EXTRUDER;
+      prepare_move();
+      st_synchronize();
+
+
+      // Move the nozzle up to twist the Z probe into retracted position
+     feedrate = XY_TRAVEL_SPEED; 
+      if (Z_PROBE_i3BOXed_STOW_2_X != Z_PROBE_i3BOXed_STOW_1_X)
+        destination[X_AXIS] = Z_PROBE_i3BOXed_STOW_2_X;
+      if (Z_PROBE_i3BOXed_STOW_2_Y != Z_PROBE_i3BOXed_STOW_1_Y)
+        destination[Y_AXIS] = Z_PROBE_i3BOXed_STOW_2_Y;
+      destination[Z_AXIS] = Z_PROBE_i3BOXed_STOW_2_Z;
+      prepare_move();
+      st_synchronize();
+
+
+      // Move to the center of the bed
+      feedrate = XY_TRAVEL_SPEED;
+      destination[X_AXIS] = 100;
+      destination[Y_AXIS] = 100;
+      destination[Z_AXIS] = 20;
+      prepare_move();
+      st_synchronize();
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
@@ -1843,6 +1908,14 @@ static void homeaxis(AxisEnum axis) {
       }
     #endif
 
+    #if ENABLED(i3BOXed)
+
+      // Deploy the Z probe , and homing towards the bed
+      if (axis == Z_AXIS) {
+        if (axis_home_dir < 0) deploy_z_probe();
+      }
+    #endif
+    
     #if SERVO_LEVELING && DISABLED(Z_PROBE_SLED)
 
       // Deploy a Z probe if there is one, and homing towards the bed
@@ -1988,6 +2061,21 @@ static void homeaxis(AxisEnum axis) {
         if (axis_home_dir < 0) dock_sled(true);
       }
     #endif
+
+    #if ENABLED(i3BOXed)
+
+      // Stow the Z probe , and homing towards the bed
+      if (axis == Z_AXIS) {
+        if (axis_home_dir < 0) 
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (marlin_debug_flags & DEBUG_LEVELING) {
+              SERIAL_ECHOLNPGM("> i3BOXed > stow_z_probe");
+            }
+        #endif
+        stow_z_probe();
+      }
+    #endif
+
 
     #if SERVO_LEVELING && DISABLED(Z_PROBE_SLED)
 
@@ -2594,6 +2682,36 @@ inline void gcode_G28() {
       SERIAL_ECHOLNPGM("<<< gcode_G28");
     }
   #endif
+
+  #if ENABLED(Z_PROBE_i3BOXed)
+  
+// Hace un HOMEAXIS(Z) en el centro de la cama
+
+      feedrate = XY_TRAVEL_SPEED;
+      destination[X_AXIS] = 100;
+      destination[Y_AXIS] = 100;
+      destination[Z_AXIS] = 20;
+      prepare_move();
+
+// Toma el nivel definitivo de Z en el centro de la cama
+
+    setup_for_endstop_move();
+    HOMEAXIS(Z);
+
+// Recoge el probe
+
+   stow_z_probe();
+
+// Va a 0,0,0 que es donde se espera que acabe G28
+
+      feedrate = XY_TRAVEL_SPEED;
+      destination[X_AXIS] = 0;
+      destination[Y_AXIS] = 0;
+      destination[Z_AXIS] = 0;
+      prepare_move();
+
+  
+ #endif
 
 }
 
