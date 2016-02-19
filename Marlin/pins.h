@@ -236,16 +236,26 @@
   #define Z_MIN_PIN          -1
 #endif
 
+//
+// Dual Y and Dual Z support
+// These options are mutually-exclusive
+//
+
+#define __EPIN(p,q) E##p##_##q##_PIN
+#define _EPIN(p,q) __EPIN(p,q)
+
+// The Y2 axis, if any, should be the next open extruder port
 #ifndef Y2_STEP_PIN
-  #define Y2_STEP_PIN      E1_STEP_PIN
-  #define Y2_DIR_PIN       E1_DIR_PIN
-  #define Y2_ENABLE_PIN    E1_ENABLE_PIN
+  #define Y2_STEP_PIN   _EPIN(EXTRUDERS, STEP)
+  #define Y2_DIR_PIN    _EPIN(EXTRUDERS, DIR)
+  #define Y2_ENABLE_PIN _EPIN(EXTRUDERS, ENABLE)
 #endif
 
+// The Z2 axis, if any, should be the next open extruder port
 #ifndef Z2_STEP_PIN
-  #define Z2_STEP_PIN      E1_STEP_PIN
-  #define Z2_DIR_PIN       E1_DIR_PIN
-  #define Z2_ENABLE_PIN    E1_ENABLE_PIN
+  #define Z2_STEP_PIN   _EPIN(EXTRUDERS, STEP)
+  #define Z2_DIR_PIN    _EPIN(EXTRUDERS, DIR)
+  #define Z2_ENABLE_PIN _EPIN(EXTRUDERS, ENABLE)
 #endif
 
 #define SENSITIVE_PINS { 0, 1, \
