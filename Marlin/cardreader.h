@@ -23,6 +23,7 @@ public:
   void removeFile(char* name);
   void closefile(bool store_location=false);
   void release();
+  void openAndPrintFile(const char *name);
   void startFileprint();
   void pauseSDPrint();
   void getStatus();

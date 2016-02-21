@@ -276,9 +276,7 @@ const char echomagic[] PROGMEM = "echo:";
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
-static char serial_char;
 static int serial_count = 0;
-static boolean comment_mode = false;
 static char* seen_pointer; ///< A pointer to find chars in the command string (X, Y, Z, E, etc.)
 const char* queued_commands_P = NULL; /* pointer to the current line in the active sequence of commands, or NULL when none */
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
@@ -409,9 +407,7 @@ static uint8_t target_extruder;
   static bool filrunoutEnqueued = false;
 #endif
 
-#if ENABLED(SDSUPPORT)
-  static bool fromsd[BUFSIZE];
-#endif
+static bool send_ok[BUFSIZE];
 
 #if HAS_SERVOS
   Servo servo[NUM_SERVOS];
@@ -483,7 +479,7 @@ static bool drain_queued_commands_P() {
   char c;
   while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
   cmd[i] = '\0';
-  if (enqueuecommand(cmd)) {      // buffer was not full (else we will retry later)
+  if (enqueue_and_echo_command(cmd)) {      // buffer was not full (else we will retry later)
     if (c)
       queued_commands_P += i + 1; // move to next command
     else
@@ -497,30 +493,43 @@ static bool drain_queued_commands_P() {
  * Aborts the current queue, if any.
  * Note: drain_queued_commands_P() must be called repeatedly to drain the commands afterwards
  */
-void enqueuecommands_P(const char* pgcode) {
+void enqueue_and_echo_commands_P(const char* pgcode) {
   queued_commands_P = pgcode;
   drain_queued_commands_P(); // first command executed asap (when possible)
 }
 
 /**
- * Copy a command directly into the main command buffer, from RAM.
- *
- * This is done in a non-safe way and needs a rework someday.
- * Returns false if it doesn't add any command
+ * Once a new command is in the ring buffer, call this to commit it
  */
-bool enqueuecommand(const char* cmd) {
-  if (*cmd == ';' || commands_in_queue >= BUFSIZE) return false;
-
-  // This is dangerous if a mixing of serial and this happens
-  char* command = command_queue[cmd_queue_index_w];
-  strcpy(command, cmd);
-  SERIAL_ECHO_START;
-  SERIAL_ECHOPGM(MSG_Enqueueing);
-  SERIAL_ECHO(command);
-  SERIAL_ECHOLNPGM("\"");
+inline void _commit_command(bool say_ok) {
+  send_ok[cmd_queue_index_w] = say_ok;
   cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
   commands_in_queue++;
+}
+
+/**
+ * Copy a command directly into the main command buffer, from RAM.
+ * Returns true if successfully adds the command
+ */
+inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
+  if (*cmd == ';' || commands_in_queue >= BUFSIZE) return false;
+  strcpy(command_queue[cmd_queue_index_w], cmd);
+  _commit_command(say_ok);
   return true;
+}
+
+/**
+ * Enqueue with Serial Echo
+ */
+bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
+  if (_enqueuecommand(cmd, say_ok)) {
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM(MSG_Enqueueing);
+    SERIAL_ECHO(cmd);
+    SERIAL_ECHOLNPGM("\"");
+    return true;
+  }
+  return false;
 }
 
 void setup_killpin() {
@@ -679,9 +688,8 @@ void setup() {
   SERIAL_ECHOPGM(MSG_PLANNER_BUFFER_BYTES);
   SERIAL_ECHOLN((int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
 
-  #if ENABLED(SDSUPPORT)
-    for (int8_t i = 0; i < BUFSIZE; i++) fromsd[i] = false;
-  #endif
+  // Send "ok" after commands by default
+  for (int8_t i = 0; i < BUFSIZE; i++) send_ok[i] = true;
 
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
@@ -740,7 +748,7 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE - 1) get_command();
+  if (commands_in_queue < BUFSIZE) get_command();
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);
@@ -800,9 +808,12 @@ void gcode_line_error(const char* err, bool doFlush = true) {
  */
 void get_command() {
 
+  static char serial_line_buffer[MAX_CMD_SIZE];
+  static boolean serial_comment_mode = false;
+
   if (drain_queued_commands_P()) return; // priority is given to non-serial commands
 
-  #if ENABLED(NO_TIMEOUTS)
+  #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
     static millis_t last_command_time = 0;
     millis_t ms = millis();
 
@@ -817,29 +828,21 @@ void get_command() {
   //
   while (commands_in_queue < BUFSIZE && MYSERIAL.available() > 0) {
 
-    #if ENABLED(NO_TIMEOUTS)
-      last_command_time = ms;
-    #endif
-
-    serial_char = MYSERIAL.read();
+    char serial_char = MYSERIAL.read();
 
     //
-    // If the character ends the line, or the line is full...
+    // If the character ends the line
     //
-    if (serial_char == '\n' || serial_char == '\r' || serial_count >= MAX_CMD_SIZE - 1) {
+    if (serial_char == '\n' || serial_char == '\r') {
 
-      // end of line == end of comment
-      comment_mode = false;
+      serial_comment_mode = false; // end of line == end of comment
 
       if (!serial_count) return; // empty lines just exit
 
-      char* command = command_queue[cmd_queue_index_w];
-      command[serial_count] = 0; // terminate string
+      serial_line_buffer[serial_count] = 0; // terminate string
+      serial_count = 0; //reset buffer
 
-      // this item in the queue is not from sd
-      #if ENABLED(SDSUPPORT)
-        fromsd[cmd_queue_index_w] = false;
-      #endif
+      char* command = serial_line_buffer;
 
       while (*command == ' ') command++; // skip any leading spaces
       char* npos = (*command == 'N') ? command : NULL; // Require the N parameter to start the line
@@ -904,44 +907,56 @@ void get_command() {
       // If command was e-stop process now
       if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
 
-      cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
-      commands_in_queue += 1;
+      #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
+        last_command_time = ms;
+      #endif
 
-      serial_count = 0; //clear buffer
+      // Add the command to the queue
+      _enqueuecommand(serial_line_buffer, true);
+    }
+    else if (serial_count >= MAX_CMD_SIZE - 1) {
+      // Keep fetching, but ignore normal characters beyond the max length
+      // The command will be injected when EOL is reached
     }
     else if (serial_char == '\\') {  // Handle escapes
-      if (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
+      if (MYSERIAL.available() > 0) {
         // if we have one more character, copy it over
         serial_char = MYSERIAL.read();
-        command_queue[cmd_queue_index_w][serial_count++] = serial_char;
+        serial_line_buffer[serial_count++] = serial_char;
       }
       // otherwise do nothing
     }
-    else { // its not a newline, carriage return or escape char
-      if (serial_char == ';') comment_mode = true;
-      if (!comment_mode) command_queue[cmd_queue_index_w][serial_count++] = serial_char;
+    else { // it's not a newline, carriage return or escape char
+      if (serial_char == ';') serial_comment_mode = true;
+      if (!serial_comment_mode) serial_line_buffer[serial_count++] = serial_char;
     }
-  }
+
+  } // queue has space, serial has data
 
   #if ENABLED(SDSUPPORT)
 
-    if (!card.sdprinting || serial_count) return;
+    static bool stop_buffering = false,
+                sd_comment_mode = false;
+
+    if (!card.sdprinting) return;
 
     // '#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
-    // if it occurs, stop_buffering is triggered and the buffer is ran dry.
+    // if it occurs, stop_buffering is triggered and the buffer is run dry.
     // this character _can_ occur in serial com, due to checksums. however, no checksums are used in SD printing
 
-    static bool stop_buffering = false;
     if (commands_in_queue == 0) stop_buffering = false;
 
-    while (!card.eof() && commands_in_queue < BUFSIZE && !stop_buffering) {
+    uint16_t sd_count = 0;
+    bool card_eof = card.eof();
+    while (commands_in_queue < BUFSIZE && !card_eof && !stop_buffering) {
       int16_t n = card.get();
-      serial_char = (char)n;
-      if (serial_char == '\n' || serial_char == '\r' ||
-          ((serial_char == '#' || serial_char == ':') && !comment_mode) ||
-          serial_count >= (MAX_CMD_SIZE - 1) || n == -1
+      char sd_char = (char)n;
+      card_eof = card.eof();
+      if (card_eof || n == -1
+          || sd_char == '\n' || sd_char == '\r'
+          || ((sd_char == '#' || sd_char == ':') && !sd_comment_mode)
       ) {
-        if (card.eof()) {
+        if (card_eof) {
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
           print_job_stop_ms = millis();
           char time[30];
@@ -954,24 +969,24 @@ void get_command() {
           card.printingHasFinished();
           card.checkautostart(true);
         }
-        if (serial_char == '#') stop_buffering = true;
+        if (sd_char == '#') stop_buffering = true;
 
-        if (!serial_count) {
-          comment_mode = false; //for new command
-          return; //if empty line
-        }
-        command_queue[cmd_queue_index_w][serial_count] = 0; //terminate string
-        // if (!comment_mode) {
-        fromsd[cmd_queue_index_w] = true;
-        commands_in_queue += 1;
-        cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
-        // }
-        comment_mode = false; //for new command
-        serial_count = 0; //clear buffer
+        sd_comment_mode = false; //for new command
+
+        if (!sd_count) continue; //skip empty lines
+
+        command_queue[cmd_queue_index_w][sd_count] = '\0'; //terminate string
+        sd_count = 0; //clear buffer
+
+        _commit_command(false);
+      }
+      else if (sd_count >= MAX_CMD_SIZE - 1) {
+        // Keep fetching, but ignore normal characters beyond the max length
+        // The command will be injected when EOL is reached
       }
       else {
-        if (serial_char == ';') comment_mode = true;
-        if (!comment_mode) command_queue[cmd_queue_index_w][serial_count++] = serial_char;
+        if (sd_char == ';') sd_comment_mode = true;
+        if (!sd_comment_mode) command_queue[cmd_queue_index_w][sd_count++] = sd_char;
       }
     }
 
@@ -2654,7 +2669,7 @@ inline void gcode_G28() {
       case MeshStart:
         mbl.reset();
         probe_point = 0;
-        enqueuecommands_P(PSTR("G28\nG29 S2"));
+        enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
         break;
 
       case MeshNext:
@@ -2693,7 +2708,7 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLLNPGM("Mesh probing done.");
           probe_point = -1;
           mbl.active = 1;
-          enqueuecommands_P(PSTR("G28"));
+          enqueue_and_echo_commands_P(PSTR("G28"));
         }
         break;
 
@@ -3215,7 +3230,7 @@ inline void gcode_G28() {
           SERIAL_ECHOLNPGM(Z_PROBE_END_SCRIPT);
         }
       #endif
-      enqueuecommands_P(PSTR(Z_PROBE_END_SCRIPT));
+      enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
       st_synchronize();
     #endif
 
@@ -3374,7 +3389,7 @@ inline void gcode_M17() {
   }
 
   /**
-   * M23: Select a file
+   * M23: Open a file
    */
   inline void gcode_M23() {
     card.openFile(current_command_args, true);
@@ -5244,7 +5259,7 @@ inline void gcode_M428() {
         SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
         LCD_ALERTMESSAGEPGM("Err: Too far!");
         #if HAS_BUZZER
-          enqueuecommands_P(PSTR("M300 S40 P200"));
+          enqueue_and_echo_commands_P(PSTR("M300 S40 P200"));
         #endif
         err = true;
         break;
@@ -5258,7 +5273,7 @@ inline void gcode_M428() {
     sync_plan_position();
     LCD_ALERTMESSAGEPGM("Offset applied.");
     #if HAS_BUZZER
-      enqueuecommands_P(PSTR("M300 S659 P200\nM300 S698 P200"));
+      enqueue_and_echo_commands_P(PSTR("M300 S659 P200\nM300 S698 P200"));
     #endif
   }
 }
@@ -6304,9 +6319,7 @@ void FlushSerialRequestResend() {
 
 void ok_to_send() {
   refresh_cmd_timeout();
-  #if ENABLED(SDSUPPORT)
-    if (fromsd[cmd_queue_index_r]) return;
-  #endif
+  if (!send_ok[cmd_queue_index_r]) return;
   SERIAL_PROTOCOLPGM(MSG_OK);
   #if ENABLED(ADVANCED_OK)
     char* p = command_queue[cmd_queue_index_r];
@@ -6997,7 +7010,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       filrunout();
   #endif
 
-  if (commands_in_queue < BUFSIZE - 1) get_command();
+  if (commands_in_queue < BUFSIZE) get_command();
 
   millis_t ms = millis();
 
@@ -7054,7 +7067,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     const int HOME_DEBOUNCE_DELAY = 2500;
     if (!READ(HOME_PIN)) {
       if (!homeDebounceCount) {
-        enqueuecommands_P(PSTR("G28"));
+        enqueue_and_echo_commands_P(PSTR("G28"));
         LCD_MESSAGEPGM(MSG_AUTO_HOME);
       }
       if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
@@ -7180,7 +7193,7 @@ void kill(const char* lcd_msg) {
   void filrunout() {
     if (!filrunoutEnqueued) {
       filrunoutEnqueued = true;
-      enqueuecommands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
       st_synchronize();
     }
   }
