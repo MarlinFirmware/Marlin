@@ -1,7 +1,7 @@
-// Example configuration file for Vellemann K8200
+﻿// Sample configuration file for Vellemann K8200
 // tested on K8200 with VM8201 (Display)
-// and Arduino 1.6.1 (Win) by @CONSULitAS, 2015-04-14
-// https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_stable_2015-04-14.zip
+// and Arduino 1.6.8 (Mac) by @CONSULitAS, 2016-02-21
+// https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_RCBugFix_2016-02-21.zip
 
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
@@ -52,7 +52,7 @@ Here are some standard links for getting your machine calibrated:
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(K8200, CONSULitAS)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(K8200, @CONSULitAS)" // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 //#define STRING_SPLASH_LINE2 STRING_DISTRIBUTION_DATE // will be shown during bootup in line 2
@@ -80,11 +80,11 @@ Here are some standard links for getting your machine calibrated:
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-//#define CUSTOM_MACHINE_NAME "3D Printer"
+#define CUSTOM_MACHINE_NAME "K8200"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
-//#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
+#define MACHINE_UUID "2b7dea3b-844e-4ab1-aa96-bb6406607d6e" // K8200 standard config with VM8201 (Display)
 
 // This defines the number of extruders
 // :[1,2,3,4]
@@ -207,11 +207,26 @@ Here are some standard links for getting your machine calibrated:
   #define PID_INTEGRAL_DRIVE_MAX PID_MAX  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
 
+  // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
+  // Ultimaker
+  //#define  DEFAULT_Kp 22.2
+  //#define  DEFAULT_Ki 1.08
+  //#define  DEFAULT_Kd 114
+
+  // MakerGear
+  //#define  DEFAULT_Kp 7.0
+  //#define  DEFAULT_Ki 0.1
+  //#define  DEFAULT_Kd 12
+
+  // Mendel Parts V9 on 12V
+  //#define  DEFAULT_Kp 63.0
+  //#define  DEFAULT_Ki 2.25
+  //#define  DEFAULT_Kd 440
+
   // Vellemann K8200 Extruder - calculated with PID Autotune and tested
   #define  DEFAULT_Kp 24.29
   #define  DEFAULT_Ki 1.58
   #define  DEFAULT_Kd 93.51
-
 #endif // PIDTEMP
 
 //===========================================================================
@@ -226,7 +241,7 @@ Here are some standard links for getting your machine calibrated:
 // If your configuration is significantly different than this and you don't understand the issues involved, you probably
 // shouldn't use bed PID until someone else verifies your hardware works.
 // If this is enabled, find your own PID constants below.
-//#define PIDTEMPBED
+#define PIDTEMPBED
 
 //#define BED_LIMIT_SWITCHING
 
@@ -242,13 +257,25 @@ Here are some standard links for getting your machine calibrated:
 
   #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER //limit for the integral term
 
-  //Vellemann K8200 PCB heatbed with standard PCU at 60 degreesC - calculated with PID Autotune and tested
+  //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+  //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
+  //#define  DEFAULT_bedKp 10.00
+  //#define  DEFAULT_bedKi .023
+  //#define  DEFAULT_bedKd 305.4
+
+  //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
+  //#define  DEFAULT_bedKp 97.1
+  //#define  DEFAULT_bedKi 1.41
+  //#define  DEFAULT_bedKd 1675.16
+
+  // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
+
+  // Vellemann K8200 PCB heatbed with standard PCU at 60 degreesC - calculated with PID Autotune and tested
+  // from pidautotune
   #define  DEFAULT_bedKp 341.88
   #define  DEFAULT_bedKi 25.32
   #define  DEFAULT_bedKd 1153.89
-
-  // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
 
 // @section extruder
@@ -303,7 +330,7 @@ Here are some standard links for getting your machine calibrated:
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
 
 #if DISABLED(ENDSTOPPULLUPS)
-  // fine endstop settings: Individual pullups. will be ignored if ENDSTOPPULLUPS is defined
+  // define endstop settings: Individual pullups. will be ignored if ENDSTOPPULLUPS is defined
   //#define ENDSTOPPULLUP_XMAX
   //#define ENDSTOPPULLUP_YMAX
   //#define ENDSTOPPULLUP_ZMAX
@@ -341,7 +368,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // WARNING: When motors turn off there is a chance of losing position accuracy!
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z true
+#define DISABLE_Z false // not for K8200 -> looses Steps
 
 // @section extruder
 
@@ -352,7 +379,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-#define INVERT_Y_DIR false
+#define INVERT_Y_DIR false // was true -> why for K8200?
 #define INVERT_Z_DIR false
 
 // @section extruder
@@ -453,7 +480,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     #define FRONT_PROBE_BED_POSITION 20
     #define BACK_PROBE_BED_POSITION 170
 
-    #define MIN_PROBE_EDGE 10 // The Z probe square sides can be no smaller than this.
+    #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
     // Set the number of grid points per dimension.
     // You probably don't need more than 3 (squared=9).
@@ -493,7 +520,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define Z_PROBE_SLED // Turn on if you have a Z probe mounted on a sled like those designed by Charles Bell.
   //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-  // If you have enabled the bed auto leveling and are using the same Z probe for Z homing,
+  // If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
   // it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
   #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with Z probe outside the bed area.
@@ -647,7 +674,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 //#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
+
+#define SDSUPPORT // Enable SD Card Support in Hardware Console
                     // Changed behaviour! If you need SDSUPPORT uncomment it!
 //#define SPI_SPEED SPI_HALF_SPEED // (also SPI_QUARTER_SPEED, SPI_EIGHTH_SPEED) Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 //#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
