@@ -288,7 +288,6 @@ static millis_t stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME * 1000L;
 millis_t print_job_start_ms = 0; ///< Print job start time
 millis_t print_job_stop_ms = 0;  ///< Print job stop time
 static uint8_t target_extruder;
-bool target_direction;
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   int xy_travel_speed = XY_TRAVEL_SPEED;
@@ -3908,7 +3907,8 @@ inline void gcode_M105() {
 #endif // HAS_FAN
 
 /**
- * M109: Wait for extruder(s) to reach temperature
+ * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
+ *       Rxxx Wait for extruder(s) to reach temperature. Waits when heating and cooling.
  */
 inline void gcode_M109() {
   bool no_wait_for_cooling = true;
@@ -3935,33 +3935,32 @@ inline void gcode_M109() {
     if (code_seen('B')) autotemp_max = code_value();
   #endif
 
-  millis_t temp_ms = millis();
-
-  /* See if we are heating up or cooling down */
-  target_direction = isHeatingHotend(target_extruder); // true if heating, false if cooling
-
-  cancel_heatup = false;
+  // Exit if the temperature is above target and not waiting for cooling
+  if (no_wait_for_cooling && !isHeatingHotend(target_extruder)) return;
 
   #ifdef TEMP_RESIDENCY_TIME
     long residency_start_ms = -1;
-    /* continue to loop until we have reached the target temp
-      _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
-    while ((!cancel_heatup) && ((residency_start_ms == -1) ||
-                                (residency_start_ms >= 0 && (((unsigned int)(millis() - residency_start_ms)) < (TEMP_RESIDENCY_TIME * 1000UL)))))
+    // Loop until the temperature has stabilized
+    #define TEMP_CONDITIONS (residency_start_ms < 0 || now < residency_start_ms + TEMP_RESIDENCY_TIME * 1000UL)
   #else
-    while (target_direction ? (isHeatingHotend(target_extruder)) : (isCoolingHotend(target_extruder) && (no_wait_for_cooling == false)))
+    // Loop until the temperature is exactly on target
+    #define TEMP_CONDITIONS (degHotend(target_extruder) != degTargetHotend(target_extruder))
   #endif //TEMP_RESIDENCY_TIME
 
-  { // while loop
-    if (millis() > temp_ms + 1000UL) { //Print temp & remaining time every 1s while waiting
+  cancel_heatup = false;
+  millis_t now = millis(), next_temp_ms = now + 1000UL;
+  while (!cancel_heatup && TEMP_CONDITIONS) {
+    now = millis();
+    if (now > next_temp_ms) { //Print temp & remaining time every 1s while waiting
+      next_temp_ms = now + 1000UL;
       #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
         print_heaterstates();
       #endif
       #ifdef TEMP_RESIDENCY_TIME
         SERIAL_PROTOCOLPGM(" W:");
-        if (residency_start_ms > -1) {
-          temp_ms = ((TEMP_RESIDENCY_TIME * 1000UL) - (millis() - residency_start_ms)) / 1000UL;
-          SERIAL_PROTOCOLLN(temp_ms);
+        if (residency_start_ms >= 0) {
+          long rem = ((TEMP_RESIDENCY_TIME * 1000UL) - (now - residency_start_ms)) / 1000UL;
+          SERIAL_PROTOCOLLN(rem);
         }
         else {
           SERIAL_PROTOCOLLNPGM("?");
@@ -3969,22 +3968,18 @@ inline void gcode_M109() {
       #else
         SERIAL_EOL;
       #endif
-      temp_ms = millis();
     }
 
     idle();
 
     #ifdef TEMP_RESIDENCY_TIME
-      // start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
-      // or when current temp falls outside the hysteresis after target temp was reached
-      if ((residency_start_ms == -1 &&  target_direction && (degHotend(target_extruder) >= (degTargetHotend(target_extruder) - TEMP_WINDOW))) ||
-          (residency_start_ms == -1 && !target_direction && (degHotend(target_extruder) <= (degTargetHotend(target_extruder) + TEMP_WINDOW))) ||
-          (residency_start_ms > -1 && labs(degHotend(target_extruder) - degTargetHotend(target_extruder)) > TEMP_HYSTERESIS) )
-      {
+      // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
+      // Restart the timer whenever the temperature falls outside the hysteresis.
+      if (labs(degHotend(target_extruder) - degTargetHotend(target_extruder)) > ((residency_start_ms < 0) ? TEMP_WINDOW : TEMP_HYSTERESIS))
         residency_start_ms = millis();
-      }
     #endif //TEMP_RESIDENCY_TIME
-  }
+
+  } // while(!cancel_heatup && TEMP_CONDITIONS)
 
   LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
   refresh_cmd_timeout();
@@ -3998,28 +3993,24 @@ inline void gcode_M109() {
    *       Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
    */
   inline void gcode_M190() {
-    bool no_wait_for_cooling = true;
-
     if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
     LCD_MESSAGEPGM(MSG_BED_HEATING);
-    no_wait_for_cooling = code_seen('S');
+    bool no_wait_for_cooling = code_seen('S');
     if (no_wait_for_cooling || code_seen('R'))
       setTargetBed(code_value());
 
-    millis_t temp_ms = millis();
+    // Exit if the temperature is above target and not waiting for cooling
+    if (no_wait_for_cooling && !isHeatingBed()) return;
 
     cancel_heatup = false;
-    target_direction = isHeatingBed(); // true if heating, false if cooling
-
-    while ((target_direction && !cancel_heatup) ? isHeatingBed() : isCoolingBed() && !no_wait_for_cooling) {
-      millis_t ms = millis();
-      if (ms > temp_ms + 1000UL) { //Print Temp Reading every 1 second while heating up.
-        temp_ms = ms;
-        #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
-          print_heaterstates();
-          SERIAL_EOL;
-        #endif
+    millis_t now = millis(), next_temp_ms = now + 1000UL;
+    while (!cancel_heatup && degTargetBed() != degBed()) {
+      millis_t now = millis();
+      if (now > next_temp_ms) { //Print Temp Reading every 1 second while heating up.
+        next_temp_ms = now + 1000UL;
+        print_heaterstates();
+        SERIAL_EOL;
       }
       idle();
     }
