@@ -672,7 +672,7 @@ void manage_heater() {
       // the nominal filament diameter then square it to get an area
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
       float vm = pow((measurement_delay[meas_shift_index] + 100.0) / 100.0, 2);
-      if (vm < 0.01) vm = 0.01;
+      NOLESS(vm, 0.01);
       volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = vm;
     }
   #endif //FILAMENT_SENSOR
@@ -836,7 +836,7 @@ static void updateTemperaturesFromRawValues() {
   int widthFil_to_size_ratio() {
     float temp = filament_width_meas;
     if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  //assume sensor cut out
-    else if (temp > MEASURED_UPPER_LIMIT) temp = MEASURED_UPPER_LIMIT;
+    else NOMORE(temp, MEASURED_UPPER_LIMIT);
     return filament_width_nominal / temp * 100;
   }
 

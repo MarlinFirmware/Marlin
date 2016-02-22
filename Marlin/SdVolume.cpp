@@ -296,7 +296,7 @@ int32_t SdVolume::freeClusterCount() {
 
   for (uint32_t lba = fatStartBlock_; todo; todo -= n, lba++) {
     if (!cacheRawBlock(lba, CACHE_FOR_READ)) return -1;
-    if (todo < n) n = todo;
+    NOMORE(n, todo);
     if (fatType_ == 16) {
       for (uint16_t i = 0; i < n; i++) {
         if (cacheBuffer_.fat16[i] == 0) free++;
