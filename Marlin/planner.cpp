@@ -381,7 +381,7 @@ void plan_init() {
       block_t* block = &block_buffer[block_index];
       if (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS]) {
         float se = (float)block->steps[E_AXIS] / block->step_event_count * block->nominal_speed; // mm/sec;
-        if (se > high) high = se;
+        NOLESS(high, se);
       }
       block_index = next_block_index(block_index);
     }

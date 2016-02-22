@@ -269,9 +269,7 @@ void Servo::detach() {
 
 void Servo::write(int value) {
   if (value < MIN_PULSE_WIDTH) { // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
-    if (value < 0) value = 0;
-    if (value > 180) value = 180;
-    value = map(value, 0, 180, SERVO_MIN(),  SERVO_MAX());
+    value = map(constrain(value, 0, 180), 0, 180, SERVO_MIN(), SERVO_MAX());
   }
   this->writeMicroseconds(value);
 }
@@ -280,18 +278,13 @@ void Servo::writeMicroseconds(int value) {
   // calculate and store the values for the given channel
   byte channel = this->servoIndex;
   if (channel < MAX_SERVOS) {  // ensure channel is valid
-    if (value < SERVO_MIN())   // ensure pulse width is valid
-      value = SERVO_MIN();
-    else if (value > SERVO_MAX())
-      value = SERVO_MAX();
-
-    value = value - TRIM_DURATION;
+    // ensure pulse width is valid
+    value = constrain(value, SERVO_MIN(), SERVO_MAX()) - TRIM_DURATION;
     value = usToTicks(value);  // convert to ticks after compensating for interrupt overhead - 12 Aug 2009
 
-    uint8_t oldSREG = SREG;
-    cli();
+    CRITICAL_SECTION_START;
     servo_info[channel].ticks = value;
-    SREG = oldSREG;
+    CRITICAL_SECTION_END;
   }
 }
 
