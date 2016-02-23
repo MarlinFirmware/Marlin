@@ -63,7 +63,7 @@
 #include "ScreenCooldown.h"
 #include "ScreenStop.h"
 #include "ScreenStats.h"
-#include "ScreenNameError.h"
+#include "ScreenError.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -274,9 +274,9 @@ namespace ui
 		return local_view;
 	}
 	
-	static ScreenNameError * make_screen_SD_name_error()
+	static ScreenError * make_screen_SD_name_error()
 	{
-		ScreenNameError * local_view = new ScreenNameError(MSG_SCREEN_ERROR_TITLE(), MSG_SCREEN_NAME_ERROR_TEXT(), MSG_PUSH_TO_BACK(), bits_emergency);
+		ScreenError * local_view = new ScreenError(MSG_SCREEN_ERROR_TITLE(), MSG_SCREEN_NAME_ERROR_TEXT(), MSG_PUSH_TO_BACK(), bits_emergency);
 		local_view->add(screen_main);
 		return local_view;
 	}
