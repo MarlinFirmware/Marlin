@@ -23,6 +23,12 @@
 #define MarlinSerial_h
 #include "Marlin.h"
 
+#ifndef CRITICAL_SECTION_START
+  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
+  #define CRITICAL_SECTION_END    SREG = _sreg;
+#endif
+
+
 #ifndef SERIAL_PORT
   #define SERIAL_PORT 0
 #endif
@@ -69,9 +75,13 @@
 // using a ring buffer (I think), in which rx_buffer_head is the index of the
 // location to which to write the next incoming character and rx_buffer_tail
 // is the index of the location from which to read.
-// 256 is the max limit due to uint8_t head and tail. Thats needed to make them atomic.
-#define RX_BUFFER_SIZE 128
-
+// 256 is the max limit due to uint8_t head and tail. Use only powers of 2. (...,16,32,64,128,256)
+#ifndef RX_BUFFER_SIZE
+  #define RX_BUFFER_SIZE 128
+#endif
+#if !((RX_BUFFER_SIZE == 256) ||(RX_BUFFER_SIZE == 128) ||(RX_BUFFER_SIZE == 64) ||(RX_BUFFER_SIZE == 32) ||(RX_BUFFER_SIZE == 16) ||(RX_BUFFER_SIZE == 8) ||(RX_BUFFER_SIZE == 4) ||(RX_BUFFER_SIZE == 2))
+  #error RX_BUFFER_SIZE has to be a power of 2 and >= 2
+#endif
 
 struct ring_buffer {
   unsigned char buffer[RX_BUFFER_SIZE];
@@ -94,7 +104,11 @@ class MarlinSerial { //: public Stream
     void flush(void);
 
     FORCE_INLINE uint8_t available(void) {
-      return (uint8_t)(RX_BUFFER_SIZE + rx_buffer.head - rx_buffer.tail) % RX_BUFFER_SIZE;
+      CRITICAL_SECTION_START;
+        uint8_t h = rx_buffer.head;
+        uint8_t t = rx_buffer.tail;
+      CRITICAL_SECTION_END;
+      return (uint8_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
     }
 
     FORCE_INLINE void write(uint8_t c) {
@@ -106,16 +120,19 @@ class MarlinSerial { //: public Stream
     FORCE_INLINE void checkRx(void) {
       if (TEST(M_UCSRxA, M_RXCx)) {
         unsigned char c  =  M_UDRx;
-        uint8_t i = (uint8_t)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
+        CRITICAL_SECTION_START;
+          uint8_t h = rx_buffer.head;
+          uint8_t i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);
 
-        // if we should be storing the received character into the location
-        // just before the tail (meaning that the head would advance to the
-        // current location of the tail), we're about to overflow the buffer
-        // and so we don't write the character or advance the head.
-        if (i != rx_buffer.tail) {
-          rx_buffer.buffer[rx_buffer.head] = c;
-          rx_buffer.head = i;
-        }
+          // if we should be storing the received character into the location
+          // just before the tail (meaning that the head would advance to the
+          // current location of the tail), we're about to overflow the buffer
+          // and so we don't write the character or advance the head.
+          if (i != rx_buffer.tail) {
+            rx_buffer.buffer[h] = c;
+            rx_buffer.head = i;
+          }
+        CRITICAL_SECTION_END;
       }
     }
 
