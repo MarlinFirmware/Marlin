@@ -35,14 +35,34 @@ Here are some standard links for getting your machine calibrated:
 //
 
 // @section info
-#define WILSON_TYPE           // comment this out if not wilson
-//#define WILSON_II_TYPE        // comment this out if not wilson ii
-//#define MY_BEDLEVELING_DEFAULTS // comment this out to strip out all the bed leveling stuff
+//#define WILSON_TYPE           // comment this out if not wilson
+#define WILSON_II_TYPE        // comment this out if not wilson ii
+#define MY_BEDLEVELING_DEFAULTS // comment this out to strip out all the bed leveling stuff
+
+//#define MJRICE_BEDLEVELING_RACK // include this (only) if using the rack-and-pinion aparatus for bed probing / leveling
+
+#ifdef MY_BEDLEVELING_DEFAULTS
+ #define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+ #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
+ #ifndef MJRICE_BEDLEVELING_RACK // this does not use servos
+  #define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+  #define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
+  #define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 0,90} // X,Y,Z Axis Extend and Retract angles
+ #endif
+  // sometimes the weight of the servo arm and the shaking of he extruder causes the servo to slowly descend during printing until it 
+  // interferes with the print.  
+  // There are two things I could do.  The first one (not using) just keeps the servo attached all the time.
+  //#define DONT_DETACH_SERVOS  // Dont use this unless you're desperate. If you use this to keep the servos rigidly in place, make sure you are powering the servos from an adequate source (not the arduino 5V regulator)
+  // But this one seems to work nicely, it will just periodically put the servo back to where it is supposed to be:
+  #define NO_RETRACT_BETWEEN_PROBINGS // Define this unless you want to waste time moving the servo probe up and down between each point.
+  #define PERIODICALLY_REFRESH_SERVO
+  #define SERVO_REFRESH_INTERVAL 10000 // ms
+#endif
 
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_VERSION "1.0.3 dev"
+#define STRING_VERSION "1.0.3-mjr"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 #define STRING_CONFIG_H_AUTHOR "(mrice, default config)" // Who made the changes.
 
@@ -67,7 +87,7 @@ Here are some standard links for getting your machine calibrated:
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "Wilson"
+#define CUSTOM_MACHINE_NAME "Wilson II"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -162,11 +182,11 @@ Here are some standard links for getting your machine calibrated:
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 275
+#define HEATER_0_MAXTEMP 250
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
-#define BED_MAXTEMP 150
+#define BED_MAXTEMP 120
 
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
 // average current. The value should be an integer and the heat bed will be turned on for 1 interval of
@@ -200,9 +220,19 @@ Here are some standard links for getting your machine calibrated:
   
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
-    #define  DEFAULT_Kp 22.2
-    #define  DEFAULT_Ki 1.08
-    #define  DEFAULT_Kd 114
+//    #define  DEFAULT_Kp 22.2
+//    #define  DEFAULT_Ki 1.08
+//    #define  DEFAULT_Kd 114
+
+// This set of coefficients acquired with JHead and 12V/40W heater (mrice)
+//    #define  DEFAULT_Kp 11.68
+//    #define  DEFAULT_Ki 0.66
+//    #define  DEFAULT_Kd 51.92
+
+// This set of coefficients acquired with e3d-lite6 (mrice)
+    #define  DEFAULT_Kp 76
+    #define  DEFAULT_Ki 13
+    #define  DEFAULT_Kd 109
 
 // MakerGear
 //    #define  DEFAULT_Kp 7.0
@@ -294,15 +324,15 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // uncomment the 2 defines below:
 
 // Parameters for all extruder heaters
-#define THERMAL_RUNAWAY_PROTECTION_PERIOD 40 //in seconds
-#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 4 // in degree Celsius
+//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 40 //in seconds
+//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 4 // in degree Celsius
 
 // If you want to enable this feature for your bed heater,
 // uncomment the 2 defines below:
 
 // Parameters for the bed heater
-#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
-#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
+//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
+//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
 
 
 //===========================================================================
@@ -408,14 +438,12 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //const bool FIL_RUNOUT_INVERTING = true;  // Should be uncommented and true or false should assigned
 //#define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
 
+
 //===========================================================================
 //============================ Mesh Bed Leveling ============================
 //===========================================================================
 
-#ifdef MY_BEDLEVELING_DEFAULTS
- #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
-#endif
- 
+//#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling 
 // #define MESH_BED_LEVELING    // Enable mesh bed leveling
 
 #ifdef MANUAL_BED_LEVELING
@@ -436,10 +464,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //============================= Bed Auto Leveling ===========================
 //===========================================================================
 
-// @section bedlevel
-#ifdef MY_BEDLEVELING_DEFAULTS
-#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
-#endif
+//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 
 #define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
@@ -464,7 +489,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 
     #define LEFT_PROBE_BED_POSITION 15
     #define RIGHT_PROBE_BED_POSITION (X_MAX_POS - 60)
-    #define FRONT_PROBE_BED_POSITION 20
+    #define FRONT_PROBE_BED_POSITION 25
     #define BACK_PROBE_BED_POSITION (Y_MAX_POS - 50)
 
     #define MIN_PROBE_EDGE 10 // The probe square sides can be no smaller than this
@@ -488,40 +513,33 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 
   // Offsets to the probe relative to the extruder tip (Hotend - Probe)
   // X and Y offsets must be integers
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -54     // Probe on: -left  +right
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -7     // Probe on: -front +behind
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -5.5  // -below (always!) // mrice: for wilson ts [ jhead use -18 for e3dlite use -7.7 ]
-
-  #define Z_RAISE_BEFORE_HOMING 10       // (in mm) Raise Z before homing (G28) for Probe Clearance.
-                                        // Be sure you have this distance over your Z_MAX_POS in case
+  #ifdef MJRICE_BEDLEVELING_RACK
+     #define X_PROBE_OFFSET_FROM_EXTRUDER 0     // Probe on: -left  +right
+     #define Y_PROBE_OFFSET_FROM_EXTRUDER 45     // Probe on: -front +behind
+     #define Z_PROBE_OFFSET_FROM_EXTRUDER -12  // -below (always!) 
+     #define Z_RAISE_BEFORE_HOMING 15       // (in mm) Raise Z before homing (G28) for Probe Clearance.
+  #else
+     // for servo mounted z probe
+     #define X_PROBE_OFFSET_FROM_EXTRUDER -54     // Probe on: -left  +right
+     #define Y_PROBE_OFFSET_FROM_EXTRUDER -7     // Probe on: -front +behind
+     #define Z_PROBE_OFFSET_FROM_EXTRUDER -6  // -below (always!) // mrice: for wilson ts [ jhead use -18 for e3dlite use -7.7 ]
+     #define Z_RAISE_BEFORE_HOMING 15       // (in mm) Raise Z before homing (G28) for Probe Clearance.
+  #endif                                      // Be sure you have this distance over your Z_MAX_POS in case
 
   #define XY_TRAVEL_SPEED (100*60)         // X and Y axis travel speed between probes, in mm/min
 
-  #define Z_RAISE_BEFORE_PROBING 10   //How much the extruder will be raised before traveling to the first probing point.
-  #define Z_RAISE_BETWEEN_PROBINGS 10  //How much the extruder will be raised when traveling from between next probing points
-  #define Z_RAISE_AFTER_PROBING 10    //How much the extruder will be raised after the last probing point.
-  #define NO_RETRACT_BETWEEN_PROBINGS // Define this unless you want to waste time moving the servo probe up and down between each point.
-
-  // sometimes the weight of the servo arm and the shaking of he extruder causes the servo to slowly descend during printing until it 
-  // interferes with the print.  
-  
-  // There are two things I could do.  The first one (not using) just keeps the servo attached all the time.
-  //#define DONT_DETACH_SERVOS  // If you use this to keep the servos rigidly in place, make sure you are powering the servos from an adequate source (not the arduino 5V regulator)
-  // But this one seems to work nicely, it will just periodically put the servo back to where it is supposed to be:
-  #define PERIODICALLY_REFRESH_SERVO
-  #define SERVO_REFRESH_INTERVAL 10000 // ms
+  #define Z_RAISE_BEFORE_PROBING 15   //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
+  #define Z_RAISE_AFTER_PROBING 5    //How much the extruder will be raised after the last probing point.
 
 //   #define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" //These commands will be executed in the end of G29 routine.
                                                                             //Useful to retract a deployable probe.
-                                                                           
-  //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
-  //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
-
+                                                                       
   //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
   //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
   // You MUST HAVE the SERVO_ENDSTOPS defined to use here a value higher than zero otherwise your code will not compile.
 
-  #define PROBE_SERVO_DEACTIVATION_DELAY 300 /* milliseconds */
+  #define PROBE_SERVO_DEACTIVATION_DELAY 500 /* milliseconds */
 
 //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
 //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
@@ -571,6 +589,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
  * MOVEMENT SETTINGS
  */
 
+#define MK7_DEFAULT_STEPS 105
+#define MK8_DEFAULT_STEPS 150
+
 // default settings
 #ifdef WILSON_TYPE
  #define HOMING_FEEDRATE               {50*60, 50*60, 3*60, 0}  // set the homing speeds (mm/min)
@@ -579,8 +600,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
  #define MANUAL_FEEDRATE               {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min) from panel
 #else
  #ifdef WILSON_II_TYPE
-  #define HOMING_FEEDRATE              {50*60, 50*60, 3*60, 0}  // set the homing speeds (mm/min)
-  #define DEFAULT_AXIS_STEPS_PER_UNIT  {80,80,400,105}  // default steps per unit for Wilson II
+  #define HOMING_FEEDRATE              {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+  #define DEFAULT_AXIS_STEPS_PER_UNIT  {80,80,400,MK7_DEFAULT_STEPS}  // default steps per unit for Wilson II
   #define DEFAULT_MAX_FEEDRATE         {120, 120, 6, 25}    // (mm/sec)
   #define MANUAL_FEEDRATE              {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min) from panel
  #else
@@ -763,6 +784,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //define BlinkM/CyzRgb Support
 //#define BLINKM
 
+
 /*********************************************************************\
 * R/C SERVO support
 * Sponsored by TrinityLabs, Reworked by codexmas
@@ -775,19 +797,15 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // leaving it undefined or defining as 0 will disable the servo subsystem
 // If unsure, leave commented / disabled
 //
-#ifdef MY_BEDLEVELING_DEFAULTS
-
-#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+//#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
 
 // Servo Endstops
 //
 // This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
 // Use M851 to set the z-probe vertical offset from the nozzle. Store that setting with M500.
 //
-#define SERVO_ENDSTOPS {-1, -1, 2} // Servo index for X, Y, Z. Disable with -1
-#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 0,90} // X,Y,Z Axis Extend and Retract angles
-
-#endif
+//#define SERVO_ENDSTOPS {-1, -1, 2} // Servo index for X, Y, Z. Disable with -1
+//#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 0,90} // X,Y,Z Axis Extend and Retract angles
 
 /**********************************************************************\
  * Support for a filament diameter sensor

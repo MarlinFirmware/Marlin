@@ -615,7 +615,7 @@ static void lcd_bedleveling_submenu()
    //   char cmd[30];
  //   char* c;
 //    sprintf_P(cmd, PSTR("Extend %d"),servo_endstop_angles[Z_AXIS * 2 + 0]) );
-
+  
 //   strcpy(msg,"Extend Z probe (");   
 //   strcat(msg,itostr3();
 //   strcat(msg,")");
