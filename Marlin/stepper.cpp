@@ -242,8 +242,8 @@ volatile signed char count_direction[NUM_AXIS] = { 1 };
 
 // Some useful constants
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= BIT(OCIE1A)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~BIT(OCIE1A)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
 
 void endstops_hit_on_purpose() {
   endstop_hit_bits = 0;
@@ -253,20 +253,20 @@ void checkHitEndstops() {
   if (endstop_hit_bits) {
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
-    if (endstop_hit_bits & BIT(X_MIN)) {
+    if (TEST(endstop_hit_bits, X_MIN)) {
       SERIAL_ECHOPAIR(" X:", (float)endstops_trigsteps[X_AXIS] / axis_steps_per_unit[X_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
     }
-    if (endstop_hit_bits & BIT(Y_MIN)) {
+    if (TEST(endstop_hit_bits, Y_MIN)) {
       SERIAL_ECHOPAIR(" Y:", (float)endstops_trigsteps[Y_AXIS] / axis_steps_per_unit[Y_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
     }
-    if (endstop_hit_bits & BIT(Z_MIN)) {
+    if (TEST(endstop_hit_bits, Z_MIN)) {
       SERIAL_ECHOPAIR(" Z:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
     }
     #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-      if (endstop_hit_bits & BIT(Z_MIN_PROBE)) {
+      if (TEST(endstop_hit_bits, Z_MIN_PROBE)) {
         SERIAL_ECHOPAIR(" Z_MIN_PROBE:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
         LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "ZP");
       }
@@ -309,7 +309,7 @@ inline void update_endstops() {
   #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
   #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
   #define _AXIS(AXIS) AXIS ##_AXIS
-  #define _ENDSTOP_HIT(AXIS) endstop_hit_bits |= BIT(_ENDSTOP(AXIS, MIN))
+  #define _ENDSTOP_HIT(AXIS) SBI(endstop_hit_bits, _ENDSTOP(AXIS, MIN))
   #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
 
   // SET_ENDSTOP_BIT: set the current endstop bits for an endstop to its status
@@ -424,7 +424,7 @@ inline void update_endstops() {
 
             if (z_test && current_block->steps[Z_AXIS] > 0) { // z_test = Z_MIN || Z2_MIN
               endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-              endstop_hit_bits |= BIT(Z_MIN);
+              SBI(endstop_hit_bits, Z_MIN);
               if (!performing_homing || (z_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
                 step_events_completed = current_block->step_event_count;
             }
@@ -440,7 +440,7 @@ inline void update_endstops() {
 
           if (TEST_ENDSTOP(Z_MIN_PROBE)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_hit_bits |= BIT(Z_MIN_PROBE);
+            SBI(endstop_hit_bits, Z_MIN_PROBE);
           }
         #endif
       }
@@ -460,7 +460,7 @@ inline void update_endstops() {
 
             if (z_test && current_block->steps[Z_AXIS] > 0) {  // t_test = Z_MAX || Z2_MAX
               endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-              endstop_hit_bits |= BIT(Z_MIN);
+              SBI(endstop_hit_bits, Z_MIN);
               if (!performing_homing || (z_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
                 step_events_completed = current_block->step_event_count;
             }
@@ -963,7 +963,7 @@ void st_init() {
       WRITE(Z_MIN_PIN,HIGH);
     #endif
   #endif
-  
+
   #if HAS_Z2_MIN
     SET_INPUT(Z2_MIN_PIN);
     #if ENABLED(ENDSTOPPULLUP_ZMIN)
@@ -1052,10 +1052,10 @@ void st_init() {
   #endif
 
   // waveform generation = 0100 = CTC
-  TCCR1B &= ~BIT(WGM13);
-  TCCR1B |=  BIT(WGM12);
-  TCCR1A &= ~BIT(WGM11);
-  TCCR1A &= ~BIT(WGM10);
+  CBI(TCCR1B, WGM13);
+  SBI(TCCR1B, WGM12);
+  CBI(TCCR1A, WGM11);
+  CBI(TCCR1A, WGM10);
 
   // output mode = 00 (disconnected)
   TCCR1A &= ~(3 << COM1A0);
@@ -1073,11 +1073,11 @@ void st_init() {
 
   #if ENABLED(ADVANCE)
     #if defined(TCCR0A) && defined(WGM01)
-      TCCR0A &= ~BIT(WGM01);
-      TCCR0A &= ~BIT(WGM00);
+      CBI(TCCR0A, WGM01);
+      CBI(TCCR0A, WGM00);
     #endif
     e_steps[0] = e_steps[1] = e_steps[2] = e_steps[3] = 0;
-    TIMSK0 |= BIT(OCIE0A);
+    SBI(TIMSK0, OCIE0A);
   #endif //ADVANCE
 
   enable_endstops(true); // Start with endstops active. After homing they can be disabled
