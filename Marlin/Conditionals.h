@@ -45,9 +45,25 @@
     #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 graphic Display Family)
   #endif
 
-
   #if ENABLED(PANEL_ONE)
     #define ULTIMAKERCONTROLLER
+  #endif
+
+  #if ENABLED(BQ_LCD_SMART_CONTROLLER)
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+    #define SDSUPPORT
+
+    #ifndef ENCODER_PULSES_PER_STEP
+      #define ENCODER_PULSES_PER_STEP 4
+    #endif
+
+    #ifndef ENCODER_STEPS_PER_MENU_ITEM
+      #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #endif
+
+    #ifndef LONG_FILENAME_HOST_SUPPORT
+      #define LONG_FILENAME_HOST_SUPPORT
+    #endif
   #endif
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)

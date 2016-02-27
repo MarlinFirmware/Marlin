@@ -126,6 +126,8 @@
   #include "pins_RIGIDBOARD.h"
 #elif MB(MEGACONTROLLER)
   #include "pins_MEGACONTROLLER.h"
+#elif MB(BQ_ZUM_MEGA_3D)
+  #include "pins_BQ_ZUM_MEGA_3D.h"
 #elif MB(99)
   #include "pins_99.h"
 #else
