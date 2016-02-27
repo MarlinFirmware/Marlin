@@ -217,12 +217,12 @@ void Stop();
  * Debug flags - not yet widely applied
  */
 enum DebugFlags {
-  DEBUG_ECHO          = BIT(0),
-  DEBUG_INFO          = BIT(1),
-  DEBUG_ERRORS        = BIT(2),
-  DEBUG_DRYRUN        = BIT(3),
-  DEBUG_COMMUNICATION = BIT(4),
-  DEBUG_LEVELING      = BIT(5)
+  DEBUG_ECHO          = _BV(0),
+  DEBUG_INFO          = _BV(1),
+  DEBUG_ERRORS        = _BV(2),
+  DEBUG_DRYRUN        = _BV(3),
+  DEBUG_COMMUNICATION = _BV(4),
+  DEBUG_LEVELING      = _BV(5)
 };
 extern uint8_t marlin_debug_flags;
 
