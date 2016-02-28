@@ -338,6 +338,9 @@ static void lcd_implementation_status_screen() {
     }
 
   // X, Y, Z-Coordinates
+  // Before homing the axis letters are blinking 'X' <-> '?'.
+  // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
+  // When everything is ok you see a constant 'X'.
   #define XYZ_BASELINE 38
   lcd_setFont(FONT_STATUSMENU);
 
@@ -348,32 +351,61 @@ static void lcd_implementation_status_screen() {
   #endif
   u8g.setColorIndex(0); // white on black
   u8g.setPrintPos(2, XYZ_BASELINE);
-  lcd_print('X');
+  if (blink & 1)
+    lcd_printPGM(PSTR("X"));
+  else {
+    if (!axis_homed[X_AXIS])
+      lcd_printPGM(PSTR("?"));
+    else
+      #if ENABLED(WARN_REDUCED_ACCURACY)
+        if (!axis_known_position[X_AXIS])
+          lcd_printPGM(PSTR(" "));
+        else
+      #endif
+      lcd_printPGM(PSTR("X"));
+  }
   u8g.drawPixel(8, XYZ_BASELINE - 5);
   u8g.drawPixel(8, XYZ_BASELINE - 3);
   u8g.setPrintPos(10, XYZ_BASELINE);
-  if (axis_homed[X_AXIS] || (blink & 1))
-    lcd_print(ftostr31ns(current_position[X_AXIS]));
-  else
-    lcd_printPGM(PSTR("---"));
+  lcd_print(ftostr31ns(current_position[X_AXIS]));
+
   u8g.setPrintPos(43, XYZ_BASELINE);
-  lcd_print('Y');
+  if (blink & 1)
+    lcd_printPGM(PSTR("Y"));
+  else {
+    if (!axis_homed[Y_AXIS])
+      lcd_printPGM(PSTR("?"));
+    else
+      #if ENABLED(WARN_REDUCED_ACCURACY)
+        if (!axis_known_position[Y_AXIS])
+          lcd_printPGM(PSTR(" "));
+        else
+      #endif
+      lcd_printPGM(PSTR("Y"));
+  }
   u8g.drawPixel(49, XYZ_BASELINE - 5);
   u8g.drawPixel(49, XYZ_BASELINE - 3);
   u8g.setPrintPos(51, XYZ_BASELINE);
-  if (axis_homed[Y_AXIS] || (blink & 1))
-    lcd_print(ftostr31ns(current_position[Y_AXIS]));
-  else
-    lcd_printPGM(PSTR("---"));
+  lcd_print(ftostr31ns(current_position[Y_AXIS]));
+
   u8g.setPrintPos(83, XYZ_BASELINE);
-  lcd_print('Z');
+  if (blink & 1)
+    lcd_printPGM(PSTR("Z"));
+  else {
+    if (!axis_homed[Z_AXIS])
+      lcd_printPGM(PSTR("?"));
+    else
+      #if ENABLED(WARN_REDUCED_ACCURACY)
+        if (!axis_known_position[Z_AXIS])
+          lcd_printPGM(PSTR(" "));
+        else
+      #endif
+      lcd_printPGM(PSTR("Z"));
+  }
   u8g.drawPixel(89, XYZ_BASELINE - 5);
   u8g.drawPixel(89, XYZ_BASELINE - 3);
   u8g.setPrintPos(91, XYZ_BASELINE);
-  if (axis_homed[Z_AXIS] || (blink & 1))
-    lcd_print(ftostr32sp(current_position[Z_AXIS]));
-  else
-    lcd_printPGM(PSTR("---.--"));
+  lcd_print(ftostr32sp(current_position[Z_AXIS]));
   u8g.setColorIndex(1); // black on white
 
   // Feedrate
