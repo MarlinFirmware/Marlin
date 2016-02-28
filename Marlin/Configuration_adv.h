@@ -52,7 +52,7 @@
  * The maximum buffered steps/sec of the extruder motor is called "se".
  * Start autotemp mode with M109 S<mintemp> B<maxtemp> F<factor>
  * The target temperature is set to mintemp+factor*se[steps/sec] and is limited by
- * mintemp and maxtemp. Turn this off by excuting M109 without F*
+ * mintemp and maxtemp. Turn this off by executing M109 without F*
  * Also, if the temperature is set to a value below mintemp, it will not be changed by autotemp.
  * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
  */
@@ -232,7 +232,13 @@
 #define INVERT_E_STEP_PIN false
 
 // Default stepper release if idle. Set to 0 to deactivate.
-#define DEFAULT_STEPPER_DEACTIVE_TIME 60
+// Steppers will shut down DEFAULT_STEPPER_DEACTIVE_TIME seconds after the last move when DISABLE_INACTIV_? is true.
+// Time can be set by M18 and M84.
+#define DEFAULT_STEPPER_DEACTIVE_TIME 120
+#define DISABLE_INACTIVE_X true
+#define DISABLE_INACTIVE_Y true
+#define DISABLE_INACTIVE_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
+#define DISABLE_INACTIVE_E true
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
