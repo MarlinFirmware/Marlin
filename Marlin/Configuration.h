@@ -488,11 +488,29 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   #endif // AUTO_BED_LEVELING_GRID
 
-  // Offsets to the Z probe relative to the nozzle tip.
-  // X and Y offsets must be integers.
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25     // Z probe to nozzle X offset: -left  +right
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // Z probe to nozzle Y offset: -front +behind
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35  // Z probe to nozzle Z offset: -below (always!)
+ /*
+  * Z Probe to nozzle (X,Y) offset, relative to (0, 0).
+  * X and Y offsets must be integers.
+  *
+  * In the following example the X and Y offsets are both positive:
+  * #define X_PROBE_OFFSET_FROM_EXTRUDER 10
+  * #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
+  *
+  *   +-- BACK ---+
+  *   |           |
+  * L |    (+) P  | R <-- probe (20,20)
+  * E |           | I
+  * F | (-) N (+) | G <-- nozzle (10,10)
+  * T |           | H
+  *   |    (-)    | T
+  *   |           |
+  *   O-- FRONT --+
+  * (0,0)
+  *
+  */
+  #define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  [of the nozzle] +right
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Z offset: -front [of the nozzle] +behind
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below [the nozzle] (always negative!)
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z axis before homing (G28) for Z probe clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case.
