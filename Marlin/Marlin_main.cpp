@@ -3943,8 +3943,8 @@ inline void gcode_M109() {
     // Loop until the temperature has stabilized
     #define TEMP_CONDITIONS (residency_start_ms < 0 || now < residency_start_ms + TEMP_RESIDENCY_TIME * 1000UL)
   #else
-    // Loop until the temperature is exactly on target
-    #define TEMP_CONDITIONS (degHotend(target_extruder) != degTargetHotend(target_extruder))
+    // Loop until the temperature is very close target
+    #define TEMP_CONDITIONS (fabs(degHotend(target_extruder) - degTargetHotend(target_extruder)) < 0.75f)
   #endif //TEMP_RESIDENCY_TIME
 
   cancel_heatup = false;
@@ -3967,7 +3967,7 @@ inline void gcode_M109() {
         }
       #else
         SERIAL_EOL;
-      #endif
+      #endif //TEMP_RESIDENCY_TIME
     }
 
     idle();
