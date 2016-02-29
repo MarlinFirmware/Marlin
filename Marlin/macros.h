@@ -2,9 +2,10 @@
 #define MACROS_H
 
 // Macros for bit masks
-#define BIT(b) (1<<(b))
-#define TEST(n,b) (((n)&BIT(b))!=0)
-#define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (BIT(b))
+#define TEST(n,b) (((n)&_BV(b))!=0)
+#define SBI(n,b) (n |= _BV(b))
+#define CBI(n,b) (n &= ~_BV(b))
+#define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (_BV(b))
 
 // Macros for maths shortcuts
 #define RADIANS(d) ((d)*M_PI/180.0)
