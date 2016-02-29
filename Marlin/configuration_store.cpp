@@ -730,12 +730,12 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Material heatup parameters:");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M145 M0 H", (unsigned long)plaPreheatHotendTemp);
+    SERIAL_ECHOPAIR("  M145 S0 H", (unsigned long)plaPreheatHotendTemp);
     SERIAL_ECHOPAIR(" B", (unsigned long)plaPreheatHPBTemp);
     SERIAL_ECHOPAIR(" F", (unsigned long)plaPreheatFanSpeed);
     SERIAL_EOL;
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M145 M1 H", (unsigned long)absPreheatHotendTemp);
+    SERIAL_ECHOPAIR("  M145 S1 H", (unsigned long)absPreheatHotendTemp);
     SERIAL_ECHOPAIR(" B", (unsigned long)absPreheatHPBTemp);
     SERIAL_ECHOPAIR(" F", (unsigned long)absPreheatFanSpeed);
     SERIAL_EOL;
