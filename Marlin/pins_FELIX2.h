@@ -1,8 +1,8 @@
 /**
- * FELIXprinters v2.0/3.0 (RAMPS v1.3) pin assignments
+ * FELIXprinters v2.0/3.0 (RAMPS v1.4) pin assignments
  */
 
-#include "pins_RAMPS_13_EFB.h"
+#include "pins_RAMPS_14_EFB.h"
 
 #undef HEATER_1_PIN
 #define HEATER_1_PIN        7 // EXTRUDER 2

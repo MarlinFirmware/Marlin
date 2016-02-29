@@ -1,8 +1,8 @@
 /**
- * AZTEEG_X3 Arduino Mega with RAMPS v1.3 pin assignments
+ * AZTEEG_X3 Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#include "pins_RAMPS_13_EFB.h"
+#include "pins_RAMPS_14_EFB.h"
 
 //LCD Pins//
 
