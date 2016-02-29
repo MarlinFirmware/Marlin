@@ -515,8 +515,23 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   #endif // AUTO_BED_LEVELING_GRID
 
-  // Offsets to the Z probe relative to the nozzle tip.
+  // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
   // X and Y offsets must be integers.
+  //
+  // In the following example the X and Y offsets are both positive:
+  // #define X_PROBE_OFFSET_FROM_EXTRUDER 10
+  // #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
+  //
+  //    +-- BACK ---+
+  //    |           |
+  //  L |    (+) P  | R <-- probe (20,20)
+  //  E |           | I
+  //  F | (-) N (+) | G <-- nozzle (10,10)
+  //  T |           | H
+  //    |    (-)    | T
+  //    |           |
+  //    O-- FRONT --+
+  //  (0,0)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -23 // KosselPro actual: -22.919
   #define Y_PROBE_OFFSET_FROM_EXTRUDER -6  // KosselPro actual: -6.304
   // Kossel Pro note: The correct value is likely -17.45 but I'd rather err on the side of
