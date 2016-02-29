@@ -3198,6 +3198,8 @@ inline void gcode_G28() {
       // Sled assembly for Cartesian bots
       #if ENABLED(Z_PROBE_SLED)
         dock_sled(true); // dock the sled
+      #elif Z_RAISE_AFTER_PROBING > 0
+        raise_z_after_probing();
       #endif
 
     #endif // !DELTA
