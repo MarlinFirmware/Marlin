@@ -1,13 +1,7 @@
 /**
- * Arduino Mega with RAMPS v1.3 v1.4 pin assignments
+ * Arduino Mega with RAMPS v1.4 (or v1.3) pin assignments
  *
  * Applies to the following boards:
- *
- *  RAMPS_13_EFB (Extruder, Fan, Bed)
- *  RAMPS_13_EEB (Extruder, Extruder, Bed)
- *  RAMPS_13_EFF (Extruder, Fan, Fan)
- *  RAMPS_13_EEF (Extruder, Extruder, Fan)
- *  RAMPS_13_SF  (Spindle, Controller Fan)
  *
  *  RAMPS_14_EFB (Extruder, Fan, Bed)
  *  RAMPS_14_EEB (Extruder, Extruder, Bed)
@@ -15,6 +9,12 @@
  *  RAMPS_14_EEF (Extruder, Extruder, Fan)
  *  RAMPS_14_SF  (Spindle, Controller Fan)
  *
+ *  RAMPS_13_EFB (Extruder, Fan, Bed)
+ *  RAMPS_13_EEB (Extruder, Extruder, Bed)
+ *  RAMPS_13_EFF (Extruder, Fan, Fan)
+ *  RAMPS_13_EEF (Extruder, Extruder, Fan)
+ *  RAMPS_13_SF  (Spindle, Controller Fan)
+ * 
  *  Other pins_MYBOARD.h files may override these defaults
  *
  *  Differences between
@@ -28,10 +28,10 @@
 
 #define LARGE_FLASH true
 
-#ifdef IS_RAMPS_14
-  #define SERVO0_PIN       11
-#else
+#ifdef IS_RAMPS_13
   #define SERVO0_PIN        7 // RAMPS_13 // Will conflict with BTN_EN2 on LCD_I2C_VIKI
+#else
+  #define SERVO0_PIN       11
 #endif
 #define SERVO1_PIN          6
 #define SERVO2_PIN          5
