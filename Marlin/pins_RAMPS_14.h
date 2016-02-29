@@ -85,12 +85,12 @@
   #define FILRUNOUT_PIN     4
 #endif
 
-#if MB(RAMPS_13_EFF) || ENABLED(IS_RAMPS_EFB)
+#if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF) || ENABLED(IS_RAMPS_EFB)
   #define FAN_PIN           9 // (Sprinter config)
-  #if MB(RAMPS_13_EFF)
+  #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF)
     #define CONTROLLERFAN_PIN  -1 // Pin used for the fan to cool controller
   #endif
-#elif MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
+#elif MB(RAMPS_14_EEF) || MB(RAMPS_14_SF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
   #define FAN_PIN           8
 #else
   #define FAN_PIN           4 // IO pin. Buffer needed
@@ -102,13 +102,13 @@
   #define KILL_PIN         41
 #endif
 
-#if MB(RAMPS_13_EFF)
+#if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF)
   #define HEATER_0_PIN      8
 #else
   #define HEATER_0_PIN     10   // EXTRUDER 1
 #endif
 
-#if MB(RAMPS_13_SF) || ENABLED(IS_RAMPS_EFB)
+#if MB(RAMPS_14_SF) || MB(RAMPS_13_SF) || ENABLED(IS_RAMPS_EFB)
   #define HEATER_1_PIN     -1
 #else
   #define HEATER_1_PIN      9   // EXTRUDER 2 (FAN On Sprinter)
@@ -120,7 +120,7 @@
 #define TEMP_1_PIN         15   // ANALOG NUMBERING
 #define TEMP_2_PIN         -1   // ANALOG NUMBERING
 
-#if MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
+#if MB(RAMPS_14_EFF) || MB(RAMPS_14_EEF) || MB(RAMPS_14_SF) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
   #define HEATER_BED_PIN   -1    // NO BED
 #else
   #define HEATER_BED_PIN    8    // BED
