@@ -16,7 +16,6 @@
 #define E0_MS2_PIN -1
 #define E1_MS1_PIN -1
 #define E1_MS2_PIN -1
-#define DIGIPOTSS_PIN -1
 #define HEATER_3_PIN -1
 #define TEMP_3_PIN -1
 
@@ -269,7 +268,7 @@
     analogInputToDigitalPin(TEMP_BED_PIN) \
   }
 
-#define HAS_DIGIPOTSS (DIGIPOTSS_PIN >= 0)
+#define HAS_DIGIPOTSS (PIN_EXISTS(DIGIPOTSS))
 
 #endif //__PINS_H
 
