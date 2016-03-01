@@ -95,6 +95,9 @@ class PrintManager : public Subject<PrinterState_t>
 		static bool knownPosition();
 		static void knownPosition(bool state);
 
+		bool getBedMissingFlag();
+		void setBedMissingFlag(bool flag);
+
 	private:
 		void inactivityTriggered();
 
@@ -108,6 +111,8 @@ class PrintManager : public Subject<PrinterState_t>
 		bool m_inactivity_flag;
 
 		bool m_known_position;
+		
+		bool m_bed_missing_flag;
 };
 
 #endif //PRINT_MANAGER_H
