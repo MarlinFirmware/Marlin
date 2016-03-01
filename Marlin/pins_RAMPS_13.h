@@ -8,7 +8,7 @@
  *  RAMPS_13_EFF (Extruder, Fan, Fan)
  *  RAMPS_13_EEF (Extruder, Extruder, Fan)
  *  RAMPS_13_SF  (Spindle, Controller Fan)
- * 
+ *
  *  RAMPS_14_EFB (Extruder, Fan, Bed)
  *  RAMPS_14_EEB (Extruder, Extruder, Bed)
  *  RAMPS_14_EFF (Extruder, Fan, Fan)
