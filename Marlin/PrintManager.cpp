@@ -109,6 +109,12 @@ void PrintManager::startPrint()
 
 	PrintManager::single::instance().state(PRINTING);
 	action_start_print();
+#ifdef BED_DETECTION
+	if(PrintManager::single::instance().getBedMissingFlag() == true)
+	{
+		return;
+	}
+#endif // BED_DETECTION
 	startTime();
 }
 
