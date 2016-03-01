@@ -243,6 +243,12 @@ void action_level_plate()
 void gui_action_homing()
 {
 	action_homing();
+#ifdef BED_DETECTION
+	if(PrintManager::single::instance().getBedMissingFlag() == true)
+	{
+		return;
+	}
+#endif // BED_DETECTION
 	action_move_to_rest();
 }
 
@@ -634,6 +640,14 @@ void action_start_print()
 	PrintManager::single::instance().state(HOMING);
 #endif // DOGLCD
 	action_homing();
+	
+#ifdef BED_DETECTION
+	if(PrintManager::single::instance().getBedMissingFlag() == true)
+	{
+		PrintManager::single::instance().state(STOPPED);
+		return;
+	}
+#endif // BED_DETECTION
 
 	if (bed_leveling == true || (bed_leveling == false && AutoLevelManager::single::instance().state() == true))
 	{
