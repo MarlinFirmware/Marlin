@@ -12,7 +12,7 @@
 #define SERVO0_PIN 22 // Motor header MX1
 #define SERVO1_PIN 23 // Motor header MX2
 #define SERVO2_PIN 24 // Motor header MX3
-#define SERVO2_PIN  5 // PWM header pin 5
+#define SERVO3_PIN  5 // PWM header pin 5
 
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
