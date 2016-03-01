@@ -191,6 +191,7 @@ const char PT_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = "Mudar filamento";
 const char PT_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = "A ajustar posi""\xe7""""\xe3""o";
 const char PT_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = "Impress""\xe3""o em pausa";
 const char PT_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = "Retire os res""\xed""duos da base";
+const char PT_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Carateres inv""\xe1""lidos no nome";
 const char PT_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = "Mudar filamento";
 const char PT_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = "A ajustar posi""\xe7""""\xe3""o";
 const char PT_OPTION_STATS[] PROGMEM                    = "Estat""\xed""sticas";
@@ -198,6 +199,6 @@ const char PT_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = "Estat""\xed""sticas";
 const char PT_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tempo";
 const char PT_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Conclu""\xed""das";
 const char PT_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Falhadas";
-const char PT_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = "Carateres inv""\xe1""lidos no nome";
+const char PT_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Base n""\xe3""o detetada";
 
 #endif //LANGUAGE_PT_H
