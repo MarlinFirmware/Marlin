@@ -3199,7 +3199,10 @@ inline void gcode_G28() {
       #if ENABLED(Z_PROBE_SLED)
         dock_sled(true); // dock the sled
       #elif Z_RAISE_AFTER_PROBING > 0
-        raise_z_after_probing();
+        // Raise Z axis for non-delta and non servo based probes
+        #if !defined(HAS_SERVO_ENDSTOPS) && DISABLED(Z_PROBE_ALLEN_KEY) && DISABLED(Z_PROBE_SLED)
+          raise_z_after_probing();
+        #endif
       #endif
 
     #endif // !DELTA
