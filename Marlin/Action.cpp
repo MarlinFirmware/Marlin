@@ -251,6 +251,11 @@ void action_homing()
 		current_position[Z_AXIS] = destination[Z_AXIS];
 		
 		bedDetectionHomeZ(false);
+		
+		if(PrintManager::single::instance().getBedMissingFlag() == true)
+		{
+			return;
+		}
 
 #else //no BED_DETECTION
 
