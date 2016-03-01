@@ -127,6 +127,8 @@
   #include "pins_BQ_ZUM_MEGA_3D.h"
 #elif MB(99)
   #include "pins_99.h"
+#elif MB(AJ4P)
+  #include "pins_AJ4P.h"
 #else
   #error Unknown MOTHERBOARD value set in Configuration.h
 #endif
