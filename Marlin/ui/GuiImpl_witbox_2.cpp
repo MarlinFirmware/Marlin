@@ -1285,6 +1285,15 @@ namespace ui
 		local_view->add(screen_settings);
 		return local_view;
 	}
+	
+#ifdef BED_DETECTION
+	static ScreenError * make_screen_base_error()
+	{
+		ScreenError * local_view = new ScreenError(MSG_SCREEN_ERROR_TITLE(), MSG_SCREEN_BASE_ERROR_TEXT(), MSG_PUSH_TO_BACK(), bits_emergency);
+		local_view->add(screen_main);
+		return local_view;
+	}
+#endif // BED_DETECTION
 
 	Screen * new_view;
 
@@ -1379,7 +1388,7 @@ namespace ui
 			case screen_SD_name_error:
 				new_view = make_screen_SD_name_error();
 				break;
-
+				
 			// Unload filament
 			case screen_unload_init:
 				new_view = make_screen_unload_init();
@@ -1745,11 +1754,18 @@ namespace ui
 			case screen_error_temperature:
 				new_view = make_screen_error_temperature();
 				break;
+
+#ifdef BED_DETECTION
+			case screen_base_error:
+				new_view = make_screen_base_error();
+				break;
+#endif // BED_DETECTION
 			
 			// Statistics screen	
 			case screen_view_stats:
 				new_view = make_screen_view_stats();
 				break;
+				
 		}
 		return new_view; 
 	}

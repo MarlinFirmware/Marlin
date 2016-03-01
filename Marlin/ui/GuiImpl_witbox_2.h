@@ -171,6 +171,9 @@ namespace ui
 		screen_error_temperature,
 		screen_none,
 		screen_view_stats,
+#ifdef BED_DETECTION
+		screen_base_error,
+#endif // BED_DETECTION
 	} ScreenIndex_t;
 
 	class Screen;
