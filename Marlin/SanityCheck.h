@@ -469,6 +469,8 @@
   #error FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead.
 #elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
   #error DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated - set USE_*_ENDSTOP flags instead
+#elif ENABLED(Z_DUAL_ENDSTOPS) && !defined(Z2_USE_ENDSTOP)
+  #error Z_DUAL_ENDSTOPS settings are simplified. Just set Z2_USE_ENDSTOP to the endstop you want to repurpose for Z2
 #endif
 
 #endif //SANITYCHECK_H
