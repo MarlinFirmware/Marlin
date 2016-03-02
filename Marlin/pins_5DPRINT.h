@@ -47,7 +47,6 @@
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
-#define ALARM_PIN          -1
 
 // The SDSS pin uses a different pin mapping from file Sd2PinMap.h
 #define SDSS               20
