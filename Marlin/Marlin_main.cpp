@@ -967,10 +967,24 @@ void get_command()
   { 
     return;
   } 
-  else
+  
+  static uint8_t last_serial_count = 0;
+  
+  if(serial_count > 0) 
   {
-	  serial_count = 0; // Incomplete messages from serial would make commands read from SD fail  
+    if(serial_count == last_serial_count)
+	{
+		lcd_emergency_stop();
+		serial_count = 0;
+	}
+	else
+	{
+		// give partial serial data a chance to complete
+		return;
+	}
   }
+
+  last_serial_count = serial_count;
 
   //'#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
   // if it occurs, stop_buffering is triggered and the buffer is ran dry.
