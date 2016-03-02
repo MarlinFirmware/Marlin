@@ -275,17 +275,25 @@
   #include "Arduino.h"
 
   /**
-   * ENDSTOPPULLUPS
+   * Set ENDSTOPPULLUPS for unused endstop switches
    */
   #if ENABLED(ENDSTOPPULLUPS)
-    #if DISABLED(DISABLE_MAX_ENDSTOPS)
+    #if DISABLED(USE_XMAX_PLUG)
       #define ENDSTOPPULLUP_XMAX
+    #endif
+    #if DISABLED(USE_YMAX_PLUG)
       #define ENDSTOPPULLUP_YMAX
+    #endif
+    #if DISABLED(USE_ZMAX_PLUG)
       #define ENDSTOPPULLUP_ZMAX
     #endif
-    #if DISABLED(DISABLE_MIN_ENDSTOPS)
+    #if DISABLED(USE_XMIN_PLUG)
       #define ENDSTOPPULLUP_XMIN
+    #endif
+    #if DISABLED(USE_YMIN_PLUG)
       #define ENDSTOPPULLUP_YMIN
+    #endif
+    #if DISABLED(USE_ZMIN_PLUG)
       #define ENDSTOPPULLUP_ZMIN
     #endif
     #if DISABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
