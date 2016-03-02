@@ -24,8 +24,8 @@
 #define MACROS_H
 
 // Macros to make a string from a macro
-#define STRINGIFY_(n) #n
-#define STRINGIFY(n) STRINGIFY_(n)
+#define STRINGIFY_(M) #M
+#define STRINGIFY(M) STRINGIFY_(M)
 
 // Macros for bit masks
 #define TEST(n,b) (((n)&_BV(b))!=0)
