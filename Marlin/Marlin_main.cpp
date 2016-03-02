@@ -978,12 +978,13 @@ void get_command()
 	}
 	else
 	{
+		last_serial_count = serial_count;
 		// give partial serial data a chance to complete
 		return;
 	}
   }
 
-  last_serial_count = serial_count;
+  last_serial_count = 0;
 
   //'#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
   // if it occurs, stop_buffering is triggered and the buffer is ran dry.
