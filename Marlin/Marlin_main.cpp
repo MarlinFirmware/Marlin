@@ -5621,12 +5621,8 @@ inline void gcode_T(uint8_t tmp_extruder) {
           }
 
           // apply Y & Z extruder offset (x offset is already used in determining home pos)
-          current_position[Y_AXIS] = current_position[Y_AXIS] -
-                                     extruder_offset[Y_AXIS][active_extruder] +
-                                     extruder_offset[Y_AXIS][tmp_extruder];
-          current_position[Z_AXIS] = current_position[Z_AXIS] -
-                                     extruder_offset[Z_AXIS][active_extruder] +
-                                     extruder_offset[Z_AXIS][tmp_extruder];
+          current_position[Y_AXIS] -= extruder_offset[Y_AXIS][active_extruder] - extruder_offset[Y_AXIS][tmp_extruder];
+          current_position[Z_AXIS] -= extruder_offset[Z_AXIS][active_extruder] - extruder_offset[Z_AXIS][tmp_extruder];
           active_extruder = tmp_extruder;
 
           // This function resets the max/min values - the current position may be overwritten below.
