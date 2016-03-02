@@ -420,6 +420,17 @@
 #endif
 
 /**
+ * Endstops
+ */
+#if DISABLED(HAS_ENDSTOP_X_MIN) && DISABLED(HAS_ENDSTOP_X_MAX)
+ #error You must enable HAS_ENDSTOP_X_MIN or HAS_ENDSTOP_X_MAX
+#elif DISABLED(HAS_ENDSTOP_Y_MIN) && DISABLED(HAS_ENDSTOP_Y_MAX)
+ #error You must enable HAS_ENDSTOP_Y_MIN or HAS_ENDSTOP_Y_MAX
+#elif DISABLED(HAS_ENDSTOP_Z_MIN) && DISABLED(HAS_ENDSTOP_Z_MAX)
+ #error You must enable HAS_ENDSTOP_Z_MIN or HAS_ENDSTOP_Z_MAX
+#endif
+
+/**
  * Warnings for old configurations
  */
 #if WATCH_TEMP_PERIOD > 500
@@ -456,6 +467,8 @@
   #error Z_RAISE_BEFORE_HOMING is deprecated. Use MIN_Z_HEIGHT_FOR_HOMING instead.
 #elif defined(FILAMENT_SENSOR)
   #error FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead.
+#elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
+  #error DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated - set USE_*_ENDSTOP flags instead
 #endif
 
 #endif //SANITYCHECK_H
