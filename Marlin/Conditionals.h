@@ -504,6 +504,47 @@
   #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1)
 
   /**
+   * Z_DUAL_ENDSTOPS endstop reassignment
+   */
+  #if ENABLED(Z_DUAL_ENDSTOPS)
+    #define _XMIN_ 100
+    #define _YMIN_ 200
+    #define _ZMIN_ 300
+    #define _XMAX_ 101
+    #define _YMAX_ 201
+    #define _ZMAX_ 301
+    const bool Z2_MAX_ENDSTOP_INVERTING =
+      #if Z2_USE_ENDSTOP == _XMAX_
+        X_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN X_MAX_PIN
+        #undef USE_XMAX_PLUG
+      #elif Z2_USE_ENDSTOP == _YMAX_
+        Y_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Y_MAX_PIN
+        #undef USE_YMAX_PLUG
+      #elif Z2_USE_ENDSTOP == _ZMAX_
+        Z_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Z_MAX_PIN
+        #undef USE_ZMAX_PLUG
+      #elif Z2_USE_ENDSTOP == _XMIN_
+        X_MIN_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN X_MIN_PIN
+        #undef USE_XMIN_PLUG
+      #elif Z2_USE_ENDSTOP == _YMIN_
+        Y_MIN_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Y_MIN_PIN
+        #undef USE_YMIN_PLUG
+      #elif Z2_USE_ENDSTOP == _ZMIN_
+        Z_MIN_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Z_MIN_PIN
+        #undef USE_ZMIN_PLUG
+      #else
+        0
+      #endif
+    ;
+  #endif
+
+  /**
    * Shorthand for pin tests, used wherever needed
    */
   #define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 != -2)
