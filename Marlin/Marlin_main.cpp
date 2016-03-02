@@ -974,7 +974,6 @@ void get_command()
   {
     if(serial_count == last_serial_count)
 	{
-		lcd_emergency_stop();
 		serial_count = 0;
 	}
 	else
