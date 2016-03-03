@@ -17,6 +17,12 @@
  * along with the Arduino Sd2Card Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+// Patches:
+//
+// Toshiba Flashair compatibility
+// -> http://www.rc-cam.com/forum/index.php?/topic/4058-marlin-reprap-with-toshiba-flashair-wifi-firmware-patch/
+
 #include "Marlin.h"
 
 #ifdef SDSUPPORT
@@ -500,10 +506,16 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
   spiRec();
 #endif
   chipSelectHigh();
+#ifdef FLASH_AIR
+  spiSend(0xFF);
+#endif
   return true;
 
  fail:
   chipSelectHigh();
+#ifdef FLASH_AIR
+  spiSend(0xFF);
+#endif
   return false;
 }
 //------------------------------------------------------------------------------
