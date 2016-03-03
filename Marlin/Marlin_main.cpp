@@ -1808,6 +1808,11 @@ static void setup_for_endstop_move() {
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
+static void unknown_position_error() {
+  LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+  SERIAL_ECHO_START;
+  SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+}
 
 #if ENABLED(Z_PROBE_SLED)
 
@@ -3650,6 +3655,11 @@ inline void gcode_M42() {
    * regenerated.
    */
   inline void gcode_M48() {
+
+    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS] || !axis_known_position[Z_AXIS]) {
+      unknown_position_error();
+      return;
+    }
 
     double sum = 0.0, mean = 0.0, sigma = 0.0, sample_set[50];
     uint8_t verbose_level = 1, n_samples = 10, n_legs = 0, schizoid_flag = 0;
