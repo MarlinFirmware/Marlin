@@ -638,6 +638,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 // BQ SMART FULL GRAPHIC CONTROLLER
 //#define BQ_LCD_SMART_CONTROLLER
 
+// Support for Toshiba Flashair SD cards
+#define FLASH_AIR
+
 //automatic expansion
 #if defined (MAKRPANEL)
  #define DOGLCD
