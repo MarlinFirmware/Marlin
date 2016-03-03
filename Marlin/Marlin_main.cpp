@@ -7115,7 +7115,11 @@ void kill(const char* lcd_msg) {
   for (int i = 5; i--; lcd_update()) delay(200); // Wait a short time
   cli();   // disable interrupts
   suicide();
-  while (1) { /* Intentionally left empty */ } // Wait for reset
+  while (1) {
+	#if ENABLED(USE_WATCHDOG)
+	  watchdog_reset();
+	#endif
+  } // Wait for reset
 }
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
