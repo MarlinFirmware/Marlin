@@ -611,6 +611,12 @@ static void lcd_implementation_status_screen() {
 
       lcd.setCursor(0, 1);
 
+      //
+      // Print XYZ Coordinates
+      // If the axis was not homed, show "---"
+      // If the position is untrusted, show "?"
+      //
+
       #if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
 
         // If we both have a 2nd extruder and a heated bed,
@@ -620,14 +626,14 @@ static void lcd_implementation_status_screen() {
 
       #else
 
-        lcd.print('X');
-        if (axis_known_position[X_AXIS])
+        lcd.print(TEST(axis_known_position, X_AXIS) || !TEST(axis_was_homed, X_AXIS) ? 'X' : '?');
+        if (TEST(axis_was_homed, X_AXIS))
           lcd.print(ftostr4sign(current_position[X_AXIS]));
         else
           lcd_printPGM(PSTR(" ---"));
 
-        lcd_printPGM(PSTR(" Y"));
-        if (axis_known_position[Y_AXIS])
+        lcd_printPGM(TEST(axis_known_position, Y_AXIS) || !TEST(axis_was_homed, Y_AXIS) ? PSTR(" Y") : PSTR(" ?"));
+        if (TEST(axis_was_homed, Y_AXIS))
           lcd.print(ftostr4sign(current_position[Y_AXIS]));
         else
           lcd_printPGM(PSTR(" ---"));
@@ -637,8 +643,8 @@ static void lcd_implementation_status_screen() {
     #endif // LCD_WIDTH >= 20
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
-    lcd_printPGM(PSTR("Z "));
-    if (axis_known_position[Z_AXIS])
+    lcd_printPGM(TEST(axis_known_position, Z_AXIS) || !TEST(axis_was_homed, Z_AXIS) ? PSTR("Z ") : PSTR("? "));
+    if (TEST(axis_was_homed, Z_AXIS))
       lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
     else
       lcd_printPGM(PSTR("---.--"));
