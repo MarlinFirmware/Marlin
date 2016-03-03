@@ -816,10 +816,14 @@ void get_command()
   while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
     serial_char = MYSERIAL.read();
 
-#ifdef DOGLCD
+    if(serial_char == '\n' ||
+       serial_char == '\r' ||
+       serial_count >= (MAX_CMD_SIZE - 1) )
+    {
+	#ifdef DOGLCD
 		if ( SerialManager::single::instance().state() &&
-		     PrintManager::single::instance().state() != SERIAL_CONTROL &&
-		     PrintManager::single::instance().state() != INITIALIZING )
+			 PrintManager::single::instance().state() != SERIAL_CONTROL &&
+			 PrintManager::single::instance().state() != INITIALIZING )
 		{
 			if (ui::ViewManager::getInstance().getViewIndex() == ui::screen_main)
 			{
@@ -827,12 +831,8 @@ void get_command()
 				ui::ViewManager::getInstance().activeView(ui::screen_serial);
 			}
 		}
-#endif
-
-    if(serial_char == '\n' ||
-       serial_char == '\r' ||
-       serial_count >= (MAX_CMD_SIZE - 1) )
-    {
+	#endif
+		
       // end of line == end of comment
       comment_mode = false;
 
