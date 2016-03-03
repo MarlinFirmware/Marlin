@@ -82,7 +82,6 @@
 #define SDPOWER            -1
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
-#define ALARM_PIN          -1
 #define SD_DETECT_PIN      -1
 
 #define BEEPER_PIN         -1
