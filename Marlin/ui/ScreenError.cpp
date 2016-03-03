@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenNameError.cpp
+/// \file ScreenError.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
@@ -26,29 +26,29 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ScreenNameError.h"
+#include "ScreenError.h"
 
 #include "GuiBitmaps_witbox_2.h"
 #include "GuiPainter.h"
 
 namespace ui
 {
-	ScreenNameError::ScreenNameError(const char * title, const char * message, const char * box, const unsigned char * bitmap)
+	ScreenError::ScreenError(const char * title, const char * message, const char * box, const unsigned char * bitmap)
 		: Screen(title, SIMPLE)
 		, m_message(message)
 		, m_box(box)
 		, m_bitmap(bitmap)
 	{ }
 
-	ScreenNameError::~ScreenNameError()
+	ScreenError::~ScreenError()
 	{ }
 
-	void ScreenNameError::init(uint16_t index)
+	void ScreenError::init(uint16_t index)
 	{
 		draw();
 	}
 
-	void ScreenNameError::draw()
+	void ScreenError::draw()
 	{
 		painter.firstPage();
 		do
@@ -73,12 +73,12 @@ namespace ui
 		} while (painter.nextPage());
 	}
 
-	void ScreenNameError::add(ScreenIndex_t const & component)
+	void ScreenError::add(ScreenIndex_t const & component)
 	{
 		m_next_screen = component;
 	}
 	
-	void ScreenNameError::press()
+	void ScreenError::press()
 	{
 		ViewManager::getInstance().activeView(m_next_screen);
 	}

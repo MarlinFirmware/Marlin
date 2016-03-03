@@ -47,6 +47,36 @@ extern unsigned long previous_millis_cmd;
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
 #ifdef BED_DETECTION
+void actionBedMissing()
+{	
+	plan_reset_position();
+
+	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
+	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+	current_position[E_AXIS] = plan_get_axis_position(E_AXIS);
+	
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], target[E_AXIS], max_feedrate[E_AXIS], active_extruder);
+	st_synchronize();
+	
+	target[X_AXIS] = POSITION_REST_X;
+	target[Y_AXIS] = POSITION_REST_Y;
+	target[Z_AXIS] = Z_MAX_POS/2;
+	
+	enable_endstops(true);
+
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], target[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], active_extruder);
+	st_synchronize();
+	
+	current_position[Z_AXIS] = target[Z_AXIS];
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100 , active_extruder);
+	st_synchronize();
+	
+	current_position[X_AXIS] = target[X_AXIS];
+	current_position[Y_AXIS] = target[Y_AXIS];
+	enable_endstops(false);
+}
+
 void bedDetectionHomeZ(bool firstHoming) 
 {
 	int axis_home_dir = home_dir(Z_AXIS);
@@ -71,9 +101,16 @@ void bedDetectionHomeZ(bool firstHoming)
 
 	if(checkZminEndstop() == false)
 	{
+		quickStop();
+		card.sdprinting = false;
+		actionBedMissing();
 		lcd_enable_button();
-		lcd_emergency_stop();
+		PrintManager::single::instance().setBedMissingFlag(true);
 		return;
+	}
+	else
+	{
+		PrintManager::single::instance().setBedMissingFlag(false);
 	}
 
 	if(!firstHoming)
@@ -214,6 +251,11 @@ void action_homing()
 		current_position[Z_AXIS] = destination[Z_AXIS];
 		
 		bedDetectionHomeZ(false);
+		
+		if(PrintManager::single::instance().getBedMissingFlag() == true)
+		{
+			return;
+		}
 
 #else //no BED_DETECTION
 

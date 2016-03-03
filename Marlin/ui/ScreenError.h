@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenNameError.cpp
+/// \file ScreenError.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
@@ -33,11 +33,11 @@
 
 namespace ui
 {
-	class ScreenNameError : public Screen
+	class ScreenError : public Screen
 	{
 		public:
-			ScreenNameError(const char * title, const char * message, const char * box, const unsigned char * bitmap);
-			~ScreenNameError();
+			ScreenError(const char * title, const char * message, const char * box, const unsigned char * bitmap);
+			~ScreenError();
 
 			void draw();
 

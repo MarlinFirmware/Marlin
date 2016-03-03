@@ -36,6 +36,7 @@
 #include "SteppersManager.h"
 #include "ViewManager.h"
 #include "cardreader.h"
+#include "GuiManager.h"
 
 #define INACTIVITY_TIME_MINUTES 10
 
@@ -44,6 +45,7 @@ PrintManager::PrintManager()
 	, m_known_position(false)
 	, m_inactivity_time(0)
 	, m_inactivity_flag(true)
+	, m_bed_missing_flag(false)
 {
 #ifdef FAN_BOX_PIN
 	pinMode(FAN_BOX_PIN, OUTPUT);
@@ -111,6 +113,12 @@ void PrintManager::startPrint()
 
 	PrintManager::single::instance().state(PRINTING);
 	action_start_print();
+#ifdef BED_DETECTION
+	if(PrintManager::single::instance().getBedMissingFlag() == true)
+	{
+		return;
+	}
+#endif // BED_DETECTION
 	startTime();
 }
 
@@ -311,3 +319,29 @@ void PrintManager::knownPosition(bool state)
 {
 	PrintManager::single::instance().setKnownPosition(state);
 }
+
+bool PrintManager::getBedMissingFlag()
+{
+	return m_bed_missing_flag;
+}
+
+void PrintManager::setBedMissingFlag(bool flag)
+{
+#ifdef BED_DETECTION
+	m_bed_missing_flag = flag;
+	if(m_bed_missing_flag == true)// && PrintManager::single::instance().state() != SERIAL)
+	{
+		if(PrintManager::single::instance().state() != SERIAL_CONTROL)
+		{
+			ui::ViewManager::getInstance().activeView(ui::screen_base_error);
+		} 
+		else
+		{
+			SERIAL_ERROR_START;
+			SERIAL_ERRORLN(" Bed not detected");
+			lcd_emergency_stop();
+		}
+	}
+#endif // BED_DETECTION
+}
+

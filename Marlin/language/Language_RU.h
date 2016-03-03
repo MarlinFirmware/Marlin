@@ -191,6 +191,7 @@ const char RU_SCREEN_MOVE_TO_CHANGE_TITLE[] PROGMEM     = """\xb7""""\xd0""""\xd
 const char RU_SCREEN_MOVE_TO_CHANGE_TEXT[] PROGMEM      = """\xc0""""\xd5""""\xd3""""\xe3""""\xdb""""\xd8""""\xe0""""\xde""""\xd2""""\xda""""\xd0"" ""\xdf""""\xde""""\xdb""""\xde""""\xd6""""\xd5""""\xdd""""\xd8""""\xef""";
 const char RU_SCREEN_PRINT_STOP_TITLE[] PROGMEM         = """\xbf""""\xd5""""\xe7""""\xd0""""\xe2""""\xec"" ""\xde""""\xe1""""\xe2""""\xd0""""\xdd""""\xde""""\xd2""""\xdb""""\xd5""""\xdd""""\xd0""";
 const char RU_SCREEN_PRINT_STOP_TEXT[] PROGMEM          = """\xc3""""\xd4""""\xd0""""\xdb""""\xd8""""\xe2""""\xd5"" ""\xde""""\xe1""""\xe2""""\xd0""""\xe2""""\xda""""\xd8"" ""\xe1"" ""\xdf""""\xd5""""\xe7""""\xd0""""\xe2""""\xdd""""\xde""""\xd3""""\xde"" ""\xe1""""\xe2""""\xde""""\xdb""""\xd0""";
+const char RU_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = """\xbd""""\xd5""""\xd4""""\xde""""\xdf""""\xe3""""\xe1""""\xe2""""\xd8""""\xdc""""\xeb""""\xd5"" ""\xe1""""\xd8""""\xdc""""\xd2""""\xde""""\xdb""""\xeb"" ""\xd2"" ""\xdd""""\xd0""""\xd7""""\xd2""""\xd0""""\xdd""""\xd8""""\xd8"" ""\xe4""""\xd0""""\xd9""""\xdb""""\xd0""";
 const char RU_SCREEN_CHANGE_WAIT_PAUSE_TITLE[] PROGMEM  = """\xb7""""\xd0""""\xdc""""\xd5""""\xdd""""\xd8""""\xe2""""\xec"" ""\xdd""""\xd8""""\xe2""""\xec""";
 const char RU_SCREEN_CHANGE_WAIT_PAUSE_TEXT[] PROGMEM   = """\xc0""""\xd5""""\xd3""""\xe3""""\xdb""""\xd8""""\xe0""""\xde""""\xd2""""\xda""""\xd0"" ""\xdf""""\xde""""\xdb""""\xde""""\xd6""""\xd5""""\xdd""""\xd8""""\xef""";
 const char RU_OPTION_STATS[] PROGMEM                    = """\xc1""""\xe2""""\xd0""""\xe2""""\xd8""""\xe1""""\xe2""""\xd8""""\xda""""\xd0""";
@@ -198,6 +199,6 @@ const char RU_SCREEN_VIEW_STATS_TITLE[] PROGMEM         = """\xc1""""\xe2""""\xd
 const char RU_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = """\xb2""""\xe0""""\xd5""""\xdc""""\xef""";
 const char RU_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = """\xb2""""\xeb""""\xdf""""\xde""""\xdb""""\xdd""""\xd5""""\xdd""""\xde""";
 const char RU_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = """\xbd""""\xd5"" ""\xd2""""\xeb""""\xdf""""\xde""""\xdb""""\xdd""""\xd5""""\xdd""""\xde""";
-const char RU_SCREEN_NAME_ERROR_TEXT[] PROGMEM          = """\xbd""""\xd5""""\xd4""""\xde""""\xdf""""\xe3""""\xe1""""\xe2""""\xd8""""\xdc""""\xeb""""\xd5"" ""\xe1""""\xd8""""\xdc""""\xd2""""\xde""""\xdb""""\xeb"" ""\xd2"" ""\xdd""""\xd0""""\xd7""""\xd2""""\xd0""""\xdd""""\xd8""""\xd8"" ""\xe4""""\xd0""""\xd9""""\xdb""""\xd0""";
+const char RU_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = """\xbf""""\xde""""\xd4""""\xdb""""\xde""""\xd6""""\xda""""\xd0"" ""\xdd""""\xd5"" ""\xde""""\xd1""""\xdd""""\xd0""""\xe0""""\xe3""""\xd6""""\xd5""""\xdd""""\xd0""";
 
 #endif //LANGUAGE_RU_H

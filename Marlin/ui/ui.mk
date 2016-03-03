@@ -23,6 +23,6 @@ CXXSRC += \
 	ScreenTemperature.cpp \
 	ScreenTransition.cpp \
 	ScreenStats.cpp \
-	ScreenNameError.cpp \
+	ScreenError.cpp \
 	ViewManager.cpp
 	
