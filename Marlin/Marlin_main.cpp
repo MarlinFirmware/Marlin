@@ -74,7 +74,7 @@
  *  - http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
  *
  * Help us document these G-codes online:
- *  - http://marlinfirmware.org/index.php/G-Code
+ *  - https://github.com/MarlinFirmware/Marlin/wiki/G-Code-in-Marlin
  *  - http://reprap.org/wiki/G-code
  *
  * -----------------
@@ -288,7 +288,6 @@ static millis_t stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME * 1000L;
 millis_t print_job_start_ms = 0; ///< Print job start time
 millis_t print_job_stop_ms = 0;  ///< Print job stop time
 static uint8_t target_extruder;
-bool no_wait_for_cooling = true;
 bool target_direction;
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
@@ -974,6 +973,7 @@ void get_command() {
 bool code_has_value() {
   int i = 1;
   char c = seen_pointer[i];
+  while (c == ' ') c = seen_pointer[++i];
   if (c == '-' || c == '+') c = seen_pointer[++i];
   if (c == '.') c = seen_pointer[++i];
   return (c >= '0' && c <= '9');
@@ -3198,6 +3198,11 @@ inline void gcode_G28() {
       // Sled assembly for Cartesian bots
       #if ENABLED(Z_PROBE_SLED)
         dock_sled(true); // dock the sled
+      #elif Z_RAISE_AFTER_PROBING > 0
+        // Raise Z axis for non-delta and non servo based probes
+        #if !defined(HAS_SERVO_ENDSTOPS) && DISABLED(Z_PROBE_ALLEN_KEY) && DISABLED(Z_PROBE_SLED)
+          raise_z_after_probing();
+        #endif
       #endif
 
     #endif // !DELTA
@@ -3803,14 +3808,9 @@ inline void gcode_M104() {
   }
 }
 
-/**
- * M105: Read hot end and bed temperature
- */
-inline void gcode_M105() {
-  if (setTargetedHotend(105)) return;
+#if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
 
-  #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
-    SERIAL_PROTOCOLPGM(MSG_OK);
+  void print_heaterstates() {
     #if HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675)
       SERIAL_PROTOCOLPGM(" T:");
       SERIAL_PROTOCOL_F(degHotend(target_extruder), 1);
@@ -3823,50 +3823,76 @@ inline void gcode_M105() {
       SERIAL_PROTOCOLPGM(" /");
       SERIAL_PROTOCOL_F(degTargetBed(), 1);
     #endif
-    for (int8_t e = 0; e < EXTRUDERS; ++e) {
-      SERIAL_PROTOCOLPGM(" T");
-      SERIAL_PROTOCOL(e);
-      SERIAL_PROTOCOLCHAR(':');
-      SERIAL_PROTOCOL_F(degHotend(e), 1);
-      SERIAL_PROTOCOLPGM(" /");
-      SERIAL_PROTOCOL_F(degTargetHotend(e), 1);
-    }
+    #if EXTRUDERS > 1
+      for (int8_t e = 0; e < EXTRUDERS; ++e) {
+        SERIAL_PROTOCOLPGM(" T");
+        SERIAL_PROTOCOL(e);
+        SERIAL_PROTOCOLCHAR(':');
+        SERIAL_PROTOCOL_F(degHotend(e), 1);
+        SERIAL_PROTOCOLPGM(" /");
+        SERIAL_PROTOCOL_F(degTargetHotend(e), 1);
+      }
+    #endif
+    #if HAS_TEMP_BED
+      SERIAL_PROTOCOLPGM(" B@:");
+      #ifdef BED_WATTS
+        SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1)) / 127);
+        SERIAL_PROTOCOLCHAR('W');
+      #else
+        SERIAL_PROTOCOL(getHeaterPower(-1));
+      #endif
+    #endif
+    SERIAL_PROTOCOLPGM(" @:");
+    #ifdef EXTRUDER_WATTS
+      SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(target_extruder)) / 127);
+      SERIAL_PROTOCOLCHAR('W');
+    #else
+      SERIAL_PROTOCOL(getHeaterPower(target_extruder));
+    #endif
+    #if EXTRUDERS > 1
+      for (int8_t e = 0; e < EXTRUDERS; ++e) {
+        SERIAL_PROTOCOLPGM(" @");
+        SERIAL_PROTOCOL(e);
+        SERIAL_PROTOCOLCHAR(':');
+        #ifdef EXTRUDER_WATTS
+          SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(e)) / 127);
+          SERIAL_PROTOCOLCHAR('W');
+        #else
+          SERIAL_PROTOCOL(getHeaterPower(e));
+        #endif
+      }
+    #endif
+    #if ENABLED(SHOW_TEMP_ADC_VALUES)
+      #if HAS_TEMP_BED
+        SERIAL_PROTOCOLPGM("    ADC B:");
+        SERIAL_PROTOCOL_F(degBed(), 1);
+        SERIAL_PROTOCOLPGM("C->");
+        SERIAL_PROTOCOL_F(rawBedTemp() / OVERSAMPLENR, 0);
+      #endif
+      for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
+        SERIAL_PROTOCOLPGM("  T");
+        SERIAL_PROTOCOL(cur_extruder);
+        SERIAL_PROTOCOLCHAR(':');
+        SERIAL_PROTOCOL_F(degHotend(cur_extruder), 1);
+        SERIAL_PROTOCOLPGM("C->");
+        SERIAL_PROTOCOL_F(rawHotendTemp(cur_extruder) / OVERSAMPLENR, 0);
+      }
+    #endif
+  }
+#endif
+
+/**
+ * M105: Read hot end and bed temperature
+ */
+inline void gcode_M105() {
+  if (setTargetedHotend(105)) return;
+
+  #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+    SERIAL_PROTOCOLPGM(MSG_OK);
+    print_heaterstates();
   #else // !HAS_TEMP_0 && !HAS_TEMP_BED
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
-  #endif
-
-  SERIAL_PROTOCOLPGM(" @:");
-  #ifdef EXTRUDER_WATTS
-    SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(target_extruder)) / 127);
-    SERIAL_PROTOCOLCHAR('W');
-  #else
-    SERIAL_PROTOCOL(getHeaterPower(target_extruder));
-  #endif
-
-  SERIAL_PROTOCOLPGM(" B@:");
-  #ifdef BED_WATTS
-    SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1)) / 127);
-    SERIAL_PROTOCOLCHAR('W');
-  #else
-    SERIAL_PROTOCOL(getHeaterPower(-1));
-  #endif
-
-  #if ENABLED(SHOW_TEMP_ADC_VALUES)
-    #if HAS_TEMP_BED
-      SERIAL_PROTOCOLPGM("    ADC B:");
-      SERIAL_PROTOCOL_F(degBed(), 1);
-      SERIAL_PROTOCOLPGM("C->");
-      SERIAL_PROTOCOL_F(rawBedTemp() / OVERSAMPLENR, 0);
-    #endif
-    for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
-      SERIAL_PROTOCOLPGM("  T");
-      SERIAL_PROTOCOL(cur_extruder);
-      SERIAL_PROTOCOLCHAR(':');
-      SERIAL_PROTOCOL_F(degHotend(cur_extruder), 1);
-      SERIAL_PROTOCOLPGM("C->");
-      SERIAL_PROTOCOL_F(rawHotendTemp(cur_extruder) / OVERSAMPLENR, 0);
-    }
   #endif
 
   SERIAL_EOL;
@@ -3890,6 +3916,8 @@ inline void gcode_M105() {
  * M109: Wait for extruder(s) to reach temperature
  */
 inline void gcode_M109() {
+  bool no_wait_for_cooling = true;
+
   if (setTargetedHotend(109)) return;
   if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
@@ -3931,10 +3959,9 @@ inline void gcode_M109() {
 
   { // while loop
     if (millis() > temp_ms + 1000UL) { //Print temp & remaining time every 1s while waiting
-      SERIAL_PROTOCOLPGM("T:");
-      SERIAL_PROTOCOL_F(degHotend(target_extruder), 1);
-      SERIAL_PROTOCOLPGM(" E:");
-      SERIAL_PROTOCOL((int)target_extruder);
+      #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+        print_heaterstates();
+      #endif
       #ifdef TEMP_RESIDENCY_TIME
         SERIAL_PROTOCOLPGM(" W:");
         if (residency_start_ms > -1) {
@@ -3976,6 +4003,8 @@ inline void gcode_M109() {
    *       Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
    */
   inline void gcode_M190() {
+    bool no_wait_for_cooling = true;
+
     if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
     LCD_MESSAGEPGM(MSG_BED_HEATING);
@@ -3992,14 +4021,10 @@ inline void gcode_M109() {
       millis_t ms = millis();
       if (ms > temp_ms + 1000UL) { //Print Temp Reading every 1 second while heating up.
         temp_ms = ms;
-        float tt = degHotend(active_extruder);
-        SERIAL_PROTOCOLPGM("T:");
-        SERIAL_PROTOCOL(tt);
-        SERIAL_PROTOCOLPGM(" E:");
-        SERIAL_PROTOCOL((int)active_extruder);
-        SERIAL_PROTOCOLPGM(" B:");
-        SERIAL_PROTOCOL_F(degBed(), 1);
-        SERIAL_EOL;
+        #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+          print_heaterstates();
+          SERIAL_EOL;
+        #endif
       }
       idle();
     }
@@ -4730,19 +4755,18 @@ inline void gcode_M226() {
       if (servo_index >= 0 && servo_index < NUM_SERVOS)
         servo[servo_index].move(servo_position);
       else {
-        SERIAL_ECHO_START;
-        SERIAL_ECHO("Servo ");
-        SERIAL_ECHO(servo_index);
-        SERIAL_ECHOLN(" out of range");
+        SERIAL_ERROR_START;
+        SERIAL_ERROR("Servo ");
+        SERIAL_ERROR(servo_index);
+        SERIAL_ERRORLN(" out of range");
       }
     }
     else if (servo_index >= 0) {
-      SERIAL_PROTOCOL(MSG_OK);
-      SERIAL_PROTOCOL(" Servo ");
-      SERIAL_PROTOCOL(servo_index);
-      SERIAL_PROTOCOL(": ");
-      SERIAL_PROTOCOL(servo[servo_index].read());
-      SERIAL_EOL;
+      SERIAL_ECHO_START;
+      SERIAL_ECHO(" Servo ");
+      SERIAL_ECHO(servo_index);
+      SERIAL_ECHO(": ");
+      SERIAL_ECHOLN(servo[servo_index].read());
     }
   }
 
@@ -4793,27 +4817,27 @@ inline void gcode_M226() {
       #endif
 
       updatePID();
-      SERIAL_PROTOCOL(MSG_OK);
+      SERIAL_ECHO_START;
       #if ENABLED(PID_PARAMS_PER_EXTRUDER)
-        SERIAL_PROTOCOL(" e:"); // specify extruder in serial output
-        SERIAL_PROTOCOL(e);
+        SERIAL_ECHO(" e:"); // specify extruder in serial output
+        SERIAL_ECHO(e);
       #endif // PID_PARAMS_PER_EXTRUDER
-      SERIAL_PROTOCOL(" p:");
-      SERIAL_PROTOCOL(PID_PARAM(Kp, e));
-      SERIAL_PROTOCOL(" i:");
-      SERIAL_PROTOCOL(unscalePID_i(PID_PARAM(Ki, e)));
-      SERIAL_PROTOCOL(" d:");
-      SERIAL_PROTOCOL(unscalePID_d(PID_PARAM(Kd, e)));
+      SERIAL_ECHO(" p:");
+      SERIAL_ECHO(PID_PARAM(Kp, e));
+      SERIAL_ECHO(" i:");
+      SERIAL_ECHO(unscalePID_i(PID_PARAM(Ki, e)));
+      SERIAL_ECHO(" d:");
+      SERIAL_ECHO(unscalePID_d(PID_PARAM(Kd, e)));
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
-        SERIAL_PROTOCOL(" c:");
+        SERIAL_ECHO(" c:");
         //Kc does not have scaling applied above, or in resetting defaults
-        SERIAL_PROTOCOL(PID_PARAM(Kc, e));
+        SERIAL_ECHO(PID_PARAM(Kc, e));
       #endif
       SERIAL_EOL;
     }
     else {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLN(MSG_INVALID_EXTRUDER);
     }
   }
 
@@ -4827,14 +4851,13 @@ inline void gcode_M226() {
     if (code_seen('D')) bedKd = scalePID_d(code_value());
 
     updatePID();
-    SERIAL_PROTOCOL(MSG_OK);
-    SERIAL_PROTOCOL(" p:");
-    SERIAL_PROTOCOL(bedKp);
-    SERIAL_PROTOCOL(" i:");
-    SERIAL_PROTOCOL(unscalePID_i(bedKi));
-    SERIAL_PROTOCOL(" d:");
-    SERIAL_PROTOCOL(unscalePID_d(bedKd));
-    SERIAL_EOL;
+    SERIAL_ECHO_START;
+    SERIAL_ECHO(" p:");
+    SERIAL_ECHO(bedKp);
+    SERIAL_ECHO(" i:");
+    SERIAL_ECHO(unscalePID_i(bedKi));
+    SERIAL_ECHO(" d:");
+    SERIAL_ECHOLN(unscalePID_d(bedKd));
   }
 
 #endif // PIDTEMPBED
@@ -4912,6 +4935,9 @@ inline void gcode_M303() {
   int e = code_seen('E') ? code_value_short() : 0;
   int c = code_seen('C') ? code_value_short() : 5;
   float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
+
+  if (e >=0 && e < EXTRUDERS)
+    target_extruder = e;
   PID_autotune(temp, e, c);
 }
 
@@ -5263,7 +5289,7 @@ inline void gcode_M503() {
       float value = code_value();
       if (Z_PROBE_OFFSET_RANGE_MIN <= value && value <= Z_PROBE_OFFSET_RANGE_MAX) {
         zprobe_zoffset = value;
-        SERIAL_ECHOPGM(MSG_OK);
+        SERIAL_ECHO(zprobe_zoffset);
       }
       else {
         SERIAL_ECHOPGM(MSG_Z_MIN);
@@ -5595,12 +5621,8 @@ inline void gcode_T(uint8_t tmp_extruder) {
           }
 
           // apply Y & Z extruder offset (x offset is already used in determining home pos)
-          current_position[Y_AXIS] = current_position[Y_AXIS] -
-                                     extruder_offset[Y_AXIS][active_extruder] +
-                                     extruder_offset[Y_AXIS][tmp_extruder];
-          current_position[Z_AXIS] = current_position[Z_AXIS] -
-                                     extruder_offset[Z_AXIS][active_extruder] +
-                                     extruder_offset[Z_AXIS][tmp_extruder];
+          current_position[Y_AXIS] -= extruder_offset[Y_AXIS][active_extruder] - extruder_offset[Y_AXIS][tmp_extruder];
+          current_position[Z_AXIS] -= extruder_offset[Z_AXIS][active_extruder] - extruder_offset[Z_AXIS][tmp_extruder];
           active_extruder = tmp_extruder;
 
           // This function resets the max/min values - the current position may be overwritten below.
@@ -5669,7 +5691,7 @@ void process_next_command() {
 
   // Sanitize the current command:
   //  - Skip leading spaces
-  //  - Bypass N[0-9][0-9]*[ ]*
+  //  - Bypass N[-0-9][0-9]*[ ]*
   //  - Overwrite * with nul to mark the end
   while (*current_command == ' ') ++current_command;
   if (*current_command == 'N' && ((current_command[1] >= '0' && current_command[1] <= '9') || current_command[1] == '-')) {
@@ -5683,8 +5705,12 @@ void process_next_command() {
   // Get the command code, which must be G, M, or T
   char command_code = *current_command;
 
+  // Skip the letter-code and spaces to get the numeric part
+  current_command_args = current_command + 1;
+  while (*current_command_args == ' ') ++current_command_args;
+
   // The code must have a numeric value
-  bool code_is_good = (current_command[1] >= '0' && current_command[1] <= '9');
+  bool code_is_good = (*current_command_args >= '0' && *current_command_args <= '9');
 
   int codenum; // define ahead of goto
 
@@ -5693,9 +5719,7 @@ void process_next_command() {
 
   // Args pointer optimizes code_seen, especially those taking XYZEF
   // This wastes a little cpu on commands that expect no arguments.
-  current_command_args = current_command;
-  while (*current_command_args && *current_command_args != ' ') ++current_command_args;
-  while (*current_command_args == ' ') ++current_command_args;
+  while (*current_command_args == ' ' || (*current_command_args >= '0' && *current_command_args <= '9')) ++current_command_args;
 
   // Interpret the code int
   seen_pointer = current_command;
@@ -6241,7 +6265,13 @@ void ok_to_send() {
   #endif
   SERIAL_PROTOCOLPGM(MSG_OK);
   #if ENABLED(ADVANCED_OK)
-    SERIAL_PROTOCOLPGM(" N"); SERIAL_PROTOCOL(gcode_LastN);
+    char* p = command_queue[cmd_queue_index_r];
+    if (*p == 'N') {
+      SERIAL_PROTOCOL(' ');
+      SERIAL_ECHO(*p++);
+      while ((*p >= '0' && *p <= '9') || *p == '-')
+        SERIAL_ECHO(*p++);
+    }
     SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(int(BLOCK_BUFFER_SIZE - movesplanned() - 1));
     SERIAL_PROTOCOLPGM(" B"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
   #endif
