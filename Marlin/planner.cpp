@@ -745,7 +745,7 @@ float junction_deviation = 0.1;
   }
   float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides
 
-  // Calculate speed in mm/second for each axis. No divide by zero due to previous checks.
+  // Calculate moves/second for this move. No divide by zero due to previous checks.
   float inverse_second = feed_rate * inverse_millimeters;
 
   int moves_queued = movesplanned();
@@ -856,7 +856,7 @@ float junction_deviation = 0.1;
 
   // Compute and limit the acceleration rate for the trapezoid generator.
   float steps_per_mm = block->step_event_count / block->millimeters;
-  long bsx = block->steps[X_AXIS], bsy = block->steps[Y_AXIS], bsz = block->steps[Z_AXIS], bse = block->steps[E_AXIS];
+  unsigned long bsx = block->steps[X_AXIS], bsy = block->steps[Y_AXIS], bsz = block->steps[Z_AXIS], bse = block->steps[E_AXIS];
   if (bsx == 0 && bsy == 0 && bsz == 0) {
     block->acceleration_st = ceil(retract_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
   }
@@ -871,11 +871,12 @@ float junction_deviation = 0.1;
                 xsteps = axis_steps_per_sqr_second[X_AXIS],
                 ysteps = axis_steps_per_sqr_second[Y_AXIS],
                 zsteps = axis_steps_per_sqr_second[Z_AXIS],
-                esteps = axis_steps_per_sqr_second[E_AXIS];
-  if ((float)acc_st * bsx / block->step_event_count > xsteps) acc_st = xsteps;
-  if ((float)acc_st * bsy / block->step_event_count > ysteps) acc_st = ysteps;
-  if ((float)acc_st * bsz / block->step_event_count > zsteps) acc_st = zsteps;
-  if ((float)acc_st * bse / block->step_event_count > esteps) acc_st = esteps;
+                esteps = axis_steps_per_sqr_second[E_AXIS],
+                allsteps = block->step_event_count;
+  if (xsteps < (acc_st * bsx) / allsteps) acc_st = (xsteps * allsteps) / bsx;
+  if (ysteps < (acc_st * bsy) / allsteps) acc_st = (ysteps * allsteps) / bsy;
+  if (zsteps < (acc_st * bsz) / allsteps) acc_st = (zsteps * allsteps) / bsz;
+  if (esteps < (acc_st * bse) / allsteps) acc_st = (esteps * allsteps) / bse;
 
   block->acceleration_st = acc_st;
   block->acceleration = acc_st / steps_per_mm;
