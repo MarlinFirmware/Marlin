@@ -275,6 +275,7 @@ void PrintManager::inactivityTriggered()
 			}
 			break;
 		case STOPPED:
+			level_plate_step = 0;
 			temp::TemperatureManager::single::instance().setTargetTemperature(0);
 			SteppersManager::disableAllSteppers();
 			ui::ViewManager::getInstance().activeView(ui::screen_inactivity);
@@ -344,4 +345,3 @@ void PrintManager::setBedMissingFlag(bool flag)
 	}
 #endif // BED_DETECTION
 }
-

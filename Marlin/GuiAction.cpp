@@ -114,10 +114,10 @@ void action_filament_load()
 	st_synchronize();
 }
 
+uint8_t level_plate_step = 0;
+
 void action_level_plate()
 {
-	static uint8_t level_plate_step = 0;
-
 	#ifndef ABL_MANUAL_PT_4_X
 		uint8_t max_steps = 4;
 		uint8_t order[4] = {0,1,2,4};
