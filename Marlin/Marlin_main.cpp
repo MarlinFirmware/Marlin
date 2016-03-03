@@ -3198,6 +3198,11 @@ inline void gcode_G28() {
       // Sled assembly for Cartesian bots
       #if ENABLED(Z_PROBE_SLED)
         dock_sled(true); // dock the sled
+      #elif Z_RAISE_AFTER_PROBING > 0
+        // Raise Z axis for non-delta and non servo based probes
+        #if !defined(HAS_SERVO_ENDSTOPS) && DISABLED(Z_PROBE_ALLEN_KEY) && DISABLED(Z_PROBE_SLED)
+          raise_z_after_probing();
+        #endif
       #endif
 
     #endif // !DELTA
@@ -5616,12 +5621,8 @@ inline void gcode_T(uint8_t tmp_extruder) {
           }
 
           // apply Y & Z extruder offset (x offset is already used in determining home pos)
-          current_position[Y_AXIS] = current_position[Y_AXIS] -
-                                     extruder_offset[Y_AXIS][active_extruder] +
-                                     extruder_offset[Y_AXIS][tmp_extruder];
-          current_position[Z_AXIS] = current_position[Z_AXIS] -
-                                     extruder_offset[Z_AXIS][active_extruder] +
-                                     extruder_offset[Z_AXIS][tmp_extruder];
+          current_position[Y_AXIS] -= extruder_offset[Y_AXIS][active_extruder] - extruder_offset[Y_AXIS][tmp_extruder];
+          current_position[Z_AXIS] -= extruder_offset[Z_AXIS][active_extruder] - extruder_offset[Z_AXIS][tmp_extruder];
           active_extruder = tmp_extruder;
 
           // This function resets the max/min values - the current position may be overwritten below.

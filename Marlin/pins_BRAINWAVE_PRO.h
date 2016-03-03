@@ -53,7 +53,6 @@
 #define LED_PIN            19
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
-#define ALARM_PIN          -1
 #define SD_DETECT_PIN      12
 
 #if DISABLED(SDSUPPORT)
