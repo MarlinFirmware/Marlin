@@ -422,12 +422,14 @@
 /**
  * Endstops
  */
-#if DISABLED(HAS_ENDSTOP_X_MIN) && DISABLED(HAS_ENDSTOP_X_MAX)
- #error You must enable HAS_ENDSTOP_X_MIN or HAS_ENDSTOP_X_MAX
-#elif DISABLED(HAS_ENDSTOP_Y_MIN) && DISABLED(HAS_ENDSTOP_Y_MAX)
- #error You must enable HAS_ENDSTOP_Y_MIN or HAS_ENDSTOP_Y_MAX
-#elif DISABLED(HAS_ENDSTOP_Z_MIN) && DISABLED(HAS_ENDSTOP_Z_MAX)
- #error You must enable HAS_ENDSTOP_Z_MIN or HAS_ENDSTOP_Z_MAX
+#if DISABLED(USE_XMIN_PLUG) && DISABLED(USE_XMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _XMAX_ && Z2_USE_ENDSTOP <= _XMIN_)
+ #error You must enable USE_XMIN_PLUG or USE_XMAX_PLUG
+#elif DISABLED(USE_YMIN_PLUG) && DISABLED(USE_YMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _YMAX_ && Z2_USE_ENDSTOP <= _YMIN_)
+ #error You must enable USE_YMIN_PLUG or USE_YMAX_PLUG
+#elif DISABLED(USE_ZMIN_PLUG) && DISABLED(USE_ZMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _ZMAX_ && Z2_USE_ENDSTOP <= _ZMIN_)
+ #error You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG
+#elif ENABLED(Z_DUAL_ENDSTOPS) && !Z2_USE_ENDSTOP
+ #error You must set Z2_USE_ENDSTOP with Z_DUAL_ENDSTOPS
 #endif
 
 /**
@@ -468,7 +470,7 @@
 #elif defined(FILAMENT_SENSOR)
   #error FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead.
 #elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
-  #error DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated - set USE_*_ENDSTOP flags instead
+  #error DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead.
 #elif ENABLED(Z_DUAL_ENDSTOPS) && !defined(Z2_USE_ENDSTOP)
   #error Z_DUAL_ENDSTOPS settings are simplified. Just set Z2_USE_ENDSTOP to the endstop you want to repurpose for Z2
 #endif
