@@ -39,6 +39,7 @@ extern void action_cooldown();
 extern void action_filament_unload();
 extern void action_filament_load();
 
+extern uint8_t level_plate_step;
 extern void action_level_plate();
 
 extern void gui_action_homing();

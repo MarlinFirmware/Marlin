@@ -165,6 +165,7 @@ bool SDCache::updateCachePosition(int16_t index)
 		{
 			if(file_to_read == m_list_length-1)
 			{
+//~ <<<<<<< HEAD
 				if(getFolderIsRoot())
 				{
 					m_cache[0].type = BACK_ENTRY;

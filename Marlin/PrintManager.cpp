@@ -35,6 +35,8 @@
 #include "TemperatureManager.h"
 #include "SteppersManager.h"
 #include "ViewManager.h"
+#include "cardreader.h"
+#include "GuiManager.h"
 
 #define INACTIVITY_TIME_MINUTES 10
 
@@ -43,6 +45,7 @@ PrintManager::PrintManager()
 	, m_known_position(false)
 	, m_inactivity_time(0)
 	, m_inactivity_flag(true)
+	, m_bed_missing_flag(false)
 {
 #ifdef FAN_BOX_PIN
 	pinMode(FAN_BOX_PIN, OUTPUT);
@@ -52,8 +55,11 @@ PrintManager::PrintManager()
 
 void PrintManager::state(PrinterState_t state)
 {
-	m_state = state;
-	notify();
+	if( PrintManager::single::instance().state() != SERIAL_CONTROL )
+	{
+		m_state = state;
+		notify();
+	}
 }
 
 PrinterState_t PrintManager::state()
@@ -107,6 +113,12 @@ void PrintManager::startPrint()
 
 	PrintManager::single::instance().state(PRINTING);
 	action_start_print();
+#ifdef BED_DETECTION
+	if(PrintManager::single::instance().getBedMissingFlag() == true)
+	{
+		return;
+	}
+#endif // BED_DETECTION
 	startTime();
 }
 
@@ -263,6 +275,7 @@ void PrintManager::inactivityTriggered()
 			}
 			break;
 		case STOPPED:
+			level_plate_step = 0;
 			temp::TemperatureManager::single::instance().setTargetTemperature(0);
 			SteppersManager::disableAllSteppers();
 			ui::ViewManager::getInstance().activeView(ui::screen_inactivity);
@@ -272,8 +285,11 @@ void PrintManager::inactivityTriggered()
 			}
 			break;
 		case SERIAL_CONTROL:
-			temp::TemperatureManager::single::instance().setTargetTemperature(0);
-			SteppersManager::disableAllSteppers();
+			if(!card.sdprinting)
+			{			
+				temp::TemperatureManager::single::instance().setTargetTemperature(0);
+				SteppersManager::disableAllSteppers();
+			}
 			if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)
 			{
 				LightManager::single::instance().state(false);
@@ -303,4 +319,29 @@ bool PrintManager::knownPosition()
 void PrintManager::knownPosition(bool state)
 {
 	PrintManager::single::instance().setKnownPosition(state);
+}
+
+bool PrintManager::getBedMissingFlag()
+{
+	return m_bed_missing_flag;
+}
+
+void PrintManager::setBedMissingFlag(bool flag)
+{
+#ifdef BED_DETECTION
+	m_bed_missing_flag = flag;
+	if(m_bed_missing_flag == true)// && PrintManager::single::instance().state() != SERIAL)
+	{
+		if(PrintManager::single::instance().state() != SERIAL_CONTROL)
+		{
+			ui::ViewManager::getInstance().activeView(ui::screen_base_error);
+		} 
+		else
+		{
+			SERIAL_ERROR_START;
+			SERIAL_ERRORLN(" Bed not detected");
+			lcd_emergency_stop();
+		}
+	}
+#endif // BED_DETECTION
 }
