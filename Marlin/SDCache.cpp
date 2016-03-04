@@ -26,7 +26,6 @@
 #include "SDCache.h"
 #include "cardreader.h"
 
-//review for all data
 SDCache::SDCache()
 	: m_cache_update(true)
 	, m_index(0)
@@ -36,7 +35,7 @@ SDCache::SDCache()
 	, m_window_size(0) 
 	, m_directory_depth(0)
 	, m_window_is_centered(false)
-	, m_window_offset(0)
+	, m_window_offset(3)
 { 
 	card.initsd();
 }
@@ -87,23 +86,37 @@ bool SDCache::updateCachePosition(int16_t index)
 	//return_value is set to true if window has moved
     bool return_value = false;
     bool update_window = false;
-	
-	if(index < m_window_offset)
-	{
-		//~ SERIAL_ECHOLN("bottom reached");
-		m_window_min = 0;
-		m_window_max = m_window_size - 1;
-	}
-	else if (index + m_window_offset > m_list_length-2)
-	{
-		//~ SERIAL_ECHOLN("top reached");
-		m_window_max = m_list_length - 1;
-		m_window_min = m_window_max - (m_window_size - 1);
-	}
-	else
+    
+    if(m_window_is_centered == true)
 	{
 		m_window_min = index - m_window_offset;
 		m_window_max = index + m_window_offset;
+	}
+	else
+	{
+		if(index > m_window_max)
+		{
+			m_window_max = index;
+			m_window_min = m_window_max - (m_window_size-1);
+		}
+		else if(index < m_window_min)
+		{
+			m_window_min = index;
+			m_window_max = m_window_min + (m_window_size-1);
+		}
+	}
+	
+	if( (m_window_is_centered == true && index < m_window_offset)
+	|| (m_window_is_centered == false && m_window_min < 0) )
+	{
+		m_window_min = 0;
+		m_window_max = m_window_size - 1;
+	}
+	else if ( (m_window_is_centered == true && index + m_window_offset > m_list_length-2)
+	|| (m_window_is_centered == false && m_window_max > m_list_length - 2))
+	{
+		m_window_max = m_list_length - 1;
+		m_window_min = m_window_max - (m_window_size - 1);
 	}
 	
 	if(index != m_index)
@@ -123,7 +136,7 @@ bool SDCache::updateCachePosition(int16_t index)
 			{
 				m_cache_min = 0;
 				m_cache_max = m_cache_min + (m_cache_size - 1);
-				return_value = true; 	// for 1st gen, review if needed
+				return_value = true;
 				m_cache_update = true;	
 			}
 			
@@ -134,7 +147,7 @@ bool SDCache::updateCachePosition(int16_t index)
 			{
 				m_cache_min = m_window_min;
 				m_cache_max = m_cache_min + (m_cache_size - 1);
-				return_value = true;	// for 1st gen, review if needed
+				return_value = true;
 				m_cache_update = true;
 			}
 			else
@@ -205,6 +218,9 @@ bool SDCache::updateCachePosition(int16_t index)
 						
 			++file_to_read;
 			--cache_position;
+			
+			
+			
 		}
 	}
 	
@@ -344,5 +360,5 @@ void SDCache::updateDirectoryName()
 		i++;
 	}
 	
-	SERIAL_ECHOLNPGM("dir not found");
+	SERIAL_ECHOLNPGM("folder not found");
 }
