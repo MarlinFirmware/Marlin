@@ -67,7 +67,6 @@
     #define EN_B BIT(BLEN_B)
     #define EN_A BIT(BLEN_A)
 
-    #define LCD_CLICKED (buttons&EN_C)
     #if ENABLED(REPRAPWORLD_KEYPAD)
       #define EN_REPRAPWORLD_KEYPAD_F3 (BIT(BLEN_REPRAPWORLD_KEYPAD_F3))
       #define EN_REPRAPWORLD_KEYPAD_F2 (BIT(BLEN_REPRAPWORLD_KEYPAD_F2))
@@ -86,6 +85,8 @@
       #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_DOWN)
       #define REPRAPWORLD_KEYPAD_MOVE_Y_UP (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_UP)
       #define REPRAPWORLD_KEYPAD_MOVE_HOME (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_MIDDLE)
+    #else
+      #define LCD_CLICKED (buttons&EN_C)
     #endif //REPRAPWORLD_KEYPAD
   #else
     //atomic, do not change
