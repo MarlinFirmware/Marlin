@@ -49,8 +49,10 @@
     #if defined(BTN_ENC) && BTN_ENC > -1
       // the pause/stop/restart button is connected to BTN_ENC when used
       #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
+      #undef LCD_CLICKED
       #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
     #else
+      #undef LCD_CLICKED
       #define LCD_CLICKED (buttons&(B_MI|B_RI))
     #endif
 
@@ -64,11 +66,13 @@
 
       #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
 
+      #undef LCD_CLICKED
       #define LCD_CLICKED (buttons&B_MI)
 
       // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
       #define LCD_HAS_SLOW_BUTTONS
     #else
+      #undef LCD_CLICKED
       #define LCD_CLICKED (buttons&EN_C)
     #endif
 
@@ -204,6 +208,10 @@
     static millis_t expire_status_ms = 0;
   #endif
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
+#endif
+
+#if ENABLED(LCD_HAS_STATUS_INDICATORS)
+  static void lcd_implementation_update_indicators();
 #endif
 
 static void lcd_set_custom_characters(
@@ -362,13 +370,13 @@ static void lcd_implementation_init(
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     #ifdef LCD_I2C_PIN_BL
       lcd.setBacklightPin(LCD_I2C_PIN_BL, POSITIVE);
-      lcd.setBacklight(HIGH);
+      lcd_implementation_update_indicators();
     #endif
 
   #elif ENABLED(LCD_I2C_TYPE_MCP23017)
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-    lcd.setBacklight(0); //set all the LEDs off to begin with
+    lcd_implementation_update_indicators();
 
   #elif ENABLED(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
@@ -835,21 +843,19 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
 #if ENABLED(LCD_HAS_STATUS_INDICATORS)
 
   static void lcd_implementation_update_indicators() {
-    #if ENABLED(LCD_I2C_PANELOLU2) || ENABLED(LCD_I2C_VIKI)
-      // Set the LEDS - referred to as backlights by the LiquidTWI2 library
-      static uint8_t ledsprev = 0;
-      uint8_t leds = 0;
-      if (target_temperature_bed > 0) leds |= LED_A;
-      if (target_temperature[0] > 0) leds |= LED_B;
-      if (fanSpeed) leds |= LED_C;
-      #if EXTRUDERS > 1
-        if (target_temperature[1] > 0) leds |= LED_C;
-      #endif
-      if (leds != ledsprev) {
-        lcd.setBacklight(leds);
-        ledsprev = leds;
-      }
+    // Set the LEDS - referred to as backlights by the LiquidTWI2 library
+    static uint8_t ledsprev = 0;
+    uint8_t leds = 0;
+    if (target_temperature_bed > 0) leds |= LED_A;
+    if (target_temperature[0] > 0) leds |= LED_B;
+    if (fanSpeed) leds |= LED_C;
+    #if EXTRUDERS > 1
+      if (target_temperature[1] > 0) leds |= LED_C;
     #endif
+    if (leds != ledsprev) {
+      lcd.setBacklight(leds);
+      ledsprev = leds;
+    }
   }
 
 #endif // LCD_HAS_STATUS_INDICATORS
