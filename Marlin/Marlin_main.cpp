@@ -267,8 +267,11 @@ float home_offset[3] = { 0 };
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 
+#if FAN_COUNT > 0
+  int fanSpeeds[FAN_COUNT] = { 0 };
+#endif
+
 uint8_t active_extruder = 0;
-int fanSpeed = 0;
 bool cancel_heatup = false;
 
 const char errormagic[] PROGMEM = "Error:";
@@ -3597,8 +3600,16 @@ inline void gcode_M42() {
       }
     }
 
-    #if HAS_FAN
-      if (pin_number == FAN_PIN) fanSpeed = pin_status;
+    #if HAS_FAN0
+      if (pin_number == FAN_PIN)  fanSpeeds[0] = pin_status;
+    #endif
+
+    #if HAS_FAN1
+      if (pin_number == FAN1_PIN) fanSpeeds[1] = pin_status;
+    #endif
+
+    #if HAS_FAN2
+      if (pin_number == FAN2_PIN) fanSpeeds[2] = pin_status;
     #endif
 
     if (pin_number > -1) {
@@ -3968,19 +3979,30 @@ inline void gcode_M105() {
   SERIAL_EOL;
 }
 
-#if HAS_FAN
+#if FAN_COUNT > 0
 
   /**
    * M106: Set Fan Speed
+   *
+   *  S<int>   Speed between 0-255
+   *  P<index> Fan index, if more than one fan
    */
-  inline void gcode_M106() { fanSpeed = code_seen('S') ? constrain(code_value_short(), 0, 255) : 255; }
+  inline void gcode_M106() {
+    uint16_t s = code_seen('S') ? code_value_short() : 255,
+             p = code_seen('P') ? code_value_short() : 0;
+    NOMORE(s, 255);
+    if (p < FAN_COUNT) fanSpeeds[p] = s;
+  }
 
   /**
    * M107: Fan Off
    */
-  inline void gcode_M107() { fanSpeed = 0; }
+  inline void gcode_M107() {
+    uint16_t p = code_seen('P') ? code_value_short() : 0;
+    if (p < FAN_COUNT) fanSpeeds[p] = 0;
+  }
 
-#endif // HAS_FAN
+#endif // FAN_COUNT > 0
 
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
@@ -4261,7 +4283,13 @@ inline void gcode_M140() {
 inline void gcode_M81() {
   disable_all_heaters();
   finishAndDisableSteppers();
-  fanSpeed = 0;
+  #if FAN_COUNT > 0
+    #if FAN_COUNT > 1
+      for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+    #else
+      fanSpeeds[0] = 0;
+    #endif
+  #endif
   delay(1000); // Wait 1 second before switching off
   #if HAS_SUICIDE
     st_synchronize();
@@ -6015,14 +6043,14 @@ void process_next_command() {
           break;
       #endif // HAS_TEMP_BED
 
-      #if HAS_FAN
+      #if FAN_COUNT > 0
         case 106: // M106: Fan On
           gcode_M106();
           break;
         case 107: // M107: Fan Off
           gcode_M107();
           break;
-      #endif // HAS_FAN
+      #endif // FAN_COUNT > 0
 
       #if ENABLED(BARICUDA)
         // PWM for HEATER_1_PIN

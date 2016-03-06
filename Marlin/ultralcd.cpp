@@ -614,7 +614,22 @@ static void lcd_tune_menu() {
   //
   // Fan Speed:
   //
-  MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+  #if FAN_COUNT > 0
+    #if HAS_FAN0
+      #if FAN_COUNT > 1
+        #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED " 1"
+      #else
+        #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED
+      #endif
+      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_1ST_FAN_SPEED, &fanSpeeds[0], 0, 255);
+    #endif
+    #if HAS_FAN1
+      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+    #endif
+    #if HAS_FAN2
+      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+    #endif
+  #endif // FAN_COUNT > 0
 
   //
   // Flow:
@@ -665,7 +680,13 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
   #if TEMP_SENSOR_BED != 0
     setTargetBed(tempb);
   #endif
-  fanSpeed = fan;
+  #if FAN_COUNT > 0
+    #if FAN_COUNT > 1
+      fanSpeeds[active_extruder < FAN_COUNT ? active_extruder : 0] = fan;
+    #else
+      fanSpeeds[0] = fan;
+    #endif
+  #endif
   lcd_return_to_status();
 }
 
@@ -755,8 +776,10 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
 #endif // TEMP_SENSOR_0 && (TEMP_SENSOR_1 || TEMP_SENSOR_2 || TEMP_SENSOR_3 || TEMP_SENSOR_BED)
 
 void lcd_cooldown() {
+  #if FAN_COUNT > 0
+    for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
+  #endif
   disable_all_heaters();
-  fanSpeed = 0;
   lcd_return_to_status();
 }
 
@@ -1125,7 +1148,22 @@ static void lcd_control_temperature_menu() {
   //
   // Fan Speed:
   //
-  MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+  #if FAN_COUNT > 0
+    #if HAS_FAN0
+      #if FAN_COUNT > 1
+        #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED " 1"
+      #else
+        #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED
+      #endif
+      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_1ST_FAN_SPEED, &fanSpeeds[0], 0, 255);
+    #endif
+    #if HAS_FAN1
+      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+    #endif
+    #if HAS_FAN2
+      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+    #endif
+  #endif // FAN_COUNT > 0
 
   //
   // Autotemp, Min, Max, Fact

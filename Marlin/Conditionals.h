@@ -465,7 +465,9 @@
   #define HAS_AUTO_FAN_2 (PIN_EXISTS(EXTRUDER_2_AUTO_FAN))
   #define HAS_AUTO_FAN_3 (PIN_EXISTS(EXTRUDER_3_AUTO_FAN))
   #define HAS_AUTO_FAN (HAS_AUTO_FAN_0 || HAS_AUTO_FAN_1 || HAS_AUTO_FAN_2 || HAS_AUTO_FAN_3)
-  #define HAS_FAN (PIN_EXISTS(FAN))
+  #define HAS_FAN0 (PIN_EXISTS(FAN))
+  #define HAS_FAN1 (PIN_EXISTS(FAN1) && CONTROLLERFAN_PIN != FAN1_PIN && EXTRUDER_0_AUTO_FAN_PIN != FAN1_PIN && EXTRUDER_1_AUTO_FAN_PIN != FAN1_PIN && EXTRUDER_2_AUTO_FAN_PIN != FAN1_PIN)
+  #define HAS_FAN2 (PIN_EXISTS(FAN2) && CONTROLLERFAN_PIN != FAN2_PIN && EXTRUDER_0_AUTO_FAN_PIN != FAN2_PIN && EXTRUDER_1_AUTO_FAN_PIN != FAN2_PIN && EXTRUDER_2_AUTO_FAN_PIN != FAN2_PIN)
   #define HAS_CONTROLLERFAN (PIN_EXISTS(CONTROLLERFAN))
   #define HAS_SERVOS (defined(NUM_SERVOS) && NUM_SERVOS > 0)
   #define HAS_SERVO_0 (PIN_EXISTS(SERVO0))
@@ -550,9 +552,31 @@
   #if HAS_HEATER_BED
     #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
   #endif
-  #if HAS_FAN
-    #define WRITE_FAN(v) WRITE(FAN_PIN, v)
+
+  /**
+   * Up to 3 PWM fans
+   */
+  #if HAS_FAN2
+    #define FAN_COUNT 3
+  #elif HAS_FAN1
+    #define FAN_COUNT 2
+  #elif HAS_FAN0
+    #define FAN_COUNT 1
+  #else
+    #define FAN_COUNT 0
   #endif
+
+  #if HAS_FAN0
+    #define WRITE_FAN(v) WRITE(FAN_PIN, v)
+    #define WRITE_FAN0(v) WRITE_FAN(v)
+  #endif
+  #if HAS_FAN1
+    #define WRITE_FAN1(v) WRITE(FAN1_PIN, v)
+  #endif
+  #if HAS_FAN2
+    #define WRITE_FAN2(v) WRITE(FAN2_PIN, v)
+  #endif
+  #define WRITE_FAN_N(n, v) WRITE_FAN##n(v)
 
   #define HAS_BUZZER (PIN_EXISTS(BEEPER) || defined(LCD_USE_I2C_BUZZER))
 

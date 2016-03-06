@@ -93,6 +93,10 @@ unsigned long axis_steps_per_sqr_second[NUM_AXIS];
   bool autotemp_enabled = false;
 #endif
 
+#if ENABLED(FAN_SOFT_PWM)
+  extern unsigned char fanSpeedSoftPwm[FAN_COUNT];
+#endif
+
 //===========================================================================
 //============ semi-private variables, used in inline functions =============
 //===========================================================================
@@ -399,7 +403,12 @@ void plan_init() {
 
 void check_axes_activity() {
   unsigned char axis_active[NUM_AXIS] = { 0 },
-                tail_fan_speed = fanSpeed;
+                tail_fan_speed[FAN_COUNT];
+
+  #if FAN_COUNT > 0
+    for (uint8_t i = 0; i < FAN_COUNT; i++) tail_fan_speed[i] = fanSpeeds[i];
+  #endif
+
   #if ENABLED(BARICUDA)
     unsigned char tail_valve_pressure = ValvePressure,
                   tail_e_to_p_pressure = EtoPPressure;
@@ -408,13 +417,19 @@ void check_axes_activity() {
   block_t* block;
 
   if (blocks_queued()) {
+
     uint8_t block_index = block_buffer_tail;
-    tail_fan_speed = block_buffer[block_index].fan_speed;
+
+    #if FAN_COUNT > 0
+      for (uint8_t i = 0; i < FAN_COUNT; i++) tail_fan_speed[i] = block_buffer[block_index].fan_speed[i];
+    #endif
+
     #if ENABLED(BARICUDA)
       block = &block_buffer[block_index];
       tail_valve_pressure = block->valve_pressure;
       tail_e_to_p_pressure = block->e_to_p_pressure;
     #endif
+
     while (block_index != block_buffer_head) {
       block = &block_buffer[block_index];
       for (int i = 0; i < NUM_AXIS; i++) if (block->steps[i]) axis_active[i]++;
@@ -439,32 +454,65 @@ void check_axes_activity() {
     }
   #endif
 
-  #if HAS_FAN
-    #ifdef FAN_KICKSTART_TIME
-      static millis_t fan_kick_end = 0;
-      if (tail_fan_speed) {
-        millis_t ms = millis();
-        if (fan_kick_end == 0) {
-          fan_kick_end = ms + FAN_KICKSTART_TIME;
-          tail_fan_speed = 255; // Starting up.
-        }
-        else if (ms < fan_kick_end)
-          tail_fan_speed = 255; // Still spinning up.
-        else
-          fan_kick_end = 0;
-      }
-    #endif //FAN_KICKSTART_TIME
+  #if FAN_COUNT > 0
+
     #if defined(FAN_MIN_PWM)
-      #define CALC_FAN_SPEED (tail_fan_speed ? ( FAN_MIN_PWM + (tail_fan_speed * (255 - (FAN_MIN_PWM))) / 255 ) : 0)
+      #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? ( FAN_MIN_PWM + (tail_fan_speed[f] * (255 - FAN_MIN_PWM)) / 255 ) : 0)
     #else
-      #define CALC_FAN_SPEED tail_fan_speed
-    #endif // FAN_MIN_PWM
+      #define CALC_FAN_SPEED(f) tail_fan_speed[f]
+    #endif
+
+    #ifdef FAN_KICKSTART_TIME
+
+      static millis_t fan_kick_end[FAN_COUNT] = { 0 }, ms = millis();
+
+      #define KICKSTART_FAN(f) \
+        if (tail_fan_speed[f]) { \
+          if (fan_kick_end[f] == 0) { \
+            fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
+            tail_fan_speed[f] = 255; \
+          } \
+          else if (fan_kick_end[f] > ms) \
+            tail_fan_speed[f] = 255; \
+          else \
+            fan_kick_end[f] = 0; \
+        }
+
+      #if HAS_FAN0
+        KICKSTART_FAN(0);
+      #endif
+      #if HAS_FAN1
+        KICKSTART_FAN(1);
+      #endif
+      #if HAS_FAN2
+        KICKSTART_FAN(2);
+      #endif
+
+    #endif //FAN_KICKSTART_TIME
+
     #if ENABLED(FAN_SOFT_PWM)
-      fanSpeedSoftPwm = CALC_FAN_SPEED;
+      #if HAS_FAN0
+        fanSpeedSoftPwm[0] = CALC_FAN_SPEED(0);
+      #endif
+      #if HAS_FAN1
+        fanSpeedSoftPwm[1] = CALC_FAN_SPEED(1);
+      #endif
+      #if HAS_FAN2
+        fanSpeedSoftPwm[2] = CALC_FAN_SPEED(2);
+      #endif
     #else
-      analogWrite(FAN_PIN, CALC_FAN_SPEED);
-    #endif // FAN_SOFT_PWM
-  #endif // HAS_FAN
+      #if HAS_FAN0
+        analogWrite(FAN_PIN, CALC_FAN_SPEED(0));
+      #endif
+      #if HAS_FAN1
+        analogWrite(FAN1_PIN, CALC_FAN_SPEED(1));
+      #endif
+      #if HAS_FAN2
+        analogWrite(FAN2_PIN, CALC_FAN_SPEED(2));
+      #endif
+    #endif
+
+  #endif // FAN_COUNT > 0
 
   #if ENABLED(AUTOTEMP)
     getHighESpeed();
@@ -576,7 +624,10 @@ float junction_deviation = 0.1;
   // Bail if this is a zero-length block
   if (block->step_event_count <= dropsegments) return;
 
-  block->fan_speed = fanSpeed;
+  #if FAN_COUNT > 0
+    for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fanSpeeds[i];
+  #endif
+
   #if ENABLED(BARICUDA)
     block->valve_pressure = ValvePressure;
     block->e_to_p_pressure = EtoPPressure;
