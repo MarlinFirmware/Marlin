@@ -204,8 +204,8 @@ Here are some standard links for getting your machine calibrated:
 #define BED_MAXTEMP 150
 
 // If you want the M105 heater power reported in watts, define the BED_WATTS, and (shared for all extruders) EXTRUDER_WATTS
-#define EXTRUDER_WATTS (2*2/5.9) //  P=I^2/R
-#define BED_WATTS (5.45*5.45/2.2)      // P=I^2/R
+#define EXTRUDER_WATTS (2*2/5.9)       // P=U^2/R
+#define BED_WATTS (5.45*5.45/2.2)      // P=U^2/R
 
 //===========================================================================
 //============================= PID Settings ================================
