@@ -3,14 +3,10 @@
 
 /**
 * Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
-* When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
 
-//#if DISABLED(REPRAPWORLD_KEYPAD)
-//  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
-//#else
-  extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
-//#endif
+static unsigned char blink = 0; // Variable for animation
+extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
 
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable
@@ -49,8 +45,10 @@
     #if defined(BTN_ENC) && BTN_ENC > -1
       // the pause/stop/restart button is connected to BTN_ENC when used
       #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
+      #undef LCD_CLICKED
       #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
     #else
+      #undef LCD_CLICKED
       #define LCD_CLICKED (buttons&(B_MI|B_RI))
     #endif
 
@@ -64,11 +62,13 @@
 
       #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
 
+      #undef LCD_CLICKED
       #define LCD_CLICKED (buttons&B_MI)
 
       // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
       #define LCD_HAS_SLOW_BUTTONS
     #else
+      #undef LCD_CLICKED
       #define LCD_CLICKED (buttons&EN_C)
     #endif
 
@@ -204,6 +204,10 @@
     static millis_t expire_status_ms = 0;
   #endif
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
+#endif
+
+#if ENABLED(LCD_HAS_STATUS_INDICATORS)
+  static void lcd_implementation_update_indicators();
 #endif
 
 static void lcd_set_custom_characters(
@@ -362,13 +366,13 @@ static void lcd_implementation_init(
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     #ifdef LCD_I2C_PIN_BL
       lcd.setBacklightPin(LCD_I2C_PIN_BL, POSITIVE);
-      lcd.setBacklight(HIGH);
+      lcd_implementation_update_indicators();
     #endif
 
   #elif ENABLED(LCD_I2C_TYPE_MCP23017)
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-    lcd.setBacklight(0); //set all the LEDs off to begin with
+    lcd_implementation_update_indicators();
 
   #elif ENABLED(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
@@ -619,29 +623,61 @@ static void lcd_implementation_status_screen() {
         LCD_TEMP(degBed(), degTargetBed(), LCD_STR_BEDTEMP[0]);
 
       #else
+        // Before homing the axis letters are blinking 'X' <-> '?'.
+        // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
+        // When everything is ok you see a constant 'X'.
 
-        lcd.print('X');
-        if (axis_known_position[X_AXIS])
-          lcd.print(ftostr4sign(current_position[X_AXIS]));
-        else
-          lcd_printPGM(PSTR(" ---"));
+        if (blink & 1)
+          lcd_printPGM(PSTR("X"));
+        else {
+          if (!axis_homed[X_AXIS])
+            lcd_printPGM(PSTR("?"));
+          else 
+            #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+              if (!axis_known_position[X_AXIS])
+                lcd_printPGM(PSTR(" "));
+              else
+            #endif
+            lcd_printPGM(PSTR("X"));
+        }
 
-        lcd_printPGM(PSTR(" Y"));
-        if (axis_known_position[Y_AXIS])
-          lcd.print(ftostr4sign(current_position[Y_AXIS]));
-        else
-          lcd_printPGM(PSTR(" ---"));
+        lcd.print(ftostr4sign(current_position[X_AXIS]));
+
+        lcd_printPGM(PSTR(" "));
+        if (blink & 1)
+          lcd_printPGM(PSTR("Y"));
+        else {
+          if (!axis_homed[Y_AXIS])
+            lcd_printPGM(PSTR("?"));
+          else 
+            #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+              if (!axis_known_position[Y_AXIS])
+                lcd_printPGM(PSTR(" "));
+              else
+            #endif
+            lcd_printPGM(PSTR("Y"));
+        }
+        lcd.print(ftostr4sign(current_position[Y_AXIS]));
 
       #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 
     #endif // LCD_WIDTH >= 20
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
-    lcd_printPGM(PSTR("Z "));
-    if (axis_known_position[Z_AXIS])
-      lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
-    else
-      lcd_printPGM(PSTR("---.--"));
+    if (blink & 1)
+      lcd_printPGM(PSTR("Z"));
+    else {
+      if (!axis_homed[Z_AXIS])
+        lcd_printPGM(PSTR("?"));
+      else 
+        #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+          if (!axis_known_position[Z_AXIS])
+            lcd_printPGM(PSTR(" "));
+          else
+        #endif
+        lcd_printPGM(PSTR("Z"));
+    }
+    lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
 
   #endif // LCD_HEIGHT > 2
 
@@ -835,21 +871,19 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
 #if ENABLED(LCD_HAS_STATUS_INDICATORS)
 
   static void lcd_implementation_update_indicators() {
-    #if ENABLED(LCD_I2C_PANELOLU2) || ENABLED(LCD_I2C_VIKI)
-      // Set the LEDS - referred to as backlights by the LiquidTWI2 library
-      static uint8_t ledsprev = 0;
-      uint8_t leds = 0;
-      if (target_temperature_bed > 0) leds |= LED_A;
-      if (target_temperature[0] > 0) leds |= LED_B;
-      if (fanSpeed) leds |= LED_C;
-      #if EXTRUDERS > 1
-        if (target_temperature[1] > 0) leds |= LED_C;
-      #endif
-      if (leds != ledsprev) {
-        lcd.setBacklight(leds);
-        ledsprev = leds;
-      }
+    // Set the LEDS - referred to as backlights by the LiquidTWI2 library
+    static uint8_t ledsprev = 0;
+    uint8_t leds = 0;
+    if (target_temperature_bed > 0) leds |= LED_A;
+    if (target_temperature[0] > 0) leds |= LED_B;
+    if (fanSpeed) leds |= LED_C;
+    #if EXTRUDERS > 1
+      if (target_temperature[1] > 0) leds |= LED_C;
     #endif
+    if (leds != ledsprev) {
+      lcd.setBacklight(leds);
+      ledsprev = leds;
+    }
   }
 
 #endif // LCD_HAS_STATUS_INDICATORS

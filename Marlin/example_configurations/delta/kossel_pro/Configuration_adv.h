@@ -236,7 +236,13 @@
 #define INVERT_E_STEP_PIN false
 
 // Default stepper release if idle. Set to 0 to deactivate.
+// Steppers will shut down DEFAULT_STEPPER_DEACTIVE_TIME seconds after the last move when DISABLE_INACTIVE_? is true.
+// Time can be set by M18 and M84.
 #define DEFAULT_STEPPER_DEACTIVE_TIME 60
+#define DISABLE_INACTIVE_X true
+#define DISABLE_INACTIVE_Y true
+#define DISABLE_INACTIVE_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
+#define DISABLE_INACTIVE_E true
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
@@ -463,7 +469,7 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 
 /******************************************************************************\
  * enable this section if you have TMC26X motor drivers.
- * you need to import the TMC26XStepper library into the arduino IDE for this
+ * you need to import the TMC26XStepper library into the Arduino IDE for this
  ******************************************************************************/
 
 // @section tmc
@@ -525,7 +531,7 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 
 /******************************************************************************\
  * enable this section if you have L6470  motor drivers.
- * you need to import the L6470 library into the arduino IDE for this
+ * you need to import the L6470 library into the Arduino IDE for this
  ******************************************************************************/
 
 // @section l6470
@@ -535,61 +541,61 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 
   //#define X_IS_L6470
   #define X_MICROSTEPS 16     //number of microsteps
-  #define X_K_VAL 50          // 0 - 255, Higher values, are higher power. Be carefull not to go too high
+  #define X_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define X_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
   #define X_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
   //#define X2_IS_L6470
   #define X2_MICROSTEPS 16     //number of microsteps
-  #define X2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be carefull not to go too high
+  #define X2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define X2_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
   #define X2_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
   //#define Y_IS_L6470
   #define Y_MICROSTEPS 16     //number of microsteps
-  #define Y_K_VAL 50          // 0 - 255, Higher values, are higher power. Be carefull not to go too high
+  #define Y_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define Y_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
   #define Y_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
   //#define Y2_IS_L6470
   #define Y2_MICROSTEPS 16     //number of microsteps
-  #define Y2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be carefull not to go too high
+  #define Y2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define Y2_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
   #define Y2_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
   //#define Z_IS_L6470
   #define Z_MICROSTEPS 16     //number of microsteps
-  #define Z_K_VAL 50          // 0 - 255, Higher values, are higher power. Be carefull not to go too high
+  #define Z_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define Z_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
   #define Z_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
   //#define Z2_IS_L6470
   #define Z2_MICROSTEPS 16     //number of microsteps
-  #define Z2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be carefull not to go too high
+  #define Z2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define Z2_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
   #define Z2_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
   //#define E0_IS_L6470
   #define E0_MICROSTEPS 16     //number of microsteps
-  #define E0_K_VAL 50          // 0 - 255, Higher values, are higher power. Be carefull not to go too high
+  #define E0_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define E0_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
   #define E0_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
   //#define E1_IS_L6470
   #define E1_MICROSTEPS 16     //number of microsteps
-  #define E1_K_VAL 50          // 0 - 255, Higher values, are higher power. Be carefull not to go too high
+  #define E1_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define E1_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
   #define E1_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
   //#define E2_IS_L6470
   #define E2_MICROSTEPS 16     //number of microsteps
-  #define E2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be carefull not to go too high
+  #define E2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define E2_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
   #define E2_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
   //#define E3_IS_L6470
   #define E3_MICROSTEPS 16     //number of microsteps
-  #define E3_K_VAL 50          // 0 - 255, Higher values, are higher power. Be carefull not to go too high
+  #define E3_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
   #define E3_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
   #define E3_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 

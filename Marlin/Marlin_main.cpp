@@ -245,6 +245,7 @@ static float feedrate = 1500.0, saved_feedrate;
 float current_position[NUM_AXIS] = { 0.0 };
 static float destination[NUM_AXIS] = { 0.0 };
 bool axis_known_position[3] = { false };
+bool axis_homed[3] = { false };
 
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
@@ -1280,6 +1281,8 @@ static void setup_for_endstop_move() {
 
   static void run_z_probe() {
 
+    refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
+
     #if ENABLED(DELTA)
 
       float start_z = current_position[Z_AXIS];
@@ -1751,7 +1754,9 @@ static void setup_for_endstop_move() {
 
     void raise_z_for_servo() {
       float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_PROBING;
-      z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset : zpos;
+      // The zprobe_zoffset is negative any switch below the nozzle, so
+      // multiply by Z_HOME_DIR (-1) to move enough away from bed for the probe
+      z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset * Z_HOME_DIR : zpos;
       if (zpos < z_dest) do_blocking_move_to_z(z_dest); // also updates current_position
     }
 
@@ -1981,6 +1986,7 @@ static void homeaxis(AxisEnum axis) {
     feedrate = 0.0;
     endstops_hit_on_purpose(); // clear endstop hit flags
     axis_known_position[axis] = true;
+    axis_homed[axis] = true;
 
     #if ENABLED(Z_PROBE_SLED)
       // bring Z probe back
@@ -3978,6 +3984,7 @@ inline void gcode_M109() {
     }
 
     idle();
+    refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
     #ifdef TEMP_RESIDENCY_TIME
       // start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
@@ -3992,7 +3999,6 @@ inline void gcode_M109() {
   }
 
   LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
-  refresh_cmd_timeout();
   print_job_start_ms = previous_cmd_ms;
 }
 
@@ -4027,9 +4033,9 @@ inline void gcode_M109() {
         #endif
       }
       idle();
+      refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
     }
     LCD_MESSAGEPGM(MSG_BED_DONE);
-    refresh_cmd_timeout();
   }
 
 #endif // HAS_TEMP_BED
@@ -5649,9 +5655,24 @@ inline void gcode_T(uint8_t tmp_extruder) {
             delayed_move_time = 0;
           }
         #else // !DUAL_X_CARRIAGE
-          // Offset extruder (only by XY)
-          for (int i = X_AXIS; i <= Y_AXIS; i++)
-            current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
+          #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+            // Offset extruder, make sure to apply the bed level rotation matrix
+            vector_3 tmp_offset_vec = vector_3(extruder_offset[X_AXIS][tmp_extruder],
+                                               extruder_offset[Y_AXIS][tmp_extruder],
+                                               extruder_offset[Z_AXIS][tmp_extruder]),
+                     act_offset_vec = vector_3(extruder_offset[X_AXIS][active_extruder],
+                                               extruder_offset[Y_AXIS][active_extruder],
+                                               extruder_offset[Z_AXIS][active_extruder]),
+                     offset_vec = tmp_offset_vec - act_offset_vec;
+            offset_vec.apply_rotation(plan_bed_level_matrix.transpose(plan_bed_level_matrix));
+            current_position[X_AXIS] += offset_vec.x;
+            current_position[Y_AXIS] += offset_vec.y;
+            current_position[Z_AXIS] += offset_vec.z;
+          #else // !AUTO_BED_LEVELING_FEATURE
+            // Offset extruder (only by XY)
+            for (int i=X_AXIS; i<=Y_AXIS; i++)
+              current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
+          #endif // !AUTO_BED_LEVELING_FEATURE
           // Set the new active extruder and position
           active_extruder = tmp_extruder;
         #endif // !DUAL_X_CARRIAGE
@@ -6955,16 +6976,16 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   if (stepper_inactive_time && ms > previous_cmd_ms + stepper_inactive_time
       && !ignore_stepper_queue && !blocks_queued()) {
-    #if DISABLE_X == true
+    #if DISABLE_INACTIVE_X == true
       disable_x();
     #endif
-    #if DISABLE_Y == true
+    #if DISABLE_INACTIVE_Y == true
       disable_y();
     #endif
-    #if DISABLE_Z == true
+    #if DISABLE_INACTIVE_Z == true
       disable_z();
     #endif
-    #if DISABLE_E == true
+    #if DISABLE_INACTIVE_E == true
       disable_e0();
       disable_e1();
       disable_e2();
