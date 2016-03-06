@@ -1736,21 +1736,23 @@ void lcd_update() {
     }
     #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
         if (lcdDrawUpdate) {
-          blink++;     // Variable for fan animation and alive dot
+          blink++;     // Variable for animation and alive dot
           u8g.firstPage();
           do {
             lcd_setFont(FONT_MENU);
             u8g.setPrintPos(125, 0);
-            if (blink % 2) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
+            if (blink & 1) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
             u8g.drawPixel(127, 63); // draw alive dot
             u8g.setColorIndex(1); // black on white
             (*currentMenu)();
           } while (u8g.nextPage());
         }
     #else
-      if (lcdDrawUpdate)
+      if (lcdDrawUpdate) {
+        blink++;     // Variable for animation
         (*currentMenu)();
-    #endif
+      }
+      #endif
 
     #if ENABLED(LCD_HAS_STATUS_INDICATORS)
       lcd_implementation_update_indicators();
