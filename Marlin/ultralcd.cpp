@@ -133,7 +133,7 @@ static void lcd_status_screen();
     encoderRateMultiplierEnabled = false; \
     if (encoderPosition > 0x8000) encoderPosition = 0; \
     uint8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
-    if (encoderLine < currentMenuViewOffset) currentMenuViewOffset = encoderLine; \
+    NOMORE(currentMenuViewOffset, encoderLine); \
     uint8_t _lineNr = currentMenuViewOffset, _menuItemNr; \
     bool wasClicked = LCD_CLICKED, itemSelected; \
     for (uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
@@ -827,8 +827,8 @@ static void _lcd_move(const char* name, AxisEnum axis, int min, int max) {
   if (encoderPosition != 0) {
     refresh_cmd_timeout();
     current_position[axis] += float((int)encoderPosition) * move_menu_scale;
-    if (min_software_endstops && current_position[axis] < min) current_position[axis] = min;
-    if (max_software_endstops && current_position[axis] > max) current_position[axis] = max;
+    if (min_software_endstops) NOLESS(current_position[axis], min);
+    if (max_software_endstops) NOMORE(current_position[axis], max);
     encoderPosition = 0;
     if (movesplanned() <= 3)
       line_to_current(axis);
@@ -1911,7 +1911,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         WRITE(SHIFT_LD, HIGH);
         for (int8_t i = 0; i < 8; i++) {
           newbutton_reprapworld_keypad >>= 1;
-          if (READ(SHIFT_OUT)) newbutton_reprapworld_keypad |= BIT(7);
+          if (READ(SHIFT_OUT)) SBI(newbutton_reprapworld_keypad, 7);
           WRITE(SHIFT_CLK, HIGH);
           WRITE(SHIFT_CLK, LOW);
         }
@@ -1924,7 +1924,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       unsigned char tmp_buttons = 0;
       for (int8_t i = 0; i < 8; i++) {
         newbutton >>= 1;
-        if (READ(SHIFT_OUT)) newbutton |= BIT(7);
+        if (READ(SHIFT_OUT)) SBI(newbutton, 7);
         WRITE(SHIFT_CLK, HIGH);
         WRITE(SHIFT_CLK, LOW);
       }
@@ -2239,8 +2239,8 @@ char* ftostr52(const float& x) {
     if (encoderPosition != 0) {
       refresh_cmd_timeout();
       current_position[Z_AXIS] += float((int)encoderPosition) * MBL_Z_STEP;
-      if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS) current_position[Z_AXIS] = Z_MIN_POS;
-      if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS) current_position[Z_AXIS] = Z_MAX_POS;
+      if (min_software_endstops) NOLESS(current_position[Z_AXIS], Z_MIN_POS);
+      if (max_software_endstops) NOMORE(current_position[Z_AXIS], Z_MAX_POS);
       encoderPosition = 0;
       line_to_current(Z_AXIS);
       lcdDrawUpdate = 2;

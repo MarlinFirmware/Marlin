@@ -672,7 +672,7 @@ void manage_heater() {
       // the nominal filament diameter then square it to get an area
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
       float vm = pow((measurement_delay[meas_shift_index] + 100.0) / 100.0, 2);
-      if (vm < 0.01) vm = 0.01;
+      NOLESS(vm, 0.01);
       volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = vm;
     }
   #endif //FILAMENT_SENSOR
@@ -836,7 +836,7 @@ static void updateTemperaturesFromRawValues() {
   int widthFil_to_size_ratio() {
     float temp = filament_width_meas;
     if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  //assume sensor cut out
-    else if (temp > MEASURED_UPPER_LIMIT) temp = MEASURED_UPPER_LIMIT;
+    else NOMORE(temp, MEASURED_UPPER_LIMIT);
     return filament_width_nominal / temp * 100;
   }
 
@@ -850,8 +850,8 @@ static void updateTemperaturesFromRawValues() {
 void tp_init() {
   #if MB(RUMBA) && ((TEMP_SENSOR_0==-1)||(TEMP_SENSOR_1==-1)||(TEMP_SENSOR_2==-1)||(TEMP_SENSOR_BED==-1))
     //disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
-    MCUCR = BIT(JTD);
-    MCUCR = BIT(JTD);
+    MCUCR = _BV(JTD);
+    MCUCR = _BV(JTD);
   #endif
 
   // Finish init of mult extruder arrays
@@ -914,13 +914,13 @@ void tp_init() {
   #endif //HEATER_0_USES_MAX6675
 
   #ifdef DIDR2
-    #define ANALOG_SELECT(pin) do{ if (pin < 8) DIDR0 |= BIT(pin); else DIDR2 |= BIT(pin - 8); }while(0)
+    #define ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin - 8); }while(0)
   #else
-    #define ANALOG_SELECT(pin) do{ DIDR0 |= BIT(pin); }while(0)
+    #define ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
   #endif
 
   // Set analog inputs
-  ADCSRA = BIT(ADEN) | BIT(ADSC) | BIT(ADIF) | 0x07;
+  ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
   DIDR0 = 0;
   #ifdef DIDR2
     DIDR2 = 0;
@@ -960,7 +960,7 @@ void tp_init() {
   // Use timer0 for temperature measurement
   // Interleave temperature interrupt with millies interrupt
   OCR0B = 128;
-  TIMSK0 |= BIT(OCIE0B);
+  SBI(TIMSK0, OCIE0B);
 
   // Wait for temperature measurement to settle
   delay(250);
@@ -1160,13 +1160,14 @@ void disable_all_heaters() {
 
     max6675_temp = 0;
 
-    #ifdef PRR
-      PRR &= ~BIT(PRSPI);
-    #elif defined(PRR0)
-      PRR0 &= ~BIT(PRSPI);
-    #endif
-
-    SPCR = BIT(MSTR) | BIT(SPE) | BIT(SPR0);
+    CBI(
+      #ifdef PRR
+        PRR
+      #elif defined(PRR0)
+        PRR0
+      #endif
+        , PRSPI);
+    SPCR = _BV(MSTR) | _BV(SPE) | _BV(SPR0);
 
     // enable TT_MAX6675
     WRITE(MAX6675_SS, 0);
@@ -1177,13 +1178,13 @@ void disable_all_heaters() {
 
     // read MSB
     SPDR = 0;
-    for (; (SPSR & BIT(SPIF)) == 0;);
+    for (; !TEST(SPSR, SPIF););
     max6675_temp = SPDR;
     max6675_temp <<= 8;
 
     // read LSB
     SPDR = 0;
-    for (; (SPSR & BIT(SPIF)) == 0;);
+    for (; !TEST(SPSR, SPIF););
     max6675_temp |= SPDR;
 
     // disable TT_MAX6675
@@ -1256,7 +1257,7 @@ ISR(TIMER0_COMPB_vect) {
 
   static unsigned char temp_count = 0;
   static TempState temp_state = StartupDelay;
-  static unsigned char pwm_count = BIT(SOFT_PWM_SCALE);
+  static unsigned char pwm_count = _BV(SOFT_PWM_SCALE);
 
   // Static members for each heater
   #if ENABLED(SLOW_PWM_HEATERS)
@@ -1341,7 +1342,7 @@ ISR(TIMER0_COMPB_vect) {
       if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
     #endif
 
-    pwm_count += BIT(SOFT_PWM_SCALE);
+    pwm_count += _BV(SOFT_PWM_SCALE);
     pwm_count &= 0x7f;
 
   #else // SLOW_PWM_HEATERS
@@ -1423,7 +1424,7 @@ ISR(TIMER0_COMPB_vect) {
       if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
     #endif //FAN_SOFT_PWM
 
-    pwm_count += BIT(SOFT_PWM_SCALE);
+    pwm_count += _BV(SOFT_PWM_SCALE);
     pwm_count &= 0x7f;
 
     // increment slow_pwm_count only every 64 pwm_count circa 65.5ms
@@ -1449,9 +1450,9 @@ ISR(TIMER0_COMPB_vect) {
 
   #endif // SLOW_PWM_HEATERS
 
-  #define SET_ADMUX_ADCSRA(pin) ADMUX = BIT(REFS0) | (pin & 0x07); ADCSRA |= BIT(ADSC)
+  #define SET_ADMUX_ADCSRA(pin) ADMUX = _BV(REFS0) | (pin & 0x07); SBI(ADCSRA, ADSC)
   #ifdef MUX5
-    #define START_ADC(pin) if (pin > 7) ADCSRB = BIT(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
+    #define START_ADC(pin) if (pin > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #else
     #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #endif

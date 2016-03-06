@@ -79,7 +79,7 @@ void MarlinSerial::begin(long baud) {
   #endif
 
   if (useU2X) {
-    M_UCSRxA = BIT(M_U2Xx);
+    M_UCSRxA = _BV(M_U2Xx);
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
   }
   else {
@@ -91,15 +91,15 @@ void MarlinSerial::begin(long baud) {
   M_UBRRxH = baud_setting >> 8;
   M_UBRRxL = baud_setting;
 
-  sbi(M_UCSRxB, M_RXENx);
-  sbi(M_UCSRxB, M_TXENx);
-  sbi(M_UCSRxB, M_RXCIEx);
+  SBI(M_UCSRxB, M_RXENx);
+  SBI(M_UCSRxB, M_TXENx);
+  SBI(M_UCSRxB, M_RXCIEx);
 }
 
 void MarlinSerial::end() {
-  cbi(M_UCSRxB, M_RXENx);
-  cbi(M_UCSRxB, M_TXENx);
-  cbi(M_UCSRxB, M_RXCIEx);
+  CBI(M_UCSRxB, M_RXENx);
+  CBI(M_UCSRxB, M_TXENx);
+  CBI(M_UCSRxB, M_RXCIEx);
 }
 
 

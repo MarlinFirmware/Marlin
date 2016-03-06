@@ -1608,8 +1608,8 @@ static void setup_for_endstop_move() {
 
   enum ProbeAction {
     ProbeStay          = 0,
-    ProbeDeploy        = BIT(0),
-    ProbeStow          = BIT(1),
+    ProbeDeploy        = _BV(0),
+    ProbeStow          = _BV(1),
     ProbeDeployAndStow = (ProbeDeploy | ProbeStow)
   };
 
@@ -3076,8 +3076,7 @@ inline void gcode_G28() {
 
               apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);
 
-              if (eqnBVector[ind] - z_tmp < min_diff)
-                min_diff = eqnBVector[ind] - z_tmp;
+              NOMORE(min_diff, eqnBVector[ind] - z_tmp);
 
               if (diff >= 0.0)
                 SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
@@ -5147,7 +5146,7 @@ inline void gcode_M400() { st_synchronize(); }
    */
   inline void gcode_M405() {
     if (code_seen('D')) meas_delay_cm = code_value();
-    if (meas_delay_cm > MAX_MEASUREMENT_DELAY) meas_delay_cm = MAX_MEASUREMENT_DELAY;
+    NOMORE(meas_delay_cm, MAX_MEASUREMENT_DELAY);
 
     if (delay_index2 == -1) { //initialize the ring buffer if it has not been done since startup
       int temp_ratio = widthFil_to_size_ratio();
@@ -6462,33 +6461,33 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
     return;
   }
   float nx, ny, ne, normalized_dist;
-  if (ix > pix && (x_splits) & BIT(ix)) {
+  if (ix > pix && TEST(x_splits, ix)) {
     nx = mbl.get_x(ix);
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
     ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
-    x_splits ^= BIT(ix);
+    CBI(x_splits, ix);
   }
-  else if (ix < pix && (x_splits) & BIT(pix)) {
+  else if (ix < pix && TEST(x_splits, pix)) {
     nx = mbl.get_x(pix);
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
     ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
-    x_splits ^= BIT(pix);
+    CBI(x_splits, pix);
   }
-  else if (iy > piy && (y_splits) & BIT(iy)) {
+  else if (iy > piy && TEST(y_splits, iy)) {
     ny = mbl.get_y(iy);
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
     ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
-    y_splits ^= BIT(iy);
+    CBI(y_splits, iy);
   }
-  else if (iy < piy && (y_splits) & BIT(piy)) {
+  else if (iy < piy && TEST(y_splits, piy)) {
     ny = mbl.get_y(piy);
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
     ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
-    y_splits ^= BIT(piy);
+    CBI(y_splits, piy);
   }
   else {
     // Already split on a border

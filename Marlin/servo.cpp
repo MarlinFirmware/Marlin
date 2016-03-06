@@ -139,12 +139,12 @@ static void initISR(timer16_Sequence_t timer) {
       TCCR1B = _BV(CS11);     // set prescaler of 8
       TCNT1 = 0;              // clear the timer count
       #if defined(__AVR_ATmega8__)|| defined(__AVR_ATmega128__)
-        TIFR |= _BV(OCF1A);      // clear any pending interrupts;
-        TIMSK |= _BV(OCIE1A);    // enable the output compare interrupt
+        SBI(TIFR, OCF1A);      // clear any pending interrupts;
+        SBI(TIMSK, OCIE1A);    // enable the output compare interrupt
       #else
         // here if not ATmega8 or ATmega128
-        TIFR1 |= _BV(OCF1A);     // clear any pending interrupts;
-        TIMSK1 |= _BV(OCIE1A);   // enable the output compare interrupt
+        SBI(TIFR1, OCF1A);     // clear any pending interrupts;
+        SBI(TIMSK1, OCIE1A);   // enable the output compare interrupt
       #endif
       #ifdef WIRING
         timerAttach(TIMER1OUTCOMPAREA_INT, Timer1Service);
@@ -158,8 +158,8 @@ static void initISR(timer16_Sequence_t timer) {
       TCCR3B = _BV(CS31);     // set prescaler of 8
       TCNT3 = 0;              // clear the timer count
       #ifdef __AVR_ATmega128__
-        TIFR |= _BV(OCF3A);     // clear any pending interrupts;
-        ETIMSK |= _BV(OCIE3A);  // enable the output compare interrupt
+        SBI(TIFR, OCF3A);     // clear any pending interrupts;
+        SBI(ETIMSK, OCIE3A);  // enable the output compare interrupt
       #else
         TIFR3 = _BV(OCF3A);     // clear any pending interrupts;
         TIMSK3 =  _BV(OCIE3A) ; // enable the output compare interrupt
@@ -195,21 +195,23 @@ static void finISR(timer16_Sequence_t timer) {
   // Disable use of the given timer
   #ifdef WIRING
     if (timer == _timer1) {
+      CBI(
       #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
         TIMSK1
       #else
         TIMSK
       #endif
-          &= ~_BV(OCIE1A);    // disable timer 1 output compare interrupt
+          , OCIE1A);    // disable timer 1 output compare interrupt
       timerDetach(TIMER1OUTCOMPAREA_INT);
     }
     else if (timer == _timer3) {
+      CBI(
       #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
         TIMSK3
       #else
         ETIMSK
       #endif
-          &= ~_BV(OCIE3A);    // disable the timer3 output compare A interrupt
+          , OCIE3A);    // disable the timer3 output compare A interrupt
       timerDetach(TIMER3OUTCOMPAREA_INT);
     }
   #else //!WIRING
@@ -269,9 +271,7 @@ void Servo::detach() {
 
 void Servo::write(int value) {
   if (value < MIN_PULSE_WIDTH) { // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
-    if (value < 0) value = 0;
-    if (value > 180) value = 180;
-    value = map(value, 0, 180, SERVO_MIN(),  SERVO_MAX());
+    value = map(constrain(value, 0, 180), 0, 180, SERVO_MIN(), SERVO_MAX());
   }
   this->writeMicroseconds(value);
 }
@@ -280,18 +280,13 @@ void Servo::writeMicroseconds(int value) {
   // calculate and store the values for the given channel
   byte channel = this->servoIndex;
   if (channel < MAX_SERVOS) {  // ensure channel is valid
-    if (value < SERVO_MIN())   // ensure pulse width is valid
-      value = SERVO_MIN();
-    else if (value > SERVO_MAX())
-      value = SERVO_MAX();
-
-    value = value - TRIM_DURATION;
+    // ensure pulse width is valid
+    value = constrain(value, SERVO_MIN(), SERVO_MAX()) - TRIM_DURATION;
     value = usToTicks(value);  // convert to ticks after compensating for interrupt overhead - 12 Aug 2009
 
-    uint8_t oldSREG = SREG;
-    cli();
+    CRITICAL_SECTION_START;
     servo_info[channel].ticks = value;
-    SREG = oldSREG;
+    CRITICAL_SECTION_END;
   }
 }
 
