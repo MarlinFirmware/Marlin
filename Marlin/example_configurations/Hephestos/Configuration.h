@@ -716,6 +716,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 // http://reprap.org/wiki/Mini_panel
 //#define MINIPANEL
 
+// BQ SMART FULL GRAPHIC CONTROLLER
+//#define BQ_LCD_SMART_CONTROLLER
+
 /**
  * I2C Panels
  */
