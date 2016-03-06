@@ -245,6 +245,7 @@ static float feedrate = 1500.0, saved_feedrate;
 float current_position[NUM_AXIS] = { 0.0 };
 static float destination[NUM_AXIS] = { 0.0 };
 bool axis_known_position[3] = { false };
+bool axis_homed[3] = { false };
 
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
@@ -1280,6 +1281,8 @@ static void setup_for_endstop_move() {
 
   static void run_z_probe() {
 
+    refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
+
     #if ENABLED(DELTA)
 
       float start_z = current_position[Z_AXIS];
@@ -1983,6 +1986,7 @@ static void homeaxis(AxisEnum axis) {
     feedrate = 0.0;
     endstops_hit_on_purpose(); // clear endstop hit flags
     axis_known_position[axis] = true;
+    axis_homed[axis] = true;
 
     #if ENABLED(Z_PROBE_SLED)
       // bring Z probe back
@@ -3980,6 +3984,7 @@ inline void gcode_M109() {
     }
 
     idle();
+    refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
     #ifdef TEMP_RESIDENCY_TIME
       // start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
@@ -3994,7 +3999,6 @@ inline void gcode_M109() {
   }
 
   LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
-  refresh_cmd_timeout();
   print_job_start_ms = previous_cmd_ms;
 }
 
@@ -4029,9 +4033,9 @@ inline void gcode_M109() {
         #endif
       }
       idle();
+      refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
     }
     LCD_MESSAGEPGM(MSG_BED_DONE);
-    refresh_cmd_timeout();
   }
 
 #endif // HAS_TEMP_BED
@@ -6972,16 +6976,16 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   if (stepper_inactive_time && ms > previous_cmd_ms + stepper_inactive_time
       && !ignore_stepper_queue && !blocks_queued()) {
-    #if DISABLE_X == true
+    #if DISABLE_INACTIVE_X == true
       disable_x();
     #endif
-    #if DISABLE_Y == true
+    #if DISABLE_INACTIVE_Y == true
       disable_y();
     #endif
-    #if DISABLE_Z == true
+    #if DISABLE_INACTIVE_Z == true
       disable_z();
     #endif
-    #if DISABLE_E == true
+    #if DISABLE_INACTIVE_E == true
       disable_e0();
       disable_e1();
       disable_e2();

@@ -3,14 +3,10 @@
 
 /**
 * Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
-* When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
 
-//#if DISABLED(REPRAPWORLD_KEYPAD)
-//  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
-//#else
-  extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
-//#endif
+static unsigned char blink = 0; // Variable for animation
+extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
 
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable
@@ -627,29 +623,61 @@ static void lcd_implementation_status_screen() {
         LCD_TEMP(degBed(), degTargetBed(), LCD_STR_BEDTEMP[0]);
 
       #else
+        // Before homing the axis letters are blinking 'X' <-> '?'.
+        // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
+        // When everything is ok you see a constant 'X'.
 
-        lcd.print('X');
-        if (axis_known_position[X_AXIS])
-          lcd.print(ftostr4sign(current_position[X_AXIS]));
-        else
-          lcd_printPGM(PSTR(" ---"));
+        if (blink & 1)
+          lcd_printPGM(PSTR("X"));
+        else {
+          if (!axis_homed[X_AXIS])
+            lcd_printPGM(PSTR("?"));
+          else 
+            #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+              if (!axis_known_position[X_AXIS])
+                lcd_printPGM(PSTR(" "));
+              else
+            #endif
+            lcd_printPGM(PSTR("X"));
+        }
 
-        lcd_printPGM(PSTR(" Y"));
-        if (axis_known_position[Y_AXIS])
-          lcd.print(ftostr4sign(current_position[Y_AXIS]));
-        else
-          lcd_printPGM(PSTR(" ---"));
+        lcd.print(ftostr4sign(current_position[X_AXIS]));
+
+        lcd_printPGM(PSTR(" "));
+        if (blink & 1)
+          lcd_printPGM(PSTR("Y"));
+        else {
+          if (!axis_homed[Y_AXIS])
+            lcd_printPGM(PSTR("?"));
+          else 
+            #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+              if (!axis_known_position[Y_AXIS])
+                lcd_printPGM(PSTR(" "));
+              else
+            #endif
+            lcd_printPGM(PSTR("Y"));
+        }
+        lcd.print(ftostr4sign(current_position[Y_AXIS]));
 
       #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 
     #endif // LCD_WIDTH >= 20
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
-    lcd_printPGM(PSTR("Z "));
-    if (axis_known_position[Z_AXIS])
-      lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
-    else
-      lcd_printPGM(PSTR("---.--"));
+    if (blink & 1)
+      lcd_printPGM(PSTR("Z"));
+    else {
+      if (!axis_homed[Z_AXIS])
+        lcd_printPGM(PSTR("?"));
+      else 
+        #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+          if (!axis_known_position[Z_AXIS])
+            lcd_printPGM(PSTR(" "));
+          else
+        #endif
+        lcd_printPGM(PSTR("Z"));
+    }
+    lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
 
   #endif // LCD_HEIGHT > 2
 
