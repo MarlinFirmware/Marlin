@@ -3584,39 +3584,39 @@ inline void gcode_M31() {
 
 /**
  * M42: Change pin status via GCode
+ *
+ *  P<pin>  Pin number (LED if omitted)
+ *  S<byte> Pin status from 0 - 255
  */
 inline void gcode_M42() {
   if (code_seen('S')) {
-    int pin_status = code_value_short(),
-        pin_number = LED_PIN;
+    int pin_status = code_value_short();
+    if (pin_status < 0 || pin_status > 255) return;
 
-    if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
-      pin_number = code_value_short();
+    int pin_number = code_seen('P') ? code_value_short() : LED_PIN;
+    if (pin_number < 0) return;
 
-    for (uint8_t i = 0; i < COUNT(sensitive_pins); i++) {
-      if (sensitive_pins[i] == pin_number) {
-        pin_number = -1;
-        break;
+    for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
+      if (pin_number == sensitive_pins[i]) return;
+
+    pinMode(pin_number, OUTPUT);
+    digitalWrite(pin_number, pin_status);
+    analogWrite(pin_number, pin_status);
+
+    #if FAN_COUNT > 0
+      switch (pin_number) {
+        #if HAS_FAN0
+          case FAN_PIN: fanSpeeds[0] = pin_status; break;
+        #endif
+        #if HAS_FAN1
+          case FAN1_PIN: fanSpeeds[1] = pin_status; break;
+        #endif
+        #if HAS_FAN2
+          case FAN2_PIN: fanSpeeds[2] = pin_status; break;
+        #endif
       }
-    }
-
-    #if HAS_FAN0
-      if (pin_number == FAN_PIN)  fanSpeeds[0] = pin_status;
     #endif
 
-    #if HAS_FAN1
-      if (pin_number == FAN1_PIN) fanSpeeds[1] = pin_status;
-    #endif
-
-    #if HAS_FAN2
-      if (pin_number == FAN2_PIN) fanSpeeds[2] = pin_status;
-    #endif
-
-    if (pin_number > -1) {
-      pinMode(pin_number, OUTPUT);
-      digitalWrite(pin_number, pin_status);
-      analogWrite(pin_number, pin_status);
-    }
   } // code_seen('S')
 }
 
