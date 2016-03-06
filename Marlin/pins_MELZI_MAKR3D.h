@@ -3,7 +3,7 @@
  */
 
 #undef MOTHERBOARD
-#define MOTHERBOARD MELZI
+#define MOTHERBOARD BOARD_MELZI
 #define SANGUINOLOLU_V_1_2
 
 #if defined(__AVR_ATmega1284P__)
