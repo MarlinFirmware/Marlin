@@ -16,7 +16,6 @@
 #define E0_MS2_PIN -1
 #define E1_MS1_PIN -1
 #define E1_MS2_PIN -1
-#define DIGIPOTSS_PIN -1
 #define HEATER_3_PIN -1
 #define TEMP_3_PIN -1
 
@@ -126,6 +125,8 @@
   #include "pins_RIGIDBOARD.h"
 #elif MB(MEGACONTROLLER)
   #include "pins_MEGACONTROLLER.h"
+#elif MB(BQ_ZUM_MEGA_3D)
+  #include "pins_BQ_ZUM_MEGA_3D.h"
 #elif MB(99)
   #include "pins_99.h"
 #else
@@ -267,7 +268,7 @@
     analogInputToDigitalPin(TEMP_BED_PIN) \
   }
 
-#define HAS_DIGIPOTSS (DIGIPOTSS_PIN >= 0)
+#define HAS_DIGIPOTSS (PIN_EXISTS(DIGIPOTSS))
 
 #endif //__PINS_H
 
