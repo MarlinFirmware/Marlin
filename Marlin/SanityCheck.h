@@ -264,20 +264,34 @@
 /**
  * Make sure auto fan pins don't conflict with the fan pin
  */
-#if HAS_AUTO_FAN && HAS_FAN
-  #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN.
-  #elif EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN.
-  #elif EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN.
-  #elif EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN.
+#if HAS_AUTO_FAN
+  #if HAS_FAN0
+    #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN.
+    #elif EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN.
+    #elif EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN.
+    #elif EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN.
+    #endif
   #endif
 #endif
 
-#if HAS_FAN && CONTROLLERFAN_PIN == FAN_PIN
+#if HAS_FAN0 && CONTROLLERFAN_PIN == FAN_PIN
   #error You cannot set CONTROLLERFAN_PIN equal to FAN_PIN.
+#endif
+
+#if HAS_CONTROLLERFAN
+  #if EXTRUDER_0_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #elif EXTRUDER_1_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #elif EXTRUDER_2_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #elif EXTRUDER_3_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #endif
 #endif
 
 /**

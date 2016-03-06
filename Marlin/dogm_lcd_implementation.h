@@ -283,7 +283,7 @@ static void lcd_implementation_status_screen() {
   u8g.setColorIndex(1); // black on white
 
   // Symbols menu graphics, animated fan
-  u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT, (blink % 2) && fanSpeed ? status_screen0_bmp : status_screen1_bmp);
+  u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT, (blink % 2) && fanSpeeds[0] ? status_screen0_bmp : status_screen1_bmp);
 
   #if ENABLED(SDSUPPORT)
     // SD Card Symbol
@@ -324,8 +324,8 @@ static void lcd_implementation_status_screen() {
   // Fan
   lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(104, 27);
-  #if HAS_FAN
-    int per = ((fanSpeed + 1) * 100) / 256;
+  #if HAS_FAN0
+    int per = ((fanSpeeds[0] + 1) * 100) / 256;
     if (per) {
       lcd_print(itostr3(per));
       lcd_print('%');

@@ -62,7 +62,7 @@ float current_temperature_bed = 0.0;
 #endif //PIDTEMPBED
 
 #if ENABLED(FAN_SOFT_PWM)
-  unsigned char fanSpeedSoftPwm;
+  unsigned char fanSpeedSoftPwm[FAN_COUNT];
 #endif
 
 unsigned char soft_pwm_bed;
@@ -130,7 +130,7 @@ static volatile bool temp_meas_ready = false;
 static unsigned char soft_pwm[EXTRUDERS];
 
 #if ENABLED(FAN_SOFT_PWM)
-  static unsigned char soft_pwm_fan;
+  static unsigned char soft_pwm_fan[FAN_COUNT];
 #endif
 #if HAS_AUTO_FAN
   static millis_t next_auto_fan_check_ms;
@@ -886,17 +886,40 @@ void tp_init() {
   #if HAS_HEATER_BED
     SET_OUTPUT(HEATER_BED_PIN);
   #endif
-  #if HAS_FAN
-    #if ENABLED(FAST_PWM_FAN) || ENABLED(FAN_SOFT_PWM)
+
+  #if ENABLED(FAST_PWM_FAN) || ENABLED(FAN_SOFT_PWM)
+
+    #if HAS_FAN0
       SET_OUTPUT(FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
         setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
       #endif
       #if ENABLED(FAN_SOFT_PWM)
-        soft_pwm_fan = fanSpeedSoftPwm / 2;
+        soft_pwm_fan[0] = fanSpeedSoftPwm[0] / 2;
       #endif
     #endif
-  #endif
+
+    #if HAS_FAN1
+      SET_OUTPUT(FAN1_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(FAN1_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+      #if ENABLED(FAN_SOFT_PWM)
+        soft_pwm_fan[1] = fanSpeedSoftPwm[1] / 2;
+      #endif
+    #endif
+
+    #if HAS_FAN2
+      SET_OUTPUT(FAN2_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(FAN2_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+      #if ENABLED(FAN_SOFT_PWM)
+        soft_pwm_fan[2] = fanSpeedSoftPwm[2] / 2;
+      #endif
+    #endif
+
+  #endif // FAST_PWM_FAN || FAN_SOFT_PWM
 
   #if ENABLED(HEATER_0_USES_MAX6675)
 
@@ -1320,9 +1343,20 @@ ISR(TIMER0_COMPB_vect) {
         soft_pwm_BED = soft_pwm_bed;
         WRITE_HEATER_BED(soft_pwm_BED > 0 ? 1 : 0);
       #endif
+
       #if ENABLED(FAN_SOFT_PWM)
-        soft_pwm_fan = fanSpeedSoftPwm / 2;
-        WRITE_FAN(soft_pwm_fan > 0 ? 1 : 0);
+        #if HAS_FAN0
+          soft_pwm_fan[0] = fanSpeedSoftPwm[0] / 2;
+          WRITE_FAN(soft_pwm_fan[0] > 0 ? 1 : 0);
+        #endif
+        #if HAS_FAN1
+          soft_pwm_fan[1] = fanSpeedSoftPwm[1] / 2;
+          WRITE_FAN1(soft_pwm_fan[1] > 0 ? 1 : 0);
+        #endif
+        #if HAS_FAN2
+          soft_pwm_fan[2] = fanSpeedSoftPwm[2] / 2;
+          WRITE_FAN2(soft_pwm_fan[2] > 0 ? 1 : 0);
+        #endif
       #endif
     }
 
@@ -1342,7 +1376,15 @@ ISR(TIMER0_COMPB_vect) {
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
-      if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
+      #if HAS_FAN0
+        if (soft_pwm_fan[0] < pwm_count) WRITE_FAN(0);
+      #endif
+      #if HAS_FAN1
+        if (soft_pwm_fan[1] < pwm_count) WRITE_FAN1(0);
+      #endif
+      #if HAS_FAN2
+        if (soft_pwm_fan[2] < pwm_count) WRITE_FAN2(0);
+      #endif
     #endif
 
     pwm_count += _BV(SOFT_PWM_SCALE);
@@ -1421,10 +1463,28 @@ ISR(TIMER0_COMPB_vect) {
 
     #if ENABLED(FAN_SOFT_PWM)
       if (pwm_count == 0) {
-        soft_pwm_fan = fanSpeedSoftPwm / 2;
-        WRITE_FAN(soft_pwm_fan > 0 ? 1 : 0);
+        #if HAS_FAN0
+          soft_pwm_fan[0] = fanSpeedSoftPwm[0] / 2;
+          WRITE_FAN(soft_pwm_fan[0] > 0 ? 1 : 0);
+        #endif
+        #if HAS_FAN1
+          soft_pwm_fan[1] = fanSpeedSoftPwm[1] / 2;
+          WRITE_FAN1(soft_pwm_fan[1] > 0 ? 1 : 0);
+        #endif
+        #if HAS_FAN2
+          soft_pwm_fan[2] = fanSpeedSoftPwm[2] / 2;
+          WRITE_FAN2(soft_pwm_fan[2] > 0 ? 1 : 0);
+        #endif
       }
-      if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
+      #if HAS_FAN0
+        if (soft_pwm_fan[0] < pwm_count) WRITE_FAN(0);
+      #endif
+      #if HAS_FAN1
+        if (soft_pwm_fan[1] < pwm_count) WRITE_FAN1(0);
+      #endif
+      #if HAS_FAN2
+        if (soft_pwm_fan[2] < pwm_count) WRITE_FAN2(0);
+      #endif
     #endif //FAN_SOFT_PWM
 
     pwm_count += _BV(SOFT_PWM_SCALE);
