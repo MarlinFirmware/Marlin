@@ -12,14 +12,14 @@
 #
 # Detailed instructions for using the makefile:
 #
-#  1. Modify the line containg "ARDUINO_INSTALL_DIR" to point to the directory that
+#  1. Modify the line containing "ARDUINO_INSTALL_DIR" to point to the directory that
 #     contains the Arduino installation (for example, under Mac OS X, this
 #     might be /Applications/Arduino.app/Contents/Resources/Java).
 #
 #  2. Modify the line containing "UPLOAD_PORT" to refer to the filename
 #     representing the USB or serial connection to your Arduino board
 #     (e.g. UPLOAD_PORT = /dev/tty.USB0).  If the exact name of this file
-#     changes, you can use * as a wildcard (e.g. UPLOAD_PORT = /dev/tty.usb*).
+#     changes, you can use * as a wild card (e.g. UPLOAD_PORT = /dev/tty.usb*).
 #
 #  3. Set the line containing "MCU" to match your board's processor.
 #     Older one's are atmega8 based, newer ones like Arduino Mini, Bluetooth
@@ -218,7 +218,7 @@ endif
 # Set to 16Mhz if not yet set.
 F_CPU ?= 16000000
 
-# Arduino containd the main source code for the Arduino
+# Arduino contained the main source code for the Arduino
 # Libraries, the "hardware variant" are for boards
 # that derives from that, and their source are present in
 # the main Marlin source directory
@@ -300,7 +300,7 @@ SRC += twi.c
 CXXSRC += Wire.cpp
 endif
 
-#Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
+#Check for Arduino 1.0.0 or higher and use the correct source files for that version
 ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
 CXXSRC += main.cpp
 else
@@ -421,7 +421,7 @@ lss: $(BUILD_DIR)/$(TARGET).lss
 sym: $(BUILD_DIR)/$(TARGET).sym
 
 # Program the device.
-# Do not try to reset an arduino if it's not one
+# Do not try to reset an Arduino if it's not one
 upload: $(BUILD_DIR)/$(TARGET).hex
 ifeq (${AVRDUDE_PROGRAMMER}, arduino)
 	stty hup < $(UPLOAD_PORT); true
