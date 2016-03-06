@@ -10,5 +10,5 @@
 #define DETAILED_BUILD_VERSION "1.1.0-RC3 From Archive"
 #define STRING_DISTRIBUTION_DATE "2015-12-01 12:00"
 // It might also be appropriate to define a location where additional information can be found
-#define SOURCE_CODE_URL  "http:// ..."
+// #define SOURCE_CODE_URL  "http:// ..."
 #endif
