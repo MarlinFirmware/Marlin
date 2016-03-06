@@ -135,7 +135,7 @@
   // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 
   #if ENABLED(SAV_3DLCD)
-    #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
+    #define SR_LCD_2W_NL    // Non latching 2 wire shift register
     #define ULTIPANEL
     #define NEWPANEL
   #endif
