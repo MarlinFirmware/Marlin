@@ -26,7 +26,7 @@ import getopt
 ZERO   = 273.15                             # zero point of Kelvin scale
 VADC   = 5                                  # ADC voltage
 VCC    = 5                                  # supply voltage
-ARES   = 2**10                              # 10 Bit ADC resolution
+ARES   = pow(2,10)                          # 10 Bit ADC resolution
 VSTEP  = VADC / ARES                        # ADC voltage resolution
 TMIN   = 0                                  # lowest temperature in table
 TMAX   = 350                                # highest temperature in table
