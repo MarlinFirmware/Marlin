@@ -270,7 +270,7 @@ static void _draw_heater_status(int x, int heater) {
   lcd_print(itostr3(int(heater >= 0 ? degHotend(heater) : degBed()) + 0.5));
 
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-  if (heater >= 0 ? !isHeatingHotend(heater) : !isHeatingBed()) {
+  if (!isHeatingHotend(0)) {
     u8g.drawBox(x+7,y,2,2);
   }
   else {
