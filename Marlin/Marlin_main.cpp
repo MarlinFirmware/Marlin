@@ -631,6 +631,13 @@ void servo_init() {
  *    • status LEDs
  */
 void setup() {
+
+  #ifdef DISABLE_JTAG
+    // Disable JTAG on AT90USB chips to free up pins for IO
+    MCUCR = 0x80;
+    MCUCR = 0x80;
+  #endif
+
   setup_killpin();
   setup_filrunoutpin();
   setup_powerhold();
