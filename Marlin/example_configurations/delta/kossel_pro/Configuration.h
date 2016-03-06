@@ -634,7 +634,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE HOMING_FEEDRATE_XYZ
   #endif
 
-  // If you have enabled the bed auto leveling and are using the same Z probe for Z homing,
+  // If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
   // it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
   #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with Z probe outside the bed area.
