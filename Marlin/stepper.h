@@ -66,8 +66,8 @@ void st_set_e_position(const long& e);
 // Get current position in steps
 long st_get_position(uint8_t axis);
 
-// Get current position in mm
-float st_get_position_mm(AxisEnum axis);
+// Get current axis position in mm
+float st_get_axis_position_mm(AxisEnum axis);
 
 // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
 // to notify the subsystem that it is time to go to work.
