@@ -433,23 +433,20 @@ void check_axes_activity() {
 
   #if HAS_FAN
     #ifdef FAN_KICKSTART_TIME
-      static millis_t fan_kick_end;
+      static millis_t fan_kick_end = 0;
       if (tail_fan_speed) {
         millis_t ms = millis();
         if (fan_kick_end == 0) {
-          // Just starting up fan - run at full power.
           fan_kick_end = ms + FAN_KICKSTART_TIME;
-          tail_fan_speed = 255;
+          tail_fan_speed = 255; // Starting up.
         }
-        else if (fan_kick_end > ms)
-          // Fan still spinning up.
-          tail_fan_speed = 255;
-        }
-        else {
+        else if (ms < fan_kick_end)
+          tail_fan_speed = 255; // Still spinning up.
+        else
           fan_kick_end = 0;
-        }
+      }
     #endif //FAN_KICKSTART_TIME
-    #if ENABLED(FAN_MIN_PWM)
+    #if defined(FAN_MIN_PWM)
       #define CALC_FAN_SPEED (tail_fan_speed ? ( FAN_MIN_PWM + (tail_fan_speed * (255 - FAN_MIN_PWM)) / 255 ) : 0)
     #else
       #define CALC_FAN_SPEED tail_fan_speed
