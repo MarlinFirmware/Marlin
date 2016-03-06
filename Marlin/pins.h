@@ -16,7 +16,6 @@
 #define E0_MS2_PIN -1
 #define E1_MS1_PIN -1
 #define E1_MS2_PIN -1
-#define DIGIPOTSS_PIN -1
 #define HEATER_3_PIN -1
 #define TEMP_3_PIN -1
 
@@ -39,11 +38,9 @@
 #elif MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
   #include "pins_RAMPS_13.h"
 #elif MB(RAMPS_14_EFB)
-  #define IS_RAMPS_14
-  #include "pins_RAMPS_13_EFB.h"
+  #include "pins_RAMPS_14_EFB.h"
 #elif MB(RAMPS_14_EEB) || MB(RAMPS_14_EFF) || MB(RAMPS_14_EEF) || MB(RAMPS_14_SF)
-  #define IS_RAMPS_14
-  #include "pins_RAMPS_13.h"
+  #include "pins_RAMPS_14.h"
 #elif MB(GEN6)
   #include "pins_GEN6.h"
 #elif MB(GEN6_DELUXE)
@@ -115,7 +112,7 @@
 #elif MB(LEAPFROG)
   #include "pins_LEAPFROG.h"
 #elif MB(BAM_DICE)
-  #include "pins_RAMPS_13.h"
+  #include "pins_RAMPS_14.h"
 #elif MB(BAM_DICE_DUE)
   #include "pins_BAM_DICE_DUE.h"
 #elif MB(FELIX2)
@@ -126,8 +123,12 @@
   #include "pins_RIGIDBOARD.h"
 #elif MB(MEGACONTROLLER)
   #include "pins_MEGACONTROLLER.h"
+#elif MB(BQ_ZUM_MEGA_3D)
+  #include "pins_BQ_ZUM_MEGA_3D.h"
 #elif MB(99)
   #include "pins_99.h"
+#elif MB(AJ4P)
+  #include "pins_AJ4P.h"
 #else
   #error Unknown MOTHERBOARD value set in Configuration.h
 #endif
@@ -267,7 +268,7 @@
     analogInputToDigitalPin(TEMP_BED_PIN) \
   }
 
-#define HAS_DIGIPOTSS (DIGIPOTSS_PIN >= 0)
+#define HAS_DIGIPOTSS (PIN_EXISTS(DIGIPOTSS))
 
 #endif //__PINS_H
 

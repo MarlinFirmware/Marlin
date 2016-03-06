@@ -1,8 +1,8 @@
 /**
- * RIGIDBOARD Arduino Mega with RAMPS v1.3 pin assignments
+ * RIGIDBOARD Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#include "pins_RAMPS_13.h"
+#include "pins_RAMPS_14.h"
 
 #if ENABLED(Z_MIN_PROBE_ENDSTOP)
   #undef Z_MAX_PIN

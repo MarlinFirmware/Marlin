@@ -45,9 +45,24 @@
     #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 graphic Display Family)
   #endif
 
-
   #if ENABLED(PANEL_ONE)
     #define ULTIMAKERCONTROLLER
+  #endif
+
+  #if ENABLED(BQ_LCD_SMART_CONTROLLER)
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+
+    #ifndef ENCODER_PULSES_PER_STEP
+      #define ENCODER_PULSES_PER_STEP 4
+    #endif
+
+    #ifndef ENCODER_STEPS_PER_MENU_ITEM
+      #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #endif
+
+    #ifndef LONG_FILENAME_HOST_SUPPORT
+      #define LONG_FILENAME_HOST_SUPPORT
+    #endif
   #endif
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
@@ -140,23 +155,30 @@
     #define NEWPANEL
   #endif
 
+  #if ENABLED(DOGLCD) // Change number of lines to match the DOG graphic display
+    #ifndef LCD_WIDTH
+      #define LCD_WIDTH 22
+    #endif
+    #ifndef LCD_HEIGHT
+      #define LCD_HEIGHT 5
+    #endif
+  #endif
+
   #if ENABLED(ULTIPANEL)
     #define NEWPANEL  //enable this if you have a click-encoder panel
     #define ULTRA_LCD
-    #if ENABLED(DOGLCD) // Change number of lines to match the DOG graphic display
-      #define LCD_WIDTH 22
-      #define LCD_HEIGHT 5
-    #else
+    #ifndef LCD_WIDTH
       #define LCD_WIDTH 20
+    #endif
+    #ifndef LCD_HEIGHT
       #define LCD_HEIGHT 4
     #endif
   #else //no panel but just LCD
     #if ENABLED(ULTRA_LCD)
-      #if ENABLED(DOGLCD) // Change number of lines to match the 128x64 graphics display
-        #define LCD_WIDTH 22
-        #define LCD_HEIGHT 5
-      #else
+      #ifndef LCD_WIDTH
         #define LCD_WIDTH 16
+      #endif
+      #ifndef LCD_HEIGHT
         #define LCD_HEIGHT 2
       #endif
     #endif
