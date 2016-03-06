@@ -179,11 +179,6 @@ Here are some standard links for getting your machine calibrated:
 #define HEATER_3_MAXTEMP 275
 #define BED_MAXTEMP 150
 
-// If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
-// average current. The value should be an integer and the heat bed will be turned on for 1 interval of
-// HEATER_BED_DUTY_CYCLE_DIVIDER intervals.
-//#define HEATER_BED_DUTY_CYCLE_DIVIDER 4
-
 // If you want the M105 heater power reported in watts, define the BED_WATTS, and (shared for all extruders) EXTRUDER_WATTS
 //#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R
 //#define BED_WATTS (12.0*12.0/1.1)      // P=I^2/R
@@ -248,13 +243,13 @@ Here are some standard links for getting your machine calibrated:
 
   #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER //limit for the integral term
 
-  //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
   #define  DEFAULT_bedKp 10.00
   #define  DEFAULT_bedKi .023
   #define  DEFAULT_bedKd 305.4
 
-  //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+  //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
   //#define  DEFAULT_bedKp 97.1
   //#define  DEFAULT_bedKi 1.41
@@ -349,11 +344,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define Z_ENABLE_ON 0
 #define E_ENABLE_ON 0 // For all extruders
 
-// Disables axis when it's not being used.
+// Disables axis stepper immediately when it's not being used.
 // WARNING: When motors turn off there is a chance of losing position accuracy!
 #define DISABLE_X false
 #define DISABLE_Y false
 #define DISABLE_Z false
+// Warn on display about possibly reduced accuracy
+//#define DISABLE_REDUCED_ACCURACY_WARNING
 
 // @section extruder
 
@@ -411,15 +408,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #endif
 
 //===========================================================================
-//=========================== Manual Bed Leveling ===========================
+//============================ Mesh Bed Leveling ============================
 //===========================================================================
 
-//#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
 //#define MESH_BED_LEVELING    // Enable mesh bed leveling.
-
-#if ENABLED(MANUAL_BED_LEVELING)
-  #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
-#endif  // MANUAL_BED_LEVELING
 
 #if ENABLED(MESH_BED_LEVELING)
   #define MESH_MIN_X 10
@@ -429,6 +421,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
   #define MESH_NUM_Y_POINTS 3
   #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
+
+  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+
+  #if ENABLED(MANUAL_BED_LEVELING)
+    #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
+  #endif  // MANUAL_BED_LEVELING
+
 #endif  // MESH_BED_LEVELING
 
 //===========================================================================
@@ -436,6 +435,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //===========================================================================
 
 // @section bedlevel
+
 
 #define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
 //#define DEBUG_LEVELING_FEATURE
@@ -451,7 +451,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //   This mode is preferred because there are more measurements.
   //
   // - "3-point" mode
-  //   Probe 3 arbitrary points on the bed (that aren't colinear)
+  //   Probe 3 arbitrary points on the bed (that aren't collinear)
   //   You specify the XY coordinates of all 3 points.
 
   // Enable this to sample the bed in a grid (least squares solution).
@@ -484,8 +484,23 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   #endif // AUTO_BED_LEVELING_GRID
 
-  // Offsets to the Z probe relative to the nozzle tip.
+  // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
   // X and Y offsets must be integers.
+  //
+  // In the following example the X and Y offsets are both positive:
+  // #define X_PROBE_OFFSET_FROM_EXTRUDER 10
+  // #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
+  //
+  //    +-- BACK ---+
+  //    |           |
+  //  L |    (+) P  | R <-- probe (20,20)
+  //  E |           | I
+  //  F | (-) N (+) | G <-- nozzle (10,10)
+  //  T |           | H
+  //    |    (-)    | T
+  //    |           |
+  //    O-- FRONT --+
+  //  (0,0)
   #define X_PROBE_OFFSET_FROM_EXTRUDER 34  // Z probe to nozzle X offset: -left  +right
   #define Y_PROBE_OFFSET_FROM_EXTRUDER 15  // Z probe to nozzle Y offset: -front +behind
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z probe to nozzle Z offset: -below (always!)
@@ -493,7 +508,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #define Z_RAISE_BEFORE_HOMING 5       // (in mm) Raise Z axis before homing (G28) for Z probe clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case.
 
-  #define XY_TRAVEL_SPEED 8000          // X and Y axis travel speed between probes, in mm/min.
+  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
 
   #define Z_RAISE_BEFORE_PROBING 5    // How much the Z axis will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 1  // How much the Z axis will be raised when traveling from between next probing points.
@@ -505,9 +520,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define Z_PROBE_SLED // Turn on if you have a Z probe mounted on a sled like those designed by Charles Bell.
   //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-
-  //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-  //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
+  // If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
+  // it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
   #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with Z probe outside the bed area.
                           // When defined, it will:
@@ -661,9 +675,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
-// Changed behaviour! If you need SDSUPPORT uncomment it!
-//#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
-//#define SDEXTRASLOW // Use even slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
+                  // Changed behaviour! If you need SDSUPPORT uncomment it!
+//#define SPI_SPEED SPI_HALF_SPEED // (also SPI_QUARTER_SPEED, SPI_EIGHTH_SPEED) Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 //#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
 //#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
@@ -683,13 +696,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // The Panucatt Devices Viki 2.0 and mini Viki with Graphic LCD
 // http://panucatt.com
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
 //#define VIKI2
 //#define miniVIKI
 
 // This is a new controller currently under development.  https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
 //
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
 //#define ELB_FULL_GRAPHIC_CONTROLLER
 //#define SD_DETECT_INVERTED
 
@@ -743,7 +756,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define LCD_I2C_VIKI
 
 // SSD1306 OLED generic display support
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
 //#define U8GLIB_SSD1306
 
 // Shift register panels
@@ -755,7 +768,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // @section extras
 
-// Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
+// Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
 //#define FAST_PWM_FAN
 
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
@@ -843,7 +856,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define DEFAULT_NOMINAL_FILAMENT_DIA 1.75  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
 #define MEASURED_UPPER_LIMIT         3.30  //upper limit factor used for sensor reading validation in mm
 #define MEASURED_LOWER_LIMIT         1.90  //lower limit factor for sensor reading validation in mm
-#define MAX_MEASUREMENT_DELAY       20     //delay buffer size in bytes (1 byte = 1cm)- limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
+#define MAX_MEASUREMENT_DELAY       20     //delay buffer size in bytes (1 byte = 1cm) - limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
 
 //defines used in the code
 #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially
