@@ -61,6 +61,7 @@ Here are some standard links for getting your machine calibrated:
 #define SERIAL_PORT 0
 
 // This determines the communication speed of the printer
+// :[2400,9600,19200,38400,57600,115200,250000]
 #define BAUDRATE 250000
 
 // Enable the Bluetooth serial interface on AT90USB devices
@@ -81,16 +82,26 @@ Here are some standard links for getting your machine calibrated:
 //#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 
 // This defines the number of extruders
+// :[1,2,3,4]
 #define EXTRUDERS 2
+
+// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
+// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+// For the other hotends it is their distance from the extruder 0 hotend.
+//#define EXTRUDER_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
+//#define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 //// The following define selects which power supply you have. Please choose the one that matches your setup
 // 1 = ATX
 // 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
+// :{1:'ATX',2:'X-Box 360'}
 
 #define POWER_SUPPLY 1
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
 #define PS_DEFAULT_OFF
+
+// @section temperature
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -228,9 +239,10 @@ Here are some standard links for getting your machine calibrated:
   #define DEFAULT_bedKi 2.79
   #define DEFAULT_bedKd 956.94
 
-// FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
+  // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
 
+// @section extruder
 
 //this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
 //can be software-disabled for whatever purposes by
@@ -310,6 +322,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define DISABLE_Z_MIN_PROBE_ENDSTOP
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
+// :{0:'Low',1:'High'}
 #define X_ENABLE_ON 0
 #define Y_ENABLE_ON 0
 #define Z_ENABLE_ON 0
@@ -322,26 +335,40 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define DISABLE_Z false
 // Warn on display about possibly reduced accuracy
 //#define DISABLE_REDUCED_ACCURACY_WARNING
+
+// @section extruder
+
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
+
+// @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR true
+
+// @section extruder
+
+// For direct drive extruder v9 set to true, for geared extruder set to false.
 #define INVERT_E0_DIR false
 #define INVERT_E1_DIR true
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 
+// @section homing
+
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
+// :[-1,1]
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
+
+// @section machine
 
 // Travel limits after homing (units are in mm)
 #define X_MIN_POS 0
@@ -393,7 +420,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // @section bedlevel
 
-
 //#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
 //#define DEBUG_LEVELING_FEATURE
 //#define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
@@ -422,7 +448,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     #define FRONT_PROBE_BED_POSITION 20
     #define BACK_PROBE_BED_POSITION 180
 
-    #define MIN_PROBE_EDGE 10 // The Z probe square sides can be no smaller than this.
+    #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
     // Set the number of grid points per dimension.
     // You probably don't need more than 3 (squared=9).
@@ -477,8 +503,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define Z_PROBE_SLED // Turn on if you have a Z probe mounted on a sled like those designed by Charles Bell.
   //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-  // If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-  // it is highly recommended you let this Z_SAFE_HOMING enabled!!!
+
+  //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
+  //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
   #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with Z probe outside the bed area.
                           // When defined, it will:
@@ -528,6 +555,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #endif // AUTO_BED_LEVELING_FEATURE
 
 
+// @section homing
+
 // The position of the homing switches
 //#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
 //#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
@@ -541,6 +570,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
 #endif
 
+// @section movement
+
 /**
  * MOVEMENT SETTINGS
  */
@@ -552,17 +583,11 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // default steps per unit for Felix 2.0/3.0: 0.00249mm x/y rounding error with 3mm pitch HTD belt and 14 tooth pulleys. 0 z error.
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {76.190476, 76.190476, 1600, 164}
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {5000,5000,100,80000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_ACCELERATION      {5000,5000,100,80000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          1750 //1500    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  5000 // X, Y, Z and E max acceleration in mm/s^2 for r retracts
+#define DEFAULT_RETRACT_ACCELERATION  5000 // E acceleration in mm/s^2 for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   3000 // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
-
-// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
-// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
-// For the other hotends it is their distance from the extruder 0 hotend.
-//#define EXTRUDER_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
-//#define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                10   // (mm/sec)
@@ -574,6 +599,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //============================= Additional Features ===========================
 //=============================================================================
 
+// @section more
+
 // Custom M code points
 #define CUSTOM_M_CODES
 #if ENABLED(CUSTOM_M_CODES)
@@ -584,6 +611,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #endif
 #endif
 
+// @section extras
 
 // EEPROM
 // The microcontroller can store settings in the EEPROM, e.g. max velocity...
@@ -595,7 +623,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 #if ENABLED(EEPROM_SETTINGS)
   // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
-  #define EEPROM_CHITCHAT // please keep turned on if you can.
+  #define EEPROM_CHITCHAT // Please keep turned on if you can.
 #endif
 
 //
@@ -615,6 +643,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
 //==============================LCD and SD support=============================
+// @section lcd
 
 // Define your display language below. Replace (en) with your language code and uncomment.
 // en, pl, fr, de, es, ru, bg, it, pt, pt-br, fi, an, nl, ca, eu, kana, kana_utf8, cn, test
@@ -642,7 +671,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000         // this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
                                                  // 0 to disable buzzer feedback. Test with M300 S<frequency Hz> P<duration ms>
-
 // PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
 // http://reprap.org/wiki/PanelOne
 //#define PANEL_ONE
@@ -709,12 +737,18 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
 //#define LCD_I2C_VIKI
 
+// SSD1306 OLED generic display support
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
+//#define U8GLIB_SSD1306
+
 // Shift register panels
 // ---------------------
 // 2 wire Non-latching LCD SR from:
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
-
+// LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
 //#define SAV_3DLCD
+
+// @section extras
 
 // Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
 #define FAST_PWM_FAN
@@ -739,7 +773,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
 //#define PHOTOGRAPH_PIN     23
 
-// SF send wrong arc g-codes when using Arc Point as fillet procedure
+// SkeinForge sends the wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
 
 // Support for the BariCUDA Paste Extruder.
