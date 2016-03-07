@@ -1,5 +1,10 @@
 #  BQ Marlin v2.2.0
 ---
+### Under the hood:
+* Dockerfile for automatic builds (W/H/HXL/W2/H2).
+* Compiled with GCC 4.8 (W/H/HXL/W2/H2).
+* Using Arduino SDK 1.6.7 (W/H/HXL/W2/H2).
+
 ### Bugfixes:
 * Fixed first connection generates gibberish output through serial producing several issues and blockings (W/H/HXL/W2/H2).
 * G28 homing action is no longer ignored via serial. If auto-levelling is activated, G29 should be used afterwards (W2/H2).
@@ -22,11 +27,6 @@
 
 ### New features:
 * Support for Toshiba FlashAir SD-Wifi cards (W/H/HXL/W2/H2).
-
-### Under the hood:
-* Dockerfile for automatic builds (W/H/HXL/W2/H2).
-* Compiled with GCC 4.8 (W/H/HXL/W2/H2).
-* Using Arduino SDK 1.6.7 (W/H/HXL/W2/H2).
 
 #  BQ Marlin v2.1.0
 ---
