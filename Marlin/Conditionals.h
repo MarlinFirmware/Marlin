@@ -315,6 +315,13 @@
   #endif
 
   /**
+   * Avoid double-negatives for enabling features
+   */
+  #if DISABLED(DISABLE_HOST_KEEPALIVE)
+    #define HOST_KEEPALIVE_FEATURE
+  #endif
+
+  /**
    * MAX_STEP_FREQUENCY differs for TOSHIBA
    */
   #if ENABLED(CONFIG_STEPPERS_TOSHIBA)
