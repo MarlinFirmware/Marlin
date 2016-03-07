@@ -1,3 +1,33 @@
+#  BQ Marlin v2.2.0
+---
+### Bugfixes:
+* Fixed first connection generates gibberish output through serial producing several issues and blockings (W/H/HXL/W2/H2).
+* G28 homing action is no longer ignored via serial. If auto-levelling is activated, G29 should be used afterwards (W2/H2).
+* M20 now returns all files present on the SD card (W/H/HXL/W2/H2).
+* Fixed: SD browsing through screen interface shows an empty line if a file doesn't have a regular filename (W2/H2).
+* G29 is no longer allowed when printing from SD to avoid the destruction of the plane (W2/H2).
+* Workaround for Repetier sending M23 incorrectly formatted (extra blank space after file name) which causes fail when trying to open a file (W/H/HXL/W2/H2).
+* M24 can be used now to start an SD file printing from serial (W2/H2).
+* M24 can be used to resume paused SD file printing from serial (W2/H2).
+* Fixed: M25 causes the printer to stop responding when printing an SD file from serial (W2/H2).
+* Fixed: M29 doesn't return an OK message after closing the file (W/H/HXL/W2/H2).
+* Fixed manual levelling sequence not properly interrupted by inactivity (W2/H2).
+* Internally generated commands no longer produce an 'OK' message on serial (W/H/HXL/W2/H2).
+
+### Improvements:
+* Bed detection sequence now shows a specific error screen, instead of going to 'Emergency Stop' (W2).
+* Use of serial commands is allowed while printing files from the SD (W2/H2).
+* Incomplete data from serial, when printing from the SDi, is discarded (W/H/HXL/W2/H2).
+* Only enter Serial Screen mode upon completed commands (W2/H2).
+
+### New features:
+* Support for Toshiba FlashAir SD-Wifi cards (W/H/HXL/W2/H2).
+
+### Under the hood:
+* Dockerfile for automatic builds (W/H/HXL/W2/H2).
+* Compiled with GCC 4.8 (W/H/HXL/W2/H2).
+* Using Arduino SDK 1.6.7 (W/H/HXL/W2/H2).
+
 #  BQ Marlin v2.1.0
 ---
 ### Bugfixes:
