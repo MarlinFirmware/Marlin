@@ -52,7 +52,7 @@
  * The maximum buffered steps/sec of the extruder motor is called "se".
  * Start autotemp mode with M109 S<mintemp> B<maxtemp> F<factor>
  * The target temperature is set to mintemp+factor*se[steps/sec] and is limited by
- * mintemp and maxtemp. Turn this off by excuting M109 without F*
+ * mintemp and maxtemp. Turn this off by executing M109 without F*
  * Also, if the temperature is set to a value below mintemp, it will not be changed by autotemp.
  * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
  */
@@ -232,7 +232,13 @@
 #define INVERT_E_STEP_PIN false
 
 // Default stepper release if idle. Set to 0 to deactivate.
+// Steppers will shut down DEFAULT_STEPPER_DEACTIVE_TIME seconds after the last move when DISABLE_INACTIVE_? is true.
+// Time can be set by M18 and M84.
 #define DEFAULT_STEPPER_DEACTIVE_TIME 60
+#define DISABLE_INACTIVE_X true
+#define DISABLE_INACTIVE_Y true
+#define DISABLE_INACTIVE_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
+#define DISABLE_INACTIVE_E true
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
@@ -344,7 +350,7 @@
 // @section more
 
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
-//#define USE_WATCHDOG
+#define USE_WATCHDOG
 
 #if ENABLED(USE_WATCHDOG)
   // If you have a watchdog reboot in an ArduinoMega2560 then the device will hang forever, as a watchdog reset will leave the watchdog on.
@@ -380,7 +386,6 @@
 #if ENABLED(ADVANCE)
   #define EXTRUDER_ADVANCE_K .0
   #define D_FILAMENT 2.85
-  #define STEPS_MM_E 836
 #endif
 
 // @section extras
