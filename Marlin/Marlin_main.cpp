@@ -3833,6 +3833,19 @@ inline void gcode_M104() {
         setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
     #endif
   }
+
+  // Detect if a print job has finished.
+  // When the target temperature for all extruders is zero then we must have
+  // finished printing.
+  if( print_job_start_ms != 0 ) {
+    bool all_extruders_cooling = true;
+    for (int i = 0; i < EXTRUDERS; i++) if( degTargetHotend(i) > 0 ) {
+      all_extruders_cooling = false;
+      break;
+    }
+
+    if( all_extruders_cooling ) print_job_stop_ms = millis();
+  }
 }
 
 #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
@@ -3944,16 +3957,15 @@ inline void gcode_M105() {
  *       Rxxx Wait for extruder(s) to reach temperature. Waits when heating and cooling.
  */
 inline void gcode_M109() {
+  float temp;
   bool no_wait_for_cooling = true;
 
   if (setTargetedHotend(109)) return;
   if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
-  LCD_MESSAGEPGM(MSG_HEATING);
-
   no_wait_for_cooling = code_seen('S');
   if (no_wait_for_cooling || code_seen('R')) {
-    float temp = code_value();
+    temp = code_value();
     setTargetHotend(temp, target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
@@ -3961,12 +3973,31 @@ inline void gcode_M109() {
     #endif
   }
 
+  // Only makes sense to show the heating message if we're in fact heating.
+  if( temp > 0 ) LCD_MESSAGEPGM(MSG_HEATING);
+
   #if ENABLED(AUTOTEMP)
     autotemp_enabled = code_seen('F');
     if (autotemp_enabled) autotemp_factor = code_value();
     if (code_seen('S')) autotemp_min = code_value();
     if (code_seen('B')) autotemp_max = code_value();
   #endif
+
+  // Detect if a print job has finished.
+  // When the target temperature for all extruders is zero then we must have
+  // finished printing.
+  if( print_job_start_ms != 0 ) {
+    bool all_extruders_cooling = true;
+    for (int i = 0; i < EXTRUDERS; i++) if( degTargetHotend(i) > 0 ) {
+      all_extruders_cooling = false;
+      break;
+    }
+
+    if( all_extruders_cooling ) {
+      print_job_stop_ms = millis();
+      LCD_MESSAGEPGM(WELCOME_MSG);
+    }
+  }
 
   // Exit if the temperature is above target and not waiting for cooling
   if (no_wait_for_cooling && !isHeatingHotend(target_extruder)) return;
