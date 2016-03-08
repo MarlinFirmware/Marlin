@@ -431,7 +431,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 
 // @section bedlevel
 
-
 //#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
 //#define DEBUG_LEVELING_FEATURE
 #define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
@@ -460,7 +459,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
     #define FRONT_PROBE_BED_POSITION 20
     #define BACK_PROBE_BED_POSITION 170
 
-    #define MIN_PROBE_EDGE 10 // The Z probe square sides can be no smaller than this.
+    #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
     // Set the number of grid points per dimension.
     // You probably don't need more than 3 (squared=9).
@@ -515,8 +514,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
   //#define Z_PROBE_SLED // Turn on if you have a Z probe mounted on a sled like those designed by Charles Bell.
   //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-  // If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-  // it is highly recommended you let this Z_SAFE_HOMING enabled!!!
+
+  //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
+  //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
   #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with Z probe outside the bed area.
                           // When defined, it will:
