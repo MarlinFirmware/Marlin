@@ -61,7 +61,7 @@ class SDCache
 		CacheEntryType_t press(uint16_t index);
 		void returnToRoot();
 		
-		inline cache_entry const * getSelectedEntry() { return window_cache_begin + m_selected_file; };
+		inline cache_entry const * getSelectedEntry() { return (m_cache + m_selected_file); };
 		inline uint16_t getListLength() { return m_list_length; };
 		inline uint8_t getWindowSize() { return m_window_size; };
 		inline uint8_t getIndex() { return m_index; };

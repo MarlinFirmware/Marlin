@@ -26,7 +26,6 @@
 #include "SDCache.h"
 #include "cardreader.h"
 
-//review for all data
 SDCache::SDCache()
 	: m_cache_update(true)
 	, m_index(0)
@@ -36,7 +35,7 @@ SDCache::SDCache()
 	, m_window_size(0) 
 	, m_directory_depth(0)
 	, m_window_is_centered(false)
-	, m_window_offset(0)
+	, m_window_offset(3)
 { 
 	card.initsd();
 }
@@ -88,154 +87,155 @@ bool SDCache::updateCachePosition(int16_t index)
     bool return_value = false;
     bool update_window = false;
     
-    int16_t upper_index = index;
-    int16_t lower_index = index;
-    
-    if(m_window_is_centered)
-    {
-		upper_index = index + m_window_offset;
-		lower_index = index - m_window_offset;
-	}
-    
-	if(lower_index < 0)
+    if(m_window_is_centered == true)
 	{
-		lower_index = 0;
+		m_window_min = index - m_window_offset;
+		m_window_max = index + m_window_offset;
 	}
-	else if(upper_index >= m_list_length -1)
+	else
 	{
-		upper_index = m_list_length - 1;
+		if(index > m_window_max)
+		{
+			m_window_max = index;
+			m_window_min = m_window_max - (m_window_size-1);
+		}
+		else if(index < m_window_min)
+		{
+			m_window_min = index;
+			m_window_max = m_window_min + (m_window_size-1);
+		}
+	}
+	
+	if( (m_window_is_centered == true && index < m_window_offset)
+	|| (m_window_is_centered == false && m_window_min < 0) )
+	{
+		m_window_min = 0;
+		m_window_max = m_window_size - 1;
+	}
+	else if ( (m_window_is_centered == true && index + m_window_offset > m_list_length-2)
+	|| (m_window_is_centered == false && m_window_max > m_list_length - 2))
+	{
+		m_window_max = m_list_length - 1;
+		m_window_min = m_window_max - (m_window_size - 1);
 	}
 	
 	if(index != m_index)
 	{
 		update_window = true;
-		if(lower_index < m_cache_min)
+		
+		if (m_window_min < m_cache_min)
 		{
-			if(lower_index + m_window_size - m_cache_size + 1 > 0)
+			if(m_window_max >= m_cache_size)
 			{
-				m_cache_max = lower_index + m_window_size - 1;
-				m_cache_min = m_cache_max - m_cache_size + 1;
+				m_cache_max = m_window_max;
+				m_cache_min = m_cache_max - (m_cache_size - 1);
 				return_value = true;
+				m_cache_update = true;
 			}
 			else
 			{
 				m_cache_min = 0;
-                m_cache_max = m_cache_size - 1;
-                return_value = true;
+				m_cache_max = m_cache_min + (m_cache_size - 1);
+				return_value = true;
+				m_cache_update = true;	
 			}
-			m_cache_update = true;			
+			
 		}
-		else if(upper_index > m_cache_max)
+		else if(m_window_max > m_cache_max)
 		{
-			m_cache_min = upper_index - m_window_size + 1;
-            m_cache_max = m_cache_min + m_cache_size - 1;
-            if (m_cache_max >= m_list_length - 1) {
-                m_cache_max = m_list_length - 1;
-                m_cache_min = m_list_length - m_cache_size;
-            }
-			m_cache_update = true;
-		}
-		
-		//check if screen window has to be moved
-		if(lower_index < m_window_min)
-		{
-			if(lower_index > 0)
+			if(m_window_min <= m_list_length - m_cache_size)
 			{
-				m_window_min = lower_index;
-			} 
+				m_cache_min = m_window_min;
+				m_cache_max = m_cache_min + (m_cache_size - 1);
+				return_value = true;
+				m_cache_update = true;
+			}
 			else
 			{
-				m_window_min = 0;
+				m_cache_max = m_list_length-1;
+				m_cache_min = m_cache_max - (m_cache_size - 1);
+				return_value = true;
+				m_cache_update = true;
 			}
-							
-			m_window_max = m_window_min + m_window_size - 1;
 		}
-		else if(upper_index > m_window_max)
-		{
-			m_window_max = upper_index;
-			if(m_window_max >= m_list_length - 1)
-			{
-				m_window_max = m_list_length - 1;
-			}
-			m_window_min = m_window_max - m_window_size + 1;
-		}
-		
-		m_selected_file = index - m_window_min;
 		
 		window_cache_begin = m_cache + (m_window_min - m_cache_min);
 		window_cache_end = window_cache_begin + m_window_size;
 		
+		m_selected_file = index - m_cache_min;
 		m_index = index;
+		
 	}
 	
 	if(m_cache_update == true)
 	{		
-		// Clears the cache content
-        memset(m_cache, 0, sizeof(m_cache));
-	
-        uint8_t i = 0;
-        int8_t offset = -1; 
-        
-        // Cache entry for either "Back" or .. option
-        if ((m_cache_min + i) == 0)
-        {
-			if(getFolderIsRoot())
-			{
-				m_cache[i].type = BACK_ENTRY;
-				strcpy(m_cache[i].longFilename, "Back");
-				strcpy(m_cache[i].filename, "Back");
-			}
-			else
-			{
-				m_cache[i].type = UPDIR_ENTRY;
-				strcpy(m_cache[i].longFilename, "..");
-				strcpy(m_cache[i].filename, "..");
-			}
-			
-			offset++;
-			i++;
-		}
-
-		// Cache entries for the files in the current directory
-		int8_t j = 0;
-		while (i < m_cache_size)
+		memset(m_cache, 0, sizeof(m_cache));
+		
+		int8_t cache_position = m_cache_size;
+		uint16_t file_to_read = m_list_length - m_cache_max - 1; // + 2;
+		
+		while(cache_position > 0)
 		{
-			card.getfilename(m_cache_min + j + offset);
+			if(file_to_read == m_list_length-1)
+			{
+				if(getFolderIsRoot())
+				{
+					m_cache[0].type = BACK_ENTRY;
+					strcpy(m_cache[0].longFilename, "Back");
+					strcpy(m_cache[0].filename, "Back");
+				}
+				else
+				{
+					m_cache[0].type = UPDIR_ENTRY;
+					strcpy(m_cache[0].longFilename, "..");
+					strcpy(m_cache[0].filename, "..");
+				}
+				
+				break;
+			}			
 			
-			strcpy(m_cache[i].filename, card.filename);
+			card.getfilename(file_to_read);
+			
+			
 			if (card.filenameIsDir) 
 			{
-				m_cache[i].type = FOLDER_ENTRY;
-			} 
+				m_cache[cache_position-1].type = FOLDER_ENTRY;				
+			}
 			else 
 			{
-				m_cache[i].type = FILE_ENTRY;
+				m_cache[cache_position-1].type = FILE_ENTRY;
 			}
 			
+			strcpy(m_cache[cache_position-1].filename, card.filename);
 			if(strlen(card.longFilename) == 0)
 			{
-				strcpy(m_cache[i].longFilename, card.filename);
+				strcpy(m_cache[cache_position-1].longFilename, card.filename);
 			}
 			else
 			{
-				strcpy(m_cache[i].longFilename, card.longFilename);
+				strcpy(m_cache[cache_position-1].longFilename, card.longFilename);
 			}
-
-			i++;
-			j++;
+						
+			++file_to_read;
+			--cache_position;
+			
+			
+			
 		}
 	}
 	
 	if(update_window || m_cache_update)
-	{
+	{		
 		window_cache_begin = m_cache + (m_window_min - m_cache_min);
 		window_cache_end = window_cache_begin + m_window_size;
 
 		// The content of the cache is up-to-date
 		m_cache_update = false;
 	}
+    
 	return return_value;
 }
+
 
 CacheEntryType_t SDCache::press(uint16_t index)
 {	
@@ -244,7 +244,7 @@ CacheEntryType_t SDCache::press(uint16_t index)
 
 	char* c;
 	char cmd[LONG_FILENAME_LENGTH];
-	strcpy(cmd, window_cache_begin[m_selected_file].longFilename);
+	strcpy(cmd, getSelectedEntry()->longFilename);
 	
 	//check first for name validity
 	for (c = &cmd[0]; *c; c++)
@@ -255,13 +255,13 @@ CacheEntryType_t SDCache::press(uint16_t index)
 		}
 	}
 		
-	switch(window_cache_begin[m_selected_file].type)
+	switch(getSelectedEntry()->type)
 	{
 		//cases handled outside of SDCache
 		case FILE_ENTRY:
-			card.getfilename(m_index-1);
+			card.getfilename(m_list_length - m_index - 1);
 		case BACK_ENTRY:
-			return window_cache_begin[m_selected_file].type; 
+			return getSelectedEntry()->type; 
 			break;
 		
 		//Cases handled internally
@@ -294,12 +294,12 @@ void SDCache::setWindowCentered()
 
 void SDCache::changeDir()
 {
-	if(window_cache_begin[m_selected_file].type == FOLDER_ENTRY)
+	if(getSelectedEntry()->type == FOLDER_ENTRY)
 	{
 		if(m_directory_depth < MAX_DIR_DEPTH-1)
 		{
 			++m_directory_depth;
-			if(strlen(card.longFilename) != 0)
+			if(strlen(getSelectedEntry()->longFilename) != 0)
 			{
 				strncpy(m_directory, getSelectedEntry()->longFilename, 19);
 			}
@@ -307,7 +307,7 @@ void SDCache::changeDir()
 			{
 				strcpy(m_directory, getSelectedEntry()->filename);
 			}
-			card.chdir(window_cache_begin[m_selected_file].filename);
+			card.chdir(getSelectedEntry()->filename);
 			
 			reloadCache();
 		}
@@ -360,5 +360,5 @@ void SDCache::updateDirectoryName()
 		i++;
 	}
 	
-	SERIAL_ECHOLNPGM("dir not found");
+	SERIAL_ECHOLNPGM("folder not found");
 }
