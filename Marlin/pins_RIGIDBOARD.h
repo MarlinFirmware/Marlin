@@ -60,7 +60,7 @@
 
 #endif
 
-// SPI for Max6675 Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 #undef MAX6675_SS
 #if ENABLED(SDSUPPORT)
   #define MAX6675_SS       49 // Don't use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
