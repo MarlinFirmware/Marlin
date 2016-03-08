@@ -870,7 +870,7 @@ void get_command() {
           }
           // if no errors, continue parsing
         }
-        else if (npos == command) {
+        else {
           gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
           return;
         }
