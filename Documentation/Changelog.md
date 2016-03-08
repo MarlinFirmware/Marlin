@@ -24,7 +24,7 @@
 * Use of serial commands is allowed while printing files from the SD (W2/H2).
 * Incomplete data from serial, when printing from the SD, is discarded (W/H/HXL/W2/H2).
 * Only enter Serial Screen mode upon completed commands (W2/H2).
-* Files on SD are now shown in reverse order of inode creation, so newer files will appear on top of the screen (unless they are substituting a previously erased inode, which can't be controlled with SDFAT implementation) (W2/H2).
+* Files on SD are now shown in reverse order of inode creation, so newer files will appear on top of the screen (unless they are substituting a previously erased inode, which can't be controlled with SDFAT implementation) (W/H/HXL/W2/H2).
 
 ### New features:
 * Support for Toshiba FlashAir SD-Wifi cards (W/H/HXL/W2/H2).
