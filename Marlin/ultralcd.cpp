@@ -50,6 +50,8 @@
 
 int8_t encoderDiff; // updated from interrupt context and added to encoderPosition every LCD update
 
+int8_t manual_move_axis = (int8_t)NO_AXIS;
+
 bool encoderRateMultiplierEnabled;
 int32_t lastEncoderMovementMillis;
 
@@ -938,7 +940,7 @@ void lcd_cooldown() {
     ENCODER_DIRECTION_NORMAL();
 
     // Encoder wheel adjusts the Z position
-    if (encoderPosition && planner.movesplanned() <= 3) {
+    if (encoderPosition) {
       refresh_cmd_timeout();
       current_position[Z_AXIS] += float((int32_t)encoderPosition) * (MBL_Z_STEP);
       NOLESS(current_position[Z_AXIS], 0);
@@ -951,8 +953,8 @@ void lcd_cooldown() {
           LCDVIEW_REDRAW_NOW
         #endif
       ;
+      encoderPosition = 0;
     }
-    encoderPosition = 0;
 
     static bool debounce_click = false;
     if (LCD_CLICKED) {
@@ -1191,6 +1193,32 @@ static void lcd_prepare_menu() {
 #endif // DELTA_CALIBRATION_MENU
 
 /**
+ * If the manual move hasn't been fed to the planner yet,
+ * and the planner can accept one, send immediately
+ */
+inline void manage_manual_move() {
+  if (manual_move_axis != (int8_t)NO_AXIS && !planner.planner_is_full()) {
+    #if ENABLED(DELTA)
+      calculate_delta(current_position);
+      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[manual_move_axis]/60, active_extruder);
+    #else
+      planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[manual_move_axis]/60, active_extruder);
+    #endif
+    manual_move_axis = (int8_t)NO_AXIS;
+  }
+}
+
+/**
+ * Set a flag that lcd_update() should send a move
+ * to "current_position" at the next opportunity,
+ * and try to send one now.
+ */
+inline void manual_move_to_current(AxisEnum axis) {
+  manual_move_axis = (int8_t)axis;
+  manage_manual_move();
+}
+
+/**
  *
  * "Prepare" > "Move Axis" submenu
  *
@@ -1200,15 +1228,15 @@ float move_menu_scale;
 
 static void _lcd_move(const char* name, AxisEnum axis, float min, float max) {
   ENCODER_DIRECTION_NORMAL();
-  if (encoderPosition && planner.movesplanned() <= 3) {
+  if (encoderPosition) {
     refresh_cmd_timeout();
     current_position[axis] += float((int32_t)encoderPosition) * move_menu_scale;
     if (min_software_endstops) NOLESS(current_position[axis], min);
     if (max_software_endstops) NOMORE(current_position[axis], max);
-    line_to_current(axis);
+    encoderPosition = 0;
+    manual_move_to_current(axis);
     lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
   }
-  encoderPosition = 0;
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
   if (LCD_CLICKED) lcd_goto_previous_menu(true);
 }
@@ -1232,12 +1260,12 @@ static void lcd_move_e(
     unsigned short original_active_extruder = active_extruder;
     active_extruder = e;
   #endif
-  if (encoderPosition && planner.movesplanned() <= 3) {
+  if (encoderPosition) {
     current_position[E_AXIS] += float((int32_t)encoderPosition) * move_menu_scale;
-    line_to_current(E_AXIS);
+    encoderPosition = 0;
+    manual_move_to_current(E_AXIS);
     lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
   }
-  encoderPosition = 0;
   if (lcdDrawUpdate) {
     PGM_P pos_label;
     #if EXTRUDERS == 1
@@ -2148,6 +2176,8 @@ void lcd_update() {
   #if ENABLED(ULTIPANEL)
     static millis_t return_to_status_ms = 0;
   #endif
+
+  manage_manual_move();
 
   lcd_buttons_update();
 
