@@ -170,6 +170,8 @@ else ifeq ($(MACHINE_MODEL), Hephestos)
 	VPATHTEMP += config/hephestos
 else ifeq ($(MACHINE_MODEL), Hephestos XL)
 	VPATHTEMP += config/hephestos_xl
+else ifeq ($(MACHINE_MODEL), Hephestos ZUM)
+	VPATHTEMP += config/hephestos_zum
 else ifeq ($(MACHINE_MODEL), Witbox 2)
 	VPATHTEMP += config/witbox_2
 else ifeq ($(MACHINE_MODEL), Hephestos 2)
@@ -425,6 +427,12 @@ hephestos_xl:
 	$(L) $(ECHO) Configurating for $@ printer...
 	$(L) $(ECHO) Language selected: English [EN] \(by default\)
 	$(L) $(COPY) config$(PATHSEP)hephestos_xl$(PATHSEP)Makefile .config_mach
+	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
+
+hephestos_zum:
+	$(L) $(ECHO) Configurating for $@ printer...
+	$(L) $(ECHO) Language selected: English [EN] \(by default\)
+	$(L) $(COPY) config$(PATHSEP)hephestos_zum$(PATHSEP)Makefile .config_mach
 	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
 
 # 2nd Generation printers
