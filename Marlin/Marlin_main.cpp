@@ -1789,13 +1789,13 @@ void process_commands()
       starpos = (strchr(strchr_pointer + 4,'*'));
       if(starpos!=NULL)
       {
-		  if(*(starpos-1) == ' ') //solve repetier format problem
+		  if(*(starpos-1) == ' ')
 		  {
-			SERIAL_ECHOLN("wrong file format");
 			starpos--;
 		  }
         *(starpos)='\0';
        }
+      SERIAL_ECHO("file to open: "); SERIAL_ECHOLN(strchr_pointer + 4);
       card.openFile(strchr_pointer + 4,true);
       break;
     case 24: //M24 - Start SD print
@@ -1913,11 +1913,15 @@ void process_commands()
       break;
     case 28: //M28 - Start SD write
       starpos = (strchr(strchr_pointer + 4,'*'));
-      if(starpos != NULL){
-        char* npos = strchr(cmdbuffer[bufindr], 'N');
-        strchr_pointer = strchr(npos,' ') + 1;
-        *(starpos) = '\0';
+      if(starpos!=NULL)
+      {
+		  if(*(starpos-1) == ' ')
+		  {
+			starpos--;
+		  }
+        *(starpos)='\0';
       }
+      SERIAL_ECHO("file to open: "); SERIAL_ECHOLN(strchr_pointer + 4);
       card.openFile(strchr_pointer+4,false);
       break;
     case 29: //M29 - Stop SD write
@@ -1928,11 +1932,15 @@ void process_commands()
       if (card.cardOK){
         card.closefile();
         starpos = (strchr(strchr_pointer + 4,'*'));
-        if(starpos != NULL){
-          char* npos = strchr(cmdbuffer[bufindr], 'N');
-          strchr_pointer = strchr(npos,' ') + 1;
-          *(starpos) = '\0';
+        if(starpos!=NULL)
+        {
+		    if(*(starpos-1) == ' ')
+		    {
+			  starpos--;
+		    }
+          *(starpos)='\0';
         }
+			SERIAL_ECHO("file to open: "); SERIAL_ECHOLN(strchr_pointer + 4);
         card.removeFile(strchr_pointer + 4);
       }
       break;
@@ -1953,7 +1961,13 @@ void process_commands()
         namestartpos++; //to skip the '!'
 
       if(starpos!=NULL)
-        *(starpos)='\0';
+	  {
+		  if(*(starpos-1) == ' ')
+		  {
+		    starpos--;
+		  }
+	    *(starpos)='\0';
+  	  }
 
       bool call_procedure=(code_seen('P'));
 
@@ -1974,10 +1988,14 @@ void process_commands()
     case 928: //M928 - Start SD write
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos != NULL){
+		if(*(starpos-1) == ' ')
+		{
+		  starpos--;
+		}
         char* npos = strchr(cmdbuffer[bufindr], 'N');
-        strchr_pointer = strchr(npos,' ') + 1;
         *(starpos) = '\0';
       }
+      
       card.openLogFile(strchr_pointer+5);
       break;
 
