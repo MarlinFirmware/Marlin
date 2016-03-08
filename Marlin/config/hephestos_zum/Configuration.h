@@ -10,7 +10,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define MACHINE_NAME "Hephestos ZUM"
+#define MACHINE_NAME "Hephestos"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
 #define FIRMWARE_VER "2.2.0"
@@ -18,7 +18,7 @@
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
-#define MACHINE_NAME_M115 "Hephestos ZUM"
+#define MACHINE_NAME_M115 "Hephestos_ZUM"
 #define SOURCE_CODE_URL_M115 "http%3A//github.com/bq/Marlin"
 #define FIRMWARE_LANGUAGE_M115 ""
 
@@ -36,7 +36,6 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  //~ #define MOTHERBOARD BOARD_RAMPS_13_EFB
   #define MOTHERBOARD 43
 #endif
 
@@ -632,6 +631,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 //#define RA_CONTROL_PANEL
 // BQ SMART FULL GRAPHIC CONTROLLER
 //#define BQ_LCD_SMART_CONTROLLER
+
+// Support for Toshiba Flashair SD cards
+#define FLASH_AIR
 
 //automatic expansion
 #if defined (MAKRPANEL)
