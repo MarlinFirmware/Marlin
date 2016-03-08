@@ -2268,7 +2268,7 @@ inline void gcode_G28() {
 
   setup_for_endstop_move();
 
-  set_destination_to_current();
+  set_destination_to_current(); // Directly after a reset this is all 0. Later we get a hint if we have to raise z or not.
 
   feedrate = 0.0;
 
@@ -2311,50 +2311,40 @@ inline void gcode_G28() {
 
     home_all_axis = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
 
-    if (home_all_axis || homeZ) {
+    #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
-      #if Z_HOME_DIR > 0  // If homing away from BED do Z first
-
+      if (home_all_axis || homeZ) {
         HOMEAXIS(Z);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (marlin_debug_flags & DEBUG_LEVELING) {
             print_xyz("> HOMEAXIS(Z) > current_position", current_position);
           }
         #endif
+      }
 
-      #elif defined(Z_RAISE_BEFORE_HOMING) && Z_RAISE_BEFORE_HOMING > 0
+    #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
 
-        // Consider the current Z-position as zero
-        // !!WARNING!! If the machine has no physical z-max endstops then we
-        // can move the axis more than it can physically travel.
-        current_position[Z_AXIS] = 0;
-        sync_plan_position();
-
-        // (Does this need to be "negative home direction?" Why not just use Z_RAISE_BEFORE_HOMING?)
-        destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS);
-        feedrate = max_feedrate[Z_AXIS] * 60;
-
+      // Raise Z before homing any other axes and z is not already high enough (never lower z)
+      if (current_position[Z_AXIS] <= MIN_Z_HEIGHT_FOR_HOMING) {
+        destination[Z_AXIS] = MIN_Z_HEIGHT_FOR_HOMING;
+        feedrate = max_feedrate[Z_AXIS] * 60;  // feedrate (mm/m) = max_feedrate (mm/s)
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (marlin_debug_flags & DEBUG_LEVELING) {
-            SERIAL_ECHOPAIR("Raise Z (before homing) by ", (float)Z_RAISE_BEFORE_HOMING);
+            SERIAL_ECHOPAIR("Raise Z (before homing) to ", (float)MIN_Z_HEIGHT_FOR_HOMING);
             SERIAL_EOL;
             print_xyz("> (home_all_axis || homeZ) > current_position", current_position);
             print_xyz("> (home_all_axis || homeZ) > destination", destination);
           }
         #endif
-
-        // Raise Z-axis by Z_RAISE_BEFORE_HOMING before homing any other axis
         line_to_destination();
         st_synchronize();
 
         // Update the current Z position even if it currently not real from Z-home
         // otherwise each call to line_to_destination() will want to move Z-axis
-        // by Z_RAISE_BEFORE_HOMING.
+        // by MIN_Z_HEIGHT_FOR_HOMING.
         current_position[Z_AXIS] = destination[Z_AXIS];
-
-      #endif
-
-    } // home_all_axis || homeZ
+      }
+    #endif
 
     #if ENABLED(QUICK_HOME)
 
@@ -2468,19 +2458,18 @@ inline void gcode_G28() {
 
           if (home_all_axis) {
 
-            // At this point we already have Z at Z_RAISE_BEFORE_HOMING height
+            // At this point we already have Z at MIN_Z_HEIGHT_FOR_HOMING height
             // No need to move Z any more as this height should already be safe
-            // enough to reach Z_SAFE_HOMING XY positions; just make sure the
-            // planner is in sync.
+            // enough to reach Z_SAFE_HOMING XY positions.
+            // Just make sure the planner is in sync.
             sync_plan_position();
 
             //
             // Set the Z probe (or just the nozzle) destination to the safe homing point
             //
-            // NOTE: If current_position[X_AXIS] or current_position[Y_AXIS] were set above
-            // then this may not work as expected.
             destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
             destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
+            destination[Z_AXIS] = current_position[Z_AXIS]; //z is already at the right height
             feedrate = XY_TRAVEL_SPEED;
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2494,8 +2483,8 @@ inline void gcode_G28() {
             line_to_destination();
             st_synchronize();
 
-            // Update the current positions for XY, Z is still at
-            // Z_RAISE_BEFORE_HOMING height, no changes there.
+            // Update the current positions for XY, Z is still at least at
+            // MIN_Z_HEIGHT_FOR_HOMING height, no changes there.
             current_position[X_AXIS] = destination[X_AXIS];
             current_position[Y_AXIS] = destination[Y_AXIS];
 
@@ -2515,26 +2504,6 @@ inline void gcode_G28() {
                   && cpx <= X_MAX_POS - X_PROBE_OFFSET_FROM_EXTRUDER
                   && cpy >= Y_MIN_POS - Y_PROBE_OFFSET_FROM_EXTRUDER
                   && cpy <= Y_MAX_POS - Y_PROBE_OFFSET_FROM_EXTRUDER) {
-                // Set the plan current position to X, Y, 0
-                current_position[Z_AXIS] = 0;
-                plan_set_position(cpx, cpy, 0, current_position[E_AXIS]); // = sync_plan_position
-
-                // Set Z destination away from bed and raise the axis
-                // NOTE: This should always just be Z_RAISE_BEFORE_HOMING unless...???
-                destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS);
-                feedrate = max_feedrate[Z_AXIS] * 60;  // feedrate (mm/m) = max_feedrate (mm/s)
-
-                #if ENABLED(DEBUG_LEVELING_FEATURE)
-                  if (marlin_debug_flags & DEBUG_LEVELING) {
-                    SERIAL_ECHOPAIR("Raise Z (before homing) by ", (float)Z_RAISE_BEFORE_HOMING);
-                    SERIAL_EOL;
-                    print_xyz("> homeZ > current_position", current_position);
-                    print_xyz("> homeZ > destination", destination);
-                  }
-                #endif
-
-                line_to_destination();
-                st_synchronize();
 
                 // Home the Z axis
                 HOMEAXIS(Z);
