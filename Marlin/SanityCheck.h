@@ -368,6 +368,8 @@
   #error SDSLOW deprecated - set SPI_SPEED to SPI_HALF_SPEED instead
 #elif defined(SDEXTRASLOW)
   #error SDEXTRASLOW deprecated - set SPI_SPEED to SPI_QUARTER_SPEED instead
+#elif defined(Z_RAISE_BEFORE_HOMING)
+  #error Z_RAISE_BEFORE_HOMING is deprecated. Use MIN_Z_HEIGHT_FOR_HOMING instead.
 #endif
 
 #endif //SANITYCHECK_H
