@@ -286,17 +286,15 @@ void checkHitEndstops() {
   }
 }
 
-#if ENABLED(COREXY) || ENABLED(COREXZ)
-  #if ENABLED(COREXY)
-    #define CORE_AXIS_2 B_AXIS
-  #else
-    #define CORE_AXIS_2 C_AXIS
-  #endif
+#if ENABLED(COREXY)
+  #define CORE_AXIS_2 B_AXIS
+#elif ENABLED(COREXZ)
+  #define CORE_AXIS_2 C_AXIS
 #endif
 
 void enable_endstops(bool check) { check_endstops = check; }
 
-// Check endstops - called from ISR!
+// Check endstops - Called from ISR!
 inline void update_endstops() {
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -543,32 +541,19 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
  */
 void set_stepper_direction() {
 
-  if (TEST(out_bits, X_AXIS)) { // A_AXIS
-    X_APPLY_DIR(INVERT_X_DIR, 0);
-    count_direction[X_AXIS] = -1;
-  }
-  else {
-    X_APPLY_DIR(!INVERT_X_DIR, 0);
-    count_direction[X_AXIS] = 1;
-  }
+  #define SET_STEP_DIR(AXIS) \
+    if (TEST(out_bits, AXIS ##_AXIS)) { \
+      AXIS ##_APPLY_DIR(INVERT_## AXIS ##_DIR, false); \
+      count_direction[AXIS ##_AXIS] = -1; \
+    } \
+    else { \
+      AXIS ##_APPLY_DIR(!INVERT_## AXIS ##_DIR, false); \
+      count_direction[AXIS ##_AXIS] = 1; \
+    }
 
-  if (TEST(out_bits, Y_AXIS)) { // B_AXIS
-    Y_APPLY_DIR(INVERT_Y_DIR, 0);
-    count_direction[Y_AXIS] = -1;
-  }
-  else {
-    Y_APPLY_DIR(!INVERT_Y_DIR, 0);
-    count_direction[Y_AXIS] = 1;
-  }
-
-  if (TEST(out_bits, Z_AXIS)) { // C_AXIS
-    Z_APPLY_DIR(INVERT_Z_DIR, 0);
-    count_direction[Z_AXIS] = -1;
-  }
-  else {
-    Z_APPLY_DIR(!INVERT_Z_DIR, 0);
-    count_direction[Z_AXIS] = 1;
-  }
+  SET_STEP_DIR(X); // A
+  SET_STEP_DIR(Y); // B
+  SET_STEP_DIR(Z); // C
 
   #if DISABLED(ADVANCE)
     if (TEST(out_bits, E_AXIS)) {
@@ -787,65 +772,32 @@ ISR(TIMER1_COMPA_vect) {
   ISR(TIMER0_COMPA_vect) {
     old_OCR0A += 52; // ~10kHz interrupt (250000 / 26 = 9615kHz)
     OCR0A = old_OCR0A;
-    // Set E direction (Depends on E direction + advance)
-    for (unsigned char i = 0; i < 4; i++) {
-      if (e_steps[0] != 0) {
-        E0_STEP_WRITE(INVERT_E_STEP_PIN);
-        if (e_steps[0] < 0) {
-          E0_DIR_WRITE(INVERT_E0_DIR);
-          e_steps[0]++;
-          E0_STEP_WRITE(!INVERT_E_STEP_PIN);
-        }
-        else if (e_steps[0] > 0) {
-          E0_DIR_WRITE(!INVERT_E0_DIR);
-          e_steps[0]--;
-          E0_STEP_WRITE(!INVERT_E_STEP_PIN);
-        }
+
+    #define STEP_E_ONCE(INDEX) \
+      if (e_steps[INDEX] != 0) { \
+        E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
+        if (e_steps[INDEX] < 0) { \
+          E## INDEX ##_DIR_WRITE(INVERT_E## INDEX ##_DIR); \
+          e_steps[INDEX]++; \
+        } \
+        else if (e_steps[INDEX] > 0) { \
+          E## INDEX ##_DIR_WRITE(!INVERT_E## INDEX ##_DIR); \
+          e_steps[INDEX]--; \
+        } \
+        E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); \
       }
+
+    // Step all E steppers that have steps, up to 4 steps per interrupt
+    for (unsigned char i = 0; i < 4; i++) {
+      STEP_E_ONCE(0);
       #if EXTRUDERS > 1
-        if (e_steps[1] != 0) {
-          E1_STEP_WRITE(INVERT_E_STEP_PIN);
-          if (e_steps[1] < 0) {
-            E1_DIR_WRITE(INVERT_E1_DIR);
-            e_steps[1]++;
-            E1_STEP_WRITE(!INVERT_E_STEP_PIN);
-          }
-          else if (e_steps[1] > 0) {
-            E1_DIR_WRITE(!INVERT_E1_DIR);
-            e_steps[1]--;
-            E1_STEP_WRITE(!INVERT_E_STEP_PIN);
-          }
-        }
-      #endif
-      #if EXTRUDERS > 2
-        if (e_steps[2] != 0) {
-          E2_STEP_WRITE(INVERT_E_STEP_PIN);
-          if (e_steps[2] < 0) {
-            E2_DIR_WRITE(INVERT_E2_DIR);
-            e_steps[2]++;
-            E2_STEP_WRITE(!INVERT_E_STEP_PIN);
-          }
-          else if (e_steps[2] > 0) {
-            E2_DIR_WRITE(!INVERT_E2_DIR);
-            e_steps[2]--;
-            E2_STEP_WRITE(!INVERT_E_STEP_PIN);
-          }
-        }
-      #endif
-      #if EXTRUDERS > 3
-        if (e_steps[3] != 0) {
-          E3_STEP_WRITE(INVERT_E_STEP_PIN);
-          if (e_steps[3] < 0) {
-            E3_DIR_WRITE(INVERT_E3_DIR);
-            e_steps[3]++;
-            E3_STEP_WRITE(!INVERT_E_STEP_PIN);
-          }
-          else if (e_steps[3] > 0) {
-            E3_DIR_WRITE(!INVERT_E3_DIR);
-            e_steps[3]--;
-            E3_STEP_WRITE(!INVERT_E_STEP_PIN);
-          }
-        }
+        STEP_E_ONCE(1);
+        #if EXTRUDERS > 2
+          STEP_E_ONCE(2);
+          #if EXTRUDERS > 3
+            STEP_E_ONCE(3);
+          #endif
+        #endif
       #endif
     }
   }
