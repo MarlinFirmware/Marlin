@@ -707,8 +707,8 @@ static void lcd_implementation_status_screen() {
     lcd.setCursor(LCD_WIDTH - 6, 2);
     lcd.print(LCD_STR_CLOCK[0]);
     if (print_job_start_ms != 0) {
-      uint16_t time = ((print_job_stop_ms > print_job_start_ms)
-                       ? print_job_stop_ms : millis()) / 60000 - print_job_start_ms / 60000;
+      uint16_t time = (((print_job_stop_ms > print_job_start_ms)
+                       ? print_job_stop_ms : millis()) - print_job_start_ms) / 60000;
       lcd.print(itostr2(time / 60));
       lcd.print(':');
       lcd.print(itostr2(time % 60));
