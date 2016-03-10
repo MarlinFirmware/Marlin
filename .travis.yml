@@ -106,6 +106,7 @@ script:
   #- DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
   # REPRAP_DISCOUNT_SMART_CONTROLLER
   - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define SDSUPPORT/#define SDSUPPORT/g' Marlin/Configuration.h
   - sed -i 's/\/\/#define REPRAP_DISCOUNT_SMART_CONTROLLER/#define REPRAP_DISCOUNT_SMART_CONTROLLER/g' Marlin/Configuration.h
   - rm -rf .build/
   - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
