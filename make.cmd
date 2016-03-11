@@ -153,6 +153,7 @@ goto exit
 
 :quit
 echo	Exiting updater
-echo.
 
 :exit
+echo.
+set /p EXCH=Press enter to exit...
