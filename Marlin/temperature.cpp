@@ -1112,13 +1112,13 @@ void disable_all_heaters() {
   setTargetBed(0);
 
   #define DISABLE_HEATER(NR) { \
-    target_temperature[NR] = 0; \
+    setTargetHotend(NR, 0); \
     soft_pwm[NR] = 0; \
     WRITE_HEATER_ ## NR (LOW); \
   }
 
-#if HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675)
-    target_temperature[0] = 0;
+  #if HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675)
+    setTargetHotend(0, 0);
     soft_pwm[0] = 0;
     WRITE_HEATER_0P(LOW); // Should HEATERS_PARALLEL apply here? Then change to DISABLE_HEATER(0)
   #endif
