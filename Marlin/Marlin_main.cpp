@@ -943,9 +943,9 @@ void get_command() {
       ) {
         if (card.eof()) {
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
-          print_job_stop_ms = millis();
+          print_job_stop(true);
           char time[30];
-          millis_t t = (print_job_stop_ms - print_job_start_ms) / 1000;
+          millis_t t = print_job_timer();
           int hours = t / 60 / 60, minutes = (t / 60) % 60;
           sprintf_P(time, PSTR("%i " MSG_END_HOUR " %i " MSG_END_MINUTE), hours, minutes);
           SERIAL_ECHO_START;
@@ -3411,7 +3411,7 @@ inline void gcode_M17() {
    */
   inline void gcode_M24() {
     card.startFileprint();
-    print_job_start_ms = millis();
+    print_job_start();
   }
 
   /**
@@ -3467,8 +3467,7 @@ inline void gcode_M17() {
  * M31: Get the time since the start of SD Print (or last M109)
  */
 inline void gcode_M31() {
-  print_job_stop_ms = millis();
-  millis_t t = (print_job_stop_ms - print_job_start_ms) / 1000;
+  millis_t t = print_job_timer();
   int min = t / 60, sec = t % 60;
   char time[30];
   sprintf_P(time, PSTR("%i min, %i sec"), min, sec);
@@ -3502,8 +3501,9 @@ inline void gcode_M31() {
         card.setIndex(code_value_short());
 
       card.startFileprint();
-      if (!call_procedure)
-        print_job_start_ms = millis(); //procedure calls count as normal print time.
+
+      // Procedure calls count as normal print time.
+      if (!call_procedure) print_job_start();
     }
   }
 
@@ -3834,18 +3834,7 @@ inline void gcode_M104() {
     #endif
   }
 
-  // Detect if a print job has finished.
-  // When the target temperature for all extruders is zero then we must have
-  // finished printing.
-  if (print_job_start_ms) {
-    bool all_extruders_cooling = true;
-    for (int i = 0; i < EXTRUDERS; i++) if( degTargetHotend(i) > 0 ) {
-      all_extruders_cooling = false;
-      break;
-    }
-
-    if( all_extruders_cooling ) print_job_stop_ms = millis();
-  }
+  print_job_stop();
 }
 
 #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
@@ -3959,6 +3948,9 @@ inline void gcode_M105() {
 inline void gcode_M109() {
   bool no_wait_for_cooling = true;
 
+  // Start hook must happen before setTargetHotend()
+  print_job_start();
+
   if (setTargetedHotend(109)) return;
   if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
@@ -3971,9 +3963,10 @@ inline void gcode_M109() {
         setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
     #endif
 
-    // Only makes sense to show the heating message if we're in fact heating.
-    if (temp > 0) LCD_MESSAGEPGM(MSG_HEATING);
+    if (temp > degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
+
+  if (print_job_stop()) LCD_MESSAGEPGM(WELCOME_MSG);
 
   #if ENABLED(AUTOTEMP)
     autotemp_enabled = code_seen('F');
@@ -3981,22 +3974,6 @@ inline void gcode_M109() {
     if (code_seen('S')) autotemp_min = code_value();
     if (code_seen('B')) autotemp_max = code_value();
   #endif
-
-  // Detect if a print job has finished.
-  // When the target temperature for all extruders is zero then we must have
-  // finished printing.
-  if( print_job_start_ms != 0 ) {
-    bool all_extruders_cooling = true;
-    for (int i = 0; i < EXTRUDERS; i++) if( degTargetHotend(i) > 0 ) {
-      all_extruders_cooling = false;
-      break;
-    }
-
-    if( all_extruders_cooling ) {
-      print_job_stop_ms = millis();
-      LCD_MESSAGEPGM(WELCOME_MSG);
-    }
-  }
 
   // Exit if the temperature is above target and not waiting for cooling
   if (no_wait_for_cooling && !isHeatingHotend(target_extruder)) return;
@@ -4046,7 +4023,6 @@ inline void gcode_M109() {
   } // while(!cancel_heatup && TEMP_CONDITIONS)
 
   LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
-  print_job_start_ms = previous_cmd_ms;
 }
 
 #if HAS_TEMP_BED
@@ -7335,4 +7311,51 @@ float calculate_volumetric_multiplier(float diameter) {
 void calculate_volumetric_multipliers() {
   for (int i = 0; i < EXTRUDERS; i++)
     volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
+}
+
+/**
+ * Start the print job timer
+ *
+ * The print job is only started if all extruders have their target temp at zero
+ * otherwise the print job timew would be reset everytime a M109 is received.
+ *
+ * @param t start timer timestamp
+ *
+ * @return true if the timer was started at function call
+ */
+bool print_job_start(millis_t t /* = 0 */) {
+  for (int i = 0; i < EXTRUDERS; i++) if (degTargetHotend(i) > 0) return false;
+  print_job_start_ms = (t) ? t : millis();
+  print_job_stop_ms = 0;
+  return true;
+}
+
+/**
+ * Output the print job timer in seconds
+ *
+ * @return the number of seconds
+ */
+millis_t print_job_timer() {
+  if (!print_job_start_ms) return 0;
+  return (((print_job_stop_ms > print_job_start_ms)
+    ? print_job_stop_ms : millis()) - print_job_start_ms) / 1000;
+}
+
+/**
+ * Check if the running print job has finished and stop the timer
+ *
+ * When the target temperature for all extruders is zero then we assume that the
+ * print job has finished printing. There are some special conditions under which
+ * this assumption may not be valid: If during a print job for some reason the
+ * user decides to bring a nozzle temp down and only then heat the other afterwards.
+ *
+ * @param force stops the timer ignoring all pre-checks
+ *
+ * @return boolean true if the print job has finished printing
+ */
+bool print_job_stop(bool force /* = false */) {
+  if (!print_job_start_ms) return false;
+  if (!force) for (int i = 0; i < EXTRUDERS; i++) if (degTargetHotend(i) > 0) return false;
+  print_job_stop_ms = millis();
+  return true;
 }
