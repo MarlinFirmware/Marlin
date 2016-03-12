@@ -1112,7 +1112,7 @@ void disable_all_heaters() {
   setTargetBed(0);
 
   // If all heaters go down then for sure our print job has stopped
-  if( print_job_start_ms != 0 ) print_job_stop_ms = millis();
+  print_job_stop(true);
 
   #define DISABLE_HEATER(NR) { \
     target_temperature[NR] = 0; \
