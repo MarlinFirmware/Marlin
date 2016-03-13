@@ -3940,6 +3940,10 @@ inline void gcode_M109() {
   // Exit if the temperature is above target and not waiting for cooling
   if (no_wait_for_cooling && !isHeatingHotend(target_extruder)) return;
 
+  // Prevents a wait-forever situation if R is misused i.e. M109 R0
+  // Try to calculate a ballpark safe margin by halving EXTRUDE_MINTEMP
+  if (degTargetHotend(target_extruder) < (EXTRUDE_MINTEMP/2)) return;
+
   #ifdef TEMP_RESIDENCY_TIME
     long residency_start_ms = -1;
     // Loop until the temperature has stabilized
