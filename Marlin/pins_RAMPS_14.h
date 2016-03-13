@@ -258,7 +258,7 @@
 
 #endif // ULTRA_LCD
 
-// SPI for Max6675 Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 #if DISABLED(SDSUPPORT)
   #define MAX6675_SS       66 // Do not use pin 53 if there is even the remote possibility of using Display/SD card
 #else
