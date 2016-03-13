@@ -731,7 +731,7 @@ static void lcd_implementation_status_screen() {
       // Draw the progress bar if the message has shown long enough
       // or if there is no message set.
       if (millis() >= progress_bar_ms + PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
-        int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
+        int tix = (int)(card.percentDone() * (LCD_WIDTH) * 3) / 100,
           cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
         char msg[LCD_WIDTH + 1], b = ' ';
         msg[i] = '\0';

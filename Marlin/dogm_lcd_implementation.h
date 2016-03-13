@@ -225,14 +225,14 @@ static void lcd_implementation_init() {
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
-    int offx = (u8g.getWidth() - START_BMPWIDTH) / 2;
+    int offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2;
     #if ENABLED(START_BMPHIGH)
       int offy = 0;
     #else
       int offy = DOG_CHAR_HEIGHT;
     #endif
 
-    int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * DOG_CHAR_WIDTH) / 2;
+    int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
 
     u8g.firstPage();
     do {
@@ -240,11 +240,11 @@ static void lcd_implementation_init() {
         u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
         lcd_setFont(FONT_MENU);
         #ifndef STRING_SPLASH_LINE2
-          u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
+          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
         #else
-          int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * DOG_CHAR_WIDTH) / 2;
-          u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT * 3 / 2, STRING_SPLASH_LINE1);
-          u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT * 1 / 2, STRING_SPLASH_LINE2);
+          int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
+          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
+          u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
         #endif
       }
     } while (u8g.nextPage());
@@ -288,20 +288,20 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(SDSUPPORT)
     // SD Card Symbol
-    u8g.drawBox(42, 42 - TALL_FONT_CORRECTION, 8, 7);
-    u8g.drawBox(50, 44 - TALL_FONT_CORRECTION, 2, 5);
-    u8g.drawFrame(42, 49 - TALL_FONT_CORRECTION, 10, 4);
-    u8g.drawPixel(50, 43 - TALL_FONT_CORRECTION);
+    u8g.drawBox(42, 42 - (TALL_FONT_CORRECTION), 8, 7);
+    u8g.drawBox(50, 44 - (TALL_FONT_CORRECTION), 2, 5);
+    u8g.drawFrame(42, 49 - (TALL_FONT_CORRECTION), 10, 4);
+    u8g.drawPixel(50, 43 - (TALL_FONT_CORRECTION));
 
     // Progress bar frame
-    u8g.drawFrame(54, 49, 73, 4 - TALL_FONT_CORRECTION);
+    u8g.drawFrame(54, 49, 73, 4 - (TALL_FONT_CORRECTION));
 
     // SD Card Progress bar and clock
     lcd_setFont(FONT_STATUSMENU);
 
     if (IS_SD_PRINTING) {
       // Progress bar solid part
-      u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2 - TALL_FONT_CORRECTION);
+      u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2 - (TALL_FONT_CORRECTION));
     }
 
     u8g.setPrintPos(80,48);
@@ -443,13 +443,13 @@ static void lcd_implementation_status_screen() {
 static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
   if (isSelected) {
     u8g.setColorIndex(1);  // black on white
-    u8g.drawBox(0, row * DOG_CHAR_HEIGHT + 3 - TALL_FONT_CORRECTION, LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT);
+    u8g.drawBox(0, row * (DOG_CHAR_HEIGHT) + 3 - (TALL_FONT_CORRECTION), LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT);
     u8g.setColorIndex(0);  // following text must be white on black
   }
   else {
     u8g.setColorIndex(1); // unmarked text is black on white
   }
-  u8g.setPrintPos(START_ROW * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);
+  u8g.setPrintPos((START_ROW) * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
 }
 
 static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, const char* pstr, char pre_char, char post_char) {
@@ -463,7 +463,7 @@ static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, co
     pstr++;
   }
   while (n--) lcd_print(' ');
-  u8g.setPrintPos(LCD_PIXEL_WIDTH - DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);
+  u8g.setPrintPos(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
   lcd_print(post_char);
   lcd_print(' ');
 }
@@ -481,7 +481,7 @@ static void _drawmenu_setting_edit_generic(bool isSelected, uint8_t row, const c
   }
   lcd_print(':');
   while (n--) lcd_print(' ');
-  u8g.setPrintPos(LCD_PIXEL_WIDTH - DOG_CHAR_WIDTH * vallen, (row + 1) * DOG_CHAR_HEIGHT);
+  u8g.setPrintPos(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * vallen, (row + 1) * (DOG_CHAR_HEIGHT));
   if (pgm)  lcd_printPGM(data);  else  lcd_print((char*)data);
 }
 
@@ -528,7 +528,7 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
 
   if (lcd_strlen_P(pstr) > LCD_WIDTH - 2 - vallen) rows = 2;
 
-  const float kHalfChar = DOG_CHAR_HEIGHT_EDIT / 2;
+  const float kHalfChar = (DOG_CHAR_HEIGHT_EDIT) / 2;
   float rowHeight = u8g.getHeight() / (rows + 1); // 1/(rows+1) = 1/2 or 1/3
 
   u8g.setPrintPos(0, rowHeight + kHalfChar);
