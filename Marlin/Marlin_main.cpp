@@ -3041,11 +3041,16 @@ inline void gcode_G28() {
         if (do_topography_map) {
 
           SERIAL_PROTOCOLPGM(" \nBed Height Topography: \n");
-          SERIAL_PROTOCOLPGM("+-----------+\n");
-          SERIAL_PROTOCOLPGM("|...Back....|\n");
-          SERIAL_PROTOCOLPGM("|Left..Right|\n");
-          SERIAL_PROTOCOLPGM("|...Front...|\n");
-          SERIAL_PROTOCOLPGM("+-----------+\n");
+          SERIAL_PROTOCOLPGM("   +--- BACK --+\n");
+          SERIAL_PROTOCOLPGM("   |           |\n");
+          SERIAL_PROTOCOLPGM(" L |    (+)    | R\n");
+          SERIAL_PROTOCOLPGM(" E |           | I\n");
+          SERIAL_PROTOCOLPGM(" F | (-) N (+) | G\n");
+          SERIAL_PROTOCOLPGM(" T |           | H\n");
+          SERIAL_PROTOCOLPGM("   |    (-)    | T\n");
+          SERIAL_PROTOCOLPGM("   |           |\n");
+          SERIAL_PROTOCOLPGM("   O-- FRONT --+\n");
+          SERIAL_PROTOCOLPGM(" (0,0)\n");
 
           float min_diff = 999;
 
