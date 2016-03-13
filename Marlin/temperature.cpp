@@ -1145,20 +1145,30 @@ void disable_all_heaters() {
 }
 
 #if ENABLED(HEATER_0_USES_MAX6675)
+
   #define MAX6675_HEAT_INTERVAL 250u
+
+  #if ENABLED(MAX6675_IS_MAX31855)
+    unsigned long max6675_temp = 2000;
+    #define MAX6675_READ_BYTES 4
+    #define MAX6675_ERROR_MASK 7
+    #define MAX6675_DISCARD_BITS 18
+  #else
+    unsigned int max6675_temp = 2000;
+    #define MAX6675_READ_BYTES 2
+    #define MAX6675_ERROR_MASK 4
+    #define MAX6675_DISCARD_BITS 3
+  #endif
+
   static millis_t next_max6675_ms = 0;
-  int max6675_temp = 2000;
 
   static int read_max6675() {
 
     millis_t ms = millis();
 
-    if (ms < next_max6675_ms)
-      return max6675_temp;
+    if (ms < next_max6675_ms) return (int)max6675_temp;
 
     next_max6675_ms = ms + MAX6675_HEAT_INTERVAL;
-
-    max6675_temp = 0;
 
     CBI(
       #ifdef PRR
@@ -1169,36 +1179,29 @@ void disable_all_heaters() {
         , PRSPI);
     SPCR = _BV(MSTR) | _BV(SPE) | _BV(SPR0);
 
-    // enable TT_MAX6675
-    WRITE(MAX6675_SS, 0);
+    WRITE(MAX6675_SS, 0); // enable TT_MAX6675
 
     // ensure 100ns delay - a bit extra is fine
     asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
     asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
 
-    // read MSB
-    SPDR = 0;
-    for (; !TEST(SPSR, SPIF););
-    max6675_temp = SPDR;
-    max6675_temp <<= 8;
-
-    // read LSB
-    SPDR = 0;
-    for (; !TEST(SPSR, SPIF););
-    max6675_temp |= SPDR;
-
-    // disable TT_MAX6675
-    WRITE(MAX6675_SS, 1);
-
-    if (max6675_temp & 4) {
-      // thermocouple open
-      max6675_temp = 4000;
-    }
-    else {
-      max6675_temp = max6675_temp >> 3;
+    // Read a big-endian temperature value
+    max6675_temp = 0;
+    for (uint8_t i = MAX6675_READ_BYTES; i--;) {
+      SPDR = 0;
+      for (;!TEST(SPSR, SPIF););
+      max6675_temp |= SPDR;
+      if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
     }
 
-    return max6675_temp;
+    WRITE(MAX6675_SS, 1); // disable TT_MAX6675
+
+    if (max6675_temp & MAX6675_ERROR_MASK)
+      max6675_temp = 4000; // thermocouple open
+    else
+      max6675_temp >>= MAX6675_DISCARD_BITS;
+
+    return (int)max6675_temp;
   }
 
 #endif //HEATER_0_USES_MAX6675
