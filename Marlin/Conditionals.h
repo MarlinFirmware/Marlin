@@ -264,9 +264,9 @@
   /**
    * Axis lengths
    */
-  #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
-  #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
-  #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
+  #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
+  #define Y_MAX_LENGTH (Y_MAX_POS - (Y_MIN_POS))
+  #define Z_MAX_LENGTH (Z_MAX_POS - (Z_MIN_POS))
 
   /**
    * SCARA
@@ -285,8 +285,8 @@
     #define Z_HOME_POS MANUAL_Z_HOME_POS
   #else //!MANUAL_HOME_POSITIONS – Use home switch positions based on homing direction and travel limits
     #if ENABLED(BED_CENTER_AT_0_0)
-      #define X_HOME_POS X_MAX_LENGTH * X_HOME_DIR * 0.5
-      #define Y_HOME_POS Y_MAX_LENGTH * Y_HOME_DIR * 0.5
+      #define X_HOME_POS (X_MAX_LENGTH) * (X_HOME_DIR) * 0.5
+      #define Y_HOME_POS (Y_MAX_LENGTH) * (Y_HOME_DIR) * 0.5
     #else
       #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
       #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
@@ -334,8 +334,8 @@
    * Advance calculated values
    */
   #if ENABLED(ADVANCE)
-    #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * M_PI)
-    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS] / EXTRUSION_AREA)
+    #define EXTRUSION_AREA (0.25 * (D_FILAMENT) * (D_FILAMENT) * M_PI)
+    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS] / (EXTRUSION_AREA))
   #endif
 
   #if ENABLED(ULTIPANEL) && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
