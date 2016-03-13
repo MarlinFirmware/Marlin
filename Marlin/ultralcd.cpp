@@ -828,21 +828,17 @@ float move_menu_scale;
 static void lcd_move_menu_axis();
 
 static void _lcd_move(const char* name, AxisEnum axis, int min, int max) {
-  if (encoderPosition != 0) {
+  if ((encoderPosition != 0) && (movesplanned() <= 3)) {
     refresh_cmd_timeout();
     current_position[axis] += float((int)encoderPosition) * move_menu_scale;
     if (min_software_endstops) NOLESS(current_position[axis], min);
     if (max_software_endstops) NOMORE(current_position[axis], max);
     encoderPosition = 0;
-    if (movesplanned() <= 3)
-      line_to_current(axis);
+    line_to_current(axis);
     lcdDrawUpdate = 1;
   }
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
-  if (LCD_CLICKED) {
-      line_to_current(axis);
-      lcd_goto_previous_menu();
-  }
+  if (LCD_CLICKED) lcd_goto_previous_menu();
 }
 #if ENABLED(DELTA)
   static float delta_clip_radius_2 =  DELTA_PRINTABLE_RADIUS * DELTA_PRINTABLE_RADIUS;
@@ -863,7 +859,7 @@ static void lcd_move_e(
     unsigned short original_active_extruder = active_extruder;
     active_extruder = e;
   #endif
-  if (encoderPosition != 0) {
+  if ((encoderPosition != 0) && (movesplanned() <= 3)) {
     current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
     encoderPosition = 0;
     line_to_current(E_AXIS);
@@ -2246,7 +2242,7 @@ char* ftostr52(const float& x) {
    *   - Click saves the Z and goes to the next mesh point
    */
   static void _lcd_level_bed() {
-    if (encoderPosition != 0) {
+    if ((encoderPosition != 0) && (movesplanned() <= 3)) {
       refresh_cmd_timeout();
       current_position[Z_AXIS] += float((int)encoderPosition) * MBL_Z_STEP;
       if (min_software_endstops) NOLESS(current_position[Z_AXIS], Z_MIN_POS);
