@@ -6999,16 +6999,16 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   if (stepper_inactive_time && ms > previous_cmd_ms + stepper_inactive_time
       && !ignore_stepper_queue && !blocks_queued()) {
-    #if DISABLE_INACTIVE_X == true
+    #if ENABLED(DISABLE_INACTIVE_X)
       disable_x();
     #endif
-    #if DISABLE_INACTIVE_Y == true
+    #if ENABLED(DISABLE_INACTIVE_Y)
       disable_y();
     #endif
-    #if DISABLE_INACTIVE_Z == true
+    #if ENABLED(DISABLE_INACTIVE_Z)
       disable_z();
     #endif
-    #if DISABLE_INACTIVE_E == true
+    #if ENABLED(DISABLE_INACTIVE_E)
       disable_e0();
       disable_e1();
       disable_e2();
