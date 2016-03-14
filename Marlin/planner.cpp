@@ -421,15 +421,23 @@ void check_axes_activity() {
       block_index = next_block_index(block_index);
     }
   }
-  if (DISABLE_X && !axis_active[X_AXIS]) disable_x();
-  if (DISABLE_Y && !axis_active[Y_AXIS]) disable_y();
-  if (DISABLE_Z && !axis_active[Z_AXIS]) disable_z();
-  if (DISABLE_E && !axis_active[E_AXIS]) {
-    disable_e0();
-    disable_e1();
-    disable_e2();
-    disable_e3();
-  }
+  #if ENABLED(DISABLE_X)
+    if (!axis_active[X_AXIS]) disable_x();
+  #endif
+  #if ENABLED(DISABLE_Y)
+    if (!axis_active[Y_AXIS]) disable_y();
+  #endif
+  #if ENABLED(DISABLE_Z)
+    if (!axis_active[Z_AXIS]) disable_z();
+  #endif
+  #if ENABLED(DISABLE_E)
+    if (!axis_active[E_AXIS]) {
+      disable_e0();
+      disable_e1();
+      disable_e2();
+      disable_e3();
+    }
+  #endif
 
   #if HAS_FAN
     #ifdef FAN_KICKSTART_TIME
