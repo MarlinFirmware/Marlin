@@ -11,7 +11,7 @@ cls
 :: variables
 SET me=%~n0
 
-SET "arduino_path=%program_files%\Arduino"
+SET "arduino_path=c:\Arduino"
 
 IF EXIST "%arduino_path%" (
 	ECHO Arduino installation found: "%arduino_path%"
