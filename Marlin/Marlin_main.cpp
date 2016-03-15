@@ -6359,9 +6359,9 @@ void clamp_to_software_endstops(float target[3]) {
     delta_tower2_y = -COS_60 * (radius + DELTA_RADIUS_TRIM_TOWER_2);
     delta_tower3_x = 0.0;                                             // back middle tower
     delta_tower3_y = (radius + DELTA_RADIUS_TRIM_TOWER_3);
-    delta_diagonal_rod_2_tower_1 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_1);
-    delta_diagonal_rod_2_tower_2 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_2);
-    delta_diagonal_rod_2_tower_3 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_3);
+    delta_diagonal_rod_2_tower_1 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_1);
+    delta_diagonal_rod_2_tower_2 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_2);
+    delta_diagonal_rod_2_tower_3 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_3);
   }
 
   void calculate_delta(float cartesian[3]) {
