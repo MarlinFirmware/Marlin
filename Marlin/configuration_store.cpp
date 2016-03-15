@@ -163,7 +163,7 @@ void Config_StoreSettings()  {
   uint8_t mesh_num_y = 3;
   #if ENABLED(MESH_BED_LEVELING)
     // Compile time test that sizeof(mbl.z_values) is as expected
-    typedef char c_assert[(sizeof(mbl.z_values) == MESH_NUM_X_POINTS * MESH_NUM_Y_POINTS * sizeof(dummy)) ? 1 : -1];
+    typedef char c_assert[(sizeof(mbl.z_values) == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS) * sizeof(dummy)) ? 1 : -1];
     mesh_num_x = MESH_NUM_X_POINTS;
     mesh_num_y = MESH_NUM_Y_POINTS;
     EEPROM_WRITE_VAR(i, mbl.active);
