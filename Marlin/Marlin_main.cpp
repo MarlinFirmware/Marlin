@@ -6699,7 +6699,7 @@ void plan_arc(
 
   float mm_of_travel = hypot(angular_travel * radius, fabs(linear_travel));
   if (mm_of_travel < 0.001)  return;
-  uint16_t segments = floor(mm_of_travel / MM_PER_ARC_SEGMENT);
+  uint16_t segments = floor(mm_of_travel / (MM_PER_ARC_SEGMENT));
   if (segments == 0) segments = 1;
 
   float theta_per_segment = angular_travel / segments;

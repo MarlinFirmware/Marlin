@@ -331,7 +331,7 @@ void planner_recalculate_trapezoids() {
   // Last/newest block in buffer. Exit speed is set with MINIMUM_PLANNER_SPEED. Always recalculated.
   if (next) {
     float nom = next->nominal_speed;
-    calculate_trapezoid_for_block(next, next->entry_speed / nom, MINIMUM_PLANNER_SPEED / nom);
+    calculate_trapezoid_for_block(next, next->entry_speed / nom, (MINIMUM_PLANNER_SPEED) / nom);
     next->recalculate_flag = false;
   }
 }
@@ -389,8 +389,8 @@ void plan_init() {
     float t = autotemp_min + high * autotemp_factor;
     t = constrain(t, autotemp_min, autotemp_max);
     if (oldt > t) {
-      t *= (1 - AUTOTEMP_OLDWEIGHT);
-      t += AUTOTEMP_OLDWEIGHT * oldt;
+      t *= (1 - (AUTOTEMP_OLDWEIGHT));
+      t += (AUTOTEMP_OLDWEIGHT) * oldt;
     }
     oldt = t;
     setTargetHotend0(t);
@@ -839,7 +839,7 @@ float junction_deviation = 0.1;
          max_y_segment_time = max(ys0, max(ys1, ys2)),
          min_xy_segment_time = min(max_x_segment_time, max_y_segment_time);
     if (min_xy_segment_time < MAX_FREQ_TIME) {
-      float low_sf = speed_factor * min_xy_segment_time / MAX_FREQ_TIME;
+      float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME);
       speed_factor = min(speed_factor, low_sf);
     }
   #endif // XY_FREQUENCY_LIMIT

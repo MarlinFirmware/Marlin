@@ -14,8 +14,8 @@
 
     void reset();
 
-    float get_x(int i) { return MESH_MIN_X + MESH_X_DIST * i; }
-    float get_y(int i) { return MESH_MIN_Y + MESH_Y_DIST * i; }
+    float get_x(int i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
+    float get_y(int i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
     void set_z(int ix, int iy, float z) { z_values[iy][ix] = z; }
 
     int select_x_index(float x) {
