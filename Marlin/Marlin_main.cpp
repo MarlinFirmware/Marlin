@@ -618,6 +618,7 @@ void setup()
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
   delay(10);
+  SERIAL_ECHOLN("");
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
 
