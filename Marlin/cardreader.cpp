@@ -529,7 +529,7 @@ void CardReader::removeFile(char* name)
 
 void CardReader::getStatus()
 {
-  if(cardOK){
+  if(isFileOpen()){
     SERIAL_PROTOCOLPGM(MSG_SD_PRINTING_BYTE);
     SERIAL_PROTOCOL(sdpos);
     SERIAL_PROTOCOLPGM("/");
