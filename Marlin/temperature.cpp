@@ -146,8 +146,8 @@ static unsigned char soft_pwm[EXTRUDERS];
     #endif // PID_ADD_EXTRUSION_RATE
   #else //PID_PARAMS_PER_EXTRUDER
     float Kp = DEFAULT_Kp;
-    float Ki = DEFAULT_Ki * PID_dT;
-    float Kd = DEFAULT_Kd / PID_dT;
+    float Ki = (DEFAULT_Ki) * (PID_dT);
+    float Kd = (DEFAULT_Kd) / (PID_dT);
     #if ENABLED(PID_ADD_EXTRUSION_RATE)
       float Kc = DEFAULT_Kc;
     #endif // PID_ADD_EXTRUSION_RATE
