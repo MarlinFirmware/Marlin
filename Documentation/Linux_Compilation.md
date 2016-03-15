@@ -21,8 +21,8 @@ The Arduino files should be installed on your user home folder (/home/your_user_
 ##### How to install it?
 1. Download the installer from Arduino web page:
 
-    * [32-bits OS](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.5-r5-linux32.tar.xz)
-    * [64-bits OS](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.5-r5-linux64.tar.xz)
+    * [32-bits OS](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.7-linux32.tar.xz)
+    * [64-bits OS](https://www.arduino.cc/download_handler.php?f=/arduino-1.6.7-linux64.tar.xz)
 
 2. Extract the compressed folder on your user home folder.
 3. Rename the uncompressed folder to 'arduino'.
