@@ -1220,9 +1220,9 @@ void digipot_current(uint8_t driver, int current) {
     digitalPotWrite(digipot_ch[driver], current);
   #elif defined(MOTOR_CURRENT_PWM_XY_PIN)
     switch (driver) {
-      case 0: analogWrite(MOTOR_CURRENT_PWM_XY_PIN, 255L * current / MOTOR_CURRENT_PWM_RANGE); break;
-      case 1: analogWrite(MOTOR_CURRENT_PWM_Z_PIN, 255L * current / MOTOR_CURRENT_PWM_RANGE); break;
-      case 2: analogWrite(MOTOR_CURRENT_PWM_E_PIN, 255L * current / MOTOR_CURRENT_PWM_RANGE); break;
+      case 0: analogWrite(MOTOR_CURRENT_PWM_XY_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE)); break;
+      case 1: analogWrite(MOTOR_CURRENT_PWM_Z_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE)); break;
+      case 2: analogWrite(MOTOR_CURRENT_PWM_E_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE)); break;
     }
   #else
     UNUSED(driver);
