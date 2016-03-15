@@ -500,6 +500,10 @@ verbose:
 # Define .PHONY targets
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean depend sizebefore sizeafter upload verbose
 
+ifeq ($(OS_TYPE), WIN)
+.PHONY: DE EN ES FI FR IT NL PL PT
+endif
+
 # Automaticaly include the dependency files created by gcc
 -include ${wildcard $(BUILD_DIR)/*.d}
 
