@@ -696,6 +696,7 @@ void action_stop_print()
 
 	if(card.isFileOpen() == true)
 	{
+		SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
 		card.sdprinting = false;
 		card.closefile();
 	}

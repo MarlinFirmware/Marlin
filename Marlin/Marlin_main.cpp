@@ -1051,7 +1051,10 @@ void get_command()
 #ifdef DOGLCD
     PrintManager::endPrint();
 #endif
-    SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+	if(card.isFileOpen())
+	{
+		SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+	}
     stoptime=millis();
     char time[30];
     unsigned long t=(stoptime-starttime)/1000;
