@@ -763,6 +763,10 @@ void action_stop_print()
 
 	if (SD_FINISHED_STEPPERRELEASE)
 	{
+		if(PrintManager::single::instance().state() == SERIAL_CONTROL)
+		{
+			enquecommand_P(PSTR("M801"));
+		}
 		enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 	}
 	// autotempShutdown();
