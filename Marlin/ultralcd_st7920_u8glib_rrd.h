@@ -63,7 +63,7 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
         ST7920_WRITE_BYTE(0x80 | y); //set y
         ST7920_WRITE_BYTE(0x80);     //set x = 0
         ST7920_SET_DAT();
-        for (i = 0; i < 2 * LCD_PIXEL_WIDTH / 8; i++) //2x width clears both segments
+        for (i = 0; i < 2 * (LCD_PIXEL_WIDTH) / 8; i++) //2x width clears both segments
           ST7920_WRITE_BYTE(0);
         ST7920_SET_CMD();
       }

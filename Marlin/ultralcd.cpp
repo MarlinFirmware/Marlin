@@ -28,7 +28,7 @@ int absPreheatFanSpeed;
 typedef void (*menuFunc_t)();
 
 uint8_t lcd_status_message_level;
-char lcd_status_message[3 * LCD_WIDTH + 1] = WELCOME_MSG; // worst case is kana with up to 3*LCD_WIDTH+1
+char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kana with up to 3*LCD_WIDTH+1
 
 #if ENABLED(DOGLCD)
   #include "dogm_lcd_implementation.h"
@@ -209,8 +209,8 @@ static void lcd_status_screen();
     #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## args)
   #endif //!ENCODER_RATE_MULTIPLIER
   #define END_MENU() \
-      if (encoderLine >= _menuItemNr) { encoderPosition = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; }\
-      if (encoderLine >= currentMenuViewOffset + LCD_HEIGHT) { currentMenuViewOffset = encoderLine - LCD_HEIGHT + 1; lcdDrawUpdate = 1; _lineNr = currentMenuViewOffset - 1; _drawLineNr = -1; } \
+      if (encoderLine >= _menuItemNr) { encoderPosition = _menuItemNr * (ENCODER_STEPS_PER_MENU_ITEM) - 1; encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; }\
+      if (encoderLine >= currentMenuViewOffset + LCD_HEIGHT) { currentMenuViewOffset = encoderLine - (LCD_HEIGHT) + 1; lcdDrawUpdate = 1; _lineNr = currentMenuViewOffset - 1; _drawLineNr = -1; } \
       } } while(0)
 
   /** Used variables to keep track of the menu */
@@ -356,7 +356,7 @@ static void lcd_status_screen() {
       }
       if (feedrate_multiplier == 100) {
         if (int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE) {
-          feedrate_multiplier += int(encoderPosition) - ENCODER_FEEDRATE_DEADZONE;
+          feedrate_multiplier += int(encoderPosition) - (ENCODER_FEEDRATE_DEADZONE);
           encoderPosition = 0;
         }
         else if (int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE) {
@@ -841,7 +841,7 @@ static void _lcd_move(const char* name, AxisEnum axis, int min, int max) {
   if (LCD_CLICKED) lcd_goto_previous_menu();
 }
 #if ENABLED(DELTA)
-  static float delta_clip_radius_2 =  DELTA_PRINTABLE_RADIUS * DELTA_PRINTABLE_RADIUS;
+  static float delta_clip_radius_2 =  (DELTA_PRINTABLE_RADIUS) * (DELTA_PRINTABLE_RADIUS);
   static int delta_clip( float a ) { return sqrt(delta_clip_radius_2 - a*a); }
   static void lcd_move_x() { int clip = delta_clip(current_position[Y_AXIS]); _lcd_move(PSTR(MSG_MOVE_X), X_AXIS, max(X_MIN_POS, -clip), min(X_MAX_POS, clip)); }
   static void lcd_move_y() { int clip = delta_clip(current_position[X_AXIS]); _lcd_move(PSTR(MSG_MOVE_X), X_AXIS, max(X_MIN_POS, -clip), min(X_MAX_POS, clip)); }
@@ -1823,14 +1823,14 @@ bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
 
 void lcd_setstatus(const char* message, bool persist) {
   if (lcd_status_message_level > 0) return;
-  strncpy(lcd_status_message, message, 3 * LCD_WIDTH);
+  strncpy(lcd_status_message, message, 3 * (LCD_WIDTH));
   set_utf_strlen(lcd_status_message, LCD_WIDTH);
   lcd_finishstatus(persist);
 }
 
 void lcd_setstatuspgm(const char* message, uint8_t level) {
   if (level >= lcd_status_message_level) {
-    strncpy_P(lcd_status_message, message, 3 * LCD_WIDTH);
+    strncpy_P(lcd_status_message, message, 3 * (LCD_WIDTH));
     set_utf_strlen(lcd_status_message, LCD_WIDTH);
     lcd_status_message_level = level;
     lcd_finishstatus(level > 0);
@@ -1886,7 +1886,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       #if ENABLED(RIGIDBOT_PANEL)
         if (now > next_button_update_ms) {
           if (READ(BTN_UP) == 0) {
-            encoderDiff = -1 * ENCODER_STEPS_PER_MENU_ITEM;
+            encoderDiff = -1 * (ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
           }
           else if (READ(BTN_DWN) == 0) {
@@ -1894,7 +1894,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
             next_button_update_ms = now + 300;
           }
           else if (READ(BTN_LFT) == 0) {
-            encoderDiff = -1 * ENCODER_PULSES_PER_STEP;
+            encoderDiff = -1 * (ENCODER_PULSES_PER_STEP);
             next_button_update_ms = now + 300;
           }
           else if (READ(BTN_RT) == 0) {
@@ -2244,7 +2244,7 @@ char* ftostr52(const float& x) {
   static void _lcd_level_bed() {
     if ((encoderPosition != 0) && (movesplanned() <= 3)) {
       refresh_cmd_timeout();
-      current_position[Z_AXIS] += float((int)encoderPosition) * MBL_Z_STEP;
+      current_position[Z_AXIS] += float((int)encoderPosition) * (MBL_Z_STEP);
       if (min_software_endstops) NOLESS(current_position[Z_AXIS], Z_MIN_POS);
       if (max_software_endstops) NOMORE(current_position[Z_AXIS], Z_MAX_POS);
       encoderPosition = 0;
@@ -2256,12 +2256,12 @@ char* ftostr52(const float& x) {
     if (LCD_CLICKED) {
       if (!debounce_click) {
         debounce_click = true;
-        int ix = _lcd_level_bed_position % MESH_NUM_X_POINTS,
-            iy = _lcd_level_bed_position / MESH_NUM_X_POINTS;
+        int ix = _lcd_level_bed_position % (MESH_NUM_X_POINTS),
+            iy = _lcd_level_bed_position / (MESH_NUM_X_POINTS);
         if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
         mbl.set_z(ix, iy, current_position[Z_AXIS]);
         _lcd_level_bed_position++;
-        if (_lcd_level_bed_position == MESH_NUM_X_POINTS * MESH_NUM_Y_POINTS) {
+        if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
           line_to_current(Z_AXIS);
           mbl.active = 1;
@@ -2271,8 +2271,8 @@ char* ftostr52(const float& x) {
         else {
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
           line_to_current(Z_AXIS);
-          ix = _lcd_level_bed_position % MESH_NUM_X_POINTS;
-          iy = _lcd_level_bed_position / MESH_NUM_X_POINTS;
+          ix = _lcd_level_bed_position % (MESH_NUM_X_POINTS);
+          iy = _lcd_level_bed_position / (MESH_NUM_X_POINTS);
           if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
           current_position[X_AXIS] = mbl.get_x(ix);
           current_position[Y_AXIS] = mbl.get_y(iy);

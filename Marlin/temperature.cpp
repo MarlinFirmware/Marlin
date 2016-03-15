@@ -139,8 +139,8 @@ static unsigned char soft_pwm[EXTRUDERS];
 #if ENABLED(PIDTEMP)
   #if ENABLED(PID_PARAMS_PER_EXTRUDER)
     float Kp[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Kp);
-    float Ki[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Ki* PID_dT);
-    float Kd[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Kd / PID_dT);
+    float Ki[EXTRUDERS] = ARRAY_BY_EXTRUDERS1((DEFAULT_Ki) * (PID_dT));
+    float Kd[EXTRUDERS] = ARRAY_BY_EXTRUDERS1((DEFAULT_Kd) / (PID_dT));
     #if ENABLED(PID_ADD_EXTRUSION_RATE)
       float Kc[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Kc);
     #endif // PID_ADD_EXTRUSION_RATE
@@ -230,9 +230,9 @@ void PID_autotune(float temp, int extruder, int ncycles) {
   disable_all_heaters(); // switch off all heaters.
 
   if (extruder < 0)
-    soft_pwm_bed = bias = d = MAX_BED_POWER / 2;
+    soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
   else
-    soft_pwm[extruder] = bias = d = PID_MAX / 2;
+    soft_pwm[extruder] = bias = d = (PID_MAX) / 2;
 
   // PID Tuning loop
   for (;;) {
@@ -355,14 +355,14 @@ void PID_autotune(float temp, int extruder, int ncycles) {
 void updatePID() {
   #if ENABLED(PIDTEMP)
     for (int e = 0; e < EXTRUDERS; e++) {
-      temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / PID_PARAM(Ki,e);
+      temp_iState_max[e] = (PID_INTEGRAL_DRIVE_MAX) / PID_PARAM(Ki,e);
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
         last_position[e] = 0;
       #endif
     }
   #endif
   #if ENABLED(PIDTEMPBED)
-    temp_iState_max_bed = PID_BED_INTEGRAL_DRIVE_MAX / bedKi;
+    temp_iState_max_bed = (PID_BED_INTEGRAL_DRIVE_MAX) / bedKi;
   #endif
 }
 
@@ -481,7 +481,7 @@ float get_pid_output(int e) {
         pid_output = BANG_MAX;
         pid_reset[e] = true;
       }
-      else if (pid_error[e] < -PID_FUNCTIONAL_RANGE || target_temperature[e] == 0) {
+      else if (pid_error[e] < -(PID_FUNCTIONAL_RANGE) || target_temperature[e] == 0) {
         pid_output = 0;
         pid_reset[e] = true;
       }
@@ -698,7 +698,7 @@ void manage_heater() {
       if (current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP) {
         if (current_temperature_bed >= target_temperature_bed + BED_HYSTERESIS)
           soft_pwm_bed = 0;
-        else if (current_temperature_bed <= target_temperature_bed - BED_HYSTERESIS)
+        else if (current_temperature_bed <= target_temperature_bed - (BED_HYSTERESIS))
           soft_pwm_bed = MAX_BED_POWER >> 1;
       }
       else {
@@ -759,7 +759,7 @@ static float analog2temp(int raw, uint8_t e) {
 
     return celsius;
   }
-  return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
+  return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
 }
 
 // Derived from RepRap FiveD extruder::getTemperature()
@@ -786,7 +786,7 @@ static float analog2tempBed(int raw) {
 
   #elif defined(BED_USES_AD595)
 
-    return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
+    return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
 
   #else
 
@@ -860,14 +860,14 @@ void tp_init() {
     maxttemp[e] = maxttemp[0];
     #if ENABLED(PIDTEMP)
       temp_iState_min[e] = 0.0;
-      temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / PID_PARAM(Ki, e);
+      temp_iState_max[e] = (PID_INTEGRAL_DRIVE_MAX) / PID_PARAM(Ki, e);
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
         last_position[e] = 0;
       #endif
     #endif //PIDTEMP
     #if ENABLED(PIDTEMPBED)
       temp_iState_min_bed = 0.0;
-      temp_iState_max_bed = PID_BED_INTEGRAL_DRIVE_MAX / bedKi;
+      temp_iState_max_bed = (PID_BED_INTEGRAL_DRIVE_MAX) / bedKi;
     #endif //PIDTEMPBED
   }
 
@@ -1042,7 +1042,7 @@ void tp_init() {
   void start_watching_heater(int e) {
     if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
       watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
-      watch_heater_next_ms[e] = millis() + WATCH_TEMP_PERIOD * 1000UL;
+      watch_heater_next_ms[e] = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
     }
     else
       watch_heater_next_ms[e] = 0;
