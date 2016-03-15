@@ -465,7 +465,7 @@ void lcd_set_home_offsets() {
 
   static void _lcd_babystep(int axis, const char* msg) {
     if (encoderPosition != 0) {
-      babystepsTodo[axis] += BABYSTEP_MULTIPLICATOR * (int)encoderPosition;
+      babystepsTodo[axis] += (BABYSTEP_MULTIPLICATOR) * (int)encoderPosition;
       encoderPosition = 0;
       lcdDrawUpdate = 1;
     }
