@@ -185,11 +185,17 @@
   #define LCD_CLASS LiquidCrystal_SR
   LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
 #else
-  // Standard directly connected LCD implementations
-  #include <LiquidCrystal.h>
-  #define LCD_CLASS LiquidCrystal
-  LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7); //RS,Enable,D4,D5,D6,D7
-#endif
+  #ifdef LCM1602
+    #include <Wire.h>
+    #include <LCD.h>
+    #include <LiquidCrystal_I2C.h>
+    #define LCD_CLASS LiquidCrystal_I2C
+      LCD_CLASS lcd(0x27, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE); // Addr, En, Rw, Rs, d4, d5, d6, d7, backlighpin, polarity
+  #else
+   #include <LiquidCrystal.h>
+    #define LCD_CLASS LiquidCrystal
+    LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7); //RS,Enable,D4,D5,D6,D7
+    #endif#endif
 
 #include "utf_mapper.h"
 
@@ -869,5 +875,5 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
   }
 
 #endif // LCD_HAS_SLOW_BUTTONS
-
+#endif
 #endif // ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
