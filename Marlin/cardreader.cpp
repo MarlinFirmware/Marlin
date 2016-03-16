@@ -88,7 +88,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       // close() is done automatically by destructor of SdFile
     }
     else {
-      char pn0 = p.name[0];
+      uint8_t pn0 = p.name[0];
       if (pn0 == DIR_NAME_FREE) break;
       if (pn0 == DIR_NAME_DELETED || pn0 == '.') continue;
       if (longFilename[0] == '.') continue;
