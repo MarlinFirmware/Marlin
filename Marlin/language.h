@@ -3,8 +3,7 @@
 
 #include "Configuration.h"
 
-#define LANGUAGE_CONCAT(M)       #M
-#define GENERATE_LANGUAGE_INCLUDE(M)  LANGUAGE_CONCAT(language_##M.h)
+#define GENERATE_LANGUAGE_INCLUDE(M)  STRINGIFY_(language_##M.h)
 
 
 // NOTE: IF YOU CHANGE LANGUAGE FILES OR MERGE A FILE WITH CHANGES
@@ -86,10 +85,6 @@
 #ifndef MACHINE_UUID
   #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 #endif
-
-
-#define STRINGIFY_(n) #n
-#define STRINGIFY(n) STRINGIFY_(n)
 
 
 // Common LCD messages
