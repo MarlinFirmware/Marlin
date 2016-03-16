@@ -26,6 +26,8 @@
   #define ENCODER_DIRECTION_MENUS() ;
 #endif
 
+uint8_t blink = 0; // Variable for animation
+
 int8_t encoderDiff; // updated from interrupt context and added to encoderPosition every LCD update
 
 bool encoderRateMultiplierEnabled;
