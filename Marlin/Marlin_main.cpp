@@ -6456,11 +6456,12 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
     set_current_to_destination();
     return;
   }
-  float nx, ny, ne, normalized_dist;
+  float nx, ny, nz, ne, normalized_dist;
   if (ix > pix && TEST(x_splits, ix)) {
     nx = mbl.get_x(ix);
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
+    nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
     ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
     CBI(x_splits, ix);
   }
@@ -6468,6 +6469,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
     nx = mbl.get_x(pix);
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
+    nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
     ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
     CBI(x_splits, pix);
   }
@@ -6475,6 +6477,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
     ny = mbl.get_y(iy);
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
+    nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
     ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
     CBI(y_splits, iy);
   }
@@ -6482,6 +6485,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
     ny = mbl.get_y(piy);
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
+    nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
     ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
     CBI(y_splits, piy);
   }
@@ -6494,10 +6498,12 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
   // Do the split and look for more borders
   destination[X_AXIS] = nx;
   destination[Y_AXIS] = ny;
+  destination[Z_AXIS] = nz;
   destination[E_AXIS] = ne;
-  mesh_plan_buffer_line(nx, ny, z, ne, feed_rate, extruder, x_splits, y_splits);
+  mesh_plan_buffer_line(nx, ny, nz, ne, feed_rate, extruder, x_splits, y_splits);
   destination[X_AXIS] = x;
   destination[Y_AXIS] = y;
+  destination[Z_AXIS] = z;
   destination[E_AXIS] = e;
   mesh_plan_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
 }
