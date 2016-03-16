@@ -420,7 +420,7 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
 #if ENABLED(SHOW_BOOTSCREEN)
 
   void lcd_erase_line(int line) {
-    lcd.setCursor(0, 3);
+    lcd.setCursor(0, line);
     for (int i = 0; i < LCD_WIDTH; i++)
       lcd_print(' ');
   }
