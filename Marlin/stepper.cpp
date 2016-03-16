@@ -574,8 +574,11 @@ void set_stepper_direction() {
 // block begins.
 FORCE_INLINE void trapezoid_generator_reset() {
 
-  if (current_block->direction_bits != out_bits) {
+  static int8_t last_extruder = -1;
+
+  if (current_block->direction_bits != out_bits || current_block->active_extruder != last_extruder) {
     out_bits = current_block->direction_bits;
+    last_extruder = current_block->active_extruder;
     set_stepper_direction();
   }
 
