@@ -1,6 +1,10 @@
 #ifndef MACROS_H
 #define MACROS_H
 
+// Macros to make a string from a macro
+#define STRINGIFY_(n) #n
+#define STRINGIFY(n) STRINGIFY_(n)
+
 // Macros for bit masks
 #define TEST(n,b) (((n)&_BV(b))!=0)
 #define SBI(n,b) (n |= _BV(b))
