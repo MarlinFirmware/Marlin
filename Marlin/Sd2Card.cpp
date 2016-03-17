@@ -35,8 +35,8 @@
    */
   static void spiInit(uint8_t spiRate) {
     // See avr processor documentation
-    SPCR = BIT(SPE) | BIT(MSTR) | (spiRate >> 1);
-    SPSR = spiRate & 1 || spiRate == 6 ? 0 : BIT(SPI2X);
+    SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
+    SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
   }
   //------------------------------------------------------------------------------
   /** SPI receive a byte */

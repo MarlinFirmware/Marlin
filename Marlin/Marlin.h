@@ -6,7 +6,7 @@
 
 #define  FORCE_INLINE __attribute__((always_inline)) inline
 /**
- * Compiler warning on unused varable.
+ * Compiler warning on unused variable.
  */
 #define UNUSED(x) (void) (x)
 
@@ -44,13 +44,6 @@ typedef unsigned long millis_t;
 #endif
 
 #include "MarlinSerial.h"
-
-#ifndef cbi
-  #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
-#endif
-#ifndef sbi
-  #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-#endif
 
 #include "WString.h"
 
@@ -217,12 +210,12 @@ void Stop();
  * Debug flags - not yet widely applied
  */
 enum DebugFlags {
-  DEBUG_ECHO          = BIT(0),
-  DEBUG_INFO          = BIT(1),
-  DEBUG_ERRORS        = BIT(2),
-  DEBUG_DRYRUN        = BIT(3),
-  DEBUG_COMMUNICATION = BIT(4),
-  DEBUG_LEVELING      = BIT(5)
+  DEBUG_ECHO          = _BV(0),
+  DEBUG_INFO          = _BV(1),
+  DEBUG_ERRORS        = _BV(2),
+  DEBUG_DRYRUN        = _BV(3),
+  DEBUG_COMMUNICATION = _BV(4),
+  DEBUG_LEVELING      = _BV(5)
 };
 extern uint8_t marlin_debug_flags;
 
@@ -259,6 +252,7 @@ extern float home_offset[3]; // axis[n].home_offset
 extern float min_pos[3]; // axis[n].min_pos
 extern float max_pos[3]; // axis[n].max_pos
 extern bool axis_known_position[3]; // axis[n].is_known
+extern bool axis_homed[3]; // axis[n].is_homed
 
 #if ENABLED(DELTA)
   extern float delta[3];
@@ -320,7 +314,7 @@ extern int fanSpeed;
 #endif
 
 #if ENABLED(FILAMENT_SENSOR)
-  extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75
+  extern float filament_width_nominal;  //holds the theoretical filament diameter i.e., 3.00 or 1.75
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
   extern float filament_width_meas; //holds the filament diameter as accurately measured
   extern signed char measurement_delay[];  //ring buffer to delay measurement
@@ -349,6 +343,10 @@ extern uint8_t active_extruder;
 #if ENABLED(DIGIPOT_I2C)
   extern void digipot_i2c_set_current(int channel, float current);
   extern void digipot_i2c_init();
+#endif
+
+#if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+  void print_heaterstates();
 #endif
 
 extern void calculate_volumetric_multipliers();

@@ -45,9 +45,24 @@
     #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 graphic Display Family)
   #endif
 
-
   #if ENABLED(PANEL_ONE)
     #define ULTIMAKERCONTROLLER
+  #endif
+
+  #if ENABLED(BQ_LCD_SMART_CONTROLLER)
+    #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+
+    #ifndef ENCODER_PULSES_PER_STEP
+      #define ENCODER_PULSES_PER_STEP 4
+    #endif
+
+    #ifndef ENCODER_STEPS_PER_MENU_ITEM
+      #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #endif
+
+    #ifndef LONG_FILENAME_HOST_SUPPORT
+      #define LONG_FILENAME_HOST_SUPPORT
+    #endif
   #endif
 
   #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
@@ -135,28 +150,35 @@
   // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 
   #if ENABLED(SAV_3DLCD)
-    #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
+    #define SR_LCD_2W_NL    // Non latching 2 wire shift register
     #define ULTIPANEL
     #define NEWPANEL
+  #endif
+
+  #if ENABLED(DOGLCD) // Change number of lines to match the DOG graphic display
+    #ifndef LCD_WIDTH
+      #define LCD_WIDTH 22
+    #endif
+    #ifndef LCD_HEIGHT
+      #define LCD_HEIGHT 5
+    #endif
   #endif
 
   #if ENABLED(ULTIPANEL)
     #define NEWPANEL  //enable this if you have a click-encoder panel
     #define ULTRA_LCD
-    #if ENABLED(DOGLCD) // Change number of lines to match the DOG graphic display
-      #define LCD_WIDTH 22
-      #define LCD_HEIGHT 5
-    #else
+    #ifndef LCD_WIDTH
       #define LCD_WIDTH 20
+    #endif
+    #ifndef LCD_HEIGHT
       #define LCD_HEIGHT 4
     #endif
   #else //no panel but just LCD
     #if ENABLED(ULTRA_LCD)
-      #if ENABLED(DOGLCD) // Change number of lines to match the 128x64 graphics display
-        #define LCD_WIDTH 22
-        #define LCD_HEIGHT 5
-      #else
+      #ifndef LCD_WIDTH
         #define LCD_WIDTH 16
+      #endif
+      #ifndef LCD_HEIGHT
         #define LCD_HEIGHT 2
       #endif
     #endif
@@ -242,9 +264,9 @@
   /**
    * Axis lengths
    */
-  #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
-  #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
-  #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
+  #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
+  #define Y_MAX_LENGTH (Y_MAX_POS - (Y_MIN_POS))
+  #define Z_MAX_LENGTH (Z_MAX_POS - (Z_MIN_POS))
 
   /**
    * SCARA
@@ -263,8 +285,8 @@
     #define Z_HOME_POS MANUAL_Z_HOME_POS
   #else //!MANUAL_HOME_POSITIONS – Use home switch positions based on homing direction and travel limits
     #if ENABLED(BED_CENTER_AT_0_0)
-      #define X_HOME_POS X_MAX_LENGTH * X_HOME_DIR * 0.5
-      #define Y_HOME_POS Y_MAX_LENGTH * Y_HOME_DIR * 0.5
+      #define X_HOME_POS (X_MAX_LENGTH) * (X_HOME_DIR) * 0.5
+      #define Y_HOME_POS (Y_MAX_LENGTH) * (Y_HOME_DIR) * 0.5
     #else
       #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
       #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
@@ -312,8 +334,8 @@
    * Advance calculated values
    */
   #if ENABLED(ADVANCE)
-    #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * M_PI)
-    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS] / EXTRUSION_AREA)
+    #define EXTRUSION_AREA (0.25 * (D_FILAMENT) * (D_FILAMENT) * M_PI)
+    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS] / (EXTRUSION_AREA))
   #endif
 
   #if ENABLED(ULTIPANEL) && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
@@ -337,7 +359,10 @@
   /**
    * Temp Sensor defines
    */
-  #if TEMP_SENSOR_0 == -2
+  #if TEMP_SENSOR_0 == -3
+    #define HEATER_0_USES_MAX6675
+    #define MAX6675_IS_MAX31855
+  #elif TEMP_SENSOR_0 == -2
     #define HEATER_0_USES_MAX6675
   #elif TEMP_SENSOR_0 == -1
     #define HEATER_0_USES_AD595
@@ -462,6 +487,7 @@
   #define HAS_E1_ENABLE (PIN_EXISTS(E1_ENABLE))
   #define HAS_E2_ENABLE (PIN_EXISTS(E2_ENABLE))
   #define HAS_E3_ENABLE (PIN_EXISTS(E3_ENABLE))
+  #define HAS_E4_ENABLE (PIN_EXISTS(E4_ENABLE))
   #define HAS_X_DIR (PIN_EXISTS(X_DIR))
   #define HAS_X2_DIR (PIN_EXISTS(X2_DIR))
   #define HAS_Y_DIR (PIN_EXISTS(Y_DIR))
@@ -472,6 +498,7 @@
   #define HAS_E1_DIR (PIN_EXISTS(E1_DIR))
   #define HAS_E2_DIR (PIN_EXISTS(E2_DIR))
   #define HAS_E3_DIR (PIN_EXISTS(E3_DIR))
+  #define HAS_E4_DIR (PIN_EXISTS(E4_DIR))
   #define HAS_X_STEP (PIN_EXISTS(X_STEP))
   #define HAS_X2_STEP (PIN_EXISTS(X2_STEP))
   #define HAS_Y_STEP (PIN_EXISTS(Y_STEP))
@@ -482,6 +509,7 @@
   #define HAS_E1_STEP (PIN_EXISTS(E1_STEP))
   #define HAS_E2_STEP (PIN_EXISTS(E2_STEP))
   #define HAS_E3_STEP (PIN_EXISTS(E3_STEP))
+  #define HAS_E4_STEP (PIN_EXISTS(E4_STEP))
 
   /**
    * Helper Macros for heaters and extruder fan

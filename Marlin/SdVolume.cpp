@@ -296,7 +296,7 @@ int32_t SdVolume::freeClusterCount() {
 
   for (uint32_t lba = fatStartBlock_; todo; todo -= n, lba++) {
     if (!cacheRawBlock(lba, CACHE_FOR_READ)) return -1;
-    if (todo < n) n = todo;
+    NOMORE(n, todo);
     if (fatType_ == 16) {
       for (uint16_t i = 0; i < n; i++) {
         if (cacheBuffer_.fat16[i] == 0) free++;
@@ -364,7 +364,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
   blocksPerCluster_ = fbs->sectorsPerCluster;
   // determine shift that is same as multiply by blocksPerCluster_
   clusterSizeShift_ = 0;
-  while (blocksPerCluster_ != BIT(clusterSizeShift_)) {
+  while (blocksPerCluster_ != _BV(clusterSizeShift_)) {
     // error if not power of 2
     if (clusterSizeShift_++ > 7) goto fail;
   }

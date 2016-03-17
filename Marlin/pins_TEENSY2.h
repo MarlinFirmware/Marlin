@@ -91,7 +91,6 @@
 #define LED_PIN             6
 #define PS_ON_PIN          27
 #define KILL_PIN           -1
-#define ALARM_PIN          -1
 
 #if DISABLED(SDSUPPORT)
   // these pins are defined in the SD library if building with SD support

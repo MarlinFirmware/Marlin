@@ -54,6 +54,7 @@
 #define BOARD_OMCA              91   // Final OMCA board
 #define BOARD_RAMBO             301  // Rambo
 #define BOARD_MINIRAMBO         302  // Mini-Rambo
+#define BOARD_AJ4P              303  // AJ4P
 #define BOARD_MEGACONTROLLER    310  // Mega controller
 #define BOARD_ELEFU_3           21   // Elefu Ra Board (v3)
 #define BOARD_5DPRINT           88   // 5DPrint D8 Driver Board
@@ -61,6 +62,7 @@
 #define BOARD_MKS_BASE          40   // MKS BASE 1.0
 #define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
+#define BOARD_BQ_ZUM_MEGA_3D    503  // bq ZUM Mega 3D
 
 #define BOARD_99                99   // This is in pins.h but...?
 
