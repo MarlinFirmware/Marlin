@@ -112,6 +112,7 @@
 /**
  * Mesh Bed Leveling
  */
+
 #if ENABLED(MESH_BED_LEVELING)
   #if ENABLED(DELTA)
     #error MESH_BED_LEVELING does not yet support DELTA printers.
@@ -122,6 +123,8 @@
   #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
     #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8.
   #endif
+#elif ENABLED(MANUAL_BED_LEVELING)
+  #error MESH_BED_LEVELING is required for MANUAL_BED_LEVELING.
 #endif
 
 /**
@@ -361,6 +364,12 @@
   #error HAS_AUTOMATIC_VERSIONING deprecated - use USE_AUTOMATIC_VERSIONING instead
 #elif defined(ENABLE_AUTO_BED_LEVELING)
   #error ENABLE_AUTO_BED_LEVELING deprecated - use AUTO_BED_LEVELING_FEATURE instead
+#elif defined(SDSLOW)
+  #error SDSLOW deprecated - set SPI_SPEED to SPI_HALF_SPEED instead
+#elif defined(SDEXTRASLOW)
+  #error SDEXTRASLOW deprecated - set SPI_SPEED to SPI_QUARTER_SPEED instead
+#elif defined(Z_RAISE_BEFORE_HOMING)
+  #error Z_RAISE_BEFORE_HOMING is deprecated. Use MIN_Z_HEIGHT_FOR_HOMING instead.
 #endif
 
 #endif //SANITYCHECK_H

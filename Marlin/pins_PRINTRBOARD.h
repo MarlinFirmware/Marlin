@@ -15,6 +15,9 @@
 
 #define LARGE_FLASH        true
 
+// Disable JTAG pins so they can be used for the Extrudrboard
+#define DISABLE_JTAG       true
+
 #define X_STEP_PIN          0
 #define X_DIR_PIN           1
 #define X_ENABLE_PIN       39
@@ -64,11 +67,10 @@
 ////LCD Pin Setup////
 
 #define SDPOWER            -1
-#define SDSS                8
+#define SDSS               26
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
-#define ALARM_PIN          -1
 
 #if DISABLED(SDSUPPORT)
   // these pins are defined in the SD library if building with SD support
@@ -80,15 +82,29 @@
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   //we have no buzzer installed
   #define BEEPER_PIN -1
+
   //LCD Pins
   #if ENABLED(LCD_I2C_PANELOLU2)
     #define BTN_EN1 27  //RX1 - fastio.h pin mapping 27
     #define BTN_EN2 26  //TX1 - fastio.h pin mapping 26
     #define BTN_ENC 43 //A3 - fastio.h pin mapping 43
     #define SDSS   40 //use SD card on Panelolu2 (Teensyduino pin mapping)
+  #else
+    #define BTN_EN1 16
+    #define BTN_EN2 17
+    #define BTN_ENC 18//the click
   #endif // LCD_I2C_PANELOLU2
+
   //not connected to a pin
   #define SD_DETECT_PIN -1
+
+  #define LCD_PINS_RS 9
+  #define LCD_PINS_ENABLE 8
+  #define LCD_PINS_D4 7
+  #define LCD_PINS_D5 6
+  #define LCD_PINS_D6 5
+  #define LCD_PINS_D7 4
+
 #endif // ULTRA_LCD && NEWPANEL
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
@@ -105,7 +121,6 @@
 
   #define SDSS 45
   #define SD_DETECT_PIN -1 // FastIO (Manual says 72 I'm not certain cause I can't test)
-
   #if ENABLED(TEMP_STAT_LEDS)
     #define STAT_LED_RED      12 //Non-FastIO
     #define STAT_LED_BLUE     10 //Non-FastIO

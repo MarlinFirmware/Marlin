@@ -41,7 +41,7 @@
   // if Kc is chosen well, the additional required power due to increased melting should be compensated.
   #define PID_ADD_EXTRUSION_RATE
   #if ENABLED(PID_ADD_EXTRUSION_RATE)
-    #define DEFAULT_Kc (100) //heating power=Kc*(e_speed)
+    #define DEFAULT_Kc (1) //heating power=Kc*(e_speed)
     #define LPQ_MAX_LEN 50
   #endif
 #endif
@@ -86,7 +86,7 @@
 //This is for controlling a fan to cool down the stepper drivers
 //it will turn on when any driver is enabled
 //and turn off after the set amount of seconds from last driver being disabled again
-#define CONTROLLERFAN_PIN 23 //Pin used for the fan to cool controller (-1 to disable)
+#define CONTROLLERFAN_PIN -1 //Pin used for the fan to cool controller (-1 to disable)
 #define CONTROLLERFAN_SECS 60 //How many seconds, after all motors were disabled, the fan should run
 #define CONTROLLERFAN_SPEED 255  // == full speed
 
@@ -107,8 +107,8 @@
 // extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
 // Multiple extruders can be assigned to the same pin in which case
 // the fan will turn on when any selected extruder is above the threshold.
-#define EXTRUDER_0_AUTO_FAN_PIN -1
-#define EXTRUDER_1_AUTO_FAN_PIN -1
+#define EXTRUDER_0_AUTO_FAN_PIN 11
+#define EXTRUDER_1_AUTO_FAN_PIN  6
 #define EXTRUDER_2_AUTO_FAN_PIN -1
 #define EXTRUDER_3_AUTO_FAN_PIN -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
@@ -212,7 +212,7 @@
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_BUMP_MM 5
 #define Y_HOME_BUMP_MM 5
-#define Z_HOME_BUMP_MM 1
+#define Z_HOME_BUMP_MM 2
 #define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
@@ -256,7 +256,7 @@
 #define DEFAULT_MINSEGMENTTIME        20000
 
 // If defined the movements slow down when the look ahead buffer is only half full
-#define SLOWDOWN
+//#define SLOWDOWN
 
 // Frequency limit
 // See nophead's blog for more info
@@ -272,7 +272,7 @@
 #define MICROSTEP_MODES {16,16,16,16,16} // [1,2,4,8,16]
 
 // Motor Current setting (Only functional when motor driver current ref pins are connected to a digital trimpot on supported boards)
-#define DIGIPOT_MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
+#define DIGIPOT_MOTOR_CURRENT {150, 170, 180, 190, 180} // Values 0-255 (bq ZUM Mega 3D (default): X = 150 [~1.17A]; Y = 170 [~1.33A]; Z = 180 [~1.41A]; E0 = 190 [~1.49A])
 
 // Motor Current controlled via PWM (Overridable on supported boards with PWM-driven motor driver current)
 //#define PWM_MOTOR_CURRENT {1300, 1300, 1250} // Values in milliamps
@@ -312,7 +312,7 @@
   #define SDCARD_RATHERRECENTFIRST  //reverse file order of sd card menu display. Its sorted practically after the file system block order.
   // if a file is deleted, it frees a block. hence, the order is not purely chronological. To still have auto0.g accessible, there is again the option to do that.
   // using:
-  //#define MENU_ADDAUTOSTART
+  #define MENU_ADDAUTOSTART
 
   // Show a progress bar on HD44780 LCDs for SD printing
   //#define LCD_PROGRESS_BAR
@@ -329,7 +329,7 @@
   #endif
 
   // This allows hosts to request long names for files and folders with M33
-  //#define LONG_FILENAME_HOST_SUPPORT
+  #define LONG_FILENAME_HOST_SUPPORT
 
   // This option allows you to abort SD printing when any endstop is triggered.
   // This feature must be enabled with "M540 S1" or from the LCD menu.
@@ -347,7 +347,7 @@
 
   // If you have spare 2300Byte of progmem and want to use a
   // smaller font on the Info-screen uncomment the next line.
-  //#define USE_SMALL_INFOFONT
+  #define USE_SMALL_INFOFONT
 #endif // DOGLCD
 
 // @section more

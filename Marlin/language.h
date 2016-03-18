@@ -3,8 +3,7 @@
 
 #include "Configuration.h"
 
-#define LANGUAGE_CONCAT(M)       #M
-#define GENERATE_LANGUAGE_INCLUDE(M)  LANGUAGE_CONCAT(language_##M.h)
+#define GENERATE_LANGUAGE_INCLUDE(M)  STRINGIFY_(language_##M.h)
 
 
 // NOTE: IF YOU CHANGE LANGUAGE FILES OR MERGE A FILE WITH CHANGES
@@ -49,45 +48,43 @@
 #define PROTOCOL_VERSION "1.0"
 
 #if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
-  #define MACHINE_NAME "Ultimaker"
-  #define SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
+  #define DEFAULT_MACHINE_NAME "Ultimaker"
+  #define DEFAULT_SOURCE_URL "https://github.com/Ultimaker/Marlin"
 #elif MB(RUMBA)
-  #define MACHINE_NAME "Rumba"
+  #define DEFAULT_MACHINE_NAME "Rumba"
 #elif MB(3DRAG)
-  #define MACHINE_NAME "3Drag"
-  #define SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
+  #define DEFAULT_MACHINE_NAME "3Drag"
+  #define DEFAULT_SOURCE_URL "http://3dprint.elettronicain.it/"
 #elif MB(K8200)
-  #define MACHINE_NAME "K8200"
-  #define SOURCE_CODE_URL "https://github.com/CONSULitAS/Marlin-K8200"
+  #define DEFAULT_MACHINE_NAME "K8200"
+  #define DEFAULT_SOURCE_URL "https://github.com/CONSULitAS/Marlin-K8200"
 #elif MB(5DPRINT)
-  #define MACHINE_NAME "Makibox"
+  #define DEFAULT_MACHINE_NAME "Makibox"
 #elif MB(SAV_MKI)
-  #define MACHINE_NAME "SAV MkI"
-  #define SOURCE_CODE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
-#elif !defined(MACHINE_NAME)
-  #define MACHINE_NAME "3D Printer"
+  #define DEFAULT_MACHINE_NAME "SAV MkI"
+  #define DEFAULT_SOURCE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
+#else
+  #define DEFAULT_MACHINE_NAME "3D Printer"
+  #define DEFAULT_SOURCE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
 #ifdef CUSTOM_MACHINE_NAME
-  #undef MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MACHINE_NAME
+#else
+  #define MACHINE_NAME DEFAULT_MACHINE_NAME
 #endif
 
 #ifndef SOURCE_CODE_URL
-  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+  #define SOURCE_CODE_URL DEFAULT_SOURCE_URL
 #endif
 
 #ifndef DETAILED_BUILD_VERSION
   #error BUILD_VERSION Information must be specified
 #endif
 
-#ifndef UUID
-  #define UUID "00000000-0000-0000-0000-000000000000"
+#ifndef MACHINE_UUID
+  #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 #endif
-
-
-#define STRINGIFY_(n) #n
-#define STRINGIFY(n) STRINGIFY_(n)
 
 
 // Common LCD messages
@@ -122,8 +119,9 @@
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
 #define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" UUID "\n"
+#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 #define MSG_COUNT_X                         " Count X: "
+#define MSG_COUNT_A                         " Count A: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
 #define MSG_RESEND                          "Resend: "
