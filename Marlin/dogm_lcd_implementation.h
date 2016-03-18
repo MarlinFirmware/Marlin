@@ -146,7 +146,6 @@
 #include "utf_mapper.h"
 
 int lcd_contrast;
-static unsigned char blink = 0; // Variable for visualization of fan rotation in GLCD
 static char currentfont = 0;
 
 static void lcd_setFont(char font_nr) {
