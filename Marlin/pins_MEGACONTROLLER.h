@@ -49,7 +49,7 @@
 #define FAN1_PIN 35
 #define FAN2_PIN 36
 #define FAN_SOFT_PWM
-#define CONTROLLERFAN_PIN 36
+#define CONTROLLERFAN_PIN FAN2_PIN
 #define PS_ON_PIN -1
 #define KILL_PIN -1
 

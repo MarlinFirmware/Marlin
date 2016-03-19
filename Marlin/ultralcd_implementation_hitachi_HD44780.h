@@ -873,16 +873,34 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
     // Set the LEDS - referred to as backlights by the LiquidTWI2 library
     static uint8_t ledsprev = 0;
     uint8_t leds = 0;
+
     if (target_temperature_bed > 0) leds |= LED_A;
+
     if (target_temperature[0] > 0) leds |= LED_B;
-    if (fanSpeed) leds |= LED_C;
+
+    #if FAN_COUNT > 0
+      if (0
+        #if HAS_FAN0
+          || fanSpeeds[0]
+        #endif
+        #if HAS_FAN1
+          || fanSpeeds[1]
+        #endif
+        #if HAS_FAN2
+          || fanSpeeds[2]
+        #endif
+      ) leds |= LED_C;
+    #endif // FAN_COUNT > 0
+
     #if EXTRUDERS > 1
       if (target_temperature[1] > 0) leds |= LED_C;
     #endif
+
     if (leds != ledsprev) {
       lcd.setBacklight(leds);
       ledsprev = leds;
     }
+
   }
 
 #endif // LCD_HAS_STATUS_INDICATORS

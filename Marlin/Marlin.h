@@ -306,15 +306,13 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern float extrude_min_temp;
 #endif
 
-extern int fanSpeed;
+#if FAN_COUNT > 0
+  extern int fanSpeeds[FAN_COUNT];
+#endif
 
 #if ENABLED(BARICUDA)
   extern int ValvePressure;
   extern int EtoPPressure;
-#endif
-
-#if ENABLED(FAN_SOFT_PWM)
-  extern unsigned char fanSpeedSoftPwm;
 #endif
 
 #if ENABLED(FILAMENT_SENSOR)
