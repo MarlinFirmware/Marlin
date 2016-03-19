@@ -464,18 +464,21 @@ void check_axes_activity() {
 
     #ifdef FAN_KICKSTART_TIME
 
-      static millis_t fan_kick_end[FAN_COUNT] = { 0 }, ms = millis();
+      static millis_t fan_kick_end[FAN_COUNT] = { 0 };
 
       #define KICKSTART_FAN(f) \
         if (tail_fan_speed[f]) { \
+          millis_t ms = millis(); \
           if (fan_kick_end[f] == 0) { \
             fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
             tail_fan_speed[f] = 255; \
+          } else { \
+            if (fan_kick_end[f] > ms) { \
+              tail_fan_speed[f] = 255; \
+            } \
           } \
-          else if (fan_kick_end[f] > ms) \
-            tail_fan_speed[f] = 255; \
-          else \
-            fan_kick_end[f] = 0; \
+        } else { \
+          fan_kick_end[f] = 0; \
         }
 
       #if HAS_FAN0
