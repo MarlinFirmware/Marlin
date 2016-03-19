@@ -5,7 +5,7 @@
 #if ENABLED(ULTRA_LCD)
   #include "buzzer.h"
 
-  int lcd_strlen(char* s);
+  int lcd_strlen(const char* s);
   int lcd_strlen_P(const char* s);
   void lcd_update();
   void lcd_init();

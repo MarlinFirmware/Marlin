@@ -26,6 +26,7 @@
 #define MSG_AUTOSTART                       "ジドウカイシ"                   // "Autostart"
 #define MSG_DISABLE_STEPPERS                "モーターデンゲン オフ"             // "Disable steppers"
 #define MSG_AUTO_HOME                       "ゲンテンニイドウ"                // "Auto home"
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "キジュンオフセットセッテイ"         // "Set home offsets"
 #define MSG_SET_ORIGIN                      "キジュンセット"                 // "Set origin"
 #define MSG_PREHEAT_PLA                     "PLA ヨネツ"                    // "Preheat PLA"
