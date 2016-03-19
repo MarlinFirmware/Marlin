@@ -516,7 +516,7 @@ void lcd_set_home_offsets() {
         babystepsTodo[axis] += distance;
       #endif
     }
-    if (lcdDrawUpdate) lcd_implementation_drawedit(msg, (char*)"");
+    if (lcdDrawUpdate) lcd_implementation_drawedit(msg, PSTR(""));
     if (LCD_CLICKED) lcd_goto_previous_menu();
   }
 
@@ -1715,7 +1715,7 @@ void lcd_init() {
   #endif
 }
 
-int lcd_strlen(char* s) {
+int lcd_strlen(const char* s) {
   int i = 0, j = 0;
   while (s[i]) {
     if ((s[i] & 0xc0) != 0x80) j++;
@@ -2397,7 +2397,7 @@ char* ftostr52(const float& x) {
    * MBL Move to mesh starting point
    */
   static void _lcd_level_bed_homing() {
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("XYZ"), (char*)"Homing");
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("XYZ"), PSTR("Homing"));
     if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
