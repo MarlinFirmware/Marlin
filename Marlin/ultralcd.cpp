@@ -2397,7 +2397,7 @@ char* ftostr52(const float& x) {
    * MBL Move to mesh starting point
    */
   static void _lcd_level_bed_homing() {
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("XYZ"), PSTR("Homing"));
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("XYZ"), PSTR(MSG_LEVEL_BED_HOMING));
     if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
