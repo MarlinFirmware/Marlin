@@ -483,21 +483,47 @@ void lcd_set_home_offsets() {
   lcd_return_to_status();
 }
 
-
 #if ENABLED(BABYSTEPPING)
 
-  static void _lcd_babystep(int axis, const char* msg) {
+  static void _lcd_babystep(const int axis, const char* msg) {
     ENCODER_DIRECTION_NORMAL(); 
     if (encoderPosition != 0) {
-      babystepsTodo[axis] += (BABYSTEP_MULTIPLICATOR) * (int)encoderPosition;
       encoderPosition = 0;
       lcdDrawUpdate = 1;
+      int distance =  (int)encoderPosition * BABYSTEP_MULTIPLICATOR;
+      #if ENABLED(COREXY) || ENABLED(COREXZ)
+        #if ENABLED(BABYSTEP_XY)
+          switch(axis) {
+            case X_AXIS: // X on CoreXY and CoreXZ
+              babystepsTodo[A_AXIS] += distance * 2;
+              babystepsTodo[CORE_AXIS_2] += distance * 2;
+              break;
+            case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ
+              babystepsTodo[A_AXIS] += distance * 2;
+              babystepsTodo[CORE_AXIS_2] -= distance * 2;
+              break;
+            case CORE_AXIS_3: // Z on CoreXY, Y on CoreXZ
+              babystepsTodo[CORE_AXIS_3] += distance;
+              break;
+          }
+        #elif ENABLED(COREXZ)
+          babystepsTodo[A_AXIS] += distance * 2;
+          babystepsTodo[C_AXIS] -= distance * 2;
+        #else
+          babystepsTodo[Z_AXIS] += distance;
+        #endif
+      #else
+        babystepsTodo[axis] += distance;
+      #endif
     }
     if (lcdDrawUpdate) lcd_implementation_drawedit(msg, (char*)"");
     if (LCD_CLICKED) lcd_goto_previous_menu();
   }
-  static void lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
-  static void lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
+
+  #if ENABLED(BABYSTEP_XY)
+    static void lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
+    static void lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
+  #endif
   static void lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
 
 #endif //BABYSTEPPING
