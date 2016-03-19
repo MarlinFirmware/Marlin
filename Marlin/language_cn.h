@@ -18,6 +18,7 @@
 #define MSG_AUTOSTART                       "\xb1\xb2\xb3\xb4"
 #define MSG_DISABLE_STEPPERS                "\xb5\xb6\xb7\xb8\xb9\xba"
 #define MSG_AUTO_HOME                       "\xbb\xbc\xbd"
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "\xbe\xbf\xbb\xbc\xbd\xc0\xc1"
 #define MSG_SET_ORIGIN                      "\xbe\xbf\xbc\xbd"
 #define MSG_PREHEAT_PLA                     "\xc3\xc4 PLA"

@@ -20,6 +20,7 @@
 #define MSG_AUTOSTART                       "Automaatti"
 #define MSG_DISABLE_STEPPERS                "Vapauta moottorit"
 #define MSG_AUTO_HOME                       "Aja referenssiin"
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Aseta origo"
 #define MSG_PREHEAT_PLA                     "Esilämmitä PLA"
