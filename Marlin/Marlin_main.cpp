@@ -463,29 +463,28 @@ extern "C" {
 #endif //!SDSUPPORT
 
 /**
- * Inject the next command from the command queue, when possible
- * Return false only if no command was pending
+ * Inject the next "immediate" command, when possible.
+ * Return true if any immediate commands remain to inject.
  */
 static bool drain_queued_commands_P() {
-  if (!queued_commands_P) return false;
-
-  // Get the next 30 chars from the sequence of gcodes to run
-  char cmd[30];
-  strncpy_P(cmd, queued_commands_P, sizeof(cmd) - 1);
-  cmd[sizeof(cmd) - 1] = '\0';
-
-  // Look for the end of line, or the end of sequence
-  size_t i = 0;
-  char c;
-  while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
-  cmd[i] = '\0';
-  if (enqueue_and_echo_command(cmd)) {      // buffer was not full (else we will retry later)
-    if (c)
-      queued_commands_P += i + 1; // move to next command
-    else
-      queued_commands_P = NULL;   // will have no more commands in the sequence
+  if (queued_commands_P != NULL) {
+    // Get the next gcode to run
+    size_t i = 0;
+    char c;
+    while ((c = queued_commands_P[i++]) && c != '\n') { };
+    if (i > 1) {
+      char cmd[i];
+      strncpy_P(cmd, queued_commands_P, i - 1);
+      cmd[i - 1] = '\0';
+      if (enqueue_and_echo_command(cmd)) {      // buffer was not full (else we will retry later)
+        if (c)
+          queued_commands_P += i;     // move to next command
+        else
+          queued_commands_P = NULL;   // no more commands in the sequence
+      }
+    }
   }
-  return true;
+  return (queued_commands_P != NULL); // any more left to add?
 }
 
 /**
