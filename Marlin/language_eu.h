@@ -20,6 +20,7 @@
 #define MSG_AUTOSTART                       "Auto hasiera"
 #define MSG_DISABLE_STEPPERS                "Itzali motoreak"
 #define MSG_AUTO_HOME                       "Hasierara joan"
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Hasiera ipini"
 #define MSG_PREHEAT_PLA                     "Aurreberotu PLA"

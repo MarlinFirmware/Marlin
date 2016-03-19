@@ -39,6 +39,9 @@
 #ifndef MSG_AUTO_HOME
   #define MSG_AUTO_HOME                       "Auto home"
 #endif
+#ifndef MSG_LEVEL_BED_HOMING
+  #define MSG_LEVEL_BED_HOMING                "Homing"
+#endif
 #ifndef MSG_SET_HOME_OFFSETS
   #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #endif

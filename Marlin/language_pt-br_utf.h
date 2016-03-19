@@ -20,6 +20,7 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Desabi. motores"
 #define MSG_AUTO_HOME                       "Ir para origen"
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "Ajustar Jogo"
 #define MSG_SET_ORIGIN                      "Ajustar orig."
 #define MSG_PREHEAT_PLA                     "Pre-aquecer PLA"
