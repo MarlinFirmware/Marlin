@@ -259,9 +259,6 @@ extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
 
 #if ENABLED(DELTA)
-  extern float delta[3];
-  extern float endstop_adj[3]; // axis[n].endstop_adj
-  extern float delta_radius;
   #ifndef DELTA_RADIUS_TRIM_TOWER_1
     #define DELTA_RADIUS_TRIM_TOWER_1 0.0
   #endif
@@ -271,7 +268,6 @@ extern bool axis_homed[3]; // axis[n].is_homed
   #ifndef DELTA_RADIUS_TRIM_TOWER_3
     #define DELTA_RADIUS_TRIM_TOWER_3 0.0
   #endif
-  extern float delta_diagonal_rod;
   #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_1
     #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 0.0
   #endif
@@ -281,7 +277,14 @@ extern bool axis_homed[3]; // axis[n].is_homed
   #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_3
     #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
   #endif
+  extern float delta[3];
+  extern float endstop_adj[3]; // axis[n].endstop_adj
+  extern float delta_radius;
+  extern float delta_diagonal_rod;
   extern float delta_segments_per_second;
+  extern float delta_diagonal_rod_trim_tower_1;
+  extern float delta_diagonal_rod_trim_tower_2;
+  extern float delta_diagonal_rod_trim_tower_3;
   void calculate_delta(float cartesian[3]);
   void recalc_delta_settings(float radius, float diagonal_rod);
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
