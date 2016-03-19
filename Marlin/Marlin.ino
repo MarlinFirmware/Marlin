@@ -40,6 +40,10 @@
   #elif ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)
     #include <Wire.h>
     #include <LiquidTWI2.h>
+  #elif ENABLED(LCM1602)
+    #include <Wire.h>
+    #include <LCD.h>
+    #include <LiquidCrystal_I2C.h>
   #elif ENABLED(DOGLCD)
     #include <U8glib.h> // library for graphics LCD by Oli Kraus (https://code.google.com/p/u8glib/)
   #else
