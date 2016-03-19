@@ -426,6 +426,26 @@ static uint8_t target_extruder;
   int lpq_len = 20;
 #endif
 
+#if ENABLED(HOST_KEEPALIVE_FEATURE)
+
+  // States for managing Marlin and host communication
+  // Marlin sends messages if blocked or busy
+  enum MarlinBusyState {
+    NOT_BUSY,           // Not in a handler
+    IN_HANDLER,         // Processing a GCode
+    IN_PROCESS,         // Known to be blocking command input (as in G29)
+    PAUSED_FOR_USER,    // Blocking pending any input
+    PAUSED_FOR_INPUT    // Blocking pending text input (concept)
+  };
+
+  static MarlinBusyState busy_state = NOT_BUSY;
+  static millis_t next_busy_signal_ms = -1;
+  #define KEEPALIVE_STATE(n) do{ busy_state = n; }while(0)
+#else
+  #define host_keepalive() ;
+  #define KEEPALIVE_STATE(n) ;
+#endif // HOST_KEEPALIVE_FEATURE
+
 //===========================================================================
 //================================ Functions ================================
 //===========================================================================
@@ -2130,6 +2150,35 @@ void unknown_command_error() {
   SERIAL_ECHOPGM("\"\n");
 }
 
+#if ENABLED(HOST_KEEPALIVE_FEATURE)
+
+  void host_keepalive() {
+    millis_t ms = millis();
+    if (busy_state != NOT_BUSY) {
+      if (ms < next_busy_signal_ms) return;
+      switch (busy_state) {
+        case NOT_BUSY:
+          break;
+        case IN_HANDLER:
+        case IN_PROCESS:
+          SERIAL_ECHO_START;
+          SERIAL_ECHOLNPGM(MSG_BUSY_PROCESSING);
+          break;
+        case PAUSED_FOR_USER:
+          SERIAL_ECHO_START;
+          SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER);
+          break;
+        case PAUSED_FOR_INPUT:
+          SERIAL_ECHO_START;
+          SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_INPUT);
+          break;
+      }
+    }
+    next_busy_signal_ms = ms + 2000UL;
+  }
+
+#endif //HOST_KEEPALIVE_FEATURE
+
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
@@ -3219,6 +3268,8 @@ inline void gcode_G28() {
       st_synchronize();
     #endif
 
+    KEEPALIVE_STATE(IN_HANDLER);
+
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (marlin_debug_flags & DEBUG_LEVELING) {
         SERIAL_ECHOLNPGM("<<< gcode_G29");
@@ -3325,12 +3376,16 @@ inline void gcode_G92() {
     refresh_cmd_timeout();
     if (codenum > 0) {
       codenum += previous_cmd_ms;  // wait until this time for a click
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
       while (millis() < codenum && !lcd_clicked()) idle();
+      KEEPALIVE_STATE(IN_HANDLER);
       lcd_ignore_click(false);
     }
     else {
       if (!lcd_detected()) return;
+      KEEPALIVE_STATE(PAUSED_FOR_USER);
       while (!lcd_clicked()) idle();
+      KEEPALIVE_STATE(IN_HANDLER);
     }
     if (IS_SD_PRINTING)
       LCD_MESSAGEPGM(MSG_RESUMING);
@@ -4963,6 +5018,8 @@ inline void gcode_M303() {
 
   if (e >=0 && e < EXTRUDERS)
     target_extruder = e;
+
+  KEEPALIVE_STATE(NOT_BUSY);
   PID_autotune(temp, e, c);
 }
 
@@ -5412,6 +5469,7 @@ inline void gcode_M503() {
     delay(100);
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
     millis_t next_tick = 0;
+    KEEPALIVE_STATE(WAIT_FOR_USER);
     while (!lcd_clicked()) {
       #if DISABLED(AUTO_FILAMENT_CHANGE)
         millis_t ms = millis();
@@ -5419,9 +5477,7 @@ inline void gcode_M503() {
           lcd_quick_feedback();
           next_tick = ms + 2500; // feedback every 2.5s while waiting
         }
-        manage_heater();
-        manage_inactivity(true);
-        lcd_update();
+        idle(true);
       #else
         current_position[E_AXIS] += AUTO_FILAMENT_CHANGE_LENGTH;
         destination[E_AXIS] = current_position[E_AXIS];
@@ -5429,6 +5485,7 @@ inline void gcode_M503() {
         st_synchronize();
       #endif
     } // while(!lcd_clicked)
+    KEEPALIVE_STATE(IN_HANDLER);
     lcd_quick_feedback(); // click sound feedback
 
     #if ENABLED(AUTO_FILAMENT_CHANGE)
@@ -5764,6 +5821,8 @@ void process_next_command() {
   // Interpret the code int
   seen_pointer = current_command;
   codenum = code_value_short();
+
+  KEEPALIVE_STATE(IN_HANDLER);
 
   // Handle a known G, M, or T
   switch (command_code) {
@@ -6285,6 +6344,8 @@ void process_next_command() {
 
     default: code_is_good = false;
   }
+
+  KEEPALIVE_STATE(NOT_BUSY);
 
 ExitUnknownCommand:
 
@@ -6972,9 +7033,18 @@ void disable_all_steppers() {
 /**
  * Standard idle routine keeps the machine alive
  */
-void idle() {
+void idle(
+  #if ENABLED(FILAMENTCHANGEENABLE)
+    bool no_stepper_sleep/*=false*/
+  #endif
+) {
   manage_heater();
-  manage_inactivity();
+  manage_inactivity(
+    #if ENABLED(FILAMENTCHANGEENABLE)
+      no_stepper_sleep
+    #endif
+  );
+  host_keepalive();
   lcd_update();
 }
 
