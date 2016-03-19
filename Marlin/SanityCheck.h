@@ -32,8 +32,8 @@
  * Babystepping
  */
 #if ENABLED(BABYSTEPPING)
-  #if ENABLED(COREXY) && ENABLED(BABYSTEP_XY)
-    #error BABYSTEPPING only implemented for Z axis on CoreXY.
+  #if DISABLED(ULTRA_LCD)
+    #error BABYSTEPPING requires an LCD controller.
   #endif
   #if ENABLED(SCARA)
     #error BABYSTEPPING is not implemented for SCARA yet.

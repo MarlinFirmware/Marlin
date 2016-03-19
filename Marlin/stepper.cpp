@@ -289,12 +289,6 @@ void checkHitEndstops() {
   }
 }
 
-#if ENABLED(COREXY)
-  #define CORE_AXIS_2 B_AXIS
-#elif ENABLED(COREXZ)
-  #define CORE_AXIS_2 C_AXIS
-#endif
-
 void enable_endstops(bool check) { check_endstops = check; }
 
 // Check endstops - Called from ISR!
