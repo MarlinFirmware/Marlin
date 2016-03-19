@@ -5391,13 +5391,6 @@ inline void gcode_M503() {
 
 #if ENABLED(FILAMENTCHANGEENABLE)
 
-  inline void idle2() {
-    manage_heater();
-    manage_inactivity(true);
-    host_keepalive();
-    lcd_update();
-  }
-
   /**
    * M600: Pause for filament change
    *
@@ -5484,7 +5477,7 @@ inline void gcode_M503() {
           lcd_quick_feedback();
           next_tick = ms + 2500; // feedback every 2.5s while waiting
         }
-        idle2();
+        idle(true);
       #else
         current_position[E_AXIS] += AUTO_FILAMENT_CHANGE_LENGTH;
         destination[E_AXIS] = current_position[E_AXIS];
@@ -7040,9 +7033,17 @@ void disable_all_steppers() {
 /**
  * Standard idle routine keeps the machine alive
  */
-void idle() {
+void idle(
+  #if ENABLED(FILAMENTCHANGEENABLE)
+    bool no_stepper_sleep/*=false*/
+  #endif
+) {
   manage_heater();
-  manage_inactivity();
+  manage_inactivity(
+    #if ENABLED(FILAMENTCHANGEENABLE)
+      no_stepper_sleep
+    #endif
+  );
   host_keepalive();
   lcd_update();
 }

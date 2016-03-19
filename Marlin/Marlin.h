@@ -103,7 +103,11 @@ FORCE_INLINE void serialprintPGM(const char* str) {
 
 void get_command();
 
-void idle(); // the standard idle routine calls manage_inactivity(false)
+void idle(
+  #if ENABLED(FILAMENTCHANGEENABLE)
+    bool no_stepper_sleep=false  // pass true to keep steppers from disabling on timeout
+  #endif
+);
 
 void manage_inactivity(bool ignore_stepper_queue = false);
 
