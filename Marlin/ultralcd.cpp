@@ -1189,10 +1189,20 @@ static void lcd_control_temperature_menu() {
       raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
       MENU_ITEM_EDIT(float52, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
       MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I ELABEL, &raw_Ki, 0.01, 9990, copy_and_scalePID_i_E ## eindex); \
-      MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
-      MENU_ITEM(gcode, MSG_PID_AUTOTUNE ELABEL, PSTR("M303 U1 E" + eindex));
+      MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex); \
+      if (eindex == 0) { \
+        MENU_ITEM(gcode, MSG_PID_AUTOTUNE ELABEL, PSTR("M303 U1")); \
+      } \
+      else if (eindex == 1) { \
+        MENU_ITEM(gcode, MSG_PID_AUTOTUNE ELABEL, PSTR("M303 U1 E1")); \
+      } \
+      else if (eindex == 2) { \
+        MENU_ITEM(gcode, MSG_PID_AUTOTUNE ELABEL, PSTR("M303 U1 E2")); \
+      } \
+      else { \
+        MENU_ITEM(gcode, MSG_PID_AUTOTUNE ELABEL, PSTR("M303 U1 E3")); \
+      }
       
-
     #if ENABLED(PID_ADD_EXTRUSION_RATE)
       #define PID_MENU_ITEMS(ELABEL, eindex) \
         _PID_MENU_ITEMS(ELABEL, eindex); \
