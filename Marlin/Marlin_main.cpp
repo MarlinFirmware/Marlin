@@ -5660,10 +5660,12 @@ inline void gcode_M907() {
    * M908: Control digital trimpot directly (M908 P<pin> S<current>)
    */
   inline void gcode_M908() {
-    digitalPotWrite(
-      code_seen('P') ? code_value() : 0,
-      code_seen('S') ? code_value() : 0
-    );
+    #if HAS_DIGIPOTSS
+      digitalPotWrite(
+        code_seen('P') ? code_value() : 0,
+        code_seen('S') ? code_value() : 0
+      );
+    #endif
     #ifdef DAC_STEPPER_CURRENT
       dac_current_raw(
         code_seen('P') ? code_value_long() : -1,
