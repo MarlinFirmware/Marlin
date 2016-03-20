@@ -491,23 +491,20 @@ extern "C" {
  */
 static bool drain_queued_commands_P() {
   if (queued_commands_P != NULL) {
-    // Get the next gcode to run
     size_t i = 0;
-    char c;
-    while ((c = queued_commands_P[i++]) && c != '\n') { };
-    if (i > 1) {
-      char cmd[i];
-      strncpy_P(cmd, queued_commands_P, i - 1);
-      cmd[i - 1] = '\0';
-      if (enqueue_and_echo_command(cmd)) {      // buffer was not full (else we will retry later)
-        if (c)
-          queued_commands_P += i;     // move to next command
-        else
-          queued_commands_P = NULL;   // no more commands in the sequence
-      }
+    char c, cmd[30];
+    strncpy_P(cmd, queued_commands_P, sizeof(cmd) - 1);
+    cmd[sizeof(cmd) - 1] = '\0';
+    while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
+    cmd[i] = '\0';
+    if (enqueue_and_echo_command(cmd)) {   // success?
+      if (c)                               // newline char?
+        queued_commands_P += i + 1;        // advance to the next command
+      else
+        queued_commands_P = NULL;          // nul char? no more commands
     }
   }
-  return (queued_commands_P != NULL); // any more left to add?
+  return (queued_commands_P != NULL);      // return whether any more remain
 }
 
 /**
