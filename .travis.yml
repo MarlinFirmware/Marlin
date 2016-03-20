@@ -150,6 +150,11 @@ script:
   - sed -i 's/\/\/#define LCD_I2C_VIKI/#define LCD_I2C_VIKI/g' Marlin/Configuration.h
   - rm -rf .build/
   - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
+  # LCM1602
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define LCM1602/#define LCM1602/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
   # Enable filament sensor
   - cp Marlin/Configuration.h.backup Marlin/Configuration.h
   - sed -i 's/\/\/#define FILAMENT_SENSOR/#define FILAMENT_SENSOR/g' Marlin/Configuration.h
