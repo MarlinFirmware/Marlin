@@ -1174,19 +1174,18 @@ void quickStop() {
 
 #endif //BABYSTEPPING
 
-// From Arduino DigitalPotControl example
-void digitalPotWrite(int address, int value) {
-  #if HAS_DIGIPOTSS
+#if HAS_DIGIPOTSS
+
+  // From Arduino DigitalPotControl example
+  void digitalPotWrite(int address, int value) {
     digitalWrite(DIGIPOTSS_PIN, LOW); // take the SS pin low to select the chip
     SPI.transfer(address); //  send in the address and value via SPI:
     SPI.transfer(value);
     digitalWrite(DIGIPOTSS_PIN, HIGH); // take the SS pin high to de-select the chip:
     //delay(10);
-  #else
-    UNUSED(address);
-    UNUSED(value);
-  #endif
-}
+  }
+
+#endif //HAS_DIGIPOTSS
 
 // Initialize Digipot Motor Current
 void digipot_init() {
