@@ -327,6 +327,12 @@ static uint8_t target_extruder;
   int EtoPPressure = 0;
 #endif
 
+#if ENABLED(Z_PROBE_TILT)
+  float initialx = 0;
+  float initialy = 0;
+  float initialz = 0;
+#endif
+
 #if ENABLED(FWRETRACT)
 
   bool autoretract_enabled = false;
@@ -1471,6 +1477,40 @@ static void setup_for_endstop_move() {
       // Engage Z Servo endstop if enabled
       if (servo_endstop_id[Z_AXIS] >= 0) servo[servo_endstop_id[Z_AXIS]].move(servo_endstop_angle[Z_AXIS][0]);
 
+    #elif ENABLED(Z_PROBE_TILT)
+            
+          // Store initial position 
+          initialx = current_position[X_AXIS];
+          initialy = current_position[Y_AXIS];
+          initialz = current_position[Z_AXIS];
+  
+          // Move to the start position to initiate deployment
+          feedrate = XY_TRAVEL_SPEED;
+          destination[X_AXIS] = Z_PROBE_TILT_DEPLOY_1_X-X_PROBE_OFFSET_FROM_EXTRUDER;
+          destination[Y_AXIS] = Z_PROBE_TILT_DEPLOY_1_Y-Y_PROBE_OFFSET_FROM_EXTRUDER;
+          destination[Z_AXIS] = Z_PROBE_TILT_DEPLOY_1_Z;
+          prepare_move(); // this will also set_current_to_destination
+          st_synchronize();
+
+          // Move to trigger deployment
+          feedrate = XY_TRAVEL_SPEED;
+          if (Z_PROBE_TILT_DEPLOY_2_X != Z_PROBE_TILT_DEPLOY_1_X)
+            destination[X_AXIS] = Z_PROBE_TILT_DEPLOY_2_X;
+          if (Z_PROBE_TILT_DEPLOY_2_Y != Z_PROBE_TILT_DEPLOY_1_Y)
+            destination[Y_AXIS] = Z_PROBE_TILT_DEPLOY_2_Y;
+          if (Z_PROBE_TILT_DEPLOY_2_Z != Z_PROBE_TILT_DEPLOY_1_Z)
+            destination[Z_AXIS] = Z_PROBE_TILT_DEPLOY_2_Z;
+          prepare_move();
+          st_synchronize();
+ 
+          // Move back to initial position
+          feedrate = XY_TRAVEL_SPEED;
+          destination[X_AXIS] = initialx;
+          destination[Y_AXIS] = initialy;
+          destination[Z_AXIS] = initialz;
+          prepare_move();
+          st_synchronize();
+
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
       feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
 
@@ -1577,6 +1617,40 @@ static void setup_for_endstop_move() {
         // Change the Z servo angle
         servo[servo_endstop_id[Z_AXIS]].move(servo_endstop_angle[Z_AXIS][1]);
       }
+
+    #elif ENABLED(Z_PROBE_TILT)
+            
+          // Store initial position 
+          initialx = current_position[X_AXIS];
+          initialy = current_position[Y_AXIS];
+          initialz = current_position[Z_AXIS];
+  
+          // Move to the start position to initiate deployment
+          feedrate = XY_TRAVEL_SPEED;
+          destination[X_AXIS] = Z_PROBE_TILT_DEPLOY_1_X-X_PROBE_OFFSET_FROM_EXTRUDER;
+          destination[Y_AXIS] = Z_PROBE_TILT_DEPLOY_1_Y-Y_PROBE_OFFSET_FROM_EXTRUDER;
+          destination[Z_AXIS] = Z_PROBE_TILT_DEPLOY_1_Z;
+          prepare_move(); // this will also set_current_to_destination
+          st_synchronize();
+
+          // Move to trigger deployment
+          feedrate = XY_TRAVEL_SPEED;
+          if (Z_PROBE_TILT_DEPLOY_2_X != Z_PROBE_TILT_DEPLOY_1_X)
+            destination[X_AXIS] = Z_PROBE_TILT_DEPLOY_2_X;
+          if (Z_PROBE_TILT_DEPLOY_2_Y != Z_PROBE_TILT_DEPLOY_1_Y)
+            destination[Y_AXIS] = Z_PROBE_TILT_DEPLOY_2_Y;
+          if (Z_PROBE_TILT_DEPLOY_2_Z != Z_PROBE_TILT_DEPLOY_1_Z)
+            destination[Z_AXIS] = Z_PROBE_TILT_DEPLOY_2_Z;
+          prepare_move();
+          st_synchronize();
+ 
+          // Move back to initial position
+          feedrate = XY_TRAVEL_SPEED;
+          destination[X_AXIS] = initialx;
+          destination[Y_AXIS] = initialy;
+          destination[Z_AXIS] = initialz;
+          prepare_move();
+          st_synchronize();
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
@@ -2655,6 +2729,34 @@ inline void gcode_G28() {
     }
   #endif
 
+  #if ENABLED(Z_PROBE_TILT)
+  
+// Performs HOMEAXIS(Z) in the middle of the bed
+
+      feedrate = XY_TRAVEL_SPEED;
+      destination[X_AXIS] = 100;
+      destination[Y_AXIS] = 100;
+      destination[Z_AXIS] = 20;
+      prepare_move();
+
+// Gets final Z level in the middle of the bed
+
+    setup_for_endstop_move();
+    HOMEAXIS(Z);
+
+// Stows the probe
+
+   stow_z_probe();
+
+// Moves to 0,0,0 where G28 is supposed to finish
+
+      feedrate = XY_TRAVEL_SPEED;
+      destination[X_AXIS] = 0;
+      destination[Y_AXIS] = 0;
+      destination[Z_AXIS] = 0;
+      prepare_move();
+ #endif
+
 }
 
 #if ENABLED(MESH_BED_LEVELING)
@@ -3245,7 +3347,7 @@ inline void gcode_G28() {
         #endif
 
         current_position[Z_AXIS] = -zprobe_zoffset + (z_tmp - real_z)
-          #if HAS_SERVO_ENDSTOPS || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED)
+          #if HAS_SERVO_ENDSTOPS || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_TILT)
              + Z_RAISE_AFTER_PROBING
           #endif
           ;

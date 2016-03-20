@@ -523,6 +523,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define Z_PROBE_SLED // Turn on if you have a Z probe mounted on a sled like those designed by Charles Bell.
   //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
+  // TILT retractable z-probe as seen on http://www.thingiverse.com/thing:1427575
+  // Deploys by moving the printhead against a special 3Dprinted part. Retracts by touching the same part in a different way.
+  // It needs to have a special safe homing point defined, in the place where that special part is fitted, so that coordinates must be set.
+  //#define Z_PROBE_TILT // Turn on if you have a swinging Z probe mounted on head like the one designed by stratop80.
 
   //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
   //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
@@ -541,6 +545,32 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   #endif
 
+  #if ENABLED(Z_PROBE_TILT)
+  
+    // A fixed point to performs safe homing. Its coordinates depends on the part you have setup for triggering the probe.
+  
+    #define Z_SAFE_HOMING_X_POINT 219    // X point for Z homing when homing all axis (G28) with Z_PROBE_TILT.
+    #define Z_SAFE_HOMING_Y_POINT 180    // Y point for Z homing when homing all axis (G28) with Z_PROBE_TILT.
+
+    // 4 sets of coordinates for deploying and retracting the touch probe, if swinging probe is defined. 
+    // Uncomment as appropriate for your printer/probe.
+
+    #define Z_PROBE_TILT_DEPLOY_1_X Z_SAFE_HOMING_X_POINT // The position in X axis to prepare the deploy.
+    #define Z_PROBE_TILT_DEPLOY_1_Y Z_SAFE_HOMING_Y_POINT // The position in Y axis to prepare the deploy.
+    #define Z_PROBE_TILT_DEPLOY_1_Z 30.0 // The position in Z axis to prepare the deploy.
+    #define Z_PROBE_TILT_DEPLOY_2_X Z_SAFE_HOMING_X_POINT // The position in X axis to deploy the probe.
+    #define Z_PROBE_TILT_DEPLOY_2_Y Z_SAFE_HOMING_Y_POINT // The position in Y axis to deploy the probe.
+    #define Z_PROBE_TILT_DEPLOY_2_Z 17.0 // The position in Z axis that deploys the probe.
+    
+    #define Z_PROBE_TILT_STOW_1_X Z_SAFE_HOMING_X_POINT // The position in X axis to prepare the probe.
+    #define Z_PROBE_TILT_STOW_1_Y Z_SAFE_HOMING_Y_POINT // The position in Y axis to prepare the probe.
+    #define Z_PROBE_TILT_STOW_1_Z 9.0 // The position in Z axis to prepare the stow.
+    #define Z_PROBE_TILT_STOW_2_X Z_SAFE_HOMING_X_POINT // The position in X axis to prepare the probe.
+    #define Z_PROBE_TILT_STOW_2_Y Z_SAFE_HOMING_Y_POINT // The position in Y axis to prepare the probe.
+    #define Z_PROBE_TILT_STOW_2_Z 33.0 // The position in Z axis that stows the probe.
+
+  #endif // ENABLED(Z_PROBE_TILT)
+  
   // Support for a dedicated Z probe endstop separate from the Z min endstop.
   // If you would like to use both a Z probe and a Z min endstop together,
   // uncomment #define Z_MIN_PROBE_ENDSTOP and read the instructions below.
