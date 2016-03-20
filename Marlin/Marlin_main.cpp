@@ -68,6 +68,10 @@
   #include <SPI.h>
 #endif
 
+#if ENABLED(DAC_STEPPER_CURRENT)
+  #include "stepper_dac.h"
+#endif
+
 /**
  * Look here for descriptions of G-codes:
  *  - http://linuxcnc.org/handbook/gcode/g-code.html

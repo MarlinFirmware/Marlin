@@ -30,7 +30,7 @@
 #include "language.h"
 #include "cardreader.h"
 #include "speed_lookuptable.h"
-#include "dac_mcp4728.h"
+
 #if HAS_DIGIPOTSS
   #include <SPI.h>
 #endif
@@ -1226,69 +1226,6 @@ void digipot_current(uint8_t driver, int current) {
     UNUSED(current);
   #endif
 }
-
-#if ENABLED(DAC_STEPPER_CURRENT)
-
-  bool dac_present = false;
-  const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
-
-  int dac_init() {
-    mcp4728_init();
-
-    if (mcp4728_simpleCommand(RESET)) return -1;
-
-    dac_present = true;
-
-    mcp4728_setVref_all(DAC_STEPPER_VREF);
-    mcp4728_setGain_all(DAC_STEPPER_GAIN);
-
-    return 0;
-  }
-
-  void dac_current_percent(uint8_t channel, float val) {
-    if (!dac_present) return;
-
-    NOMORE(val, 100);
-
-    mcp4728_analogWrite(dac_order[channel], val * DAC_STEPPER_MAX / 100);
-    mcp4728_simpleCommand(UPDATE);
-  }
-
-  void dac_current_raw(uint8_t channel, uint16_t val) {
-    if (!dac_present) return;
-
-    NOMORE(val, DAC_STEPPER_MAX);
-
-    mcp4728_analogWrite(dac_order[channel], val);
-    mcp4728_simpleCommand(UPDATE);
-  }
-
-  static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) / DAC_STEPPER_MAX; }
-  static float dac_amps(int8_t n) { return ((2.048 * mcp4728_getValue(dac_order[n])) / 4096.0) / (8.0 * DAC_STEPPER_SENSE); }
-
-  void dac_print_values() {
-    if (!dac_present) return;
-
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("Stepper current values in % (Amps):");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR(" X:",  dac_perc(0));
-    SERIAL_ECHOPAIR(" (",   dac_amps(0));
-    SERIAL_ECHOPAIR(") Y:", dac_perc(1));
-    SERIAL_ECHOPAIR(" (",   dac_amps(1));
-    SERIAL_ECHOPAIR(") Z:", dac_perc(2));
-    SERIAL_ECHOPAIR(" (",   dac_amps(2));
-    SERIAL_ECHOPAIR(") E:", dac_perc(3));
-    SERIAL_ECHOPAIR(" (",   dac_amps(3));
-    SERIAL_ECHOLN(")");
-  }
-
-  void dac_commit_eeprom() {
-    if (!dac_present) return;
-    mcp4728_eepromWrite();
-  }
-
-#endif // DAC_STEPPER_CURRENT
 
 void microstep_init() {
   #if HAS_MICROSTEPS_E1
