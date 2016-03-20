@@ -5,8 +5,8 @@
  * See also documentation/LCDLanguageFont.md
  *
  */
-#ifndef LANGUAGE_PT_H
-#define LANGUAGE_PT_H
+#ifndef LANGUAGE_PT_UTF_H
+#define LANGUAGE_PT_UTF_H
 
 #define MAPPER_NON
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
@@ -14,8 +14,8 @@
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " pronto."
-#define MSG_SD_INSERTED                     "Cartao inserido"
-#define MSG_SD_REMOVED                      "Cartao removido"
+#define MSG_SD_INSERTED                     "Cartão inserido"
+#define MSG_SD_REMOVED                      "Cartão removido"
 #define MSG_MAIN                            "Menu principal"
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Desactivar motores"
@@ -27,12 +27,12 @@
 #define MSG_PREHEAT_PLA_N                   "Pre-aquecer PLA"
 #define MSG_PREHEAT_PLA_ALL                 "Pre-aq. PLA Tudo"
 #define MSG_PREHEAT_PLA_BEDONLY             "Pre-aq. PLA " LCD_STR_THERMOMETER "Base"
-#define MSG_PREHEAT_PLA_SETTINGS            "Definicoes PLA"
+#define MSG_PREHEAT_PLA_SETTINGS            "Definições PLA"
 #define MSG_PREHEAT_ABS                     "Pre-aquecer ABS"
 #define MSG_PREHEAT_ABS_N                   "Pre-aquecer ABS "
 #define MSG_PREHEAT_ABS_ALL                 "Pre-aq. ABS Tudo"
 #define MSG_PREHEAT_ABS_BEDONLY             "Pre-aq. ABS " LCD_STR_THERMOMETER "Base"
-#define MSG_PREHEAT_ABS_SETTINGS            "Definicoes ABS"
+#define MSG_PREHEAT_ABS_SETTINGS            "Definições ABS"
 #define MSG_COOLDOWN                        "Arrefecer"
 #define MSG_SWITCH_PS_ON                    "Ligar"
 #define MSG_SWITCH_PS_OFF                   "Desligar"
@@ -55,7 +55,7 @@
 #define MSG_MIN                             LCD_STR_THERMOMETER " Min"
 #define MSG_MAX                             LCD_STR_THERMOMETER " Max"
 #define MSG_FACTOR                          LCD_STR_THERMOMETER " Fact"
-#define MSG_AUTOTEMP                        "Temp. Automatica"
+#define MSG_AUTOTEMP                        "Temp. Automática"
 #define MSG_ON                              "On "
 #define MSG_OFF                             "Off"
 #define MSG_PID_P                           "PID-P"
@@ -96,17 +96,17 @@
 #define MSG_WATCH                           "Monitorizar"
 #define MSG_PREPARE                         "Preparar"
 #define MSG_TUNE                            "Afinar"
-#define MSG_PAUSE_PRINT                     "Pausar impressao"
-#define MSG_RESUME_PRINT                    "Retomar impressao"
-#define MSG_STOP_PRINT                      "Parar impressao"
+#define MSG_PAUSE_PRINT                     "Pausar impressão"
+#define MSG_RESUME_PRINT                    "Retomar impressão"
+#define MSG_STOP_PRINT                      "Parar impressão"
 #define MSG_CARD_MENU                       "Imprimir do SD"
-#define MSG_NO_CARD                         "Sem cartao SD"
+#define MSG_NO_CARD                         "Sem cartão SD"
 #define MSG_DWELL                           "Em espera..."
 #define MSG_USERWAIT                        "A espera de ordem"
-#define MSG_RESUMING                        "Retomando impressao"
-#define MSG_PRINT_ABORTED                   "Impressao cancelada"
+#define MSG_RESUMING                        "Retomando impressão"
+#define MSG_PRINT_ABORTED                   "Impressão cancelada"
 #define MSG_NO_MOVE                         "Sem movimento"
-#define MSG_KILLED                          "EMERGENCIA. "
+#define MSG_KILLED                          "EMERGÊNCIA. "
 #define MSG_STOPPED                         "PARADO. "
 #define MSG_CONTROL_RETRACT                 " Retrair mm"
 #define MSG_CONTROL_RETRACT_SWAP            "Troca Retrair mm"
@@ -117,8 +117,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        " DesRet  V"
 #define MSG_AUTORETRACT                     " AutoRetr."
 #define MSG_FILAMENTCHANGE                  "Trocar filamento"
-#define MSG_INIT_SDCARD                     "Inici. cartao SD"
-#define MSG_CNG_SDCARD                      "Trocar cartao SD"
+#define MSG_INIT_SDCARD                     "Inici. cartão SD"
+#define MSG_CNG_SDCARD                      "Trocar cartão SD"
 #define MSG_ZPROBE_OUT                      "Sensor fora/base"
 #define MSG_POSITION_UNKNOWN                "XY antes de Z"
 #define MSG_ZPROBE_ZOFFSET                  "Desvio Z"
@@ -130,11 +130,11 @@
 #define MSG_END_MINUTE                      "minutos"
 
 #if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE             "Calibracao Delta"
+  #define MSG_DELTA_CALIBRATE             "Calibração Delta"
   #define MSG_DELTA_CALIBRATE_X           "Calibrar X"
   #define MSG_DELTA_CALIBRATE_Y           "Calibrar Y"
   #define MSG_DELTA_CALIBRATE_Z           "Calibrar Z"
   #define MSG_DELTA_CALIBRATE_CENTER      "Calibrar Centro"
 #endif // DELTA_CALIBRATION_MENU
 
-#endif // LANGUAGE_PT_H
+#endif // LANGUAGE_PT_UTF_H
