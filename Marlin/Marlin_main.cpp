@@ -7380,7 +7380,7 @@ bool setTargetedHotend(int code) {
       SERIAL_CHAR('M');
       SERIAL_ECHO(code);
       SERIAL_ECHOPGM(" " MSG_INVALID_EXTRUDER " ");
-      SERIAL_ECHOLN(target_extruder);
+      SERIAL_ECHOLN((int)target_extruder);
       return true;
     }
   }
