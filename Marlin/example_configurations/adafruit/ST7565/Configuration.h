@@ -754,6 +754,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 //#define LCD_I2C_SAINSMART_YWROBOT
 
+//#define LCM1602 // LCM1602 Adapter for 16x2 LCD
+
 // PANELOLU2 LCD with status LEDs, separate encoder and click inputs
 //
 // This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
