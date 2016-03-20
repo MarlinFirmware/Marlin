@@ -5,8 +5,8 @@
  * See also documentation/LCDLanguageFont.md
  *
  */
-#ifndef LANGUAGE_PT_BR_H
-#define LANGUAGE_PT_BR_H
+#ifndef LANGUAGE_PT_BR_UTF_H
+#define LANGUAGE_PT_BR_UTF_H
 
 #define MAPPER_NON
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
@@ -20,13 +20,13 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Desabi. motores"
 #define MSG_AUTO_HOME                       "Ir para origen"
-#define MSG_LEVEL_BED_HOMING                "Homing"
+#define MSG_LEVEL_BED_HOMING                "Indo para origem"
 #define MSG_SET_HOME_OFFSETS                "Ajustar Jogo"
 #define MSG_SET_ORIGIN                      "Ajustar orig."
 #define MSG_PREHEAT_PLA                     "Pre-aquecer PLA"
 #define MSG_PREHEAT_PLA_N                   "Pre-aquecer PLA"
 #define MSG_PREHEAT_PLA_ALL                 "Pre-aq.Todo PLA"
-#define MSG_PREHEAT_PLA_BEDONLY             "Pre-aq. PLA "LCD_STR_THERMOMETER "Base"
+#define MSG_PREHEAT_PLA_BEDONLY             "Pre-aq. PLA " LCD_STR_THERMOMETER "Base"
 #define MSG_PREHEAT_PLA_SETTINGS            "Ajustar PLA"
 #define MSG_PREHEAT_ABS                     "Pre-aquecer ABS"
 #define MSG_PREHEAT_ABS_N                   "Pre-aquecer ABS"
@@ -133,4 +133,4 @@
   #define MSG_DELTA_CALIBRATE_CENTER        "Calibrar Centro"
 #endif // DELTA_CALIBRATION_MENU
 
-#endif // LANGUAGE_PT_BR_H
+#endif // LANGUAGE_PT_BR_UTF_H
