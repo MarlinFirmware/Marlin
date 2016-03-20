@@ -5508,7 +5508,7 @@ inline void gcode_M503() {
     delay(100);
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
     millis_t next_tick = 0;
-    KEEPALIVE_STATE(WAIT_FOR_USER);
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
     while (!lcd_clicked()) {
       #if DISABLED(AUTO_FILAMENT_CHANGE)
         millis_t ms = millis();
@@ -6028,6 +6028,7 @@ void process_next_command() {
 
       case 105: // M105: Read current temperature
         gcode_M105();
+        KEEPALIVE_STATE(NOT_BUSY);
         return; // "ok" already printed
 
       case 109: // M109: Wait for temperature
