@@ -280,16 +280,15 @@ Here are some standard links for getting your machine calibrated:
 //===========================================================================
 
 /**
- * Thermal Runaway Protection protects your printer from damage and fire if a
+ * Thermal Protection protects your printer from damage and fire if a
  * thermistor falls out or temperature sensors fail in any way.
  *
  * The issue: If a thermistor falls out or a temperature sensor fails,
  * Marlin can no longer sense the actual temperature. Since a disconnected
  * thermistor reads as a low temperature, the firmware will keep the heater on.
  *
- * The solution: Once the temperature reaches the target, start observing.
- * If the temperature stays too far below the target (hysteresis) for too long,
- * the firmware will halt as a safety precaution.
+ * If you get "Thermal Runaway" or "Heating failed" errors the
+ * details can be tuned in Configuration_adv.h
  */
 
 #define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
