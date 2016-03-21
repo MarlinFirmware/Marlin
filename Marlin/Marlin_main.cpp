@@ -1805,6 +1805,11 @@ static void setup_for_endstop_move() {
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
+static void unknown_position_error() {
+  LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+  SERIAL_ECHO_START;
+  SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+}
 
 #if ENABLED(Z_PROBE_SLED)
 
@@ -1826,9 +1831,7 @@ static void setup_for_endstop_move() {
       }
     #endif
     if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
-      LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+      unknown_position_error();
       return;
     }
 
@@ -2578,9 +2581,7 @@ inline void gcode_G28() {
               }
             }
             else {
-              LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
-              SERIAL_ECHO_START;
-              SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+              unknown_position_error();
             }
 
           } // !home_all_axes && homeZ
@@ -2851,9 +2852,7 @@ inline void gcode_G28() {
 
     // Don't allow auto-leveling without homing first
     if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
-      LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+      unknown_position_error();
       return;
     }
 
@@ -3639,6 +3638,7 @@ inline void gcode_M42() {
    *     V = Verbose level (0-4, default=1)
    *     E = Engage Z probe for each reading
    *     L = Number of legs of movement before probe
+   *     S = Schizoid (Or Star if you prefer)
    *
    * This function assumes the bed has been homed.  Specifically, that a G28 command
    * as been issued prior to invoking the M48 Z probe repeatability measurement function.
@@ -3647,8 +3647,13 @@ inline void gcode_M42() {
    */
   inline void gcode_M48() {
 
+    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS] || !axis_known_position[Z_AXIS]) {
+      unknown_position_error();
+      return;
+    }
+
     double sum = 0.0, mean = 0.0, sigma = 0.0, sample_set[50];
-    uint8_t verbose_level = 1, n_samples = 10, n_legs = 0;
+    uint8_t verbose_level = 1, n_samples = 10, n_legs = 0, schizoid_flag = 0;
 
     if (code_seen('V')) {
       verbose_level = code_value_short();
@@ -3669,50 +3674,57 @@ inline void gcode_M42() {
       }
     }
 
-    double X_current = st_get_axis_position_mm(X_AXIS),
-           Y_current = st_get_axis_position_mm(Y_AXIS),
-           Z_current = st_get_axis_position_mm(Z_AXIS),
-           E_current = st_get_axis_position_mm(E_AXIS),
-           X_probe_location = X_current, Y_probe_location = Y_current,
+    float  X_current = current_position[X_AXIS],
+           Y_current = current_position[Y_AXIS],
+           Z_current = current_position[Z_AXIS],
+           X_probe_location = X_current + X_PROBE_OFFSET_FROM_EXTRUDER,
+           Y_probe_location = Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER,
            Z_start_location = Z_current + Z_RAISE_BEFORE_PROBING;
-
     bool deploy_probe_for_each_reading = code_seen('E');
 
     if (code_seen('X')) {
-      X_probe_location = code_value() - (X_PROBE_OFFSET_FROM_EXTRUDER);
-      if (X_probe_location < X_MIN_POS || X_probe_location > X_MAX_POS) {
-        out_of_range_error(PSTR("X"));
-        return;
-      }
+      X_probe_location = code_value();
+      #if DISABLED(DELTA)
+        if (X_probe_location < MIN_PROBE_X || X_probe_location > MAX_PROBE_X) {
+          out_of_range_error(PSTR("X"));
+          return;
+        }
+      #endif
     }
 
     if (code_seen('Y')) {
-      Y_probe_location = code_value() -  Y_PROBE_OFFSET_FROM_EXTRUDER;
-      if (Y_probe_location < Y_MIN_POS || Y_probe_location > Y_MAX_POS) {
-        out_of_range_error(PSTR("Y"));
-        return;
-      }
+      Y_probe_location = code_value();
+      #if DISABLED(DELTA)
+        if (Y_probe_location < MIN_PROBE_Y || Y_probe_location > MAX_PROBE_Y) {
+          out_of_range_error(PSTR("Y"));
+          return;
+        }
+      #endif
     }
 
-    if (code_seen('L')) {
+    #if ENABLED(DELTA)
+      if (sqrt(X_probe_location * X_probe_location + Y_probe_location * Y_probe_location) > DELTA_PROBEABLE_RADIUS) {
+        SERIAL_PROTOCOLPGM("? (X,Y) location outside of probeable radius.\n");
+        return;
+      }
+    #endif
+
+    bool seen_L = code_seen('L');
+
+    if (seen_L) {
       n_legs = code_value_short();
-      if (n_legs == 1) n_legs = 2;
       if (n_legs < 0 || n_legs > 15) {
         SERIAL_PROTOCOLPGM("?Number of legs in movement not plausible (0-15).\n");
         return;
       }
+      if (n_legs == 1) n_legs = 2;
     }
 
-    //
-    // Do all the preliminary setup work.   First raise the Z probe.
-    //
+    if (code_seen('S')) {
+      schizoid_flag++;
+      if (!seen_L) n_legs = 7;
+    }
 
-    st_synchronize();
-    plan_bed_level_matrix.set_to_identity();
-    plan_buffer_line(X_current, Y_current, Z_start_location, E_current, homing_feedrate[Z_AXIS] / 60, active_extruder);
-    st_synchronize();
-
-    //
     // Now get everything to the specified probe point So we can safely do a probe to
     // get us close to the bed.  If the Z-Axis is far from the bed, we don't want to
     // use that as a starting point for each probe.
@@ -3720,89 +3732,111 @@ inline void gcode_M42() {
     if (verbose_level > 2)
       SERIAL_PROTOCOLPGM("Positioning the probe...\n");
 
-    plan_buffer_line(X_probe_location, Y_probe_location, Z_start_location,
-                     E_current,
-                     homing_feedrate[X_AXIS] / 60,
-                     active_extruder);
-    st_synchronize();
+    #if ENABLED(DELTA)
+      reset_bed_level();    // we don't do bed level correction in M48 because we want the raw data when we probe
+    #else
+      plan_bed_level_matrix.set_to_identity();  // we don't do bed level correction in M48 because we wantthe raw data when we probe
+    #endif
 
-    current_position[X_AXIS] = X_current = st_get_axis_position_mm(X_AXIS);
-    current_position[Y_AXIS] = Y_current = st_get_axis_position_mm(Y_AXIS);
-    current_position[Z_AXIS] = Z_current = st_get_axis_position_mm(Z_AXIS);
-    current_position[E_AXIS] = E_current = st_get_axis_position_mm(E_AXIS);
+    if (Z_start_location < Z_RAISE_BEFORE_PROBING * 2.0)
+      do_blocking_move_to_z(Z_start_location);
+
+    do_blocking_move_to_xy(X_probe_location - X_PROBE_OFFSET_FROM_EXTRUDER, Y_probe_location - Y_PROBE_OFFSET_FROM_EXTRUDER);
 
     //
     // OK, do the initial probe to get us close to the bed.
     // Then retrace the right amount and use that in subsequent probes
     //
-
-    deploy_z_probe();
-
     setup_for_endstop_move();
-    run_z_probe();
 
-    Z_current = current_position[Z_AXIS] = st_get_axis_position_mm(Z_AXIS);
-    Z_start_location = Z_current + Z_RAISE_BEFORE_PROBING;
+    probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING,
+      deploy_probe_for_each_reading ? ProbeDeployAndStow : ProbeDeploy,
+      verbose_level);
 
-    plan_buffer_line(X_probe_location, Y_probe_location, Z_start_location,
-                     E_current,
-                     homing_feedrate[X_AXIS] / 60,
-                     active_extruder);
-    st_synchronize();
-    Z_current = current_position[Z_AXIS] = st_get_axis_position_mm(Z_AXIS);
-
-    if (deploy_probe_for_each_reading) stow_z_probe();
+    raise_z_after_probing();
 
     for (uint8_t n = 0; n < n_samples; n++) {
-      // Make sure we are at the probe location
-      do_blocking_move_to(X_probe_location, Y_probe_location, Z_start_location); // this also updates current_position
-
+      randomSeed(millis());
+      delay(500);
       if (n_legs) {
-        millis_t ms = millis();
-        double radius = ms % ((X_MAX_LENGTH) / 4),       // limit how far out to go
-               theta = RADIANS(ms % 360L);
-        float dir = (ms & 0x0001) ? 1 : -1;            // clockwise or counter clockwise
+        float radius, angle = random(0.0, 360.0);
+        int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
 
-        //SERIAL_ECHOPAIR("starting radius: ",radius);
-        //SERIAL_ECHOPAIR("   theta: ",theta);
-        //SERIAL_ECHOPAIR("   direction: ",dir);
-        //SERIAL_EOL;
+        radius = random(
+          #if ENABLED(DELTA)
+            DELTA_PROBEABLE_RADIUS / 8, DELTA_PROBEABLE_RADIUS / 3
+          #else
+            5, X_MAX_LENGTH / 8
+          #endif
+        );
+
+        if (verbose_level > 3) {
+          SERIAL_ECHOPAIR("Starting radius: ", radius);
+          SERIAL_ECHOPAIR("   angle: ", angle);
+          delay(100);
+          if (dir > 0)
+            SERIAL_ECHO(" Direction: Counter Clockwise \n");
+          else
+            SERIAL_ECHO(" Direction: Clockwise \n");
+          delay(100);
+        }
 
         for (uint8_t l = 0; l < n_legs - 1; l++) {
-          ms = millis();
-          theta += RADIANS(dir * (ms % 20L));
-          radius += (ms % 10L) - 5L;
-          if (radius < 0.0) radius = -radius;
-
-          X_current = X_probe_location + cos(theta) * radius;
-          X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
-          Y_current = Y_probe_location + sin(theta) * radius;
-          Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
-
+          double delta_angle;
+          if (schizoid_flag)
+            delta_angle = dir * 2.0 * 72.0;   // The points of a 5 point star are 72 degrees apart.  We need to
+          // skip a point and go to the next one on the star.
+          else
+            delta_angle = dir * (float) random(25, 45);   // If we do this line, we are just trying to move further
+          // around the circle.
+          angle += delta_angle;
+          while (angle > 360.0)   // We probably do not need to keep the angle between 0 and 2*PI, but the
+            angle -= 360.0;       // Arduino documentation says the trig functions should not be given values
+          while (angle < 0.0)     // outside of this range.   It looks like they behave correctly with
+            angle += 360.0;       // numbers outside of the range, but just to be safe we clamp them.
+          X_current = X_probe_location - X_PROBE_OFFSET_FROM_EXTRUDER + cos(RADIANS(angle)) * radius;
+          Y_current = Y_probe_location - Y_PROBE_OFFSET_FROM_EXTRUDER + sin(RADIANS(angle)) * radius;
+          #if DISABLED(DELTA)
+            X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
+            Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
+          #else
+            // If we have gone out too far, we can do a simple fix and scale the numbers
+            // back in closer to the origin.
+            while (sqrt(X_current * X_current + Y_current * Y_current) > DELTA_PROBEABLE_RADIUS) {
+              X_current /= 1.25;
+              Y_current /= 1.25;
+              if (verbose_level > 3) {
+                SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
+                SERIAL_ECHOPAIR(", ", Y_current);
+                SERIAL_EOL;
+                delay(50);
+              }
+            }
+          #endif
           if (verbose_level > 3) {
+            SERIAL_PROTOCOL("Going to:");
             SERIAL_ECHOPAIR("x: ", X_current);
             SERIAL_ECHOPAIR("y: ", Y_current);
+            SERIAL_ECHOPAIR("  z: ", current_position[Z_AXIS]);
             SERIAL_EOL;
+            delay(55);
           }
-
-          do_blocking_move_to(X_current, Y_current, Z_current); // this also updates current_position
-
+          do_blocking_move_to_xy(X_current, Y_current);
         } // n_legs loop
-
-        // Go back to the probe location
-        do_blocking_move_to(X_probe_location, Y_probe_location, Z_start_location); // this also updates current_position
-
       } // n_legs
 
-      if (deploy_probe_for_each_reading)  {
-        deploy_z_probe();
-        delay(1000);
+      // We don't really have to do this move, but if we don't we can see a funny shift in the Z Height
+      // Because the user might not have the Z_RAISE_BEFORE_PROBING height identical to the
+      // Z_RAISE_BETWEEN_PROBING height.  This gets us back to the probe location at the same height that
+      // we have been running around the circle at.
+      do_blocking_move_to_xy(X_probe_location - X_PROBE_OFFSET_FROM_EXTRUDER, Y_probe_location - Y_PROBE_OFFSET_FROM_EXTRUDER);
+      if (deploy_probe_for_each_reading)
+        sample_set[n] = probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING, ProbeDeployAndStow, verbose_level);
+      else {
+        if (n == n_samples - 1)
+          sample_set[n] = probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING, ProbeStow, verbose_level); else
+          sample_set[n] = probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING, ProbeStay, verbose_level);
       }
-
-      setup_for_endstop_move();
-      run_z_probe();
-
-      sample_set[n] = current_position[Z_AXIS];
 
       //
       // Get the current mean for the data points we have so far
@@ -3821,13 +3855,13 @@ inline void gcode_M42() {
         sum += ss * ss;
       }
       sigma = sqrt(sum / (n + 1));
-
       if (verbose_level > 1) {
         SERIAL_PROTOCOL(n + 1);
         SERIAL_PROTOCOLPGM(" of ");
         SERIAL_PROTOCOL((int)n_samples);
         SERIAL_PROTOCOLPGM("   z: ");
         SERIAL_PROTOCOL_F(current_position[Z_AXIS], 6);
+        delay(50);
         if (verbose_level > 2) {
           SERIAL_PROTOCOLPGM(" mean: ");
           SERIAL_PROTOCOL_F(mean, 6);
@@ -3835,36 +3869,26 @@ inline void gcode_M42() {
           SERIAL_PROTOCOL_F(sigma, 6);
         }
       }
-
       if (verbose_level > 0) SERIAL_EOL;
+      delay(50);
+      do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+    }  // End of probe loop code
 
-      plan_buffer_line(X_probe_location, Y_probe_location, Z_start_location, current_position[E_AXIS], homing_feedrate[Z_AXIS] / 60, active_extruder);
-      st_synchronize();
-
-      // Stow between
-      if (deploy_probe_for_each_reading) {
-        stow_z_probe();
-        delay(1000);
-      }
-    }
-
-    // Stow after
-    if (!deploy_probe_for_each_reading) {
-      stow_z_probe();
-      delay(1000);
-    }
-
-    clean_up_after_endstop_move();
+    // raise_z_after_probing();
 
     if (verbose_level > 0) {
       SERIAL_PROTOCOLPGM("Mean: ");
       SERIAL_PROTOCOL_F(mean, 6);
       SERIAL_EOL;
+      delay(25);
     }
 
     SERIAL_PROTOCOLPGM("Standard Deviation: ");
     SERIAL_PROTOCOL_F(sigma, 6);
     SERIAL_EOL; SERIAL_EOL;
+    delay(25);
+
+    clean_up_after_endstop_move();
   }
 
 #endif // AUTO_BED_LEVELING_FEATURE && Z_MIN_PROBE_REPEATABILITY_TEST
