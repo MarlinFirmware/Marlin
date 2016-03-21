@@ -5142,7 +5142,7 @@ inline void gcode_M226() {
 inline void gcode_M303() {
   int e = code_seen('E') ? code_value_short() : 0;
   int c = code_seen('C') ? code_value_short() : 5;
-  bool u = code_seen('U') && code_value_short() == 1;
+  bool u = code_seen('U') && code_value_short() != 0;
   
   float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
 
