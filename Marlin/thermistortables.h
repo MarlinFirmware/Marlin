@@ -873,7 +873,7 @@ const short temptable_55[][2] PROGMEM = {
 };
 #endif
 
-#if (THERMISTORHEATER_0 == 60) || (THERMISTORHEATER_1 == 60) || (THERMISTORHEATER_2 == 60) || (THERMISTORHEATER_3 == 60) || (THERMISTORBED == 60) // Maker's Tool Works Kapton Bed Thermister
+#if (THERMISTORHEATER_0 == 60) || (THERMISTORHEATER_1 == 60) || (THERMISTORHEATER_2 == 60) || (THERMISTORHEATER_3 == 60) || (THERMISTORBED == 60) // Maker's Tool Works Kapton Bed Thermistor
 // ./createTemperatureLookup.py --r0=100000 --t0=25 --r1=0 --r2=4700 --beta=3950
 // r0: 100000
 // t0: 25
