@@ -199,7 +199,7 @@ static void updateTemperaturesFromRawValues();
 //================================ Functions ================================
 //===========================================================================
 
-void PID_autotune(float temp, int extruder, int ncycles, bool set_result) {
+void PID_autotune(float temp, int extruder, int ncycles, bool set_result /* = false */) {
   float input = 0.0;
   int cycles = 0;
   bool heating = true;
