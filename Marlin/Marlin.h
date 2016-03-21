@@ -356,4 +356,9 @@ extern uint8_t active_extruder;
 
 extern void calculate_volumetric_multipliers();
 
+// Print job timer related functions
+millis_t print_job_timer();
+bool print_job_start(millis_t t = 0);
+bool print_job_stop(bool force = false);
+
 #endif //MARLIN_H
