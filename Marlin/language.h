@@ -13,26 +13,28 @@
 // See also documentation/LCDLanguageFont.md
 
 // Languages
-// en       English
-// pl       Polish
-// fr       French
-// de       German
-// es       Spanish
-// ru       Russian
-// bg       Bulgarian
-// it       Italian
-// pt       Portuguese
-// pt-br    Portuguese (Brazil)
-// fi       Finnish
-// an       Aragonese
-// nl       Dutch
-// gl       Galician
-// ca       Catalan
-// eu       Basque-Euskera
-// kana     Japanese
-// kana_utf Japanese
-// cn       Chinese
-// cz       Czech
+// en         English
+// pl         Polish
+// fr         French
+// de         German
+// es         Spanish
+// ru         Russian
+// bg         Bulgarian
+// it         Italian
+// pt         Portuguese
+// pt_utf8    Portuguese (UTF8)
+// pt-br      Portuguese (Brazilian)
+// pt-br_utf8 Portuguese (Brazilian UTF8)
+// fi         Finnish
+// an         Aragonese
+// nl         Dutch
+// gl         Galician
+// ca         Catalan
+// eu         Basque-Euskera
+// kana       Japanese
+// kana_utf8  Japanese (UTF8)
+// cn         Chinese
+// cz         Czech
 
 // fallback if no language is set, don't change
 #ifndef LANGUAGE_INCLUDE
