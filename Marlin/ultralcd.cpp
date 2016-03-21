@@ -1867,7 +1867,7 @@ void lcd_update() {
         blink++;     // Variable for animation
         (*currentMenu)();
       }
-      #endif
+    #endif
 
     #if ENABLED(LCD_HAS_STATUS_INDICATORS)
       lcd_implementation_update_indicators();
