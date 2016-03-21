@@ -231,10 +231,6 @@
       #error You cannot use Z_PROBE_SLED with DELTA.
     #endif
 
-    #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-      #error Z_MIN_PROBE_REPEATABILITY_TEST is not supported with DELTA yet.
-    #endif
-
   #endif
 
 #endif
