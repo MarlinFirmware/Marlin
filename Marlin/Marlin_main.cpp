@@ -6986,11 +6986,11 @@ void plan_arc(
 #if HAS_CONTROLLERFAN
 
   void controllerFan() {
-    static millis_t lastMotor = 0;      // Last time a motor was turned on
-    static millis_t lastMotorCheck = 0; // Last time the state was checked
+    static millis_t lastMotorOn = 0; // Last time a motor was turned on
+    static millis_t nextMotorCheck = 0; // Last time the state was checked
     millis_t ms = millis();
-    if (ms >= lastMotorCheck + 2500) { // Not a time critical function, so we only check every 2500ms
-      lastMotorCheck = ms;
+    if (ms >= nextMotorCheck) {
+      nextMotorCheck = ms + 2500; // Not a time critical function, so only check every 2.5s
       if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || soft_pwm_bed > 0
           || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
           #if EXTRUDERS > 1
@@ -7006,9 +7006,12 @@ void plan_arc(
             #endif
           #endif
       ) {
-        lastMotor = ms; //... set time to NOW so the fan will turn on
+        lastMotorOn = ms; //... set time to NOW so the fan will turn on
       }
-      uint8_t speed = (lastMotor == 0 || ms >= lastMotor + ((CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
+
+      // Fan off if no steppers have been enabled for CONTROLLERFAN_SECS seconds
+      uint8_t speed = (lastMotorOn == 0 || ms >= lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL) ? 0 : CONTROLLERFAN_SPEED;
+
       // allows digital or PWM fan output to be used (see M42 handling)
       digitalWrite(CONTROLLERFAN_PIN, speed);
       analogWrite(CONTROLLERFAN_PIN, speed);
