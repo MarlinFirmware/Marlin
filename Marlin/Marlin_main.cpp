@@ -2734,9 +2734,9 @@ inline void gcode_G28() {
 // Performs HOMEAXIS(Z) in the middle of the bed
 
       feedrate = XY_TRAVEL_SPEED;
-      destination[X_AXIS] = 100;
-      destination[Y_AXIS] = 100;
-      destination[Z_AXIS] = 20;
+      destination[X_AXIS] = (X_MIN_POS + X_MAX_POS) / 2;
+      destination[Y_AXIS] = (Y_MIN_POS + Y_MAX_POS) / 2;
+      destination[Z_AXIS] = Z_RAISE_BEFORE_PROBING;
       prepare_move();
 
 // Gets final Z level in the middle of the bed
