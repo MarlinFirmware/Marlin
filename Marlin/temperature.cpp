@@ -1134,6 +1134,9 @@ void disable_all_heaters() {
   for (int i = 0; i < EXTRUDERS; i++) setTargetHotend(0, i);
   setTargetBed(0);
 
+  // If all heaters go down then for sure our print job has stopped
+  print_job_stop(true);
+
   #define DISABLE_HEATER(NR) { \
     setTargetHotend(NR, 0); \
     soft_pwm[NR] = 0; \

@@ -136,7 +136,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #define LCD_I2C_PIN_D5  5
   #define LCD_I2C_PIN_D6  6
   #define LCD_I2C_PIN_D7  7
-  
+
   #include <Wire.h>
   #include <LCD.h>
   #include <LiquidCrystal_I2C.h>
@@ -637,7 +637,7 @@ static void lcd_implementation_status_screen() {
         else {
           if (!axis_homed[X_AXIS])
             lcd_printPGM(PSTR("?"));
-          else 
+          else
             #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
               if (!axis_known_position[X_AXIS])
                 lcd_printPGM(PSTR(" "));
@@ -654,7 +654,7 @@ static void lcd_implementation_status_screen() {
         else {
           if (!axis_homed[Y_AXIS])
             lcd_printPGM(PSTR("?"));
-          else 
+          else
             #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
               if (!axis_known_position[Y_AXIS])
                 lcd_printPGM(PSTR(" "));
@@ -674,7 +674,7 @@ static void lcd_implementation_status_screen() {
     else {
       if (!axis_homed[Z_AXIS])
         lcd_printPGM(PSTR("?"));
-      else 
+      else
         #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
           if (!axis_known_position[Z_AXIS])
             lcd_printPGM(PSTR(" "));
@@ -712,7 +712,8 @@ static void lcd_implementation_status_screen() {
     lcd.setCursor(LCD_WIDTH - 6, 2);
     lcd.print(LCD_STR_CLOCK[0]);
     if (print_job_start_ms != 0) {
-      uint16_t time = millis() / 60000 - print_job_start_ms / 60000;
+      uint16_t time = (((print_job_stop_ms > print_job_start_ms)
+                       ? print_job_stop_ms : millis()) - print_job_start_ms) / 60000;
       lcd.print(itostr2(time / 60));
       lcd.print(':');
       lcd.print(itostr2(time % 60));
