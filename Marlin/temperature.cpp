@@ -199,7 +199,7 @@ static void updateTemperaturesFromRawValues();
 //================================ Functions ================================
 //===========================================================================
 
-void PID_autotune(float temp, int extruder, int ncycles, bool set_result /* = false */) {
+void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false*/) {
   float input = 0.0;
   int cycles = 0;
   bool heating = true;
@@ -346,7 +346,8 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result /* = fa
       SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(Kp);
       SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(Ki);
       SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(Kd);
-      //Uses the result if set_result is true
+
+      // Use the result? (As with "M303 U1")
       if (set_result) {
         if (extruder < 0) {
           #if ENABLED(PIDTEMPBED)

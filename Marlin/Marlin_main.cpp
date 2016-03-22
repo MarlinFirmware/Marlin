@@ -549,6 +549,10 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
   return true;
 }
 
+void enqueue_and_echo_command_now(const char* cmd) {
+  while (!enqueue_and_echo_command(cmd)) idle();
+}
+
 /**
  * Enqueue with Serial Echo
  */
@@ -5135,9 +5139,11 @@ inline void gcode_M226() {
 
 /**
  * M303: PID relay autotune
- *       S<temperature> sets the target temperature. (default target temperature = 150C)
- *       E<extruder> (-1 for the bed)
+ *
+ *       S<temperature> sets the target temperature. (default 150C)
+ *       E<extruder> (-1 for the bed) (default 0)
  *       C<cycles>
+ *       U<bool> with a non-zero value will apply the result to current settings
  */
 inline void gcode_M303() {
   int e = code_seen('E') ? code_value_short() : 0;
@@ -5146,11 +5152,14 @@ inline void gcode_M303() {
   
   float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
 
-  if (e >=0 && e < EXTRUDERS)
+  if (e >= 0 && e < EXTRUDERS)
     target_extruder = e;
 
-  KEEPALIVE_STATE(NOT_BUSY);
+  KEEPALIVE_STATE(NOT_BUSY); // don't send "busy: processing" messages during autotune output
+
   PID_autotune(temp, e, c, u);
+
+  KEEPALIVE_STATE(IN_HANDLER);
 }
 
 #if ENABLED(SCARA)
