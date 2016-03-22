@@ -5413,7 +5413,7 @@ inline void gcode_M428() {
         SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
         LCD_ALERTMESSAGEPGM("Err: Too far!");
         #if HAS_BUZZER
-          enqueue_and_echo_commands_P(PSTR("M300 S40 P200"));
+          buzz(200, 40);
         #endif
         err = true;
         break;
@@ -5427,7 +5427,8 @@ inline void gcode_M428() {
     sync_plan_position();
     LCD_ALERTMESSAGEPGM("Offset applied.");
     #if HAS_BUZZER
-      enqueue_and_echo_commands_P(PSTR("M300 S659 P200\nM300 S698 P200"));
+      buzz(200, 659);
+      buzz(200, 698);
     #endif
   }
 }
