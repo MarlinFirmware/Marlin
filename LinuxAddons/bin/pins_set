@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+eval "sed -i 's/\(#define *$2\) *.*$/\1 $3/g' Marlin/pins_$1.h"

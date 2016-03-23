@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+for opt in "$@" ; do
+  eval "sed -i 's/\/\/ *\(#define *$opt\)/\1/g' Marlin/Configuration_adv.h"
+done
