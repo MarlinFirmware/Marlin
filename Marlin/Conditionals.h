@@ -612,10 +612,5 @@
     #endif
   #endif
 
-  #if ( (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || HAS_Z_PROBE ) && \
-    ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) )
-    #define HAS_Z_MIN_PROBE
-  #endif
-
 #endif //CONFIGURATION_LCD
 #endif //CONDITIONALS_H
