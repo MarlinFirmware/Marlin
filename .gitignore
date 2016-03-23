@@ -15,3 +15,6 @@ applet/
 *.bak
 *.DS_Store
 *.idea
+*.s
+*.i
+*.ii
