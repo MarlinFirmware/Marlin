@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-eval "sed 's/\(\/\/ *\)*\(\#define *$1\)/\/\/\2/g' Marlin/Configuration.h"
+for opt in "$@" ; do
+  eval "sed -i 's/\(\/\/ *\)*\(\#define *$opt\)/\/\/\2/g' Marlin/Configuration.h"
+done
