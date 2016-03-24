@@ -99,6 +99,13 @@ static volatile char endstop_hit_bits = 0; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_
 #endif
 
 static bool check_endstops = true;
+static bool check_endstops_global =
+  #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
+    false
+  #else
+    true
+  #endif
+;
 
 volatile long count_position[NUM_AXIS] = { 0 }; // Positions of stepper motors, in step units
 volatile signed char count_direction[NUM_AXIS] = { 1 };
@@ -252,9 +259,13 @@ volatile signed char count_direction[NUM_AXIS] = { 1 };
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
 
-void endstops_hit_on_purpose() {
-  endstop_hit_bits = 0;
-}
+void enable_endstops(bool check) { check_endstops = check; }
+
+void enable_endstops_globally(bool check) { check_endstops_global = check_endstops = check; }
+
+void endstops_not_homing() { check_endstops = check_endstops_global; }
+
+void endstops_hit_on_purpose() { endstop_hit_bits = 0; }
 
 void checkHitEndstops() {
   if (endstop_hit_bits) {
@@ -292,8 +303,6 @@ void checkHitEndstops() {
     #endif
   }
 }
-
-void enable_endstops(bool check) { check_endstops = check; }
 
 // Check endstops - Called from ISR!
 inline void update_endstops() {
