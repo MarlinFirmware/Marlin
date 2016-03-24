@@ -33,16 +33,19 @@
 #endif
 
 FORCE_INLINE void store_char(unsigned char c) {
-  int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
+  CRITICAL_SECTION_START;
+    uint8_t h = rx_buffer.head;
+    uint8_t i = (uint8_t)(h + 1)  & (RX_BUFFER_SIZE - 1);
 
-  // if we should be storing the received character into the location
-  // just before the tail (meaning that the head would advance to the
-  // current location of the tail), we're about to overflow the buffer
-  // and so we don't write the character or advance the head.
-  if (i != rx_buffer.tail) {
-    rx_buffer.buffer[rx_buffer.head] = c;
-    rx_buffer.head = i;
-  }
+    // if we should be storing the received character into the location
+    // just before the tail (meaning that the head would advance to the
+    // current location of the tail), we're about to overflow the buffer
+    // and so we don't write the character or advance the head.
+    if (i != rx_buffer.tail) {
+      rx_buffer.buffer[h] = c;
+      rx_buffer.head = i;
+    }
+  CRITICAL_SECTION_END;
 }
 
 
@@ -76,7 +79,7 @@ void MarlinSerial::begin(long baud) {
   #endif
 
   if (useU2X) {
-    M_UCSRxA = BIT(M_U2Xx);
+    M_UCSRxA = _BV(M_U2Xx);
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
   }
   else {
@@ -88,37 +91,45 @@ void MarlinSerial::begin(long baud) {
   M_UBRRxH = baud_setting >> 8;
   M_UBRRxL = baud_setting;
 
-  sbi(M_UCSRxB, M_RXENx);
-  sbi(M_UCSRxB, M_TXENx);
-  sbi(M_UCSRxB, M_RXCIEx);
+  SBI(M_UCSRxB, M_RXENx);
+  SBI(M_UCSRxB, M_TXENx);
+  SBI(M_UCSRxB, M_RXCIEx);
 }
 
 void MarlinSerial::end() {
-  cbi(M_UCSRxB, M_RXENx);
-  cbi(M_UCSRxB, M_TXENx);
-  cbi(M_UCSRxB, M_RXCIEx);
+  CBI(M_UCSRxB, M_RXENx);
+  CBI(M_UCSRxB, M_TXENx);
+  CBI(M_UCSRxB, M_RXCIEx);
 }
 
 
 int MarlinSerial::peek(void) {
-  if (rx_buffer.head == rx_buffer.tail) {
-    return -1;
+  int v;
+  CRITICAL_SECTION_START;
+  uint8_t t = rx_buffer.tail;
+  if (rx_buffer.head == t) {
+    v = -1;
   }
   else {
-    return rx_buffer.buffer[rx_buffer.tail];
+    v = rx_buffer.buffer[t];
   }
+  CRITICAL_SECTION_END;
+  return v;
 }
 
 int MarlinSerial::read(void) {
-  // if the head isn't ahead of the tail, we don't have any characters
-  if (rx_buffer.head == rx_buffer.tail) {
-    return -1;
+  int v;
+  CRITICAL_SECTION_START;
+  uint8_t t = rx_buffer.tail;
+  if (rx_buffer.head == t) {
+    v = -1;
   }
   else {
-    unsigned char c = rx_buffer.buffer[rx_buffer.tail];
-    rx_buffer.tail = (unsigned int)(rx_buffer.tail + 1) % RX_BUFFER_SIZE;
-    return c;
+    v = rx_buffer.buffer[t];
+    rx_buffer.tail = (uint8_t)(t + 1) & (RX_BUFFER_SIZE - 1);
   }
+  CRITICAL_SECTION_END;
+  return v;
 }
 
 void MarlinSerial::flush() {
@@ -126,12 +137,10 @@ void MarlinSerial::flush() {
   // occurs after reading the value of rx_buffer_head but before writing
   // the value to rx_buffer_tail; the previous value of rx_buffer_head
   // may be written to rx_buffer_tail, making it appear as if the buffer
-  // don't reverse this or there may be problems if the RX interrupt
-  // occurs after reading the value of rx_buffer_head but before writing
-  // the value to rx_buffer_tail; the previous value of rx_buffer_head
-  // may be written to rx_buffer_tail, making it appear as if the buffer
   // were full, not empty.
-  rx_buffer.head = rx_buffer.tail;
+  CRITICAL_SECTION_START;
+    rx_buffer.head = rx_buffer.tail;
+  CRITICAL_SECTION_END;
 }
 
 

@@ -2,7 +2,7 @@
  * Aragonese
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_AN_H
@@ -20,6 +20,7 @@
 #define MSG_AUTOSTART                       " Autostart"
 #define MSG_DISABLE_STEPPERS                "Amortar motors"
 #define MSG_AUTO_HOME                       "Levar a l'orichen"
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Establir zero"
 #define MSG_PREHEAT_PLA                     "Precalentar PLA"

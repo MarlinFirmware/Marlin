@@ -2,13 +2,13 @@
  * Chinese
  *
  * LCD Menu Messages
- * Se also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_CN_H
 #define LANGUAGE_CN_H
 
-#define MAPPER_NON         // For direct asci codes
+#define MAPPER_NON         // For direct ascii codes
 #define DISPLAY_CHARSET_ISO10646_CN
 
 #define WELCOME_MSG                         "\xa4\xa5\xa6\xa7"
@@ -18,6 +18,7 @@
 #define MSG_AUTOSTART                       "\xb1\xb2\xb3\xb4"
 #define MSG_DISABLE_STEPPERS                "\xb5\xb6\xb7\xb8\xb9\xba"
 #define MSG_AUTO_HOME                       "\xbb\xbc\xbd"
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "\xbe\xbf\xbb\xbc\xbd\xc0\xc1"
 #define MSG_SET_ORIGIN                      "\xbe\xbf\xbc\xbd"
 #define MSG_PREHEAT_PLA                     "\xc3\xc4 PLA"

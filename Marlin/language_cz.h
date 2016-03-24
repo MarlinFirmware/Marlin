@@ -2,7 +2,7 @@
  * Czech
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  * Translated by Petr Zahradnik, Computer Laboratory
  * Blog and video blog Zahradnik se bavi
@@ -24,6 +24,7 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Uvolnit motory"
 #define MSG_AUTO_HOME                       "Domovska pozice"
+#define MSG_LEVEL_BED_HOMING                "Mereni podlozky"
 #define MSG_SET_HOME_OFFSETS                "Nastavit ofsety"
 #define MSG_SET_ORIGIN                      "Nastavit pocatek"
 #define MSG_PREHEAT_PLA                     "Zahrat PLA"

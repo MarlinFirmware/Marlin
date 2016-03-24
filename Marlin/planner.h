@@ -59,12 +59,18 @@ typedef struct {
   unsigned long initial_rate;                        // The jerk-adjusted step rate at start of block
   unsigned long final_rate;                          // The minimal rate at exit
   unsigned long acceleration_st;                     // acceleration steps/sec^2
-  unsigned long fan_speed;
+
+  #if FAN_COUNT > 0
+    unsigned long fan_speed[FAN_COUNT];
+  #endif
+
   #if ENABLED(BARICUDA)
     unsigned long valve_pressure;
     unsigned long e_to_p_pressure;
   #endif
+
   volatile char busy;
+
 } block_t;
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))

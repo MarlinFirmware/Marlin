@@ -203,8 +203,7 @@ double r8mat_amax(int m, int n, double a[])
   double value = r8_abs(a[0 + 0 * m]);
   for (int j = 0; j < n; j++) {
     for (int i = 0; i < m; i++) {
-      if (value < r8_abs(a[i + j * m]))
-        value = r8_abs(a[i + j * m]);
+      NOLESS(value, r8_abs(a[i + j * m]));
     }
   }
   return value;

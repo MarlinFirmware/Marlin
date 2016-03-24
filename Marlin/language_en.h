@@ -2,14 +2,14 @@
  * English
  *
  * LCD Menu Messages
- * Se also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
 #if DISABLED(MAPPER_NON) && DISABLED(MAPPER_C2C3) && DISABLED(MAPPER_D0D1) && DISABLED(MAPPER_D0D1_MOD) && DISABLED(MAPPER_E382E383)
-  #define MAPPER_NON         // For direct asci codes
+  #define MAPPER_NON         // For direct ascii codes
 #endif
 
 //#define SIMULATE_ROMFONT //Comment in to see what is seen on the character based displays
@@ -38,6 +38,9 @@
 #endif
 #ifndef MSG_AUTO_HOME
   #define MSG_AUTO_HOME                       "Auto home"
+#endif
+#ifndef MSG_LEVEL_BED_HOMING
+  #define MSG_LEVEL_BED_HOMING                "Homing"
 #endif
 #ifndef MSG_SET_HOME_OFFSETS
   #define MSG_SET_HOME_OFFSETS                "Set home offsets"

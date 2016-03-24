@@ -1,7 +1,7 @@
 #!/usr/bin/python
 """Thermistor Value Lookup Table Generator
 
-Generates lookup to temperature values for use in a microcontroller in C format based on: 
+Generates lookup to temperature values for use in a microcontroller in C format based on:
 http://en.wikipedia.org/wiki/Steinhart-Hart_equation
 
 The main use is for Arduino programs that read data from the circuit board described here:
@@ -26,7 +26,7 @@ import getopt
 ZERO   = 273.15                             # zero point of Kelvin scale
 VADC   = 5                                  # ADC voltage
 VCC    = 5                                  # supply voltage
-ARES   = 2**10                              # 10 Bit ADC resolution
+ARES   = pow(2,10)                          # 10 Bit ADC resolution
 VSTEP  = VADC / ARES                        # ADC voltage resolution
 TMIN   = 0                                  # lowest temperature in table
 TMAX   = 350                                # highest temperature in table
@@ -45,7 +45,7 @@ class Thermistor:
         c = (y - x) / ((l3 - l2) * (l1 + l2 + l3))
         b = x - c * (l1**2 + l2**2 + l1*l2)
         a = y1 - (b + l1**2 *c)*l1
-        
+
         if c < 0:
             print "//////////////////////////////////////////////////////////////////////////////////////"
             print "// WARNING: negative coefficient 'c'! Something may be wrong with the measurements! //"
@@ -73,13 +73,13 @@ class Thermistor:
     def temp(self, adc):
         "Convert ADC reading into a temperature in Celcius"
         l = log(self.resist(adc))
-        Tinv = self.c1 + self.c2*l + self.c3* l**3) # inverse temperature
+        Tinv = self.c1 + self.c2*l + self.c3* l**3 # inverse temperature
         return (1/Tinv) - ZERO              # temperature
 
     def adc(self, temp):
         "Convert temperature into a ADC reading"
         x = (self.c1 - (1.0 / (temp+ZERO))) / (2*self.c3)
-        y = sqrt((self.c2 / (3*self.c3)**3 + x**2)
+        y = sqrt((self.c2 / (3*self.c3))**3 + x**2)
         r = exp((y-x)**(1.0/3) - (y+x)**(1.0/3))
         return (r / (self.rp + r)) * ARES
 
@@ -93,7 +93,7 @@ def main(argv):
     r3 = 226.15                             # resistance at high temperature (226.15 Ohm)
     rp = 4700;                              # pull-up resistor (4.7 kOhm)
     num_temps = 36;                         # number of entries for look-up table
-    
+
     try:
         opts, args = getopt.getopt(argv, "h", ["help", "rp=", "t1=", "t2=", "t3=", "num-temps="])
     except getopt.GetoptError as err:

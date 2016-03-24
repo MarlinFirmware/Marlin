@@ -31,7 +31,7 @@
 #define Z_DIR_PIN          28
 #define Z_ENABLE_PIN       37
 #define Z_MAX_PIN          36
-#define Z_MIN_PIN          17  // Bed Z probe
+#define Z_MIN_PROBE_PIN    17  // Bed Z probe
 
 #define E0_STEP_PIN        35
 #define E0_DIR_PIN         34
@@ -53,7 +53,6 @@
 #define LED_PIN            19
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
-#define ALARM_PIN          -1
 #define SD_DETECT_PIN      12
 
 #if DISABLED(SDSUPPORT)

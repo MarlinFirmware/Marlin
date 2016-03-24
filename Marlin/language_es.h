@@ -2,7 +2,7 @@
  * Spanish
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_ES_H
@@ -20,6 +20,7 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Apagar motores"
 #define MSG_AUTO_HOME                       "Llevar al origen"
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "Ajustar offsets"
 #define MSG_SET_ORIGIN                      "Establecer cero"
 #define MSG_PREHEAT_PLA                     "Precalentar PLA"
@@ -38,6 +39,7 @@
 #define MSG_EXTRUDE                         "Extruir"
 #define MSG_RETRACT                         "Retraer"
 #define MSG_MOVE_AXIS                       "Mover ejes"
+#define MSG_LEVEL_BED                       "Nivelar cama"
 #define MSG_MOVE_X                          "Mover X"
 #define MSG_MOVE_Y                          "Mover Y"
 #define MSG_MOVE_Z                          "Mover Z"
