@@ -204,7 +204,7 @@ Here are some standard links for getting your machine calibrated:
   #define PID_INTEGRAL_DRIVE_MAX PID_MAX  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
 
-  // If you are using a preconfigured hotend then you can use one of the value sets by uncommenting it
+  // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
   // Buda 2.0 on 24V
   #define  DEFAULT_Kp 6
   #define  DEFAULT_Ki .3
@@ -257,6 +257,7 @@ Here are some standard links for getting your machine calibrated:
 //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
 #if ENABLED(PIDTEMPBED)
+
   #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER //limit for the integral term
 
   //24V 360W silicone heater from NPH on 3mm borosilicate (TAZ 2.2+)
@@ -361,7 +362,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //============================= Z Probe Options =============================
 //===========================================================================
 
-// Enable Z_MIN_PROBE_ENDSTOP to use _both_ a Z-probe and a Z-min-endstop on the same machine.
+// Enable Z_MIN_PROBE_ENDSTOP to use _both_ a Z Probe and a Z-min-endstop on the same machine.
 // With this option the Z_MIN_PROBE_PIN will only be used for probing, never for homing.
 //
 // *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
@@ -393,16 +394,16 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 //#define Z_MIN_PROBE_ENDSTOP
 
-// If you want to use the Z_MIN_PIN to connect your Z_MIN_PROBE comment out the next define.
-// In other words. The z-min-probe is connected to the Z_MIN_PIN and is used for homing and for probing.
+// Enable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN to use the Z_MIN_PIN for your Z_MIN_PROBE.
+// The Z_MIN_PIN will then be used for both Z-homing and probing.
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-// If you want to use a probe you do have to define one of the two defines above!
 
-// If you want to enable the Z probe pin, but disable its use, uncomment the line below.
-// This only affects a Z probe endstop if you have separate Z min endstop as well and have
-// activated Z_MIN_PROBE_ENDSTOP above. If you are using the Z Min endstop on your Z probe,
-// this has no effect.
-// In other words. If a Z_MIN_PROBE_PIN is defined in your pin file - don't use it.
+// To use a probe you must enable one of the two options above!
+
+// This option disables the use of the Z_MIN_PROBE_PIN
+// To enable the Z probe pin but disable its use, uncomment the line below. This only affects a
+// Z probe switch if you have a separate Z min endstop also and have activated Z_MIN_PROBE_ENDSTOP above.
+// If you're using the Z MIN endstop connector for your Z probe, this has no effect.
 //#define DISABLE_Z_MIN_PROBE_ENDSTOP
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
@@ -508,7 +509,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 //#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
 //#define DEBUG_LEVELING_FEATURE
-#define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
+#define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
@@ -571,7 +572,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //    O-- FRONT --+
   //  (0,0)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -25     // X offset: -left  [of the nozzle] +right
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // Z offset: -front [of the nozzle] +behind
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // Y offset: -front [of the nozzle] +behind
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35  // Z offset: -below [the nozzle] (always negative!)
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
@@ -593,14 +594,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   // A Servo Probe can be defined in the servo section below.
 
-  // A Allen Key Probe is currently predefined only in the delta example configurations.
+  // An Allen Key Probe is currently predefined only in the delta example configurations.
 
-  //#define Z_PROBE_SLED // Turn on if you have a Z probe mounted on a sled like those designed by Charles Bell.
+  //#define Z_PROBE_SLED // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
   //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-
-  //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-  //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
+  // If you've enabled AUTO_BED_LEVELING_FEATURE and are using the Z Probe for Z Homing,
+  // it is highly recommended you leave Z_SAFE_HOMING enabled!
 
   #define Z_SAFE_HOMING   // Use the z-min-probe for homing to z-min - not the z-min-endstop.
                           // This feature is meant to avoid Z homing with Z probe outside the bed area.
@@ -616,37 +616,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
 
   #endif
-
-  // Support for a dedicated Z probe endstop separate from the Z min endstop.
-  // If you would like to use both a Z probe and a Z min endstop together,
-  // uncomment #define Z_MIN_PROBE_ENDSTOP and read the instructions below.
-  // If you still want to use the Z min endstop for homing, disable Z_SAFE_HOMING above.
-  // Example: To park the head outside the bed area when homing with G28.
-  //
-  // WARNING:
-  // The Z min endstop will need to set properly as it would without a Z probe
-  // to prevent head crashes and premature stopping during a print.
-  //
-  // To use a separate Z probe endstop, you must have a Z_MIN_PROBE_PIN
-  // defined in the pins_XXXXX.h file for your control board.
-  // If you are using a servo based Z probe, you will need to enable NUM_SERVOS,
-  // Z_ENDSTOP_SERVO_NR and SERVO_ENDSTOP_ANGLES in the R/C SERVO support below.
-  // RAMPS 1.3/1.4 boards may be able to use the 5V, Ground and the D32 pin
-  // in the Aux 4 section of the RAMPS board. Use 5V for powered sensors,
-  // otherwise connect to ground and D32 for normally closed configuration
-  // and 5V and D32 for normally open configurations.
-  // Normally closed configuration is advised and assumed.
-  // The D32 pin in Aux 4 on RAMPS maps to the Arduino D32 pin.
-  // Z_MIN_PROBE_PIN is setting the pin to use on the Arduino.
-  // Since the D32 pin on the RAMPS maps to D32 on Arduino, this works.
-  // D32 is currently selected in the RAMPS 1.3/1.4 pin file.
-  // All other boards will need changes to the respective pins_XXXXX.h file.
-  //
-  // WARNING:
-  // Setting the wrong pin may have unexpected and potentially disastrous outcomes.
-  // Use with caution and do your homework.
-  //
-  //#define Z_MIN_PROBE_ENDSTOP
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
