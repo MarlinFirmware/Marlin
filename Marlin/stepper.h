@@ -54,6 +54,9 @@ void endstops_hit_on_purpose(); //avoid creation of the message, i.e. after homi
 
 void enable_endstops(bool check); // Enable/disable endstop checking
 
+void enable_endstops_globally(bool check);
+void endstops_not_homing();
+
 void checkStepperErrors(); //Print errors detected by the stepper
 
 void finishAndDisableSteppers();
