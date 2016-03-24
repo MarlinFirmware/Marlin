@@ -3413,6 +3413,7 @@ inline void gcode_G92() {
     #else
       sync_plan_position();
     #endif
+    gcode_M114(); // Send end position to RepetierHost
   }
 }
 
