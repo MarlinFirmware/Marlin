@@ -498,9 +498,13 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
   spiRec();
 #endif
   chipSelectHigh();
+  // Send an additional dummy byte, required by Toshiba Flash Air SD Card
+  spiSend(0XFF);
   return true;
 fail:
   chipSelectHigh();
+  // Send an additional dummy byte, required by Toshiba Flash Air SD Card
+  spiSend(0XFF);
   return false;
 }
 //------------------------------------------------------------------------------
