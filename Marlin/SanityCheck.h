@@ -458,13 +458,13 @@
 #elif defined(CUSTOM_MENDEL_NAME)
   #error CUSTOM_MENDEL_NAME is now CUSTOM_MACHINE_NAME. Please update your configuration.
 #elif defined(HAS_AUTOMATIC_VERSIONING)
-  #error HAS_AUTOMATIC_VERSIONING deprecated - use USE_AUTOMATIC_VERSIONING instead
+  #error HAS_AUTOMATIC_VERSIONING is now USE_AUTOMATIC_VERSIONING. Please update your configuration.
 #elif defined(ENABLE_AUTO_BED_LEVELING)
-  #error ENABLE_AUTO_BED_LEVELING deprecated - use AUTO_BED_LEVELING_FEATURE instead
+  #error ENABLE_AUTO_BED_LEVELING is now AUTO_BED_LEVELING_FEATURE. Please update your configuration.
 #elif defined(SDSLOW)
-  #error SDSLOW deprecated - set SPI_SPEED to SPI_HALF_SPEED instead
+  #error SDSLOW deprecated. Set SPI_SPEED to SPI_HALF_SPEED instead.
 #elif defined(SDEXTRASLOW)
-  #error SDEXTRASLOW deprecated - set SPI_SPEED to SPI_QUARTER_SPEED instead
+  #error SDEXTRASLOW deprecated. Set SPI_SPEED to SPI_QUARTER_SPEED instead.
 #elif defined(Z_RAISE_BEFORE_HOMING)
   #error Z_RAISE_BEFORE_HOMING is deprecated. Use MIN_Z_HEIGHT_FOR_HOMING instead.
 #elif defined(FILAMENT_SENSOR)
