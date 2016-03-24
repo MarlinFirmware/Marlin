@@ -13,21 +13,21 @@ You'll always find the latest Release Candidate in the ["RC" branch](https://git
 Future development (Marlin 1.2 and beyond) takes place in the [MarlinDev repository](https://github.com/MarlinFirmware/MarlinDev/).
 
 ## Recent Changes
-RC4 - 24 Mar 2016
-      Many lingering bugs and nagging issues addressed
-      Improvements to LCD menus, CoreXY/CoreXZ, Delta, Bed Leveling, and more…
+- RC4 - 24 Mar 2016
+  - Many lingering bugs and nagging issues addressed
+  - Improvements to LCD menus, CoreXY/CoreXZ, Delta, Bed Leveling, and more…
 
-RC3 - 01 Dec 2015
-      A number of language sensitive strings have been revised
-      Formatting of the LCD display has been improved to handle negative coordinates better
-      Various compiler-related issues have been corrected
+- RC3 - 01 Dec 2015
+  - A number of language sensitive strings have been revised
+  - Formatting of the LCD display has been improved to handle negative coordinates better
+  - Various compiler-related issues have been corrected
 
-RC2 - 29 Sep 2015
-      File styling reverted
-      LCD update frequency reduced
+- RC2 - 29 Sep 2015
+  - File styling reverted
+  - LCD update frequency reduced
 
-RC1 - 19 Sep 2015
-      Published for testing
+- RC1 - 19 Sep 2015
+  - Published for testing
 
 ## Submitting Patches
 Proposed patches should be submitted as a Pull Request against the [RCBugFix](https://github.com/MarlinFirmware/Marlin/tree/RCBugFix) branch.
