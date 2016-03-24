@@ -2,7 +2,7 @@
  * English
  *
  * LCD Menu Messages
- * Se also documentation/LCDLanguageFont.md
+ * Se also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_EN_H
