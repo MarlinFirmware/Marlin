@@ -461,6 +461,8 @@ void serial_echopair_P(const char* s_P, float v)         { serialprintPGM(s_P); 
 void serial_echopair_P(const char* s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
+void gcode_M114();
+
 #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
   float extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
@@ -2696,6 +2698,8 @@ inline void gcode_G28() {
     }
   #endif
 
+  gcode_M114(); // Send end position to RepetierHost
+
 }
 
 #if ENABLED(MESH_BED_LEVELING)
@@ -3332,6 +3336,8 @@ inline void gcode_G28() {
       }
     #endif
 
+    gcode_M114(); // Send end position to RepetierHost
+
   }
 
   #if DISABLED(Z_PROBE_SLED) // could be avoided
@@ -3366,6 +3372,8 @@ inline void gcode_G28() {
         raise_z_for_servo();
       #endif
       stow_z_probe(false); // Retract Z Servo endstop if available. Z_PROBE_SLED is missed her.
+    
+      gcode_M114(); // Send end position to RepetierHost
     }
 
   #endif //!Z_PROBE_SLED
@@ -3932,6 +3940,8 @@ inline void gcode_M42() {
     delay(25);
 
     clean_up_after_endstop_move();
+  
+    gcode_M114(); // Send end position to RepetierHost
   }
 
 #endif // AUTO_BED_LEVELING_FEATURE && Z_MIN_PROBE_REPEATABILITY_TEST
