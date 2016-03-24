@@ -1,5 +1,6 @@
-/**
- * Marlin Firmware
+/*
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,6 +17,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/*
  *
  * About Marlin
  *
@@ -3380,7 +3385,7 @@ inline void gcode_G28() {
         raise_z_for_servo();
       #endif
       stow_z_probe(false); // Retract Z Servo endstop if available. Z_PROBE_SLED is missed her.
-    
+
       gcode_M114(); // Send end position to RepetierHost
     }
 
@@ -3948,7 +3953,7 @@ inline void gcode_M42() {
     delay(25);
 
     clean_up_after_endstop_move();
-  
+
     gcode_M114(); // Send end position to RepetierHost
   }
 
@@ -5147,7 +5152,7 @@ inline void gcode_M303() {
   int e = code_seen('E') ? code_value_short() : 0;
   int c = code_seen('C') ? code_value_short() : 5;
   bool u = code_seen('U') && code_value_short() != 0;
-  
+
   float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
 
   if (e >= 0 && e < EXTRUDERS)
