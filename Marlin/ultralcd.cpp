@@ -1067,6 +1067,33 @@ static void lcd_control_menu() {
  *
  */
 
+#if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
+
+  #if ENABLED(PIDTEMP)
+    int autotune_temp[EXTRUDERS] = { 150 };
+    const int heater_maxtemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP);
+  #endif
+
+  #if ENABLED(PIDTEMPBED)
+    int autotune_temp_bed = 70;
+  #endif
+
+  static void _lcd_autotune(int e) {
+    char cmd[30];
+    sprintf_P(cmd, PSTR("M303 U1 E%d S%d"), e,
+      #if ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED)
+        e < 0 ? autotune_temp_bed : autotune_temp[e]
+      #elif ENABLED(PIDTEMPBED)
+        autotune_temp_bed
+      #else
+        autotune_temp[e]
+      #endif
+    );
+    enqueue_and_echo_command_now(cmd);
+  }
+
+#endif PIDTEMP || PIDTEMPBED
+
 #if ENABLED(PIDTEMP)
 
   // Helpers for editing PID Ki & Kd values
@@ -1079,18 +1106,19 @@ static void lcd_control_menu() {
     PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
     updatePID();
   }
-  #define COPY_AND_SCALE(eindex) \
+  #define _PIDTEMP_FUNCTIONS(eindex) \
     void copy_and_scalePID_i_E ## eindex() { copy_and_scalePID_i(eindex); } \
-    void copy_and_scalePID_d_E ## eindex() { copy_and_scalePID_d(eindex); }
+    void copy_and_scalePID_d_E ## eindex() { copy_and_scalePID_d(eindex); } \
+    void lcd_autotune_callback_E ## eindex() { _lcd_autotune(eindex); }
 
-  COPY_AND_SCALE(0);
+  _PIDTEMP_FUNCTIONS(0);
   #if ENABLED(PID_PARAMS_PER_EXTRUDER)
     #if EXTRUDERS > 1
-      COPY_AND_SCALE(1);
+      _PIDTEMP_FUNCTIONS(1);
       #if EXTRUDERS > 2
-        COPY_AND_SCALE(2);
+        _PIDTEMP_FUNCTIONS(2);
         #if EXTRUDERS > 3
-          COPY_AND_SCALE(3);
+          _PIDTEMP_FUNCTIONS(3);
         #endif //EXTRUDERS > 3
       #endif //EXTRUDERS > 2
     #endif //EXTRUDERS > 1
@@ -1176,15 +1204,15 @@ static void lcd_control_temperature_menu() {
   #endif
 
   //
-  // PID-P, PID-I, PID-D, PID-C
-  // PID-P E1, PID-I E1, PID-D E1, PID-C E1
-  // PID-P E2, PID-I E2, PID-D E2, PID-C E2
-  // PID-P E3, PID-I E3, PID-D E3, PID-C E3
-  // PID-P E4, PID-I E4, PID-D E4, PID-C E4
+  // PID-P, PID-I, PID-D, PID-C, PID Autotune
+  // PID-P E1, PID-I E1, PID-D E1, PID-C E1, PID Autotune E1
+  // PID-P E2, PID-I E2, PID-D E2, PID-C E2, PID Autotune E2
+  // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
+  // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
   //
   #if ENABLED(PIDTEMP)
 
-    #define _PID_MENU_ITEMS(ELABEL, eindex) \
+    #define _PID_BASE_MENU_ITEMS(ELABEL, eindex) \
       raw_Ki = unscalePID_i(PID_PARAM(Ki, eindex)); \
       raw_Kd = unscalePID_d(PID_PARAM(Kd, eindex)); \
       MENU_ITEM_EDIT(float52, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
@@ -1192,12 +1220,16 @@ static void lcd_control_temperature_menu() {
       MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
 
     #if ENABLED(PID_ADD_EXTRUSION_RATE)
-      #define PID_MENU_ITEMS(ELABEL, eindex) \
-        _PID_MENU_ITEMS(ELABEL, eindex); \
+      #define _PID_MENU_ITEMS(ELABEL, eindex) \
+        _PID_BASE_MENU_ITEMS(ELABEL, eindex); \
         MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
     #else
-      #define PID_MENU_ITEMS(ELABEL, eindex) _PID_MENU_ITEMS(ELABEL, eindex)
+      #define _PID_MENU_ITEMS(ELABEL, eindex) _PID_BASE_MENU_ITEMS(ELABEL, eindex)
     #endif
+
+    #define PID_MENU_ITEMS(ELABEL, eindex) \
+      _PID_MENU_ITEMS(ELABEL, eindex); \
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_PID_AUTOTUNE ELABEL, &autotune_temp[eindex], 150, heater_maxtemp[eindex] - 15, lcd_autotune_callback_E ## eindex)
 
     #if ENABLED(PID_PARAMS_PER_EXTRUDER) && EXTRUDERS > 1
       PID_MENU_ITEMS(MSG_E1, 0);
