@@ -2412,6 +2412,7 @@ char* ftostr52(const float& x) {
         if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
           line_to_current(Z_AXIS);
+          st_synchronize();
           mbl.active = 1;
           enqueue_and_echo_commands_P(PSTR("G28"));
           lcd_return_to_status();
