@@ -32,8 +32,8 @@
  * Babystepping
  */
 #if ENABLED(BABYSTEPPING)
-  #if ENABLED(COREXY) && ENABLED(BABYSTEP_XY)
-    #error BABYSTEPPING only implemented for Z axis on CoreXY.
+  #if DISABLED(ULTRA_LCD)
+    #error BABYSTEPPING requires an LCD controller.
   #endif
   #if ENABLED(SCARA)
     #error BABYSTEPPING is not implemented for SCARA yet.
@@ -112,6 +112,7 @@
 /**
  * Mesh Bed Leveling
  */
+
 #if ENABLED(MESH_BED_LEVELING)
   #if ENABLED(DELTA)
     #error MESH_BED_LEVELING does not yet support DELTA printers.
@@ -122,7 +123,37 @@
   #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
     #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8.
   #endif
+#elif ENABLED(MANUAL_BED_LEVELING)
+  #error MESH_BED_LEVELING is required for MANUAL_BED_LEVELING.
 #endif
+
+/**
+ * Probes
+ */
+
+  /**
+   * A probe needs a pin
+   */
+#if (!((HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || HAS_Z_PROBE )) && ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED))
+  #error A probe needs a pin! [Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN || HAS_Z_PROBE]
+#endif
+
+#if ((HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) && HAS_Z_PROBE) && ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED))
+  #error A probe should not be connected to more then one pin! [Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN || HAS_Z_PROBE]
+#endif
+
+  /**
+    * Require one kind of probe
+    */
+#if ENABLED(AUTO_BED_LEVELING_FEATURE) && !( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED))
+  #error For AUTO_BED_LEVELING_FEATURE define one kind of probe! {Servo | Z_PROBE_ALLEN_KEY | Z_PROBE_SLED | FIX_MOUNTED_PROBE]
+#endif
+
+#if ENABLED(Z_SAFE_HOMING)&& !( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED))
+  #error For Z_SAFE_HOMING define one kind of probe! {Servo | Z_PROBE_ALLEN_KEY | Z_PROBE_SLED | FIX_MOUNTED_PROBE]
+#endif
+
+// To do: Fail with more then one probe defined
 
 /**
  * Auto Bed Leveling
@@ -228,10 +259,6 @@
       #error You cannot use Z_PROBE_SLED with DELTA.
     #endif
 
-    #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-      #error Z_MIN_PROBE_REPEATABILITY_TEST is not supported with DELTA yet.
-    #endif
-
   #endif
 
 #endif
@@ -261,20 +288,34 @@
 /**
  * Make sure auto fan pins don't conflict with the fan pin
  */
-#if HAS_AUTO_FAN && HAS_FAN
-  #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN.
-  #elif EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN.
-  #elif EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN.
-  #elif EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN.
+#if HAS_AUTO_FAN
+  #if HAS_FAN0
+    #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN.
+    #elif EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN.
+    #elif EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN.
+    #elif EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN.
+    #endif
   #endif
 #endif
 
-#if HAS_FAN && CONTROLLERFAN_PIN == FAN_PIN
+#if HAS_FAN0 && CONTROLLERFAN_PIN == FAN_PIN
   #error You cannot set CONTROLLERFAN_PIN equal to FAN_PIN.
+#endif
+
+#if HAS_CONTROLLERFAN
+  #if EXTRUDER_0_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #elif EXTRUDER_1_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #elif EXTRUDER_2_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #elif EXTRUDER_3_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #endif
 #endif
 
 /**
@@ -361,6 +402,12 @@
   #error HAS_AUTOMATIC_VERSIONING deprecated - use USE_AUTOMATIC_VERSIONING instead
 #elif defined(ENABLE_AUTO_BED_LEVELING)
   #error ENABLE_AUTO_BED_LEVELING deprecated - use AUTO_BED_LEVELING_FEATURE instead
+#elif defined(SDSLOW)
+  #error SDSLOW deprecated - set SPI_SPEED to SPI_HALF_SPEED instead
+#elif defined(SDEXTRASLOW)
+  #error SDEXTRASLOW deprecated - set SPI_SPEED to SPI_QUARTER_SPEED instead
+#elif defined(Z_RAISE_BEFORE_HOMING)
+  #error Z_RAISE_BEFORE_HOMING is deprecated. Use MIN_Z_HEIGHT_FOR_HOMING instead.
 #endif
 
 #endif //SANITYCHECK_H

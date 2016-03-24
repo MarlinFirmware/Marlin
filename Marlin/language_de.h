@@ -2,7 +2,7 @@
  * German
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_DE_H
@@ -20,6 +20,7 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Motoren Aus" // M84
 #define MSG_AUTO_HOME                       "Home" // G28
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "Setze Home hier"
 #define MSG_SET_ORIGIN                      "Setze Null hier" //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
 #define MSG_PREHEAT_PLA                     "Vorwärmen PLA"

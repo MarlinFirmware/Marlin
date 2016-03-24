@@ -2,8 +2,8 @@
 
 #if ENABLED(MESH_BED_LEVELING)
 
-  #define MESH_X_DIST ((MESH_MAX_X - MESH_MIN_X)/(MESH_NUM_X_POINTS - 1))
-  #define MESH_Y_DIST ((MESH_MAX_Y - MESH_MIN_Y)/(MESH_NUM_Y_POINTS - 1))
+  #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X))/(MESH_NUM_X_POINTS - 1))
+  #define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y))/(MESH_NUM_Y_POINTS - 1))
 
   class mesh_bed_leveling {
   public:
@@ -14,8 +14,8 @@
 
     void reset();
 
-    float get_x(int i) { return MESH_MIN_X + MESH_X_DIST * i; }
-    float get_y(int i) { return MESH_MIN_Y + MESH_Y_DIST * i; }
+    float get_x(int i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
+    float get_y(int i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
     void set_z(int ix, int iy, float z) { z_values[iy][ix] = z; }
 
     int select_x_index(float x) {

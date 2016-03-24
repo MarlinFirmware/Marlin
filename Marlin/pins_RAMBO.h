@@ -12,7 +12,7 @@
 #define SERVO0_PIN 22 // Motor header MX1
 #define SERVO1_PIN 23 // Motor header MX2
 #define SERVO2_PIN 24 // Motor header MX3
-#define SERVO2_PIN  5 // PWM header pin 5
+#define SERVO3_PIN  5 // PWM header pin 5
 
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
@@ -82,7 +82,6 @@
 #define E1_MS1_PIN 63
 #define E1_MS2_PIN 64
 
-#undef DIGIPOTSS_PIN
 #define DIGIPOTSS_PIN 38
 #define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
 

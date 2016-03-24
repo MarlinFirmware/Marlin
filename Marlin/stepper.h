@@ -24,31 +24,6 @@
 #include "planner.h"
 #include "stepper_indirection.h"
 
-#if EXTRUDERS > 3
-  #define E_STEP_WRITE(v) { if(current_block->active_extruder == 3) { E3_STEP_WRITE(v); } else { if(current_block->active_extruder == 2) { E2_STEP_WRITE(v); } else { if(current_block->active_extruder == 1) { E1_STEP_WRITE(v); } else { E0_STEP_WRITE(v); }}}}
-  #define NORM_E_DIR() { if(current_block->active_extruder == 3) { E3_DIR_WRITE( !INVERT_E3_DIR); } else { if(current_block->active_extruder == 2) { E2_DIR_WRITE(!INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { E1_DIR_WRITE(!INVERT_E1_DIR); } else { E0_DIR_WRITE(!INVERT_E0_DIR); }}}}
-  #define REV_E_DIR() { if(current_block->active_extruder == 3) { E3_DIR_WRITE(INVERT_E3_DIR); } else { if(current_block->active_extruder == 2) { E2_DIR_WRITE(INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { E1_DIR_WRITE(INVERT_E1_DIR); } else { E0_DIR_WRITE(INVERT_E0_DIR); }}}}
-#elif EXTRUDERS > 2
-  #define E_STEP_WRITE(v) { if(current_block->active_extruder == 2) { E2_STEP_WRITE(v); } else { if(current_block->active_extruder == 1) { E1_STEP_WRITE(v); } else { E0_STEP_WRITE(v); }}}
-  #define NORM_E_DIR() { if(current_block->active_extruder == 2) { E2_DIR_WRITE(!INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { E1_DIR_WRITE(!INVERT_E1_DIR); } else { E0_DIR_WRITE(!INVERT_E0_DIR); }}}
-  #define REV_E_DIR() { if(current_block->active_extruder == 2) { E2_DIR_WRITE(INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { E1_DIR_WRITE(INVERT_E1_DIR); } else { E0_DIR_WRITE(INVERT_E0_DIR); }}}
-#elif EXTRUDERS > 1
-  #if DISABLED(DUAL_X_CARRIAGE)
-    #define E_STEP_WRITE(v) { if(current_block->active_extruder == 1) { E1_STEP_WRITE(v); } else { E0_STEP_WRITE(v); }}
-    #define NORM_E_DIR() { if(current_block->active_extruder == 1) { E1_DIR_WRITE(!INVERT_E1_DIR); } else { E0_DIR_WRITE(!INVERT_E0_DIR); }}
-    #define REV_E_DIR() { if(current_block->active_extruder == 1) { E1_DIR_WRITE(INVERT_E1_DIR); } else { E0_DIR_WRITE(INVERT_E0_DIR); }}
-  #else
-    extern bool extruder_duplication_enabled;
-    #define E_STEP_WRITE(v) { if(extruder_duplication_enabled) { E0_STEP_WRITE(v); E1_STEP_WRITE(v); } else if(current_block->active_extruder == 1) { E1_STEP_WRITE(v); } else { E0_STEP_WRITE(v); }}
-    #define NORM_E_DIR() { if(extruder_duplication_enabled) { E0_DIR_WRITE(!INVERT_E0_DIR); E1_DIR_WRITE(!INVERT_E1_DIR); } else if(current_block->active_extruder == 1) { E1_DIR_WRITE(!INVERT_E1_DIR); } else { E0_DIR_WRITE(!INVERT_E0_DIR); }}
-    #define REV_E_DIR() { if(extruder_duplication_enabled) { E0_DIR_WRITE(INVERT_E0_DIR); E1_DIR_WRITE(INVERT_E1_DIR); } else if(current_block->active_extruder == 1) { E1_DIR_WRITE(INVERT_E1_DIR); } else { E0_DIR_WRITE(INVERT_E0_DIR); }}
-  #endif
-#else
-  #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
-  #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
-  #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
-#endif
-
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   extern bool abort_on_endstop_hit;
 #endif
@@ -66,8 +41,8 @@ void st_set_e_position(const long& e);
 // Get current position in steps
 long st_get_position(uint8_t axis);
 
-// Get current position in mm
-float st_get_position_mm(AxisEnum axis);
+// Get current axis position in mm
+float st_get_axis_position_mm(AxisEnum axis);
 
 // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
 // to notify the subsystem that it is time to go to work.
@@ -79,6 +54,9 @@ void endstops_hit_on_purpose(); //avoid creation of the message, i.e. after homi
 
 void enable_endstops(bool check); // Enable/disable endstop checking
 
+void enable_endstops_globally(bool check);
+void endstops_not_homing();
+
 void checkStepperErrors(); //Print errors detected by the stepper
 
 void finishAndDisableSteppers();
@@ -87,7 +65,9 @@ extern block_t* current_block;  // A pointer to the block currently being traced
 
 void quickStop();
 
-void digitalPotWrite(int address, int value);
+#if HAS_DIGIPOTSS
+  void digitalPotWrite(int address, int value);
+#endif
 void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2);
 void microstep_mode(uint8_t driver, uint8_t stepping);
 void digipot_init();

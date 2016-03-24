@@ -2,7 +2,7 @@
  * Danish
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_DA_H
@@ -21,6 +21,7 @@
 #define MSG_AUTO_HOME                       "Home" // G28
 #define MSG_COOLDOWN                        "Afkøl"
 #define MSG_DISABLE_STEPPERS                "Slå stepper fra"
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "Sæt home offsets"
 #define MSG_SET_ORIGIN                      "Sæt origin"
 #define MSG_SWITCH_PS_ON                    "Slå strøm til"

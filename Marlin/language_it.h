@@ -2,7 +2,7 @@
  * Italian
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_IT_H
@@ -20,6 +20,7 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Disabilita Motori"
 #define MSG_AUTO_HOME                       "Auto Home"
+#define MSG_LEVEL_BED_HOMING                "Homing"
 #define MSG_SET_HOME_OFFSETS                "Setta offset home"
 #define MSG_SET_ORIGIN                      "Imposta Origine"
 #define MSG_PREHEAT_PLA                     "Preriscalda PLA"
@@ -38,6 +39,7 @@
 #define MSG_EXTRUDE                         "Estrudi"
 #define MSG_RETRACT                         "Ritrai"
 #define MSG_MOVE_AXIS                       "Muovi Asse"
+#define MSG_LEVEL_BED                       "Livellamento piano"
 #define MSG_MOVE_X                          "Muovi X"
 #define MSG_MOVE_Y                          "Muovi Y"
 #define MSG_MOVE_Z                          "Muovi Z"

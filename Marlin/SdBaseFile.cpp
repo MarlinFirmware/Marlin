@@ -291,7 +291,7 @@ bool SdBaseFile::getFilename(char* name) {
   return true;
 }
 //------------------------------------------------------------------------------
-void SdBaseFile::getpos(fpos_t* pos) {
+void SdBaseFile::getpos(filepos_t* pos) {
   pos->position = curPosition_;
   pos->cluster = curCluster_;
 }
@@ -923,7 +923,7 @@ fail:
  * \return The byte if no error and not at eof else -1;
  */
 int SdBaseFile::peek() {
-  fpos_t pos;
+  filepos_t pos;
   getpos(&pos);
   int c = read();
   if (c >= 0) setpos(&pos);
@@ -1049,9 +1049,8 @@ int16_t SdBaseFile::read(void* buf, uint16_t nbyte) {
   if (!isOpen() || !(flags_ & O_READ)) goto fail;
 
   // max bytes left in file
-  if (nbyte >= (fileSize_ - curPosition_)) {
-    nbyte = fileSize_ - curPosition_;
-  }
+  NOMORE(nbyte, fileSize_ - curPosition_);
+
   // amount left to read
   toRead = nbyte;
   while (toRead > 0) {
@@ -1077,7 +1076,7 @@ int16_t SdBaseFile::read(void* buf, uint16_t nbyte) {
     uint16_t n = toRead;
 
     // amount to be read from current block
-    if (n > (512 - offset)) n = 512 - offset;
+    NOMORE(n, 512 - offset);
 
     // no buffering needed if n == 512
     if (n == 512 && block != vol_->cacheBlockNumber()) {
@@ -1135,7 +1134,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
       // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
       if (VFAT->firstClusterLow == 0 && (VFAT->sequenceNumber & 0x1F) > 0 && (VFAT->sequenceNumber & 0x1F) <= MAX_VFAT_ENTRIES) {
         // TODO: Store the filename checksum to verify if a none-long filename aware system modified the file table.
-        n = ((VFAT->sequenceNumber & 0x1F) - 1) * FILENAME_LENGTH;
+        n = ((VFAT->sequenceNumber & 0x1F) - 1) * (FILENAME_LENGTH);
         for (uint8_t i = 0; i < FILENAME_LENGTH; i++)
           longFilename[n + i] = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i - 5] : VFAT->name3[i - 11];
         // If this VFAT entry is the last one, add a NUL terminator at the end of the string
@@ -1479,7 +1478,7 @@ fail:
   return false;
 }
 //------------------------------------------------------------------------------
-void SdBaseFile::setpos(fpos_t* pos) {
+void SdBaseFile::setpos(filepos_t* pos) {
   curPosition_ = pos->position;
   curCluster_ = pos->cluster;
 }
@@ -1758,7 +1757,7 @@ int16_t SdBaseFile::write(const void* buf, uint16_t nbyte) {
     uint16_t n = 512 - blockOffset;
 
     // lesser of space and amount to write
-    if (n > nToWrite) n = nToWrite;
+    NOMORE(n, nToWrite);
 
     // block for data write
     uint32_t block = vol_->clusterStartBlock(curCluster_) + blockOfCluster;

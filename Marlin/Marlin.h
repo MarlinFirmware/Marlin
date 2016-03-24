@@ -6,7 +6,7 @@
 
 #define  FORCE_INLINE __attribute__((always_inline)) inline
 /**
- * Compiler warning on unused varable.
+ * Compiler warning on unused variable.
  */
 #define UNUSED(x) (void) (x)
 
@@ -44,13 +44,6 @@ typedef unsigned long millis_t;
 #endif
 
 #include "MarlinSerial.h"
-
-#ifndef cbi
-  #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
-#endif
-#ifndef sbi
-  #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-#endif
 
 #include "WString.h"
 
@@ -110,7 +103,11 @@ FORCE_INLINE void serialprintPGM(const char* str) {
 
 void get_command();
 
-void idle(); // the standard idle routine calls manage_inactivity(false)
+void idle(
+  #if ENABLED(FILAMENTCHANGEENABLE)
+    bool no_stepper_sleep=false  // pass true to keep steppers from disabling on timeout
+  #endif
+);
 
 void manage_inactivity(bool ignore_stepper_queue = false);
 
@@ -217,12 +214,12 @@ void Stop();
  * Debug flags - not yet widely applied
  */
 enum DebugFlags {
-  DEBUG_ECHO          = BIT(0),
-  DEBUG_INFO          = BIT(1),
-  DEBUG_ERRORS        = BIT(2),
-  DEBUG_DRYRUN        = BIT(3),
-  DEBUG_COMMUNICATION = BIT(4),
-  DEBUG_LEVELING      = BIT(5)
+  DEBUG_ECHO          = _BV(0),
+  DEBUG_INFO          = _BV(1),
+  DEBUG_ERRORS        = _BV(2),
+  DEBUG_DRYRUN        = _BV(3),
+  DEBUG_COMMUNICATION = _BV(4),
+  DEBUG_LEVELING      = _BV(5)
 };
 extern uint8_t marlin_debug_flags;
 
@@ -230,8 +227,9 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-bool enqueuecommand(const char* cmd); //put a single ASCII command at the end of the current buffer or return false when it is full
-void enqueuecommands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
+bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); //put a single ASCII command at the end of the current buffer or return false when it is full
+void enqueue_and_echo_command_now(const char* cmd); // enqueue now, only return when the command has been enqueued
+void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
 
 void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
@@ -259,11 +257,9 @@ extern float home_offset[3]; // axis[n].home_offset
 extern float min_pos[3]; // axis[n].min_pos
 extern float max_pos[3]; // axis[n].max_pos
 extern bool axis_known_position[3]; // axis[n].is_known
+extern bool axis_homed[3]; // axis[n].is_homed
 
 #if ENABLED(DELTA)
-  extern float delta[3];
-  extern float endstop_adj[3]; // axis[n].endstop_adj
-  extern float delta_radius;
   #ifndef DELTA_RADIUS_TRIM_TOWER_1
     #define DELTA_RADIUS_TRIM_TOWER_1 0.0
   #endif
@@ -273,7 +269,6 @@ extern bool axis_known_position[3]; // axis[n].is_known
   #ifndef DELTA_RADIUS_TRIM_TOWER_3
     #define DELTA_RADIUS_TRIM_TOWER_3 0.0
   #endif
-  extern float delta_diagonal_rod;
   #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_1
     #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 0.0
   #endif
@@ -283,7 +278,14 @@ extern bool axis_known_position[3]; // axis[n].is_known
   #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_3
     #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
   #endif
+  extern float delta[3];
+  extern float endstop_adj[3]; // axis[n].endstop_adj
+  extern float delta_radius;
+  extern float delta_diagonal_rod;
   extern float delta_segments_per_second;
+  extern float delta_diagonal_rod_trim_tower_1;
+  extern float delta_diagonal_rod_trim_tower_2;
+  extern float delta_diagonal_rod_trim_tower_3;
   void calculate_delta(float cartesian[3]);
   void recalc_delta_settings(float radius, float diagonal_rod);
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
@@ -308,19 +310,17 @@ extern bool axis_known_position[3]; // axis[n].is_known
   extern float extrude_min_temp;
 #endif
 
-extern int fanSpeed;
+#if FAN_COUNT > 0
+  extern int fanSpeeds[FAN_COUNT];
+#endif
 
 #if ENABLED(BARICUDA)
   extern int ValvePressure;
   extern int EtoPPressure;
 #endif
 
-#if ENABLED(FAN_SOFT_PWM)
-  extern unsigned char fanSpeedSoftPwm;
-#endif
-
 #if ENABLED(FILAMENT_SENSOR)
-  extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75
+  extern float filament_width_nominal;  //holds the theoretical filament diameter i.e., 3.00 or 1.75
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
   extern float filament_width_meas; //holds the filament diameter as accurately measured
   extern signed char measurement_delay[];  //ring buffer to delay measurement
@@ -351,6 +351,15 @@ extern uint8_t active_extruder;
   extern void digipot_i2c_init();
 #endif
 
+#if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+  void print_heaterstates();
+#endif
+
 extern void calculate_volumetric_multipliers();
+
+// Print job timer related functions
+millis_t print_job_timer();
+bool print_job_start(millis_t t = 0);
+bool print_job_stop(bool force = false);
 
 #endif //MARLIN_H
