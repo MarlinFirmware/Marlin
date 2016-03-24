@@ -147,6 +147,9 @@
 #ifndef MSG_SPEED
   #define MSG_SPEED                           "Speed"
 #endif
+#ifndef MSG_BED_Z
+  #define MSG_BED_Z                           "Bed Z"
+#endif
 #ifndef MSG_NOZZLE
   #define MSG_NOZZLE                          "Nozzle"
 #endif

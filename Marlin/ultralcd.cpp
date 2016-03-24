@@ -577,6 +577,11 @@ static void lcd_tune_menu() {
   //
   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_multiplier, 10, 999);
 
+  // Manual bed leveling, Bed Z:
+  #if ENABLED(MANUAL_BED_LEVELING)
+    MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+  #endif
+
   //
   // Nozzle:
   // Nozzle [1-4]:
@@ -1310,6 +1315,10 @@ static void lcd_control_motion_menu() {
   MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+  #endif
+  // Manual bed leveling, Bed Z:
+  #if ENABLED(MANUAL_BED_LEVELING)
+    MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
   #endif
   MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 10, 99000);
   MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &max_xy_jerk, 1, 990);
