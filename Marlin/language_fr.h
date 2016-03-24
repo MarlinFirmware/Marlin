@@ -2,7 +2,7 @@
  * French
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_FR_H

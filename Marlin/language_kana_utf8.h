@@ -2,7 +2,7 @@
  * Japanese (Kana UTF8 version)
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 
