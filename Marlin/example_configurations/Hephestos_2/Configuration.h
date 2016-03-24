@@ -335,8 +335,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //============================= Z Probe Options =============================
 //===========================================================================
 
-// Enable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN to use the Z_MIN_PIN for your Z_MIN_PROBE.
-// The Z_MIN_PIN will then be used for both Z-homing and probing.
+// Enable Z_MIN_PROBE_ENDSTOP to use _both_ a Z Probe and a Z-min-endstop on the same machine.
+// With this option the Z_MIN_PROBE_PIN will only be used for probing, never for homing.
 //
 // *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
 //
@@ -367,13 +367,12 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 //#define Z_MIN_PROBE_ENDSTOP
 
-// If you want to use the Z_MIN_PIN to connect your Z_MIN_PROBE comment out the next define.
-// In other words. The z-min-probe is connected to the Z_MIN_PIN and is used for homing and for probing.
+// Enable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN to use the Z_MIN_PIN for your Z_MIN_PROBE.
+// The Z_MIN_PIN will then be used for both Z-homing and probing.
 #define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-// If you want to use a probe you do have to define one of the two defines above!
 
 // To use a probe you must enable one of the two options above!
-//
+
 // This option disables the use of the Z_MIN_PROBE_PIN
 // To enable the Z probe pin but disable its use, uncomment the line below. This only affects a
 // Z probe switch if you have a separate Z min endstop also and have activated Z_MIN_PROBE_ENDSTOP above.
@@ -483,7 +482,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 #define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
 //#define DEBUG_LEVELING_FEATURE
-#define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
+#define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
@@ -583,7 +582,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
                           // - If stepper drivers timeout, it will need X and Y homing again before Z homing.
                           // - Position the Z probe in a defined XY point before Z Homing when homing all axis (G28).
                           // - Block Z homing only when the Z probe is outside bed area.
-
 
   #if ENABLED(Z_SAFE_HOMING)
 
