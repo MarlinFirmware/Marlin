@@ -163,6 +163,9 @@ MCU              ?= at90usb1286
 else ifeq  ($(HARDWARE_MOTHERBOARD),81)
 HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb1286
+else ifeq  ($(HARDWARE_MOTHERBOARD),811)
+HARDWARE_VARIANT ?= Teensy
+MCU              ?= at90usb1286
 else ifeq  ($(HARDWARE_MOTHERBOARD),82)
 HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb646
@@ -287,7 +290,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	SdFile.cpp SdVolume.cpp planner.cpp stepper.cpp \
 	temperature.cpp cardreader.cpp configuration_store.cpp \
 	watchdog.cpp SPI.cpp servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
-	vector_3.cpp qr_solve.cpp buzzer.cpp
+	dac_mcp4728.cpp vector_3.cpp qr_solve.cpp buzzer.cpp
 ifeq ($(LIQUID_TWI2), 0)
 CXXSRC += LiquidCrystal.cpp
 else
