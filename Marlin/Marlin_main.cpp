@@ -5142,13 +5142,15 @@ inline void gcode_M226() {
 inline void gcode_M303() {
   int e = code_seen('E') ? code_value_short() : 0;
   int c = code_seen('C') ? code_value_short() : 5;
+  bool u = code_seen('U') && code_value_short() != 0;
+  
   float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
 
   if (e >=0 && e < EXTRUDERS)
     target_extruder = e;
 
   KEEPALIVE_STATE(NOT_BUSY);
-  PID_autotune(temp, e, c);
+  PID_autotune(temp, e, c, u);
 }
 
 #if ENABLED(SCARA)

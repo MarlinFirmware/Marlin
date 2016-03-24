@@ -199,7 +199,7 @@ static void updateTemperaturesFromRawValues();
 //================================ Functions ================================
 //===========================================================================
 
-void PID_autotune(float temp, int extruder, int ncycles) {
+void PID_autotune(float temp, int extruder, int ncycles, bool set_result /* = false */) {
   float input = 0.0;
   int cycles = 0;
   bool heating = true;
@@ -346,6 +346,23 @@ void PID_autotune(float temp, int extruder, int ncycles) {
       SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(Kp);
       SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(Ki);
       SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(Kd);
+      //Uses the result if set_result is true
+      if (set_result) {
+        if (extruder < 0) {
+          #if ENABLED(PIDTEMPBED)
+            bedKp = Kp;
+            bedKi = scalePID_i(Ki);
+            bedKd = scalePID_d(Kd);
+            updatePID();
+          #endif
+        }
+        else {
+          PID_PARAM(Kp, extruder) = Kp;
+          PID_PARAM(Ki, e) = scalePID_i(Ki);
+          PID_PARAM(Kd, e) = scalePID_d(Kd);
+          updatePID();
+        }
+      }
       return;
     }
     lcd_update();

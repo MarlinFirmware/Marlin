@@ -1176,11 +1176,11 @@ static void lcd_control_temperature_menu() {
   #endif
 
   //
-  // PID-P, PID-I, PID-D, PID-C
-  // PID-P E1, PID-I E1, PID-D E1, PID-C E1
-  // PID-P E2, PID-I E2, PID-D E2, PID-C E2
-  // PID-P E3, PID-I E3, PID-D E3, PID-C E3
-  // PID-P E4, PID-I E4, PID-D E4, PID-C E4
+  // PID-P, PID-I, PID-D, PID-C, PID Autotune
+  // PID-P E1, PID-I E1, PID-D E1, PID-C E1, PID Autotune E1
+  // PID-P E2, PID-I E2, PID-D E2, PID-C E2, PID Autotune E2
+  // PID-P E3, PID-I E3, PID-D E3, PID-C E3, PID Autotune E3
+  // PID-P E4, PID-I E4, PID-D E4, PID-C E4, PID Autotune E4
   //
   #if ENABLED(PIDTEMP)
 
@@ -1190,26 +1190,29 @@ static void lcd_control_temperature_menu() {
       MENU_ITEM_EDIT(float52, MSG_PID_P ELABEL, &PID_PARAM(Kp, eindex), 1, 9990); \
       MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I ELABEL, &raw_Ki, 0.01, 9990, copy_and_scalePID_i_E ## eindex); \
       MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D ELABEL, &raw_Kd, 1, 9990, copy_and_scalePID_d_E ## eindex)
-
+      
     #if ENABLED(PID_ADD_EXTRUSION_RATE)
-      #define PID_MENU_ITEMS(ELABEL, eindex) \
+      #define PID_MENU_ITEMS(ELABEL, eindex, AUTOTUNE_CMD) \
         _PID_MENU_ITEMS(ELABEL, eindex); \
-        MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990)
+        MENU_ITEM_EDIT(float3, MSG_PID_C ELABEL, &PID_PARAM(Kc, eindex), 1, 9990); \
+        MENU_ITEM(gcode, MSG_PID_AUTOTUNE ELABEL, PSTR(AUTOTUNE_CMD))
     #else
-      #define PID_MENU_ITEMS(ELABEL, eindex) _PID_MENU_ITEMS(ELABEL, eindex)
+      #define PID_MENU_ITEMS(ELABEL, eindex, AUTOTUNE_CMD) \
+        _PID_MENU_ITEMS(ELABEL, eindex); \
+        MENU_ITEM(gcode, MSG_PID_AUTOTUNE ELABEL, PSTR(AUTOTUNE_CMD))
     #endif
 
     #if ENABLED(PID_PARAMS_PER_EXTRUDER) && EXTRUDERS > 1
-      PID_MENU_ITEMS(MSG_E1, 0);
-      PID_MENU_ITEMS(MSG_E2, 1);
+      PID_MENU_ITEMS(MSG_E1, 0, "M303 U1");
+      PID_MENU_ITEMS(MSG_E2, 1, "M303 U1 E1");
       #if EXTRUDERS > 2
-        PID_MENU_ITEMS(MSG_E3, 2);
+        PID_MENU_ITEMS(MSG_E3, 2, "M303 U1 E2");
         #if EXTRUDERS > 3
-          PID_MENU_ITEMS(MSG_E4, 3);
+          PID_MENU_ITEMS(MSG_E4, 3, "M303 U1 E3");
         #endif //EXTRUDERS > 3
       #endif //EXTRUDERS > 2
     #else //!PID_PARAMS_PER_EXTRUDER || EXTRUDERS == 1
-      PID_MENU_ITEMS("", 0);
+      PID_MENU_ITEMS("", 0, "M303 U1");
     #endif //!PID_PARAMS_PER_EXTRUDER || EXTRUDERS == 1
 
   #endif //PIDTEMP
