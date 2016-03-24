@@ -40,6 +40,7 @@
 #define BOARD_TEENSYLU          8    // Teensylu
 #define BOARD_RUMBA             80   // Rumba
 #define BOARD_PRINTRBOARD       81   // Printrboard (AT90USB1286)
+#define BOARD_PRINTRBOARD_REVF  811  // Printrboard Revision F (AT90USB1286)
 #define BOARD_BRAINWAVE         82   // Brainwave (AT90USB646)
 #define BOARD_SAV_MKI           83   // SAV Mk-I (AT90USB1286)
 #define BOARD_TEENSY2           84   // Teensy++2.0 (AT90USB1286) - CLI compile: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
