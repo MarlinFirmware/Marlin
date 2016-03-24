@@ -2717,7 +2717,7 @@ inline void gcode_G28() {
 
 #if ENABLED(MESH_BED_LEVELING)
 
-  enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet };
+  enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet, MeshSetZOffset };
 
   /**
    * G29: Mesh-based Z probe, probes a grid and produces a
@@ -2729,21 +2729,22 @@ inline void gcode_G28() {
    *  S1              Start probing mesh points
    *  S2              Probe the next mesh point
    *  S3 Xn Yn Zn.nn  Manually modify a single point
+   *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
    *
    * The S0 report the points as below
    *
-   *  +----> X-axis
+   *  +----> X-axis  1-n
    *  |
    *  |
-   *  v Y-axis
+   *  v Y-axis  1-n
    *
    */
   inline void gcode_G29() {
 
     static int probe_point = -1;
     MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_short() : MeshReport;
-    if (state < 0 || state > 3) {
-      SERIAL_PROTOCOLLNPGM("S out of range (0-3).");
+    if (state < 0 || state > 4) {
+      SERIAL_PROTOCOLLNPGM("S out of range (0-4).");
       return;
     }
 
@@ -2759,6 +2760,8 @@ inline void gcode_G28() {
           SERIAL_PROTOCOL(MESH_NUM_Y_POINTS);
           SERIAL_PROTOCOLPGM("\nZ search height: ");
           SERIAL_PROTOCOL(MESH_HOME_SEARCH_Z);
+          SERIAL_PROTOCOLPGM("\nZ offset: ");
+          SERIAL_PROTOCOL_F(mbl.z_offset, 5);
           SERIAL_PROTOCOLLNPGM("\nMeasured points:");
           for (int y = 0; y < MESH_NUM_Y_POINTS; y++) {
             for (int x = 0; x < MESH_NUM_X_POINTS; x++) {
@@ -2849,6 +2852,17 @@ inline void gcode_G28() {
           return;
         }
         mbl.z_values[iy][ix] = z;
+        break;
+
+      case MeshSetZOffset:
+        if (code_seen('Z')) {
+          z = code_value();
+        } 
+        else {
+          SERIAL_PROTOCOLPGM("Z not entered.\n");
+          return;
+        }
+        mbl.z_offset = z;
 
     } // switch(state)
   }

@@ -36,10 +36,10 @@
  *
  */
 
-#define EEPROM_VERSION "V22"
+#define EEPROM_VERSION "V23"
 
 /**
- * V21 EEPROM Layout:
+ * V23 EEPROM Layout:
  *
  *  100  Version (char x4)
  *
@@ -59,62 +59,65 @@
  *
  * Mesh bed leveling:
  *  200  M420 S    active (bool)
- *  201            mesh_num_x (uint8 as set in firmware)
- *  202            mesh_num_y (uint8 as set in firmware)
- *  203  M421 XYZ  z_values[][] (float x9, by default)
- *  239  M851      zprobe_zoffset (float)
+ *  201            z_offset (float) (added in V23)
+ *  205            mesh_num_x (uint8 as set in firmware)
+ *  206            mesh_num_y (uint8 as set in firmware)
+ *  207  M421 XYZ  z_values[][] (float x9, by default)
+ *
+ * AUTO BED LEVELING
+ *  243  M851      zprobe_zoffset (float)
  *
  * DELTA:
- *  243  M666 XYZ  endstop_adj (float x3)
- *  255  M665 R    delta_radius (float)
- *  259  M665 L    delta_diagonal_rod (float)
- *  263  M665 S    delta_segments_per_second (float)
- *  267  M665 A    delta_diagonal_rod_trim_tower_1 (float)
- *  271  M665 B    delta_diagonal_rod_trim_tower_2 (float)
- *  275  M665 C    delta_diagonal_rod_trim_tower_3 (float)
+ *  247  M666 XYZ  endstop_adj (float x3)
+ *  259  M665 R    delta_radius (float)
+ *  263  M665 L    delta_diagonal_rod (float)
+ *  267  M665 S    delta_segments_per_second (float)
+ *  271  M665 A    delta_diagonal_rod_trim_tower_1 (float)
+ *  275  M665 B    delta_diagonal_rod_trim_tower_2 (float)
+ *  279  M665 C    delta_diagonal_rod_trim_tower_3 (float)
  *
  * Z_DUAL_ENDSTOPS:
- *  279  M666 Z    z_endstop_adj (float)
+ *  283  M666 Z    z_endstop_adj (float)
  *
  * ULTIPANEL:
- *  283  M145 S0 H plaPreheatHotendTemp (int)
- *  285  M145 S0 B plaPreheatHPBTemp (int)
- *  287  M145 S0 F plaPreheatFanSpeed (int)
- *  289  M145 S1 H absPreheatHotendTemp (int)
- *  291  M145 S1 B absPreheatHPBTemp (int)
- *  293  M145 S1 F absPreheatFanSpeed (int)
+ *  287  M145 S0 H plaPreheatHotendTemp (int)
+ *  289  M145 S0 B plaPreheatHPBTemp (int)
+ *  291  M145 S0 F plaPreheatFanSpeed (int)
+ *  293  M145 S1 H absPreheatHotendTemp (int)
+ *  295  M145 S1 B absPreheatHPBTemp (int)
+ *  297  M145 S1 F absPreheatFanSpeed (int)
  *
  * PIDTEMP:
- *  295  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
- *  311  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
- *  327  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
- *  343  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
- *  359  M301 L        lpq_len (int)
+ *  299  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
+ *  315  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
+ *  331  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
+ *  347  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
+ *  363  M301 L        lpq_len (int)
  *
  * PIDTEMPBED:
- *  361  M304 PID  bedKp, bedKi, bedKd (float x3)
+ *  365  M304 PID  bedKp, bedKi, bedKd (float x3)
  *
  * DOGLCD:
- *  373  M250 C    lcd_contrast (int)
+ *  377  M250 C    lcd_contrast (int)
  *
  * SCARA:
- *  375  M365 XYZ  axis_scaling (float x3)
+ *  379  M365 XYZ  axis_scaling (float x3)
  *
  * FWRETRACT:
- *  387  M209 S    autoretract_enabled (bool)
- *  388  M207 S    retract_length (float)
- *  392  M207 W    retract_length_swap (float)
- *  396  M207 F    retract_feedrate (float)
- *  400  M207 Z    retract_zlift (float)
- *  404  M208 S    retract_recover_length (float)
- *  408  M208 W    retract_recover_length_swap (float)
- *  412  M208 F    retract_recover_feedrate (float)
+ *  391  M209 S    autoretract_enabled (bool)
+ *  392  M207 S    retract_length (float)
+ *  396  M207 W    retract_length_swap (float)
+ *  400  M207 F    retract_feedrate (float)
+ *  404  M207 Z    retract_zlift (float)
+ *  408  M208 S    retract_recover_length (float)
+ *  412  M208 W    retract_recover_length_swap (float)
+ *  416  M208 F    retract_recover_feedrate (float)
  *
  * Volumetric Extrusion:
- *  416  M200 D    volumetric_enabled (bool)
- *  417  M200 T D  filament_size (float x4) (T0..3)
+ *  420  M200 D    volumetric_enabled (bool)
+ *  421  M200 T D  filament_size (float x4) (T0..3)
  *
- *  433  This Slot is Available!
+ *  437  This Slot is Available!
  *
  */
 #include "Marlin.h"
@@ -192,15 +195,17 @@ void Config_StoreSettings()  {
     mesh_num_x = MESH_NUM_X_POINTS;
     mesh_num_y = MESH_NUM_Y_POINTS;
     EEPROM_WRITE_VAR(i, mbl.active);
+    EEPROM_WRITE_VAR(i, mbl.z_offset);
     EEPROM_WRITE_VAR(i, mesh_num_x);
     EEPROM_WRITE_VAR(i, mesh_num_y);
     EEPROM_WRITE_VAR(i, mbl.z_values);
   #else
     uint8_t dummy_uint8 = 0;
+    dummy = 0.0f;
     EEPROM_WRITE_VAR(i, dummy_uint8);
+    EEPROM_WRITE_VAR(i, dummy);
     EEPROM_WRITE_VAR(i, mesh_num_x);
     EEPROM_WRITE_VAR(i, mesh_num_y);
-    dummy = 0.0f;
     for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
   #endif // MESH_BED_LEVELING
 
@@ -366,10 +371,12 @@ void Config_RetrieveSettings() {
 
     uint8_t dummy_uint8 = 0, mesh_num_x = 0, mesh_num_y = 0;
     EEPROM_READ_VAR(i, dummy_uint8);
+    EEPROM_READ_VAR(i, dummy);
     EEPROM_READ_VAR(i, mesh_num_x);
     EEPROM_READ_VAR(i, mesh_num_y);
     #if ENABLED(MESH_BED_LEVELING)
       mbl.active = dummy_uint8;
+      mbl.z_offset = dummy;
       if (mesh_num_x == MESH_NUM_X_POINTS && mesh_num_y == MESH_NUM_Y_POINTS) {
         EEPROM_READ_VAR(i, mbl.z_values);
       } else {
