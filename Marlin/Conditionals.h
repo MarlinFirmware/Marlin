@@ -360,6 +360,22 @@
     #undef SD_DETECT_INVERTED
   #endif
 
+  /**
+   * Set defaults for missing (newer) options
+   */
+  #ifndef DISABLE_INACTIVE_X
+    #define DISABLE_INACTIVE_X DISABLE_X
+  #endif
+  #ifndef DISABLE_INACTIVE_Y
+    #define DISABLE_INACTIVE_Y DISABLE_Y
+  #endif
+  #ifndef DISABLE_INACTIVE_Z
+    #define DISABLE_INACTIVE_Z DISABLE_Z
+  #endif
+  #ifndef DISABLE_INACTIVE_E
+    #define DISABLE_INACTIVE_E DISABLE_E
+  #endif
+
   // Power Signal Control Definitions
   // By default use ATX definition
   #ifndef POWER_SUPPLY
