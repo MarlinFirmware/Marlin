@@ -30,6 +30,7 @@
   class mesh_bed_leveling {
   public:
     uint8_t active;
+    float z_offset;
     float z_values[MESH_NUM_Y_POINTS][MESH_NUM_X_POINTS];
 
     mesh_bed_leveling();
@@ -70,7 +71,7 @@
       float z0 = calc_z0(y0,
                          get_y(y_index), z1,
                          get_y(y_index + 1), z2);
-      return z0;
+      return z0 + z_offset;
     }
   };
 

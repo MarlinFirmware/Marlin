@@ -2381,7 +2381,7 @@ inline void gcode_G28() {
     #endif
   #endif
 
-  // For manual bed leveling deactivate the matrix temporarily
+  // For mesh bed leveling deactivate the mesh calculations, will be turned on again when homing all axis
   #if ENABLED(MESH_BED_LEVELING)
     uint8_t mbl_was_active = mbl.active;
     mbl.active = 0;
@@ -2680,18 +2680,17 @@ inline void gcode_G28() {
     enable_endstops(false);
   #endif
 
-  // For manual leveling move back to 0,0
+  // For mesh leveling move back to Z=0
   #if ENABLED(MESH_BED_LEVELING)
-    if (mbl_was_active) {
-      current_position[X_AXIS] = mbl.get_x(0);
-      current_position[Y_AXIS] = mbl.get_y(0);
-      set_destination_to_current();
-      feedrate = homing_feedrate[X_AXIS];
-      line_to_destination();
-      st_synchronize();
+    if (mbl_was_active && home_all_axis) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       sync_plan_position();
       mbl.active = 1;
+      current_position[Z_AXIS] = 0.0;
+      set_destination_to_current();
+      feedrate = homing_feedrate[Z_AXIS];
+      line_to_destination();
+      st_synchronize();
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (marlin_debug_flags & DEBUG_LEVELING) {
           print_xyz("mbl_was_active > current_position", current_position);
@@ -2717,7 +2716,7 @@ inline void gcode_G28() {
 
 #if ENABLED(MESH_BED_LEVELING)
 
-  enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet };
+  enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet, MeshSetZOffset };
 
   /**
    * G29: Mesh-based Z probe, probes a grid and produces a
@@ -2729,21 +2728,22 @@ inline void gcode_G28() {
    *  S1              Start probing mesh points
    *  S2              Probe the next mesh point
    *  S3 Xn Yn Zn.nn  Manually modify a single point
+   *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
    *
    * The S0 report the points as below
    *
-   *  +----> X-axis
+   *  +----> X-axis  1-n
    *  |
    *  |
-   *  v Y-axis
+   *  v Y-axis  1-n
    *
    */
   inline void gcode_G29() {
 
     static int probe_point = -1;
     MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_short() : MeshReport;
-    if (state < 0 || state > 3) {
-      SERIAL_PROTOCOLLNPGM("S out of range (0-3).");
+    if (state < 0 || state > 4) {
+      SERIAL_PROTOCOLLNPGM("S out of range (0-4).");
       return;
     }
 
@@ -2759,6 +2759,8 @@ inline void gcode_G28() {
           SERIAL_PROTOCOL(MESH_NUM_Y_POINTS);
           SERIAL_PROTOCOLPGM("\nZ search height: ");
           SERIAL_PROTOCOL(MESH_HOME_SEARCH_Z);
+          SERIAL_PROTOCOLPGM("\nZ offset: ");
+          SERIAL_PROTOCOL_F(mbl.z_offset, 5);
           SERIAL_PROTOCOLLNPGM("\nMeasured points:");
           for (int y = 0; y < MESH_NUM_Y_POINTS; y++) {
             for (int x = 0; x < MESH_NUM_X_POINTS; x++) {
@@ -2849,6 +2851,17 @@ inline void gcode_G28() {
           return;
         }
         mbl.z_values[iy][ix] = z;
+        break;
+
+      case MeshSetZOffset:
+        if (code_seen('Z')) {
+          z = code_value();
+        } 
+        else {
+          SERIAL_PROTOCOLPGM("Z not entered.\n");
+          return;
+        }
+        mbl.z_offset = z;
 
     } // switch(state)
   }
