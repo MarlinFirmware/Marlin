@@ -62,10 +62,6 @@
 //===========================================================================
 block_t* current_block;  // A pointer to the block currently being traced
 
-#if ENABLED(HAS_Z_MIN_PROBE)
-  volatile bool z_probe_is_active = false;
-#endif
-
 //===========================================================================
 //============================= private variables ===========================
 //===========================================================================
@@ -460,18 +456,16 @@ inline void update_endstops() {
             }
           #else // !Z_DUAL_ENDSTOPS
 
-            #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && ENABLED(HAS_Z_MIN_PROBE)
-              if (z_probe_is_active) UPDATE_ENDSTOP(Z, MIN);
-            #else
-              UPDATE_ENDSTOP(Z, MIN);
-            #endif
-          #endif // !Z_DUAL_ENDSTOPS
-        #endif
+            UPDATE_ENDSTOP(Z, MIN);
 
-        #if ENABLED(Z_MIN_PROBE_ENDSTOP) && DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && ENABLED(HAS_Z_MIN_PROBE)
-          if (z_probe_is_active) {
-            UPDATE_ENDSTOP(Z, MIN_PROBE);
-            if (TEST_ENDSTOP(Z_MIN_PROBE)) endstop_hit_bits |= _BV(Z_MIN_PROBE);
+          #endif // !Z_DUAL_ENDSTOPS
+        #endif // HAS_Z_MIN
+
+        #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+          UPDATE_ENDSTOP(Z, MIN_PROBE);
+          if (TEST_ENDSTOP(Z_MIN_PROBE)) {
+            endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+            SBI(endstop_hit_bits, Z_MIN_PROBE);
           }
         #endif
       }
@@ -685,11 +679,7 @@ ISR(TIMER1_COMPA_vect) {
   if (current_block != NULL) {
 
     // Update endstops state, if enabled
-    #if ENABLED(HAS_Z_MIN_PROBE)
-      if (check_endstops || z_probe_is_active) update_endstops();
-    #else
-      if (check_endstops) update_endstops();
-    #endif
+    if (check_endstops) update_endstops();
 
     // Take multiple steps per interrupt (For high speed moves)
     for (int8_t i = 0; i < step_loops; i++) {
