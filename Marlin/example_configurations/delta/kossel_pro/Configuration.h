@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,10 +20,27 @@
  *
  */
 
-// Example configuration file for OpenBeam Kossel Pro
-// tested on 2015-05-19 by @Wackerbarth
-// using Arduino 1.6.5 (Mac)
+/**
+ * Example configuration file for OpenBeam Kossel Pro
+ * tested on 2015-05-19 by @Wackerbarth
+ * using Arduino 1.6.5 (Mac)
+ */
 
+/**
+ * Configuration.h
+ *
+ * Basic settings such as:
+ *
+ * - Type of electronics
+ * - Type of temperature sensor
+ * - Printer geometry
+ * - Endstop configuration
+ * - LCD controller
+ * - Extra features
+ *
+ * Advanced settings can be found in Configuration_adv.h
+ *
+ */
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
@@ -33,8 +50,10 @@
 //===========================================================================
 //============================= Getting Started =============================
 //===========================================================================
-/*
-Here are some standard links for getting your machine calibrated:
+
+/**
+ * Here are some standard links for getting your machine calibrated:
+ *
  * http://reprap.org/wiki/Calibration
  * http://youtu.be/wAL9d7FgInk
  * http://calculator.josefprusa.cz
@@ -42,11 +61,7 @@ Here are some standard links for getting your machine calibrated:
  * http://www.thingiverse.com/thing:5573
  * https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
  * http://www.thingiverse.com/thing:298812
-*/
-
-// This configuration file contains the basic settings.
-// Advanced settings can be found in Configuration_adv.h
-// BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
+ */
 
 //===========================================================================
 //============================= DELTA Printer ===============================

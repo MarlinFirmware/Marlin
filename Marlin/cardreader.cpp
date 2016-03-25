@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -245,7 +245,7 @@ void CardReader::initsd() {
   }
   workDir = root;
   curDir = &root;
-  /*
+  /**
   if (!workDir.openRoot(&volume)) {
     SERIAL_ECHOLNPGM(MSG_SD_WORKDIR_FAIL);
   }

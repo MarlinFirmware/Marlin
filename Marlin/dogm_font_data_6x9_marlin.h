@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
   Fontname: -Misc-Fixed-Medium-R-Normal--9-90-75-75-C-60-ISO10646-1
   Copyright: Public domain font.  Share and enjoy.
   Capital A Height: 6, '1' Height: 6

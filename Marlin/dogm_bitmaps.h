@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
  * BitMap for splashscreen
  * Generated with: http://www.digole.com/tools/PicturetoC_Hex_converter.php
  * Please note that using the high-res version takes 402Bytes of PROGMEM.
