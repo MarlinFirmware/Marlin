@@ -72,6 +72,7 @@
 #define MSG_MOVE_1MM                        "  1mm \xb2\xc4\xde\xb3"                                       // "Move 1mm"
 #define MSG_MOVE_10MM                       " 10mm \xb2\xc4\xde\xb3"                                       // "Move 10mm"
 #define MSG_SPEED                           "\xbd\xcb\xdf\xb0\xc4\xde"                                     // "Speed"
+#define MSG_BED_Z                           "Z\xb5\xcc\xbe\xaf\xc4"                                        // "Bed Z"
 #define MSG_NOZZLE                          "\xc9\xbd\xde\xd9"                                             // "Nozzle"
 #define MSG_BED                             "\xcd\xde\xaf\xc4\xde"                                         // "Bed"
 #define MSG_FAN_SPEED                       "\xcc\xa7\xdd\xbf\xb8\xc4\xde"                                 // "Fan speed"
