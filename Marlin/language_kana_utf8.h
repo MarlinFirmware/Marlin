@@ -146,7 +146,7 @@
 #define MSG_INIT_SDCARD                     "SDカードサイヨミコミ"             // "Init. SD card"
 #define MSG_CNG_SDCARD                      "SDカードコウカン"               // "Change SD card"
 #define MSG_ZPROBE_OUT                      "Zプローブ ベッドガイ"            // "Z probe out. bed"
-#define MSG_POSITION_UNKNOWN                "ゲンテンハXYイドウゴZ"           // "Home X/Y before Z"
+#define MSG_YX_UNHOMED                      "ゲンテンハXYイドウゴZ"           // "Home X/Y before Z"
 #define MSG_ZPROBE_ZOFFSET                  "Zオフセット"                   // "Z Offset"
 #define MSG_BABYSTEP_X                      "Xジク ビドウ"                  // "Babystep X"
 #define MSG_BABYSTEP_Y                      "Yジク ビドウ"                  // "Babystep Y"

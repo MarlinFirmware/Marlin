@@ -142,7 +142,7 @@
 #define MSG_INIT_SDCARD                     "Iniciando SD"
 #define MSG_CNG_SDCARD                      "Cambiar SD"
 #define MSG_ZPROBE_OUT                      "Sonda-Z sen cama"
-#define MSG_POSITION_UNKNOWN                "X/Y antes que Z"
+#define MSG_YX_UNHOMED                      "X/Y antes que Z"
 #define MSG_ZPROBE_ZOFFSET                  "Offset Z"
 #define MSG_BABYSTEP_X                      "Micropaso X"
 #define MSG_BABYSTEP_Y                      "Micropaso Y"

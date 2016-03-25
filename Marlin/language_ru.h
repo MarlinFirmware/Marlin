@@ -139,7 +139,7 @@
 #define MSG_INIT_SDCARD                     "Иниц. карту"
 #define MSG_CNG_SDCARD                      "Сменить карту"
 #define MSG_ZPROBE_OUT                      "Z датчик вне стола"
-#define MSG_POSITION_UNKNOWN                "Паркуй X/Y перед Z"
+#define MSG_YX_UNHOMED                      "Паркуй X/Y перед Z"
 #define MSG_ZPROBE_ZOFFSET                  "Смещение Z"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"

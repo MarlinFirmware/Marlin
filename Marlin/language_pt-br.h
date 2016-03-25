@@ -138,7 +138,7 @@
 #define MSG_INIT_SDCARD                     "Iniciar SD"
 #define MSG_CNG_SDCARD                      "Trocar SD"
 #define MSG_ZPROBE_OUT                      "Son. fora da mesa"
-#define MSG_POSITION_UNKNOWN                "Pos. Desconhecida"
+#define MSG_YX_UNHOMED                      "Pos. Desconhecida"
 #define MSG_ZPROBE_ZOFFSET                  "Deslocamento no Z"
 #define MSG_BABYSTEP_X                      "Passinho X"
 #define MSG_BABYSTEP_Y                      "Passinho Y"
