@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -25,6 +25,17 @@
 // and Arduino 1.6.8 (Mac) by @CONSULitAS, 2016-02-21
 // https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_stable_2016-02-21.zip
 
+
+/**
+ * Configuration_adv.h
+ *
+ * Advanced settings.
+ * Only change these if you know exactly what you're doing.
+ * Some of these settings can damage your printer if improperly set!
+ *
+ * Basic settings can be found in Configuration.h
+ *
+ */
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
 
