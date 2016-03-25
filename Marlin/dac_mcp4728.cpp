@@ -1,9 +1,34 @@
 /*
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
-  mcp4728.cpp - Arduino library for MicroChip MCP4728 I2C D/A converter
-  For implementation details, please take a look at the datasheet http://ww1.microchip.com/downloads/en/DeviceDoc/22187a.pdf
-  For discussion and feedback, please go to http://arduino.cc/forum/index.php/topic,51842.0.html
-*/
+/*
+ * mcp4728.cpp - Arduino library for MicroChip MCP4728 I2C D/A converter
+ *
+ * For implementation details, please take a look at the datasheet:
+ * http://ww1.microchip.com/downloads/en/DeviceDoc/22187a.pdf
+ *
+ * For discussion and feedback, please go to:
+ * http://arduino.cc/forum/index.php/topic,51842.0.html
+ */
 
 
 /* _____PROJECT INCLUDES_____________________________________________________ */
