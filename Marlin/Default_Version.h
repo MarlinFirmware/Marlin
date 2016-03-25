@@ -30,7 +30,7 @@
 #if true
 #define SHORT_BUILD_VERSION "1.1.0-RC4"
 #define DETAILED_BUILD_VERSION "1.1.0-RC4 From Archive"
-#define STRING_DISTRIBUTION_DATE "2016-03-07 12:00"
+#define STRING_DISTRIBUTION_DATE "2016-03-24 12:00"
 // It might also be appropriate to define a location where additional information can be found
 // #define SOURCE_CODE_URL  "http:// ..."
 #endif
