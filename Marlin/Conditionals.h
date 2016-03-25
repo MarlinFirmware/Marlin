@@ -570,6 +570,8 @@
   #define HAS_E3_STEP (PIN_EXISTS(E3_STEP))
   #define HAS_E4_STEP (PIN_EXISTS(E4_STEP))
 
+  #define HAS_MOTOR_CURRENT_PWM (PIN_EXISTS(MOTOR_CURRENT_PWM_XY) || PIN_EXISTS(MOTOR_CURRENT_PWM_Z) || PIN_EXISTS(MOTOR_CURRENT_PWM_E))
+
   /**
    * Helper Macros for heaters and extruder fan
    */
