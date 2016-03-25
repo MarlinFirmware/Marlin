@@ -85,39 +85,35 @@
   //#define _useTimer1
   #define _useTimer3
   #define _useTimer4
-  #ifndef MOTOR_CURRENT_PWM_XY_PIN
-    //Timer 5 is used for motor current PWM and can't be used for servos.
-    #define _useTimer5
-    //typedef enum { _timer5, _timer1, _timer3, _timer4, _Nbr_16timers } timer16_Sequence_t ;
-    typedef enum { _timer5, _timer3, _timer4, _Nbr_16timers } timer16_Sequence_t ;
-  #else
-    typedef enum {_timer3, _timer4, _Nbr_16timers } timer16_Sequence_t ;
+  #if !HAS_MOTOR_CURRENT_PWM
+    #define _useTimer5 // Timer 5 is used for motor current PWM and can't be used for servos.
   #endif
-
 #elif defined(__AVR_ATmega32U4__)
-  //#define _useTimer1
   #define _useTimer3
-  //typedef enum { _timer1, _Nbr_16timers } timer16_Sequence_t ;
-  typedef enum { _timer3, _Nbr_16timers } timer16_Sequence_t ;
-
 #elif defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
   #define _useTimer3
-  //#define _useTimer1
-  //typedef enum { _timer3, _timer1, _Nbr_16timers } timer16_Sequence_t ;
-  typedef enum { _timer3, _Nbr_16timers } timer16_Sequence_t ;
-
-#elif defined(__AVR_ATmega128__) ||defined(__AVR_ATmega1281__) || defined(__AVR_ATmega1284P__) ||defined(__AVR_ATmega2561__)
+#elif defined(__AVR_ATmega128__) || defined(__AVR_ATmega1281__) || defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega2561__)
   #define _useTimer3
-  //#define _useTimer1
-  //typedef enum { _timer3, _timer1, _Nbr_16timers } timer16_Sequence_t ;
-  typedef enum { _timer3, _Nbr_16timers } timer16_Sequence_t ;
-
-#else  // everything else
-  //#define _useTimer1
-  //typedef enum { _timer1, _Nbr_16timers } timer16_Sequence_t ;
-  typedef enum { _Nbr_16timers } timer16_Sequence_t ;
-
+#else
+  // everything else
 #endif
+
+typedef enum {
+  #if ENABLED(_useTimer1)
+    _timer1,
+  #endif
+  #if ENABLED(_useTimer3)
+    _timer3,
+  #endif
+  #if ENABLED(_useTimer4)
+    _timer4,
+  #endif
+  #if ENABLED(_useTimer5)
+    _timer5,
+  #endif
+  _Nbr_16timers
+} timer16_Sequence_t;
+
 
 #define Servo_VERSION           2     // software version of this library
 

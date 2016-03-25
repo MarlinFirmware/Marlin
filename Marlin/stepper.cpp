@@ -113,7 +113,7 @@ static volatile char endstop_hit_bits = 0; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_
   bool abort_on_endstop_hit = false;
 #endif
 
-#if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+#if HAS_MOTOR_CURRENT_PWM
   #ifndef PWM_MOTOR_CURRENT
     #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
   #endif
@@ -1238,13 +1238,19 @@ void digipot_init() {
       digipot_current(i, digipot_motor_current[i]);
     }
   #endif
-  #ifdef MOTOR_CURRENT_PWM_XY_PIN
-    pinMode(MOTOR_CURRENT_PWM_XY_PIN, OUTPUT);
-    pinMode(MOTOR_CURRENT_PWM_Z_PIN, OUTPUT);
-    pinMode(MOTOR_CURRENT_PWM_E_PIN, OUTPUT);
-    digipot_current(0, motor_current_setting[0]);
-    digipot_current(1, motor_current_setting[1]);
-    digipot_current(2, motor_current_setting[2]);
+  #if HAS_MOTOR_CURRENT_PWM
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+      pinMode(MOTOR_CURRENT_PWM_XY_PIN, OUTPUT);
+      digipot_current(0, motor_current_setting[0]);
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+      pinMode(MOTOR_CURRENT_PWM_Z_PIN, OUTPUT);
+      digipot_current(1, motor_current_setting[1]);
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+      pinMode(MOTOR_CURRENT_PWM_E_PIN, OUTPUT);
+      digipot_current(2, motor_current_setting[2]);
+    #endif
     //Set timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
     TCCR5B = (TCCR5B & ~(_BV(CS50) | _BV(CS51) | _BV(CS52))) | _BV(CS50);
   #endif
@@ -1254,11 +1260,18 @@ void digipot_current(uint8_t driver, int current) {
   #if HAS_DIGIPOTSS
     const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
     digitalPotWrite(digipot_ch[driver], current);
-  #elif defined(MOTOR_CURRENT_PWM_XY_PIN)
+  #elif HAS_MOTOR_CURRENT_PWM
+    #define _WRITE_CURRENT_PWM(P) analogWrite(P, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
     switch (driver) {
-      case 0: analogWrite(MOTOR_CURRENT_PWM_XY_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE)); break;
-      case 1: analogWrite(MOTOR_CURRENT_PWM_Z_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE)); break;
-      case 2: analogWrite(MOTOR_CURRENT_PWM_E_PIN, 255L * current / (MOTOR_CURRENT_PWM_RANGE)); break;
+      #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+        case 0: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_XY_PIN); break;
+      #endif
+      #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+        case 1: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_Z_PIN); break;
+      #endif
+      #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+        case 2: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_E_PIN); break;
+      #endif
     }
   #else
     UNUSED(driver);
