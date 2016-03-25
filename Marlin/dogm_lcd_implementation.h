@@ -282,8 +282,10 @@ static void _draw_heater_status(int x, int heater) {
 static void lcd_implementation_status_screen() {
   u8g.setColorIndex(1); // black on white
 
+  #if HAS_FAN0
   // Symbols menu graphics, animated fan
   u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT, (blink % 2) && fanSpeeds[0] ? status_screen0_bmp : status_screen1_bmp);
+  #endif
 
   #if ENABLED(SDSUPPORT)
     // SD Card Symbol
