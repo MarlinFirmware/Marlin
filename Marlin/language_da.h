@@ -140,7 +140,7 @@
 #define MSG_FILAMENTCHANGE                  "Skift filament"
 #define MSG_INIT_SDCARD                     "Init. SD card"
 #define MSG_CNG_SDCARD                      "Skift SD kort"
-#define MSG_POSITION_UNKNOWN                "Home X/Y før Z"
+#define MSG_YX_UNHOMED                      "Home X/Y før Z"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
