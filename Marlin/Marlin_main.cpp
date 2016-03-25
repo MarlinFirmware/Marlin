@@ -1848,7 +1848,7 @@ static void setup_for_endstop_move() {
       float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_PROBING;
       // The zprobe_zoffset is negative any switch below the nozzle, so
       // multiply by Z_HOME_DIR (-1) to move enough away from bed for the probe
-      z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset * Z_HOME_DIR : zpos;
+      z_dest += axis_homed[Z_AXIS] ? zprobe_zoffset * Z_HOME_DIR : zpos;
       if (zpos < z_dest) do_blocking_move_to_z(z_dest); // also updates current_position
     }
 
@@ -1856,10 +1856,10 @@ static void setup_for_endstop_move() {
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
-static void unknown_position_error() {
-  LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+static void axis_unhomed_error() {
+  LCD_MESSAGEPGM(MSG_YX_UNHOMED);
   SERIAL_ECHO_START;
-  SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+  SERIAL_ECHOLNPGM(MSG_YX_UNHOMED);
 }
 
 #if ENABLED(Z_PROBE_SLED)
@@ -1884,8 +1884,8 @@ static void unknown_position_error() {
 
     if (z_probe_is_active == dock) return;
 
-    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
-      unknown_position_error();
+    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS]) {
+      axis_unhomed_error();
       return;
     }
 
@@ -2616,7 +2616,7 @@ inline void gcode_G28() {
           else if (homeZ) { // Don't need to Home Z twice
 
             // Let's see if X and Y are homed
-            if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS]) {
+            if (axis_homed[X_AXIS] && axis_homed[Y_AXIS]) {
 
               // Make sure the Z probe is within the physical limits
               // NOTE: This doesn't necessarily ensure the Z probe is also within the bed!
@@ -2636,7 +2636,7 @@ inline void gcode_G28() {
               }
             }
             else {
-              unknown_position_error();
+              axis_unhomed_error();
             }
 
           } // !home_all_axes && homeZ
@@ -2908,8 +2908,8 @@ inline void gcode_G28() {
     #endif
 
     // Don't allow auto-leveling without homing first
-    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
-      unknown_position_error();
+    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS]) {
+      axis_unhomed_error();
       return;
     }
 
@@ -3711,8 +3711,8 @@ inline void gcode_M42() {
    */
   inline void gcode_M48() {
 
-    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS] || !axis_known_position[Z_AXIS]) {
-      unknown_position_error();
+    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
+      axis_unhomed_error();
       return;
     }
 
@@ -5431,7 +5431,7 @@ inline void gcode_M428() {
   memcpy(new_pos, current_position, sizeof(new_pos));
   memcpy(new_offs, home_offset, sizeof(new_offs));
   for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
-    if (axis_known_position[i]) {
+    if (axis_homed[i]) {
       float base = (new_pos[i] > (min_pos[i] + max_pos[i]) / 2) ? base_home_pos(i) : 0,
             diff = new_pos[i] - base;
       if (diff > -20 && diff < 20) {

@@ -140,7 +140,7 @@
 #define MSG_INIT_SDCARD                     "Init. la carte SD"
 #define MSG_CNG_SDCARD                      "Changer de carte"
 #define MSG_ZPROBE_OUT                      "Z sonde exte. lit"
-#define MSG_POSITION_UNKNOWN                "Rev. dans XY av.Z"
+#define MSG_YX_UNHOMED                      "Rev. dans XY av.Z"
 #define MSG_ZPROBE_ZOFFSET                  "Offset Z"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
