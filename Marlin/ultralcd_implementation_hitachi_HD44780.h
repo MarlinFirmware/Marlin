@@ -393,7 +393,7 @@ static void lcd_implementation_init(
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     #ifdef LCD_I2C_PIN_BL
       lcd.setBacklightPin(LCD_I2C_PIN_BL, POSITIVE);
-      lcd_implementation_update_indicators();
+      lcd.setBacklight(HIGH);
     #endif
 
   #elif ENABLED(LCD_I2C_TYPE_MCP23017)
