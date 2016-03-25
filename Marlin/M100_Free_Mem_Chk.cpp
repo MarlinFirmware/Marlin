@@ -1,25 +1,44 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * M100 Free Memory Watcher
+ * 
+ * This code watches the free memory block between the bottom of the heap and the top of the stack.
+ * This memory block is initialized and watched via the M100 command.
+ * 
+ * M100 I Initializes the free memory block and prints vitals statistics about the area
+ * M100 F Identifies how much of the free memory block remains free and unused.  It also
+ *    detects and reports any corruption within the free memory block that may have
+ *    happened due to errant firmware.
+ * M100 D Does a hex display of the free memory block along with a flag for any errant
+ *    data that does not match the expected value.
+ * M100 C x Corrupts x locations within the free memory block.   This is useful to check the
+ *    correctness of the M100 F and M100 D commands.
+ * 
+ * Initial version by Roxy-3DPrintBoard
+ */
 #define M100_FREE_MEMORY_DUMPER     // Comment out to remove Dump sub-command
 #define M100_FREE_MEMORY_CORRUPTOR    // Comment out to remove Corrupt sub-command
-
-
-// M100 Free Memory Watcher
-//
-// This code watches the free memory block between the bottom of the heap and the top of the stack.
-// This memory block is initialized and watched via the M100 command.
-//
-// M100 I Initializes the free memory block and prints vitals statistics about the area
-// M100 F Identifies how much of the free memory block remains free and unused.  It also
-//    detects and reports any corruption within the free memory block that may have
-//    happened due to errant firmware.
-// M100 D Does a hex display of the free memory block along with a flag for any errant
-//    data that does not match the expected value.
-// M100 C x Corrupts x locations within the free memory block.   This is useful to check the
-//    correctness of the M100 F and M100 D commands.
-//
-// Initial version by Roxy-3DPrintBoard
-//
-//
-
 
 #include "Marlin.h"
 
