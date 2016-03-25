@@ -220,7 +220,7 @@
    * Check if Probe_Offset * Grid Points is greater than Probing Range
    */
   #if ENABLED(AUTO_BED_LEVELING_GRID)
-    #ifndef DELTA_PROBABLE_RADIUS
+    #ifndef DELTA_PROBEABLE_RADIUS
       // Be sure points are in the right order
       #if LEFT_PROBE_BED_POSITION > RIGHT_PROBE_BED_POSITION
         #error LEFT_PROBE_BED_POSITION must be less than RIGHT_PROBE_BED_POSITION.
