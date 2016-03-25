@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
   vector_3.cpp - Vector library for bed leveling
   Copyright (c) 2012 Lars Brubaker.  All right reserved.
 

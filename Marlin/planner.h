@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
   planner.h - buffers movement commands and manages the acceleration profile plan
   Part of Grbl
 

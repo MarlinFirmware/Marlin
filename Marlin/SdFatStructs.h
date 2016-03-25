@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
  * Arduino SdFat Library
  * Copyright (C) 2009 by William Greiman
  *
@@ -37,7 +37,7 @@
  * \file
  * \brief FAT file structures
  */
-/*
+/**
  * mostly from Microsoft document fatgen103.doc
  * http://www.microsoft.com/whdc/system/platform/firmware/fatgen.mspx
  */

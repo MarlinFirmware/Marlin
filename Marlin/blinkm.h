@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
  * blinkm.h - Library for controlling a BlinkM over i2c
  * Created by Tim Koster, August 21 2013.
  */

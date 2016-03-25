@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
  * This file is a placeholder for a file which could be distributed in an archive
  * It takes the place of an automatically created "_Version.h" which is generated during the build process
  */

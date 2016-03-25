@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
   stepper_indirection.h - stepper motor driver indirection macros
   to allow some stepper functions to be done via SPI/I2c instead of direct pin manipulation
   Part of Marlin
