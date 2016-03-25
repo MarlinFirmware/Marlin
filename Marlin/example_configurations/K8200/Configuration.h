@@ -1,4 +1,4 @@
-﻿/*
+﻿/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,11 +20,28 @@
  *
  */
 
-// Sample configuration file for Vellemann K8200
-// tested on K8200 with VM8201 (Display)
-// and Arduino 1.6.8 (Mac) by @CONSULitAS, 2016-02-21
-// https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_stable_2016-02-21.zip
+/**
+ * Sample configuration file for Vellemann K8200
+ * tested on K8200 with VM8201 (Display)
+ * and Arduino 1.6.8 (Mac) by @CONSULitAS, 2016-02-21
+ * https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_stable_2016-02-21.zip
+ */
 
+/**
+ * Configuration.h
+ *
+ * Basic settings such as:
+ *
+ * - Type of electronics
+ * - Type of temperature sensor
+ * - Printer geometry
+ * - Endstop configuration
+ * - LCD controller
+ * - Extra features
+ *
+ * Advanced settings can be found in Configuration_adv.h
+ *
+ */
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
@@ -34,8 +51,10 @@
 //===========================================================================
 //============================= Getting Started =============================
 //===========================================================================
-/*
-Here are some standard links for getting your machine calibrated:
+
+/**
+ * Here are some standard links for getting your machine calibrated:
+ *
  * http://reprap.org/wiki/Calibration
  * http://youtu.be/wAL9d7FgInk
  * http://calculator.josefprusa.cz
@@ -43,11 +62,7 @@ Here are some standard links for getting your machine calibrated:
  * http://www.thingiverse.com/thing:5573
  * https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
  * http://www.thingiverse.com/thing:298812
-*/
-
-// This configuration file contains the basic settings.
-// Advanced settings can be found in Configuration_adv.h
-// BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
+ */
 
 //===========================================================================
 //============================= DELTA Printer ===============================

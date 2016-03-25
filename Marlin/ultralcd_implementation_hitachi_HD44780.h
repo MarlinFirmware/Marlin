@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -533,7 +533,7 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
 
 #endif // SHOW_BOOTSCREEN
 
-/*
+/**
 Possible status screens:
 16x2   |000/000 B000/000|
        |0123456789012345|

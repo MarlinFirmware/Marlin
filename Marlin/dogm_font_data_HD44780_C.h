@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
   Fontname: HD44780_C v1.2
   Copyright: A. Hardtung, public domain
   Capital A Height: 7, '1' Height: 7

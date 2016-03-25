@@ -1,4 +1,4 @@
-/*
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -20,7 +20,7 @@
  *
  */
 
-/*
+/**
   Fontname: Marlin_symbols
   Copyright: Created with Fony 1.4.7
   Capital A Height: 0, '1' Height: 0
