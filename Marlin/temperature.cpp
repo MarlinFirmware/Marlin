@@ -1,4 +1,26 @@
-/*
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
   temperature.cpp - temperature control
   Part of Marlin
 
@@ -294,7 +316,7 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
               SERIAL_PROTOCOLPGM(MSG_KP); SERIAL_PROTOCOLLN(Kp);
               SERIAL_PROTOCOLPGM(MSG_KI); SERIAL_PROTOCOLLN(Ki);
               SERIAL_PROTOCOLPGM(MSG_KD); SERIAL_PROTOCOLLN(Kd);
-              /*
+              /**
               Kp = 0.33*Ku;
               Ki = Kp/Tu;
               Kd = Kp*Tu/3;
@@ -1096,7 +1118,7 @@ void tp_init() {
 
     static float tr_target_temperature[EXTRUDERS + 1] = { 0.0 };
 
-    /*
+    /**
         SERIAL_ECHO_START;
         SERIAL_ECHOPGM("Thermal Thermal Runaway Running. Heater ID: ");
         if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHOPGM(heater_id);
@@ -1413,7 +1435,7 @@ ISR(TIMER0_COMPB_vect) {
 
   #else // SLOW_PWM_HEATERS
 
-    /*
+    /**
      * SLOW PWM HEATERS
      *
      * for heaters drived by relay

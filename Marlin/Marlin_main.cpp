@@ -1,5 +1,6 @@
 /**
- * Marlin Firmware
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -16,6 +17,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  *
  * About Marlin
  *
@@ -3079,7 +3084,7 @@ inline void gcode_G28() {
           #if ENABLED(DELTA)
             // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
             float distance_from_center = sqrt(xProbe * xProbe + yProbe * yProbe);
-            if (distance_from_center > DELTA_PROBABLE_RADIUS) continue;
+            if (distance_from_center > DELTA_PROBEABLE_RADIUS) continue;
           #endif //DELTA
 
           ProbeAction act;
@@ -3380,7 +3385,7 @@ inline void gcode_G28() {
         raise_z_for_servo();
       #endif
       stow_z_probe(false); // Retract Z Servo endstop if available. Z_PROBE_SLED is missed her.
-    
+
       gcode_M114(); // Send end position to RepetierHost
     }
 
@@ -3948,7 +3953,7 @@ inline void gcode_M42() {
     delay(25);
 
     clean_up_after_endstop_move();
-  
+
     gcode_M114(); // Send end position to RepetierHost
   }
 
@@ -5147,7 +5152,7 @@ inline void gcode_M303() {
   int e = code_seen('E') ? code_value_short() : 0;
   int c = code_seen('C') ? code_value_short() : 5;
   bool u = code_seen('U') && code_value_short() != 0;
-  
+
   float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
 
   if (e >= 0 && e < EXTRUDERS)
@@ -6613,7 +6618,7 @@ void clamp_to_software_endstops(float target[3]) {
                           - sq(delta_tower3_x - cartesian[X_AXIS])
                           - sq(delta_tower3_y - cartesian[Y_AXIS])
                          ) + cartesian[Z_AXIS];
-    /*
+    /**
     SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
     SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
     SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
@@ -6648,7 +6653,7 @@ void clamp_to_software_endstops(float target[3]) {
       delta[Y_AXIS] += offset;
       delta[Z_AXIS] += offset;
 
-      /*
+      /**
       SERIAL_ECHOPGM("grid_x="); SERIAL_ECHO(grid_x);
       SERIAL_ECHOPGM(" grid_y="); SERIAL_ECHO(grid_y);
       SERIAL_ECHOPGM(" floor_x="); SERIAL_ECHO(floor_x);
@@ -7140,7 +7145,7 @@ void plan_arc(
     delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
     delta[Z_AXIS] = cartesian[Z_AXIS];
 
-    /*
+    /**
     SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
     SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
     SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
