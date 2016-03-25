@@ -137,7 +137,7 @@
 #define MSG_INIT_SDCARD                     "SDKarte erkennen"// Manually initialize the SD-card via user interface
 #define MSG_CNG_SDCARD                      "SDKarte erkennen"// SD-card changed by user. For machines with no autocarddetect. Both send "M21"
 #define MSG_ZPROBE_OUT                      "Sensor ausserhalb"
-#define MSG_POSITION_UNKNOWN                "X/Y vor Z homen."
+#define MSG_YX_UNHOMED                      "X/Y vor Z homen."
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"

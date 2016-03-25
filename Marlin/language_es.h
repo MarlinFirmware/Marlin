@@ -139,7 +139,7 @@
 #define MSG_INIT_SDCARD                     "Iniciando tarjeta"
 #define MSG_CNG_SDCARD                      "Cambiar tarjeta"
 #define MSG_ZPROBE_OUT                      "Sonda Z fuera"
-#define MSG_POSITION_UNKNOWN                "Reiniciar X/Y y Z"
+#define MSG_YX_UNHOMED                      "Reiniciar X/Y y Z"
 #define MSG_ZPROBE_ZOFFSET                  "Offset Z"
 #define MSG_BABYSTEP_X                      "Micropaso X"
 #define MSG_BABYSTEP_Y                      "Micropaso Y"

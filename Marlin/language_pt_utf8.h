@@ -142,7 +142,7 @@
 #define MSG_INIT_SDCARD                     "Inici. cartão SD"
 #define MSG_CNG_SDCARD                      "Trocar cartão SD"
 #define MSG_ZPROBE_OUT                      "Sensor fora/base"
-#define MSG_POSITION_UNKNOWN                "XY antes de Z"
+#define MSG_YX_UNHOMED                      "XY antes de Z"
 #define MSG_ZPROBE_ZOFFSET                  "Desvio Z"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"

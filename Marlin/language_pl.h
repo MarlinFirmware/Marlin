@@ -138,7 +138,7 @@
 #define MSG_INIT_SDCARD                     "Inicjal. karty SD"
 #define MSG_CNG_SDCARD                      "Zmiana karty SD"
 #define MSG_ZPROBE_OUT                      "Sonda Z za lozem"
-#define MSG_POSITION_UNKNOWN                "Wroc w XY przed Z"
+#define MSG_YX_UNHOMED                      "Wroc w XY przed Z"
 #define MSG_ZPROBE_ZOFFSET                  "Offset Z"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
