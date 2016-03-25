@@ -5965,28 +5965,34 @@ void process_next_command() {
   char* starpos = strchr(current_command, '*');  // * should always be the last parameter
   if (starpos) while (*starpos == ' ' || *starpos == '*') *starpos-- = '\0'; // nullify '*' and ' '
 
-  // Get the command code, which must be G, M, or T
-  char command_code = *current_command;
+  char *cmd_ptr = current_command;
 
-  // Skip the letter-code and spaces to get the numeric part
-  current_command_args = current_command + 1;
-  while (*current_command_args == ' ') ++current_command_args;
+  // Get the command code, which must be G, M, or T
+  char command_code = *cmd_ptr++;
+
+  // Skip spaces to get the numeric part
+  while (*cmd_ptr == ' ') cmd_ptr++;
 
   // The code must have a numeric value
-  bool code_is_good = (*current_command_args >= '0' && *current_command_args <= '9');
+  bool code_is_good = false;
 
-  int codenum; // define ahead of goto
+  int codenum = 0; // define ahead of goto
+
+  // Get and skip the code number
+  while (*cmd_ptr >= '0' && *cmd_ptr <= '9') {
+    code_is_good = true;
+    codenum = codenum * 10 + *cmd_ptr - '0';
+    cmd_ptr++;
+  }
 
   // Bail early if there's no code
   if (!code_is_good) goto ExitUnknownCommand;
 
-  // Args pointer optimizes code_seen, especially those taking XYZEF
-  // This wastes a little cpu on commands that expect no arguments.
-  while (*current_command_args == ' ' || (*current_command_args >= '0' && *current_command_args <= '9')) ++current_command_args;
+  // Skip all spaces to get to the first argument
+  while (*cmd_ptr == ' ') cmd_ptr++;
 
-  // Interpret the code int
-  seen_pointer = current_command;
-  codenum = code_value_short();
+  // The command's arguments start here, for sure!
+  current_command_args = cmd_ptr;
 
   KEEPALIVE_STATE(IN_HANDLER);
 
