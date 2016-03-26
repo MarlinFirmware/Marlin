@@ -631,7 +631,7 @@ float get_pid_output(int e) {
 
     return pid_output;
   }
-#endif
+#endif //PIDTEMPBED
 
 /**
  * Manage heating activities for extruder hot-ends and a heated bed
