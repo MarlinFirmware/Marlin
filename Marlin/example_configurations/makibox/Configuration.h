@@ -283,9 +283,9 @@
 // to increase the heat up rate. However, if changed, user must be aware of the safety concerns
 // of drawing too much current from the power supply.
 
-//#define PID_BED_DEBUG // Sends debug data to the serial port.
-
 #if ENABLED(PIDTEMPBED)
+
+  //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
   #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER //limit for the integral term
 

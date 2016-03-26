@@ -41,10 +41,12 @@
 //=============================Thermal Settings  ============================
 //===========================================================================
 
-#if ENABLED(BED_LIMIT_SWITCHING)
-  #define BED_HYSTERESIS 2 //only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
+#if DISABLED(PIDTEMPBED)
+  #define BED_CHECK_INTERVAL 5000 // ms between checks in bang-bang control
+  #if ENABLED(BED_LIMIT_SWITCHING)
+    #define BED_HYSTERESIS 2 // Only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
+  #endif
 #endif
-#define BED_CHECK_INTERVAL 5000 //ms between checks in bang-bang control
 
 /**
  * Thermal Protection protects your printer from damage and fire if a
