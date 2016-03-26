@@ -631,7 +631,7 @@ float get_pid_output(int e) {
 
     return pid_output;
   }
-#endif
+#endif //PIDTEMPBED
 
 /**
  * Manage heating activities for extruder hot-ends and a heated bed
@@ -745,7 +745,7 @@ void manage_heater() {
         soft_pwm_bed = 0;
         WRITE_HEATER_BED(LOW);
       }
-    #else // BED_LIMIT_SWITCHING
+    #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
       // Check if temperature is within the correct range
       if (current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP) {
         soft_pwm_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
