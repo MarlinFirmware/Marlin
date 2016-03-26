@@ -2224,13 +2224,15 @@ void unknown_command_error() {
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 
+  /**
+   * Output a "busy" message at regular intervals
+   * while the machine is not accepting commands.
+   */
   void host_keepalive() {
     millis_t ms = millis();
     if (busy_state != NOT_BUSY) {
       if (ms < next_busy_signal_ms) return;
       switch (busy_state) {
-        case NOT_BUSY:
-          break;
         case IN_HANDLER:
         case IN_PROCESS:
           SERIAL_ECHO_START;
@@ -2246,7 +2248,7 @@ void unknown_command_error() {
           break;
       }
     }
-    next_busy_signal_ms = ms + 2000UL;
+    next_busy_signal_ms = ms + 10000UL; // "busy: ..." message every 10s
   }
 
 #endif //HOST_KEEPALIVE_FEATURE
