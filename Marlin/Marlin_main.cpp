@@ -3377,11 +3377,11 @@ inline void gcode_G28() {
       #if HAS_SERVO_ENDSTOPS
         raise_z_for_servo();
       #endif
-      deploy_z_probe(); // Engage Z Servo endstop if available. Z_PROBE_SLED is missed her.
+      deploy_z_probe(); // Engage Z Servo endstop if available. Z_PROBE_SLED is missed here.
 
       st_synchronize();
       // TODO: clear the leveling matrix or the planner will be set incorrectly
-      setup_for_endstop_move(); // to late. Must be done before deploying.
+      setup_for_endstop_move(); // Too late. Must be done before deploying.
 
       feedrate = homing_feedrate[Z_AXIS];
 
@@ -3394,12 +3394,12 @@ inline void gcode_G28() {
       SERIAL_PROTOCOL(current_position[Z_AXIS] + 0.0001);
       SERIAL_EOL;
 
-      clean_up_after_endstop_move(); // to early. must be done after the stowing.
+      clean_up_after_endstop_move(); // Too early. must be done after the stowing.
 
       #if HAS_SERVO_ENDSTOPS
         raise_z_for_servo();
       #endif
-      stow_z_probe(false); // Retract Z Servo endstop if available. Z_PROBE_SLED is missed her.
+      stow_z_probe(false); // Retract Z Servo endstop if available. Z_PROBE_SLED is missed here.
 
       gcode_M114(); // Send end position to RepetierHost
     }
