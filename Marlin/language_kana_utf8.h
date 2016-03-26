@@ -76,6 +76,7 @@
 #define MSG_MOVE_1MM                        "  1mm イドウ"                 // "Move 1mm"
 #define MSG_MOVE_10MM                       " 10mm イドウ"                 // "Move 10mm"
 #define MSG_SPEED                           "スピード"                     // "Speed"
+#define MSG_BED_Z                           "Zオフセット"                   // "Bed Z"
 #define MSG_NOZZLE                          "ノズル"                       // "Nozzle"
 #define MSG_BED                             "ベッド"                       // "Bed"
 #define MSG_FAN_SPEED                       "ファンソクド"                    // "Fan speed"
