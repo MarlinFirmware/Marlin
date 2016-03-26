@@ -132,9 +132,15 @@
 #endif
 
 /**
+ * Bed Heating Options - PID vs Limit Switching
+ */
+#if ENABLED(PIDTEMPBED) && ENABLED(BED_LIMIT_SWITCHING)
+  #error To use BED_LIMIT_SWITCHING you must disable PIDTEMPBED.
+#endif
+
+/**
  * Mesh Bed Leveling
  */
-
 #if ENABLED(MESH_BED_LEVELING)
   #if ENABLED(DELTA)
     #error MESH_BED_LEVELING does not yet support DELTA printers.

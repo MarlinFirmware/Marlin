@@ -47,28 +47,27 @@
 //=============================Thermal Settings  ============================
 //===========================================================================
 
-#if ENABLED(BED_LIMIT_SWITCHING)
-  #define BED_HYSTERESIS 2 //only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
+#if DISABLED(PIDTEMPBED)
+  #define BED_CHECK_INTERVAL 5000 // ms between checks in bang-bang control
+  #if ENABLED(BED_LIMIT_SWITCHING)
+    #define BED_HYSTERESIS 2 // Only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
+  #endif
 #endif
-#define BED_CHECK_INTERVAL 5000 //ms between checks in bang-bang control
 
 /**
- * Thermal Protection parameters
+ * Thermal Protection protects your printer from damage and fire if a
+ * thermistor falls out or temperature sensors fail in any way.
+ *
+ * The issue: If a thermistor falls out or a temperature sensor fails,
+ * Marlin can no longer sense the actual temperature. Since a disconnected
+ * thermistor reads as a low temperature, the firmware will keep the heater on.
+ *
+ * The solution: Once the temperature reaches the target, start observing.
+ * If the temperature stays too far below the target (hysteresis) for too long (period),
+ * the firmware will halt the machine as a safety precaution.
+ *
+ * If you get false positives for "Thermal Runaway" increase THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
  */
-  /**
-   * Thermal Protection protects your printer from damage and fire if a
-   * thermistor falls out or temperature sensors fail in any way.
-   *
-   * The issue: If a thermistor falls out or a temperature sensor fails,
-   * Marlin can no longer sense the actual temperature. Since a disconnected
-   * thermistor reads as a low temperature, the firmware will keep the heater on.
-   *
-   * The solution: Once the temperature reaches the target, start observing.
-   * If the temperature stays too far below the target (hysteresis) for too long (period),
-   * the firmware will halt the machine as a safety precaution.
-   *
-   * If you get false positives for "Thermal Runaway" increase THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
-   */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
   #define THERMAL_PROTECTION_PERIOD 60        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 8     // Degrees Celsius
@@ -86,11 +85,11 @@
   #define WATCH_TEMP_INCREASE 4               // Degrees Celsius
 #endif
 
-  /**
-   * Thermal Protection parameters for the bed
-   * are like the above for the hotends.
-   * WATCH_TEMP_BED_PERIOD and WATCH_TEMP_BED_INCREASE are not imlemented now.
-   */
+/**
+ * Thermal Protection parameters for the bed
+ * are like the above for the hotends.
+ * WATCH_TEMP_BED_PERIOD and WATCH_TEMP_BED_INCREASE are not imlemented now.
+ */
 #if ENABLED(THERMAL_PROTECTION_BED)
   #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
