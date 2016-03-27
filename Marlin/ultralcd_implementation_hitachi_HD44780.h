@@ -942,16 +942,15 @@ void lcd_implementation_drawedit(const char* pstr, const char* value) {
 
   static uint8_t lcd_implementation_read_slow_buttons() {
     #if ENABLED(LCD_I2C_TYPE_MCP23017)
-      uint8_t slow_buttons;
       // Reading these buttons this is likely to be too slow to call inside interrupt context
       // so they are called during normal lcd_update
-      slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET;
+      uint8_t slow_bits = lcd.readButtons() << B_I2C_BTN_OFFSET;
       #if ENABLED(LCD_I2C_VIKI)
-        if ((slow_buttons & (B_MI | B_RI)) && millis() < next_button_update_ms) // LCD clicked
-          slow_buttons &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
-      #endif
-      return slow_buttons;
-    #endif
+        if ((slow_bits & (B_MI | B_RI)) && millis() < next_button_update_ms) // LCD clicked
+          slow_bits &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
+      #endif // LCD_I2C_VIKI
+      return slow_bits;
+    #endif // LCD_I2C_TYPE_MCP23017
   }
 
 #endif // LCD_HAS_SLOW_BUTTONS
