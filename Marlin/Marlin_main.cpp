@@ -456,9 +456,11 @@ static bool send_ok[BUFSIZE];
   #define KEEPALIVE_STATE(n) ;
 #endif // HOST_KEEPALIVE_FEATURE
 
-//===========================================================================
-//================================ Functions ================================
-//===========================================================================
+/**
+ * ***************************************************************************
+ * ******************************** FUNCTIONS ********************************
+ * ***************************************************************************
+ */
 
 void process_next_command();
 
@@ -877,16 +879,16 @@ void get_command() {
     }
   #endif
 
-  //
-  // Loop while serial characters are incoming and the queue is not full
-  //
+  /**
+   * Loop while serial characters are incoming and the queue is not full
+   */
   while (commands_in_queue < BUFSIZE && MYSERIAL.available() > 0) {
 
     char serial_char = MYSERIAL.read();
 
-    //
-    // If the character ends the line
-    //
+    /**
+     * If the character ends the line
+     */
     if (serial_char == '\n' || serial_char == '\r') {
 
       serial_comment_mode = false; // end of line == end of comment
@@ -994,9 +996,12 @@ void get_command() {
 
     if (!card.sdprinting) return;
 
-    // '#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
-    // if it occurs, stop_buffering is triggered and the buffer is run dry.
-    // this character _can_ occur in serial com, due to checksums. however, no checksums are used in SD printing
+    /**
+     * '#' stops reading from SD to the buffer prematurely, so procedural
+     * macro calls are possible. If it occurs, stop_buffering is triggered
+     * and the buffer is run dry; this character _can_ occur in serial com
+     * due to checksums, however, no checksums are used in SD printing.
+     */
 
     if (commands_in_queue == 0) stop_buffering = false;
 
@@ -1035,8 +1040,10 @@ void get_command() {
         _commit_command(false);
       }
       else if (sd_count >= MAX_CMD_SIZE - 1) {
-        // Keep fetching, but ignore normal characters beyond the max length
-        // The command will be injected when EOL is reached
+        /**
+         * Keep fetching, but ignore normal characters beyond the max length
+         * The command will be injected when EOL is reached
+         */
       }
       else {
         if (sd_char == ';') sd_comment_mode = true;
@@ -1110,10 +1117,12 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
     if (extruder == 0)
       return base_home_pos(X_AXIS) + home_offset[X_AXIS];
     else
-      // In dual carriage mode the extruder offset provides an override of the
-      // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
-      // This allow soft recalibration of the second extruder offset position without firmware reflash
-      // (through the M218 command).
+      /**
+       * In dual carriage mode the extruder offset provides an override of the
+       * second X-carriage offset when homed - otherwise X2_HOME_POS is used.
+       * This allow soft recalibration of the second extruder offset position
+       * without firmware reflash (through the M218 command).
+       */
       return (extruder_offset[X_AXIS][1] > 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
   }
 
@@ -1173,8 +1182,11 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
       // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
       // SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
-      // Works out real Homeposition angles using inverse kinematics,
-      // and calculates homing offset using forward kinematics
+
+      /**
+       * Works out real Homeposition angles using inverse kinematics,
+       * and calculates homing offset using forward kinematics
+       */
       calculate_delta(homeposition);
 
       // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
@@ -1194,8 +1206,10 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
       current_position[axis] = delta[axis];
 
-      // SCARA home positions are based on configuration since the actual limits are determined by the
-      // inverse kinematic transform.
+      /**
+       * SCARA home positions are based on configuration since the actual
+       * limits are determined by the inverse kinematic transform.
+       */
       min_pos[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
       max_pos[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
     }
@@ -1357,7 +1371,11 @@ static void setup_for_endstop_move() {
 
   static void run_z_probe() {
 
-    refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
+    /**
+     * To prevent stepper_inactive_time from running out and
+     * EXTRUDER_RUNOUT_PREVENT from extruding
+     */
+    refresh_cmd_timeout();
 
     #if ENABLED(DELTA)
 
@@ -1377,7 +1395,10 @@ static void setup_for_endstop_move() {
       st_synchronize();
       endstops_hit_on_purpose(); // clear endstop hit flags
 
-      // we have to let the planner know where we are right now as it is not where we said to go.
+      /**
+       * We have to let the planner know where we are right now as it
+       * is not where we said to go.
+       */
       long stop_steps = st_get_position(Z_AXIS);
       float mm = start_z - float(start_steps - stop_steps) / axis_steps_per_unit[Z_AXIS];
       current_position[Z_AXIS] = mm;
@@ -1402,7 +1423,10 @@ static void setup_for_endstop_move() {
 
       // Tell the planner where we ended up - Get this from the stepper handler
       zPosition = st_get_axis_position_mm(Z_AXIS);
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
+      plan_set_position(
+        current_position[X_AXIS], current_position[Y_AXIS], zPosition,
+        current_position[E_AXIS]
+      );
 
       // move up the retract distance
       zPosition += home_bump_mm(Z_AXIS);
@@ -1474,10 +1498,21 @@ static void setup_for_endstop_move() {
     feedrate = oldFeedRate;
   }
 
-  inline void do_blocking_move_to_xy(float x, float y) { do_blocking_move_to(x, y, current_position[Z_AXIS]); }
-  inline void do_blocking_move_to_x(float x) { do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS]); }
-  inline void do_blocking_move_to_z(float z) { do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z); }
-  inline void raise_z_after_probing() { do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING); }
+  inline void do_blocking_move_to_xy(float x, float y) {
+    do_blocking_move_to(x, y, current_position[Z_AXIS]);
+  }
+
+  inline void do_blocking_move_to_x(float x) {
+    do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS]);
+  }
+
+  inline void do_blocking_move_to_z(float z) {
+    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z);
+  }
+
+  inline void raise_z_after_probing() {
+    do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING);
+  }
 
   static void clean_up_after_endstop_move() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1729,7 +1764,8 @@ static void setup_for_endstop_move() {
       }
     #endif
 
-    do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER)); // this also updates current_position
+    // this also updates current_position
+    do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
     #if DISABLED(Z_PROBE_SLED) && DISABLED(Z_PROBE_ALLEN_KEY)
       if (probe_action & ProbeDeploy) {
@@ -1780,7 +1816,6 @@ static void setup_for_endstop_move() {
     /**
      * All DELTA leveling in the Marlin uses NONLINEAR_BED_LEVELING
      */
-
     static void extrapolate_one_point(int x, int y, int xdir, int ydir) {
       if (bed_level[x][y] != 0.0) {
         return;  // Don't overwrite good values.
@@ -1800,8 +1835,10 @@ static void setup_for_endstop_move() {
       bed_level[x][y] = median;
     }
 
-    // Fill in the unprobed points (corners of circular print surface)
-    // using linear extrapolation, away from the center.
+    /**
+     * Fill in the unprobed points (corners of circular print surface)
+     * using linear extrapolation, away from the center.
+     */
     static void extrapolate_unprobed_bed_level() {
       int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
       for (int y = 0; y <= half; y++) {
@@ -1815,7 +1852,9 @@ static void setup_for_endstop_move() {
       }
     }
 
-    // Print calibration results for plotting or manual frame adjustment.
+    /**
+     * Print calibration results for plotting or manual frame adjustment.
+     */
     static void print_bed_level() {
       for (int y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
         for (int x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
@@ -1826,7 +1865,9 @@ static void setup_for_endstop_move() {
       }
     }
 
-    // Reset calibration results to zero.
+    /**
+     * Reset calibration results to zero.
+     */
     void reset_bed_level() {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (marlin_debug_flags & DEBUG_LEVELING) {
@@ -1846,8 +1887,10 @@ static void setup_for_endstop_move() {
 
     void raise_z_for_servo() {
       float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_PROBING;
-      // The zprobe_zoffset is negative any switch below the nozzle, so
-      // multiply by Z_HOME_DIR (-1) to move enough away from bed for the probe
+      /**
+       * The zprobe_zoffset is negative any switch below the nozzle, so
+       * multiply by Z_HOME_DIR (-1) to move enough away from bed for the probe
+       */
       z_dest += axis_homed[Z_AXIS] ? zprobe_zoffset * Z_HOME_DIR : zpos;
       if (zpos < z_dest) do_blocking_move_to_z(z_dest); // also updates current_position
     }
@@ -1894,7 +1937,8 @@ static void axis_unhomed_error() {
       #if Z_RAISE_AFTER_PROBING > 0
         raise_z_after_probing(); // raise Z
       #endif
-      do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET + offset - 1);  // Dock sled a bit closer to ensure proper capturing
+      // Dock sled a bit closer to ensure proper capturing
+      do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET + offset - 1);
       digitalWrite(SLED_PIN, LOW); // turn off magnet
     }
     else {
@@ -2190,9 +2234,9 @@ static void homeaxis(AxisEnum axis) {
 #endif // FWRETRACT
 
 /**
- *
- * G-Code Handler functions
- *
+ * ***************************************************************************
+ * ***************************** G-CODE HANDLING *****************************
+ * ***************************************************************************
  */
 
 /**
@@ -2383,7 +2427,10 @@ inline void gcode_G28() {
     #endif
   #endif
 
-  // For mesh bed leveling deactivate the mesh calculations, will be turned on again when homing all axis
+  /**
+   * For mesh bed leveling deactivate the mesh calculations, will be turned
+   * on again when homing all axis
+   */
   #if ENABLED(MESH_BED_LEVELING)
     uint8_t mbl_was_active = mbl.active;
     mbl.active = 0;
@@ -2391,13 +2438,19 @@ inline void gcode_G28() {
 
   setup_for_endstop_move();
 
-  set_destination_to_current(); // Directly after a reset this is all 0. Later we get a hint if we have to raise z or not.
+  /**
+   * Directly after a reset this is all 0. Later we get a hint if we have
+   * to raise z or not.
+   */
+  set_destination_to_current();
 
   feedrate = 0.0;
 
   #if ENABLED(DELTA)
-    // A delta can only safely home all axis at the same time
-    // all axis have to home at the same time
+    /**
+     * A delta can only safely home all axis at the same time
+     * all axis have to home at the same time
+     */
 
     // Pretend the current position is 0,0,0
     for (int i = X_AXIS; i <= Z_AXIS; i++) current_position[i] = 0;
@@ -2462,9 +2515,11 @@ inline void gcode_G28() {
         line_to_destination();
         st_synchronize();
 
-        // Update the current Z position even if it currently not real from Z-home
-        // otherwise each call to line_to_destination() will want to move Z-axis
-        // by MIN_Z_HEIGHT_FOR_HOMING.
+        /**
+         * Update the current Z position even if it currently not real from
+         * Z-home otherwise each call to line_to_destination() will want to
+         * move Z-axis by MIN_Z_HEIGHT_FOR_HOMING.
+         */
         current_position[Z_AXIS] = destination[Z_AXIS];
       }
     #endif
@@ -2581,15 +2636,18 @@ inline void gcode_G28() {
 
           if (home_all_axis) {
 
-            // At this point we already have Z at MIN_Z_HEIGHT_FOR_HOMING height
-            // No need to move Z any more as this height should already be safe
-            // enough to reach Z_SAFE_HOMING XY positions.
-            // Just make sure the planner is in sync.
+            /**
+             * At this point we already have Z at MIN_Z_HEIGHT_FOR_HOMING height
+             * No need to move Z any more as this height should already be safe
+             * enough to reach Z_SAFE_HOMING XY positions.
+             * Just make sure the planner is in sync.
+             */
             sync_plan_position();
 
-            //
-            // Set the Z probe (or just the nozzle) destination to the safe homing point
-            //
+            /**
+             * Set the Z probe (or just the nozzle) destination to the safe
+             *  homing point
+             */
             destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - (X_PROBE_OFFSET_FROM_EXTRUDER));
             destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - (Y_PROBE_OFFSET_FROM_EXTRUDER));
             destination[Z_AXIS] = current_position[Z_AXIS]; //z is already at the right height
@@ -2606,8 +2664,10 @@ inline void gcode_G28() {
             line_to_destination();
             st_synchronize();
 
-            // Update the current positions for XY, Z is still at least at
-            // MIN_Z_HEIGHT_FOR_HOMING height, no changes there.
+            /**
+             * Update the current positions for XY, Z is still at least at
+             * MIN_Z_HEIGHT_FOR_HOMING height, no changes there.
+             */
             current_position[X_AXIS] = destination[X_AXIS];
             current_position[Y_AXIS] = destination[Y_AXIS];
 
@@ -2620,8 +2680,11 @@ inline void gcode_G28() {
             // Let's see if X and Y are homed
             if (axis_homed[X_AXIS] && axis_homed[Y_AXIS]) {
 
-              // Make sure the Z probe is within the physical limits
-              // NOTE: This doesn't necessarily ensure the Z probe is also within the bed!
+              /**
+               * Make sure the Z probe is within the physical limits
+               * NOTE: This doesn't necessarily ensure the Z probe is also
+               * within the bed!
+               */
               float cpx = current_position[X_AXIS], cpy = current_position[Y_AXIS];
               if (   cpx >= X_MIN_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
                   && cpx <= X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
@@ -2858,7 +2921,7 @@ inline void gcode_G28() {
       case MeshSetZOffset:
         if (code_seen('Z')) {
           z = code_value();
-        } 
+        }
         else {
           SERIAL_PROTOCOLPGM("Z not entered.\n");
           return;
@@ -3038,11 +3101,14 @@ inline void gcode_G28() {
         float z_offset = zprobe_zoffset;
         if (code_seen(axis_codes[Z_AXIS])) z_offset += code_value();
       #else // !DELTA
-        // solve the plane equation ax + by + d = z
-        // A is the matrix with rows [x y 1] for all the probed points
-        // B is the vector of the Z positions
-        // the normal vector to the plane is formed by the coefficients of the plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
-        // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
+        /**
+         * solve the plane equation ax + by + d = z
+         * A is the matrix with rows [x y 1] for all the probed points
+         * B is the vector of the Z positions
+         * the normal vector to the plane is formed by the coefficients of the
+         * plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
+         * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
+         */
 
         int abl2 = auto_bed_leveling_grid_points * auto_bed_leveling_grid_points;
 
@@ -3273,9 +3339,11 @@ inline void gcode_G28() {
         plan_bed_level_matrix.debug(" \n\nBed Level Correction Matrix:");
 
       if (!dryrun) {
-        // Correct the Z height difference from Z probe position and nozzle tip position.
-        // The Z height on homing is measured by Z probe, but the Z probe is quite far from the nozzle.
-        // When the bed is uneven, this height must be corrected.
+        /**
+         * Correct the Z height difference from Z probe position and nozzle tip position.
+         * The Z height on homing is measured by Z probe, but the Z probe is quite far
+         * from the nozzle. When the bed is uneven, this height must be corrected.
+         */
         float x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
               y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
               z_tmp = current_position[Z_AXIS],
@@ -3290,24 +3358,31 @@ inline void gcode_G28() {
           }
         #endif
 
-        apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp); // Apply the correction sending the Z probe offset
+        // Apply the correction sending the Z probe offset
+        apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);
 
-        // Get the current Z position and send it to the planner.
-        //
-        // >> (z_tmp - real_z) : The rotated current Z minus the uncorrected Z (most recent plan_set_position/sync_plan_position)
-        //
-        // >> zprobe_zoffset : Z distance from nozzle to Z probe (set by default, M851, EEPROM, or Menu)
-        //
-        // >> Z_RAISE_AFTER_PROBING : The distance the Z probe will have lifted after the last probe
-        //
-        // >> Should home_offset[Z_AXIS] be included?
-        //
-        //      Discussion: home_offset[Z_AXIS] was applied in G28 to set the starting Z.
-        //      If Z is not tweaked in G29 -and- the Z probe in G29 is not actually "homing" Z...
-        //      then perhaps it should not be included here. The purpose of home_offset[] is to
-        //      adjust for inaccurate endstops, not for reasonably accurate probes. If it were
-        //      added here, it could be seen as a compensating factor for the Z probe.
-        //
+        /*
+         * Get the current Z position and send it to the planner.
+         *
+         * >> (z_tmp - real_z) : The rotated current Z minus the uncorrected Z
+         * (most recent plan_set_position/sync_plan_position)
+         *
+         * >> zprobe_zoffset : Z distance from nozzle to Z probe
+         * (set by default, M851, EEPROM, or Menu)
+         *
+         * >> Z_RAISE_AFTER_PROBING : The distance the Z probe will have lifted
+         * after the last probe
+         *
+         * >> Should home_offset[Z_AXIS] be included?
+         *
+         *
+         *   Discussion: home_offset[Z_AXIS] was applied in G28 to set the
+         *   starting Z. If Z is not tweaked in G29 -and- the Z probe in G29 is
+         *   not actually "homing" Z... then perhaps it should not be included
+         *   here. The purpose of home_offset[] is to adjust for inaccurate
+         *   endstops, not for reasonably accurate probes. If it were added
+         *   here, it could be seen as a compensating factor for the Z probe.
+         */
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (marlin_debug_flags & DEBUG_LEVELING) {
             SERIAL_ECHOPAIR("> AFTER apply_rotation_xyz > z_tmp  = ", z_tmp);
@@ -3697,7 +3772,10 @@ inline void gcode_M42() {
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE) && ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
 
-  // This is redundant since the SanityCheck.h already checks for a valid Z_MIN_PROBE_PIN, but here for clarity.
+  /**
+   * This is redundant since the SanityCheck.h already checks for a valid
+   *  Z_MIN_PROBE_PIN, but here for clarity.
+   */
   #if ENABLED(Z_MIN_PROBE_ENDSTOP)
     #if !HAS_Z_PROBE
       #error You must define Z_MIN_PROBE_PIN to enable Z probe repeatability calculation.
@@ -3804,17 +3882,20 @@ inline void gcode_M42() {
       if (!seen_L) n_legs = 7;
     }
 
-    // Now get everything to the specified probe point So we can safely do a probe to
-    // get us close to the bed.  If the Z-Axis is far from the bed, we don't want to
-    // use that as a starting point for each probe.
-    //
+    /**
+     * Now get everything to the specified probe point So we can safely do a
+     * probe to get us close to the bed.  If the Z-Axis is far from the bed,
+     * we don't want to use that as a starting point for each probe.
+     */
     if (verbose_level > 2)
       SERIAL_PROTOCOLPGM("Positioning the probe...\n");
 
     #if ENABLED(DELTA)
-      reset_bed_level();    // we don't do bed level correction in M48 because we want the raw data when we probe
+      // we don't do bed level correction in M48 because we want the raw data when we probe
+      reset_bed_level();
     #else
-      plan_bed_level_matrix.set_to_identity();  // we don't do bed level correction in M48 because we wantthe raw data when we probe
+      // we don't do bed level correction in M48 because we want the raw data when we probe
+      plan_bed_level_matrix.set_to_identity();
     #endif
 
     if (Z_start_location < Z_RAISE_BEFORE_PROBING * 2.0)
@@ -3822,10 +3903,10 @@ inline void gcode_M42() {
 
     do_blocking_move_to_xy(X_probe_location - X_PROBE_OFFSET_FROM_EXTRUDER, Y_probe_location - Y_PROBE_OFFSET_FROM_EXTRUDER);
 
-    //
-    // OK, do the initial probe to get us close to the bed.
-    // Then retrace the right amount and use that in subsequent probes
-    //
+    /**
+     * OK, do the initial probe to get us close to the bed.
+     * Then retrace the right amount and use that in subsequent probes
+     */
     setup_for_endstop_move();
 
     probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING,
@@ -3862,19 +3943,27 @@ inline void gcode_M42() {
 
         for (uint8_t l = 0; l < n_legs - 1; l++) {
           double delta_angle;
+
           if (schizoid_flag)
-            delta_angle = dir * 2.0 * 72.0;   // The points of a 5 point star are 72 degrees apart.  We need to
-          // skip a point and go to the next one on the star.
+            // The points of a 5 point star are 72 degrees apart.  We need to
+            // skip a point and go to the next one on the star.
+            delta_angle = dir * 2.0 * 72.0;
+
           else
-            delta_angle = dir * (float) random(25, 45);   // If we do this line, we are just trying to move further
-          // around the circle.
+            // If we do this line, we are just trying to move further
+            // around the circle.
+            delta_angle = dir * (float) random(25, 45);
+
           angle += delta_angle;
+
           while (angle > 360.0)   // We probably do not need to keep the angle between 0 and 2*PI, but the
             angle -= 360.0;       // Arduino documentation says the trig functions should not be given values
           while (angle < 0.0)     // outside of this range.   It looks like they behave correctly with
             angle += 360.0;       // numbers outside of the range, but just to be safe we clamp them.
+
           X_current = X_probe_location - X_PROBE_OFFSET_FROM_EXTRUDER + cos(RADIANS(angle)) * radius;
           Y_current = Y_probe_location - Y_PROBE_OFFSET_FROM_EXTRUDER + sin(RADIANS(angle)) * radius;
+
           #if DISABLED(DELTA)
             X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
             Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
@@ -3904,10 +3993,13 @@ inline void gcode_M42() {
         } // n_legs loop
       } // n_legs
 
-      // We don't really have to do this move, but if we don't we can see a funny shift in the Z Height
-      // Because the user might not have the Z_RAISE_BEFORE_PROBING height identical to the
-      // Z_RAISE_BETWEEN_PROBING height.  This gets us back to the probe location at the same height that
-      // we have been running around the circle at.
+      /**
+       * We don't really have to do this move, but if we don't we can see a
+       * funny shift in the Z Height because the user might not have the
+       * Z_RAISE_BEFORE_PROBING height identical to the Z_RAISE_BETWEEN_PROBING
+       * height. This gets us back to the probe location at the same height that
+       * we have been running around the circle at.
+       */
       do_blocking_move_to_xy(X_probe_location - X_PROBE_OFFSET_FROM_EXTRUDER, Y_probe_location - Y_PROBE_OFFSET_FROM_EXTRUDER);
       if (deploy_probe_for_each_reading)
         sample_set[n] = probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING, ProbeDeployAndStow, verbose_level);
@@ -3917,17 +4009,17 @@ inline void gcode_M42() {
           sample_set[n] = probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING, ProbeStay, verbose_level);
       }
 
-      //
-      // Get the current mean for the data points we have so far
-      //
+      /**
+       * Get the current mean for the data points we have so far
+       */
       sum = 0.0;
       for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
       mean = sum / (n + 1);
 
-      //
-      // Now, use that mean to calculate the standard deviation for the
-      // data points we have so far
-      //
+      /**
+       * Now, use that mean to calculate the standard deviation for the
+       * data points we have so far
+       */
       sum = 0.0;
       for (uint8_t j = 0; j <= n; j++) {
         float ss = sample_set[j] - mean;
@@ -4367,9 +4459,11 @@ inline void gcode_M140() {
   inline void gcode_M80() {
     OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); //GND
 
-    // If you have a switch on suicide pin, this is useful
-    // if you want to start another print with suicide feature after
-    // a print without suicide...
+    /**
+     * If you have a switch on suicide pin, this is useful
+     * if you want to start another print with suicide feature after
+     * a print without suicide...
+     */
     #if HAS_SUICIDE
       OUT_WRITE(SUICIDE_PIN, HIGH);
     #endif
@@ -6973,31 +7067,32 @@ void plan_arc(
   float linear_per_segment = linear_travel / segments;
   float extruder_per_segment = extruder_travel / segments;
 
-  /* Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
-     and phi is the angle of rotation. Based on the solution approach by Jens Geisler.
-         r_T = [cos(phi) -sin(phi);
-                sin(phi)  cos(phi] * r ;
-
-     For arc generation, the center of the circle is the axis of rotation and the radius vector is
-     defined from the circle center to the initial position. Each line segment is formed by successive
-     vector rotations. This requires only two cos() and sin() computations to form the rotation
-     matrix for the duration of the entire arc. Error may accumulate from numerical round-off, since
-     all double numbers are single precision on the Arduino. (True double precision will not have
-     round off issues for CNC applications.) Single precision error can accumulate to be greater than
-     tool precision in some cases. Therefore, arc path correction is implemented.
-
-     Small angle approximation may be used to reduce computation overhead further. This approximation
-     holds for everything, but very small circles and large MM_PER_ARC_SEGMENT values. In other words,
-     theta_per_segment would need to be greater than 0.1 rad and N_ARC_CORRECTION would need to be large
-     to cause an appreciable drift error. N_ARC_CORRECTION~=25 is more than small enough to correct for
-     numerical drift error. N_ARC_CORRECTION may be on the order a hundred(s) before error becomes an
-     issue for CNC machines with the single precision Arduino calculations.
-
-     This approximation also allows plan_arc to immediately insert a line segment into the planner
-     without the initial overhead of computing cos() or sin(). By the time the arc needs to be applied
-     a correction, the planner should have caught up to the lag caused by the initial plan_arc overhead.
-     This is important when there are successive arc motions.
-  */
+  /**
+   * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
+   * and phi is the angle of rotation. Based on the solution approach by Jens Geisler.
+   *     r_T = [cos(phi) -sin(phi);
+   *            sin(phi)  cos(phi] * r ;
+   *
+   * For arc generation, the center of the circle is the axis of rotation and the radius vector is
+   * defined from the circle center to the initial position. Each line segment is formed by successive
+   * vector rotations. This requires only two cos() and sin() computations to form the rotation
+   * matrix for the duration of the entire arc. Error may accumulate from numerical round-off, since
+   * all double numbers are single precision on the Arduino. (True double precision will not have
+   * round off issues for CNC applications.) Single precision error can accumulate to be greater than
+   * tool precision in some cases. Therefore, arc path correction is implemented.
+   *
+   * Small angle approximation may be used to reduce computation overhead further. This approximation
+   * holds for everything, but very small circles and large MM_PER_ARC_SEGMENT values. In other words,
+   * theta_per_segment would need to be greater than 0.1 rad and N_ARC_CORRECTION would need to be large
+   * to cause an appreciable drift error. N_ARC_CORRECTION~=25 is more than small enough to correct for
+   * numerical drift error. N_ARC_CORRECTION may be on the order a hundred(s) before error becomes an
+   * issue for CNC machines with the single precision Arduino calculations.
+   *
+   * This approximation also allows plan_arc to immediately insert a line segment into the planner
+   * without the initial overhead of computing cos() or sin(). By the time the arc needs to be applied
+   * a correction, the planner should have caught up to the lag caused by the initial plan_arc overhead.
+   * This is important when there are successive arc motions.
+   */
   // Vector rotation matrix values
   float cos_T = 1 - 0.5 * theta_per_segment * theta_per_segment; // Small angle approximation
   float sin_T = theta_per_segment;
