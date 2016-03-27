@@ -304,9 +304,11 @@ static void _draw_heater_status(int x, int heater) {
 static void lcd_implementation_status_screen() {
   u8g.setColorIndex(1); // black on white
 
+  millis_t ms = millis();
+
   #if HAS_FAN0
     // Symbols menu graphics, animated fan
-    u8g.drawBitmapP(9, 1, STATUS_SCREENBYTEWIDTH, STATUS_SCREENHEIGHT, (blink % 2) && fanSpeeds[0] ? status_screen0_bmp : status_screen1_bmp);
+    u8g.drawBitmapP(9, 1, STATUS_SCREENBYTEWIDTH, STATUS_SCREENHEIGHT, TEST(ms, 11) && fanSpeeds[0] ? status_screen0_bmp : status_screen1_bmp);
   #endif
 
   #if ENABLED(SDSUPPORT)
@@ -330,7 +332,7 @@ static void lcd_implementation_status_screen() {
     u8g.setPrintPos(80,48);
     if (print_job_start_ms != 0) {
       uint16_t time = (((print_job_stop_ms > print_job_start_ms)
-                       ? print_job_stop_ms : millis()) - print_job_start_ms) / 60000;
+                       ? print_job_stop_ms : ms) - print_job_start_ms) / 60000;
       lcd_print(itostr2(time/60));
       lcd_print(':');
       lcd_print(itostr2(time%60));
@@ -373,9 +375,13 @@ static void lcd_implementation_status_screen() {
   #else
     u8g.drawBox(0, 30, LCD_PIXEL_WIDTH, 9);
   #endif
+
   u8g.setColorIndex(0); // white on black
   u8g.setPrintPos(2, XYZ_BASELINE);
-  if (blink & 1)
+
+  bool blink_on = TEST(ms, 10);
+
+  if (blink_on)
     lcd_printPGM(PSTR("X"));
   else {
     if (!axis_homed[X_AXIS])
@@ -394,7 +400,7 @@ static void lcd_implementation_status_screen() {
   lcd_print(ftostr31ns(current_position[X_AXIS]));
 
   u8g.setPrintPos(43, XYZ_BASELINE);
-  if (blink & 1)
+  if (blink_on)
     lcd_printPGM(PSTR("Y"));
   else {
     if (!axis_homed[Y_AXIS])
@@ -413,7 +419,7 @@ static void lcd_implementation_status_screen() {
   lcd_print(ftostr31ns(current_position[Y_AXIS]));
 
   u8g.setPrintPos(83, XYZ_BASELINE);
-  if (blink & 1)
+  if (blink_on)
     lcd_printPGM(PSTR("Z"));
   else {
     if (!axis_homed[Z_AXIS])
@@ -451,7 +457,7 @@ static void lcd_implementation_status_screen() {
   #if DISABLED(FILAMENT_LCD_DISPLAY)
     lcd_print(lcd_status_message);
   #else
-    if (millis() < previous_lcd_status_ms + 5000) {  //Display both Status message line and Filament display on the last line
+    if (ms < previous_lcd_status_ms + 5000) {  //Display both Status message line and Filament display on the last line
       lcd_print(lcd_status_message);
     }
     else {
