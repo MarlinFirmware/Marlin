@@ -44,7 +44,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #define EN_B (_BV(BLEN_B)) // The two encoder pins are connected through BTN_EN1 and BTN_EN2
   #define EN_A (_BV(BLEN_A))
 
-  #if defined(BTN_ENC) && BTN_ENC > -1
+  #if BUTTON_EXISTS(ENC)
     // encoder click is directly connected
     #define BLEN_C 2
     #define EN_C (_BV(BLEN_C))
@@ -63,7 +63,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
     #define B_DW (BUTTON_DOWN<<B_I2C_BTN_OFFSET)
     #define B_RI (BUTTON_RIGHT<<B_I2C_BTN_OFFSET)
 
-    #if defined(BTN_ENC) && BTN_ENC > -1
+    #if BUTTON_EXISTS(ENC)
       // the pause/stop/restart button is connected to BTN_ENC when used
       #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
       #undef LCD_CLICKED
@@ -77,8 +77,14 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
     #define LCD_HAS_SLOW_BUTTONS
 
   #elif ENABLED(LCD_I2C_PANELOLU2)
-    // encoder click can be read through I2C if not directly connected
-    #if BTN_ENC <= 0
+
+    #if BUTTON_EXISTS(ENC)
+
+      #undef LCD_CLICKED
+      #define LCD_CLICKED (buttons&EN_C)
+
+    #else // Read through I2C if not directly connected to a pin
+
       #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
       #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
@@ -88,9 +94,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
       // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
       #define LCD_HAS_SLOW_BUTTONS
-    #else
-      #undef LCD_CLICKED
-      #define LCD_CLICKED (buttons&EN_C)
+
     #endif
 
   #elif ENABLED(REPRAPWORLD_KEYPAD)
