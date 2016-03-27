@@ -29,6 +29,16 @@
 #define SANITYCHECK_H
 
 /**
+ * Due to the high number of issues related with old versions of Arduino IDE
+ * we are now warning our users to update their toolkits. In a future Marlin
+ * release we will stop supporting old IDE versions and will require user
+ * action to proceed with compilation in such environments.
+ */
+#if !defined(ARDUINO) || ARDUINO < 10500
+  #warning Versions of Arduino IDE prior to 1.5 are no longer supported, please update your toolkit.
+#endif
+
+/**
  * Dual Stepper Drivers
  */
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS) && ENABLED(Y_DUAL_STEPPER_DRIVERS)
