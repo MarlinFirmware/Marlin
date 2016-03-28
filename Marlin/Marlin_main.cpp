@@ -6082,25 +6082,22 @@ void process_next_command() {
   // Skip spaces to get the numeric part
   while (*cmd_ptr == ' ') cmd_ptr++;
 
-  // The code must have a numeric value
-  bool code_is_good = false;
-
-  int codenum = 0; // define ahead of goto
-
-  // Get and skip the code number
-  while (*cmd_ptr >= '0' && *cmd_ptr <= '9') {
-    code_is_good = true;
-    codenum = codenum * 10 + *cmd_ptr - '0';
-    cmd_ptr++;
-  }
+  uint16_t codenum = 0; // define ahead of goto
 
   // Bail early if there's no code
+  bool code_is_good = NUMERIC(*cmd_ptr);
   if (!code_is_good) goto ExitUnknownCommand;
 
-  // Skip all spaces to get to the first argument
+  // Get and skip the code number
+  do {
+    codenum = (codenum * 10) + (*cmd_ptr - '0');
+    cmd_ptr++;
+  } while (NUMERIC(*cmd_ptr));
+
+  // Skip all spaces to get to the first argument, or nul
   while (*cmd_ptr == ' ') cmd_ptr++;
 
-  // The command's arguments start here, for sure!
+  // The command's arguments (if any) start here, for sure!
   current_command_args = cmd_ptr;
 
   KEEPALIVE_STATE(IN_HANDLER);
