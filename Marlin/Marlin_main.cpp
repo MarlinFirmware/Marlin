@@ -978,7 +978,7 @@ void get_command() {
       if (MYSERIAL.available() > 0) {
         // if we have one more character, copy it over
         serial_char = MYSERIAL.read();
-        serial_line_buffer[serial_count++] = serial_char;
+        if (!serial_comment_mode) serial_line_buffer[serial_count++] = serial_char;
       }
       // otherwise do nothing
     }
