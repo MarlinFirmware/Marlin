@@ -462,6 +462,7 @@ static bool send_ok[BUFSIZE];
  * ***************************************************************************
  */
 
+void get_available_commands();
 void process_next_command();
 
 void plan_arc(float target[NUM_AXIS], float* offset, uint8_t clockwise);
@@ -804,7 +805,7 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE) get_command();
+  if (commands_in_queue < BUFSIZE) get_available_commands();
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);
@@ -856,24 +857,16 @@ void gcode_line_error(const char* err, bool doFlush = true) {
   serial_count = 0;
 }
 
-/**
- * Add to the circular command queue the next command from:
- *  - The command-injection queue (queued_commands_P)
- *  - The active serial input (usually USB)
- *  - The SD card file being actively printed
- */
-void get_command() {
-
+inline void get_serial_commands() {
   static char serial_line_buffer[MAX_CMD_SIZE];
   static boolean serial_comment_mode = false;
 
-  if (drain_queued_commands_P()) return; // priority is given to non-serial commands
-
+  // If the command buffer is empty for too long,
+  // send "wait" to indicate Marlin is still waiting.
   #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
     static millis_t last_command_time = 0;
     millis_t ms = millis();
-
-    if (!MYSERIAL.available() && commands_in_queue == 0 && ms - last_command_time > NO_TIMEOUTS) {
+    if (commands_in_queue == 0 && !MYSERIAL.available() && ms > last_command_time + NO_TIMEOUTS) {
       SERIAL_ECHOLNPGM(MSG_WAIT);
       last_command_time = ms;
     }
@@ -988,9 +981,11 @@ void get_command() {
     }
 
   } // queue has space, serial has data
+}
 
-  #if ENABLED(SDSUPPORT)
+#if ENABLED(SDSUPPORT)
 
+  inline void get_sdcard_commands() {
     static bool stop_buffering = false,
                 sd_comment_mode = false;
 
@@ -1050,8 +1045,26 @@ void get_command() {
         if (!sd_comment_mode) command_queue[cmd_queue_index_w][sd_count++] = sd_char;
       }
     }
+  }
 
-  #endif // SDSUPPORT
+#endif // SDSUPPORT
+
+/**
+ * Add to the circular command queue the next command from:
+ *  - The command-injection queue (queued_commands_P)
+ *  - The active serial input (usually USB)
+ *  - The SD card file being actively printed
+ */
+void get_available_commands() {
+
+  // if any immediate commands remain, don't get other commands yet
+  if (drain_queued_commands_P()) return;
+
+  get_serial_commands();
+
+  #if ENABLED(SDSUPPORT)
+    get_sdcard_commands();
+  #endif
 }
 
 bool code_has_value() {
@@ -7362,7 +7375,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       filrunout();
   #endif
 
-  if (commands_in_queue < BUFSIZE) get_command();
+  if (commands_in_queue < BUFSIZE) get_available_commands();
 
   millis_t ms = millis();
 
