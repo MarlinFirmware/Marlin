@@ -893,7 +893,7 @@ void get_command() {
 
       serial_comment_mode = false; // end of line == end of comment
 
-      if (!serial_count) return; // empty lines just exit
+      if (!serial_count) continue; // skip empty lines
 
       serial_line_buffer[serial_count] = 0; // terminate string
       serial_count = 0; //reset buffer
