@@ -462,6 +462,7 @@ static bool send_ok[BUFSIZE];
  * ***************************************************************************
  */
 
+void get_available_commands();
 void process_next_command();
 
 void plan_arc(float target[NUM_AXIS], float* offset, uint8_t clockwise);
@@ -804,7 +805,7 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE) get_command();
+  if (commands_in_queue < BUFSIZE) get_available_commands();
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);
@@ -856,24 +857,16 @@ void gcode_line_error(const char* err, bool doFlush = true) {
   serial_count = 0;
 }
 
-/**
- * Add to the circular command queue the next command from:
- *  - The command-injection queue (queued_commands_P)
- *  - The active serial input (usually USB)
- *  - The SD card file being actively printed
- */
-void get_command() {
-
+inline void get_serial_commands() {
   static char serial_line_buffer[MAX_CMD_SIZE];
   static boolean serial_comment_mode = false;
 
-  if (drain_queued_commands_P()) return; // priority is given to non-serial commands
-
+  // If the command buffer is empty for too long,
+  // send "wait" to indicate Marlin is still waiting.
   #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
     static millis_t last_command_time = 0;
     millis_t ms = millis();
-
-    if (!MYSERIAL.available() && commands_in_queue == 0 && ms - last_command_time > NO_TIMEOUTS) {
+    if (commands_in_queue == 0 && !MYSERIAL.available() && ms > last_command_time + NO_TIMEOUTS) {
       SERIAL_ECHOLNPGM(MSG_WAIT);
       last_command_time = ms;
     }
@@ -893,7 +886,7 @@ void get_command() {
 
       serial_comment_mode = false; // end of line == end of comment
 
-      if (!serial_count) return; // empty lines just exit
+      if (!serial_count) continue; // skip empty lines
 
       serial_line_buffer[serial_count] = 0; // terminate string
       serial_count = 0; //reset buffer
@@ -978,7 +971,7 @@ void get_command() {
       if (MYSERIAL.available() > 0) {
         // if we have one more character, copy it over
         serial_char = MYSERIAL.read();
-        serial_line_buffer[serial_count++] = serial_char;
+        if (!serial_comment_mode) serial_line_buffer[serial_count++] = serial_char;
       }
       // otherwise do nothing
     }
@@ -988,9 +981,11 @@ void get_command() {
     }
 
   } // queue has space, serial has data
+}
 
-  #if ENABLED(SDSUPPORT)
+#if ENABLED(SDSUPPORT)
 
+  inline void get_sdcard_commands() {
     static bool stop_buffering = false,
                 sd_comment_mode = false;
 
@@ -1050,8 +1045,26 @@ void get_command() {
         if (!sd_comment_mode) command_queue[cmd_queue_index_w][sd_count++] = sd_char;
       }
     }
+  }
 
-  #endif // SDSUPPORT
+#endif // SDSUPPORT
+
+/**
+ * Add to the circular command queue the next command from:
+ *  - The command-injection queue (queued_commands_P)
+ *  - The active serial input (usually USB)
+ *  - The SD card file being actively printed
+ */
+void get_available_commands() {
+
+  // if any immediate commands remain, don't get other commands yet
+  if (drain_queued_commands_P()) return;
+
+  get_serial_commands();
+
+  #if ENABLED(SDSUPPORT)
+    get_sdcard_commands();
+  #endif
 }
 
 bool code_has_value() {
@@ -1060,7 +1073,7 @@ bool code_has_value() {
   while (c == ' ') c = seen_pointer[++i];
   if (c == '-' || c == '+') c = seen_pointer[++i];
   if (c == '.') c = seen_pointer[++i];
-  return (c >= '0' && c <= '9');
+  return NUMERIC(c);
 }
 
 float code_value() {
@@ -6066,9 +6079,9 @@ void process_next_command() {
   //  - Bypass N[-0-9][0-9]*[ ]*
   //  - Overwrite * with nul to mark the end
   while (*current_command == ' ') ++current_command;
-  if (*current_command == 'N' && ((current_command[1] >= '0' && current_command[1] <= '9') || current_command[1] == '-')) {
+  if (*current_command == 'N' && NUMERIC_SIGNED(current_command[1])) {
     current_command += 2; // skip N[-0-9]
-    while (*current_command >= '0' && *current_command <= '9') ++current_command; // skip [0-9]*
+    while (NUMERIC(*current_command)) ++current_command; // skip [0-9]*
     while (*current_command == ' ') ++current_command; // skip [ ]*
   }
   char* starpos = strchr(current_command, '*');  // * should always be the last parameter
@@ -6082,25 +6095,22 @@ void process_next_command() {
   // Skip spaces to get the numeric part
   while (*cmd_ptr == ' ') cmd_ptr++;
 
-  // The code must have a numeric value
-  bool code_is_good = false;
-
-  int codenum = 0; // define ahead of goto
-
-  // Get and skip the code number
-  while (*cmd_ptr >= '0' && *cmd_ptr <= '9') {
-    code_is_good = true;
-    codenum = codenum * 10 + *cmd_ptr - '0';
-    cmd_ptr++;
-  }
+  uint16_t codenum = 0; // define ahead of goto
 
   // Bail early if there's no code
+  bool code_is_good = NUMERIC(*cmd_ptr);
   if (!code_is_good) goto ExitUnknownCommand;
 
-  // Skip all spaces to get to the first argument
+  // Get and skip the code number
+  do {
+    codenum = (codenum * 10) + (*cmd_ptr - '0');
+    cmd_ptr++;
+  } while (NUMERIC(*cmd_ptr));
+
+  // Skip all spaces to get to the first argument, or nul
   while (*cmd_ptr == ' ') cmd_ptr++;
 
-  // The command's arguments start here, for sure!
+  // The command's arguments (if any) start here, for sure!
   current_command_args = cmd_ptr;
 
   KEEPALIVE_STATE(IN_HANDLER);
@@ -6668,7 +6678,7 @@ void ok_to_send() {
     if (*p == 'N') {
       SERIAL_PROTOCOL(' ');
       SERIAL_ECHO(*p++);
-      while ((*p >= '0' && *p <= '9') || *p == '-')
+      while (NUMERIC_SIGNED(*p))
         SERIAL_ECHO(*p++);
     }
     SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(int(BLOCK_BUFFER_SIZE - movesplanned() - 1));
@@ -7365,7 +7375,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       filrunout();
   #endif
 
-  if (commands_in_queue < BUFSIZE) get_command();
+  if (commands_in_queue < BUFSIZE) get_available_commands();
 
   millis_t ms = millis();
 
