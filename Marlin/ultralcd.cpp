@@ -48,8 +48,6 @@
   #define ENCODER_DIRECTION_MENUS() ;
 #endif
 
-uint8_t blink = 0; // Variable for animation
-
 int8_t encoderDiff; // updated from interrupt context and added to encoderPosition every LCD update
 
 bool encoderRateMultiplierEnabled;
@@ -1807,6 +1805,16 @@ int lcd_strlen_P(const char* s) {
   return j;
 }
 
+bool lcd_blink() {
+  static uint8_t blink = 0;
+  static millis_t next_blink_ms = 0;
+  if (millis() >= next_blink_ms) {
+    blink ^= 0xFF;
+    next_blink_ms = millis() + LCD_UPDATE_INTERVAL - 50;
+  }
+  return blink != 0;
+}
+
 /**
  * Update the LCD, read encoder buttons, etc.
  *   - Read button states
@@ -1923,25 +1931,23 @@ void lcd_update() {
         lcd_status_update_delay--;
       }
     }
-    #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
-        if (lcdDrawUpdate) {
-          blink++;     // Variable for animation and alive dot
-          u8g.firstPage();
-          do {
-            lcd_setFont(FONT_MENU);
-            u8g.setPrintPos(125, 0);
-            if (blink & 1) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
-            u8g.drawPixel(127, 63); // draw alive dot
-            u8g.setColorIndex(1); // black on white
-            (*currentMenu)();
-          } while (u8g.nextPage());
-        }
-    #else
-      if (lcdDrawUpdate) {
-        blink++;     // Variable for animation
+
+    if (lcdDrawUpdate) {
+      #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
+        bool blink = lcd_blink();
+        u8g.firstPage();
+        do {
+          lcd_setFont(FONT_MENU);
+          u8g.setPrintPos(125, 0);
+          u8g.setColorIndex(blink ? 1 : 0); // Set color for the alive dot
+          u8g.drawPixel(127, 63); // draw alive dot
+          u8g.setColorIndex(1); // black on white
+          (*currentMenu)();
+        } while (u8g.nextPage());
+      #else
         (*currentMenu)();
-      }
-    #endif
+      #endif
+    }
 
     #if ENABLED(LCD_HAS_STATUS_INDICATORS)
       lcd_implementation_update_indicators();
@@ -1963,8 +1969,7 @@ void lcd_update() {
 
     #endif // ULTIPANEL
 
-    if (lcdDrawUpdate == 2) lcd_implementation_clear();
-    if (lcdDrawUpdate) lcdDrawUpdate--;
+    if (lcdDrawUpdate && --lcdDrawUpdate) lcd_implementation_clear();
     next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
   }
 }
