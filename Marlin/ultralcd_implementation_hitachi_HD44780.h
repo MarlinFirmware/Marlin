@@ -624,7 +624,13 @@ static void lcd_implementation_status_screen() {
   // Line 2
   //
 
+  #if LCD_HEIGHT > 2 || ENABLED(LCD_PROGRESS_BAR) || ENABLED(FILAMENT_LCD_DISPLAY)
+    millis_t ms = millis();
+  #endif
+
   #if LCD_HEIGHT > 2
+
+    bool blink_on = TEST(ms, 10);
 
     #if LCD_WIDTH < 20
 
@@ -654,7 +660,7 @@ static void lcd_implementation_status_screen() {
         // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
         // When everything is ok you see a constant 'X'.
 
-        if (blink & 1)
+        if (blink_on)
           lcd_printPGM(PSTR("X"));
         else {
           if (!axis_homed[X_AXIS])
@@ -671,7 +677,7 @@ static void lcd_implementation_status_screen() {
         lcd.print(ftostr4sign(current_position[X_AXIS]));
 
         lcd_printPGM(PSTR(" "));
-        if (blink & 1)
+        if (blink_on)
           lcd_printPGM(PSTR("Y"));
         else {
           if (!axis_homed[Y_AXIS])
@@ -691,7 +697,7 @@ static void lcd_implementation_status_screen() {
     #endif // LCD_WIDTH >= 20
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
-    if (blink & 1)
+    if (blink_on)
       lcd_printPGM(PSTR("Z"));
     else {
       if (!axis_homed[Z_AXIS])
@@ -735,7 +741,7 @@ static void lcd_implementation_status_screen() {
     lcd.print(LCD_STR_CLOCK[0]);
     if (print_job_start_ms != 0) {
       uint16_t time = (((print_job_stop_ms > print_job_start_ms)
-                       ? print_job_stop_ms : millis()) - print_job_start_ms) / 60000;
+                       ? print_job_stop_ms : ms) - print_job_start_ms) / 60000;
       lcd.print(itostr2(time / 60));
       lcd.print(':');
       lcd.print(itostr2(time % 60));
@@ -758,7 +764,7 @@ static void lcd_implementation_status_screen() {
     if (card.isFileOpen()) {
       // Draw the progress bar if the message has shown long enough
       // or if there is no message set.
-      if (millis() >= progress_bar_ms + PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
+      if (ms >= progress_bar_ms + PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
         int tix = (int)(card.percentDone() * (LCD_WIDTH) * 3) / 100,
           cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
         char msg[LCD_WIDTH + 1], b = ' ';
@@ -779,7 +785,7 @@ static void lcd_implementation_status_screen() {
 
     // Show Filament Diameter and Volumetric Multiplier %
     // After allowing lcd_status_message to show for 5 seconds
-    if (millis() >= previous_lcd_status_ms + 5000) {
+    if (ms >= previous_lcd_status_ms + 5000) {
       lcd_printPGM(PSTR("Dia "));
       lcd.print(ftostr12ns(filament_width_meas));
       lcd_printPGM(PSTR(" V"));

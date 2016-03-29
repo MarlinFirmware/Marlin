@@ -76,8 +76,6 @@
 
   extern bool cancel_heatup;
 
-  extern uint8_t blink; // Variable for animation
-
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     extern millis_t previous_lcd_status_ms;
   #endif
