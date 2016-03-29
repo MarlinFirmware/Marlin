@@ -626,6 +626,8 @@ static void lcd_implementation_status_screen() {
 
   #if LCD_HEIGHT > 2
 
+    bool blink = lcd_blink();
+
     #if LCD_WIDTH < 20
 
       #if ENABLED(SDSUPPORT)
@@ -654,7 +656,7 @@ static void lcd_implementation_status_screen() {
         // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
         // When everything is ok you see a constant 'X'.
 
-        if (blink & 1)
+        if (blink)
           lcd_printPGM(PSTR("X"));
         else {
           if (!axis_homed[X_AXIS])
@@ -671,7 +673,7 @@ static void lcd_implementation_status_screen() {
         lcd.print(ftostr4sign(current_position[X_AXIS]));
 
         lcd_printPGM(PSTR(" "));
-        if (blink & 1)
+        if (blink)
           lcd_printPGM(PSTR("Y"));
         else {
           if (!axis_homed[Y_AXIS])
@@ -691,7 +693,7 @@ static void lcd_implementation_status_screen() {
     #endif // LCD_WIDTH >= 20
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
-    if (blink & 1)
+    if (blink)
       lcd_printPGM(PSTR("Z"));
     else {
       if (!axis_homed[Z_AXIS])
