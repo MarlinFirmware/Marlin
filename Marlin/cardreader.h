@@ -79,7 +79,7 @@ public:
   int autostart_index;
 private:
   SdFile root, *curDir, workDir, workDirParents[MAX_DIR_DEPTH];
-  uint16_t workDirDepth;
+  uint8_t workDirDepth;
   Sd2Card card;
   SdVolume volume;
   SdFile file;
