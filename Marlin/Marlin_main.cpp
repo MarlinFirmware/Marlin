@@ -3704,7 +3704,7 @@ inline void gcode_M31() {
     bool call_procedure = code_seen('P') && (seen_pointer < namestartpos);
 
     if (card.cardOK) {
-      card.openFile(namestartpos, true, !call_procedure);
+      card.openFile(namestartpos, true, call_procedure);
 
       if (code_seen('S') && seen_pointer < namestartpos) // "S" (must occur _before_ the filename!)
         card.setIndex(code_value_short());
