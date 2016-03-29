@@ -65,7 +65,6 @@ public:
   void updir();
   void setroot();
 
-
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
   FORCE_INLINE bool eof() { return sdpos >= filesize; }
   FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
@@ -90,9 +89,9 @@ private:
   uint32_t filespos[SD_PROCEDURE_DEPTH];
   char proc_filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
   uint32_t filesize;
-  millis_t next_autostart_ms;
   uint32_t sdpos;
 
+  millis_t next_autostart_ms;
   bool autostart_stilltocheck; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
 
   LsAction lsAction; //stored for recursion.
