@@ -325,13 +325,13 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
       SERIAL_ECHOLN(sdpos);
       filespos[file_subcall_ctr] = sdpos;
       file_subcall_ctr++;
-     }
-     else {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM("Now doing file: ");
-      SERIAL_ECHOLN(name);
-     }
-     file.close();
+    }
+    else {
+     SERIAL_ECHO_START;
+     SERIAL_ECHOPGM("Now doing file: ");
+     SERIAL_ECHOLN(name);
+    }
+    file.close();
   }
   else { //opening fresh file
     file_subcall_ctr = 0; //resetting procedure depth in case user cancels print while in procedure
