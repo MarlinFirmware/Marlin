@@ -607,8 +607,7 @@ void CardReader::printingHasFinished() {
   else {
     file.close();
     sdprinting = false;
-    if (SD_FINISHED_STEPPERRELEASE) {
-      //finishAndDisableSteppers();
+    if (SD_FINISHED_STEPPERRELEASE)
       enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     autotempShutdown();
   }
