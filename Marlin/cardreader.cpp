@@ -584,22 +584,15 @@ void CardReader::chdir(const char * relpath) {
     SERIAL_ECHOLN(relpath);
   }
   else {
-    if (workDirDepth < MAX_DIR_DEPTH) {
-      ++workDirDepth;
-      for (int d = workDirDepth; d--;) workDirParents[d + 1] = workDirParents[d];
-      workDirParents[0] = *parent;
-    }
+    if (workDirDepth < MAX_DIR_DEPTH)
+      workDirParents[workDirDepth++] = *parent;
     workDir = newfile;
   }
 }
 
 void CardReader::updir() {
-  if (workDirDepth > 0) {
-    --workDirDepth;
-    workDir = workDirParents[0];
-    for (uint16_t d = 0; d < workDirDepth; d++)
-      workDirParents[d] = workDirParents[d+1];
-  }
+  if (workDirDepth > 0)
+    workDir = workDirParents[--workDirDepth];
 }
 
 void CardReader::printingHasFinished() {
