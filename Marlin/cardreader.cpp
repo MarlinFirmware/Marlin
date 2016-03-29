@@ -318,9 +318,9 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
       SERIAL_ECHOPGM("\" parent:\"");
 
       //store current filename and position
-      getAbsFilename(filenames[file_subcall_ctr]);
+      getAbsFilename(proc_filenames[file_subcall_ctr]);
 
-      SERIAL_ECHO(filenames[file_subcall_ctr]);
+      SERIAL_ECHO(proc_filenames[file_subcall_ctr]);
       SERIAL_ECHOPGM("\" pos");
       SERIAL_ECHOLN(sdpos);
       filespos[file_subcall_ctr] = sdpos;
@@ -607,7 +607,7 @@ void CardReader::printingHasFinished() {
   if (file_subcall_ctr > 0) { // Heading up to a parent file that called current as a procedure.
     file.close();
     file_subcall_ctr--;
-    openFile(filenames[file_subcall_ctr], true, true);
+    openFile(proc_filenames[file_subcall_ctr], true, true);
     setIndex(filespos[file_subcall_ctr]);
     startFileprint();
   }
@@ -617,7 +617,6 @@ void CardReader::printingHasFinished() {
     if (SD_FINISHED_STEPPERRELEASE) {
       //finishAndDisableSteppers();
       enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-    }
     autotempShutdown();
   }
 }
