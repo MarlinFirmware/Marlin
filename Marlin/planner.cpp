@@ -147,10 +147,6 @@ uint8_t g_uc_extruder_last_move[EXTRUDERS] = { 0 };
   static long axis_segment_time[2][3] = { {MAX_FREQ_TIME + 1, 0, 0}, {MAX_FREQ_TIME + 1, 0, 0} };
 #endif
 
-#if ENABLED(FILAMENT_SENSOR)
-  static char meas_sample; //temporary variable to hold filament measurement sample
-#endif
-
 #if ENABLED(DUAL_X_CARRIAGE)
   extern bool extruder_duplication_enabled;
 #endif
@@ -857,7 +853,6 @@ float junction_deviation = 0.1;
 
   #if ENABLED(FILAMENT_SENSOR)
     //FMM update ring buffer used for delay with filament measurements
-
     if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM && delay_index2 > -1) {  //only for extruder with filament sensor and if ring buffer is initialized
 
       const int MMD = MAX_MEASUREMENT_DELAY + 1, MMD10 = MMD * 10;
@@ -870,7 +865,7 @@ float junction_deviation = 0.1;
       delay_index1 = constrain(delay_index1, 0, MAX_MEASUREMENT_DELAY); // (already constrained above)
 
       if (delay_index1 != delay_index2) { // moved index
-        meas_sample = widthFil_to_size_ratio() - 100;  // Subtract 100 to reduce magnitude - to store in a signed char
+        int8_t meas_sample = widthFil_to_size_ratio() - 100;  // Subtract 100 to reduce magnitude - to store in a signed char
         while (delay_index1 != delay_index2) {
           // Increment and loop around buffer
           if (++delay_index2 >= MMD) delay_index2 -= MMD;

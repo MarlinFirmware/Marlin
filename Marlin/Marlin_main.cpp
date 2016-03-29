@@ -410,7 +410,7 @@ static uint8_t target_extruder;
   float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
   bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
   float filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
-  signed char measurement_delay[MAX_MEASUREMENT_DELAY + 1]; //ring buffer to delay measurement  store extruder factor after subtracting 100
+  int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1]; //ring buffer to delay measurement  store extruder factor after subtracting 100
   int delay_index1 = 0;  //index into ring buffer
   int delay_index2 = -1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
   float delay_dist = 0; //delay distance counter
@@ -5464,7 +5464,7 @@ inline void gcode_M400() { st_synchronize(); }
     if (delay_index2 == -1) { //initialize the ring buffer if it has not been done since startup
       int temp_ratio = widthFil_to_size_ratio();
 
-      for (delay_index1 = 0; delay_index1 < MAX_MEASUREMENT_DELAY + 1; ++delay_index1)
+      for (delay_index1 = 0; delay_index1 < COUNT(measurement_delay); ++delay_index1)
         measurement_delay[delay_index1] = temp_ratio - 100;  //subtract 100 to scale within a signed byte
 
       delay_index1 = delay_index2 = 0;
