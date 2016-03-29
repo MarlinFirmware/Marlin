@@ -300,10 +300,10 @@ void CardReader::getAbsFilename(char *t) {
     t[0] = 0;
 }
 
-void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) {
+void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
   if (!cardOK) return;
   if (file.isOpen()) { //replacing current file by new file, or subfile call
-    if (!replace_current) {
+    if (push_current) {
       if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
         SERIAL_ERROR_START;
         SERIAL_ERRORPGM("trying to call sub-gcode files with too many levels. MAX level is:");
