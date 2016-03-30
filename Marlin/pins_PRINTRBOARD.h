@@ -79,9 +79,7 @@
 #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
 #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
 
-#if ENABLED(FILAMENT_SENSOR)
-  #define FILWIDTH_PIN      2
-#endif
+#define FILWIDTH_PIN        2  // ANALOG NUMBERING
 
 #define TEMP_1_PIN         -1
 #define TEMP_2_PIN         -1
