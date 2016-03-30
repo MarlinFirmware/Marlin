@@ -112,6 +112,8 @@
 #define LED_PIN            13
 #define FAN_PIN            8
 
+#define FILWIDTH_PIN        3  // ANALOG NUMBERING
+
 /**********************************************************
   Fan Pins
   Fan_0 8
@@ -201,7 +203,3 @@
   #endif
 #endif // VIKI2/miniVIKI
 
-#if ENABLED(FILAMENT_SENSOR)
-  //Filip added pin for Filament sensor analog input
-  #define FILWIDTH_PIN        3
-#endif

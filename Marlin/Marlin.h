@@ -336,7 +336,7 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern int EtoPPressure;
 #endif
 
-#if ENABLED(FILAMENT_SENSOR)
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
   extern float filament_width_nominal;  //holds the theoretical filament diameter i.e., 3.00 or 1.75
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
   extern float filament_width_meas; //holds the filament diameter as accurately measured

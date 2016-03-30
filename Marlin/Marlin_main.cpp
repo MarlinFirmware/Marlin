@@ -405,7 +405,7 @@ static uint8_t target_extruder;
   float axis_scaling[3] = { 1, 1, 1 };    // Build size scaling, default to 1
 #endif
 
-#if ENABLED(FILAMENT_SENSOR)
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
   //Variables for Filament Sensor input
   float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
   bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
@@ -5454,21 +5454,19 @@ inline void gcode_M400() { st_synchronize(); }
 
 #endif // AUTO_BED_LEVELING_FEATURE && (HAS_SERVO_ENDSTOPS || Z_PROBE_ALLEN_KEY) && !Z_PROBE_SLED
 
-#if ENABLED(FILAMENT_SENSOR)
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
 
   /**
    * M404: Display or set the nominal filament width (3mm, 1.75mm ) W<3.0>
    */
   inline void gcode_M404() {
-    #if HAS_FILWIDTH
-      if (code_seen('W')) {
-        filament_width_nominal = code_value();
-      }
-      else {
-        SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
-        SERIAL_PROTOCOLLN(filament_width_nominal);
-      }
-    #endif
+    if (code_seen('W')) {
+      filament_width_nominal = code_value();
+    }
+    else {
+      SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
+      SERIAL_PROTOCOLLN(filament_width_nominal);
+    }
   }
 
   /**
@@ -5508,7 +5506,7 @@ inline void gcode_M400() { st_synchronize(); }
     SERIAL_PROTOCOLLN(filament_width_meas);
   }
 
-#endif // FILAMENT_SENSOR
+#endif // FILAMENT_WIDTH_SENSOR
 
 /**
  * M410: Quickstop - Abort all planned moves
@@ -6550,7 +6548,7 @@ void process_next_command() {
           break;
       #endif // AUTO_BED_LEVELING_FEATURE && (HAS_SERVO_ENDSTOPS || Z_PROBE_ALLEN_KEY) && !Z_PROBE_SLED
 
-      #if ENABLED(FILAMENT_SENSOR)
+      #if ENABLED(FILAMENT_WIDTH_SENSOR)
         case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width
           gcode_M404();
           break;
@@ -6563,7 +6561,7 @@ void process_next_command() {
         case 407:   //M407 Display measured filament diameter
           gcode_M407();
           break;
-      #endif // FILAMENT_SENSOR
+      #endif // ENABLED(FILAMENT_WIDTH_SENSOR)
 
       case 410: // M410 quickstop - Abort all the planned moves.
         gcode_M410();
