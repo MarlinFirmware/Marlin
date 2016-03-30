@@ -4260,7 +4260,7 @@ inline void gcode_M109() {
     #define TEMP_CONDITIONS (residency_start_ms < 0 || now < residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL)
   #else
     // Loop until the temperature is very close target
-    #define TEMP_CONDITIONS (fabs(degHotend(target_extruder) - degTargetHotend(target_extruder)) < 0.75f)
+    #define TEMP_CONDITIONS (isHeatingHotend(target_extruder))
   #endif //TEMP_RESIDENCY_TIME
 
   cancel_heatup = false;
@@ -4320,7 +4320,7 @@ inline void gcode_M109() {
 
     cancel_heatup = false;
     millis_t now = millis(), next_temp_ms = now + 1000UL;
-    while (!cancel_heatup && fabs(degTargetBed() - degBed()) < 0.75f) {
+    while (!cancel_heatup && isHeatingBed()) {
       millis_t now = millis();
       if (now > next_temp_ms) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
