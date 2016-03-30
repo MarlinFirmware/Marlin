@@ -229,6 +229,7 @@ void Stop();
  * Debug flags - not yet widely applied
  */
 enum DebugFlags {
+  DEBUG_NONE          = 0,
   DEBUG_ECHO          = _BV(0),
   DEBUG_INFO          = _BV(1),
   DEBUG_ERRORS        = _BV(2),
@@ -237,6 +238,7 @@ enum DebugFlags {
   DEBUG_LEVELING      = _BV(5)
 };
 extern uint8_t marlin_debug_flags;
+#define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
 
 extern bool Running;
 inline bool IsRunning() { return  Running; }
