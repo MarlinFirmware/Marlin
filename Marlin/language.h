@@ -238,11 +238,14 @@
 #define MSG_T_MINTEMP                       "MINTEMP triggered"
 
 // Debug
-#define MSG_DEBUG_ECHO                      "DEBUG ECHO ENABLED"
-#define MSG_DEBUG_INFO                      "DEBUG INFO ENABLED"
-#define MSG_DEBUG_ERRORS                    "DEBUG ERRORS ENABLED"
-#define MSG_DEBUG_DRYRUN                    "DEBUG DRYRUN ENABLED"
-#define MSG_DEBUG_LEVELING                  "DEBUG LEVELING ENABLED"
+#define MSG_DEBUG_PREFIX                    "DEBUG: "
+#define MSG_DEBUG_OFF                       "off"
+#define MSG_DEBUG_ECHO                      "ECHO"
+#define MSG_DEBUG_INFO                      "INFO"
+#define MSG_DEBUG_ERRORS                    "ERRORS"
+#define MSG_DEBUG_DRYRUN                    "DRYRUN"
+#define MSG_DEBUG_COMMUNICATION             "COMMUNICATION"
+#define MSG_DEBUG_LEVELING                  "LEVELING"
 
 // LCD Menu Messages
 
