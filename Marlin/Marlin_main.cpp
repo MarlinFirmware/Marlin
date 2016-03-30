@@ -4073,6 +4073,9 @@ inline void gcode_M104() {
   if (setTargetedHotend(104)) return;
   if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
+  // Start hook must happen before setTargetHotend()
+  print_job_start();
+
   if (code_seen('S')) {
     float temp = code_value();
     setTargetHotend(temp, target_extruder);
@@ -4080,9 +4083,11 @@ inline void gcode_M104() {
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
         setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
     #endif
+
+    if (temp > degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
 
-  print_job_stop();
+  if (print_job_stop()) LCD_MESSAGEPGM(WELCOME_MSG);
 }
 
 #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
@@ -4207,11 +4212,11 @@ inline void gcode_M105() {
 inline void gcode_M109() {
   bool no_wait_for_cooling = true;
 
-  // Start hook must happen before setTargetHotend()
-  print_job_start();
-
   if (setTargetedHotend(109)) return;
   if (marlin_debug_flags & DEBUG_DRYRUN) return;
+
+  // Start hook must happen before setTargetHotend()
+  print_job_start();
 
   no_wait_for_cooling = code_seen('S');
   if (no_wait_for_cooling || code_seen('R')) {
@@ -7677,17 +7682,6 @@ bool print_job_start(millis_t t /* = 0 */) {
 }
 
 /**
- * Output the print job timer in seconds
- *
- * @return the number of seconds
- */
-millis_t print_job_timer() {
-  if (!print_job_start_ms) return 0;
-  return (((print_job_stop_ms > print_job_start_ms)
-    ? print_job_stop_ms : millis()) - print_job_start_ms) / 1000;
-}
-
-/**
  * Check if the running print job has finished and stop the timer
  *
  * When the target temperature for all extruders is zero then we assume that the
@@ -7704,4 +7698,15 @@ bool print_job_stop(bool force /* = false */) {
   if (!force) for (int i = 0; i < EXTRUDERS; i++) if (degTargetHotend(i) > 0) return false;
   print_job_stop_ms = millis();
   return true;
+}
+
+/**
+ * Output the print job timer in seconds
+ *
+ * @return the number of seconds
+ */
+millis_t print_job_timer() {
+  if (!print_job_start_ms) return 0;
+  return (((print_job_stop_ms > print_job_start_ms)
+    ? print_job_stop_ms : millis()) - print_job_start_ms) / 1000;
 }
