@@ -266,10 +266,10 @@ void CardReader::release() {
 }
 
 void CardReader::openAndPrintFile(const char *name) {
-  char cmd[4 + (FILENAME_LENGTH + 1) * MAX_DIR_DEPTH + 2]; // Room for "M23 ", names with slashes, a null, and one extra
+  char cmd[4 + strlen(name) + 1]; // Room for "M23 ", filename, and null
   sprintf_P(cmd, PSTR("M23 %s"), name);
   for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
-  enqueue_and_echo_command_now(cmd);
+  enqueue_and_echo_command(cmd);
   enqueue_and_echo_commands_P(PSTR("M24"));
 }
 
@@ -300,10 +300,10 @@ void CardReader::getAbsFilename(char *t) {
     t[0] = 0;
 }
 
-void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) {
+void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
   if (!cardOK) return;
   if (file.isOpen()) { //replacing current file by new file, or subfile call
-    if (!replace_current) {
+    if (push_current) {
       if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
         SERIAL_ERROR_START;
         SERIAL_ERRORPGM("trying to call sub-gcode files with too many levels. MAX level is:");
@@ -318,20 +318,20 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
       SERIAL_ECHOPGM("\" parent:\"");
 
       //store current filename and position
-      getAbsFilename(filenames[file_subcall_ctr]);
+      getAbsFilename(proc_filenames[file_subcall_ctr]);
 
-      SERIAL_ECHO(filenames[file_subcall_ctr]);
+      SERIAL_ECHO(proc_filenames[file_subcall_ctr]);
       SERIAL_ECHOPGM("\" pos");
       SERIAL_ECHOLN(sdpos);
       filespos[file_subcall_ctr] = sdpos;
       file_subcall_ctr++;
-     }
-     else {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM("Now doing file: ");
-      SERIAL_ECHOLN(name);
-     }
-     file.close();
+    }
+    else {
+     SERIAL_ECHO_START;
+     SERIAL_ECHOPGM("Now doing file: ");
+     SERIAL_ECHOLN(name);
+    }
+    file.close();
   }
   else { //opening fresh file
     file_subcall_ctr = 0; //resetting procedure depth in case user cancels print while in procedure
@@ -584,22 +584,15 @@ void CardReader::chdir(const char * relpath) {
     SERIAL_ECHOLN(relpath);
   }
   else {
-    if (workDirDepth < MAX_DIR_DEPTH) {
-      ++workDirDepth;
-      for (int d = workDirDepth; d--;) workDirParents[d + 1] = workDirParents[d];
-      workDirParents[0] = *parent;
-    }
+    if (workDirDepth < MAX_DIR_DEPTH)
+      workDirParents[workDirDepth++] = *parent;
     workDir = newfile;
   }
 }
 
 void CardReader::updir() {
-  if (workDirDepth > 0) {
-    --workDirDepth;
-    workDir = workDirParents[0];
-    for (uint16_t d = 0; d < workDirDepth; d++)
-      workDirParents[d] = workDirParents[d+1];
-  }
+  if (workDirDepth > 0)
+    workDir = workDirParents[--workDirDepth];
 }
 
 void CardReader::printingHasFinished() {
@@ -607,17 +600,15 @@ void CardReader::printingHasFinished() {
   if (file_subcall_ctr > 0) { // Heading up to a parent file that called current as a procedure.
     file.close();
     file_subcall_ctr--;
-    openFile(filenames[file_subcall_ctr], true, true);
+    openFile(proc_filenames[file_subcall_ctr], true, true);
     setIndex(filespos[file_subcall_ctr]);
     startFileprint();
   }
   else {
     file.close();
     sdprinting = false;
-    if (SD_FINISHED_STEPPERRELEASE) {
-      //finishAndDisableSteppers();
+    if (SD_FINISHED_STEPPERRELEASE)
       enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-    }
     autotempShutdown();
   }
 }

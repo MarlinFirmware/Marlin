@@ -1114,7 +1114,7 @@ static void lcd_control_menu() {
         autotune_temp[e]
       #endif
     );
-    enqueue_and_echo_command_now(cmd);
+    enqueue_and_echo_command(cmd);
   }
 
 #endif //PID_AUTOTUNE_MENU
