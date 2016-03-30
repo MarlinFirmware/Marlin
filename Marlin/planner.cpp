@@ -851,7 +851,7 @@ float junction_deviation = 0.1;
   block->nominal_speed = block->millimeters * inverse_second; // (mm/sec) Always > 0
   block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
 
-  #if ENABLED(FILAMENT_SENSOR)
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
     //FMM update ring buffer used for delay with filament measurements
     if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM && delay_index2 > -1) {  //only for extruder with filament sensor and if ring buffer is initialized
 

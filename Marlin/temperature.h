@@ -53,7 +53,7 @@
 void tp_init();  //initialize the heating
 void manage_heater(); //it is critical that this is called periodically.
 
-#if ENABLED(FILAMENT_SENSOR)
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
   // For converting raw Filament Width to milimeters
   float analog2widthFil();
 
