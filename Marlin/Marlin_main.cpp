@@ -5443,15 +5443,13 @@ inline void gcode_M400() { st_synchronize(); }
    * M404: Display or set the nominal filament width (3mm, 1.75mm ) W<3.0>
    */
   inline void gcode_M404() {
-    #if HAS_FILWIDTH
-      if (code_seen('W')) {
-        filament_width_nominal = code_value();
-      }
-      else {
-        SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
-        SERIAL_PROTOCOLLN(filament_width_nominal);
-      }
-    #endif
+    if (code_seen('W')) {
+      filament_width_nominal = code_value();
+    }
+    else {
+      SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
+      SERIAL_PROTOCOLLN(filament_width_nominal);
+    }
   }
 
   /**
