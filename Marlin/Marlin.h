@@ -229,6 +229,7 @@ void Stop();
  * Debug flags - not yet widely applied
  */
 enum DebugFlags {
+  DEBUG_NONE          = 0,
   DEBUG_ECHO          = _BV(0),
   DEBUG_INFO          = _BV(1),
   DEBUG_ERRORS        = _BV(2),

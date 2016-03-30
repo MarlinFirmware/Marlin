@@ -242,6 +242,7 @@
 #define MSG_DEBUG_INFO                      "DEBUG INFO ENABLED"
 #define MSG_DEBUG_ERRORS                    "DEBUG ERRORS ENABLED"
 #define MSG_DEBUG_DRYRUN                    "DEBUG DRYRUN ENABLED"
+#define MSG_DEBUG_COMMUNICATION             "DEBUG COMMUNICATION ENABLED"
 #define MSG_DEBUG_LEVELING                  "DEBUG LEVELING ENABLED"
 
 // LCD Menu Messages

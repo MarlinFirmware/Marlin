@@ -250,7 +250,7 @@
 
 bool Running = true;
 
-uint8_t marlin_debug_flags = DEBUG_INFO | DEBUG_ERRORS;
+uint8_t marlin_debug_flags = DEBUG_NONE;
 
 static float feedrate = 1500.0, saved_feedrate;
 float current_position[NUM_AXIS] = { 0.0 };
@@ -4346,22 +4346,41 @@ inline void gcode_M110() {
  * M111: Set the debug level
  */
 inline void gcode_M111() {
-  marlin_debug_flags = code_seen('S') ? code_value_short() : DEBUG_INFO | DEBUG_COMMUNICATION;
+  marlin_debug_flags = code_seen('S') ? code_value_short() : DEBUG_NONE;
 
+  // Use "M111 S1" to activate DEBUG_ECHO
   if (marlin_debug_flags & DEBUG_ECHO) {
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM(MSG_DEBUG_ECHO);
   }
-  // FOR MOMENT NOT ACTIVE
-  //if (marlin_debug_flags & DEBUG_INFO) SERIAL_ECHOLNPGM(MSG_DEBUG_INFO);
-  //if (marlin_debug_flags & DEBUG_ERRORS) SERIAL_ECHOLNPGM(MSG_DEBUG_ERRORS);
+
+  // Use "M111 S2" to activate DEBUG_INFO
+  if (marlin_debug_flags & DEBUG_INFO) {
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM(MSG_DEBUG_INFO);
+  }
+
+  // Use "M111 S4" to activate DEBUG_ERRORS
+  if (marlin_debug_flags & DEBUG_ERRORS) {
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM(MSG_DEBUG_ERRORS);
+  }
+
+  // Use "M111 S8" to activate DEBUG_DRYRUN
   if (marlin_debug_flags & DEBUG_DRYRUN) {
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM(MSG_DEBUG_DRYRUN);
     disable_all_heaters();
   }
 
+  // Use "M111 S16" to activate DEBUG_COMMUNICATION
+  if (marlin_debug_flags & DEBUG_COMMUNICATION) {
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM(MSG_DEBUG_COMMUNICATION);
+  }
+
   #if ENABLED(DEBUG_LEVELING_FEATURE)
+    // Use "M111 S32" to activate DEBUG_LEVELING
     if (marlin_debug_flags & DEBUG_LEVELING) {
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM(MSG_DEBUG_LEVELING);
