@@ -238,6 +238,7 @@ enum DebugFlags {
   DEBUG_LEVELING      = _BV(5)
 };
 extern uint8_t marlin_debug_flags;
+#define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
 
 extern bool Running;
 inline bool IsRunning() { return  Running; }
