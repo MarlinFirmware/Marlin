@@ -29,7 +29,7 @@
  *
  * With the use of:
  * u8glib by Oliver Kraus
- * http://code.google.com/p/u8glib/
+ * https://github.com/olikraus/U8glib_Arduino
  * License: http://opensource.org/licenses/BSD-3-Clause
  */
 
