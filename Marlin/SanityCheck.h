@@ -169,9 +169,9 @@
  * Probes
  */
 
-  /**
-   * A probe needs a pin
-   */
+/**
+ * A probe needs a pin
+ */
 #if (!((HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || HAS_Z_PROBE )) && ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED))
   #error A probe needs a pin! [Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN || HAS_Z_PROBE]
 #endif
@@ -180,9 +180,9 @@
   #error A probe should not be connected to more then one pin! [Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN || HAS_Z_PROBE]
 #endif
 
-  /**
-    * Require one kind of probe
-    */
+/**
+  * Require one kind of probe
+  */
 #if ENABLED(AUTO_BED_LEVELING_FEATURE) && !( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED))
   #error For AUTO_BED_LEVELING_FEATURE define one kind of probe! {Servo | Z_PROBE_ALLEN_KEY | Z_PROBE_SLED | FIX_MOUNTED_PROBE]
 #endif
@@ -274,6 +274,14 @@
   #endif // !AUTO_BED_LEVELING_GRID
 
 #endif // AUTO_BED_LEVELING_FEATURE
+
+/**
+ * Filament Width Sensor
+ */
+#if ENABLED(FILAMENT_WIDTH_SENSOR) && !HAS_FILAMENT_WIDTH_SENSOR
+  #error FILAMENT_WIDTH_SENSOR requires a FILWIDTH_PIN to be defined.
+#endif
+
 
 /**
  * ULTIPANEL encoder
@@ -446,6 +454,8 @@
   #error SDEXTRASLOW deprecated - set SPI_SPEED to SPI_QUARTER_SPEED instead
 #elif defined(Z_RAISE_BEFORE_HOMING)
   #error Z_RAISE_BEFORE_HOMING is deprecated. Use MIN_Z_HEIGHT_FOR_HOMING instead.
+#elif defined(FILAMENT_SENSOR)
+  #error FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead.
 #endif
 
 #endif //SANITYCHECK_H
