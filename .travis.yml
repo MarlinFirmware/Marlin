@@ -124,11 +124,11 @@ script:
   - build_marlin
   # Enable filament sensor
   - restore_configs
-  - opt_enable FILAMENT_SENSOR
+  - opt_enable FILAMENT_WIDTH_SENSOR
   - build_marlin
   # Enable filament sensor with LCD display
   - restore_configs
-  - opt_enable ULTIMAKERCONTROLLER FILAMENT_SENSOR FILAMENT_LCD_DISPLAY
+  - opt_enable ULTIMAKERCONTROLLER FILAMENT_WIDTH_SENSOR FILAMENT_LCD_DISPLAY
   - build_marlin
   # Enable COREXY
   - restore_configs
