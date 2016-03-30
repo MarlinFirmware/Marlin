@@ -74,10 +74,7 @@
   #endif
 #endif // VIKI2/miniVIKI
 
-#if ENABLED(FILAMENT_SENSOR)
-  //Filip added pin for Filament sensor analog input
-  #define FILWIDTH_PIN        3
-#endif
+#define FILWIDTH_PIN        3  // ANALOG NUMBERING
 
 /************************************************
  * Rambo pin assignments old
