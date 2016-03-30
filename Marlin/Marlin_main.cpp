@@ -4307,7 +4307,7 @@ inline void gcode_M109() {
 
     cancel_heatup = false;
     millis_t now = millis(), next_temp_ms = now + 1000UL;
-    while (!cancel_heatup && degTargetBed() != degBed()) {
+    while (!cancel_heatup && fabs(degTargetBed() - degBed()) < 0.75f) {
       millis_t now = millis();
       if (now > next_temp_ms) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
