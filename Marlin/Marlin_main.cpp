@@ -1999,24 +1999,33 @@ static void homeaxis(AxisEnum axis) {
     sync_plan_position();
 
     #if ENABLED(Z_PROBE_SLED)
-      // Get Probe
-      if (axis == Z_AXIS) {
-        if (axis_home_dir < 0) dock_sled(false);
-      }
+      #define _Z_SERVO_TEST       (axis != Z_AXIS)      // deploy Z, servo.move XY
+      #define _Z_PROBE_SUBTEST    false                 // Z will never be invoked
+      #define _Z_DEPLOY           (dock_sled(false))
+      #define _Z_STOW             (dock_sled(true))
     #elif SERVO_LEVELING || ENABLED(FIX_MOUNTED_PROBE)
-
-      // Deploy a Z probe if there is one, and homing towards the bed
-      if (axis == Z_AXIS) {
-        if (axis_home_dir < 0) deploy_z_probe();
-      }
-
+      #define _Z_SERVO_TEST       (axis != Z_AXIS)      // servo.move XY
+      #define _Z_PROBE_SUBTEST    false                 // Z will never be invoked
+      #define _Z_DEPLOY           (deploy_z_probe())
+      #define _Z_STOW             (stow_z_probe())
+    #elif HAS_SERVO_ENDSTOPS
+      #define _Z_SERVO_TEST       true                  // servo.move X, Y, Z
+      #define _Z_PROBE_SUBTEST    (axis == Z_AXIS)      // Z is a probe
     #endif
 
+    if (axis == Z_AXIS) {
+      // If there's a Z probe that needs deployment...
+      #if ENABLED(Z_PROBE_SLED) || SERVO_LEVELING || ENABLED(FIX_MOUNTED_PROBE)
+        // ...and homing Z towards the bed? Deploy it.
+        if (axis_home_dir < 0) _Z_DEPLOY;
+      #endif
+    }
+
     #if HAS_SERVO_ENDSTOPS
-      // Engage Servo endstop if enabled
-      if (axis != Z_AXIS && servo_endstop_id[axis] >= 0) {
+      // Engage an X or Y Servo endstop if enabled
+      if (_Z_SERVO_TEST && servo_endstop_id[axis] >= 0) {
         servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][0]);
-        z_probe_is_active = true;
+        if (_Z_PROBE_SUBTEST) z_probe_is_active = true;
       }
     #endif
 
@@ -2145,42 +2154,30 @@ static void homeaxis(AxisEnum axis) {
     axis_known_position[axis] = true;
     axis_homed[axis] = true;
 
-    #if ENABLED(Z_PROBE_SLED)
-      // bring Z probe back
-      if (axis == Z_AXIS) {
-        if (axis_home_dir < 0) dock_sled(true);
+    // Put away the Z probe
+    #if ENABLED(Z_PROBE_SLED) || SERVO_LEVELING || ENABLED(FIX_MOUNTED_PROBE)
+      if (axis == Z_AXIS && axis_home_dir < 0) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOLNPGM("> SERVO_LEVELING > " STRINGIFY(_Z_STOW));
+          }
+        #endif
+        _Z_STOW;
       }
-    #elif SERVO_LEVELING || ENABLED(FIX_MOUNTED_PROBE)
-
-      // Deploy a Z probe if there is one, and homing towards the bed
-      if (axis == Z_AXIS) {
-        if (axis_home_dir < 0) {
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOLNPGM("> SERVO_LEVELING > stow_z_probe");
-            }
-          #endif
-          stow_z_probe();
-        }
-      }
-      else
-
     #endif
 
-    {
-      #if HAS_SERVO_ENDSTOPS
-        // Retract Servo endstop if enabled
-        if (servo_endstop_id[axis] >= 0) {
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOLNPGM("> SERVO_ENDSTOPS > Stow with servo.move()");
-            }
-          #endif
-          servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][1]);
-          z_probe_is_active = false;
-        }
-      #endif
-    }
+    // Retract Servo endstop if enabled
+    #if HAS_SERVO_ENDSTOPS
+      if (_Z_SERVO_TEST && servo_endstop_id[axis] >= 0) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOLNPGM("> SERVO_ENDSTOPS > Stow with servo.move()");
+          }
+        #endif
+        servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][1]);
+        if (_Z_PROBE_SUBTEST) z_probe_is_active = false;
+      }
+    #endif
 
   }
 
