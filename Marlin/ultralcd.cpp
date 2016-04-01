@@ -312,7 +312,12 @@ static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const ui
   }
 }
 
-inline void lcd_save_previous_menu() { prevMenu = currentMenu; prevEncoderPosition = encoderPosition; }
+inline void lcd_save_previous_menu() {
+  prevMenu = currentMenu;
+  #if ENABLED(NEWPANEL)
+    prevEncoderPosition = encoderPosition;
+  #endif
+}
 
 static void lcd_goto_previous_menu() { lcd_goto_menu(prevMenu, true, prevEncoderPosition); }
 
