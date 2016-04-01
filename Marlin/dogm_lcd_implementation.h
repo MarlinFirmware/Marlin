@@ -562,9 +562,11 @@ void lcd_implementation_drawedit(const char* pstr, const char* value) {
 
   u8g.setPrintPos(0, rowHeight + kHalfChar);
   lcd_printPGM(pstr);
-  lcd_print(':');
-  u8g.setPrintPos((lcd_width - 1 - vallen) * char_width, rows * rowHeight + kHalfChar);
-  lcd_print(value);
+  if (value != NULL) {
+    lcd_print(':');
+    u8g.setPrintPos((lcd_width - 1 - vallen) * char_width, rows * rowHeight + kHalfChar);
+    lcd_print(value);
+  }
 }
 
 #if ENABLED(SDSUPPORT)
