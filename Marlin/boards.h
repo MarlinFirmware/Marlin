@@ -43,7 +43,9 @@
 #define BOARD_RAMPS_14_EEB      44   // RAMPS 1.4 (Power outputs: Extruder0, Extruder1, Bed)
 #define BOARD_RAMPS_14_EFF      45   // RAMPS 1.4 (Power outputs: Extruder, Fan, Fan)
 #define BOARD_RAMPS_14_EEF      46   // RAMPS 1.4 (Power outputs: Extruder0, Extruder1, Fan)
+#define BOARD_MKS_v13           47   // MKS v1.3 or 1.4 (maybe higher)
 #define BOARD_RAMPS_14_SF       48   // RAMPS 1.4 (Power outputs: Spindle, Controller Fan)
+#define BOARD_SS_2IN1           49   // Sainsmart 2-in-1 board
 #define BOARD_GEN6              5    // Gen6
 #define BOARD_GEN6_DELUXE       51   // Gen6 deluxe
 #define BOARD_SANGUINOLOLU_11   6    // Sanguinololu < 1.2
