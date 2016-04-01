@@ -298,6 +298,7 @@ float raw_Ki, raw_Kd;
 static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const uint32_t encoder = 0) {
   if (currentMenu != menu) {
     currentMenu = menu;
+    lcdDrawUpdate = 2;
     #if ENABLED(NEWPANEL)
       encoderPosition = encoder;
       if (feedback) lcd_quick_feedback();
@@ -2476,7 +2477,7 @@ char* ftostr52(const float& x) {
           current_position[X_AXIS] = mbl.get_x(ix);
           current_position[Y_AXIS] = mbl.get_y(iy);
           line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
-          lcdDrawUpdate = 2;
+          lcdDrawUpdate = 1;
         }
       }
     }
@@ -2490,6 +2491,7 @@ char* ftostr52(const float& x) {
    */
   static void _lcd_level_bed_homing() {
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("XYZ " MSG_LEVEL_BED_HOMING), NULL);
+    lcdDrawUpdate = 1;
     if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -2499,7 +2501,6 @@ char* ftostr52(const float& x) {
       _lcd_level_bed_position = 0;
       lcd_goto_menu(_lcd_level_bed);
     }
-    lcdDrawUpdate = 2;
   }
 
   /**
@@ -2510,7 +2511,6 @@ char* ftostr52(const float& x) {
     axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
     mbl.reset();
     enqueue_and_echo_commands_P(PSTR("G28"));
-    lcdDrawUpdate = 2;
     lcd_goto_menu(_lcd_level_bed_homing);
   }
 
