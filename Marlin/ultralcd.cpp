@@ -1723,17 +1723,17 @@ void lcd_init() {
   lcd_implementation_init();
 
   #if ENABLED(NEWPANEL)
-    #if BTN_EN1 > 0
+    #if BUTTON_EXISTS(EN1)
       SET_INPUT(BTN_EN1);
       WRITE(BTN_EN1, HIGH);
     #endif
 
-    #if BTN_EN2 > 0
+    #if BUTTON_EXISTS(EN2)
       SET_INPUT(BTN_EN2);
       WRITE(BTN_EN2, HIGH);
     #endif
 
-    #if BTN_ENC > 0
+    #if BUTTON_EXISTS(ENC)
       SET_INPUT(BTN_ENC);
       WRITE(BTN_ENC, HIGH);
     #endif
@@ -2055,6 +2055,19 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     #define encrot3 1
   #endif
 
+  #define GET_BUTTON_STATES(DST) \
+    uint8_t new_##DST = 0; \
+    WRITE(SHIFT_LD, LOW); \
+    WRITE(SHIFT_LD, HIGH); \
+    for (int8_t i = 0; i < 8; i++) { \
+      new_##DST >>= 1; \
+      if (READ(SHIFT_OUT)) SBI(new_##DST, 7); \
+      WRITE(SHIFT_CLK, HIGH); \
+      WRITE(SHIFT_CLK, LOW); \
+    } \
+    DST = ~new_##DST; //invert it, because a pressed switch produces a logical 0
+
+
   /**
    * Read encoder buttons from the hardware registers
    * Warning: This function is called from interrupt context!
@@ -2062,67 +2075,47 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   void lcd_buttons_update() {
     #if ENABLED(NEWPANEL)
       uint8_t newbutton = 0;
-      #if BTN_EN1 > 0
-        if (READ(BTN_EN1) == 0) newbutton |= EN_A;
+      #if BUTTON_EXISTS(EN1)
+        if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
       #endif
-      #if BTN_EN2 > 0
-        if (READ(BTN_EN2) == 0) newbutton |= EN_B;
+      #if BUTTON_EXISTS(EN2)
+        if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
       #endif
-      #if ENABLED(RIGIDBOT_PANEL) || BTN_ENC > 0
+      #if ENABLED(RIGIDBOT_PANEL) || BUTTON_EXISTS(ENC)
         millis_t now = millis();
       #endif
       #if ENABLED(RIGIDBOT_PANEL)
         if (now > next_button_update_ms) {
-          if (READ(BTN_UP) == 0) {
+          if (BUTTON_PRESSED(UP)) {
             encoderDiff = -1 * (ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
           }
-          else if (READ(BTN_DWN) == 0) {
+          else if (BUTTON_PRESSED(DWN)) {
             encoderDiff = ENCODER_STEPS_PER_MENU_ITEM;
             next_button_update_ms = now + 300;
           }
-          else if (READ(BTN_LFT) == 0) {
+          else if (BUTTON_PRESSED(LFT)) {
             encoderDiff = -1 * (ENCODER_PULSES_PER_STEP);
             next_button_update_ms = now + 300;
           }
-          else if (READ(BTN_RT) == 0) {
+          else if (BUTTON_PRESSED(RT)) {
             encoderDiff = ENCODER_PULSES_PER_STEP;
             next_button_update_ms = now + 300;
           }
         }
       #endif
-      #if BTN_ENC > 0
-        if (now > next_button_update_ms && READ(BTN_ENC) == 0) newbutton |= EN_C;
+      #if BUTTON_EXISTS(ENC)
+        if (now > next_button_update_ms && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
       #endif
       buttons = newbutton;
       #if ENABLED(LCD_HAS_SLOW_BUTTONS)
         buttons |= slow_buttons;
       #endif
       #if ENABLED(REPRAPWORLD_KEYPAD)
-        // for the reprapworld_keypad
-        uint8_t newbutton_reprapworld_keypad = 0;
-        WRITE(SHIFT_LD, LOW);
-        WRITE(SHIFT_LD, HIGH);
-        for (int8_t i = 0; i < 8; i++) {
-          newbutton_reprapworld_keypad >>= 1;
-          if (READ(SHIFT_OUT)) SBI(newbutton_reprapworld_keypad, 7);
-          WRITE(SHIFT_CLK, HIGH);
-          WRITE(SHIFT_CLK, LOW);
-        }
-        buttons_reprapworld_keypad = ~newbutton_reprapworld_keypad; //invert it, because a pressed switch produces a logical 0
+        GET_BUTTON_STATES(buttons_reprapworld_keypad);
       #endif
-    #else   //read it from the shift register
-      uint8_t newbutton = 0;
-      WRITE(SHIFT_LD, LOW);
-      WRITE(SHIFT_LD, HIGH);
-      unsigned char tmp_buttons = 0;
-      for (int8_t i = 0; i < 8; i++) {
-        newbutton >>= 1;
-        if (READ(SHIFT_OUT)) SBI(newbutton, 7);
-        WRITE(SHIFT_CLK, HIGH);
-        WRITE(SHIFT_CLK, LOW);
-      }
-      buttons = ~newbutton; //invert it, because a pressed switch produces a logical 0
+    #else
+      GET_BUTTON_STATES(buttons);
     #endif //!NEWPANEL
 
     #if ENABLED(REVERSE_MENU_DIRECTION)

@@ -44,8 +44,6 @@
 
 #ifndef CONFIGURATION_LCD // Get the LCD defines which are needed first
 
-  #define PIN_EXISTS(PN) (defined(PN##_PIN) && PN##_PIN >= 0)
-
   #define CONFIGURATION_LCD
 
   #if ENABLED(MAKRPANEL)

@@ -55,4 +55,6 @@
 #define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
 
+#define PIN_EXISTS(PN) (defined(PN ##_PIN) && PN ##_PIN >= 0)
+
 #endif //__MACROS_H
