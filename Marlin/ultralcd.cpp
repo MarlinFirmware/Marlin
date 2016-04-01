@@ -279,6 +279,7 @@ millis_t next_lcd_update_ms;
 uint8_t lcd_status_update_delay;
 bool ignore_click = false;
 bool wait_for_unclick;
+bool defer_return_to_status = false;
 uint8_t lcdDrawUpdate = 2;                  /* Set to none-zero when the LCD needs to draw, decreased after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial) */
 
 // Variables used when editing values.
@@ -429,7 +430,10 @@ static void lcd_status_screen() {
 
 #if ENABLED(ULTIPANEL)
 
-static void lcd_return_to_status() { lcd_goto_menu(lcd_status_screen); }
+static void lcd_return_to_status() {
+  defer_return_to_status = false;
+  lcd_goto_menu(lcd_status_screen);
+}
 
 #if ENABLED(SDSUPPORT)
 
@@ -1965,13 +1969,7 @@ void lcd_update() {
     #if ENABLED(ULTIPANEL)
 
       // Return to Status Screen after a timeout
-      if (currentMenu != lcd_status_screen &&
-        #if ENABLED(MANUAL_BED_LEVELING)
-          currentMenu != _lcd_level_bed &&
-          currentMenu != _lcd_level_bed_homing &&
-        #endif
-        millis() > return_to_status_ms
-      ) {
+      if (!defer_return_to_status && currentMenu != lcd_status_screen && millis() > return_to_status_ms) {
         lcd_return_to_status();
         lcdDrawUpdate = 2;
       }
@@ -2508,6 +2506,7 @@ char* ftostr52(const float& x) {
    * MBL entry-point
    */
   static void lcd_level_bed() {
+    defer_return_to_status = true;
     axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
     mbl.reset();
     enqueue_and_echo_commands_P(PSTR("G28"));
