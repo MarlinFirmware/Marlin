@@ -1154,7 +1154,7 @@ static void lcd_control_menu() {
       _PIDTEMP_BASE_FUNCTIONS(eindex); \
       void lcd_autotune_callback_E ## eindex() { _lcd_autotune(eindex); }
   #else
-    #define _PIDTEMP_FUNCTIONS(eindex) _PIDTEMP_BASE_FUNCTIONS(eindex);
+    #define _PIDTEMP_FUNCTIONS(eindex) _PIDTEMP_BASE_FUNCTIONS(eindex)
   #endif
 
   _PIDTEMP_FUNCTIONS(0);
