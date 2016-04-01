@@ -24,8 +24,13 @@
 #define ULTRALCD_H
 
 #include "Marlin.h"
+
 #if ENABLED(ULTRA_LCD)
+
   #include "buzzer.h"
+
+  #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
+  #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
   int lcd_strlen(const char* s);
   int lcd_strlen_P(const char* s);
