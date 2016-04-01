@@ -267,7 +267,7 @@ static void lcd_status_screen();
   uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
   millis_t next_button_update_ms;
   uint8_t lastEncoderBits;
-  uint32_t encoderPosition;
+  uint32_t encoderPosition, prevEncoderPosition;
   #if PIN_EXISTS(SD_DETECT)
     uint8_t lcd_sd_status;
   #endif
@@ -281,14 +281,12 @@ bool ignore_click = false;
 bool wait_for_unclick;
 uint8_t lcdDrawUpdate = 2;                  /* Set to none-zero when the LCD needs to draw, decreased after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial) */
 
-//prevMenu and prevEncoderPosition are used to store the previous menu location when editing settings.
-menuFunc_t prevMenu = NULL;
-uint16_t prevEncoderPosition;
-//Variables used when editing values.
+// Variables used when editing values.
 const char* editLabel;
 void* editValue;
 int32_t minEditValue, maxEditValue;
-menuFunc_t callbackFunc;
+menuFunc_t prevMenu = NULL;           // return here after editing (also prevEncoderPosition)
+menuFunc_t callbackFunc;              // call this after editing
 
 // place-holders for Ki and Kd edits
 float raw_Ki, raw_Kd;
@@ -310,9 +308,20 @@ static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const ui
   }
 }
 
-inline void lcd_save_previous_menu() { prevMenu = currentMenu; prevEncoderPosition = encoderPosition; }
+inline void lcd_save_previous_menu() {
+  prevMenu = currentMenu;
+  #if ENABLED(ULTIPANEL)
+    prevEncoderPosition = encoderPosition;
+  #endif
+}
 
-static void lcd_goto_previous_menu() { lcd_goto_menu(prevMenu, true, prevEncoderPosition); }
+static void lcd_goto_previous_menu() {
+  lcd_goto_menu(prevMenu, true
+    #if ENABLED(ULTIPANEL)
+      , prevEncoderPosition
+    #endif
+  );
+}
 
 /**
  *
