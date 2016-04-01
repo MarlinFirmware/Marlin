@@ -2449,9 +2449,12 @@ char* ftostr52(const float& x) {
       if (max_software_endstops) NOMORE(current_position[Z_AXIS], Z_MAX_POS);
       encoderPosition = 0;
       line_to_current(Z_AXIS);
-      lcdDrawUpdate = 2;
+      lcdDrawUpdate = 1;
     }
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Z"), ftostr43(current_position[Z_AXIS]));
+    if (lcdDrawUpdate) {
+      float v = current_position[Z_AXIS] - MESH_HOME_SEARCH_Z;
+      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43(v + (v < 0 ? -0.0001 : 0.0001)));
+    }
     static bool debounce_click = false;
     if (LCD_CLICKED) {
       if (!debounce_click) {
