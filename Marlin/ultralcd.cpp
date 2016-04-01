@@ -1822,9 +1822,10 @@ int lcd_strlen_P(const char* s) {
 bool lcd_blink() {
   static uint8_t blink = 0;
   static millis_t next_blink_ms = 0;
-  if (millis() >= next_blink_ms) {
+  millis_t ms = millis();
+  if (ms >= next_blink_ms) {
     blink ^= 0xFF;
-    next_blink_ms = millis() + LCD_UPDATE_INTERVAL - 50;
+    next_blink_ms = ms + 1000 - LCD_UPDATE_INTERVAL / 2;
   }
   return blink != 0;
 }
