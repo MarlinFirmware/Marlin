@@ -149,6 +149,10 @@
   #include "pins_99.h"
 #elif MB(AJ4P)
   #include "pins_AJ4P.h"
+#elif MB(MKS_v13)
+  #include "pins_MKSv13.h"
+#elif MB(BOARD_SS_2IN1)
+  #include "pins_SS_2in1.h"  
 #else
   #error Unknown MOTHERBOARD value set in Configuration.h
 #endif
