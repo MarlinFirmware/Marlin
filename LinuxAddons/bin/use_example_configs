@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+eval "cp Marlin/example_configurations/$1/Configuration* Marlin/"

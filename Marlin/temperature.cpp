@@ -1,4 +1,26 @@
-/*
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
   temperature.cpp - temperature control
   Part of Marlin
 
@@ -62,7 +84,7 @@ float current_temperature_bed = 0.0;
 #endif //PIDTEMPBED
 
 #if ENABLED(FAN_SOFT_PWM)
-  unsigned char fanSpeedSoftPwm;
+  unsigned char fanSpeedSoftPwm[FAN_COUNT];
 #endif
 
 unsigned char soft_pwm_bed;
@@ -71,7 +93,7 @@ unsigned char soft_pwm_bed;
   volatile int babystepsTodo[3] = { 0 };
 #endif
 
-#if ENABLED(FILAMENT_SENSOR)
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
   int current_raw_filwidth = 0;  //Holds measured filament diameter - one extruder only
 #endif
 
@@ -130,7 +152,7 @@ static volatile bool temp_meas_ready = false;
 static unsigned char soft_pwm[EXTRUDERS];
 
 #if ENABLED(FAN_SOFT_PWM)
-  static unsigned char soft_pwm_fan;
+  static unsigned char soft_pwm_fan[FAN_COUNT];
 #endif
 #if HAS_AUTO_FAN
   static millis_t next_auto_fan_check_ms;
@@ -139,15 +161,15 @@ static unsigned char soft_pwm[EXTRUDERS];
 #if ENABLED(PIDTEMP)
   #if ENABLED(PID_PARAMS_PER_EXTRUDER)
     float Kp[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Kp);
-    float Ki[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Ki* PID_dT);
-    float Kd[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Kd / PID_dT);
+    float Ki[EXTRUDERS] = ARRAY_BY_EXTRUDERS1((DEFAULT_Ki) * (PID_dT));
+    float Kd[EXTRUDERS] = ARRAY_BY_EXTRUDERS1((DEFAULT_Kd) / (PID_dT));
     #if ENABLED(PID_ADD_EXTRUSION_RATE)
       float Kc[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Kc);
     #endif // PID_ADD_EXTRUSION_RATE
   #else //PID_PARAMS_PER_EXTRUDER
     float Kp = DEFAULT_Kp;
-    float Ki = DEFAULT_Ki * PID_dT;
-    float Kd = DEFAULT_Kd / PID_dT;
+    float Ki = (DEFAULT_Ki) * (PID_dT);
+    float Kd = (DEFAULT_Kd) / (PID_dT);
     #if ENABLED(PID_ADD_EXTRUSION_RATE)
       float Kc = DEFAULT_Kc;
     #endif // PID_ADD_EXTRUSION_RATE
@@ -187,7 +209,7 @@ static void updateTemperaturesFromRawValues();
   #define SOFT_PWM_SCALE 0
 #endif
 
-#if ENABLED(FILAMENT_SENSOR)
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
   static int meas_shift_index;  //used to point to a delayed sample in buffer for filament width sensor
 #endif
 
@@ -199,7 +221,7 @@ static void updateTemperaturesFromRawValues();
 //================================ Functions ================================
 //===========================================================================
 
-void PID_autotune(float temp, int extruder, int ncycles) {
+void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false*/) {
   float input = 0.0;
   int cycles = 0;
   bool heating = true;
@@ -230,9 +252,9 @@ void PID_autotune(float temp, int extruder, int ncycles) {
   disable_all_heaters(); // switch off all heaters.
 
   if (extruder < 0)
-    soft_pwm_bed = bias = d = MAX_BED_POWER / 2;
+    soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
   else
-    soft_pwm[extruder] = bias = d = PID_MAX / 2;
+    soft_pwm[extruder] = bias = d = (PID_MAX) / 2;
 
   // PID Tuning loop
   for (;;) {
@@ -294,7 +316,7 @@ void PID_autotune(float temp, int extruder, int ncycles) {
               SERIAL_PROTOCOLPGM(MSG_KP); SERIAL_PROTOCOLLN(Kp);
               SERIAL_PROTOCOLPGM(MSG_KI); SERIAL_PROTOCOLLN(Ki);
               SERIAL_PROTOCOLPGM(MSG_KD); SERIAL_PROTOCOLLN(Kd);
-              /*
+              /**
               Kp = 0.33*Ku;
               Ki = Kp/Tu;
               Kd = Kp*Tu/3;
@@ -328,19 +350,10 @@ void PID_autotune(float temp, int extruder, int ncycles) {
     }
     // Every 2 seconds...
     if (ms > temp_ms + 2000) {
-      int p;
-      if (extruder < 0) {
-        p = soft_pwm_bed;
-        SERIAL_PROTOCOLPGM(MSG_B);
-      }
-      else {
-        p = soft_pwm[extruder];
-        SERIAL_PROTOCOLPGM(MSG_T);
-      }
-
-      SERIAL_PROTOCOL(input);
-      SERIAL_PROTOCOLPGM(MSG_AT);
-      SERIAL_PROTOCOLLN(p);
+      #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+        print_heaterstates();
+        SERIAL_EOL;
+      #endif
 
       temp_ms = ms;
     } // every 2 seconds
@@ -355,6 +368,24 @@ void PID_autotune(float temp, int extruder, int ncycles) {
       SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(Kp);
       SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(Ki);
       SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(Kd);
+
+      // Use the result? (As with "M303 U1")
+      if (set_result) {
+        if (extruder < 0) {
+          #if ENABLED(PIDTEMPBED)
+            bedKp = Kp;
+            bedKi = scalePID_i(Ki);
+            bedKd = scalePID_d(Kd);
+            updatePID();
+          #endif
+        }
+        else {
+          PID_PARAM(Kp, extruder) = Kp;
+          PID_PARAM(Ki, e) = scalePID_i(Ki);
+          PID_PARAM(Kd, e) = scalePID_d(Kd);
+          updatePID();
+        }
+      }
       return;
     }
     lcd_update();
@@ -364,14 +395,14 @@ void PID_autotune(float temp, int extruder, int ncycles) {
 void updatePID() {
   #if ENABLED(PIDTEMP)
     for (int e = 0; e < EXTRUDERS; e++) {
-      temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / PID_PARAM(Ki,e);
+      temp_iState_max[e] = (PID_INTEGRAL_DRIVE_MAX) / PID_PARAM(Ki,e);
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
         last_position[e] = 0;
       #endif
     }
   #endif
   #if ENABLED(PIDTEMPBED)
-    temp_iState_max_bed = PID_BED_INTEGRAL_DRIVE_MAX / bedKi;
+    temp_iState_max_bed = (PID_BED_INTEGRAL_DRIVE_MAX) / bedKi;
   #endif
 }
 
@@ -490,7 +521,7 @@ float get_pid_output(int e) {
         pid_output = BANG_MAX;
         pid_reset[e] = true;
       }
-      else if (pid_error[e] < -PID_FUNCTIONAL_RANGE || target_temperature[e] == 0) {
+      else if (pid_error[e] < -(PID_FUNCTIONAL_RANGE) || target_temperature[e] == 0) {
         pid_output = 0;
         pid_reset[e] = true;
       }
@@ -600,7 +631,7 @@ float get_pid_output(int e) {
 
     return pid_output;
   }
-#endif
+#endif //PIDTEMPBED
 
 /**
  * Manage heating activities for extruder hot-ends and a heated bed
@@ -672,7 +703,7 @@ void manage_heater() {
   #endif
 
   // Control the extruder rate based on the width sensor
-  #if ENABLED(FILAMENT_SENSOR)
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
     if (filament_sensor) {
       meas_shift_index = delay_index1 - meas_delay_cm;
       if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
@@ -681,10 +712,10 @@ void manage_heater() {
       // the nominal filament diameter then square it to get an area
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
       float vm = pow((measurement_delay[meas_shift_index] + 100.0) / 100.0, 2);
-      if (vm < 0.01) vm = 0.01;
+      NOLESS(vm, 0.01);
       volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = vm;
     }
-  #endif //FILAMENT_SENSOR
+  #endif //FILAMENT_WIDTH_SENSOR
 
   #if DISABLED(PIDTEMPBED)
     if (ms < next_bed_check_ms) return;
@@ -707,14 +738,14 @@ void manage_heater() {
       if (current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP) {
         if (current_temperature_bed >= target_temperature_bed + BED_HYSTERESIS)
           soft_pwm_bed = 0;
-        else if (current_temperature_bed <= target_temperature_bed - BED_HYSTERESIS)
+        else if (current_temperature_bed <= target_temperature_bed - (BED_HYSTERESIS))
           soft_pwm_bed = MAX_BED_POWER >> 1;
       }
       else {
         soft_pwm_bed = 0;
         WRITE_HEATER_BED(LOW);
       }
-    #else // BED_LIMIT_SWITCHING
+    #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
       // Check if temperature is within the correct range
       if (current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP) {
         soft_pwm_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
@@ -768,7 +799,7 @@ static float analog2temp(int raw, uint8_t e) {
 
     return celsius;
   }
-  return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
+  return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
 }
 
 // Derived from RepRap FiveD extruder::getTemperature()
@@ -795,7 +826,7 @@ static float analog2tempBed(int raw) {
 
   #elif defined(BED_USES_AD595)
 
-    return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
+    return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * (TEMP_SENSOR_AD595_GAIN)) + TEMP_SENSOR_AD595_OFFSET;
 
   #else
 
@@ -818,7 +849,7 @@ static void updateTemperaturesFromRawValues() {
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     redundant_temperature = analog2temp(redundant_temperature_raw, 1);
   #endif
-  #if HAS_FILAMENT_SENSOR
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
     filament_width_meas = analog2widthFil();
   #endif
 
@@ -833,7 +864,7 @@ static void updateTemperaturesFromRawValues() {
 }
 
 
-#if ENABLED(FILAMENT_SENSOR)
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
 
   // Convert raw Filament Width to millimeters
   float analog2widthFil() {
@@ -845,7 +876,7 @@ static void updateTemperaturesFromRawValues() {
   int widthFil_to_size_ratio() {
     float temp = filament_width_meas;
     if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  //assume sensor cut out
-    else if (temp > MEASURED_UPPER_LIMIT) temp = MEASURED_UPPER_LIMIT;
+    else NOMORE(temp, MEASURED_UPPER_LIMIT);
     return filament_width_nominal / temp * 100;
   }
 
@@ -859,8 +890,8 @@ static void updateTemperaturesFromRawValues() {
 void tp_init() {
   #if MB(RUMBA) && ((TEMP_SENSOR_0==-1)||(TEMP_SENSOR_1==-1)||(TEMP_SENSOR_2==-1)||(TEMP_SENSOR_BED==-1))
     //disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
-    MCUCR = BIT(JTD);
-    MCUCR = BIT(JTD);
+    MCUCR = _BV(JTD);
+    MCUCR = _BV(JTD);
   #endif
 
   // Finish init of mult extruder arrays
@@ -869,14 +900,14 @@ void tp_init() {
     maxttemp[e] = maxttemp[0];
     #if ENABLED(PIDTEMP)
       temp_iState_min[e] = 0.0;
-      temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / PID_PARAM(Ki, e);
+      temp_iState_max[e] = (PID_INTEGRAL_DRIVE_MAX) / PID_PARAM(Ki, e);
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
         last_position[e] = 0;
       #endif
     #endif //PIDTEMP
     #if ENABLED(PIDTEMPBED)
       temp_iState_min_bed = 0.0;
-      temp_iState_max_bed = PID_BED_INTEGRAL_DRIVE_MAX / bedKi;
+      temp_iState_max_bed = (PID_BED_INTEGRAL_DRIVE_MAX) / bedKi;
     #endif //PIDTEMPBED
   }
 
@@ -895,15 +926,40 @@ void tp_init() {
   #if HAS_HEATER_BED
     SET_OUTPUT(HEATER_BED_PIN);
   #endif
-  #if HAS_FAN
-    SET_OUTPUT(FAN_PIN);
-    #if ENABLED(FAST_PWM_FAN)
-      setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+
+  #if ENABLED(FAST_PWM_FAN) || ENABLED(FAN_SOFT_PWM)
+
+    #if HAS_FAN0
+      SET_OUTPUT(FAN_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+      #if ENABLED(FAN_SOFT_PWM)
+        soft_pwm_fan[0] = fanSpeedSoftPwm[0] / 2;
+      #endif
     #endif
-    #if ENABLED(FAN_SOFT_PWM)
-      soft_pwm_fan = fanSpeedSoftPwm / 2;
+
+    #if HAS_FAN1
+      SET_OUTPUT(FAN1_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(FAN1_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+      #if ENABLED(FAN_SOFT_PWM)
+        soft_pwm_fan[1] = fanSpeedSoftPwm[1] / 2;
+      #endif
     #endif
-  #endif
+
+    #if HAS_FAN2
+      SET_OUTPUT(FAN2_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(FAN2_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+      #if ENABLED(FAN_SOFT_PWM)
+        soft_pwm_fan[2] = fanSpeedSoftPwm[2] / 2;
+      #endif
+    #endif
+
+  #endif // FAST_PWM_FAN || FAN_SOFT_PWM
 
   #if ENABLED(HEATER_0_USES_MAX6675)
 
@@ -921,13 +977,13 @@ void tp_init() {
   #endif //HEATER_0_USES_MAX6675
 
   #ifdef DIDR2
-    #define ANALOG_SELECT(pin) do{ if (pin < 8) DIDR0 |= BIT(pin); else DIDR2 |= BIT(pin - 8); }while(0)
+    #define ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin - 8); }while(0)
   #else
-    #define ANALOG_SELECT(pin) do{ DIDR0 |= BIT(pin); }while(0)
+    #define ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
   #endif
 
   // Set analog inputs
-  ADCSRA = BIT(ADEN) | BIT(ADSC) | BIT(ADIF) | 0x07;
+  ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
   DIDR0 = 0;
   #ifdef DIDR2
     DIDR2 = 0;
@@ -947,7 +1003,7 @@ void tp_init() {
   #if HAS_TEMP_BED
     ANALOG_SELECT(TEMP_BED_PIN);
   #endif
-  #if HAS_FILAMENT_SENSOR
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
     ANALOG_SELECT(FILWIDTH_PIN);
   #endif
 
@@ -967,7 +1023,7 @@ void tp_init() {
   // Use timer0 for temperature measurement
   // Interleave temperature interrupt with millies interrupt
   OCR0B = 128;
-  TIMSK0 |= BIT(OCIE0B);
+  SBI(TIMSK0, OCIE0B);
 
   // Wait for temperature measurement to settle
   delay(250);
@@ -1049,7 +1105,7 @@ void tp_init() {
   void start_watching_heater(int e) {
     if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
       watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
-      watch_heater_next_ms[e] = millis() + WATCH_TEMP_PERIOD * 1000UL;
+      watch_heater_next_ms[e] = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
     }
     else
       watch_heater_next_ms[e] = 0;
@@ -1062,7 +1118,7 @@ void tp_init() {
 
     static float tr_target_temperature[EXTRUDERS + 1] = { 0.0 };
 
-    /*
+    /**
         SERIAL_ECHO_START;
         SERIAL_ECHOPGM("Thermal Thermal Runaway Running. Heater ID: ");
         if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHOPGM(heater_id);
@@ -1118,14 +1174,17 @@ void disable_all_heaters() {
   for (int i = 0; i < EXTRUDERS; i++) setTargetHotend(0, i);
   setTargetBed(0);
 
+  // If all heaters go down then for sure our print job has stopped
+  print_job_stop(true);
+
   #define DISABLE_HEATER(NR) { \
-    target_temperature[NR] = 0; \
+    setTargetHotend(NR, 0); \
     soft_pwm[NR] = 0; \
     WRITE_HEATER_ ## NR (LOW); \
   }
 
-  #if HAS_TEMP_0
-    target_temperature[0] = 0;
+  #if HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675)
+    setTargetHotend(0, 0);
     soft_pwm[0] = 0;
     WRITE_HEATER_0P(LOW); // Should HEATERS_PARALLEL apply here? Then change to DISABLE_HEATER(0)
   #endif
@@ -1152,59 +1211,63 @@ void disable_all_heaters() {
 }
 
 #if ENABLED(HEATER_0_USES_MAX6675)
+
   #define MAX6675_HEAT_INTERVAL 250u
+
+  #if ENABLED(MAX6675_IS_MAX31855)
+    unsigned long max6675_temp = 2000;
+    #define MAX6675_READ_BYTES 4
+    #define MAX6675_ERROR_MASK 7
+    #define MAX6675_DISCARD_BITS 18
+  #else
+    unsigned int max6675_temp = 2000;
+    #define MAX6675_READ_BYTES 2
+    #define MAX6675_ERROR_MASK 4
+    #define MAX6675_DISCARD_BITS 3
+  #endif
+
   static millis_t next_max6675_ms = 0;
-  int max6675_temp = 2000;
 
   static int read_max6675() {
 
     millis_t ms = millis();
 
-    if (ms < next_max6675_ms)
-      return max6675_temp;
+    if (ms < next_max6675_ms) return (int)max6675_temp;
 
     next_max6675_ms = ms + MAX6675_HEAT_INTERVAL;
 
-    max6675_temp = 0;
+    CBI(
+      #ifdef PRR
+        PRR
+      #elif defined(PRR0)
+        PRR0
+      #endif
+        , PRSPI);
+    SPCR = _BV(MSTR) | _BV(SPE) | _BV(SPR0);
 
-    #ifdef PRR
-      PRR &= ~BIT(PRSPI);
-    #elif defined(PRR0)
-      PRR0 &= ~BIT(PRSPI);
-    #endif
-
-    SPCR = BIT(MSTR) | BIT(SPE) | BIT(SPR0);
-
-    // enable TT_MAX6675
-    WRITE(MAX6675_SS, 0);
+    WRITE(MAX6675_SS, 0); // enable TT_MAX6675
 
     // ensure 100ns delay - a bit extra is fine
     asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
     asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
 
-    // read MSB
-    SPDR = 0;
-    for (; (SPSR & BIT(SPIF)) == 0;);
-    max6675_temp = SPDR;
-    max6675_temp <<= 8;
-
-    // read LSB
-    SPDR = 0;
-    for (; (SPSR & BIT(SPIF)) == 0;);
-    max6675_temp |= SPDR;
-
-    // disable TT_MAX6675
-    WRITE(MAX6675_SS, 1);
-
-    if (max6675_temp & 4) {
-      // thermocouple open
-      max6675_temp = 4000;
-    }
-    else {
-      max6675_temp = max6675_temp >> 3;
+    // Read a big-endian temperature value
+    max6675_temp = 0;
+    for (uint8_t i = MAX6675_READ_BYTES; i--;) {
+      SPDR = 0;
+      for (;!TEST(SPSR, SPIF););
+      max6675_temp |= SPDR;
+      if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
     }
 
-    return max6675_temp;
+    WRITE(MAX6675_SS, 1); // disable TT_MAX6675
+
+    if (max6675_temp & MAX6675_ERROR_MASK)
+      max6675_temp = 4000; // thermocouple open
+    else
+      max6675_temp >>= MAX6675_DISCARD_BITS;
+
+    return (int)max6675_temp;
   }
 
 #endif //HEATER_0_USES_MAX6675
@@ -1263,7 +1326,7 @@ ISR(TIMER0_COMPB_vect) {
 
   static unsigned char temp_count = 0;
   static TempState temp_state = StartupDelay;
-  static unsigned char pwm_count = BIT(SOFT_PWM_SCALE);
+  static unsigned char pwm_count = _BV(SOFT_PWM_SCALE);
 
   // Static members for each heater
   #if ENABLED(SLOW_PWM_HEATERS)
@@ -1291,7 +1354,7 @@ ISR(TIMER0_COMPB_vect) {
     ISR_STATICS(BED);
   #endif
 
-  #if HAS_FILAMENT_SENSOR
+  #if ENABLED(FILAMENT_WIDTH_SENSOR)
     static unsigned long raw_filwidth_value = 0;
   #endif
 
@@ -1323,9 +1386,20 @@ ISR(TIMER0_COMPB_vect) {
         soft_pwm_BED = soft_pwm_bed;
         WRITE_HEATER_BED(soft_pwm_BED > 0 ? 1 : 0);
       #endif
+
       #if ENABLED(FAN_SOFT_PWM)
-        soft_pwm_fan = fanSpeedSoftPwm / 2;
-        WRITE_FAN(soft_pwm_fan > 0 ? 1 : 0);
+        #if HAS_FAN0
+          soft_pwm_fan[0] = fanSpeedSoftPwm[0] / 2;
+          WRITE_FAN(soft_pwm_fan[0] > 0 ? 1 : 0);
+        #endif
+        #if HAS_FAN1
+          soft_pwm_fan[1] = fanSpeedSoftPwm[1] / 2;
+          WRITE_FAN1(soft_pwm_fan[1] > 0 ? 1 : 0);
+        #endif
+        #if HAS_FAN2
+          soft_pwm_fan[2] = fanSpeedSoftPwm[2] / 2;
+          WRITE_FAN2(soft_pwm_fan[2] > 0 ? 1 : 0);
+        #endif
       #endif
     }
 
@@ -1345,15 +1419,23 @@ ISR(TIMER0_COMPB_vect) {
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
-      if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
+      #if HAS_FAN0
+        if (soft_pwm_fan[0] < pwm_count) WRITE_FAN(0);
+      #endif
+      #if HAS_FAN1
+        if (soft_pwm_fan[1] < pwm_count) WRITE_FAN1(0);
+      #endif
+      #if HAS_FAN2
+        if (soft_pwm_fan[2] < pwm_count) WRITE_FAN2(0);
+      #endif
     #endif
 
-    pwm_count += BIT(SOFT_PWM_SCALE);
+    pwm_count += _BV(SOFT_PWM_SCALE);
     pwm_count &= 0x7f;
 
   #else // SLOW_PWM_HEATERS
 
-    /*
+    /**
      * SLOW PWM HEATERS
      *
      * for heaters drived by relay
@@ -1424,13 +1506,31 @@ ISR(TIMER0_COMPB_vect) {
 
     #if ENABLED(FAN_SOFT_PWM)
       if (pwm_count == 0) {
-        soft_pwm_fan = fanSpeedSoftPwm / 2;
-        WRITE_FAN(soft_pwm_fan > 0 ? 1 : 0);
+        #if HAS_FAN0
+          soft_pwm_fan[0] = fanSpeedSoftPwm[0] / 2;
+          WRITE_FAN(soft_pwm_fan[0] > 0 ? 1 : 0);
+        #endif
+        #if HAS_FAN1
+          soft_pwm_fan[1] = fanSpeedSoftPwm[1] / 2;
+          WRITE_FAN1(soft_pwm_fan[1] > 0 ? 1 : 0);
+        #endif
+        #if HAS_FAN2
+          soft_pwm_fan[2] = fanSpeedSoftPwm[2] / 2;
+          WRITE_FAN2(soft_pwm_fan[2] > 0 ? 1 : 0);
+        #endif
       }
-      if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
+      #if HAS_FAN0
+        if (soft_pwm_fan[0] < pwm_count) WRITE_FAN(0);
+      #endif
+      #if HAS_FAN1
+        if (soft_pwm_fan[1] < pwm_count) WRITE_FAN1(0);
+      #endif
+      #if HAS_FAN2
+        if (soft_pwm_fan[2] < pwm_count) WRITE_FAN2(0);
+      #endif
     #endif //FAN_SOFT_PWM
 
-    pwm_count += BIT(SOFT_PWM_SCALE);
+    pwm_count += _BV(SOFT_PWM_SCALE);
     pwm_count &= 0x7f;
 
     // increment slow_pwm_count only every 64 pwm_count circa 65.5ms
@@ -1456,9 +1556,9 @@ ISR(TIMER0_COMPB_vect) {
 
   #endif // SLOW_PWM_HEATERS
 
-  #define SET_ADMUX_ADCSRA(pin) ADMUX = BIT(REFS0) | (pin & 0x07); ADCSRA |= BIT(ADSC)
+  #define SET_ADMUX_ADCSRA(pin) ADMUX = _BV(REFS0) | (pin & 0x07); SBI(ADCSRA, ADSC)
   #ifdef MUX5
-    #define START_ADC(pin) if (pin > 7) ADCSRB = BIT(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
+    #define START_ADC(pin) if (pin > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #else
     #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #endif
@@ -1536,14 +1636,14 @@ ISR(TIMER0_COMPB_vect) {
       break;
 
     case Prepare_FILWIDTH:
-      #if HAS_FILAMENT_SENSOR
+      #if ENABLED(FILAMENT_WIDTH_SENSOR)
         START_ADC(FILWIDTH_PIN);
       #endif
       lcd_buttons_update();
       temp_state = Measure_FILWIDTH;
       break;
     case Measure_FILWIDTH:
-      #if HAS_FILAMENT_SENSOR
+      #if ENABLED(FILAMENT_WIDTH_SENSOR)
         // raw_filwidth_value += ADC;  //remove to use an IIR filter approach
         if (ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
           raw_filwidth_value -= (raw_filwidth_value >> 7); //multiply raw_filwidth_value by 127/128
@@ -1569,7 +1669,7 @@ ISR(TIMER0_COMPB_vect) {
     if (!temp_meas_ready) set_current_temp_raw();
 
     // Filament Sensor - can be read any time since IIR filtering is used
-    #if HAS_FILAMENT_SENSOR
+    #if ENABLED(FILAMENT_WIDTH_SENSOR)
       current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
     #endif
 

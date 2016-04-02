@@ -1,8 +1,30 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * Spanish
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_ES_H
@@ -20,6 +42,7 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Apagar motores"
 #define MSG_AUTO_HOME                       "Llevar al origen"
+#define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Ajustar offsets"
 #define MSG_SET_ORIGIN                      "Establecer cero"
 #define MSG_PREHEAT_PLA                     "Precalentar PLA"
@@ -38,6 +61,7 @@
 #define MSG_EXTRUDE                         "Extruir"
 #define MSG_RETRACT                         "Retraer"
 #define MSG_MOVE_AXIS                       "Mover ejes"
+#define MSG_LEVEL_BED                       "Nivelar cama"
 #define MSG_MOVE_X                          "Mover X"
 #define MSG_MOVE_Y                          "Mover Y"
 #define MSG_MOVE_Z                          "Mover Z"
@@ -115,7 +139,7 @@
 #define MSG_INIT_SDCARD                     "Iniciando tarjeta"
 #define MSG_CNG_SDCARD                      "Cambiar tarjeta"
 #define MSG_ZPROBE_OUT                      "Sonda Z fuera"
-#define MSG_POSITION_UNKNOWN                "Reiniciar X/Y y Z"
+#define MSG_YX_UNHOMED                      "Reiniciar X/Y y Z"
 #define MSG_ZPROBE_ZOFFSET                  "Offset Z"
 #define MSG_BABYSTEP_X                      "Micropaso X"
 #define MSG_BABYSTEP_Y                      "Micropaso Y"

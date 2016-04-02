@@ -1,11 +1,38 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 #ifndef ULTRALCD_H
 #define ULTRALCD_H
 
 #include "Marlin.h"
+
 #if ENABLED(ULTRA_LCD)
+
   #include "buzzer.h"
 
-  int lcd_strlen(char* s);
+  #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
+  #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
+
+  int lcd_strlen(const char* s);
   int lcd_strlen_P(const char* s);
   void lcd_update();
   void lcd_init();
@@ -59,24 +86,23 @@
   #endif
   void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
   bool lcd_clicked();
-
   void lcd_ignore_click(bool b=true);
+  bool lcd_blink();
 
   #if ENABLED(NEWPANEL)
-    #define EN_C BIT(BLEN_C)
-    #define EN_B BIT(BLEN_B)
-    #define EN_A BIT(BLEN_A)
+    #define EN_C (_BV(BLEN_C))
+    #define EN_B (_BV(BLEN_B))
+    #define EN_A (_BV(BLEN_A))
 
-    #define LCD_CLICKED (buttons&EN_C)
     #if ENABLED(REPRAPWORLD_KEYPAD)
-      #define EN_REPRAPWORLD_KEYPAD_F3 (BIT(BLEN_REPRAPWORLD_KEYPAD_F3))
-      #define EN_REPRAPWORLD_KEYPAD_F2 (BIT(BLEN_REPRAPWORLD_KEYPAD_F2))
-      #define EN_REPRAPWORLD_KEYPAD_F1 (BIT(BLEN_REPRAPWORLD_KEYPAD_F1))
-      #define EN_REPRAPWORLD_KEYPAD_UP (BIT(BLEN_REPRAPWORLD_KEYPAD_UP))
-      #define EN_REPRAPWORLD_KEYPAD_RIGHT (BIT(BLEN_REPRAPWORLD_KEYPAD_RIGHT))
-      #define EN_REPRAPWORLD_KEYPAD_MIDDLE (BIT(BLEN_REPRAPWORLD_KEYPAD_MIDDLE))
-      #define EN_REPRAPWORLD_KEYPAD_DOWN (BIT(BLEN_REPRAPWORLD_KEYPAD_DOWN))
-      #define EN_REPRAPWORLD_KEYPAD_LEFT (BIT(BLEN_REPRAPWORLD_KEYPAD_LEFT))
+      #define EN_REPRAPWORLD_KEYPAD_F3 (_BV(BLEN_REPRAPWORLD_KEYPAD_F3))
+      #define EN_REPRAPWORLD_KEYPAD_F2 (_BV(BLEN_REPRAPWORLD_KEYPAD_F2))
+      #define EN_REPRAPWORLD_KEYPAD_F1 (_BV(BLEN_REPRAPWORLD_KEYPAD_F1))
+      #define EN_REPRAPWORLD_KEYPAD_UP (_BV(BLEN_REPRAPWORLD_KEYPAD_UP))
+      #define EN_REPRAPWORLD_KEYPAD_RIGHT (_BV(BLEN_REPRAPWORLD_KEYPAD_RIGHT))
+      #define EN_REPRAPWORLD_KEYPAD_MIDDLE (_BV(BLEN_REPRAPWORLD_KEYPAD_MIDDLE))
+      #define EN_REPRAPWORLD_KEYPAD_DOWN (_BV(BLEN_REPRAPWORLD_KEYPAD_DOWN))
+      #define EN_REPRAPWORLD_KEYPAD_LEFT (_BV(BLEN_REPRAPWORLD_KEYPAD_LEFT))
 
       #define LCD_CLICKED ((buttons&EN_C) || (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_F1))
       #define REPRAPWORLD_KEYPAD_MOVE_Z_UP (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_F2)
@@ -86,17 +112,19 @@
       #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_DOWN)
       #define REPRAPWORLD_KEYPAD_MOVE_Y_UP (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_UP)
       #define REPRAPWORLD_KEYPAD_MOVE_HOME (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_MIDDLE)
+    #else
+      #define LCD_CLICKED (buttons&EN_C)
     #endif //REPRAPWORLD_KEYPAD
   #else
     //atomic, do not change
-    #define B_LE BIT(BL_LE)
-    #define B_UP BIT(BL_UP)
-    #define B_MI BIT(BL_MI)
-    #define B_DW BIT(BL_DW)
-    #define B_RI BIT(BL_RI)
-    #define B_ST BIT(BL_ST)
-    #define EN_B BIT(BLEN_B)
-    #define EN_A BIT(BLEN_A)
+    #define B_LE (_BV(BL_LE))
+    #define B_UP (_BV(BL_UP))
+    #define B_MI (_BV(BL_MI))
+    #define B_DW (_BV(BL_DW))
+    #define B_RI (_BV(BL_RI))
+    #define B_ST (_BV(BL_ST))
+    #define EN_B (_BV(BLEN_B))
+    #define EN_A (_BV(BLEN_A))
 
     #define LCD_CLICKED ((buttons&B_MI)||(buttons&B_ST))
   #endif//NEWPANEL
@@ -117,10 +145,10 @@
 #endif //ULTRA_LCD
 
 char* itostr2(const uint8_t& x);
-char* itostr31(const int& xx);
-char* itostr3(const int& xx);
-char* itostr3left(const int& xx);
-char* itostr4(const int& xx);
+char* itostr31(const int& x);
+char* itostr3(const int& x);
+char* itostr3left(const int& x);
+char* itostr4(const int& x);
 char* itostr4sign(const int& x);
 
 char* ftostr3(const float& x);

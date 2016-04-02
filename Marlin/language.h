@@ -1,39 +1,62 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
 #include "Configuration.h"
 
-#define LANGUAGE_CONCAT(M)       #M
-#define GENERATE_LANGUAGE_INCLUDE(M)  LANGUAGE_CONCAT(language_##M.h)
+#define GENERATE_LANGUAGE_INCLUDE(M)  STRINGIFY_(language_##M.h)
 
 
 // NOTE: IF YOU CHANGE LANGUAGE FILES OR MERGE A FILE WITH CHANGES
 //
 //   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h"
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
-// See also documentation/LCDLanguageFont.md
+// See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
 
 // Languages
-// en       English
-// pl       Polish
-// fr       French
-// de       German
-// es       Spanish
-// ru       Russian
-// bg       Bulgarian
-// it       Italian
-// pt       Portuguese
-// pt-br    Portuguese (Brazil)
-// fi       Finnish
-// an       Aragonese
-// nl       Dutch
-// gl       Galician
-// ca       Catalan
-// eu       Basque-Euskera
-// kana     Japanese
-// kana_utf Japanese
-// cn       Chinese
-// cz       Czech
+// en         English
+// pl         Polish
+// fr         French
+// de         German
+// es         Spanish
+// ru         Russian
+// bg         Bulgarian
+// it         Italian
+// pt         Portuguese
+// pt_utf8    Portuguese (UTF8)
+// pt-br      Portuguese (Brazilian)
+// pt-br_utf8 Portuguese (Brazilian UTF8)
+// fi         Finnish
+// an         Aragonese
+// nl         Dutch
+// gl         Galician
+// ca         Catalan
+// eu         Basque-Euskera
+// kana       Japanese
+// kana_utf8  Japanese (UTF8)
+// cn         Chinese
+// cz         Czech
 
 // fallback if no language is set, don't change
 #ifndef LANGUAGE_INCLUDE
@@ -49,45 +72,43 @@
 #define PROTOCOL_VERSION "1.0"
 
 #if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
-  #define MACHINE_NAME "Ultimaker"
-  #define SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
+  #define DEFAULT_MACHINE_NAME "Ultimaker"
+  #define DEFAULT_SOURCE_URL "https://github.com/Ultimaker/Marlin"
 #elif MB(RUMBA)
-  #define MACHINE_NAME "Rumba"
+  #define DEFAULT_MACHINE_NAME "Rumba"
 #elif MB(3DRAG)
-  #define MACHINE_NAME "3Drag"
-  #define SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
+  #define DEFAULT_MACHINE_NAME "3Drag"
+  #define DEFAULT_SOURCE_URL "http://3dprint.elettronicain.it/"
 #elif MB(K8200)
-  #define MACHINE_NAME "K8200"
-  #define SOURCE_CODE_URL "https://github.com/CONSULitAS/Marlin-K8200"
+  #define DEFAULT_MACHINE_NAME "K8200"
+  #define DEFAULT_SOURCE_URL "https://github.com/CONSULitAS/Marlin-K8200"
 #elif MB(5DPRINT)
-  #define MACHINE_NAME "Makibox"
+  #define DEFAULT_MACHINE_NAME "Makibox"
 #elif MB(SAV_MKI)
-  #define MACHINE_NAME "SAV MkI"
-  #define SOURCE_CODE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
-#elif !defined(MACHINE_NAME)
-  #define MACHINE_NAME "3D Printer"
+  #define DEFAULT_MACHINE_NAME "SAV MkI"
+  #define DEFAULT_SOURCE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
+#else
+  #define DEFAULT_MACHINE_NAME "3D Printer"
+  #define DEFAULT_SOURCE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
 #ifdef CUSTOM_MACHINE_NAME
-  #undef MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MACHINE_NAME
+#else
+  #define MACHINE_NAME DEFAULT_MACHINE_NAME
 #endif
 
 #ifndef SOURCE_CODE_URL
-  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+  #define SOURCE_CODE_URL DEFAULT_SOURCE_URL
 #endif
 
 #ifndef DETAILED_BUILD_VERSION
   #error BUILD_VERSION Information must be specified
 #endif
 
-#ifndef UUID
-  #define UUID "00000000-0000-0000-0000-000000000000"
+#ifndef MACHINE_UUID
+  #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 #endif
-
-
-#define STRINGIFY_(n) #n
-#define STRINGIFY(n) STRINGIFY_(n)
 
 
 // Common LCD messages
@@ -122,10 +143,14 @@
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
 #define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" UUID "\n"
+#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 #define MSG_COUNT_X                         " Count X: "
+#define MSG_COUNT_A                         " Count A: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
+#define MSG_BUSY_PROCESSING                 "busy: processing"
+#define MSG_BUSY_PAUSED_FOR_USER            "busy: paused for user"
+#define MSG_BUSY_PAUSED_FOR_INPUT           "busy: paused for input"
 #define MSG_RESEND                          "Resend: "
 #define MSG_UNKNOWN_COMMAND                 "Unknown command: \""
 #define MSG_ACTIVE_EXTRUDER                 "Active Extruder: "
@@ -213,11 +238,14 @@
 #define MSG_T_MINTEMP                       "MINTEMP triggered"
 
 // Debug
-#define MSG_DEBUG_ECHO                      "DEBUG ECHO ENABLED"
-#define MSG_DEBUG_INFO                      "DEBUG INFO ENABLED"
-#define MSG_DEBUG_ERRORS                    "DEBUG ERRORS ENABLED"
-#define MSG_DEBUG_DRYRUN                    "DEBUG DRYRUN ENABLED"
-#define MSG_DEBUG_LEVELING                  "DEBUG LEVELING ENABLED"
+#define MSG_DEBUG_PREFIX                    "DEBUG: "
+#define MSG_DEBUG_OFF                       "off"
+#define MSG_DEBUG_ECHO                      "ECHO"
+#define MSG_DEBUG_INFO                      "INFO"
+#define MSG_DEBUG_ERRORS                    "ERRORS"
+#define MSG_DEBUG_DRYRUN                    "DRYRUN"
+#define MSG_DEBUG_COMMUNICATION             "COMMUNICATION"
+#define MSG_DEBUG_LEVELING                  "LEVELING"
 
 // LCD Menu Messages
 

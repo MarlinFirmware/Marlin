@@ -1,21 +1,30 @@
-/* Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * This file is part of the Arduino Sd2Card Library
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
- * This Library is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This Library is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with the Arduino Sd2Card Library.  If not, see
- * <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * Arduino Sd2Card Library
+ * Copyright (C) 2009 by William Greiman
+ *
+ * This file is part of the Arduino Sd2Card Library
  */
 #include "Marlin.h"
 
@@ -35,8 +44,8 @@
    */
   static void spiInit(uint8_t spiRate) {
     // See avr processor documentation
-    SPCR = BIT(SPE) | BIT(MSTR) | (spiRate >> 1);
-    SPSR = spiRate & 1 || spiRate == 6 ? 0 : BIT(SPI2X);
+    SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
+    SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
   }
   //------------------------------------------------------------------------------
   /** SPI receive a byte */
@@ -498,9 +507,13 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
   spiRec();
 #endif
   chipSelectHigh();
+  // Send an additional dummy byte, required by Toshiba Flash Air SD Card
+  spiSend(0XFF);
   return true;
 fail:
   chipSelectHigh();
+  // Send an additional dummy byte, required by Toshiba Flash Air SD Card
+  spiSend(0XFF);
   return false;
 }
 //------------------------------------------------------------------------------

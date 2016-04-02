@@ -1,8 +1,30 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * Czech
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  * Translated by Petr Zahradnik, Computer Laboratory
  * Blog and video blog Zahradnik se bavi
@@ -24,6 +46,7 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Uvolnit motory"
 #define MSG_AUTO_HOME                       "Domovska pozice"
+#define MSG_LEVEL_BED_HOMING                "Mereni podlozky"
 #define MSG_SET_HOME_OFFSETS                "Nastavit ofsety"
 #define MSG_SET_ORIGIN                      "Nastavit pocatek"
 #define MSG_PREHEAT_PLA                     "Zahrat PLA"
@@ -121,7 +144,7 @@
 #define MSG_INIT_SDCARD                     "Nacist SD kartu"
 #define MSG_CNG_SDCARD                      "Vymenit SD kartu"
 #define MSG_ZPROBE_OUT                      "Sonda Z mimo podl"
-#define MSG_POSITION_UNKNOWN                "Domu X/Y pred Z"
+#define MSG_YX_UNHOMED                      "Domu X/Y pred Z"
 #define MSG_ZPROBE_ZOFFSET                  "Z ofset"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"

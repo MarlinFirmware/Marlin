@@ -1,8 +1,30 @@
 ﻿/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * Bulgarian
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_BG_H
@@ -20,6 +42,7 @@
 #define MSG_AUTOSTART                       "Автостарт"
 #define MSG_DISABLE_STEPPERS                "Изкл. двигатели"
 #define MSG_AUTO_HOME                       "Паркиране"
+#define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Задай Начало"
 #define MSG_SET_ORIGIN                      "Изходна точка"
 #define MSG_PREHEAT_PLA                     "Подгряване PLA"
@@ -116,7 +139,7 @@
 #define MSG_INIT_SDCARD                     "Иниц. SD-Карта"
 #define MSG_CNG_SDCARD                      "Смяна SD-Карта"
 #define MSG_ZPROBE_OUT                      "Z-сондата е извадена"
-#define MSG_POSITION_UNKNOWN                "Задайте X/Y преди Z"
+#define MSG_YX_UNHOMED                      "Задайте X/Y преди Z"
 #define MSG_ZPROBE_ZOFFSET                  "Z Отстояние"
 #define MSG_BABYSTEP_X                      "Министъпка X"
 #define MSG_BABYSTEP_Y                      "Министъпка Y"

@@ -1,8 +1,30 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * Italian
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_IT_H
@@ -20,6 +42,7 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Disabilita Motori"
 #define MSG_AUTO_HOME                       "Auto Home"
+#define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Setta offset home"
 #define MSG_SET_ORIGIN                      "Imposta Origine"
 #define MSG_PREHEAT_PLA                     "Preriscalda PLA"
@@ -38,6 +61,7 @@
 #define MSG_EXTRUDE                         "Estrudi"
 #define MSG_RETRACT                         "Ritrai"
 #define MSG_MOVE_AXIS                       "Muovi Asse"
+#define MSG_LEVEL_BED                       "Livellamento piano"
 #define MSG_MOVE_X                          "Muovi X"
 #define MSG_MOVE_Y                          "Muovi Y"
 #define MSG_MOVE_Z                          "Muovi Z"
@@ -115,7 +139,7 @@
 #define MSG_INIT_SDCARD                     "Iniz. SD-Card"
 #define MSG_CNG_SDCARD                      "Cambia SD-Card"
 #define MSG_ZPROBE_OUT                      "Z probe out. bed"
-#define MSG_POSITION_UNKNOWN                "Home X/Y before Z"
+#define MSG_YX_UNHOMED                      "Home X/Y before Z"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"

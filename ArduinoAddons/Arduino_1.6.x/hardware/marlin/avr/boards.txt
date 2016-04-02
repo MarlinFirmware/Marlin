@@ -95,7 +95,7 @@ rambo.build.variant=rambo
 sanguino.name=Sanguino
 
 sanguino.upload.tool=arduino:avrdude
-sanguino.upload.protocol=stk500
+sanguino.upload.protocol=arduino
 sanguino.upload.maximum_size=131072
 sanguino.upload.speed=57600
 

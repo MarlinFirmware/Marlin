@@ -1,20 +1,28 @@
-/*
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
   HardwareSerial.h - Hardware serial library for Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   Modified 28 September 2010 by Mark Sproul
 */
@@ -22,6 +30,12 @@
 #ifndef MarlinSerial_h
 #define MarlinSerial_h
 #include "Marlin.h"
+
+#ifndef CRITICAL_SECTION_START
+  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
+  #define CRITICAL_SECTION_END    SREG = _sreg;
+#endif
+
 
 #ifndef SERIAL_PORT
   #define SERIAL_PORT 0
@@ -69,13 +83,18 @@
 // using a ring buffer (I think), in which rx_buffer_head is the index of the
 // location to which to write the next incoming character and rx_buffer_tail
 // is the index of the location from which to read.
-#define RX_BUFFER_SIZE 128
-
+// 256 is the max limit due to uint8_t head and tail. Use only powers of 2. (...,16,32,64,128,256)
+#ifndef RX_BUFFER_SIZE
+  #define RX_BUFFER_SIZE 128
+#endif
+#if !((RX_BUFFER_SIZE == 256) ||(RX_BUFFER_SIZE == 128) ||(RX_BUFFER_SIZE == 64) ||(RX_BUFFER_SIZE == 32) ||(RX_BUFFER_SIZE == 16) ||(RX_BUFFER_SIZE == 8) ||(RX_BUFFER_SIZE == 4) ||(RX_BUFFER_SIZE == 2))
+  #error RX_BUFFER_SIZE has to be a power of 2 and >= 2
+#endif
 
 struct ring_buffer {
   unsigned char buffer[RX_BUFFER_SIZE];
-  int head;
-  int tail;
+  volatile uint8_t head;
+  volatile uint8_t tail;
 };
 
 #if UART_PRESENT(SERIAL_PORT)
@@ -92,8 +111,12 @@ class MarlinSerial { //: public Stream
     int read(void);
     void flush(void);
 
-    FORCE_INLINE int available(void) {
-      return (unsigned int)(RX_BUFFER_SIZE + rx_buffer.head - rx_buffer.tail) % RX_BUFFER_SIZE;
+    FORCE_INLINE uint8_t available(void) {
+      CRITICAL_SECTION_START;
+        uint8_t h = rx_buffer.head;
+        uint8_t t = rx_buffer.tail;
+      CRITICAL_SECTION_END;
+      return (uint8_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
     }
 
     FORCE_INLINE void write(uint8_t c) {
@@ -105,16 +128,19 @@ class MarlinSerial { //: public Stream
     FORCE_INLINE void checkRx(void) {
       if (TEST(M_UCSRxA, M_RXCx)) {
         unsigned char c  =  M_UDRx;
-        int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
+        CRITICAL_SECTION_START;
+          uint8_t h = rx_buffer.head;
+          uint8_t i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);
 
-        // if we should be storing the received character into the location
-        // just before the tail (meaning that the head would advance to the
-        // current location of the tail), we're about to overflow the buffer
-        // and so we don't write the character or advance the head.
-        if (i != rx_buffer.tail) {
-          rx_buffer.buffer[rx_buffer.head] = c;
-          rx_buffer.head = i;
-        }
+          // if we should be storing the received character into the location
+          // just before the tail (meaning that the head would advance to the
+          // current location of the tail), we're about to overflow the buffer
+          // and so we don't write the character or advance the head.
+          if (i != rx_buffer.tail) {
+            rx_buffer.buffer[h] = c;
+            rx_buffer.head = i;
+          }
+        CRITICAL_SECTION_END;
       }
     }
 
