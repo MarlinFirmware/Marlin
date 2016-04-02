@@ -491,7 +491,7 @@
   #define MSG_DELTA_CALIBRATE_CENTER          "Calibrate Center"
 #endif
 #ifndef MSG_RESET_BLT
-  #define MSG_RESET_BLT                        "Reset BLTouch"  
+  #define MSG_RESET_BLT                        "Reset BLTouch alarm"  
 #endif
 
 
