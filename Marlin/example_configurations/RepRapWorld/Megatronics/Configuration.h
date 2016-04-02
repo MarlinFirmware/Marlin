@@ -709,7 +709,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Host Keepalive
 //
 // By default Marlin will send a busy status message to the host
-// every 2 seconds when it can't accept commands.
+// every 10 seconds when it can't accept commands.
 //
 //#define DISABLE_HOST_KEEPALIVE // Enable this option if your host doesn't like keepalive messages.
 
