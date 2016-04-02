@@ -522,9 +522,9 @@ void lcd_set_home_offsets() {
   static void _lcd_babystep(const int axis, const char* msg) {
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition != 0) {
+      int distance =  (int)encoderPosition * BABYSTEP_MULTIPLICATOR;
       encoderPosition = 0;
       lcdDrawUpdate = 1;
-      int distance =  (int)encoderPosition * BABYSTEP_MULTIPLICATOR;
       #if ENABLED(COREXY) || ENABLED(COREXZ)
         #if ENABLED(BABYSTEP_XY)
           switch(axis) {
