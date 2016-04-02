@@ -42,7 +42,7 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Motoren uit"
 #define MSG_AUTO_HOME                       "Auto home"
-#define MSG_LEVEL_BED_HOMING                "Homing"
+#define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Nulpunt instellen"
 #define MSG_PREHEAT_PLA                     "PLA voorverwarmen"
