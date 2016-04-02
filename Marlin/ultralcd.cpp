@@ -2540,13 +2540,10 @@ char* ftostr52(const float& x) {
     }
   }
 
-  /**
-   * MBL Move to mesh starting point
-   */
-  static void _lcd_level_bed_homing() {
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
-    lcdDrawUpdate = 1;
-    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
+  static void _lcd_level_bed_homing_done() {
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Click to Begin"), NULL);
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+    if (LCD_CLICKED) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       current_position[X_AXIS] = MESH_MIN_X;
@@ -2558,14 +2555,34 @@ char* ftostr52(const float& x) {
   }
 
   /**
-   * MBL entry-point
+   * MBL Move to mesh starting point
    */
-  static void lcd_level_bed() {
+  static void _lcd_level_bed_homing() {
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS])
+      lcd_goto_menu(_lcd_level_bed_homing_done);
+  }
+
+  /**
+   * MBL Continue Bed Leveling...
+   */
+  static void lcd_level_bed_continue() {
     defer_return_to_status = true;
     axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
     mbl.reset();
     enqueue_and_echo_commands_P(PSTR("G28"));
     lcd_goto_menu(_lcd_level_bed_homing, true);
+  }
+
+  /**
+   * MBL entry-point
+   */
+  static void lcd_level_bed() {
+    START_MENU();
+    MENU_ITEM(back, "Cancel", lcd_prepare_menu);
+    MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed_continue);
+    END_MENU();
   }
 
 #endif  // MANUAL_BED_LEVELING
