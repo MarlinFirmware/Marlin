@@ -1875,12 +1875,12 @@ void lcd_update() {
 
   #endif //SDSUPPORT && SD_DETECT_PIN
 
+  #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+    slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
+  #endif
+
   millis_t ms = millis();
   if (ms > next_lcd_update_ms) {
-
-    #if ENABLED(LCD_HAS_SLOW_BUTTONS)
-      slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
-    #endif
 
     #if ENABLED(ULTIPANEL)
 
