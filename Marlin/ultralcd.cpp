@@ -2166,7 +2166,7 @@ char *ftostr3(const float& x) { return itostr3((int)x); }
 // Convert float to rj string with _123, -123, _-12, or __-1 format
 char *ftostr4sign(const float& x) { return itostr4sign((int)x); }
 
-// Convert int to string with 12 format
+// Convert unsigned int to string with 12 format
 char* itostr2(const uint8_t& x) {
   //sprintf(conv,"%5.1f",x);
   int xx = x;
@@ -2176,7 +2176,7 @@ char* itostr2(const uint8_t& x) {
   return conv;
 }
 
-// Convert float to string with +123.4 format
+// Convert float to string with +123.4 / -123.4 format
 char* ftostr31(const float& x) {
   int xx = abs(x * 10);
   conv[0] = (x >= 0) ? '+' : '-';
@@ -2189,7 +2189,7 @@ char* ftostr31(const float& x) {
   return conv;
 }
 
-// Convert float to string with 123.4 format, dropping sign
+// Convert unsigned float to string with 123.4 format, dropping sign
 char* ftostr31ns(const float& x) {
   int xx = abs(x * 10);
   conv[0] = (xx / 1000) % 10 + '0';
@@ -2201,7 +2201,7 @@ char* ftostr31ns(const float& x) {
   return conv;
 }
 
-// Convert float to string with 123.45 format
+// Convert signed float to string with 023.45 / -23.45 format
 char *ftostr32(const float& x) {
   long xx = abs(x * 100);
   conv[0] = x >= 0 ? (xx / 10000) % 10 + '0' : '-';
@@ -2214,23 +2214,27 @@ char *ftostr32(const float& x) {
   return conv;
 }
 
-// Convert float to string with 1.234 format
+// Convert signed float to string (len 5 or 6) with 1.234 / -1.234 format
 char* ftostr43(const float& x) {
   long xx = x * 1000;
-  if (xx >= 0)
-    conv[0] = (xx / 1000) % 10 + '0';
-  else
+  char *conv_ptr = conv;
+  if (xx >= 0) {
+    *conv_ptr++ = ' ';
+  }
+  else {
     conv[0] = '-';
-  xx = abs(xx);
-  conv[1] = '.';
-  conv[2] = (xx / 100) % 10 + '0';
-  conv[3] = (xx / 10) % 10 + '0';
-  conv[4] = (xx) % 10 + '0';
-  conv[5] = 0;
-  return conv;
+    xx = -xx;
+  }
+  conv[1] = (xx / 1000) % 10 + '0';
+  conv[2] = '.';
+  conv[3] = (xx / 100) % 10 + '0';
+  conv[4] = (xx / 10) % 10 + '0';
+  conv[5] = (xx) % 10 + '0';
+  conv[6] = 0;
+  return conv_ptr;
 }
 
-// Convert float to string with 1.23 format
+// Convert unsigned float to string with 1.23 format
 char* ftostr12ns(const float& x) {
   long xx = x * 100;
   xx = abs(xx);
@@ -2242,11 +2246,12 @@ char* ftostr12ns(const float& x) {
   return conv;
 }
 
-// Convert float to space-padded string with -_23.4_ format
+// Convert signed float to space-padded string with -_23.4_ format
 char* ftostr32sp(const float& x) {
-  long xx = abs(x * 100);
+  long xx = x * 100;
   uint8_t dig;
-  if (x < 0) { // negative val = -_0
+  if (xx < 0) { // negative val = -_0
+    xx = -xx;
     conv[0] = '-';
     dig = (xx / 1000) % 10;
     conv[1] = dig ? '0' + dig : ' ';
@@ -2287,10 +2292,17 @@ char* ftostr32sp(const float& x) {
   return conv;
 }
 
-// Convert int to lj string with +123.0 format
+// Convert signed int to lj string with +012.0 / -012.0 format
 char* itostr31(const int& x) {
-  conv[0] = x >= 0 ? '+' : '-';
-  int xx = abs(x);
+  int xx;
+  if (x >= 0) {
+    conv[0] = '+';
+    xx = x;
+  }
+  else {
+    conv[0] = '-';
+    xx = -x;
+  }
   conv[1] = (xx / 100) % 10 + '0';
   conv[2] = (xx / 10) % 10 + '0';
   conv[3] = xx % 10 + '0';
@@ -2300,7 +2312,7 @@ char* itostr31(const int& x) {
   return conv;
 }
 
-// Convert int to rj string with 123 or -12 format
+// Convert signed int to rj string with 123 or -12 format
 char* itostr3(const int& x) {
   int xx = x;
   if (xx < 0) {
@@ -2316,37 +2328,37 @@ char* itostr3(const int& x) {
   return conv;
 }
 
-// Convert int to lj string with 123 format
-char* itostr3left(const int& xx) {
-  if (xx >= 100) {
-    conv[0] = (xx / 100) % 10 + '0';
-    conv[1] = (xx / 10) % 10 + '0';
-    conv[2] = xx % 10 + '0';
+// Convert unsigned int to lj string with 123 format
+char* itostr3left(const int& x) {
+  if (x >= 100) {
+    conv[0] = (x / 100) % 10 + '0';
+    conv[1] = (x / 10) % 10 + '0';
+    conv[2] = x % 10 + '0';
     conv[3] = 0;
   }
-  else if (xx >= 10) {
-    conv[0] = (xx / 10) % 10 + '0';
-    conv[1] = xx % 10 + '0';
+  else if (x >= 10) {
+    conv[0] = (x / 10) % 10 + '0';
+    conv[1] = x % 10 + '0';
     conv[2] = 0;
   }
   else {
-    conv[0] = xx % 10 + '0';
+    conv[0] = x % 10 + '0';
     conv[1] = 0;
   }
   return conv;
 }
 
-// Convert int to rj string with 1234 format
-char* itostr4(const int& xx) {
-  conv[0] = xx >= 1000 ? (xx / 1000) % 10 + '0' : ' ';
-  conv[1] = xx >= 100 ? (xx / 100) % 10 + '0' : ' ';
-  conv[2] = xx >= 10 ? (xx / 10) % 10 + '0' : ' ';
-  conv[3] = xx % 10 + '0';
+// Convert unsigned int to rj string with 1234 format
+char* itostr4(const int& x) {
+  conv[0] = x >= 1000 ? (x / 1000) % 10 + '0' : ' ';
+  conv[1] = x >= 100 ? (x / 100) % 10 + '0' : ' ';
+  conv[2] = x >= 10 ? (x / 10) % 10 + '0' : ' ';
+  conv[3] = x % 10 + '0';
   conv[4] = 0;
   return conv;
 }
 
-// Convert int to rj string with _123, -123, _-12, or __-1 format
+// Convert signed int to rj string with _123, -123, _-12, or __-1 format
 char *itostr4sign(const int& x) {
   int xx = abs(x);
   int sign = 0;
@@ -2370,7 +2382,7 @@ char *itostr4sign(const int& x) {
   return conv;
 }
 
-// Convert float to rj string with 12345 format
+// Convert unsigned float to rj string with 12345 format
 char* ftostr5(const float& x) {
   long xx = abs(x);
   conv[0] = xx >= 10000 ? (xx / 10000) % 10 + '0' : ' ';
@@ -2382,7 +2394,7 @@ char* ftostr5(const float& x) {
   return conv;
 }
 
-// Convert float to string with +1234.5 format
+// Convert signed float to string with +1234.5 format
 char* ftostr51(const float& x) {
   long xx = abs(x * 10);
   conv[0] = (x >= 0) ? '+' : '-';
@@ -2396,7 +2408,7 @@ char* ftostr51(const float& x) {
   return conv;
 }
 
-// Convert float to string with +123.45 format
+// Convert signed float to string with +123.45 format
 char* ftostr52(const float& x) {
   conv[0] = (x >= 0) ? '+' : '-';
   long xx = abs(x * 100);
