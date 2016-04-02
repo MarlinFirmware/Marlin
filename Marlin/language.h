@@ -76,6 +76,7 @@
   #define DEFAULT_SOURCE_URL "https://github.com/Ultimaker/Marlin"
 #elif MB(RUMBA)
   #define DEFAULT_MACHINE_NAME "Rumba"
+  #define DEFAULT_SOURCE_URL "http://reprap.org/wiki/RUMBA"
 #elif MB(3DRAG)
   #define DEFAULT_MACHINE_NAME "3Drag"
   #define DEFAULT_SOURCE_URL "http://3dprint.elettronicain.it/"
@@ -84,6 +85,7 @@
   #define DEFAULT_SOURCE_URL "https://github.com/CONSULitAS/Marlin-K8200"
 #elif MB(5DPRINT)
   #define DEFAULT_MACHINE_NAME "Makibox"
+  #define DEFAULT_SOURCE_URL "http://reprap.org/wiki/MakiBox"
 #elif MB(SAV_MKI)
   #define DEFAULT_MACHINE_NAME "SAV MkI"
   #define DEFAULT_SOURCE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
