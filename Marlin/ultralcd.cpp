@@ -2223,13 +2223,13 @@ char *ftostr32(const float& x) {
   return conv;
 }
 
-// Convert signed float to string (len 5 or 6) with 1.234 / -1.234 format
-char* ftostr43(const float& x) {
+// Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
+char* ftostr43(const float& x, char plus/*=' '*/) {
   long xx = x * 1000;
-  char *conv_ptr = conv;
-  if (xx >= 0) {
-    conv_ptr++;
-  }
+  if (xx == 0)
+    conv[0] = ' ';
+  else if (xx > 0)
+    conv[0] = plus;
   else {
     xx = -xx;
     conv[0] = '-';
@@ -2240,7 +2240,7 @@ char* ftostr43(const float& x) {
   conv[4] = (xx / 10) % 10 + '0';
   conv[5] = (xx) % 10 + '0';
   conv[6] = 0;
-  return conv_ptr;
+  return conv;
 }
 
 // Convert unsigned float to string with 1.23 format
@@ -2453,7 +2453,7 @@ char* ftostr52(const float& x) {
     }
     if (lcdDrawUpdate) {
       float v = current_position[Z_AXIS] - MESH_HOME_SEARCH_Z;
-      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43(v + (v < 0 ? -0.0001 : 0.0001)));
+      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43(v + (v < 0 ? -0.0001 : 0.0001), '+'));
     }
     static bool debounce_click = false;
     if (LCD_CLICKED) {
