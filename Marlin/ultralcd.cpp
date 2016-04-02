@@ -726,6 +726,8 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
   if (temph > 0) setTargetHotend(temph, endnum);
   #if TEMP_SENSOR_BED != 0
     setTargetBed(tempb);
+  #else
+    UNUSED(tempb);
   #endif
   #if FAN_COUNT > 0
     #if FAN_COUNT > 1
@@ -733,6 +735,8 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
     #else
       fanSpeeds[0] = fan;
     #endif
+  #else
+    UNUSED(fan);
   #endif
   lcd_return_to_status();
 }
@@ -1146,10 +1150,16 @@ static void lcd_control_menu() {
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
   void copy_and_scalePID_i(int e) {
+    #if DISABLED(PID_PARAMS_PER_EXTRUDER)
+      UNUSED(e);
+    #endif
     PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
     updatePID();
   }
   void copy_and_scalePID_d(int e) {
+    #if DISABLED(PID_PARAMS_PER_EXTRUDER)
+      UNUSED(e);
+    #endif
     PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
     updatePID();
   }
@@ -1720,18 +1730,20 @@ static void menu_action_function(menuFunc_t func) { (*func)(); }
 #if ENABLED(SDSUPPORT)
 
   static void menu_action_sdfile(const char* filename, char* longFilename) {
+    UNUSED(longFilename);
     card.openAndPrintFile(filename);
     lcd_return_to_status();
   }
 
   static void menu_action_sddirectory(const char* filename, char* longFilename) {
+    UNUSED(longFilename);
     card.chdir(filename);
     encoderPosition = 0;
   }
 
 #endif //SDSUPPORT
 
-static void menu_action_setting_edit_bool(const char* pstr, bool* ptr) { *ptr = !(*ptr); }
+static void menu_action_setting_edit_bool(const char* pstr, bool* ptr) {UNUSED(pstr); *ptr = !(*ptr); }
 static void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, menuFunc_t callback) {
   menu_action_setting_edit_bool(pstr, ptr);
   (*callback)();
@@ -2031,6 +2043,10 @@ void lcd_ignore_click(bool b) {
 }
 
 void lcd_finishstatus(bool persist=false) {
+  #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
+    UNUSED(persist);
+  #endif
+
   #if ENABLED(LCD_PROGRESS_BAR)
     progress_bar_ms = millis();
     #if PROGRESS_MSG_EXPIRE > 0
