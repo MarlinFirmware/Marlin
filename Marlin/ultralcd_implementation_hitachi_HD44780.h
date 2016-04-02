@@ -863,9 +863,11 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(bool sel, uint8_t
 void lcd_implementation_drawedit(const char* pstr, const char* value) {
   lcd.setCursor(1, 1);
   lcd_printPGM(pstr);
-  lcd.print(':');
-  lcd.setCursor(LCD_WIDTH - lcd_strlen(value), 1);
-  lcd_print(value);
+  if (value != NULL) {
+    lcd.print(':');
+    lcd.setCursor(LCD_WIDTH - lcd_strlen(value), 1);
+    lcd_print(value);
+  }
 }
 
 #if ENABLED(SDSUPPORT)

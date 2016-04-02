@@ -42,7 +42,7 @@
 #define MSG_AUTOSTART                       "Автостарт"
 #define MSG_DISABLE_STEPPERS                "Изкл. двигатели"
 #define MSG_AUTO_HOME                       "Паркиране"
-#define MSG_LEVEL_BED_HOMING                "Homing"
+#define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Задай Начало"
 #define MSG_SET_ORIGIN                      "Изходна точка"
 #define MSG_PREHEAT_PLA                     "Подгряване PLA"

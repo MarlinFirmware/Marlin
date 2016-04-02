@@ -267,7 +267,7 @@ static void lcd_status_screen();
   uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
   millis_t next_button_update_ms;
   uint8_t lastEncoderBits;
-  uint32_t encoderPosition;
+  uint32_t encoderPosition, prevEncoderPosition;
   #if PIN_EXISTS(SD_DETECT)
     uint8_t lcd_sd_status;
   #endif
@@ -279,16 +279,15 @@ millis_t next_lcd_update_ms;
 uint8_t lcd_status_update_delay;
 bool ignore_click = false;
 bool wait_for_unclick;
+bool defer_return_to_status = false;
 uint8_t lcdDrawUpdate = 2;                  /* Set to none-zero when the LCD needs to draw, decreased after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial) */
 
-//prevMenu and prevEncoderPosition are used to store the previous menu location when editing settings.
-menuFunc_t prevMenu = NULL;
-uint16_t prevEncoderPosition;
-//Variables used when editing values.
+// Variables used when editing values.
 const char* editLabel;
 void* editValue;
 int32_t minEditValue, maxEditValue;
-menuFunc_t callbackFunc;
+menuFunc_t prevMenu = NULL;           // return here after editing (also prevEncoderPosition)
+menuFunc_t callbackFunc;              // call this after editing
 
 // place-holders for Ki and Kd edits
 float raw_Ki, raw_Kd;
@@ -299,6 +298,7 @@ float raw_Ki, raw_Kd;
 static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const uint32_t encoder = 0) {
   if (currentMenu != menu) {
     currentMenu = menu;
+    lcdDrawUpdate = 2;
     #if ENABLED(NEWPANEL)
       encoderPosition = encoder;
       if (feedback) lcd_quick_feedback();
@@ -310,9 +310,20 @@ static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const ui
   }
 }
 
-inline void lcd_save_previous_menu() { prevMenu = currentMenu; prevEncoderPosition = encoderPosition; }
+inline void lcd_save_previous_menu() {
+  prevMenu = currentMenu;
+  #if ENABLED(ULTIPANEL)
+    prevEncoderPosition = encoderPosition;
+  #endif
+}
 
-static void lcd_goto_previous_menu() { lcd_goto_menu(prevMenu, true, prevEncoderPosition); }
+static void lcd_goto_previous_menu() {
+  lcd_goto_menu(prevMenu, true
+    #if ENABLED(ULTIPANEL)
+      , prevEncoderPosition
+    #endif
+  );
+}
 
 /**
  *
@@ -420,7 +431,10 @@ static void lcd_status_screen() {
 
 #if ENABLED(ULTIPANEL)
 
-static void lcd_return_to_status() { lcd_goto_menu(lcd_status_screen); }
+static void lcd_return_to_status() {
+  defer_return_to_status = false;
+  lcd_goto_menu(lcd_status_screen);
+}
 
 #if ENABLED(SDSUPPORT)
 
@@ -536,7 +550,7 @@ void lcd_set_home_offsets() {
         babystepsTodo[axis] += distance;
       #endif
     }
-    if (lcdDrawUpdate) lcd_implementation_drawedit(msg, "");
+    if (lcdDrawUpdate) lcd_implementation_drawedit(msg, NULL);
     if (LCD_CLICKED) lcd_goto_previous_menu();
   }
 
@@ -1140,7 +1154,7 @@ static void lcd_control_menu() {
       _PIDTEMP_BASE_FUNCTIONS(eindex); \
       void lcd_autotune_callback_E ## eindex() { _lcd_autotune(eindex); }
   #else
-    #define _PIDTEMP_FUNCTIONS(eindex) _PIDTEMP_BASE_FUNCTIONS(eindex);
+    #define _PIDTEMP_FUNCTIONS(eindex) _PIDTEMP_BASE_FUNCTIONS(eindex)
   #endif
 
   _PIDTEMP_FUNCTIONS(0);
@@ -1808,9 +1822,10 @@ int lcd_strlen_P(const char* s) {
 bool lcd_blink() {
   static uint8_t blink = 0;
   static millis_t next_blink_ms = 0;
-  if (millis() >= next_blink_ms) {
+  millis_t ms = millis();
+  if (ms >= next_blink_ms) {
     blink ^= 0xFF;
-    next_blink_ms = millis() + LCD_UPDATE_INTERVAL - 50;
+    next_blink_ms = ms + 1000 - LCD_UPDATE_INTERVAL / 2;
   }
   return blink != 0;
 }
@@ -1956,13 +1971,7 @@ void lcd_update() {
     #if ENABLED(ULTIPANEL)
 
       // Return to Status Screen after a timeout
-      if (currentMenu != lcd_status_screen &&
-        #if ENABLED(MANUAL_BED_LEVELING)
-          currentMenu != _lcd_level_bed &&
-          currentMenu != _lcd_level_bed_homing &&
-        #endif
-        millis() > return_to_status_ms
-      ) {
+      if (!defer_return_to_status && currentMenu != lcd_status_screen && millis() > return_to_status_ms) {
         lcd_return_to_status();
         lcdDrawUpdate = 2;
       }
@@ -2219,11 +2228,11 @@ char* ftostr43(const float& x) {
   long xx = x * 1000;
   char *conv_ptr = conv;
   if (xx >= 0) {
-    *conv_ptr++ = ' ';
+    conv_ptr++;
   }
   else {
-    conv[0] = '-';
     xx = -xx;
+    conv[0] = '-';
   }
   conv[1] = (xx / 1000) % 10 + '0';
   conv[2] = '.';
@@ -2440,9 +2449,12 @@ char* ftostr52(const float& x) {
       if (max_software_endstops) NOMORE(current_position[Z_AXIS], Z_MAX_POS);
       encoderPosition = 0;
       line_to_current(Z_AXIS);
-      lcdDrawUpdate = 2;
+      lcdDrawUpdate = 1;
     }
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Z"), ftostr43(current_position[Z_AXIS]));
+    if (lcdDrawUpdate) {
+      float v = current_position[Z_AXIS] - MESH_HOME_SEARCH_Z;
+      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43(v + (v < 0 ? -0.0001 : 0.0001)));
+    }
     static bool debounce_click = false;
     if (LCD_CLICKED) {
       if (!debounce_click) {
@@ -2469,7 +2481,7 @@ char* ftostr52(const float& x) {
           current_position[X_AXIS] = mbl.get_x(ix);
           current_position[Y_AXIS] = mbl.get_y(iy);
           line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
-          lcdDrawUpdate = 2;
+          lcdDrawUpdate = 1;
         }
       }
     }
@@ -2482,7 +2494,8 @@ char* ftostr52(const float& x) {
    * MBL Move to mesh starting point
    */
   static void _lcd_level_bed_homing() {
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("XYZ"), MSG_LEVEL_BED_HOMING);
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
+    lcdDrawUpdate = 1;
     if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -2492,17 +2505,16 @@ char* ftostr52(const float& x) {
       _lcd_level_bed_position = 0;
       lcd_goto_menu(_lcd_level_bed);
     }
-    lcdDrawUpdate = 2;
   }
 
   /**
    * MBL entry-point
    */
   static void lcd_level_bed() {
+    defer_return_to_status = true;
     axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
     mbl.reset();
     enqueue_and_echo_commands_P(PSTR("G28"));
-    lcdDrawUpdate = 2;
     lcd_goto_menu(_lcd_level_bed_homing);
   }
 

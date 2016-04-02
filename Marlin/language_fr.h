@@ -43,7 +43,7 @@
 #define MSG_AUTOSTART                       "Demarrage auto"
 #define MSG_DISABLE_STEPPERS                "Arreter moteurs"
 #define MSG_AUTO_HOME                       "Home auto."
-#define MSG_LEVEL_BED_HOMING                "Homing"
+#define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Regler origine"
 #define MSG_PREHEAT_PLA                     "Prechauffage PLA"
