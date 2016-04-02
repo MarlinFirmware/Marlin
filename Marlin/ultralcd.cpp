@@ -2228,11 +2228,11 @@ char* ftostr43(const float& x) {
   long xx = x * 1000;
   char *conv_ptr = conv;
   if (xx >= 0) {
-    *conv_ptr++ = ' ';
+    conv_ptr++;
   }
   else {
-    conv[0] = '-';
     xx = -xx;
+    conv[0] = '-';
   }
   conv[1] = (xx / 1000) % 10 + '0';
   conv[2] = '.';
