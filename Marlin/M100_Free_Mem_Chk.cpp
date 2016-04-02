@@ -137,8 +137,10 @@ void gcode_M100() {
   // other vital statistics that define the memory pool.
   //
   if (code_seen('F')) {
-    int max_addr = (int) __brkval;
-    int max_cnt = 0;
+    #if 0
+      int max_addr = (int) __brkval;
+      int max_cnt = 0;
+    #endif
     int block_cnt = 0;
     ptr = (unsigned char*) __brkval;
     sp = top_of_stack();
@@ -155,10 +157,12 @@ void gcode_M100() {
           i += j;
           block_cnt++;
         }
-        if (j > max_cnt) {      // We don't do anything with this information yet
-          max_cnt  = j;     // but we do know where the biggest free memory block is.
-          max_addr = (int) ptr + i;
-        }
+        #if 0
+          if (j > max_cnt) {      // We don't do anything with this information yet
+            max_cnt  = j;     // but we do know where the biggest free memory block is.
+            max_addr = (int) ptr + i;
+          }
+        #endif
       }
     }
     if (block_cnt > 1)
