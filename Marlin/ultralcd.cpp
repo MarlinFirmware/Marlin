@@ -888,7 +888,7 @@ static void lcd_prepare_menu() {
   
   //
   // BLTouch installed so allow reset menu option to reset alarm mode
-  #if BLTOUCH_MENU 
+  #if ENABLED(BLTOUCH_MENU)
     MENU_ITEM(gcode, MSG_RESET_BLT, PSTR("M280 P0 S160"));
   #endif // BLTOUCH_MENU
 
