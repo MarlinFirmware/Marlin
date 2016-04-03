@@ -69,7 +69,9 @@
 #endif
 #ifndef MSG_LEVEL_BED_DONE
   #define MSG_LEVEL_BED_DONE                  "Leveling Done!"
-#define MSG_LEVEL_BED_CANCEL                "Cancel"
+#endif
+#ifndef MSG_LEVEL_BED_CANCEL
+  #define MSG_LEVEL_BED_CANCEL                "Cancel"
 #endif
 #ifndef MSG_SET_HOME_OFFSETS
   #define MSG_SET_HOME_OFFSETS                "Set home offsets"
