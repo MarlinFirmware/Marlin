@@ -440,7 +440,9 @@
     #define HEATER_0_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_1 == -1
+  #if TEMP_SENSOR_1 <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_1
+  #elif TEMP_SENSOR_1 == -1
     #define HEATER_1_USES_AD595
   #elif TEMP_SENSOR_1 == 0
     #undef HEATER_1_MINTEMP
@@ -450,7 +452,9 @@
     #define HEATER_1_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_2 == -1
+  #if TEMP_SENSOR_2 <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_2
+  #elif TEMP_SENSOR_2 == -1
     #define HEATER_2_USES_AD595
   #elif TEMP_SENSOR_2 == 0
     #undef HEATER_2_MINTEMP
@@ -460,7 +464,9 @@
     #define HEATER_2_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_3 == -1
+  #if TEMP_SENSOR_3 <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_3
+  #elif TEMP_SENSOR_3 == -1
     #define HEATER_3_USES_AD595
   #elif TEMP_SENSOR_3 == 0
     #undef HEATER_3_MINTEMP
@@ -470,7 +476,9 @@
     #define HEATER_3_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_BED == -1
+  #if TEMP_SENSOR_BED <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_BED
+  #elif TEMP_SENSOR_BED == -1
     #define BED_USES_AD595
   #elif TEMP_SENSOR_BED == 0
     #undef BED_MINTEMP
@@ -498,11 +506,11 @@
   /**
    * Shorthand for pin tests, used wherever needed
    */
-  #define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 != -2)
-  #define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0)
-  #define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0)
-  #define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0)
-  #define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0)
+  #define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 > -2)
+  #define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0 && TEMP_SENSOR_1 > -2)
+  #define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0 && TEMP_SENSOR_2 > -2)
+  #define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0 && TEMP_SENSOR_3 > -2)
+  #define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0 && TEMP_SENSOR_BED > -2)
   #define HAS_HEATER_0 (PIN_EXISTS(HEATER_0))
   #define HAS_HEATER_1 (PIN_EXISTS(HEATER_1))
   #define HAS_HEATER_2 (PIN_EXISTS(HEATER_2))
