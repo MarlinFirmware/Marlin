@@ -44,6 +44,7 @@
 #define MSG_AUTO_HOME                       "Auto home"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Nulpunt instellen"
 #define MSG_PREHEAT_PLA                     "PLA voorverwarmen"
 #define MSG_PREHEAT_PLA_N                   "PLA voorverw. "

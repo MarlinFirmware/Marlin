@@ -44,6 +44,7 @@
 #define MSG_AUTO_HOME                       "Auto. poz. zerowa"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Ustaw punkt zero"
 #define MSG_PREHEAT_PLA                     "Rozgrzej PLA"
 #define MSG_PREHEAT_PLA_N                   "Rozgrzej PLA "

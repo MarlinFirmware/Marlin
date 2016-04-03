@@ -50,6 +50,7 @@
 #define MSG_AUTO_HOME                       "ゲンテンニイドウ"                // "Auto home"
 #define MSG_LEVEL_BED_HOMING                "ゲンテンニイドウ"                // "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "キジュンオフセットセッテイ"         // "Set home offsets"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "キジュンセット"                 // "Set origin"
 #define MSG_PREHEAT_PLA                     "PLA ヨネツ"                   // "Preheat PLA"
 #define MSG_PREHEAT_PLA_N                   MSG_PREHEAT_PLA " "

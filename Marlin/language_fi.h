@@ -44,6 +44,7 @@
 #define MSG_AUTO_HOME                       "Aja referenssiin"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Aseta origo"
 #define MSG_PREHEAT_PLA                     "Esilämmitä PLA"
 #define MSG_PREHEAT_PLA_N                   "Esilämmitä PLA "

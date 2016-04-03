@@ -45,6 +45,7 @@
 #define MSG_DISABLE_STEPPERS                "Slå stepper fra"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Sæt home offsets"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Sæt origin"
 #define MSG_SWITCH_PS_ON                    "Slå strøm til"
 #define MSG_SWITCH_PS_OFF                   "Slå strøm fra"

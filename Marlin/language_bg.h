@@ -44,6 +44,7 @@
 #define MSG_AUTO_HOME                       "Паркиране"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Задай Начало"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Изходна точка"
 #define MSG_PREHEAT_PLA                     "Подгряване PLA"
 #define MSG_PREHEAT_PLA_N                   "Подгряване PLA"

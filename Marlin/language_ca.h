@@ -45,6 +45,7 @@
 #define MSG_AUTO_HOME                       "Home global"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Establir origen"
 #define MSG_PREHEAT_PLA                     "Preescalfar PLA"
 #define MSG_PREHEAT_PLA_N                   "Preescalfar PLA "

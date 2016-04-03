@@ -44,6 +44,7 @@
 #define MSG_AUTO_HOME                       "Ir para origem"
 #define MSG_LEVEL_BED_HOMING                "Indo para origem"
 #define MSG_SET_HOME_OFFSETS                "Definir desvio"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Definir origem"
 #define MSG_PREHEAT_PLA                     "Pre-aquecer PLA"
 #define MSG_PREHEAT_PLA_N                   "Pre-aquecer PLA"
