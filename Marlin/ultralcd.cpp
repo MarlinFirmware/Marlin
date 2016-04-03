@@ -2483,8 +2483,19 @@ char* ftostr52(const float& x) {
    *   - Click saves the Z and goes to the next mesh point
    */
   static void _lcd_level_bed() {
+    static bool mbl_wait_for_move = false;
+    // Menu handlers may be called in a re-entrant fashion
+    // if they call st_synchronize or plan_buffer_line. So
+    // while waiting for a move we just ignore new input.
+    if (mbl_wait_for_move) {
+      lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+      return;
+    }
+
     ENCODER_DIRECTION_NORMAL();
-    if ((encoderPosition != 0) && (movesplanned() <= 3)) {
+
+    // Encoder wheel adjusts the Z position
+    if (encoderPosition != 0 && movesplanned() <= 3) {
       refresh_cmd_timeout();
       current_position[Z_AXIS] += float((int)encoderPosition) * (MBL_Z_STEP);
       if (min_software_endstops) NOLESS(current_position[Z_AXIS], Z_MIN_POS);
@@ -2493,10 +2504,18 @@ char* ftostr52(const float& x) {
       line_to_current(Z_AXIS);
       lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
     }
+
+    // Update on first display, then only on updates to Z position
     if (lcdDrawUpdate) {
       float v = current_position[Z_AXIS] - MESH_HOME_SEARCH_Z;
       lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43(v + (v < 0 ? -0.0001 : 0.0001), '+'));
     }
+
+    // We want subsequent calls, but don't force redraw
+    // Set here so it can be overridden by lcd_return_to_status below
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+
+    // Click sets the current Z and moves to the next position
     static bool debounce_click = false;
     if (LCD_CLICKED) {
       if (!debounce_click) {
@@ -2508,10 +2527,12 @@ char* ftostr52(const float& x) {
         _lcd_level_bed_position++;
         if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+          mbl_wait_for_move = true;
           line_to_current(Z_AXIS);
           st_synchronize();
           mbl.active = 1;
           enqueue_and_echo_commands_P(PSTR("G28"));
+          mbl_wait_for_move = false;
           lcd_return_to_status();
           #if ENABLED(NEWPANEL)
             lcd_quick_feedback();
@@ -2531,7 +2552,6 @@ char* ftostr52(const float& x) {
           current_position[X_AXIS] = mbl.get_x(ix);
           current_position[Y_AXIS] = mbl.get_y(iy);
           line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
-          lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
         }
       }
     }
