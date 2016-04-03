@@ -2482,7 +2482,7 @@ char* ftostr52(const float& x) {
    *   - Movement adjusts the Z axis
    *   - Click saves the Z and goes to the next mesh point
    */
-  static void _lcd_level_bed() {
+  static void _lcd_level_bed_procedure() {
     static bool mbl_wait_for_move = false;
     // Menu handlers may be called in a re-entrant fashion
     // if they call st_synchronize or plan_buffer_line. So
@@ -2570,7 +2570,7 @@ char* ftostr52(const float& x) {
       current_position[Y_AXIS] = MESH_MIN_Y;
       line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
       _lcd_level_bed_position = 0;
-      lcd_goto_menu(_lcd_level_bed, true);
+      lcd_goto_menu(_lcd_level_bed_procedure, true);
     }
   }
 
@@ -2587,7 +2587,7 @@ char* ftostr52(const float& x) {
   /**
    * MBL Continue Bed Leveling...
    */
-  static void lcd_level_bed_continue() {
+  static void _lcd_level_bed_continue() {
     defer_return_to_status = true;
     axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
     mbl.reset();
@@ -2601,7 +2601,7 @@ char* ftostr52(const float& x) {
   static void lcd_level_bed() {
     START_MENU();
     MENU_ITEM(back, "Cancel", lcd_prepare_menu);
-    MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed_continue);
+    MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
     END_MENU();
   }
 
