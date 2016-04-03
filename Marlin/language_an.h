@@ -43,6 +43,8 @@
 #define MSG_DISABLE_STEPPERS                "Amortar motors"
 #define MSG_AUTO_HOME                       "Levar a l'orichen"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
+#define MSG_LEVEL_BED_WAITING               "Click to Begin"
+#define MSG_LEVEL_BED_DONE                  "Leveling Done!"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Establir zero"
