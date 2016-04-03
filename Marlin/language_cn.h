@@ -42,6 +42,7 @@
 #define MSG_AUTO_HOME                       "\xbb\xbc\xbd"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "\xbe\xbf\xbb\xbc\xbd\xc0\xc1"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "\xbe\xbf\xbc\xbd"
 #define MSG_PREHEAT_PLA                     "\xc3\xc4 PLA"
 #define MSG_PREHEAT_PLA_N                   MSG_PREHEAT_PLA " "

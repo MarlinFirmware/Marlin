@@ -44,6 +44,7 @@
 #define MSG_AUTO_HOME                       "Hasierara joan"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Hasiera ipini"
 #define MSG_PREHEAT_PLA                     "Aurreberotu PLA"
 #define MSG_PREHEAT_PLA_N                   "Aurreberotu PLA "

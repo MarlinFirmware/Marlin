@@ -45,6 +45,7 @@
 #define MSG_AUTO_HOME                       "Home auto."
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Regler origine"
 #define MSG_PREHEAT_PLA                     "Prechauffage PLA"
 #define MSG_PREHEAT_PLA_N                   "Prechauff. PLA "

@@ -67,6 +67,9 @@
 #ifndef MSG_SET_HOME_OFFSETS
   #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #endif
+#ifndef MSG_HOME_OFFSETS_APPLIED
+  #define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
+#endif
 #ifndef MSG_SET_ORIGIN
   #define MSG_SET_ORIGIN                      "Set origin"
 #endif

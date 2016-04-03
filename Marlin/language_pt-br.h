@@ -44,6 +44,7 @@
 #define MSG_AUTO_HOME                       "Ir para origen"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_SET_HOME_OFFSETS                "Ajustar Jogo"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Ajustar orig."
 #define MSG_PREHEAT_PLA                     "Pre-aquecer PLA"
 #define MSG_PREHEAT_PLA_N                   "Pre-aquecer PLA"
