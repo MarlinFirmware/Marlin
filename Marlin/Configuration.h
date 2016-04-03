@@ -39,7 +39,7 @@ Here are some standard links for getting your machine calibrated:
 #define WILSON_II_TYPE        // comment this out if not wilson ii
 #define MY_BEDLEVELING_DEFAULTS // comment this out to strip out all the bed leveling stuff
 
-//#define MJRICE_BEDLEVELING_RACK // include this (only) if using the rack-and-pinion aparatus for bed probing / leveling
+#define MJRICE_BEDLEVELING_RACK // include this (only) if using the rack-and-pinion aparatus for bed probing / leveling
 
 #ifdef MY_BEDLEVELING_DEFAULTS
  #define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
@@ -74,16 +74,20 @@ Here are some standard links for getting your machine calibrated:
 
 // This determines the communication speed of the printer
 // :[2400,9600,19200,38400,57600,115200,250000]
-#define BAUDRATE 115200
+#define BAUDRATE 250000 //115200
 
 // This enables the serial port associated to the Bluetooth interface
 //#define BTENABLED              // Enable BT interface on AT90USB devices
 
+//#define GT2560
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_RAMPS_13_EFB
-#endif
+  #ifdef GT2560
+    #define MOTHERBOARD BOARD_ULTIMAKER 
+  #endif
+  #endif
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
@@ -421,7 +425,12 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // @section machine
 
 // Travel limits after homing (units are in mm)
+#ifndef MJRICE_BEDLEVELING_RACK
 #define X_MIN_POS 0
+#else
+#define X_MIN_POS 4
+#endif
+
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS 200
@@ -516,8 +525,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   #ifdef MJRICE_BEDLEVELING_RACK
      #define X_PROBE_OFFSET_FROM_EXTRUDER 0     // Probe on: -left  +right
      #define Y_PROBE_OFFSET_FROM_EXTRUDER 45     // Probe on: -front +behind
-     #define Z_PROBE_OFFSET_FROM_EXTRUDER -12  // -below (always!) 
-     #define Z_RAISE_BEFORE_HOMING 15       // (in mm) Raise Z before homing (G28) for Probe Clearance.
+     #define Z_PROBE_OFFSET_FROM_EXTRUDER -11  // -below (always!) 
+     #define Z_RAISE_BEFORE_HOMING 20       // (in mm) Raise Z before homing (G28) for Probe Clearance.
   #else
      // for servo mounted z probe
      #define X_PROBE_OFFSET_FROM_EXTRUDER -54     // Probe on: -left  +right
@@ -528,7 +537,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 
   #define XY_TRAVEL_SPEED (100*60)         // X and Y axis travel speed between probes, in mm/min
 
-  #define Z_RAISE_BEFORE_PROBING 15   //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BEFORE_PROBING 20   //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
   #define Z_RAISE_AFTER_PROBING 5    //How much the extruder will be raised after the last probing point.
 

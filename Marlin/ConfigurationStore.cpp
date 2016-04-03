@@ -117,6 +117,8 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i, filament_size[2]);
   #endif
   #endif
+
+  EEPROM_WRITE_VAR(i,x_right_stop_pos);
   
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
@@ -364,6 +366,8 @@ void Config_RetrieveSettings()
     #ifdef EEPROM_CHITCHAT
       Config_PrintSettings();
     #endif
+    
+    EEPROM_READ_VAR(i,x_right_stop_pos);
 }
 #endif
 

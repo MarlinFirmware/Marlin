@@ -214,6 +214,18 @@ void manage_inactivity(bool ignore_stepper_queue=false);
 enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
 
 
+#if EXTRUDERS > 3
+  # error Unsupported number of extruders
+#elif EXTRUDERS > 2
+  # define ARRAY_BY_EXTRUDERS(v1, v2, v3) { v1, v2, v3 }
+#elif EXTRUDERS > 1
+  # define ARRAY_BY_EXTRUDERS(v1, v2, v3) { v1, v2 }
+#else
+  # define ARRAY_BY_EXTRUDERS(v1, v2, v3) { v1 }
+#endif
+
+#define ARRAY_BY_EXTRUDERS1(v1) { v1 } 
+
 void FlushSerialRequestResend();
 void ClearToSend();
 
@@ -270,6 +282,7 @@ extern float axis_scaling[3];  // Build size scaling
 #endif
 extern float min_pos[3];
 extern float max_pos[3];
+extern float x_right_stop_pos;
 extern bool axis_known_position[3];
 extern float zprobe_zoffset;
 extern int fanSpeed;
