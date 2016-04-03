@@ -71,38 +71,18 @@
 
 #define PROTOCOL_VERSION "1.0"
 
-#if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
-  #define DEFAULT_MACHINE_NAME "Ultimaker"
-#elif MB(RUMBA)
-  #define DEFAULT_MACHINE_NAME "Rumba"
-#elif MB(3DRAG)
-  #define DEFAULT_MACHINE_NAME "3Drag"
-#elif MB(K8200)
-  #define DEFAULT_MACHINE_NAME "K8200"
-#elif MB(5DPRINT)
-  #define DEFAULT_MACHINE_NAME "Makibox"
-#elif MB(SAV_MKI)
-  #define DEFAULT_MACHINE_NAME "SAV MkI"
-#else
+#ifndef DEFAULT_MACHINE_NAME
   #define DEFAULT_MACHINE_NAME "3D Printer"
-#endif
-
-#if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
-  #define DEFAULT_SOURCE_URL "https://github.com/Ultimaker/Marlin"
-#elif MB(3DRAG)
-  #define DEFAULT_SOURCE_URL "http://3dprint.elettronicain.it/"
-#elif MB(K8200)
-  #define DEFAULT_SOURCE_URL "https://github.com/CONSULitAS/Marlin-K8200"
-#elif MB(SAV_MKI)
-  #define DEFAULT_SOURCE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
-#else
-  #define DEFAULT_SOURCE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
 #ifdef CUSTOM_MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MACHINE_NAME
 #else
   #define MACHINE_NAME DEFAULT_MACHINE_NAME
+#endif
+
+#ifndef DEFAULT_SOURCE_URL
+  #define DEFAULT_SOURCE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
 #ifndef SOURCE_CODE_URL

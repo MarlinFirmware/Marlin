@@ -26,6 +26,9 @@
 
 #include "pins_RAMPS_14.h"
 
+#define DEFAULT_MACHINE_NAME "3Drag"
+#define DEFAULT_SOURCE_URL   "http://3dprint.elettronicain.it/"
+
 #undef Z_ENABLE_PIN
 #define Z_ENABLE_PIN       63
 
