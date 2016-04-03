@@ -44,6 +44,8 @@
 #define MSG_COOLDOWN                        "Afkøl"
 #define MSG_DISABLE_STEPPERS                "Slå stepper fra"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
+#define MSG_LEVEL_BED_WAITING               "Click to Begin"
+#define MSG_LEVEL_BED_DONE                  "Leveling Done!"
 #define MSG_SET_HOME_OFFSETS                "Sæt home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Sæt origin"

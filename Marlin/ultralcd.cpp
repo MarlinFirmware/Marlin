@@ -2516,7 +2516,7 @@ char* ftostr52(const float& x) {
           #if ENABLED(NEWPANEL)
             lcd_quick_feedback();
           #endif
-          LCD_ALERTMESSAGEPGM("Leveling Done!");
+          LCD_ALERTMESSAGEPGM(MSG_LEVEL_BED_DONE);
           #if HAS_BUZZER
             buzz(200, 659);
             buzz(200, 698);
@@ -2541,7 +2541,7 @@ char* ftostr52(const float& x) {
   }
 
   static void _lcd_level_bed_homing_done() {
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Click to Begin"), NULL);
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING), NULL);
     lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
     if (LCD_CLICKED) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
