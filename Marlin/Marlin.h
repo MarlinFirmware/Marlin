@@ -368,7 +368,7 @@ extern uint8_t active_extruder;
   extern void digipot_i2c_init();
 #endif
 
-#if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+#if HAS_TEMP_HOTEND || HAS_TEMP_BED
   void print_heaterstates();
 #endif
 
