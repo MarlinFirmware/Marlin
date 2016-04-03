@@ -534,6 +534,11 @@ static void lcd_main_menu() {
   END_MENU();
 }
 
+/**
+ *
+ * "Tune" submenu items
+ *
+ */
 
 /**
  * Set the home offset based on the current_position
@@ -741,6 +746,11 @@ static void lcd_tune_menu() {
   END_MENU();
 }
 
+/**
+ *
+ * "Prepare" submenu items
+ *
+ */
 void _lcd_preheat(int endnum, const float temph, const float tempb, const int fan) {
   if (temph > 0) setTargetHotend(temph, endnum);
   #if TEMP_SENSOR_BED != 0
