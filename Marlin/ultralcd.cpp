@@ -293,7 +293,7 @@ enum LCDHandlerAction {
   LCD_DRAW_UPDATE_NONE,
   LCD_DRAW_UPDATE_CALL_REDRAW,
   LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW,
-  LCD_DRAW_UPDATE_CALL_NO_REDRAW,
+  LCD_DRAW_UPDATE_CALL_NO_REDRAW
 };
 
 uint8_t lcdDrawUpdate = LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW; // Set 1 or 2 when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
