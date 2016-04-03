@@ -49,6 +49,7 @@
 #define MSG_LEVEL_BED_HOMING                "Mereni podlozky"
 #define MSG_LEVEL_BED_WAITING               "Click to Begin"
 #define MSG_LEVEL_BED_DONE                  "Leveling Done!"
+#define MSG_LEVEL_BED_CANCEL                "Cancel"
 #define MSG_SET_HOME_OFFSETS                "Nastavit ofsety"
 #define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Nastavit pocatek"
