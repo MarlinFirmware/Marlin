@@ -111,9 +111,6 @@ static void lcd_status_screen();
 
   #if ENABLED(MANUAL_BED_LEVELING)
     #include "mesh_bed_leveling.h"
-    static void _lcd_level_bed();
-    static void _lcd_level_bed_homing();
-    static void lcd_level_bed();
   #endif
 
   /* Different types of actions that can be used in menu items. */
@@ -463,6 +460,15 @@ static void lcd_status_screen() {
 }
 
 #if ENABLED(ULTIPANEL)
+
+inline void line_to_current(AxisEnum axis) {
+  #if ENABLED(DELTA)
+    calculate_delta(current_position);
+    plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[axis]/60, active_extruder);
+  #else
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[axis]/60, active_extruder);
+  #endif
+}
 
 #if ENABLED(SDSUPPORT)
 
@@ -852,6 +858,147 @@ void lcd_cooldown() {
   }
 
 #endif
+
+#if ENABLED(MANUAL_BED_LEVELING)
+
+  /**
+   *
+   * "Prepare" > "Bed Leveling" handlers
+   *
+   */
+
+  static int _lcd_level_bed_position;
+
+  /**
+   * MBL Wait for controller movement and clicks:
+   *   - Movement adjusts the Z axis
+   *   - Click saves the Z and goes to the next mesh point
+   */
+  static void _lcd_level_bed_procedure() {
+    static bool mbl_wait_for_move = false;
+    // Menu handlers may be called in a re-entrant fashion
+    // if they call st_synchronize or plan_buffer_line. So
+    // while waiting for a move we just ignore new input.
+    if (mbl_wait_for_move) {
+      lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+      return;
+    }
+
+    ENCODER_DIRECTION_NORMAL();
+
+    // Encoder wheel adjusts the Z position
+    if (encoderPosition != 0 && movesplanned() <= 3) {
+      refresh_cmd_timeout();
+      current_position[Z_AXIS] += float((int)encoderPosition) * (MBL_Z_STEP);
+      if (min_software_endstops) NOLESS(current_position[Z_AXIS], Z_MIN_POS);
+      if (max_software_endstops) NOMORE(current_position[Z_AXIS], Z_MAX_POS);
+      encoderPosition = 0;
+      line_to_current(Z_AXIS);
+      lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+    }
+
+    // Update on first display, then only on updates to Z position
+    if (lcdDrawUpdate) {
+      float v = current_position[Z_AXIS] - MESH_HOME_SEARCH_Z;
+      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43(v + (v < 0 ? -0.0001 : 0.0001), '+'));
+    }
+
+    // We want subsequent calls, but don't force redraw
+    // Set here so it can be overridden by lcd_return_to_status below
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+
+    // Click sets the current Z and moves to the next position
+    static bool debounce_click = false;
+    if (LCD_CLICKED) {
+      if (!debounce_click) {
+        debounce_click = true; // ignore multiple "clicks" in a row
+        int ix = _lcd_level_bed_position % (MESH_NUM_X_POINTS),
+            iy = _lcd_level_bed_position / (MESH_NUM_X_POINTS);
+        if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
+        mbl.set_z(ix, iy, current_position[Z_AXIS]);
+        _lcd_level_bed_position++;
+        if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
+          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+          mbl_wait_for_move = true;
+          line_to_current(Z_AXIS);
+          st_synchronize();
+          mbl.active = 1;
+          enqueue_and_echo_commands_P(PSTR("G28"));
+          mbl_wait_for_move = false;
+          lcd_return_to_status();
+          #if ENABLED(NEWPANEL)
+            lcd_quick_feedback();
+          #endif
+          LCD_ALERTMESSAGEPGM(MSG_LEVEL_BED_DONE);
+          #if HAS_BUZZER
+            buzz(200, 659);
+            buzz(200, 698);
+          #endif
+        }
+        else {
+          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+          line_to_current(Z_AXIS);
+          ix = _lcd_level_bed_position % (MESH_NUM_X_POINTS);
+          iy = _lcd_level_bed_position / (MESH_NUM_X_POINTS);
+          if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
+          current_position[X_AXIS] = mbl.get_x(ix);
+          current_position[Y_AXIS] = mbl.get_y(iy);
+          line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
+        }
+      }
+    }
+    else {
+      debounce_click = false;
+    }
+  }
+
+  static void _lcd_level_bed_homing_done() {
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING), NULL);
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+    if (LCD_CLICKED) {
+      current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      current_position[X_AXIS] = MESH_MIN_X;
+      current_position[Y_AXIS] = MESH_MIN_Y;
+      line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
+      _lcd_level_bed_position = 0;
+      lcd_goto_menu(_lcd_level_bed_procedure, true);
+    }
+  }
+
+  /**
+   * MBL Move to mesh starting point
+   */
+  static void _lcd_level_bed_homing() {
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS])
+      lcd_goto_menu(_lcd_level_bed_homing_done);
+  }
+
+  /**
+   * MBL Continue Bed Leveling...
+   */
+  static void _lcd_level_bed_continue() {
+    defer_return_to_status = true;
+    axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
+    mbl.reset();
+    enqueue_and_echo_commands_P(PSTR("G28"));
+    lcd_goto_menu(_lcd_level_bed_homing, true);
+  }
+
+  /**
+   * MBL entry-point
+   */
+  static void lcd_level_bed() {
+    START_MENU();
+    MENU_ITEM(back, MSG_LEVEL_BED_CANCEL);
+    MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
+    END_MENU();
+  }
+
+#endif  // MANUAL_BED_LEVELING
+
 /**
  *
  * "Prepare" submenu
@@ -950,15 +1097,6 @@ static void lcd_prepare_menu() {
   }
 
 #endif // DELTA_CALIBRATION_MENU
-
-inline void line_to_current(AxisEnum axis) {
-  #if ENABLED(DELTA)
-    calculate_delta(current_position);
-    plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[axis]/60, active_extruder);
-  #else
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[axis]/60, active_extruder);
-  #endif
-}
 
 /**
  *
@@ -2494,139 +2632,5 @@ char* ftostr52(const float& x) {
   conv[7] = 0;
   return conv;
 }
-
-#if ENABLED(MANUAL_BED_LEVELING)
-
-  static int _lcd_level_bed_position;
-
-  /**
-   * MBL Wait for controller movement and clicks:
-   *   - Movement adjusts the Z axis
-   *   - Click saves the Z and goes to the next mesh point
-   */
-  static void _lcd_level_bed_procedure() {
-    static bool mbl_wait_for_move = false;
-    // Menu handlers may be called in a re-entrant fashion
-    // if they call st_synchronize or plan_buffer_line. So
-    // while waiting for a move we just ignore new input.
-    if (mbl_wait_for_move) {
-      lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
-      return;
-    }
-
-    ENCODER_DIRECTION_NORMAL();
-
-    // Encoder wheel adjusts the Z position
-    if (encoderPosition != 0 && movesplanned() <= 3) {
-      refresh_cmd_timeout();
-      current_position[Z_AXIS] += float((int)encoderPosition) * (MBL_Z_STEP);
-      if (min_software_endstops) NOLESS(current_position[Z_AXIS], Z_MIN_POS);
-      if (max_software_endstops) NOMORE(current_position[Z_AXIS], Z_MAX_POS);
-      encoderPosition = 0;
-      line_to_current(Z_AXIS);
-      lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
-    }
-
-    // Update on first display, then only on updates to Z position
-    if (lcdDrawUpdate) {
-      float v = current_position[Z_AXIS] - MESH_HOME_SEARCH_Z;
-      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43(v + (v < 0 ? -0.0001 : 0.0001), '+'));
-    }
-
-    // We want subsequent calls, but don't force redraw
-    // Set here so it can be overridden by lcd_return_to_status below
-    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
-
-    // Click sets the current Z and moves to the next position
-    static bool debounce_click = false;
-    if (LCD_CLICKED) {
-      if (!debounce_click) {
-        debounce_click = true; // ignore multiple "clicks" in a row
-        int ix = _lcd_level_bed_position % (MESH_NUM_X_POINTS),
-            iy = _lcd_level_bed_position / (MESH_NUM_X_POINTS);
-        if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
-        mbl.set_z(ix, iy, current_position[Z_AXIS]);
-        _lcd_level_bed_position++;
-        if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-          mbl_wait_for_move = true;
-          line_to_current(Z_AXIS);
-          st_synchronize();
-          mbl.active = 1;
-          enqueue_and_echo_commands_P(PSTR("G28"));
-          mbl_wait_for_move = false;
-          lcd_return_to_status();
-          #if ENABLED(NEWPANEL)
-            lcd_quick_feedback();
-          #endif
-          LCD_ALERTMESSAGEPGM(MSG_LEVEL_BED_DONE);
-          #if HAS_BUZZER
-            buzz(200, 659);
-            buzz(200, 698);
-          #endif
-        }
-        else {
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-          line_to_current(Z_AXIS);
-          ix = _lcd_level_bed_position % (MESH_NUM_X_POINTS);
-          iy = _lcd_level_bed_position / (MESH_NUM_X_POINTS);
-          if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
-          current_position[X_AXIS] = mbl.get_x(ix);
-          current_position[Y_AXIS] = mbl.get_y(iy);
-          line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
-        }
-      }
-    }
-    else {
-      debounce_click = false;
-    }
-  }
-
-  static void _lcd_level_bed_homing_done() {
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING), NULL);
-    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
-    if (LCD_CLICKED) {
-      current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-      current_position[X_AXIS] = MESH_MIN_X;
-      current_position[Y_AXIS] = MESH_MIN_Y;
-      line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
-      _lcd_level_bed_position = 0;
-      lcd_goto_menu(_lcd_level_bed_procedure, true);
-    }
-  }
-
-  /**
-   * MBL Move to mesh starting point
-   */
-  static void _lcd_level_bed_homing() {
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
-    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
-    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS])
-      lcd_goto_menu(_lcd_level_bed_homing_done);
-  }
-
-  /**
-   * MBL Continue Bed Leveling...
-   */
-  static void _lcd_level_bed_continue() {
-    defer_return_to_status = true;
-    axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
-    mbl.reset();
-    enqueue_and_echo_commands_P(PSTR("G28"));
-    lcd_goto_menu(_lcd_level_bed_homing, true);
-  }
-
-  /**
-   * MBL entry-point
-   */
-  static void lcd_level_bed() {
-    START_MENU();
-    MENU_ITEM(back, MSG_LEVEL_BED_CANCEL);
-    MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
-    END_MENU();
-  }
-
-#endif  // MANUAL_BED_LEVELING
 
 #endif // ULTRA_LCD
