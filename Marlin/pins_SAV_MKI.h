@@ -31,6 +31,9 @@
   #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
 #endif
 
+#define DEFAULT_MACHINE_NAME "SAV MkI"
+#define DEFAULT_SOURCE_URL   "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
+
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN         0
