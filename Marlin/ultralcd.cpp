@@ -252,7 +252,7 @@ static void lcd_status_screen();
   #endif //!ENCODER_RATE_MULTIPLIER
   #define END_MENU() \
       if (encoderLine >= _menuItemNr) { encoderPosition = _menuItemNr * (ENCODER_STEPS_PER_MENU_ITEM) - 1; encoderLine = _menuItemNr - 1; }\
-      if (encoderLine >= currentMenuViewOffset + LCD_HEIGHT) { currentMenuViewOffset = encoderLine - (LCD_HEIGHT) + 1; lcdDrawUpdate = 1; _lineNr = currentMenuViewOffset - 1; _drawLineNr = -1; } \
+      if (encoderLine >= currentMenuViewOffset + LCD_HEIGHT) { currentMenuViewOffset = encoderLine - (LCD_HEIGHT) + 1; lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW; _lineNr = currentMenuViewOffset - 1; _drawLineNr = -1; } \
       } } while(0)
 
   /** Used variables to keep track of the menu */
@@ -280,7 +280,15 @@ uint8_t lcd_status_update_delay;
 bool ignore_click = false;
 bool wait_for_unclick;
 bool defer_return_to_status = false;
-uint8_t lcdDrawUpdate = 2;                  /* Set to none-zero when the LCD needs to draw, decreased after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial) */
+
+enum LCDHandlerAction {
+  LCD_DRAW_UPDATE_NONE,
+  LCD_DRAW_UPDATE_CALL_REDRAW,
+  LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW,
+  LCD_DRAW_UPDATE_CALL_NO_REDRAW,
+};
+
+uint8_t lcdDrawUpdate = LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW; // Set 1 or 2 when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
 
 // Variables used when editing values.
 const char* editLabel;
@@ -298,7 +306,7 @@ float raw_Ki, raw_Kd;
 static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const uint32_t encoder = 0) {
   if (currentMenu != menu) {
     currentMenu = menu;
-    lcdDrawUpdate = 2;
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW;
     #if ENABLED(NEWPANEL)
       encoderPosition = encoder;
       if (feedback) lcd_quick_feedback();
@@ -524,7 +532,7 @@ void lcd_set_home_offsets() {
     if (encoderPosition != 0) {
       int distance =  (int)encoderPosition * BABYSTEP_MULTIPLICATOR;
       encoderPosition = 0;
-      lcdDrawUpdate = 1;
+      lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
       #if ENABLED(COREXY) || ENABLED(COREXZ)
         #if ENABLED(BABYSTEP_XY)
           switch(axis) {
@@ -948,7 +956,7 @@ static void _lcd_move(const char* name, AxisEnum axis, int min, int max) {
     if (max_software_endstops) NOMORE(current_position[axis], max);
     encoderPosition = 0;
     line_to_current(axis);
-    lcdDrawUpdate = 1;
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
   }
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
   if (LCD_CLICKED) lcd_goto_previous_menu();
@@ -977,7 +985,7 @@ static void lcd_move_e(
     current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
     encoderPosition = 0;
     line_to_current(E_AXIS);
-    lcdDrawUpdate = 1;
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
   }
   if (lcdDrawUpdate) {
     PGM_P pos_label;
@@ -1449,7 +1457,7 @@ static void lcd_control_volumetric_menu() {
         lcd_contrast &= 0x3F;
       #endif
       encoderPosition = 0;
-      lcdDrawUpdate = 1;
+      lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
       u8g.setContrast(lcd_contrast);
     }
     if (lcdDrawUpdate) {
@@ -1590,7 +1598,7 @@ static void lcd_control_volumetric_menu() {
   static void _menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
     lcd_save_previous_menu(); \
     \
-    lcdDrawUpdate = 2; \
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW; \
     currentMenu = menu_edit_ ## _name; \
     \
     editLabel = pstr; \
@@ -1672,7 +1680,7 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 #endif
 
 void lcd_quick_feedback() {
-  lcdDrawUpdate = 2;
+  lcdDrawUpdate = LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW;
   next_button_update_ms = millis() + 500;
 
   #if ENABLED(LCD_USE_I2C_BUZZER)
@@ -1837,11 +1845,27 @@ bool lcd_blink() {
  *   - Act on RepRap World keypad input
  *   - Update the encoder position
  *   - Apply acceleration to the encoder position
+ *   - Set lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW on controller events
  *   - Reset the Info Screen timeout if there's any input
  *   - Update status indicators, if any
- *   - Clear the LCD if lcdDrawUpdate == 2
  *
- * Warning: This function is called from interrupt context!
+ *   Run the current LCD menu handler callback function:
+ *   - Call the handler only if lcdDrawUpdate != LCD_DRAW_UPDATE_NONE
+ *   - Before calling the handler, LCD_DRAW_UPDATE_CALL_NO_REDRAW => LCD_DRAW_UPDATE_NONE
+ *   - Call the menu handler. Menu handlers should do the following:
+ *     - If a value changes, set lcdDrawUpdate to LCD_DRAW_UPDATE_CALL_REDRAW
+ *     - if (lcdDrawUpdate) { redraw }
+ *     - Before exiting the handler set lcdDrawUpdate to:
+ *       - LCD_DRAW_UPDATE_CALL_REDRAW or LCD_DRAW_UPDATE_NONE for no callbacks until the next controller event.
+ *       - LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW to clear screen, LCD_DRAW_UPDATE_CALL_REDRAW on the next loop.
+ *       - LCD_DRAW_UPDATE_CALL_NO_REDRAW for a callback with no forced redraw on the next loop.
+ *     - NOTE: For some displays, the menu handler may be called 2 or more times per loop.
+ *
+ *   After the menu handler callback runs (or not):
+ *   - Clear the LCD if lcdDrawUpdate == LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW
+ *   - Update lcdDrawUpdate for the next loop (i.e., move one state down, usually)
+ *
+ * No worries. This function is only called from the main thread.
  */
 void lcd_update() {
   #if ENABLED(ULTIPANEL)
@@ -1854,7 +1878,7 @@ void lcd_update() {
 
     bool sd_status = IS_SD_INSERTED;
     if (sd_status != lcd_sd_status && lcd_detected()) {
-      lcdDrawUpdate = 2;
+      lcdDrawUpdate = LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW;
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
         #if ENABLED(LCD_PROGRESS_BAR)
           currentMenu == lcd_status_screen
@@ -1933,13 +1957,13 @@ void lcd_update() {
           encoderDiff = 0;
         }
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-        lcdDrawUpdate = 1;
+        lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
       }
     #endif //ULTIPANEL
 
     if (currentMenu == lcd_status_screen) {
       if (!lcd_status_update_delay) {
-        lcdDrawUpdate = 1;
+        lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
         lcd_status_update_delay = 10;   /* redraw the main screen every second. This is easier then trying keep track of all things that change on the screen */
       }
       else {
@@ -1948,6 +1972,9 @@ void lcd_update() {
     }
 
     if (lcdDrawUpdate) {
+
+      if (lcdDrawUpdate == LCD_DRAW_UPDATE_CALL_NO_REDRAW) lcdDrawUpdate = LCD_DRAW_UPDATE_NONE;
+
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
         bool blink = lcd_blink();
         u8g.firstPage();
@@ -1971,14 +1998,29 @@ void lcd_update() {
     #if ENABLED(ULTIPANEL)
 
       // Return to Status Screen after a timeout
-      if (!defer_return_to_status && currentMenu != lcd_status_screen && millis() > return_to_status_ms) {
+      if (defer_return_to_status)
+        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+      else if (currentMenu != lcd_status_screen && millis() > return_to_status_ms) {
         lcd_return_to_status();
-        lcdDrawUpdate = 2;
       }
 
     #endif // ULTIPANEL
 
-    if (lcdDrawUpdate && --lcdDrawUpdate) lcd_implementation_clear();
+    switch (lcdDrawUpdate) {
+      case LCD_DRAW_UPDATE_NONE:
+        // do nothing
+      case LCD_DRAW_UPDATE_CALL_NO_REDRAW:
+        // changes to LCD_DRAW_UPDATE_NONE before call
+        break;
+      case LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW:
+        lcd_implementation_clear();
+        lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
+        break;
+      case LCD_DRAW_UPDATE_CALL_REDRAW:
+        lcdDrawUpdate = LCD_DRAW_UPDATE_NONE;
+        break;
+    }
+
     next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
   }
 }
@@ -1995,7 +2037,7 @@ void lcd_finishstatus(bool persist=false) {
       expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
     #endif
   #endif
-  lcdDrawUpdate = 2;
+  lcdDrawUpdate = LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW;
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     previous_lcd_status_ms = millis();  //get status message to show up for a while
@@ -2223,13 +2265,13 @@ char *ftostr32(const float& x) {
   return conv;
 }
 
-// Convert signed float to string (len 5 or 6) with 1.234 / -1.234 format
-char* ftostr43(const float& x) {
+// Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
+char* ftostr43(const float& x, char plus/*=' '*/) {
   long xx = x * 1000;
-  char *conv_ptr = conv;
-  if (xx >= 0) {
-    conv_ptr++;
-  }
+  if (xx == 0)
+    conv[0] = ' ';
+  else if (xx > 0)
+    conv[0] = plus;
   else {
     xx = -xx;
     conv[0] = '-';
@@ -2240,7 +2282,7 @@ char* ftostr43(const float& x) {
   conv[4] = (xx / 10) % 10 + '0';
   conv[5] = (xx) % 10 + '0';
   conv[6] = 0;
-  return conv_ptr;
+  return conv;
 }
 
 // Convert unsigned float to string with 1.23 format
@@ -2440,25 +2482,44 @@ char* ftostr52(const float& x) {
    *   - Movement adjusts the Z axis
    *   - Click saves the Z and goes to the next mesh point
    */
-  static void _lcd_level_bed() {
+  static void _lcd_level_bed_procedure() {
+    static bool mbl_wait_for_move = false;
+    // Menu handlers may be called in a re-entrant fashion
+    // if they call st_synchronize or plan_buffer_line. So
+    // while waiting for a move we just ignore new input.
+    if (mbl_wait_for_move) {
+      lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+      return;
+    }
+
     ENCODER_DIRECTION_NORMAL();
-    if ((encoderPosition != 0) && (movesplanned() <= 3)) {
+
+    // Encoder wheel adjusts the Z position
+    if (encoderPosition != 0 && movesplanned() <= 3) {
       refresh_cmd_timeout();
       current_position[Z_AXIS] += float((int)encoderPosition) * (MBL_Z_STEP);
       if (min_software_endstops) NOLESS(current_position[Z_AXIS], Z_MIN_POS);
       if (max_software_endstops) NOMORE(current_position[Z_AXIS], Z_MAX_POS);
       encoderPosition = 0;
       line_to_current(Z_AXIS);
-      lcdDrawUpdate = 1;
+      lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
     }
+
+    // Update on first display, then only on updates to Z position
     if (lcdDrawUpdate) {
       float v = current_position[Z_AXIS] - MESH_HOME_SEARCH_Z;
-      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43(v + (v < 0 ? -0.0001 : 0.0001)));
+      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43(v + (v < 0 ? -0.0001 : 0.0001), '+'));
     }
+
+    // We want subsequent calls, but don't force redraw
+    // Set here so it can be overridden by lcd_return_to_status below
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+
+    // Click sets the current Z and moves to the next position
     static bool debounce_click = false;
     if (LCD_CLICKED) {
       if (!debounce_click) {
-        debounce_click = true;
+        debounce_click = true; // ignore multiple "clicks" in a row
         int ix = _lcd_level_bed_position % (MESH_NUM_X_POINTS),
             iy = _lcd_level_bed_position / (MESH_NUM_X_POINTS);
         if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
@@ -2466,11 +2527,21 @@ char* ftostr52(const float& x) {
         _lcd_level_bed_position++;
         if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+          mbl_wait_for_move = true;
           line_to_current(Z_AXIS);
           st_synchronize();
           mbl.active = 1;
           enqueue_and_echo_commands_P(PSTR("G28"));
+          mbl_wait_for_move = false;
           lcd_return_to_status();
+          #if ENABLED(NEWPANEL)
+            lcd_quick_feedback();
+          #endif
+          LCD_ALERTMESSAGEPGM(MSG_LEVEL_BED_DONE);
+          #if HAS_BUZZER
+            buzz(200, 659);
+            buzz(200, 698);
+          #endif
         }
         else {
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
@@ -2481,7 +2552,6 @@ char* ftostr52(const float& x) {
           current_position[X_AXIS] = mbl.get_x(ix);
           current_position[Y_AXIS] = mbl.get_y(iy);
           line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
-          lcdDrawUpdate = 1;
         }
       }
     }
@@ -2490,32 +2560,49 @@ char* ftostr52(const float& x) {
     }
   }
 
-  /**
-   * MBL Move to mesh starting point
-   */
-  static void _lcd_level_bed_homing() {
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
-    lcdDrawUpdate = 1;
-    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
+  static void _lcd_level_bed_homing_done() {
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING), NULL);
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+    if (LCD_CLICKED) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       current_position[X_AXIS] = MESH_MIN_X;
       current_position[Y_AXIS] = MESH_MIN_Y;
       line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
       _lcd_level_bed_position = 0;
-      lcd_goto_menu(_lcd_level_bed);
+      lcd_goto_menu(_lcd_level_bed_procedure, true);
     }
+  }
+
+  /**
+   * MBL Move to mesh starting point
+   */
+  static void _lcd_level_bed_homing() {
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
+    lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_NO_REDRAW;
+    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS])
+      lcd_goto_menu(_lcd_level_bed_homing_done);
+  }
+
+  /**
+   * MBL Continue Bed Leveling...
+   */
+  static void _lcd_level_bed_continue() {
+    defer_return_to_status = true;
+    axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
+    mbl.reset();
+    enqueue_and_echo_commands_P(PSTR("G28"));
+    lcd_goto_menu(_lcd_level_bed_homing, true);
   }
 
   /**
    * MBL entry-point
    */
   static void lcd_level_bed() {
-    defer_return_to_status = true;
-    axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
-    mbl.reset();
-    enqueue_and_echo_commands_P(PSTR("G28"));
-    lcd_goto_menu(_lcd_level_bed_homing);
+    START_MENU();
+    MENU_ITEM(back, "Cancel", lcd_prepare_menu);
+    MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
+    END_MENU();
   }
 
 #endif  // MANUAL_BED_LEVELING
