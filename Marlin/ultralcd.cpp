@@ -342,10 +342,10 @@ inline void lcd_save_previous_menu() {
   }
 }
 
-static void lcd_goto_previous_menu() {
+static void lcd_goto_previous_menu(bool feedback=false) {
   if (menu_history_depth > 0) {
     --menu_history_depth;
-    lcd_goto_menu(menu_history[menu_history_depth].menu_function, true
+    lcd_goto_menu(menu_history[menu_history_depth].menu_function, feedback
       #if ENABLED(ULTIPANEL)
         , menu_history[menu_history_depth].encoder_position
       #endif
@@ -928,24 +928,23 @@ void lcd_cooldown() {
         mbl.set_z(ix, iy, current_position[Z_AXIS]);
         _lcd_level_bed_position++;
         if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-          mbl_wait_for_move = true;
-          line_to_current(Z_AXIS);
-          st_synchronize();
-          mbl.active = 1;
-          enqueue_and_echo_commands_P(PSTR("G28"));
-          mbl_wait_for_move = false;
           lcd_return_to_status();
-          #if ENABLED(NEWPANEL)
-            lcd_quick_feedback();
-          #endif
           LCD_ALERTMESSAGEPGM(MSG_LEVEL_BED_DONE);
           #if HAS_BUZZER
             buzz(200, 659);
             buzz(200, 698);
           #endif
+          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+          line_to_current(Z_AXIS);
+          st_synchronize();
+          mbl.active = 1;
+          enqueue_and_echo_commands_P(PSTR("G28"));
         }
         else {
+          #if ENABLED(NEWPANEL)
+            lcd_quick_feedback();
+          #endif
+          mbl_wait_for_move = true;
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
           line_to_current(Z_AXIS);
           ix = _lcd_level_bed_position % (MESH_NUM_X_POINTS);
@@ -954,6 +953,9 @@ void lcd_cooldown() {
           current_position[X_AXIS] = mbl.get_x(ix);
           current_position[Y_AXIS] = mbl.get_y(iy);
           line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
+          st_synchronize();
+          mbl_wait_for_move = false;
+          encoderPosition = 0;
         }
       }
     }
@@ -972,7 +974,7 @@ void lcd_cooldown() {
       current_position[Y_AXIS] = MESH_MIN_Y;
       line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
       _lcd_level_bed_position = 0;
-      lcd_goto_menu(_lcd_level_bed_procedure, true);
+      lcd_goto_menu(_lcd_level_bed_procedure);
     }
   }
 
@@ -994,7 +996,7 @@ void lcd_cooldown() {
     axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
     mbl.reset();
     enqueue_and_echo_commands_P(PSTR("G28"));
-    lcd_goto_menu(_lcd_level_bed_homing, true);
+    lcd_goto_menu(_lcd_level_bed_homing);
   }
 
   /**
@@ -1759,7 +1761,7 @@ static void lcd_control_volumetric_menu() {
       lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) / scale)); \
     if (isClicked) { \
       *((_type*)editValue) = ((_type)((int32_t)encoderPosition + minEditValue)) / scale; \
-      lcd_goto_previous_menu(); \
+      lcd_goto_previous_menu(true); \
     } \
     return isClicked; \
   } \
