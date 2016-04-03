@@ -32,6 +32,8 @@
   #error RUMBA supports up to 3 extruders. Comment this line to keep going.
 #endif
 
+#define DEFAULT_MACHINE_NAME "Rumba"
+
 #define X_STEP_PIN         17
 #define X_DIR_PIN          16
 #define X_ENABLE_PIN       48
