@@ -2600,7 +2600,7 @@ char* ftostr52(const float& x) {
    */
   static void lcd_level_bed() {
     START_MENU();
-    MENU_ITEM(back, "Cancel", lcd_prepare_menu);
+    MENU_ITEM(back, MSG_LEVEL_BED_CANCEL, lcd_prepare_menu);
     MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
     END_MENU();
   }
