@@ -1638,6 +1638,9 @@ static void setup_for_endstop_move() {
   }
 
   static void stow_z_probe(bool doRaise = true) {
+    #if !(HAS_SERVO_ENDSTOPS && (Z_RAISE_AFTER_PROBING > 0))
+      UNUSED(doRaise);
+    #endif
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         print_xyz("stow_z_probe > current_position", current_position);
@@ -1912,11 +1915,13 @@ static void setup_for_endstop_move() {
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
-static void axis_unhomed_error() {
-  LCD_MESSAGEPGM(MSG_YX_UNHOMED);
-  SERIAL_ECHO_START;
-  SERIAL_ECHOLNPGM(MSG_YX_UNHOMED);
-}
+#if ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || ENABLED(AUTO_BED_LEVELING_FEATURE)
+  static void axis_unhomed_error() {
+    LCD_MESSAGEPGM(MSG_YX_UNHOMED);
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM(MSG_YX_UNHOMED);
+  }
+#endif
 
 #if ENABLED(Z_PROBE_SLED)
 
@@ -2299,6 +2304,8 @@ void unknown_command_error() {
         case PAUSED_FOR_INPUT:
           SERIAL_ECHO_START;
           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_INPUT);
+          break;
+        default:
           break;
       }
     }
@@ -3820,7 +3827,7 @@ inline void gcode_M42() {
     }
 
     double sum = 0.0, mean = 0.0, sigma = 0.0, sample_set[50];
-    uint8_t verbose_level = 1, n_samples = 10, n_legs = 0, schizoid_flag = 0;
+    int8_t verbose_level = 1, n_samples = 10, n_legs = 0, schizoid_flag = 0;
 
     if (code_seen('V')) {
       verbose_level = code_value_short();
@@ -5476,7 +5483,7 @@ inline void gcode_M400() { st_synchronize(); }
     if (delay_index2 == -1) { //initialize the ring buffer if it has not been done since startup
       int temp_ratio = widthFil_to_size_ratio();
 
-      for (delay_index1 = 0; delay_index1 < COUNT(measurement_delay); ++delay_index1)
+      for (delay_index1 = 0; delay_index1 < (int)COUNT(measurement_delay); ++delay_index1)
         measurement_delay[delay_index1] = temp_ratio - 100;  //subtract 100 to scale within a signed byte
 
       delay_index1 = delay_index2 = 0;
@@ -5525,7 +5532,7 @@ inline void gcode_M410() { quickStop(); }
    * M421: Set a single Mesh Bed Leveling Z coordinate
    */
   inline void gcode_M421() {
-    float x, y, z;
+    float x = 0, y = 0, z = 0;
     bool err = false, hasX, hasY, hasZ;
     if ((hasX = code_seen('X'))) x = code_value();
     if ((hasY = code_seen('Y'))) y = code_value();
@@ -5688,7 +5695,10 @@ inline void gcode_M503() {
       return;
     }
 
-    float lastpos[NUM_AXIS], fr60 = feedrate / 60;
+    float lastpos[NUM_AXIS];
+    #if ENABLED(DELTA)
+      float fr60 = feedrate / 60;
+    #endif
 
     for (int i = 0; i < NUM_AXIS; i++)
       lastpos[i] = destination[i] = current_position[i];
@@ -5745,7 +5755,9 @@ inline void gcode_M503() {
     disable_e3();
     delay(100);
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
-    millis_t next_tick = 0;
+    #if DISABLED(AUTO_FILAMENT_CHANGE)
+      millis_t next_tick = 0;
+    #endif
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     while (!lcd_clicked()) {
       #if DISABLED(AUTO_FILAMENT_CHANGE)
