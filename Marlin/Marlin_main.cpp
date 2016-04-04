@@ -7284,26 +7284,26 @@ void plan_arc(
 ) {
 
   float radius = hypot(offset[X_AXIS], offset[Y_AXIS]),
-        center_axis0 = current_position[X_AXIS] + offset[X_AXIS],
-        center_axis1 = current_position[Y_AXIS] + offset[Y_AXIS],
+        center_X = current_position[X_AXIS] + offset[X_AXIS],
+        center_Y = current_position[Y_AXIS] + offset[Y_AXIS],
         linear_travel = target[Z_AXIS] - current_position[Z_AXIS],
         extruder_travel = target[E_AXIS] - current_position[E_AXIS],
-        r_axis0 = -offset[X_AXIS],  // Radius vector from center to current location
-        r_axis1 = -offset[Y_AXIS],
-        rt_axis0 = target[X_AXIS] - center_axis0,
-        rt_axis1 = target[Y_AXIS] - center_axis1;
+        r_X = -offset[X_AXIS],  // Radius vector from center to current location
+        r_Y = -offset[Y_AXIS],
+        rt_X = target[X_AXIS] - center_X,
+        rt_Y = target[Y_AXIS] - center_Y;
 
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
-  float angular_travel = atan2(r_axis0 * rt_axis1 - r_axis1 * rt_axis0, r_axis0 * rt_axis0 + r_axis1 * rt_axis1);
-  if (angular_travel < 0)  angular_travel += RADIANS(360);
-  if (clockwise)  angular_travel -= RADIANS(360);
+  float angular_travel = atan2(r_X * rt_Y - r_Y * rt_X, r_X * rt_X + r_Y * rt_Y);
+  if (angular_travel < 0) angular_travel += RADIANS(360);
+  if (clockwise) angular_travel -= RADIANS(360);
 
   // Make a circle if the angular rotation is 0
-  if (current_position[X_AXIS] == target[X_AXIS] && current_position[Y_AXIS] == target[Y_AXIS] && angular_travel == 0)
-    angular_travel += RADIANS(360);
+  if (angular_travel == 0 && current_position[X_AXIS] == target[X_AXIS] && current_position[Y_AXIS] == target[Y_AXIS])
+    angular_travel == RADIANS(360);
 
   float mm_of_travel = hypot(angular_travel * radius, fabs(linear_travel));
-  if (mm_of_travel < 0.001)  return;
+  if (mm_of_travel < 0.001) return;
   uint16_t segments = floor(mm_of_travel / (MM_PER_ARC_SEGMENT));
   if (segments == 0) segments = 1;
 
@@ -7342,9 +7342,7 @@ void plan_arc(
   float sin_T = theta_per_segment;
 
   float arc_target[NUM_AXIS];
-  float sin_Ti;
-  float cos_Ti;
-  float r_axisi;
+  float sin_Ti, cos_Ti, r_new_Y;
   uint16_t i;
   int8_t count = 0;
 
@@ -7356,28 +7354,29 @@ void plan_arc(
 
   float feed_rate = feedrate * feedrate_multiplier / 60 / 100.0;
 
-  for (i = 1; i < segments; i++) { // Increment (segments-1)
+  for (i = 1; i < segments; i++) { // Iterate (segments-1) times
 
-    if (count < N_ARC_CORRECTION) {
-      // Apply vector rotation matrix to previous r_axis0 / 1
-      r_axisi = r_axis0 * sin_T + r_axis1 * cos_T;
-      r_axis0 = r_axis0 * cos_T - r_axis1 * sin_T;
-      r_axis1 = r_axisi;
-      count++;
+    if (++count < N_ARC_CORRECTION) {
+      // Apply vector rotation matrix to previous r_X / 1
+      r_new_Y = r_X * sin_T + r_Y * cos_T;
+      r_X = r_X * cos_T - r_Y * sin_T;
+      r_Y = r_new_Y;
     }
     else {
       // Arc correction to radius vector. Computed only every N_ARC_CORRECTION increments.
       // Compute exact location by applying transformation matrix from initial radius vector(=-offset).
+      // To reduce stuttering, the sin and cos could be computed at different times.
+      // For now, compute both at the same time.
       cos_Ti = cos(i * theta_per_segment);
       sin_Ti = sin(i * theta_per_segment);
-      r_axis0 = -offset[X_AXIS] * cos_Ti + offset[Y_AXIS] * sin_Ti;
-      r_axis1 = -offset[X_AXIS] * sin_Ti - offset[Y_AXIS] * cos_Ti;
+      r_X = -offset[X_AXIS] * cos_Ti + offset[Y_AXIS] * sin_Ti;
+      r_Y = -offset[X_AXIS] * sin_Ti - offset[Y_AXIS] * cos_Ti;
       count = 0;
     }
 
     // Update arc_target location
-    arc_target[X_AXIS] = center_axis0 + r_axis0;
-    arc_target[Y_AXIS] = center_axis1 + r_axis1;
+    arc_target[X_AXIS] = center_X + r_X;
+    arc_target[Y_AXIS] = center_Y + r_Y;
     arc_target[Z_AXIS] += linear_per_segment;
     arc_target[E_AXIS] += extruder_per_segment;
 
