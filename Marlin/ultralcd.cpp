@@ -51,6 +51,7 @@
 int8_t encoderDiff; // updated from interrupt context and added to encoderPosition every LCD update
 
 int8_t manual_move_axis = (int8_t)NO_AXIS;
+millis_t manual_move_start_time = 0;
 
 bool encoderRateMultiplierEnabled;
 int32_t lastEncoderMovementMillis;
@@ -1193,11 +1194,11 @@ static void lcd_prepare_menu() {
 #endif // DELTA_CALIBRATION_MENU
 
 /**
- * If the manual move hasn't been fed to the planner yet,
+ * If the most recent manual move hasn't been fed to the planner yet,
  * and the planner can accept one, send immediately
  */
 inline void manage_manual_move() {
-  if (manual_move_axis != (int8_t)NO_AXIS && !planner.planner_is_full()) {
+  if (manual_move_axis != (int8_t)NO_AXIS && millis() >= manual_move_start_time && !planner.is_full()) {
     #if ENABLED(DELTA)
       calculate_delta(current_position);
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[manual_move_axis]/60, active_extruder);
@@ -1209,13 +1210,12 @@ inline void manage_manual_move() {
 }
 
 /**
- * Set a flag that lcd_update() should send a move
- * to "current_position" at the next opportunity,
- * and try to send one now.
+ * Set a flag that lcd_update() should start a move
+ * to "current_position" after a short delay.
  */
 inline void manual_move_to_current(AxisEnum axis) {
+  manual_move_start_time = millis() + 500UL; // 1/2 second delay
   manual_move_axis = (int8_t)axis;
-  manage_manual_move();
 }
 
 /**
