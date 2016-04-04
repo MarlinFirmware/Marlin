@@ -76,6 +76,7 @@
   #define DEFAULT_SOURCE_URL "https://github.com/Ultimaker/Marlin"
 #elif MB(RUMBA)
   #define DEFAULT_MACHINE_NAME "Rumba"
+  #define DEFAULT_SOURCE_URL ""
 #elif MB(3DRAG)
   #define DEFAULT_MACHINE_NAME "3Drag"
   #define DEFAULT_SOURCE_URL "http://3dprint.elettronicain.it/"
