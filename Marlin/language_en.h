@@ -64,8 +64,20 @@
 #ifndef MSG_LEVEL_BED_HOMING
   #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #endif
+#ifndef MSG_LEVEL_BED_WAITING
+  #define MSG_LEVEL_BED_WAITING               "Click to Begin"
+#endif
+#ifndef MSG_LEVEL_BED_DONE
+  #define MSG_LEVEL_BED_DONE                  "Leveling Done!"
+#endif
+#ifndef MSG_LEVEL_BED_CANCEL
+  #define MSG_LEVEL_BED_CANCEL                "Cancel"
+#endif
 #ifndef MSG_SET_HOME_OFFSETS
   #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#endif
+#ifndef MSG_HOME_OFFSETS_APPLIED
+  #define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #endif
 #ifndef MSG_SET_ORIGIN
   #define MSG_SET_ORIGIN                      "Set origin"

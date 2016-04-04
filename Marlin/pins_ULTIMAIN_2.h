@@ -28,6 +28,9 @@
   #error Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu.
 #endif
 
+#define DEFAULT_MACHINE_NAME "Ultimaker"
+#define DEFAULT_SOURCE_URL   "https://github.com/Ultimaker/Marlin"
+
 #define X_STEP_PIN 25
 #define X_DIR_PIN 23
 #define X_STOP_PIN 22

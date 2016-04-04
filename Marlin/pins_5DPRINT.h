@@ -30,6 +30,8 @@
   #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
 #endif
 
+#define DEFAULT_MACHINE_NAME "Makibox"
+
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN          0

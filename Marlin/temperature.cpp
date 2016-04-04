@@ -350,7 +350,7 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
     }
     // Every 2 seconds...
     if (ms > temp_ms + 2000) {
-      #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+      #if HAS_TEMP_HOTEND || HAS_TEMP_BED
         print_heaterstates();
         SERIAL_EOL;
       #endif
@@ -1183,7 +1183,7 @@ void disable_all_heaters() {
     WRITE_HEATER_ ## NR (LOW); \
   }
 
-  #if HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675)
+  #if HAS_TEMP_HOTEND
     setTargetHotend(0, 0);
     soft_pwm[0] = 0;
     WRITE_HEATER_0P(LOW); // Should HEATERS_PARALLEL apply here? Then change to DISABLE_HEATER(0)

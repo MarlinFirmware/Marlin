@@ -275,20 +275,28 @@
   #include "Arduino.h"
 
   /**
-   * ENDSTOPPULLUPS
+   * Set ENDSTOPPULLUPS for unused endstop switches
    */
   #if ENABLED(ENDSTOPPULLUPS)
-    #if DISABLED(DISABLE_MAX_ENDSTOPS)
+    #if ENABLED(USE_XMAX_PLUG)
       #define ENDSTOPPULLUP_XMAX
+    #endif
+    #if ENABLED(USE_YMAX_PLUG)
       #define ENDSTOPPULLUP_YMAX
+    #endif
+    #if ENABLED(USE_ZMAX_PLUG)
       #define ENDSTOPPULLUP_ZMAX
     #endif
-    #if DISABLED(DISABLE_MIN_ENDSTOPS)
+    #if ENABLED(USE_XMIN_PLUG)
       #define ENDSTOPPULLUP_XMIN
+    #endif
+    #if ENABLED(USE_YMIN_PLUG)
       #define ENDSTOPPULLUP_YMIN
+    #endif
+    #if ENABLED(USE_ZMIN_PLUG)
       #define ENDSTOPPULLUP_ZMIN
     #endif
-    #if DISABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
+    #if ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
       #define ENDSTOPPULLUP_ZMIN_PROBE
     #endif
   #endif
@@ -440,7 +448,9 @@
     #define HEATER_0_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_1 == -1
+  #if TEMP_SENSOR_1 <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_1
+  #elif TEMP_SENSOR_1 == -1
     #define HEATER_1_USES_AD595
   #elif TEMP_SENSOR_1 == 0
     #undef HEATER_1_MINTEMP
@@ -450,7 +460,9 @@
     #define HEATER_1_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_2 == -1
+  #if TEMP_SENSOR_2 <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_2
+  #elif TEMP_SENSOR_2 == -1
     #define HEATER_2_USES_AD595
   #elif TEMP_SENSOR_2 == 0
     #undef HEATER_2_MINTEMP
@@ -460,7 +472,9 @@
     #define HEATER_2_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_3 == -1
+  #if TEMP_SENSOR_3 <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_3
+  #elif TEMP_SENSOR_3 == -1
     #define HEATER_3_USES_AD595
   #elif TEMP_SENSOR_3 == 0
     #undef HEATER_3_MINTEMP
@@ -470,7 +484,9 @@
     #define HEATER_3_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_BED == -1
+  #if TEMP_SENSOR_BED <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_BED
+  #elif TEMP_SENSOR_BED == -1
     #define BED_USES_AD595
   #elif TEMP_SENSOR_BED == 0
     #undef BED_MINTEMP
@@ -496,13 +512,54 @@
   #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1)
 
   /**
+   * Z_DUAL_ENDSTOPS endstop reassignment
+   */
+  #if ENABLED(Z_DUAL_ENDSTOPS)
+    #define _XMIN_ 100
+    #define _YMIN_ 200
+    #define _ZMIN_ 300
+    #define _XMAX_ 101
+    #define _YMAX_ 201
+    #define _ZMAX_ 301
+    const bool Z2_MAX_ENDSTOP_INVERTING =
+      #if Z2_USE_ENDSTOP == _XMAX_
+        X_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN X_MAX_PIN
+        #undef USE_XMAX_PLUG
+      #elif Z2_USE_ENDSTOP == _YMAX_
+        Y_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Y_MAX_PIN
+        #undef USE_YMAX_PLUG
+      #elif Z2_USE_ENDSTOP == _ZMAX_
+        Z_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Z_MAX_PIN
+        #undef USE_ZMAX_PLUG
+      #elif Z2_USE_ENDSTOP == _XMIN_
+        X_MIN_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN X_MIN_PIN
+        #undef USE_XMIN_PLUG
+      #elif Z2_USE_ENDSTOP == _YMIN_
+        Y_MIN_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Y_MIN_PIN
+        #undef USE_YMIN_PLUG
+      #elif Z2_USE_ENDSTOP == _ZMIN_
+        Z_MIN_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Z_MIN_PIN
+        #undef USE_ZMIN_PLUG
+      #else
+        0
+      #endif
+    ;
+  #endif
+
+  /**
    * Shorthand for pin tests, used wherever needed
    */
-  #define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 != -2)
-  #define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0)
-  #define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0)
-  #define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0)
-  #define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0)
+  #define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 > -2)
+  #define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0 && TEMP_SENSOR_1 > -2)
+  #define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0 && TEMP_SENSOR_2 > -2)
+  #define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0 && TEMP_SENSOR_3 > -2)
+  #define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0 && TEMP_SENSOR_BED > -2)
   #define HAS_HEATER_0 (PIN_EXISTS(HEATER_0))
   #define HAS_HEATER_1 (PIN_EXISTS(HEATER_1))
   #define HAS_HEATER_2 (PIN_EXISTS(HEATER_2))
@@ -580,6 +637,8 @@
   #define HAS_E4_STEP (PIN_EXISTS(E4_STEP))
 
   #define HAS_MOTOR_CURRENT_PWM (PIN_EXISTS(MOTOR_CURRENT_PWM_XY) || PIN_EXISTS(MOTOR_CURRENT_PWM_Z) || PIN_EXISTS(MOTOR_CURRENT_PWM_E))
+
+  #define HAS_TEMP_HOTEND (HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675))
 
   /**
    * Helper Macros for heaters and extruder fan
