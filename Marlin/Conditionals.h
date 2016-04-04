@@ -278,25 +278,25 @@
    * Set ENDSTOPPULLUPS for unused endstop switches
    */
   #if ENABLED(ENDSTOPPULLUPS)
-    #if DISABLED(USE_XMAX_PLUG)
+    #if ENABLED(USE_XMAX_PLUG)
       #define ENDSTOPPULLUP_XMAX
     #endif
-    #if DISABLED(USE_YMAX_PLUG)
+    #if ENABLED(USE_YMAX_PLUG)
       #define ENDSTOPPULLUP_YMAX
     #endif
-    #if DISABLED(USE_ZMAX_PLUG)
+    #if ENABLED(USE_ZMAX_PLUG)
       #define ENDSTOPPULLUP_ZMAX
     #endif
-    #if DISABLED(USE_XMIN_PLUG)
+    #if ENABLED(USE_XMIN_PLUG)
       #define ENDSTOPPULLUP_XMIN
     #endif
-    #if DISABLED(USE_YMIN_PLUG)
+    #if ENABLED(USE_YMIN_PLUG)
       #define ENDSTOPPULLUP_YMIN
     #endif
-    #if DISABLED(USE_ZMIN_PLUG)
+    #if ENABLED(USE_ZMIN_PLUG)
       #define ENDSTOPPULLUP_ZMIN
     #endif
-    #if DISABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
+    #if ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
       #define ENDSTOPPULLUP_ZMIN_PROBE
     #endif
   #endif
