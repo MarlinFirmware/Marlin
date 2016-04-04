@@ -47,7 +47,7 @@
 #define MSG_LEVEL_BED_HOMING                "\xb9\xde\xdd\xc3\xdd\xc6\xb2\xc4\xde\xb3"                     // "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               "\xda\xcd\xde\xd8\xdd\xb8\xde\xb6\xb2\xbc"                     //"Click to Begin"
 #define MSG_LEVEL_BED_DONE                  "\xda\xcd\xde\xd8\xdd\xb8\xde\xb6\xdd\xd8\xae\xb3"             //"Leveling Done!"
-#define MSG_LEVEL_BED_CANCEL                "Cancel"
+#define MSG_LEVEL_BED_CANCEL                "\xc4\xd8\xd4\xd2"                                             //"Cancel"
 #define MSG_SET_HOME_OFFSETS                "\xb7\xbc\xde\xad\xdd\xb5\xcc\xbe\xaf\xc4\xbe\xaf\xc3\xb2"     // "Set home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            "\xb5\xcc\xbe\xaf\xc4\x20\xc3\xb7\xd6\xb3\xbb\xda\xcf\xbc\xc0" //"Offsets applied"
 #define MSG_SET_ORIGIN                      "\xb7\xbc\xde\xad\xdd\xbe\xaf\xc4"                             // "Set origin"
