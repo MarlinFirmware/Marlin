@@ -2343,6 +2343,16 @@ inline void gcode_G0_G1() {
 /**
  * G2: Clockwise Arc
  * G3: Counterclockwise Arc
+ *
+ *  X, Y, Z, E : Final destination point
+ *  I, J       : Offsets from current XY to the center-point of the arc
+ *
+ * Examples:
+ *
+ *   G1 X95 Y95 F5000
+ *   G2 X75 Y95 I-10 J0 F4000 ; Make a 180° CW arc
+ *
+ *   G3 I20 F4000             ; Make a 40mm wide CCW circle
  */
 inline void gcode_G2_G3(bool clockwise) {
   if (IsRunning()) {
@@ -4357,36 +4367,29 @@ inline void gcode_M110() {
 inline void gcode_M111() {
   marlin_debug_flags = code_seen('S') ? code_value_short() : DEBUG_NONE;
 
-  const char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO;
-  const char str_debug_2[] PROGMEM = MSG_DEBUG_INFO;
-  const char str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS;
-  const char str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN;
-  const char str_debug_16[] PROGMEM = MSG_DEBUG_COMMUNICATION;
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    const char str_debug_32[] PROGMEM = MSG_DEBUG_LEVELING;
-  #endif
-
-  const char* const debug_strings[] PROGMEM = {
-    str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16,
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      str_debug_32
-    #endif
-  };
-
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM(MSG_DEBUG_PREFIX);
+
   if (marlin_debug_flags) {
     uint8_t comma = 0;
-    for (uint8_t i = 0; i < COUNT(debug_strings); i++) {
-      if (TEST(marlin_debug_flags, i)) {
-        if (comma++) SERIAL_CHAR('|');
-        serialprintPGM((char*)pgm_read_word(&(debug_strings[i])));
+    #define ECHO_DEBUG_FLAG(DF) \
+      if (DEBUGGING(DF)) { \
+        if (comma++) SERIAL_CHAR(','); \
+        SERIAL_ECHOPGM(MSG_DEBUG_## DF); \
       }
-    }
+    ECHO_DEBUG_FLAG(ECHO);
+    ECHO_DEBUG_FLAG(INFO);
+    ECHO_DEBUG_FLAG(ERRORS);
+    ECHO_DEBUG_FLAG(DRYRUN);
+    ECHO_DEBUG_FLAG(COMMUNICATION);
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      ECHO_DEBUG_FLAG(LEVELING);
+    #endif
   }
   else {
     SERIAL_ECHOPGM(MSG_DEBUG_OFF);
   }
+
   SERIAL_EOL;
 }
 
@@ -7085,8 +7088,8 @@ void plan_arc(
 
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
   float angular_travel = atan2(r_axis0 * rt_axis1 - r_axis1 * rt_axis0, r_axis0 * rt_axis0 + r_axis1 * rt_axis1);
-  if (angular_travel < 0)  angular_travel += RADIANS(360);
-  if (clockwise)  angular_travel -= RADIANS(360);
+  if (angular_travel < 0) angular_travel += RADIANS(360);
+  if (clockwise) angular_travel -= RADIANS(360);
 
   // Make a circle if the angular rotation is 0
   if (current_position[X_AXIS] == target[X_AXIS] && current_position[Y_AXIS] == target[Y_AXIS] && angular_travel == 0)

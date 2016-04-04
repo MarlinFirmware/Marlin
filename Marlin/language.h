@@ -225,7 +225,7 @@
 #define MSG_T_MINTEMP                       "MINTEMP triggered"
 
 // Debug
-#define MSG_DEBUG_PREFIX                    "DEBUG: "
+#define MSG_DEBUG_PREFIX                    "DEBUG:"
 #define MSG_DEBUG_OFF                       "off"
 #define MSG_DEBUG_ECHO                      "ECHO"
 #define MSG_DEBUG_INFO                      "INFO"
