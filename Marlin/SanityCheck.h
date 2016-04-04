@@ -420,6 +420,19 @@
 #endif
 
 /**
+ * Endstops
+ */
+#if DISABLED(USE_XMIN_PLUG) && DISABLED(USE_XMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _XMAX_ && Z2_USE_ENDSTOP <= _XMIN_)
+ #error You must enable USE_XMIN_PLUG or USE_XMAX_PLUG
+#elif DISABLED(USE_YMIN_PLUG) && DISABLED(USE_YMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _YMAX_ && Z2_USE_ENDSTOP <= _YMIN_)
+ #error You must enable USE_YMIN_PLUG or USE_YMAX_PLUG
+#elif DISABLED(USE_ZMIN_PLUG) && DISABLED(USE_ZMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _ZMAX_ && Z2_USE_ENDSTOP <= _ZMIN_)
+ #error You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG
+#elif ENABLED(Z_DUAL_ENDSTOPS) && !Z2_USE_ENDSTOP
+ #error You must set Z2_USE_ENDSTOP with Z_DUAL_ENDSTOPS
+#endif
+
+/**
  * Warnings for old configurations
  */
 #if WATCH_TEMP_PERIOD > 500
@@ -445,17 +458,21 @@
 #elif defined(CUSTOM_MENDEL_NAME)
   #error CUSTOM_MENDEL_NAME is now CUSTOM_MACHINE_NAME. Please update your configuration.
 #elif defined(HAS_AUTOMATIC_VERSIONING)
-  #error HAS_AUTOMATIC_VERSIONING deprecated - use USE_AUTOMATIC_VERSIONING instead
+  #error HAS_AUTOMATIC_VERSIONING is now USE_AUTOMATIC_VERSIONING. Please update your configuration.
 #elif defined(ENABLE_AUTO_BED_LEVELING)
-  #error ENABLE_AUTO_BED_LEVELING deprecated - use AUTO_BED_LEVELING_FEATURE instead
+  #error ENABLE_AUTO_BED_LEVELING is now AUTO_BED_LEVELING_FEATURE. Please update your configuration.
 #elif defined(SDSLOW)
-  #error SDSLOW deprecated - set SPI_SPEED to SPI_HALF_SPEED instead
+  #error SDSLOW deprecated. Set SPI_SPEED to SPI_HALF_SPEED instead.
 #elif defined(SDEXTRASLOW)
-  #error SDEXTRASLOW deprecated - set SPI_SPEED to SPI_QUARTER_SPEED instead
+  #error SDEXTRASLOW deprecated. Set SPI_SPEED to SPI_QUARTER_SPEED instead.
 #elif defined(Z_RAISE_BEFORE_HOMING)
   #error Z_RAISE_BEFORE_HOMING is deprecated. Use MIN_Z_HEIGHT_FOR_HOMING instead.
 #elif defined(FILAMENT_SENSOR)
   #error FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead.
+#elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
+  #error DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead.
+#elif ENABLED(Z_DUAL_ENDSTOPS) && !defined(Z2_USE_ENDSTOP)
+  #error Z_DUAL_ENDSTOPS settings are simplified. Just set Z2_USE_ENDSTOP to the endstop you want to repurpose for Z2
 #endif
 
 #endif //SANITYCHECK_H
