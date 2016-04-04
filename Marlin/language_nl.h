@@ -154,7 +154,7 @@
 #define MSG_ERR_MAXTEMP                     "Fout: Max. temp"
 #define MSG_ERR_MINTEMP                     "Fout: Min. temp"
 #define MSG_ERR_MAXTEMP_BED                 "Fout: Max. temp bed"
-#define MSG_ERR_MINTEMP_BED                 "Fout: Max. temp bed"
+#define MSG_ERR_MINTEMP_BED                 "Fout: Min. temp bed"
 #define MSG_HEATING                         "Voorwarmen..."
 #define MSG_HEATING_COMPLETE                "voorverw. kompleet"
 #define MSG_BED_HEATING                    "Bed voorverwarmen"
