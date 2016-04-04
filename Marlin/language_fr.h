@@ -149,7 +149,7 @@
 #define MSG_END_HOUR                        "heures"
 #define MSG_END_MINUTE                      "minutes"
 #define MSG_BED_Z                           "Plateau Z"
-#define MSG_A_TRAVEL                        "A-Depl.
+#define MSG_A_TRAVEL                        "A-Depl."
 #define MSG_HEATING_FAILED_LCD              "Erreur de chauffe"
 #define MSG_ERR_REDUNDANT_TEMP              "Err: ERREUR TEMP. REDONDANTE"
 #define MSG_THERMAL_RUNAWAY                 "EMBALLEMENT THERMIQUE"
