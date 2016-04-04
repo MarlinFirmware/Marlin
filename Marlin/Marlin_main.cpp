@@ -2343,6 +2343,16 @@ inline void gcode_G0_G1() {
 /**
  * G2: Clockwise Arc
  * G3: Counterclockwise Arc
+ *
+ *  X, Y, Z, E : Final destination point
+ *  I, J       : Offsets from current XY to the center-point of the arc
+ *
+ * Examples:
+ *
+ *   G1 X95 Y95 F5000
+ *   G2 X75 Y95 I-10 J0 F4000 ; Make a 180° CW arc
+ *
+ *   G3 I20 F4000             ; Make a 40mm wide CCW circle
  */
 inline void gcode_G2_G3(bool clockwise) {
   if (IsRunning()) {
@@ -7085,8 +7095,8 @@ void plan_arc(
 
   // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
   float angular_travel = atan2(r_axis0 * rt_axis1 - r_axis1 * rt_axis0, r_axis0 * rt_axis0 + r_axis1 * rt_axis1);
-  if (angular_travel < 0)  angular_travel += RADIANS(360);
-  if (clockwise)  angular_travel -= RADIANS(360);
+  if (angular_travel < 0) angular_travel += RADIANS(360);
+  if (clockwise) angular_travel -= RADIANS(360);
 
   // Make a circle if the angular rotation is 0
   if (current_position[X_AXIS] == target[X_AXIS] && current_position[Y_AXIS] == target[Y_AXIS] && angular_travel == 0)
