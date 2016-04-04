@@ -51,7 +51,7 @@
 #define MSG_LEVEL_BED_HOMING                "ゲンテンニイドウ"                // "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               "レベリングカイシ"                //"Click to Begin"
 #define MSG_LEVEL_BED_DONE                  "レベリングカンリョウ"              //"Leveling Done!"
-#define MSG_LEVEL_BED_CANCEL                "Cancel"
+#define MSG_LEVEL_BED_CANCEL                "トリヤメ"                      //"Cancel"
 #define MSG_SET_HOME_OFFSETS                "キジュンオフセットセッテイ"         // "Set home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            "オフセット テキヨウサレマシタ"       //"Offsets applied"
 #define MSG_SET_ORIGIN                      "キジュンセット"                 // "Set origin"
