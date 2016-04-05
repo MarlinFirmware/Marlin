@@ -319,7 +319,10 @@ static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const ui
       encoderPosition = encoder;
       if (feedback) lcd_quick_feedback();
     #endif
-    if (menu == lcd_status_screen) menu_history_depth = 0;
+    if (menu == lcd_status_screen) {
+      defer_return_to_status = false;
+      menu_history_depth = 0;
+    }
     #if ENABLED(LCD_PROGRESS_BAR)
       // For LCD_PROGRESS_BAR re-initialize custom characters
       lcd_set_custom_characters(menu == lcd_status_screen);
@@ -327,10 +330,7 @@ static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const ui
   }
 }
 
-static void lcd_return_to_status() {
-  defer_return_to_status = false;
-  lcd_goto_menu(lcd_status_screen);
-}
+static void lcd_return_to_status() { lcd_goto_menu(lcd_status_screen); }
 
 inline void lcd_save_previous_menu() {
   if (menu_history_depth < COUNT(menu_history)) {
