@@ -4357,16 +4357,16 @@ inline void gcode_M110() {
 inline void gcode_M111() {
   marlin_debug_flags = code_seen('S') ? code_value_short() : DEBUG_NONE;
 
-  const char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO;
-  const char str_debug_2[] PROGMEM = MSG_DEBUG_INFO;
-  const char str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS;
-  const char str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN;
-  const char str_debug_16[] PROGMEM = MSG_DEBUG_COMMUNICATION;
+  const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO;
+  const static char str_debug_2[] PROGMEM = MSG_DEBUG_INFO;
+  const static char str_debug_4[] PROGMEM = MSG_DEBUG_ERRORS;
+  const static char str_debug_8[] PROGMEM = MSG_DEBUG_DRYRUN;
+  const static char str_debug_16[] PROGMEM = MSG_DEBUG_COMMUNICATION;
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    const char str_debug_32[] PROGMEM = MSG_DEBUG_LEVELING;
+    const static char str_debug_32[] PROGMEM = MSG_DEBUG_LEVELING;
   #endif
 
-  const char* const debug_strings[] PROGMEM = {
+  const static char* const debug_strings[] PROGMEM = {
     str_debug_1, str_debug_2, str_debug_4, str_debug_8, str_debug_16,
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       str_debug_32
