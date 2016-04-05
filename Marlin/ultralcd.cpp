@@ -978,7 +978,7 @@ void lcd_cooldown() {
       current_position[Y_AXIS] = MESH_MIN_Y;
       line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
       _lcd_level_bed_position = 0;
-      lcd_goto_menu(_lcd_level_bed_procedure);
+      lcd_goto_menu(_lcd_level_bed_procedure, true);
     }
   }
 
