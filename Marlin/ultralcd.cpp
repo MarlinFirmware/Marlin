@@ -1121,7 +1121,6 @@ static void lcd_prepare_menu() {
  */
 
 float move_menu_scale;
-static void lcd_move_menu_axis();
 
 static void _lcd_move(const char* name, AxisEnum axis, float min, float max) {
   ENCODER_DIRECTION_NORMAL();
@@ -1204,7 +1203,7 @@ static void lcd_move_e(
  *
  */
 
-static void lcd_move_menu_axis() {
+static void _lcd_move_menu_axis() {
   START_MENU();
   MENU_ITEM(back, MSG_MOVE_AXIS);
   MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
@@ -1229,15 +1228,15 @@ static void lcd_move_menu_axis() {
 
 static void lcd_move_menu_10mm() {
   move_menu_scale = 10.0;
-  lcd_move_menu_axis();
+  _lcd_move_menu_axis();
 }
 static void lcd_move_menu_1mm() {
   move_menu_scale = 1.0;
-  lcd_move_menu_axis();
+  _lcd_move_menu_axis();
 }
 static void lcd_move_menu_01mm() {
   move_menu_scale = 0.1;
-  lcd_move_menu_axis();
+  _lcd_move_menu_axis();
 }
 
 /**
