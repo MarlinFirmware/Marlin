@@ -432,13 +432,13 @@ static void lcd_status_screen() {
     }
 
     #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
+      int new_frm = feedrate_multiplier + int(encoderPosition);
       // Dead zone at 100% feedrate
-      if ((feedrate_multiplier < 100 && (feedrate_multiplier + int(encoderPosition)) > 100) ||
-          (feedrate_multiplier > 100 && (feedrate_multiplier + int(encoderPosition)) < 100)) {
-        encoderPosition = 0;
+      if ((feedrate_multiplier < 100 && new_frm > 100) || (feedrate_multiplier > 100 && new_frm < 100)) {
         feedrate_multiplier = 100;
+        encoderPosition = 0;
       }
-      if (feedrate_multiplier == 100) {
+      else if (feedrate_multiplier == 100) {
         if (int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE) {
           feedrate_multiplier += int(encoderPosition) - (ENCODER_FEEDRATE_DEADZONE);
           encoderPosition = 0;
@@ -449,7 +449,7 @@ static void lcd_status_screen() {
         }
       }
       else {
-        feedrate_multiplier += int(encoderPosition);
+        feedrate_multiplier = new_frm;
         encoderPosition = 0;
       }
     #endif // ULTIPANEL_FEEDMULTIPLY
