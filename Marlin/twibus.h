@@ -40,24 +40,83 @@
  * line for host interpretation.
  *
  */
-class twibus
-{
-    private:
-        // Timeout in ms for blocking operations
-        const int timeout = 5;
+class twibus {
+  private:
+    /**
+     * @brief Timeout value in milliseconds
+     * @details For blocking operations this constant value will set the max
+     * amount of time Marlin will keep waiting for a reply. Useful is something
+     * goes wrong on the bus and the SDA/SCL lines are held up by another device.
+     */
+    const int timeout = 5;
 
-        uint8_t addr = 0;
-        uint8_t buffer_s = 0;
-        char buffer[30];
+    /**
+     * @brief Target device address
+     * @description This stores, until the buffer is flushed, the target device
+     * address, take not we do follow Arduino 7bit addressing.
+     */
+    uint8_t addr = 0;
+
+    /**
+     * @brief Number of bytes on buffer
+     * @description This var holds the total number of bytes on our buffer
+     * waiting to be flushed to the bus.
+     */
+    uint8_t buffer_s = 0;
+
+    /**
+     * @brief Internal buffer
+     * @details This is a fixed buffer, TWI command cannot be longer than this
+     */
+    char buffer[30];
 
 
-    public:
-        twibus();
-        void reset();
-        void send();
-        void addbyte(char c);
-        void address(uint8_t addr);
-        void reqbytes(uint8_t bytes);
+  public:
+    /**
+     * @brief Class constructor
+     * @details Initialized the TWI bus and clears the buffer
+     */
+    twibus();
+
+    /**
+     * @brief Reset the buffer
+     * @details Brings the internal buffer to a known-empty state
+     */
+    void reset();
+
+    /**
+     * @brief Send the buffer data to the bus
+     * @details Flushed the buffer into the bus targeting the cached slave device
+     * address.
+     */
+    void send();
+
+    /**
+     * @brief Add one byte to the buffer
+     * @details Adds the byte to the buffer in a sequential way, if buffer is full
+     * the request is silently ignored.
+     *
+     * @param c a data byte
+     */
+    void addbyte(char c);
+
+    /**
+     * @brief Sets the target slave address
+     * @details The target slave address is stored so it can be later used when
+     * the complete packet needs to be sent over the bus.
+     *
+     * @param addr 7-bit integer address
+     */
+    void address(uint8_t addr);
+
+    /**
+     * @brief Request data from slave device
+     * @details Requests data from a slave device, when the data is received it will
+     * be relayed to the serial line using a parser-friendly formatting.
+     *
+     * @param bytes the number of bytes to request
+     */
+    void reqbytes(uint8_t bytes);
 };
 
 #endif //TWIBUS_H
