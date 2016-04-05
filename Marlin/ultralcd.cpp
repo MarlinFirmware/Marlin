@@ -319,7 +319,10 @@ static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const ui
       encoderPosition = encoder;
       if (feedback) lcd_quick_feedback();
     #endif
-    if (menu == lcd_status_screen) menu_history_depth = 0;
+    if (menu == lcd_status_screen) {
+      defer_return_to_status = false;
+      menu_history_depth = 0;
+    }
     #if ENABLED(LCD_PROGRESS_BAR)
       // For LCD_PROGRESS_BAR re-initialize custom characters
       lcd_set_custom_characters(menu == lcd_status_screen);
@@ -327,10 +330,7 @@ static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const ui
   }
 }
 
-static void lcd_return_to_status() {
-  defer_return_to_status = false;
-  lcd_goto_menu(lcd_status_screen);
-}
+static void lcd_return_to_status() { lcd_goto_menu(lcd_status_screen); }
 
 inline void lcd_save_previous_menu() {
   if (menu_history_depth < COUNT(menu_history)) {
@@ -432,13 +432,13 @@ static void lcd_status_screen() {
     }
 
     #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
+      int new_frm = feedrate_multiplier + int(encoderPosition);
       // Dead zone at 100% feedrate
-      if ((feedrate_multiplier < 100 && (feedrate_multiplier + int(encoderPosition)) > 100) ||
-          (feedrate_multiplier > 100 && (feedrate_multiplier + int(encoderPosition)) < 100)) {
-        encoderPosition = 0;
+      if ((feedrate_multiplier < 100 && new_frm > 100) || (feedrate_multiplier > 100 && new_frm < 100)) {
         feedrate_multiplier = 100;
+        encoderPosition = 0;
       }
-      if (feedrate_multiplier == 100) {
+      else if (feedrate_multiplier == 100) {
         if (int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE) {
           feedrate_multiplier += int(encoderPosition) - (ENCODER_FEEDRATE_DEADZONE);
           encoderPosition = 0;
@@ -449,7 +449,7 @@ static void lcd_status_screen() {
         }
       }
       else {
-        feedrate_multiplier += int(encoderPosition);
+        feedrate_multiplier = new_frm;
         encoderPosition = 0;
       }
     #endif // ULTIPANEL_FEEDMULTIPLY
@@ -583,7 +583,7 @@ void lcd_set_home_offsets() {
       #endif
     }
     if (lcdDrawUpdate) lcd_implementation_drawedit(msg, NULL);
-    if (LCD_CLICKED) lcd_goto_previous_menu();
+    if (LCD_CLICKED) lcd_goto_previous_menu(true);
   }
 
   #if ENABLED(BABYSTEP_XY)
@@ -901,7 +901,7 @@ void lcd_cooldown() {
     ENCODER_DIRECTION_NORMAL();
 
     // Encoder wheel adjusts the Z position
-    if (encoderPosition != 0 && movesplanned() <= 3) {
+    if (encoderPosition && movesplanned() <= 3) {
       refresh_cmd_timeout();
       current_position[Z_AXIS] += float((int)encoderPosition) * (MBL_Z_STEP);
       if (min_software_endstops) NOLESS(current_position[Z_AXIS], Z_MIN_POS);
@@ -978,7 +978,7 @@ void lcd_cooldown() {
       current_position[Y_AXIS] = MESH_MIN_Y;
       line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
       _lcd_level_bed_position = 0;
-      lcd_goto_menu(_lcd_level_bed_procedure);
+      lcd_goto_menu(_lcd_level_bed_procedure, true);
     }
   }
 
@@ -1121,9 +1121,8 @@ static void lcd_prepare_menu() {
  */
 
 float move_menu_scale;
-static void lcd_move_menu_axis();
 
-static void _lcd_move(const char* name, AxisEnum axis, int min, int max) {
+static void _lcd_move(const char* name, AxisEnum axis, float min, float max) {
   ENCODER_DIRECTION_NORMAL();
   if ((encoderPosition != 0) && (movesplanned() <= 3)) {
     refresh_cmd_timeout();
@@ -1135,18 +1134,18 @@ static void _lcd_move(const char* name, AxisEnum axis, int min, int max) {
     lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
   }
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
-  if (LCD_CLICKED) lcd_goto_previous_menu();
+  if (LCD_CLICKED) lcd_goto_previous_menu(true);
 }
 #if ENABLED(DELTA)
   static float delta_clip_radius_2 =  (DELTA_PRINTABLE_RADIUS) * (DELTA_PRINTABLE_RADIUS);
   static int delta_clip( float a ) { return sqrt(delta_clip_radius_2 - a*a); }
-  static void lcd_move_x() { int clip = delta_clip(current_position[Y_AXIS]); _lcd_move(PSTR(MSG_MOVE_X), X_AXIS, max(X_MIN_POS, -clip), min(X_MAX_POS, clip)); }
-  static void lcd_move_y() { int clip = delta_clip(current_position[X_AXIS]); _lcd_move(PSTR(MSG_MOVE_Y), Y_AXIS, max(Y_MIN_POS, -clip), min(Y_MAX_POS, clip)); }
+  static void lcd_move_x() { int clip = delta_clip(current_position[Y_AXIS]); _lcd_move(PSTR(MSG_MOVE_X), X_AXIS, max(min_pos[X_AXIS], -clip), min(max_pos[X_AXIS], clip)); }
+  static void lcd_move_y() { int clip = delta_clip(current_position[X_AXIS]); _lcd_move(PSTR(MSG_MOVE_Y), Y_AXIS, max(min_pos[Y_AXIS], -clip), min(max_pos[Y_AXIS], clip)); }
 #else
-  static void lcd_move_x() { _lcd_move(PSTR(MSG_MOVE_X), X_AXIS, X_MIN_POS, X_MAX_POS); }
-  static void lcd_move_y() { _lcd_move(PSTR(MSG_MOVE_Y), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
+  static void lcd_move_x() { _lcd_move(PSTR(MSG_MOVE_X), X_AXIS, min_pos[X_AXIS], max_pos[X_AXIS]); }
+  static void lcd_move_y() { _lcd_move(PSTR(MSG_MOVE_Y), Y_AXIS, min_pos[Y_AXIS], max_pos[Y_AXIS]); }
 #endif
-static void lcd_move_z() { _lcd_move(PSTR(MSG_MOVE_Z), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
+static void lcd_move_z() { _lcd_move(PSTR(MSG_MOVE_Z), Z_AXIS, min_pos[Z_AXIS], max_pos[Z_AXIS]); }
 static void lcd_move_e(
   #if EXTRUDERS > 1
     uint8_t e
@@ -1181,7 +1180,7 @@ static void lcd_move_e(
     #endif //EXTRUDERS > 1
     lcd_implementation_drawedit(pos_label, ftostr31(current_position[E_AXIS]));
   }
-  if (LCD_CLICKED) lcd_goto_previous_menu();
+  if (LCD_CLICKED) lcd_goto_previous_menu(true);
   #if EXTRUDERS > 1
     active_extruder = original_active_extruder;
   #endif
@@ -1204,7 +1203,7 @@ static void lcd_move_e(
  *
  */
 
-static void lcd_move_menu_axis() {
+static void _lcd_move_menu_axis() {
   START_MENU();
   MENU_ITEM(back, MSG_MOVE_AXIS);
   MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
@@ -1229,15 +1228,15 @@ static void lcd_move_menu_axis() {
 
 static void lcd_move_menu_10mm() {
   move_menu_scale = 10.0;
-  lcd_move_menu_axis();
+  _lcd_move_menu_axis();
 }
 static void lcd_move_menu_1mm() {
   move_menu_scale = 1.0;
-  lcd_move_menu_axis();
+  _lcd_move_menu_axis();
 }
 static void lcd_move_menu_01mm() {
   move_menu_scale = 0.1;
-  lcd_move_menu_axis();
+  _lcd_move_menu_axis();
 }
 
 /**
@@ -1649,7 +1648,7 @@ static void lcd_control_volumetric_menu() {
         lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
       #endif
     }
-    if (LCD_CLICKED) lcd_goto_previous_menu();
+    if (LCD_CLICKED) lcd_goto_previous_menu(true);
   }
 #endif // HAS_LCD_CONTRAST
 
@@ -1778,8 +1777,9 @@ static void lcd_control_volumetric_menu() {
   void menu_edit_ ## _name () { _menu_edit_ ## _name(); } \
   void menu_edit_callback_ ## _name () { if (_menu_edit_ ## _name ()) (*callbackFunc)(); } \
   static void _menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
+    lcd_save_previous_menu(); \
+    \
     lcdDrawUpdate = LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW; \
-    currentMenu = menu_edit_ ## _name; \
     \
     editLabel = pstr; \
     editValue = ptr; \
@@ -1796,14 +1796,14 @@ static void lcd_control_volumetric_menu() {
     currentMenu = menu_edit_callback_ ## _name; \
     callbackFunc = callback; \
   }
-menu_edit_type(int, int3, itostr3, 1)
-menu_edit_type(float, float3, ftostr3, 1)
-menu_edit_type(float, float32, ftostr32, 100)
-menu_edit_type(float, float43, ftostr43, 1000)
-menu_edit_type(float, float5, ftostr5, 0.01)
-menu_edit_type(float, float51, ftostr51, 10)
-menu_edit_type(float, float52, ftostr52, 100)
-menu_edit_type(unsigned long, long5, ftostr5, 0.01)
+menu_edit_type(int, int3, itostr3, 1);
+menu_edit_type(float, float3, ftostr3, 1);
+menu_edit_type(float, float32, ftostr32, 100);
+menu_edit_type(float, float43, ftostr43, 1000);
+menu_edit_type(float, float5, ftostr5, 0.01);
+menu_edit_type(float, float51, ftostr51, 10);
+menu_edit_type(float, float52, ftostr52, 100);
+menu_edit_type(unsigned long, long5, ftostr5, 0.01);
 
 /**
  *
@@ -2182,7 +2182,7 @@ void lcd_update() {
       // Return to Status Screen after a timeout
       if (defer_return_to_status)
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-      else if (currentMenu != lcd_status_screen && millis() > return_to_status_ms) {
+      else if (currentMenu != lcd_status_screen && ms > return_to_status_ms) {
         lcd_return_to_status();
       }
 
