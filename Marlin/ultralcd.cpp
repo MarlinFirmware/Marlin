@@ -2184,7 +2184,7 @@ void lcd_update() {
       // Return to Status Screen after a timeout
       if (defer_return_to_status)
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-      else if (currentMenu != lcd_status_screen && millis() > return_to_status_ms) {
+      else if (currentMenu != lcd_status_screen && ms > return_to_status_ms) {
         lcd_return_to_status();
       }
 
