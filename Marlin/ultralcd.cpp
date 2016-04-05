@@ -583,7 +583,7 @@ void lcd_set_home_offsets() {
       #endif
     }
     if (lcdDrawUpdate) lcd_implementation_drawedit(msg, NULL);
-    if (LCD_CLICKED) lcd_goto_previous_menu();
+    if (LCD_CLICKED) lcd_goto_previous_menu(true);
   }
 
   #if ENABLED(BABYSTEP_XY)
@@ -1134,7 +1134,7 @@ static void _lcd_move(const char* name, AxisEnum axis, float min, float max) {
     lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
   }
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
-  if (LCD_CLICKED) lcd_goto_previous_menu();
+  if (LCD_CLICKED) lcd_goto_previous_menu(true);
 }
 #if ENABLED(DELTA)
   static float delta_clip_radius_2 =  (DELTA_PRINTABLE_RADIUS) * (DELTA_PRINTABLE_RADIUS);
@@ -1180,7 +1180,7 @@ static void lcd_move_e(
     #endif //EXTRUDERS > 1
     lcd_implementation_drawedit(pos_label, ftostr31(current_position[E_AXIS]));
   }
-  if (LCD_CLICKED) lcd_goto_previous_menu();
+  if (LCD_CLICKED) lcd_goto_previous_menu(true);
   #if EXTRUDERS > 1
     active_extruder = original_active_extruder;
   #endif
@@ -1648,7 +1648,7 @@ static void lcd_control_volumetric_menu() {
         lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
       #endif
     }
-    if (LCD_CLICKED) lcd_goto_previous_menu();
+    if (LCD_CLICKED) lcd_goto_previous_menu(true);
   }
 #endif // HAS_LCD_CONTRAST
 
