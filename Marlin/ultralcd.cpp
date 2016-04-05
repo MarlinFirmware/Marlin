@@ -901,7 +901,7 @@ void lcd_cooldown() {
     ENCODER_DIRECTION_NORMAL();
 
     // Encoder wheel adjusts the Z position
-    if (encoderPosition != 0 && movesplanned() <= 3) {
+    if (encoderPosition && movesplanned() <= 3) {
       refresh_cmd_timeout();
       current_position[Z_AXIS] += float((int)encoderPosition) * (MBL_Z_STEP);
       if (min_software_endstops) NOLESS(current_position[Z_AXIS], Z_MIN_POS);
