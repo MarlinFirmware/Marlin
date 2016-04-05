@@ -26,9 +26,9 @@
 #include <Wire.h>
 
 twibus::twibus() {
-    Wire.begin(); // We use no address so we will join the BUS as the master
-    this->reset();
-  }
+  Wire.begin(); // We use no address so we will join the BUS as the master
+  this->reset();
+}
 
 void twibus::reset() {
   this->addr = 0;
@@ -92,8 +92,8 @@ void twibus::reqbytes(uint8_t bytes) {
     // is less than the number of requested bytes
   uint8_t wba = Wire.available();
   for (int i = 0; i < wba; i++) SERIAL_CHAR(Wire.read());
-    SERIAL_EOL;
+  SERIAL_EOL;
 
-    // Reset the buffer after sending the data
-    this->reset();
+  // Reset the buffer after sending the data
+  this->reset();
 }
