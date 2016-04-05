@@ -1797,14 +1797,14 @@ static void lcd_control_volumetric_menu() {
     currentMenu = menu_edit_callback_ ## _name; \
     callbackFunc = callback; \
   }
-menu_edit_type(int, int3, itostr3, 1)
-menu_edit_type(float, float3, ftostr3, 1)
-menu_edit_type(float, float32, ftostr32, 100)
-menu_edit_type(float, float43, ftostr43, 1000)
-menu_edit_type(float, float5, ftostr5, 0.01)
-menu_edit_type(float, float51, ftostr51, 10)
-menu_edit_type(float, float52, ftostr52, 100)
-menu_edit_type(unsigned long, long5, ftostr5, 0.01)
+menu_edit_type(int, int3, itostr3, 1);
+menu_edit_type(float, float3, ftostr3, 1);
+menu_edit_type(float, float32, ftostr32, 100);
+menu_edit_type(float, float43, ftostr43, 1000);
+menu_edit_type(float, float5, ftostr5, 0.01);
+menu_edit_type(float, float51, ftostr51, 10);
+menu_edit_type(float, float52, ftostr52, 100);
+menu_edit_type(unsigned long, long5, ftostr5, 0.01);
 
 /**
  *
