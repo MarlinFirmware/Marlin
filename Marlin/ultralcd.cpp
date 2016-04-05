@@ -1778,6 +1778,8 @@ static void lcd_control_volumetric_menu() {
   void menu_edit_ ## _name () { _menu_edit_ ## _name(); } \
   void menu_edit_callback_ ## _name () { if (_menu_edit_ ## _name ()) (*callbackFunc)(); } \
   static void _menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
+    lcd_save_previous_menu(); \
+    \
     lcdDrawUpdate = LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW; \
     currentMenu = menu_edit_ ## _name; \
     \
