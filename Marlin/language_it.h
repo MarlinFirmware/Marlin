@@ -42,12 +42,12 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Disabilita Motori"
 #define MSG_AUTO_HOME                       "Auto Home"
-#define MSG_LEVEL_BED_HOMING                "Homing XYZ"
-#define MSG_LEVEL_BED_WAITING               "Click to Begin"
-#define MSG_LEVEL_BED_DONE                  "Leveling Done!"
-#define MSG_LEVEL_BED_CANCEL                "Cancel"
+#define MSG_LEVEL_BED_HOMING                "Home assi XYZ"
+#define MSG_LEVEL_BED_WAITING               "Premi per Iniziare"
+#define MSG_LEVEL_BED_DONE                  "Livel. terminato!"
+#define MSG_LEVEL_BED_CANCEL                "Annulla"
 #define MSG_SET_HOME_OFFSETS                "Setta offset home"
-#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
+#define MSG_HOME_OFFSETS_APPLIED            "Offs. applicato"
 #define MSG_SET_ORIGIN                      "Imposta Origine"
 #define MSG_PREHEAT_PLA                     "Preriscalda PLA"
 #define MSG_PREHEAT_PLA_N                   "Preriscalda PLA "
@@ -164,6 +164,7 @@
 #define MSG_HEATING_COMPLETE                "Riscald completo"
 #define MSG_BED_HEATING                     "Risc. Piatto.."
 #define MSG_BED_DONE                        "Risc. Piatto Completo"
+
 
 #if ENABLED(DELTA_CALIBRATION_MENU)
   #define MSG_DELTA_CALIBRATE               "Calibraz. Delta"
