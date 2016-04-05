@@ -1780,7 +1780,6 @@ static void lcd_control_volumetric_menu() {
     lcd_save_previous_menu(); \
     \
     lcdDrawUpdate = LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW; \
-    currentMenu = menu_edit_ ## _name; \
     \
     editLabel = pstr; \
     editValue = ptr; \
