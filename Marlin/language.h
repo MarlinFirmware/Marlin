@@ -82,6 +82,12 @@
 #endif
 
 #ifndef DEFAULT_SOURCE_URL
+  /**
+   * The SOURCE_CODE_URL is the location where users will find the Marlin Source
+   * Code which is installed on the device. In most cases —unless the manufacturer
+   * has a distinct Github fork— the Source Code URL should just be the main
+   * Marlin repository.
+   */
   #define DEFAULT_SOURCE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
