@@ -21,6 +21,3 @@ For the second half of the font we now support up to 11x11 pixel.
     #else // fall-back
  * Add your font to the list of permitted fonts in 'language_en.h'
     ... || ENABLED(DISPLAY_CHARSET_YOUR_NEW_FONT) ... )
-
-
-Especially the Kana font should be revised by someone who knows what he/she does. I am only a west-European with very little knowledge about this script.
