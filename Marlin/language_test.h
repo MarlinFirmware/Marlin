@@ -1,8 +1,30 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * TEST
  *
  * LCD Menu Messages
- * See also documentation/LCDLanguageFont.md
+ * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
 #ifndef LANGUAGE_TEST_H
@@ -25,7 +47,7 @@
 //   impossible to have a close to direct mapping but will need giant conversion tables and fonts (we don't want to have in a embedded system).
 
 
-#define MAPPER_NON         // For direct asci codes ( until now all languages except ru, de, fi, kana_utf8, ... )
+#define MAPPER_NON         // For direct ascii codes ( until now all languages except ru, de, fi, kana_utf8, ... )
 //#define MAPPER_C2C3        // For most European languages when language file is in utf8
 //#define MAPPER_D0D1        // For Cyrillic
 //#define MAPPER_E382E383    // For Katakana

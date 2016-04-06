@@ -1,4 +1,26 @@
-/*
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
   stepper_indirection.h - stepper motor driver indirection macros
   to allow some stepper functions to be done via SPI/I2c instead of direct pin manipulation
   Part of Marlin
@@ -153,6 +175,34 @@
 #define E3_ENABLE_INIT SET_OUTPUT(E3_ENABLE_PIN)
 #define E3_ENABLE_WRITE(STATE) WRITE(E3_ENABLE_PIN,STATE)
 #define E3_ENABLE_READ READ(E3_ENABLE_PIN)
+
+#if EXTRUDERS > 3
+  #define E_STEP_WRITE(v) {switch(current_block->active_extruder){case 3:E3_STEP_WRITE(v);break;case 2:E2_STEP_WRITE(v);break;case 1:E1_STEP_WRITE(v);break;default:E0_STEP_WRITE(v);}}
+  #define NORM_E_DIR() {switch(current_block->active_extruder){case 3:E3_DIR_WRITE(!INVERT_E3_DIR);break;case 2:E2_DIR_WRITE(!INVERT_E2_DIR);break;case 1:E1_DIR_WRITE(!INVERT_E1_DIR);break;default:E0_DIR_WRITE(!INVERT_E0_DIR);}}
+  #define REV_E_DIR() {switch(current_block->active_extruder){case 3:E3_DIR_WRITE(INVERT_E3_DIR);break;case 2:E2_DIR_WRITE(INVERT_E2_DIR);break;case 1:E1_DIR_WRITE(INVERT_E1_DIR);break;default:E0_DIR_WRITE(INVERT_E0_DIR);}}
+#elif EXTRUDERS > 2
+  #define E_STEP_WRITE(v) {switch(current_block->active_extruder){case 2:E2_STEP_WRITE(v);break;case 1:E1_STEP_WRITE(v);break;default:E0_STEP_WRITE(v);}}
+  #define NORM_E_DIR() {switch(current_block->active_extruder){case 2:E2_DIR_WRITE(!INVERT_E2_DIR);break;case 1:E1_DIR_WRITE(!INVERT_E1_DIR);break;default:E0_DIR_WRITE(!INVERT_E0_DIR);}}
+  #define REV_E_DIR() {switch(current_block->active_extruder){case 2:E2_DIR_WRITE(INVERT_E2_DIR);break;case 1:E1_DIR_WRITE(INVERT_E1_DIR);break;default:E0_DIR_WRITE(INVERT_E0_DIR);}}
+#elif EXTRUDERS > 1
+  #define _E_STEP_WRITE(v) {if(current_block->active_extruder==1){E1_STEP_WRITE(v);}else{E0_STEP_WRITE(v);}}
+  #define _NORM_E_DIR() {if(current_block->active_extruder==1){E1_DIR_WRITE(!INVERT_E1_DIR);}else{E0_DIR_WRITE(!INVERT_E0_DIR);}}
+  #define _REV_E_DIR() {if(current_block->active_extruder==1){E1_DIR_WRITE(INVERT_E1_DIR);}else{E0_DIR_WRITE(INVERT_E0_DIR);}}
+  #if DISABLED(DUAL_X_CARRIAGE)
+    #define E_STEP_WRITE(v) _E_STEP_WRITE(v)
+    #define NORM_E_DIR() _NORM_E_DIR()
+    #define REV_E_DIR() _REV_E_DIR()
+  #else
+    extern bool extruder_duplication_enabled;
+    #define E_STEP_WRITE(v) {if(extruder_duplication_enabled){E0_STEP_WRITE(v);E1_STEP_WRITE(v);}else _E_STEP_WRITE(v);}
+    #define NORM_E_DIR() {if(extruder_duplication_enabled){E0_DIR_WRITE(!INVERT_E0_DIR);E1_DIR_WRITE(!INVERT_E1_DIR);}else _NORM_E_DIR();}
+    #define REV_E_DIR() {if(extruder_duplication_enabled){E0_DIR_WRITE(INVERT_E0_DIR);E1_DIR_WRITE(INVERT_E1_DIR);}else _REV_E_DIR();}
+  #endif
+#else
+  #define E_STEP_WRITE(v) E0_STEP_WRITE(v)
+  #define NORM_E_DIR() E0_DIR_WRITE(!INVERT_E0_DIR)
+  #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
+#endif
 
 //////////////////////////////////
 // Pin redefines for TMC drivers.
