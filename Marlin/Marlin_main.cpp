@@ -4083,6 +4083,27 @@ inline void gcode_M42() {
 #endif // AUTO_BED_LEVELING_FEATURE && Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
+ * M75: Start print timer
+ */
+inline void gcode_M75() {
+  print_job_timer.start();
+}
+
+/**
+ * M76: Pause print timer
+ */
+inline void gcode_M76() {
+  print_job_timer.pause();
+}
+
+/**
+ * M77: Stop print timer
+ */
+inline void gcode_M77() {
+  print_job_timer.stop();
+}
+
+/**
  * M104: Set hot end temperature
  */
 inline void gcode_M104() {
@@ -6296,6 +6317,18 @@ void process_next_command() {
           gcode_M48();
           break;
       #endif // AUTO_BED_LEVELING_FEATURE && Z_MIN_PROBE_REPEATABILITY_TEST
+
+      case 75: // Start print timer
+        gcode_M75();
+        break;
+
+      case 76: // Pause print timer
+        gcode_M76();
+        break;
+
+      case 77: // Stop print timer
+        gcode_M77();
+        break;
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
         case 100:
