@@ -1,4 +1,26 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * Rambo pin assignments
  */
 
@@ -12,7 +34,7 @@
 #define SERVO0_PIN 22 // Motor header MX1
 #define SERVO1_PIN 23 // Motor header MX2
 #define SERVO2_PIN 24 // Motor header MX3
-#define SERVO2_PIN  5 // PWM header pin 5
+#define SERVO3_PIN  5 // PWM header pin 5
 
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
@@ -82,7 +104,6 @@
 #define E1_MS1_PIN 63
 #define E1_MS2_PIN 64
 
-#undef DIGIPOTSS_PIN
 #define DIGIPOTSS_PIN 38
 #define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
 
@@ -90,6 +111,8 @@
 #define SDSS               53
 #define LED_PIN            13
 #define FAN_PIN            8
+
+#define FILWIDTH_PIN        3  // ANALOG NUMBERING
 
 /**********************************************************
   Fan Pins
@@ -180,7 +203,3 @@
   #endif
 #endif // VIKI2/miniVIKI
 
-#if ENABLED(FILAMENT_SENSOR)
-  //Filip added pin for Filament sensor analog input
-  #define FILWIDTH_PIN        3
-#endif

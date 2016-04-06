@@ -1,4 +1,26 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * 5DPrint D8 Driver board pin assignments
  *
  * https://bitbucket.org/makible/5dprint-d8-controller-board
@@ -7,6 +29,8 @@
 #ifndef __AVR_AT90USB1286__
   #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
 #endif
+
+#define DEFAULT_MACHINE_NAME "Makibox"
 
 #define LARGE_FLASH        true
 
@@ -47,7 +71,6 @@
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
-#define ALARM_PIN          -1
 
 // The SDSS pin uses a different pin mapping from file Sd2PinMap.h
 #define SDSS               20

@@ -1,4 +1,26 @@
-/*
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
  Copyright (c) 2009 Michael Margolis.  All right reserved.
 
@@ -17,7 +39,7 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/*
+/**
 
  A servo is activated by creating an instance of the Servo class passing the desired pin to the attach() method.
  The servos are pulsed in the background using the value most recently written using the write() method
@@ -57,7 +79,7 @@
 
 #define TRIM_DURATION       2                               // compensation ticks to trim adjust for digitalWrite delays // 12 August 2009
 
-//#define NBR_TIMERS        (MAX_SERVOS / SERVOS_PER_TIMER)
+//#define NBR_TIMERS        ((MAX_SERVOS) / (SERVOS_PER_TIMER))
 
 static ServoInfo_t servo_info[MAX_SERVOS];                  // static array of servo info structures
 static volatile int8_t Channel[_Nbr_16timers ];             // counter for the servo being pulsed for each timer (or -1 if refresh interval)
@@ -66,9 +88,9 @@ uint8_t ServoCount = 0;                                     // the total number 
 
 
 // convenience macros
-#define SERVO_INDEX_TO_TIMER(_servo_nbr) ((timer16_Sequence_t)(_servo_nbr / SERVOS_PER_TIMER)) // returns the timer controlling this servo
-#define SERVO_INDEX_TO_CHANNEL(_servo_nbr) (_servo_nbr % SERVOS_PER_TIMER)       // returns the index of the servo on this timer
-#define SERVO_INDEX(_timer,_channel)  ((_timer*SERVOS_PER_TIMER) + _channel)     // macro to access servo index by timer and channel
+#define SERVO_INDEX_TO_TIMER(_servo_nbr) ((timer16_Sequence_t)(_servo_nbr / (SERVOS_PER_TIMER))) // returns the timer controlling this servo
+#define SERVO_INDEX_TO_CHANNEL(_servo_nbr) (_servo_nbr % (SERVOS_PER_TIMER))       // returns the index of the servo on this timer
+#define SERVO_INDEX(_timer,_channel)  ((_timer*(SERVOS_PER_TIMER)) + _channel)     // macro to access servo index by timer and channel
 #define SERVO(_timer,_channel)  (servo_info[SERVO_INDEX(_timer,_channel)])       // macro to access servo class by timer and channel
 
 #define SERVO_MIN() (MIN_PULSE_WIDTH - this->min * 4)  // minimum value in uS for this servo
@@ -139,12 +161,12 @@ static void initISR(timer16_Sequence_t timer) {
       TCCR1B = _BV(CS11);     // set prescaler of 8
       TCNT1 = 0;              // clear the timer count
       #if defined(__AVR_ATmega8__)|| defined(__AVR_ATmega128__)
-        TIFR |= _BV(OCF1A);      // clear any pending interrupts;
-        TIMSK |= _BV(OCIE1A);    // enable the output compare interrupt
+        SBI(TIFR, OCF1A);      // clear any pending interrupts;
+        SBI(TIMSK, OCIE1A);    // enable the output compare interrupt
       #else
         // here if not ATmega8 or ATmega128
-        TIFR1 |= _BV(OCF1A);     // clear any pending interrupts;
-        TIMSK1 |= _BV(OCIE1A);   // enable the output compare interrupt
+        SBI(TIFR1, OCF1A);     // clear any pending interrupts;
+        SBI(TIMSK1, OCIE1A);   // enable the output compare interrupt
       #endif
       #ifdef WIRING
         timerAttach(TIMER1OUTCOMPAREA_INT, Timer1Service);
@@ -158,8 +180,8 @@ static void initISR(timer16_Sequence_t timer) {
       TCCR3B = _BV(CS31);     // set prescaler of 8
       TCNT3 = 0;              // clear the timer count
       #ifdef __AVR_ATmega128__
-        TIFR |= _BV(OCF3A);     // clear any pending interrupts;
-        ETIMSK |= _BV(OCIE3A);  // enable the output compare interrupt
+        SBI(TIFR, OCF3A);     // clear any pending interrupts;
+        SBI(ETIMSK, OCIE3A);  // enable the output compare interrupt
       #else
         TIFR3 = _BV(OCF3A);     // clear any pending interrupts;
         TIMSK3 =  _BV(OCIE3A) ; // enable the output compare interrupt
@@ -195,21 +217,23 @@ static void finISR(timer16_Sequence_t timer) {
   // Disable use of the given timer
   #ifdef WIRING
     if (timer == _timer1) {
+      CBI(
       #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
         TIMSK1
       #else
         TIMSK
       #endif
-          &= ~_BV(OCIE1A);    // disable timer 1 output compare interrupt
+          , OCIE1A);    // disable timer 1 output compare interrupt
       timerDetach(TIMER1OUTCOMPAREA_INT);
     }
     else if (timer == _timer3) {
+      CBI(
       #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
         TIMSK3
       #else
         ETIMSK
       #endif
-          &= ~_BV(OCIE3A);    // disable the timer3 output compare A interrupt
+          , OCIE3A);    // disable the timer3 output compare A interrupt
       timerDetach(TIMER3OUTCOMPAREA_INT);
     }
   #else //!WIRING
@@ -269,9 +293,7 @@ void Servo::detach() {
 
 void Servo::write(int value) {
   if (value < MIN_PULSE_WIDTH) { // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
-    if (value < 0) value = 0;
-    if (value > 180) value = 180;
-    value = map(value, 0, 180, SERVO_MIN(),  SERVO_MAX());
+    value = map(constrain(value, 0, 180), 0, 180, SERVO_MIN(), SERVO_MAX());
   }
   this->writeMicroseconds(value);
 }
@@ -280,18 +302,13 @@ void Servo::writeMicroseconds(int value) {
   // calculate and store the values for the given channel
   byte channel = this->servoIndex;
   if (channel < MAX_SERVOS) {  // ensure channel is valid
-    if (value < SERVO_MIN())   // ensure pulse width is valid
-      value = SERVO_MIN();
-    else if (value > SERVO_MAX())
-      value = SERVO_MAX();
-
-    value = value - TRIM_DURATION;
+    // ensure pulse width is valid
+    value = constrain(value, SERVO_MIN(), SERVO_MAX()) - (TRIM_DURATION);
     value = usToTicks(value);  // convert to ticks after compensating for interrupt overhead - 12 Aug 2009
 
-    uint8_t oldSREG = SREG;
-    cli();
+    CRITICAL_SECTION_START;
     servo_info[channel].ticks = value;
-    SREG = oldSREG;
+    CRITICAL_SECTION_END;
   }
 }
 

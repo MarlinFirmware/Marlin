@@ -1,10 +1,42 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * SanityCheck.h
  *
  * Test configuration values for errors at compile-time.
  */
 #ifndef SANITYCHECK_H
 #define SANITYCHECK_H
+
+/**
+ * Due to the high number of issues related with old versions of Arduino IDE
+ * we are now warning our users to update their toolkits. In a future Marlin
+ * release we will stop supporting old IDE versions and will require user
+ * action to proceed with compilation in such environments.
+ */
+#if !defined(ARDUINO) || ARDUINO < 10500
+  #warning Versions of Arduino IDE prior to 1.5 are no longer supported, please update your toolkit.
+#endif
 
 /**
  * Dual Stepper Drivers
@@ -32,8 +64,8 @@
  * Babystepping
  */
 #if ENABLED(BABYSTEPPING)
-  #if ENABLED(COREXY) && ENABLED(BABYSTEP_XY)
-    #error BABYSTEPPING only implemented for Z axis on CoreXY.
+  #if DISABLED(ULTRA_LCD)
+    #error BABYSTEPPING requires an LCD controller.
   #endif
   #if ENABLED(SCARA)
     #error BABYSTEPPING is not implemented for SCARA yet.
@@ -110,6 +142,13 @@
 #endif
 
 /**
+ * Bed Heating Options - PID vs Limit Switching
+ */
+#if ENABLED(PIDTEMPBED) && ENABLED(BED_LIMIT_SWITCHING)
+  #error To use BED_LIMIT_SWITCHING you must disable PIDTEMPBED.
+#endif
+
+/**
  * Mesh Bed Leveling
  */
 #if ENABLED(MESH_BED_LEVELING)
@@ -122,7 +161,37 @@
   #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
     #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8.
   #endif
+#elif ENABLED(MANUAL_BED_LEVELING)
+  #error MESH_BED_LEVELING is required for MANUAL_BED_LEVELING.
 #endif
+
+/**
+ * Probes
+ */
+
+/**
+ * A probe needs a pin
+ */
+#if (!((HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || HAS_Z_PROBE )) && ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED))
+  #error A probe needs a pin! [Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN || HAS_Z_PROBE]
+#endif
+
+#if ((HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) && HAS_Z_PROBE) && ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED))
+  #error A probe should not be connected to more then one pin! [Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN || HAS_Z_PROBE]
+#endif
+
+/**
+  * Require one kind of probe
+  */
+#if ENABLED(AUTO_BED_LEVELING_FEATURE) && !( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED))
+  #error For AUTO_BED_LEVELING_FEATURE define one kind of probe! {Servo | Z_PROBE_ALLEN_KEY | Z_PROBE_SLED | FIX_MOUNTED_PROBE]
+#endif
+
+#if ENABLED(Z_SAFE_HOMING)&& !( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED))
+  #error For Z_SAFE_HOMING define one kind of probe! {Servo | Z_PROBE_ALLEN_KEY | Z_PROBE_SLED | FIX_MOUNTED_PROBE]
+#endif
+
+// To do: Fail with more then one probe defined
 
 /**
  * Auto Bed Leveling
@@ -167,7 +236,7 @@
    * Check if Probe_Offset * Grid Points is greater than Probing Range
    */
   #if ENABLED(AUTO_BED_LEVELING_GRID)
-    #ifndef DELTA_PROBABLE_RADIUS
+    #ifndef DELTA_PROBEABLE_RADIUS
       // Be sure points are in the right order
       #if LEFT_PROBE_BED_POSITION > RIGHT_PROBE_BED_POSITION
         #error LEFT_PROBE_BED_POSITION must be less than RIGHT_PROBE_BED_POSITION.
@@ -207,6 +276,14 @@
 #endif // AUTO_BED_LEVELING_FEATURE
 
 /**
+ * Filament Width Sensor
+ */
+#if ENABLED(FILAMENT_WIDTH_SENSOR) && !HAS_FILAMENT_WIDTH_SENSOR
+  #error FILAMENT_WIDTH_SENSOR requires a FILWIDTH_PIN to be defined.
+#endif
+
+
+/**
  * ULTIPANEL encoder
  */
 #if ENABLED(ULTIPANEL) && DISABLED(NEWPANEL) && DISABLED(SR_LCD_2W_NL) && !defined(SHIFT_CLK)
@@ -226,10 +303,6 @@
 
     #if ENABLED(Z_PROBE_SLED)
       #error You cannot use Z_PROBE_SLED with DELTA.
-    #endif
-
-    #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-      #error Z_MIN_PROBE_REPEATABILITY_TEST is not supported with DELTA yet.
     #endif
 
   #endif
@@ -261,47 +334,63 @@
 /**
  * Make sure auto fan pins don't conflict with the fan pin
  */
-#if HAS_AUTO_FAN && HAS_FAN
-  #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN.
-  #elif EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN.
-  #elif EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN.
-  #elif EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
-    #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN.
+#if HAS_AUTO_FAN
+  #if HAS_FAN0
+    #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN.
+    #elif EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN.
+    #elif EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN.
+    #elif EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
+      #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN.
+    #endif
   #endif
 #endif
 
-#if HAS_FAN && CONTROLLERFAN_PIN == FAN_PIN
+#if HAS_FAN0 && CONTROLLERFAN_PIN == FAN_PIN
   #error You cannot set CONTROLLERFAN_PIN equal to FAN_PIN.
+#endif
+
+#if HAS_CONTROLLERFAN
+  #if EXTRUDER_0_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #elif EXTRUDER_1_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #elif EXTRUDER_2_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #elif EXTRUDER_3_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN.
+  #endif
 #endif
 
 /**
  * Test Heater, Temp Sensor, and Extruder Pins; Sensor Type must also be set.
  */
 #if EXTRUDERS > 3
-  #if !HAS_HEATER_3
+  #if TEMP_SENSOR_3 == 0
+    #error TEMP_SENSOR_3 is required with 4 EXTRUDERS.
+  #elif !HAS_HEATER_3
     #error HEATER_3_PIN not defined for this board.
   #elif !PIN_EXISTS(TEMP_3)
     #error TEMP_3_PIN not defined for this board.
   #elif !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
     #error E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board.
-  #elif TEMP_SENSOR_3 == 0
-    #error TEMP_SENSOR_3 is required with 4 EXTRUDERS.
   #endif
 #elif EXTRUDERS > 2
-  #if !HAS_HEATER_2
+  #if TEMP_SENSOR_2 == 0
+    #error TEMP_SENSOR_2 is required with 3 or more EXTRUDERS.
+  #elif !HAS_HEATER_2
     #error HEATER_2_PIN not defined for this board.
   #elif !PIN_EXISTS(TEMP_2)
     #error TEMP_2_PIN not defined for this board.
   #elif !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
     #error E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board.
-  #elif TEMP_SENSOR_2 == 0
-    #error TEMP_SENSOR_2 is required with 3 or more EXTRUDERS.
   #endif
 #elif EXTRUDERS > 1
-  #if !PIN_EXISTS(TEMP_1)
+  #if TEMP_SENSOR_1 == 0
+    #error TEMP_SENSOR_1 is required with 2 or more EXTRUDERS.
+  #elif !PIN_EXISTS(TEMP_1)
     #error TEMP_1_PIN not defined for this board.
   #elif !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
     #error E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board.
@@ -314,12 +403,8 @@
   #endif
 #endif
 
-#if TEMP_SENSOR_1 == 0
-  #if EXTRUDERS > 1
-    #error TEMP_SENSOR_1 is required with 2 or more EXTRUDERS.
-  #elif ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-    #error TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT.
-  #endif
+#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
+  #error TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT.
 #endif
 
 #if !HAS_HEATER_0
@@ -330,6 +415,19 @@
   #error E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board.
 #elif TEMP_SENSOR_0 == 0
   #error TEMP_SENSOR_0 is required.
+#endif
+
+/**
+ * Endstops
+ */
+#if DISABLED(USE_XMIN_PLUG) && DISABLED(USE_XMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _XMAX_ && Z2_USE_ENDSTOP <= _XMIN_)
+ #error You must enable USE_XMIN_PLUG or USE_XMAX_PLUG
+#elif DISABLED(USE_YMIN_PLUG) && DISABLED(USE_YMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _YMAX_ && Z2_USE_ENDSTOP <= _YMIN_)
+ #error You must enable USE_YMIN_PLUG or USE_YMAX_PLUG
+#elif DISABLED(USE_ZMIN_PLUG) && DISABLED(USE_ZMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _ZMAX_ && Z2_USE_ENDSTOP <= _ZMIN_)
+ #error You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG
+#elif ENABLED(Z_DUAL_ENDSTOPS) && !Z2_USE_ENDSTOP
+ #error You must set Z2_USE_ENDSTOP with Z_DUAL_ENDSTOPS
 #endif
 
 /**
@@ -358,9 +456,21 @@
 #elif defined(CUSTOM_MENDEL_NAME)
   #error CUSTOM_MENDEL_NAME is now CUSTOM_MACHINE_NAME. Please update your configuration.
 #elif defined(HAS_AUTOMATIC_VERSIONING)
-  #error HAS_AUTOMATIC_VERSIONING deprecated - use USE_AUTOMATIC_VERSIONING instead
+  #error HAS_AUTOMATIC_VERSIONING is now USE_AUTOMATIC_VERSIONING. Please update your configuration.
 #elif defined(ENABLE_AUTO_BED_LEVELING)
-  #error ENABLE_AUTO_BED_LEVELING deprecated - use AUTO_BED_LEVELING_FEATURE instead
+  #error ENABLE_AUTO_BED_LEVELING is now AUTO_BED_LEVELING_FEATURE. Please update your configuration.
+#elif defined(SDSLOW)
+  #error SDSLOW deprecated. Set SPI_SPEED to SPI_HALF_SPEED instead.
+#elif defined(SDEXTRASLOW)
+  #error SDEXTRASLOW deprecated. Set SPI_SPEED to SPI_QUARTER_SPEED instead.
+#elif defined(Z_RAISE_BEFORE_HOMING)
+  #error Z_RAISE_BEFORE_HOMING is deprecated. Use MIN_Z_HEIGHT_FOR_HOMING instead.
+#elif defined(FILAMENT_SENSOR)
+  #error FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead.
+#elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
+  #error DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead.
+#elif ENABLED(Z_DUAL_ENDSTOPS) && !defined(Z2_USE_ENDSTOP)
+  #error Z_DUAL_ENDSTOPS settings are simplified. Just set Z2_USE_ENDSTOP to the endstop you want to repurpose for Z2
 #endif
 
 #endif //SANITYCHECK_H

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+rm -rf .build/
+DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
