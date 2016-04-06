@@ -38,7 +38,7 @@
 #define WELCOME_MSG                         MACHINE_NAME " gereed."
 #define MSG_SD_INSERTED                     "Kaart ingestoken"
 #define MSG_SD_REMOVED                      "Kaart verwijderd"
-#define MSG_MAIN                            "Main"
+#define MSG_MAIN                            "Hoofdmenu"
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Motoren uit"
 #define MSG_AUTO_HOME                       "Auto home"
@@ -163,6 +163,11 @@
 #define MSG_HEATING_COMPLETE                "voorverw. kompleet"
 #define MSG_BED_HEATING                     "Bed voorverwarmen"
 #define MSG_BED_DONE                        "Bed is voorverw."
+#define MSG_LEVEL_BED_HOMING                "Homing XYZ"
+#define MSG_LEVEL_BED_WAITING               "Klik voor begin"
+#define MSG_LEVEL_BED_DONE                  "Bed leveling kompleet!"
+#define MSG_LEVEL_BED_CANCEL                "Bed leveling afbreken"
+#define MSG_HOME_OFFSETS_APPLIED            "Home offsets toegepast"
 
 #if ENABLED(DELTA_CALIBRATION_MENU)
   #define MSG_DELTA_CALIBRATE               "Delta Calibratie"
