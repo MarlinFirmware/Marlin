@@ -3715,7 +3715,7 @@ inline void gcode_M31() {
       card.startFileprint();
 
       // Procedure calls count as normal print time.
-      if (!call_procedure) print_job_start();
+      if (!call_procedure) print_job_timer.start();
     }
   }
 
