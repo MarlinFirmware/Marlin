@@ -103,6 +103,7 @@
  * G4  - Dwell S<seconds> or P<milliseconds>
  * G10 - retract filament according to settings of M207
  * G11 - retract recover filament according to settings of M208
+ * G26 - Allow G-codes to enter the buffer again after a PROBE_FAIL_PANIC occurs during a G29
  * G28 - Home one or more axes
  * G29 - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
  * G30 - Single Z probe, probes bed at current XY location.
@@ -315,6 +316,10 @@ static uint8_t target_extruder;
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   int xy_travel_speed = XY_TRAVEL_SPEED;
   float zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
+  #if ENABLED(REPROBE)
+    uint8_t reprobe_attempts = 0;
+    bool probe_fail = false;
+  #endif
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS) && DISABLED(DELTA)
@@ -901,6 +906,17 @@ void gcode_line_error(const char* err, bool doFlush = true) {
   serial_count = 0;
 }
 
+void clear_buffer() {
+  for(uint8_t i=0; i < BUFSIZE; i++)
+    for(uint8_t j=0; j < MAX_CMD_SIZE; j++)
+      command_queue[i][j] = NULL;
+  MYSERIAL.flush();
+  serial_count = 0;
+  commands_in_queue = 1;
+  cmd_queue_index_r = BUFSIZE-1;
+  cmd_queue_index_w = 0;
+}
+
 inline void get_serial_commands() {
   static char serial_line_buffer[MAX_CMD_SIZE];
   static boolean serial_comment_mode = false;
@@ -999,6 +1015,22 @@ inline void get_serial_commands() {
 
       // If command was e-stop process now
       if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
+      #if ENABLED(PROBE_FAIL_PANIC)
+        if (strcmp(command, "G26") == 0) {
+          LCD_MESSAGEPGM(WELCOME_MSG);
+          probe_fail = false;
+        }
+        else if(probe_fail && (strchr(command, 'G') != NULL || strchr(command, 'M') != NULL) && strstr(command, "M105") == NULL) {
+          for(uint8_t j=0; j < MAX_CMD_SIZE; j++)
+            command_queue[cmd_queue_index_r][j] = 0;
+          if(commands_in_queue) {
+            commands_in_queue = 1;
+            cmd_queue_index_r = (cmd_queue_index_r + 1) % BUFSIZE;
+          }
+          serial_count = 0;
+          return;
+        }
+      #endif
 
       #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
         last_command_time = ms;
@@ -1482,6 +1514,45 @@ static void setup_for_endstop_move() {
 
   #endif // !AUTO_BED_LEVELING_GRID
 
+  static void do_blocking_move_to(float x, float y, float z);
+  inline void do_blocking_move_to_xy(float x, float y);
+  inline void do_blocking_move_to_x(float x);
+  inline void do_blocking_move_to_z(float z);
+
+  #if ENABLED(REPROBE)
+    void probing_failed() {
+      if(reprobe_attempts < NUM_ATTEMPTS-1)
+      {
+        #if DISABLED(REWIPE)
+          SERIAL_ERRORLNPGM(MSG_REPROBE);
+          LCD_MESSAGEPGM(MSG_REPROBE);
+        #endif
+        do_blocking_move_to_z(Z_RETRY_PT);
+        #if ENABLED(REWIPE)
+          SERIAL_ERRORLNPGM(MSG_REWIPE);
+          LCD_MESSAGEPGM(MSG_REWIPE);
+          float rewipe_first_pt[2] = REWIPE_FIRST_PT;
+          float rewipe_second_pt[2] = REWIPE_SECOND_PT;
+          do_blocking_move_to_xy(rewipe_first_pt[X_AXIS], rewipe_first_pt[Y_AXIS]);
+          do_blocking_move_to_z(Z_REWIPE_PT);
+          for(uint8_t i=0; i<NUM_REWIPES; i++)
+          {
+            do_blocking_move_to_xy(rewipe_second_pt[X_AXIS], rewipe_second_pt[Y_AXIS]);
+            do_blocking_move_to_xy(rewipe_first_pt[X_AXIS], rewipe_first_pt[Y_AXIS]);
+          }
+        #endif
+        do_blocking_move_to_z(Z_RETRY_PT);
+        do_blocking_move_to_xy(LEFT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION);
+        reprobe_attempts++;
+      }
+      else
+      {
+        do_blocking_move_to_z(Z_RETRY_PT);
+        reprobe_attempts++;
+      }
+    }
+  #endif
+
   static void run_z_probe() {
 
     /**
@@ -1526,7 +1597,7 @@ static void setup_for_endstop_move() {
       feedrate = homing_feedrate[Z_AXIS];
 
       // Move down until the Z probe (or endstop?) is triggered
-      float zPosition = -(Z_MAX_LENGTH + 10);
+      float zPosition = MIN_PROBE_PT;
       line_to_z(zPosition);
       st_synchronize();
 
@@ -1536,6 +1607,13 @@ static void setup_for_endstop_move() {
         current_position[X_AXIS], current_position[Y_AXIS], zPosition,
         current_position[E_AXIS]
       );
+      #ifdef REPROBE
+        if(zPosition == MIN_PROBE_PT && !digitalRead(Z_MIN_PIN)^Z_MIN_ENDSTOP_INVERTING)
+        {
+          probing_failed();
+          return;
+        }
+      #endif
 
       // move up the retract distance
       zPosition += home_bump_mm(Z_AXIS);
@@ -1546,7 +1624,7 @@ static void setup_for_endstop_move() {
       // move back down slowly to find bed
       set_homing_bump_feedrate(Z_AXIS);
 
-      zPosition -= home_bump_mm(Z_AXIS) * 2;
+      zPosition = MIN_PROBE_PT;
       line_to_z(zPosition);
       st_synchronize();
       endstops_hit_on_purpose(); // clear endstop hit flags
@@ -1880,6 +1958,10 @@ static void setup_for_endstop_move() {
 
     run_z_probe();
     float measured_z = current_position[Z_AXIS];
+    #ifdef REPROBE
+      if(measured_z == Z_RETRY_PT)
+        return MIN_PROBE_PT;
+    #endif
 
     #if DISABLED(Z_PROBE_SLED) && DISABLED(Z_PROBE_ALLEN_KEY)
       if (probe_action & ProbeStow) {
@@ -3224,6 +3306,11 @@ inline void gcode_G28() {
         double yProbe = front_probe_bed_position + yGridSpacing * yCount;
         int xStart, xStop, xInc;
 
+        #if ENABLED(REPROBE)
+          if(reprobe_attempts == NUM_ATTEMPTS && probePointCounter == -1)
+            break;
+        #endif
+
         if (zig) {
           xStart = 0;
           xStop = auto_bed_leveling_grid_points;
@@ -3279,6 +3366,21 @@ inline void gcode_G28() {
 
           measured_z = probe_pt(xProbe, yProbe, z_before, act, verbose_level);
 
+          #if ENABLED(REPROBE)
+            if(measured_z == MIN_PROBE_PT) {
+              if(reprobe_attempts < NUM_ATTEMPTS) {
+                probePointCounter = 0;
+                zig = true;
+                yCount = -1;
+                break;
+              }
+              else {
+                probePointCounter = -1;
+                break;
+              }
+            }
+          #endif
+
           #if DISABLED(DELTA)
             mean += measured_z;
 
@@ -3297,6 +3399,45 @@ inline void gcode_G28() {
 
         } //xProbe
       } //yProbe
+
+      #if ENABLED(PROBE_FAIL_PANIC)
+        if(reprobe_attempts == NUM_ATTEMPTS && probePointCounter == -1)
+        {
+          if(!IS_SD_PRINTING)
+            probe_fail = true;
+            disable_all_heaters();
+          #if ENABLED(THERMAL_RUNAWAY_PROTECTION_PERIOD)
+            for(int i=0; i<EXTRUDERS; i++) target_temp_reached[i] = false;
+          #endif
+          #if ENABLED(SDSUPPORT)
+            card.closefile();
+            card.sdprinting = false;
+          #endif
+          clear_buffer();
+          reprobe_attempts = 0;
+          do_blocking_move_to_z(Z_RETRY_PT);
+          // Move E back to 0 after a failed probe
+          plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0.0, feedrate/60, active_extruder);
+          st_synchronize();
+          plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+          acceleration = DEFAULT_ACCELERATION;
+          #if ENABLED(ULTIPANEL)
+            buzz(750, 1750);
+          #endif
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM(MSG_LEVEL_FAIL);
+          LCD_MESSAGEPGM(MSG_LEVEL_FAIL);
+          return;
+        }
+      #else
+        #if ENABLED(REPROBE)
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM(MSG_LEVEL_QUIT);
+          LCD_MESSAGEPGM(MSG_LEVEL_QUIT);
+          reprobe_attempts = 0;
+          return;
+        #endif
+      #endif
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
@@ -3579,6 +3720,10 @@ inline void gcode_G28() {
         raise_z_for_servo();
       #endif
       stow_z_probe(false); // Retract Z Servo endstop if available. Z_PROBE_SLED is missed here.
+
+      #if ENABLED(REPROBE)
+        reprobe_attempts = 0;
+      #endif
 
       gcode_M114(); // Send end position to RepetierHost
     }
