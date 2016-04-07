@@ -291,27 +291,38 @@ void endstops_hit_on_purpose() { endstop_hit_bits = 0; }
 
 void checkHitEndstops() {
   if (endstop_hit_bits) {
+    #if ENABLED(ULTRA_LCD)
+      char chrX = ' ', chrY = ' ', chrZ = ' ', chrP = ' ';
+      #define _SET_STOP_CHAR(A,C) (chr## A = C)
+    #else
+      #define _SET_STOP_CHAR(A,C) ;
+    #endif
+
+    #define _ENDSTOP_HIT(A,C) do{ \
+      SERIAL_ECHOPAIR(" " STRINGIFY(A) ":", endstops_trigsteps[A ##_AXIS] / axis_steps_per_unit[A ##_AXIS]); \
+      _SET_STOP_CHAR(A,C); }while(0)
+
+    #define _ENDSTOP_HIT_TEST(A,C) \
+      if (TEST(endstop_hit_bits, A ##_MIN) || TEST(endstop_hit_bits, A ##_MAX)) \
+        _ENDSTOP_HIT(A,C)
+
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
-    if (TEST(endstop_hit_bits, X_MIN)) {
-      SERIAL_ECHOPAIR(" X:", endstops_trigsteps[X_AXIS] / axis_steps_per_unit[X_AXIS]);
-      LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
-    }
-    if (TEST(endstop_hit_bits, Y_MIN)) {
-      SERIAL_ECHOPAIR(" Y:", endstops_trigsteps[Y_AXIS] / axis_steps_per_unit[Y_AXIS]);
-      LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
-    }
-    if (TEST(endstop_hit_bits, Z_MIN)) {
-      SERIAL_ECHOPAIR(" Z:", endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
-      LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
-    }
+    _ENDSTOP_HIT_TEST(X, 'X');
+    _ENDSTOP_HIT_TEST(Y, 'Y');
+    _ENDSTOP_HIT_TEST(Z, 'Z');
+
     #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-      if (TEST(endstop_hit_bits, Z_MIN_PROBE)) {
-        SERIAL_ECHOPAIR(" Z_MIN_PROBE:", endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
-        LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "ZP");
-      }
+      #define P_AXIS Z_AXIS
+      if (TEST(endstop_hit_bits, Z_MIN_PROBE)) _ENDSTOP_HIT(P, 'P');
     #endif
     SERIAL_EOL;
+
+    #if ENABLED(ULTRA_LCD)
+      char msg[3 * strlen(MSG_LCD_ENDSTOPS) + 8 + 1]; // Room for a UTF 8 string
+      sprintf_P(msg, PSTR(MSG_LCD_ENDSTOPS " %c %c %c %c"), chrX, chrY, chrZ, chrP);
+      lcd_setstatus(msg);
+    #endif
 
     endstops_hit_on_purpose();
 
