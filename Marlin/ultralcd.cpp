@@ -1203,13 +1203,22 @@ static void lcd_move_e(
  *
  */
 
+#if ENABLED(DELTA) || ENABLED(SCARA)
+  #define _MOVE_XYZ_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+#else
+  #define _MOVE_XYZ_ALLOWED true
+#endif
+
 static void _lcd_move_menu_axis() {
   START_MENU();
   MENU_ITEM(back, MSG_MOVE_AXIS);
-  MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
-  MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
+
+  if (_MOVE_XYZ_ALLOWED) {
+    MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
+    MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
+  }
   if (move_menu_scale < 10.0) {
-    MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
+    if (_MOVE_XYZ_ALLOWED) MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
     #if EXTRUDERS == 1
       MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
     #else
@@ -1248,7 +1257,10 @@ static void lcd_move_menu_01mm() {
 static void lcd_move_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_PREPARE);
-  MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
+
+  if (_MOVE_XYZ_ALLOWED)
+    MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
+
   MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
   MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
   //TODO:X,Y,Z,E
