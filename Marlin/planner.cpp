@@ -852,25 +852,34 @@ float junction_deviation = 0.1;
   block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    static float filwidth_e_count = 0, filwidth_delay_dist = 0;
+
     //FMM update ring buffer used for delay with filament measurements
-    if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM && delay_index2 > -1) {  //only for extruder with filament sensor and if ring buffer is initialized
+    if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM && filwidth_delay_index2 >= 0) {  //only for extruder with filament sensor and if ring buffer is initialized
 
-      const int MMD = MAX_MEASUREMENT_DELAY + 1, MMD10 = MMD * 10;
+      const int MMD_CM = MAX_MEASUREMENT_DELAY + 1, MMD_MM = MMD_CM * 10;
 
-      delay_dist += delta_mm[E_AXIS];  // increment counter with next move in e axis
-      while (delay_dist >= MMD10) delay_dist -= MMD10; // loop around the buffer
-      while (delay_dist < 0) delay_dist += MMD10;
+      // increment counters with next move in e axis
+      filwidth_e_count += delta_mm[E_AXIS];
+      filwidth_delay_dist += delta_mm[E_AXIS];
 
-      delay_index1 = delay_dist / 10.0;  // calculate index
-      delay_index1 = constrain(delay_index1, 0, MAX_MEASUREMENT_DELAY); // (already constrained above)
+      // Only get new measurements on forward E movement
+      if (filwidth_e_count > 0.0001) {
 
-      if (delay_index1 != delay_index2) { // moved index
-        int8_t meas_sample = widthFil_to_size_ratio() - 100;  // Subtract 100 to reduce magnitude - to store in a signed char
-        while (delay_index1 != delay_index2) {
-          // Increment and loop around buffer
-          if (++delay_index2 >= MMD) delay_index2 -= MMD;
-          delay_index2 = constrain(delay_index2, 0, MAX_MEASUREMENT_DELAY);
-          measurement_delay[delay_index2] = meas_sample;
+        // Loop the delay distance counter (modulus by the mm length)
+        while (filwidth_delay_dist >= MMD_MM) filwidth_delay_dist -= MMD_MM;
+
+        // Convert into an index into the measurement array
+        filwidth_delay_index1 = (int)(filwidth_delay_dist / 10.0 + 0.0001);
+
+        // If the index has changed (must have gone forward)...
+        if (filwidth_delay_index1 != filwidth_delay_index2) {
+          filwidth_e_count = 0; // Reset the E movement counter
+          int8_t meas_sample = widthFil_to_size_ratio() - 100; // Subtract 100 to reduce magnitude - to store in a signed char
+          do {
+            filwidth_delay_index2 = (filwidth_delay_index2 + 1) % MMD_CM; // The next unused slot
+            measurement_delay[filwidth_delay_index2] = meas_sample;       // Store the measurement
+          } while (filwidth_delay_index1 != filwidth_delay_index2);       // More slots to fill?
         }
       }
     }
