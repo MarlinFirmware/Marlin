@@ -341,8 +341,7 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
   extern float filament_width_meas; //holds the filament diameter as accurately measured
   extern int8_t measurement_delay[];  //ring buffer to delay measurement
-  extern int delay_index1, delay_index2;  //ring buffer index. used by planner, temperature, and main code
-  extern float delay_dist; //delay distance counter
+  extern int filwidth_delay_index1, filwidth_delay_index2;  //ring buffer index. used by planner, temperature, and main code
   extern int meas_delay_cm; //delay distance
 #endif
 
