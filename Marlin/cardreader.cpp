@@ -112,7 +112,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
         }
       }
       
-      if(strlen(longFilename) > 0 && longFilename[0] != '.')
+      if(strlen(longFilename) == 0 || longFilename[0] != '.')
       {
 		lsDive(path,dir);
       }
