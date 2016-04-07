@@ -448,6 +448,7 @@ static bool send_ok[BUFSIZE];
 
   static MarlinBusyState busy_state = NOT_BUSY;
   static millis_t next_busy_signal_ms = -1;
+  uint8_t host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
   #define KEEPALIVE_STATE(n) do{ busy_state = n; }while(0)
 #else
   #define host_keepalive() ;
@@ -2276,7 +2277,7 @@ void unknown_command_error() {
           break;
       }
     }
-    next_busy_signal_ms = ms + 10000UL; // "busy: ..." message every 10s
+    next_busy_signal_ms = host_keepalive_interval ? ms + 1000UL * host_keepalive_interval : -1;
   }
 
 #endif //HOST_KEEPALIVE_FEATURE
