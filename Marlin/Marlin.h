@@ -360,7 +360,7 @@ extern bool axis_homed[3]; // axis[n].is_homed
 #endif
 
 // Print job timer
-extern stopwatch print_job_timer;
+extern Stopwatch print_job_timer;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
