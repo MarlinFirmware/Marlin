@@ -553,7 +553,7 @@ void lcd_set_home_offsets() {
 
   static void _lcd_babystep(const int axis, const char* msg) {
     ENCODER_DIRECTION_NORMAL();
-    if (encoderPosition != 0) {
+    if (encoderPosition) {
       int distance =  (int)encoderPosition * BABYSTEP_MULTIPLICATOR;
       encoderPosition = 0;
       lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
@@ -1124,7 +1124,7 @@ float move_menu_scale;
 
 static void _lcd_move(const char* name, AxisEnum axis, float min, float max) {
   ENCODER_DIRECTION_NORMAL();
-  if ((encoderPosition != 0) && (movesplanned() <= 3)) {
+  if (encoderPosition && movesplanned() <= 3) {
     refresh_cmd_timeout();
     current_position[axis] += float((int)encoderPosition) * move_menu_scale;
     if (min_software_endstops) NOLESS(current_position[axis], min);
@@ -1156,7 +1156,7 @@ static void lcd_move_e(
     unsigned short original_active_extruder = active_extruder;
     active_extruder = e;
   #endif
-  if ((encoderPosition != 0) && (movesplanned() <= 3)) {
+  if (encoderPosition && movesplanned() <= 3) {
     current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
     encoderPosition = 0;
     line_to_current(E_AXIS);
@@ -1641,7 +1641,7 @@ static void lcd_control_volumetric_menu() {
 #if ENABLED(HAS_LCD_CONTRAST)
   static void lcd_set_contrast() {
     ENCODER_DIRECTION_NORMAL();
-    if (encoderPosition != 0) {
+    if (encoderPosition) {
       #if ENABLED(U8GLIB_LM6059_AF)
         lcd_contrast += encoderPosition;
         lcd_contrast &= 0xFF;
