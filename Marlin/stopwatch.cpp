@@ -23,28 +23,28 @@
 #include "Marlin.h"
 #include "stopwatch.h"
 
-stopwatch::stopwatch() {
+Stopwatch::Stopwatch() {
    this->reset();
  }
 
-void stopwatch::stop() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("stopwatch::stop()");
+void Stopwatch::stop() {
+  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::stop()");
   if (!this->isRunning()) return;
 
   this->status = STPWTCH_STOPPED;
   this->stopTimestamp = millis();
 }
 
-void stopwatch::pause() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("stopwatch::pause()");
+void Stopwatch::pause() {
+  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::pause()");
   if (!this->isRunning()) return;
 
   this->status = STPWTCH_PAUSED;
   this->stopTimestamp = millis();
 }
 
-void stopwatch::start() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("stopwatch::start()");
+void Stopwatch::start() {
+  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::start()");
   if (this->isRunning()) return;
 
   if (this->isPaused()) this->accumulator = this->duration();
@@ -54,8 +54,8 @@ void stopwatch::start() {
   this->startTimestamp = millis();
 }
 
-void stopwatch::reset() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("stopwatch::reset()");
+void Stopwatch::reset() {
+  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::reset()");
 
   this->status = STPWTCH_STOPPED;
   this->startTimestamp = 0;
@@ -63,15 +63,15 @@ void stopwatch::reset() {
   this->accumulator = 0;
 }
 
-bool stopwatch::isRunning() {
+bool Stopwatch::isRunning() {
   return (this->status == STPWTCH_RUNNING) ? true : false;
 }
 
-bool stopwatch::isPaused() {
+bool Stopwatch::isPaused() {
   return (this->status == STPWTCH_PAUSED) ? true : false;
 }
 
-uint16_t stopwatch::duration() {
+uint16_t Stopwatch::duration() {
   return (((this->isRunning()) ? millis() : this->stopTimestamp)
           - this->startTimestamp) / 1000 + this->accumulator;
 }

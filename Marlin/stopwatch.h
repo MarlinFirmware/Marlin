@@ -23,7 +23,7 @@
 #ifndef STOPWATCH_H
 #define STOPWATCH_H
 
-enum stopwatch_s {
+enum StopwatchStatus {
   STPWTCH_STOPPED = 0x0,
   STPWTCH_RUNNING = 0x1,
   STPWTCH_PAUSED  = 0x2
@@ -34,9 +34,9 @@ enum stopwatch_s {
  * @details This class acts as a timer proving stopwatch functionality including
  * the ability to pause the running time counter.
  */
-class stopwatch {
+class Stopwatch {
   private:
-    stopwatch_s status;
+    StopwatchStatus status;
     uint16_t accumulator;
     uint32_t startTimestamp;
     uint32_t stopTimestamp;
@@ -45,7 +45,7 @@ class stopwatch {
     /**
      * @brief Class constructor
      */
-    stopwatch();
+    Stopwatch();
 
     /**
      * @brief Stops the stopwatch
