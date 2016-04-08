@@ -4279,7 +4279,7 @@ inline void gcode_M109() {
     #ifdef TEMP_RESIDENCY_TIME
       // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
       // Restart the timer whenever the temperature falls outside the hysteresis.
-      if ((residency_start_ms <= 0 && labs(degHotend(target_extruder) - degTargetHotend(target_extruder) < TEMP_WINDOW)) ||
+      if ((residency_start_ms <= 0 && labs(degHotend(target_extruder) - degTargetHotend(target_extruder)) < TEMP_WINDOW) ||
           (labs(degHotend(target_extruder) - degTargetHotend(target_extruder)) > ((residency_start_ms < 0) ? TEMP_WINDOW : TEMP_HYSTERESIS)))
         residency_start_ms = millis();
     #endif //TEMP_RESIDENCY_TIME
