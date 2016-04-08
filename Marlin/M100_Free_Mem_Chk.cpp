@@ -180,10 +180,10 @@ void gcode_M100() {
     x = code_value();
     SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
     ptr = (unsigned char*) __brkval;
-    SERIAL_ECHOPAIR("\n__brkval : ", (long) ptr);
+    SERIAL_ECHOPAIR("\n__brkval : ", ptr);
     ptr += 8;
     sp = top_of_stack();
-    SERIAL_ECHOPAIR("\nStack Pointer : ", (long) sp);
+    SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
     SERIAL_ECHOLNPGM("\n");
     n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
     // has altered the stack.
@@ -204,10 +204,10 @@ void gcode_M100() {
   if (m100_not_initialized || code_seen('I')) {       // If no sub-command is specified, the first time
     SERIAL_ECHOLNPGM("Initializing free memory block.\n");    // this happens, it will Initialize.
     ptr = (unsigned char*) __brkval;        // Repeated M100 with no sub-command will not destroy the
-    SERIAL_ECHOPAIR("\n__brkval : ", (long) ptr);     // state of the initialized free memory pool.
+    SERIAL_ECHOPAIR("\n__brkval : ", ptr);     // state of the initialized free memory pool.
     ptr += 8;
     sp = top_of_stack();
-    SERIAL_ECHOPAIR("\nStack Pointer : ", (long) sp);
+    SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
     SERIAL_ECHOLNPGM("\n");
     n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
     // has altered the stack.
@@ -217,7 +217,7 @@ void gcode_M100() {
       *(ptr + i) = (unsigned char) 0xe5;
     for (i = 0; i < n; i++) {
       if (*(ptr + i) != (unsigned char) 0xe5) {
-        SERIAL_ECHOPAIR("? address : ", (unsigned long) ptr + i);
+        SERIAL_ECHOPAIR("? address : ", ptr + i);
         SERIAL_ECHOPAIR("=", *(ptr + i));
         SERIAL_ECHOLNPGM("\n");
       }
