@@ -4250,7 +4250,7 @@ inline void gcode_M109() {
 
   // Prevents a wait-forever situation if R is misused i.e. M109 R0
   // Try to calculate a ballpark safe margin by halving EXTRUDE_MINTEMP
-  if (degTargetHotend(target_extruder) < (EXTRUDE_MINTEMP/2)) return;
+  if (degTargetHotend(target_extruder) < (EXTRUDE_MINTEMP)/2) return;
 
   #ifdef TEMP_RESIDENCY_TIME
     long residency_start_ms = -1;
