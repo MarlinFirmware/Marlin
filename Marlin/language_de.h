@@ -43,11 +43,11 @@
 #define MSG_DISABLE_STEPPERS                "Motoren Aus" // M84
 #define MSG_AUTO_HOME                       "Home" // G28
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
-#define MSG_LEVEL_BED_WAITING               "Click to Begin"
-#define MSG_LEVEL_BED_DONE                  "Leveling Done!"
-#define MSG_LEVEL_BED_CANCEL                "Cancel"
+#define MSG_LEVEL_BED_WAITING               "Klick für Start"
+#define MSG_LEVEL_BED_DONE                  "Fertig"
+#define MSG_LEVEL_BED_CANCEL                "Abbruch"
 #define MSG_SET_HOME_OFFSETS                "Setze Home hier"
-#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets aktiv"
 #define MSG_SET_ORIGIN                      "Setze Null hier" //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
 #define MSG_PREHEAT_PLA                     "Vorwärmen PLA"
 #define MSG_PREHEAT_PLA_N                   "Vorwärmen PLA "
@@ -62,8 +62,10 @@
 #define MSG_COOLDOWN                        "Abkühlen"
 #define MSG_SWITCH_PS_ON                    "Netzteil Ein"
 #define MSG_SWITCH_PS_OFF                   "Netzteil Aus"
+#define MSG_EXTRUDE                         "Extrude"
 #define MSG_RETRACT                         "Retract"
 #define MSG_MOVE_AXIS                       "Bewegen"
+#define MSG_LEVEL_BED                       "Bett Korrektur"
 #define MSG_MOVE_X                          "X"
 #define MSG_MOVE_Y                          "Y"
 #define MSG_MOVE_Z                          "Z"
@@ -72,6 +74,7 @@
 #define MSG_MOVE_1MM                        " 1.0 mm"
 #define MSG_MOVE_10MM                       "10.0 mm"
 #define MSG_SPEED                           "Geschw."
+#define MSG_BED_Z                           "Bett Z"
 #define MSG_NOZZLE                          "Düse"
 #define MSG_BED                             "Bett"
 #define MSG_FAN_SPEED                       "Lüftergeschw."
@@ -100,6 +103,7 @@
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "A max " // space by purpose
 #define MSG_A_RETRACT                       "A Retract"
+#define MSG_A_TRAVEL                        "A Travel"
 #define MSG_XSTEPS                          "X steps/mm"
 #define MSG_YSTEPS                          "Y steps/mm"
 #define MSG_ZSTEPS                          "Z steps/mm"
@@ -147,6 +151,13 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop Abbr. Ein"
+#define MSG_HEATING_FAILED_LCD              "Err: Heizt langsam"
+#define MSG_ERR_REDUNDANT_TEMP              "Err: Temp. Redundanz"
+#define MSG_THERMAL_RUNAWAY                 "Err: Temp. Messung"
+#define MSG_ERR_MAXTEMP                     "Err: Max-Temp."
+#define MSG_ERR_MINTEMP                     "Err: Min-Temp."
+#define MSG_ERR_MAXTEMP_BED                 "Err: Max-Temp. Bett"
+#define MSG_ERR_MINTEMP_BED                 "Err: Min-Temp. Bett"
 #define MSG_END_HOUR                        "Stunden"
 #define MSG_END_MINUTE                      "Minuten"
 #define MSG_HEATING                         "Aufheizen..."
@@ -154,12 +165,10 @@
 #define MSG_BED_HEATING                     "Bett aufheizen"
 #define MSG_BED_DONE                        "Bett aufgeheizt"
 
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE               "Delta kalibrieren"
-  #define MSG_DELTA_CALIBRATE_X             "Kalibriere X"
-  #define MSG_DELTA_CALIBRATE_Y             "Kalibriere Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Kalibriere Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "Kalibriere Mitte"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "Delta kalibrieren"
+#define MSG_DELTA_CALIBRATE_X               "Kalibriere X"
+#define MSG_DELTA_CALIBRATE_Y               "Kalibriere Y"
+#define MSG_DELTA_CALIBRATE_Z               "Kalibriere Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Kalibriere Mitte"
 
 #endif // LANGUAGE_DE_H
