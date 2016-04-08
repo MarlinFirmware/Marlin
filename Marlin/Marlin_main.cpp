@@ -298,8 +298,7 @@ const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
 millis_t previous_cmd_ms = 0;
 static millis_t max_inactive_time = 0;
 static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000L;
-millis_t print_job_start_ms = 0; ///< Print job start time
-millis_t print_job_stop_ms = 0;  ///< Print job stop time
+Stopwatch print_job_timer = Stopwatch();
 static uint8_t target_extruder;
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
@@ -1011,9 +1010,9 @@ inline void get_serial_commands() {
       ) {
         if (card_eof) {
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
-          print_job_stop(true);
+          print_job_timer.stop();
           char time[30];
-          millis_t t = print_job_timer();
+          millis_t t = print_job_timer.duration();
           int hours = t / 60 / 60, minutes = (t / 60) % 60;
           sprintf_P(time, PSTR("%i " MSG_END_HOUR " %i " MSG_END_MINUTE), hours, minutes);
           SERIAL_ECHO_START;
@@ -3571,7 +3570,7 @@ inline void gcode_M17() {
    */
   inline void gcode_M24() {
     card.startFileprint();
-    print_job_start();
+    print_job_timer.start();
   }
 
   /**
@@ -3627,7 +3626,7 @@ inline void gcode_M17() {
  * M31: Get the time since the start of SD Print (or last M109)
  */
 inline void gcode_M31() {
-  millis_t t = print_job_timer();
+  millis_t t = print_job_timer.duration();
   int min = t / 60, sec = t % 60;
   char time[30];
   sprintf_P(time, PSTR("%i min, %i sec"), min, sec);
@@ -3663,7 +3662,7 @@ inline void gcode_M31() {
       card.startFileprint();
 
       // Procedure calls count as normal print time.
-      if (!call_procedure) print_job_start();
+      if (!call_procedure) print_job_timer.start();
     }
   }
 
@@ -4031,14 +4030,32 @@ inline void gcode_M42() {
 #endif // AUTO_BED_LEVELING_FEATURE && Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
+ * M75: Start print timer
+ */
+inline void gcode_M75() {
+  print_job_timer.start();
+}
+
+/**
+ * M76: Pause print timer
+ */
+inline void gcode_M76() {
+  print_job_timer.pause();
+}
+
+/**
+ * M77: Stop print timer
+ */
+inline void gcode_M77() {
+  print_job_timer.stop();
+}
+
+/**
  * M104: Set hot end temperature
  */
 inline void gcode_M104() {
   if (setTargetedHotend(104)) return;
   if (DEBUGGING(DRYRUN)) return;
-
-  // Start hook must happen before setTargetHotend()
-  print_job_start();
 
   if (code_seen('S')) {
     float temp = code_value();
@@ -4048,10 +4065,24 @@ inline void gcode_M104() {
         setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
     #endif
 
+    /**
+     * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
+     * stand by mode, for instance in a dual extruder setup, without affecting
+     * the running print timer.
+     */
+    if (temp <= (EXTRUDE_MINTEMP)/2) {
+      print_job_timer.stop();
+      LCD_MESSAGEPGM(WELCOME_MSG);
+    }
+    /**
+     * We do not check if the timer is already running because this check will
+     * be done for us inside the Stopwatch::start() method thus a running timer
+     * will not restart.
+     */
+    else print_job_timer.start();
+
     if (temp > degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
-
-  if (print_job_stop()) LCD_MESSAGEPGM(WELCOME_MSG);
 }
 
 #if HAS_TEMP_HOTEND || HAS_TEMP_BED
@@ -4179,9 +4210,6 @@ inline void gcode_M109() {
   if (setTargetedHotend(109)) return;
   if (DEBUGGING(DRYRUN)) return;
 
-  // Start hook must happen before setTargetHotend()
-  print_job_start();
-
   no_wait_for_cooling = code_seen('S');
   if (no_wait_for_cooling || code_seen('R')) {
     float temp = code_value();
@@ -4191,10 +4219,24 @@ inline void gcode_M109() {
         setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
     #endif
 
+    /**
+     * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
+     * stand by mode, for instance in a dual extruder setup, without affecting
+     * the running print timer.
+     */
+    if (temp <= (EXTRUDE_MINTEMP)/2) {
+      print_job_timer.stop();
+      LCD_MESSAGEPGM(WELCOME_MSG);
+    }
+    /**
+     * We do not check if the timer is already running because this check will
+     * be done for us inside the Stopwatch::start() method thus a running timer
+     * will not restart.
+     */
+    else print_job_timer.start();
+
     if (temp > degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
-
-  if (print_job_stop()) LCD_MESSAGEPGM(WELCOME_MSG);
 
   #if ENABLED(AUTOTEMP)
     autotemp_enabled = code_seen('F');
@@ -6223,6 +6265,18 @@ void process_next_command() {
           break;
       #endif // AUTO_BED_LEVELING_FEATURE && Z_MIN_PROBE_REPEATABILITY_TEST
 
+      case 75: // Start print timer
+        gcode_M75();
+        break;
+
+      case 76: // Pause print timer
+        gcode_M76();
+        break;
+
+      case 77: // Stop print timer
+        gcode_M77();
+        break;
+
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
         case 100:
           gcode_M100();
@@ -7638,51 +7692,4 @@ float calculate_volumetric_multiplier(float diameter) {
 void calculate_volumetric_multipliers() {
   for (int i = 0; i < EXTRUDERS; i++)
     volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
-}
-
-/**
- * Start the print job timer
- *
- * The print job is only started if all extruders have their target temp at zero
- * otherwise the print job timew would be reset everytime a M109 is received.
- *
- * @param t start timer timestamp
- *
- * @return true if the timer was started at function call
- */
-bool print_job_start(millis_t t /* = 0 */) {
-  for (int i = 0; i < EXTRUDERS; i++) if (degTargetHotend(i) > 0) return false;
-  print_job_start_ms = (t) ? t : millis();
-  print_job_stop_ms = 0;
-  return true;
-}
-
-/**
- * Check if the running print job has finished and stop the timer
- *
- * When the target temperature for all extruders is zero then we assume that the
- * print job has finished printing. There are some special conditions under which
- * this assumption may not be valid: If during a print job for some reason the
- * user decides to bring a nozzle temp down and only then heat the other afterwards.
- *
- * @param force stops the timer ignoring all pre-checks
- *
- * @return boolean true if the print job has finished printing
- */
-bool print_job_stop(bool force /* = false */) {
-  if (!print_job_start_ms) return false;
-  if (!force) for (int i = 0; i < EXTRUDERS; i++) if (degTargetHotend(i) > 0) return false;
-  print_job_stop_ms = millis();
-  return true;
-}
-
-/**
- * Output the print job timer in seconds
- *
- * @return the number of seconds
- */
-millis_t print_job_timer() {
-  if (!print_job_start_ms) return 0;
-  return (((print_job_stop_ms > print_job_start_ms)
-    ? print_job_stop_ms : millis()) - print_job_start_ms) / 1000;
 }

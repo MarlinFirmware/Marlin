@@ -65,6 +65,8 @@ typedef unsigned long millis_t;
 
 #include "WString.h"
 
+#include "stopwatch.h"
+
 #ifdef USBCON
   #if ENABLED(BLUETOOTH)
     #define MYSERIAL bluetoothSerial
@@ -356,8 +358,8 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
 #endif
 
-extern millis_t print_job_start_ms;
-extern millis_t print_job_stop_ms;
+// Print job timer
+extern Stopwatch print_job_timer;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
@@ -372,10 +374,5 @@ extern uint8_t active_extruder;
 #endif
 
 extern void calculate_volumetric_multipliers();
-
-// Print job timer related functions
-millis_t print_job_timer();
-bool print_job_start(millis_t t = 0);
-bool print_job_stop(bool force = false);
 
 #endif //MARLIN_H
