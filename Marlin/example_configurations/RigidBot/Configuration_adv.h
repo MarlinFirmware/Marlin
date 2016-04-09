@@ -653,6 +653,38 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 
 #endif
 
+/**
+ * TWI/I2C BUS
+ *
+ * This feature is an EXPERIMENTAL feature so it shall not be used on production
+ * machines. Enabling this will allow you to send and receive I2C data from slave
+ * devices on the bus.
+ *
+ * ; Example #1
+ * ; This macro send the string "Marlin" to the slave device with address 0x63
+ * ; It uses multiple M155 commands with one B<base 10> arg
+ * M155 A63  ; Target slave address
+ * M155 B77  ; M
+ * M155 B97  ; a
+ * M155 B114 ; r
+ * M155 B108 ; l
+ * M155 B105 ; i
+ * M155 B110 ; n
+ * M155 S1   ; Send the current buffer
+ *
+ * ; Example #2
+ * ; Request 6 bytes from slave device with address 0x63
+ * M156 A63 B5
+ *
+ * ; Example #3
+ * ; Example serial output of a M156 request
+ * echo:i2c-reply: from:63 bytes:5 data:hello
+ */
+
+// @section i2cbus
+
+//#define EXPERIMENTAL_I2CBUS
+
 #include "Conditionals.h"
 #include "SanityCheck.h"
 
