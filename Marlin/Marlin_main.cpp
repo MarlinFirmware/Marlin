@@ -4290,7 +4290,7 @@ inline void gcode_M109() {
   #ifdef TEMP_RESIDENCY_TIME
     long residency_start_ms = -1;
     // Loop until the temperature has stabilized
-    #define TEMP_CONDITIONS (residency_start_ms < 0 || now < residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL)
+    #define TEMP_CONDITIONS (residency_start_ms == -1 || now < residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL)
   #else
     // Loop until the temperature is very close target
     #define TEMP_CONDITIONS (isHeatingHotend(target_extruder))
@@ -4307,7 +4307,7 @@ inline void gcode_M109() {
       #endif
       #ifdef TEMP_RESIDENCY_TIME
         SERIAL_PROTOCOLPGM(" W:");
-        if (residency_start_ms >= 0) {
+        if (residency_start_ms != -1) {
           long rem = (((TEMP_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL;
           SERIAL_PROTOCOLLN(rem);
         }
@@ -4323,11 +4323,18 @@ inline void gcode_M109() {
     refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
     #ifdef TEMP_RESIDENCY_TIME
-      // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
-      // Restart the timer whenever the temperature falls outside the hysteresis.
-      if ((residency_start_ms <= 0 && labs(degHotend(target_extruder) - degTargetHotend(target_extruder)) < TEMP_WINDOW) ||
-          (labs(degHotend(target_extruder) - degTargetHotend(target_extruder)) > ((residency_start_ms < 0) ? TEMP_WINDOW : TEMP_HYSTERESIS)))
+
+      float temp_diff = labs(degHotend(target_extruder) - degTargetHotend(target_extruder));
+
+      if (residency_start_ms == -1) {
+        // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
+        if (temp_diff < TEMP_WINDOW) residency_start_ms = millis();
+      }
+      else if (temp_diff > TEMP_HYSTERESIS) {
+        // Restart the timer whenever the temperature falls outside the hysteresis.
         residency_start_ms = millis();
+      }
+
     #endif //TEMP_RESIDENCY_TIME
 
   } // while(!cancel_heatup && TEMP_CONDITIONS)
