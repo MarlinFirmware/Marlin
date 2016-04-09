@@ -1242,7 +1242,10 @@ static void set_axis_is_at_home(AxisEnum axis) {
       if (axis == Z_AXIS) {
         current_position[Z_AXIS] -= zprobe_zoffset;
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("> zprobe_zoffset==", zprobe_zoffset);
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOPAIR("> zprobe_zoffset==", zprobe_zoffset);
+            SERIAL_EOL;
+          }
         #endif
       }
     #endif
@@ -1288,10 +1291,16 @@ inline void line_to_destination() {
   line_to_destination(feedrate);
 }
 inline void sync_plan_position() {
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
+  #endif
   plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 #if ENABLED(DELTA) || ENABLED(SCARA)
   inline void sync_plan_position_delta() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_delta", current_position);
+    #endif
     calculate_delta(current_position);
     plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
   }
@@ -1332,13 +1341,17 @@ static void setup_for_endstop_move() {
     #if DISABLED(DELTA)
 
       static void set_bed_level_equation_lsq(double* plane_equation_coefficients) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("BEFORE set_bed_level_equation_lsq", current_position);
+        #endif
+
         vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
-        planeNormal.debug("planeNormal");
+        // planeNormal.debug("planeNormal");
         plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
         //bedLevel.debug("bedLevel");
 
         //plan_bed_level_matrix.debug("bed level before");
-        //vector_3 uncorrected_position = plan_get_position_mm();
+        //vector_3 uncorrected_position = plan_get_position();
         //uncorrected_position.debug("position before");
 
         vector_3 corrected_position = plan_get_position();
@@ -1348,7 +1361,7 @@ static void setup_for_endstop_move() {
         current_position[Z_AXIS] = corrected_position.z;
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("set_bed_level_equation_lsq", current_position);
+          if (DEBUGGING(LEVELING)) DEBUG_POS("AFTER set_bed_level_equation_lsq", current_position);
         #endif
 
         sync_plan_position();
@@ -3026,22 +3039,20 @@ inline void gcode_G28() {
 
     #endif // AUTO_BED_LEVELING_GRID
 
-    #if ENABLED(Z_PROBE_SLED)
-      dock_sled(false); // engage (un-dock) the Z probe
-    #elif ENABLED(Z_PROBE_ALLEN_KEY) || (ENABLED(DELTA) && SERVO_LEVELING)
-      deploy_z_probe();
-    #endif
-
-    st_synchronize();
-
     if (!dryrun) {
+
       // make sure the bed_level_rotation_matrix is identity or the planner will get it wrong
       plan_bed_level_matrix.set_to_identity();
 
       #if ENABLED(DELTA)
         reset_bed_level();
       #else //!DELTA
-        //vector_3 corrected_position = plan_get_position_mm();
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("BEFORE matrix.set_to_identity", current_position);
+        #endif
+
+        //vector_3 corrected_position = plan_get_position();
         //corrected_position.debug("position before G29");
         vector_3 uncorrected_position = plan_get_position();
         //uncorrected_position.debug("position during G29");
@@ -3049,8 +3060,21 @@ inline void gcode_G28() {
         current_position[Y_AXIS] = uncorrected_position.y;
         current_position[Z_AXIS] = uncorrected_position.z;
         sync_plan_position();
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("AFTER matrix.set_to_identity", current_position);
+        #endif
+
       #endif // !DELTA
     }
+
+    #if ENABLED(Z_PROBE_SLED)
+      dock_sled(false); // engage (un-dock) the Z probe
+    #elif ENABLED(Z_PROBE_ALLEN_KEY) || (ENABLED(DELTA) && SERVO_LEVELING)
+      deploy_z_probe();
+    #endif
+
+    st_synchronize();
 
     setup_for_endstop_move();
 
