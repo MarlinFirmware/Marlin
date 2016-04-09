@@ -327,6 +327,10 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern float zprobe_zoffset;
 #endif
 
+#if ENABLED(HOST_KEEPALIVE_FEATURE)
+  extern uint8_t host_keepalive_interval;
+#endif
+
 #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
   extern float extrude_min_temp;
 #endif
