@@ -2841,7 +2841,7 @@ inline void gcode_G28() {
         }
         if (probe_point == 0) {
           // Set Z to a positive value before recording the first Z.
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z + home_offset[Z_AXIS];
           sync_plan_position();
         }
         else {
@@ -2850,7 +2850,7 @@ inline void gcode_G28() {
           iy = (probe_point - 1) / (MESH_NUM_X_POINTS);
           if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // zig-zag
           mbl.set_z(ix, iy, current_position[Z_AXIS]);
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z + home_offset[Z_AXIS];
           plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS] / 60, active_extruder);
           st_synchronize();
         }
@@ -2859,8 +2859,8 @@ inline void gcode_G28() {
           ix = probe_point % (MESH_NUM_X_POINTS);
           iy = probe_point / (MESH_NUM_X_POINTS);
           if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // zig-zag
-          current_position[X_AXIS] = mbl.get_x(ix);
-          current_position[Y_AXIS] = mbl.get_y(iy);
+          current_position[X_AXIS] = mbl.get_x(ix) + home_offset[X_AXIS];
+          current_position[Y_AXIS] = mbl.get_y(iy) + home_offset[Y_AXIS];
           plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS] / 60, active_extruder);
           st_synchronize();
           probe_point++;
@@ -3144,7 +3144,7 @@ inline void gcode_G28() {
 
           // raise extruder
           float measured_z,
-                z_before = probePointCounter ? Z_RAISE_BETWEEN_PROBINGS + current_position[Z_AXIS] : Z_RAISE_BEFORE_PROBING;
+                z_before = probePointCounter ? Z_RAISE_BETWEEN_PROBINGS + current_position[Z_AXIS] : Z_RAISE_BEFORE_PROBING + home_offset[Z_AXIS];
 
           if (probePointCounter) {
             #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3157,7 +3157,7 @@ inline void gcode_G28() {
           else {
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(LEVELING)) {
-                SERIAL_ECHOPAIR("z_before = (before) ", Z_RAISE_BEFORE_PROBING);
+                SERIAL_ECHOPAIR("z_before = (before) ", Z_RAISE_BEFORE_PROBING + home_offset[Z_AXIS]);
                 SERIAL_EOL;
               }
             #endif
@@ -3318,9 +3318,18 @@ inline void gcode_G28() {
         p1 = ProbeDeploy, p2 = ProbeStay, p3 = ProbeStow;
 
       // Probe at 3 arbitrary points
-      float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING, p1, verbose_level),
-            z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, p2, verbose_level),
-            z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, p3, verbose_level);
+      float z_at_pt_1 = probe_pt( ABL_PROBE_PT_1_X + home_offset[X_AXIS],
+                                  ABL_PROBE_PT_1_Y + home_offset[Y_AXIS],
+                                  Z_RAISE_BEFORE_PROBING + home_offset[Z_AXIS],
+                                  p1, verbose_level),
+            z_at_pt_2 = probe_pt( ABL_PROBE_PT_2_X + home_offset[X_AXIS],
+                                  ABL_PROBE_PT_2_Y + home_offset[Y_AXIS],
+                                  current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS,
+                                  p2, verbose_level),
+            z_at_pt_3 = probe_pt( ABL_PROBE_PT_3_X + home_offset[X_AXIS],
+                                  ABL_PROBE_PT_3_Y + home_offset[Y_AXIS],
+                                  current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS,
+                                  p3, verbose_level);
       clean_up_after_endstop_move();
       if (!dryrun) set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
 
@@ -6962,10 +6971,10 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
     set_current_to_destination();
     return;
   }
-  int pix = mbl.select_x_index(current_position[X_AXIS]);
-  int piy = mbl.select_y_index(current_position[Y_AXIS]);
-  int ix = mbl.select_x_index(x);
-  int iy = mbl.select_y_index(y);
+  int pix = mbl.select_x_index(current_position[X_AXIS] - home_offset[X_AXIS]);
+  int piy = mbl.select_y_index(current_position[Y_AXIS] - home_offset[Y_AXIS]);
+  int ix = mbl.select_x_index(x - home_offset[X_AXIS]);
+  int iy = mbl.select_y_index(y - home_offset[Y_AXIS]);
   pix = min(pix, MESH_NUM_X_POINTS - 2);
   piy = min(piy, MESH_NUM_Y_POINTS - 2);
   ix = min(ix, MESH_NUM_X_POINTS - 2);
@@ -6978,7 +6987,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
   }
   float nx, ny, nz, ne, normalized_dist;
   if (ix > pix && TEST(x_splits, ix)) {
-    nx = mbl.get_x(ix);
+    nx = mbl.get_x(ix) + home_offset[X_AXIS];
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
     nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
@@ -6986,7 +6995,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
     CBI(x_splits, ix);
   }
   else if (ix < pix && TEST(x_splits, pix)) {
-    nx = mbl.get_x(pix);
+    nx = mbl.get_x(pix) + home_offset[X_AXIS];
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
     nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
@@ -6994,7 +7003,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
     CBI(x_splits, pix);
   }
   else if (iy > piy && TEST(y_splits, iy)) {
-    ny = mbl.get_y(iy);
+    ny = mbl.get_y(iy) + home_offset[Y_AXIS];
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
     nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
@@ -7002,7 +7011,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
     CBI(y_splits, iy);
   }
   else if (iy < piy && TEST(y_splits, piy)) {
-    ny = mbl.get_y(piy);
+    ny = mbl.get_y(piy) + home_offset[Y_AXIS];
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
     nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
