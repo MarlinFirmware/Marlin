@@ -4370,6 +4370,9 @@ inline void gcode_M109() {
         print_heaterstates();
         SERIAL_EOL;
       }
+
+      if (labs(degBed() - degTargetBed()) > TEMP_HYSTERESIS) cancel_heatup = true;
+
       idle();
       refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
     }
