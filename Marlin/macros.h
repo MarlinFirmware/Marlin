@@ -57,4 +57,7 @@
 
 #define PIN_EXISTS(PN) (defined(PN ##_PIN) && PN ##_PIN >= 0)
 
+#define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
+#define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
+
 #endif //__MACROS_H

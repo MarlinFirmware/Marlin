@@ -235,7 +235,7 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
   float max = 0, min = 10000;
 
   #if HAS_AUTO_FAN
-    millis_t next_auto_fan_check_ms = temp_ms + 2500;
+    millis_t next_auto_fan_check_ms = temp_ms + 2500UL;
   #endif
 
   if (extruder >= EXTRUDERS
@@ -270,14 +270,14 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
       min = min(min, input);
 
       #if HAS_AUTO_FAN
-        if (ms > next_auto_fan_check_ms) {
+        if (ELAPSED(ms, next_auto_fan_check_ms)) {
           checkExtruderAutoFans();
-          next_auto_fan_check_ms = ms + 2500;
+          next_auto_fan_check_ms = ms + 2500UL;
         }
       #endif
 
       if (heating && input > temp) {
-        if (ms > t2 + 5000) {
+        if (ELAPSED(ms, t2 + 5000UL)) {
           heating = false;
           if (extruder < 0)
             soft_pwm_bed = (bias - d) >> 1;
@@ -290,7 +290,7 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
       }
 
       if (!heating && input < temp) {
-        if (ms > t1 + 5000) {
+        if (ELAPSED(ms, t1 + 5000UL)) {
           heating = true;
           t2 = ms;
           t_low = t2 - t1;
@@ -349,7 +349,7 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
       return;
     }
     // Every 2 seconds...
-    if (ms > temp_ms + 2000) {
+    if (ELAPSED(ms, temp_ms + 2000UL)) {
       #if HAS_TEMP_HOTEND || HAS_TEMP_BED
         print_heaterstates();
         SERIAL_EOL;
@@ -673,7 +673,7 @@ void manage_heater() {
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
 
       // Is it time to check this extruder's heater?
-      if (watch_heater_next_ms[e] && ms > watch_heater_next_ms[e]) {
+      if (watch_heater_next_ms[e] && ELAPSED(ms, watch_heater_next_ms[e])) {
         // Has it failed to increase enough?
         if (degHotend(e) < watch_target_temp[e]) {
           // Stop!
@@ -696,9 +696,9 @@ void manage_heater() {
   } // Extruders Loop
 
   #if HAS_AUTO_FAN
-    if (ms > next_auto_fan_check_ms) { // only need to check fan state very infrequently
+    if (ELAPSED(ms > next_auto_fan_check_ms)) { // only need to check fan state very infrequently
       checkExtruderAutoFans();
-      next_auto_fan_check_ms = ms + 2500;
+      next_auto_fan_check_ms = ms + 2500UL;
     }
   #endif
 
@@ -718,7 +718,7 @@ void manage_heater() {
   #endif //FILAMENT_WIDTH_SENSOR
 
   #if DISABLED(PIDTEMPBED)
-    if (ms < next_bed_check_ms) return;
+    if (PENDING(ms, next_bed_check_ms)) return;
     next_bed_check_ms = ms + BED_CHECK_INTERVAL;
   #endif
 
@@ -1105,7 +1105,7 @@ void tp_init() {
   void start_watching_heater(int e) {
     if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
       watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
-      watch_heater_next_ms[e] = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
+      watch_heater_next_ms[e] = millis() + (WATCH_TEMP_PERIOD) * 1000;
     }
     else
       watch_heater_next_ms[e] = 0;
@@ -1160,7 +1160,7 @@ void tp_init() {
         if (temperature >= tr_target_temperature[heater_index] - hysteresis_degc)
           *timer = millis();
         // If the timer goes too long without a reset, trigger shutdown
-        else if (millis() > *timer + period_seconds * 1000UL)
+        else if (ELAPSED(millis(), *timer + period_seconds * 1000UL))
           *state = TRRunaway;
         break;
       case TRRunaway:
@@ -1232,7 +1232,7 @@ void disable_all_heaters() {
 
     millis_t ms = millis();
 
-    if (ms < next_max6675_ms) return (int)max6675_temp;
+    if (PENDING(ms, next_max6675_ms)) return (int)max6675_temp;
 
     next_max6675_ms = ms + MAX6675_HEAT_INTERVAL;
 

@@ -369,7 +369,7 @@ static void lcd_status_screen() {
   #if ENABLED(LCD_PROGRESS_BAR)
     millis_t ms = millis();
     #if DISABLED(PROGRESS_MSG_ONCE)
-      if (ms > progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
+      if (ELAPSED(ms, progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME)) {
         progress_bar_ms = ms;
       }
     #endif
@@ -380,7 +380,7 @@ static void lcd_status_screen() {
           if (card.isFileOpen()) {
             // Expire the message when printing is active
             if (IS_SD_PRINTING) {
-              if (ms >= expire_status_ms) {
+              if (ELAPSED(ms, expire_status_ms)) {
                 lcd_status_message[0] = '\0';
                 expire_status_ms = 0;
               }
@@ -2025,7 +2025,7 @@ bool lcd_blink() {
   static uint8_t blink = 0;
   static millis_t next_blink_ms = 0;
   millis_t ms = millis();
-  if (ms >= next_blink_ms) {
+  if (ELAPSED(ms, next_blink_ms)) {
     blink ^= 0xFF;
     next_blink_ms = ms + 1000 - LCD_UPDATE_INTERVAL / 2;
   }
@@ -2094,7 +2094,7 @@ void lcd_update() {
   #endif //SDSUPPORT && SD_DETECT_PIN
 
   millis_t ms = millis();
-  if (ms > next_lcd_update_ms) {
+  if (ELAPSED(ms, next_lcd_update_ms)) {
 
     #if ENABLED(LCD_HAS_SLOW_BUTTONS)
       slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
@@ -2343,7 +2343,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         millis_t now = millis();
       #endif
       #if ENABLED(RIGIDBOT_PANEL)
-        if (now > next_button_update_ms) {
+        if (ELAPSED(now, next_button_update_ms)) {
           if (BUTTON_PRESSED(UP)) {
             encoderDiff = -1 * (ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
@@ -2363,7 +2363,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         }
       #endif
       #if BUTTON_EXISTS(ENC)
-        if (now > next_button_update_ms && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+        if (ELAPSED(now, next_button_update_ms) && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
       #endif
       buttons = newbutton;
       #if ENABLED(LCD_HAS_SLOW_BUTTONS)
