@@ -306,7 +306,7 @@ const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
 // Inactivity shutdown
 millis_t previous_cmd_ms = 0;
 static millis_t max_inactive_time = 0;
-static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000L;
+static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 Stopwatch print_job_timer = Stopwatch();
 static uint8_t target_extruder;
 
@@ -435,7 +435,7 @@ static bool send_ok[BUFSIZE];
 #endif
 
 #ifdef CHDK
-  unsigned long chdkHigh = 0;
+  millis_t chdkHigh = 0;
   boolean chdkActive = false;
 #endif
 
@@ -456,7 +456,7 @@ static bool send_ok[BUFSIZE];
   };
 
   static MarlinBusyState busy_state = NOT_BUSY;
-  static millis_t prev_busy_signal_ms = -1;
+  static millis_t next_busy_signal_ms = 0;
   uint8_t host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
   #define KEEPALIVE_STATE(n) do{ busy_state = n; }while(0)
 #else
@@ -874,7 +874,7 @@ inline void get_serial_commands() {
   #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
     static millis_t last_command_time = 0;
     millis_t ms = millis();
-    if (commands_in_queue == 0 && !MYSERIAL.available() && ms > last_command_time + NO_TIMEOUTS) {
+    if (commands_in_queue == 0 && !MYSERIAL.available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(MSG_WAIT);
       last_command_time = ms;
     }
@@ -2280,7 +2280,7 @@ void unknown_command_error() {
   void host_keepalive() {
     millis_t ms = millis();
     if (host_keepalive_interval && busy_state != NOT_BUSY) {
-      if (ms - prev_busy_signal_ms < 1000UL * host_keepalive_interval) return;
+      if (PENDING(ms, next_busy_signal_ms)) return;
       switch (busy_state) {
         case IN_HANDLER:
         case IN_PROCESS:
@@ -2299,7 +2299,7 @@ void unknown_command_error() {
           break;
       }
     }
-    prev_busy_signal_ms = ms;
+    next_busy_signal_ms = ms + host_keepalive_interval * 1000UL;
   }
 
 #endif //HOST_KEEPALIVE_FEATURE
@@ -2368,7 +2368,7 @@ inline void gcode_G4() {
   millis_t codenum = 0;
 
   if (code_seen('P')) codenum = code_value_long(); // milliseconds to wait
-  if (code_seen('S')) codenum = code_value() * 1000; // seconds to wait
+  if (code_seen('S')) codenum = code_value() * 1000UL; // seconds to wait
 
   st_synchronize();
   refresh_cmd_timeout();
@@ -2376,7 +2376,7 @@ inline void gcode_G4() {
 
   if (!lcd_hasstatus()) LCD_MESSAGEPGM(MSG_DWELL);
 
-  while (millis() < codenum) idle();
+  while (PENDING(millis(), codenum)) idle();
 }
 
 #if ENABLED(FWRETRACT)
@@ -3525,7 +3525,7 @@ inline void gcode_G92() {
       hasP = codenum > 0;
     }
     if (code_seen('S')) {
-      codenum = code_value() * 1000; // seconds to wait
+      codenum = code_value() * 1000UL; // seconds to wait
       hasS = codenum > 0;
     }
 
@@ -3544,7 +3544,7 @@ inline void gcode_G92() {
     if (codenum > 0) {
       codenum += previous_cmd_ms;  // wait until this time for a click
       KEEPALIVE_STATE(PAUSED_FOR_USER);
-      while (millis() < codenum && !lcd_clicked()) idle();
+      while (PENDING(millis(), codenum) && !lcd_clicked()) idle();
       KEEPALIVE_STATE(IN_HANDLER);
       lcd_ignore_click(false);
     }
@@ -4290,9 +4290,9 @@ inline void gcode_M109() {
   if (degTargetHotend(target_extruder) < (EXTRUDE_MINTEMP)/2) return;
 
   #ifdef TEMP_RESIDENCY_TIME
-    long residency_start_ms = -1;
+    millis_t residency_start_ms = 0;
     // Loop until the temperature has stabilized
-    #define TEMP_CONDITIONS (residency_start_ms == -1 || now < residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL)
+    #define TEMP_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL))
   #else
     // Loop until the temperature is very close target
     #define TEMP_CONDITIONS (isHeatingHotend(target_extruder))
@@ -4302,14 +4302,14 @@ inline void gcode_M109() {
   millis_t now = millis(), next_temp_ms = now + 1000UL;
   while (!cancel_heatup && TEMP_CONDITIONS) {
     now = millis();
-    if (now > next_temp_ms) { //Print temp & remaining time every 1s while waiting
+    if (ELAPSED(now, next_temp_ms)) { //Print temp & remaining time every 1s while waiting
       next_temp_ms = now + 1000UL;
       #if HAS_TEMP_HOTEND || HAS_TEMP_BED
         print_heaterstates();
       #endif
       #ifdef TEMP_RESIDENCY_TIME
         SERIAL_PROTOCOLPGM(" W:");
-        if (residency_start_ms != -1) {
+        if (residency_start_ms) {
           long rem = (((TEMP_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL;
           SERIAL_PROTOCOLLN(rem);
         }
@@ -4328,7 +4328,7 @@ inline void gcode_M109() {
 
       float temp_diff = labs(degHotend(target_extruder) - degTargetHotend(target_extruder));
 
-      if (residency_start_ms == -1) {
+      if (!residency_start_ms) {
         // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
         if (temp_diff < TEMP_WINDOW) residency_start_ms = millis();
       }
@@ -4365,7 +4365,7 @@ inline void gcode_M109() {
     millis_t now = millis(), next_temp_ms = now + 1000UL;
     while (!cancel_heatup && isHeatingBed()) {
       millis_t now = millis();
-      if (now > next_temp_ms) { //Print Temp Reading every 1 second while heating up.
+      if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
         print_heaterstates();
         SERIAL_EOL;
@@ -4613,7 +4613,7 @@ inline void gcode_M83() { axis_relative_modes[E_AXIS] = true; }
  */
 inline void gcode_M18_M84() {
   if (code_seen('S')) {
-    stepper_inactive_time = code_value() * 1000;
+    stepper_inactive_time = code_value() * 1000UL;
   }
   else {
     bool all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])) || (code_seen(axis_codes[E_AXIS])));
@@ -4641,7 +4641,7 @@ inline void gcode_M18_M84() {
  * M85: Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
  */
 inline void gcode_M85() {
-  if (code_seen('S')) max_inactive_time = code_value() * 1000;
+  if (code_seen('S')) max_inactive_time = code_value() * 1000UL;
 }
 
 /**
@@ -5868,9 +5868,9 @@ inline void gcode_M503() {
     while (!lcd_clicked()) {
       #if DISABLED(AUTO_FILAMENT_CHANGE)
         millis_t ms = millis();
-        if (ms >= next_tick) {
+        if (ELAPSED(ms, next_tick)) {
           lcd_quick_feedback();
-          next_tick = ms + 2500; // feedback every 2.5s while waiting
+          next_tick = ms + 2500UL; // feedback every 2.5s while waiting
         }
         idle(true);
       #else
@@ -6109,7 +6109,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
         set_destination_to_current();
         #if ENABLED(DUAL_X_CARRIAGE)
           if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && IsRunning() &&
-              (delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder))) {
+              (delayed_move_time || current_position[X_AXIS] != x_home_pos(active_extruder))) {
             // Park old head: 1) raise 2) move to park position 3) lower
             plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
                              current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
@@ -7337,8 +7337,8 @@ void plan_arc(
     static millis_t lastMotorOn = 0; // Last time a motor was turned on
     static millis_t nextMotorCheck = 0; // Last time the state was checked
     millis_t ms = millis();
-    if (ms >= nextMotorCheck) {
-      nextMotorCheck = ms + 2500; // Not a time critical function, so only check every 2.5s
+    if (ELAPSED(ms, nextMotorCheck)) {
+      nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
       if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || soft_pwm_bed > 0
           || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
           #if EXTRUDERS > 1
@@ -7358,7 +7358,7 @@ void plan_arc(
       }
 
       // Fan off if no steppers have been enabled for CONTROLLERFAN_SECS seconds
-      uint8_t speed = (lastMotorOn == 0 || ms >= lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL) ? 0 : CONTROLLERFAN_SPEED;
+      uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
 
       // allows digital or PWM fan output to be used (see M42 handling)
       digitalWrite(CONTROLLERFAN_PIN, speed);
@@ -7454,7 +7454,7 @@ void plan_arc(
 
   void handle_status_leds(void) {
     float max_temp = 0.0;
-    if (millis() > next_status_led_update_ms) {
+    if (ELAPSED(millis(), next_status_led_update_ms)) {
       next_status_led_update_ms += 500; // Update every 0.5s
       for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder)
         max_temp = max(max(max_temp, degHotend(cur_extruder)), degTargetHotend(cur_extruder));
@@ -7533,9 +7533,9 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   millis_t ms = millis();
 
-  if (max_inactive_time && ms > previous_cmd_ms + max_inactive_time) kill(PSTR(MSG_KILLED));
+  if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) kill(PSTR(MSG_KILLED));
 
-  if (stepper_inactive_time && ms > previous_cmd_ms + stepper_inactive_time
+  if (stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
       && !ignore_stepper_queue && !blocks_queued()) {
     #if ENABLED(DISABLE_INACTIVE_X)
       disable_x();
@@ -7555,7 +7555,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   }
 
   #ifdef CHDK // Check if pin should be set to LOW after M240 set it to HIGH
-    if (chdkActive && ms > chdkHigh + CHDK_DELAY) {
+    if (chdkActive && PENDING(ms, chdkHigh + CHDK_DELAY)) {
       chdkActive = false;
       WRITE(CHDK, LOW);
     }
@@ -7601,7 +7601,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
-    if (ms > previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000)
+    if (ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL))
       if (degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP) {
         bool oldstatus;
         switch (active_extruder) {
@@ -7662,7 +7662,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(DUAL_X_CARRIAGE)
     // handle delayed move timeout
-    if (delayed_move_time && ms > delayed_move_time + 1000 && IsRunning()) {
+    if (delayed_move_time && ELAPSED(ms, delayed_move_time + 1000UL) && IsRunning()) {
       // travel moves have been received so enact them
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
       set_destination_to_current();
