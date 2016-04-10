@@ -4975,19 +4975,26 @@ inline void gcode_M205() {
   if (code_seen('E')) max_e_jerk = code_value();
 }
 
+static void set_home_offset(AxisEnum axis, float v) {
+  min_pos[axis] = base_min_pos(axis) + v;
+  max_pos[axis] = base_max_pos(axis) + v;
+  current_position[axis] += v - home_offset[axis];
+  home_offset[axis] = v;
+}
+
 /**
  * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
  */
 inline void gcode_M206() {
-  for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
-    if (code_seen(axis_codes[i])) {
-      home_offset[i] = code_value();
-    }
-  }
+  for (int8_t i = X_AXIS; i <= Z_AXIS; i++)
+    if (code_seen(axis_codes[i]))
+      set_home_offset((AxisEnum)i, code_value());
+
   #if ENABLED(SCARA)
-    if (code_seen('T')) home_offset[X_AXIS] = code_value(); // Theta
-    if (code_seen('P')) home_offset[Y_AXIS] = code_value(); // Psi
+    if (code_seen('T')) set_home_offset(X_AXIS, code_value()); // Theta
+    if (code_seen('P')) set_home_offset(Y_AXIS, code_value()); // Psi
   #endif
+  sync_plan_position();
 }
 
 #if ENABLED(DELTA)
@@ -5674,16 +5681,12 @@ inline void gcode_M410() { quickStop(); }
  */
 inline void gcode_M428() {
   bool err = false;
-  float new_offs[3], new_pos[3];
-  memcpy(new_pos, current_position, sizeof(new_pos));
-  memcpy(new_offs, home_offset, sizeof(new_offs));
   for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
     if (axis_homed[i]) {
-      float base = (new_pos[i] > (min_pos[i] + max_pos[i]) / 2) ? base_home_pos(i) : 0,
-            diff = new_pos[i] - base;
+      float base = (current_position[i] > (min_pos[i] + max_pos[i]) / 2) ? base_home_pos(i) : 0,
+            diff = current_position[i] - base;
       if (diff > -20 && diff < 20) {
-        new_offs[i] -= diff;
-        new_pos[i] = base;
+        set_home_offset((AxisEnum)i, home_offset[i] - diff);
       }
       else {
         SERIAL_ERROR_START;
@@ -5699,8 +5702,6 @@ inline void gcode_M428() {
   }
 
   if (!err) {
-    memcpy(current_position, new_pos, sizeof(new_pos));
-    memcpy(home_offset, new_offs, sizeof(new_offs));
     sync_plan_position();
     LCD_ALERTMESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
     #if HAS_BUZZER
