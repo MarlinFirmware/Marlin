@@ -158,7 +158,7 @@
 #define MSG_BABYSTEP_Z                      "Zジク ビドウ"                  // "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "エンドストップ サドウ"            // "Endstop abort"
 #define MSG_HEATING_FAILED_LCD              "カネツシッパイ"                 // "Heating failed"
-#define MSG_ERR_REDUNDANT_TEMP              "エラー:ジョウチョウサーミスターキノウ"  // "Err: REDUNDANT TEMP ERROR"
+#define MSG_ERR_REDUNDANT_TEMP              "エラー:ジョウチョウサーミスターキノウ"  // "Err: REDUNDANT TEMP"
 #define MSG_THERMAL_RUNAWAY                 "ネツボウソウ"                   // "THERMAL RUNAWAY"
 #define MSG_ERR_MAXTEMP                     "エラー:サイコウオンチョウカ"         // "Err: MAXTEMP"
 #define MSG_ERR_MINTEMP                     "エラー:サイテイオンミマン"          // "Err: MINTEMP"
