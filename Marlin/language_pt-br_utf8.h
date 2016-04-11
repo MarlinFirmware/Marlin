@@ -151,6 +151,20 @@
 #define MSG_END_HOUR                        "Horas"
 #define MSG_END_MINUTE                      "Minutos"
 
+#define MSG_BED_Z                           "Base Z"
+#define MSG_A_TRAVEL                        "A-movimento"
+#define MSG_HEATING_FAILED_LCD              "Aquecimento falhou"
+#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP ERROR"
+#define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"
+#define MSG_ERR_MAXTEMP                     "Err: T Máxima"
+#define MSG_ERR_MINTEMP                     "Err: T Mínima"
+#define MSG_ERR_MAXTEMP_BED                 "Err: T Base Máxima"
+#define MSG_ERR_MINTEMP_BED                 "Err: T Base Mínima"
+#define MSG_HEATING                         "Aquecendo..."
+#define MSG_HEATING_COMPLETE                "Aquecida."
+#define MSG_BED_HEATING                     "Aquecendo base.."
+#define MSG_BED_DONE                        "Base aquecida."
+
 #if ENABLED(DELTA_CALIBRATION_MENU)
   #define MSG_DELTA_CALIBRATE               "Calibrar Delta"
   #define MSG_DELTA_CALIBRATE_X             "Calibrar X"
