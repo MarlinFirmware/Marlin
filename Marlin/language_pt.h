@@ -155,7 +155,7 @@
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Fim de curso"
 #define MSG_HEATING_FAILED_LCD              "Aquecimento falhou"
-#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP ERROR"
+#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP"
 #define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"
 #define MSG_ERR_MAXTEMP                     "Err: T Maxima"
 #define MSG_ERR_MINTEMP                     "Err: T Minima"
