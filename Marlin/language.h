@@ -82,6 +82,12 @@
 #endif
 
 #ifndef DEFAULT_SOURCE_URL
+  /**
+   * The SOURCE_CODE_URL is the location where users will find the Marlin Source
+   * Code which is installed on the device. In most cases —unless the manufacturer
+   * has a distinct Github fork— the Source Code URL should just be the main
+   * Marlin repository.
+   */
   #define DEFAULT_SOURCE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
@@ -225,7 +231,7 @@
 #define MSG_T_MINTEMP                       "MINTEMP triggered"
 
 // Debug
-#define MSG_DEBUG_PREFIX                    "DEBUG: "
+#define MSG_DEBUG_PREFIX                    "DEBUG:"
 #define MSG_DEBUG_OFF                       "off"
 #define MSG_DEBUG_ECHO                      "ECHO"
 #define MSG_DEBUG_INFO                      "INFO"
