@@ -350,7 +350,7 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
     }
     // Every 2 seconds...
     if (ms > temp_ms + 2000) {
-      #if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+      #if HAS_TEMP_HOTEND || HAS_TEMP_BED
         print_heaterstates();
         SERIAL_EOL;
       #endif
@@ -705,7 +705,7 @@ void manage_heater() {
   // Control the extruder rate based on the width sensor
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     if (filament_sensor) {
-      meas_shift_index = delay_index1 - meas_delay_cm;
+      meas_shift_index = filwidth_delay_index1 - meas_delay_cm;
       if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
 
       // Get the delayed info and add 100 to reconstitute to a percent of
@@ -1175,7 +1175,7 @@ void disable_all_heaters() {
   setTargetBed(0);
 
   // If all heaters go down then for sure our print job has stopped
-  print_job_stop(true);
+  print_job_timer.stop();
 
   #define DISABLE_HEATER(NR) { \
     setTargetHotend(NR, 0); \
@@ -1183,7 +1183,7 @@ void disable_all_heaters() {
     WRITE_HEATER_ ## NR (LOW); \
   }
 
-  #if HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675)
+  #if HAS_TEMP_HOTEND
     setTargetHotend(0, 0);
     soft_pwm[0] = 0;
     WRITE_HEATER_0P(LOW); // Should HEATERS_PARALLEL apply here? Then change to DISABLE_HEATER(0)
