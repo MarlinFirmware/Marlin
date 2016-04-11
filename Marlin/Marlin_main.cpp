@@ -6416,6 +6416,14 @@ void process_next_command() {
         gcode_M112();
         break;
 
+      #if ENABLED(HOST_KEEPALIVE_FEATURE)
+
+        case 113: // M113: Set Host Keepalive interval
+          gcode_M113();
+          break;
+
+      #endif
+
       case 140: // M140: Set bed temp
         gcode_M140();
         break;
