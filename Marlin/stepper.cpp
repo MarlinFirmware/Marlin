@@ -1099,15 +1099,22 @@ void st_set_e_position(const long& e) {
   CRITICAL_SECTION_END;
 }
 
-long st_get_position(uint8_t axis) {
+/**
+ * Get a stepper's position in steps.
+ */
+long st_get_position(AxisEnum axis) {
   CRITICAL_SECTION_START;
   long count_pos = count_position[axis];
   CRITICAL_SECTION_END;
   return count_pos;
 }
 
+/**
+ * Get an axis position according to stepper position(s)
+ * For CORE machines apply translation from ABC to XYZ.
+ */
 float st_get_axis_position_mm(AxisEnum axis) {
-  float axis_pos;
+  float axis_steps;
   #if ENABLED(COREXY) | ENABLED(COREXZ)
     if (axis == X_AXIS || axis == CORE_AXIS_2) {
       CRITICAL_SECTION_START;
@@ -1116,14 +1123,14 @@ float st_get_axis_position_mm(AxisEnum axis) {
       CRITICAL_SECTION_END;
       // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
       // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
-      axis_pos = (pos1 + ((axis == X_AXIS) ? pos2 : -pos2)) / 2.0f;
+      axis_steps = (pos1 + ((axis == X_AXIS) ? pos2 : -pos2)) / 2.0f;
     }
     else
-      axis_pos = st_get_position(axis);
+      axis_steps = st_get_position(axis);
   #else
-    axis_pos = st_get_position(axis);
+    axis_steps = st_get_position(axis);
   #endif
-  return axis_pos / axis_steps_per_unit[axis];
+  return axis_steps / axis_steps_per_unit[axis];
 }
 
 void finishAndDisableSteppers() {
