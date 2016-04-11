@@ -1084,11 +1084,36 @@ void st_init() {
  */
 void st_synchronize() { while (blocks_queued()) idle(); }
 
+/**
+ * Set the stepper positions directly in steps
+ *
+ * The input is based on the typical per-axis XYZ steps.
+ * For CORE machines XYZ needs to be translated to ABC.
+ *
+ * This allows st_get_axis_position_mm to correctly
+ * derive the current XYZ position later on.
+ */
 void st_set_position(const long& x, const long& y, const long& z, const long& e) {
   CRITICAL_SECTION_START;
-  count_position[X_AXIS] = x;
-  count_position[Y_AXIS] = y;
-  count_position[Z_AXIS] = z;
+
+  #if ENABLED(COREXY)
+    // corexy positioning
+    // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
+    count_position[A_AXIS] = x + y;
+    count_position[B_AXIS] = x - y;
+    count_position[Z_AXIS] = z;
+  #elif ENABLED(COREXZ)
+    // corexz planning
+    count_position[A_AXIS] = x + z;
+    count_position[Y_AXIS] = y;
+    count_position[C_AXIS] = x - z;
+  #else
+    // default non-h-bot planning
+    count_position[X_AXIS] = x;
+    count_position[Y_AXIS] = y;
+    count_position[Z_AXIS] = z;
+  #endif
+
   count_position[E_AXIS] = e;
   CRITICAL_SECTION_END;
 }
@@ -1099,15 +1124,22 @@ void st_set_e_position(const long& e) {
   CRITICAL_SECTION_END;
 }
 
-long st_get_position(uint8_t axis) {
+/**
+ * Get a stepper's position in steps.
+ */
+long st_get_position(AxisEnum axis) {
   CRITICAL_SECTION_START;
   long count_pos = count_position[axis];
   CRITICAL_SECTION_END;
   return count_pos;
 }
 
+/**
+ * Get an axis position according to stepper position(s)
+ * For CORE machines apply translation from ABC to XYZ.
+ */
 float st_get_axis_position_mm(AxisEnum axis) {
-  float axis_pos;
+  float axis_steps;
   #if ENABLED(COREXY) | ENABLED(COREXZ)
     if (axis == X_AXIS || axis == CORE_AXIS_2) {
       CRITICAL_SECTION_START;
@@ -1116,14 +1148,14 @@ float st_get_axis_position_mm(AxisEnum axis) {
       CRITICAL_SECTION_END;
       // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
       // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
-      axis_pos = (pos1 + ((axis == X_AXIS) ? pos2 : -pos2)) / 2.0f;
+      axis_steps = (pos1 + ((axis == X_AXIS) ? pos2 : -pos2)) / 2.0f;
     }
     else
-      axis_pos = st_get_position(axis);
+      axis_steps = st_get_position(axis);
   #else
-    axis_pos = st_get_position(axis);
+    axis_steps = st_get_position(axis);
   #endif
-  return axis_pos / axis_steps_per_unit[axis];
+  return axis_steps / axis_steps_per_unit[axis];
 }
 
 void finishAndDisableSteppers() {
