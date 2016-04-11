@@ -3069,11 +3069,12 @@ inline void gcode_G28() {
         current_position[X_AXIS] = uncorrected_position.x;
         current_position[Y_AXIS] = uncorrected_position.y;
         current_position[Z_AXIS] = uncorrected_position.z;
-        sync_plan_position();
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("AFTER matrix.set_to_identity", current_position);
         #endif
+
+        sync_plan_position();
 
       #endif // !DELTA
     }
