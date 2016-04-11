@@ -4295,7 +4295,7 @@ inline void gcode_M109() {
     #define TEMP_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL))
   #else
     // Loop until the temperature is very close target
-    #define TEMP_CONDITIONS (isHeatingHotend(target_extruder))
+    #define TEMP_CONDITIONS (no_wait_for_cooling ? isHeatingHotend(target_extruder) : isCoolingHotend(target_extruder))
   #endif //TEMP_RESIDENCY_TIME
 
   cancel_heatup = false;
@@ -4362,8 +4362,8 @@ inline void gcode_M109() {
     if (no_wait_for_cooling && !isHeatingBed()) return;
 
     cancel_heatup = false;
-    millis_t now = millis(), next_temp_ms = now + 1000UL;
-    while (!cancel_heatup && isHeatingBed()) {
+    now = millis(), next_temp_ms = now + 1000UL;
+    while (!cancel_heatup && (no_wait_for_cooling ? isHeatingBed() : isCoolingBed())) {
       millis_t now = millis();
       if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
