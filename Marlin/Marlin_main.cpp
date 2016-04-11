@@ -4362,9 +4362,9 @@ inline void gcode_M109() {
     if (no_wait_for_cooling && !isHeatingBed()) return;
 
     cancel_heatup = false;
-    now = millis(), next_temp_ms = now + 1000UL;
+    millis_t now = millis(), next_temp_ms = now + 1000UL;
     while (!cancel_heatup && (no_wait_for_cooling ? isHeatingBed() : isCoolingBed())) {
-      millis_t now = millis();
+      now = millis();
       if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
         print_heaterstates();
