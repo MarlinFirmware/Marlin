@@ -491,7 +491,7 @@ void check_axes_activity() {
             fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
             tail_fan_speed[f] = 255; \
           } else { \
-            if (fan_kick_end[f] > ms) { \
+            if (PENDING(ms, fan_kick_end[f])) { \
               tail_fan_speed[f] = 255; \
             } \
           } \

@@ -77,12 +77,12 @@ void TWIBus::reqbytes(uint8_t bytes) {
     SERIAL_EOL;
   }
 
-  millis_t t = millis();
+  millis_t t = millis() + this->timeout;
   Wire.requestFrom(this->addr, bytes);
 
     // requestFrom() is a blocking function
   while (Wire.available() < bytes) {
-    if (millis() - t >= this->timeout) break;
+    if (ELAPSED(millis(), t)) break;
     else continue;
   }
 
