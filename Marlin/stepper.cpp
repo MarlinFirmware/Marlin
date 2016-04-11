@@ -1084,11 +1084,36 @@ void st_init() {
  */
 void st_synchronize() { while (blocks_queued()) idle(); }
 
+/**
+ * Set the stepper positions directly in steps
+ *
+ * The input is based on the typical per-axis XYZ steps.
+ * For CORE machines XYZ needs to be translated to ABC.
+ *
+ * This allows st_get_axis_position_mm to correctly
+ * derive the current XYZ position later on.
+ */
 void st_set_position(const long& x, const long& y, const long& z, const long& e) {
   CRITICAL_SECTION_START;
-  count_position[X_AXIS] = x;
-  count_position[Y_AXIS] = y;
-  count_position[Z_AXIS] = z;
+
+  #if ENABLED(COREXY)
+    // corexy positioning
+    // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
+    count_position[A_AXIS] = x + y;
+    count_position[B_AXIS] = x - y;
+    count_position[Z_AXIS] = z;
+  #elif ENABLED(COREXZ)
+    // corexz planning
+    count_position[A_AXIS] = x + z;
+    count_position[Y_AXIS] = y;
+    count_position[C_AXIS] = x - z;
+  #else
+    // default non-h-bot planning
+    count_position[X_AXIS] = x;
+    count_position[Y_AXIS] = y;
+    count_position[Z_AXIS] = z;
+  #endif
+
   count_position[E_AXIS] = e;
   CRITICAL_SECTION_END;
 }
