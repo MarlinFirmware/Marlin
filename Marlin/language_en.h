@@ -452,7 +452,7 @@
   #define MSG_HEATING_FAILED_LCD              "Heating failed"
 #endif
 #ifndef MSG_ERR_REDUNDANT_TEMP
-  #define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP ERROR"
+  #define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP"
 #endif
 #ifndef MSG_THERMAL_RUNAWAY
   #define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"

@@ -154,7 +154,7 @@
 #define MSG_BED_Z                           "Base Z"
 #define MSG_A_TRAVEL                        "A-movimento"
 #define MSG_HEATING_FAILED_LCD              "Aquecimento falhou"
-#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP ERROR"
+#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP"
 #define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"
 #define MSG_ERR_MAXTEMP                     "Err: T Máxima"
 #define MSG_ERR_MINTEMP                     "Err: T Mínima"

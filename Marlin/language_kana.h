@@ -154,7 +154,7 @@
 #define MSG_BABYSTEP_Z                      "Z\xbc\xde\xb8\x20\xcb\xde\xc4\xde\xb3"                         // "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "\xb4\xdd\xc4\xde\xbd\xc4\xaf\xcc\xdf\x20\xbb\xc4\xde\xb3"      // "Endstop abort"
 #define MSG_HEATING_FAILED_LCD              "\xb6\xc8\xc2\xbc\xaf\xca\xde\xb2"                              // "Heating failed"
-#define MSG_ERR_REDUNDANT_TEMP              "\xb4\xd7\xb0:\xbc\xde\xae\xb3\xc1\xae\xb3\xbb\xb0\xd0\xbd\xc0\xb0\xb7\xc9\xb3" // "Err: REDUNDANT TEMP ERROR"
+#define MSG_ERR_REDUNDANT_TEMP              "\xb4\xd7\xb0:\xbc\xde\xae\xb3\xc1\xae\xb3\xbb\xb0\xd0\xbd\xc0\xb0\xb7\xc9\xb3" // "Err: REDUNDANT TEMP"
 #define MSG_THERMAL_RUNAWAY                 "\xc8\xc2\xce\xde\xb3\xbf\xb3"                                                  // "THERMAL RUNAWAY"
 #define MSG_ERR_MAXTEMP                     "\xb4\xd7\xb0:\xbb\xb2\xba\xb3\xb5\xdd\xc1\xae\xb3\xb6"                         // "Err: MAXTEMP"
 #define MSG_ERR_MINTEMP                     "\xb4\xd7\xb0:\xbb\xb2\xc3\xb2\xb5\xdd\xd0\xcf\xdd"                             // "Err: MINTEMP"
