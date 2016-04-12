@@ -166,13 +166,10 @@
 #define MSG_BED_HEATING                     "Plateau en chauffe..."
 #define MSG_BED_DONE                        "Chauffe plateau terminee"
 
-
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE               "Calibration Delta"
-  #define MSG_DELTA_CALIBRATE_X             "Calibrer X"
-  #define MSG_DELTA_CALIBRATE_Y             "Calibrer Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Calibrer Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "Calibrer centre"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "Calibration Delta"
+#define MSG_DELTA_CALIBRATE_X               "Calibrer X"
+#define MSG_DELTA_CALIBRATE_Y               "Calibrer Y"
+#define MSG_DELTA_CALIBRATE_Z               "Calibrer Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Calibrer centre"
 
 #endif // LANGUAGE_FR_H

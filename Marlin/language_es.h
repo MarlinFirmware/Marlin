@@ -165,12 +165,10 @@
 #define MSG_BED_HEATING                     "Calentando plataforma ..."
 #define MSG_BED_DONE                        "Plataforma Caliente"
 
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE               "Calibracion Delta"
-  #define MSG_DELTA_CALIBRATE_X             "Calibrar X"
-  #define MSG_DELTA_CALIBRATE_Y             "Calibrar Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Calibrar Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "Calibrar Centro"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "Calibracion Delta"
+#define MSG_DELTA_CALIBRATE_X               "Calibrar X"
+#define MSG_DELTA_CALIBRATE_Y               "Calibrar Y"
+#define MSG_DELTA_CALIBRATE_Z               "Calibrar Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Calibrar Centro"
 
 #endif // LANGUAGE_ES_H

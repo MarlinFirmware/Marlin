@@ -167,12 +167,10 @@
 #define MSG_BED_HEATING                     "\xcd\xde\xaf\xc4\xde\x20\xb6\xc8\xc2\xc1\xad\xb3"              // "Bed Heating."
 #define MSG_BED_DONE                        "\xcd\xde\xaf\xc4\xde\x20\xb6\xc8\xc2\xb6\xdd\xd8\xae\xb3"      // "Bed done."
 
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE               "\xc3\xde\xd9\xc0\x20\xba\xb3\xbe\xb2"                          // "Delta Calibration"
-  #define MSG_DELTA_CALIBRATE_X             "X\xbc\xde\xb8\x20\xba\xb3\xbe\xb2"                             // "Calibrate X"
-  #define MSG_DELTA_CALIBRATE_Y             "Y\xbc\xde\xb8\x20\xba\xb3\xbe\xb2"                             // "Calibrate Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Z\xbc\xde\xb8\x20\xba\xb3\xbe\xb2"                             // "Calibrate Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "\xc1\xad\xb3\xbc\xdd\x20\xba\xb3\xbe\xb2"                      // "Calibrate Center"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "\xc3\xde\xd9\xc0\x20\xba\xb3\xbe\xb2"                          // "Delta Calibration"
+#define MSG_DELTA_CALIBRATE_X               "X\xbc\xde\xb8\x20\xba\xb3\xbe\xb2"                             // "Calibrate X"
+#define MSG_DELTA_CALIBRATE_Y               "Y\xbc\xde\xb8\x20\xba\xb3\xbe\xb2"                             // "Calibrate Y"
+#define MSG_DELTA_CALIBRATE_Z               "Z\xbc\xde\xb8\x20\xba\xb3\xbe\xb2"                             // "Calibrate Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "\xc1\xad\xb3\xbc\xdd\x20\xba\xb3\xbe\xb2"                      // "Calibrate Center"
 
 #endif // LANGUAGE_KANA_H
