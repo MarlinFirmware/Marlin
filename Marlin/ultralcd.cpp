@@ -432,19 +432,19 @@ static void lcd_status_screen() {
     }
 
     #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
-      int new_frm = feedrate_multiplier + int(encoderPosition);
+      int new_frm = feedrate_multiplier + (int32_t)encoderPosition;
       // Dead zone at 100% feedrate
       if ((feedrate_multiplier < 100 && new_frm > 100) || (feedrate_multiplier > 100 && new_frm < 100)) {
         feedrate_multiplier = 100;
         encoderPosition = 0;
       }
       else if (feedrate_multiplier == 100) {
-        if (int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE) {
-          feedrate_multiplier += int(encoderPosition) - (ENCODER_FEEDRATE_DEADZONE);
+        if ((int32_t)encoderPosition > ENCODER_FEEDRATE_DEADZONE) {
+          feedrate_multiplier += (int32_t)encoderPosition - (ENCODER_FEEDRATE_DEADZONE);
           encoderPosition = 0;
         }
-        else if (int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE) {
-          feedrate_multiplier += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
+        else if ((int32_t)encoderPosition < -(ENCODER_FEEDRATE_DEADZONE)) {
+          feedrate_multiplier += (int32_t)encoderPosition + ENCODER_FEEDRATE_DEADZONE;
           encoderPosition = 0;
         }
       }
@@ -554,7 +554,7 @@ void lcd_set_home_offsets() {
   static void _lcd_babystep(const int axis, const char* msg) {
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
-      int distance =  (int)encoderPosition * BABYSTEP_MULTIPLICATOR;
+      int distance =  (int32_t)encoderPosition * BABYSTEP_MULTIPLICATOR;
       encoderPosition = 0;
       lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
       #if ENABLED(COREXY) || ENABLED(COREXZ)
@@ -903,7 +903,7 @@ void lcd_cooldown() {
     // Encoder wheel adjusts the Z position
     if (encoderPosition && movesplanned() <= 3) {
       refresh_cmd_timeout();
-      current_position[Z_AXIS] += float((int)encoderPosition) * (MBL_Z_STEP);
+      current_position[Z_AXIS] += float((int32_t)encoderPosition) * (MBL_Z_STEP);
       if (min_software_endstops) NOLESS(current_position[Z_AXIS], Z_MIN_POS);
       if (max_software_endstops) NOMORE(current_position[Z_AXIS], Z_MAX_POS);
       encoderPosition = 0;
@@ -1126,7 +1126,7 @@ static void _lcd_move(const char* name, AxisEnum axis, float min, float max) {
   ENCODER_DIRECTION_NORMAL();
   if (encoderPosition && movesplanned() <= 3) {
     refresh_cmd_timeout();
-    current_position[axis] += float((int)encoderPosition) * move_menu_scale;
+    current_position[axis] += float((int32_t)encoderPosition) * move_menu_scale;
     if (min_software_endstops) NOLESS(current_position[axis], min);
     if (max_software_endstops) NOMORE(current_position[axis], max);
     encoderPosition = 0;
@@ -1157,7 +1157,7 @@ static void lcd_move_e(
     active_extruder = e;
   #endif
   if (encoderPosition && movesplanned() <= 3) {
-    current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
+    current_position[E_AXIS] += float((int32_t)encoderPosition) * move_menu_scale;
     encoderPosition = 0;
     line_to_current(E_AXIS);
     lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
@@ -2345,7 +2345,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       #if ENABLED(RIGIDBOT_PANEL)
         if (ELAPSED(now, next_button_update_ms)) {
           if (BUTTON_PRESSED(UP)) {
-            encoderDiff = -1 * (ENCODER_STEPS_PER_MENU_ITEM);
+            encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM);
             next_button_update_ms = now + 300;
           }
           else if (BUTTON_PRESSED(DWN)) {
@@ -2353,7 +2353,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
             next_button_update_ms = now + 300;
           }
           else if (BUTTON_PRESSED(LFT)) {
-            encoderDiff = -1 * (ENCODER_PULSES_PER_STEP);
+            encoderDiff = -(ENCODER_PULSES_PER_STEP);
             next_button_update_ms = now + 300;
           }
           else if (BUTTON_PRESSED(RT)) {
