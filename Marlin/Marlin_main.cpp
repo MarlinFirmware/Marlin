@@ -6189,10 +6189,31 @@ inline void gcode_T(uint8_t tmp_extruder) {
                                                extruder_offset[Y_AXIS][active_extruder],
                                                extruder_offset[Z_AXIS][active_extruder]),
                      offset_vec = tmp_offset_vec - act_offset_vec;
+
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if (DEBUGGING(LEVELING)) {
+                SERIAL_ECHOLNPGM(">>> gcode_T");
+                tmp_offset_vec.debug("tmp_offset_vec");
+                act_offset_vec.debug("act_offset_vec");
+                offset_vec.debug("offset_vec (BEFORE)");
+                DEBUG_POS("BEFORE rotation", current_position);
+              }
+            #endif
+
             offset_vec.apply_rotation(plan_bed_level_matrix.transpose(plan_bed_level_matrix));
+
             current_position[X_AXIS] += offset_vec.x;
             current_position[Y_AXIS] += offset_vec.y;
             current_position[Z_AXIS] += offset_vec.z;
+
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if (DEBUGGING(LEVELING)) {
+                offset_vec.debug("offset_vec (AFTER)");
+                DEBUG_POS("AFTER rotation", current_position);
+                SERIAL_ECHOLNPGM("<<< gcode_T");
+              }
+            #endif
+
           #else // !AUTO_BED_LEVELING_FEATURE
             // Offset extruder (only by XY)
             for (int i=X_AXIS; i<=Y_AXIS; i++)
