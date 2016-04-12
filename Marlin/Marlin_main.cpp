@@ -4389,20 +4389,57 @@ inline void gcode_M109() {
     // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
     if (no_wait_for_cooling && wants_to_cool) return;
 
+    #ifdef TEMP_BED_RESIDENCY_TIME
+      millis_t residency_start_ms = 0;
+      // Loop until the temperature has stabilized
+      #define TEMP_BED_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_BED_RESIDENCY_TIME) * 1000UL))
+    #else
+      // Loop until the temperature is very close target
+      #define TEMP_BED_CONDITIONS (wants_to_cool ? isCoolingBed() : isHeatingBed())
+    #endif //TEMP_BED_RESIDENCY_TIME
+
     cancel_heatup = false;
-    millis_t next_temp_ms = 0;
+    millis_t now, next_temp_ms = 0;
 
     // Wait for temperature to come close enough
     do {
-      millis_t now = millis();
+      now = millis();
       if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
         print_heaterstates();
-        SERIAL_EOL;
+        #ifdef TEMP_BED_RESIDENCY_TIME
+          SERIAL_PROTOCOLPGM(" W:");
+          if (residency_start_ms) {
+            long rem = (((TEMP_BED_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL;
+            SERIAL_PROTOCOLLN(rem);
+          }
+          else {
+            SERIAL_PROTOCOLLNPGM("?");
+          }
+        #else
+          SERIAL_EOL;
+        #endif
       }
+
       idle();
       refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
-    } while (!cancel_heatup && (wants_to_cool ? isCoolingBed() : isHeatingBed()));
+
+      #ifdef TEMP_BED_RESIDENCY_TIME
+
+        float temp_diff = fabs(degBed() - degTargetBed());
+
+        if (!residency_start_ms) {
+          // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
+          if (temp_diff < TEMP_BED_WINDOW) residency_start_ms = millis();
+        }
+        else if (temp_diff > TEMP_BED_HYSTERESIS) {
+          // Restart the timer whenever the temperature falls outside the hysteresis.
+          residency_start_ms = millis();
+        }
+
+      #endif //TEMP_BED_RESIDENCY_TIME
+
+    } while (!cancel_heatup && TEMP_BED_CONDITIONS);
     LCD_MESSAGEPGM(MSG_BED_DONE);
   }
 
