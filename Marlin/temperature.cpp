@@ -696,7 +696,7 @@ void manage_heater() {
   } // Extruders Loop
 
   #if HAS_AUTO_FAN
-    if (ELAPSED(ms > next_auto_fan_check_ms)) { // only need to check fan state very infrequently
+    if (ELAPSED(ms, next_auto_fan_check_ms)) { // only need to check fan state very infrequently
       checkExtruderAutoFans();
       next_auto_fan_check_ms = ms + 2500UL;
     }
