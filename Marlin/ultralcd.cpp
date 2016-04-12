@@ -199,19 +199,25 @@ static void lcd_status_screen();
    *     menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_multiplier, 10, 999)
    *
    */
-  #define MENU_ITEM(type, label, args...) do { \
+  #define _MENU_ITEM_PART_1(type, label, args...) \
     if (_menuItemNr == _lineNr) { \
       itemSelected = encoderLine == _menuItemNr; \
       if (lcdDrawUpdate) \
         lcd_implementation_drawmenu_ ## type(itemSelected, _drawLineNr, PSTR(label), ## args); \
       if (wasClicked && itemSelected) { \
-        lcd_quick_feedback(); \
+        lcd_quick_feedback()
+
+  #define _MENU_ITEM_PART_2(type, args...) \
         menu_action_ ## type(args); \
         return; \
       } \
     } \
-    _menuItemNr++; \
-  } while(0)
+    _menuItemNr++
+
+  #define MENU_ITEM(type, label, args...) do { \
+      _MENU_ITEM_PART_1(type, label, ## args); \
+      _MENU_ITEM_PART_2(type, ## args); \
+    } while(0)
 
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
@@ -221,20 +227,12 @@ static void lcd_status_screen();
      * MENU_MULTIPLIER_ITEM generates drawing and handling code for a multiplier menu item
      */
     #define MENU_MULTIPLIER_ITEM(type, label, args...) do { \
-      if (_menuItemNr == _lineNr) { \
-        itemSelected = encoderLine == _menuItemNr; \
-        if (lcdDrawUpdate) \
-          lcd_implementation_drawmenu_ ## type(itemSelected, _drawLineNr, PSTR(label), ## args); \
-        if (wasClicked && itemSelected) { \
-          lcd_quick_feedback(); \
-          encoderRateMultiplierEnabled = true; \
-          lastEncoderMovementMillis = 0; \
-          menu_action_ ## type(args); \
-          return; \
-        } \
-      } \
-      _menuItemNr++; \
-    } while(0)
+        _MENU_ITEM_PART_1(type, label, ## args); \
+        encoderRateMultiplierEnabled = true; \
+        lastEncoderMovementMillis = 0; \
+        _MENU_ITEM_PART_2(type, ## args); \
+      } while(0)
+
   #endif //ENCODER_RATE_MULTIPLIER
 
   #define MENU_ITEM_DUMMY() do { _menuItemNr++; } while(0)
