@@ -485,6 +485,16 @@ void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); 
 
 void gcode_M114();
 
+#if ENABLED(DELTA) || ENABLED(SCARA)
+  inline void sync_plan_position_delta() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_delta", current_position);
+    #endif
+    calculate_delta(current_position);
+    plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+  }
+#endif
+
 #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
   float extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
@@ -704,6 +714,11 @@ void servo_init() {
  *    • status LEDs
  */
 void setup() {
+
+  #if ENABLED(DELTA) || ENABLED(SCARA)
+    // Vital to init kinematic equivalent for X0 Y0 Z0
+    sync_plan_position_delta();
+  #endif
 
   #ifdef DISABLE_JTAG
     // Disable JTAG on AT90USB chips to free up pins for IO
@@ -1306,15 +1321,6 @@ inline void sync_plan_position() {
   #endif
   plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
-#if ENABLED(DELTA) || ENABLED(SCARA)
-  inline void sync_plan_position_delta() {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_delta", current_position);
-    #endif
-    calculate_delta(current_position);
-    plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-  }
-#endif
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
 
