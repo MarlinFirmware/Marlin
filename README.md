@@ -14,8 +14,8 @@ Future development (Marlin 1.2 and beyond) takes place in the [MarlinDev reposit
 
 ## Recent Changes
 - RCBugFix
-  - Throw error if compiling with older versions (<1.50) of Arduino due to serios problems with outdated Arduino versions
-  - Please upgrade your IDE.
+  - Throw error if compiling with older versions (<1.60) of Arduino due to serios problems with outdated Arduino versions
+  - Please upgrade your IDE at least to Arduino 1.6.0. Thanks.
 
 - RC5 - 01 Apr 2016
   - Warn if compiling with older versions (<1.50) of Arduino
