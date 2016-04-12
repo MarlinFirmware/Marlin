@@ -149,15 +149,24 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Сработал концевик"
+#define MSG_HEATING_FAILED_LCD              "Разогрев не удался"
+#define MSG_ERR_REDUNDANT_TEMP              "Ошибка:Слишком горячо"
+#define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"
+#define MSG_ERR_MAXTEMP                     "Ошибка: Т макс."
+#define MSG_ERR_MINTEMP                     "Ошибка: Т мин."
+#define MSG_ERR_MAXTEMP_BED                 "Ошибка:Т макс.стол"
+#define MSG_ERR_MINTEMP_BED                 "Ошибка:Т мин.стол"
 #define MSG_END_HOUR                        "часов"
 #define MSG_END_MINUTE                      "минут"
+#define MSG_HEATING                         "Нагреваю сопло..."
+#define MSG_HEATING_COMPLETE                "Нагрев выполнен"
+#define MSG_BED_HEATING                     "Нагреваю стол"
+#define MSG_BED_DONE                        "Стол разогрет"
 
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE               "Калибровка Delta"
-  #define MSG_DELTA_CALIBRATE_X             "Калибровать X"
-  #define MSG_DELTA_CALIBRATE_Y             "Калибровать Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Калибровать Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "Калибровать Center"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "Калибровка Delta"
+#define MSG_DELTA_CALIBRATE_X               "Калибровать X"
+#define MSG_DELTA_CALIBRATE_Y               "Калибровать Y"
+#define MSG_DELTA_CALIBRATE_Z               "Калибровать Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Калибровать Center"
 
 #endif // LANGUAGE_RU_H
