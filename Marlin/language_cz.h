@@ -169,12 +169,10 @@
 #define MSG_BED_HEATING                     "Zahrivani podl."
 #define MSG_BED_DONE                        "Podlozka hotova."
 
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE             "Delta Kalibrace"
-  #define MSG_DELTA_CALIBRATE_X           "Kalibrovat X"
-  #define MSG_DELTA_CALIBRATE_Y           "Kalibrovat Y"
-  #define MSG_DELTA_CALIBRATE_Z           "Kalibrovat Z"
-  #define MSG_DELTA_CALIBRATE_CENTER      "Kalibrovat Stred"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "Delta Kalibrace"
+#define MSG_DELTA_CALIBRATE_X               "Kalibrovat X"
+#define MSG_DELTA_CALIBRATE_Y               "Kalibrovat Y"
+#define MSG_DELTA_CALIBRATE_Z               "Kalibrovat Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Kalibrovat Stred"
 
 #endif // LANGUAGE_CZ_H
