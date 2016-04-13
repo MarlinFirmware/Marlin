@@ -889,9 +889,9 @@ void lcd_cooldown() {
   static int _lcd_level_bed_position;
 
   /**
-   * MBL Wait for controller movement and clicks:
-   *   - Movement adjusts the Z axis
-   *   - Click saves the Z and goes to the next mesh point
+   * 5. MBL Wait for controller movement and clicks:
+   *        - Movement adjusts the Z axis
+   *        - Click saves the Z, goes to the next mesh point
    */
   static void _lcd_level_bed_procedure() {
     static bool mbl_wait_for_move = false;
@@ -973,6 +973,10 @@ void lcd_cooldown() {
     }
   }
 
+  /**
+   * 4. MBL Display "Click to Begin", wait for click
+   *        Move to the first probe position
+   */
   static void _lcd_level_bed_homing_done() {
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING), NULL);
     lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
@@ -988,7 +992,7 @@ void lcd_cooldown() {
   }
 
   /**
-   * MBL Move to mesh starting point
+   * 3. MBL Display "Hoing XYZ" - Wait for homing to finish
    */
   static void _lcd_level_bed_homing() {
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
@@ -998,7 +1002,7 @@ void lcd_cooldown() {
   }
 
   /**
-   * MBL Continue Bed Leveling...
+   * 2. MBL Continue Bed Leveling...
    */
   static void _lcd_level_bed_continue() {
     defer_return_to_status = true;
@@ -1009,7 +1013,7 @@ void lcd_cooldown() {
   }
 
   /**
-   * MBL entry-point
+   * 1. MBL entry-point: "Cancel" or "Level Bed"
    */
   static void lcd_level_bed() {
     START_MENU();
