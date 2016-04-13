@@ -322,16 +322,16 @@ static uint8_t target_extruder;
 // Extruder offsets
 #if EXTRUDERS > 1
   #ifndef EXTRUDER_OFFSET_X
-    #define EXTRUDER_OFFSET_X { 0 }
+    #define EXTRUDER_OFFSET_X { 0 } // X offsets for each extruder
   #endif
   #ifndef EXTRUDER_OFFSET_Y
-    #define EXTRUDER_OFFSET_Y { 0 }
+    #define EXTRUDER_OFFSET_Y { 0 } // Y offsets for each extruder
   #endif
   float extruder_offset[][EXTRUDERS] = {
     EXTRUDER_OFFSET_X,
     EXTRUDER_OFFSET_Y
     #if ENABLED(DUAL_X_CARRIAGE)
-      , { 0 } // supports offsets in XYZ plane
+      , { 0 } // Z offsets for each extruder
     #endif
   };
 #endif
@@ -5150,7 +5150,12 @@ inline void gcode_M206() {
 #if EXTRUDERS > 1
 
   /**
-   * M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y>
+   * M218 - set hotend offset (in mm)
+   *
+   *   T<tool>
+   *   X<xoffset>
+   *   Y<yoffset>
+   *   Z<zoffset> - Available with DUAL_X_CARRIAGE
    */
   inline void gcode_M218() {
     if (setTargetedHotend(218)) return;
@@ -6184,10 +6189,10 @@ inline void gcode_T(uint8_t tmp_extruder) {
             // Offset extruder, make sure to apply the bed level rotation matrix
             vector_3 tmp_offset_vec = vector_3(extruder_offset[X_AXIS][tmp_extruder],
                                                extruder_offset[Y_AXIS][tmp_extruder],
-                                               extruder_offset[Z_AXIS][tmp_extruder]),
+                                               0),
                      act_offset_vec = vector_3(extruder_offset[X_AXIS][active_extruder],
                                                extruder_offset[Y_AXIS][active_extruder],
-                                               extruder_offset[Z_AXIS][active_extruder]),
+                                               0),
                      offset_vec = tmp_offset_vec - act_offset_vec;
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
