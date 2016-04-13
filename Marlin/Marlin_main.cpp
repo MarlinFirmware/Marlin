@@ -6178,10 +6178,10 @@ inline void gcode_T(uint8_t tmp_extruder) {
             // Offset extruder, make sure to apply the bed level rotation matrix
             vector_3 tmp_offset_vec = vector_3(extruder_offset[X_AXIS][tmp_extruder],
                                                extruder_offset[Y_AXIS][tmp_extruder],
-                                               extruder_offset[Z_AXIS][tmp_extruder]),
+                                               0),
                      act_offset_vec = vector_3(extruder_offset[X_AXIS][active_extruder],
                                                extruder_offset[Y_AXIS][active_extruder],
-                                               extruder_offset[Z_AXIS][active_extruder]),
+                                               0),
                      offset_vec = tmp_offset_vec - act_offset_vec;
             offset_vec.apply_rotation(plan_bed_level_matrix.transpose(plan_bed_level_matrix));
             current_position[X_AXIS] += offset_vec.x;
