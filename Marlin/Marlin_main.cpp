@@ -3131,8 +3131,8 @@ inline void gcode_G28() {
       #if ENABLED(DELTA)
         delta_grid_spacing[0] = xGridSpacing;
         delta_grid_spacing[1] = yGridSpacing;
-        float z_offset = zprobe_zoffset;
-        if (code_seen(axis_codes[Z_AXIS])) z_offset += code_value();
+        float zoffset = zprobe_zoffset;
+        if (code_seen(axis_codes[Z_AXIS])) zoffset += code_value();
       #else // !DELTA
         /**
          * solve the plane equation ax + by + d = z
@@ -3222,7 +3222,7 @@ inline void gcode_G28() {
             eqnAMatrix[probePointCounter + 2 * abl2] = 1;
             indexIntoAB[xCount][yCount] = probePointCounter;
           #else
-            bed_level[xCount][yCount] = measured_z + z_offset;
+            bed_level[xCount][yCount] = measured_z + zoffset;
           #endif
 
           probePointCounter++;
