@@ -65,6 +65,7 @@
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #define DEFAULT_LCD_CONTRAST 110
       #define U8GLIB_LM6059_AF
+      #define SD_DETECT_INVERTED
     #endif
 
     #define ENCODER_PULSES_PER_STEP 4
