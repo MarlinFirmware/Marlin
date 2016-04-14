@@ -197,6 +197,9 @@
   #endif
 
   #if ENABLED(ULTIPANEL)
+    #if DISABLED(DISABLE_SDSUPPORT)
+      #define SDSUPPORT
+    #endif
     #define NEWPANEL  //enable this if you have a click-encoder panel
     #define ULTRA_LCD
     #ifndef LCD_WIDTH
