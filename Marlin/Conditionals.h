@@ -367,6 +367,13 @@
   #endif
 
   /**
+   * Enable MECHANICAL_PROBE for Z_PROBE_ALLEN_KEY, for older configs
+   */
+  #if ENABLED(Z_PROBE_ALLEN_KEY)
+    #define MECHANICAL_PROBE
+  #endif
+
+  /**
    * Avoid double-negatives for enabling features
    */
   #if DISABLED(DISABLE_HOST_KEEPALIVE)
@@ -709,6 +716,7 @@
   #if  ( (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || HAS_Z_PROBE ) \
     && ( \
          ENABLED(FIX_MOUNTED_PROBE) \
+      || ENABLED(MECHANICAL_PROBE) \
       || HAS_Z_ENDSTOP_SERVO \
       || ENABLED(Z_PROBE_ALLEN_KEY) \
       || ENABLED(Z_PROBE_SLED) \
