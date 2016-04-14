@@ -55,6 +55,10 @@
  #define Z_MAX_PIN          19
 #endif
 
+#ifdef FILAMENT_RUNOUT_SENSOR
+	#define FILRUNOUT_PIN     57
+#endif // FILAMENT_RUNOUT_SENSOR
+
  // Heaters
  #define HEATER_0_PIN       9
  #define HEATER_1_PIN       10

@@ -376,6 +376,10 @@ bool cancel_heatup = false;
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif //FILAMENT_SENSOR
 
+#ifdef FILAMENT_RUNOUT_SENSOR
+  static bool filrunoutEnqueued = false;
+#endif // FILAMENT_RUNOUT_SENSOR
+
 #ifdef ENABLE_AUTO_BED_LEVELING
   bool bed_leveling = true;
 #else
@@ -561,6 +565,17 @@ void setup_homepin(void)
 #endif
 }
 
+#ifdef FILAMENT_RUNOUT_SENSOR
+void setup_filrunoutpin()
+{
+  #if defined(FILRUNOUT_PIN) && FILRUNOUT_PIN > -1
+    SET_INPUT(FILRUNOUT_PIN);
+    #ifdef ENDSTOPPULLUP_FIL_RUNOUT
+      WRITE(FILRUNOUT_PIN, HIGH);
+    #endif // ENDSTOPPULLUP_FIL_RUNOUT
+  #endif
+}
+#endif // FILAMENT_RUNOUT_SENSOR
 
 void setup_photpin()
 {
@@ -632,6 +647,9 @@ void servo_init()
 void setup()
 {
   setup_killpin();
+  #ifdef FILAMENT_RUNOUT_SENSOR
+	setup_filrunoutpin();
+  #endif // FILAMENT_RUNOUT_SENSOR
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
   delay(10);
@@ -828,6 +846,10 @@ void loop()
 #else
   PrintManager::updateInactivity();
 #endif //DOGCLD
+
+#ifdef FILAMENT_RUNOUT_SENSOR
+  checkRunoutSensor();
+#endif // FILAMENT_RUNOUT_SENSOR
 
 }
 
@@ -3687,6 +3709,10 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 #else
         ui::ViewManager::getInstance().activeView(ui::screen_change_pausing);
 #endif
+
+#ifdef FILAMENT_RUNOUT_SENSOR
+        filrunoutEnqueued = false;
+#endif
     }
     break;
     #endif //FILAMENTCHANGEENABLE
@@ -4673,6 +4699,13 @@ void handle_status_leds(void) {
 }
 #endif
 
+#ifdef FILAMENT_RUNOUT_SENSOR
+void checkRunoutSensor(){
+    if (IS_SD_PRINTING && (READ(FILRUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
+      filrunout();
+}
+#endif // FILAMENT_RUNOUT_SENSOR
+
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument set in Marlin.h
 {
   
@@ -4984,3 +5017,14 @@ void wdt_init(void)
 void set_relative_mode(bool value){
   relative_mode = value;
 }
+
+
+#ifdef FILAMENT_RUNOUT_SENSOR
+void filrunout() {
+	if (!filrunoutEnqueued) {
+		filrunoutEnqueued = true;
+		enquecommand_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+		st_synchronize();
+	}
+}
+#endif // FILAMENT_RUNOUT_SENSOR
