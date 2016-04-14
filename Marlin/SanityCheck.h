@@ -290,6 +290,10 @@
   #error ULTIPANEL requires some kind of encoder.
 #endif
 
+#if ENCODER_PULSES_PER_STEP < 0
+  #error ENCODER_PULSES_PER_STEP should not be negative, use REVERSE_MENU_DIRECTION instead
+#endif
+
 /**
  * Delta has limited bed leveling options
  */
