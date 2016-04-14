@@ -714,7 +714,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // @section extras
 
+//
 // EEPROM
+//
 // The microcontroller can store settings in the EEPROM, e.g. max velocity...
 // M500 - stores parameters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
@@ -754,113 +756,250 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define ABS_PREHEAT_HPB_TEMP 110
 #define ABS_PREHEAT_FAN_SPEED 0   // Insert Value between 0 and 255
 
-//==============================LCD and SD support=============================
+//=============================================================================
+//============================= LCD and SD support ============================
+//=============================================================================
 // @section lcd
 
-// Define your display language below. Replace (en) with your language code and uncomment.
-// en, pl, fr, de, es, ru, bg, it, pt, pt_utf8, pt-br, pt-br_utf8, fi, an, nl, ca, eu, kana, kana_utf8, cn, cz, test
-// See also language.h
+//
+// MARLIN LANGUAGE
+//
+// Here you may choose the language used by Marlin on the LCD menus, the following
+// list of languages are available:
+//    en, pl, fr, de, es, ru, bg, it, pt, pt_utf8, pt-br, pt-br_utf8,
+//    fi, an, nl, ca, eu, kana, kana_utf8, cn, cz, test
+//
 #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 
-// Choose ONE of these 3 charsets. This has to match your hardware. Ignored for full graphic display.
-// To find out what type you have - compile with (test) - upload - click to get the menu. You'll see two typical lines from the upper half of the charset.
+//
+// LCD CHARSET
+//
+// Choose ONE of the following charset list, keep in mind that this selection is
+// dependent on your physical hardware thus it has to match the type of Character
+// based LCD you have.
+//
+// Note: This options is ignored for a full graphic display.
+//
+// To find out what type you have:
+//  - Compile and upload with language set to 'test'
+//  - Click to get the menu
+//
+// You'll see two typical lines from the upper half of the charset.
+//
 // See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
-  #define DISPLAY_CHARSET_HD44780_JAPAN        // this is the most common hardware
-  //#define DISPLAY_CHARSET_HD44780_WESTERN
-  //#define DISPLAY_CHARSET_HD44780_CYRILLIC
+//
+#define DISPLAY_CHARSET_HD44780_JAPAN        // this is the most common hardware
+//#define DISPLAY_CHARSET_HD44780_WESTERN
+//#define DISPLAY_CHARSET_HD44780_CYRILLIC
 
-//#define ULTRA_LCD  //general LCD support, also 16x2
-//#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
-                    // Changed behaviour! If you need SDSUPPORT uncomment it!
-//#define SPI_SPEED SPI_HALF_SPEED // (also SPI_QUARTER_SPEED, SPI_EIGHTH_SPEED) Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
-//#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
-//#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
-//#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
-//#define REVERSE_MENU_DIRECTION // When enabled CLOCKWISE moves UP in the LCD menu
-//#define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
-//#define ULTIPANEL  //the UltiPanel as on Thingiverse
-//#define SPEAKER // The sound device is a speaker - not a buzzer. A buzzer resonates with a fixed frequency.
-//#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
-//#define LCD_FEEDBACK_FREQUENCY_HZ 1000         // this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
-                                                 // 0 to disable buzzer feedback. Test with M300 S<frequency Hz> P<duration ms>
-// PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
-// http://reprap.org/wiki/PanelOne
+//
+// LCD TYPE
+//
+// You may choose ULTRA_LCD if you have character based LCD with 16x2, 16x4, 20x2,
+// 20x4 char/lines or DOGLCD for the full graphics display with 128x64 pixels
+// (ST7565R family).
+//
+// IMPORTANT NOTE: You have to install Arduino's U8glib library for the Full
+// Graphics Display to work ! - https://github.com/olikraus/U8glib_Arduino
+//
+//#define ULTRA_LCD   // Character based
+//#define DOGLCD      // Full graphics display
+
+//
+// SD CARD
+//
+// SD card support is now disabled by default, if you have [and want] SD support
+// then you must uncomment the following directive.
+//
+//#define SDSUPPORT
+
+//
+// SD CARD: SPI SPEED
+//
+// You may uncomment *one* of the following directives to use slower SPI transfer
+// speeds, this is usually required if you're getting volume init errors.
+//
+//#define SPI_SPEED SPI_HALF_SPEED
+//#define SPI_SPEED SPI_QUARTER_SPEED
+//#define SPI_SPEED SPI_EIGHTH_SPEED
+
+//
+// SD CARD: ENABLE CRC
+//
+// Use CRC checks and retries on the SD communication.
+//
+//#define SD_CHECK_AND_RETRY
+
+//
+// ENCODER SETTINGS
+//
+// This option defines how many pulses a encoder should produce for a menu
+// step to be produced, you should increase this value for highres encoders.
+//
+//#define ENCODER_PULSES_PER_STEP 1
+//
+//
+// This option defines how many steps are required for Marlin to move between
+// next/prev menu items.
+//
+//#define ENCODER_STEPS_PER_MENU_ITEM 5
+//
+//
+// This option allows you to reverse the direction you have to turn the encoder
+// to navigate up/down on the menus, by default CLOCKWISE rotation moves DOWN in
+// the LCD menu, when active CLOCKWISE rotation will move UP in the LCD menu.
+//
+//#define REVERSE_MENU_DIRECTION
+//
+//
+// If you have a speaker activate this directive to enable it.
+// By default Marlin assumes your setup is buzzer based and no action is required.
+//
+//#define SPEAKER
+//
+// The duration and frequency the buzzer plays the UI feedback sound.
+// You may define these directives with 0 (zero) if you want to disable all sound
+// feedback from Marlin.
+//
+// Note: You may test the buzzing sound with the G-Code:
+//  M300 S<frequency Hz> P<duration ms>
+//
+//#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100
+//#define LCD_FEEDBACK_FREQUENCY_HZ 1000
+
+//
+// CONTROLLER TYPE: Standard
+//
+// Marlin supports a impressive variety of controllers, uncomment the directive
+// which defines physical controller you're using.
+//
+//
+// Activate this directive if you have an ULTIMAKER Controller.
+//
+//#define ULTIMAKERCONTROLLER
+//
+//
+// Activate this directive if you have a ULTIPANEL as seen on Thingiverse.
+//
+//#define ULTIPANEL
+//
+//
+// Activate this directive if you have a PanelOne from T3P3
+// (via RAMPS 1.4 AUX2/AUX3) - http://reprap.org/wiki/PanelOne
+//
 //#define PANEL_ONE
-
-// The MaKr3d Makr-Panel with graphic controller and SD support
-// http://reprap.org/wiki/MaKr3d_MaKrPanel
+//
+//
+// Activate this directive if you have a MaKr3d Makr-Panel with graphic
+// controller and SD suppord - http://reprap.org/wiki/MaKr3d_MaKrPanel
+//
 //#define MAKRPANEL
-
-// The Panucatt Devices Viki 2.0 and mini Viki with Graphic LCD
-// http://panucatt.com
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
+//
+//
+// Activate one of these directives if you have a Panucatt Devices Viki 2.0 or
+// mini Viki with Graphic LCD - http://panucatt.com
+//
 //#define VIKI2
 //#define miniVIKI
 
 // This is a new controller currently under development.  https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
 //
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
+//
+// Activate this directive if you have an Adafruit ST7565 Full Graphic Controller.
+// https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
+//
 //#define ELB_FULL_GRAPHIC_CONTROLLER
-//#define SD_DETECT_INVERTED
-
-// The RepRapDiscount Smart Controller (white PCB)
+//
+//
+// Activate this directive if you have a RepRapDiscount Smart Controller.
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
+//
+// Note: Usually sold in a white PCB.
+//
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
-
-// The GADGETS3D G3D LCD/SD Controller (blue PCB)
+//
+//
+// Activate this directive if you have a BQ LCD Smart Controller shipped by
+// default with the BQ Hephestos 2 and Witbox 2.
+//
+//#define BQ_LCD_SMART_CONTROLLER
+//
+//
+// Activate this directive if you have a GADGETS3D G3D LCD/SD Controller
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
+//
+// Note: Usually sold in a blue PCB.
+//
 //#define G3D_PANEL
-
-// The RepRapDiscount FULL GRAPHIC Smart Controller (quadratic white PCB)
+//
+//
+// Activate this directive if you have a RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-
-// The RepRapWorld REPRAPWORLD_KEYPAD v1.1
-// http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
-//#define REPRAPWORLD_KEYPAD
-//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // how much should be moved when a key is pressed, eg 10.0 means 10mm per click
-
-// The Elefu RA Board Control Panel
-// http://www.elefu.com/index.php?route=product/product&product_id=53
-// REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARDUINO library folder: https://github.com/kiyoshigawa/LiquidCrystal_I2C
-//#define RA_CONTROL_PANEL
-
-// The MakerLab Mini Panel with graphic controller and SD support
-// http://reprap.org/wiki/Mini_panel
-//#define MINIPANEL
-
-/**
- * I2C Panels
- */
-
-//#define LCD_I2C_SAINSMART_YWROBOT
-
-//#define LCM1602 // LCM1602 Adapter for 16x2 LCD
-
-// PANELOLU2 LCD with status LEDs, separate encoder and click inputs
+// #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 //
-// This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
-// Make sure the LiquidTWI2 directory is placed in the Arduino or Sketchbook libraries subdirectory.
-// (v1.2.3 no longer requires you to define PANELOLU in the LiquidTWI2.h library header file)
-// Note: The PANELOLU2 encoder click input can either be directly connected to a pin
-//       (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1).
+//
+// Activate this directive if you have a MakerLab Mini Panel with graphic
+// controller and SD support - http://reprap.org/wiki/Mini_panel
+//#define MINIPANEL
+//
+//
+// Activate this directive if you have a RepRapWorld REPRAPWORLD_KEYPAD v1.1
+// http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
+//
+// REPRAPWORLD_KEYPAD_MOVE_STEP sets how much should the robot move when a key
+// is pressed, a value of 10.0 means 10mm per click.
+//
+//#define REPRAPWORLD_KEYPAD
+//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
+
+//
+// CONTROLLER TYPE: I2C
+//
+// Note: These controllers require the installation of Arduino's LiquidCrystal_I2C
+// library. For more info: https://github.com/kiyoshigawa/LiquidCrystal_I2C
+//
+//
+// Activate this directive if you have an Elefu RA Board Control Panel
+// http://www.elefu.com/index.php?route=product/product&product_id=53
+//
+//#define RA_CONTROL_PANEL
+//#define LCD_I2C_SAINSMART_YWROBOT
+//
+//
+// Activate this directive if you have a LCM160 LCD adapter.
+//
+//#define LCM1602
+//
+//
+// Activate this directive if you have a PANELOLU2 LCD with status LEDs,
+// separate encoder and click inputs.
+//
+// Note: This controller requires Arduino's LiquidTWI2 library v1.2.3 or later.
+// For more info: https://github.com/lincomatic/LiquidTWI2
+//
+// Note: The PANELOLU2 encoder click input can either be directly connected to
+// a pin (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1).
+//
 //#define LCD_I2C_PANELOLU2
-
-// Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
+//
+//
+// Activate this directive if you have a Panucatt VIKI LCD with status LEDs,
+// integrated click & L/R/U/D buttons, separate encoder inputs.
+//
 //#define LCD_I2C_VIKI
-
-// SSD1306 OLED generic display support
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: https://github.com/olikraus/U8glib_Arduino
+//
+//
+// Activate this directive if you have a SSD1306 OLED full graphics generic display
+//
 //#define U8GLIB_SSD1306
 
-// Shift register panels
-// ---------------------
-// 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+//
+// CONTROLLER TYPE: Shift register panels
+//
+// 2 wire Non-latching LCD SR from https://goo.gl/aJJ4sH
 // LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
+//
 //#define SAV_3DLCD
 
 // @section extras
