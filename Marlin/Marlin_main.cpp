@@ -485,6 +485,20 @@ void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); 
 
 void gcode_M114();
 
+#if ENABLED(DEBUG_LEVELING_FEATURE)
+  void print_xyz(const char* prefix, const float x, const float y, const float z) {
+    SERIAL_ECHO(prefix);
+    SERIAL_ECHOPAIR(": (", x);
+    SERIAL_ECHOPAIR(", ", y);
+    SERIAL_ECHOPAIR(", ", z);
+    SERIAL_ECHOLNPGM(")");
+  }
+  void print_xyz(const char* prefix, const float xyz[]) {
+    print_xyz(prefix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
+  }
+  #define DEBUG_POS(PREFIX,VAR) do{ SERIAL_ECHOPGM(PREFIX); print_xyz(" > " STRINGIFY(VAR), VAR); }while(0)
+#endif
+
 #if ENABLED(DELTA) || ENABLED(SCARA)
   inline void sync_plan_position_delta() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -715,11 +729,6 @@ void servo_init() {
  */
 void setup() {
 
-  #if ENABLED(DELTA) || ENABLED(SCARA)
-    // Vital to init kinematic equivalent for X0 Y0 Z0
-    sync_plan_position_delta();
-  #endif
-
   #ifdef DISABLE_JTAG
     // Disable JTAG on AT90USB chips to free up pins for IO
     MCUCR = 0x80;
@@ -778,6 +787,11 @@ void setup() {
 
   tp_init();    // Initialize temperature loop
   plan_init();  // Initialize planner;
+
+  #if ENABLED(DELTA) || ENABLED(SCARA)
+    // Vital to init kinematic equivalent for X0 Y0 Z0
+    sync_plan_position_delta();
+  #endif
 
   #if ENABLED(USE_WATCHDOG)
     watchdog_init();
@@ -1175,20 +1189,6 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
   bool extruder_duplication_enabled = false; // used in mode 2
 
 #endif //DUAL_X_CARRIAGE
-
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-  void print_xyz(const char* prefix, const float x, const float y, const float z) {
-    SERIAL_ECHO(prefix);
-    SERIAL_ECHOPAIR(": (", x);
-    SERIAL_ECHOPAIR(", ", y);
-    SERIAL_ECHOPAIR(", ", z);
-    SERIAL_ECHOLNPGM(")");
-  }
-  void print_xyz(const char* prefix, const float xyz[]) {
-    print_xyz(prefix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
-  }
-  #define DEBUG_POS(PREFIX,VAR) do{ SERIAL_ECHOPGM(PREFIX); print_xyz(" > " STRINGIFY(VAR), VAR); }while(0)
-#endif
 
 static void set_axis_is_at_home(AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
