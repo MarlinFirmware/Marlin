@@ -627,6 +627,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define Z_PROBE_SLED
   //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
+  // A Mechanical Probe is any probe that either doesn't deploy or needs manual deployment
+  // For example any setup that uses the nozzle itself as a probe.
+  //#define MECHANICAL_PROBE
+
   // If you've enabled AUTO_BED_LEVELING_FEATURE and are using the Z Probe for Z Homing,
   // it is highly recommended you leave Z_SAFE_HOMING enabled!
 
