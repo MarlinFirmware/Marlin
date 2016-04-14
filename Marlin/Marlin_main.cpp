@@ -517,14 +517,31 @@ void enquecommand_P(const char *cmd)
 }
 
 // Discard all gcodes enqueued in the gcode-buffer
-void flush_commands()
+uint8_t flush_commands()
 {
-   bufindr = bufindw;
-   buflen = 0;
+	uint8_t num_ok = 0;
+	uint8_t initial_com = 0;
+	if(bufindr+buflen > BUFSIZE)
+	{
+		initial_com = bufindr+buflen - BUFSIZE;
+	}
+   
    for (int i=0; i<BUFSIZE; i++)
    {
-    memset(cmdbuffer[i], 0,MAX_CMD_SIZE);
+	   if(i < initial_com || (i >= bufindr && i < bufindr+buflen))
+	   {
+		   if(fromsd[i]==false)
+		   {
+			   ++num_ok;
+		   }
+	   }
+	   memset(cmdbuffer[i], 0,MAX_CMD_SIZE);
    }
+   
+   bufindr = bufindw;
+   buflen = 0;
+   
+   return num_ok;
 }
 
 void setup_killpin()
@@ -618,6 +635,7 @@ void setup()
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
   delay(10);
+  SERIAL_ECHOLN("");
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
 
@@ -1034,7 +1052,10 @@ void get_command()
 #ifdef DOGLCD
     PrintManager::endPrint();
 #endif
-    SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+	if(card.isFileOpen())
+	{
+		SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
+	}
     stoptime=millis();
     char time[30];
     unsigned long t=(stoptime-starttime)/1000;

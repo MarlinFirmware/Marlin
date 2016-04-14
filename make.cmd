@@ -11,21 +11,13 @@ cls
 :: variables
 SET me=%~n0
 
-IF NOT DEFINED ProgramFiles(x86) (
-	SET "program_files=%ProgramFiles%"
-) ELSE (
-	SET "program_files=%ProgramFiles(x86)%"
-)
-ECHO %program_files%
-
-SET "arduino_path=%program_files%\Arduino"
-ECHO %arduino_path%
+SET "arduino_path=c:\Arduino"
 
 IF EXIST "%arduino_path%" (
 	ECHO Arduino installation found: "%arduino_path%"
 ) ELSE (
-	ECHO Arduino installation not found.
-	@EXIT /b 1
+	ECHO Arduino installation not found in "%arduino_path%".
+	goto exit
 )
 
 SET "avr_tools=%arduino_path%\hardware\tools\avr\bin"
@@ -161,6 +153,7 @@ goto exit
 
 :quit
 echo	Exiting updater
-echo.
 
 :exit
+echo.
+set /p EXCH=Press enter to exit...

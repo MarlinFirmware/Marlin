@@ -685,7 +685,7 @@ void action_stop_print()
 {
 	plan_bed_level_matrix.set_to_identity();
 
-	flush_commands();
+	uint8_t num_ok = flush_commands();
 	stop_planner_buffer = true;
 	quickStop();
 
@@ -696,6 +696,7 @@ void action_stop_print()
 
 	if(card.isFileOpen() == true)
 	{
+		SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
 		card.sdprinting = false;
 		card.closefile();
 	}
@@ -763,6 +764,10 @@ void action_stop_print()
 
 	if (SD_FINISHED_STEPPERRELEASE)
 	{
+		if(PrintManager::single::instance().state() == SERIAL_CONTROL)
+		{
+			enquecommand_P(PSTR("M801"));
+		}
 		enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 	}
 	// autotempShutdown();
@@ -777,6 +782,11 @@ void action_stop_print()
 		Time_t printTime = PrintManager::single::instance().printingTime();
 		StatsManager::single::instance().updateTotalTime(printTime);
 	#endif
+	
+	for(int i=0; i != num_ok; i++)
+	{
+		SERIAL_PROTOCOLLNPGM(MSG_OK);
+	}
 }
 
 void action_finish_print()
