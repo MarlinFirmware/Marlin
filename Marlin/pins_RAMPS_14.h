@@ -59,25 +59,26 @@
 #define SERVO2_PIN          5
 #define SERVO3_PIN          4
 
+// Deltaprintr min/max endstop pins are swapped
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
-#define X_MIN_PIN           3
+#define X_MIN_PIN          -1   // Unused by Deltaprintr [original: 3], swapped with X_MAX_PIN [original: 2]
 #ifndef X_MAX_PIN
-  #define X_MAX_PIN         2
+  #define X_MAX_PIN         3
 #endif
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
 #define Y_ENABLE_PIN       56
-#define Y_MIN_PIN          14
-#define Y_MAX_PIN          15
+#define Y_MIN_PIN          -1   // Unused by Deltaprintr [original: 14], swapped with Y_MAX_PIN [original: 15]
+#define Y_MAX_PIN          14
 
 #define Z_STEP_PIN         46
 #define Z_DIR_PIN          48
 #define Z_ENABLE_PIN       62
-#define Z_MIN_PIN          18
-#define Z_MAX_PIN          19
+#define Z_MIN_PIN          19   // swapped with Z_MAX_PIN for Deltaprintr
+#define Z_MAX_PIN          18   // swapped with Z_MIN_PIN for Deltaprintr
 
 #define E0_STEP_PIN        26
 #define E0_DIR_PIN         28
@@ -135,7 +136,11 @@
 
 #define HEATER_2_PIN       -1
 
-#define TEMP_0_PIN         13   // ANALOG NUMBERING
+#if TEMP_SENSOR_0 == 20         // Deltaprintr with E3Dv6 and PT100 Upgrade
+  #define TEMP_0_PIN        5   // ANALOG NUMBERING
+#else
+  #define TEMP_0_PIN       13   // ANALOG NUMBERING
+#endif // Deltaprintr with PT100
 #define TEMP_1_PIN         15   // ANALOG NUMBERING
 #define TEMP_2_PIN         -1   // ANALOG NUMBERING
 
@@ -145,10 +150,10 @@
   #define HEATER_BED_PIN    8    // BED
 #endif
 
-#define TEMP_BED_PIN         14   // ANALOG NUMBERING
+#define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
 #if ENABLED(Z_PROBE_SLED)
-  #define SLED_PIN           -1
+  #define SLED_PIN         -1
 #endif
 
 #if ENABLED(ULTRA_LCD)

@@ -48,7 +48,7 @@
 
   #if ENABLED(MAKRPANEL)
     #define DOGLCD
-    #define DEFAULT_LCD_CONTRAST 17
+    #define DEFAULT_LCD_CONTRAST 63
     #define ULTIPANEL
     #define NEWPANEL
   #endif
@@ -59,7 +59,7 @@
     #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 
     #if ENABLED(miniVIKI)
-      #define DEFAULT_LCD_CONTRAST 95
+      //#define DEFAULT_LCD_CONTRAST 95
     #elif ENABLED(VIKI2)
       #define DEFAULT_LCD_CONTRAST 40
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
@@ -67,7 +67,7 @@
       #define U8GLIB_LM6059_AF
     #endif
 
-    #define ENCODER_PULSES_PER_STEP 4
+    #define ENCODER_PULSES_PER_STEP 2
     #define ENCODER_STEPS_PER_MENU_ITEM 1
   #endif
 
