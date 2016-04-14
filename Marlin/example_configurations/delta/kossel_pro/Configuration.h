@@ -642,7 +642,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
                                                                              // Useful to retract a deployable Z probe.
 
   // Probes are sensors/switches that need to be activated before they can be used
-  // and deactivated after the use.
+  // and deactivated after their use.
   // Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, ... . You have to activate one of these for the AUTO_BED_LEVELING_FEATURE
 
   // A fix mounted probe, like the normal inductive probe, must be deactivated to go below Z_PROBE_OFFSET_FROM_EXTRUDER
@@ -653,7 +653,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   // An Allen Key Probe is currently predefined only in the delta example configurations.
 
-  //#define Z_PROBE_SLED // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
+  // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
+  //#define Z_PROBE_SLED
   //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
   // Allen key retractable Z probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
