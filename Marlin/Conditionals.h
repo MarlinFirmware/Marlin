@@ -249,7 +249,7 @@
    * Default LCD contrast for dogm-like LCD displays
    */
   #if ENABLED(DOGLCD) && DISABLED(DEFAULT_LCD_CONTRAST)
-    #define DEFAULT_LCD_CONTRAST 32
+    #define DEFAULT_LCD_CONTRAST 63
   #endif
 
   #if ENABLED(DOGLCD)

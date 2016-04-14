@@ -30,11 +30,11 @@
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 
-  //#define BEEPER_PIN        33    // Not installed on Deltaprintr
+  #define BEEPER_PIN        -1    // Not installed on Deltaprintr
 
  // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0         11
-  #define DOGLCD_CS         6
+  #define DOGLCD_CS          6
   #define LCD_SCREEN_ROT_180
 
  //The encoder and click button
