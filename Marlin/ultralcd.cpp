@@ -789,16 +789,20 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
   #endif
 
   void lcd_preheat_pla0123() {
-    setTargetHotend0(plaPreheatHotendTemp);
-    setTargetHotend1(plaPreheatHotendTemp);
-    setTargetHotend2(plaPreheatHotendTemp);
-    _lcd_preheat(3, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed);
+    #if EXTRUDERS > 1
+      setTargetHotend0(plaPreheatHotendTemp);
+      setTargetHotend1(plaPreheatHotendTemp);
+      setTargetHotend2(plaPreheatHotendTemp);
+    #endif
+    _lcd_preheat(EXTRUDERS - 1, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed);
   }
   void lcd_preheat_abs0123() {
-    setTargetHotend0(absPreheatHotendTemp);
-    setTargetHotend1(absPreheatHotendTemp);
-    setTargetHotend2(absPreheatHotendTemp);
-    _lcd_preheat(3, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed);
+    #if EXTRUDERS > 1
+      setTargetHotend0(absPreheatHotendTemp);
+      setTargetHotend1(absPreheatHotendTemp);
+      setTargetHotend2(absPreheatHotendTemp);
+    #endif
+    _lcd_preheat(EXTRUDERS - 1, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed);
   }
 
 #endif // EXTRUDERS > 1
