@@ -4316,14 +4316,14 @@ inline void gcode_M109() {
   // Try to calculate a ballpark safe margin by halving EXTRUDE_MINTEMP
   if (wants_to_cool && degTargetHotend(target_extruder) < (EXTRUDE_MINTEMP)/2) return;
 
-  #ifdef TEMP_RESIDENCY_TIME
+  #if TEMP_RESIDENCY_TIME > 0
     millis_t residency_start_ms = 0;
     // Loop until the temperature has stabilized
     #define TEMP_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_RESIDENCY_TIME) * 1000UL))
   #else
     // Loop until the temperature is very close target
     #define TEMP_CONDITIONS (wants_to_cool ? isCoolingHotend(target_extruder) : isHeatingHotend(target_extruder))
-  #endif //TEMP_RESIDENCY_TIME
+  #endif //TEMP_RESIDENCY_TIME > 0
 
   cancel_heatup = false;
   millis_t now, next_temp_ms = 0;
@@ -4334,7 +4334,7 @@ inline void gcode_M109() {
       #if HAS_TEMP_HOTEND || HAS_TEMP_BED
         print_heaterstates();
       #endif
-      #ifdef TEMP_RESIDENCY_TIME
+      #if TEMP_RESIDENCY_TIME > 0
         SERIAL_PROTOCOLPGM(" W:");
         if (residency_start_ms) {
           long rem = (((TEMP_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL;
@@ -4351,7 +4351,7 @@ inline void gcode_M109() {
     idle();
     refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
-    #ifdef TEMP_RESIDENCY_TIME
+    #if TEMP_RESIDENCY_TIME > 0
 
       float temp_diff = fabs(degTargetHotend(target_extruder) - degHotend(target_extruder));
 
@@ -4364,7 +4364,7 @@ inline void gcode_M109() {
         residency_start_ms = millis();
       }
 
-    #endif //TEMP_RESIDENCY_TIME
+    #endif //TEMP_RESIDENCY_TIME > 0
 
   } while (!cancel_heatup && TEMP_CONDITIONS);
 
@@ -4389,14 +4389,14 @@ inline void gcode_M109() {
     // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
     if (no_wait_for_cooling && wants_to_cool) return;
 
-    #ifdef TEMP_BED_RESIDENCY_TIME
+    #if TEMP_BED_RESIDENCY_TIME > 0
       millis_t residency_start_ms = 0;
       // Loop until the temperature has stabilized
       #define TEMP_BED_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms + (TEMP_BED_RESIDENCY_TIME) * 1000UL))
     #else
       // Loop until the temperature is very close target
       #define TEMP_BED_CONDITIONS (wants_to_cool ? isCoolingBed() : isHeatingBed())
-    #endif //TEMP_BED_RESIDENCY_TIME
+    #endif //TEMP_BED_RESIDENCY_TIME > 0
 
     cancel_heatup = false;
     millis_t now, next_temp_ms = 0;
@@ -4407,7 +4407,7 @@ inline void gcode_M109() {
       if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
         print_heaterstates();
-        #ifdef TEMP_BED_RESIDENCY_TIME
+        #if TEMP_BED_RESIDENCY_TIME > 0
           SERIAL_PROTOCOLPGM(" W:");
           if (residency_start_ms) {
             long rem = (((TEMP_BED_RESIDENCY_TIME) * 1000UL) - (now - residency_start_ms)) / 1000UL;
@@ -4424,7 +4424,7 @@ inline void gcode_M109() {
       idle();
       refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
-      #ifdef TEMP_BED_RESIDENCY_TIME
+      #if TEMP_BED_RESIDENCY_TIME > 0
 
         float temp_diff = fabs(degBed() - degTargetBed());
 
@@ -4437,7 +4437,7 @@ inline void gcode_M109() {
           residency_start_ms = millis();
         }
 
-      #endif //TEMP_BED_RESIDENCY_TIME
+      #endif //TEMP_BED_RESIDENCY_TIME > 0
 
     } while (!cancel_heatup && TEMP_BED_CONDITIONS);
     LCD_MESSAGEPGM(MSG_BED_DONE);
