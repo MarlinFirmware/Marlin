@@ -4,7 +4,7 @@ Then run make_fonts.bat what calls bdf2u8g.exe with the needed parameters to pro
 The .h files must be edited to replace '#include "u8g.h"' with '#include <utility/u8g.h>', replace 'U8G_FONT_SECTION' with 'U8G_SECTION', insert '.progmem.' right behind the first '"' and moved to the main directory.
 
 How to integrate a new font:
-Currently we are limited to 256 symbols per font. We use a menu system with 5 lines, on a display with 64 pixel height. That means we have 12 pixel for a line. To have some space in between the lines we can't use more then 10 pixel height for the symbols. For up to 11 pixel set TALL_FONT_CORRECTION 1 when loading the font.
+Currently we are limited to 256 symbols per font. We use a menu system with 5 lines, on a display with 64 pixel height. That means we have 12 pixel for a line. To have some space in between the lines we can't use more than 10 pixel height for the symbols. For up to 11 pixel set TALL_FONT_CORRECTION 1 when loading the font.
 To fit 22 Symbols on the 128 pixel wide screen, the symbols can't be wider than 5 pixel, for the first 128 symbols.
 For the second half of the font we now support up to 11x11 pixel.
 
