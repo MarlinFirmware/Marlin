@@ -361,15 +361,13 @@
    * FSR Options
    */
   #if ENABLED(FSR_BED_LEVELING)
-    #if EXTRUDERS > 1
-      #error "You cannot a second extruder and FSRs connected to the same thermistor input."
-    #endif
     #if HEATER_1_MAXTEMP < 2000
       #undef HEATER_1_MAXTEMP
       #define HEATER_1_MAXTEMP 2000
     #endif
-    #if MOTHERBOARD != BOARD_AZTEEG_X3      // Disable FSR_BED_LEVELING if not on Deltaprintr
-      #undef FSR_BED_LEVELING
+    #if TEMP_SENSOR_0 == 0
+      #undef TEMP_SENSOR_0
+      #define TEMP_SENSOR_0 1
     #endif
   #endif
 

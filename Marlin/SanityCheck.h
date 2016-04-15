@@ -273,6 +273,17 @@
 
   #endif // !AUTO_BED_LEVELING_GRID
 
+  #if ENABLED(FSR_BED_LEVELING)
+    // Allow FSR  bed leveling feature only on Deltaprintr (Azteeg X3 board)
+    #if MOTHERBOARD != BOARD_AZTEEG_X3
+      #error "The FSR bed leveling feature is specifically designed for the Deltaprintr."
+    #endif
+    // Do not allow more than one extruder with FSR_BED_LEVELING
+    #if EXTRUDERS > 1
+      #error "You cannot a second extruder and FSRs connected to the same thermistor input."
+    #endif
+  #endif
+
 #endif // AUTO_BED_LEVELING_FEATURE
 
 /**
