@@ -498,6 +498,11 @@ void gcode_M114();
   void print_xyz(const char* prefix, const float xyz[]) {
     print_xyz(prefix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
   }
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    void print_xyz(const char* prefix, const vector_3 &xyz) {
+      print_xyz(prefix, xyz.x, xyz.y, xyz.z);
+    }
+  #endif
   #define DEBUG_POS(PREFIX,VAR) do{ SERIAL_ECHOPGM(PREFIX); print_xyz(" > " STRINGIFY(VAR), VAR); }while(0)
 #endif
 
@@ -1408,6 +1413,11 @@ static void setup_for_endstop_move() {
 
       static void set_bed_level_equation_lsq(double* plane_equation_coefficients) {
 
+        vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
+        plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+
+        //plan_bed_level_matrix.debug("bed level before");
+
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           plan_bed_level_matrix.set_to_identity();
           if (DEBUGGING(LEVELING)) {
@@ -1417,17 +1427,8 @@ static void setup_for_endstop_move() {
           }
         #endif
 
-        vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
-        // planeNormal.debug("planeNormal");
-        plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-        //bedLevel.debug("bedLevel");
-
-        //plan_bed_level_matrix.debug("bed level before");
-        //vector_3 uncorrected_position = plan_get_position();
-        //uncorrected_position.debug("position before");
-
         vector_3 corrected_position = plan_get_position();
-        //corrected_position.debug("position after");
+ 
         current_position[X_AXIS] = corrected_position.x;
         current_position[Y_AXIS] = corrected_position.y;
         current_position[Z_AXIS] = corrected_position.z;
@@ -1461,12 +1462,20 @@ static void setup_for_endstop_move() {
       plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
 
       vector_3 corrected_position = plan_get_position();
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          vector_3 uncorrected_position = corrected_position;
+          DEBUG_POS("set_bed_level_equation_3pts", uncorrected_position);
+        }
+      #endif
+
       current_position[X_AXIS] = corrected_position.x;
       current_position[Y_AXIS] = corrected_position.y;
       current_position[Z_AXIS] = corrected_position.z;
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("set_bed_level_equation_3pts", current_position);
+        if (DEBUGGING(LEVELING)) DEBUG_POS("set_bed_level_equation_3pts", corrected_position);
       #endif
 
       sync_plan_position();
