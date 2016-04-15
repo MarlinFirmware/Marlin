@@ -74,7 +74,7 @@ extern float current_temperature_bed;
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   extern float redundant_temperature;
 #endif
-#ifdef ENABLED(FSR_BED_LEVELING)
+#if ENABLED(FSR_BED_LEVELING)
   extern int raw_fsr_sample;
 #endif
 

@@ -191,7 +191,7 @@ static int maxttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(16383);
   static int bed_maxttemp_raw = HEATER_BED_RAW_HI_TEMP;
 #endif
 
-#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) || ENABLED(FSR_BED_LEVELING)
   static void* heater_ttbl_map[2] = {(void*)HEATER_0_TEMPTABLE, (void*)HEATER_1_TEMPTABLE };
   static uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
 #else
@@ -855,6 +855,9 @@ static void updateTemperaturesFromRawValues() {
   current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
   #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
     redundant_temperature = analog2temp(redundant_temperature_raw, 1);
+  #endif
+  #if ENABLED(FSR_BED_LEVELING)
+    current_temperature[1] = analog2temp(current_temperature_raw[1], 1);
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     filament_width_meas = analog2widthFil();
@@ -1611,9 +1614,8 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_TEMP_1
         #if ENABLED(FSR_BED_LEVELING)
           raw_fsr_sample = ADC;
-        #else
-          raw_temp_value[1] += ADC;
         #endif
+          raw_temp_value[1] += ADC;
       #endif
       temp_state = PrepareTemp_2;
       break;
