@@ -348,6 +348,8 @@
 #define FSR_RECOVERY_ADJUST 4           // Value to bump up or down the threshold for recovery by.
 #define FSR_SAMPLES 5                   // Number of samples to take during FSR calibration
 #define FSR_CALIBRATE_WITH_G29          // Comment this if you want FSR calibration with G28 instead G29, i.e. during homing
+#define FSR_BLANK_AFTER_LEVELING        // Displaying the FSR sensor values on the LCD during print just slows down the controller.
+                                        // Comment this if you want to display FSR values at all times.
 
 //===========================================================================
 //=============================Additional Features===========================

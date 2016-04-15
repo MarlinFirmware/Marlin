@@ -680,10 +680,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
   // the print bed of the Deltaprintr
   #define FSR_BED_LEVELING
 
-  // Displaying the FSR sensor values on the LCD during print just slows down the controller.
-  // Comment the next line if you want to display FSR values at all times.
-  #define FSR_BLANK_AFTER_LEVELING
-
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     // 2 or 3 sets of coordinates for deploying and retracting the spring loaded touch probe on G29,
     // if servo actuated touch probe is not defined. Uncomment as appropriate for your printer/probe.
