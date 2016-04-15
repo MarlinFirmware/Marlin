@@ -403,7 +403,7 @@
 
   // If you have spare 2300Byte of progmem and want to use a
   // smaller font on the Info-screen uncomment the next line.
-  //#define USE_SMALL_INFOFONT
+  #define USE_SMALL_INFOFONT
 #endif // DOGLCD
 
 // @section more
