@@ -1425,7 +1425,7 @@ static void setup_for_endstop_move() {
     #if ENABLED(DELTA)
       #if ENABLED(FSR_BED_LEVELING)
         // move down slowly until you find the bed
-        feedrate = homing_feedrate[Z_AXIS] / 30;;
+        feedrate = 400;
         float step = 0.05;
         int direction = -1;
         while (touching_print_surface()) {
