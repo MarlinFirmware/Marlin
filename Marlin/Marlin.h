@@ -379,4 +379,13 @@ millis_t print_job_timer();
 bool print_job_start(millis_t t = 0);
 bool print_job_stop(bool force = false);
 
+#if ENABLED(FSR_BED_LEVELING)
+  extern float fsr_resting;
+  extern float fsr_resting_noise;
+  extern float fsr_moving;
+  extern float fsr_moving_noise;
+  extern float fsr_trigger_threshold;
+  extern float fsr_recovery_threshold;
+#endif
+
 #endif //MARLIN_H

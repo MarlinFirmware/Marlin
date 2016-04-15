@@ -123,7 +123,7 @@ FORCE_INLINE float degTargetHotend(uint8_t extruder) { return target_temperature
 FORCE_INLINE float degTargetBed() { return target_temperature_bed; }
 
 #if ENABLED(FSR_BED_LEVELING)
-  FORCE_INLINE int rawFSRSample() {
+  FORCE_INLINE float rawFSRSample() {
     return raw_fsr_sample;
   };
 #endif

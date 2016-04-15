@@ -341,6 +341,15 @@
 #define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
 
 //===========================================================================
+//=============================FSR Bed Leveling Fine Tuning==================
+//===========================================================================
+
+#define FSR_TRIGGER_ADJUST 6.5          // At minimum, there should be an increase of xx degrees to trigger, changeable
+#define FSR_RECOVERY_ADJUST 4           // Value to bump up or down the threshold for recovery by.
+#define FSR_SAMPLES 5                   // Number of samples to take during FSR calibration
+#define FSR_CALIBRATE_WITH_G29          // Comment this if you want FSR calibration with G28 instead G29, i.e. during homing
+
+//===========================================================================
 //=============================Additional Features===========================
 //===========================================================================
 

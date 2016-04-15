@@ -77,6 +77,15 @@
   #include "stepper_dac.h"
 #endif
 
+#if ENABLED(FSR_BED_LEVELING)
+  float fsr_resting = 0;               // Average resting value of fsr
+  float fsr_resting_noise = 0;         // Average noise/deviation for fsr at rest
+  float fsr_moving = 0;                // Average moving value of fsr
+  float fsr_moving_noise = 0;          // Average noise/deviation for fsr while moving
+  float fsr_trigger_threshold = 1023;  // Threshold for triggering
+  float fsr_recovery_threshold = 1023; // Threshold for recovery
+#endif
+
 /**
  * Look here for descriptions of G-codes:
  *  - http://linuxcnc.org/handbook/gcode/g-code.html
@@ -1382,6 +1391,22 @@ static void setup_for_endstop_move() {
 
   #endif // !AUTO_BED_LEVELING_GRID
 
+  #if ENABLED(FSR_BED_LEVELING)
+    bool touching_print_surface() {
+      float fsr_reading;
+
+      // Let's take one sample reading.
+      fsr_reading = rawFSRSample();
+
+      if (fsr_reading < fsr_trigger_threshold) return true;
+      if (fsr_reading > fsr_recovery_threshold) return false;
+
+      // If we are at this point, we are somewhere between recovery and triggered.
+      // We _could_ add a timeout here, but I think we'll leave it for now
+      return false;
+    }
+  #endif
+
   static void run_z_probe() {
 
     /**
@@ -1391,38 +1416,63 @@ static void setup_for_endstop_move() {
     refresh_cmd_timeout();
 
     #if ENABLED(DELTA)
-
-      float start_z = current_position[Z_AXIS];
-      long start_steps = st_get_position(Z_AXIS);
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
+      #if ENABLED(FSR_BED_LEVELING)
+        // move down slowly until you find the bed
+        feedrate = homing_feedrate[Z_AXIS] / 30;;
+        float step = 0.05;
+        int direction = -1;
+        while (touching_print_surface()) {
+          destination[Z_AXIS] -= step * direction;
+          prepare_move_raw();
+          st_synchronize();
         }
-      #endif
-
-      // move down slowly until you find the bed
-      feedrate = homing_feedrate[Z_AXIS] / 30;
-      destination[Z_AXIS] = -10;
-      prepare_move_raw(); // this will also set_current_to_destination
-      st_synchronize();
-      endstops_hit_on_purpose(); // clear endstop hit flags
-
-      /**
-       * We have to let the planner know where we are right now as it
-       * is not where we said to go.
-       */
-      long stop_steps = st_get_position(Z_AXIS);
-      float mm = start_z - float(start_steps - stop_steps) / axis_steps_per_unit[Z_AXIS];
-      current_position[Z_AXIS] = mm;
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          print_xyz("run_z_probe (DELTA) 2 > current_position", current_position);
+        while (!touching_print_surface()) {
+          destination[Z_AXIS] += step * direction;
+          prepare_move_raw();
+          st_synchronize();
         }
-      #endif
+        while (step > 0.005) {
+          step *= 0.8;
+          feedrate *= 0.6;
+          direction = touching_print_surface() ? 1 : -1;
+          destination[Z_AXIS] += step * direction;
+          prepare_move_raw();
+          st_synchronize();
+        }
+      #else // !FSR_BED_LEVELING
+        float start_z = current_position[Z_AXIS];
+        long start_steps = st_get_position(Z_AXIS);
 
-      sync_plan_position_delta();
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
+          }
+        #endif
+
+        // move down slowly until you find the bed
+        feedrate = homing_feedrate[Z_AXIS] / 30;
+        destination[Z_AXIS] = -10;
+        prepare_move_raw(); // this will also set_current_to_destination
+        st_synchronize();
+        endstops_hit_on_purpose(); // clear endstop hit flags
+
+        /**
+         * We have to let the planner know where we are right now as it
+         * is not where we said to go.
+         */
+        long stop_steps = st_get_position(Z_AXIS);
+        float mm = start_z - float(start_steps - stop_steps) / axis_steps_per_unit[Z_AXIS];
+        current_position[Z_AXIS] = mm;
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            print_xyz("run_z_probe (DELTA) 2 > current_position", current_position);
+          }
+        #endif
+
+        sync_plan_position_delta();
+
+      #endif // FSR_BED_LEVELING
 
     #else // !DELTA
 
@@ -1467,6 +1517,116 @@ static void setup_for_endstop_move() {
 
     #endif // !DELTA
   }
+
+#if ENABLED(FSR_BED_LEVELING)
+  /**
+   * Recalculate FSR threshold values
+   */
+  void fsr_recalculate() {
+    fsr_trigger_threshold = 0;
+    fsr_recovery_threshold = 0;
+
+    if (fsr_resting < fsr_moving) {
+      fsr_recovery_threshold = fsr_resting;
+    } else {
+      fsr_recovery_threshold = fsr_moving;
+    }
+
+    if (fsr_resting_noise > fsr_moving_noise) {
+      fsr_recovery_threshold -= fsr_resting_noise;
+    } else {
+      fsr_recovery_threshold -= fsr_moving_noise;
+    }
+
+    fsr_trigger_threshold = fsr_recovery_threshold - FSR_TRIGGER_ADJUST;
+    fsr_recovery_threshold -= FSR_RECOVERY_ADJUST;
+  }
+
+  /**
+   * Calibrate the FSR sensors according to the raw temp input reading.
+   */
+  void fsr_calibration() {
+    int fsr_idx;
+    int shake_idx;
+    float fsr_reading;
+    float fsr_noise_reading;
+    float fsr_avg;
+    float fsr_noise_avg;
+    int fsr_tally = 0;
+    float fsr_values = 0;
+    float fsr_noise = 0;
+    float fsr_noise_max = 0;
+    float old_feedrate = feedrate;
+
+    for( fsr_idx = 0; fsr_idx < FSR_SAMPLES ; fsr_idx++ ) {
+      fsr_tally++;
+      fsr_reading = rawFSRSample();
+      fsr_values += fsr_reading;
+      delay(100);
+
+      // Calculate the current average
+      fsr_avg = (fsr_values / fsr_tally);
+
+      // Determine noise, if any
+      if (fsr_reading > fsr_avg) {
+        fsr_noise_reading = fsr_reading - fsr_avg;
+      } else {
+        fsr_noise_reading = fsr_avg - fsr_reading;
+      }
+
+      fsr_noise += fsr_noise_reading;
+
+      if (fsr_noise_reading > fsr_noise_max) {
+        fsr_noise_max = fsr_noise_reading;
+      }
+    }
+
+    fsr_noise_avg = fsr_noise / fsr_tally;
+    fsr_avg = fsr_values / fsr_tally;
+    fsr_resting = fsr_avg;
+    fsr_resting_noise = (fsr_noise_avg + (fsr_noise_max * 2)) / 3.00; // Factor in the noise max level weighted toward max.
+
+    for( fsr_idx = 0; fsr_idx < FSR_SAMPLES ; fsr_idx++ ) {
+      feedrate = homing_feedrate[Z_AXIS]/10;
+      destination[Z_AXIS] = current_position[Z_AXIS] - 2;
+      prepare_move_raw();
+      st_synchronize();
+
+      destination[Z_AXIS] = current_position[Z_AXIS] + 2;
+      prepare_move_raw();
+      st_synchronize();
+
+      feedrate = old_feedrate;
+      fsr_tally++;
+
+      fsr_reading = rawFSRSample();
+      fsr_values += fsr_reading;
+
+      // Calculate the current average
+      fsr_avg = fsr_values / fsr_tally;
+
+      // Determine noise, if any
+      if (fsr_reading > fsr_avg) {
+        fsr_noise_reading = fsr_reading - fsr_avg;
+      } else {
+        fsr_noise_reading = fsr_avg - fsr_reading;
+      }
+
+      fsr_noise += fsr_noise_reading;
+
+      if (fsr_noise_reading > fsr_noise_max) {
+        fsr_noise_max = fsr_noise_reading;
+      }
+    }
+
+    fsr_noise_avg = fsr_noise / fsr_tally;
+    fsr_avg = fsr_values / fsr_tally;
+    fsr_moving = fsr_avg;
+    fsr_moving_noise = (fsr_noise_avg + (fsr_noise_max * 2)) / 3.00; // Factor in the noise max level weighted toward max.
+
+    fsr_recalculate();
+  }
+#endif
 
   /**
    *  Plan a move to (X, Y, Z) and set the current_position
@@ -1629,7 +1789,7 @@ static void setup_for_endstop_move() {
 
     #endif // Z_PROBE_ALLEN_KEY
 
-    #if ENABLED(FIX_MOUNTED_PROBE)
+    #if ENABLED(FIX_MOUNTED_PROBE) || ENABLED(FSR_BED_LEVELING)
       // Noting to be done. Just set z_probe_is_active
     #endif
 
@@ -1731,7 +1891,7 @@ static void setup_for_endstop_move() {
         }
     #endif // Z_PROBE_ALLEN_KEY
 
-    #if ENABLED(FIX_MOUNTED_PROBE)
+    #if ENABLED(FIX_MOUNTED_PROBE) || ENABLED(FSR_BED_LEVELING)
       // Noting to be done. Just set z_probe_is_active
     #endif
 
@@ -1812,6 +1972,10 @@ static void setup_for_endstop_move() {
       SERIAL_PROTOCOL_F(y, 3);
       SERIAL_PROTOCOLPGM(" Z: ");
       SERIAL_PROTOCOL_F(measured_z, 3);
+      #ifdef FSR_BED_LEVELING
+        SERIAL_PROTOCOLPGM(" FSR: ");
+        SERIAL_PROTOCOL(rawFSRSample());
+      #endif
       SERIAL_EOL;
     }
 
@@ -2785,6 +2949,14 @@ inline void gcode_G28() {
     }
   #endif
 
+  #if ENABLED(FSR_BED_LEVELING)
+    #if DISABLED(FSR_CALIBRATE_WITH_G29)
+      delay(1500);            // Let the system settle for accurate readings.
+      fsr_calibration();      // Initiate calibration of the FSR sensors. Involves z axis movement.
+                              // Should return to position before calibration.
+    #endif
+  #endif
+
   gcode_M114(); // Send end position to RepetierHost
 
 }
@@ -3009,6 +3181,14 @@ inline void gcode_G28() {
 
     bool dryrun = code_seen('D'),
          deploy_probe_for_each_reading = code_seen('E');
+
+    #if ENABLED(FSR_BED_LEVELING)
+      #if ENABLED(FSR_CALIBRATE_WITH_G29)
+        delay(1500);            // Let the system settle for accurate readings.
+        fsr_calibration();      // Initiate calibration of the FSR sensors. Involves z axis movement.
+                                // Should return to position before calibration.
+      #endif
+    #endif
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
