@@ -441,7 +441,9 @@ static void lcd_status_screen() {
 
 static void lcd_return_to_status() {
   defer_return_to_status = false;
-  lcd_goto_menu(lcd_status_screen);
+  // LCD updates on status screen cause stuttering of the print head and "blobs" on the finished print, especially at higher speeds.
+  //lcd_goto_menu(lcd_status_screen);
+  lcd_goto_menu(lcd_main_menu);
 }
 
 #if ENABLED(SDSUPPORT)
