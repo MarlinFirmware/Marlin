@@ -603,7 +603,7 @@ void lcd_set_home_offsets() {
 /**
  * Watch temperature callbacks
  */
-#if ENABLED(THERMAL_PROTECTION_HOTENDS)
+#if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
   #if TEMP_SENSOR_0 != 0
     void watch_temp_callback_E0() { start_watching_heater(0); }
   #endif
@@ -629,6 +629,16 @@ void lcd_set_home_offsets() {
   #if EXTRUDERS > 3 && TEMP_SENSOR_3 != 0
     void watch_temp_callback_E3() {}
   #endif // EXTRUDERS > 3
+#endif
+
+#if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+  #if TEMP_SENSOR_BED != 0
+    void watch_temp_callback_bed() { start_watching_bed(); }
+  #endif
+#else
+  #if TEMP_SENSOR_BED != 0
+    void watch_temp_callback_bed() {}
+  #endif
 #endif
 
 /**
@@ -685,7 +695,7 @@ static void lcd_tune_menu() {
   // Bed:
   //
   #if TEMP_SENSOR_BED != 0
-    MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
   #endif
 
   //
