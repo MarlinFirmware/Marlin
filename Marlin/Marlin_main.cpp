@@ -2465,7 +2465,7 @@ inline void gcode_G28() {
    */
   #if ENABLED(MESH_BED_LEVELING)
     uint8_t mbl_was_active = mbl.active;
-    mbl.active = 0;
+    mbl.active = false;
   #endif
 
   setup_for_endstop_move();
@@ -2799,6 +2799,28 @@ inline void gcode_G28() {
 
   enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet, MeshSetZOffset };
 
+  inline void _mbl_goto_xy(float x, float y) {
+    saved_feedrate = feedrate;
+    feedrate = homing_feedrate[X_AXIS];
+
+    #if MIN_Z_HEIGHT_FOR_HOMING > 0
+      current_position[Z_AXIS] = MESH_HOME_SEARCH_Z + MIN_Z_HEIGHT_FOR_HOMING;
+      line_to_current_position();
+    #endif
+
+    current_position[X_AXIS] = x + home_offset[X_AXIS];
+    current_position[Y_AXIS] = y + home_offset[Y_AXIS];
+    line_to_current_position();
+
+    #if MIN_Z_HEIGHT_FOR_HOMING > 0
+      current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+      line_to_current_position();
+    #endif
+
+    feedrate = saved_feedrate;
+    st_synchronize();
+  }
+
   /**
    * G29: Mesh-based Z probe, probes a grid and produces a
    *      mesh to compensate for variable bed height
@@ -2866,37 +2888,32 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLLNPGM("Start mesh probing with \"G29 S1\" first.");
           return;
         }
+        // For each G29 S2...
         if (probe_point == 0) {
-          // Set Z to a positive value before recording the first Z.
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z + home_offset[Z_AXIS];
+          // For the intial G29 S2 make Z a positive value (e.g., 4.0)
+          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
           sync_plan_position();
         }
         else {
-          // For others, save the Z of the previous point, then raise Z again.
-          ix = (probe_point - 1) % (MESH_NUM_X_POINTS);
-          iy = (probe_point - 1) / (MESH_NUM_X_POINTS);
-          if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // zig-zag
-          mbl.set_z(ix, iy, current_position[Z_AXIS]);
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z + home_offset[Z_AXIS];
-          plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS] / 60, active_extruder);
-          st_synchronize();
+          // For G29 S2 after adjusting Z.
+          mbl.set_zigzag_z(probe_point - 1, current_position[Z_AXIS]);
         }
-        // Is there another point to sample? Move there.
+        // If there's another point to sample, move there with optional lift.
         if (probe_point < (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
-          ix = probe_point % (MESH_NUM_X_POINTS);
-          iy = probe_point / (MESH_NUM_X_POINTS);
-          if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // zig-zag
-          current_position[X_AXIS] = mbl.get_x(ix) + home_offset[X_AXIS];
-          current_position[Y_AXIS] = mbl.get_y(iy) + home_offset[Y_AXIS];
-          plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS] / 60, active_extruder);
-          st_synchronize();
+          mbl.zigzag(probe_point, ix, iy);
+          _mbl_goto_xy(mbl.get_x(ix), mbl.get_y(iy));
           probe_point++;
         }
         else {
+          // One last "return to the bed" (as originally coded) at completion
+          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+          line_to_current_position();
+          st_synchronize();
+
           // After recording the last point, activate the mbl and home
           SERIAL_PROTOCOLLNPGM("Mesh probing done.");
           probe_point = -1;
-          mbl.active = 1;
+          mbl.active = true;
           enqueue_and_echo_commands_P(PSTR("G28"));
         }
         break;

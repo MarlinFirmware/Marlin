@@ -551,7 +551,7 @@ void Config_ResetDefault() {
   home_offset[X_AXIS] = home_offset[Y_AXIS] = home_offset[Z_AXIS] = 0;
 
   #if ENABLED(MESH_BED_LEVELING)
-    mbl.active = 0;
+    mbl.active = false;
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
