@@ -74,6 +74,10 @@ extern float current_temperature_bed;
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   extern float redundant_temperature;
 #endif
+#ifdef ENABLED(FSR_BED_LEVELING)
+  extern int raw_fsr_sample;
+#endif
+
 
 #if HAS_CONTROLLERFAN
   extern unsigned char soft_pwm_bed;
@@ -118,6 +122,12 @@ FORCE_INLINE float rawBedTemp() { return current_temperature_bed_raw; }
 FORCE_INLINE float degTargetHotend(uint8_t extruder) { return target_temperature[extruder]; }
 FORCE_INLINE float degTargetBed() { return target_temperature_bed; }
 
+#if ENABLED(FSR_BED_LEVELING)
+  FORCE_INLINE int rawFSRSample() {
+    return raw_fsr_sample;
+  };
+#endif
+
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
   void start_watching_heater(int e = 0);
 #endif
@@ -143,7 +153,7 @@ FORCE_INLINE bool isCoolingBed() { return target_temperature_bed < current_tempe
   FORCE_INLINE bool isHeatingHotend##NR() { return isHeatingHotend(NR); } \
   FORCE_INLINE bool isCoolingHotend##NR() { return isCoolingHotend(NR); }
 HOTEND_ROUTINES(0);
-#if EXTRUDERS > 1
+#if ENABLED(FSR_BED_LEVELING) || (EXTRUDERS > 1)
   HOTEND_ROUTINES(1);
 #else
   #define setTargetHotend1(c) do{}while(0)

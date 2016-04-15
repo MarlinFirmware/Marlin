@@ -76,6 +76,9 @@ float current_temperature_bed = 0.0;
   int redundant_temperature_raw = 0;
   float redundant_temperature = 0.0;
 #endif
+#if ENABLED(FSR_BED_LEVELING)
+  int raw_fsr_sample = 0;
+#endif
 
 #if ENABLED(PIDTEMPBED)
   float bedKp = DEFAULT_bedKp;
@@ -766,7 +769,7 @@ void manage_heater() {
 // Derived from RepRap FiveD extruder::getTemperature()
 // For hot end temperature measurement.
 static float analog2temp(int raw, uint8_t e) {
-  #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+  #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) || ENABLED(FSR_BED_LEVELING)
     if (e > EXTRUDERS)
   #else
     if (e >= EXTRUDERS)
@@ -1606,7 +1609,11 @@ ISR(TIMER0_COMPB_vect) {
       break;
     case MeasureTemp_1:
       #if HAS_TEMP_1
-        raw_temp_value[1] += ADC;
+        #if ENABLED(FSR_BED_LEVELING)
+          raw_fsr_sample = ADC;
+        #else
+          raw_temp_value[1] += ADC;
+        #endif
       #endif
       temp_state = PrepareTemp_2;
       break;
