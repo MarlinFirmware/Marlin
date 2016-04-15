@@ -283,6 +283,8 @@ int extruder_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
 bool volumetric_enabled = false;
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA);
 float volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
+
+float position_shift[3] = { 0 };
 float home_offset[3] = { 0 };
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
@@ -1190,6 +1192,45 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
 
 #endif //DUAL_X_CARRIAGE
 
+/**
+ * Software endstops can be used to monitor the open end of
+ * an axis that has a hardware endstop on the other end. Or
+ * they can prevent axes from moving past endstops and grinding.
+ *
+ * To keep doing their job as the coordinate system changes,
+ * the software endstop positions must be refreshed to remain
+ * at the same positions relative to the machine.
+ */
+static void update_software_endstops(AxisEnum axis) {
+  float offs = home_offset[axis] + position_shift[axis];
+  #if ENABLED(DUAL_X_CARRIAGE)
+    if (axis == X_AXIS) {
+      float dual_max_x = max(extruder_offset[X_AXIS][1], X2_MAX_POS);
+      if (active_extruder != 0) {
+        min_pos[X_AXIS] = X2_MIN_POS + offs;
+        max_pos[X_AXIS] = dual_max_x + offs;
+        return;
+      }
+      else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
+        min_pos[X_AXIS] = base_min_pos(X_AXIS) + offs;
+        max_pos[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
+        return;
+      }
+    }
+    else
+  #endif
+  {
+    min_pos[axis] = base_min_pos(axis) + offs;
+    max_pos[axis] = base_max_pos(axis) + offs;
+  }
+}
+
+static void set_home_offset(AxisEnum axis, float v) {
+  current_position[axis] += v - home_offset[axis];
+  home_offset[axis] = v;
+  update_software_endstops(axis);
+}
+
 static void set_axis_is_at_home(AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -1198,21 +1239,16 @@ static void set_axis_is_at_home(AxisEnum axis) {
     }
   #endif
 
+  position_shift[axis] = 0;
+
   #if ENABLED(DUAL_X_CARRIAGE)
-    if (axis == X_AXIS) {
-      if (active_extruder != 0) {
+    if (axis == X_AXIS && (active_extruder != 0 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
+      if (active_extruder != 0)
         current_position[X_AXIS] = x_home_pos(active_extruder);
-                 min_pos[X_AXIS] = X2_MIN_POS;
-                 max_pos[X_AXIS] = max(extruder_offset[X_AXIS][1], X2_MAX_POS);
-        return;
-      }
-      else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
-        float xoff = home_offset[X_AXIS];
-        current_position[X_AXIS] = base_home_pos(X_AXIS) + xoff;
-                 min_pos[X_AXIS] = base_min_pos(X_AXIS) + xoff;
-                 max_pos[X_AXIS] = min(base_max_pos(X_AXIS) + xoff, max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
-        return;
-      }
+      else
+        current_position[X_AXIS] = base_home_pos(X_AXIS) + home_offset[X_AXIS];
+      update_software_endstops(X_AXIS);
+      return;
     }
   #endif
 
@@ -1260,8 +1296,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
   #endif
   {
     current_position[axis] = base_home_pos(axis) + home_offset[axis];
-    min_pos[axis] = base_min_pos(axis) + home_offset[axis];
-    max_pos[axis] = base_max_pos(axis) + home_offset[axis];
+    update_software_endstops(axis);
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE) && Z_HOME_DIR < 0
       if (axis == Z_AXIS) {
@@ -3548,7 +3583,14 @@ inline void gcode_G92() {
   bool didXYZ = false;
   for (int i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i])) {
-      float v = current_position[i] = code_value();
+      float p = current_position[i],
+            v = code_value();
+
+      current_position[i] = v;
+
+      position_shift[i] += v - p; // Offset the coordinate space
+      update_software_endstops((AxisEnum)i);
+
       if (i == E_AXIS)
         plan_set_e_position(v);
       else
@@ -5035,13 +5077,6 @@ inline void gcode_M205() {
   if (code_seen('X')) max_xy_jerk = code_value();
   if (code_seen('Z')) max_z_jerk = code_value();
   if (code_seen('E')) max_e_jerk = code_value();
-}
-
-static void set_home_offset(AxisEnum axis, float v) {
-  min_pos[axis] = base_min_pos(axis) + v;
-  max_pos[axis] = base_max_pos(axis) + v;
-  current_position[axis] += v - home_offset[axis];
-  home_offset[axis] = v;
 }
 
 /**
