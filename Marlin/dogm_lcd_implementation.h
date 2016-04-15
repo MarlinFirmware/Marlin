@@ -307,15 +307,6 @@ static void _draw_heater_status(int x, int heater) {
     u8g.setPrintPos(x, 28);
     lcd_print(itostr3(int(degHotend(1))));
   }
-
-  /*#if ENABLED(FSR_BLANK_AFTER_LEVELING)
-    static void _blank_fsr_status(int x) {
-      lcd_setFont(FONT_STATUSMENU);
-      u8g.setPrintPos(x, 28);
-      lcd_printPGM(PSTR("---"));
-    }
-  #endif
-  */
 #endif // FSR_BED_LEVELING
 
 static void lcd_implementation_status_screen() {
@@ -370,13 +361,7 @@ static void lcd_implementation_status_screen() {
     #if DISABLED(FSR_BLANK_AFTER_LEVELING)
       _draw_fsr_status(56);
     #else
-      if (fsr_display_enabled)
-        _draw_fsr_status(56);
-      else
-      //  if (!fsr_display_blank) {
-      //    _blank_fsr_status(56);
-          fsr_display_blank = true;
-      //  }
+      if (fsr_display_enabled) _draw_fsr_status(56);
     #endif
   #endif
 

@@ -464,7 +464,6 @@ static bool send_ok[BUFSIZE];
   float fsr_trigger_threshold = 1023;  // Threshold for triggering
   float fsr_recovery_threshold = 1023; // Threshold for recovery
   #if ENABLED(FSR_BLANK_AFTER_LEVELING)
-    bool fsr_display_blank;
     bool fsr_display_enabled;
   #endif
 #endif // FSR_BED_LEVELING
@@ -765,7 +764,6 @@ void setup() {
   Config_RetrieveSettings();
 
   #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_BLANK_AFTER_LEVELING)
-    fsr_display_blank = false;
     fsr_display_enabled = true;
   #endif
 
@@ -2594,7 +2592,6 @@ inline void gcode_G4() {
 inline void gcode_G28() {
 
   #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_BLANK_AFTER_LEVELING)
-    fsr_display_blank = false;
     fsr_display_enabled = true;
   #endif
 
@@ -3646,7 +3643,6 @@ inline void gcode_G28() {
     gcode_M114(); // Send end position to RepetierHost
 
     #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_BLANK_AFTER_LEVELING)
-      fsr_display_blank = false;
       fsr_display_enabled = false;
     #endif
   }

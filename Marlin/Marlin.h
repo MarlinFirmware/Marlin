@@ -387,7 +387,6 @@ bool print_job_stop(bool force = false);
   extern float fsr_trigger_threshold;
   extern float fsr_recovery_threshold;
   #if ENABLED(FSR_BLANK_AFTER_LEVELING)
-    extern bool fsr_display_blank;
     extern bool fsr_display_enabled;
   #endif
 #endif
