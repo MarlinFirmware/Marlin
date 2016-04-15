@@ -428,7 +428,11 @@ void checkExtruderAutoFans() {
       fanState |= 1;
   #endif
   #if HAS_AUTO_FAN_1
-    if (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE) {
+    #if EXTRUDERS == 1  // Second fan belongs to first extruder, too
+      if (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE) {
+    #else               // Second fan belongs to second extruder
+      if (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE) {
+    #endif
       if (EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN)
         fanState |= 1;
       else
