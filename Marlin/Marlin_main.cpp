@@ -77,15 +77,6 @@
   #include "stepper_dac.h"
 #endif
 
-#if ENABLED(FSR_BED_LEVELING)
-  float fsr_resting = 0;               // Average resting value of fsr
-  float fsr_resting_noise = 0;         // Average noise/deviation for fsr at rest
-  float fsr_moving = 0;                // Average moving value of fsr
-  float fsr_moving_noise = 0;          // Average noise/deviation for fsr while moving
-  float fsr_trigger_threshold = 1023;  // Threshold for triggering
-  float fsr_recovery_threshold = 1023; // Threshold for recovery
-#endif
-
 /**
  * Look here for descriptions of G-codes:
  *  - http://linuxcnc.org/handbook/gcode/g-code.html
@@ -465,6 +456,19 @@ static bool send_ok[BUFSIZE];
   #define KEEPALIVE_STATE(n) ;
 #endif // HOST_KEEPALIVE_FEATURE
 
+#if ENABLED(FSR_BED_LEVELING)
+  float fsr_resting = 0;               // Average resting value of fsr
+  float fsr_resting_noise = 0;         // Average noise/deviation for fsr at rest
+  float fsr_moving = 0;                // Average moving value of fsr
+  float fsr_moving_noise = 0;          // Average noise/deviation for fsr while moving
+  float fsr_trigger_threshold = 1023;  // Threshold for triggering
+  float fsr_recovery_threshold = 1023; // Threshold for recovery
+  #if ENABLED(FSR_BLANK_AFTER_LEVELING)
+    bool fsr_display_blank;
+    bool fsr_display_enabled;
+  #endif
+#endif // FSR_BED_LEVELING
+
 /**
  * ***************************************************************************
  * ******************************** FUNCTIONS ********************************
@@ -759,6 +763,11 @@ void setup() {
 
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
+
+  #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_BLANK_AFTER_LEVELING)
+    fsr_display_blank = false;
+    fsr_display_enabled = true;
+  #endif
 
   lcd_init();
 
@@ -2584,6 +2593,11 @@ inline void gcode_G4() {
  */
 inline void gcode_G28() {
 
+  #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_BLANK_AFTER_LEVELING)
+    fsr_display_blank = false;
+    fsr_display_enabled = true;
+  #endif
+
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOLNPGM("gcode_G28 >>>");
@@ -3631,6 +3645,10 @@ inline void gcode_G28() {
 
     gcode_M114(); // Send end position to RepetierHost
 
+    #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_BLANK_AFTER_LEVELING)
+      fsr_display_blank = false;
+      fsr_display_enabled = false;
+    #endif
   }
 
   #if DISABLED(Z_PROBE_SLED) // could be avoided

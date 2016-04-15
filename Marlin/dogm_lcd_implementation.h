@@ -301,6 +301,24 @@ static void _draw_heater_status(int x, int heater) {
   }
 }
 
+#if ENABLED(FSR_BED_LEVELING)
+  static void _draw_fsr_status(int x) {
+    lcd_setFont(FONT_STATUSMENU);
+    u8g.setPrintPos(x, 28);
+    lcd_print(degHotend(1) + 0.5);
+    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+  }
+
+  #if ENABLED(FSR_BLANK_AFTER_LEVELING)
+    static void _blank_fsr_status(int x) {
+      lcd_setFont(FONT_STATUSMENU);
+      u8g.setPrintPos(x, 28);
+      lcd_printPGM(PSTR("---"));
+      lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+    }
+  #endif
+#endif // FSR_BED_LEVELING
+
 static void lcd_implementation_status_screen() {
   u8g.setColorIndex(1); // black on white
 
@@ -348,6 +366,20 @@ static void lcd_implementation_status_screen() {
 
   // Extruders
   for (int i = 0; i < EXTRUDERS; i++) _draw_heater_status(6 + i * 25, i);
+
+  #if ENABLED(FSR_BED_LEVELING)
+    #if DISABLED(FSR_BLANK_AFTER_LEVELING)
+      _draw_fsr_status(56);
+    #else
+      if (fsr_display_enabled)
+        _draw_fsr_status(56);
+      else
+        if (!fsr_display_blank) {
+          _blank_fsr_status(56);
+          fsr_display_blank = true;
+        }
+    #endif
+  #endif
 
   // Heatbed
   if (EXTRUDERS < 4) _draw_heater_status(81, -1);
