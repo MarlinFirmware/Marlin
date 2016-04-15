@@ -365,9 +365,9 @@
       #undef HEATER_1_MAXTEMP
       #define HEATER_1_MAXTEMP 2000
     #endif
-    #if TEMP_SENSOR_0 == 0
-      #undef TEMP_SENSOR_0
-      #define TEMP_SENSOR_0 1
+    #if TEMP_SENSOR_1 == 0
+      #undef TEMP_SENSOR_1
+      #define TEMP_SENSOR_1 5
     #endif
   #endif
 
