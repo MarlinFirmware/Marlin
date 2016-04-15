@@ -358,6 +358,22 @@
   #endif
 
   /**
+   * FSR Options
+   */
+  #if ENABLED(FSR_BED_LEVELING)
+    #if EXTRUDERS > 1
+      #error "You cannot a second extruder and FSRs connected to the same thermistor input."
+    #endif
+    #if HEATER_1_MAXTEMP < 2000
+      #undef HEATER_1_MAXTEMP
+      #define HEATER_1_MAXTEMP 2000
+    #endif
+    #if MOTHERBOARD != BOARD_AZTEEG_X3      // Disable FSR_BED_LEVELING if not on Deltaprintr
+      #undef FSR_BED_LEVELING
+    #endif
+  #endif
+
+  /**
    * Avoid double-negatives for enabling features
    */
   #if DISABLED(DISABLE_HOST_KEEPALIVE)
@@ -647,7 +663,7 @@
   #endif
 
   #if ( (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || HAS_Z_PROBE ) && \
-    ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) )
+    ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(FSR_BED_LEVELING))
     #define HAS_Z_MIN_PROBE
   #endif
 

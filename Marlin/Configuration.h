@@ -676,6 +676,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
   // Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
   //#define Z_PROBE_ALLEN_KEY
 
+  // FSR sensors connected to thermistor input of the second extruder and mounted underneath
+  // the print bed of the Deltaprintr
+  //#define FSR_BED_LEVELING
+
   #if ENABLED(Z_PROBE_ALLEN_KEY)
     // 2 or 3 sets of coordinates for deploying and retracting the spring loaded touch probe on G29,
     // if servo actuated touch probe is not defined. Uncomment as appropriate for your printer/probe.
