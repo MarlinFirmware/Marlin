@@ -7361,7 +7361,7 @@ void plan_arc(
 
   // Make a circle if the angular rotation is 0
   if (angular_travel == 0 && current_position[X_AXIS] == target[X_AXIS] && current_position[Y_AXIS] == target[Y_AXIS])
-    angular_travel == RADIANS(360);
+    angular_travel += RADIANS(360);
 
   float mm_of_travel = hypot(angular_travel * radius, fabs(linear_travel));
   if (mm_of_travel < 0.001) return;
