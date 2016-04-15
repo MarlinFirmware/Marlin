@@ -205,6 +205,11 @@ static void updateTemperaturesFromRawValues();
   millis_t watch_heater_next_ms[EXTRUDERS] = { 0 };
 #endif
 
+#if ENABLED(THERMAL_PROTECTION_BED)
+  int watch_target_bed_temp = 0;
+  millis_t watch_bed_next_ms = 0;
+#endif
+
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
@@ -653,7 +658,7 @@ void manage_heater() {
     if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
   #endif
 
-  #if ENABLED(THERMAL_PROTECTION_HOTENDS) || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN
+  #if ENABLED(THERMAL_PROTECTION_HOTENDS) || ENABLED(THERMAL_PROTECTION_BED) || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN
     millis_t ms = millis();
   #endif
 
@@ -682,6 +687,24 @@ void manage_heater() {
         else {
           // Start again if the target is still far off
           start_watching_heater(e);
+        }
+      }
+
+    #endif // THERMAL_PROTECTION_HOTENDS
+
+    // Check if the temperature is failing to increase
+    #if ENABLED(THERMAL_PROTECTION_BED)
+
+      // Is it time to check the bed?
+      if (watch_bed_next_ms && ELAPSED(ms, watch_bed_next_ms)) {
+        // Has it failed to increase enough?
+        if (degBed() < watch_target_bed_temp) {
+          // Stop!
+          _temp_error(-1, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+        }
+        else {
+          // Start again if the target is still far off
+          start_watching_bed();
         }
       }
 
@@ -1109,6 +1132,22 @@ void tp_init() {
     }
     else
       watch_heater_next_ms[e] = 0;
+  }
+#endif
+
+#if ENABLED(THERMAL_PROTECTION_BED)
+  /**
+   * Start Heating Sanity Check for hotends that are below
+   * their target temperature by a configurable margin.
+   * This is called when the temperature is set. (M140, M190)
+   */
+  void start_watching_bed() {
+    if (degBed() < degTargetBed() - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
+      watch_target_bed_temp = degBed() + WATCH_BED_TEMP_INCREASE;
+      watch_bed_next_ms = millis() + (WATCH_BED_TEMP_PERIOD) * 1000;
+    }
+    else
+      watch_bed_next_ms = 0;
   }
 #endif
 

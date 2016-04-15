@@ -441,6 +441,8 @@
   #error WATCH_TEMP_PERIOD now uses seconds instead of milliseconds.
 #elif DISABLED(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
   #error Thermal Runaway Protection for hotends is now enabled with THERMAL_PROTECTION_HOTENDS.
+#elif DISABLED(THERMAL_PROTECTION_BED) && (defined(WATCH_BED_TEMP_PERIOD) || defined(THERMAL_PROTECTION_BED_PERIOD))
+  #error Thermal Runaway Protection for the bed is now enabled with THERMAL_PROTECTION_BED.
 #elif DISABLED(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
   #error Thermal Runaway Protection for the bed is now enabled with THERMAL_PROTECTION_BED.
 #elif ENABLED(COREXZ) && ENABLED(Z_LATE_ENABLE)
