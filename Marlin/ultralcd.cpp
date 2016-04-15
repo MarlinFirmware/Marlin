@@ -1035,7 +1035,7 @@ static void lcd_move_menu_axis() {
   MENU_ITEM(back, MSG_MOVE_AXIS, lcd_move_menu);
   MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
   MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
-  if (move_menu_scale < 10.0) {
+  //if (move_menu_scale < 10.0) {
     MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
     #if EXTRUDERS == 1
       MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
@@ -1049,7 +1049,7 @@ static void lcd_move_menu_axis() {
         #endif
       #endif
     #endif // EXTRUDERS > 1
-  }
+  //}
   END_MENU();
 }
 
