@@ -5851,7 +5851,7 @@ inline void gcode_M428() {
 
   if (!err) {
     sync_plan_position();
-    LCD_ALERTMESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
+    LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
     #if HAS_BUZZER
       buzz(200, 659);
       buzz(200, 698);
