@@ -604,7 +604,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //    O-- FRONT --+
   //  (0,0)
   #define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle] 
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
@@ -762,7 +762,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // @section lcd
 
 //
-// MARLIN LANGUAGE
+// LCD LANGUAGE
 //
 // Here you may choose the language used by Marlin on the LCD menus, the following
 // list of languages are available:
@@ -772,19 +772,18 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 
 //
-// LCD CHARSET
+// LCD CHARACTER SET
 //
-// Choose ONE of the following charset list, keep in mind that this selection is
-// dependent on your physical hardware thus it has to match the type of Character
-// based LCD you have.
+// Choose ONE of the following charset options. This selection depends on
+// your physical hardware, so it must match your character-based LCD.
 //
-// Note: This options is ignored for a full graphic display.
+// Note: This option is NOT applicable to graphical displays.
 //
-// To find out what type you have:
-//  - Compile and upload with language set to 'test'
-//  - Click to get the menu
+// To find out what type of display you have:
+//  - Compile and upload with the language (above) set to 'test'
+//  - Click the controller to view the LCD menu
 //
-// You'll see two typical lines from the upper half of the charset.
+// The LCD will display two lines from the upper half of the character set.
 //
 // See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
 //
@@ -797,10 +796,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // You may choose ULTRA_LCD if you have character based LCD with 16x2, 16x4, 20x2,
 // 20x4 char/lines or DOGLCD for the full graphics display with 128x64 pixels
-// (ST7565R family).
+// (ST7565R family). (This option will be set automatically for certain displays.)
 //
-// IMPORTANT NOTE: You have to install Arduino's U8glib library for the Full
-// Graphics Display to work ! - https://github.com/olikraus/U8glib_Arduino
+// IMPORTANT NOTE: The U8glib library is required for Full Graphic Display!
+//                 https://github.com/olikraus/U8glib_Arduino
 //
 //#define ULTRA_LCD   // Character based
 //#define DOGLCD      // Full graphics display
@@ -808,16 +807,16 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // SD CARD
 //
-// SD card support is now disabled by default, if you have [and want] SD support
-// then you must uncomment the following directive.
+// SD Card support is disabled by default. If your controller has an SD slot,
+// you must uncomment the following option or it won't work.
 //
 //#define SDSUPPORT
 
 //
 // SD CARD: SPI SPEED
 //
-// You may uncomment *one* of the following directives to use slower SPI transfer
-// speeds, this is usually required if you're getting volume init errors.
+// Uncomment ONE of the following items to use a slower SPI transfer
+// speed. This is usually required if you're getting volume init errors.
 //
 //#define SPI_SPEED SPI_HALF_SPEED
 //#define SPI_SPEED SPI_QUARTER_SPEED
@@ -833,35 +832,36 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // ENCODER SETTINGS
 //
-// This option defines how many pulses a encoder should produce for a menu
-// step to be produced, you should increase this value for highres encoders.
+// This option overrides the default number of encoder pulses needed to
+// produce one step. Should be increased for high-resolution encoders.
 //
 //#define ENCODER_PULSES_PER_STEP 1
+
 //
-//
-// This option defines how many steps are required for Marlin to move between
-// next/prev menu items.
+// Use this option to override the number of step signals required to
+// move between next/prev menu items.
 //
 //#define ENCODER_STEPS_PER_MENU_ITEM 5
+
 //
-//
-// This option allows you to reverse the direction you have to turn the encoder
-// to navigate up/down on the menus, by default CLOCKWISE rotation moves DOWN in
-// the LCD menu, when active CLOCKWISE rotation will move UP in the LCD menu.
+// This option reverses the encoder direction for navigating LCD menus.
+// By default CLOCKWISE == DOWN. With this enabled CLOCKWISE == UP.
 //
 //#define REVERSE_MENU_DIRECTION
+
 //
+// SPEAKER/BUZZER
 //
-// If you have a speaker activate this directive to enable it.
-// By default Marlin assumes your setup is buzzer based and no action is required.
+// If you have a speaker that can produce tones, enable it here.
+// By default Marlin assumes you have a buzzer with a fixed frequency.
 //
 //#define SPEAKER
+
 //
-// The duration and frequency the buzzer plays the UI feedback sound.
-// You may define these directives with 0 (zero) if you want to disable all sound
-// feedback from Marlin.
+// The duration and frequency for the UI feedback sound.
+// Set these to 0 to disable audio feedback in the LCD menus.
 //
-// Note: You may test the buzzing sound with the G-Code:
+// Note: Test audio output with the G-Code:
 //  M300 S<frequency Hz> P<duration ms>
 //
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100
@@ -870,81 +870,81 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // CONTROLLER TYPE: Standard
 //
-// Marlin supports a impressive variety of controllers, uncomment the directive
-// which defines physical controller you're using.
+// Marlin supports a wide variety of controllers.
+// Enable one of the following options to specify your controller.
 //
+
 //
-// Activate this directive if you have an ULTIMAKER Controller.
+// ULTIMAKER Controller.
 //
 //#define ULTIMAKERCONTROLLER
+
 //
-//
-// Activate this directive if you have a ULTIPANEL as seen on Thingiverse.
+// ULTIPANEL as seen on Thingiverse.
 //
 //#define ULTIPANEL
+
 //
-//
-// Activate this directive if you have a PanelOne from T3P3
-// (via RAMPS 1.4 AUX2/AUX3) - http://reprap.org/wiki/PanelOne
+// PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
+// http://reprap.org/wiki/PanelOne
 //
 //#define PANEL_ONE
+
 //
-//
-// Activate this directive if you have a MaKr3d Makr-Panel with graphic
-// controller and SD suppord - http://reprap.org/wiki/MaKr3d_MaKrPanel
+// MaKr3d Makr-Panel with graphic controller and SD support.
+// http://reprap.org/wiki/MaKr3d_MaKrPanel
 //
 //#define MAKRPANEL
+
 //
-//
-// Activate one of these directives if you have a Panucatt Devices Viki 2.0 or
-// mini Viki with Graphic LCD - http://panucatt.com
+// Activate one of these if you have a Panucatt Devices
+// Viki 2.0 or mini Viki with Graphic LCD
+// http://panucatt.com
 //
 //#define VIKI2
 //#define miniVIKI
 
-// This is a new controller currently under development.  https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
 //
-//
-// Activate this directive if you have an Adafruit ST7565 Full Graphic Controller.
+// Adafruit ST7565 Full Graphic Controller.
 // https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
 //
 //#define ELB_FULL_GRAPHIC_CONTROLLER
+
 //
-//
-// Activate this directive if you have a RepRapDiscount Smart Controller.
+// RepRapDiscount Smart Controller.
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 //
-// Note: Usually sold in a white PCB.
+// Note: Usually sold with a white PCB.
 //
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
+
 //
-//
-// Activate this directive if you have a BQ LCD Smart Controller shipped by
+// BQ LCD Smart Controller shipped by
 // default with the BQ Hephestos 2 and Witbox 2.
 //
 //#define BQ_LCD_SMART_CONTROLLER
+
 //
-//
-// Activate this directive if you have a GADGETS3D G3D LCD/SD Controller
+// GADGETS3D G3D LCD/SD Controller
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
 //
-// Note: Usually sold in a blue PCB.
+// Note: Usually sold with a blue PCB.
 //
 //#define G3D_PANEL
+
 //
-//
-// Activate this directive if you have a RepRapDiscount FULL GRAPHIC Smart Controller
+// RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
 // #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+
 //
-//
-// Activate this directive if you have a MakerLab Mini Panel with graphic
+// MakerLab Mini Panel with graphic
 // controller and SD support - http://reprap.org/wiki/Mini_panel
 //#define MINIPANEL
+
 //
-//
-// Activate this directive if you have a RepRapWorld REPRAPWORLD_KEYPAD v1.1
+// RepRapWorld REPRAPWORLD_KEYPAD v1.1
 // http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
 //
 // REPRAPWORLD_KEYPAD_MOVE_STEP sets how much should the robot move when a key
@@ -959,20 +959,21 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Note: These controllers require the installation of Arduino's LiquidCrystal_I2C
 // library. For more info: https://github.com/kiyoshigawa/LiquidCrystal_I2C
 //
+
 //
-// Activate this directive if you have an Elefu RA Board Control Panel
+// Elefu RA Board Control Panel
 // http://www.elefu.com/index.php?route=product/product&product_id=53
 //
 //#define RA_CONTROL_PANEL
 //#define LCD_I2C_SAINSMART_YWROBOT
+
 //
-//
-// Activate this directive if you have a LCM160 LCD adapter.
+// LCM160 LCD adapter.
 //
 //#define LCM1602
+
 //
-//
-// Activate this directive if you have a PANELOLU2 LCD with status LEDs,
+// PANELOLU2 LCD with status LEDs,
 // separate encoder and click inputs.
 //
 // Note: This controller requires Arduino's LiquidTWI2 library v1.2.3 or later.
@@ -982,15 +983,15 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // a pin (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1).
 //
 //#define LCD_I2C_PANELOLU2
+
 //
-//
-// Activate this directive if you have a Panucatt VIKI LCD with status LEDs,
+// Panucatt VIKI LCD with status LEDs,
 // integrated click & L/R/U/D buttons, separate encoder inputs.
 //
 //#define LCD_I2C_VIKI
+
 //
-//
-// Activate this directive if you have a SSD1306 OLED full graphics generic display
+// SSD1306 OLED full graphics generic display
 //
 //#define U8GLIB_SSD1306
 
