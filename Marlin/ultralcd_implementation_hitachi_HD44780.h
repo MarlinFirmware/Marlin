@@ -445,6 +445,13 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
     }
   }
 
+  inline void logo_lines(const char *extra) {
+    int indent = (LCD_WIDTH - 8 - lcd_strlen_P(extra)) / 2;
+    lcd.setCursor(indent, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x01');
+    lcd.setCursor(indent, 1);                    lcd_printPGM(PSTR("|Marlin|"));  lcd_printPGM(extra);
+    lcd.setCursor(indent, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x03');
+  }
+
   static void bootscreen() {
     show_bootscreen = false;
     byte top_left[8] = {
@@ -494,22 +501,44 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
 
     lcd.clear();
 
-    #define TEXT_SCREEN_LOGO_SHIFT ((LCD_WIDTH/2) - 4)
-    lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x01');
-    lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 1);                    lcd_printPGM(PSTR("|Marlin|"));
-    lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x03');
-
-    delay(2000);
+    #define LCD_EXTRA_SPACE (LCD_WIDTH-8)
 
     #ifdef STRING_SPLASH_LINE1
-      lcd_erase_line(3);
-      lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE1), LCD_WIDTH, 1000);
+      // Combine into a single splash screen if possible
+      if (LCD_EXTRA_SPACE >= strlen(STRING_SPLASH_LINE1) + 1) {
+        logo_lines(PSTR(" " STRING_SPLASH_LINE1));
+        #ifdef STRING_SPLASH_LINE2
+          lcd_erase_line(3);
+          lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE2), LCD_WIDTH, 2000);
+        #else
+          delay(2000);
+        #endif
+      }
+      else {
+        logo_lines(PSTR(""));
+        lcd_erase_line(3);
+        lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE1), LCD_WIDTH, 1500);
+        #ifdef STRING_SPLASH_LINE2
+          lcd_erase_line(3);
+          lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE2), LCD_WIDTH, 1500);
+        #endif
+      }
+    #elif defined(STRING_SPLASH_LINE2)
+      // Combine into a single splash screen if possible
+      if (LCD_EXTRA_SPACE >= strlen(STRING_SPLASH_LINE2) + 1) {
+        logo_lines(PSTR(" " STRING_SPLASH_LINE2));
+        delay(2000);
+      }
+      else {
+        logo_lines(PSTR(""));
+        lcd_erase_line(3);
+        lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE2), LCD_WIDTH, 2000);
+      }
+    #else
+      logo_lines(PSTR(""));
+      delay(2000);
     #endif
 
-    #ifdef STRING_SPLASH_LINE2
-      lcd_erase_line(3);
-      lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE2), LCD_WIDTH, 1000);
-    #endif
   }
 
 #endif // SHOW_BOOTSCREEN
