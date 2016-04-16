@@ -953,7 +953,7 @@ void lcd_cooldown() {
         mbl.set_zigzag_z(_lcd_level_bed_position++, current_position[Z_AXIS]);
         if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
           lcd_return_to_status();
-          LCD_ALERTMESSAGEPGM(MSG_LEVEL_BED_DONE);
+          LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
           #if HAS_BUZZER
             buzz(200, 659);
             buzz(200, 698);
