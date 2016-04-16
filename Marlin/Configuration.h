@@ -604,7 +604,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //    O-- FRONT --+
   //  (0,0)
   #define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle] 
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
@@ -833,14 +833,15 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // ENCODER SETTINGS
 //
-// This option defines how many pulses a encoder should produce for a menu
-// step to be produced, you should increase this value for highres encoders.
+// This option allows you to override how many pulses a encoder should produce
+// for a menu step to be produced, you may adjust this value to your liking but
+// it advisable to increase it when using highres encoders.
 //
 //#define ENCODER_PULSES_PER_STEP 1
 //
 //
-// This option defines how many steps are required for Marlin to move between
-// next/prev menu items.
+// This option allows you to override how many steps are required for Marlin to
+// move between next/prev menu items.
 //
 //#define ENCODER_STEPS_PER_MENU_ITEM 5
 //
@@ -850,9 +851,11 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // the LCD menu, when active CLOCKWISE rotation will move UP in the LCD menu.
 //
 //#define REVERSE_MENU_DIRECTION
+
 //
+// SPEAKER/BUZZER
 //
-// If you have a speaker activate this directive to enable it.
+// If you have a speaker activate this option to enable it.
 // By default Marlin assumes your setup is buzzer based and no action is required.
 //
 //#define SPEAKER
@@ -874,44 +877,42 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // which defines physical controller you're using.
 //
 //
-// Activate this directive if you have an ULTIMAKER Controller.
+// Activate this option if you have an ULTIMAKER Controller.
 //
 //#define ULTIMAKERCONTROLLER
 //
 //
-// Activate this directive if you have a ULTIPANEL as seen on Thingiverse.
+// Activate this option if you have a ULTIPANEL as seen on Thingiverse.
 //
 //#define ULTIPANEL
 //
 //
-// Activate this directive if you have a PanelOne from T3P3
+// Activate this option if you have a PanelOne from T3P3
 // (via RAMPS 1.4 AUX2/AUX3) - http://reprap.org/wiki/PanelOne
 //
 //#define PANEL_ONE
 //
 //
-// Activate this directive if you have a MaKr3d Makr-Panel with graphic
+// Activate this option if you have a MaKr3d Makr-Panel with graphic
 // controller and SD suppord - http://reprap.org/wiki/MaKr3d_MaKrPanel
 //
 //#define MAKRPANEL
 //
 //
-// Activate one of these directives if you have a Panucatt Devices Viki 2.0 or
+// Activate one of these options if you have a Panucatt Devices Viki 2.0 or
 // mini Viki with Graphic LCD - http://panucatt.com
 //
 //#define VIKI2
 //#define miniVIKI
-
-// This is a new controller currently under development.  https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
 //
 //
-// Activate this directive if you have an Adafruit ST7565 Full Graphic Controller.
+// Activate this option if you have an Adafruit ST7565 Full Graphic Controller.
 // https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
 //
 //#define ELB_FULL_GRAPHIC_CONTROLLER
 //
 //
-// Activate this directive if you have a RepRapDiscount Smart Controller.
+// Activate this option if you have a RepRapDiscount Smart Controller.
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 //
 // Note: Usually sold in a white PCB.
@@ -919,13 +920,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
 //
 //
-// Activate this directive if you have a BQ LCD Smart Controller shipped by
+// Activate this option if you have a BQ LCD Smart Controller shipped by
 // default with the BQ Hephestos 2 and Witbox 2.
 //
 //#define BQ_LCD_SMART_CONTROLLER
 //
 //
-// Activate this directive if you have a GADGETS3D G3D LCD/SD Controller
+// Activate this option if you have a GADGETS3D G3D LCD/SD Controller
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
 //
 // Note: Usually sold in a blue PCB.
@@ -933,18 +934,18 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define G3D_PANEL
 //
 //
-// Activate this directive if you have a RepRapDiscount FULL GRAPHIC Smart Controller
+// Activate this option if you have a RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
 // #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 //
 //
-// Activate this directive if you have a MakerLab Mini Panel with graphic
+// Activate this option if you have a MakerLab Mini Panel with graphic
 // controller and SD support - http://reprap.org/wiki/Mini_panel
 //#define MINIPANEL
 //
 //
-// Activate this directive if you have a RepRapWorld REPRAPWORLD_KEYPAD v1.1
+// Activate this option if you have a RepRapWorld REPRAPWORLD_KEYPAD v1.1
 // http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
 //
 // REPRAPWORLD_KEYPAD_MOVE_STEP sets how much should the robot move when a key
@@ -960,19 +961,19 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // library. For more info: https://github.com/kiyoshigawa/LiquidCrystal_I2C
 //
 //
-// Activate this directive if you have an Elefu RA Board Control Panel
+// Activate this option if you have an Elefu RA Board Control Panel
 // http://www.elefu.com/index.php?route=product/product&product_id=53
 //
 //#define RA_CONTROL_PANEL
 //#define LCD_I2C_SAINSMART_YWROBOT
 //
 //
-// Activate this directive if you have a LCM160 LCD adapter.
+// Activate this option if you have a LCM160 LCD adapter.
 //
 //#define LCM1602
 //
 //
-// Activate this directive if you have a PANELOLU2 LCD with status LEDs,
+// Activate this option if you have a PANELOLU2 LCD with status LEDs,
 // separate encoder and click inputs.
 //
 // Note: This controller requires Arduino's LiquidTWI2 library v1.2.3 or later.
@@ -984,13 +985,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define LCD_I2C_PANELOLU2
 //
 //
-// Activate this directive if you have a Panucatt VIKI LCD with status LEDs,
+// Activate this option if you have a Panucatt VIKI LCD with status LEDs,
 // integrated click & L/R/U/D buttons, separate encoder inputs.
 //
 //#define LCD_I2C_VIKI
 //
 //
-// Activate this directive if you have a SSD1306 OLED full graphics generic display
+// Activate this option if you have a SSD1306 OLED full graphics generic display
 //
 //#define U8GLIB_SSD1306
 
