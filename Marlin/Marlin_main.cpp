@@ -2847,10 +2847,12 @@ inline void gcode_G28() {
     saved_feedrate = feedrate;
     feedrate = homing_feedrate[X_AXIS];
 
-    #if MIN_Z_HEIGHT_FOR_HOMING > 0
-      current_position[Z_AXIS] = MESH_HOME_SEARCH_Z + MIN_Z_HEIGHT_FOR_HOMING;
-      line_to_current_position();
-    #endif
+    current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
+      #if MIN_Z_HEIGHT_FOR_HOMING > 0
+        + MIN_Z_HEIGHT_FOR_HOMING
+      #endif
+    ;
+    line_to_current_position();
 
     current_position[X_AXIS] = x + home_offset[X_AXIS];
     current_position[Y_AXIS] = y + home_offset[Y_AXIS];
