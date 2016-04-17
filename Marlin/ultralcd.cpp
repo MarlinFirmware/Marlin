@@ -960,7 +960,11 @@ void lcd_cooldown() {
             buzz(200, 659);
             buzz(200, 698);
           #endif
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
+            #if MIN_Z_HEIGHT_FOR_HOMING > 0
+              + MIN_Z_HEIGHT_FOR_HOMING
+            #endif
+          ;
           line_to_current(Z_AXIS);
           st_synchronize();
           mbl.active = true;
