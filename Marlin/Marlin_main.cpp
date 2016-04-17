@@ -1524,7 +1524,11 @@ static void setup_for_endstop_move() {
   }
 
   inline void raise_z_after_probing() {
-    do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING);
+    #if ENABLED(DELTA) && ENABLED(MANUAL_HOME_POSITIONS)
+      do_blocking_move_to(MANUAL_X_HOME_POS, MANUAL_Y_HOME_POS, current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING);
+    #else
+      do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING);
+    #endif
   }
 
   static void clean_up_after_endstop_move() {
@@ -3342,7 +3346,7 @@ inline void gcode_G28() {
       #if ENABLED(Z_PROBE_ALLEN_KEY) || SERVO_LEVELING
         stow_z_probe();
       #elif Z_RAISE_AFTER_PROBING > 0
-        raise_z_after_probing(); // ???
+        raise_z_after_probing(); // Raise Z axis
       #endif
     #else // !DELTA
       if (verbose_level > 0)
