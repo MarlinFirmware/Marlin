@@ -231,7 +231,7 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
 
   long bias, d;
   float Ku, Tu;
-  float Kp = 0, Ki = 0, Kd = 0;
+  float workKp = 0, workKi = 0, workKd = 0;
   float max = 0, min = 10000;
 
   #if HAS_AUTO_FAN
@@ -309,28 +309,28 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
               Tu = ((float)(t_low + t_high) / 1000.0);
               SERIAL_PROTOCOLPGM(MSG_KU); SERIAL_PROTOCOL(Ku);
               SERIAL_PROTOCOLPGM(MSG_TU); SERIAL_PROTOCOLLN(Tu);
-              Kp = 0.6 * Ku;
-              Ki = 2 * Kp / Tu;
-              Kd = Kp * Tu / 8;
+              workKp = 0.6 * Ku;
+              workKi = 2 * workKp / Tu;
+              workKd = workKp * Tu / 8;
               SERIAL_PROTOCOLLNPGM(MSG_CLASSIC_PID);
-              SERIAL_PROTOCOLPGM(MSG_KP); SERIAL_PROTOCOLLN(Kp);
-              SERIAL_PROTOCOLPGM(MSG_KI); SERIAL_PROTOCOLLN(Ki);
-              SERIAL_PROTOCOLPGM(MSG_KD); SERIAL_PROTOCOLLN(Kd);
+              SERIAL_PROTOCOLPGM(MSG_KP); SERIAL_PROTOCOLLN(workKp);
+              SERIAL_PROTOCOLPGM(MSG_KI); SERIAL_PROTOCOLLN(workKi);
+              SERIAL_PROTOCOLPGM(MSG_KD); SERIAL_PROTOCOLLN(workKd);
               /**
-              Kp = 0.33*Ku;
-              Ki = Kp/Tu;
-              Kd = Kp*Tu/3;
+              workKp = 0.33*Ku;
+              workKi = workKp/Tu;
+              workKd = workKp*Tu/3;
               SERIAL_PROTOCOLLNPGM(" Some overshoot ");
-              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
-              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
-              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
-              Kp = 0.2*Ku;
-              Ki = 2*Kp/Tu;
-              Kd = Kp*Tu/3;
+              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(workKp);
+              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(workKi);
+              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(workKd);
+              workKp = 0.2*Ku;
+              workKi = 2*workKp/Tu;
+              workKd = workKp*Tu/3;
               SERIAL_PROTOCOLLNPGM(" No overshoot ");
-              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
-              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
-              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
+              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(workKp);
+              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(workKi);
+              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(workKd);
               */
             }
           }
@@ -365,24 +365,24 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
     if (cycles > ncycles) {
       SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
       const char* estring = extruder < 0 ? "bed" : "";
-      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(Kp);
-      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(Ki);
-      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(Kd);
+      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(workKp);
+      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(workKi);
+      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(workKd);
 
       // Use the result? (As with "M303 U1")
       if (set_result) {
         if (extruder < 0) {
           #if ENABLED(PIDTEMPBED)
-            bedKp = Kp;
-            bedKi = scalePID_i(Ki);
-            bedKd = scalePID_d(Kd);
+            bedKp = workKp;
+            bedKi = scalePID_i(workKi);
+            bedKd = scalePID_d(workKd);
             updatePID();
           #endif
         }
         else {
-          PID_PARAM(Kp, extruder) = Kp;
-          PID_PARAM(Ki, e) = scalePID_i(Ki);
-          PID_PARAM(Kd, e) = scalePID_d(Kd);
+          PID_PARAM(Kp, extruder) = workKp;
+          PID_PARAM(Ki, extruder) = scalePID_i(workKi);
+          PID_PARAM(Kd, extruder) = scalePID_d(workKd);
           updatePID();
         }
       }
@@ -395,7 +395,7 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
 void updatePID() {
   #if ENABLED(PIDTEMP)
     for (int e = 0; e < EXTRUDERS; e++) {
-      temp_iState_max[e] = (PID_INTEGRAL_DRIVE_MAX) / PID_PARAM(Ki,e);
+      temp_iState_max[e] = (PID_INTEGRAL_DRIVE_MAX) / PID_PARAM(Ki, e);
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
         last_position[e] = 0;
       #endif
