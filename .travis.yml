@@ -1,0 +1,169 @@
+---
+language: c
+
+before_install:
+  # Travis runs a detached head. We need to find the current branch
+  - git checkout `git branch --contains HEAD | grep -v '*'`
+  # Also tags for the root(s) of the minor version(s)
+  - git fetch origin --tags
+  - mkdir ~/bin
+install:
+  # Install arduino 1.6.4
+  - wget http://downloads-02.arduino.cc/arduino-1.6.4-linux64.tar.xz
+  - tar Jxf arduino-1.6.4-linux64.tar.xz
+  - sudo mv arduino-1.6.4 /usr/local/share/arduino
+  - ln -s /usr/local/share/arduino/arduino ~/bin/arduino
+  # Our custom build commands
+  - mv LinuxAddons/bin/*  ~/bin/
+  - ls -la ~/bin
+  # install our platform
+  - cp -r ArduinoAddons/Arduino_1.6.x/hardware/* /usr/local/share/arduino/hardware
+  # copy libraries to arduino dir, as conditional includes do not work in .ino files
+  - cp -r /usr/local/share/arduino/hardware/marlin/avr/libraries/* /usr/local/share/arduino/libraries/
+  - cp -r ArduinoAddons/Arduino_1.6.x/libraries/* /usr/local/share/arduino/libraries/
+  # add LiquidCrystal_I2C & LiquidTWI2 libraries
+  - git clone https://github.com/kiyoshigawa/LiquidCrystal_I2C.git
+  - mv LiquidCrystal_I2C/LiquidCrystal_I2C /usr/local/share/arduino/libraries/LiquidCrystal_I2C
+  - git clone https://github.com/lincomatic/LiquidTWI2.git
+  - mv LiquidTWI2 /usr/local/share/arduino/libraries/LiquidTWI2
+before_script:
+  # arduino requires an X server even with command line
+  # https://github.com/arduino/Arduino/issues/1981
+  - Xvfb :1 -screen 0 1024x768x16 &> xvfb.log &
+  # change back to home directory for compiling
+  - cd $TRAVIS_BUILD_DIR
+script:
+  # build default config
+  - build_marlin
+  # Backup Configuration.h, Configuration_adv.h, and pins_RAMPS_14.h
+  - cp Marlin/Configuration.h Marlin/Configuration.h.backup
+  - cp Marlin/Configuration_adv.h Marlin/Configuration_adv.h.backup
+  - cp Marlin/pins_RAMPS_14.h Marlin/pins_RAMPS_14.h.backup
+  # add sensor for bed
+  - opt_set TEMP_SENSOR_BED 1
+  - build_marlin
+  # change extruder numbers from 1 to 2
+  - opt_set MOTHERBOARD BOARD_RAMPS_14_EEB
+  - opt_set EXTRUDERS 2
+  - opt_set TEMP_SENSOR_1 1
+  #- cat Marlin/Configuration.h
+  - build_marlin
+  # change extruder numbers from 2 to 3, needs to be a board with 3 extruders defined in pins.h 
+  - opt_set MOTHERBOARD BOARD_RUMBA
+  - opt_set EXTRUDERS 3
+  - opt_set TEMP_SENSOR_2 1
+  - build_marlin
+  # enable PIDTEMPBED 
+  - restore_configs
+  - opt_enable PIDTEMPBED
+  - build_marlin
+  # enable AUTO_BED_LEVELING
+  - restore_configs
+  - opt_enable ENABLE_AUTO_BED_LEVELING
+  - build_marlin
+  # enable AUTO_BED_LEVELING with servos
+  - restore_configs
+  - opt_enable ENABLE_AUTO_BED_LEVELING NUM_SERVOS Z_ENDSTOP_SERVO_NR SERVO_ENDSTOP_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
+  - build_marlin
+  # enable EEPROM_SETTINGS & EEPROM_CHITCHAT
+  - restore_configs
+  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT
+  - build_marlin
+  ### LCDS ###
+  # ULTIMAKERCONTROLLER
+  - restore_configs
+  - opt_enable ULTIMAKERCONTROLLER
+  - build_marlin
+  # MAKRPANEL
+  # Needs to use melzi and sanguino hardware
+  #- restore_configs
+  #- opt_enable MAKRPANEL
+  #- build_marlin
+  # REPRAP_DISCOUNT_SMART_CONTROLLER
+  - restore_configs
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT
+  - build_marlin
+  # G3D_PANEL
+  - restore_configs
+  - opt_enable G3D_PANEL SDSUPPORT
+  - build_marlin
+  # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  - restore_configs
+  - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  - build_marlin
+  # REPRAPWORLD_KEYPAD
+  # Cant find configuration details to get it to compile
+  #- restore_configs
+  #- opt_enable ULTRA_LCD REPRAPWORLD_KEYPAD REPRAPWORLD_KEYPAD_MOVE_STEP
+  #- build_marlin
+  # RA_CONTROL_PANEL
+  - restore_configs
+  - opt_enable RA_CONTROL_PANEL
+  - build_marlin
+  ### I2C PANELS ###
+  # LCD_I2C_SAINSMART_YWROBOT
+  # Failing at the moment needs different library 
+  #- restore_configs
+  #- opt_enable LCD_I2C_SAINSMART_YWROBOT
+  #- build_marlin
+  # LCD_I2C_PANELOLU2
+  - restore_configs
+  - opt_enable LCD_I2C_PANELOLU2
+  - build_marlin
+  # LCD_I2C_VIKI
+  - restore_configs
+  - opt_enable LCD_I2C_VIKI
+  - build_marlin
+  # LCM1602
+  - restore_configs
+  - opt_enable LCM1602
+  - build_marlin
+  # Enable FILAMENTCHANGEENABLE
+  - restore_configs
+  - opt_enable FILAMENTCHANGEENABLE
+  - build_marlin
+  # Enable filament sensor
+  - restore_configs
+  - opt_enable FILAMENT_WIDTH_SENSOR
+  - build_marlin
+  # Enable filament sensor with LCD display
+  - restore_configs
+  - opt_enable ULTIMAKERCONTROLLER FILAMENT_WIDTH_SENSOR FILAMENT_LCD_DISPLAY
+  - build_marlin
+  # Enable COREXY
+  - restore_configs
+  - opt_enable COREXY
+  - build_marlin
+  # Enable COREXZ
+  - restore_configs
+  - opt_enable COREXZ
+  - build_marlin
+  # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
+  - restore_configs
+  - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
+  - pins_set RAMPS_14 X_MAX_PIN -1
+  - opt_set_adv Z2_MAX_PIN 2
+  - build_marlin
+  - restore_configs
+  ######## Example Configurations ##############
+  # Delta Config (generic)
+  - use_example_configs delta/generic
+  - build_marlin
+  # Delta Config (generic) + ABL + ALLEN_KEY
+  - use_example_configs delta/generic
+  - opt_disable DISABLE_MIN_ENDSTOPS
+  - opt_enable AUTO_BED_LEVELING_FEATURE Z_PROBE_ALLEN_KEY
+  - build_marlin
+  # Delta Config (Mini Kossel)
+  - use_example_configs delta/kossel_mini
+  - build_marlin
+  # Makibox Config  need to check board type for Teensy++ 2.0
+  #- use_example_configs makibox
+  #- build_marlin
+  # SCARA Config
+  - use_example_configs SCARA
+  - build_marlin
+  # tvrrug Config need to check board type for sanguino atmega644p
+  #- use_example_configs tvrrug/Round2
+  #- build_marlin
+  ######## Board Types #############
