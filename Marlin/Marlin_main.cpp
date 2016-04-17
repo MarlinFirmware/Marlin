@@ -1413,9 +1413,6 @@ static void setup_for_endstop_move() {
 
       static void set_bed_level_equation_lsq(double* plane_equation_coefficients) {
 
-        vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
-        plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-
         //plan_bed_level_matrix.debug("bed level before");
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1427,14 +1424,16 @@ static void setup_for_endstop_move() {
           }
         #endif
 
+        vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
+        plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+
         vector_3 corrected_position = plan_get_position();
- 
         current_position[X_AXIS] = corrected_position.x;
         current_position[Y_AXIS] = corrected_position.y;
         current_position[Z_AXIS] = corrected_position.z;
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("<<< set_bed_level_equation_lsq", current_position);
+          if (DEBUGGING(LEVELING)) DEBUG_POS("<<< set_bed_level_equation_lsq", corrected_position);
         #endif
 
         sync_plan_position();
