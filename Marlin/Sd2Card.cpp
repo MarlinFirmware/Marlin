@@ -383,38 +383,31 @@ fail:
  * the value zero, false, is returned for failure.
  */
 bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
-#if ENABLED(SD_CHECK_AND_RETRY)
-  uint8_t retryCnt = 3;
   // use address if not SDHC card
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
-retry2:
-  retryCnt --;
-  if (cardCommand(CMD17, blockNumber)) {
-    error(SD_CARD_ERROR_CMD17);
-    if (retryCnt > 0) goto retry;
-    goto fail;
-  }
-  if (!readData(dst, 512)) {
-    if (retryCnt > 0) goto retry;
-    goto fail;
-  }
-  return true;
-retry:
-  chipSelectHigh();
-  cardCommand(CMD12, 0);//Try sending a stop command, but ignore the result.
-  errorCode_ = 0;
-  goto retry2;
-#else
-  // use address if not SDHC card
-  if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
-  if (cardCommand(CMD17, blockNumber)) {
-    error(SD_CARD_ERROR_CMD17);
-    goto fail;
-  }
-  return readData(dst, 512);
-#endif
 
-fail:
+  #if ENABLED(SD_CHECK_AND_RETRY)
+    uint8_t retryCnt = 3;
+    do {
+      if (!cardCommand(CMD17, blockNumber)) {
+        if (readData(dst, 512)) return true;
+      }
+      else
+        error(SD_CARD_ERROR_CMD17);
+
+      if (--retryCnt) break;
+
+      chipSelectHigh();
+      cardCommand(CMD12, 0); // Try sending a stop command, ignore the result.
+      errorCode_ = 0;
+    } while (true);
+  #else
+    if (cardCommand(CMD17, blockNumber))
+      error(SD_CARD_ERROR_CMD17);
+    else
+      return readData(dst, 512);
+  #endif
+
   chipSelectHigh();
   return false;
 }
