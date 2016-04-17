@@ -298,13 +298,13 @@ void checkHitEndstops() {
       #define _SET_STOP_CHAR(A,C) ;
     #endif
 
-    #define _ENDSTOP_HIT(A,C) do{ \
+    #define _ENDSTOP_HIT_ECHO(A,C) do{ \
       SERIAL_ECHOPAIR(" " STRINGIFY(A) ":", endstops_trigsteps[A ##_AXIS] / axis_steps_per_unit[A ##_AXIS]); \
       _SET_STOP_CHAR(A,C); }while(0)
 
     #define _ENDSTOP_HIT_TEST(A,C) \
       if (TEST(endstop_hit_bits, A ##_MIN) || TEST(endstop_hit_bits, A ##_MAX)) \
-        _ENDSTOP_HIT(A,C)
+        _ENDSTOP_HIT_ECHO(A,C)
 
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
@@ -314,7 +314,7 @@ void checkHitEndstops() {
 
     #if ENABLED(Z_MIN_PROBE_ENDSTOP)
       #define P_AXIS Z_AXIS
-      if (TEST(endstop_hit_bits, Z_MIN_PROBE)) _ENDSTOP_HIT(P, 'P');
+      if (TEST(endstop_hit_bits, Z_MIN_PROBE)) _ENDSTOP_HIT_ECHO(P, 'P');
     #endif
     SERIAL_EOL;
 
