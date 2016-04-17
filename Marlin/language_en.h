@@ -49,6 +49,9 @@
 #ifndef MSG_SD_REMOVED
   #define MSG_SD_REMOVED                      "Card removed"
 #endif
+#ifndef MSG_LCD_ENDSTOPS
+  #define MSG_LCD_ENDSTOPS                    "Endstops" // Max length 8 characters
+#endif
 #ifndef MSG_MAIN
   #define MSG_MAIN                            "Main"
 #endif
