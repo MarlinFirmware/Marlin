@@ -359,9 +359,9 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(FSR_BED_LEVELING)
     #if DISABLED(FSR_BLANK_AFTER_LEVELING)
-      _draw_fsr_status(56);
+      _draw_fsr_status(44);
     #else
-      if (fsr_display_enabled) _draw_fsr_status(56);
+      if (fsr_display_enabled) _draw_fsr_status(44);
     #endif
   #endif
 
