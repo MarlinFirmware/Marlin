@@ -445,7 +445,7 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
     }
   }
 
-  inline void logo_lines(const char *extra) {
+  static void logo_lines(const char *extra) {
     int indent = (LCD_WIDTH - 8 - lcd_strlen_P(extra)) / 2;
     lcd.setCursor(indent, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x01');
     lcd.setCursor(indent, 1);                    lcd_printPGM(PSTR("|Marlin|"));  lcd_printPGM(extra);
@@ -503,38 +503,64 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
 
     #define LCD_EXTRA_SPACE (LCD_WIDTH-8)
 
+    #define CENTER_OR_SCROLL(STRING,DELAY) \
+      lcd_erase_line(3); \
+      if (strlen(STRING) <= LCD_WIDTH) { \
+        lcd.setCursor((LCD_WIDTH - lcd_strlen_P(PSTR(STRING))) / 2, 3); \
+        lcd_printPGM(PSTR(STRING)); \
+        delay(DELAY); \
+      } \
+      else { \
+        lcd_scroll(0, 3, PSTR(STRING), LCD_WIDTH, DELAY); \
+      }
+
     #ifdef STRING_SPLASH_LINE1
-      // Combine into a single splash screen if possible
+      //
+      // Show the Marlin logo with splash line 1
+      //
       if (LCD_EXTRA_SPACE >= strlen(STRING_SPLASH_LINE1) + 1) {
+        //
+        // Show the Marlin logo, splash line1, and splash line 2
+        //
         logo_lines(PSTR(" " STRING_SPLASH_LINE1));
         #ifdef STRING_SPLASH_LINE2
-          lcd_erase_line(3);
-          lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE2), LCD_WIDTH, 2000);
+          CENTER_OR_SCROLL(STRING_SPLASH_LINE2, 2000);
         #else
           delay(2000);
         #endif
       }
       else {
-        logo_lines(PSTR(""));
-        lcd_erase_line(3);
-        lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE1), LCD_WIDTH, 1500);
+        //
+        // Show the Marlin logo with splash line 1
+        // After a delay show splash line 2, if it exists
+        //
         #ifdef STRING_SPLASH_LINE2
-          lcd_erase_line(3);
-          lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE2), LCD_WIDTH, 1500);
+          #define _SPLASH_WAIT_1 1500
+        #else
+          #define _SPLASH_WAIT_1 2000
+        #endif
+        logo_lines(PSTR(""));
+        CENTER_OR_SCROLL(STRING_SPLASH_LINE1, _SPLASH_WAIT_1);
+        #ifdef STRING_SPLASH_LINE2
+          CENTER_OR_SCROLL(STRING_SPLASH_LINE2, 1500);
         #endif
       }
     #elif defined(STRING_SPLASH_LINE2)
-      // Combine into a single splash screen if possible
+      //
+      // Show splash line 2 only, alongside the logo if possible
+      //
       if (LCD_EXTRA_SPACE >= strlen(STRING_SPLASH_LINE2) + 1) {
         logo_lines(PSTR(" " STRING_SPLASH_LINE2));
         delay(2000);
       }
       else {
         logo_lines(PSTR(""));
-        lcd_erase_line(3);
-        lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE2), LCD_WIDTH, 2000);
+        CENTER_OR_SCROLL(STRING_SPLASH_LINE2, 2000);
       }
     #else
+      //
+      // Show only the Marlin logo
+      //
       logo_lines(PSTR(""));
       delay(2000);
     #endif
