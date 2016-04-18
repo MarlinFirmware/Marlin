@@ -284,7 +284,11 @@ bool volumetric_enabled = false;
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA);
 float volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
+// The distance that XYZ has been offset by G92. Reset by G28.
 float position_shift[3] = { 0 };
+
+// This offset is added to the configured home position.
+// Set by M206, M428, or menu item. Saved to EEPROM.
 float home_offset[3] = { 0 };
 
 // Software Endstops. Default to configured limits.
@@ -295,23 +299,36 @@ float sw_endstop_max[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
   int fanSpeeds[FAN_COUNT] = { 0 };
 #endif
 
+// The active extruder (tool). Set with T<extruder> command.
 uint8_t active_extruder = 0;
+
+// Relative Mode. Enable with G91, disable with G90.
+static bool relative_mode = false;
+
 bool cancel_heatup = false;
 
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
-static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 static int serial_count = 0;
-static char* seen_pointer; ///< A pointer to find chars in the command string (X, Y, Z, E, etc.)
-const char* queued_commands_P = NULL; /* pointer to the current line in the active sequence of commands, or NULL when none */
+
+// GCode parameter pointer used by code_seen(), code_value(), etc.
+static char* seen_pointer;
+
+// Next Immediate GCode Command pointer. NULL if none.
+const char* queued_commands_P = NULL;
+
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
+
 // Inactivity shutdown
 millis_t previous_cmd_ms = 0;
 static millis_t max_inactive_time = 0;
 static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
+
+// Print Job Timer
 Stopwatch print_job_timer = Stopwatch();
+
 static uint8_t target_extruder;
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
