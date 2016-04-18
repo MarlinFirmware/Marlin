@@ -2553,6 +2553,16 @@ inline void gcode_G4() {
 #endif //FWRETRACT
 
 /**
+ * G26: Allow G-codes to enter the buffer again after a PROBE_FAIL_PANIC occurs during a G29
+ */
+#if ENABLED(PROBE_FAIL_PANIC)
+  inline void gcode_G26() {
+    LCD_MESSAGEPGM(WELCOME_MSG);
+    probe_fail = false;
+  }
+#endif
+
+/**
  * G28: Home all axes according to settings
  *
  * Parameters
@@ -6597,6 +6607,12 @@ void process_next_command() {
           break;
 
       #endif //FWRETRACT
+
+      #if ENABLED(PROBE_FAIL_PANIC)
+        case 26: // G26: Allow G-codes to enter the buffer again after a PROBE_FAIL_PANIC occurs during a G29
+          gcode_G26();
+          break;
+      #endif
 
       case 28: // G28: Home all axes, one at a time
         gcode_G28();
