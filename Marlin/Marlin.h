@@ -340,8 +340,8 @@ extern bool axis_homed[3]; // axis[n].is_homed
 #endif
 
 #if ENABLED(BARICUDA)
-  extern int ValvePressure;
-  extern int EtoPPressure;
+  extern int baricuda_valve_pressure;
+  extern int baricuda_e_to_p_pressure;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)

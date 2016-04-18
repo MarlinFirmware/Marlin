@@ -346,8 +346,8 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(BARICUDA)
-  int ValvePressure = 0;
-  int EtoPPressure = 0;
+  int baricuda_valve_pressure = 0;
+  int baricuda_e_to_p_pressure = 0;
 #endif
 
 #if ENABLED(FWRETRACT)
@@ -4622,22 +4622,22 @@ inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
     /**
      * M126: Heater 1 valve open
      */
-    inline void gcode_M126() { ValvePressure = code_seen('S') ? constrain(code_value(), 0, 255) : 255; }
+    inline void gcode_M126() { baricuda_valve_pressure = code_seen('S') ? constrain(code_value(), 0, 255) : 255; }
     /**
      * M127: Heater 1 valve close
      */
-    inline void gcode_M127() { ValvePressure = 0; }
+    inline void gcode_M127() { baricuda_valve_pressure = 0; }
   #endif
 
   #if HAS_HEATER_2
     /**
      * M128: Heater 2 valve open
      */
-    inline void gcode_M128() { EtoPPressure = code_seen('S') ? constrain(code_value(), 0, 255) : 255; }
+    inline void gcode_M128() { baricuda_e_to_p_pressure = code_seen('S') ? constrain(code_value(), 0, 255) : 255; }
     /**
      * M129: Heater 2 valve close
      */
-    inline void gcode_M129() { EtoPPressure = 0; }
+    inline void gcode_M129() { baricuda_e_to_p_pressure = 0; }
   #endif
 
 #endif //BARICUDA
