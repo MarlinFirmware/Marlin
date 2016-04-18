@@ -365,10 +365,10 @@
   #define DELTA_CARRIAGE_OFFSET 30.0 // mm
 
   // Horizontal distance bridged by diagonal push rods when effector is centered.
-  #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
+  #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET))
 
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-  #define DELTA_PRINTABLE_RADIUS 127
+  #define DELTA_PRINTABLE_RADIUS 127.0
 
   // Delta calibration menu
   // uncomment to add three points calibration menu option.
@@ -521,8 +521,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // @section machine
 
 // Travel limits after homing (units are in mm)
-#define X_MIN_POS -DELTA_PRINTABLE_RADIUS
-#define Y_MIN_POS -DELTA_PRINTABLE_RADIUS
+#define X_MIN_POS -(DELTA_PRINTABLE_RADIUS)
+#define Y_MIN_POS -(DELTA_PRINTABLE_RADIUS)
 #define Z_MIN_POS 0
 #define X_MAX_POS DELTA_PRINTABLE_RADIUS
 #define Y_MAX_POS DELTA_PRINTABLE_RADIUS
@@ -595,9 +595,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
     // Set the rectangle in which to probe
     #define DELTA_PROBEABLE_RADIUS (DELTA_PRINTABLE_RADIUS-25)
-    #define LEFT_PROBE_BED_POSITION -DELTA_PROBEABLE_RADIUS
+    #define LEFT_PROBE_BED_POSITION -(DELTA_PROBEABLE_RADIUS)
     #define RIGHT_PROBE_BED_POSITION DELTA_PROBEABLE_RADIUS
-    #define FRONT_PROBE_BED_POSITION -DELTA_PROBEABLE_RADIUS
+    #define FRONT_PROBE_BED_POSITION -(DELTA_PROBEABLE_RADIUS)
     #define BACK_PROBE_BED_POSITION DELTA_PROBEABLE_RADIUS
 
     #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
@@ -688,7 +688,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 0.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y DELTA_PRINTABLE_RADIUS
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/10
 
     //#define Z_PROBE_ALLEN_KEY_STOW_1_X -64.0 // Move the probe into position
     //#define Z_PROBE_ALLEN_KEY_STOW_1_Y 56.0
@@ -697,7 +697,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     //#define Z_PROBE_ALLEN_KEY_STOW_2_X -64.0 // Push it down
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Y 56.0
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Z 3.0
-    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
+    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/10
     //#define Z_PROBE_ALLEN_KEY_STOW_3_X -64.0 // Move it up to clear
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Y 56.0
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Z 50.0
@@ -707,11 +707,11 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_X 35.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y 72.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE (HOMING_FEEDRATE_XYZ)/10
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 0.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y 0.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/10
 
     //#define Z_PROBE_ALLEN_KEY_STOW_1_X -46.0 // Move the probe into position
     //#define Z_PROBE_ALLEN_KEY_STOW_1_Y 59.0
@@ -720,7 +720,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     //#define Z_PROBE_ALLEN_KEY_STOW_2_X -46.0 // Move the nozzle down further to push the probe into retracted position.
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Y 59.0
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Z 8.0
-    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
+    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/10
     //#define Z_PROBE_ALLEN_KEY_STOW_3_X -46.0 // Raise things back up slightly so we don't bump into anything
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Y 59.0
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Z 38.0
@@ -738,7 +738,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X 45.00 // Move right to trigger deploy pin
     #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Y -125.00
     #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Z Z_PROBE_ALLEN_KEY_DEPLOY_2_Z
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE (HOMING_FEEDRATE_XYZ/2)
+    #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE (HOMING_FEEDRATE_XYZ)/2
 
     #define Z_PROBE_ALLEN_KEY_STOW_1_X 36.00 // Line up with bed retaining clip
     #define Z_PROBE_ALLEN_KEY_STOW_1_Y -125.00
@@ -747,7 +747,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     #define Z_PROBE_ALLEN_KEY_STOW_2_X Z_PROBE_ALLEN_KEY_STOW_1_X // move down to retract probe
     #define Z_PROBE_ALLEN_KEY_STOW_2_Y Z_PROBE_ALLEN_KEY_STOW_1_Y
     #define Z_PROBE_ALLEN_KEY_STOW_2_Z 0.0
-    #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ/2)
+    #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/2
     #define Z_PROBE_ALLEN_KEY_STOW_3_X 0.0  // return to 0,0,100
     #define Z_PROBE_ALLEN_KEY_STOW_3_Y 0.0
     #define Z_PROBE_ALLEN_KEY_STOW_3_Z 100.0
