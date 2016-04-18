@@ -286,8 +286,10 @@ float volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
 float position_shift[3] = { 0 };
 float home_offset[3] = { 0 };
-float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
-float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+
+// Software Endstops. Default to configured limits.
+float sw_endstop_min[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
+float sw_endstop_max[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 
 #if FAN_COUNT > 0
   int fanSpeeds[FAN_COUNT] = { 0 };
@@ -1212,24 +1214,32 @@ static void update_software_endstops(AxisEnum axis) {
     if (axis == X_AXIS) {
       float dual_max_x = max(extruder_offset[X_AXIS][1], X2_MAX_POS);
       if (active_extruder != 0) {
-        min_pos[X_AXIS] = X2_MIN_POS + offs;
-        max_pos[X_AXIS] = dual_max_x + offs;
+        sw_endstop_min[X_AXIS] = X2_MIN_POS + offs;
+        sw_endstop_max[X_AXIS] = dual_max_x + offs;
         return;
       }
       else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
-        min_pos[X_AXIS] = base_min_pos(X_AXIS) + offs;
-        max_pos[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
+        sw_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + offs;
+        sw_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
         return;
       }
     }
     else
   #endif
   {
-    min_pos[axis] = base_min_pos(axis) + offs;
-    max_pos[axis] = base_max_pos(axis) + offs;
+    sw_endstop_min[axis] = base_min_pos(axis) + offs;
+    sw_endstop_max[axis] = base_max_pos(axis) + offs;
   }
 }
 
+/**
+ * Change the home offset for an axis, update the current
+ * position and the software endstops to retain the same
+ * relative distance to the new home.
+ *
+ * Since this changes the current_position, code should
+ * call sync_plan_position soon after this.
+ */
 static void set_home_offset(AxisEnum axis, float v) {
   current_position[axis] += v - home_offset[axis];
   home_offset[axis] = v;
@@ -1294,8 +1304,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
        * SCARA home positions are based on configuration since the actual
        * limits are determined by the inverse kinematic transform.
        */
-      min_pos[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
-      max_pos[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      sw_endstop_min[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      sw_endstop_max[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
     }
     else
   #endif
@@ -5842,7 +5852,7 @@ inline void gcode_M428() {
   bool err = false;
   for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
     if (axis_homed[i]) {
-      float base = (current_position[i] > (min_pos[i] + max_pos[i]) / 2) ? base_home_pos(i) : 0,
+      float base = (current_position[i] > (sw_endstop_min[i] + sw_endstop_max[i]) / 2) ? base_home_pos(i) : 0,
             diff = current_position[i] - base;
       if (diff > -20 && diff < 20) {
         set_home_offset((AxisEnum)i, home_offset[i] - diff);
@@ -7032,8 +7042,8 @@ void ok_to_send() {
 
 void clamp_to_software_endstops(float target[3]) {
   if (min_software_endstops) {
-    NOLESS(target[X_AXIS], min_pos[X_AXIS]);
-    NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
+    NOLESS(target[X_AXIS], sw_endstop_min[X_AXIS]);
+    NOLESS(target[Y_AXIS], sw_endstop_min[Y_AXIS]);
 
     float negative_z_offset = 0;
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
@@ -7048,13 +7058,13 @@ void clamp_to_software_endstops(float target[3]) {
         negative_z_offset += home_offset[Z_AXIS];
       }
     #endif
-    NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
+    NOLESS(target[Z_AXIS], sw_endstop_min[Z_AXIS] + negative_z_offset);
   }
 
   if (max_software_endstops) {
-    NOMORE(target[X_AXIS], max_pos[X_AXIS]);
-    NOMORE(target[Y_AXIS], max_pos[Y_AXIS]);
-    NOMORE(target[Z_AXIS], max_pos[Z_AXIS]);
+    NOMORE(target[X_AXIS], sw_endstop_max[X_AXIS]);
+    NOMORE(target[Y_AXIS], sw_endstop_max[Y_AXIS]);
+    NOMORE(target[Z_AXIS], sw_endstop_max[Z_AXIS]);
   }
 }
 
