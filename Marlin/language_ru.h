@@ -38,6 +38,7 @@
 #define WELCOME_MSG                         MACHINE_NAME " Готов."
 #define MSG_SD_INSERTED                     "Карта вставлена"
 #define MSG_SD_REMOVED                      "Карта извлечена"
+#define MSG_LCD_ENDSTOPS                    "Endstops" // Max length 8 characters
 #define MSG_MAIN                            "Меню"
 #define MSG_AUTOSTART                       "Автостарт"
 #define MSG_DISABLE_STEPPERS                "Выкл. двигатели"
@@ -74,6 +75,7 @@
 #define MSG_MOVE_10MM                       "Движение XY 10mm"
 #define MSG_LEVEL_BED                       "Калибровать стол"
 #define MSG_SPEED                           "Скорость"
+#define MSG_BED_Z                           "Bed Z"
 #define MSG_NOZZLE                          LCD_STR_THERMOMETER " Сопло"
 #define MSG_BED                             LCD_STR_THERMOMETER " Стол"
 #define MSG_FAN_SPEED                       "Кулер"
@@ -102,6 +104,7 @@
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax"
 #define MSG_A_RETRACT                       "A-втягивание"
+#define MSG_A_TRAVEL                        "A-travel"
 #define MSG_XSTEPS                          "X шаг/мм"
 #define MSG_YSTEPS                          "Y шаг/мм"
 #define MSG_ZSTEPS                          "Z шаг/мм"
