@@ -491,6 +491,8 @@ static bool send_ok[BUFSIZE];
  * ***************************************************************************
  */
 
+void stop();
+
 void get_available_commands();
 void process_next_command();
 
@@ -1761,7 +1763,7 @@ static void setup_for_endstop_move() {
             SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
             LCD_ALERTMESSAGEPGM("Err: ZPROBE");
           }
-          Stop();
+          stop();
         }
 
     #endif // Z_PROBE_ALLEN_KEY
@@ -1865,7 +1867,7 @@ static void setup_for_endstop_move() {
             SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
             LCD_ALERTMESSAGEPGM("Err: ZPROBE");
           }
-          Stop();
+          stop();
         }
     #endif // Z_PROBE_ALLEN_KEY
 
@@ -8017,7 +8019,7 @@ void kill(const char* lcd_msg) {
   }
 #endif // FAST_PWM_FAN
 
-void Stop() {
+void stop() {
   disable_all_heaters();
   if (IsRunning()) {
     Running = false;
