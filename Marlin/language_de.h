@@ -38,6 +38,7 @@
 #define WELCOME_MSG                         MACHINE_NAME " bereit."
 #define MSG_SD_INSERTED                     "SDKarte erkannt."
 #define MSG_SD_REMOVED                      "SDKarte entfernt."
+#define MSG_LCD_ENDSTOPS                    "Endstops" // Max length 8 characters
 #define MSG_MAIN                            "Hauptmenü"
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Motoren Aus" // M84

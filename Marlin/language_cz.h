@@ -42,6 +42,7 @@
 #define WELCOME_MSG                         MACHINE_NAME " pripraven."
 #define MSG_SD_INSERTED                     "Karta vlozena"
 #define MSG_SD_REMOVED                      "Karta vyjmuta"
+#define MSG_LCD_ENDSTOPS                    "Endstops" // Max length 8 characters
 #define MSG_MAIN                            "Hlavni nabidka"
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Uvolnit motory"
