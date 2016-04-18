@@ -218,7 +218,7 @@
   #endif
 
   #if ENABLED(DOGLCD)
-    /* Custom characters defined in font font_6x10_marlin_symbols */
+    /* Custom characters defined in font dogm_font_data_Marlin_symbols.h / Marlin_symbols.fon */
     // \x00 intentionally skipped to avoid problems in strings
     #define LCD_STR_REFRESH     "\x01"
     #define LCD_STR_FOLDER      "\x02"
@@ -235,7 +235,7 @@
     // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
   #else
     /* Custom characters defined in the first 8 characters of the LCD */
-    #define LCD_STR_BEDTEMP     "\x00"  // this will have 'unexpected' results when used in a string!
+    #define LCD_STR_BEDTEMP     "\x00"  // Print only as a char. This will have 'unexpected' results when used in a string!
     #define LCD_STR_DEGREE      "\x01"
     #define LCD_STR_THERMOMETER "\x02"
     #define LCD_STR_UPLEVEL     "\x03"
