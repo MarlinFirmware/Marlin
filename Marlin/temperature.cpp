@@ -1144,7 +1144,7 @@ void tp_init() {
   void start_watching_bed() {
     if (degBed() < degTargetBed() - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
       watch_target_bed_temp = degBed() + WATCH_BED_TEMP_INCREASE;
-      watch_bed_next_ms = millis() + (WATCH_BED_TEMP_PERIOD) * 1000;
+      watch_bed_next_ms = millis() + (WATCH_BED_TEMP_PERIOD) * 1000UL;
     }
     else
       watch_bed_next_ms = 0;
