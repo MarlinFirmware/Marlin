@@ -279,25 +279,31 @@ static void lcd_implementation_init() {
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
-static void _draw_heater_status(int x, int heater) {
+FORCE_INLINE void _draw_centered_temp(int temp, int x, int y) {
+  int degsize = 6 * (temp >= 100 ? 3 : temp >= 10 ? 2 : 1); // number's pixel width
+  u8g.setPrintPos(x - (18 - degsize) / 2, y); // move left if shorter
+  lcd_print(itostr3(temp));
+  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+}
+
+FORCE_INLINE void _draw_heater_status(int x, int heater) {
   bool isBed = heater < 0;
-  int y = 17 + (isBed ? 1 : 0);
 
   lcd_setFont(FONT_STATUSMENU);
-  u8g.setPrintPos(x, 7);
-  lcd_print(itostr3(int((heater >= 0 ? degTargetHotend(heater) : degTargetBed()) + 0.5)));
-  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-  u8g.setPrintPos(x, 28);
-  lcd_print(itostr3(int(heater >= 0 ? degHotend(heater) : degBed()) + 0.5));
 
-  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-  if (heater >= 0 ? !isHeatingHotend(heater) : !isHeatingBed()) {
-    u8g.drawBox(x+7,y,2,2);
+  _draw_centered_temp((isBed ? degTargetBed() : degTargetHotend(heater)) + 0.5, x, 7);
+
+  _draw_centered_temp((isBed ? degBed() : degHotend(heater)) + 0.5, x, 28);
+
+  int h = isBed ? 7 : 8,
+      y = isBed ? 18 : 17;
+  if (isBed ? isHeatingBed() : isHeatingHotend(heater)) {
+    u8g.setColorIndex(0); // white on black
+    u8g.drawBox(x + h, y, 2, 2);
+    u8g.setColorIndex(1); // black on white
   }
   else {
-    u8g.setColorIndex(0); // white on black
-    u8g.drawBox(x + 7, y, 2, 2);
-    u8g.setColorIndex(1); // black on white
+    u8g.drawBox(x + h, y, 2, 2);
   }
 }
 
@@ -340,13 +346,10 @@ static void lcd_implementation_status_screen() {
       lcd_print(':');
       lcd_print(itostr2(time%60));
     }
-    else {
-      lcd_printPGM(PSTR("--:--"));
-    }
   #endif
 
   // Extruders
-  for (int i = 0; i < EXTRUDERS; i++) _draw_heater_status(6 + i * 25, i);
+  for (int i = 0; i < EXTRUDERS; i++) _draw_heater_status(5 + i * 25, i);
 
   // Heatbed
   if (EXTRUDERS < 4) _draw_heater_status(81, -1);
@@ -360,11 +363,7 @@ static void lcd_implementation_status_screen() {
       lcd_print(itostr3(per));
       lcd_print('%');
     }
-    else
   #endif
-    {
-      lcd_printPGM(PSTR("---"));
-    }
 
   // X, Y, Z-Coordinates
   // Before homing the axis letters are blinking 'X' <-> '?'.
@@ -394,10 +393,8 @@ static void lcd_implementation_status_screen() {
       lcd_printPGM(PSTR(MSG_X));
     }
   }
-  u8g.drawPixel(8, XYZ_BASELINE - 5);
-  u8g.drawPixel(8, XYZ_BASELINE - 3);
   u8g.setPrintPos(10, XYZ_BASELINE);
-  lcd_print(ftostr31ns(current_position[X_AXIS]));
+  lcd_print(ftostr4sign(current_position[X_AXIS]));
 
   u8g.setPrintPos(43, XYZ_BASELINE);
   if (blink)
@@ -414,10 +411,8 @@ static void lcd_implementation_status_screen() {
       lcd_printPGM(PSTR(MSG_Y));
     }
   }
-  u8g.drawPixel(49, XYZ_BASELINE - 5);
-  u8g.drawPixel(49, XYZ_BASELINE - 3);
   u8g.setPrintPos(51, XYZ_BASELINE);
-  lcd_print(ftostr31ns(current_position[Y_AXIS]));
+  lcd_print(ftostr4sign(current_position[Y_AXIS]));
 
   u8g.setPrintPos(83, XYZ_BASELINE);
   if (blink)
@@ -434,23 +429,21 @@ static void lcd_implementation_status_screen() {
       lcd_printPGM(PSTR(MSG_Z));
     }
   }
-  u8g.drawPixel(89, XYZ_BASELINE - 5);
-  u8g.drawPixel(89, XYZ_BASELINE - 3);
   u8g.setPrintPos(91, XYZ_BASELINE);
-  lcd_print(ftostr32sp(current_position[Z_AXIS]));
+  lcd_print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
   u8g.setColorIndex(1); // black on white
 
   // Feedrate
   lcd_setFont(FONT_MENU);
   u8g.setPrintPos(3, 49);
   lcd_print(LCD_STR_FEEDRATE[0]);
+
   lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(12, 49);
   lcd_print(itostr3(feedrate_multiplier));
   lcd_print('%');
 
   // Status line
-  lcd_setFont(FONT_STATUSMENU);
   #if ENABLED(USE_SMALL_INFOFONT)
     u8g.setPrintPos(0, 62);
   #else
