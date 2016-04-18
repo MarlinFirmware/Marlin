@@ -6224,6 +6224,7 @@ void process_next_command() {
         case 23: //M23 - Select file
           gcode_M23(); break;
         case 24: //M24 - Start SD print
+          gcode_M107();//SD PRINT FAN off
           gcode_M24(); break;
         case 25: //M25 - Pause SD print
           gcode_M25(); break;
