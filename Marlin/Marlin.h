@@ -226,7 +226,7 @@ void kill(const char*);
 void Stop();
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  void filrunout();
+  void handle_filament_runout();
 #endif
 
 /**
