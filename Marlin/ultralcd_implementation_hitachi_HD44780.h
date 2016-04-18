@@ -693,7 +693,7 @@ static void lcd_implementation_status_screen() {
         // When everything is ok you see a constant 'X'.
 
         if (blink)
-          lcd_printPGM(PSTR("X"));
+          lcd_printPGM(PSTR(MSG_X));
         else {
           if (!axis_homed[X_AXIS])
             lcd_printPGM(PSTR("?"));
@@ -703,14 +703,14 @@ static void lcd_implementation_status_screen() {
                 lcd_printPGM(PSTR(" "));
               else
             #endif
-            lcd_printPGM(PSTR("X"));
+            lcd_printPGM(PSTR(MSG_X));
         }
 
         lcd.print(ftostr4sign(current_position[X_AXIS]));
 
         lcd_printPGM(PSTR(" "));
         if (blink)
-          lcd_printPGM(PSTR("Y"));
+          lcd_printPGM(PSTR(MSG_Y));
         else {
           if (!axis_homed[Y_AXIS])
             lcd_printPGM(PSTR("?"));
@@ -720,7 +720,7 @@ static void lcd_implementation_status_screen() {
                 lcd_printPGM(PSTR(" "));
               else
             #endif
-            lcd_printPGM(PSTR("Y"));
+            lcd_printPGM(PSTR(MSG_Y));
         }
         lcd.print(ftostr4sign(current_position[Y_AXIS]));
 
@@ -730,7 +730,7 @@ static void lcd_implementation_status_screen() {
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
     if (blink)
-      lcd_printPGM(PSTR("Z"));
+      lcd_printPGM(PSTR(MSG_Z));
     else {
       if (!axis_homed[Z_AXIS])
         lcd_printPGM(PSTR("?"));
@@ -740,7 +740,7 @@ static void lcd_implementation_status_screen() {
             lcd_printPGM(PSTR(" "));
           else
         #endif
-        lcd_printPGM(PSTR("Z"));
+        lcd_printPGM(PSTR(MSG_Z));
     }
     lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
 
