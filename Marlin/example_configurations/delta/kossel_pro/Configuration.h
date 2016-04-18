@@ -608,6 +608,22 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     // Works best with AUTO_BED_LEVELING_GRID_POINTS 5 or higher.
     #define AUTO_BED_LEVELING_GRID_POINTS 7
 
+    //#define REPROBE // Re-attempts probing
+
+    #ifdef REPROBE
+      #define Z_RETRY_PT 15 // Z height to move the hotend after failed probe
+      #define NUM_ATTEMPTS 3 // Number of attempts to make before quiting
+      //#define PROBE_FAIL_PANIC // Completely give up printing if the final attempt fails (use G26 to get out of failed state)
+      //#define REWIPE // Re-attempts wiping
+      #ifdef REWIPE
+        #define NUM_REWIPES 6 // Number of (back-and-forth) re-wipe attemps to make, e.g. 6 would produce 12 strokes
+        // Re-wipe line from REWIPE_FIRST_PT to REWIPE_SECOND_PT
+        #define REWIPE_FIRST_PT {45, 173}
+        #define REWIPE_SECOND_PT {115, 173}
+        #define Z_REWIPE_PT (Z_MIN_POS + 1) // Depth to re-wipe at
+      #endif
+    #endif
+
   #else  // !AUTO_BED_LEVELING_GRID
 
     // Arbitrary points to probe.
@@ -646,6 +662,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
 
+  #define MIN_PROBE_PT (Z_MIN_POS-2)     //How far the extruder should move down to probe
   #define Z_RAISE_BEFORE_PROBING 100  // How much the Z axis will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  // How much the Z axis will be raised when traveling from between next probing points.
   #define Z_RAISE_AFTER_PROBING 15    // How much the Z axis will be raised after the last probing point.
