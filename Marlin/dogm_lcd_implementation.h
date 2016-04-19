@@ -340,6 +340,9 @@ static void lcd_implementation_status_screen() {
     #endif
   );
 
+  // Status Menu Font for SD info, Heater status, Fan, XYZ
+  lcd_setFont(FONT_STATUSMENU);
+
   #if ENABLED(SDSUPPORT)
     // SD Card Symbol
     u8g.drawBox(42, 42 - (TALL_FONT_CORRECTION), 8, 7);
@@ -351,8 +354,6 @@ static void lcd_implementation_status_screen() {
     u8g.drawFrame(54, 49, 73, 4 - (TALL_FONT_CORRECTION));
 
     // SD Card Progress bar and clock
-    lcd_setFont(FONT_STATUSMENU);
-
     if (IS_SD_PRINTING) {
       // Progress bar solid part
       u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2 - (TALL_FONT_CORRECTION));
@@ -376,7 +377,6 @@ static void lcd_implementation_status_screen() {
   #endif
 
   // Fan
-  lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(104, 27);
   #if HAS_FAN0
     int per = ((fanSpeeds[0] + 1) * 100) / 256;
@@ -391,7 +391,6 @@ static void lcd_implementation_status_screen() {
   // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
   // When everything is ok you see a constant 'X'.
   #define XYZ_BASELINE 38
-  lcd_setFont(FONT_STATUSMENU);
 
   #if ENABLED(USE_SMALL_INFOFONT)
     u8g.drawBox(0, 30, LCD_PIXEL_WIDTH, 10);
