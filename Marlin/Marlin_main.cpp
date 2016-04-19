@@ -5559,25 +5559,25 @@ inline void gcode_M226() {
  *       U<bool> with a non-zero value will apply the result to current settings
  */
 inline void gcode_M303() {
-#if ENABLED(PIDTEMP)
-  int e = code_seen('E') ? code_value_short() : 0;
-  int c = code_seen('C') ? code_value_short() : 5;
-  bool u = code_seen('U') && code_value_short() != 0;
+  #if ENABLED(PIDTEMP)
+    int e = code_seen('E') ? code_value_short() : 0;
+    int c = code_seen('C') ? code_value_short() : 5;
+    bool u = code_seen('U') && code_value_short() != 0;
 
-  float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
+    float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
 
-  if (e >= 0 && e < EXTRUDERS)
-    target_extruder = e;
+    if (e >= 0 && e < EXTRUDERS)
+      target_extruder = e;
 
-  KEEPALIVE_STATE(NOT_BUSY); // don't send "busy: processing" messages during autotune output
+    KEEPALIVE_STATE(NOT_BUSY); // don't send "busy: processing" messages during autotune output
 
-  PID_autotune(temp, e, c, u);
+    PID_autotune(temp, e, c, u);
 
-  KEEPALIVE_STATE(IN_HANDLER);
-#else
-  SERIAL_ERROR_START;
-  SERIAL_ERRORLNPGM(MSG_ERR_M303_DISABLED);
-#endif
+    KEEPALIVE_STATE(IN_HANDLER);
+  #else
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLNPGM(MSG_ERR_M303_DISABLED);
+  #endif
 }
 
 #if ENABLED(SCARA)
