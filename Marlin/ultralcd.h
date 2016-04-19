@@ -162,7 +162,7 @@
 #endif //ULTRA_LCD
 
 char* itostr2(const uint8_t& x);
-char* itostr31(const int& x);
+char* itostr3sign(const int& x);
 char* itostr3(const int& x);
 char* itostr3left(const int& x);
 char* itostr4(const int& x);
