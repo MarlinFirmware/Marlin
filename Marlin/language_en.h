@@ -272,16 +272,16 @@
   #define MSG_VMAX                            "Vmax "
 #endif
 #ifndef MSG_X
-  #define MSG_X                               "x"
+  #define MSG_X                               "X"
 #endif
 #ifndef MSG_Y
-  #define MSG_Y                               "y"
+  #define MSG_Y                               "Y"
 #endif
 #ifndef MSG_Z
-  #define MSG_Z                               "z"
+  #define MSG_Z                               "Z"
 #endif
 #ifndef MSG_E
-  #define MSG_E                               "e"
+  #define MSG_E                               "E"
 #endif
 #ifndef MSG_VMIN
   #define MSG_VMIN                            "Vmin"

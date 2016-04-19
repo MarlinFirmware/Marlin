@@ -95,10 +95,10 @@
 #define MSG_VZ_JERK                         "V z  Ruck"
 #define MSG_VE_JERK                         "V e  Ruck"
 #define MSG_VMAX                            "V max " // space by purpose
-#define MSG_X                               "x"
-#define MSG_Y                               "y"
-#define MSG_Z                               "z"
-#define MSG_E                               "e"
+#define MSG_X                               "X"
+#define MSG_Y                               "Y"
+#define MSG_Z                               "Z"
+#define MSG_E                               "E"
 #define MSG_VMIN                            "V min"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "A max " // space by purpose
