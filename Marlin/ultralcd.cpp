@@ -550,10 +550,12 @@ void lcd_set_home_offsets() {
 
 #if ENABLED(BABYSTEPPING)
 
+  int babysteps_done = 0;
+
   static void _lcd_babystep(const int axis, const char* msg) {
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
-      int distance =  (int32_t)encoderPosition * BABYSTEP_MULTIPLICATOR;
+      int distance = (int32_t)encoderPosition * BABYSTEP_MULTIPLICATOR;
       encoderPosition = 0;
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       #if ENABLED(COREXY) || ENABLED(COREXZ)
@@ -580,16 +582,21 @@ void lcd_set_home_offsets() {
       #else
         babystepsTodo[axis] += distance;
       #endif
+
+      babysteps_done += distance;
     }
-    if (lcdDrawUpdate) lcd_implementation_drawedit(msg, NULL);
+    if (lcdDrawUpdate) lcd_implementation_drawedit(msg, itostr3sign(babysteps_done));
     if (LCD_CLICKED) lcd_goto_previous_menu(true);
   }
 
   #if ENABLED(BABYSTEP_XY)
-    static void lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
-    static void lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
+    static void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
+    static void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
+    static void lcd_babystep_x() { babysteps_done = 0; lcd_goto_menu(_lcd_babystep_x); }
+    static void lcd_babystep_y() { babysteps_done = 0; lcd_goto_menu(_lcd_babystep_y); }
   #endif
-  static void lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
+  static void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
+  static void lcd_babystep_z() { babysteps_done = 0; lcd_goto_menu(_lcd_babystep_z); }
 
 #endif //BABYSTEPPING
 
@@ -2573,8 +2580,8 @@ char* ftostr32sp(const float& x) {
   return conv;
 }
 
-// Convert signed int to lj string with +012.0 / -012.0 format
-char* itostr31(const int& x) {
+// Convert signed int to lj string with +012 / -012 format
+char* itostr3sign(const int& x) {
   int xx;
   if (x >= 0) {
     conv[0] = '+';
