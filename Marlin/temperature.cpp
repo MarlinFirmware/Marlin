@@ -223,176 +223,176 @@ static void updateTemperaturesFromRawValues();
 
 #if ENABLED(PIDTEMP)
 
-void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false*/) {
-  float input = 0.0;
-  int cycles = 0;
-  bool heating = true;
+  void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false*/) {
+    float input = 0.0;
+    int cycles = 0;
+    bool heating = true;
 
-  millis_t temp_ms = millis(), t1 = temp_ms, t2 = temp_ms;
-  long t_high = 0, t_low = 0;
+    millis_t temp_ms = millis(), t1 = temp_ms, t2 = temp_ms;
+    long t_high = 0, t_low = 0;
 
-  long bias, d;
-  float Ku, Tu;
-  float workKp = 0, workKi = 0, workKd = 0;
-  float max = 0, min = 10000;
+    long bias, d;
+    float Ku, Tu;
+    float workKp = 0, workKi = 0, workKd = 0;
+    float max = 0, min = 10000;
 
-  #if HAS_AUTO_FAN
-    millis_t next_auto_fan_check_ms = temp_ms + 2500UL;
-  #endif
-
-  if (extruder >= EXTRUDERS
-    #if !HAS_TEMP_BED
-       || extruder < 0
+    #if HAS_AUTO_FAN
+      millis_t next_auto_fan_check_ms = temp_ms + 2500UL;
     #endif
-  ) {
-    SERIAL_ECHOLN(MSG_PID_BAD_EXTRUDER_NUM);
-    return;
-  }
 
-  SERIAL_ECHOLN(MSG_PID_AUTOTUNE_START);
-
-  disable_all_heaters(); // switch off all heaters.
-
-  if (extruder < 0)
-    soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
-  else
-    soft_pwm[extruder] = bias = d = (PID_MAX) / 2;
-
-  // PID Tuning loop
-  for (;;) {
-
-    millis_t ms = millis();
-
-    if (temp_meas_ready) { // temp sample ready
-      updateTemperaturesFromRawValues();
-
-      input = (extruder < 0) ? current_temperature_bed : current_temperature[extruder];
-
-      max = max(max, input);
-      min = min(min, input);
-
-      #if HAS_AUTO_FAN
-        if (ELAPSED(ms, next_auto_fan_check_ms)) {
-          checkExtruderAutoFans();
-          next_auto_fan_check_ms = ms + 2500UL;
-        }
+    if (extruder >= EXTRUDERS
+      #if !HAS_TEMP_BED
+         || extruder < 0
       #endif
+    ) {
+      SERIAL_ECHOLN(MSG_PID_BAD_EXTRUDER_NUM);
+      return;
+    }
 
-      if (heating && input > temp) {
-        if (ELAPSED(ms, t2 + 5000UL)) {
-          heating = false;
-          if (extruder < 0)
-            soft_pwm_bed = (bias - d) >> 1;
-          else
-            soft_pwm[extruder] = (bias - d) >> 1;
-          t1 = ms;
-          t_high = t1 - t2;
-          max = temp;
-        }
-      }
+    SERIAL_ECHOLN(MSG_PID_AUTOTUNE_START);
 
-      if (!heating && input < temp) {
-        if (ELAPSED(ms, t1 + 5000UL)) {
-          heating = true;
-          t2 = ms;
-          t_low = t2 - t1;
-          if (cycles > 0) {
-            long max_pow = extruder < 0 ? MAX_BED_POWER : PID_MAX;
-            bias += (d * (t_high - t_low)) / (t_low + t_high);
-            bias = constrain(bias, 20, max_pow - 20);
-            d = (bias > max_pow / 2) ? max_pow - 1 - bias : bias;
+    disable_all_heaters(); // switch off all heaters.
 
-            SERIAL_PROTOCOLPGM(MSG_BIAS); SERIAL_PROTOCOL(bias);
-            SERIAL_PROTOCOLPGM(MSG_D);    SERIAL_PROTOCOL(d);
-            SERIAL_PROTOCOLPGM(MSG_T_MIN);  SERIAL_PROTOCOL(min);
-            SERIAL_PROTOCOLPGM(MSG_T_MAX);  SERIAL_PROTOCOLLN(max);
-            if (cycles > 2) {
-              Ku = (4.0 * d) / (3.14159265 * (max - min) / 2.0);
-              Tu = ((float)(t_low + t_high) / 1000.0);
-              SERIAL_PROTOCOLPGM(MSG_KU); SERIAL_PROTOCOL(Ku);
-              SERIAL_PROTOCOLPGM(MSG_TU); SERIAL_PROTOCOLLN(Tu);
-              workKp = 0.6 * Ku;
-              workKi = 2 * workKp / Tu;
-              workKd = workKp * Tu / 8;
-              SERIAL_PROTOCOLLNPGM(MSG_CLASSIC_PID);
-              SERIAL_PROTOCOLPGM(MSG_KP); SERIAL_PROTOCOLLN(workKp);
-              SERIAL_PROTOCOLPGM(MSG_KI); SERIAL_PROTOCOLLN(workKi);
-              SERIAL_PROTOCOLPGM(MSG_KD); SERIAL_PROTOCOLLN(workKd);
-              /**
-              workKp = 0.33*Ku;
-              workKi = workKp/Tu;
-              workKd = workKp*Tu/3;
-              SERIAL_PROTOCOLLNPGM(" Some overshoot ");
-              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(workKp);
-              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(workKi);
-              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(workKd);
-              workKp = 0.2*Ku;
-              workKi = 2*workKp/Tu;
-              workKd = workKp*Tu/3;
-              SERIAL_PROTOCOLLNPGM(" No overshoot ");
-              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(workKp);
-              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(workKi);
-              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(workKd);
-              */
-            }
+    if (extruder < 0)
+      soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
+    else
+      soft_pwm[extruder] = bias = d = (PID_MAX) / 2;
+
+    // PID Tuning loop
+    for (;;) {
+
+      millis_t ms = millis();
+
+      if (temp_meas_ready) { // temp sample ready
+        updateTemperaturesFromRawValues();
+
+        input = (extruder < 0) ? current_temperature_bed : current_temperature[extruder];
+
+        max = max(max, input);
+        min = min(min, input);
+
+        #if HAS_AUTO_FAN
+          if (ELAPSED(ms, next_auto_fan_check_ms)) {
+            checkExtruderAutoFans();
+            next_auto_fan_check_ms = ms + 2500UL;
           }
-          if (extruder < 0)
-            soft_pwm_bed = (bias + d) >> 1;
-          else
-            soft_pwm[extruder] = (bias + d) >> 1;
-          cycles++;
-          min = temp;
+        #endif
+
+        if (heating && input > temp) {
+          if (ELAPSED(ms, t2 + 5000UL)) {
+            heating = false;
+            if (extruder < 0)
+              soft_pwm_bed = (bias - d) >> 1;
+            else
+              soft_pwm[extruder] = (bias - d) >> 1;
+            t1 = ms;
+            t_high = t1 - t2;
+            max = temp;
+          }
+        }
+
+        if (!heating && input < temp) {
+          if (ELAPSED(ms, t1 + 5000UL)) {
+            heating = true;
+            t2 = ms;
+            t_low = t2 - t1;
+            if (cycles > 0) {
+              long max_pow = extruder < 0 ? MAX_BED_POWER : PID_MAX;
+              bias += (d * (t_high - t_low)) / (t_low + t_high);
+              bias = constrain(bias, 20, max_pow - 20);
+              d = (bias > max_pow / 2) ? max_pow - 1 - bias : bias;
+
+              SERIAL_PROTOCOLPGM(MSG_BIAS); SERIAL_PROTOCOL(bias);
+              SERIAL_PROTOCOLPGM(MSG_D);    SERIAL_PROTOCOL(d);
+              SERIAL_PROTOCOLPGM(MSG_T_MIN);  SERIAL_PROTOCOL(min);
+              SERIAL_PROTOCOLPGM(MSG_T_MAX);  SERIAL_PROTOCOLLN(max);
+              if (cycles > 2) {
+                Ku = (4.0 * d) / (3.14159265 * (max - min) / 2.0);
+                Tu = ((float)(t_low + t_high) / 1000.0);
+                SERIAL_PROTOCOLPGM(MSG_KU); SERIAL_PROTOCOL(Ku);
+                SERIAL_PROTOCOLPGM(MSG_TU); SERIAL_PROTOCOLLN(Tu);
+                workKp = 0.6 * Ku;
+                workKi = 2 * workKp / Tu;
+                workKd = workKp * Tu / 8;
+                SERIAL_PROTOCOLLNPGM(MSG_CLASSIC_PID);
+                SERIAL_PROTOCOLPGM(MSG_KP); SERIAL_PROTOCOLLN(workKp);
+                SERIAL_PROTOCOLPGM(MSG_KI); SERIAL_PROTOCOLLN(workKi);
+                SERIAL_PROTOCOLPGM(MSG_KD); SERIAL_PROTOCOLLN(workKd);
+                /**
+                workKp = 0.33*Ku;
+                workKi = workKp/Tu;
+                workKd = workKp*Tu/3;
+                SERIAL_PROTOCOLLNPGM(" Some overshoot ");
+                SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(workKp);
+                SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(workKi);
+                SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(workKd);
+                workKp = 0.2*Ku;
+                workKi = 2*workKp/Tu;
+                workKd = workKp*Tu/3;
+                SERIAL_PROTOCOLLNPGM(" No overshoot ");
+                SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(workKp);
+                SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(workKi);
+                SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(workKd);
+                */
+              }
+            }
+            if (extruder < 0)
+              soft_pwm_bed = (bias + d) >> 1;
+            else
+              soft_pwm[extruder] = (bias + d) >> 1;
+            cycles++;
+            min = temp;
+          }
         }
       }
-    }
-    #define MAX_OVERSHOOT_PID_AUTOTUNE 20
-    if (input > temp + MAX_OVERSHOOT_PID_AUTOTUNE) {
-      SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
-      return;
-    }
-    // Every 2 seconds...
-    if (ELAPSED(ms, temp_ms + 2000UL)) {
-      #if HAS_TEMP_HOTEND || HAS_TEMP_BED
-        print_heaterstates();
-        SERIAL_EOL;
-      #endif
+      #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+      if (input > temp + MAX_OVERSHOOT_PID_AUTOTUNE) {
+        SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
+        return;
+      }
+      // Every 2 seconds...
+      if (ELAPSED(ms, temp_ms + 2000UL)) {
+        #if HAS_TEMP_HOTEND || HAS_TEMP_BED
+          print_heaterstates();
+          SERIAL_EOL;
+        #endif
 
-      temp_ms = ms;
-    } // every 2 seconds
-    // Over 2 minutes?
-    if (((ms - t1) + (ms - t2)) > (10L * 60L * 1000L * 2L)) {
-      SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
-      return;
-    }
-    if (cycles > ncycles) {
-      SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
-      const char* estring = extruder < 0 ? "bed" : "";
-      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(workKp);
-      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(workKi);
-      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(workKd);
+        temp_ms = ms;
+      } // every 2 seconds
+      // Over 2 minutes?
+      if (((ms - t1) + (ms - t2)) > (10L * 60L * 1000L * 2L)) {
+        SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
+        return;
+      }
+      if (cycles > ncycles) {
+        SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
+        const char* estring = extruder < 0 ? "bed" : "";
+        SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(workKp);
+        SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(workKi);
+        SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(workKd);
 
-      // Use the result? (As with "M303 U1")
-      if (set_result) {
-        if (extruder < 0) {
-          #if ENABLED(PIDTEMPBED)
-            bedKp = workKp;
-            bedKi = scalePID_i(workKi);
-            bedKd = scalePID_d(workKd);
+        // Use the result? (As with "M303 U1")
+        if (set_result) {
+          if (extruder < 0) {
+            #if ENABLED(PIDTEMPBED)
+              bedKp = workKp;
+              bedKi = scalePID_i(workKi);
+              bedKd = scalePID_d(workKd);
+              updatePID();
+            #endif
+          }
+          else {
+            PID_PARAM(Kp, extruder) = workKp;
+            PID_PARAM(Ki, extruder) = scalePID_i(workKi);
+            PID_PARAM(Kd, extruder) = scalePID_d(workKd);
             updatePID();
-          #endif
+          }
         }
-        else {
-          PID_PARAM(Kp, extruder) = workKp;
-          PID_PARAM(Ki, extruder) = scalePID_i(workKi);
-          PID_PARAM(Kd, extruder) = scalePID_d(workKd);
-          updatePID();
-        }
+        return;
       }
-      return;
+      lcd_update();
     }
-    lcd_update();
   }
-}
 
 #endif // PIDTEMP
 
