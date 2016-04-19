@@ -907,8 +907,8 @@ void gcode_line_error(const char* err, bool doFlush = true) {
 }
 
 void clear_buffer() {
-  for(uint8_t i=0; i < BUFSIZE; i++)
-    for(uint8_t j=0; j < MAX_CMD_SIZE; j++)
+  for (uint8_t i=0; i < BUFSIZE; i++)
+    for (uint8_t j=0; j < MAX_CMD_SIZE; j++)
       command_queue[i][j] = NULL;
   MYSERIAL.flush();
   serial_count = 0;
