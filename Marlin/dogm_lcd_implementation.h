@@ -309,6 +309,23 @@ FORCE_INLINE void _draw_heater_status(int x, int heater) {
   }
 }
 
+FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) {
+  if (blink)
+    lcd_printPGM(pstr);
+  else {
+    if (!axis_homed[axis])
+      lcd_printPGM(PSTR("?"));
+    else {
+      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+        if (!axis_known_position[axis])
+          lcd_printPGM(PSTR(" "));
+        else
+      #endif
+      lcd_printPGM(pstr);
+    }
+  }
+}
+
 static void lcd_implementation_status_screen() {
   u8g.setColorIndex(1); // black on white
 
@@ -382,59 +399,22 @@ static void lcd_implementation_status_screen() {
     u8g.drawBox(0, 30, LCD_PIXEL_WIDTH, 9);
   #endif
   u8g.setColorIndex(0); // white on black
+
   u8g.setPrintPos(2, XYZ_BASELINE);
-  if (blink)
-    lcd_printPGM(PSTR(MSG_X));
-  else {
-    if (!axis_homed[X_AXIS])
-      lcd_printPGM(PSTR("?"));
-    else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[X_AXIS])
-          lcd_printPGM(PSTR(" "));
-        else
-      #endif
-      lcd_printPGM(PSTR(MSG_X));
-    }
-  }
+  _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
   u8g.setPrintPos(10, XYZ_BASELINE);
   lcd_print(ftostr4sign(current_position[X_AXIS]));
 
   u8g.setPrintPos(43, XYZ_BASELINE);
-  if (blink)
-    lcd_printPGM(PSTR(MSG_Y));
-  else {
-    if (!axis_homed[Y_AXIS])
-      lcd_printPGM(PSTR("?"));
-    else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[Y_AXIS])
-          lcd_printPGM(PSTR(" "));
-        else
-      #endif
-      lcd_printPGM(PSTR(MSG_Y));
-    }
-  }
+  _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
   u8g.setPrintPos(51, XYZ_BASELINE);
   lcd_print(ftostr4sign(current_position[Y_AXIS]));
 
   u8g.setPrintPos(83, XYZ_BASELINE);
-  if (blink)
-    lcd_printPGM(PSTR(MSG_Z));
-  else {
-    if (!axis_homed[Z_AXIS])
-      lcd_printPGM(PSTR("?"));
-    else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[Z_AXIS])
-          lcd_printPGM(PSTR(" "));
-        else
-      #endif
-      lcd_printPGM(PSTR(MSG_Z));
-    }
-  }
+  _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
   u8g.setPrintPos(91, XYZ_BASELINE);
   lcd_print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
+
   u8g.setColorIndex(1); // black on white
 
   // Feedrate
