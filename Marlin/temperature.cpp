@@ -221,6 +221,8 @@ static void updateTemperaturesFromRawValues();
 //================================ Functions ================================
 //===========================================================================
 
+#if ENABLED(PIDTEMP)
+
 void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false*/) {
   float input = 0.0;
   int cycles = 0;
@@ -391,6 +393,8 @@ void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false
     lcd_update();
   }
 }
+
+#endif // PIDTEMP
 
 void updatePID() {
   #if ENABLED(PIDTEMP)
