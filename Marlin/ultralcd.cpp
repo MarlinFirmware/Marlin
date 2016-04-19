@@ -1449,6 +1449,7 @@ static void lcd_control_volumetric_menu() {
  */
 #if ENABLED(HAS_LCD_CONTRAST)
   static void lcd_set_contrast() {
+    char conv[4];
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition != 0) {
       #if ENABLED(U8GLIB_LM6059_AF)
@@ -1463,11 +1464,7 @@ static void lcd_control_volumetric_menu() {
       u8g.setContrast(lcd_contrast);
     }
     if (lcdDrawUpdate) {
-      #if ENABLED(U8GLIB_LM6059_AF)
-        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr3(lcd_contrast));
-      #else
-        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
-      #endif
+      lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itoa(lcd_contrast, conv, 10));
     }
     if (LCD_CLICKED) lcd_goto_previous_menu();
   }
@@ -1979,15 +1976,24 @@ void lcd_update() {
 
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
         bool blink = lcd_blink();
+        glcd_loopcounter = 0;
         u8g.firstPage();
         do {
           lcd_setFont(FONT_MENU);
           u8g.setPrintPos(125, 0);
-          u8g.setColorIndex(blink ? 1 : 0); // Set color for the alive dot
-          u8g.drawPixel(127, 63); // draw alive dot
-          u8g.setColorIndex(1); // black on white
+          #if ENABLED(LCD_SCREEN_ROT_180)
+            if (glcd_loopcounter == 0) {
+          #else
+            if (glcd_loopcounter == glcd_loops - 1) {
+          #endif
+            u8g.setColorIndex(blink ? 1 : 0); // Set color for the alive dot
+            u8g.drawPixel(127, 63); // draw alive dot
+            u8g.setColorIndex(1); // black on white
+          }
           (*currentMenu)();
+          glcd_loopcounter++;
         } while (u8g.nextPage());
+        glcd_loops = glcd_loopcounter;
       #else
         (*currentMenu)();
       #endif
@@ -2211,268 +2217,135 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 /** Number to string conversion **/
 /*********************************/
 
-char conv[8];
+char conv[10];
 
-// Convert float to rj string with 123 or -12 format
-char *ftostr3(const float& x) { return itostr3((int)x); }
+int Ipow[] = {0,
+              10,
+              100,
+              1000,
+              10000};
+float Fpow[] = {0.0,
+                10.0,
+                100.0,
+                1000.0,
+                10000.0,
+                100000.0,
+                1000000.0,
+                10000000.0,
+                100000000.0,
+                1000000000.0};
 
-// Convert float to rj string with _123, -123, _-12, or __-1 format
-char *ftostr4sign(const float& x) { return itostr4sign((int)x); }
+// For left adjusted integers use itoa()
 
-// Convert unsigned int to string with 12 format
-char* itostr2(const uint8_t& x) {
-  //sprintf(conv,"%5.1f",x);
+// Convert int to rj string with lenght l
+char* uitoaR10(const int& x, char *buffer, uint8_t l) {
+  char* p = buffer;
+  while (x < Ipow[--l]) {
+    *p++ = ' ';
+  }
+  itoa(x, p, 10);
+  return buffer;
+}
+
+// Convert int to rj string with lenght l
+char* itoaR10(const int& x, char *buffer, uint8_t l) {
+  char* p = buffer;
   int xx = x;
-  conv[0] = (xx / 10) % 10 + '0';
-  conv[1] = xx % 10 + '0';
-  conv[2] = 0;
-  return conv;
-}
-
-// Convert float to string with +123.4 / -123.4 format
-char* ftostr31(const float& x) {
-  int xx = abs(x * 10);
-  conv[0] = (x >= 0) ? '+' : '-';
-  conv[1] = (xx / 1000) % 10 + '0';
-  conv[2] = (xx / 100) % 10 + '0';
-  conv[3] = (xx / 10) % 10 + '0';
-  conv[4] = '.';
-  conv[5] = xx % 10 + '0';
-  conv[6] = 0;
-  return conv;
-}
-
-// Convert unsigned float to string with 123.4 format, dropping sign
-char* ftostr31ns(const float& x) {
-  int xx = abs(x * 10);
-  conv[0] = (xx / 1000) % 10 + '0';
-  conv[1] = (xx / 100) % 10 + '0';
-  conv[2] = (xx / 10) % 10 + '0';
-  conv[3] = '.';
-  conv[4] = xx % 10 + '0';
-  conv[5] = 0;
-  return conv;
-}
-
-// Convert signed float to string with 023.45 / -23.45 format
-char *ftostr32(const float& x) {
-  long xx = abs(x * 100);
-  conv[0] = x >= 0 ? (xx / 10000) % 10 + '0' : '-';
-  conv[1] = (xx / 1000) % 10 + '0';
-  conv[2] = (xx / 100) % 10 + '0';
-  conv[3] = '.';
-  conv[4] = (xx / 10) % 10 + '0';
-  conv[5] = xx % 10 + '0';
-  conv[6] = 0;
-  return conv;
-}
-
-// Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
-char* ftostr43(const float& x, char plus/*=' '*/) {
-  long xx = x * 1000;
-  if (xx == 0)
-    conv[0] = ' ';
-  else if (xx > 0)
-    conv[0] = plus;
-  else {
-    xx = -xx;
-    conv[0] = '-';
-  }
-  conv[1] = (xx / 1000) % 10 + '0';
-  conv[2] = '.';
-  conv[3] = (xx / 100) % 10 + '0';
-  conv[4] = (xx / 10) % 10 + '0';
-  conv[5] = (xx) % 10 + '0';
-  conv[6] = 0;
-  return conv;
-}
-
-// Convert unsigned float to string with 1.23 format
-char* ftostr12ns(const float& x) {
-  long xx = x * 100;
-  xx = abs(xx);
-  conv[0] = (xx / 100) % 10 + '0';
-  conv[1] = '.';
-  conv[2] = (xx / 10) % 10 + '0';
-  conv[3] = (xx) % 10 + '0';
-  conv[4] = 0;
-  return conv;
-}
-
-// Convert signed float to space-padded string with -_23.4_ format
-char* ftostr32sp(const float& x) {
-  long xx = x * 100;
-  uint8_t dig;
-  if (xx < 0) { // negative val = -_0
-    xx = -xx;
-    conv[0] = '-';
-    dig = (xx / 1000) % 10;
-    conv[1] = dig ? '0' + dig : ' ';
-  }
-  else { // positive val = __0
-    dig = (xx / 10000) % 10;
-    if (dig) {
-      conv[0] = '0' + dig;
-      conv[1] = '0' + (xx / 1000) % 10;
-    }
-    else {
-      conv[0] = ' ';
-      dig = (xx / 1000) % 10;
-      conv[1] = dig ? '0' + dig : ' ';
-    }
-  }
-
-  conv[2] = '0' + (xx / 100) % 10; // lsd always
-
-  dig = xx % 10;
-  if (dig) { // 2 decimal places
-    conv[5] = '0' + dig;
-    conv[4] = '0' + (xx / 10) % 10;
-    conv[3] = '.';
-  }
-  else { // 1 or 0 decimal place
-    dig = (xx / 10) % 10;
-    if (dig) {
-      conv[4] = '0' + dig;
-      conv[3] = '.';
-    }
-    else {
-      conv[3] = conv[4] = ' ';
-    }
-    conv[5] = ' ';
-  }
-  conv[6] = '\0';
-  return conv;
-}
-
-// Convert signed int to lj string with +012.0 / -012.0 format
-char* itostr31(const int& x) {
-  int xx;
-  if (x >= 0) {
-    conv[0] = '+';
-    xx = x;
-  }
-  else {
-    conv[0] = '-';
+  if (xx<0) {
+    *p++ = '-';
+    l--;
     xx = -x;
   }
-  conv[1] = (xx / 100) % 10 + '0';
-  conv[2] = (xx / 10) % 10 + '0';
-  conv[3] = xx % 10 + '0';
-  conv[4] = '.';
-  conv[5] = '0';
-  conv[6] = 0;
-  return conv;
+  while (xx < Ipow[--l]) {
+    *p++ = ' ';
+  }
+  itoa(xx, p, 10);
+  return buffer;
+}
+
+// Convert int to rj string with lenght l padded with pad
+char* uitoaR10p(const int& x, char *buffer, uint8_t l, char pad) {
+  char* p = buffer;
+  while (x < Ipow[--l]) {
+    *p++ = pad;
+  }
+  itoa(x, p, 10);
+  return buffer;
+}
+
+// Convert int to rj string with lenght l padded with pad
+/*
+char* itoaR10p(const int& x, char *buffer, uint8_t l, char pad) {
+  char* p = buffer;
+  int xx = x;
+  if (xx<0) {
+    *p++ = '-';
+    l--;
+    xx = -x;
+  }
+  while (xx < Ipow[--l]) {
+    *p++ = pad;
+  }
+  itoa(xx, p, 10);
+  return buffer;
+}
+*/
+
+// dtostrf with Maximum Precision. If the number is to big to display the wanted precision the precision will be reduced.
+// That means the precision is high when close to zero but low when near the maximum amount of digits.
+char* dtostrfMP(float& x, int8_t w, uint8_t maxp, char* s) {
+  float xx = x;
+  char* ss = s;
+  if (x<0.0) {
+    *ss++ = '-';
+    xx = -x;
+    w--;
+  }
+  w--;
+  while ((maxp > 0) && (xx > Fpow[w-maxp]))
+    maxp--;
+  dtostrf(xx, w, maxp, ss);
+  return s;
 }
 
 // Convert signed int to rj string with 123 or -12 format
 char* itostr3(const int& x) {
-  int xx = x;
-  if (xx < 0) {
-    conv[0] = '-';
-    xx = -xx;
-  }
-  else
-    conv[0] = xx >= 100 ? (xx / 100) % 10 + '0' : ' ';
-
-  conv[1] = xx >= 10 ? (xx / 10) % 10 + '0' : ' ';
-  conv[2] = xx % 10 + '0';
-  conv[3] = 0;
-  return conv;
+  return itoaR10(x, conv, 3);
 }
 
-// Convert unsigned int to lj string with 123 format
-char* itostr3left(const int& x) {
-  if (x >= 100) {
-    conv[0] = (x / 100) % 10 + '0';
-    conv[1] = (x / 10) % 10 + '0';
-    conv[2] = x % 10 + '0';
-    conv[3] = 0;
-  }
-  else if (x >= 10) {
-    conv[0] = (x / 10) % 10 + '0';
-    conv[1] = x % 10 + '0';
-    conv[2] = 0;
-  }
-  else {
-    conv[0] = x % 10 + '0';
-    conv[1] = 0;
-  }
-  return conv;
+// Convert float to rj string with 123 or -12 format
+char* ftostr3(const float& x) {
+  return dtostrf(x, 3, 0, conv);
 }
 
-// Convert unsigned int to rj string with 1234 format
-char* itostr4(const int& x) {
-  conv[0] = x >= 1000 ? (x / 1000) % 10 + '0' : ' ';
-  conv[1] = x >= 100 ? (x / 100) % 10 + '0' : ' ';
-  conv[2] = x >= 10 ? (x / 10) % 10 + '0' : ' ';
-  conv[3] = x % 10 + '0';
-  conv[4] = 0;
-  return conv;
-}
-
-// Convert signed int to rj string with _123, -123, _-12, or __-1 format
-char *itostr4sign(const int& x) {
-  int xx = abs(x);
-  int sign = 0;
-  if (xx >= 100) {
-    conv[1] = (xx / 100) % 10 + '0';
-    conv[2] = (xx / 10) % 10 + '0';
-  }
-  else if (xx >= 10) {
-    conv[0] = ' ';
-    sign = 1;
-    conv[2] = (xx / 10) % 10 + '0';
-  }
-  else {
-    conv[0] = ' ';
-    conv[1] = ' ';
-    sign = 2;
-  }
-  conv[sign] = x < 0 ? '-' : ' ';
-  conv[3] = xx % 10 + '0';
-  conv[4] = 0;
-  return conv;
-}
-
-// Convert unsigned float to rj string with 12345 format
+// Convert float to rj string with 12345 format
 char* ftostr5(const float& x) {
-  long xx = abs(x);
-  conv[0] = xx >= 10000 ? (xx / 10000) % 10 + '0' : ' ';
-  conv[1] = xx >= 1000 ? (xx / 1000) % 10 + '0' : ' ';
-  conv[2] = xx >= 100 ? (xx / 100) % 10 + '0' : ' ';
-  conv[3] = xx >= 10 ? (xx / 10) % 10 + '0' : ' ';
-  conv[4] = xx % 10 + '0';
-  conv[5] = 0;
-  return conv;
+  return dtostrf(x, 5, 0, conv);
+}
+
+// Convert float to string with +123.4 / -123.4 format
+char* ftostr31(const float& x) {
+  return dtostrf(x, 5, 1, conv);
+}
+
+// Convert float to string with 023.45 / -23.45 format
+char* ftostr32(const float& x) {
+  return dtostrf(x, 6, 2, conv);
+}
+
+// Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
+char* ftostr43(const float& x, char plus/*=' '*/) {
+  return dtostrf(x, 5, 3, conv);
 }
 
 // Convert signed float to string with +1234.5 format
 char* ftostr51(const float& x) {
-  long xx = abs(x * 10);
-  conv[0] = (x >= 0) ? '+' : '-';
-  conv[1] = (xx / 10000) % 10 + '0';
-  conv[2] = (xx / 1000) % 10 + '0';
-  conv[3] = (xx / 100) % 10 + '0';
-  conv[4] = (xx / 10) % 10 + '0';
-  conv[5] = '.';
-  conv[6] = xx % 10 + '0';
-  conv[7] = 0;
-  return conv;
+  return dtostrf(x, 7, 1, conv);
 }
 
 // Convert signed float to string with +123.45 format
 char* ftostr52(const float& x) {
-  conv[0] = (x >= 0) ? '+' : '-';
-  long xx = abs(x * 100);
-  conv[1] = (xx / 10000) % 10 + '0';
-  conv[2] = (xx / 1000) % 10 + '0';
-  conv[3] = (xx / 100) % 10 + '0';
-  conv[4] = '.';
-  conv[5] = (xx / 10) % 10 + '0';
-  conv[6] = xx % 10 + '0';
-  conv[7] = 0;
-  return conv;
+  return dtostrf(x, 7, 2, conv);
 }
 
 #if ENABLED(MANUAL_BED_LEVELING)

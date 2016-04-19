@@ -134,10 +134,7 @@
     #endif
 
     // Uncomment screen orientation
-    #define LCD_SCREEN_ROT_0
-    //#define LCD_SCREEN_ROT_90
     //#define LCD_SCREEN_ROT_180
-    //#define LCD_SCREEN_ROT_270
 
   #else // !DOGLCD - Standard Hitachi LCD controller
 
