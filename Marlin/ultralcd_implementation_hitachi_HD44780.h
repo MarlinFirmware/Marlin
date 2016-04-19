@@ -569,6 +569,23 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
 
 #endif // SHOW_BOOTSCREEN
 
+FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) {
+  if (blink)
+    lcd_printPGM(pstr);
+  else {
+    if (!axis_homed[axis])
+      lcd_printPGM(PSTR("?"));
+    else {
+      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+        if (!axis_known_position[axis])
+          lcd_printPGM(PSTR(" "));
+        else
+      #endif
+      lcd_printPGM(pstr);
+    }
+  }
+}
+
 /**
 Possible status screens:
 16x2   |000/000 B000/000|
@@ -692,36 +709,12 @@ static void lcd_implementation_status_screen() {
         // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
         // When everything is ok you see a constant 'X'.
 
-        if (blink)
-          lcd_printPGM(PSTR(MSG_X));
-        else {
-          if (!axis_homed[X_AXIS])
-            lcd_printPGM(PSTR("?"));
-          else
-            #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-              if (!axis_known_position[X_AXIS])
-                lcd_printPGM(PSTR(" "));
-              else
-            #endif
-            lcd_printPGM(PSTR(MSG_X));
-        }
-
+        _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
         lcd.print(ftostr4sign(current_position[X_AXIS]));
 
         lcd_printPGM(PSTR(" "));
-        if (blink)
-          lcd_printPGM(PSTR(MSG_Y));
-        else {
-          if (!axis_homed[Y_AXIS])
-            lcd_printPGM(PSTR("?"));
-          else
-            #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-              if (!axis_known_position[Y_AXIS])
-                lcd_printPGM(PSTR(" "));
-              else
-            #endif
-            lcd_printPGM(PSTR(MSG_Y));
-        }
+
+        _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
         lcd.print(ftostr4sign(current_position[Y_AXIS]));
 
       #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
@@ -729,19 +722,7 @@ static void lcd_implementation_status_screen() {
     #endif // LCD_WIDTH >= 20
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
-    if (blink)
-      lcd_printPGM(PSTR(MSG_Z));
-    else {
-      if (!axis_homed[Z_AXIS])
-        lcd_printPGM(PSTR("?"));
-      else
-        #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-          if (!axis_known_position[Z_AXIS])
-            lcd_printPGM(PSTR(" "));
-          else
-        #endif
-        lcd_printPGM(PSTR(MSG_Z));
-    }
+    _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
     lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
 
   #endif // LCD_HEIGHT > 2
