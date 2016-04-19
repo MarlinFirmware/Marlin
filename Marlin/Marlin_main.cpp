@@ -1521,8 +1521,7 @@ static void setup_for_endstop_move() {
 
   #if ENABLED(REPROBE)
     void probing_failed() {
-      if(reprobe_attempts < NUM_ATTEMPTS-1)
-      {
+      if (reprobe_attempts < NUM_ATTEMPTS-1) {
         #if DISABLED(REWIPE)
           SERIAL_ERRORLNPGM(MSG_REPROBE);
           LCD_MESSAGEPGM(MSG_REPROBE);
@@ -1535,8 +1534,7 @@ static void setup_for_endstop_move() {
           float rewipe_second_pt[2] = REWIPE_SECOND_PT;
           do_blocking_move_to_xy(rewipe_first_pt[X_AXIS], rewipe_first_pt[Y_AXIS]);
           do_blocking_move_to_z(Z_REWIPE_PT);
-          for(uint8_t i=0; i<NUM_REWIPES; i++)
-          {
+          for (uint8_t i=0; i < NUM_REWIPES; i++) {
             do_blocking_move_to_xy(rewipe_second_pt[X_AXIS], rewipe_second_pt[Y_AXIS]);
             do_blocking_move_to_xy(rewipe_first_pt[X_AXIS], rewipe_first_pt[Y_AXIS]);
           }
@@ -1545,8 +1543,7 @@ static void setup_for_endstop_move() {
         do_blocking_move_to_xy(LEFT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION);
         reprobe_attempts++;
       }
-      else
-      {
+      else {
         do_blocking_move_to_z(Z_RETRY_PT);
         reprobe_attempts++;
       }
@@ -1608,8 +1605,7 @@ static void setup_for_endstop_move() {
         current_position[E_AXIS]
       );
       #ifdef REPROBE
-        if(zPosition == MIN_PROBE_PT && !digitalRead(Z_MIN_PIN)^Z_MIN_ENDSTOP_INVERTING)
-        {
+        if (zPosition == MIN_PROBE_PT && !digitalRead(Z_MIN_PIN)^Z_MIN_ENDSTOP_INVERTING) {
           probing_failed();
           return;
         }
@@ -1959,7 +1955,7 @@ static void setup_for_endstop_move() {
     run_z_probe();
     float measured_z = current_position[Z_AXIS];
     #ifdef REPROBE
-      if(measured_z == Z_RETRY_PT)
+      if (measured_z == Z_RETRY_PT)
         return MIN_PROBE_PT;
     #endif
 
@@ -3317,7 +3313,7 @@ inline void gcode_G28() {
         int xStart, xStop, xInc;
 
         #if ENABLED(REPROBE)
-          if(reprobe_attempts == NUM_ATTEMPTS && probePointCounter == -1)
+          if (reprobe_attempts == NUM_ATTEMPTS && probePointCounter == -1)
             break;
         #endif
 
@@ -3377,8 +3373,8 @@ inline void gcode_G28() {
           measured_z = probe_pt(xProbe, yProbe, z_before, act, verbose_level);
 
           #if ENABLED(REPROBE)
-            if(measured_z == MIN_PROBE_PT) {
-              if(reprobe_attempts < NUM_ATTEMPTS) {
+            if (measured_z == MIN_PROBE_PT) {
+              if (reprobe_attempts < NUM_ATTEMPTS) {
                 probePointCounter = 0;
                 zig = true;
                 yCount = -1;
@@ -3411,13 +3407,12 @@ inline void gcode_G28() {
       } //yProbe
 
       #if ENABLED(PROBE_FAIL_PANIC)
-        if(reprobe_attempts == NUM_ATTEMPTS && probePointCounter == -1)
-        {
-          if(!IS_SD_PRINTING)
+        if (reprobe_attempts == NUM_ATTEMPTS && probePointCounter == -1) {
+          if (!IS_SD_PRINTING)
             probe_fail = true;
-            disable_all_heaters();
+          disable_all_heaters();
           #if ENABLED(THERMAL_RUNAWAY_PROTECTION_PERIOD)
-            for(int i=0; i<EXTRUDERS; i++) target_temp_reached[i] = false;
+            for (int i=0; i<EXTRUDERS; i++) target_temp_reached[i] = false;
           #endif
           #if ENABLED(SDSUPPORT)
             card.closefile();
@@ -3426,11 +3421,12 @@ inline void gcode_G28() {
           clear_buffer();
           reprobe_attempts = 0;
           do_blocking_move_to_z(Z_RETRY_PT);
-          // Move E back to 0 after a failed probe
-          plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0.0, feedrate/60, active_extruder);
-          st_synchronize();
-          plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-          acceleration = DEFAULT_ACCELERATION;
+          #if ENABLED(REWIPE)
+            // If rewiped, move E back to 0 after a failed probe
+            plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 0.0, feedrate/60, active_extruder);
+            sync_plan_position()
+            acceleration = DEFAULT_ACCELERATION;
+          #endif
           #if ENABLED(ULTIPANEL)
             buzz(750, 1750);
           #endif
