@@ -274,7 +274,7 @@ static void lcd_implementation_init() {
 }
 
 int8_t glcd_loopcounter = 0;
-int8_t glcd_loops = 0;
+int8_t glcd_loops = 2;
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
@@ -334,6 +334,8 @@ static void lcd_implementation_status_screen() {
     static char fila_f_str[5];
   #endif
 
+  u8g.setColorIndex(1); // black on white
+
   // precalculate all strings in round 0
   if (!glcd_loopcounter) {
     dtostrfMP(current_position[X_AXIS], 5, 2, xpos_str);
@@ -364,8 +366,6 @@ static void lcd_implementation_status_screen() {
     if (!(glcd_loopcounter & ((glcd_loops)>>1))) {
   #endif
 
-  u8g.setColorIndex(1); // black on white
-
   // Symbols menu graphics, animated fan
 
   // Extruders
@@ -376,9 +376,11 @@ static void lcd_implementation_status_screen() {
   #else
     #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS))
   #endif
+  // 5 devices fit into the top row
   #if E_DIST < 4*DOG_CHAR_WIDTH
-    #error To much devices in GCLD top row
+    #error To many devices in GCLD top row
   #endif
+
   for (int i = 0; i < EXTRUDERS; i++) _draw_heater_status(E_DIST/2 + i*E_DIST - 2*DOG_CHAR_WIDTH, i);
 
   // Heatbed
@@ -430,8 +432,6 @@ static void lcd_implementation_status_screen() {
       lcd_printPGM(PSTR(MSG_X));
     }
   }
-  u8g.drawPixel(8, XYZ_BASELINE - 5);
-  u8g.drawPixel(8, XYZ_BASELINE - 3);
   u8g.setPrintPos(10, XYZ_BASELINE);
   lcd_print(xpos_str);
 
@@ -450,8 +450,6 @@ static void lcd_implementation_status_screen() {
       lcd_printPGM(PSTR(MSG_Y));
     }
   }
-  u8g.drawPixel(49, XYZ_BASELINE - 5);
-  u8g.drawPixel(49, XYZ_BASELINE - 3);
   u8g.setPrintPos(51, XYZ_BASELINE);
   lcd_print(ypos_str);
 
@@ -470,8 +468,6 @@ static void lcd_implementation_status_screen() {
       lcd_printPGM(PSTR(MSG_Z));
     }
   }
-  u8g.drawPixel(89, XYZ_BASELINE - 5);
-  u8g.drawPixel(89, XYZ_BASELINE - 3);
   u8g.setPrintPos(91, XYZ_BASELINE);
   lcd_print(zpos_str);
 
@@ -496,28 +492,21 @@ static void lcd_implementation_status_screen() {
     u8g.drawHLine(0, 39, LCD_PIXEL_WIDTH);
   #endif
 
+  lcd_setFont(FONT_STATUSMENU);
   #if ENABLED(SDSUPPORT)
     // SD Card Symbol
-    u8g.drawFrame(42, 42 - TALL_FONT_CORRECTION, 10, 7);
-    u8g.drawPixel(50, 43 - TALL_FONT_CORRECTION);
-    u8g.setColorIndex(0); // white on black
-    u8g.drawPixel(50, 42 - TALL_FONT_CORRECTION);
-    u8g.drawPixel(51, 43 - TALL_FONT_CORRECTION);
-    u8g.drawPixel(51, 42 - TALL_FONT_CORRECTION);
-    u8g.setColorIndex(1); // black on white
-    if (IS_SD_INSERTED) {
-      u8g.drawBox(42, 49 - TALL_FONT_CORRECTION, 10, 4);
-    }
+    if (IS_SD_INSERTED)
+      u8g.drawBitmapP(42, 42, STATUS_SD1_BYTEWIDTH, STATUS_SD1_HEIGHT, sd1_graphic);
+    else
+      u8g.drawBitmapP(42, 42, STATUS_SD0_BYTEWIDTH, STATUS_SD0_HEIGHT, sd0_graphic);
 
     // SD Card Progress bar and clock
-    lcd_setFont(FONT_STATUSMENU);
-
     if (IS_SD_PRINTING) {
       // Progress bar frame
-      u8g.drawFrame(54, 49, 73, 4 - TALL_FONT_CORRECTION);
+      u8g.drawFrame(54, 49, 73, 3);
 
       // Progress bar solid part
-      u8g.drawBox(55, 50, progress_bar, 2 - (TALL_FONT_CORRECTION));
+      u8g.drawBox(55, 50, progress_bar, 1);
 
       if (print_job_start_ms != 0) {
         u8g.setPrintPos(80,48);
@@ -529,7 +518,6 @@ static void lcd_implementation_status_screen() {
   #endif
 
   // Status line
-  lcd_setFont(FONT_STATUSMENU);
   #if ENABLED(USE_SMALL_INFOFONT)
     u8g.setPrintPos(0, 62);
   #else

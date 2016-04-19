@@ -1979,16 +1979,16 @@ void lcd_update() {
         glcd_loopcounter = 0;
         u8g.firstPage();
         do {
+          u8g.setColorIndex(1); // black on white
           lcd_setFont(FONT_MENU);
           u8g.setPrintPos(125, 0);
           #if ENABLED(LCD_SCREEN_ROT_180)
-            if (glcd_loopcounter == 0) {
+            if ((glcd_loopcounter == 0) &&  blink) {
+              u8g.drawPixel(127, 63); // draw alive dot
           #else
-            if (glcd_loopcounter == glcd_loops - 1) {
+            if ((glcd_loopcounter == glcd_loops - 1) && blink) {
+              u8g.drawPixel(127, 63); // draw alive dot
           #endif
-            u8g.setColorIndex(blink ? 1 : 0); // Set color for the alive dot
-            u8g.drawPixel(127, 63); // draw alive dot
-            u8g.setColorIndex(1); // black on white
           }
           (*currentMenu)();
           glcd_loopcounter++;
@@ -2224,7 +2224,8 @@ int Ipow[] = {0,
               100,
               1000,
               10000};
-float Fpow[] = {0.0,
+float Fpow[] = {0.1,
+                1.0,
                 10.0,
                 100.0,
                 1000.0,
@@ -2301,8 +2302,7 @@ char* dtostrfMP(float& x, int8_t w, uint8_t maxp, char* s) {
     xx = -x;
     w--;
   }
-  w--;
-  while ((maxp > 0) && (xx > Fpow[w-maxp]))
+  while ((maxp > 0) && (xx >= Fpow[w-maxp]))
     maxp--;
   dtostrf(xx, w, maxp, ss);
   return s;
