@@ -623,7 +623,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 
     #ifdef REPROBE
       #define Z_RETRY_PT 15 // Z height to move the hotend after failed probe
-      #define NUM_ATTEMPTS 3 // Number of attempts to make before quiting
+      #define NUM_ATTEMPTS 3 // Number of attempts to make before giving up
       //#define PROBE_FAIL_PANIC // Completely give up printing if the final attempt fails (use G26 to get out of failed state)
       //#define REWIPE // Re-attempts wiping
       #ifdef REWIPE
@@ -671,7 +671,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 
   #define XY_TRAVEL_SPEED 4000         // X and Y axis travel speed between probes, in mm/min.
 
-  #define MIN_PROBE_PT (Z_MIN_POS-2)     //How far the extruder should move down to probe
+  #define MIN_PROBE_PT (Z_MIN_POS-2)  //How far the extruder should move down to probe
   #define Z_RAISE_BEFORE_PROBING 15   // How much the Z axis will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  // How much the Z axis will be raised when traveling from between next probing points.
   #define Z_RAISE_AFTER_PROBING 50    // How much the Z axis will be raised after the last probing point.
