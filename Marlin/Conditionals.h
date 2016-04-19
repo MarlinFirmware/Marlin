@@ -297,7 +297,7 @@
     #if ENABLED(USE_ZMIN_PLUG)
       #define ENDSTOPPULLUP_ZMIN
     #endif
-    #if ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
+    #if DISABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
       #define ENDSTOPPULLUP_ZMIN_PROBE
     #endif
   #endif
