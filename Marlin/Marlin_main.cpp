@@ -5559,6 +5559,7 @@ inline void gcode_M226() {
  *       U<bool> with a non-zero value will apply the result to current settings
  */
 inline void gcode_M303() {
+#if ENABLED(PIDTEMP)
   int e = code_seen('E') ? code_value_short() : 0;
   int c = code_seen('C') ? code_value_short() : 5;
   bool u = code_seen('U') && code_value_short() != 0;
@@ -5573,6 +5574,10 @@ inline void gcode_M303() {
   PID_autotune(temp, e, c, u);
 
   KEEPALIVE_STATE(IN_HANDLER);
+#else
+  SERIAL_ERROR_START;
+  SERIAL_ERRORLNPGM(MSG_ERR_M303_DISABLED);
+#endif
 }
 
 #if ENABLED(SCARA)
