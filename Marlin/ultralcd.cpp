@@ -1015,7 +1015,13 @@ void lcd_cooldown() {
    */
   static void _lcd_level_bed_homing() {
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
-    lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW;
+    lcdDrawUpdate =
+      #if ENABLED(DOGLCD)
+        LCDVIEW_CALL_REDRAW_NEXT
+      #else
+        LCDVIEW_CALL_NO_REDRAW
+      #endif
+    ;
     if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS])
       lcd_goto_menu(_lcd_level_bed_homing_done);
   }
@@ -1157,10 +1163,10 @@ static void _lcd_move(const char* name, AxisEnum axis, float min, float max) {
     current_position[axis] += float((int32_t)encoderPosition) * move_menu_scale;
     if (min_software_endstops) NOLESS(current_position[axis], min);
     if (max_software_endstops) NOMORE(current_position[axis], max);
-    encoderPosition = 0;
     line_to_current(axis);
     lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
   }
+  encoderPosition = 0;
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
   if (LCD_CLICKED) lcd_goto_previous_menu(true);
 }
@@ -1186,10 +1192,10 @@ static void lcd_move_e(
   #endif
   if (encoderPosition && movesplanned() <= 3) {
     current_position[E_AXIS] += float((int32_t)encoderPosition) * move_menu_scale;
-    encoderPosition = 0;
     line_to_current(E_AXIS);
     lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
   }
+  encoderPosition = 0;
   if (lcdDrawUpdate) {
     PGM_P pos_label;
     #if EXTRUDERS == 1
