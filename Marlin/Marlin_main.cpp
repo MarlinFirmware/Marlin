@@ -1427,6 +1427,7 @@ inline void sync_plan_position() {
   #endif
   plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
+inline void sync_plan_position_e() { plan_set_e_position(current_position[E_AXIS]); }
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
 
@@ -3642,8 +3643,9 @@ inline void gcode_G28() {
  * G92: Set current position to given X Y Z E
  */
 inline void gcode_G92() {
-  if (!code_seen(axis_codes[E_AXIS]))
-    st_synchronize();
+  bool didE = code_seen(axis_codes[E_AXIS]);
+
+  if (!didE) st_synchronize();
 
   bool didXYZ = false;
   for (int i = 0; i < NUM_AXIS; i++) {
@@ -3653,14 +3655,11 @@ inline void gcode_G92() {
 
       current_position[i] = v;
 
-      if (i == E_AXIS)
-        plan_set_e_position(v);
-      else {
+      if (i != E_AXIS) {
         position_shift[i] += v - p; // Offset the coordinate space
         update_software_endstops((AxisEnum)i);
-		  
         didXYZ = true;
-	  }
+      }
     }
   }
   if (didXYZ) {
@@ -3669,6 +3668,9 @@ inline void gcode_G92() {
     #else
       sync_plan_position();
     #endif
+  }
+  else if (didE) {
+    sync_plan_position_e();
   }
 }
 
