@@ -276,7 +276,7 @@ static void lcd_status_screen();
 
 menuFunc_t currentMenu = lcd_status_screen; /* function pointer to the currently active menu */
 millis_t next_lcd_update_ms;
-uint8_t lcd_status_update_delay;
+uint8_t lcd_update_delay;
 bool ignore_click = false;
 bool wait_for_unclick;
 bool defer_return_to_status = false;
@@ -951,7 +951,6 @@ static void lcd_move_menu_axis();
 
 static void _lcd_move(const char* name, AxisEnum axis, int min, int max) {
   ENCODER_DIRECTION_NORMAL();
-  char conv_str[6];
   if ((encoderPosition != 0) && (movesplanned() <= 3)) {
     refresh_cmd_timeout();
     current_position[axis] += float((int)encoderPosition) * move_menu_scale;
@@ -1452,7 +1451,6 @@ static void lcd_control_volumetric_menu() {
  */
 #if ENABLED(HAS_LCD_CONTRAST)
   static void lcd_set_contrast() {
-    char conv[4];
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition != 0) {
       #if ENABLED(U8GLIB_LM6059_AF)
@@ -1467,7 +1465,7 @@ static void lcd_control_volumetric_menu() {
       u8g.setContrast(lcd_contrast);
     }
     if (lcdDrawUpdate) {
-      lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itoa(lcd_contrast, conv, 10));
+      lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itoa(lcd_contrast, conv_str, 10));
     }
     if (LCD_CLICKED) lcd_goto_previous_menu();
   }
@@ -1519,7 +1517,7 @@ static void lcd_control_volumetric_menu() {
    */
   void lcd_sdcard_menu() {
     ENCODER_DIRECTION_MENUS();
-    if (lcdDrawUpdate == 0 && LCD_CLICKED == 0) return; // nothing to do (so don't thrash the SD card)
+    if (lcdDrawUpdate == LCD_DRAW_UPDATE_NONE && LCD_CLICKED == 0) return; // nothing to do (so don't thrash the SD card)
     uint16_t fileCnt = card.getnrfilenames();
     START_MENU();
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
@@ -1964,43 +1962,56 @@ void lcd_update() {
       }
     #endif //ULTIPANEL
 
-    if (currentMenu == lcd_status_screen) {
-      if (!lcd_status_update_delay) {
-        lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
-        lcd_status_update_delay = 10;   /* redraw the main screen every second. This is easier then trying keep track of all things that change on the screen */
-      }
-      else {
-        lcd_status_update_delay--;
-      }
+    if (!lcd_update_delay) {
+      lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
+      lcd_update_delay = 10;   /* redraw the main screen every second. This is easier then trying keep track of all things that change on the screen */
+    }
+    else {
+      lcd_update_delay--;
     }
 
-    if (lcdDrawUpdate) {
-
+    if (lcdDrawUpdate != 0) {
       if (lcdDrawUpdate == LCD_DRAW_UPDATE_CALL_NO_REDRAW) lcdDrawUpdate = LCD_DRAW_UPDATE_NONE;
 
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
         bool blink = lcd_blink();
-        glcd_loopcounter = 0;
 
-        u8g.firstPage();
-        do {
-          u8g.setColorIndex(1); // black on white
-          lcd_setFont(FONT_MENU);
-          u8g.setPrintPos(125, 0);
-          #if ENABLED(LCD_SCREEN_ROT_180)
-            if ((glcd_loopcounter == 0) &&  blink) {
-              u8g.drawPixel(127, 63); // draw alive dot
-          #else
-            if ((glcd_loopcounter == glcd_loops - 1) && blink) {
-              u8g.drawPixel(127, 63); // draw alive dot
-          #endif
-          }
-          (*currentMenu)();
-          glcd_loopcounter++;
-        } while (u8g.nextPage());
-        glcd_loops = glcd_loopcounter;
-      #else
+        if (!glcd_loopcounter) {
+          u8g.firstPage();
+        }
+        u8g.setColorIndex(1); // black on white
+        lcd_setFont(FONT_MENU);
+        u8g.setPrintPos(125, 0);
+        #if ENABLED(LCD_SCREEN_ROT_180)
+          if ((glcd_loopcounter == 0) &&  blink)
+            u8g.drawPixel(127, 63); // draw alive dot
+        #else
+          if ((glcd_loopcounter == DISPLAY_STRIPES - 1) && blink)
+            u8g.drawPixel(127, 63); // draw alive dot
+        #endif
         (*currentMenu)();
+        glcd_loopcounter++;
+        if (!u8g.nextPage()) {
+          if (lcdDrawUpdate) lcdDrawUpdate--;
+          glcd_loopcounter = 0;
+        }
+      #else
+        if (lcdDrawUpdate)
+          (*currentMenu)();
+        switch (lcdDrawUpdate) {
+        case LCD_DRAW_UPDATE_NONE:
+          // do nothing
+        case LCD_DRAW_UPDATE_CALL_NO_REDRAW:
+          // changes to LCD_DRAW_UPDATE_NONE before call
+          break;
+        case LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW:
+          lcd_implementation_clear();
+          lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
+          break;
+        case LCD_DRAW_UPDATE_CALL_REDRAW:
+          lcdDrawUpdate = LCD_DRAW_UPDATE_NONE;
+          break;
+        }
       #endif
     }
 
@@ -2018,22 +2029,6 @@ void lcd_update() {
       }
 
     #endif // ULTIPANEL
-
-    switch (lcdDrawUpdate) {
-      case LCD_DRAW_UPDATE_NONE:
-        // do nothing
-      case LCD_DRAW_UPDATE_CALL_NO_REDRAW:
-        // changes to LCD_DRAW_UPDATE_NONE before call
-        break;
-      case LCD_DRAW_UPDATE_CLEAR_CALL_REDRAW:
-        lcd_implementation_clear();
-        lcdDrawUpdate = LCD_DRAW_UPDATE_CALL_REDRAW;
-        break;
-      case LCD_DRAW_UPDATE_CALL_REDRAW:
-        lcdDrawUpdate = LCD_DRAW_UPDATE_NONE;
-        break;
-    }
-
     next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
   }
 }
@@ -2290,7 +2285,6 @@ char* dtostrfMP(float& x, int8_t w, uint8_t maxp, char* s) {
    *   - Click saves the Z and goes to the next mesh point
    */
   static void _lcd_level_bed_procedure() {
-    char conv_str[6];
 
     static bool mbl_wait_for_move = false;
     // Menu handlers may be called in a re-entrant fashion

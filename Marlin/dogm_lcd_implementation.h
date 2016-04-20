@@ -138,24 +138,31 @@
 #if ENABLED(U8GLIB_ST7920)
   //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
   U8GLIB_ST7920_128X64_RRD u8g(0);
+  #define DISPLAY_SRIPES 2
 #elif ENABLED(MAKRPANEL)
   // The MaKrPanel display, ST7565 controller as well
   U8GLIB_NHD_C12864_2X u8g(DOGLCD_CS, DOGLCD_A0);
+  #define DISPLAY_SRIPES 4
 #elif ENABLED(VIKI2) || ENABLED(miniVIKI)
   // Mini Viki and Viki 2.0 LCD, ST7565 controller as well
   U8GLIB_NHD_C12864_2X u8g(DOGLCD_CS, DOGLCD_A0);
+  #define DISPLAY_SRIPES 4
 #elif ENABLED(U8GLIB_LM6059_AF)
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   U8GLIB_LM6059_2X u8g(DOGLCD_CS, DOGLCD_A0);
+  #define DISPLAY_SRIPES 4
 #elif ENABLED(U8GLIB_SSD1306)
   // Generic support for SSD1306 OLED I2C LCDs
   U8GLIB_SSD1306_128X64_2X u8g(U8G_I2C_OPT_NONE);
+  #define DISPLAY_SRIPES 4
 #elif ENABLED(MINIPANEL)
   // The MINIPanel display
   U8GLIB_MINI12864_2X u8g(DOGLCD_CS, DOGLCD_A0);
+  #define DISPLAY_SRIPES 4
 #else
   // for regular DOGM128 display with HW-SPI
   U8GLIB_DOGM128_2X u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0
+  #define DISPLAY_SRIPES 4
 #endif
 
 #ifndef LCD_PIXEL_WIDTH
@@ -274,7 +281,6 @@ static void lcd_implementation_init() {
 }
 
 int8_t glcd_loopcounter = 0;
-int8_t glcd_loops = 2;
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
@@ -336,7 +342,7 @@ static void lcd_implementation_status_screen() {
 
   u8g.setColorIndex(1); // black on white
 
-  // precalculate all strings in round 0
+  // precalculate all strings in stripe 0
   if (!glcd_loopcounter) {
     dtostrfMP(current_position[X_AXIS], 5, 2, xpos_str);
     dtostrfMP(current_position[Y_AXIS], 5, 2, ypos_str);
@@ -361,9 +367,9 @@ static void lcd_implementation_status_screen() {
 
   // upper half
   #if ENABLED(LCD_SCREEN_ROT_180)
-    if ((glcd_loopcounter & ((glcd_loops)>>1))) {
+    if ((glcd_loopcounter & (DISPLAY_SRIPES >> 1))) {
   #else
-    if (!(glcd_loopcounter & ((glcd_loops)>>1))) {
+    if (!(glcd_loopcounter & (DISPLAY_SRIPES >> 1))) {
   #endif
 
   // Symbols menu graphics, animated fan
@@ -478,9 +484,9 @@ static void lcd_implementation_status_screen() {
 
   // lower half
   #if ENABLED(LCD_SCREEN_ROT_180)
-    if (!(glcd_loopcounter & ((glcd_loops)>>1))) {
+    if (!(glcd_loopcounter & (DISPLAY_SRIPES >> 1))) {
   #else
-    if ((glcd_loopcounter & ((glcd_loops)>>1))) {
+    if ((glcd_loopcounter & (DISPLAY_SRIPES >> 1))) {
   #endif
   // Feedrate
   lcd_setFont(FONT_MENU);
@@ -546,13 +552,10 @@ static void lcd_implementation_status_screen() {
 }
 
 static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
+  u8g.setColorIndex(1);  // black on white
   if (isSelected) {
-    u8g.setColorIndex(1);  // black on white
-    u8g.drawBox(0, row * (DOG_CHAR_HEIGHT) + 3 - (TALL_FONT_CORRECTION), LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT);
-    u8g.setColorIndex(0);  // following text must be white on black
-  }
-  else {
-    u8g.setColorIndex(1); // unmarked text is black on white
+    u8g.drawHLine(0, row * DOG_CHAR_HEIGHT + 3 - TALL_FONT_CORRECTION                  , LCD_PIXEL_WIDTH);
+    u8g.drawHLine(0, row * DOG_CHAR_HEIGHT + 3 - TALL_FONT_CORRECTION + DOG_CHAR_HEIGHT, LCD_PIXEL_WIDTH);
   }
   u8g.setPrintPos((START_ROW) * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
 }
@@ -590,7 +593,7 @@ static void _drawmenu_setting_edit_generic(bool isSelected, uint8_t row, const c
   if (pgm)  lcd_printPGM(data);  else  lcd_print((char*)data);
 }
 
-char conv_str[10];
+static char conv_str[10];
 
 #define lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, false)
 #define lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, true)

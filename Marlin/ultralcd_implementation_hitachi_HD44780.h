@@ -729,30 +729,29 @@ static void lcd_implementation_status_screen() {
     lcd.print(uitoaR(feedrate_multiplier, conv_str, 3));
     lcd.print('%');
 
-    #if LCD_WIDTH > 19 && ENABLED(SDSUPPORT)
+    #if ENABLED(SDSUPPORT)
+      #if LCD_WIDTH > 19
+        lcd.setCursor(7, 2);
+        lcd_printPGM(PSTR("SD"));
+        if (IS_SD_INSERTED) {
+          if (IS_SD_PRINTING)
+            lcd.print(uitoaR(card.percentDone(), conv_str, 3));
+          else
+            lcd_printPGM(PSTR("---"));
+        lcd.print('%');
 
-      lcd.setCursor(7, 2);
-      lcd_printPGM(PSTR("SD"));
-      if (IS_SD_PRINTING)
-        lcd.print(uitoaR(card.percentDone(), conv_str, 3));
-      else
-        lcd_printPGM(PSTR("---"));
-      lcd.print('%');
-
-    #endif // LCD_WIDTH > 19 && SDSUPPORT
-
-    lcd.setCursor(LCD_WIDTH - 6, 2);
-    lcd.print(LCD_STR_CLOCK[0]);
-    if (print_job_start_ms != 0) {
-      uint16_t time = (((print_job_stop_ms > print_job_start_ms)
-                       ? print_job_stop_ms : millis()) - print_job_start_ms) / 60000;
-      lcd.print(uitoaRp(time / 60, conv_str, 2, ' '));
-      lcd.print(':');
-      lcd.print(uitoaRp(time % 60, conv_str, 2, '0'));
-    }
-    else {
-      lcd_printPGM(PSTR("--:--"));
-    }
+      #endif // LCD_WIDTH > 19
+      if (IS_SD_INSERTED) {
+        if (print_job_start_ms != 0) {
+          lcd.setCursor(LCD_WIDTH - 6, 2);
+          lcd.print(LCD_STR_CLOCK[0]);
+          uint16_t time = millis() / 60000 - print_job_start_ms / 60000;
+          lcd.print(uitoaRp(time/60, conv_str, 2, ' '));
+          lcd.print(':');
+          lcd.print(uitoaRp(time%60, conv_str, 2, '0'));
+        }
+      }
+    #endif // SDSUPPORT
 
   #endif // LCD_HEIGHT > 3
 
