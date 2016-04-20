@@ -221,7 +221,7 @@ static void updateTemperaturesFromRawValues();
 //================================ Functions ================================
 //===========================================================================
 
-#if ENABLED(PIDTEMP)
+#if HAS_PID_HEATING
 
   void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false*/) {
     float input = 0.0;
@@ -240,8 +240,13 @@ static void updateTemperaturesFromRawValues();
       millis_t next_auto_fan_check_ms = temp_ms + 2500UL;
     #endif
 
-    if (extruder >= EXTRUDERS
-      #if !HAS_TEMP_BED
+    if (false
+      #if ENABLED(PIDTEMP)
+         || extruder >= EXTRUDERS
+      #else
+         || extruder >= 0
+      #endif
+      #if DISABLED(PIDTEMPBED)
          || extruder < 0
       #endif
     ) {
@@ -253,10 +258,16 @@ static void updateTemperaturesFromRawValues();
 
     disable_all_heaters(); // switch off all heaters.
 
-    if (extruder < 0)
-      soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
-    else
+    #if HAS_PID_FOR_BOTH
+      if (extruder < 0)
+        soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
+      else
+        soft_pwm[extruder] = bias = d = (PID_MAX) / 2;
+    #elif ENABLED(PIDTEMP)
       soft_pwm[extruder] = bias = d = (PID_MAX) / 2;
+    #else
+      soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
+    #endif
 
     // PID Tuning loop
     for (;;) {
@@ -266,7 +277,15 @@ static void updateTemperaturesFromRawValues();
       if (temp_meas_ready) { // temp sample ready
         updateTemperaturesFromRawValues();
 
-        input = (extruder < 0) ? current_temperature_bed : current_temperature[extruder];
+        input =
+          #if HAS_PID_FOR_BOTH
+            extruder < 0 ? current_temperature_bed : current_temperature[extruder]
+          #elif ENABLED(PIDTEMP)
+            current_temperature[extruder]
+          #else
+            current_temperature_bed
+          #endif
+        ;
 
         max = max(max, input);
         min = min(min, input);
@@ -281,10 +300,16 @@ static void updateTemperaturesFromRawValues();
         if (heating && input > temp) {
           if (ELAPSED(ms, t2 + 5000UL)) {
             heating = false;
-            if (extruder < 0)
-              soft_pwm_bed = (bias - d) >> 1;
-            else
+            #if HAS_PID_FOR_BOTH
+              if (extruder < 0)
+                soft_pwm_bed = (bias - d) >> 1;
+              else
+                soft_pwm[extruder] = (bias - d) >> 1;
+            #elif ENABLED(PIDTEMP)
               soft_pwm[extruder] = (bias - d) >> 1;
+            #elif ENABLED(PIDTEMPBED)
+              soft_pwm_bed = (bias - d) >> 1;
+            #endif
             t1 = ms;
             t_high = t1 - t2;
             max = temp;
@@ -297,7 +322,15 @@ static void updateTemperaturesFromRawValues();
             t2 = ms;
             t_low = t2 - t1;
             if (cycles > 0) {
-              long max_pow = extruder < 0 ? MAX_BED_POWER : PID_MAX;
+              long max_pow =
+                #if HAS_PID_FOR_BOTH
+                  extruder < 0 ? MAX_BED_POWER : PID_MAX
+                #elif ENABLED(PIDTEMP)
+                  PID_MAX
+                #else
+                  MAX_BED_POWER
+                #endif
+              ;
               bias += (d * (t_high - t_low)) / (t_low + t_high);
               bias = constrain(bias, 20, max_pow - 20);
               d = (bias > max_pow / 2) ? max_pow - 1 - bias : bias;
@@ -336,10 +369,16 @@ static void updateTemperaturesFromRawValues();
                 */
               }
             }
-            if (extruder < 0)
-              soft_pwm_bed = (bias + d) >> 1;
-            else
+            #if HAS_PID_FOR_BOTH
+              if (extruder < 0)
+                soft_pwm_bed = (bias + d) >> 1;
+              else
+                soft_pwm[extruder] = (bias + d) >> 1;
+            #elif ENABLED(PIDTEMP)
               soft_pwm[extruder] = (bias + d) >> 1;
+            #else
+              soft_pwm_bed = (bias + d) >> 1;
+            #endif
             cycles++;
             min = temp;
           }
@@ -366,27 +405,48 @@ static void updateTemperaturesFromRawValues();
       }
       if (cycles > ncycles) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
-        const char* estring = extruder < 0 ? "bed" : "";
-        SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(workKp);
-        SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(workKi);
-        SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(workKd);
+
+        #if HAS_PID_FOR_BOTH
+          const char* estring = extruder < 0 ? "bed" : "";
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(workKp);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(workKi);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(workKd);
+        #elif ENABLED(PIDTEMP)
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_Kp "); SERIAL_PROTOCOLLN(workKp);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_Ki "); SERIAL_PROTOCOLLN(workKi);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_Kd "); SERIAL_PROTOCOLLN(workKd);
+        #else
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_bedKp "); SERIAL_PROTOCOLLN(workKp);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_bedKi "); SERIAL_PROTOCOLLN(workKi);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_bedKd "); SERIAL_PROTOCOLLN(workKd);
+        #endif
+
+        #define _SET_BED_PID() \
+          bedKp = workKp; \
+          bedKi = scalePID_i(workKi); \
+          bedKd = scalePID_d(workKd); \
+          updatePID()
+
+        #define _SET_EXTRUDER_PID() \
+          PID_PARAM(Kp, extruder) = workKp; \
+          PID_PARAM(Ki, extruder) = scalePID_i(workKi); \
+          PID_PARAM(Kd, extruder) = scalePID_d(workKd); \
+          updatePID()
 
         // Use the result? (As with "M303 U1")
         if (set_result) {
-          if (extruder < 0) {
-            #if ENABLED(PIDTEMPBED)
-              bedKp = workKp;
-              bedKi = scalePID_i(workKi);
-              bedKd = scalePID_d(workKd);
-              updatePID();
-            #endif
-          }
-          else {
-            PID_PARAM(Kp, extruder) = workKp;
-            PID_PARAM(Ki, extruder) = scalePID_i(workKi);
-            PID_PARAM(Kd, extruder) = scalePID_d(workKd);
-            updatePID();
-          }
+          #if HAS_PID_FOR_BOTH
+            if (extruder < 0) {
+              _SET_BED_PID();
+            }
+            else {
+              _SET_EXTRUDER_PID();
+            }
+          #elif ENABLED(PIDTEMP)
+            _SET_EXTRUDER_PID();
+          #else
+            _SET_BED_PID();
+          #endif
         }
         return;
       }
