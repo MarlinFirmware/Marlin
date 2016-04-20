@@ -20,8 +20,8 @@ Make must be installed on the following path:
 C:\Program Files (x86)\GnuWin32
 ```
 
-### Arduino 1.6.5
-The compilation and flash processes use the AVR toolchain. The easy way to get these tools is to install the Arduino SDK (version 1.6.5).
+### Arduino 1.6.7
+The compilation and flash processes use the AVR toolchain. The easy way to get these tools is to install the Arduino SDK (version 1.6.7).
 
 The Arduino files should be installed on the root folder of your sistem (C:\Arduino)
 
