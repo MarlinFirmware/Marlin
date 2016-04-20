@@ -1279,13 +1279,11 @@ void disable_all_heaters() {
   #define MAX6675_HEAT_INTERVAL 250u
 
   #if ENABLED(MAX6675_IS_MAX31855)
-    unsigned long max6675_temp = 2000;
-    #define MAX6675_READ_BYTES 4
+    uint32_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 7
     #define MAX6675_DISCARD_BITS 18
   #else
-    unsigned int max6675_temp = 2000;
-    #define MAX6675_READ_BYTES 2
+    uint16_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 4
     #define MAX6675_DISCARD_BITS 3
   #endif
@@ -1317,7 +1315,7 @@ void disable_all_heaters() {
 
     // Read a big-endian temperature value
     max6675_temp = 0;
-    for (uint8_t i = MAX6675_READ_BYTES; i--;) {
+    for (uint8_t i = sizeof(max6675_temp); i--;) {
       SPDR = 0;
       for (;!TEST(SPSR, SPIF););
       max6675_temp |= SPDR;
