@@ -428,8 +428,8 @@ void check_axes_activity() {
   #endif
 
   #if ENABLED(BARICUDA)
-    unsigned char tail_valve_pressure = ValvePressure,
-                  tail_e_to_p_pressure = EtoPPressure;
+    unsigned char tail_valve_pressure = baricuda_valve_pressure,
+                  tail_e_to_p_pressure = baricuda_e_to_p_pressure;
   #endif
 
   block_t* block;
@@ -650,8 +650,8 @@ float junction_deviation = 0.1;
   #endif
 
   #if ENABLED(BARICUDA)
-    block->valve_pressure = ValvePressure;
-    block->e_to_p_pressure = EtoPPressure;
+    block->valve_pressure = baricuda_valve_pressure;
+    block->e_to_p_pressure = baricuda_e_to_p_pressure;
   #endif
 
   // Compute direction bits for this block
