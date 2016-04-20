@@ -28,7 +28,7 @@
 
 #include <Wire.h>
 
-TWIBus::twibus() {
+TWIBus::TWIBus() {
   Wire.begin(); // We use no address so we will join the BUS as the master
   this->reset();
 }
