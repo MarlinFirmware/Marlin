@@ -1343,7 +1343,7 @@ static void lcd_control_menu() {
   static void _lcd_autotune(int e) {
     char cmd[30];
     sprintf_P(cmd, PSTR("M303 U1 E%d S%d"), e,
-      #if ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED)
+      #if HAS_PID_FOR_BOTH
         e < 0 ? autotune_temp_bed : autotune_temp[e]
       #elif ENABLED(PIDTEMPBED)
         autotune_temp_bed
