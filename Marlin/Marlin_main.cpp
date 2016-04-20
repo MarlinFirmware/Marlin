@@ -5559,7 +5559,7 @@ inline void gcode_M226() {
  *       U<bool> with a non-zero value will apply the result to current settings
  */
 inline void gcode_M303() {
-  #if ENABLED(PIDTEMP)
+  #if HAS_PID_HEATING
     int e = code_seen('E') ? code_value_short() : 0;
     int c = code_seen('C') ? code_value_short() : 5;
     bool u = code_seen('U') && code_value_short() != 0;
