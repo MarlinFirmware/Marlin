@@ -70,6 +70,9 @@
 #ifndef MSG_LEVEL_BED_WAITING
   #define MSG_LEVEL_BED_WAITING               "Click to Begin"
 #endif
+#ifndef MSG_LEVEL_BED_NEXT_POINT
+  #define MSG_LEVEL_BED_NEXT_POINT            "Next Point"
+#endif
 #ifndef MSG_LEVEL_BED_DONE
   #define MSG_LEVEL_BED_DONE                  "Leveling Done!"
 #endif
