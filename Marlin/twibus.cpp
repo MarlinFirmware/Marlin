@@ -42,25 +42,26 @@ void TWIBus::reset() {
 void TWIBus::address(uint8_t addr) {
   this->addr = addr;
 
-  if (DEBUGGING(INFO)) {
-    SERIAL_ECHOPAIR("TWIBus::sendto: ", this->addr);
-    SERIAL_EOL;
-  }
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("sendto"), this->addr);
+  #endif
 }
 
 void TWIBus::addbyte(char c) {
   if (buffer_s >= sizeof(this->buffer)) return;
   this->buffer[this->buffer_s++] = c;
 
-  if (DEBUGGING(INFO)) {
-    SERIAL_ECHOPAIR("TWIBus::addbyte: ", this->buffer[this->buffer_s -1]);
-    SERIAL_EOL;
-  }
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("addbyte"), this->buffer[this->buffer_s - 1]);
+  #endif
 }
 
 void TWIBus::send() {
   if (!this->addr) return;
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("TWIBus::send()");
+
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("send()"));
+  #endif
 
   Wire.beginTransmission(this->addr);
   Wire.write(this->buffer, this->buffer_s);
@@ -72,10 +73,10 @@ void TWIBus::send() {
 
 void TWIBus::reqbytes(uint8_t bytes) {
   if (!this->addr) return;
-  if (DEBUGGING(INFO)) {
-    SERIAL_ECHOPAIR("TWIBus::reqbytes(): ", bytes);
-    SERIAL_EOL;
-  }
+
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("reqbytes"), bytes);
+  #endif
 
   millis_t t = millis() + this->timeout;
   Wire.requestFrom(this->addr, bytes);
@@ -100,5 +101,18 @@ void TWIBus::reqbytes(uint8_t bytes) {
   // Reset the buffer after sending the data
   this->reset();
 }
+
+#if ENABLED(DEBUG_TWIBUS)
+
+  void TWIBus::debug(const char func[], int32_t val/*=-1*/) {
+    if (DEBUGGING(INFO)) {
+      SERIAL_ECHOPGM("TWIBus::");
+      serialprintPGM(func);
+      if (val >= 0) SERIAL_ECHOPAIR(": ", val);
+      SERIAL_EOL;
+    }
+  }
+
+#endif
 
 #endif //EXPERIMENTAL_I2CBUS
