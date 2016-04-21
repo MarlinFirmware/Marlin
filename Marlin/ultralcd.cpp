@@ -1054,7 +1054,7 @@ void lcd_cooldown() {
         LCDVIEW_CALL_NO_REDRAW
       #endif
     ;
-    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS])
+    if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
       lcd_goto_menu(_lcd_level_bed_homing_done);
   }
 
@@ -1063,7 +1063,7 @@ void lcd_cooldown() {
    */
   static void _lcd_level_bed_continue() {
     defer_return_to_status = true;
-    axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
+    axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
     mbl.reset();
     enqueue_and_echo_commands_P(PSTR("G28"));
     lcd_goto_menu(_lcd_level_bed_homing);
@@ -1110,8 +1110,9 @@ static void lcd_prepare_menu() {
   // Level Bed
   //
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS])
-      MENU_ITEM(gcode, MSG_LEVEL_BED, PSTR("G29"));
+    MENU_ITEM(gcode, MSG_LEVEL_BED,
+      axis_homed[X_AXIS] && axis_homed[Y_AXIS] ? PSTR("G29") : PSTR("G28\nG29")
+    );
   #elif ENABLED(MANUAL_BED_LEVELING)
     MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
   #endif
