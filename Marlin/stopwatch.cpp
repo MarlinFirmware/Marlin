@@ -24,11 +24,14 @@
 #include "stopwatch.h"
 
 Stopwatch::Stopwatch() {
-   this->reset();
- }
+  this->reset();
+}
 
 void Stopwatch::stop() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::stop()");
+  #if ENABLED(DEBUG_STOPWATCH)
+    debug(PSTR("stop"));
+  #endif
+
   if (!this->isRunning()) return;
 
   this->status = STPWTCH_STOPPED;
@@ -36,7 +39,10 @@ void Stopwatch::stop() {
 }
 
 void Stopwatch::pause() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::pause()");
+  #if ENABLED(DEBUG_STOPWATCH)
+    debug(PSTR("pause"));
+  #endif
+
   if (!this->isRunning()) return;
 
   this->status = STPWTCH_PAUSED;
@@ -44,7 +50,10 @@ void Stopwatch::pause() {
 }
 
 void Stopwatch::start() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::start()");
+  #if ENABLED(DEBUG_STOPWATCH)
+    debug(PSTR("start"));
+  #endif
+
   if (this->isRunning()) return;
 
   if (this->isPaused()) this->accumulator = this->duration();
@@ -55,7 +64,9 @@ void Stopwatch::start() {
 }
 
 void Stopwatch::reset() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::reset()");
+  #if ENABLED(DEBUG_STOPWATCH)
+    debug(PSTR("reset"));
+  #endif
 
   this->status = STPWTCH_STOPPED;
   this->startTimestamp = 0;
@@ -75,3 +86,15 @@ uint16_t Stopwatch::duration() {
   return (((this->isRunning()) ? millis() : this->stopTimestamp)
           - this->startTimestamp) / 1000 + this->accumulator;
 }
+
+#if ENABLED(DEBUG_STOPWATCH)
+
+  void Stopwatch::debug(const char func[]) {
+    if (DEBUGGING(INFO)) {
+      SERIAL_ECHOPGM("Stopwatch::");
+      serialprintPGM(func);
+      SERIAL_ECHOLNPGM("()");
+    }
+  }
+
+#endif
