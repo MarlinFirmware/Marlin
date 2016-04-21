@@ -326,10 +326,10 @@ static void _draw_heater_status(int x, int heater) {
       if (!glcd_loopcounter)
     #endif
       //if (fsr_bed_leveling_in_progress)
-        uitoaR(int(degHotend(2) + 0.5), fsr_is_str, 3);
+        uitoaR(int(degHotend(1) + 0.5), fsr_is_str, 3);
       //else
       //  fsr_is_str = "----";
-    u8g.drawBitmapP(x + (4*DOG_CHAR_WIDTH - STATUS_FSR_WIDTH)/2, 2, STATUS_FSR_BYTEWIDTH, STATUS_FSR_HEIGHT, fsr_graphic[(fsr_bed_leveling_in_progress && blink)?1:0]);
+    u8g.drawBitmapP(x + (4*DOG_CHAR_WIDTH - STATUS_FSR_WIDTH)/2, 5, STATUS_FSR_BYTEWIDTH, STATUS_FSR_HEIGHT, fsr_graphic[(fsr_bed_leveling_in_progress && blink)?1:0]);
     lcd_setFont(FONT_STATUSMENU);
     u8g.setPrintPos(x, 28);
     lcd_print(fsr_is_str);
@@ -395,19 +395,23 @@ static void lcd_implementation_status_screen() {
   // Symbols menu graphics, animated fan
 
   // Extruders
-  #if HAS_TEMP_BED
-    #if HAS_FAN0
-      #if ENABLED(FSR_BED_LEVELING)
-        #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS+3))
-      #else
-        #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS+2))
-      #endif // FSR_BED_LEVELING
-    #endif // HAS_FAN_0
-  #elif ENABLED(FSR_BED_LEVELING) || HAS_TEMP_BED || HAS_FAN0
-    #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS+1))
+  #if ENABLED(FSR_BED_LEVELING)
+    #if HAS_TEMP_BED && HAS_FAN0
+      #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS+3))
+    #elif HAS_TEMP_BED || HAS_FAN0
+      #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS+2))
+    #else
+      #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS+1))
+    #endif
   #else
-    #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS))
-  #endif
+    #if HAS_TEMP_BED && HAS_FAN0
+      #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS+2))
+    #elif HAS_TEMP_BED || HAS_FAN0
+      #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS+1))
+    #else
+      #define E_DIST ((LCD_PIXEL_WIDTH)/(EXTRUDERS))
+    #endif
+  #endif // FSR_BED_LEVELING
   // 5 devices fit into the top row
   #if E_DIST < 4*DOG_CHAR_WIDTH
     #error To many devices in GCLD top row
@@ -417,15 +421,19 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(FSR_BED_LEVELING)
     #if DISABLED(FSR_BLANK_AFTER_LEVELING)
-      _draw_fsr_status(E_DIST/2 + (EXTRUDERS-1)*E_DIST - 2*DOG_CHAR_WIDTH, blink);
+      _draw_fsr_status(E_DIST/2 + EXTRUDERS*E_DIST - 2*DOG_CHAR_WIDTH, blink);
     #else
-      if (fsr_display_enabled) _draw_fsr_status(E_DIST/2 + (EXTRUDERS-1)*E_DIST - 2*DOG_CHAR_WIDTH, blink);
+      if (fsr_display_enabled) _draw_fsr_status(E_DIST/2 + EXTRUDERS*E_DIST - 2*DOG_CHAR_WIDTH, blink);
     #endif
   #endif
 
   // Heatbed
   #if HAS_TEMP_BED
-    _draw_heater_status(E_DIST/2 + EXTRUDERS*E_DIST - 2*DOG_CHAR_WIDTH, -1);
+    #if ENABLED(FSR_BED_LEVELING)
+      _draw_heater_status(E_DIST/2 + (EXTRUDERS+1)*E_DIST - 2*DOG_CHAR_WIDTH, -1);
+    #else
+      _draw_heater_status(E_DIST/2 + EXTRUDERS*E_DIST - 2*DOG_CHAR_WIDTH, -1);
+    #endif
   #endif
 
   // Fan
@@ -540,10 +548,17 @@ static void lcd_implementation_status_screen() {
   lcd_setFont(FONT_STATUSMENU);
   #if ENABLED(SDSUPPORT)
     // SD Card Symbol
-    if (IS_SD_INSERTED)
-      u8g.drawBitmapP(40, 42, STATUS_SD1_BYTEWIDTH, STATUS_SD1_HEIGHT, sd1_graphic);
-    else
-      u8g.drawBitmapP(40, 42, STATUS_SD0_BYTEWIDTH, STATUS_SD0_HEIGHT, sd0_graphic);
+    #if PIN_EXISTS(SD_DETECT)
+      if (IS_SD_INSERTED)
+        u8g.drawBitmapP(40, 42, STATUS_SD1_BYTEWIDTH, STATUS_SD1_HEIGHT, sd1_graphic);
+      else
+        u8g.drawBitmapP(40, 42, STATUS_SD0_BYTEWIDTH, STATUS_SD0_HEIGHT, sd0_graphic);
+    #else
+      if (card.cardOK)
+        u8g.drawBitmapP(40, 42, STATUS_SD1_BYTEWIDTH, STATUS_SD1_HEIGHT, sd1_graphic);
+      else
+        u8g.drawBitmapP(40, 42, STATUS_SD0_BYTEWIDTH, STATUS_SD0_HEIGHT, sd0_graphic);
+    #endif
 
     // SD Card Progress bar and clock
     if (IS_SD_PRINTING) {
