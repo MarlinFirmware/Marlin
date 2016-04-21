@@ -6131,6 +6131,20 @@ inline void gcode_M503() {
 
 #endif // DUAL_X_CARRIAGE
 
+#if ENABLED(LIN_ADVANCE)
+/**
+ * M905: Set advance factor
+ */
+inline void gcode_M905() {
+  st_synchronize();
+  if (code_seen('K')) extruder_advance_k = code_value();
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPGM("Advance factor:");
+  SERIAL_CHAR(' ');
+  SERIAL_ECHOLN(extruder_advance_k);
+}
+#endif
+
 /**
  * M907: Set digital trimpot motor current using axis codes X, Y, Z, E, B, S
  */
@@ -6944,6 +6958,12 @@ void process_next_command() {
           gcode_M605();
           break;
       #endif // DUAL_X_CARRIAGE
+      
+      #if ENABLED(LIN_ADVANCE)
+        case 905: // M905 Set advance factor.
+          gcode_M905();
+          break;
+      #endif
 
       case 907: // M907 Set digital trimpot motor current using axis codes.
         gcode_M907();
