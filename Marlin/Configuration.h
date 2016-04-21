@@ -637,22 +637,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define MECHANICAL_PROBE
 
   // If you've enabled AUTO_BED_LEVELING_FEATURE and are using the Z Probe for Z Homing,
-  // it is highly recommended you leave Z_SAFE_HOMING enabled!
-
-  #define Z_SAFE_HOMING   // Use the z-min-probe for homing to z-min - not the z-min-endstop.
-                          // This feature is meant to avoid Z homing with Z probe outside the bed area.
-                          // When defined, it will:
-                          // - Allow Z homing only after X and Y homing AND stepper drivers still enabled.
-                          // - If stepper drivers timeout, it will need X and Y homing again before Z homing.
-                          // - Position the Z probe in a defined XY point before Z Homing when homing all axis (G28).
-                          // - Block Z homing only when the Z probe is outside bed area.
-
-  #if ENABLED(Z_SAFE_HOMING)
-
-    #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
-    #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
-
-  #endif
+  // it is highly recommended you also enable Z_SAFE_HOMING below!
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
@@ -671,6 +656,22 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #define MANUAL_Z_HOME_POS 0
   //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
 #endif
+
+// Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
+//
+// With this feature enabled:
+//
+// - Allow Z homing only after X and Y homing AND stepper drivers still enabled.
+// - If stepper drivers time out, it will need X and Y homing again before Z homing.
+// - Position the Z probe in a defined XY point before Z Homing when homing all axes (G28).
+// - Prevent Z homing when the Z probe is outside bed area.
+//#define Z_SAFE_HOMING
+
+#if ENABLED(Z_SAFE_HOMING)
+  #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
+#endif
+
 
 // @section movement
 
