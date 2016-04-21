@@ -23,10 +23,15 @@
 #ifndef STOPWATCH_H
 #define STOPWATCH_H
 
+#include "macros.h"
+
+// Print debug messages with M111 S2 (Uses 156 bytes of PROGMEM)
+//#define DEBUG_STOPWATCH
+
 enum StopwatchStatus {
-  STPWTCH_STOPPED = 0x0,
-  STPWTCH_RUNNING = 0x1,
-  STPWTCH_PAUSED  = 0x2
+  STPWTCH_STOPPED,
+  STPWTCH_RUNNING,
+  STPWTCH_PAUSED
 };
 
 /**
@@ -94,6 +99,16 @@ class Stopwatch {
      * @return uint16_t
      */
     uint16_t duration();
+
+    #if ENABLED(DEBUG_STOPWATCH)
+
+      /**
+       * @brief Prints a debug message
+       * @details Prints a simple debug message "Stopwatch::function"
+       */
+      static void debug(const char func[]);
+
+    #endif
 };
 
 #endif //STOPWATCH_H
