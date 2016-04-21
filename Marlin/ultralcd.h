@@ -144,23 +144,10 @@
 
 #endif //ULTRA_LCD
 
-char* itostr2(const uint8_t& x);
-char* itostr31(const int& x);
-char* itostr3(const int& x);
-char* itostr3left(const int& x);
-char* itostr4(const int& x);
-char* itostr4sign(const int& x);
-
-char* ftostr3(const float& x);
-char* ftostr4sign(const float& x);
-char* ftostr31ns(const float& x); // float to string without sign character
-char* ftostr31(const float& x);
-char* ftostr32(const float& x);
-char* ftostr43(const float& x, char plus=' ');
-char* ftostr12ns(const float& x);
-char* ftostr32sp(const float& x); // remove zero-padding from ftostr32
-char* ftostr5(const float& x);
-char* ftostr51(const float& x);
-char* ftostr52(const float& x);
-
+char* itoaR(const int& x, char *buffer, uint8_t l);
+char* itoaRp(const int& x, char *buffer, uint8_t l, char pad);
+char* uitoaR(const int& x, char *buffer, uint8_t l);
+char* uitoaRp(const int& x, char *buffer, uint8_t l, char pad);
+char* itoaL(const int& x, int8_t dumy1, uint8_t dumy2, char* s);
+char* dtostrfMP(float& x, int8_t w, uint8_t maxp, char* s);
 #endif //ULTRALCD_H

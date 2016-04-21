@@ -463,6 +463,7 @@ static bool send_ok[BUFSIZE];
   float fsr_moving_noise = 0;          // Average noise/deviation for fsr while moving
   float fsr_trigger_threshold = 1023;  // Threshold for triggering
   float fsr_recovery_threshold = 1023; // Threshold for recovery
+  bool fsr_bed_leveling_in_progress = false;    // FSR bedleveling is not yet in progress
   #if ENABLED(FSR_BLANK_AFTER_LEVELING)
     bool fsr_display_enabled;
   #endif
@@ -3198,6 +3199,7 @@ inline void gcode_G28() {
          deploy_probe_for_each_reading = code_seen('E');
 
     #if ENABLED(FSR_BED_LEVELING)
+      fsr_bed_leveling_in_progress = true;  // Mark FSR bed leveling as being in progress (for LCD display)
       #if ENABLED(FSR_CALIBRATE_WITH_G29)
         delay(1500);            // Let the system settle for accurate readings.
         fsr_calibration();      // Initiate calibration of the FSR sensors. Involves z axis movement.
@@ -3646,8 +3648,11 @@ inline void gcode_G28() {
 
     gcode_M114(); // Send end position to RepetierHost
 
-    #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_BLANK_AFTER_LEVELING)
-      fsr_display_enabled = false;
+    #if ENABLED(FSR_BED_LEVELING)
+      fsr_bed_leveling_in_progress = false;  // Mark FSR bed leveling as not being in progress anymore (for LCD display)
+      #if ENABLED(FSR_BLANK_AFTER_LEVELING)
+        fsr_display_enabled = false;
+      #endif
     #endif
   }
 
