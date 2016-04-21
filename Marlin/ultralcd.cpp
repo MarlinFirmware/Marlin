@@ -262,7 +262,7 @@ static void lcd_status_screen();
   uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
   millis_t next_button_update_ms;
   uint8_t lastEncoderBits;
-  uint32_t encoderPosition;
+  uint32_t encoderPosition, nextEncoderPosition;
   #if PIN_EXISTS(SD_DETECT)
     uint8_t lcd_sd_status;
   #endif
@@ -277,6 +277,7 @@ typedef struct {
 } menuPosition;
 
 menuFunc_t currentMenu = lcd_status_screen; // pointer to the currently active menu handler
+menuFunc_t nextMenu = NULL; // the next menu handler to activate
 
 menuPosition menu_history[10];
 uint8_t menu_history_depth = 0;
@@ -311,21 +312,16 @@ float raw_Ki, raw_Kd;
  * Remembers the previous position
  */
 static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const uint32_t encoder = 0) {
-  if (currentMenu != menu) {
-    currentMenu = menu;
-    lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+  if (currentMenu != menu && nextMenu != menu) {
+    nextMenu = menu;
+    nextEncoderPosition = encoder;
     #if ENABLED(NEWPANEL)
-      encoderPosition = encoder;
       if (feedback) lcd_quick_feedback();
     #endif
     if (menu == lcd_status_screen) {
       defer_return_to_status = false;
       menu_history_depth = 0;
     }
-    #if ENABLED(LCD_PROGRESS_BAR)
-      // For LCD_PROGRESS_BAR re-initialize custom characters
-      lcd_set_custom_characters(menu == lcd_status_screen);
-    #endif
   }
 }
 
@@ -918,13 +914,6 @@ void lcd_cooldown() {
 
   static void _lcd_level_bed_done() {
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_DONE));
-    lcdDrawUpdate =
-      #if ENABLED(DOGLCD)
-        LCDVIEW_CALL_REDRAW_NEXT
-      #else
-        LCDVIEW_CALL_NO_REDRAW
-      #endif
-    ;
   }
 
   /**
@@ -940,13 +929,6 @@ void lcd_cooldown() {
       NOLESS(current_position[Z_AXIS], 0);
       NOMORE(current_position[Z_AXIS], MESH_HOME_SEARCH_Z * 2);
       line_to_current(Z_AXIS);
-      lcdDrawUpdate =
-        #if ENABLED(DOGLCD)
-          LCDVIEW_CALL_REDRAW_NEXT
-        #else
-          LCDVIEW_REDRAW_NOW
-        #endif
-      ;
     }
     encoderPosition = 0;
 
@@ -1002,14 +984,6 @@ void lcd_cooldown() {
       sprintf_P(msg, PSTR("%i / %u"), (int)(_lcd_level_bed_position + 1), (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS));
       lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_NEXT_POINT), msg);
     }
-
-    lcdDrawUpdate =
-      #if ENABLED(DOGLCD)
-        LCDVIEW_CALL_REDRAW_NEXT
-      #else
-        LCDVIEW_CALL_NO_REDRAW
-      #endif
-    ;
   }
 
   /**
@@ -1047,15 +1021,9 @@ void lcd_cooldown() {
    */
   static void _lcd_level_bed_homing() {
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
-    lcdDrawUpdate =
-      #if ENABLED(DOGLCD)
-        LCDVIEW_CALL_REDRAW_NEXT
-      #else
-        LCDVIEW_CALL_NO_REDRAW
-      #endif
-    ;
     if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
       lcd_goto_menu(_lcd_level_bed_homing_done);
+    lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW; // counts as a draw flag during graphical loop
   }
 
   /**
@@ -1197,7 +1165,6 @@ static void _lcd_move(const char* name, AxisEnum axis, float min, float max) {
     if (min_software_endstops) NOLESS(current_position[axis], min);
     if (max_software_endstops) NOMORE(current_position[axis], max);
     line_to_current(axis);
-    lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
   }
   encoderPosition = 0;
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
@@ -1226,7 +1193,6 @@ static void lcd_move_e(
   if (encoderPosition && movesplanned() <= 3) {
     current_position[E_AXIS] += float((int32_t)encoderPosition) * move_menu_scale;
     line_to_current(E_AXIS);
-    lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
   }
   encoderPosition = 0;
   if (lcdDrawUpdate) {
@@ -1717,7 +1683,6 @@ static void lcd_control_volumetric_menu() {
         lcd_contrast &= 0x3F;
       #endif
       encoderPosition = 0;
-      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       u8g.setContrast(lcd_contrast);
     }
     if (lcdDrawUpdate) {
@@ -1868,12 +1833,12 @@ static void lcd_control_volumetric_menu() {
   } \
   static void menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
     _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
-    currentMenu = menu_edit_ ## _name; \
+    lcd_goto_menu(menu_edit_ ## _name); \
   }\
   static void menu_action_setting_edit_callback_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue, menuFunc_t callback) { \
     _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
-    currentMenu = menu_edit_callback_ ## _name; \
     callbackFunc = callback; \
+    lcd_goto_menu(menu_edit_callback_ ## _name); \
   }
 menu_edit_type(int, int3, itostr3, 1);
 menu_edit_type(float, float3, ftostr3, 1);
@@ -1939,7 +1904,6 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01);
 #endif
 
 void lcd_quick_feedback() {
-  lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
   next_button_update_ms = millis() + 500;
 
   #if ENABLED(LCD_USE_I2C_BUZZER)
@@ -2106,7 +2070,7 @@ bool lcd_blink() {
  *   - Act on RepRap World keypad input
  *   - Update the encoder position
  *   - Apply acceleration to the encoder position
- *   - Set lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT on controller events
+ *   - Set lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NOW on controller events
  *   - Reset the Info Screen timeout if there's any input
  *   - Update status indicators, if any
  *
@@ -2114,17 +2078,21 @@ bool lcd_blink() {
  *   - Call the handler only if lcdDrawUpdate != LCDVIEW_NONE
  *   - Before calling the handler, LCDVIEW_CALL_NO_REDRAW => LCDVIEW_NONE
  *   - Call the menu handler. Menu handlers should do the following:
- *     - If a value changes, set lcdDrawUpdate to LCDVIEW_REDRAW_NOW
+ *     - If a value changes, set lcdDrawUpdate to LCDVIEW_REDRAW_NOW and draw the value
+ *       (Encoder events automatically set lcdDrawUpdate for you.)
  *     - if (lcdDrawUpdate) { redraw }
  *     - Before exiting the handler set lcdDrawUpdate to:
- *       - LCDVIEW_REDRAW_NOW or LCDVIEW_NONE for no callbacks until the next controller event.
  *       - LCDVIEW_CLEAR_CALL_REDRAW to clear screen and set LCDVIEW_CALL_REDRAW_NEXT.
- *       - LCDVIEW_CALL_NO_REDRAW for a callback with no forced redraw on the next loop.
- *     - NOTE: For some displays, the menu handler may be called 2 or more times per loop.
+ *       - LCDVIEW_REDRAW_NOW or LCDVIEW_NONE to keep drawingm but only in this loop.
+ *       - LCDVIEW_REDRAW_NEXT to keep drawing and draw on the next loop also.
+ *       - LCDVIEW_CALL_NO_REDRAW to keep drawing (or start drawing) with no redraw on the next loop.
+ *     - NOTE: For graphical displays menu handlers may be called 2 or more times per loop,
+ *             so don't change lcdDrawUpdate without considering this.
  *
  *   After the menu handler callback runs (or not):
+ *   - Set lcdDrawUpdate to nextLcdDrawUpdate (usually unchanged)
  *   - Clear the LCD if lcdDrawUpdate == LCDVIEW_CLEAR_CALL_REDRAW
- *   - Update lcdDrawUpdate for the next loop (i.e., move one state down, usually)
+ *   - Transition lcdDrawUpdate to the next state
  *
  * No worries. This function is only called from the main thread.
  */
@@ -2281,6 +2249,18 @@ void lcd_update() {
         lcd_return_to_status();
 
     #endif // ULTIPANEL
+
+    // If a new menu was set, update the pointer, set to clear & redraw
+    if (nextMenu) {
+      currentMenu = nextMenu;
+      encoderPosition = nextEncoderPosition;
+      nextMenu = NULL;
+      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+      #if ENABLED(LCD_PROGRESS_BAR)
+        // For LCD_PROGRESS_BAR re-initialize custom characters
+        lcd_set_custom_characters(currentMenu == lcd_status_screen);
+      #endif
+    }
 
     switch (lcdDrawUpdate) {
       case LCDVIEW_CLEAR_CALL_REDRAW:
