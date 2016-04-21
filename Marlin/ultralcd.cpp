@@ -976,30 +976,39 @@ void lcd_cooldown() {
   }
 
   /**
-   * Step 6: Display "Next point: 1 / 9" while waiting for move to finish
+   * Not a step but text for 5
    */
   static void _lcd_level_bed_moving() {
-    if (lcdDrawUpdate) {
-      char msg[10];
-      sprintf_P(msg, PSTR("%i / %u"), (int)(_lcd_level_bed_position + 1), (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS));
-      lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_NEXT_POINT), msg);
-    }
+    char msg[10];
+    sprintf_P(msg, PSTR("%i / %u"), (int)(_lcd_level_bed_position + 1), (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS));
+    lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_NEXT_POINT), msg);
+  }
+
+  /**
+   * Step 5 b:
+   */
+  static void _lcd_level_goto_next_point_b() {
+    // _mbl_goto_xy runs the menu loop until the move is done
+    int ix, iy;
+    mbl.zigzag(_lcd_level_bed_position, ix, iy);
+    _mbl_goto_xy(mbl.get_x(ix), mbl.get_y(iy));
+
+    // After the blocking function returns, change to next menu
+    currentMenu = _lcd_level_bed_get_z;
+    lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+    _lcd_level_bed_get_z();
   }
 
   /**
    * Step 5: Initiate a move to the next point
    */
   static void _lcd_level_goto_next_point() {
-    // Set the menu to display ahead of blocking call
-    lcd_goto_menu(_lcd_level_bed_moving);
+    // Announce move
+    _lcd_level_bed_moving();
 
-    // _mbl_goto_xy runs the menu loop until the move is done
-    int ix, iy;
-    mbl.zigzag(_lcd_level_bed_position, ix, iy);
-    _mbl_goto_xy(mbl.get_x(ix), mbl.get_y(iy));
-
-    // After the blocking function returns, change menus
-    lcd_goto_menu(_lcd_level_bed_get_z);
+    // When redraw is done, do the blocking move
+    lcd_goto_menu(_lcd_level_goto_next_point_b);
+    lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
   }
 
   /**
@@ -1013,6 +1022,7 @@ void lcd_cooldown() {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       lcd_goto_menu(_lcd_level_goto_next_point, true);
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
     }
   }
 
@@ -1020,10 +1030,15 @@ void lcd_cooldown() {
    * Step 3: Display "Homing XYZ" - Wait for homing to finish
    */
   static void _lcd_level_bed_homing() {
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
-    if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+    lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
+    if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
       lcd_goto_menu(_lcd_level_bed_homing_done);
-    lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW; // counts as a draw flag during graphical loop
+      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+    }
+    else
+    {
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; // counts as a draw flag during graphical loop
+    }
   }
 
   /**
@@ -1034,7 +1049,8 @@ void lcd_cooldown() {
     axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
     mbl.reset();
     enqueue_and_echo_commands_P(PSTR("G28"));
-    lcd_goto_menu(_lcd_level_bed_homing);
+    currentMenu = _lcd_level_bed_homing;
+    _lcd_level_bed_homing();
   }
 
   /**
