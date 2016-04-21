@@ -103,6 +103,7 @@
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax "
 #define MSG_A_RETRACT                       "A-retract"
+#define MSG_A_TRAVEL                        "A-rejse"
 #define MSG_XSTEPS                          "Xsteps/mm"
 #define MSG_YSTEPS                          "Ysteps/mm"
 #define MSG_ZSTEPS                          "Zsteps/mm"
@@ -157,10 +158,21 @@
 #define MSG_BED_DONE                        "Plade opvarmet"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
 
-#define MSG_DELTA_CALIBRATE                 "Delta Kalibrering"
-#define MSG_DELTA_CALIBRATE_X               "Kalibrer X"
-#define MSG_DELTA_CALIBRATE_Y               "Kalibrer Y"
-#define MSG_DELTA_CALIBRATE_Z               "Kalibrer Z"
-#define MSG_DELTA_CALIBRATE_CENTER          "Kalibrerings Center"
+#define MSG_BED_Z                           "Plade Z"
+#define MSG_HEATING_FAILED_LCD              "Opvarmning mislykkedes"
+#define MSG_ERR_REDUNDANT_TEMP              "Fejl: reserve temp"
+#define MSG_THERMAL_RUNAWAY                 "Temp løber løbsk"
+#define MSG_ERR_MAXTEMP                     "Fejl: Maks temp"
+#define MSG_ERR_MINTEMP                     "Fejl: Min temp"
+#define MSG_ERR_MAXTEMP_BED                 "Fejl: Maks P temp"
+#define MSG_ERR_MINTEMP_BED                 "Fejl: Min P temp"
+
+#ifdef DELTA_CALIBRATION_MENU
+  #define MSG_DELTA_CALIBRATE               "Delta Kalibrering"
+  #define MSG_DELTA_CALIBRATE_X             "Kalibrer X"
+  #define MSG_DELTA_CALIBRATE_Y             "Kalibrer Y"
+  #define MSG_DELTA_CALIBRATE_Z             "Kalibrer Z"
+  #define MSG_DELTA_CALIBRATE_CENTER        "Kalibrerings Center"
+#endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_DA_H
