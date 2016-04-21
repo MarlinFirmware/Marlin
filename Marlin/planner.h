@@ -65,6 +65,10 @@ typedef struct {
     volatile long final_advance;
     float advance;
   #endif
+  #ifdef LIN_ADVANCE
+    bool use_advance_lead;
+    int e_speed_multiplier8; //factorised by 2^8 to avoid float
+  #endif
 
   // Fields used by the motion planner to manage acceleration
   // float speed_x, speed_y, speed_z, speed_e;          // Nominal mm/sec for each axis
@@ -160,6 +164,10 @@ extern float max_z_jerk;
 extern float max_e_jerk;
 extern float mintravelfeedrate;
 extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
+
+#if ENABLED(LIN_ADVANCE)
+  extern int extruder_advance_k;
+#endif
 
 #if ENABLED(AUTOTEMP)
   extern bool autotemp_enabled;
