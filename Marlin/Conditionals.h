@@ -368,6 +368,24 @@
   #endif
 
   /**
+   * Z Safe Homing dependencies
+   */
+  #if ENABLED(Z_SAFE_HOMING)
+    #ifndef X_PROBE_OFFSET_FROM_EXTRUDER
+      #define X_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Z_PROBE_OFFSET_FROM_EXTRUDER
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef XY_TRAVEL_SPEED
+      #define XY_TRAVEL_SPEED 4000
+    #endif
+  #endif
+
+  /**
    * Enable MECHANICAL_PROBE for Z_PROBE_ALLEN_KEY, for older configs
    */
   #if ENABLED(Z_PROBE_ALLEN_KEY)
