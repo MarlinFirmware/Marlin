@@ -2256,12 +2256,13 @@ void lcd_update() {
       }
 
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
-        bool blink = lcd_blink();
+        static int8_t dot_color = 0;
+        dot_color = 1 - dot_color;
         u8g.firstPage();
         do {
           lcd_setFont(FONT_MENU);
           u8g.setPrintPos(125, 0);
-          u8g.setColorIndex(blink ? 1 : 0); // Set color for the alive dot
+          u8g.setColorIndex(dot_color); // Set color for the alive dot
           u8g.drawPixel(127, 63); // draw alive dot
           u8g.setColorIndex(1); // black on white
           (*currentMenu)();
