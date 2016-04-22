@@ -39,6 +39,41 @@
 #endif
 
 /**
+ * Marlin release, version and default string
+ */
+#ifndef SHORT_BUILD_VERSION
+  #error SHORT_BUILD_VERSION Information must be specified
+#endif
+
+#ifndef DETAILED_BUILD_VERSION
+  #error BUILD_VERSION Information must be specified
+#endif
+
+#ifndef STRING_DISTRIBUTION_DATE
+  #error STRING_DISTRIBUTION_DATE Information must be specified
+#endif
+
+#ifndef PROTOCOL_VERSION
+  #error PROTOCOL_VERSION Information must be specified
+#endif
+
+#ifndef MACHINE_NAME
+  #error MACHINE_NAME Information must be specified
+#endif
+
+#ifndef SOURCE_CODE_URL
+  #error SOURCE_CODE_URL Information must be specified
+#endif
+
+#ifndef DEFAULT_MACHINE_UUID
+  #error DEFAULT_MACHINE_UUID Information must be specified
+#endif
+
+#ifndef WEBSITE_URL
+  #error WEBSITE_URL Information must be specified
+#endif
+
+/**
  * Dual Stepper Drivers
  */
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS) && ENABLED(Y_DUAL_STEPPER_DRIVERS)
