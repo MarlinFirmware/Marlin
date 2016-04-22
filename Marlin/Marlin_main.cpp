@@ -872,7 +872,7 @@ void get_command()
           SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
           SERIAL_ERRORLN(gcode_LastN);
           //Serial.println(gcode_N);
-          FlushSerialRequestResend();
+          FlushSerialRequestResendOk();
           serial_count = 0;
           return;
         }
@@ -890,7 +890,7 @@ void get_command()
             SERIAL_ERROR_START;
             SERIAL_ERRORPGM(MSG_ERR_CHECKSUM_MISMATCH);
             SERIAL_ERRORLN(gcode_LastN);
-            FlushSerialRequestResend();
+            FlushSerialRequestResendOk();
             serial_count = 0;
             return;
             }
@@ -902,7 +902,7 @@ void get_command()
           SERIAL_ERROR_START;
           SERIAL_ERRORPGM(MSG_ERR_NO_CHECKSUM);
           SERIAL_ERRORLN(gcode_LastN);
-          FlushSerialRequestResend();
+          FlushSerialRequestResendOk();
           serial_count = 0;
           return;
         }
@@ -4268,6 +4268,16 @@ void FlushSerialRequestResend()
   SERIAL_PROTOCOLPGM(MSG_RESEND);
   SERIAL_PROTOCOLLN(gcode_LastN + 1);
   ClearToSend();
+}
+
+void FlushSerialRequestResendOk()
+{
+  //char cmdbuffer[bufindr][100]="Resend:";
+  MYSERIAL.flush();
+  SERIAL_PROTOCOLPGM(MSG_RESEND);
+  SERIAL_PROTOCOLLN(gcode_LastN + 1);
+  previous_millis_cmd = millis();
+  SERIAL_PROTOCOLLNPGM(MSG_OK);
 }
 
 void ClearToSend()
