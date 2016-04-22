@@ -386,9 +386,8 @@ bool print_job_stop(bool force = false);
   extern float fsr_moving_noise;
   extern float fsr_trigger_threshold;
   extern float fsr_recovery_threshold;
-  extern bool fsr_bed_leveling_in_progress;
-  #if ENABLED(FSR_BLANK_AFTER_LEVELING)
-    extern bool fsr_display_enabled;
+  #if ENABLED(FSR_ONLY_WHILE_LEVELING)
+    extern bool fsr_bed_leveling_in_progress;
   #endif
 #endif
 

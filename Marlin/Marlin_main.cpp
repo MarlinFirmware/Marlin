@@ -463,9 +463,8 @@ static bool send_ok[BUFSIZE];
   float fsr_moving_noise = 0;          // Average noise/deviation for fsr while moving
   float fsr_trigger_threshold = 1023;  // Threshold for triggering
   float fsr_recovery_threshold = 1023; // Threshold for recovery
-  bool fsr_bed_leveling_in_progress = false;    // FSR bedleveling is not yet in progress
-  #if ENABLED(FSR_BLANK_AFTER_LEVELING)
-    bool fsr_display_enabled;
+  #if ENABLED(FSR_ONLY_WHILE_LEVELING)
+    bool fsr_bed_leveling_in_progress;   // FSR bed leveling in progress?
   #endif
 #endif // FSR_BED_LEVELING
 
@@ -764,8 +763,8 @@ void setup() {
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
 
-  #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_BLANK_AFTER_LEVELING)
-    fsr_display_enabled = true;
+  #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_ONLY_WHILE_LEVELING)
+    fsr_bed_leveling_in_progress = true;    // Show FSR values after initialization of the printer
   #endif
 
   lcd_init();
@@ -2596,8 +2595,8 @@ inline void gcode_G4() {
  */
 inline void gcode_G28() {
 
-  #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_BLANK_AFTER_LEVELING)
-    fsr_display_enabled = true;
+  #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_ONLY_WHILE_LEVELING)
+    fsr_bed_leveling_in_progress = true;       // (Re-)enable display of FSR values when axes are homed
   #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3199,11 +3198,12 @@ inline void gcode_G28() {
          deploy_probe_for_each_reading = code_seen('E');
 
     #if ENABLED(FSR_BED_LEVELING)
-      fsr_bed_leveling_in_progress = true;  // Mark FSR bed leveling as being in progress (for LCD display)
+      #if ENABLED(FSR_ONLY_WHILE_LEVELING)
+        fsr_bed_leveling_in_progress = true;  // Display FSR values during leveling
+      #endif
       #if ENABLED(FSR_CALIBRATE_WITH_G29)
-        delay(1500);            // Let the system settle for accurate readings.
-        fsr_calibration();      // Initiate calibration of the FSR sensors. Involves z axis movement.
-                                // Should return to position before calibration.
+        delay(1500);            // Let the system settle for accurate readings
+        fsr_calibration();      // Initiate calibration of the FSR sensors (involves z axis movement)
       #endif
     #endif
 
@@ -3649,9 +3649,8 @@ inline void gcode_G28() {
     gcode_M114(); // Send end position to RepetierHost
 
     #if ENABLED(FSR_BED_LEVELING)
-      fsr_bed_leveling_in_progress = false;  // Mark FSR bed leveling as not being in progress anymore (for LCD display)
-      #if ENABLED(FSR_BLANK_AFTER_LEVELING)
-        fsr_display_enabled = false;
+      #if ENABLED(FSR_ONLY_WHILE_LEVELING)
+        fsr_bed_leveling_in_progress = false;  // Do not display FSR values after leveling
       #endif
     #endif
   }

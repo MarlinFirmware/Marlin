@@ -1605,7 +1605,10 @@ ISR(TIMER0_COMPB_vect) {
 
     case PrepareTemp_1:
       #if HAS_TEMP_1
-        START_ADC(TEMP_1_PIN);
+        #if ENABLED(FSR_BED_LEVELING) && ENABLED(FSR_ONLY_WHILE_LEVELING)
+          if (fsr_bed_leveling_in_progress)
+        #endif
+            START_ADC(TEMP_1_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_1;
@@ -1613,10 +1616,22 @@ ISR(TIMER0_COMPB_vect) {
     case MeasureTemp_1:
       #if HAS_TEMP_1
         #if ENABLED(FSR_BED_LEVELING)
-          raw_fsr_sample = ADC;
-        #endif
+          #if ENABLED(FSR_ONLY_WHILE_LEVELING)
+            if (fsr_bed_leveling_in_progress) {
+          #endif
+              raw_fsr_sample = ADC;
+              raw_temp_value[1] += ADC;
+          #if ENABLED(FSR_ONLY_WHILE_LEVELING)
+            }
+            else {
+              raw_fsr_sample = 0;
+              raw_temp_value[1] = 0;
+            }
+          #endif
+        #else
           raw_temp_value[1] += ADC;
-      #endif
+        #endif // FSR_BED_LEVELING
+      #endif // HAS_TEMP_1
       temp_state = PrepareTemp_2;
       break;
 
