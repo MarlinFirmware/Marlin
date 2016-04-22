@@ -45,6 +45,16 @@
 #define STRING_DISTRIBUTION_DATE "2016-04-27 12:00"
 
 /**
+ * Required minimum Configuration.h and Configuration_adv.h file versions.
+ *
+ * You must increment this version number for every significant change such as,
+ * but not limited to: ADD, DELETE RENAME OR REPURPOSE any directive/option on
+ * the configuration files.
+ */
+#define REQUIRED_CONFIGURATION_H_VERSION 1
+#define REQUIRED_CONFIGURATION_ADV_H_VERSION 1
+
+/**
  * @todo: Missing documentation block
  */
 #define PROTOCOL_VERSION "1.0"

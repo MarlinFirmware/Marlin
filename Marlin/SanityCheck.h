@@ -39,6 +39,20 @@
 #endif
 
 /**
+ * We try our best to include sanity checks for all the changes configuration
+ * directives because people have a tendency to use outdated config files with
+ * the bleding edge source code, but sometimes this is not enough. This check
+ * will force a minimum config file revision, otherwise Marlin will not build.
+ */
+#if ! defined(CONFIGURATION_H_VERSION) || CONFIGURATION_H_VERSION < REQUIRED_CONFIGURATION_H_VERSION
+  #error You are using an old Configuration.h file, updated it before building Marlin.
+#endif
+
+#if ! defined(CONFIGURATION_ADV_H_VERSION) || CONFIGURATION_ADV_H_VERSION < REQUIRED_CONFIGURATION_ADV_H_VERSION
+  #error You are using an old Configuration_adv.h file, updated it before building Marlin.
+#endif
+
+/**
  * Marlin release, version and default string
  */
 #ifndef SHORT_BUILD_VERSION
