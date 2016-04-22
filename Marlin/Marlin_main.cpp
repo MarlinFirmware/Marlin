@@ -1457,7 +1457,7 @@ static void setup_for_endstop_move() {
         #endif
 
         // move down slowly until you find the bed
-        feedrate = homing_feedrate[Z_AXIS] / 30;
+        feedrate = homing_feedrate[Z_AXIS] / 10;
         destination[Z_AXIS] = -10;
         prepare_move_raw(); // this will also set_current_to_destination
         st_synchronize();
