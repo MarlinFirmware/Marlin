@@ -9,8 +9,16 @@ echo " * It does not get committed to the repository" >>"$OUTFILE"
 echo " */" >>"$OUTFILE"
 echo "" >>"$OUTFILE"
 
+echo "#define PROTOCOL_VERSION \"1.0\"" >>"$OUTFILE"
+echo "#define DEFAULT_SOURCE_URL \"https://github.com/MarlinFirmware/Marlin\"" >>"$OUTFILE"
+echo "#define DEFAULT_MACHINE_NAME \"Travis 3D Printer\"" >>"$OUTFILE"
+echo "#define DEFAULT_MACHINE_UUID \"3442baa1-08ee-435b-8a10-99d185bd43b8\"" >>"$OUTFILE"
+echo "" >>"$OUTFILE"
+
 echo "#define BUILD_UNIX_DATETIME" `date +%s` >>"$OUTFILE"
 echo "#define STRING_DISTRIBUTION_DATE" `date '+"%Y-%m-%d %H:%M"'` >>"$OUTFILE"
+echo "" >>"$OUTFILE"
+
 ( set +e
   cd "$DIR"
   BRANCH=`git symbolic-ref -q --short HEAD`
@@ -33,7 +41,5 @@ echo "#define STRING_DISTRIBUTION_DATE" `date '+"%Y-%m-%d %H:%M"'` >>"$OUTFILE"
   URL=`git config --local --get remote.origin.url | sed "sx.*github.com.xhttps://github.com/x" | sed "sx\.gitx/x"`
   if [ "x$URL" != "x" ] ; then
     echo "#define SOURCE_CODE_URL  \""$URL"\"" >>"$OUTFILE"
-    echo "// Deprecated URL definition" >>"$OUTFILE"
-    echo "#define FIRMWARE_URL  \""$URL"\"" >>"$OUTFILE"
   fi
 )

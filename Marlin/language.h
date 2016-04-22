@@ -66,43 +66,32 @@
 #if ENABLED(USE_AUTOMATIC_VERSIONING)
   #include "_Version.h"
 #else
-  #include "Default_Version.h"
+  #include "Version.h"
 #endif
 
-#define PROTOCOL_VERSION "1.0"
-
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "3D Printer"
+#ifdef DEFAULT_SOURCE_CODE_URL
+  #undef  SOURCE_CODE_URL
+  #define SOURCE_CODE_URL DEFAULT_SOURCE_CODE_URL
 #endif
 
 #ifdef CUSTOM_MACHINE_NAME
+  #undef  MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MACHINE_NAME
 #else
-  #define MACHINE_NAME DEFAULT_MACHINE_NAME
-#endif
-
-#ifndef DEFAULT_SOURCE_URL
-  /**
-   * The SOURCE_CODE_URL is the location where users will find the Marlin Source
-   * Code which is installed on the device. In most cases —unless the manufacturer
-   * has a distinct Github fork— the Source Code URL should just be the main
-   * Marlin repository.
-   */
-  #define DEFAULT_SOURCE_URL "https://github.com/MarlinFirmware/Marlin"
-#endif
-
-#ifndef SOURCE_CODE_URL
-  #define SOURCE_CODE_URL DEFAULT_SOURCE_URL
-#endif
-
-#ifndef DETAILED_BUILD_VERSION
-  #error BUILD_VERSION Information must be specified
+  #ifdef DEFAULT_MACHINE_NAME
+    #undef  MACHINE_NAME
+    #define MACHINE_NAME DEFAULT_MACHINE_NAME
+  #endif
 #endif
 
 #ifndef MACHINE_UUID
-  #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
+  #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
+#ifdef DEFAULT_WEBSITE_URL
+  #undef  WEBSITE_URL
+  #define WEBSITE_URL DEFAULT_WEBSITE_URL
+#endif
 
 // Common LCD messages
 
