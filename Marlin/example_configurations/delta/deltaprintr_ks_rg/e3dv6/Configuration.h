@@ -256,9 +256,14 @@
   //#define  DEFAULT_Kd 440
 
   // Original DeltaPrintr J-Head Hotend
-  #define  DEFAULT_Kp 22.2
-  #define  DEFAULT_Ki 1.08
-  #define  DEFAULT_Kd 114
+  //#define  DEFAULT_Kp 22.2
+  //#define  DEFAULT_Ki 1.08
+  //#define  DEFAULT_Kd 114
+
+  // E3Dv6 All Metal Hotend
+  #define  DEFAULT_Kp 28.24
+  #define  DEFAULT_Ki 2.77
+  #define  DEFAULT_Kd 72.06
 
 #endif // PIDTEMP
 
@@ -774,7 +779,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 #if ENABLED(MANUAL_HOME_POSITIONS)
   #define MANUAL_X_HOME_POS 0
   #define MANUAL_Y_HOME_POS 0
-  #define MANUAL_Z_HOME_POS 338.0 // For delta: Distance between nozzle and print surface after homing.
+  #define MANUAL_Z_HOME_POS 317.8 // For delta: Distance between nozzle and print surface after homing.
 #endif
 
 // @section movement
