@@ -187,10 +187,6 @@
   #error For AUTO_BED_LEVELING_FEATURE define one kind of probe! [Servo | MECHANICAL_PROBE | Z_PROBE_SLED | FIX_MOUNTED_PROBE]
 #endif
 
-#if ENABLED(Z_SAFE_HOMING)&& !( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(MECHANICAL_PROBE) || ENABLED(Z_PROBE_SLED))
-  #error For Z_SAFE_HOMING define one kind of probe! [Servo | MECHANICAL_PROBE | Z_PROBE_SLED | FIX_MOUNTED_PROBE]
-#endif
-
 // To do: Fail with more than one probe defined
 
 /**
