@@ -318,7 +318,7 @@ static void _draw_heater_status(int x, int heater) {
 
 #if ENABLED(FSR_BED_LEVELING)
   static void _draw_fsr_status(int x, bool blink) {
-    static char fsr_is_str[4] = "---";
+    static char fsr_is_str[4];
 
     #if ENABLED(LCD_SCREEN_ROT_180)
       if (glcd_loopcounter == 1 || glcd_loopcounter == 2 || glcd_loopcounter == 4)
@@ -327,13 +327,20 @@ static void _draw_heater_status(int x, int heater) {
     #endif
     #if ENABLED(FSR_ONLY_WHILE_LEVELING)
       if (fsr_bed_leveling_in_progress)
-    #endif // FSR_ONLY_WHILE_LEVELING
+    #endif
         uitoaR(int(degHotend(1) + 0.5), fsr_is_str, 3);
 
     u8g.drawBitmapP(x + (4*DOG_CHAR_WIDTH - STATUS_FSR_WIDTH)/2, 5, STATUS_FSR_BYTEWIDTH, STATUS_FSR_HEIGHT, fsr_graphic[(fsr_bed_leveling_in_progress && blink)?1:0]);
     lcd_setFont(FONT_STATUSMENU);
-    u8g.setPrintPos(x, 28);
-    lcd_print(fsr_is_str);
+    u8g.setPrintPos(x + DOG_CHAR_WIDTH/2, 28);
+    #if ENABLED(FSR_ONLY_WHILE_LEVELING)
+      if (fsr_bed_leveling_in_progress)
+    #endif
+        lcd_print(fsr_is_str);
+    #if ENABLED(FSR_ONLY_WHILE_LEVELING)
+      else
+        lcd_printPGM(PSTR("---"));
+    #endif
   }
 #endif // FSR_BED_LEVELING
 
