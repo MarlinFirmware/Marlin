@@ -259,10 +259,6 @@
 
 bool Running = true;
 
-bool filamentInsert;
-bool filamentSlowInsert;
-bool filamentRemove;
-
 uint8_t marlin_debug_flags = DEBUG_NONE;
 
 static float feedrate = 1500.0, saved_feedrate;
@@ -872,26 +868,6 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-
-
-if (filamentRemove) {
-    //This value must be setted according the size you have at your printer
-    current_position[E_AXIS] -= 75.0;
-    plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], 100.0, active_extruder);
-    st_synchronize();
-    filamentRemove = false;
-  } else if (filamentSlowInsert) {
-     //While the selection at menu is true it keeps slowing insert till the filament in on the tube
-    current_position[E_AXIS] += 1.0;
-    plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], feedrate / 800, active_extruder);
-    st_synchronize();
- }else if (filamentInsert) {
-   //This value must be setted according the size you have at your printer
-    current_position[E_AXIS] += 75.0;
-    plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], 100.0, active_extruder);
-    st_synchronize();
-    filamentInsert = false;
-  }
 
  if (commands_in_queue < BUFSIZE) get_available_commands();
 

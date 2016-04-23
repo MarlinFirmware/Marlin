@@ -61,6 +61,10 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+bool filamentInsert;
+bool filamentSlowInsert;
+bool filamentRemove;
+
 #if ENABLED(FILAMENT_LCD_DISPLAY)
   millis_t previous_lcd_status_ms = 0;
 #endif
@@ -100,6 +104,7 @@ static void lcd_status_screen();
   static void lcd_retract_filament();
   static void lcd_insert_filament_menu();
   static void lcd_insert_filament();
+  static void lcd_insert_filament_slow();
   #if ENABLED(HAS_LCD_CONTRAST)
     static void lcd_set_contrast();
   #endif
@@ -1101,18 +1106,35 @@ static void lcd_change_filament_menu() {
 static void lcd_insert_filament_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_CHANGE_FILAMENT);
-  MENU_ITEM_EDIT_CALLBACK(bool, MSG_INSERT_FILAMENT_SLOW ,&filamentSlowInsert ,lcd_insert_filament_menu);
+  MENU_ITEM_EDIT(bool, MSG_INSERT_FILAMENT_SLOW ,&filamentSlowInsert);
   MENU_ITEM(function, MSG_INSERT_FILAMENT  , lcd_insert_filament);
   END_MENU();
 }
+static void lcd_insert_filament_slow(){
+  if (filamentSlowInsert) {
+     //While the selection at menu is true it keeps slowing insert till the filament in on the tube
+    current_position[E_AXIS] += 1.0;
+    plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], 0.5, active_extruder);
+    st_synchronize();
+ }
+      }
 
 static void lcd_retract_filament() {
- filamentRemove=true;
+    //This value must be setted according the size you have at your printer
+    current_position[E_AXIS] -= 75.0;
+    plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], 100.0, active_extruder);
+    st_synchronize();
 }
 
 static void lcd_insert_filament(){
-  filamentInsert=true;
+  //This value must be setted according the size you have at your printer
+    current_position[E_AXIS] += 75.0;
+    plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], 100.0, active_extruder);
+    st_synchronize();
   }
+
+
+
 
 /**
  *
