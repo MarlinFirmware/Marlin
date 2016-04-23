@@ -98,10 +98,10 @@
 #define MSG_VZ_JERK                         "Z\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                       // "Zｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vz-jerk")
 #define MSG_VE_JERK                         "\xb4\xb8\xbd\xc4\xd9\xb0\xc0\xde\xb0\x20\xd4\xb8\xc4\xde"     // "ｴｸｽﾄﾙｰﾀﾞｰ ﾔｸﾄﾞ" ("Ve-jerk")
 #define MSG_VMAX                            "\xbb\xb2\xc0\xde\xb2\xcc\xa8\xb0\xc4\xde\xda\xb0\xc4 "        // "ｻｲﾀﾞｲﾌｨｰﾄﾞﾚｰﾄ " ("Vmax ")
-#define MSG_X                               "X"                                                            // "X" ("x")
-#define MSG_Y                               "Y"                                                            // "Y" ("y")
-#define MSG_Z                               "Z"                                                            // "Z" ("z")
-#define MSG_E                               "E"                                                            // "E" ("e")
+#define MSG_X                               "X"
+#define MSG_Y                               "Y"
+#define MSG_Z                               "Z"
+#define MSG_E                               "E"
 #define MSG_VMIN                            "\xbb\xb2\xbc\xae\xb3\xcc\xa8\xb0\xc4\xde\xda\xb0\xc4"         // "ｻｲｼｮｳﾌｨｰﾄﾞﾚｰﾄ" ("Vmin")
 #define MSG_VTRAV_MIN                       "\xbb\xb2\xbc\xae\xb3\xc4\xd7\xcd\xde\xd9\xda\xb0\xc4"         // "ｻｲｼｮｳﾄﾗﾍﾞﾙﾚｰﾄ" ("VTrav min")
 #define MSG_AMAX                            "\xbb\xb2\xc0\xde\xb2\xb6\xbf\xb8\xc4\xde "                    // "ｻｲﾀﾞｲｶｿｸﾄﾞ" ("Amax ")
