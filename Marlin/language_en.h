@@ -651,4 +651,17 @@
   #endif
 #endif // LCD_HEIGHT < 4
 
+#ifndef MSG_CHANGE_FILAMENT 
+ #define MSG_CHANGE_FILAMENT                 "Filament"
+#endif
+#ifndef MSG_REMOVE_FILAMENT  
+ #define MSG_REMOVE_FILAMENT                 "Remove"
+#endif
+#ifndef MSG_INSERT_FILAMENT 
+ #define MSG_INSERT_FILAMENT                 "Insert"
+#endif
+#ifndef MSG_INSERT_FILAMENT_SLOW 
+ #define MSG_INSERT_FILAMENT_SLOW            "Slow Insert"
+#endif
+
 #endif // LANGUAGE_EN_H

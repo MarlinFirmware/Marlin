@@ -170,4 +170,9 @@
 #define MSG_DELTA_CALIBRATE_Z               "Calibrar Z"
 #define MSG_DELTA_CALIBRATE_CENTER          "Calibrar Centro"
 
+
+#define MSG_CHANGE_FILAMENT                 "Filamento"
+#define MSG_REMOVE_FILAMENT                 "Retirar"
+#define MSG_INSERT_FILAMENT                 "Inserir"
+#define MSG_INSERT_FILAMENT_SLOW            "Lentamente"
 #endif // LANGUAGE_PT_BR_H

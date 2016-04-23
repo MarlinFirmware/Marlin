@@ -41,6 +41,10 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+bool filamentInsert;
+bool filamentSlowInsert;
+bool filamentRemove;
+
 #if ENABLED(FILAMENT_LCD_DISPLAY)
   millis_t previous_lcd_status_ms = 0;
 #endif
@@ -139,6 +143,12 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     static void lcd_filament_change_extrude_message();
     static void lcd_filament_change_resume_message();
   #endif 
+
+  static void lcd_change_filament_menu();
+  static void lcd_retract_filament();
+  static void lcd_insert_filament_menu();
+  static void lcd_insert_filament();
+  static void lcd_insert_filament_slow();
 
   #if HAS_LCD_CONTRAST
     static void lcd_set_contrast();
@@ -558,6 +568,7 @@ static void lcd_status_screen() {
   static void lcd_main_menu() {
     START_MENU();
     MENU_ITEM(back, MSG_WATCH);
+    MENU_ITEM(submenu, MSG_CHANGE_FILAMENT, lcd_change_filament_menu);
     if (planner.movesplanned() || IS_SD_PRINTING) {
       MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
     }
@@ -1148,6 +1159,51 @@ static void lcd_status_screen() {
     }
 
   #endif  // MANUAL_BED_LEVELING
+
+  /**
+   *
+   * "Change Filament" submenu
+   *
+   */
+  static void lcd_change_filament_menu() {
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN);
+    MENU_ITEM(function, MSG_REMOVE_FILAMENT , lcd_retract_filament);
+    MENU_ITEM(submenu, MSG_INSERT_FILAMENT , lcd_insert_filament_menu);
+    END_MENU();
+  }
+
+  static void lcd_insert_filament_menu() {
+    START_MENU();
+    MENU_ITEM(back, MSG_CHANGE_FILAMENT);
+    MENU_ITEM_EDIT_CALLBACK(bool, MSG_INSERT_FILAMENT_SLOW ,&filamentSlowInsert ,lcd_insert_filament_slow);
+    if(!filamentSlowInsert)
+      MENU_ITEM(function, MSG_INSERT_FILAMENT  , lcd_insert_filament);
+    END_MENU();
+  }
+
+  static void lcd_insert_filament_slow(){
+    while (filamentSlowInsert) {
+      //While the selection at menu is true it keeps slowing insert till the filament in on the tube
+      current_position[E_AXIS] += 1.0;
+      plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], FILAMENTCOMPLETCHANGE_SLOW_FEEDRATE, active_extruder);
+      st_synchronize();
+    }
+  }
+
+  static void lcd_retract_filament() {
+    //This value must be setted according the size you have at your printer
+    current_position[E_AXIS] -= FILAMENTCOMPLETCHANGE_SIZE;
+    plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], FILAMENTCOMPLETCHANGE_FAST_FEEDRATE, active_extruder);
+    st_synchronize();
+  }
+
+  static void lcd_insert_filament(){
+    //This value must be setted according the size you have at your printer
+    current_position[E_AXIS] += FILAMENTCOMPLETCHANGE_SIZE;
+    plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], FILAMENTCOMPLETCHANGE_FAST_FEEDRATE, active_extruder);
+    st_synchronize();
+  }
 
   /**
    *
