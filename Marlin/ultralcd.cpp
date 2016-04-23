@@ -61,6 +61,10 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+bool filamentInsert;
+bool filamentSlowInsert;
+bool filamentRemove;
+
 #if ENABLED(FILAMENT_LCD_DISPLAY)
   millis_t previous_lcd_status_ms = 0;
 #endif
@@ -96,7 +100,10 @@ static void lcd_status_screen();
   static void lcd_control_temperature_preheat_abs_settings_menu();
   static void lcd_control_motion_menu();
   static void lcd_control_volumetric_menu();
-
+  static void lcd_change_filament_menu();
+  static void lcd_retract_filament();
+  static void lcd_insert_filament_menu();
+  static void lcd_insert_filament();
   #if ENABLED(HAS_LCD_CONTRAST)
     static void lcd_set_contrast();
   #endif
@@ -495,6 +502,7 @@ inline void line_to_current(AxisEnum axis) {
 static void lcd_main_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_WATCH);
+  MENU_ITEM(submenu, MSG_CHANGE_FILAMENT, lcd_change_filament_menu);
   if (movesplanned() || IS_SD_PRINTING) {
     MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
   }
@@ -1080,6 +1088,35 @@ void lcd_cooldown() {
   }
 
 #endif  // MANUAL_BED_LEVELING
+
+/**
+ *
+ * "Change Filament" submenu
+ *
+ */
+static void lcd_change_filament_menu() {
+  START_MENU();
+  MENU_ITEM(back, MSG_MAIN);
+  MENU_ITEM(function, MSG_REMOVE_FILAMENT , lcd_retract_filament);
+  MENU_ITEM(submenu, MSG_INSERT_FILAMENT , lcd_insert_filament_menu);
+  END_MENU();
+
+}
+static void lcd_insert_filament_menu() {
+  START_MENU();
+  MENU_ITEM(back, MSG_CHANGE_FILAMENT);
+  MENU_ITEM_EDIT_CALLBACK(bool, MSG_INSERT_FILAMENT_SLOW ,&filamentSlowInsert ,lcd_insert_filament_menu);
+  MENU_ITEM(function, MSG_INSERT_FILAMENT  , lcd_insert_filament);
+  END_MENU();
+}
+
+static void lcd_retract_filament() {
+ filamentRemove=true;
+}
+
+static void lcd_insert_filament(){
+  filamentInsert=true;
+  }
 
 /**
  *
