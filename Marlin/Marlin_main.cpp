@@ -3196,20 +3196,20 @@ inline void gcode_G28() {
 
     if (!dryrun) {
 
+      #if ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(DELTA)
+        if (DEBUGGING(LEVELING)) {
+          vector_3 corrected_position = plan_get_position();
+          DEBUG_POS("BEFORE matrix.set_to_identity", corrected_position);
+          DEBUG_POS("BEFORE matrix.set_to_identity", current_position);
+        }
+      #endif
+
       // make sure the bed_level_rotation_matrix is identity or the planner will get it wrong
       plan_bed_level_matrix.set_to_identity();
 
       #if ENABLED(DELTA)
         reset_bed_level();
       #else //!DELTA
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            vector_3 corrected_position = plan_get_position();
-            DEBUG_POS("BEFORE matrix.set_to_identity", corrected_position);
-            DEBUG_POS("BEFORE matrix.set_to_identity", current_position);
-          }
-        #endif
 
         //vector_3 corrected_position = plan_get_position();
         //corrected_position.debug("position before G29");
