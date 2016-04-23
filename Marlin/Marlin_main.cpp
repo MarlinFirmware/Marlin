@@ -259,6 +259,10 @@
 
 bool Running = true;
 
+bool filamentInsert;
+bool filamentSlowInsert;
+bool filamentRemove;
+
 uint8_t marlin_debug_flags = DEBUG_NONE;
 
 static float feedrate = 1500.0, saved_feedrate;

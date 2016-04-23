@@ -61,10 +61,6 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
-bool filamentInsert;
-bool filamentSlowInsert;
-bool filamentRemove;
-
 #if ENABLED(FILAMENT_LCD_DISPLAY)
   millis_t previous_lcd_status_ms = 0;
 #endif
