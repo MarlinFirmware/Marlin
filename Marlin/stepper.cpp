@@ -94,8 +94,19 @@ volatile static unsigned long step_events_completed; // The number of step event
 #ifdef LIN_ADVANCE
 volatile int e_steps = 0;
 static int final_estep_rate;
-static int current_estep_rate; //Actual extruder speed [steps/s]
-static int current_adv_steps = 0; //The amount of current added esteps due to advance. Think of it as the current amount of pressure applied to the spring (=filament).
+static int current_estep_rate[EXTRUDERS]; //Actual extruder speed [steps/s]
+
+#if EXTRUDERS > 3
+  #define EXTRUDERS_ZERO 0, 0, 0, 0
+#elif EXTRUDERS > 2
+  #define EXTRUDERS_ZERO 0, 0, 0
+#elif EXTRUDERS > 1
+  #define EXTRUDERS_ZERO 0, 0
+#else
+  #define EXTRUDERS_ZERO 0
+#endif
+
+static int current_adv_steps[EXTRUDERS] = {EXTRUDERS_ZERO}; //The amount of current added esteps due to advance. Think of it as the current amount of pressure applied to the spring (=filament).
 #endif
 
 static long acceleration_time, deceleration_time;
@@ -648,7 +659,7 @@ FORCE_INLINE void trapezoid_generator_reset() {
   
   #if ENABLED(LIN_ADVANCE)
   if (current_block->use_advance_lead){
-    current_estep_rate = ((unsigned long)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
+    current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
     final_estep_rate = (current_block->nominal_rate * current_block->e_speed_multiplier8) >> 8;
   }
   #endif
@@ -732,9 +743,9 @@ ISR(TIMER1_COMPA_vect) {
          
          if (current_block->use_advance_lead){
            int delta_adv_steps; //Maybe a char would be enough?
-           delta_adv_steps = ((extruder_advance_k * current_estep_rate) >> 9) - current_adv_steps;
+           delta_adv_steps = ((extruder_advance_k * current_estep_rate[current_block->active_extruder]) >> 9) - current_adv_steps[current_block->active_extruder];
            e_steps += delta_adv_steps;
-           current_adv_steps += delta_adv_steps;
+           current_adv_steps[current_block->active_extruder] += delta_adv_steps;
          }
    
          #define STEP_E_ONCE(INDEX) \
@@ -750,7 +761,25 @@ ISR(TIMER1_COMPA_vect) {
          E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN);
          
         while (e_steps) {
-          STEP_E_ONCE(0);
+          #if EXTRUDERS > 3
+            switch(current_block->active_extruder){case 3:STEP_E_ONCE(3);break;case 2:STEP_E_ONCE(2);break;case 1:STEP_E_ONCE(1);break;default:STEP_E_ONCE(0);}
+          #elif EXTRUDERS > 2
+            switch(current_block->active_extruder){case 2:STEP_E_ONCE(2);break;case 1:STEP_E_ONCE(1);break;default:STEP_E_ONCE(0);}
+          #elif EXTRUDERS > 1
+            #if DISABLED(DUAL_X_CARRIAGE)
+              if(current_block->active_extruder == 1){STEP_E_ONCE(1)}else{STEP_E_ONCE(0);}
+            #else
+              extern bool extruder_duplication_enabled;
+              if(extruder_duplication_enabled){
+                STEP_E_ONCE(0);
+                STEP_E_ONCE(1);
+              }else {
+                if(current_block->active_extruder == 1){STEP_E_ONCE(1)}else{STEP_E_ONCE(0);}
+              }
+            #endif
+          #else
+            STEP_E_ONCE(0);
+          #endif
         }
       #endif //LIN_ADVANCE
 
@@ -822,7 +851,7 @@ ISR(TIMER1_COMPA_vect) {
       #endif //ADVANCE
       #if ENABLED(LIN_ADVANCE)
          if (current_block->use_advance_lead){
-           current_estep_rate = ((unsigned long)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
+           current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
          }
       #endif
     }
@@ -853,14 +882,14 @@ ISR(TIMER1_COMPA_vect) {
       
       #if ENABLED(LIN_ADVANCE)
          if (current_block->use_advance_lead){
-           current_estep_rate = ((unsigned long)step_rate * current_block->e_speed_multiplier8) >> 8;
+           current_estep_rate[current_block->active_extruder] = ((unsigned long)step_rate * current_block->e_speed_multiplier8) >> 8;
          }
       #endif
     }
     else {
       #ifdef LIN_ADVANCE
          if (current_block->use_advance_lead){
-           current_estep_rate = final_estep_rate;
+           current_estep_rate[current_block->active_extruder] = final_estep_rate;
          }
       #endif 
       OCR1A = OCR1A_nominal;
