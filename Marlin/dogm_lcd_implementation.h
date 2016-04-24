@@ -358,9 +358,15 @@ static void lcd_implementation_status_screen() {
     static char fanper_str[4];
   #endif
   #if ENABLED(SDSUPPORT)
+    uint8_t percentDone = 0;
     uint16_t time;
+    uint16_t finish_time;
+    uint16_t finish_ref_time = 0;
+    static bool ref_time_changed = false;
     static char h_str[4];
     static char m_str[3];
+    static char h_finish_str[4] = "---";
+    static char m_finish_str[3] = "--";
     static unsigned int progress_bar = 0;
   #endif
   #if ENABLED(FILAMENT_LCD_DISPLAY)
@@ -384,8 +390,20 @@ static void lcd_implementation_status_screen() {
       time = (((print_job_stop_ms > print_job_start_ms) ? print_job_stop_ms : millis()) - print_job_start_ms) / 60000;
       uitoaR(time/60, h_str, 2);
       uitoaRp(time%60, m_str, 2, '0');
-      if (IS_SD_PRINTING)
-        progress_bar = (unsigned int)(71.f * card.percentDone() / 100.f);
+      if (IS_SD_PRINTING) {
+        if (card.percentDone() > percentDone) {
+          percentDone = card.percentDone();
+          finish_ref_time = time; // Start estimating finish time after 1% of the job is done.
+          ref_time_changed = true;
+        }
+        progress_bar = (unsigned int)(71.f * percentDone / 100.f);
+        if (ref_time_changed) {
+          finish_time = finish_ref_time * 100 / percentDone;
+          uitoaR(finish_time/60, h_finish_str, 2);
+          uitoaRp(finish_time%60, m_finish_str, 2, '0');
+          ref_time_changed = false;
+        }
+      }
     #endif
     #if ENABLED(FILAMENT_LCD_DISPLAY)
       dtostrfMP(filament_width_meas, 4, 2, fila_d_str);
@@ -573,10 +591,14 @@ static void lcd_implementation_status_screen() {
       u8g.drawBox(54, 50, progress_bar, 1);
 
       if (print_job_start_ms != 0) {
-        u8g.setPrintPos(80,48);
+        u8g.setPrintPos(60,48);
         lcd_print(h_str);
         lcd_print(':');
         lcd_print(m_str);
+        lcd_printPGM(PSTR(" / "));
+        lcd_print(h_finish_str);
+        lcd_print(':');
+        lcd_print(m_finish_str);
       }
     }
   #endif
