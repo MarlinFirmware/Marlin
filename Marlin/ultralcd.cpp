@@ -917,7 +917,7 @@ static void lcd_control_motion_menu()
     MENU_ITEM_EDIT(float74, MSG_YSCALE, &axis_scaling[Y_AXIS],0.5,2);
 #endif
 
-    MENU_ITEM_EDIT(float3,"Right Stop Pos",&x_right_stop_pos,100,399);
+    MENU_ITEM_EDIT(float3,"X Stop Pos",&x_right_stop_pos,100,X_MAX_POS);
     
     END_MENU();
 }

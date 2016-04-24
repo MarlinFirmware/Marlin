@@ -59,10 +59,15 @@ Here are some standard links for getting your machine calibrated:
   #define SERVO_REFRESH_INTERVAL 10000 // ms
 #endif
 
+#ifdef MJRICE_BEDLEVELING_RACK
+#define NO_RETRACT_BETWEEN_PROBINGS
+#undef SERVO_ENDSTOPS
+#endif
+
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_VERSION "1.0.3-mjr"
+#define STRING_VERSION "1.0.4-mjr"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 #define STRING_CONFIG_H_AUTHOR "(mrice, default config)" // Who made the changes.
 
@@ -88,7 +93,7 @@ Here are some standard links for getting your machine calibrated:
   #ifdef GT2560
     #define MOTHERBOARD BOARD_ULTIMAKER 
   #endif
-  #endif
+#endif
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
@@ -429,7 +434,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #ifndef MJRICE_BEDLEVELING_RACK
 #define X_MIN_POS 0
 #else
-#define X_MIN_POS 4
+#define X_MIN_POS 0
 #endif
 
 #define Y_MIN_POS 0
@@ -498,8 +503,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   #ifdef AUTO_BED_LEVELING_GRID
 
     #define LEFT_PROBE_BED_POSITION 15
-    #define RIGHT_PROBE_BED_POSITION (X_MAX_POS - 60)
-    #define FRONT_PROBE_BED_POSITION 25
+    #define RIGHT_PROBE_BED_POSITION (X_MAX_POS - 15)
+    #define FRONT_PROBE_BED_POSITION 50 // 25
     #define BACK_PROBE_BED_POSITION (Y_MAX_POS - 50)
 
     #define MIN_PROBE_EDGE 10 // The probe square sides can be no smaller than this
@@ -527,7 +532,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
      #define X_PROBE_OFFSET_FROM_EXTRUDER 0     // Probe on: -left  +right
      #define Y_PROBE_OFFSET_FROM_EXTRUDER 45     // Probe on: -front +behind
      #define Z_PROBE_OFFSET_FROM_EXTRUDER -11  // -below (always!) 
-     #define Z_RAISE_BEFORE_HOMING 20       // (in mm) Raise Z before homing (G28) for Probe Clearance.
+     #define Z_RAISE_BEFORE_HOMING 10       // (in mm) Raise Z before homing (G28) for Probe Clearance.
   #else
      // for servo mounted z probe
      #define X_PROBE_OFFSET_FROM_EXTRUDER -54     // Probe on: -left  +right

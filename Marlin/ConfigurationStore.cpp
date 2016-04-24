@@ -26,11 +26,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 #define EEPROM_READ_VAR(pos, value) _EEPROM_readData(pos, (uint8_t*)&value, sizeof(value))
 //======================================================================================
 
-
-
-
 #define EEPROM_OFFSET 100
-
 
 // IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
 // in the functions below, also increment the version number. This makes sure that
@@ -38,7 +34,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V13"
+#define EEPROM_VERSION "V14"
 
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings() 
@@ -347,12 +343,18 @@ void Config_RetrieveSettings()
 
 		EEPROM_READ_VAR(i, volumetric_enabled);
 		EEPROM_READ_VAR(i, filament_size[0]);
+
 #if EXTRUDERS > 1
 		EEPROM_READ_VAR(i, filament_size[1]);
 #if EXTRUDERS > 2
 		EEPROM_READ_VAR(i, filament_size[2]);
 #endif
 #endif
+
+    EEPROM_READ_VAR(i,x_right_stop_pos);
+    // sanity check that the stored value is not higher than the length of the axis
+    if(x_right_stop_pos > X_MAX_POS || x_right_stop_pos < (X_MAX_POS/2)) x_right_stop_pos = X_MAX_POS;
+
 		calculate_volumetric_multipliers();
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
@@ -367,7 +369,7 @@ void Config_RetrieveSettings()
       Config_PrintSettings();
     #endif
     
-    EEPROM_READ_VAR(i,x_right_stop_pos);
+    
 }
 #endif
 
@@ -456,6 +458,9 @@ void Config_ResetDefault()
 #endif
 #endif
 	calculate_volumetric_multipliers();
+
+
+    x_right_stop_pos = X_MAX_POS;
 
 SERIAL_ECHO_START;
 SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
