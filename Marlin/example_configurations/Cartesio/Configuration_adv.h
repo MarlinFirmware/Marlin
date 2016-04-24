@@ -561,7 +561,7 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
     #define FILAMENT_CHANGE_RETRACT_LENGTH 1    // Initial retract in mm
                                                 // It is a short retract used immediately after print interrupt before move to filament exchange position
     #define FILAMENT_CHANGE_RETRACT_FEEDRATE 60 // Initial retract feedrate in mm/s
-    //#define FILAMENT_CHANGE_UNLOAD_LENGTH 100 // Unload filament length from hotend in mm
+    #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload filament length from hotend in mm
                                                 // Longer length for bowden printers to unload filament from whole bowden tube,
                                                 // shorter lenght for printers without bowden to unload filament from extruder only,
                                                 // 0 to disable unloading for manual unloading
@@ -575,8 +575,17 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
                                                 // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
                                                 // or until outcoming filament color is not clear for filament color change
     #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
-  #endif
-#endif
+
+    //#define MANUAL_FILAMENT_CHANGE            // Add Manual Filament Change to the LCD Menus
+    #if ENABLED(MANUAL_FILAMENT_CHANGE)
+      #define MFC_LOAD_LENGTH_CM 55
+      #define MFC_NORMAL_SPEED  100
+      #define MFC_SLOW_SPEED      3.5
+    #endif
+
+  #endif // FILAMENT_CHANGE_FEATURE
+
+#endif // ULTIPANEL
 
 /******************************************************************************\
  * enable this section if you have TMC26X motor drivers.

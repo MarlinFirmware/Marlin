@@ -1138,12 +1138,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 //define BlinkM/CyzRgb Support
 //#define BLINKM
-/*
- * Define the size of the full retract and insert filament. The feed rate for the complete insertion/retract and the feedrate for the slow inserction
-*/
-#define FILAMENTCOMPLETCHANGE_SIZE 75
-#define FILAMENTCOMPLETCHANGE_FAST_FEEDRATE 100
-#define FILAMENTCOMPLETCHANGE_SLOW_FEEDRATE 1.5
+
 /*********************************************************************\
 * R/C SERVO support
 * Sponsored by TrinityLabs, Reworked by codexmas

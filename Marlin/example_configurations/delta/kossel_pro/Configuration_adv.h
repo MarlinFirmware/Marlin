@@ -581,8 +581,17 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
                                                 // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
                                                 // or until outcoming filament color is not clear for filament color change
     #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
-  #endif
-#endif
+
+    //#define MANUAL_FILAMENT_CHANGE            // Add Manual Filament Change to the LCD Menus
+    #if ENABLED(MANUAL_FILAMENT_CHANGE)
+      #define MFC_LOAD_LENGTH_CM 55
+      #define MFC_NORMAL_SPEED  100
+      #define MFC_SLOW_SPEED      3.5
+    #endif
+
+  #endif // FILAMENT_CHANGE_FEATURE
+
+#endif // ULTIPANEL
 
 /******************************************************************************\
  * enable this section if you have TMC26X motor drivers.
