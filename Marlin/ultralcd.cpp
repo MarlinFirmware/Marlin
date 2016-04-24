@@ -1116,22 +1116,22 @@ static void lcd_insert_filament_slow(){
  while (filamentSlowInsert) {
   //While the selection at menu is true it keeps slowing insert till the filament in on the tube
   current_position[E_AXIS] += 1.0;
-  plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], 1.5, active_extruder);
+  plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], FILAMENTCOMPLETCHANGE_SLOW_FEEDRATE, active_extruder);
   st_synchronize();
  }
 }
 
 static void lcd_retract_filament() {
  //This value must be setted according the size you have at your printer
- current_position[E_AXIS] -= 75.0;
- plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], 100.0, active_extruder);
+ current_position[E_AXIS] -= FILAMENTCOMPLETCHANGE_SIZE;
+ plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], FILAMENTCOMPLETCHANGE_FAST_FEEDRATE, active_extruder);
  st_synchronize();
 }
 
 static void lcd_insert_filament(){
  //This value must be setted according the size you have at your printer
- current_position[E_AXIS] += 75.0;
- plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], 100.0, active_extruder);
+ current_position[E_AXIS] += FILAMENTCOMPLETCHANGE_SIZE;
+ plan_buffer_line(current_position[(X_AXIS)], current_position[(Y_AXIS)], current_position[(Z_AXIS)], current_position[E_AXIS], FILAMENTCOMPLETCHANGE_FAST_FEEDRATE, active_extruder);
  st_synchronize();
  }
   
