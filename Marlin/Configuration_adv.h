@@ -519,10 +519,6 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
   #endif
 #endif
 
-
-#define FILAMENTCOMPLETCHANGE_SIZE 75
-#define FILAMENTCOMPLETCHANGE_FAST_FEEDRATE 100
-#define FILAMENTCOMPLETCHANGE_SLOW_FEEDRATE 1.5
 /******************************************************************************\
  * enable this section if you have TMC26X motor drivers.
  * you need to import the TMC26XStepper library into the Arduino IDE for this
