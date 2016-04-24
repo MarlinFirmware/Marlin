@@ -743,7 +743,7 @@ ISR(TIMER1_COMPA_vect) {
          
          if (current_block->use_advance_lead){
            int delta_adv_steps; //Maybe a char would be enough?
-           delta_adv_steps = ((extruder_advance_k * current_estep_rate[current_block->active_extruder]) >> 9) - current_adv_steps[current_block->active_extruder];
+           delta_adv_steps = (((long)extruder_advance_k * current_estep_rate[current_block->active_extruder]) >> 9) - current_adv_steps[current_block->active_extruder];
            e_steps += delta_adv_steps;
            current_adv_steps[current_block->active_extruder] += delta_adv_steps;
          }
