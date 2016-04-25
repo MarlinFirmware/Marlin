@@ -29,8 +29,6 @@
 #undef HEATER_1_PIN
 #define HEATER_1_PIN        7 // EXTRUDER 2
 
-#define DISABLE_MAX_ENDSTOPS
-
 #undef SDPOWER
 #define SDPOWER             1
 

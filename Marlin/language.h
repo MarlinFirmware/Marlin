@@ -66,37 +66,32 @@
 #if ENABLED(USE_AUTOMATIC_VERSIONING)
   #include "_Version.h"
 #else
-  #include "Default_Version.h"
+  #include "Version.h"
 #endif
 
-#define PROTOCOL_VERSION "1.0"
-
-#ifndef DEFAULT_MACHINE_NAME
-  #define DEFAULT_MACHINE_NAME "3D Printer"
+#ifdef DEFAULT_SOURCE_CODE_URL
+  #undef  SOURCE_CODE_URL
+  #define SOURCE_CODE_URL DEFAULT_SOURCE_CODE_URL
 #endif
 
 #ifdef CUSTOM_MACHINE_NAME
+  #undef  MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MACHINE_NAME
 #else
-  #define MACHINE_NAME DEFAULT_MACHINE_NAME
-#endif
-
-#ifndef DEFAULT_SOURCE_URL
-  #define DEFAULT_SOURCE_URL "https://github.com/MarlinFirmware/Marlin"
-#endif
-
-#ifndef SOURCE_CODE_URL
-  #define SOURCE_CODE_URL DEFAULT_SOURCE_URL
-#endif
-
-#ifndef DETAILED_BUILD_VERSION
-  #error BUILD_VERSION Information must be specified
+  #ifdef DEFAULT_MACHINE_NAME
+    #undef  MACHINE_NAME
+    #define MACHINE_NAME DEFAULT_MACHINE_NAME
+  #endif
 #endif
 
 #ifndef MACHINE_UUID
-  #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
+  #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
 
+#ifdef DEFAULT_WEBSITE_URL
+  #undef  WEBSITE_URL
+  #define WEBSITE_URL DEFAULT_WEBSITE_URL
+#endif
 
 // Common LCD messages
 
@@ -153,6 +148,7 @@
 #define MSG_ERR_M421_REQUIRES_XYZ           "M421 requires XYZ parameters"
 #define MSG_ERR_MESH_INDEX_OOB              "Mesh XY index is out of bounds"
 #define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
+#define MSG_ERR_M303_DISABLED               "PIDTEMP disabled"
 #define MSG_M119_REPORT                     "Reporting endstop status"
 #define MSG_ENDSTOP_HIT                     "TRIGGERED"
 #define MSG_ENDSTOP_OPEN                    "open"
@@ -225,7 +221,7 @@
 #define MSG_T_MINTEMP                       "MINTEMP triggered"
 
 // Debug
-#define MSG_DEBUG_PREFIX                    "DEBUG: "
+#define MSG_DEBUG_PREFIX                    "DEBUG:"
 #define MSG_DEBUG_OFF                       "off"
 #define MSG_DEBUG_ECHO                      "ECHO"
 #define MSG_DEBUG_INFO                      "INFO"

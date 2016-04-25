@@ -65,6 +65,7 @@
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #define DEFAULT_LCD_CONTRAST 110
       #define U8GLIB_LM6059_AF
+      #define SD_DETECT_INVERTED
     #endif
 
     #define ENCODER_PULSES_PER_STEP 4
@@ -217,7 +218,7 @@
   #endif
 
   #if ENABLED(DOGLCD)
-    /* Custom characters defined in font font_6x10_marlin_symbols */
+    /* Custom characters defined in font dogm_font_data_Marlin_symbols.h / Marlin_symbols.fon */
     // \x00 intentionally skipped to avoid problems in strings
     #define LCD_STR_REFRESH     "\x01"
     #define LCD_STR_FOLDER      "\x02"
@@ -234,7 +235,7 @@
     // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
   #else
     /* Custom characters defined in the first 8 characters of the LCD */
-    #define LCD_STR_BEDTEMP     "\x00"  // this will have 'unexpected' results when used in a string!
+    #define LCD_STR_BEDTEMP     "\x00"  // Print only as a char. This will have 'unexpected' results when used in a string!
     #define LCD_STR_DEGREE      "\x01"
     #define LCD_STR_THERMOMETER "\x02"
     #define LCD_STR_UPLEVEL     "\x03"
@@ -275,17 +276,25 @@
   #include "Arduino.h"
 
   /**
-   * ENDSTOPPULLUPS
+   * Set ENDSTOPPULLUPS for unused endstop switches
    */
   #if ENABLED(ENDSTOPPULLUPS)
-    #if DISABLED(DISABLE_MAX_ENDSTOPS)
+    #if ENABLED(USE_XMAX_PLUG)
       #define ENDSTOPPULLUP_XMAX
+    #endif
+    #if ENABLED(USE_YMAX_PLUG)
       #define ENDSTOPPULLUP_YMAX
+    #endif
+    #if ENABLED(USE_ZMAX_PLUG)
       #define ENDSTOPPULLUP_ZMAX
     #endif
-    #if DISABLED(DISABLE_MIN_ENDSTOPS)
+    #if ENABLED(USE_XMIN_PLUG)
       #define ENDSTOPPULLUP_XMIN
+    #endif
+    #if ENABLED(USE_YMIN_PLUG)
       #define ENDSTOPPULLUP_YMIN
+    #endif
+    #if ENABLED(USE_ZMIN_PLUG)
       #define ENDSTOPPULLUP_ZMIN
     #endif
     #if DISABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
@@ -348,13 +357,39 @@
     #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
   #endif
 
-  #define SERVO_LEVELING (ENABLED(AUTO_BED_LEVELING_FEATURE) && defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
+  #define HAS_Z_ENDSTOP_SERVO (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
+  #define SERVO_LEVELING (ENABLED(AUTO_BED_LEVELING_FEATURE) && HAS_Z_ENDSTOP_SERVO)
 
   /**
    * Sled Options
    */
   #if ENABLED(Z_PROBE_SLED)
     #define Z_SAFE_HOMING
+  #endif
+
+  /**
+   * Z Safe Homing dependencies
+   */
+  #if ENABLED(Z_SAFE_HOMING)
+    #ifndef X_PROBE_OFFSET_FROM_EXTRUDER
+      #define X_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Z_PROBE_OFFSET_FROM_EXTRUDER
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef XY_TRAVEL_SPEED
+      #define XY_TRAVEL_SPEED 4000
+    #endif
+  #endif
+
+  /**
+   * Enable MECHANICAL_PROBE for Z_PROBE_ALLEN_KEY, for older configs
+   */
+  #if ENABLED(Z_PROBE_ALLEN_KEY)
+    #define MECHANICAL_PROBE
   #endif
 
   /**
@@ -440,7 +475,9 @@
     #define HEATER_0_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_1 == -1
+  #if TEMP_SENSOR_1 <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_1
+  #elif TEMP_SENSOR_1 == -1
     #define HEATER_1_USES_AD595
   #elif TEMP_SENSOR_1 == 0
     #undef HEATER_1_MINTEMP
@@ -450,7 +487,9 @@
     #define HEATER_1_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_2 == -1
+  #if TEMP_SENSOR_2 <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_2
+  #elif TEMP_SENSOR_2 == -1
     #define HEATER_2_USES_AD595
   #elif TEMP_SENSOR_2 == 0
     #undef HEATER_2_MINTEMP
@@ -460,7 +499,9 @@
     #define HEATER_2_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_3 == -1
+  #if TEMP_SENSOR_3 <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_3
+  #elif TEMP_SENSOR_3 == -1
     #define HEATER_3_USES_AD595
   #elif TEMP_SENSOR_3 == 0
     #undef HEATER_3_MINTEMP
@@ -470,7 +511,9 @@
     #define HEATER_3_USES_THERMISTOR
   #endif
 
-  #if TEMP_SENSOR_BED == -1
+  #if TEMP_SENSOR_BED <= -2
+    #error MAX6675 / MAX31855 Thermocouples not supported for TEMP_SENSOR_BED
+  #elif TEMP_SENSOR_BED == -1
     #define BED_USES_AD595
   #elif TEMP_SENSOR_BED == 0
     #undef BED_MINTEMP
@@ -479,6 +522,12 @@
     #define THERMISTORBED TEMP_SENSOR_BED
     #define BED_USES_THERMISTOR
   #endif
+
+  /**
+   * Flags for PID handling
+   */
+  #define HAS_PID_HEATING (ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED))
+  #define HAS_PID_FOR_BOTH (ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED))
 
   /**
    * ARRAY_BY_EXTRUDERS based on EXTRUDERS
@@ -496,13 +545,54 @@
   #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1)
 
   /**
+   * Z_DUAL_ENDSTOPS endstop reassignment
+   */
+  #if ENABLED(Z_DUAL_ENDSTOPS)
+    #define _XMIN_ 100
+    #define _YMIN_ 200
+    #define _ZMIN_ 300
+    #define _XMAX_ 101
+    #define _YMAX_ 201
+    #define _ZMAX_ 301
+    const bool Z2_MAX_ENDSTOP_INVERTING =
+      #if Z2_USE_ENDSTOP == _XMAX_
+        X_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN X_MAX_PIN
+        #undef USE_XMAX_PLUG
+      #elif Z2_USE_ENDSTOP == _YMAX_
+        Y_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Y_MAX_PIN
+        #undef USE_YMAX_PLUG
+      #elif Z2_USE_ENDSTOP == _ZMAX_
+        Z_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Z_MAX_PIN
+        #undef USE_ZMAX_PLUG
+      #elif Z2_USE_ENDSTOP == _XMIN_
+        X_MIN_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN X_MIN_PIN
+        #undef USE_XMIN_PLUG
+      #elif Z2_USE_ENDSTOP == _YMIN_
+        Y_MIN_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Y_MIN_PIN
+        #undef USE_YMIN_PLUG
+      #elif Z2_USE_ENDSTOP == _ZMIN_
+        Z_MIN_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Z_MIN_PIN
+        #undef USE_ZMIN_PLUG
+      #else
+        0
+      #endif
+    ;
+  #endif
+
+  /**
    * Shorthand for pin tests, used wherever needed
    */
-  #define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 != -2)
-  #define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0)
-  #define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0)
-  #define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0)
-  #define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0)
+  #define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 > -2)
+  #define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0 && TEMP_SENSOR_1 > -2)
+  #define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0 && TEMP_SENSOR_2 > -2)
+  #define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0 && TEMP_SENSOR_3 > -2)
+  #define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0 && TEMP_SENSOR_BED > -2)
   #define HAS_HEATER_0 (PIN_EXISTS(HEATER_0))
   #define HAS_HEATER_1 (PIN_EXISTS(HEATER_1))
   #define HAS_HEATER_2 (PIN_EXISTS(HEATER_2))
@@ -581,6 +671,8 @@
 
   #define HAS_MOTOR_CURRENT_PWM (PIN_EXISTS(MOTOR_CURRENT_PWM_XY) || PIN_EXISTS(MOTOR_CURRENT_PWM_Z) || PIN_EXISTS(MOTOR_CURRENT_PWM_E))
 
+  #define HAS_TEMP_HOTEND (HAS_TEMP_0 || ENABLED(HEATER_0_USES_MAX6675))
+
   /**
    * Helper Macros for heaters and extruder fan
    */
@@ -630,7 +722,7 @@
 
   #define HAS_BUZZER (PIN_EXISTS(BEEPER) || defined(LCD_USE_I2C_BUZZER))
 
-  #if defined(NUM_SERVOS) && NUM_SERVOS > 0
+  #if HAS_SERVOS
     #ifndef X_ENDSTOP_SERVO_NR
       #define X_ENDSTOP_SERVO_NR -1
     #endif
@@ -640,14 +732,20 @@
     #ifndef Z_ENDSTOP_SERVO_NR
       #define Z_ENDSTOP_SERVO_NR -1
     #endif
-    #if X_ENDSTOP_SERVO_NR >= 0 || Y_ENDSTOP_SERVO_NR >= 0 || Z_ENDSTOP_SERVO_NR >= 0
+    #if X_ENDSTOP_SERVO_NR >= 0 || Y_ENDSTOP_SERVO_NR >= 0 || HAS_Z_ENDSTOP_SERVO
       #define HAS_SERVO_ENDSTOPS true
       #define SERVO_ENDSTOP_IDS { X_ENDSTOP_SERVO_NR, Y_ENDSTOP_SERVO_NR, Z_ENDSTOP_SERVO_NR }
     #endif
   #endif
 
-  #if ( (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || HAS_Z_PROBE ) && \
-    ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) )
+  #if  ( (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || HAS_Z_PROBE ) \
+    && ( \
+         ENABLED(FIX_MOUNTED_PROBE) \
+      || ENABLED(MECHANICAL_PROBE) \
+      || HAS_Z_ENDSTOP_SERVO \
+      || ENABLED(Z_PROBE_ALLEN_KEY) \
+      || ENABLED(Z_PROBE_SLED) \
+    )
     #define HAS_Z_MIN_PROBE
   #endif
 

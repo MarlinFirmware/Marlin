@@ -180,8 +180,8 @@ FORCE_INLINE float intersection_distance(float initial_rate, float final_rate, f
 // Calculates trapezoid parameters so that the entry- and exit-speed is compensated by the provided factors.
 
 void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor) {
-  unsigned long initial_rate = ceil(block->nominal_rate * entry_factor); // (step/min)
-  unsigned long final_rate = ceil(block->nominal_rate * exit_factor); // (step/min)
+  unsigned long initial_rate = ceil(block->nominal_rate * entry_factor),
+                final_rate = ceil(block->nominal_rate * exit_factor); // (steps per second)
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
   NOLESS(initial_rate, 120);
@@ -428,8 +428,8 @@ void check_axes_activity() {
   #endif
 
   #if ENABLED(BARICUDA)
-    unsigned char tail_valve_pressure = ValvePressure,
-                  tail_e_to_p_pressure = EtoPPressure;
+    unsigned char tail_valve_pressure = baricuda_valve_pressure,
+                  tail_e_to_p_pressure = baricuda_e_to_p_pressure;
   #endif
 
   block_t* block;
@@ -491,7 +491,7 @@ void check_axes_activity() {
             fan_kick_end[f] = ms + FAN_KICKSTART_TIME; \
             tail_fan_speed[f] = 255; \
           } else { \
-            if (fan_kick_end[f] > ms) { \
+            if (PENDING(ms, fan_kick_end[f])) { \
               tail_fan_speed[f] = 255; \
             } \
           } \
@@ -568,7 +568,7 @@ float junction_deviation = 0.1;
   while (block_buffer_tail == next_buffer_head) idle();
 
   #if ENABLED(MESH_BED_LEVELING)
-    if (mbl.active) z += mbl.get_z(x, y);
+    if (mbl.active) z += mbl.get_z(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
   #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
     apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
   #endif
@@ -650,8 +650,8 @@ float junction_deviation = 0.1;
   #endif
 
   #if ENABLED(BARICUDA)
-    block->valve_pressure = ValvePressure;
-    block->e_to_p_pressure = EtoPPressure;
+    block->valve_pressure = baricuda_valve_pressure;
+    block->e_to_p_pressure = baricuda_e_to_p_pressure;
   #endif
 
   // Compute direction bits for this block
@@ -852,25 +852,34 @@ float junction_deviation = 0.1;
   block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
+    static float filwidth_e_count = 0, filwidth_delay_dist = 0;
+
     //FMM update ring buffer used for delay with filament measurements
-    if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM && delay_index2 > -1) {  //only for extruder with filament sensor and if ring buffer is initialized
+    if (extruder == FILAMENT_SENSOR_EXTRUDER_NUM && filwidth_delay_index2 >= 0) {  //only for extruder with filament sensor and if ring buffer is initialized
 
-      const int MMD = MAX_MEASUREMENT_DELAY + 1, MMD10 = MMD * 10;
+      const int MMD_CM = MAX_MEASUREMENT_DELAY + 1, MMD_MM = MMD_CM * 10;
 
-      delay_dist += delta_mm[E_AXIS];  // increment counter with next move in e axis
-      while (delay_dist >= MMD10) delay_dist -= MMD10; // loop around the buffer
-      while (delay_dist < 0) delay_dist += MMD10;
+      // increment counters with next move in e axis
+      filwidth_e_count += delta_mm[E_AXIS];
+      filwidth_delay_dist += delta_mm[E_AXIS];
 
-      delay_index1 = delay_dist / 10.0;  // calculate index
-      delay_index1 = constrain(delay_index1, 0, MAX_MEASUREMENT_DELAY); // (already constrained above)
+      // Only get new measurements on forward E movement
+      if (filwidth_e_count > 0.0001) {
 
-      if (delay_index1 != delay_index2) { // moved index
-        int8_t meas_sample = widthFil_to_size_ratio() - 100;  // Subtract 100 to reduce magnitude - to store in a signed char
-        while (delay_index1 != delay_index2) {
-          // Increment and loop around buffer
-          if (++delay_index2 >= MMD) delay_index2 -= MMD;
-          delay_index2 = constrain(delay_index2, 0, MAX_MEASUREMENT_DELAY);
-          measurement_delay[delay_index2] = meas_sample;
+        // Loop the delay distance counter (modulus by the mm length)
+        while (filwidth_delay_dist >= MMD_MM) filwidth_delay_dist -= MMD_MM;
+
+        // Convert into an index into the measurement array
+        filwidth_delay_index1 = (int)(filwidth_delay_dist / 10.0 + 0.0001);
+
+        // If the index has changed (must have gone forward)...
+        if (filwidth_delay_index1 != filwidth_delay_index2) {
+          filwidth_e_count = 0; // Reset the E movement counter
+          int8_t meas_sample = widthFil_to_size_ratio() - 100; // Subtract 100 to reduce magnitude - to store in a signed char
+          do {
+            filwidth_delay_index2 = (filwidth_delay_index2 + 1) % MMD_CM; // The next unused slot
+            measurement_delay[filwidth_delay_index2] = meas_sample;       // Store the measurement
+          } while (filwidth_delay_index1 != filwidth_delay_index2);       // More slots to fill?
         }
       }
     }
@@ -1081,6 +1090,12 @@ float junction_deviation = 0.1;
 } // plan_buffer_line()
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE) && DISABLED(DELTA)
+
+  /**
+   * Get the XYZ position of the steppers as a vector_3.
+   *
+   * On CORE machines XYZ is derived from ABC.
+   */
   vector_3 plan_get_position() {
     vector_3 position = vector_3(st_get_axis_position_mm(X_AXIS), st_get_axis_position_mm(Y_AXIS), st_get_axis_position_mm(Z_AXIS));
 
@@ -1093,8 +1108,14 @@ float junction_deviation = 0.1;
 
     return position;
   }
+
 #endif // AUTO_BED_LEVELING_FEATURE && !DELTA
 
+/**
+ * Directly set the planner XYZ position (hence the stepper positions).
+ *
+ * On CORE machines stepper ABC will be translated from the given XYZ.
+ */
 #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
   void plan_set_position(float x, float y, float z, const float& e)
 #else
@@ -1102,7 +1123,7 @@ float junction_deviation = 0.1;
 #endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
   {
     #if ENABLED(MESH_BED_LEVELING)
-      if (mbl.active) z += mbl.get_z(x, y);
+      if (mbl.active) z += mbl.get_z(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
     #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
       apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
     #endif

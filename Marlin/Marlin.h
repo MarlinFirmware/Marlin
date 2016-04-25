@@ -65,6 +65,8 @@ typedef unsigned long millis_t;
 
 #include "WString.h"
 
+#include "stopwatch.h"
+
 #ifdef USBCON
   #if ENABLED(BLUETOOTH)
     #define MYSERIAL bluetoothSerial
@@ -101,13 +103,15 @@ extern const char echomagic[] PROGMEM;
 #define SERIAL_ECHOLN(x) SERIAL_PROTOCOLLN(x)
 #define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
-#define SERIAL_ECHOPAIR(name,value) do{ serial_echopair_P(PSTR(name),(value)); }while(0)
+#define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
 
 void serial_echopair_P(const char* s_P, int v);
 void serial_echopair_P(const char* s_P, long v);
 void serial_echopair_P(const char* s_P, float v);
 void serial_echopair_P(const char* s_P, double v);
 void serial_echopair_P(const char* s_P, unsigned long v);
+FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
+FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
 
 // Things to write to serial from Program memory. Saves 400 to 2k of RAM.
 FORCE_INLINE void serialprintPGM(const char* str) {
@@ -219,10 +223,9 @@ void ok_to_send();
 void reset_bed_level();
 void prepare_move();
 void kill(const char*);
-void Stop();
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  void filrunout();
+  void handle_filament_runout();
 #endif
 
 /**
@@ -230,12 +233,12 @@ void Stop();
  */
 enum DebugFlags {
   DEBUG_NONE          = 0,
-  DEBUG_ECHO          = _BV(0),
-  DEBUG_INFO          = _BV(1),
-  DEBUG_ERRORS        = _BV(2),
-  DEBUG_DRYRUN        = _BV(3),
-  DEBUG_COMMUNICATION = _BV(4),
-  DEBUG_LEVELING      = _BV(5)
+  DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
+  DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
+  DEBUG_ERRORS        = _BV(2), ///< Not implemented
+  DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
+  DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
+  DEBUG_LEVELING      = _BV(5)  ///< Print detailed output for homing and leveling
 };
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
@@ -271,8 +274,8 @@ extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in m
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS];
 extern float home_offset[3]; // axis[n].home_offset
-extern float min_pos[3]; // axis[n].min_pos
-extern float max_pos[3]; // axis[n].max_pos
+extern float sw_endstop_min[3]; // axis[n].sw_endstop_min
+extern float sw_endstop_max[3]; // axis[n].sw_endstop_max
 extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
 
@@ -323,6 +326,10 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern float zprobe_zoffset;
 #endif
 
+#if ENABLED(HOST_KEEPALIVE_FEATURE)
+  extern uint8_t host_keepalive_interval;
+#endif
+
 #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
   extern float extrude_min_temp;
 #endif
@@ -332,8 +339,8 @@ extern bool axis_homed[3]; // axis[n].is_homed
 #endif
 
 #if ENABLED(BARICUDA)
-  extern int ValvePressure;
-  extern int EtoPPressure;
+  extern int baricuda_valve_pressure;
+  extern int baricuda_e_to_p_pressure;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -341,8 +348,7 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
   extern float filament_width_meas; //holds the filament diameter as accurately measured
   extern int8_t measurement_delay[];  //ring buffer to delay measurement
-  extern int delay_index1, delay_index2;  //ring buffer index. used by planner, temperature, and main code
-  extern float delay_dist; //delay distance counter
+  extern int filwidth_delay_index1, filwidth_delay_index2;  //ring buffer index. used by planner, temperature, and main code
   extern int meas_delay_cm; //delay distance
 #endif
 
@@ -357,8 +363,8 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
 #endif
 
-extern millis_t print_job_start_ms;
-extern millis_t print_job_stop_ms;
+// Print job timer
+extern Stopwatch print_job_timer;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
@@ -368,15 +374,10 @@ extern uint8_t active_extruder;
   extern void digipot_i2c_init();
 #endif
 
-#if HAS_TEMP_0 || HAS_TEMP_BED || ENABLED(HEATER_0_USES_MAX6675)
+#if HAS_TEMP_HOTEND || HAS_TEMP_BED
   void print_heaterstates();
 #endif
 
 extern void calculate_volumetric_multipliers();
-
-// Print job timer related functions
-millis_t print_job_timer();
-bool print_job_start(millis_t t = 0);
-bool print_job_stop(bool force = false);
 
 #endif //MARLIN_H

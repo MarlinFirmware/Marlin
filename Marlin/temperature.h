@@ -82,10 +82,16 @@ extern float current_temperature_bed;
 #if ENABLED(PIDTEMP)
 
   #if ENABLED(PID_PARAMS_PER_EXTRUDER)
-    extern float Kp[EXTRUDERS], Ki[EXTRUDERS], Kd[EXTRUDERS], Kc[EXTRUDERS]; // one param per extruder
-    #define PID_PARAM(param,e) param[e] // use macro to point to array value
+    extern float Kp[EXTRUDERS], Ki[EXTRUDERS], Kd[EXTRUDERS];  // one param per extruder
+    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      extern float Kc[EXTRUDERS];
+    #endif
+    #define PID_PARAM(param, e) param[e] // use macro to point to array value
   #else
-    extern float Kp, Ki, Kd, Kc; // one param per extruder - saves 20 or 36 bytes of ram (inc array pointer)
+    extern float Kp, Ki, Kd;  // one param per extruder - saves 20 or 36 bytes of ram (inc array pointer)
+    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      extern float Kc;
+    #endif
     #define PID_PARAM(param, e) param // use macro to point directly to value
   #endif // PID_PARAMS_PER_EXTRUDER
   float scalePID_i(float i);
@@ -163,7 +169,9 @@ int getHeaterPower(int heater);
 void disable_all_heaters();
 void updatePID();
 
-void PID_autotune(float temp, int extruder, int ncycles, bool set_result=false);
+#if ENABLED(PIDTEMP)
+  void PID_autotune(float temp, int extruder, int ncycles, bool set_result=false);
+#endif
 
 void setExtruderAutoFanState(int pin, bool state);
 void checkExtruderAutoFans();

@@ -61,7 +61,7 @@ void st_set_position(const long& x, const long& y, const long& z, const long& e)
 void st_set_e_position(const long& e);
 
 // Get current position in steps
-long st_get_position(uint8_t axis);
+long st_get_position(AxisEnum axis);
 
 // Get current axis position in mm
 float st_get_axis_position_mm(AxisEnum axis);

@@ -279,25 +279,50 @@ static void lcd_implementation_init() {
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
-static void _draw_heater_status(int x, int heater) {
-  bool isBed = heater < 0;
-  int y = 17 + (isBed ? 1 : 0);
-
-  lcd_setFont(FONT_STATUSMENU);
-  u8g.setPrintPos(x, 7);
-  lcd_print(itostr3(int((heater >= 0 ? degTargetHotend(heater) : degTargetBed()) + 0.5)));
+FORCE_INLINE void _draw_centered_temp(int temp, int x, int y) {
+  int degsize = 6 * (temp >= 100 ? 3 : temp >= 10 ? 2 : 1); // number's pixel width
+  u8g.setPrintPos(x - (18 - degsize) / 2, y); // move left if shorter
+  lcd_print(itostr3(temp));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-  u8g.setPrintPos(x, 28);
-  lcd_print(itostr3(int(heater >= 0 ? degHotend(heater) : degBed()) + 0.5));
+}
 
-  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-  if (heater >= 0 ? !isHeatingHotend(heater) : !isHeatingBed()) {
-    u8g.drawBox(x+7,y,2,2);
+FORCE_INLINE void _draw_heater_status(int x, int heater) {
+  #if HAS_TEMP_BED
+    bool isBed = heater < 0;
+  #else
+    const bool isBed = false;
+  #endif
+
+  _draw_centered_temp((isBed ? degTargetBed() : degTargetHotend(heater)) + 0.5, x, 7);
+
+  _draw_centered_temp((isBed ? degBed() : degHotend(heater)) + 0.5, x, 28);
+
+  int h = isBed ? 7 : 8,
+      y = isBed ? 18 : 17;
+  if (isBed ? isHeatingBed() : isHeatingHotend(heater)) {
+    u8g.setColorIndex(0); // white on black
+    u8g.drawBox(x + h, y, 2, 2);
+    u8g.setColorIndex(1); // black on white
   }
   else {
-    u8g.setColorIndex(0); // white on black
-    u8g.drawBox(x + 7, y, 2, 2);
-    u8g.setColorIndex(1); // black on white
+    u8g.drawBox(x + h, y, 2, 2);
+  }
+}
+
+FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) {
+  if (blink)
+    lcd_printPGM(pstr);
+  else {
+    if (!axis_homed[axis])
+      lcd_printPGM(PSTR("?"));
+    else {
+      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+        if (!axis_known_position[axis])
+          lcd_printPGM(PSTR(" "));
+        else
+      #endif
+      lcd_printPGM(pstr);
+    }
   }
 }
 
@@ -315,6 +340,9 @@ static void lcd_implementation_status_screen() {
     #endif
   );
 
+  // Status Menu Font for SD info, Heater status, Fan, XYZ
+  lcd_setFont(FONT_STATUSMENU);
+
   #if ENABLED(SDSUPPORT)
     // SD Card Symbol
     u8g.drawBox(42, 42 - (TALL_FONT_CORRECTION), 8, 7);
@@ -326,34 +354,29 @@ static void lcd_implementation_status_screen() {
     u8g.drawFrame(54, 49, 73, 4 - (TALL_FONT_CORRECTION));
 
     // SD Card Progress bar and clock
-    lcd_setFont(FONT_STATUSMENU);
-
     if (IS_SD_PRINTING) {
       // Progress bar solid part
       u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2 - (TALL_FONT_CORRECTION));
     }
 
     u8g.setPrintPos(80,48);
-    if (print_job_start_ms != 0) {
-      uint16_t time = (((print_job_stop_ms > print_job_start_ms)
-                       ? print_job_stop_ms : millis()) - print_job_start_ms) / 60000;
+    uint16_t time = print_job_timer.duration() / 60;
+    if (time != 0) {
       lcd_print(itostr2(time/60));
       lcd_print(':');
       lcd_print(itostr2(time%60));
     }
-    else {
-      lcd_printPGM(PSTR("--:--"));
-    }
   #endif
 
   // Extruders
-  for (int i = 0; i < EXTRUDERS; i++) _draw_heater_status(6 + i * 25, i);
+  for (int i = 0; i < EXTRUDERS; i++) _draw_heater_status(5 + i * 25, i);
 
-  // Heatbed
-  if (EXTRUDERS < 4) _draw_heater_status(81, -1);
+  // Heated bed
+  #if EXTRUDERS < 4 && HAS_TEMP_BED
+    _draw_heater_status(81, -1);
+  #endif
 
   // Fan
-  lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(104, 27);
   #if HAS_FAN0
     int per = ((fanSpeeds[0] + 1) * 100) / 256;
@@ -361,18 +384,13 @@ static void lcd_implementation_status_screen() {
       lcd_print(itostr3(per));
       lcd_print('%');
     }
-    else
   #endif
-    {
-      lcd_printPGM(PSTR("---"));
-    }
 
   // X, Y, Z-Coordinates
   // Before homing the axis letters are blinking 'X' <-> '?'.
   // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
   // When everything is ok you see a constant 'X'.
   #define XYZ_BASELINE 38
-  lcd_setFont(FONT_STATUSMENU);
 
   #if ENABLED(USE_SMALL_INFOFONT)
     u8g.drawBox(0, 30, LCD_PIXEL_WIDTH, 10);
@@ -380,78 +398,35 @@ static void lcd_implementation_status_screen() {
     u8g.drawBox(0, 30, LCD_PIXEL_WIDTH, 9);
   #endif
   u8g.setColorIndex(0); // white on black
+
   u8g.setPrintPos(2, XYZ_BASELINE);
-  if (blink)
-    lcd_printPGM(PSTR(MSG_X));
-  else {
-    if (!axis_homed[X_AXIS])
-      lcd_printPGM(PSTR("?"));
-    else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[X_AXIS])
-          lcd_printPGM(PSTR(" "));
-        else
-      #endif
-      lcd_printPGM(PSTR(MSG_X));
-    }
-  }
-  u8g.drawPixel(8, XYZ_BASELINE - 5);
-  u8g.drawPixel(8, XYZ_BASELINE - 3);
+  _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
   u8g.setPrintPos(10, XYZ_BASELINE);
-  lcd_print(ftostr31ns(current_position[X_AXIS]));
+  lcd_print(ftostr4sign(current_position[X_AXIS]));
 
   u8g.setPrintPos(43, XYZ_BASELINE);
-  if (blink)
-    lcd_printPGM(PSTR(MSG_Y));
-  else {
-    if (!axis_homed[Y_AXIS])
-      lcd_printPGM(PSTR("?"));
-    else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[Y_AXIS])
-          lcd_printPGM(PSTR(" "));
-        else
-      #endif
-      lcd_printPGM(PSTR(MSG_Y));
-    }
-  }
-  u8g.drawPixel(49, XYZ_BASELINE - 5);
-  u8g.drawPixel(49, XYZ_BASELINE - 3);
+  _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
   u8g.setPrintPos(51, XYZ_BASELINE);
-  lcd_print(ftostr31ns(current_position[Y_AXIS]));
+  lcd_print(ftostr4sign(current_position[Y_AXIS]));
 
   u8g.setPrintPos(83, XYZ_BASELINE);
-  if (blink)
-    lcd_printPGM(PSTR(MSG_Z));
-  else {
-    if (!axis_homed[Z_AXIS])
-      lcd_printPGM(PSTR("?"));
-    else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[Z_AXIS])
-          lcd_printPGM(PSTR(" "));
-        else
-      #endif
-      lcd_printPGM(PSTR(MSG_Z));
-    }
-  }
-  u8g.drawPixel(89, XYZ_BASELINE - 5);
-  u8g.drawPixel(89, XYZ_BASELINE - 3);
+  _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
   u8g.setPrintPos(91, XYZ_BASELINE);
-  lcd_print(ftostr32sp(current_position[Z_AXIS]));
+  lcd_print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
+
   u8g.setColorIndex(1); // black on white
 
   // Feedrate
   lcd_setFont(FONT_MENU);
   u8g.setPrintPos(3, 49);
   lcd_print(LCD_STR_FEEDRATE[0]);
+
   lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(12, 49);
   lcd_print(itostr3(feedrate_multiplier));
   lcd_print('%');
 
   // Status line
-  lcd_setFont(FONT_STATUSMENU);
   #if ENABLED(USE_SMALL_INFOFONT)
     u8g.setPrintPos(0, 62);
   #else
@@ -460,7 +435,7 @@ static void lcd_implementation_status_screen() {
   #if DISABLED(FILAMENT_LCD_DISPLAY)
     lcd_print(lcd_status_message);
   #else
-    if (millis() < previous_lcd_status_ms + 5000) {  //Display both Status message line and Filament display on the last line
+    if (PENDING(millis(), previous_lcd_status_ms + 5000UL)) {  //Display both Status message line and Filament display on the last line
       lcd_print(lcd_status_message);
     }
     else {
@@ -542,7 +517,7 @@ static void _drawmenu_setting_edit_generic(bool isSelected, uint8_t row, const c
 #define lcd_implementation_drawmenu_setting_edit_callback_long5(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5(*(data)))
 #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
-void lcd_implementation_drawedit(const char* pstr, const char* value) {
+void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
   uint8_t rows = 1;
   uint8_t lcd_width = LCD_WIDTH, char_width = DOG_CHAR_WIDTH;
   uint8_t vallen = lcd_strlen(value);
@@ -599,7 +574,7 @@ void lcd_implementation_drawedit(const char* pstr, const char* value) {
 
 #endif //SDSUPPORT
 
-#define lcd_implementation_drawmenu_back(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+#define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
 #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
 #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
