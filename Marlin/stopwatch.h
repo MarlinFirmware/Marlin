@@ -28,7 +28,7 @@
 // Print debug messages with M111 S2 (Uses 156 bytes of PROGMEM)
 //#define DEBUG_STOPWATCH
 
-enum StopwatchStatus {
+enum StopwatchState {
   STPWTCH_STOPPED,
   STPWTCH_RUNNING,
   STPWTCH_PAUSED
@@ -41,7 +41,7 @@ enum StopwatchStatus {
  */
 class Stopwatch {
   private:
-    StopwatchStatus status;
+    StopwatchState state;
     uint16_t accumulator;
     uint32_t startTimestamp;
     uint32_t stopTimestamp;
