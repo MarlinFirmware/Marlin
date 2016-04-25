@@ -439,11 +439,9 @@
  */
 #if WATCH_TEMP_PERIOD > 500
   #error WATCH_TEMP_PERIOD now uses seconds instead of milliseconds.
-#elif DISABLED(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
+#elif (DISABLED(THERMAL_PROTECTION_HOTENDS) || WATCH_TEMP_PERIOD <= 0) && (defined(WATCH_TEMP_PERIOD) || (defined(THERMAL_PROTECTION_PERIOD) && WATCH_TEMP_PERIOD > 0))
   #error Thermal Runaway Protection for hotends is now enabled with THERMAL_PROTECTION_HOTENDS.
-#elif DISABLED(THERMAL_PROTECTION_BED) && (defined(WATCH_BED_TEMP_PERIOD) || defined(THERMAL_PROTECTION_BED_PERIOD))
-  #error Thermal Runaway Protection for the bed is now enabled with THERMAL_PROTECTION_BED.
-#elif DISABLED(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
+#elif (DISABLED(THERMAL_PROTECTION_BED) || WATCH_BED_TEMP_PERIOD <= 0) && (defined(WATCH_BED_TEMP_PERIOD) || (defined(THERMAL_PROTECTION_BED_PERIOD) && WATCH_BED_TEMP_PERIOD > 0))
   #error Thermal Runaway Protection for the bed is now enabled with THERMAL_PROTECTION_BED.
 #elif ENABLED(COREXZ) && ENABLED(Z_LATE_ENABLE)
   #error "Z_LATE_ENABLE can't be used with COREXZ."
