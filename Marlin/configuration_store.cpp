@@ -328,7 +328,7 @@ void Config_StoreSettings()  {
 
   // Report storage size
   SERIAL_ECHO_START;
-  SERIAL_ECHOPAIR("Settings Stored (", (unsigned long)i);
+  SERIAL_ECHOPAIR("Settings Stored (", i);
   SERIAL_ECHOLNPGM(" bytes)");
 }
 
@@ -508,7 +508,7 @@ void Config_RetrieveSettings() {
     // Report settings retrieved and length
     SERIAL_ECHO_START;
     SERIAL_ECHO(ver);
-    SERIAL_ECHOPAIR(" stored settings retrieved (", (unsigned long)i);
+    SERIAL_ECHOPAIR(" stored settings retrieved (", i);
     SERIAL_ECHOLNPGM(" bytes)");
   }
 
@@ -552,7 +552,7 @@ void Config_ResetDefault() {
   home_offset[X_AXIS] = home_offset[Y_AXIS] = home_offset[Z_AXIS] = 0;
 
   #if ENABLED(MESH_BED_LEVELING)
-    mbl.active = 0;
+    mbl.active = false;
   #endif
 
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
@@ -731,9 +731,9 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Mesh bed leveling:");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M420 S", (unsigned long)mbl.active);
-    SERIAL_ECHOPAIR(" X", (unsigned long)MESH_NUM_X_POINTS);
-    SERIAL_ECHOPAIR(" Y", (unsigned long)MESH_NUM_Y_POINTS);
+    SERIAL_ECHOPAIR("  M420 S", mbl.active);
+    SERIAL_ECHOPAIR(" X", MESH_NUM_X_POINTS);
+    SERIAL_ECHOPAIR(" Y", MESH_NUM_Y_POINTS);
     SERIAL_EOL;
     for (uint8_t y = 0; y < MESH_NUM_Y_POINTS; y++) {
       for (uint8_t x = 0; x < MESH_NUM_X_POINTS; x++) {
@@ -784,18 +784,18 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Material heatup parameters:");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M145 S0 H", (unsigned long)plaPreheatHotendTemp);
-    SERIAL_ECHOPAIR(" B", (unsigned long)plaPreheatHPBTemp);
-    SERIAL_ECHOPAIR(" F", (unsigned long)plaPreheatFanSpeed);
+    SERIAL_ECHOPAIR("  M145 S0 H", plaPreheatHotendTemp);
+    SERIAL_ECHOPAIR(" B", plaPreheatHPBTemp);
+    SERIAL_ECHOPAIR(" F", plaPreheatFanSpeed);
     SERIAL_EOL;
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M145 S1 H", (unsigned long)absPreheatHotendTemp);
-    SERIAL_ECHOPAIR(" B", (unsigned long)absPreheatHPBTemp);
-    SERIAL_ECHOPAIR(" F", (unsigned long)absPreheatFanSpeed);
+    SERIAL_ECHOPAIR("  M145 S1 H", absPreheatHotendTemp);
+    SERIAL_ECHOPAIR(" B", absPreheatHPBTemp);
+    SERIAL_ECHOPAIR(" F", absPreheatFanSpeed);
     SERIAL_EOL;
   #endif // ULTIPANEL
 
-  #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
+  #if HAS_PID_HEATING
 
     CONFIG_ECHO_START;
     if (!forReplay) {
@@ -806,7 +806,7 @@ void Config_PrintSettings(bool forReplay) {
         if (forReplay) {
           for (uint8_t i = 0; i < EXTRUDERS; i++) {
             CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR("  M301 E", (unsigned long)i);
+            SERIAL_ECHOPAIR("  M301 E", i);
             SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, i));
             SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, i)));
             SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, i)));
@@ -849,7 +849,7 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("LCD Contrast:");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M250 C", (unsigned long)lcd_contrast);
+    SERIAL_ECHOPAIR("  M250 C", lcd_contrast);
     SERIAL_EOL;
   #endif
 
@@ -883,7 +883,7 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Auto-Retract: S=0 to disable, 1 to interpret extrude-only moves as retracts or recoveries");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M209 S", (unsigned long)(autoretract_enabled ? 1 : 0));
+    SERIAL_ECHOPAIR("  M209 S", (autoretract_enabled ? 1 : 0));
     SERIAL_EOL;
 
   #endif // FWRETRACT

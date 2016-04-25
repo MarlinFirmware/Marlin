@@ -36,34 +36,35 @@
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_KANA
 
-// This is very crude replacement of the codes used in language_kana.h from somebody who really does not know what he is doing.
-// Just to show the potential benefit of unicode.
+// This just to show the potential benefit of unicode.
 // This translation can be improved by using the full charset of unicode codeblock U+30A0 to U+30FF.
 
 // 片仮名表示定義
 #define WELCOME_MSG                         MACHINE_NAME " ready."
 #define MSG_SD_INSERTED                     "カード ソウニュウサレマシタ"        // "Card inserted"
 #define MSG_SD_REMOVED                      "カードガアリマセン"               // "Card removed"
+#define MSG_LCD_ENDSTOPS                    "エンドストップ"                  // "Endstops" // Max length 8 characters
 #define MSG_MAIN                            "メイン"                       // "Main"
 #define MSG_AUTOSTART                       "ジドウカイシ"                   // "Autostart"
 #define MSG_DISABLE_STEPPERS                "モーターデンゲン オフ"            // "Disable steppers"
 #define MSG_AUTO_HOME                       "ゲンテンニイドウ"                // "Auto home"
 #define MSG_LEVEL_BED_HOMING                "ゲンテンニイドウ"                // "Homing XYZ"
-#define MSG_LEVEL_BED_WAITING               "Click to Begin"
-#define MSG_LEVEL_BED_DONE                  "Leveling Done!"
+#define MSG_LEVEL_BED_WAITING               "レベリングカイシ"                // "Click to Begin"
+#define MSG_LEVEL_BED_DONE                  "レベリングカンリョウ"              // "Leveling Done!"
+#define MSG_LEVEL_BED_CANCEL                "トリヤメ"                      // "Cancel"
 #define MSG_SET_HOME_OFFSETS                "キジュンオフセットセッテイ"         // "Set home offsets"
-#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
+#define MSG_HOME_OFFSETS_APPLIED            "オフセット テキヨウサレマシタ"       // "Offsets applied"
 #define MSG_SET_ORIGIN                      "キジュンセット"                 // "Set origin"
 #define MSG_PREHEAT_PLA                     "PLA ヨネツ"                   // "Preheat PLA"
 #define MSG_PREHEAT_PLA_N                   MSG_PREHEAT_PLA " "
 #define MSG_PREHEAT_PLA_ALL                 MSG_PREHEAT_PLA " スベテ"     // " All"
-#define MSG_PREHEAT_PLA_BEDONLY             MSG_PREHEAT_PLA " ベッド"     // "Bed"
-#define MSG_PREHEAT_PLA_SETTINGS            MSG_PREHEAT_PLA " セッテイ"    // "conf"
+#define MSG_PREHEAT_PLA_BEDONLY             MSG_PREHEAT_PLA " ベッド"     // " Bed"
+#define MSG_PREHEAT_PLA_SETTINGS            MSG_PREHEAT_PLA " セッテイ"    // " conf"
 #define MSG_PREHEAT_ABS                     "ABS ヨネツ"                  // "Preheat ABS"
 #define MSG_PREHEAT_ABS_N                   MSG_PREHEAT_ABS " "
 #define MSG_PREHEAT_ABS_ALL                 MSG_PREHEAT_ABS " スベテ"     // " All"
-#define MSG_PREHEAT_ABS_BEDONLY             MSG_PREHEAT_ABS " ベッド"     // "Bed"
-#define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " セッテイ"    // "conf"
+#define MSG_PREHEAT_ABS_BEDONLY             MSG_PREHEAT_ABS " ベッド"     // " Bed"
+#define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " セッテイ"    // " conf"
 #define MSG_COOLDOWN                        "カネツテイシ"                  // "Cooldown"
 #define MSG_SWITCH_PS_ON                    "デンゲン オン"                 // "Switch power on"
 #define MSG_SWITCH_PS_OFF                   "デンゲン オフ"                 // "Switch power off"
@@ -95,15 +96,15 @@
 #define MSG_PID_I                           "PID-I"
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
-#define MSG_ACC                             "カソクド mm/s^2"              // "Accel"
+#define MSG_ACC                             "カソクド mm/s2"               // "Accel"
 #define MSG_VXY_JERK                        "XYジク ヤクド mm/s"            // "Vxy-jerk"
 #define MSG_VZ_JERK                         "Zジク ヤクド mm/s"             // "Vz-jerk"
 #define MSG_VE_JERK                         "エクストルーダー ヤクド"          // "Ve-jerk"
 #define MSG_VMAX                            "サイダイフィードレート "           // "Vmax "
-#define MSG_X                               "X"                         // "x"
-#define MSG_Y                               "Y"                         // "y"
-#define MSG_Z                               "Z"                         // "z"
-#define MSG_E                               "E"                         // "e"
+#define MSG_X                               "X"
+#define MSG_Y                               "Y"
+#define MSG_Z                               "Z"
+#define MSG_E                               "E"
 #define MSG_VMIN                            "サイショウフィードレート"          // "Vmin"
 #define MSG_VTRAV_MIN                       "サイショウトラベルレート"          // "VTrav min"
 #define MSG_AMAX                            "サイダイカソクド "              // "Amax "
@@ -157,7 +158,7 @@
 #define MSG_BABYSTEP_Z                      "Zジク ビドウ"                  // "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "エンドストップ サドウ"            // "Endstop abort"
 #define MSG_HEATING_FAILED_LCD              "カネツシッパイ"                 // "Heating failed"
-#define MSG_ERR_REDUNDANT_TEMP              "エラー:ジョウチョウサーミスターキノウ"  // "Err: REDUNDANT TEMP ERROR"
+#define MSG_ERR_REDUNDANT_TEMP              "エラー:ジョウチョウサーミスターキノウ"  // "Err: REDUNDANT TEMP"
 #define MSG_THERMAL_RUNAWAY                 "ネツボウソウ"                   // "THERMAL RUNAWAY"
 #define MSG_ERR_MAXTEMP                     "エラー:サイコウオンチョウカ"         // "Err: MAXTEMP"
 #define MSG_ERR_MINTEMP                     "エラー:サイテイオンミマン"          // "Err: MINTEMP"
@@ -170,12 +171,10 @@
 #define MSG_BED_HEATING                     "ベッド カネツチュウ"              // "Bed Heating."
 #define MSG_BED_DONE                        "ベッド カネツカンリョウ"            // "Bed done."
 
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE               "デルタ コウセイ"                // "Delta Calibration"
-  #define MSG_DELTA_CALIBRATE_X             "Xジク コウセイ"                 // "Calibrate X"
-  #define MSG_DELTA_CALIBRATE_Y             "Yジク コウセイ"                 // "Calibrate Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Zジク コウセイ"                 // "Calibrate Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "チュウシン コウセイ"              // "Calibrate Center"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "デルタ コウセイ"                // "Delta Calibration"
+#define MSG_DELTA_CALIBRATE_X               "Xジク コウセイ"                 // "Calibrate X"
+#define MSG_DELTA_CALIBRATE_Y               "Yジク コウセイ"                 // "Calibrate Y"
+#define MSG_DELTA_CALIBRATE_Z               "Zジク コウセイ"                 // "Calibrate Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "チュウシン コウセイ"              // "Calibrate Center"
 
 #endif // LANGUAGE_KANA_UTF_H

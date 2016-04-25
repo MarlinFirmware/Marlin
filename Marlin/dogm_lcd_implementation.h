@@ -284,9 +284,14 @@ int8_t glcd_loopcounter = 0;
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
-static void _draw_heater_status(int x, int heater) {
+FORCE_INLINE void _draw_heater_status(int x, int heater) {
   int heaterp1 = heater + 1;
-  bool isBed = heaterp1 == 0;
+  #if HAS_TEMP_BED
+    bool isBed = heaterp1 == 0;
+  #else
+    const bool isBed = false;
+  #endif
+
   int y = 17 + (isBed ? 1 : 0);
 
   static char target_str[EXTRUDERS+1][4];
@@ -316,8 +321,25 @@ static void _draw_heater_status(int x, int heater) {
     u8g.drawBitmapP(x + (4*DOG_CHAR_WIDTH - STATUS_EXTRUDER_WIDTH)/2, 8, STATUS_EXTRUDER_BYTEWIDTH, STATUS_EXTRUDER_HEIGHT, extruder_graphic[heater][isHeatingHotend(heater)]);
 }
 
+FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) {
+  if (blink)
+    lcd_printPGM(pstr);
+  else {
+    if (!axis_homed[axis])
+      lcd_printPGM(PSTR("?"));
+    else {
+      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
+        if (!axis_known_position[axis])
+          lcd_printPGM(PSTR(" "));
+        else
+      #endif
+      lcd_printPGM(pstr);
+    }
+  }
+}
+
 #if ENABLED(FSR_BED_LEVELING)
-  static void _draw_fsr_status(int x, bool blink) {
+  FORCE_INLINE void _draw_fsr_status(int x, bool blink) {
     static char fsr_is_str[4];
 
     #if ENABLED(LCD_SCREEN_ROT_180)
@@ -387,7 +409,7 @@ static void lcd_implementation_status_screen() {
       uitoaR(per, fanper_str, 3);
     #endif
     #if ENABLED(SDSUPPORT)
-      time = (((print_job_stop_ms > print_job_start_ms) ? print_job_stop_ms : millis()) - print_job_start_ms) / 60000;
+      time = print_job_timer.duration() / 60;
       uitoaR(time/60, h_str, 2);
       uitoaRp(time%60, m_str, 2, '0');
       if (IS_SD_PRINTING) {
@@ -494,55 +516,16 @@ static void lcd_implementation_status_screen() {
       lcd_setFont(FONT_STATUSMENU);
 
       u8g.setPrintPos(0, XYZ_BASELINE);
-      if (blink)
-        lcd_printPGM(PSTR(MSG_X));
-      else {
-        if (!axis_homed[X_AXIS])
-          lcd_printPGM(PSTR("?"));
-        else {
-        #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-          if (!axis_known_position[X_AXIS])
-            lcd_printPGM(PSTR(" "));
-          else
-        #endif
-          lcd_printPGM(PSTR(MSG_X));
-        }
-      }
+      _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
       lcd_print(xpos_str);
 
       u8g.setPrintPos(43, XYZ_BASELINE);
-      if (blink)
-        lcd_printPGM(PSTR(MSG_Y));
-      else {
-        if (!axis_homed[Y_AXIS])
-          lcd_printPGM(PSTR("?"));
-        else {
-          #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-            if (!axis_known_position[Y_AXIS])
-              lcd_printPGM(PSTR(" "));
-            else
-          #endif
-            lcd_printPGM(PSTR(MSG_Y));
-        }
-      }
+      _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
       lcd_print(ypos_str);
     #endif // !COORDINATE_DISPLAY_Z_ONLY
 
     u8g.setPrintPos(87, XYZ_BASELINE);
-    if (blink)
-      lcd_printPGM(PSTR(MSG_Z));
-    else {
-      if (!axis_homed[Z_AXIS])
-        lcd_printPGM(PSTR("?"));
-      else {
-      #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
-        if (!axis_known_position[Z_AXIS])
-          lcd_printPGM(PSTR(" "));
-        else
-      #endif
-        lcd_printPGM(PSTR(MSG_Z));
-      }
-    }
+    _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
     lcd_print(zpos_str);
   #endif // !COORDINATE_DISPLAY_OFF
 
@@ -556,6 +539,7 @@ static void lcd_implementation_status_screen() {
   lcd_setFont(FONT_MENU);
   u8g.setPrintPos(3, 49);
   lcd_print(LCD_STR_FEEDRATE[0]);
+
   lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(12, 49);
   lcd_print(fr_str);
@@ -590,7 +574,7 @@ static void lcd_implementation_status_screen() {
       // Progress bar solid part
       u8g.drawBox(54, 50, progress_bar, 1);
 
-      if (print_job_start_ms != 0) {
+      if (print_job_timer.isRunning()) {
         u8g.setPrintPos(60,48);
         lcd_print(h_str);
         lcd_print(':');
@@ -612,7 +596,7 @@ static void lcd_implementation_status_screen() {
   #if DISABLED(FILAMENT_LCD_DISPLAY)
     lcd_print(lcd_status_message);
   #else
-    if (millis() < previous_lcd_status_ms + 5000) {  //Display both Status message line and Filament display on the last line
+    if (PENDING(millis(), previous_lcd_status_ms + 5000UL)) {  //Display both Status message line and Filament display on the last line
       lcd_print(lcd_status_message);
     }
     else {
@@ -694,7 +678,7 @@ static char conv_str[10];
 #define lcd_implementation_drawmenu_setting_edit_callback_float72(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, dtostrf(*(data), 7, 2, conv_str))
 #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
-void lcd_implementation_drawedit(const char* pstr, const char* value) {
+void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
   uint8_t rows = 1;
   uint8_t lcd_width = LCD_WIDTH, char_width = DOG_CHAR_WIDTH;
   uint8_t vallen = lcd_strlen(value);
@@ -751,7 +735,7 @@ void lcd_implementation_drawedit(const char* pstr, const char* value) {
 
 #endif //SDSUPPORT
 
-#define lcd_implementation_drawmenu_back(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+#define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
 #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
 #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')

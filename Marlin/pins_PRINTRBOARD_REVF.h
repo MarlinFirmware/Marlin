@@ -90,13 +90,13 @@
 // uncomment to enable an I2C based DAC like on the Printrboard REVF
 #define DAC_STEPPER_CURRENT
 // Number of channels available for DAC, For Printrboar REVF there are 4
-#define DAC_STEPPER_ORDER 	{3,2,1,0}
+#define DAC_STEPPER_ORDER {3,2,1,0}
 
-#define DAC_STEPPER_SENSE 0.11
-#define DAC_STEPPER_ADDRESS	0
-#define DAC_STEPPER_MAX 	3520
-#define DAC_STEPPER_VREF 	1 //internal Vref, gain 1x = 2.048V
-#define DAC_STEPPER_GAIN	0
+#define DAC_STEPPER_SENSE    0.11
+#define DAC_STEPPER_ADDRESS  0
+#define DAC_STEPPER_MAX   3520
+#define DAC_STEPPER_VREF     1 //internal Vref, gain 1x = 2.048V
+#define DAC_STEPPER_GAIN     0
 
 #if DISABLED(SDSUPPORT)
   // these pins are defined in the SD library if building with SD support

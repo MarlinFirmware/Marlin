@@ -86,7 +86,7 @@
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
   #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
-  #define THERMAL_PROTECTION_BED_HYSTERESIS 4 // Degrees Celsius
+  #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -201,9 +201,7 @@
   //#define Z_DUAL_ENDSTOPS
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
-    #define Z2_MAX_PIN 36                     //Endstop used for Z2 axis. In this case I'm using XMAX in a Rumba Board (pin 36)
-    const bool Z2_MAX_ENDSTOP_INVERTING = false;
-    #define DISABLE_XMAX_ENDSTOP              //Better to disable the XMAX to avoid conflict. Just rename "XMAX_ENDSTOP" by the endstop you are using for Z2 axis.
+    #define Z2_USE_ENDSTOP _XMAX_
   #endif
 
 #endif // Z_DUAL_STEPPER_DRIVERS
@@ -263,9 +261,9 @@
 // @section homing
 
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
-#define X_HOME_BUMP_MM 5
-#define Y_HOME_BUMP_MM 5
-#define Z_HOME_BUMP_MM 2
+#define X_HOME_BUMP_MM 2
+#define Y_HOME_BUMP_MM 2
+#define Z_HOME_BUMP_MM 2 // deltas need the same for all three axis
 #define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
@@ -287,7 +285,7 @@
 // Default stepper release if idle. Set to 0 to deactivate.
 // Steppers will shut down DEFAULT_STEPPER_DEACTIVE_TIME seconds after the last move when DISABLE_INACTIVE_? is true.
 // Time can be set by M18 and M84.
-#define DEFAULT_STEPPER_DEACTIVE_TIME 60
+#define DEFAULT_STEPPER_DEACTIVE_TIME 120
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
 #define DISABLE_INACTIVE_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
@@ -299,7 +297,8 @@
 // @section lcd
 
 #if ENABLED(ULTIPANEL)
-  #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
+  #define MANUAL_FEEDRATE_XYZ 50*60
+  #define MANUAL_FEEDRATE { MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, MANUAL_FEEDRATE_XYZ, 60 } // Feedrates for manual moves along X, Y, Z, E from panel
   #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
 #endif
 
@@ -309,7 +308,8 @@
 #define DEFAULT_MINSEGMENTTIME        20000
 
 // If defined the movements slow down when the look ahead buffer is only half full
-#define SLOWDOWN
+// (don't use SLOWDOWN with DELTA because DELTA generates hundreds of segments per second)
+//#define SLOWDOWN
 
 // Frequency limit
 // See nophead's blog for more info
@@ -654,6 +654,38 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
   #define E3_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
 #endif
+
+/**
+ * TWI/I2C BUS
+ *
+ * This feature is an EXPERIMENTAL feature so it shall not be used on production
+ * machines. Enabling this will allow you to send and receive I2C data from slave
+ * devices on the bus.
+ *
+ * ; Example #1
+ * ; This macro send the string "Marlin" to the slave device with address 0x63
+ * ; It uses multiple M155 commands with one B<base 10> arg
+ * M155 A63  ; Target slave address
+ * M155 B77  ; M
+ * M155 B97  ; a
+ * M155 B114 ; r
+ * M155 B108 ; l
+ * M155 B105 ; i
+ * M155 B110 ; n
+ * M155 S1   ; Send the current buffer
+ *
+ * ; Example #2
+ * ; Request 6 bytes from slave device with address 0x63
+ * M156 A63 B5
+ *
+ * ; Example #3
+ * ; Example serial output of a M156 request
+ * echo:i2c-reply: from:63 bytes:5 data:hello
+ */
+
+// @section i2cbus
+
+//#define EXPERIMENTAL_I2CBUS
 
 #include "Conditionals.h"
 #include "SanityCheck.h"

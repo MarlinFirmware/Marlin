@@ -29,7 +29,7 @@
 
   class mesh_bed_leveling {
   public:
-    uint8_t active;
+    bool active;
     float z_offset;
     float z_values[MESH_NUM_Y_POINTS][MESH_NUM_X_POINTS];
 
@@ -40,6 +40,18 @@
     float get_x(int i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
     float get_y(int i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
     void set_z(int ix, int iy, float z) { z_values[iy][ix] = z; }
+
+    inline void zigzag(int index, int &ix, int &iy) {
+      ix = index % (MESH_NUM_X_POINTS);
+      iy = index / (MESH_NUM_X_POINTS);
+      if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
+    }
+
+    void set_zigzag_z(int index, float z) {
+      int ix, iy;
+      zigzag(index, ix, iy);
+      set_z(ix, iy, z);
+    }
 
     int select_x_index(float x) {
       int i = 1;

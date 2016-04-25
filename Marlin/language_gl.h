@@ -92,10 +92,10 @@
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "
-#define MSG_X                               "x"
-#define MSG_Y                               "y"
-#define MSG_Z                               "z"
-#define MSG_E                               "e"
+#define MSG_X                               "X"
+#define MSG_Y                               "Y"
+#define MSG_Z                               "Z"
+#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax "
@@ -162,12 +162,10 @@
 #define MSG_BED_HEATING                     "Quentando cama"
 #define MSG_BED_DONE                        "Cama esta quente"
 
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE             "Calibracion Delta"
-  #define MSG_DELTA_CALIBRATE_X           "Calibrar X"
-  #define MSG_DELTA_CALIBRATE_Y           "Calibrar Y"
-  #define MSG_DELTA_CALIBRATE_Z           "Calibrar Z"
-  #define MSG_DELTA_CALIBRATE_CENTER      "Calibrar Centro"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE               "Calibracion Delta"
+#define MSG_DELTA_CALIBRATE_X             "Calibrar X"
+#define MSG_DELTA_CALIBRATE_Y             "Calibrar Y"
+#define MSG_DELTA_CALIBRATE_Z             "Calibrar Z"
+#define MSG_DELTA_CALIBRATE_CENTER        "Calibrar Centro"
 
 #endif // LANGUAGE_GL_H

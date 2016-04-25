@@ -1,8 +1,8 @@
 # Marlin 3D Printer Firmware
 <img align="top" width=175 src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
- Additional documentation can be found in [The Marlin Wiki](https://github.com/MarlinFirmware/Marlin/wiki/Main-Page).
+ Additional documentation can be found in [The Marlin Wiki](https://github.com/MarlinFirmware/Marlin/wiki).
 
-## Release Candidate -- Marlin 1.1.0-RC5 - 01 April 2016
+## Release Candidate -- Marlin 1.1.0-RC6 - 24 April 2016
 
 __Not for production use – use with caution!__
 
@@ -14,8 +14,13 @@ Future development (Marlin 1.2 and beyond) takes place in the [MarlinDev reposit
 
 ## Recent Changes
 - RCBugFix
-  - Throw error if compiling with older versions (<1.60) of Arduino due to serios problems with outdated Arduino versions
+  - Throw error if compiling with older versions (<1.60) of Arduino due to serious problems with outdated Arduino versions
   - Please upgrade your IDE at least to Arduino 1.6.0. Thanks.
+
+- RC6 - 23 Apr 2016
+  - Completed support for CoreXY / CoreXZ in planner
+  - Changes to positioning behavior
+  - Various issues fixed. More details pending.
 
 - RC5 - 01 Apr 2016
   - Warn if compiling with older versions (<1.50) of Arduino

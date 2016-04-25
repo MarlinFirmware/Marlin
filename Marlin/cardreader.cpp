@@ -348,11 +348,11 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
   char *dirname_start, *dirname_end;
   if (name[0] == '/') {
     dirname_start = &name[1];
-    while (dirname_start > 0) {
+    while (dirname_start != NULL) {
       dirname_end = strchr(dirname_start, '/');
       //SERIAL_ECHO("start:");SERIAL_ECHOLN((int)(dirname_start - name));
       //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end - name));
-      if (dirname_end > 0 && dirname_end > dirname_start) {
+      if (dirname_end != NULL && dirname_end > dirname_start) {
         char subdirname[FILENAME_LENGTH];
         strncpy(subdirname, dirname_start, dirname_end - dirname_start);
         subdirname[dirname_end - dirname_start] = 0;
@@ -429,11 +429,11 @@ void CardReader::removeFile(char* name) {
   char *dirname_start, *dirname_end;
   if (name[0] == '/') {
     dirname_start = strchr(name, '/') + 1;
-    while (dirname_start > 0) {
+    while (dirname_start != NULL) {
       dirname_end = strchr(dirname_start, '/');
       //SERIAL_ECHO("start:");SERIAL_ECHOLN((int)(dirname_start - name));
       //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end - name));
-      if (dirname_end > 0 && dirname_end > dirname_start) {
+      if (dirname_end != NULL && dirname_end > dirname_start) {
         char subdirname[FILENAME_LENGTH];
         strncpy(subdirname, dirname_start, dirname_end - dirname_start);
         subdirname[dirname_end - dirname_start] = 0;
@@ -508,7 +508,7 @@ void CardReader::write_command(char *buf) {
 }
 
 void CardReader::checkautostart(bool force) {
-  if (!force && (!autostart_stilltocheck || next_autostart_ms < millis()))
+  if (!force && (!autostart_stilltocheck || ELAPSED(millis(), next_autostart_ms)))
     return;
 
   autostart_stilltocheck = false;
