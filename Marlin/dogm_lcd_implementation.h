@@ -292,7 +292,7 @@ FORCE_INLINE void _draw_heater_status(int x, int heater) {
     const bool isBed = false;
   #endif
 
-  int y = 17 + (isBed ? 1 : 0);
+  int y = isBed ? 18 : 17;
 
   static char target_str[EXTRUDERS+1][4];
   static char is_str[EXTRUDERS+1][4];
@@ -318,7 +318,7 @@ FORCE_INLINE void _draw_heater_status(int x, int heater) {
     #endif
   }
   else
-    u8g.drawBitmapP(x + (4*DOG_CHAR_WIDTH - STATUS_EXTRUDER_WIDTH)/2, 8, STATUS_EXTRUDER_BYTEWIDTH, STATUS_EXTRUDER_HEIGHT, extruder_graphic[heater][isHeatingHotend(heater)]);
+    u8g.drawBitmapP(x + (4*DOG_CHAR_WIDTH - STATUS_EXTRUDER_WIDTH)/2, 7, STATUS_EXTRUDER_BYTEWIDTH, STATUS_EXTRUDER_HEIGHT, extruder_graphic[heater][isHeatingHotend(heater)]);
 }
 
 FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) {
@@ -336,6 +336,12 @@ FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) 
       lcd_printPGM(pstr);
     }
   }
+}
+
+FORCE_INLINE void _draw_axis(AxisEnum axis, const char *pstr, char *pos_str, bool blink) {
+  lcd_setFont(FONT_STATUSMENU);
+  _draw_axis_label(axis, pstr, blink);
+  lcd_print(pos_str);
 }
 
 #if ENABLED(FSR_BED_LEVELING)
@@ -442,6 +448,9 @@ static void lcd_implementation_status_screen() {
 
   // Symbols menu graphics, animated fan
 
+  // Status Menu Font for SD info, Heater status, Fan, XYZ
+  lcd_setFont(FONT_STATUSMENU);
+
   // Extruders
   #if ENABLED(FSR_BED_LEVELING)
     #if HAS_TEMP_BED && HAS_FAN0
@@ -481,7 +490,6 @@ static void lcd_implementation_status_screen() {
   #endif
 
   // Fan
-  lcd_setFont(FONT_STATUSMENU);
   #if HAS_FAN0
     u8g.drawBitmapP(LCD_PIXEL_WIDTH - E_DIST/2 - 2*DOG_CHAR_WIDTH + (4*DOG_CHAR_WIDTH - STATUS_FAN_WIDTH)/2, 2, STATUS_FAN_BYTEWIDTH, STATUS_FAN_HEIGHT, fan_graphic[((per>0) && blink)?0:1]);
     u8g.setPrintPos(LCD_PIXEL_WIDTH - E_DIST/2 - 2*DOG_CHAR_WIDTH, 28);
@@ -490,9 +498,7 @@ static void lcd_implementation_status_screen() {
       lcd_print('%');
     }
     else
-    {
-      lcd_printPGM(PSTR("---"));
-    }
+      lcd_printPGM(PSTR("----"));
   #endif
 
   #if ENABLED(USE_SMALL_INFOFONT)
@@ -513,20 +519,16 @@ static void lcd_implementation_status_screen() {
     #define XYZ_BASELINE 38
 
     #ifndef COORDINATE_DISPLAY_Z_ONLY
-      lcd_setFont(FONT_STATUSMENU);
 
       u8g.setPrintPos(0, XYZ_BASELINE);
-      _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-      lcd_print(xpos_str);
+      _draw_axis(X_AXIS, PSTR(MSG_X), xpos_str, blink);
 
       u8g.setPrintPos(43, XYZ_BASELINE);
-      _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-      lcd_print(ypos_str);
+      _draw_axis(Y_AXIS, PSTR(MSG_Y), ypos_str, blink);
     #endif // !COORDINATE_DISPLAY_Z_ONLY
 
     u8g.setPrintPos(87, XYZ_BASELINE);
-    _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
-    lcd_print(zpos_str);
+    _draw_axis(Z_AXIS, PSTR(MSG_Z), zpos_str, blink);
   #endif // !COORDINATE_DISPLAY_OFF
 
   // lower half
@@ -535,6 +537,7 @@ static void lcd_implementation_status_screen() {
   #else
     if ((glcd_loopcounter & (DISPLAY_SRIPES >> 1))) {
   #endif
+
   // Feedrate
   lcd_setFont(FONT_MENU);
   u8g.setPrintPos(3, 49);
@@ -551,7 +554,6 @@ static void lcd_implementation_status_screen() {
     u8g.drawHLine(0, 39, LCD_PIXEL_WIDTH);
   #endif
 
-  lcd_setFont(FONT_STATUSMENU);
   #if ENABLED(SDSUPPORT)
     // SD Card Symbol
     #if PIN_EXISTS(SD_DETECT)
@@ -575,11 +577,11 @@ static void lcd_implementation_status_screen() {
       u8g.drawBox(54, 50, progress_bar, 1);
 
       if (print_job_timer.isRunning()) {
-        u8g.setPrintPos(60,48);
+        u8g.setPrintPos(57, 48);
         lcd_print(h_str);
         lcd_print(':');
         lcd_print(m_str);
-        lcd_printPGM(PSTR(" / "));
+        lcd_print('/');
         lcd_print(h_finish_str);
         lcd_print(':');
         lcd_print(m_finish_str);

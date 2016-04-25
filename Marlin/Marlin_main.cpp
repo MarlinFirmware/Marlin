@@ -1603,9 +1603,7 @@ static void setup_for_endstop_move() {
         long start_steps = st_get_position(Z_AXIS);
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
-          }
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
         #endif
 
         // move down slowly until you find the bed
@@ -1614,10 +1612,6 @@ static void setup_for_endstop_move() {
         prepare_move_raw(); // this will also set_current_to_destination
         st_synchronize();
         endstops_hit_on_purpose(); // clear endstop hit flags
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
-      #endif
 
         /**
          * We have to let the planner know where we are right now as it
@@ -1628,16 +1622,10 @@ static void setup_for_endstop_move() {
         current_position[Z_AXIS] = mm;
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            print_xyz("run_z_probe (DELTA) 2 > current_position", current_position);
-          }
+          if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe (DELTA) 2", current_position);
         #endif
 
         sync_plan_position_delta();
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe (DELTA) 2", current_position);
-      #endif
 
       #endif // FSR_BED_LEVELING
 
@@ -2056,7 +2044,7 @@ static void setup_for_endstop_move() {
     #endif // Z_PROBE_ALLEN_KEY
 
     #if ENABLED(FIX_MOUNTED_PROBE) || ENABLED(FSR_BED_LEVELING)
-      // Noting to be done. Just set z_probe_is_active
+      // Nothing to do here. Just clear z_probe_is_active
     #endif
 
     z_probe_is_active = false;
