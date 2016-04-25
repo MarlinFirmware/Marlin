@@ -2,7 +2,7 @@
 <img align="top" width=175 src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
  Additional documentation can be found in [The Marlin Wiki](https://github.com/MarlinFirmware/Marlin/wiki/Main-Page).
 
-## Release Candidate -- Marlin 1.1.0-RC4 - 24 March 2016
+## Release Candidate -- Marlin 1.1.0-RC5 - 01 April 2016
 
 __Not for production use – use with caution!__
 
@@ -13,6 +13,23 @@ You'll always find the latest Release Candidate in the ["RC" branch](https://git
 Future development (Marlin 1.2 and beyond) takes place in the [MarlinDev repository](https://github.com/MarlinFirmware/MarlinDev/).
 
 ## Recent Changes
+- RCBugFix
+  - Throw error if compiling with older versions (<1.60) of Arduino due to serios problems with outdated Arduino versions
+  - Please upgrade your IDE at least to Arduino 1.6.0. Thanks.
+
+- RC5 - 01 Apr 2016
+  - Warn if compiling with older versions (<1.50) of Arduino
+  - Fix various LCD menu issues
+  - Add formal support for MKSv1.3 and Sainsmart (RAMPS variants)
+  - Fix bugs in M104, M109, and M190
+  - Fix broken M404 command
+  - Fix issues with M23 and "Start SD Print"
+  - More output for M111
+  - Rename FILAMENT_SENSOR to FILAMENT_WIDTH_SENSOR
+  - Fix SD card bugs
+  - and a lot more
+  - see https://github.com/MarlinFirmware/Marlin/releases/tag/1.1.0-RC5 for details
+
 - RC4 - 24 Mar 2016
   - Many lingering bugs and nagging issues addressed
   - Improvements to LCD menus, CoreXY/CoreXZ, Delta, Bed Leveling, and more…
@@ -52,7 +69,7 @@ The current Marlin dev team consists of:
  - Scott Lahteine [@thinkyhead] - English
  - [@Wurstnase] - Deutsch, English
  - F. Malpartida [@fmalpartida] - English, Spanish
- - [@CONSULitAS] - Deutsch, English
+ - Jochen Groppe [@CONSULitAS] - Deutsch, English
  - [@maverikou]
  - Chris Palmer [@nophead]
  - [@paclema]
