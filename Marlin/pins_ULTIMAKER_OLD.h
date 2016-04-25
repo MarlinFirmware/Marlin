@@ -28,8 +28,8 @@
   #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
 #endif
 
-#define DEFAULT_MACHINE_NAME "Ultimaker"
-#define DEFAULT_SOURCE_URL   "https://github.com/Ultimaker/Marlin"
+#define DEFAULT_MACHINE_NAME    "Ultimaker"
+#define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
 
 #define LARGE_FLASH true
 
