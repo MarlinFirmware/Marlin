@@ -4029,6 +4029,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       break;
     case 710: // M710 Set the EEPROM and reset the board.
     {
+		SERIAL_PROTOCOLLNPGM(MSG_OK);
 		#ifdef DOGLCD
 			ui::ViewManager::getInstance().activeView(ui::screen_reset);
 		#else
