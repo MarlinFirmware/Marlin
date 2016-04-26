@@ -5199,7 +5199,9 @@ inline void gcode_M206() {
     if (code_seen('T')) set_home_offset(X_AXIS, code_value()); // Theta
     if (code_seen('P')) set_home_offset(Y_AXIS, code_value()); // Psi
   #endif
+
   sync_plan_position();
+  report_current_position();
 }
 
 #if ENABLED(DELTA)
@@ -5918,6 +5920,7 @@ inline void gcode_M428() {
 
   if (!err) {
     sync_plan_position();
+    report_current_position();
     LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
     #if HAS_BUZZER
       buzz(200, 659);
