@@ -57,6 +57,7 @@ class StatsManager
 		uint8_t m_minutes;
 		uint16_t m_total_prints;
 		uint16_t m_succeded;
+		bool m_print_started;
 };
 
 #endif //STATS_MANAGER_H
