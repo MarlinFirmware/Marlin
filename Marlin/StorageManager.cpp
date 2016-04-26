@@ -325,11 +325,19 @@ namespace eeprom
 	const uint16_t StorageManager::getStatSucceded()
 	{
 		uint16_t succeded_prints;
+		uint16_t total_prints = StorageManager::single::instance().getStatTotalPrints();
+		
 		StorageManager::single::instance().readData(ADDR_STAT_SUCCEDED, (uint8_t*)&succeded_prints, sizeof(succeded_prints));
 		
 		if(succeded_prints == 0xFFFF)
 		{
 			succeded_prints = 0;
+			StorageManager::single::instance().setStatSucceded(succeded_prints);
+		}
+		
+		if(succeded_prints > total_prints)
+		{
+			succeded_prints = total_prints;
 			StorageManager::single::instance().setStatSucceded(succeded_prints);
 		}
 		
