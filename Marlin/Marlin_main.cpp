@@ -4523,7 +4523,11 @@ inline void gcode_M109() {
     if (DEBUGGING(DRYRUN)) return;
 
     LCD_MESSAGEPGM(MSG_BED_HEATING);
-    bool no_wait_for_cooling = code_seen('S');
+    bool no_wait_for_cooling =
+#ifdef NO_BED_COOLING
+		true ||
+#endif
+		code_seen('S');
     if (no_wait_for_cooling || code_seen('R')) setTargetBed(code_value());
 
     bool wants_to_cool = isCoolingBed();
