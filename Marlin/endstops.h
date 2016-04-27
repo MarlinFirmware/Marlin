@@ -70,6 +70,11 @@ class Endstops {
      */
     void report_state(); //call from somewhere to create an serial error message with the locations the endstops where hit, in case they were triggered
 
+    /**
+     * Report endstop positions in response to M119
+     */
+    void M119();
+
     // Enable / disable endstop checking globally
     FORCE_INLINE void enable_globally(bool onoff=true) { enabled_globally = enabled = onoff; }
 
