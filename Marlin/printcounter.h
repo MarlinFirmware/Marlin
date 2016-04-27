@@ -71,7 +71,7 @@ class PrintCounter: public Stopwatch {
      * EEPROM save cycle, the development team recommends to set this value
      * no lower than 3600 secs (1 hour).
      */
-    const uint16_t saveInterval = PRINTCOUNTER_SAVE_INTERVAL;
+    const uint16_t saveInterval = 3600;
 
     /**
      * @brief Stats were loaded from EERPROM
