@@ -604,7 +604,7 @@ float get_pid_output(int e) {
         #if ENABLED(PID_ADD_EXTRUSION_RATE)
           cTerm[e] = 0;
           if (e == active_extruder) {
-            long e_position = st_get_position(E_AXIS);
+            long e_position = stepper.position(E_AXIS);
             if (e_position > last_position[e]) {
               lpq[lpq_ptr++] = e_position - last_position[e];
               last_position[e] = e_position;

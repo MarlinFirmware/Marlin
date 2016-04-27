@@ -476,7 +476,7 @@ inline void line_to_current(AxisEnum axis) {
   static void lcd_sdcard_resume() { card.startFileprint(); }
 
   static void lcd_sdcard_stop() {
-    quickStop();
+    stepper.quick_stop();
     card.sdprinting = false;
     card.closefile();
     autotempShutdown();
@@ -911,7 +911,7 @@ void lcd_cooldown() {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       line_to_current(Z_AXIS);
     #endif
-    st_synchronize();
+    stepper.synchronize();
   }
 
   static void _lcd_level_goto_next_point();
@@ -964,7 +964,7 @@ void lcd_cooldown() {
             #endif
           ;
           line_to_current(Z_AXIS);
-          st_synchronize();
+          stepper.synchronize();
 
           mbl.active = true;
           enqueue_and_echo_commands_P(PSTR("G28"));

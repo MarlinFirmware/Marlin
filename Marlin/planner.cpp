@@ -1085,7 +1085,7 @@ float junction_deviation = 0.1;
 
   planner_recalculate();
 
-  st_wake_up();
+  stepper.wake_up();
 
 } // plan_buffer_line()
 
@@ -1097,7 +1097,7 @@ float junction_deviation = 0.1;
    * On CORE machines XYZ is derived from ABC.
    */
   vector_3 plan_get_position() {
-    vector_3 position = vector_3(st_get_axis_position_mm(X_AXIS), st_get_axis_position_mm(Y_AXIS), st_get_axis_position_mm(Z_AXIS));
+    vector_3 position = vector_3(stepper.get_axis_position_mm(X_AXIS), stepper.get_axis_position_mm(Y_AXIS), stepper.get_axis_position_mm(Z_AXIS));
 
     //position.debug("in plan_get position");
     //plan_bed_level_matrix.debug("in plan_get_position");
@@ -1132,7 +1132,7 @@ float junction_deviation = 0.1;
          ny = position[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]),
          nz = position[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]),
          ne = position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
-    st_set_position(nx, ny, nz, ne);
+    stepper.set_position(nx, ny, nz, ne);
     previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 
     for (int i = 0; i < NUM_AXIS; i++) previous_speed[i] = 0.0;
@@ -1140,7 +1140,7 @@ float junction_deviation = 0.1;
 
 void plan_set_e_position(const float& e) {
   position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
-  st_set_e_position(position[E_AXIS]);
+  stepper.set_e_position(position[E_AXIS]);
 }
 
 // Calculate the steps/s^2 acceleration rates, based on the mm/s^s
