@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -65,6 +65,7 @@
 #define MSG_EXTRUDE                         "Екструзия"
 #define MSG_RETRACT                         "Откат"
 #define MSG_MOVE_AXIS                       "Движение по ос"
+#define MSG_LEVEL_BED                       "Нивелиране"
 #define MSG_MOVE_X                          "Движение по X"
 #define MSG_MOVE_Y                          "Движение по Y"
 #define MSG_MOVE_Z                          "Движение по Z"
@@ -72,7 +73,6 @@
 #define MSG_MOVE_01MM                       "Премести с 0.1mm"
 #define MSG_MOVE_1MM                        "Премести с 1mm"
 #define MSG_MOVE_10MM                       "Премести с 10mm"
-#define MSG_LEVEL_BED                       "Нивелиране"
 #define MSG_SPEED                           "Скорост"
 #define MSG_NOZZLE                          LCD_STR_THERMOMETER " Дюза"
 #define MSG_BED                             LCD_STR_THERMOMETER " Легло"
@@ -94,10 +94,10 @@
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "
-#define MSG_X                               "x"
-#define MSG_Y                               "y"
-#define MSG_Z                               "z"
-#define MSG_E                               "e"
+#define MSG_X                               "X"
+#define MSG_Y                               "Y"
+#define MSG_Z                               "Z"
+#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax "

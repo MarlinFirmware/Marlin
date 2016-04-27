@@ -400,6 +400,7 @@ void Config_RetrieveSettings() {
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_1);  // 1 float
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_2);  // 1 float
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_3);  // 1 float
+      recalc_delta_settings(delta_radius, delta_diagonal_rod);
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       EEPROM_READ_VAR(i, z_endstop_adj);
       dummy = 0.0f;
@@ -794,7 +795,7 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_EOL;
   #endif // ULTIPANEL
 
-  #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
+  #if HAS_PID_HEATING
 
     CONFIG_ECHO_START;
     if (!forReplay) {

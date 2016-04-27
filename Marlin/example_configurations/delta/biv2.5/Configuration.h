@@ -76,7 +76,7 @@
 #if ENABLED(USE_AUTOMATIC_VERSIONING)
   #include "_Version.h"
 #else
-  #include "Default_Version.h"
+  #include "Version.h"
 #endif
 
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
@@ -376,10 +376,10 @@
   #define DELTA_CARRIAGE_OFFSET 20.0 // mm
 
   // Horizontal distance bridged by diagonal push rods when effector is centered.
-  #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
+  #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-(DELTA_EFFECTOR_OFFSET)-(DELTA_CARRIAGE_OFFSET))
 
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-  #define DELTA_PRINTABLE_RADIUS 160
+  #define DELTA_PRINTABLE_RADIUS 160.0
 
   // Delta calibration menu
   // uncomment to add three points calibration menu option.
@@ -532,8 +532,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 // @section machine
 
 // Travel limits after homing (units are in mm)
-#define X_MIN_POS -DELTA_PRINTABLE_RADIUS
-#define Y_MIN_POS -DELTA_PRINTABLE_RADIUS
+#define X_MIN_POS -(DELTA_PRINTABLE_RADIUS)
+#define Y_MIN_POS -(DELTA_PRINTABLE_RADIUS)
 #define Z_MIN_POS 0
 #define X_MAX_POS DELTA_PRINTABLE_RADIUS
 #define Y_MAX_POS DELTA_PRINTABLE_RADIUS
@@ -606,9 +606,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 
     // Set the rectangle in which to probe.
     #define DELTA_PROBEABLE_RADIUS (DELTA_PRINTABLE_RADIUS - 10)
-    #define LEFT_PROBE_BED_POSITION -DELTA_PROBEABLE_RADIUS
+    #define LEFT_PROBE_BED_POSITION -(DELTA_PROBEABLE_RADIUS)
     #define RIGHT_PROBE_BED_POSITION DELTA_PROBEABLE_RADIUS
-    #define FRONT_PROBE_BED_POSITION -DELTA_PROBEABLE_RADIUS
+    #define FRONT_PROBE_BED_POSITION -(DELTA_PROBEABLE_RADIUS)
     #define BACK_PROBE_BED_POSITION DELTA_PROBEABLE_RADIUS
 
     #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
@@ -666,7 +666,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
   //    O-- FRONT --+
   //  (0,0)
   #define X_PROBE_OFFSET_FROM_EXTRUDER 0     // X offset: -left  +right  [of the nozzle]
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -10   // Y offset: -front +behind [the nozzle] 
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -10   // Y offset: -front +behind [the nozzle]
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -3.5  // Z offset: -below +above  [the nozzle]
 
   #define XY_TRAVEL_SPEED 4000         // X and Y axis travel speed between probes, in mm/min.
@@ -714,7 +714,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 0.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y DELTA_PRINTABLE_RADIUS
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/10
 
     //#define Z_PROBE_ALLEN_KEY_STOW_1_X -64.0 // Move the probe into position
     //#define Z_PROBE_ALLEN_KEY_STOW_1_Y 56.0
@@ -723,7 +723,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
     //#define Z_PROBE_ALLEN_KEY_STOW_2_X -64.0 // Push it down
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Y 56.0
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Z 3.0
-    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
+    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/10
     //#define Z_PROBE_ALLEN_KEY_STOW_3_X -64.0 // Move it up to clear
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Y 56.0
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Z 50.0
@@ -733,11 +733,11 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_X 35.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y 72.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE (HOMING_FEEDRATE_XYZ)/10
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 0.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y 0.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/10
 
     //#define Z_PROBE_ALLEN_KEY_STOW_1_X -46.0 // Move the probe into position
     //#define Z_PROBE_ALLEN_KEY_STOW_1_Y 59.0
@@ -746,7 +746,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
     //#define Z_PROBE_ALLEN_KEY_STOW_2_X -46.0 // Move the nozzle down further to push the probe into retracted position.
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Y 59.0
     //#define Z_PROBE_ALLEN_KEY_STOW_2_Z 8.0
-    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ/10)
+    //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/10
     //#define Z_PROBE_ALLEN_KEY_STOW_3_X -46.0 // Raise things back up slightly so we don't bump into anything
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Y 59.0
     //#define Z_PROBE_ALLEN_KEY_STOW_3_Z 38.0
@@ -764,7 +764,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
     #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X 45.00 // Move right to trigger deploy pin
     #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Y -125.00
     #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Z 100.0
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE (HOMING_FEEDRATE_XYZ/2)
+    #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE (HOMING_FEEDRATE_XYZ)/2
 
     #define Z_PROBE_ALLEN_KEY_STOW_1_X 36.00 // Line up with bed retaining clip
     #define Z_PROBE_ALLEN_KEY_STOW_1_Y -122.00
@@ -773,7 +773,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
     #define Z_PROBE_ALLEN_KEY_STOW_2_X 36.00 // move down to retract probe
     #define Z_PROBE_ALLEN_KEY_STOW_2_Y -122.00
     #define Z_PROBE_ALLEN_KEY_STOW_2_Z 25.0
-    #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ/2)
+    #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/2
     #define Z_PROBE_ALLEN_KEY_STOW_3_X 0.0  // return to 0,0,100
     #define Z_PROBE_ALLEN_KEY_STOW_3_Y 0.0
     #define Z_PROBE_ALLEN_KEY_STOW_3_Z 100.0
@@ -781,22 +781,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
   #endif
 
   // If you've enabled AUTO_BED_LEVELING_FEATURE and are using the Z Probe for Z Homing,
-  // it is highly recommended you leave Z_SAFE_HOMING enabled!
-
-  #define Z_SAFE_HOMING   // Use the z-min-probe for homing to z-min - not the z-min-endstop.
-                          // This feature is meant to avoid Z homing with Z probe outside the bed area.
-                          // When defined, it will:
-                          // - Allow Z homing only after X and Y homing AND stepper drivers still enabled.
-                          // - If stepper drivers timeout, it will need X and Y homing again before Z homing.
-                          // - Position the Z probe in a defined XY point before Z Homing when homing all axis (G28).
-                          // - Block Z homing only when the Z probe is outside bed area.
-
-  #if ENABLED(Z_SAFE_HOMING)
-
-    #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
-    #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
-
-  #endif
+  // it is highly recommended you also enable Z_SAFE_HOMING below!
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
@@ -813,6 +798,21 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
   #define MANUAL_X_HOME_POS 0
   #define MANUAL_Y_HOME_POS 0
   #define MANUAL_Z_HOME_POS 405 // For delta: Distance between nozzle and print surface after homing.
+#endif
+
+// Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
+//
+// With this feature enabled:
+//
+// - Allow Z homing only after X and Y homing AND stepper drivers still enabled.
+// - If stepper drivers time out, it will need X and Y homing again before Z homing.
+// - Position the Z probe in a defined XY point before Z Homing when homing all axes (G28).
+// - Prevent Z homing when the Z probe is outside bed area.
+//#define Z_SAFE_HOMING
+
+#if ENABLED(Z_SAFE_HOMING)
+  #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
 // @section movement

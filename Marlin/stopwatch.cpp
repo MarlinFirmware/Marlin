@@ -24,54 +24,77 @@
 #include "stopwatch.h"
 
 Stopwatch::Stopwatch() {
-   this->reset();
- }
+  this->reset();
+}
 
 void Stopwatch::stop() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::stop()");
+  #if ENABLED(DEBUG_STOPWATCH)
+    debug(PSTR("stop"));
+  #endif
+
   if (!this->isRunning()) return;
 
-  this->status = STPWTCH_STOPPED;
+  this->state = STPWTCH_STOPPED;
   this->stopTimestamp = millis();
 }
 
 void Stopwatch::pause() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::pause()");
+  #if ENABLED(DEBUG_STOPWATCH)
+    debug(PSTR("pause"));
+  #endif
+
   if (!this->isRunning()) return;
 
-  this->status = STPWTCH_PAUSED;
+  this->state = STPWTCH_PAUSED;
   this->stopTimestamp = millis();
 }
 
 void Stopwatch::start() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::start()");
+  #if ENABLED(DEBUG_STOPWATCH)
+    debug(PSTR("start"));
+  #endif
+
   if (this->isRunning()) return;
 
   if (this->isPaused()) this->accumulator = this->duration();
   else this->reset();
 
-  this->status = STPWTCH_RUNNING;
+  this->state = STPWTCH_RUNNING;
   this->startTimestamp = millis();
 }
 
 void Stopwatch::reset() {
-  if (DEBUGGING(INFO)) SERIAL_ECHOLNPGM("Stopwatch::reset()");
+  #if ENABLED(DEBUG_STOPWATCH)
+    debug(PSTR("reset"));
+  #endif
 
-  this->status = STPWTCH_STOPPED;
+  this->state = STPWTCH_STOPPED;
   this->startTimestamp = 0;
   this->stopTimestamp = 0;
   this->accumulator = 0;
 }
 
 bool Stopwatch::isRunning() {
-  return (this->status == STPWTCH_RUNNING) ? true : false;
+  return (this->state == STPWTCH_RUNNING) ? true : false;
 }
 
 bool Stopwatch::isPaused() {
-  return (this->status == STPWTCH_PAUSED) ? true : false;
+  return (this->state == STPWTCH_PAUSED) ? true : false;
 }
 
 uint16_t Stopwatch::duration() {
   return (((this->isRunning()) ? millis() : this->stopTimestamp)
           - this->startTimestamp) / 1000 + this->accumulator;
 }
+
+#if ENABLED(DEBUG_STOPWATCH)
+
+  void Stopwatch::debug(const char func[]) {
+    if (DEBUGGING(INFO)) {
+      SERIAL_ECHOPGM("Stopwatch::");
+      serialprintPGM(func);
+      SERIAL_ECHOLNPGM("()");
+    }
+  }
+
+#endif

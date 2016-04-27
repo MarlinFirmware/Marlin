@@ -223,10 +223,9 @@ void ok_to_send();
 void reset_bed_level();
 void prepare_move();
 void kill(const char*);
-void Stop();
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  void filrunout();
+  void handle_filament_runout();
 #endif
 
 /**
@@ -234,12 +233,12 @@ void Stop();
  */
 enum DebugFlags {
   DEBUG_NONE          = 0,
-  DEBUG_ECHO          = _BV(0),
-  DEBUG_INFO          = _BV(1),
-  DEBUG_ERRORS        = _BV(2),
-  DEBUG_DRYRUN        = _BV(3),
-  DEBUG_COMMUNICATION = _BV(4),
-  DEBUG_LEVELING      = _BV(5)
+  DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
+  DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
+  DEBUG_ERRORS        = _BV(2), ///< Not implemented
+  DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
+  DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
+  DEBUG_LEVELING      = _BV(5)  ///< Print detailed output for homing and leveling
 };
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
@@ -275,8 +274,8 @@ extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in m
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS];
 extern float home_offset[3]; // axis[n].home_offset
-extern float min_pos[3]; // axis[n].min_pos
-extern float max_pos[3]; // axis[n].max_pos
+extern float sw_endstop_min[3]; // axis[n].sw_endstop_min
+extern float sw_endstop_max[3]; // axis[n].sw_endstop_max
 extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
 
@@ -340,8 +339,8 @@ extern bool axis_homed[3]; // axis[n].is_homed
 #endif
 
 #if ENABLED(BARICUDA)
-  extern int ValvePressure;
-  extern int EtoPPressure;
+  extern int baricuda_valve_pressure;
+  extern int baricuda_e_to_p_pressure;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)

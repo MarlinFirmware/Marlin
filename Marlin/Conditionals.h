@@ -218,7 +218,7 @@
   #endif
 
   #if ENABLED(DOGLCD)
-    /* Custom characters defined in font font_6x10_marlin_symbols */
+    /* Custom characters defined in font dogm_font_data_Marlin_symbols.h / Marlin_symbols.fon */
     // \x00 intentionally skipped to avoid problems in strings
     #define LCD_STR_REFRESH     "\x01"
     #define LCD_STR_FOLDER      "\x02"
@@ -235,7 +235,7 @@
     // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
   #else
     /* Custom characters defined in the first 8 characters of the LCD */
-    #define LCD_STR_BEDTEMP     "\x00"  // this will have 'unexpected' results when used in a string!
+    #define LCD_STR_BEDTEMP     "\x00"  // Print only as a char. This will have 'unexpected' results when used in a string!
     #define LCD_STR_DEGREE      "\x01"
     #define LCD_STR_THERMOMETER "\x02"
     #define LCD_STR_UPLEVEL     "\x03"
@@ -297,7 +297,7 @@
     #if ENABLED(USE_ZMIN_PLUG)
       #define ENDSTOPPULLUP_ZMIN
     #endif
-    #if ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
+    #if DISABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
       #define ENDSTOPPULLUP_ZMIN_PROBE
     #endif
   #endif
@@ -365,6 +365,24 @@
    */
   #if ENABLED(Z_PROBE_SLED)
     #define Z_SAFE_HOMING
+  #endif
+
+  /**
+   * Z Safe Homing dependencies
+   */
+  #if ENABLED(Z_SAFE_HOMING)
+    #ifndef X_PROBE_OFFSET_FROM_EXTRUDER
+      #define X_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Z_PROBE_OFFSET_FROM_EXTRUDER
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef XY_TRAVEL_SPEED
+      #define XY_TRAVEL_SPEED 4000
+    #endif
   #endif
 
   /**
@@ -504,6 +522,12 @@
     #define THERMISTORBED TEMP_SENSOR_BED
     #define BED_USES_THERMISTOR
   #endif
+
+  /**
+   * Flags for PID handling
+   */
+  #define HAS_PID_HEATING (ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED))
+  #define HAS_PID_FOR_BOTH (ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED))
 
   /**
    * ARRAY_BY_EXTRUDERS based on EXTRUDERS
