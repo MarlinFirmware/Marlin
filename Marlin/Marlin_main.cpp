@@ -48,6 +48,7 @@
 #include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
+#include "endstops.h"
 #include "temperature.h"
 #include "cardreader.h"
 #include "configuration_store.h"
@@ -547,10 +548,6 @@ static void report_current_position();
   float extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 
-#if ENABLED(HAS_Z_MIN_PROBE)
-  extern volatile bool z_probe_is_active;
-#endif
-
 #if ENABLED(SDSUPPORT)
   #include "SdFatUtil.h"
   int freeMemory() { return SdFatUtil::FreeRam(); }
@@ -711,7 +708,7 @@ void servo_init() {
 
    #if HAS_SERVO_ENDSTOPS
 
-    z_probe_is_active = false;
+    endstops.enable_z_probe(false);
 
     /**
      * Set position of all defined Servo Endstops
@@ -831,7 +828,7 @@ void setup() {
     watchdog_init();
   #endif
 
-  st_init();    // Initialize stepper, this enables interrupts!
+  stepper.init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
   servo_init();
 
@@ -915,7 +912,7 @@ void loop() {
     commands_in_queue--;
     cmd_queue_index_r = (cmd_queue_index_r + 1) % BUFSIZE;
   }
-  checkHitEndstops();
+  endstops.report_state();
   idle();
 }
 
@@ -1445,9 +1442,9 @@ static void setup_for_endstop_move() {
   feedrate_multiplier = 100;
   refresh_cmd_timeout();
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("setup_for_endstop_move > enable_endstops(true)");
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("setup_for_endstop_move > endstops.enable()");
   #endif
-  enable_endstops(true);
+  endstops.enable();
 }
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
@@ -1553,7 +1550,7 @@ static void setup_for_endstop_move() {
     #if ENABLED(DELTA)
 
       float start_z = current_position[Z_AXIS];
-      long start_steps = st_get_position(Z_AXIS);
+      long start_steps = stepper.position(Z_AXIS);
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
@@ -1563,14 +1560,14 @@ static void setup_for_endstop_move() {
       feedrate = homing_feedrate[Z_AXIS] / 4;
       destination[Z_AXIS] = -10;
       prepare_move_raw(); // this will also set_current_to_destination
-      st_synchronize();
-      endstops_hit_on_purpose(); // clear endstop hit flags
+      stepper.synchronize();
+      endstops.hit_on_purpose(); // clear endstop hit flags
 
       /**
        * We have to let the planner know where we are right now as it
        * is not where we said to go.
        */
-      long stop_steps = st_get_position(Z_AXIS);
+      long stop_steps = stepper.position(Z_AXIS);
       float mm = start_z - float(start_steps - stop_steps) / axis_steps_per_unit[Z_AXIS];
       current_position[Z_AXIS] = mm;
 
@@ -1588,10 +1585,10 @@ static void setup_for_endstop_move() {
       // Move down until the Z probe (or endstop?) is triggered
       float zPosition = -(Z_MAX_LENGTH + 10);
       line_to_z(zPosition);
-      st_synchronize();
+      stepper.synchronize();
 
       // Tell the planner where we ended up - Get this from the stepper handler
-      zPosition = st_get_axis_position_mm(Z_AXIS);
+      zPosition = stepper.get_axis_position_mm(Z_AXIS);
       plan_set_position(
         current_position[X_AXIS], current_position[Y_AXIS], zPosition,
         current_position[E_AXIS]
@@ -1600,19 +1597,19 @@ static void setup_for_endstop_move() {
       // move up the retract distance
       zPosition += home_bump_mm(Z_AXIS);
       line_to_z(zPosition);
-      st_synchronize();
-      endstops_hit_on_purpose(); // clear endstop hit flags
+      stepper.synchronize();
+      endstops.hit_on_purpose(); // clear endstop hit flags
 
       // move back down slowly to find bed
       set_homing_bump_feedrate(Z_AXIS);
 
       zPosition -= home_bump_mm(Z_AXIS) * 2;
       line_to_z(zPosition);
-      st_synchronize();
-      endstops_hit_on_purpose(); // clear endstop hit flags
+      stepper.synchronize();
+      endstops.hit_on_purpose(); // clear endstop hit flags
 
       // Get the current stepper position after bumping an endstop
-      current_position[Z_AXIS] = st_get_axis_position_mm(Z_AXIS);
+      current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
       sync_plan_position();
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1641,7 +1638,7 @@ static void setup_for_endstop_move() {
       destination[Y_AXIS] = y;
       destination[Z_AXIS] = z;
       prepare_move_raw(); // this will also set_current_to_destination
-      st_synchronize();
+      stepper.synchronize();
 
     #else
 
@@ -1649,14 +1646,14 @@ static void setup_for_endstop_move() {
 
       current_position[Z_AXIS] = z;
       line_to_current_position();
-      st_synchronize();
+      stepper.synchronize();
 
       feedrate = xy_travel_speed;
 
       current_position[X_AXIS] = x;
       current_position[Y_AXIS] = y;
       line_to_current_position();
-      st_synchronize();
+      stepper.synchronize();
 
     #endif
 
@@ -1681,9 +1678,9 @@ static void setup_for_endstop_move() {
 
   static void clean_up_after_endstop_move() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("clean_up_after_endstop_move > ENDSTOPS_ONLY_FOR_HOMING > endstops_not_homing()");
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("clean_up_after_endstop_move > ENDSTOPS_ONLY_FOR_HOMING > endstops.not_homing()");
     #endif
-    endstops_not_homing();
+    endstops.not_homing();
     feedrate = saved_feedrate;
     feedrate_multiplier = saved_feedrate_multiplier;
     refresh_cmd_timeout();
@@ -1697,7 +1694,7 @@ static void setup_for_endstop_move() {
       if (DEBUGGING(LEVELING)) DEBUG_POS("deploy_z_probe", current_position);
     #endif
 
-    if (z_probe_is_active) return;
+    if (endstops.z_probe_enabled) return;
 
     #if HAS_SERVO_ENDSTOPS
 
@@ -1757,7 +1754,7 @@ static void setup_for_endstop_move() {
       destination[Y_AXIS] = destination[Y_AXIS] * 0.75;
       prepare_move_raw(); // this will also set_current_to_destination
 
-      st_synchronize();
+      stepper.synchronize();
 
       #if ENABLED(Z_MIN_PROBE_ENDSTOP)
         z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
@@ -1778,10 +1775,10 @@ static void setup_for_endstop_move() {
     #endif // Z_PROBE_ALLEN_KEY
 
     #if ENABLED(FIX_MOUNTED_PROBE)
-      // Noting to be done. Just set z_probe_is_active
+      // Noting to be done. Just set endstops.z_probe_enabled
     #endif
 
-    z_probe_is_active = true;
+    endstops.enable_z_probe();
 
   }
 
@@ -1793,7 +1790,7 @@ static void setup_for_endstop_move() {
       if (DEBUGGING(LEVELING)) DEBUG_POS("stow_z_probe", current_position);
     #endif
 
-    if (!z_probe_is_active) return;
+    if (!endstops.z_probe_enabled) return;
 
     #if HAS_SERVO_ENDSTOPS
 
@@ -1811,7 +1808,7 @@ static void setup_for_endstop_move() {
               }
             #endif
             raise_z_after_probing(); // this also updates current_position
-            st_synchronize();
+            stepper.synchronize();
           }
         #endif
 
@@ -1861,7 +1858,7 @@ static void setup_for_endstop_move() {
       destination[Y_AXIS] = 0;
       prepare_move_raw(); // this will also set_current_to_destination
 
-      st_synchronize();
+      stepper.synchronize();
 
       #if ENABLED(Z_MIN_PROBE_ENDSTOP)
         bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
@@ -1881,10 +1878,10 @@ static void setup_for_endstop_move() {
     #endif // Z_PROBE_ALLEN_KEY
 
     #if ENABLED(FIX_MOUNTED_PROBE)
-      // Nothing to do here. Just clear z_probe_is_active
+      // Nothing to do here. Just clear endstops.z_probe_enabled
     #endif
 
-    z_probe_is_active = false;
+    endstops.enable_z_probe(false);
   }
   #endif // HAS_Z_MIN_PROBE
 
@@ -2081,12 +2078,12 @@ static void setup_for_endstop_move() {
       }
     #endif
 
-    if (z_probe_is_active == dock) return;
-
     if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS]) {
       axis_unhomed_error();
       return;
     }
+
+    if (endstops.z_probe_enabled == !dock) return; // already docked/undocked?
 
     float oldXpos = current_position[X_AXIS]; // save x position
     if (dock) {
@@ -2105,7 +2102,7 @@ static void setup_for_endstop_move() {
     }
     do_blocking_move_to_x(oldXpos); // return to position before docking
 
-    z_probe_is_active = dock;
+    endstops.enable_z_probe(!dock); // logically disable docked probe
   }
 
 #endif // Z_PROBE_SLED
@@ -2167,39 +2164,39 @@ static void homeaxis(AxisEnum axis) {
       // Engage an X or Y Servo endstop if enabled
       if (_Z_SERVO_TEST && servo_endstop_id[axis] >= 0) {
         servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][0]);
-        if (_Z_PROBE_SUBTEST) z_probe_is_active = true;
+        if (_Z_PROBE_SUBTEST) endstops.z_probe_enabled = true;
       }
     #endif
 
     // Set a flag for Z motor locking
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      if (axis == Z_AXIS) In_Homing_Process(true);
+      if (axis == Z_AXIS) stepper.set_homing_flag(true);
     #endif
 
     // Move towards the endstop until an endstop is triggered
     destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
     line_to_destination();
-    st_synchronize();
+    stepper.synchronize();
 
     // Set the axis position as setup for the move
     current_position[axis] = 0;
     sync_plan_position();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> enable_endstops(false)");
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(false)");
     #endif
-    enable_endstops(false); // Disable endstops while moving away
+    endstops.enable(false); // Disable endstops while moving away
 
     // Move away from the endstop by the axis HOME_BUMP_MM
     destination[axis] = -home_bump_mm(axis) * axis_home_dir;
     line_to_destination();
-    st_synchronize();
+    stepper.synchronize();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> enable_endstops(true)");
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
     #endif
-    enable_endstops(true); // Enable endstops for next homing move
+    endstops.enable(true); // Enable endstops for next homing move
 
     // Slow down the feedrate for the next move
     set_homing_bump_feedrate(axis);
@@ -2207,7 +2204,7 @@ static void homeaxis(AxisEnum axis) {
     // Move slowly towards the endstop until triggered
     destination[axis] = 2 * home_bump_mm(axis) * axis_home_dir;
     line_to_destination();
-    st_synchronize();
+    stepper.synchronize();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("> TRIGGER ENDSTOP", current_position);
@@ -2224,17 +2221,17 @@ static void homeaxis(AxisEnum axis) {
         else
           lockZ1 = (z_endstop_adj < 0);
 
-        if (lockZ1) Lock_z_motor(true); else Lock_z2_motor(true);
+        if (lockZ1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
         sync_plan_position();
 
         // Move to the adjusted endstop height
         feedrate = homing_feedrate[axis];
         destination[Z_AXIS] = adj;
         line_to_destination();
-        st_synchronize();
+        stepper.synchronize();
 
-        if (lockZ1) Lock_z_motor(false); else Lock_z2_motor(false);
-        In_Homing_Process(false);
+        if (lockZ1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
+        stepper.set_homing_flag(false);
       } // Z_AXIS
     #endif
 
@@ -2242,9 +2239,9 @@ static void homeaxis(AxisEnum axis) {
       // retrace by the amount specified in endstop_adj
       if (endstop_adj[axis] * axis_home_dir < 0) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> enable_endstops(false)");
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(false)");
         #endif
-        enable_endstops(false); // Disable endstops while moving away
+        endstops.enable(false); // Disable endstops while moving away
         sync_plan_position();
         destination[axis] = endstop_adj[axis];
         #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2254,11 +2251,11 @@ static void homeaxis(AxisEnum axis) {
           }
         #endif
         line_to_destination();
-        st_synchronize();
+        stepper.synchronize();
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> enable_endstops(true)");
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
         #endif
-        enable_endstops(true); // Enable endstops for next homing move
+        endstops.enable(true); // Enable endstops for next homing move
       }
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         else {
@@ -2280,7 +2277,7 @@ static void homeaxis(AxisEnum axis) {
 
     destination[axis] = current_position[axis];
     feedrate = 0.0;
-    endstops_hit_on_purpose(); // clear endstop hit flags
+    endstops.hit_on_purpose(); // clear endstop hit flags
     axis_known_position[axis] = true;
     axis_homed[axis] = true;
 
@@ -2301,7 +2298,7 @@ static void homeaxis(AxisEnum axis) {
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> SERVO_ENDSTOPS > Stow with servo.move()");
         #endif
         servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][1]);
-        if (_Z_PROBE_SUBTEST) z_probe_is_active = false;
+        if (_Z_PROBE_SUBTEST) endstops.enable_z_probe(false);
       }
     #endif
 
@@ -2499,7 +2496,7 @@ inline void gcode_G4() {
   if (code_seen('P')) codenum = code_value_long(); // milliseconds to wait
   if (code_seen('S')) codenum = code_value() * 1000UL; // seconds to wait
 
-  st_synchronize();
+  stepper.synchronize();
   refresh_cmd_timeout();
   codenum += previous_cmd_ms;  // keep track of when we started waiting
 
@@ -2551,7 +2548,7 @@ inline void gcode_G28() {
   #endif
 
   // Wait for planner moves to finish!
-  st_synchronize();
+  stepper.synchronize();
 
   // For auto bed leveling, clear the level matrix
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
@@ -2594,8 +2591,8 @@ inline void gcode_G28() {
     for (int i = X_AXIS; i <= Z_AXIS; i++) destination[i] = 3 * (Z_MAX_LENGTH);
     feedrate = 1.732 * homing_feedrate[X_AXIS];
     line_to_destination();
-    st_synchronize();
-    endstops_hit_on_purpose(); // clear endstop hit flags
+    stepper.synchronize();
+    endstops.hit_on_purpose(); // clear endstop hit flags
 
     // Destination reached
     for (int i = X_AXIS; i <= Z_AXIS; i++) current_position[i] = destination[i];
@@ -2643,7 +2640,7 @@ inline void gcode_G28() {
           }
         #endif
         line_to_destination();
-        st_synchronize();
+        stepper.synchronize();
 
         /**
          * Update the current Z position even if it currently not real from
@@ -2676,7 +2673,7 @@ inline void gcode_G28() {
         destination[Y_AXIS] = 1.5 * mly * home_dir(Y_AXIS);
         feedrate = min(homing_feedrate[X_AXIS], homing_feedrate[Y_AXIS]) * sqrt(mlratio * mlratio + 1);
         line_to_destination();
-        st_synchronize();
+        stepper.synchronize();
 
         set_axis_is_at_home(X_AXIS);
         set_axis_is_at_home(Y_AXIS);
@@ -2690,8 +2687,8 @@ inline void gcode_G28() {
         destination[Y_AXIS] = current_position[Y_AXIS];
         line_to_destination();
         feedrate = 0.0;
-        st_synchronize();
-        endstops_hit_on_purpose(); // clear endstop hit flags
+        stepper.synchronize();
+        endstops.hit_on_purpose(); // clear endstop hit flags
 
         current_position[X_AXIS] = destination[X_AXIS];
         current_position[Y_AXIS] = destination[Y_AXIS];
@@ -2784,7 +2781,7 @@ inline void gcode_G28() {
 
             // Move in the XY plane
             line_to_destination();
-            st_synchronize();
+            stepper.synchronize();
 
             /**
              * Update the current positions for XY, Z is still at least at
@@ -2857,10 +2854,10 @@ inline void gcode_G28() {
   #endif
 
   #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
-    enable_endstops(false);
+    endstops.enable(false);
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM("ENDSTOPS_ONLY_FOR_HOMING enable_endstops(false)");
+        SERIAL_ECHOLNPGM("ENDSTOPS_ONLY_FOR_HOMING endstops.enable(false)");
       }
     #endif
   #endif
@@ -2875,7 +2872,7 @@ inline void gcode_G28() {
       set_destination_to_current();
       feedrate = homing_feedrate[Z_AXIS];
       line_to_destination();
-      st_synchronize();
+      stepper.synchronize();
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("mbl_was_active", current_position);
       #endif
@@ -2885,7 +2882,7 @@ inline void gcode_G28() {
   feedrate = saved_feedrate;
   feedrate_multiplier = saved_feedrate_multiplier;
   refresh_cmd_timeout();
-  endstops_hit_on_purpose(); // clear endstop hit flags
+  endstops.hit_on_purpose(); // clear endstop hit flags
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -2921,7 +2918,7 @@ inline void gcode_G28() {
     #endif
 
     feedrate = saved_feedrate;
-    st_synchronize();
+    stepper.synchronize();
   }
 
   /**
@@ -3015,7 +3012,7 @@ inline void gcode_G28() {
             #endif
           ;
           line_to_current_position();
-          st_synchronize();
+          stepper.synchronize();
 
           // After recording the last point, activate the mbl and home
           SERIAL_PROTOCOLLNPGM("Mesh probing done.");
@@ -3240,7 +3237,7 @@ inline void gcode_G28() {
       deploy_z_probe();
     #endif
 
-    st_synchronize();
+    stepper.synchronize();
 
     setup_for_endstop_move();
 
@@ -3511,7 +3508,7 @@ inline void gcode_G28() {
         float x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
               y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
               z_tmp = current_position[Z_AXIS],
-              real_z = st_get_axis_position_mm(Z_AXIS);  //get the real Z (since plan_get_position is now correcting the plane)
+              real_z = stepper.get_axis_position_mm(Z_AXIS);  //get the real Z (since plan_get_position is now correcting the plane)
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
@@ -3588,9 +3585,9 @@ inline void gcode_G28() {
       #endif
       enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
       #if ENABLED(HAS_Z_MIN_PROBE)
-        z_probe_is_active = false;
+        endstops.enable_z_probe(false);
       #endif
-      st_synchronize();
+      stepper.synchronize();
     #endif
 
     KEEPALIVE_STATE(IN_HANDLER);
@@ -3615,7 +3612,7 @@ inline void gcode_G28() {
       #endif
       deploy_z_probe(); // Engage Z Servo endstop if available. Z_PROBE_SLED is missed here.
 
-      st_synchronize();
+      stepper.synchronize();
       // TODO: clear the leveling matrix or the planner will be set incorrectly
       setup_for_endstop_move(); // Too late. Must be done before deploying.
 
@@ -3650,7 +3647,7 @@ inline void gcode_G28() {
 inline void gcode_G92() {
   bool didE = code_seen(axis_codes[E_AXIS]);
 
-  if (!didE) st_synchronize();
+  if (!didE) stepper.synchronize();
 
   bool didXYZ = false;
   for (int i = 0; i < NUM_AXIS; i++) {
@@ -3712,7 +3709,7 @@ inline void gcode_G92() {
     }
 
     lcd_ignore_click();
-    st_synchronize();
+    stepper.synchronize();
     refresh_cmd_timeout();
     if (codenum > 0) {
       codenum += previous_cmd_ms;  // wait until this time for a click
@@ -3853,7 +3850,7 @@ inline void gcode_M31() {
    */
   inline void gcode_M32() {
     if (card.sdprinting)
-      st_synchronize();
+      stepper.synchronize();
 
     char* namestartpos = strchr(current_command_args, '!');  // Find ! to indicate filename string start.
     if (!namestartpos)
@@ -4819,7 +4816,7 @@ inline void gcode_M140() {
  */
 inline void gcode_M81() {
   disable_all_heaters();
-  finishAndDisableSteppers();
+  stepper.finish_and_disable();
   #if FAN_COUNT > 0
     #if FAN_COUNT > 1
       for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
@@ -4829,7 +4826,7 @@ inline void gcode_M81() {
   #endif
   delay(1000); // Wait 1 second before switching off
   #if HAS_SUICIDE
-    st_synchronize();
+    stepper.synchronize();
     suicide();
   #elif HAS_POWER_SWITCH
     OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
@@ -4864,10 +4861,10 @@ inline void gcode_M18_M84() {
   else {
     bool all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])) || (code_seen(axis_codes[E_AXIS])));
     if (all_axis) {
-      finishAndDisableSteppers();
+      stepper.finish_and_disable();
     }
     else {
-      st_synchronize();
+      stepper.synchronize();
       if (code_seen('X')) disable_x();
       if (code_seen('Y')) disable_y();
       if (code_seen('Z')) disable_z();
@@ -4927,35 +4924,7 @@ static void report_current_position() {
   SERIAL_PROTOCOLPGM(" E:");
   SERIAL_PROTOCOL(current_position[E_AXIS]);
 
-  CRITICAL_SECTION_START;
-  extern volatile long count_position[NUM_AXIS];
-  long xpos = count_position[X_AXIS],
-       ypos = count_position[Y_AXIS],
-       zpos = count_position[Z_AXIS];
-  CRITICAL_SECTION_END;
-
-  #if ENABLED(COREXY) || ENABLED(COREXZ)
-    SERIAL_PROTOCOLPGM(MSG_COUNT_A);
-  #else
-    SERIAL_PROTOCOLPGM(MSG_COUNT_X);
-  #endif
-  SERIAL_PROTOCOL(xpos);
-
-  #if ENABLED(COREXY)
-    SERIAL_PROTOCOLPGM(" B:");
-  #else
-    SERIAL_PROTOCOLPGM(" Y:");
-  #endif
-  SERIAL_PROTOCOL(ypos);
-
-  #if ENABLED(COREXZ)
-    SERIAL_PROTOCOLPGM(" C:");
-  #else
-    SERIAL_PROTOCOLPGM(" Z:");
-  #endif
-  SERIAL_PROTOCOL(zpos);
-
-  SERIAL_EOL;
+  stepper.report_positions();
 
   #if ENABLED(SCARA)
     SERIAL_PROTOCOLPGM("SCARA Theta:");
@@ -5039,12 +5008,12 @@ inline void gcode_M119() {
 /**
  * M120: Enable endstops and set non-homing endstop state to "enabled"
  */
-inline void gcode_M120() { enable_endstops_globally(true); }
+inline void gcode_M120() { endstops.enable_globally(true); }
 
 /**
  * M121: Disable endstops and set non-homing endstop state to "disabled"
  */
-inline void gcode_M121() { enable_endstops_globally(false); }
+inline void gcode_M121() { endstops.enable_globally(false); }
 
 #if ENABLED(BLINKM)
 
@@ -5439,7 +5408,7 @@ inline void gcode_M226() {
       if (pin_number > -1) {
         int target = LOW;
 
-        st_synchronize();
+        stepper.synchronize();
 
         pinMode(pin_number, INPUT);
 
@@ -5801,7 +5770,7 @@ inline void gcode_M303() {
 /**
  * M400: Finish all moves
  */
-inline void gcode_M400() { st_synchronize(); }
+inline void gcode_M400() { stepper.synchronize(); }
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE) && DISABLED(Z_PROBE_SLED) && (HAS_SERVO_ENDSTOPS || ENABLED(Z_PROBE_ALLEN_KEY))
 
@@ -5887,7 +5856,7 @@ inline void gcode_M400() { st_synchronize(); }
  * This will stop the carriages mid-move, so most likely they
  * will be out of sync with the stepper position after this.
  */
-inline void gcode_M410() { quickStop(); }
+inline void gcode_M410() { stepper.quick_stop(); }
 
 
 #if ENABLED(MESH_BED_LEVELING)
@@ -6111,7 +6080,7 @@ inline void gcode_M503() {
     RUNPLAN;
 
     //finish moves
-    st_synchronize();
+    stepper.synchronize();
     //disable extruder steppers so filament can be removed
     disable_e0();
     disable_e1();
@@ -6135,7 +6104,7 @@ inline void gcode_M503() {
         current_position[E_AXIS] += AUTO_FILAMENT_CHANGE_LENGTH;
         destination[E_AXIS] = current_position[E_AXIS];
         line_to_destination(AUTO_FILAMENT_CHANGE_FEEDRATE);
-        st_synchronize();
+        stepper.synchronize();
       #endif
     } // while(!lcd_clicked)
     KEEPALIVE_STATE(IN_HANDLER);
@@ -6143,7 +6112,7 @@ inline void gcode_M503() {
 
     #if ENABLED(AUTO_FILAMENT_CHANGE)
       current_position[E_AXIS] = 0;
-      st_synchronize();
+      stepper.synchronize();
     #endif
 
     //return to normal
@@ -6198,7 +6167,7 @@ inline void gcode_M503() {
    *    Note: the X axis should be homed after changing dual x-carriage mode.
    */
   inline void gcode_M605() {
-    st_synchronize();
+    stepper.synchronize();
     if (code_seen('S')) dual_x_carriage_mode = code_value();
     switch (dual_x_carriage_mode) {
       case DXC_DUPLICATION_MODE:
@@ -6375,7 +6344,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
                            current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
           plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
                            current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-          st_synchronize();
+          stepper.synchronize();
         }
 
         // apply Y & Z extruder offset (x offset is already used in determining home pos)
@@ -6460,7 +6429,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
     } // (tmp_extruder != active_extruder)
 
     #if ENABLED(EXT_SOLENOID)
-      st_synchronize();
+      stepper.synchronize();
       disable_all_solenoids();
       enable_solenoid_on_active_extruder();
     #endif // EXT_SOLENOID
@@ -7400,7 +7369,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
         plan_buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset,
                          current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], max_feedrate[X_AXIS], 1);
         sync_plan_position();
-        st_synchronize();
+        stepper.synchronize();
         extruder_duplication_enabled = true;
         active_extruder_parked = false;
       }
@@ -7927,7 +7896,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       destination[E_AXIS] = oldedes;
       plan_set_e_position(oldepos);
       previous_cmd_ms = ms; // refresh_cmd_timeout()
-      st_synchronize();
+      stepper.synchronize();
       switch (active_extruder) {
         case 0:
           E0_ENABLE_WRITE(oldstatus);
@@ -8004,7 +7973,7 @@ void kill(const char* lcd_msg) {
     if (!filament_ran_out) {
       filament_ran_out = true;
       enqueue_and_echo_commands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
-      st_synchronize();
+      stepper.synchronize();
     }
   }
 
