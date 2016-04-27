@@ -925,6 +925,17 @@ void gcode_line_error(const char* err, bool doFlush = true) {
   serial_count = 0;
 }
 
+void clear_buffer() {
+  for (uint8_t i=0; i < BUFSIZE; i++)
+    for (uint8_t j=0; j < MAX_CMD_SIZE; j++)
+      command_queue[i][j] = NULL;
+  MYSERIAL.flush();
+  serial_count = 0;
+  commands_in_queue = 1;
+  cmd_queue_index_r = BUFSIZE-1;
+  cmd_queue_index_w = 0;
+}
+
 inline void get_serial_commands() {
   static char serial_line_buffer[MAX_CMD_SIZE];
   static boolean serial_comment_mode = false;
