@@ -29,11 +29,12 @@
 // Print debug messages with M111 S2
 #define DEBUG_PRINTCOUNTER
 
-struct printStatistics {  // 12 bytes
-  uint16_t successPrints; // Total number of prints
-  uint16_t failedPrints;  // Total number of aborted prints - not in use
-  uint32_t printTime;     // Total time printing
-  uint32_t longestPrint;  // Longest print job - not in use
+struct printStatistics {    // 13 bytes
+  //uint8_t  magic;         // Magic header, it will always be 0x16
+  uint16_t totalPrints;     // Number of prints
+  uint16_t finishedPrints;  // Number of complete prints
+  uint32_t printTime;       // Total printing time
+  uint32_t longestPrint;    // Longest print job - not in use
 };
 
 class PrintCounter: public Stopwatch {
@@ -43,10 +44,18 @@ class PrintCounter: public Stopwatch {
     printStatistics data;
 
     /**
+     * @brief Timestamp of the last update
+     * @details Stores the timestamp of the last data.pritnTime update, when the
+     * print job finishes, this will be used to calculate the exact time elapsed,
+     * this is required due to the updateInterval cycle.
+     */
+    uint16_t lastUpdate;
+
+    /**
      * @brief EEPROM address
      * @details Defines the start offset address where the data is stored.
      */
-    const uint16_t addr = 60;
+    const uint16_t addr = 50;
 
     /**
      * @brief Interval in seconds between counter updates
@@ -54,7 +63,7 @@ class PrintCounter: public Stopwatch {
      * accumulator update. This is different from the EEPROM save interval
      * which is user defined at the Configuration.h file.
      */
-    const uint16_t updateInterval = 2;
+    const uint16_t updateInterval = 10;
 
     /**
      * @brief Interval in seconds between EEPROM saves
@@ -64,20 +73,65 @@ class PrintCounter: public Stopwatch {
      */
     const uint16_t saveInterval = PRINTCOUNTER_SAVE_INTERVAL;
 
+    /**
+     * @brief Stats were loaded from EERPROM
+     * @details If set to true it indicates if the statistical data was already
+     * loaded from the EEPROM.
+     */
+    bool loaded = false;
+
   public:
     /**
      * @brief Class constructor
      */
     PrintCounter();
 
-    void tick();
-    void save();
-    void load();
-    void addToTimeCounter(uint16_t const &minutes);
-    void addToPrintCounter(uint8_t const &prints);
+    /**
+     * @brief Checks if Print Statistics has been loaded
+     * @details Returns true if the statistical data has been loaded.
+     * @return bool
+     */
+    bool isLoaded();
 
+    /**
+     * @brief Resets the Print Statistics
+     * @details Resets the statistics to zero and saves them to EEPROM creating
+     * also the magic header.
+     */
+    void initStats();
+
+    /**
+     * @brief Loads the Print Statistics
+     * @details Loads the statistics from EEPROM
+     */
+    void loadStats();
+
+    /**
+     * @brief Saves the Print Statistics
+     * @details Saves the statistics to EEPROM
+     */
+    void saveStats();
+
+    /**
+     * @brief Serial output the Print Statistics
+     * @details This function may change in the future, for now it directly
+     * prints the statistical data to serial.
+     */
+    void showStats();
+
+    /**
+     * @brief Loop function
+     * @details This function should be called at loop, it will take care of
+     * periodically save the statistical data to EEPROM and do time keeping.
+     */
+    void tick();
+
+    /**
+     * The following functions are being overridden
+     */
     void start();
     void stop();
+    void reset();
 
     #if ENABLED(DEBUG_PRINTCOUNTER)
 
