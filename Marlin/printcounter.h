@@ -27,7 +27,7 @@
 #include "stopwatch.h"
 
 // Print debug messages with M111 S2
-#define DEBUG_PRINTCOUNTER
+//#define DEBUG_PRINTCOUNTER
 
 struct printStatistics {    // 13 bytes
   //uint8_t  magic;         // Magic header, it will always be 0x16
