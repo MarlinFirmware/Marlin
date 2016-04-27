@@ -102,8 +102,8 @@
 #define MSG_VMIN                            "V min"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "A max " // space by purpose
-#define MSG_A_RETRACT                       "A Retract"
-#define MSG_A_TRAVEL                        "A Rückzug"
+#define MSG_A_RETRACT                       "A Rückzug"
+#define MSG_A_TRAVEL                        "A Reise"
 #define MSG_XSTEPS                          "X steps/mm"
 #define MSG_YSTEPS                          "Y steps/mm"
 #define MSG_ZSTEPS                          "Z steps/mm"
