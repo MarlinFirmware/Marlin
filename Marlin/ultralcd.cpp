@@ -2255,57 +2255,56 @@ void lcd_update() {
       case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
       case LCDVIEW_NONE:
         break;
-
-      #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
-        bool blink = lcd_blink();
-
-        if (!glcd_loopcounter) {
-          u8g.firstPage();
-        }
-        u8g.setColorIndex(1); // black on white
-        lcd_setFont(FONT_MENU);
-        u8g.setPrintPos(125, 0);
-        #if ENABLED(LCD_SCREEN_ROT_180)
-          if ((glcd_loopcounter == 0) &&  blink)
-            u8g.drawPixel(127, 63); // draw alive dot
-        #else
-          if ((glcd_loopcounter == DISPLAY_STRIPES - 1) && blink)
-            u8g.drawPixel(127, 63); // draw alive dot
-        #endif
-        (*currentMenu)();
-        glcd_loopcounter++;
-        if (!u8g.nextPage()) {
-          glcd_loopcounter = 0;
-        }
-      #else
-        if (lcdDrawUpdate)
-          (*currentMenu)();
-        switch (lcdDrawUpdate) {
-          case LCDVIEW_CLEAR_CALL_REDRAW:
-            lcd_implementation_clear();
-          case LCDVIEW_CALL_REDRAW_NEXT:
-            lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-            break;
-          case LCDVIEW_REDRAW_NOW:
-            lcdDrawUpdate = LCDVIEW_NONE;
-            break;
-          case LCDVIEW_NONE:
-            break;
-      #endif
     }
 
-    #if ENABLED(ULTIPANEL)
+    #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
+      bool blink = lcd_blink();
 
-      // Return to Status Screen after a timeout
-      if (currentMenu == lcd_status_screen || defer_return_to_status)
-        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-      else if (ELAPSED(ms, return_to_status_ms))
-        lcd_return_to_status();
+      if (!glcd_loopcounter)
+        u8g.firstPage();
 
-    #endif // ULTIPANEL
-
-
+      u8g.setColorIndex(1); // black on white
+      lcd_setFont(FONT_MENU);
+      u8g.setPrintPos(125, 0);
+      #if ENABLED(LCD_SCREEN_ROT_180)
+        if ((glcd_loopcounter == 0) &&  blink)
+          u8g.drawPixel(127, 63); // draw alive dot
+      #else
+        if ((glcd_loopcounter == DISPLAY_STRIPES - 1) && blink)
+          u8g.drawPixel(127, 63); // draw alive dot
+      #endif
+      (*currentMenu)();
+      glcd_loopcounter++;
+      if (!u8g.nextPage())
+        glcd_loopcounter = 0;
+    #else
+      if (lcdDrawUpdate)
+        (*currentMenu)();
+      switch (lcdDrawUpdate) {
+        case LCDVIEW_CLEAR_CALL_REDRAW:
+          lcd_implementation_clear();
+        case LCDVIEW_CALL_REDRAW_NEXT:
+          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+          break;
+        case LCDVIEW_REDRAW_NOW:
+          lcdDrawUpdate = LCDVIEW_NONE;
+          break;
+        case LCDVIEW_NONE:
+          break;
+      }
+    #endif
   }
+
+  #if ENABLED(ULTIPANEL)
+
+    // Return to Status Screen after a timeout
+    if (currentMenu == lcd_status_screen || defer_return_to_status)
+      return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+    else if (ELAPSED(ms, return_to_status_ms))
+      lcd_return_to_status();
+
+  #endif // ULTIPANEL
+
 }
 
 void lcd_ignore_click(bool b) {
