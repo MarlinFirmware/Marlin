@@ -1,19 +1,19 @@
-  Configurations for Deltaprintr (Kickstarter regular sized version)
+  #Configurations for Deltaprintr (Kickstarter regular sized version)
   ==================================================================
 
-===> For ALL supplied configuration files, MAKE SURE to connect the <===
-===>               FSRs to the xxx input, NOT to TBed!              <===
+    **For ALL supplied configuration files, MAKE SURE to connect the**
+                  **FSRs to the xxx input, NOT to TBed!**
 
 
-Existing configuration variants in subfolders
+##Existing configuration variants in subfolders
 ---------------------------------------------
 
-default/
+###default/
 
     * Configuration files that should work out of the box with an
       unmodified Deltaprintr.
 
-e3dv6/
+###e3dv6/
 
     * Default configuration with MANUAL_Z_HOME_POS and PID values
       adapted to the E3Dv6 all metal hotend, which happens to be longer
@@ -25,13 +25,12 @@ e3dv6/
       MANUAL_Z_HOME_POS and re-install the firmware.
 
     * If possible, do a PID autotune to match the PID values to your
-      specific hotend.
-      [Instructions: http://reprap.org/wiki/PID_Tuning]
+      specific hotend. [Instructions](http://reprap.org/wiki/PID_Tuning)
 
-e3dv6_pt100/
+###e3dv6_pt100/
 
     * E3Dv6 configuration set up for the PT100 high temperature sensor
-      [http://e3d-online.com/Kits-and-Multipacks/V6-PT100-Sensor-Kit]
+      [Description](http://e3d-online.com/Kits-and-Multipacks/V6-PT100-Sensor-Kit)
 
     * Double check MANUAL_Z_HOME_POS by slowly lowering the hotend. If
       the nozzle touches the bed before the LCD shows "0" (or less) for
@@ -40,13 +39,13 @@ e3dv6_pt100/
 
     * If possible, do a PID autotune to match the PID values to your
       specific hotend / temperature sensor combination.
-      [Instructions: http://reprap.org/wiki/PID_Tuning]
+      [Instructions](http://reprap.org/wiki/PID_Tuning)
 
-e3dv6_pt100+heatbed/
+###e3dv6_pt100+heatbed/
 
     * Same as above plus the custom build heated bed and modified FSR
       standoffs
-      [Instructions: http://www.tk-webart.de/wiki/doku.php?id=wiki:deltaprintr:deltaprintr_modifications]
+      [Information about and build instruction for customizations](http://www.tk-webart.de/wiki/doku.php?id=wiki:deltaprintr:deltaprintr_modifications)
 
     * Double check MANUAL_Z_HOME_POS by slowly lowering the hotend. If
       the nozzle touches the bed before the LCD shows "0" (or less) for
@@ -55,17 +54,17 @@ e3dv6_pt100+heatbed/
 
     * If possible, do a PID autotune to match the PID values to your
       specific hotend/bed / temperature sensor combination.
-      [Instructions: http://reprap.org/wiki/PID_Tuning]
+      [Instructions](http://reprap.org/wiki/PID_Tuning)
 
     * BE AWARE that FSR bed leveling does not work reliably for this
       setup due to the weight of the heated bed.
 
-e3dv6_pt100+heatbed+fsrboard/
+###e3dv6_pt100+heatbed+fsrboard/
 
     * Same as above plus JohnSL's FSR sensor board connected to the
       ZMax endstop input
-      [FSR board information: https://github.com/JohnSL/FSR_Endstop]
-      [Instructions: http://www.tk-webart.de/wiki/doku.php?id=wiki:deltaprintr:deltaprintr_modifications]
+      [FSR board information](https://github.com/JohnSL/FSR_Endstop)
+      [Information about and build instruction for customizations](http://www.tk-webart.de/wiki/doku.php?id=wiki:deltaprintr:deltaprintr_modifications)
 
     * Again, double check MANUAL_Z_HOME_POS by slowly lowering the
       hotend. If the nozzle touches the bed before the LCD shows "0" (or
@@ -74,4 +73,4 @@ e3dv6_pt100+heatbed+fsrboard/
 
     * If possible, do a PID autotune to match the PID values to your
       specific hotend/bed / temperature sensor combination.
-      [Instructions: http://reprap.org/wiki/PID_Tuning]
+      [Instructions](http://reprap.org/wiki/PID_Tuning)
