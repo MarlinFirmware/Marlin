@@ -25,7 +25,10 @@
 
 #include "Configuration.h"
 
-#define GENERATE_LANGUAGE_INCLUDE(M)  STRINGIFY_(language_##M.h)
+// Fallback if no language is set. DON'T CHANGE
+#ifndef LCD_LANGUAGE
+  #define LCD_LANGUAGE en
+#endif
 
 // For character-based LCD controllers (DISPLAY_CHARSET_HD44780)
 #define JAPANESE 1
@@ -61,11 +64,6 @@
 // kana_utf8  Japanese (UTF8)
 // cn         Chinese
 // cz         Czech
-
-// fallback if no language is set, don't change
-#ifndef LANGUAGE_INCLUDE
-  #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
-#endif
 
 #if ENABLED(USE_AUTOMATIC_VERSIONING)
   #include "_Version.h"
@@ -236,7 +234,11 @@
 
 // LCD Menu Messages
 
-#include LANGUAGE_INCLUDE
+#define LANGUAGE_INCL_(M) STRINGIFY_(language_##M.h)
+#define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
+#define INCLUDE_LANGUAGE LANGUAGE_INCL(LCD_LANGUAGE)
+
+#include INCLUDE_LANGUAGE
 #include "language_en.h"
 
 #endif //__LANGUAGE_H
