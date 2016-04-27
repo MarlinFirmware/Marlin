@@ -1,6 +1,6 @@
 Generate arrays with
 
-    http://www.digole.com/tools/PicturetoC_Hex_converter.php
+http://www.digole.com/tools/PicturetoC_Hex_converter.php
 
 and put them in dogm_bitmaps.h
 
