@@ -29,7 +29,7 @@ Stopwatch::Stopwatch() {
 
 void Stopwatch::stop() {
   #if ENABLED(DEBUG_STOPWATCH)
-    debug(PSTR("stop"));
+    Stopwatch::debug(PSTR("stop"));
   #endif
 
   if (!this->isRunning()) return;
@@ -40,7 +40,7 @@ void Stopwatch::stop() {
 
 void Stopwatch::pause() {
   #if ENABLED(DEBUG_STOPWATCH)
-    debug(PSTR("pause"));
+    Stopwatch::debug(PSTR("pause"));
   #endif
 
   if (!this->isRunning()) return;
@@ -51,7 +51,7 @@ void Stopwatch::pause() {
 
 void Stopwatch::start() {
   #if ENABLED(DEBUG_STOPWATCH)
-    debug(PSTR("start"));
+    Stopwatch::debug(PSTR("start"));
   #endif
 
   if (this->isRunning()) return;
@@ -65,7 +65,7 @@ void Stopwatch::start() {
 
 void Stopwatch::reset() {
   #if ENABLED(DEBUG_STOPWATCH)
-    debug(PSTR("reset"));
+    Stopwatch::debug(PSTR("reset"));
   #endif
 
   this->state = STPWTCH_STOPPED;
