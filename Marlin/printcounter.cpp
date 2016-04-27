@@ -24,7 +24,112 @@
 #include "printcounter.h"
 #include <avr/eeprom.h>
 
-PrintCounter::PrintCounter(): super() {}
+PrintCounter::PrintCounter(): super() {
+  this->loadStats();
+}
+
+bool PrintCounter::isLoaded() {
+  return this->loaded;
+}
+
+void PrintCounter::initStats() {
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    PrintCounter::debug(PSTR("initStats"));
+  #endif
+
+  this->loaded = true;
+  this->data = {
+    0, 0, 0, 0
+  };
+
+  this->saveStats();
+  eeprom_write_byte((uint8_t*) this->addr, 0x16);
+}
+
+void PrintCounter::loadStats() {
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    PrintCounter::debug(PSTR("loadStats"));
+  #endif
+
+  uint16_t addr = this->addr;
+
+  // Checks if the EEPROM block is initialized
+  if (eeprom_read_byte((uint8_t*) addr) != 0x16) this->initStats();
+
+  else {
+    // Skip the magic header byte
+    addr += sizeof(uint8_t);
+
+    // @todo This section will need rewrite once the ConfigurationStore
+    // and/or PersistentStorage object comes along.
+    this->data.totalPrints = eeprom_read_word((uint16_t*) addr);
+    addr += sizeof(uint16_t);
+
+    this->data.finishedPrints = eeprom_read_word((uint16_t*) addr);
+    addr += sizeof(uint16_t);
+
+    this->data.printTime = eeprom_read_dword((uint32_t*) addr);
+    addr += sizeof(uint32_t);
+
+    this->data.longestPrint = eeprom_read_dword((uint32_t*) addr);
+  }
+
+  this->loaded = true;
+}
+
+void PrintCounter::saveStats() {
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    PrintCounter::debug(PSTR("saveStats"));
+  #endif
+
+  // Refuses to save data is object is not loaded
+  if (!this->isLoaded()) return;
+
+  // Skip the magic header byte
+  uint16_t addr = this->addr + sizeof(uint8_t);
+
+  // @todo This section will need rewrite once the ConfigurationStore
+  // and/or PersistentStorage object comes along.
+  eeprom_write_word ((uint16_t*) addr, this->data.totalPrints);
+  addr += sizeof(uint16_t);
+
+  eeprom_write_word ((uint16_t*) addr, this->data.finishedPrints);
+  addr += sizeof(uint16_t);
+
+  eeprom_write_dword((uint32_t*) addr, this->data.printTime);
+  addr += sizeof(uint32_t);
+
+  eeprom_write_dword((uint32_t*) addr, this->data.longestPrint);
+}
+
+void PrintCounter::showStats() {
+  SERIAL_ECHOPGM("Print statistics: Total: ");
+  SERIAL_ECHO(this->data.totalPrints);
+
+  SERIAL_ECHOPGM(", Finished: ");
+  SERIAL_ECHO(this->data.finishedPrints);
+
+  SERIAL_ECHOPGM(", Failed: ");
+  SERIAL_ECHO(this->data.totalPrints - this->data.finishedPrints);
+
+  uint32_t t = this->data.printTime /60;
+  SERIAL_ECHOPGM(", Total print time: ");
+  SERIAL_ECHO(t / 60);
+
+  SERIAL_ECHOPGM("h ");
+  SERIAL_ECHO(t % 60);
+
+  SERIAL_ECHOPGM("min");
+
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    SERIAL_ECHOPGM(" (");
+    SERIAL_ECHO(this->data.printTime);
+    SERIAL_ECHOPGM(")");
+  #endif
+
+  // @todo longestPrint missing implementation
+  SERIAL_EOL;
+}
 
 void PrintCounter::tick() {
   if (!this->isRunning()) return;
@@ -38,9 +143,14 @@ void PrintCounter::tick() {
   const static uint16_t i = this->updateInterval * 1000;
 
   if (now - update_before >= i) {
-    //this->addToTimeCounter((uint16_t) (now - update_before) / 1000);
+    #if ENABLED(DEBUG_PRINTCOUNTER)
+      PrintCounter::debug(PSTR("tick"));
+    #endif
+
+    uint16_t t = this->duration();;
+    this->data.printTime += t - this->lastUpdate;
+    this->lastUpdate = t;
     update_before = now;
-    PrintCounter::debug(PSTR("tick1"));
   }
 
   // Trying to get the amount of calculations down to the bare min
@@ -48,52 +158,37 @@ void PrintCounter::tick() {
 
   if (now - eeprom_before >= j) {
     eeprom_before = now;
-    this->save();
+    this->saveStats();
   }
 }
 
-void PrintCounter::load() {
-  uint16_t pos = this->addr;
-
-  this->data.successPrints= eeprom_read_word ((uint16_t*) pos);
-  this->data.failedPrints = eeprom_read_word ((uint16_t*) pos);
-  this->data.printTime    = eeprom_read_dword((uint32_t*) pos);
-  this->data.longestPrint = eeprom_read_dword((uint32_t*) pos);
-
-  SERIAL_ECHOPGM("successPrints: ");
-  SERIAL_ECHOLN(this->data.successPrints);
-
-  SERIAL_ECHOPGM("failedPrints: ");
-  SERIAL_ECHOLN(this->data.failedPrints);
-
-  SERIAL_ECHOPGM("printTime: ");
-  SERIAL_ECHOLN(this->data.printTime);
-
-  SERIAL_ECHOPGM("longestPrint: ");
-  SERIAL_ECHOLN(this->data.longestPrint);
-}
-
-void PrintCounter::save() {
+void PrintCounter::start() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
-    PrintCounter::debug(PSTR("save"));
+    PrintCounter::debug(PSTR("start"));
   #endif
 
-  uint16_t pos = this->addr;
-
-  eeprom_write_word ((uint16_t*) pos, this->data.successPrints);
-  eeprom_write_word ((uint16_t*) pos, this->data.failedPrints);
-  eeprom_write_dword((uint32_t*) pos, this->data.printTime);
-  eeprom_write_dword((uint32_t*) pos, this->data.longestPrint);
-}
-
-void PrintCounter::start() {
+  if (!this->isPaused()) this->data.totalPrints++;
   super::start();
-  this->load();
 }
 
 void PrintCounter::stop() {
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    PrintCounter::debug(PSTR("stop"));
+  #endif
+
   super::stop();
-  this->save();
+  this->data.finishedPrints++;
+  this->data.printTime += this->duration() - this->lastUpdate;
+  this->saveStats();
+}
+
+void PrintCounter::reset() {
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    PrintCounter::debug(PSTR("stop"));
+  #endif
+
+  this->lastUpdate = 0;
+  super::reset();
 }
 
 #if ENABLED(DEBUG_PRINTCOUNTER)
