@@ -2565,7 +2565,11 @@ Sigma_Exit:
         if (code_seen('S')){
 			if(code_value() > 0)
 			{
-				fanSpeed=255;
+				#if IS_RAMPS
+					fanSpeed = code_value();
+				#else
+					fanSpeed=255;
+				#endif
 			}
 			else
 			{
