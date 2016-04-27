@@ -1755,16 +1755,6 @@ void z_probe_leveling()
           delay(100);
           noTone(BEEPER);
 
-    if((int)current_position[X_AXIS]!=15) 
-    { 
-       for(int k=0;k<10;k++) { 
-          tone(BEEPER, 1000);
-          delay(100);
-          noTone(BEEPER);
-       }
-       return;
-    }
-
     //do_blocking_move_to(current_position[X_AXIS],current_position[Y_AXIS],current_position[Z_AXIS]+Z_RAISE_AFTER_PROBING);            
     retract_z_probe(); // if we didn't retract after each probe point, then do so now that we are done.
     #endif
