@@ -92,6 +92,12 @@ class Endstops {
       volatile bool z_probe_enabled = false;
       FORCE_INLINE void enable_z_probe(bool onoff=true) { z_probe_enabled = onoff; }
     #endif
+
+  private:
+
+    #if ENABLED(Z_DUAL_ENDSTOPS)
+      void test_dual_z_endstops(EndstopEnum es1, EndstopEnum es2);
+    #endif
 };
 
 extern Endstops endstops;
