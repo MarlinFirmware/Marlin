@@ -65,6 +65,19 @@
   #if ENABLED(ULTIPANEL)
     void lcd_buttons_update();
     extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+    #if ENABLED(FILAMENT_CHANGE_ENABLE)
+      enum FilamentChangeMessage {
+        FILAMENT_CHANGE_MESSAGE_INIT = 0,
+        FILAMENT_CHANGE_MESSAGE_UNLOAD = 1,
+        FILAMENT_CHANGE_MESSAGE_INSERT = 2,
+        FILAMENT_CHANGE_MESSAGE_LOAD = 3,
+        FILAMENT_CHANGE_MESSAGE_EXTRUDE = 4,
+        FILAMENT_CHANGE_MESSAGE_OPTION = 5,
+        FILAMENT_CHANGE_MESSAGE_RESUME = 6,
+        FILAMENT_CHANGE_MESSAGE_STATUS = 7
+      };
+      void lcd_filament_change_show_message(FilamentChangeMessage message);
+    #endif     
   #else
     FORCE_INLINE void lcd_buttons_update() {}
   #endif
