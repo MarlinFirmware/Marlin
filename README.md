@@ -131,4 +131,4 @@ Have fun with your improved Deltaprintr!
 
 * [PID autotuning guide for bed and hotends](http://reprap.org/wiki/PID_Tuning)
 * [Azteeg X3 specifications](http://reprap.org/wiki/Azteeg_X3)
-* [Dokumentation of my Deltaprintr modifications](ttp://www.tk-webart.de/wiki/doku.php?id=wiki:deltaprintr:deltaprintr_modifications)
+* [Dokumentation of my Deltaprintr modifications](http://www.tk-webart.de/wiki/doku.php?id=wiki:deltaprintr:deltaprintr_modifications)
