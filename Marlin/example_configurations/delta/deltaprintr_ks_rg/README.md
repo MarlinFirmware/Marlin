@@ -1,9 +1,16 @@
 #Configurations for Deltaprintr (Kickstarter regular sized version)
 -------------------------------------------------------------------
 
-**For ALL supplied configuration files, MAKE SURE to connect the**
-**FSRs to the T1 input, NOT to TBed!**
+**Important note**
 
+<img align="top" width=320 src="fsr_connection.png" />
+
+_For **all** supplied configuration files that are **not explicitely labeled**_
+_as being for_
+_[JohnSL's FSR sensor board](https://github.com/JohnSL/FSR_Endstop),_
+_**make sure** to connect the_
+_FSR sensors to the **T1** input, **not** to **TBED** as in the default_
+_Deltaprintr setup!_
 
 ##Existing configuration variants in subfolders
 
@@ -60,7 +67,7 @@
 
 ###e3dv6_pt100+heatbed+fsrboard/
 
-* Same as above plus JohnSL's FSR sensor board connected to the
+* Same as above, but with JohnSL's FSR sensor board connected to the
   ZMax endstop input
   [FSR board information](https://github.com/JohnSL/FSR_Endstop)
   [Information about and build instruction for customizations](http://www.tk-webart.de/wiki/doku.php?id=wiki:deltaprintr:deltaprintr_modifications)
