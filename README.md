@@ -1,7 +1,7 @@
 #Deltaprintr 3D Printer Firmware
 --------------------------------
 
-Based on [Marlin](https://github.com/MarlinFirmware/Marlin), see README_Marlin.md.
+Based on [Marlin](https://github.com/MarlinFirmware/Marlin), see [README_Marlin.md](README_Marlin.md).
 
 This repository's [RC_Deltaprintr branch](https://github.com/tkurbad/Marlin/tree/RC_Deltaprintr)
 combines the most recent release of [Marlin](https://github.com/MarlinFirmware/Marlin)
@@ -29,8 +29,6 @@ _hotend, print platform, etc., please **double check** the values in_
 _the `Configuration.h` and `Configuration_adv.h` files to match your printer's_
 _hardware setup_
 
-<img align="top" width=320 src="Marlin/example_configurations/delta/deltaprintr_ks_rg/fsr_connection.png" />
-
 _For **all** supplied configuration files that are **not explicitely labeled**_
 _as being for_
 _[JohnSL's FSR sensor board](https://github.com/JohnSL/FSR_Endstop),_
@@ -38,23 +36,24 @@ _**make sure** to connect the_
 _FSR sensors to the **T1** input, **not** to **TBED** as in the default_
 _Deltaprintr setup!_
 
+<img align="top" width=320 src="Marlin/example_configurations/delta/deltaprintr_ks_rg/fsr_connection.png" />
+
 **DISCLAIMER**
 
-Use this fork of Marlin at your own risk. I take **no** responsibility
+Use this fork of Marlin at your own risk. I take **no responsibility**
 whatsoever for any defect of the software and the results thereof.
-
 Furthermore, I'm not affiliated with [Deltaprintr](http://www.deltaprintr.com)
 and this firmware is not officially tested, distributed, or supported by
 the Deltaprintr stuff.
 
 If you understand and agree to this terms, read on.
 
-##Build instructions
+##Build/Install instructions
 
 ###Generic
 
 * **First of all, turn over your Deltaprintr and move the two-pin FSR connector from `TBED` to `T1`!**
-* Download and install the most recent version (1.6.8) of the Arduino IDE+
+* Download and install the most recent (1.6.8) version of the Arduino IDE+
 from https://www.arduino.cc/en/Main/Software
 * Clone this repository `git clone git@github.com:tkurbad/Marlin.git`
 * Change to the `Marlin` directory you just cloned into
@@ -62,16 +61,19 @@ from https://www.arduino.cc/en/Main/Software
 * According to the setup/modifications of your printer, choose the appropriate
 `Configuration.h` and `Configuration_adv.h` files from the subdirectory
 `Marlin/example_configurations/delta/deltaprintr_ks_rg` and copy them to the
-`Marlin` subdirectory.
+root of the `Marlin` subdirectory, i.e. the directory, where the file `Marlin_main.cpp` resides.
+Consult the [README](Marlin/example_configurations/delta/deltaprintr_ks_rg/README.md)
+to find out which example configuration might be the correct one for you
 * **Carefully** revise the configuration files you copied in the last step
 * Connect your Deltaprintr via USB
 * On a Windows PC, you will most probably have to install the Arduino serial port
 drivers upon first connecting your printer
-* Start the Arduino IDE and open the file `Marlin.ino` from the `Marlin` subdirectory
+* Once all drivers are installed, start the Arduino IDE and open the file
+`Marlin.ino` from the `Marlin` subdirectory
 * From the *Tools* menu choose *Board* &rarr; *Arduino/Genuino Mega or Mega 2560*
 * In the same menu, choose the correct serial *Port* (`/dev/ttyUSB*` on Linux, `COM*` on Windows)
 * From the *Sketch* menu, choose *Include library* &rarr; *Manage libraries*,
-then click on *Time* &rarr; *Install* and *u8glib* &rarr; *Install*
+then click on *Time* &rarr; *Install* and *U8glib* &rarr; *Install*
 * From the *Sketch* menu, choose *Verify/Compile*
   The last two lines of the output should look similar to:
 ```
@@ -105,17 +107,18 @@ All the other steps remain the same.
 ##Testing
 
 After uploading the firmware to the Deltaprintr, you should do a few simple tests
-to ensure some basic functions. Be prepared to pull the plug at any time.
+to ensure some basic functions. Be prepared to **pull the plug** at any time, should something
+unexpected happen.
 
 * From the *Main LCD menu* of your Deltaprintr, choose *Prepare* &rarr; *Autohome*.
 The printer should home as usual, hitting the endstop switches on top of the three towers.
 However, the "going up and down a bit several times" it did after homing with
 its original firmware should no longer occur.
-* Now, from the *Prepare* menu, chosse*Level bed*. The printer will now do the
-down and upwards moves against the endstop switches as it used to during homing.
-This procedure, btw., calibrates the FSR sensors for the printer's inherent vibrations.
-Afterwards, the printer should do the bed leveling as per G-code `G29`.
-If it tries to dig into the bed, pull the plug and double check that you
+* Now, from the *Prepare* menu, choose *Level bed*. The printer will now do the
+short down and upwards moves against the endstop switches it used to during homing with the
+original firmware. This procedure, btw., calibrates the FSR sensors for the printer's
+inherent vibrations. Afterwards, the printer should do the bed leveling as per G-code `G29`.
+If it tries to dig into the bed while doing so, pull the plug and double check that you
 **moved the FSR connector to T1**.
 * If everything worked fine, do a small test print as you would have with the
 original firmware.
