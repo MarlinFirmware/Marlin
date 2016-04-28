@@ -6100,13 +6100,13 @@ inline void gcode_M503() {
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
   
     while (!lcd_clicked()) {
-      millis_t ms = millis();
-      if (ms >= next_tick) {
-        #if HAS_BUZZER
+      #if HAS_BUZZER
+        millis_t ms = millis();
+        if (ms >= next_tick) {
           buzz(300, 2000);
-        #endif
-        next_tick = ms + 2500; // Beep every 2.5s while waiting
-      }
+          next_tick = ms + 2500; // Beep every 2.5s while waiting
+        }
+      #endif
       idle(true);
     }
     delay(100);
