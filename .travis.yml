@@ -162,10 +162,10 @@ script:
   - opt_enable LCM1602
   - build_marlin
   #
-  # Enable FILAMENTCHANGEENABLE
+  # Enable FILAMENT_CHANGE_ENABLE
   #
   - restore_configs
-  - opt_enable FILAMENTCHANGEENABLE ULTIMAKERCONTROLLER
+  - opt_enable FILAMENT_CHANGE_ENABLE ULTIMAKERCONTROLLER
   - build_marlin
   #
   # Enable filament sensor

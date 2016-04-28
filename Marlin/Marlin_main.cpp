@@ -449,6 +449,10 @@ static uint8_t target_extruder;
   static bool filament_ran_out = false;
 #endif
 
+#if ENABLED(FILAMENT_CHANGE_ENABLE)
+  FilamentChangeMenuResponse filament_change_menu_response;
+#endif
+
 static bool send_ok[BUFSIZE];
 
 #if HAS_SERVOS
@@ -5997,7 +6001,7 @@ inline void gcode_M503() {
 
 #endif // CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
 
-#if ENABLED(FILAMENTCHANGEENABLE)
+#if ENABLED(FILAMENT_CHANGE_ENABLE)
 
   /**
    * M600: Pause for filament change
@@ -6018,130 +6022,161 @@ inline void gcode_M503() {
       SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
       return;
     }
-
+  
+    // Show initial message and wait for synchronize steppers
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
+    st_synchronize();
+  
     float lastpos[NUM_AXIS];
-    #if ENABLED(DELTA)
-      float fr60 = feedrate / 60;
-    #endif
-
+  
+    // Save current position of all axes
     for (int i = 0; i < NUM_AXIS; i++)
       lastpos[i] = destination[i] = current_position[i];
-
+  
+    // Define runplan for move axes
     #if ENABLED(DELTA)
       #define RUNPLAN calculate_delta(destination); \
-                      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], fr60, active_extruder);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE * 60, active_extruder);
     #else
-      #define RUNPLAN line_to_destination();
+      #define RUNPLAN line_to_destination(FILAMENT_CHANGE_XY_FEEDRATE * 60);
     #endif
-
-    //retract by E
+  
+    KEEPALIVE_STATE(IN_HANDLER);
+  
+    // Initial retract before move to filament change position
     if (code_seen('E')) destination[E_AXIS] += code_value();
-    #ifdef FILAMENTCHANGE_FIRSTRETRACT
-      else destination[E_AXIS] += FILAMENTCHANGE_FIRSTRETRACT;
-    #endif
-
-    RUNPLAN;
-
-    //lift Z
+      #ifdef FILAMENT_CHANGE_RETRACT_LENGTH
+        else destination[E_AXIS] -= FILAMENT_CHANGE_RETRACT_LENGTH;
+      #endif
+    line_to_destination(FILAMENT_CHANGE_RETRACT_FEEDRATE * 60);
+  
+    // Lift Z axis
     if (code_seen('Z')) destination[Z_AXIS] += code_value();
-    #ifdef FILAMENTCHANGE_ZADD
-      else destination[Z_AXIS] += FILAMENTCHANGE_ZADD;
+      #ifdef FILAMENT_CHANGE_Z_ADD
+        else destination[Z_AXIS] += FILAMENT_CHANGE_Z_ADD;
+      #endif
+    // RUNPLAN;
+    #if ENABLED(DELTA)
+      // calculate_delta(destination);
+      // plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE * 60, active_extruder);
+      RUNPLAN;
+    #else
+      line_to_destination(FILAMENT_CHANGE_Z_FEEDRATE * 60);
     #endif
-
-    RUNPLAN;
-
-    //move xy
+  
+    // Move XY axes to filament exchange position
     if (code_seen('X')) destination[X_AXIS] = code_value();
-    #ifdef FILAMENTCHANGE_XPOS
-      else destination[X_AXIS] = FILAMENTCHANGE_XPOS;
-    #endif
-
+      #ifdef FILAMENT_CHANGE_X_POS
+        else destination[X_AXIS] = FILAMENT_CHANGE_X_POS;
+      #endif
     if (code_seen('Y')) destination[Y_AXIS] = code_value();
-    #ifdef FILAMENTCHANGE_YPOS
-      else destination[Y_AXIS] = FILAMENTCHANGE_YPOS;
-    #endif
-
+      #ifdef FILAMENT_CHANGE_Y_POS
+        else destination[Y_AXIS] = FILAMENT_CHANGE_Y_POS;
+      #endif
     RUNPLAN;
-
-    if (code_seen('L')) destination[E_AXIS] += code_value();
-    #ifdef FILAMENTCHANGE_FINALRETRACT
-      else destination[E_AXIS] += FILAMENTCHANGE_FINALRETRACT;
-    #endif
-
-    RUNPLAN;
-
-    //finish moves
+  
+    // Synchronize steppers and show unload message
     st_synchronize();
-    //disable extruder steppers so filament can be removed
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_UNLOAD);
+  
+    // Unload filament
+    if (code_seen('L')) destination[E_AXIS] += code_value();
+      #ifdef FILAMENT_CHANGE_UNLOAD_LENGTH
+        else destination[E_AXIS] -= FILAMENT_CHANGE_UNLOAD_LENGTH;
+      #endif
+    line_to_destination(FILAMENT_CHANGE_UNLOAD_FEEDRATE * 60);
+  
+    // Synchronize steppers and then disable extruders steppers for manual filament changing
+    st_synchronize();
     disable_e0();
     disable_e1();
     disable_e2();
     disable_e3();
     delay(100);
-    LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
-    #if DISABLED(AUTO_FILAMENT_CHANGE)
-      millis_t next_tick = 0;
-    #endif
-    KEEPALIVE_STATE(PAUSED_FOR_USER);
+  
+    millis_t next_tick = 0;
+  
+    // Wait for filament insert by user and press button
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
+  
     while (!lcd_clicked()) {
-      #if DISABLED(AUTO_FILAMENT_CHANGE)
+      #if HAS_BUZZER
         millis_t ms = millis();
-        if (ELAPSED(ms, next_tick)) {
-          lcd_quick_feedback();
-          next_tick = ms + 2500UL; // feedback every 2.5s while waiting
+        if (ms >= next_tick) {
+          buzz(300, 2000);
+          next_tick = ms + 2500; // Beep every 2.5s while waiting
         }
-        idle(true);
-      #else
-        current_position[E_AXIS] += AUTO_FILAMENT_CHANGE_LENGTH;
-        destination[E_AXIS] = current_position[E_AXIS];
-        line_to_destination(AUTO_FILAMENT_CHANGE_FEEDRATE);
-        st_synchronize();
       #endif
-    } // while(!lcd_clicked)
-    KEEPALIVE_STATE(IN_HANDLER);
-    lcd_quick_feedback(); // click sound feedback
-
-    #if ENABLED(AUTO_FILAMENT_CHANGE)
-      current_position[E_AXIS] = 0;
-      st_synchronize();
-    #endif
-
-    //return to normal
+      idle(true);
+    }
+    delay(100);
+    while (lcd_clicked()) {
+      idle(true);
+    }
+    delay(100);
+  
+    // Show load message
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
+  
+    // Load filament
     if (code_seen('L')) destination[E_AXIS] -= code_value();
-    #ifdef FILAMENTCHANGE_FINALRETRACT
-      else destination[E_AXIS] -= FILAMENTCHANGE_FINALRETRACT;
+      #ifdef FILAMENT_CHANGE_LOAD_LENGTH
+        else destination[E_AXIS] += FILAMENT_CHANGE_LOAD_LENGTH;
+      #endif
+    line_to_destination(FILAMENT_CHANGE_LOAD_FEEDRATE * 60);
+    st_synchronize();
+  
+    #ifdef FILAMENT_CHANGE_EXTRUDE_LENGTH
+      do {
+        // Extrude filament to get into hotend
+        KEEPALIVE_STATE(IN_HANDLER);
+        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_EXTRUDE);
+        destination[E_AXIS] += FILAMENT_CHANGE_EXTRUDE_LENGTH;
+        line_to_destination(FILAMENT_CHANGE_EXTRUDE_FEEDRATE * 60);
+        st_synchronize();
+        // Ask user if more filament should be extruded
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_OPTION);
+        while (filament_change_menu_response == FILAMENT_CHANGE_RESPONSE_WAIT_FOR) {
+          idle(true);
+        }
+      } while (filament_change_menu_response != FILAMENT_CHANGE_RESPONSE_RESUME_PRINT);
     #endif
-
-    current_position[E_AXIS] = destination[E_AXIS]; //the long retract of L is compensated by manual filament feeding
-    sync_plan_position_e();
-
-    RUNPLAN; //should do nothing
-
-    lcd_reset_alert_level();
-
+  
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_RESUME);
+  
+    KEEPALIVE_STATE(IN_HANDLER);
+  
+    // Set extruder to saved position
+    current_position[E_AXIS] = lastpos[E_AXIS];
+    destination[E_AXIS] = lastpos[E_AXIS];
+    plan_set_e_position(current_position[E_AXIS]);
+  
     #if ENABLED(DELTA)
       // Move XYZ to starting position, then E
       calculate_delta(lastpos);
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], fr60, active_extruder);
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], lastpos[E_AXIS], fr60, active_extruder);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE * 60, active_extruder);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], lastpos[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE * 60, active_extruder);
     #else
       // Move XY to starting position, then Z, then E
       destination[X_AXIS] = lastpos[X_AXIS];
       destination[Y_AXIS] = lastpos[Y_AXIS];
-      line_to_destination();
+      line_to_destination(FILAMENT_CHANGE_XY_FEEDRATE * 60);
       destination[Z_AXIS] = lastpos[Z_AXIS];
-      line_to_destination();
-      destination[E_AXIS] = lastpos[E_AXIS];
-      line_to_destination();
+      line_to_destination(FILAMENT_CHANGE_Z_FEEDRATE * 60);
     #endif
-
+    st_synchronize();
+  
     #if ENABLED(FILAMENT_RUNOUT_SENSOR)
       filament_ran_out = false;
     #endif
-
+  
+    // Show status screen
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
+    KEEPALIVE_STATE(NOT_BUSY);
   }
 
-#endif // FILAMENTCHANGEENABLE
+#endif // FILAMENT_CHANGE_ENABLE
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -6994,11 +7029,11 @@ void process_next_command() {
           break;
       #endif // CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
 
-      #if ENABLED(FILAMENTCHANGEENABLE)
+      #if ENABLED(FILAMENT_CHANGE_ENABLE)
         case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
           gcode_M600();
           break;
-      #endif // FILAMENTCHANGEENABLE
+      #endif // FILAMENT_CHANGE_ENABLE
 
       #if ENABLED(DUAL_X_CARRIAGE)
         case 605:
@@ -7738,13 +7773,13 @@ void disable_all_steppers() {
  * Standard idle routine keeps the machine alive
  */
 void idle(
-  #if ENABLED(FILAMENTCHANGEENABLE)
+  #if ENABLED(FILAMENT_CHANGE_ENABLE)
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
   manage_heater();
   manage_inactivity(
-    #if ENABLED(FILAMENTCHANGEENABLE)
+    #if ENABLED(FILAMENT_CHANGE_ENABLE)
       no_stepper_sleep
     #endif
   );
