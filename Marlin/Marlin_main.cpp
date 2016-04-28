@@ -6374,20 +6374,27 @@ inline void gcode_T(uint8_t tmp_extruder) {
           #endif
 
         #else // !AUTO_BED_LEVELING_FEATURE
+
           // Offset extruder (only by XY)
           for (int i=X_AXIS; i<=Y_AXIS; i++)
             current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
+
         #endif // !AUTO_BED_LEVELING_FEATURE
+
         // Set the new active extruder and position
         active_extruder = tmp_extruder;
+
       #endif // !DUAL_X_CARRIAGE
+
       #if ENABLED(DELTA)
         sync_plan_position_delta();
       #else
         sync_plan_position();
       #endif
+
       // Move to the old position
       if (IsRunning()) prepare_move();
+
     } // (tmp_extruder != active_extruder)
 
     #if ENABLED(EXT_SOLENOID)
