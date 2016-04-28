@@ -47,13 +47,12 @@ class PrintCounter: public Stopwatch {
      * @brief EEPROM address
      * @details Defines the start offset address where the data is stored.
      */
-    const uint16_t addr = 50;
+    const uint16_t address = 0x32;
 
     /**
      * @brief Interval in seconds between counter updates
      * @details This const value defines what will be the time between each
-     * accumulator update. This is different from the EEPROM save interval
-     * which is user defined at the Configuration.h file.
+     * accumulator update. This is different from the EEPROM save interval.
      */
     const uint16_t updateInterval = 10;
 
