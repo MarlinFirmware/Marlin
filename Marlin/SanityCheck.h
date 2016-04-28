@@ -113,8 +113,8 @@
 /**
  * Filament Change with Extruder Runout Prevention
  */
-#if ENABLED(FILAMENTCHANGEENABLE) && ENABLED(EXTRUDER_RUNOUT_PREVENT)
-  #error EXTRUDER_RUNOUT_PREVENT currently incompatible with FILAMENTCHANGE.
+#if ENABLED(FILAMENT_CHANGE_ENABLE) && ENABLED(EXTRUDER_RUNOUT_PREVENT)
+  #error EXTRUDER_RUNOUT_PREVENT currently incompatible with FILAMENT_CHANGE.
 #endif
 
 /**
@@ -506,6 +506,8 @@
   #error DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead.
 #elif ENABLED(Z_DUAL_ENDSTOPS) && !defined(Z2_USE_ENDSTOP)
   #error Z_DUAL_ENDSTOPS settings are simplified. Just set Z2_USE_ENDSTOP to the endstop you want to repurpose for Z2
+#elif ENABLED(FILAMENTCHANGEENABLE)
+  #error FILAMENTCHANGEENABLE was renamed to FILAMENT_CHANGE_ENABLE
 #endif
 
 #endif //SANITYCHECK_H
