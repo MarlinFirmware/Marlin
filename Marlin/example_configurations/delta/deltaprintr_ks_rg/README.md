@@ -62,7 +62,7 @@ _Deltaprintr setup!_
   specific hotend/bed / temperature sensor combination.
   [Instructions](http://reprap.org/wiki/PID_Tuning)
 
-* BE AWARE that FSR bed leveling does not work reliably for this
+* **Please, be aware** that FSR bed leveling does not work reliably for this
   setup due to the weight of the heated bed.
 
 ###e3dv6_pt100+heatbed+fsrboard/
