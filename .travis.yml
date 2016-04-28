@@ -161,11 +161,11 @@ script:
   - opt_set MOTHERBOARD BOARD_MINIRAMBO
   - build_marlin
   #
-  # Test FILAMENTCHANGEENABLE and LCD_INFO_MENU
+  # Test FILAMENT_CHANGE_FEATURE and LCD_INFO_MENU
   #
   - restore_configs
   - opt_enable ULTIMAKERCONTROLLER
-  - opt_enable_adv FILAMENTCHANGEENABLE LCD_INFO_MENU
+  - opt_enable_adv FILAMENT_CHANGE_FEATURE LCD_INFO_MENU
   - build_marlin
   #
   # Enable filament sensor

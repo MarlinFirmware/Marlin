@@ -128,7 +128,17 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     static void lcd_info_thermistors_menu();
     static void lcd_info_board_menu();
     static void lcd_info_menu();
-  #endif
+  #endif // LCD_INFO_MENU
+
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    static void lcd_filament_change_option_menu();
+    static void lcd_filament_change_init_message();
+    static void lcd_filament_change_unload_message();
+    static void lcd_filament_change_insert_message();
+    static void lcd_filament_change_load_message();
+    static void lcd_filament_change_extrude_message();
+    static void lcd_filament_change_resume_message();
+  #endif 
 
   #if HAS_LCD_CONTRAST
     static void lcd_set_contrast();
@@ -791,7 +801,7 @@ static void lcd_status_screen() {
     //
     // Change filament
     //
-    #if ENABLED(FILAMENTCHANGEENABLE)
+    #if ENABLED(FILAMENT_CHANGE_FEATURE)
        MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
     #endif
 
@@ -2035,6 +2045,116 @@ static void lcd_status_screen() {
       END_MENU();
     }
   #endif // LCD_INFO_MENU
+
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+
+    static void lcd_filament_change_nothing() {
+    }
+    
+    static void lcd_filament_change_resume_print() {
+      filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_RESUME_PRINT;
+      lcdDrawUpdate = 2;
+      lcd_goto_screen(lcd_status_screen);
+    }
+
+    static void lcd_filament_change_extrude_more() {
+      filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_EXTRUDE_MORE;
+    }
+
+    static void lcd_filament_change_option_menu() {
+      START_MENU();
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_HEADER, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_filament_change_resume_print);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_EXTRUDE, lcd_filament_change_extrude_more);
+      END_MENU();
+    }
+
+    static void lcd_filament_change_init_message() {
+      START_MENU();
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INIT_1, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INIT_2, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INIT_3, lcd_filament_change_nothing);
+      END_MENU();
+    }
+
+    static void lcd_filament_change_unload_message() {
+      START_MENU();
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_UNLOAD_1, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_UNLOAD_2, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_UNLOAD_3, lcd_filament_change_nothing);
+      END_MENU();
+    }
+
+    static void lcd_filament_change_insert_message() {
+      START_MENU();
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INSERT_1, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INSERT_2, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INSERT_3, lcd_filament_change_nothing);
+      END_MENU();
+    }
+
+    static void lcd_filament_change_load_message() {
+      START_MENU();
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_LOAD_1, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_LOAD_2, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_LOAD_3, lcd_filament_change_nothing);
+      END_MENU();
+    }
+
+    static void lcd_filament_change_extrude_message() {
+      START_MENU();
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_EXTRUDE_1, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_EXTRUDE_2, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_EXTRUDE_3, lcd_filament_change_nothing);
+      END_MENU();
+    }
+
+    static void lcd_filament_change_resume_message() {
+      START_MENU();
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_RESUME_1, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_RESUME_2, lcd_filament_change_nothing);
+      MENU_ITEM(function, MSG_FILAMENT_CHANGE_RESUME_3, lcd_filament_change_nothing);
+      END_MENU();
+    }
+  
+    void lcd_filament_change_show_message(FilamentChangeMessage message) {
+      switch (message) {
+        case FILAMENT_CHANGE_MESSAGE_INIT:
+          defer_return_to_status = true;
+          lcd_goto_screen(lcd_filament_change_init_message);
+          break;
+        case FILAMENT_CHANGE_MESSAGE_UNLOAD:
+          lcd_goto_screen(lcd_filament_change_unload_message);
+          break;
+        case FILAMENT_CHANGE_MESSAGE_INSERT:
+          lcd_goto_screen(lcd_filament_change_insert_message);
+          break;
+        case FILAMENT_CHANGE_MESSAGE_LOAD:
+          lcd_goto_screen(lcd_filament_change_load_message);
+          break;
+        case FILAMENT_CHANGE_MESSAGE_EXTRUDE:
+          lcd_goto_screen(lcd_filament_change_extrude_message);
+          break;
+        case FILAMENT_CHANGE_MESSAGE_OPTION:
+          filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_WAIT_FOR;
+          lcd_goto_screen(lcd_filament_change_option_menu);
+          break;
+        case FILAMENT_CHANGE_MESSAGE_RESUME:
+          lcd_goto_screen(lcd_filament_change_resume_message);
+          break;
+        case FILAMENT_CHANGE_MESSAGE_STATUS:
+          lcd_return_to_status();
+          break;
+      }
+    }
+
+  #endif // FILAMENT_CHANGE_FEATURE
 
   /**
    *
