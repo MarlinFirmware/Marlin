@@ -242,7 +242,7 @@ ISR(TIMER1_COMPA_vect) { stepper.isr(); }
 void Stepper::isr() {
   if (cleaning_buffer_counter) {
     current_block = NULL;
-    plan_discard_current_block();
+    planner.discard_current_block();
     #ifdef SD_FINISHED_RELEASECOMMAND
       if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
@@ -254,7 +254,7 @@ void Stepper::isr() {
   // If there is no current block, attempt to pop one from the buffer
   if (!current_block) {
     // Anything in the buffer?
-    current_block = plan_get_current_block();
+    current_block = planner.get_current_block();
     if (current_block) {
       current_block->busy = true;
       trapezoid_generator_reset();
@@ -396,7 +396,7 @@ void Stepper::isr() {
     // If current block is finished, reset pointer
     if (step_events_completed >= current_block->step_event_count) {
       current_block = NULL;
-      plan_discard_current_block();
+      planner.discard_current_block();
     }
   }
 }
@@ -620,7 +620,7 @@ void Stepper::init() {
 /**
  * Block until all buffered steps are executed
  */
-void Stepper::synchronize() { while (blocks_queued()) idle(); }
+void Stepper::synchronize() { while (planner.blocks_queued()) idle(); }
 
 /**
  * Set the stepper positions directly in steps
@@ -693,7 +693,7 @@ float Stepper::get_axis_position_mm(AxisEnum axis) {
   #else
     axis_steps = position(axis);
   #endif
-  return axis_steps / axis_steps_per_unit[axis];
+  return axis_steps / planner.axis_steps_per_unit[axis];
 }
 
 void Stepper::finish_and_disable() {
@@ -704,7 +704,7 @@ void Stepper::finish_and_disable() {
 void Stepper::quick_stop() {
   cleaning_buffer_counter = 5000;
   DISABLE_STEPPER_DRIVER_INTERRUPT();
-  while (blocks_queued()) plan_discard_current_block();
+  while (planner.blocks_queued()) planner.discard_current_block();
   current_block = NULL;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 }

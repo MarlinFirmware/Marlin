@@ -245,7 +245,7 @@ class Stepper {
     // Triggered position of an axis in mm (not core-savvy)
     //
     FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
-      return endstops_trigsteps[axis] / axis_steps_per_unit[axis];
+      return endstops_trigsteps[axis] / planner.axis_steps_per_unit[axis];
     }
 
     FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
