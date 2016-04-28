@@ -30,7 +30,7 @@
 //#define DEBUG_PRINTCOUNTER
 
 struct printStatistics {    // 13 bytes
-  //uint8_t  magic;         // Magic header, it will always be 0x16
+  //const uint8_t magic;    // Magic header, it will always be 0x16
   uint16_t totalPrints;     // Number of prints
   uint16_t finishedPrints;  // Number of complete prints
   uint32_t printTime;       // Total printing time
@@ -42,14 +42,6 @@ class PrintCounter: public Stopwatch {
     typedef Stopwatch super;
 
     printStatistics data;
-
-    /**
-     * @brief Timestamp of the last update
-     * @details Stores the timestamp of the last data.pritnTime update, when the
-     * print job finishes, this will be used to calculate the exact time elapsed,
-     * this is required due to the updateInterval cycle.
-     */
-    uint16_t lastUpdate;
 
     /**
      * @brief EEPROM address
@@ -74,11 +66,27 @@ class PrintCounter: public Stopwatch {
     const uint16_t saveInterval = 3600;
 
     /**
+     * @brief Timestamp of the last call to deltaDuration()
+     * @details Stores the timestamp of the last deltaDuration(), this is
+     * required due to the updateInterval cycle.
+     */
+    uint16_t lastDuration;
+
+    /**
      * @brief Stats were loaded from EERPROM
      * @details If set to true it indicates if the statistical data was already
      * loaded from the EEPROM.
      */
     bool loaded = false;
+
+  protected:
+    /**
+     * @brief dT since the last call
+     * @details Returns the elapsed time in seconds since the last call, this is
+     * used internally for print statistics accounting is not intended to be a
+     * user callable function.
+     */
+    uint16_t deltaDuration();
 
   public:
     /**
