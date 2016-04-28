@@ -28,6 +28,16 @@ PrintCounter::PrintCounter(): super() {
   this->loadStats();
 }
 
+uint16_t PrintCounter::deltaDuration() {
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    PrintCounter::debug(PSTR("deltaDuration"));
+  #endif
+
+  uint16_t tmp = this->lastDuration;
+  this->lastDuration = this->duration();
+  return this->lastDuration - tmp;
+}
+
 bool PrintCounter::isLoaded() {
   return this->loaded;
 }
@@ -38,9 +48,7 @@ void PrintCounter::initStats() {
   #endif
 
   this->loaded = true;
-  this->data = {
-    0, 0, 0, 0
-  };
+  this->data = { 0, 0, 0, 0 };
 
   this->saveStats();
   eeprom_write_byte((uint8_t*) this->addr, 0x16);
@@ -51,28 +59,9 @@ void PrintCounter::loadStats() {
     PrintCounter::debug(PSTR("loadStats"));
   #endif
 
-  uint16_t addr = this->addr;
-
   // Checks if the EEPROM block is initialized
-  if (eeprom_read_byte((uint8_t*) addr) != 0x16) this->initStats();
-
-  else {
-    // Skip the magic header byte
-    addr += sizeof(uint8_t);
-
-    // @todo This section will need rewrite once the ConfigurationStore
-    // and/or PersistentStorage object comes along.
-    this->data.totalPrints = eeprom_read_word((uint16_t*) addr);
-    addr += sizeof(uint16_t);
-
-    this->data.finishedPrints = eeprom_read_word((uint16_t*) addr);
-    addr += sizeof(uint16_t);
-
-    this->data.printTime = eeprom_read_dword((uint32_t*) addr);
-    addr += sizeof(uint32_t);
-
-    this->data.longestPrint = eeprom_read_dword((uint32_t*) addr);
-  }
+  if (eeprom_read_byte((uint8_t*) this->addr) != 0x16) this->initStats();
+  else eeprom_read_block(&this->data, (void *)(this->addr + sizeof(uint8_t)), sizeof(printStatistics));
 
   this->loaded = true;
 }
@@ -85,21 +74,7 @@ void PrintCounter::saveStats() {
   // Refuses to save data is object is not loaded
   if (!this->isLoaded()) return;
 
-  // Skip the magic header byte
-  uint16_t addr = this->addr + sizeof(uint8_t);
-
-  // @todo This section will need rewrite once the ConfigurationStore
-  // and/or PersistentStorage object comes along.
-  eeprom_write_word ((uint16_t*) addr, this->data.totalPrints);
-  addr += sizeof(uint16_t);
-
-  eeprom_write_word ((uint16_t*) addr, this->data.finishedPrints);
-  addr += sizeof(uint16_t);
-
-  eeprom_write_dword((uint32_t*) addr, this->data.printTime);
-  addr += sizeof(uint32_t);
-
-  eeprom_write_dword((uint32_t*) addr, this->data.longestPrint);
+  eeprom_write_block(&this->data, (void *)(this->addr + sizeof(uint8_t)), sizeof(printStatistics));
 }
 
 void PrintCounter::showStats() {
@@ -110,7 +85,8 @@ void PrintCounter::showStats() {
   SERIAL_ECHO(this->data.finishedPrints);
 
   SERIAL_ECHOPGM(", Failed: ");
-  SERIAL_ECHO(this->data.totalPrints - this->data.finishedPrints);
+  SERIAL_ECHO(this->data.totalPrints - this->data.finishedPrints
+    - (this->isRunning() || this->isPaused()) ? 1 : 0); // Removes 1 from failures with an active counter
 
   uint32_t t = this->data.printTime /60;
   SERIAL_ECHOPGM(", Total print time: ");
@@ -148,8 +124,7 @@ void PrintCounter::tick() {
     #endif
 
     uint16_t t = this->duration();;
-    this->data.printTime += t - this->lastUpdate;
-    this->lastUpdate = t;
+    this->data.printTime += this->deltaDuration();
     update_before = now;
   }
 
@@ -178,7 +153,7 @@ void PrintCounter::stop() {
 
   super::stop();
   this->data.finishedPrints++;
-  this->data.printTime += this->duration() - this->lastUpdate;
+  this->data.printTime += this->deltaDuration();
   this->saveStats();
 }
 
@@ -187,7 +162,7 @@ void PrintCounter::reset() {
     PrintCounter::debug(PSTR("stop"));
   #endif
 
-  this->lastUpdate = 0;
+  this->lastDuration = 0;
   super::reset();
 }
 
