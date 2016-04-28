@@ -51,7 +51,7 @@ void PrintCounter::initStats() {
   this->data = { 0, 0, 0, 0 };
 
   this->saveStats();
-  eeprom_write_byte((uint8_t*) this->addr, 0x16);
+  eeprom_write_byte((uint8_t *) this->address, 0x16);
 }
 
 void PrintCounter::loadStats() {
@@ -60,8 +60,8 @@ void PrintCounter::loadStats() {
   #endif
 
   // Checks if the EEPROM block is initialized
-  if (eeprom_read_byte((uint8_t*) this->addr) != 0x16) this->initStats();
-  else eeprom_read_block(&this->data, (void *)(this->addr + sizeof(uint8_t)), sizeof(printStatistics));
+  if (eeprom_read_byte((uint8_t *) this->address) != 0x16) this->initStats();
+  else eeprom_read_block(&this->data, (void *)(this->address + sizeof(uint8_t)), sizeof(printStatistics));
 
   this->loaded = true;
 }
@@ -74,7 +74,7 @@ void PrintCounter::saveStats() {
   // Refuses to save data is object is not loaded
   if (!this->isLoaded()) return;
 
-  eeprom_write_block(&this->data, (void *)(this->addr + sizeof(uint8_t)), sizeof(printStatistics));
+  eeprom_update_block(&this->data, (void *)(this->address + sizeof(uint8_t)), sizeof(printStatistics));
 }
 
 void PrintCounter::showStats() {
