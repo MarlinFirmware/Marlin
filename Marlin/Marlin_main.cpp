@@ -1,4 +1,4 @@
-/**
+filasme/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -6017,15 +6017,15 @@ inline void gcode_M503() {
    */
   inline void gcode_M600() {
 
-    // Show initial message and wait for synchronize steppers
-    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
-    st_synchronize();
-  
     if (degHotend(active_extruder) < extrude_min_temp) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
       return;
     }
+  
+    // Show initial message and wait for synchronize steppers
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
+    st_synchronize();
   
     float lastpos[NUM_AXIS];
   
@@ -6102,7 +6102,9 @@ inline void gcode_M503() {
     while (!lcd_clicked()) {
       millis_t ms = millis();
       if (ms >= next_tick) {
-        buzz(300, 2000);
+        #if HAS_BUZZER
+          buzz(300, 2000);
+        #endif
         next_tick = ms + 2500; // Beep every 2.5s while waiting
       }
       idle(true);
