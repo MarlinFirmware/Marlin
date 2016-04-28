@@ -192,7 +192,7 @@
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Cekejte prosim"
   #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "na vytlaceni"
   #define MSG_FILAMENT_CHANGE_EXTRUDE_3       "filamentu"
-  #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "Co dal?"
+  #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CO DAL?"
   #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Jeste vytlacit"
   #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Obnovit tisk"
   #define MSG_FILAMENT_CHANGE_RESUME_1        "Cekejte prosim"
