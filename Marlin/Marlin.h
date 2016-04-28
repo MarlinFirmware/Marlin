@@ -354,9 +354,9 @@ extern bool axis_homed[3]; // axis[n].is_homed
 
 #if ENABLED(FILAMENT_CHANGE_ENABLE)
   enum FilamentChangeMenuResponse {
-    FILAMENT_CHANGE_RESPONSE_WAIT_FOR = 0,
-    FILAMENT_CHANGE_RESPONSE_EXTRUDE_MORE = 1,
-    FILAMENT_CHANGE_RESPONSE_RESUME_PRINT = 2
+    FILAMENT_CHANGE_RESPONSE_WAIT_FOR,
+    FILAMENT_CHANGE_RESPONSE_EXTRUDE_MORE,
+    FILAMENT_CHANGE_RESPONSE_RESUME_PRINT
   };
   extern FilamentChangeMenuResponse filament_change_menu_response;
 #endif
