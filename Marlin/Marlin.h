@@ -65,7 +65,11 @@ typedef unsigned long millis_t;
 
 #include "WString.h"
 
-#include "stopwatch.h"
+#if ENABLED(PRINTCOUNTER)
+  #include "printcounter.h"
+#else
+  #include "stopwatch.h"
+#endif
 
 #ifdef USBCON
   #if ENABLED(BLUETOOTH)
@@ -364,7 +368,11 @@ extern bool axis_homed[3]; // axis[n].is_homed
 #endif
 
 // Print job timer
-extern Stopwatch print_job_timer;
+#if ENABLED(PRINTCOUNTER)
+  extern PrintCounter print_job_timer;
+#else
+  extern Stopwatch print_job_timer;
+#endif
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
