@@ -95,7 +95,7 @@
  *  363  M301 L        lpq_len (int)
  *
  * PIDTEMPBED:
- *  365  M304 PID  bedKp, bedKi, bedKd (float x3)
+ *  365  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
  *
  * DOGLCD:
  *  377  M250 C    lcd_contrast (int)
@@ -261,9 +261,9 @@ void Config_StoreSettings()  {
     #endif // !PIDTEMP
       {
         dummy = DUMMY_PID_VALUE; // When read, will not change the existing value
-        EEPROM_WRITE_VAR(i, dummy);
+        EEPROM_WRITE_VAR(i, dummy); // Kp
         dummy = 0.0f;
-        for (uint8_t q = 3; q--;) EEPROM_WRITE_VAR(i, dummy);
+        for (uint8_t q = 3; q--;) EEPROM_WRITE_VAR(i, dummy); // Ki, Kd, Kc
       }
 
   } // Extruders Loop
@@ -274,12 +274,13 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, lpq_len);
 
   #if DISABLED(PIDTEMPBED)
-    float bedKp = DUMMY_PID_VALUE, bedKi = DUMMY_PID_VALUE, bedKd = DUMMY_PID_VALUE;
+    dummy = DUMMY_PID_VALUE;
+    for (uint8_t q = 3; q--;) EEPROM_WRITE_VAR(i, dummy);
+  #else
+    EEPROM_WRITE_VAR(i, thermalManager.bedKp);
+    EEPROM_WRITE_VAR(i, thermalManager.bedKi);
+    EEPROM_WRITE_VAR(i, thermalManager.bedKd);
   #endif
-
-  EEPROM_WRITE_VAR(i, bedKp);
-  EEPROM_WRITE_VAR(i, bedKi);
-  EEPROM_WRITE_VAR(i, bedKd);
 
   #if DISABLED(HAS_LCD_CONTRAST)
     const int lcd_contrast = 32;
@@ -450,19 +451,16 @@ void Config_RetrieveSettings() {
     #endif
     EEPROM_READ_VAR(i, lpq_len);
 
-    #if DISABLED(PIDTEMPBED)
-      float bedKp, bedKi, bedKd;
+    #if ENABLED(PIDTEMPBED)
+      EEPROM_READ_VAR(i, dummy); // bedKp
+      if (dummy != DUMMY_PID_VALUE) {
+        thermalManager.bedKp = dummy;
+        EEPROM_READ_VAR(i, thermalManager.bedKi);
+        EEPROM_READ_VAR(i, thermalManager.bedKd);
+      }
+    #else
+      for (uint8_t q=3; q--;) EEPROM_READ_VAR(i, dummy); // bedKp, bedKi, bedKd
     #endif
-
-    EEPROM_READ_VAR(i, dummy); // bedKp
-    if (dummy != DUMMY_PID_VALUE) {
-      bedKp = dummy; UNUSED(bedKp);
-      EEPROM_READ_VAR(i, bedKi);
-      EEPROM_READ_VAR(i, bedKd);
-    }
-    else {
-      for (uint8_t q=2; q--;) EEPROM_READ_VAR(i, dummy); // bedKi, bedKd
-    }
 
     #if DISABLED(HAS_LCD_CONTRAST)
       int lcd_contrast;
@@ -502,8 +500,8 @@ void Config_RetrieveSettings() {
     }
 
     calculate_volumetric_multipliers();
-    // Call updatePID (similar to when we have processed M301)
-    updatePID();
+    // Call thermalManager.updatePID (similar to when we have processed M301)
+    thermalManager.updatePID();
 
     // Report settings retrieved and length
     SERIAL_ECHO_START;
@@ -602,14 +600,14 @@ void Config_ResetDefault() {
     #if ENABLED(PID_ADD_EXTRUSION_RATE)
       lpq_len = 20; // default last-position-queue size
     #endif
-    // call updatePID (similar to when we have processed M301)
-    updatePID();
+    // call thermalManager.updatePID (similar to when we have processed M301)
+    thermalManager.updatePID();
   #endif // PIDTEMP
 
   #if ENABLED(PIDTEMPBED)
-    bedKp = DEFAULT_bedKp;
-    bedKi = scalePID_i(DEFAULT_bedKi);
-    bedKd = scalePID_d(DEFAULT_bedKd);
+    thermalManager.bedKp = DEFAULT_bedKp;
+    thermalManager.bedKi = scalePID_i(DEFAULT_bedKi);
+    thermalManager.bedKd = scalePID_d(DEFAULT_bedKd);
   #endif
 
   #if ENABLED(FWRETRACT)
@@ -835,9 +833,9 @@ void Config_PrintSettings(bool forReplay) {
 
     #if ENABLED(PIDTEMPBED)
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M304 P", bedKp);
-      SERIAL_ECHOPAIR(" I", unscalePID_i(bedKi));
-      SERIAL_ECHOPAIR(" D", unscalePID_d(bedKd));
+      SERIAL_ECHOPAIR("  M304 P", thermalManager.bedKp);
+      SERIAL_ECHOPAIR(" I", unscalePID_i(thermalManager.bedKi));
+      SERIAL_ECHOPAIR(" D", unscalePID_d(thermalManager.bedKd));
       SERIAL_EOL;
     #endif
 
