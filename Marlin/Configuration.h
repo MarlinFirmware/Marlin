@@ -763,7 +763,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // When enabled Marlin will keep track of some print statistical data such as:
 //  - Total print jobs
-//  - Total successfull print jobs
+//  - Total successful print jobs
 //  - Total failed print jobs
 //  - Total time printing
 //
