@@ -847,7 +847,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 //
 // This option reverses the encoder direction for navigating LCD menus.
-// By default CLOCKWISE == DOWN. With this enabled CLOCKWISE == UP.
+//
+//  If CLOCKWISE normally moves DOWN this makes it go UP.
+//  If CLOCKWISE normally moves UP this makes it go DOWN.
 //
 //#define REVERSE_MENU_DIRECTION
 
