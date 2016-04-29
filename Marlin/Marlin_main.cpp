@@ -2092,7 +2092,7 @@ static void setup_for_endstop_move() {
     // this also updates current_position
     do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
-    #if DISABLED(Z_PROBE_SLED) && DISABLED(Z_PROBE_ALLEN_KEY)
+    #if DISABLED(Z_PROBE_SLED) && DISABLED(Z_PROBE_ALLEN_KEY) && DISABLED(FSR_BED_LEVELING)
       if (probe_action & ProbeDeploy) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> ProbeDeploy");
@@ -2104,7 +2104,7 @@ static void setup_for_endstop_move() {
     run_z_probe();
     float measured_z = current_position[Z_AXIS];
 
-    #if DISABLED(Z_PROBE_SLED) && DISABLED(Z_PROBE_ALLEN_KEY)
+    #if DISABLED(Z_PROBE_SLED) && DISABLED(Z_PROBE_ALLEN_KEY) && DISABLED(FSR_BED_LEVELING)
       if (probe_action & ProbeStow) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> ProbeStow (stow_z_probe will do Z Raise)");
@@ -3810,7 +3810,10 @@ inline void gcode_G28() {
       #if HAS_SERVO_ENDSTOPS
         raise_z_for_servo();
       #endif
-      deploy_z_probe(); // Engage Z Servo endstop if available. Z_PROBE_SLED is missed here.
+
+      #if DISABLED(FSR_BED_LEVELING)
+        deploy_z_probe(); // Engage Z Servo endstop if available. Z_PROBE_SLED is missed here.
+      #endif
 
       st_synchronize();
       // TODO: clear the leveling matrix or the planner will be set incorrectly
@@ -3832,7 +3835,10 @@ inline void gcode_G28() {
       #if HAS_SERVO_ENDSTOPS
         raise_z_for_servo();
       #endif
-      stow_z_probe(false); // Retract Z Servo endstop if available. Z_PROBE_SLED is missed here.
+
+      #if DISABLED(FSR_BED_LEVELING)
+        stow_z_probe(false); // Retract Z Servo endstop if available. Z_PROBE_SLED is missed here.
+      #endif
 
       gcode_M114(); // Send end position to RepetierHost
     }

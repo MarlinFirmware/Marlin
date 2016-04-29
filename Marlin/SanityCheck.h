@@ -236,7 +236,7 @@
     #if !PIN_EXISTS(Z_MIN_PROBE) || (DISABLED(Z_MIN_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z probe, but not enable it.
       #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
         #error You must have a Z_MIN or Z_PROBE endstop to enable Z_MIN_PROBE_REPEATABILITY_TEST.
-      #else
+      #elif DISABLED(FSR_BED_LEVELING)
         #error AUTO_BED_LEVELING_FEATURE requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin.
       #endif
     #endif
