@@ -304,7 +304,7 @@ void Planner::recalculate() {
     static float oldt = 0;
 
     if (!autotemp_enabled) return;
-    if (degTargetHotend0() + 2 < autotemp_min) return; // probably temperature set to zero.
+    if (thermalManager.degTargetHotend(0) + 2 < autotemp_min) return; // probably temperature set to zero.
 
     float high = 0.0;
     for (uint8_t b = block_buffer_tail; b != block_buffer_head; b = next_block_index(b)) {
@@ -322,7 +322,7 @@ void Planner::recalculate() {
       t += (AUTOTEMP_OLDWEIGHT) * oldt;
     }
     oldt = t;
-    setTargetHotend0(t);
+    thermalManager.setTargetHotend(t, 0);
   }
 
 #endif //AUTOTEMP
@@ -489,11 +489,12 @@ void Planner::check_axes_activity() {
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
-  long target[NUM_AXIS];
-  target[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]);
-  target[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]);
-  target[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]);
-  target[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
+  long target[NUM_AXIS] = {
+    lround(x * axis_steps_per_unit[X_AXIS]),
+    lround(y * axis_steps_per_unit[Y_AXIS]),
+    lround(z * axis_steps_per_unit[Z_AXIS]),
+    lround(e * axis_steps_per_unit[E_AXIS])
+  };
 
   long dx = target[X_AXIS] - position[X_AXIS],
        dy = target[Y_AXIS] - position[Y_AXIS],
@@ -507,7 +508,7 @@ void Planner::check_axes_activity() {
 
   #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
     if (de) {
-      if (degHotend(extruder) < extrude_min_temp) {
+      if (thermalManager.tooColdToExtrude(extruder)) {
         position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
         de = 0; // no difference
         SERIAL_ECHO_START;
@@ -788,7 +789,7 @@ void Planner::check_axes_activity() {
         // If the index has changed (must have gone forward)...
         if (filwidth_delay_index1 != filwidth_delay_index2) {
           filwidth_e_count = 0; // Reset the E movement counter
-          int8_t meas_sample = widthFil_to_size_ratio() - 100; // Subtract 100 to reduce magnitude - to store in a signed char
+          int8_t meas_sample = thermalManager.widthFil_to_size_ratio() - 100; // Subtract 100 to reduce magnitude - to store in a signed char
           do {
             filwidth_delay_index2 = (filwidth_delay_index2 + 1) % MMD_CM; // The next unused slot
             measurement_delay[filwidth_delay_index2] = meas_sample;       // Store the measurement

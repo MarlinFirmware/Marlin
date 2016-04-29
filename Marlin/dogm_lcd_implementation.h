@@ -294,13 +294,13 @@ FORCE_INLINE void _draw_heater_status(int x, int heater) {
     const bool isBed = false;
   #endif
 
-  _draw_centered_temp((isBed ? degTargetBed() : degTargetHotend(heater)) + 0.5, x, 7);
+  _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7);
 
-  _draw_centered_temp((isBed ? degBed() : degHotend(heater)) + 0.5, x, 28);
+  _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
 
   int h = isBed ? 7 : 8,
       y = isBed ? 18 : 17;
-  if (isBed ? isHeatingBed() : isHeatingHotend(heater)) {
+  if (isBed ? thermalManager.isHeatingBed() : thermalManager.isHeatingHotend(heater)) {
     u8g.setColorIndex(0); // white on black
     u8g.drawBox(x + h, y, 2, 2);
     u8g.setColorIndex(1); // black on white
