@@ -876,7 +876,8 @@ void setup() {
  *  - Call LCD update
  */
 void loop() {
-  if (commands_in_queue < BUFSIZE) get_available_commands();
+
+ if (commands_in_queue < BUFSIZE) get_available_commands();
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);
