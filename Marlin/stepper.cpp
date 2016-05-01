@@ -91,6 +91,24 @@ volatile static unsigned long step_events_completed; // The number of step event
   static long e_steps[4];
 #endif
 
+#ifdef LIN_ADVANCE
+volatile int e_steps = 0;
+static int final_estep_rate;
+static int current_estep_rate[EXTRUDERS]; //Actual extruder speed [steps/s]
+
+#if EXTRUDERS > 3
+  #define EXTRUDERS_ZERO 0, 0, 0, 0
+#elif EXTRUDERS > 2
+  #define EXTRUDERS_ZERO 0, 0, 0
+#elif EXTRUDERS > 1
+  #define EXTRUDERS_ZERO 0, 0
+#else
+  #define EXTRUDERS_ZERO 0
+#endif
+
+static int current_adv_steps[EXTRUDERS] = {EXTRUDERS_ZERO}; //The amount of current added esteps due to advance. Think of it as the current amount of pressure applied to the spring (=filament).
+#endif
+
 static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
 static unsigned short acc_step_rate; // needed for deceleration start point
@@ -638,6 +656,13 @@ FORCE_INLINE void trapezoid_generator_reset() {
   acc_step_rate = current_block->initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
   OCR1A = acceleration_time;
+  
+  #if ENABLED(LIN_ADVANCE)
+  if (current_block->use_advance_lead){
+    current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
+    final_estep_rate = (current_block->nominal_rate * current_block->e_speed_multiplier8) >> 8;
+  }
+  #endif
 
   // SERIAL_ECHO_START;
   // SERIAL_ECHOPGM("advance :");
@@ -707,6 +732,56 @@ ISR(TIMER1_COMPA_vect) {
       #ifndef USBCON
         customizedSerial.checkRx(); // Check for serial chars.
       #endif
+      
+      #if ENABLED(LIN_ADVANCE)
+         counter_e += current_block->steps[E_AXIS];
+         if (counter_e > 0) {
+           counter_e -= current_block->step_event_count;
+           count_position[_AXIS(E)] += count_direction[_AXIS(E)];
+           e_steps += TEST(out_bits, E_AXIS) ? -1 : 1;
+         }
+         
+         if (current_block->use_advance_lead){
+           int delta_adv_steps; //Maybe a char would be enough?
+           delta_adv_steps = (((long)extruder_advance_k * current_estep_rate[current_block->active_extruder]) >> 9) - current_adv_steps[current_block->active_extruder];
+           e_steps += delta_adv_steps;
+           current_adv_steps[current_block->active_extruder] += delta_adv_steps;
+         }
+   
+         #define STEP_E_ONCE(INDEX) \
+         E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
+         if (e_steps < 0) { \
+           E## INDEX ##_DIR_WRITE(INVERT_E## INDEX ##_DIR); \
+           e_steps++; \
+         } \
+         else if (e_steps > 0) { \
+           E## INDEX ##_DIR_WRITE(!INVERT_E## INDEX ##_DIR); \
+           e_steps--; \
+         } \
+         E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN);
+         
+        while (e_steps) {
+          #if EXTRUDERS > 3
+            switch(current_block->active_extruder){case 3:STEP_E_ONCE(3);break;case 2:STEP_E_ONCE(2);break;case 1:STEP_E_ONCE(1);break;default:STEP_E_ONCE(0);}
+          #elif EXTRUDERS > 2
+            switch(current_block->active_extruder){case 2:STEP_E_ONCE(2);break;case 1:STEP_E_ONCE(1);break;default:STEP_E_ONCE(0);}
+          #elif EXTRUDERS > 1
+            #if DISABLED(DUAL_X_CARRIAGE)
+              if(current_block->active_extruder == 1){STEP_E_ONCE(1)}else{STEP_E_ONCE(0);}
+            #else
+              extern bool extruder_duplication_enabled;
+              if(extruder_duplication_enabled){
+                STEP_E_ONCE(0);
+                STEP_E_ONCE(1);
+              }else {
+                if(current_block->active_extruder == 1){STEP_E_ONCE(1)}else{STEP_E_ONCE(0);}
+              }
+            #endif
+          #else
+            STEP_E_ONCE(0);
+          #endif
+        }
+      #endif //LIN_ADVANCE
 
       #if ENABLED(ADVANCE)
         counter_e += current_block->steps[E_AXIS];
@@ -727,7 +802,7 @@ ISR(TIMER1_COMPA_vect) {
       STEP_ADD(x,X);
       STEP_ADD(y,Y);
       STEP_ADD(z,Z);
-      #if DISABLED(ADVANCE)
+      #if (DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE))
         STEP_ADD(e,E);
       #endif
 
@@ -741,7 +816,7 @@ ISR(TIMER1_COMPA_vect) {
       STEP_IF_COUNTER(x, X);
       STEP_IF_COUNTER(y, Y);
       STEP_IF_COUNTER(z, Z);
-      #if DISABLED(ADVANCE)
+      #if (DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE))
         STEP_IF_COUNTER(e, E);
       #endif
 
@@ -774,6 +849,11 @@ ISR(TIMER1_COMPA_vect) {
         old_advance = advance >> 8;
 
       #endif //ADVANCE
+      #if ENABLED(LIN_ADVANCE)
+         if (current_block->use_advance_lead){
+           current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
+         }
+      #endif
     }
     else if (step_events_completed > (unsigned long)current_block->decelerate_after) {
       MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
@@ -799,8 +879,19 @@ ISR(TIMER1_COMPA_vect) {
         e_steps[current_block->active_extruder] += advance_whole - old_advance;
         old_advance = advance_whole;
       #endif //ADVANCE
+      
+      #if ENABLED(LIN_ADVANCE)
+         if (current_block->use_advance_lead){
+           current_estep_rate[current_block->active_extruder] = ((unsigned long)step_rate * current_block->e_speed_multiplier8) >> 8;
+         }
+      #endif
     }
     else {
+      #ifdef LIN_ADVANCE
+         if (current_block->use_advance_lead){
+           current_estep_rate[current_block->active_extruder] = final_estep_rate;
+         }
+      #endif 
       OCR1A = OCR1A_nominal;
       // ensure we're running at the correct step rate, even if we just came off an acceleration
       step_loops = step_loops_nominal;
