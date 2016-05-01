@@ -58,6 +58,10 @@ typedef struct {
   long steps[NUM_AXIS];                     // Step count along each axis
   unsigned long step_event_count;           // The number of step events required to complete this block
 
+  #if ENABLED(MIXING_EXTRUDER)
+    unsigned long mix_event_count[MIXING_STEPPERS]; // Scaled step_event_count for the mixing steppers
+  #endif
+
   long accelerate_until,                    // The index of the step event on which to stop acceleration
        decelerate_after,                    // The index of the step event on which to start decelerating
        acceleration_rate;                   // The acceleration rate used for acceleration calculation

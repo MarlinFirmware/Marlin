@@ -471,15 +471,15 @@
 /**
  * Mixing Extruder requirements
  */
-#if ENABLED(MIXING_EXTRUDER_FEATURE)
+#if ENABLED(MIXING_EXTRUDER)
   #if EXTRUDERS > 1
-    #error MIXING_EXTRUDER_FEATURE currently only supports one extruder.
+    #error "MIXING_EXTRUDER currently only supports one extruder."
   #endif
   #if MIXING_STEPPERS < 2
-    #error You must set MIXING_STEPPERS >= 2 for a mixing extruder.
+    #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
   #endif
   #if ENABLED(FILAMENT_SENSOR)
-    #error MIXING_EXTRUDER_FEATURE is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway.
+    #error "MIXING_EXTRUDER is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway."
   #endif
 #endif
 

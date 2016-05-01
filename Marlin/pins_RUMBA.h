@@ -28,8 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if EXTRUDERS > 3 || HOTENDS > 3
-  #error "RUMBA supports up to 3 extruders. Comment this line to keep going."
+#if EXTRUDERS > 3 || MIXING_STEPPERS > 3
+  #error "RUMBA supports up to 3 extruders / E-steppers. Comment this line to keep going."
 #endif
 
 #define DEFAULT_MACHINE_NAME "Rumba"

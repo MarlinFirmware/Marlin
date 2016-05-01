@@ -28,8 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if EXTRUDERS > 2 || HOTENDS > 2
-  #error "Mega Controller supports up to 2 extruders. Comment this line to keep going."
+#if EXTRUDERS > 2 || MIXING_STEPPERS > 2
+  #error "Mega Controller supports up to 2 extruders / E-steppers. Comment this line to keep going."
 #endif
 
 #define SERVO0_PIN 30

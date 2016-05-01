@@ -181,6 +181,9 @@
  * M145 - Set the heatup state H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units
  * M150 - Set BlinkM Color Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
+ * M163 - Set a single proportion for a mixing extruder. Requires MIXING_EXTRUDER.
+ * M164 - Save the mix as a virtual extruder. Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS.
+ * M165 - Set the proportions for a mixing extruder. Use parameters ABCDHI to set the mixing factors. Requires MIXING_EXTRUDER.
  * M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
  * M200 - set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).:D<millimeters>-
@@ -488,6 +491,13 @@ static uint8_t target_extruder;
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   static bool filament_ran_out = false;
+#endif
+
+#if ENABLED(MIXING_EXTRUDER)
+  float mixing_factor[MIXING_STEPPERS];
+  #if MIXING_VIRTUAL_TOOLS > 1
+    float mixing_virtual_tool_mix[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
+  #endif
 #endif
 
 static bool send_ok[BUFSIZE];
@@ -927,6 +937,15 @@ void setup() {
       bootscreen();
       lcd_init();
     #endif
+  #endif
+
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+    // Initialize mixing to 100% color 1
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+      mixing_factor[i] = (i == 0) ? 1 : 0;
+    for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
+      for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+        mixing_virtual_tool_mix[t][i] = mixing_factor[i];
   #endif
 }
 
@@ -2512,6 +2531,37 @@ static void homeaxis(AxisEnum axis) {
 
 #endif // FWRETRACT
 
+#if ENABLED(MIXING_EXTRUDER)
+
+  void normalize_mix() {
+    float mix_total = 0.0;
+    for (int i = 0; i < MIXING_STEPPERS; i++) {
+      float v = mixing_factor[i];
+      if (v < 0) v = mixing_factor[i] = 0;
+      mix_total += v;
+    }
+    // Scale all values if they don't add up to ~1.0
+    if (mix_total < 0.9999 || mix_total > 1.0001) {
+      SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
+      float mix_scale = 1.0 / mix_total;
+      for (int i = 0; i < MIXING_STEPPERS; i++)
+        mixing_factor[i] *= mix_scale;
+    }
+  }
+
+  // Get mixing parameters from the GCode
+  // Factors that are left out are set to 0
+  // The total "must" be 1.0 (but it will be normalized)
+  void gcode_get_mix() {
+    const char* mixing_codes = "ABCDHI";
+    for (int i = 0; i < MIXING_STEPPERS; i++)
+      mixing_factor[i] = code_seen(mixing_codes[i]) ? code_value_float() : 0;
+
+    normalize_mix();
+  }
+
+#endif
+
 /**
  * ***************************************************************************
  * ***************************** G-CODE HANDLING *****************************
@@ -2536,6 +2586,10 @@ void gcode_get_destination() {
     float next_feedrate = code_value_linear_units();
     if (next_feedrate > 0.0) feedrate = next_feedrate;
   }
+  // Get ABCDHI mixing factors
+  #if ENABLED(MIXING_EXTRUDER) && ENABLED(DIRECT_MIXING_IN_G1)
+    gcode_get_mix();
+  #endif
 }
 
 void unknown_command_error() {
@@ -4658,6 +4712,8 @@ inline void gcode_M109() {
 
     KEEPALIVE_STATE(NOT_BUSY);
 
+    target_extruder = active_extruder; // for print_heaterstates
+
     do {
       // Target temperature might be changed during the loop
       if (theTarget != thermalManager.degTargetBed()) {
@@ -6410,6 +6466,58 @@ inline void gcode_M907() {
 
 #endif // HAS_MICROSTEPS
 
+#if ENABLED(MIXING_EXTRUDER)
+
+  /**
+   * M163: Set a single mix factor for a mixing extruder
+   *       This is called "weight" by some systems.
+   *
+   *   S[index]   The channel index to set
+   *   P[float]   The mix value
+   *
+   */
+  inline void gcode_M163() {
+    int mix_index = code_seen('S') ? code_value_int() : 0;
+    float mix_value = code_seen('P') ? code_value_float() : 0.0;
+    if (mix_index < MIXING_STEPPERS) mixing_factor[mix_index] = mix_value;
+  }
+
+  #if MIXING_VIRTUAL_TOOLS > 1
+
+    /**
+     * M164: Store the current mix factors as a virtual tool.
+     *
+     *   S[index]   The virtual tool to store
+     *
+     */
+    inline void gcode_M164() {
+      int tool_index = code_seen('S') ? code_value_int() : 0;
+      if (tool_index < MIXING_VIRTUAL_TOOLS) {
+        normalize_mix();
+        for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+          mixing_virtual_tool_mix[tool_index][i] = mixing_factor[i];
+      }
+    }
+
+  #endif
+
+  /**
+   * M165: Set multiple mix factors for a mixing extruder.
+   *       Factors that are left out will be set to 0.
+   *       All factors together must add up to 1.0.
+   *
+   *   A[factor] Mix factor for extruder stepper 1
+   *   B[factor] Mix factor for extruder stepper 2
+   *   C[factor] Mix factor for extruder stepper 3
+   *   D[factor] Mix factor for extruder stepper 4
+   *   H[factor] Mix factor for extruder stepper 5
+   *   I[factor] Mix factor for extruder stepper 6
+   *
+   */
+  inline void gcode_M165() { gcode_get_mix(); }
+
+#endif // MIXING_EXTRUDER
+
 /**
  * M999: Restart after being stopped
  *
@@ -6430,6 +6538,13 @@ inline void gcode_M999() {
   FlushSerialRequestResend();
 }
 
+inline void invalid_extruder_error(const uint8_t &e) {
+  SERIAL_ECHO_START;
+  SERIAL_CHAR('T');
+  SERIAL_PROTOCOL_F(e, DEC);
+  SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+}
+
 /**
  * T0-T3: Switch tool, usually switching extruders
  *
@@ -6437,15 +6552,26 @@ inline void gcode_M999() {
  *   S1        Don't move the tool in XY after change
  */
 inline void gcode_T(uint8_t tmp_extruder) {
-  if (tmp_extruder >= EXTRUDERS) {
-    SERIAL_ECHO_START;
-    SERIAL_CHAR('T');
-    SERIAL_PROTOCOL_F(tmp_extruder, DEC);
-    SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
-    return;
-  }
+
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+
+    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS) {
+      invalid_extruder_error(tmp_extruder);
+      return;
+    }
+
+    // T0-Tnnn: Switch virtual tool by changing the mix
+    for (uint8_t j = 0; j < MIXING_STEPPERS; j++)
+      mixing_factor[j] = mixing_virtual_tool_mix[tmp_extruder][j];
+
+  #else //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 
   #if HOTENDS > 1
+
+    if (tmp_extruder >= EXTRUDERS) {
+      invalid_extruder_error(tmp_extruder);
+      return;
+    }
 
     float stored_feedrate = feedrate;
 
@@ -6609,16 +6735,18 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
     feedrate = stored_feedrate;
 
-  #else // !HOTENDS > 1
+  #else // HOTENDS <= 1
 
     // Set the new active extruder
     active_extruder = tmp_extruder;
 
-  #endif
+  #endif // HOTENDS <= 1
 
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM(MSG_ACTIVE_EXTRUDER);
   SERIAL_PROTOCOLLN((int)active_extruder);
+
+  #endif //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 }
 
 /**
@@ -7011,6 +7139,20 @@ void process_next_command() {
           break;
 
       #endif //EXPERIMENTAL_I2CBUS
+
+      #if ENABLED(MIXING_EXTRUDER)
+        case 163: // M163 S<int> P<float> set weight for a mixing extruder
+          gcode_M163();
+          break;
+        #if MIXING_VIRTUAL_TOOLS > 1
+          case 164: // M164 S<int> save current mix as a virtual extruder
+            gcode_M164();
+            break;
+        #endif
+        case 165: // M165 [ABCDHI]<float> set multiple mix weights
+          gcode_M165();
+          break;
+      #endif
 
       case 200: // M200 D<millimeters> set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
         gcode_M200();
