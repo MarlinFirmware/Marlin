@@ -79,6 +79,10 @@ extern float current_temperature_bed;
   extern unsigned char soft_pwm_bed;
 #endif
 
+#if ENABLED(FAN_SOFT_PWM)
+  extern unsigned char fanSpeedSoftPwm[FAN_COUNT];
+#endif
+
 #if ENABLED(PIDTEMP)
 
   #if ENABLED(PID_PARAMS_PER_EXTRUDER)
@@ -178,9 +182,9 @@ void checkExtruderAutoFans();
 
 FORCE_INLINE void autotempShutdown() {
   #if ENABLED(AUTOTEMP)
-    if (autotemp_enabled) {
-      autotemp_enabled = false;
-      if (degTargetHotend(active_extruder) > autotemp_min)
+    if (planner.autotemp_enabled) {
+      planner.autotemp_enabled = false;
+      if (degTargetHotend(active_extruder) > planner.autotemp_min)
         setTargetHotend(0, active_extruder);
     }
   #endif
