@@ -28,6 +28,8 @@
 
 #undef FAN_PIN
 #define FAN_PIN             6 //Part Cooling System
+
+#undef BEEPER_PIN
 #define BEEPER_PIN         33
 #define CONTROLLERFAN_PIN   4 //Pin used for the fan to cool motherboard (-1 to disable)
 //Fans/Water Pump to cool the hotend cool side.
@@ -55,7 +57,8 @@
   #define Z_MIN_PIN        19
   #define Z_MAX_PIN        18
 #endif
-//
+
+
 #if ENABLED(Z_MIN_PROBE_ENDSTOP)
   //#undef Z_MIN_PIN
   //#define Z_MIN_PIN        15
@@ -95,10 +98,11 @@
 #define TC2                 5   // ANALOG NUMBERING Thermo couple on Azteeg X3Pro
 
 //
-//These Servo pins are for when they are defined. Tested for usage with bed leveling
-//on a Delta with 1 servo. Running through the Z servo endstop in code.
-//Physical wire attachment was done on EXT1 on the GND, 5V, and D47 pins.
+// These Servo pins are for when they are defined. Tested for usage with bed leveling
+// on a Delta with 1 servo. Running through the Z servo endstop in code.
+// Physical wire attachment was done on EXT1 on the GND, 5V, and D47 pins.
 //
+#undef SERVO0_PIN
 #define SERVO0_PIN         47
 
 //LCD Pins//

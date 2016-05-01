@@ -60,4 +60,6 @@
 #define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
 
+#define NOOP do{}while(0)
+
 #endif //__MACROS_H
