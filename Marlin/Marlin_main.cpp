@@ -6053,12 +6053,14 @@ inline void gcode_M503() {
     // Lift Z axis
     if (code_seen('Z')) destination[Z_AXIS] += code_value();
       #ifdef FILAMENT_CHANGE_Z_ADD
-        else destination[Z_AXIS] += FILAMENT_CHANGE_Z_ADD;
+        else {
+          if (destination[Z_AXIS] + FILAMENT_CHANGE_Z_ADD > Z_MAX_POS)
+            destination[Z_AXIS] = Z_MAX_POS;
+          else
+            destination[Z_AXIS] += FILAMENT_CHANGE_Z_ADD;
+        }
       #endif
-    // RUNPLAN;
     #if ENABLED(DELTA)
-      // calculate_delta(destination);
-      // plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE * 60, active_extruder);
       RUNPLAN;
     #else
       line_to_destination(FILAMENT_CHANGE_Z_FEEDRATE * 60);
