@@ -469,6 +469,21 @@
 #endif // DUAL_X_CARRIAGE
 
 /**
+ * Mixing Extruder requirements
+ */
+#if ENABLED(MIXING_EXTRUDER_FEATURE)
+  #if EXTRUDERS > 1
+    #error MIXING_EXTRUDER_FEATURE currently only supports one extruder.
+  #endif
+  #if MIXING_STEPPERS < 2
+    #error You must set MIXING_STEPPERS >= 2 for a mixing extruder.
+  #endif
+  #if ENABLED(FILAMENT_SENSOR)
+    #error MIXING_EXTRUDER_FEATURE is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway.
+  #endif
+#endif
+
+/**
  * Make sure auto fan pins don't conflict with the fan pin
  */
 #if HAS_AUTO_FAN
