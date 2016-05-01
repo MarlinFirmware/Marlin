@@ -4463,15 +4463,6 @@ inline void gcode_M109() {
     if (code_seen('B')) autotemp_max = code_value();
   #endif
 
-  bool wants_to_cool = isCoolingHotend(target_extruder);
-
-  // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
-  if (no_wait_for_cooling && wants_to_cool) return;
-
-  // Prevents a wait-forever situation if R is misused i.e. M109 R0
-  // Try to calculate a ballpark safe margin by halving EXTRUDE_MINTEMP
-  if (wants_to_cool && degTargetHotend(target_extruder) < (EXTRUDE_MINTEMP)/2) return;
-
   #if TEMP_RESIDENCY_TIME > 0
     millis_t residency_start_ms = 0;
     // Loop until the temperature has stabilized
@@ -4481,11 +4472,15 @@ inline void gcode_M109() {
     #define TEMP_CONDITIONS (wants_to_cool ? isCoolingHotend(target_extruder) : isHeatingHotend(target_extruder))
   #endif //TEMP_RESIDENCY_TIME > 0
 
-  KEEPALIVE_STATE(NOT_BUSY);
-
+  float theTarget = -1;
+  bool wants_to_cool;
   cancel_heatup = false;
   millis_t now, next_temp_ms = 0;
+
+  KEEPALIVE_STATE(NOT_BUSY);
+
   do {
+
     now = millis();
     if (ELAPSED(now, next_temp_ms)) { //Print temp & remaining time every 1s while waiting
       next_temp_ms = now + 1000UL;
@@ -4506,12 +4501,25 @@ inline void gcode_M109() {
       #endif
     }
 
+    // Target temperature might be changed during the loop
+    if (theTarget != degTargetHotend(target_extruder)) {
+      theTarget = degTargetHotend(target_extruder);
+      wants_to_cool = isCoolingHotend(target_extruder);
+
+      // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
+      if (no_wait_for_cooling && wants_to_cool) break;
+
+      // Prevent a wait-forever situation if R is misused i.e. M109 R0
+      // Try to calculate a ballpark safe margin by halving EXTRUDE_MINTEMP
+      if (wants_to_cool && theTarget < (EXTRUDE_MINTEMP)/2) break;
+    }
+
     idle();
     refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
     #if TEMP_RESIDENCY_TIME > 0
 
-      float temp_diff = fabs(degTargetHotend(target_extruder) - degHotend(target_extruder));
+      float temp_diff = fabs(theTarget - degHotend(target_extruder));
 
       if (!residency_start_ms) {
         // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -4543,11 +4551,6 @@ inline void gcode_M109() {
     bool no_wait_for_cooling = code_seen('S');
     if (no_wait_for_cooling || code_seen('R')) setTargetBed(code_value());
 
-    bool wants_to_cool = isCoolingBed();
-
-    // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
-    if (no_wait_for_cooling && wants_to_cool) return;
-
     #if TEMP_BED_RESIDENCY_TIME > 0
       millis_t residency_start_ms = 0;
       // Loop until the temperature has stabilized
@@ -4557,11 +4560,13 @@ inline void gcode_M109() {
       #define TEMP_BED_CONDITIONS (wants_to_cool ? isCoolingBed() : isHeatingBed())
     #endif //TEMP_BED_RESIDENCY_TIME > 0
 
+    float theTarget = -1;
+    bool wants_to_cool;
     cancel_heatup = false;
     millis_t now, next_temp_ms = 0;
 
-    // Wait for temperature to come close enough
     KEEPALIVE_STATE(NOT_BUSY);
+
     do {
       now = millis();
       if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
@@ -4579,6 +4584,19 @@ inline void gcode_M109() {
         #else
           SERIAL_EOL;
         #endif
+      }
+
+      // Target temperature might be changed during the loop
+      if (theTarget != degTargetBed()) {
+        theTarget = degTargetBed();
+        wants_to_cool = isCoolingBed();
+
+        // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
+        if (no_wait_for_cooling && wants_to_cool) break;
+
+        // Prevent a wait-forever situation if R is misused i.e. M190 R0
+        // Simply don't wait for cooling below 30C
+        if (wants_to_cool && theTarget < (EXTRUDE_MINTEMP)/2) break;
       }
 
       idle();
