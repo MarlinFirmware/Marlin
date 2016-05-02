@@ -672,6 +672,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
+
 // @section movement
 
 /**
@@ -973,6 +974,12 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 #define REPRAPWORLD_KEYPAD
 #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
+
+//
+// RigidBot Panel V1.0
+// http://www.inventapart.com/
+//
+//#define RIGIDBOT_PANEL
 
 //
 // BQ LCD Smart Controller shipped by
