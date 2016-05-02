@@ -1,12 +1,36 @@
 #!/usr/bin/env bash
 # generate_version_header_for_marlin
 
-DIR="$1" export DIR
-OUTFILE="$2" export OUTFILE
+DIR="$1"
+OUTFILE="$2"
 
-BUILDATE=$(date '+"%s"')
-DISTDATE=$(date '+"%Y-%m-%d %H:%M"')
+BUILDATE=$(date '+%s')
+DISTDATE=$(date '+%Y-%m-%d %H:%M')
 
+BRANCH=$(git -C "${DIR}" symbolic-ref -q --short HEAD)
+VERSION=$(git -C "${DIR}" describe --tags --first-parent 2>/dev/null)
+
+# Voodoo version tag generator
+if [ -z "${VERSION}" ]; then
+  VERSION=$(git -C "${DIR}" describe --tags --first-parent --always 2>/dev/null)
+  SHORT_BUILD_VERSION=$(echo "${VERSION}" | sed "s/-.*/${BRANCH}/")
+  DETAILED_BUILD_VERSION=$(echo "${VERSION}" | sed "s/-/${BRANCH}-/")
+else
+  SHORT_BUILD_VERSION=$(echo "${BRANCH}")
+  DETAILED_BUILD_VERSION=$(echo "${BRANCH}-${VERSION}")
+fi
+
+# Gets some misc options from their defaults
+DEFAULT_MACHINE_UUID=$(awk -F'"' \
+  '/#define DEFAULT_MACHINE_UUID/{ print $2 }' < "${DIR}/Version.h")
+MACHINE_NAME=$(awk -F'"' \
+  '/#define MACHINE_NAME/{ print $2 }' < "${DIR}/Version.h")
+PROTOCOL_VERSION=$(awk -F'"' \
+  '/#define PROTOCOL_VERSION/{ print $2 }' < "${DIR}/Version.h")
+SOURCE_CODE_URL=$(awk -F'"' \
+  '/#define SOURCE_CODE_URL/{ print $2 }' < "${DIR}/Version.h")
+WEBSITE_URL=$(awk -F'"' \
+  '/#define WEBSITE_URL/{ print $2 }' < "${DIR}/Version.h")
 
 cat > "$OUTFILE" <<EOF
 /**
@@ -14,34 +38,15 @@ cat > "$OUTFILE" <<EOF
  * IT DOES NOT GET COMMITTED TO THE REPOSITORY.
  */
 
-#define BUILD_UNIX_DATETIME ${BUILDATE}
-#define STRING_DISTRIBUTION_DATE ${DISTDATE}
-#define PROTOCOL_VERSION "1.0"
-#define MACHINE_NAME "Travis CI"
-#define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
-#define DEFAULT_MACHINE_UUID "3442baa1-08ee-435b-8a10-99d185bd43b8"
-#define WEBSITE_URL "http://marlinfw.org"
+#define BUILD_UNIX_DATETIME "${BUILDATE}"
+#define STRING_DISTRIBUTION_DATE "${DISTDATE}"
+
+#define SHORT_BUILD_VERSION "${SHORT_BUILD_VERSION}"
+#define DETAILED_BUILD_VERSION "${DETAILED_BUILD_VERSION}"
+
+#define PROTOCOL_VERSION "${PROTOCOL_VERSION}"
+#define MACHINE_NAME "${MACHINE_NAME}"
+#define SOURCE_CODE_URL "${SOURCE_CODE_URL}"
+#define DEFAULT_MACHINE_UUID "${DEFAULT_MACHINE_UUID}"
+#define WEBSITE_URL "${WEBSITE_URL}"
 EOF
-
-( set +e
-  cd "$DIR"
-
-  BRANCH=`git symbolic-ref -q --short HEAD`
-  if [ "x$BRANCH" == "x" ] ; then
-    BRANCH=""
-  elif [ "x$BRANCH" == "xDevelopment" ] ; then
-    BRANCH=" dev"
-  else
-    BRANCH=" $BRANCH"
-  fi
-
-  VERSION=`git describe --tags --first-parent 2>/dev/null`
-  if [ "x$VERSION" != "x" ] ; then
-    echo "#define SHORT_BUILD_VERSION \"$VERSION\"" | sed "s/-.*/$BRANCH\"/" >>"$OUTFILE"
-    echo "#define DETAILED_BUILD_VERSION \"$VERSION\"" | sed "s/-/$BRANCH-/" >>"$OUTFILE"
-  else
-    VERSION=`git describe --tags --first-parent --always 2>/dev/null`
-    echo "#define SHORT_BUILD_VERSION \"$BRANCH\"" >>"$OUTFILE"
-    echo "#define DETAILED_BUILD_VERSION \"${BRANCH}-$VERSION\"" >>"$OUTFILE"
-  fi
-)
