@@ -6359,7 +6359,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
             }
           #endif
 
-          offset_vec.apply_rotation(plan_bed_level_matrix.transpose(plan_bed_level_matrix));
+          offset_vec.apply_rotation(planner.bed_level_matrix.transpose(planner.bed_level_matrix));
 
           current_position[X_AXIS] += offset_vec.x;
           current_position[Y_AXIS] += offset_vec.y;
@@ -7069,7 +7069,7 @@ void ok_to_send() {
       while (NUMERIC_SIGNED(*p))
         SERIAL_ECHO(*p++);
     }
-    SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(int(BLOCK_BUFFER_SIZE - movesplanned() - 1));
+    SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(int(BLOCK_BUFFER_SIZE - planner.movesplanned() - 1));
     SERIAL_PROTOCOLPGM(" B"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
   #endif
   SERIAL_EOL;
