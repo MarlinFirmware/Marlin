@@ -274,9 +274,10 @@
 // so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
 #define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
 
-//#define PID_BED_DEBUG // Sends debug data to the serial port.
-
 #if ENABLED(PIDTEMPBED)
+
+  //#define PID_BED_DEBUG // Sends debug data to the serial port.
+
   // Felix Foil Heater
   #define DEFAULT_bedKp 103.37
   #define DEFAULT_bedKi 2.79
@@ -651,6 +652,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
+
 // @section movement
 
 /**
@@ -735,6 +737,19 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define ABS_PREHEAT_HOTEND_TEMP 240
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+
+
+//
+// Print Counter
+//
+// When enabled Marlin will keep track of some print statistical data such as:
+//  - Total print jobs
+//  - Total successful print jobs
+//  - Total failed print jobs
+//  - Total time printing
+//
+// This information can be viewed by the M78 command.
+//#define PRINTCOUNTER
 
 //=============================================================================
 //============================= LCD and SD support ============================
