@@ -1025,18 +1025,18 @@ void Planner::check_axes_activity() {
    * On CORE machines XYZ is derived from ABC.
    */
   vector_3 Planner::adjusted_position() {
-    vector_3 position = vector_3(stepper.get_axis_position_mm(X_AXIS), stepper.get_axis_position_mm(Y_AXIS), stepper.get_axis_position_mm(Z_AXIS));
+    vector_3 pos = vector_3(stepper.get_axis_position_mm(X_AXIS), stepper.get_axis_position_mm(Y_AXIS), stepper.get_axis_position_mm(Z_AXIS));
 
-    //position.debug("in Planner::position");
-    //bed_level_matrix.debug("in Planner::position");
+    //pos.debug("in Planner::adjusted_position");
+    //bed_level_matrix.debug("in Planner::adjusted_position");
 
     matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
     //inverse.debug("in Planner::inverse");
 
-    position.apply_rotation(inverse);
-    //position.debug("after rotation");
+    pos.apply_rotation(inverse);
+    //pos.debug("after rotation");
 
-    return position;
+    return pos;
   }
 
 #endif // AUTO_BED_LEVELING_FEATURE && !DELTA
