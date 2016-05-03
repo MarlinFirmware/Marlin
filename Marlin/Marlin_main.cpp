@@ -5933,7 +5933,7 @@ inline void gcode_M503() {
    * M540: Set whether SD card print should abort on endstop hit (M540 S<0|1>)
    */
   inline void gcode_M540() {
-    if (code_seen('S')) abort_on_endstop_hit = (code_value() > 0);
+    if (code_seen('S')) stepper.abort_on_endstop_hit = (code_value() > 0);
   }
 
 #endif // ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
@@ -6166,18 +6166,18 @@ inline void gcode_M503() {
 inline void gcode_M907() {
   #if HAS_DIGIPOTSS
     for (int i = 0; i < NUM_AXIS; i++)
-      if (code_seen(axis_codes[i])) digipot_current(i, code_value());
-    if (code_seen('B')) digipot_current(4, code_value());
-    if (code_seen('S')) for (int i = 0; i <= 4; i++) digipot_current(i, code_value());
+      if (code_seen(axis_codes[i])) stepper.digipot_current(i, code_value());
+    if (code_seen('B')) stepper.digipot_current(4, code_value());
+    if (code_seen('S')) for (int i = 0; i <= 4; i++) stepper.digipot_current(i, code_value());
   #endif
   #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-    if (code_seen('X')) digipot_current(0, code_value());
+    if (code_seen('X')) stepper.digipot_current(0, code_value());
   #endif
   #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-    if (code_seen('Z')) digipot_current(1, code_value());
+    if (code_seen('Z')) stepper.digipot_current(1, code_value());
   #endif
   #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-    if (code_seen('E')) digipot_current(2, code_value());
+    if (code_seen('E')) stepper.digipot_current(2, code_value());
   #endif
   #if ENABLED(DIGIPOT_I2C)
     // this one uses actual amps in floating point
@@ -6201,7 +6201,7 @@ inline void gcode_M907() {
    */
   inline void gcode_M908() {
     #if HAS_DIGIPOTSS
-      digitalPotWrite(
+      stepper.digitalPotWrite(
         code_seen('P') ? code_value() : 0,
         code_seen('S') ? code_value() : 0
       );
@@ -6228,10 +6228,10 @@ inline void gcode_M907() {
 
   // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
   inline void gcode_M350() {
-    if (code_seen('S')) for (int i = 0; i <= 4; i++) microstep_mode(i, code_value());
-    for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) microstep_mode(i, (uint8_t)code_value());
-    if (code_seen('B')) microstep_mode(4, code_value());
-    microstep_readings();
+    if (code_seen('S')) for (int i = 0; i <= 4; i++) stepper.microstep_mode(i, code_value());
+    for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) stepper.microstep_mode(i, (uint8_t)code_value());
+    if (code_seen('B')) stepper.microstep_mode(4, code_value());
+    stepper.microstep_readings();
   }
 
   /**
@@ -6241,15 +6241,15 @@ inline void gcode_M907() {
   inline void gcode_M351() {
     if (code_seen('S')) switch (code_value_short()) {
       case 1:
-        for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) microstep_ms(i, code_value(), -1);
-        if (code_seen('B')) microstep_ms(4, code_value(), -1);
+        for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) stepper.microstep_ms(i, code_value(), -1);
+        if (code_seen('B')) stepper.microstep_ms(4, code_value(), -1);
         break;
       case 2:
-        for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) microstep_ms(i, -1, code_value());
-        if (code_seen('B')) microstep_ms(4, -1, code_value());
+        for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) stepper.microstep_ms(i, -1, code_value());
+        if (code_seen('B')) stepper.microstep_ms(4, -1, code_value());
         break;
     }
-    microstep_readings();
+    stepper.microstep_readings();
   }
 
 #endif // HAS_MICROSTEPS

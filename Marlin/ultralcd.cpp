@@ -1674,7 +1674,7 @@ static void lcd_control_motion_menu() {
   #endif
   MENU_ITEM_EDIT(float51, MSG_ESTEPS, &planner.axis_steps_per_unit[E_AXIS], 5, 9999);
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-    MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &abort_on_endstop_hit);
+    MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &stepper.abort_on_endstop_hit);
   #endif
   #if ENABLED(SCARA)
     MENU_ITEM_EDIT(float74, MSG_XSCALE, &axis_scaling[X_AXIS], 0.5, 2);
