@@ -220,6 +220,7 @@ class Stepper {
     #endif
     void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2);
     void digipot_current(uint8_t driver, int current);
+    void microstep_mode(uint8_t driver, uint8_t stepping);
     void microstep_readings();
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -324,7 +325,6 @@ class Stepper {
     }
 
   private:
-    void microstep_mode(uint8_t driver, uint8_t stepping);
     void digipot_init();
     void microstep_init();
 
