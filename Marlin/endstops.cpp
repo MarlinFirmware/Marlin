@@ -25,7 +25,9 @@
  */
 
 #include "Marlin.h"
+#include "cardreader.h"
 #include "endstops.h"
+#include "temperature.h"
 #include "stepper.h"
 #include "ultralcd.h"
 
@@ -147,7 +149,7 @@ void Endstops::report_state() {
     hit_on_purpose();
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && ENABLED(SDSUPPORT)
-      if (abort_on_endstop_hit) {
+      if (stepper.abort_on_endstop_hit) {
         card.sdprinting = false;
         card.closefile();
         stepper.quick_stop();
