@@ -2042,10 +2042,16 @@ void lcd_init() {
       WRITE(SHIFT_LD, HIGH);
     #endif
 
-    #ifdef RIGIDBOT_PANEL
+    #if BUTTON_EXISTS(UP)
       SET_INPUT(BTN_UP);
+    #endif
+    #if BUTTON_EXISTS(DWN)
       SET_INPUT(BTN_DWN);
+    #endif
+    #if BUTTON_EXISTS(LFT)
       SET_INPUT(BTN_LFT);
+    #endif
+    #if BUTTON_EXISTS(RT)
       SET_INPUT(BTN_RT);
     #endif
 
@@ -2425,32 +2431,46 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       #if BUTTON_EXISTS(EN2)
         if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
       #endif
-      #if ENABLED(RIGIDBOT_PANEL) || BUTTON_EXISTS(ENC)
+      #if LCD_HAS_DIRECTIONAL_BUTTONS || BUTTON_EXISTS(ENC)
         millis_t now = millis();
       #endif
-      #if ENABLED(RIGIDBOT_PANEL)
+
+      #if LCD_HAS_DIRECTIONAL_BUTTONS
         if (ELAPSED(now, next_button_update_ms)) {
-          if (BUTTON_PRESSED(UP)) {
-            encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM);
-            next_button_update_ms = now + 300;
+          if (false) {
+            // for the else-ifs below
           }
-          else if (BUTTON_PRESSED(DWN)) {
-            encoderDiff = ENCODER_STEPS_PER_MENU_ITEM;
-            next_button_update_ms = now + 300;
-          }
-          else if (BUTTON_PRESSED(LFT)) {
-            encoderDiff = -(ENCODER_PULSES_PER_STEP);
-            next_button_update_ms = now + 300;
-          }
-          else if (BUTTON_PRESSED(RT)) {
-            encoderDiff = ENCODER_PULSES_PER_STEP;
-            next_button_update_ms = now + 300;
-          }
+          #if BUTTON_EXISTS(UP)
+            else if (BUTTON_PRESSED(UP)) {
+              encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM);
+              next_button_update_ms = now + 300;
+            }
+          #endif
+          #if BUTTON_EXISTS(DWN)
+            else if (BUTTON_PRESSED(DWN)) {
+              encoderDiff = ENCODER_STEPS_PER_MENU_ITEM;
+              next_button_update_ms = now + 300;
+            }
+          #endif
+          #if BUTTON_EXISTS(LFT)
+            else if (BUTTON_PRESSED(LFT)) {
+              encoderDiff = -(ENCODER_PULSES_PER_STEP);
+              next_button_update_ms = now + 300;
+            }
+          #endif
+          #if BUTTON_EXISTS(RT)
+            else if (BUTTON_PRESSED(RT)) {
+              encoderDiff = ENCODER_PULSES_PER_STEP;
+              next_button_update_ms = now + 300;
+            }
+          #endif
         }
       #endif
+
       #if BUTTON_EXISTS(ENC)
         if (ELAPSED(now, next_button_update_ms) && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
       #endif
+
       buttons = newbutton;
       #if ENABLED(LCD_HAS_SLOW_BUTTONS)
         buttons |= slow_buttons;
