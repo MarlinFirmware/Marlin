@@ -53,7 +53,7 @@ If you understand and agree to this terms, read on.
 ###Generic
 
 * **First of all, turn over your Deltaprintr and move the two-pin FSR connector from `TBED` to `T1`!**
-* Download and install the most recent (1.6.8) version of the Arduino IDE+
+* Download and install the most recent (1.6.8) version of the Arduino IDE
 from https://www.arduino.cc/en/Main/Software
 * Clone this repository `git clone git@github.com:tkurbad/Marlin.git`
 * Change to the `Marlin` directory you just cloned into
@@ -81,6 +81,13 @@ Sketch uses 133.698 Bytes (52%) of program storage space. Maximum is 253,952 byt
 Global variables use 5.510 Bytes (67%) of dynamic memory, leaving 2.682 bytes for local variables. Maximum is 8,192 bytes.
 ```
 * If everything worked thus far, you can choose *Upload* from the *Sketch* menu to upload the firmware to your printer
+
+###Windows
+
+For everything above to work smoothly, you will have to start *Arduino* with elevated user rights.
+
+To accomplish this, right click on the *Arduino* icon on your desktop and choose *Run as administrator*
+from the context menu.
 
 ###Gentoo Linux
 
