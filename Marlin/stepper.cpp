@@ -979,9 +979,3 @@ void Stepper::microstep_readings() {
     SERIAL_PROTOCOLLN(digitalRead(E1_MS2_PIN));
   #endif
 }
-
-#if ENABLED(Z_DUAL_ENDSTOPS)
-  void Stepper::set_homing_flag(bool state) { performing_homing = state; }
-  void Stepper::set_z_lock(bool state) { locked_z_motor = state; }
-  void Stepper::set_z2_lock(bool state) { locked_z2_motor = state; }
-#endif
