@@ -224,9 +224,9 @@ class Stepper {
     void microstep_readings();
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      void set_homing_flag(bool state);
-      void set_z_lock(bool state);
-      void set_z2_lock(bool state);
+      FORCE_INLINE void set_homing_flag(bool state) { performing_homing = state; }
+      FORCE_INLINE void set_z_lock(bool state) { locked_z_motor = state; }
+      FORCE_INLINE void set_z2_lock(bool state) { locked_z2_motor = state; }
     #endif
 
     #if ENABLED(BABYSTEPPING)
@@ -248,6 +248,8 @@ class Stepper {
     FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
       return endstops_trigsteps[axis] / planner.axis_steps_per_unit[axis];
     }
+
+  private:
 
     FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
       unsigned short timer;
@@ -324,7 +326,6 @@ class Stepper {
       // SERIAL_ECHOLN(current_block->final_advance/256.0);
     }
 
-  private:
     void digipot_init();
     void microstep_init();
 

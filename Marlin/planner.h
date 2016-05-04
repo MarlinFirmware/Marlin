@@ -21,27 +21,13 @@
  */
 
 /**
-  planner.h - buffers movement commands and manages the acceleration profile plan
-  Part of Grbl
-
-  Copyright (c) 2009-2011 Simen Svale Skogsrud
-
-  Grbl is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  Grbl is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-// This module is to be considered a sub-module of stepper.c. Please don't include
-// this file from any other module.
+ * planner.h
+ *
+ * Buffer movement commands and manage the acceleration profile plan
+ *
+ * Derived from Grbl
+ * Copyright (c) 2009-2011 Simen Svale Skogsrud
+ */
 
 #ifndef PLANNER_H
 #define PLANNER_H
@@ -268,6 +254,17 @@ class Planner {
         return NULL;
     }
 
+    #if ENABLED(AUTOTEMP)
+      float autotemp_max = 250;
+      float autotemp_min = 210;
+      float autotemp_factor = 0.1;
+      bool autotemp_enabled = false;
+      void getHighESpeed();
+      void autotemp_M109();
+    #endif
+
+  private:
+
     /**
      * Get the index of the next / previous block in the ring buffer
      */
@@ -304,18 +301,6 @@ class Planner {
     FORCE_INLINE float max_allowable_speed(float acceleration, float target_velocity, float distance) {
       return sqrt(target_velocity * target_velocity - 2 * acceleration * distance);
     }
-
-
-    #if ENABLED(AUTOTEMP)
-      float autotemp_max = 250;
-      float autotemp_min = 210;
-      float autotemp_factor = 0.1;
-      bool autotemp_enabled = false;
-      void getHighESpeed();
-      void autotemp_M109();
-    #endif
-
-  private:
 
     void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor);
 
