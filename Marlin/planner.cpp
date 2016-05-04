@@ -1045,24 +1045,28 @@ void Planner::check_axes_activity() {
   // the maximum junction speed and may always be ignored for any speed reduction checks.
   block->nominal_length_flag = (block->nominal_speed <= v_allowable);
   block->recalculate_flag = true; // Always calculate trapezoid for new block
-  
-  #ifdef LIN_ADVANCE
-    //bse = allsteps: A problem occures if there is a very tiny move before a retract.
-    //In this case, the retract and the move will be executed together. This leads to an enormus amount advance steps due to a hughe e_acceleration.
-    //The math is correct, but you don't want a retract move done with advance! This situation has to be filtered out.
-    if ((!bse || (!bsx && !bsy && !bsz)) || (stepper.get_advance_k() == 0) || (bse == allsteps)) {
-      block->use_advance_lead = false;
-    } else {
-      block->use_advance_lead = true;
-      block->e_speed_multiplier8 = (block->steps[E_AXIS] << 8) / block->step_event_count;
-    }
-  #endif
 
   // Update previous path unit_vector and nominal speed
   for (int i = 0; i < NUM_AXIS; i++) previous_speed[i] = current_speed[i];
   previous_nominal_speed = block->nominal_speed;
 
-  #if ENABLED(ADVANCE)
+  #if ENABLED(LIN_ADVANCE)
+
+    // bse == allsteps: A problem occurs when there's a very tiny move before a retract.
+    // In this case, the retract and the move will be executed together.
+    // This leads to an enormous number of advance steps due to a huge e_acceleration.
+    // The math is correct, but you don't want a retract move done with advance!
+    // So this situation is filtered out here.
+    if (!bse || (!bsx && !bsy && !bsz) || stepper.get_advance_k() == 0 || bse == allsteps) {
+      block->use_advance_lead = false;
+    }
+    else {
+      block->use_advance_lead = true;
+      block->e_speed_multiplier8 = (block->steps[E_AXIS] << 8) / block->step_event_count;
+    }
+
+  #elif ENABLED(ADVANCE)
+
     // Calculate advance rate
     if (!bse || (!bsx && !bsy && !bsz)) {
       block->advance_rate = 0;
@@ -1081,7 +1085,8 @@ void Planner::check_axes_activity() {
      SERIAL_ECHOPGM("advance rate :");
      SERIAL_ECHOLN(block->advance_rate/256.0);
      */
-  #endif // ADVANCE
+
+  #endif // ADVANCE or LIN_ADVANCE
 
   calculate_trapezoid_for_block(block, block->entry_speed / block->nominal_speed, safe_speed / block->nominal_speed);
 
