@@ -204,25 +204,81 @@
  * Probes
  */
 
-/**
- * A probe needs a pin
- */
-#if (!((HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) || HAS_Z_PROBE )) && ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(MECHANICAL_PROBE) || ENABLED(Z_PROBE_SLED))
-  #error A probe needs a pin! [Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN || HAS_Z_PROBE]
-#endif
+#if PROBE_SELECTED
 
-#if ((HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)) && HAS_Z_PROBE) && ( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(MECHANICAL_PROBE) || ENABLED(Z_PROBE_SLED))
-  #error A probe should not be connected to more than one pin! [Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN || HAS_Z_PROBE]
-#endif
+  /**
+   * A probe needs a pin
+   */
+  #if !PROBE_PIN_CONFIGURED
+    #error A probe needs a pin! Use Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN or Z_MIN_PROBE_PIN.
+  #endif
 
-/**
-  * Require one kind of probe
-  */
-#if ENABLED(AUTO_BED_LEVELING_FEATURE) && !( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(MECHANICAL_PROBE) || ENABLED(Z_PROBE_SLED))
-  #error For AUTO_BED_LEVELING_FEATURE define one kind of probe! [Servo | MECHANICAL_PROBE | Z_PROBE_SLED | FIX_MOUNTED_PROBE]
-#endif
+  /**
+   * Z_MIN_PIN and Z_MIN_PROBE_PIN can't co-exist when Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+   */
+  #if HAS_Z_MIN && HAS_Z_MIN_PROBE_PIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+    #error A probe cannot have more than one pin! Use Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN or Z_MIN_PROBE_PIN.
+  #endif
 
-// To do: Fail with more than one probe defined
+  /**
+   * Make sure the plug is enabled if it's used
+   */
+  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && DISABLED(USE_ZMIN_PLUG)
+    #error You must enable USE_ZMIN_PLUG if any probe or endstop is connected to the ZMIN plug.
+  #endif
+
+  /**
+   * Only allow one probe option to be defined
+   */
+  #if (ENABLED(FIX_MOUNTED_PROBE) && (ENABLED(MECHANICAL_PROBE) || HAS_Z_ENDSTOP_SERVO || ENABLED(Z_PROBE_SLED))) \
+       || (ENABLED(MECHANICAL_PROBE) && (HAS_Z_ENDSTOP_SERVO || ENABLED(Z_PROBE_SLED))) \
+       || (HAS_Z_ENDSTOP_SERVO && ENABLED(Z_PROBE_SLED))
+    #error Please define only one type of probe: Z Servo, MECHANICAL_PROBE, Z_PROBE_SLED, or FIX_MOUNTED_PROBE.
+  #endif
+
+  /**
+   * Don't allow nonsense probe-pin settings
+   */
+  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && ENABLED(Z_MIN_PROBE_ENDSTOP)
+    #error You can't enable both Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN and Z_MIN_PROBE_ENDSTOP.
+  #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
+    #error Don't enable DISABLE_Z_MIN_PROBE_ENDSTOP with Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN.
+  #elif ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP) && DISABLED(Z_MIN_PROBE_ENDSTOP)
+    #error DISABLE_Z_MIN_PROBE_ENDSTOP requires Z_MIN_PROBE_ENDSTOP to be set.
+  #endif
+
+  /**
+   * Require a Z probe pin if Z_MIN_PROBE_ENDSTOP is enabled.
+   */
+  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+    #if !HAS_Z_MIN_PROBE_PIN
+      #error Z_MIN_PROBE_ENDSTOP requires a Z_MIN_PROBE_PIN in your board's pins_XXXX.h file.
+    #endif
+    // Forcing Servo definitions can break some hall effect sensor setups. Leaving these here for further comment.
+    //#ifndef NUM_SERVOS
+    //  #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_MIN_PROBE_ENDSTOP.
+    //#endif
+    //#if defined(NUM_SERVOS) && NUM_SERVOS < 1
+    //  #error You must have at least 1 servo defined for NUM_SERVOS to use Z_MIN_PROBE_ENDSTOP.
+    //#endif
+    //#if Z_ENDSTOP_SERVO_NR < 0
+    //  #error You must have Z_ENDSTOP_SERVO_NR set to at least 0 or above to use Z_MIN_PROBE_ENDSTOP.
+    //#endif
+    //#ifndef SERVO_ENDSTOP_ANGLES
+    //  #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_MIN_PROBE_ENDSTOP.
+    //#endif
+  #endif
+
+#else
+
+  /**
+   * Require some kind of probe for bed leveling
+   */
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #error AUTO_BED_LEVELING_FEATURE requires a probe! Define a Z Servo, MECHANICAL_PROBE, Z_PROBE_SLED, or FIX_MOUNTED_PROBE.
+  #endif
+
+#endif
 
 /**
  * Auto Bed Leveling
@@ -242,27 +298,6 @@
     #endif
   #endif
 
-  /**
-   * Require a Z probe pin if Z_MIN_PROBE_ENDSTOP is enabled.
-   */
-  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-    #if !PIN_EXISTS(Z_MIN_PROBE)
-      #error You must have a Z_MIN_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_MIN_PROBE_ENDSTOP.
-    #endif
-    // Forcing Servo definitions can break some hall effect sensor setups. Leaving these here for further comment.
-    //#ifndef NUM_SERVOS
-    //  #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_MIN_PROBE_ENDSTOP.
-    //#endif
-    //#if defined(NUM_SERVOS) && NUM_SERVOS < 1
-    //  #error You must have at least 1 servo defined for NUM_SERVOS to use Z_MIN_PROBE_ENDSTOP.
-    //#endif
-    //#if Z_ENDSTOP_SERVO_NR < 0
-    //  #error You must have Z_ENDSTOP_SERVO_NR set to at least 0 or above to use Z_MIN_PROBE_ENDSTOP.
-    //#endif
-    //#ifndef SERVO_ENDSTOP_ANGLES
-    //  #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_MIN_PROBE_ENDSTOP.
-    //#endif
-  #endif
   /**
    * Check if Probe_Offset * Grid Points is greater than Probing Range
    */
