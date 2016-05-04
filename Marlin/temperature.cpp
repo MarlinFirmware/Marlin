@@ -200,9 +200,14 @@ static float analog2temp(int raw, uint8_t e);
 static float analog2tempBed(int raw);
 static void updateTemperaturesFromRawValues();
 
-#if ENABLED(THERMAL_PROTECTION_HOTENDS)
+#if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
   int watch_target_temp[EXTRUDERS] = { 0 };
   millis_t watch_heater_next_ms[EXTRUDERS] = { 0 };
+#endif
+
+#if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+  int watch_target_bed_temp = 0;
+  millis_t watch_bed_next_ms = 0;
 #endif
 
 #ifndef SOFT_PWM_SCALE
@@ -221,7 +226,7 @@ static void updateTemperaturesFromRawValues();
 //================================ Functions ================================
 //===========================================================================
 
-#if ENABLED(PIDTEMP)
+#if HAS_PID_HEATING
 
   void PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false*/) {
     float input = 0.0;
@@ -240,8 +245,13 @@ static void updateTemperaturesFromRawValues();
       millis_t next_auto_fan_check_ms = temp_ms + 2500UL;
     #endif
 
-    if (extruder >= EXTRUDERS
-      #if !HAS_TEMP_BED
+    if (false
+      #if ENABLED(PIDTEMP)
+         || extruder >= EXTRUDERS
+      #else
+         || extruder >= 0
+      #endif
+      #if DISABLED(PIDTEMPBED)
          || extruder < 0
       #endif
     ) {
@@ -253,10 +263,16 @@ static void updateTemperaturesFromRawValues();
 
     disable_all_heaters(); // switch off all heaters.
 
-    if (extruder < 0)
-      soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
-    else
+    #if HAS_PID_FOR_BOTH
+      if (extruder < 0)
+        soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
+      else
+        soft_pwm[extruder] = bias = d = (PID_MAX) / 2;
+    #elif ENABLED(PIDTEMP)
       soft_pwm[extruder] = bias = d = (PID_MAX) / 2;
+    #else
+      soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
+    #endif
 
     // PID Tuning loop
     for (;;) {
@@ -266,7 +282,15 @@ static void updateTemperaturesFromRawValues();
       if (temp_meas_ready) { // temp sample ready
         updateTemperaturesFromRawValues();
 
-        input = (extruder < 0) ? current_temperature_bed : current_temperature[extruder];
+        input =
+          #if HAS_PID_FOR_BOTH
+            extruder < 0 ? current_temperature_bed : current_temperature[extruder]
+          #elif ENABLED(PIDTEMP)
+            current_temperature[extruder]
+          #else
+            current_temperature_bed
+          #endif
+        ;
 
         max = max(max, input);
         min = min(min, input);
@@ -281,10 +305,16 @@ static void updateTemperaturesFromRawValues();
         if (heating && input > temp) {
           if (ELAPSED(ms, t2 + 5000UL)) {
             heating = false;
-            if (extruder < 0)
-              soft_pwm_bed = (bias - d) >> 1;
-            else
+            #if HAS_PID_FOR_BOTH
+              if (extruder < 0)
+                soft_pwm_bed = (bias - d) >> 1;
+              else
+                soft_pwm[extruder] = (bias - d) >> 1;
+            #elif ENABLED(PIDTEMP)
               soft_pwm[extruder] = (bias - d) >> 1;
+            #elif ENABLED(PIDTEMPBED)
+              soft_pwm_bed = (bias - d) >> 1;
+            #endif
             t1 = ms;
             t_high = t1 - t2;
             max = temp;
@@ -297,7 +327,15 @@ static void updateTemperaturesFromRawValues();
             t2 = ms;
             t_low = t2 - t1;
             if (cycles > 0) {
-              long max_pow = extruder < 0 ? MAX_BED_POWER : PID_MAX;
+              long max_pow =
+                #if HAS_PID_FOR_BOTH
+                  extruder < 0 ? MAX_BED_POWER : PID_MAX
+                #elif ENABLED(PIDTEMP)
+                  PID_MAX
+                #else
+                  MAX_BED_POWER
+                #endif
+              ;
               bias += (d * (t_high - t_low)) / (t_low + t_high);
               bias = constrain(bias, 20, max_pow - 20);
               d = (bias > max_pow / 2) ? max_pow - 1 - bias : bias;
@@ -336,10 +374,16 @@ static void updateTemperaturesFromRawValues();
                 */
               }
             }
-            if (extruder < 0)
-              soft_pwm_bed = (bias + d) >> 1;
-            else
+            #if HAS_PID_FOR_BOTH
+              if (extruder < 0)
+                soft_pwm_bed = (bias + d) >> 1;
+              else
+                soft_pwm[extruder] = (bias + d) >> 1;
+            #elif ENABLED(PIDTEMP)
               soft_pwm[extruder] = (bias + d) >> 1;
+            #else
+              soft_pwm_bed = (bias + d) >> 1;
+            #endif
             cycles++;
             min = temp;
           }
@@ -366,27 +410,48 @@ static void updateTemperaturesFromRawValues();
       }
       if (cycles > ncycles) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
-        const char* estring = extruder < 0 ? "bed" : "";
-        SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(workKp);
-        SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(workKi);
-        SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(workKd);
+
+        #if HAS_PID_FOR_BOTH
+          const char* estring = extruder < 0 ? "bed" : "";
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(workKp);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(workKi);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(workKd);
+        #elif ENABLED(PIDTEMP)
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_Kp "); SERIAL_PROTOCOLLN(workKp);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_Ki "); SERIAL_PROTOCOLLN(workKi);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_Kd "); SERIAL_PROTOCOLLN(workKd);
+        #else
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_bedKp "); SERIAL_PROTOCOLLN(workKp);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_bedKi "); SERIAL_PROTOCOLLN(workKi);
+          SERIAL_PROTOCOLPGM("#define  DEFAULT_bedKd "); SERIAL_PROTOCOLLN(workKd);
+        #endif
+
+        #define _SET_BED_PID() \
+          bedKp = workKp; \
+          bedKi = scalePID_i(workKi); \
+          bedKd = scalePID_d(workKd); \
+          updatePID()
+
+        #define _SET_EXTRUDER_PID() \
+          PID_PARAM(Kp, extruder) = workKp; \
+          PID_PARAM(Ki, extruder) = scalePID_i(workKi); \
+          PID_PARAM(Kd, extruder) = scalePID_d(workKd); \
+          updatePID()
 
         // Use the result? (As with "M303 U1")
         if (set_result) {
-          if (extruder < 0) {
-            #if ENABLED(PIDTEMPBED)
-              bedKp = workKp;
-              bedKi = scalePID_i(workKi);
-              bedKd = scalePID_d(workKd);
-              updatePID();
-            #endif
-          }
-          else {
-            PID_PARAM(Kp, extruder) = workKp;
-            PID_PARAM(Ki, extruder) = scalePID_i(workKi);
-            PID_PARAM(Kd, extruder) = scalePID_d(workKd);
-            updatePID();
-          }
+          #if HAS_PID_FOR_BOTH
+            if (extruder < 0) {
+              _SET_BED_PID();
+            }
+            else {
+              _SET_EXTRUDER_PID();
+            }
+          #elif ENABLED(PIDTEMP)
+            _SET_EXTRUDER_PID();
+          #else
+            _SET_BED_PID();
+          #endif
         }
         return;
       }
@@ -544,7 +609,7 @@ float get_pid_output(int e) {
         #if ENABLED(PID_ADD_EXTRUSION_RATE)
           cTerm[e] = 0;
           if (e == active_extruder) {
-            long e_position = st_get_position(E_AXIS);
+            long e_position = stepper.position(E_AXIS);
             if (e_position > last_position[e]) {
               lpq[lpq_ptr++] = e_position - last_position[e];
               last_position[e] = e_position;
@@ -553,7 +618,7 @@ float get_pid_output(int e) {
               lpq[lpq_ptr++] = 0;
             }
             if (lpq_ptr >= lpq_len) lpq_ptr = 0;
-            cTerm[e] = (lpq[lpq_ptr] / axis_steps_per_unit[E_AXIS]) * PID_PARAM(Kc, e);
+            cTerm[e] = (lpq[lpq_ptr] / planner.axis_steps_per_unit[E_AXIS]) * PID_PARAM(Kc, e);
             pid_output += cTerm[e];
           }
         #endif //PID_ADD_EXTRUSION_RATE
@@ -657,7 +722,7 @@ void manage_heater() {
     if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
   #endif
 
-  #if ENABLED(THERMAL_PROTECTION_HOTENDS) || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN
+  #if (ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0) || (ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0) || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN
     millis_t ms = millis();
   #endif
 
@@ -674,7 +739,7 @@ void manage_heater() {
     soft_pwm[e] = current_temperature[e] > minttemp[e] && current_temperature[e] < maxttemp[e] ? (int)pid_output >> 1 : 0;
 
     // Check if the temperature is failing to increase
-    #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+    #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
 
       // Is it time to check this extruder's heater?
       if (watch_heater_next_ms[e] && ELAPSED(ms, watch_heater_next_ms[e])) {
@@ -686,6 +751,24 @@ void manage_heater() {
         else {
           // Start again if the target is still far off
           start_watching_heater(e);
+        }
+      }
+
+    #endif // THERMAL_PROTECTION_HOTENDS
+
+    // Check if the temperature is failing to increase
+    #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+
+      // Is it time to check the bed?
+      if (watch_bed_next_ms && ELAPSED(ms, watch_bed_next_ms)) {
+        // Has it failed to increase enough?
+        if (degBed() < watch_target_bed_temp) {
+          // Stop!
+          _temp_error(-1, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+        }
+        else {
+          // Start again if the target is still far off
+          start_watching_bed();
         }
       }
 
@@ -1100,7 +1183,7 @@ void tp_init() {
   #endif //BED_MAXTEMP
 }
 
-#if ENABLED(THERMAL_PROTECTION_HOTENDS)
+#if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
   /**
    * Start Heating Sanity Check for hotends that are below
    * their target temperature by a configurable margin.
@@ -1113,6 +1196,22 @@ void tp_init() {
     }
     else
       watch_heater_next_ms[e] = 0;
+  }
+#endif
+
+#if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+  /**
+   * Start Heating Sanity Check for hotends that are below
+   * their target temperature by a configurable margin.
+   * This is called when the temperature is set. (M140, M190)
+   */
+  void start_watching_bed() {
+    if (degBed() < degTargetBed() - (WATCH_BED_TEMP_INCREASE + TEMP_BED_HYSTERESIS + 1)) {
+      watch_target_bed_temp = degBed() + WATCH_BED_TEMP_INCREASE;
+      watch_bed_next_ms = millis() + (WATCH_BED_TEMP_PERIOD) * 1000UL;
+    }
+    else
+      watch_bed_next_ms = 0;
   }
 #endif
 
@@ -1219,13 +1318,11 @@ void disable_all_heaters() {
   #define MAX6675_HEAT_INTERVAL 250u
 
   #if ENABLED(MAX6675_IS_MAX31855)
-    unsigned long max6675_temp = 2000;
-    #define MAX6675_READ_BYTES 4
+    uint32_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 7
     #define MAX6675_DISCARD_BITS 18
   #else
-    unsigned int max6675_temp = 2000;
-    #define MAX6675_READ_BYTES 2
+    uint16_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 4
     #define MAX6675_DISCARD_BITS 3
   #endif
@@ -1257,7 +1354,7 @@ void disable_all_heaters() {
 
     // Read a big-endian temperature value
     max6675_temp = 0;
-    for (uint8_t i = MAX6675_READ_BYTES; i--;) {
+    for (uint8_t i = sizeof(max6675_temp); i--;) {
       SPDR = 0;
       for (;!TEST(SPSR, SPIF););
       max6675_temp |= SPDR;
@@ -1738,11 +1835,11 @@ ISR(TIMER0_COMPB_vect) {
       int curTodo = babystepsTodo[axis]; //get rid of volatile for performance
 
       if (curTodo > 0) {
-        babystep(axis,/*fwd*/true);
+        stepper.babystep(axis,/*fwd*/true);
         babystepsTodo[axis]--; //fewer to do next time
       }
       else if (curTodo < 0) {
-        babystep(axis,/*fwd*/false);
+        stepper.babystep(axis,/*fwd*/false);
         babystepsTodo[axis]++; //fewer to do next time
       }
     }

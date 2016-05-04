@@ -23,6 +23,11 @@
 #ifndef TWIBUS_H
 #define TWIBUS_H
 
+#include "macros.h"
+
+// Print debug messages with M111 S2 (Uses 236 bytes of PROGMEM)
+//#define DEBUG_TWIBUS
+
 /**
  * TWIBUS class
  *
@@ -117,6 +122,16 @@ class TWIBus {
      * @param bytes the number of bytes to request
      */
     void reqbytes(uint8_t bytes);
+
+    #if ENABLED(DEBUG_TWIBUS)
+
+      /**
+       * @brief Prints a debug message
+       * @details Prints a simple debug message "TWIBus::function: value"
+       */
+      static void debug(const char func[], int32_t val = -1);
+
+    #endif
 };
 
 #endif //TWIBUS_H

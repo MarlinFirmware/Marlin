@@ -46,6 +46,8 @@
 
   #define CONFIGURATION_LCD
 
+  #define LCD_HAS_DIRECTIONAL_BUTTONS (BUTTON_EXISTS(UP) || BUTTON_EXISTS(DWN) || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT))
+
   #if ENABLED(MAKRPANEL)
     #define DOGLCD
     #define DEFAULT_LCD_CONTRAST 17
@@ -368,6 +370,24 @@
   #endif
 
   /**
+   * Z Safe Homing dependencies
+   */
+  #if ENABLED(Z_SAFE_HOMING)
+    #ifndef X_PROBE_OFFSET_FROM_EXTRUDER
+      #define X_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Z_PROBE_OFFSET_FROM_EXTRUDER
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef XY_TRAVEL_SPEED
+      #define XY_TRAVEL_SPEED 4000
+    #endif
+  #endif
+
+  /**
    * Enable MECHANICAL_PROBE for Z_PROBE_ALLEN_KEY, for older configs
    */
   #if ENABLED(Z_PROBE_ALLEN_KEY)
@@ -504,6 +524,12 @@
     #define THERMISTORBED TEMP_SENSOR_BED
     #define BED_USES_THERMISTOR
   #endif
+
+  /**
+   * Flags for PID handling
+   */
+  #define HAS_PID_HEATING (ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED))
+  #define HAS_PID_FOR_BOTH (ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED))
 
   /**
    * ARRAY_BY_EXTRUDERS based on EXTRUDERS

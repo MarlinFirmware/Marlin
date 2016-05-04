@@ -65,7 +65,11 @@ typedef unsigned long millis_t;
 
 #include "WString.h"
 
-#include "stopwatch.h"
+#if ENABLED(PRINTCOUNTER)
+  #include "printcounter.h"
+#else
+  #include "stopwatch.h"
+#endif
 
 #ifdef USBCON
   #if ENABLED(BLUETOOTH)
@@ -212,7 +216,7 @@ void manage_inactivity(bool ignore_stepper_queue = false);
  */
 enum AxisEnum {X_AXIS = 0, A_AXIS = 0, Y_AXIS = 1, B_AXIS = 1, Z_AXIS = 2, C_AXIS = 2, E_AXIS = 3, X_HEAD = 4, Y_HEAD = 5, Z_HEAD = 5};
 
-enum EndstopEnum {X_MIN = 0, Y_MIN = 1, Z_MIN = 2, Z_MIN_PROBE = 3, X_MAX = 4, Y_MAX = 5, Z_MAX = 6, Z2_MIN = 7, Z2_MAX = 8};
+#define _AXIS(AXIS) AXIS ##_AXIS
 
 void enable_all_steppers();
 void disable_all_steppers();
@@ -223,10 +227,9 @@ void ok_to_send();
 void reset_bed_level();
 void prepare_move();
 void kill(const char*);
-void Stop();
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  void filrunout();
+  void handle_filament_runout();
 #endif
 
 /**
@@ -234,12 +237,12 @@ void Stop();
  */
 enum DebugFlags {
   DEBUG_NONE          = 0,
-  DEBUG_ECHO          = _BV(0),
-  DEBUG_INFO          = _BV(1),
-  DEBUG_ERRORS        = _BV(2),
-  DEBUG_DRYRUN        = _BV(3),
-  DEBUG_COMMUNICATION = _BV(4),
-  DEBUG_LEVELING      = _BV(5)
+  DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
+  DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
+  DEBUG_ERRORS        = _BV(2), ///< Not implemented
+  DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
+  DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
+  DEBUG_LEVELING      = _BV(5)  ///< Print detailed output for homing and leveling
 };
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
@@ -275,10 +278,16 @@ extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in m
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS];
 extern float home_offset[3]; // axis[n].home_offset
-extern float min_pos[3]; // axis[n].min_pos
-extern float max_pos[3]; // axis[n].max_pos
+extern float sw_endstop_min[3]; // axis[n].sw_endstop_min
+extern float sw_endstop_max[3]; // axis[n].sw_endstop_max
 extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
+
+// GCode support for external objects
+extern bool code_seen(char);
+extern float code_value();
+extern long code_value_long();
+extern int16_t code_value_short();
 
 #if ENABLED(DELTA)
   #ifndef DELTA_RADIUS_TRIM_TOWER_1
@@ -340,8 +349,8 @@ extern bool axis_homed[3]; // axis[n].is_homed
 #endif
 
 #if ENABLED(BARICUDA)
-  extern int ValvePressure;
-  extern int EtoPPressure;
+  extern int baricuda_valve_pressure;
+  extern int baricuda_e_to_p_pressure;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -365,7 +374,11 @@ extern bool axis_homed[3]; // axis[n].is_homed
 #endif
 
 // Print job timer
-extern Stopwatch print_job_timer;
+#if ENABLED(PRINTCOUNTER)
+  extern PrintCounter print_job_timer;
+#else
+  extern Stopwatch print_job_timer;
+#endif
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;

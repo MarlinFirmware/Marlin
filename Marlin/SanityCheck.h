@@ -39,6 +39,41 @@
 #endif
 
 /**
+ * Marlin release, version and default string
+ */
+#ifndef SHORT_BUILD_VERSION
+  #error SHORT_BUILD_VERSION Information must be specified
+#endif
+
+#ifndef DETAILED_BUILD_VERSION
+  #error BUILD_VERSION Information must be specified
+#endif
+
+#ifndef STRING_DISTRIBUTION_DATE
+  #error STRING_DISTRIBUTION_DATE Information must be specified
+#endif
+
+#ifndef PROTOCOL_VERSION
+  #error PROTOCOL_VERSION Information must be specified
+#endif
+
+#ifndef MACHINE_NAME
+  #error MACHINE_NAME Information must be specified
+#endif
+
+#ifndef SOURCE_CODE_URL
+  #error SOURCE_CODE_URL Information must be specified
+#endif
+
+#ifndef DEFAULT_MACHINE_UUID
+  #error DEFAULT_MACHINE_UUID Information must be specified
+#endif
+
+#ifndef WEBSITE_URL
+  #error WEBSITE_URL Information must be specified
+#endif
+
+/**
  * Dual Stepper Drivers
  */
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS) && ENABLED(Y_DUAL_STEPPER_DRIVERS)
@@ -137,8 +172,8 @@
 /**
  * Required LCD language
  */
-#if DISABLED(DOGLCD) && ENABLED(ULTRA_LCD) && DISABLED(DISPLAY_CHARSET_HD44780_JAPAN) && DISABLED(DISPLAY_CHARSET_HD44780_WESTERN) && DISABLED(DISPLAY_CHARSET_HD44780_CYRILLIC)
-  #error You must enable either DISPLAY_CHARSET_HD44780_JAPAN or DISPLAY_CHARSET_HD44780_WESTERN  or DISPLAY_CHARSET_HD44780_CYRILLIC for your LCD controller.
+#if DISABLED(DOGLCD) && ENABLED(ULTRA_LCD) && !defined(DISPLAY_CHARSET_HD44780)
+  #error You must set DISPLAY_CHARSET_HD44780 to JAPANESE, WESTERN or CYRILLIC for your LCD controller.
 #endif
 
 /**
@@ -185,10 +220,6 @@
   */
 #if ENABLED(AUTO_BED_LEVELING_FEATURE) && !( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(MECHANICAL_PROBE) || ENABLED(Z_PROBE_SLED))
   #error For AUTO_BED_LEVELING_FEATURE define one kind of probe! [Servo | MECHANICAL_PROBE | Z_PROBE_SLED | FIX_MOUNTED_PROBE]
-#endif
-
-#if ENABLED(Z_SAFE_HOMING)&& !( ENABLED(FIX_MOUNTED_PROBE) || defined(Z_ENDSTOP_SERVO_NR) || ENABLED(MECHANICAL_PROBE) || ENABLED(Z_PROBE_SLED))
-  #error For Z_SAFE_HOMING define one kind of probe! [Servo | MECHANICAL_PROBE | Z_PROBE_SLED | FIX_MOUNTED_PROBE]
 #endif
 
 // To do: Fail with more than one probe defined
@@ -475,6 +506,8 @@
   #error DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead.
 #elif ENABLED(Z_DUAL_ENDSTOPS) && !defined(Z2_USE_ENDSTOP)
   #error Z_DUAL_ENDSTOPS settings are simplified. Just set Z2_USE_ENDSTOP to the endstop you want to repurpose for Z2
+#elif defined(LANGUAGE_INCLUDE)
+  #error LANGUAGE_INCLUDE has been replaced by LCD_LANGUAGE. Please update your configuration.
 #endif
 
 #endif //SANITYCHECK_H

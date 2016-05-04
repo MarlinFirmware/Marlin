@@ -156,8 +156,8 @@
   FORCE_INLINE void lcd_reset_alert_level() {}
   FORCE_INLINE bool lcd_detected(void) { return true; }
 
-  #define LCD_MESSAGEPGM(x) do{}while(0)
-  #define LCD_ALERTMESSAGEPGM(x) do{}while(0)
+  #define LCD_MESSAGEPGM(x) NOOP
+  #define LCD_ALERTMESSAGEPGM(x) NOOP
 
 #endif //ULTRA_LCD
 
