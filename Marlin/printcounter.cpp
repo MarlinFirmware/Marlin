@@ -22,7 +22,6 @@
 
 #include "Marlin.h"
 #include "printcounter.h"
-#include <avr/eeprom.h>
 
 PrintCounter::PrintCounter(): super() {
   this->loadStats();
