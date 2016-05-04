@@ -70,6 +70,10 @@ typedef struct {
     volatile long final_advance;
     float advance;
   #endif
+  #ifdef LIN_ADVANCE
+    bool use_advance_lead;
+    int e_speed_multiplier8; //factorised by 2^8 to avoid float
+  #endif
 
   // Fields used by the motion planner to manage acceleration
   float nominal_speed,                               // The nominal speed for this block in mm/sec
