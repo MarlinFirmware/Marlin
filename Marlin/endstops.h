@@ -88,7 +88,7 @@ class Endstops {
     FORCE_INLINE void hit_on_purpose() { endstop_hit_bits = 0; }
 
     // Enable / disable endstop z-probe checking
-    #if ENABLED(HAS_Z_MIN_PROBE)
+    #if HAS_BED_PROBE
       volatile bool z_probe_enabled = false;
       FORCE_INLINE void enable_z_probe(bool onoff=true) { z_probe_enabled = onoff; }
     #endif
