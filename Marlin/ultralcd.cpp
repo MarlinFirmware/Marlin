@@ -562,25 +562,25 @@ void lcd_set_home_offsets() {
         #if ENABLED(BABYSTEP_XY)
           switch(axis) {
             case X_AXIS: // X on CoreXY and CoreXZ
-              babystepsTodo[A_AXIS] += distance * 2;
-              babystepsTodo[CORE_AXIS_2] += distance * 2;
+              thermalManager.babystepsTodo[A_AXIS] += distance * 2;
+              thermalManager.babystepsTodo[CORE_AXIS_2] += distance * 2;
               break;
             case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ
-              babystepsTodo[A_AXIS] += distance * 2;
-              babystepsTodo[CORE_AXIS_2] -= distance * 2;
+              thermalManager.babystepsTodo[A_AXIS] += distance * 2;
+              thermalManager.babystepsTodo[CORE_AXIS_2] -= distance * 2;
               break;
             case CORE_AXIS_3: // Z on CoreXY, Y on CoreXZ
-              babystepsTodo[CORE_AXIS_3] += distance;
+              thermalManager.babystepsTodo[CORE_AXIS_3] += distance;
               break;
           }
         #elif ENABLED(COREXZ)
-          babystepsTodo[A_AXIS] += distance * 2;
-          babystepsTodo[C_AXIS] -= distance * 2;
+          thermalManager.babystepsTodo[A_AXIS] += distance * 2;
+          thermalManager.babystepsTodo[C_AXIS] -= distance * 2;
         #else
-          babystepsTodo[Z_AXIS] += distance;
+          thermalManager.babystepsTodo[Z_AXIS] += distance;
         #endif
       #else
-        babystepsTodo[axis] += distance;
+        thermalManager.babystepsTodo[axis] += distance;
       #endif
 
       babysteps_done += distance;

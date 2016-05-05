@@ -313,7 +313,6 @@ class Temperature {
       int read_max6675();
     #endif
 
-    void setExtruderAutoFanState(int pin, bool state);
     void checkExtruderAutoFans();
 
     float get_pid_output(int e);
