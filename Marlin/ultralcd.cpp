@@ -479,7 +479,7 @@ inline void line_to_current(AxisEnum axis) {
     stepper.quick_stop();
     card.sdprinting = false;
     card.closefile();
-    autotempShutdown();
+    thermalManager.autotempShutdown();
     cancel_heatup = true;
     lcd_setstatus(MSG_PRINT_ABORTED, true);
   }
@@ -605,16 +605,16 @@ void lcd_set_home_offsets() {
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
   #if TEMP_SENSOR_0 != 0
-    void watch_temp_callback_E0() { start_watching_heater(0); }
+    void watch_temp_callback_E0() { thermalManager.start_watching_heater(0); }
   #endif
   #if EXTRUDERS > 1 && TEMP_SENSOR_1 != 0
-    void watch_temp_callback_E1() { start_watching_heater(1); }
+    void watch_temp_callback_E1() { thermalManager.start_watching_heater(1); }
   #endif // EXTRUDERS > 1
   #if EXTRUDERS > 2 && TEMP_SENSOR_2 != 0
-    void watch_temp_callback_E2() { start_watching_heater(2); }
+    void watch_temp_callback_E2() { thermalManager.start_watching_heater(2); }
   #endif // EXTRUDERS > 2
   #if EXTRUDERS > 3 && TEMP_SENSOR_3 != 0
-    void watch_temp_callback_E3() { start_watching_heater(3); }
+    void watch_temp_callback_E3() { thermalManager.start_watching_heater(3); }
   #endif // EXTRUDERS > 3
 #else
   #if TEMP_SENSOR_0 != 0
@@ -633,7 +633,7 @@ void lcd_set_home_offsets() {
 
 #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
   #if TEMP_SENSOR_BED != 0
-    void watch_temp_callback_bed() { start_watching_bed(); }
+    void watch_temp_callback_bed() { thermalManager.start_watching_bed(); }
   #endif
 #else
   #if TEMP_SENSOR_BED != 0
@@ -670,22 +670,22 @@ static void lcd_tune_menu() {
   //
   #if EXTRUDERS == 1
     #if TEMP_SENSOR_0 != 0
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
     #endif
   #else //EXTRUDERS > 1
     #if TEMP_SENSOR_0 != 0
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
     #endif
     #if TEMP_SENSOR_1 != 0
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &thermalManager.target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
     #endif
     #if EXTRUDERS > 2
       #if TEMP_SENSOR_2 != 0
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N3, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15, watch_temp_callback_E2);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N3, &thermalManager.target_temperature[2], 0, HEATER_2_MAXTEMP - 15, watch_temp_callback_E2);
       #endif
       #if EXTRUDERS > 3
         #if TEMP_SENSOR_3 != 0
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N4, &target_temperature[3], 0, HEATER_3_MAXTEMP - 15, watch_temp_callback_E3);
+          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N4, &thermalManager.target_temperature[3], 0, HEATER_3_MAXTEMP - 15, watch_temp_callback_E3);
         #endif
       #endif // EXTRUDERS > 3
     #endif // EXTRUDERS > 2
@@ -695,7 +695,7 @@ static void lcd_tune_menu() {
   // Bed:
   //
   #if TEMP_SENSOR_BED != 0
-    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
+    MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
   #endif
 
   //
@@ -768,9 +768,9 @@ static void lcd_tune_menu() {
  *
  */
 void _lcd_preheat(int endnum, const float temph, const float tempb, const int fan) {
-  if (temph > 0) setTargetHotend(temph, endnum);
+  if (temph > 0) thermalManager.setTargetHotend(temph, endnum);
   #if TEMP_SENSOR_BED != 0
-    setTargetBed(tempb);
+    thermalManager.setTargetBed(tempb);
   #else
     UNUSED(tempb);
   #endif
@@ -805,19 +805,27 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
 
   void lcd_preheat_pla0123() {
     #if EXTRUDERS > 1
-      setTargetHotend0(plaPreheatHotendTemp);
-      setTargetHotend1(plaPreheatHotendTemp);
-      setTargetHotend2(plaPreheatHotendTemp);
+      thermalManager.setTargetHotend(plaPreheatHotendTemp, 1);
+      #if EXTRUDERS > 2
+        thermalManager.setTargetHotend(plaPreheatHotendTemp, 2);
+        #if EXTRUDERS > 3
+          thermalManager.setTargetHotend(plaPreheatHotendTemp, 3);
+        #endif
+      #endif
     #endif
-    _lcd_preheat(EXTRUDERS - 1, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed);
+    lcd_preheat_pla0();
   }
   void lcd_preheat_abs0123() {
     #if EXTRUDERS > 1
-      setTargetHotend0(absPreheatHotendTemp);
-      setTargetHotend1(absPreheatHotendTemp);
-      setTargetHotend2(absPreheatHotendTemp);
+      thermalManager.setTargetHotend(absPreheatHotendTemp, 1);
+      #if EXTRUDERS > 2
+        thermalManager.setTargetHotend(absPreheatHotendTemp, 2);
+        #if EXTRUDERS > 3
+          thermalManager.setTargetHotend(absPreheatHotendTemp, 3);
+        #endif
+      #endif
     #endif
-    _lcd_preheat(EXTRUDERS - 1, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed);
+    lcd_preheat_abs0();
   }
 
 #endif // EXTRUDERS > 1
@@ -879,7 +887,7 @@ void lcd_cooldown() {
   #if FAN_COUNT > 0
     for (uint8_t i = 0; i < FAN_COUNT; i++) fanSpeeds[i] = 0;
   #endif
-  disable_all_heaters();
+  thermalManager.disable_all_heaters();
   lcd_return_to_status();
 }
 
@@ -1414,14 +1422,14 @@ static void lcd_control_menu() {
       UNUSED(e);
     #endif
     PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
-    updatePID();
+    thermalManager.updatePID();
   }
   void copy_and_scalePID_d(int e) {
     #if DISABLED(PID_PARAMS_PER_EXTRUDER)
       UNUSED(e);
     #endif
     PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
-    updatePID();
+    thermalManager.updatePID();
   }
   #define _PIDTEMP_BASE_FUNCTIONS(eindex) \
     void copy_and_scalePID_i_E ## eindex() { copy_and_scalePID_i(eindex); } \
@@ -1469,22 +1477,22 @@ static void lcd_control_temperature_menu() {
   //
   #if EXTRUDERS == 1
     #if TEMP_SENSOR_0 != 0
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
     #endif
   #else //EXTRUDERS > 1
     #if TEMP_SENSOR_0 != 0
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N1, &thermalManager.target_temperature[0], 0, HEATER_0_MAXTEMP - 15, watch_temp_callback_E0);
     #endif
     #if TEMP_SENSOR_1 != 0
-      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N2, &thermalManager.target_temperature[1], 0, HEATER_1_MAXTEMP - 15, watch_temp_callback_E1);
     #endif
     #if EXTRUDERS > 2
       #if TEMP_SENSOR_2 != 0
-        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N3, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15, watch_temp_callback_E2);
+        MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N3, &thermalManager.target_temperature[2], 0, HEATER_2_MAXTEMP - 15, watch_temp_callback_E2);
       #endif
       #if EXTRUDERS > 3
         #if TEMP_SENSOR_3 != 0
-          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N4, &target_temperature[3], 0, HEATER_3_MAXTEMP - 15, watch_temp_callback_E3);
+          MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_NOZZLE MSG_N4, &thermalManager.target_temperature[3], 0, HEATER_3_MAXTEMP - 15, watch_temp_callback_E3);
         #endif
       #endif // EXTRUDERS > 3
     #endif // EXTRUDERS > 2
@@ -1494,7 +1502,7 @@ static void lcd_control_temperature_menu() {
   // Bed:
   //
   #if TEMP_SENSOR_BED != 0
-    MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
+    MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15);
   #endif
 
   //

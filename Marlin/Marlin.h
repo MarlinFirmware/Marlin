@@ -340,10 +340,6 @@ extern int16_t code_value_short();
   extern uint8_t host_keepalive_interval;
 #endif
 
-#if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
-  extern float extrude_min_temp;
-#endif
-
 #if FAN_COUNT > 0
   extern int fanSpeeds[FAN_COUNT];
 #endif
