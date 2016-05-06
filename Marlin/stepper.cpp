@@ -506,7 +506,19 @@ void Stepper::isr() {
 
   void Stepper::advance_isr() {
 
-    old_OCR0A += 52; // ~10kHz interrupt (250000 / 26 = 9615kHz)
+    byte maxesteps = 0;
+    for (uint8_t i = 0; i < EXTRUDERS; i++)
+      if (abs(e_steps[i]) > maxesteps) maxesteps = abs(e_steps[i]);
+
+    if (maxesteps > 3)
+      old_OCR0A += 13;  // ~19kHz (250000/13 = 19230 Hz)
+    else if (maxesteps > 2)
+      old_OCR0A += 17;  // ~15kHz (250000/17 = 14705 Hz)
+    else if (maxesteps > 1)
+      old_OCR0A += 26;  // ~10kHz (250000/26 =  9615 Hz)
+    else
+      old_OCR0A += 52;  //  ~5kHz (250000/26 =  4807 Hz)
+
     OCR0A = old_OCR0A;
 
     #define STEP_E_ONCE(INDEX) \
@@ -523,19 +535,17 @@ void Stepper::isr() {
         E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); \
       }
 
-    // Step all E steppers that have steps, up to 4 steps per interrupt
-    for (unsigned char i = 0; i < 4; i++) {
-      STEP_E_ONCE(0);
-      #if EXTRUDERS > 1
-        STEP_E_ONCE(1);
-        #if EXTRUDERS > 2
-          STEP_E_ONCE(2);
-          #if EXTRUDERS > 3
-            STEP_E_ONCE(3);
-          #endif
+    // Step all E steppers that have steps
+    STEP_E_ONCE(0);
+    #if EXTRUDERS > 1
+      STEP_E_ONCE(1);
+      #if EXTRUDERS > 2
+        STEP_E_ONCE(2);
+        #if EXTRUDERS > 3
+          STEP_E_ONCE(3);
         #endif
       #endif
-    }
+    #endif
 
   }
 
