@@ -552,7 +552,7 @@ void lcd_set_home_offsets() {
 
   int babysteps_done = 0;
 
-  static void _lcd_babystep(const int axis, const char* msg) {
+  static void _lcd_babystep(const AxisEnum axis, const char* msg) {
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
       int distance = (int32_t)encoderPosition * BABYSTEP_MULTIPLICATOR;
