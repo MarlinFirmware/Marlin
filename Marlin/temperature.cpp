@@ -1036,15 +1036,11 @@ void Temperature::init() {
     /**
         SERIAL_ECHO_START;
         SERIAL_ECHOPGM("Thermal Thermal Runaway Running. Heater ID: ");
-        if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHOPGM(heater_id);
-        SERIAL_ECHOPGM(" ;  State:");
-        SERIAL_ECHOPGM(*state);
-        SERIAL_ECHOPGM(" ;  Timer:");
-        SERIAL_ECHOPGM(*timer);
-        SERIAL_ECHOPGM(" ;  Temperature:");
-        SERIAL_ECHOPGM(temperature);
-        SERIAL_ECHOPGM(" ;  Target Temp:");
-        SERIAL_ECHOPGM(target_temperature);
+        if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHO(heater_id);
+        SERIAL_ECHOPAIR(" ;  State:", *state);
+        SERIAL_ECHOPAIR(" ;  Timer:", *timer);
+        SERIAL_ECHOPAIR(" ;  Temperature:", temperature);
+        SERIAL_ECHOPAIR(" ;  Target Temp:", target_temperature);
         SERIAL_EOL;
     */
 
