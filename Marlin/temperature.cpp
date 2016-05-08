@@ -1056,24 +1056,21 @@ void Temperature::init() {
         *state = TRInactive;
       // Inactive state waits for a target temperature to be set
       case TRInactive:
-        if (target_temperature > 0) {
-          tr_target_temperature[heater_index] = target_temperature;
-          *state = TRFirstHeating;
-        }
-        break;
+        if (target_temperature <= 0) break;
+        tr_target_temperature[heater_index] = target_temperature;
+        *state = TRFirstHeating;
       // When first heating, wait for the temperature to be reached then go to Stable state
       case TRFirstHeating:
-        if (temperature >= tr_target_temperature[heater_index]) *state = TRStable;
-        break;
+        if (temperature < tr_target_temperature[heater_index]) break;
+        *state = TRStable;
       // While the temperature is stable watch for a bad temperature
       case TRStable:
-        // If the temperature is over the target (-hysteresis) restart the timer
-        if (temperature >= tr_target_temperature[heater_index] - hysteresis_degc)
-          *timer = millis();
-        // If the timer goes too long without a reset, trigger shutdown
-        else if (ELAPSED(millis(), *timer + period_seconds * 1000UL))
+        if (temperature < tr_target_temperature[heater_index] - hysteresis_degc && ELAPSED(millis(), *timer))
           *state = TRRunaway;
-        break;
+        else {
+          *timer = millis() + period_seconds * 1000UL;
+          break;
+        }
       case TRRunaway:
         _temp_error(heater_id, PSTR(MSG_T_THERMAL_RUNAWAY), PSTR(MSG_THERMAL_RUNAWAY));
     }
