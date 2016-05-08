@@ -413,6 +413,12 @@ void Stepper::isr() {
       step_events_completed++;
       if (step_events_completed >= current_block->step_event_count) break;
     }
+
+    #if ENABLED(LIN_ADVANCE)
+      // If we have esteps to execute, fire the next ISR "now"
+      if (e_steps[current_block->active_extruder]) OCR0A = TCNT0 + 2;
+    #endif
+
     // Calculate new timer value
     unsigned short timer, step_rate;
     if (step_events_completed <= (unsigned long)current_block->accelerate_until) {
@@ -427,7 +433,7 @@ void Stepper::isr() {
       timer = calc_timer(acc_step_rate);
       OCR1A = timer;
       acceleration_time += timer;
-      
+
       #if ENABLED(LIN_ADVANCE)
 
         if (current_block->use_advance_lead)
@@ -444,6 +450,9 @@ void Stepper::isr() {
 
       #endif // ADVANCE or LIN_ADVANCE
 
+      #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+        eISR_Rate = (timer >> 2) / abs(e_steps[current_block->active_extruder]);
+      #endif
     }
     else if (step_events_completed > (unsigned long)current_block->decelerate_after) {
       MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
@@ -476,11 +485,20 @@ void Stepper::isr() {
         old_advance = advance_whole;
 
       #endif // ADVANCE or LIN_ADVANCE
+
+      #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+        eISR_Rate = (timer >> 2) / abs(e_steps[current_block->active_extruder]);
+      #endif
     }
     else {
+
       #if ENABLED(LIN_ADVANCE)
+
         if (current_block->use_advance_lead)
           current_estep_rate[current_block->active_extruder] = final_estep_rate;
+
+        eISR_Rate = (OCR1A_nominal >> 2) / abs(e_steps[current_block->active_extruder]);
+
       #endif
 
       OCR1A = OCR1A_nominal;
@@ -506,19 +524,7 @@ void Stepper::isr() {
 
   void Stepper::advance_isr() {
 
-    byte maxesteps = 0;
-    for (uint8_t i = 0; i < EXTRUDERS; i++)
-      if (abs(e_steps[i]) > maxesteps) maxesteps = abs(e_steps[i]);
-
-    if (maxesteps > 3)
-      old_OCR0A += 13;  // ~19kHz (250000/13 = 19230 Hz)
-    else if (maxesteps > 2)
-      old_OCR0A += 17;  // ~15kHz (250000/17 = 14705 Hz)
-    else if (maxesteps > 1)
-      old_OCR0A += 26;  // ~10kHz (250000/26 =  9615 Hz)
-    else
-      old_OCR0A += 52;  //  ~5kHz (250000/26 =  4807 Hz)
-
+    old_OCR0A += eISR_Rate;
     OCR0A = old_OCR0A;
 
     #define STEP_E_ONCE(INDEX) \

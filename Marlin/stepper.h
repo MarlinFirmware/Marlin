@@ -22,7 +22,7 @@
 
 /**
  * stepper.h - stepper motor driver: executes motion plans of planner.c using the stepper motors
- * Part of Grbl
+ * Derived from Grbl
  *
  * Copyright (c) 2009-2011 Simen Svale Skogsrud
  *
