@@ -23,20 +23,6 @@
 #ifndef PINS_H
 #define PINS_H
 
-// Preset optional pins
-#define X_MS1_PIN -1
-#define X_MS2_PIN -1
-#define Y_MS1_PIN -1
-#define Y_MS2_PIN -1
-#define Z_MS1_PIN -1
-#define Z_MS2_PIN -1
-#define E0_MS1_PIN -1
-#define E0_MS2_PIN -1
-#define E1_MS1_PIN -1
-#define E1_MS2_PIN -1
-#define HEATER_3_PIN -1
-#define TEMP_3_PIN -1
-
 #if MB(GEN7_CUSTOM)
   #include "pins_GEN7_CUSTOM.h"
 #elif MB(GEN7_12)
@@ -157,21 +143,120 @@
   #error Unknown MOTHERBOARD value set in Configuration.h
 #endif
 
+// Define certain undefined pins
+#ifndef X_MS1_PIN
+  #define X_MS1_PIN -1
+#endif
+#ifndef X_MS2_PIN
+  #define X_MS2_PIN -1
+#endif
+#ifndef Y_MS1_PIN
+  #define Y_MS1_PIN -1
+#endif
+#ifndef Y_MS2_PIN
+  #define Y_MS2_PIN -1
+#endif
+#ifndef Z_MS1_PIN
+  #define Z_MS1_PIN -1
+#endif
+#ifndef Z_MS2_PIN
+  #define Z_MS2_PIN -1
+#endif
+#ifndef E0_MS1_PIN
+  #define E0_MS1_PIN -1
+#endif
+#ifndef E0_MS2_PIN
+  #define E0_MS2_PIN -1
+#endif
+#ifndef E1_MS1_PIN
+  #define E1_MS1_PIN -1
+#endif
+#ifndef E1_MS2_PIN
+  #define E1_MS2_PIN -1
+#endif
+
+#ifndef FAN_PIN
+  #define FAN_PIN -1
+#endif
+#ifndef FAN1_PIN
+  #define FAN1_PIN -1
+#endif
+#ifndef FAN2_PIN
+  #define FAN2_PIN -1
+#endif
+
+#ifndef HEATER_0_PIN
+  #define HEATER_0_PIN -1
+#endif
+#ifndef HEATER_1_PIN
+  #define HEATER_1_PIN -1
+#endif
+#ifndef HEATER_2_PIN
+  #define HEATER_2_PIN -1
+#endif
+#ifndef HEATER_3_PIN
+  #define HEATER_3_PIN -1
+#endif
+#ifndef HEATER_BED_PIN
+  #define HEATER_BED_PIN -1
+#endif
+
+#ifndef TEMP_0_PIN
+  #define TEMP_0_PIN -1
+#endif
+#ifndef TEMP_1_PIN
+  #define TEMP_1_PIN -1
+#endif
+#ifndef TEMP_2_PIN
+  #define TEMP_2_PIN -1
+#endif
+#ifndef TEMP_3_PIN
+  #define TEMP_3_PIN -1
+#endif
+#ifndef TEMP_BED_PIN
+  #define TEMP_BED_PIN -1
+#endif
+
+#ifndef SD_DETECT_PIN
+  #define SD_DETECT_PIN -1
+#endif
+#ifndef SDPOWER
+  #define SDPOWER -1
+#endif
+#ifndef SDSS
+  #define SDSS -1
+#endif
+#ifndef LED_PIN
+  #define LED_PIN -1
+#endif
+#ifndef PS_ON_PIN
+  #define PS_ON_PIN -1
+#endif
+#ifndef KILL_PIN
+  #define KILL_PIN -1
+#endif
+#ifndef SUICIDE_PIN
+  #define SUICIDE_PIN -1
+#endif
+
+// Marlin needs to account for pins that equal -1
+#define marlinAnalogInputToDigitalPin(p) ((p) == -1 ? -1 : (p) + 0xA0)
+
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
-#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, HEATER_0_PIN, analogInputToDigitalPin(TEMP_0_PIN),
+#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_MS1_PIN, E0_MS2_PIN, HEATER_0_PIN, EXTRUDER_0_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_0_PIN),
 #define _E1_PINS
 #define _E2_PINS
 #define _E3_PINS
 
 #if EXTRUDERS > 1
   #undef _E1_PINS
-  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, HEATER_1_PIN, analogInputToDigitalPin(TEMP_1_PIN),
+  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, HEATER_1_PIN, E1_MS1_PIN, E1_MS2_PIN, EXTRUDER_1_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_1_PIN),
   #if EXTRUDERS > 2
     #undef _E2_PINS
-    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN, analogInputToDigitalPin(TEMP_2_PIN),
+    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN, EXTRUDER_2_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_2_PIN),
     #if EXTRUDERS > 3
       #undef _E3_PINS
-      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, HEATER_3_PIN, analogInputToDigitalPin(TEMP_3_PIN),
+      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, HEATER_3_PIN, EXTRUDER_3_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_3_PIN),
     #endif
   #endif
 #elif ENABLED(Y_DUAL_STEPPER_DRIVERS) || ENABLED(Z_DUAL_STEPPER_DRIVERS)
@@ -179,6 +264,11 @@
   #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN,
 #endif
 
+#define BED_PINS HEATER_BED_PIN, marlinAnalogInputToDigitalPin(TEMP_BED_PIN),
+
+//
+// Assign endstop pins for boards with only 3 connectors
+//
 #ifdef X_STOP_PIN
   #if X_HOME_DIR < 0
     #define X_MIN_PIN X_STOP_PIN
@@ -209,6 +299,9 @@
   #endif
 #endif
 
+//
+// Disable unused endstop / probe pins
+//
 #if ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP) || DISABLED(Z_MIN_PROBE_ENDSTOP) // Allow code to compile regardless of Z_MIN_PROBE_ENDSTOP setting.
   #undef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN    -1
@@ -270,10 +363,9 @@
     X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, \
     Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, \
     Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, Z_MIN_PROBE_PIN, \
-    PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, CONTROLLERFAN_PIN, \
-    EXTRUDER_0_AUTO_FAN_PIN, EXTRUDER_1_AUTO_FAN_PIN, EXTRUDER_2_AUTO_FAN_PIN, EXTRUDER_3_AUTO_FAN_PIN, \
-    _E0_PINS _E1_PINS _E2_PINS _E3_PINS \
-    analogInputToDigitalPin(TEMP_BED_PIN) \
+    PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, FAN1_PIN, FAN2_PIN, CONTROLLERFAN_PIN, \
+    _E0_PINS _E1_PINS _E2_PINS _E3_PINS BED_PINS \
+    X_MS1_PIN, X_MS2_PIN, Y_MS1_PIN, Y_MS2_PIN, Z_MS1_PIN, Z_MS2_PIN \
   }
 
 #define HAS_DIGIPOTSS (PIN_EXISTS(DIGIPOTSS))

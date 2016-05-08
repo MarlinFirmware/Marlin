@@ -81,16 +81,9 @@
 
 #define FILWIDTH_PIN        2  // ANALOG NUMBERING
 
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
-
 ////LCD Pin Setup////
 
-#define SDPOWER            -1
 #define SDSS               26
-#define LED_PIN            -1
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #if DISABLED(SDSUPPORT)
   // these pins are defined in the SD library if building with SD support

@@ -72,14 +72,7 @@
 #define TEMP_0_PIN          7  // Extruder / Analog pin numbering
 #define TEMP_BED_PIN        6  // Bed / Analog pin numbering
 
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
-
-#define SDPOWER            -1
 #define SDSS                8
-#define LED_PIN            -1
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #if DISABLED(SDSUPPORT)
   // these pins are defined in the SD library if building with SD support
