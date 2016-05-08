@@ -75,17 +75,9 @@
 
 #define FILWIDTH_PIN        2  // ANALOG NUMBERING
 
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
-
 ////LCD Pin Setup////
 
-#define SDPOWER            -1
 #define SDSS               20 // Teensylu pin mapping
-#define LED_PIN            -1
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
-#define ALARM_PIN          -1
 
 // uncomment to enable an I2C based DAC like on the Printrboard REVF
 #define DAC_STEPPER_CURRENT
