@@ -282,7 +282,7 @@ void Stepper::isr() {
   if (current_block != NULL) {
 
     // Update endstops state, if enabled
-    #if ENABLED(HAS_Z_MIN_PROBE)
+    #if HAS_BED_PROBE
       if (endstops.enabled || endstops.z_probe_enabled) endstops.update();
     #else
       if (endstops.enabled) endstops.update();
