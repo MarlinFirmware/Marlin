@@ -64,7 +64,14 @@
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
-  #define THERMAL_PROTECTION_HYSTERESIS 8     // Degrees Celsius
+  #if TEMP_SENSOR_0 == 20
+    // A PT100 sensor reacts much quicker than any thermistor.
+    // Relax values a bit to prevent false positives for "Thermal Runaway"
+    #define THERMAL_PROTECTION_HYSTERESIS 8     // Degrees Celsius
+  #else
+    // Keep it safe otherwise
+    #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
+  #endif // TEMP_SENSOR_0 == 20
 
   /**
    * Whenever an M104 or M109 increases the target temperature the firmware will wait for the
