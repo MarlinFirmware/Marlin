@@ -12,6 +12,8 @@ _Deltaprintr setup!_
 
 <img align="top" width=320 src="fsr_connection.png" />
 
+_If you changed your hotend, e.g. for the popular E3Dv6, **make sure**_
+_to run a **PID autotune** as per the following [Instructions](http://reprap.org/wiki/PID_Tuning)!_
 
 ##Existing configuration variants in subfolders
 
@@ -26,26 +28,29 @@ _Deltaprintr setup!_
   adapted to the E3Dv6 all metal hotend, which happens to be longer
   than the standard J-Head hotend.
 
-* Double check `MANUAL_Z_HOME_POS` by slowly lowering the hotend. If
+* **Double check** `MANUAL_Z_HOME_POS` by slowly lowering the hotend. If
   the nozzle touches the bed before the LCD shows `0.00` (or less) for
   the Z axis, you have to substract the shown value from
   MANUAL_Z_HOME_POS and re-install the firmware.
 
-* If possible, do a PID autotune to match the PID values to your
-  specific hotend. [Instructions](http://reprap.org/wiki/PID_Tuning)
+* Each hotend / fan / heater / thermistor combination behaves
+  differently, so for error free operation you **will have** to do a PID
+  autotune to adjust the PID values for your specific hotend.
+  [Instructions](http://reprap.org/wiki/PID_Tuning)
 
 ###e3dv6_pt100/
 
 * E3Dv6 configuration set up for the PT100 high temperature sensor
   [Description](http://e3d-online.com/Kits-and-Multipacks/V6-PT100-Sensor-Kit)
 
-* Double check `MANUAL_Z_HOME_POS` by slowly lowering the hotend. If
+* **Double check** `MANUAL_Z_HOME_POS` by slowly lowering the hotend. If
   the nozzle touches the bed before the LCD shows `0.00` (or less) for
   the Z axis, you have to substract the shown value from
   `MANUAL_Z_HOME_POS` and re-install the firmware.
 
-* If possible, do a PID autotune to match the PID values to your
-  specific hotend / temperature sensor combination.
+* Each hotend / fan / heater / temperature sensor combination behaves
+  differently, so for error free operation you **will have** to do a PID
+  autotune to adjust the PID values for your specific hotend.
   [Instructions](http://reprap.org/wiki/PID_Tuning)
 
 ###e3dv6_pt100+heatbed/
@@ -54,13 +59,15 @@ _Deltaprintr setup!_
   standoffs
   [Information about and build instruction for customizations](http://www.tk-webart.de/wiki/doku.php?id=wiki:deltaprintr:deltaprintr_modifications)
 
-* Double check `MANUAL_Z_HOME_POS` by slowly lowering the hotend. If
+* **Double check** `MANUAL_Z_HOME_POS` by slowly lowering the hotend. If
   the nozzle touches the bed before the LCD shows `0.00` (or less) for
   the Z axis, you have to substract the shown value from
   `MANUAL_Z_HOME_POS` and re-install the firmware.
 
-* If possible, do a PID autotune to match the PID values to your
-  specific hotend / bed / temperature sensor combination.
+* Each bed / hotend / fan / heater / temperature sensor combination
+  behaves differently, so for error free operation you **will have** to
+  do a PID autotune to adjust the PID values for your specific hotend
+  and especially for **your custom build heated bed**.
   [Instructions](http://reprap.org/wiki/PID_Tuning)
 
 * **Please, be aware** that FSR bed leveling does not work reliably for this
@@ -73,11 +80,13 @@ _Deltaprintr setup!_
   [FSR board information](https://github.com/JohnSL/FSR_Endstop)
   [Information about and build instruction for customizations](http://www.tk-webart.de/wiki/doku.php?id=wiki:deltaprintr:deltaprintr_modifications)
 
-* Again, double check `MANUAL_Z_HOME_POS` by slowly lowering the
+* Again, **double check** `MANUAL_Z_HOME_POS` by slowly lowering the
   hotend. If the nozzle touches the bed before the LCD shows `0.00` (or
   less) for the Z axis, you have to substract the shown value from
   `MANUAL_Z_HOME_POS` and re-install the firmware.
 
-* If possible, do a PID autotune to match the PID values to your
-  specific hotend/bed / temperature sensor combination.
+* Each bed / hotend / fan / heater / temperature sensor combination
+  behaves differently, so for error free operation you **will have** to
+  do a PID autotune to adjust the PID values for your specific hotend
+  and especially for **your custom build heated bed**.
   [Instructions](http://reprap.org/wiki/PID_Tuning)

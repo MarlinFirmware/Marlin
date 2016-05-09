@@ -27,7 +27,7 @@ _to find the configuration that best matches your printer's setup._
 _Should you have **modified** your Deltaprintr, e.g. installed a different_
 _hotend, print platform, etc., please **double check** the values in_
 _the `Configuration.h` and `Configuration_adv.h` files to match your printer's_
-_hardware setup_
+_hardware setup!_
 
 _For **all** supplied configuration files that are **not explicitely labeled**_
 _as being for_

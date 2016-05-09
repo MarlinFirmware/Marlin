@@ -266,9 +266,9 @@
   //#define  DEFAULT_Kd 114
 
   // E3Dv6 All Metal Hotend w/ PT100 Temperature Sensor
-  #define  DEFAULT_Kp 17.35
-  #define  DEFAULT_Ki 1.12
-  #define  DEFAULT_Kd 67.36
+  #define  DEFAULT_Kp 23.69
+  #define  DEFAULT_Ki 1.63
+  #define  DEFAULT_Kd 86.15
 
 #endif // PIDTEMP
 
@@ -313,9 +313,9 @@
   //#define  DEFAULT_bedKd 1675.16
 
   // 12V 200W silicone heater into 5mm aluminium (Deltaprintr modification)
-  #define  DEFAULT_bedKp 351.22
-  #define  DEFAULT_bedKi 41.87
-  #define  DEFAULT_bedKd 736.54
+  #define  DEFAULT_bedKp 291.19
+  #define  DEFAULT_bedKi 32.55
+  #define  DEFAULT_bedKd 651.22
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -624,7 +624,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
     // Compensate by interpolating between the nearest four Z probe values for each point.
     // Useful for deltas where the print surface may appear like a bowl or dome shape.
     // Works best with AUTO_BED_LEVELING_GRID_POINTS 5 or higher.
-    #define AUTO_BED_LEVELING_GRID_POINTS 9
+    #define AUTO_BED_LEVELING_GRID_POINTS 7
 
   #else  // !AUTO_BED_LEVELING_GRID
 
@@ -658,7 +658,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
   //  (0,0)
   #define X_PROBE_OFFSET_FROM_EXTRUDER 0.0   // X offset: -left  +right  [of the nozzle]
   #define Y_PROBE_OFFSET_FROM_EXTRUDER 0.0   // Y offset: -front +behind [the nozzle]
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0.55  // Z offset: -below +above  [the nozzle]
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0.65  // Z offset: -below +above  [the nozzle]
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
 
@@ -740,9 +740,11 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 #define HOMING_FEEDRATE_E 0
 #define HOMING_FEEDRATE { HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_E }
 
-// default settings
 // delta speeds must be the same on xyz
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {57.8053, 57.8053, 57.8053, 109.4}  // default steps per unit for Deltaprintr
+#define XYZ_STEPS                     56.45
+
+// default settings
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {XYZ_STEPS, XYZ_STEPS, XYZ_STEPS, 109.4}  // default steps per unit for Deltaprintr
 #define DEFAULT_MAX_FEEDRATE          {200, 200, 200, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {2000,2000,2000,2000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
