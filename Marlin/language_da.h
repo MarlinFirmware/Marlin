@@ -35,14 +35,13 @@
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
-#define MSG_MAIN                            "Menu"
 #define WELCOME_MSG                         MACHINE_NAME " er klar"
 #define MSG_SD_INSERTED                     "Kort isat"
 #define MSG_SD_REMOVED                      "Kort fjernet"
+#define MSG_MAIN                            "Menu"
 #define MSG_AUTOSTART                       "Autostart"
-#define MSG_AUTO_HOME                       "Home" // G28
-#define MSG_COOLDOWN                        "Afkøl"
 #define MSG_DISABLE_STEPPERS                "Slå stepper fra"
+#define MSG_AUTO_HOME                       "Home" // G28
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               "Tryk for at starte"
 #define MSG_LEVEL_BED_DONE                  "Justering er færdig!"
@@ -50,8 +49,6 @@
 #define MSG_SET_HOME_OFFSETS                "Sæt forskyding til udgangsposition"
 #define MSG_HOME_OFFSETS_APPLIED            "Forskydninger er tilføjet"
 #define MSG_SET_ORIGIN                      "Sæt origin"
-#define MSG_SWITCH_PS_ON                    "Slå strøm til"
-#define MSG_SWITCH_PS_OFF                   "Slå strøm fra"
 #define MSG_PREHEAT_PLA                     "Forvarm PLA"
 #define MSG_PREHEAT_PLA_N                   "Forvarm PLA "
 #define MSG_PREHEAT_PLA_ALL                 "Forvarm PLA Alle"
@@ -62,6 +59,9 @@
 #define MSG_PREHEAT_ABS_ALL                 "Forvarm ABS Alle"
 #define MSG_PREHEAT_ABS_BEDONLY             "Forvarm ABS Bed"
 #define MSG_PREHEAT_ABS_SETTINGS            "Forvarm ABS conf"
+#define MSG_COOLDOWN                        "Afkøl"
+#define MSG_SWITCH_PS_ON                    "Slå strøm til"
+#define MSG_SWITCH_PS_OFF                   "Slå strøm fra"
 #define MSG_EXTRUDE                         "Extruder"
 #define MSG_RETRACT                         "Retract"
 #define MSG_MOVE_AXIS                       "Flyt akser"
@@ -73,6 +73,7 @@
 #define MSG_MOVE_1MM                        "Flyt 1mm"
 #define MSG_MOVE_10MM                       "Flyt 10mm"
 #define MSG_SPEED                           "Hastighed"
+#define MSG_BED_Z                           "Plade Z"
 #define MSG_NOZZLE                          "Dyse"
 #define MSG_BED                             "Plade"
 #define MSG_FAN_SPEED                       "Blæser hastighed"
@@ -149,14 +150,6 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
-#define MSG_END_HOUR                        "Timer"
-#define MSG_END_MINUTE                      "Minutter"
-#define MSG_HEATING                         "Opvarmer..."
-#define MSG_HEATING_COMPLETE                "Opvarmet"
-#define MSG_BED_HEATING                     "Opvarmer plade"
-#define MSG_BED_DONE                        "Plade opvarmet"
-
-#define MSG_BED_Z                           "Plade Z"
 #define MSG_HEATING_FAILED_LCD              "Opvarmning mislykkedes"
 #define MSG_ERR_REDUNDANT_TEMP              "Fejl: reserve temp"
 #define MSG_THERMAL_RUNAWAY                 "Temp løber løbsk"
@@ -164,13 +157,17 @@
 #define MSG_ERR_MINTEMP                     "Fejl: Min temp"
 #define MSG_ERR_MAXTEMP_BED                 "Fejl: Maks P temp"
 #define MSG_ERR_MINTEMP_BED                 "Fejl: Min P temp"
+#define MSG_END_HOUR                        "Timer"
+#define MSG_END_MINUTE                      "Minutter"
+#define MSG_HEATING                         "Opvarmer..."
+#define MSG_HEATING_COMPLETE                "Opvarmet"
+#define MSG_BED_HEATING                     "Opvarmer plade"
+#define MSG_BED_DONE                        "Plade opvarmet"
 
-#ifdef DELTA_CALIBRATION_MENU
-  #define MSG_DELTA_CALIBRATE               "Delta Kalibrering"
-  #define MSG_DELTA_CALIBRATE_X             "Kalibrer X"
-  #define MSG_DELTA_CALIBRATE_Y             "Kalibrer Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Kalibrer Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "Kalibrerings Center"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE               "Delta Kalibrering"
+#define MSG_DELTA_CALIBRATE_X             "Kalibrer X"
+#define MSG_DELTA_CALIBRATE_Y             "Kalibrer Y"
+#define MSG_DELTA_CALIBRATE_Z             "Kalibrer Z"
+#define MSG_DELTA_CALIBRATE_CENTER        "Kalibrerings Center"
 
 #endif // LANGUAGE_DA_H
