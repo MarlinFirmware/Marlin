@@ -71,6 +71,8 @@ public:
   FORCE_INLINE void setIndex(long index) { sdpos = index; file.seekSet(index); }
   FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
   FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
+  FORCE_INLINE int16_t getPos() { return file.curPosition(); sdpos; }
+  FORCE_INLINE int16_t getFilesize() { return filesize; }
 
 public:
   bool saving, logging, sdprinting, cardOK, filenameIsDir;
