@@ -596,7 +596,7 @@ void CardReader::updir() {
 }
 
 void CardReader::printingHasFinished() {
-  st_synchronize();
+  stepper.synchronize();
   if (file_subcall_ctr > 0) { // Heading up to a parent file that called current as a procedure.
     file.close();
     file_subcall_ctr--;
@@ -609,7 +609,7 @@ void CardReader::printingHasFinished() {
     sdprinting = false;
     if (SD_FINISHED_STEPPERRELEASE)
       enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-    autotempShutdown();
+    thermalManager.autotempShutdown();
   }
 }
 

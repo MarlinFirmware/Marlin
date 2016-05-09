@@ -671,6 +671,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
+
 // @section movement
 
 /**
@@ -756,6 +757,19 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
+
+//
+// Print Counter
+//
+// When enabled Marlin will keep track of some print statistical data such as:
+//  - Total print jobs
+//  - Total successful print jobs
+//  - Total failed print jobs
+//  - Total time printing
+//
+// This information can be viewed by the M78 command.
+//#define PRINTCOUNTER
+
 //=============================================================================
 //============================= LCD and SD support ============================
 //=============================================================================
@@ -770,27 +784,31 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //    en, pl, fr, de, es, ru, bg, it, pt, pt_utf8, pt-br, pt-br_utf8,
 //    fi, an, nl, ca, eu, kana, kana_utf8, cn, cz, test
 //
-//#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
+//#define LCD_LANGUAGE en
 
-//
-// LCD CHARACTER SET
-//
-// Choose ONE of the following charset options. This selection depends on
-// your physical hardware, so it must match your character-based LCD.
-//
-// Note: This option is NOT applicable to graphical displays.
-//
-// To find out what type of display you have:
-//  - Compile and upload with the language (above) set to 'test'
-//  - Click the controller to view the LCD menu
-//
-// The LCD will display two lines from the upper half of the character set.
-//
-// See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
-//
-#define DISPLAY_CHARSET_HD44780_JAPAN        // this is the most common hardware
-//#define DISPLAY_CHARSET_HD44780_WESTERN
-//#define DISPLAY_CHARSET_HD44780_CYRILLIC
+/**
+ * LCD Character Set
+ *
+ * Note: This option is NOT applicable to Graphical Displays.
+ *
+ * All character-based LCD's provide ASCII plus one of these
+ * language extensions:
+ *
+ *  - JAPANESE ... the most common
+ *  - WESTERN  ... with more accented characters
+ *  - CYRILLIC ... for the Russian language
+ *
+ * To determine the language extension installed on your controller:
+ *
+ *  - Compile and upload with LCD_LANGUAGE set to 'test'
+ *  - Click the controller to view the LCD menu
+ *  - The LCD will display Japanese, Western, or Cyrillic text
+ *
+ * See https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
+ *
+ * :['JAPANESE','WESTERN','CYRILLIC']
+ */
+#define DISPLAY_CHARSET_HD44780 JAPANESE
 
 //
 // LCD TYPE
@@ -846,7 +864,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 //
 // This option reverses the encoder direction for navigating LCD menus.
-// By default CLOCKWISE == DOWN. With this enabled CLOCKWISE == UP.
+//
+//  If CLOCKWISE normally moves DOWN this makes it go UP.
+//  If CLOCKWISE normally moves UP this makes it go DOWN.
 //
 //#define REVERSE_MENU_DIRECTION
 
@@ -918,12 +938,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Note: Usually sold with a white PCB.
 //
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
-
-//
-// BQ LCD Smart Controller shipped by
-// default with the BQ Hephestos 2 and Witbox 2.
-//
-//#define BQ_LCD_SMART_CONTROLLER
 
 //
 // GADGETS3D G3D LCD/SD Controller

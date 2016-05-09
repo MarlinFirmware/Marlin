@@ -37,7 +37,8 @@
 #define DOGM_LCD_IMPLEMENTATION_H
 
 /**
- * Implementation of the LCD display routines for a DOGM128 graphic display. These are common LCD 128x64 pixel graphic displays.
+ * Implementation of the LCD display routines for a DOGM128 graphic display.
+ * These are common LCD 128x64 pixel graphic displays.
  */
 
 #if ENABLED(ULTIPANEL)
@@ -91,13 +92,13 @@
     #define FONT_MENU_NAME ISO10646_1_5x7
   #endif
 #else // SIMULATE_ROMFONT
-  #if ENABLED(DISPLAY_CHARSET_HD44780_JAPAN)
+  #if DISPLAY_CHARSET_HD44780 == JAPANESE
     #include "dogm_font_data_HD44780_J.h"
     #define FONT_MENU_NAME HD44780_J_5x7
-  #elif ENABLED(DISPLAY_CHARSET_HD44780_WESTERN)
+  #elif DISPLAY_CHARSET_HD44780 == WESTERN
     #include "dogm_font_data_HD44780_W.h"
     #define FONT_MENU_NAME HD44780_W_5x7
-  #elif ENABLED(DISPLAY_CHARSET_HD44780_CYRILLIC)
+  #elif DISPLAY_CHARSET_HD44780 == CYRILLIC
     #include "dogm_font_data_HD44780_C.h"
     #define FONT_MENU_NAME HD44780_C_5x7
   #else // fall-back
@@ -293,13 +294,13 @@ FORCE_INLINE void _draw_heater_status(int x, int heater) {
     const bool isBed = false;
   #endif
 
-  _draw_centered_temp((isBed ? degTargetBed() : degTargetHotend(heater)) + 0.5, x, 7);
+  _draw_centered_temp((isBed ? thermalManager.degTargetBed() : thermalManager.degTargetHotend(heater)) + 0.5, x, 7);
 
-  _draw_centered_temp((isBed ? degBed() : degHotend(heater)) + 0.5, x, 28);
+  _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
 
   int h = isBed ? 7 : 8,
       y = isBed ? 18 : 17;
-  if (isBed ? isHeatingBed() : isHeatingHotend(heater)) {
+  if (isBed ? thermalManager.isHeatingBed() : thermalManager.isHeatingHotend(heater)) {
     u8g.setColorIndex(0); // white on black
     u8g.drawBox(x + h, y, 2, 2);
     u8g.setColorIndex(1); // black on white
