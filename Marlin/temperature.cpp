@@ -1048,12 +1048,9 @@ void Temperature::init() {
 
     // If the target temperature changes, restart
     if (tr_target_temperature[heater_index] != target_temperature)
-      *state = TRReset;
+      *state = TRInactive;
 
     switch (*state) {
-      case TRReset:
-        *timer = 0;
-        *state = TRInactive;
       // Inactive state waits for a target temperature to be set
       case TRInactive:
         if (target_temperature <= 0) break;
