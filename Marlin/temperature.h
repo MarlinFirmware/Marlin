@@ -358,17 +358,17 @@ class Temperature {
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED
 
-      typedef enum TRState { TRReset, TRInactive, TRFirstHeating, TRStable, TRRunaway } TRstate;
+      typedef enum TRState { TRInactive, TRFirstHeating, TRStable, TRRunaway } TRstate;
 
       void thermal_runaway_protection(TRState* state, millis_t* timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
 
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
-        TRState thermal_runaway_state_machine[EXTRUDERS] = { TRReset };
+        TRState thermal_runaway_state_machine[EXTRUDERS] = { TRInactive };
         millis_t thermal_runaway_timer[EXTRUDERS] = { 0 };
       #endif
 
       #if HAS_THERMALLY_PROTECTED_BED
-        TRState thermal_runaway_bed_state_machine = TRReset;
+        TRState thermal_runaway_bed_state_machine = TRInactive;
         millis_t thermal_runaway_bed_timer;
       #endif
 
