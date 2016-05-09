@@ -1047,15 +1047,14 @@ void Temperature::init() {
     int heater_index = heater_id >= 0 ? heater_id : EXTRUDERS;
 
     // If the target temperature changes, restart
-    if (tr_target_temperature[heater_index] != target_temperature)
-      *state = TRInactive;
+    if (tr_target_temperature[heater_index] != target_temperature) {
+      tr_target_temperature[heater_index] = target_temperature;
+      *state = target_temperature > 0 ? TRFirstHeating : TRInactive;
+    }
 
     switch (*state) {
       // Inactive state waits for a target temperature to be set
-      case TRInactive:
-        if (target_temperature <= 0) break;
-        tr_target_temperature[heater_index] = target_temperature;
-        *state = TRFirstHeating;
+      case TRInactive: break;
       // When first heating, wait for the temperature to be reached then go to Stable state
       case TRFirstHeating:
         if (temperature < tr_target_temperature[heater_index]) break;
