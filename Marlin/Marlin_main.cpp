@@ -831,6 +831,8 @@ void setup() {
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
   #endif
 
+  fanSpeeds[0] = MINI_FAN_SPEED;
+
   #if HAS_STEPPER_RESET
     enableStepperDrivers();
   #endif
