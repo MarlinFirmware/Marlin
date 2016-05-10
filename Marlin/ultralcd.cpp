@@ -1093,6 +1093,11 @@ static void lcd_prepare_menu() {
   // Auto Home
   //
   MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+  #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
+    MENU_ITEM(gcode, "Home X", PSTR("G28 X"));
+    MENU_ITEM(gcode, "Home Y", PSTR("G28 Y"));
+    MENU_ITEM(gcode, "Home Z", PSTR("G28 Z"));
+  #endif
 
   //
   // Set Home Offsets
