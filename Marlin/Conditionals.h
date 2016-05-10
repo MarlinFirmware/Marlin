@@ -397,8 +397,8 @@
   /**
    * Host keep alive
    */
-  #ifndef HOST_KEEPALIVE_INTERVAL
-    #define HOST_KEEPALIVE_INTERVAL 2
+  #ifndef DEFAULT_KEEPALIVE_INTERVAL
+    #define DEFAULT_KEEPALIVE_INTERVAL 2
   #endif
 
   /**
