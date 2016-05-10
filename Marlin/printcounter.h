@@ -25,6 +25,8 @@
 
 #include "macros.h"
 #include "stopwatch.h"
+#include <avr/eeprom.h>
+
 
 // Print debug messages with M111 S2
 //#define DEBUG_PRINTCOUNTER
