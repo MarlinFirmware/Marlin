@@ -387,7 +387,7 @@ static void lcd_implementation_status_screen() {
   #endif
   #if ENABLED(SDSUPPORT)
     uint16_t time;
-    uint32_t finish_time;
+    uint16_t finish_time;
     static char h_str[4];
     static char m_str[3];
     static char h_finish_str[4] = "---";
@@ -417,7 +417,7 @@ static void lcd_implementation_status_screen() {
       uitoaRp(time%60, m_str, 2, '0');
       if (IS_SD_PRINTING) {
         progress_bar = (unsigned int)(71.f * card.percentDone() / 100.f);
-        finish_time = time / card.getPos() * card.getFilesize();
+        finish_time = time * card.getFilesize() / card.getPos();
         uitoaR(finish_time/60, h_finish_str, 2);
         uitoaRp(finish_time%60, m_finish_str, 2, '0');
       }
