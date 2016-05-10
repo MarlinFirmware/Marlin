@@ -41,6 +41,13 @@
 #include "boards.h"
 #include "macros.h"
 
+//
+// Individual Axis Homing
+//
+// When active will add individual axis homing menu items to the LCD.
+//
+//#define INDIVIDUAL_AXIS_HOMING_MENU
+
 //===========================================================================
 //============================= Getting Started =============================
 //===========================================================================
