@@ -233,7 +233,7 @@
   #if (ENABLED(FIX_MOUNTED_PROBE) && (ENABLED(MECHANICAL_PROBE) || HAS_Z_ENDSTOP_SERVO || ENABLED(Z_PROBE_SLED))) \
        || (ENABLED(MECHANICAL_PROBE) && (HAS_Z_ENDSTOP_SERVO || ENABLED(Z_PROBE_SLED))) \
        || (HAS_Z_ENDSTOP_SERVO && ENABLED(Z_PROBE_SLED))
-    #error Please define only one type of probe: Z Servo, MECHANICAL_PROBE, Z_PROBE_SLED, or FIX_MOUNTED_PROBE.
+    #error Please define only one type of probe: Z Servo, MECHANICAL_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE.
   #endif
 
   /**
@@ -275,7 +275,7 @@
    * Require some kind of probe for bed leveling
    */
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #error AUTO_BED_LEVELING_FEATURE requires a probe! Define a Z Servo, MECHANICAL_PROBE, Z_PROBE_SLED, or FIX_MOUNTED_PROBE.
+    #error AUTO_BED_LEVELING_FEATURE requires a probe! Define a Z Servo, MECHANICAL_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE.
   #endif
 
 #endif
