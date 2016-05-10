@@ -708,7 +708,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 #if ENABLED(MANUAL_HOME_POSITIONS)
   #define MANUAL_X_HOME_POS 0
   #define MANUAL_Y_HOME_POS 0
-  #define MANUAL_Z_HOME_POS 306.4 // For delta: Distance between nozzle and print surface after homing.
+  #define MANUAL_Z_HOME_POS 313.6 // For delta: Distance between nozzle and print surface after homing.
                                   // E3Dv6 all metal hotend + heated bed setting (modified FSR standoffs)
   //#define MANUAL_Z_HOME_POS 302.4 // E3Dv6 all metal hotend + heated bed setting (standard FSR standoffs)
 #endif
