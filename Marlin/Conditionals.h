@@ -395,10 +395,10 @@
   #endif
 
   /**
-   * Avoid double-negatives for enabling features
+   * Host keep alive
    */
-  #if DISABLED(DISABLE_HOST_KEEPALIVE)
-    #define HOST_KEEPALIVE_FEATURE
+  #ifndef HOST_KEEPALIVE_INTERVAL
+    #define HOST_KEEPALIVE_INTERVAL 2
   #endif
 
   /**
