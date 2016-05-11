@@ -3583,6 +3583,10 @@ inline void gcode_G28() {
 
     #endif // !DELTA
 
+    #if ENABLED(MECHANICAL_PROBE)
+      stow_z_probe();
+    #endif
+    
     #ifdef Z_PROBE_END_SCRIPT
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
