@@ -60,6 +60,9 @@
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
 // #define PS_DEFAULT_OFF
 
+// PTFE tube maintenance reminder frequency in hours
+#define PTFE_CHANGE_TIME 250
+
 //===========================================================================
 //=============================Thermal Settings  ============================
 //===========================================================================
