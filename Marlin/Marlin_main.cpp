@@ -6193,6 +6193,10 @@ inline void gcode_M907() {
       if (code_seen(axis_codes[i])) digipot_current(i, code_value());
     if (code_seen('B')) digipot_current(4, code_value());
     if (code_seen('S')) for (int i = 0; i <= 4; i++) digipot_current(i, code_value());
+    if (code_seen('X')) digipot_current(0, code_value());
+    if (code_seen('Y')) digipot_current(1, code_value());
+    if (code_seen('Z')) digipot_current(2, code_value());
+    if (code_seen('E')) digipot_current(3, code_value());
   #endif
   #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
     if (code_seen('X')) digipot_current(0, code_value());
