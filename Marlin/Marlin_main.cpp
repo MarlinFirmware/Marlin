@@ -832,6 +832,8 @@ void setup() {
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
   #endif
 
+  fanSpeeds[0] = MINI_FAN_SPEED;
+
   #if HAS_STEPPER_RESET
     enableStepperDrivers();
   #endif
@@ -4407,6 +4409,9 @@ inline void gcode_M105() {
   inline void gcode_M106() {
     uint16_t s = code_seen('S') ? code_value_short() : 255,
              p = code_seen('P') ? code_value_short() : 0;
+
+    NOLESS(s, MINI_FAN_SPEED);
+    
     NOMORE(s, 255);
     if (p < FAN_COUNT) fanSpeeds[p] = s;
   }
@@ -4416,7 +4421,7 @@ inline void gcode_M105() {
    */
   inline void gcode_M107() {
     uint16_t p = code_seen('P') ? code_value_short() : 0;
-    if (p < FAN_COUNT) fanSpeeds[p] = 0;
+    if (p < FAN_COUNT) fanSpeeds[p] = MINI_FAN_SPEED;
   }
 
 #endif // FAN_COUNT > 0

@@ -105,7 +105,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  #define MOTHERBOARD BOARD_MELZI
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -186,7 +186,7 @@
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
-#define TEMP_SENSOR_BED 0
+#define TEMP_SENSOR_BED 1
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -218,7 +218,7 @@
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
-#define BED_MAXTEMP 150
+#define BED_MAXTEMP 275
 
 // If you want the M105 heater power reported in watts, define the BED_WATTS, and (shared for all extruders) EXTRUDER_WATTS
 //#define EXTRUDER_WATTS (12.0*12.0/6.7) // P=U^2/R
@@ -245,11 +245,23 @@
   #define PID_INTEGRAL_DRIVE_MAX PID_MAX  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
 
+  // Disco S1 --> PID calculé à 220°C le 15/07/2015 + nouvelle table de température + résistance de tirage 4,7K
+  //from autotune on the bed at 220 degreesC for 8 cycles = M303 E0 C8 S220
+    #define  DEFAULT_Kp 30.83
+    #define  DEFAULT_Ki 5.35
+    #define  DEFAULT_Kd 44.45
+
+  // Disco + E3D --> PID calcule a 220°C le 18/07/2015 + table temperature n°16 + resistance de tirage 4,7K
+  //from autotune on the bed at 220 degreesC for 8 cycles = M303 E0 C8 S220
+  //    #define  DEFAULT_Kp 126.27
+  //    #define  DEFAULT_Ki 24.08
+  //    #define  DEFAULT_Kd 165.51
+  
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
   // Ultimaker
-  #define  DEFAULT_Kp 22.2
-  #define  DEFAULT_Ki 1.08
-  #define  DEFAULT_Kd 114
+  //#define  DEFAULT_Kp 22.2
+  //#define  DEFAULT_Ki 1.08
+  //#define  DEFAULT_Kd 114
 
   // MakerGear
   //#define  DEFAULT_Kp 7.0
@@ -275,7 +287,7 @@
 // If your configuration is significantly different than this and you don't understand the issues involved, you probably
 // shouldn't use bed PID until someone else verifies your hardware works.
 // If this is enabled, find your own PID constants below.
-//#define PIDTEMPBED
+#define PIDTEMPBED
 
 //#define BED_LIMIT_SWITCHING
 
@@ -293,9 +305,9 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define  DEFAULT_bedKp 10.00
-  #define  DEFAULT_bedKi .023
-  #define  DEFAULT_bedKd 305.4
+  #define  DEFAULT_bedKp 30.83
+  #define  DEFAULT_bedKi 5.35
+  #define  DEFAULT_bedKd 44.45
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -315,6 +327,9 @@
 #define PREVENT_LENGTHY_EXTRUDE
 
 #define EXTRUDE_MINTEMP 170
+
+#define MINI_FAN_SPEED 130
+
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
 //===========================================================================
@@ -361,10 +376,10 @@
 // Almost all printers will be using one per axis. Probes will use one or more of the
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
 #define USE_XMIN_PLUG
-#define USE_YMIN_PLUG
+#//define USE_YMIN_PLUG
 #define USE_ZMIN_PLUG
 //#define USE_XMAX_PLUG
-//#define USE_YMAX_PLUG
+#define USE_YMAX_PLUG
 //#define USE_ZMAX_PLUG
 
 // coarse Endstop Settings
@@ -382,13 +397,13 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-const bool X_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Y_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool X_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Y_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool X_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Y_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 
 //===========================================================================
 //============================= Z Probe Options =============================
@@ -449,7 +464,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // WARNING: When motors turn off there is a chance of losing position accuracy!
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z false
+#define DISABLE_Z true
 // Warn on display about possibly reduced accuracy
 //#define DISABLE_REDUCED_ACCURACY_WARNING
 
@@ -463,12 +478,12 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
+#define INVERT_Z_DIR true
 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -481,7 +496,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
 #define X_HOME_DIR -1
-#define Y_HOME_DIR -1
+#define Y_HOME_DIR  1
 #define Z_HOME_DIR -1
 
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
@@ -493,9 +508,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 200
-#define Y_MAX_POS 200
-#define Z_MAX_POS 200
+#define X_MAX_POS 205
+#define Y_MAX_POS 205
+#define Z_MAX_POS 205
 
 //===========================================================================
 //========================= Filament Runout Sensor ==========================
@@ -539,7 +554,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // @section bedlevel
 
-//#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
+#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
 //#define DEBUG_LEVELING_FEATURE
 #define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
@@ -562,27 +577,27 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   #if ENABLED(AUTO_BED_LEVELING_GRID)
 
-    #define LEFT_PROBE_BED_POSITION 15
-    #define RIGHT_PROBE_BED_POSITION 170
-    #define FRONT_PROBE_BED_POSITION 20
-    #define BACK_PROBE_BED_POSITION 170
+    #define LEFT_PROBE_BED_POSITION 22
+    #define RIGHT_PROBE_BED_POSITION 184
+    #define FRONT_PROBE_BED_POSITION 50
+    #define BACK_PROBE_BED_POSITION 145
 
     #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
     // Set the number of grid points per dimension.
     // You probably don't need more than 3 (squared=9).
-    #define AUTO_BED_LEVELING_GRID_POINTS 2
+    #define AUTO_BED_LEVELING_GRID_POINTS 3
 
   #else  // !AUTO_BED_LEVELING_GRID
 
     // Arbitrary points to probe.
     // A simple cross-product is used to estimate the plane of the bed.
     #define ABL_PROBE_PT_1_X 15
-    #define ABL_PROBE_PT_1_Y 180
+    #define ABL_PROBE_PT_1_Y 50
     #define ABL_PROBE_PT_2_X 15
-    #define ABL_PROBE_PT_2_Y 20
-    #define ABL_PROBE_PT_3_X 170
-    #define ABL_PROBE_PT_3_Y 20
+    #define ABL_PROBE_PT_2_Y 155
+    #define ABL_PROBE_PT_3_X 180
+    #define ABL_PROBE_PT_3_Y 50
 
   #endif // AUTO_BED_LEVELING_GRID
 
@@ -603,15 +618,15 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //    |           |
   //    O-- FRONT --+
   //  (0,0)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
+  #define X_PROBE_OFFSET_FROM_EXTRUDER 0  // X offset: -left  +right  [of the nozzle]
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -22  // Y offset: -front +behind [the nozzle]
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
-  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
+  #define XY_TRAVEL_SPEED 9000         // X and Y axis travel speed between probes, in mm/min.
 
-  #define Z_RAISE_BEFORE_PROBING 15   // How much the Z axis will be raised before traveling to the first probing point.
+  #define Z_RAISE_BEFORE_PROBING 5   // How much the Z axis will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  // How much the Z axis will be raised when traveling from between next probing points.
-  #define Z_RAISE_AFTER_PROBING 15    // How much the Z axis will be raised after the last probing point.
+  #define Z_RAISE_AFTER_PROBING 5    // How much the Z axis will be raised after the last probing point.
 
   //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
                                                                              // Useful to retract a deployable Z probe.
@@ -622,7 +637,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   // A fix mounted probe, like the normal inductive probe, must be deactivated to go below Z_PROBE_OFFSET_FROM_EXTRUDER
   // when the hardware endstops are active.
-  //#define FIX_MOUNTED_PROBE
+  #define FIX_MOUNTED_PROBE
 
   // A Servo Probe can be defined in the servo section below.
 
@@ -683,9 +698,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,500}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {300, 300, 5, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {3000,3000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,97.8}  // default steps per unit for Ultimaker
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 4, 25}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration in mm/s^2 for retracts
@@ -708,8 +723,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #if ENABLED(CUSTOM_M_CODES)
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     #define CUSTOM_M_CODE_SET_Z_PROBE_OFFSET 851
-    #define Z_PROBE_OFFSET_RANGE_MIN -20
-    #define Z_PROBE_OFFSET_RANGE_MAX 20
+    #define Z_PROBE_OFFSET_RANGE_MIN -15
+    #define Z_PROBE_OFFSET_RANGE_MAX -5
   #endif
 #endif
 
@@ -751,11 +766,11 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180
 #define PLA_PREHEAT_HPB_TEMP 70
-#define PLA_PREHEAT_FAN_SPEED 0   // Insert Value between 0 and 255
+#define PLA_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
 #define ABS_PREHEAT_HOTEND_TEMP 240
 #define ABS_PREHEAT_HPB_TEMP 110
-#define ABS_PREHEAT_FAN_SPEED 0   // Insert Value between 0 and 255
+#define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
 
 //
@@ -784,7 +799,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //    en, pl, fr, de, es, ru, bg, it, pt, pt_utf8, pt-br, pt-br_utf8,
 //    fi, an, nl, ca, eu, kana, kana_utf8, cn, cz, test
 //
-#define LCD_LANGUAGE en
+#define LCD_LANGUAGE fr
 
 //
 // LCD Character Set
@@ -829,7 +844,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // SD Card support is disabled by default. If your controller has an SD slot,
 // you must uncomment the following option or it won't work.
 //
-//#define SDSUPPORT
+#define SDSUPPORT
 
 //
 // SD CARD: SPI SPEED
