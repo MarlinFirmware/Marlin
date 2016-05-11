@@ -863,6 +863,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define ENCODER_STEPS_PER_MENU_ITEM 5
 
 //
+// This option reverses the encoder direction everywhere
+//
+//  Set this option if CLOCKWISE causes values to DECREASE
+//
+//#define REVERSE_ENCODER_DIRECTION
+
+//
 // This option reverses the encoder direction for navigating LCD menus.
 //
 //  If CLOCKWISE normally moves DOWN this makes it go UP.
