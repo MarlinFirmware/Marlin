@@ -60,6 +60,55 @@
 
 Stepper stepper; // Singleton
 
+// public:
+
+block_t* Stepper::current_block = NULL;  // A pointer to the block currently being traced
+
+#if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
+  bool Stepper::abort_on_endstop_hit = false;
+#endif
+
+#if ENABLED(Z_DUAL_ENDSTOPS)
+  bool Stepper::performing_homing = false;
+#endif
+
+// private:
+
+unsigned char Stepper::last_direction_bits = 0;        // The next stepping-bits to be output
+unsigned int Stepper::cleaning_buffer_counter = 0;
+
+#if ENABLED(Z_DUAL_ENDSTOPS)
+  bool Stepper::locked_z_motor = false;
+  bool Stepper::locked_z2_motor = false;
+#endif
+
+long  Stepper::counter_X = 0,
+      Stepper::counter_Y = 0,
+      Stepper::counter_Z = 0,
+      Stepper::counter_E = 0;
+
+volatile unsigned long Stepper::step_events_completed = 0; // The number of step events executed in the current block
+
+#if ENABLED(ADVANCE)
+  unsigned char Stepper::old_OCR0A;
+  long  Stepper::final_advance = 0,
+        Stepper::old_advance = 0,
+        Stepper::e_steps[4],
+        Stepper::advance_rate,
+        Stepper::advance;
+#endif
+
+long Stepper::acceleration_time, Stepper::deceleration_time;
+
+volatile long Stepper::count_position[NUM_AXIS] = { 0 };
+volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
+
+unsigned short Stepper::acc_step_rate; // needed for deceleration start point
+uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
+unsigned short Stepper::OCR1A_nominal;
+
+volatile long Stepper::endstops_trigsteps[3];
+
 #if ENABLED(DUAL_X_CARRIAGE)
   #define X_APPLY_DIR(v,ALWAYS) \
     if (extruder_duplication_enabled || ALWAYS) { \
@@ -238,7 +287,7 @@ void Stepper::set_directions() {
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately.
-ISR(TIMER1_COMPA_vect) { stepper.isr(); }
+ISR(TIMER1_COMPA_vect) { Stepper::isr(); }
 
 void Stepper::isr() {
   if (cleaning_buffer_counter) {
@@ -405,7 +454,7 @@ void Stepper::isr() {
 #if ENABLED(ADVANCE)
   // Timer interrupt for E. e_steps is set in the main routine;
   // Timer 0 is shared with millies
-  ISR(TIMER0_COMPA_vect) { stepper.advance_isr(); }
+  ISR(TIMER0_COMPA_vect) { Stepper::advance_isr(); }
 
   void Stepper::advance_isr() {
     old_OCR0A += 52; // ~10kHz interrupt (250000 / 26 = 9615kHz)
@@ -443,6 +492,7 @@ void Stepper::isr() {
 #endif // ADVANCE
 
 void Stepper::init() {
+
   digipot_init(); //Initialize Digipot Motor Current
   microstep_init(); //Initialize Microstepping Pins
 
