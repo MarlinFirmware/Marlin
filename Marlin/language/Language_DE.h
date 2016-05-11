@@ -200,5 +200,7 @@ const char DE_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Druckdauer";
 const char DE_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Abgeschlossen";
 const char DE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fehlgeschlagen";
 const char DE_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Druckplatte nicht erkannt";
+const char DE_SCREEN_PTFE_TITLE[] PROGMEM               = "";
+const char DE_SCREEN_PTFE_TEXT[] PROGMEM                = "";
 
 #endif //LANGUAGE_DE_H

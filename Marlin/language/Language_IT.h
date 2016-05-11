@@ -200,5 +200,7 @@ const char IT_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tempo";
 const char IT_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Completati";
 const char IT_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Non riusciti";
 const char IT_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Piano non rilevato";
+const char IT_SCREEN_PTFE_TITLE[] PROGMEM               = "";
+const char IT_SCREEN_PTFE_TEXT[] PROGMEM                = "";
 
 #endif //LANGUAGE_IT_H

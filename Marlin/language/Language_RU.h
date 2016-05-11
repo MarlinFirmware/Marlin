@@ -200,5 +200,7 @@ const char RU_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = """\xb2""""\xe0""""\xd
 const char RU_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = """\xb2""""\xeb""""\xdf""""\xde""""\xdb""""\xdd""""\xd5""""\xdd""""\xde""";
 const char RU_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = """\xbd""""\xd5"" ""\xd2""""\xeb""""\xdf""""\xde""""\xdb""""\xdd""""\xd5""""\xdd""""\xde""";
 const char RU_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = """\xbf""""\xde""""\xd4""""\xdb""""\xde""""\xd6""""\xda""""\xd0"" ""\xdd""""\xd5"" ""\xde""""\xd1""""\xdd""""\xd0""""\xe0""""\xe3""""\xd6""""\xd5""""\xdd""""\xd0""";
+const char RU_SCREEN_PTFE_TITLE[] PROGMEM              = "";
+const char RU_SCREEN_PTFE_TEXT[] PROGMEM                = "";
 
 #endif //LANGUAGE_RU_H

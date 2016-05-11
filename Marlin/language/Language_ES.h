@@ -200,5 +200,7 @@ const char ES_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tiempo";
 const char ES_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Completados";
 const char ES_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fallidos";
 const char ES_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Base no detectada";
+const char ES_SCREEN_PTFE_TITLE[] PROGMEM               = "Recordatorio";
+const char ES_SCREEN_PTFE_TEXT[] PROGMEM                = "Cambia el tubo PTFE cada 250 horas";
 
 #endif //LANGUAGE_ES_H
