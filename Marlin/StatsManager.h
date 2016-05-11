@@ -50,6 +50,9 @@ class StatsManager
 		inline uint16_t getSuccededPrints() { return m_succeded; };
 		inline uint16_t getTotalPrints() { return m_total_prints; };
 		
+		inline bool getPTFEMaintenanceFlag() { return m_ptfe_maintenance_flag; };
+		inline void resetPTFEMaintenanceFlag() { m_ptfe_maintenance_flag = false; };
+		
 	private:
 		void resetStats();
 	
@@ -57,6 +60,7 @@ class StatsManager
 		uint8_t m_minutes;
 		uint16_t m_total_prints;
 		uint16_t m_succeded;
+		bool m_ptfe_maintenance_flag;
 };
 
 #endif //STATS_MANAGER_H

@@ -37,6 +37,7 @@
 #include "ViewManager.h"
 #include "cardreader.h"
 #include "GuiManager.h"
+#include "StatsManager.h"
 
 #define INACTIVITY_TIME_MINUTES 10
 
@@ -344,4 +345,15 @@ void PrintManager::setBedMissingFlag(bool flag)
 		}
 	}
 #endif // BED_DETECTION
+}
+
+bool PrintManager::checkPTFEMaintenance()
+{
+	if(StatsManager::single::instance().getPTFEMaintenanceFlag() == true)
+	{
+		StatsManager::single::instance().resetPTFEMaintenanceFlag();
+		return true;
+	}
+	
+	return false;
 }
