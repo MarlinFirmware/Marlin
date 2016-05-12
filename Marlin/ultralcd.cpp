@@ -2466,9 +2466,15 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       GET_BUTTON_STATES(buttons);
     #endif //!NEWPANEL
 
-    #if ENABLED(REVERSE_MENU_DIRECTION)
+    #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)
+      #define ENCODER_DIFF_CW  (encoderDiff -= encoderDirection)
+      #define ENCODER_DIFF_CCW (encoderDiff += encoderDirection)
+    #elif ENABLED(REVERSE_MENU_DIRECTION)
       #define ENCODER_DIFF_CW  (encoderDiff += encoderDirection)
       #define ENCODER_DIFF_CCW (encoderDiff -= encoderDirection)
+    #elif ENABLED(REVERSE_ENCODER_DIRECTION)
+      #define ENCODER_DIFF_CW  (encoderDiff--)
+      #define ENCODER_DIFF_CCW (encoderDiff++)
     #else
       #define ENCODER_DIFF_CW  (encoderDiff++)
       #define ENCODER_DIFF_CCW (encoderDiff--)
