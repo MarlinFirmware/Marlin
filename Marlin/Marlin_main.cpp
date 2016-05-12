@@ -45,6 +45,10 @@
   #include "mesh_bed_leveling.h"
 #endif
 
+#if ENABLED(BEZIER_CURVE_SUPPORT)
+  #include "planner_bezier.h"
+#endif
+
 #include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
@@ -102,6 +106,7 @@
  * G2  - CW ARC
  * G3  - CCW ARC
  * G4  - Dwell S<seconds> or P<milliseconds>
+ * G5  - Cubic B-spline with
  * G10 - retract filament according to settings of M207
  * G11 - retract recover filament according to settings of M208
  * G28 - Home one or more axes
@@ -508,6 +513,10 @@ void process_next_command();
 
 #if ENABLED(ARC_SUPPORT)
   void plan_arc(float target[NUM_AXIS], float* offset, uint8_t clockwise);
+#endif
+
+#if ENABLED(BEZIER_CURVE_SUPPORT)
+  void plan_cubic_move(const float offset[4]);
 #endif
 
 void serial_echopair_P(const char* s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
@@ -2509,6 +2518,43 @@ inline void gcode_G4() {
 
   while (PENDING(millis(), codenum)) idle();
 }
+
+#if ENABLED(BEZIER_CURVE_SUPPORT)
+
+  /**
+   * Parameters interpreted according to:
+   * http://linuxcnc.org/docs/2.6/html/gcode/gcode.html#sec:G5-Cubic-Spline
+   * However I, J omission is not supported at this point; all
+   * parameters can be omitted and default to zero.
+   */
+
+  /**
+   * G5: Cubic B-spline
+   */
+  inline void gcode_G5() {
+    if (IsRunning()) {
+
+      #ifdef SF_ARC_FIX
+        bool relative_mode_backup = relative_mode;
+        relative_mode = true;
+      #endif
+      gcode_get_destination();
+      #ifdef SF_ARC_FIX
+        relative_mode = relative_mode_backup;
+      #endif
+
+      float offset[] = {
+        code_seen('I') ? code_value() : 0.0,
+        code_seen('J') ? code_value() : 0.0,
+        code_seen('P') ? code_value() : 0.0,
+        code_seen('Q') ? code_value() : 0.0
+      };
+
+      plan_cubic_move(offset);
+    }
+  }
+
+#endif // BEZIER_CURVE_SUPPORT
 
 #if ENABLED(FWRETRACT)
 
@@ -6489,16 +6535,27 @@ void process_next_command() {
 
       // G2, G3
       #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
+
         case 2: // G2  - CW ARC
         case 3: // G3  - CCW ARC
           gcode_G2_G3(codenum == 2);
           break;
+
       #endif
 
       // G4 Dwell
       case 4:
         gcode_G4();
         break;
+
+      #if ENABLED(BEZIER_CURVE_SUPPORT)
+
+        // G5
+        case 5: // G5  - Cubic B_spline
+          gcode_G5();
+          break;
+
+      #endif // BEZIER_CURVE_SUPPORT
 
       #if ENABLED(FWRETRACT)
 
@@ -6507,7 +6564,7 @@ void process_next_command() {
           gcode_G10_G11(codenum == 10);
           break;
 
-      #endif //FWRETRACT
+      #endif // FWRETRACT
 
       case 28: // G28: Home all axes, one at a time
         gcode_G28();
@@ -7578,6 +7635,19 @@ void prepare_move() {
     set_current_to_destination();
   }
 #endif
+
+#if ENABLED(BEZIER_CURVE_SUPPORT)
+
+  void plan_cubic_move(const float offset[4]) {
+    cubic_b_spline(current_position, destination, offset, feedrate * feedrate_multiplier / 60 / 100.0, active_extruder);
+
+    // As far as the parser is concerned, the position is now == target. In reality the
+    // motion control system might still be processing the action and the real tool position
+    // in any intermediate location.
+    set_current_to_destination();
+  }
+
+#endif // BEZIER_CURVE_SUPPORT
 
 #if HAS_CONTROLLERFAN
 
