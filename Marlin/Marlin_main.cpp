@@ -5038,11 +5038,15 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    */
   inline void gcode_M156() {
     uint8_t addr = code_seen('A') ? code_value_short() : 0;
-    int bytes    = code_seen('B') ? code_value_short() : 0;
+    int bytes    = code_seen('B') ? code_value_short() : 1;
 
-    if (addr && bytes) {
+    if (addr && bytes > 0 && bytes <= 32) {
       i2c.address(addr);
       i2c.reqbytes(bytes);
+    }
+    else {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLN("Bad i2c request");
     }
   }
 
