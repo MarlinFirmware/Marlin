@@ -6488,7 +6488,7 @@ void process_next_command() {
         break;
 
       // G2, G3
-      #if ENABLED(ARC_SUPPORT) & DISABLED(SCARA)
+      #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
         case 2: // G2  - CW ARC
         case 3: // G3  - CCW ARC
           gcode_G2_G3(codenum == 2);
@@ -7514,7 +7514,15 @@ void prepare_move() {
 
     float feed_rate = feedrate * feedrate_multiplier / 60 / 100.0;
 
+    millis_t previous_ms = millis();
+
     for (i = 1; i < segments; i++) { // Iterate (segments-1) times
+
+      millis_t now = millis();
+      if (now - previous_ms > 200UL) {
+        previous_ms = now;
+        idle();
+      }
 
       if (++count < N_ARC_CORRECTION) {
         // Apply vector rotation matrix to previous r_X / 1
