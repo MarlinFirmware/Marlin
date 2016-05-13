@@ -51,7 +51,7 @@
  */
 
 #ifndef __AVR_ATmega644__
-  #error Oops!  Make sure you have 'SanguinoA' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'SanguinoA' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define X_STEP_PIN         21
