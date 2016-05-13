@@ -25,7 +25,7 @@
  */
 
 #ifndef __AVR_ATmega1281__
-  #error Oops!  Make sure you have 'Minitronics' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Minitronics' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define LARGE_FLASH        true

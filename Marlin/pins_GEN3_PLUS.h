@@ -25,7 +25,7 @@
  */
 
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega1284P__)
-  #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define X_STEP_PIN         15

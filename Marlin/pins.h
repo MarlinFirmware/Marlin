@@ -154,7 +154,7 @@
 #elif MB(SAINSMART_2IN1)
   #include "pins_SAINSMART_2IN1.h"
 #else
-  #error Unknown MOTHERBOARD value set in Configuration.h
+  #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
 
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!

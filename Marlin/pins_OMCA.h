@@ -52,7 +52,7 @@
  */
 
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__)
-  #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu. (Final OMCA board)
+  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu. (Final OMCA board)"
 #endif
 
 #define X_STEP_PIN         26
