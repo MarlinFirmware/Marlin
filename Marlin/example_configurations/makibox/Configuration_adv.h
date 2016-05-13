@@ -455,6 +455,7 @@
 // @section extras
 
 // Arc interpretation settings:
+#define ARC_SUPPORT  // Disabling this saves ~2660bytes
 #define MM_PER_ARC_SEGMENT 1
 #define N_ARC_CORRECTION 25
 
