@@ -31,8 +31,8 @@
   void mesh_bed_leveling::reset() {
     active = 0;
     z_offset = 0;
-    for (int y = 0; y < MESH_NUM_Y_POINTS; y++)
-      for (int x = 0; x < MESH_NUM_X_POINTS; x++)
+    for (int8_t y = MESH_NUM_Y_POINTS; y--;)
+      for (int8_t x = MESH_NUM_X_POINTS; x--;)
         z_values[y][x] = 0;
   }
 
