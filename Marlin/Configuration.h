@@ -769,7 +769,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // - M75  - Start the print job timer
 // - M76  - Pause the print job timer
 // - M77  - Stop the print job timer
-#defined PRINTJOB_TIMER_AUTOSTART
+#define PRINTJOB_TIMER_AUTOSTART
 
 //
 // Print Counter
