@@ -3238,7 +3238,7 @@ inline void gcode_G28() {
 
     #if ENABLED(Z_PROBE_SLED)
       dock_sled(false); // engage (un-dock) the Z probe
-    #elif ENABLED(MECHANICAL_PROBE) || (ENABLED(DELTA) && SERVO_LEVELING)
+    #elif ENABLED(MECHANICAL_PROBE) || ENABLED(FIX_MOUNTED_PROBE) || (ENABLED(DELTA) && SERVO_LEVELING)
       deploy_z_probe();
     #endif
 
