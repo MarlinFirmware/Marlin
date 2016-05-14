@@ -25,7 +25,7 @@
  */
 
 #ifndef __AVR_ATmega644P__
-  #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define DEBUG_PIN 0

@@ -28,7 +28,7 @@
  */
 
 #ifndef __AVR_AT90USB1286__
-  #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define DEFAULT_MACHINE_NAME    "SAV MkI"

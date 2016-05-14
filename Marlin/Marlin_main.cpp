@@ -3957,10 +3957,10 @@ inline void gcode_M42() {
    */
   #if ENABLED(Z_MIN_PROBE_ENDSTOP)
     #if !HAS_Z_MIN_PROBE_PIN
-      #error You must define Z_MIN_PROBE_PIN to enable Z probe repeatability calculation.
+      #error "You must define Z_MIN_PROBE_PIN to enable Z probe repeatability calculation."
     #endif
   #elif !HAS_Z_MIN
-    #error You must define Z_MIN_PIN to enable Z probe repeatability calculation.
+    #error "You must define Z_MIN_PIN to enable Z probe repeatability calculation."
   #endif
 
   /**

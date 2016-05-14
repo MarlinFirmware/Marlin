@@ -25,11 +25,11 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
 #if EXTRUDERS > 3
-  #error RUMBA supports up to 3 extruders. Comment this line to keep going.
+  #error "RUMBA supports up to 3 extruders. Comment this line to keep going."
 #endif
 
 #define DEFAULT_MACHINE_NAME "Rumba"
