@@ -755,6 +755,19 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define ABS_PREHEAT_HPB_TEMP 110
 #define ABS_PREHEAT_FAN_SPEED 0   // Insert Value between 0 and 255
 
+//
+// Print job timer
+//
+// This options allows you configure if the print job timer should automatically
+// start and stop counting when a M104 or M109 is received.
+//
+// If disabled you can control the print timer start and stop using the
+// following G-Code list:
+//
+// - M75  - Start the print job timer
+// - M76  - Pause the print job timer
+// - M77  - Stop the print job timer
+#defined PRINTJOB_TIMER_AUTOSTART
 
 //
 // Print Counter
