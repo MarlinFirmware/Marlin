@@ -118,6 +118,13 @@
 #endif
 
 /**
+ * Individual axis homing is useless for DELTAS
+ */
+#if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU) && ENABLED(DELTA)
+  #error Individual axis homing will not work with a DELTA kinematics.
+#endif
+
+/**
  * Options only for EXTRUDERS > 1
  */
 #if EXTRUDERS > 1
