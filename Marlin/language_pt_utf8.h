@@ -42,12 +42,16 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Desactivar motores"
 #define MSG_AUTO_HOME                       "Ir para origem"
+#define MSG_AUTO_HOME_X                     "Ir para origem X"
+#define MSG_AUTO_HOME_Y                     "Ir para origem Y"
+#define MSG_AUTO_HOME_Z                     "Ir para origem Z"
 #define MSG_LEVEL_BED_HOMING                "Indo para origem"
-#define MSG_LEVEL_BED_WAITING               "Click to Begin"
-#define MSG_LEVEL_BED_DONE                  "Leveling Done!"
-#define MSG_LEVEL_BED_CANCEL                "Cancel"
+#define MSG_LEVEL_BED_WAITING               "Click para iniciar"
+#define MSG_LEVEL_BED_NEXT_POINT            "Próximo ponto"
+#define MSG_LEVEL_BED_DONE                  "Pronto !"
+#define MSG_LEVEL_BED_CANCEL                "Cancelar"
 #define MSG_SET_HOME_OFFSETS                "Definir desvio"
-#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets aplicados"
 #define MSG_SET_ORIGIN                      "Definir origem"
 #define MSG_PREHEAT_PLA                     "Pre-aquecer PLA"
 #define MSG_PREHEAT_PLA_N                   "Pre-aquecer PLA"
@@ -173,5 +177,7 @@
 #define MSG_DELTA_CALIBRATE_Y               "Calibrar Y"
 #define MSG_DELTA_CALIBRATE_Z               "Calibrar Z"
 #define MSG_DELTA_CALIBRATE_CENTER          "Calibrar Centro"
+
+#define MSG_LCD_ENDSTOPS                    "Fim de curso"
 
 #endif // LANGUAGE_PT_UTF_H
