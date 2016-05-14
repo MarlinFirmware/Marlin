@@ -149,7 +149,9 @@ void PrintCounter::stop() {
     PrintCounter::debug(PSTR("stop"));
   #endif
 
+  if (!this->isRunning()) return;
   super::stop();
+
   this->data.finishedPrints++;
   this->data.printTime += this->deltaDuration();
   this->saveStats();
