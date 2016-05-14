@@ -45,6 +45,9 @@
 #define MSG_AUTOSTART                       "\xbc\xde\xc4\xde\xb3\xb6\xb2\xbc"                                 // "ｼﾞﾄﾞｳｶｲｼ" ("Autostart")
 #define MSG_DISABLE_STEPPERS                "\xd3\xb0\xc0\xb0\xc3\xde\xdd\xb9\xde\xdd\x20\xb5\xcc"             // "ﾓｰﾀｰﾃﾞﾝｹﾞﾝ ｵﾌ" ("Disable steppers")
 #define MSG_AUTO_HOME                       "\xb9\xde\xdd\xc3\xdd\xc6\xb2\xc4\xde\xb3"                         // "ｹﾞﾝﾃﾝﾆｲﾄﾞｳ" ("Auto home")
+#define MSG_AUTO_HOME_X                     "X\xbc\xde\xb8\x20\xb9\xde\xdd\xc3\xdd\xc6\xb2\xc4\xde\xb3"        // "Xｼﾞｸ ｹﾞﾝﾃﾝﾆｲﾄﾞｳ" ("Home X")
+#define MSG_AUTO_HOME_Y                     "Y\xbc\xde\xb8\x20\xb9\xde\xdd\xc3\xdd\xc6\xb2\xc4\xde\xb3"        // "Yｼﾞｸ ｹﾞﾝﾃﾝﾆｲﾄﾞｳ" ("Home Y")
+#define MSG_AUTO_HOME_Z                     "Z\xbc\xde\xb8\x20\xb9\xde\xdd\xc3\xdd\xc6\xb2\xc4\xde\xb3"        // "Zｼﾞｸ ｹﾞﾝﾃﾝﾆｲﾄﾞｳ" ("Home Z")
 #define MSG_LEVEL_BED_HOMING                "\xb9\xde\xdd\xc3\xdd\xc6\xb2\xc4\xde\xb3"                         // "ｹﾞﾝﾃﾝﾆｲﾄﾞｳ" ("Homing XYZ")
 #define MSG_LEVEL_BED_WAITING               "\xda\xcd\xde\xd8\xdd\xb8\xde\xb6\xb2\xbc"                         // "ﾚﾍﾞﾘﾝｸﾞｶｲｼ" ("Click to Begin")
 #define MSG_LEVEL_BED_NEXT_POINT            "\xc2\xb7\xde\xc9\xbf\xb8\xc3\xb2\xc3\xdd\xcd"                     // "ﾂｷﾞﾉｿｸﾃｲﾃﾝﾍ" ("Next Point")
@@ -186,7 +189,11 @@
 #define MSG_BABYSTEP_X                      "X\xbc\xde\xb8\x20\xcb\xde\xc4\xde\xb3"                            // "Xｼﾞｸ ﾋﾞﾄﾞｳ" ("Babystep X")
 #define MSG_BABYSTEP_Y                      "Y\xbc\xde\xb8\x20\xcb\xde\xc4\xde\xb3"                            // "Yｼﾞｸ ﾋﾞﾄﾞｳ" ("Babystep Y")
 #define MSG_BABYSTEP_Z                      "Z\xbc\xde\xb8\x20\xcb\xde\xc4\xde\xb3"                            // "Zｼﾞｸ ﾋﾞﾄﾞｳ" ("Babystep Z")
-#define MSG_ENDSTOP_ABORT                   "Endstop abort"
+#if LCD_WIDTH < 20
+  #define MSG_ENDSTOP_ABORT                 "\xb2\xc4\xde\xb3\xb9\xde\xdd\xb6\xb2\xb9\xdd\xc1"                 // "ｲﾄﾞｳｹﾞﾝｶｲｹﾝﾁ" ("Endstop abort")
+#else
+  #define MSG_ENDSTOP_ABORT                 "\xb2\xc4\xde\xb3\xb9\xde\xdd\xb6\xb2\xb9\xdd\xc1\xb7\xc9\xb3"     // "ｲﾄﾞｳｹﾞﾝｶｲｹﾝﾁｷﾉｳ" ("Endstop abort")
+#endif
 #define MSG_HEATING_FAILED_LCD              "\xb6\xc8\xc2\xbc\xaf\xca\xdf\xb2"                                 // "ｶﾈﾂｼｯﾊﾟｲ" ("Heating failed")
 #if LCD_WIDTH < 20
   #define MSG_ERR_REDUNDANT_TEMP            "\xb4\xd7\xb0:\xbc\xde\xae\xb3\xc1\xae\xb3\xbb\xb0\xd0\xbd\xc0"                 // "ｴﾗｰ:ｼﾞｮｳﾁｮｳｻｰﾐｽﾀ" ("Err: REDUNDANT TEMP")
