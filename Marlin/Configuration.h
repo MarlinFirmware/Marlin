@@ -758,16 +758,16 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // Print job timer
 //
-// This options allows you configure if the print job timer should automatically
-// start and stop counting when a M104 or M109 is received.
+// Enable this option to automatically start and stop the
+// print job timer when M104 and M109 commands are received.
 //
-// If disabled you can control the print timer start and stop using the
-// following G-Code list:
+// In all cases the timer can be started and stopped using
+// the following commands:
 //
 // - M75  - Start the print job timer
 // - M76  - Pause the print job timer
 // - M77  - Stop the print job timer
-#defined PRINTJOB_TIMER_AUTOSTART
+#define PRINTJOB_TIMER_AUTOSTART
 
 //
 // Print Counter
