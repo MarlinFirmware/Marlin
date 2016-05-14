@@ -332,7 +332,7 @@ int Temperature::getHeaterPower(int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    const uint8_t fanPin[] = { EXTRUDER_0_AUTO_FAN_PIN, EXTRUDER_1_AUTO_FAN_PIN, EXTRUDER_2_AUTO_FAN_PIN, EXTRUDER_3_AUTO_FAN_PIN };
+    const int8_t fanPin[] = { EXTRUDER_0_AUTO_FAN_PIN, EXTRUDER_1_AUTO_FAN_PIN, EXTRUDER_2_AUTO_FAN_PIN, EXTRUDER_3_AUTO_FAN_PIN };
     const int fanBit[] = { 0,
       EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN ? 0 : 1,
       EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN ? 0 :
@@ -347,10 +347,13 @@ int Temperature::getHeaterPower(int heater) {
         SBI(fanState, fanBit[f]);
     }
     for (int f = 0; f <= 3; f++) {
-      unsigned char newFanSpeed = TEST(fanState, f) ? EXTRUDER_AUTO_FAN_SPEED : 0;
-      // this idiom allows both digital and PWM fan outputs (see M42 handling).
-      digitalWrite(fanPin[f], newFanSpeed);
-      analogWrite(fanPin[f], newFanSpeed);
+      int8_t pin = fanPin[f];
+      if (pin >= 0) {
+        unsigned char newFanSpeed = TEST(fanState, f) ? EXTRUDER_AUTO_FAN_SPEED : 0;
+        // this idiom allows both digital and PWM fan outputs (see M42 handling).
+        digitalWrite(pin, newFanSpeed);
+        analogWrite(pin, newFanSpeed);
+      }
     }
   }
 
