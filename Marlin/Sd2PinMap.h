@@ -393,7 +393,7 @@ static const pin_map_t digitalPinMap[] = {
   {&DDRG, &PING, &PORTG, 0}, // G0 50
 };
 #else  // defined(__AVR_ATmega1280__)
-#error unknown chip
+#error "unknown chip"
 #endif  // defined(__AVR_ATmega1280__)
 //------------------------------------------------------------------------------
 static const uint8_t digitalPinCount = COUNT(digitalPinMap);

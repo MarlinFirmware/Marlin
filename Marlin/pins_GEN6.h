@@ -26,7 +26,7 @@
 
 #ifndef __AVR_ATmega644P__
   #ifndef __AVR_ATmega1284P__
-    #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+    #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
   #endif
 #endif
 

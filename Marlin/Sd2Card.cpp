@@ -36,7 +36,7 @@
   //------------------------------------------------------------------------------
   // make sure SPCR rate is in expected bits
   #if (SPR0 != 0 || SPR1 != 1)
-    #error unexpected SPCR bits
+    #error "unexpected SPCR bits"
   #endif
   /**
    * Initialize hardware SPI

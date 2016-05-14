@@ -28,7 +28,7 @@
  */
 
 #ifndef __AVR_AT90USB646__
-  #error Oops!  Make sure you have 'Brainwave' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Brainwave' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define X_STEP_PIN         27
