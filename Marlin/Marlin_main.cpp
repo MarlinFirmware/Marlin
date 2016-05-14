@@ -4267,7 +4267,10 @@ inline void gcode_M77() {
    * M78: Show print statistics
    */
   inline void gcode_M78() {
-    print_job_timer.showStats();
+    // "M78 S78" will reset the statistics
+    if (code_seen('S') && code_value_short() == 78)
+      print_job_timer.initStats();
+    else print_job_timer.showStats();
   }
 #endif
 
