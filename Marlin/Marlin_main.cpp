@@ -4248,30 +4248,27 @@ inline void gcode_M42() {
 /**
  * M75: Start print timer
  */
-inline void gcode_M75() {
-  print_job_timer.start();
-}
+inline void gcode_M75() { print_job_timer.start(); }
 
 /**
  * M76: Pause print timer
  */
-inline void gcode_M76() {
-  print_job_timer.pause();
-}
+inline void gcode_M76() { print_job_timer.pause(); }
 
 /**
  * M77: Stop print timer
  */
-inline void gcode_M77() {
-  print_job_timer.stop();
-}
+inline void gcode_M77() { print_job_timer.stop(); }
 
 #if ENABLED(PRINTCOUNTER)
   /*+
    * M78: Show print statistics
    */
   inline void gcode_M78() {
-    print_job_timer.showStats();
+    // "M78 S78" will reset the statistics
+    if (code_seen('S') && code_value_short() == 78)
+      print_job_timer.initStats();
+    else print_job_timer.showStats();
   }
 #endif
 
@@ -4290,21 +4287,23 @@ inline void gcode_M104() {
         thermalManager.setTargetHotend(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset, 1);
     #endif
 
-    /**
-     * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
-     * stand by mode, for instance in a dual extruder setup, without affecting
-     * the running print timer.
-     */
-    if (temp <= (EXTRUDE_MINTEMP)/2) {
-      print_job_timer.stop();
-      LCD_MESSAGEPGM(WELCOME_MSG);
-    }
-    /**
-     * We do not check if the timer is already running because this check will
-     * be done for us inside the Stopwatch::start() method thus a running timer
-     * will not restart.
-     */
-    else print_job_timer.start();
+    #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+      /**
+       * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
+       * stand by mode, for instance in a dual extruder setup, without affecting
+       * the running print timer.
+       */
+      if (temp <= (EXTRUDE_MINTEMP)/2) {
+        print_job_timer.stop();
+        LCD_MESSAGEPGM(WELCOME_MSG);
+      }
+      /**
+       * We do not check if the timer is already running because this check will
+       * be done for us inside the Stopwatch::start() method thus a running timer
+       * will not restart.
+       */
+      else print_job_timer.start();
+    #endif
 
     if (temp > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
@@ -4443,21 +4442,23 @@ inline void gcode_M109() {
         thermalManager.setTargetHotend(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset, 1);
     #endif
 
-    /**
-     * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
-     * stand by mode, for instance in a dual extruder setup, without affecting
-     * the running print timer.
-     */
-    if (temp <= (EXTRUDE_MINTEMP)/2) {
-      print_job_timer.stop();
-      LCD_MESSAGEPGM(WELCOME_MSG);
-    }
-    /**
-     * We do not check if the timer is already running because this check will
-     * be done for us inside the Stopwatch::start() method thus a running timer
-     * will not restart.
-     */
-    else print_job_timer.start();
+    #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+      /**
+       * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
+       * stand by mode, for instance in a dual extruder setup, without affecting
+       * the running print timer.
+       */
+      if (temp <= (EXTRUDE_MINTEMP)/2) {
+        print_job_timer.stop();
+        LCD_MESSAGEPGM(WELCOME_MSG);
+      }
+      /**
+       * We do not check if the timer is already running because this check will
+       * be done for us inside the Stopwatch::start() method thus a running timer
+       * will not restart.
+       */
+      else print_job_timer.start();
+    #endif
 
     if (temp > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
