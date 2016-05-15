@@ -738,7 +738,8 @@ void Config_PrintSettings(bool forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOPAIR("  M421 X", mbl.get_x(x));
         SERIAL_ECHOPAIR(" Y", mbl.get_y(y));
-        SERIAL_ECHOPAIR(" Z", mbl.z_values[y][x]);
+        SERIAL_ECHOPGM(" Z");
+        SERIAL_PROTOCOL_F(mbl.z_values[y][x], 5);
         SERIAL_EOL;
       }
     }
