@@ -48,7 +48,7 @@
     }
 
     void set_zigzag_z(int8_t index, float z) {
-      int ix, iy;
+      int8_t ix, iy;
       zigzag(index, ix, iy);
       set_z(ix, iy, z);
     }
