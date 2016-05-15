@@ -33,6 +33,7 @@
 
 #include "planner.h"
 #include "language.h"
+#include "temperature.h"
 
 // See the meaning in the documentation of cubic_b_spline().
 #define MIN_STEP 0.002
@@ -116,7 +117,18 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
   tmp[X_AXIS] = position[X_AXIS];
   tmp[Y_AXIS] = position[Y_AXIS];
   float step = MAX_STEP;
+
+  uint8_t idle_counter = 0;
+  millis_t next_ping_ms = millis() + 200UL;
+
   while (t < 1.0) {
+
+    millis_t now = millis();
+    if (ELAPSED(now, next_ping_ms)) {
+      next_ping_ms = now + 200UL;
+      (idle_counter++ & 0x03) ? thermalManager.manage_heater() : idle();
+    }
+
     // First try to reduce the step in order to make it sufficiently
     // close to a linear interpolation.
     bool did_reduce = false;
