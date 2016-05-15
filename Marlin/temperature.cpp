@@ -516,6 +516,7 @@ float Temperature::get_pid_output(int e) {
 /**
  * Manage heating activities for extruder hot-ends and a heated bed
  *  - Acquire updated temperature readings
+ *    - Also resets the watchdog timer
  *  - Invoke thermal runaway protection
  *  - Manage extruder auto-fan
  *  - Apply filament width to the extrusion rate (may move)
@@ -525,7 +526,7 @@ void Temperature::manage_heater() {
 
   if (!temp_meas_ready) return;
 
-  updateTemperaturesFromRawValues();
+  updateTemperaturesFromRawValues(); // also resets the watchdog
 
   #if ENABLED(HEATER_0_USES_MAX6675)
     float ct = current_temperature[0];
