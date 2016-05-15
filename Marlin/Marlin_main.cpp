@@ -5851,19 +5851,22 @@ inline void gcode_M410() { stepper.quick_stop(); }
     if ((hasY = code_seen('Y'))) y = code_value();
     if ((hasZ = code_seen('Z'))) z = code_value();
 
-    if (!hasX || !hasY || !hasZ) {
+    if (hasX && hasY && hasZ) {
+
+      int8_t ix = mbl.select_x_index(x),
+             iy = mbl.select_y_index(y);
+
+      if (ix >= 0 && iy >= 0)
+        mbl.set_z(ix, iy, z);
+      else {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
+      }
+    }
+    else {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_REQUIRES_XYZ);
-      err = true;
     }
-
-    if (x >= MESH_NUM_X_POINTS || y >= MESH_NUM_Y_POINTS) {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_ERR_MESH_INDEX_OOB);
-      err = true;
-    }
-
-    if (!err) mbl.set_z(mbl.select_x_index(x), mbl.select_y_index(y), z);
   }
 
 #endif
