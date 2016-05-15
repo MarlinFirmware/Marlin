@@ -342,7 +342,7 @@ int Temperature::getHeaterPower(int heater) {
       EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN ? 2 : 3
     };
     uint8_t fanState = 0;
-    for (int f = 0; f <= 3; f++) {
+    for (int f = 0; f <= EXTRUDERS; f++) {
       if (current_temperature[f] > EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, fanBit[f]);
     }
