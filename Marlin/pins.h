@@ -2912,79 +2912,87 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
  * PICA Arduino shield configuration mjrice
  ************************************* */
 #if MB(PICA)
-#define KNOWN_BOARD 1
-#define LARGE_FLASH true
+ #define KNOWN_BOARD 1
+ #define LARGE_FLASH true
 
-#define X_DIR_PIN         54
-#define X_STEP_PIN        55
-#define Y_DIR_PIN         56
-#define Y_STEP_PIN        57
-#define Z_DIR_PIN         58
-#define Z_STEP_PIN        59
-#define X_ENABLE_PIN      60     
-#define Y_ENABLE_PIN      61
-#define Z_ENABLE_PIN      62
+ #define X_DIR_PIN         54
+ #define X_STEP_PIN        55
+ #define Y_DIR_PIN         56
+ #define Y_STEP_PIN        57
+ #define Z_DIR_PIN         58
+ #define Z_STEP_PIN        59
+ #define X_ENABLE_PIN      60     
+ #define Y_ENABLE_PIN      61
+ #define Z_ENABLE_PIN      62
 
-#define X_MIN_PIN         14
-#define X_MAX_PIN         15
+ #define X_MIN_PIN         14
+ #define X_MAX_PIN         15
 
-#define Y_MIN_PIN          16
-#define Y_MAX_PIN          17
+ #define Y_MIN_PIN          16
+ #define Y_MAX_PIN          17
 
-#define Z_MIN_PIN          23
-#define Z_MAX_PIN          22
+ #define Z_MIN_PIN          23
+ #define Z_MAX_PIN          22
 
-#define E0_STEP_PIN         67 
-#define E0_DIR_PIN          24
-#define E0_ENABLE_PIN       26
+ #define E0_STEP_PIN         67 
+ #define E0_DIR_PIN          24
+ #define E0_ENABLE_PIN       26
 
-#define SDPOWER            -1
-#define SDSS               53
-#define LED_PIN            -1 
+ #define SDPOWER            -1
+ #define LED_PIN            -1 
+ #define PS_ON_PIN          -1
+ #define KILL_PIN           -1
 
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
+ #define HEATER_BED_PIN     8 // heat bed
+ #define HEATER_0_PIN       9 // extruder 
+ #define HEATER_1_PIN       10 // second extruder
+ 
+ #define FAN_PIN            11
+ #define FAN_2_PIN          12
+ #define SSR_PIN            6
 
-#define HEATER_0_PIN       8
-#define HEATER_BED_PIN     8
-#define HEATER_1_PIN       9
-#define HEATER_2_PIN       10
-#define FAN_PIN            11
-#define FAN_2_PIN          12
-#define SSR_PIN            6
+ #define TEMP_0_PIN         9   // ANALOG NUMBERING
+ #define TEMP_1_PIN         10
+ #define TEMP_BED_PIN       10
+ #define TEMP_2_PIN         11
+ #define TEMP_3_PIN         12
 
-#define TEMP_0_PIN         9   // ANALOG NUMBERING
-#define TEMP_1_PIN         10
-#define TEMP_BED_PIN       10
-#define TEMP_2_PIN         11
-#define TEMP_3_PIN         12
+ // LCD interface pins
+ #define LCD_PINS_RS 33
+ #define LCD_PINS_ENABLE 30
+ #define LCD_PINS_D4 35
+ #define LCD_PINS_D5 32
+ #define LCD_PINS_D6 37
+ #define LCD_PINS_D7 36
 
+ #define BTN_EN1 47
+ #define BTN_EN2 48
+ #define BTN_ENC 31  //the click 
 
-// LCD interface pins
-#define LCD_PINS_RS 33
-#define LCD_PINS_ENABLE 30
-#define LCD_PINS_D4 35
-#define LCD_PINS_D5 32
-#define LCD_PINS_D6 37
-#define LCD_PINS_D7 36
+ #define BLEN_C 2
+ #define BLEN_B 1
+ #define BLEN_A 0
 
-#define BTN_EN1 47
-#define BTN_EN2 48
-#define BTN_ENC 31  //the click
+ #define SDCARDDETECT 49
+ #define BEEPER       29
+ #define SDSS         53
+ 
+ //encoder rotation values
+ #define encrot0 0
+ #define encrot1 2
+ #define encrot2 3
+ #define encrot3 1
+ 
+#endif // PICA
 
-#define BLEN_C 2
-#define BLEN_B 1
-#define BLEN_A 0
-
-#define SDCARDDETECT -1   // Ramps does not use this port
-
-//encoder rotation values
-#define encrot0 0
-#define encrot1 2
-#define encrot2 3
-#define encrot3 1
+// -----------------------------------------------------------------------------
+// YOU MUST USE SOFTWARE PWM FOR FANS IF THEY ARE ON PINS 11, 12, or 13
+// This is because the Mega uses timer1 to support hardware pwm on those pins,
+// and Marlin is using timer1 for stepper motor interrupts.
+#if FAN_PIN == 11 || FAN_PIN == 12 || FAN_PIN ==13
+  #define FAN_SOFT_PWM
 #endif
-
+// -----------------------------------------------------------------------------
 
 #ifndef KNOWN_BOARD
 #error Unknown MOTHERBOARD value in configuration.h
@@ -3045,9 +3053,10 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
 #define Z_MIN_PIN          -1
 #endif
 
-#define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, PS_ON_PIN, \
-                        HEATER_BED_PIN, FAN_PIN,                  \
-                        _E0_PINS _E1_PINS _E2_PINS             \
+#define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, \
+                        Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, PS_ON_PIN, \
+                        HEATER_BED_PIN, FAN_PIN, _E0_PINS _E1_PINS _E2_PINS             \
                         analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
 
 #endif //__PINS_H
+
