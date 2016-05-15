@@ -7597,14 +7597,14 @@ void prepare_move() {
 
     float feed_rate = feedrate * feedrate_multiplier / 60 / 100.0;
 
-    millis_t next_ping_ms = millis() + 200UL;
+    millis_t next_idle_ms = millis() + 200UL;
 
     for (i = 1; i < segments; i++) { // Iterate (segments-1) times
 
       thermalManager.manage_heater();
       millis_t now = millis();
-      if (ELAPSED(now, next_ping_ms)) {
-        next_ping_ms = now + 200UL;
+      if (ELAPSED(now, next_idle_ms)) {
+        next_idle_ms = now + 200UL;
         idle();
       }
 
@@ -7854,7 +7854,7 @@ void idle(
   host_keepalive();
   lcd_update();
   #if ENABLED(PRINTCOUNTER)
-      print_job_timer.tick();
+    print_job_timer.tick();
   #endif
 }
 

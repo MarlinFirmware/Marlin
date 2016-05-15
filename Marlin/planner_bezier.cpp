@@ -118,14 +118,14 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
   bez_target[Y_AXIS] = position[Y_AXIS];
   float step = MAX_STEP;
 
-  millis_t next_ping_ms = millis() + 200UL;
+  millis_t next_idle_ms = millis() + 200UL;
 
   while (t < 1.0) {
 
     thermalManager.manage_heater();
     millis_t now = millis();
-    if (ELAPSED(now, next_ping_ms)) {
-      next_ping_ms = now + 200UL;
+    if (ELAPSED(now, next_idle_ms)) {
+      next_idle_ms = now + 200UL;
       idle();
     }
 
