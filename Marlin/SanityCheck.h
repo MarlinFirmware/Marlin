@@ -45,11 +45,11 @@
  * will force a minimum config file revision, otherwise Marlin will not build.
  */
 #if ! defined(CONFIGURATION_H_VERSION) || CONFIGURATION_H_VERSION < REQUIRED_CONFIGURATION_H_VERSION
-  #error You are using an old Configuration.h file, update it before building Marlin.
+  #error "You are using an old Configuration.h file, update it before building Marlin."
 #endif
 
 #if ! defined(CONFIGURATION_ADV_H_VERSION) || CONFIGURATION_ADV_H_VERSION < REQUIRED_CONFIGURATION_ADV_H_VERSION
-  #error You are using an old Configuration_adv.h file, update it before building Marlin.
+  #error "You are using an old Configuration_adv.h file, update it before building Marlin."
 #endif
 
 /**
@@ -146,7 +146,7 @@
  * Individual axis homing is useless for DELTAS
  */
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU) && ENABLED(DELTA)
-  #error INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics.
+  #error "INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics."
 #endif
 
 /**
@@ -371,7 +371,7 @@
  * Advance Extrusion
  */
 #if ENABLED(ADVANCE) && ENABLED(LIN_ADVANCE)
-  #error You can enable ADVANCE or LIN_ADVANCE, but not both.
+  #error "You can enable ADVANCE or LIN_ADVANCE, but not both."
 #endif
 
 /**
@@ -545,15 +545,15 @@
  */
 #if EXTRUDERS > 3
   #if !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
-    #error E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board.
+    #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
   #endif
 #elif EXTRUDERS > 2
   #if !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
-    #error E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board.
+    #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
   #endif
 #elif EXTRUDERS > 1
   #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
-    #error E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board.
+    #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
   #endif
 #endif
 
