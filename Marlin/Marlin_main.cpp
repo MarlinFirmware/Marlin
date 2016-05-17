@@ -3176,7 +3176,7 @@ inline void gcode_G28() {
     #endif
 
     // Don't allow auto-leveling without homing first
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS]) {
+    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
       axis_unhomed_error();
       return;
     }
