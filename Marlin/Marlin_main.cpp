@@ -2867,17 +2867,19 @@ inline void gcode_G28() {
     #endif
   #endif
 
-  // For mesh leveling move back to Z=0
+  // Enable mesh leveling again
   #if ENABLED(MESH_BED_LEVELING)
     if (mbl_was_active && home_all_axis) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       sync_plan_position();
       mbl.active = 1;
-      current_position[Z_AXIS] = 0.0;
-      set_destination_to_current();
-      feedrate = homing_feedrate[Z_AXIS];
-      line_to_destination();
-      stepper.synchronize();
+      #if ENABLED(MESH_G28_REST_ORIGIN)
+        current_position[Z_AXIS] = 0.0;
+        set_destination_to_current();
+        feedrate = homing_feedrate[Z_AXIS];
+        line_to_destination();
+        stepper.synchronize();
+      #endif
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("mbl_was_active", current_position);
       #endif
