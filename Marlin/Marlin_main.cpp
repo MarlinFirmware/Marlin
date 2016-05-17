@@ -7314,8 +7314,10 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
     if (cartesian_mm < 0.000001) cartesian_mm = abs(difference[E_AXIS]);
     if (cartesian_mm < 0.000001) return false;
-    float seconds = 6000 * cartesian_mm / feedrate / feedrate_multiplier;
+    float _feedrate = feedrate * feedrate_multiplier / 6000.0;
+    float seconds = cartesian_mm / _feedrate;
     int steps = max(1, int(delta_segments_per_second * seconds));
+    float inv_steps = 1.0/steps;
 
     // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
     // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
@@ -7323,7 +7325,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
 
     for (int s = 1; s <= steps; s++) {
 
-      float fraction = float(s) / float(steps);
+      float fraction = float(s) * inv_steps;
 
       for (int8_t i = 0; i < NUM_AXIS; i++)
         target[i] = current_position[i] + difference[i] * fraction;
@@ -7337,7 +7339,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
       //DEBUG_POS("prepare_move_delta", target);
       //DEBUG_POS("prepare_move_delta", delta);
 
-      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], feedrate / 60 * feedrate_multiplier / 100.0, active_extruder);
+      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], _feedrate, active_extruder);
     }
     return true;
   }
