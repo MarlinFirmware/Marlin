@@ -250,7 +250,6 @@ bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); //put a singl
 void enqueue_and_echo_command_now(const char* cmd); // enqueue now, only return when the command has been enqueued
 void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
 
-void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
 
 extern millis_t previous_cmd_ms;

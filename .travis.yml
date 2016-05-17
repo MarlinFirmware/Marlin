@@ -194,6 +194,12 @@ script:
   - opt_enable ULTIMAKERCONTROLLER FILAMENT_LCD_DISPLAY
   - build_marlin
   #
+  # Enable BEZIER_CURVE_SUPPORT
+  #
+  - restore_configs
+  - opt_enable_adv BEZIER_CURVE_SUPPORT
+  - build_marlin
+  #
   # Enable COREXY
   #
   - restore_configs
