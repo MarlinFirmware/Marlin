@@ -491,29 +491,30 @@ void Stepper::init() {
   #if HAS_X_ENABLE
     X_ENABLE_INIT;
     if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
+    #if ENABLED(DUAL_X_CARRIAGE) && HAS_X2_ENABLE
+      X2_ENABLE_INIT;
+      if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
+    #endif
   #endif
-  #if HAS_X2_ENABLE
-    X2_ENABLE_INIT;
-    if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
-  #endif
+
   #if HAS_Y_ENABLE
     Y_ENABLE_INIT;
     if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH);
+    #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_ENABLE
+      Y2_ENABLE_INIT;
+      if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH);
+    #endif
+  #endif
 
-  #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_ENABLE
-    Y2_ENABLE_INIT;
-    if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH);
-  #endif
-  #endif
   #if HAS_Z_ENABLE
     Z_ENABLE_INIT;
     if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH);
-
     #if ENABLED(Z_DUAL_STEPPER_DRIVERS) && HAS_Z2_ENABLE
       Z2_ENABLE_INIT;
       if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH);
     #endif
   #endif
+
   #if HAS_E0_ENABLE
     E0_ENABLE_INIT;
     if (!E_ENABLE_ON) E0_ENABLE_WRITE(HIGH);
@@ -550,10 +551,11 @@ void Stepper::init() {
   // Initialize Step Pins
   #if HAS_X_STEP
     AXIS_INIT(x, X, X);
+    #if ENABLED(DUAL_X_CARRIAGE) && HAS_X2_STEP
+      AXIS_INIT(x, X2, X);
+    #endif
   #endif
-  #if HAS_X2_STEP
-    AXIS_INIT(x, X2, X);
-  #endif
+
   #if HAS_Y_STEP
     #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_STEP
       Y2_STEP_INIT;
@@ -561,6 +563,7 @@ void Stepper::init() {
     #endif
     AXIS_INIT(y, Y, Y);
   #endif
+
   #if HAS_Z_STEP
     #if ENABLED(Z_DUAL_STEPPER_DRIVERS) && HAS_Z2_STEP
       Z2_STEP_INIT;
@@ -568,6 +571,7 @@ void Stepper::init() {
     #endif
     AXIS_INIT(z, Z, Z);
   #endif
+
   #if HAS_E0_STEP
     E_AXIS_INIT(0);
   #endif
