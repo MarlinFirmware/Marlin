@@ -227,7 +227,7 @@
 // Enable this for dual x-carriage printers.
 // A dual x-carriage design has the advantage that the inactive extruder can be parked which
 // prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
-// allowing faster printing speeds.
+// allowing faster printing speeds. Connect your X2 stepper to the first unused E plug.
 //#define DUAL_X_CARRIAGE
 #if ENABLED(DUAL_X_CARRIAGE)
   // Configuration for second X-carriage
@@ -241,11 +241,6 @@
       // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
       // without modifying the firmware (through the "M218 T1 X???" command).
       // Remember: you should set the second extruder x-offset to 0 in your slicer.
-
-  // Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
-  #define X2_ENABLE_PIN 29
-  #define X2_STEP_PIN 25
-  #define X2_DIR_PIN 23
 
   // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
   //    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
