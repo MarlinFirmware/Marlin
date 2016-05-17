@@ -284,8 +284,6 @@
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
-// @section machine
-
 //By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
 #define INVERT_X_STEP_PIN false
 #define INVERT_Y_STEP_PIN false
@@ -458,6 +456,9 @@
 #define ARC_SUPPORT  // Disabling this saves ~2660bytes
 #define MM_PER_ARC_SEGMENT 1
 #define N_ARC_CORRECTION 25
+
+// Support for G5 with XYZE destination and IJPQ offsets
+//#define BEZIER_CURVE_SUPPORT
 
 const unsigned int dropsegments = 5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 
