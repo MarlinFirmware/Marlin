@@ -3069,8 +3069,9 @@ inline void gcode_G28() {
           return;
         }
         mbl.z_offset = z;
-
     } // switch(state)
+
+    report_current_position();
   }
 
 #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
