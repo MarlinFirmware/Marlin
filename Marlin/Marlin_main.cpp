@@ -3645,7 +3645,7 @@ inline void gcode_G28() {
     #if ENABLED(MECHANICAL_PROBE)
       stow_z_probe();
     #endif
-    
+
     #ifdef Z_PROBE_END_SCRIPT
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
@@ -6335,10 +6335,20 @@ inline void gcode_M907() {
 
 /**
  * M999: Restart after being stopped
+ *
+ * Default behaviour is to flush the serial buffer and request
+ * a resend to the host starting on the last N line received.
+ *
+ * Sending "M999 S1" will resume printing without flushing the
+ * existing command buffer.
+ *
  */
 inline void gcode_M999() {
   Running = true;
   lcd_reset_alert_level();
+
+  if (code_seen('S') && code_value_short() == 1) return;
+
   // gcode_LastN = Stopped_gcode_LastN;
   FlushSerialRequestResend();
 }
