@@ -398,14 +398,18 @@
  * Dual X Carriage requirements
  */
 #if ENABLED(DUAL_X_CARRIAGE)
-  #if EXTRUDERS == 1 || ENABLED(COREXY) \
-      || !HAS_X2_ENABLE || !HAS_X2_STEP || !HAS_X2_DIR \
-      || !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS) \
-      || !HAS_X_MAX
-    #error "Missing or invalid definitions for DUAL_X_CARRIAGE mode."
-  #endif
-  #if X_HOME_DIR != -1 || X2_HOME_DIR != 1
-    #error "Please use canonical x-carriage assignment."
+  #if EXTRUDERS == 1
+    #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
+  #elif ENABLED(COREXY) || ENABLED(COREXZ)
+    #error "DUAL_X_CARRIAGE cannot be used with COREXY or COREXZ."
+  #elif !HAS_X2_ENABLE || !HAS_X2_STEP || !HAS_X2_DIR
+    #error "DUAL_X_CARRIAGE requires X2 stepper pins to be defined."
+  #elif !HAS_X_MAX
+    #error "DUAL_X_CARRIAGE requires USE_XMAX_PLUG and an X Max Endstop."
+  #elif !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS)
+    #error "DUAL_X_CARRIAGE requires X2_HOME_POS, X2_MIN_POS, and X2_MAX_POS."
+  #elif X_HOME_DIR != -1 || X2_HOME_DIR != 1
+    #error "DUAL_X_CARRIAGE requires X_HOME_DIR -1 and X2_HOME_DIR 1."
   #endif
 #endif // DUAL_X_CARRIAGE
 
