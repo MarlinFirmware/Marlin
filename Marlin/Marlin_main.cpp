@@ -2063,10 +2063,17 @@ static void setup_for_endstop_move() {
 #endif // AUTO_BED_LEVELING_FEATURE
 
 #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || ENABLED(AUTO_BED_LEVELING_FEATURE)
-  static void axis_unhomed_error() {
-    LCD_MESSAGEPGM(MSG_YX_UNHOMED);
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM(MSG_YX_UNHOMED);
+  static void axis_unhomed_error(bool xyz=false) {
+    if (xyz) {
+      LCD_MESSAGEPGM(MSG_XYZ_UNHOMED);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_XYZ_UNHOMED);
+    }
+    else {
+      LCD_MESSAGEPGM(MSG_YX_UNHOMED);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_YX_UNHOMED);
+    }
   }
 #endif
 
@@ -2090,8 +2097,8 @@ static void setup_for_endstop_move() {
       }
     #endif
 
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS]) {
-      axis_unhomed_error();
+    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
+      axis_unhomed_error(true);
       return;
     }
 
@@ -3176,8 +3183,8 @@ inline void gcode_G28() {
     #endif
 
     // Don't allow auto-leveling without homing first
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS]) {
-      axis_unhomed_error();
+    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
+      axis_unhomed_error(true);
       return;
     }
 
@@ -4035,7 +4042,7 @@ inline void gcode_M42() {
   inline void gcode_M48() {
 
     if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
-      axis_unhomed_error();
+      axis_unhomed_error(true);
       return;
     }
 
