@@ -193,7 +193,6 @@
     #define NORM_E_DIR() _NORM_E_DIR()
     #define REV_E_DIR() _REV_E_DIR()
   #else
-    extern bool extruder_duplication_enabled;
     #define E_STEP_WRITE(v) {if(extruder_duplication_enabled){E0_STEP_WRITE(v);E1_STEP_WRITE(v);}else _E_STEP_WRITE(v);}
     #define NORM_E_DIR() {if(extruder_duplication_enabled){E0_DIR_WRITE(!INVERT_E0_DIR);E1_DIR_WRITE(!INVERT_E1_DIR);}else _NORM_E_DIR();}
     #define REV_E_DIR() {if(extruder_duplication_enabled){E0_DIR_WRITE(INVERT_E0_DIR);E1_DIR_WRITE(INVERT_E1_DIR);}else _REV_E_DIR();}
