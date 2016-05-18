@@ -576,6 +576,11 @@ extern "C" {
 }
 #endif //!SDSUPPORT
 
+#if ENABLED(DIGIPOT_I2C)
+  extern void digipot_i2c_set_current(int channel, float current);
+  extern void digipot_i2c_init();
+#endif
+
 /**
  * Inject the next "immediate" command, when possible.
  * Return true if any immediate commands remain to inject.
