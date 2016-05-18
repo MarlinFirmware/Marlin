@@ -165,10 +165,6 @@ class Planner {
       static long axis_segment_time[2][3] = { {MAX_FREQ_TIME + 1, 0, 0}, {MAX_FREQ_TIME + 1, 0, 0} };
     #endif
 
-    #if ENABLED(DUAL_X_CARRIAGE)
-      extern bool extruder_duplication_enabled;
-    #endif
-
   public:
 
     Planner();
