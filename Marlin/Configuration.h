@@ -400,6 +400,11 @@
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
   #define DELTA_PRINTABLE_RADIUS 127.0
 
+  // Tower offsets
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 -2.775    // X
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_2 -2.775    // Y
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 -1.142    // Z
+
 #endif // DELTA
 
 // Enable this option for Toshiba steppers
