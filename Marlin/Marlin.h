@@ -278,10 +278,10 @@ extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
 
 // GCode support for external objects
-extern bool code_seen(char);
-extern float code_value();
-extern long code_value_long();
-extern int16_t code_value_short();
+bool code_seen(char);
+float code_value();
+long code_value_long();
+int16_t code_value_short();
 
 #if ENABLED(DELTA)
   extern float delta[3];
@@ -355,15 +355,10 @@ extern int16_t code_value_short();
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
 
-#if ENABLED(DIGIPOT_I2C)
-  extern void digipot_i2c_set_current(int channel, float current);
-  extern void digipot_i2c_init();
-#endif
-
 #if HAS_TEMP_HOTEND || HAS_TEMP_BED
   void print_heaterstates();
 #endif
 
-extern void calculate_volumetric_multipliers();
+void calculate_volumetric_multipliers();
 
 #endif //MARLIN_H
