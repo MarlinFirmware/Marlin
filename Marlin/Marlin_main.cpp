@@ -1370,9 +1370,13 @@ static void set_axis_is_at_home(AxisEnum axis) {
     current_position[axis] = base_home_pos(axis) + home_offset[axis];
     update_software_endstops(axis);
 
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE) && Z_HOME_DIR < 0
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       if (axis == Z_AXIS) {
-        current_position[Z_AXIS] -= zprobe_zoffset;
+        #if Z_HOME_DIR < 0
+          current_position[Z_AXIS] -= zprobe_zoffset;
+        #else
+          current_position[Z_AXIS] += zprobe_zoffset;
+        #endif
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOPAIR("> zprobe_zoffset==", zprobe_zoffset);
