@@ -7604,13 +7604,14 @@ void prepare_move() {
 
     float feed_rate = feedrate * feedrate_multiplier / 60 / 100.0;
 
-    millis_t previous_ms = millis();
+    millis_t next_ping_ms = millis() + 200UL;
 
     for (i = 1; i < segments; i++) { // Iterate (segments-1) times
 
+      thermalManager.manage_heater();
       millis_t now = millis();
-      if (now - previous_ms > 200UL) {
-        previous_ms = now;
+      if (ELAPSED(now, next_ping_ms)) {
+        next_ping_ms = now + 200UL;
         idle();
       }
 
