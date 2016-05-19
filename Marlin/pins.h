@@ -259,9 +259,6 @@
       #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, HEATER_3_PIN, EXTRUDER_3_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_3_PIN),
     #endif
   #endif
-#elif ENABLED(Y_DUAL_STEPPER_DRIVERS) || ENABLED(Z_DUAL_STEPPER_DRIVERS)
-  #undef _E1_PINS
-  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN,
 #endif
 
 #define BED_PINS HEATER_BED_PIN, marlinAnalogInputToDigitalPin(TEMP_BED_PIN),
@@ -338,25 +335,46 @@
 #endif
 
 //
-// Dual Y and Dual Z support
-// These options are mutually-exclusive
+// Dual X-carriage, Dual Y, Dual Z support
 //
+
+#define _X2_PINS
+#define _Y2_PINS
+#define _Z2_PINS
 
 #define __EPIN(p,q) E##p##_##q##_PIN
 #define _EPIN(p,q) __EPIN(p,q)
 
+#if ENABLED(DUAL_X_CARRIAGE)
+  // The X2 axis, if any, should be the next open extruder port
+  #ifndef X2_STEP_PIN
+    #define X2_STEP_PIN   _EPIN(EXTRUDERS, STEP)
+    #define X2_DIR_PIN    _EPIN(EXTRUDERS, DIR)
+    #define X2_ENABLE_PIN _EPIN(EXTRUDERS, ENABLE)
+  #endif
+  #undef _X2_PINS
+  #define _X2_PINS X2_STEP_PIN, X2_DIR_PIN, X2_ENABLE_PIN,
+  #define Y2_Z2_E_INDEX INCREMENT(EXTRUDERS)
+#else
+  #define Y2_Z2_E_INDEX EXTRUDERS
+#endif
+
 // The Y2 axis, if any, should be the next open extruder port
-#ifndef Y2_STEP_PIN
-  #define Y2_STEP_PIN   _EPIN(EXTRUDERS, STEP)
-  #define Y2_DIR_PIN    _EPIN(EXTRUDERS, DIR)
-  #define Y2_ENABLE_PIN _EPIN(EXTRUDERS, ENABLE)
+#if ENABLED(Y_DUAL_STEPPER_DRIVERS) && !defined(Y2_STEP_PIN)
+  #define Y2_STEP_PIN   _EPIN(Y2_Z2_E_INDEX, STEP)
+  #define Y2_DIR_PIN    _EPIN(Y2_Z2_E_INDEX, DIR)
+  #define Y2_ENABLE_PIN _EPIN(Y2_Z2_E_INDEX, ENABLE)
+  #undef _Y2_PINS
+  #define _Y2_PINS Y2_STEP_PIN, Y2_DIR_PIN, Y2_ENABLE_PIN,
 #endif
 
 // The Z2 axis, if any, should be the next open extruder port
-#ifndef Z2_STEP_PIN
-  #define Z2_STEP_PIN   _EPIN(EXTRUDERS, STEP)
-  #define Z2_DIR_PIN    _EPIN(EXTRUDERS, DIR)
-  #define Z2_ENABLE_PIN _EPIN(EXTRUDERS, ENABLE)
+#if ENABLED(Z_DUAL_STEPPER_DRIVERS) && !defined(Z2_STEP_PIN)
+  #define Z2_STEP_PIN   _EPIN(Y2_Z2_E_INDEX, STEP)
+  #define Z2_DIR_PIN    _EPIN(Y2_Z2_E_INDEX, DIR)
+  #define Z2_ENABLE_PIN _EPIN(Y2_Z2_E_INDEX, ENABLE)
+  #undef _Z2_PINS
+  #define _Z2_PINS Z2_STEP_PIN, Z2_DIR_PIN, Z2_ENABLE_PIN,
 #endif
 
 #define SENSITIVE_PINS { 0, 1, \
@@ -365,6 +383,7 @@
     Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, Z_MIN_PROBE_PIN, \
     PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, FAN1_PIN, FAN2_PIN, CONTROLLERFAN_PIN, \
     _E0_PINS _E1_PINS _E2_PINS _E3_PINS BED_PINS \
+    _X2_PINS _Y2_PINS _Z2_PINS \
     X_MS1_PIN, X_MS2_PIN, Y_MS1_PIN, Y_MS2_PIN, Z_MS1_PIN, Z_MS2_PIN \
   }
 

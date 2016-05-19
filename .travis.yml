@@ -107,7 +107,7 @@ script:
   # Test DUAL_X_CARRIAGE
   #
   - restore_configs
-  - opt_set MOTHERBOARD BOARD_RAMPS_14_EEB
+  - opt_set MOTHERBOARD BOARD_RUMBA
   - opt_set EXTRUDERS 2
   - opt_set TEMP_SENSOR_1 1
   - opt_enable USE_XMAX_PLUG
