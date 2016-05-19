@@ -106,7 +106,7 @@
  * G2  - CW ARC
  * G3  - CCW ARC
  * G4  - Dwell S<seconds> or P<milliseconds>
- * G5  - Cubic B-spline with
+ * G5  - Cubic B-spline with XYZE destination and IJPQ offsets
  * G10 - retract filament according to settings of M207
  * G11 - retract recover filament according to settings of M208
  * G28 - Home one or more axes
@@ -2546,14 +2546,7 @@ inline void gcode_G4() {
   inline void gcode_G5() {
     if (IsRunning()) {
 
-      #ifdef SF_ARC_FIX
-        bool relative_mode_backup = relative_mode;
-        relative_mode = true;
-      #endif
       gcode_get_destination();
-      #ifdef SF_ARC_FIX
-        relative_mode = relative_mode_backup;
-      #endif
 
       float offset[] = {
         code_seen('I') ? code_value() : 0.0,
