@@ -5901,12 +5901,16 @@ inline void gcode_M410() { stepper.quick_stop(); }
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
+   * Use either 'M421 X<mm> Y<mm> Z<mm>' or 'M421 I<xindex> J<yindex> Z<mm>'
    */
   inline void gcode_M421() {
     float x = 0, y = 0, z = 0;
-    bool err = false, hasX, hasY, hasZ;
+    int8_t i = 0, j = 0;
+    bool err = false, hasX, hasY, hasZ, hasI, hasJ;
     if ((hasX = code_seen('X'))) x = code_value();
     if ((hasY = code_seen('Y'))) y = code_value();
+    if ((hasI = code_seen('I'))) i = code_value();
+    if ((hasJ = code_seen('J'))) j = code_value();
     if ((hasZ = code_seen('Z'))) z = code_value();
 
     if (hasX && hasY && hasZ) {
@@ -5921,7 +5925,16 @@ inline void gcode_M410() { stepper.quick_stop(); }
         SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
       }
     }
-    else {
+    else if (hasI && hasJ && hasZ) {
+      if (i >= 0 && i < MESH_NUM_X_POINTS && j >= 0 && j < MESH_NUM_Y_POINTS)
+        mbl.set_z(i, j, z);
+      else {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
+      }
+    }
+    else 
+    {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M421_REQUIRES_XYZ);
     }
