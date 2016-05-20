@@ -3,10 +3,7 @@ language: c
   #
 before_install:
   #
-  # Travis runs a detached head. We need to find the current branch
-  - git checkout `git branch --contains HEAD | grep -v '*'`
-  #
-  # Also tags for the root(s) of the minor version(s)
+  # Fetch the tag information for the current branch
   - git fetch origin --tags
   #
   # Publish the buildroot script folder
@@ -49,6 +46,10 @@ before_script:
   #
   # Change current working directory to the build dir
   - cd ${TRAVIS_BUILD_DIR}
+  #
+  # Generate custom version include
+  - generate_version_header_for_marlin ${TRAVIS_BUILD_DIR}/Marlin
+  - cat ${TRAVIS_BUILD_DIR}/Marlin/_Version.h
   #
 script:
   #
