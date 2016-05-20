@@ -64,6 +64,15 @@
 #ifndef MSG_AUTO_HOME
   #define MSG_AUTO_HOME                       "Auto home"
 #endif
+#ifndef MSG_AUTO_HOME_X
+  #define MSG_AUTO_HOME_X                     "Home X"
+#endif
+#ifndef MSG_AUTO_HOME_Y
+  #define MSG_AUTO_HOME_Y                     "Home Y"
+#endif
+#ifndef MSG_AUTO_HOME_Z
+  #define MSG_AUTO_HOME_Z                     "Home Z"
+#endif
 #ifndef MSG_LEVEL_BED_HOMING
   #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #endif
@@ -438,6 +447,9 @@
 #endif
 #ifndef MSG_YX_UNHOMED
   #define MSG_YX_UNHOMED                      "Home X/Y before Z"
+#endif
+#ifndef MSG_XYZ_UNHOMED
+  #define MSG_XYZ_UNHOMED                     "Home XYZ first"
 #endif
 #ifndef MSG_ZPROBE_ZOFFSET
   #define MSG_ZPROBE_ZOFFSET                  "Z Offset"

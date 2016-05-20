@@ -45,17 +45,12 @@
 #include "pins.h"
 
 #ifndef SANITYCHECK_H
-  #error Your Configuration.h and Configuration_adv.h files are outdated!
+  #error "Your Configuration.h and Configuration_adv.h files are outdated!"
 #endif
 
 #include "Arduino.h"
 
 typedef unsigned long millis_t;
-
-// Arduino < 1.0.0 does not define this, so we need to do it ourselves
-#ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p) + 0xA0)
-#endif
 
 #ifdef USBCON
   #include "HardwareSerial.h"
@@ -133,6 +128,10 @@ void idle(
 );
 
 void manage_inactivity(bool ignore_stepper_queue = false);
+
+#if ENABLED(DUAL_X_CARRIAGE)
+  extern bool extruder_duplication_enabled;
+#endif
 
 #if ENABLED(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
   #define  enable_x() do { X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); } while (0)
@@ -255,7 +254,6 @@ bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); //put a singl
 void enqueue_and_echo_command_now(const char* cmd); // enqueue now, only return when the command has been enqueued
 void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
 
-void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
 
 extern millis_t previous_cmd_ms;
@@ -284,10 +282,10 @@ extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
 
 // GCode support for external objects
-extern bool code_seen(char);
-extern float code_value();
-extern long code_value_long();
-extern int16_t code_value_short();
+bool code_seen(char);
+float code_value();
+long code_value_long();
+int16_t code_value_short();
 
 #if ENABLED(DELTA)
   extern float delta[3];
@@ -361,15 +359,10 @@ extern int16_t code_value_short();
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
 
-#if ENABLED(DIGIPOT_I2C)
-  extern void digipot_i2c_set_current(int channel, float current);
-  extern void digipot_i2c_init();
-#endif
-
 #if HAS_TEMP_HOTEND || HAS_TEMP_BED
   void print_heaterstates();
 #endif
 
-extern void calculate_volumetric_multipliers();
+void calculate_volumetric_multipliers();
 
 #endif //MARLIN_H

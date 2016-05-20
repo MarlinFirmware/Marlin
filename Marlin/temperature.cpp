@@ -332,7 +332,7 @@ int Temperature::getHeaterPower(int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    const uint8_t fanPin[] = { EXTRUDER_0_AUTO_FAN_PIN, EXTRUDER_1_AUTO_FAN_PIN, EXTRUDER_2_AUTO_FAN_PIN, EXTRUDER_3_AUTO_FAN_PIN };
+    const int8_t fanPin[] = { EXTRUDER_0_AUTO_FAN_PIN, EXTRUDER_1_AUTO_FAN_PIN, EXTRUDER_2_AUTO_FAN_PIN, EXTRUDER_3_AUTO_FAN_PIN };
     const int fanBit[] = { 0,
       EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN ? 0 : 1,
       EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN ? 0 :
@@ -342,15 +342,20 @@ int Temperature::getHeaterPower(int heater) {
       EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN ? 2 : 3
     };
     uint8_t fanState = 0;
-    for (int f = 0; f <= 3; f++) {
+    for (int f = 0; f <= EXTRUDERS; f++) {
       if (current_temperature[f] > EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, fanBit[f]);
     }
+    uint8_t fanDone = 0;
     for (int f = 0; f <= 3; f++) {
-      unsigned char newFanSpeed = TEST(fanState, f) ? EXTRUDER_AUTO_FAN_SPEED : 0;
-      // this idiom allows both digital and PWM fan outputs (see M42 handling).
-      digitalWrite(fanPin[f], newFanSpeed);
-      analogWrite(fanPin[f], newFanSpeed);
+      int8_t pin = fanPin[f];
+      if (pin >= 0 && !TEST(fanDone, fanBit[f])) {
+        unsigned char newFanSpeed = TEST(fanState, fanBit[f]) ? EXTRUDER_AUTO_FAN_SPEED : 0;
+        // this idiom allows both digital and PWM fan outputs (see M42 handling).
+        digitalWrite(pin, newFanSpeed);
+        analogWrite(pin, newFanSpeed);
+        SBI(fanDone, fanBit[f]);
+      }
     }
   }
 
@@ -511,6 +516,7 @@ float Temperature::get_pid_output(int e) {
 /**
  * Manage heating activities for extruder hot-ends and a heated bed
  *  - Acquire updated temperature readings
+ *    - Also resets the watchdog timer
  *  - Invoke thermal runaway protection
  *  - Manage extruder auto-fan
  *  - Apply filament width to the extrusion rate (may move)
@@ -520,7 +526,7 @@ void Temperature::manage_heater() {
 
   if (!temp_meas_ready) return;
 
-  updateTemperaturesFromRawValues();
+  updateTemperaturesFromRawValues(); // also resets the watchdog
 
   #if ENABLED(HEATER_0_USES_MAX6675)
     float ct = current_temperature[0];

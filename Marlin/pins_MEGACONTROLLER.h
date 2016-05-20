@@ -25,11 +25,11 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
 #if EXTRUDERS > 2
-  #error Mega Controller supports up to 2 extruders. Comment this line to keep going.
+  #error "Mega Controller supports up to 2 extruders. Comment this line to keep going."
 #endif
 
 #define SERVO0_PIN 30
@@ -63,7 +63,6 @@
 #define E1_DIR_PIN 27
 #define E1_ENABLE_PIN 25
 
-#define SDPOWER -1
 #define SDSS 53
 #define LED_PIN 13
 
@@ -72,19 +71,15 @@
 #define FAN2_PIN 36
 #define FAN_SOFT_PWM
 #define CONTROLLERFAN_PIN FAN2_PIN
-#define PS_ON_PIN -1
-#define KILL_PIN -1
 
 #define HEATER_0_PIN 29 // EXTRUDER 1
 #define HEATER_1_PIN 34 // EXTRUDER 2
-#define HEATER_2_PIN -1
 
 #if TEMP_SENSOR_0 == -1
   #define TEMP_0_PIN 4 // ANALOG NUMBERING
 #else
   #define TEMP_0_PIN 0 // ANALOG NUMBERING
 #endif
-
 
 #if TEMP_SENSOR_1 == -1
   #define TEMP_1_PIN 5 // ANALOG NUMBERING

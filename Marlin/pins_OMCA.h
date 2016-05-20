@@ -52,7 +52,7 @@
  */
 
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__)
-  #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu. (Final OMCA board)
+  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu. (Final OMCA board)"
 #endif
 
 #define X_STEP_PIN         26
@@ -90,23 +90,14 @@
 #define E2_DIR_PIN         -1 // 20
 #define E2_ENABLE_PIN      -1 // 18
 
-#define SDPOWER            -1
 #define SDSS               11
-#define SD_DETECT_PIN      -1 // 10 optional also used as mode pin
-#define LED_PIN            -1
 #define FAN_PIN            14 // PWM on MIDDLE connector
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN        3 // DONE PWM on RIGHT connector
-#define HEATER_1_PIN       -1
-#define HEATER_2_PIN       -1
-#define HEATER_1_PIN       -1
-#define HEATER_2_PIN       -1
+#define HEATER_BED_PIN      4
+
 #define TEMP_0_PIN          0 // ANALOG INPUT NUMBERING
 #define TEMP_1_PIN          1 // ANALOG
-#define TEMP_2_PIN         -1 // 2
-#define HEATER_BED_PIN      4
 #define TEMP_BED_PIN        2 // 1,2 or I2C
 
 #define I2C_SCL            16

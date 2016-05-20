@@ -37,32 +37,34 @@
 
     void reset();
 
-    float get_x(int i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
-    float get_y(int i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
-    void set_z(int ix, int iy, float z) { z_values[iy][ix] = z; }
+    static FORCE_INLINE float get_x(int8_t i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
+    static FORCE_INLINE float get_y(int8_t i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
+    void set_z(int8_t ix, int8_t iy, float z) { z_values[iy][ix] = z; }
 
-    inline void zigzag(int index, int &ix, int &iy) {
+    inline void zigzag(int8_t index, int8_t &ix, int8_t &iy) {
       ix = index % (MESH_NUM_X_POINTS);
       iy = index / (MESH_NUM_X_POINTS);
       if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
     }
 
-    void set_zigzag_z(int index, float z) {
-      int ix, iy;
+    void set_zigzag_z(int8_t index, float z) {
+      int8_t ix, iy;
       zigzag(index, ix, iy);
       set_z(ix, iy, z);
     }
 
-    int select_x_index(float x) {
-      int i = 1;
-      while (x > get_x(i) && i < MESH_NUM_X_POINTS - 1) i++;
-      return i - 1;
+    int8_t select_x_index(float x) {
+      for (uint8_t i = MESH_NUM_X_POINTS; i--;)
+        if (fabs(x - get_x(i)) <= (MESH_X_DIST) / 2)
+          return i;
+      return -1;
     }
 
-    int select_y_index(float y) {
-      int i = 1;
-      while (y > get_y(i) && i < MESH_NUM_Y_POINTS - 1) i++;
-      return i - 1;
+    int8_t select_y_index(float y) {
+      for (uint8_t i = MESH_NUM_Y_POINTS; i--;)
+        if (fabs(y - get_y(i)) <= (MESH_Y_DIST) / 2)
+          return i;
+      return -1;
     }
 
     float calc_z0(float a0, float a1, float z1, float a2, float z2) {
@@ -72,8 +74,9 @@
     }
 
     float get_z(float x0, float y0) {
-      int x_index = select_x_index(x0);
-      int y_index = select_y_index(y0);
+      int8_t x_index = select_x_index(x0);
+      int8_t y_index = select_y_index(y0);
+      if (x_index < 0 || y_index < 0) return z_offset;
       float z1 = calc_z0(x0,
                          get_x(x_index), z_values[y_index][x_index],
                          get_x(x_index + 1), z_values[y_index][x_index + 1]);

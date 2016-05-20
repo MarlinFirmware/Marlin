@@ -282,7 +282,6 @@ menuPosition menu_history[10];
 uint8_t menu_history_depth = 0;
 
 millis_t next_lcd_update_ms;
-uint8_t lcd_status_update_delay;
 bool ignore_click = false;
 bool wait_for_unclick;
 bool defer_return_to_status = false;
@@ -1014,7 +1013,7 @@ void lcd_cooldown() {
     lcd_goto_menu(_lcd_level_bed_moving);
 
     // _mbl_goto_xy runs the menu loop until the move is done
-    int ix, iy;
+    int8_t ix, iy;
     mbl.zigzag(_lcd_level_bed_position, ix, iy);
     _mbl_goto_xy(mbl.get_x(ix), mbl.get_y(iy));
 
@@ -1093,6 +1092,11 @@ static void lcd_prepare_menu() {
   // Auto Home
   //
   MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+  #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU)
+    MENU_ITEM(gcode, MSG_AUTO_HOME_X, PSTR("G28 X"));
+    MENU_ITEM(gcode, MSG_AUTO_HOME_Y, PSTR("G28 Y"));
+    MENU_ITEM(gcode, MSG_AUTO_HOME_Z, PSTR("G28 Z"));
+  #endif
 
   //
   // Set Home Offsets
@@ -2243,9 +2247,13 @@ void lcd_update() {
       }
     #endif //ULTIPANEL
 
-    // Simply redraw the Info Screen 10 times a second
-    if (currentMenu == lcd_status_screen && !(++lcd_status_update_delay % 10))
+    // We arrive here every ~100ms when idling often enough.
+    // Instead of tracking the changes simply redraw the Info Screen ~1 time a second.
+    static int8_t lcd_status_update_delay = 1; // first update one loop delayed
+    if (currentMenu == lcd_status_screen && !lcd_status_update_delay--) {
+      lcd_status_update_delay = 9;
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+    }
 
     if (lcdDrawUpdate) {
 
@@ -2466,9 +2474,15 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       GET_BUTTON_STATES(buttons);
     #endif //!NEWPANEL
 
-    #if ENABLED(REVERSE_MENU_DIRECTION)
+    #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)
+      #define ENCODER_DIFF_CW  (encoderDiff -= encoderDirection)
+      #define ENCODER_DIFF_CCW (encoderDiff += encoderDirection)
+    #elif ENABLED(REVERSE_MENU_DIRECTION)
       #define ENCODER_DIFF_CW  (encoderDiff += encoderDirection)
       #define ENCODER_DIFF_CCW (encoderDiff -= encoderDirection)
+    #elif ENABLED(REVERSE_ENCODER_DIRECTION)
+      #define ENCODER_DIFF_CW  (encoderDiff--)
+      #define ENCODER_DIFF_CCW (encoderDiff++)
     #else
       #define ENCODER_DIFF_CW  (encoderDiff++)
       #define ENCODER_DIFF_CCW (encoderDiff--)
