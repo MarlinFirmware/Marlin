@@ -306,24 +306,25 @@ class Temperature {
     #if ENABLED(BABYSTEPPING)
 
       FORCE_INLINE void babystep_axis(AxisEnum axis, int distance) {
-        #if ENABLED(COREXY) || ENABLED(COREXZ)
+        #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
           #if ENABLED(BABYSTEP_XY)
             switch (axis) {
-              case X_AXIS: // X on CoreXY and CoreXZ
-                babystepsTodo[A_AXIS] += distance * 2;
+              case CORE_AXIS_1: // X on CoreXY and CoreXZ, Y on CoreYZ
+                babystepsTodo[CORE_AXIS_1] += distance * 2;
                 babystepsTodo[CORE_AXIS_2] += distance * 2;
                 break;
-              case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ
-                babystepsTodo[A_AXIS] += distance * 2;
+              case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ and CoreYZ
+                babystepsTodo[CORE_AXIS_1] += distance * 2;
                 babystepsTodo[CORE_AXIS_2] -= distance * 2;
                 break;
-              case CORE_AXIS_3: // Z on CoreXY, Y on CoreXZ
+              case CORE_AXIS_3: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
                 babystepsTodo[CORE_AXIS_3] += distance;
                 break;
             }
-          #elif ENABLED(COREXZ)
-            babystepsTodo[A_AXIS] += distance * 2;
-            babystepsTodo[C_AXIS] -= distance * 2;
+          #elif ENABLED(COREXZ) || ENABLED(COREYZ)
+            // Only Z stepping needs to be handled here
+            babystepsTodo[CORE_AXIS_1] += distance * 2;
+            babystepsTodo[CORE_AXIS_2] -= distance * 2;
           #else
             babystepsTodo[Z_AXIS] += distance;
           #endif
