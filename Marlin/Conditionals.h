@@ -540,6 +540,16 @@
   #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1)
 
   /**
+   * With SINGLENOZZLE all "extruders" are in the same place
+   */
+  #if ENABLED(SINGLENOZZLE)
+    #undef EXTRUDER_OFFSET_X
+    #undef EXTRUDER_OFFSET_Y
+    #define EXTRUDER_OFFSET_X { 0 }
+    #define EXTRUDER_OFFSET_Y { 0 }
+  #endif
+
+  /**
    * Z_DUAL_ENDSTOPS endstop reassignment
    */
   #if ENABLED(Z_DUAL_ENDSTOPS)
