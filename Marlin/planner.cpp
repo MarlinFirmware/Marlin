@@ -543,6 +543,11 @@ void Planner::check_axes_activity() {
     block->steps[A_AXIS] = labs(dx + dz);
     block->steps[Y_AXIS] = labs(dy);
     block->steps[C_AXIS] = labs(dx - dz);
+  #elif ENABLED(COREYZ)
+    // coreyz planning
+    block->steps[X_AXIS] = labs(dx);
+    block->steps[B_AXIS] = labs(dy + dz);
+    block->steps[C_AXIS] = labs(dy - dz);
   #else
     // default non-h-bot planning
     block->steps[X_AXIS] = labs(dx);
@@ -581,7 +586,13 @@ void Planner::check_axes_activity() {
     if (dy < 0) SBI(db, Y_AXIS);
     if (dz < 0) SBI(db, Z_HEAD); // ...and Z
     if (dx + dz < 0) SBI(db, A_AXIS); // Motor A direction
-    if (dx - dz < 0) SBI(db, C_AXIS); // Motor B direction
+    if (dx - dz < 0) SBI(db, C_AXIS); // Motor C direction
+  #elif ENABLED(COREYZ)
+    if (dx < 0) SBI(db, X_AXIS);
+    if (dy < 0) SBI(db, Y_HEAD); // Save the real Extruder (head) direction in Y Axis
+    if (dz < 0) SBI(db, Z_HEAD); // ...and Z
+    if (dy + dz < 0) SBI(db, B_AXIS); // Motor B direction
+    if (dy - dz < 0) SBI(db, C_AXIS); // Motor C direction
   #else
     if (dx < 0) SBI(db, X_AXIS);
     if (dy < 0) SBI(db, Y_AXIS);
@@ -698,20 +709,27 @@ void Planner::check_axes_activity() {
    * So we need to create other 2 "AXIS", named X_HEAD and Y_HEAD, meaning the real displacement of the Head.
    * Having the real displacement of the head, we can calculate the total movement length and apply the desired speed.
    */
-  #if ENABLED(COREXY)
+  #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
     float delta_mm[6];
-    delta_mm[X_HEAD] = dx / axis_steps_per_unit[A_AXIS];
-    delta_mm[Y_HEAD] = dy / axis_steps_per_unit[B_AXIS];
-    delta_mm[Z_AXIS] = dz / axis_steps_per_unit[Z_AXIS];
-    delta_mm[A_AXIS] = (dx + dy) / axis_steps_per_unit[A_AXIS];
-    delta_mm[B_AXIS] = (dx - dy) / axis_steps_per_unit[B_AXIS];
-  #elif ENABLED(COREXZ)
-    float delta_mm[6];
-    delta_mm[X_HEAD] = dx / axis_steps_per_unit[A_AXIS];
-    delta_mm[Y_AXIS] = dy / axis_steps_per_unit[Y_AXIS];
-    delta_mm[Z_HEAD] = dz / axis_steps_per_unit[C_AXIS];
-    delta_mm[A_AXIS] = (dx + dz) / axis_steps_per_unit[A_AXIS];
-    delta_mm[C_AXIS] = (dx - dz) / axis_steps_per_unit[C_AXIS];
+    #if ENABLED(COREXY)
+      delta_mm[X_HEAD] = dx / axis_steps_per_unit[A_AXIS];
+      delta_mm[Y_HEAD] = dy / axis_steps_per_unit[B_AXIS];
+      delta_mm[Z_AXIS] = dz / axis_steps_per_unit[Z_AXIS];
+      delta_mm[A_AXIS] = (dx + dy) / axis_steps_per_unit[A_AXIS];
+      delta_mm[B_AXIS] = (dx - dy) / axis_steps_per_unit[B_AXIS];
+    #elif ENABLED(COREXZ)
+      delta_mm[X_HEAD] = dx / axis_steps_per_unit[A_AXIS];
+      delta_mm[Y_AXIS] = dy / axis_steps_per_unit[Y_AXIS];
+      delta_mm[Z_HEAD] = dz / axis_steps_per_unit[C_AXIS];
+      delta_mm[A_AXIS] = (dx + dz) / axis_steps_per_unit[A_AXIS];
+      delta_mm[C_AXIS] = (dx - dz) / axis_steps_per_unit[C_AXIS];
+    #elif ENABLED(COREYZ)
+      delta_mm[X_AXIS] = dx / axis_steps_per_unit[A_AXIS];
+      delta_mm[Y_HEAD] = dy / axis_steps_per_unit[Y_AXIS];
+      delta_mm[Z_HEAD] = dz / axis_steps_per_unit[C_AXIS];
+      delta_mm[B_AXIS] = (dy + dz) / axis_steps_per_unit[B_AXIS];
+      delta_mm[C_AXIS] = (dy - dz) / axis_steps_per_unit[C_AXIS];
+    #endif
   #else
     float delta_mm[4];
     delta_mm[X_AXIS] = dx / axis_steps_per_unit[X_AXIS];
@@ -729,6 +747,8 @@ void Planner::check_axes_activity() {
         square(delta_mm[X_HEAD]) + square(delta_mm[Y_HEAD]) + square(delta_mm[Z_AXIS])
       #elif ENABLED(COREXZ)
         square(delta_mm[X_HEAD]) + square(delta_mm[Y_AXIS]) + square(delta_mm[Z_HEAD])
+      #elif ENABLED(COREYZ)
+        square(delta_mm[X_AXIS]) + square(delta_mm[Y_HEAD]) + square(delta_mm[Z_HEAD])
       #else
         square(delta_mm[X_AXIS]) + square(delta_mm[Y_AXIS]) + square(delta_mm[Z_AXIS])
       #endif
