@@ -452,7 +452,7 @@
 #define MM_PER_ARC_SEGMENT 1
 #define N_ARC_CORRECTION 25
 
-// Support for G5 with XYZE destination and IJPQ offsets. Needs ~2666 bytes
+// Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
 //#define BEZIER_CURVE_SUPPORT
 
 const unsigned int dropsegments = 5; //everything with less than this number of steps will be ignored as move and joined with the next movement
