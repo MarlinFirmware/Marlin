@@ -37,33 +37,45 @@
 
     void reset();
 
-    static FORCE_INLINE float get_x(int8_t i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
-    static FORCE_INLINE float get_y(int8_t i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
-    void set_z(int8_t ix, int8_t iy, float z) { z_values[iy][ix] = z; }
+    static FORCE_INLINE float get_probe_x(int8_t i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
+    static FORCE_INLINE float get_probe_y(int8_t i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
+    void set_z(int8_t px, int8_t py, float z) { z_values[py][px] = z; }
 
-    inline void zigzag(int8_t index, int8_t &ix, int8_t &iy) {
-      ix = index % (MESH_NUM_X_POINTS);
-      iy = index / (MESH_NUM_X_POINTS);
-      if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
+    inline void zigzag(int8_t index, int8_t &px, int8_t &py) {
+      px = index % (MESH_NUM_X_POINTS);
+      py = index / (MESH_NUM_X_POINTS);
+      if (py & 1) px = (MESH_NUM_X_POINTS - 1) - px; // Zig zag
     }
 
     void set_zigzag_z(int8_t index, float z) {
-      int8_t ix, iy;
-      zigzag(index, ix, iy);
-      set_z(ix, iy, z);
+      int8_t px, py;
+      zigzag(index, px, py);
+      set_z(px, py, z);
     }
 
-    int8_t select_x_index(float x) {
-      for (uint8_t i = MESH_NUM_X_POINTS; i--;)
-        if (fabs(x - get_x(i)) <= (MESH_X_DIST) / 2)
-          return i;
+    int8_t cel_index_x(float x) {
+      int8_t cx = 1;
+      while (x > get_probe_x(cx) && cx < MESH_NUM_X_POINTS - 1) cx++; // For 3x3 range is 1 to 2
+      return cx - 1; // so this will return 0 - 1
+    }
+
+    int8_t cel_index_y(float y) {
+      int8_t cy = 1;
+      while (y > get_probe_y(cy) && cy < MESH_NUM_Y_POINTS - 1) cy++;
+      return cy - 1;
+    }
+
+    int8_t probe_index_x(float x) {
+      for (int8_t px = MESH_NUM_X_POINTS; px--;)
+        if (fabs(x - get_probe_x(px)) <= (MESH_X_DIST) / 2)
+          return px;
       return -1;
     }
 
-    int8_t select_y_index(float y) {
-      for (uint8_t i = MESH_NUM_Y_POINTS; i--;)
-        if (fabs(y - get_y(i)) <= (MESH_Y_DIST) / 2)
-          return i;
+    int8_t probe_index_y(float y) {
+      for (int8_t py = MESH_NUM_Y_POINTS; py--;)
+        if (fabs(y - get_probe_y(py)) <= (MESH_Y_DIST) / 2)
+          return py;
       return -1;
     }
 
@@ -74,18 +86,18 @@
     }
 
     float get_z(float x0, float y0) {
-      int8_t x_index = select_x_index(x0);
-      int8_t y_index = select_y_index(y0);
-      if (x_index < 0 || y_index < 0) return z_offset;
+      int8_t cx = cel_index_x(x0),
+             cy = cel_index_y(y0);
+      if (cx < 0 || cy < 0) return z_offset;
       float z1 = calc_z0(x0,
-                         get_x(x_index), z_values[y_index][x_index],
-                         get_x(x_index + 1), z_values[y_index][x_index + 1]);
+                         get_probe_x(cx), z_values[cy][cx],
+                         get_probe_x(cx + 1), z_values[cy][cx + 1]);
       float z2 = calc_z0(x0,
-                         get_x(x_index), z_values[y_index + 1][x_index],
-                         get_x(x_index + 1), z_values[y_index + 1][x_index + 1]);
+                         get_probe_x(cx), z_values[cy + 1][cx],
+                         get_probe_x(cx + 1), z_values[cy + 1][cx + 1]);
       float z0 = calc_z0(y0,
-                         get_y(y_index), z1,
-                         get_y(y_index + 1), z2);
+                         get_probe_y(cy), z1,
+                         get_probe_y(cy + 1), z2);
       return z0 + z_offset;
     }
   };

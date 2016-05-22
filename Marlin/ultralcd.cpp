@@ -1013,9 +1013,9 @@ void lcd_cooldown() {
     lcd_goto_menu(_lcd_level_bed_moving);
 
     // _mbl_goto_xy runs the menu loop until the move is done
-    int8_t ix, iy;
-    mbl.zigzag(_lcd_level_bed_position, ix, iy);
-    _mbl_goto_xy(mbl.get_x(ix), mbl.get_y(iy));
+    int8_t px, py;
+    mbl.zigzag(_lcd_level_bed_position, px, py);
+    _mbl_goto_xy(mbl.get_probe_x(px), mbl.get_probe_y(py));
 
     // After the blocking function returns, change menus
     lcd_goto_menu(_lcd_level_bed_get_z);
