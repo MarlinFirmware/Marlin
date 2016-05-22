@@ -54,15 +54,13 @@
     }
 
     int8_t cel_index_x(float x) {
-      int8_t cx = 1;
-      while (x > get_probe_x(cx) && cx < MESH_NUM_X_POINTS - 1) cx++; // For 3x3 range is 1 to 2
-      return cx - 1; // so this will return 0 - 1
+      int8_t cx = int(x - (MESH_MIN_X)) / (MESH_X_DIST);
+      return constrain(cx, 0, (MESH_NUM_X_POINTS) - 2);
     }
 
     int8_t cel_index_y(float y) {
-      int8_t cy = 1;
-      while (y > get_probe_y(cy) && cy < MESH_NUM_Y_POINTS - 1) cy++;
-      return cy - 1;
+      int8_t cy = int(y - (MESH_MIN_Y)) / (MESH_Y_DIST);
+      return constrain(cy, 0, (MESH_NUM_Y_POINTS) - 2);
     }
 
     int8_t probe_index_x(float x) {
