@@ -733,13 +733,13 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOPAIR(" X", MESH_NUM_X_POINTS);
     SERIAL_ECHOPAIR(" Y", MESH_NUM_Y_POINTS);
     SERIAL_EOL;
-    for (uint8_t y = 0; y < MESH_NUM_Y_POINTS; y++) {
-      for (uint8_t x = 0; x < MESH_NUM_X_POINTS; x++) {
+    for (uint8_t py = 0; py < MESH_NUM_Y_POINTS; py++) {
+      for (uint8_t px = 0; px < MESH_NUM_X_POINTS; px++) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M421 X", mbl.get_x(x));
-        SERIAL_ECHOPAIR(" Y", mbl.get_y(y));
+        SERIAL_ECHOPAIR("  M421 X", mbl.get_probe_x(px));
+        SERIAL_ECHOPAIR(" Y", mbl.get_probe_y(py));
         SERIAL_ECHOPGM(" Z");
-        SERIAL_PROTOCOL_F(mbl.z_values[y][x], 5);
+        SERIAL_PROTOCOL_F(mbl.z_values[py][px], 5);
         SERIAL_EOL;
       }
     }
