@@ -39,9 +39,9 @@ Endstops endstops;
 Endstops::Endstops() {
   enable_globally(
     #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
-      true
-    #else
       false
+    #else
+      true
     #endif
   );
   enable(true);
