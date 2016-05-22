@@ -27,40 +27,46 @@ Stopwatch::Stopwatch() {
   this->reset();
 }
 
-void Stopwatch::stop() {
+bool Stopwatch::stop() {
   #if ENABLED(DEBUG_STOPWATCH)
     Stopwatch::debug(PSTR("stop"));
   #endif
 
-  if (!this->isRunning()) return;
-
-  this->state = STPWTCH_STOPPED;
-  this->stopTimestamp = millis();
+  if (this->isRunning() || this->isPaused()) {
+    this->state = STOPWATCH_STOPPED;
+    this->stopTimestamp = millis();
+    return true;
+  }
+  else return false;
 }
 
-void Stopwatch::pause() {
+bool Stopwatch::pause() {
   #if ENABLED(DEBUG_STOPWATCH)
     Stopwatch::debug(PSTR("pause"));
   #endif
 
-  if (!this->isRunning()) return;
-
-  this->state = STPWTCH_PAUSED;
-  this->stopTimestamp = millis();
+  if (this->isRunning()) {
+    this->state = STOPWATCH_PAUSED;
+    this->stopTimestamp = millis();
+    return true;
+  }
+  else return false;
 }
 
-void Stopwatch::start() {
+bool Stopwatch::start() {
   #if ENABLED(DEBUG_STOPWATCH)
     Stopwatch::debug(PSTR("start"));
   #endif
 
-  if (this->isRunning()) return;
+  if (!this->isRunning()) {
+    if (this->isPaused()) this->accumulator = this->duration();
+    else this->reset();
 
-  if (this->isPaused()) this->accumulator = this->duration();
-  else this->reset();
-
-  this->state = STPWTCH_RUNNING;
-  this->startTimestamp = millis();
+    this->state = STOPWATCH_RUNNING;
+    this->startTimestamp = millis();
+    return true;
+  }
+  else return false;
 }
 
 void Stopwatch::reset() {
@@ -68,18 +74,18 @@ void Stopwatch::reset() {
     Stopwatch::debug(PSTR("reset"));
   #endif
 
-  this->state = STPWTCH_STOPPED;
+  this->state = STOPWATCH_STOPPED;
   this->startTimestamp = 0;
   this->stopTimestamp = 0;
   this->accumulator = 0;
 }
 
 bool Stopwatch::isRunning() {
-  return (this->state == STPWTCH_RUNNING) ? true : false;
+  return (this->state == STOPWATCH_RUNNING) ? true : false;
 }
 
 bool Stopwatch::isPaused() {
-  return (this->state == STPWTCH_PAUSED) ? true : false;
+  return (this->state == STOPWATCH_PAUSED) ? true : false;
 }
 
 uint16_t Stopwatch::duration() {
