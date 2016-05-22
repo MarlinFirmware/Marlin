@@ -5904,19 +5904,16 @@ inline void gcode_M410() { stepper.quick_stop(); }
    * Use either 'M421 X<mm> Y<mm> Z<mm>' or 'M421 I<xindex> J<yindex> Z<mm>'
    */
   inline void gcode_M421() {
-    float x = 0, y = 0, z = 0;
-    int8_t px = 0, py = 0;
-    bool err = false, hasX, hasY, hasZ, hasI, hasJ;
-    if ((hasX = code_seen('X'))) x = code_value();
-    if ((hasY = code_seen('Y'))) y = code_value();
-    if ((hasZ = code_seen('Z'))) z = code_value();
+    int8_t px, py;
+    float z = 0;
+    bool hasX, hasY, hasZ, hasI, hasJ;
+    if ((hasX = code_seen('X'))) px = mbl.probe_index_x(code_value());
+    if ((hasY = code_seen('Y'))) py = mbl.probe_index_y(code_value());
     if ((hasI = code_seen('I'))) px = code_value();
     if ((hasJ = code_seen('J'))) py = code_value();
+    if ((hasZ = code_seen('Z'))) z = code_value();
 
     if (hasX && hasY && hasZ) {
-
-      px = mbl.probe_index_x(x);
-      py = mbl.probe_index_y(y);
 
       if (px >= 0 && py >= 0)
         mbl.set_z(px, py, z);
@@ -5935,7 +5932,7 @@ inline void gcode_M410() { stepper.quick_stop(); }
     }
     else {
       SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_ERR_M421_REQUIRES_XYZ);
+      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
     }
   }
 

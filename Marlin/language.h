@@ -147,7 +147,7 @@
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
-#define MSG_ERR_M421_REQUIRES_XYZ           "M421 requires XYZ or IJZ parameters"
+#define MSG_ERR_M421_PARAMETERS             "M421 requires XYZ or IJZ parameters"
 #define MSG_ERR_MESH_XY                     "Mesh XY or IJ cannot be resolved"
 #define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
 #define MSG_ERR_M303_DISABLED               "PIDTEMP disabled"
