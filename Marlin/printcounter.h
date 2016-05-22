@@ -55,6 +55,9 @@ class PrintCounter: public Stopwatch {
      * @brief Interval in seconds between counter updates
      * @details This const value defines what will be the time between each
      * accumulator update. This is different from the EEPROM save interval.
+     *
+     * @note The max value for this option is 60(s), otherwise integer
+     * overflow will happen.
      */
     const uint16_t updateInterval = 10;
 
