@@ -73,6 +73,7 @@ void PrintCounter::saveStats() {
   // Refuses to save data is object is not loaded
   if (!this->isLoaded()) return;
 
+  // Saves the struct to EEPROM
   eeprom_update_block(&this->data, (void *)(this->address + sizeof(uint8_t)), sizeof(printStatistics));
 }
 
@@ -135,35 +136,46 @@ void PrintCounter::tick() {
   }
 }
 
-void PrintCounter::start() {
+// @Override
+bool PrintCounter::start() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     PrintCounter::debug(PSTR("start"));
   #endif
 
-  if (!this->isPaused()) this->data.totalPrints++;
-  super::start();
+  bool paused = this->isPaused();
+
+  if (super::start()) {
+    if (!paused) {
+      this->data.totalPrints++;
+      this->lastDuration = 0;
+    }
+    return true;
+  }
+  else return false;
 }
 
-void PrintCounter::stop() {
+// @Override
+bool PrintCounter::stop() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     PrintCounter::debug(PSTR("stop"));
   #endif
 
-  if (!this->isRunning()) return;
-  super::stop();
-
-  this->data.finishedPrints++;
-  this->data.printTime += this->deltaDuration();
-  this->saveStats();
+  if (super::stop()) {
+    this->data.finishedPrints++;
+    this->data.printTime += this->deltaDuration();
+    this->saveStats();
+  }
+  else return false;
 }
 
+// @Override
 void PrintCounter::reset() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     PrintCounter::debug(PSTR("stop"));
   #endif
 
-  this->lastDuration = 0;
   super::reset();
+  this->lastDuration = 0;
 }
 
 #if ENABLED(DEBUG_PRINTCOUNTER)
