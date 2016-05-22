@@ -138,8 +138,8 @@ class PrintCounter: public Stopwatch {
     /**
      * The following functions are being overridden
      */
-    void start();
-    void stop();
+    bool start();
+    bool stop();
     void reset();
 
     #if ENABLED(DEBUG_PRINTCOUNTER)
