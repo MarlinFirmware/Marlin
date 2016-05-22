@@ -64,17 +64,13 @@
     }
 
     int8_t probe_index_x(float x) {
-      for (int8_t px = MESH_NUM_X_POINTS; px--;)
-        if (fabs(x - get_probe_x(px)) <= (MESH_X_DIST) / 2)
-          return px;
-      return -1;
+      int8_t px = int(x - (MESH_MIN_X) + (MESH_X_DIST) / 2) / (MESH_X_DIST);
+      return (px >= 0 && px < (MESH_NUM_X_POINTS)) ? px : -1;
     }
 
     int8_t probe_index_y(float y) {
-      for (int8_t py = MESH_NUM_Y_POINTS; py--;)
-        if (fabs(y - get_probe_y(py)) <= (MESH_Y_DIST) / 2)
-          return py;
-      return -1;
+      int8_t py = int(y - (MESH_MIN_Y) + (MESH_Y_DIST) / 2) / (MESH_Y_DIST);
+      return (py >= 0 && py < (MESH_NUM_Y_POINTS)) ? py : -1;
     }
 
     float calc_z0(float a0, float a1, float z1, float a2, float z2) {
