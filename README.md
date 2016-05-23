@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 
-<img align="top" width=175 src="buildroot/share/pixmaps/logo/Marlin%20Logo%20GitHub.png" />
+<img align="top" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
 
 Additional documentation can be found in [The Marlin Wiki](https://github.com/MarlinFirmware/Marlin/wiki).
 Please test this firmware and inform us if it misbehaves in any way, volunteers are standing by!
