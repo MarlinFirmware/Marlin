@@ -149,7 +149,9 @@
     #error "EXTRUDERS must be 1 with Z_DUAL_STEPPER_DRIVERS."
   #endif
 
-#endif // EXTRUDERS > 1
+#elif ENABLED(SINGLENOZZLE)
+  #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
+#endif
 
 /**
  * Limited number of servos
