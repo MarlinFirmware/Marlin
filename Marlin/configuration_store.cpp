@@ -62,7 +62,7 @@
  *  201            z_offset (float) (added in V23)
  *  205            mesh_num_x (uint8 as set in firmware)
  *  206            mesh_num_y (uint8 as set in firmware)
- *  207  M421 XYZ  z_values[][] (float x9, by default)
+ *  207 G29 S3 XYZ z_values[][] (float x9, by default)
  *
  * AUTO BED LEVELING
  *  243  M851      zprobe_zoffset (float)
@@ -733,13 +733,13 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOPAIR(" X", MESH_NUM_X_POINTS);
     SERIAL_ECHOPAIR(" Y", MESH_NUM_Y_POINTS);
     SERIAL_EOL;
-    for (uint8_t py = 0; py < MESH_NUM_Y_POINTS; py++) {
-      for (uint8_t px = 0; px < MESH_NUM_X_POINTS; px++) {
+    for (uint8_t py = 1; py <= MESH_NUM_Y_POINTS; py++) {
+      for (uint8_t px = 1; px <= MESH_NUM_X_POINTS; px++) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M421 X", mbl.get_probe_x(px));
-        SERIAL_ECHOPAIR(" Y", mbl.get_probe_y(py));
+        SERIAL_ECHOPAIR("  G29 S3 X", px);
+        SERIAL_ECHOPAIR(" Y", py);
         SERIAL_ECHOPGM(" Z");
-        SERIAL_PROTOCOL_F(mbl.z_values[py][px], 5);
+        SERIAL_PROTOCOL_F(mbl.z_values[py-1][px-1], 5);
         SERIAL_EOL;
       }
     }
