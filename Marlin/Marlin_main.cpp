@@ -2619,8 +2619,16 @@ inline void gcode_G28() {
    * on again when homing all axis
    */
   #if ENABLED(MESH_BED_LEVELING)
-    uint8_t mbl_was_active = mbl.active;
-    mbl.active = false;
+    float pre_home_z = MESH_HOME_SEARCH_Z;
+    if (mbl.is_active()) {
+      // Save known Z position if already homed
+      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
+        pre_home_z = current_position[Z_AXIS];
+        pre_home_z += mbl.get_z(current_position[X_AXIS] - home_offset[X_AXIS],
+                                current_position[Y_AXIS] - home_offset[Y_AXIS]);
+      }
+      mbl.is_active(false);
+    }
   #endif
 
   setup_for_endstop_move();
@@ -2920,20 +2928,31 @@ inline void gcode_G28() {
 
   // Enable mesh leveling again
   #if ENABLED(MESH_BED_LEVELING)
-    if (mbl_was_active && home_all_axis) {
-      current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-      sync_plan_position();
-      mbl.active = 1;
-      #if ENABLED(MESH_G28_REST_ORIGIN)
-        current_position[Z_AXIS] = 0.0;
-        set_destination_to_current();
-        feedrate = homing_feedrate[Z_AXIS];
-        line_to_destination();
-        stepper.synchronize();
-      #endif
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("mbl_was_active", current_position);
-      #endif
+    if (mbl.has_mesh()) {
+      if (home_all_axis || (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && homeZ)) {
+        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+        sync_plan_position();
+        mbl.is_active(true);
+        #if ENABLED(MESH_G28_REST_ORIGIN)
+          current_position[Z_AXIS] = 0.0;
+          set_destination_to_current();
+          feedrate = homing_feedrate[Z_AXIS];
+          line_to_destination();
+          stepper.synchronize();
+        #else
+          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z -
+            mbl.get_z(current_position[X_AXIS] - home_offset[X_AXIS],
+                      current_position[Y_AXIS] - home_offset[Y_AXIS]);
+        #endif
+      }
+      else if ((axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) && (homeX || homeY)) {
+        current_position[Z_AXIS] = pre_home_z;
+        sync_plan_position();
+        mbl.is_active(true);
+        current_position[Z_AXIS] = pre_home_z -
+          mbl.get_z(current_position[X_AXIS] - home_offset[X_AXIS],
+                    current_position[Y_AXIS] - home_offset[Y_AXIS]);
+      }
     }
   #endif
 
@@ -2953,7 +2972,7 @@ inline void gcode_G28() {
 
 #if ENABLED(MESH_BED_LEVELING)
 
-  enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet, MeshSetZOffset };
+  enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet, MeshSetZOffset, MeshReset };
 
   inline void _mbl_goto_xy(float x, float y) {
     saved_feedrate = feedrate;
@@ -2990,6 +3009,7 @@ inline void gcode_G28() {
    *  S2              Probe the next mesh point
    *  S3 Xn Yn Zn.nn  Manually modify a single point
    *  S4 Zn.nn        Set z offset. Positive away from bed, negative closer to bed.
+   *  S5              Reset and disable mesh
    *
    * The S0 report the points as below
    *
@@ -3003,8 +3023,8 @@ inline void gcode_G28() {
 
     static int probe_point = -1;
     MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_short() : MeshReport;
-    if (state < 0 || state > 4) {
-      SERIAL_PROTOCOLLNPGM("S out of range (0-4).");
+    if (state < 0 || state > 5) {
+      SERIAL_PROTOCOLLNPGM("S out of range (0-5).");
       return;
     }
 
@@ -3013,8 +3033,13 @@ inline void gcode_G28() {
 
     switch (state) {
       case MeshReport:
-        if (mbl.active) {
-          SERIAL_PROTOCOLPGM("Num X,Y: ");
+        if (mbl.has_mesh()) {
+          SERIAL_PROTOCOLPGM("State: ");
+          if (mbl.is_active())
+            SERIAL_PROTOCOLPGM("On");
+          else
+            SERIAL_PROTOCOLPGM("Off");
+          SERIAL_PROTOCOLPGM("\nNum X,Y: ");
           SERIAL_PROTOCOL(MESH_NUM_X_POINTS);
           SERIAL_PROTOCOLCHAR(',');
           SERIAL_PROTOCOL(MESH_NUM_Y_POINTS);
@@ -3075,7 +3100,7 @@ inline void gcode_G28() {
           // After recording the last point, activate the mbl and home
           SERIAL_PROTOCOLLNPGM("Mesh probing done.");
           probe_point = -1;
-          mbl.active = true;
+          mbl.has_mesh(true);
           enqueue_and_echo_commands_P(PSTR("G28"));
         }
         break;
@@ -3122,6 +3147,19 @@ inline void gcode_G28() {
           return;
         }
         mbl.z_offset = z;
+        break;
+
+      case MeshReset:
+        if (mbl.is_active()) {
+          current_position[Z_AXIS] +=
+            mbl.get_z(current_position[X_AXIS] - home_offset[X_AXIS],
+                      current_position[Y_AXIS] - home_offset[Y_AXIS]) - MESH_HOME_SEARCH_Z;
+          mbl.reset();
+          sync_plan_position();
+        }
+        else
+          mbl.reset();
+
     } // switch(state)
 
     report_current_position();
@@ -5897,7 +5935,7 @@ inline void gcode_M410() { stepper.quick_stop(); }
   /**
    * M420: Enable/Disable Mesh Bed Leveling
    */
-  inline void gcode_M420() { if (code_seen('S') && code_has_value()) mbl.active = !!code_value_short(); }
+  inline void gcode_M420() { if (code_seen('S') && code_has_value()) mbl.has_mesh(!!code_value_short()); }
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
@@ -7294,7 +7332,7 @@ void clamp_to_software_endstops(float target[3]) {
 
 // This function is used to split lines on mesh borders so each segment is only part of one mesh area
 void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate, const uint8_t& extruder, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
-  if (!mbl.active) {
+  if (!mbl.is_active()) {
     planner.buffer_line(x, y, z, e, feed_rate, extruder);
     set_current_to_destination();
     return;
