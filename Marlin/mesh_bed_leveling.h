@@ -29,7 +29,7 @@
 
   class mesh_bed_leveling {
   public:
-    bool active;
+    uint8_t status; // Bit 0 = has mesh numbers, Bit 1 = compensation active
     float z_offset;
     float z_values[MESH_NUM_Y_POINTS][MESH_NUM_X_POINTS];
 
@@ -40,6 +40,11 @@
     static FORCE_INLINE float get_probe_x(int8_t i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
     static FORCE_INLINE float get_probe_y(int8_t i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
     void set_z(const int8_t px, const int8_t py, const float z) { z_values[py][px] = z; }
+
+    bool has_mesh() { return TEST(status, 0); }
+    void has_mesh(bool onOff) { if (onOff) SBI(status, 0); else CBI(status, 0); }
+    bool is_active() { return TEST(status, 1); }
+    void is_active(bool onOff) { if (onOff) SBI(status, 1); else CBI(status, 1); }
 
     inline void zigzag(int8_t index, int8_t &px, int8_t &py) {
       px = index % (MESH_NUM_X_POINTS);
