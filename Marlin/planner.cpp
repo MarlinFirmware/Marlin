@@ -71,6 +71,64 @@
 
 Planner planner;
 
+  // public:
+
+/**
+ * A ring buffer of moves described in steps
+ */
+block_t Planner::block_buffer[BLOCK_BUFFER_SIZE];
+volatile uint8_t Planner::block_buffer_head = 0;           // Index of the next block to be pushed
+volatile uint8_t Planner::block_buffer_tail = 0;
+
+float Planner::max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
+float Planner::axis_steps_per_unit[NUM_AXIS];
+unsigned long Planner::axis_steps_per_sqr_second[NUM_AXIS];
+unsigned long Planner::max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
+
+millis_t Planner::min_segment_time;
+float Planner::min_feedrate;
+float Planner::acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
+float Planner::retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
+float Planner::travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
+float Planner::max_xy_jerk;          // The largest speed change requiring no acceleration
+float Planner::max_z_jerk;
+float Planner::max_e_jerk;
+float Planner::min_travel_feedrate;
+
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
+#endif
+
+#if ENABLED(AUTOTEMP)
+  float Planner::autotemp_max = 250;
+  float Planner::autotemp_min = 210;
+  float Planner::autotemp_factor = 0.1;
+  bool Planner::autotemp_enabled = false;
+#endif
+
+// private:
+
+long Planner::position[NUM_AXIS] = { 0 };
+
+float Planner::previous_speed[NUM_AXIS];
+
+float Planner::previous_nominal_speed;
+
+#if ENABLED(DISABLE_INACTIVE_EXTRUDER)
+  uint8_t Planner::g_uc_extruder_last_move[EXTRUDERS] = { 0 };
+#endif // DISABLE_INACTIVE_EXTRUDER
+
+#ifdef XY_FREQUENCY_LIMIT
+  // Old direction bits. Used for speed calculations
+  unsigned char Planner::old_direction_bits = 0;
+  // Segment times (in µs). Used for speed calculations
+  long Planner::axis_segment_time[2][3] = { {MAX_FREQ_TIME + 1, 0, 0}, {MAX_FREQ_TIME + 1, 0, 0} };
+#endif
+
+/**
+ * Class and Instance Methods
+ */
+
 Planner::Planner() {
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     bed_level_matrix.set_to_identity();
