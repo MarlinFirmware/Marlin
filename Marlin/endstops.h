@@ -33,26 +33,16 @@ class Endstops {
 
   public:
 
-    volatile char endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
+    static bool enabled, enabled_globally;
+    static volatile char endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      uint16_t current_endstop_bits = 0,
-                   old_endstop_bits = 0;
+      static uint16_t
     #else
-      byte current_endstop_bits = 0,
-               old_endstop_bits = 0;
+      static byte
     #endif
+        current_endstop_bits, old_endstop_bits;
         
-
-    bool enabled = true;
-    bool enabled_globally =
-      #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
-        false
-      #else
-        true
-      #endif
-    ;
-
     Endstops();
 
     /**
@@ -63,40 +53,40 @@ class Endstops {
     /**
      * Update the endstops bits from the pins
      */
-    void update();
+    static void update();
 
     /**
      * Print an error message reporting the position when the endstops were last hit.
      */
-    void report_state(); //call from somewhere to create an serial error message with the locations the endstops where hit, in case they were triggered
+    static void report_state(); //call from somewhere to create an serial error message with the locations the endstops where hit, in case they were triggered
 
     /**
      * Report endstop positions in response to M119
      */
-    void M119();
+    static void M119();
 
     // Enable / disable endstop checking globally
-    FORCE_INLINE void enable_globally(bool onoff=true) { enabled_globally = enabled = onoff; }
+    static FORCE_INLINE void enable_globally(bool onoff=true) { enabled_globally = enabled = onoff; }
 
     // Enable / disable endstop checking
-    FORCE_INLINE void enable(bool onoff=true) { enabled = onoff; }
+    static FORCE_INLINE void enable(bool onoff=true) { enabled = onoff; }
 
     // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
-    FORCE_INLINE void not_homing() { enabled = enabled_globally; }
+    static FORCE_INLINE void not_homing() { enabled = enabled_globally; }
 
     // Clear endstops (i.e., they were hit intentionally) to suppress the report
-    FORCE_INLINE void hit_on_purpose() { endstop_hit_bits = 0; }
+    static FORCE_INLINE void hit_on_purpose() { endstop_hit_bits = 0; }
 
     // Enable / disable endstop z-probe checking
     #if HAS_BED_PROBE
-      volatile bool z_probe_enabled = false;
-      FORCE_INLINE void enable_z_probe(bool onoff=true) { z_probe_enabled = onoff; }
+      static volatile bool z_probe_enabled;
+      static FORCE_INLINE void enable_z_probe(bool onoff=true) { z_probe_enabled = onoff; }
     #endif
 
   private:
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      void test_dual_z_endstops(EndstopEnum es1, EndstopEnum es2);
+      static void test_dual_z_endstops(EndstopEnum es1, EndstopEnum es2);
     #endif
 };
 
