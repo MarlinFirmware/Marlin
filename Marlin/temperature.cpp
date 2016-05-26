@@ -1138,10 +1138,12 @@ void Temperature::disable_all_heaters() {
     uint32_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 7
     #define MAX6675_DISCARD_BITS 18
+    #define MAX6675_SPEED_BITS (_BV(SPR1)) // clock ÷ 64
   #else
     uint16_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 4
     #define MAX6675_DISCARD_BITS 3
+    #define MAX6675_SPEED_BITS (_BV(SPR0)) // clock ÷ 16
   #endif
 
   int Temperature::read_max6675() {
@@ -1161,7 +1163,7 @@ void Temperature::disable_all_heaters() {
         PRR0
       #endif
         , PRSPI);
-    SPCR = _BV(MSTR) | _BV(SPE) | _BV(SPR0);
+    SPCR = _BV(MSTR) | _BV(SPE) | MAX6675_SPEED_BITS;
 
     WRITE(MAX6675_SS, 0); // enable TT_MAX6675
 
