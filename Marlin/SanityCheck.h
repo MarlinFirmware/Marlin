@@ -390,6 +390,16 @@
 #endif
 
 /**
+ * Don't set more than one kinematic type
+ */
+#if (ENABLED(DELTA) && (ENABLED(SCARA) || ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ))) \
+ || (ENABLED(SCARA) && (ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ))) \
+ || (ENABLED(COREXY) && (ENABLED(COREXZ) || ENABLED(COREYZ))) \
+ || (ENABLED(COREXZ) && ENABLED(COREYZ))
+  #error "Please enable only one of DELTA, SCARA, COREXY, COREXZ, or COREYZ."
+#endif
+
+/**
  * Allen Key Z probe requires Auto Bed Leveling grid and Delta
  */
 #if ENABLED(Z_PROBE_ALLEN_KEY) && !(ENABLED(AUTO_BED_LEVELING_GRID) && ENABLED(DELTA))

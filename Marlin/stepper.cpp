@@ -204,8 +204,9 @@ void Stepper::wake_up() {
 /**
  * Set the stepper direction of each axis
  *
- *   X_AXIS=A_AXIS and Y_AXIS=B_AXIS for COREXY
- *   X_AXIS=A_AXIS and Z_AXIS=C_AXIS for COREXZ
+ *   COREXY: X_AXIS=A_AXIS and Y_AXIS=B_AXIS
+ *   COREXZ: X_AXIS=A_AXIS and Z_AXIS=C_AXIS
+ *   COREYZ: Y_AXIS=B_AXIS and Z_AXIS=C_AXIS
  */
 void Stepper::set_directions() {
 
@@ -649,6 +650,11 @@ void Stepper::set_position(const long& x, const long& y, const long& z, const lo
     count_position[A_AXIS] = x + z;
     count_position[Y_AXIS] = y;
     count_position[C_AXIS] = x - z;
+  #elif ENABLED(COREYZ)
+    // coreyz planning
+    count_position[X_AXIS] = x;
+    count_position[B_AXIS] = y + z;
+    count_position[C_AXIS] = y - z;
   #else
     // default non-h-bot planning
     count_position[X_AXIS] = x;
@@ -682,15 +688,16 @@ long Stepper::position(AxisEnum axis) {
  */
 float Stepper::get_axis_position_mm(AxisEnum axis) {
   float axis_steps;
-  #if ENABLED(COREXY) | ENABLED(COREXZ)
-    if (axis == X_AXIS || axis == CORE_AXIS_2) {
+  #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
+    // Requesting one of the "core" axes?
+    if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
       CRITICAL_SECTION_START;
-      long pos1 = count_position[A_AXIS],
+      long pos1 = count_position[CORE_AXIS_1],
            pos2 = count_position[CORE_AXIS_2];
       CRITICAL_SECTION_END;
       // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
       // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
-      axis_steps = (pos1 + ((axis == X_AXIS) ? pos2 : -pos2)) / 2.0f;
+      axis_steps = (pos1 + ((axis == CORE_AXIS_1) ? pos2 : -pos2)) / 2.0f;
     }
     else
       axis_steps = position(axis);
@@ -715,20 +722,20 @@ void Stepper::quick_stop() {
 
 void Stepper::endstop_triggered(AxisEnum axis) {
 
-  #if ENABLED(COREXY) || ENABLED(COREXZ)
+  #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
 
     float axis_pos = count_position[axis];
-    if (axis == A_AXIS)
+    if (axis == CORE_AXIS_1)
       axis_pos = (axis_pos + count_position[CORE_AXIS_2]) / 2;
     else if (axis == CORE_AXIS_2)
-      axis_pos = (count_position[A_AXIS] - axis_pos) / 2;
+      axis_pos = (count_position[CORE_AXIS_1] - axis_pos) / 2;
     endstops_trigsteps[axis] = axis_pos;
 
-  #else // !COREXY && !COREXZ
+  #else // !COREXY && !COREXZ && !COREYZ
 
     endstops_trigsteps[axis] = count_position[axis];
 
-  #endif // !COREXY && !COREXZ
+  #endif // !COREXY && !COREXZ && !COREYZ
 
   kill_current_block();
 }
@@ -747,14 +754,14 @@ void Stepper::report_positions() {
   #endif
   SERIAL_PROTOCOL(xpos);
 
-  #if ENABLED(COREXY) || ENABLED(COREXZ)
+  #if ENABLED(COREXY) || ENABLED(COREYZ)
     SERIAL_PROTOCOLPGM(" B:");
   #else
     SERIAL_PROTOCOLPGM(" Y:");
   #endif
   SERIAL_PROTOCOL(ypos);
 
-  #if ENABLED(COREXZ) || ENABLED(COREXZ)
+  #if ENABLED(COREXZ) || ENABLED(COREYZ)
     SERIAL_PROTOCOLPGM(" C:");
   #else
     SERIAL_PROTOCOLPGM(" Z:");
