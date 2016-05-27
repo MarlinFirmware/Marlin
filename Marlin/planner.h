@@ -204,7 +204,7 @@ class Planner {
        * Used by G92, G28, G29, and other procedures.
        *
        * Multiplies by axis_steps_per_unit[] and does necessary conversion
-       * for COREXY / COREXZ to set the corresponding stepper positions.
+       * for COREXY / COREXZ / COREYZ to set the corresponding stepper positions.
        *
        * Clears previous speed values.
        */
