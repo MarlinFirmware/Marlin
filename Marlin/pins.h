@@ -243,20 +243,38 @@
 #define marlinAnalogInputToDigitalPin(p) ((p) == -1 ? -1 : (p) + 0xA0)
 
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
-#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_MS1_PIN, E0_MS2_PIN, HEATER_0_PIN, EXTRUDER_0_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_0_PIN),
+#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_MS1_PIN, E0_MS2_PIN,
 #define _E1_PINS
 #define _E2_PINS
 #define _E3_PINS
 
 #if EXTRUDERS > 1
   #undef _E1_PINS
-  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, HEATER_1_PIN, E1_MS1_PIN, E1_MS2_PIN, EXTRUDER_1_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_1_PIN),
+  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, E1_MS1_PIN, E1_MS2_PIN,
   #if EXTRUDERS > 2
     #undef _E2_PINS
-    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN, EXTRUDER_2_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_2_PIN),
+    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN,
     #if EXTRUDERS > 3
       #undef _E3_PINS
-      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, HEATER_3_PIN, EXTRUDER_3_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_3_PIN),
+      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN,
+    #endif
+  #endif
+#endif
+
+#define _H0_PINS HEATER_0_PIN, EXTRUDER_0_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_0_PIN),
+#define _H1_PINS
+#define _H2_PINS
+#define _H3_PINS
+
+#if HOTENDS > 1
+  #undef _H1_PINS
+  #define _H1_PINS HEATER_1_PIN, EXTRUDER_1_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_1_PIN),
+  #if HOTENDS > 2
+    #undef _H2_PINS
+    #define _H2_PINS HEATER_2_PIN, EXTRUDER_2_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_2_PIN),
+    #if HOTENDS > 3
+      #undef _H3_PINS
+      #define _H3_PINS HEATER_3_PIN, EXTRUDER_3_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_3_PIN),
     #endif
   #endif
 #endif
@@ -383,6 +401,7 @@
     Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, Z_MIN_PROBE_PIN, \
     PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, FAN1_PIN, FAN2_PIN, CONTROLLERFAN_PIN, \
     _E0_PINS _E1_PINS _E2_PINS _E3_PINS BED_PINS \
+    _H0_PINS _H1_PINS _H2_PINS _H3_PINS \
     _X2_PINS _Y2_PINS _Z2_PINS \
     X_MS1_PIN, X_MS2_PIN, Y_MS1_PIN, Y_MS2_PIN, Z_MS1_PIN, Z_MS2_PIN \
   }

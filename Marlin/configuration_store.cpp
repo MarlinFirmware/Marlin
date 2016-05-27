@@ -246,7 +246,7 @@ void Config_StoreSettings()  {
   for (uint8_t e = 0; e < 4; e++) {
 
     #if ENABLED(PIDTEMP)
-      if (e < EXTRUDERS) {
+      if (e < HOTENDS) {
         EEPROM_WRITE_VAR(i, PID_PARAM(Kp, e));
         EEPROM_WRITE_VAR(i, PID_PARAM(Ki, e));
         EEPROM_WRITE_VAR(i, PID_PARAM(Kd, e));
@@ -266,7 +266,7 @@ void Config_StoreSettings()  {
         for (uint8_t q = 3; q--;) EEPROM_WRITE_VAR(i, dummy); // Ki, Kd, Kc
       }
 
-  } // Extruders Loop
+  } // Hotends Loop
 
   #if DISABLED(PID_ADD_EXTRUSION_RATE)
     int lpq_len = 20;
@@ -426,7 +426,7 @@ void Config_RetrieveSettings() {
     #if ENABLED(PIDTEMP)
       for (uint8_t e = 0; e < 4; e++) { // 4 = max extruders currently supported by Marlin
         EEPROM_READ_VAR(i, dummy); // Kp
-        if (e < EXTRUDERS && dummy != DUMMY_PID_VALUE) {
+        if (e < HOTENDS && dummy != DUMMY_PID_VALUE) {
           // do not need to scale PID values as the values in EEPROM are already scaled
           PID_PARAM(Kp, e) = dummy;
           EEPROM_READ_VAR(i, PID_PARAM(Ki, e));
@@ -584,8 +584,8 @@ void Config_ResetDefault() {
   #endif
 
   #if ENABLED(PIDTEMP)
-    #if ENABLED(PID_PARAMS_PER_EXTRUDER)
-      for (uint8_t e = 0; e < EXTRUDERS; e++)
+    #if ENABLED(PID_PARAMS_PER_HOTEND)
+      for (uint8_t e = 0; e < HOTENDS; e++)
     #else
       int e = 0; UNUSED(e); // only need to write once
     #endif
@@ -801,9 +801,9 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("PID settings:");
     }
     #if ENABLED(PIDTEMP)
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         if (forReplay) {
-          for (uint8_t i = 0; i < EXTRUDERS; i++) {
+          for (uint8_t i = 0; i < HOTENDS; i++) {
             CONFIG_ECHO_START;
             SERIAL_ECHOPAIR("  M301 E", i);
             SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, i));
@@ -817,8 +817,8 @@ void Config_PrintSettings(bool forReplay) {
           }
         }
         else
-      #endif // EXTRUDERS > 1
-      // !forReplay || EXTRUDERS == 1
+      #endif // HOTENDS > 1
+      // !forReplay || HOTENDS == 1
       {
         CONFIG_ECHO_START;
         SERIAL_ECHOPAIR("  M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echo values for E0
