@@ -24,8 +24,10 @@
 
 #if ENABLED(MESH_BED_LEVELING)
 
-  #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X))/(MESH_NUM_X_POINTS - 1))
-  #define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y))/(MESH_NUM_Y_POINTS - 1))
+  #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X)) / (MESH_NUM_X_POINTS - 1))
+  #define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y)) / (MESH_NUM_Y_POINTS - 1))
+  #define PROBE_X_DIST ((MESH_MAX_X - (MESH_MIN_X)) / (MESH_NUM_X_POINTS))
+  #define PROBE_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y)) / (MESH_NUM_Y_POINTS))
 
   class mesh_bed_leveling {
   public:
@@ -64,12 +66,12 @@
     }
 
     int8_t probe_index_x(float x) {
-      int8_t px = int(x - (MESH_MIN_X) + (MESH_X_DIST) / 2) / (MESH_X_DIST);
+      int8_t px = int(x - (MESH_MIN_X) + (PROBE_X_DIST) / 2) / (PROBE_X_DIST);
       return (px >= 0 && px < (MESH_NUM_X_POINTS)) ? px : -1;
     }
 
     int8_t probe_index_y(float y) {
-      int8_t py = int(y - (MESH_MIN_Y) + (MESH_Y_DIST) / 2) / (MESH_Y_DIST);
+      int8_t py = int(y - (MESH_MIN_Y) + (PROBE_Y_DIST) / 2) / (PROBE_Y_DIST);
       return (py >= 0 && py < (MESH_NUM_Y_POINTS)) ? py : -1;
     }
 
