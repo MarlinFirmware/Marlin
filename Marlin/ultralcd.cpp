@@ -470,14 +470,21 @@ inline void line_to_current(AxisEnum axis) {
 
 #if ENABLED(SDSUPPORT)
 
-  static void lcd_sdcard_pause() { card.pauseSDPrint(); }
+  static void lcd_sdcard_pause() {
+    card.pauseSDPrint();
+    print_job_timer.pause();
+  }
 
-  static void lcd_sdcard_resume() { card.startFileprint(); }
+  static void lcd_sdcard_resume() {
+    card.startFileprint();
+    print_job_timer.start();
+  }
 
   static void lcd_sdcard_stop() {
     stepper.quick_stop();
     card.sdprinting = false;
     card.closefile();
+    print_job_timer.stop();
     thermalManager.autotempShutdown();
     cancel_heatup = true;
     lcd_setstatus(MSG_PRINT_ABORTED, true);
