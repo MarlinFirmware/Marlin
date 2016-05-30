@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 for opt in "$@" ; do
-  eval "sed -i 's/\/\/ *\(#define *$opt\)/\1/g' Marlin/Configuration_adv.h"
+  eval "sed -i 's/\/\/ *\(#define +$opt[^a-zA-Z0-9_]\)/\1/g' Marlin/Configuration_adv.h"
 done
