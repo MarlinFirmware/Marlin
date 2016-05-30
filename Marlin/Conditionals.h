@@ -48,11 +48,11 @@
 
   #define LCD_HAS_DIRECTIONAL_BUTTONS (BUTTON_EXISTS(UP) || BUTTON_EXISTS(DWN) || BUTTON_EXISTS(LFT) || BUTTON_EXISTS(RT))
 
-  #if ENABLED(MAKRPANEL)
+  #if ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)
     #define DOGLCD
-    #define DEFAULT_LCD_CONTRAST 17
     #define ULTIPANEL
     #define NEWPANEL
+    #define DEFAULT_LCD_CONTRAST 17
   #endif
 
   #if ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
@@ -121,13 +121,6 @@
     #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
     #define ULTIPANEL
     #define NEWPANEL
-  #endif
-
-  #if ENABLED(MINIPANEL)
-    #define DOGLCD
-    #define ULTIPANEL
-    #define NEWPANEL
-    #define DEFAULT_LCD_CONTRAST 17
   #endif
 
   /**
@@ -251,11 +244,10 @@
   /**
    * Default LCD contrast for dogm-like LCD displays
    */
-  #if ENABLED(DOGLCD) && DISABLED(DEFAULT_LCD_CONTRAST)
-    #define DEFAULT_LCD_CONTRAST 32
-  #endif
-
   #if ENABLED(DOGLCD)
+    #if !defined(DEFAULT_LCD_CONTRAST)
+      #define DEFAULT_LCD_CONTRAST 32
+    #endif
     #define HAS_LCD_CONTRAST
     #if ENABLED(U8GLIB_ST7920)
       #undef HAS_LCD_CONTRAST
