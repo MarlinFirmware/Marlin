@@ -1369,7 +1369,7 @@ static void lcd_control_menu() {
 #if ENABLED(PID_AUTOTUNE_MENU)
 
   #if ENABLED(PIDTEMP)
-    int autotune_temp[EXTRUDERS] = { 150 };
+    int autotune_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(150);
     const int heater_maxtemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP);
   #endif
 
