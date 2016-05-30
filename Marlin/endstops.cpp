@@ -36,6 +36,34 @@
 
 Endstops endstops;
 
+// public:
+
+bool  Endstops::enabled = true,
+      Endstops::enabled_globally =
+        #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
+          false
+        #else
+          true
+        #endif
+      ;
+volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
+
+#if ENABLED(Z_DUAL_ENDSTOPS)
+  uint16_t
+#else
+  byte
+#endif
+    Endstops::current_endstop_bits = 0,
+    Endstops::old_endstop_bits = 0;
+
+#if HAS_BED_PROBE
+  volatile bool Endstops::z_probe_enabled = false;
+#endif
+
+/**
+ * Class and Instance Methods
+ */
+
 Endstops::Endstops() {
   enable_globally(
     #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
