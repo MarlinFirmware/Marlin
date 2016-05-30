@@ -108,27 +108,27 @@ class Planner {
     /**
      * A ring buffer of moves described in steps
      */
-    block_t block_buffer[BLOCK_BUFFER_SIZE];
-    volatile uint8_t block_buffer_head = 0;           // Index of the next block to be pushed
-    volatile uint8_t block_buffer_tail = 0;
+    static block_t block_buffer[BLOCK_BUFFER_SIZE];
+    static volatile uint8_t block_buffer_head;           // Index of the next block to be pushed
+    static volatile uint8_t block_buffer_tail;
 
-    float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
-    float axis_steps_per_unit[NUM_AXIS];
-    unsigned long axis_steps_per_sqr_second[NUM_AXIS];
-    unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
+    static float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
+    static float axis_steps_per_unit[NUM_AXIS];
+    static unsigned long axis_steps_per_sqr_second[NUM_AXIS];
+    static unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
 
-    millis_t min_segment_time;
-    float min_feedrate;
-    float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
-    float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
-    float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-    float max_xy_jerk;          // The largest speed change requiring no acceleration
-    float max_z_jerk;
-    float max_e_jerk;
-    float min_travel_feedrate;
+    static millis_t min_segment_time;
+    static float min_feedrate;
+    static float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
+    static float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
+    static float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
+    static float max_xy_jerk;          // The largest speed change requiring no acceleration
+    static float max_z_jerk;
+    static float max_e_jerk;
+    static float min_travel_feedrate;
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-      matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
+      static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
     #endif
 
   private:
@@ -137,49 +137,57 @@ class Planner {
      * The current position of the tool in absolute steps
      * Reclculated if any axis_steps_per_unit are changed by gcode
      */
-    long position[NUM_AXIS] = { 0 };
+    static long position[NUM_AXIS];
 
     /**
      * Speed of previous path line segment
      */
-    float previous_speed[NUM_AXIS];
+    static float previous_speed[NUM_AXIS];
 
     /**
      * Nominal speed of previous path line segment
      */
-    float previous_nominal_speed;
+    static float previous_nominal_speed;
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
       /**
        * Counters to manage disabling inactive extruders
        */
-      uint8_t g_uc_extruder_last_move[EXTRUDERS] = { 0 };
+      static uint8_t g_uc_extruder_last_move[EXTRUDERS];
     #endif // DISABLE_INACTIVE_EXTRUDER
 
     #ifdef XY_FREQUENCY_LIMIT
       // Used for the frequency limit
-      #define MAX_FREQ_TIME (1000000.0/XY_FREQUENCY_LIMIT)
+      #define MAX_FREQ_TIME long(1000000.0/XY_FREQUENCY_LIMIT)
       // Old direction bits. Used for speed calculations
-      static unsigned char old_direction_bits = 0;
+      static unsigned char old_direction_bits;
       // Segment times (in µs). Used for speed calculations
-      static long axis_segment_time[2][3] = { {MAX_FREQ_TIME + 1, 0, 0}, {MAX_FREQ_TIME + 1, 0, 0} };
+      static long axis_segment_time[2][3];
     #endif
 
   public:
+
+    /**
+     * Instance Methods
+     */
 
     Planner();
 
     void init();
 
-    void reset_acceleration_rates();
+    /**
+     * Static (class) Methods
+     */
+
+    static void reset_acceleration_rates();
 
     // Manage fans, paste pressure, etc.
-    void check_axes_activity();
+    static void check_axes_activity();
 
     /**
      * Number of moves currently in the planner
      */
-    FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
+    static FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
 
@@ -187,7 +195,7 @@ class Planner {
         /**
          * The corrected position, applying the bed level matrix
          */
-        vector_3 adjusted_position();
+        static vector_3 adjusted_position();
       #endif
 
       /**
@@ -197,7 +205,7 @@ class Planner {
        *  feed_rate - (target) speed of the move
        *  extruder  - target extruder
        */
-      void buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder);
+      static void buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder);
 
       /**
        * Set the planner.position and individual stepper positions.
@@ -208,30 +216,30 @@ class Planner {
        *
        * Clears previous speed values.
        */
-      void set_position(float x, float y, float z, const float& e);
+      static void set_position(float x, float y, float z, const float& e);
 
     #else
 
-      void buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder);
-      void set_position(const float& x, const float& y, const float& z, const float& e);
+      static void buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder);
+      static void set_position(const float& x, const float& y, const float& z, const float& e);
 
     #endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
 
     /**
      * Set the E position (mm) of the planner (and the E stepper)
      */
-    void set_e_position(const float& e);
+    static void set_e_position(const float& e);
 
     /**
      * Does the buffer have any blocks queued?
      */
-    FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
+    static FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
     /**
      * "Discards" the block and "releases" the memory.
      * Called when the current block is no longer needed.
      */
-    FORCE_INLINE void discard_current_block() {
+    static FORCE_INLINE void discard_current_block() {
       if (blocks_queued())
         block_buffer_tail = BLOCK_MOD(block_buffer_tail + 1);
     }
@@ -240,7 +248,7 @@ class Planner {
      * The current block. NULL if the buffer is empty.
      * This also marks the block as busy.
      */
-    FORCE_INLINE block_t* get_current_block() {
+    static FORCE_INLINE block_t* get_current_block() {
       if (blocks_queued()) {
         block_t* block = &block_buffer[block_buffer_tail];
         block->busy = true;
@@ -251,12 +259,12 @@ class Planner {
     }
 
     #if ENABLED(AUTOTEMP)
-      float autotemp_max = 250;
-      float autotemp_min = 210;
-      float autotemp_factor = 0.1;
-      bool autotemp_enabled = false;
-      void getHighESpeed();
-      void autotemp_M109();
+      static float autotemp_max;
+      static float autotemp_min;
+      static float autotemp_factor;
+      static bool autotemp_enabled;
+      static void getHighESpeed();
+      static void autotemp_M109();
     #endif
 
   private:
@@ -264,14 +272,14 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    FORCE_INLINE int8_t next_block_index(int8_t block_index) { return BLOCK_MOD(block_index + 1); }
-    FORCE_INLINE int8_t prev_block_index(int8_t block_index) { return BLOCK_MOD(block_index - 1); }
+    static FORCE_INLINE int8_t next_block_index(int8_t block_index) { return BLOCK_MOD(block_index + 1); }
+    static FORCE_INLINE int8_t prev_block_index(int8_t block_index) { return BLOCK_MOD(block_index - 1); }
 
     /**
      * Calculate the distance (not time) it takes to accelerate
      * from initial_rate to target_rate using the given acceleration:
      */
-    FORCE_INLINE float estimate_acceleration_distance(float initial_rate, float target_rate, float acceleration) {
+    static FORCE_INLINE float estimate_acceleration_distance(float initial_rate, float target_rate, float acceleration) {
       if (acceleration == 0) return 0; // acceleration was 0, set acceleration distance to 0
       return (target_rate * target_rate - initial_rate * initial_rate) / (acceleration * 2);
     }
@@ -284,7 +292,7 @@ class Planner {
      * This is used to compute the intersection point between acceleration and deceleration
      * in cases where the "trapezoid" has no plateau (i.e., never reaches maximum speed)
      */
-    FORCE_INLINE float intersection_distance(float initial_rate, float final_rate, float acceleration, float distance) {
+    static FORCE_INLINE float intersection_distance(float initial_rate, float final_rate, float acceleration, float distance) {
       if (acceleration == 0) return 0; // acceleration was 0, set intersection distance to 0
       return (acceleration * 2 * distance - initial_rate * initial_rate + final_rate * final_rate) / (acceleration * 4);
     }
@@ -294,21 +302,21 @@ class Planner {
      * to reach 'target_velocity' using 'acceleration' within a given
      * 'distance'.
      */
-    FORCE_INLINE float max_allowable_speed(float acceleration, float target_velocity, float distance) {
+    static FORCE_INLINE float max_allowable_speed(float acceleration, float target_velocity, float distance) {
       return sqrt(target_velocity * target_velocity - 2 * acceleration * distance);
     }
 
-    void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor);
+    static void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor);
 
-    void reverse_pass_kernel(block_t* previous, block_t* current, block_t* next);
-    void forward_pass_kernel(block_t* previous, block_t* current, block_t* next);
+    static void reverse_pass_kernel(block_t* previous, block_t* current, block_t* next);
+    static void forward_pass_kernel(block_t* previous, block_t* current, block_t* next);
 
-    void reverse_pass();
-    void forward_pass();
+    static void reverse_pass();
+    static void forward_pass();
 
-    void recalculate_trapezoids();
+    static void recalculate_trapezoids();
 
-    void recalculate();
+    static void recalculate();
 
 };
 

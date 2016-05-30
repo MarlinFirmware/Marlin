@@ -80,49 +80,46 @@ class Stepper {
 
   public:
 
-    block_t* current_block = NULL;  // A pointer to the block currently being traced
+    static block_t* current_block;  // A pointer to the block currently being traced
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-      bool abort_on_endstop_hit = false;
+      static bool abort_on_endstop_hit;
     #endif
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      bool performing_homing = false;
+      static bool performing_homing;
     #endif
 
     #if ENABLED(ADVANCE)
-      long e_steps[4];
+      static long e_steps[4];
     #endif
 
   private:
 
-    unsigned char last_direction_bits = 0;        // The next stepping-bits to be output
-    unsigned int cleaning_buffer_counter = 0;
+    static unsigned char last_direction_bits;        // The next stepping-bits to be output
+    static unsigned int cleaning_buffer_counter;
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      bool locked_z_motor = false,
-           locked_z2_motor = false;
+      static bool locked_z_motor, locked_z2_motor;
     #endif
 
     // Counter variables for the Bresenham line tracer
-    long counter_X = 0, counter_Y = 0, counter_Z = 0, counter_E = 0;
-    volatile unsigned long step_events_completed = 0; // The number of step events executed in the current block
+    static long counter_X, counter_Y, counter_Z, counter_E;
+    static volatile unsigned long step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(ADVANCE)
-      unsigned char old_OCR0A;
-      long advance_rate, advance, final_advance = 0;
-      long old_advance = 0;
+      static unsigned char old_OCR0A;
+      static long advance_rate, advance, old_advance, final_advance;
     #endif
 
-    long acceleration_time, deceleration_time;
+    static long acceleration_time, deceleration_time;
     //unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
-    unsigned short acc_step_rate; // needed for deceleration start point
-    uint8_t step_loops;
-    uint8_t step_loops_nominal;
-    unsigned short OCR1A_nominal;
+    static unsigned short acc_step_rate; // needed for deceleration start point
+    static uint8_t step_loops, step_loops_nominal;
+    static unsigned short OCR1A_nominal;
 
-    volatile long endstops_trigsteps[3];
-    volatile long endstops_stepsTotal, endstops_stepsDone;
+    static volatile long endstops_trigsteps[3];
+    static volatile long endstops_stepsTotal, endstops_stepsDone;
 
     #if HAS_MOTOR_CURRENT_PWM
       #ifndef PWM_MOTOR_CURRENT
@@ -134,19 +131,19 @@ class Stepper {
     //
     // Positions of stepper motors, in step units
     //
-    volatile long count_position[NUM_AXIS] = { 0 };
+    static volatile long count_position[NUM_AXIS];
 
     //
     // Current direction of stepper motors (+1 or -1)
     //
-    volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
+    static volatile signed char count_direction[NUM_AXIS];
 
   public:
 
     //
     // Constructor / initializer
     //
-    Stepper() {};
+    Stepper() { };
 
     //
     // Initialize stepper hardware
@@ -157,10 +154,10 @@ class Stepper {
     // Interrupt Service Routines
     //
 
-    void isr();
+    static void isr();
 
     #if ENABLED(ADVANCE)
-      void advance_isr();
+      static void advance_isr();
     #endif
 
     //
@@ -177,7 +174,7 @@ class Stepper {
     //
     // Set direction bits for all steppers
     //
-    void set_directions();
+    static void set_directions();
 
     //
     // Get the position of a stepper, in steps
@@ -213,7 +210,7 @@ class Stepper {
     //
     // The direction of a single motor
     //
-    FORCE_INLINE bool motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
+    static FORCE_INLINE bool motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
 
     #if HAS_DIGIPOTSS
       void digitalPotWrite(int address, int value);
@@ -251,7 +248,7 @@ class Stepper {
 
   private:
 
-    FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
+    static FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
       unsigned short timer;
 
       NOMORE(step_rate, MAX_STEP_FREQUENCY);
@@ -283,13 +280,17 @@ class Stepper {
         timer = (unsigned short)pgm_read_word_near(table_address);
         timer -= (((unsigned short)pgm_read_word_near(table_address + 2) * (unsigned char)(step_rate & 0x0007)) >> 3);
       }
-      if (timer < 100) { timer = 100; MYSERIAL.print(MSG_STEPPER_TOO_HIGH); MYSERIAL.println(step_rate); }//(20kHz this should never happen)
+      if (timer < 100) { // (20kHz - this should never happen)
+        timer = 100;
+        MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
+        MYSERIAL.println(step_rate);
+      }
       return timer;
     }
 
     // Initializes the trapezoid generator from the current block. Called whenever a new
     // block begins.
-    FORCE_INLINE void trapezoid_generator_reset() {
+    static FORCE_INLINE void trapezoid_generator_reset() {
 
       static int8_t last_extruder = -1;
 
