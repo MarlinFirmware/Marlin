@@ -139,7 +139,7 @@ class Stepper {
     //
     // Current direction of stepper motors (+1 or -1)
     //
-    volatile signed char count_direction[NUM_AXIS] = { 1 };
+    volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
   public:
 
