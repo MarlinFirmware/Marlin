@@ -257,11 +257,11 @@ class Stepper {
       NOMORE(step_rate, MAX_STEP_FREQUENCY);
 
       if (step_rate > 20000) { // If steprate > 20kHz >> step 4 times
-        step_rate = (step_rate >> 2) & 0x3fff;
+        step_rate >>= 2;
         step_loops = 4;
       }
       else if (step_rate > 10000) { // If steprate > 10kHz >> step 2 times
-        step_rate = (step_rate >> 1) & 0x7fff;
+        step_rate >>= 1;
         step_loops = 2;
       }
       else {
