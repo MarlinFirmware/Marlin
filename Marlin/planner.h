@@ -187,7 +187,7 @@ class Planner {
     /**
      * Number of moves currently in the planner
      */
-    static FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
+    static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
 
@@ -233,13 +233,13 @@ class Planner {
     /**
      * Does the buffer have any blocks queued?
      */
-    static FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
+    static bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
     /**
      * "Discards" the block and "releases" the memory.
      * Called when the current block is no longer needed.
      */
-    static FORCE_INLINE void discard_current_block() {
+    static void discard_current_block() {
       if (blocks_queued())
         block_buffer_tail = BLOCK_MOD(block_buffer_tail + 1);
     }
@@ -248,7 +248,7 @@ class Planner {
      * The current block. NULL if the buffer is empty.
      * This also marks the block as busy.
      */
-    static FORCE_INLINE block_t* get_current_block() {
+    static block_t* get_current_block() {
       if (blocks_queued()) {
         block_t* block = &block_buffer[block_buffer_tail];
         block->busy = true;
@@ -272,14 +272,14 @@ class Planner {
     /**
      * Get the index of the next / previous block in the ring buffer
      */
-    static FORCE_INLINE int8_t next_block_index(int8_t block_index) { return BLOCK_MOD(block_index + 1); }
-    static FORCE_INLINE int8_t prev_block_index(int8_t block_index) { return BLOCK_MOD(block_index - 1); }
+    static int8_t next_block_index(int8_t block_index) { return BLOCK_MOD(block_index + 1); }
+    static int8_t prev_block_index(int8_t block_index) { return BLOCK_MOD(block_index - 1); }
 
     /**
      * Calculate the distance (not time) it takes to accelerate
      * from initial_rate to target_rate using the given acceleration:
      */
-    static FORCE_INLINE float estimate_acceleration_distance(float initial_rate, float target_rate, float acceleration) {
+    static float estimate_acceleration_distance(float initial_rate, float target_rate, float acceleration) {
       if (acceleration == 0) return 0; // acceleration was 0, set acceleration distance to 0
       return (target_rate * target_rate - initial_rate * initial_rate) / (acceleration * 2);
     }
@@ -292,7 +292,7 @@ class Planner {
      * This is used to compute the intersection point between acceleration and deceleration
      * in cases where the "trapezoid" has no plateau (i.e., never reaches maximum speed)
      */
-    static FORCE_INLINE float intersection_distance(float initial_rate, float final_rate, float acceleration, float distance) {
+    static float intersection_distance(float initial_rate, float final_rate, float acceleration, float distance) {
       if (acceleration == 0) return 0; // acceleration was 0, set intersection distance to 0
       return (acceleration * 2 * distance - initial_rate * initial_rate + final_rate * final_rate) / (acceleration * 4);
     }
@@ -302,7 +302,7 @@ class Planner {
      * to reach 'target_velocity' using 'acceleration' within a given
      * 'distance'.
      */
-    static FORCE_INLINE float max_allowable_speed(float acceleration, float target_velocity, float distance) {
+    static float max_allowable_speed(float acceleration, float target_velocity, float distance) {
       return sqrt(target_velocity * target_velocity - 2 * acceleration * distance);
     }
 
