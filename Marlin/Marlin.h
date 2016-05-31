@@ -225,6 +225,7 @@ void ok_to_send();
 
 void reset_bed_level();
 void prepare_move();
+void set_current_position_from_planner();
 void kill(const char*);
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
