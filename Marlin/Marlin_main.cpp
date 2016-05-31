@@ -109,6 +109,8 @@
  * G5  - Cubic B-spline with XYZE destination and IJPQ offsets
  * G10 - retract filament according to settings of M207
  * G11 - retract recover filament according to settings of M208
+ * G20 - Set input units to inches
+ * G21 - Set input units to millimeters
  * G28 - Home one or more axes
  * G29 - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
  * G30 - Single Z probe, probes bed at current XY location.
@@ -178,6 +180,7 @@
  * M129 - EtoP Closed (BariCUDA EtoP = electricity to air pressure transducer by jmil)
  * M140 - Set bed target temp
  * M145 - Set the heatup state H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
+ * M149 - Set temperature units
  * M150 - Set BlinkM Color Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
  * M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
@@ -284,6 +287,14 @@ static int cmd_queue_index_r = 0;
 static int cmd_queue_index_w = 0;
 static int commands_in_queue = 0;
 static char command_queue[BUFSIZE][MAX_CMD_SIZE];
+
+#if ENABLED(USE_G20G21)
+  float linear_unit_modifier = 1.0;
+  float volumetric_unit_modifier = 1.0;
+#endif
+#if ENABLED(USE_M149)
+  TempUnit input_temp_units = TEMPUNIT_C;
+#endif
 
 const float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
@@ -1165,22 +1176,109 @@ bool code_has_value() {
   return NUMERIC(c);
 }
 
-float code_value() {
+float code_value_float() {
   float ret;
-  char* e = strchr(seen_pointer, 'E');
+  char *e = strchr(seen_pointer, 'E');
   if (e) {
     *e = 0;
-    ret = strtod(seen_pointer + 1, NULL);
+    ret = strtod(seen_pointer+1, NULL);
     *e = 'E';
   }
   else
-    ret = strtod(seen_pointer + 1, NULL);
+    ret = strtod(seen_pointer+1, NULL);
   return ret;
 }
 
+unsigned long code_value_ulong() { return strtoul(seen_pointer + 1, NULL, 10); }
+
 long code_value_long() { return strtol(seen_pointer + 1, NULL, 10); }
 
-int16_t code_value_short() { return (int16_t)strtol(seen_pointer + 1, NULL, 10); }
+int code_value_int() { return (int)strtol(seen_pointer + 1, NULL, 10); }
+
+uint16_t code_value_ushort() { return (uint16_t)strtoul(seen_pointer + 1, NULL, 10); }
+
+uint8_t code_value_byte() { return (uint8_t)(constrain(strtol(seen_pointer + 1, NULL, 10), 0, 255)); }
+
+inline bool code_value_bool() { return code_value_byte() > 0; }
+
+#if ENABLED(USE_G20G21)
+  inline void set_input_linear_units(LinearUnit units) {
+    switch (units) {
+      case LINEARUNIT_INCH:
+        linear_unit_modifier = 25.4;
+        break;
+      case LINEARUNIT_MM:
+      default:
+        linear_unit_modifier = 1.0;
+        break;
+    }
+    volumetric_unit_modifier = pow(linear_unit_modifier, 3.0);
+  }
+
+  inline float axis_unit_modifier(int axis) {
+    return (axis == E_AXIS && volumetric_enabled ? volumetric_unit_modifier : linear_unit_modifier);
+  }
+
+  inline float code_value_linear_units() {
+    return code_value_float() * linear_unit_modifier;
+  }
+
+  inline float code_value_per_axis_unit(int axis) {
+    return code_value_float() / axis_unit_modifier(axis);
+  }
+
+  inline float code_value_axis_units(int axis) {
+    return code_value_float() * axis_unit_modifier(axis);
+  }
+#else
+  inline float code_value_linear_units() { return code_value_float(); }
+
+  inline float code_value_per_axis_unit(int axis) { return code_value_float(); }
+
+  inline float code_value_axis_units(int axis) { return code_value_float(); }
+#endif
+
+#if ENABLED(USE_M149)
+  inline void set_input_temp_units(TempUnit units) {
+    input_temp_units = units;
+  }
+  
+  float code_value_temp_abs() {
+    switch (input_temp_units) {
+      case TEMPUNIT_C:
+        return code_value_float();
+      case TEMPUNIT_F:
+        return (code_value_float() - 32) / 1.8;
+      case TEMPUNIT_K:
+        return code_value_float() - 272.15;
+      default:
+        return code_value_float();
+    }
+  }
+
+  float code_value_temp_diff() {
+    switch (input_temp_units) {
+      case TEMPUNIT_C:
+      case TEMPUNIT_K:
+        return code_value_float();
+      case TEMPUNIT_F:
+        return code_value_float() / 1.8;
+      default:
+        return code_value_float();
+    }
+  }
+#else
+  inline float code_value_temp_abs() { return code_value_float(); }
+  inline float code_value_temp_diff() { return code_value_float(); }
+#endif
+
+inline millis_t code_value_millis() {
+  return code_value_ulong();
+}
+
+inline millis_t code_value_millis_from_seconds() {
+  return code_value_float() * 1000;
+}
 
 bool code_seen(char code) {
   seen_pointer = strchr(current_command_args, code);
@@ -1194,7 +1292,7 @@ bool code_seen(char code) {
  */
 bool get_target_extruder_from_command(int code) {
   if (code_seen('T')) {
-    short t = code_value_short();
+    uint8_t t = code_value_byte();
     if (t >= EXTRUDERS) {
       SERIAL_ECHO_START;
       SERIAL_CHAR('M');
@@ -2429,12 +2527,12 @@ static void homeaxis(AxisEnum axis) {
 void gcode_get_destination() {
   for (int i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i]))
-      destination[i] = code_value() + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
+      destination[i] = code_value_axis_units(i) + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
     else
       destination[i] = current_position[i];
   }
   if (code_seen('F')) {
-    float next_feedrate = code_value();
+    float next_feedrate = code_value_linear_units();
     if (next_feedrate > 0.0) feedrate = next_feedrate;
   }
 }
@@ -2526,8 +2624,8 @@ inline void gcode_G0_G1() {
 
       // Center of arc as offset from current_position
       float arc_offset[2] = {
-        code_seen('I') ? code_value() : 0,
-        code_seen('J') ? code_value() : 0
+        code_seen('I') ? code_value_axis_units(X_AXIS) : 0,
+        code_seen('J') ? code_value_axis_units(Y_AXIS) : 0
       };
 
       // Send an arc to the planner
@@ -2544,8 +2642,8 @@ inline void gcode_G0_G1() {
 inline void gcode_G4() {
   millis_t codenum = 0;
 
-  if (code_seen('P')) codenum = code_value_long(); // milliseconds to wait
-  if (code_seen('S')) codenum = code_value() * 1000UL; // seconds to wait
+  if (code_seen('P')) codenum = code_value_millis(); // milliseconds to wait
+  if (code_seen('S')) codenum = code_value_millis_from_seconds(); // seconds to wait
 
   stepper.synchronize();
   refresh_cmd_timeout();
@@ -2574,10 +2672,10 @@ inline void gcode_G4() {
       gcode_get_destination();
 
       float offset[] = {
-        code_seen('I') ? code_value() : 0.0,
-        code_seen('J') ? code_value() : 0.0,
-        code_seen('P') ? code_value() : 0.0,
-        code_seen('Q') ? code_value() : 0.0
+        code_seen('I') ? code_value_axis_units(X_AXIS) : 0.0,
+        code_seen('J') ? code_value_axis_units(Y_AXIS) : 0.0,
+        code_seen('P') ? code_value_axis_units(X_AXIS) : 0.0,
+        code_seen('Q') ? code_value_axis_units(Y_AXIS) : 0.0
       };
 
       plan_cubic_move(offset);
@@ -2595,7 +2693,7 @@ inline void gcode_G4() {
   inline void gcode_G10_G11(bool doRetract=false) {
     #if EXTRUDERS > 1
       if (doRetract) {
-        retracted_swap[active_extruder] = (code_seen('S') && code_value_short() == 1); // checks for swap retract argument
+        retracted_swap[active_extruder] = (code_seen('S') && code_value_bool()); // checks for swap retract argument
       }
     #endif
     retract(doRetract
@@ -2606,6 +2704,22 @@ inline void gcode_G4() {
   }
 
 #endif //FWRETRACT
+
+#if ENABLED(USE_G20G21)
+  /**
+   * G20: Set input mode to inches
+   */
+  inline void gcode_G20() {
+    set_input_linear_units(LINEARUNIT_INCH);
+  }
+
+  /**
+   * G21: Set input mode to millimeters
+   */
+  inline void gcode_G21() {
+    set_input_linear_units(LINEARUNIT_MM);
+  }
+#endif
 
 /**
  * G28: Home all axes according to settings
@@ -3047,7 +3161,7 @@ inline void gcode_G28() {
   inline void gcode_G29() {
 
     static int probe_point = -1;
-    MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_short() : MeshReport;
+    MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_byte() : MeshReport;
     if (state < 0 || state > 5) {
       SERIAL_PROTOCOLLNPGM("S out of range (0-5).");
       return;
@@ -3132,7 +3246,7 @@ inline void gcode_G28() {
 
       case MeshSet:
         if (code_seen('X')) {
-          px = code_value_long() - 1;
+          px = code_value_int() - 1;
           if (px < 0 || px >= MESH_NUM_X_POINTS) {
             SERIAL_PROTOCOLPGM("X out of range (1-" STRINGIFY(MESH_NUM_X_POINTS) ").\n");
             return;
@@ -3143,7 +3257,7 @@ inline void gcode_G28() {
           return;
         }
         if (code_seen('Y')) {
-          py = code_value_long() - 1;
+          py = code_value_int() - 1;
           if (py < 0 || py >= MESH_NUM_Y_POINTS) {
             SERIAL_PROTOCOLPGM("Y out of range (1-" STRINGIFY(MESH_NUM_Y_POINTS) ").\n");
             return;
@@ -3154,7 +3268,7 @@ inline void gcode_G28() {
           return;
         }
         if (code_seen('Z')) {
-          z = code_value();
+          z = code_value_axis_units(Z_AXIS);
         }
         else {
           SERIAL_PROTOCOLPGM("Z not entered.\n");
@@ -3165,7 +3279,7 @@ inline void gcode_G28() {
 
       case MeshSetZOffset:
         if (code_seen('Z')) {
-          z = code_value();
+          z = code_value_axis_units(Z_AXIS);
         }
         else {
           SERIAL_PROTOCOLPGM("Z not entered.\n");
@@ -3251,7 +3365,7 @@ inline void gcode_G28() {
       return;
     }
 
-    int verbose_level = code_seen('V') ? code_value_short() : 1;
+    int verbose_level = code_seen('V') ? code_value_int() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
       SERIAL_ECHOLNPGM("?(V)erbose Level is implausible (0-4).");
       return;
@@ -3274,19 +3388,19 @@ inline void gcode_G28() {
       int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
 
       #if DISABLED(DELTA)
-        if (code_seen('P')) auto_bed_leveling_grid_points = code_value_short();
+        if (code_seen('P')) auto_bed_leveling_grid_points = code_value_int();
         if (auto_bed_leveling_grid_points < 2) {
           SERIAL_PROTOCOLPGM("?Number of probed (P)oints is implausible (2 minimum).\n");
           return;
         }
       #endif
 
-      xy_travel_speed = code_seen('S') ? code_value_short() : XY_TRAVEL_SPEED;
+      xy_travel_speed = code_seen('S') ? (int)code_value_linear_units() : XY_TRAVEL_SPEED;
 
-      int left_probe_bed_position = code_seen('L') ? code_value_short() : LEFT_PROBE_BED_POSITION,
-          right_probe_bed_position = code_seen('R') ? code_value_short() : RIGHT_PROBE_BED_POSITION,
-          front_probe_bed_position = code_seen('F') ? code_value_short() : FRONT_PROBE_BED_POSITION,
-          back_probe_bed_position = code_seen('B') ? code_value_short() : BACK_PROBE_BED_POSITION;
+      int left_probe_bed_position = code_seen('L') ? (int)code_value_axis_units(X_AXIS) : LEFT_PROBE_BED_POSITION,
+          right_probe_bed_position = code_seen('R') ? (int)code_value_axis_units(X_AXIS) : RIGHT_PROBE_BED_POSITION,
+          front_probe_bed_position = code_seen('F') ? (int)code_value_axis_units(Y_AXIS) : FRONT_PROBE_BED_POSITION,
+          back_probe_bed_position = code_seen('B') ? (int)code_value_axis_units(Y_AXIS) : BACK_PROBE_BED_POSITION;
 
       bool left_out_l = left_probe_bed_position < MIN_PROBE_X,
            left_out = left_out_l || left_probe_bed_position > right_probe_bed_position - (MIN_PROBE_EDGE),
@@ -3377,7 +3491,7 @@ inline void gcode_G28() {
         delta_grid_spacing[0] = xGridSpacing;
         delta_grid_spacing[1] = yGridSpacing;
         float zoffset = zprobe_zoffset;
-        if (code_seen(axis_codes[Z_AXIS])) zoffset += code_value();
+        if (code_seen(axis_codes[Z_AXIS])) zoffset += code_value_axis_units(Z_AXIS);
       #else // !DELTA
         /**
          * solve the plane equation ax + by + d = z
@@ -3783,7 +3897,7 @@ inline void gcode_G92() {
   for (int i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i])) {
       float p = current_position[i],
-            v = code_value();
+            v = code_value_axis_units(i);
 
       current_position[i] = v;
 
@@ -3821,11 +3935,11 @@ inline void gcode_G92() {
     millis_t codenum = 0;
     bool hasP = false, hasS = false;
     if (code_seen('P')) {
-      codenum = code_value_short(); // milliseconds to wait
+      codenum = code_value_millis(); // milliseconds to wait
       hasP = codenum > 0;
     }
     if (code_seen('S')) {
-      codenum = code_value() * 1000UL; // seconds to wait
+      codenum = code_value_millis_from_seconds(); // seconds to wait
       hasS = codenum > 0;
     }
 
@@ -4040,10 +4154,10 @@ inline void gcode_M31() {
  */
 inline void gcode_M42() {
   if (code_seen('S')) {
-    int pin_status = code_value_short();
+    int pin_status = code_value_int();
     if (pin_status < 0 || pin_status > 255) return;
 
-    int pin_number = code_seen('P') ? code_value_short() : LED_PIN;
+    int pin_number = code_seen('P') ? code_value_int() : LED_PIN;
     if (pin_number < 0) return;
 
     for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
@@ -4113,7 +4227,7 @@ inline void gcode_M42() {
     int8_t verbose_level = 1, n_samples = 10, n_legs = 0, schizoid_flag = 0;
 
     if (code_seen('V')) {
-      verbose_level = code_value_short();
+      verbose_level = code_value_byte();
       if (verbose_level < 0 || verbose_level > 4) {
         SERIAL_PROTOCOLPGM("?Verbose Level not plausible (0-4).\n");
         return;
@@ -4124,7 +4238,7 @@ inline void gcode_M42() {
       SERIAL_PROTOCOLPGM("M48 Z-Probe Repeatability test\n");
 
     if (code_seen('P')) {
-      n_samples = code_value_short();
+      n_samples = code_value_byte();
       if (n_samples < 4 || n_samples > 50) {
         SERIAL_PROTOCOLPGM("?Sample size not plausible (4-50).\n");
         return;
@@ -4140,7 +4254,7 @@ inline void gcode_M42() {
     bool deploy_probe_for_each_reading = code_seen('E');
 
     if (code_seen('X')) {
-      X_probe_location = code_value();
+      X_probe_location = code_value_axis_units(X_AXIS);
       #if DISABLED(DELTA)
         if (X_probe_location < MIN_PROBE_X || X_probe_location > MAX_PROBE_X) {
           out_of_range_error(PSTR("X"));
@@ -4150,7 +4264,7 @@ inline void gcode_M42() {
     }
 
     if (code_seen('Y')) {
-      Y_probe_location = code_value();
+      Y_probe_location = code_value_axis_units(Y_AXIS);
       #if DISABLED(DELTA)
         if (Y_probe_location < MIN_PROBE_Y || Y_probe_location > MAX_PROBE_Y) {
           out_of_range_error(PSTR("Y"));
@@ -4169,7 +4283,7 @@ inline void gcode_M42() {
     bool seen_L = code_seen('L');
 
     if (seen_L) {
-      n_legs = code_value_short();
+      n_legs = code_value_byte();
       if (n_legs < 0 || n_legs > 15) {
         SERIAL_PROTOCOLPGM("?Number of legs in movement not plausible (0-15).\n");
         return;
@@ -4387,7 +4501,7 @@ inline void gcode_M77() { print_job_timer.stop(); }
    */
   inline void gcode_M78() {
     // "M78 S78" will reset the statistics
-    if (code_seen('S') && code_value_short() == 78)
+    if (code_seen('S') && code_value_int() == 78)
       print_job_timer.initStats();
     else print_job_timer.showStats();
   }
@@ -4405,7 +4519,7 @@ inline void gcode_M104() {
   #endif
 
   if (code_seen('S')) {
-    float temp = code_value();
+    float temp = code_value_temp_abs();
     thermalManager.setTargetHotend(temp, target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
@@ -4533,8 +4647,8 @@ inline void gcode_M105() {
    *  P<index> Fan index, if more than one fan
    */
   inline void gcode_M106() {
-    uint16_t s = code_seen('S') ? code_value_short() : 255,
-             p = code_seen('P') ? code_value_short() : 0;
+    uint16_t s = code_seen('S') ? code_value_ushort() : 255,
+             p = code_seen('P') ? code_value_ushort() : 0;
     NOMORE(s, 255);
     if (p < FAN_COUNT) fanSpeeds[p] = s;
   }
@@ -4543,7 +4657,7 @@ inline void gcode_M105() {
    * M107: Fan Off
    */
   inline void gcode_M107() {
-    uint16_t p = code_seen('P') ? code_value_short() : 0;
+    uint16_t p = code_seen('P') ? code_value_ushort() : 0;
     if (p < FAN_COUNT) fanSpeeds[p] = 0;
   }
 
@@ -4564,7 +4678,7 @@ inline void gcode_M109() {
 
   bool no_wait_for_cooling = code_seen('S');
   if (no_wait_for_cooling || code_seen('R')) {
-    float temp = code_value();
+    float temp = code_value_temp_abs();
     thermalManager.setTargetHotend(temp, target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
@@ -4681,7 +4795,7 @@ inline void gcode_M109() {
 
     LCD_MESSAGEPGM(MSG_BED_HEATING);
     bool no_wait_for_cooling = code_seen('S');
-    if (no_wait_for_cooling || code_seen('R')) thermalManager.setTargetBed(code_value());
+    if (no_wait_for_cooling || code_seen('R')) thermalManager.setTargetBed(code_value_temp_abs());
 
     #if TEMP_BED_RESIDENCY_TIME > 0
       millis_t residency_start_ms = 0;
@@ -4767,7 +4881,7 @@ inline void gcode_M110() {
  * M111: Set the debug level
  */
 inline void gcode_M111() {
-  marlin_debug_flags = code_seen('S') ? code_value_short() : DEBUG_NONE;
+  marlin_debug_flags = code_seen('S') ? code_value_byte() : DEBUG_NONE;
 
   const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO;
   const static char str_debug_2[] PROGMEM = MSG_DEBUG_INFO;
@@ -4816,7 +4930,7 @@ inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
    */
   inline void gcode_M113() {
     if (code_seen('S')) {
-      host_keepalive_interval = (uint8_t)code_value_short();
+      host_keepalive_interval = code_value_byte();
       NOMORE(host_keepalive_interval, 60);
     }
     else {
@@ -4834,7 +4948,7 @@ inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
     /**
      * M126: Heater 1 valve open
      */
-    inline void gcode_M126() { baricuda_valve_pressure = code_seen('S') ? constrain(code_value(), 0, 255) : 255; }
+    inline void gcode_M126() { baricuda_valve_pressure = code_seen('S') ? code_value_byte() : 255; }
     /**
      * M127: Heater 1 valve close
      */
@@ -4845,7 +4959,7 @@ inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
     /**
      * M128: Heater 2 valve open
      */
-    inline void gcode_M128() { baricuda_e_to_p_pressure = code_seen('S') ? constrain(code_value(), 0, 255) : 255; }
+    inline void gcode_M128() { baricuda_e_to_p_pressure = code_seen('S') ? code_value_byte() : 255; }
     /**
      * M129: Heater 2 valve close
      */
@@ -4859,7 +4973,7 @@ inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
  */
 inline void gcode_M140() {
   if (DEBUGGING(DRYRUN)) return;
-  if (code_seen('S')) thermalManager.setTargetBed(code_value());
+  if (code_seen('S')) thermalManager.setTargetBed(code_value_temp_abs());
 }
 
 #if ENABLED(ULTIPANEL)
@@ -4872,7 +4986,7 @@ inline void gcode_M140() {
    *   F<fan speed>
    */
   inline void gcode_M145() {
-    int8_t material = code_seen('S') ? code_value_short() : 0;
+    int8_t material = code_seen('S') ? (int8_t)code_value_int() : 0;
     if (material < 0 || material > 1) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_MATERIAL_INDEX);
@@ -4882,32 +4996,32 @@ inline void gcode_M140() {
       switch (material) {
         case 0:
           if (code_seen('H')) {
-            v = code_value_short();
+            v = code_value_int();
             plaPreheatHotendTemp = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
           }
           if (code_seen('F')) {
-            v = code_value_short();
+            v = code_value_int();
             plaPreheatFanSpeed = constrain(v, 0, 255);
           }
           #if TEMP_SENSOR_BED != 0
             if (code_seen('B')) {
-              v = code_value_short();
+              v = code_value_int();
               plaPreheatHPBTemp = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
             }
           #endif
           break;
         case 1:
           if (code_seen('H')) {
-            v = code_value_short();
+            v = code_value_int();
             absPreheatHotendTemp = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
           }
           if (code_seen('F')) {
-            v = code_value_short();
+            v = code_value_int();
             absPreheatFanSpeed = constrain(v, 0, 255);
           }
           #if TEMP_SENSOR_BED != 0
             if (code_seen('B')) {
-              v = code_value_short();
+              v = code_value_int();
               absPreheatHPBTemp = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
             }
           #endif
@@ -4916,6 +5030,21 @@ inline void gcode_M140() {
     }
   }
 
+#endif
+
+#if ENABLED(USE_M149)
+  /**
+   * M149: Set temperature units
+   */
+  inline void gcode_M149() {
+    if (code_seen('C')) {
+      set_input_temp_units(TEMPUNIT_C);
+    } else if (code_seen('K')) {
+      set_input_temp_units(TEMPUNIT_K);
+    } else if (code_seen('F')) {
+      set_input_temp_units(TEMPUNIT_F);
+    }
+  }
 #endif
 
 #if HAS_POWER_SWITCH
@@ -4991,7 +5120,7 @@ inline void gcode_M83() { axis_relative_modes[E_AXIS] = true; }
  */
 inline void gcode_M18_M84() {
   if (code_seen('S')) {
-    stepper_inactive_time = code_value() * 1000UL;
+    stepper_inactive_time = code_value_millis_from_seconds();
   }
   else {
     bool all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])) || (code_seen(axis_codes[E_AXIS])));
@@ -5019,7 +5148,7 @@ inline void gcode_M18_M84() {
  * M85: Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
  */
 inline void gcode_M85() {
-  if (code_seen('S')) max_inactive_time = code_value() * 1000UL;
+  if (code_seen('S')) max_inactive_time = code_value_millis_from_seconds();
 }
 
 /**
@@ -5030,7 +5159,7 @@ inline void gcode_M92() {
   for (int8_t i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i])) {
       if (i == E_AXIS) {
-        float value = code_value();
+        float value = code_value_per_axis_unit(i);
         if (value < 20.0) {
           float factor = planner.axis_steps_per_unit[i] / value; // increase e constants if M92 E14 is given for netfab.
           planner.max_e_jerk *= factor;
@@ -5040,7 +5169,7 @@ inline void gcode_M92() {
         planner.axis_steps_per_unit[i] = value;
       }
       else {
-        planner.axis_steps_per_unit[i] = code_value();
+        planner.axis_steps_per_unit[i] = code_value_per_axis_unit(i);
       }
     }
   }
@@ -5123,9 +5252,9 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    */
   inline void gcode_M150() {
     SendColors(
-      code_seen('R') ? (byte)code_value_short() : 0,
-      code_seen('U') ? (byte)code_value_short() : 0,
-      code_seen('B') ? (byte)code_value_short() : 0
+      code_seen('R') ? code_value_byte() : 0,
+      code_seen('U') ? code_value_byte() : 0,
+      code_seen('B') ? code_value_byte() : 0
     );
   }
 
@@ -5152,11 +5281,11 @@ inline void gcode_M121() { endstops.enable_globally(false); }
   inline void gcode_M155() {
     // Set the target address
     if (code_seen('A'))
-      i2c.address((uint8_t) code_value_short());
+      i2c.address(code_value_byte());
 
     // Add a new byte to the buffer
     else if (code_seen('B'))
-      i2c.addbyte((int) code_value_short());
+      i2c.addbyte(code_value_int());
 
     // Flush the buffer to the bus
     else if (code_seen('S')) i2c.send();
@@ -5171,8 +5300,8 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    * Usage: M156 A<slave device address base 10> B<number of bytes>
    */
   inline void gcode_M156() {
-    uint8_t addr = code_seen('A') ? code_value_short() : 0;
-    int bytes    = code_seen('B') ? code_value_short() : 1;
+    uint8_t addr = code_seen('A') ? code_value_byte() : 0;
+    int bytes    = code_seen('B') ? code_value_int() : 1;
 
     if (addr && bytes > 0 && bytes <= 32) {
       i2c.address(addr);
@@ -5187,17 +5316,17 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 #endif //EXPERIMENTAL_I2CBUS
 
 /**
- * M200: Set filament diameter and set E axis units to cubic millimeters
+ * M200: Set filament diameter and set E axis units to cubic units
  *
  *    T<extruder> - Optional extruder number. Current extruder if omitted.
- *    D<mm> - Diameter of the filament. Use "D0" to set units back to millimeters.
+ *    D<mm> - Diameter of the filament. Use "D0" to switch back to linear units on the E axis.
  */
 inline void gcode_M200() {
 
   if (get_target_extruder_from_command(200)) return;
 
   if (code_seen('D')) {
-    float diameter = code_value();
+    float diameter = code_value_linear_units();
     // setting any extruder filament size disables volumetric on the assumption that
     // slicers either generate in extruder values as cubic mm or as as filament feeds
     // for all extruders
@@ -5222,7 +5351,7 @@ inline void gcode_M200() {
 inline void gcode_M201() {
   for (int8_t i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i])) {
-      planner.max_acceleration_units_per_sq_second[i] = code_value();
+      planner.max_acceleration_units_per_sq_second[i] = code_value_axis_units(i);
     }
   }
   // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
@@ -5232,7 +5361,7 @@ inline void gcode_M201() {
 #if 0 // Not used for Sprinter/grbl gen6
   inline void gcode_M202() {
     for (int8_t i = 0; i < NUM_AXIS; i++) {
-      if (code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * planner.axis_steps_per_unit[i];
+      if (code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value_axis_units(i) * planner.axis_steps_per_unit[i];
     }
   }
 #endif
@@ -5244,7 +5373,7 @@ inline void gcode_M201() {
 inline void gcode_M203() {
   for (int8_t i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i])) {
-      planner.max_feedrate[i] = code_value();
+      planner.max_feedrate[i] = code_value_axis_units(i);
     }
   }
 }
@@ -5260,22 +5389,22 @@ inline void gcode_M203() {
  */
 inline void gcode_M204() {
   if (code_seen('S')) {  // Kept for legacy compatibility. Should NOT BE USED for new developments.
-    planner.travel_acceleration = planner.acceleration = code_value();
+    planner.travel_acceleration = planner.acceleration = code_value_linear_units();
     SERIAL_ECHOPAIR("Setting Print and Travel Acceleration: ", planner.acceleration);
     SERIAL_EOL;
   }
   if (code_seen('P')) {
-    planner.acceleration = code_value();
+    planner.acceleration = code_value_linear_units();
     SERIAL_ECHOPAIR("Setting Print Acceleration: ", planner.acceleration);
     SERIAL_EOL;
   }
   if (code_seen('R')) {
-    planner.retract_acceleration = code_value();
+    planner.retract_acceleration = code_value_linear_units();
     SERIAL_ECHOPAIR("Setting Retract Acceleration: ", planner.retract_acceleration);
     SERIAL_EOL;
   }
   if (code_seen('T')) {
-    planner.travel_acceleration = code_value();
+    planner.travel_acceleration = code_value_linear_units();
     SERIAL_ECHOPAIR("Setting Travel Acceleration: ", planner.travel_acceleration);
     SERIAL_EOL;
   }
@@ -5292,12 +5421,12 @@ inline void gcode_M204() {
  *    E = Max E Jerk (mm/s/s)
  */
 inline void gcode_M205() {
-  if (code_seen('S')) planner.min_feedrate = code_value();
-  if (code_seen('T')) planner.min_travel_feedrate = code_value();
-  if (code_seen('B')) planner.min_segment_time = code_value();
-  if (code_seen('X')) planner.max_xy_jerk = code_value();
-  if (code_seen('Z')) planner.max_z_jerk = code_value();
-  if (code_seen('E')) planner.max_e_jerk = code_value();
+  if (code_seen('S')) planner.min_feedrate = code_value_linear_units();
+  if (code_seen('T')) planner.min_travel_feedrate = code_value_linear_units();
+  if (code_seen('B')) planner.min_segment_time = code_value_millis();
+  if (code_seen('X')) planner.max_xy_jerk = code_value_linear_units();
+  if (code_seen('Z')) planner.max_z_jerk = code_value_axis_units(Z_AXIS);
+  if (code_seen('E')) planner.max_e_jerk = code_value_axis_units(E_AXIS);
 }
 
 /**
@@ -5306,11 +5435,11 @@ inline void gcode_M205() {
 inline void gcode_M206() {
   for (int8_t i = X_AXIS; i <= Z_AXIS; i++)
     if (code_seen(axis_codes[i]))
-      set_home_offset((AxisEnum)i, code_value());
+      set_home_offset((AxisEnum)i, code_value_axis_units(i));
 
   #if ENABLED(SCARA)
-    if (code_seen('T')) set_home_offset(X_AXIS, code_value()); // Theta
-    if (code_seen('P')) set_home_offset(Y_AXIS, code_value()); // Psi
+    if (code_seen('T')) set_home_offset(X_AXIS, code_value_axis_units(X_AXIS)); // Theta
+    if (code_seen('P')) set_home_offset(Y_AXIS, code_value_axis_units(Y_AXIS)); // Psi
   #endif
 
   sync_plan_position();
@@ -5329,12 +5458,12 @@ inline void gcode_M206() {
    *    C = Gamma (Tower 3) diagonal rod trim
    */
   inline void gcode_M665() {
-    if (code_seen('L')) delta_diagonal_rod = code_value();
-    if (code_seen('R')) delta_radius = code_value();
-    if (code_seen('S')) delta_segments_per_second = code_value();
-    if (code_seen('A')) delta_diagonal_rod_trim_tower_1 = code_value();
-    if (code_seen('B')) delta_diagonal_rod_trim_tower_2 = code_value();
-    if (code_seen('C')) delta_diagonal_rod_trim_tower_3 = code_value();
+    if (code_seen('L')) delta_diagonal_rod = code_value_linear_units();
+    if (code_seen('R')) delta_radius = code_value_linear_units();
+    if (code_seen('S')) delta_segments_per_second = code_value_float();
+    if (code_seen('A')) delta_diagonal_rod_trim_tower_1 = code_value_linear_units();
+    if (code_seen('B')) delta_diagonal_rod_trim_tower_2 = code_value_linear_units();
+    if (code_seen('C')) delta_diagonal_rod_trim_tower_3 = code_value_linear_units();
     recalc_delta_settings(delta_radius, delta_diagonal_rod);
   }
   /**
@@ -5348,7 +5477,7 @@ inline void gcode_M206() {
     #endif
     for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
       if (code_seen(axis_codes[i])) {
-        endstop_adj[i] = code_value();
+        endstop_adj[i] = code_value_axis_units(i);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOPGM("endstop_adj[");
@@ -5372,7 +5501,7 @@ inline void gcode_M206() {
    * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
    */
   inline void gcode_M666() {
-    if (code_seen('Z')) z_endstop_adj = code_value();
+    if (code_seen('Z')) z_endstop_adj = code_value_axis_units(Z_AXIS);
     SERIAL_ECHOPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj);
     SERIAL_EOL;
   }
@@ -5390,11 +5519,11 @@ inline void gcode_M206() {
    *   Z[mm]     retract_zlift
    */
   inline void gcode_M207() {
-    if (code_seen('S')) retract_length = code_value();
-    if (code_seen('F')) retract_feedrate = code_value() / 60;
-    if (code_seen('Z')) retract_zlift = code_value();
+    if (code_seen('S')) retract_length = code_value_axis_units(E_AXIS);
+    if (code_seen('F')) retract_feedrate = code_value_axis_units(E_AXIS) / 60;
+    if (code_seen('Z')) retract_zlift = code_value_axis_units(Z_AXIS);
     #if EXTRUDERS > 1
-      if (code_seen('W')) retract_length_swap = code_value();
+      if (code_seen('W')) retract_length_swap = code_value_axis_units(E_AXIS);
     #endif
   }
 
@@ -5406,10 +5535,10 @@ inline void gcode_M206() {
    *   F[mm/min] retract_recover_feedrate
    */
   inline void gcode_M208() {
-    if (code_seen('S')) retract_recover_length = code_value();
-    if (code_seen('F')) retract_recover_feedrate = code_value() / 60;
+    if (code_seen('S')) retract_recover_length = code_value_axis_units(E_AXIS);
+    if (code_seen('F')) retract_recover_feedrate = code_value_axis_units(E_AXIS) / 60;
     #if EXTRUDERS > 1
-      if (code_seen('W')) retract_recover_length_swap = code_value();
+      if (code_seen('W')) retract_recover_length_swap = code_value_axis_units(E_AXIS);
     #endif
   }
 
@@ -5419,7 +5548,7 @@ inline void gcode_M206() {
    */
   inline void gcode_M209() {
     if (code_seen('S')) {
-      int t = code_value_short();
+      int t = code_value_int();
       switch (t) {
         case 0:
           autoretract_enabled = false;
@@ -5450,11 +5579,11 @@ inline void gcode_M206() {
   inline void gcode_M218() {
     if (get_target_extruder_from_command(218)) return;
 
-    if (code_seen('X')) hotend_offset[X_AXIS][target_extruder] = code_value();
-    if (code_seen('Y')) hotend_offset[Y_AXIS][target_extruder] = code_value();
+    if (code_seen('X')) hotend_offset[X_AXIS][target_extruder] = code_value_axis_units(X_AXIS);
+    if (code_seen('Y')) hotend_offset[Y_AXIS][target_extruder] = code_value_axis_units(Y_AXIS);
 
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (code_seen('Z')) hotend_offset[Z_AXIS][target_extruder] = code_value();
+      if (code_seen('Z')) hotend_offset[Z_AXIS][target_extruder] = code_value_axis_units(Z_AXIS);
     #endif
 
     SERIAL_ECHO_START;
@@ -5478,7 +5607,7 @@ inline void gcode_M206() {
  * M220: Set speed percentage factor, aka "Feed Rate" (M220 S95)
  */
 inline void gcode_M220() {
-  if (code_seen('S')) feedrate_multiplier = code_value();
+  if (code_seen('S')) feedrate_multiplier = code_value_int();
 }
 
 /**
@@ -5486,7 +5615,7 @@ inline void gcode_M220() {
  */
 inline void gcode_M221() {
   if (code_seen('S')) {
-    int sval = code_value();
+    int sval = code_value_int();
     if (get_target_extruder_from_command(221)) return;
     extruder_multiplier[target_extruder] = sval;
   }
@@ -5497,9 +5626,9 @@ inline void gcode_M221() {
  */
 inline void gcode_M226() {
   if (code_seen('P')) {
-    int pin_number = code_value();
+    int pin_number = code_value_int();
 
-    int pin_state = code_seen('S') ? code_value() : -1; // required pin state - default is inverted
+    int pin_state = code_seen('S') ? code_value_int() : -1; // required pin state - default is inverted
 
     if (pin_state >= -1 && pin_state <= 1) {
 
@@ -5544,10 +5673,10 @@ inline void gcode_M226() {
    * M280: Get or set servo position. P<index> S<angle>
    */
   inline void gcode_M280() {
-    int servo_index = code_seen('P') ? code_value_short() : -1;
+    int servo_index = code_seen('P') ? code_value_int() : -1;
     int servo_position = 0;
     if (code_seen('S')) {
-      servo_position = code_value_short();
+      servo_position = code_value_int();
       if (servo_index >= 0 && servo_index < NUM_SERVOS)
         servo[servo_index].move(servo_position);
       else {
@@ -5574,8 +5703,8 @@ inline void gcode_M226() {
    * M300: Play beep sound S<frequency Hz> P<duration ms>
    */
   inline void gcode_M300() {
-    uint16_t beepS = code_seen('S') ? code_value_short() : 110;
-    uint32_t beepP = code_seen('P') ? code_value_long() : 1000;
+    uint16_t beepS = code_seen('S') ? code_value_ushort() : 110;
+    uint32_t beepP = code_seen('P') ? code_value_ulong() : 1000;
     if (beepP > 5000) beepP = 5000; // limit to 5 seconds
     buzz(beepP, beepS);
   }
@@ -5600,15 +5729,15 @@ inline void gcode_M226() {
 
     // multi-extruder PID patch: M301 updates or prints a single extruder's PID values
     // default behaviour (omitting E parameter) is to update for extruder 0 only
-    int e = code_seen('E') ? code_value() : 0; // extruder being updated
+    int e = code_seen('E') ? code_value_int() : 0; // extruder being updated
 
     if (e < HOTENDS) { // catch bad input value
-      if (code_seen('P')) PID_PARAM(Kp, e) = code_value();
-      if (code_seen('I')) PID_PARAM(Ki, e) = scalePID_i(code_value());
-      if (code_seen('D')) PID_PARAM(Kd, e) = scalePID_d(code_value());
+      if (code_seen('P')) PID_PARAM(Kp, e) = code_value_float();
+      if (code_seen('I')) PID_PARAM(Ki, e) = scalePID_i(code_value_float());
+      if (code_seen('D')) PID_PARAM(Kd, e) = scalePID_d(code_value_float());
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
-        if (code_seen('C')) PID_PARAM(Kc, e) = code_value();
-        if (code_seen('L')) lpq_len = code_value();
+        if (code_seen('C')) PID_PARAM(Kc, e) = code_value_float();
+        if (code_seen('L')) lpq_len = code_value_float();
         NOMORE(lpq_len, LPQ_MAX_LEN);
       #endif
 
@@ -5642,9 +5771,9 @@ inline void gcode_M226() {
 #if ENABLED(PIDTEMPBED)
 
   inline void gcode_M304() {
-    if (code_seen('P')) thermalManager.bedKp = code_value();
-    if (code_seen('I')) thermalManager.bedKi = scalePID_i(code_value());
-    if (code_seen('D')) thermalManager.bedKd = scalePID_d(code_value());
+    if (code_seen('P')) thermalManager.bedKp = code_value_float();
+    if (code_seen('I')) thermalManager.bedKi = scalePID_i(code_value_float());
+    if (code_seen('D')) thermalManager.bedKd = scalePID_d(code_value_float());
 
     thermalManager.updatePID();
 
@@ -5701,7 +5830,7 @@ inline void gcode_M226() {
    * M250: Read and optionally set the LCD contrast
    */
   inline void gcode_M250() {
-    if (code_seen('C')) set_lcd_contrast(code_value_short());
+    if (code_seen('C')) set_lcd_contrast(code_value_int());
     SERIAL_PROTOCOLPGM("lcd contrast value: ");
     SERIAL_PROTOCOL(lcd_contrast);
     SERIAL_EOL;
@@ -5715,7 +5844,7 @@ inline void gcode_M226() {
    * M302: Allow cold extrudes, or set the minimum extrude S<temperature>.
    */
   inline void gcode_M302() {
-    thermalManager.extrude_min_temp = code_seen('S') ? code_value() : 0;
+    thermalManager.extrude_min_temp = code_seen('S') ? code_value_temp_abs() : 0;
   }
 
 #endif // PREVENT_DANGEROUS_EXTRUDE
@@ -5730,11 +5859,11 @@ inline void gcode_M226() {
  */
 inline void gcode_M303() {
   #if HAS_PID_HEATING
-    int e = code_seen('E') ? code_value_short() : 0;
-    int c = code_seen('C') ? code_value_short() : 5;
-    bool u = code_seen('U') && code_value_short() != 0;
+    int e = code_seen('E') ? code_value_int() : 0;
+    int c = code_seen('C') ? code_value_int() : 5;
+    bool u = code_seen('U') && code_value_bool();
 
-    float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
+    float temp = code_seen('S') ? code_value_temp_abs() : (e < 0 ? 70.0 : 150.0);
 
     if (e >= 0 && e < HOTENDS)
       target_extruder = e;
@@ -5814,7 +5943,7 @@ inline void gcode_M303() {
   inline void gcode_M365() {
     for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
       if (code_seen(axis_codes[i])) {
-        axis_scaling[i] = code_value();
+        axis_scaling[i] = code_value_float();
       }
     }
   }
@@ -5907,7 +6036,7 @@ inline void gcode_M400() { stepper.synchronize(); }
    */
   inline void gcode_M404() {
     if (code_seen('W')) {
-      filament_width_nominal = code_value();
+      filament_width_nominal = code_value_linear_units();
     }
     else {
       SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
@@ -5919,7 +6048,9 @@ inline void gcode_M400() { stepper.synchronize(); }
    * M405: Turn on filament sensor for control
    */
   inline void gcode_M405() {
-    if (code_seen('D')) meas_delay_cm = code_value();
+    // This is technically a linear measurement, but since it's quantized to centimeters and is a different unit than
+    // everything else, it uses code_value_int() instead of code_value_linear_units().
+    if (code_seen('D')) meas_delay_cm = code_value_int();
     NOMORE(meas_delay_cm, MAX_MEASUREMENT_DELAY);
 
     if (filwidth_delay_index2 == -1) { // Initialize the ring buffer if not done since startup
@@ -5990,7 +6121,7 @@ inline void gcode_M410() {
   /**
    * M420: Enable/Disable Mesh Bed Leveling
    */
-  inline void gcode_M420() { if (code_seen('S') && code_has_value()) mbl.set_has_mesh(!!code_value_short()); }
+  inline void gcode_M420() { if (code_seen('S') && code_has_value()) mbl.set_has_mesh(code_value_bool()); }
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
@@ -6000,11 +6131,11 @@ inline void gcode_M410() {
     int8_t px, py;
     float z = 0;
     bool hasX, hasY, hasZ, hasI, hasJ;
-    if ((hasX = code_seen('X'))) px = mbl.probe_index_x(code_value());
-    if ((hasY = code_seen('Y'))) py = mbl.probe_index_y(code_value());
-    if ((hasI = code_seen('I'))) px = code_value();
-    if ((hasJ = code_seen('J'))) py = code_value();
-    if ((hasZ = code_seen('Z'))) z = code_value();
+    if ((hasX = code_seen('X'))) px = mbl.probe_index_x(code_value_axis_units(X_AXIS));
+    if ((hasY = code_seen('Y'))) py = mbl.probe_index_y(code_value_axis_units(Y_AXIS));
+    if ((hasI = code_seen('I'))) px = code_value_axis_units(X_AXIS);
+    if ((hasJ = code_seen('J'))) py = code_value_axis_units(Y_AXIS);
+    if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
 
     if (hasX && hasY && hasZ) {
 
@@ -6104,7 +6235,7 @@ inline void gcode_M502() {
  * M503: print settings currently in memory
  */
 inline void gcode_M503() {
-  Config_PrintSettings(code_seen('S') && code_value() == 0);
+  Config_PrintSettings(code_seen('S') && !code_value_bool());
 }
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
@@ -6113,7 +6244,7 @@ inline void gcode_M503() {
    * M540: Set whether SD card print should abort on endstop hit (M540 S<0|1>)
    */
   inline void gcode_M540() {
-    if (code_seen('S')) stepper.abort_on_endstop_hit = (code_value() > 0);
+    if (code_seen('S')) stepper.abort_on_endstop_hit = code_value_bool();
   }
 
 #endif // ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
@@ -6127,7 +6258,7 @@ inline void gcode_M503() {
     SERIAL_CHAR(' ');
 
     if (code_seen('Z')) {
-      float value = code_value();
+      float value = code_value_axis_units(Z_AXIS);
       if (Z_PROBE_OFFSET_RANGE_MIN <= value && value <= Z_PROBE_OFFSET_RANGE_MAX) {
         zprobe_zoffset = value;
         SERIAL_ECHO(zprobe_zoffset);
@@ -6186,7 +6317,7 @@ inline void gcode_M503() {
     #endif
 
     //retract by E
-    if (code_seen('E')) destination[E_AXIS] += code_value();
+    if (code_seen('E')) destination[E_AXIS] += code_value_axis_units(E_AXIS);
     #ifdef FILAMENTCHANGE_FIRSTRETRACT
       else destination[E_AXIS] += FILAMENTCHANGE_FIRSTRETRACT;
     #endif
@@ -6194,7 +6325,7 @@ inline void gcode_M503() {
     RUNPLAN;
 
     //lift Z
-    if (code_seen('Z')) destination[Z_AXIS] += code_value();
+    if (code_seen('Z')) destination[Z_AXIS] += code_value_axis_units(Z_AXIS);
     #ifdef FILAMENTCHANGE_ZADD
       else destination[Z_AXIS] += FILAMENTCHANGE_ZADD;
     #endif
@@ -6202,19 +6333,19 @@ inline void gcode_M503() {
     RUNPLAN;
 
     //move xy
-    if (code_seen('X')) destination[X_AXIS] = code_value();
+    if (code_seen('X')) destination[X_AXIS] = code_value_axis_units(X_AXIS);
     #ifdef FILAMENTCHANGE_XPOS
       else destination[X_AXIS] = FILAMENTCHANGE_XPOS;
     #endif
 
-    if (code_seen('Y')) destination[Y_AXIS] = code_value();
+    if (code_seen('Y')) destination[Y_AXIS] = code_value_axis_units(Y_AXIS);
     #ifdef FILAMENTCHANGE_YPOS
       else destination[Y_AXIS] = FILAMENTCHANGE_YPOS;
     #endif
 
     RUNPLAN;
 
-    if (code_seen('L')) destination[E_AXIS] += code_value();
+    if (code_seen('L')) destination[E_AXIS] += code_value_axis_units(E_AXIS);
     #ifdef FILAMENTCHANGE_FINALRETRACT
       else destination[E_AXIS] += FILAMENTCHANGE_FINALRETRACT;
     #endif
@@ -6258,7 +6389,7 @@ inline void gcode_M503() {
     #endif
 
     //return to normal
-    if (code_seen('L')) destination[E_AXIS] -= code_value();
+    if (code_seen('L')) destination[E_AXIS] -= code_value_axis_units(E_AXIS);
     #ifdef FILAMENTCHANGE_FINALRETRACT
       else destination[E_AXIS] -= FILAMENTCHANGE_FINALRETRACT;
     #endif
@@ -6310,11 +6441,11 @@ inline void gcode_M503() {
    */
   inline void gcode_M605() {
     stepper.synchronize();
-    if (code_seen('S')) dual_x_carriage_mode = code_value();
+    if (code_seen('S')) dual_x_carriage_mode = code_value_byte();
     switch (dual_x_carriage_mode) {
       case DXC_DUPLICATION_MODE:
-        if (code_seen('X')) duplicate_extruder_x_offset = max(code_value(), X2_MIN_POS - x_home_pos(0));
-        if (code_seen('R')) duplicate_extruder_temp_offset = code_value();
+        if (code_seen('X')) duplicate_extruder_x_offset = max(code_value_axis_units(X_AXIS), X2_MIN_POS - x_home_pos(0));
+        if (code_seen('R')) duplicate_extruder_temp_offset = code_value_temp_diff();
         SERIAL_ECHO_START;
         SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
         SERIAL_CHAR(' ');
@@ -6346,31 +6477,31 @@ inline void gcode_M503() {
 inline void gcode_M907() {
   #if HAS_DIGIPOTSS
     for (int i = 0; i < NUM_AXIS; i++)
-      if (code_seen(axis_codes[i])) stepper.digipot_current(i, code_value());
-    if (code_seen('B')) stepper.digipot_current(4, code_value());
-    if (code_seen('S')) for (int i = 0; i <= 4; i++) stepper.digipot_current(i, code_value());
+      if (code_seen(axis_codes[i])) stepper.digipot_current(i, code_value_int());
+    if (code_seen('B')) stepper.digipot_current(4, code_value_int());
+    if (code_seen('S')) for (int i = 0; i <= 4; i++) stepper.digipot_current(i, code_value_int());
   #endif
   #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-    if (code_seen('X')) stepper.digipot_current(0, code_value());
+    if (code_seen('X')) stepper.digipot_current(0, code_value_int());
   #endif
   #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-    if (code_seen('Z')) stepper.digipot_current(1, code_value());
+    if (code_seen('Z')) stepper.digipot_current(1, code_value_int());
   #endif
   #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-    if (code_seen('E')) stepper.digipot_current(2, code_value());
+    if (code_seen('E')) stepper.digipot_current(2, code_value_int());
   #endif
   #if ENABLED(DIGIPOT_I2C)
     // this one uses actual amps in floating point
-    for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) digipot_i2c_set_current(i, code_value());
+    for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) digipot_i2c_set_current(i, code_value_float());
     // for each additional extruder (named B,C,D,E..., channels 4,5,6,7...)
-    for (int i = NUM_AXIS; i < DIGIPOT_I2C_NUM_CHANNELS; i++) if (code_seen('B' + i - (NUM_AXIS))) digipot_i2c_set_current(i, code_value());
+    for (int i = NUM_AXIS; i < DIGIPOT_I2C_NUM_CHANNELS; i++) if (code_seen('B' + i - (NUM_AXIS))) digipot_i2c_set_current(i, code_value_float());
   #endif
   #if ENABLED(DAC_STEPPER_CURRENT)
     if (code_seen('S')) {
-      float dac_percent = code_value();
+      float dac_percent = code_value_float();
       for (uint8_t i = 0; i <= 4; i++) dac_current_percent(i, dac_percent);
     }
-    for (uint8_t i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) dac_current_percent(i, code_value());
+    for (uint8_t i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) dac_current_percent(i, code_value_float());
   #endif
 }
 
@@ -6382,14 +6513,14 @@ inline void gcode_M907() {
   inline void gcode_M908() {
     #if HAS_DIGIPOTSS
       stepper.digitalPotWrite(
-        code_seen('P') ? code_value() : 0,
-        code_seen('S') ? code_value() : 0
+        code_seen('P') ? code_value_int() : 0,
+        code_seen('S') ? code_value_int() : 0
       );
     #endif
     #ifdef DAC_STEPPER_CURRENT
       dac_current_raw(
-        code_seen('P') ? code_value_long() : -1,
-        code_seen('S') ? code_value_short() : 0
+        code_seen('P') ? code_value_byte() : -1,
+        code_seen('S') ? code_value_ushort() : 0
       );
     #endif
   }
@@ -6408,9 +6539,9 @@ inline void gcode_M907() {
 
   // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
   inline void gcode_M350() {
-    if (code_seen('S')) for (int i = 0; i <= 4; i++) stepper.microstep_mode(i, code_value());
-    for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) stepper.microstep_mode(i, (uint8_t)code_value());
-    if (code_seen('B')) stepper.microstep_mode(4, code_value());
+    if (code_seen('S')) for (int i = 0; i <= 4; i++) stepper.microstep_mode(i, code_value_byte());
+    for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) stepper.microstep_mode(i, code_value_byte());
+    if (code_seen('B')) stepper.microstep_mode(4, code_value_byte());
     stepper.microstep_readings();
   }
 
@@ -6419,14 +6550,14 @@ inline void gcode_M907() {
    *       S# determines MS1 or MS2, X# sets the pin high/low.
    */
   inline void gcode_M351() {
-    if (code_seen('S')) switch (code_value_short()) {
+    if (code_seen('S')) switch (code_value_byte()) {
       case 1:
-        for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) stepper.microstep_ms(i, code_value(), -1);
-        if (code_seen('B')) stepper.microstep_ms(4, code_value(), -1);
+        for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) stepper.microstep_ms(i, code_value_byte(), -1);
+        if (code_seen('B')) stepper.microstep_ms(4, code_value_byte(), -1);
         break;
       case 2:
-        for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) stepper.microstep_ms(i, -1, code_value());
-        if (code_seen('B')) stepper.microstep_ms(4, -1, code_value());
+        for (int i = 0; i < NUM_AXIS; i++) if (code_seen(axis_codes[i])) stepper.microstep_ms(i, -1, code_value_byte());
+        if (code_seen('B')) stepper.microstep_ms(4, -1, code_value_byte());
         break;
     }
     stepper.microstep_readings();
@@ -6448,7 +6579,7 @@ inline void gcode_M999() {
   Running = true;
   lcd_reset_alert_level();
 
-  if (code_seen('S') && code_value_short() == 1) return;
+  if (code_seen('S') && code_value_bool()) return;
 
   // gcode_LastN = Stopped_gcode_LastN;
   FlushSerialRequestResend();
@@ -6471,7 +6602,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
   float stored_feedrate = feedrate;
 
   if (code_seen('F')) {
-    float next_feedrate = code_value();
+    float next_feedrate = code_value_axis_units(E_AXIS);
     if (next_feedrate > 0.0) stored_feedrate = feedrate = next_feedrate;
   }
   else {
@@ -6702,6 +6833,16 @@ void process_next_command() {
           break;
 
       #endif // FWRETRACT
+
+      #if ENABLED(USE_G20G21)
+        case 20: //G20: Inch Mode
+          gcode_G20();
+          break;
+
+        case 21: //G21: MM Mode
+          gcode_G21();
+          break;
+      #endif
 
       case 28: // G28: Home all axes, one at a time
         gcode_G28();
@@ -6959,6 +7100,12 @@ void process_next_command() {
           gcode_M145();
           break;
 
+      #endif
+
+      #if ENABLED(USE_M149)
+        case 149:
+          gcode_M149();
+          break;
       #endif
 
       #if ENABLED(BLINKM)

@@ -1155,9 +1155,9 @@ void Planner::reset_acceleration_rates() {
 
   void Planner::autotemp_M109() {
     autotemp_enabled = code_seen('F');
-    if (autotemp_enabled) autotemp_factor = code_value();
-    if (code_seen('S')) autotemp_min = code_value();
-    if (code_seen('B')) autotemp_max = code_value();
+    if (autotemp_enabled) autotemp_factor = code_value_temp_diff();
+    if (code_seen('S')) autotemp_min = code_value_temp_abs();
+    if (code_seen('B')) autotemp_max = code_value_temp_abs();
   }
 
 #endif
