@@ -216,19 +216,19 @@ class Planner {
        *
        * Clears previous speed values.
        */
-      static void set_position(float x, float y, float z, const float& e);
+      static void set_position_mm(float x, float y, float z, const float& e);
 
     #else
 
       static void buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder);
-      static void set_position(const float& x, const float& y, const float& z, const float& e);
+      static void set_position_mm(const float& x, const float& y, const float& z, const float& e);
 
     #endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
 
     /**
      * Set the E position (mm) of the planner (and the E stepper)
      */
-    static void set_e_position(const float& e);
+    static void set_e_position_mm(const float& e);
 
     /**
      * Does the buffer have any blocks queued?

@@ -1114,9 +1114,9 @@ void Planner::check_axes_activity() {
  * On CORE machines stepper ABC will be translated from the given XYZ.
  */
 #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
-  void Planner::set_position(float x, float y, float z, const float& e)
+  void Planner::set_position_mm(float x, float y, float z, const float& e)
 #else
-  void Planner::set_position(const float& x, const float& y, const float& z, const float& e)
+  void Planner::set_position_mm(const float& x, const float& y, const float& z, const float& e)
 #endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
   {
     #if ENABLED(MESH_BED_LEVELING)
@@ -1138,7 +1138,7 @@ void Planner::check_axes_activity() {
 /**
  * Directly set the planner E position (hence the stepper E position).
  */
-void Planner::set_e_position(const float& e) {
+void Planner::set_e_position_mm(const float& e) {
   position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
   stepper.set_e_position(position[E_AXIS]);
 }
