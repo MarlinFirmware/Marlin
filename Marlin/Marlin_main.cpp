@@ -856,6 +856,10 @@ void setup() {
     digipot_i2c_init();
   #endif
 
+  #if ENABLED(DAC_STEPPER_CURRENT)
+    dac_init();
+  #endif
+
   #if ENABLED(Z_PROBE_SLED)
     pinMode(SLED_PIN, OUTPUT);
     digitalWrite(SLED_PIN, LOW); // turn it off
