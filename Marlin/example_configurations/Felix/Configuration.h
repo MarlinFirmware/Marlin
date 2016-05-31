@@ -732,6 +732,16 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 //#define M100_FREE_MEMORY_WATCHER // uncomment to add the M100 Free Memory Watcher for debug purpose
 
+//
+// G20/G21 Inch mode support
+//
+#define USE_G20G21
+
+//
+// M149 Set temperature units support
+//
+#define USE_M149
+
 // @section temperature
 
 // Preheat Constants
