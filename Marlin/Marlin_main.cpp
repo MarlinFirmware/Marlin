@@ -5624,7 +5624,7 @@ inline void gcode_M226() {
 
 #endif // CHDK || PHOTOGRAPH_PIN
 
-#if ENABLED(HAS_LCD_CONTRAST)
+#if HAS_LCD_CONTRAST
 
   /**
    * M250: Read and optionally set the LCD contrast
@@ -6975,7 +6975,7 @@ void process_next_command() {
           break;
       #endif // CHDK || PHOTOGRAPH_PIN
 
-      #if ENABLED(HAS_LCD_CONTRAST)
+      #if HAS_LCD_CONTRAST
         case 250: // M250  Set LCD contrast value: C<value> (value 0..63)
           gcode_M250();
           break;
