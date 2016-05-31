@@ -482,6 +482,7 @@ inline void line_to_current(AxisEnum axis) {
 
   static void lcd_sdcard_stop() {
     stepper.quick_stop();
+    set_current_position_from_planner();
     card.sdprinting = false;
     card.closefile();
     print_job_timer.stop();
