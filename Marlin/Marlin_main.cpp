@@ -552,7 +552,7 @@ static void report_current_position();
       if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_delta", current_position);
     #endif
     calculate_delta(current_position);
-    planner.set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+    planner.set_position_mm(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
   }
 #endif
 
@@ -1448,9 +1448,9 @@ inline void sync_plan_position() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
   #endif
-  planner.set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+  planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
-inline void sync_plan_position_e() { planner.set_e_position(current_position[E_AXIS]); }
+inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
 
@@ -1607,7 +1607,7 @@ static void setup_for_endstop_move() {
 
       // Tell the planner where we ended up - Get this from the stepper handler
       zPosition = stepper.get_axis_position_mm(Z_AXIS);
-      planner.set_position(
+      planner.set_position_mm(
         current_position[X_AXIS], current_position[Y_AXIS], zPosition,
         current_position[E_AXIS]
       );
@@ -3593,7 +3593,7 @@ inline void gcode_G28() {
          * Get the current Z position and send it to the planner.
          *
          * >> (z_tmp - real_z) : The rotated current Z minus the uncorrected Z
-         * (most recent planner.set_position/sync_plan_position)
+         * (most recent planner.set_position_mm/sync_plan_position)
          *
          * >> zprobe_zoffset : Z distance from nozzle to Z probe
          * (set by default, M851, EEPROM, or Menu)
@@ -7436,7 +7436,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
     if (active_extruder_parked) {
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
         // move duplicate extruder into correct duplication position.
-        planner.set_position(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+        planner.set_position_mm(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         planner.buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset,
                          current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], planner.max_feedrate[X_AXIS], 1);
         sync_plan_position();
@@ -7989,7 +7989,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
                          (EXTRUDER_RUNOUT_SPEED) / 60. * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_unit[E_AXIS], active_extruder);
       current_position[E_AXIS] = oldepos;
       destination[E_AXIS] = oldedes;
-      planner.set_e_position(oldepos);
+      planner.set_e_position_mm(oldepos);
       previous_cmd_ms = ms; // refresh_cmd_timeout()
       stepper.synchronize();
       switch (active_extruder) {
