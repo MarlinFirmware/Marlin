@@ -298,8 +298,13 @@ int code_value_int();
 uint16_t code_value_ushort();
 uint8_t code_value_byte();
 bool code_value_bool();
+float code_value_linear_units();
+float code_value_per_axis_unit(int axis);
+float code_value_axis_units(int axis);
 float code_value_temp_abs();
 float code_value_temp_diff();
+millis_t code_value_millis();
+millis_t code_value_millis_from_seconds();
 
 #if ENABLED(DELTA)
   extern float delta[3];

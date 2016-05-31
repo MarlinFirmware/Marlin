@@ -1199,10 +1199,10 @@ uint16_t code_value_ushort() { return (uint16_t)strtoul(seen_pointer + 1, NULL, 
 
 uint8_t code_value_byte() { return (uint8_t)(constrain(strtol(seen_pointer + 1, NULL, 10), 0, 255)); }
 
-inline bool code_value_bool() { return code_value_byte() > 0; }
+bool code_value_bool() { return code_value_byte() > 0; }
 
 #if ENABLED(USE_G20G21)
-  inline void set_input_linear_units(LinearUnit units) {
+  void set_input_linear_units(LinearUnit units) {
     switch (units) {
       case LINEARUNIT_INCH:
         linear_unit_modifier = 25.4;
@@ -1215,31 +1215,31 @@ inline bool code_value_bool() { return code_value_byte() > 0; }
     volumetric_unit_modifier = pow(linear_unit_modifier, 3.0);
   }
 
-  inline float axis_unit_modifier(int axis) {
+  float axis_unit_modifier(int axis) {
     return (axis == E_AXIS && volumetric_enabled ? volumetric_unit_modifier : linear_unit_modifier);
   }
 
-  inline float code_value_linear_units() {
+  float code_value_linear_units() {
     return code_value_float() * linear_unit_modifier;
   }
 
-  inline float code_value_per_axis_unit(int axis) {
+  float code_value_per_axis_unit(int axis) {
     return code_value_float() / axis_unit_modifier(axis);
   }
 
-  inline float code_value_axis_units(int axis) {
+  float code_value_axis_units(int axis) {
     return code_value_float() * axis_unit_modifier(axis);
   }
 #else
-  inline float code_value_linear_units() { return code_value_float(); }
+  float code_value_linear_units() { return code_value_float(); }
 
-  inline float code_value_per_axis_unit(int axis) { return code_value_float(); }
+  float code_value_per_axis_unit(int axis) { return code_value_float(); }
 
-  inline float code_value_axis_units(int axis) { return code_value_float(); }
+  float code_value_axis_units(int axis) { return code_value_float(); }
 #endif
 
 #if ENABLED(USE_M149)
-  inline void set_input_temp_units(TempUnit units) {
+  void set_input_temp_units(TempUnit units) {
     input_temp_units = units;
   }
   
@@ -1268,15 +1268,15 @@ inline bool code_value_bool() { return code_value_byte() > 0; }
     }
   }
 #else
-  inline float code_value_temp_abs() { return code_value_float(); }
-  inline float code_value_temp_diff() { return code_value_float(); }
+  float code_value_temp_abs() { return code_value_float(); }
+  float code_value_temp_diff() { return code_value_float(); }
 #endif
 
-inline millis_t code_value_millis() {
+millis_t code_value_millis() {
   return code_value_ulong();
 }
 
-inline millis_t code_value_millis_from_seconds() {
+millis_t code_value_millis_from_seconds() {
   return code_value_float() * 1000;
 }
 
