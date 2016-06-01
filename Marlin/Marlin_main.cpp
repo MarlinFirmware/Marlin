@@ -613,6 +613,11 @@ void enqueue_and_echo_commands_P(const char* pgcode) {
   drain_queued_commands_P(); // first command executed asap (when possible)
 }
 
+void clear_command_queue() {
+  cmd_queue_index_r = cmd_queue_index_w;
+  commands_in_queue = 0;
+}
+
 /**
  * Once a new command is in the ring buffer, call this to commit it
  */
