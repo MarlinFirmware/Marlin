@@ -282,7 +282,7 @@ void Config_StoreSettings()  {
     EEPROM_WRITE_VAR(i, thermalManager.bedKd);
   #endif
 
-  #if DISABLED(HAS_LCD_CONTRAST)
+  #if !HAS_LCD_CONTRAST
     const int lcd_contrast = 32;
   #endif
   EEPROM_WRITE_VAR(i, lcd_contrast);
@@ -462,7 +462,7 @@ void Config_RetrieveSettings() {
       for (uint8_t q=3; q--;) EEPROM_READ_VAR(i, dummy); // bedKp, bedKi, bedKd
     #endif
 
-    #if DISABLED(HAS_LCD_CONTRAST)
+    #if !HAS_LCD_CONTRAST
       int lcd_contrast;
     #endif
     EEPROM_READ_VAR(i, lcd_contrast);
@@ -579,7 +579,7 @@ void Config_ResetDefault() {
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
   #endif
 
-  #if ENABLED(HAS_LCD_CONTRAST)
+  #if HAS_LCD_CONTRAST
     lcd_contrast = DEFAULT_LCD_CONTRAST;
   #endif
 
@@ -842,7 +842,7 @@ void Config_PrintSettings(bool forReplay) {
 
   #endif // PIDTEMP || PIDTEMPBED
 
-  #if ENABLED(HAS_LCD_CONTRAST)
+  #if HAS_LCD_CONTRAST
     CONFIG_ECHO_START;
     if (!forReplay) {
       SERIAL_ECHOLNPGM("LCD Contrast:");
