@@ -1063,6 +1063,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 //#define U8GLIB_SSD1306
 
+// SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
+//#define SAV_3DGLCD
+#if ENABLED(SAV_3DGLCD)
+  //#define U8GLIB_SSD1306
+  #define U8GLIB_SH1106
+#endif
+
 //
 // CONTROLLER TYPE: Shift register panels
 //
