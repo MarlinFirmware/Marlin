@@ -260,10 +260,11 @@
 #endif
 
 // The Z2 axis, if any, should be the next open extruder port
+// E3D BigBox Dual Z
 #ifndef Z2_STEP_PIN
-  #define Z2_STEP_PIN   _EPIN(EXTRUDERS, STEP)
-  #define Z2_DIR_PIN    _EPIN(EXTRUDERS, DIR)
-  #define Z2_ENABLE_PIN _EPIN(EXTRUDERS, ENABLE)
+  #define Z2_STEP_PIN   29 // _EPIN(EXTRUDERS, STEP)
+  #define Z2_DIR_PIN    28 // _EPIN(EXTRUDERS, DIR)
+  #define Z2_ENABLE_PIN 39 // _EPIN(EXTRUDERS, ENABLE)
 #endif
 
 #define SENSITIVE_PINS { 0, 1, \
@@ -278,4 +279,3 @@
 #define HAS_DIGIPOTSS (PIN_EXISTS(DIGIPOTSS))
 
 #endif //__PINS_H
-
