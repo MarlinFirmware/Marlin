@@ -42,7 +42,7 @@
  * here we define this default string as the date where the latest release
  * version was tagged.
  */
-#define STRING_DISTRIBUTION_DATE "2016-04-24 12:00"
+#define STRING_DISTRIBUTION_DATE "2016-06-01 16:00"
 
 /**
  * @todo: Missing documentation block
@@ -52,7 +52,7 @@
 /**
  * Defines a generic printer name to be output to the LCD after booting Marlin.
  */
-#define MACHINE_NAME "3D Printer"
+#define MACHINE_NAME "BigBox Hybrid"
 
 /**
  * The SOURCE_CODE_URL is the location where users will find the Marlin Source
@@ -60,7 +60,7 @@
  * has a distinct Github fork— the Source Code URL should just be the main
  * Marlin repository.
  */
-#define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+#define SOURCE_CODE_URL "https://github.com/BigBox3D/Marlin-Hybrid"
 
 /**
  * Default generic printer UUID.
@@ -71,4 +71,4 @@
  * The WEBSITE_URL is the location where users can get more information such as
  * documentation about a specific Marlin release.
  */
-#define WEBSITE_URL "http://marlinfw.org"
+#define WEBSITE_URL "http://e3d-online.com"
