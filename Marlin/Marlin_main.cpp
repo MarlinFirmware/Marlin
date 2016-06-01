@@ -288,11 +288,11 @@ static int cmd_queue_index_w = 0;
 static int commands_in_queue = 0;
 static char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
-#if ENABLED(USE_G20G21)
+#if ENABLED(INCH_MODE_SUPPORT)
   float linear_unit_modifier = 1.0;
   float volumetric_unit_modifier = 1.0;
 #endif
-#if ENABLED(USE_M149)
+#if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   TempUnit input_temp_units = TEMPUNIT_C;
 #endif
 
@@ -1201,7 +1201,7 @@ uint8_t code_value_byte() { return (uint8_t)(constrain(strtol(seen_pointer + 1, 
 
 bool code_value_bool() { return code_value_byte() > 0; }
 
-#if ENABLED(USE_G20G21)
+#if ENABLED(INCH_MODE_SUPPORT)
   void set_input_linear_units(LinearUnit units) {
     switch (units) {
       case LINEARUNIT_INCH:
@@ -1238,7 +1238,7 @@ bool code_value_bool() { return code_value_byte() > 0; }
   float code_value_axis_units(int axis) { return code_value_float(); }
 #endif
 
-#if ENABLED(USE_M149)
+#if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   void set_input_temp_units(TempUnit units) {
     input_temp_units = units;
   }
@@ -2705,7 +2705,7 @@ inline void gcode_G4() {
 
 #endif //FWRETRACT
 
-#if ENABLED(USE_G20G21)
+#if ENABLED(INCH_MODE_SUPPORT)
   /**
    * G20: Set input mode to inches
    */
@@ -5032,7 +5032,7 @@ inline void gcode_M140() {
 
 #endif
 
-#if ENABLED(USE_M149)
+#if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   /**
    * M149: Set temperature units
    */
@@ -6834,7 +6834,7 @@ void process_next_command() {
 
       #endif // FWRETRACT
 
-      #if ENABLED(USE_G20G21)
+      #if ENABLED(INCH_MODE_SUPPORT)
         case 20: //G20: Inch Mode
           gcode_G20();
           break;
@@ -7102,7 +7102,7 @@ void process_next_command() {
 
       #endif
 
-      #if ENABLED(USE_M149)
+      #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
         case 149:
           gcode_M149();
           break;

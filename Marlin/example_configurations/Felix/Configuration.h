@@ -735,12 +735,12 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // G20/G21 Inch mode support
 //
-#define USE_G20G21
+//#define INCH_MODE_SUPPORT
 
 //
 // M149 Set temperature units support
 //
-#define USE_M149
+//#define TEMPERATURE_UNITS_SUPPORT
 
 // @section temperature
 
