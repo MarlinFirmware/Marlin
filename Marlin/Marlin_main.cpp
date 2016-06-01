@@ -2327,6 +2327,17 @@ static void homeaxis(AxisEnum axis) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> SERVO_ENDSTOPS > Stow with servo.move()");
         #endif
+        // Raise the servo probe before stow outside ABL context... This is a workaround that allows the use of a Servo Probe without ABL until a more global probe handling is implemented.
+        #if DISABLED(AUTO_BED_LEVELING_FEATURE)
+          #ifndef Z_RAISE_AFTER_PROBING
+            #define Z_RAISE_AFTER_PROBING 15                 // default height
+          #endif
+          current_position[Z_AXIS] = Z_RAISE_AFTER_PROBING;
+          feedrate = homing_feedrate[Z_AXIS];
+          line_to_current_position();
+          stepper.synchronize();
+        #endif
+
         servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][1]);
         if (_Z_PROBE_SUBTEST) endstops.enable_z_probe(false);
       }
