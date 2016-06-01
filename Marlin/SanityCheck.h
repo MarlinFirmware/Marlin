@@ -138,9 +138,10 @@
     #error EXTRUDERS must be 1 with Y_DUAL_STEPPER_DRIVERS.
   #endif
 
-  #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-    #error EXTRUDERS must be 1 with Z_DUAL_STEPPER_DRIVERS.
-  #endif
+ // E3D BigBox Dual Extruders 
+ // #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
+ //   #error EXTRUDERS must be 1 with Z_DUAL_STEPPER_DRIVERS.
+ //  #endif
 
 #endif // EXTRUDERS > 1
 
