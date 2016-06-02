@@ -349,6 +349,10 @@
     #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
     #define MIN_PROBE_Y (max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
     #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #else
+    #ifndef Z_RAISE_AFTER_PROBING
+      #define Z_RAISE_AFTER_PROBING 15
+    #endif
   #endif
 
   #define HAS_Z_ENDSTOP_SERVO (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
@@ -732,7 +736,7 @@
       #define Z_ENDSTOP_SERVO_NR -1
     #endif
     #if X_ENDSTOP_SERVO_NR >= 0 || Y_ENDSTOP_SERVO_NR >= 0 || HAS_Z_ENDSTOP_SERVO
-      #define HAS_SERVO_ENDSTOPS true
+      #define HAS_SERVO_ENDSTOPS
       #define SERVO_ENDSTOP_IDS { X_ENDSTOP_SERVO_NR, Y_ENDSTOP_SERVO_NR, Z_ENDSTOP_SERVO_NR }
     #endif
   #endif
