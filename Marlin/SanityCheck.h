@@ -174,7 +174,7 @@
 /**
  * Servo deactivation depends on servo endstops
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_SERVO_ENDSTOPS
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && DISABLED(HAS_SERVO_ENDSTOPS)
   #error "At least one of the ?_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
