@@ -1716,23 +1716,18 @@ static void lcd_control_volumetric_menu() {
   static void lcd_set_contrast() {
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
-      #if ENABLED(U8GLIB_LM6059_AF)
-        lcd_contrast += encoderPosition;
-        lcd_contrast &= 0xFF;
-      #else
-        lcd_contrast -= encoderPosition;
-        lcd_contrast &= 0x3F;
-      #endif
+      set_lcd_contrast(lcd_contrast + encoderPosition);
       encoderPosition = 0;
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-      u8g.setContrast(lcd_contrast);
     }
     if (lcdDrawUpdate) {
-      #if ENABLED(U8GLIB_LM6059_AF)
-        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr3(lcd_contrast));
-      #else
-        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
-      #endif
+      lcd_implementation_drawedit(PSTR(MSG_CONTRAST),
+        #if LCD_CONTRAST_MAX >= 100
+          itostr3(lcd_contrast)
+        #else
+          itostr2(lcd_contrast)
+        #endif
+      );
     }
     if (LCD_CLICKED) lcd_goto_previous_menu(true);
   }
@@ -2384,8 +2379,8 @@ void lcd_setalertstatuspgm(const char* message) {
 void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
 #if HAS_LCD_CONTRAST
-  void lcd_setcontrast(uint8_t value) {
-    lcd_contrast = value & 0x3F;
+  void set_lcd_contrast(int value) {
+    lcd_contrast = constrain(value, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX);
     u8g.setContrast(lcd_contrast);
   }
 #endif

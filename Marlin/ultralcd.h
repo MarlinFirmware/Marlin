@@ -53,7 +53,7 @@
 
   #if ENABLED(DOGLCD)
     extern int lcd_contrast;
-    void lcd_setcontrast(uint8_t value);
+    void set_lcd_contrast(int value);
   #endif
 
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
