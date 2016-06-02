@@ -585,7 +585,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     #define ABL_PROBE_PT_3_X 170
     #define ABL_PROBE_PT_3_Y 20
 
-  #endif // AUTO_BED_LEVELING_GRID
+  #endif // !AUTO_BED_LEVELING_GRID
 
   // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
   // X and Y offsets must be integers.
