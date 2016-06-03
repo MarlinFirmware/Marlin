@@ -139,15 +139,12 @@
 #if ENABLED(U8GLIB_ST7920)
   //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
   U8GLIB_ST7920_128X64_RRD u8g(0);
-#elif ENABLED(MAKRPANEL)
-  // The MaKrPanel display, ST7565 controller as well
-  U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
-#elif ENABLED(VIKI2) || ENABLED(miniVIKI)
-  // Mini Viki and Viki 2.0 LCD, ST7565 controller as well
-  U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
 #elif ENABLED(U8GLIB_LM6059_AF)
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);
+#elif ENABLED(MAKRPANEL) || ENABLED(VIKI2) || ENABLED(miniVIKI)
+  // The MaKrPanel, Mini Viki, and Viki 2.0, ST7565 controller as well
+  U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
 #elif ENABLED(U8GLIB_SSD1306)
   // Generic support for SSD1306 OLED I2C LCDs
   U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE | U8G_I2C_OPT_FAST);
