@@ -5894,20 +5894,22 @@ inline void gcode_M400() { stepper.synchronize(); }
 
 #endif // FILAMENT_WIDTH_SENSOR
 
-void set_current_position_from_planner() {
-  stepper.synchronize();
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    vector_3 pos = planner.adjusted_position(); // values directly from steppers...
-    current_position[X_AXIS] = pos.x;
-    current_position[Y_AXIS] = pos.y;
-    current_position[Z_AXIS] = pos.z;
-  #else
-    current_position[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
-    current_position[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
-    current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
-  #endif
-  sync_plan_position();                       // ...re-apply to planner position
-}
+#if DISABLED(DELTA) && DISABLED(SCARA)
+  void set_current_position_from_planner() {
+    stepper.synchronize();
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+      vector_3 pos = planner.adjusted_position(); // values directly from steppers...
+      current_position[X_AXIS] = pos.x;
+      current_position[Y_AXIS] = pos.y;
+      current_position[Z_AXIS] = pos.z;
+    #else
+      current_position[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
+      current_position[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
+      current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
+    #endif
+    sync_plan_position();                       // ...re-apply to planner position
+  }
+#endif
 
 /**
  * M410: Quickstop - Abort all planned moves
@@ -5917,7 +5919,9 @@ void set_current_position_from_planner() {
  */
 inline void gcode_M410() {
   stepper.quick_stop();
-  set_current_position_from_planner();
+  #if DISABLED(DELTA) && DISABLED(SCARA)
+    set_current_position_from_planner();
+  #endif
 }
 
 
