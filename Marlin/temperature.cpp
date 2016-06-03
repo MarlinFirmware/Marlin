@@ -48,6 +48,145 @@
 
 Temperature thermalManager;
 
+// public:
+
+int Temperature::current_temperature_raw[EXTRUDERS] = { 0 };
+float Temperature::current_temperature[EXTRUDERS] = { 0.0 };
+int Temperature::target_temperature[EXTRUDERS] = { 0 };
+
+int Temperature::current_temperature_bed_raw = 0;
+float Temperature::current_temperature_bed = 0.0;
+int Temperature::target_temperature_bed = 0;
+
+#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+  float Temperature::redundant_temperature = 0.0;
+#endif
+
+unsigned char Temperature::soft_pwm_bed;
+
+#if ENABLED(FAN_SOFT_PWM)
+  unsigned char Temperature::fanSpeedSoftPwm[FAN_COUNT];
+#endif
+
+#if ENABLED(PIDTEMP)
+  #if ENABLED(PID_PARAMS_PER_EXTRUDER)
+    float Temperature::Kp[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Kp),
+          Temperature::Ki[EXTRUDERS] = ARRAY_BY_EXTRUDERS1((DEFAULT_Ki) * (PID_dT)),
+          Temperature::Kd[EXTRUDERS] = ARRAY_BY_EXTRUDERS1((DEFAULT_Kd) / (PID_dT));
+    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      float Temperature::Kc[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Kc);
+    #endif
+  #else
+    float Temperature::Kp = DEFAULT_Kp,
+          Temperature::Ki = (DEFAULT_Ki) * (PID_dT),
+          Temperature::Kd = (DEFAULT_Kd) / (PID_dT);
+    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      float Temperature::Kc = DEFAULT_Kc;
+    #endif
+  #endif
+#endif
+
+#if ENABLED(PIDTEMPBED)
+  float Temperature::bedKp = DEFAULT_bedKp,
+        Temperature::bedKi = ((DEFAULT_bedKi) * PID_dT),
+        Temperature::bedKd = ((DEFAULT_bedKd) / PID_dT);
+#endif
+
+#if ENABLED(BABYSTEPPING)
+  volatile int Temperature::babystepsTodo[3] = { 0 };
+#endif
+
+#if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+  int Temperature::watch_target_temp[EXTRUDERS] = { 0 };
+  millis_t Temperature::watch_heater_next_ms[EXTRUDERS] = { 0 };
+#endif
+
+#if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_BED_TEMP_PERIOD > 0
+  int Temperature::watch_target_bed_temp = 0;
+  millis_t Temperature::watch_bed_next_ms = 0;
+#endif
+
+#if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+  float Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
+#endif
+
+// private:
+
+#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+  int Temperature::redundant_temperature_raw = 0;
+  float Temperature::redundant_temperature = 0.0;
+#endif
+
+volatile bool Temperature::temp_meas_ready = false;
+
+#if ENABLED(PIDTEMP)
+  float Temperature::temp_iState[EXTRUDERS] = { 0 };
+  float Temperature::temp_dState[EXTRUDERS] = { 0 };
+  float Temperature::pTerm[EXTRUDERS];
+  float Temperature::iTerm[EXTRUDERS];
+  float Temperature::dTerm[EXTRUDERS];
+
+  #if ENABLED(PID_ADD_EXTRUSION_RATE)
+    float Temperature::cTerm[EXTRUDERS];
+    long Temperature::last_position[EXTRUDERS];
+    long Temperature::lpq[LPQ_MAX_LEN];
+    int Temperature::lpq_ptr = 0;
+  #endif
+
+  float Temperature::pid_error[EXTRUDERS];
+  float Temperature::temp_iState_min[EXTRUDERS];
+  float Temperature::temp_iState_max[EXTRUDERS];
+  bool Temperature::pid_reset[EXTRUDERS];
+#endif
+
+#if ENABLED(PIDTEMPBED)
+  float Temperature::temp_iState_bed = { 0 };
+  float Temperature::temp_dState_bed = { 0 };
+  float Temperature::pTerm_bed;
+  float Temperature::iTerm_bed;
+  float Temperature::dTerm_bed;
+  float Temperature::pid_error_bed;
+  float Temperature::temp_iState_min_bed;
+  float Temperature::temp_iState_max_bed;
+#else
+  millis_t Temperature::next_bed_check_ms;
+#endif
+
+unsigned long Temperature::raw_temp_value[4] = { 0 };
+unsigned long Temperature::raw_temp_bed_value = 0;
+
+// Init min and max temp with extreme values to prevent false errors during startup
+int Temperature::minttemp_raw[EXTRUDERS] = ARRAY_BY_EXTRUDERS(HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP);
+int Temperature::maxttemp_raw[EXTRUDERS] = ARRAY_BY_EXTRUDERS(HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP);
+int Temperature::minttemp[EXTRUDERS] = { 0 };
+int Temperature::maxttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(16383);
+
+#ifdef BED_MINTEMP
+  int Temperature::bed_minttemp_raw = HEATER_BED_RAW_LO_TEMP;
+#endif
+
+#ifdef BED_MAXTEMP
+  int Temperature::bed_maxttemp_raw = HEATER_BED_RAW_HI_TEMP;
+#endif
+
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  int Temperature::meas_shift_index;  // Index of a delayed sample in buffer
+#endif
+
+#if HAS_AUTO_FAN
+  millis_t Temperature::next_auto_fan_check_ms;
+#endif
+
+unsigned char Temperature::soft_pwm[EXTRUDERS];
+
+#if ENABLED(FAN_SOFT_PWM)
+  unsigned char Temperature::soft_pwm_fan[FAN_COUNT];
+#endif
+
+#if ENABLED(FILAMENT_WIDTH_SENSOR)
+  int Temperature::current_raw_filwidth = 0;  //Holds measured filament diameter - one extruder only
+#endif
+
 #if HAS_PID_HEATING
 
   void Temperature::PID_autotune(float temp, int extruder, int ncycles, bool set_result/*=false*/) {
@@ -283,31 +422,9 @@ Temperature thermalManager;
 
 #endif // HAS_PID_HEATING
 
-#if ENABLED(PIDTEMP)
-
-  #if ENABLED(PID_PARAMS_PER_EXTRUDER)
-
-    float Temperature::Kp[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Kp),
-          Temperature::Ki[EXTRUDERS] = ARRAY_BY_EXTRUDERS1((DEFAULT_Ki) * (PID_dT)),
-          Temperature::Kd[EXTRUDERS] = ARRAY_BY_EXTRUDERS1((DEFAULT_Kd) / (PID_dT));
-
-    #if ENABLED(PID_ADD_EXTRUSION_RATE)
-      float Temperature::Kc[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_Kc);
-    #endif
-
-  #else
-
-    float Temperature::Kp = DEFAULT_Kp,
-          Temperature::Ki = (DEFAULT_Ki) * (PID_dT),
-          Temperature::Kd = (DEFAULT_Kd) / (PID_dT);
-
-    #if ENABLED(PID_ADD_EXTRUSION_RATE)
-      float Temperature::Kc = DEFAULT_Kc;
-    #endif
-
-  #endif
-
-#endif
+/**
+ * Class and Instance Methods
+ */
 
 Temperature::Temperature() { }
 
@@ -1045,7 +1162,17 @@ void Temperature::init() {
 
 #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED
 
-  void Temperature::thermal_runaway_protection(TRState* state, millis_t* timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc) {
+  #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+    Temperature::TRState Temperature::thermal_runaway_state_machine[EXTRUDERS] = { TRInactive };
+    millis_t Temperature::thermal_runaway_timer[EXTRUDERS] = { 0 };
+  #endif
+
+  #if HAS_THERMALLY_PROTECTED_BED
+    Temperature::TRState Temperature::thermal_runaway_bed_state_machine = TRInactive;
+    millis_t Temperature::thermal_runaway_bed_timer;
+  #endif
+
+  void Temperature::thermal_runaway_protection(Temperature::TRState* state, millis_t* timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc) {
 
     static float tr_target_temperature[EXTRUDERS + 1] = { 0.0 };
 
@@ -1242,7 +1369,7 @@ void Temperature::set_current_temp_raw() {
  *  - Check new temperature values for MIN/MAX errors
  *  - Step the babysteps value for each axis towards 0
  */
-ISR(TIMER0_COMPB_vect) { thermalManager.isr(); }
+ISR(TIMER0_COMPB_vect) { Temperature::isr(); }
 
 void Temperature::isr() {
 
