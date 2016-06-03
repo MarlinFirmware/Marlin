@@ -645,9 +645,29 @@ static void lcd_tune_menu() {
   MENU_ITEM(back, MSG_MAIN);
 
   //
+  // Fan Speed:
+  //
+  #if FAN_COUNT > 0
+    #if HAS_FAN0
+      #if FAN_COUNT > 1
+        #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED " 1"
+      #else
+        #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED
+      #endif
+      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_1ST_FAN_SPEED, &fanSpeeds[0], 0, 255);
+    #endif
+    #if HAS_FAN1
+      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
+    #endif
+    #if HAS_FAN2
+      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
+    #endif
+  #endif // FAN_COUNT > 0
+
+  //
   // Speed:
   //
-  MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_multiplier, 10, 999);
+  //MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_multiplier, 10, 999);
 
   // Manual bed leveling, Bed Z:
   #if ENABLED(MANUAL_BED_LEVELING)
@@ -688,25 +708,7 @@ static void lcd_tune_menu() {
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
   #endif
 
-  //
-  // Fan Speed:
-  //
-  #if FAN_COUNT > 0
-    #if HAS_FAN0
-      #if FAN_COUNT > 1
-        #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED " 1"
-      #else
-        #define MSG_1ST_FAN_SPEED MSG_FAN_SPEED
-      #endif
-      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_1ST_FAN_SPEED, &fanSpeeds[0], 0, 255);
-    #endif
-    #if HAS_FAN1
-      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 2", &fanSpeeds[1], 0, 255);
-    #endif
-    #if HAS_FAN2
-      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED " 3", &fanSpeeds[2], 0, 255);
-    #endif
-  #endif // FAN_COUNT > 0
+
 
   //
   // Flow:
@@ -1098,12 +1100,12 @@ static void lcd_prepare_menu() {
   //
   // Auto Home
   //
-  MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+  //MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 
   //
   // Set Home Offsets
   //
-  MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
+  //MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
   //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 
   //
@@ -1120,8 +1122,18 @@ static void lcd_prepare_menu() {
   //
   // Move Axis
   //
-  MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+  //MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
 
+  //
+  // Move extruder
+  //
+  MENU_ITEM(submenu, MSG_MOVE_EXTR, lcd_move_menu);
+
+  //
+  // Cooldown
+  //
+  MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+  
   //
   // Disable Steppers
   //
@@ -1140,11 +1152,6 @@ static void lcd_prepare_menu() {
       MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs0);
     #endif
   #endif
-
-  //
-  // Cooldown
-  //
-  MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 
   //
   // Switch power on/off
@@ -1270,22 +1277,19 @@ static void lcd_move_e(
  *
  */
 
-#if ENABLED(DELTA) || ENABLED(SCARA)
+//#if ENABLED(DELTA) || ENABLED(SCARA)
   #define _MOVE_XYZ_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-#else
-  #define _MOVE_XYZ_ALLOWED true
-#endif
+//#else
+//  #define _MOVE_XYZ_ALLOWED true
+//#endif
 
 static void _lcd_move_menu_axis() {
   START_MENU();
   MENU_ITEM(back, MSG_MOVE_AXIS);
 
   if (_MOVE_XYZ_ALLOWED) {
-    MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
-    MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
-  }
-  if (move_menu_scale < 10.0) {
-    if (_MOVE_XYZ_ALLOWED) MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
+    //MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
+    //MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
     #if EXTRUDERS == 1
       MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
     #else
@@ -1299,9 +1303,25 @@ static void _lcd_move_menu_axis() {
       #endif
     #endif // EXTRUDERS > 1
   }
+  if (move_menu_scale < 10.0) {
+  //  if (_MOVE_XYZ_ALLOWED) MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
+  //  #if EXTRUDERS == 1
+  //    MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
+  //  #else
+   //   MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E1, lcd_move_e0);
+   //   MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E2, lcd_move_e1);
+   //     #if EXTRUDERS > 2
+   //     MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E3, lcd_move_e2);
+   //       #if EXTRUDERS > 3
+   //       MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E4, lcd_move_e3);
+    //      #endif
+   //     #endif
+ //   #endif // EXTRUDERS > 1
+  }
   END_MENU();
 }
 
+//for axis
 static void lcd_move_menu_10mm() {
   move_menu_scale = 10.0;
   _lcd_move_menu_axis();
@@ -1324,13 +1344,10 @@ static void lcd_move_menu_01mm() {
 static void lcd_move_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_PREPARE);
-
   if (_MOVE_XYZ_ALLOWED)
-    MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
-
+  MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
   MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
   MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
-  //TODO:X,Y,Z,E
   END_MENU();
 }
 
@@ -1344,11 +1361,15 @@ static void lcd_control_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_MAIN);
   MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
+  MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_1ST_FAN_SPEED, &fanSpeeds[0], 0, 255);
+  MENU_ITEM(gcode, MSG_LIGHTS_ON, PSTR("M42 P13 S255"));
+  MENU_ITEM(gcode, MSG_LIGHTS_OFF, PSTR("M42 P13 S0"));
+  MENU_ITEM(gcode, MSG_FUME_FAN_ON, PSTR("M42 P12 S255"));
+  MENU_ITEM(gcode, MSG_FUME_FAN_OFF, PSTR("M42 P12 S0"));
   MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
-  MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
+  //MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
 
   #if ENABLED(HAS_LCD_CONTRAST)
-    //MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
     MENU_ITEM(submenu, MSG_CONTRAST, lcd_set_contrast);
   #endif
   #if ENABLED(FWRETRACT)
@@ -1358,7 +1379,7 @@ static void lcd_control_menu() {
     MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
   #endif
-  MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
+  //MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
   END_MENU();
 }
 
@@ -1709,23 +1730,14 @@ static void lcd_control_volumetric_menu() {
   static void lcd_set_contrast() {
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
-      #if ENABLED(U8GLIB_LM6059_AF)
         lcd_contrast += encoderPosition;
         lcd_contrast &= 0xFF;
-      #else
-        lcd_contrast -= encoderPosition;
-        lcd_contrast &= 0x3F;
-      #endif
       encoderPosition = 0;
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
       u8g.setContrast(lcd_contrast);
     }
     if (lcdDrawUpdate) {
-      #if ENABLED(U8GLIB_LM6059_AF)
-        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr3(lcd_contrast));
-      #else
-        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
-      #endif
+      lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr3(lcd_contrast));
     }
     if (LCD_CLICKED) lcd_goto_previous_menu(true);
   }
@@ -1893,36 +1905,33 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01);
 #if ENABLED(REPRAPWORLD_KEYPAD)
   static void reprapworld_keypad_move_z_up() {
     encoderPosition = 1;
-    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
     lcd_move_z();
   }
   static void reprapworld_keypad_move_z_down() {
     encoderPosition = -1;
-    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
     lcd_move_z();
   }
   static void reprapworld_keypad_move_x_left() {
     encoderPosition = -1;
-    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
     lcd_move_x();
   }
   static void reprapworld_keypad_move_x_right() {
     encoderPosition = 1;
-    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
     lcd_move_x();
   }
   static void reprapworld_keypad_move_y_down() {
     encoderPosition = 1;
-    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
     lcd_move_y();
   }
   static void reprapworld_keypad_move_y_up() {
     encoderPosition = -1;
-    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
     lcd_move_y();
   }
   static void reprapworld_keypad_move_home() {
     enqueue_and_echo_commands_P(PSTR("G28")); // move all axes home
+  }
+  static void reprapworld_keypad_move_menu() {
+    lcd_goto_menu(lcd_move_menu , 0, false);
   }
 #endif // REPRAPWORLD_KEYPAD
 
@@ -2181,20 +2190,20 @@ void lcd_update() {
 
       #if ENABLED(REPRAPWORLD_KEYPAD)
 
-        #if ENABLED(DELTA) || ENABLED(SCARA)
-          #define _KEYPAD_MOVE_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-        #else
-          #define _KEYPAD_MOVE_ALLOWED true
-        #endif
-
-        if (REPRAPWORLD_KEYPAD_MOVE_HOME)       reprapworld_keypad_move_home();
+        #define _KEYPAD_MOVE_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+       
+        if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)     reprapworld_keypad_move_z_up();
+        if (REPRAPWORLD_KEYPAD_MOVE_MENU)     reprapworld_keypad_move_menu();
+      
         if (_KEYPAD_MOVE_ALLOWED) {
-          if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)     reprapworld_keypad_move_z_up();
           if (REPRAPWORLD_KEYPAD_MOVE_Z_DOWN)   reprapworld_keypad_move_z_down();
           if (REPRAPWORLD_KEYPAD_MOVE_X_LEFT)   reprapworld_keypad_move_x_left();
           if (REPRAPWORLD_KEYPAD_MOVE_X_RIGHT)  reprapworld_keypad_move_x_right();
           if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN)   reprapworld_keypad_move_y_down();
           if (REPRAPWORLD_KEYPAD_MOVE_Y_UP)     reprapworld_keypad_move_y_up();
+        }
+        else {
+          if (REPRAPWORLD_KEYPAD_MOVE_HOME)     reprapworld_keypad_move_home();
         }
       #endif
 

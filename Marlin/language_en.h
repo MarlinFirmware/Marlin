@@ -43,6 +43,23 @@
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME " ready."
 #endif
+
+#ifndef MSG_LIGHTS_ON
+  #define MSG_LIGHTS_ON                       "Lights on"
+#endif
+#ifndef MSG_LIGHTS_OFF
+  #define MSG_LIGHTS_OFF                      "Lights off"
+#endif
+#ifndef MSG_FUME_FAN_ON
+  #define MSG_FUME_FAN_ON                     "Fume extraction on"
+#endif
+#ifndef MSG_FUME_FAN_OFF
+  #define MSG_FUME_FAN_OFF                    "Fume extraction off"
+#endif
+#ifndef MSG_MOVE_EXTR
+  #define MSG_MOVE_EXTR                       "manual extrude"
+#endif
+
 #ifndef MSG_SD_INSERTED
   #define MSG_SD_INSERTED                     "Card inserted"
 #endif
@@ -317,7 +334,7 @@
   #define MSG_TEMPERATURE                     "Temperature"
 #endif
 #ifndef MSG_MOTION
-  #define MSG_MOTION                          "Motion"
+  #define MSG_MOTION                          "Motion (advanved)"
 #endif
 #ifndef MSG_VOLUMETRIC
   #define MSG_VOLUMETRIC                      "Filament"

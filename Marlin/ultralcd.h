@@ -89,15 +89,15 @@
   #if ENABLED(ULTIPANEL) && ENABLED(REPRAPWORLD_KEYPAD)
 
     #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
-
-    #define BLEN_REPRAPWORLD_KEYPAD_F3     0
-    #define BLEN_REPRAPWORLD_KEYPAD_F2     1
-    #define BLEN_REPRAPWORLD_KEYPAD_F1     2
-    #define BLEN_REPRAPWORLD_KEYPAD_DOWN   3
-    #define BLEN_REPRAPWORLD_KEYPAD_RIGHT  4
-    #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE 5
-    #define BLEN_REPRAPWORLD_KEYPAD_UP     6
-    #define BLEN_REPRAPWORLD_KEYPAD_LEFT   7
+                                             //normal // rotated
+    #define BLEN_REPRAPWORLD_KEYPAD_F3     0 //   // 1
+    #define BLEN_REPRAPWORLD_KEYPAD_F2     2 //   // 2
+    #define BLEN_REPRAPWORLD_KEYPAD_F1     1 //   // 0
+    #define BLEN_REPRAPWORLD_KEYPAD_DOWN   6 //   // 6
+    #define BLEN_REPRAPWORLD_KEYPAD_RIGHT  7 //   // 7
+    #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE 5 //   // 5
+    #define BLEN_REPRAPWORLD_KEYPAD_UP     3 //   // 3
+    #define BLEN_REPRAPWORLD_KEYPAD_LEFT   4 //   // 4
 
     #define EN_REPRAPWORLD_KEYPAD_F3      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F3))
     #define EN_REPRAPWORLD_KEYPAD_F2      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_F2))
@@ -115,6 +115,7 @@
     #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
     #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
     #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
+    #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
 
   #endif //ULTIPANEL && REPRAPWORLD_KEYPAD
 

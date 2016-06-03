@@ -39,6 +39,8 @@
 
 #if MB(GEN7_CUSTOM)
   #include "pins_GEN7_CUSTOM.h"
+#elif MB(CNControls_12)
+  #include "pins_CNControls_12.h"
 #elif MB(GEN7_12)
   #include "pins_GEN7_12.h"
 #elif MB(GEN7_13)
