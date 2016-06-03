@@ -246,26 +246,20 @@
   #define K1 0.95 //smoothing factor within the PID
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
+  // Ultimaker
+  #define  DEFAULT_Kp 22.2
+  #define  DEFAULT_Ki 1.08
+  #define  DEFAULT_Kd 114
 
-// Cartesio extruderV6 30W Normal
-    //#define  DEFAULT_Kp 48
-    //#define  DEFAULT_Ki 4
-    //#define  DEFAULT_Kd 146
-    
-// Cartesio extruderV6 40W Normal
-    #define  DEFAULT_Kp 18
-    #define  DEFAULT_Ki 1
-    #define  DEFAULT_Kd 100
-    
-// Cartesio extruderV6 40W Volcano
-    //#define  DEFAULT_Kp 50
-    //#define  DEFAULT_Ki 9
-    //#define  DEFAULT_Kd 70
-    
-// Cartesio extruderV6 40W Cyclops
-    //#define  DEFAULT_Kp 18
-    //#define  DEFAULT_Ki 1
-    //#define  DEFAULT_Kd 100
+  // MakerGear
+  //#define  DEFAULT_Kp 7.0
+  //#define  DEFAULT_Ki 0.1
+  //#define  DEFAULT_Kd 12
+
+  // Mendel Parts V9 on 12V
+  //#define  DEFAULT_Kp 63.0
+  //#define  DEFAULT_Ki 2.25
+  //#define  DEFAULT_Kd 440
 
 #endif // PIDTEMP
 
@@ -685,12 +679,12 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
  * MOVEMENT SETTINGS
  */
 
-#define HOMING_FEEDRATE {80,80,4000,500}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,500} //  default steps per unit for Ultimaker 
-#define DEFAULT_MAX_FEEDRATE          {300,300,5,25}    // (mm/sec)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,500}  //  default steps per unit for Ultimaker 
+#define DEFAULT_MAX_FEEDRATE          {300, 300, 5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {3000,3000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration in mm/s^2 for printing moves

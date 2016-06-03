@@ -47,6 +47,62 @@
   #define CONFIGURATION_LCD
 
 #if ENABLED(CartesioUI)
+  #define STRING_CONFIG_H_AUTHOR "(MaukCC, CartesioE)"
+  #define STRING_SPLASH_LINE1 "Cartesio" // will be shown during bootup in line1
+  #define STRING_SPLASH_LINE2 "Marlin " SHORT_BUILD_VERSION // will be shown during bootup in line 2
+  #define EXTRUDERS 3
+  #define TEMP_SENSOR_0 -1
+  #define TEMP_SENSOR_1 -1
+  #define TEMP_SENSOR_2  1
+  #define TEMP_SENSOR_3 0
+  #define TEMP_SENSOR_BED 1
+  #define TEMP_RESIDENCY_TIME 4
+  #define TEMP_BED_RESIDENCY_TIME 1
+  #define HEATER_0_MAXTEMP 415
+  #define HEATER_1_MAXTEMP 415
+  #define HEATER_2_MAXTEMP 415
+  #define HEATER_3_MAXTEMP 415
+  #define BED_MAXTEMP 165
+  #define PIDTEMP
+    // Cartesio extruderV6 40W Normal
+    #define  DEFAULT_Kp 18
+    #define  DEFAULT_Ki 1
+    #define  DEFAULT_Kd 100
+    // Cartesio extruderV6 40W Volcano
+    //#define  DEFAULT_Kp 50
+    //#define  DEFAULT_Ki 9
+    //#define  DEFAULT_Kd 70
+    // Cartesio extruderV6 40W Cyclops
+    //#define  DEFAULT_Kp 18
+    //#define  DEFAULT_Ki 1
+    //#define  DEFAULT_Kd 100
+  #define PIDTEMPBED
+    #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER
+    //24V 500W silicone heater on to 4mm glass CartesioW
+    #define  DEFAULT_bedKp 390
+    #define  DEFAULT_bedKi 70
+    #define  DEFAULT_bedKd 546
+    //24V 250W silicone heater on to 4mm glass CartesioM
+    //#define  DEFAULT_bedKp 303
+    //#define  DEFAULT_bedKi 42
+    //#define  DEFAULT_bedKd 539
+  #define EXTRUDE_MINTEMP 18
+  #define X_ENABLE_ON 1
+  #define Y_ENABLE_ON 1
+  #define Z_ENABLE_ON 1
+  #define X_MAX_POS 435
+  #define Y_MAX_POS 270
+  #define Z_MAX_POS 400
+  #define HOMING_FEEDRATE {3000, 3000, 600, 20}  
+  #define DEFAULT_AXIS_STEPS_PER_UNIT   {71.128,71.128,640,152}
+  #define DEFAULT_MAX_FEEDRATE          {200,200,20,20}
+  #define DEFAULT_MAX_ACCELERATION      {1000,1000,100,10000} 
+  #define DEFAULT_ACCELERATION          500
+  #define DEFAULT_RETRACT_ACCELERATION  10000
+  #define DEFAULT_TRAVEL_ACCELERATION   1000
+  #define DEFAULT_XYJERK                10.0 
+  #define TEMP_STAT_LEDS
+  #define MOTHERBOARD BOARD_CNControls_12
   #define DOGLCD
   #define SDSUPPORT
   #define ULTIPANEL
