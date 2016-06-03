@@ -6019,7 +6019,11 @@ inline void gcode_M428() {
   }
 
   if (!err) {
-    sync_plan_position();
+    #if ENABLED(DELTA) && ENABLED(SCARA)
+      sync_plan_position_delta();
+    #else
+      sync_plan_position();
+    #endif
     report_current_position();
     LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
     #if HAS_BUZZER
