@@ -732,7 +732,7 @@
       #define Z_ENDSTOP_SERVO_NR -1
     #endif
     #if X_ENDSTOP_SERVO_NR >= 0 || Y_ENDSTOP_SERVO_NR >= 0 || HAS_Z_ENDSTOP_SERVO
-      #define HAS_SERVO_ENDSTOPS true
+      #define HAS_SERVO_ENDSTOPS
       #define SERVO_ENDSTOP_IDS { X_ENDSTOP_SERVO_NR, Y_ENDSTOP_SERVO_NR, Z_ENDSTOP_SERVO_NR }
     #endif
   #endif
