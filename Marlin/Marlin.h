@@ -225,8 +225,11 @@ void ok_to_send();
 
 void reset_bed_level();
 void prepare_move();
-void set_current_position_from_planner();
 void kill(const char*);
+
+#if DISABLED(DELTA) && DISABLED(SCARA)
+  void set_current_position_from_planner();
+#endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   void handle_filament_runout();
