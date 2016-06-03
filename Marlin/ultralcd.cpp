@@ -482,6 +482,10 @@ inline void line_to_current(AxisEnum axis) {
 
   static void lcd_sdcard_stop() {
     stepper.quick_stop();
+    #if DISABLED(DELTA) && DISABLED(SCARA)
+      set_current_position_from_planner();
+    #endif
+    clear_command_queue();
     card.sdprinting = false;
     card.closefile();
     print_job_timer.stop();
@@ -1037,7 +1041,7 @@ void lcd_cooldown() {
     if (LCD_CLICKED) {
       _lcd_level_bed_position = 0;
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-      planner.set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       lcd_goto_menu(_lcd_level_goto_next_point, true);
     }
   }
