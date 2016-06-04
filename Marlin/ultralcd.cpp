@@ -970,7 +970,7 @@ void lcd_cooldown() {
           line_to_current(Z_AXIS);
           stepper.synchronize();
 
-          mbl.active = true;
+          mbl.has_mesh(true);
           enqueue_and_echo_commands_P(PSTR("G28"));
           lcd_return_to_status();
           //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
