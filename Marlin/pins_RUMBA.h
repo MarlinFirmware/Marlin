@@ -28,7 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if EXTRUDERS > 3
+#if EXTRUDERS > 3 || HOTENDS > 3
   #error "RUMBA supports up to 3 extruders. Comment this line to keep going."
 #endif
 

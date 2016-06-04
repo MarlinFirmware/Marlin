@@ -25,16 +25,16 @@
  *
  * Applies to the following boards:
  *
- *  RAMPS_14_EFB (Extruder, Fan, Bed)
- *  RAMPS_14_EEB (Extruder, Extruder, Bed)
- *  RAMPS_14_EFF (Extruder, Fan, Fan)
- *  RAMPS_14_EEF (Extruder, Extruder, Fan)
+ *  RAMPS_14_EFB (Hotend, Fan, Bed)
+ *  RAMPS_14_EEB (Hotend0, Hotend1, Bed)
+ *  RAMPS_14_EFF (Hotend, Fan0, Fan1)
+ *  RAMPS_14_EEF (Hotend0, Hotend1, Fan)
  *  RAMPS_14_SF  (Spindle, Controller Fan)
  *
- *  RAMPS_13_EFB (Extruder, Fan, Bed)
- *  RAMPS_13_EEB (Extruder, Extruder, Bed)
- *  RAMPS_13_EFF (Extruder, Fan, Fan)
- *  RAMPS_13_EEF (Extruder, Extruder, Fan)
+ *  RAMPS_13_EFB (Hotend, Fan, Bed)
+ *  RAMPS_13_EEB (Hotend0, Hotend1, Bed)
+ *  RAMPS_13_EFF (Hotend, Fan0, Fan1)
+ *  RAMPS_13_EEF (Hotend0, Hotend1, Fan)
  *  RAMPS_13_SF  (Spindle, Controller Fan)
  *
  *  Other pins_MYBOARD.h files may override these defaults

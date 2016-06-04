@@ -638,10 +638,10 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 1 or Bed Temperature
     //
-    #if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+    #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
       lcd.setCursor(8, 0);
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         lcd.print(LCD_STR_THERMOMETER[0]);
         LCD_TEMP_ONLY(thermalManager.degHotend(1), thermalManager.degTargetHotend(1));
       #else
@@ -649,7 +649,7 @@ static void lcd_implementation_status_screen() {
         LCD_TEMP_ONLY(thermalManager.degBed(), thermalManager.degTargetBed());
       #endif
 
-    #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+    #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
   #else // LCD_WIDTH >= 20
 
@@ -661,15 +661,15 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 1 or Bed Temperature
     //
-    #if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+    #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
       lcd.setCursor(10, 0);
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         LCD_TEMP(thermalManager.degHotend(1), thermalManager.degTargetHotend(1), LCD_STR_THERMOMETER[0]);
       #else
         LCD_TEMP(thermalManager.degBed(), thermalManager.degTargetBed(), LCD_STR_BEDTEMP[0]);
       #endif
 
-    #endif  // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+    #endif  // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
   #endif // LCD_WIDTH >= 20
 
@@ -697,7 +697,7 @@ static void lcd_implementation_status_screen() {
 
       lcd.setCursor(0, 1);
 
-      #if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
+      #if HOTENDS > 1 && TEMP_SENSOR_BED != 0
 
         // If we both have a 2nd extruder and a heated bed,
         // show the heated bed temp on the left,
@@ -717,7 +717,7 @@ static void lcd_implementation_status_screen() {
         _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
         lcd.print(ftostr4sign(current_position[Y_AXIS]));
 
-      #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+      #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
     #endif // LCD_WIDTH >= 20
 
@@ -943,7 +943,7 @@ void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
       ) leds |= LED_C;
     #endif // FAN_COUNT > 0
 
-    #if EXTRUDERS > 1
+    #if HOTENDS > 1
       if (thermalManager.degTargetHotend(1) > 0) leds |= LED_C;
     #endif
 
