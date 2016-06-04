@@ -468,46 +468,6 @@
 /**
  * Test Heater, Temp Sensor, and Extruder Pins; Sensor Type must also be set.
  */
-#if EXTRUDERS > 3
-  #if TEMP_SENSOR_3 == 0
-    #error "TEMP_SENSOR_3 is required with 4 EXTRUDERS."
-  #elif !HAS_HEATER_3
-    #error "HEATER_3_PIN not defined for this board."
-  #elif !PIN_EXISTS(TEMP_3)
-    #error "TEMP_3_PIN not defined for this board."
-  #elif !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
-    #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
-  #endif
-#elif EXTRUDERS > 2
-  #if TEMP_SENSOR_2 == 0
-    #error "TEMP_SENSOR_2 is required with 3 or more EXTRUDERS."
-  #elif !HAS_HEATER_2
-    #error "HEATER_2_PIN not defined for this board."
-  #elif !PIN_EXISTS(TEMP_2)
-    #error "TEMP_2_PIN not defined for this board."
-  #elif !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
-    #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
-  #endif
-#elif EXTRUDERS > 1
-  #if TEMP_SENSOR_1 == 0
-    #error "TEMP_SENSOR_1 is required with 2 or more EXTRUDERS."
-  #elif !PIN_EXISTS(TEMP_1)
-    #error "TEMP_1_PIN not defined for this board."
-  #elif !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
-    #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
-  #endif
-#endif
-
-#if EXTRUDERS > 1 || ENABLED(HEATERS_PARALLEL)
-  #if !HAS_HEATER_1
-    #error "HEATER_1_PIN not defined for this board."
-  #endif
-#endif
-
-#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
-  #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
-#endif
-
 #if !HAS_HEATER_0
   #error "HEATER_0_PIN not defined for this board."
 #elif !PIN_EXISTS(TEMP_0)
@@ -516,6 +476,59 @@
   #error "E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board."
 #elif TEMP_SENSOR_0 == 0
   #error "TEMP_SENSOR_0 is required."
+#endif
+
+#if HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)
+  #if !HAS_HEATER_1
+    #error "HEATER_1_PIN not defined for this board."
+  #endif
+#endif
+
+#if HOTENDS > 1
+  #if TEMP_SENSOR_1 == 0
+    #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
+  #elif !PIN_EXISTS(TEMP_1)
+    #error "TEMP_1_PIN not defined for this board."
+  #endif
+  #if HOTENDS > 2
+    #if TEMP_SENSOR_2 == 0
+      #error "TEMP_SENSOR_2 is required with 3 or more HOTENDS."
+    #elif !HAS_HEATER_2
+      #error "HEATER_2_PIN not defined for this board."
+    #elif !PIN_EXISTS(TEMP_2)
+      #error "TEMP_2_PIN not defined for this board."
+    #endif
+    #if HOTENDS > 3
+      #if TEMP_SENSOR_3 == 0
+        #error "TEMP_SENSOR_3 is required with 4 HOTENDS."
+      #elif !HAS_HEATER_3
+        #error "HEATER_3_PIN not defined for this board."
+      #elif !PIN_EXISTS(TEMP_3)
+        #error "TEMP_3_PIN not defined for this board."
+      #endif
+    #endif
+  #endif
+#endif
+
+#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
+  #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
+#endif
+
+/**
+ * Test Extruder Pins
+ */
+#if EXTRUDERS > 3
+  #if !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
+    #error E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board.
+  #endif
+#elif EXTRUDERS > 2
+  #if !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
+    #error E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board.
+  #endif
+#elif EXTRUDERS > 1
+  #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
+    #error E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board.
+  #endif
 #endif
 
 /**
@@ -574,6 +587,12 @@
   #error "Z_DUAL_ENDSTOPS settings are simplified. Just set Z2_USE_ENDSTOP to the endstop you want to repurpose for Z2"
 #elif defined(LANGUAGE_INCLUDE)
   #error "LANGUAGE_INCLUDE has been replaced by LCD_LANGUAGE. Please update your configuration."
+#elif defined(EXTRUDER_OFFSET_X) || defined(EXTRUDER_OFFSET_Y)
+  #error "EXTRUDER_OFFSET_[XY] is deprecated. Use HOTEND_OFFSET_[XY] instead."
+#elif defined(PID_PARAMS_PER_EXTRUDER)
+  #error "PID_PARAMS_PER_EXTRUDER is deprecated. Use PID_PARAMS_PER_HOTEND instead."
+#elif defined(EXTRUDER_WATTS)
+  #error "EXTRUDER_WATTS is deprecated. Use HOTEND_WATTS instead."
 #endif
 
 #endif //SANITYCHECK_H
