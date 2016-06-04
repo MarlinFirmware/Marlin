@@ -218,7 +218,8 @@
 
     #else
 
-      #define BEEPER_PIN 33  // Beeper on AUX-4
+      // Beeper on AUX-4
+      #define BEEPER_PIN 33
 
       // buttons are directly attached using AUX-2
       #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -247,7 +248,8 @@
     #endif
   #else // !NEWPANEL (Old-style panel with shift register)
 
-    #define BEEPER_PIN 33   // No Beeper added
+    // No Beeper added
+    #define BEEPER_PIN 33
 
     // Buttons are attached to a shift register
     // Not wired yet

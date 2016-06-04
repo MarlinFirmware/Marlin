@@ -105,7 +105,10 @@
         #define LCD_PINS_RS     30 //CS chip select /SS chip slave select
         #define LCD_PINS_ENABLE 29 //SID (MOSI)
         #define LCD_PINS_D4     17 //SCK (CLK) clock
-        #define BEEPER_PIN      27 // Pin 27 is taken by LED_PIN, but Melzi LED does nothing with Marlin so this can be used for BEEPER_PIN. You can use this pin with M42 instead of BEEPER_PIN.
+        // Pin 27 is taken by LED_PIN, but Melzi LED does nothing with
+        // Marlin so this can be used for BEEPER_PIN. You can use this pin
+        // with M42 instead of BEEPER_PIN.
+        #define BEEPER_PIN      27
       #else         // Sanguinololu 1.3
         #define LCD_PINS_RS      4
         #define LCD_PINS_ENABLE 17
