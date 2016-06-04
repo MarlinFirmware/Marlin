@@ -2584,22 +2584,33 @@ void lcd_update() {
 
       #if ENABLED(REPRAPWORLD_KEYPAD)
 
-        #if ENABLED(DELTA) || ENABLED(SCARA)
-          #define _KEYPAD_MOVE_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-        #else
-          #define _KEYPAD_MOVE_ALLOWED true
-        #endif
+        static uint8_t keypad_debounce = 0;
 
-        if (REPRAPWORLD_KEYPAD_MOVE_HOME)       reprapworld_keypad_move_home();
-        if (_KEYPAD_MOVE_ALLOWED) {
-          if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)     reprapworld_keypad_move_z_up();
-          if (REPRAPWORLD_KEYPAD_MOVE_Z_DOWN)   reprapworld_keypad_move_z_down();
-          if (REPRAPWORLD_KEYPAD_MOVE_X_LEFT)   reprapworld_keypad_move_x_left();
-          if (REPRAPWORLD_KEYPAD_MOVE_X_RIGHT)  reprapworld_keypad_move_x_right();
-          if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN)   reprapworld_keypad_move_y_down();
-          if (REPRAPWORLD_KEYPAD_MOVE_Y_UP)     reprapworld_keypad_move_y_up();
+        if (!REPRAPWORLD_KEYPAD_PRESSED) {
+          if (keypad_debounce > 0) keypad_debounce--;
         }
-      #endif
+        else if (!keypad_debounce) {
+          keypad_debounce = 2;
+
+          #if DISABLED(DELTA) && Z_HOME_DIR == -1
+            if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)     reprapworld_keypad_move_z_up();
+          #endif
+
+          if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
+            #if ENABLED(DELTA) || Z_HOME_DIR != -1
+              if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)   reprapworld_keypad_move_z_up();
+            #endif
+            if (REPRAPWORLD_KEYPAD_MOVE_Z_DOWN)   reprapworld_keypad_move_z_down();
+            if (REPRAPWORLD_KEYPAD_MOVE_X_LEFT)   reprapworld_keypad_move_x_left();
+            if (REPRAPWORLD_KEYPAD_MOVE_X_RIGHT)  reprapworld_keypad_move_x_right();
+            if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN)   reprapworld_keypad_move_y_down();
+            if (REPRAPWORLD_KEYPAD_MOVE_Y_UP)     reprapworld_keypad_move_y_up();
+          }
+          else {
+            if (REPRAPWORLD_KEYPAD_MOVE_HOME)     reprapworld_keypad_move_home();
+          }
+        }
+      #endif // REPRAPWORLD_KEYPAD
 
       bool encoderPastThreshold = (abs(encoderDiff) >= ENCODER_PULSES_PER_STEP);
       if (encoderPastThreshold || LCD_CLICKED) {
