@@ -978,8 +978,8 @@ void lcd_cooldown() {
           lcd_return_to_status();
           //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
           #if HAS_BUZZER
-            buzz(200, 659);
-            buzz(200, 698);
+            buzzer.tone(200, 659);
+            buzzer.tone(200, 698);
           #endif
         }
         else {
@@ -1978,25 +1978,10 @@ void lcd_quick_feedback() {
   next_button_update_ms = millis() + 500;
 
   #if ENABLED(LCD_USE_I2C_BUZZER)
-    #ifndef LCD_FEEDBACK_FREQUENCY_HZ
-      #define LCD_FEEDBACK_FREQUENCY_HZ 100
-    #endif
-    #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
-      #define LCD_FEEDBACK_FREQUENCY_DURATION_MS (1000/6)
-    #endif
     lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
   #elif PIN_EXISTS(BEEPER)
-    #ifndef LCD_FEEDBACK_FREQUENCY_HZ
-      #define LCD_FEEDBACK_FREQUENCY_HZ 5000
-    #endif
-    #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
-      #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
-    #endif
-    buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+    buzzer.tone(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
   #else
-    #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
-      #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
-    #endif
     delay(LCD_FEEDBACK_FREQUENCY_DURATION_MS);
   #endif
 }
