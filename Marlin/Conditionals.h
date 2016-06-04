@@ -61,10 +61,14 @@
     #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 
     #if ENABLED(miniVIKI)
+      #define LCD_CONTRAST_MIN  75
+      #define LCD_CONTRAST_MAX 115
       #define DEFAULT_LCD_CONTRAST 95
     #elif ENABLED(VIKI2)
       #define DEFAULT_LCD_CONTRAST 40
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+      #define LCD_CONTRAST_MIN  90
+      #define LCD_CONTRAST_MAX 130
       #define DEFAULT_LCD_CONTRAST 110
       #define U8GLIB_LM6059_AF
       #define SD_DETECT_INVERTED
@@ -245,9 +249,24 @@
    * Default LCD contrast for dogm-like LCD displays
    */
   #if ENABLED(DOGLCD)
-    #define HAS_LCD_CONTRAST (DISABLED(U8GLIB_ST7920) && DISABLED(U8GLIB_SSD1306) && DISABLED(U8GLIB_SH1106))
-    #if HAS_LCD_CONTRAST && !defined(DEFAULT_LCD_CONTRAST)
-      #define DEFAULT_LCD_CONTRAST 32
+
+    #define HAS_LCD_CONTRAST ( \
+        ENABLED(MAKRPANEL) \
+     || ENABLED(VIKI2) \
+     || ENABLED(miniVIKI) \
+     || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+    )
+
+    #if HAS_LCD_CONTRAST
+      #ifndef LCD_CONTRAST_MIN
+        #define LCD_CONTRAST_MIN 0
+      #endif
+      #ifndef LCD_CONTRAST_MAX
+        #define LCD_CONTRAST_MAX 63
+      #endif
+      #ifndef DEFAULT_LCD_CONTRAST
+        #define DEFAULT_LCD_CONTRAST 32
+      #endif
     #endif
   #endif
 
