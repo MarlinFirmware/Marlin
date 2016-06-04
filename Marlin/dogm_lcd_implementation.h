@@ -138,6 +138,9 @@
 #if ENABLED(U8GLIB_ST7920)
   //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
   U8GLIB_ST7920_128X64_RRD u8g(0);
+#elif defined(CartesioUI)
+  // The CartesioUI display with SW-SPI
+  U8GLIB_DOGM128 u8g(DOGLCD_sck, DOGLCD_mosi, DOGLCD_cs, DOGLCD_a0);  
 #elif ENABLED(MAKRPANEL)
   // The MaKrPanel display, ST7565 controller as well
   U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);

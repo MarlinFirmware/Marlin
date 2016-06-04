@@ -46,6 +46,21 @@
 
   #define CONFIGURATION_LCD
 
+  #if ENABLED(CartesioUI)
+    #define DOGLCD
+    #define SDSUPPORT
+    #define ULTIPANEL
+    #define NEWPANEL
+    #define DEFAULT_LCD_CONTRAST               90
+    #define ENCODER_PULSES_PER_STEP            2
+    #define ENCODER_STEPS_PER_MENU_ITEM        1
+    #define SPEAKER
+    #define LCD_FEEDBACK_FREQUENCY_HZ          1000  // this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
+    #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click. 0 to disable buzzer feedback 
+    #define REPRAPWORLD_KEYPAD
+    #define MACHINE_NAME CartesioE12
+  #endif
+
   #if ENABLED(MAKRPANEL)
     #define DOGLCD
     #define DEFAULT_LCD_CONTRAST 17
