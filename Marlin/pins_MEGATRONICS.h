@@ -74,7 +74,8 @@
 #define TEMP_1_PIN         15   // ANALOG NUMBERING
 #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
-#define BEEPER_PIN         33   // AUX-4
+// AUX-4
+#define BEEPER_PIN         33
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
