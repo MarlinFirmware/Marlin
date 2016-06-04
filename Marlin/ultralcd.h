@@ -123,6 +123,17 @@
     #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
     #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
 
+    #define REPRAPWORLD_KEYPAD_PRESSED      (buttons_reprapworld_keypad & ( \
+                                              EN_REPRAPWORLD_KEYPAD_F3 | \
+                                              EN_REPRAPWORLD_KEYPAD_F2 | \
+                                              EN_REPRAPWORLD_KEYPAD_F1 | \
+                                              EN_REPRAPWORLD_KEYPAD_DOWN | \
+                                              EN_REPRAPWORLD_KEYPAD_RIGHT | \
+                                              EN_REPRAPWORLD_KEYPAD_MIDDLE | \
+                                              EN_REPRAPWORLD_KEYPAD_UP | \
+                                              EN_REPRAPWORLD_KEYPAD_LEFT) \
+                                            )
+
   #endif // REPRAPWORLD_KEYPAD
 
   #if ENABLED(NEWPANEL)
