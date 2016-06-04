@@ -1703,6 +1703,7 @@ void z_probe_leveling()
             set_bed_level_equation_lsq(plane_equation_coefficients);
 
             #ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
+            #ifndef DOGLCD
             strcpy(msgscreen_1,"coeff a = ");
             strcat(msgscreen_1,ftostr43(plane_equation_coefficients[0]));
             strcpy(msgscreen_2,"coeff b = ");
@@ -1710,6 +1711,7 @@ void z_probe_leveling()
             strcpy(msgscreen_3,"coeff d = ");
             strcat(msgscreen_3,ftostr43(plane_equation_coefficients[2]));
             lcd_display_msg_modal();
+            #endif
             #endif
             
             free(plane_equation_coefficients);

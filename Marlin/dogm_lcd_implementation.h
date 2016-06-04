@@ -38,6 +38,9 @@
 #include "dogm_font_data_marlin.h"
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
+#include "LiquidCrystal.h"
+#define LCD_CLASS LiquidCrystal
+LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7);  //RS, enable, D4, D5, D6, D7
 
 /* Russian language not supported yet, needs custom font
 
@@ -124,19 +127,9 @@ static void lcd_implementation_init()
 			u8g.drawBitmapP(0,0,START_BMPBYTEWIDTH,START_BMPHEIGHT,start_bmp);
 			// Welcome message
 			u8g.setFont(u8g_font_6x10_marlin);
-			u8g.drawStr(62,10,"MARLIN"); 
+			u8g.drawStr(62,10,CUSTOM_MACHINE_NAME); 
 			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,19,"V1.0.2");
-			u8g.setFont(u8g_font_6x10_marlin);
-			u8g.drawStr(62,28,"by ErikZalm");
-			u8g.drawStr(62,41,"DOGM128 LCD");
-			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,48,"enhancements");
-			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,55,"by STB, MM");
-			u8g.drawStr(62,61,"uses u");
-			u8g.drawStr90(92,57,"8");
-			u8g.drawStr(100,61,"glib");
+			u8g.drawStr(62,19,STRING_VERSION);
 	   } while( u8g.nextPage() );
 }
 
@@ -210,12 +203,16 @@ static void lcd_implementation_status_screen()
    {
 	// Progress bar
 	u8g.drawBox(55,50, (unsigned int)( (71 * card.percentDone())/100) ,2);
+  // Percent complete
+  u8g.setPrintPos(60,47);
+  u8g.print(itostr3(card.percentDone()));
+  u8g.print("%");
    }
     else {
 			// do nothing
 		 }
  
- u8g.setPrintPos(80,47);
+ u8g.setPrintPos(90,47);
  if(starttime != 0)
     {
         uint16_t time = millis()/60000 - starttime/60000;
@@ -260,19 +257,22 @@ static void lcd_implementation_status_screen()
  u8g.drawPixel(8,33);
  u8g.drawPixel(8,35);
  u8g.setPrintPos(10,37);
- u8g.print(ftostr31ns(current_position[X_AXIS]));
+ if(READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING) u8g.print("HIT");
+ else u8g.print(ftostr31ns(current_position[X_AXIS]));
  u8g.setPrintPos(43,37);
  lcd_printPGM(PSTR("Y"));
  u8g.drawPixel(49,33);
  u8g.drawPixel(49,35);
  u8g.setPrintPos(51,37);
- u8g.print(ftostr31ns(current_position[Y_AXIS]));
+ if((READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING)) u8g.print("HIT");
+ else u8g.print(ftostr31ns(current_position[Y_AXIS]));
  u8g.setPrintPos(83,37);
  u8g.print("Z");
  u8g.drawPixel(89,33);
  u8g.drawPixel(89,35);
  u8g.setPrintPos(91,37);
- u8g.print(ftostr31(current_position[Z_AXIS]));
+ if((READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)) u8g.print("HIT");
+ else u8g.print(ftostr31(current_position[Z_AXIS]));
  u8g.setColorIndex(1);	// black on white
  
  // Feedrate
@@ -401,8 +401,8 @@ static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char p
 
 void lcd_implementation_drawedit(const char* pstr, char* value)
 {
-		u8g.setPrintPos(0 * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
-		u8g.setFont(u8g_font_9x18);
+		u8g.setPrintPos(1 * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
+		u8g.setFont(u8g_font_6x10_marlin);
 		lcd_printPGM(pstr);
 		u8g.print(':');
 		u8g.setPrintPos((14 - strlen(value)) * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
@@ -461,9 +461,9 @@ static void lcd_implementation_quick_feedback()
     for(int8_t i=0;i<10;i++)
     {
 		WRITE(BEEPER,HIGH);
-		delay(3);
+		delayMicroseconds(100);
 		WRITE(BEEPER,LOW);
-		delay(3);
+		delayMicroseconds(100);
     }
 #endif
 }
