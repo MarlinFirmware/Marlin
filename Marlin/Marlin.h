@@ -66,6 +66,13 @@ typedef unsigned long millis_t;
   #include "stopwatch.h"
 #endif
 
+#if HAS_BUZZER
+  #include "buzzer.h"
+  #if ENABLED(SPEAKER)
+    #include "speaker.h"
+  #endif
+#endif
+
 #ifdef USBCON
   #if ENABLED(BLUETOOTH)
     #define MYSERIAL bluetoothSerial
@@ -372,5 +379,14 @@ extern uint8_t active_extruder;
 #endif
 
 void calculate_volumetric_multipliers();
+
+// Buzzer
+#if HAS_BUZZER
+  #if ENABLED(SPEAKER)
+    extern Speaker buzzer;
+  #else
+    extern Buzzer buzzer;
+  #endif
+#endif
 
 #endif //MARLIN_H

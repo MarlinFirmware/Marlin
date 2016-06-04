@@ -59,7 +59,6 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
-#include "buzzer.h"
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
@@ -352,6 +351,15 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   PrintCounter print_job_timer = PrintCounter();
 #else
   Stopwatch print_job_timer = Stopwatch();
+#endif
+
+// Buzzer
+#if HAS_BUZZER
+  #if ENABLED(SPEAKER)
+    Speaker buzzer;
+  #else
+    Buzzer buzzer;
+  #endif
 #endif
 
 static uint8_t target_extruder;
@@ -1233,7 +1241,7 @@ inline bool code_value_bool() { return code_value_byte() > 0; }
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   inline void set_input_temp_units(TempUnit units) { input_temp_units = units; }
-  
+
   float code_value_temp_abs() {
     switch (input_temp_units) {
       case TEMPUNIT_C:
@@ -5689,10 +5697,13 @@ inline void gcode_M226() {
    * M300: Play beep sound S<frequency Hz> P<duration ms>
    */
   inline void gcode_M300() {
-    uint16_t beepS = code_seen('S') ? code_value_ushort() : 110;
-    uint32_t beepP = code_seen('P') ? code_value_ulong() : 1000;
-    if (beepP > 5000) beepP = 5000; // limit to 5 seconds
-    buzz(beepP, beepS);
+    uint16_t const frequency = code_seen('S') ? code_value_ushort() : 110;
+    uint32_t duration = code_seen('P') ? code_value_ulong() : 1000;
+
+    // Limits the tone duration to 5 seconds.
+    if (duration > 5000) duration = 5000;
+
+    buzzer.tone(duration, frequency);
   }
 
 #endif // HAS_BUZZER
@@ -6173,7 +6184,7 @@ inline void gcode_M428() {
         SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
         LCD_ALERTMESSAGEPGM("Err: Too far!");
         #if HAS_BUZZER
-          buzz(200, 40);
+          buzzer.tone(200, 40);
         #endif
         err = true;
         break;
@@ -6190,8 +6201,8 @@ inline void gcode_M428() {
     report_current_position();
     LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
     #if HAS_BUZZER
-      buzz(200, 659);
-      buzz(200, 698);
+      buzzer.tone(200, 659);
+      buzzer.tone(200, 698);
     #endif
   }
 }
@@ -8076,16 +8087,22 @@ void idle(
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
-  thermalManager.manage_heater();
+  lcd_update();
+  host_keepalive();
   manage_inactivity(
     #if ENABLED(FILAMENTCHANGEENABLE)
       no_stepper_sleep
     #endif
   );
-  host_keepalive();
-  lcd_update();
+
+  thermalManager.manage_heater();
+
   #if ENABLED(PRINTCOUNTER)
     print_job_timer.tick();
+  #endif
+
+  #if HAS_BUZZER
+    buzzer.tick();
   #endif
 }
 
