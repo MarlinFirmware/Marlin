@@ -138,9 +138,6 @@
 #if ENABLED(U8GLIB_ST7920)
   //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
   U8GLIB_ST7920_128X64_RRD u8g(0);
-#elif defined(CartesioUI)
-  // The CartesioUI display with HW-SPI
-  U8GLIB_DOGM128 u8g(DOGLCD_sck, DOGLCD_mosi, DOGLCD_cs, DOGLCD_a0);
 #elif ENABLED(MAKRPANEL)
   // The MaKrPanel display, ST7565 controller as well
   U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
@@ -249,17 +246,14 @@ static void lcd_implementation_init() {
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
-    //int offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2;
-    int offx = 57;
+    int offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2;
     #if ENABLED(START_BMPHIGH)
       int offy = 0;
     #else
-      //int offy = DOG_CHAR_HEIGHT;
-      int offy = 0;
+      int offy = DOG_CHAR_HEIGHT;
     #endif
 
-    //int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
-    int txt1X = 0;
+    int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
 
     u8g.firstPage();
     do {
@@ -269,18 +263,15 @@ static void lcd_implementation_init() {
         #ifndef STRING_SPLASH_LINE2
           u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
         #else
-          //int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
-          int txt2X = 0;
-          //u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
-          //u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
-          u8g.drawStr(txt1X, u8g.getHeight() - 28, STRING_SPLASH_LINE1);
-          u8g.drawStr(txt2X, u8g.getHeight() - 1, STRING_SPLASH_LINE2);
+          int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
+          u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
+          u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
         #endif
       }
     } while (u8g.nextPage());
 
     if (show_bootscreen) {
-      delay(2000);
+      delay(1000);
       show_bootscreen = false;
     }
   #endif
@@ -366,13 +357,9 @@ static void lcd_implementation_status_screen() {
     if (IS_SD_PRINTING) {
       // Progress bar solid part
       u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2 - (TALL_FONT_CORRECTION));
-    // Percent Complete
-      u8g.setPrintPos(55,48);
-      u8g.print(itostr3(card.percentDone()));
-      u8g.print("%"); 
     }
 
-    u8g.setPrintPos(85,48);
+    u8g.setPrintPos(80,48);
     uint16_t time = print_job_timer.duration() / 60;
     if (time != 0) {
       lcd_print(itostr2(time/60));
