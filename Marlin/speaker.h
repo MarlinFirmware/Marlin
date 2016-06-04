@@ -20,55 +20,32 @@
  *
  */
 
-#ifndef __BUZZER_H__
-#define __BUZZER_H__
+#ifndef __SPEAKER_H__
+#define __SPEAKER_H__
 
 #include "Marlin.h"
-#include "circularqueue.h"
+#include "buzzer.h"
 
-#define TONE_QUEUE_LENGTH 8
-
-struct tone_t {
-  uint16_t duration;
-  uint16_t frequency;
-};
-
-class Buzzer {
+class Speaker: public Buzzer {
   private:
+    typedef Buzzer super;
+
     struct state_t {
       tone_t   tone;
+      uint16_t period;
       uint32_t timestamp;
     } state;
 
   protected:
-    CircularQueue<tone_t> buffer
-      = CircularQueue<tone_t>(TONE_QUEUE_LENGTH);
-
-    void invert() {
-      WRITE(BEEPER_PIN, !READ(BEEPER_PIN));
-    }
-
-    void off() {
-      WRITE(BEEPER_PIN, LOW);
-    }
-
-    void on(){
-      WRITE(BEEPER_PIN, HIGH);
-    }
-
     void reset() {
-      this->off();
+      super::reset();
+      this->state.period = 0;
       this->state.timestamp = 0;
     }
 
   public:
-    Buzzer() {
-      SET_OUTPUT(BEEPER_PIN);
+    Speaker() {
       this->reset();
-    }
-
-    void tone(uint16_t const &duration, uint16_t const &frequency = 0) {
-      this->buffer.enqueue((tone_t) { duration, frequency });
     }
 
     void tick() {
@@ -77,9 +54,21 @@ class Buzzer {
 
         this->state.tone = this->buffer.dequeue();
         this->state.timestamp = millis() + this->state.tone.duration;
-        if (this->state.tone.frequency > 0) this->on();
+        // Speed up by pre-calculating the period
+        this->state.period = (1000000L / this->state.tone.frequency) >>1;
       }
+
       else if (millis() >= this->state.timestamp) this->reset();
+
+      else if (this->state.tone.frequency > 0) {
+        uint32_t const us = micros();
+        static uint32_t next = 0;
+
+        if (us >= next) {
+          next = us + this->state.period;
+          this->invert();
+        }
+      }
     }
 };
 
