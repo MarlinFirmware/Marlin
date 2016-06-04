@@ -6057,7 +6057,7 @@ inline void gcode_M428() {
   }
 
   if (!err) {
-    #if ENABLED(DELTA) && ENABLED(SCARA)
+    #if ENABLED(DELTA) || ENABLED(SCARA)
       sync_plan_position_delta();
     #else
       sync_plan_position();
