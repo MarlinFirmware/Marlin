@@ -148,7 +148,7 @@ class Stepper {
     //
     // Initialize stepper hardware
     //
-    void init();
+    static void init();
 
     //
     // Interrupt Service Routines
@@ -163,13 +163,13 @@ class Stepper {
     //
     // Block until all buffered steps are executed
     //
-    void synchronize();
+    static void synchronize();
 
     //
     // Set the current position in steps
     //
-    void set_position(const long& x, const long& y, const long& z, const long& e);
-    void set_e_position(const long& e);
+    static void set_position(const long& x, const long& y, const long& z, const long& e);
+    static void set_e_position(const long& e);
 
     //
     // Set direction bits for all steppers
@@ -179,33 +179,33 @@ class Stepper {
     //
     // Get the position of a stepper, in steps
     //
-    long position(AxisEnum axis);
+    static long position(AxisEnum axis);
 
     //
     // Report the positions of the steppers, in steps
     //
-    void report_positions();
+    static void report_positions();
 
     //
     // Get the position (mm) of an axis based on stepper position(s)
     //
-    float get_axis_position_mm(AxisEnum axis);
+    static float get_axis_position_mm(AxisEnum axis);
 
     //
     // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
     // to notify the subsystem that it is time to go to work.
     //
-    void wake_up();
+    static void wake_up();
 
     //
     // Wait for moves to finish and disable all steppers
     //
-    void finish_and_disable();
+    static void finish_and_disable();
 
     //
     // Quickly stop all steppers and clear the blocks queue
     //
-    void quick_stop();
+    static void quick_stop();
 
     //
     // The direction of a single motor
@@ -213,36 +213,36 @@ class Stepper {
     static FORCE_INLINE bool motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
 
     #if HAS_DIGIPOTSS
-      void digitalPotWrite(int address, int value);
+      static void digitalPotWrite(int address, int value);
     #endif
-    void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2);
-    void digipot_current(uint8_t driver, int current);
-    void microstep_mode(uint8_t driver, uint8_t stepping);
-    void microstep_readings();
+    static void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2);
+    static void digipot_current(uint8_t driver, int current);
+    static void microstep_mode(uint8_t driver, uint8_t stepping);
+    static void microstep_readings();
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      FORCE_INLINE void set_homing_flag(bool state) { performing_homing = state; }
-      FORCE_INLINE void set_z_lock(bool state) { locked_z_motor = state; }
-      FORCE_INLINE void set_z2_lock(bool state) { locked_z2_motor = state; }
+      static FORCE_INLINE void set_homing_flag(bool state) { performing_homing = state; }
+      static FORCE_INLINE void set_z_lock(bool state) { locked_z_motor = state; }
+      static FORCE_INLINE void set_z2_lock(bool state) { locked_z2_motor = state; }
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      void babystep(const uint8_t axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+      static void babystep(const uint8_t axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
     #endif
 
-    inline void kill_current_block() {
+    static inline void kill_current_block() {
       step_events_completed = current_block->step_event_count;
     }
 
     //
     // Handle a triggered endstop
     //
-    void endstop_triggered(AxisEnum axis);
+    static void endstop_triggered(AxisEnum axis);
 
     //
     // Triggered position of an axis in mm (not core-savvy)
     //
-    FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
+    static FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
       return endstops_trigsteps[axis] / planner.axis_steps_per_unit[axis];
     }
 
@@ -327,8 +327,8 @@ class Stepper {
       // SERIAL_ECHOLN(current_block->final_advance/256.0);
     }
 
-    void digipot_init();
-    void microstep_init();
+    static void digipot_init();
+    static void microstep_init();
 
 };
 
