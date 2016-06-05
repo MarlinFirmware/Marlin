@@ -511,6 +511,8 @@ void stop();
 void get_available_commands();
 void process_next_command();
 
+inline void sync_plan_position();
+
 #if ENABLED(ARC_SUPPORT)
   void plan_arc(float target[NUM_AXIS], float* offset, uint8_t clockwise);
 #endif
@@ -544,16 +546,6 @@ static void report_current_position();
     }
   #endif
   #define DEBUG_POS(PREFIX,VAR) do{ SERIAL_ECHOPGM(PREFIX); print_xyz(" > " STRINGIFY(VAR), VAR); }while(0)
-#endif
-
-#if ENABLED(DELTA) || ENABLED(SCARA)
-  inline void sync_plan_position_delta() {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_delta", current_position);
-    #endif
-    calculate_delta(current_position);
-    planner.set_position_mm(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-  }
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -838,7 +830,7 @@ void setup() {
 
   #if ENABLED(DELTA) || ENABLED(SCARA)
     // Vital to init kinematic equivalent for X0 Y0 Z0
-    sync_plan_position_delta();
+    sync_plan_position();
   #endif
 
   #if ENABLED(USE_WATCHDOG)
@@ -1443,18 +1435,36 @@ inline void line_to_destination(float mm_m) {
 inline void line_to_destination() {
   line_to_destination(feedrate);
 }
-/**
- * sync_plan_position
- * Set planner / stepper positions to the cartesian current_position.
- * The stepper code translates these coordinates into step units.
- * Allows translation between steps and units (mm) for cartesian & core robots
- */
-inline void sync_plan_position() {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
-  #endif
-  planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-}
+
+#if ENABLED(DELTA) || ENABLED(SCARA)
+  /**
+   * sync_plan_position
+   * Set planner / stepper positions to the cartesian current_position.
+   * The stepper code translates these coordinates into step units.
+   * Allows translation between steps and units (mm) for delta & scara
+   */
+  inline void sync_plan_position() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
+    #endif
+    calculate_delta(current_position);
+    planner.set_position_mm(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+  }
+#else
+  /**
+   * sync_plan_position
+   * Set planner / stepper positions to the cartesian current_position.
+   * The stepper code translates these coordinates into step units.
+   * Allows translation between steps and units (mm) for cartesian & core robots
+   */
+  inline void sync_plan_position() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
+    #endif
+    planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+  }
+#endif
+
 inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
@@ -1598,7 +1608,7 @@ static void setup_for_endstop_move() {
         if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe (DELTA) 2", current_position);
       #endif
 
-      sync_plan_position_delta();
+      sync_plan_position();
 
     #else // !DELTA
 
@@ -2380,11 +2390,7 @@ static void homeaxis(AxisEnum axis) {
 
       if (retract_zlift > 0.01) {
         current_position[Z_AXIS] -= retract_zlift;
-        #if ENABLED(DELTA)
-          sync_plan_position_delta();
-        #else
-          sync_plan_position();
-        #endif
+        sync_plan_position();
         prepare_move();
       }
     }
@@ -2392,11 +2398,7 @@ static void homeaxis(AxisEnum axis) {
 
       if (retract_zlift > 0.01) {
         current_position[Z_AXIS] += retract_zlift;
-        #if ENABLED(DELTA)
-          sync_plan_position_delta();
-        #else
-          sync_plan_position();
-        #endif
+        sync_plan_position();
       }
 
       feedrate = retract_recover_feedrate * 60;
@@ -2691,7 +2693,7 @@ inline void gcode_G28() {
     HOMEAXIS(Y);
     HOMEAXIS(Z);
 
-    sync_plan_position_delta();
+    sync_plan_position();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("(DELTA)", current_position);
@@ -2939,7 +2941,7 @@ inline void gcode_G28() {
   #endif // else DELTA
 
   #if ENABLED(SCARA)
-    sync_plan_position_delta();
+    sync_plan_position();
   #endif
 
   #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
@@ -3794,16 +3796,11 @@ inline void gcode_G92() {
       }
     }
   }
-  if (didXYZ) {
-    #if ENABLED(DELTA) || ENABLED(SCARA)
-      sync_plan_position_delta();
-    #else
-      sync_plan_position();
-    #endif
-  }
-  else if (didE) {
+
+  if (didXYZ)
+    sync_plan_position();
+  else if (didE)
     sync_plan_position_e();
-  }
 }
 
 #if ENABLED(ULTIPANEL)
@@ -6065,11 +6062,7 @@ inline void gcode_M428() {
   }
 
   if (!err) {
-    #if ENABLED(DELTA) || ENABLED(SCARA)
-      sync_plan_position_delta();
-    #else
-      sync_plan_position();
-    #endif
+    sync_plan_position();
     report_current_position();
     LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
     #if HAS_BUZZER
@@ -6581,11 +6574,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
       #endif // !DUAL_X_CARRIAGE
 
       // Tell the planner the new "current position"
-      #if ENABLED(DELTA)
-        sync_plan_position_delta();
-      #else
-        sync_plan_position();
-      #endif
+      sync_plan_position();
 
       // Move to the "old position" (move the extruder into place)
       if (IsRunning()) prepare_move();
