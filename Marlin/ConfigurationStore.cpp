@@ -418,9 +418,9 @@ void Config_ResetDefault()
 #ifdef ENABLE_AUTO_BED_LEVELING
     zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 #endif
-#ifdef DOGLCD
-    lcd_contrast = DEFAULT_LCD_CONTRAST;
-#endif
+//#ifdef DOGLCD
+//    lcd_contrast = DEFAULT_LCD_CONTRAST;
+//#endif
 #ifdef PIDTEMP
     Kp = DEFAULT_Kp;
     Ki = scalePID_i(DEFAULT_Ki);
