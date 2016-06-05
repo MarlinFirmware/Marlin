@@ -1178,14 +1178,14 @@ bool code_has_value() {
 
 float code_value_float() {
   float ret;
-  char *e = strchr(seen_pointer, 'E');
+  char* e = strchr(seen_pointer, 'E');
   if (e) {
     *e = 0;
-    ret = strtod(seen_pointer+1, NULL);
+    ret = strtod(seen_pointer + 1, NULL);
     *e = 'E';
   }
   else
-    ret = strtod(seen_pointer+1, NULL);
+    ret = strtod(seen_pointer + 1, NULL);
   return ret;
 }
 
