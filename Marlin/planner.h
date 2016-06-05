@@ -189,6 +189,8 @@ class Planner {
      */
     static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
+    static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
+
     #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
 
       #if ENABLED(AUTO_BED_LEVELING_FEATURE)
