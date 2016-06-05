@@ -93,7 +93,7 @@ volatile unsigned long Stepper::step_events_completed = 0; // The number of step
   unsigned char Stepper::old_OCR0A;
   long  Stepper::final_advance = 0,
         Stepper::old_advance = 0,
-        Stepper::e_steps[4],
+        Stepper::e_steps[EXTRUDERS],
         Stepper::advance_rate,
         Stepper::advance;
 #endif
@@ -661,7 +661,7 @@ void Stepper::init() {
       CBI(TCCR0A, WGM01);
       CBI(TCCR0A, WGM00);
     #endif
-    e_steps[0] = e_steps[1] = e_steps[2] = e_steps[3] = 0;
+    for (uint8_t i = 0; i < EXTRUDERS; i++) e_steps[i] = 0;
     SBI(TIMSK0, OCIE0A);
   #endif //ADVANCE
 
