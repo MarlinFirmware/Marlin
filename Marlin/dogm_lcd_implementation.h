@@ -41,7 +41,7 @@
 #include "LiquidCrystal.h"
 #define LCD_CLASS LiquidCrystal
 LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7);  //RS, enable, D4, D5, D6, D7
- 
+
 /* Russian language not supported yet, needs custom font
 
 #ifdef LANGUAGE_RU
@@ -127,21 +127,9 @@ static void lcd_implementation_init()
 			u8g.drawBitmapP(0,0,START_BMPBYTEWIDTH,START_BMPHEIGHT,start_bmp);
 			// Welcome message
 			u8g.setFont(u8g_font_6x10_marlin);
-			u8g.drawStr(62,10,"MARLIN"); 
+			u8g.drawStr(62,10,CUSTOM_MACHINE_NAME); 
 			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,19,"V1.0.2");
-			u8g.setFont(u8g_font_6x10_marlin);
-			u8g.drawStr(62,28,"by ErikZalm");
-			u8g.drawStr(62,41,"DOGM128 LCD");
-      u8g.drawStr(62,10,CUSTOM_MACHINE_NAME); 
-			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,48,"enhancements");
-			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,55,"by STB, MM");
-			u8g.drawStr(62,61,"uses u");
-			u8g.drawStr90(92,57,"8");
-			u8g.drawStr(100,61,"glib");
-      u8g.drawStr(62,19,STRING_VERSION);
+			u8g.drawStr(62,19,STRING_VERSION);
 	   } while( u8g.nextPage() );
 }
 
@@ -213,12 +201,12 @@ static void lcd_implementation_status_screen()
  
  if (IS_SD_PRINTING)
    {
-	  // Progress bar
-	  u8g.drawBox(55,50, (unsigned int)( (71 * card.percentDone())/100) ,2);
-    // Percent complete
-    u8g.setPrintPos(60,47);
-    u8g.print(itostr3(card.percentDone()));
-    u8g.print("%");
+	// Progress bar
+	u8g.drawBox(55,50, (unsigned int)( (71 * card.percentDone())/100) ,2);
+  // Percent complete
+  u8g.setPrintPos(60,47);
+  u8g.print(itostr3(card.percentDone()));
+  u8g.print("%");
    }
     else {
 			// do nothing
@@ -419,9 +407,8 @@ static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char p
 
 void lcd_implementation_drawedit(const char* pstr, char* value)
 {
-	  u8g.setPrintPos(1 * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
-    u8g.setFont(u8g_font_6x10_marlin);
- 
+		u8g.setPrintPos(1 * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
+		u8g.setFont(u8g_font_6x10_marlin);
 		lcd_printPGM(pstr);
 		u8g.print(':');
 		u8g.setPrintPos((14 - strlen(value)) * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
