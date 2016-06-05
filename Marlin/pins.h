@@ -2911,7 +2911,7 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
 /*************************************
  * PICA Arduino shield configuration mjrice
  ************************************* */
-#if MB(PICA)
+#if MB(PICA) || MB(PICA_REVC)
  #define KNOWN_BOARD 1
  #define LARGE_FLASH true
 
@@ -2943,13 +2943,20 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
  #define PS_ON_PIN          -1
  #define KILL_PIN           -1
 
+ #define SSR_PIN            6
  #define HEATER_BED_PIN     8 // heat bed
+ 
+#if MB(PICA_REVC)
+ #define HEATER_0_PIN       10 // extruder 
+ #define HEATER_1_PIN       2 // second extruder
+ #define FAN_PIN            9
+ #define FAN_2_PIN          7
+#else
  #define HEATER_0_PIN       9 // extruder 
  #define HEATER_1_PIN       10 // second extruder
- 
  #define FAN_PIN            11
  #define FAN_2_PIN          12
- #define SSR_PIN            6
+#endif
 
  #define TEMP_0_PIN         9   // ANALOG NUMBERING
  #define TEMP_1_PIN         10

@@ -47,6 +47,7 @@
 #define BOARD_5DPRINT           88   // 5DPrint D8 Driver Board
 #define BOARD_LEAPFROG          999  // Leapfrog
 #define BOARD_PICA              183  // PICA Shield (mjrice)
+#define BOARD_PICA_REVC         184  // PICA Shield (revision C, a couple pins moved)
 #define BOARD_99                99   // This is in pins.h but...?
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
