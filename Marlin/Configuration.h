@@ -61,7 +61,7 @@ Here are some standard links for getting your machine calibrated:
 
 #ifdef MJRICE_BEDLEVELING_RACK
 #define NO_RETRACT_BETWEEN_PROBINGS
-#undef SERVO_ENDSTOPS
+#undef SERVO_ENDSTOPS // this option does not use servo
 #endif
 
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
@@ -84,16 +84,18 @@ Here are some standard links for getting your machine calibrated:
 // This enables the serial port associated to the Bluetooth interface
 //#define BTENABLED              // Enable BT interface on AT90USB devices
 
-#define MOTHERBOARD BOARD_PICA_REVC
-
-// The following define selects which electronics board you have.
-// Please choose the name from boards.h that matches your setup
+// --- controller board selection
+// --- Please choose the name from boards.h that matches your setup
+// if you have a RAMPS shield, don't define the next two lines.  #define BOARD_RAMPS_13_EFB below is what you want
+//#define MOTHERBOARD BOARD_PICA // define this if you have a PICA rev b shield
+//#define MOTHERBOARD BOARD_PICA_REVC // define this if you have a PICA rev C shield
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_RAMPS_13_EFB
   #ifdef GT2560
     #define MOTHERBOARD BOARD_ULTIMAKER 
   #endif
 #endif
+// ---
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
@@ -708,34 +710,24 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000         // this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
                                                  // 0 to disable buzzer feedback. Test with M300 S<frequency Hz> P<duration ms>
-// PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
-// http://reprap.org/wiki/PanelOne
-//#define PANEL_ONE
-
-// The MaKr3d Makr-Panel with graphic controller and SD support
-// http://reprap.org/wiki/MaKr3d_MaKrPanel
-//#define MAKRPANEL
-
-// The Panucatt Devices Viki 2.0 and mini Viki with Graphic LCD
-// http://panucatt.com
-// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
-//#define VIKI2
-//#define miniVIKI
 
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
-#define REPRAP_DISCOUNT_SMART_CONTROLLER
-
-// The GADGETS3D G3D LCD/SD Controller (blue PCB)
-// http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
-//#define G3D_PANEL
+#define REPRAP_DISCOUNT_SMART_CONTROLLER // this is the 20 x 4 line controller
 
 // The RepRapDiscount FULL GRAPHIC Smart Controller (quadratic white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
+//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER // this is the larger LCD controller
+
+ #ifdef REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+   #define DOGLCD
+   #define U8GLIB_ST7920
+   #define REPRAP_DISCOUNT_SMART_CONTROLLER
+ #endif
+ 
 // The RepRapWorld REPRAPWORLD_KEYPAD v1.1
 // http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
 //#define REPRAPWORLD_KEYPAD
