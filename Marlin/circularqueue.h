@@ -39,23 +39,14 @@ template<typename T> class CircularQueue {
   public:
     CircularQueue<T>(uint8_t const &length) {
       this->buffer.length = length;
-      this->buffer.queue = new T[sizeof(T) * length];
+      this->buffer.queue = new T[length];
       this->buffer.size = this->buffer.head = this->buffer.tail = 0;
-    }
-
-    bool isEmpty() {
-      return this->buffer.size == 0 ? true : false;
-    }
-
-    bool isFull() {
-      return this->buffer.size == this->buffer.length ? true : false;
     }
 
     T dequeue() {
       if (this->isEmpty()) return T();
 
-      T const item = this->buffer.queue[this->buffer.head];
-      ++this->buffer.head;
+      T const item = this->buffer.queue[this->buffer.head++];
       --this->buffer.size;
 
       if (this->buffer.head == this->buffer.length)
@@ -64,21 +55,36 @@ template<typename T> class CircularQueue {
       return item;
     }
 
-    uint8_t peek() {
-      return this->buffer.queue[buffer.head];
-    }
-
     bool enqueue(T const &item) {
       if (this->isFull()) return false;
 
-      this->buffer.queue[this->buffer.tail] = item;
+      this->buffer.queue[this->buffer.tail++] = item;
       ++this->buffer.size;
-      ++this->buffer.tail;
 
       if (this->buffer.tail == this->buffer.length)
         this->buffer.tail = 0;
 
       return true;
+    }
+
+    bool isEmpty() {
+      return this->buffer.size == 0;
+    }
+
+    bool isFull() {
+      return this->buffer.size == this->buffer.length;
+    }
+
+    uint8_t length() {
+      return this->buffer.length;
+    }
+
+    uint8_t peek() {
+      return this->buffer.queue[this->buffer.head];
+    }
+
+    uint8_t size() {
+      return this->buffer.size;
     }
 };
 

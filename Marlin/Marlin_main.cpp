@@ -5697,11 +5697,11 @@ inline void gcode_M226() {
    * M300: Play beep sound S<frequency Hz> P<duration ms>
    */
   inline void gcode_M300() {
-    uint16_t const frequency = code_seen('S') ? code_value_ushort() : 110;
-    uint32_t duration = code_seen('P') ? code_value_ulong() : 1000;
+    uint16_t const frequency = code_seen('S') ? code_value_ushort() : 260;
+    uint16_t duration = code_seen('P') ? code_value_ushort() : 1000;
 
-    // Limits the tone duration to 5 seconds.
-    if (duration > 5000) duration = 5000;
+    // Limits the tone duration to 0-5 seconds.
+    NOMORE(duration, 5000);
 
     buzzer.tone(duration, frequency);
   }

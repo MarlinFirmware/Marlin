@@ -23,10 +23,10 @@
 #ifndef __BUZZER_H__
 #define __BUZZER_H__
 
-#include "Marlin.h"
+#include "fastio.h"
 #include "circularqueue.h"
 
-#define TONE_QUEUE_LENGTH 8
+#define TONE_QUEUE_LENGTH 4
 
 struct tone_t {
   uint16_t duration;
@@ -52,7 +52,7 @@ class Buzzer {
       WRITE(BEEPER_PIN, LOW);
     }
 
-    void on(){
+    void on() {
       WRITE(BEEPER_PIN, HIGH);
     }
 
@@ -68,10 +68,11 @@ class Buzzer {
     }
 
     void tone(uint16_t const &duration, uint16_t const &frequency = 0) {
+      while (buffer.isFull()) this->tick();
       this->buffer.enqueue((tone_t) { duration, frequency });
     }
 
-    void tick() {
+    virtual void tick() {
       if (!this->state.timestamp) {
         if (this->buffer.isEmpty()) return;
 

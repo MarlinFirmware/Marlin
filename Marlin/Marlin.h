@@ -66,13 +66,6 @@ typedef unsigned long millis_t;
   #include "stopwatch.h"
 #endif
 
-#if HAS_BUZZER
-  #include "buzzer.h"
-  #if ENABLED(SPEAKER)
-    #include "speaker.h"
-  #endif
-#endif
-
 #ifdef USBCON
   #if ENABLED(BLUETOOTH)
     #define MYSERIAL bluetoothSerial
@@ -383,8 +376,10 @@ void calculate_volumetric_multipliers();
 // Buzzer
 #if HAS_BUZZER
   #if ENABLED(SPEAKER)
+    #include "speaker.h"
     extern Speaker buzzer;
   #else
+    #include "buzzer.h"
     extern Buzzer buzzer;
   #endif
 #endif

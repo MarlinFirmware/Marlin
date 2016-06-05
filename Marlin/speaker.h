@@ -23,7 +23,6 @@
 #ifndef __SPEAKER_H__
 #define __SPEAKER_H__
 
-#include "Marlin.h"
 #include "buzzer.h"
 
 class Speaker: public Buzzer {
@@ -33,14 +32,14 @@ class Speaker: public Buzzer {
     struct state_t {
       tone_t   tone;
       uint16_t period;
-      uint32_t timestamp;
+      uint16_t cycles;
     } state;
 
   protected:
     void reset() {
       super::reset();
       this->state.period = 0;
-      this->state.timestamp = 0;
+      this->state.cycles = 0;
     }
 
   public:
@@ -48,25 +47,31 @@ class Speaker: public Buzzer {
       this->reset();
     }
 
-    void tick() {
-      if (!this->state.timestamp) {
+    virtual void tick() {
+      if (!this->state.cycles) {
         if (this->buffer.isEmpty()) return;
 
+        this->reset();
         this->state.tone = this->buffer.dequeue();
-        this->state.timestamp = millis() + this->state.tone.duration;
-        // Speed up by pre-calculating the period
-        this->state.period = (1000000L / this->state.tone.frequency) >>1;
+
+        // Period is uint16, min frequency will be ~16Hz
+        this->state.period = 1000000UL / this->state.tone.frequency;
+
+        this->state.cycles =
+          (this->state.tone.duration * 1000L) / this->state.period;
+
+        this->state.period >>= 1;
+        this->state.cycles <<= 1;
+
       }
-
-      else if (millis() >= this->state.timestamp) this->reset();
-
-      else if (this->state.tone.frequency > 0) {
+      else {
         uint32_t const us = micros();
-        static uint32_t next = 0;
+        static uint32_t next = us + this->state.period;
 
         if (us >= next) {
+          --this->state.cycles;
           next = us + this->state.period;
-          this->invert();
+          if (this->state.tone.frequency > 0) this->invert();
         }
       }
     }
