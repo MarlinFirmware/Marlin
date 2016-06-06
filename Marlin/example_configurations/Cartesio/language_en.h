@@ -452,7 +452,7 @@
   #define MSG_AUTORETRACT                     "AutoRetr."
 #endif
 #ifndef MSG_FILAMENTCHANGE
-  #define MSG_FILAMENTCHANGE                  "Change filament"
+  #define MSG_FILAMENTCHANGE                  "Press dial to continue"
 #endif
 #ifndef MSG_INIT_SDCARD
   #define MSG_INIT_SDCARD                     "Init. SD card"
