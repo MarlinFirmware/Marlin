@@ -101,15 +101,8 @@
  
 
 // Other 
-  
- #define LED_PIN               -1
- #define PS_ON_PIN             -1
- #define KILL_PIN              -1
- #define Z_PROBE_PIN           -1
- 
- #define SDPOWER               -1
+
  #define SDSS                  53
  #define SD_DETECT_PIN         15
- 
  #define STAT_LED_BLUE         -1
  #define STAT_LED_RED          10 // TOOL_0_PWM_PIN 
