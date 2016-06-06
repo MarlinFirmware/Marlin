@@ -321,4 +321,10 @@ extern void digipot_i2c_init();
 #endif
 
 extern void calculate_volumetric_multipliers();
+
+#ifdef FILAMENT_RUNOUT_SENSOR
+  extern void checkRunoutSensor();
+  void filrunout();
+#endif // FILAMENT_RUNOUT_SENSOR
+
 #endif
