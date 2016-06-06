@@ -6107,8 +6107,9 @@ inline void gcode_M503() {
     }
 
     float lastpos[NUM_AXIS];
+    
     #if ENABLED(DELTA)
-      float fr60 = feedrate / 60;
+       float fr60 = feedrate / 60;
     #endif
 
     for (int i = 0; i < NUM_AXIS; i++)
