@@ -31,6 +31,8 @@
   #include "pins_GEN7_13.h"
 #elif MB(GEN7_14)
   #include "pins_GEN7_14.h"
+#elif MB(CNCONTROLS_12)
+  #include "pins_CNCONTROLS_12.h"
 #elif MB(CHEAPTRONIC)
   #include "pins_CHEAPTRONIC.h"
 #elif MB(SETHI)
