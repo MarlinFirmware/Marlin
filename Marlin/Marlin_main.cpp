@@ -7780,6 +7780,76 @@ void clamp_to_software_endstops(float target[3]) {
     return abs(distance - delta[TOWER_3]);
   }
 
+  float cartesian[3]; // result
+  void forwardKinematics(float z1, float z2, float z3) {
+    //As discussed in Wikipedia "Trilateration"
+    //we are establishing a new coordinate
+    //system in the plane of the three carriage points.
+    //This system will have the origin at tower1 and
+    //tower2 is on the x axis. tower3 is in the X-Y
+    //plane with a Z component of zero. We will define unit
+    //vectors in this coordinate system in our original
+    //coordinate system. Then when we calculate the
+    //Xnew, Ynew and Znew values, we can translate back into
+    //the original system by moving along those unit vectors
+    //by the corresponding values.
+    // https://en.wikipedia.org/wiki/Trilateration
+
+    // Variable names matched to Marlin, c-version
+    // and avoiding a vector library
+    // by Andreas Hardtung 2016-06-7
+    // based on a Java function from
+    // "Delta Robot Kinematics by Steve Graves" V3
+
+    // Result is in cartesian[].
+
+    //Create a vector in old coords along x axis of new coord
+    float p12[3] = { delta_tower2_x - delta_tower1_x, delta_tower2_y - delta_tower1_y, z2 - z1 };
+
+    //Get the Magnitude of vector.
+    float d = sqrt( p12[0]*p12[0] + p12[1]*p12[1] + p12[2]*p12[2] );
+
+    //Create unit vector by dividing by magnitude.
+    float ex[3] = { p12[0]/d, p12[1]/d, p12[2]/d };
+
+    //Now find vector from the origin of the new system to the third point.
+    float p13[3] = { delta_tower3_x - delta_tower1_x, delta_tower3_y - delta_tower1_y, z3 - z1 };
+
+    //Now use dot product to find the component of this vector on the X axis.
+    float i = ex[0]*p13[0] + ex[1]*p13[1] + ex[2]*p13[2];
+
+    //Now create a vector along the x axis that represents the x component of p13.
+    float iex[3] = { ex[0]*i,  ex[1]*i,  ex[2]*i  };
+
+    //Now subtract the X component away from the original vector leaving only the Y component. We use the
+    //variable that will be the unit vector after we scale it.
+    float ey[3] = { p13[0] - iex[0], p13[1] - iex[1], p13[2] - iex[2]};
+
+    //The magnitude of Y component
+    float j = sqrt(sq(ey[0]) + sq(ey[1]) + sq(ey[2]));
+
+    //Now make vector a unit vector
+    ey[0] /= j; ey[1] /= j;  ey[2] /= j;
+
+    //The cross product of the unit x and y is the unit z
+    //float[] ez = vectorCrossProd(ex, ey);
+    float ez[3] = { ex[1]*ey[2] - ex[2]*ey[1], ex[2]*ey[0] - ex[0]*ey[2], ex[0]*ey[1] - ex[1]*ey[0] };
+
+    //Now we have the d, i and j values defined in Wikipedia.
+    //We can plug them into the equations defined in
+    //Wikipedia for Xnew, Ynew and Znew
+    float Xnew = (delta_diagonal_rod_2_tower_1 - delta_diagonal_rod_2_tower_2 + d*d)/(d*2);
+    float Ynew = ((delta_diagonal_rod_2_tower_1 - delta_diagonal_rod_2_tower_3 + i*i + j*j)/2 - i*Xnew) /j;
+    float Znew = sqrt(delta_diagonal_rod_2_tower_1 - Xnew*Xnew - Ynew*Ynew);
+
+    //Now we can start from the origin in the old coords and
+    //add vectors in the old coords that represent the
+    //Xnew, Ynew and Znew to find the point in the old system
+    cartesian[X_AXIS] = delta_tower1_x + ex[0]*Xnew + ey[0]*Ynew - ez[0]*Znew;
+    cartesian[Y_AXIS] = delta_tower1_y + ex[1]*Xnew + ey[1]*Ynew - ez[1]*Znew;
+    cartesian[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
+  };
+
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
     // Adjust print surface height by linear interpolation over the bed_level array.
