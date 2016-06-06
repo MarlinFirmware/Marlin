@@ -50,10 +50,9 @@
 
   #if ENABLED(CARTESIO_UI)
     #define DOGLCD
-    #define SDSUPPORT
     #define ULTIPANEL
     #define NEWPANEL
-    #define DEFAULT_LCD_CONTRAST               90
+    #define DEFAULT_LCD_CONTRAST 90
   #endif
   
   #if ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)
