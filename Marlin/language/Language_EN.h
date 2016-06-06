@@ -200,7 +200,7 @@ const char EN_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Time";
 const char EN_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Completed";
 const char EN_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Failed";
 const char EN_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Bed not detected";
-const char EN_SCREEN_PTFE_TITLE[] PROGMEM               = "Maintenance reminder";
-const char EN_SCREEN_PTFE_TEXT[] PROGMEM                = "PTFE tube should be changed every 250 impresion hours";
+const char EN_SCREEN_PTFE_TITLE[] PROGMEM               = "Reminder";
+const char EN_SCREEN_PTFE_TEXT[] PROGMEM                = "Change the PTFE tube every 250 hours";
 
 #endif //LANGUAGE_EN_H
