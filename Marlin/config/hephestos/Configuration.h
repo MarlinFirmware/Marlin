@@ -870,7 +870,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
 
 //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
-#define FILAMENT_LCD_DISPLAY
+// #define FILAMENT_LCD_DISPLAY
 
 // Uncomment for defining a filament runout sensor to check the existence of filament
 //#define FILAMENT_RUNOUT_SENSOR
