@@ -80,13 +80,23 @@
 #endif
 
 /**
- * Thermal Protection parameters for the bed
- * are like the above for the hotends.
- * WATCH_TEMP_BED_PERIOD and WATCH_TEMP_BED_INCREASE are not imlemented now.
+ * Thermal Protection parameters for the bed are just as above for hotends.
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
   #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+
+  /**
+   * Whenever an M140 or M190 increases the target temperature the firmware will wait for the
+   * WATCH_BED_TEMP_PERIOD to expire, and if the temperature hasn't increased by WATCH_BED_TEMP_INCREASE
+   * degrees, the machine is halted, requiring a hard reset. This test restarts with any M140/M190,
+   * but only if the current temperature is far enough below the target for a reliable test.
+   *
+   * If you get too many "Heating failed" errors, increase WATCH_BED_TEMP_PERIOD and/or decrease
+   * WATCH_BED_TEMP_INCREASE. (WATCH_BED_TEMP_INCREASE should not be below 2.)
+   */
+  #define WATCH_BED_TEMP_PERIOD 60                // Seconds
+  #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -133,8 +143,8 @@
 
 //These defines help to calibrate the AD595 sensor in case you get wrong temperature measurements.
 //The measured temperature is defined as "actualTemp = (measuredTemp * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET"
-#define TEMP_SENSOR_AD595_OFFSET 0.0
-#define TEMP_SENSOR_AD595_GAIN   1.0
+#define TEMP_SENSOR_AD595_OFFSET 3.0
+#define TEMP_SENSOR_AD595_GAIN   2.0
 
 //This is for controlling a fan to cool down the stepper drivers
 //it will turn on when any driver is enabled
@@ -160,11 +170,11 @@
 // extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
 // Multiple extruders can be assigned to the same pin in which case
 // the fan will turn on when any selected extruder is above the threshold.
-#define EXTRUDER_0_AUTO_FAN_PIN -1
-#define EXTRUDER_1_AUTO_FAN_PIN -1
+#define EXTRUDER_0_AUTO_FAN_PIN  7
+#define EXTRUDER_1_AUTO_FAN_PIN  7
 #define EXTRUDER_2_AUTO_FAN_PIN -1
 #define EXTRUDER_3_AUTO_FAN_PIN -1
-#define EXTRUDER_AUTO_FAN_TEMPERATURE 50
+#define EXTRUDER_AUTO_FAN_TEMPERATURE 35
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
 
@@ -217,7 +227,7 @@
 // Enable this for dual x-carriage printers.
 // A dual x-carriage design has the advantage that the inactive extruder can be parked which
 // prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
-// allowing faster printing speeds.
+// allowing faster printing speeds. Connect your X2 stepper to the first unused E plug.
 //#define DUAL_X_CARRIAGE
 #if ENABLED(DUAL_X_CARRIAGE)
   // Configuration for second X-carriage
@@ -231,11 +241,6 @@
       // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
       // without modifying the firmware (through the "M218 T1 X???" command).
       // Remember: you should set the second extruder x-offset to 0 in your slicer.
-
-  // Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
-  #define X2_ENABLE_PIN 29
-  #define X2_STEP_PIN 25
-  #define X2_DIR_PIN 23
 
   // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
   //    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
@@ -268,18 +273,16 @@
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 // When G28 is called, this option will make Y home before X
-//#define HOME_Y_BEFORE_X
+#define HOME_Y_BEFORE_X
 
 // @section machine
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
-// @section machine
-
 //By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
-#define INVERT_X_STEP_PIN false
-#define INVERT_Y_STEP_PIN false
-#define INVERT_Z_STEP_PIN false
+#define INVERT_X_STEP_PIN true
+#define INVERT_Y_STEP_PIN true
+#define INVERT_Z_STEP_PIN true
 #define INVERT_E_STEP_PIN false
 
 // Default stepper release if idle. Set to 0 to deactivate.
@@ -297,7 +300,7 @@
 // @section lcd
 
 #if ENABLED(ULTIPANEL)
-  #define MANUAL_FEEDRATE {2400, 2400, 200, 400} // Feedrates for manual moves along X, Y, Z, E from panel
+  #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
   #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
 #endif
 
@@ -442,11 +445,27 @@
   #define D_FILAMENT 2.85
 #endif
 
+// @section leveling
+
+// Default mesh area is an area with an inset margin on the print area.
+// Below are the macros that are used to define the borders for the mesh area,
+// made available here for specialized needs, ie dual extruder setup.
+#if ENABLED(MESH_BED_LEVELING)
+  #define MESH_MIN_X (X_MIN_POS + MESH_INSET)
+  #define MESH_MAX_X (X_MAX_POS - (MESH_INSET))
+  #define MESH_MIN_Y (Y_MIN_POS + MESH_INSET)
+  #define MESH_MAX_Y (Y_MAX_POS - (MESH_INSET))
+#endif
+
 // @section extras
 
 // Arc interpretation settings:
+#define ARC_SUPPORT  // Disabling this saves ~2738 bytes
 #define MM_PER_ARC_SEGMENT 1
 #define N_ARC_CORRECTION 25
+
+// Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
+//#define BEZIER_CURVE_SUPPORT
 
 const unsigned int dropsegments = 5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 
@@ -506,14 +525,14 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 
 // Add support for experimental filament exchange support M600; requires display
 #if ENABLED(ULTIPANEL)
-  #define FILAMENTCHANGEENABLE
+  //#define FILAMENTCHANGEENABLE
   #if ENABLED(FILAMENTCHANGEENABLE)
-    #define FILAMENTCHANGE_XPOS 30
-    #define FILAMENTCHANGE_YPOS 10
-    #define FILAMENTCHANGE_ZADD  5
-    #define FILAMENTCHANGE_FIRSTRETRACT -1
-    //#define FILAMENTCHANGE_FINALRETRACT -100
-    //#define AUTO_FILAMENT_CHANGE                //This extrude filament until you press the button on LCD
+    #define FILAMENTCHANGE_XPOS 3
+    #define FILAMENTCHANGE_YPOS 3
+    #define FILAMENTCHANGE_ZADD 10
+    #define FILAMENTCHANGE_FIRSTRETRACT -2
+    #define FILAMENTCHANGE_FINALRETRACT -100
+    #define AUTO_FILAMENT_CHANGE                //This extrude filament until you press the button on LCD
     #define AUTO_FILAMENT_CHANGE_LENGTH 0.04    //Extrusion length on automatic extrusion loop
     #define AUTO_FILAMENT_CHANGE_FEEDRATE 300   //Extrusion feedrate (mm/min) on automatic extrusion loop
   #endif
