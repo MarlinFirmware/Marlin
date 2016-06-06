@@ -35,6 +35,10 @@
 #define Z_MIN_PIN          18
 #define Z_MAX_PIN          19
 
+#ifdef FILAMENT_RUNOUT_SENSOR
+	#define FILRUNOUT_PIN     57
+#endif // FILAMENT_RUNOUT_SENSOR
+
 #define Y2_STEP_PIN        36
 #define Y2_DIR_PIN         34
 #define Y2_ENABLE_PIN      30
