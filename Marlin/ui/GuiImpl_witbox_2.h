@@ -146,6 +146,8 @@ namespace ui
 		screen_print,
 		screen_print_action_complete,
 		screen_print_complete,
+		screen_print_maintenance_switch,
+		screen_print_maintenance_reminder,
 		screen_play_pause,
 		screen_stop_confirm,
 		screen_stop_OK,

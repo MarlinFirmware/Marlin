@@ -24,6 +24,7 @@
 
 #include "StatsManager.h"
 
+#include "Configuration.h"
 #include "StorageManager.h"
 
 StatsManager::StatsManager()
@@ -32,6 +33,7 @@ StatsManager::StatsManager()
 	, m_total_prints(0)
 	, m_succeded(0)
 	, m_print_started(false)
+	, m_ptfe_maintenance_flag(false)
 { }
 
 void StatsManager::loadStats()
@@ -65,6 +67,12 @@ void StatsManager::updateTotalTime(Time_t printTime)
 	}
 	else
 	{
+		// Check for PTFE tube maintenance
+		if( (m_hours / PTFE_CHANGE_TIME) < (new_hours / PTFE_CHANGE_TIME) )
+		{
+			m_ptfe_maintenance_flag = true;
+		}
+		
 		m_hours = new_hours;
 	}
 	
@@ -77,6 +85,7 @@ void StatsManager::updateTotalTime(Time_t printTime)
 void StatsManager::increaseTotalPrints()
 { 
 	m_print_started = true;
+
 	++m_total_prints;
 	
 	if(m_total_prints == 0xFFFF)

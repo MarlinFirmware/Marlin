@@ -1064,6 +1064,21 @@ namespace ui
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
 		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETE_TITLE(), MSG_SCREEN_PRINT_COMPLETE_TEXT(), MSG_PUSH_TO_CONTINUE(), PrintManager::completePrint());
+		local_view->add(screen_print_maintenance_switch);
+		return local_view;
+	}
+	
+	static ScreenSwitch * make_screen_print_maintenance_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, PrintManager::single::instance().checkPTFEMaintenance);
+		local_view->add(screen_print_maintenance_reminder);
+		local_view->add(screen_close_inactivity);
+		return local_view;
+	}
+	
+	static ScreenError * make_screen_print_maintenance_reminder()
+	{
+		ScreenError * local_view = new ScreenError(MSG_SCREEN_PTFE_TITLE(), MSG_SCREEN_PTFE_TEXT(), MSG_PUSH_TO_CONTINUE(), bits_emergency);
 		local_view->add(screen_close_inactivity);
 		return local_view;
 	}
@@ -1672,6 +1687,12 @@ namespace ui
 				break;
 			case screen_print_complete:
 				new_view = make_screen_print_complete();
+				break;
+			case screen_print_maintenance_switch:
+				new_view = make_screen_print_maintenance_switch();
+				break;
+			case screen_print_maintenance_reminder:
+				new_view = make_screen_print_maintenance_reminder();
 				break;
 			case screen_play_pause:
 				new_view = make_screen_play_pause();

@@ -294,6 +294,8 @@ enum class Label
 	SCREEN_VIEW_STATS_TEXT3,
 	SCREEN_NAME_ERROR_TEXT,
 	SCREEN_BASE_ERROR_TEXT,
+	SCREEN_PTFE_TITLE,
+	SCREEN_PTFE_TEXT,
 };
 
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
@@ -493,5 +495,7 @@ extern const char * MSG_SCREEN_VIEW_STATS_TEXT2();
 extern const char * MSG_SCREEN_VIEW_STATS_TEXT3();
 extern const char * MSG_SCREEN_NAME_ERROR_TEXT();
 extern const char * MSG_SCREEN_BASE_ERROR_TEXT();
+extern const char * MSG_SCREEN_PTFE_TITLE();
+extern const char * MSG_SCREEN_PTFE_TEXT();
 
 #endif // ifndef LANGUAGE_H
