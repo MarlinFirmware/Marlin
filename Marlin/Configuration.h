@@ -949,7 +949,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // Cartesio UI
 // http://mauk.cc/webshop/cartesio-shop/electronics/user-interface
-#define CARTESIO_UI
+//#define CARTESIO_UI
 
 //
 // MaKr3d Makr-Panel with graphic controller and SD support.
