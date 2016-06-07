@@ -7,7 +7,7 @@
 * Improved opening files in the SD card deeper than two folders using serial commands with absolute paths (W/H/HXL/W2/H2).
 * Completed prints statistic is not increased if a print has not been previously started (W2/H2).
 * Analog control re-enabled for blower fan (W/H/HXL).
-* Corrected Hephestos 2 "Z axis steps per unit" value on configuration (H2).
+* Corrected Hephestos 2 "Extruder steps per unit" value on configuration (H2).
 
 ### Improvements:
 * Erasing EEPROM through serial shows EEPROM erasing screen in LCD (W2/H2).
