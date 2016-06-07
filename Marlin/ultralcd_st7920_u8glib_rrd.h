@@ -41,7 +41,6 @@
 #include <U8glib.h>
 
 //set optimization so ARDUINO optimizes this file
-#pragma GCC push_options
 #pragma GCC optimize (3)
 
 #define DELAY_0_NOP  ;
@@ -64,9 +63,9 @@
     #define ST7920_DELAY_2 DELAY_0_NOP
   #endif
   #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_2_NOP
+    #define ST7920_DELAY_3 DELAY_1_NOP
   #endif
-#elif MOTHERBOARD == BOARD_3DRAG
+#elif (MOTHERBOARD == BOARD_3DRAG) || (MOTHERBOARD == BOARD_K8200)
   #ifndef ST7920_DELAY_1
     #define ST7920_DELAY_1 DELAY_0_NOP
   #endif
@@ -74,7 +73,7 @@
     #define ST7920_DELAY_2 DELAY_0_NOP
   #endif
   #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_2_NOP
+    #define ST7920_DELAY_3 DELAY_1_NOP
   #endif
 #elif F_CPU == 16000000
   #ifndef ST7920_DELAY_1
@@ -84,7 +83,7 @@
     #define ST7920_DELAY_2 DELAY_0_NOP
   #endif
   #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_2_NOP
+    #define ST7920_DELAY_3 DELAY_1_NOP
   #endif
 #else
   #error "No valid condition for delays in 'ultralcd_st7920_u8glib_rrd.h'"
@@ -94,63 +93,62 @@ static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
     WRITE(ST7920_CLK_PIN,0);
     ST7920_DELAY_1
     WRITE(ST7920_DAT_PIN,val&0x80);
-    val<<=1;
     ST7920_DELAY_2
     WRITE(ST7920_CLK_PIN,1);
+    val<<=1;
     ST7920_DELAY_3
 
     WRITE(ST7920_CLK_PIN,0);
     ST7920_DELAY_1
     WRITE(ST7920_DAT_PIN,val&0x80);
-    val<<=1;
     ST7920_DELAY_2
     WRITE(ST7920_CLK_PIN,1);
+    val<<=1;
     ST7920_DELAY_3
 
     WRITE(ST7920_CLK_PIN,0);
     ST7920_DELAY_1
     WRITE(ST7920_DAT_PIN,val&0x80);
-    val<<=1;
     ST7920_DELAY_2
     WRITE(ST7920_CLK_PIN,1);
+    val<<=1;
     ST7920_DELAY_3
 
     WRITE(ST7920_CLK_PIN,0);
     ST7920_DELAY_1
     WRITE(ST7920_DAT_PIN,val&0x80);
-    val<<=1;
     ST7920_DELAY_2
     WRITE(ST7920_CLK_PIN,1);
+    val<<=1;
     ST7920_DELAY_3
 
     WRITE(ST7920_CLK_PIN,0);
     ST7920_DELAY_1
     WRITE(ST7920_DAT_PIN,val&0x80);
-    val<<=1;
     ST7920_DELAY_2
     WRITE(ST7920_CLK_PIN,1);
+    val<<=1;
     ST7920_DELAY_3
 
     WRITE(ST7920_CLK_PIN,0);
     ST7920_DELAY_1
     WRITE(ST7920_DAT_PIN,val&0x80);
-    val<<=1;
     ST7920_DELAY_2
     WRITE(ST7920_CLK_PIN,1);
+    val<<=1;
     ST7920_DELAY_3
 
     WRITE(ST7920_CLK_PIN,0);
     ST7920_DELAY_1
     WRITE(ST7920_DAT_PIN,val&0x80);
-    val<<=1;
     ST7920_DELAY_2
     WRITE(ST7920_CLK_PIN,1);
+    val<<=1;
     ST7920_DELAY_3
 
     WRITE(ST7920_CLK_PIN,0);
     ST7920_DELAY_1
     WRITE(ST7920_DAT_PIN,val&0x80);
-    val<<=1;
     ST7920_DELAY_2
     WRITE(ST7920_CLK_PIN,1);
 }
@@ -234,7 +232,7 @@ class U8GLIB_ST7920_128X64_RRD : public U8GLIB {
   U8GLIB_ST7920_128X64_RRD(uint8_t dummy) : U8GLIB(&u8g_dev_st7920_128x64_rrd_sw_spi) { UNUSED(dummy); }
 };
 
-#pragma GCC pop_options
+#pragma GCC reset_options
 
 #endif //U8GLIB_ST7920
 #endif //ULCDST7920_H
