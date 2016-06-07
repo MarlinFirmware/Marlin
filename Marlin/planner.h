@@ -281,9 +281,9 @@ class Planner {
      * Calculate the distance (not time) it takes to accelerate
      * from initial_rate to target_rate using the given acceleration:
      */
-    static float estimate_acceleration_distance(float initial_rate, float target_rate, float acceleration) {
-      if (acceleration == 0) return 0; // acceleration was 0, set acceleration distance to 0
-      return (target_rate * target_rate - initial_rate * initial_rate) / (acceleration * 2);
+    static float estimate_acceleration_distance(float initial_rate, float target_rate, float accel) {
+      if (accel == 0) return 0; // accel was 0, set acceleration distance to 0
+      return (target_rate * target_rate - initial_rate * initial_rate) / (accel * 2);
     }
 
     /**
@@ -294,9 +294,9 @@ class Planner {
      * This is used to compute the intersection point between acceleration and deceleration
      * in cases where the "trapezoid" has no plateau (i.e., never reaches maximum speed)
      */
-    static float intersection_distance(float initial_rate, float final_rate, float acceleration, float distance) {
-      if (acceleration == 0) return 0; // acceleration was 0, set intersection distance to 0
-      return (acceleration * 2 * distance - initial_rate * initial_rate + final_rate * final_rate) / (acceleration * 4);
+    static float intersection_distance(float initial_rate, float final_rate, float accel, float distance) {
+      if (accel == 0) return 0; // accel was 0, set intersection distance to 0
+      return (accel * 2 * distance - initial_rate * initial_rate + final_rate * final_rate) / (accel * 4);
     }
 
     /**
@@ -304,8 +304,8 @@ class Planner {
      * to reach 'target_velocity' using 'acceleration' within a given
      * 'distance'.
      */
-    static float max_allowable_speed(float acceleration, float target_velocity, float distance) {
-      return sqrt(target_velocity * target_velocity - 2 * acceleration * distance);
+    static float max_allowable_speed(float accel, float target_velocity, float distance) {
+      return sqrt(target_velocity * target_velocity - 2 * accel * distance);
     }
 
     static void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor);
