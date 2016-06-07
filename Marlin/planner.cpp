@@ -155,18 +155,18 @@ void Planner::calculate_trapezoid_for_block(block_t* block, float entry_factor, 
   NOLESS(initial_rate, 120);
   NOLESS(final_rate, 120);
 
-  long acceleration = block->acceleration_st;
-  int32_t accelerate_steps = ceil(estimate_acceleration_distance(initial_rate, block->nominal_rate, acceleration));
-  int32_t decelerate_steps = floor(estimate_acceleration_distance(block->nominal_rate, final_rate, -acceleration));
+  long accel = block->acceleration_st;
+  int32_t accelerate_steps = ceil(estimate_acceleration_distance(initial_rate, block->nominal_rate, accel));
+  int32_t decelerate_steps = floor(estimate_acceleration_distance(block->nominal_rate, final_rate, -accel));
 
   // Calculate the size of Plateau of Nominal Rate.
   int32_t plateau_steps = block->step_event_count - accelerate_steps - decelerate_steps;
 
   // Is the Plateau of Nominal Rate smaller than nothing? That means no cruising, and we will
-  // have to use intersection_distance() to calculate when to abort acceleration and start braking
+  // have to use intersection_distance() to calculate when to abort accel and start braking
   // in order to reach the final_rate exactly at the end of this block.
   if (plateau_steps < 0) {
-    accelerate_steps = ceil(intersection_distance(initial_rate, final_rate, acceleration, block->step_event_count));
+    accelerate_steps = ceil(intersection_distance(initial_rate, final_rate, accel, block->step_event_count));
     accelerate_steps = max(accelerate_steps, 0); // Check limits due to numerical round-off
     accelerate_steps = min((uint32_t)accelerate_steps, block->step_event_count);//(We can cast here to unsigned, because the above line ensures that we are above zero)
     plateau_steps = 0;
