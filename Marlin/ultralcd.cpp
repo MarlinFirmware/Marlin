@@ -2295,6 +2295,7 @@ void kill_screen(const char* lcd_msg) {
       currentScreen = menu_edit_callback_ ## _name; \
       callbackFunc = callback; \
     }
+
   menu_edit_type(int, int3, itostr3, 1);
   menu_edit_type(float, float3, ftostr3, 1);
   menu_edit_type(float, float32, ftostr32, 100);
@@ -2326,6 +2327,7 @@ void kill_screen(const char* lcd_msg) {
     static void reprapworld_keypad_move_y_up()    { _reprapworld_keypad_move(Y_AXIS, -1); }
     static void reprapworld_keypad_move_y_down()  { _reprapworld_keypad_move(Y_AXIS,  1); }
     static void reprapworld_keypad_move_home()    { enqueue_and_echo_commands_P(PSTR("G28")); } // move all axes home and wait
+    static void reprapworld_keypad_move_menu()    { lcd_goto_screen(lcd_move_menu); }
   #endif // REPRAPWORLD_KEYPAD
 
   /**
@@ -2591,6 +2593,8 @@ void lcd_update() {
         }
         else if (!keypad_debounce) {
           keypad_debounce = 2;
+
+          if (REPRAPWORLD_KEYPAD_MOVE_MENU)       reprapworld_keypad_move_menu();
 
           #if DISABLED(DELTA) && Z_HOME_DIR == -1
             if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)     reprapworld_keypad_move_z_up();
