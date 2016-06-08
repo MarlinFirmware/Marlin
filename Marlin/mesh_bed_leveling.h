@@ -60,12 +60,12 @@
       set_z(px, py, z);
     }
 
-    int8_t cel_index_x(float x) {
+    int8_t cell_index_x(float x) {
       int8_t cx = int(x - (MESH_MIN_X)) / (MESH_X_DIST);
       return constrain(cx, 0, (MESH_NUM_X_POINTS) - 2);
     }
 
-    int8_t cel_index_y(float y) {
+    int8_t cell_index_y(float y) {
       int8_t cy = int(y - (MESH_MIN_Y)) / (MESH_Y_DIST);
       return constrain(cy, 0, (MESH_NUM_Y_POINTS) - 2);
     }
@@ -87,8 +87,8 @@
     }
 
     float get_z(float x0, float y0) {
-      int8_t cx = cel_index_x(x0),
-             cy = cel_index_y(y0);
+      int8_t cx = cell_index_x(x0),
+             cy = cell_index_y(y0);
       if (cx < 0 || cy < 0) return z_offset;
       float z1 = calc_z0(x0,
                          get_probe_x(cx), z_values[cy][cx],
