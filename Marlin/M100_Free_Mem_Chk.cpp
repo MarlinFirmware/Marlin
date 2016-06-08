@@ -51,8 +51,7 @@ extern size_t  __heap_start, __heap_end, __flp;
 // Declare all the functions we need from Marlin_Main.cpp to do the work!
 //
 
-float code_value();
-long code_value_long();
+int code_value_int();
 bool code_seen(char);
 void serial_echopair_P(const char*, float);
 void serial_echopair_P(const char*, double);
@@ -177,7 +176,7 @@ void gcode_M100() {
 #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
   if (code_seen('C')) {
     int x;      // x gets the # of locations to corrupt within the memory pool
-    x = code_value();
+    x = code_value_int();
     SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
     ptr = (unsigned char*) __brkval;
     SERIAL_ECHOPAIR("\n__brkval : ", ptr);
