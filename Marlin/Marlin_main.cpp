@@ -7386,10 +7386,10 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
     set_current_to_destination();
     return;
   }
-  int pcx = mbl.cel_index_x(current_position[X_AXIS] - home_offset[X_AXIS]);
-  int pcy = mbl.cel_index_y(current_position[Y_AXIS] - home_offset[Y_AXIS]);
-  int cx = mbl.cel_index_x(x - home_offset[X_AXIS]);
-  int cy = mbl.cel_index_y(y - home_offset[Y_AXIS]);
+  int pcx = mbl.cell_index_x(current_position[X_AXIS] - home_offset[X_AXIS]);
+  int pcy = mbl.cell_index_y(current_position[Y_AXIS] - home_offset[Y_AXIS]);
+  int cx = mbl.cell_index_x(x - home_offset[X_AXIS]);
+  int cy = mbl.cell_index_y(y - home_offset[Y_AXIS]);
   NOMORE(pcx, MESH_NUM_X_POINTS - 2);
   NOMORE(pcy, MESH_NUM_Y_POINTS - 2);
   NOMORE(cx,  MESH_NUM_X_POINTS - 2);
