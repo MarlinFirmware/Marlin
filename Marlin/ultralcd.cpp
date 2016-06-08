@@ -995,7 +995,7 @@ void lcd_cooldown() {
     // Show message above on clicks instead
     if (lcdDrawUpdate) {
       float v = current_position[Z_AXIS] - MESH_HOME_SEARCH_Z;
-      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43(v + (v < 0 ? -0.0001 : 0.0001), '+'));
+      lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001 : 0.0001), '+'));
     }
 
   }
@@ -1237,7 +1237,7 @@ static void _lcd_move(const char* name, AxisEnum axis, float min, float max) {
     manual_move_to_current(axis);
     lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
   }
-  if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
+  if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr41sign(current_position[axis]));
   if (LCD_CLICKED) lcd_goto_previous_menu(true);
 }
 #if ENABLED(DELTA)
@@ -1282,7 +1282,7 @@ static void lcd_move_e(
         #endif //EXTRUDERS > 2
       }
     #endif //EXTRUDERS > 1
-    lcd_implementation_drawedit(pos_label, ftostr31(current_position[E_AXIS]));
+    lcd_implementation_drawedit(pos_label, ftostr41sign(current_position[E_AXIS]));
   }
   if (LCD_CLICKED) lcd_goto_previous_menu(true);
   #if EXTRUDERS > 1
@@ -1913,11 +1913,11 @@ static void lcd_control_volumetric_menu() {
 menu_edit_type(int, int3, itostr3, 1);
 menu_edit_type(float, float3, ftostr3, 1);
 menu_edit_type(float, float32, ftostr32, 100);
-menu_edit_type(float, float43, ftostr43, 1000);
-menu_edit_type(float, float5, ftostr5, 0.01);
-menu_edit_type(float, float51, ftostr51, 10);
-menu_edit_type(float, float52, ftostr52, 100);
-menu_edit_type(unsigned long, long5, ftostr5, 0.01);
+menu_edit_type(float, float43, ftostr43sign, 1000);
+menu_edit_type(float, float5, ftostr5rj, 0.01);
+menu_edit_type(float, float51, ftostr51sign, 10);
+menu_edit_type(float, float52, ftostr52sign, 100);
+menu_edit_type(unsigned long, long5, ftostr5rj, 0.01);
 
 /**
  *
@@ -2382,7 +2382,7 @@ void set_utf_strlen(char* s, uint8_t n) {
     i++;
   }
   while (j++ < n) s[i++] = ' ';
-  s[i] = 0;
+  s[i] = '\0';
 }
 
 bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
@@ -2556,6 +2556,9 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 /** Number to string conversion **/
 /*********************************/
 
+#define DIGIT(n) ('0' + (n))
+#define DIGIMOD(n) DIGIT((n) % 10)
+
 char conv[8];
 
 // Convert float to rj string with 123 or -12 format
@@ -2568,52 +2571,40 @@ char *ftostr4sign(const float& x) { return itostr4sign((int)x); }
 char* itostr2(const uint8_t& x) {
   //sprintf(conv,"%5.1f",x);
   int xx = x;
-  conv[0] = (xx / 10) % 10 + '0';
-  conv[1] = xx % 10 + '0';
-  conv[2] = 0;
+  conv[0] = DIGIMOD(xx / 10);
+  conv[1] = DIGIMOD(xx);
+  conv[2] = '\0';
   return conv;
 }
 
 // Convert float to string with +123.4 / -123.4 format
-char* ftostr31(const float& x) {
-  int xx = abs(x * 10);
-  conv[0] = (x >= 0) ? '+' : '-';
-  conv[1] = (xx / 1000) % 10 + '0';
-  conv[2] = (xx / 100) % 10 + '0';
-  conv[3] = (xx / 10) % 10 + '0';
+char* ftostr41sign(const float& x) {
+  int xx = int(abs(x * 10)) % 10000;
+  conv[0] = x >= 0 ? '+' : '-';
+  conv[1] = DIGIMOD(xx / 1000);
+  conv[2] = DIGIMOD(xx / 100);
+  conv[3] = DIGIMOD(xx / 10);
   conv[4] = '.';
-  conv[5] = xx % 10 + '0';
-  conv[6] = 0;
-  return conv;
-}
-
-// Convert unsigned float to string with 123.4 format, dropping sign
-char* ftostr31ns(const float& x) {
-  int xx = abs(x * 10);
-  conv[0] = (xx / 1000) % 10 + '0';
-  conv[1] = (xx / 100) % 10 + '0';
-  conv[2] = (xx / 10) % 10 + '0';
-  conv[3] = '.';
-  conv[4] = xx % 10 + '0';
-  conv[5] = 0;
+  conv[5] = DIGIMOD(xx);
+  conv[6] = '\0';
   return conv;
 }
 
 // Convert signed float to string with 023.45 / -23.45 format
 char *ftostr32(const float& x) {
   long xx = abs(x * 100);
-  conv[0] = x >= 0 ? (xx / 10000) % 10 + '0' : '-';
-  conv[1] = (xx / 1000) % 10 + '0';
-  conv[2] = (xx / 100) % 10 + '0';
+  conv[0] = x >= 0 ? DIGIMOD(xx / 10000) : '-';
+  conv[1] = DIGIMOD(xx / 1000);
+  conv[2] = DIGIMOD(xx / 100);
   conv[3] = '.';
-  conv[4] = (xx / 10) % 10 + '0';
-  conv[5] = xx % 10 + '0';
-  conv[6] = 0;
+  conv[4] = DIGIMOD(xx / 10);
+  conv[5] = DIGIMOD(xx);
+  conv[6] = '\0';
   return conv;
 }
 
 // Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
-char* ftostr43(const float& x, char plus/*=' '*/) {
+char* ftostr43sign(const float& x, char plus/*=' '*/) {
   long xx = x * 1000;
   if (xx == 0)
     conv[0] = ' ';
@@ -2623,12 +2614,12 @@ char* ftostr43(const float& x, char plus/*=' '*/) {
     xx = -xx;
     conv[0] = '-';
   }
-  conv[1] = (xx / 1000) % 10 + '0';
+  conv[1] = DIGIMOD(xx / 1000);
   conv[2] = '.';
-  conv[3] = (xx / 100) % 10 + '0';
-  conv[4] = (xx / 10) % 10 + '0';
-  conv[5] = (xx) % 10 + '0';
-  conv[6] = 0;
+  conv[3] = DIGIMOD(xx / 100);
+  conv[4] = DIGIMOD(xx / 10);
+  conv[5] = DIGIMOD(xx);
+  conv[6] = '\0';
   return conv;
 }
 
@@ -2636,57 +2627,11 @@ char* ftostr43(const float& x, char plus/*=' '*/) {
 char* ftostr12ns(const float& x) {
   long xx = x * 100;
   xx = abs(xx);
-  conv[0] = (xx / 100) % 10 + '0';
+  conv[0] = DIGIMOD(xx / 100);
   conv[1] = '.';
-  conv[2] = (xx / 10) % 10 + '0';
-  conv[3] = (xx) % 10 + '0';
-  conv[4] = 0;
-  return conv;
-}
-
-// Convert signed float to space-padded string with -_23.4_ format
-char* ftostr32sp(const float& x) {
-  long xx = x * 100;
-  uint8_t dig;
-  if (xx < 0) { // negative val = -_0
-    xx = -xx;
-    conv[0] = '-';
-    dig = (xx / 1000) % 10;
-    conv[1] = dig ? '0' + dig : ' ';
-  }
-  else { // positive val = __0
-    dig = (xx / 10000) % 10;
-    if (dig) {
-      conv[0] = '0' + dig;
-      conv[1] = '0' + (xx / 1000) % 10;
-    }
-    else {
-      conv[0] = ' ';
-      dig = (xx / 1000) % 10;
-      conv[1] = dig ? '0' + dig : ' ';
-    }
-  }
-
-  conv[2] = '0' + (xx / 100) % 10; // lsd always
-
-  dig = xx % 10;
-  if (dig) { // 2 decimal places
-    conv[5] = '0' + dig;
-    conv[4] = '0' + (xx / 10) % 10;
-    conv[3] = '.';
-  }
-  else { // 1 or 0 decimal place
-    dig = (xx / 10) % 10;
-    if (dig) {
-      conv[4] = '0' + dig;
-      conv[3] = '.';
-    }
-    else {
-      conv[3] = conv[4] = ' ';
-    }
-    conv[5] = ' ';
-  }
-  conv[6] = '\0';
+  conv[2] = DIGIMOD(xx / 10);
+  conv[3] = DIGIMOD(xx);
+  conv[4] = '\0';
   return conv;
 }
 
@@ -2701,12 +2646,12 @@ char* itostr3sign(const int& x) {
     conv[0] = '-';
     xx = -x;
   }
-  conv[1] = (xx / 100) % 10 + '0';
-  conv[2] = (xx / 10) % 10 + '0';
-  conv[3] = xx % 10 + '0';
+  conv[1] = DIGIMOD(xx / 100);
+  conv[2] = DIGIMOD(xx / 10);
+  conv[3] = DIGIMOD(xx);
   conv[4] = '.';
   conv[5] = '0';
-  conv[6] = 0;
+  conv[6] = '\0';
   return conv;
 }
 
@@ -2718,41 +2663,31 @@ char* itostr3(const int& x) {
     xx = -xx;
   }
   else
-    conv[0] = xx >= 100 ? (xx / 100) % 10 + '0' : ' ';
+    conv[0] = xx >= 100 ? DIGIMOD(xx / 100) : ' ';
 
-  conv[1] = xx >= 10 ? (xx / 10) % 10 + '0' : ' ';
-  conv[2] = xx % 10 + '0';
-  conv[3] = 0;
+  conv[1] = xx >= 10 ? DIGIMOD(xx / 10) : ' ';
+  conv[2] = DIGIMOD(xx);
+  conv[3] = '\0';
   return conv;
 }
 
 // Convert unsigned int to lj string with 123 format
-char* itostr3left(const int& x) {
-  if (x >= 100) {
-    conv[0] = (x / 100) % 10 + '0';
-    conv[1] = (x / 10) % 10 + '0';
-    conv[2] = x % 10 + '0';
-    conv[3] = 0;
+char* itostr3left(const int& xx) {
+  if (xx >= 100) {
+    conv[0] = DIGIMOD(xx / 100);
+    conv[1] = DIGIMOD(xx / 10);
+    conv[2] = DIGIMOD(xx);
+    conv[3] = '\0';
   }
-  else if (x >= 10) {
-    conv[0] = (x / 10) % 10 + '0';
-    conv[1] = x % 10 + '0';
-    conv[2] = 0;
+  else if (xx >= 10) {
+    conv[0] = DIGIMOD(xx / 10);
+    conv[1] = DIGIMOD(xx);
+    conv[2] = '\0';
   }
   else {
-    conv[0] = x % 10 + '0';
-    conv[1] = 0;
+    conv[0] = DIGIMOD(xx);
+    conv[1] = '\0';
   }
-  return conv;
-}
-
-// Convert unsigned int to rj string with 1234 format
-char* itostr4(const int& x) {
-  conv[0] = x >= 1000 ? (x / 1000) % 10 + '0' : ' ';
-  conv[1] = x >= 100 ? (x / 100) % 10 + '0' : ' ';
-  conv[2] = x >= 10 ? (x / 10) % 10 + '0' : ' ';
-  conv[3] = x % 10 + '0';
-  conv[4] = 0;
   return conv;
 }
 
@@ -2761,13 +2696,13 @@ char *itostr4sign(const int& x) {
   int xx = abs(x);
   int sign = 0;
   if (xx >= 100) {
-    conv[1] = (xx / 100) % 10 + '0';
-    conv[2] = (xx / 10) % 10 + '0';
+    conv[1] = DIGIMOD(xx / 100);
+    conv[2] = DIGIMOD(xx / 10);
   }
   else if (xx >= 10) {
     conv[0] = ' ';
     sign = 1;
-    conv[2] = (xx / 10) % 10 + '0';
+    conv[2] = DIGIMOD(xx / 10);
   }
   else {
     conv[0] = ' ';
@@ -2775,48 +2710,94 @@ char *itostr4sign(const int& x) {
     sign = 2;
   }
   conv[sign] = x < 0 ? '-' : ' ';
-  conv[3] = xx % 10 + '0';
-  conv[4] = 0;
+  conv[3] = DIGIMOD(xx);
+  conv[4] = '\0';
   return conv;
 }
 
 // Convert unsigned float to rj string with 12345 format
-char* ftostr5(const float& x) {
+char* ftostr5rj(const float& x) {
   long xx = abs(x);
-  conv[0] = xx >= 10000 ? (xx / 10000) % 10 + '0' : ' ';
-  conv[1] = xx >= 1000 ? (xx / 1000) % 10 + '0' : ' ';
-  conv[2] = xx >= 100 ? (xx / 100) % 10 + '0' : ' ';
-  conv[3] = xx >= 10 ? (xx / 10) % 10 + '0' : ' ';
-  conv[4] = xx % 10 + '0';
-  conv[5] = 0;
+  conv[0] = xx >= 10000 ? DIGIMOD(xx / 10000) : ' ';
+  conv[1] = xx >= 1000 ? DIGIMOD(xx / 1000) : ' ';
+  conv[2] = xx >= 100 ? DIGIMOD(xx / 100) : ' ';
+  conv[3] = xx >= 10 ? DIGIMOD(xx / 10) : ' ';
+  conv[4] = DIGIMOD(xx);
+  conv[5] = '\0';
   return conv;
 }
 
 // Convert signed float to string with +1234.5 format
-char* ftostr51(const float& x) {
+char* ftostr51sign(const float& x) {
   long xx = abs(x * 10);
   conv[0] = (x >= 0) ? '+' : '-';
-  conv[1] = (xx / 10000) % 10 + '0';
-  conv[2] = (xx / 1000) % 10 + '0';
-  conv[3] = (xx / 100) % 10 + '0';
-  conv[4] = (xx / 10) % 10 + '0';
+  conv[1] = DIGIMOD(xx / 10000);
+  conv[2] = DIGIMOD(xx / 1000);
+  conv[3] = DIGIMOD(xx / 100);
+  conv[4] = DIGIMOD(xx / 10);
   conv[5] = '.';
-  conv[6] = xx % 10 + '0';
-  conv[7] = 0;
+  conv[6] = DIGIMOD(xx);
+  conv[7] = '\0';
   return conv;
 }
 
 // Convert signed float to string with +123.45 format
-char* ftostr52(const float& x) {
-  conv[0] = (x >= 0) ? '+' : '-';
+char* ftostr52sign(const float& x) {
   long xx = abs(x * 100);
-  conv[1] = (xx / 10000) % 10 + '0';
-  conv[2] = (xx / 1000) % 10 + '0';
-  conv[3] = (xx / 100) % 10 + '0';
+  conv[0] = (x >= 0) ? '+' : '-';
+  conv[1] = DIGIMOD(xx / 10000);
+  conv[2] = DIGIMOD(xx / 1000);
+  conv[3] = DIGIMOD(xx / 100);
   conv[4] = '.';
-  conv[5] = (xx / 10) % 10 + '0';
-  conv[6] = xx % 10 + '0';
-  conv[7] = 0;
+  conv[5] = DIGIMOD(xx / 10);
+  conv[6] = DIGIMOD(xx);
+  conv[7] = '\0';
+  return conv;
+}
+
+// Convert signed float to space-padded string with -_23.4_ format
+char* ftostr52sp(const float& x) {
+  long xx = x * 100;
+  uint8_t dig;
+  if (xx < 0) { // negative val = -_0
+    xx = -xx;
+    conv[0] = '-';
+    dig = (xx / 1000) % 10;
+    conv[1] = dig ? DIGIT(dig) : ' ';
+  }
+  else { // positive val = __0
+    dig = (xx / 10000) % 10;
+    if (dig) {
+      conv[0] = DIGIT(dig);
+      conv[1] = DIGIMOD(xx / 1000);
+    }
+    else {
+      conv[0] = ' ';
+      dig = (xx / 1000) % 10;
+      conv[1] = dig ? DIGIT(dig) : ' ';
+    }
+  }
+
+  conv[2] = DIGIMOD(xx / 100); // lsd always
+
+  dig = xx % 10;
+  if (dig) { // 2 decimal places
+    conv[5] = DIGIT(dig);
+    conv[4] = DIGIMOD(xx / 10);
+    conv[3] = '.';
+  }
+  else { // 1 or 0 decimal place
+    dig = (xx / 10) % 10;
+    if (dig) {
+      conv[4] = DIGIT(dig);
+      conv[3] = '.';
+    }
+    else {
+      conv[3] = conv[4] = ' ';
+    }
+    conv[5] = ' ';
+  }
+  conv[6] = '\0';
   return conv;
 }
 
