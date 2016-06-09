@@ -206,15 +206,18 @@ unsigned char Temperature::soft_pwm[HOTENDS];
       next_auto_fan_check_ms = temp_ms + 2500UL;
     #endif
 
-    if (false
-      #if ENABLED(PIDTEMP)
-         || hotend >= HOTENDS
-      #else
-         || hotend >= 0
-      #endif
-      #if DISABLED(PIDTEMPBED)
-         || hotend < 0
-      #endif
+    if (hotend >=
+        #if ENABLED(PIDTEMP)
+          HOTENDS
+        #else
+          0
+        #endif
+      || hotend <
+        #if ENABLED(PIDTEMPBED)
+          -1
+        #else
+          0
+        #endif
     ) {
       SERIAL_ECHOLN(MSG_PID_BAD_EXTRUDER_NUM);
       return;
