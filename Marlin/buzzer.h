@@ -41,8 +41,7 @@ class Buzzer {
     } state;
 
   protected:
-    CircularQueue<tone_t> buffer
-      = CircularQueue<tone_t>(TONE_QUEUE_LENGTH);
+    CircularQueue<tone_t, TONE_QUEUE_LENGTH> buffer;
 
     void invert() {
       WRITE(BEEPER_PIN, !READ(BEEPER_PIN));

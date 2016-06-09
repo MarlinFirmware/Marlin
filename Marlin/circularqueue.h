@@ -25,7 +25,8 @@
 
 #include <Arduino.h>
 
-template<typename T> class CircularQueue {
+template<typename T, int N>
+class CircularQueue {
   private:
 
     struct buffer_t {
@@ -33,13 +34,12 @@ template<typename T> class CircularQueue {
       uint8_t tail;
       uint8_t size;
       uint8_t length;
-      T* queue;
+      T queue[N];
     } buffer;
 
   public:
-    CircularQueue<T>(uint8_t const &length) {
-      this->buffer.length = length;
-      this->buffer.queue = new T[length];
+    CircularQueue<T, N>() {
+      this->buffer.length = N;
       this->buffer.size = this->buffer.head = this->buffer.tail = 0;
     }
 
