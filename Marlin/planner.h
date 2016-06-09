@@ -58,9 +58,9 @@ typedef struct {
   long steps[NUM_AXIS];                     // Step count along each axis
   unsigned long step_event_count;           // The number of step events required to complete this block
 
-  long accelerate_until;                    // The index of the step event on which to stop acceleration
-  long decelerate_after;                    // The index of the step event on which to start decelerating
-  long acceleration_rate;                   // The acceleration rate used for acceleration calculation
+  long accelerate_until,                    // The index of the step event on which to stop acceleration
+       decelerate_after,                    // The index of the step event on which to start decelerating
+       acceleration_rate;                   // The acceleration rate used for acceleration calculation
 
   unsigned char direction_bits;             // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
@@ -72,27 +72,26 @@ typedef struct {
   #endif
 
   // Fields used by the motion planner to manage acceleration
-  float nominal_speed;                               // The nominal speed for this block in mm/sec
-  float entry_speed;                                 // Entry speed at previous-current junction in mm/sec
-  float max_entry_speed;                             // Maximum allowable junction entry speed in mm/sec
-  float millimeters;                                 // The total travel of this block in mm
-  float acceleration;                                // acceleration mm/sec^2
-  unsigned char recalculate_flag;                    // Planner flag to recalculate trapezoids on entry junction
-  unsigned char nominal_length_flag;                 // Planner flag for nominal speed always reached
+  float nominal_speed,                               // The nominal speed for this block in mm/sec
+        entry_speed,                                 // Entry speed at previous-current junction in mm/sec
+        max_entry_speed,                             // Maximum allowable junction entry speed in mm/sec
+        millimeters,                                 // The total travel of this block in mm
+        acceleration;                                // acceleration mm/sec^2
+  unsigned char recalculate_flag,                    // Planner flag to recalculate trapezoids on entry junction
+                nominal_length_flag;                 // Planner flag for nominal speed always reached
 
   // Settings for the trapezoid generator
-  unsigned long nominal_rate;                        // The nominal step rate for this block in step_events/sec
-  unsigned long initial_rate;                        // The jerk-adjusted step rate at start of block
-  unsigned long final_rate;                          // The minimal rate at exit
-  unsigned long acceleration_steps_per_s2;           // acceleration steps/sec^2
+  unsigned long nominal_rate,                        // The nominal step rate for this block in step_events/sec
+                initial_rate,                        // The jerk-adjusted step rate at start of block
+                final_rate,                          // The minimal rate at exit
+                acceleration_steps_per_s2;           // acceleration steps/sec^2
 
   #if FAN_COUNT > 0
     unsigned long fan_speed[FAN_COUNT];
   #endif
 
   #if ENABLED(BARICUDA)
-    unsigned long valve_pressure;
-    unsigned long e_to_p_pressure;
+    unsigned long valve_pressure, e_to_p_pressure;
   #endif
 
   volatile char busy;
