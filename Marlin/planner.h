@@ -114,8 +114,8 @@ class Planner {
 
     static float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
     static float axis_steps_per_unit[NUM_AXIS];
-    static unsigned long axis_steps_per_sqr_second[NUM_AXIS];
-    static unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
+    static unsigned long max_acceleration_steps_per_s2[NUM_AXIS];
+    static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
     static millis_t min_segment_time;
     static float min_feedrate;

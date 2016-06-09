@@ -5150,7 +5150,7 @@ inline void gcode_M92() {
           float factor = planner.axis_steps_per_unit[i] / value; // increase e constants if M92 E14 is given for netfab.
           planner.max_e_jerk *= factor;
           planner.max_feedrate[i] *= factor;
-          planner.axis_steps_per_sqr_second[i] *= factor;
+          planner.max_acceleration_steps_per_s2[i] *= factor;
         }
         planner.axis_steps_per_unit[i] = value;
       }
@@ -5337,7 +5337,7 @@ inline void gcode_M200() {
 inline void gcode_M201() {
   for (int8_t i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i])) {
-      planner.max_acceleration_units_per_sq_second[i] = code_value_axis_units(i);
+      planner.max_acceleration_mm_per_s2[i] = code_value_axis_units(i);
     }
   }
   // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)

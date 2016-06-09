@@ -82,8 +82,8 @@ volatile uint8_t Planner::block_buffer_tail = 0;
 
 float Planner::max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
 float Planner::axis_steps_per_unit[NUM_AXIS];
-unsigned long Planner::axis_steps_per_sqr_second[NUM_AXIS];
-unsigned long Planner::max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
+unsigned long Planner::max_acceleration_steps_per_s2[NUM_AXIS];
+unsigned long Planner::max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
 millis_t Planner::min_segment_time;
 float Planner::min_feedrate;
@@ -946,10 +946,10 @@ void Planner::check_axes_activity() {
   }
   // Limit acceleration per axis
   unsigned long acc_st = block->acceleration_st,
-                xsteps = axis_steps_per_sqr_second[X_AXIS],
-                ysteps = axis_steps_per_sqr_second[Y_AXIS],
-                zsteps = axis_steps_per_sqr_second[Z_AXIS],
-                esteps = axis_steps_per_sqr_second[E_AXIS],
+                xsteps = max_acceleration_steps_per_s2[X_AXIS],
+                ysteps = max_acceleration_steps_per_s2[Y_AXIS],
+                zsteps = max_acceleration_steps_per_s2[Z_AXIS],
+                esteps = max_acceleration_steps_per_s2[E_AXIS],
                 allsteps = block->step_event_count;
   if (xsteps < (acc_st * bsx) / allsteps) acc_st = (xsteps * allsteps) / bsx;
   if (ysteps < (acc_st * bsy) / allsteps) acc_st = (ysteps * allsteps) / bsy;
@@ -1148,7 +1148,7 @@ void Planner::set_e_position_mm(const float& e) {
 // Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
 void Planner::reset_acceleration_rates() {
   for (int i = 0; i < NUM_AXIS; i++)
-    axis_steps_per_sqr_second[i] = max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
+    max_acceleration_steps_per_s2[i] = max_acceleration_mm_per_s2[i] * axis_steps_per_unit[i];
 }
 
 #if ENABLED(AUTOTEMP)
