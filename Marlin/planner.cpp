@@ -81,7 +81,7 @@ volatile uint8_t Planner::block_buffer_head = 0;           // Index of the next 
 volatile uint8_t Planner::block_buffer_tail = 0;
 
 float Planner::max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
-float Planner::axis_steps_per_unit[NUM_AXIS];
+float Planner::axis_steps_per_mm[NUM_AXIS];
 unsigned long Planner::max_acceleration_steps_per_s2[NUM_AXIS];
 unsigned long Planner::max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
@@ -549,10 +549,10 @@ void Planner::check_axes_activity() {
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
   long target[NUM_AXIS] = {
-    lround(x * axis_steps_per_unit[X_AXIS]),
-    lround(y * axis_steps_per_unit[Y_AXIS]),
-    lround(z * axis_steps_per_unit[Z_AXIS]),
-    lround(e * axis_steps_per_unit[E_AXIS])
+    lround(x * axis_steps_per_mm[X_AXIS]),
+    lround(y * axis_steps_per_mm[Y_AXIS]),
+    lround(z * axis_steps_per_mm[Z_AXIS]),
+    lround(e * axis_steps_per_mm[E_AXIS])
   };
 
   long dx = target[X_AXIS] - position[X_AXIS],
@@ -574,7 +574,7 @@ void Planner::check_axes_activity() {
         SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
       }
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        if (labs(de) > axis_steps_per_unit[E_AXIS] * (EXTRUDE_MAXLENGTH)) {
+        if (labs(de) > axis_steps_per_mm[E_AXIS] * (EXTRUDE_MAXLENGTH)) {
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
           SERIAL_ECHO_START;
@@ -771,31 +771,31 @@ void Planner::check_axes_activity() {
   #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
     float delta_mm[6];
     #if ENABLED(COREXY)
-      delta_mm[X_HEAD] = dx / axis_steps_per_unit[A_AXIS];
-      delta_mm[Y_HEAD] = dy / axis_steps_per_unit[B_AXIS];
-      delta_mm[Z_AXIS] = dz / axis_steps_per_unit[Z_AXIS];
-      delta_mm[A_AXIS] = (dx + dy) / axis_steps_per_unit[A_AXIS];
-      delta_mm[B_AXIS] = (dx - dy) / axis_steps_per_unit[B_AXIS];
+      delta_mm[X_HEAD] = dx / axis_steps_per_mm[A_AXIS];
+      delta_mm[Y_HEAD] = dy / axis_steps_per_mm[B_AXIS];
+      delta_mm[Z_AXIS] = dz / axis_steps_per_mm[Z_AXIS];
+      delta_mm[A_AXIS] = (dx + dy) / axis_steps_per_mm[A_AXIS];
+      delta_mm[B_AXIS] = (dx - dy) / axis_steps_per_mm[B_AXIS];
     #elif ENABLED(COREXZ)
-      delta_mm[X_HEAD] = dx / axis_steps_per_unit[A_AXIS];
-      delta_mm[Y_AXIS] = dy / axis_steps_per_unit[Y_AXIS];
-      delta_mm[Z_HEAD] = dz / axis_steps_per_unit[C_AXIS];
-      delta_mm[A_AXIS] = (dx + dz) / axis_steps_per_unit[A_AXIS];
-      delta_mm[C_AXIS] = (dx - dz) / axis_steps_per_unit[C_AXIS];
+      delta_mm[X_HEAD] = dx / axis_steps_per_mm[A_AXIS];
+      delta_mm[Y_AXIS] = dy / axis_steps_per_mm[Y_AXIS];
+      delta_mm[Z_HEAD] = dz / axis_steps_per_mm[C_AXIS];
+      delta_mm[A_AXIS] = (dx + dz) / axis_steps_per_mm[A_AXIS];
+      delta_mm[C_AXIS] = (dx - dz) / axis_steps_per_mm[C_AXIS];
     #elif ENABLED(COREYZ)
-      delta_mm[X_AXIS] = dx / axis_steps_per_unit[A_AXIS];
-      delta_mm[Y_HEAD] = dy / axis_steps_per_unit[Y_AXIS];
-      delta_mm[Z_HEAD] = dz / axis_steps_per_unit[C_AXIS];
-      delta_mm[B_AXIS] = (dy + dz) / axis_steps_per_unit[B_AXIS];
-      delta_mm[C_AXIS] = (dy - dz) / axis_steps_per_unit[C_AXIS];
+      delta_mm[X_AXIS] = dx / axis_steps_per_mm[A_AXIS];
+      delta_mm[Y_HEAD] = dy / axis_steps_per_mm[Y_AXIS];
+      delta_mm[Z_HEAD] = dz / axis_steps_per_mm[C_AXIS];
+      delta_mm[B_AXIS] = (dy + dz) / axis_steps_per_mm[B_AXIS];
+      delta_mm[C_AXIS] = (dy - dz) / axis_steps_per_mm[C_AXIS];
     #endif
   #else
     float delta_mm[4];
-    delta_mm[X_AXIS] = dx / axis_steps_per_unit[X_AXIS];
-    delta_mm[Y_AXIS] = dy / axis_steps_per_unit[Y_AXIS];
-    delta_mm[Z_AXIS] = dz / axis_steps_per_unit[Z_AXIS];
+    delta_mm[X_AXIS] = dx / axis_steps_per_mm[X_AXIS];
+    delta_mm[Y_AXIS] = dy / axis_steps_per_mm[Y_AXIS];
+    delta_mm[Z_AXIS] = dz / axis_steps_per_mm[Z_AXIS];
   #endif
-  delta_mm[E_AXIS] = (de / axis_steps_per_unit[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiplier[extruder] / 100.0;
+  delta_mm[E_AXIS] = (de / axis_steps_per_mm[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiplier[extruder] / 100.0;
 
   if (block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
@@ -1127,10 +1127,10 @@ void Planner::check_axes_activity() {
       apply_rotation_xyz(bed_level_matrix, x, y, z);
     #endif
 
-    long nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]),
-         ny = position[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]),
-         nz = position[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]),
-         ne = position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
+    long nx = position[X_AXIS] = lround(x * axis_steps_per_mm[X_AXIS]),
+         ny = position[Y_AXIS] = lround(y * axis_steps_per_mm[Y_AXIS]),
+         nz = position[Z_AXIS] = lround(z * axis_steps_per_mm[Z_AXIS]),
+         ne = position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS]);
     stepper.set_position(nx, ny, nz, ne);
     previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 
@@ -1141,14 +1141,14 @@ void Planner::check_axes_activity() {
  * Directly set the planner E position (hence the stepper E position).
  */
 void Planner::set_e_position_mm(const float& e) {
-  position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
+  position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS]);
   stepper.set_e_position(position[E_AXIS]);
 }
 
 // Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
 void Planner::reset_acceleration_rates() {
   for (int i = 0; i < NUM_AXIS; i++)
-    max_acceleration_steps_per_s2[i] = max_acceleration_mm_per_s2[i] * axis_steps_per_unit[i];
+    max_acceleration_steps_per_s2[i] = max_acceleration_mm_per_s2[i] * axis_steps_per_mm[i];
 }
 
 #if ENABLED(AUTOTEMP)
