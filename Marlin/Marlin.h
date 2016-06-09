@@ -217,6 +217,9 @@ enum AxisEnum {NO_AXIS = -1, X_AXIS = 0, A_AXIS = 0, Y_AXIS = 1, B_AXIS = 1, Z_A
 
 #define _AXIS(AXIS) AXIS ##_AXIS
 
+typedef enum { LINEARUNIT_MM = 0, LINEARUNIT_INCH = 1 } LinearUnit;
+typedef enum { TEMPUNIT_C = 0, TEMPUNIT_K = 1, TEMPUNIT_F = 2 } TempUnit;
+
 void enable_all_steppers();
 void disable_all_steppers();
 
@@ -288,9 +291,9 @@ extern bool axis_homed[3]; // axis[n].is_homed
 
 // GCode support for external objects
 bool code_seen(char);
-float code_value();
-long code_value_long();
-int16_t code_value_short();
+int code_value_int();
+float code_value_temp_abs();
+float code_value_temp_diff();
 
 #if ENABLED(DELTA)
   extern float delta[3];
