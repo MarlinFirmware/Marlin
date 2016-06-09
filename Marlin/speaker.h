@@ -36,6 +36,10 @@ class Speaker: public Buzzer {
     } state;
 
   protected:
+    /**
+     * @brief Resets the state of the class
+     * @details Brings the class state to a known one.
+     */
     void reset() {
       super::reset();
       this->state.period = 0;
@@ -43,10 +47,18 @@ class Speaker: public Buzzer {
     }
 
   public:
+    /**
+     * @brief Class constructor
+     */
     Speaker() {
       this->reset();
     }
 
+    /**
+     * @brief Loop function
+     * @details This function should be called at loop, it will take care of
+     * playing the tones in the queue.
+     */
     virtual void tick() {
       if (!this->state.cycles) {
         if (this->buffer.isEmpty()) return;
