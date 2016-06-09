@@ -945,16 +945,16 @@ void Planner::check_axes_activity() {
     block->acceleration_steps_per_s2 = ceil(acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
   }
   // Limit acceleration per axis
-                xsteps = max_acceleration_steps_per_s2[X_AXIS],
-                ysteps = max_acceleration_steps_per_s2[Y_AXIS],
-                zsteps = max_acceleration_steps_per_s2[Z_AXIS],
-                esteps = max_acceleration_steps_per_s2[E_AXIS],
   unsigned long acc_st = block->acceleration_steps_per_s2,
+                x_acc_st = max_acceleration_steps_per_s2[X_AXIS],
+                y_acc_st = max_acceleration_steps_per_s2[Y_AXIS],
+                z_acc_st = max_acceleration_steps_per_s2[Z_AXIS],
+                e_acc_st = max_acceleration_steps_per_s2[E_AXIS],
                 allsteps = block->step_event_count;
-  if (xsteps < (acc_st * bsx) / allsteps) acc_st = (xsteps * allsteps) / bsx;
-  if (ysteps < (acc_st * bsy) / allsteps) acc_st = (ysteps * allsteps) / bsy;
-  if (zsteps < (acc_st * bsz) / allsteps) acc_st = (zsteps * allsteps) / bsz;
-  if (esteps < (acc_st * bse) / allsteps) acc_st = (esteps * allsteps) / bse;
+  if (x_acc_st < (acc_st * bsx) / allsteps) acc_st = (x_acc_st * allsteps) / bsx;
+  if (y_acc_st < (acc_st * bsy) / allsteps) acc_st = (y_acc_st * allsteps) / bsy;
+  if (z_acc_st < (acc_st * bsz) / allsteps) acc_st = (z_acc_st * allsteps) / bsz;
+  if (e_acc_st < (acc_st * bse) / allsteps) acc_st = (e_acc_st * allsteps) / bse;
 
   block->acceleration_steps_per_s2 = acc_st;
   block->acceleration = acc_st / steps_per_mm;
