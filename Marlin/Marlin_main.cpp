@@ -1167,7 +1167,7 @@ void get_available_commands() {
   #endif
 }
 
-bool code_has_value() {
+inline bool code_has_value() {
   int i = 1;
   char c = seen_pointer[i];
   while (c == ' ') c = seen_pointer[++i];
@@ -1176,7 +1176,7 @@ bool code_has_value() {
   return NUMERIC(c);
 }
 
-float code_value_float() {
+inline float code_value_float() {
   float ret;
   char* e = strchr(seen_pointer, 'E');
   if (e) {
@@ -1189,20 +1189,20 @@ float code_value_float() {
   return ret;
 }
 
-unsigned long code_value_ulong() { return strtoul(seen_pointer + 1, NULL, 10); }
+inline unsigned long code_value_ulong() { return strtoul(seen_pointer + 1, NULL, 10); }
 
-long code_value_long() { return strtol(seen_pointer + 1, NULL, 10); }
+inline long code_value_long() { return strtol(seen_pointer + 1, NULL, 10); }
 
-int code_value_int() { return (int)strtol(seen_pointer + 1, NULL, 10); }
+inline int code_value_int() { return (int)strtol(seen_pointer + 1, NULL, 10); }
 
-uint16_t code_value_ushort() { return (uint16_t)strtoul(seen_pointer + 1, NULL, 10); }
+inline uint16_t code_value_ushort() { return (uint16_t)strtoul(seen_pointer + 1, NULL, 10); }
 
-uint8_t code_value_byte() { return (uint8_t)(constrain(strtol(seen_pointer + 1, NULL, 10), 0, 255)); }
+inline uint8_t code_value_byte() { return (uint8_t)(constrain(strtol(seen_pointer + 1, NULL, 10), 0, 255)); }
 
-bool code_value_bool() { return code_value_byte() > 0; }
+inline bool code_value_bool() { return code_value_byte() > 0; }
 
 #if ENABLED(INCH_MODE_SUPPORT)
-  void set_input_linear_units(LinearUnit units) {
+  inline void set_input_linear_units(LinearUnit units) {
     switch (units) {
       case LINEARUNIT_INCH:
         linear_unit_factor = 25.4;
@@ -1215,33 +1215,24 @@ bool code_value_bool() { return code_value_byte() > 0; }
     volumetric_unit_factor = pow(linear_unit_factor, 3.0);
   }
 
-  float axis_unit_factor(int axis) {
+  inline float axis_unit_factor(int axis) {
     return (axis == E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
   }
 
-  float code_value_linear_units() {
-    return code_value_float() * linear_unit_factor;
-  }
+  inline float code_value_linear_units() { return code_value_float() * linear_unit_factor; }
+  inline float code_value_per_axis_unit(int axis) { return code_value_float() / axis_unit_factor(axis); }
+  inline float code_value_axis_units(int axis) { return code_value_float() * axis_unit_factor(axis); }
 
-  float code_value_per_axis_unit(int axis) {
-    return code_value_float() / axis_unit_factor(axis);
-  }
-
-  float code_value_axis_units(int axis) {
-    return code_value_float() * axis_unit_factor(axis);
-  }
 #else
-  float code_value_linear_units() { return code_value_float(); }
 
-  float code_value_per_axis_unit(int axis) { return code_value_float(); }
+  inline float code_value_linear_units() { return code_value_float(); }
+  inline float code_value_per_axis_unit(int axis) { return code_value_float(); }
+  inline float code_value_axis_units(int axis) { return code_value_float(); }
 
-  float code_value_axis_units(int axis) { return code_value_float(); }
 #endif
 
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
-  void set_input_temp_units(TempUnit units) {
-    input_temp_units = units;
-  }
+  inline void set_input_temp_units(TempUnit units) { input_temp_units = units; }
   
   float code_value_temp_abs() {
     switch (input_temp_units) {
@@ -1272,13 +1263,8 @@ bool code_value_bool() { return code_value_byte() > 0; }
   float code_value_temp_diff() { return code_value_float(); }
 #endif
 
-millis_t code_value_millis() {
-  return code_value_ulong();
-}
-
-millis_t code_value_millis_from_seconds() {
-  return code_value_float() * 1000;
-}
+inline millis_t code_value_millis() { return code_value_ulong(); }
+inline millis_t code_value_millis_from_seconds() { return code_value_float() * 1000; }
 
 bool code_seen(char code) {
   seen_pointer = strchr(current_command_args, code);
