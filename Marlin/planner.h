@@ -112,7 +112,7 @@ class Planner {
     static volatile uint8_t block_buffer_tail;
 
     static float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
-    static float axis_steps_per_unit[NUM_AXIS];
+    static float axis_steps_per_mm[NUM_AXIS];
     static unsigned long max_acceleration_steps_per_s2[NUM_AXIS];
     static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
@@ -134,7 +134,7 @@ class Planner {
 
     /**
      * The current position of the tool in absolute steps
-     * Reclculated if any axis_steps_per_unit are changed by gcode
+     * Reclculated if any axis_steps_per_mm are changed by gcode
      */
     static long position[NUM_AXIS];
 
@@ -212,7 +212,7 @@ class Planner {
        * Set the planner.position and individual stepper positions.
        * Used by G92, G28, G29, and other procedures.
        *
-       * Multiplies by axis_steps_per_unit[] and does necessary conversion
+       * Multiplies by axis_steps_per_mm[] and does necessary conversion
        * for COREXY / COREXZ / COREYZ to set the corresponding stepper positions.
        *
        * Clears previous speed values.
