@@ -155,7 +155,7 @@ void Planner::calculate_trapezoid_for_block(block_t* block, float entry_factor, 
   NOLESS(initial_rate, 120);
   NOLESS(final_rate, 120);
 
-  long accel = block->acceleration_st;
+  long accel = block->acceleration_steps_per_s2;
   int32_t accelerate_steps = ceil(estimate_acceleration_distance(initial_rate, block->nominal_rate, accel));
   int32_t decelerate_steps = floor(estimate_acceleration_distance(block->nominal_rate, final_rate, -accel));
 
@@ -936,27 +936,27 @@ void Planner::check_axes_activity() {
   float steps_per_mm = block->step_event_count / block->millimeters;
   long bsx = block->steps[X_AXIS], bsy = block->steps[Y_AXIS], bsz = block->steps[Z_AXIS], bse = block->steps[E_AXIS];
   if (bsx == 0 && bsy == 0 && bsz == 0) {
-    block->acceleration_st = ceil(retract_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
+    block->acceleration_steps_per_s2 = ceil(retract_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
   }
   else if (bse == 0) {
-    block->acceleration_st = ceil(travel_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
+    block->acceleration_steps_per_s2 = ceil(travel_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
   }
   else {
-    block->acceleration_st = ceil(acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
+    block->acceleration_steps_per_s2 = ceil(acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
   }
   // Limit acceleration per axis
-  unsigned long acc_st = block->acceleration_st,
                 xsteps = max_acceleration_steps_per_s2[X_AXIS],
                 ysteps = max_acceleration_steps_per_s2[Y_AXIS],
                 zsteps = max_acceleration_steps_per_s2[Z_AXIS],
                 esteps = max_acceleration_steps_per_s2[E_AXIS],
+  unsigned long acc_st = block->acceleration_steps_per_s2,
                 allsteps = block->step_event_count;
   if (xsteps < (acc_st * bsx) / allsteps) acc_st = (xsteps * allsteps) / bsx;
   if (ysteps < (acc_st * bsy) / allsteps) acc_st = (ysteps * allsteps) / bsy;
   if (zsteps < (acc_st * bsz) / allsteps) acc_st = (zsteps * allsteps) / bsz;
   if (esteps < (acc_st * bse) / allsteps) acc_st = (esteps * allsteps) / bse;
 
-  block->acceleration_st = acc_st;
+  block->acceleration_steps_per_s2 = acc_st;
   block->acceleration = acc_st / steps_per_mm;
   block->acceleration_rate = (long)(acc_st * 16777216.0 / (F_CPU / 8.0));
 
@@ -1057,7 +1057,7 @@ void Planner::check_axes_activity() {
       block->advance = 0;
     }
     else {
-      long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_st);
+      long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_steps_per_s2);
       float advance = ((STEPS_PER_CUBIC_MM_E) * (EXTRUDER_ADVANCE_K)) * (cse * cse * (EXTRUSION_AREA) * (EXTRUSION_AREA)) * 256;
       block->advance = advance;
       block->advance_rate = acc_dist ? advance / (float)acc_dist : 0;
