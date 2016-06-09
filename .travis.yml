@@ -121,6 +121,15 @@ script:
   - opt_enable_adv DUAL_X_CARRIAGE
   - build_marlin
   #
+  # Test SPEAKER
+  #
+  - restore_configs
+  - opt_set MOTHERBOARD BOARD_BQ_ZUM_MEGA_3D
+  - opt_set LCD_FEEDBACK_FREQUENCY_DURATION_MS 10
+  - opt_set LCD_FEEDBACK_FREQUENCY_HZ 100
+  - opt_enable SPEAKER
+  - build_marlin
+  #
   ### LCDS ###
   #
   #
