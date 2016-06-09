@@ -84,7 +84,7 @@ typedef struct {
   unsigned long nominal_rate;                        // The nominal step rate for this block in step_events/sec
   unsigned long initial_rate;                        // The jerk-adjusted step rate at start of block
   unsigned long final_rate;                          // The minimal rate at exit
-  unsigned long acceleration_st;                     // acceleration steps/sec^2
+  unsigned long acceleration_steps_per_s2;           // acceleration steps/sec^2
 
   #if FAN_COUNT > 0
     unsigned long fan_speed[FAN_COUNT];
