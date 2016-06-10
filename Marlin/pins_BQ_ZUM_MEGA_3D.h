@@ -60,19 +60,34 @@
 #define PS_ON_PIN         81 // External Power Supply
 
 #if ENABLED(BQ_LCD_SMART_CONTROLLER) // Most similar to REPRAP_DISCOUNT_SMART_CONTROLLER
+  #undef KILL_PIN
   #define KILL_PIN        41
 
+  #undef BEEPER_PIN
   #define BEEPER_PIN      37
 
+  #undef BTN_EN1
   #define BTN_EN1         31
+
+  #undef BTN_EN2
   #define BTN_EN2         33
+
+  #undef BTN_ENC
   #define BTN_ENC         35
 
+  #undef LCD_PIN_BL
   #define LCD_PIN_BL      39
+
+  #undef LCD_PINS_RS
   #define LCD_PINS_RS     16
+
+  #undef LCD_PINS_ENABLE
   #define LCD_PINS_ENABLE 17
+
+  #undef LCD_PINS_D4
   #define LCD_PINS_D4     23
 
+  #undef SD_DETECT_PIN
   #define SD_DETECT_PIN   49
 #endif
 
