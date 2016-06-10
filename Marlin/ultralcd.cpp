@@ -1686,20 +1686,20 @@ static void lcd_control_motion_menu() {
   MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &planner.max_feedrate[E_AXIS], 1, 999);
   MENU_ITEM_EDIT(float3, MSG_VMIN, &planner.min_feedrate, 0, 999);
   MENU_ITEM_EDIT(float3, MSG_VTRAV_MIN, &planner.min_travel_feedrate, 0, 999);
-  MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_X, &planner.max_acceleration_units_per_sq_second[X_AXIS], 100, 99000, _reset_acceleration_rates);
-  MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Y, &planner.max_acceleration_units_per_sq_second[Y_AXIS], 100, 99000, _reset_acceleration_rates);
-  MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Z, &planner.max_acceleration_units_per_sq_second[Z_AXIS], 10, 99000, _reset_acceleration_rates);
-  MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_units_per_sq_second[E_AXIS], 100, 99000, _reset_acceleration_rates);
+  MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_X, &planner.max_acceleration_mm_per_s2[X_AXIS], 100, 99000, _reset_acceleration_rates);
+  MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Y, &planner.max_acceleration_mm_per_s2[Y_AXIS], 100, 99000, _reset_acceleration_rates);
+  MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Z, &planner.max_acceleration_mm_per_s2[Z_AXIS], 10, 99000, _reset_acceleration_rates);
+  MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &planner.max_acceleration_mm_per_s2[E_AXIS], 100, 99000, _reset_acceleration_rates);
   MENU_ITEM_EDIT(float5, MSG_A_RETRACT, &planner.retract_acceleration, 100, 99000);
   MENU_ITEM_EDIT(float5, MSG_A_TRAVEL, &planner.travel_acceleration, 100, 99000);
-  MENU_ITEM_EDIT(float52, MSG_XSTEPS, &planner.axis_steps_per_unit[X_AXIS], 5, 9999);
-  MENU_ITEM_EDIT(float52, MSG_YSTEPS, &planner.axis_steps_per_unit[Y_AXIS], 5, 9999);
+  MENU_ITEM_EDIT(float52, MSG_XSTEPS, &planner.axis_steps_per_mm[X_AXIS], 5, 9999);
+  MENU_ITEM_EDIT(float52, MSG_YSTEPS, &planner.axis_steps_per_mm[Y_AXIS], 5, 9999);
   #if ENABLED(DELTA)
-    MENU_ITEM_EDIT(float52, MSG_ZSTEPS, &planner.axis_steps_per_unit[Z_AXIS], 5, 9999);
+    MENU_ITEM_EDIT(float52, MSG_ZSTEPS, &planner.axis_steps_per_mm[Z_AXIS], 5, 9999);
   #else
-    MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &planner.axis_steps_per_unit[Z_AXIS], 5, 9999);
+    MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &planner.axis_steps_per_mm[Z_AXIS], 5, 9999);
   #endif
-  MENU_ITEM_EDIT(float51, MSG_ESTEPS, &planner.axis_steps_per_unit[E_AXIS], 5, 9999);
+  MENU_ITEM_EDIT(float51, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999);
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &stepper.abort_on_endstop_hit);
   #endif

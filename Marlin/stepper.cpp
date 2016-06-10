@@ -754,7 +754,7 @@ float Stepper::get_axis_position_mm(AxisEnum axis) {
   #else
     axis_steps = position(axis);
   #endif
-  return axis_steps / planner.axis_steps_per_unit[axis];
+  return axis_steps / planner.axis_steps_per_mm[axis];
 }
 
 void Stepper::finish_and_disable() {
