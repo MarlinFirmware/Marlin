@@ -13,6 +13,14 @@
 * Erasing EEPROM through serial shows EEPROM erasing screen in LCD (W2/H2).
 * Changed rest position  (W/H/HXL).
 * Added support for custom builds with filament sensor (H/HXL/H2).
+* Reduced motor noise (W/H/HXL/W2/H2).
+    Stepper management changes:
+    - 16 steps per interrupt for 32 usteps.
+    - Maximum Frequency: 1.667 KHz
+    - Maximum Step Multiplier: x16
+    - Maximum Steps/Second: 26.667 Kstep/s
+    - Maximum Axis Speed (32 usteps): 167 mm/s
+  Note: a new configuration option, PREFER_MAX_SPEED, is available in the configuration files to allow custom builds with previous stepper control profile.
 
 ### New features:
 * New screen will remind to replace the PTFE tube every 250 hours of printing (W2/H2).
