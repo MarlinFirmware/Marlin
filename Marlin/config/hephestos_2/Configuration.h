@@ -63,6 +63,9 @@
 // PTFE tube maintenance reminder frequency in hours
 #define PTFE_CHANGE_TIME 250
 
+// The following define selects the stepper profile to use, if enabled printer noise will increase
+// #define PREFER_MAX_SPEED
+
 //===========================================================================
 //=============================Thermal Settings  ============================
 //===========================================================================

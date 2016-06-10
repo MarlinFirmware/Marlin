@@ -3,7 +3,11 @@
 
 #include "Marlin.h"
 
+#ifndef PREFER_MAX_SPEED
 const uint16_t speed_lookuptable[1672] PROGMEM = {
+#else
+const uint16_t speed_lookuptable[1024] PROGMEM = {
+#endif
 	65535, 	65535, 	65535, 	65535, 	65535, 	65535, 	65535, 	65535,
 	65535, 	65535, 	65535, 	65535, 	65535, 	65535, 	65535, 	65535,
 	65535, 	65535, 	65535, 	65535, 	65535, 	65535, 	65535, 	65535,
@@ -132,6 +136,9 @@ const uint16_t speed_lookuptable[1672] PROGMEM = {
 	2000, 	1998, 	1996, 	1994, 	1992, 	1990, 	1988, 	1986,
 	1984, 	1982, 	1980, 	1978, 	1976, 	1974, 	1972, 	1970,
 	1968, 	1966, 	1964, 	1962, 	1960, 	1958, 	1956, 	1955,
+#ifdef PREFER_MAX_SPEED
+};
+#else // PREFER_MAX_SPEED
 	1953, 	1951, 	1949, 	1947, 	1945, 	1943, 	1941, 	1939,
 	1937, 	1936, 	1934, 	1932, 	1930, 	1928, 	1926, 	1924,
 	1923, 	1921, 	1919, 	1917, 	1915, 	1913, 	1912, 	1910,
@@ -214,5 +221,6 @@ const uint16_t speed_lookuptable[1672] PROGMEM = {
 	1207, 	1207, 	1206, 	1205, 	1204, 	1204, 	1203, 	1202,
 	1201, 	1201, 	1200, 	1199, 	1199, 	1198, 	1197, 	1196,
 };
+#endif // PREFER_MAX_SPEED
 
-#endif
+#endif // SPEED_LOOKUPTABLE_H

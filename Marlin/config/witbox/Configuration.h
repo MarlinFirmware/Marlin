@@ -58,6 +58,9 @@
 // Define this to have hotbed support
 //#define HEATED_BED_SUPPORT
 
+// The following define selects the stepper profile to use, if enabled printer noise will increase
+// #define PREFER_MAX_SPEED
+
 //===========================================================================
 //============================= Thermal Settings ============================
 //===========================================================================

@@ -38,7 +38,11 @@
   #undef MAX_STEP_FREQUENCY
 #endif
 
-#define MAX_STEP_FREQUENCY 26667
+#ifndef PREFER_MAX_SPEED
+	#define MAX_STEP_FREQUENCY 26667
+#else // PREFER_MAX_SPEED
+	#define MAX_STEP_FREQUENCY 32000
+#endif // PREFER_MAX_SPEED
 
 //===========================================================================
 //=============================public variables  ============================
@@ -294,6 +298,7 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   unsigned short timer;
   if (step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
 
+#ifndef PREFER_MAX_SPEED
   if(step_rate > 13333) // If steprate > 13.333 KHz >> step 16 times
   {
     step_rate = (step_rate >> 4) & 0x0fff;
@@ -318,10 +323,42 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   {
     step_loops = 1;
   }
+#else // PREFER_MAX_SPEED
+  if(step_rate > 16000)     // If steprate > 16kHz >> step 32 times
+  {
+    step_rate = (step_rate >> 5) & 0x07ff;
+    step_loops = 32;
+  }
+  else if(step_rate > 8000) // If steprate > 8kHz >> step 16 times
+  {
+    step_rate = (step_rate >> 4) & 0x0fff;
+    step_loops = 16;
+  }
+  else if(step_rate > 4000) // If steprate > 4kHz >> step 8 times
+  {
+    step_rate = (step_rate >> 3) & 0x1fff;
+    step_loops = 8;
+  }
+  else if(step_rate > 2000) // If steprate > 2kHz >> step 4 times
+  {
+    step_rate = (step_rate >> 2) & 0x3fff;
+    step_loops = 4;
+  }
+  else if(step_rate > 1000) // If steprate > 1kHz >> step 2 times
+  {
+    step_rate = (step_rate >> 1) & 0x7fff;
+    step_loops = 2;
+  }
+  else                      // If steprate < 1kHz >> step 1 times
+  {
+    step_loops = 1;
+  }
+#endif // PREFER_MAX_SPEED
 
   unsigned short table_address = (unsigned short)&speed_lookuptable[step_rate];
   timer = (unsigned short)pgm_read_word_near(table_address);
 
+#ifndef PREFER_MAX_SPEED
   // Check frequency generated (1.666 KHz this should never happen)
   if(timer < 1200)
   {
@@ -329,7 +366,15 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
     MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
     MYSERIAL.println(step_rate);
   }
-
+#else // PREFER_MAX_SPEED
+  // Check frequency generated (1kHz this should never happen)
+  if(timer < 2000)
+  {
+    timer = 2000;
+    MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
+    MYSERIAL.println(step_rate);
+  }
+#endif // PREFER_MAX_SPEED
   return timer;
 }
 
