@@ -116,10 +116,6 @@
 
 #define PS_ON_PIN          12
 
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) || ENABLED(G3D_PANEL)
-  #define KILL_PIN         41
-#endif
-
 #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF)
   #define HEATER_0_PIN      8
 #else
@@ -168,6 +164,12 @@
       #define BTN_ENC 35
 
       #define SD_DETECT_PIN 49
+      #define KILL_PIN 41
+
+      #if ENABLED(BQ_LCD_SMART_CONTROLLER)
+        #define LCD_PIN_BL 39
+      #endif
+
     #elif ENABLED(LCD_I2C_PANELOLU2)
       #define BTN_EN1 47  // reverse if the encoder turns the wrong way.
       #define BTN_EN2 43
@@ -241,6 +243,7 @@
 
       #if ENABLED(G3D_PANEL)
         #define SD_DETECT_PIN 49
+        #define KILL_PIN 41
       #else
         //        #define SD_DETECT_PIN -1  // Ramps doesn't use this
       #endif
@@ -281,8 +284,4 @@
   #define SCK_PIN          52
   #define MISO_PIN         50
   #define MOSI_PIN         51
-#endif
-
-#ifndef KILL_PIN
-  //  #define KILL_PIN         -1
 #endif
