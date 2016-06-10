@@ -20,11 +20,114 @@
  *
  */
 
-#ifndef BUZZER_H
-  #define BUZZER_H
+#ifndef __BUZZER_H__
+#define __BUZZER_H__
 
-  #if HAS_BUZZER
-    void buzz(long duration, uint16_t freq);
-  #endif
+#include "fastio.h"
+#include "watchdog.h"
+#include "circularqueue.h"
 
-#endif //BUZZER_H
+#define TONE_QUEUE_LENGTH 4
+
+/**
+ * @brief Tone structure
+ * @details Simple abstration of a tone based on a duration and a frequency.
+ *
+ */
+struct tone_t {
+  uint16_t duration;
+  uint16_t frequency;
+};
+
+/**
+ * @brief Buzzer class
+ */
+class Buzzer {
+  private:
+    struct state_t {
+      tone_t   tone;
+      uint32_t timestamp;
+    } state;
+
+  protected:
+    CircularQueue<tone_t, TONE_QUEUE_LENGTH> buffer;
+
+    /**
+     * @brief Inverts the sate of a digital PIN
+     * @details This will invert the current state of an digital IO pin.
+     */
+    void invert() {
+      WRITE(BEEPER_PIN, !READ(BEEPER_PIN));
+    }
+
+    /**
+     * @brief Turn off a digital PIN
+     * @details Alias of digitalWrite(PIN, LOW) using FastIO
+     */
+    void off() {
+      WRITE(BEEPER_PIN, LOW);
+    }
+
+    /**
+     * @brief Turn on a digital PIN
+     * @details Alias of digitalWrite(PIN, HIGH) using FastIO
+     */
+    void on() {
+      WRITE(BEEPER_PIN, HIGH);
+    }
+
+    /**
+     * @brief Resets the state of the class
+     * @details Brings the class state to a known one.
+     */
+    void reset() {
+      this->off();
+      this->state.timestamp = 0;
+    }
+
+  public:
+    /**
+     * @brief Class constructor
+     */
+    Buzzer() {
+      SET_OUTPUT(BEEPER_PIN);
+      this->reset();
+    }
+
+    /**
+     * @brief Add a tone to the queue
+     * @details Adds a tone_t structure to the ring buffer, will block IO if the
+     * queue is full waiting for one slot to get available.
+     *
+     * @param duration Duration of the tone in milliseconds
+     * @param frequency Frequency of the tone in hertz
+     */
+    void tone(uint16_t const &duration, uint16_t const &frequency = 0) {
+      while (buffer.isFull()) {
+        delay(5);
+        this->tick();
+        #if ENABLED(USE_WATCHDOG)
+          watchdog_reset();
+        #endif
+      }
+      this->buffer.enqueue((tone_t) { duration, frequency });
+    }
+
+    /**
+     * @brief Loop function
+     * @details This function should be called at loop, it will take care of
+     * playing the tones in the queue.
+     */
+    virtual void tick() {
+      if (!this->state.timestamp) {
+        if (this->buffer.isEmpty()) return;
+
+        this->state.tone = this->buffer.dequeue();
+        this->state.timestamp = millis() + this->state.tone.duration;
+        if (this->state.tone.frequency > 0) this->on();
+      }
+      else if (millis() >= this->state.timestamp) this->reset();
+    }
+};
+
+#endif
