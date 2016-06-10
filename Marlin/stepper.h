@@ -318,7 +318,7 @@ class Stepper {
         advance = current_block->initial_advance;
         final_advance = current_block->final_advance;
         // Do E steps + advance steps
-        e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
+        e_steps[BLOCK_E_STEPPER] += ((advance >>8) - old_advance);
         old_advance = advance >>8;
       #endif
       deceleration_time = 0;

@@ -332,7 +332,7 @@ void Stepper::isr() {
       #endif
 
       // #if ENABLED(ADVANCE)
-      //   e_steps[current_block->active_extruder] = 0;
+      //   e_steps[BLOCK_E_STEPPER] = 0;
       // #endif
     }
     else {
@@ -376,7 +376,7 @@ void Stepper::isr() {
         counter_E += current_block->steps[E_AXIS];
         if (counter_E > 0) {
           counter_E -= current_block->step_event_count;
-          e_steps[current_block->active_extruder] += motor_direction(E_AXIS) ? -1 : 1;
+          e_steps[BLOCK_E_STEPPER] += motor_direction(E_AXIS) ? -1 : 1;
         }
 
       #endif // ADVANCE or LIN_ADVANCE
@@ -445,7 +445,7 @@ void Stepper::isr() {
         //NOLESS(advance, current_block->advance);
 
         // Do E steps + advance steps
-        e_steps[current_block->active_extruder] += ((advance >> 8) - old_advance);
+        e_steps[BLOCK_E_STEPPER] += ((advance >> 8) - old_advance);
         old_advance = advance >> 8;
 
       #endif // ADVANCE or LIN_ADVANCE
@@ -481,7 +481,7 @@ void Stepper::isr() {
 
         // Do E steps + advance steps
         uint32_t advance_whole = advance >> 8;
-        e_steps[current_block->active_extruder] += advance_whole - old_advance;
+        e_steps[BLOCK_E_STEPPER] += advance_whole - old_advance;
         old_advance = advance_whole;
 
       #endif // ADVANCE or LIN_ADVANCE

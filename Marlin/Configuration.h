@@ -136,6 +136,15 @@
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
 
+// A dual extruder that uses a single stepper motor
+// Don't forget to set SSDE_SERVO_ANGLES and HOTEND_OFFSET_X/Y/Z
+//#define SWITCHING_EXTRUDER
+#ifdef SWITCHING_EXTRUDER
+  #define SWITCHING_EXTRUDER_SERVO_NR 0
+  #define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Angles for E0, E1
+  //#define HOTEND_OFFSET_Z {0.0, 0.0}
+#endif
+
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
