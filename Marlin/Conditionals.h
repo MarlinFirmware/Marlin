@@ -53,6 +53,8 @@
     #define ULTIPANEL
     #define NEWPANEL
     #define DEFAULT_LCD_CONTRAST 90
+    #define LCD_CONTRAST_MIN 60
+    #define LCD_CONTRAST_MAX 140
   #endif
   
   #if ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)
