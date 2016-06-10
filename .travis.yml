@@ -123,6 +123,17 @@ script:
   #
   ### LCDS ###
   #
+  # ULTRA_LCD
+  #
+  - restore_configs
+  - opt_enable ULTRA_LCD
+  - build_marlin
+  #
+  # DOGLCD
+  #
+  - restore_configs
+  - opt_enable DOGLCD
+  - build_marlin
   #
   # ULTIMAKERCONTROLLER
   #
