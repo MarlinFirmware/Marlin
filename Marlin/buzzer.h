@@ -24,6 +24,7 @@
 #define __BUZZER_H__
 
 #include "fastio.h"
+#include "watchdog.h"
 #include "circularqueue.h"
 
 #define TONE_QUEUE_LENGTH 4
@@ -102,7 +103,13 @@ class Buzzer {
      * @param frequency Frequency of the tone in hertz
      */
     void tone(uint16_t const &duration, uint16_t const &frequency = 0) {
-      while (buffer.isFull()) this->tick();
+      while (buffer.isFull()) {
+        delay(5);
+        this->tick();
+        #if ENABLED(USE_WATCHDOG)
+          watchdog_reset();
+        #endif
+      }
       this->buffer.enqueue((tone_t) { duration, frequency });
     }
 
