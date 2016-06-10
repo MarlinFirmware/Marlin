@@ -43,9 +43,9 @@
  *
  *  100  Version (char x4)
  *
- *  104  M92 XYZE  planner.axis_steps_per_unit (float x4)
+ *  104  M92 XYZE  planner.axis_steps_per_mm (float x4)
  *  120  M203 XYZE planner.max_feedrate (float x4)
- *  136  M201 XYZE planner.max_acceleration_units_per_sq_second (uint32_t x4)
+ *  136  M201 XYZE planner.max_acceleration_mm_per_s2 (uint32_t x4)
  *  152  M204 P    planner.acceleration (float)
  *  156  M204 R    planner.retract_acceleration (float)
  *  160  M204 T    planner.travel_acceleration (float)
@@ -173,9 +173,9 @@ void Config_StoreSettings()  {
   char ver[4] = "000";
   int i = EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i, ver); // invalidate data first
-  EEPROM_WRITE_VAR(i, planner.axis_steps_per_unit);
+  EEPROM_WRITE_VAR(i, planner.axis_steps_per_mm);
   EEPROM_WRITE_VAR(i, planner.max_feedrate);
-  EEPROM_WRITE_VAR(i, planner.max_acceleration_units_per_sq_second);
+  EEPROM_WRITE_VAR(i, planner.max_acceleration_mm_per_s2);
   EEPROM_WRITE_VAR(i, planner.acceleration);
   EEPROM_WRITE_VAR(i, planner.retract_acceleration);
   EEPROM_WRITE_VAR(i, planner.travel_acceleration);
@@ -353,9 +353,9 @@ void Config_RetrieveSettings() {
     float dummy = 0;
 
     // version number match
-    EEPROM_READ_VAR(i, planner.axis_steps_per_unit);
+    EEPROM_READ_VAR(i, planner.axis_steps_per_mm);
     EEPROM_READ_VAR(i, planner.max_feedrate);
-    EEPROM_READ_VAR(i, planner.max_acceleration_units_per_sq_second);
+    EEPROM_READ_VAR(i, planner.max_acceleration_mm_per_s2);
 
     // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
     planner.reset_acceleration_rates();
@@ -527,9 +527,9 @@ void Config_ResetDefault() {
   float tmp2[] = DEFAULT_MAX_FEEDRATE;
   long tmp3[] = DEFAULT_MAX_ACCELERATION;
   for (uint8_t i = 0; i < NUM_AXIS; i++) {
-    planner.axis_steps_per_unit[i] = tmp1[i];
+    planner.axis_steps_per_mm[i] = tmp1[i];
     planner.max_feedrate[i] = tmp2[i];
-    planner.max_acceleration_units_per_sq_second[i] = tmp3[i];
+    planner.max_acceleration_mm_per_s2[i] = tmp3[i];
     #if ENABLED(SCARA)
       if (i < COUNT(axis_scaling))
         axis_scaling[i] = 1;
@@ -652,10 +652,10 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Steps per unit:");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M92 X", planner.axis_steps_per_unit[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", planner.axis_steps_per_unit[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", planner.axis_steps_per_unit[Z_AXIS]);
-  SERIAL_ECHOPAIR(" E", planner.axis_steps_per_unit[E_AXIS]);
+  SERIAL_ECHOPAIR("  M92 X", planner.axis_steps_per_mm[X_AXIS]);
+  SERIAL_ECHOPAIR(" Y", planner.axis_steps_per_mm[Y_AXIS]);
+  SERIAL_ECHOPAIR(" Z", planner.axis_steps_per_mm[Z_AXIS]);
+  SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS]);
   SERIAL_EOL;
 
   CONFIG_ECHO_START;
@@ -687,10 +687,10 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M201 X", planner.max_acceleration_units_per_sq_second[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", planner.max_acceleration_units_per_sq_second[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", planner.max_acceleration_units_per_sq_second[Z_AXIS]);
-  SERIAL_ECHOPAIR(" E", planner.max_acceleration_units_per_sq_second[E_AXIS]);
+  SERIAL_ECHOPAIR("  M201 X", planner.max_acceleration_mm_per_s2[X_AXIS]);
+  SERIAL_ECHOPAIR(" Y", planner.max_acceleration_mm_per_s2[Y_AXIS]);
+  SERIAL_ECHOPAIR(" Z", planner.max_acceleration_mm_per_s2[Z_AXIS]);
+  SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS]);
   SERIAL_EOL;
   CONFIG_ECHO_START;
   if (!forReplay) {
