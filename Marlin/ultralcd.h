@@ -61,8 +61,11 @@
   #define LCD_TIMEOUT_TO_STATUS 15000
 
   #if ENABLED(ULTIPANEL)
-    void lcd_buttons_update();
     extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+    void lcd_buttons_update();
+    void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
+    bool lcd_clicked();
+    void lcd_ignore_click(bool b=true);
   #else
     FORCE_INLINE void lcd_buttons_update() {}
   #endif
@@ -79,12 +82,10 @@
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     extern millis_t previous_lcd_status_ms;
   #endif
-  void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
-  bool lcd_clicked();
-  void lcd_ignore_click(bool b=true);
+
   bool lcd_blink();
 
-  #if ENABLED(ULTIPANEL) && ENABLED(REPRAPWORLD_KEYPAD)
+  #if ENABLED(REPRAPWORLD_KEYPAD)
 
     #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
 
@@ -114,7 +115,7 @@
     #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
     #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
 
-  #endif //ULTIPANEL && REPRAPWORLD_KEYPAD
+  #endif // REPRAPWORLD_KEYPAD
 
   #if ENABLED(NEWPANEL)
 
