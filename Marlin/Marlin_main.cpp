@@ -6748,17 +6748,15 @@ inline void gcode_T(uint8_t tmp_extruder) {
             }
           #endif
 
-        #else // !AUTO_BED_LEVELING_FEATURE
+        #elif ENABLED(MESH_BED_LEVELING)
 
-          // The newly-selected extruder is actually at...
-          for (int i=X_AXIS; i<=Y_AXIS; i++) {
-            float diff = hotend_offset[i][tmp_extruder] - hotend_offset[i][active_extruder];
-            current_position[i] += diff;
-            position_shift[i] += diff; // Offset the coordinate space
-            update_software_endstops((AxisEnum)i);
+          if (mbl.active()) {
+            float xpos = current_position[X_AXIS] - home_offset[X_AXIS],
+                  ypos = current_position[Y_AXIS] - home_offset[Y_AXIS];
+            current_position[Z_AXIS] += mbl.get_z(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - mbl.get_z(xpos, ypos);
           }
 
-        #endif // !AUTO_BED_LEVELING_FEATURE
+        #else // no bed leveling
 
           // The newly-selected extruder XY is actually at...
           current_position[X_AXIS] += xydiff[X_AXIS];
