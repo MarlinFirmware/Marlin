@@ -129,13 +129,13 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   #endif
 
   // Function pointer to menu functions.
-  typedef void (*menuFunc_t)();
+  typedef void (*screenFunc_t)();
 
   // Different types of actions that can be used in menu items.
   static void menu_action_back();
-  static void menu_action_submenu(menuFunc_t data);
+  static void menu_action_submenu(screenFunc_t data);
   static void menu_action_gcode(const char* pgcode);
-  static void menu_action_function(menuFunc_t data);
+  static void menu_action_function(screenFunc_t data);
   static void menu_action_setting_edit_bool(const char* pstr, bool* ptr);
   static void menu_action_setting_edit_int3(const char* pstr, int* ptr, int minValue, int maxValue);
   static void menu_action_setting_edit_float3(const char* pstr, float* ptr, float minValue, float maxValue);
@@ -145,15 +145,15 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   static void menu_action_setting_edit_float51(const char* pstr, float* ptr, float minValue, float maxValue);
   static void menu_action_setting_edit_float52(const char* pstr, float* ptr, float minValue, float maxValue);
   static void menu_action_setting_edit_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue);
-  static void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, menuFunc_t callbackFunc);
-  static void menu_action_setting_edit_callback_int3(const char* pstr, int* ptr, int minValue, int maxValue, menuFunc_t callbackFunc);
-  static void menu_action_setting_edit_callback_float3(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
-  static void menu_action_setting_edit_callback_float32(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
-  static void menu_action_setting_edit_callback_float43(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
-  static void menu_action_setting_edit_callback_float5(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
-  static void menu_action_setting_edit_callback_float51(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
-  static void menu_action_setting_edit_callback_float52(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
-  static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue, menuFunc_t callbackFunc);
+  static void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callbackFunc);
+  static void menu_action_setting_edit_callback_int3(const char* pstr, int* ptr, int minValue, int maxValue, screenFunc_t callbackFunc);
+  static void menu_action_setting_edit_callback_float3(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
+  static void menu_action_setting_edit_callback_float32(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
+  static void menu_action_setting_edit_callback_float43(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
+  static void menu_action_setting_edit_callback_float5(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
+  static void menu_action_setting_edit_callback_float51(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
+  static void menu_action_setting_edit_callback_float52(const char* pstr, float* ptr, float minValue, float maxValue, screenFunc_t callbackFunc);
+  static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue, screenFunc_t callbackFunc);
 
   #if ENABLED(SDSUPPORT)
     static void lcd_sdcard_menu();
@@ -286,14 +286,14 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   #endif
 
   typedef struct {
-    menuFunc_t menu_function;
+    screenFunc_t menu_function;
     uint32_t encoder_position;
   } menuPosition;
 
-  menuFunc_t currentMenu = lcd_status_screen; // pointer to the currently active menu handler
+  screenFunc_t currentScreen = lcd_status_screen; // pointer to the currently active menu handler
 
-  menuPosition menu_history[10];
-  uint8_t menu_history_depth = 0;
+  menuPosition screen_history[10];
+  uint8_t screen_history_depth = 0;
 
   bool ignore_click = false;
   bool wait_for_unclick;
@@ -303,49 +303,49 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   const char* editLabel;
   void* editValue;
   int32_t minEditValue, maxEditValue;
-  menuFunc_t callbackFunc;              // call this after editing
+  screenFunc_t callbackFunc;              // call this after editing
 
   /**
    * General function to go directly to a menu
    * Remembers the previous position
    */
-  static void lcd_goto_menu(menuFunc_t menu, const bool feedback = false, const uint32_t encoder = 0) {
-    if (currentMenu != menu) {
-      currentMenu = menu;
+  static void lcd_goto_screen(screenFunc_t screen, const bool feedback = false, const uint32_t encoder = 0) {
+    if (currentScreen != screen) {
+      currentScreen = screen;
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
       #if ENABLED(NEWPANEL)
         encoderPosition = encoder;
         if (feedback) lcd_quick_feedback();
       #endif
-      if (menu == lcd_status_screen) {
+      if (screen == lcd_status_screen) {
         defer_return_to_status = false;
-        menu_history_depth = 0;
+        screen_history_depth = 0;
       }
       #if ENABLED(LCD_PROGRESS_BAR)
         // For LCD_PROGRESS_BAR re-initialize custom characters
-        lcd_set_custom_characters(menu == lcd_status_screen);
+        lcd_set_custom_characters(screen == lcd_status_screen);
       #endif
     }
   }
 
-  static void lcd_return_to_status() { lcd_goto_menu(lcd_status_screen); }
+  static void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
 
   inline void lcd_save_previous_menu() {
-    if (menu_history_depth < COUNT(menu_history)) {
-      menu_history[menu_history_depth].menu_function = currentMenu;
+    if (screen_history_depth < COUNT(screen_history)) {
+      screen_history[screen_history_depth].menu_function = currentScreen;
       #if ENABLED(ULTIPANEL)
-        menu_history[menu_history_depth].encoder_position = encoderPosition;
+        screen_history[screen_history_depth].encoder_position = encoderPosition;
       #endif
-      ++menu_history_depth;
+      ++screen_history_depth;
     }
   }
 
   static void lcd_goto_previous_menu(bool feedback=false) {
-    if (menu_history_depth > 0) {
-      --menu_history_depth;
-      lcd_goto_menu(menu_history[menu_history_depth].menu_function, feedback
+    if (screen_history_depth > 0) {
+      --screen_history_depth;
+      lcd_goto_screen(screen_history[screen_history_depth].menu_function, feedback
         #if ENABLED(ULTIPANEL)
-          , menu_history[menu_history_depth].encoder_position
+          , screen_history[screen_history_depth].encoder_position
         #endif
       );
     }
@@ -428,10 +428,10 @@ static void lcd_status_screen() {
     }
 
     if (current_click) {
-      lcd_goto_menu(lcd_main_menu, true);
+      lcd_goto_screen(lcd_main_menu, true);
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
         #if ENABLED(LCD_PROGRESS_BAR) && ENABLED(ULTIPANEL)
-          currentMenu == lcd_status_screen
+          currentScreen == lcd_status_screen
         #endif
       );
       #if ENABLED(FILAMENT_LCD_DISPLAY)
@@ -588,11 +588,11 @@ static void lcd_status_screen() {
     #if ENABLED(BABYSTEP_XY)
       static void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
       static void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
-      static void lcd_babystep_x() { babysteps_done = 0; lcd_goto_menu(_lcd_babystep_x); }
-      static void lcd_babystep_y() { babysteps_done = 0; lcd_goto_menu(_lcd_babystep_y); }
+      static void lcd_babystep_x() { babysteps_done = 0; lcd_goto_screen(_lcd_babystep_x); }
+      static void lcd_babystep_y() { babysteps_done = 0; lcd_goto_screen(_lcd_babystep_y); }
     #endif
     static void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
-    static void lcd_babystep_z() { babysteps_done = 0; lcd_goto_menu(_lcd_babystep_z); }
+    static void lcd_babystep_z() { babysteps_done = 0; lcd_goto_screen(_lcd_babystep_z); }
 
   #endif //BABYSTEPPING
 
@@ -970,7 +970,7 @@ static void lcd_status_screen() {
           debounce_click = true; // ignore multiple "clicks" in a row
           mbl.set_zigzag_z(_lcd_level_bed_position++, current_position[Z_AXIS]);
           if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
-            lcd_goto_menu(_lcd_level_bed_done, true);
+            lcd_goto_screen(_lcd_level_bed_done, true);
 
             current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
               #if MIN_Z_HEIGHT_FOR_HOMING > 0
@@ -990,7 +990,7 @@ static void lcd_status_screen() {
             #endif
           }
           else {
-            lcd_goto_menu(_lcd_level_goto_next_point, true);
+            lcd_goto_screen(_lcd_level_goto_next_point, true);
           }
         }
       }
@@ -1031,7 +1031,7 @@ static void lcd_status_screen() {
      */
     static void _lcd_level_goto_next_point() {
       // Set the menu to display ahead of blocking call
-      lcd_goto_menu(_lcd_level_bed_moving);
+      lcd_goto_screen(_lcd_level_bed_moving);
 
       // _mbl_goto_xy runs the menu loop until the move is done
       int8_t px, py;
@@ -1039,7 +1039,7 @@ static void lcd_status_screen() {
       _mbl_goto_xy(mbl.get_probe_x(px), mbl.get_probe_y(py));
 
       // After the blocking function returns, change menus
-      lcd_goto_menu(_lcd_level_bed_get_z);
+      lcd_goto_screen(_lcd_level_bed_get_z);
     }
 
     /**
@@ -1052,7 +1052,7 @@ static void lcd_status_screen() {
         _lcd_level_bed_position = 0;
         current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
         planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-        lcd_goto_menu(_lcd_level_goto_next_point, true);
+        lcd_goto_screen(_lcd_level_goto_next_point, true);
       }
     }
 
@@ -1069,7 +1069,7 @@ static void lcd_status_screen() {
         #endif
       ;
       if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-        lcd_goto_menu(_lcd_level_bed_homing_done);
+        lcd_goto_screen(_lcd_level_bed_homing_done);
     }
 
     /**
@@ -1080,7 +1080,7 @@ static void lcd_status_screen() {
       axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
       mbl.reset();
       enqueue_and_echo_commands_P(PSTR("G28"));
-      lcd_goto_menu(_lcd_level_bed_homing);
+      lcd_goto_screen(_lcd_level_bed_homing);
     }
 
     /**
@@ -1868,7 +1868,7 @@ static void lcd_status_screen() {
    *   void menu_edit_callback_int3(); // edit int (interactively) with callback on completion
    *   static void _menu_action_setting_edit_int3(const char* pstr, int* ptr, int minValue, int maxValue);
    *   static void menu_action_setting_edit_int3(const char* pstr, int* ptr, int minValue, int maxValue);
-   *   static void menu_action_setting_edit_callback_int3(const char* pstr, int* ptr, int minValue, int maxValue, menuFunc_t callback); // edit int with callback
+   *   static void menu_action_setting_edit_callback_int3(const char* pstr, int* ptr, int minValue, int maxValue, screenFunc_t callback); // edit int with callback
    *
    * You can then use one of the menu macros to present the edit interface:
    *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_multiplier, 10, 999)
@@ -1910,11 +1910,11 @@ static void lcd_status_screen() {
     } \
     static void menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
-      currentMenu = menu_edit_ ## _name; \
+      currentScreen = menu_edit_ ## _name; \
     }\
-    static void menu_action_setting_edit_callback_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue, menuFunc_t callback) { \
+    static void menu_action_setting_edit_callback_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue, screenFunc_t callback) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
-      currentMenu = menu_edit_callback_ ## _name; \
+      currentScreen = menu_edit_callback_ ## _name; \
       callbackFunc = callback; \
     }
   menu_edit_type(int, int3, itostr3, 1);
@@ -1999,9 +1999,9 @@ static void lcd_status_screen() {
    *
    */
   static void menu_action_back() { lcd_goto_previous_menu(); }
-  static void menu_action_submenu(menuFunc_t func) { lcd_save_previous_menu(); lcd_goto_menu(func); }
+  static void menu_action_submenu(screenFunc_t func) { lcd_save_previous_menu(); lcd_goto_screen(func); }
   static void menu_action_gcode(const char* pgcode) { enqueue_and_echo_commands_P(pgcode); }
-  static void menu_action_function(menuFunc_t func) { (*func)(); }
+  static void menu_action_function(screenFunc_t func) { (*func)(); }
 
   #if ENABLED(SDSUPPORT)
 
@@ -2020,7 +2020,7 @@ static void lcd_status_screen() {
   #endif //SDSUPPORT
 
   static void menu_action_setting_edit_bool(const char* pstr, bool* ptr) {UNUSED(pstr); *ptr = !(*ptr); }
-  static void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, menuFunc_t callback) {
+  static void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callback) {
     menu_action_setting_edit_bool(pstr, ptr);
     (*callback)();
   }
@@ -2180,7 +2180,7 @@ void lcd_update() {
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
         #if ENABLED(LCD_PROGRESS_BAR) && ENABLED(ULTIPANEL)
-          currentMenu == lcd_status_screen
+          currentScreen == lcd_status_screen
         #endif
       );
 
@@ -2280,7 +2280,7 @@ void lcd_update() {
     static int8_t lcd_status_update_delay = 1; // first update one loop delayed
     if (
       #if ENABLED(ULTIPANEL)
-        currentMenu == lcd_status_screen &&
+        currentScreen == lcd_status_screen &&
       #endif
         !lcd_status_update_delay--) {
       lcd_status_update_delay = 9;
@@ -2312,14 +2312,14 @@ void lcd_update() {
           u8g.drawPixel(127, 63); // draw alive dot
           u8g.setColorIndex(1); // black on white
           #if ENABLED(ULTIPANEL)
-            (*currentMenu)();
+            (*currentScreen)();
           #else
             lcd_status_screen();
           #endif
         } while (u8g.nextPage());
       #else
         #if ENABLED(ULTIPANEL)
-          (*currentMenu)();
+          (*currentScreen)();
         #else
           lcd_status_screen();
         #endif
@@ -2329,7 +2329,7 @@ void lcd_update() {
     #if ENABLED(ULTIPANEL)
 
       // Return to Status Screen after a timeout
-      if (currentMenu == lcd_status_screen || defer_return_to_status)
+      if (currentScreen == lcd_status_screen || defer_return_to_status)
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
       else if (ELAPSED(ms, return_to_status_ms))
         lcd_return_to_status();
