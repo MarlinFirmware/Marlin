@@ -91,8 +91,13 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 
   int8_t encoderDiff; // updated from interrupt context and added to encoderPosition every LCD update
 
-  int8_t manual_move_axis = (int8_t)NO_AXIS;
   millis_t manual_move_start_time = 0;
+  int8_t manual_move_axis = (int8_t)NO_AXIS;
+  #if EXTRUDERS > 1
+    int8_t manual_move_e_index = 0;
+  #else
+    #define manual_move_e_index 0
+  #endif
 
   bool encoderRateMultiplierEnabled;
   int32_t lastEncoderMovementMillis;
@@ -1208,9 +1213,9 @@ static void lcd_status_screen() {
     if (manual_move_axis != (int8_t)NO_AXIS && millis() >= manual_move_start_time && !planner.is_full()) {
       #if ENABLED(DELTA)
         calculate_delta(current_position);
-        planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[manual_move_axis]/60, active_extruder);
+        planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[manual_move_axis]/60, manual_move_e_index);
       #else
-        planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[manual_move_axis]/60, active_extruder);
+        planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[manual_move_axis]/60, manual_move_e_index);
       #endif
       manual_move_axis = (int8_t)NO_AXIS;
     }
@@ -1220,7 +1225,14 @@ static void lcd_status_screen() {
    * Set a flag that lcd_update() should start a move
    * to "current_position" after a short delay.
    */
-  inline void manual_move_to_current(AxisEnum axis) {
+  inline void manual_move_to_current(AxisEnum axis
+    #if EXTRUDERS > 1
+      , int8_t eindex=-1
+    #endif
+  ) {
+    #if EXTRUDERS > 1
+      if (axis == E_AXIS) manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
+    #endif
     manual_move_start_time = millis() + 500UL; // 1/2 second delay
     manual_move_axis = (int8_t)axis;
   }
@@ -1259,18 +1271,18 @@ static void lcd_status_screen() {
   static void lcd_move_z() { _lcd_move(PSTR(MSG_MOVE_Z), Z_AXIS, sw_endstop_min[Z_AXIS], sw_endstop_max[Z_AXIS]); }
   static void lcd_move_e(
     #if EXTRUDERS > 1
-      uint8_t e
+      int8_t eindex = -1
     #endif
   ) {
     ENCODER_DIRECTION_NORMAL();
-    #if EXTRUDERS > 1
-      unsigned short original_active_extruder = active_extruder;
-      active_extruder = e;
-    #endif
     if (encoderPosition) {
       current_position[E_AXIS] += float((int32_t)encoderPosition) * move_menu_scale;
       encoderPosition = 0;
-      manual_move_to_current(E_AXIS);
+      manual_move_to_current(E_AXIS
+        #if EXTRUDERS > 1
+          , eindex
+        #endif
+      );
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
     if (lcdDrawUpdate) {
@@ -1292,9 +1304,6 @@ static void lcd_status_screen() {
       lcd_implementation_drawedit(pos_label, ftostr41sign(current_position[E_AXIS]));
     }
     if (LCD_CLICKED) lcd_goto_previous_menu(true);
-    #if EXTRUDERS > 1
-      active_extruder = original_active_extruder;
-    #endif
   }
 
   #if EXTRUDERS > 1
