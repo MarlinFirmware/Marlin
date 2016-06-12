@@ -134,7 +134,8 @@ script:
   # Enable FILAMENTCHANGEENABLE
   #
   - restore_configs
-  - opt_enable FILAMENTCHANGEENABLE ULTIMAKERCONTROLLER
+  - opt_enable ULTIMAKERCONTROLLER
+  - opt_enable_adv FILAMENTCHANGEENABLE
   - build_marlin
   #
   # Enable filament sensor
