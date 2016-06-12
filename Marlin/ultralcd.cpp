@@ -2311,18 +2311,12 @@ void lcd_update() {
           u8g.setColorIndex(dot_color); // Set color for the alive dot
           u8g.drawPixel(127, 63); // draw alive dot
           u8g.setColorIndex(1); // black on white
-          #if ENABLED(ULTIPANEL)
-            (*currentScreen)();
-          #else
-            lcd_status_screen();
-          #endif
-        } while (u8g.nextPage());
-      #else
-        #if ENABLED(ULTIPANEL)
           (*currentScreen)();
-        #else
-          lcd_status_screen();
-        #endif
+        } while (u8g.nextPage());
+      #elif ENABLED(ULTIPANEL)
+        (*currentScreen)();
+      #else
+        lcd_status_screen();
       #endif
     }
 
