@@ -487,6 +487,11 @@ static bool send_ok[BUFSIZE];
 
 #if HAS_SERVOS
   Servo servo[NUM_SERVOS];
+  #define MOVE_SERVO(I, P) servo[I].move(P)
+  #define SERVO_ENDSTOP_EXISTS(I) (servo_endstop_id[I] >= 0)
+  #define MOVE_SERVO_ENDSTOP(I, J) MOVE_SERVO(servo_endstop_id[I], servo_endstop_angle[I][J])
+  #define DEPLOY_SERVO_ENDSTOP(I) MOVE_SERVO_ENDSTOP(I, 0)
+  #define STOW_SERVO_ENDSTOP(I) MOVE_SERVO_ENDSTOP(I, 1)
 #endif
 
 #ifdef CHDK
@@ -760,8 +765,8 @@ void servo_init() {
      *
      */
     for (int i = 0; i < 3; i++)
-      if (servo_endstop_id[i] >= 0)
-        servo[servo_endstop_id[i]].move(servo_endstop_angle[i][1]);
+      if (SERVO_ENDSTOP_EXISTS(i))
+        STOW_SERVO_ENDSTOP(i);
 
   #endif // HAS_SERVO_ENDSTOPS
 
@@ -1825,7 +1830,8 @@ static void setup_for_endstop_move() {
     #if ENABLED(HAS_SERVO_ENDSTOPS)
 
       // Engage Z Servo endstop if enabled
-      if (servo_endstop_id[Z_AXIS] >= 0) servo[servo_endstop_id[Z_AXIS]].move(servo_endstop_angle[Z_AXIS][0]);
+      if (SERVO_ENDSTOP_EXISTS(Z_AXIS)
+        DEPLOY_SERVO_ENDSTOP(Z_AXIS);
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
       feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
@@ -1921,7 +1927,7 @@ static void setup_for_endstop_move() {
     #if ENABLED(HAS_SERVO_ENDSTOPS)
 
       // Retract Z Servo endstop if enabled
-      if (servo_endstop_id[Z_AXIS] >= 0) {
+      if (SERVO_ENDSTOP_EXISTS(Z_AXIS)) {
 
         #if Z_RAISE_AFTER_PROBING > 0
           if (doRaise) {
@@ -1931,7 +1937,7 @@ static void setup_for_endstop_move() {
         #endif
 
         // Change the Z servo angle
-        servo[servo_endstop_id[Z_AXIS]].move(servo_endstop_angle[Z_AXIS][1]);
+        STOW_SERVO_ENDSTOP(Z_AXIS);
       }
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
@@ -2288,8 +2294,8 @@ static void homeaxis(AxisEnum axis) {
 
     #if ENABLED(HAS_SERVO_ENDSTOPS)
       // Engage an X, Y (or Z) Servo endstop if enabled
-      if (_Z_SERVO_TEST && servo_endstop_id[axis] >= 0) {
-        servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][0]);
+      if (_Z_SERVO_TEST && SERVO_ENDSTOP_EXISTS(axis)) {
+        DEPLOY_SERVO_ENDSTOP(axis);
         if (_Z_SERVO_SUBTEST) endstops.z_probe_enabled = true;
       }
     #endif
@@ -2419,7 +2425,7 @@ static void homeaxis(AxisEnum axis) {
 
     // Retract X, Y (or Z) Servo endstop if enabled
     #if ENABLED(HAS_SERVO_ENDSTOPS)
-      if (_Z_SERVO_TEST && servo_endstop_id[axis] >= 0) {
+      if (_Z_SERVO_TEST && SERVO_ENDSTOP_EXISTS(axis)) {
         // Raise the servo probe before stow outside ABL context.
         // This is a workaround to allow use of a Servo Probe without
         // ABL until more global probe handling is implemented.
@@ -2438,7 +2444,7 @@ static void homeaxis(AxisEnum axis) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> SERVO_ENDSTOPS > Stow with servo.move()");
         #endif
-        servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][1]);
+        STOW_SERVO_ENDSTOP(axis);
         if (_Z_SERVO_SUBTEST) endstops.enable_z_probe(false);
       }
 
@@ -5673,7 +5679,7 @@ inline void gcode_M226() {
     if (code_seen('S')) {
       servo_position = code_value_int();
       if (servo_index >= 0 && servo_index < NUM_SERVOS)
-        servo[servo_index].move(servo_position);
+        MOVE_SERVO(servo_index, servo_position);
       else {
         SERIAL_ERROR_START;
         SERIAL_ERROR("Servo ");
@@ -6680,6 +6686,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
           offset_vec.apply_rotation(planner.bed_level_matrix.transpose(planner.bed_level_matrix));
 
+          // Adjust the current position
           current_position[X_AXIS] += offset_vec.x;
           current_position[Y_AXIS] += offset_vec.y;
           current_position[Z_AXIS] += offset_vec.z;
