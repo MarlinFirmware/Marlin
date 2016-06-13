@@ -25,7 +25,7 @@
  */
 
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega1284P__)
-  #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define X_STEP_PIN         15
@@ -43,28 +43,21 @@
 #define E0_STEP_PIN         1
 #define E0_DIR_PIN          0
 
-#define LED_PIN            -1
-#define FAN_PIN            -1
-
 #if MB(AZTEEG_X1) || MB(STB_11) || MB(MELZI)
   #define FAN_PIN           4 // Works for Panelolu2 too
-  #if MB(MELZI)
-    #define LED_PIN        27 // On some broken versions of the Sanguino libraries the pin definitions are wrong, so LED_PIN needs to be 28. But you should upgrade your Sanguino libraries! See #368.
-  #elif MB(STB_11)
-    #define LCD_PIN_BL     17 // LCD backlight LED
-  #endif
+#endif
+
+#if MB(MELZI)
+  #define LED_PIN          27 // On some broken versions of the Sanguino libraries the pin definitions are wrong, so LED_PIN needs to be 28. But you should upgrade your Sanguino libraries! See #368.
+#elif MB(STB_11)
+  #define LCD_PIN_BL       17 // LCD backlight LED
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
 #endif
 
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
-
 #define HEATER_0_PIN       13 // (extruder)
-#define HEATER_1_PIN       -1
-#define HEATER_2_PIN       -1
 
 #if ENABLED(SANGUINOLOLU_V_1_2)
 
@@ -89,10 +82,7 @@
 #endif
 
 #define TEMP_0_PIN          7   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 33 extruder)
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
 #define TEMP_BED_PIN        6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
-#define SDPOWER            -1
 #define SDSS               31
 
 /**
@@ -115,7 +105,10 @@
         #define LCD_PINS_RS     30 //CS chip select /SS chip slave select
         #define LCD_PINS_ENABLE 29 //SID (MOSI)
         #define LCD_PINS_D4     17 //SCK (CLK) clock
-        #define BEEPER_PIN      27 // Pin 27 is taken by LED_PIN, but Melzi LED does nothing with Marlin so this can be used for BEEPER_PIN. You can use this pin with M42 instead of BEEPER_PIN.
+        // Pin 27 is taken by LED_PIN, but Melzi LED does nothing with
+        // Marlin so this can be used for BEEPER_PIN. You can use this pin
+        // with M42 instead of BEEPER_PIN.
+        #define BEEPER_PIN      27
       #else         // Sanguinololu 1.3
         #define LCD_PINS_RS      4
         #define LCD_PINS_ENABLE 17
@@ -190,7 +183,3 @@
   #define SD_DETECT_PIN         -1
 
 #endif // MAKRPANEL
-
-// #if FAN_PIN == 12 || FAN_PIN ==13
-//#define FAN_SOFT_PWM
-// #endif

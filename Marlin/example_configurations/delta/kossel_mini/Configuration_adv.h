@@ -80,13 +80,23 @@
 #endif
 
 /**
- * Thermal Protection parameters for the bed
- * are like the above for the hotends.
- * WATCH_TEMP_BED_PERIOD and WATCH_TEMP_BED_INCREASE are not imlemented now.
+ * Thermal Protection parameters for the bed are just as above for hotends.
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
   #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+
+  /**
+   * Whenever an M140 or M190 increases the target temperature the firmware will wait for the
+   * WATCH_BED_TEMP_PERIOD to expire, and if the temperature hasn't increased by WATCH_BED_TEMP_INCREASE
+   * degrees, the machine is halted, requiring a hard reset. This test restarts with any M140/M190,
+   * but only if the current temperature is far enough below the target for a reliable test.
+   *
+   * If you get too many "Heating failed" errors, increase WATCH_BED_TEMP_PERIOD and/or decrease
+   * WATCH_BED_TEMP_INCREASE. (WATCH_BED_TEMP_INCREASE should not be below 2.)
+   */
+  #define WATCH_BED_TEMP_PERIOD 60                // Seconds
+  #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -217,7 +227,7 @@
 // Enable this for dual x-carriage printers.
 // A dual x-carriage design has the advantage that the inactive extruder can be parked which
 // prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
-// allowing faster printing speeds.
+// allowing faster printing speeds. Connect your X2 stepper to the first unused E plug.
 //#define DUAL_X_CARRIAGE
 #if ENABLED(DUAL_X_CARRIAGE)
   // Configuration for second X-carriage
@@ -227,15 +237,10 @@
   #define X2_MAX_POS 353    // set maximum to the distance between toolheads when both heads are homed
   #define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
   #define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position
-      // However: In this mode the EXTRUDER_OFFSET_X value for the second extruder provides a software
+      // However: In this mode the HOTEND_OFFSET_X value for the second extruder provides a software
       // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
       // without modifying the firmware (through the "M218 T1 X???" command).
       // Remember: you should set the second extruder x-offset to 0 in your slicer.
-
-  // Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
-  #define X2_ENABLE_PIN 29
-  #define X2_STEP_PIN 25
-  #define X2_DIR_PIN 23
 
   // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
   //    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
@@ -273,8 +278,6 @@
 // @section machine
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
-
-// @section machine
 
 //By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
 #define INVERT_X_STEP_PIN false
@@ -443,11 +446,27 @@
   #define D_FILAMENT 2.85
 #endif
 
+// @section leveling
+
+// Default mesh area is an area with an inset margin on the print area.
+// Below are the macros that are used to define the borders for the mesh area,
+// made available here for specialized needs, ie dual extruder setup.
+#if ENABLED(MESH_BED_LEVELING)
+  #define MESH_MIN_X (X_MIN_POS + MESH_INSET)
+  #define MESH_MAX_X (X_MAX_POS - (MESH_INSET))
+  #define MESH_MIN_Y (Y_MIN_POS + MESH_INSET)
+  #define MESH_MAX_Y (Y_MAX_POS - (MESH_INSET))
+#endif
+
 // @section extras
 
 // Arc interpretation settings:
+#define ARC_SUPPORT  // Disabling this saves ~2738 bytes
 #define MM_PER_ARC_SEGMENT 1
 #define N_ARC_CORRECTION 25
+
+// Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
+//#define BEZIER_CURVE_SUPPORT
 
 const unsigned int dropsegments = 5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 
@@ -653,6 +672,38 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
   #define E3_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 
 #endif
+
+/**
+ * TWI/I2C BUS
+ *
+ * This feature is an EXPERIMENTAL feature so it shall not be used on production
+ * machines. Enabling this will allow you to send and receive I2C data from slave
+ * devices on the bus.
+ *
+ * ; Example #1
+ * ; This macro send the string "Marlin" to the slave device with address 0x63
+ * ; It uses multiple M155 commands with one B<base 10> arg
+ * M155 A63  ; Target slave address
+ * M155 B77  ; M
+ * M155 B97  ; a
+ * M155 B114 ; r
+ * M155 B108 ; l
+ * M155 B105 ; i
+ * M155 B110 ; n
+ * M155 S1   ; Send the current buffer
+ *
+ * ; Example #2
+ * ; Request 6 bytes from slave device with address 0x63
+ * M156 A63 B5
+ *
+ * ; Example #3
+ * ; Example serial output of a M156 request
+ * echo:i2c-reply: from:63 bytes:5 data:hello
+ */
+
+// @section i2cbus
+
+//#define EXPERIMENTAL_I2CBUS
 
 #include "Conditionals.h"
 #include "SanityCheck.h"

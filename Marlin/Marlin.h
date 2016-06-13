@@ -45,17 +45,12 @@
 #include "pins.h"
 
 #ifndef SANITYCHECK_H
-  #error Your Configuration.h and Configuration_adv.h files are outdated!
+  #error "Your Configuration.h and Configuration_adv.h files are outdated!"
 #endif
 
 #include "Arduino.h"
 
 typedef unsigned long millis_t;
-
-// Arduino < 1.0.0 does not define this, so we need to do it ourselves
-#ifndef analogInputToDigitalPin
-  #define analogInputToDigitalPin(p) ((p) + 0xA0)
-#endif
 
 #ifdef USBCON
   #include "HardwareSerial.h"
@@ -64,6 +59,12 @@ typedef unsigned long millis_t;
 #include "MarlinSerial.h"
 
 #include "WString.h"
+
+#if ENABLED(PRINTCOUNTER)
+  #include "printcounter.h"
+#else
+  #include "stopwatch.h"
+#endif
 
 #ifdef USBCON
   #if ENABLED(BLUETOOTH)
@@ -101,13 +102,15 @@ extern const char echomagic[] PROGMEM;
 #define SERIAL_ECHOLN(x) SERIAL_PROTOCOLLN(x)
 #define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
-#define SERIAL_ECHOPAIR(name,value) do{ serial_echopair_P(PSTR(name),(value)); }while(0)
+#define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
 
 void serial_echopair_P(const char* s_P, int v);
 void serial_echopair_P(const char* s_P, long v);
 void serial_echopair_P(const char* s_P, float v);
 void serial_echopair_P(const char* s_P, double v);
 void serial_echopair_P(const char* s_P, unsigned long v);
+FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
+FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
 
 // Things to write to serial from Program memory. Saves 400 to 2k of RAM.
 FORCE_INLINE void serialprintPGM(const char* str) {
@@ -125,6 +128,10 @@ void idle(
 );
 
 void manage_inactivity(bool ignore_stepper_queue = false);
+
+#if ENABLED(DUAL_X_CARRIAGE)
+  extern bool extruder_duplication_enabled;
+#endif
 
 #if ENABLED(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
   #define  enable_x() do { X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); } while (0)
@@ -206,9 +213,12 @@ void manage_inactivity(bool ignore_stepper_queue = false);
  * A_AXIS and B_AXIS are used by COREXY printers
  * X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship between X_AXIS and X Head movement, like CoreXY bots.
  */
-enum AxisEnum {X_AXIS = 0, A_AXIS = 0, Y_AXIS = 1, B_AXIS = 1, Z_AXIS = 2, C_AXIS = 2, E_AXIS = 3, X_HEAD = 4, Y_HEAD = 5, Z_HEAD = 5};
+enum AxisEnum {NO_AXIS = -1, X_AXIS = 0, A_AXIS = 0, Y_AXIS = 1, B_AXIS = 1, Z_AXIS = 2, C_AXIS = 2, E_AXIS = 3, X_HEAD = 4, Y_HEAD = 5, Z_HEAD = 5};
 
-enum EndstopEnum {X_MIN = 0, Y_MIN = 1, Z_MIN = 2, Z_MIN_PROBE = 3, X_MAX = 4, Y_MAX = 5, Z_MAX = 6, Z2_MIN = 7, Z2_MAX = 8};
+#define _AXIS(AXIS) AXIS ##_AXIS
+
+typedef enum { LINEARUNIT_MM = 0, LINEARUNIT_INCH = 1 } LinearUnit;
+typedef enum { TEMPUNIT_C = 0, TEMPUNIT_K = 1, TEMPUNIT_F = 2 } TempUnit;
 
 void enable_all_steppers();
 void disable_all_steppers();
@@ -217,12 +227,14 @@ void FlushSerialRequestResend();
 void ok_to_send();
 
 void reset_bed_level();
-void prepare_move();
 void kill(const char*);
-void Stop();
+
+#if DISABLED(DELTA) && DISABLED(SCARA)
+  void set_current_position_from_planner();
+#endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  void filrunout();
+  void handle_filament_runout();
 #endif
 
 /**
@@ -230,12 +242,12 @@ void Stop();
  */
 enum DebugFlags {
   DEBUG_NONE          = 0,
-  DEBUG_ECHO          = _BV(0),
-  DEBUG_INFO          = _BV(1),
-  DEBUG_ERRORS        = _BV(2),
-  DEBUG_DRYRUN        = _BV(3),
-  DEBUG_COMMUNICATION = _BV(4),
-  DEBUG_LEVELING      = _BV(5)
+  DEBUG_ECHO          = _BV(0), ///< Echo commands in order as they are processed
+  DEBUG_INFO          = _BV(1), ///< Print messages for code that has debug output
+  DEBUG_ERRORS        = _BV(2), ///< Not implemented
+  DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
+  DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
+  DEBUG_LEVELING      = _BV(5)  ///< Print detailed output for homing and leveling
 };
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
@@ -247,8 +259,8 @@ inline bool IsStopped() { return !Running; }
 bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); //put a single ASCII command at the end of the current buffer or return false when it is full
 void enqueue_and_echo_command_now(const char* cmd); // enqueue now, only return when the command has been enqueued
 void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
+void clear_command_queue();
 
-void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
 
 extern millis_t previous_cmd_ms;
@@ -271,30 +283,18 @@ extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in m
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS];
 extern float home_offset[3]; // axis[n].home_offset
-extern float min_pos[3]; // axis[n].min_pos
-extern float max_pos[3]; // axis[n].max_pos
+extern float sw_endstop_min[3]; // axis[n].sw_endstop_min
+extern float sw_endstop_max[3]; // axis[n].sw_endstop_max
 extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
 
+// GCode support for external objects
+bool code_seen(char);
+int code_value_int();
+float code_value_temp_abs();
+float code_value_temp_diff();
+
 #if ENABLED(DELTA)
-  #ifndef DELTA_RADIUS_TRIM_TOWER_1
-    #define DELTA_RADIUS_TRIM_TOWER_1 0.0
-  #endif
-  #ifndef DELTA_RADIUS_TRIM_TOWER_2
-    #define DELTA_RADIUS_TRIM_TOWER_2 0.0
-  #endif
-  #ifndef DELTA_RADIUS_TRIM_TOWER_3
-    #define DELTA_RADIUS_TRIM_TOWER_3 0.0
-  #endif
-  #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_1
-    #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 0.0
-  #endif
-  #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_2
-    #define DELTA_DIAGONAL_ROD_TRIM_TOWER_2 0.0
-  #endif
-  #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_3
-    #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
-  #endif
   extern float delta[3];
   extern float endstop_adj[3]; // axis[n].endstop_adj
   extern float delta_radius;
@@ -323,8 +323,8 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern float zprobe_zoffset;
 #endif
 
-#if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
-  extern float extrude_min_temp;
+#if ENABLED(HOST_KEEPALIVE_FEATURE)
+  extern uint8_t host_keepalive_interval;
 #endif
 
 #if FAN_COUNT > 0
@@ -332,8 +332,8 @@ extern bool axis_homed[3]; // axis[n].is_homed
 #endif
 
 #if ENABLED(BARICUDA)
-  extern int ValvePressure;
-  extern int EtoPPressure;
+  extern int baricuda_valve_pressure;
+  extern int baricuda_e_to_p_pressure;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -341,8 +341,7 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
   extern float filament_width_meas; //holds the filament diameter as accurately measured
   extern int8_t measurement_delay[];  //ring buffer to delay measurement
-  extern int delay_index1, delay_index2;  //ring buffer index. used by planner, temperature, and main code
-  extern float delay_dist; //delay distance counter
+  extern int filwidth_delay_index1, filwidth_delay_index2;  //ring buffer index. used by planner, temperature, and main code
   extern int meas_delay_cm; //delay distance
 #endif
 
@@ -357,26 +356,31 @@ extern bool axis_homed[3]; // axis[n].is_homed
   extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
 #endif
 
-extern millis_t print_job_start_ms;
-extern millis_t print_job_stop_ms;
+// Print job timer
+#if ENABLED(PRINTCOUNTER)
+  extern PrintCounter print_job_timer;
+#else
+  extern Stopwatch print_job_timer;
+#endif
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
-
-#if ENABLED(DIGIPOT_I2C)
-  extern void digipot_i2c_set_current(int channel, float current);
-  extern void digipot_i2c_init();
-#endif
 
 #if HAS_TEMP_HOTEND || HAS_TEMP_BED
   void print_heaterstates();
 #endif
 
-extern void calculate_volumetric_multipliers();
+void calculate_volumetric_multipliers();
 
-// Print job timer related functions
-millis_t print_job_timer();
-bool print_job_start(millis_t t = 0);
-bool print_job_stop(bool force = false);
+// Buzzer
+#if HAS_BUZZER
+  #if ENABLED(SPEAKER)
+    #include "speaker.h"
+    extern Speaker buzzer;
+  #else
+    #include "buzzer.h"
+    extern Buzzer buzzer;
+  #endif
+#endif
 
 #endif //MARLIN_H

@@ -27,7 +27,7 @@
 #define GEN7_VERSION 14 // v1.4
 
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
-  #error Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu."
 #endif
 
 //x axis pins
@@ -54,22 +54,10 @@
 #define E0_ENABLE_PIN 25
 
 #define TEMP_0_PIN 1
-#define TEMP_1_PIN -1
-#define TEMP_2_PIN -1
 #define TEMP_BED_PIN 0
 
 #define HEATER_0_PIN 4
-#define HEATER_1_PIN -1
-#define HEATER_2_PIN -1
 #define HEATER_BED_PIN 3
-
-#define KILL_PIN -1
-
-#define SDPOWER -1
-#define SDSS -1 // SCL pin of I2C header
-#define LED_PIN -1
-
-#define FAN_PIN -1
 
 #define PS_ON_PIN 15
 
@@ -79,4 +67,3 @@
 //our RS485 pins
 #define TX_ENABLE_PIN 12
 #define RX_ENABLE_PIN 13
-

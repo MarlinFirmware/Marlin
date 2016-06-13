@@ -25,7 +25,7 @@
  */
 
 #ifndef __AVR_ATmega644P__
-  #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define DEBUG_PIN 0
@@ -62,22 +62,7 @@
 #define HEATER_0_PIN 16
 #define TEMP_0_PIN 0
 
-#define FAN_PIN -1
-
-// bed pins
-#define HEATER_BED_PIN -1
-#define TEMP_BED_PIN -1
-
-
-#define SDSS     -1
-#define SDPOWER          -1
-#define LED_PIN          -1
-
 // pin for controlling the PSU.
 #define PS_ON_PIN       14  // Alex, Do this work on the card?
 
 // Alex extras from Gen3+
-#define KILL_PIN           -1
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
-#define HEATER_2_PIN       -1

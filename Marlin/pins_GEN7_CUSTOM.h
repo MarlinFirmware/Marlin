@@ -28,7 +28,7 @@
  */
 
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
-  #error Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu."
 #endif
 
 //x axis pins
@@ -55,20 +55,13 @@
 #define E0_ENABLE_PIN   24
 
 #define TEMP_0_PIN       2
-#define TEMP_1_PIN      -1
-#define TEMP_2_PIN      -1
 #define TEMP_BED_PIN     1   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
 
 #define HEATER_0_PIN     4
-#define HEATER_1_PIN    -1
-#define HEATER_2_PIN    -1
 #define HEATER_BED_PIN   3  // (bed)
 
-#define SDPOWER         -1
 #define SDSS            31                  // SCL pin of I2C header || CS Pin for SD Card support
-#define LED_PIN         -1
 
-#define FAN_PIN         -1
 #define PS_ON_PIN       19
 //our pin for debugging.
 
@@ -79,10 +72,7 @@
 //#define RX_ENABLE_PIN       13
 
 #define BEEPER_PIN       -1
-#define SD_DETECT_PIN    -1
-#define SUICIDE_PIN      -1    //has to be defined; otherwise Power_off doesn't work
 
-#define KILL_PIN -1
 //Pins for 4bit LCD Support
 #define LCD_PINS_RS 18
 #define LCD_PINS_ENABLE 17

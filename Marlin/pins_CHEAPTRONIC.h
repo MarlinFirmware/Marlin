@@ -25,7 +25,7 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define LARGE_FLASH        true
@@ -35,27 +35,20 @@
 #define X_DIR_PIN 15
 #define X_ENABLE_PIN 24
 
-// X endstop
-#define X_MIN_PIN 3
-#define X_MAX_PIN -1
-
 // Y motor stepper
 #define Y_STEP_PIN 35
 #define Y_DIR_PIN 36
 #define Y_ENABLE_PIN 31
-
-// Y endstop
-#define Y_MIN_PIN 2
-#define Y_MAX_PIN -1
 
 // Z motor stepper
 #define Z_STEP_PIN 40
 #define Z_DIR_PIN 41
 #define Z_ENABLE_PIN 37
 
-// Z endstop
-#define Z_MIN_PIN 5
-#define Z_MAX_PIN -1
+// XYZ endstops
+#define X_STOP_PIN 3
+#define Y_STOP_PIN 2
+#define Z_STOP_PIN 5
 
 // Extruder 0 stepper
 #define E0_STEP_PIN 26
@@ -67,27 +60,14 @@
 #define E1_DIR_PIN 34
 #define E1_ENABLE_PIN 30
 
-#define SDPOWER -1
-#define SDSS -1
-#define LED_PIN -1
-
-// FAN
-#define FAN_PIN -1
-
-#define PS_ON_PIN -1
-#define KILL_PIN -1
 
 #define HEATER_0_PIN 19 // EXTRUDER 1
 #define HEATER_1_PIN 23 // EXTRUDER 2
-// HeatedBad
 #define HEATER_BED_PIN 22
-// Cheaptronic v1.0 hasent EXTRUDER 3
-#define HEATER_2_PIN -1
 
 // Temperature sensors
 #define TEMP_0_PIN 15
 #define TEMP_1_PIN 14
-#define TEMP_2_PIN -1
 #define TEMP_BED_PIN 13
 
 // Cheaptronic v1.0 doesn't support LCD
@@ -108,4 +88,3 @@
 #define BLEN_A 0
 
 // Cheaptronic v1.0 doesn't use this
-#define SD_DETECT_PIN -1
