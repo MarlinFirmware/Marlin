@@ -582,7 +582,7 @@ static void lcd_status_screen() {
       ENCODER_DIRECTION_NORMAL();
       if (encoderPosition) {
         int babystep_increment = (int32_t)encoderPosition * BABYSTEP_MULTIPLICATOR;
-        float distance_increment = babystep_increment / planner.steps_per_mm[axis];
+        float distance_increment = (float) babystep_increment / (float) planner.axis_steps_per_mm[axis];
         encoderPosition = 0;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
         thermalManager.babystep_axis(axis, babystep_increment);
