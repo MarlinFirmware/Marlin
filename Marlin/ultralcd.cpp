@@ -576,7 +576,7 @@ static void lcd_status_screen() {
   #if ENABLED(BABYSTEPPING)
 
     int babysteps_done = 0;
-    int distance_done = 0;
+    float distance_done = 0.0f;
 
     static void _lcd_babystep(const AxisEnum axis, const char* msg) {
       ENCODER_DIRECTION_NORMAL();
