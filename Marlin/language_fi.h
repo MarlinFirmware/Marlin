@@ -93,10 +93,10 @@
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "
-#define MSG_X                               "x"
-#define MSG_Y                               "y"
-#define MSG_Z                               "z"
-#define MSG_E                               "e"
+#define MSG_X                               "X"
+#define MSG_Y                               "Y"
+#define MSG_Z                               "Z"
+#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "VLiike min"
 #define MSG_AMAX                            "Amax "
@@ -151,12 +151,10 @@
 #define MSG_END_HOUR                        "hours"
 #define MSG_END_MINUTE                      "minutes"
 
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE               "Delta Kalibrointi"
-  #define MSG_DELTA_CALIBRATE_X             "Kalibroi X"
-  #define MSG_DELTA_CALIBRATE_Y             "Kalibroi Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Kalibroi Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "Kalibroi Center"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "Delta Kalibrointi"
+#define MSG_DELTA_CALIBRATE_X               "Kalibroi X"
+#define MSG_DELTA_CALIBRATE_Y               "Kalibroi Y"
+#define MSG_DELTA_CALIBRATE_Z               "Kalibroi Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Kalibroi Center"
 
 #endif // LANGUAGE_FI_H

@@ -28,7 +28,7 @@
  */
 
 #ifndef __AVR_AT90USB646__
-  #error Oops!  Make sure you have 'Brainwave' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Brainwave' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define X_STEP_PIN         27
@@ -55,21 +55,13 @@
 #define E0_ATT_PIN         20
 
 #define HEATER_0_PIN        4  // Extruder
-#define HEATER_1_PIN       -1
-#define HEATER_2_PIN       -1
 #define HEATER_BED_PIN     38  // Bed
 #define FAN_PIN             3  // Fan
 
 #define TEMP_0_PIN          7  // Extruder / Analog pin numbering
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
 #define TEMP_BED_PIN        6  // Bed / Analog pin numbering
 
-#define SDPOWER            -1
-#define SDSS               -1
 #define LED_PIN            39
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #if DISABLED(SDSUPPORT)
   // these pins are defined in the SD library if building with SD support

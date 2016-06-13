@@ -25,7 +25,7 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define LARGE_FLASH        true
@@ -60,44 +60,35 @@
 #define E2_DIR_PIN 24
 #define E2_ENABLE_PIN 22
 
-#define SDPOWER -1
 #define SDSS 53
 #define LED_PIN 13
 
 #define FAN_PIN 7
 #define FAN2_PIN 6
 #define PS_ON_PIN 12
-#define KILL_PIN -1
 
-#define HEATER_0_PIN 9 // EXTRUDER 1
-#define HEATER_1_PIN 8 // EXTRUDER 2
-#define HEATER_2_PIN -1
-
+#define HEATER_0_PIN 9  // EXTRUDER 1
 #if TEMP_SENSOR_0 == -1
-  #define TEMP_0_PIN 4 // ANALOG NUMBERING
+  #define TEMP_0_PIN 4  // ANALOG NUMBERING
 #else
   #define TEMP_0_PIN 13 // ANALOG NUMBERING
 #endif
 
-
+#define HEATER_1_PIN 8  // EXTRUDER 2
 #if TEMP_SENSOR_1 == -1
-  #define TEMP_1_PIN 8 // ANALOG NUMBERING
+  #define TEMP_1_PIN 8  // ANALOG NUMBERING
 #else
   #define TEMP_1_PIN 15 // ANALOG NUMBERING
 #endif
 
-#define TEMP_2_PIN -1 // ANALOG NUMBERING
-
 #define HEATER_BED_PIN 10 // BED
-
 #if TEMP_SENSOR_BED == -1
-  #define TEMP_BED_PIN 8 // ANALOG NUMBERING
+  #define TEMP_BED_PIN 8  // ANALOG NUMBERING
 #else
   #define TEMP_BED_PIN 14 // ANALOG NUMBERING
 #endif
 
 #define BEEPER_PIN 64
-
 
 #define LCD_PINS_RS 14
 #define LCD_PINS_ENABLE 15
@@ -105,7 +96,6 @@
 #define LCD_PINS_D5 31
 #define LCD_PINS_D6 32
 #define LCD_PINS_D7 33
-
 
 // Buttons are directly attached using keypad
 #define BTN_EN1 61
@@ -116,4 +106,3 @@
 #define BLEN_B 1
 #define BLEN_A 0
 
-#define SD_DETECT_PIN -1  // Megatronics doesn't use this

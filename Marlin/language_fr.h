@@ -35,7 +35,6 @@
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
-
 #define WELCOME_MSG                         MACHINE_NAME " prete."
 #define MSG_SD_INSERTED                     "Carte inseree"
 #define MSG_SD_REMOVED                      "Carte retiree"
@@ -66,6 +65,7 @@
 #define MSG_EXTRUDE                         "Extrusion"
 #define MSG_RETRACT                         "Retraction"
 #define MSG_MOVE_AXIS                       "Deplacer un axe"
+#define MSG_LEVEL_BED                       "Regl. Niv. Plateau"
 #define MSG_MOVE_X                          "Depl. X"
 #define MSG_MOVE_Y                          "Depl. Y"
 #define MSG_MOVE_Z                          "Depl. Z"
@@ -74,9 +74,9 @@
 #define MSG_MOVE_1MM                        "Depl. 1mm"
 #define MSG_MOVE_10MM                       "Depl. 10mm"
 #define MSG_SPEED                           " Vitesse"
+#define MSG_BED_Z                           "Plateau Z"
 #define MSG_NOZZLE                          "Buse"
 #define MSG_BED                             "Plateau"
-#define MSG_LEVEL_BED                       "Regl. Niv. Plateau"
 #define MSG_FAN_SPEED                       "Vite. ventilateur"
 #define MSG_FLOW                            "Flux"
 #define MSG_CONTROL                         "Controler"
@@ -95,14 +95,15 @@
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax"
-#define MSG_X                               "x"
-#define MSG_Y                               "y"
-#define MSG_Z                               "z"
-#define MSG_E                               "e"
+#define MSG_X                               "X"
+#define MSG_Y                               "Y"
+#define MSG_Z                               "Z"
+#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "Vdepl min"
 #define MSG_AMAX                            "Amax "
 #define MSG_A_RETRACT                       "A-retract"
+#define MSG_A_TRAVEL                        "A-Depl."
 #define MSG_XSTEPS                          "Xpas/mm"
 #define MSG_YSTEPS                          "Ypas/mm"
 #define MSG_ZSTEPS                          "Zpas/mm"
@@ -150,10 +151,6 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Butee abandon"
-#define MSG_END_HOUR                        "heures"
-#define MSG_END_MINUTE                      "minutes"
-#define MSG_BED_Z                           "Plateau Z"
-#define MSG_A_TRAVEL                        "A-Depl."
 #define MSG_HEATING_FAILED_LCD              "Erreur de chauffe"
 #define MSG_ERR_REDUNDANT_TEMP              "Err: ERREUR TEMP. REDONDANTE"
 #define MSG_THERMAL_RUNAWAY                 "EMBALLEMENT THERMIQUE"
@@ -161,18 +158,17 @@
 #define MSG_ERR_MINTEMP                     "Err: TEMP. MIN"
 #define MSG_ERR_MAXTEMP_BED                 "Err: TEMP. MAX PLATEAU"
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP. MIN PLATEAU"
+#define MSG_END_HOUR                        "heures"
+#define MSG_END_MINUTE                      "minutes"
 #define MSG_HEATING                         "En chauffe..."
 #define MSG_HEATING_COMPLETE                "Chauffe terminee"
 #define MSG_BED_HEATING                     "Plateau en chauffe..."
 #define MSG_BED_DONE                        "Chauffe plateau terminee"
 
-
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE               "Calibration Delta"
-  #define MSG_DELTA_CALIBRATE_X             "Calibrer X"
-  #define MSG_DELTA_CALIBRATE_Y             "Calibrer Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Calibrer Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "Calibrer centre"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "Calibration Delta"
+#define MSG_DELTA_CALIBRATE_X               "Calibrer X"
+#define MSG_DELTA_CALIBRATE_Y               "Calibrer Y"
+#define MSG_DELTA_CALIBRATE_Z               "Calibrer Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Calibrer centre"
 
 #endif // LANGUAGE_FR_H

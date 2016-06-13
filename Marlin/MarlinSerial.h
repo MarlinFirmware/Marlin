@@ -88,7 +88,7 @@
   #define RX_BUFFER_SIZE 128
 #endif
 #if !((RX_BUFFER_SIZE == 256) ||(RX_BUFFER_SIZE == 128) ||(RX_BUFFER_SIZE == 64) ||(RX_BUFFER_SIZE == 32) ||(RX_BUFFER_SIZE == 16) ||(RX_BUFFER_SIZE == 8) ||(RX_BUFFER_SIZE == 4) ||(RX_BUFFER_SIZE == 2))
-  #error RX_BUFFER_SIZE has to be a power of 2 and >= 2
+  #error "RX_BUFFER_SIZE has to be a power of 2 and >= 2"
 #endif
 
 struct ring_buffer {

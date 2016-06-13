@@ -25,7 +25,7 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define X_STEP_PIN         49
@@ -58,9 +58,6 @@
 #define E0_DIR_PIN         41
 #define E0_ENABLE_PIN      37
 
-#define SDPOWER            -1
-#define LED_PIN            -1 //Use +12V Aux port for LED Ring
-
 #define FAN_PIN            16 //5V PWM
 
 #define PS_ON_PIN          10 //Set to -1 if using a manual switch on the PWRSW Connector
@@ -76,8 +73,6 @@
 #define TEMP_BED_PIN        0 //ANALOG NUMBERING
 
 #define BEEPER_PIN         36
-
-#define KILL_PIN           -1
 
 // M240  Triggers a camera by emulating a Canon RC-1 Remote
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/

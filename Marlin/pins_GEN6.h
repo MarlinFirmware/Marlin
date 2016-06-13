@@ -26,7 +26,7 @@
 
 #ifndef __AVR_ATmega644P__
   #ifndef __AVR_ATmega1284P__
-    #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+    #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
   #endif
 #endif
 
@@ -53,28 +53,15 @@
 #define E0_DIR_PIN       2    //Edited @ EJE Electronics 20100715
 #define E0_ENABLE_PIN    3    //Added @ EJE Electronics 20100715
 #define TEMP_0_PIN      5     //changed @ rkoeppl 20110410
-#define TEMP_1_PIN      -1    //changed @ rkoeppl 20110410
 
-
-#define TEMP_2_PIN      -1    //changed @ rkoeppl 20110410
 #define HEATER_0_PIN    14    //changed @ rkoeppl 20110410
-#define HEATER_1_PIN    -1
-#define HEATER_2_PIN    -1
 
-#if MB(GEN6)
-  #define HEATER_BED_PIN  -1    //changed @ rkoeppl 20110410
-  #define TEMP_BED_PIN    -1    //changed @ rkoeppl 20110410
-#else
+#if !MB(GEN6)
   #define HEATER_BED_PIN   1    //changed @ rkoeppl 20110410
   #define TEMP_BED_PIN     0    //changed @ rkoeppl 20110410
 #endif
 
-#define SDPOWER          -1
 #define SDSS          17
-#define LED_PIN         -1    //changed @ rkoeppl 20110410
-#define FAN_PIN         -1    //changed @ rkoeppl 20110410
-#define PS_ON_PIN       -1    //changed @ rkoeppl 20110410
-#define KILL_PIN        -1    //changed @ drakelive 20120830
 //our pin for debugging.
 
 #define DEBUG_PIN        0

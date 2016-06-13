@@ -27,7 +27,7 @@
  */
 
 #ifndef __AVR_AT90USB1286__
-  #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define DEFAULT_MACHINE_NAME "Makibox"
@@ -54,8 +54,6 @@
 #define E0_ENABLE_PIN      17
 
 #define HEATER_0_PIN       21  // Extruder
-#define HEATER_1_PIN       -1
-#define HEATER_2_PIN       -1
 #define HEATER_BED_PIN     20  // Bed
 // You may need to change FAN_PIN to 16 because Marlin isn't using fastio.h
 // for the fan and Teensyduino uses a different pin mapping.
@@ -63,14 +61,6 @@
 
 #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
 #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
-
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
-
-#define SDPOWER            -1
-#define LED_PIN            -1
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 // The SDSS pin uses a different pin mapping from file Sd2PinMap.h
 #define SDSS               20
@@ -85,15 +75,6 @@
 // Microstepping pins
 // Note that the pin mapping is not from fastio.h
 // See Sd2PinMap.h for the pin configurations
-
-#undef X_MS1_PIN
-#undef X_MS2_PIN
-#undef Y_MS1_PIN
-#undef Y_MS2_PIN
-#undef Z_MS1_PIN
-#undef Z_MS2_PIN
-#undef E0_MS1_PIN
-#undef E0_MS2_PIN
 #define X_MS1_PIN 25
 #define X_MS2_PIN 26
 #define Y_MS1_PIN 9
@@ -102,4 +83,3 @@
 #define Z_MS2_PIN 6
 #define E0_MS1_PIN 5
 #define E0_MS2_PIN 4
-

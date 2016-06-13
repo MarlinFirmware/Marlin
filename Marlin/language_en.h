@@ -49,6 +49,9 @@
 #ifndef MSG_SD_REMOVED
   #define MSG_SD_REMOVED                      "Card removed"
 #endif
+#ifndef MSG_LCD_ENDSTOPS
+  #define MSG_LCD_ENDSTOPS                    "Endstops" // Max length 8 characters
+#endif
 #ifndef MSG_MAIN
   #define MSG_MAIN                            "Main"
 #endif
@@ -61,11 +64,23 @@
 #ifndef MSG_AUTO_HOME
   #define MSG_AUTO_HOME                       "Auto home"
 #endif
+#ifndef MSG_AUTO_HOME_X
+  #define MSG_AUTO_HOME_X                     "Home X"
+#endif
+#ifndef MSG_AUTO_HOME_Y
+  #define MSG_AUTO_HOME_Y                     "Home Y"
+#endif
+#ifndef MSG_AUTO_HOME_Z
+  #define MSG_AUTO_HOME_Z                     "Home Z"
+#endif
 #ifndef MSG_LEVEL_BED_HOMING
   #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #endif
 #ifndef MSG_LEVEL_BED_WAITING
   #define MSG_LEVEL_BED_WAITING               "Click to Begin"
+#endif
+#ifndef MSG_LEVEL_BED_NEXT_POINT
+  #define MSG_LEVEL_BED_NEXT_POINT            "Next Point"
 #endif
 #ifndef MSG_LEVEL_BED_DONE
   #define MSG_LEVEL_BED_DONE                  "Leveling Done!"
@@ -269,16 +284,16 @@
   #define MSG_VMAX                            "Vmax "
 #endif
 #ifndef MSG_X
-  #define MSG_X                               "x"
+  #define MSG_X                               "X"
 #endif
 #ifndef MSG_Y
-  #define MSG_Y                               "y"
+  #define MSG_Y                               "Y"
 #endif
 #ifndef MSG_Z
-  #define MSG_Z                               "z"
+  #define MSG_Z                               "Z"
 #endif
 #ifndef MSG_E
-  #define MSG_E                               "e"
+  #define MSG_E                               "E"
 #endif
 #ifndef MSG_VMIN
   #define MSG_VMIN                            "Vmin"
@@ -433,6 +448,9 @@
 #ifndef MSG_YX_UNHOMED
   #define MSG_YX_UNHOMED                      "Home X/Y before Z"
 #endif
+#ifndef MSG_XYZ_UNHOMED
+  #define MSG_XYZ_UNHOMED                     "Home XYZ first"
+#endif
 #ifndef MSG_ZPROBE_ZOFFSET
   #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
 #endif
@@ -452,7 +470,7 @@
   #define MSG_HEATING_FAILED_LCD              "Heating failed"
 #endif
 #ifndef MSG_ERR_REDUNDANT_TEMP
-  #define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP ERROR"
+  #define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP"
 #endif
 #ifndef MSG_THERMAL_RUNAWAY
   #define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"

@@ -25,7 +25,7 @@
  */
 
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega1284P__)
-  #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define X_STEP_PIN         15
@@ -43,12 +43,7 @@
 #define E0_STEP_PIN        17
 #define E0_DIR_PIN         21
 
-#define LED_PIN            -1
-
-#define FAN_PIN            -1
-
 #define PS_ON_PIN         14
-#define KILL_PIN           -1
 
 #define HEATER_0_PIN       12 // (extruder)
 
@@ -59,9 +54,5 @@
 #define E0_ENABLE_PIN      13
 
 #define TEMP_0_PIN          0   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 33 extruder)
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
 #define TEMP_BED_PIN        5   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
-#define SDPOWER            -1
 #define SDSS               4
-#define HEATER_2_PIN       -1

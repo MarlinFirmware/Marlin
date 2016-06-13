@@ -27,8 +27,8 @@
 
 #include "pins_3DRAG.h"
 
-#undef DEFAULT_MACHINE_NAME
-#define DEFAULT_MACHINE_NAME "K8200"
+#undef  DEFAULT_MACHINE_NAME
+#define DEFAULT_MACHINE_NAME    "K8200"
 
-#undef DEFAULT_SOURCE_URL
-#define DEFAULT_SOURCE_URL   "https://github.com/CONSULitAS/Marlin-K8200"
+#undef  DEFAULT_SOURCE_CODE_URL
+#define DEFAULT_SOURCE_CODE_URL "https://github.com/CONSULitAS/Marlin-K8200"

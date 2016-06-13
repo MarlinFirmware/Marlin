@@ -25,7 +25,7 @@
  */
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
 // Uncomment the following line for RAMPS v1.0
@@ -56,8 +56,6 @@
 #define SDPOWER            48
 #define SDSS               53
 #define LED_PIN            13
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #if ENABLED(RAMPS_V_1_0) // RAMPS_V_1_0
   #define HEATER_0_PIN     12    // RAMPS 1.0
@@ -69,11 +67,7 @@
   #define FAN_PIN           9    // RAMPS 1.1
 #endif
 
-#define HEATER_1_PIN        -1
-#define HEATER_2_PIN        -1
 #define TEMP_0_PIN          2    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define TEMP_1_PIN          -1
-#define TEMP_2_PIN          -1
 #define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 
 // SPI for Max6675 or Max31855 Thermocouple
