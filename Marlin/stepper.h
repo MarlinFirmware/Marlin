@@ -22,7 +22,7 @@
 
 /**
  * stepper.h - stepper motor driver: executes motion plans of planner.c using the stepper motors
- * Part of Grbl
+ * Derived from Grbl
  *
  * Copyright (c) 2009-2011 Simen Svale Skogsrud
  *
@@ -90,10 +90,6 @@ class Stepper {
       static bool performing_homing;
     #endif
 
-    #if ENABLED(ADVANCE)
-      static long e_steps[EXTRUDERS];
-    #endif
-
   private:
 
     static unsigned char last_direction_bits;        // The next stepping-bits to be output
@@ -107,10 +103,23 @@ class Stepper {
     static long counter_X, counter_Y, counter_Z, counter_E;
     static volatile unsigned long step_events_completed; // The number of step events executed in the current block
 
-    #if ENABLED(ADVANCE)
+    #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       static unsigned char old_OCR0A;
-      static long advance_rate, advance, old_advance, final_advance;
-    #endif
+      static volatile unsigned char eISR_Rate;
+      #if ENABLED(LIN_ADVANCE)
+        static volatile int e_steps[EXTRUDERS];
+        static int extruder_advance_k;
+        static int final_estep_rate;
+        static int current_estep_rate[EXTRUDERS]; // Actual extruder speed [steps/s]
+        static int current_adv_steps[EXTRUDERS];  // The amount of current added esteps due to advance.
+                                                  // i.e., the current amount of pressure applied
+                                                  // to the spring (=filament).
+      #else
+        static long e_steps[EXTRUDERS];
+        static long advance_rate, advance, final_advance;
+        static long old_advance;
+      #endif
+    #endif // ADVANCE or LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
     //unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
@@ -156,7 +165,7 @@ class Stepper {
 
     static void isr();
 
-    #if ENABLED(ADVANCE)
+    #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       static void advance_isr();
     #endif
 
@@ -246,6 +255,11 @@ class Stepper {
       return endstops_trigsteps[axis] / planner.axis_steps_per_mm[axis];
     }
 
+    #if ENABLED(LIN_ADVANCE)
+      void advance_M905();
+      FORCE_INLINE int get_advance_k() { return extruder_advance_k; }
+    #endif
+
   private:
 
     static FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
@@ -315,6 +329,13 @@ class Stepper {
       acc_step_rate = current_block->initial_rate;
       acceleration_time = calc_timer(acc_step_rate);
       OCR1A = acceleration_time;
+      
+      #if ENABLED(LIN_ADVANCE)
+        if (current_block->use_advance_lead) {
+          current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
+          final_estep_rate = (current_block->nominal_rate * current_block->e_speed_multiplier8) >> 8;
+        }
+      #endif
 
       // SERIAL_ECHO_START;
       // SERIAL_ECHOPGM("advance :");

@@ -352,12 +352,18 @@
 #endif // AUTO_BED_LEVELING_FEATURE
 
 /**
+ * Advance Extrusion
+ */
+#if ENABLED(ADVANCE) && ENABLED(LIN_ADVANCE)
+  #error You can enable ADVANCE or LIN_ADVANCE, but not both.
+#endif
+
+/**
  * Filament Width Sensor
  */
 #if ENABLED(FILAMENT_WIDTH_SENSOR) && !HAS_FILAMENT_WIDTH_SENSOR
   #error "FILAMENT_WIDTH_SENSOR requires a FILWIDTH_PIN to be defined."
 #endif
-
 
 /**
  * ULTIPANEL encoder
