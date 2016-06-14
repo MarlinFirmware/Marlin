@@ -201,11 +201,6 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
 #include "utf_mapper.h"
 
-#if ENABLED(SHOW_BOOTSCREEN)
-  static void bootscreen();
-  static bool show_bootscreen = true;
-#endif
-
 #if ENABLED(LCD_PROGRESS_BAR)
   static millis_t progress_bar_ms = 0;
   #if PROGRESS_MSG_EXPIRE > 0
@@ -394,10 +389,6 @@ static void lcd_implementation_init(
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   #endif
 
-  #if ENABLED(SHOW_BOOTSCREEN)
-    if (show_bootscreen) bootscreen();
-  #endif
-
   lcd_set_custom_characters(
     #if ENABLED(LCD_PROGRESS_BAR)
       progress_bar_set
@@ -452,8 +443,7 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
     lcd.setCursor(indent, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x03');
   }
 
-  static void bootscreen() {
-    show_bootscreen = false;
+  void bootscreen() {
     byte top_left[8] = {
       B00000,
       B00000,

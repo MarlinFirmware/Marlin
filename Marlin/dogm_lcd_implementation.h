@@ -271,10 +271,8 @@ static void lcd_implementation_init() {
       }
     } while (u8g.nextPage());
 
-    if (show_bootscreen) {
-      delay(1000);
-      show_bootscreen = false;
-    }
+    show_bootscreen = false;
+
   #endif
 }
 
