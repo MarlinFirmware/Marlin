@@ -76,10 +76,12 @@ script:
   - build_marlin
   #
   # Test 3 extruders on RUMBA (can use any board with >=3 extruders defined)
+  # Include a test for LIN_ADVANCE here also
   #
   - opt_set MOTHERBOARD BOARD_RUMBA
   - opt_set EXTRUDERS 3
   - opt_set TEMP_SENSOR_2 1
+  - opt_enable_adv LIN_ADVANCE
   - build_marlin
   #
   # Test PIDTEMPBED
