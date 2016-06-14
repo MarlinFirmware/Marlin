@@ -576,7 +576,6 @@ static void lcd_status_screen() {
   #if ENABLED(BABYSTEPPING)
 
     long babysteps_done = 0;
-    float distance_done = 0.0f;
 
     static void _lcd_babystep(const AxisEnum axis, const char* msg) {
       ENCODER_DIRECTION_NORMAL();
@@ -586,20 +585,23 @@ static void lcd_status_screen() {
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
         thermalManager.babystep_axis(axis, babystep_increment);
         babysteps_done += babystep_increment;
-        distance_done = (float) ( (1000 * babysteps_done) / planner.axis_steps_per_mm[axis] ) / 1000.0f;// 1000 to print 3 Dec Places
       }
-      if (lcdDrawUpdate) lcd_implementation_drawedit(msg, ftostr43sign(distance_done));
+       // 1000 to print 3 Dec Places
+      if (lcdDrawUpdate) 
+        lcd_implementation_drawedit(msg, ftostr43sign( 
+          ((1000 * babysteps_done) / planner.axis_steps_per_mm[axis]) * 0.001f  
+      ));
       if (LCD_CLICKED) lcd_goto_previous_menu(true);
     }
 
     #if ENABLED(BABYSTEP_XY)
       static void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
       static void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
-      static void lcd_babystep_x() { babysteps_done = 0; distance_done = 0.0f; lcd_goto_screen(_lcd_babystep_x); }
-      static void lcd_babystep_y() { babysteps_done = 0; distance_done = 0.0f; lcd_goto_screen(_lcd_babystep_y); }
+      static void lcd_babystep_x() { babysteps_done = 0; lcd_goto_screen(_lcd_babystep_x); }
+      static void lcd_babystep_y() { babysteps_done = 0; lcd_goto_screen(_lcd_babystep_y); }
     #endif
     static void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
-    static void lcd_babystep_z() { babysteps_done = 0; distance_done = 0.0f; lcd_goto_screen(_lcd_babystep_z); }
+    static void lcd_babystep_z() { babysteps_done = 0; lcd_goto_screen(_lcd_babystep_z); }
 
   #endif //BABYSTEPPING
 
