@@ -333,7 +333,7 @@ const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
 static int serial_count = 0;
 
-// GCode parameter pointer used by code_seen(), code_value(), etc.
+// GCode parameter pointer used by code_seen(), code_value_float(), etc.
 static char* seen_pointer;
 
 // Next Immediate GCode Command pointer. NULL if none.
