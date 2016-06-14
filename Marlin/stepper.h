@@ -256,7 +256,7 @@ class Stepper {
     }
 
     #if ENABLED(LIN_ADVANCE)
-      void advance_M905();
+      void advance_M905(const float &k);
       FORCE_INLINE int get_advance_k() { return extruder_advance_k; }
     #endif
 
