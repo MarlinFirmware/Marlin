@@ -52,7 +52,10 @@
   #if ENABLED(DOGLCD)
     extern int lcd_contrast;
     void set_lcd_contrast(int value);
+  #elif ENABLED(SHOW_BOOTSCREEN)
+    void bootscreen();
   #endif
+
 
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
