@@ -420,7 +420,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // To use a separate Z probe, your board must define a Z_MIN_PROBE_PIN.
 //
 // For a servo-based Z probe, you must set up servo support below, including
-// NUM_SERVOS, Z_ENDSTOP_SERVO_NR and SERVO_ENDSTOP_ANGLES.
+// NUM_SERVOS, Z_ENDSTOP_SERVO_NR and Z_SERVO_ANGLES.
 //
 // - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
 // - Use 5V for powered (usu. inductive) sensors.
@@ -1164,10 +1164,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
 // Use M851 to set the Z probe vertical offset from the nozzle. Store that setting with M500.
 //
-//#define X_ENDSTOP_SERVO_NR 1
-//#define Y_ENDSTOP_SERVO_NR 2
 //#define Z_ENDSTOP_SERVO_NR 0
-//#define SERVO_ENDSTOP_ANGLES {{0,0}, {0,0}, {70,0}} // X,Y,Z Axis Extend and Retract angles
+//#define Z_SERVO_ANGLES {70,0} // Z Servo Extend and Retract angles
 
 // Servo deactivation
 //

@@ -170,26 +170,19 @@
 /**
  * Limited number of servos
  */
-#if NUM_SERVOS > 4
-  #error "The maximum number of SERVOS in Marlin is 4."
-#endif
 #if defined(NUM_SERVOS) && NUM_SERVOS > 0
-  #if X_ENDSTOP_SERVO_NR >= 0 || Y_ENDSTOP_SERVO_NR >= 0 || Z_ENDSTOP_SERVO_NR >= 0
-    #if X_ENDSTOP_SERVO_NR >= NUM_SERVOS
-      #error "X_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
-    #elif Y_ENDSTOP_SERVO_NR >= NUM_SERVOS
-      #error "Y_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
-    #elif Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
-      #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
-    #endif
+  #if NUM_SERVOS > 4
+    #error "The maximum number of SERVOS in Marlin is 4."
+  #elif HAS_Z_ENDSTOP_SERVO && Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
+    #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
   #endif
 #endif
 
 /**
  * Servo deactivation depends on servo endstops
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && DISABLED(HAS_SERVO_ENDSTOPS)
-  #error "At least one of the ?_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE."
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_ENDSTOP_SERVO
+  #error "Z_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
 /**
@@ -288,8 +281,8 @@
     //#if Z_ENDSTOP_SERVO_NR < 0
     //  #error "You must have Z_ENDSTOP_SERVO_NR set to at least 0 or above to use Z_MIN_PROBE_ENDSTOP."
     //#endif
-    //#ifndef SERVO_ENDSTOP_ANGLES
-    //  #error "You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_MIN_PROBE_ENDSTOP."
+    //#ifndef Z_SERVO_ANGLES
+    //  #error "You must have Z_SERVO_ANGLES defined for Z Extend and Retract to use Z_MIN_PROBE_ENDSTOP."
     //#endif
   #endif
 
@@ -613,6 +606,10 @@
   #error "PID_PARAMS_PER_EXTRUDER is deprecated. Use PID_PARAMS_PER_HOTEND instead."
 #elif defined(EXTRUDER_WATTS)
   #error "EXTRUDER_WATTS is deprecated. Use HOTEND_WATTS instead."
+#elif defined(SERVO_ENDSTOP_ANGLES)
+  #error "SERVO_ENDSTOP_ANGLES is deprecated. Use Z_SERVO_ANGLES instead."
+#elif defined(X_ENDSTOP_SERVO_NR) || defined(Y_ENDSTOP_SERVO_NR)
+  #error "X_ENDSTOP_SERVO_NR and Y_ENDSTOP_SERVO_NR are deprecated and should be removed."
 #endif
 
 #endif //SANITYCHECK_H
