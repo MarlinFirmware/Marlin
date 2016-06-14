@@ -1228,7 +1228,7 @@ void Temperature::disable_all_heaters() {
   print_job_timer.stop();
 
   #define DISABLE_HEATER(NR) { \
-    setTargetHotend(NR, 0); \
+    setTargetHotend(0, NR); \
     soft_pwm[NR] = 0; \
     WRITE_HEATER_ ## NR (LOW); \
   }
