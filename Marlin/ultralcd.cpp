@@ -1684,7 +1684,7 @@ static void lcd_status_screen() {
   static void lcd_control_motion_menu() {
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL);
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #if HAS_BED_PROBE
       MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
     #endif
     // Manual bed leveling, Bed Z:

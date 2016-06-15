@@ -364,9 +364,12 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 
 static uint8_t target_extruder;
 
+#if HAS_BED_PROBE
+  float zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   int xy_travel_speed = XY_TRAVEL_SPEED;
-  float zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
   bool bed_leveling_in_progress = false;
 #endif
 
@@ -1490,7 +1493,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
     current_position[axis] = base_home_pos(axis) + home_offset[axis];
     update_software_endstops(axis);
 
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE) && Z_HOME_DIR < 0
+    #if HAS_BED_PROBE && Z_HOME_DIR < 0
       if (axis == Z_AXIS) {
         current_position[Z_AXIS] -= zprobe_zoffset;
         #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -6263,9 +6266,9 @@ inline void gcode_M503() {
 
 #endif // ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 
-#ifdef CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
+#if HAS_BED_PROBE
 
-  inline void gcode_SET_Z_PROBE_OFFSET() {
+  inline void gcode_M851() {
 
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET);
@@ -6291,7 +6294,7 @@ inline void gcode_M503() {
     SERIAL_EOL;
   }
 
-#endif // CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
+#endif // HAS_BED_PROBE
 
 #if ENABLED(FILAMENTCHANGEENABLE)
 
@@ -7400,7 +7403,7 @@ void process_next_command() {
 
       #ifdef CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
         case CUSTOM_M_CODE_SET_Z_PROBE_OFFSET:
-          gcode_SET_Z_PROBE_OFFSET();
+          gcode_M851();
           break;
       #endif // CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
 
