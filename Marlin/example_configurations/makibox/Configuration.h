@@ -810,8 +810,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // Here you may choose the language used by Marlin on the LCD menus, the following
 // list of languages are available:
-//    en, pl, fr, de, es, ru, bg, it, pt, pt_utf8, pt-br, pt-br_utf8,
-//    fi, an, nl, ca, eu, kana, kana_utf8, cn, cz, test
+//    en, an, bg, ca, cn, cz, de, es, eu, fi, fr, gl, hr, it, kana,
+//    kana_utf8, nl, pl, pt, pt_utf8, pt-br, pt-br_utf8, ru, test
 //
 //#define LCD_LANGUAGE en
 
