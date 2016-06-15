@@ -6633,11 +6633,13 @@ inline void gcode_T(uint8_t tmp_extruder) {
       if (next_feedrate > 0.0) stored_feedrate = feedrate = next_feedrate;
     }
     else {
-      #ifdef XY_TRAVEL_SPEED
-        feedrate = XY_TRAVEL_SPEED;
-      #else
-        feedrate = min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]);
-      #endif
+      feedrate =
+        #ifdef XY_TRAVEL_SPEED
+          XY_TRAVEL_SPEED
+        #else
+          min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]) * 60
+        #endif
+      ;
     }
 
     if (tmp_extruder != active_extruder) {
