@@ -115,7 +115,7 @@ class Planner {
     static volatile uint8_t block_buffer_head;           // Index of the next block to be pushed
     static volatile uint8_t block_buffer_tail;
 
-    static float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
+    static float max_feedrate[NUM_AXIS]; // Max speeds in mm per second
     static float axis_steps_per_mm[NUM_AXIS];
     static unsigned long max_acceleration_steps_per_s2[NUM_AXIS];
     static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
