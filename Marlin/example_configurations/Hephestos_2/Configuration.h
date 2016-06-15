@@ -713,17 +713,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //============================= Additional Features ===========================
 //=============================================================================
 
-// @section more
+// @section probes
 
-// Custom M code points
-#define CUSTOM_M_CODES
-#if ENABLED(CUSTOM_M_CODES)
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #define CUSTOM_M_CODE_SET_Z_PROBE_OFFSET 851
-    #define Z_PROBE_OFFSET_RANGE_MIN -5
-    #define Z_PROBE_OFFSET_RANGE_MAX  0
-  #endif
-#endif
+#define Z_PROBE_OFFSET_RANGE_MIN -5
+#define Z_PROBE_OFFSET_RANGE_MAX  0
 
 // @section extras
 
