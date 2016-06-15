@@ -6626,7 +6626,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
   float stored_feedrate = feedrate;
 
   if (code_seen('F')) {
-    float next_feedrate = code_value_axis_units(E_AXIS);
+    float next_feedrate = code_value_axis_units(X_AXIS);
     if (next_feedrate > 0.0) stored_feedrate = feedrate = next_feedrate;
   }
   else {
