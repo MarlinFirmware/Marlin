@@ -53,6 +53,8 @@
 
 #include <U8glib.h>
 #include "dogm_bitmaps.h"
+#include "dogm_custom_bitmaps.h"
+
 
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
@@ -247,6 +249,15 @@ static void lcd_implementation_init() {
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
+    #if ENABLED(CUSTOM_START_BMP)
+      if (show_bootscreen) {
+        u8g.firstPage();
+        do {
+            u8g.drawBitmapP((128-(CUSTOM_START_BMPWIDTH))/2, (64 - (CUSTOM_START_BMPHEIGHT))/2, CUSTOM_START_BMPBYTEWIDTH, CUSTOM_START_BMPHEIGHT, custom_start_bmp);
+        } while (u8g.nextPage());
+        delay(CUSTOM_START_BMP_DELAY);
+      }
+    #endif
     int offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2;
     #if ENABLED(START_BMPHIGH)
       int offy = 0;
