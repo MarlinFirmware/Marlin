@@ -6613,6 +6613,7 @@ inline void gcode_M999() {
  * T0-T3: Switch tool, usually switching extruders
  *
  *   F[mm/min] Set the movement feedrate
+ *   S1        Don't move the tool in XY after change
  */
 inline void gcode_T(uint8_t tmp_extruder) {
   if (tmp_extruder >= EXTRUDERS) {
@@ -6639,8 +6640,9 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
   #if HOTENDS > 1
     if (tmp_extruder != active_extruder) {
+      bool no_move = code_seen('S') && code_value_bool();
       // Save current position to return to after applying extruder offset
-      set_destination_to_current();
+      if (!no_move) set_destination_to_current();
       #if ENABLED(DUAL_X_CARRIAGE)
         if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && IsRunning() &&
             (delayed_move_time || current_position[X_AXIS] != x_home_pos(active_extruder))) {
@@ -6744,7 +6746,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
       #endif
 
       // Move to the "old position" (move the extruder into place)
-      if (IsRunning()) prepare_move_to_destination();
+      if (!no_move && IsRunning()) prepare_move_to_destination();
 
     } // (tmp_extruder != active_extruder)
 
