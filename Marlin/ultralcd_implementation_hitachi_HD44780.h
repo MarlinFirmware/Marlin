@@ -443,6 +443,15 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
     lcd.setCursor(indent, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x03');
   }
 
+  void safe_delay(uint16_t del){
+    while (del > 50) {
+      del -= 50;
+      delay(50);
+      thermalManager.manage_heater();
+    }
+    delay(del);
+  }
+
   void bootscreen() {
     byte top_left[8] = {
       B00000,
@@ -498,7 +507,7 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
       if (strlen(STRING) <= LCD_WIDTH) { \
         lcd.setCursor((LCD_WIDTH - lcd_strlen_P(PSTR(STRING))) / 2, 3); \
         lcd_printPGM(PSTR(STRING)); \
-        delay(DELAY); \
+        safe_delay(DELAY); \
       } \
       else { \
         lcd_scroll(0, 3, PSTR(STRING), LCD_WIDTH, DELAY); \
@@ -516,7 +525,7 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
         #ifdef STRING_SPLASH_LINE2
           CENTER_OR_SCROLL(STRING_SPLASH_LINE2, 2000);
         #else
-          delay(2000);
+          safe_delay(2000);
         #endif
       }
       else {
@@ -541,7 +550,7 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
       //
       if (LCD_EXTRA_SPACE >= strlen(STRING_SPLASH_LINE2) + 1) {
         logo_lines(PSTR(" " STRING_SPLASH_LINE2));
-        delay(2000);
+        safe_delay(2000);
       }
       else {
         logo_lines(PSTR(""));
@@ -552,9 +561,13 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
       // Show only the Marlin logo
       //
       logo_lines(PSTR(""));
-      delay(2000);
+      safe_delay(2000);
     #endif
-
+    lcd_set_custom_characters(
+    #if ENABLED(LCD_PROGRESS_BAR)
+      false
+    #endif
+    );
   }
 
 #endif // SHOW_BOOTSCREEN
