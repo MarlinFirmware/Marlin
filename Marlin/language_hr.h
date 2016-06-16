@@ -21,7 +21,7 @@
  */
 
 /**
- * Croatian(Hrvatski)
+ * Croatian (Hrvatski)
  *
  * LCD Menu Messages
  * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
@@ -30,15 +30,11 @@
 #ifndef LANGUAGE_HR_H
 #define LANGUAGE_HR_H
 
-#if DISABLED(MAPPER_NON) && DISABLED(MAPPER_C2C3) && DISABLED(MAPPER_D0D1) && DISABLED(MAPPER_D0D1_MOD) && DISABLED(MAPPER_E382E383)
-  #define MAPPER_NON         // For direct ascii codes
-#endif
+#define MAPPER_NON
 
-//#define SIMULATE_ROMFONT //Comment in to see what is seen on the character based displays
-#if DISABLED(SIMULATE_ROMFONT) && DISABLED(DISPLAY_CHARSET_ISO10646_1) && DISABLED(DISPLAY_CHARSET_ISO10646_5) && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) && DISABLED(DISPLAY_CHARSET_ISO10646_CN)
-  #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
-#endif
-
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 
 #define WELCOME_MSG                         MACHINE_NAME " spreman."
 #define MSG_SD_INSERTED                     "SD kartica umetnuta"
