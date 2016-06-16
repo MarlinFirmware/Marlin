@@ -38,6 +38,19 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
+/**
+ *
+ *  ***********************************
+ *  **  ATTENTION TO ALL DEVELOPERS  **
+ *  ***********************************
+ *
+ * You must increment this version number for every significant change such as,
+ * but not limited to: ADD, DELETE RENAME OR REPURPOSE any directive/option.
+ *
+ * Note: Update also Version.h !
+ */
+#define CONFIGURATION_H_VERSION 010100
+
 #include "boards.h"
 #include "macros.h"
 
