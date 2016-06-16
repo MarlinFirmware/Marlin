@@ -163,7 +163,6 @@
 #define MSG_HEATING_COMPLETE                "Voorverw. kompl."
 #define MSG_BED_HEATING                     "Bed voorverw."
 #define MSG_BED_DONE                        "Bed is voorverw."
-
 #define MSG_DELTA_CALIBRATE                 "Delta Calibratie"
 #define MSG_DELTA_CALIBRATE_X               "Kalibreer X"
 #define MSG_DELTA_CALIBRATE_Y               "Kalibreer Y"
