@@ -788,6 +788,44 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 //
+// Clean Nozzle Feature -- EXPERIMENTAL
+//
+// When enabled allows the user to send G12 to start the nozzle cleaning
+// process, the G-Code accepts two parameters:
+//   "P" for pattern selection
+//   "S" for defining the number of strokes/repetitions
+//
+// Available list of patterns:
+//   P0: This is the default pattern, this process requires a sponge type
+//       material at a fixed bed location, the cleaning process is based on
+//       "strokes" i.e. back-and-forth movements between the starting and end
+//       points.
+//
+//   P1: This starts a zig-zag pattern between (Xs, Ys) and (Xe, Ye), "S"
+//       defines the number of zig-zag triangles to be done. Each "side"
+//       cannot be less than 5mm. As an example "G12 P1 S3" will execute:
+//
+//                                                /|   /|   /| (Xe, Ye)
+//                                               / |  / |  / |
+//                                              /  | /  | /  |
+//                                    (Xs, Ys) /   |/   |/   |
+//
+//
+// Caveats: End point Z should use the same value as Start point Z.
+//
+// Attention: This is an EXPERIMENTAL feature, in the future the G-code arguments
+// may change to add new functionality like different wipe patterns.
+//
+//#define CLEAN_NOZZLE_FEATURE
+
+#if ENABLED(CLEAN_NOZZLE_FEATURE)
+  #define CLEAN_NOZZLE_STROKES  12
+  #define CLEAN_NOZZLE_START_PT { 30, 30, (Z_MIN_POS + 1), 0}
+  #define CLEAN_NOZZLE_END_PT   {100, 60, (Z_MIN_POS + 1), 0}
+  //                            {  X,  Y,               Z, E}
+#endif
+
+//
 // Print job timer
 //
 // Enable this option to automatically start and stop the
