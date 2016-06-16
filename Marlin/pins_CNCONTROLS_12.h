@@ -79,10 +79,10 @@
  #define BEEPER_PIN                16
 
  // Pins for DOGM SPI LCD Support
- #define DOGLCD_a0             39
- #define DOGLCD_cs             35
- #define DOGLCD_mosi           48
- #define DOGLCD_sck            49
+ #define DOGLCD_A0             39
+ #define DOGLCD_CS             35
+ #define DOGLCD_MOSI           48
+ #define DOGLCD_SCK            49
  #define LCD_SCREEN_ROT_180
  
  //The encoder and click button 
