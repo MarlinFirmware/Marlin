@@ -106,8 +106,9 @@
  * G3  - CCW ARC
  * G4  - Dwell S<seconds> or P<milliseconds>
  * G5  - Cubic B-spline with XYZE destination and IJPQ offsets
- * G10 - retract filament according to settings of M207
- * G11 - retract recover filament according to settings of M208
+ * G10 - Retract filament according to settings of M207
+ * G11 - Retract recover filament according to settings of M208
+ * G12 - Clean tool
  * G20 - Set input units to inches
  * G21 - Set input units to millimeters
  * G28 - Home one or more axes
@@ -1703,6 +1704,10 @@ static void clean_up_after_endstop_or_probe_move() {
     do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], feed_rate);
   }
 
+  inline void do_blocking_move_to_y(float y) {
+    do_blocking_move_to(current_position[X_AXIS], y, current_position[Z_AXIS]);
+  }
+
   inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
     do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, feed_rate);
   }
@@ -2711,6 +2716,23 @@ inline void gcode_G4() {
   }
 
 #endif //FWRETRACT
+
+#if ENABLED(CLEAN_NOZZLE_FEATURE) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #include "clean_nozzle.h"
+
+  inline void gcode_G12() {
+    // Don't allow nozzle cleaning without homing first
+    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
+      axis_unhomed_error(true);
+      return;
+    }
+
+    uint8_t const pattern = code_seen('P') ? code_value_ushort() : 0;
+    uint8_t const strokes = code_seen('S') ? code_value_ushort() : CLEAN_NOZZLE_STROKES;
+
+    CleanNozzle::start(pattern, strokes);
+  }
+#endif
 
 #if ENABLED(INCH_MODE_SUPPORT)
   /**
@@ -6748,12 +6770,10 @@ void process_next_command() {
 
       // G2, G3
       #if ENABLED(ARC_SUPPORT) && DISABLED(SCARA)
-
         case 2: // G2  - CW ARC
         case 3: // G3  - CCW ARC
           gcode_G2_G3(codenum == 2);
           break;
-
       #endif
 
       // G4 Dwell
@@ -6762,22 +6782,24 @@ void process_next_command() {
         break;
 
       #if ENABLED(BEZIER_CURVE_SUPPORT)
-
         // G5
         case 5: // G5  - Cubic B_spline
           gcode_G5();
           break;
-
       #endif // BEZIER_CURVE_SUPPORT
 
       #if ENABLED(FWRETRACT)
-
         case 10: // G10: retract
         case 11: // G11: retract_recover
           gcode_G10_G11(codenum == 10);
           break;
-
       #endif // FWRETRACT
+
+      #if ENABLED(CLEAN_NOZZLE_FEATURE) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+        case 12:
+          gcode_G12(); // G12: Clean Nozzle
+          break;
+      #endif // CLEAN_NOZZLE_FEATURE
 
       #if ENABLED(INCH_MODE_SUPPORT)
         case 20: //G20: Inch Mode
@@ -6787,7 +6809,7 @@ void process_next_command() {
         case 21: //G21: MM Mode
           gcode_G21();
           break;
-      #endif
+      #endif // INCH_MODE_SUPPORT
 
       case 28: // G28: Home all axes, one at a time
         gcode_G28();
@@ -6797,7 +6819,7 @@ void process_next_command() {
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points.
           gcode_G29();
           break;
-      #endif
+      #endif // AUTO_BED_LEVELING_FEATURE
 
       #if HAS_BED_PROBE
 
@@ -6816,7 +6838,6 @@ void process_next_command() {
               break;
 
         #endif // Z_PROBE_SLED
-
       #endif // HAS_BED_PROBE
 
       case 90: // G90
@@ -6845,7 +6866,6 @@ void process_next_command() {
         break;
 
       #if ENABLED(SDSUPPORT)
-
         case 20: // M20 - list SD card
           gcode_M20(); break;
         case 21: // M21 - init SD card
@@ -6878,7 +6898,6 @@ void process_next_command() {
 
         case 928: //M928 - Start SD write
           gcode_M928(); break;
-
       #endif //SDSUPPORT
 
       case 31: //M31 take time since the start of the SD print or an M109 command
@@ -6948,11 +6967,9 @@ void process_next_command() {
       #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
-
         case 113: // M113: Set Host Keepalive interval
           gcode_M113();
           break;
-
       #endif
 
       case 140: // M140: Set bed temp
