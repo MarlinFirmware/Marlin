@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#
+# mfinit
+#
+# Create the upstream repository for Marlin
+#
+
+git remote add upstream git@github.com:MarlinFirmware/Marlin.git
