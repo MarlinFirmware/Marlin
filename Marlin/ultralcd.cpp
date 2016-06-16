@@ -575,18 +575,22 @@ static void lcd_status_screen() {
 
   #if ENABLED(BABYSTEPPING)
 
-    int babysteps_done = 0;
+    long babysteps_done = 0;
 
     static void _lcd_babystep(const AxisEnum axis, const char* msg) {
       ENCODER_DIRECTION_NORMAL();
       if (encoderPosition) {
-        int distance = (int32_t)encoderPosition * BABYSTEP_MULTIPLICATOR;
+        int babystep_increment = (int32_t)encoderPosition * BABYSTEP_MULTIPLICATOR;
         encoderPosition = 0;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        thermalManager.babystep_axis(axis, distance);
-        babysteps_done += distance;
+        thermalManager.babystep_axis(axis, babystep_increment);
+        babysteps_done += babystep_increment;
       }
-      if (lcdDrawUpdate) lcd_implementation_drawedit(msg, itostr3sign(babysteps_done));
+       // 1000 to print 3 Dec Places
+      if (lcdDrawUpdate) 
+        lcd_implementation_drawedit(msg, ftostr43sign( 
+          ((1000 * babysteps_done) / planner.axis_steps_per_mm[axis]) * 0.001f  
+      ));
       if (LCD_CLICKED) lcd_goto_previous_menu(true);
     }
 
@@ -2591,6 +2595,7 @@ char* ftostr41sign(const float& x) {
   conv[6] = '\0';
   return conv;
 }
+
 
 // Convert signed float to string with 023.45 / -23.45 format
 char *ftostr32(const float& x) {
