@@ -80,7 +80,7 @@ block_t Planner::block_buffer[BLOCK_BUFFER_SIZE];
 volatile uint8_t Planner::block_buffer_head = 0;           // Index of the next block to be pushed
 volatile uint8_t Planner::block_buffer_tail = 0;
 
-float Planner::max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
+float Planner::max_feedrate[NUM_AXIS]; // Max speeds in mm per second
 float Planner::axis_steps_per_mm[NUM_AXIS];
 unsigned long Planner::max_acceleration_steps_per_s2[NUM_AXIS];
 unsigned long Planner::max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
