@@ -151,7 +151,6 @@
 #define MSG_ENDSTOP_ABORT                   "Стоп Кр.Изключватели"
 #define MSG_END_HOUR                        "часа"
 #define MSG_END_MINUTE                      "минути"
-
 #define MSG_DELTA_CALIBRATE                 "Делта Калибровка"
 #define MSG_DELTA_CALIBRATE_X               "Калибровка X"
 #define MSG_DELTA_CALIBRATE_Y               "Калибровка Y"

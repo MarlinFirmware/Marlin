@@ -190,11 +190,10 @@
 #define MSG_HEATING_COMPLETE                "Xa esta quente"
 #define MSG_BED_HEATING                     "Quentando cama"
 #define MSG_BED_DONE                        "Cama esta quente"
-
-#define MSG_DELTA_CALIBRATE               "Calibracion Delta"
-#define MSG_DELTA_CALIBRATE_X             "Calibrar X"
-#define MSG_DELTA_CALIBRATE_Y             "Calibrar Y"
-#define MSG_DELTA_CALIBRATE_Z             "Calibrar Z"
-#define MSG_DELTA_CALIBRATE_CENTER        "Calibrar Centro"
+#define MSG_DELTA_CALIBRATE                 "Calibracion Delta"
+#define MSG_DELTA_CALIBRATE_X               "Calibrar X"
+#define MSG_DELTA_CALIBRATE_Y               "Calibrar Y"
+#define MSG_DELTA_CALIBRATE_Z               "Calibrar Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Calibrar Centro"
 
 #endif // LANGUAGE_GL_H
