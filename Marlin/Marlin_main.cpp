@@ -6624,21 +6624,22 @@ inline void gcode_T(uint8_t tmp_extruder) {
     return;
   }
 
-  float stored_feedrate = feedrate;
-
-  if (code_seen('F')) {
-    float next_feedrate = code_value_axis_units(X_AXIS);
-    if (next_feedrate > 0.0) stored_feedrate = feedrate = next_feedrate;
-  }
-  else {
-    #ifdef XY_TRAVEL_SPEED
-      feedrate = XY_TRAVEL_SPEED;
-    #else
-      feedrate = min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]);
-    #endif
-  }
-
   #if HOTENDS > 1
+
+    float stored_feedrate = feedrate;
+
+    if (code_seen('F')) {
+      float next_feedrate = code_value_axis_units(X_AXIS);
+      if (next_feedrate > 0.0) stored_feedrate = feedrate = next_feedrate;
+    }
+    else {
+      #ifdef XY_TRAVEL_SPEED
+        feedrate = XY_TRAVEL_SPEED;
+      #else
+        feedrate = min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]);
+      #endif
+    }
+
     if (tmp_extruder != active_extruder) {
       bool no_move = code_seen('S') && code_value_bool();
       // Save current position to return to after applying extruder offset
@@ -6794,9 +6795,14 @@ inline void gcode_T(uint8_t tmp_extruder) {
       enable_solenoid_on_active_extruder();
     #endif // EXT_SOLENOID
 
-  #endif // HOTENDS > 1
+    feedrate = stored_feedrate;
 
-  feedrate = stored_feedrate;
+  #else // !HOTENDS > 1
+
+    // Set the new active extruder
+    active_extruder = tmp_extruder;
+
+  #endif
 
   SERIAL_ECHO_START;
   SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
