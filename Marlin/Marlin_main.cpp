@@ -1244,14 +1244,14 @@ inline bool code_value_bool() { return code_value_byte() > 0; }
   }
 
   inline float code_value_linear_units() { return code_value_float() * linear_unit_factor; }
-  inline float code_value_per_axis_unit(int axis) { return code_value_float() / axis_unit_factor(axis); }
   inline float code_value_axis_units(int axis) { return code_value_float() * axis_unit_factor(axis); }
+  inline float code_value_per_axis_unit(int axis) { return code_value_float() / axis_unit_factor(axis); }
 
 #else
 
   inline float code_value_linear_units() { return code_value_float(); }
-  inline float code_value_per_axis_unit(int axis) { return code_value_float(); }
-  inline float code_value_axis_units(int axis) { return code_value_float(); }
+  inline float code_value_axis_units(int axis) { UNUSED(axis); return code_value_float(); }
+  inline float code_value_per_axis_unit(int axis) { UNUSED(axis); return code_value_float(); }
 
 #endif
 
@@ -4892,7 +4892,7 @@ inline void gcode_M110() {
  * M111: Set the debug level
  */
 inline void gcode_M111() {
-  marlin_debug_flags = code_seen('S') ? code_value_byte() : DEBUG_NONE;
+  marlin_debug_flags = code_seen('S') ? code_value_byte() : (uint8_t) DEBUG_NONE;
 
   const static char str_debug_1[] PROGMEM = MSG_DEBUG_ECHO;
   const static char str_debug_2[] PROGMEM = MSG_DEBUG_INFO;
@@ -7415,7 +7415,7 @@ void process_next_command() {
           gcode_M605();
           break;
       #endif // DUAL_X_CARRIAGE
-      
+
       #if ENABLED(LIN_ADVANCE)
         case 905: // M905 Set advance factor.
           gcode_M905();
