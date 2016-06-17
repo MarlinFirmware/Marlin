@@ -423,9 +423,10 @@
   //#define USE_SMALL_INFOFONT
 #endif // DOGLCD
 
-// @section more
+// @section safety
 
-// The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
+// The hardware watchdog should reset the microcontroller disabling all outputs,
+// in case the firmware gets stuck and doesn't do temperature regulation.
 #define USE_WATCHDOG
 
 #if ENABLED(USE_WATCHDOG)
@@ -516,9 +517,9 @@ const unsigned int dropsegments = 2; //everything with less than this number of 
   #define BLOCK_BUFFER_SIZE 32 // maximize block buffer
 #endif
 
-// @section more
+// @section serial
 
-//The ASCII buffer for receiving from the serial:
+// The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
