@@ -683,7 +683,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 #endif
 
 
-// @section movement
+// @section motion
 
 /**
  * MOVEMENT SETTINGS
