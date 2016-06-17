@@ -42,28 +42,29 @@
 // See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
 
 // Languages
-// en         English
-// pl         Polish
-// fr         French
-// de         German
-// es         Spanish
-// ru         Russian
-// bg         Bulgarian
-// it         Italian
-// pt         Portuguese
-// pt_utf8    Portuguese (UTF8)
-// pt-br      Portuguese (Brazilian)
-// pt-br_utf8 Portuguese (Brazilian UTF8)
-// fi         Finnish
 // an         Aragonese
-// nl         Dutch
-// gl         Galician
+// bg         Bulgarian
 // ca         Catalan
-// eu         Basque-Euskera
-// kana       Japanese
-// kana_utf8  Japanese (UTF8)
 // cn         Chinese
 // cz         Czech
+// de         German
+// en         English
+// es         Spanish
+// eu         Basque-Euskera
+// fi         Finnish
+// fr         French
+// gl         Galician
+// hr         Croatian
+// it         Italian
+// kana       Japanese
+// kana_utf8  Japanese (UTF8)
+// nl         Dutch
+// pl         Polish
+// pt         Portuguese
+// pt-br      Portuguese (Brazilian)
+// pt-br_utf8 Portuguese (Brazilian UTF8)
+// pt_utf8    Portuguese (UTF8)
+// ru         Russian
 
 #if ENABLED(USE_AUTOMATIC_VERSIONING)
   #include "_Version.h"
