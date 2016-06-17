@@ -42,28 +42,29 @@
 // See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
 
 // Languages
-// en         English
-// pl         Polish
-// fr         French
-// de         German
-// es         Spanish
-// ru         Russian
-// bg         Bulgarian
-// it         Italian
-// pt         Portuguese
-// pt_utf8    Portuguese (UTF8)
-// pt-br      Portuguese (Brazilian)
-// pt-br_utf8 Portuguese (Brazilian UTF8)
-// fi         Finnish
 // an         Aragonese
-// nl         Dutch
-// gl         Galician
+// bg         Bulgarian
 // ca         Catalan
-// eu         Basque-Euskera
-// kana       Japanese
-// kana_utf8  Japanese (UTF8)
 // cn         Chinese
 // cz         Czech
+// de         German
+// en         English
+// es         Spanish
+// eu         Basque-Euskera
+// fi         Finnish
+// fr         French
+// gl         Galician
+// hr         Croatian
+// it         Italian
+// kana       Japanese
+// kana_utf8  Japanese (UTF8)
+// nl         Dutch
+// pl         Polish
+// pt         Portuguese
+// pt-br      Portuguese (Brazilian)
+// pt-br_utf8 Portuguese (Brazilian UTF8)
+// pt_utf8    Portuguese (UTF8)
+// ru         Russian
 
 #if ENABLED(USE_AUTOMATIC_VERSIONING)
   #include "_Version.h"
@@ -151,8 +152,8 @@
 #define MSG_LEVEL_FAIL                      "PROBE FAIL CLEAN NOZZLE"
 #define MSG_LEVEL_QUIT                      "Probe fail clean nozzle"
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
-#define MSG_ERR_M421_REQUIRES_XYZ           "M421 requires XYZ parameters"
-#define MSG_ERR_MESH_XY                     "Mesh XY cannot be resolved"
+#define MSG_ERR_M421_PARAMETERS             "M421 requires XYZ or IJZ parameters"
+#define MSG_ERR_MESH_XY                     "Mesh XY or IJ cannot be resolved"
 #define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
 #define MSG_ERR_M303_DISABLED               "PIDTEMP disabled"
 #define MSG_M119_REPORT                     "Reporting endstop status"

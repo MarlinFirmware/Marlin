@@ -28,7 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if EXTRUDERS > 2
+#if EXTRUDERS > 2 || HOTENDS > 2
   #error "Mega Controller supports up to 2 extruders. Comment this line to keep going."
 #endif
 

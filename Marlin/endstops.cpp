@@ -36,12 +36,40 @@
 
 Endstops endstops;
 
+// public:
+
+bool  Endstops::enabled = true,
+      Endstops::enabled_globally =
+        #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
+          false
+        #else
+          true
+        #endif
+      ;
+volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
+
+#if ENABLED(Z_DUAL_ENDSTOPS)
+  uint16_t
+#else
+  byte
+#endif
+    Endstops::current_endstop_bits = 0,
+    Endstops::old_endstop_bits = 0;
+
+#if HAS_BED_PROBE
+  volatile bool Endstops::z_probe_enabled = false;
+#endif
+
+/**
+ * Class and Instance Methods
+ */
+
 Endstops::Endstops() {
   enable_globally(
     #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
-      true
-    #else
       false
+    #else
+      true
     #endif
   );
   enable(true);
@@ -159,6 +187,9 @@ void Endstops::report_state() {
         card.sdprinting = false;
         card.closefile();
         stepper.quick_stop();
+        #if DISABLED(DELTA) && DISABLED(SCARA)
+          set_current_position_from_planner();
+        #endif
         thermalManager.disable_all_heaters(); // switch off all heaters.
       }
     #endif
@@ -239,8 +270,8 @@ void Endstops::update() {
 
   #if ENABLED(COREXY) || ENABLED(COREXZ)
     // Head direction in -X axis for CoreXY and CoreXZ bots.
-    // If Delta1 == -Delta2, the movement is only in Y or Z axis
-    if ((stepper.current_block->steps[A_AXIS] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(A_AXIS) == stepper.motor_direction(CORE_AXIS_2))) {
+    // If DeltaA == -DeltaB, the movement is only in Y or Z axis
+    if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) == stepper.motor_direction(CORE_AXIS_2))) {
       if (stepper.motor_direction(X_HEAD))
   #else
     if (stepper.motor_direction(X_AXIS))   // stepping along -X axis (regular Cartesian bot)
@@ -271,10 +302,10 @@ void Endstops::update() {
     }
   #endif
 
-  #if ENABLED(COREXY)
-    // Head direction in -Y axis for CoreXY bots.
-    // If DeltaX == DeltaY, the movement is only in X axis
-    if ((stepper.current_block->steps[A_AXIS] != stepper.current_block->steps[B_AXIS]) || (stepper.motor_direction(A_AXIS) != stepper.motor_direction(B_AXIS))) {
+  #if ENABLED(COREXY) || ENABLED(COREYZ)
+    // Head direction in -Y axis for CoreXY / CoreYZ bots.
+    // If DeltaA == DeltaB, the movement is only in X or Y axis
+    if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
       if (stepper.motor_direction(Y_HEAD))
   #else
       if (stepper.motor_direction(Y_AXIS))   // -direction
@@ -289,14 +320,14 @@ void Endstops::update() {
           UPDATE_ENDSTOP(Y, MAX);
         #endif
       }
-  #if ENABLED(COREXY)
+  #if ENABLED(COREXY) || ENABLED(COREYZ)
     }
   #endif
 
-  #if ENABLED(COREXZ)
-    // Head direction in -Z axis for CoreXZ bots.
-    // If DeltaX == DeltaZ, the movement is only in X axis
-    if ((stepper.current_block->steps[A_AXIS] != stepper.current_block->steps[C_AXIS]) || (stepper.motor_direction(A_AXIS) != stepper.motor_direction(C_AXIS))) {
+  #if ENABLED(COREXZ) || ENABLED(COREYZ)
+    // Head direction in -Z axis for CoreXZ or CoreYZ bots.
+    // If DeltaA == DeltaB, the movement is only in X or Y axis
+    if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
       if (stepper.motor_direction(Z_HEAD))
   #else
       if (stepper.motor_direction(Z_AXIS))
