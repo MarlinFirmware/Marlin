@@ -384,24 +384,6 @@
   #endif
 
   /**
-   * Z Safe Homing dependencies
-   */
-  #if ENABLED(Z_SAFE_HOMING)
-    #ifndef X_PROBE_OFFSET_FROM_EXTRUDER
-      #define X_PROBE_OFFSET_FROM_EXTRUDER 0
-    #endif
-    #ifndef Y_PROBE_OFFSET_FROM_EXTRUDER
-      #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
-    #endif
-    #ifndef Z_PROBE_OFFSET_FROM_EXTRUDER
-      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
-    #endif
-    #ifndef XY_TRAVEL_SPEED
-      #define XY_TRAVEL_SPEED 4000
-    #endif
-  #endif
-
-  /**
    * Host keep alive
    */
   #ifndef DEFAULT_KEEPALIVE_INTERVAL
@@ -774,6 +756,30 @@
   #define PROBE_PIN_CONFIGURED (HAS_Z_MIN_PROBE_PIN || (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)))
 
   #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED)
+
+  /**
+   * Probe dependencies
+   */
+  #if HAS_BED_PROBE
+    #ifndef X_PROBE_OFFSET_FROM_EXTRUDER
+      #define X_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Z_PROBE_OFFSET_FROM_EXTRUDER
+      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
+    #endif
+    #ifndef Z_PROBE_OFFSET_RANGE_MIN
+      #define Z_PROBE_OFFSET_RANGE_MIN -20
+    #endif
+    #ifndef Z_PROBE_OFFSET_RANGE_MAX
+      #define Z_PROBE_OFFSET_RANGE_MAX 20
+    #endif
+    #ifndef XY_TRAVEL_SPEED
+      #define XY_TRAVEL_SPEED 4000
+    #endif
+  #endif
 
   /**
    * Delta radius/rod trimmers
