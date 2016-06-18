@@ -4362,18 +4362,18 @@ inline void gcode_M42() {
       /**
        * We don't really have to do this move, but if we don't we can see a
        * funny shift in the Z Height because the user might not have the
-       * Z_RAISE_BEFORE_PROBING height identical to the Z_RAISE_BETWEEN_PROBING
+       * Z_RAISE_BEFORE_PROBING height identical to the Z_RAISE_BETWEEN_PROBINGS
        * height. This gets us back to the probe location at the same height that
        * we have been running around the circle at.
        */
+      bool last_probe = (n == n_samples - 1);
       do_blocking_move_to_xy(X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER), Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER));
-      if (deploy_probe_for_each_reading)
-        sample_set[n] = probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING, ProbeDeployAndStow, verbose_level);
-      else {
-        if (n == n_samples - 1)
-          sample_set[n] = probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING, ProbeStow, verbose_level); else
-          sample_set[n] = probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING, ProbeStay, verbose_level);
-      }
+      sample_set[n] = probe_pt(
+        X_probe_location, Y_probe_location,
+        Z_RAISE_BEFORE_PROBING,
+        deploy_probe_for_each_reading ? ProbeDeployAndStow : last_probe ? ProbeStow : ProbeStay,
+        verbose_level
+      );
 
       /**
        * Get the current mean for the data points we have so far
@@ -4408,7 +4408,7 @@ inline void gcode_M42() {
       }
       if (verbose_level > 0) SERIAL_EOL;
       delay(50);
-      do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+      do_blocking_move_to_z(current_position[Z_AXIS] + (last_probe ? Z_RAISE_AFTER_PROBING : Z_RAISE_BETWEEN_PROBINGS));
     }  // End of probe loop code
 
     if (verbose_level > 0) {
