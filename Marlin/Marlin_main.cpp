@@ -2279,18 +2279,12 @@ static void homeaxis(AxisEnum axis) {
     #if ENABLED(Z_PROBE_SLED)
       #define _Z_DEPLOY           (dock_sled(false))
       #define _Z_STOW             (dock_sled(true))
-      #define _Z_SERVO_TEST       (axis != Z_AXIS)      // already deployed Z
-      #define _Z_SERVO_SUBTEST    false                 // Z will never be invoked
     #elif SERVO_LEVELING || ENABLED(FIX_MOUNTED_PROBE)
       #define _Z_DEPLOY           (deploy_z_probe())
       #define _Z_STOW             (stow_z_probe())
-      #define _Z_SERVO_TEST       (axis != Z_AXIS)      // already deployed Z
-      #define _Z_SERVO_SUBTEST    false                 // Z will never be invoked
     #elif HAS_Z_SERVO_ENDSTOP
       #define _Z_DEPLOY           do{ raise_z_for_servo(Z_RAISE_BEFORE_PROBING); DEPLOY_Z_SERVO(); endstops.z_probe_enabled = true; }while(0)
       #define _Z_STOW             do{ raise_z_for_servo(Z_RAISE_AFTER_PROBING); STOW_Z_SERVO(); endstops.z_probe_enabled = false; }while(0)
-      #define _Z_SERVO_TEST       true                  // Z not deployed yet
-      #define _Z_SERVO_SUBTEST    (axis == Z_AXIS)      // Z is a probe
     #endif
 
     // Homing Z towards the bed? Deploy the Z probe or endstop.
