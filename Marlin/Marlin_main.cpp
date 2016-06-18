@@ -4274,17 +4274,18 @@ inline void gcode_M42() {
      */
     setup_for_endstop_move();
 
+    // Height before each probe (except the first)
+    float z_before = current_position[Z_AXIS] + (deploy_probe_for_each_reading ? Z_RAISE_BEFORE_PROBING : Z_RAISE_BETWEEN_PROBINGS);
+
+    // Deploy the probe and probe the first point
     probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING,
       deploy_probe_for_each_reading ? ProbeDeployAndStow : ProbeDeploy,
       verbose_level);
-
-    raise_z_after_probing();
 
     randomSeed(millis());
 
     double mean, sigma, sample_set[n_samples];
     for (uint8_t n = 0; n < n_samples; n++) {
-      delay(500);
       if (n_legs) {
         int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
         float angle = random(0.0, 360.0),
@@ -4359,18 +4360,13 @@ inline void gcode_M42() {
         } // n_legs loop
       } // n_legs
 
-      /**
-       * We don't really have to do this move, but if we don't we can see a
-       * funny shift in the Z Height because the user might not have the
-       * Z_RAISE_BEFORE_PROBING height identical to the Z_RAISE_BETWEEN_PROBINGS
-       * height. This gets us back to the probe location at the same height that
-       * we have been running around the circle at.
-       */
+      // The last probe will differ
       bool last_probe = (n == n_samples - 1);
-      do_blocking_move_to_xy(X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER), Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER));
+
+      // Probe a single point
       sample_set[n] = probe_pt(
         X_probe_location, Y_probe_location,
-        Z_RAISE_BEFORE_PROBING,
+        z_before,
         deploy_probe_for_each_reading ? ProbeDeployAndStow : last_probe ? ProbeStow : ProbeStay,
         verbose_level
       );
@@ -4392,6 +4388,7 @@ inline void gcode_M42() {
         sum += ss * ss;
       }
       sigma = sqrt(sum / (n + 1));
+
       if (verbose_level > 1) {
         SERIAL_PROTOCOL(n + 1);
         SERIAL_PROTOCOLPGM(" of ");
@@ -4407,9 +4404,14 @@ inline void gcode_M42() {
         }
       }
       if (verbose_level > 0) SERIAL_EOL;
-      delay(50);
-      do_blocking_move_to_z(current_position[Z_AXIS] + (last_probe ? Z_RAISE_AFTER_PROBING : Z_RAISE_BETWEEN_PROBINGS));
-    }  // End of probe loop code
+
+      // Raise before the next loop for the legs
+      if (n_legs || last_probe) {
+        do_blocking_move_to_z(last_probe ? Z_RAISE_AFTER_PROBING : z_before);
+        if (!last_probe) delay(500);
+      }
+
+    } // End of probe loop
 
     if (verbose_level > 0) {
       SERIAL_PROTOCOLPGM("Mean: ");
