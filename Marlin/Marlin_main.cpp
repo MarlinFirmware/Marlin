@@ -4201,57 +4201,41 @@ inline void gcode_M42() {
       return;
     }
 
-    double sum = 0.0, mean = 0.0, sigma = 0.0, sample_set[50];
-    int8_t verbose_level = 1, n_samples = 10, n_legs = 0, schizoid_flag = 0;
-
-    if (code_seen('V')) {
-      verbose_level = code_value_byte();
-      if (verbose_level < 0 || verbose_level > 4) {
-        SERIAL_PROTOCOLPGM("?Verbose Level not plausible (0-4).\n");
-        return;
-      }
+    int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
+    if (verbose_level < 0 || verbose_level > 4) {
+      SERIAL_PROTOCOLPGM("?Verbose Level not plausible (0-4).\n");
+      return;
     }
 
     if (verbose_level > 0)
       SERIAL_PROTOCOLPGM("M48 Z-Probe Repeatability test\n");
 
-    if (code_seen('P')) {
-      n_samples = code_value_byte();
-      if (n_samples < 4 || n_samples > 50) {
-        SERIAL_PROTOCOLPGM("?Sample size not plausible (4-50).\n");
-        return;
-      }
+    int8_t n_samples = code_seen('P') ? code_value_byte() : 10;
+    if (n_samples < 4 || n_samples > 50) {
+      SERIAL_PROTOCOLPGM("?Sample size not plausible (4-50).\n");
+      return;
     }
 
     float  X_current = current_position[X_AXIS],
            Y_current = current_position[Y_AXIS],
-           Z_current = current_position[Z_AXIS],
-           X_probe_location = X_current + X_PROBE_OFFSET_FROM_EXTRUDER,
-           Y_probe_location = Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER,
-           Z_start_location = Z_current + Z_RAISE_BEFORE_PROBING;
+           Z_start_location = current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING;
     bool deploy_probe_for_each_reading = code_seen('E');
 
-    if (code_seen('X')) {
-      X_probe_location = code_value_axis_units(X_AXIS);
-      #if DISABLED(DELTA)
-        if (X_probe_location < MIN_PROBE_X || X_probe_location > MAX_PROBE_X) {
-          out_of_range_error(PSTR("X"));
-          return;
-        }
-      #endif
-    }
+    float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : X_current + X_PROBE_OFFSET_FROM_EXTRUDER;
+    #if DISABLED(DELTA)
+      if (X_probe_location < MIN_PROBE_X || X_probe_location > MAX_PROBE_X) {
+        out_of_range_error(PSTR("X"));
+        return;
+      }
+    #endif
 
-    if (code_seen('Y')) {
-      Y_probe_location = code_value_axis_units(Y_AXIS);
-      #if DISABLED(DELTA)
-        if (Y_probe_location < MIN_PROBE_Y || Y_probe_location > MAX_PROBE_Y) {
-          out_of_range_error(PSTR("Y"));
-          return;
-        }
-      #endif
-    }
-
-    #if ENABLED(DELTA)
+    float Y_probe_location = code_seen('Y') ? code_value_axis_units(Y_AXIS) : Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER;
+    #if DISABLED(DELTA)
+      if (Y_probe_location < MIN_PROBE_Y || Y_probe_location > MAX_PROBE_Y) {
+        out_of_range_error(PSTR("Y"));
+        return;
+      }
+    #else
       if (sqrt(X_probe_location * X_probe_location + Y_probe_location * Y_probe_location) > DELTA_PROBEABLE_RADIUS) {
         SERIAL_PROTOCOLPGM("? (X,Y) location outside of probeable radius.\n");
         return;
@@ -4259,20 +4243,15 @@ inline void gcode_M42() {
     #endif
 
     bool seen_L = code_seen('L');
-
-    if (seen_L) {
-      n_legs = code_value_byte();
-      if (n_legs < 0 || n_legs > 15) {
-        SERIAL_PROTOCOLPGM("?Number of legs in movement not plausible (0-15).\n");
-        return;
-      }
-      if (n_legs == 1) n_legs = 2;
+    uint8_t n_legs = seen_L ? code_value_byte() : 0;
+    if (n_legs < 0 || n_legs > 15) {
+      SERIAL_PROTOCOLPGM("?Number of legs in movement not plausible (0-15).\n");
+      return;
     }
+    if (n_legs == 1) n_legs = 2;
 
-    if (code_seen('S')) {
-      schizoid_flag++;
-      if (!seen_L) n_legs = 7;
-    }
+    bool schizoid_flag = code_seen('S');
+    if (schizoid_flag && !seen_L) n_legs = 7;
 
     /**
      * Now get everything to the specified probe point So we can safely do a
@@ -4307,20 +4286,21 @@ inline void gcode_M42() {
 
     raise_z_after_probing();
 
+    randomSeed(millis());
+
+    double mean, sigma, sample_set[n_samples];
     for (uint8_t n = 0; n < n_samples; n++) {
-      randomSeed(millis());
       delay(500);
       if (n_legs) {
-        float radius, angle = random(0.0, 360.0);
         int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
-
-        radius = random(
-          #if ENABLED(DELTA)
-            DELTA_PROBEABLE_RADIUS / 8, DELTA_PROBEABLE_RADIUS / 3
-          #else
-            5, X_MAX_LENGTH / 8
-          #endif
-        );
+        float angle = random(0.0, 360.0),
+              radius = random(
+                #if ENABLED(DELTA)
+                  DELTA_PROBEABLE_RADIUS / 8, DELTA_PROBEABLE_RADIUS / 3
+                #else
+                  5, X_MAX_LENGTH / 8
+                #endif
+              );
 
         if (verbose_level > 3) {
           SERIAL_ECHOPAIR("Starting radius: ", radius);
@@ -4404,7 +4384,7 @@ inline void gcode_M42() {
       /**
        * Get the current mean for the data points we have so far
        */
-      sum = 0.0;
+      double sum = 0.0;
       for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
       mean = sum / (n + 1);
 
@@ -4437,19 +4417,15 @@ inline void gcode_M42() {
       do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
     }  // End of probe loop code
 
-    // raise_z_after_probing();
-
     if (verbose_level > 0) {
       SERIAL_PROTOCOLPGM("Mean: ");
       SERIAL_PROTOCOL_F(mean, 6);
       SERIAL_EOL;
-      delay(25);
     }
 
     SERIAL_PROTOCOLPGM("Standard Deviation: ");
     SERIAL_PROTOCOL_F(sigma, 6);
     SERIAL_EOL; SERIAL_EOL;
-    delay(25);
 
     clean_up_after_endstop_move();
 
