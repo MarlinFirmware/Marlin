@@ -3518,22 +3518,16 @@ inline void gcode_G28() {
           float measured_z,
                 z_before = probePointCounter ? Z_RAISE_BETWEEN_PROBINGS + current_position[Z_AXIS] : Z_RAISE_BEFORE_PROBING + home_offset[Z_AXIS];
 
-          if (probePointCounter) {
-            #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) {
-                SERIAL_ECHOPAIR("z_before = (between) ", (Z_RAISE_BETWEEN_PROBINGS + current_position[Z_AXIS]));
-                SERIAL_EOL;
-              }
-            #endif
-          }
-          else {
-            #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) {
-                SERIAL_ECHOPAIR("z_before = (before) ", Z_RAISE_BEFORE_PROBING + home_offset[Z_AXIS]);
-                SERIAL_EOL;
-              }
-            #endif
-          }
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_ECHOPGM("z_before = (");
+              if (probePointCounter)
+                SERIAL_ECHOPGM("between) ");
+              else
+                SERIAL_ECHOPGM("before) ");
+              SERIAL_ECHOLN(z_before);
+            }
+          #endif
 
           #if ENABLED(DELTA)
             // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
