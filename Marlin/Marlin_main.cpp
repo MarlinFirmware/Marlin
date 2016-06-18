@@ -227,6 +227,7 @@
  * M665 - Set delta configurations: L<diagonal rod> R<delta radius> S<segments/s>
  * M666 - Set delta endstop adjustment
  * M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
+ * M851 - Set Z probe's Z offset (mm). Set to a negative value for probes that trigger below the nozzle.
  * M907 - Set digital trimpot motor current using axis codes.
  * M908 - Control digital trimpot directly.
  * M909 - DAC_STEPPER_CURRENT: Print digipot/DAC current value
@@ -245,9 +246,6 @@
  *
  * ************ Custom codes - This can change to suit future G-code regulations
  * M100 - Watch Free Memory (For Debugging Only)
- * M851 - Set Z probe's Z offset (mm above extruder -- The value will always be negative)
-
-
  * M928 - Start SD logging (M928 filename.g) - ended by M29
  * M999 - Restart after being stopped by error
  *
@@ -7363,11 +7361,11 @@ void process_next_command() {
           break;
       #endif
 
-      #ifdef CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
-        case CUSTOM_M_CODE_SET_Z_PROBE_OFFSET:
+      #if HAS_BED_PROBE
+        case 851:
           gcode_M851();
           break;
-      #endif // CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
+      #endif // HAS_BED_PROBE
 
       #if ENABLED(FILAMENTCHANGEENABLE)
         case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
