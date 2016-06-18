@@ -4738,12 +4738,23 @@ inline void gcode_M109() {
   KEEPALIVE_STATE(NOT_BUSY);
 
   do {
+    // Target temperature might be changed during the loop
+    if (theTarget != thermalManager.degTargetHotend(target_extruder)) {
+      wants_to_cool = thermalManager.isCoolingHotend(target_extruder);
+      theTarget = thermalManager.degTargetHotend(target_extruder);
+
+      // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
+      if (no_wait_for_cooling && wants_to_cool) break;
+
+      // Prevent a wait-forever situation if R is misused i.e. M109 R0
+      // Try to calculate a ballpark safe margin by halving EXTRUDE_MINTEMP
+      if (wants_to_cool && theTarget < (EXTRUDE_MINTEMP)/2) break;
+    }
+
     now = millis();
     if (ELAPSED(now, next_temp_ms)) { //Print temp & remaining time every 1s while waiting
       next_temp_ms = now + 1000UL;
-      #if HAS_TEMP_HOTEND || HAS_TEMP_BED
-        print_heaterstates();
-      #endif
+      print_heaterstates();
       #if TEMP_RESIDENCY_TIME > 0
         SERIAL_PROTOCOLPGM(" W:");
         if (residency_start_ms) {
@@ -4758,19 +4769,6 @@ inline void gcode_M109() {
       #endif
     }
 
-    // Target temperature might be changed during the loop
-    if (theTarget != thermalManager.degTargetHotend(target_extruder)) {
-      wants_to_cool = thermalManager.isCoolingHotend(target_extruder);
-      theTarget = thermalManager.degTargetHotend(target_extruder);
-
-      // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
-      if (no_wait_for_cooling && wants_to_cool) break;
-
-      // Prevent a wait-forever situation if R is misused i.e. M109 R0
-      // Try to calculate a ballpark safe margin by halving EXTRUDE_MINTEMP
-      if (wants_to_cool && theTarget < (EXTRUDE_MINTEMP)/2) break;
-    }
-
     idle();
     refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
@@ -4780,11 +4778,11 @@ inline void gcode_M109() {
 
       if (!residency_start_ms) {
         // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
-        if (temp_diff < TEMP_WINDOW) residency_start_ms = millis();
+        if (temp_diff < TEMP_WINDOW) residency_start_ms = now;
       }
       else if (temp_diff > TEMP_HYSTERESIS) {
         // Restart the timer whenever the temperature falls outside the hysteresis.
-        residency_start_ms = millis();
+        residency_start_ms = now;
       }
 
     #endif //TEMP_RESIDENCY_TIME > 0
@@ -4825,6 +4823,19 @@ inline void gcode_M109() {
     KEEPALIVE_STATE(NOT_BUSY);
 
     do {
+      // Target temperature might be changed during the loop
+      if (theTarget != thermalManager.degTargetBed()) {
+        wants_to_cool = thermalManager.isCoolingBed();
+        theTarget = thermalManager.degTargetBed();
+
+        // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
+        if (no_wait_for_cooling && wants_to_cool) break;
+
+        // Prevent a wait-forever situation if R is misused i.e. M190 R0
+        // Simply don't wait to cool a bed under 30C
+        if (wants_to_cool && theTarget < 30) break;
+      }
+
       now = millis();
       if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
@@ -4843,19 +4854,6 @@ inline void gcode_M109() {
         #endif
       }
 
-      // Target temperature might be changed during the loop
-      if (theTarget != thermalManager.degTargetBed()) {
-        wants_to_cool = thermalManager.isCoolingBed();
-        theTarget = thermalManager.degTargetBed();
-
-        // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
-        if (no_wait_for_cooling && wants_to_cool) break;
-
-        // Prevent a wait-forever situation if R is misused i.e. M190 R0
-        // Simply don't wait to cool a bed under 30C
-        if (wants_to_cool && theTarget < 30) break;
-      }
-
       idle();
       refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
@@ -4865,11 +4863,11 @@ inline void gcode_M109() {
 
         if (!residency_start_ms) {
           // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
-          if (temp_diff < TEMP_BED_WINDOW) residency_start_ms = millis();
+          if (temp_diff < TEMP_BED_WINDOW) residency_start_ms = now;
         }
         else if (temp_diff > TEMP_BED_HYSTERESIS) {
           // Restart the timer whenever the temperature falls outside the hysteresis.
-          residency_start_ms = millis();
+          residency_start_ms = now;
         }
 
       #endif //TEMP_BED_RESIDENCY_TIME > 0
