@@ -1667,6 +1667,8 @@ static void setup_for_endstop_move() {
 
   static void run_z_probe() {
 
+    float old_feedrate = feedrate;
+
     /**
      * To prevent stepper_inactive_time from running out and
      * EXTRUDER_RUNOUT_PREVENT from extruding
@@ -1743,6 +1745,8 @@ static void setup_for_endstop_move() {
       #endif
 
     #endif // !DELTA
+
+    feedrate = old_feedrate;
   }
 
   /**
@@ -1750,7 +1754,7 @@ static void setup_for_endstop_move() {
    *  The final current_position may not be the one that was requested
    */
   static void do_blocking_move_to(float x, float y, float z) {
-    float oldFeedRate = feedrate;
+    float old_feedrate = feedrate;
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) print_xyz("do_blocking_move_to", x, y, z);
@@ -1769,8 +1773,6 @@ static void setup_for_endstop_move() {
       else
         prepare_move_to_destination();     // this will also set_current_to_destination
 
-      stepper.synchronize();
-
     #else
 
       feedrate = homing_feedrate[Z_AXIS];
@@ -1784,11 +1786,12 @@ static void setup_for_endstop_move() {
       current_position[X_AXIS] = x;
       current_position[Y_AXIS] = y;
       line_to_current_position();
-      stepper.synchronize();
 
     #endif
 
-    feedrate = oldFeedRate;
+    stepper.synchronize();
+
+    feedrate = old_feedrate;
   }
 
   inline void do_blocking_move_to_xy(float x, float y) {
@@ -1838,6 +1841,8 @@ static void setup_for_endstop_move() {
       DEPLOY_Z_SERVO();
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
+      float old_feedrate = feedrate;
+
       feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
 
       // If endstop is already false, the Z probe is deployed
@@ -1889,6 +1894,8 @@ static void setup_for_endstop_move() {
       destination[X_AXIS] = destination[X_AXIS] * 0.75;
       destination[Y_AXIS] = destination[Y_AXIS] * 0.75;
       prepare_move_to_destination_raw(); // this will also set_current_to_destination
+
+      feedrate = old_feedrate;
 
       stepper.synchronize();
 
@@ -1943,6 +1950,8 @@ static void setup_for_endstop_move() {
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
+      float old_feedrate = feedrate;
+
       // Move up for safety
       feedrate = Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE;
 
@@ -1982,6 +1991,8 @@ static void setup_for_endstop_move() {
       destination[X_AXIS] = 0;
       destination[Y_AXIS] = 0;
       prepare_move_to_destination_raw(); // this will also set_current_to_destination
+
+      feedrate = old_feedrate;
 
       stepper.synchronize();
 
@@ -3829,9 +3840,8 @@ inline void gcode_G28() {
       // TODO: clear the leveling matrix or the planner will be set incorrectly
       setup_for_endstop_move(); // Too late. Must be done before deploying.
 
-      feedrate = homing_feedrate[Z_AXIS];
-
       run_z_probe();
+
       SERIAL_PROTOCOLPGM("Bed X: ");
       SERIAL_PROTOCOL(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER + 0.0001);
       SERIAL_PROTOCOLPGM(" Y: ");
