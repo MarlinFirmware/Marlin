@@ -4275,10 +4275,11 @@ inline void gcode_M42() {
     setup_for_endstop_move();
 
     // Height before each probe (except the first)
-    float z_before = current_position[Z_AXIS] + (deploy_probe_for_each_reading ? Z_RAISE_BEFORE_PROBING : Z_RAISE_BETWEEN_PROBINGS);
+    float z_between = home_offset[Z_AXIS] + (deploy_probe_for_each_reading ? Z_RAISE_BEFORE_PROBING : Z_RAISE_BETWEEN_PROBINGS);
 
     // Deploy the probe and probe the first point
-    probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING,
+    probe_pt(X_probe_location, Y_probe_location,
+      home_offset[Z_AXIS] + Z_RAISE_BEFORE_PROBING,
       deploy_probe_for_each_reading ? ProbeDeployAndStow : ProbeDeploy,
       verbose_level);
 
@@ -4366,7 +4367,7 @@ inline void gcode_M42() {
       // Probe a single point
       sample_set[n] = probe_pt(
         X_probe_location, Y_probe_location,
-        z_before,
+        z_between,
         deploy_probe_for_each_reading ? ProbeDeployAndStow : last_probe ? ProbeStow : ProbeStay,
         verbose_level
       );
@@ -4388,26 +4389,28 @@ inline void gcode_M42() {
         sum += ss * ss;
       }
       sigma = sqrt(sum / (n + 1));
-
-      if (verbose_level > 1) {
-        SERIAL_PROTOCOL(n + 1);
-        SERIAL_PROTOCOLPGM(" of ");
-        SERIAL_PROTOCOL((int)n_samples);
-        SERIAL_PROTOCOLPGM("   z: ");
-        SERIAL_PROTOCOL_F(current_position[Z_AXIS], 6);
-        delay(50);
-        if (verbose_level > 2) {
-          SERIAL_PROTOCOLPGM(" mean: ");
-          SERIAL_PROTOCOL_F(mean, 6);
-          SERIAL_PROTOCOLPGM("   sigma: ");
-          SERIAL_PROTOCOL_F(sigma, 6);
+      if (verbose_level > 0) {
+        if (verbose_level > 1) {
+          SERIAL_PROTOCOL(n + 1);
+          SERIAL_PROTOCOLPGM(" of ");
+          SERIAL_PROTOCOL((int)n_samples);
+          SERIAL_PROTOCOLPGM("   z: ");
+          SERIAL_PROTOCOL_F(current_position[Z_AXIS], 6);
+          delay(50);
+          if (verbose_level > 2) {
+            SERIAL_PROTOCOLPGM(" mean: ");
+            SERIAL_PROTOCOL_F(mean, 6);
+            SERIAL_PROTOCOLPGM("   sigma: ");
+            SERIAL_PROTOCOL_F(sigma, 6);
+          }
         }
+        SERIAL_EOL;
       }
-      if (verbose_level > 0) SERIAL_EOL;
 
-      // Raise before the next loop for the legs
+      // Raise before the next loop for the legs,
+      // or do the final raise after the last probe
       if (n_legs || last_probe) {
-        do_blocking_move_to_z(last_probe ? Z_RAISE_AFTER_PROBING : z_before);
+        do_blocking_move_to_z(last_probe ? home_offset[Z_AXIS] + Z_RAISE_AFTER_PROBING : z_between);
         if (!last_probe) delay(500);
       }
 
