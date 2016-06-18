@@ -282,6 +282,13 @@ void CardReader::pauseSDPrint() {
   if (sdprinting) sdprinting = false;
 }
 
+void CardReader::stopSDPrint() {
+  if (sdprinting) {
+    sdprinting = false;
+    file.close();
+  }
+}
+
 void CardReader::openLogFile(char* name) {
   logging = true;
   openFile(name, false);

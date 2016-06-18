@@ -496,17 +496,16 @@ static void lcd_status_screen() {
     }
 
     static void lcd_sdcard_stop() {
-      stepper.quick_stop();
-      #if DISABLED(DELTA) && DISABLED(SCARA)
-        set_current_position_from_planner();
-      #endif // !DELTA && !SCARA
+      card.stopSDPrint();
       clear_command_queue();
-      card.sdprinting = false;
-      card.closefile();
+      stepper.quick_stop();
       print_job_timer.stop();
       thermalManager.autotempShutdown();
       cancel_heatup = true;
       lcd_setstatus(MSG_PRINT_ABORTED, true);
+      #if DISABLED(DELTA) && DISABLED(SCARA)
+        set_current_position_from_planner();
+      #endif // !DELTA && !SCARA
     }
 
   #endif //SDSUPPORT
