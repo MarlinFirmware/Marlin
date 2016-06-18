@@ -7361,7 +7361,7 @@ void process_next_command() {
           break;
       #endif
 
-      #ifdef HAS_BED_PROBE
+      #if HAS_BED_PROBE
         case 851:
           gcode_M851();
           break;
