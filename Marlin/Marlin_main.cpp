@@ -1891,8 +1891,8 @@ static void setup_for_endstop_move() {
         }
 
       // Partially Home X,Y for safety
-      destination[X_AXIS] = destination[X_AXIS] * 0.75;
-      destination[Y_AXIS] = destination[Y_AXIS] * 0.75;
+      destination[X_AXIS] *= 0.75;
+      destination[Y_AXIS] *= 0.75;
       prepare_move_to_destination_raw(); // this will also set_current_to_destination
 
       feedrate = old_feedrate;
