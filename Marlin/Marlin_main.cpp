@@ -1762,7 +1762,7 @@ static void setup_for_endstop_move() {
 
     #if ENABLED(DELTA)
 
-      feedrate = XY_TRAVEL_SPEED;
+      feedrate = xy_travel_speed;
 
       destination[X_AXIS] = x;
       destination[Y_AXIS] = y;
@@ -1854,7 +1854,6 @@ static void setup_for_endstop_move() {
         if (z_min_endstop)
       #endif
         {
-
           // Move to the start position to initiate deployment
           destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_X;
           destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_Y;
