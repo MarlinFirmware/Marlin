@@ -319,7 +319,7 @@ float code_value_temp_diff();
   extern float z_endstop_adj;
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if HAS_BED_PROBE
   extern float zprobe_zoffset;
 #endif
 
