@@ -1684,6 +1684,197 @@ static void setup_for_endstop_move() {
 
 #endif
 
+#if HAS_BED_PROBE
+
+  static void deploy_z_probe() {
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("deploy_z_probe", current_position);
+    #endif
+
+    if (endstops.z_probe_enabled) return;
+
+    #if HAS_Z_SERVO_ENDSTOP
+
+      // Make room for Z Servo
+      raise_z_for_servo(Z_RAISE_BEFORE_PROBING);
+
+      // Engage Z Servo endstop if enabled
+      DEPLOY_Z_SERVO();
+
+    #elif ENABLED(Z_PROBE_ALLEN_KEY)
+      float old_feedrate = feedrate;
+
+      feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
+
+      // If endstop is already false, the Z probe is deployed
+      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+        bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
+        if (z_probe_endstop)
+      #else
+        bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+        if (z_min_endstop)
+      #endif
+        {
+          // Move to the start position to initiate deployment
+          destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_X;
+          destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_Y;
+          destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_Z;
+          prepare_move_to_destination_raw(); // this will also set_current_to_destination
+
+          // Move to engage deployment
+          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE)
+            feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE;
+          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_X != Z_PROBE_ALLEN_KEY_DEPLOY_1_X)
+            destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_X;
+          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_Y != Z_PROBE_ALLEN_KEY_DEPLOY_1_Y)
+            destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_Y;
+          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_Z != Z_PROBE_ALLEN_KEY_DEPLOY_1_Z)
+            destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_Z;
+          prepare_move_to_destination_raw();
+
+          #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_3_X
+            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
+              feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
+
+            // Move to trigger deployment
+            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
+              feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
+            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_X != Z_PROBE_ALLEN_KEY_DEPLOY_2_X)
+              destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_X;
+            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Y != Z_PROBE_ALLEN_KEY_DEPLOY_2_Y)
+              destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Y;
+            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Z != Z_PROBE_ALLEN_KEY_DEPLOY_2_Z)
+              destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Z;
+
+            prepare_move_to_destination_raw();
+          #endif
+        }
+
+      // Partially Home X,Y for safety
+      destination[X_AXIS] *= 0.75;
+      destination[Y_AXIS] *= 0.75;
+      prepare_move_to_destination_raw(); // this will also set_current_to_destination
+
+      feedrate = old_feedrate;
+
+      stepper.synchronize();
+
+      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+        z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
+        if (z_probe_endstop)
+      #else
+        z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+        if (z_min_endstop)
+      #endif
+        {
+          if (IsRunning()) {
+            SERIAL_ERROR_START;
+            SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
+            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+          }
+          stop();
+        }
+
+    #elif ENABLED(FIX_MOUNTED_PROBE)
+
+      // Nothing to be done. Just enable_z_probe below...
+
+    #endif
+
+    endstops.enable_z_probe();
+  }
+
+  static void stow_z_probe() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("stow_z_probe", current_position);
+    #endif
+
+    if (!endstops.z_probe_enabled) return;
+
+    #if HAS_Z_SERVO_ENDSTOP
+
+      // Make room for the servo
+      raise_z_for_servo(Z_RAISE_AFTER_PROBING);
+
+      // Change the Z servo angle
+      STOW_Z_SERVO();
+
+    #elif ENABLED(Z_PROBE_ALLEN_KEY)
+
+      float old_feedrate = feedrate;
+
+      // Move up for safety
+      feedrate = Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE;
+
+      #if Z_RAISE_AFTER_PROBING > 0
+        destination[Z_AXIS] = current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING;
+        prepare_move_to_destination_raw(); // this will also set_current_to_destination
+      #endif
+
+      // Move to the start position to initiate retraction
+      destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_X;
+      destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_Y;
+      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_Z;
+      prepare_move_to_destination_raw();
+
+      // Move the nozzle down to push the Z probe into retracted position
+      if (Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE != Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE)
+        feedrate = Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE;
+      if (Z_PROBE_ALLEN_KEY_STOW_2_X != Z_PROBE_ALLEN_KEY_STOW_1_X)
+        destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_X;
+      if (Z_PROBE_ALLEN_KEY_STOW_2_Y != Z_PROBE_ALLEN_KEY_STOW_1_Y)
+        destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_Y;
+      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_Z;
+      prepare_move_to_destination_raw();
+
+      // Move up for safety
+      if (Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE != Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE)
+        feedrate = Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE;
+      if (Z_PROBE_ALLEN_KEY_STOW_3_X != Z_PROBE_ALLEN_KEY_STOW_2_X)
+        destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_X;
+      if (Z_PROBE_ALLEN_KEY_STOW_3_Y != Z_PROBE_ALLEN_KEY_STOW_2_Y)
+        destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_Y;
+      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_Z;
+      prepare_move_to_destination_raw();
+
+      // Home XY for safety
+      feedrate = homing_feedrate[X_AXIS] / 2;
+      destination[X_AXIS] = 0;
+      destination[Y_AXIS] = 0;
+      prepare_move_to_destination_raw(); // this will also set_current_to_destination
+
+      feedrate = old_feedrate;
+
+      stepper.synchronize();
+
+      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+        bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
+        if (!z_probe_endstop)
+      #else
+        bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+        if (!z_min_endstop)
+      #endif
+        {
+          if (IsRunning()) {
+            SERIAL_ERROR_START;
+            SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
+            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+          }
+          stop();
+        }
+
+    #elif ENABLED(FIX_MOUNTED_PROBE)
+
+      // Nothing to do here. Just clear endstops.z_probe_enabled
+
+    #endif
+
+    endstops.enable_z_probe(false);
+  }
+
+#endif // HAS_BED_PROBE
+
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
   #if ENABLED(AUTO_BED_LEVELING_GRID)
@@ -1871,194 +2062,6 @@ static void setup_for_endstop_move() {
     feedrate_multiplier = saved_feedrate_multiplier;
     refresh_cmd_timeout();
   }
-
-  #if HAS_BED_PROBE
-
-  static void deploy_z_probe() {
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("deploy_z_probe", current_position);
-    #endif
-
-    if (endstops.z_probe_enabled) return;
-
-    #if HAS_Z_SERVO_ENDSTOP
-
-      // Make room for Z Servo
-      raise_z_for_servo(Z_RAISE_BEFORE_PROBING);
-
-      // Engage Z Servo endstop if enabled
-      DEPLOY_Z_SERVO();
-
-    #elif ENABLED(Z_PROBE_ALLEN_KEY)
-      float old_feedrate = feedrate;
-
-      feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
-
-      // If endstop is already false, the Z probe is deployed
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
-        if (z_probe_endstop)
-      #else
-        bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-        if (z_min_endstop)
-      #endif
-        {
-          // Move to the start position to initiate deployment
-          destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_X;
-          destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_Y;
-          destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_Z;
-          prepare_move_to_destination_raw(); // this will also set_current_to_destination
-
-          // Move to engage deployment
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE)
-            feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_X != Z_PROBE_ALLEN_KEY_DEPLOY_1_X)
-            destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_X;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_Y != Z_PROBE_ALLEN_KEY_DEPLOY_1_Y)
-            destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_Y;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_Z != Z_PROBE_ALLEN_KEY_DEPLOY_1_Z)
-            destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_Z;
-          prepare_move_to_destination_raw();
-
-          #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_3_X
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
-              feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
-
-            // Move to trigger deployment
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
-              feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_X != Z_PROBE_ALLEN_KEY_DEPLOY_2_X)
-              destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_X;
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Y != Z_PROBE_ALLEN_KEY_DEPLOY_2_Y)
-              destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Y;
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Z != Z_PROBE_ALLEN_KEY_DEPLOY_2_Z)
-              destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Z;
-
-            prepare_move_to_destination_raw();
-          #endif
-        }
-
-      // Partially Home X,Y for safety
-      destination[X_AXIS] *= 0.75;
-      destination[Y_AXIS] *= 0.75;
-      prepare_move_to_destination_raw(); // this will also set_current_to_destination
-
-      feedrate = old_feedrate;
-
-      stepper.synchronize();
-
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
-        if (z_probe_endstop)
-      #else
-        z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-        if (z_min_endstop)
-      #endif
-        {
-          if (IsRunning()) {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
-            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
-          }
-          stop();
-        }
-
-    #endif // Z_PROBE_ALLEN_KEY
-
-    #if ENABLED(FIX_MOUNTED_PROBE)
-      // Nothing to be done. Just enable_z_probe below...
-    #endif
-
-    endstops.enable_z_probe();
-
-  }
-
-  static void stow_z_probe() {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("stow_z_probe", current_position);
-    #endif
-
-    if (!endstops.z_probe_enabled) return;
-
-    #if HAS_Z_SERVO_ENDSTOP
-
-      // Make room for the servo
-      raise_z_for_servo(Z_RAISE_AFTER_PROBING);
-
-      // Change the Z servo angle
-      STOW_Z_SERVO();
-
-    #elif ENABLED(Z_PROBE_ALLEN_KEY)
-
-      float old_feedrate = feedrate;
-
-      // Move up for safety
-      feedrate = Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE;
-
-      #if Z_RAISE_AFTER_PROBING > 0
-        destination[Z_AXIS] = current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING;
-        prepare_move_to_destination_raw(); // this will also set_current_to_destination
-      #endif
-
-      // Move to the start position to initiate retraction
-      destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_X;
-      destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_Y;
-      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_Z;
-      prepare_move_to_destination_raw();
-
-      // Move the nozzle down to push the Z probe into retracted position
-      if (Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE != Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE)
-        feedrate = Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE;
-      if (Z_PROBE_ALLEN_KEY_STOW_2_X != Z_PROBE_ALLEN_KEY_STOW_1_X)
-        destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_X;
-      if (Z_PROBE_ALLEN_KEY_STOW_2_Y != Z_PROBE_ALLEN_KEY_STOW_1_Y)
-        destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_Y;
-      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_Z;
-      prepare_move_to_destination_raw();
-
-      // Move up for safety
-      if (Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE != Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE)
-        feedrate = Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE;
-      if (Z_PROBE_ALLEN_KEY_STOW_3_X != Z_PROBE_ALLEN_KEY_STOW_2_X)
-        destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_X;
-      if (Z_PROBE_ALLEN_KEY_STOW_3_Y != Z_PROBE_ALLEN_KEY_STOW_2_Y)
-        destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_Y;
-      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_Z;
-      prepare_move_to_destination_raw();
-
-      // Home XY for safety
-      feedrate = homing_feedrate[X_AXIS] / 2;
-      destination[X_AXIS] = 0;
-      destination[Y_AXIS] = 0;
-      prepare_move_to_destination_raw(); // this will also set_current_to_destination
-
-      feedrate = old_feedrate;
-
-      stepper.synchronize();
-
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
-        if (!z_probe_endstop)
-      #else
-        bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-        if (!z_min_endstop)
-      #endif
-        {
-          if (IsRunning()) {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
-            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
-          }
-          stop();
-        }
-    #elif ENABLED(FIX_MOUNTED_PROBE)
-      // Nothing to do here. Just clear endstops.z_probe_enabled
-    #endif
-
-    endstops.enable_z_probe(false);
-  }
-  #endif // HAS_BED_PROBE
 
   enum ProbeAction {
     ProbeStay          = 0,
@@ -2306,7 +2309,7 @@ static void homeaxis(AxisEnum axis) {
     #if ENABLED(Z_PROBE_SLED)
       #define _Z_DEPLOY           (dock_sled(false))
       #define _Z_STOW             (dock_sled(true))
-    #elif ENABLED(AUTO_BED_LEVELING_FEATURE) && (HAS_Z_SERVO_ENDSTOP || ENABLED(FIX_MOUNTED_PROBE))
+    #elif (ENABLED(AUTO_BED_LEVELING_FEATURE) && HAS_Z_SERVO_ENDSTOP) || ENABLED(FIX_MOUNTED_PROBE)
       #define _Z_DEPLOY           (deploy_z_probe())
       #define _Z_STOW             (stow_z_probe())
     #elif HAS_Z_SERVO_ENDSTOP
