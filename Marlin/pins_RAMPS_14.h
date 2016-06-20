@@ -98,10 +98,8 @@
   #define Z_MIN_PROBE_PIN  32
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
-  #define FILRUNOUT_PIN     4
-#endif
+// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
+#define FILRUNOUT_PIN       4
 
 #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF) || ENABLED(IS_RAMPS_EFB)
   #define FAN_PIN           9 // (Sprinter config)
