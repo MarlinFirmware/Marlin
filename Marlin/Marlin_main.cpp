@@ -1583,6 +1583,16 @@ static void setup_for_endstop_move() {
 
 #if HAS_BED_PROBE
 
+  static void clean_up_after_endstop_move() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("clean_up_after_endstop_move > endstops.not_homing()");
+    #endif
+    endstops.not_homing();
+    feedrate = saved_feedrate;
+    feedrate_multiplier = saved_feedrate_multiplier;
+    refresh_cmd_timeout();
+  }
+
   #if ENABLED(DELTA)
     /**
      * Calculate delta, start a line, and set current_position to destination
@@ -2067,7 +2077,10 @@ static void setup_for_endstop_move() {
 
     #else // !DELTA
 
-      planner.bed_level_matrix.set_to_identity();
+      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+        planner.bed_level_matrix.set_to_identity();
+      #endif
+
       feedrate = homing_feedrate[Z_AXIS];
 
       // Move down until the Z probe (or endstop?) is triggered
@@ -2115,16 +2128,6 @@ static void setup_for_endstop_move() {
 
   inline void do_blocking_move_to_xy(float x, float y) {
     do_blocking_move_to(x, y, current_position[Z_AXIS]);
-  }
-
-  static void clean_up_after_endstop_move() {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("clean_up_after_endstop_move > ENDSTOPS_ONLY_FOR_HOMING > endstops.not_homing()");
-    #endif
-    endstops.not_homing();
-    feedrate = saved_feedrate;
-    feedrate_multiplier = saved_feedrate_multiplier;
-    refresh_cmd_timeout();
   }
 
   enum ProbeAction {
