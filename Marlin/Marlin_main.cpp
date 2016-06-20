@@ -3839,11 +3839,13 @@ inline void gcode_G28() {
    * G30: Do a single Z probe at the current XY
    */
   inline void gcode_G30() {
+
+    setup_for_endstop_move();
+
     deploy_z_probe();
 
     stepper.synchronize();
     // TODO: clear the leveling matrix or the planner will be set incorrectly
-    setup_for_endstop_move(); // Too late. Must be done before deploying.
 
     run_z_probe();
 
@@ -3855,9 +3857,9 @@ inline void gcode_G28() {
     SERIAL_PROTOCOL(current_position[Z_AXIS] + 0.0001);
     SERIAL_EOL;
 
-    clean_up_after_endstop_move(); // Too early. must be done after the stowing.
-
     stow_z_probe();
+
+    clean_up_after_endstop_move();
 
     report_current_position();
   }
