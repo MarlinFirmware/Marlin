@@ -67,7 +67,7 @@
 //common I/O
 
  //#define TEMP_CHAMBER_PIN        13  // ANALOG INPUT !!
- //#define FILAMENT_RUNOUT_SENSOR  18
+ #define FILRUNOUT_PIN             18
  //#define PWM_1_PIN               12
  //#define PWM_2_PIN               13 
  //#define SPARE_IO                17  
