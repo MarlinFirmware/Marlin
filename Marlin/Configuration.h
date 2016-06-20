@@ -371,14 +371,14 @@
 
 // How many consecutive low temperature error can occur before a min_temp_error
 // is triggered. Shouldn't be more than 10.
-#define MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED 10
+//#define MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED 0
 
 // How many milliseconds a hot end will preheat before starting to check the 
 // temperature. This value should NOT be set to the time it takes the
 // hot end to reach the target temperature, but should be set to the time it 
 // takes to reach the minimum temperature your thermistor can read. The lower
 // the better/safer, and shouldn't need to be more than 30 seconds (30000)
-#define MILLISECONDS_PREHEAT_TIME 10
+//#define MILLISECONDS_PREHEAT_TIME 0
 
 //===========================================================================
 //============================= Mechanical Settings =========================
