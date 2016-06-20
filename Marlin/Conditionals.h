@@ -383,7 +383,6 @@
   #endif
 
   #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
-  #define SERVO_LEVELING (ENABLED(AUTO_BED_LEVELING_FEATURE) && HAS_Z_SERVO_ENDSTOP)
 
   /**
    * Sled Options
