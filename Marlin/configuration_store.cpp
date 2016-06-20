@@ -210,7 +210,7 @@ void Config_StoreSettings()  {
     for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
   #endif // MESH_BED_LEVELING
 
-  #if DISABLED(AUTO_BED_LEVELING_FEATURE)
+  #if !HAS_BED_PROBE
     float zprobe_zoffset = 0;
   #endif
   EEPROM_WRITE_VAR(i, zprobe_zoffset);
@@ -389,7 +389,7 @@ void Config_RetrieveSettings() {
       for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
     #endif // MESH_BED_LEVELING
 
-    #if DISABLED(AUTO_BED_LEVELING_FEATURE)
+    #if !HAS_BED_PROBE
       float zprobe_zoffset = 0;
     #endif
     EEPROM_READ_VAR(i, zprobe_zoffset);
@@ -554,7 +554,7 @@ void Config_ResetDefault() {
     mbl.reset();
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if HAS_BED_PROBE
     zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
   #endif
 
@@ -927,20 +927,13 @@ void Config_PrintSettings(bool forReplay) {
   /**
    * Auto Bed Leveling
    */
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #if ENABLED(CUSTOM_M_CODES)
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
-      }
+  #if HAS_BED_PROBE
+    if (!forReplay) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M" STRINGIFY(CUSTOM_M_CODE_SET_Z_PROBE_OFFSET) " Z", zprobe_zoffset);
-    #else
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("Z-Probe Offset (mm):", zprobe_zoffset);
-      }
-    #endif
+      SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
+    }
+    CONFIG_ECHO_START;
+    SERIAL_ECHOPAIR("  M851 Z", zprobe_zoffset);
     SERIAL_EOL;
   #endif
 }

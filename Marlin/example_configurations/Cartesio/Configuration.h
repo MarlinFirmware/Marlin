@@ -408,6 +408,57 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //============================= Z Probe Options =============================
 //===========================================================================
 
+//
+// Probe Type
+// Probes are sensors/switches that are activated / deactivated before/after use.
+//
+// Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, etc.
+// You must activate one of these to use AUTO_BED_LEVELING_FEATURE below.
+//
+// Use M851 to set the Z probe vertical offset from the nozzle. Store with M500.
+//
+
+// A fix mounted probe, like the normal inductive probe, must be deactivated to go
+// below Z_PROBE_OFFSET_FROM_EXTRUDER when the hardware endstops are active.
+//#define FIX_MOUNTED_PROBE
+
+// Z Servo Probe, such as an endstop switch on a rotating arm.
+//#define Z_ENDSTOP_SERVO_NR 0
+//#define Z_SERVO_ANGLES {70,0} // Z Servo Deploy and Stow angles
+
+// Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
+//#define Z_PROBE_SLED
+//#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
+
+// A Mechanical Probe is any probe that either doesn't deploy or needs manual deployment
+// For example any setup that uses the nozzle itself as a probe.
+//#define MECHANICAL_PROBE
+
+// Z Probe to nozzle (X,Y) offset, relative to (0, 0).
+// X and Y offsets must be integers.
+//
+// In the following example the X and Y offsets are both positive:
+// #define X_PROBE_OFFSET_FROM_EXTRUDER 10
+// #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
+//
+//    +-- BACK ---+
+//    |           |
+//  L |    (+) P  | R <-- probe (20,20)
+//  E |           | I
+//  F | (-) N (+) | G <-- nozzle (10,10)
+//  T |           | H
+//    |    (-)    | T
+//    |           |
+//    O-- FRONT --+
+//  (0,0)
+#define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+
+//
+// Allen Key Probe is defined in the Delta example configurations.
+//
+
 // Enable Z_MIN_PROBE_ENDSTOP to use _both_ a Z Probe and a Z-min-endstop on the same machine.
 // With this option the Z_MIN_PROBE_PIN will only be used for probing, never for homing.
 //
@@ -419,7 +470,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // To use a separate Z probe, your board must define a Z_MIN_PROBE_PIN.
 //
 // For a servo-based Z probe, you must set up servo support below, including
-// NUM_SERVOS, Z_ENDSTOP_SERVO_NR and SERVO_ENDSTOP_ANGLES.
+// NUM_SERVOS, Z_ENDSTOP_SERVO_NR and Z_SERVO_ANGLES.
 //
 // - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
 // - Use 5V for powered (usu. inductive) sensors.
@@ -452,11 +503,19 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // If you're using the Z MIN endstop connector for your Z probe, this has no effect.
 //#define DISABLE_Z_MIN_PROBE_ENDSTOP
 
+//
 // Probe Raise options provide clearance for the probe to deploy and stow.
+//
 // For G28 these apply when the probe deploys and stows.
 // For G29 these apply before and after the full procedure.
 #define Z_RAISE_BEFORE_PROBING 15   // Raise before probe deploy (e.g., the first probe).
 #define Z_RAISE_AFTER_PROBING 15    // Raise before probe stow (e.g., the last probe).
+
+//
+// For M851 give a range for adjusting the Z probe offset
+//
+#define Z_PROBE_OFFSET_RANGE_MIN -20
+#define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{0:'Low',1:'High'}
@@ -525,7 +584,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
                                  // It is assumed that when logic high = filament available
                                  //                    when logic  low = filament ran out
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  const bool FIL_RUNOUT_INVERTING = true;  // Should be uncommented and true or false should assigned
+  const bool FIL_RUNOUT_INVERTING = false; // set to true to invert the logic of the sensor.
   #define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 #endif
@@ -605,53 +664,12 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   #endif // !AUTO_BED_LEVELING_GRID
 
-  // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
-  // X and Y offsets must be integers.
-  //
-  // In the following example the X and Y offsets are both positive:
-  // #define X_PROBE_OFFSET_FROM_EXTRUDER 10
-  // #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
-  //
-  //    +-- BACK ---+
-  //    |           |
-  //  L |    (+) P  | R <-- probe (20,20)
-  //  E |           | I
-  //  F | (-) N (+) | G <-- nozzle (10,10)
-  //  T |           | H
-  //    |    (-)    | T
-  //    |           |
-  //    O-- FRONT --+
-  //  (0,0)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
-
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
 
   #define Z_RAISE_BETWEEN_PROBINGS 5  // How much the Z axis will be raised when traveling from between next probing points.
 
   //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
                                                                              // Useful to retract a deployable Z probe.
-
-  // Probes are sensors/switches that need to be activated before they can be used
-  // and deactivated after their use.
-  // Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, ... . You have to activate one of these for the AUTO_BED_LEVELING_FEATURE
-
-  // A fix mounted probe, like the normal inductive probe, must be deactivated to go below Z_PROBE_OFFSET_FROM_EXTRUDER
-  // when the hardware endstops are active.
-  //#define FIX_MOUNTED_PROBE
-
-  // A Servo Probe can be defined in the servo section below.
-
-  // An Allen Key Probe is currently predefined only in the delta example configurations.
-
-  // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
-  //#define Z_PROBE_SLED
-  //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
-
-  // A Mechanical Probe is any probe that either doesn't deploy or needs manual deployment
-  // For example any setup that uses the nozzle itself as a probe.
-  //#define MECHANICAL_PROBE
 
   // If you've enabled AUTO_BED_LEVELING_FEATURE and are using the Z Probe for Z Homing,
   // it is highly recommended you also enable Z_SAFE_HOMING below!
@@ -690,7 +708,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #endif
 
 
-// @section movement
+// @section motion
 
 /**
  * MOVEMENT SETTINGS
@@ -717,18 +735,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //=============================================================================
 //============================= Additional Features ===========================
 //=============================================================================
-
-// @section more
-
-// Custom M code points
-#define CUSTOM_M_CODES
-#if ENABLED(CUSTOM_M_CODES)
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #define CUSTOM_M_CODE_SET_Z_PROBE_OFFSET 851
-    #define Z_PROBE_OFFSET_RANGE_MIN -20
-    #define Z_PROBE_OFFSET_RANGE_MAX 20
-  #endif
-#endif
 
 // @section extras
 
@@ -819,8 +825,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // Here you may choose the language used by Marlin on the LCD menus, the following
 // list of languages are available:
-//    en, pl, fr, de, es, ru, bg, it, pt, pt_utf8, pt-br, pt-br_utf8,
-//    fi, an, nl, ca, eu, kana, kana_utf8, cn, cz, test
+//    en, an, bg, ca, cn, cz, de, es, eu, fi, fr, gl, hr, it, kana,
+//    kana_utf8, nl, pl, pt, pt_utf8, pt-br, pt-br_utf8, ru, test
+//
+// :{'en':'English','an':'Aragonese','bg':'Bulgarian','ca':'Catalan','cn':'Chinese','cz':'Czech','de':'German','es':'Spanish','eu':'Basque-Euskera','fi':'Finnish','fr':'French','gl':'Galician','hr':'Croatian','it':'Italian','kana':'Japanese','kana_utf8':'Japanese (UTF8)','nl':'Dutch','pl':'Polish','pt':'Portuguese','pt-br':'Portuguese (Brazilian)','pt-br_utf8':'Portuguese (Brazilian UTF8)','pt_utf8':'Portuguese (UTF8)','ru':'Russian','test':'TEST'}
 //
 #define LCD_LANGUAGE en
 
@@ -1159,16 +1167,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // If unsure, leave commented / disabled
 //
 //#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
-
-// Servo Endstops
-//
-// This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
-// Use M851 to set the Z probe vertical offset from the nozzle. Store that setting with M500.
-//
-//#define X_ENDSTOP_SERVO_NR 1
-//#define Y_ENDSTOP_SERVO_NR 2
-//#define Z_ENDSTOP_SERVO_NR 0
-//#define SERVO_ENDSTOP_ANGLES {{0,0}, {0,0}, {70,0}} // X,Y,Z Axis Extend and Retract angles
 
 // Servo deactivation
 //

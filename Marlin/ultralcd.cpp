@@ -496,17 +496,16 @@ static void lcd_status_screen() {
     }
 
     static void lcd_sdcard_stop() {
-      stepper.quick_stop();
-      #if DISABLED(DELTA) && DISABLED(SCARA)
-        set_current_position_from_planner();
-      #endif // !DELTA && !SCARA
+      card.stopSDPrint();
       clear_command_queue();
-      card.sdprinting = false;
-      card.closefile();
+      stepper.quick_stop();
       print_job_timer.stop();
       thermalManager.autotempShutdown();
       cancel_heatup = true;
       lcd_setstatus(MSG_PRINT_ABORTED, true);
+      #if DISABLED(DELTA) && DISABLED(SCARA)
+        set_current_position_from_planner();
+      #endif // !DELTA && !SCARA
     }
 
   #endif //SDSUPPORT
@@ -1684,7 +1683,7 @@ static void lcd_status_screen() {
   static void lcd_control_motion_menu() {
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL);
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #if HAS_BED_PROBE
       MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
     #endif
     // Manual bed leveling, Bed Z:
