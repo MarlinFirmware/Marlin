@@ -1570,6 +1570,18 @@ inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
 
+//
+// Prepare to do endstop or probe moves
+// with custom feedrates.
+//
+//  - Save current feedrates
+//  - Reset the rate multiplier
+//  - Enable the endstops
+//  - Reset the command timeout
+//
+// clean_up_after_endstop_move() restores
+// feedrates, sets endstops back to global state.
+//
 static void setup_for_endstop_move() {
   saved_feedrate = feedrate;
   saved_feedrate_multiplier = feedrate_multiplier;
