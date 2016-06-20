@@ -484,11 +484,109 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // If you're using the Z MIN endstop connector for your Z probe, this has no effect.
 //#define DISABLE_Z_MIN_PROBE_ENDSTOP
 
+//
+// Probe Type
+// Probes are sensors/switches that are activated / deactivated before/after use.
+//
+// Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, etc.
+// You must activate one of these to use AUTO_BED_LEVELING_FEATURE below.
+//
+// Use M851 to set the Z probe vertical offset from the nozzle. Store with M500.
+//
+
+// A fix mounted probe, like the normal inductive probe, must be deactivated to go
+// below Z_PROBE_OFFSET_FROM_EXTRUDER when the hardware endstops are active.
+//#define FIX_MOUNTED_PROBE
+
+// Z Servo Probe, such as an endstop switch on a rotating arm.
+//#define Z_ENDSTOP_SERVO_NR 0
+//#define Z_SERVO_ANGLES {70,0} // Z Servo Deploy and Stow angles
+
+// Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
+//#define Z_PROBE_SLED
+//#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
+
+// A Mechanical Probe is any probe that either doesn't deploy or needs manual deployment
+// For example any setup that uses the nozzle itself as a probe.
+//#define MECHANICAL_PROBE
+
+// Z Probe to nozzle (X,Y) offset, relative to (0, 0).
+// X and Y offsets must be integers.
+//
+// In the following example the X and Y offsets are both positive:
+// #define X_PROBE_OFFSET_FROM_EXTRUDER 10
+// #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
+//
+//    +-- BACK ---+
+//    |           |
+//  L |    (+) P  | R <-- probe (20,20)
+//  E |           | I
+//  F | (-) N (+) | G <-- nozzle (10,10)
+//  T |           | H
+//    |    (-)    | T
+//    |           |
+//    O-- FRONT --+
+//  (0,0)
+#define X_PROBE_OFFSET_FROM_EXTRUDER -23 // KosselPro actual: -22.919
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -6  // KosselPro actual: -6.304
+// Kossel Pro note: The correct value is likely -17.45 but I'd rather err on the side of
+// not giving someone a head crash. Use something like G29 Z-0.2 to adjust as needed.
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -17.25  // Increase this if the first layer is too thin (remember: it's a negative number so increase means closer to zero).
+
+// Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
+// Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
+#define Z_PROBE_ALLEN_KEY
+
+#if ENABLED(Z_PROBE_ALLEN_KEY)
+  // 2 or 3 sets of coordinates for deploying and retracting the spring loaded touch probe on G29,
+  // if servo actuated touch probe is not defined. Uncomment as appropriate for your printer/probe.
+
+  // Kossel Pro
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_1_X -105.00 // Move left but not quite so far that we'll bump the belt
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y 0.00
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100.0
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE XY_TRAVEL_SPEED
+
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_X -110.00 // Move outward to position deploy pin to the left of the arm
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y -125.00
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z Z_PROBE_ALLEN_KEY_DEPLOY_1_Z
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE XY_TRAVEL_SPEED
+
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X 45.00 // Move right to trigger deploy pin
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Y -125.00
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Z Z_PROBE_ALLEN_KEY_DEPLOY_2_Z
+  #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE (XY_TRAVEL_SPEED)/2
+
+  #define Z_PROBE_ALLEN_KEY_STOW_1_X 36.00 // Line up with bed retaining clip
+  #define Z_PROBE_ALLEN_KEY_STOW_1_Y -125.00
+  #define Z_PROBE_ALLEN_KEY_STOW_1_Z 75.0
+  #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE XY_TRAVEL_SPEED
+
+  #define Z_PROBE_ALLEN_KEY_STOW_2_X Z_PROBE_ALLEN_KEY_STOW_1_X // move down to retract probe
+  #define Z_PROBE_ALLEN_KEY_STOW_2_Y Z_PROBE_ALLEN_KEY_STOW_1_Y
+  #define Z_PROBE_ALLEN_KEY_STOW_2_Z 0.0
+  #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (XY_TRAVEL_SPEED)/2
+
+  #define Z_PROBE_ALLEN_KEY_STOW_3_X 0.0  // return to 0,0,100
+  #define Z_PROBE_ALLEN_KEY_STOW_3_Y 0.0
+  #define Z_PROBE_ALLEN_KEY_STOW_3_Z 100.0
+  #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE XY_TRAVEL_SPEED
+
+#endif // Z_PROBE_ALLEN_KEY
+
+//
 // Probe Raise options provide clearance for the probe to deploy and stow.
+//
 // For G28 these apply when the probe deploys and stows.
 // For G29 these apply before and after the full procedure.
 #define Z_RAISE_BEFORE_PROBING 100  // Raise before probe deploy (e.g., the first probe).
 #define Z_RAISE_AFTER_PROBING 15    // Raise before probe stow (e.g., the last probe).
+
+//
+// For M851 give a range for adjusting the Z probe offset
+//
+#define Z_PROBE_OFFSET_RANGE_MIN -20
+#define Z_PROBE_OFFSET_RANGE_MAX 20
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{0:'Low',1:'High'}
@@ -641,96 +739,12 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   #endif // !AUTO_BED_LEVELING_GRID
 
-  // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
-  // X and Y offsets must be integers.
-  //
-  // In the following example the X and Y offsets are both positive:
-  // #define X_PROBE_OFFSET_FROM_EXTRUDER 10
-  // #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
-  //
-  //    +-- BACK ---+
-  //    |           |
-  //  L |    (+) P  | R <-- probe (20,20)
-  //  E |           | I
-  //  F | (-) N (+) | G <-- nozzle (10,10)
-  //  T |           | H
-  //    |    (-)    | T
-  //    |           |
-  //    O-- FRONT --+
-  //  (0,0)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -23 // KosselPro actual: -22.919
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -6  // KosselPro actual: -6.304
-  // Kossel Pro note: The correct value is likely -17.45 but I'd rather err on the side of
-  // not giving someone a head crash. Use something like G29 Z-0.2 to adjust as needed.
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -17.25  // Increase this if the first layer is too thin (remember: it's a negative number so increase means closer to zero).
-
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
 
   #define Z_RAISE_BETWEEN_PROBINGS 5  // How much the Z axis will be raised when traveling from between next probing points.
 
   //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
                                                                              // Useful to retract a deployable Z probe.
-
-  // Probes are sensors/switches that need to be activated before they can be used
-  // and deactivated after their use.
-  // Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, ... . You have to activate one of these for the AUTO_BED_LEVELING_FEATURE
-
-  // A fix mounted probe, like the normal inductive probe, must be deactivated to go below Z_PROBE_OFFSET_FROM_EXTRUDER
-  // when the hardware endstops are active.
-  //#define FIX_MOUNTED_PROBE
-
-  // A Servo Probe can be defined in the servo section below.
-
-  // An Allen Key Probe is currently predefined only in the delta example configurations.
-
-  // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
-  //#define Z_PROBE_SLED
-  //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
-
-  // A Mechanical Probe is any probe that either doesn't deploy or needs manual deployment
-  // For example any setup that uses the nozzle itself as a probe.
-  //#define MECHANICAL_PROBE
-
-  // Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
-  // Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
-  #define Z_PROBE_ALLEN_KEY
-
-  #if ENABLED(Z_PROBE_ALLEN_KEY)
-    // 2 or 3 sets of coordinates for deploying and retracting the spring loaded touch probe on G29,
-    // if servo actuated touch probe is not defined. Uncomment as appropriate for your printer/probe.
-
-    // Kossel Pro
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_1_X -105.00 // Move left but not quite so far that we'll bump the belt
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y 0.00
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100.0
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE HOMING_FEEDRATE_XYZ
-
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_2_X -110.00 // Move outward to position deploy pin to the left of the arm
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y -125.00
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z Z_PROBE_ALLEN_KEY_DEPLOY_1_Z
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE HOMING_FEEDRATE_XYZ
-
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X 45.00 // Move right to trigger deploy pin
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Y -125.00
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Z Z_PROBE_ALLEN_KEY_DEPLOY_2_Z
-    #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE (HOMING_FEEDRATE_XYZ)/2
-
-    #define Z_PROBE_ALLEN_KEY_STOW_1_X 36.00 // Line up with bed retaining clip
-    #define Z_PROBE_ALLEN_KEY_STOW_1_Y -125.00
-    #define Z_PROBE_ALLEN_KEY_STOW_1_Z 75.0
-    #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE HOMING_FEEDRATE_XYZ
-
-    #define Z_PROBE_ALLEN_KEY_STOW_2_X Z_PROBE_ALLEN_KEY_STOW_1_X // move down to retract probe
-    #define Z_PROBE_ALLEN_KEY_STOW_2_Y Z_PROBE_ALLEN_KEY_STOW_1_Y
-    #define Z_PROBE_ALLEN_KEY_STOW_2_Z 0.0
-    #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (HOMING_FEEDRATE_XYZ)/2
-
-    #define Z_PROBE_ALLEN_KEY_STOW_3_X 0.0  // return to 0,0,100
-    #define Z_PROBE_ALLEN_KEY_STOW_3_Y 0.0
-    #define Z_PROBE_ALLEN_KEY_STOW_3_Z 100.0
-    #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE HOMING_FEEDRATE_XYZ
-
-  #endif // Z_PROBE_ALLEN_KEY
 
   // If you've enabled AUTO_BED_LEVELING_FEATURE and are using the Z Probe for Z Homing,
   // it is highly recommended you also enable Z_SAFE_HOMING below!
@@ -1241,14 +1255,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // If unsure, leave commented / disabled
 //
 //#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
-
-// Servo Endstops
-//
-// This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
-// Use M851 to set the Z probe vertical offset from the nozzle. Store that setting with M500.
-//
-//#define Z_ENDSTOP_SERVO_NR 0
-//#define Z_SERVO_ANGLES {70,0} // Z Servo Extend and Retract angles
 
 // Servo deactivation
 //
