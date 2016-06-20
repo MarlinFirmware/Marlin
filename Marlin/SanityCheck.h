@@ -128,8 +128,8 @@
  * Filament Runout needs a pin and SD Support
  */
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  #if !HAS_FILRUNOUT
-    #error "FILAMENT_RUNOUT_SENSOR requires FILRUNOUT_PIN."
+  #if !HAS_FIL_RUNOUT
+    #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
   #elif DISABLED(SDSUPPORT)
     #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT."
   #endif
