@@ -371,6 +371,15 @@
     #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
     #define MIN_PROBE_Y (max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
     #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+
+    #ifndef XY_TRAVEL_SPEED
+      #ifdef HOMING_FEEDRATE_XYZ
+        #define XY_TRAVEL_SPEED HOMING_FEEDRATE_XYZ
+      #else
+        #define XY_TRAVEL_SPEED 4000
+      #endif
+    #endif
+
   #endif
 
   #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
@@ -758,7 +767,7 @@
   #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED)
 
   /**
-   * Probe dependencies
+   * Bed Probe dependencies
    */
   #if HAS_BED_PROBE
     #ifndef X_PROBE_OFFSET_FROM_EXTRUDER

@@ -1581,7 +1581,7 @@ static void setup_for_endstop_move() {
   endstops.enable();
 }
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if HAS_BED_PROBE
 
   #if ENABLED(DELTA)
     /**
@@ -1597,6 +1597,71 @@ static void setup_for_endstop_move() {
       set_current_to_destination();
     }
   #endif
+
+  /**
+   *  Plan a move to (X, Y, Z) and set the current_position
+   *  The final current_position may not be the one that was requested
+   */
+  static void do_blocking_move_to(float x, float y, float z) {
+    float old_feedrate = feedrate;
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) print_xyz("do_blocking_move_to", x, y, z);
+    #endif
+
+    #if ENABLED(DELTA)
+
+      feedrate =
+        #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+          xy_travel_speed
+        #else
+          min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]) * 60
+        #endif
+      ;
+
+      destination[X_AXIS] = x;
+      destination[Y_AXIS] = y;
+      destination[Z_AXIS] = z;
+
+      if (x == current_position[X_AXIS] && y == current_position[Y_AXIS])
+        prepare_move_to_destination_raw(); // this will also set_current_to_destination
+      else
+        prepare_move_to_destination();     // this will also set_current_to_destination
+
+    #else
+
+      feedrate = homing_feedrate[Z_AXIS];
+
+      current_position[Z_AXIS] = z;
+      line_to_current_position();
+      stepper.synchronize();
+
+      feedrate =
+        #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+          xy_travel_speed
+        #else
+          min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]) * 60
+        #endif
+      ;
+
+      current_position[X_AXIS] = x;
+      current_position[Y_AXIS] = y;
+      line_to_current_position();
+
+    #endif
+
+    stepper.synchronize();
+
+    feedrate = old_feedrate;
+  }
+
+  inline void do_blocking_move_to_z(float z) {
+    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z);
+  }
+
+#endif //HAS_BED_PROBE
+
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
   #if ENABLED(AUTO_BED_LEVELING_GRID)
 
@@ -1757,61 +1822,12 @@ static void setup_for_endstop_move() {
     feedrate = old_feedrate;
   }
 
-  /**
-   *  Plan a move to (X, Y, Z) and set the current_position
-   *  The final current_position may not be the one that was requested
-   */
-  static void do_blocking_move_to(float x, float y, float z) {
-    float old_feedrate = feedrate;
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) print_xyz("do_blocking_move_to", x, y, z);
-    #endif
-
-    #if ENABLED(DELTA)
-
-      feedrate = xy_travel_speed;
-
-      destination[X_AXIS] = x;
-      destination[Y_AXIS] = y;
-      destination[Z_AXIS] = z;
-
-      if (x == current_position[X_AXIS] && y == current_position[Y_AXIS])
-        prepare_move_to_destination_raw(); // this will also set_current_to_destination
-      else
-        prepare_move_to_destination();     // this will also set_current_to_destination
-
-    #else
-
-      feedrate = homing_feedrate[Z_AXIS];
-
-      current_position[Z_AXIS] = z;
-      line_to_current_position();
-      stepper.synchronize();
-
-      feedrate = xy_travel_speed;
-
-      current_position[X_AXIS] = x;
-      current_position[Y_AXIS] = y;
-      line_to_current_position();
-
-    #endif
-
-    stepper.synchronize();
-
-    feedrate = old_feedrate;
-  }
-
   inline void do_blocking_move_to_xy(float x, float y) {
     do_blocking_move_to(x, y, current_position[Z_AXIS]);
   }
 
   inline void do_blocking_move_to_x(float x) {
     do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS]);
-  }
-
-  inline void do_blocking_move_to_z(float z) {
-    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z);
   }
 
   inline void raise_z_after_probing() {
@@ -2177,30 +2193,30 @@ static void setup_for_endstop_move() {
 
   #endif // DELTA
 
-  #if HAS_Z_SERVO_ENDSTOP
-
-    /**
-     * Raise Z to a minimum height to make room for a servo to move
-     *
-     * zprobe_zoffset: Negative of the Z height where the probe engages
-     *         z_dest: The before / after probing raise distance
-     *
-     * The zprobe_zoffset is negative for a switch below the nozzle, so
-     * multiply by Z_HOME_DIR (-1) to move enough away from the bed.
-     */
-    void raise_z_for_servo(float z_dest) {
-      z_dest += home_offset[Z_AXIS];
-
-      if ((Z_HOME_DIR) < 0 && zprobe_zoffset < 0)
-        z_dest -= zprobe_zoffset;
-
-      if (z_dest > current_position[Z_AXIS])
-        do_blocking_move_to_z(z_dest); // also updates current_position
-    }
-
-  #endif
-
 #endif // AUTO_BED_LEVELING_FEATURE
+
+#if HAS_Z_SERVO_ENDSTOP
+
+  /**
+   * Raise Z to a minimum height to make room for a servo to move
+   *
+   * zprobe_zoffset: Negative of the Z height where the probe engages
+   *         z_dest: The before / after probing raise distance
+   *
+   * The zprobe_zoffset is negative for a switch below the nozzle, so
+   * multiply by Z_HOME_DIR (-1) to move enough away from the bed.
+   */
+  void raise_z_for_servo(float z_dest) {
+    z_dest += home_offset[Z_AXIS];
+
+    if ((Z_HOME_DIR) < 0 && zprobe_zoffset < 0)
+      z_dest -= zprobe_zoffset;
+
+    if (z_dest > current_position[Z_AXIS])
+      do_blocking_move_to_z(z_dest); // also updates current_position
+  }
+
+#endif
 
 #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || ENABLED(AUTO_BED_LEVELING_FEATURE)
   static void axis_unhomed_error(bool xyz=false) {

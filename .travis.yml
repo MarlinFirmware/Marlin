@@ -90,11 +90,15 @@ script:
   - opt_enable PIDTEMPBED
   - build_marlin
   #
-  # Test AUTO_BED_LEVELING_FEATURE & DEBUG_LEVELING_FEATURE with a Servo Probe
+  # Test a Servo Probe without leveling
   #
   - restore_configs
-  - opt_enable AUTO_BED_LEVELING_FEATURE DEBUG_LEVELING_FEATURE
   - opt_enable NUM_SERVOS Z_ENDSTOP_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
+  - build_marlin
+  #
+  # Test AUTO_BED_LEVELING_FEATURE & DEBUG_LEVELING_FEATURE with a Servo Probe
+  #
+  - opt_enable AUTO_BED_LEVELING_FEATURE DEBUG_LEVELING_FEATURE
   - build_marlin
   #
   # Test MESH_BED_LEVELING feature, with LCD
