@@ -90,13 +90,35 @@ script:
   - opt_enable PIDTEMPBED
   - build_marlin
   #
-  # Test a Servo Probe without leveling
+  # Test a "Fix Mounted" Probe
+  #
+  - restore_configs
+  - opt_enable FIX_MOUNTED_PROBE
+  - build_marlin
+  #
+  # ...with AUTO_BED_LEVELING_FEATURE & DEBUG_LEVELING_FEATURE
+  #
+  - opt_enable AUTO_BED_LEVELING_FEATURE DEBUG_LEVELING_FEATURE
+  - build_marlin
+  #
+  # Test a Mechanical Probe
+  #
+  - restore_configs
+  - opt_enable MECHANICAL_PROBE
+  - build_marlin
+  #
+  # ...with AUTO_BED_LEVELING_FEATURE & DEBUG_LEVELING_FEATURE
+  #
+  - opt_enable AUTO_BED_LEVELING_FEATURE DEBUG_LEVELING_FEATURE
+  - build_marlin
+  #
+  # Test a Servo Probe
   #
   - restore_configs
   - opt_enable NUM_SERVOS Z_ENDSTOP_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
   - build_marlin
   #
-  # Test AUTO_BED_LEVELING_FEATURE & DEBUG_LEVELING_FEATURE with a Servo Probe
+  # ...with AUTO_BED_LEVELING_FEATURE & DEBUG_LEVELING_FEATURE
   #
   - opt_enable AUTO_BED_LEVELING_FEATURE DEBUG_LEVELING_FEATURE
   - build_marlin
