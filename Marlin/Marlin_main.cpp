@@ -686,14 +686,16 @@ void setup_killpin() {
   #endif
 }
 
-void setup_filrunoutpin() {
-  #if HAS_FILRUNOUT
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+
+  void setup_filrunoutpin() {
     pinMode(FILRUNOUT_PIN, INPUT);
     #if ENABLED(ENDSTOPPULLUP_FIL_RUNOUT)
       WRITE(FILRUNOUT_PIN, HIGH);
     #endif
-  #endif
-}
+  }
+
+#endif
 
 // Set home pin
 void setup_homepin(void) {
@@ -802,8 +804,12 @@ void setup() {
     MCUCR = 0x80;
   #endif
 
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    setup_filrunoutpin();
+  #endif
+
   setup_killpin();
-  setup_filrunoutpin();
+
   setup_powerhold();
 
   #if HAS_STEPPER_RESET
@@ -8144,7 +8150,7 @@ void idle(
  */
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
-  #if HAS_FILRUNOUT
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
     if (IS_SD_PRINTING && !(READ(FILRUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
       handle_filament_runout();
   #endif
