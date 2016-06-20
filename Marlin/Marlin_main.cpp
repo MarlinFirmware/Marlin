@@ -1140,6 +1140,10 @@ inline void get_serial_commands() {
           card.printingHasFinished();
           card.checkautostart(true);
         }
+        else if (n == -1) {
+          SERIAL_ERROR_START;
+          SERIAL_ECHOLNPGM(MSG_SD_ERR_READ);
+        }
         if (sd_char == '#') stop_buffering = true;
 
         sd_comment_mode = false; //for new command
