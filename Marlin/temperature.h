@@ -168,6 +168,9 @@ class Temperature {
     static int minttemp[HOTENDS];
     static int maxttemp[HOTENDS];
 
+    static int consecutive_low_temperature_error[HOTENDS];
+    static unsigned long preheatStartTime[HOTENDS];
+
     #ifdef BED_MINTEMP
       static int bed_minttemp_raw;
     #endif
@@ -219,6 +222,18 @@ class Temperature {
      * Call periodically to manage heaters
      */
     static void manage_heater();
+
+    // preheating functions
+    static bool is_preheating(int hotend) {
+      #ifdef MILLISECONDS_PREHEAT_TIME
+        return (preheatStartTime[hotend] > 0) && (millis() - preheatStartTime[hotend]) <= MILLISECONDS_PREHEAT_TIME;
+      #else
+        return false;
+      #endif
+    }
+
+    static void start_preheat_time(int hotend) { preheatStartTime[hotend] = millis(); }
+    static void reset_preheat_time(int hotend) { preheatStartTime[hotend] = 0; }
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       static float analog2widthFil(); // Convert raw Filament Width to millimeters
@@ -274,6 +289,10 @@ class Temperature {
       #if HOTENDS == 1
         UNUSED(hotend);
       #endif
+      if (celsius == 0.0f)
+        reset_preheat_time(hotend);
+      else if (target_temperature[hotend] == 0.0f)
+        start_preheat_time(hotend);
       target_temperature[HOTEND_ARG] = celsius;
       #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
         start_watching_heater(HOTEND_ARG);
