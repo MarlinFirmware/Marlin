@@ -2021,6 +2021,10 @@ static void setup_for_endstop_move() {
 
   #endif // !AUTO_BED_LEVELING_GRID
 
+#endif // AUTO_BED_LEVELING_FEATURE
+
+#if HAS_BED_PROBE
+
   static void run_z_probe() {
 
     float old_feedrate = feedrate;
@@ -2104,6 +2108,10 @@ static void setup_for_endstop_move() {
 
     feedrate = old_feedrate;
   }
+
+#endif // HAS_BED_PROBE
+
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
   inline void do_blocking_move_to_xy(float x, float y) {
     do_blocking_move_to(x, y, current_position[Z_AXIS]);
