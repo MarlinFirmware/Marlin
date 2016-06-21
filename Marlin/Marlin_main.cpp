@@ -1570,6 +1570,18 @@ inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
 
+//
+// Prepare to do endstop or probe moves
+// with custom feedrates.
+//
+//  - Save current feedrates
+//  - Reset the rate multiplier
+//  - Enable the endstops
+//  - Reset the command timeout
+//
+// clean_up_after_endstop_move() restores
+// feedrates, sets endstops back to global state.
+//
 static void setup_for_endstop_move() {
   saved_feedrate = feedrate;
   saved_feedrate_multiplier = feedrate_multiplier;
@@ -1582,6 +1594,16 @@ static void setup_for_endstop_move() {
 }
 
 #if HAS_BED_PROBE
+
+  static void clean_up_after_endstop_move() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("clean_up_after_endstop_move > endstops.not_homing()");
+    #endif
+    endstops.not_homing();
+    feedrate = saved_feedrate;
+    feedrate_multiplier = saved_feedrate_multiplier;
+    refresh_cmd_timeout();
+  }
 
   #if ENABLED(DELTA)
     /**
@@ -1655,6 +1677,10 @@ static void setup_for_endstop_move() {
     feedrate = old_feedrate;
   }
 
+  inline void do_blocking_move_to_x(float x) {
+    do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS]);
+  }
+
   inline void do_blocking_move_to_z(float z) {
     do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z);
   }
@@ -1684,174 +1710,7 @@ static void setup_for_endstop_move() {
 
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
-
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
-
-    #if DISABLED(DELTA)
-
-      static void set_bed_level_equation_lsq(double* plane_equation_coefficients) {
-
-        //planner.bed_level_matrix.debug("bed level before");
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          planner.bed_level_matrix.set_to_identity();
-          if (DEBUGGING(LEVELING)) {
-            vector_3 uncorrected_position = planner.adjusted_position();
-            DEBUG_POS(">>> set_bed_level_equation_lsq", uncorrected_position);
-            DEBUG_POS(">>> set_bed_level_equation_lsq", current_position);
-          }
-        #endif
-
-        vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
-        planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-
-        vector_3 corrected_position = planner.adjusted_position();
-        current_position[X_AXIS] = corrected_position.x;
-        current_position[Y_AXIS] = corrected_position.y;
-        current_position[Z_AXIS] = corrected_position.z;
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("<<< set_bed_level_equation_lsq", corrected_position);
-        #endif
-
-        sync_plan_position();
-      }
-
-    #endif // !DELTA
-
-  #else // !AUTO_BED_LEVELING_GRID
-
-    static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
-
-      planner.bed_level_matrix.set_to_identity();
-
-      vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
-      vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
-      vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
-      vector_3 planeNormal = vector_3::cross(pt1 - pt2, pt3 - pt2).get_normal();
-
-      if (planeNormal.z < 0) {
-        planeNormal.x = -planeNormal.x;
-        planeNormal.y = -planeNormal.y;
-        planeNormal.z = -planeNormal.z;
-      }
-
-      planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-
-      vector_3 corrected_position = planner.adjusted_position();
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          vector_3 uncorrected_position = corrected_position;
-          DEBUG_POS("set_bed_level_equation_3pts", uncorrected_position);
-        }
-      #endif
-
-      current_position[X_AXIS] = corrected_position.x;
-      current_position[Y_AXIS] = corrected_position.y;
-      current_position[Z_AXIS] = corrected_position.z;
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("set_bed_level_equation_3pts", corrected_position);
-      #endif
-
-      sync_plan_position();
-    }
-
-  #endif // !AUTO_BED_LEVELING_GRID
-
-  static void run_z_probe() {
-
-    float old_feedrate = feedrate;
-
-    /**
-     * To prevent stepper_inactive_time from running out and
-     * EXTRUDER_RUNOUT_PREVENT from extruding
-     */
-    refresh_cmd_timeout();
-
-    #if ENABLED(DELTA)
-
-      float start_z = current_position[Z_AXIS];
-      long start_steps = stepper.position(Z_AXIS);
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
-      #endif
-
-      // move down slowly until you find the bed
-      feedrate = homing_feedrate[Z_AXIS] / 4;
-      destination[Z_AXIS] = -10;
-      prepare_move_to_destination_raw(); // this will also set_current_to_destination
-      stepper.synchronize();
-      endstops.hit_on_purpose(); // clear endstop hit flags
-
-      /**
-       * We have to let the planner know where we are right now as it
-       * is not where we said to go.
-       */
-      long stop_steps = stepper.position(Z_AXIS);
-      float mm = start_z - float(start_steps - stop_steps) / planner.axis_steps_per_mm[Z_AXIS];
-      current_position[Z_AXIS] = mm;
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe (DELTA) 2", current_position);
-      #endif
-
-      sync_plan_position_delta();
-
-    #else // !DELTA
-
-      planner.bed_level_matrix.set_to_identity();
-      feedrate = homing_feedrate[Z_AXIS];
-
-      // Move down until the Z probe (or endstop?) is triggered
-      float zPosition = -(Z_MAX_LENGTH + 10);
-      line_to_z(zPosition);
-      stepper.synchronize();
-
-      // Tell the planner where we ended up - Get this from the stepper handler
-      zPosition = stepper.get_axis_position_mm(Z_AXIS);
-      planner.set_position_mm(
-        current_position[X_AXIS], current_position[Y_AXIS], zPosition,
-        current_position[E_AXIS]
-      );
-
-      // move up the retract distance
-      zPosition += home_bump_mm(Z_AXIS);
-      line_to_z(zPosition);
-      stepper.synchronize();
-      endstops.hit_on_purpose(); // clear endstop hit flags
-
-      // move back down slowly to find bed
-      set_homing_bump_feedrate(Z_AXIS);
-
-      zPosition -= home_bump_mm(Z_AXIS) * 2;
-      line_to_z(zPosition);
-      stepper.synchronize();
-      endstops.hit_on_purpose(); // clear endstop hit flags
-
-      // Get the current stepper position after bumping an endstop
-      current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
-      sync_plan_position();
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe", current_position);
-      #endif
-
-    #endif // !DELTA
-
-    feedrate = old_feedrate;
-  }
-
-  inline void do_blocking_move_to_xy(float x, float y) {
-    do_blocking_move_to(x, y, current_position[Z_AXIS]);
-  }
-
-  inline void do_blocking_move_to_x(float x) {
-    do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS]);
-  }
+#if HAS_BED_PROBE
 
   inline void raise_z_after_probing() {
     #if Z_RAISE_AFTER_PROBING > 0
@@ -1861,18 +1720,54 @@ static void setup_for_endstop_move() {
       do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING);
     #endif
   }
+#endif
 
-  static void clean_up_after_endstop_move() {
+#if ENABLED(Z_PROBE_SLED)
+
+  #ifndef SLED_DOCKING_OFFSET
+    #define SLED_DOCKING_OFFSET 0
+  #endif
+
+  /**
+   * Method to dock/undock a sled designed by Charles Bell.
+   *
+   * dock[in]     If true, move to MAX_X and engage the electromagnet
+   * offset[in]   The additional distance to move to adjust docking location
+   */
+  static void dock_sled(bool dock, int offset = 0) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("clean_up_after_endstop_move > ENDSTOPS_ONLY_FOR_HOMING > endstops.not_homing()");
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("dock_sled(", dock);
+        SERIAL_ECHOLNPGM(")");
+      }
     #endif
-    endstops.not_homing();
-    feedrate = saved_feedrate;
-    feedrate_multiplier = saved_feedrate_multiplier;
-    refresh_cmd_timeout();
+
+    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
+      axis_unhomed_error(true);
+      return;
+    }
+
+    if (endstops.z_probe_enabled == !dock) return; // already docked/undocked?
+
+    float oldXpos = current_position[X_AXIS]; // save x position
+    if (dock) {
+      raise_z_after_probing(); // raise Z
+      // Dock sled a bit closer to ensure proper capturing
+      do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET + offset - 1);
+      digitalWrite(SLED_PIN, LOW); // turn off magnet
+    }
+    else {
+      float z_loc = current_position[Z_AXIS];
+      if (z_loc < Z_RAISE_BEFORE_PROBING + 5) z_loc = Z_RAISE_BEFORE_PROBING;
+      do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, current_position[Y_AXIS], z_loc); // this also updates current_position
+      digitalWrite(SLED_PIN, HIGH); // turn on magnet
+    }
+    do_blocking_move_to_x(oldXpos); // return to position before docking
   }
 
-  #if HAS_BED_PROBE
+#endif // Z_PROBE_SLED
+
+#if HAS_BED_PROBE
 
   static void deploy_z_probe() {
 
@@ -1882,7 +1777,11 @@ static void setup_for_endstop_move() {
 
     if (endstops.z_probe_enabled) return;
 
-    #if HAS_Z_SERVO_ENDSTOP
+    #if ENABLED(Z_PROBE_SLED)
+
+      dock_sled(false);
+
+    #elif HAS_Z_SERVO_ENDSTOP
 
       // Make room for Z Servo
       raise_z_for_servo(Z_RAISE_BEFORE_PROBING);
@@ -1964,14 +1863,13 @@ static void setup_for_endstop_move() {
           stop();
         }
 
-    #endif // Z_PROBE_ALLEN_KEY
+    #elif ENABLED(FIX_MOUNTED_PROBE)
 
-    #if ENABLED(FIX_MOUNTED_PROBE)
       // Nothing to be done. Just enable_z_probe below...
+
     #endif
 
     endstops.enable_z_probe();
-
   }
 
   static void stow_z_probe() {
@@ -1981,7 +1879,11 @@ static void setup_for_endstop_move() {
 
     if (!endstops.z_probe_enabled) return;
 
-    #if HAS_Z_SERVO_ENDSTOP
+    #if ENABLED(Z_PROBE_SLED)
+
+      dock_sled(true);
+
+    #elif HAS_Z_SERVO_ENDSTOP
 
       // Make room for the servo
       raise_z_for_servo(Z_RAISE_AFTER_PROBING);
@@ -2052,13 +1954,193 @@ static void setup_for_endstop_move() {
           }
           stop();
         }
+
     #elif ENABLED(FIX_MOUNTED_PROBE)
+
       // Nothing to do here. Just clear endstops.z_probe_enabled
+
     #endif
 
     endstops.enable_z_probe(false);
   }
-  #endif // HAS_BED_PROBE
+
+#endif // HAS_BED_PROBE
+
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+
+  #if ENABLED(AUTO_BED_LEVELING_GRID)
+
+    #if DISABLED(DELTA)
+
+      static void set_bed_level_equation_lsq(double* plane_equation_coefficients) {
+
+        //planner.bed_level_matrix.debug("bed level before");
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          planner.bed_level_matrix.set_to_identity();
+          if (DEBUGGING(LEVELING)) {
+            vector_3 uncorrected_position = planner.adjusted_position();
+            DEBUG_POS(">>> set_bed_level_equation_lsq", uncorrected_position);
+            DEBUG_POS(">>> set_bed_level_equation_lsq", current_position);
+          }
+        #endif
+
+        vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
+        planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+
+        vector_3 corrected_position = planner.adjusted_position();
+        current_position[X_AXIS] = corrected_position.x;
+        current_position[Y_AXIS] = corrected_position.y;
+        current_position[Z_AXIS] = corrected_position.z;
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("<<< set_bed_level_equation_lsq", corrected_position);
+        #endif
+
+        sync_plan_position();
+      }
+
+    #endif // !DELTA
+
+  #else // !AUTO_BED_LEVELING_GRID
+
+    static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
+
+      planner.bed_level_matrix.set_to_identity();
+
+      vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
+      vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
+      vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
+      vector_3 planeNormal = vector_3::cross(pt1 - pt2, pt3 - pt2).get_normal();
+
+      if (planeNormal.z < 0) {
+        planeNormal.x = -planeNormal.x;
+        planeNormal.y = -planeNormal.y;
+        planeNormal.z = -planeNormal.z;
+      }
+
+      planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+
+      vector_3 corrected_position = planner.adjusted_position();
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          vector_3 uncorrected_position = corrected_position;
+          DEBUG_POS("set_bed_level_equation_3pts", uncorrected_position);
+        }
+      #endif
+
+      current_position[X_AXIS] = corrected_position.x;
+      current_position[Y_AXIS] = corrected_position.y;
+      current_position[Z_AXIS] = corrected_position.z;
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) DEBUG_POS("set_bed_level_equation_3pts", corrected_position);
+      #endif
+
+      sync_plan_position();
+    }
+
+  #endif // !AUTO_BED_LEVELING_GRID
+
+#endif // AUTO_BED_LEVELING_FEATURE
+
+#if HAS_BED_PROBE
+
+  static void run_z_probe() {
+
+    float old_feedrate = feedrate;
+
+    /**
+     * To prevent stepper_inactive_time from running out and
+     * EXTRUDER_RUNOUT_PREVENT from extruding
+     */
+    refresh_cmd_timeout();
+
+    #if ENABLED(DELTA)
+
+      float start_z = current_position[Z_AXIS];
+      long start_steps = stepper.position(Z_AXIS);
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
+      #endif
+
+      // move down slowly until you find the bed
+      feedrate = homing_feedrate[Z_AXIS] / 4;
+      destination[Z_AXIS] = -10;
+      prepare_move_to_destination_raw(); // this will also set_current_to_destination
+      stepper.synchronize();
+      endstops.hit_on_purpose(); // clear endstop hit flags
+
+      /**
+       * We have to let the planner know where we are right now as it
+       * is not where we said to go.
+       */
+      long stop_steps = stepper.position(Z_AXIS);
+      float mm = start_z - float(start_steps - stop_steps) / planner.axis_steps_per_mm[Z_AXIS];
+      current_position[Z_AXIS] = mm;
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe (DELTA) 2", current_position);
+      #endif
+
+      sync_plan_position_delta();
+
+    #else // !DELTA
+
+      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+        planner.bed_level_matrix.set_to_identity();
+      #endif
+
+      feedrate = homing_feedrate[Z_AXIS];
+
+      // Move down until the Z probe (or endstop?) is triggered
+      float zPosition = -(Z_MAX_LENGTH + 10);
+      line_to_z(zPosition);
+      stepper.synchronize();
+
+      // Tell the planner where we ended up - Get this from the stepper handler
+      zPosition = stepper.get_axis_position_mm(Z_AXIS);
+      planner.set_position_mm(
+        current_position[X_AXIS], current_position[Y_AXIS], zPosition,
+        current_position[E_AXIS]
+      );
+
+      // move up the retract distance
+      zPosition += home_bump_mm(Z_AXIS);
+      line_to_z(zPosition);
+      stepper.synchronize();
+      endstops.hit_on_purpose(); // clear endstop hit flags
+
+      // move back down slowly to find bed
+      set_homing_bump_feedrate(Z_AXIS);
+
+      zPosition -= home_bump_mm(Z_AXIS) * 2;
+      line_to_z(zPosition);
+      stepper.synchronize();
+      endstops.hit_on_purpose(); // clear endstop hit flags
+
+      // Get the current stepper position after bumping an endstop
+      current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
+      sync_plan_position();
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe", current_position);
+      #endif
+
+    #endif // !DELTA
+
+    feedrate = old_feedrate;
+  }
+
+#endif // HAS_BED_PROBE
+
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+
+  inline void do_blocking_move_to_xy(float x, float y) {
+    do_blocking_move_to(x, y, current_position[Z_AXIS]);
+  }
 
   enum ProbeAction {
     ProbeStay          = 0,
@@ -2226,55 +2308,6 @@ static void setup_for_endstop_move() {
   }
 #endif
 
-#if ENABLED(Z_PROBE_SLED)
-
-  #ifndef SLED_DOCKING_OFFSET
-    #define SLED_DOCKING_OFFSET 0
-  #endif
-
-  /**
-   * Method to dock/undock a sled designed by Charles Bell.
-   *
-   * dock[in]     If true, move to MAX_X and engage the electromagnet
-   * offset[in]   The additional distance to move to adjust docking location
-   */
-  static void dock_sled(bool dock, int offset = 0) {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("dock_sled(", dock);
-        SERIAL_ECHOLNPGM(")");
-      }
-    #endif
-
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
-      axis_unhomed_error(true);
-      return;
-    }
-
-    if (endstops.z_probe_enabled == !dock) return; // already docked/undocked?
-
-    float oldXpos = current_position[X_AXIS]; // save x position
-    if (dock) {
-      raise_z_after_probing(); // raise Z
-      // Dock sled a bit closer to ensure proper capturing
-      do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET + offset - 1);
-      digitalWrite(SLED_PIN, LOW); // turn off magnet
-    }
-    else {
-      float z_loc = current_position[Z_AXIS];
-      if (z_loc < Z_RAISE_BEFORE_PROBING + 5) z_loc = Z_RAISE_BEFORE_PROBING;
-      do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, current_position[Y_AXIS], z_loc); // this also updates current_position
-      digitalWrite(SLED_PIN, HIGH); // turn on magnet
-    }
-    do_blocking_move_to_x(oldXpos); // return to position before docking
-
-    endstops.enable_z_probe(!dock); // logically disable docked probe
-  }
-
-#endif // Z_PROBE_SLED
-
-
-
 /**
  * Home an individual axis
  */
@@ -2303,24 +2336,13 @@ static void homeaxis(AxisEnum axis) {
     current_position[axis] = 0;
     sync_plan_position();
 
-    #if ENABLED(Z_PROBE_SLED)
-      #define _Z_DEPLOY           (dock_sled(false))
-      #define _Z_STOW             (dock_sled(true))
-    #elif ENABLED(AUTO_BED_LEVELING_FEATURE) && (HAS_Z_SERVO_ENDSTOP || ENABLED(FIX_MOUNTED_PROBE))
-      #define _Z_DEPLOY           (deploy_z_probe())
-      #define _Z_STOW             (stow_z_probe())
-    #elif HAS_Z_SERVO_ENDSTOP
-      #define _Z_DEPLOY           do{ raise_z_for_servo(Z_RAISE_BEFORE_PROBING); DEPLOY_Z_SERVO(); endstops.z_probe_enabled = true; }while(0)
-      #define _Z_STOW             do{ raise_z_for_servo(Z_RAISE_AFTER_PROBING); STOW_Z_SERVO(); endstops.z_probe_enabled = false; }while(0)
-    #endif
-
     // Homing Z towards the bed? Deploy the Z probe or endstop.
-    #if HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED) || ENABLED(FIX_MOUNTED_PROBE)
+    #if HAS_BED_PROBE
       if (axis == Z_AXIS && axis_home_dir < 0) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" > " STRINGIFY(_Z_DEPLOY));
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" > deploy_z_probe()");
         #endif
-        _Z_DEPLOY;
+        deploy_z_probe();
       }
     #endif
 
@@ -2438,12 +2460,12 @@ static void homeaxis(AxisEnum axis) {
     axis_homed[axis] = true;
 
     // Put away the Z probe
-    #if HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED) || ENABLED(FIX_MOUNTED_PROBE)
+    #if HAS_BED_PROBE
       if (axis == Z_AXIS && axis_home_dir < 0) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" > " STRINGIFY(_Z_STOW));
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" > stow_z_probe()");
         #endif
-        _Z_STOW;
+        stow_z_probe();
       }
     #endif
 
@@ -3465,9 +3487,7 @@ inline void gcode_G28() {
       #endif // !DELTA
     }
 
-    #if ENABLED(Z_PROBE_SLED)
-      dock_sled(false); // engage (un-dock) the Z probe
-    #elif ENABLED(FIX_MOUNTED_PROBE) || ENABLED(MECHANICAL_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || (ENABLED(DELTA) && HAS_Z_SERVO_ENDSTOP)
+    #if HAS_BED_PROBE
       deploy_z_probe();
     #endif
 
@@ -3718,14 +3738,7 @@ inline void gcode_G28() {
 
     #endif // !AUTO_BED_LEVELING_GRID
 
-    #if ENABLED(DELTA)
-      // Allen Key Probe for Delta
-      #if ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP
-        stow_z_probe();
-      #else
-        raise_z_after_probing(); // for non Allen Key probes, such as simple mechanical probe
-      #endif
-    #else // !DELTA
+    #if DISABLED(DELTA)
       if (verbose_level > 0)
         planner.bed_level_matrix.debug(" \n\nBed Level Correction Matrix:");
 
@@ -3785,7 +3798,7 @@ inline void gcode_G28() {
           #if HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED)
              + Z_RAISE_AFTER_PROBING
           #endif
-          ;
+        ;
         // current_position[Z_AXIS] += home_offset[Z_AXIS]; // The Z probe determines Z=0, not "Z home"
         sync_plan_position();
 
@@ -3793,19 +3806,16 @@ inline void gcode_G28() {
           if (DEBUGGING(LEVELING)) DEBUG_POS("> corrected Z in G29", current_position);
         #endif
       }
-
-      // Sled assembly for Cartesian bots
-      #if ENABLED(Z_PROBE_SLED)
-        dock_sled(true); // dock the sled
-      #elif !HAS_Z_SERVO_ENDSTOP && DISABLED(Z_PROBE_ALLEN_KEY) && DISABLED(Z_PROBE_SLED)
-        // Raise Z axis for non-delta and non servo based probes
-        raise_z_after_probing();
-      #endif
-
     #endif // !DELTA
 
-    #if ENABLED(MECHANICAL_PROBE)
+    #if DISABLED(Z_PROBE_ALLEN_KEY) && DISABLED(Z_PROBE_SLED) && !HAS_Z_SERVO_ENDSTOP
+      raise_z_after_probing();
+    #endif
+
+    #if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(MECHANICAL_PROBE)
       stow_z_probe();
+    #else
+      endstops.enable_z_probe(false);
     #endif
 
     #ifdef Z_PROBE_END_SCRIPT
@@ -3816,9 +3826,6 @@ inline void gcode_G28() {
         }
       #endif
       enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
-      #if HAS_BED_PROBE
-        endstops.enable_z_probe(false);
-      #endif
       stepper.synchronize();
     #endif
 
@@ -3835,38 +3842,40 @@ inline void gcode_G28() {
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
-  #if DISABLED(Z_PROBE_SLED) // could be avoided
-
-    /**
-     * G30: Do a single Z probe at the current XY
-     */
-    inline void gcode_G30() {
-      deploy_z_probe(); // Engage Z Servo endstop if available. Z_PROBE_SLED is missed here.
-
-      stepper.synchronize();
-      // TODO: clear the leveling matrix or the planner will be set incorrectly
-      setup_for_endstop_move(); // Too late. Must be done before deploying.
-
-      run_z_probe();
-
-      SERIAL_PROTOCOLPGM("Bed X: ");
-      SERIAL_PROTOCOL(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER + 0.0001);
-      SERIAL_PROTOCOLPGM(" Y: ");
-      SERIAL_PROTOCOL(current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER + 0.0001);
-      SERIAL_PROTOCOLPGM(" Z: ");
-      SERIAL_PROTOCOL(current_position[Z_AXIS] + 0.0001);
-      SERIAL_EOL;
-
-      clean_up_after_endstop_move(); // Too early. must be done after the stowing.
-
-      stow_z_probe(); // Retract Z Servo endstop if available. Z_PROBE_SLED is missed here.
-
-      report_current_position();
-    }
-
-  #endif //!Z_PROBE_SLED
-
 #endif //AUTO_BED_LEVELING_FEATURE
+
+#if HAS_BED_PROBE
+
+  /**
+   * G30: Do a single Z probe at the current XY
+   */
+  inline void gcode_G30() {
+
+    setup_for_endstop_move();
+
+    deploy_z_probe();
+
+    stepper.synchronize();
+
+    // TODO: clear the leveling matrix or the planner will be set incorrectly
+    run_z_probe(); // clears the ABL non-delta matrix only
+
+    SERIAL_PROTOCOLPGM("Bed X: ");
+    SERIAL_PROTOCOL(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER + 0.0001);
+    SERIAL_PROTOCOLPGM(" Y: ");
+    SERIAL_PROTOCOL(current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER + 0.0001);
+    SERIAL_PROTOCOLPGM(" Z: ");
+    SERIAL_PROTOCOL(current_position[Z_AXIS] + 0.0001);
+    SERIAL_EOL;
+
+    stow_z_probe();
+
+    clean_up_after_endstop_move();
+
+    report_current_position();
+  }
+
+#endif // HAS_BED_PROBE
 
 /**
  * G92: Set current position to given X Y Z E
@@ -6872,24 +6881,24 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+      #if HAS_BED_PROBE
 
-        #if DISABLED(Z_PROBE_SLED)
+        case 30: // G30 Single Z probe
+          gcode_G30();
+          break;
 
-          case 30: // G30 Single Z probe
-            gcode_G30();
-            break;
-
-        #else // Z_PROBE_SLED
+        #if ENABLED(Z_PROBE_SLED)
 
             case 31: // G31: dock the sled
+              stow_z_probe();
+              break;
             case 32: // G32: undock the sled
-              dock_sled(codenum == 31);
+              deploy_z_probe();
               break;
 
         #endif // Z_PROBE_SLED
 
-      #endif // AUTO_BED_LEVELING_FEATURE
+      #endif // HAS_BED_PROBE
 
       case 90: // G90
         relative_mode = false;
