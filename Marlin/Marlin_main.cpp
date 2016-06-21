@@ -5949,7 +5949,7 @@ inline void gcode_M303() {
  */
 inline void gcode_M400() { stepper.synchronize(); }
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE) && DISABLED(Z_PROBE_SLED) && (HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_ALLEN_KEY))
+#if HAS_BED_PROBE
 
   /**
    * M401: Engage Z Servo endstop if available
@@ -5965,7 +5965,7 @@ inline void gcode_M400() { stepper.synchronize(); }
     stow_z_probe();
   }
 
-#endif // AUTO_BED_LEVELING_FEATURE && (HAS_Z_SERVO_ENDSTOP || Z_PROBE_ALLEN_KEY) && !Z_PROBE_SLED
+#endif // HAS_BED_PROBE
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
 
@@ -7262,14 +7262,14 @@ void process_next_command() {
         gcode_M400();
         break;
 
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE) && (HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_ALLEN_KEY)) && DISABLED(Z_PROBE_SLED)
+      #if HAS_BED_PROBE
         case 401:
           gcode_M401();
           break;
         case 402:
           gcode_M402();
           break;
-      #endif // AUTO_BED_LEVELING_FEATURE && (HAS_Z_SERVO_ENDSTOP || Z_PROBE_ALLEN_KEY) && !Z_PROBE_SLED
+      #endif // HAS_BED_PROBE
 
       #if ENABLED(FILAMENT_WIDTH_SENSOR)
         case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width
