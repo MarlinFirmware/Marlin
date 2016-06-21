@@ -3788,17 +3788,14 @@ inline void gcode_G28() {
           if (DEBUGGING(LEVELING)) DEBUG_POS("> corrected Z in G29", current_position);
         #endif
       }
+
     #endif // !DELTA
 
-    #if DISABLED(Z_PROBE_ALLEN_KEY) && DISABLED(Z_PROBE_SLED) && !HAS_Z_SERVO_ENDSTOP
-      raise_z_after_probing();
-    #endif
+    // Final raise of Z axis after probing.
+    raise_z_after_probing();
 
-    #if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(MECHANICAL_PROBE)
-      stow_z_probe();
-    #else
-      endstops.enable_z_probe(false);
-    #endif
+    // Stow the probe. Servo will raise if needed.
+    stow_z_probe();
 
     #ifdef Z_PROBE_END_SCRIPT
       #if ENABLED(DEBUG_LEVELING_FEATURE)
