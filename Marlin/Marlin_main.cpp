@@ -3475,13 +3475,13 @@ inline void gcode_G28() {
       #endif // !DELTA
     }
 
-    #if HAS_BED_PROBE
-      deploy_z_probe();
-    #endif
-
     stepper.synchronize();
 
     setup_for_endstop_or_probe_move();
+
+    #if HAS_BED_PROBE
+      deploy_z_probe();
+    #endif
 
     feedrate = homing_feedrate[Z_AXIS];
 
