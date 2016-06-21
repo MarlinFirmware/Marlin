@@ -4164,19 +4164,7 @@ inline void gcode_M42() {
   } // code_seen('S')
 }
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE) && ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-
-  /**
-   * This is redundant since the SanityCheck.h already checks for a valid
-   *  Z_MIN_PROBE_PIN, but here for clarity.
-   */
-  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-    #if !HAS_Z_MIN_PROBE_PIN
-      #error "You must define Z_MIN_PROBE_PIN to enable Z probe repeatability calculation."
-    #endif
-  #elif !HAS_Z_MIN
-    #error "You must define Z_MIN_PIN to enable Z probe repeatability calculation."
-  #endif
+#if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
 
   /**
    * M48: Z probe repeatability measurement function.
@@ -4439,7 +4427,7 @@ inline void gcode_M42() {
     report_current_position();
   }
 
-#endif // AUTO_BED_LEVELING_FEATURE && Z_MIN_PROBE_REPEATABILITY_TEST
+#endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
  * M75: Start print timer
@@ -6958,11 +6946,11 @@ void process_next_command() {
         gcode_M42();
         break;
 
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE) && ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+      #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
         case 48: // M48 Z probe repeatability
           gcode_M48();
           break;
-      #endif // AUTO_BED_LEVELING_FEATURE && Z_MIN_PROBE_REPEATABILITY_TEST
+      #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
       case 75: // Start print timer
         gcode_M75();
