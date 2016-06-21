@@ -1954,14 +1954,13 @@ static void setup_for_endstop_move() {
     endstops.enable_z_probe(false);
   }
 
+  // Do a single Z probe and return with current_position[Z_AXIS]
+  // at the height where the probe triggered.
   static void run_z_probe() {
 
     float old_feedrate = feedrate;
 
-    /**
-     * To prevent stepper_inactive_time from running out and
-     * EXTRUDER_RUNOUT_PREVENT from extruding
-     */
+    // Prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
     refresh_cmd_timeout();
 
     #if ENABLED(DELTA)
