@@ -3102,9 +3102,7 @@ inline void gcode_G28() {
   endstops.hit_on_purpose(); // clear endstop hit flags
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOLNPGM("<<< gcode_G28");
-    }
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
   #endif
 
   report_current_position();
@@ -3689,9 +3687,7 @@ inline void gcode_G28() {
     #else // !AUTO_BED_LEVELING_GRID
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOLNPGM("> 3-point Leveling");
-        }
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> 3-point Leveling");
       #endif
 
       // Actions for each probe
