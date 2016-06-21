@@ -409,50 +409,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //============================= Z Probe Options =============================
 //===========================================================================
 
-// Enable Z_MIN_PROBE_ENDSTOP to use _both_ a Z Probe and a Z-min-endstop on the same machine.
-// With this option the Z_MIN_PROBE_PIN will only be used for probing, never for homing.
-//
-// *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
-//
-// To continue using the Z-min-endstop for homing, be sure to disable Z_SAFE_HOMING.
-// Example: To park the head outside the bed area when homing with G28.
-//
-// To use a separate Z probe, your board must define a Z_MIN_PROBE_PIN.
-//
-// For a servo-based Z probe, you must set up servo support below, including
-// NUM_SERVOS, Z_ENDSTOP_SERVO_NR and Z_SERVO_ANGLES.
-//
-// - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
-// - Use 5V for powered (usu. inductive) sensors.
-// - Otherwise connect:
-//   - normally-closed switches to GND and D32.
-//   - normally-open switches to 5V and D32.
-//
-// Normally-closed switches are advised and are the default.
-//
-// The Z_MIN_PROBE_PIN sets the Arduino pin to use. (See your board's pins file.)
-// Since the RAMPS Aux4->D32 pin maps directly to the Arduino D32 pin, D32 is the
-// default pin for all RAMPS-based boards. Some other boards map differently.
-// To set or change the pin for your board, edit the appropriate pins_XXXXX.h file.
-//
-// WARNING:
-// Setting the wrong pin may have unexpected and potentially disastrous consequences.
-// Use with caution and do your homework.
-//
-//#define Z_MIN_PROBE_ENDSTOP
-
-// Enable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN to use the Z_MIN_PIN for your Z_MIN_PROBE.
-// The Z_MIN_PIN will then be used for both Z-homing and probing.
-#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-
-// To use a probe you must enable one of the two options above!
-
-// This option disables the use of the Z_MIN_PROBE_PIN
-// To enable the Z probe pin but disable its use, uncomment the line below. This only affects a
-// Z probe switch if you have a separate Z min endstop also and have activated Z_MIN_PROBE_ENDSTOP above.
-// If you're using the Z MIN endstop connector for your Z probe, this has no effect.
-//#define DISABLE_Z_MIN_PROBE_ENDSTOP
-
 //
 // Probe Type
 // Probes are sensors/switches that are activated / deactivated before/after use.
@@ -503,6 +459,50 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // Allen Key Probe is defined in the Delta example configurations.
 //
+
+// Enable Z_MIN_PROBE_ENDSTOP to use _both_ a Z Probe and a Z-min-endstop on the same machine.
+// With this option the Z_MIN_PROBE_PIN will only be used for probing, never for homing.
+//
+// *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
+//
+// To continue using the Z-min-endstop for homing, be sure to disable Z_SAFE_HOMING.
+// Example: To park the head outside the bed area when homing with G28.
+//
+// To use a separate Z probe, your board must define a Z_MIN_PROBE_PIN.
+//
+// For a servo-based Z probe, you must set up servo support below, including
+// NUM_SERVOS, Z_ENDSTOP_SERVO_NR and Z_SERVO_ANGLES.
+//
+// - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
+// - Use 5V for powered (usu. inductive) sensors.
+// - Otherwise connect:
+//   - normally-closed switches to GND and D32.
+//   - normally-open switches to 5V and D32.
+//
+// Normally-closed switches are advised and are the default.
+//
+// The Z_MIN_PROBE_PIN sets the Arduino pin to use. (See your board's pins file.)
+// Since the RAMPS Aux4->D32 pin maps directly to the Arduino D32 pin, D32 is the
+// default pin for all RAMPS-based boards. Some other boards map differently.
+// To set or change the pin for your board, edit the appropriate pins_XXXXX.h file.
+//
+// WARNING:
+// Setting the wrong pin may have unexpected and potentially disastrous consequences.
+// Use with caution and do your homework.
+//
+//#define Z_MIN_PROBE_ENDSTOP
+
+// Enable Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN to use the Z_MIN_PIN for your Z_MIN_PROBE.
+// The Z_MIN_PIN will then be used for both Z-homing and probing.
+#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+
+// To use a probe you must enable one of the two options above!
+
+// This option disables the use of the Z_MIN_PROBE_PIN
+// To enable the Z probe pin but disable its use, uncomment the line below. This only affects a
+// Z probe switch if you have a separate Z min endstop also and have activated Z_MIN_PROBE_ENDSTOP above.
+// If you're using the Z MIN endstop connector for your Z probe, this has no effect.
+//#define DISABLE_Z_MIN_PROBE_ENDSTOP
 
 // Enable Z Probe Repeatability test to see how accurate your probe is
 //#define Z_MIN_PROBE_REPEATABILITY_TEST
