@@ -2163,26 +2163,27 @@ static void setup_for_endstop_move() {
     // this also updates current_position
     do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
-    #if DISABLED(Z_PROBE_SLED) && DISABLED(Z_PROBE_ALLEN_KEY)
-      if (probe_action & ProbeDeploy) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> ProbeDeploy");
-        #endif
-        deploy_z_probe();
-      }
+    // Z Sled and Allen Key should never deploy-and-stow
+    #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+      if (probe_action == ProbeDeployAndStow) probe_action == ProbeStay;
     #endif
+
+    if (probe_action & ProbeDeploy) {
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> ProbeDeploy");
+      #endif
+      deploy_z_probe();
+    }
 
     run_z_probe();
     float measured_z = current_position[Z_AXIS];
 
-    #if DISABLED(Z_PROBE_SLED) && DISABLED(Z_PROBE_ALLEN_KEY)
-      if (probe_action & ProbeStow) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> ProbeStow (stow_z_probe will do Z Raise)");
-        #endif
-        stow_z_probe();
-      }
-    #endif
+    if (probe_action & ProbeStow) {
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> ProbeStow (stow_z_probe will do Z Raise)");
+      #endif
+      stow_z_probe();
+    }
 
     if (verbose_level > 2) {
       SERIAL_PROTOCOLPGM("Bed X: ");
