@@ -972,8 +972,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 //#define ULTIPANEL
 
+//
 // Cartesio UI
 // http://mauk.cc/webshop/cartesio-shop/electronics/user-interface
+//
 //#define CARTESIO_UI
 
 //
@@ -1098,7 +1100,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 //#define U8GLIB_SSD1306
 
+//
 // SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
+//
 //#define SAV_3DGLCD
 #if ENABLED(SAV_3DGLCD)
   //#define U8GLIB_SSD1306
