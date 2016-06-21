@@ -128,6 +128,12 @@
     #define DEFAULT_LCD_CONTRAST 17
   #endif
 
+  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+    #define DOGLCD
+    #define U8GLIB_ST7920
+    #define ULTIPANEL
+  #endif
+
   /**
    * I2C PANELS
    */
