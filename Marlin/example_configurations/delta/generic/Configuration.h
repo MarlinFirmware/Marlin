@@ -696,7 +696,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 
 //#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
 //#define DEBUG_LEVELING_FEATURE
-//
+
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
   // There are 2 different ways to specify probing locations:
