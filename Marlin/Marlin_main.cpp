@@ -861,12 +861,15 @@ void setup() {
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
 
-  thermalManager.init();    // Initialize temperature loop
+  // Initialize current position based on home_offset
+  memcpy(current_position, home_offset, sizeof(home_offset));
 
   #if ENABLED(DELTA) || ENABLED(SCARA)
     // Vital to init kinematic equivalent for X0 Y0 Z0
     sync_plan_position_delta();
   #endif
+
+  thermalManager.init();    // Initialize temperature loop
 
   #if ENABLED(USE_WATCHDOG)
     watchdog_init();
@@ -918,8 +921,6 @@ void setup() {
       lcd_init();
     #endif
   #endif
-
-
 }
 
 /**
