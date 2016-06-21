@@ -496,6 +496,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 // Allen Key Probe is defined in the Delta example configurations.
 //
 
+// Enable Z Probe Repeatability test to see how accurate your probe is
+//#define Z_MIN_PROBE_REPEATABILITY_TEST
+
 //
 // Probe Raise options provide clearance for the probe to deploy and stow.
 //
@@ -612,7 +615,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 
 //#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
 //#define DEBUG_LEVELING_FEATURE
-#define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
