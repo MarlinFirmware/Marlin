@@ -1685,6 +1685,14 @@ static void setup_for_endstop_move() {
     do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z);
   }
 
+  inline void raise_z_after_probing() {
+    #if Z_RAISE_AFTER_PROBING > 0
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("raise_z_after_probing()");
+      #endif
+      do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING);
+    #endif
+  }
 #endif //HAS_BED_PROBE
 
 #if HAS_Z_SERVO_ENDSTOP
@@ -1708,18 +1716,6 @@ static void setup_for_endstop_move() {
       do_blocking_move_to_z(z_dest); // also updates current_position
   }
 
-#endif
-
-#if HAS_BED_PROBE
-
-  inline void raise_z_after_probing() {
-    #if Z_RAISE_AFTER_PROBING > 0
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("raise_z_after_probing()");
-      #endif
-      do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING);
-    #endif
-  }
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
