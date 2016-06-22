@@ -582,6 +582,9 @@ static void report_current_position();
     calculate_delta(current_position);
     planner.set_position_mm(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
   }
+  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_delta()
+#else
+  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position()
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -866,7 +869,7 @@ void setup() {
 
   #if ENABLED(DELTA) || ENABLED(SCARA)
     // Vital to init kinematic equivalent for X0 Y0 Z0
-    sync_plan_position_delta();
+    SYNC_PLAN_POSITION_KINEMATIC();
   #endif
 
   thermalManager.init();    // Initialize temperature loop
@@ -1997,7 +2000,7 @@ static void setup_for_endstop_move() {
         if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe (DELTA) 2", current_position);
       #endif
 
-      sync_plan_position_delta();
+      SYNC_PLAN_POSITION_KINEMATIC();
 
     #else // !DELTA
 
@@ -2036,11 +2039,7 @@ static void setup_for_endstop_move() {
       // Get the current stepper position after bumping an endstop
       current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
 
-      #if ENABLED(SCARA)
-        sync_plan_position_delta();
-      #else
-        sync_plan_position();
-      #endif
+      SYNC_PLAN_POSITION_KINEMATIC();
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe", current_position);
@@ -2084,11 +2083,7 @@ static void setup_for_endstop_move() {
           if (DEBUGGING(LEVELING)) DEBUG_POS("<<< set_bed_level_equation_lsq", corrected_position);
         #endif
 
-        #if ENABLED(SCARA)
-          sync_plan_position_delta();
-        #else
-          sync_plan_position();
-        #endif
+        SYNC_PLAN_POSITION_KINEMATIC();
       }
 
     #endif // !DELTA
@@ -2128,11 +2123,7 @@ static void setup_for_endstop_move() {
         if (DEBUGGING(LEVELING)) DEBUG_POS("set_bed_level_equation_3pts", corrected_position);
       #endif
 
-      #if ENABLED(DELTA) || ENABLED(SCARA)
-        sync_plan_position_delta();
-      #else
-        sync_plan_position();
-      #endif
+      SYNC_PLAN_POSITION_KINEMATIC();
     }
 
   #endif // !AUTO_BED_LEVELING_GRID
@@ -2334,11 +2325,7 @@ static void homeaxis(AxisEnum axis) {
 
     // Set the axis position as setup for the move
     current_position[axis] = 0;
-    #if ENABLED(DELTA) || ENABLED(SCARA)
-      sync_plan_position_delta();
-    #else
-      sync_plan_position();
-    #endif
+    SYNC_PLAN_POSITION_KINEMATIC();
 
     // Homing Z towards the bed? Deploy the Z probe or endstop.
     #if HAS_BED_PROBE
@@ -2363,11 +2350,7 @@ static void homeaxis(AxisEnum axis) {
 
     // Set the axis position as setup for the move
     current_position[axis] = 0;
-    #if ENABLED(DELTA) || ENABLED(SCARA)
-      sync_plan_position_delta();
-    #else
-      sync_plan_position();
-    #endif
+    SYNC_PLAN_POSITION_KINEMATIC();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(false)");
@@ -2408,7 +2391,7 @@ static void homeaxis(AxisEnum axis) {
           lockZ1 = (z_endstop_adj < 0);
 
         if (lockZ1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
-        sync_plan_position();
+        SYNC_PLAN_POSITION_KINEMATIC();
 
         // Move to the adjusted endstop height
         feedrate = homing_feedrate[axis];
@@ -2428,7 +2411,7 @@ static void homeaxis(AxisEnum axis) {
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(false)");
         #endif
         endstops.enable(false); // Disable endstops while moving away
-        sync_plan_position_delta();
+        SYNC_PLAN_POSITION_KINEMATIC();
         destination[axis] = endstop_adj[axis];
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
@@ -2456,11 +2439,7 @@ static void homeaxis(AxisEnum axis) {
     // Set the axis position to its home position (plus home offsets)
     set_axis_is_at_home(axis);
 
-    #if ENABLED(DELTA) || ENABLED(SCARA)
-      sync_plan_position_delta();
-    #else
-      sync_plan_position();
-    #endif
+    SYNC_PLAN_POSITION_KINEMATIC();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
@@ -2511,11 +2490,7 @@ static void homeaxis(AxisEnum axis) {
 
       if (retract_zlift > 0.01) {
         current_position[Z_AXIS] -= retract_zlift;
-        #if ENABLED(DELTA) || ENABLED(SCARA)
-          sync_plan_position_delta();
-        #else
-          sync_plan_position();
-        #endif
+        SYNC_PLAN_POSITION_KINEMATIC();
         prepare_move_to_destination();
       }
     }
@@ -2523,11 +2498,7 @@ static void homeaxis(AxisEnum axis) {
 
       if (retract_zlift > 0.01) {
         current_position[Z_AXIS] += retract_zlift;
-        #if ENABLED(DELTA) || ENABLED(SCARA)
-          sync_plan_position_delta();
-        #else
-          sync_plan_position();
-        #endif
+        SYNC_PLAN_POSITION_KINEMATIC();
       }
 
       feedrate = retract_recover_feedrate * 60;
@@ -2838,7 +2809,7 @@ inline void gcode_G28() {
     HOMEAXIS(Y);
     HOMEAXIS(Z);
 
-    sync_plan_position_delta();
+    SYNC_PLAN_POSITION_KINEMATIC();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("(DELTA)", current_position);
@@ -2900,7 +2871,7 @@ inline void gcode_G28() {
           int x_axis_home_dir = home_dir(X_AXIS);
         #endif
 
-        sync_plan_position();
+        SYNC_PLAN_POSITION_KINEMATIC();
 
         float mlx = max_length(X_AXIS), mly = max_length(Y_AXIS),
               mlratio = mlx > mly ? mly / mlx : mlx / mly;
@@ -2913,7 +2884,7 @@ inline void gcode_G28() {
 
         set_axis_is_at_home(X_AXIS);
         set_axis_is_at_home(Y_AXIS);
-        sync_plan_position();
+        SYNC_PLAN_POSITION_KINEMATIC();
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> QUICK_HOME 1", current_position);
@@ -2997,7 +2968,7 @@ inline void gcode_G28() {
              * enough to reach Z_SAFE_HOMING XY positions.
              * Just make sure the planner is in sync.
              */
-            sync_plan_position();
+            SYNC_PLAN_POSITION_KINEMATIC();
 
             /**
              * Set the Z probe (or just the nozzle) destination to the safe
@@ -3082,11 +3053,7 @@ inline void gcode_G28() {
 
     #endif // Z_HOME_DIR < 0
 
-    #if ENABLED(SCARA)
-      sync_plan_position_delta();
-    #else
-      sync_plan_position();
-    #endif
+    SYNC_PLAN_POSITION_KINEMATIC();
 
   #endif // !DELTA (gcode_G28)
 
@@ -3104,7 +3071,7 @@ inline void gcode_G28() {
     if (mbl.has_mesh()) {
       if (home_all_axis || (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && homeZ)) {
         current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-        sync_plan_position();
+        SYNC_PLAN_POSITION_KINEMATIC();
         mbl.set_active(true);
         #if ENABLED(MESH_G28_REST_ORIGIN)
           current_position[Z_AXIS] = 0.0;
@@ -3120,7 +3087,7 @@ inline void gcode_G28() {
       }
       else if ((axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) && (homeX || homeY)) {
         current_position[Z_AXIS] = pre_home_z;
-        sync_plan_position();
+        SYNC_PLAN_POSITION_KINEMATIC();
         mbl.set_active(true);
         current_position[Z_AXIS] = pre_home_z -
           mbl.get_z(current_position[X_AXIS] - home_offset[X_AXIS],
@@ -3248,7 +3215,7 @@ inline void gcode_G28() {
         if (probe_point == 0) {
           // For the intial G29 S2 make Z a positive value (e.g., 4.0)
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-          sync_plan_position();
+          SYNC_PLAN_POSITION_KINEMATIC();
         }
         else {
           // For G29 S2 after adjusting Z.
@@ -3328,7 +3295,7 @@ inline void gcode_G28() {
             mbl.get_z(current_position[X_AXIS] - home_offset[X_AXIS],
                       current_position[Y_AXIS] - home_offset[Y_AXIS]) - MESH_HOME_SEARCH_Z;
           mbl.reset();
-          sync_plan_position();
+          SYNC_PLAN_POSITION_KINEMATIC();
         }
         else
           mbl.reset();
@@ -3496,11 +3463,7 @@ inline void gcode_G28() {
           if (DEBUGGING(LEVELING)) DEBUG_POS("AFTER matrix.set_to_identity", uncorrected_position);
         #endif
 
-        #if ENABLED(SCARA)
-          sync_plan_position_delta();
-        #else
-          sync_plan_position();
-        #endif
+        SYNC_PLAN_POSITION_KINEMATIC();
 
       #endif // !DELTA
     }
@@ -3818,11 +3781,7 @@ inline void gcode_G28() {
           #endif
         ;
         // current_position[Z_AXIS] += home_offset[Z_AXIS]; // The Z probe determines Z=0, not "Z home"
-        #if ENABLED(SCARA)
-          sync_plan_position_delta();
-        #else
-          sync_plan_position();
-        #endif
+        SYNC_PLAN_POSITION_KINEMATIC();
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> corrected Z in G29", current_position);
@@ -3919,16 +3878,10 @@ inline void gcode_G92() {
       }
     }
   }
-  if (didXYZ) {
-    #if ENABLED(DELTA) || ENABLED(SCARA)
-      sync_plan_position_delta();
-    #else
-      sync_plan_position();
-    #endif
-  }
-  else if (didE) {
+  if (didXYZ)
+    SYNC_PLAN_POSITION_KINEMATIC();
+  else if (didE)
     sync_plan_position_e();
-  }
 }
 
 #if ENABLED(ULTIPANEL)
@@ -5420,7 +5373,7 @@ inline void gcode_M206() {
     if (code_seen('P')) set_home_offset(Y_AXIS, code_value_axis_units(Y_AXIS)); // Psi
   #endif
 
-  sync_plan_position();
+  SYNC_PLAN_POSITION_KINEMATIC();
   report_current_position();
 }
 
@@ -6171,11 +6124,7 @@ inline void gcode_M428() {
   }
 
   if (!err) {
-    #if ENABLED(DELTA) || ENABLED(SCARA)
-      sync_plan_position_delta();
-    #else
-      sync_plan_position();
-    #endif
+    SYNC_PLAN_POSITION_KINEMATIC();
     report_current_position();
     LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
     #if HAS_BUZZER
@@ -6741,11 +6690,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
       #endif // !DUAL_X_CARRIAGE
 
       // Tell the planner the new "current position"
-      #if ENABLED(DELTA) || ENABLED(SCARA)
-        sync_plan_position_delta();
-      #else
-        sync_plan_position();
-      #endif
+      SYNC_PLAN_POSITION_KINEMATIC();
 
       // Move to the "old position" (move the extruder into place)
       if (!no_move && IsRunning()) prepare_move_to_destination();
@@ -7694,7 +7639,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
         planner.set_position_mm(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         planner.buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset,
                          current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], planner.max_feedrate[X_AXIS], 1);
-        sync_plan_position();
+        SYNC_PLAN_POSITION_KINEMATIC();
         stepper.synchronize();
         extruder_duplication_enabled = true;
         active_extruder_parked = false;
