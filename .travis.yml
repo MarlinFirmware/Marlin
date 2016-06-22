@@ -155,6 +155,12 @@ script:
   - opt_enable BQ_LCD_SMART_CONTROLLER SPEAKER
   - build_marlin
   #
+  # Test MINIRAMBO for PWM_MOTOR_CURRENT
+  #
+  - restore_configs
+  - opt_set MOTHERBOARD BOARD_MINIRAMBO
+  - build_marlin
+  #
   # Enable FILAMENTCHANGEENABLE
   #
   - restore_configs
