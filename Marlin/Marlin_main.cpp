@@ -1721,6 +1721,21 @@ static void setup_for_endstop_move() {
 
 #endif
 
+#if ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE
+  static void axis_unhomed_error(bool xyz=false) {
+    if (xyz) {
+      LCD_MESSAGEPGM(MSG_XYZ_UNHOMED);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_XYZ_UNHOMED);
+    }
+    else {
+      LCD_MESSAGEPGM(MSG_YX_UNHOMED);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_YX_UNHOMED);
+    }
+  }
+#endif
+
 #if ENABLED(Z_PROBE_SLED)
 
   #ifndef SLED_DOCKING_OFFSET
@@ -2052,81 +2067,7 @@ static void setup_for_endstop_move() {
 
 #endif // HAS_BED_PROBE
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
-
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
-
-    #if DISABLED(DELTA)
-
-      static void set_bed_level_equation_lsq(double* plane_equation_coefficients) {
-
-        //planner.bed_level_matrix.debug("bed level before");
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          planner.bed_level_matrix.set_to_identity();
-          if (DEBUGGING(LEVELING)) {
-            vector_3 uncorrected_position = planner.adjusted_position();
-            DEBUG_POS(">>> set_bed_level_equation_lsq", uncorrected_position);
-            DEBUG_POS(">>> set_bed_level_equation_lsq", current_position);
-          }
-        #endif
-
-        vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
-        planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-
-        vector_3 corrected_position = planner.adjusted_position();
-        current_position[X_AXIS] = corrected_position.x;
-        current_position[Y_AXIS] = corrected_position.y;
-        current_position[Z_AXIS] = corrected_position.z;
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("<<< set_bed_level_equation_lsq", corrected_position);
-        #endif
-
-        SYNC_PLAN_POSITION_KINEMATIC();
-      }
-
-    #endif // !DELTA
-
-  #else // !AUTO_BED_LEVELING_GRID
-
-    static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
-
-      planner.bed_level_matrix.set_to_identity();
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          vector_3 uncorrected_position = planner.adjusted_position();
-          DEBUG_POS("set_bed_level_equation_3pts", uncorrected_position);
-        }
-      #endif
-
-      vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
-      vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
-      vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
-      vector_3 planeNormal = vector_3::cross(pt1 - pt2, pt3 - pt2).get_normal();
-
-      if (planeNormal.z < 0) {
-        planeNormal.x = -planeNormal.x;
-        planeNormal.y = -planeNormal.y;
-        planeNormal.z = -planeNormal.z;
-      }
-
-      planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-      vector_3 corrected_position = planner.adjusted_position();
-
-      current_position[X_AXIS] = corrected_position.x;
-      current_position[Y_AXIS] = corrected_position.y;
-      current_position[Z_AXIS] = corrected_position.z;
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("set_bed_level_equation_3pts", corrected_position);
-      #endif
-
-      SYNC_PLAN_POSITION_KINEMATIC();
-    }
-
-  #endif // !AUTO_BED_LEVELING_GRID
+#if HAS_PROBING_PROCEDURE
 
   inline void do_blocking_move_to_xy(float x, float y) {
     do_blocking_move_to(x, y, current_position[Z_AXIS]);
@@ -2207,6 +2148,84 @@ static void setup_for_endstop_move() {
     return measured_z;
   }
 
+#endif // AUTO_BED_LEVELING_FEATURE || Z_MIN_PROBE_REPEATABILITY_TEST
+
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+
+  #if ENABLED(AUTO_BED_LEVELING_GRID)
+
+    #if DISABLED(DELTA)
+
+      static void set_bed_level_equation_lsq(double* plane_equation_coefficients) {
+
+        //planner.bed_level_matrix.debug("bed level before");
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          planner.bed_level_matrix.set_to_identity();
+          if (DEBUGGING(LEVELING)) {
+            vector_3 uncorrected_position = planner.adjusted_position();
+            DEBUG_POS(">>> set_bed_level_equation_lsq", uncorrected_position);
+            DEBUG_POS(">>> set_bed_level_equation_lsq", current_position);
+          }
+        #endif
+
+        vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
+        planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+
+        vector_3 corrected_position = planner.adjusted_position();
+        current_position[X_AXIS] = corrected_position.x;
+        current_position[Y_AXIS] = corrected_position.y;
+        current_position[Z_AXIS] = corrected_position.z;
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("<<< set_bed_level_equation_lsq", corrected_position);
+        #endif
+
+        SYNC_PLAN_POSITION_KINEMATIC();
+      }
+
+    #endif // !DELTA
+
+  #else // !AUTO_BED_LEVELING_GRID
+
+    static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
+
+      planner.bed_level_matrix.set_to_identity();
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          vector_3 uncorrected_position = planner.adjusted_position();
+          DEBUG_POS("set_bed_level_equation_3pts", uncorrected_position);
+        }
+      #endif
+
+      vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
+      vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
+      vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
+      vector_3 planeNormal = vector_3::cross(pt1 - pt2, pt3 - pt2).get_normal();
+
+      if (planeNormal.z < 0) {
+        planeNormal.x = -planeNormal.x;
+        planeNormal.y = -planeNormal.y;
+        planeNormal.z = -planeNormal.z;
+      }
+
+      planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+      vector_3 corrected_position = planner.adjusted_position();
+
+      current_position[X_AXIS] = corrected_position.x;
+      current_position[Y_AXIS] = corrected_position.y;
+      current_position[Z_AXIS] = corrected_position.z;
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) DEBUG_POS("set_bed_level_equation_3pts", corrected_position);
+      #endif
+
+      SYNC_PLAN_POSITION_KINEMATIC();
+    }
+
+  #endif // !AUTO_BED_LEVELING_GRID
+
   #if ENABLED(DELTA)
 
     /**
@@ -2278,21 +2297,6 @@ static void setup_for_endstop_move() {
   #endif // DELTA
 
 #endif // AUTO_BED_LEVELING_FEATURE
-
-#if ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || ENABLED(AUTO_BED_LEVELING_FEATURE)
-  static void axis_unhomed_error(bool xyz=false) {
-    if (xyz) {
-      LCD_MESSAGEPGM(MSG_XYZ_UNHOMED);
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_XYZ_UNHOMED);
-    }
-    else {
-      LCD_MESSAGEPGM(MSG_YX_UNHOMED);
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_YX_UNHOMED);
-    }
-  }
-#endif
 
 /**
  * Home an individual axis
@@ -3103,6 +3107,16 @@ inline void gcode_G28() {
   report_current_position();
 }
 
+#if HAS_PROBING_PROCEDURE
+
+  void out_of_range_error(const char* p_edge) {
+    SERIAL_PROTOCOLPGM("?Probe ");
+    serialprintPGM(p_edge);
+    SERIAL_PROTOCOLLNPGM(" position out of range.");
+  }
+
+#endif
+
 #if ENABLED(MESH_BED_LEVELING)
 
   enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet, MeshSetZOffset, MeshReset };
@@ -3299,12 +3313,6 @@ inline void gcode_G28() {
   }
 
 #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
-
-  void out_of_range_error(const char* p_edge) {
-    SERIAL_PROTOCOLPGM("?Probe ");
-    serialprintPGM(p_edge);
-    SERIAL_PROTOCOLLNPGM(" position out of range.");
-  }
 
   /**
    * G29: Detailed Z probe, probes the bed at 3 or more points.

@@ -363,9 +363,11 @@
   #endif //!MANUAL_HOME_POSITIONS
 
   /**
-   * Auto Bed Leveling
+   * Auto Bed Leveling and Z Probe Repeatability Test
    */
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #define HAS_PROBING_PROCEDURE (ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
+
+  #if HAS_PROBING_PROCEDURE
     // Boundaries for probing based on set limits
     #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
     #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
