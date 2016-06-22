@@ -2718,7 +2718,7 @@ inline void gcode_G4() {
 #endif //FWRETRACT
 
 #if ENABLED(CLEAN_NOZZLE_FEATURE) && ENABLED(AUTO_BED_LEVELING_FEATURE)
-  #include "clean_nozzle.h"
+  #include "nozzle.h"
 
   inline void gcode_G12() {
     // Don't allow nozzle cleaning without homing first
@@ -2729,8 +2729,9 @@ inline void gcode_G4() {
 
     uint8_t const pattern = code_seen('P') ? code_value_ushort() : 0;
     uint8_t const strokes = code_seen('S') ? code_value_ushort() : CLEAN_NOZZLE_STROKES;
+    uint8_t const objects = code_seen('T') ? code_value_ushort() : 3;
 
-    CleanNozzle::start(pattern, strokes);
+    Nozzle::clean(pattern, strokes, objects);
   }
 #endif
 

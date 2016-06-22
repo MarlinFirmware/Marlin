@@ -27,13 +27,13 @@
 #include "point_t.h"
 
 /**
- * @brief CleanNozzle class
+ * @brief Nozzle class
  *
  * @todo: Do not ignore the end.z value and allow XYZ movements
  * @todo: Currently this feature needs AUTO_BED_LEVELING_FEATURE to be active
  *  due to the do_blocking_move_to*() functions.
  */
-class CleanNozzle {
+class Nozzle {
   private:
     /**
      * @brief Stroke clean pattern
@@ -62,26 +62,46 @@ class CleanNozzle {
      *
      * @param start point_t defining the starting point
      * @param end point_t defining the ending point
-     * @param triangles number of triangles to execute
+     * @param strokes number of strokes to execute
+     * @param objects number of objects to create
      */
-    static void zigzag(point_t const &start, point_t const &end, uint8_t const &triangles)
+    static void zigzag(point_t const &start,
+      point_t const &end, uint8_t const &strokes, uint8_t const &objects)
     __attribute__ ((optimize ("Os"))) {
-      // Move to the starting point
-      do_blocking_move_to_xy(start.x, start.y);
-      do_blocking_move_to_z(start.z);
+      float A = fabs(end.y - start.y); // [twice the] Amplitude
+      float P = fabs(end.x - start.x) / (objects << 1); // Period
 
-      // Calculate the triangle side
-      float const a = fabs(end.x - start.x) / triangles;
+      // Don't allow impossible triangles
+      if (A <= 0.0f || P <= 0.0f ) return;
 
-      // Don't allow the sides (a, b) to be smaller than 5mm
-      if (a < 5 || fabs(end.y - start.y) < 5) return;
+      // Store the current coords
+      point_t const home = {
+        current_position[X_AXIS],
+        current_position[Y_AXIS],
+        current_position[Z_AXIS],
+        current_position[E_AXIS]
+      };
 
-      // Start the zig-zag pattern
-      for (uint8_t i = 0; i < triangles; i++) {
-        float const x = start.x + (a * (i + 1));
-        do_blocking_move_to_xy(x, end.y);
-        do_blocking_move_to_y(start.y);
+      for (uint8_t j = 0; j < strokes; j++) {
+        for (uint8_t i = 0; i < (objects << 1); i++) {
+          float const x = start.x + i * P;
+          float const y = start.y + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
+
+          do_blocking_move_to_xy(x, y);
+          if (i == 0) do_blocking_move_to_z(start.z);
+        }
+
+        for (int i = (objects << 1); i > -1; i--) {
+          float const x = start.x + i * P;
+          float const y = start.y + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
+
+          do_blocking_move_to_xy(x, y);
+        }
       }
+
+      // Move to home/start position
+      do_blocking_move_to_z(home.z);
+      do_blocking_move_to_xy(home.x, home.y);
     }
 
   public:
@@ -92,19 +112,20 @@ class CleanNozzle {
      * @param pattern one of the available patterns
      * @param argument depends on the cleaning pattern
      */
-    static void start(uint8_t const &pattern, uint8_t const &argument)
+    static void clean(uint8_t const &pattern,
+      uint8_t const &strokes, uint8_t const &objects = 0)
     __attribute__ ((optimize ("Os"))) {
       switch (pattern) {
         case 1:
-          CleanNozzle::zigzag(
+          Nozzle::zigzag(
             CLEAN_NOZZLE_START_PT,
-            CLEAN_NOZZLE_END_PT, argument);
+            CLEAN_NOZZLE_END_PT, strokes, objects);
           break;
 
         default:
-          CleanNozzle::stroke(
+          Nozzle::stroke(
             CLEAN_NOZZLE_START_PT,
-            CLEAN_NOZZLE_END_PT, argument);
+            CLEAN_NOZZLE_END_PT, strokes);
       }
     }
 };
