@@ -90,10 +90,10 @@ script:
   - opt_enable PIDTEMPBED
   - build_marlin
   #
-  # Test a "Fix Mounted" Probe
+  # Test a "Fix Mounted" Probe along with Safe Homing
   #
   - restore_configs
-  - opt_enable FIX_MOUNTED_PROBE
+  - opt_enable FIX_MOUNTED_PROBE Z_SAFE_HOMING
   - build_marlin
   #
   # ...with AUTO_BED_LEVELING_FEATURE & DEBUG_LEVELING_FEATURE
