@@ -161,8 +161,13 @@ int Temperature::maxttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_HI_TEMP ,
 int Temperature::minttemp[HOTENDS] = { 0 };
 int Temperature::maxttemp[HOTENDS] = ARRAY_BY_HOTENDS1(16383);
 
-int Temperature::consecutive_low_temperature_error[HOTENDS] = ARRAY_BY_HOTENDS(0, 0, 0, 0);
-unsigned long Temperature::preheatStartTime[HOTENDS] = ARRAY_BY_HOTENDS(0, 0, 0, 0);
+#ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+  int Temperature::consecutive_low_temperature_error[HOTENDS] = { 0 };
+#endif
+
+#ifdef MILLISECONDS_PREHEAT_TIME
+  unsigned long Temperature::preheat_end_time[HOTENDS] = { 0 };
+#endif
 
 #ifdef BED_MINTEMP
   int Temperature::bed_minttemp_raw = HEATER_BED_RAW_LO_TEMP;
@@ -1741,8 +1746,7 @@ void Temperature::isr() {
       if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
       if (minttemp_raw[0] GE0 current_temperature_raw[0] && !is_preheating(0) && target_temperature[0] > 0.0f) {
         #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-          ++(consecutive_low_temperature_error[0]);
-          if (consecutive_low_temperature_error[0] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+          if (++consecutive_low_temperature_error[0] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
         #endif
           min_temp_error(0);
       }
@@ -1761,8 +1765,7 @@ void Temperature::isr() {
       if (current_temperature_raw[1] GE1 maxttemp_raw[1]) max_temp_error(1);
       if (minttemp_raw[1] GE1 current_temperature_raw[1] && !is_preheating(1) && target_temperature[1] > 0.0f) {
         #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-          ++(consecutive_low_temperature_error[1]);
-          if (consecutive_low_temperature_error[1] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+          if (++consecutive_low_temperature_error[1] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
         #endif
           min_temp_error(1);
       }
@@ -1781,8 +1784,7 @@ void Temperature::isr() {
       if (current_temperature_raw[2] GE2 maxttemp_raw[2]) max_temp_error(2);
       if (minttemp_raw[2] GE2 current_temperature_raw[2] && !is_preheating(2) && target_temperature[2] > 0.0f) {
         #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-          ++(consecutive_low_temperature_error[2]);
-          if (consecutive_low_temperature_error[2] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+          if (++consecutive_low_temperature_error[2] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
         #endif
           min_temp_error(2);
       }
@@ -1801,8 +1803,7 @@ void Temperature::isr() {
       if (current_temperature_raw[3] GE3 maxttemp_raw[3]) max_temp_error(3);
       if (minttemp_raw[3] GE3 current_temperature_raw[3] && !is_preheating(3) && target_temperature[3] > 0.0f) {
         #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-          ++(consecutive_low_temperature_error[3]);
-          if (consecutive_low_temperature_error[3] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+          if (++consecutive_low_temperature_error[3] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
         #endif
           min_temp_error(3);
       }
