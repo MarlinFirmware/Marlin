@@ -234,6 +234,17 @@
 #if PROBE_SELECTED
 
   /**
+   * NUM_SERVOS is required for a Z servo probe
+   */
+  #if HAS_Z_SERVO_ENDSTOP
+    #ifndef NUM_SERVOS
+      #error "You must set NUM_SERVOS for a Z servo probe (Z_ENDSTOP_SERVO_NR)."
+    #elif Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
+      #error "Z_ENDSTOP_SERVO_NR must be less than NUM_SERVOS."
+    #endif
+  #endif
+
+  /**
    * A probe needs a pin
    */
   #if !PROBE_PIN_CONFIGURED
