@@ -5,4 +5,8 @@ NOTE: The look and feel of the Hephestos 2 while navigating the LCD menu will ch
 
 ## Changelog
  * 2016/03/01 - Initial release
- * 2016/03/21 - Activated four point auto leveling by default; updated miscellaneous z-probe values
+ * 2016/03/21 - Activated 4-point auto leveling by default
+                Updated miscellaneous z-probe values
+ * 2016/06/21 - Disabled hot bed related options
+                Activated software endstops
+                SD printing now disables the heater when finished
