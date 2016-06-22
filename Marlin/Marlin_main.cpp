@@ -366,6 +366,8 @@ static uint8_t target_extruder;
   float zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
 #endif
 
+#define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]))
+
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   int xy_probe_speed = XY_PROBE_SPEED;
   bool bed_leveling_in_progress = false;
@@ -373,7 +375,7 @@ static uint8_t target_extruder;
 #elif defined(XY_PROBE_SPEED)
   #define XY_PROBE_FEEDRATE XY_PROBE_SPEED
 #else
-  #define XY_PROBE_FEEDRATE (min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]) * 60)
+  #define XY_PROBE_FEEDRATE (PLANNER_XY_FEEDRATE() * 60)
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS) && DISABLED(DELTA)
@@ -1712,8 +1714,12 @@ static void clean_up_after_endstop_or_probe_move() {
     if ((Z_HOME_DIR) < 0 && zprobe_zoffset < 0)
       z_dest -= zprobe_zoffset;
 
-    if (z_dest > current_position[Z_AXIS])
+    if (z_dest > current_position[Z_AXIS]) {
+      float old_feedrate = feedrate;
+      feedrate = homing_feedrate[Z_AXIS];
       do_blocking_move_to_z(z_dest);
+      feedrate = old_feedrate;
+    }
   }
 
   inline void raise_z_after_probing() {
@@ -1766,19 +1772,24 @@ static void clean_up_after_endstop_or_probe_move() {
     if (endstops.z_probe_enabled == !dock) return; // already docked/undocked?
 
     float oldXpos = current_position[X_AXIS]; // save x position
+    float old_feedrate = feedrate;
     if (dock) {
       raise_z_after_probing(); // raise Z
       // Dock sled a bit closer to ensure proper capturing
+      feedrate = XY_PROBE_FEEDRATE;
       do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET + offset - 1);
       digitalWrite(SLED_PIN, LOW); // turn off magnet
     }
     else {
+      feedrate = XY_PROBE_FEEDRATE;
       float z_loc = current_position[Z_AXIS];
       if (z_loc < Z_RAISE_BEFORE_PROBING + 5) z_loc = Z_RAISE_BEFORE_PROBING;
       do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, current_position[Y_AXIS], z_loc); // this also updates current_position
       digitalWrite(SLED_PIN, HIGH); // turn on magnet
     }
     do_blocking_move_to_x(oldXpos); // return to position before docking
+
+    feedrate = old_feedrate;
   }
 
 #endif // Z_PROBE_SLED
@@ -2102,7 +2113,10 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
+    float old_feedrate = feedrate;
+
     // Move Z up to the z_before height, then move the Z probe to the given XY
+    feedrate = homing_feedrate[Z_AXIS];
     do_blocking_move_to_z(z_before); // this also updates current_position
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2114,6 +2128,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     // this also updates current_position
+    feedrate = XY_PROBE_FEEDRATE;
     do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
     if (probe_action & ProbeDeploy) {
@@ -2146,6 +2161,8 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< probe_pt");
     #endif
+
+    feedrate = old_feedrate;
 
     return measured_z;
   }
@@ -3473,8 +3490,6 @@ inline void gcode_G28() {
     // Deploy the probe. Servo will raise if needed.
     deploy_z_probe();
 
-    feedrate = homing_feedrate[Z_AXIS];
-
     bed_leveling_in_progress = true;
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
@@ -4227,7 +4242,7 @@ inline void gcode_M42() {
 
     bool seen_L = code_seen('L');
     uint8_t n_legs = seen_L ? code_value_byte() : 0;
-    if (n_legs < 0 || n_legs > 15) {
+    if (n_legs > 15) {
       SERIAL_PROTOCOLPGM("?Number of legs in movement not plausible (0-15).\n");
       return;
     }
@@ -4252,16 +4267,20 @@ inline void gcode_M42() {
       planner.bed_level_matrix.set_to_identity();
     #endif
 
-    if (Z_start_location < Z_RAISE_BEFORE_PROBING * 2.0)
-      do_blocking_move_to_z(Z_start_location);
+    setup_for_endstop_or_probe_move();
 
+    if (Z_start_location < Z_RAISE_BEFORE_PROBING * 2.0) {
+      feedrate = homing_feedrate[Z_AXIS];
+      do_blocking_move_to_z(Z_start_location);
+    }
+
+    feedrate = XY_PROBE_FEEDRATE;
     do_blocking_move_to_xy(X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER), Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
     /**
      * OK, do the initial probe to get us close to the bed.
      * Then retrace the right amount and use that in subsequent probes
      */
-    setup_for_endstop_or_probe_move();
 
     // Height before each probe (except the first)
     float z_between = home_offset[Z_AXIS] + (deploy_probe_for_each_reading ? Z_RAISE_BEFORE_PROBING : Z_RAISE_BETWEEN_PROBINGS);
@@ -4399,6 +4418,7 @@ inline void gcode_M42() {
       // Raise before the next loop for the legs,
       // or do the final raise after the last probe
       if (n_legs || last_probe) {
+        feedrate = homing_feedrate[Z_AXIS];
         do_blocking_move_to_z(last_probe ? home_offset[Z_AXIS] + Z_RAISE_AFTER_PROBING : z_between);
         if (!last_probe) delay(500);
       }
@@ -6551,15 +6571,8 @@ inline void gcode_T(uint8_t tmp_extruder) {
       float next_feedrate = code_value_axis_units(X_AXIS);
       if (next_feedrate > 0.0) stored_feedrate = feedrate = next_feedrate;
     }
-    else {
-      feedrate =
-        #ifdef XY_PROBE_SPEED
-          XY_PROBE_SPEED
-        #else
-          min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]) * 60
-        #endif
-      ;
-    }
+    else
+      feedrate = XY_PROBE_FEEDRATE;
 
     if (tmp_extruder != active_extruder) {
       bool no_move = code_seen('S') && code_value_bool();
@@ -7668,7 +7681,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
         delayed_move_time = 0;
         // unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
         planner.buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], planner.max_feedrate[Z_AXIS], active_extruder);
-        planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]), active_extruder);
+        planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], PLANNER_XY_FEEDRATE(), active_extruder);
         planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], planner.max_feedrate[Z_AXIS], active_extruder);
         active_extruder_parked = false;
       }
