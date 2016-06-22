@@ -2094,7 +2094,7 @@ static void clean_up_after_endstop_or_probe_move() {
   };
 
   // Probe bed height at position (x,y), returns the measured z value
-  static float probe_pt(float x, float y, float z_before, ProbeAction probe_action = ProbeDeployAndStow, int verbose_level = 1) {
+  static float probe_pt(float x, float y, float z_raise, ProbeAction probe_action = ProbeDeployAndStow, int verbose_level = 1) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOLNPGM("probe_pt >>>");
@@ -2104,20 +2104,16 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
+    float old_feedrate = feedrate;
+
+    // Raise by z_raise, then move the Z probe to the given XY
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("Z Raise to z_before ", z_before);
-        SERIAL_EOL;
-        SERIAL_ECHOPAIR("> do_blocking_move_to_z ", z_before);
+        SERIAL_ECHOPAIR("Z Raise by z_raise ", z_raise);
         SERIAL_EOL;
       }
     #endif
-
-    float old_feedrate = feedrate;
-
-    // Move Z up to the z_before height, then move the Z probe to the given XY
-    feedrate = homing_feedrate[Z_AXIS];
-    do_blocking_move_to_z(z_before); // this also updates current_position
+    do_probe_raise(z_raise); // this also updates current_position
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
@@ -3546,16 +3542,16 @@ inline void gcode_G28() {
 
           // raise extruder
           float measured_z,
-                z_before = probePointCounter ? Z_RAISE_BETWEEN_PROBINGS + current_position[Z_AXIS] : Z_RAISE_BEFORE_PROBING + home_offset[Z_AXIS];
+                z_raise = probePointCounter ? Z_RAISE_BETWEEN_PROBINGS : Z_RAISE_BEFORE_PROBING;
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPGM("z_before = (");
+              SERIAL_ECHOPGM("z_raise = (");
               if (probePointCounter)
                 SERIAL_ECHOPGM("between) ");
               else
                 SERIAL_ECHOPGM("before) ");
-              SERIAL_ECHOLN(z_before);
+              SERIAL_ECHOLN(z_raise);
             }
           #endif
 
@@ -3579,7 +3575,7 @@ inline void gcode_G28() {
               act = ProbeStay;
           #endif
 
-          measured_z = probe_pt(xProbe, yProbe, z_before, act, verbose_level);
+          measured_z = probe_pt(xProbe, yProbe, z_raise, act, verbose_level);
 
           #if DISABLED(DELTA)
             mean += measured_z;
@@ -3720,15 +3716,15 @@ inline void gcode_G28() {
       // Probe at 3 arbitrary points
       float z_at_pt_1 = probe_pt( ABL_PROBE_PT_1_X + home_offset[X_AXIS],
                                   ABL_PROBE_PT_1_Y + home_offset[Y_AXIS],
-                                  Z_RAISE_BEFORE_PROBING + home_offset[Z_AXIS],
+                                  Z_RAISE_BEFORE_PROBING,
                                   p1, verbose_level),
             z_at_pt_2 = probe_pt( ABL_PROBE_PT_2_X + home_offset[X_AXIS],
                                   ABL_PROBE_PT_2_Y + home_offset[Y_AXIS],
-                                  current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS,
+                                  Z_RAISE_BETWEEN_PROBINGS,
                                   p2, verbose_level),
             z_at_pt_3 = probe_pt( ABL_PROBE_PT_3_X + home_offset[X_AXIS],
                                   ABL_PROBE_PT_3_Y + home_offset[Y_AXIS],
-                                  current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS,
+                                  Z_RAISE_BETWEEN_PROBINGS,
                                   p3, verbose_level);
 
       if (!dryrun) set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
@@ -4283,11 +4279,11 @@ inline void gcode_M42() {
      */
 
     // Height before each probe (except the first)
-    float z_between = home_offset[Z_AXIS] + (deploy_probe_for_each_reading ? Z_RAISE_BEFORE_PROBING : Z_RAISE_BETWEEN_PROBINGS);
+    float z_between = deploy_probe_for_each_reading ? Z_RAISE_BEFORE_PROBING : Z_RAISE_BETWEEN_PROBINGS;
 
     // Deploy the probe and probe the first point
     probe_pt(X_probe_location, Y_probe_location,
-      home_offset[Z_AXIS] + Z_RAISE_BEFORE_PROBING,
+      Z_RAISE_BEFORE_PROBING,
       deploy_probe_for_each_reading ? ProbeDeployAndStow : ProbeDeploy,
       verbose_level);
 
@@ -4418,8 +4414,7 @@ inline void gcode_M42() {
       // Raise before the next loop for the legs,
       // or do the final raise after the last probe
       if (n_legs || last_probe) {
-        feedrate = homing_feedrate[Z_AXIS];
-        do_blocking_move_to_z(last_probe ? home_offset[Z_AXIS] + Z_RAISE_AFTER_PROBING : z_between);
+        do_probe_raise(last_probe ? Z_RAISE_AFTER_PROBING : z_between);
         if (!last_probe) delay(500);
       }
 
