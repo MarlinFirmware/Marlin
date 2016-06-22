@@ -370,6 +370,8 @@ static uint8_t target_extruder;
   int xy_probe_speed = XY_PROBE_SPEED;
   bool bed_leveling_in_progress = false;
   #define XY_PROBE_FEEDRATE xy_probe_speed
+#elif defined(XY_PROBE_SPEED)
+  #define XY_PROBE_FEEDRATE XY_PROBE_SPEED
 #else
   #define XY_PROBE_FEEDRATE (min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]) * 60)
 #endif
