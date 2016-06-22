@@ -4254,7 +4254,7 @@ inline void gcode_M42() {
     #if ENABLED(DELTA)
       // we don't do bed level correction in M48 because we want the raw data when we probe
       reset_bed_level();
-    #else
+    #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
       // we don't do bed level correction in M48 because we want the raw data when we probe
       planner.bed_level_matrix.set_to_identity();
     #endif
