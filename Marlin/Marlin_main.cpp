@@ -1993,7 +1993,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
   // Do a single Z probe and return with current_position[Z_AXIS]
   // at the height where the probe triggered.
-  static void run_z_probe() {
+  static float run_z_probe() {
 
     float old_feedrate = feedrate;
 
@@ -2076,6 +2076,8 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif // !DELTA
 
     feedrate = old_feedrate;
+
+    return current_position[Z_AXIS];
   }
 
 #endif // HAS_BED_PROBE
@@ -2134,8 +2136,7 @@ static void clean_up_after_endstop_or_probe_move() {
       deploy_z_probe();
     }
 
-    run_z_probe();
-    float measured_z = current_position[Z_AXIS];
+    float measured_z = run_z_probe();
 
     if (probe_action & ProbeStow) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3851,14 +3852,14 @@ inline void gcode_G28() {
     stepper.synchronize();
 
     // TODO: clear the leveling matrix or the planner will be set incorrectly
-    run_z_probe(); // clears the ABL non-delta matrix only
+    float measured_z = run_z_probe(); // clears the ABL non-delta matrix only
 
     SERIAL_PROTOCOLPGM("Bed X: ");
     SERIAL_PROTOCOL(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER + 0.0001);
     SERIAL_PROTOCOLPGM(" Y: ");
     SERIAL_PROTOCOL(current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER + 0.0001);
     SERIAL_PROTOCOLPGM(" Z: ");
-    SERIAL_PROTOCOL(current_position[Z_AXIS] + 0.0001);
+    SERIAL_PROTOCOL(measured_z + 0.0001);
     SERIAL_EOL;
 
     stow_z_probe();
