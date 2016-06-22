@@ -28,7 +28,7 @@
  */
 
 #ifndef __AVR_AT90USB1286__
-  #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define DEFAULT_MACHINE_NAME    "SAV MkI"
@@ -53,12 +53,9 @@
 #define E0_ENABLE_PIN      19
 
 #define HEATER_0_PIN       21  // Extruder
-#define HEATER_1_PIN       -1
-#define HEATER_2_PIN       -1
 #define HEATER_BED_PIN     20  // Bed
 #define FAN_PIN            16  // Fan   -- from Teensyduino environment.
                                // For the fan and Teensyduino uses a different pin mapping.
-
 #define X_STOP_PIN         13
 #define Y_STOP_PIN         14
 //#define Z_STOP_PIN         15
@@ -66,9 +63,6 @@
 
 #define TEMP_0_PIN          7  // Extruder / Analog pin numbering
 #define TEMP_BED_PIN        6  // Bed / Analog pin numbering
-
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
 
 #if DISABLED(SDSUPPORT)
   // these pins are defined in the SD library if building with SD support
@@ -103,11 +97,6 @@
 #define EXT_AUX_A4                 4 // Analog
 #define EXT_AUX_A4_IO             44 // Digital IO, 42 (teensy), 44 (marlin)
 
-
-#define SDPOWER            -1
-#define LED_PIN            -1
-#define PS_ON_PIN          -1
-#define SD_DETECT_PIN      -1
 
 #define BEEPER_PIN         -1
 #define LCD_PINS_RS        -1

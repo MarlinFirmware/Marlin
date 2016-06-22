@@ -27,8 +27,6 @@
 
 #if ENABLED(ULTRA_LCD)
 
-  #include "buzzer.h"
-
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
@@ -53,8 +51,11 @@
 
   #if ENABLED(DOGLCD)
     extern int lcd_contrast;
-    void lcd_setcontrast(uint8_t value);
+    void set_lcd_contrast(int value);
+  #elif ENABLED(SHOW_BOOTSCREEN)
+    void bootscreen();
   #endif
+
 
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
@@ -63,8 +64,11 @@
   #define LCD_TIMEOUT_TO_STATUS 15000
 
   #if ENABLED(ULTIPANEL)
-    void lcd_buttons_update();
     extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+    void lcd_buttons_update();
+    void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
+    bool lcd_clicked();
+    void lcd_ignore_click(bool b=true);
   #else
     FORCE_INLINE void lcd_buttons_update() {}
   #endif
@@ -81,12 +85,10 @@
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     extern millis_t previous_lcd_status_ms;
   #endif
-  void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
-  bool lcd_clicked();
-  void lcd_ignore_click(bool b=true);
+
   bool lcd_blink();
 
-  #if ENABLED(ULTIPANEL) && ENABLED(REPRAPWORLD_KEYPAD)
+  #if ENABLED(REPRAPWORLD_KEYPAD)
 
     #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
 
@@ -116,7 +118,7 @@
     #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
     #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
 
-  #endif //ULTIPANEL && REPRAPWORLD_KEYPAD
+  #endif // REPRAPWORLD_KEYPAD
 
   #if ENABLED(NEWPANEL)
 
@@ -165,19 +167,17 @@ char* itostr2(const uint8_t& x);
 char* itostr3sign(const int& x);
 char* itostr3(const int& x);
 char* itostr3left(const int& x);
-char* itostr4(const int& x);
 char* itostr4sign(const int& x);
 
 char* ftostr3(const float& x);
 char* ftostr4sign(const float& x);
-char* ftostr31ns(const float& x); // float to string without sign character
-char* ftostr31(const float& x);
+char* ftostr41sign(const float& x);
 char* ftostr32(const float& x);
-char* ftostr43(const float& x, char plus=' ');
+char* ftostr43sign(const float& x, char plus=' ');
 char* ftostr12ns(const float& x);
-char* ftostr32sp(const float& x); // remove zero-padding from ftostr32
-char* ftostr5(const float& x);
-char* ftostr51(const float& x);
-char* ftostr52(const float& x);
+char* ftostr5rj(const float& x);
+char* ftostr51sign(const float& x);
+char* ftostr52sign(const float& x);
+char* ftostr52sp(const float& x); // remove zero-padding from ftostr32
 
 #endif //ULTRALCD_H

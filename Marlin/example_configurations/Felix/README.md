@@ -23,7 +23,7 @@ The next step depends on your setup:
 
 ### Dual Extruder Configuration
 
-    cp example_configurations/Felix/Configuration_DUAL.h Configuration.h
+    cp example_configurations/Felix/DUAL/Configuration.h Configuration.h
 
 ### Compile Firmware
 

@@ -25,7 +25,7 @@
  ************************************************/
 
 #ifndef __AVR_ATmega2560__
-  #error Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
 #endif
 
 // Servo support
@@ -38,18 +38,6 @@
   #define SLED_PIN -1
 #endif
 
-#undef X_MS1_PIN
-#undef X_MS2_PIN
-#undef Y_MS1_PIN
-#undef Y_MS2_PIN
-#undef Z_MS1_PIN
-#undef Z_MS2_PIN
-#undef E0_MS1_PIN
-#undef E0_MS2_PIN
-#undef E1_MS1_PIN
-#undef E1_MS2_PIN
-
-#undef DIGIPOTSS_PIN
 //Fan_2 2
 
 /*****************
@@ -108,9 +96,6 @@
 #define HEATER_0_PIN   9
 #define TEMP_0_PIN     0
 #define HEATER_1_PIN   7
-#define TEMP_1_PIN    -1
-#define HEATER_2_PIN  -1
-#define TEMP_2_PIN    -1
 
 #define E0_STEP_PIN   34
 #define E0_DIR_PIN    43
@@ -126,13 +111,10 @@
 #define DIGIPOTSS_PIN 38
 #define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
 
-#define SDPOWER       -1
 #define SDSS          53
 #define LED_PIN       13
 #define FAN_PIN        8
 #define PS_ON_PIN      4
-#define KILL_PIN      -1
-#define SUICIDE_PIN   -1 //PIN that has to be turned on right after start, to keep power flowing.
 #define FAN_0_PIN      6 //Glen
 #define FAN_1_PIN      2 //Glen
 

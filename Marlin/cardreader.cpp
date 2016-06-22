@@ -282,6 +282,13 @@ void CardReader::pauseSDPrint() {
   if (sdprinting) sdprinting = false;
 }
 
+void CardReader::stopSDPrint() {
+  if (sdprinting) {
+    sdprinting = false;
+    file.close();
+  }
+}
+
 void CardReader::openLogFile(char* name) {
   logging = true;
   openFile(name, false);
@@ -609,7 +616,7 @@ void CardReader::printingHasFinished() {
     sdprinting = false;
     if (SD_FINISHED_STEPPERRELEASE)
       enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-    autotempShutdown();
+    thermalManager.autotempShutdown();
   }
 }
 

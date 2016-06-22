@@ -74,7 +74,7 @@
   //          ヰ    ヱ    ヲ    ン    フ    ?    ?   ?    ?    ?    ヲ    ・    ー    ヽ    ヽ   ?
            };
     #elif ENABLED(MAPPER_D0D1)
-      #error( "Cyrillic on a japanese dsplay makes no sense. There are no matching symbols.");
+      #error "Cyrillic on a JAPANESE display makes no sense. There are no matching symbols."
     #endif
 
   #elif DISPLAY_CHARSET_HD44780 == WESTERN
@@ -108,7 +108,7 @@
   //          p    c    T    y    Ф    x    Ч    ч    Ш    Щ    Ъ    Ы    b    Э    Ю    Я
             };
     #elif ENABLED(MAPPER_E382E383)
-      #error( "Katakana on a western display makes no sense. There are no matching symbols." );
+      #error "Katakana on a WESTERN display makes no sense. There are no matching symbols."
     #endif
 
   #elif DISPLAY_CHARSET_HD44780 == CYRILLIC
@@ -135,12 +135,12 @@
              // ш    щ    ъ    ы    ь    э    ю    я      // 7  Ѱ ѱ Ѳ ѳ Ѵ ѵ Ѷ ѷ
              };                                           //    ѻ ѹ Ѻ ѻ Ѽ ѽ Ѿ ѿ
     #elif ENABLED(MAPPER_C2C3)
-      #error( "Western languages on a cyrillic display makes no sense. There are no matching symbols." );
+      #error "Western languages on a CYRILLIC display makes no sense. There are no matching symbols."
     #elif ENABLED(MAPPER_E382E383)
-      #error( "Katakana on a cyrillic display makes no sense. There are no matching symbols." );
+      #error "Katakana on a CYRILLIC display makes no sense. There are no matching symbols."
     #endif
   #else
-    #error("Something went wrong in the setting of DISPLAY_CHARSET_HD44780");
+    #error "Something went wrong in the setting of DISPLAY_CHARSET_HD44780"
   #endif // DISPLAY_CHARSET_HD44780
 #endif // SIMULATE_ROMFONT
 

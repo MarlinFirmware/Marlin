@@ -25,16 +25,16 @@
  *
  * Applies to the following boards:
  *
- *  RAMPS_14_EFB (Extruder, Fan, Bed)
- *  RAMPS_14_EEB (Extruder, Extruder, Bed)
- *  RAMPS_14_EFF (Extruder, Fan, Fan)
- *  RAMPS_14_EEF (Extruder, Extruder, Fan)
+ *  RAMPS_14_EFB (Hotend, Fan, Bed)
+ *  RAMPS_14_EEB (Hotend0, Hotend1, Bed)
+ *  RAMPS_14_EFF (Hotend, Fan0, Fan1)
+ *  RAMPS_14_EEF (Hotend0, Hotend1, Fan)
  *  RAMPS_14_SF  (Spindle, Controller Fan)
  *
- *  RAMPS_13_EFB (Extruder, Fan, Bed)
- *  RAMPS_13_EEB (Extruder, Extruder, Bed)
- *  RAMPS_13_EFF (Extruder, Fan, Fan)
- *  RAMPS_13_EEF (Extruder, Extruder, Fan)
+ *  RAMPS_13_EFB (Hotend, Fan, Bed)
+ *  RAMPS_13_EEB (Hotend0, Hotend1, Bed)
+ *  RAMPS_13_EFF (Hotend, Fan0, Fan1)
+ *  RAMPS_13_EEF (Hotend0, Hotend1, Fan)
  *  RAMPS_13_SF  (Spindle, Controller Fan)
  *
  *  Other pins_MYBOARD.h files may override these defaults
@@ -45,7 +45,7 @@
  */
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define LARGE_FLASH true
@@ -87,7 +87,6 @@
 #define E1_DIR_PIN         34
 #define E1_ENABLE_PIN      30
 
-#define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
 
@@ -99,10 +98,8 @@
   #define Z_MIN_PROBE_PIN  32
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
-  #define FILRUNOUT_PIN     4
-#endif
+// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
+#define FIL_RUNOUT_PIN      4
 
 #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF) || ENABLED(IS_RAMPS_EFB)
   #define FAN_PIN           9 // (Sprinter config)
@@ -117,35 +114,22 @@
 
 #define PS_ON_PIN          12
 
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) || ENABLED(G3D_PANEL)
-  #define KILL_PIN         41
-#endif
-
 #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF)
   #define HEATER_0_PIN      8
 #else
   #define HEATER_0_PIN     10   // EXTRUDER 1
+  #if !MB(RAMPS_14_EEF) && !MB(RAMPS_13_EEF) && !MB(RAMPS_14_SF) && !MB(RAMPS_13_SF)
+    #define HEATER_BED_PIN    8    // BED
+  #endif
 #endif
 
-#if MB(RAMPS_14_SF) || MB(RAMPS_13_SF) || ENABLED(IS_RAMPS_EFB)
-  #define HEATER_1_PIN     -1
-#else
+#if !MB(RAMPS_14_SF) && !MB(RAMPS_13_SF) && !ENABLED(IS_RAMPS_EFB)
   #define HEATER_1_PIN      9   // EXTRUDER 2 (FAN On Sprinter)
 #endif
 
-#define HEATER_2_PIN       -1
-
 #define TEMP_0_PIN         13   // ANALOG NUMBERING
 #define TEMP_1_PIN         15   // ANALOG NUMBERING
-#define TEMP_2_PIN         -1   // ANALOG NUMBERING
-
-#if MB(RAMPS_14_EFF) || MB(RAMPS_14_EEF) || MB(RAMPS_14_SF) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
-  #define HEATER_BED_PIN   -1    // NO BED
-#else
-  #define HEATER_BED_PIN    8    // BED
-#endif
-
-#define TEMP_BED_PIN         14   // ANALOG NUMBERING
+#define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN           -1
@@ -178,6 +162,12 @@
       #define BTN_ENC 35
 
       #define SD_DETECT_PIN 49
+      #define KILL_PIN 41
+
+      #if ENABLED(BQ_LCD_SMART_CONTROLLER)
+        #define LCD_PIN_BL 39
+      #endif
+
     #elif ENABLED(LCD_I2C_PANELOLU2)
       #define BTN_EN1 47  // reverse if the encoder turns the wrong way.
       #define BTN_EN2 43
@@ -228,7 +218,8 @@
 
     #else
 
-      #define BEEPER_PIN 33  // Beeper on AUX-4
+      // Beeper on AUX-4
+      #define BEEPER_PIN 33
 
       // buttons are directly attached using AUX-2
       #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -250,6 +241,7 @@
 
       #if ENABLED(G3D_PANEL)
         #define SD_DETECT_PIN 49
+        #define KILL_PIN 41
       #else
         //        #define SD_DETECT_PIN -1  // Ramps doesn't use this
       #endif
@@ -257,7 +249,8 @@
     #endif
   #else // !NEWPANEL (Old-style panel with shift register)
 
-    #define BEEPER_PIN 33   // No Beeper added
+    // No Beeper added
+    #define BEEPER_PIN 33
 
     // Buttons are attached to a shift register
     // Not wired yet
@@ -289,8 +282,4 @@
   #define SCK_PIN          52
   #define MISO_PIN         50
   #define MOSI_PIN         51
-#endif
-
-#ifndef KILL_PIN
-  //  #define KILL_PIN         -1
 #endif
