@@ -105,7 +105,7 @@ class Temperature {
       static millis_t watch_heater_next_ms[HOTENDS];
     #endif
 
-    #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_BED_TEMP_PERIOD > 0
+    #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
       static int watch_target_bed_temp;
       static millis_t watch_bed_next_ms;
     #endif
