@@ -162,7 +162,6 @@
 #define MSG_HEATING_COMPLETE                "Нагрев выполнен"
 #define MSG_BED_HEATING                     "Нагреваю стол"
 #define MSG_BED_DONE                        "Стол разогрет"
-
 #define MSG_DELTA_CALIBRATE                 "Калибровка Delta"
 #define MSG_DELTA_CALIBRATE_X               "Калибровать X"
 #define MSG_DELTA_CALIBRATE_Y               "Калибровать Y"
