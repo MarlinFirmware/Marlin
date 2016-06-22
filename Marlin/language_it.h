@@ -170,7 +170,6 @@
 #define MSG_HEATING_COMPLETE                "Risc. completato"
 #define MSG_BED_HEATING                     "Risc. Piatto.."
 #define MSG_BED_DONE                        "Piatto Pronto"
-
 #define MSG_DELTA_CALIBRATE                 "Calibraz. Delta"
 #define MSG_DELTA_CALIBRATE_X               "Calibra X"
 #define MSG_DELTA_CALIBRATE_Y               "Calibra Y"

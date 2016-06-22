@@ -45,11 +45,11 @@
  * will force a minimum config file revision, otherwise Marlin will not build.
  */
 #if ! defined(CONFIGURATION_H_VERSION) || CONFIGURATION_H_VERSION < REQUIRED_CONFIGURATION_H_VERSION
-  #error You are using an old Configuration.h file, update it before building Marlin.
+  #error "You are using an old Configuration.h file, update it before building Marlin."
 #endif
 
 #if ! defined(CONFIGURATION_ADV_H_VERSION) || CONFIGURATION_ADV_H_VERSION < REQUIRED_CONFIGURATION_ADV_H_VERSION
-  #error You are using an old Configuration_adv.h file, update it before building Marlin.
+  #error "You are using an old Configuration_adv.h file, update it before building Marlin."
 #endif
 
 /**
@@ -146,7 +146,7 @@
  * Individual axis homing is useless for DELTAS
  */
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU) && ENABLED(DELTA)
-  #error INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics.
+  #error "INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics."
 #endif
 
 /**
@@ -300,10 +300,12 @@
 #else
 
   /**
-   * Require some kind of probe for bed leveling
+   * Require some kind of probe for bed leveling and probe testing
    */
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     #error "AUTO_BED_LEVELING_FEATURE requires a probe! Define a Z Servo, MECHANICAL_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+  #elif ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, MECHANICAL_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
 
 #endif
@@ -318,11 +320,7 @@
    */
   #if !PIN_EXISTS(Z_MIN)
     #if !PIN_EXISTS(Z_MIN_PROBE) || (DISABLED(Z_MIN_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z probe, but not enable it.
-      #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-        #error "You must have a Z_MIN or Z_PROBE endstop to enable Z_MIN_PROBE_REPEATABILITY_TEST."
-      #else
-        #error "AUTO_BED_LEVELING_FEATURE requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin."
-      #endif
+      #error "AUTO_BED_LEVELING_FEATURE requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin."
     #endif
   #endif
 
@@ -373,7 +371,7 @@
  * Advance Extrusion
  */
 #if ENABLED(ADVANCE) && ENABLED(LIN_ADVANCE)
-  #error You can enable ADVANCE or LIN_ADVANCE, but not both.
+  #error "You can enable ADVANCE or LIN_ADVANCE, but not both."
 #endif
 
 /**
@@ -547,15 +545,15 @@
  */
 #if EXTRUDERS > 3
   #if !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
-    #error E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board.
+    #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
   #endif
 #elif EXTRUDERS > 2
   #if !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
-    #error E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board.
+    #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
   #endif
 #elif EXTRUDERS > 1
   #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
-    #error E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board.
+    #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
   #endif
 #endif
 
@@ -625,6 +623,8 @@
   #error "SERVO_ENDSTOP_ANGLES is deprecated. Use Z_SERVO_ANGLES instead."
 #elif defined(X_ENDSTOP_SERVO_NR) || defined(Y_ENDSTOP_SERVO_NR)
   #error "X_ENDSTOP_SERVO_NR and Y_ENDSTOP_SERVO_NR are deprecated and should be removed."
+#elif defined(XY_TRAVEL_SPEED)
+  #error "XY_TRAVEL_SPEED is deprecated. Use XY_PROBE_SPEED instead."
 #endif
 
 #endif //SANITYCHECK_H

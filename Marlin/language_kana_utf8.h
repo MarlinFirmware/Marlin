@@ -175,7 +175,6 @@
 #define MSG_HEATING_COMPLETE                "カネツカンリョウ"                 // "Heating done."
 #define MSG_BED_HEATING                     "ベッド カネツチュウ"              // "Bed Heating."
 #define MSG_BED_DONE                        "ベッド カネツカンリョウ"            // "Bed done."
-
 #define MSG_DELTA_CALIBRATE                 "デルタ コウセイ"                // "Delta Calibration"
 #define MSG_DELTA_CALIBRATE_X               "Xジク コウセイ"                 // "Calibrate X"
 #define MSG_DELTA_CALIBRATE_Y               "Yジク コウセイ"                 // "Calibrate Y"
