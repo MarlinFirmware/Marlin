@@ -1691,38 +1691,37 @@ static void clean_up_after_endstop_or_probe_move() {
     do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z);
   }
 
-  inline void raise_z_after_probing() {
-    #if Z_RAISE_AFTER_PROBING > 0
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("raise_z_after_probing()");
-      #endif
-      do_blocking_move_to_z(current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING);
-    #endif
-  }
-#endif //HAS_BED_PROBE
-
-#if HAS_Z_SERVO_ENDSTOP
-
   /**
-   * Raise Z to a minimum height to make room for a servo to move
+   * Raise Z to a minimum height to make room for a probe to move
    *
    * zprobe_zoffset: Negative of the Z height where the probe engages
-   *         z_dest: The before / after probing raise distance
+   *        z_raise: The probing raise distance
    *
    * The zprobe_zoffset is negative for a switch below the nozzle, so
    * multiply by Z_HOME_DIR (-1) to move enough away from the bed.
    */
-  void raise_z_for_servo(float z_dest) {
-    z_dest += home_offset[Z_AXIS];
+  inline void do_probe_raise(float z_raise) {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("do_probe_raise(", z_raise);
+        SERIAL_ECHOLNPGM(")");
+      }
+    #endif
+    float z_dest = home_offset[Z_AXIS] + z_raise;
 
     if ((Z_HOME_DIR) < 0 && zprobe_zoffset < 0)
       z_dest -= zprobe_zoffset;
 
     if (z_dest > current_position[Z_AXIS])
-      do_blocking_move_to_z(z_dest); // also updates current_position
+      do_blocking_move_to_z(z_dest);
   }
 
-#endif
+  inline void raise_z_after_probing() {
+    #if Z_RAISE_AFTER_PROBING > 0
+      do_probe_raise(Z_RAISE_AFTER_PROBING);
+    #endif
+  }
+#endif //HAS_BED_PROBE
 
 #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE
   static void axis_unhomed_error(bool xyz=false) {
@@ -1801,7 +1800,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #elif HAS_Z_SERVO_ENDSTOP
 
       // Make room for Z Servo
-      raise_z_for_servo(Z_RAISE_BEFORE_PROBING);
+      do_probe_raise(Z_RAISE_BEFORE_PROBING);
 
       // Engage Z Servo endstop if enabled
       DEPLOY_Z_SERVO();
@@ -1903,7 +1902,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #elif HAS_Z_SERVO_ENDSTOP
 
       // Make room for the servo
-      raise_z_for_servo(Z_RAISE_AFTER_PROBING);
+      do_probe_raise(Z_RAISE_AFTER_PROBING);
 
       // Change the Z servo angle
       STOW_Z_SERVO();
