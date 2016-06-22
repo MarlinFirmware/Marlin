@@ -507,27 +507,27 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_X 30.0
   //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y DELTA_PRINTABLE_RADIUS
   //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100.0
-  //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE XY_TRAVEL_SPEED
+  //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE XY_PROBE_SPEED
 
   //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 0.0
   //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y DELTA_PRINTABLE_RADIUS
   //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
-  //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (XY_TRAVEL_SPEED)/10
+  //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (XY_PROBE_SPEED)/10
 
   //#define Z_PROBE_ALLEN_KEY_STOW_1_X -64.0 // Move the probe into position
   //#define Z_PROBE_ALLEN_KEY_STOW_1_Y 56.0
   //#define Z_PROBE_ALLEN_KEY_STOW_1_Z 23.0
-  //#define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE XY_TRAVEL_SPEED
+  //#define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE XY_PROBE_SPEED
 
   //#define Z_PROBE_ALLEN_KEY_STOW_2_X -64.0 // Push it down
   //#define Z_PROBE_ALLEN_KEY_STOW_2_Y 56.0
   //#define Z_PROBE_ALLEN_KEY_STOW_2_Z 3.0
-  //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (XY_TRAVEL_SPEED)/10
+  //#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (XY_PROBE_SPEED)/10
 
   //#define Z_PROBE_ALLEN_KEY_STOW_3_X -64.0 // Move it up to clear
   //#define Z_PROBE_ALLEN_KEY_STOW_3_Y 56.0
   //#define Z_PROBE_ALLEN_KEY_STOW_3_Z 50.0
-  //#define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE XY_TRAVEL_SPEED
+  //#define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE XY_PROBE_SPEED
 
 #endif // Z_PROBE_ALLEN_KEY
 
@@ -742,7 +742,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   #endif // !AUTO_BED_LEVELING_GRID
 
-  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
+  #define XY_PROBE_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
 
   #define Z_RAISE_BETWEEN_PROBINGS 10 // How much the Z axis will be raised when traveling from between next probing points.
 
