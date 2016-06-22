@@ -801,15 +801,20 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //       "strokes" i.e. back-and-forth movements between the starting and end
 //       points.
 //
-//   P1: This starts a zig-zag pattern between (Xs, Ys) and (Xe, Ye), "S"
-//       defines the number of zig-zag triangles to be done. Each "side"
-//       cannot be less than 5mm. As an example "G12 P1 S3" will execute:
+//   P1: This starts a zig-zag pattern between (X0, Y0) and (X1, Y1), "T"
+//       defines the number of zig-zag triangles to be done. "S" defines the
+//       number of strokes aka one back-and-forth movement. As an example
+//       sending "G12 P1 S1 T3" will execute:
 //
-//                                                /|   /|   /| (Xe, Ye)
-//                                               / |  / |  / |
-//                                              /  | /  | /  |
-//                                    (Xs, Ys) /   |/   |/   |
-//
+//          --
+//         |  (X0, Y1) |     /\        /\        /\     | (X1, Y1)
+//         |           |    /  \      /  \      /  \    |
+//       A |           |   /    \    /    \    /    \   |
+//         |           |  /      \  /      \  /      \  |
+//         |  (X0, Y0) | /        \/        \/        \ | (X1, Y0)
+//          --         +--------------------------------+
+//                       |________|_________|_________|
+//                           T1        T2        T3
 //
 // Caveats: End point Z should use the same value as Start point Z.
 //
@@ -820,8 +825,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 #if ENABLED(CLEAN_NOZZLE_FEATURE)
   #define CLEAN_NOZZLE_STROKES  12
-  #define CLEAN_NOZZLE_START_PT { 30, 30, (Z_MIN_POS + 1), 0}
-  #define CLEAN_NOZZLE_END_PT   {100, 60, (Z_MIN_POS + 1), 0}
+  #define CLEAN_NOZZLE_START_PT { 30, 30, (Z_MIN_POS + 5), 0}
+  #define CLEAN_NOZZLE_END_PT   {100, 60, (Z_MIN_POS + 5), 0}
   //                            {  X,  Y,               Z, E}
 #endif
 
