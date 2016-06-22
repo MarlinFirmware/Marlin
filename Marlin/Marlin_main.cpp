@@ -2173,11 +2173,6 @@ static void setup_for_endstop_move() {
     // this also updates current_position
     do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
-    // Z Sled and Allen Key should never deploy-and-stow
-    #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
-      if (probe_action == ProbeDeployAndStow) probe_action == ProbeStay;
-    #endif
-
     if (probe_action & ProbeDeploy) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> ProbeDeploy");
@@ -3370,8 +3365,11 @@ inline void gcode_G28() {
       return;
     }
 
-    bool dryrun = code_seen('D'),
-         deploy_probe_for_each_reading = code_seen('E');
+    bool dryrun = code_seen('D');
+
+    #if DISABLED(Z_PROBE_SLED) && DISABLED(Z_PROBE_ALLEN_KEY)
+      bool deploy_probe_for_each_reading = code_seen('E');
+    #endif
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
@@ -3470,9 +3468,8 @@ inline void gcode_G28() {
 
     setup_for_endstop_or_probe_move();
 
-    #if HAS_BED_PROBE
-      deploy_z_probe();
-    #endif
+    // Deploy the probe. Servo will raise if needed.
+    deploy_z_probe();
 
     feedrate = homing_feedrate[Z_AXIS];
 
@@ -3551,15 +3548,19 @@ inline void gcode_G28() {
             if (distance_from_center > DELTA_PROBEABLE_RADIUS) continue;
           #endif //DELTA
 
-          ProbeAction act;
-          if (deploy_probe_for_each_reading) // G29 E - Stow between probes
-            act = ProbeDeployAndStow;
-          else if (yCount == 0 && xCount == xStart)
-            act = ProbeDeploy;
-          else if (yCount == auto_bed_leveling_grid_points - 1 && xCount == xStop - xInc)
-            act = ProbeStow;
-          else
-            act = ProbeStay;
+          #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+            const ProbeAction act = ProbeStay;
+          #else
+            ProbeAction act;
+            if (deploy_probe_for_each_reading) // G29 E - Stow between probes
+              act = ProbeDeployAndStow;
+            else if (yCount == 0 && xCount == xStart)
+              act = ProbeDeploy;
+            else if (yCount == auto_bed_leveling_grid_points - 1 && xCount == xStop - xInc)
+              act = ProbeStow;
+            else
+              act = ProbeStay;
+          #endif
 
           measured_z = probe_pt(xProbe, yProbe, z_before, act, verbose_level);
 
@@ -3690,12 +3691,16 @@ inline void gcode_G28() {
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> 3-point Leveling");
       #endif
 
-      // Actions for each probe
-      ProbeAction p1, p2, p3;
-      if (deploy_probe_for_each_reading)
-        p1 = p2 = p3 = ProbeDeployAndStow;
-      else
-        p1 = ProbeDeploy, p2 = ProbeStay, p3 = ProbeStow;
+      #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+        const ProbeAction p1 = ProbeStay, p2 = ProbeStay, p3 = ProbeStay;
+      #else
+        // Actions for each probe
+        ProbeAction p1, p2, p3;
+        if (deploy_probe_for_each_reading)
+          p1 = p2 = p3 = ProbeDeployAndStow;
+        else
+          p1 = ProbeDeploy, p2 = ProbeStay, p3 = ProbeStow;
+      #endif
 
       // Probe at 3 arbitrary points
       float z_at_pt_1 = probe_pt( ABL_PROBE_PT_1_X + home_offset[X_AXIS],
@@ -4189,7 +4194,12 @@ inline void gcode_M42() {
     float  X_current = current_position[X_AXIS],
            Y_current = current_position[Y_AXIS],
            Z_start_location = current_position[Z_AXIS] + Z_RAISE_BEFORE_PROBING;
-    bool deploy_probe_for_each_reading = code_seen('E');
+
+    #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+      const bool deploy_probe_for_each_reading = false;
+    #else
+      bool deploy_probe_for_each_reading = code_seen('E');
+    #endif
 
     float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : X_current + X_PROBE_OFFSET_FROM_EXTRUDER;
     #if DISABLED(DELTA)
