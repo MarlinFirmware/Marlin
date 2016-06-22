@@ -414,7 +414,7 @@ static uint8_t target_extruder;
 
   float retract_length = RETRACT_LENGTH;
   float retract_length_swap = RETRACT_LENGTH_SWAP;
-  float retract_feedrate = RETRACT_FEEDRATE;
+  float retract_feedrate_mm_s = RETRACT_FEEDRATE;
   float retract_zlift = RETRACT_ZLIFT;
   float retract_recover_length = RETRACT_RECOVER_LENGTH;
   float retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
@@ -2472,13 +2472,13 @@ static void homeaxis(AxisEnum axis) {
 
     if (retracting == retracted[active_extruder]) return;
 
-    float oldFeedrate = feedrate;
+    float old_feedrate = feedrate;
 
     set_destination_to_current();
 
     if (retracting) {
 
-      feedrate = retract_feedrate * 60;
+      feedrate = retract_feedrate_mm_s * 60;
       current_position[E_AXIS] += (swapping ? retract_length_swap : retract_length) / volumetric_multiplier[active_extruder];
       sync_plan_position_e();
       prepare_move_to_destination();
@@ -2503,7 +2503,7 @@ static void homeaxis(AxisEnum axis) {
       prepare_move_to_destination();
     }
 
-    feedrate = oldFeedrate;
+    feedrate = old_feedrate;
     retracted[active_extruder] = retracting;
 
   } // retract()
@@ -5452,12 +5452,12 @@ inline void gcode_M206() {
    *
    *   S[+mm]    retract_length
    *   W[+mm]    retract_length_swap (multi-extruder)
-   *   F[mm/min] retract_feedrate
+   *   F[mm/min] retract_feedrate_mm_s
    *   Z[mm]     retract_zlift
    */
   inline void gcode_M207() {
     if (code_seen('S')) retract_length = code_value_axis_units(E_AXIS);
-    if (code_seen('F')) retract_feedrate = code_value_axis_units(E_AXIS) / 60;
+    if (code_seen('F')) retract_feedrate_mm_s = code_value_axis_units(E_AXIS) / 60;
     if (code_seen('Z')) retract_zlift = code_value_axis_units(Z_AXIS);
     #if EXTRUDERS > 1
       if (code_seen('W')) retract_length_swap = code_value_axis_units(E_AXIS);
