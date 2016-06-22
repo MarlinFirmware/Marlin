@@ -209,10 +209,10 @@
   #else //no panel but just LCD
     #if ENABLED(ULTRA_LCD)
       #ifndef LCD_WIDTH
-        #define LCD_WIDTH 20
+        #define LCD_WIDTH 16
       #endif
       #ifndef LCD_HEIGHT
-        #define LCD_HEIGHT 3
+        #define LCD_HEIGHT 2
       #endif
     #endif
   #endif
