@@ -189,6 +189,7 @@
 #define MSG_HEATING_COMPLETE                "Calentamiento Completo"
 #define MSG_BED_HEATING                     "Calentando plataforma ..."
 #define MSG_BED_DONE                        "Plataforma Caliente"
+
 #define MSG_DELTA_CALIBRATE                 "Calibracion Delta"
 #define MSG_DELTA_CALIBRATE_X               "Calibrar X"
 #define MSG_DELTA_CALIBRATE_Y               "Calibrar Y"

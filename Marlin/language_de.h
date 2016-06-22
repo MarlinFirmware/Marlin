@@ -164,6 +164,7 @@
 #define MSG_HEATING_COMPLETE                "Aufgeheizt"
 #define MSG_BED_HEATING                     "Bett aufheizen"
 #define MSG_BED_DONE                        "Bett aufgeheizt"
+
 #define MSG_DELTA_CALIBRATE                 "Delta kalibrieren"
 #define MSG_DELTA_CALIBRATE_X               "Kalibriere X"
 #define MSG_DELTA_CALIBRATE_Y               "Kalibriere Y"

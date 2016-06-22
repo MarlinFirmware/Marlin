@@ -194,6 +194,7 @@
 #define MSG_HEATING_COMPLETE                "Zahrati hotovo."
 #define MSG_BED_HEATING                     "Zahrivani podl."
 #define MSG_BED_DONE                        "Podlozka hotova."
+
 #define MSG_DELTA_CALIBRATE                 "Delta Kalibrace"
 #define MSG_DELTA_CALIBRATE_X               "Kalibrovat X"
 #define MSG_DELTA_CALIBRATE_Y               "Kalibrovat Y"

@@ -150,6 +150,7 @@
 #define MSG_ENDSTOP_ABORT                   "Endstop deuseztat"
 #define MSG_END_HOUR                        "hours"
 #define MSG_END_MINUTE                      "minutes"
+
 #define MSG_DELTA_CALIBRATE                 "Delta Calibration"
 #define MSG_DELTA_CALIBRATE_X               "Calibrate X"
 #define MSG_DELTA_CALIBRATE_Y               "Calibrate Y"
