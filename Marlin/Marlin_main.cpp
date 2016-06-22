@@ -369,6 +369,9 @@ static uint8_t target_extruder;
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   int xy_travel_speed = XY_TRAVEL_SPEED;
   bool bed_leveling_in_progress = false;
+  #define XY_TRAVEL_FEEDRATE xy_travel_speed
+#else
+  #define XY_TRAVEL_FEEDRATE (min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]) * 60)
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS) && DISABLED(DELTA)
@@ -1633,13 +1636,7 @@ static void setup_for_endstop_move() {
 
     #if ENABLED(DELTA)
 
-      feedrate =
-        #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-          xy_travel_speed
-        #else
-          min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]) * 60
-        #endif
-      ;
+      feedrate = XY_TRAVEL_FEEDRATE;
 
       destination[X_AXIS] = x;
       destination[Y_AXIS] = y;
@@ -1658,13 +1655,7 @@ static void setup_for_endstop_move() {
       line_to_current_position();
       stepper.synchronize();
 
-      feedrate =
-        #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-          xy_travel_speed
-        #else
-          min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]) * 60
-        #endif
-      ;
+      feedrate = XY_TRAVEL_FEEDRATE;
 
       current_position[X_AXIS] = x;
       current_position[Y_AXIS] = y;
@@ -2981,7 +2972,8 @@ inline void gcode_G28() {
             destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - (X_PROBE_OFFSET_FROM_EXTRUDER));
             destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - (Y_PROBE_OFFSET_FROM_EXTRUDER));
             destination[Z_AXIS] = current_position[Z_AXIS]; //z is already at the right height
-            feedrate = XY_TRAVEL_SPEED;
+
+            feedrate = XY_TRAVEL_FEEDRATE;
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(LEVELING)) {
