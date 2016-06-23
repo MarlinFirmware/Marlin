@@ -363,9 +363,11 @@
   #endif //!MANUAL_HOME_POSITIONS
 
   /**
-   * Auto Bed Leveling
+   * Auto Bed Leveling and Z Probe Repeatability Test
    */
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #define HAS_PROBING_PROCEDURE (ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
+
+  #if HAS_PROBING_PROCEDURE
     // Boundaries for probing based on set limits
     #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
     #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
@@ -376,10 +378,22 @@
   #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
 
   /**
-   * Sled Options
+   * Z Sled Probe requires Z_SAFE_HOMING
    */
   #if ENABLED(Z_PROBE_SLED)
     #define Z_SAFE_HOMING
+  #endif
+
+  /**
+   * Safe Homing Options
+   */
+  #if ENABLED(Z_SAFE_HOMING)
+    #ifndef Z_SAFE_HOMING_X_POINT
+      #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)
+    #endif
+    #ifndef Z_SAFE_HOMING_Y_POINT
+      #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)
+    #endif
   #endif
 
   /**
@@ -750,7 +764,7 @@
     #endif
   #endif
 
-  #define PROBE_SELECTED (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(MECHANICAL_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
+  #define PROBE_SELECTED (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
 
   #define PROBE_PIN_CONFIGURED (HAS_Z_MIN_PROBE_PIN || (HAS_Z_MIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)))
 

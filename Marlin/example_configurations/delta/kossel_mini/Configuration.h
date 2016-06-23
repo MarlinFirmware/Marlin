@@ -461,8 +461,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Use M851 to set the Z probe vertical offset from the nozzle. Store with M500.
 //
 
-// A fix mounted probe, like the normal inductive probe, must be deactivated to go
-// below Z_PROBE_OFFSET_FROM_EXTRUDER when the hardware endstops are active.
+// A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
+// For example an inductive probe, or a setup that uses the nozzle to probe.
+// An inductive probe must be deactivated to go below
+// its trigger-point if hardware endstops are active.
 //#define FIX_MOUNTED_PROBE
 
 // Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -472,10 +474,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
-
-// A Mechanical Probe is any probe that either doesn't deploy or needs manual deployment
-// For example any setup that uses the nozzle itself as a probe.
-//#define MECHANICAL_PROBE
 
 // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
 // X and Y offsets must be integers.
@@ -593,6 +591,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // For G29 these apply before and after the full procedure.
 #define Z_RAISE_BEFORE_PROBING 15   // Raise before probe deploy (e.g., the first probe).
 #define Z_RAISE_AFTER_PROBING 50    // Raise before probe stow (e.g., the last probe).
+#define Z_RAISE_BETWEEN_PROBINGS 5  // Raise between probing points.
 
 //
 // For M851 give a range for adjusting the Z probe offset
@@ -749,8 +748,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     #define ABL_PROBE_PT_3_Y 20
 
   #endif // !AUTO_BED_LEVELING_GRID
-
-  #define Z_RAISE_BETWEEN_PROBINGS 5  // How much the Z axis will be raised when traveling from between next probing points
 
   //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
                                                                              // Useful to retract a deployable Z probe.
