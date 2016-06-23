@@ -101,10 +101,10 @@ script:
   - opt_enable AUTO_BED_LEVELING_FEATURE DEBUG_LEVELING_FEATURE
   - build_marlin
   #
-  # Test a Mechanical Probe
+  # Test a Sled Z Probe
   #
   - restore_configs
-  - opt_enable MECHANICAL_PROBE
+  - opt_enable Z_PROBE_SLED
   - build_marlin
   #
   # ...with AUTO_BED_LEVELING_FEATURE & DEBUG_LEVELING_FEATURE
