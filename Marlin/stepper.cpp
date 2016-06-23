@@ -380,7 +380,7 @@ void Stepper::isr() {
         }
 
       #endif // ADVANCE or LIN_ADVANCE
-      
+
       #define _COUNTER(AXIS) counter_## AXIS
       #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
       #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
@@ -451,7 +451,7 @@ void Stepper::isr() {
       #endif // ADVANCE or LIN_ADVANCE
 
       #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-        eISR_Rate = (timer >> 2) / abs(e_steps[current_block->active_extruder]);
+        eISR_Rate = (timer >> 2) * step_loops / abs(e_steps[current_block->active_extruder]);
       #endif
     }
     else if (step_events_completed > (unsigned long)current_block->decelerate_after) {
@@ -468,7 +468,7 @@ void Stepper::isr() {
       timer = calc_timer(step_rate);
       OCR1A = timer;
       deceleration_time += timer;
-      
+
       #if ENABLED(LIN_ADVANCE)
 
         if (current_block->use_advance_lead)
@@ -487,7 +487,7 @@ void Stepper::isr() {
       #endif // ADVANCE or LIN_ADVANCE
 
       #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-        eISR_Rate = (timer >> 2) / abs(e_steps[current_block->active_extruder]);
+        eISR_Rate = (timer >> 2) * step_loops / abs(e_steps[current_block->active_extruder]);
       #endif
     }
     else {
@@ -497,7 +497,7 @@ void Stepper::isr() {
         if (current_block->use_advance_lead)
           current_estep_rate[current_block->active_extruder] = final_estep_rate;
 
-        eISR_Rate = (OCR1A_nominal >> 2) / abs(e_steps[current_block->active_extruder]);
+        eISR_Rate = (OCR1A_nominal >> 2) * step_loops_nominal / abs(e_steps[current_block->active_extruder]);
 
       #endif
 
@@ -542,16 +542,18 @@ void Stepper::isr() {
       }
 
     // Step all E steppers that have steps
-    STEP_E_ONCE(0);
-    #if EXTRUDERS > 1
-      STEP_E_ONCE(1);
-      #if EXTRUDERS > 2
-        STEP_E_ONCE(2);
-        #if EXTRUDERS > 3
-          STEP_E_ONCE(3);
+    for (uint8_t i = 0; i < step_loops; i++) {
+      STEP_E_ONCE(0);
+      #if EXTRUDERS > 1
+        STEP_E_ONCE(1);
+        #if EXTRUDERS > 2
+          STEP_E_ONCE(2);
+          #if EXTRUDERS > 3
+            STEP_E_ONCE(3);
+          #endif
         #endif
       #endif
-    #endif
+    }
 
   }
 
@@ -998,7 +1000,7 @@ void Stepper::digipot_init() {
 
     SPI.begin();
     pinMode(DIGIPOTSS_PIN, OUTPUT);
-    for (int i = 0; i < COUNT(digipot_motor_current); i++) {
+    for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
       //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
       digipot_current(i, digipot_motor_current[i]);
     }
