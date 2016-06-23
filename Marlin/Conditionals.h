@@ -378,10 +378,22 @@
   #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
 
   /**
-   * Sled Options
+   * Z Sled Probe requires Z_SAFE_HOMING
    */
   #if ENABLED(Z_PROBE_SLED)
     #define Z_SAFE_HOMING
+  #endif
+
+  /**
+   * Safe Homing Options
+   */
+  #if ENABLED(Z_SAFE_HOMING)
+    #ifndef Z_SAFE_HOMING_X_POINT
+      #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)
+    #endif
+    #ifndef Z_SAFE_HOMING_Y_POINT
+      #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)
+    #endif
   #endif
 
   /**
