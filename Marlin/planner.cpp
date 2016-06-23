@@ -386,7 +386,7 @@ void Planner::recalculate() {
 #endif //AUTOTEMP
 
 /**
- * Maintain fans, paste extruder pressure, 
+ * Maintain fans, paste extruder pressure,
  */
 void Planner::check_axes_activity() {
   unsigned char axis_active[NUM_AXIS] = { 0 },
@@ -539,7 +539,7 @@ void Planner::check_axes_activity() {
   while (block_buffer_tail == next_buffer_head) idle();
 
   #if ENABLED(MESH_BED_LEVELING)
-    if (mbl.active()) 
+    if (mbl.active())
       z += mbl.get_z(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
   #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
     apply_rotation_xyz(bed_level_matrix, x, y, z);
@@ -1057,7 +1057,7 @@ void Planner::check_axes_activity() {
     // This leads to an enormous number of advance steps due to a huge e_acceleration.
     // The math is correct, but you don't want a retract move done with advance!
     // So this situation is filtered out here.
-    if (!bse || (!bsx && !bsy && !bsz) || stepper.get_advance_k() == 0 || bse == allsteps) {
+    if (!bse || (!bsx && !bsy && !bsz) || stepper.get_advance_k() == 0 || (uint32_t) bse == allsteps) {
       block->use_advance_lead = false;
     }
     else {
