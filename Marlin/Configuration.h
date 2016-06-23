@@ -419,8 +419,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Use M851 to set the Z probe vertical offset from the nozzle. Store with M500.
 //
 
-// A fix mounted probe, like the normal inductive probe, must be deactivated to go
-// below Z_PROBE_OFFSET_FROM_EXTRUDER when the hardware endstops are active.
+// A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
+// For example an inductive probe, or a setup that uses the nozzle to probe.
+// An inductive probe must be deactivated to go below
+// its trigger-point if hardware endstops are active.
 //#define FIX_MOUNTED_PROBE
 
 // Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -430,10 +432,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
-
-// A Mechanical Probe is any probe that either doesn't deploy or needs manual deployment
-// For example any setup that uses the nozzle itself as a probe.
-//#define MECHANICAL_PROBE
 
 // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
 // X and Y offsets must be integers.
