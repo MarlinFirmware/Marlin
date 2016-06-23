@@ -451,7 +451,7 @@ void Stepper::isr() {
       #endif // ADVANCE or LIN_ADVANCE
 
       #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-        eISR_Rate = (timer >> 2) / abs(e_steps[current_block->active_extruder]);
+        eISR_Rate = (timer >> 2) * step_loops / abs(e_steps[current_block->active_extruder]);
       #endif
     }
     else if (step_events_completed > (unsigned long)current_block->decelerate_after) {
@@ -487,7 +487,7 @@ void Stepper::isr() {
       #endif // ADVANCE or LIN_ADVANCE
 
       #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-        eISR_Rate = (timer >> 2) / abs(e_steps[current_block->active_extruder]);
+        eISR_Rate = (timer >> 2) * step_loops / abs(e_steps[current_block->active_extruder]);
       #endif
     }
     else {
@@ -497,7 +497,7 @@ void Stepper::isr() {
         if (current_block->use_advance_lead)
           current_estep_rate[current_block->active_extruder] = final_estep_rate;
 
-        eISR_Rate = (OCR1A_nominal >> 2) / abs(e_steps[current_block->active_extruder]);
+        eISR_Rate = (OCR1A_nominal >> 2) * step_loops_nominal / abs(e_steps[current_block->active_extruder]);
 
       #endif
 
@@ -542,16 +542,18 @@ void Stepper::isr() {
       }
 
     // Step all E steppers that have steps
-    STEP_E_ONCE(0);
-    #if EXTRUDERS > 1
-      STEP_E_ONCE(1);
-      #if EXTRUDERS > 2
-        STEP_E_ONCE(2);
-        #if EXTRUDERS > 3
-          STEP_E_ONCE(3);
+    for (uint8_t i = 0; i < step_loops; i++) {
+      STEP_E_ONCE(0);
+      #if EXTRUDERS > 1
+        STEP_E_ONCE(1);
+        #if EXTRUDERS > 2
+          STEP_E_ONCE(2);
+          #if EXTRUDERS > 3
+            STEP_E_ONCE(3);
+          #endif
         #endif
       #endif
-    #endif
+    }
 
   }
 
