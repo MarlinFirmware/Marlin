@@ -474,6 +474,9 @@ static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
 }
 
 static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, const char* pstr, char pre_char, char post_char) {
+  UNUSED(pstr);
+  UNUSED(pre_char);
+
   char c;
   uint8_t n = LCD_WIDTH - 2;
 
@@ -564,6 +567,7 @@ void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
 #if ENABLED(SDSUPPORT)
 
   static void _drawmenu_sd(bool isSelected, uint8_t row, const char* pstr, const char* filename, char* const longFilename, bool isDir) {
+    UNUSED(pstr);
     char c;
     uint8_t n = LCD_WIDTH - 1;
 
