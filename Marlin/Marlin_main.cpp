@@ -4286,7 +4286,7 @@ inline void gcode_M42() {
 
     randomSeed(millis());
 
-    double mean, sigma, sample_set[n_samples];
+    double mean = 0, sigma = 0, sample_set[n_samples];
     for (uint8_t n = 0; n < n_samples; n++) {
       if (n_legs) {
         int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
@@ -4410,8 +4410,10 @@ inline void gcode_M42() {
 
       // Raise before the next loop for the legs,
       // or do the final raise after the last probe
-      if (n_legs || last_probe) {
-        do_probe_raise(last_probe ? Z_RAISE_AFTER_PROBING : z_between);
+      if (last_probe)
+        do_probe_raise(Z_RAISE_AFTER_PROBING);
+      else if (n_legs) {
+        do_probe_raise(z_between);
         if (!last_probe) delay(500);
       }
 
