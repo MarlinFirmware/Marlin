@@ -380,7 +380,7 @@ void Stepper::isr() {
         }
 
       #endif // ADVANCE or LIN_ADVANCE
-      
+
       #define _COUNTER(AXIS) counter_## AXIS
       #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
       #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
@@ -468,7 +468,7 @@ void Stepper::isr() {
       timer = calc_timer(step_rate);
       OCR1A = timer;
       deceleration_time += timer;
-      
+
       #if ENABLED(LIN_ADVANCE)
 
         if (current_block->use_advance_lead)
@@ -1000,7 +1000,7 @@ void Stepper::digipot_init() {
 
     SPI.begin();
     pinMode(DIGIPOTSS_PIN, OUTPUT);
-    for (int i = 0; i < COUNT(digipot_motor_current); i++) {
+    for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
       //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
       digipot_current(i, digipot_motor_current[i]);
     }
