@@ -2340,7 +2340,7 @@ static void homeaxis(AxisEnum axis) {
 
     // Set the axis position as setup for the move
     current_position[axis] = 0;
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
 
     // Homing Z towards the bed? Deploy the Z probe or endstop.
     #if HAS_BED_PROBE
@@ -2365,7 +2365,7 @@ static void homeaxis(AxisEnum axis) {
 
     // Set the axis position as setup for the move
     current_position[axis] = 0;
-    SYNC_PLAN_POSITION_KINEMATIC();
+    sync_plan_position();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(false)");
@@ -2406,7 +2406,7 @@ static void homeaxis(AxisEnum axis) {
           lockZ1 = (z_endstop_adj < 0);
 
         if (lockZ1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
-        SYNC_PLAN_POSITION_KINEMATIC();
+        sync_plan_position();
 
         // Move to the adjusted endstop height
         feedrate = homing_feedrate[axis];
@@ -2426,7 +2426,7 @@ static void homeaxis(AxisEnum axis) {
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(false)");
         #endif
         endstops.enable(false); // Disable endstops while moving away
-        SYNC_PLAN_POSITION_KINEMATIC();
+        sync_plan_position();
         destination[axis] = endstop_adj[axis];
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
