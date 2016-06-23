@@ -1666,17 +1666,24 @@ static void clean_up_after_endstop_or_probe_move() {
 
     #else
 
-      feedrate = homing_feedrate[Z_AXIS];
-
-      current_position[Z_AXIS] = z;
-      line_to_current_position();
-      stepper.synchronize();
+      // If Z needs to raise, do it before moving XY
+      if (current_position[Z_AXIS] < z) {
+        feedrate = homing_feedrate[Z_AXIS];
+        current_position[Z_AXIS] = z;
+        line_to_current_position();
+      }
 
       feedrate = XY_PROBE_FEEDRATE;
-
       current_position[X_AXIS] = x;
       current_position[Y_AXIS] = y;
       line_to_current_position();
+
+      // If Z needs to lower, do it after moving XY
+      if (current_position[Z_AXIS] > z) {
+        feedrate = homing_feedrate[Z_AXIS];
+        current_position[Z_AXIS] = z;
+        line_to_current_position();
+      }
 
     #endif
 
