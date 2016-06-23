@@ -233,6 +233,7 @@ class Temperature {
       #ifdef MILLISECONDS_PREHEAT_TIME
         return preheat_end_time[hotend] && PENDING(millis(), preheat_end_time[hotend]);
       #else
+        UNUSED(hotend);
         return false;
       #endif
     }
@@ -297,10 +298,10 @@ class Temperature {
         UNUSED(hotend);
       #endif
       #ifdef MILLISECONDS_PREHEAT_TIME
-      if (celsius == 0.0f)
-        reset_preheat_time(hotend);
-      else if (target_temperature[hotend] == 0.0f)
-        start_preheat_time(hotend);
+        if (celsius == 0.0f)
+          reset_preheat_time(hotend);
+        else if (target_temperature[hotend] == 0.0f)
+          start_preheat_time(hotend);
       #endif
       target_temperature[HOTEND_ARG] = celsius;
       #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
