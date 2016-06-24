@@ -3390,8 +3390,10 @@ inline void gcode_G28() {
 
     bool dryrun = code_seen('D');
 
-    #if DISABLED(Z_PROBE_SLED) && DISABLED(Z_PROBE_ALLEN_KEY)
-      bool deploy_probe_for_each_reading = code_seen('E');
+    #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+      const bool stow_probe_after_each = false;
+    #else
+      bool stow_probe_after_each = code_seen('E');
     #endif
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
@@ -3548,42 +3550,13 @@ inline void gcode_G28() {
         for (int xCount = xStart; xCount != xStop; xCount += xInc) {
           double xProbe = left_probe_bed_position + xGridSpacing * xCount;
 
-          // raise extruder
-          float measured_z,
-                z_raise = probePointCounter ? Z_RAISE_BETWEEN_PROBINGS : Z_RAISE_BEFORE_PROBING;
-
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPGM("z_raise = (");
-              if (probePointCounter)
-                SERIAL_ECHOPGM("between) ");
-              else
-                SERIAL_ECHOPGM("before) ");
-              SERIAL_ECHOLN(z_raise);
-            }
-          #endif
-
           #if ENABLED(DELTA)
             // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
             float distance_from_center = sqrt(xProbe * xProbe + yProbe * yProbe);
             if (distance_from_center > DELTA_PROBEABLE_RADIUS) continue;
           #endif //DELTA
 
-          #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
-            const ProbeAction act = ProbeStay;
-          #else
-            ProbeAction act;
-            if (deploy_probe_for_each_reading) // G29 E - Stow between probes
-              act = ProbeDeployAndStow;
-            else if (yCount == 0 && xCount == xStart)
-              act = ProbeDeploy;
-            else if (yCount == auto_bed_leveling_grid_points - 1 && xCount == xStop - xInc)
-              act = ProbeStow;
-            else
-              act = ProbeStay;
-          #endif
-
-          measured_z = probe_pt(xProbe, yProbe, z_raise, act, verbose_level);
+          float measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
           #if DISABLED(DELTA)
             mean += measured_z;
