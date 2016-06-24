@@ -5988,16 +5988,12 @@ inline void gcode_M400() { stepper.synchronize(); }
   /**
    * M401: Engage Z Servo endstop if available
    */
-  inline void gcode_M401() {
-    deploy_z_probe();
-  }
+  inline void gcode_M401() { deploy_z_probe(); }
 
   /**
    * M402: Retract Z Servo endstop if enabled
    */
-  inline void gcode_M402() {
-    stow_z_probe();
-  }
+  inline void gcode_M402() { stow_z_probe(); }
 
 #endif // HAS_BED_PROBE
 
