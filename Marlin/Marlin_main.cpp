@@ -1811,14 +1811,16 @@ static void clean_up_after_endstop_or_probe_move() {
 
     if (endstops.z_probe_enabled) return;
 
+    // Make room for probe
+    #if Z_RAISE_BEFORE_PROBING > 0
+      do_probe_raise(Z_RAISE_BEFORE_PROBING);
+    #endif
+
     #if ENABLED(Z_PROBE_SLED)
 
       dock_sled(false);
 
     #elif HAS_Z_SERVO_ENDSTOP
-
-      // Make room for Z Servo
-      do_probe_raise(Z_RAISE_BEFORE_PROBING);
 
       // Engage Z Servo endstop if enabled
       DEPLOY_Z_SERVO();
@@ -1913,14 +1915,16 @@ static void clean_up_after_endstop_or_probe_move() {
 
     if (!endstops.z_probe_enabled) return;
 
+    // Make more room for the servo
+    #if Z_RAISE_AFTER_PROBING > 0
+      do_probe_raise(Z_RAISE_AFTER_PROBING);
+    #endif
+
     #if ENABLED(Z_PROBE_SLED)
 
       dock_sled(true);
 
     #elif HAS_Z_SERVO_ENDSTOP
-
-      // Make room for the servo
-      do_probe_raise(Z_RAISE_AFTER_PROBING);
 
       // Change the Z servo angle
       STOW_Z_SERVO();
