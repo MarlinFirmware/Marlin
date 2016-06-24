@@ -1592,9 +1592,6 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
 //  - Reset the command timeout
 //  - Enable the endstops (for endstop moves)
 //
-// clean_up_after_endstop_move() restores
-// feedrates, sets endstops back to global state.
-//
 static void setup_for_endstop_or_probe_move() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("setup_for_endstop_or_probe_move", current_position);
@@ -1619,12 +1616,6 @@ static void clean_up_after_endstop_or_probe_move() {
 }
 
 #if HAS_BED_PROBE
-
-  static void clean_up_after_endstop_move() {
-    clean_up_after_endstop_or_probe_move();
-    endstops.not_homing();
-  }
-
   #if ENABLED(DELTA)
     /**
      * Calculate delta, start a line, and set current_position to destination
