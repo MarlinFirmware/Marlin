@@ -1729,11 +1729,6 @@ static void clean_up_after_endstop_or_probe_move() {
     }
   }
 
-  inline void raise_z_after_probing() {
-    #if Z_RAISE_AFTER_PROBING > 0
-      do_probe_raise(Z_RAISE_AFTER_PROBING);
-    #endif
-  }
 #endif //HAS_BED_PROBE
 
 #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE
@@ -1781,7 +1776,9 @@ static void clean_up_after_endstop_or_probe_move() {
     float oldXpos = current_position[X_AXIS]; // save x position
     float old_feedrate = feedrate;
     if (dock) {
-      raise_z_after_probing(); // raise Z
+      #if Z_RAISE_AFTER_PROBING > 0
+        do_probe_raise(Z_RAISE_AFTER_PROBING);
+      #endif
       // Dock sled a bit closer to ensure proper capturing
       feedrate = XY_PROBE_FEEDRATE;
       do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET + offset - 1);
