@@ -3876,6 +3876,20 @@ inline void gcode_G28() {
     report_current_position();
   }
 
+  #if ENABLED(Z_PROBE_SLED)
+
+    /**
+     * G31: Deploy the Z probe
+     */
+    inline void gcode_G31() { deploy_z_probe(); }
+
+    /**
+     * G32: Stow the Z probe
+     */
+    inline void gcode_G32() { stow_z_probe(); }
+
+  #endif // Z_PROBE_SLED
+
 #endif // HAS_BED_PROBE
 
 /**
@@ -6865,10 +6879,11 @@ void process_next_command() {
         #if ENABLED(Z_PROBE_SLED)
 
             case 31: // G31: dock the sled
-              stow_z_probe();
+              gcode_G31();
               break;
+
             case 32: // G32: undock the sled
-              deploy_z_probe();
+              gcode_G32();
               break;
 
         #endif // Z_PROBE_SLED
