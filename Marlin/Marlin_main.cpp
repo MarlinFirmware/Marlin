@@ -4204,9 +4204,9 @@ inline void gcode_M42() {
            Y_current = current_position[Y_AXIS];
 
     #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
-      const bool deploy_probe_for_each_reading = false;
+      const bool stow_probe_after_each = false;
     #else
-      bool deploy_probe_for_each_reading = code_seen('E');
+      bool stow_probe_after_each = code_seen('E');
     #endif
 
     float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : X_current + X_PROBE_OFFSET_FROM_EXTRUDER;
@@ -4259,24 +4259,8 @@ inline void gcode_M42() {
 
     setup_for_endstop_or_probe_move();
 
-    do_probe_raise(Z_RAISE_BEFORE_PROBING);
-
-    feedrate = XY_PROBE_FEEDRATE;
-    do_blocking_move_to_xy(X_probe_location - (X_PROBE_OFFSET_FROM_EXTRUDER), Y_probe_location - (Y_PROBE_OFFSET_FROM_EXTRUDER));
-
-    /**
-     * OK, do the initial probe to get us close to the bed.
-     * Then retrace the right amount and use that in subsequent probes
-     */
-
-    // Height before each probe (except the first)
-    float z_between = deploy_probe_for_each_reading ? Z_RAISE_BEFORE_PROBING : Z_RAISE_BETWEEN_PROBINGS;
-
-    // Deploy the probe and probe the first point
-    probe_pt(X_probe_location, Y_probe_location,
-      Z_RAISE_BEFORE_PROBING,
-      deploy_probe_for_each_reading ? ProbeDeployAndStow : ProbeDeploy,
-      verbose_level);
+    // Move to the first point, deploy, and probe
+    probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
 
     randomSeed(millis());
 
@@ -4296,12 +4280,9 @@ inline void gcode_M42() {
         if (verbose_level > 3) {
           SERIAL_ECHOPAIR("Starting radius: ", radius);
           SERIAL_ECHOPAIR("   angle: ", angle);
-          delay(100);
-          if (dir > 0)
-            SERIAL_ECHO(" Direction: Counter Clockwise \n");
-          else
-            SERIAL_ECHO(" Direction: Clockwise \n");
-          delay(100);
+          SERIAL_ECHO(" Direction: ");
+          if (dir > 0) SERIAL_ECHO("Counter ");
+          SERIAL_ECHOLN("Clockwise");
         }
 
         for (uint8_t l = 0; l < n_legs - 1; l++) {
@@ -4340,7 +4321,6 @@ inline void gcode_M42() {
                 SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
                 SERIAL_ECHOPAIR(", ", Y_current);
                 SERIAL_EOL;
-                delay(50);
               }
             }
           #endif
@@ -4350,22 +4330,13 @@ inline void gcode_M42() {
             SERIAL_ECHOPAIR("y: ", Y_current);
             SERIAL_ECHOPAIR("  z: ", current_position[Z_AXIS]);
             SERIAL_EOL;
-            delay(55);
           }
           do_blocking_move_to_xy(X_current, Y_current);
         } // n_legs loop
       } // n_legs
 
-      // The last probe will differ
-      bool last_probe = (n == n_samples - 1);
-
       // Probe a single point
-      sample_set[n] = probe_pt(
-        X_probe_location, Y_probe_location,
-        z_between,
-        deploy_probe_for_each_reading ? ProbeDeployAndStow : last_probe ? ProbeStow : ProbeStay,
-        verbose_level
-      );
+      sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
 
       /**
        * Get the current mean for the data points we have so far
@@ -4391,7 +4362,6 @@ inline void gcode_M42() {
           SERIAL_PROTOCOL((int)n_samples);
           SERIAL_PROTOCOLPGM("   z: ");
           SERIAL_PROTOCOL_F(current_position[Z_AXIS], 6);
-          delay(50);
           if (verbose_level > 2) {
             SERIAL_PROTOCOLPGM(" mean: ");
             SERIAL_PROTOCOL_F(mean, 6);
@@ -4402,16 +4372,9 @@ inline void gcode_M42() {
         SERIAL_EOL;
       }
 
-      // Raise before the next loop for the legs,
-      // or do the final raise after the last probe
-      if (last_probe)
-        do_probe_raise(Z_RAISE_AFTER_PROBING);
-      else if (n_legs) {
-        do_probe_raise(z_between);
-        if (!last_probe) delay(500);
-      }
-
     } // End of probe loop
+
+    stow_z_probe();
 
     if (verbose_level > 0) {
       SERIAL_PROTOCOLPGM("Mean: ");
