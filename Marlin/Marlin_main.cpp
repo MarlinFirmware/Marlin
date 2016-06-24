@@ -3577,10 +3577,39 @@ inline void gcode_G28() {
         } //xProbe
       } //yProbe
 
+    #else // !AUTO_BED_LEVELING_GRID
+
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> 3-point Leveling");
       #endif
 
+      // Probe at 3 arbitrary points
+      float z_at_pt_1 = probe_pt( ABL_PROBE_PT_1_X + home_offset[X_AXIS],
+                                  ABL_PROBE_PT_1_Y + home_offset[Y_AXIS],
+                                  stow_probe_after_each, verbose_level),
+            z_at_pt_2 = probe_pt( ABL_PROBE_PT_2_X + home_offset[X_AXIS],
+                                  ABL_PROBE_PT_2_Y + home_offset[Y_AXIS],
+                                  stow_probe_after_each, verbose_level),
+            z_at_pt_3 = probe_pt( ABL_PROBE_PT_3_X + home_offset[X_AXIS],
+                                  ABL_PROBE_PT_3_Y + home_offset[Y_AXIS],
+                                  stow_probe_after_each, verbose_level);
+
+      if (!dryrun) set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+
+    #endif // !AUTO_BED_LEVELING_GRID
+
+    // Raise to Z_RAISE_AFTER_PROBING. Stow the probe.
+    stow_z_probe();
+
+    // Restore state after probing
+    clean_up_after_endstop_or_probe_move();
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
+    #endif
+
+    // Calculate leveling, print reports, correct the position
+    #if ENABLED(AUTO_BED_LEVELING_GRID)
       #if ENABLED(DELTA)
 
         if (!dryrun) extrapolate_unprobed_bed_level();
@@ -3676,41 +3705,7 @@ inline void gcode_G28() {
           }
         } //do_topography_map
       #endif //!DELTA
-
-    #else // !AUTO_BED_LEVELING_GRID
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> 3-point Leveling");
-      #endif
-
-      #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
-        const ProbeAction p1 = ProbeStay, p2 = ProbeStay, p3 = ProbeStay;
-      #else
-        // Actions for each probe
-        ProbeAction p1, p2, p3;
-        if (deploy_probe_for_each_reading)
-          p1 = p2 = p3 = ProbeDeployAndStow;
-        else
-          p1 = ProbeDeploy, p2 = ProbeStay, p3 = ProbeStow;
-      #endif
-
-      // Probe at 3 arbitrary points
-      float z_at_pt_1 = probe_pt( ABL_PROBE_PT_1_X + home_offset[X_AXIS],
-                                  ABL_PROBE_PT_1_Y + home_offset[Y_AXIS],
-                                  Z_RAISE_BEFORE_PROBING,
-                                  p1, verbose_level),
-            z_at_pt_2 = probe_pt( ABL_PROBE_PT_2_X + home_offset[X_AXIS],
-                                  ABL_PROBE_PT_2_Y + home_offset[Y_AXIS],
-                                  Z_RAISE_BETWEEN_PROBINGS,
-                                  p2, verbose_level),
-            z_at_pt_3 = probe_pt( ABL_PROBE_PT_3_X + home_offset[X_AXIS],
-                                  ABL_PROBE_PT_3_Y + home_offset[Y_AXIS],
-                                  Z_RAISE_BETWEEN_PROBINGS,
-                                  p3, verbose_level);
-
-      if (!dryrun) set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
-
-    #endif // !AUTO_BED_LEVELING_GRID
+    #endif // AUTO_BED_LEVELING_GRID
 
     #if DISABLED(DELTA)
       if (verbose_level > 0)
@@ -3725,13 +3720,12 @@ inline void gcode_G28() {
         float x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
               y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
               z_tmp = current_position[Z_AXIS],
-              real_z = stepper.get_axis_position_mm(Z_AXIS);  //get the real Z (since planner.adjusted_position is now correcting the plane)
+              stepper_z = stepper.get_axis_position_mm(Z_AXIS);  //get the real Z (since planner.adjusted_position is now correcting the plane)
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> BEFORE apply_rotation_xyz > z_tmp  = ", z_tmp);
-            SERIAL_EOL;
-            SERIAL_ECHOPAIR("> BEFORE apply_rotation_xyz > real_z = ", real_z);
+            SERIAL_ECHOPAIR("> BEFORE apply_rotation_xyz > stepper_z = ", stepper_z);
+            SERIAL_ECHOPAIR(" ... z_tmp  = ", z_tmp);
             SERIAL_EOL;
           }
         #endif
@@ -3739,28 +3733,6 @@ inline void gcode_G28() {
         // Apply the correction sending the Z probe offset
         apply_rotation_xyz(planner.bed_level_matrix, x_tmp, y_tmp, z_tmp);
 
-        /*
-         * Get the current Z position and send it to the planner.
-         *
-         * >> (z_tmp - real_z) : The rotated current Z minus the uncorrected Z
-         * (most recent planner.set_position_mm/sync_plan_position)
-         *
-         * >> zprobe_zoffset : Z distance from nozzle to Z probe
-         * (set by default, M851, EEPROM, or Menu)
-         *
-         * >> Z_RAISE_AFTER_PROBING : The distance the Z probe will have lifted
-         * after the last probe
-         *
-         * >> Should home_offset[Z_AXIS] be included?
-         *
-         *
-         *   Discussion: home_offset[Z_AXIS] was applied in G28 to set the
-         *   starting Z. If Z is not tweaked in G29 -and- the Z probe in G29 is
-         *   not actually "homing" Z... then perhaps it should not be included
-         *   here. The purpose of home_offset[] is to adjust for inaccurate
-         *   endstops, not for reasonably accurate probes. If it were added
-         *   here, it could be seen as a compensating factor for the Z probe.
-         */
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOPAIR("> AFTER apply_rotation_xyz > z_tmp  = ", z_tmp);
@@ -3768,29 +3740,15 @@ inline void gcode_G28() {
           }
         #endif
 
-        current_position[Z_AXIS] = -zprobe_zoffset + (z_tmp - real_z)
-          #if HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED)
-             + Z_RAISE_AFTER_PROBING
-          #endif
-        ;
-        // current_position[Z_AXIS] += home_offset[Z_AXIS]; // The Z probe determines Z=0, not "Z home"
+        // Adjust the current Z and send it to the planner.
+        current_position[Z_AXIS] += z_tmp - stepper_z;
         SYNC_PLAN_POSITION_KINEMATIC();
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> corrected Z in G29", current_position);
         #endif
       }
-
     #endif // !DELTA
-
-    // Final raise of Z axis after probing.
-    raise_z_after_probing();
-
-    // Stow the probe. Servo will raise if needed.
-    stow_z_probe();
-
-    // Restore state after probing
-    clean_up_after_endstop_or_probe_move();
 
     #ifdef Z_PROBE_END_SCRIPT
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3804,9 +3762,7 @@ inline void gcode_G28() {
     #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM("<<< gcode_G29");
-      }
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G29");
     #endif
 
     bed_leveling_in_progress = false;
