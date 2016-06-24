@@ -1999,9 +1999,8 @@ static void lcd_status_screen() {
       lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
     #elif PIN_EXISTS(BEEPER)
       buzzer.tone(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-    #else
-      delay(LCD_FEEDBACK_FREQUENCY_DURATION_MS);
     #endif
+    delay(10); // needed for buttons to settle
   }
 
   /**
