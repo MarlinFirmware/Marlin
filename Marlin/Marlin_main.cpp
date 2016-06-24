@@ -2096,19 +2096,20 @@ static void clean_up_after_endstop_or_probe_move() {
     do_blocking_move_to(x, y, current_position[Z_AXIS]);
   }
 
-  enum ProbeAction {
-    ProbeStay          = 0,
-    ProbeDeploy        = _BV(0),
-    ProbeStow          = _BV(1),
-    ProbeDeployAndStow = (ProbeDeploy | ProbeStow)
-  };
-
-  // Probe bed height at position (x,y), returns the measured z value
-  static float probe_pt(float x, float y, float z_raise, ProbeAction probe_action = ProbeDeployAndStow, int verbose_level = 1) {
+  //
+  // - Move to the given XY
+  // - Deploy the probe, if not already deployed
+  // - Probe the bed, get the Z position
+  // - Depending on the 'stow' flag
+  //   - Stow the probe, or
+  //   - Raise to the BETWEEN height
+  // - Return the probed Z position
+  //
+  static float probe_pt(float x, float y, bool stow = true, int verbose_level = 1) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOLNPGM("probe_pt >>>");
-        SERIAL_ECHOPAIR("> ProbeAction:", probe_action);
+        SERIAL_ECHOPAIR("> stow:", stow);
         SERIAL_EOL;
         DEBUG_POS("", current_position);
       }
@@ -2119,39 +2120,37 @@ static void clean_up_after_endstop_or_probe_move() {
     // Raise by z_raise, then move the Z probe to the given XY
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("Z Raise by z_raise ", z_raise);
-        SERIAL_EOL;
-      }
-    #endif
-    do_probe_raise(z_raise); // this also updates current_position
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("> do_blocking_move_to_xy ", x - (X_PROBE_OFFSET_FROM_EXTRUDER));
+        SERIAL_ECHOPAIR("> do_blocking_move_to ", x - (X_PROBE_OFFSET_FROM_EXTRUDER));
         SERIAL_ECHOPAIR(", ", y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
+        SERIAL_ECHOPAIR(", ", max(current_position[Z_AXIS], Z_RAISE_BETWEEN_PROBINGS));
         SERIAL_EOL;
       }
     #endif
 
-    // this also updates current_position
     feedrate = XY_PROBE_FEEDRATE;
     do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
-    if (probe_action & ProbeDeploy) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> ProbeDeploy");
-      #endif
-      deploy_z_probe();
-    }
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> deploy_z_probe");
+    #endif
+    deploy_z_probe();
 
     float measured_z = run_z_probe();
 
-    if (probe_action & ProbeStow) {
+    if (stow) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> ProbeStow (stow_z_probe will do Z Raise)");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> stow_z_probe");
       #endif
       stow_z_probe();
     }
+    #if Z_RAISE_BETWEEN_PROBINGS > 0
+      else {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> do_probe_raise");
+        #endif
+        do_probe_raise(Z_RAISE_BETWEEN_PROBINGS);
+      }
+    #endif
 
     if (verbose_level > 2) {
       SERIAL_PROTOCOLPGM("Bed X: ");
@@ -2172,7 +2171,7 @@ static void clean_up_after_endstop_or_probe_move() {
     return measured_z;
   }
 
-#endif // AUTO_BED_LEVELING_FEATURE || Z_MIN_PROBE_REPEATABILITY_TEST
+#endif // HAS_BED_PROBE
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
