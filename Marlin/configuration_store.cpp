@@ -107,7 +107,7 @@
  *  391  M209 S    autoretract_enabled (bool)
  *  392  M207 S    retract_length (float)
  *  396  M207 W    retract_length_swap (float)
- *  400  M207 F    retract_feedrate (float)
+ *  400  M207 F    retract_feedrate_mm_s (float)
  *  404  M207 Z    retract_zlift (float)
  *  408  M208 S    retract_recover_length (float)
  *  412  M208 W    retract_recover_length_swap (float)
@@ -210,7 +210,7 @@ void Config_StoreSettings()  {
     for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
   #endif // MESH_BED_LEVELING
 
-  #if DISABLED(AUTO_BED_LEVELING_FEATURE)
+  #if !HAS_BED_PROBE
     float zprobe_zoffset = 0;
   #endif
   EEPROM_WRITE_VAR(i, zprobe_zoffset);
@@ -304,7 +304,7 @@ void Config_StoreSettings()  {
       dummy = 0.0f;
       EEPROM_WRITE_VAR(i, dummy);
     #endif
-    EEPROM_WRITE_VAR(i, retract_feedrate);
+    EEPROM_WRITE_VAR(i, retract_feedrate_mm_s);
     EEPROM_WRITE_VAR(i, retract_zlift);
     EEPROM_WRITE_VAR(i, retract_recover_length);
     #if EXTRUDERS > 1
@@ -389,7 +389,7 @@ void Config_RetrieveSettings() {
       for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
     #endif // MESH_BED_LEVELING
 
-    #if DISABLED(AUTO_BED_LEVELING_FEATURE)
+    #if !HAS_BED_PROBE
       float zprobe_zoffset = 0;
     #endif
     EEPROM_READ_VAR(i, zprobe_zoffset);
@@ -482,7 +482,7 @@ void Config_RetrieveSettings() {
       #else
         EEPROM_READ_VAR(i, dummy);
       #endif
-      EEPROM_READ_VAR(i, retract_feedrate);
+      EEPROM_READ_VAR(i, retract_feedrate_mm_s);
       EEPROM_READ_VAR(i, retract_zlift);
       EEPROM_READ_VAR(i, retract_recover_length);
       #if EXTRUDERS > 1
@@ -554,7 +554,7 @@ void Config_ResetDefault() {
     mbl.reset();
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if HAS_BED_PROBE
     zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
   #endif
 
@@ -617,7 +617,7 @@ void Config_ResetDefault() {
     #if EXTRUDERS > 1
       retract_length_swap = RETRACT_LENGTH_SWAP;
     #endif
-    retract_feedrate = RETRACT_FEEDRATE;
+    retract_feedrate_mm_s = RETRACT_FEEDRATE;
     retract_zlift = RETRACT_ZLIFT;
     retract_recover_length = RETRACT_RECOVER_LENGTH;
     #if EXTRUDERS > 1
@@ -864,7 +864,7 @@ void Config_PrintSettings(bool forReplay) {
     #if EXTRUDERS > 1
       SERIAL_ECHOPAIR(" W", retract_length_swap);
     #endif
-    SERIAL_ECHOPAIR(" F", retract_feedrate * 60);
+    SERIAL_ECHOPAIR(" F", retract_feedrate_mm_s * 60);
     SERIAL_ECHOPAIR(" Z", retract_zlift);
     SERIAL_EOL;
     CONFIG_ECHO_START;
@@ -927,20 +927,13 @@ void Config_PrintSettings(bool forReplay) {
   /**
    * Auto Bed Leveling
    */
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #if ENABLED(CUSTOM_M_CODES)
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
-      }
+  #if HAS_BED_PROBE
+    if (!forReplay) {
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M" STRINGIFY(CUSTOM_M_CODE_SET_Z_PROBE_OFFSET) " Z", zprobe_zoffset);
-    #else
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("Z-Probe Offset (mm):", zprobe_zoffset);
-      }
-    #endif
+      SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
+    }
+    CONFIG_ECHO_START;
+    SERIAL_ECHOPAIR("  M851 Z", zprobe_zoffset);
     SERIAL_EOL;
   #endif
 }

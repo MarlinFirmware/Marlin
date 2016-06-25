@@ -141,6 +141,9 @@
 #if ENABLED(U8GLIB_ST7920)
   //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
   U8GLIB_ST7920_128X64_RRD u8g(0);
+#elif defined(CARTESIO_UI)
+  // The CartesioUI display with SW-SPI
+  U8GLIB_DOGM128 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);
 #elif ENABLED(U8GLIB_LM6059_AF)
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);
@@ -471,6 +474,9 @@ static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
 }
 
 static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, const char* pstr, char pre_char, char post_char) {
+  UNUSED(pstr);
+  UNUSED(pre_char);
+
   char c;
   uint8_t n = LCD_WIDTH - 2;
 
@@ -561,6 +567,7 @@ void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
 #if ENABLED(SDSUPPORT)
 
   static void _drawmenu_sd(bool isSelected, uint8_t row, const char* pstr, const char* filename, char* const longFilename, bool isDir) {
+    UNUSED(pstr);
     char c;
     uint8_t n = LCD_WIDTH - 1;
 

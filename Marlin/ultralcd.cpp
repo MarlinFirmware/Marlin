@@ -496,17 +496,16 @@ static void lcd_status_screen() {
     }
 
     static void lcd_sdcard_stop() {
-      stepper.quick_stop();
-      #if DISABLED(DELTA) && DISABLED(SCARA)
-        set_current_position_from_planner();
-      #endif // !DELTA && !SCARA
+      card.stopSDPrint();
       clear_command_queue();
-      card.sdprinting = false;
-      card.closefile();
+      stepper.quick_stop();
       print_job_timer.stop();
       thermalManager.autotempShutdown();
       cancel_heatup = true;
       lcd_setstatus(MSG_PRINT_ABORTED, true);
+      #if DISABLED(DELTA) && DISABLED(SCARA)
+        set_current_position_from_planner();
+      #endif // !DELTA && !SCARA
     }
 
   #endif //SDSUPPORT
@@ -586,11 +585,11 @@ static void lcd_status_screen() {
         thermalManager.babystep_axis(axis, babystep_increment);
         babysteps_done += babystep_increment;
       }
-       // 1000 to print 3 Dec Places
-      if (lcdDrawUpdate) 
-        lcd_implementation_drawedit(msg, ftostr43sign( 
-          ((1000 * babysteps_done) / planner.axis_steps_per_mm[axis]) * 0.001f  
-      ));
+
+      if (lcdDrawUpdate)
+        lcd_implementation_drawedit(msg, ftostr43sign(
+          ((1000 * babysteps_done) / planner.axis_steps_per_mm[axis]) * 0.001f
+        ));
       if (LCD_CLICKED) lcd_goto_previous_menu(true);
     }
 
@@ -1294,7 +1293,7 @@ static void lcd_status_screen() {
       #if EXTRUDERS == 1
         pos_label = PSTR(MSG_MOVE_E);
       #else
-        switch (e) {
+        switch (eindex) {
           case 0: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E1); break;
           case 1: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E2); break;
           #if EXTRUDERS > 2
@@ -1685,7 +1684,7 @@ static void lcd_status_screen() {
   static void lcd_control_motion_menu() {
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL);
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #if HAS_BED_PROBE
       MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
     #endif
     // Manual bed leveling, Bed Z:
@@ -1799,7 +1798,7 @@ static void lcd_status_screen() {
       #if EXTRUDERS > 1
         MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_SWAP, &retract_length_swap, 0, 100);
       #endif
-      MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &retract_feedrate, 1, 999);
+      MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &retract_feedrate_mm_s, 1, 999);
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_ZLIFT, &retract_zlift, 0, 999);
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER, &retract_recover_length, 0, 100);
       #if EXTRUDERS > 1

@@ -33,6 +33,19 @@
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
 
+/**
+ *
+ *  ***********************************
+ *  **  ATTENTION TO ALL DEVELOPERS  **
+ *  ***********************************
+ *
+ * You must increment this version number for every significant change such as,
+ * but not limited to: ADD, DELETE RENAME OR REPURPOSE any directive/option.
+ *
+ * Note: Update also Version.h !
+ */
+#define CONFIGURATION_ADV_H_VERSION 010100
+
 #include "Conditionals.h"
 
 // @section temperature
@@ -405,9 +418,10 @@
   //#define USE_SMALL_INFOFONT
 #endif // DOGLCD
 
-// @section more
+// @section safety
 
-// The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
+// The hardware watchdog should reset the microcontroller disabling all outputs,
+// in case the firmware gets stuck and doesn't do temperature regulation.
 #define USE_WATCHDOG
 
 #if ENABLED(USE_WATCHDOG)
@@ -498,9 +512,9 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
 
-// @section more
+// @section serial
 
-//The ASCII buffer for receiving from the serial:
+// The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
@@ -690,9 +704,9 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
  * devices on the bus.
  *
  * ; Example #1
- * ; This macro send the string "Marlin" to the slave device with address 0x63
+ * ; This macro send the string "Marlin" to the slave device with address 0x63 (99)
  * ; It uses multiple M155 commands with one B<base 10> arg
- * M155 A63  ; Target slave address
+ * M155 A99  ; Target slave address
  * M155 B77  ; M
  * M155 B97  ; a
  * M155 B114 ; r
@@ -702,12 +716,12 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
  * M155 S1   ; Send the current buffer
  *
  * ; Example #2
- * ; Request 6 bytes from slave device with address 0x63
- * M156 A63 B5
+ * ; Request 6 bytes from slave device with address 0x63 (99)
+ * M156 A99 B5
  *
  * ; Example #3
  * ; Example serial output of a M156 request
- * echo:i2c-reply: from:63 bytes:5 data:hello
+ * echo:i2c-reply: from:99 bytes:5 data:hello
  */
 
 // @section i2cbus

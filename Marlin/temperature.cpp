@@ -101,7 +101,7 @@ unsigned char Temperature::soft_pwm_bed;
   millis_t Temperature::watch_heater_next_ms[HOTENDS] = { 0 };
 #endif
 
-#if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_BED_TEMP_PERIOD > 0
+#if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
   int Temperature::watch_target_bed_temp = 0;
   millis_t Temperature::watch_bed_next_ms = 0;
 #endif
@@ -462,7 +462,7 @@ int Temperature::getHeaterPower(int heater) {
       EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN ? 2 : 3
     };
     uint8_t fanState = 0;
-    for (int f = 0; f <= HOTENDS; f++) {
+    for (int f = 0; f < HOTENDS; f++) {
       if (current_temperature[f] > EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, fanBit[f]);
     }
