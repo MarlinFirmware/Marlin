@@ -2048,9 +2048,6 @@ static void lcd_status_screen() {
 
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
 
-    static void lcd_filament_change_nothing() {
-    }
-    
     static void lcd_filament_change_resume_print() {
       filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_RESUME_PRINT;
       lcdDrawUpdate = 2;
@@ -2063,7 +2060,9 @@ static void lcd_status_screen() {
 
     static void lcd_filament_change_option_menu() {
       START_MENU();
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_HEADER, lcd_filament_change_nothing);
+      #if LCD_HEIGHT > 2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER);
+      #endif
       MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_filament_change_resume_print);
       MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_EXTRUDE, lcd_filament_change_extrude_more);
       END_MENU();
@@ -2071,55 +2070,79 @@ static void lcd_status_screen() {
 
     static void lcd_filament_change_init_message() {
       START_MENU();
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INIT_1, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INIT_2, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INIT_3, lcd_filament_change_nothing);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_1);
+      #ifdef MSG_FILAMENT_CHANGE_INIT_2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_2);
+      #endif
+      #ifdef MSG_FILAMENT_CHANGE_INIT_3
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_3);
+      #endif
       END_MENU();
     }
 
     static void lcd_filament_change_unload_message() {
       START_MENU();
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_UNLOAD_1, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_UNLOAD_2, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_UNLOAD_3, lcd_filament_change_nothing);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_1);
+      #ifdef MSG_FILAMENT_CHANGE_UNLOAD_2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_2);
+      #endif
+      #ifdef MSG_FILAMENT_CHANGE_UNLOAD_3
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_3);
+      #endif
       END_MENU();
     }
 
     static void lcd_filament_change_insert_message() {
       START_MENU();
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INSERT_1, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INSERT_2, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_INSERT_3, lcd_filament_change_nothing);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_1);
+      #ifdef MSG_FILAMENT_CHANGE_INSERT_2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_2);
+      #endif
+      #ifdef MSG_FILAMENT_CHANGE_INSERT_3
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_3);
+      #endif
       END_MENU();
     }
 
     static void lcd_filament_change_load_message() {
       START_MENU();
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_LOAD_1, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_LOAD_2, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_LOAD_3, lcd_filament_change_nothing);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_1);
+      #ifdef MSG_FILAMENT_CHANGE_LOAD_2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_2);
+      #endif
+      #ifdef MSG_FILAMENT_CHANGE_LOAD_3
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_3);
+      #endif
       END_MENU();
     }
 
     static void lcd_filament_change_extrude_message() {
       START_MENU();
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_EXTRUDE_1, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_EXTRUDE_2, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_EXTRUDE_3, lcd_filament_change_nothing);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_EXTRUDE_1);
+      #ifdef MSG_FILAMENT_CHANGE_EXTRUDE_2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_EXTRUDE_2);
+      #endif
+      #ifdef MSG_FILAMENT_CHANGE_EXTRUDE_3
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_EXTRUDE_3);
+      #endif
       END_MENU();
     }
 
     static void lcd_filament_change_resume_message() {
       START_MENU();
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_HEADER, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_RESUME_1, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_RESUME_2, lcd_filament_change_nothing);
-      MENU_ITEM(function, MSG_FILAMENT_CHANGE_RESUME_3, lcd_filament_change_nothing);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_RESUME_1);
+      #ifdef MSG_FILAMENT_CHANGE_RESUME_2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_RESUME_2);
+      #endif
+      #ifdef MSG_FILAMENT_CHANGE_RESUME_3
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_RESUME_3);
+      #endif
       END_MENU();
     }
   
