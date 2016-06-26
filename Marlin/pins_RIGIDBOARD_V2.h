@@ -82,6 +82,17 @@
 
 #endif
 
+// uncomment to enable an I2C based DAC like on the Printrboard REVF
+#define DAC_STEPPER_CURRENT
+// Number of channels available for DAC, For Rigidboard there are 4
+#define DAC_STEPPER_ORDER {0,1,2,3}
+
+#define DAC_STEPPER_SENSE    0.11
+#define DAC_STEPPER_ADDRESS  0
+#define DAC_STEPPER_MAX   5000
+#define DAC_STEPPER_VREF     1 //internal Vref, gain 1x = 2.048V
+#define DAC_STEPPER_GAIN     0
+#define DAC_DISABLE_PIN     42 //  set low to enable DAC
 
 // SPI for Max6675 or Max31855 Thermocouple
 #undef MAX6675_SS

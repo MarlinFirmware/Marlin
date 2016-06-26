@@ -31,7 +31,7 @@
 #include "Configuration_adv.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
-#include "WProgram.h"
+//#include "WProgram.h"
 #include "Wire.h"
 //#include <Wire.h>
 
