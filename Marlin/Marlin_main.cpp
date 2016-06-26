@@ -3072,7 +3072,11 @@ inline void gcode_G28() {
   #if ENABLED(MESH_BED_LEVELING)
     if (mbl.has_mesh()) {
       if (home_all_axis || (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && homeZ)) {
-        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
+          #if Z_HOME_DIR > 0
+            + Z_MAX_POS
+          #endif
+        ;
         SYNC_PLAN_POSITION_KINEMATIC();
         mbl.set_active(true);
         #if ENABLED(MESH_G28_REST_ORIGIN)
@@ -3084,7 +3088,11 @@ inline void gcode_G28() {
         #else
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z -
             mbl.get_z(current_position[X_AXIS] - home_offset[X_AXIS],
-                      current_position[Y_AXIS] - home_offset[Y_AXIS]);
+                      current_position[Y_AXIS] - home_offset[Y_AXIS])
+            #if Z_HOME_DIR > 0
+              + Z_MAX_POS
+            #endif
+          ;
         #endif
       }
       else if ((axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) && (homeX || homeY)) {
@@ -3223,7 +3231,11 @@ inline void gcode_G28() {
         // For each G29 S2...
         if (probe_point == 0) {
           // For the intial G29 S2 make Z a positive value (e.g., 4.0)
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
+            #if Z_HOME_DIR > 0
+              + Z_MAX_POS
+            #endif
+          ;
           SYNC_PLAN_POSITION_KINEMATIC();
         }
         else {
