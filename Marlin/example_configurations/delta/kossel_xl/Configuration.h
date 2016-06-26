@@ -580,12 +580,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 //
-// Probe Raise options provide clearance for the probe to deploy and stow.
+// Probe Raise options provide clearance for the probe to deploy, stow, and travel.
 //
-// For G28 these apply when the probe deploys and stows.
-// For G29 these apply before and after the full procedure.
-#define Z_RAISE_BEFORE_PROBING 20   // Raise before probe deploy (e.g., the first probe).
-#define Z_RAISE_AFTER_PROBING 20    // Raise before probe stow (e.g., the last probe).
+#define Z_RAISE_PROBE_DEPLOY_STOW 20 // Raise to make room for the probe to deploy / stow
 #define Z_RAISE_BETWEEN_PROBINGS 10 // Raise between probing points.
 
 //
