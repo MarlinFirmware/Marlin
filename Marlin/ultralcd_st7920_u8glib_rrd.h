@@ -43,11 +43,11 @@
 //set optimization so ARDUINO optimizes this file
 #pragma GCC optimize (3)
 
-#define DELAY_0_NOP  ;
-#define DELAY_1_NOP  __asm__("nop\n\t");
-#define DELAY_2_NOP  __asm__("nop\n\t" "nop\n\t");
-#define DELAY_3_NOP  __asm__("nop\n\t" "nop\n\t" "nop\n\t");
-#define DELAY_4_NOP  __asm__("nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t");
+#define DELAY_0_NOP  NOOP
+#define DELAY_1_NOP  __asm__("nop\n\t")
+#define DELAY_2_NOP  __asm__("nop\n\t" "nop\n\t")
+#define DELAY_3_NOP  __asm__("nop\n\t" "nop\n\t" "nop\n\t")
+#define DELAY_4_NOP  __asm__("nop\n\t" "nop\n\t" "nop\n\t" "nop\n\t")
 
 
 // If you want you can define your own set of delays in Configuration.h
@@ -56,121 +56,54 @@
 //#define ST7920_DELAY_3 DELAY_0_NOP
 
 #if F_CPU >= 20000000
-  #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_0_NOP
-  #endif
-  #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_0_NOP
-  #endif
-  #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_1_NOP
-  #endif
+  #define CPU_ST7920_DELAY_1 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_2 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_3 DELAY_1_NOP
 #elif (MOTHERBOARD == BOARD_3DRAG) || (MOTHERBOARD == BOARD_K8200)
-  #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_0_NOP
-  #endif
-  #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_3_NOP
-  #endif
-  #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_0_NOP
-  #endif
+  #define CPU_ST7920_DELAY_1 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_2 DELAY_3_NOP
+  #define CPU_ST7920_DELAY_3 DELAY_0_NOP
 #elif (MOTHERBOARD == BOARD_MINIRAMBO)
-  #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_0_NOP
-  #endif
-  #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_4_NOP
-  #endif
-  #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_0_NOP
-  #endif
+  #define CPU_ST7920_DELAY_1 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_2 DELAY_4_NOP
+  #define CPU_ST7920_DELAY_3 DELAY_0_NOP
 #elif (MOTHERBOARD == BOARD_RAMBO)
-  #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_0_NOP
-  #endif
-  #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_0_NOP
-  #endif
-  #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_0_NOP
-  #endif
+  #define CPU_ST7920_DELAY_1 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_2 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_3 DELAY_0_NOP
 #elif F_CPU == 16000000
-  #ifndef ST7920_DELAY_1
-    #define ST7920_DELAY_1 DELAY_0_NOP
-  #endif
-  #ifndef ST7920_DELAY_2
-    #define ST7920_DELAY_2 DELAY_0_NOP
-  #endif
-  #ifndef ST7920_DELAY_3
-    #define ST7920_DELAY_3 DELAY_1_NOP
-  #endif
+  #define CPU_ST7920_DELAY_1 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_2 DELAY_0_NOP
+  #define CPU_ST7920_DELAY_3 DELAY_1_NOP
 #else
   #error "No valid condition for delays in 'ultralcd_st7920_u8glib_rrd.h'"
 #endif
 
+#ifndef ST7920_DELAY_1
+  #define ST7920_DELAY_1 CPU_ST7920_DELAY_1
+#endif
+#ifndef ST7920_DELAY_2
+  #define ST7920_DELAY_2 CPU_ST7920_DELAY_2
+#endif
+#ifndef ST7920_DELAY_3
+  #define ST7920_DELAY_3 CPU_ST7920_DELAY_3
+#endif
+
+#define ST7920_SND_BIT \
+  WRITE(ST7920_CLK_PIN, LOW);        ST7920_DELAY_1; \
+  WRITE(ST7920_DAT_PIN, val & 0x80); ST7920_DELAY_2; \
+  WRITE(ST7920_CLK_PIN, HIGH);       ST7920_DELAY_3; \
+  val <<= 1
+
 static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
-    WRITE(ST7920_CLK_PIN,0);
-    ST7920_DELAY_1
-    WRITE(ST7920_DAT_PIN,val&0x80);
-    ST7920_DELAY_2
-    WRITE(ST7920_CLK_PIN,1);
-    val<<=1;
-    ST7920_DELAY_3
-
-    WRITE(ST7920_CLK_PIN,0);
-    ST7920_DELAY_1
-    WRITE(ST7920_DAT_PIN,val&0x80);
-    ST7920_DELAY_2
-    WRITE(ST7920_CLK_PIN,1);
-    val<<=1;
-    ST7920_DELAY_3
-
-    WRITE(ST7920_CLK_PIN,0);
-    ST7920_DELAY_1
-    WRITE(ST7920_DAT_PIN,val&0x80);
-    ST7920_DELAY_2
-    WRITE(ST7920_CLK_PIN,1);
-    val<<=1;
-    ST7920_DELAY_3
-
-    WRITE(ST7920_CLK_PIN,0);
-    ST7920_DELAY_1
-    WRITE(ST7920_DAT_PIN,val&0x80);
-    ST7920_DELAY_2
-    WRITE(ST7920_CLK_PIN,1);
-    val<<=1;
-    ST7920_DELAY_3
-
-    WRITE(ST7920_CLK_PIN,0);
-    ST7920_DELAY_1
-    WRITE(ST7920_DAT_PIN,val&0x80);
-    ST7920_DELAY_2
-    WRITE(ST7920_CLK_PIN,1);
-    val<<=1;
-    ST7920_DELAY_3
-
-    WRITE(ST7920_CLK_PIN,0);
-    ST7920_DELAY_1
-    WRITE(ST7920_DAT_PIN,val&0x80);
-    ST7920_DELAY_2
-    WRITE(ST7920_CLK_PIN,1);
-    val<<=1;
-    ST7920_DELAY_3
-
-    WRITE(ST7920_CLK_PIN,0);
-    ST7920_DELAY_1
-    WRITE(ST7920_DAT_PIN,val&0x80);
-    ST7920_DELAY_2
-    WRITE(ST7920_CLK_PIN,1);
-    val<<=1;
-    ST7920_DELAY_3
-
-    WRITE(ST7920_CLK_PIN,0);
-    ST7920_DELAY_1
-    WRITE(ST7920_DAT_PIN,val&0x80);
-    ST7920_DELAY_2
-    WRITE(ST7920_CLK_PIN,1);
+  ST7920_SND_BIT; // 1
+  ST7920_SND_BIT; // 2
+  ST7920_SND_BIT; // 3
+  ST7920_SND_BIT; // 4
+  ST7920_SND_BIT; // 5
+  ST7920_SND_BIT; // 6
+  ST7920_SND_BIT; // 7
+  ST7920_SND_BIT; // 8
 }
 
 #define ST7920_CS()              {WRITE(ST7920_CS_PIN,1);u8g_10MicroDelay();}
