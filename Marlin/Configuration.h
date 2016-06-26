@@ -398,7 +398,7 @@
   #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
 
   // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
-  #define DELTA_PRINTABLE_RADIUS 127.0
+  #define DELTA_PRINTABLE_RADIUS 130.0
 
   // Tower offsets
   #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 2.78     // X
