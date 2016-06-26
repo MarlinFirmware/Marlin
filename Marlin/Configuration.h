@@ -403,7 +403,7 @@
   // Tower offsets
   #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 2.78     // X
   #define DELTA_DIAGONAL_ROD_TRIM_TOWER_2 2.78     // Y
-  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 1.142    // Z
+  #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 1.142    // Z
 
 #endif // DELTA
 
