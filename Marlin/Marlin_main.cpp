@@ -2107,10 +2107,9 @@ static void clean_up_after_endstop_or_probe_move() {
     // Raise by z_raise, then move the Z probe to the given XY
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("> do_blocking_move_to ", x - (X_PROBE_OFFSET_FROM_EXTRUDER));
+        SERIAL_ECHOPAIR("> do_blocking_move_to_xy(", x - (X_PROBE_OFFSET_FROM_EXTRUDER));
         SERIAL_ECHOPAIR(", ", y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
-        SERIAL_ECHOPAIR(", ", max(current_position[Z_AXIS], Z_RAISE_BETWEEN_PROBINGS));
-        SERIAL_EOL;
+        SERIAL_ECHOLNPGM(")");
       }
     #endif
 
