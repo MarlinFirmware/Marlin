@@ -1767,8 +1767,8 @@ static void clean_up_after_endstop_or_probe_move() {
     float oldXpos = current_position[X_AXIS]; // save x position
     float old_feedrate = feedrate;
     if (dock) {
-      #if Z_RAISE_AFTER_PROBING > 0
-        do_probe_raise(Z_RAISE_AFTER_PROBING);
+      #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
+        do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
       #endif
       // Dock sled a bit closer to ensure proper capturing
       feedrate = XY_PROBE_FEEDRATE;
@@ -1778,7 +1778,7 @@ static void clean_up_after_endstop_or_probe_move() {
     else {
       feedrate = XY_PROBE_FEEDRATE;
       float z_loc = current_position[Z_AXIS];
-      if (z_loc < Z_RAISE_BEFORE_PROBING + 5) z_loc = Z_RAISE_BEFORE_PROBING;
+      if (z_loc < _Z_RAISE_PROBE_DEPLOY_STOW + 5) z_loc = _Z_RAISE_PROBE_DEPLOY_STOW;
       do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, current_position[Y_AXIS], z_loc); // this also updates current_position
       digitalWrite(SLED_PIN, HIGH); // turn on magnet
     }
@@ -1800,8 +1800,8 @@ static void clean_up_after_endstop_or_probe_move() {
     if (endstops.z_probe_enabled) return;
 
     // Make room for probe
-    #if Z_RAISE_BEFORE_PROBING > 0
-      do_probe_raise(Z_RAISE_BEFORE_PROBING);
+    #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
+      do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
     #endif
 
     #if ENABLED(Z_PROBE_SLED)
@@ -1904,8 +1904,8 @@ static void clean_up_after_endstop_or_probe_move() {
     if (!endstops.z_probe_enabled) return;
 
     // Make more room for the servo
-    #if Z_RAISE_AFTER_PROBING > 0
-      do_probe_raise(Z_RAISE_AFTER_PROBING);
+    #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
+      do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
     #endif
 
     #if ENABLED(Z_PROBE_SLED)
@@ -1924,8 +1924,8 @@ static void clean_up_after_endstop_or_probe_move() {
       // Move up for safety
       feedrate = Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE;
 
-      #if Z_RAISE_AFTER_PROBING > 0
-        destination[Z_AXIS] = current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING;
+      #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
+        destination[Z_AXIS] = current_position[Z_AXIS] + _Z_RAISE_PROBE_DEPLOY_STOW;
         prepare_move_to_destination_raw(); // this will also set_current_to_destination
       #endif
 
@@ -3598,7 +3598,7 @@ inline void gcode_G28() {
 
     #endif // !AUTO_BED_LEVELING_GRID
 
-    // Raise to Z_RAISE_AFTER_PROBING. Stow the probe.
+    // Raise to _Z_RAISE_PROBE_DEPLOY_STOW. Stow the probe.
     stow_z_probe();
 
     // Restore state after probing
