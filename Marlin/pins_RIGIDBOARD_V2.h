@@ -93,6 +93,7 @@
 #define DAC_STEPPER_VREF     1 //internal Vref, gain 1x = 2.048V
 #define DAC_STEPPER_GAIN     0
 #define DAC_DISABLE_PIN     42 //  set low to enable DAC
+#define DAC_OR_ADDRESS    0x01
 
 // SPI for Max6675 or Max31855 Thermocouple
 #undef MAX6675_SS

@@ -89,6 +89,7 @@
 #define DAC_STEPPER_MAX   3520
 #define DAC_STEPPER_VREF     1 //internal Vref, gain 1x = 2.048V
 #define DAC_STEPPER_GAIN     0
+#define DAC_OR_ADDRESS    0x00
 
 #if DISABLED(SDSUPPORT)
   // these pins are defined in the SD library if building with SD support
