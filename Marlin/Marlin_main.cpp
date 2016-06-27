@@ -1723,17 +1723,30 @@ static void clean_up_after_endstop_or_probe_move() {
 #endif //HAS_BED_PROBE
 
 #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE
-  static void axis_unhomed_error(bool xyz=false) {
-    if (xyz) {
-      LCD_MESSAGEPGM(MSG_XYZ_UNHOMED);
+  static bool axis_unhomed_error(const bool x, const bool y, const bool z) {
+    const bool xx = x && !axis_homed[X_AXIS],
+               yy = y && !axis_homed[Y_AXIS],
+               zz = z && !axis_homed[Z_AXIS];
+    if (xx || yy || zz) {
       SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_XYZ_UNHOMED);
+      SERIAL_ECHOPGM(MSG_HOME " ");
+      if (xx) SERIAL_ECHOPGM(MSG_X);
+      if (yy) SERIAL_ECHOPGM(MSG_Y);
+      if (zz) SERIAL_ECHOPGM(MSG_Z);
+      SERIAL_ECHOLNPGM(" " MSG_FIRST);
+
+      #if ENABLED(ULTRA_LCD)
+        char message[3 * (LCD_WIDTH) + 1] = ""; // worst case is kana.utf with up to 3*LCD_WIDTH+1
+        strcat_P(message, PSTR(MSG_HOME " "));
+        if (xx) strcat_P(message, PSTR(MSG_X));
+        if (yy) strcat_P(message, PSTR(MSG_Y));
+        if (zz) strcat_P(message, PSTR(MSG_Z));
+        strcat_P(message, PSTR(" " MSG_FIRST));
+        lcd_setstatus(message);
+      #endif
+      return true;
     }
-    else {
-      LCD_MESSAGEPGM(MSG_YX_UNHOMED);
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_YX_UNHOMED);
-    }
+    return false;
   }
 #endif
 
@@ -1757,10 +1770,7 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    if (!axis_homed[X_AXIS]) {
-      axis_unhomed_error(true);
-      return;
-    }
+    if (axis_unhomed_error(true, false, false)) return;
 
     float oldXpos = current_position[X_AXIS]; // save x position
 
@@ -3000,32 +3010,27 @@ inline void gcode_G28() {
           else if (homeZ) { // Don't need to Home Z twice
 
             // Let's see if X and Y are homed
-            if (axis_homed[X_AXIS] && axis_homed[Y_AXIS]) {
+            if (axis_unhomed_error(true, true, false)) return;
 
-              /**
-               * Make sure the Z probe is within the physical limits
-               * NOTE: This doesn't necessarily ensure the Z probe is also
-               * within the bed!
-               */
-              float cpx = current_position[X_AXIS], cpy = current_position[Y_AXIS];
-              if (   cpx >= X_MIN_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-                  && cpx <= X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-                  && cpy >= Y_MIN_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
-                  && cpy <= Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)) {
+            /**
+             * Make sure the Z probe is within the physical limits
+             * NOTE: This doesn't necessarily ensure the Z probe is also
+             * within the bed!
+             */
+            float cpx = current_position[X_AXIS], cpy = current_position[Y_AXIS];
+            if (   cpx >= X_MIN_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
+                && cpx <= X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
+                && cpy >= Y_MIN_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
+                && cpy <= Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)) {
 
-                // Home the Z axis
-                HOMEAXIS(Z);
-              }
-              else {
-                LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
-                SERIAL_ECHO_START;
-                SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
-              }
+              // Home the Z axis
+              HOMEAXIS(Z);
             }
             else {
-              axis_unhomed_error();
+              LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+              SERIAL_ECHO_START;
+              SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
             }
-
           } // !home_all_axes && homeZ
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3366,10 +3371,7 @@ inline void gcode_G28() {
     #endif
 
     // Don't allow auto-leveling without homing first
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
-      axis_unhomed_error(true);
-      return;
-    }
+    if (axis_unhomed_error(true, true, true)) return;
 
     int verbose_level = code_seen('V') ? code_value_int() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
@@ -4121,10 +4123,7 @@ inline void gcode_M42() {
    */
   inline void gcode_M48() {
 
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
-      axis_unhomed_error(true);
-      return;
-    }
+    if (axis_unhomed_error(true, true, true)) return;
 
     int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
