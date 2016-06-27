@@ -169,8 +169,8 @@
 #define MSG_INIT_SDCARD                     "Iniciando tarjeta"
 #define MSG_CNG_SDCARD                      "Cambiar tarjeta"
 #define MSG_ZPROBE_OUT                      "Sonda Z fuera"
-#define MSG_YX_UNHOMED                      "Reiniciar X/Y y Z"
-#define MSG_XYZ_UNHOMED                     "Reiniciar XYZ"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Desfase Z"
 #define MSG_BABYSTEP_X                      "Micropaso X"
 #define MSG_BABYSTEP_Y                      "Micropaso Y"
