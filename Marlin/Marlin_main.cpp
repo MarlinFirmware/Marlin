@@ -1713,10 +1713,7 @@ static void clean_up_after_endstop_or_probe_move() {
       z_dest -= zprobe_zoffset;
 
     if (z_dest > current_position[Z_AXIS]) {
-      float old_feedrate = feedrate;
-      feedrate = homing_feedrate[Z_AXIS];
       do_blocking_move_to_z(z_dest);
-      feedrate = old_feedrate;
     }
   }
 
@@ -1795,9 +1792,7 @@ static void clean_up_after_endstop_or_probe_move() {
     if (endstops.z_probe_enabled) return;
 
     // Make room for probe
-    #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
-      do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
-    #endif
+    do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
 
     #if ENABLED(Z_PROBE_SLED)
 
@@ -1899,9 +1894,7 @@ static void clean_up_after_endstop_or_probe_move() {
     if (!endstops.z_probe_enabled) return;
 
     // Make more room for the servo
-    #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
-      do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
-    #endif
+    do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
 
     #if ENABLED(Z_PROBE_SLED)
 
@@ -2839,28 +2832,33 @@ inline void gcode_G28() {
 
     #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
 
-      // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      if (current_position[Z_AXIS] <= MIN_Z_HEIGHT_FOR_HOMING) {
-        destination[Z_AXIS] = MIN_Z_HEIGHT_FOR_HOMING;
-        feedrate = planner.max_feedrate[Z_AXIS] * 60;  // feedrate (mm/m) = max_feedrate (mm/s)
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("Raise Z (before homing) to ", (MIN_Z_HEIGHT_FOR_HOMING));
-            SERIAL_EOL;
-            DEBUG_POS("> (home_all_axis || homeZ)", current_position);
-            DEBUG_POS("> (home_all_axis || homeZ)", destination);
-          }
-        #endif
-        line_to_destination();
-        stepper.synchronize();
+      #if HAS_BED_PROBE
+        do_probe_raise(MIN_Z_HEIGHT_FOR_HOMING);
+        destination[Z_AXIS] = current_position[Z_AXIS];
+      #else
+        // Raise Z before homing any other axes and z is not already high enough (never lower z)
+        if (current_position[Z_AXIS] <= MIN_Z_HEIGHT_FOR_HOMING) {
+          destination[Z_AXIS] = MIN_Z_HEIGHT_FOR_HOMING;
+          feedrate = planner.max_feedrate[Z_AXIS] * 60;  // feedrate (mm/m) = max_feedrate (mm/s)
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_ECHOPAIR("Raise Z (before homing) to ", (MIN_Z_HEIGHT_FOR_HOMING));
+              SERIAL_EOL;
+              DEBUG_POS("> (home_all_axis || homeZ)", current_position);
+              DEBUG_POS("> (home_all_axis || homeZ)", destination);
+            }
+          #endif
+          line_to_destination();
+          stepper.synchronize();
 
-        /**
-         * Update the current Z position even if it currently not real from
-         * Z-home otherwise each call to line_to_destination() will want to
-         * move Z-axis by MIN_Z_HEIGHT_FOR_HOMING.
-         */
-        current_position[Z_AXIS] = destination[Z_AXIS];
-      }
+          /**
+           * Update the current Z position even if it currently not real from
+           * Z-home otherwise each call to line_to_destination() will want to
+           * move Z-axis by MIN_Z_HEIGHT_FOR_HOMING.
+           */
+          current_position[Z_AXIS] = destination[Z_AXIS];
+        }
+      #endif
     #endif
 
     #if ENABLED(QUICK_HOME)
@@ -2917,7 +2915,12 @@ inline void gcode_G28() {
 
     #if ENABLED(HOME_Y_BEFORE_X)
       // Home Y
-      if (home_all_axis || homeY) HOMEAXIS(Y);
+      if (home_all_axis || homeY) {
+        HOMEAXIS(Y);
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
+        #endif
+      }
     #endif
 
     // Home X
