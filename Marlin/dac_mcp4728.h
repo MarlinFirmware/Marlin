@@ -50,7 +50,9 @@
 #define GAINWRITE 0B11000000
 
 // This is taken from the original lib, makes it easy to edit if needed
-#define DAC_DEV_ADDRESS (BASE_ADDR | 0x00)
+// DAC_OR_ADDRESS defined in pins_BOARD.h  file
+#define DAC_DEV_ADDRESS (BASE_ADDR | DAC_OR_ADDRESS)
+
 
 void mcp4728_init();
 uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value);
