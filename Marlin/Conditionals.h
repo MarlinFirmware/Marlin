@@ -255,6 +255,7 @@
 
     #define HAS_LCD_CONTRAST ( \
         ENABLED(MAKRPANEL) \
+     || ENABLED(CARTESIO_UI) \
      || ENABLED(VIKI2) \
      || ENABLED(miniVIKI) \
      || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
