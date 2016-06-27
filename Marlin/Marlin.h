@@ -84,8 +84,9 @@ typedef unsigned long millis_t;
 #define SERIAL_PROTOCOL_F(x,y) MYSERIAL.print(x,y)
 #define SERIAL_PROTOCOLPGM(x) serialprintPGM(PSTR(x))
 #define SERIAL_PROTOCOLLN(x) do{ MYSERIAL.print(x); SERIAL_EOL; }while(0)
-#define SERIAL_PROTOCOLLNPGM(x) do{ serialprintPGM(PSTR(x)); SERIAL_EOL; }while(0)
+#define SERIAL_PROTOCOLLNPGM(x) do{ serialprintPGM(PSTR(x "\n")); }while(0)
 
+#define SERIAL_PROTOCOLPAIR(name, value) SERIAL_ECHOPAIR(name, value)
 
 extern const char errormagic[] PROGMEM;
 extern const char echomagic[] PROGMEM;
