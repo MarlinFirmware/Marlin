@@ -31,9 +31,7 @@
 #include "Configuration_adv.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
-#include "WProgram.h"
 #include "Wire.h"
-//#include <Wire.h>
 
 #define defaultVDD 5000
 #define BASE_ADDR 0x60
