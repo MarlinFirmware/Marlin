@@ -1746,45 +1746,30 @@ static void clean_up_after_endstop_or_probe_move() {
   /**
    * Method to dock/undock a sled designed by Charles Bell.
    *
-   * dock[in]     If true, move to MAX_X and engage the electromagnet
-   * offset[in]   The additional distance to move to adjust docking location
+   * stow[in]     If false, move to MAX_X and engage the solenoid
+   *              If true, move to MAX_X and release the solenoid
    */
-  static void dock_sled(bool dock, int offset = 0) {
+  static void dock_sled(bool stow) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("dock_sled(", dock);
+        SERIAL_ECHOPAIR("dock_sled(", stow);
         SERIAL_ECHOLNPGM(")");
       }
     #endif
 
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
+    if (!axis_homed[X_AXIS]) {
       axis_unhomed_error(true);
       return;
     }
 
-    if (endstops.z_probe_enabled == !dock) return; // already docked/undocked?
-
     float oldXpos = current_position[X_AXIS]; // save x position
-    float old_feedrate = feedrate;
-    if (dock) {
-      #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
-        do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
-      #endif
-      // Dock sled a bit closer to ensure proper capturing
-      feedrate = XY_PROBE_FEEDRATE;
-      do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET + offset - 1);
-      digitalWrite(SLED_PIN, LOW); // turn off magnet
-    }
-    else {
-      feedrate = XY_PROBE_FEEDRATE;
-      float z_loc = current_position[Z_AXIS];
-      if (z_loc < _Z_RAISE_PROBE_DEPLOY_STOW + 5) z_loc = _Z_RAISE_PROBE_DEPLOY_STOW;
-      do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, current_position[Y_AXIS], z_loc); // this also updates current_position
-      digitalWrite(SLED_PIN, HIGH); // turn on magnet
-    }
+
+    // Dock sled a bit closer to ensure proper capturing
+    do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
+    digitalWrite(SLED_PIN, !stow); // switch solenoid
+
     do_blocking_move_to_x(oldXpos); // return to position before docking
 
-    feedrate = old_feedrate;
   }
 
 #endif // Z_PROBE_SLED
@@ -3394,7 +3379,7 @@ inline void gcode_G28() {
 
     bool dryrun = code_seen('D');
 
-    #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+    #if ENABLED(Z_PROBE_ALLEN_KEY)
       const bool stow_probe_after_each = false;
     #else
       bool stow_probe_after_each = code_seen('E');
@@ -4159,7 +4144,7 @@ inline void gcode_M42() {
     float  X_current = current_position[X_AXIS],
            Y_current = current_position[Y_AXIS];
 
-    #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+    #if ENABLED(Z_PROBE_ALLEN_KEY)
       const bool stow_probe_after_each = false;
     #else
       bool stow_probe_after_each = code_seen('E');
