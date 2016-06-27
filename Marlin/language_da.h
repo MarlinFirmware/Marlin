@@ -170,8 +170,8 @@
 #define MSG_INIT_SDCARD                     "Init. SD card"
 #define MSG_CNG_SDCARD                      "Skift SD kort"
 #define MSG_ZPROBE_OUT                      "Probe udenfor plade"
-#define MSG_YX_UNHOMED                      "Home X/Y før Z"
-#define MSG_XYZ_UNHOMED                     "Home XYZ first"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"

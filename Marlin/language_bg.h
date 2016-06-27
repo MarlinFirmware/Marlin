@@ -143,7 +143,8 @@
 #define MSG_INIT_SDCARD                     "Иниц. SD-Карта"
 #define MSG_CNG_SDCARD                      "Смяна SD-Карта"
 #define MSG_ZPROBE_OUT                      "Z-сондата е извадена"
-#define MSG_YX_UNHOMED                      "Задайте X/Y преди Z"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Z Отстояние"
 #define MSG_BABYSTEP_X                      "Министъпка X"
 #define MSG_BABYSTEP_Y                      "Министъпка Y"
