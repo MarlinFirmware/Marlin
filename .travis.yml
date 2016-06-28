@@ -136,6 +136,13 @@ script:
   - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT M100_FREE_MEMORY_WATCHER INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
   - build_marlin
   #
+  # Mixing Extruder
+  #
+  - restore_configs
+  - opt_enable MIXING_EXTRUDER
+  - opt_set MIXING_STEPPERS 2
+  - build_marlin
+  #
   # Test DUAL_X_CARRIAGE
   #
   - restore_configs
@@ -153,6 +160,16 @@ script:
   - opt_set LCD_FEEDBACK_FREQUENCY_DURATION_MS 10
   - opt_set LCD_FEEDBACK_FREQUENCY_HZ 100
   - opt_enable BQ_LCD_SMART_CONTROLLER SPEAKER
+  #
+  # Test SWITCHING_EXTRUDER
+  #
+  - restore_configs
+  - opt_set MOTHERBOARD BOARD_RUMBA
+  - opt_set EXTRUDERS 2
+  - opt_enable NUM_SERVOS
+  - opt_set NUM_SERVOS 1
+  - opt_set TEMP_SENSOR_1 1
+  - opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
   - build_marlin
   #
   # Test MINIRAMBO for PWM_MOTOR_CURRENT
