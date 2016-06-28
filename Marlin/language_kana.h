@@ -184,6 +184,10 @@
 #define MSG_INIT_SDCARD                     "SD\xb6\xb0\xc4\xde\xbb\xb2\xd6\xd0\xba\xd0"                       // "SDｶｰﾄﾞｻｲﾖﾐｺﾐ" ("Init. SD card")
 #define MSG_CNG_SDCARD                      "SD\xb6\xb0\xc4\xde\xba\xb3\xb6\xdd"                               // "SDｶｰﾄﾞｺｳｶﾝ" ("Change SD card")
 #define MSG_ZPROBE_OUT                      "Z\xcc\xdf\xdb\xb0\xcc\xde\x20\xcd\xde\xaf\xc4\xde\xb6\xde\xb2"    // "Zﾌﾟﾛｰﾌﾞ ﾍﾞｯﾄﾞｶﾞｲ" ("Z probe out. bed")
+
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
+/*
 #if LCD_WIDTH < 20
   #define MSG_YX_UNHOMED                    "\xbb\xb7\xc6X/Y\xa6\xcc\xaf\xb7\xbb\xbe\xd6"                                   // "ｻｷﾆX/Yｦﾌｯｷｻｾﾖ" ("Home X/Y before Z")
   #define MSG_XYZ_UNHOMED                   "\xbb\xb7\xc6\xb9\xde\xdd\xc3\xdd\xcc\xaf\xb7\xa6\xbe\xd6"                      // "ｻｷﾆｹﾞﾝﾃﾝﾌｯｷｦｾﾖ" ("Home XYZ first")
@@ -191,6 +195,7 @@
   #define MSG_YX_UNHOMED                    "\xbb\xb7\xc6X/Y\xa6\xcc\xaf\xb7\xbb\xbe\xc3\xb8\xc0\xde\xbb\xb2"               // "ｻｷﾆX/Yｦﾌｯｷｻｾﾃｸﾀﾞｻｲ" ("Home X/Y before Z")
   #define MSG_XYZ_UNHOMED                   "\xbb\xb7\xc6\xb9\xde\xdd\xc3\xdd\xcc\xaf\xb7\xa6\xbc\xc3\xb8\xc0\xde\xbb\xb2"  // "ｻｷﾆｹﾞﾝﾃﾝﾌｯｷｦｼﾃｸﾀﾞｻｲ" ("Home XYZ first")
 #endif
+*/
 #define MSG_ZPROBE_ZOFFSET                  "Z\xb5\xcc\xbe\xaf\xc4"                                            // "Zｵﾌｾｯﾄ" ("Z Offset")
 #define MSG_BABYSTEP_X                      "X\xbc\xde\xb8\x20\xcb\xde\xc4\xde\xb3"                            // "Xｼﾞｸ ﾋﾞﾄﾞｳ" ("Babystep X")
 #define MSG_BABYSTEP_Y                      "Y\xbc\xde\xb8\x20\xcb\xde\xc4\xde\xb3"                            // "Yｼﾞｸ ﾋﾞﾄﾞｳ" ("Babystep Y")
