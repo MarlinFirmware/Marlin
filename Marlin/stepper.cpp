@@ -1103,7 +1103,7 @@ void Stepper::microstep_mode(uint8_t driver, uint8_t stepping_mode) {
 }
 
 void Stepper::microstep_readings() {
-  SERIAL_PROTOCOLPGM("MS1,MS2 Pins\n");
+  SERIAL_PROTOCOLLNPGM("MS1,MS2 Pins");
   SERIAL_PROTOCOLPGM("X: ");
   SERIAL_PROTOCOL(digitalRead(X_MS1_PIN));
   SERIAL_PROTOCOLLN(digitalRead(X_MS2_PIN));
