@@ -304,37 +304,37 @@ unsigned char Temperature::soft_pwm[HOTENDS];
               bias = constrain(bias, 20, max_pow - 20);
               d = (bias > max_pow / 2) ? max_pow - 1 - bias : bias;
 
-              SERIAL_PROTOCOLPGM(MSG_BIAS); SERIAL_PROTOCOL(bias);
-              SERIAL_PROTOCOLPGM(MSG_D);    SERIAL_PROTOCOL(d);
-              SERIAL_PROTOCOLPGM(MSG_T_MIN);  SERIAL_PROTOCOL(min);
-              SERIAL_PROTOCOLPGM(MSG_T_MAX);  SERIAL_PROTOCOLLN(max);
+              SERIAL_PROTOCOLPAIR(MSG_BIAS, bias);
+              SERIAL_PROTOCOLPAIR(MSG_D, d);
+              SERIAL_PROTOCOLPAIR(MSG_T_MIN, min);
+              SERIAL_PROTOCOLPAIR(MSG_T_MAX, max);
               if (cycles > 2) {
                 Ku = (4.0 * d) / (3.14159265 * (max - min) / 2.0);
                 Tu = ((float)(t_low + t_high) / 1000.0);
-                SERIAL_PROTOCOLPGM(MSG_KU); SERIAL_PROTOCOL(Ku);
-                SERIAL_PROTOCOLPGM(MSG_TU); SERIAL_PROTOCOLLN(Tu);
+                SERIAL_PROTOCOLPAIR(MSG_KU, Ku);
+                SERIAL_PROTOCOLPAIR(MSG_TU, Tu);
                 workKp = 0.6 * Ku;
                 workKi = 2 * workKp / Tu;
                 workKd = workKp * Tu / 8;
                 SERIAL_PROTOCOLLNPGM(MSG_CLASSIC_PID);
-                SERIAL_PROTOCOLPGM(MSG_KP); SERIAL_PROTOCOLLN(workKp);
-                SERIAL_PROTOCOLPGM(MSG_KI); SERIAL_PROTOCOLLN(workKi);
-                SERIAL_PROTOCOLPGM(MSG_KD); SERIAL_PROTOCOLLN(workKd);
+                SERIAL_PROTOCOLPAIR(MSG_KP, workKp);
+                SERIAL_PROTOCOLPAIR(MSG_KI, workKi);
+                SERIAL_PROTOCOLPAIR(MSG_KD, workKd);
                 /**
                 workKp = 0.33*Ku;
                 workKi = workKp/Tu;
                 workKd = workKp*Tu/3;
-                SERIAL_PROTOCOLLNPGM(" Some overshoot ");
-                SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(workKp);
-                SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(workKi);
-                SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(workKd);
+                SERIAL_PROTOCOLLNPGM(" Some overshoot");
+                SERIAL_PROTOCOLPAIR(" Kp: ", workKp);
+                SERIAL_PROTOCOLPAIR(" Ki: ", workKi);
+                SERIAL_PROTOCOLPAIR(" Kd: ", workKd);
                 workKp = 0.2*Ku;
                 workKi = 2*workKp/Tu;
                 workKd = workKp*Tu/3;
-                SERIAL_PROTOCOLLNPGM(" No overshoot ");
-                SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(workKp);
-                SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(workKi);
-                SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(workKd);
+                SERIAL_PROTOCOLLNPGM(" No overshoot");
+                SERIAL_PROTOCOLPAIR(" Kp: ", workKp);
+                SERIAL_PROTOCOLPAIR(" Ki: ", workKi);
+                SERIAL_PROTOCOLPAIR(" Kd: ", workKd);
                 */
               }
             }
@@ -377,17 +377,17 @@ unsigned char Temperature::soft_pwm[HOTENDS];
 
         #if HAS_PID_FOR_BOTH
           const char* estring = hotend < 0 ? "bed" : "";
-          SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(workKp);
-          SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(workKi);
-          SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(workKd);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kp ", workKp);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Ki ", workKi);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kd ", workKd);
         #elif ENABLED(PIDTEMP)
-          SERIAL_PROTOCOLPGM("#define  DEFAULT_Kp "); SERIAL_PROTOCOLLN(workKp);
-          SERIAL_PROTOCOLPGM("#define  DEFAULT_Ki "); SERIAL_PROTOCOLLN(workKi);
-          SERIAL_PROTOCOLPGM("#define  DEFAULT_Kd "); SERIAL_PROTOCOLLN(workKd);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kp ", workKp);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Ki ", workKi);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kd ", workKd);
         #else
-          SERIAL_PROTOCOLPGM("#define  DEFAULT_bedKp "); SERIAL_PROTOCOLLN(workKp);
-          SERIAL_PROTOCOLPGM("#define  DEFAULT_bedKi "); SERIAL_PROTOCOLLN(workKi);
-          SERIAL_PROTOCOLPGM("#define  DEFAULT_bedKd "); SERIAL_PROTOCOLLN(workKd);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKp ", workKp);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKi ", workKi);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKd ", workKd);
         #endif
 
         #define _SET_BED_PID() \
@@ -626,16 +626,16 @@ float Temperature::get_pid_output(int e) {
 
     #if ENABLED(PID_BED_DEBUG)
       SERIAL_ECHO_START;
-      SERIAL_ECHO(" PID_BED_DEBUG ");
-      SERIAL_ECHO(": Input ");
+      SERIAL_ECHOPGM(" PID_BED_DEBUG ");
+      SERIAL_ECHOPGM(": Input ");
       SERIAL_ECHO(current_temperature_bed);
-      SERIAL_ECHO(" Output ");
+      SERIAL_ECHOPGM(" Output ");
       SERIAL_ECHO(pid_output);
-      SERIAL_ECHO(" pTerm ");
+      SERIAL_ECHOPGM(" pTerm ");
       SERIAL_ECHO(pTerm_bed);
-      SERIAL_ECHO(" iTerm ");
+      SERIAL_ECHOPGM(" iTerm ");
       SERIAL_ECHO(iTerm_bed);
-      SERIAL_ECHO(" dTerm ");
+      SERIAL_ECHOPGM(" dTerm ");
       SERIAL_ECHOLN(dTerm_bed);
     #endif //PID_BED_DEBUG
 

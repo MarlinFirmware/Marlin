@@ -1442,8 +1442,8 @@ static void set_home_offset(AxisEnum axis, float v) {
 static void set_axis_is_at_home(AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("set_axis_is_at_home(", axis);
-      SERIAL_ECHOLNPGM(") >>>");
+      SERIAL_ECHOPAIR(">>> set_axis_is_at_home(", axis);
+      SERIAL_ECHOLNPGM(")");
     }
   #endif
 
@@ -1993,7 +1993,7 @@ static void clean_up_after_endstop_or_probe_move() {
       long start_steps = stepper.position(Z_AXIS);
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
+        if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe (DELTA) 1", current_position);
       #endif
 
       // move down slowly until you find the bed
@@ -2014,8 +2014,6 @@ static void clean_up_after_endstop_or_probe_move() {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe (DELTA) 2", current_position);
       #endif
-
-      SYNC_PLAN_POSITION_KINEMATIC();
 
     #else // !DELTA
 
@@ -2054,13 +2052,13 @@ static void clean_up_after_endstop_or_probe_move() {
       // Get the current stepper position after bumping an endstop
       current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
 
-      SYNC_PLAN_POSITION_KINEMATIC();
-
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe", current_position);
       #endif
 
     #endif // !DELTA
+
+    SYNC_PLAN_POSITION_KINEMATIC();
 
     feedrate = old_feedrate;
 
@@ -2083,9 +2081,10 @@ static void clean_up_after_endstop_or_probe_move() {
   static float probe_pt(float x, float y, bool stow = true, int verbose_level = 1) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM("probe_pt >>>");
-        SERIAL_ECHOPAIR("> stow:", stow);
-        SERIAL_EOL;
+        SERIAL_ECHOPAIR(">>> probe_pt(", x);
+        SERIAL_ECHOPAIR(", ", y);
+        SERIAL_ECHOPAIR(", ", stow ? "stow" : "no stow");
+        SERIAL_ECHOLNPGM(")");
         DEBUG_POS("", current_position);
       }
     #endif
@@ -2107,7 +2106,7 @@ static void clean_up_after_endstop_or_probe_move() {
     do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> deploy_z_probe");
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
     #endif
     deploy_z_probe();
 
@@ -2115,7 +2114,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     if (stow) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> stow_z_probe");
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
       #endif
       stow_z_probe();
     }
@@ -2329,7 +2328,7 @@ static void homeaxis(AxisEnum axis) {
     #if HAS_BED_PROBE
       if (axis == Z_AXIS && axis_home_dir < 0) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" > deploy_z_probe()");
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
         #endif
         deploy_z_probe();
       }
@@ -2453,7 +2452,7 @@ static void homeaxis(AxisEnum axis) {
     #if HAS_BED_PROBE
       if (axis == Z_AXIS && axis_home_dir < 0) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" > stow_z_probe()");
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
         #endif
         stow_z_probe();
       }
@@ -2543,7 +2542,7 @@ void unknown_command_error() {
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM(MSG_UNKNOWN_COMMAND);
   SERIAL_ECHO(current_command);
-  SERIAL_ECHOPGM("\"\n");
+  SERIAL_ECHOLNPGM("\"");
 }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -2741,7 +2740,7 @@ inline void gcode_G4() {
 inline void gcode_G28() {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("gcode_G28 >>>");
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(">>> gcode_G28");
   #endif
 
   // Wait for planner moves to finish!
@@ -3187,19 +3186,11 @@ inline void gcode_G28() {
     switch (state) {
       case MeshReport:
         if (mbl.has_mesh()) {
-          SERIAL_PROTOCOLPGM("State: ");
-          if (mbl.active())
-            SERIAL_PROTOCOLPGM("On");
-          else
-            SERIAL_PROTOCOLPGM("Off");
-          SERIAL_PROTOCOLPGM("\nNum X,Y: ");
-          SERIAL_PROTOCOL(MESH_NUM_X_POINTS);
-          SERIAL_PROTOCOLCHAR(',');
-          SERIAL_PROTOCOL(MESH_NUM_Y_POINTS);
-          SERIAL_PROTOCOLPGM("\nZ search height: ");
-          SERIAL_PROTOCOL(MESH_HOME_SEARCH_Z);
-          SERIAL_PROTOCOLPGM("\nZ offset: ");
-          SERIAL_PROTOCOL_F(mbl.z_offset, 5);
+          SERIAL_PROTOCOLPAIR("State: ", mbl.active() ? "On" : "Off");
+          SERIAL_PROTOCOLPAIR("\nNum X,Y: ", MESH_NUM_X_POINTS);
+          SERIAL_PROTOCOLCHAR(','); SERIAL_PROTOCOL(MESH_NUM_Y_POINTS);
+          SERIAL_PROTOCOLPAIR("\nZ search height: ", MESH_HOME_SEARCH_Z);
+          SERIAL_PROTOCOLPGM("\nZ offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
           SERIAL_PROTOCOLLNPGM("\nMeasured points:");
           for (py = 0; py < MESH_NUM_Y_POINTS; py++) {
             for (px = 0; px < MESH_NUM_X_POINTS; px++) {
@@ -3268,30 +3259,30 @@ inline void gcode_G28() {
         if (code_seen('X')) {
           px = code_value_int() - 1;
           if (px < 0 || px >= MESH_NUM_X_POINTS) {
-            SERIAL_PROTOCOLPGM("X out of range (1-" STRINGIFY(MESH_NUM_X_POINTS) ").\n");
+            SERIAL_PROTOCOLLNPGM("X out of range (1-" STRINGIFY(MESH_NUM_X_POINTS) ").");
             return;
           }
         }
         else {
-          SERIAL_PROTOCOLPGM("X not entered.\n");
+          SERIAL_PROTOCOLLNPGM("X not entered.");
           return;
         }
         if (code_seen('Y')) {
           py = code_value_int() - 1;
           if (py < 0 || py >= MESH_NUM_Y_POINTS) {
-            SERIAL_PROTOCOLPGM("Y out of range (1-" STRINGIFY(MESH_NUM_Y_POINTS) ").\n");
+            SERIAL_PROTOCOLLNPGM("Y out of range (1-" STRINGIFY(MESH_NUM_Y_POINTS) ").");
             return;
           }
         }
         else {
-          SERIAL_PROTOCOLPGM("Y not entered.\n");
+          SERIAL_PROTOCOLLNPGM("Y not entered.");
           return;
         }
         if (code_seen('Z')) {
           z = code_value_axis_units(Z_AXIS);
         }
         else {
-          SERIAL_PROTOCOLPGM("Z not entered.\n");
+          SERIAL_PROTOCOLLNPGM("Z not entered.");
           return;
         }
         mbl.z_values[py][px] = z;
@@ -3302,7 +3293,7 @@ inline void gcode_G28() {
           z = code_value_axis_units(Z_AXIS);
         }
         else {
-          SERIAL_PROTOCOLPGM("Z not entered.\n");
+          SERIAL_PROTOCOLLNPGM("Z not entered.");
           return;
         }
         mbl.z_offset = z;
@@ -3368,7 +3359,7 @@ inline void gcode_G28() {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM("gcode_G29 >>>");
+        SERIAL_ECHOLNPGM(">>> gcode_G29");
         DEBUG_POS("", current_position);
       }
     #endif
@@ -3397,8 +3388,8 @@ inline void gcode_G28() {
       #endif
 
       if (verbose_level > 0) {
-        SERIAL_PROTOCOLPGM("G29 Auto Bed Leveling\n");
-        if (dryrun) SERIAL_ECHOLNPGM("Running in DRY-RUN mode");
+        SERIAL_PROTOCOLLNPGM("G29 Auto Bed Leveling");
+        if (dryrun) SERIAL_PROTOCOLLNPGM("Running in DRY-RUN mode");
       }
 
       int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
@@ -3406,7 +3397,7 @@ inline void gcode_G28() {
       #if DISABLED(DELTA)
         if (code_seen('P')) auto_bed_leveling_grid_points = code_value_int();
         if (auto_bed_leveling_grid_points < 2) {
-          SERIAL_PROTOCOLPGM("?Number of probed (P)oints is implausible (2 minimum).\n");
+          SERIAL_PROTOCOLLNPGM("?Number of probed (P)oints is implausible (2 minimum).");
           return;
         }
       #endif
@@ -3637,17 +3628,17 @@ inline void gcode_G28() {
         // Show the Topography map if enabled
         if (do_topography_map) {
 
-          SERIAL_PROTOCOLPGM(" \nBed Height Topography: \n");
-          SERIAL_PROTOCOLPGM("   +--- BACK --+\n");
-          SERIAL_PROTOCOLPGM("   |           |\n");
-          SERIAL_PROTOCOLPGM(" L |    (+)    | R\n");
-          SERIAL_PROTOCOLPGM(" E |           | I\n");
-          SERIAL_PROTOCOLPGM(" F | (-) N (+) | G\n");
-          SERIAL_PROTOCOLPGM(" T |           | H\n");
-          SERIAL_PROTOCOLPGM("   |    (-)    | T\n");
-          SERIAL_PROTOCOLPGM("   |           |\n");
-          SERIAL_PROTOCOLPGM("   O-- FRONT --+\n");
-          SERIAL_PROTOCOLPGM(" (0,0)\n");
+          SERIAL_PROTOCOLLNPGM("\nBed Height Topography:\n"
+                                 "   +--- BACK --+\n"
+                                 "   |           |\n"
+                                 " L |    (+)    | R\n"
+                                 " E |           | I\n"
+                                 " F | (-) N (+) | G\n"
+                                 " T |           | H\n"
+                                 "   |    (-)    | T\n"
+                                 "   |           |\n"
+                                 "   O-- FRONT --+\n"
+                                 " (0,0)");
 
           float min_diff = 999;
 
@@ -3674,7 +3665,7 @@ inline void gcode_G28() {
           } // yy
           SERIAL_EOL;
           if (verbose_level > 3) {
-            SERIAL_PROTOCOLPGM(" \nCorrected Bed Height vs. Bed Topology: \n");
+            SERIAL_PROTOCOLLNPGM("\nCorrected Bed Height vs. Bed Topology:");
 
             for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
               for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
@@ -3703,7 +3694,7 @@ inline void gcode_G28() {
 
     #if DISABLED(DELTA)
       if (verbose_level > 0)
-        planner.bed_level_matrix.debug(" \n\nBed Level Correction Matrix:");
+        planner.bed_level_matrix.debug("\n\nBed Level Correction Matrix:");
 
       if (!dryrun) {
         /**
@@ -3747,7 +3738,7 @@ inline void gcode_G28() {
     #ifdef Z_PROBE_END_SCRIPT
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHO("Z Probe End Script: ");
+          SERIAL_ECHOPGM("Z Probe End Script: ");
           SERIAL_ECHOLNPGM(Z_PROBE_END_SCRIPT);
         }
       #endif
@@ -4130,16 +4121,16 @@ inline void gcode_M42() {
 
     int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
-      SERIAL_PROTOCOLPGM("?Verbose Level not plausible (0-4).\n");
+      SERIAL_PROTOCOLLNPGM("?Verbose Level not plausible (0-4).");
       return;
     }
 
     if (verbose_level > 0)
-      SERIAL_PROTOCOLPGM("M48 Z-Probe Repeatability test\n");
+      SERIAL_PROTOCOLLNPGM("M48 Z-Probe Repeatability test");
 
     int8_t n_samples = code_seen('P') ? code_value_byte() : 10;
     if (n_samples < 4 || n_samples > 50) {
-      SERIAL_PROTOCOLPGM("?Sample size not plausible (4-50).\n");
+      SERIAL_PROTOCOLLNPGM("?Sample size not plausible (4-50).");
       return;
     }
 
@@ -4168,7 +4159,7 @@ inline void gcode_M42() {
       }
     #else
       if (sqrt(X_probe_location * X_probe_location + Y_probe_location * Y_probe_location) > DELTA_PROBEABLE_RADIUS) {
-        SERIAL_PROTOCOLPGM("? (X,Y) location outside of probeable radius.\n");
+        SERIAL_PROTOCOLLNPGM("? (X,Y) location outside of probeable radius.");
         return;
       }
     #endif
@@ -4176,7 +4167,7 @@ inline void gcode_M42() {
     bool seen_L = code_seen('L');
     uint8_t n_legs = seen_L ? code_value_byte() : 0;
     if (n_legs > 15) {
-      SERIAL_PROTOCOLPGM("?Number of legs in movement not plausible (0-15).\n");
+      SERIAL_PROTOCOLLNPGM("?Number of legs in movement not plausible (0-15).");
       return;
     }
     if (n_legs == 1) n_legs = 2;
@@ -4190,7 +4181,7 @@ inline void gcode_M42() {
      * we don't want to use that as a starting point for each probe.
      */
     if (verbose_level > 2)
-      SERIAL_PROTOCOLPGM("Positioning the probe...\n");
+      SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
     #if ENABLED(DELTA)
       // we don't do bed level correction in M48 because we want the raw data when we probe
@@ -4223,9 +4214,9 @@ inline void gcode_M42() {
         if (verbose_level > 3) {
           SERIAL_ECHOPAIR("Starting radius: ", radius);
           SERIAL_ECHOPAIR("   angle: ", angle);
-          SERIAL_ECHO(" Direction: ");
-          if (dir > 0) SERIAL_ECHO("Counter ");
-          SERIAL_ECHOLN("Clockwise");
+          SERIAL_ECHOPGM(" Direction: ");
+          if (dir > 0) SERIAL_ECHOPGM("Counter-");
+          SERIAL_ECHOLNPGM("Clockwise");
         }
 
         for (uint8_t l = 0; l < n_legs - 1; l++) {
@@ -4268,10 +4259,10 @@ inline void gcode_M42() {
             }
           #endif
           if (verbose_level > 3) {
-            SERIAL_PROTOCOL("Going to:");
-            SERIAL_ECHOPAIR("x: ", X_current);
-            SERIAL_ECHOPAIR("y: ", Y_current);
-            SERIAL_ECHOPAIR("  z: ", current_position[Z_AXIS]);
+            SERIAL_PROTOCOLPGM("Going to:");
+            SERIAL_ECHOPAIR(" X", X_current);
+            SERIAL_ECHOPAIR(" Y", Y_current);
+            SERIAL_ECHOPAIR(" Z", current_position[Z_AXIS]);
             SERIAL_EOL;
           }
           do_blocking_move_to_xy(X_current, Y_current);
@@ -5542,9 +5533,9 @@ inline void gcode_M226() {
     }
     else if (servo_index >= 0) {
       SERIAL_ECHO_START;
-      SERIAL_ECHO(" Servo ");
+      SERIAL_ECHOPGM(" Servo ");
       SERIAL_ECHO(servo_index);
-      SERIAL_ECHO(": ");
+      SERIAL_ECHOPGM(": ");
       SERIAL_ECHOLN(servo[servo_index].read());
     }
   }
@@ -5601,17 +5592,17 @@ inline void gcode_M226() {
       thermalManager.updatePID();
       SERIAL_ECHO_START;
       #if ENABLED(PID_PARAMS_PER_HOTEND)
-        SERIAL_ECHO(" e:"); // specify extruder in serial output
+        SERIAL_ECHOPGM(" e:"); // specify extruder in serial output
         SERIAL_ECHO(e);
       #endif // PID_PARAMS_PER_HOTEND
-      SERIAL_ECHO(" p:");
+      SERIAL_ECHOPGM(" p:");
       SERIAL_ECHO(PID_PARAM(Kp, e));
-      SERIAL_ECHO(" i:");
+      SERIAL_ECHOPGM(" i:");
       SERIAL_ECHO(unscalePID_i(PID_PARAM(Ki, e)));
-      SERIAL_ECHO(" d:");
+      SERIAL_ECHOPGM(" d:");
       SERIAL_ECHO(unscalePID_d(PID_PARAM(Kd, e)));
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
-        SERIAL_ECHO(" c:");
+        SERIAL_ECHOPGM(" c:");
         //Kc does not have scaling applied above, or in resetting defaults
         SERIAL_ECHO(PID_PARAM(Kc, e));
       #endif
@@ -5635,11 +5626,11 @@ inline void gcode_M226() {
     thermalManager.updatePID();
 
     SERIAL_ECHO_START;
-    SERIAL_ECHO(" p:");
+    SERIAL_ECHOPGM(" p:");
     SERIAL_ECHO(thermalManager.bedKp);
-    SERIAL_ECHO(" i:");
+    SERIAL_ECHOPGM(" i:");
     SERIAL_ECHO(unscalePID_i(thermalManager.bedKi));
-    SERIAL_ECHO(" d:");
+    SERIAL_ECHOPGM(" d:");
     SERIAL_ECHOLN(unscalePID_d(thermalManager.bedKd));
   }
 
@@ -5739,7 +5730,7 @@ inline void gcode_M303() {
 #if ENABLED(SCARA)
   bool SCARA_move_to_cal(uint8_t delta_x, uint8_t delta_y) {
     //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLN(" Soft endstops disabled ");
+    //SERIAL_ECHOLNPGM(" Soft endstops disabled");
     if (IsRunning()) {
       //gcode_get_destination(); // For X Y Z E F
       delta[X_AXIS] = delta_x;
@@ -5758,7 +5749,7 @@ inline void gcode_M303() {
    * M360: SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
    */
   inline bool gcode_M360() {
-    SERIAL_ECHOLN(" Cal: Theta 0 ");
+    SERIAL_ECHOLNPGM(" Cal: Theta 0");
     return SCARA_move_to_cal(0, 120);
   }
 
@@ -5766,7 +5757,7 @@ inline void gcode_M303() {
    * M361: SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
    */
   inline bool gcode_M361() {
-    SERIAL_ECHOLN(" Cal: Theta 90 ");
+    SERIAL_ECHOLNPGM(" Cal: Theta 90");
     return SCARA_move_to_cal(90, 130);
   }
 
@@ -5774,7 +5765,7 @@ inline void gcode_M303() {
    * M362: SCARA calibration: Move to cal-position PsiA (0 deg calibration)
    */
   inline bool gcode_M362() {
-    SERIAL_ECHOLN(" Cal: Psi 0 ");
+    SERIAL_ECHOLNPGM(" Cal: Psi 0");
     return SCARA_move_to_cal(60, 180);
   }
 
@@ -5782,7 +5773,7 @@ inline void gcode_M303() {
    * M363: SCARA calibration: Move to cal-position PsiB (90 deg calibration - steps per degree)
    */
   inline bool gcode_M363() {
-    SERIAL_ECHOLN(" Cal: Psi 90 ");
+    SERIAL_ECHOLNPGM(" Cal: Psi 90");
     return SCARA_move_to_cal(50, 90);
   }
 
@@ -5790,7 +5781,7 @@ inline void gcode_M303() {
    * M364: SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position)
    */
   inline bool gcode_M364() {
-    SERIAL_ECHOLN(" Cal: Theta-Psi 90 ");
+    SERIAL_ECHOLNPGM(" Cal: Theta-Psi 90");
     return SCARA_move_to_cal(45, 135);
   }
 
@@ -6109,6 +6100,7 @@ inline void gcode_M503() {
       else {
         SERIAL_ECHOPGM(MSG_Z_MIN);
         SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MIN);
+        SERIAL_CHAR(' ');
         SERIAL_ECHOPGM(MSG_Z_MAX);
         SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MAX);
       }
@@ -6625,7 +6617,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
   #endif
 
   SERIAL_ECHO_START;
-  SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
+  SERIAL_ECHOPGM(MSG_ACTIVE_EXTRUDER);
   SERIAL_PROTOCOLLN((int)active_extruder);
 }
 

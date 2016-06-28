@@ -86,7 +86,7 @@ void gcode_M100() {
     sp = top_of_stack();
     SERIAL_ECHOPGM("\nStack Pointer : ");
     prt_hex_word((unsigned int) sp);
-    SERIAL_ECHOPGM("\n");
+    SERIAL_EOL;
     sp = (unsigned char*)((unsigned long) sp | 0x000f);
     n = sp - ptr;
     //
@@ -94,25 +94,25 @@ void gcode_M100() {
     //
     while (ptr < sp) {
       prt_hex_word((unsigned int) ptr); // Print the address
-      SERIAL_ECHOPGM(":");
+      SERIAL_CHAR(':');
       for (i = 0; i < 16; i++) {      // and 16 data bytes
         prt_hex_byte(*(ptr + i));
-        SERIAL_ECHOPGM(" ");
+        SERIAL_CHAR(' ');
         delay(2);
       }
-      SERIAL_ECHO("|");         // now show where non 0xE5's are
+      SERIAL_CHAR('|');         // now show where non 0xE5's are
       for (i = 0; i < 16; i++) {
         delay(2);
         if (*(ptr + i) == 0xe5)
-          SERIAL_ECHOPGM(" ");
+          SERIAL_CHAR(' ');
         else
-          SERIAL_ECHOPGM("?");
+          SERIAL_CHAR('?');
       }
-      SERIAL_ECHO("\n");
+      SERIAL_EOL;
       ptr += 16;
       delay(2);
     }
-    SERIAL_ECHOLNPGM("Done.\n");
+    SERIAL_ECHOLNPGM("Done.");
     return;
   }
 #endif
@@ -137,7 +137,7 @@ void gcode_M100() {
           SERIAL_ECHOPAIR("Found ", j);
           SERIAL_ECHOPGM(" bytes free at 0x");
           prt_hex_word((int) ptr + i);
-          SERIAL_ECHOPGM("\n");
+          SERIAL_EOL;
           i += j;
           block_cnt++;
         }
@@ -150,8 +150,8 @@ void gcode_M100() {
       }
     }
     if (block_cnt > 1)
-      SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.\n");
-    SERIAL_ECHO("\nDone.\n");
+      SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
+    SERIAL_ECHOLNPGM("\nDone.");
     return;
   }
   //
@@ -173,7 +173,7 @@ void gcode_M100() {
     j = n / (x + 1);
     for (i = 1; i <= x; i++) {
       *(ptr + (i * j)) = i;
-      SERIAL_ECHO("\nCorrupting address: 0x");
+      SERIAL_ECHOPGM("\nCorrupting address: 0x");
       prt_hex_word((unsigned int)(ptr + (i * j)));
     }
     SERIAL_ECHOLNPGM("\n");
