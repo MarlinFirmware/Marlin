@@ -540,18 +540,52 @@
   #define HAS_PID_FOR_BOTH (ENABLED(PIDTEMP) && ENABLED(PIDTEMPBED))
 
   /**
-   * SINGLENOZZLE needs to differentiate EXTRUDERS and HOTENDS
-   * And all "extruders" are in the same place.
+   * Extruders have some combination of stepper motors and hotends
+   * so we separate these concepts into the defines:
+   *
+   *  EXTRUDERS    - Number of Selectable Tools
+   *  HOTENDS      - Number of hotends, whether connected or separate
+   *  E_STEPPERS   - Number of actual E stepper motors
+   *  TOOL_E_INDEX - Index to use when getting/setting the tool state
+   *  
    */
-  #if ENABLED(SINGLENOZZLE)
-    #define HOTENDS 1
+  #if ENABLED(SINGLENOZZLE)             // One hotend, multi-extruder
+    #define HOTENDS      1
+    #define E_STEPPERS   EXTRUDERS
+    #define TOOL_E_INDEX current_block->active_extruder
     #undef TEMP_SENSOR_1_AS_REDUNDANT
     #undef HOTEND_OFFSET_X
     #undef HOTEND_OFFSET_Y
-    #define HOTEND_OFFSET_X { 0 }
-    #define HOTEND_OFFSET_Y { 0 }
-  #else
-    #define HOTENDS EXTRUDERS
+  #elif ENABLED(SWITCHING_EXTRUDER)     // One E stepper, unified E axis, two hotends
+    #define HOTENDS      EXTRUDERS
+    #define E_STEPPERS   1
+    #define TOOL_E_INDEX 0
+    #ifndef HOTEND_OFFSET_Z
+      #define HOTEND_OFFSET_Z { 0 }
+    #endif
+  #elif ENABLED(MIXING_EXTRUDER)        // Multi-stepper, unified E axis, one hotend
+    #define HOTENDS      1
+    #define E_STEPPERS   MIXING_STEPPERS
+    #define TOOL_E_INDEX 0
+  #else                                 // One stepper, E axis, and hotend per tool
+    #define HOTENDS      EXTRUDERS
+    #define E_STEPPERS   EXTRUDERS
+    #define TOOL_E_INDEX current_block->active_extruder
+  #endif
+
+  /**
+   * Default hotend offsets, if not defined
+   */
+  #if HOTENDS > 1
+    #ifndef HOTEND_OFFSET_X
+      #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
+    #endif
+    #ifndef HOTEND_OFFSET_Y
+      #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
+    #endif
+    #if !defined(HOTEND_OFFSET_Z) && (ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER))
+      #define HOTEND_OFFSET_Z { 0 }
+    #endif
   #endif
 
   /**
