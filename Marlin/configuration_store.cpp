@@ -344,7 +344,9 @@ void Config_RetrieveSettings() {
   char stored_ver[4];
   char ver[4] = EEPROM_VERSION;
   EEPROM_READ_VAR(i, stored_ver); //read stored version
-  //  SERIAL_ECHO("Version: [" << ver << "] Stored version: [" << stored_ver << "]\n");
+  //  SERIAL_ECHOPAIR("Version: [", ver);
+  //  SERIAL_ECHOPAIR("] Stored version: [", stored_ver);
+  //  SERIAL_ECHOLNPGM("]");
 
   if (strncmp(ver, stored_ver, 3) != 0) {
     Config_ResetDefault();
