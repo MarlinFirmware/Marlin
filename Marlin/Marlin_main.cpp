@@ -1713,27 +1713,37 @@ static void clean_up_after_endstop_or_probe_move() {
       z_dest -= zprobe_zoffset;
 
     if (z_dest > current_position[Z_AXIS]) {
-      float old_feedrate = feedrate;
-      feedrate = homing_feedrate[Z_AXIS];
       do_blocking_move_to_z(z_dest);
-      feedrate = old_feedrate;
     }
   }
 
 #endif //HAS_BED_PROBE
 
 #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE
-  static void axis_unhomed_error(bool xyz=false) {
-    if (xyz) {
-      LCD_MESSAGEPGM(MSG_XYZ_UNHOMED);
+  static bool axis_unhomed_error(const bool x, const bool y, const bool z) {
+    const bool xx = x && !axis_homed[X_AXIS],
+               yy = y && !axis_homed[Y_AXIS],
+               zz = z && !axis_homed[Z_AXIS];
+    if (xx || yy || zz) {
       SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_XYZ_UNHOMED);
+      SERIAL_ECHOPGM(MSG_HOME " ");
+      if (xx) SERIAL_ECHOPGM(MSG_X);
+      if (yy) SERIAL_ECHOPGM(MSG_Y);
+      if (zz) SERIAL_ECHOPGM(MSG_Z);
+      SERIAL_ECHOLNPGM(" " MSG_FIRST);
+
+      #if ENABLED(ULTRA_LCD)
+        char message[3 * (LCD_WIDTH) + 1] = ""; // worst case is kana.utf with up to 3*LCD_WIDTH+1
+        strcat_P(message, PSTR(MSG_HOME " "));
+        if (xx) strcat_P(message, PSTR(MSG_X));
+        if (yy) strcat_P(message, PSTR(MSG_Y));
+        if (zz) strcat_P(message, PSTR(MSG_Z));
+        strcat_P(message, PSTR(" " MSG_FIRST));
+        lcd_setstatus(message);
+      #endif
+      return true;
     }
-    else {
-      LCD_MESSAGEPGM(MSG_YX_UNHOMED);
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_YX_UNHOMED);
-    }
+    return false;
   }
 #endif
 
@@ -1746,45 +1756,27 @@ static void clean_up_after_endstop_or_probe_move() {
   /**
    * Method to dock/undock a sled designed by Charles Bell.
    *
-   * dock[in]     If true, move to MAX_X and engage the electromagnet
-   * offset[in]   The additional distance to move to adjust docking location
+   * stow[in]     If false, move to MAX_X and engage the solenoid
+   *              If true, move to MAX_X and release the solenoid
    */
-  static void dock_sled(bool dock, int offset = 0) {
+  static void dock_sled(bool stow) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("dock_sled(", dock);
+        SERIAL_ECHOPAIR("dock_sled(", stow);
         SERIAL_ECHOLNPGM(")");
       }
     #endif
 
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
-      axis_unhomed_error(true);
-      return;
-    }
-
-    if (endstops.z_probe_enabled == !dock) return; // already docked/undocked?
+    if (axis_unhomed_error(true, false, false)) return;
 
     float oldXpos = current_position[X_AXIS]; // save x position
-    float old_feedrate = feedrate;
-    if (dock) {
-      #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
-        do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
-      #endif
-      // Dock sled a bit closer to ensure proper capturing
-      feedrate = XY_PROBE_FEEDRATE;
-      do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET + offset - 1);
-      digitalWrite(SLED_PIN, LOW); // turn off magnet
-    }
-    else {
-      feedrate = XY_PROBE_FEEDRATE;
-      float z_loc = current_position[Z_AXIS];
-      if (z_loc < _Z_RAISE_PROBE_DEPLOY_STOW + 5) z_loc = _Z_RAISE_PROBE_DEPLOY_STOW;
-      do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, current_position[Y_AXIS], z_loc); // this also updates current_position
-      digitalWrite(SLED_PIN, HIGH); // turn on magnet
-    }
+
+    // Dock sled a bit closer to ensure proper capturing
+    do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
+    digitalWrite(SLED_PIN, !stow); // switch solenoid
+
     do_blocking_move_to_x(oldXpos); // return to position before docking
 
-    feedrate = old_feedrate;
   }
 
 #endif // Z_PROBE_SLED
@@ -1800,9 +1792,7 @@ static void clean_up_after_endstop_or_probe_move() {
     if (endstops.z_probe_enabled) return;
 
     // Make room for probe
-    #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
-      do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
-    #endif
+    do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
 
     #if ENABLED(Z_PROBE_SLED)
 
@@ -1904,9 +1894,7 @@ static void clean_up_after_endstop_or_probe_move() {
     if (!endstops.z_probe_enabled) return;
 
     // Make more room for the servo
-    #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
-      do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
-    #endif
+    do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
 
     #if ENABLED(Z_PROBE_SLED)
 
@@ -2844,28 +2832,33 @@ inline void gcode_G28() {
 
     #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
 
-      // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      if (current_position[Z_AXIS] <= MIN_Z_HEIGHT_FOR_HOMING) {
-        destination[Z_AXIS] = MIN_Z_HEIGHT_FOR_HOMING;
-        feedrate = planner.max_feedrate[Z_AXIS] * 60;  // feedrate (mm/m) = max_feedrate (mm/s)
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("Raise Z (before homing) to ", (MIN_Z_HEIGHT_FOR_HOMING));
-            SERIAL_EOL;
-            DEBUG_POS("> (home_all_axis || homeZ)", current_position);
-            DEBUG_POS("> (home_all_axis || homeZ)", destination);
-          }
-        #endif
-        line_to_destination();
-        stepper.synchronize();
+      #if HAS_BED_PROBE
+        do_probe_raise(MIN_Z_HEIGHT_FOR_HOMING);
+        destination[Z_AXIS] = current_position[Z_AXIS];
+      #else
+        // Raise Z before homing any other axes and z is not already high enough (never lower z)
+        if (current_position[Z_AXIS] <= MIN_Z_HEIGHT_FOR_HOMING) {
+          destination[Z_AXIS] = MIN_Z_HEIGHT_FOR_HOMING;
+          feedrate = planner.max_feedrate[Z_AXIS] * 60;  // feedrate (mm/m) = max_feedrate (mm/s)
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_ECHOPAIR("Raise Z (before homing) to ", (MIN_Z_HEIGHT_FOR_HOMING));
+              SERIAL_EOL;
+              DEBUG_POS("> (home_all_axis || homeZ)", current_position);
+              DEBUG_POS("> (home_all_axis || homeZ)", destination);
+            }
+          #endif
+          line_to_destination();
+          stepper.synchronize();
 
-        /**
-         * Update the current Z position even if it currently not real from
-         * Z-home otherwise each call to line_to_destination() will want to
-         * move Z-axis by MIN_Z_HEIGHT_FOR_HOMING.
-         */
-        current_position[Z_AXIS] = destination[Z_AXIS];
-      }
+          /**
+           * Update the current Z position even if it currently not real from
+           * Z-home otherwise each call to line_to_destination() will want to
+           * move Z-axis by MIN_Z_HEIGHT_FOR_HOMING.
+           */
+          current_position[Z_AXIS] = destination[Z_AXIS];
+        }
+      #endif
     #endif
 
     #if ENABLED(QUICK_HOME)
@@ -2922,7 +2915,12 @@ inline void gcode_G28() {
 
     #if ENABLED(HOME_Y_BEFORE_X)
       // Home Y
-      if (home_all_axis || homeY) HOMEAXIS(Y);
+      if (home_all_axis || homeY) {
+        HOMEAXIS(Y);
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
+        #endif
+      }
     #endif
 
     // Home X
@@ -3015,32 +3013,27 @@ inline void gcode_G28() {
           else if (homeZ) { // Don't need to Home Z twice
 
             // Let's see if X and Y are homed
-            if (axis_homed[X_AXIS] && axis_homed[Y_AXIS]) {
+            if (axis_unhomed_error(true, true, false)) return;
 
-              /**
-               * Make sure the Z probe is within the physical limits
-               * NOTE: This doesn't necessarily ensure the Z probe is also
-               * within the bed!
-               */
-              float cpx = current_position[X_AXIS], cpy = current_position[Y_AXIS];
-              if (   cpx >= X_MIN_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-                  && cpx <= X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-                  && cpy >= Y_MIN_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
-                  && cpy <= Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)) {
+            /**
+             * Make sure the Z probe is within the physical limits
+             * NOTE: This doesn't necessarily ensure the Z probe is also
+             * within the bed!
+             */
+            float cpx = current_position[X_AXIS], cpy = current_position[Y_AXIS];
+            if (   cpx >= X_MIN_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
+                && cpx <= X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
+                && cpy >= Y_MIN_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
+                && cpy <= Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)) {
 
-                // Home the Z axis
-                HOMEAXIS(Z);
-              }
-              else {
-                LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
-                SERIAL_ECHO_START;
-                SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
-              }
+              // Home the Z axis
+              HOMEAXIS(Z);
             }
             else {
-              axis_unhomed_error();
+              LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+              SERIAL_ECHO_START;
+              SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
             }
-
           } // !home_all_axes && homeZ
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3381,10 +3374,7 @@ inline void gcode_G28() {
     #endif
 
     // Don't allow auto-leveling without homing first
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
-      axis_unhomed_error(true);
-      return;
-    }
+    if (axis_unhomed_error(true, true, true)) return;
 
     int verbose_level = code_seen('V') ? code_value_int() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
@@ -3394,7 +3384,7 @@ inline void gcode_G28() {
 
     bool dryrun = code_seen('D');
 
-    #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+    #if ENABLED(Z_PROBE_ALLEN_KEY)
       const bool stow_probe_after_each = false;
     #else
       bool stow_probe_after_each = code_seen('E');
@@ -4136,10 +4126,7 @@ inline void gcode_M42() {
    */
   inline void gcode_M48() {
 
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
-      axis_unhomed_error(true);
-      return;
-    }
+    if (axis_unhomed_error(true, true, true)) return;
 
     int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
@@ -4159,7 +4146,7 @@ inline void gcode_M42() {
     float  X_current = current_position[X_AXIS],
            Y_current = current_position[Y_AXIS];
 
-    #if ENABLED(Z_PROBE_SLED) || ENABLED(Z_PROBE_ALLEN_KEY)
+    #if ENABLED(Z_PROBE_ALLEN_KEY)
       const bool stow_probe_after_each = false;
     #else
       bool stow_probe_after_each = code_seen('E');
