@@ -117,8 +117,11 @@
 
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
+// for Rigidbot version 1 : #define MOTHERBOARD BOARD_RIGIDBOARD
+// for Rigidbot Version 2 : #define MOTHERBOARD BOARD_RIGIDBOARD_V2
+
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RIGIDBOARD
+  #define MOTHERBOARD BOARD_RIGIDBOARD_V2
 #endif
 
 // Optional custom name for your RepStrap or other custom machine

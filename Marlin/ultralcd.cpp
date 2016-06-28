@@ -585,6 +585,7 @@ static void lcd_status_screen() {
         thermalManager.babystep_axis(axis, babystep_increment);
         babysteps_done += babystep_increment;
       }
+
       if (lcdDrawUpdate)
         lcd_implementation_drawedit(msg, ftostr43sign(
           ((1000 * babysteps_done) / planner.axis_steps_per_mm[axis]) * 0.001f
@@ -2596,6 +2597,7 @@ char* ftostr41sign(const float& x) {
   conv[6] = '\0';
   return conv;
 }
+
 
 // Convert signed float to string with 023.45 / -23.45 format
 char *ftostr32(const float& x) {

@@ -49,8 +49,12 @@
 
   bool dac_present = false;
   const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
-
+  
   int dac_init() {
+    #ifdef DAC_DISABLE_PIN
+      pinMode(DAC_DISABLE_PIN, OUTPUT);
+      digitalWrite(DAC_DISABLE_PIN, LOW);  // set pin low to enable DAC
+    #endif
     mcp4728_init();
 
     if (mcp4728_simpleCommand(RESET)) return -1;
