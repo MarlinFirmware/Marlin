@@ -183,6 +183,9 @@
  * M145 - Set the heatup state H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units
  * M150 - Set BlinkM Color Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
+ * M163 - Set a single proportion for a mixing extruder. Requires MIXING_EXTRUDER.
+ * M164 - Save the mix as a virtual extruder. Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS.
+ * M165 - Set the proportions for a mixing extruder. Use parameters ABCDHI to set the mixing factors. Requires MIXING_EXTRUDER.
  * M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
  * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
@@ -397,17 +400,11 @@ static uint8_t target_extruder;
 
 // Extruder offsets
 #if HOTENDS > 1
-  #ifndef HOTEND_OFFSET_X
-    #define HOTEND_OFFSET_X { 0 } // X offsets for each extruder
-  #endif
-  #ifndef HOTEND_OFFSET_Y
-    #define HOTEND_OFFSET_Y { 0 } // Y offsets for each extruder
-  #endif
   float hotend_offset[][HOTENDS] = {
     HOTEND_OFFSET_X,
     HOTEND_OFFSET_Y
-    #if ENABLED(DUAL_X_CARRIAGE)
-      , { 0 } // Z offsets for each extruder
+    #ifdef HOTEND_OFFSET_Z
+      , HOTEND_OFFSET_Z
     #endif
   };
 #endif
@@ -505,6 +502,13 @@ static uint8_t target_extruder;
 
 #if ENABLED(FILAMENT_CHANGE_FEATURE)
   FilamentChangeMenuResponse filament_change_menu_response;
+#endif
+
+#if ENABLED(MIXING_EXTRUDER)
+  float mixing_factor[MIXING_STEPPERS];
+  #if MIXING_VIRTUAL_TOOLS > 1
+    float mixing_virtual_tool_mix[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
+  #endif
 #endif
 
 static bool send_ok[BUFSIZE];
@@ -951,6 +955,15 @@ void setup() {
       bootscreen();
       lcd_init();
     #endif
+  #endif
+
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+    // Initialize mixing to 100% color 1
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+      mixing_factor[i] = (i == 0) ? 1 : 0;
+    for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
+      for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+        mixing_virtual_tool_mix[t][i] = mixing_factor[i];
   #endif
 }
 
@@ -2544,6 +2557,39 @@ static void homeaxis(AxisEnum axis) {
 
 #endif // FWRETRACT
 
+#if ENABLED(MIXING_EXTRUDER)
+
+  void normalize_mix() {
+    float mix_total = 0.0;
+    for (int i = 0; i < MIXING_STEPPERS; i++) {
+      float v = mixing_factor[i];
+      if (v < 0) v = mixing_factor[i] = 0;
+      mix_total += v;
+    }
+    // Scale all values if they don't add up to ~1.0
+    if (mix_total < 0.9999 || mix_total > 1.0001) {
+      SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
+      float mix_scale = 1.0 / mix_total;
+      for (int i = 0; i < MIXING_STEPPERS; i++)
+        mixing_factor[i] *= mix_scale;
+    }
+  }
+
+  #if ENABLED(DIRECT_MIXING_IN_G1)
+    // Get mixing parameters from the GCode
+    // Factors that are left out are set to 0
+    // The total "must" be 1.0 (but it will be normalized)
+    void gcode_get_mix() {
+      const char* mixing_codes = "ABCDHI";
+      for (int i = 0; i < MIXING_STEPPERS; i++)
+        mixing_factor[i] = code_seen(mixing_codes[i]) ? code_value_float() : 0;
+
+      normalize_mix();
+    }
+  #endif
+
+#endif
+
 /**
  * ***************************************************************************
  * ***************************** G-CODE HANDLING *****************************
@@ -2571,6 +2617,11 @@ void gcode_get_destination() {
   #if ENABLED(PRINTCOUNTER)
     if(!DEBUGGING(DRYRUN))
       print_job_timer.incFilamentUsed(destination[E_AXIS] - current_position[E_AXIS]);
+  #endif
+
+  // Get ABCDHI mixing factors
+  #if ENABLED(MIXING_EXTRUDER) && ENABLED(DIRECT_MIXING_IN_G1)
+    gcode_get_mix();
   #endif
 }
 
@@ -4733,6 +4784,8 @@ inline void gcode_M109() {
 
     KEEPALIVE_STATE(NOT_BUSY);
 
+    target_extruder = active_extruder; // for print_heaterstates
+
     do {
       // Target temperature might be changed during the loop
       if (theTarget != thermalManager.degTargetBed()) {
@@ -5258,7 +5311,7 @@ inline void gcode_M200() {
     if (volumetric_enabled) {
       filament_size[target_extruder] = code_value_linear_units();
       // make sure all extruders have some sane value for the filament size
-      for (int i = 0; i < EXTRUDERS; i++)
+      for (int i = 0; i < COUNT(filament_size); i++)
         if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
     }
   }
@@ -5496,7 +5549,7 @@ inline void gcode_M206() {
    *   T<tool>
    *   X<xoffset>
    *   Y<yoffset>
-   *   Z<zoffset> - Available with DUAL_X_CARRIAGE
+   *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_EXTRUDER
    */
   inline void gcode_M218() {
     if (get_target_extruder_from_command(218)) return;
@@ -5504,7 +5557,7 @@ inline void gcode_M206() {
     if (code_seen('X')) hotend_offset[X_AXIS][target_extruder] = code_value_axis_units(X_AXIS);
     if (code_seen('Y')) hotend_offset[Y_AXIS][target_extruder] = code_value_axis_units(Y_AXIS);
 
-    #if ENABLED(DUAL_X_CARRIAGE)
+    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
       if (code_seen('Z')) hotend_offset[Z_AXIS][target_extruder] = code_value_axis_units(Z_AXIS);
     #endif
 
@@ -5515,7 +5568,7 @@ inline void gcode_M206() {
       SERIAL_ECHO(hotend_offset[X_AXIS][e]);
       SERIAL_CHAR(',');
       SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
-      #if ENABLED(DUAL_X_CARRIAGE)
+      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
         SERIAL_CHAR(',');
         SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
       #endif
@@ -6528,6 +6581,60 @@ inline void gcode_M907() {
 
 #endif // HAS_MICROSTEPS
 
+#if ENABLED(MIXING_EXTRUDER)
+
+  /**
+   * M163: Set a single mix factor for a mixing extruder
+   *       This is called "weight" by some systems.
+   *
+   *   S[index]   The channel index to set
+   *   P[float]   The mix value
+   *
+   */
+  inline void gcode_M163() {
+    int mix_index = code_seen('S') ? code_value_int() : 0;
+    float mix_value = code_seen('P') ? code_value_float() : 0.0;
+    if (mix_index < MIXING_STEPPERS) mixing_factor[mix_index] = mix_value;
+  }
+
+  #if MIXING_VIRTUAL_TOOLS > 1
+
+    /**
+     * M164: Store the current mix factors as a virtual tool.
+     *
+     *   S[index]   The virtual tool to store
+     *
+     */
+    inline void gcode_M164() {
+      int tool_index = code_seen('S') ? code_value_int() : 0;
+      if (tool_index < MIXING_VIRTUAL_TOOLS) {
+        normalize_mix();
+        for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+          mixing_virtual_tool_mix[tool_index][i] = mixing_factor[i];
+      }
+    }
+
+  #endif
+
+  #if ENABLED(DIRECT_MIXING_IN_G1)
+    /**
+     * M165: Set multiple mix factors for a mixing extruder.
+     *       Factors that are left out will be set to 0.
+     *       All factors together must add up to 1.0.
+     *
+     *   A[factor] Mix factor for extruder stepper 1
+     *   B[factor] Mix factor for extruder stepper 2
+     *   C[factor] Mix factor for extruder stepper 3
+     *   D[factor] Mix factor for extruder stepper 4
+     *   H[factor] Mix factor for extruder stepper 5
+     *   I[factor] Mix factor for extruder stepper 6
+     *
+     */
+    inline void gcode_M165() { gcode_get_mix(); }
+  #endif
+
+#endif // MIXING_EXTRUDER
+
 /**
  * M999: Restart after being stopped
  *
@@ -6548,6 +6655,20 @@ inline void gcode_M999() {
   FlushSerialRequestResend();
 }
 
+#if ENABLED(SWITCHING_EXTRUDER)
+  inline void move_extruder_servo(uint8_t e) {
+    const int angles[2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+    MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
+  }
+#endif
+
+inline void invalid_extruder_error(const uint8_t &e) {
+  SERIAL_ECHO_START;
+  SERIAL_CHAR('T');
+  SERIAL_PROTOCOL_F(e, DEC);
+  SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+}
+
 /**
  * T0-T3: Switch tool, usually switching extruders
  *
@@ -6555,264 +6676,314 @@ inline void gcode_M999() {
  *   S1           Don't move the tool in XY after change
  */
 inline void gcode_T(uint8_t tmp_extruder) {
-  if (tmp_extruder >= EXTRUDERS) {
-    SERIAL_ECHO_START;
-    SERIAL_CHAR('T');
-    SERIAL_PROTOCOL_F(tmp_extruder, DEC);
-    SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
-    return;
-  }
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOLNPGM(">>> gcode_T");
-      DEBUG_POS("BEFORE", current_position);
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+
+    if (tmp_extruder >= MIXING_VIRTUAL_TOOLS) {
+      invalid_extruder_error(tmp_extruder);
+      return;
     }
-  #endif
 
-  #if HOTENDS > 1
+    // T0-Tnnn: Switch virtual tool by changing the mix
+    for (uint8_t j = 0; j < MIXING_STEPPERS; j++)
+      mixing_factor[j] = mixing_virtual_tool_mix[tmp_extruder][j];
 
-    float old_feedrate = feedrate;
+  #else //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 
-    if (code_seen('F')) {
-      float next_feedrate = code_value_axis_units(X_AXIS);
-      if (next_feedrate > 0.0) old_feedrate = feedrate = next_feedrate;
-    }
-    else
-      feedrate = XY_PROBE_FEEDRATE;
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOLNPGM(">>> gcode_T");
+        DEBUG_POS("BEFORE", current_position);
+      }
+    #endif
 
-    if (tmp_extruder != active_extruder) {
-      bool no_move = code_seen('S') && code_value_bool();
-      if (!no_move && axis_unhomed_error(true, true, true)) {
-        SERIAL_ECHOLNPGM("No move on toolchange");
-        no_move = true;
+    #if HOTENDS > 1
+
+      if (tmp_extruder >= EXTRUDERS) {
+        invalid_extruder_error(tmp_extruder);
+        return;
       }
 
-      // Save current position to destination, for use later
-      set_destination_to_current();
+      float old_feedrate = feedrate;
 
-      #if ENABLED(DUAL_X_CARRIAGE)
+      if (code_seen('F')) {
+        float next_feedrate = code_value_axis_units(X_AXIS);
+        if (next_feedrate > 0.0) old_feedrate = feedrate = next_feedrate;
+      }
+      else
+        feedrate = XY_PROBE_FEEDRATE;
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPGM("Dual X Carriage Mode ");
-            switch (dual_x_carriage_mode) {
-              case DXC_DUPLICATION_MODE: SERIAL_ECHOLNPGM("DXC_DUPLICATION_MODE"); break;
-              case DXC_AUTO_PARK_MODE: SERIAL_ECHOLNPGM("DXC_AUTO_PARK_MODE"); break;
-              case DXC_FULL_CONTROL_MODE: SERIAL_ECHOLNPGM("DXC_FULL_CONTROL_MODE"); break;
-            }
-          }
-        #endif
+      if (tmp_extruder != active_extruder) {
+        bool no_move = code_seen('S') && code_value_bool();
 
-        if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && IsRunning()
-             && (delayed_move_time || current_position[X_AXIS] != x_home_pos(active_extruder))
-           ) {
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR("Raise to ", current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT); SERIAL_EOL;
-              SERIAL_ECHOPAIR("MoveX to ", x_home_pos(active_extruder)); SERIAL_EOL;
-              SERIAL_ECHOPAIR("Lower to ", current_position[Z_AXIS]); SERIAL_EOL;
-            }
-          #endif
-          // Park old head: 1) raise 2) move to park position 3) lower
-          planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
-                           current_position[E_AXIS], planner.max_feedrate[Z_AXIS], active_extruder);
-          planner.buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
-                           current_position[E_AXIS], planner.max_feedrate[X_AXIS], active_extruder);
-          planner.buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
-                           current_position[E_AXIS], planner.max_feedrate[Z_AXIS], active_extruder);
-          stepper.synchronize();
+        if (!no_move && axis_unhomed_error(true, true, true)) {
+          SERIAL_ECHOLNPGM("No move on toolchange");
+          no_move = true;
         }
 
-        // apply Y & Z extruder offset (x offset is already used in determining home pos)
-        current_position[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][tmp_extruder];
-        current_position[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
-        active_extruder = tmp_extruder;
+        // Save current position to destination, for use later
+        set_destination_to_current();
 
-        // This function resets the max/min values - the current position may be overwritten below.
-        set_axis_is_at_home(X_AXIS);
+        #if ENABLED(DUAL_X_CARRIAGE)
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("New Extruder", current_position);
-        #endif
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_ECHOPGM("Dual X Carriage Mode ");
+              switch (dual_x_carriage_mode) {
+                case DXC_DUPLICATION_MODE: SERIAL_ECHOLNPGM("DXC_DUPLICATION_MODE"); break;
+                case DXC_AUTO_PARK_MODE: SERIAL_ECHOLNPGM("DXC_AUTO_PARK_MODE"); break;
+                case DXC_FULL_CONTROL_MODE: SERIAL_ECHOLNPGM("DXC_FULL_CONTROL_MODE"); break;
+              }
+            }
+          #endif
 
-        switch (dual_x_carriage_mode) {
-          case DXC_FULL_CONTROL_MODE:
-            current_position[X_AXIS] = inactive_extruder_x_pos;
-            inactive_extruder_x_pos = destination[X_AXIS];
-            break;
-          case DXC_DUPLICATION_MODE:
-            active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
-            if (active_extruder_parked)
+          if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && IsRunning() &&
+              (delayed_move_time || current_position[X_AXIS] != x_home_pos(active_extruder))
+          ) {
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if (DEBUGGING(LEVELING)) {
+                SERIAL_ECHOPAIR("Raise to ", current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT); SERIAL_EOL;
+                SERIAL_ECHOPAIR("MoveX to ", x_home_pos(active_extruder)); SERIAL_EOL;
+                SERIAL_ECHOPAIR("Lower to ", current_position[Z_AXIS]); SERIAL_EOL;
+              }
+            #endif
+            // Park old head: 1) raise 2) move to park position 3) lower
+            for (uint8_t i = 0; i < 3; i++)
+              planner.buffer_line(
+                i == 0 ? current_position[X_AXIS] : x_home_pos(active_extruder),
+                current_position[Y_AXIS],
+                current_position[Z_AXIS] + (i == 2 ? 0 : TOOLCHANGE_PARK_ZLIFT),
+                current_position[E_AXIS],
+                planner.max_feedrate[i == 1 ? X_AXIS : Z_AXIS],
+                active_extruder
+              );
+            stepper.synchronize();
+          }
+
+          // apply Y & Z extruder offset (x offset is already used in determining home pos)
+          current_position[Y_AXIS] -= hotend_offset[Y_AXIS][active_extruder] - hotend_offset[Y_AXIS][tmp_extruder];
+          current_position[Z_AXIS] -= hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder];
+          active_extruder = tmp_extruder;
+
+          // This function resets the max/min values - the current position may be overwritten below.
+          set_axis_is_at_home(X_AXIS);
+
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) DEBUG_POS("New Extruder", current_position);
+          #endif
+
+          switch (dual_x_carriage_mode) {
+            case DXC_FULL_CONTROL_MODE:
               current_position[X_AXIS] = inactive_extruder_x_pos;
-            else
-              current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
-            inactive_extruder_x_pos = destination[X_AXIS];
-            extruder_duplication_enabled = false;
-            break;
-          default:
-            // record raised toolhead position for use by unpark
-            memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-            raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
-            active_extruder_parked = true;
-            delayed_move_time = 0;
-            break;
-        }
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
-            SERIAL_EOL;
-            DEBUG_POS("New extruder (parked)", current_position);
+              inactive_extruder_x_pos = destination[X_AXIS];
+              break;
+            case DXC_DUPLICATION_MODE:
+              active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
+              if (active_extruder_parked)
+                current_position[X_AXIS] = inactive_extruder_x_pos;
+              else
+                current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
+              inactive_extruder_x_pos = destination[X_AXIS];
+              extruder_duplication_enabled = false;
+              break;
+            default:
+              // record raised toolhead position for use by unpark
+              memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+              raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
+              active_extruder_parked = true;
+              delayed_move_time = 0;
+              break;
           }
-        #endif
-
-       // No extra case for AUTO_BED_LEVELING_FEATURE in DUAL_X_CARRIAGE. Does that mean they don't work together?
-      #else // !DUAL_X_CARRIAGE
-
-        /**
-         * Set current_position to the position of the new nozzle.
-         * Offsets are based on linear distance, so we need to get
-         * the resulting position in coordinate space.
-         *
-         * - With grid or 3-point leveling, offset XYZ by a tilted vector
-         * - With mesh leveling, update Z for the new position
-         * - Otherwise, just use the raw linear distance
-         *
-         * Software endstops are altered here too. Consider a case where:
-         *   E0 at X=0 ... E1 at X=10
-         * When we switch to E1 now X=10, but E1 can't move left.
-         * To express this we apply the change in XY to the software endstops.
-         * E1 can move farther right than E0, so the right limit is extended.
-         *
-         * Note that we don't adjust the Z software endstops. Why not?
-         * Consider a case where Z=0 (here) and switching to E1 makes Z=1
-         * because the bed is 1mm lower at the new position. As long as
-         * the first nozzle is out of the way, the carriage should be
-         * allowed to move 1mm lower. This technically "breaks" the
-         * Z software endstop. But this is technically correct (and
-         * there is no viable alternative).
-         */
-        #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-          // Offset extruder, make sure to apply the bed level rotation matrix
-          vector_3 tmp_offset_vec = vector_3(hotend_offset[X_AXIS][tmp_extruder],
-                                             hotend_offset[Y_AXIS][tmp_extruder],
-                                             0),
-                   act_offset_vec = vector_3(hotend_offset[X_AXIS][active_extruder],
-                                             hotend_offset[Y_AXIS][active_extruder],
-                                             0),
-                   offset_vec = tmp_offset_vec - act_offset_vec;
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
-              tmp_offset_vec.debug("tmp_offset_vec");
-              act_offset_vec.debug("act_offset_vec");
-              offset_vec.debug("offset_vec (BEFORE)");
+              SERIAL_ECHOPAIR("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
+              SERIAL_EOL;
+              DEBUG_POS("New extruder (parked)", current_position);
             }
           #endif
 
-          offset_vec.apply_rotation(planner.bed_level_matrix.transpose(planner.bed_level_matrix));
+          // No extra case for AUTO_BED_LEVELING_FEATURE in DUAL_X_CARRIAGE. Does that mean they don't work together?
+        #else // !DUAL_X_CARRIAGE
+
+          #if ENABLED(SWITCHING_EXTRUDER)
+            // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
+            float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
+                  z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
+          
+            // Always raise by some amount
+            planner.buffer_line(
+              current_position[X_AXIS],
+              current_position[Y_AXIS],
+              current_position[Z_AXIS] + z_raise,
+              current_position[E_AXIS],
+              planner.max_feedrate[Z_AXIS],
+              active_extruder
+            );
+            stepper.synchronize();
+          
+            move_extruder_servo(active_extruder);
+            delay(500);
+          
+            // Move back down, if needed
+            if (z_raise != z_diff) {
+              planner.buffer_line(
+                current_position[X_AXIS],
+                current_position[Y_AXIS],
+                current_position[Z_AXIS] + z_diff,
+                current_position[E_AXIS],
+                planner.max_feedrate[Z_AXIS],
+                active_extruder
+              );
+              stepper.synchronize();
+            }
+          #endif
+          
+          /**
+           * Set current_position to the position of the new nozzle.
+           * Offsets are based on linear distance, so we need to get
+           * the resulting position in coordinate space.
+           *
+           * - With grid or 3-point leveling, offset XYZ by a tilted vector
+           * - With mesh leveling, update Z for the new position
+           * - Otherwise, just use the raw linear distance
+           *
+           * Software endstops are altered here too. Consider a case where:
+           *   E0 at X=0 ... E1 at X=10
+           * When we switch to E1 now X=10, but E1 can't move left.
+           * To express this we apply the change in XY to the software endstops.
+           * E1 can move farther right than E0, so the right limit is extended.
+           *
+           * Note that we don't adjust the Z software endstops. Why not?
+           * Consider a case where Z=0 (here) and switching to E1 makes Z=1
+           * because the bed is 1mm lower at the new position. As long as
+           * the first nozzle is out of the way, the carriage should be
+           * allowed to move 1mm lower. This technically "breaks" the
+           * Z software endstop. But this is technically correct (and
+           * there is no viable alternative).
+           */
+          #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+            // Offset extruder, make sure to apply the bed level rotation matrix
+            vector_3 tmp_offset_vec = vector_3(hotend_offset[X_AXIS][tmp_extruder],
+                                               hotend_offset[Y_AXIS][tmp_extruder],
+                                               0),
+                     act_offset_vec = vector_3(hotend_offset[X_AXIS][active_extruder],
+                                               hotend_offset[Y_AXIS][active_extruder],
+                                               0),
+                     offset_vec = tmp_offset_vec - act_offset_vec;
+
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if (DEBUGGING(LEVELING)) {
+                tmp_offset_vec.debug("tmp_offset_vec");
+                act_offset_vec.debug("act_offset_vec");
+                offset_vec.debug("offset_vec (BEFORE)");
+              }
+            #endif
+
+            offset_vec.apply_rotation(planner.bed_level_matrix.transpose(planner.bed_level_matrix));
+
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if (DEBUGGING(LEVELING)) offset_vec.debug("offset_vec (AFTER)");
+            #endif
+
+            // Adjustments to the current position
+            float xydiff[2] = { offset_vec.x, offset_vec.y };
+            current_position[Z_AXIS] += offset_vec.z;
+
+          #else // !AUTO_BED_LEVELING_FEATURE
+  
+            float xydiff[2] = {
+              hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
+              hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
+            };
+
+            #if ENABLED(MESH_BED_LEVELING)
+
+              if (mbl.active()) {
+                #if ENABLED(DEBUG_LEVELING_FEATURE)
+                  if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("Z before MBL: ", current_position[Z_AXIS]);
+                #endif
+                float xpos = RAW_CURRENT_POSITION(X_AXIS),
+                      ypos = RAW_CURRENT_POSITION(Y_AXIS);
+                current_position[Z_AXIS] += mbl.get_z(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - mbl.get_z(xpos, ypos);
+                #if ENABLED(DEBUG_LEVELING_FEATURE)
+                  if (DEBUGGING(LEVELING)) {
+                    SERIAL_ECHOPAIR(" after: ", current_position[Z_AXIS]);
+                    SERIAL_EOL;
+                  }
+                #endif
+              }
+
+            #endif // MESH_BED_LEVELING
+  
+          #endif // !AUTO_BED_LEVELING_FEATURE
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) offset_vec.debug("offset_vec (AFTER)");
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_ECHOPAIR("Offset Tool XY by { ", xydiff[X_AXIS]);
+              SERIAL_ECHOPAIR(", ", xydiff[X_AXIS]);
+              SERIAL_ECHOLNPGM(" }");
+            }
           #endif
 
-          // Adjustments to the current position
-          float xydiff[2] = { offset_vec.x, offset_vec.y };
-          current_position[Z_AXIS] += offset_vec.z;
+          // The newly-selected extruder XY is actually at...
+          current_position[X_AXIS] += xydiff[X_AXIS];
+          current_position[Y_AXIS] += xydiff[Y_AXIS];
+          for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
+            position_shift[i] += xydiff[i];
+            update_software_endstops((AxisEnum)i);
+          }
 
-        #else // !AUTO_BED_LEVELING_FEATURE
+          // Set the new active extruder
+          active_extruder = tmp_extruder;
 
-          float xydiff[2] = {
-            hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
-            hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
-          };
-
-          #if ENABLED(MESH_BED_LEVELING)
-
-            if (mbl.active()) {
-              #if ENABLED(DEBUG_LEVELING_FEATURE)
-                if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("Z before MBL: ", current_position[Z_AXIS]);
-              #endif
-              float xpos = RAW_CURRENT_POSITION(X_AXIS),
-                    ypos = RAW_CURRENT_POSITION(Y_AXIS);
-              current_position[Z_AXIS] += mbl.get_z(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - mbl.get_z(xpos, ypos);
-              #if ENABLED(DEBUG_LEVELING_FEATURE)
-                if (DEBUGGING(LEVELING)) {
-                  SERIAL_ECHOPAIR(" after: ", current_position[Z_AXIS]);
-                  SERIAL_EOL;
-                }
-              #endif
-            }
-
-          #endif // MESH_BED_LEVELING
-
-        #endif // !AUTO_BED_LEVELING_FEATURE
+        #endif // !DUAL_X_CARRIAGE
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("Offset Tool XY by { ", xydiff[X_AXIS]);
-            SERIAL_ECHOPAIR(", ", xydiff[X_AXIS]);
-            SERIAL_ECHOLNPGM(" }");
-          }
+          if (DEBUGGING(LEVELING)) DEBUG_POS("Sync After Toolchange", current_position);
         #endif
 
-        // The newly-selected extruder XY is actually at...
-        current_position[X_AXIS] += xydiff[X_AXIS];
-        current_position[Y_AXIS] += xydiff[Y_AXIS];
-        for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
-          position_shift[i] += xydiff[i];
-          update_software_endstops((AxisEnum)i);
+        // Tell the planner the new "current position"
+        SYNC_PLAN_POSITION_KINEMATIC();
+
+        // Move to the "old position" (move the extruder into place)
+        if (!no_move && IsRunning()) {
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
+          #endif
+          prepare_move_to_destination();
         }
 
-        // Set the new active extruder
-        active_extruder = tmp_extruder;
+      } // (tmp_extruder != active_extruder)
 
-      #endif // !DUAL_X_CARRIAGE
+      stepper.synchronize();
 
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("Sync After Toolchange", current_position);
-      #endif
+      #if ENABLED(EXT_SOLENOID)
+        disable_all_solenoids();
+        enable_solenoid_on_active_extruder();
+      #endif // EXT_SOLENOID
 
-      // Tell the planner the new "current position"
-      SYNC_PLAN_POSITION_KINEMATIC();
+      feedrate = old_feedrate;
 
-      // Move to the "old position" (move the extruder into place)
-      if (!no_move && IsRunning()) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
-        #endif
-        prepare_move_to_destination();
+    #else // HOTENDS <= 1
+
+      // Set the new active extruder
+      active_extruder = tmp_extruder;
+
+    #endif // HOTENDS <= 1
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        DEBUG_POS("AFTER", current_position);
+        SERIAL_ECHOLNPGM("<<< gcode_T");
       }
+    #endif
+  
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM(MSG_ACTIVE_EXTRUDER);
+    SERIAL_PROTOCOLLN((int)active_extruder);
 
-    } // (tmp_extruder != active_extruder)
-
-    stepper.synchronize();
-
-    #if ENABLED(EXT_SOLENOID)
-      disable_all_solenoids();
-      enable_solenoid_on_active_extruder();
-    #endif // EXT_SOLENOID
-
-    feedrate = old_feedrate;
-
-  #else // !HOTENDS > 1
-
-    // Set the new active extruder
-    active_extruder = tmp_extruder;
-
-  #endif
-
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      DEBUG_POS("AFTER", current_position);
-      SERIAL_ECHOLNPGM("<<< gcode_T");
-    }
-  #endif
-
-  SERIAL_ECHO_START;
-  SERIAL_ECHOPGM(MSG_ACTIVE_EXTRUDER);
-  SERIAL_PROTOCOLLN((int)active_extruder);
+  #endif //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 }
 
 /**
@@ -7218,6 +7389,22 @@ void process_next_command() {
           break;
 
       #endif //EXPERIMENTAL_I2CBUS
+
+      #if ENABLED(MIXING_EXTRUDER)
+        case 163: // M163 S<int> P<float> set weight for a mixing extruder
+          gcode_M163();
+          break;
+        #if MIXING_VIRTUAL_TOOLS > 1
+          case 164: // M164 S<int> save current mix as a virtual extruder
+            gcode_M164();
+            break;
+        #endif
+        #if ENABLED(DIRECT_MIXING_IN_G1)
+          case 165: // M165 [ABCDHI]<float> set multiple mix weights
+            gcode_M165();
+            break;
+        #endif
+      #endif
 
       case 200: // M200 D<diameter> Set filament diameter and set E axis units to cubic. (Use S0 to revert to linear units.)
         gcode_M200();
@@ -8033,14 +8220,14 @@ void prepare_move_to_destination() {
       nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
       if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_bed > 0
           || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
-          #if EXTRUDERS > 1
+          #if E_STEPPERS > 1
             || E1_ENABLE_READ == E_ENABLE_ON
             #if HAS_X2_ENABLE
               || X2_ENABLE_READ == X_ENABLE_ON
             #endif
-            #if EXTRUDERS > 2
+            #if E_STEPPERS > 2
               || E2_ENABLE_READ == E_ENABLE_ON
-              #if EXTRUDERS > 3
+              #if E_STEPPERS > 3
                 || E3_ENABLE_READ == E_ENABLE_ON
               #endif
             #endif
@@ -8303,25 +8490,29 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
-    if (ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL))
-      if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP) {
+    if (ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
+      && thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP) {
+      #if ENABLED(SWITCHING_EXTRUDER)
+        bool oldstatus = E0_ENABLE_READ;
+        enable_e0();
+      #else // !SWITCHING_EXTRUDER
         bool oldstatus;
         switch (active_extruder) {
           case 0:
             oldstatus = E0_ENABLE_READ;
             enable_e0();
             break;
-          #if EXTRUDERS > 1
+          #if E_STEPPERS > 1
             case 1:
               oldstatus = E1_ENABLE_READ;
               enable_e1();
               break;
-            #if EXTRUDERS > 2
+            #if E_STEPPERS > 2
               case 2:
                 oldstatus = E2_ENABLE_READ;
                 enable_e2();
                 break;
-              #if EXTRUDERS > 3
+              #if E_STEPPERS > 3
                 case 3:
                   oldstatus = E3_ENABLE_READ;
                   enable_e3();
@@ -8330,37 +8521,43 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
             #endif
           #endif
         }
-        float oldepos = current_position[E_AXIS], oldedes = destination[E_AXIS];
-        planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
-                         destination[E_AXIS] + (EXTRUDER_RUNOUT_EXTRUDE) * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_mm[E_AXIS],
-                         (EXTRUDER_RUNOUT_SPEED) / 60. * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_mm[E_AXIS], active_extruder);
+      #endif // !SWITCHING_EXTRUDER
+
+      float oldepos = current_position[E_AXIS], oldedes = destination[E_AXIS];
+      planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
+                       destination[E_AXIS] + (EXTRUDER_RUNOUT_EXTRUDE) * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_mm[E_AXIS],
+                       (EXTRUDER_RUNOUT_SPEED) / 60. * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_mm[E_AXIS], active_extruder);
       current_position[E_AXIS] = oldepos;
       destination[E_AXIS] = oldedes;
       planner.set_e_position_mm(oldepos);
       previous_cmd_ms = ms; // refresh_cmd_timeout()
       stepper.synchronize();
-      switch (active_extruder) {
-        case 0:
-          E0_ENABLE_WRITE(oldstatus);
-          break;
-        #if EXTRUDERS > 1
-          case 1:
-            E1_ENABLE_WRITE(oldstatus);
+      #if ENABLED(SWITCHING_EXTRUDER)
+        E0_ENABLE_WRITE(oldstatus);
+      #else
+        switch (active_extruder) {
+          case 0:
+            E0_ENABLE_WRITE(oldstatus);
             break;
-          #if EXTRUDERS > 2
-            case 2:
-              E2_ENABLE_WRITE(oldstatus);
+          #if E_STEPPERS > 1
+            case 1:
+              E1_ENABLE_WRITE(oldstatus);
               break;
-            #if EXTRUDERS > 3
-              case 3:
-                E3_ENABLE_WRITE(oldstatus);
+            #if E_STEPPERS > 2
+              case 2:
+                E2_ENABLE_WRITE(oldstatus);
                 break;
+              #if E_STEPPERS > 3
+                case 3:
+                  E3_ENABLE_WRITE(oldstatus);
+                  break;
+              #endif
             #endif
           #endif
-        #endif
-      }
+        }
+      #endif // !SWITCHING_EXTRUDER
     }
-  #endif
+  #endif // EXTRUDER_RUNOUT_PREVENT
 
   #if ENABLED(DUAL_X_CARRIAGE)
     // handle delayed move timeout
@@ -8498,6 +8695,6 @@ float calculate_volumetric_multiplier(float diameter) {
 }
 
 void calculate_volumetric_multipliers() {
-  for (int i = 0; i < EXTRUDERS; i++)
+  for (int i = 0; i < COUNT(filament_size); i++)
     volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 }

@@ -107,15 +107,15 @@ class Stepper {
       static unsigned char old_OCR0A;
       static volatile unsigned char eISR_Rate;
       #if ENABLED(LIN_ADVANCE)
-        static volatile int e_steps[EXTRUDERS];
+        static volatile int e_steps[E_STEPPERS];
         static int extruder_advance_k;
         static int final_estep_rate;
-        static int current_estep_rate[EXTRUDERS]; // Actual extruder speed [steps/s]
-        static int current_adv_steps[EXTRUDERS];  // The amount of current added esteps due to advance.
+        static int current_estep_rate[E_STEPPERS]; // Actual extruder speed [steps/s]
+        static int current_adv_steps[E_STEPPERS];  // The amount of current added esteps due to advance.
                                                   // i.e., the current amount of pressure applied
                                                   // to the spring (=filament).
       #else
-        static long e_steps[EXTRUDERS];
+        static long e_steps[E_STEPPERS];
         static long advance_rate, advance, final_advance;
         static long old_advance;
       #endif
@@ -146,6 +146,16 @@ class Stepper {
     // Current direction of stepper motors (+1 or -1)
     //
     static volatile signed char count_direction[NUM_AXIS];
+
+    //
+    // Mixing extruder mix counters
+    //
+    #if ENABLED(MIXING_EXTRUDER)
+      static long counter_M[MIXING_STEPPERS];
+      #define MIXING_STEPPERS_LOOP(VAR) \
+        for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++) \
+          if (current_block->mix_event_count[VAR])
+    #endif
 
   public:
 
@@ -315,12 +325,25 @@ class Stepper {
       }
 
       #if ENABLED(ADVANCE)
+
         advance = current_block->initial_advance;
         final_advance = current_block->final_advance;
+
         // Do E steps + advance steps
-        e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
-        old_advance = advance >>8;
+        #if ENABLED(MIXING_EXTRUDER)
+          long advance_factor = (advance >> 8) - old_advance;
+          // ...for mixing steppers proportionally
+          MIXING_STEPPERS_LOOP(j)
+            e_steps[j] += advance_factor * current_block->step_event_count / current_block->mix_event_count[j];
+        #else
+          // ...for the active extruder
+          e_steps[TOOL_E_INDEX] += ((advance >> 8) - old_advance);
+        #endif
+
+        old_advance = advance >> 8;
+
       #endif
+
       deceleration_time = 0;
       // step_rate to timer interval
       OCR1A_nominal = calc_timer(current_block->nominal_rate);
