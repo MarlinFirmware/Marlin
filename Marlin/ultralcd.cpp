@@ -1365,7 +1365,7 @@ void kill_screen(const char* lcd_msg) {
   #endif
   static void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS, sw_endstop_min[Z_AXIS], sw_endstop_max[Z_AXIS]); }
   static void lcd_move_e(
-    #if EXTRUDERS > 1
+    #if E_STEPPERS > 1
       int8_t eindex = -1
     #endif
   ) {
@@ -1375,7 +1375,7 @@ void kill_screen(const char* lcd_msg) {
       current_position[E_AXIS] += float((int32_t)encoderPosition) * move_menu_scale;
       encoderPosition = 0;
       manual_move_to_current(E_AXIS
-        #if EXTRUDERS > 1
+        #if E_STEPPERS > 1
           , eindex
         #endif
       );
@@ -1383,34 +1383,34 @@ void kill_screen(const char* lcd_msg) {
     }
     if (lcdDrawUpdate) {
       PGM_P pos_label;
-      #if EXTRUDERS == 1
+      #if E_STEPPERS == 1
         pos_label = PSTR(MSG_MOVE_E);
       #else
         switch (eindex) {
           default: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E1); break;
           case 1: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E2); break;
-          #if EXTRUDERS > 2
+          #if E_STEPPERS > 2
             case 2: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E3); break;
-            #if EXTRUDERS > 3
+            #if E_STEPPERS > 3
               case 3: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E4); break;
-            #endif //EXTRUDERS > 3
-          #endif //EXTRUDERS > 2
+            #endif
+          #endif
         }
-      #endif //EXTRUDERS > 1
+      #endif
       lcd_implementation_drawedit(pos_label, ftostr41sign(current_position[E_AXIS]));
     }
   }
 
-  #if EXTRUDERS > 1
+  #if E_STEPPERS > 1
     static void lcd_move_e0() { lcd_move_e(0); }
     static void lcd_move_e1() { lcd_move_e(1); }
-    #if EXTRUDERS > 2
+    #if E_STEPPERS > 2
       static void lcd_move_e2() { lcd_move_e(2); }
-      #if EXTRUDERS > 3
+      #if E_STEPPERS > 3
         static void lcd_move_e3() { lcd_move_e(3); }
       #endif
     #endif
-  #endif // EXTRUDERS > 1
+  #endif
 
   /**
    *
@@ -1432,20 +1432,29 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
       MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
     }
+
     if (move_menu_scale < 10.0) {
       if (_MOVE_XYZ_ALLOWED) MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
-      #if EXTRUDERS == 1
+
+      #if ENABLED(SWITCHING_EXTRUDER)
+        if (active_extruder)
+          MENU_ITEM(gcode, MSG_SELECT MSG_E1, PSTR("T0"));
+        else
+          MENU_ITEM(gcode, MSG_SELECT MSG_E2, PSTR("T1"));
+      #endif
+
+      #if E_STEPPERS == 1
         MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
       #else
         MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E1, lcd_move_e0);
         MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E2, lcd_move_e1);
-        #if EXTRUDERS > 2
+        #if E_STEPPERS > 2
           MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E3, lcd_move_e2);
-          #if EXTRUDERS > 3
+          #if E_STEPPERS > 3
             MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E4, lcd_move_e3);
           #endif
         #endif
-      #endif // EXTRUDERS > 1
+      #endif
     }
     END_MENU();
   }

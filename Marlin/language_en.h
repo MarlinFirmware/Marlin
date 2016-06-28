@@ -251,6 +251,9 @@
 #ifndef MSG_PID_C
   #define MSG_PID_C                           "PID-C"
 #endif
+#ifndef MSG_SELECT
+  #define MSG_SELECT                          "Select"
+#endif
 #ifndef MSG_E1
   #define MSG_E1                              " E1"
 #endif
