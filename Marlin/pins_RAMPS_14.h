@@ -183,6 +183,27 @@
       #define BTN_ENC -1
       #define LCD_SDSS 53
       #define SD_DETECT_PIN 49
+    #elif ENABLED(VIKI2) || ENABLED(miniVIKI)
+      #define BEEPER_PIN       33
+
+      // Pins for DOGM SPI LCD Support
+      #define DOGLCD_A0        44
+      #define DOGLCD_CS        45
+      #define LCD_SCREEN_ROT_180
+
+      #define BTN_EN1          22
+      #define BTN_EN2           7
+      #define BTN_ENC          39
+
+      #define SDSS             53
+      #define SD_DETECT_PIN    -1  // Pin 49 for display sd interface, 72 for easy adapter board
+
+      #define KILL_PIN         31
+
+      #if ENABLED(TEMP_STAT_LEDS)
+        #define STAT_LED_RED   32
+        #define STAT_LED_BLUE  35
+      #endif
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #define BTN_EN1 35  // reverse if the encoder turns the wrong way.
       #define BTN_EN2 37
