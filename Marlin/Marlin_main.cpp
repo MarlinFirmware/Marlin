@@ -4550,7 +4550,7 @@ inline void gcode_M109() {
       else print_job_timer.start();
     #endif
 
-    if (temp > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
+    if (thermalManager.isHeatingHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
 
   #if ENABLED(AUTOTEMP)
@@ -4566,10 +4566,10 @@ inline void gcode_M109() {
     #define TEMP_CONDITIONS (wants_to_cool ? thermalManager.isCoolingHotend(target_extruder) : thermalManager.isHeatingHotend(target_extruder))
   #endif //TEMP_RESIDENCY_TIME > 0
 
-  float theTarget = -1;
+  float theTarget = -1.0, old_temp = 9999.0;
   bool wants_to_cool;
   cancel_heatup = false;
-  millis_t now, next_temp_ms = 0;
+  millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
   KEEPALIVE_STATE(NOT_BUSY);
 
@@ -4581,10 +4581,6 @@ inline void gcode_M109() {
 
       // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
       if (no_wait_for_cooling && wants_to_cool) break;
-
-      // Prevent a wait-forever situation if R is misused i.e. M109 R0
-      // Try to calculate a ballpark safe margin by halving EXTRUDE_MINTEMP
-      if (wants_to_cool && theTarget < (EXTRUDE_MINTEMP)/2) break;
     }
 
     now = millis();
@@ -4608,9 +4604,11 @@ inline void gcode_M109() {
     idle();
     refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
+    float temp = thermalManager.degHotend(target_extruder);
+
     #if TEMP_RESIDENCY_TIME > 0
 
-      float temp_diff = fabs(theTarget - thermalManager.degHotend(target_extruder));
+      float temp_diff = fabs(theTarget - temp);
 
       if (!residency_start_ms) {
         // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -4622,6 +4620,17 @@ inline void gcode_M109() {
       }
 
     #endif //TEMP_RESIDENCY_TIME > 0
+
+    // Prevent a wait-forever situation if R is misused i.e. M109 R0
+    if (wants_to_cool) {
+      if (temp < (EXTRUDE_MINTEMP) / 2) break; // always break at (default) 85°
+      // break after 20 seconds if cooling stalls
+      if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
+        if (old_temp - temp < 1.0) break;
+        next_cool_check_ms = now + 20000;
+        old_temp = temp;
+      }
+    }
 
   } while (!cancel_heatup && TEMP_CONDITIONS);
 
@@ -4651,10 +4660,10 @@ inline void gcode_M109() {
       #define TEMP_BED_CONDITIONS (wants_to_cool ? thermalManager.isCoolingBed() : thermalManager.isHeatingBed())
     #endif //TEMP_BED_RESIDENCY_TIME > 0
 
-    float theTarget = -1;
+    float theTarget = -1.0, old_temp = 9999.0;
     bool wants_to_cool;
     cancel_heatup = false;
-    millis_t now, next_temp_ms = 0;
+    millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
     KEEPALIVE_STATE(NOT_BUSY);
 
@@ -4666,10 +4675,6 @@ inline void gcode_M109() {
 
         // Exit if S<lower>, continue if S<higher>, R<lower>, or R<higher>
         if (no_wait_for_cooling && wants_to_cool) break;
-
-        // Prevent a wait-forever situation if R is misused i.e. M190 R0
-        // Simply don't wait to cool a bed under 30C
-        if (wants_to_cool && theTarget < 30) break;
       }
 
       now = millis();
@@ -4693,9 +4698,11 @@ inline void gcode_M109() {
       idle();
       refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
+      float temp = thermalManager.degBed();
+
       #if TEMP_BED_RESIDENCY_TIME > 0
 
-        float temp_diff = fabs(theTarget - thermalManager.degBed());
+        float temp_diff = fabs(theTarget - temp);
 
         if (!residency_start_ms) {
           // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
@@ -4708,7 +4715,19 @@ inline void gcode_M109() {
 
       #endif //TEMP_BED_RESIDENCY_TIME > 0
 
+      // Prevent a wait-forever situation if R is misused i.e. M190 R0
+      if (wants_to_cool) {
+        if (temp < 30.0) break; // always break at 30°
+        // break after 20 seconds if cooling stalls
+        if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
+          if (old_temp - temp < 1.0) break;
+          next_cool_check_ms = now + 20000;
+          old_temp = temp;
+        }
+      }
+
     } while (!cancel_heatup && TEMP_BED_CONDITIONS);
+
     LCD_MESSAGEPGM(MSG_BED_DONE);
     KEEPALIVE_STATE(IN_HANDLER);
   }
