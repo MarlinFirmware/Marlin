@@ -1138,7 +1138,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // at zero value, there are 128 effective control positions.
 #define SOFT_PWM_SCALE 0
 
-// Temperature status LEDs that display the hotend and bet temperature.
+// Temperature status LEDs that display the hotend and bed temperature.
 // If all hotends and bed temperature and temperature setpoint are < 54C then the BLUE led is on.
 // Otherwise the RED led is on. There is 1C hysteresis.
 //#define TEMP_STAT_LEDS
