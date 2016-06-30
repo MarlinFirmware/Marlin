@@ -7537,7 +7537,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
-  inline bool prepare_move_dual_x_carriage() {
+  inline bool prepare_move_to_destination_dualx() {
     if (active_extruder_parked) {
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
         // move duplicate extruder into correct duplication position.
@@ -7576,7 +7576,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
 
 #if DISABLED(DELTA) && DISABLED(SCARA)
 
-  inline bool prepare_cartesian_move_to_destination() {
+  inline bool prepare_move_to_destination_cartesian() {
     // Do not use feedrate_multiplier for E or Z only moves
     if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS]) {
       line_to_destination();
@@ -7637,9 +7637,9 @@ void prepare_move_to_destination() {
     if (!prepare_delta_move_to(destination)) return;
   #else
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (!prepare_move_dual_x_carriage()) return;
+      if (!prepare_move_to_destination_dualx()) return;
     #endif
-    if (!prepare_cartesian_move_to_destination()) return;
+    if (!prepare_move_to_destination_cartesian()) return;
   #endif
 
   set_current_to_destination();
