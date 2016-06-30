@@ -40,6 +40,7 @@
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
+#define MAX_EXTRUDERS 4
 
 /**
  * V24 EEPROM Layout:
@@ -270,7 +271,7 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, absPreheatHPBTemp);
   EEPROM_WRITE_VAR(i, absPreheatFanSpeed);
 
-  for (uint8_t e = 0; e < 4; e++) {
+  for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
 
     #if ENABLED(PIDTEMP)
       if (e < HOTENDS) {
@@ -345,7 +346,7 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, volumetric_enabled);
 
   // Save filament sizes
-  for (uint8_t q = 0; q < 4; q++) {
+  for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
     if (q < EXTRUDERS) dummy = filament_size[q];
     EEPROM_WRITE_VAR(i, dummy);
   }
@@ -452,7 +453,7 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, absPreheatFanSpeed);
 
     #if ENABLED(PIDTEMP)
-      for (uint8_t e = 0; e < 4; e++) { // 4 = max extruders currently supported by Marlin
+      for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
         EEPROM_READ_VAR(i, dummy); // Kp
         if (e < HOTENDS && dummy != DUMMY_PID_VALUE) {
           // do not need to scale PID values as the values in EEPROM are already scaled
@@ -471,7 +472,7 @@ void Config_RetrieveSettings() {
       }
     #else // !PIDTEMP
       // 4 x 4 = 16 slots for PID parameters
-      for (uint8_t q=16; q--;) EEPROM_READ_VAR(i, dummy);  // 4x Kp, Ki, Kd, Kc
+      for (uint8_t q = MAX_EXTRUDERS * 4; q--;) EEPROM_READ_VAR(i, dummy);  // Kp, Ki, Kd, Kc
     #endif // !PIDTEMP
 
     #if DISABLED(PID_ADD_EXTRUSION_RATE)
@@ -522,7 +523,7 @@ void Config_RetrieveSettings() {
 
     EEPROM_READ_VAR(i, volumetric_enabled);
 
-    for (uint8_t q = 0; q < 4; q++) {
+    for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
       EEPROM_READ_VAR(i, dummy);
       if (q < EXTRUDERS) filament_size[q] = dummy;
     }
