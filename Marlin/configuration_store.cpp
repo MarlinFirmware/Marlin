@@ -38,6 +38,9 @@
 
 #define EEPROM_VERSION "V24"
 
+// Change EEPROM version if these are changed:
+#define EEPROM_OFFSET 100
+
 /**
  * V24 EEPROM Layout:
  *
@@ -158,23 +161,22 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
     value++;
   } while (--size);
 }
-#define EEPROM_WRITE_VAR(pos, value) _EEPROM_writeData(pos, (uint8_t*)&value, sizeof(value))
-#define EEPROM_READ_VAR(pos, value) _EEPROM_readData(pos, (uint8_t*)&value, sizeof(value))
 
 /**
  * Store Configuration Settings - M500
  */
 
-#define DUMMY_PID_VALUE 3000.0f
 
-#define EEPROM_OFFSET 100
 
 #if ENABLED(EEPROM_SETTINGS)
 
-/**
- * Store Configuration Settings - M500
- */
+  #define DUMMY_PID_VALUE 3000.0f
+  #define EEPROM_WRITE_VAR(pos, value) _EEPROM_writeData(pos, (uint8_t*)&value, sizeof(value))
+  #define EEPROM_READ_VAR(pos, value) _EEPROM_readData(pos, (uint8_t*)&value, sizeof(value))
 
+/**
+ * M500 - Store Configuration
+ */
 void Config_StoreSettings()  {
   float dummy = 0.0f;
   char ver[4] = "000";
@@ -349,11 +351,9 @@ void Config_StoreSettings()  {
 }
 
 /**
- * Retrieve Configuration Settings - M501
+ * M501 - Retrieve Configuration
  */
-
 void Config_RetrieveSettings() {
-
   int i = EEPROM_OFFSET;
   char stored_ver[4];
   uint16_t stored_checksum;
@@ -545,9 +545,8 @@ void Config_RetrieveSettings() {
 #endif // EEPROM_SETTINGS
 
 /**
- * Reset Configuration Settings - M502
+ * M502 - Reset Configuration
  */
-
 void Config_ResetDefault() {
   float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT;
   float tmp2[] = DEFAULT_MAX_FEEDRATE;
@@ -663,12 +662,11 @@ void Config_ResetDefault() {
 
 #if DISABLED(DISABLE_M503)
 
-/**
- * Print Configuration Settings - M503
- */
-
 #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START; }while(0)
 
+/**
+ * M503 - Print Configuration
+ */
 void Config_PrintSettings(bool forReplay) {
   // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
 
