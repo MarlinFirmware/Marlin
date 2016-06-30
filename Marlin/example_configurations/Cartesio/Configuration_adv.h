@@ -364,6 +364,9 @@
 
 // @section lcd
 
+// Include a page of printer information in the LCD Main Menu
+//#define LCD_INFO_MENU
+
 #if ENABLED(SDSUPPORT)
 
   // Some RAMPS and other boards don't detect when an SD card is inserted. You can work
