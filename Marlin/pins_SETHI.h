@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Sethi 3D' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME "Sethi 3D_1"
+
 #ifndef GEN7_VERSION
   #define GEN7_VERSION 12 // v1.x
 #endif

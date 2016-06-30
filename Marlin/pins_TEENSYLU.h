@@ -35,6 +35,8 @@
   #error "These Teensylu assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h"
 #endif
 
+#define BOARD_NAME         "Teensylu"
+
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN          0

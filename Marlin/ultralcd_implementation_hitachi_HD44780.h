@@ -815,6 +815,21 @@ static void lcd_implementation_status_screen() {
   lcd_print(lcd_status_message);
 }
 
+static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, bool center=true) {
+  char c;
+  uint8_t n = LCD_WIDTH;
+  lcd.setCursor(0, row);
+  if (center) {
+    int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
+    while (--pad >= 0) { lcd.print(' '); n--; }
+  }
+  while ((c = pgm_read_byte(pstr)) && n > 0) {
+    n -= lcd_print(c);
+    pstr++;
+  }
+  while (n--) lcd.print(' ');
+}
+
 static void lcd_implementation_drawmenu_generic(bool sel, uint8_t row, const char* pstr, char pre_char, char post_char) {
   char c;
   uint8_t n = LCD_WIDTH - 2;

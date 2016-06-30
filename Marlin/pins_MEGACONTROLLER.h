@@ -32,6 +32,8 @@
   #error "Mega Controller supports up to 2 extruders. Comment this line to keep going."
 #endif
 
+#define BOARD_NAME "Mega Controller"
+
 #define SERVO0_PIN 30
 #define SERVO1_PIN 31
 #define SERVO2_PIN 32

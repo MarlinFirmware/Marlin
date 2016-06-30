@@ -29,6 +29,10 @@
 #include "stepper.h"
 #include "configuration_store.h"
 
+#if ENABLED(PRINTCOUNTER)
+  #include "printcounter.h"
+#endif
+
 int plaPreheatHotendTemp;
 int plaPreheatHPBTemp;
 int plaPreheatFanSpeed;
@@ -117,6 +121,15 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   static void lcd_control_motion_menu();
   static void lcd_control_volumetric_menu();
 
+  #if ENABLED(LCD_INFO_MENU)
+    #if ENABLED(PRINTCOUNTER)
+      static void lcd_info_stats_menu();
+    #endif
+    static void lcd_info_thermistors_menu();
+    static void lcd_info_board_menu();
+    static void lcd_info_menu();
+  #endif
+
   #if HAS_LCD_CONTRAST
     static void lcd_set_contrast();
   #endif
@@ -189,6 +202,12 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 
   /**
    * START_MENU generates the init code for a menu function
+   *
+   *   encoderLine is the position based on the encoder
+   *   currentMenuViewOffset is the top menu line to display
+   *   _drawLineNr is the index of the LCD line (0-3)
+   *   _lineNr is the menu item to draw and process
+   *   _menuItemNr is the index of each MENU_ITEM
    */
   #define START_MENU() do { \
     ENCODER_DIRECTION_MENUS(); \
@@ -241,6 +260,26 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
       _MENU_ITEM_PART_1(type, label, ## args); \
       _MENU_ITEM_PART_2(type, ## args); \
     } while(0)
+
+  // Used to print static text with no visible cursor.
+  #define STATIC_ITEM(label, args...) \
+    if (_menuItemNr == _lineNr) { \
+      if (encoderLine == _menuItemNr && _menuItemNr < LCD_HEIGHT - 1) \
+        encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
+      if (lcdDrawUpdate) \
+        lcd_implementation_drawmenu_static(_drawLineNr, PSTR(label), ## args); \
+    } \
+    _menuItemNr++
+
+  // Same as STATIC_ITEM, but can display variables. Do not use for text strings.
+  #define STATIC_ITEM_VAR(label, args...) \
+    if (_menuItemNr == _lineNr) { \
+      if (encoderLine == _menuItemNr && _menuItemNr < LCD_HEIGHT - 1) \
+        encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
+      if (lcdDrawUpdate) \
+        lcd_implementation_drawmenu_static(_drawLineNr, label, ## args); \
+    } \
+    _menuItemNr++
 
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
@@ -553,6 +592,10 @@ static void lcd_status_screen() {
         #endif
       }
     #endif //SDSUPPORT
+
+    #if ENABLED(LCD_INFO_MENU)
+      MENU_ITEM(submenu, MSG_INFO_MENU, lcd_info_menu);
+    #endif
 
     END_MENU();
   }
@@ -1869,6 +1912,134 @@ static void lcd_status_screen() {
     }
 
   #endif //SDSUPPORT
+
+  #if ENABLED(LCD_INFO_MENU)
+    #if ENABLED(PRINTCOUNTER)
+      /**
+       *
+       * Printer Info > Stastics submenu
+       *
+       */
+      static void lcd_info_stats_menu() {
+        PrintCounter print_job_counter = PrintCounter();
+        print_job_counter.loadStats();
+        printStatistics stats = print_job_counter.getStats();
+
+        char totalPrints[18];
+        itoa(stats.totalPrints, totalPrints, 10);
+        char finishedPrints[18];
+        itoa(stats.finishedPrints, finishedPrints, 10);
+        char printTime[18];
+        itoa(stats.printTime, printTime, 10);
+
+        if (LCD_CLICKED) lcd_goto_previous_menu(true);
+        START_MENU();
+        STATIC_ITEM(MSG_INFO_TOTAL_PRINTS ": ");    // Total Prints:
+        STATIC_ITEM_VAR(totalPrints);               // 999
+        STATIC_ITEM(MSG_INFO_FINISHED_PRINTS ": "); // Finished Prints:
+        STATIC_ITEM_VAR(finishedPrints);            // 666
+        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ");      // Total Print Time:
+        STATIC_ITEM_VAR(printTime);                 // 123456
+        END_MENU();
+      }
+    #endif
+  
+    /**
+     *
+     * Printer Info > Thermistors
+     *
+     */
+    static void lcd_info_thermistors_menu() {
+      if (LCD_CLICKED) lcd_goto_previous_menu(true);
+      START_MENU();
+      #define THERMISTOR_ID TEMP_SENSOR_0
+      #include "thermistornames.h"
+      STATIC_ITEM("T0: " THERMISTOR_NAME);
+      STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_0_MINTEMP));
+      STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_0_MAXTEMP));
+
+      #if TEMP_SENSOR_1 != 0
+        #undef THERMISTOR_ID
+        #define THERMISTOR_ID TEMP_SENSOR_1
+        #include "thermistornames.h"
+        STATIC_ITEM("T1: " THERMISTOR_NAME);
+        STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_1_MINTEMP));
+        STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_1_MAXTEMP));
+      #endif
+
+      #if TEMP_SENSOR_2 != 0
+        #undef THERMISTOR_ID
+        #define THERMISTOR_ID TEMP_SENSOR_2
+        #include "thermistornames.h"
+        STATIC_ITEM("T2: " THERMISTOR_NAME);
+        STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_2_MINTEMP));
+        STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_2_MAXTEMP));
+      #endif
+
+      #if TEMP_SENSOR_3 != 0
+        #undef THERMISTOR_ID
+        #define THERMISTOR_ID TEMP_SENSOR_3
+        #include "thermistornames.h"
+        STATIC_ITEM("T3: " THERMISTOR_NAME);
+        STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_3_MINTEMP));
+        STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_3_MAXTEMP));
+      #endif
+    
+      #if TEMP_SENSOR_BED != 0
+        #undef THERMISTOR_ID
+        #define THERMISTOR_ID TEMP_SENSOR_BED
+        #include "thermistornames.h"
+        STATIC_ITEM("TBed:" THERMISTOR_NAME);
+        STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(BED_MINTEMP));
+        STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(BED_MAXTEMP));
+      #endif
+      END_MENU();
+    }
+
+    /**
+     *
+     * Printer Info > Board Info
+     *
+     */
+    static void lcd_info_board_menu() {
+      if (LCD_CLICKED) lcd_goto_previous_menu(true);
+      START_MENU();
+      STATIC_ITEM(BOARD_NAME);                                 // MyPrinterController
+      STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE)); // Baud: 250000
+      STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION);    // Protocol: 1.0
+      #ifdef POWER_SUPPLY
+        #if (POWER_SUPPLY == 1)
+          STATIC_ITEM(MSG_INFO_PSU ": ATX");  // Power Supply: ATX
+        #elif (POWER_SUPPLY == 2)
+          STATIC_ITEM(MSG_INFO_PSU ": XBox"); // Power Supply: XBox
+        #endif
+      #endif // POWER_SUPPLY
+      END_MENU();
+    }
+
+    /**
+     *
+     * "Printer Info" submenu
+     *
+     */
+    static void lcd_info_menu() {
+      START_MENU();
+      MENU_ITEM(back, MSG_INFO_MENU);
+      STATIC_ITEM(MSG_MARLIN);                                   // Marlin
+      STATIC_ITEM(SHORT_BUILD_VERSION);                          // x.x.x-Branch
+      STATIC_ITEM(STRING_DISTRIBUTION_DATE);                     // YYYY-MM-DD HH:MM
+      STATIC_ITEM(MACHINE_NAME);                                 // My3DPrinter
+      STATIC_ITEM(WEBSITE_URL);                                  // www.my3dprinter.com
+      STATIC_ITEM(MSG_INFO_EXTRUDERS ": " STRINGIFY(EXTRUDERS)); // Extruders: 2
+
+      MENU_ITEM(submenu, MSG_INFO_BOARD_MENU, lcd_info_board_menu);            // Board Info ->
+      MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, lcd_info_thermistors_menu); // Thermistors ->
+      #if ENABLED(PRINTCOUNTER)
+        MENU_ITEM(submenu, MSG_INFO_STATS_MENU, lcd_info_stats_menu);          // Printer Statistics ->
+      #endif
+      END_MENU();
+    }
+  #endif // LCD_INFO_MENU
 
   /**
    *
