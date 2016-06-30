@@ -163,10 +163,22 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
 }
 
 /**
- * Store Configuration Settings - M500
+ * Post-process after Retrieve or Reset
  */
+void Config_Postprocess() {
+  // steps per s2 needs to be updated to agree with units per s2
+  planner.reset_acceleration_rates();
 
+  #if ENABLED(DELTA)
+    recalc_delta_settings(delta_radius, delta_diagonal_rod);
+  #endif
 
+  #if ENABLED(PIDTEMP)
+    thermalManager.updatePID();
+  #endif
+
+  calculate_volumetric_multipliers();
+}
 
 #if ENABLED(EEPROM_SETTINGS)
 
@@ -376,9 +388,6 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, planner.max_feedrate);
     EEPROM_READ_VAR(i, planner.max_acceleration_mm_per_s2);
 
-    // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
-    planner.reset_acceleration_rates();
-
     EEPROM_READ_VAR(i, planner.acceleration);
     EEPROM_READ_VAR(i, planner.retract_acceleration);
     EEPROM_READ_VAR(i, planner.travel_acceleration);
@@ -421,7 +430,6 @@ void Config_RetrieveSettings() {
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_1);  // 1 float
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_2);  // 1 float
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_3);  // 1 float
-      recalc_delta_settings(delta_radius, delta_diagonal_rod);
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       EEPROM_READ_VAR(i, z_endstop_adj);
       dummy = 0.0f;
@@ -519,10 +527,6 @@ void Config_RetrieveSettings() {
       if (q < EXTRUDERS) filament_size[q] = dummy;
     }
 
-    calculate_volumetric_multipliers();
-    // Call thermalManager.updatePID (similar to when we have processed M301)
-    thermalManager.updatePID();
-
     if (eeprom_checksum == stored_checksum) {
       Config_Postprocess();
       SERIAL_ECHO_START;
@@ -561,9 +565,6 @@ void Config_ResetDefault() {
     #endif
   }
 
-  // steps per sq second need to be updated to agree with the units per sq second
-  planner.reset_acceleration_rates();
-
   planner.acceleration = DEFAULT_ACCELERATION;
   planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
@@ -591,7 +592,6 @@ void Config_ResetDefault() {
     delta_diagonal_rod_trim_tower_1 = DELTA_DIAGONAL_ROD_TRIM_TOWER_1;
     delta_diagonal_rod_trim_tower_2 = DELTA_DIAGONAL_ROD_TRIM_TOWER_2;
     delta_diagonal_rod_trim_tower_3 = DELTA_DIAGONAL_ROD_TRIM_TOWER_3;
-    recalc_delta_settings(delta_radius, delta_diagonal_rod);
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     z_endstop_adj = 0;
   #endif
@@ -626,8 +626,6 @@ void Config_ResetDefault() {
     #if ENABLED(PID_ADD_EXTRUSION_RATE)
       lpq_len = 20; // default last-position-queue size
     #endif
-    // call thermalManager.updatePID (similar to when we have processed M301)
-    thermalManager.updatePID();
   #endif // PIDTEMP
 
   #if ENABLED(PIDTEMPBED)
@@ -654,7 +652,8 @@ void Config_ResetDefault() {
   volumetric_enabled = false;
   for (uint8_t q = 0; q < COUNT(filament_size); q++)
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
-  calculate_volumetric_multipliers();
+
+  Config_Postprocess();
 
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
