@@ -226,6 +226,7 @@ void Config_StoreSettings()  {
     EEPROM_WRITE_VAR(i, mesh_num_y);
     EEPROM_WRITE_VAR(i, mbl.z_values);
   #else
+    // For disabled MBL write a default mesh
     uint8_t mesh_num_x = 3,
             mesh_num_y = 3,
             dummy_uint8 = 0;
@@ -242,6 +243,7 @@ void Config_StoreSettings()  {
   #endif
   EEPROM_WRITE_VAR(i, zprobe_zoffset);
 
+  // 9 floats for DELTA / Z_DUAL_ENDSTOPS
   #if ENABLED(DELTA)
     EEPROM_WRITE_VAR(i, endstop_adj);               // 3 floats
     EEPROM_WRITE_VAR(i, delta_radius);              // 1 float
@@ -409,12 +411,16 @@ void Config_RetrieveSettings() {
       mbl.status = dummy_uint8;
       mbl.z_offset = dummy;
       if (mesh_num_x == MESH_NUM_X_POINTS && mesh_num_y == MESH_NUM_Y_POINTS) {
+        // EEPROM data fits the current mesh
         EEPROM_READ_VAR(i, mbl.z_values);
-      } else {
+      }
+      else {
+        // EEPROM data is stale
         mbl.reset();
         for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
       }
     #else
+      // MBL is disabled - skip the stored data
       for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
     #endif // MESH_BED_LEVELING
 
