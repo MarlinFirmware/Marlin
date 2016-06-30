@@ -6,6 +6,8 @@
   #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
 #endif
 
+#define BOARD_NAME            "CN Controls V12"
+
 //#define LARGE_FLASH true
 
 #define X_ENABLE_PIN          26

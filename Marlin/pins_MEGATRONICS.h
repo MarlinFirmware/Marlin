@@ -28,6 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Megatronics"
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN         26

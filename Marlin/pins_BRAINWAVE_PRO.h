@@ -37,6 +37,8 @@
   #error "Uncomment #define AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h for this config"
 #endif
 
+#define BOARD_NAME         "Brainwave Pro"
+
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN         33

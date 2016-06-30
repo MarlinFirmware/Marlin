@@ -132,6 +132,12 @@ class PrintCounter: public Stopwatch {
     void showStats();
 
     /**
+     * @brief Return the currently loaded statistics
+     * @details Return the raw data, in the same structure used internally
+     */
+    printStatistics getStats() { return this->data; }
+
+    /**
      * @brief Loop function
      * @details This function should be called at loop, it will take care of
      * periodically save the statistical data to EEPROM and do time keeping.

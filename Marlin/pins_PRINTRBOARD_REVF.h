@@ -35,6 +35,7 @@
   #error "These Printrboard assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h"
 #endif
 
+#define BOARD_NAME         "Printrboard Rev F"
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN          0

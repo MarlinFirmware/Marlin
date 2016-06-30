@@ -24,11 +24,13 @@
  * Gen7 v1.4 pin assignments
  */
 
-#define GEN7_VERSION 14 // v1.4
-
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
   #error "Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu."
 #endif
+
+#define BOARD_NAME "Gen7 v1.4"
+
+#define GEN7_VERSION 14 // v1.4
 
 //x axis pins
 #define X_STEP_PIN 29

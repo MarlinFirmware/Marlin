@@ -23,7 +23,8 @@
 /**
  * Board 99 pin assignments
  */
-
+#define BOARD_NAME          "99 Unknown"
+ 
 #define X_STEP_PIN          2
 #define X_DIR_PIN           3
 #define X_ENABLE_PIN        -1
