@@ -187,10 +187,10 @@
 #define MSG_HEATING_COMPLETE                "Rozgrzano"
 #define MSG_BED_HEATING                     "Rozgrzewanie loza..."
 #define MSG_BED_DONE                        "Rozgrzano loze"
-#define MSG_DELTA_CALIBRATE               	"Kalibrowanie Delty"
-#define MSG_DELTA_CALIBRATE_X             	"Kalibruj X"
-#define MSG_DELTA_CALIBRATE_Y             	"Kalibruj Y"
-#define MSG_DELTA_CALIBRATE_Z             	"Kalibruj Z"
-#define MSG_DELTA_CALIBRATE_CENTER        	"Kalibruj środek"
+#define MSG_DELTA_CALIBRATE                 "Kalibrowanie Delty"
+#define MSG_DELTA_CALIBRATE_X               "Kalibruj X"
+#define MSG_DELTA_CALIBRATE_Y               "Kalibruj Y"
+#define MSG_DELTA_CALIBRATE_Z               "Kalibruj Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Kalibruj środek"
 
 #endif // LANGUAGE_PL_H
