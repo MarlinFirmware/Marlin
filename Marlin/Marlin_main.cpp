@@ -2118,14 +2118,12 @@ static void clean_up_after_endstop_or_probe_move() {
       #endif
       stow_z_probe();
     }
-    #if Z_RAISE_BETWEEN_PROBINGS > 0
-      else {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> do_probe_raise");
-        #endif
-        do_probe_raise(Z_RAISE_BETWEEN_PROBINGS);
-      }
-    #endif
+    else {
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> do_probe_raise");
+      #endif
+      do_probe_raise(Z_RAISE_BETWEEN_PROBINGS);
+    }
 
     if (verbose_level > 2) {
       SERIAL_PROTOCOLPGM("Bed X: ");
