@@ -223,7 +223,7 @@ static void finISR(timer16_Sequence_t timer) {
     }
   #else //!WIRING
     // For arduino - in future: call here to a currently undefined function to reset the timer
-	UNUSED(timer);
+    UNUSED(timer);
   #endif
 }
 
