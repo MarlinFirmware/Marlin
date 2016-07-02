@@ -473,21 +473,29 @@ static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
   u8g.setPrintPos((START_ROW) * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
 }
 
-static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, bool center=true) {
-  char c;
-  uint8_t n = LCD_WIDTH;
-  u8g.setPrintPos(0, (row + 1) * (DOG_CHAR_HEIGHT));
-  u8g.setColorIndex(1); // normal text
-  if (center) {
-    int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
-    while (--pad >= 0) { lcd_print(' '); n--; }
+#if ENABLED(LCD_INFO_MENU)
+
+  static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, const char* valstr=NULL, bool center=false) {
+    char c;
+    int8_t n = LCD_WIDTH;
+    u8g.setPrintPos(0, (row + 1) * (DOG_CHAR_HEIGHT));
+    u8g.setColorIndex(1); // normal text
+    if (center) {
+      int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
+      while (--pad >= 0) { lcd_print(' '); n--; }
+    }
+    while (c = pgm_read_byte(pstr)) {
+      n -= lcd_print(c);
+      pstr++;
+    }
+    if (valstr) {
+      lcd_print(valstr);
+      n -= lcd_strlen(valstr);
+    }
+    while (n-- > 0) lcd_print(' ');
   }
-  while (c = pgm_read_byte(pstr)) {
-    n -= lcd_print(c);
-    pstr++;
-  }
-  while (n--) lcd_print(' ');
-}
+
+#endif // LCD_INFO_MENU
 
 static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, const char* pstr, char pre_char, char post_char) {
   UNUSED(pstr);
