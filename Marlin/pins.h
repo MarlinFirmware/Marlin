@@ -77,6 +77,8 @@
   #include "pins_3DRAG.h"
 #elif MB(K8200)
   #include "pins_K8200.h"
+#elif MB(K8400)
+  #include "pins_K8400.h"
 #elif MB(TEENSYLU)
   #include "pins_TEENSYLU.h"
 #elif MB(RUMBA)
