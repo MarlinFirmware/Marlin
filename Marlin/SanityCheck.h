@@ -56,35 +56,21 @@
  * Marlin release, version and default string
  */
 #ifndef SHORT_BUILD_VERSION
-  #error "SHORT_BUILD_VERSION Information must be specified"
-#endif
-
-#ifndef DETAILED_BUILD_VERSION
-  #error "BUILD_VERSION Information must be specified"
-#endif
-
-#ifndef STRING_DISTRIBUTION_DATE
-  #error "STRING_DISTRIBUTION_DATE Information must be specified"
-#endif
-
-#ifndef PROTOCOL_VERSION
-  #error "PROTOCOL_VERSION Information must be specified"
-#endif
-
-#ifndef MACHINE_NAME
-  #error "MACHINE_NAME Information must be specified"
-#endif
-
-#ifndef SOURCE_CODE_URL
-  #error "SOURCE_CODE_URL Information must be specified"
-#endif
-
-#ifndef DEFAULT_MACHINE_UUID
-  #error "DEFAULT_MACHINE_UUID Information must be specified"
-#endif
-
-#ifndef WEBSITE_URL
-  #error "WEBSITE_URL Information must be specified"
+  #error "SHORT_BUILD_VERSION must be specified."
+#elif !defined(DETAILED_BUILD_VERSION)
+  #error "BUILD_VERSION must be specified."
+#elif !defined(STRING_DISTRIBUTION_DATE)
+  #error "STRING_DISTRIBUTION_DATE must be specified."
+#elif !defined(PROTOCOL_VERSION)
+  #error "PROTOCOL_VERSION must be specified."
+#elif !defined(MACHINE_NAME)
+  #error "MACHINE_NAME must be specified."
+#elif !defined(SOURCE_CODE_URL)
+  #error "SOURCE_CODE_URL must be specified."
+#elif !defined(DEFAULT_MACHINE_UUID)
+  #error "DEFAULT_MACHINE_UUID must be specified."
+#elif !defined(WEBSITE_URL)
+  #error "WEBSITE_URL must be specified."
 #endif
 
 /**
