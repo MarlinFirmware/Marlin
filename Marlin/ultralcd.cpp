@@ -2008,12 +2008,14 @@ static void lcd_status_screen() {
      */
     static void lcd_info_printer_menu() {
       if (LCD_CLICKED) lcd_goto_previous_menu(true);
+      START_MENU();
       STATIC_ITEM(MSG_MARLIN);                                   // Marlin
       STATIC_ITEM(SHORT_BUILD_VERSION);                          // x.x.x-Branch
       STATIC_ITEM(STRING_DISTRIBUTION_DATE);                     // YYYY-MM-DD HH:MM
       STATIC_ITEM(MACHINE_NAME);                                 // My3DPrinter
       STATIC_ITEM(WEBSITE_URL);                                  // www.my3dprinter.com
       STATIC_ITEM(MSG_INFO_EXTRUDERS ": " STRINGIFY(EXTRUDERS)); // Extruders: 2
+      END_MENU();
     }
 
     /**
