@@ -33,6 +33,7 @@
 #endif
 
 #define DEFAULT_MACHINE_NAME "Rumba"
+#define BOARD_NAME           "Rumba"
 
 #define X_STEP_PIN         17
 #define X_DIR_PIN          16

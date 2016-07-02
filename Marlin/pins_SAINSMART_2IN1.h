@@ -26,6 +26,9 @@
 
 #include "pins_RAMPS_14_EFB.h"
 
+#undef BOARD_NAME
+#define BOARD_NAME          "Sainsmart"
+
 #undef FAN_PIN
 #define FAN_PIN             7 // PART FAN in front of board next to Extruder heat
 

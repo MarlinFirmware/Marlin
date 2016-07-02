@@ -30,6 +30,7 @@
 
 #define DEFAULT_MACHINE_NAME    "Ultimaker"
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
+#define BOARD_NAME              "Ultimaker 2.x"
 
 #define X_STEP_PIN 25
 #define X_DIR_PIN 23

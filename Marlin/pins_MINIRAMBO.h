@@ -28,6 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega 2560 or Rambo' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME          "Mini Rambo"
 #define LARGE_FLASH         true
 
 #define X_STEP_PIN          37

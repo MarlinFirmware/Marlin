@@ -74,6 +74,8 @@
   // (or build from command line)
 #endif
 
+#define BOARD_NAME         "Teensy++2.0"
+
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN         28 //  0 Marlin

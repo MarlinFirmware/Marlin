@@ -88,7 +88,7 @@ void PrintCounter::showStats() {
   SERIAL_ECHO(this->data.totalPrints - this->data.finishedPrints
     - ((this->isRunning() || this->isPaused()) ? 1 : 0)); // Removes 1 from failures with an active counter
 
-  uint32_t t = this->data.printTime /60;
+  uint32_t t = this->data.printTime / 60;
   SERIAL_ECHOPGM(", Total print time: ");
   SERIAL_ECHO(t / 60);
 

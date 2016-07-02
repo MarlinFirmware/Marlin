@@ -28,6 +28,12 @@
   #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
 #endif
 
+#ifndef BOARD_NAME
+  #define BOARD_NAME "Sanguinololu <1.2"
+#endif
+
+#define IS_MELZI (MB(MELZI) || MB(MELZI_MAKR3D))
+
 #define X_STEP_PIN         15
 #define X_DIR_PIN          21
 #define X_STOP_PIN         18
@@ -43,11 +49,11 @@
 #define E0_STEP_PIN         1
 #define E0_DIR_PIN          0
 
-#if MB(AZTEEG_X1) || MB(STB_11) || MB(MELZI)
+#if MB(AZTEEG_X1) || MB(STB_11) || IS_MELZI
   #define FAN_PIN           4 // Works for Panelolu2 too
 #endif
 
-#if MB(MELZI)
+#if IS_MELZI
   #define LED_PIN          27 // On some broken versions of the Sanguino libraries the pin definitions are wrong, so LED_PIN needs to be 28. But you should upgrade your Sanguino libraries! See #368.
 #elif MB(STB_11)
   #define LCD_PIN_BL       17 // LCD backlight LED
@@ -101,7 +107,7 @@
 
     #if ENABLED(U8GLIB_ST7920) //SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
 
-      #if MB(MELZI) // Melzi board
+      #if IS_MELZI // Melzi board
         #define LCD_PINS_RS     30 //CS chip select /SS chip slave select
         #define LCD_PINS_ENABLE 29 //SID (MOSI)
         #define LCD_PINS_D4     17 //SCK (CLK) clock
@@ -147,7 +153,7 @@
   #define BTN_EN1               11
   #define BTN_EN2               10
   #if ENABLED(LCD_I2C_PANELOLU2)
-    #if MB(MELZI)
+    #if IS_MELZI
       #define BTN_ENC           29
       #define LCD_SDSS          30 // Panelolu2 SD card reader rather than the Melzi
     #else

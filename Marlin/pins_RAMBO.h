@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME "Rambo"
+
 #define LARGE_FLASH true
 
 // Servo support
