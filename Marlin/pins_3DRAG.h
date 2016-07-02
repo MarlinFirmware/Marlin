@@ -21,7 +21,7 @@
  */
 
 /**
- * 3DRAG (and K8200) Arduino Mega with RAMPS v1.4 pin assignments
+ * 3DRAG (and K8200 / K8400) Arduino Mega with RAMPS v1.4 pin assignments
  */
 
 #ifndef BOARD_NAME
