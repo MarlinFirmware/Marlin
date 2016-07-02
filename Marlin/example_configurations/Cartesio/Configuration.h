@@ -133,20 +133,34 @@
 // :[1,2,3,4]
 #define EXTRUDERS 3
 
-// For Cyclops or any "multi-extruder" that shares a single nozzle.
-//#define SINGLENOZZLE
-
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
 // For the other hotends it is their distance from the extruder 0 hotend.
 //#define HOTEND_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
 //#define HOTEND_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
+// For Cyclops or any "multi-extruder" that shares a single nozzle.
+//#define SINGLENOZZLE
+
+/**
+ * "Mixing Extruder"
+ *   - Adds a new code, M165, to set the current mix factors.
+ *   - Extends the stepping routines to move multiple steppers in proportion to the mix.
+ *   - Optional support for Repetier Host M163, M164, and virtual extruder.
+ *   - This implementation supports only a single extruder.
+ *   - Enable DIRECT_MIXING_IN_G1 for Pia Taubert's reference implementation
+ */
+//#define MIXING_EXTRUDER
+#ifdef MIXING_EXTRUDER
+  #define MIXING_STEPPERS 2        // Number of steppers in your mixing extruder
+  #define MIXING_VIRTUAL_TOOLS 16  // Use the Virtual Tool method with M163 and M164
+  //#define DIRECT_MIXING_IN_G1    // Allow ABCDHI mix factors in G1 movement commands
+#endif
+
 //// The following define selects which power supply you have. Please choose the one that matches your setup
 // 1 = ATX
 // 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
 // :{1:'ATX',2:'X-Box 360'}
-
 #define POWER_SUPPLY 1
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.

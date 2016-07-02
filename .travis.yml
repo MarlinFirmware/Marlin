@@ -136,6 +136,13 @@ script:
   - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT M100_FREE_MEMORY_WATCHER INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
   - build_marlin
   #
+  # Mixing Extruder
+  #
+  - restore_configs
+  - opt_enable MIXING_EXTRUDER
+  - opt_set MIXING_STEPPERS 2
+  - build_marlin
+  #
   # Test DUAL_X_CARRIAGE
   #
   - restore_configs
