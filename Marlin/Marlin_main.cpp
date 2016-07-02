@@ -393,7 +393,9 @@ static uint8_t target_extruder;
   float hotend_offset[][HOTENDS] = {
     HOTEND_OFFSET_X,
     HOTEND_OFFSET_Y
-    #if ENABLED(DUAL_X_CARRIAGE)
+    #if ENABLED(SWITCHING_EXTRUDER)
+      , HOTEND_OFFSET_Z
+    #elif ENABLED(DUAL_X_CARRIAGE)
       , { 0 } // Z offsets for each extruder
     #endif
   };
@@ -5196,7 +5198,7 @@ inline void gcode_M200() {
     if (volumetric_enabled) {
       filament_size[target_extruder] = diameter;
       // make sure all extruders have some sane value for the filament size
-      for (int i = 0; i < EXTRUDERS; i++)
+      for (int i = 0; i < E_STEPPERS; i++)
         if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
     }
   }
@@ -5436,7 +5438,7 @@ inline void gcode_M206() {
    *   T<tool>
    *   X<xoffset>
    *   Y<yoffset>
-   *   Z<zoffset> - Available with DUAL_X_CARRIAGE
+   *   Z<zoffset> - Available with DUAL_X_CARRIAGE and SWITCHING_EXTRUDER
    */
   inline void gcode_M218() {
     if (get_target_extruder_from_command(218)) return;
@@ -5444,7 +5446,7 @@ inline void gcode_M206() {
     if (code_seen('X')) hotend_offset[X_AXIS][target_extruder] = code_value_axis_units(X_AXIS);
     if (code_seen('Y')) hotend_offset[Y_AXIS][target_extruder] = code_value_axis_units(Y_AXIS);
 
-    #if ENABLED(DUAL_X_CARRIAGE)
+    #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
       if (code_seen('Z')) hotend_offset[Z_AXIS][target_extruder] = code_value_axis_units(Z_AXIS);
     #endif
 
@@ -5455,7 +5457,7 @@ inline void gcode_M206() {
       SERIAL_ECHO(hotend_offset[X_AXIS][e]);
       SERIAL_CHAR(',');
       SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
-      #if ENABLED(DUAL_X_CARRIAGE)
+      #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
         SERIAL_CHAR(',');
         SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
       #endif
@@ -6447,6 +6449,13 @@ inline void gcode_M999() {
   FlushSerialRequestResend();
 }
 
+#if ENABLED(SWITCHING_EXTRUDER)
+  inline void move_extruder_servo(uint8_t e) {
+    const int angles[2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
+    MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
+  }
+#endif
+
 /**
  * T0-T3: Switch tool, usually switching extruders
  *
@@ -6481,12 +6490,30 @@ inline void gcode_T(uint8_t tmp_extruder) {
         if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && IsRunning() &&
             (delayed_move_time || current_position[X_AXIS] != x_home_pos(active_extruder))) {
           // Park old head: 1) raise 2) move to park position 3) lower
-          planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
-                           current_position[E_AXIS], planner.max_feedrate[Z_AXIS], active_extruder);
-          planner.buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
-                           current_position[E_AXIS], planner.max_feedrate[X_AXIS], active_extruder);
-          planner.buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
-                           current_position[E_AXIS], planner.max_feedrate[Z_AXIS], active_extruder);
+          planner.buffer_line(
+            current_position[X_AXIS],
+            current_position[Y_AXIS],
+            current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
+            current_position[E_AXIS],
+            planner.max_feedrate[Z_AXIS],
+            active_extruder
+          );
+          planner.buffer_line(
+            x_home_pos(active_extruder),
+            current_position[Y_AXIS],
+            current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
+            current_position[E_AXIS],
+            planner.max_feedrate[X_AXIS],
+            active_extruder
+          );
+          planner.buffer_line(
+            x_home_pos(active_extruder),
+            current_position[Y_AXIS],
+            current_position[Z_AXIS],
+            current_position[E_AXIS],
+            planner.max_feedrate[Z_AXIS],
+            active_extruder
+          );
           stepper.synchronize();
         }
 
@@ -6520,6 +6547,39 @@ inline void gcode_T(uint8_t tmp_extruder) {
         }
         // No extra case for AUTO_BED_LEVELING_FEATURE in DUAL_X_CARRIAGE. Does that mean they don't work together?
       #else // !DUAL_X_CARRIAGE
+
+        #if ENABLED(SWITCHING_EXTRUDER)
+          // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
+          float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
+                z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
+
+          // Always raise by some amount
+          planner.buffer_line(
+            current_position[X_AXIS],
+            current_position[Y_AXIS],
+            current_position[Z_AXIS] + z_raise,
+            current_position[E_AXIS],
+            planner.max_feedrate[Z_AXIS],
+            active_extruder
+          );
+          stepper.synchronize();
+
+          move_extruder_servo(active_extruder);
+          delay(500);
+
+          // Move back down, if needed
+          if (z_raise != z_diff) {
+            planner.buffer_line(
+              current_position[X_AXIS],
+              current_position[Y_AXIS],
+              current_position[Z_AXIS] + z_diff,
+              current_position[E_AXIS],
+              planner.max_feedrate[Z_AXIS],
+              active_extruder
+            );
+            stepper.synchronize();
+          }
+        #endif
 
         //
         // Set current_position to the position of the new nozzle.
@@ -6604,7 +6664,6 @@ inline void gcode_T(uint8_t tmp_extruder) {
           position_shift[i] += xydiff[i];
           update_software_endstops((AxisEnum)i);
         }
-
         // Set the new active extruder
         active_extruder = tmp_extruder;
 
@@ -7838,14 +7897,14 @@ void prepare_move_to_destination() {
       nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
       if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_bed > 0
           || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
-          #if EXTRUDERS > 1
+          #if E_STEPPERS > 1
             || E1_ENABLE_READ == E_ENABLE_ON
             #if HAS_X2_ENABLE
               || X2_ENABLE_READ == X_ENABLE_ON
             #endif
-            #if EXTRUDERS > 2
+            #if E_STEPPERS > 2
               || E2_ENABLE_READ == E_ENABLE_ON
-              #if EXTRUDERS > 3
+              #if E_STEPPERS > 3
                 || E3_ENABLE_READ == E_ENABLE_ON
               #endif
             #endif
@@ -8107,25 +8166,29 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
-    if (ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL))
-      if (thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP) {
+    if (ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
+      && thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP) {
+      #if ENABLED(SWITCHING_EXTRUDER)
+        bool oldstatus = E0_ENABLE_READ;
+        enable_e0();
+      #else // !SWITCHING_EXTRUDER
         bool oldstatus;
         switch (active_extruder) {
           case 0:
             oldstatus = E0_ENABLE_READ;
             enable_e0();
             break;
-          #if EXTRUDERS > 1
+          #if E_STEPPERS > 1
             case 1:
               oldstatus = E1_ENABLE_READ;
               enable_e1();
               break;
-            #if EXTRUDERS > 2
+            #if E_STEPPERS > 2
               case 2:
                 oldstatus = E2_ENABLE_READ;
                 enable_e2();
                 break;
-              #if EXTRUDERS > 3
+              #if E_STEPPERS > 3
                 case 3:
                   oldstatus = E3_ENABLE_READ;
                   enable_e3();
@@ -8134,37 +8197,43 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
             #endif
           #endif
         }
-        float oldepos = current_position[E_AXIS], oldedes = destination[E_AXIS];
-        planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
-                         destination[E_AXIS] + (EXTRUDER_RUNOUT_EXTRUDE) * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_mm[E_AXIS],
-                         (EXTRUDER_RUNOUT_SPEED) / 60. * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_mm[E_AXIS], active_extruder);
+      #endif // !SWITCHING_EXTRUDER
+
+      float oldepos = current_position[E_AXIS], oldedes = destination[E_AXIS];
+      planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
+                       destination[E_AXIS] + (EXTRUDER_RUNOUT_EXTRUDE) * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_unit[E_AXIS],
+                       (EXTRUDER_RUNOUT_SPEED) / 60. * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_unit[E_AXIS], active_extruder);
       current_position[E_AXIS] = oldepos;
       destination[E_AXIS] = oldedes;
       planner.set_e_position_mm(oldepos);
       previous_cmd_ms = ms; // refresh_cmd_timeout()
       stepper.synchronize();
-      switch (active_extruder) {
-        case 0:
-          E0_ENABLE_WRITE(oldstatus);
-          break;
-        #if EXTRUDERS > 1
-          case 1:
-            E1_ENABLE_WRITE(oldstatus);
+      #if ENABLED(SWITCHING_EXTRUDER)
+        E0_ENABLE_WRITE(oldstatus);
+      #else
+        switch (active_extruder) {
+          case 0:
+            E0_ENABLE_WRITE(oldstatus);
             break;
-          #if EXTRUDERS > 2
-            case 2:
-              E2_ENABLE_WRITE(oldstatus);
+          #if E_STEPPERS > 1
+            case 1:
+              E1_ENABLE_WRITE(oldstatus);
               break;
-            #if EXTRUDERS > 3
-              case 3:
-                E3_ENABLE_WRITE(oldstatus);
+            #if E_STEPPERS > 2
+              case 2:
+                E2_ENABLE_WRITE(oldstatus);
                 break;
+              #if E_STEPPERS > 3
+                case 3:
+                  E3_ENABLE_WRITE(oldstatus);
+                  break;
+              #endif
             #endif
           #endif
-        #endif
-      }
+        }
+      #endif // !SWITCHING_EXTRUDER
     }
-  #endif
+  #endif // EXTRUDER_RUNOUT_PREVENT
 
   #if ENABLED(DUAL_X_CARRIAGE)
     // handle delayed move timeout

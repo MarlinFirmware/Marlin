@@ -370,15 +370,15 @@
 #if ENABLED(DUAL_X_CARRIAGE)
   // The X2 axis, if any, should be the next open extruder port
   #ifndef X2_STEP_PIN
-    #define X2_STEP_PIN   _EPIN(EXTRUDERS, STEP)
-    #define X2_DIR_PIN    _EPIN(EXTRUDERS, DIR)
-    #define X2_ENABLE_PIN _EPIN(EXTRUDERS, ENABLE)
+    #define X2_STEP_PIN   _EPIN(E_STEPPERS, STEP)
+    #define X2_DIR_PIN    _EPIN(E_STEPPERS, DIR)
+    #define X2_ENABLE_PIN _EPIN(E_STEPPERS, ENABLE)
   #endif
   #undef _X2_PINS
   #define _X2_PINS X2_STEP_PIN, X2_DIR_PIN, X2_ENABLE_PIN,
-  #define Y2_Z2_E_INDEX INCREMENT(EXTRUDERS)
+  #define Y2_Z2_E_INDEX INCREMENT(E_STEPPERS)
 #else
-  #define Y2_Z2_E_INDEX EXTRUDERS
+  #define Y2_Z2_E_INDEX E_STEPPERS
 #endif
 
 // The Y2 axis, if any, should be the next open extruder port

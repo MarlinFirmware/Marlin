@@ -179,7 +179,7 @@ void manage_inactivity(bool ignore_stepper_queue = false);
   #define disable_e0() /* nothing */
 #endif
 
-#if (EXTRUDERS > 1) && HAS_E1_ENABLE
+#if E_STEPPERS > 1 && HAS_E1_ENABLE
   #define enable_e1()  E1_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e1() E1_ENABLE_WRITE(!E_ENABLE_ON)
 #else
@@ -187,7 +187,7 @@ void manage_inactivity(bool ignore_stepper_queue = false);
   #define disable_e1() /* nothing */
 #endif
 
-#if (EXTRUDERS > 2) && HAS_E2_ENABLE
+#if E_STEPPERS > 2 && HAS_E2_ENABLE
   #define enable_e2()  E2_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e2() E2_ENABLE_WRITE(!E_ENABLE_ON)
 #else
@@ -195,7 +195,7 @@ void manage_inactivity(bool ignore_stepper_queue = false);
   #define disable_e2() /* nothing */
 #endif
 
-#if (EXTRUDERS > 3) && HAS_E3_ENABLE
+#if E_STEPPERS > 3 && HAS_E3_ENABLE
   #define enable_e3()  E3_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e3() E3_ENABLE_WRITE(!E_ENABLE_ON)
 #else

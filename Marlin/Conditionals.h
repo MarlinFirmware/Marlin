@@ -540,13 +540,38 @@
    */
   #if ENABLED(SINGLENOZZLE)
     #define HOTENDS 1
+    #define E_STEPPERS EXTRUDERS
     #undef TEMP_SENSOR_1_AS_REDUNDANT
     #undef HOTEND_OFFSET_X
     #undef HOTEND_OFFSET_Y
     #define HOTEND_OFFSET_X { 0 }
     #define HOTEND_OFFSET_Y { 0 }
+  #elif ENABLED(SWITCHING_EXTRUDER)
+    #define HOTENDS EXTRUDERS
+    #define E_STEPPERS 1
+    #ifndef HOTEND_OFFSET_X
+      #define HOTEND_OFFSET_X { 0 }
+    #endif
+    #ifndef HOTEND_OFFSET_Y
+      #define HOTEND_OFFSET_Y { 0 }
+    #endif
+    #ifndef HOTEND_OFFSET_Z
+      #define HOTEND_OFFSET_Z { 0 }
+    #endif
   #else
     #define HOTENDS EXTRUDERS
+    #define E_STEPPERS EXTRUDERS
+  #endif
+
+  /**
+   * SWITCHING_EXTRUDER has multiple hotends, but only one stepper
+   */
+  #if ENABLED(SWITCHING_EXTRUDER)
+    #define ACTIVE_E_STEPPER 0
+    #define BLOCK_E_STEPPER 0
+  #else
+    #define ACTIVE_E_STEPPER active_extruder
+    #define BLOCK_E_STEPPER current_block->active_extruder
   #endif
 
   /**
