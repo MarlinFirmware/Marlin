@@ -523,6 +523,9 @@
 #ifndef MSG_INFO_MENU
   #define MSG_INFO_MENU                       "About Printer"
 #endif
+#ifndef MSG_INFO_PRINTER_MENU
+  #define MSG_INFO_PRINTER_MENU               "Printer Info"
+#endif
 #ifndef MSG_INFO_STATS_MENU
   #define MSG_INFO_STATS_MENU                 "Printer Stats"
 #endif
