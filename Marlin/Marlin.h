@@ -123,8 +123,8 @@ FORCE_INLINE void serialprintPGM(const char* str) {
 }
 
 void idle(
-  #if ENABLED(FILAMENTCHANGEENABLE)
-    bool no_stepper_sleep=false  // pass true to keep steppers from disabling on timeout
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    bool no_stepper_sleep = false  // pass true to keep steppers from disabling on timeout
   #endif
 );
 
@@ -344,6 +344,15 @@ float code_value_temp_diff();
   extern int8_t measurement_delay[];  //ring buffer to delay measurement
   extern int filwidth_delay_index1, filwidth_delay_index2;  //ring buffer index. used by planner, temperature, and main code
   extern int meas_delay_cm; //delay distance
+#endif
+
+#if ENABLED(FILAMENT_CHANGE_FEATURE)
+  enum FilamentChangeMenuResponse {
+    FILAMENT_CHANGE_RESPONSE_WAIT_FOR,
+    FILAMENT_CHANGE_RESPONSE_EXTRUDE_MORE,
+    FILAMENT_CHANGE_RESPONSE_RESUME_PRINT
+  };
+  extern FilamentChangeMenuResponse filament_change_menu_response;
 #endif
 
 #if ENABLED(PID_ADD_EXTRUSION_RATE)

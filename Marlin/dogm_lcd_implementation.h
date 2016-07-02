@@ -473,14 +473,14 @@ static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
   u8g.setPrintPos((START_ROW) * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
 }
 
-#if ENABLED(LCD_INFO_MENU)
+#if ENABLED(LCD_INFO_MENU) || ENABLED(FILAMENT_CHANGE_FEATURE)
 
-  static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, const char* valstr=NULL, bool center=false) {
+  static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, const char* valstr=NULL, bool center=true) {
     char c;
     int8_t n = LCD_WIDTH;
     u8g.setPrintPos(0, (row + 1) * (DOG_CHAR_HEIGHT));
     u8g.setColorIndex(1); // normal text
-    if (center) {
+    if (center && !valstr) {
       int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd_print(' '); n--; }
     }
@@ -495,10 +495,9 @@ static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
     while (n-- > 0) lcd_print(' ');
   }
 
-#endif // LCD_INFO_MENU
+#endif // LCD_INFO_MENU || FILAMENT_CHANGE_FEATURE
 
 static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, const char* pstr, char pre_char, char post_char) {
-  UNUSED(pstr);
   UNUSED(pre_char);
 
   char c;
