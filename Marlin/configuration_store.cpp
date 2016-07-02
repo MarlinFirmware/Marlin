@@ -36,88 +36,93 @@
  *
  */
 
-#define EEPROM_VERSION "V23"
+#define EEPROM_VERSION "V24"
+
+// Change EEPROM version if these are changed:
+#define EEPROM_OFFSET 100
+#define MAX_EXTRUDERS 4
 
 /**
- * V23 EEPROM Layout:
+ * V24 EEPROM Layout:
  *
  *  100  Version (char x4)
+ *  104  EEPROM Checksum (uint16_t)
  *
- *  104  M92 XYZE  planner.axis_steps_per_mm (float x4)
- *  120  M203 XYZE planner.max_feedrate (float x4)
- *  136  M201 XYZE planner.max_acceleration_mm_per_s2 (uint32_t x4)
- *  152  M204 P    planner.acceleration (float)
- *  156  M204 R    planner.retract_acceleration (float)
- *  160  M204 T    planner.travel_acceleration (float)
- *  164  M205 S    planner.min_feedrate (float)
- *  168  M205 T    planner.min_travel_feedrate (float)
- *  172  M205 B    planner.min_segment_time (ulong)
- *  176  M205 X    planner.max_xy_jerk (float)
- *  180  M205 Z    planner.max_z_jerk (float)
- *  184  M205 E    planner.max_e_jerk (float)
- *  188  M206 XYZ  home_offset (float x3)
+ *  106  M92 XYZE  planner.axis_steps_per_mm (float x4)
+ *  122  M203 XYZE planner.max_feedrate (float x4)
+ *  138  M201 XYZE planner.max_acceleration_mm_per_s2 (uint32_t x4)
+ *  154  M204 P    planner.acceleration (float)
+ *  158  M204 R    planner.retract_acceleration (float)
+ *  162  M204 T    planner.travel_acceleration (float)
+ *  166  M205 S    planner.min_feedrate (float)
+ *  170  M205 T    planner.min_travel_feedrate (float)
+ *  174  M205 B    planner.min_segment_time (ulong)
+ *  178  M205 X    planner.max_xy_jerk (float)
+ *  182  M205 Z    planner.max_z_jerk (float)
+ *  186  M205 E    planner.max_e_jerk (float)
+ *  190  M206 XYZ  home_offset (float x3)
  *
  * Mesh bed leveling:
- *  200  M420 S    status (uint8)
- *  201            z_offset (float)
- *  205            mesh_num_x (uint8 as set in firmware)
- *  206            mesh_num_y (uint8 as set in firmware)
- *  207 G29 S3 XYZ z_values[][] (float x9, by default)
+ *  202  M420 S    status (uint8)
+ *  203            z_offset (float)
+ *  207            mesh_num_x (uint8 as set in firmware)
+ *  208            mesh_num_y (uint8 as set in firmware)
+ *  209 G29 S3 XYZ z_values[][] (float x9, by default)
  *
  * AUTO BED LEVELING
- *  243  M851      zprobe_zoffset (float)
+ *  245  M851      zprobe_zoffset (float)
  *
  * DELTA:
- *  247  M666 XYZ  endstop_adj (float x3)
- *  259  M665 R    delta_radius (float)
- *  263  M665 L    delta_diagonal_rod (float)
- *  267  M665 S    delta_segments_per_second (float)
- *  271  M665 A    delta_diagonal_rod_trim_tower_1 (float)
- *  275  M665 B    delta_diagonal_rod_trim_tower_2 (float)
- *  279  M665 C    delta_diagonal_rod_trim_tower_3 (float)
+ *  249  M666 XYZ  endstop_adj (float x3)
+ *  261  M665 R    delta_radius (float)
+ *  265  M665 L    delta_diagonal_rod (float)
+ *  269  M665 S    delta_segments_per_second (float)
+ *  273  M665 A    delta_diagonal_rod_trim_tower_1 (float)
+ *  277  M665 B    delta_diagonal_rod_trim_tower_2 (float)
+ *  281  M665 C    delta_diagonal_rod_trim_tower_3 (float)
  *
  * Z_DUAL_ENDSTOPS:
- *  283  M666 Z    z_endstop_adj (float)
+ *  285  M666 Z    z_endstop_adj (float)
  *
  * ULTIPANEL:
- *  287  M145 S0 H plaPreheatHotendTemp (int)
- *  289  M145 S0 B plaPreheatHPBTemp (int)
- *  291  M145 S0 F plaPreheatFanSpeed (int)
- *  293  M145 S1 H absPreheatHotendTemp (int)
- *  295  M145 S1 B absPreheatHPBTemp (int)
- *  297  M145 S1 F absPreheatFanSpeed (int)
+ *  289  M145 S0 H plaPreheatHotendTemp (int)
+ *  291  M145 S0 B plaPreheatHPBTemp (int)
+ *  293  M145 S0 F plaPreheatFanSpeed (int)
+ *  295  M145 S1 H absPreheatHotendTemp (int)
+ *  297  M145 S1 B absPreheatHPBTemp (int)
+ *  299  M145 S1 F absPreheatFanSpeed (int)
  *
  * PIDTEMP:
- *  299  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
- *  315  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
- *  331  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
- *  347  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
- *  363  M301 L        lpq_len (int)
+ *  301  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
+ *  317  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
+ *  333  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
+ *  349  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
+ *  365  M301 L        lpq_len (int)
  *
  * PIDTEMPBED:
- *  365  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
+ *  367  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
  *
  * DOGLCD:
- *  377  M250 C    lcd_contrast (int)
+ *  379  M250 C    lcd_contrast (int)
  *
  * SCARA:
- *  379  M365 XYZ  axis_scaling (float x3)
+ *  381  M365 XYZ  axis_scaling (float x3)
  *
  * FWRETRACT:
- *  391  M209 S    autoretract_enabled (bool)
- *  392  M207 S    retract_length (float)
- *  396  M207 W    retract_length_swap (float)
- *  400  M207 F    retract_feedrate_mm_s (float)
- *  404  M207 Z    retract_zlift (float)
- *  408  M208 S    retract_recover_length (float)
- *  412  M208 W    retract_recover_length_swap (float)
- *  416  M208 F    retract_recover_feedrate (float)
+ *  393  M209 S    autoretract_enabled (bool)
+ *  394  M207 S    retract_length (float)
+ *  398  M207 W    retract_length_swap (float)
+ *  402  M207 F    retract_feedrate_mm_s (float)
+ *  406  M207 Z    retract_zlift (float)
+ *  410  M208 S    retract_recover_length (float)
+ *  414  M208 W    retract_recover_length_swap (float)
+ *  418  M208 F    retract_recover_feedrate (float)
  *
  * Volumetric Extrusion:
- *  420  M200 D    volumetric_enabled (bool)
- *  421  M200 T D  filament_size (float x4) (T0..3)
+ *  422  M200 D    volumetric_enabled (bool)
+ *  423  M200 T D  filament_size (float x4) (T0..3)
  *
- *  437  This Slot is Available!
+ *  439  This Slot is Available!
  *
  */
 #include "Marlin.h"
@@ -131,6 +136,9 @@
   #include "mesh_bed_leveling.h"
 #endif
 
+uint16_t eeprom_checksum;
+const char version[4] = EEPROM_VERSION;
+
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
   while (size--) {
@@ -140,39 +148,58 @@ void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
     }
+    eeprom_checksum += c;
     pos++;
     value++;
   };
 }
 void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
   do {
-    *value = eeprom_read_byte((unsigned char*)pos);
+    uint8_t c = eeprom_read_byte((unsigned char*)pos);
+    *value = c;
+    eeprom_checksum += c;
     pos++;
     value++;
   } while (--size);
 }
-#define EEPROM_WRITE_VAR(pos, value) _EEPROM_writeData(pos, (uint8_t*)&value, sizeof(value))
-#define EEPROM_READ_VAR(pos, value) _EEPROM_readData(pos, (uint8_t*)&value, sizeof(value))
 
 /**
- * Store Configuration Settings - M500
+ * Post-process after Retrieve or Reset
  */
+void Config_Postprocess() {
+  // steps per s2 needs to be updated to agree with units per s2
+  planner.reset_acceleration_rates();
 
-#define DUMMY_PID_VALUE 3000.0f
+  #if ENABLED(DELTA)
+    recalc_delta_settings(delta_radius, delta_diagonal_rod);
+  #endif
 
-#define EEPROM_OFFSET 100
+  #if ENABLED(PIDTEMP)
+    thermalManager.updatePID();
+  #endif
+
+  calculate_volumetric_multipliers();
+}
 
 #if ENABLED(EEPROM_SETTINGS)
 
-/**
- * Store Configuration Settings - M500
- */
+  #define DUMMY_PID_VALUE 3000.0f
+  #define EEPROM_WRITE_VAR(pos, value) _EEPROM_writeData(pos, (uint8_t*)&value, sizeof(value))
+  #define EEPROM_READ_VAR(pos, value) _EEPROM_readData(pos, (uint8_t*)&value, sizeof(value))
 
+/**
+ * M500 - Store Configuration
+ */
 void Config_StoreSettings()  {
   float dummy = 0.0f;
   char ver[4] = "000";
   int i = EEPROM_OFFSET;
-  EEPROM_WRITE_VAR(i, ver); // invalidate data first
+
+  EEPROM_WRITE_VAR(i, ver);     // invalidate data first
+  i += sizeof(eeprom_checksum); // Skip the checksum slot
+
+  eeprom_checksum = 0; // clear before first "real data"
+
   EEPROM_WRITE_VAR(i, planner.axis_steps_per_mm);
   EEPROM_WRITE_VAR(i, planner.max_feedrate);
   EEPROM_WRITE_VAR(i, planner.max_acceleration_mm_per_s2);
@@ -199,6 +226,7 @@ void Config_StoreSettings()  {
     EEPROM_WRITE_VAR(i, mesh_num_y);
     EEPROM_WRITE_VAR(i, mbl.z_values);
   #else
+    // For disabled MBL write a default mesh
     uint8_t mesh_num_x = 3,
             mesh_num_y = 3,
             dummy_uint8 = 0;
@@ -215,6 +243,7 @@ void Config_StoreSettings()  {
   #endif
   EEPROM_WRITE_VAR(i, zprobe_zoffset);
 
+  // 9 floats for DELTA / Z_DUAL_ENDSTOPS
   #if ENABLED(DELTA)
     EEPROM_WRITE_VAR(i, endstop_adj);               // 3 floats
     EEPROM_WRITE_VAR(i, delta_radius);              // 1 float
@@ -244,7 +273,7 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, absPreheatHPBTemp);
   EEPROM_WRITE_VAR(i, absPreheatFanSpeed);
 
-  for (uint8_t e = 0; e < 4; e++) {
+  for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
 
     #if ENABLED(PIDTEMP)
       if (e < HOTENDS) {
@@ -319,14 +348,16 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, volumetric_enabled);
 
   // Save filament sizes
-  for (uint8_t q = 0; q < 4; q++) {
+  for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
     if (q < EXTRUDERS) dummy = filament_size[q];
     EEPROM_WRITE_VAR(i, dummy);
   }
 
-  char ver2[4] = EEPROM_VERSION;
+  uint16_t final_checksum = eeprom_checksum;
+
   int j = EEPROM_OFFSET;
-  EEPROM_WRITE_VAR(j, ver2); // validate data
+  EEPROM_WRITE_VAR(j, version);
+  EEPROM_WRITE_VAR(j, final_checksum);
 
   // Report storage size
   SERIAL_ECHO_START;
@@ -335,32 +366,30 @@ void Config_StoreSettings()  {
 }
 
 /**
- * Retrieve Configuration Settings - M501
+ * M501 - Retrieve Configuration
  */
-
 void Config_RetrieveSettings() {
-
   int i = EEPROM_OFFSET;
   char stored_ver[4];
-  char ver[4] = EEPROM_VERSION;
-  EEPROM_READ_VAR(i, stored_ver); //read stored version
+  uint16_t stored_checksum;
+  EEPROM_READ_VAR(i, stored_ver);
+  EEPROM_READ_VAR(i, stored_checksum);
   //  SERIAL_ECHOPAIR("Version: [", ver);
   //  SERIAL_ECHOPAIR("] Stored version: [", stored_ver);
   //  SERIAL_ECHOLNPGM("]");
 
-  if (strncmp(ver, stored_ver, 3) != 0) {
+  if (strncmp(version, stored_ver, 3) != 0) {
     Config_ResetDefault();
   }
   else {
     float dummy = 0;
 
+    eeprom_checksum = 0; // clear before reading first "real data"
+
     // version number match
     EEPROM_READ_VAR(i, planner.axis_steps_per_mm);
     EEPROM_READ_VAR(i, planner.max_feedrate);
     EEPROM_READ_VAR(i, planner.max_acceleration_mm_per_s2);
-
-    // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
-    planner.reset_acceleration_rates();
 
     EEPROM_READ_VAR(i, planner.acceleration);
     EEPROM_READ_VAR(i, planner.retract_acceleration);
@@ -382,12 +411,16 @@ void Config_RetrieveSettings() {
       mbl.status = dummy_uint8;
       mbl.z_offset = dummy;
       if (mesh_num_x == MESH_NUM_X_POINTS && mesh_num_y == MESH_NUM_Y_POINTS) {
+        // EEPROM data fits the current mesh
         EEPROM_READ_VAR(i, mbl.z_values);
-      } else {
+      }
+      else {
+        // EEPROM data is stale
         mbl.reset();
         for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
       }
     #else
+      // MBL is disabled - skip the stored data
       for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
     #endif // MESH_BED_LEVELING
 
@@ -404,7 +437,6 @@ void Config_RetrieveSettings() {
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_1);  // 1 float
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_2);  // 1 float
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_3);  // 1 float
-      recalc_delta_settings(delta_radius, delta_diagonal_rod);
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       EEPROM_READ_VAR(i, z_endstop_adj);
       dummy = 0.0f;
@@ -427,7 +459,7 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, absPreheatFanSpeed);
 
     #if ENABLED(PIDTEMP)
-      for (uint8_t e = 0; e < 4; e++) { // 4 = max extruders currently supported by Marlin
+      for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
         EEPROM_READ_VAR(i, dummy); // Kp
         if (e < HOTENDS && dummy != DUMMY_PID_VALUE) {
           // do not need to scale PID values as the values in EEPROM are already scaled
@@ -446,7 +478,7 @@ void Config_RetrieveSettings() {
       }
     #else // !PIDTEMP
       // 4 x 4 = 16 slots for PID parameters
-      for (uint8_t q=16; q--;) EEPROM_READ_VAR(i, dummy);  // 4x Kp, Ki, Kd, Kc
+      for (uint8_t q = MAX_EXTRUDERS * 4; q--;) EEPROM_READ_VAR(i, dummy);  // Kp, Ki, Kd, Kc
     #endif // !PIDTEMP
 
     #if DISABLED(PID_ADD_EXTRUSION_RATE)
@@ -497,21 +529,24 @@ void Config_RetrieveSettings() {
 
     EEPROM_READ_VAR(i, volumetric_enabled);
 
-    for (uint8_t q = 0; q < 4; q++) {
+    for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
       EEPROM_READ_VAR(i, dummy);
       if (q < EXTRUDERS) filament_size[q] = dummy;
     }
 
-    calculate_volumetric_multipliers();
-    // Call thermalManager.updatePID (similar to when we have processed M301)
-    thermalManager.updatePID();
-
-    // Report settings retrieved and length
-    SERIAL_ECHO_START;
-    SERIAL_ECHO(ver);
-    SERIAL_ECHOPAIR(" stored settings retrieved (", i);
-    SERIAL_ECHOLNPGM(" bytes)");
-  }
+    if (eeprom_checksum == stored_checksum) {
+      Config_Postprocess();
+      SERIAL_ECHO_START;
+      SERIAL_ECHO(version);
+      SERIAL_ECHOPAIR(" stored settings retrieved (", i);
+      SERIAL_ECHOLNPGM(" bytes)");
+    }
+    else {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("EEPROM checksum mismatch");
+      Config_ResetDefault();
+    }
+ }
 
   #if ENABLED(EEPROM_CHITCHAT)
     Config_PrintSettings();
@@ -521,9 +556,8 @@ void Config_RetrieveSettings() {
 #endif // EEPROM_SETTINGS
 
 /**
- * Reset Configuration Settings - M502
+ * M502 - Reset Configuration
  */
-
 void Config_ResetDefault() {
   float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT;
   float tmp2[] = DEFAULT_MAX_FEEDRATE;
@@ -537,9 +571,6 @@ void Config_ResetDefault() {
         axis_scaling[i] = 1;
     #endif
   }
-
-  // steps per sq second need to be updated to agree with the units per sq second
-  planner.reset_acceleration_rates();
 
   planner.acceleration = DEFAULT_ACCELERATION;
   planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
@@ -568,7 +599,6 @@ void Config_ResetDefault() {
     delta_diagonal_rod_trim_tower_1 = DELTA_DIAGONAL_ROD_TRIM_TOWER_1;
     delta_diagonal_rod_trim_tower_2 = DELTA_DIAGONAL_ROD_TRIM_TOWER_2;
     delta_diagonal_rod_trim_tower_3 = DELTA_DIAGONAL_ROD_TRIM_TOWER_3;
-    recalc_delta_settings(delta_radius, delta_diagonal_rod);
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     z_endstop_adj = 0;
   #endif
@@ -603,8 +633,6 @@ void Config_ResetDefault() {
     #if ENABLED(PID_ADD_EXTRUSION_RATE)
       lpq_len = 20; // default last-position-queue size
     #endif
-    // call thermalManager.updatePID (similar to when we have processed M301)
-    thermalManager.updatePID();
   #endif // PIDTEMP
 
   #if ENABLED(PIDTEMPBED)
@@ -631,7 +659,8 @@ void Config_ResetDefault() {
   volumetric_enabled = false;
   for (uint8_t q = 0; q < COUNT(filament_size); q++)
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
-  calculate_volumetric_multipliers();
+
+  Config_Postprocess();
 
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
@@ -639,12 +668,11 @@ void Config_ResetDefault() {
 
 #if DISABLED(DISABLE_M503)
 
-/**
- * Print Configuration Settings - M503
- */
-
 #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START; }while(0)
 
+/**
+ * M503 - Print Configuration
+ */
 void Config_PrintSettings(bool forReplay) {
   // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
 
