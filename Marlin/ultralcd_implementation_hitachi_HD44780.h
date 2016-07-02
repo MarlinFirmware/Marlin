@@ -815,13 +815,13 @@ static void lcd_implementation_status_screen() {
   lcd_print(lcd_status_message);
 }
 
-#if ENABLED(LCD_INFO_MENU)
+#if ENABLED(LCD_INFO_MENU) || ENABLED(FILAMENT_CHANGE_FEATURE)
 
   static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, const char *valstr=NULL, bool center=true) {
     char c;
     int8_t n = LCD_WIDTH;
     lcd.setCursor(0, row);
-    if (center) {
+    if (center && !valstr) {
       int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd.print(' '); n--; }
     }
@@ -836,7 +836,7 @@ static void lcd_implementation_status_screen() {
     while (n-- > 0) lcd.print(' ');
   }
 
-#endif // LCD_INFO_MENU
+#endif // LCD_INFO_MENU || FILAMENT_CHANGE_FEATURE
 
 static void lcd_implementation_drawmenu_generic(bool sel, uint8_t row, const char* pstr, char pre_char, char post_char) {
   char c;
