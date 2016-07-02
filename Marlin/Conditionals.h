@@ -552,32 +552,14 @@
   /**
    * ARRAY_BY_EXTRUDERS based on EXTRUDERS
    */
-  #if EXTRUDERS > 3
-    #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3, v4 }
-  #elif EXTRUDERS > 2
-    #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3 }
-  #elif EXTRUDERS > 1
-    #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2 }
-  #else
-    #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1 }
-  #endif
-
-  #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1)
+  #define ARRAY_BY_EXTRUDERS(args...) ARRAY_N(EXTRUDERS, args)
+  #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1, v1, v1)
 
   /**
    * ARRAY_BY_HOTENDS based on HOTENDS
    */
-  #if HOTENDS > 3
-    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1, v2, v3, v4 }
-  #elif HOTENDS > 2
-    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1, v2, v3 }
-  #elif HOTENDS > 1
-    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1, v2 }
-  #else
-    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1 }
-  #endif
-
-  #define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1)
+  #define ARRAY_BY_HOTENDS(args...) ARRAY_N(HOTENDS, args)
+  #define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1, v1, v1)
 
   /**
    * Z_DUAL_ENDSTOPS endstop reassignment
