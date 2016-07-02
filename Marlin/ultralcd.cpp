@@ -271,16 +271,6 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     } \
     _menuItemNr++
 
-  // Same as STATIC_ITEM, but can display variables. Do not use for text strings.
-  #define STATIC_ITEM_VAR(label, args...) \
-    if (_menuItemNr == _lineNr) { \
-      if (encoderLine == _menuItemNr && _menuItemNr < LCD_HEIGHT - 1) \
-        encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
-      if (lcdDrawUpdate) \
-        lcd_implementation_drawmenu_static(_drawLineNr, label, ## args); \
-    } \
-    _menuItemNr++
-
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
     //#define ENCODER_RATE_MULTIPLIER_DEBUG  // If defined, output the encoder steps per second value
@@ -1914,10 +1904,11 @@ static void lcd_status_screen() {
   #endif //SDSUPPORT
 
   #if ENABLED(LCD_INFO_MENU)
+
     #if ENABLED(PRINTCOUNTER)
       /**
        *
-       * Printer Info > Stastics submenu
+       * About Printer > Stastics submenu
        *
        */
       static void lcd_info_stats_menu() {
@@ -1925,28 +1916,21 @@ static void lcd_status_screen() {
         print_job_counter.loadStats();
         printStatistics stats = print_job_counter.getStats();
 
-        char totalPrints[18];
-        itoa(stats.totalPrints, totalPrints, 10);
-        char finishedPrints[18];
-        itoa(stats.finishedPrints, finishedPrints, 10);
-        char printTime[18];
-        itoa(stats.printTime, printTime, 10);
+        char printTime[6];
+        sprintf(printTime, "%02d:%02d", stats.printTime / 60, stats.printTime % 60);
 
         if (LCD_CLICKED) lcd_goto_previous_menu(true);
         START_MENU();
-        STATIC_ITEM(MSG_INFO_TOTAL_PRINTS ": ");    // Total Prints:
-        STATIC_ITEM_VAR(totalPrints);               // 999
-        STATIC_ITEM(MSG_INFO_FINISHED_PRINTS ": "); // Finished Prints:
-        STATIC_ITEM_VAR(finishedPrints);            // 666
-        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ");      // Total Print Time:
-        STATIC_ITEM_VAR(printTime);                 // 123456
+        STATIC_ITEM(MSG_INFO_TOTAL_PRINTS ": ", itostr3left(stats.totalPrints));       // Total Prints: 999
+        STATIC_ITEM(MSG_INFO_FINISHED_PRINTS ": ", itostr3left(stats.finishedPrints)); // Finished Prints: 666
+        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", printTime);                              // Total Print Time: 123456
         END_MENU();
       }
-    #endif
-  
+    #endif // PRINTCOUNTER
+
     /**
      *
-     * Printer Info > Thermistors
+     * About Printer > Thermistors
      *
      */
     static void lcd_info_thermistors_menu() {
@@ -1984,7 +1968,7 @@ static void lcd_status_screen() {
         STATIC_ITEM(MSG_INFO_MIN_TEMP ": " STRINGIFY(HEATER_3_MINTEMP));
         STATIC_ITEM(MSG_INFO_MAX_TEMP ": " STRINGIFY(HEATER_3_MAXTEMP));
       #endif
-    
+
       #if TEMP_SENSOR_BED != 0
         #undef THERMISTOR_ID
         #define THERMISTOR_ID TEMP_SENSOR_BED
@@ -1998,7 +1982,7 @@ static void lcd_status_screen() {
 
     /**
      *
-     * Printer Info > Board Info
+     * About Printer > Board Info
      *
      */
     static void lcd_info_board_menu() {
@@ -2019,23 +2003,34 @@ static void lcd_status_screen() {
 
     /**
      *
-     * "Printer Info" submenu
+     * About Printer > Printer Info
      *
      */
-    static void lcd_info_menu() {
+    static void lcd_info_printer_menu() {
+      if (LCD_CLICKED) lcd_goto_previous_menu(true);
       START_MENU();
-      MENU_ITEM(back, MSG_INFO_MENU);
       STATIC_ITEM(MSG_MARLIN);                                   // Marlin
       STATIC_ITEM(SHORT_BUILD_VERSION);                          // x.x.x-Branch
       STATIC_ITEM(STRING_DISTRIBUTION_DATE);                     // YYYY-MM-DD HH:MM
       STATIC_ITEM(MACHINE_NAME);                                 // My3DPrinter
       STATIC_ITEM(WEBSITE_URL);                                  // www.my3dprinter.com
       STATIC_ITEM(MSG_INFO_EXTRUDERS ": " STRINGIFY(EXTRUDERS)); // Extruders: 2
+      END_MENU();
+    }
 
-      MENU_ITEM(submenu, MSG_INFO_BOARD_MENU, lcd_info_board_menu);            // Board Info ->
-      MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, lcd_info_thermistors_menu); // Thermistors ->
+    /**
+     *
+     * "About Printer" submenu
+     *
+     */
+    static void lcd_info_menu() {
+      START_MENU();
+      MENU_ITEM(back, MSG_MAIN);
+      MENU_ITEM(submenu, MSG_INFO_PRINTER_MENU, lcd_info_printer_menu);        // Printer Info >
+      MENU_ITEM(submenu, MSG_INFO_BOARD_MENU, lcd_info_board_menu);            // Board Info >
+      MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, lcd_info_thermistors_menu); // Thermistors >
       #if ENABLED(PRINTCOUNTER)
-        MENU_ITEM(submenu, MSG_INFO_STATS_MENU, lcd_info_stats_menu);          // Printer Statistics ->
+        MENU_ITEM(submenu, MSG_INFO_STATS_MENU, lcd_info_stats_menu);          // Printer Statistics >
       #endif
       END_MENU();
     }
@@ -2744,7 +2739,6 @@ char *ftostr4sign(const float& x) { return itostr4sign((int)x); }
 
 // Convert unsigned int to string with 12 format
 char* itostr2(const uint8_t& x) {
-  //sprintf(conv,"%5.1f",x);
   int xx = x;
   conv[0] = DIGIMOD(xx / 10);
   conv[1] = DIGIMOD(xx);
