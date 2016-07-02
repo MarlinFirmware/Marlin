@@ -24,10 +24,19 @@
  * 3DRAG (and K8200) Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#include "pins_RAMPS_14.h"
+#ifndef BOARD_NAME
+  #define BOARD_NAME "3Drag"
+#endif
 
-#define DEFAULT_MACHINE_NAME    "3Drag"
-#define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "3Drag"
+#endif
+
+#ifndef DEFAULT_SOURCE_CODE_URL
+  #define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
+#endif
+
+#include "pins_RAMPS_14.h"
 
 #undef Z_ENABLE_PIN
 #define Z_ENABLE_PIN       63

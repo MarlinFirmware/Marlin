@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME "AJ4P"
+
 // Servo support
 #define SERVO0_PIN 22 // Motor header MX1
 #define SERVO1_PIN 23 // Motor header MX2

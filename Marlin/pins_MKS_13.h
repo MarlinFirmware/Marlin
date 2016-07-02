@@ -29,6 +29,8 @@
  *  MKS v1.4  (Extruder, Extruder, Fan, Bed)
  */
 
+#define BOARD_NAME "MKS > v1.3"
+
 #include "pins_RAMPS_14_EFB.h"
 
 #undef HEATER_1_PIN

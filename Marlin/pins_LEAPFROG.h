@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Leapfrog"
+
 #define X_STEP_PIN         28
 #define X_DIR_PIN          63
 #define X_ENABLE_PIN       29

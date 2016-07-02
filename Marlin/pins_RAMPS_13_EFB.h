@@ -26,6 +26,7 @@
  *  RAMPS_13_EFB (Extruder, Fan, Bed)
  */
 
-#define IS_RAMPS_13
+#define BOARD_NAME "RAMPS 1.3 EFB"
 
+#define IS_RAMPS_13
 #include "pins_RAMPS_14_EFB.h"

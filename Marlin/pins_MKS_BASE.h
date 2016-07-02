@@ -24,6 +24,8 @@
  * MKS BASE 1.0 – Arduino Mega2560 with RAMPS v1.4 pin assignments
  */
 
+#define BOARD_NAME "MKS BASE 1.0"
+
 #include "pins_RAMPS_14_EFB.h"
 
 #undef HEATER_1_PIN

@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Elefu Ra v3"
+
 #define X_STEP_PIN         49
 #define X_DIR_PIN          13
 #define X_ENABLE_PIN       48
