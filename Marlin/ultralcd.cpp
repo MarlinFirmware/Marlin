@@ -1950,9 +1950,9 @@ static void lcd_status_screen() {
 
         if (LCD_CLICKED) lcd_goto_previous_menu(true);
         START_SCREEN();
-        STATIC_ITEM(MSG_INFO_TOTAL_PRINTS ": ", itostr3left(stats.totalPrints));       // Total Prints: 999
-        STATIC_ITEM(MSG_INFO_FINISHED_PRINTS ": ", itostr3left(stats.finishedPrints)); // Finished Prints: 666
-        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", printTime);                              // Total Print Time: 123456
+        STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", itostr3left(stats.totalPrints));        // Print Count : 999
+        STATIC_ITEM(MSG_INFO_FINISHED_PRINTS ": ", itostr3left(stats.finishedPrints)); // Finished    : 666
+        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", printTime);                              // Total Time  : 12:34
         END_SCREEN();
       }
     #endif // PRINTCOUNTER

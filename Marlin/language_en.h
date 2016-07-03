@@ -544,14 +544,27 @@
 #ifndef MSG_INFO_PROTOCOL
   #define MSG_INFO_PROTOCOL                   "Protocol"
 #endif
-#ifndef MSG_INFO_TOTAL_PRINTS
-  #define MSG_INFO_TOTAL_PRINTS               "Total Prints"
-#endif
-#ifndef MSG_INFO_FINISHED_PRINTS
-  #define MSG_INFO_FINISHED_PRINTS            "Finished Prints"
-#endif
-#ifndef MSG_INFO_PRINT_TIME
-  #define MSG_INFO_PRINT_TIME                 "Total Print Time"
+
+#if LCD_WIDTH > 19
+  #ifndef MSG_INFO_PRINT_COUNT
+    #define MSG_INFO_PRINT_COUNT              "Print Count "
+  #endif
+  #ifndef MSG_INFO_FINISHED_PRINTS
+    #define MSG_INFO_FINISHED_PRINTS          "Finished    "
+  #endif
+  #ifndef MSG_INFO_PRINT_TIME
+    #define MSG_INFO_PRINT_TIME               "Total Time  "
+  #endif
+#else
+  #ifndef MSG_INFO_PRINT_COUNT
+    #define MSG_INFO_PRINT_COUNT              "Prints   "
+  #endif
+  #ifndef MSG_INFO_FINISHED_PRINTS
+    #define MSG_INFO_FINISHED_PRINTS          "Finished "
+  #endif
+  #ifndef MSG_INFO_PRINT_TIME
+    #define MSG_INFO_PRINT_TIME               "Duration "
+  #endif
 #endif
 #ifndef MSG_INFO_MIN_TEMP
   #define MSG_INFO_MIN_TEMP                   "Min Temp"
