@@ -4569,7 +4569,7 @@ inline void gcode_M109() {
   #endif //TEMP_RESIDENCY_TIME > 0
 
   float theTarget = -1.0, old_temp = 9999.0;
-  bool wants_to_cool;
+  bool wants_to_cool = false;
   cancel_heatup = false;
   millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
@@ -4663,7 +4663,7 @@ inline void gcode_M109() {
     #endif //TEMP_BED_RESIDENCY_TIME > 0
 
     float theTarget = -1.0, old_temp = 9999.0;
-    bool wants_to_cool;
+    bool wants_to_cool = false;
     cancel_heatup = false;
     millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
