@@ -30,6 +30,7 @@
 
 #include "Marlin.h"
 #include "MarlinSerial.h"
+#include "stepper.h"
 
 #ifndef USBCON
 // this next line disables the entire HardwareSerial.cpp,
@@ -54,6 +55,10 @@ FORCE_INLINE void store_char(unsigned char c) {
       rx_buffer.head = i;
     }
   CRITICAL_SECTION_END;
+
+  #if ENABLED(EMERGENCY_PARSER)
+    emergency_parser(c);
+  #endif
 }
 
 
@@ -309,4 +314,157 @@ MarlinSerial customizedSerial;
 // For AT90USB targets use the UART for BT interfacing
 #if defined(USBCON) && ENABLED(BLUETOOTH)
   HardwareSerial bluetoothSerial;
+#endif
+
+#if ENABLED(EMERGENCY_PARSER)
+
+  // Currently looking for: M108, M112, M410
+  // If you alter the parser please don't forget to update the capabilities in Conditionals.h
+
+  void emergency_parser(unsigned char c) {
+
+    enum e_parser_state {
+      state_RESET,
+      state_M,
+      state_M1,
+      state_M10,
+      state_M11,
+      state_M2,
+      state_M3,
+      state_M4,
+      state_M41,
+      state_IGNORE // to '\n'
+    };
+
+    static e_parser_state state = state_RESET;
+
+    switch (state) {
+      case state_RESET:
+        switch (c) {
+          case 'M':
+            state = state_M;
+            break;
+          case ';':
+            state = state_IGNORE;
+            break;
+          default: state = state_RESET;
+        }
+      break;
+
+      case state_M:
+        switch (c) {
+          case '1':
+            state = state_M1;
+            break;
+          case '2':
+            state = state_M2;
+            break;
+          case '3':
+            state = state_M3;
+            break;
+          case '4':
+            state = state_M4;
+            break;
+          case ';':
+            state = state_IGNORE;
+            break;
+          default: state = state_RESET;
+        }
+      break;
+
+      case state_M1:
+        switch (c) {
+          case '0':
+            state = state_M10;
+            break;
+          case '1':
+            state = state_M11;
+            break;
+          case ';':
+            state = state_IGNORE;
+            break;
+          default: state = state_RESET;
+        }
+      break;
+
+      case state_M2:
+        switch (c) {
+          case '3': // M23
+          case '8': // M28
+          case ';':
+            state = state_IGNORE;
+            break;
+          default: state = state_RESET;
+        }
+      break;
+
+      case state_M3:
+        switch (c) {
+          case '0': // M30
+          case '2': // M32
+          case '3': // M33
+          case ';':
+            state = state_IGNORE;
+            break;
+          default: state = state_RESET;
+        }
+      break;
+
+      case state_M10:
+        switch (c) {
+          case '8': // M108
+            { state = state_RESET; wait_for_heatup = false; }
+            break;
+          case ';':
+            state = state_IGNORE;
+            break;
+          default: state = state_RESET;
+        }
+      break;
+
+      case state_M11:
+        switch (c) {
+          case '2': // M112
+            state = state_RESET; kill(PSTR(MSG_KILLED));
+            break;
+          case '7': // M117
+          case ';':
+            state = state_IGNORE;
+            break;
+          default: state = state_RESET;
+        }
+      break;
+
+      case state_M4:
+        switch (c) {
+          case '1':
+            state = state_M41;
+            break;
+          case ';':
+            state = state_IGNORE;
+            break;
+          default: state = state_RESET;
+        }
+      break;
+
+      case state_M41:
+        switch (c) {
+          case '0':
+            { state = state_RESET; stepper.quick_stop(); }
+            break;
+          case ';':
+            state = state_IGNORE;
+            break;
+          default: state = state_RESET;
+        }
+      break;
+
+      case state_IGNORE:
+        if (c == '\n') state = state_RESET;
+      break;
+
+      default:
+        state = state_RESET;
+    }
+  }
 #endif

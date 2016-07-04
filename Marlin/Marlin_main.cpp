@@ -160,7 +160,7 @@
  * M105 - Read current temp
  * M106 - Fan on
  * M107 - Fan off
- * M108 - Cancel heatup and wait for the hotend and bed, this G-code is asynchronously handled in the get_serial_commands() parser
+ * M108 - Stop the waiting for heaters in M109, M190, M303. Does not affect the target temperature.
  * M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
  *        IF AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
@@ -1105,9 +1105,12 @@ inline void get_serial_commands() {
         }
       }
 
-      // If command was e-stop process now
-      if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
-      if (strcmp(command, "M108") == 0) wait_for_heatup = false;
+      #if DISABLED(EMERGENCY_PARSER)
+        // If command was e-stop process now
+        if (strcmp(command, "M108") == 0) wait_for_heatup = false;
+        if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
+        if (strcmp(command, "M410") == 0) stepper.quick_stop();
+      #endif
 
       #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
         last_command_time = ms;
@@ -4533,10 +4536,14 @@ inline void gcode_M105() {
 
 #endif // FAN_COUNT > 0
 
-/**
- * M108: Cancel heatup and wait for the hotend and bed, this G-code is asynchronously handled in the get_serial_commands() parser
- */
-inline void gcode_M108() { wait_for_heatup = false; }
+#if DISABLED(EMERGENCY_PARSER)
+
+  /**
+   * M108: Stop the waiting for heaters in M109, M190, M303. Does not affect the target temperature.
+   */
+  inline void gcode_M108() { wait_for_heatup = false; }
+
+#endif
 
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
@@ -4811,7 +4818,9 @@ inline void gcode_M111() {
 /**
  * M112: Emergency Stop
  */
-inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
+#if DISABLED(EMERGENCY_PARSER)
+  inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
+#endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 
@@ -5991,13 +6000,15 @@ inline void gcode_M400() { stepper.synchronize(); }
  * This will stop the carriages mid-move, so most likely they
  * will be out of sync with the stepper position after this.
  */
-inline void gcode_M410() {
-  stepper.quick_stop();
-  #if DISABLED(DELTA) && DISABLED(SCARA)
-    set_current_position_from_planner();
-  #endif
-}
 
+#if DISABLED(EMERGENCY_PARSER)
+  inline void gcode_M410() {
+    stepper.quick_stop();
+    #if DISABLED(DELTA) && DISABLED(SCARA)
+      set_current_position_from_planner();
+    #endif
+  }
+#endif
 
 #if ENABLED(MESH_BED_LEVELING)
 
@@ -6953,9 +6964,11 @@ void process_next_command() {
         gcode_M111();
         break;
 
-      case 112: // M112: Emergency Stop
-        gcode_M112();
-        break;
+      #if DISABLED(EMERGENCY_PARSER)
+        case 112: // M112: Emergency Stop
+          gcode_M112();
+          break;
+      #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
 
@@ -6974,9 +6987,11 @@ void process_next_command() {
         KEEPALIVE_STATE(NOT_BUSY);
         return; // "ok" already printed
 
-      case 108:
-        gcode_M108();
-        break;
+      #if DISABLED(EMERGENCY_PARSER)
+        case 108:
+          gcode_M108();
+          break;
+      #endif
 
       case 109: // M109: Wait for temperature
         gcode_M109();
@@ -7261,9 +7276,11 @@ void process_next_command() {
           break;
       #endif // ENABLED(FILAMENT_WIDTH_SENSOR)
 
-      case 410: // M410 quickstop - Abort all the planned moves.
-        gcode_M410();
-        break;
+      #if DISABLED(EMERGENCY_PARSER)
+        case 410: // M410 quickstop - Abort all the planned moves.
+          gcode_M410();
+          break;
+      #endif
 
       #if ENABLED(MESH_BED_LEVELING)
         case 420: // M420 Enable/Disable Mesh Bed Leveling
