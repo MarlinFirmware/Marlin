@@ -1651,7 +1651,7 @@ static void clean_up_after_endstop_or_probe_move() {
    *  Plan a move to (X, Y, Z) and set the current_position
    *  The final current_position may not be the one that was requested
    */
-  static void do_blocking_move_to(float x, float y, float z) {
+  static void do_blocking_move_to(float x, float y, float z, float feed_rate = 0.0) {
     float old_feedrate = feedrate;
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1660,7 +1660,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     #if ENABLED(DELTA)
 
-      feedrate = XY_PROBE_FEEDRATE;
+      feedrate = (feed_rate != 0.0) ? feed_rate : XY_PROBE_FEEDRATE;
 
       destination[X_AXIS] = x;
       destination[Y_AXIS] = y;
@@ -1675,19 +1675,19 @@ static void clean_up_after_endstop_or_probe_move() {
 
       // If Z needs to raise, do it before moving XY
       if (current_position[Z_AXIS] < z) {
-        feedrate = homing_feedrate[Z_AXIS];
+        feedrate = (feed_rate != 0.0) ? feed_rate : homing_feedrate[Z_AXIS];
         current_position[Z_AXIS] = z;
         line_to_current_position();
       }
 
-      feedrate = XY_PROBE_FEEDRATE;
+      feedrate = (feed_rate != 0.0) ? feed_rate : XY_PROBE_FEEDRATE;
       current_position[X_AXIS] = x;
       current_position[Y_AXIS] = y;
       line_to_current_position();
 
       // If Z needs to lower, do it after moving XY
       if (current_position[Z_AXIS] > z) {
-        feedrate = homing_feedrate[Z_AXIS];
+        feedrate = (feed_rate != 0.0) ? feed_rate : homing_feedrate[Z_AXIS];
         current_position[Z_AXIS] = z;
         line_to_current_position();
       }
@@ -1699,12 +1699,12 @@ static void clean_up_after_endstop_or_probe_move() {
     feedrate = old_feedrate;
   }
 
-  inline void do_blocking_move_to_x(float x) {
-    do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS]);
+  inline void do_blocking_move_to_x(float x, float feed_rate = 0.0) {
+    do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], feed_rate);
   }
 
-  inline void do_blocking_move_to_z(float z) {
-    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z);
+  inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
+    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, feed_rate);
   }
 
   /**
@@ -2081,8 +2081,8 @@ static void clean_up_after_endstop_or_probe_move() {
     return current_position[Z_AXIS];
   }
 
-  inline void do_blocking_move_to_xy(float x, float y) {
-    do_blocking_move_to(x, y, current_position[Z_AXIS]);
+  inline void do_blocking_move_to_xy(float x, float y, float feed_rate = 0.0) {
+    do_blocking_move_to(x, y, current_position[Z_AXIS], feed_rate);
   }
 
   //
