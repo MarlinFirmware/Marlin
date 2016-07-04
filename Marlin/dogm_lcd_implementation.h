@@ -145,8 +145,13 @@
   //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
   U8GLIB_ST7920_128X64_RRD u8g(0);
 #elif defined(CARTESIO_UI)
-  // The CartesioUI display with SW-SPI
-  U8GLIB_DOGM128 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);
+  // The CartesioUI display
+  #if DOGLCD_MOSI != -1 && DOGLCD_SCK != -1
+    // using SW-SPI
+    U8GLIB_DOGM128 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, DOGLCD_A0);
+  #else
+    U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);
+  #endif
 #elif ENABLED(U8GLIB_LM6059_AF)
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);
