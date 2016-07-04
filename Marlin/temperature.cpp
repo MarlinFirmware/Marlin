@@ -238,8 +238,10 @@ unsigned char Temperature::soft_pwm[HOTENDS];
       soft_pwm_bed = bias = d = (MAX_BED_POWER) / 2;
     #endif
 
+    wait_for_heatup = true;
+
     // PID Tuning loop
-    for (;;) {
+    while (wait_for_heatup) {
 
       millis_t ms = millis();
 
@@ -421,6 +423,7 @@ unsigned char Temperature::soft_pwm[HOTENDS];
       }
       lcd_update();
     }
+    if (!wait_for_heatup) disable_all_heaters();
   }
 
 #endif // HAS_PID_HEATING

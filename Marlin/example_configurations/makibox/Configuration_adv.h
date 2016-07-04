@@ -520,6 +520,12 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
+// Enable an emergency-command parser to intercept certain commands as they
+// enter the serial receive buffer, so they cannot be blocked.
+// Currently handles M108, M112, M410
+// Does not work on boards using AT90USB (USBCON) processors!
+//#define EMERGENCY_PARSER
+
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
 // Some other clients start sending commands while receiving a 'wait'.
