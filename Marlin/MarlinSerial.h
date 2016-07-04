@@ -101,6 +101,11 @@ struct ring_buffer {
   extern ring_buffer rx_buffer;
 #endif
 
+#if ENABLED(EMERGENCY_PARSER)
+  #include "language.h"
+  void emergency_parser(unsigned char c);
+#endif
+
 class MarlinSerial { //: public Stream
 
   public:
@@ -141,6 +146,10 @@ class MarlinSerial { //: public Stream
             rx_buffer.head = i;
           }
         CRITICAL_SECTION_END;
+
+        #if ENABLED(EMERGENCY_PARSER)
+          emergency_parser(c);
+        #endif
       }
     }
 

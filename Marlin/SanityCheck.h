@@ -564,6 +564,13 @@
 #endif
 
 /**
+ * emergency-command parser
+ */
+#if ENABLED(EMERGENCY_PARSER) && ENABLED(USBCON)
+  #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
+#endif
+
+ /**
  * Warnings for old configurations
  */
 #if WATCH_TEMP_PERIOD > 500
