@@ -32,13 +32,13 @@
 #define E0_STEP_PIN           57
 #define E0_DIR_PIN            55
 #define HEATER_0_PIN          11
-#define TEMP_0_PIN            0   // ANALOG INPUT !!
+#define TEMP_0_PIN             0  // ANALOG INPUT !!
 
 #define E1_ENABLE_PIN         60
 #define E1_STEP_PIN           61
 #define E1_DIR_PIN            62
 #define HEATER_1_PIN           9
-#define TEMP_1_PIN             9  // 9 for tool3 -> 13 for chambertemp
+#define TEMP_1_PIN             9  // 9 for tool2 -> 13 for chambertemp
 
 #define E2_ENABLE_PIN         44
 #define E2_STEP_PIN           46
@@ -86,9 +86,9 @@
 #define LCD_SCREEN_ROT_180
 
 // The encoder and click button
-#define BTN_EN1 36
-#define BTN_EN2 34
-#define BTN_ENC 38
+#define BTN_EN1               36
+#define BTN_EN2               34
+#define BTN_ENC               38
 
 // Hardware buttons for manual movement of XYZ
 #define SHIFT_OUT             42
