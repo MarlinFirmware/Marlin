@@ -284,6 +284,12 @@
     #define HardwareSerial_h // trick to disable the standard HWserial
   #endif
 
+  #if ENABLED(EMERGENCY_PARSER)
+    #define EMERGENCY_PARSER_CAPABILITIES " EMERGENCY_CODES:M112,M108,M410"
+  #else
+    #define EMERGENCY_PARSER_CAPABILITIES ""
+  #endif
+
   #include "Arduino.h"
 
   /**
