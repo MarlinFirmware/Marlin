@@ -183,19 +183,23 @@
  * M150 - Set BlinkM Color Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
  * M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
- * M200 - set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).:D<millimeters>-
+ * M200 - Set filament diameter, D<diameter>, setting E axis units to cubic. (Use S0 to revert to linear units.)
  * M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
  * M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
- * M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
- * M204 - Set default acceleration: P for Printing moves, R for Retract only (no X, Y, Z) moves and T for Travel (non printing) moves (ex. M204 P800 T3000 R9000) in mm/sec^2
- * M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk, E=maximum E jerk
+ * M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in units/sec
+ * M204 - Set default acceleration: P for Printing moves, R for Retract only (no X, Y, Z) moves and T for Travel (non printing) moves (ex. M204 P800 T3000 R9000) in units/sec^2
+ * M205 - Set advanced settings. Current units apply:
+            S<print> T<travel> minimum speeds
+            B<minimum segment time>
+            X<max xy jerk>, Z<max Z jerk>, E<max E jerk>
  * M206 - Set additional homing offset
- * M207 - Set retract length S[positive mm] F[feedrate mm/min] Z[additional zlift/hop], stays in mm regardless of M200 setting
- * M208 - Set recover=unretract length S[positive mm surplus to the M207 S*] F[feedrate mm/min]
- * M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
- * M218 - Set hotend offset (in mm): T<extruder_number> X<offset_on_X> Y<offset_on_Y>
- * M220 - Set speed factor override percentage: S<factor in percent>
- * M221 - Set extrude factor override percentage: S<factor in percent>
+ * M207 - Set Retract Length: S<length>, Feedrate: F<units/min>, and Z lift: Z<distance>
+ * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>
+ * M209 - Turn Automatic Retract Detection on/off: S<bool> (For slicers that don't support G10/11).
+          Every normal extrude-only move will be classified as retract depending on the direction.
+ * M218 - Set a tool offset: T<index> X<offset> Y<offset>
+ * M220 - Set Feedrate Percentage: S<percent> ("FR" on your LCD)
+ * M221 - Set Flow Percentage: S<percent>
  * M226 - Wait until the specified pin reaches the state required: P<pin number> S<pin state>
  * M240 - Trigger a camera to take a photograph
  * M250 - Set LCD contrast C<contrast value> (value 0..63)
@@ -210,13 +214,13 @@
  * M400 - Finish all moves
  * M401 - Lower Z probe if present
  * M402 - Raise Z probe if present
- * M404 - N<dia in mm> Enter the nominal filament width (3mm, 1.75mm ) or will display nominal filament width without parameters
- * M405 - Turn on Filament Sensor extrusion control.  Optional D<delay in cm> to set delay in centimeters between sensor and extruder
- * M406 - Turn off Filament Sensor extrusion control
- * M407 - Display measured filament diameter
+ * M404 - Display or set the Nominal Filament Width: [ N<diameter> ]
+ * M405 - Enable Filament Sensor extrusion control. Optional delay between sensor and extruder: D<cm>
+ * M406 - Disable Filament Sensor extrusion control
+ * M407 - Display measured filament diameter in millimeters
  * M410 - Quickstop. Abort all the planned moves
  * M420 - Enable/Disable Mesh Leveling (with current values) S1=enable S0=disable
- * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<mm> Y<mm> Z<mm>
+ * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units>
  * M428 - Set the home_offset logically based on the current_position
  * M500 - Store parameters in EEPROM
  * M501 - Read parameters from EEPROM (if you need reset them after you changed them temporarily).
@@ -227,7 +231,7 @@
  * M665 - Set delta configurations: L<diagonal rod> R<delta radius> S<segments/s>
  * M666 - Set delta endstop adjustment
  * M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
- * M851 - Set Z probe's Z offset (mm). Set to a negative value for probes that trigger below the nozzle.
+ * M851 - Set Z probe's Z offset in current units. (Negative values apply to probes that extend below the nozzle.)
  * M907 - Set digital trimpot motor current using axis codes.
  * M908 - Control digital trimpot directly.
  * M909 - DAC_STEPPER_CURRENT: Print digipot/DAC current value
@@ -251,7 +255,7 @@
  *
  * "T" Codes
  *
- * T0-T3 - Select a tool by index (usually an extruder) [ F<mm/min> ]
+ * T0-T3 - Select a tool by index (usually an extruder) [ F<units/min> ]
  *
  */
 
@@ -1578,7 +1582,7 @@ inline void line_to_destination() { line_to_destination(feedrate); }
  * sync_plan_position
  * Set planner / stepper positions to the cartesian current_position.
  * The stepper code translates these coordinates into step units.
- * Allows translation between steps and units (mm) for cartesian & core robots
+ * Allows translation between steps and millimeters for cartesian & core robots
  */
 inline void sync_plan_position() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3331,7 +3335,7 @@ inline void gcode_G28() {
    *     Not supported by non-linear delta printer bed leveling.
    *     Example: "G29 P4"
    *
-   *  S  Set the XY travel speed between probe points (in mm/min)
+   *  S  Set the XY travel speed between probe points (in units/min)
    *
    *  D  Dry-Run mode. Just evaluate the bed Topology - Don't apply
    *     or clean the rotation Matrix. Useful to check the topology
@@ -5185,7 +5189,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
  * M200: Set filament diameter and set E axis units to cubic units
  *
  *    T<extruder> - Optional extruder number. Current extruder if omitted.
- *    D<mm> - Diameter of the filament. Use "D0" to switch back to linear units on the E axis.
+ *    D<linear> - Diameter of the filament. Use "D0" to switch back to linear units on the E axis.
  */
 inline void gcode_M200() {
 
@@ -5234,7 +5238,7 @@ inline void gcode_M201() {
 
 
 /**
- * M203: Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
+ * M203: Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in units/sec
  */
 inline void gcode_M203() {
   for (int8_t i = 0; i < NUM_AXIS; i++) {
@@ -5245,7 +5249,7 @@ inline void gcode_M203() {
 }
 
 /**
- * M204: Set Accelerations in mm/sec^2 (M204 P1200 R3000 T3000)
+ * M204: Set Accelerations in units/sec^2 (M204 P1200 R3000 T3000)
  *
  *    P = Printing moves
  *    R = Retract only (no X, Y, Z) moves
@@ -5279,12 +5283,12 @@ inline void gcode_M204() {
 /**
  * M205: Set Advanced Settings
  *
- *    S = Min Feed Rate (mm/s)
- *    T = Min Travel Feed Rate (mm/s)
+ *    S = Min Feed Rate (units/s)
+ *    T = Min Travel Feed Rate (units/s)
  *    B = Min Segment Time (µs)
- *    X = Max XY Jerk (mm/s/s)
- *    Z = Max Z Jerk (mm/s/s)
- *    E = Max E Jerk (mm/s/s)
+ *    X = Max XY Jerk (units/sec^2)
+ *    Z = Max Z Jerk (units/sec^2)
+ *    E = Max E Jerk (units/sec^2)
  */
 inline void gcode_M205() {
   if (code_seen('S')) planner.min_feedrate = code_value_linear_units();
@@ -5379,10 +5383,10 @@ inline void gcode_M206() {
   /**
    * M207: Set firmware retraction values
    *
-   *   S[+mm]    retract_length
-   *   W[+mm]    retract_length_swap (multi-extruder)
-   *   F[mm/min] retract_feedrate_mm_s
-   *   Z[mm]     retract_zlift
+   *   S[+units]    retract_length
+   *   W[+units]    retract_length_swap (multi-extruder)
+   *   F[units/min] retract_feedrate_mm_s
+   *   Z[units]     retract_zlift
    */
   inline void gcode_M207() {
     if (code_seen('S')) retract_length = code_value_axis_units(E_AXIS);
@@ -5396,9 +5400,9 @@ inline void gcode_M206() {
   /**
    * M208: Set firmware un-retraction values
    *
-   *   S[+mm]    retract_recover_length (in addition to M207 S*)
-   *   W[+mm]    retract_recover_length_swap (multi-extruder)
-   *   F[mm/min] retract_recover_feedrate
+   *   S[+units]    retract_recover_length (in addition to M207 S*)
+   *   W[+units]    retract_recover_length_swap (multi-extruder)
+   *   F[units/min] retract_recover_feedrate
    */
   inline void gcode_M208() {
     if (code_seen('S')) retract_recover_length = code_value_axis_units(E_AXIS);
@@ -5435,7 +5439,7 @@ inline void gcode_M206() {
 #if HOTENDS > 1
 
   /**
-   * M218 - set hotend offset (in mm)
+   * M218 - set hotend offset (in linear units)
    *
    *   T<tool>
    *   X<xoffset>
@@ -5891,7 +5895,7 @@ inline void gcode_M400() { stepper.synchronize(); }
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
 
   /**
-   * M404: Display or set the nominal filament width (3mm, 1.75mm ) W<3.0>
+   * M404: Display or set (in current units) the nominal filament width (3mm, 1.75mm ) W<3.0>
    */
   inline void gcode_M404() {
     if (code_seen('W')) {
@@ -5984,7 +5988,7 @@ inline void gcode_M410() {
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
-   * Use either 'M421 X<mm> Y<mm> Z<mm>' or 'M421 I<xindex> J<yindex> Z<mm>'
+   * Use either 'M421 X<linear> Y<linear> Z<linear>' or 'M421 I<xindex> J<yindex> Z<linear>'
    */
   inline void gcode_M421() {
     int8_t px, py;
@@ -6320,7 +6324,7 @@ inline void gcode_M503() {
    *    M605 S0: Full control mode. The slicer has full control over x-carriage movement
    *    M605 S1: Auto-park mode. The inactive head will auto park/unpark without slicer involvement
    *    M605 S2 [Xnnn] [Rmmm]: Duplication mode. The second extruder will duplicate the first with nnn
-   *                         millimeters x-offset and an optional differential hotend temperature of
+   *                         units x-offset and an optional differential hotend temperature of
    *                         mmm degrees. E.g., with "M605 S2 X100 R2" the second extruder will duplicate
    *                         the first with a spacing of 100mm in the x direction and 2 degrees hotter.
    *
@@ -6485,8 +6489,8 @@ inline void gcode_M999() {
 /**
  * T0-T3: Switch tool, usually switching extruders
  *
- *   F[mm/min] Set the movement feedrate
- *   S1        Don't move the tool in XY after change
+ *   F[units/min] Set the movement feedrate
+ *   S1           Don't move the tool in XY after change
  */
 inline void gcode_T(uint8_t tmp_extruder) {
   if (tmp_extruder >= EXTRUDERS) {
@@ -7066,7 +7070,7 @@ void process_next_command() {
 
       #endif //EXPERIMENTAL_I2CBUS
 
-      case 200: // M200 D<millimeters> set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
+      case 200: // M200 D<diameter> Set filament diameter and set E axis units to cubic. (Use S0 to revert to linear units.)
         gcode_M200();
         break;
       case 201: // M201
@@ -7077,7 +7081,7 @@ void process_next_command() {
           gcode_M202();
           break;
       #endif
-      case 203: // M203 max feedrate mm/sec
+      case 203: // M203 max feedrate units/sec
         gcode_M203();
         break;
       case 204: // M204 acclereration S normal moves T filmanent only moves
@@ -7103,28 +7107,28 @@ void process_next_command() {
       #endif
 
       #if ENABLED(FWRETRACT)
-        case 207: //M207 - set retract length S[positive mm] F[feedrate mm/min] Z[additional zlift/hop]
+        case 207: // M207 - Set Retract Length: S<length>, Feedrate: F<units/min>, and Z lift: Z<distance>
           gcode_M207();
           break;
-        case 208: // M208 - set retract recover length S[positive mm surplus to the M207 S*] F[feedrate mm/min]
+        case 208: // M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>
           gcode_M208();
           break;
-        case 209: // M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
+        case 209: // M209 - Turn Automatic Retract Detection on/off: S<bool> (For slicers that don't support G10/11). Every normal extrude-only move will be classified as retract depending on the direction.
           gcode_M209();
           break;
       #endif // FWRETRACT
 
       #if HOTENDS > 1
-        case 218: // M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y>
+        case 218: // M218 - Set a tool offset: T<index> X<offset> Y<offset>
           gcode_M218();
           break;
       #endif
 
-      case 220: // M220 S<factor in percent>- set speed factor override percentage
+      case 220: // M220 - Set Feedrate Percentage: S<percent> ("FR" on your LCD)
         gcode_M220();
         break;
 
-      case 221: // M221 S<factor in percent>- set extrude factor override percentage
+      case 221: // M221 - Set Flow Percentage: S<percent>
         gcode_M221();
         break;
 
