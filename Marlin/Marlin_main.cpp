@@ -6497,6 +6497,13 @@ inline void gcode_T(uint8_t tmp_extruder) {
     return;
   }
 
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) {
+      SERIAL_ECHOLNPGM(">>> gcode_T");
+      DEBUG_POS("BEFORE", current_position);
+    }
+  #endif
+
   #if HOTENDS > 1
 
     float old_feedrate = feedrate;
@@ -6579,11 +6586,6 @@ inline void gcode_T(uint8_t tmp_extruder) {
         // Z software endstop. But this is technically correct (and
         // there is no viable alternative).
         //
-        float xydiff[2] = {
-          hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
-          hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
-        };
-
         #if ENABLED(AUTO_BED_LEVELING_FEATURE)
           // Offset extruder, make sure to apply the bed level rotation matrix
           vector_3 tmp_offset_vec = vector_3(hotend_offset[X_AXIS][tmp_extruder],
@@ -6596,30 +6598,28 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOLNPGM(">>> gcode_T");
               tmp_offset_vec.debug("tmp_offset_vec");
               act_offset_vec.debug("act_offset_vec");
               offset_vec.debug("offset_vec (BEFORE)");
-              DEBUG_POS("BEFORE rotation", current_position);
             }
           #endif
 
           offset_vec.apply_rotation(planner.bed_level_matrix.transpose(planner.bed_level_matrix));
 
-          // Adjust the current position
-          current_position[X_AXIS] += offset_vec.x;
-          current_position[Y_AXIS] += offset_vec.y;
-          current_position[Z_AXIS] += offset_vec.z;
-
           #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              offset_vec.debug("offset_vec (AFTER)");
-              DEBUG_POS("AFTER rotation", current_position);
-              SERIAL_ECHOLNPGM("<<< gcode_T");
-            }
+            if (DEBUGGING(LEVELING)) offset_vec.debug("offset_vec (AFTER)");
           #endif
 
+          // Adjustments to the current position
+          float xydiff[2] = { offset_vec.x, offset_vec.y };
+          current_position[Z_AXIS] += offset_vec.z;
+
         #else // !AUTO_BED_LEVELING_FEATURE
+
+          float xydiff[2] = {
+            hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
+            hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
+          };
 
           #if ENABLED(MESH_BED_LEVELING)
 
@@ -6631,12 +6631,11 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
           #endif // MESH_BED_LEVELING
 
-          // The newly-selected extruder XY is actually at...
-          current_position[X_AXIS] += xydiff[X_AXIS];
-          current_position[Y_AXIS] += xydiff[Y_AXIS];
-
         #endif // !AUTO_BED_LEVELING_FEATURE
 
+        // The newly-selected extruder XY is actually at...
+        current_position[X_AXIS] += xydiff[X_AXIS];
+        current_position[Y_AXIS] += xydiff[Y_AXIS];
         for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
           position_shift[i] += xydiff[i];
           update_software_endstops((AxisEnum)i);
@@ -6668,6 +6667,13 @@ inline void gcode_T(uint8_t tmp_extruder) {
     // Set the new active extruder
     active_extruder = tmp_extruder;
 
+  #endif
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) {
+      DEBUG_POS("AFTER", current_position);
+      SERIAL_ECHOLNPGM("<<< gcode_T");
+    }
   #endif
 
   SERIAL_ECHO_START;
