@@ -1796,6 +1796,162 @@ static void clean_up_after_endstop_or_probe_move() {
   }
 
 #endif // Z_PROBE_SLED
+#if ENABLED(Z_PROBE_ALLEN_KEY)
+  void run_deploy_moves_script() {
+    #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_X
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_1_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_Y
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_Z
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_1_X, Z_PROBE_ALLEN_KEY_DEPLOY_1_Y, Z_PROBE_ALLEN_KEY_DEPLOY_1_Z, Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_X
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_2_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_Y
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_Z
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_2_X, Z_PROBE_ALLEN_KEY_DEPLOY_2_Y, Z_PROBE_ALLEN_KEY_DEPLOY_2_Z, Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_X
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_Y
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_Z
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_3_X, Z_PROBE_ALLEN_KEY_DEPLOY_3_Y, Z_PROBE_ALLEN_KEY_DEPLOY_3_Z, Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_X
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_4_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_Y
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_4_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_Z
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_4_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_4_X, Z_PROBE_ALLEN_KEY_DEPLOY_4_Y, Z_PROBE_ALLEN_KEY_DEPLOY_4_Z, Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_X
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_5_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_Y
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_5_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_Z
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_5_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_5_X, Z_PROBE_ALLEN_KEY_DEPLOY_5_Y, Z_PROBE_ALLEN_KEY_DEPLOY_5_Z, Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE);
+    #endif
+  }
+  void run_stow_moves_script() {
+    #if defined(Z_PROBE_ALLEN_KEY_STOW_1_X) || defined(Z_PROBE_ALLEN_KEY_STOW_1_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_1_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_1_X
+        #define Z_PROBE_ALLEN_KEY_STOW_1_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_1_Y
+        #define Z_PROBE_ALLEN_KEY_STOW_1_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_1_Z
+        #define Z_PROBE_ALLEN_KEY_STOW_1_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_1_X, Z_PROBE_ALLEN_KEY_STOW_1_Y, Z_PROBE_ALLEN_KEY_STOW_1_Z, Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_STOW_2_X) || defined(Z_PROBE_ALLEN_KEY_STOW_2_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_2_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_2_X
+        #define Z_PROBE_ALLEN_KEY_STOW_2_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_2_Y
+        #define Z_PROBE_ALLEN_KEY_STOW_2_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_2_Z
+        #define Z_PROBE_ALLEN_KEY_STOW_2_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_2_X, Z_PROBE_ALLEN_KEY_STOW_2_Y, Z_PROBE_ALLEN_KEY_STOW_2_Z, Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_STOW_3_X) || defined(Z_PROBE_ALLEN_KEY_STOW_3_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_3_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_3_X
+        #define Z_PROBE_ALLEN_KEY_STOW_3_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_3_Y
+        #define Z_PROBE_ALLEN_KEY_STOW_3_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_3_Z
+        #define Z_PROBE_ALLEN_KEY_STOW_3_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_3_X, Z_PROBE_ALLEN_KEY_STOW_3_Y, Z_PROBE_ALLEN_KEY_STOW_3_Z, Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_STOW_4_X) || defined(Z_PROBE_ALLEN_KEY_STOW_4_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_4_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_4_X
+        #define Z_PROBE_ALLEN_KEY_STOW_4_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_4_Y
+        #define Z_PROBE_ALLEN_KEY_STOW_4_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_4_Z
+        #define Z_PROBE_ALLEN_KEY_STOW_4_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_4_X, Z_PROBE_ALLEN_KEY_STOW_4_Y, Z_PROBE_ALLEN_KEY_STOW_4_Z, Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_STOW_5_X) || defined(Z_PROBE_ALLEN_KEY_STOW_5_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_5_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_5_X
+        #define Z_PROBE_ALLEN_KEY_STOW_5_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_5_Y
+        #define Z_PROBE_ALLEN_KEY_STOW_5_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_5_Z
+        #define Z_PROBE_ALLEN_KEY_STOW_5_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_5_X, Z_PROBE_ALLEN_KEY_STOW_5_Y, Z_PROBE_ALLEN_KEY_STOW_5_Z, Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE);
+    #endif
+  }
+#endif
 
 #if HAS_BED_PROBE
 
@@ -1833,49 +1989,8 @@ static void clean_up_after_endstop_or_probe_move() {
         if (z_min_endstop)
       #endif
         {
-          // Move to the start position to initiate deployment
-          destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_X;
-          destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_Y;
-          destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_Z;
-          prepare_move_to_destination(); // this will also set_current_to_destination
-
-          // Move to engage deployment
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE)
-            feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_X != Z_PROBE_ALLEN_KEY_DEPLOY_1_X)
-            destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_X;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_Y != Z_PROBE_ALLEN_KEY_DEPLOY_1_Y)
-            destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_Y;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_Z != Z_PROBE_ALLEN_KEY_DEPLOY_1_Z)
-            destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_Z;
-          prepare_move_to_destination();
-
-          #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_3_X
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
-              feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
-
-            // Move to trigger deployment
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
-              feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_X != Z_PROBE_ALLEN_KEY_DEPLOY_2_X)
-              destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_X;
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Y != Z_PROBE_ALLEN_KEY_DEPLOY_2_Y)
-              destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Y;
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Z != Z_PROBE_ALLEN_KEY_DEPLOY_2_Z)
-              destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Z;
-
-            prepare_move_to_destination();
-          #endif
+          run_deploy_moves_script();
         }
-
-      // Partially Home X,Y for safety
-      destination[X_AXIS] *= 0.75;
-      destination[Y_AXIS] *= 0.75;
-      prepare_move_to_destination(); // this will also set_current_to_destination
-
-      feedrate = old_feedrate;
-
-      stepper.synchronize();
 
       #if ENABLED(Z_MIN_PROBE_ENDSTOP)
         z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
@@ -1923,51 +2038,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
 
-      float old_feedrate = feedrate;
-
-      // Move up for safety
-      feedrate = Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE;
-
-      #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
-        destination[Z_AXIS] = current_position[Z_AXIS] + _Z_RAISE_PROBE_DEPLOY_STOW;
-        prepare_move_to_destination_raw(); // this will also set_current_to_destination
-      #endif
-
-      // Move to the start position to initiate retraction
-      destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_X;
-      destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_Y;
-      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_Z;
-      prepare_move_to_destination();
-
-      // Move the nozzle down to push the Z probe into retracted position
-      if (Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE != Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE)
-        feedrate = Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE;
-      if (Z_PROBE_ALLEN_KEY_STOW_2_X != Z_PROBE_ALLEN_KEY_STOW_1_X)
-        destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_X;
-      if (Z_PROBE_ALLEN_KEY_STOW_2_Y != Z_PROBE_ALLEN_KEY_STOW_1_Y)
-        destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_Y;
-      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_Z;
-      prepare_move_to_destination();
-
-      // Move up for safety
-      if (Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE != Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE)
-        feedrate = Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE;
-      if (Z_PROBE_ALLEN_KEY_STOW_3_X != Z_PROBE_ALLEN_KEY_STOW_2_X)
-        destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_X;
-      if (Z_PROBE_ALLEN_KEY_STOW_3_Y != Z_PROBE_ALLEN_KEY_STOW_2_Y)
-        destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_Y;
-      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_Z;
-      prepare_move_to_destination();
-
-      // Home XY for safety
-      feedrate = homing_feedrate[X_AXIS] / 2;
-      destination[X_AXIS] = 0;
-      destination[Y_AXIS] = 0;
-      prepare_move_to_destination(); // this will also set_current_to_destination
-
-      feedrate = old_feedrate;
-
-      stepper.synchronize();
+      run_stow_moves_script();
 
       #if ENABLED(Z_MIN_PROBE_ENDSTOP)
         bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
