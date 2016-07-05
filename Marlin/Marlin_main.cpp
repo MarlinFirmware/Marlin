@@ -284,11 +284,11 @@ bool axis_homed[3] = { false };
 
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
-static char* current_command, *current_command_args;
-static int cmd_queue_index_r = 0;
-static int cmd_queue_index_w = 0;
-static int commands_in_queue = 0;
 static char command_queue[BUFSIZE][MAX_CMD_SIZE];
+static char* current_command, *current_command_args;
+static uint8_t cmd_queue_index_r = 0,
+               cmd_queue_index_w = 0,
+               commands_in_queue = 0;
 
 #if ENABLED(INCH_MODE_SUPPORT)
   float linear_unit_factor = 1.0;
