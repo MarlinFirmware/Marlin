@@ -87,14 +87,17 @@ Here are some standard links for getting your machine calibrated:
 
 // --- controller board selection
 // --- Please choose the name from boards.h that matches your setup
-// if you have a RAMPS shield, don't define the next two lines.  #define BOARD_RAMPS_13_EFB below is what you want
+// if you have a RAMPS shield, BOARD_RAMPS_13_EFB below is what you want
 //#define MOTHERBOARD BOARD_PICA // define this if you have a PICA rev b shield
 //#define MOTHERBOARD BOARD_PICA_REVC // define this if you have a PICA rev C shield
-#ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_13_EFB
-  #ifdef GT2560
-    #define MOTHERBOARD BOARD_ULTIMAKER 
-  #endif
+//#define MOTHERBOARD BOARD_RAMPS_13_EFB
+
+#ifndef MOTHERBOARD 
+#error Choose a motherboard by uncommenting one of the lines above
+#endif
+
+#ifdef GT2560
+  #define MOTHERBOARD BOARD_ULTIMAKER 
 #endif
 // ---
 

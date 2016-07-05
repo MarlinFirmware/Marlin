@@ -1469,6 +1469,10 @@ void go_home()
     home_all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])));
 
     #ifdef MJRICE_BEDLEVELING_RACK
+    if(!home_all_axis && code_seen(axis_codes[Z_AXIS])) {
+      home_all_axis=1; // treat "G28 Z0" like "G28" to ensure probe is in the middle of the bed like we want it
+    }
+    
     // raise z axis. this movement is not done to deploy the probe, just to make sure we are high enough that it can be.
     do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]+20);
     destination[Z_AXIS] = current_position[Z_AXIS];
@@ -1501,9 +1505,10 @@ void go_home()
 
     if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) homeaxis(Y_AXIS); 
 
-    if(code_seen(axis_codes[X_AXIS]) && (code_value_long() != 0)) current_position[X_AXIS]=code_value()+add_homing[X_AXIS];
-
-    if(code_seen(axis_codes[Y_AXIS]) && (code_value_long() != 0)) current_position[Y_AXIS]=code_value()+add_homing[Y_AXIS];
+    if(!home_all_axis) { 
+        if(code_seen(axis_codes[X_AXIS]) && (code_value_long() != 0)) current_position[X_AXIS]=code_value()+add_homing[X_AXIS];
+        if(code_seen(axis_codes[Y_AXIS]) && (code_value_long() != 0)) current_position[Y_AXIS]=code_value()+add_homing[Y_AXIS];
+    }
 
     #ifndef Z_SAFE_HOMING
     #error remove this line if you meant to do this
@@ -1533,11 +1538,11 @@ void go_home()
 
         homeaxis(Z_AXIS); 
     }
-                                                
+
     // Let's see if X and Y are homed and probe is inside bed area.
     if(code_seen(axis_codes[Z_AXIS])) 
-    {
-            if( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
+    { 
+             if( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
                  && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
                  && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
                  && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
