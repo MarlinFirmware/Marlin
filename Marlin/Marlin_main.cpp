@@ -2331,10 +2331,6 @@ static void homeaxis(AxisEnum axis) {
       #endif
       home_dir(axis);
 
-    // Set the axis position as setup for the move
-    current_position[axis] = 0;
-    sync_plan_position();
-
     // Homing Z towards the bed? Deploy the Z probe or endstop.
     #if HAS_BED_PROBE
       if (axis == Z_AXIS && axis_home_dir < 0) {
@@ -2344,6 +2340,10 @@ static void homeaxis(AxisEnum axis) {
         deploy_z_probe();
       }
     #endif
+
+    // Set the axis position as setup for the move
+    current_position[axis] = 0;
+    sync_plan_position();
 
     // Set a flag for Z motor locking
     #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -2454,7 +2454,6 @@ static void homeaxis(AxisEnum axis) {
     #endif
 
     destination[axis] = current_position[axis];
-    feedrate = 0.0;
     endstops.hit_on_purpose(); // clear endstop hit flags
     axis_known_position[axis] = true;
     axis_homed[axis] = true;
@@ -2790,8 +2789,6 @@ inline void gcode_G28() {
    */
   set_destination_to_current();
 
-  feedrate = 0.0;
-
   #if ENABLED(DELTA)
     /**
      * A delta can only safely home all axis at the same time
@@ -2906,7 +2903,6 @@ inline void gcode_G28() {
         destination[X_AXIS] = current_position[X_AXIS];
         destination[Y_AXIS] = current_position[Y_AXIS];
         line_to_destination();
-        feedrate = 0.0;
         stepper.synchronize();
         endstops.hit_on_purpose(); // clear endstop hit flags
 
