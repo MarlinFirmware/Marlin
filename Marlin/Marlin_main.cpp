@@ -7503,7 +7503,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
   int pcx = mbl.cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
       pcy = mbl.cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
       cx = mbl.cell_index_x(RAW_POSITION(x, X_AXIS)),
-      cy = mbl.cell_index_y(RAW_POSITION(x, Y_AXIS));
+      cy = mbl.cell_index_y(RAW_POSITION(y, Y_AXIS));
   NOMORE(pcx, MESH_NUM_X_POINTS - 2);
   NOMORE(pcy, MESH_NUM_Y_POINTS - 2);
   NOMORE(cx,  MESH_NUM_X_POINTS - 2);
