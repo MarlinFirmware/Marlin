@@ -2307,14 +2307,45 @@ void kill_screen(const char* lcd_msg) {
    *
    */
   #if ENABLED(REPRAPWORLD_KEYPAD)
+
+    #define KEY_REPEAT_DELAY 250
+    #define KEY_REPEAT_SLOW  100
+    #define KEY_REPEAT_FAST   10
+    #define KEY_REPEAT_FACTOR  0.95
+    #define KEY_MOVE_FIRST     1
+    #define KEY_MOVE_OTHER     0.1
+
     static void _reprapworld_keypad_move(AxisEnum axis, int dir) {
-      move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-      encoderPosition = dir;
-      switch (axis) {
-        case X_AXIS: lcd_move_x(); break;
-        case Y_AXIS: lcd_move_y(); break;
-        case Z_AXIS: lcd_move_z();
+      static bool no_reentry = false;
+      if (no_reentry) return;
+      millis_t next_move_ms = millis(), repeat_ms = KEY_REPEAT_DELAY;
+      move_menu_scale = KEY_MOVE_FIRST;             // first move is larger
+      no_reentry = true;
+      while (REPRAPWORLD_KEYPAD_PRESSED) {
+        millis_t now = millis();
+        if (ELAPSED(now, next_move_ms)) {
+
+          encoderPosition = dir;                    // move by -1 or 1
+          switch (axis) {                           // on a single axis
+            case X_AXIS: lcd_move_x(); break;
+            case Y_AXIS: lcd_move_y(); break;
+            case Z_AXIS: lcd_move_z();
+          }
+
+          manual_move_start_time = now;             // move now
+          manage_manual_move();
+
+          next_move_ms = now + repeat_ms;           // next move after current interval
+          if (repeat_ms == KEY_REPEAT_DELAY) {      // at the initial interval?
+            move_menu_scale = KEY_MOVE_OTHER;       // move in smaller increments
+            repeat_ms = KEY_REPEAT_SLOW;            // 10 times per second to start
+          }
+          else if (repeat_ms > KEY_REPEAT_FAST)     // above speed threshold?
+            repeat_ms *= KEY_REPEAT_FACTOR;         // keep shortening the interval
+        }
+        idle();
       }
+      no_reentry = false;
     }
     static void reprapworld_keypad_move_z_up()    { _reprapworld_keypad_move(Z_AXIS,  1); }
     static void reprapworld_keypad_move_z_down()  { _reprapworld_keypad_move(Z_AXIS, -1); }
