@@ -990,8 +990,11 @@ void loop() {
 
     #endif // SDSUPPORT
 
-    commands_in_queue--;
-    cmd_queue_index_r = (cmd_queue_index_r + 1) % BUFSIZE;
+    // The queue may be reset by a command handler or by code invoked by idle() within a handler
+    if (commands_in_queue) {
+      --commands_in_queue;
+      cmd_queue_index_r = (cmd_queue_index_r + 1) % BUFSIZE;
+    }
   }
   endstops.report_state();
   idle();
