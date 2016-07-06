@@ -522,6 +522,11 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
+// EMERGENCY_PARSER activates an emergency-command parser before the command is entered into the serial receive buffer.
+// Currently handles M112, M410, M108
+// Does not work on boards using AT90USB (USBCON) processors!
+#define EMERGENCY_PARSER
+
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
 // Some other clients start sending commands while receiving a 'wait'.
