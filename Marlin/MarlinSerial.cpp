@@ -450,7 +450,8 @@ MarlinSerial customizedSerial;
       case state_M41:
         switch (c) {
           case '0':
-            { state = state_RESET; stepper.quick_stop(); }
+            state = state_RESET;
+            quickstop_stepper();
             break;
           case ';':
             state = state_IGNORE;
