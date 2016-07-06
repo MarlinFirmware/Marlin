@@ -325,12 +325,11 @@ MarlinSerial customizedSerial;
 
     enum e_parser_state {
       state_RESET,
+      state_N,
       state_M,
       state_M1,
       state_M10,
       state_M11,
-      state_M2,
-      state_M3,
       state_M4,
       state_M41,
       state_IGNORE // to '\n'
@@ -338,131 +337,68 @@ MarlinSerial customizedSerial;
 
     static e_parser_state state = state_RESET;
 
+    if (c == '\n') state = state_IGNORE;
+
     switch (state) {
       case state_RESET:
         switch (c) {
-          case 'M':
-            state = state_M;
-            break;
-          case ';':
-            state = state_IGNORE;
-            break;
-          default: state = state_RESET;
+          case ' ': break;
+          case 'N': state = state_N;      break;
+          case 'M': state = state_M;      break;
+          default: state = state_IGNORE;
         }
-      break;
+        break;
+
+      case state_N:
+        switch (c) {
+          case '0': case '1': case '2':
+          case '3': case '4': case '5':
+          case '6': case '7': case '8':
+          case '9': case '-': case ' ':   break;
+          case 'M': state = state_M;      break;
+          default:  state = state_IGNORE;
+        }
+        break;
 
       case state_M:
         switch (c) {
-          case '1':
-            state = state_M1;
-            break;
-          case '2':
-            state = state_M2;
-            break;
-          case '3':
-            state = state_M3;
-            break;
-          case '4':
-            state = state_M4;
-            break;
-          case ';':
-            state = state_IGNORE;
-            break;
-          default: state = state_RESET;
+          case ' ': break;
+          case '1': state = state_M1;     break;
+          case '4': state = state_M4;     break;
+          default: state = state_IGNORE;
         }
-      break;
+        break;
 
       case state_M1:
         switch (c) {
-          case '0':
-            state = state_M10;
-            break;
-          case '1':
-            state = state_M11;
-            break;
-          case ';':
-            state = state_IGNORE;
-            break;
-          default: state = state_RESET;
+          case '0': state = state_M10;    break;
+          case '1': state = state_M11;    break;
+          default: state = state_IGNORE;
         }
-      break;
-
-      case state_M2:
-        switch (c) {
-          case '3': // M23
-          case '8': // M28
-          case ';':
-            state = state_IGNORE;
-            break;
-          default: state = state_RESET;
-        }
-      break;
-
-      case state_M3:
-        switch (c) {
-          case '0': // M30
-          case '2': // M32
-          case '3': // M33
-          case ';':
-            state = state_IGNORE;
-            break;
-          default: state = state_RESET;
-        }
-      break;
+        break;
 
       case state_M10:
-        switch (c) {
-          case '8': // M108
-            { state = state_RESET; wait_for_heatup = false; }
-            break;
-          case ';':
-            state = state_IGNORE;
-            break;
-          default: state = state_RESET;
-        }
-      break;
+        if (c == '8') wait_for_heatup = false; // M108
+        state = state_IGNORE;
+        break;
 
       case state_M11:
-        switch (c) {
-          case '2': // M112
-            state = state_RESET; kill(PSTR(MSG_KILLED));
-            break;
-          case '7': // M117
-          case ';':
-            state = state_IGNORE;
-            break;
-          default: state = state_RESET;
-        }
-      break;
+        if (c == '2') kill(PSTR(MSG_KILLED));  // M112
+        state = state_IGNORE;
+        break;
 
       case state_M4:
-        switch (c) {
-          case '1':
-            state = state_M41;
-            break;
-          case ';':
-            state = state_IGNORE;
-            break;
-          default: state = state_RESET;
-        }
-      break;
+        state = (c == '1') ? state_M41 : state_IGNORE;
+        break;
 
       case state_M41:
-        switch (c) {
-          case '0':
-            state = state_RESET;
-            quickstop_stepper();
-            break;
-          case ';':
-            state = state_IGNORE;
-            break;
-          default: state = state_RESET;
-        }
-      break;
+        if (c == '0') quickstop_stepper();     // M410
+        state = state_IGNORE;
+        break;
 
       case state_IGNORE:
         if (c == '\n') state = state_RESET;
-      break;
+        break;
 
       default:
         state = state_RESET;
