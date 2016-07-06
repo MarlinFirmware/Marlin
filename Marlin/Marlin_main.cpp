@@ -2916,11 +2916,11 @@ inline void gcode_G28() {
 
     #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
 
-      // Raise Z before homing any other axes and z is not already high enough (never lower z)
-      float z_dest = (current_position[Z_AXIS] += MIN_Z_HEIGHT_FOR_HOMING);
+      // Raise Z before homing, if specified
+      destination[Z_AXIS] = (current_position[Z_AXIS] += MIN_Z_HEIGHT_FOR_HOMING);
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOPAIR("Raise Z (before homing) to ", z_dest);
+          SERIAL_ECHOPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
           SERIAL_EOL;
         }
       #endif
@@ -2928,9 +2928,9 @@ inline void gcode_G28() {
       feedrate = homing_feedrate[Z_AXIS];
 
       #if HAS_BED_PROBE
-        do_blocking_move_to_z(z_dest);
+        do_blocking_move_to_z(destination[Z_AXIS]);
       #else
-        line_to_z(z_dest);
+        line_to_z(destination[Z_AXIS]);
         stepper.synchronize();
       #endif
 
