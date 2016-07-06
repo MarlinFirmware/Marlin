@@ -50,13 +50,12 @@ Temperature thermalManager;
 
 // public:
 
-int Temperature::current_temperature_raw[HOTENDS] = { 0 };
-float Temperature::current_temperature[HOTENDS] = { 0.0 };
-int Temperature::target_temperature[HOTENDS] = { 0 };
-
-int Temperature::current_temperature_bed_raw = 0;
-float Temperature::current_temperature_bed = 0.0;
-int Temperature::target_temperature_bed = 0;
+float Temperature::current_temperature[HOTENDS] = { 0.0 },
+      Temperature::current_temperature_bed = 0.0;
+int   Temperature::current_temperature_raw[HOTENDS] = { 0 },
+      Temperature::target_temperature[HOTENDS] = { 0 },
+      Temperature::current_temperature_bed_raw = 0,
+      Temperature::target_temperature_bed = 0;
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   float Temperature::redundant_temperature = 0.0;
@@ -121,11 +120,11 @@ unsigned char Temperature::soft_pwm_bed;
 volatile bool Temperature::temp_meas_ready = false;
 
 #if ENABLED(PIDTEMP)
-  float Temperature::temp_iState[HOTENDS] = { 0 };
-  float Temperature::temp_dState[HOTENDS] = { 0 };
-  float Temperature::pTerm[HOTENDS];
-  float Temperature::iTerm[HOTENDS];
-  float Temperature::dTerm[HOTENDS];
+  float Temperature::temp_iState[HOTENDS] = { 0 },
+        Temperature::temp_dState[HOTENDS] = { 0 },
+        Temperature::pTerm[HOTENDS],
+        Temperature::iTerm[HOTENDS],
+        Temperature::dTerm[HOTENDS];
 
   #if ENABLED(PID_ADD_EXTRUSION_RATE)
     float Temperature::cTerm[HOTENDS];
@@ -134,21 +133,21 @@ volatile bool Temperature::temp_meas_ready = false;
     int Temperature::lpq_ptr = 0;
   #endif
 
-  float Temperature::pid_error[HOTENDS];
-  float Temperature::temp_iState_min[HOTENDS];
-  float Temperature::temp_iState_max[HOTENDS];
+  float Temperature::pid_error[HOTENDS],
+        Temperature::temp_iState_min[HOTENDS],
+        Temperature::temp_iState_max[HOTENDS];
   bool Temperature::pid_reset[HOTENDS];
 #endif
 
 #if ENABLED(PIDTEMPBED)
-  float Temperature::temp_iState_bed = { 0 };
-  float Temperature::temp_dState_bed = { 0 };
-  float Temperature::pTerm_bed;
-  float Temperature::iTerm_bed;
-  float Temperature::dTerm_bed;
-  float Temperature::pid_error_bed;
-  float Temperature::temp_iState_min_bed;
-  float Temperature::temp_iState_max_bed;
+  float Temperature::temp_iState_bed = { 0 },
+        Temperature::temp_dState_bed = { 0 },
+        Temperature::pTerm_bed,
+        Temperature::iTerm_bed,
+        Temperature::dTerm_bed,
+        Temperature::pid_error_bed,
+        Temperature::temp_iState_min_bed,
+        Temperature::temp_iState_max_bed;
 #else
   millis_t Temperature::next_bed_check_ms;
 #endif
@@ -157,10 +156,10 @@ unsigned long Temperature::raw_temp_value[4] = { 0 };
 unsigned long Temperature::raw_temp_bed_value = 0;
 
 // Init min and max temp with extreme values to prevent false errors during startup
-int Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP);
-int Temperature::maxttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP);
-int Temperature::minttemp[HOTENDS] = { 0 };
-int Temperature::maxttemp[HOTENDS] = ARRAY_BY_HOTENDS1(16383);
+int Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP),
+    Temperature::maxttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP),
+    Temperature::minttemp[HOTENDS] = { 0 },
+    Temperature::maxttemp[HOTENDS] = ARRAY_BY_HOTENDS1(16383);
 
 #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
   int Temperature::consecutive_low_temperature_error[HOTENDS] = { 0 };
