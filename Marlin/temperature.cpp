@@ -107,6 +107,7 @@ unsigned char Temperature::soft_pwm_bed;
 #endif
 
 #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+  bool Temperature::allow_cold_extrude = false;
   float Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 

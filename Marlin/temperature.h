@@ -121,12 +121,13 @@ class Temperature {
     #endif
 
     #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+      static bool allow_cold_extrude;
       static float extrude_min_temp;
       static bool tooColdToExtrude(uint8_t e) {
         #if HOTENDS == 1
           UNUSED(e);
         #endif
-        return degHotend(HOTEND_INDEX) < extrude_min_temp;
+        return allow_cold_extrude ? false : degHotend(HOTEND_INDEX) < extrude_min_temp;
       }
     #else
       static bool tooColdToExtrude(uint8_t e) { UNUSED(e); return false; }
