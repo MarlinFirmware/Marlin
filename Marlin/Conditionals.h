@@ -753,6 +753,10 @@
 
   #define HAS_BED_PROBE (PROBE_SELECTED && PROBE_PIN_CONFIGURED)
 
+  #if ENABLED(Z_PROBE_ALLEN_KEY)
+    #define PROBE_IS_TRIGGERED_WHEN_STOWED_TEST
+  #endif
+
   /**
    * Bed Probe dependencies
    */

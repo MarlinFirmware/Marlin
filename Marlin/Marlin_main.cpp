@@ -1651,7 +1651,7 @@ static void clean_up_after_endstop_or_probe_move() {
    *  Plan a move to (X, Y, Z) and set the current_position
    *  The final current_position may not be the one that was requested
    */
-  static void do_blocking_move_to(float x, float y, float z) {
+  static void do_blocking_move_to(float x, float y, float z, float feed_rate = 0.0) {
     float old_feedrate = feedrate;
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1660,7 +1660,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     #if ENABLED(DELTA)
 
-      feedrate = XY_PROBE_FEEDRATE;
+      feedrate = (feed_rate != 0.0) ? feed_rate : XY_PROBE_FEEDRATE;
 
       destination[X_AXIS] = x;
       destination[Y_AXIS] = y;
@@ -1675,19 +1675,19 @@ static void clean_up_after_endstop_or_probe_move() {
 
       // If Z needs to raise, do it before moving XY
       if (current_position[Z_AXIS] < z) {
-        feedrate = homing_feedrate[Z_AXIS];
+        feedrate = (feed_rate != 0.0) ? feed_rate : homing_feedrate[Z_AXIS];
         current_position[Z_AXIS] = z;
         line_to_current_position();
       }
 
-      feedrate = XY_PROBE_FEEDRATE;
+      feedrate = (feed_rate != 0.0) ? feed_rate : XY_PROBE_FEEDRATE;
       current_position[X_AXIS] = x;
       current_position[Y_AXIS] = y;
       line_to_current_position();
 
       // If Z needs to lower, do it after moving XY
       if (current_position[Z_AXIS] > z) {
-        feedrate = homing_feedrate[Z_AXIS];
+        feedrate = (feed_rate != 0.0) ? feed_rate : homing_feedrate[Z_AXIS];
         current_position[Z_AXIS] = z;
         line_to_current_position();
       }
@@ -1699,12 +1699,12 @@ static void clean_up_after_endstop_or_probe_move() {
     feedrate = old_feedrate;
   }
 
-  inline void do_blocking_move_to_x(float x) {
-    do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS]);
+  inline void do_blocking_move_to_x(float x, float feed_rate = 0.0) {
+    do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], feed_rate);
   }
 
-  inline void do_blocking_move_to_z(float z) {
-    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z);
+  inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
+    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, feed_rate);
   }
 
   /**
@@ -1735,7 +1735,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif //HAS_BED_PROBE
 
-#if ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE
+#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE
   static bool axis_unhomed_error(const bool x, const bool y, const bool z) {
     const bool xx = x && !axis_homed[X_AXIS],
                yy = y && !axis_homed[Y_AXIS],
@@ -1783,215 +1783,244 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    if (axis_unhomed_error(true, false, false)) return;
-
-    float oldXpos = current_position[X_AXIS]; // save x position
-
     // Dock sled a bit closer to ensure proper capturing
     do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
     digitalWrite(SLED_PIN, !stow); // switch solenoid
 
-    do_blocking_move_to_x(oldXpos); // return to position before docking
-
   }
 
 #endif // Z_PROBE_SLED
+#if ENABLED(Z_PROBE_ALLEN_KEY)
+  void run_deploy_moves_script() {
+    #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_1_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_X
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_1_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_Y
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_Z
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_1_X, Z_PROBE_ALLEN_KEY_DEPLOY_1_Y, Z_PROBE_ALLEN_KEY_DEPLOY_1_Z, Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_X
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_2_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_Y
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_Z
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_2_X, Z_PROBE_ALLEN_KEY_DEPLOY_2_Y, Z_PROBE_ALLEN_KEY_DEPLOY_2_Z, Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_X
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_3_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_Y
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_Z
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_3_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_3_X, Z_PROBE_ALLEN_KEY_DEPLOY_3_Y, Z_PROBE_ALLEN_KEY_DEPLOY_3_Z, Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_X
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_4_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_Y
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_4_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_Z
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_4_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_4_X, Z_PROBE_ALLEN_KEY_DEPLOY_4_Y, Z_PROBE_ALLEN_KEY_DEPLOY_4_Z, Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_X
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_5_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_Y
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_5_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_Z
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_5_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_5_X, Z_PROBE_ALLEN_KEY_DEPLOY_5_Y, Z_PROBE_ALLEN_KEY_DEPLOY_5_Z, Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE);
+    #endif
+  }
+  void run_stow_moves_script() {
+    #if defined(Z_PROBE_ALLEN_KEY_STOW_1_X) || defined(Z_PROBE_ALLEN_KEY_STOW_1_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_1_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_1_X
+        #define Z_PROBE_ALLEN_KEY_STOW_1_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_1_Y
+        #define Z_PROBE_ALLEN_KEY_STOW_1_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_1_Z
+        #define Z_PROBE_ALLEN_KEY_STOW_1_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_1_X, Z_PROBE_ALLEN_KEY_STOW_1_Y, Z_PROBE_ALLEN_KEY_STOW_1_Z, Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_STOW_2_X) || defined(Z_PROBE_ALLEN_KEY_STOW_2_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_2_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_2_X
+        #define Z_PROBE_ALLEN_KEY_STOW_2_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_2_Y
+        #define Z_PROBE_ALLEN_KEY_STOW_2_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_2_Z
+        #define Z_PROBE_ALLEN_KEY_STOW_2_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_2_X, Z_PROBE_ALLEN_KEY_STOW_2_Y, Z_PROBE_ALLEN_KEY_STOW_2_Z, Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_STOW_3_X) || defined(Z_PROBE_ALLEN_KEY_STOW_3_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_3_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_3_X
+        #define Z_PROBE_ALLEN_KEY_STOW_3_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_3_Y
+        #define Z_PROBE_ALLEN_KEY_STOW_3_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_3_Z
+        #define Z_PROBE_ALLEN_KEY_STOW_3_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_3_X, Z_PROBE_ALLEN_KEY_STOW_3_Y, Z_PROBE_ALLEN_KEY_STOW_3_Z, Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_STOW_4_X) || defined(Z_PROBE_ALLEN_KEY_STOW_4_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_4_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_4_X
+        #define Z_PROBE_ALLEN_KEY_STOW_4_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_4_Y
+        #define Z_PROBE_ALLEN_KEY_STOW_4_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_4_Z
+        #define Z_PROBE_ALLEN_KEY_STOW_4_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_4_X, Z_PROBE_ALLEN_KEY_STOW_4_Y, Z_PROBE_ALLEN_KEY_STOW_4_Z, Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE);
+    #endif
+    #if defined(Z_PROBE_ALLEN_KEY_STOW_5_X) || defined(Z_PROBE_ALLEN_KEY_STOW_5_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_5_Z)
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_5_X
+        #define Z_PROBE_ALLEN_KEY_STOW_5_X current_position[X_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_5_Y
+        #define Z_PROBE_ALLEN_KEY_STOW_5_Y current_position[Y_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_5_Z
+        #define Z_PROBE_ALLEN_KEY_STOW_5_Z current_position[Z_AXIS]
+      #endif
+      #ifndef Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE
+        #define Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE 0.0
+      #endif
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_5_X, Z_PROBE_ALLEN_KEY_STOW_5_Y, Z_PROBE_ALLEN_KEY_STOW_5_Z, Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE);
+    #endif
+  }
+#endif
 
 #if HAS_BED_PROBE
 
-  static void deploy_z_probe() {
+ // TRIGGERED_WHEN_STOWED_TEST can easily be extended to servo probes, ... if needed.
+  #if ENABLED(PROBE_IS_TRIGGERED_WHEN_STOWED_TEST)
+    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+      #define _TRIGGERED_WHEN_STOWED_TEST (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
+    #else
+      #define _TRIGGERED_WHEN_STOWED_TEST (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
+    #endif
+  #endif
+
+  #define DEPLOY_PROBE() set_probe_deployed( true )
+  #define STOW_PROBE() set_probe_deployed( false )
+
+  // returns false for ok and true for failure
+  static bool set_probe_deployed(bool deploy) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("deploy_z_probe", current_position);
+      if (DEBUGGING(LEVELING)) {
+        DEBUG_POS("set_probe_deployed", current_position);
+        SERIAL_ECHOPAIR("deploy: ", deploy);
+      }
     #endif
 
-    if (endstops.z_probe_enabled) return;
+    if (endstops.z_probe_enabled == deploy) return false;
 
     // Make room for probe
     do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
 
     #if ENABLED(Z_PROBE_SLED)
-
-      dock_sled(false);
-
-    #elif HAS_Z_SERVO_ENDSTOP
-
-      // Engage Z Servo endstop if enabled
-      DEPLOY_Z_SERVO();
-
+      if (axis_unhomed_error(true, false, false)) { stop(); return true; }
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
-      float old_feedrate = feedrate;
+      if (axis_unhomed_error(true, true,  true )) { stop(); return true; }
+    #endif
 
-      feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
+    float oldXpos = current_position[X_AXIS]; // save x position
+    float oldYpos = current_position[Y_AXIS]; // save y position
 
+    #ifdef _TRIGGERED_WHEN_STOWED_TEST
       // If endstop is already false, the Z probe is deployed
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
-        if (z_probe_endstop)
-      #else
-        bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-        if (z_min_endstop)
-      #endif
-        {
-          // Move to the start position to initiate deployment
-          destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_X;
-          destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_Y;
-          destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_1_Z;
-          prepare_move_to_destination(); // this will also set_current_to_destination
-
-          // Move to engage deployment
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE)
-            feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_X != Z_PROBE_ALLEN_KEY_DEPLOY_1_X)
-            destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_X;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_Y != Z_PROBE_ALLEN_KEY_DEPLOY_1_Y)
-            destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_Y;
-          if (Z_PROBE_ALLEN_KEY_DEPLOY_2_Z != Z_PROBE_ALLEN_KEY_DEPLOY_1_Z)
-            destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_2_Z;
-          prepare_move_to_destination();
-
-          #ifdef Z_PROBE_ALLEN_KEY_DEPLOY_3_X
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
-              feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
-
-            // Move to trigger deployment
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE != Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE)
-              feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE;
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_X != Z_PROBE_ALLEN_KEY_DEPLOY_2_X)
-              destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_X;
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Y != Z_PROBE_ALLEN_KEY_DEPLOY_2_Y)
-              destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Y;
-            if (Z_PROBE_ALLEN_KEY_DEPLOY_3_Z != Z_PROBE_ALLEN_KEY_DEPLOY_2_Z)
-              destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_3_Z;
-
-            prepare_move_to_destination();
-          #endif
-        }
-
-      // Partially Home X,Y for safety
-      destination[X_AXIS] *= 0.75;
-      destination[Y_AXIS] *= 0.75;
-      prepare_move_to_destination(); // this will also set_current_to_destination
-
-      feedrate = old_feedrate;
-
-      stepper.synchronize();
-
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
-        if (z_probe_endstop)
-      #else
-        z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-        if (z_min_endstop)
-      #endif
-        {
-          if (IsRunning()) {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
-            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
-          }
-          stop();
-        }
-
-    #else
-
-      // Nothing to be done. Just enable_z_probe below...
-
+      if (_TRIGGERED_WHEN_STOWED_TEST == deploy) { // closed after the probe specific actions.
+                                                   // Would a goto be less ugly?
+      //while (!_TRIGGERED_WHEN_STOWED_TEST) { idle(); // would offer the opportunity
+      // for a triggered when stowed manual probe.
     #endif
-
-    endstops.enable_z_probe();
-  }
-
-  static void stow_z_probe() {
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("stow_z_probe", current_position);
-    #endif
-
-    if (!endstops.z_probe_enabled) return;
-
-    // Make more room for the servo
-    do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
 
     #if ENABLED(Z_PROBE_SLED)
-
-      dock_sled(true);
-
+      dock_sled(!deploy);
     #elif HAS_Z_SERVO_ENDSTOP
-
-      // Change the Z servo angle
-      STOW_Z_SERVO();
-
+      servo[Z_ENDSTOP_SERVO_NR].move(z_servo_angle[((deploy) ? 0 : 1)]);
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
-
-      float old_feedrate = feedrate;
-
-      // Move up for safety
-      feedrate = Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE;
-
-      #if _Z_RAISE_PROBE_DEPLOY_STOW > 0
-        destination[Z_AXIS] = current_position[Z_AXIS] + _Z_RAISE_PROBE_DEPLOY_STOW;
-        prepare_move_to_destination_raw(); // this will also set_current_to_destination
-      #endif
-
-      // Move to the start position to initiate retraction
-      destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_X;
-      destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_Y;
-      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_1_Z;
-      prepare_move_to_destination();
-
-      // Move the nozzle down to push the Z probe into retracted position
-      if (Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE != Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE)
-        feedrate = Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE;
-      if (Z_PROBE_ALLEN_KEY_STOW_2_X != Z_PROBE_ALLEN_KEY_STOW_1_X)
-        destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_X;
-      if (Z_PROBE_ALLEN_KEY_STOW_2_Y != Z_PROBE_ALLEN_KEY_STOW_1_Y)
-        destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_Y;
-      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_2_Z;
-      prepare_move_to_destination();
-
-      // Move up for safety
-      if (Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE != Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE)
-        feedrate = Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE;
-      if (Z_PROBE_ALLEN_KEY_STOW_3_X != Z_PROBE_ALLEN_KEY_STOW_2_X)
-        destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_X;
-      if (Z_PROBE_ALLEN_KEY_STOW_3_Y != Z_PROBE_ALLEN_KEY_STOW_2_Y)
-        destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_Y;
-      destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_3_Z;
-      prepare_move_to_destination();
-
-      // Home XY for safety
-      feedrate = homing_feedrate[X_AXIS] / 2;
-      destination[X_AXIS] = 0;
-      destination[Y_AXIS] = 0;
-      prepare_move_to_destination(); // this will also set_current_to_destination
-
-      feedrate = old_feedrate;
-
-      stepper.synchronize();
-
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
-        if (!z_probe_endstop)
-      #else
-        bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-        if (!z_min_endstop)
-      #endif
-        {
-          if (IsRunning()) {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
-            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
-          }
-          stop();
-        }
-
-    #else
-
-      // Nothing to do here. Just clear endstops.z_probe_enabled
-
+      if (!deploy) run_stow_moves_script();
+      else run_deploy_moves_script();
+     #else
+      // Nothing to be done. Just enable_z_probe below...
     #endif
 
-    endstops.enable_z_probe(false);
+    #ifdef _TRIGGERED_WHEN_STOWED_TEST
+      }; // opened before the probe specific actions
+
+      if (_TRIGGERED_WHEN_STOWED_TEST == deploy) {
+        if (IsRunning()) {
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("Z-Probe failed");
+          LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+        }
+        stop();
+        return true;
+      }
+    #endif
+
+    do_blocking_move_to(oldXpos, oldYpos, current_position[Z_AXIS]); // return to position before deploy
+    endstops.enable_z_probe( deploy );
+    return false;
   }
 
   // Do a single Z probe and return with current_position[Z_AXIS]
@@ -2081,8 +2110,8 @@ static void clean_up_after_endstop_or_probe_move() {
     return current_position[Z_AXIS];
   }
 
-  inline void do_blocking_move_to_xy(float x, float y) {
-    do_blocking_move_to(x, y, current_position[Z_AXIS]);
+  inline void do_blocking_move_to_xy(float x, float y, float feed_rate = 0.0) {
+    do_blocking_move_to(x, y, current_position[Z_AXIS], feed_rate);
   }
 
   //
@@ -2124,7 +2153,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
     #endif
-    deploy_z_probe();
+    if (DEPLOY_PROBE()) return NAN;
 
     float measured_z = run_z_probe();
 
@@ -2132,7 +2161,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
       #endif
-      stow_z_probe();
+      if (STOW_PROBE()) return NAN;
     }
     else {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2340,7 +2369,7 @@ static void homeaxis(AxisEnum axis) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
         #endif
-        deploy_z_probe();
+        if (DEPLOY_PROBE()) return;
       }
     #endif
 
@@ -2467,7 +2496,7 @@ static void homeaxis(AxisEnum axis) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
         #endif
-        stow_z_probe();
+        if (STOW_PROBE()) return;
       }
     #endif
 
@@ -3381,12 +3410,7 @@ inline void gcode_G28() {
     }
 
     bool dryrun = code_seen('D');
-
-    #if ENABLED(Z_PROBE_ALLEN_KEY)
-      const bool stow_probe_after_each = false;
-    #else
-      bool stow_probe_after_each = code_seen('E');
-    #endif
+    bool stow_probe_after_each = code_seen('E');
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
@@ -3485,8 +3509,8 @@ inline void gcode_G28() {
 
     setup_for_endstop_or_probe_move();
 
-    // Deploy the probe. Servo will raise if needed.
-    deploy_z_probe();
+    // Deploy the probe. Probe will raise if needed.
+    if (DEPLOY_PROBE()) return;
 
     bed_leveling_in_progress = true;
 
@@ -3591,7 +3615,7 @@ inline void gcode_G28() {
     #endif // !AUTO_BED_LEVELING_GRID
 
     // Raise to _Z_RAISE_PROBE_DEPLOY_STOW. Stow the probe.
-    stow_z_probe();
+    if (STOW_PROBE()) return;
 
     // Restore state after probing
     clean_up_after_endstop_or_probe_move();
@@ -3798,12 +3822,12 @@ inline void gcode_G28() {
     /**
      * G31: Deploy the Z probe
      */
-    inline void gcode_G31() { deploy_z_probe(); }
+    inline void gcode_G31() { DEPLOY_PROBE(); }
 
     /**
      * G32: Stow the Z probe
      */
-    inline void gcode_G32() { stow_z_probe(); }
+    inline void gcode_G32() { STOW_PROBE(); }
 
   #endif // Z_PROBE_SLED
 
@@ -4144,11 +4168,7 @@ inline void gcode_M42() {
     float  X_current = current_position[X_AXIS],
            Y_current = current_position[Y_AXIS];
 
-    #if ENABLED(Z_PROBE_ALLEN_KEY)
-      const bool stow_probe_after_each = false;
-    #else
-      bool stow_probe_after_each = code_seen('E');
-    #endif
+    bool stow_probe_after_each = code_seen('E');
 
     float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : X_current + X_PROBE_OFFSET_FROM_EXTRUDER;
     #if DISABLED(DELTA)
@@ -4315,7 +4335,7 @@ inline void gcode_M42() {
 
     } // End of probe loop
 
-    stow_z_probe();
+    if (STOW_PROBE()) return;
 
     if (verbose_level > 0) {
       SERIAL_PROTOCOLPGM("Mean: ");
@@ -5891,12 +5911,12 @@ inline void gcode_M400() { stepper.synchronize(); }
   /**
    * M401: Engage Z Servo endstop if available
    */
-  inline void gcode_M401() { deploy_z_probe(); }
+  inline void gcode_M401() { DEPLOY_PROBE(); }
 
   /**
    * M402: Retract Z Servo endstop if enabled
    */
-  inline void gcode_M402() { stow_z_probe(); }
+  inline void gcode_M402() { STOW_PROBE(); }
 
 #endif // HAS_BED_PROBE
 
