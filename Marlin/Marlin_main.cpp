@@ -332,7 +332,7 @@ uint8_t active_extruder = 0;
 // Relative Mode. Enable with G91, disable with G90.
 static bool relative_mode = false;
 
-bool cancel_heatup = false;
+bool wait_for_heatup = true;
 
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
@@ -1107,7 +1107,7 @@ inline void get_serial_commands() {
 
       // If command was e-stop process now
       if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
-      if (strcmp(command, "M108") == 0) cancel_heatup = true;
+      if (strcmp(command, "M108") == 0) wait_for_heatup = false;
 
       #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
         last_command_time = ms;
@@ -4540,9 +4540,7 @@ inline void gcode_M105() {
 /**
  * M108: Cancel heatup and wait for the hotend and bed, this G-code is asynchronously handled in the get_serial_commands() parser
  */
-inline void gcode_M108() {
-  cancel_heatup = true;
-}
+inline void gcode_M108() { wait_for_heatup = false; }
 
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
@@ -4602,7 +4600,7 @@ inline void gcode_M109() {
 
   float theTarget = -1.0, old_temp = 9999.0;
   bool wants_to_cool = false;
-  cancel_heatup = false;
+  wait_for_heatup = true;
   millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
   KEEPALIVE_STATE(NOT_BUSY);
@@ -4666,7 +4664,7 @@ inline void gcode_M109() {
       }
     }
 
-  } while (!cancel_heatup && TEMP_CONDITIONS);
+  } while (wait_for_heatup && TEMP_CONDITIONS);
 
   LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
   KEEPALIVE_STATE(IN_HANDLER);
@@ -4696,7 +4694,7 @@ inline void gcode_M109() {
 
     float theTarget = -1.0, old_temp = 9999.0;
     bool wants_to_cool = false;
-    cancel_heatup = false;
+    wait_for_heatup = true;
     millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
     KEEPALIVE_STATE(NOT_BUSY);
@@ -4760,7 +4758,7 @@ inline void gcode_M109() {
         }
       }
 
-    } while (!cancel_heatup && TEMP_BED_CONDITIONS);
+    } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
     LCD_MESSAGEPGM(MSG_BED_DONE);
     KEEPALIVE_STATE(IN_HANDLER);
