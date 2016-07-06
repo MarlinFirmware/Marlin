@@ -1109,7 +1109,7 @@ inline void get_serial_commands() {
         // If command was e-stop process now
         if (strcmp(command, "M108") == 0) wait_for_heatup = false;
         if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
-        if (strcmp(command, "M410") == 0) stepper.quick_stop();
+        if (strcmp(command, "M410") == 0) { quickstop_stepper(); }
       #endif
 
       #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
@@ -4556,12 +4556,7 @@ inline void gcode_M105() {
    * This will stop the carriages mid-move, so most likely they
    * will be out of sync with the stepper position after this.
    */
-  inline void gcode_M410() {
-    stepper.quick_stop();
-    #if DISABLED(DELTA) && DISABLED(SCARA)
-      set_current_position_from_planner();
-    #endif
-  }
+  inline void gcode_M410() { quickstop_stepper(); }
 
 #endif
 
@@ -5990,8 +5985,9 @@ inline void gcode_M400() { stepper.synchronize(); }
 
 #endif // FILAMENT_WIDTH_SENSOR
 
-#if DISABLED(DELTA) && DISABLED(SCARA)
-  void set_current_position_from_planner() {
+void quickstop_stepper() {
+  stepper.quick_stop();
+  #if DISABLED(DELTA) && DISABLED(SCARA)
     stepper.synchronize();
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       vector_3 pos = planner.adjusted_position(); // values directly from steppers...
@@ -6004,8 +6000,8 @@ inline void gcode_M400() { stepper.synchronize(); }
       current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
     #endif
     sync_plan_position();                       // ...re-apply to planner position
-  }
-#endif
+  #endif
+}
 
 #if ENABLED(MESH_BED_LEVELING)
 
