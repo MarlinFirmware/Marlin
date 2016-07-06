@@ -293,6 +293,21 @@
     //#endif
   #endif
 
+  /**
+   * Make sure Z raise values are set
+   */
+  #if defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
+    #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_RAISE_PROBE_DEPLOY_STOW instead."
+  #elif !defined(Z_RAISE_PROBE_DEPLOY_STOW)
+    #error "You must set Z_RAISE_PROBE_DEPLOY_STOW in your configuration."
+  #elif !defined(Z_RAISE_BETWEEN_PROBINGS)
+    #error "You must set Z_RAISE_BETWEEN_PROBINGS in your configuration."
+  #elif Z_RAISE_PROBE_DEPLOY_STOW < 1
+    #error "Probes need Z_RAISE_PROBE_DEPLOY_STOW >= 1."
+  #elif Z_RAISE_BETWEEN_PROBINGS < 1
+    #error "Probes need Z_RAISE_BETWEEN_PROBINGS >= 1."
+  #endif
+
 #else
 
   /**
