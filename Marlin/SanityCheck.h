@@ -425,14 +425,11 @@
 #endif
 
 /**
- * Allen Key Z probe requires Delta and Auto Bed Leveling grid
+ * Allen Key
+ * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed z-axis.
  */
-#if ENABLED(Z_PROBE_ALLEN_KEY)
-  #if !ENABLED(DELTA)
-    #error "Z_PROBE_ALLEN_KEY is only usable with DELTA."
-  #elif ENABLED(MESH_BED_LEVELING) || (ENABLED(AUTO_BED_LEVELING_FEATURE) && !ENABLED(AUTO_BED_LEVELING_GRID))
-    #error "Z_PROBE_ALLEN_KEY can only use AUTO_BED_LEVELING_GRID leveling."
-  #endif
+#if ENABLED(Z_PROBE_ALLEN_KEY) && (Z_HOME_DIR < 0) && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #error "You can't home to a z min endstop with a Z_PROBE_ALLEN_KEY"
 #endif
 
 /**
