@@ -1955,6 +1955,15 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #if HAS_BED_PROBE
 
+ // TRIGGERED_WHEN_STOWED_TEST can easily be extended to servo probes, ... if needed.
+  #if ENABLED(PROBE_IS_TRIGGERED_WHEN_STOWED_TEST)
+    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+      #define _TRIGGERED_WHEN_STOWED_TEST (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING)
+    #else
+      #define _TRIGGERED_WHEN_STOWED_TEST (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
+    #endif
+  #endif
+
   static void deploy_z_probe() {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1966,6 +1975,14 @@ static void clean_up_after_endstop_or_probe_move() {
     // Make room for probe
     do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
 
+    #ifdef _TRIGGERED_WHEN_STOWED_TEST
+      // If endstop is already false, the Z probe is deployed
+      if (_TRIGGERED_WHEN_STOWED_TEST) { // closed after the probe specific actions.
+                                        // Would a goto be less ugly?
+      //while (!_TRIGGERED_WHEN_STOWED_TEST) { idle(); // would offer the opportunity
+      // for a triggered when stowed manual probe.
+    #endif
+
     #if ENABLED(Z_PROBE_SLED)
 
       dock_sled(false);
@@ -1976,42 +1993,26 @@ static void clean_up_after_endstop_or_probe_move() {
       DEPLOY_Z_SERVO();
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
-      float old_feedrate = feedrate;
 
-      feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
-
-      // If endstop is already false, the Z probe is deployed
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
-        if (z_probe_endstop)
-      #else
-        bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-        if (z_min_endstop)
-      #endif
-        {
-          run_deploy_moves_script();
-        }
-
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
-        if (z_probe_endstop)
-      #else
-        z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-        if (z_min_endstop)
-      #endif
-        {
-          if (IsRunning()) {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
-            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
-          }
-          stop();
-        }
+      run_deploy_moves_script();
 
     #else
 
       // Nothing to be done. Just enable_z_probe below...
 
+    #endif
+
+    #ifdef _TRIGGERED_WHEN_STOWED_TEST
+      }; // opened before the probe specific actions
+
+      if (_TRIGGERED_WHEN_STOWED_TEST) {
+        if (IsRunning()) {
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("Z-Probe failed");
+          LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+        }
+        stop();
+      }
     #endif
 
     endstops.enable_z_probe();
@@ -2027,7 +2028,14 @@ static void clean_up_after_endstop_or_probe_move() {
     // Make more room for the servo
     do_probe_raise(_Z_RAISE_PROBE_DEPLOY_STOW);
 
-    #if ENABLED(Z_PROBE_SLED)
+    #ifdef _TRIGGERED_WHEN_STOWED_TEST
+      // If endstop is already false, the Z probe is deployed
+      if (!_TRIGGERED_WHEN_STOWED_TEST) { // closed after the probe specific actions.
+                                        // Would a goto be less ugly?
+      //while (!_TRIGGERED_WHEN_STOWED_TEST) { idle(); // would offer the opportunity
+      // for a triggered when stowed manual probe.
+
+      #if ENABLED(Z_PROBE_SLED)
 
       dock_sled(true);
 
@@ -2040,26 +2048,23 @@ static void clean_up_after_endstop_or_probe_move() {
 
       run_stow_moves_script();
 
-      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-        bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
-        if (!z_probe_endstop)
-      #else
-        bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-        if (!z_min_endstop)
-      #endif
-        {
-          if (IsRunning()) {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
-            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
-          }
-          stop();
-        }
-
     #else
 
       // Nothing to do here. Just clear endstops.z_probe_enabled
 
+    #endif
+
+    #ifdef _TRIGGERED_WHEN_STOWED_TEST
+      }; // opened before the probe specific actions
+      if (!_TRIGGERED_WHEN_STOWED_TEST) {
+        if (IsRunning()) {
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("Z-Probe failed!");
+          LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+        }
+        stop();
+        return true;
+      }
     #endif
 
     endstops.enable_z_probe(false);
