@@ -329,15 +329,16 @@ MarlinSerial customizedSerial;
       state_M,
       state_M1,
       state_M10,
+      state_M108,
       state_M11,
+      state_M112,
       state_M4,
       state_M41,
+      state_M410,
       state_IGNORE // to '\n'
     };
 
     static e_parser_state state = state_RESET;
-
-    if (c == '\n') state = state_IGNORE;
 
     switch (state) {
       case state_RESET:
@@ -378,13 +379,11 @@ MarlinSerial customizedSerial;
         break;
 
       case state_M10:
-        if (c == '8') wait_for_heatup = false; // M108
-        state = state_IGNORE;
+        state = (c == '8') ? state_M108 : state_IGNORE;
         break;
 
       case state_M11:
-        if (c == '2') kill(PSTR(MSG_KILLED));  // M112
-        state = state_IGNORE;
+        state = (c == '2') ? state_M112 : state_IGNORE;
         break;
 
       case state_M4:
@@ -392,8 +391,7 @@ MarlinSerial customizedSerial;
         break;
 
       case state_M41:
-        if (c == '0') quickstop_stepper();     // M410
-        state = state_IGNORE;
+        state = (c == '0') ? state_M410 : state_IGNORE;
         break;
 
       case state_IGNORE:
@@ -401,7 +399,20 @@ MarlinSerial customizedSerial;
         break;
 
       default:
-        state = state_RESET;
+        if (c == '\n') {
+          switch (state) {
+            case state_M108:
+              wait_for_heatup = false;
+              break;
+            case state_M112:
+              kill(PSTR(MSG_KILLED));
+              break;
+            case state_M410:
+              quickstop_stepper();
+              break;
+          }
+          state = state_RESET;
+        }
     }
   }
 #endif
