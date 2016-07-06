@@ -4543,6 +4543,26 @@ inline void gcode_M105() {
    */
   inline void gcode_M108() { wait_for_heatup = false; }
 
+
+  /**
+   * M112: Emergency Stop
+   */
+  inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
+
+
+  /**
+   * M410: Quickstop - Abort all planned moves
+   *
+   * This will stop the carriages mid-move, so most likely they
+   * will be out of sync with the stepper position after this.
+   */
+  inline void gcode_M410() {
+    stepper.quick_stop();
+    #if DISABLED(DELTA) && DISABLED(SCARA)
+      set_current_position_from_planner();
+    #endif
+  }
+
 #endif
 
 /**
@@ -4814,13 +4834,6 @@ inline void gcode_M111() {
   }
   SERIAL_EOL;
 }
-
-/**
- * M112: Emergency Stop
- */
-#if DISABLED(EMERGENCY_PARSER)
-  inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
-#endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 
@@ -5994,22 +6007,6 @@ inline void gcode_M400() { stepper.synchronize(); }
   }
 #endif
 
-/**
- * M410: Quickstop - Abort all planned moves
- *
- * This will stop the carriages mid-move, so most likely they
- * will be out of sync with the stepper position after this.
- */
-
-#if DISABLED(EMERGENCY_PARSER)
-  inline void gcode_M410() {
-    stepper.quick_stop();
-    #if DISABLED(DELTA) && DISABLED(SCARA)
-      set_current_position_from_planner();
-    #endif
-  }
-#endif
-
 #if ENABLED(MESH_BED_LEVELING)
 
   /**
@@ -6965,9 +6962,19 @@ void process_next_command() {
         break;
 
       #if DISABLED(EMERGENCY_PARSER)
+
+        case 108: // M108: Cancel Waiting
+          gcode_M108();
+          break;
+
         case 112: // M112: Emergency Stop
           gcode_M112();
           break;
+
+        case 410: // M410 quickstop - Abort all the planned moves.
+          gcode_M410();
+          break;
+
       #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -6986,12 +6993,6 @@ void process_next_command() {
         gcode_M105();
         KEEPALIVE_STATE(NOT_BUSY);
         return; // "ok" already printed
-
-      #if DISABLED(EMERGENCY_PARSER)
-        case 108:
-          gcode_M108();
-          break;
-      #endif
 
       case 109: // M109: Wait for temperature
         gcode_M109();
@@ -7275,12 +7276,6 @@ void process_next_command() {
           gcode_M407();
           break;
       #endif // ENABLED(FILAMENT_WIDTH_SENSOR)
-
-      #if DISABLED(EMERGENCY_PARSER)
-        case 410: // M410 quickstop - Abort all the planned moves.
-          gcode_M410();
-          break;
-      #endif
 
       #if ENABLED(MESH_BED_LEVELING)
         case 420: // M420 Enable/Disable Mesh Bed Leveling
