@@ -1728,9 +1728,8 @@ static void clean_up_after_endstop_or_probe_move() {
     if ((Z_HOME_DIR) < 0 && zprobe_zoffset < 0)
       z_dest -= zprobe_zoffset;
 
-    if (z_dest > current_position[Z_AXIS]) {
+    if (z_dest > current_position[Z_AXIS])
       do_blocking_move_to_z(z_dest);
-    }
   }
 
 #endif //HAS_BED_PROBE
@@ -2860,6 +2859,8 @@ inline void gcode_G28() {
 
     home_all_axis = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
 
+    set_destination_to_current();
+
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
       if (home_all_axis || homeZ) {
@@ -2871,34 +2872,25 @@ inline void gcode_G28() {
 
     #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
 
-      #if HAS_BED_PROBE
-        do_probe_raise(MIN_Z_HEIGHT_FOR_HOMING);
-        destination[Z_AXIS] = current_position[Z_AXIS];
-      #else
-        // Raise Z before homing any other axes and z is not already high enough (never lower z)
-        if (current_position[Z_AXIS] <= MIN_Z_HEIGHT_FOR_HOMING) {
-          destination[Z_AXIS] = MIN_Z_HEIGHT_FOR_HOMING;
-          feedrate = planner.max_feedrate[Z_AXIS] * 60;  // feedrate (mm/m) = max_feedrate (mm/s)
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR("Raise Z (before homing) to ", (MIN_Z_HEIGHT_FOR_HOMING));
-              SERIAL_EOL;
-              DEBUG_POS("> (home_all_axis || homeZ)", current_position);
-              DEBUG_POS("> (home_all_axis || homeZ)", destination);
-            }
-          #endif
-          line_to_destination();
-          stepper.synchronize();
-
-          /**
-           * Update the current Z position even if it currently not real from
-           * Z-home otherwise each call to line_to_destination() will want to
-           * move Z-axis by MIN_Z_HEIGHT_FOR_HOMING.
-           */
-          current_position[Z_AXIS] = destination[Z_AXIS];
+      // Raise Z before homing any other axes and z is not already high enough (never lower z)
+      float z_dest = (current_position[Z_AXIS] += MIN_Z_HEIGHT_FOR_HOMING);
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOPAIR("Raise Z (before homing) to ", z_dest);
+          SERIAL_EOL;
         }
       #endif
-    #endif
+
+      feedrate = homing_feedrate[Z_AXIS];
+
+      #if HAS_BED_PROBE
+        do_blocking_move_to_z(z_dest);
+      #else
+        line_to_z(z_dest);
+        stepper.synchronize();
+      #endif
+
+    #endif // MIN_Z_HEIGHT_FOR_HOMING
 
     #if ENABLED(QUICK_HOME)
 
