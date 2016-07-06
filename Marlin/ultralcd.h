@@ -95,7 +95,7 @@
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
 
-  extern bool cancel_heatup;
+  extern bool wait_for_heatup;
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     extern millis_t previous_lcd_status_ms;

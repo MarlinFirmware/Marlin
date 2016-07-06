@@ -559,7 +559,7 @@ static void lcd_status_screen() {
       stepper.quick_stop();
       print_job_timer.stop();
       thermalManager.autotempShutdown();
-      cancel_heatup = true;
+      wait_for_heatup = false;
       lcd_setstatus(MSG_PRINT_ABORTED, true);
       #if DISABLED(DELTA) && DISABLED(SCARA)
         set_current_position_from_planner();
