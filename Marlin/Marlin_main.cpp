@@ -573,19 +573,19 @@ void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); 
 static void report_current_position();
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
-  void print_xyz(const char* prefix, const float x, const float y, const float z) {
-    SERIAL_ECHO(prefix);
-    SERIAL_ECHOPAIR(": (", x);
+  void print_xyz(const char* suffix, const float x, const float y, const float z) {
+    SERIAL_ECHOPAIR("(", x);
     SERIAL_ECHOPAIR(", ", y);
     SERIAL_ECHOPAIR(", ", z);
-    SERIAL_ECHOLNPGM(")");
+    SERIAL_ECHOLNPGM(") ");
+    SERIAL_ECHO(suffix);
   }
-  void print_xyz(const char* prefix, const float xyz[]) {
-    print_xyz(prefix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
+  void print_xyz(const char* suffix, const float xyz[]) {
+    print_xyz(suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
   }
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    void print_xyz(const char* prefix, const vector_3 &xyz) {
-      print_xyz(prefix, xyz.x, xyz.y, xyz.z);
+    void print_xyz(const char* suffix, const vector_3 &xyz) {
+      print_xyz(suffix, xyz.x, xyz.y, xyz.z);
     }
   #endif
   #define DEBUG_POS(PREFIX,VAR) do{ SERIAL_ECHOPGM(PREFIX); print_xyz(" > " STRINGIFY(VAR), VAR); }while(0)
