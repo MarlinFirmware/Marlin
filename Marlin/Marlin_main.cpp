@@ -2914,41 +2914,43 @@ inline void gcode_G28() {
 
     #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
 
-      // Raise Z before homing, if specified
-      destination[Z_AXIS] = (current_position[Z_AXIS] += MIN_Z_HEIGHT_FOR_HOMING);
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
-          SERIAL_EOL;
+      // Raise Z before homing X or Y, if specified
+      if (home_all_axis || homeX || homeY) {
+        float z_dest = home_offset[Z_AXIS] + MIN_Z_HEIGHT_FOR_HOMING;
+        if (z_dest > current_position[Z_AXIS]) {
+
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_ECHOPAIR("Raise Z (before homing) to ", z_dest);
+              SERIAL_EOL;
+            }
+          #endif
+
+          feedrate = homing_feedrate[Z_AXIS];
+
+          #if HAS_BED_PROBE
+            do_blocking_move_to_z(z_dest);
+          #else
+            line_to_z(z_dest);
+            stepper.synchronize();
+          #endif
+
+          destination[Z_AXIS] = current_position[Z_AXIS] = z_dest;
         }
-      #endif
-
-      feedrate = homing_feedrate[Z_AXIS];
-
-      #if HAS_BED_PROBE
-        do_blocking_move_to_z(destination[Z_AXIS]);
-      #else
-        line_to_z(destination[Z_AXIS]);
-        stepper.synchronize();
-      #endif
+      }
 
     #endif // MIN_Z_HEIGHT_FOR_HOMING
 
     #if ENABLED(QUICK_HOME)
 
-      bool quick_homed = home_all_axis || (homeX && homeY);
-      if (quick_homed) quick_home_xy();
-
-    #else
-
-      const bool quick_homed = false;
+      if (home_all_axis || (homeX && homeY)) quick_home_xy();
 
     #endif
 
     #if ENABLED(HOME_Y_BEFORE_X)
 
       // Home Y
-      if (!quick_homed && (home_all_axis || homeY)) {
+      if (home_all_axis || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
@@ -2958,7 +2960,7 @@ inline void gcode_G28() {
     #endif
 
     // Home X
-    if (!quick_homed && (home_all_axis || homeX)) {
+    if (home_all_axis || homeX) {
       #if ENABLED(DUAL_X_CARRIAGE)
         int tmp_extruder = active_extruder;
         extruder_duplication_enabled = false;
@@ -2981,7 +2983,7 @@ inline void gcode_G28() {
 
     #if DISABLED(HOME_Y_BEFORE_X)
       // Home Y
-      if (!quick_homed && (home_all_axis || homeY)) {
+      if (home_all_axis || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
