@@ -332,7 +332,7 @@ uint8_t active_extruder = 0;
 // Relative Mode. Enable with G91, disable with G90.
 static bool relative_mode = false;
 
-bool cancel_heatup = false;
+bool wait_for_heatup = true;
 
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
@@ -1107,7 +1107,7 @@ inline void get_serial_commands() {
 
       // If command was e-stop process now
       if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
-      if (strcmp(command, "M108") == 0) cancel_heatup = true;
+      if (strcmp(command, "M108") == 0) wait_for_heatup = false;
 
       #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
         last_command_time = ms;
@@ -1728,9 +1728,8 @@ static void clean_up_after_endstop_or_probe_move() {
     if ((Z_HOME_DIR) < 0 && zprobe_zoffset < 0)
       z_dest -= zprobe_zoffset;
 
-    if (z_dest > current_position[Z_AXIS]) {
+    if (z_dest > current_position[Z_AXIS])
       do_blocking_move_to_z(z_dest);
-    }
   }
 
 #endif //HAS_BED_PROBE
@@ -2764,6 +2763,57 @@ inline void gcode_G4() {
   }
 #endif
 
+#if ENABLED(QUICK_HOME)
+
+  static void quick_home_xy() {
+
+    current_position[X_AXIS] = current_position[Y_AXIS] = 0;
+
+    #if ENABLED(DUAL_X_CARRIAGE)
+      int x_axis_home_dir = x_home_dir(active_extruder);
+      extruder_duplication_enabled = false;
+    #else
+      int x_axis_home_dir = home_dir(X_AXIS);
+    #endif
+
+    SYNC_PLAN_POSITION_KINEMATIC();
+
+    float mlx = max_length(X_AXIS), mly = max_length(Y_AXIS),
+          mlratio = mlx > mly ? mly / mlx : mlx / mly;
+
+    destination[X_AXIS] = 1.5 * mlx * x_axis_home_dir;
+    destination[Y_AXIS] = 1.5 * mly * home_dir(Y_AXIS);
+    feedrate = min(homing_feedrate[X_AXIS], homing_feedrate[Y_AXIS]) * sqrt(mlratio * mlratio + 1);
+    line_to_destination();
+    stepper.synchronize();
+
+    set_axis_is_at_home(X_AXIS);
+    set_axis_is_at_home(Y_AXIS);
+    SYNC_PLAN_POSITION_KINEMATIC();
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("> QUICK_HOME 1", current_position);
+    #endif
+
+    destination[X_AXIS] = current_position[X_AXIS];
+    destination[Y_AXIS] = current_position[Y_AXIS];
+    line_to_destination();
+    stepper.synchronize();
+    endstops.hit_on_purpose(); // clear endstop hit flags
+
+    current_position[X_AXIS] = destination[X_AXIS];
+    current_position[Y_AXIS] = destination[Y_AXIS];
+    #if DISABLED(SCARA)
+      current_position[Z_AXIS] = destination[Z_AXIS];
+    #endif
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("> QUICK_HOME 2", current_position);
+    #endif
+  }
+
+#endif // QUICK_HOME
+
 /**
  * G28: Home all axes according to settings
  *
@@ -2815,16 +2865,9 @@ inline void gcode_G28() {
 
   setup_for_endstop_move();
 
-  /**
-   * Directly after a reset this is all 0. Later we get a hint if we have
-   * to raise z or not.
-   */
-  set_destination_to_current();
-
   #if ENABLED(DELTA)
     /**
-     * A delta can only safely home all axis at the same time
-     * all axis have to home at the same time
+     * A delta can only safely home all axes at the same time
      */
 
     // Pretend the current position is 0,0,0
@@ -2854,11 +2897,11 @@ inline void gcode_G28() {
 
   #else // NOT DELTA
 
-    bool  homeX = code_seen(axis_codes[X_AXIS]),
-          homeY = code_seen(axis_codes[Y_AXIS]),
-          homeZ = code_seen(axis_codes[Z_AXIS]);
+    bool homeX = code_seen('X'), homeY = code_seen('Y'), homeZ = code_seen('Z');
 
     home_all_axis = (!homeX && !homeY && !homeZ) || (homeX && homeY && homeZ);
+
+    set_destination_to_current();
 
     #if Z_HOME_DIR > 0  // If homing away from BED do Z first
 
@@ -2871,98 +2914,51 @@ inline void gcode_G28() {
 
     #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
 
-      #if HAS_BED_PROBE
-        do_probe_raise(MIN_Z_HEIGHT_FOR_HOMING);
-        destination[Z_AXIS] = current_position[Z_AXIS];
-      #else
-        // Raise Z before homing any other axes and z is not already high enough (never lower z)
-        if (current_position[Z_AXIS] <= MIN_Z_HEIGHT_FOR_HOMING) {
-          destination[Z_AXIS] = MIN_Z_HEIGHT_FOR_HOMING;
-          feedrate = planner.max_feedrate[Z_AXIS] * 60;  // feedrate (mm/m) = max_feedrate (mm/s)
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR("Raise Z (before homing) to ", (MIN_Z_HEIGHT_FOR_HOMING));
-              SERIAL_EOL;
-              DEBUG_POS("> (home_all_axis || homeZ)", current_position);
-              DEBUG_POS("> (home_all_axis || homeZ)", destination);
-            }
-          #endif
-          line_to_destination();
-          stepper.synchronize();
-
-          /**
-           * Update the current Z position even if it currently not real from
-           * Z-home otherwise each call to line_to_destination() will want to
-           * move Z-axis by MIN_Z_HEIGHT_FOR_HOMING.
-           */
-          current_position[Z_AXIS] = destination[Z_AXIS];
+      // Raise Z before homing, if specified
+      destination[Z_AXIS] = (current_position[Z_AXIS] += MIN_Z_HEIGHT_FOR_HOMING);
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
+          SERIAL_EOL;
         }
       #endif
-    #endif
+
+      feedrate = homing_feedrate[Z_AXIS];
+
+      #if HAS_BED_PROBE
+        do_blocking_move_to_z(destination[Z_AXIS]);
+      #else
+        line_to_z(destination[Z_AXIS]);
+        stepper.synchronize();
+      #endif
+
+    #endif // MIN_Z_HEIGHT_FOR_HOMING
 
     #if ENABLED(QUICK_HOME)
 
-      if (home_all_axis || (homeX && homeY)) {  // First diagonal move
+      bool quick_homed = home_all_axis || (homeX && homeY);
+      if (quick_homed) quick_home_xy();
 
-        current_position[X_AXIS] = current_position[Y_AXIS] = 0;
+    #else
 
-        #if ENABLED(DUAL_X_CARRIAGE)
-          int x_axis_home_dir = x_home_dir(active_extruder);
-          extruder_duplication_enabled = false;
-        #else
-          int x_axis_home_dir = home_dir(X_AXIS);
-        #endif
+      const bool quick_homed = false;
 
-        SYNC_PLAN_POSITION_KINEMATIC();
-
-        float mlx = max_length(X_AXIS), mly = max_length(Y_AXIS),
-              mlratio = mlx > mly ? mly / mlx : mlx / mly;
-
-        destination[X_AXIS] = 1.5 * mlx * x_axis_home_dir;
-        destination[Y_AXIS] = 1.5 * mly * home_dir(Y_AXIS);
-        feedrate = min(homing_feedrate[X_AXIS], homing_feedrate[Y_AXIS]) * sqrt(mlratio * mlratio + 1);
-        line_to_destination();
-        stepper.synchronize();
-
-        set_axis_is_at_home(X_AXIS);
-        set_axis_is_at_home(Y_AXIS);
-        SYNC_PLAN_POSITION_KINEMATIC();
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("> QUICK_HOME 1", current_position);
-        #endif
-
-        destination[X_AXIS] = current_position[X_AXIS];
-        destination[Y_AXIS] = current_position[Y_AXIS];
-        line_to_destination();
-        stepper.synchronize();
-        endstops.hit_on_purpose(); // clear endstop hit flags
-
-        current_position[X_AXIS] = destination[X_AXIS];
-        current_position[Y_AXIS] = destination[Y_AXIS];
-        #if DISABLED(SCARA)
-          current_position[Z_AXIS] = destination[Z_AXIS];
-        #endif
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("> QUICK_HOME 2", current_position);
-        #endif
-      }
-
-    #endif // QUICK_HOME
+    #endif
 
     #if ENABLED(HOME_Y_BEFORE_X)
+
       // Home Y
-      if (home_all_axis || homeY) {
+      if (!quick_homed && (home_all_axis || homeY)) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
         #endif
       }
+
     #endif
 
     // Home X
-    if (home_all_axis || homeX) {
+    if (!quick_homed && (home_all_axis || homeX)) {
       #if ENABLED(DUAL_X_CARRIAGE)
         int tmp_extruder = active_extruder;
         extruder_duplication_enabled = false;
@@ -2985,7 +2981,7 @@ inline void gcode_G28() {
 
     #if DISABLED(HOME_Y_BEFORE_X)
       // Home Y
-      if (home_all_axis || homeY) {
+      if (!quick_homed && (home_all_axis || homeY)) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
@@ -3524,7 +3520,7 @@ inline void gcode_G28() {
         delta_grid_spacing[0] = xGridSpacing;
         delta_grid_spacing[1] = yGridSpacing;
         float zoffset = zprobe_zoffset;
-        if (code_seen(axis_codes[Z_AXIS])) zoffset += code_value_axis_units(Z_AXIS);
+        if (code_seen('Z')) zoffset += code_value_axis_units(Z_AXIS);
       #else // !DELTA
         /**
          * solve the plane equation ax + by + d = z
@@ -3837,7 +3833,7 @@ inline void gcode_G28() {
  * G92: Set current position to given X Y Z E
  */
 inline void gcode_G92() {
-  bool didE = code_seen(axis_codes[E_AXIS]);
+  bool didE = code_seen('E');
 
   if (!didE) stepper.synchronize();
 
@@ -4540,9 +4536,7 @@ inline void gcode_M105() {
 /**
  * M108: Cancel heatup and wait for the hotend and bed, this G-code is asynchronously handled in the get_serial_commands() parser
  */
-inline void gcode_M108() {
-  cancel_heatup = true;
-}
+inline void gcode_M108() { wait_for_heatup = false; }
 
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
@@ -4602,7 +4596,7 @@ inline void gcode_M109() {
 
   float theTarget = -1.0, old_temp = 9999.0;
   bool wants_to_cool = false;
-  cancel_heatup = false;
+  wait_for_heatup = true;
   millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
   KEEPALIVE_STATE(NOT_BUSY);
@@ -4666,7 +4660,7 @@ inline void gcode_M109() {
       }
     }
 
-  } while (!cancel_heatup && TEMP_CONDITIONS);
+  } while (wait_for_heatup && TEMP_CONDITIONS);
 
   LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
   KEEPALIVE_STATE(IN_HANDLER);
@@ -4696,7 +4690,7 @@ inline void gcode_M109() {
 
     float theTarget = -1.0, old_temp = 9999.0;
     bool wants_to_cool = false;
-    cancel_heatup = false;
+    wait_for_heatup = true;
     millis_t now, next_temp_ms = 0, next_cool_check_ms = 0;
 
     KEEPALIVE_STATE(NOT_BUSY);
@@ -4760,7 +4754,7 @@ inline void gcode_M109() {
         }
       }
 
-    } while (!cancel_heatup && TEMP_BED_CONDITIONS);
+    } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
     LCD_MESSAGEPGM(MSG_BED_DONE);
     KEEPALIVE_STATE(IN_HANDLER);
@@ -5021,7 +5015,7 @@ inline void gcode_M18_M84() {
     stepper_inactive_time = code_value_millis_from_seconds();
   }
   else {
-    bool all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])) || (code_seen(axis_codes[E_AXIS])));
+    bool all_axis = !((code_seen('X')) || (code_seen('Y')) || (code_seen('Z')) || (code_seen('E')));
     if (all_axis) {
       stepper.finish_and_disable();
     }
@@ -5269,11 +5263,9 @@ inline void gcode_M201() {
  * M203: Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in units/sec
  */
 inline void gcode_M203() {
-  for (int8_t i = 0; i < NUM_AXIS; i++) {
-    if (code_seen(axis_codes[i])) {
+  for (int8_t i = 0; i < NUM_AXIS; i++)
+    if (code_seen(axis_codes[i]))
       planner.max_feedrate[i] = code_value_axis_units(i);
-    }
-  }
 }
 
 /**
