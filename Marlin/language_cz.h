@@ -221,7 +221,6 @@
 #define MSG_INFO_PSU                        "Nap. zdroj"
 
 #define MSG_FILAMENT_CHANGE_HEADER          "VYMENA FILAMENTU"
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CO DAL?"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Jeste vytlacit"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Obnovit tisk"
 #if LCD_HEIGHT >= 4
