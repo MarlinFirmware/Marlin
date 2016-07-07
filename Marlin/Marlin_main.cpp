@@ -2915,22 +2915,27 @@ inline void gcode_G28() {
     #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
 
       // Raise Z before homing, if specified
-      destination[Z_AXIS] = (current_position[Z_AXIS] += MIN_Z_HEIGHT_FOR_HOMING);
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
-          SERIAL_EOL;
-        }
-      #endif
+      float z_dest = home_offset[Z_AXIS] + MIN_Z_HEIGHT_FOR_HOMING;
+      if (z_dest > current_position[Z_AXIS]) {
 
-      feedrate = homing_feedrate[Z_AXIS];
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOPAIR("Raise Z (before homing) to ", z_dest);
+            SERIAL_EOL;
+          }
+        #endif
 
-      #if HAS_BED_PROBE
-        do_blocking_move_to_z(destination[Z_AXIS]);
-      #else
-        line_to_z(destination[Z_AXIS]);
-        stepper.synchronize();
-      #endif
+        feedrate = homing_feedrate[Z_AXIS];
+
+        #if HAS_BED_PROBE
+          do_blocking_move_to_z(z_dest);
+        #else
+          line_to_z(z_dest);
+          stepper.synchronize();
+        #endif
+
+        destination[Z_AXIS] = current_position[Z_AXIS] = z_dest;
+      }
 
     #endif // MIN_Z_HEIGHT_FOR_HOMING
 
