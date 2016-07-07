@@ -556,14 +556,11 @@ static void lcd_status_screen() {
     static void lcd_sdcard_stop() {
       card.stopSDPrint();
       clear_command_queue();
-      stepper.quick_stop();
+      quickstop_stepper();
       print_job_timer.stop();
       thermalManager.autotempShutdown();
       wait_for_heatup = false;
       lcd_setstatus(MSG_PRINT_ABORTED, true);
-      #if DISABLED(DELTA) && DISABLED(SCARA)
-        set_current_position_from_planner();
-      #endif // !DELTA && !SCARA
     }
 
   #endif //SDSUPPORT

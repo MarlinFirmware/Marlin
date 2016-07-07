@@ -186,10 +186,7 @@ void Endstops::report_state() {
       if (stepper.abort_on_endstop_hit) {
         card.sdprinting = false;
         card.closefile();
-        stepper.quick_stop();
-        #if DISABLED(DELTA) && DISABLED(SCARA)
-          set_current_position_from_planner();
-        #endif
+        quickstop_stepper();
         thermalManager.disable_all_heaters(); // switch off all heaters.
       }
     #endif
