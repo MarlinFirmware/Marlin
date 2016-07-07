@@ -2936,19 +2936,14 @@ inline void gcode_G28() {
 
     #if ENABLED(QUICK_HOME)
 
-      bool quick_homed = home_all_axis || (homeX && homeY);
-      if (quick_homed) quick_home_xy();
-
-    #else
-
-      const bool quick_homed = false;
+      if (home_all_axis || (homeX && homeY)) quick_home_xy();
 
     #endif
 
     #if ENABLED(HOME_Y_BEFORE_X)
 
       // Home Y
-      if (!quick_homed && (home_all_axis || homeY)) {
+      if (home_all_axis || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
@@ -2958,7 +2953,7 @@ inline void gcode_G28() {
     #endif
 
     // Home X
-    if (!quick_homed && (home_all_axis || homeX)) {
+    if (home_all_axis || homeX) {
       #if ENABLED(DUAL_X_CARRIAGE)
         int tmp_extruder = active_extruder;
         extruder_duplication_enabled = false;
@@ -2981,7 +2976,7 @@ inline void gcode_G28() {
 
     #if DISABLED(HOME_Y_BEFORE_X)
       // Home Y
-      if (!quick_homed && (home_all_axis || homeY)) {
+      if (home_all_axis || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
