@@ -111,12 +111,12 @@
 #endif
 
 /**
- * Filament Runout needs a pin and SD Support
+ * Filament Runout needs a pin and either SD Support or Auto print start detection
  */
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   #if !HAS_FIL_RUNOUT
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
-  #elif DISABLED(SDSUPPORT)
+  #elif DISABLED(SDSUPPORT) && DISABLED(PRINTJOB_TIMER_AUTOSTART)
     #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT."
   #endif
 #endif
@@ -579,6 +579,13 @@
 #endif
 
 /**
+ * emergency-command parser
+ */
+#if ENABLED(EMERGENCY_PARSER) && ENABLED(USBCON)
+  #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
+#endif
+
+ /**
  * Warnings for old configurations
  */
 #if WATCH_TEMP_PERIOD > 500

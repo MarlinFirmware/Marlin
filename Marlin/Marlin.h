@@ -230,9 +230,7 @@ void ok_to_send();
 void reset_bed_level();
 void kill(const char*);
 
-#if DISABLED(DELTA) && DISABLED(SCARA)
-  void set_current_position_from_planner();
-#endif
+void quickstop_stepper();
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   void handle_filament_runout();
@@ -288,6 +286,7 @@ extern float sw_endstop_min[3]; // axis[n].sw_endstop_min
 extern float sw_endstop_max[3]; // axis[n].sw_endstop_max
 extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
+extern volatile bool wait_for_heatup;
 
 // GCode support for external objects
 bool code_seen(char);
