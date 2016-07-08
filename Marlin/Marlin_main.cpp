@@ -2390,20 +2390,10 @@ static void homeaxis(AxisEnum axis) {
     current_position[axis] = 0;
     sync_plan_position();
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(false)");
-    #endif
-    endstops.enable(false); // Disable endstops while moving away
-
     // Move away from the endstop by the axis HOME_BUMP_MM
     destination[axis] = -home_bump_mm(axis) * axis_home_dir;
     line_to_destination();
     stepper.synchronize();
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
-    #endif
-    endstops.enable(true); // Enable endstops for next homing move
 
     // Slow down the feedrate for the next move
     set_homing_bump_feedrate(axis);
@@ -2445,10 +2435,6 @@ static void homeaxis(AxisEnum axis) {
     #if ENABLED(DELTA)
       // retrace by the amount specified in endstop_adj
       if (endstop_adj[axis] * axis_home_dir < 0) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(false)");
-        #endif
-        endstops.enable(false); // Disable endstops while moving away
         sync_plan_position();
         destination[axis] = endstop_adj[axis];
         #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2459,19 +2445,7 @@ static void homeaxis(AxisEnum axis) {
         #endif
         line_to_destination();
         stepper.synchronize();
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
-        #endif
-        endstops.enable(true); // Enable endstops for next homing move
       }
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        else {
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> endstop_adj * axis_home_dir = ", endstop_adj[axis] * axis_home_dir);
-            SERIAL_EOL;
-          }
-        }
-      #endif
     #endif
 
     // Set the axis position to its home position (plus home offsets)
@@ -2840,7 +2814,11 @@ inline void gcode_G28() {
   #endif
 
   setup_for_endstop_or_probe_move();
-  endstops.enable();
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
+  #endif
+  endstops.enable(true); // Enable endstops for next homing move
+
 
   #if ENABLED(DELTA)
     /**
@@ -3061,7 +3039,11 @@ inline void gcode_G28() {
 
   #endif // !DELTA (gcode_G28)
 
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.not_homing()");
+  #endif
   endstops.not_homing();
+  endstops.hit_on_purpose(); // clear endstop hit flags
 
   // Enable mesh leveling again
   #if ENABLED(MESH_BED_LEVELING)
@@ -3100,8 +3082,6 @@ inline void gcode_G28() {
   #endif
 
   clean_up_after_endstop_or_probe_move();
-
-  endstops.hit_on_purpose(); // clear endstop hit flags
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
