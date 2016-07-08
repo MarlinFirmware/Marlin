@@ -1620,10 +1620,6 @@ static void setup_for_endstop_or_probe_move() {
   feedrate_multiplier = 100;
   refresh_cmd_timeout();
 }
-static void setup_for_endstop_move() {
-  setup_for_endstop_or_probe_move();
-  endstops.enable();
-}
 
 static void clean_up_after_endstop_or_probe_move() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2843,7 +2839,8 @@ inline void gcode_G28() {
     }
   #endif
 
-  setup_for_endstop_move();
+  setup_for_endstop_or_probe_move();
+  endstops.enable();
 
   #if ENABLED(DELTA)
     /**
