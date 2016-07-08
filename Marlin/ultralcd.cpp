@@ -282,8 +282,10 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   // Used to print static text with no visible cursor.
   #define STATIC_ITEM(label, args...) \
     if (_menuItemNr == _lineNr) { \
-      if (encoderLine == _menuItemNr && _menuItemNr < LCD_HEIGHT - 1) \
+      if (encoderLine == _menuItemNr && _menuItemNr < LCD_HEIGHT - 1) { \
         encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
+        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
+      } \
       if (lcdDrawUpdate) \
         lcd_implementation_drawmenu_static(_drawLineNr, PSTR(label), ## args); \
     } \
