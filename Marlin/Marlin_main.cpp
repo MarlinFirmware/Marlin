@@ -2779,8 +2779,6 @@ inline void gcode_G4() {
       int x_axis_home_dir = home_dir(X_AXIS);
     #endif
 
-    SYNC_PLAN_POSITION_KINEMATIC();
-
     float mlx = max_length(X_AXIS), mly = max_length(Y_AXIS),
           mlratio = mlx > mly ? mly / mlx : mlx / mly;
 
@@ -2789,30 +2787,9 @@ inline void gcode_G4() {
     feedrate = min(homing_feedrate[X_AXIS], homing_feedrate[Y_AXIS]) * sqrt(mlratio * mlratio + 1);
     line_to_destination();
     stepper.synchronize();
-
-    set_axis_is_at_home(X_AXIS);
-    set_axis_is_at_home(Y_AXIS);
-    SYNC_PLAN_POSITION_KINEMATIC();
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> QUICK_HOME 1", current_position);
-    #endif
-
-    destination[X_AXIS] = current_position[X_AXIS];
-    destination[Y_AXIS] = current_position[Y_AXIS];
-    line_to_destination();
-    stepper.synchronize();
     endstops.hit_on_purpose(); // clear endstop hit flags
 
-    current_position[X_AXIS] = destination[X_AXIS];
-    current_position[Y_AXIS] = destination[Y_AXIS];
-    #if DISABLED(SCARA)
-      current_position[Z_AXIS] = destination[Z_AXIS];
-    #endif
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> QUICK_HOME 2", current_position);
-    #endif
+    destination[X_AXIS] = destination[Y_AXIS] = 0;
   }
 
 #endif // QUICK_HOME
@@ -2917,8 +2894,8 @@ inline void gcode_G28() {
 
     #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
 
-      // Raise Z before homing X or Y, if specified
       if (home_all_axis || homeX || homeY) {
+        // Raise Z before homing any other axes and z is not already high enough (never lower z)
         float z_dest = home_offset[Z_AXIS] + MIN_Z_HEIGHT_FOR_HOMING;
         if (z_dest > current_position[Z_AXIS]) {
 
