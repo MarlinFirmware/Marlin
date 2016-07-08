@@ -160,7 +160,7 @@
  * M105 - Read current temp
  * M106 - Fan on
  * M107 - Fan off
- * M108 - Cancel heatup and wait for the hotend and bed, this G-code is asynchronously handled in the get_serial_commands() parser
+ * M108 - Stop the waiting for heaters in M109, M190, M303. Does not affect the target temperature.
  * M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
  *        IF AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
@@ -332,7 +332,7 @@ uint8_t active_extruder = 0;
 // Relative Mode. Enable with G91, disable with G90.
 static bool relative_mode = false;
 
-bool wait_for_heatup = true;
+volatile bool wait_for_heatup = true;
 
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
@@ -573,19 +573,19 @@ void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); 
 static void report_current_position();
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
-  void print_xyz(const char* prefix, const float x, const float y, const float z) {
-    SERIAL_ECHO(prefix);
-    SERIAL_ECHOPAIR(": (", x);
+  void print_xyz(const char* suffix, const float x, const float y, const float z) {
+    SERIAL_ECHOPAIR("(", x);
     SERIAL_ECHOPAIR(", ", y);
     SERIAL_ECHOPAIR(", ", z);
-    SERIAL_ECHOLNPGM(")");
+    SERIAL_ECHOLNPGM(") ");
+    SERIAL_ECHO(suffix);
   }
-  void print_xyz(const char* prefix, const float xyz[]) {
-    print_xyz(prefix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
+  void print_xyz(const char* suffix, const float xyz[]) {
+    print_xyz(suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
   }
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    void print_xyz(const char* prefix, const vector_3 &xyz) {
-      print_xyz(prefix, xyz.x, xyz.y, xyz.z);
+    void print_xyz(const char* suffix, const vector_3 &xyz) {
+      print_xyz(suffix, xyz.x, xyz.y, xyz.z);
     }
   #endif
   #define DEBUG_POS(PREFIX,VAR) do{ SERIAL_ECHOPGM(PREFIX); print_xyz(" > " STRINGIFY(VAR), VAR); }while(0)
@@ -1105,9 +1105,12 @@ inline void get_serial_commands() {
         }
       }
 
-      // If command was e-stop process now
-      if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
-      if (strcmp(command, "M108") == 0) wait_for_heatup = false;
+      #if DISABLED(EMERGENCY_PARSER)
+        // If command was e-stop process now
+        if (strcmp(command, "M108") == 0) wait_for_heatup = false;
+        if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
+        if (strcmp(command, "M410") == 0) { quickstop_stepper(); }
+      #endif
 
       #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
         last_command_time = ms;
@@ -2914,41 +2917,43 @@ inline void gcode_G28() {
 
     #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
 
-      // Raise Z before homing, if specified
-      destination[Z_AXIS] = (current_position[Z_AXIS] += MIN_Z_HEIGHT_FOR_HOMING);
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
-          SERIAL_EOL;
+      // Raise Z before homing X or Y, if specified
+      if (home_all_axis || homeX || homeY) {
+        float z_dest = home_offset[Z_AXIS] + MIN_Z_HEIGHT_FOR_HOMING;
+        if (z_dest > current_position[Z_AXIS]) {
+
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_ECHOPAIR("Raise Z (before homing) to ", z_dest);
+              SERIAL_EOL;
+            }
+          #endif
+
+          feedrate = homing_feedrate[Z_AXIS];
+
+          #if HAS_BED_PROBE
+            do_blocking_move_to_z(z_dest);
+          #else
+            line_to_z(z_dest);
+            stepper.synchronize();
+          #endif
+
+          destination[Z_AXIS] = current_position[Z_AXIS] = z_dest;
         }
-      #endif
-
-      feedrate = homing_feedrate[Z_AXIS];
-
-      #if HAS_BED_PROBE
-        do_blocking_move_to_z(destination[Z_AXIS]);
-      #else
-        line_to_z(destination[Z_AXIS]);
-        stepper.synchronize();
-      #endif
+      }
 
     #endif // MIN_Z_HEIGHT_FOR_HOMING
 
     #if ENABLED(QUICK_HOME)
 
-      bool quick_homed = home_all_axis || (homeX && homeY);
-      if (quick_homed) quick_home_xy();
-
-    #else
-
-      const bool quick_homed = false;
+      if (home_all_axis || (homeX && homeY)) quick_home_xy();
 
     #endif
 
     #if ENABLED(HOME_Y_BEFORE_X)
 
       // Home Y
-      if (!quick_homed && (home_all_axis || homeY)) {
+      if (home_all_axis || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
@@ -2958,7 +2963,7 @@ inline void gcode_G28() {
     #endif
 
     // Home X
-    if (!quick_homed && (home_all_axis || homeX)) {
+    if (home_all_axis || homeX) {
       #if ENABLED(DUAL_X_CARRIAGE)
         int tmp_extruder = active_extruder;
         extruder_duplication_enabled = false;
@@ -2981,7 +2986,7 @@ inline void gcode_G28() {
 
     #if DISABLED(HOME_Y_BEFORE_X)
       // Home Y
-      if (!quick_homed && (home_all_axis || homeY)) {
+      if (home_all_axis || homeY) {
         HOMEAXIS(Y);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> homeY", current_position);
@@ -4533,10 +4538,29 @@ inline void gcode_M105() {
 
 #endif // FAN_COUNT > 0
 
-/**
- * M108: Cancel heatup and wait for the hotend and bed, this G-code is asynchronously handled in the get_serial_commands() parser
- */
-inline void gcode_M108() { wait_for_heatup = false; }
+#if DISABLED(EMERGENCY_PARSER)
+
+  /**
+   * M108: Stop the waiting for heaters in M109, M190, M303. Does not affect the target temperature.
+   */
+  inline void gcode_M108() { wait_for_heatup = false; }
+
+
+  /**
+   * M112: Emergency Stop
+   */
+  inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
+
+
+  /**
+   * M410: Quickstop - Abort all planned moves
+   *
+   * This will stop the carriages mid-move, so most likely they
+   * will be out of sync with the stepper position after this.
+   */
+  inline void gcode_M410() { quickstop_stepper(); }
+
+#endif
 
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
@@ -4807,11 +4831,6 @@ inline void gcode_M111() {
   }
   SERIAL_EOL;
 }
-
-/**
- * M112: Emergency Stop
- */
-inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 
@@ -5968,8 +5987,9 @@ inline void gcode_M400() { stepper.synchronize(); }
 
 #endif // FILAMENT_WIDTH_SENSOR
 
-#if DISABLED(DELTA) && DISABLED(SCARA)
-  void set_current_position_from_planner() {
+void quickstop_stepper() {
+  stepper.quick_stop();
+  #if DISABLED(DELTA) && DISABLED(SCARA)
     stepper.synchronize();
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       vector_3 pos = planner.adjusted_position(); // values directly from steppers...
@@ -5982,22 +6002,8 @@ inline void gcode_M400() { stepper.synchronize(); }
       current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
     #endif
     sync_plan_position();                       // ...re-apply to planner position
-  }
-#endif
-
-/**
- * M410: Quickstop - Abort all planned moves
- *
- * This will stop the carriages mid-move, so most likely they
- * will be out of sync with the stepper position after this.
- */
-inline void gcode_M410() {
-  stepper.quick_stop();
-  #if DISABLED(DELTA) && DISABLED(SCARA)
-    set_current_position_from_planner();
   #endif
 }
-
 
 #if ENABLED(MESH_BED_LEVELING)
 
@@ -6953,9 +6959,21 @@ void process_next_command() {
         gcode_M111();
         break;
 
-      case 112: // M112: Emergency Stop
-        gcode_M112();
-        break;
+      #if DISABLED(EMERGENCY_PARSER)
+
+        case 108: // M108: Cancel Waiting
+          gcode_M108();
+          break;
+
+        case 112: // M112: Emergency Stop
+          gcode_M112();
+          break;
+
+        case 410: // M410 quickstop - Abort all the planned moves.
+          gcode_M410();
+          break;
+
+      #endif
 
       #if ENABLED(HOST_KEEPALIVE_FEATURE)
 
@@ -6973,10 +6991,6 @@ void process_next_command() {
         gcode_M105();
         KEEPALIVE_STATE(NOT_BUSY);
         return; // "ok" already printed
-
-      case 108:
-        gcode_M108();
-        break;
 
       case 109: // M109: Wait for temperature
         gcode_M109();
@@ -7260,10 +7274,6 @@ void process_next_command() {
           gcode_M407();
           break;
       #endif // ENABLED(FILAMENT_WIDTH_SENSOR)
-
-      case 410: // M410 quickstop - Abort all the planned moves.
-        gcode_M410();
-        break;
 
       #if ENABLED(MESH_BED_LEVELING)
         case 420: // M420 Enable/Disable Mesh Bed Leveling
