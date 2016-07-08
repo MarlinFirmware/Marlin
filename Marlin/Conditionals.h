@@ -842,5 +842,20 @@
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
     #endif
   #endif
+
+  /**
+   * MIN_Z_HEIGHT_FOR_HOMING / Z_RAISE_BETWEEN_PROBINGS
+   */
+   #ifndef MIN_Z_HEIGHT_FOR_HOMING
+     #ifndef Z_RAISE_BETWEEN_PROBINGS
+       #define MIN_Z_HEIGHT_FOR_HOMING 0
+     #else
+       #define MIN_Z_HEIGHT_FOR_HOMING Z_RAISE_BETWEEN_PROBINGS
+     #endif
+   #endif
+   #ifndef Z_RAISE_BETWEEN_PROBINGS
+     #define Z_RAISE_BETWEEN_PROBING MIN_Z_HEIGHT_FOR_HOMING
+   #endif
+
 #endif //CONFIGURATION_LCD
 #endif //CONDITIONALS_H
