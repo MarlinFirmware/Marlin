@@ -214,18 +214,18 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
    * START_SCREEN generates the init code for a screen function
    *
    *   encoderLine is the position based on the encoder
-   *   currentMenuViewOffset is the top menu line to display
+   *   encoderTopLine is the top menu line to display
    *   _drawLineNr is the index of the LCD line (0-3)
    *   _lineNr is the menu item to draw and process
    *   _menuItemNr is the index of each MENU_ITEM
    */
-  #define _START_SCREEN(CODE) do { \
+  #define _START_SCREEN(CODE) \
     ENCODER_DIRECTION_MENUS(); \
     encoderRateMultiplierEnabled = false; \
     if (encoderPosition > 0x8000) encoderPosition = 0; \
     uint8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
-    NOMORE(currentMenuViewOffset, encoderLine); \
-    uint8_t _lineNr = currentMenuViewOffset, _menuItemNr; \
+    NOMORE(encoderTopLine, encoderLine); \
+    uint8_t _lineNr = encoderTopLine, _menuItemNr; \
     CODE; \
     for (uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
       _menuItemNr = 0;
@@ -292,19 +292,25 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     _menuItemNr++
 
   #define END_SCREEN() \
-      if (encoderLine >= _menuItemNr) { \
-        encoderPosition = _menuItemNr * (ENCODER_STEPS_PER_MENU_ITEM) - 1; \
-        encoderLine = _menuItemNr - 1; \
-      } \
-      if (encoderLine >= currentMenuViewOffset + LCD_HEIGHT) { \
-        currentMenuViewOffset = encoderLine - (LCD_HEIGHT) + 1; \
-        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
-        _lineNr = currentMenuViewOffset - 1; \
-        _drawLineNr = -1; \
-      } \
-    } } while(0)
+    } \
+    NOMORE(encoderLine, _menuItemNr - LCD_HEIGHT); \
+    NOLESS(encoderLine, 0); \
+    encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
+    if (encoderTopLine != encoderLine) { \
+      encoderTopLine = encoderLine; \
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
+    }
 
-  #define END_MENU() END_SCREEN()
+  #define END_MENU() \
+    } \
+    if (encoderLine >= _menuItemNr) { \
+      encoderLine = _menuItemNr - 1; \
+      encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
+    } \
+    if (encoderLine >= encoderTopLine + LCD_HEIGHT) { \
+      encoderTopLine = encoderLine - (LCD_HEIGHT - 1); \
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
+    }
 
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
@@ -342,7 +348,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   #if ENABLED(LCD_HAS_SLOW_BUTTONS)
     volatile uint8_t slow_buttons; // Bits of the pressed buttons.
   #endif
-  uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
+  int8_t encoderTopLine;              /* scroll offset in the current menu */
   millis_t next_button_update_ms;
   uint8_t lastEncoderBits;
   uint32_t encoderPosition;
@@ -1888,13 +1894,13 @@ void kill_screen(const char* lcd_msg) {
     #if !PIN_EXISTS(SD_DETECT)
       static void lcd_sd_refresh() {
         card.initsd();
-        currentMenuViewOffset = 0;
+        encoderTopLine = 0;
       }
     #endif
 
     static void lcd_sd_updir() {
       card.updir();
-      currentMenuViewOffset = 0;
+      encoderTopLine = 0;
     }
 
     /**
