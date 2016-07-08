@@ -2344,135 +2344,134 @@ static void clean_up_after_endstop_or_probe_move() {
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
 static void homeaxis(AxisEnum axis) {
+  #define HOMEAXIS_DO(LETTER) \
+    ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
+
+  if (!(axis == X_AXIS ? HOMEAXIS_DO(X) : axis == Y_AXIS ? HOMEAXIS_DO(Y) : axis == Z_AXIS ? HOMEAXIS_DO(Z) : 0)) return;
+
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> homeaxis(", axis);
       SERIAL_ECHOLNPGM(")");
     }
   #endif
-  #define HOMEAXIS_DO(LETTER) \
-    ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
 
-  if (axis == X_AXIS ? HOMEAXIS_DO(X) : axis == Y_AXIS ? HOMEAXIS_DO(Y) : axis == Z_AXIS ? HOMEAXIS_DO(Z) : 0) {
+  int axis_home_dir =
+    #if ENABLED(DUAL_X_CARRIAGE)
+      (axis == X_AXIS) ? x_home_dir(active_extruder) :
+    #endif
+    home_dir(axis);
 
-    int axis_home_dir =
-      #if ENABLED(DUAL_X_CARRIAGE)
-        (axis == X_AXIS) ? x_home_dir(active_extruder) :
+  // Homing Z towards the bed? Deploy the Z probe or endstop.
+  #if HAS_BED_PROBE
+    if (axis == Z_AXIS && axis_home_dir < 0) {
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
       #endif
-      home_dir(axis);
+      if (DEPLOY_PROBE()) return;
+    }
+  #endif
 
-    // Homing Z towards the bed? Deploy the Z probe or endstop.
-    #if HAS_BED_PROBE
-      if (axis == Z_AXIS && axis_home_dir < 0) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
-        #endif
-        if (DEPLOY_PROBE()) return;
+  // Set the axis position as setup for the move
+  current_position[axis] = 0;
+  sync_plan_position();
+
+  // Set a flag for Z motor locking
+  #if ENABLED(Z_DUAL_ENDSTOPS)
+    if (axis == Z_AXIS) stepper.set_homing_flag(true);
+  #endif
+
+  // Move towards the endstop until an endstop is triggered
+  destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
+  feedrate = homing_feedrate[axis];
+  line_to_destination();
+  stepper.synchronize();
+
+  // Set the axis position as setup for the move
+  current_position[axis] = 0;
+  sync_plan_position();
+
+  // Move away from the endstop by the axis HOME_BUMP_MM
+  destination[axis] = -home_bump_mm(axis) * axis_home_dir;
+  line_to_destination();
+  stepper.synchronize();
+
+  // Slow down the feedrate for the next move
+  set_homing_bump_feedrate(axis);
+
+  // Move slowly towards the endstop until triggered
+  destination[axis] = 2 * home_bump_mm(axis) * axis_home_dir;
+  line_to_destination();
+  stepper.synchronize();
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) DEBUG_POS("> TRIGGER ENDSTOP", current_position);
+  #endif
+
+  #if ENABLED(Z_DUAL_ENDSTOPS)
+    if (axis == Z_AXIS) {
+      float adj = fabs(z_endstop_adj);
+      bool lockZ1;
+      if (axis_home_dir > 0) {
+        adj = -adj;
+        lockZ1 = (z_endstop_adj > 0);
       }
-    #endif
+      else
+        lockZ1 = (z_endstop_adj < 0);
 
-    // Set the axis position as setup for the move
-    current_position[axis] = 0;
-    sync_plan_position();
+      if (lockZ1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
+      sync_plan_position();
 
-    // Set a flag for Z motor locking
-    #if ENABLED(Z_DUAL_ENDSTOPS)
-      if (axis == Z_AXIS) stepper.set_homing_flag(true);
-    #endif
+      // Move to the adjusted endstop height
+      feedrate = homing_feedrate[axis];
+      destination[Z_AXIS] = adj;
+      line_to_destination();
+      stepper.synchronize();
 
-    // Move towards the endstop until an endstop is triggered
-    destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
-    feedrate = homing_feedrate[axis];
-    line_to_destination();
-    stepper.synchronize();
+      if (lockZ1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
+      stepper.set_homing_flag(false);
+    } // Z_AXIS
+  #endif
 
-    // Set the axis position as setup for the move
-    current_position[axis] = 0;
-    sync_plan_position();
-
-    // Move away from the endstop by the axis HOME_BUMP_MM
-    destination[axis] = -home_bump_mm(axis) * axis_home_dir;
-    line_to_destination();
-    stepper.synchronize();
-
-    // Slow down the feedrate for the next move
-    set_homing_bump_feedrate(axis);
-
-    // Move slowly towards the endstop until triggered
-    destination[axis] = 2 * home_bump_mm(axis) * axis_home_dir;
-    line_to_destination();
-    stepper.synchronize();
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> TRIGGER ENDSTOP", current_position);
-    #endif
-
-    #if ENABLED(Z_DUAL_ENDSTOPS)
-      if (axis == Z_AXIS) {
-        float adj = fabs(z_endstop_adj);
-        bool lockZ1;
-        if (axis_home_dir > 0) {
-          adj = -adj;
-          lockZ1 = (z_endstop_adj > 0);
+  #if ENABLED(DELTA)
+    // retrace by the amount specified in endstop_adj
+    if (endstop_adj[axis] * axis_home_dir < 0) {
+      sync_plan_position();
+      destination[axis] = endstop_adj[axis];
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOPAIR("> endstop_adj = ", endstop_adj[axis]);
+          DEBUG_POS("", destination);
         }
-        else
-          lockZ1 = (z_endstop_adj < 0);
+      #endif
+      line_to_destination();
+      stepper.synchronize();
+    }
+  #endif
 
-        if (lockZ1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
-        sync_plan_position();
+  // Set the axis position to its home position (plus home offsets)
+  set_axis_is_at_home(axis);
 
-        // Move to the adjusted endstop height
-        feedrate = homing_feedrate[axis];
-        destination[Z_AXIS] = adj;
-        line_to_destination();
-        stepper.synchronize();
+  SYNC_PLAN_POSITION_KINEMATIC();
 
-        if (lockZ1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
-        stepper.set_homing_flag(false);
-      } // Z_AXIS
-    #endif
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
+  #endif
 
-    #if ENABLED(DELTA)
-      // retrace by the amount specified in endstop_adj
-      if (endstop_adj[axis] * axis_home_dir < 0) {
-        sync_plan_position();
-        destination[axis] = endstop_adj[axis];
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> endstop_adj = ", endstop_adj[axis]);
-            DEBUG_POS("", destination);
-          }
-        #endif
-        line_to_destination();
-        stepper.synchronize();
-      }
-    #endif
+  destination[axis] = current_position[axis];
+  endstops.hit_on_purpose(); // clear endstop hit flags
+  axis_known_position[axis] = true;
+  axis_homed[axis] = true;
 
-    // Set the axis position to its home position (plus home offsets)
-    set_axis_is_at_home(axis);
-
-    SYNC_PLAN_POSITION_KINEMATIC();
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
-    #endif
-
-    destination[axis] = current_position[axis];
-    endstops.hit_on_purpose(); // clear endstop hit flags
-    axis_known_position[axis] = true;
-    axis_homed[axis] = true;
-
-    // Put away the Z probe
-    #if HAS_BED_PROBE
-      if (axis == Z_AXIS && axis_home_dir < 0) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
-        #endif
-        if (STOW_PROBE()) return;
-      }
-    #endif
-
-  }
+  // Put away the Z probe
+  #if HAS_BED_PROBE
+    if (axis == Z_AXIS && axis_home_dir < 0) {
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
+      #endif
+      if (STOW_PROBE()) return;
+    }
+  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
