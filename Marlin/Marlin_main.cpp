@@ -1338,16 +1338,15 @@ bool code_seen(char code) {
  */
 bool get_target_extruder_from_command(int code) {
   if (code_seen('T')) {
-    uint8_t t = code_value_byte();
-    if (t >= EXTRUDERS) {
+    if (code_value_byte() >= EXTRUDERS) {
       SERIAL_ECHO_START;
       SERIAL_CHAR('M');
       SERIAL_ECHO(code);
-      SERIAL_ECHOPAIR(" " MSG_INVALID_EXTRUDER " ", t);
+      SERIAL_ECHOPAIR(" " MSG_INVALID_EXTRUDER " ", code_value_byte());
       SERIAL_EOL;
       return true;
     }
-    target_extruder = t;
+    target_extruder = code_value_byte();
   }
   else
     target_extruder = active_extruder;
@@ -2576,10 +2575,8 @@ void gcode_get_destination() {
     else
       destination[i] = current_position[i];
   }
-  if (code_seen('F')) {
-    float next_feedrate = code_value_linear_units();
-    if (next_feedrate > 0.0) feedrate = next_feedrate;
-  }
+  if (code_seen('F') && code_value_linear_units() > 0.0)
+    feedrate = code_value_linear_units();
 }
 
 void unknown_command_error() {
@@ -4387,11 +4384,10 @@ inline void gcode_M104() {
   #endif
 
   if (code_seen('S')) {
-    float temp = code_value_temp_abs();
-    thermalManager.setTargetHotend(temp, target_extruder);
+    thermalManager.setTargetHotend(code_value_temp_abs(), target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
-        thermalManager.setTargetHotend(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset, 1);
+        thermalManager.setTargetHotend(code_value_temp_abs() == 0.0 ? 0.0 : code_value_temp_abs() + duplicate_extruder_temp_offset, 1);
     #endif
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
@@ -4402,13 +4398,13 @@ inline void gcode_M104() {
        * stand by mode, for instance in a dual extruder setup, without affecting
        * the running print timer.
        */
-      if (temp <= (EXTRUDE_MINTEMP)/2) {
+      if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) {
         print_job_timer.stop();
         LCD_MESSAGEPGM(WELCOME_MSG);
       }
     #endif
 
-    if (temp > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
+    if (code_value_temp_abs() > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
 }
 
@@ -4566,11 +4562,10 @@ inline void gcode_M109() {
 
   bool no_wait_for_cooling = code_seen('S');
   if (no_wait_for_cooling || code_seen('R')) {
-    float temp = code_value_temp_abs();
-    thermalManager.setTargetHotend(temp, target_extruder);
+    thermalManager.setTargetHotend(code_value_temp_abs(), target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
-        thermalManager.setTargetHotend(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset, 1);
+        thermalManager.setTargetHotend(code_value_temp_abs() == 0.0 ? 0.0 : code_value_temp_abs() + duplicate_extruder_temp_offset, 1);
     #endif
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
@@ -4579,7 +4574,7 @@ inline void gcode_M109() {
        * stand by mode, for instance in a dual extruder setup, without affecting
        * the running print timer.
        */
-      if (temp <= (EXTRUDE_MINTEMP)/2) {
+      if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) {
         print_job_timer.stop();
         LCD_MESSAGEPGM(WELCOME_MSG);
       }
@@ -4693,7 +4688,7 @@ inline void gcode_M109() {
     if (no_wait_for_cooling || code_seen('R')) {
       thermalManager.setTargetBed(code_value_temp_abs());
       #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
-        if(code_value_temp_abs() > BED_MINTEMP) {
+        if (code_value_temp_abs() > BED_MINTEMP) {
           /**
           * We start the timer when 'heating and waiting' command arrives, LCD 
           * functions never wait. Cooling down managed by extruders.
@@ -5241,13 +5236,12 @@ inline void gcode_M200() {
   if (get_target_extruder_from_command(200)) return;
 
   if (code_seen('D')) {
-    float diameter = code_value_linear_units();
     // setting any extruder filament size disables volumetric on the assumption that
     // slicers either generate in extruder values as cubic mm or as as filament feeds
     // for all extruders
-    volumetric_enabled = (diameter != 0.0);
+    volumetric_enabled = (code_value_linear_units() != 0.0);
     if (volumetric_enabled) {
-      filament_size[target_extruder] = diameter;
+      filament_size[target_extruder] = code_value_linear_units();
       // make sure all extruders have some sane value for the filament size
       for (int i = 0; i < EXTRUDERS; i++)
         if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
