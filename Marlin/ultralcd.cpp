@@ -1965,9 +1965,9 @@ void kill_screen(const char* lcd_msg) {
 
         if (LCD_CLICKED) lcd_goto_previous_menu(true);
         START_SCREEN();
-        STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", itostr3left(stats.totalPrints));        // Print Count : 999
-        STATIC_ITEM(MSG_INFO_FINISHED_PRINTS ": ", itostr3left(stats.finishedPrints)); // Finished    : 666
-        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", printTime);                              // Total Time  : 12:34
+        STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, itostr3left(stats.totalPrints));        // Print Count : 999
+        STATIC_ITEM(MSG_INFO_FINISHED_PRINTS ": ", false, false, itostr3left(stats.finishedPrints)); // Finished    : 666
+        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", false, false, printTime);                              // Total Time  : 12:34
         END_SCREEN();
       }
     #endif // PRINTCOUNTER
@@ -2032,7 +2032,7 @@ void kill_screen(const char* lcd_msg) {
     static void lcd_info_board_menu() {
       if (LCD_CLICKED) lcd_goto_previous_menu(true);
       START_SCREEN();
-      STATIC_ITEM(BOARD_NAME);                                 // MyPrinterController
+      STATIC_ITEM(BOARD_NAME, true, true);                     // MyPrinterController
       STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE)); // Baud: 250000
       STATIC_ITEM(MSG_INFO_PROTOCOL ": " PROTOCOL_VERSION);    // Protocol: 1.0
       #ifdef POWER_SUPPLY
@@ -2053,7 +2053,7 @@ void kill_screen(const char* lcd_msg) {
     static void lcd_info_printer_menu() {
       if (LCD_CLICKED) lcd_goto_previous_menu(true);
       START_SCREEN();
-      STATIC_ITEM(MSG_MARLIN);                                   // Marlin
+      STATIC_ITEM(MSG_MARLIN, true, true);                       // Marlin
       STATIC_ITEM(SHORT_BUILD_VERSION);                          // x.x.x-Branch
       STATIC_ITEM(STRING_DISTRIBUTION_DATE);                     // YYYY-MM-DD HH:MM
       STATIC_ITEM(MACHINE_NAME);                                 // My3DPrinter
@@ -2095,7 +2095,7 @@ void kill_screen(const char* lcd_msg) {
     static void lcd_filament_change_option_menu() {
       START_MENU();
       #if LCD_HEIGHT > 2
-        STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER);
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER, true, false);
       #endif
       MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_filament_change_resume_print);
       MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_EXTRUDE, lcd_filament_change_extrude_more);
@@ -2104,7 +2104,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_filament_change_init_message() {
       START_SCREEN();
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
       STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_1);
       #ifdef MSG_FILAMENT_CHANGE_INIT_2
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_2);
@@ -2117,7 +2117,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_filament_change_unload_message() {
       START_SCREEN();
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
       STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_1);
       #ifdef MSG_FILAMENT_CHANGE_UNLOAD_2
         STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_2);
@@ -2130,7 +2130,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_filament_change_insert_message() {
       START_SCREEN();
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
       STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_1);
       #ifdef MSG_FILAMENT_CHANGE_INSERT_2
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_2);
@@ -2143,7 +2143,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_filament_change_load_message() {
       START_SCREEN();
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
       STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_1);
       #ifdef MSG_FILAMENT_CHANGE_LOAD_2
         STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_2);
@@ -2156,7 +2156,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_filament_change_extrude_message() {
       START_SCREEN();
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
       STATIC_ITEM(MSG_FILAMENT_CHANGE_EXTRUDE_1);
       #ifdef MSG_FILAMENT_CHANGE_EXTRUDE_2
         STATIC_ITEM(MSG_FILAMENT_CHANGE_EXTRUDE_2);
@@ -2169,7 +2169,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_filament_change_resume_message() {
       START_SCREEN();
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
       STATIC_ITEM(MSG_FILAMENT_CHANGE_RESUME_1);
       #ifdef MSG_FILAMENT_CHANGE_RESUME_2
         STATIC_ITEM(MSG_FILAMENT_CHANGE_RESUME_2);
