@@ -223,7 +223,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     ENCODER_DIRECTION_MENUS(); \
     encoderRateMultiplierEnabled = false; \
     if (encoderPosition > 0x8000) encoderPosition = 0; \
-    uint8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
+    int8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
     NOMORE(encoderTopLine, encoderLine); \
     uint8_t _lineNr = encoderTopLine, _menuItemNr; \
     CODE; \
