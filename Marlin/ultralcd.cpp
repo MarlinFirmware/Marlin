@@ -215,9 +215,9 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
    *
    *   encoderLine is the position based on the encoder
    *   encoderTopLine is the top menu line to display
-   *   _drawLineNr is the index of the LCD line (0-3)
-   *   _lineNr is the menu item to draw and process
-   *   _menuItemNr is the index of each MENU_ITEM
+   *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
+   *   _menuLineNr is the menu item to draw and process
+   *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
    */
   #define _START_SCREEN(CODE) \
     ENCODER_DIRECTION_MENUS(); \
@@ -225,10 +225,10 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     if (encoderPosition > 0x8000) encoderPosition = 0; \
     int8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
     NOMORE(encoderTopLine, encoderLine); \
-    uint8_t _lineNr = encoderTopLine, _menuItemNr; \
+    int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
     CODE; \
-    for (uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
-      _menuItemNr = 0;
+    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
+      _thisItemNr = 0;
 
   #define START_SCREEN() _START_SCREEN(0)
 
@@ -260,40 +260,53 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
    *     menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_multiplier, 10, 999)
    *
    */
-  #define _MENU_ITEM_PART_1(type, label, args...) \
-    if (_menuItemNr == _lineNr) { \
+  #define _MENU_ITEM_PART_1(TYPE, LABEL, ARGS...) \
+    if (_menuLineNr == _thisItemNr) { \
       if (lcdDrawUpdate) \
-        lcd_implementation_drawmenu_ ## type(encoderLine == _menuItemNr, _drawLineNr, PSTR(label), ## args); \
-      if (wasClicked && encoderLine == _menuItemNr) { \
+        lcd_implementation_drawmenu_ ## TYPE(encoderLine == _thisItemNr, _lcdLineNr, PSTR(LABEL), ## ARGS); \
+      if (wasClicked && encoderLine == _thisItemNr) { \
         lcd_quick_feedback()
 
-  #define _MENU_ITEM_PART_2(type, args...) \
-        menu_action_ ## type(args); \
+  #define _MENU_ITEM_PART_2(TYPE, ARGS...) \
+        menu_action_ ## TYPE(ARGS); \
         return; \
       } \
     } \
-    _menuItemNr++
+    _thisItemNr++
 
-  #define MENU_ITEM(type, label, args...) do { \
-      _MENU_ITEM_PART_1(type, label, ## args); \
-      _MENU_ITEM_PART_2(type, ## args); \
+  #define MENU_ITEM(TYPE, LABEL, ARGS...) do { \
+      _MENU_ITEM_PART_1(TYPE, LABEL, ## ARGS); \
+      _MENU_ITEM_PART_2(TYPE, ## ARGS); \
     } while(0)
 
   // Used to print static text with no visible cursor.
-  #define STATIC_ITEM(label, args...) \
-    if (_menuItemNr == _lineNr) { \
-      if (encoderLine == _menuItemNr && _menuItemNr < LCD_HEIGHT - 1) { \
+  #define STATIC_ITEM(LABEL, ARGS...) \
+    if (_menuLineNr == _thisItemNr) { \
+      if (encoderLine == _thisItemNr && _thisItemNr < LCD_HEIGHT - 1) { \
         encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
       } \
       if (lcdDrawUpdate) \
-        lcd_implementation_drawmenu_static(_drawLineNr, PSTR(label), ## args); \
+        lcd_implementation_drawmenu_static(_lcdLineNr, PSTR(LABEL), ## ARGS); \
     } \
-    _menuItemNr++
+    _thisItemNr++
 
+  /**
+   *
+   * END_SCREEN  Closing code for a screen having only static items.
+   *             Do simplified scrolling of the entire screen.
+   *
+   * END_MENU    Closing code for a screen with menu items.
+   *             Scroll as-needed to keep the selected line in view.
+   *
+   * At this point _thisItemNr equals the total number of items.
+   * 
+   */
+
+  // Simple-scroll by using encoderLine as encoderTopLine
   #define END_SCREEN() \
     } \
-    NOMORE(encoderLine, _menuItemNr - LCD_HEIGHT); \
+    NOMORE(encoderLine, _thisItemNr - LCD_HEIGHT); \
     NOLESS(encoderLine, 0); \
     encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
     if (encoderTopLine != encoderLine) { \
@@ -301,10 +314,11 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
     }
 
+  // Scroll through menu items, scrolling as-needed to stay in view
   #define END_MENU() \
     } \
-    if (encoderLine >= _menuItemNr) { \
-      encoderLine = _menuItemNr - 1; \
+    if (encoderLine >= _thisItemNr) { \
+      encoderLine = _thisItemNr - 1; \
       encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
     } \
     if (encoderLine >= encoderTopLine + LCD_HEIGHT) { \
@@ -328,7 +342,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 
   #endif //ENCODER_RATE_MULTIPLIER
 
-  #define MENU_ITEM_DUMMY() do { _menuItemNr++; } while(0)
+  #define MENU_ITEM_DUMMY() do { _thisItemNr++; } while(0)
   #define MENU_ITEM_EDIT(type, label, args...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## args)
   #define MENU_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## args)
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
@@ -1925,7 +1939,7 @@ void kill_screen(const char* lcd_msg) {
       }
 
       for (uint16_t i = 0; i < fileCnt; i++) {
-        if (_menuItemNr == _lineNr) {
+        if (_menuLineNr == _thisItemNr) {
           card.getfilename(
              #if ENABLED(SDCARD_RATHERRECENTFIRST)
                fileCnt-1 -
