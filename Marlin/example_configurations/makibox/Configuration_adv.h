@@ -520,6 +520,12 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
+// Set Transfer-Buffer-Size by uncommenting the next define. Default size is 32byte.
+// :[0,2,4,8,16,32,64,128,256]. To save 386byte of PROGMEM and (3 + TX_BUFFER_SIZE) bytes of RAM set TX_BUFFER_SIZE to 0
+// To buffer a simple "ok" you need 4 byte, for ADVANCED_OK/M105 you need 32 and for debug-echo: 128 byte to get the optimal speed.
+// Any other output does not need to be that speedy.
+#define TX_BUFFER_SIZE 0
+
 // Enable an emergency-command parser to intercept certain commands as they
 // enter the serial receive buffer, so they cannot be blocked.
 // Currently handles M108, M112, M410
