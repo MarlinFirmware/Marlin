@@ -485,11 +485,13 @@ static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
 
 #if ENABLED(LCD_INFO_MENU) || ENABLED(FILAMENT_CHANGE_FEATURE)
 
-  static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, const char* valstr=NULL, bool center=true) {
+  static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, bool center=true, bool invert=false, const char* valstr=NULL) {
+
+    lcd_implementation_mark_as_selected(row, invert);
+
     char c;
     int8_t n = LCD_WIDTH;
-    u8g.setPrintPos(0, (row + 1) * (DOG_CHAR_HEIGHT));
-    u8g.setColorIndex(1); // normal text
+
     if (center && !valstr) {
       int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd_print(' '); n--; }

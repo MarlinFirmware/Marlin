@@ -830,7 +830,8 @@ static void lcd_implementation_status_screen() {
 
 #if ENABLED(LCD_INFO_MENU) || ENABLED(FILAMENT_CHANGE_FEATURE)
 
-  static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, const char *valstr=NULL, bool center=true) {
+  static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, bool center=true, bool invert=false, const char *valstr=NULL) {
+    UNUSED(invert);
     char c;
     int8_t n = LCD_WIDTH;
     lcd.setCursor(0, row);
