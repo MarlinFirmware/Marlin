@@ -790,7 +790,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Print job timer
 //
 // Enable this option to automatically start and stop the
-// print job timer when M104 and M109 commands are received.
+// print job timer when M104/M109/M190 commands are received.
+// M104 (extruder without wait) - high temp = none, low temp = stop timer
+// M109 (extruder with wait) - high temp = start timer, low temp = stop timer
+// M190 (bed with wait) - high temp = start timer, low temp = none
 //
 // In all cases the timer can be started and stopped using
 // the following commands:
