@@ -838,13 +838,13 @@ static void lcd_implementation_status_screen() {
       int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd.print(' '); n--; }
     }
-    while ((c = pgm_read_byte(pstr)) && n > 0) {
+    while (n > 0 && (c = pgm_read_byte(pstr))) {
       n -= lcd_print(c);
       pstr++;
     }
-    if (valstr) {
-      lcd_print(valstr);
-      n -= lcd_strlen(valstr);
+    if (valstr) while (n > 0 && (c = *valstr)) {
+      n -= lcd_print(c);
+      valstr++;
     }
     while (n-- > 0) lcd.print(' ');
   }

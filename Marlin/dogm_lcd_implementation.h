@@ -494,13 +494,13 @@ static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
       int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
       while (--pad >= 0) { lcd_print(' '); n--; }
     }
-    while (c = pgm_read_byte(pstr)) {
+    while (n > 0 && (c = pgm_read_byte(pstr))) {
       n -= lcd_print(c);
       pstr++;
     }
-    if (valstr) {
-      lcd_print(valstr);
-      n -= lcd_strlen(valstr);
+    if (valstr) while (n > 0 && (c = *valstr)) {
+      n -= lcd_print(c);
+      valstr++;
     }
     while (n-- > 0) lcd_print(' ');
   }
