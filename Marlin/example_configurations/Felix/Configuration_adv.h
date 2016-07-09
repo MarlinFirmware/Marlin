@@ -141,6 +141,33 @@
 //The M105 command return, besides traditional information, the ADC value read from temperature sensors.
 //#define SHOW_TEMP_ADC_VALUES
 
+/**
+ * High Temperature Thermistor Support
+ *
+ * Thermistors able to support high temperature tend to have a hard time getting
+ * good readings at room and lower temperatures. This means HEATER_X_RAW_LO_TEMP
+ * will probably be caught when the heating element first turns on during the
+ * preheating process, which will trigger a min_temp_error as a safety measure
+ * and force stop everything.
+ * To circumvent this limitation, we allow for a preheat time (during which,
+ * min_temp_error won't be triggered) and add a min_temp buffer to handle
+ * aberrant readings.
+ *
+ * If you want to enable this feature for your hotend thermistor(s)
+ * uncomment and set values > 0 in the constants below
+ */
+
+// The number of consecutive low temperature errors that can occur
+// before a min_temp_error is triggered. (Shouldn't be more than 10.)
+//#define MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED 0
+
+// The number of milliseconds a hotend will preheat before starting to check
+// the temperature. This value should NOT be set to the time it takes the
+// hot end to reach the target temperature, but the time it takes to reach
+// the minimum temperature your thermistor can read. The lower the better/safer.
+// This shouldn't need to be more than 30 seconds (30000)
+//#define MILLISECONDS_PREHEAT_TIME 0
+
 // @section extruder
 
 //  extruder run-out prevention.
@@ -190,9 +217,8 @@
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
-
 //===========================================================================
-//=============================Mechanical Settings===========================
+//============================ Mechanical Settings ==========================
 //===========================================================================
 
 // @section homing
