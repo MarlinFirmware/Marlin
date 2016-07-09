@@ -97,35 +97,35 @@
 #ifndef MSG_SET_ORIGIN
   #define MSG_SET_ORIGIN                      "Set origin"
 #endif
-#ifndef MSG_PREHEAT_PLA
-  #define MSG_PREHEAT_PLA                     "Preheat PLA"
+#ifndef MSG_PREHEAT_1
+  #define MSG_PREHEAT_1                       "Preheat PLA"
 #endif
-#ifndef MSG_PREHEAT_PLA_N
-  #define MSG_PREHEAT_PLA_N                   MSG_PREHEAT_PLA " "
+#ifndef MSG_PREHEAT_1_N
+  #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 " "
 #endif
-#ifndef MSG_PREHEAT_PLA_ALL
-  #define MSG_PREHEAT_PLA_ALL                 MSG_PREHEAT_PLA " All"
+#ifndef MSG_PREHEAT_1_ALL
+  #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 " All"
 #endif
-#ifndef MSG_PREHEAT_PLA_BEDONLY
-  #define MSG_PREHEAT_PLA_BEDONLY             MSG_PREHEAT_PLA " Bed"
+#ifndef MSG_PREHEAT_1_BEDONLY
+  #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 " Bed"
 #endif
-#ifndef MSG_PREHEAT_PLA_SETTINGS
-  #define MSG_PREHEAT_PLA_SETTINGS            MSG_PREHEAT_PLA " conf"
+#ifndef MSG_PREHEAT_1_SETTINGS
+  #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 " conf"
 #endif
-#ifndef MSG_PREHEAT_ABS
-  #define MSG_PREHEAT_ABS                     "Preheat ABS"
+#ifndef MSG_PREHEAT_2
+  #define MSG_PREHEAT_2                       "Preheat ABS"
 #endif
-#ifndef MSG_PREHEAT_ABS_N
-  #define MSG_PREHEAT_ABS_N                   MSG_PREHEAT_ABS " "
+#ifndef MSG_PREHEAT_2_N
+  #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 " "
 #endif
-#ifndef MSG_PREHEAT_ABS_ALL
-  #define MSG_PREHEAT_ABS_ALL                 MSG_PREHEAT_ABS " All"
+#ifndef MSG_PREHEAT_2_ALL
+  #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " All"
 #endif
-#ifndef MSG_PREHEAT_ABS_BEDONLY
-  #define MSG_PREHEAT_ABS_BEDONLY             MSG_PREHEAT_ABS " Bed"
+#ifndef MSG_PREHEAT_2_BEDONLY
+  #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 " Bed"
 #endif
-#ifndef MSG_PREHEAT_ABS_SETTINGS
-  #define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " conf"
+#ifndef MSG_PREHEAT_2_SETTINGS
+  #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " conf"
 #endif
 #ifndef MSG_H1
   #define MSG_H1                              "1"

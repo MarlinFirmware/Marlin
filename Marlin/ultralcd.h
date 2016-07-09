@@ -88,12 +88,12 @@
     FORCE_INLINE void lcd_buttons_update() {}
   #endif
 
-  extern int plaPreheatHotendTemp;
-  extern int plaPreheatHPBTemp;
-  extern int plaPreheatFanSpeed;
-  extern int absPreheatHotendTemp;
-  extern int absPreheatHPBTemp;
-  extern int absPreheatFanSpeed;
+  extern int preheatHotendTemp1;
+  extern int preheatBedTemp1;
+  extern int preheatFanSpeed1;
+  extern int preheatHotendTemp2;
+  extern int preheatBedTemp2;
+  extern int preheatFanSpeed2;
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     extern millis_t previous_lcd_status_ms;

@@ -56,16 +56,16 @@
 #define MSG_SET_HOME_OFFSETS                "\xb7\xbc\xde\xad\xdd\xb5\xcc\xbe\xaf\xc4\xbe\xaf\xc3\xb2"         // "ｷｼﾞｭﾝｵﾌｾｯﾄｾｯﾃｲ" ("Set home offsets")
 #define MSG_HOME_OFFSETS_APPLIED            "\xb5\xcc\xbe\xaf\xc4\xb6\xde\xc3\xb7\xd6\xb3\xbb\xda\xcf\xbc\xc0" // "ｵﾌｾｯﾄｶﾞﾃｷﾖｳｻﾚﾏｼﾀ" ("Offsets applied")
 #define MSG_SET_ORIGIN                      "\xb7\xbc\xde\xad\xdd\xbe\xaf\xc4"                                 // "ｷｼﾞｭﾝｾｯﾄ" ("Set origin")
-#define MSG_PREHEAT_PLA                     "PLA \xd6\xc8\xc2"                                                 // "PLA ﾖﾈﾂ" ("Preheat PLA")
-#define MSG_PREHEAT_PLA_N                   MSG_PREHEAT_PLA " "
-#define MSG_PREHEAT_PLA_ALL                 MSG_PREHEAT_PLA " \xbd\xcd\xde\xc3"                                // " ｽﾍﾞﾃ" (" All")
-#define MSG_PREHEAT_PLA_BEDONLY             MSG_PREHEAT_PLA " \xcd\xde\xaf\xc4\xde"                            // " ﾍﾞｯﾄﾞ" (" Bed")
-#define MSG_PREHEAT_PLA_SETTINGS            MSG_PREHEAT_PLA " \xbe\xaf\xc3\xb2"                                // " ｾｯﾃｲ" (" conf")
-#define MSG_PREHEAT_ABS                     "ABS \xd6\xc8\xc2"                                                 // "ABS ﾖﾈﾂ" ("Preheat ABS")
-#define MSG_PREHEAT_ABS_N                   MSG_PREHEAT_ABS " "
-#define MSG_PREHEAT_ABS_ALL                 MSG_PREHEAT_ABS " \xbd\xcd\xde\xc3"                                // " ｽﾍﾞﾃ" (" All")
-#define MSG_PREHEAT_ABS_BEDONLY             MSG_PREHEAT_ABS " \xcd\xde\xaf\xc4\xde"                            // " ﾍﾞｯﾄﾞ" (" Bed")
-#define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " \xbe\xaf\xc3\xb2"                                // " ｾｯﾃｲ" (" conf")
+#define MSG_PREHEAT_1                       "PLA \xd6\xc8\xc2"                                                 // "PLA ﾖﾈﾂ" ("Preheat PLA")
+#define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 " "
+#define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 " \xbd\xcd\xde\xc3"                                // " ｽﾍﾞﾃ" (" All")
+#define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 " \xcd\xde\xaf\xc4\xde"                            // " ﾍﾞｯﾄﾞ" (" Bed")
+#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 " \xbe\xaf\xc3\xb2"                                // " ｾｯﾃｲ" (" conf")
+#define MSG_PREHEAT_2                       "ABS \xd6\xc8\xc2"                                                 // "ABS ﾖﾈﾂ" ("Preheat ABS")
+#define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 " "
+#define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " \xbd\xcd\xde\xc3"                                // " ｽﾍﾞﾃ" (" All")
+#define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 " \xcd\xde\xaf\xc4\xde"                            // " ﾍﾞｯﾄﾞ" (" Bed")
+#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " \xbe\xaf\xc3\xb2"                                // " ｾｯﾃｲ" (" conf")
 #define MSG_COOLDOWN                        "\xb6\xc8\xc2\xc3\xb2\xbc"                                         // "ｶﾈﾂﾃｲｼ" ("Cooldown")
 #define MSG_SWITCH_PS_ON                    "\xc3\xde\xdd\xb9\xde\xdd\x20\xb5\xdd"                             // "ﾃﾞﾝｹﾞﾝ ｵﾝ" ("Switch power on")
 #define MSG_SWITCH_PS_OFF                   "\xc3\xde\xdd\xb9\xde\xdd\x20\xb5\xcc"                             // "ﾃﾞﾝｹﾞﾝ ｵﾌ" ("Switch power off")

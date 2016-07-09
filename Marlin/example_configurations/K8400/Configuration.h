@@ -778,13 +778,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 // @section temperature
 
 // Preheat Constants
-#define PLA_PREHEAT_HOTEND_TEMP 210
-#define PLA_PREHEAT_HPB_TEMP 0
-#define PLA_PREHEAT_FAN_SPEED 165   // Insert Value between 0 and 255
+#define PREHEAT_1_TEMP_HOTEND 210
+#define PREHEAT_1_TEMP_BED      0
+#define PREHEAT_1_FAN_SPEED   165 // Value from 0 to 255
 
-#define ABS_PREHEAT_HOTEND_TEMP 245
-#define ABS_PREHEAT_HPB_TEMP 0
-#define ABS_PREHEAT_FAN_SPEED 165   // Insert Value between 0 and 255
+#define PREHEAT_2_TEMP_HOTEND 245
+#define PREHEAT_2_TEMP_BED      0
+#define PREHEAT_2_FAN_SPEED   165 // Value from 0 to 255
 
 //
 // Print job timer

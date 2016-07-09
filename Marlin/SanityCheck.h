@@ -644,6 +644,18 @@
   #error "SERVO_DEACTIVATION_DELAY is deprecated. Use SERVO_DELAY instead."
 #elif ENABLED(FILAMENTCHANGEENABLE)
   #error "FILAMENTCHANGEENABLE is now FILAMENT_CHANGE_FEATURE. Please update your configuration."
+#elif defined(PLA_PREHEAT_HOTEND_TEMP)
+  #error "PLA_PREHEAT_HOTEND_TEMP is now PREHEAT_1_TEMP_HOTEND. Please update your configuration."
+#elif defined(PLA_PREHEAT_HPB_TEMP)
+  #error "PLA_PREHEAT_HPB_TEMP is now PREHEAT_1_TEMP_BED. Please update your configuration."
+#elif defined(PLA_PREHEAT_FAN_SPEED)
+  #error "PLA_PREHEAT_FAN_SPEED is now PREHEAT_1_FAN_SPEED. Please update your configuration."
+#elif defined(ABS_PREHEAT_HOTEND_TEMP)
+  #error "ABS_PREHEAT_HOTEND_TEMP is now PREHEAT_2_TEMP_HOTEND. Please update your configuration."
+#elif defined(ABS_PREHEAT_HPB_TEMP)
+  #error "ABS_PREHEAT_HPB_TEMP is now PREHEAT_2_TEMP_BED. Please update your configuration."
+#elif defined(ABS_PREHEAT_FAN_SPEED)
+  #error "ABS_PREHEAT_FAN_SPEED is now PREHEAT_2_FAN_SPEED. Please update your configuration."
 #endif
 
 #endif //SANITYCHECK_H
