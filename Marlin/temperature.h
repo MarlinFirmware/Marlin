@@ -39,13 +39,13 @@
 #endif
 
 #if HOTENDS == 1
-  #define HOTEND_ARG 0
-  #define HOTEND_INDEX 0
-  #define EXTRUDER_ARG 0
+  #define HOTEND_LOOP() const uint8_t e = 0;
+  #define HOTEND_INDEX  0
+  #define EXTRUDER_IDX  0
 #else
-  #define HOTEND_ARG hotend
-  #define HOTEND_INDEX e
-  #define EXTRUDER_ARG active_extruder
+  #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+  #define HOTEND_INDEX  e
+  #define EXTRUDER_IDX  active_extruder
 #endif
 
 class Temperature {
@@ -245,47 +245,47 @@ class Temperature {
     //inline so that there is no performance decrease.
     //deg=degreeCelsius
 
-    static float degHotend(uint8_t hotend) {
+    static float degHotend(uint8_t e) {
       #if HOTENDS == 1
-        UNUSED(hotend);
+        UNUSED(e);
       #endif
-      return current_temperature[HOTEND_ARG];
+      return current_temperature[HOTEND_INDEX];
     }
     static float degBed() { return current_temperature_bed; }
 
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
-    static float rawHotendTemp(uint8_t hotend) {
+    static float rawHotendTemp(uint8_t e) {
       #if HOTENDS == 1
-        UNUSED(hotend);
+        UNUSED(e);
       #endif
-      return current_temperature_raw[HOTEND_ARG];
+      return current_temperature_raw[HOTEND_INDEX];
     }
     static float rawBedTemp() { return current_temperature_bed_raw; }
     #endif
 
-    static float degTargetHotend(uint8_t hotend) {
+    static float degTargetHotend(uint8_t e) {
       #if HOTENDS == 1
-        UNUSED(hotend);
+        UNUSED(e);
       #endif
-      return target_temperature[HOTEND_ARG];
+      return target_temperature[HOTEND_INDEX];
     }
     static float degTargetBed() { return target_temperature_bed; }
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
-      static void start_watching_heater(int e = 0);
+      static void start_watching_heater(uint8_t e = 0);
     #endif
 
     #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
       static void start_watching_bed();
     #endif
 
-    static void setTargetHotend(const float& celsius, uint8_t hotend) {
+    static void setTargetHotend(const float& celsius, uint8_t e) {
       #if HOTENDS == 1
-        UNUSED(hotend);
+        UNUSED(e);
       #endif
-      target_temperature[HOTEND_ARG] = celsius;
+      target_temperature[HOTEND_INDEX] = celsius;
       #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
-        start_watching_heater(HOTEND_ARG);
+        start_watching_heater(HOTEND_INDEX);
       #endif
     }
 
@@ -296,19 +296,19 @@ class Temperature {
       #endif
     }
 
-    static bool isHeatingHotend(uint8_t hotend) {
+    static bool isHeatingHotend(uint8_t e) {
       #if HOTENDS == 1
-        UNUSED(hotend);
+        UNUSED(e);
       #endif
-      return target_temperature[HOTEND_ARG] > current_temperature[HOTEND_ARG];
+      return target_temperature[HOTEND_INDEX] > current_temperature[HOTEND_INDEX];
     }
     static bool isHeatingBed() { return target_temperature_bed > current_temperature_bed; }
 
-    static bool isCoolingHotend(uint8_t hotend) {
+    static bool isCoolingHotend(uint8_t e) {
       #if HOTENDS == 1
-        UNUSED(hotend);
+        UNUSED(e);
       #endif
-      return target_temperature[HOTEND_ARG] < current_temperature[HOTEND_ARG];
+      return target_temperature[HOTEND_INDEX] < current_temperature[HOTEND_INDEX];
     }
     static bool isCoolingBed() { return target_temperature_bed < current_temperature_bed; }
 
@@ -338,8 +338,8 @@ class Temperature {
       #if ENABLED(AUTOTEMP)
         if (planner.autotemp_enabled) {
           planner.autotemp_enabled = false;
-          if (degTargetHotend(EXTRUDER_ARG) > planner.autotemp_min)
-            setTargetHotend(0, EXTRUDER_ARG);
+          if (degTargetHotend(EXTRUDER_IDX) > planner.autotemp_min)
+            setTargetHotend(0, EXTRUDER_IDX);
         }
       #endif
     }
