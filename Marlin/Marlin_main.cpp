@@ -4344,6 +4344,8 @@ inline void gcode_M104() {
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
+       * Stop the timer at the end of print, starting is managed by 
+       * 'heat and wait' M109.
        * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
        * stand by mode, for instance in a dual extruder setup, without affecting
        * the running print timer.
@@ -4352,12 +4354,6 @@ inline void gcode_M104() {
         print_job_timer.stop();
         LCD_MESSAGEPGM(WELCOME_MSG);
       }
-      /**
-       * We do not check if the timer is already running because this check will
-       * be done for us inside the Stopwatch::start() method thus a running timer
-       * will not restart.
-       */
-      else print_job_timer.start();
     #endif
 
     if (temp > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
@@ -4642,7 +4638,22 @@ inline void gcode_M109() {
 
     LCD_MESSAGEPGM(MSG_BED_HEATING);
     bool no_wait_for_cooling = code_seen('S');
-    if (no_wait_for_cooling || code_seen('R')) thermalManager.setTargetBed(code_value_temp_abs());
+    if (no_wait_for_cooling || code_seen('R')) {
+      thermalManager.setTargetBed(code_value_temp_abs());
+      #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+        if(code_value_temp_abs() > BED_MINTEMP) {
+          /**
+          * We start the timer when 'heating and waiting' command arrives, LCD 
+          * functions never wait. Cooling down managed by extruders.
+          *
+          * We do not check if the timer is already running because this check will
+          * be done for us inside the Stopwatch::start() method thus a running timer
+          * will not restart.
+          */
+          print_job_timer.start();
+        }
+      #endif
+    }
 
     #if TEMP_BED_RESIDENCY_TIME > 0
       millis_t residency_start_ms = 0;
@@ -8053,7 +8064,7 @@ void idle(
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    if (IS_SD_PRINTING && !(READ(FIL_RUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
+    if ((IS_SD_PRINTING || print_job_timer.isRunning()) && !(READ(FIL_RUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
       handle_filament_runout();
   #endif
 
