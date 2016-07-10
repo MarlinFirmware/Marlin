@@ -530,6 +530,24 @@ static void lcd_status_screen() {
   #endif //ULTIPANEL
 }
 
+/**
+ *
+ * draw the kill screen
+ *
+ */
+void kill_screen(const char* lcd_msg) {
+  lcd_init();
+  lcd_setalertstatuspgm(lcd_msg);
+  #if ENABLED(DOGLCD)
+    u8g.firstPage();
+    do {
+      lcd_kill_screen();
+    } while (u8g.nextPage());
+  #else
+    lcd_kill_screen();
+  #endif
+}
+
 #if ENABLED(ULTIPANEL)
 
   inline void line_to_current(AxisEnum axis) {
