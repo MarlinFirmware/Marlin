@@ -487,6 +487,12 @@
 #ifndef MSG_ERR_MINTEMP_BED
   #define MSG_ERR_MINTEMP_BED                 "Err: MINTEMP BED"
 #endif
+#ifndef MSG_HALTED
+  #define MSG_HALTED                          "PRINTER HALTED"
+#endif
+#ifndef MSG_PLEASE_RESET
+  #define MSG_PLEASE_RESET                    "Please reset"
+#endif
 #ifndef MSG_END_HOUR
   #define MSG_END_HOUR                        "hours"
 #endif

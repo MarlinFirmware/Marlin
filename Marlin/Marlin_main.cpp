@@ -8199,12 +8199,16 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 }
 
 void kill(const char* lcd_msg) {
+  SERIAL_ERROR_START;
+  SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
+
   #if ENABLED(ULTRA_LCD)
-    lcd_init();
-    lcd_setalertstatuspgm(lcd_msg);
+    kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
   #endif
+
+  for (int i = 5; i--;) delay(100); // Wait a short time
 
   cli(); // Stop interrupts
   thermalManager.disable_all_heaters();
@@ -8214,13 +8218,6 @@ void kill(const char* lcd_msg) {
     pinMode(PS_ON_PIN, INPUT);
   #endif
 
-  SERIAL_ERROR_START;
-  SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
-
-  // FMC small patch to update the LCD before ending
-  sei();   // enable interrupts
-  for (int i = 5; i--; lcd_update()) delay(200); // Wait a short time
-  cli();   // disable interrupts
   suicide();
   while (1) {
     #if ENABLED(USE_WATCHDOG)

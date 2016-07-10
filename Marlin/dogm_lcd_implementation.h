@@ -290,6 +290,16 @@ static void lcd_implementation_init() {
   #endif
 }
 
+void lcd_kill_screen() {
+  lcd_setFont(FONT_MENU);
+  u8g.setPrintPos(0, u8g.getHeight()/4*1);
+  lcd_print(lcd_status_message);
+  u8g.setPrintPos(0, u8g.getHeight()/4*2);
+  lcd_printPGM(PSTR(MSG_HALTED));
+  u8g.setPrintPos(0, u8g.getHeight()/4*3);
+  lcd_printPGM(PSTR(MSG_PLEASE_RESET));
+}
+
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
 FORCE_INLINE void _draw_centered_temp(int temp, int x, int y) {
