@@ -514,88 +514,86 @@ void Temperature::min_temp_error(uint8_t e) {
 }
 
 float Temperature::get_pid_output(int e) {
+  #if HOTENDS == 1
+    UNUSED(e);
+    #define _HOTEND_TEST     true
+    #define _HOTEND_EXTRUDER active_extruder
+  #else
+    #define _HOTEND_TEST     e == active_extruder
+    #define _HOTEND_EXTRUDER e
+  #endif
   float pid_output;
   #if ENABLED(PIDTEMP)
     #if DISABLED(PID_OPENLOOP)
-      pid_error[e] = target_temperature[e] - current_temperature[e];
-      dTerm[e] = K2 * PID_PARAM(Kd, e) * (current_temperature[e] - temp_dState[e]) + K1 * dTerm[e];
-      temp_dState[e] = current_temperature[e];
-      if (pid_error[e] > PID_FUNCTIONAL_RANGE) {
+      pid_error[HOTEND_INDEX] = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
+      dTerm[HOTEND_INDEX] = K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + K1 * dTerm[HOTEND_INDEX];
+      temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
+      if (pid_error[HOTEND_INDEX] > PID_FUNCTIONAL_RANGE) {
         pid_output = BANG_MAX;
-        pid_reset[e] = true;
+        pid_reset[HOTEND_INDEX] = true;
       }
-      else if (pid_error[e] < -(PID_FUNCTIONAL_RANGE) || target_temperature[e] == 0) {
+      else if (pid_error[HOTEND_INDEX] < -(PID_FUNCTIONAL_RANGE) || target_temperature[HOTEND_INDEX] == 0) {
         pid_output = 0;
-        pid_reset[e] = true;
+        pid_reset[HOTEND_INDEX] = true;
       }
       else {
-        if (pid_reset[e]) {
-          temp_iState[e] = 0.0;
-          pid_reset[e] = false;
+        if (pid_reset[HOTEND_INDEX]) {
+          temp_iState[HOTEND_INDEX] = 0.0;
+          pid_reset[HOTEND_INDEX] = false;
         }
-        pTerm[e] = PID_PARAM(Kp, e) * pid_error[e];
-        temp_iState[e] += pid_error[e];
-        temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
-        iTerm[e] = PID_PARAM(Ki, e) * temp_iState[e];
+        pTerm[HOTEND_INDEX] = PID_PARAM(Kp, HOTEND_INDEX) * pid_error[HOTEND_INDEX];
+        temp_iState[HOTEND_INDEX] += pid_error[HOTEND_INDEX];
+        temp_iState[HOTEND_INDEX] = constrain(temp_iState[HOTEND_INDEX], temp_iState_min[HOTEND_INDEX], temp_iState_max[HOTEND_INDEX]);
+        iTerm[HOTEND_INDEX] = PID_PARAM(Ki, HOTEND_INDEX) * temp_iState[HOTEND_INDEX];
 
-        pid_output = pTerm[e] + iTerm[e] - dTerm[e];
-
-        #if ENABLED(SINGLENOZZLE)
-          #define _NOZZLE_TEST     true
-          #define _NOZZLE_EXTRUDER active_extruder
-          #define _CTERM_INDEX     0
-        #else
-          #define _NOZZLE_TEST     e == active_extruder
-          #define _NOZZLE_EXTRUDER e
-          #define _CTERM_INDEX     e
-        #endif
+        pid_output = pTerm[HOTEND_INDEX] + iTerm[HOTEND_INDEX] - dTerm[HOTEND_INDEX];
 
         #if ENABLED(PID_ADD_EXTRUSION_RATE)
-          cTerm[_CTERM_INDEX] = 0;
-          if (_NOZZLE_TEST) {
+          cTerm[HOTEND_INDEX] = 0;
+          if (_HOTEND_TEST) {
             long e_position = stepper.position(E_AXIS);
-            if (e_position > last_position[_NOZZLE_EXTRUDER]) {
-              lpq[lpq_ptr++] = e_position - last_position[_NOZZLE_EXTRUDER];
-              last_position[_NOZZLE_EXTRUDER] = e_position;
+            if (e_position > last_position[_HOTEND_EXTRUDER]) {
+              lpq[lpq_ptr++] = e_position - last_position[_HOTEND_EXTRUDER];
+              last_position[_HOTEND_EXTRUDER] = e_position;
             }
             else {
               lpq[lpq_ptr++] = 0;
             }
             if (lpq_ptr >= lpq_len) lpq_ptr = 0;
-            cTerm[_CTERM_INDEX] = (lpq[lpq_ptr] / planner.axis_steps_per_mm[E_AXIS]) * PID_PARAM(Kc, e);
-            pid_output += cTerm[e];
+            cTerm[HOTEND_INDEX] = (lpq[lpq_ptr] / planner.axis_steps_per_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
+            pid_output += cTerm[HOTEND_INDEX];
           }
         #endif //PID_ADD_EXTRUSION_RATE
 
         if (pid_output > PID_MAX) {
-          if (pid_error[e] > 0) temp_iState[e] -= pid_error[e]; // conditional un-integration
+          if (pid_error[HOTEND_INDEX] > 0) temp_iState[HOTEND_INDEX] -= pid_error[HOTEND_INDEX]; // conditional un-integration
           pid_output = PID_MAX;
         }
         else if (pid_output < 0) {
-          if (pid_error[e] < 0) temp_iState[e] -= pid_error[e]; // conditional un-integration
+          if (pid_error[HOTEND_INDEX] < 0) temp_iState[HOTEND_INDEX] -= pid_error[HOTEND_INDEX]; // conditional un-integration
           pid_output = 0;
         }
       }
     #else
-      pid_output = constrain(target_temperature[e], 0, PID_MAX);
+      pid_output = constrain(target_temperature[HOTEND_INDEX], 0, PID_MAX);
     #endif //PID_OPENLOOP
 
     #if ENABLED(PID_DEBUG)
       SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR(MSG_PID_DEBUG, e);
-      SERIAL_ECHOPAIR(MSG_PID_DEBUG_INPUT, current_temperature[e]);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG, HOTEND_INDEX);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG_INPUT, current_temperature[HOTEND_INDEX]);
       SERIAL_ECHOPAIR(MSG_PID_DEBUG_OUTPUT, pid_output);
-      SERIAL_ECHOPAIR(MSG_PID_DEBUG_PTERM, pTerm[e]);
-      SERIAL_ECHOPAIR(MSG_PID_DEBUG_ITERM, iTerm[e]);
-      SERIAL_ECHOPAIR(MSG_PID_DEBUG_DTERM, dTerm[e]);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG_PTERM, pTerm[HOTEND_INDEX]);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG_ITERM, iTerm[HOTEND_INDEX]);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG_DTERM, dTerm[HOTEND_INDEX]);
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
-        SERIAL_ECHOPAIR(MSG_PID_DEBUG_CTERM, cTerm[e]);
+        SERIAL_ECHOPAIR(MSG_PID_DEBUG_CTERM, cTerm[HOTEND_INDEX]);
       #endif
       SERIAL_EOL;
     #endif //PID_DEBUG
 
   #else /* PID off */
-    pid_output = (current_temperature[e] < target_temperature[e]) ? PID_MAX : 0;
+    pid_output = (current_temperature[HOTEND_INDEX] < target_temperature[HOTEND_INDEX]) ? PID_MAX : 0;
   #endif
 
   return pid_output;
@@ -672,7 +670,7 @@ void Temperature::manage_heater() {
   #endif
 
   // Loop through all hotends
-  for (int e = 0; e < HOTENDS; e++) {
+  for (uint8_t e = 0; e < HOTENDS; e++) {
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
       thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
