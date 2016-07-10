@@ -243,8 +243,8 @@ void MarlinSerial::flush(void) {
         // register empty flag ourselves. If it is set, pretend an
         // interrupt has happened and call the handler to free up
         // space for us.
-        if(TEST(M_UCSRxA, M_UDREx))
-       _tx_udr_empty_irq();
+        if (TEST(M_UCSRxA, M_UDREx))
+          _tx_udr_empty_irq();
       } else {
         // nop, the interrupt handler will free up space for us
       }
