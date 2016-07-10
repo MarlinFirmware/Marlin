@@ -1323,7 +1323,7 @@ inline bool code_value_bool() { return code_value_byte() > 0; }
   float code_value_temp_diff() { return code_value_float(); }
 #endif
 
-inline millis_t code_value_millis() { return code_value_ulong(); }
+FORCE_INLINE millis_t code_value_millis() { return code_value_ulong(); }
 inline millis_t code_value_millis_from_seconds() { return code_value_float() * 1000; }
 
 bool code_seen(char code) {
@@ -1338,16 +1338,15 @@ bool code_seen(char code) {
  */
 bool get_target_extruder_from_command(int code) {
   if (code_seen('T')) {
-    uint8_t t = code_value_byte();
-    if (t >= EXTRUDERS) {
+    if (code_value_byte() >= EXTRUDERS) {
       SERIAL_ECHO_START;
       SERIAL_CHAR('M');
       SERIAL_ECHO(code);
-      SERIAL_ECHOPAIR(" " MSG_INVALID_EXTRUDER " ", t);
+      SERIAL_ECHOPAIR(" " MSG_INVALID_EXTRUDER " ", code_value_byte());
       SERIAL_EOL;
       return true;
     }
-    target_extruder = t;
+    target_extruder = code_value_byte();
   }
   else
     target_extruder = active_extruder;
@@ -2545,10 +2544,8 @@ void gcode_get_destination() {
     else
       destination[i] = current_position[i];
   }
-  if (code_seen('F')) {
-    float next_feedrate = code_value_linear_units();
-    if (next_feedrate > 0.0) feedrate = next_feedrate;
-  }
+  if (code_seen('F') && code_value_linear_units() > 0.0)
+    feedrate = code_value_linear_units();
 }
 
 void unknown_command_error() {
@@ -3160,7 +3157,6 @@ inline void gcode_G28() {
     }
 
     int8_t px, py;
-    float z;
 
     switch (state) {
       case MeshReport:
@@ -3258,24 +3254,22 @@ inline void gcode_G28() {
           return;
         }
         if (code_seen('Z')) {
-          z = code_value_axis_units(Z_AXIS);
+          mbl.z_values[py][px] = code_value_axis_units(Z_AXIS);
         }
         else {
           SERIAL_PROTOCOLLNPGM("Z not entered.");
           return;
         }
-        mbl.z_values[py][px] = z;
         break;
 
       case MeshSetZOffset:
         if (code_seen('Z')) {
-          z = code_value_axis_units(Z_AXIS);
+          mbl.z_offset = code_value_axis_units(Z_AXIS);
         }
         else {
           SERIAL_PROTOCOLLNPGM("Z not entered.");
           return;
         }
-        mbl.z_offset = z;
         break;
 
       case MeshReset:
@@ -3807,14 +3801,11 @@ inline void gcode_G92() {
 #if ENABLED(ULTIPANEL)
 
   /**
-   * M0: // M0 - Unconditional stop - Wait for user button press on LCD
-   * M1: // M1 - Conditional stop - Wait for user button press on LCD
+   * M0: Unconditional stop - Wait for user button press on LCD
+   * M1: Conditional stop   - Wait for user button press on LCD
    */
   inline void gcode_M0_M1() {
     char* args = current_command_args;
-
-    uint8_t test_value = 12;
-    SERIAL_ECHOPAIR("TEST", test_value);
 
     millis_t codenum = 0;
     bool hasP = false, hasS = false;
@@ -4037,35 +4028,34 @@ inline void gcode_M31() {
  *  S<byte> Pin status from 0 - 255
  */
 inline void gcode_M42() {
-  if (code_seen('S')) {
-    int pin_status = code_value_int();
-    if (pin_status < 0 || pin_status > 255) return;
+  if (!code_seen('S')) return;
 
-    int pin_number = code_seen('P') ? code_value_int() : LED_PIN;
-    if (pin_number < 0) return;
+  int pin_status = code_value_int();
+  if (pin_status < 0 || pin_status > 255) return;
 
-    for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
-      if (pin_number == sensitive_pins[i]) return;
+  int pin_number = code_seen('P') ? code_value_int() : LED_PIN;
+  if (pin_number < 0) return;
 
-    pinMode(pin_number, OUTPUT);
-    digitalWrite(pin_number, pin_status);
-    analogWrite(pin_number, pin_status);
+  for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
+    if (pin_number == sensitive_pins[i]) return;
 
-    #if FAN_COUNT > 0
-      switch (pin_number) {
-        #if HAS_FAN0
-          case FAN_PIN: fanSpeeds[0] = pin_status; break;
-        #endif
-        #if HAS_FAN1
-          case FAN1_PIN: fanSpeeds[1] = pin_status; break;
-        #endif
-        #if HAS_FAN2
-          case FAN2_PIN: fanSpeeds[2] = pin_status; break;
-        #endif
-      }
-    #endif
+  pinMode(pin_number, OUTPUT);
+  digitalWrite(pin_number, pin_status);
+  analogWrite(pin_number, pin_status);
 
-  } // code_seen('S')
+  #if FAN_COUNT > 0
+    switch (pin_number) {
+      #if HAS_FAN0
+        case FAN_PIN: fanSpeeds[0] = pin_status; break;
+      #endif
+      #if HAS_FAN1
+        case FAN1_PIN: fanSpeeds[1] = pin_status; break;
+      #endif
+      #if HAS_FAN2
+        case FAN2_PIN: fanSpeeds[2] = pin_status; break;
+      #endif
+    }
+  #endif
 }
 
 #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
@@ -4335,32 +4325,27 @@ inline void gcode_M104() {
   #endif
 
   if (code_seen('S')) {
-    float temp = code_value_temp_abs();
-    thermalManager.setTargetHotend(temp, target_extruder);
+    thermalManager.setTargetHotend(code_value_temp_abs(), target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
-        thermalManager.setTargetHotend(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset, 1);
+        thermalManager.setTargetHotend(code_value_temp_abs() == 0.0 ? 0.0 : code_value_temp_abs() + duplicate_extruder_temp_offset, 1);
     #endif
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
+       * Stop the timer at the end of print, starting is managed by 
+       * 'heat and wait' M109.
        * We use half EXTRUDE_MINTEMP here to allow nozzles to be put into hot
        * stand by mode, for instance in a dual extruder setup, without affecting
        * the running print timer.
        */
-      if (temp <= (EXTRUDE_MINTEMP)/2) {
+      if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) {
         print_job_timer.stop();
         LCD_MESSAGEPGM(WELCOME_MSG);
       }
-      /**
-       * We do not check if the timer is already running because this check will
-       * be done for us inside the Stopwatch::start() method thus a running timer
-       * will not restart.
-       */
-      else print_job_timer.start();
     #endif
 
-    if (temp > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
+    if (code_value_temp_abs() > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
 }
 
@@ -4518,11 +4503,10 @@ inline void gcode_M109() {
 
   bool no_wait_for_cooling = code_seen('S');
   if (no_wait_for_cooling || code_seen('R')) {
-    float temp = code_value_temp_abs();
-    thermalManager.setTargetHotend(temp, target_extruder);
+    thermalManager.setTargetHotend(code_value_temp_abs(), target_extruder);
     #if ENABLED(DUAL_X_CARRIAGE)
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
-        thermalManager.setTargetHotend(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset, 1);
+        thermalManager.setTargetHotend(code_value_temp_abs() == 0.0 ? 0.0 : code_value_temp_abs() + duplicate_extruder_temp_offset, 1);
     #endif
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
@@ -4531,7 +4515,7 @@ inline void gcode_M109() {
        * stand by mode, for instance in a dual extruder setup, without affecting
        * the running print timer.
        */
-      if (temp <= (EXTRUDE_MINTEMP)/2) {
+      if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) {
         print_job_timer.stop();
         LCD_MESSAGEPGM(WELCOME_MSG);
       }
@@ -4642,7 +4626,22 @@ inline void gcode_M109() {
 
     LCD_MESSAGEPGM(MSG_BED_HEATING);
     bool no_wait_for_cooling = code_seen('S');
-    if (no_wait_for_cooling || code_seen('R')) thermalManager.setTargetBed(code_value_temp_abs());
+    if (no_wait_for_cooling || code_seen('R')) {
+      thermalManager.setTargetBed(code_value_temp_abs());
+      #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
+        if (code_value_temp_abs() > BED_MINTEMP) {
+          /**
+          * We start the timer when 'heating and waiting' command arrives, LCD 
+          * functions never wait. Cooling down managed by extruders.
+          *
+          * We do not check if the timer is already running because this check will
+          * be done for us inside the Stopwatch::start() method thus a running timer
+          * will not restart.
+          */
+          print_job_timer.start();
+        }
+      #endif
+    }
 
     #if TEMP_BED_RESIDENCY_TIME > 0
       millis_t residency_start_ms = 0;
@@ -5178,13 +5177,12 @@ inline void gcode_M200() {
   if (get_target_extruder_from_command(200)) return;
 
   if (code_seen('D')) {
-    float diameter = code_value_linear_units();
     // setting any extruder filament size disables volumetric on the assumption that
     // slicers either generate in extruder values as cubic mm or as as filament feeds
     // for all extruders
-    volumetric_enabled = (diameter != 0.0);
+    volumetric_enabled = (code_value_linear_units() != 0.0);
     if (volumetric_enabled) {
-      filament_size[target_extruder] = diameter;
+      filament_size[target_extruder] = code_value_linear_units();
       // make sure all extruders have some sane value for the filament size
       for (int i = 0; i < EXTRUDERS; i++)
         if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
@@ -5464,11 +5462,9 @@ inline void gcode_M220() {
  * M221: Set extrusion percentage (M221 T0 S95)
  */
 inline void gcode_M221() {
-  if (code_seen('S')) {
-    int sval = code_value_int();
-    if (get_target_extruder_from_command(221)) return;
-    extruder_multiplier[target_extruder] = sval;
-  }
+  if (get_target_extruder_from_command(221)) return;
+  if (code_seen('S'))
+    extruder_multiplier[target_extruder] = code_value_int();
 }
 
 /**
@@ -5520,28 +5516,27 @@ inline void gcode_M226() {
 #if HAS_SERVOS
 
   /**
-   * M280: Get or set servo position. P<index> S<angle>
+   * M280: Get or set servo position. P<index> [S<angle>]
    */
   inline void gcode_M280() {
-    int servo_index = code_seen('P') ? code_value_int() : -1;
-    int servo_position = 0;
-    if (code_seen('S')) {
-      servo_position = code_value_int();
-      if (servo_index >= 0 && servo_index < NUM_SERVOS)
-        MOVE_SERVO(servo_index, servo_position);
+    if (!code_seen('P')) return;
+    int servo_index = code_value_int();
+    if (servo_index >= 0 && servo_index < NUM_SERVOS) {
+      if (code_seen('S'))
+        MOVE_SERVO(servo_index, code_value_int());
       else {
-        SERIAL_ERROR_START;
-        SERIAL_ERROR("Servo ");
-        SERIAL_ERROR(servo_index);
-        SERIAL_ERRORLN(" out of range");
+        SERIAL_ECHO_START;
+        SERIAL_ECHOPGM(" Servo ");
+        SERIAL_ECHO(servo_index);
+        SERIAL_ECHOPGM(": ");
+        SERIAL_ECHOLN(servo[servo_index].read());
       }
     }
-    else if (servo_index >= 0) {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM(" Servo ");
-      SERIAL_ECHO(servo_index);
-      SERIAL_ECHOPGM(": ");
-      SERIAL_ECHOLN(servo[servo_index].read());
+    else {
+      SERIAL_ERROR_START;
+      SERIAL_ERROR("Servo ");
+      SERIAL_ERROR(servo_index);
+      SERIAL_ERRORLN(" out of range");
     }
   }
 
@@ -5794,11 +5789,9 @@ inline void gcode_M303() {
    * M365: SCARA calibration: Scaling factor, X, Y, Z axis
    */
   inline void gcode_M365() {
-    for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
-      if (code_seen(axis_codes[i])) {
+    for (int8_t i = X_AXIS; i <= Z_AXIS; i++)
+      if (code_seen(axis_codes[i]))
         axis_scaling[i] = code_value_float();
-      }
-    }
   }
 
 #endif // SCARA
@@ -8053,7 +8046,7 @@ void idle(
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    if (IS_SD_PRINTING && !(READ(FIL_RUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
+    if ((IS_SD_PRINTING || print_job_timer.isRunning()) && !(READ(FIL_RUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
       handle_filament_runout();
   #endif
 
