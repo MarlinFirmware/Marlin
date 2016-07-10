@@ -572,6 +572,19 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
 
 #endif // SHOW_BOOTSCREEN
 
+void lcd_kill_screen() {
+  lcd.setCursor(0, 0);
+  lcd_print(lcd_status_message);
+  #if LCD_HEIGHT < 4
+    lcd.setCursor(0, 2);
+  #else
+    lcd.setCursor(0, 2);
+    lcd_printPGM(PSTR(MSG_HALTED));
+    lcd.setCursor(0, 3);
+  #endif
+  lcd_printPGM(PSTR(MSG_PLEASE_RESET));
+}
+
 FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) {
   if (blink)
     lcd_printPGM(pstr);
