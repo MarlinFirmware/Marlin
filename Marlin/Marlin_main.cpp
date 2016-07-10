@@ -1620,10 +1620,6 @@ static void setup_for_endstop_or_probe_move() {
   feedrate_multiplier = 100;
   refresh_cmd_timeout();
 }
-static void setup_for_endstop_move() {
-  setup_for_endstop_or_probe_move();
-  endstops.enable();
-}
 
 static void clean_up_after_endstop_or_probe_move() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2348,161 +2344,134 @@ static void clean_up_after_endstop_or_probe_move() {
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
 static void homeaxis(AxisEnum axis) {
+  #define HOMEAXIS_DO(LETTER) \
+    ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
+
+  if (!(axis == X_AXIS ? HOMEAXIS_DO(X) : axis == Y_AXIS ? HOMEAXIS_DO(Y) : axis == Z_AXIS ? HOMEAXIS_DO(Z) : 0)) return;
+
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR(">>> homeaxis(", axis);
       SERIAL_ECHOLNPGM(")");
     }
   #endif
-  #define HOMEAXIS_DO(LETTER) \
-    ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
 
-  if (axis == X_AXIS ? HOMEAXIS_DO(X) : axis == Y_AXIS ? HOMEAXIS_DO(Y) : axis == Z_AXIS ? HOMEAXIS_DO(Z) : 0) {
-
-    int axis_home_dir =
-      #if ENABLED(DUAL_X_CARRIAGE)
-        (axis == X_AXIS) ? x_home_dir(active_extruder) :
-      #endif
-      home_dir(axis);
-
-    // Homing Z towards the bed? Deploy the Z probe or endstop.
-    #if HAS_BED_PROBE
-      if (axis == Z_AXIS && axis_home_dir < 0) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
-        #endif
-        if (DEPLOY_PROBE()) return;
-      }
+  int axis_home_dir =
+    #if ENABLED(DUAL_X_CARRIAGE)
+      (axis == X_AXIS) ? x_home_dir(active_extruder) :
     #endif
+    home_dir(axis);
 
-    // Set the axis position as setup for the move
-    current_position[axis] = 0;
-    sync_plan_position();
-
-    // Set a flag for Z motor locking
-    #if ENABLED(Z_DUAL_ENDSTOPS)
-      if (axis == Z_AXIS) stepper.set_homing_flag(true);
-    #endif
-
-    // Move towards the endstop until an endstop is triggered
-    destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
-    feedrate = homing_feedrate[axis];
-    line_to_destination();
-    stepper.synchronize();
-
-    // Set the axis position as setup for the move
-    current_position[axis] = 0;
-    sync_plan_position();
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(false)");
-    #endif
-    endstops.enable(false); // Disable endstops while moving away
-
-    // Move away from the endstop by the axis HOME_BUMP_MM
-    destination[axis] = -home_bump_mm(axis) * axis_home_dir;
-    line_to_destination();
-    stepper.synchronize();
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
-    #endif
-    endstops.enable(true); // Enable endstops for next homing move
-
-    // Slow down the feedrate for the next move
-    set_homing_bump_feedrate(axis);
-
-    // Move slowly towards the endstop until triggered
-    destination[axis] = 2 * home_bump_mm(axis) * axis_home_dir;
-    line_to_destination();
-    stepper.synchronize();
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> TRIGGER ENDSTOP", current_position);
-    #endif
-
-    #if ENABLED(Z_DUAL_ENDSTOPS)
-      if (axis == Z_AXIS) {
-        float adj = fabs(z_endstop_adj);
-        bool lockZ1;
-        if (axis_home_dir > 0) {
-          adj = -adj;
-          lockZ1 = (z_endstop_adj > 0);
-        }
-        else
-          lockZ1 = (z_endstop_adj < 0);
-
-        if (lockZ1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
-        sync_plan_position();
-
-        // Move to the adjusted endstop height
-        feedrate = homing_feedrate[axis];
-        destination[Z_AXIS] = adj;
-        line_to_destination();
-        stepper.synchronize();
-
-        if (lockZ1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
-        stepper.set_homing_flag(false);
-      } // Z_AXIS
-    #endif
-
-    #if ENABLED(DELTA)
-      // retrace by the amount specified in endstop_adj
-      if (endstop_adj[axis] * axis_home_dir < 0) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(false)");
-        #endif
-        endstops.enable(false); // Disable endstops while moving away
-        sync_plan_position();
-        destination[axis] = endstop_adj[axis];
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> endstop_adj = ", endstop_adj[axis]);
-            DEBUG_POS("", destination);
-          }
-        #endif
-        line_to_destination();
-        stepper.synchronize();
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
-        #endif
-        endstops.enable(true); // Enable endstops for next homing move
-      }
+  // Homing Z towards the bed? Deploy the Z probe or endstop.
+  #if HAS_BED_PROBE
+    if (axis == Z_AXIS && axis_home_dir < 0) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        else {
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> endstop_adj * axis_home_dir = ", endstop_adj[axis] * axis_home_dir);
-            SERIAL_EOL;
-          }
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
+      #endif
+      if (DEPLOY_PROBE()) return;
+    }
+  #endif
+
+  // Set the axis position as setup for the move
+  current_position[axis] = 0;
+  sync_plan_position();
+
+  // Set a flag for Z motor locking
+  #if ENABLED(Z_DUAL_ENDSTOPS)
+    if (axis == Z_AXIS) stepper.set_homing_flag(true);
+  #endif
+
+  // Move towards the endstop until an endstop is triggered
+  destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
+  feedrate = homing_feedrate[axis];
+  line_to_destination();
+  stepper.synchronize();
+
+  // Set the axis position as setup for the move
+  current_position[axis] = 0;
+  sync_plan_position();
+
+  // Move away from the endstop by the axis HOME_BUMP_MM
+  destination[axis] = -home_bump_mm(axis) * axis_home_dir;
+  line_to_destination();
+  stepper.synchronize();
+
+  // Slow down the feedrate for the next move
+  set_homing_bump_feedrate(axis);
+
+  // Move slowly towards the endstop until triggered
+  destination[axis] = 2 * home_bump_mm(axis) * axis_home_dir;
+  line_to_destination();
+  stepper.synchronize();
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) DEBUG_POS("> TRIGGER ENDSTOP", current_position);
+  #endif
+
+  #if ENABLED(Z_DUAL_ENDSTOPS)
+    if (axis == Z_AXIS) {
+      float adj = fabs(z_endstop_adj);
+      bool lockZ1;
+      if (axis_home_dir > 0) {
+        adj = -adj;
+        lockZ1 = (z_endstop_adj > 0);
+      }
+      else
+        lockZ1 = (z_endstop_adj < 0);
+
+      if (lockZ1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
+      sync_plan_position();
+
+      // Move to the adjusted endstop height
+      feedrate = homing_feedrate[axis];
+      destination[Z_AXIS] = adj;
+      line_to_destination();
+      stepper.synchronize();
+
+      if (lockZ1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
+      stepper.set_homing_flag(false);
+    } // Z_AXIS
+  #endif
+
+  #if ENABLED(DELTA)
+    // retrace by the amount specified in endstop_adj
+    if (endstop_adj[axis] * axis_home_dir < 0) {
+      sync_plan_position();
+      destination[axis] = endstop_adj[axis];
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOPAIR("> endstop_adj = ", endstop_adj[axis]);
+          DEBUG_POS("", destination);
         }
       #endif
-    #endif
+      line_to_destination();
+      stepper.synchronize();
+    }
+  #endif
 
-    // Set the axis position to its home position (plus home offsets)
-    set_axis_is_at_home(axis);
+  // Set the axis position to its home position (plus home offsets)
+  set_axis_is_at_home(axis);
 
-    SYNC_PLAN_POSITION_KINEMATIC();
+  SYNC_PLAN_POSITION_KINEMATIC();
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
-    #endif
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
+  #endif
 
-    destination[axis] = current_position[axis];
-    endstops.hit_on_purpose(); // clear endstop hit flags
-    axis_known_position[axis] = true;
-    axis_homed[axis] = true;
+  destination[axis] = current_position[axis];
+  endstops.hit_on_purpose(); // clear endstop hit flags
+  axis_known_position[axis] = true;
+  axis_homed[axis] = true;
 
-    // Put away the Z probe
-    #if HAS_BED_PROBE
-      if (axis == Z_AXIS && axis_home_dir < 0) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
-        #endif
-        if (STOW_PROBE()) return;
-      }
-    #endif
-
-  }
+  // Put away the Z probe
+  #if HAS_BED_PROBE
+    if (axis == Z_AXIS && axis_home_dir < 0) {
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
+      #endif
+      if (STOW_PROBE()) return;
+    }
+  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -2779,8 +2748,6 @@ inline void gcode_G4() {
       int x_axis_home_dir = home_dir(X_AXIS);
     #endif
 
-    SYNC_PLAN_POSITION_KINEMATIC();
-
     float mlx = max_length(X_AXIS), mly = max_length(Y_AXIS),
           mlratio = mlx > mly ? mly / mlx : mlx / mly;
 
@@ -2789,30 +2756,9 @@ inline void gcode_G4() {
     feedrate = min(homing_feedrate[X_AXIS], homing_feedrate[Y_AXIS]) * sqrt(mlratio * mlratio + 1);
     line_to_destination();
     stepper.synchronize();
-
-    set_axis_is_at_home(X_AXIS);
-    set_axis_is_at_home(Y_AXIS);
-    SYNC_PLAN_POSITION_KINEMATIC();
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> QUICK_HOME 1", current_position);
-    #endif
-
-    destination[X_AXIS] = current_position[X_AXIS];
-    destination[Y_AXIS] = current_position[Y_AXIS];
-    line_to_destination();
-    stepper.synchronize();
     endstops.hit_on_purpose(); // clear endstop hit flags
 
-    current_position[X_AXIS] = destination[X_AXIS];
-    current_position[Y_AXIS] = destination[Y_AXIS];
-    #if DISABLED(SCARA)
-      current_position[Z_AXIS] = destination[Z_AXIS];
-    #endif
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("> QUICK_HOME 2", current_position);
-    #endif
+    destination[X_AXIS] = destination[Y_AXIS] = 0;
   }
 
 #endif // QUICK_HOME
@@ -2866,7 +2812,12 @@ inline void gcode_G28() {
     }
   #endif
 
-  setup_for_endstop_move();
+  setup_for_endstop_or_probe_move();
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
+  #endif
+  endstops.enable(true); // Enable endstops for next homing move
+
 
   #if ENABLED(DELTA)
     /**
@@ -2915,10 +2866,10 @@ inline void gcode_G28() {
         #endif
       }
 
-    #elif defined(MIN_Z_HEIGHT_FOR_HOMING) && MIN_Z_HEIGHT_FOR_HOMING > 0
+    #else
 
-      // Raise Z before homing X or Y, if specified
       if (home_all_axis || homeX || homeY) {
+        // Raise Z before homing any other axes and z is not already high enough (never lower z)
         float z_dest = home_offset[Z_AXIS] + MIN_Z_HEIGHT_FOR_HOMING;
         if (z_dest > current_position[Z_AXIS]) {
 
@@ -2930,19 +2881,13 @@ inline void gcode_G28() {
           #endif
 
           feedrate = homing_feedrate[Z_AXIS];
-
-          #if HAS_BED_PROBE
-            do_blocking_move_to_z(z_dest);
-          #else
-            line_to_z(z_dest);
-            stepper.synchronize();
-          #endif
-
+          line_to_z(z_dest);
+          stepper.synchronize();
           destination[Z_AXIS] = current_position[Z_AXIS] = z_dest;
         }
       }
 
-    #endif // MIN_Z_HEIGHT_FOR_HOMING
+    #endif
 
     #if ENABLED(QUICK_HOME)
 
@@ -3044,36 +2989,30 @@ inline void gcode_G28() {
              */
             current_position[X_AXIS] = destination[X_AXIS];
             current_position[Y_AXIS] = destination[Y_AXIS];
+          }
+
+          // Let's see if X and Y are homed
+          if (axis_unhomed_error(true, true, false)) return;
+
+          /**
+           * Make sure the Z probe is within the physical limits
+           * NOTE: This doesn't necessarily ensure the Z probe is also
+           * within the bed!
+           */
+          float cpx = current_position[X_AXIS], cpy = current_position[Y_AXIS];
+          if (   cpx >= X_MIN_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
+              && cpx <= X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
+              && cpy >= Y_MIN_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
+              && cpy <= Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)) {
 
             // Home the Z axis
             HOMEAXIS(Z);
           }
-
-          else if (homeZ) { // Don't need to Home Z twice
-
-            // Let's see if X and Y are homed
-            if (axis_unhomed_error(true, true, false)) return;
-
-            /**
-             * Make sure the Z probe is within the physical limits
-             * NOTE: This doesn't necessarily ensure the Z probe is also
-             * within the bed!
-             */
-            float cpx = current_position[X_AXIS], cpy = current_position[Y_AXIS];
-            if (   cpx >= X_MIN_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-                && cpx <= X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-                && cpy >= Y_MIN_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
-                && cpy <= Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)) {
-
-              // Home the Z axis
-              HOMEAXIS(Z);
-            }
-            else {
-              LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
-              SERIAL_ECHO_START;
-              SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
-            }
-          } // !home_all_axes && homeZ
+          else {
+            LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+            SERIAL_ECHO_START;
+            SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
+          }
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
@@ -3099,7 +3038,11 @@ inline void gcode_G28() {
 
   #endif // !DELTA (gcode_G28)
 
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.not_homing()");
+  #endif
   endstops.not_homing();
+  endstops.hit_on_purpose(); // clear endstop hit flags
 
   // Enable mesh leveling again
   #if ENABLED(MESH_BED_LEVELING)
@@ -3138,8 +3081,6 @@ inline void gcode_G28() {
   #endif
 
   clean_up_after_endstop_or_probe_move();
-
-  endstops.hit_on_purpose(); // clear endstop hit flags
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
