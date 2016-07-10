@@ -1323,7 +1323,7 @@ inline bool code_value_bool() { return code_value_byte() > 0; }
   float code_value_temp_diff() { return code_value_float(); }
 #endif
 
-inline millis_t code_value_millis() { return code_value_ulong(); }
+FORCE_INLINE millis_t code_value_millis() { return code_value_ulong(); }
 inline millis_t code_value_millis_from_seconds() { return code_value_float() * 1000; }
 
 bool code_seen(char code) {
@@ -3219,7 +3219,6 @@ inline void gcode_G28() {
     }
 
     int8_t px, py;
-    float z;
 
     switch (state) {
       case MeshReport:
@@ -3317,24 +3316,22 @@ inline void gcode_G28() {
           return;
         }
         if (code_seen('Z')) {
-          z = code_value_axis_units(Z_AXIS);
+          mbl.z_values[py][px] = code_value_axis_units(Z_AXIS);
         }
         else {
           SERIAL_PROTOCOLLNPGM("Z not entered.");
           return;
         }
-        mbl.z_values[py][px] = z;
         break;
 
       case MeshSetZOffset:
         if (code_seen('Z')) {
-          z = code_value_axis_units(Z_AXIS);
+          mbl.z_offset = code_value_axis_units(Z_AXIS);
         }
         else {
           SERIAL_PROTOCOLLNPGM("Z not entered.");
           return;
         }
-        mbl.z_offset = z;
         break;
 
       case MeshReset:
@@ -3866,14 +3863,11 @@ inline void gcode_G92() {
 #if ENABLED(ULTIPANEL)
 
   /**
-   * M0: // M0 - Unconditional stop - Wait for user button press on LCD
-   * M1: // M1 - Conditional stop - Wait for user button press on LCD
+   * M0: Unconditional stop - Wait for user button press on LCD
+   * M1: Conditional stop   - Wait for user button press on LCD
    */
   inline void gcode_M0_M1() {
     char* args = current_command_args;
-
-    uint8_t test_value = 12;
-    SERIAL_ECHOPAIR("TEST", test_value);
 
     millis_t codenum = 0;
     bool hasP = false, hasS = false;
@@ -4096,35 +4090,34 @@ inline void gcode_M31() {
  *  S<byte> Pin status from 0 - 255
  */
 inline void gcode_M42() {
-  if (code_seen('S')) {
-    int pin_status = code_value_int();
-    if (pin_status < 0 || pin_status > 255) return;
+  if (!code_seen('S')) return;
 
-    int pin_number = code_seen('P') ? code_value_int() : LED_PIN;
-    if (pin_number < 0) return;
+  int pin_status = code_value_int();
+  if (pin_status < 0 || pin_status > 255) return;
 
-    for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
-      if (pin_number == sensitive_pins[i]) return;
+  int pin_number = code_seen('P') ? code_value_int() : LED_PIN;
+  if (pin_number < 0) return;
 
-    pinMode(pin_number, OUTPUT);
-    digitalWrite(pin_number, pin_status);
-    analogWrite(pin_number, pin_status);
+  for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
+    if (pin_number == sensitive_pins[i]) return;
 
-    #if FAN_COUNT > 0
-      switch (pin_number) {
-        #if HAS_FAN0
-          case FAN_PIN: fanSpeeds[0] = pin_status; break;
-        #endif
-        #if HAS_FAN1
-          case FAN1_PIN: fanSpeeds[1] = pin_status; break;
-        #endif
-        #if HAS_FAN2
-          case FAN2_PIN: fanSpeeds[2] = pin_status; break;
-        #endif
-      }
-    #endif
+  pinMode(pin_number, OUTPUT);
+  digitalWrite(pin_number, pin_status);
+  analogWrite(pin_number, pin_status);
 
-  } // code_seen('S')
+  #if FAN_COUNT > 0
+    switch (pin_number) {
+      #if HAS_FAN0
+        case FAN_PIN: fanSpeeds[0] = pin_status; break;
+      #endif
+      #if HAS_FAN1
+        case FAN1_PIN: fanSpeeds[1] = pin_status; break;
+      #endif
+      #if HAS_FAN2
+        case FAN2_PIN: fanSpeeds[2] = pin_status; break;
+      #endif
+    }
+  #endif
 }
 
 #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
@@ -5534,11 +5527,9 @@ inline void gcode_M220() {
  * M221: Set extrusion percentage (M221 T0 S95)
  */
 inline void gcode_M221() {
-  if (code_seen('S')) {
-    int sval = code_value_int();
-    if (get_target_extruder_from_command(221)) return;
-    extruder_multiplier[target_extruder] = sval;
-  }
+  if (get_target_extruder_from_command(221)) return;
+  if (code_seen('S'))
+    extruder_multiplier[target_extruder] = code_value_int();
 }
 
 /**
@@ -5590,28 +5581,27 @@ inline void gcode_M226() {
 #if HAS_SERVOS
 
   /**
-   * M280: Get or set servo position. P<index> S<angle>
+   * M280: Get or set servo position. P<index> [S<angle>]
    */
   inline void gcode_M280() {
-    int servo_index = code_seen('P') ? code_value_int() : -1;
-    int servo_position = 0;
-    if (code_seen('S')) {
-      servo_position = code_value_int();
-      if (servo_index >= 0 && servo_index < NUM_SERVOS)
-        MOVE_SERVO(servo_index, servo_position);
+    if (!code_seen('P')) return;
+    int servo_index = code_value_int();
+    if (servo_index >= 0 && servo_index < NUM_SERVOS) {
+      if (code_seen('S'))
+        MOVE_SERVO(servo_index, code_value_int());
       else {
-        SERIAL_ERROR_START;
-        SERIAL_ERROR("Servo ");
-        SERIAL_ERROR(servo_index);
-        SERIAL_ERRORLN(" out of range");
+        SERIAL_ECHO_START;
+        SERIAL_ECHOPGM(" Servo ");
+        SERIAL_ECHO(servo_index);
+        SERIAL_ECHOPGM(": ");
+        SERIAL_ECHOLN(servo[servo_index].read());
       }
     }
-    else if (servo_index >= 0) {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM(" Servo ");
-      SERIAL_ECHO(servo_index);
-      SERIAL_ECHOPGM(": ");
-      SERIAL_ECHOLN(servo[servo_index].read());
+    else {
+      SERIAL_ERROR_START;
+      SERIAL_ERROR("Servo ");
+      SERIAL_ERROR(servo_index);
+      SERIAL_ERRORLN(" out of range");
     }
   }
 
@@ -5864,11 +5854,9 @@ inline void gcode_M303() {
    * M365: SCARA calibration: Scaling factor, X, Y, Z axis
    */
   inline void gcode_M365() {
-    for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
-      if (code_seen(axis_codes[i])) {
+    for (int8_t i = X_AXIS; i <= Z_AXIS; i++)
+      if (code_seen(axis_codes[i]))
         axis_scaling[i] = code_value_float();
-      }
-    }
   }
 
 #endif // SCARA
