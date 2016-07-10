@@ -392,7 +392,7 @@ static void lcd_implementation_status_screen() {
   #endif
 
   // Extruders
-  for (int i = 0; i < HOTENDS; i++) _draw_heater_status(5 + i * 25, i);
+  HOTEND_LOOP() _draw_heater_status(5 + e * 25, e);
 
   // Heated bed
   #if HOTENDS < 4 && HAS_TEMP_BED

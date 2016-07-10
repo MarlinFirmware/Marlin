@@ -436,7 +436,7 @@ Temperature::Temperature() { }
 
 void Temperature::updatePID() {
   #if ENABLED(PIDTEMP)
-    for (int e = 0; e < HOTENDS; e++) {
+    HOTEND_LOOP() {
       temp_iState_max[e] = (PID_INTEGRAL_DRIVE_MAX) / PID_PARAM(Ki, e);
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
         last_position[e] = 0;
@@ -465,12 +465,12 @@ int Temperature::getHeaterPower(int heater) {
       EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN ? 2 : 3
     };
     uint8_t fanState = 0;
-    for (int f = 0; f < HOTENDS; f++) {
-      if (current_temperature[f] > EXTRUDER_AUTO_FAN_TEMPERATURE)
-        SBI(fanState, fanBit[f]);
+    HOTEND_LOOP() {
+      if (current_temperature[e] > EXTRUDER_AUTO_FAN_TEMPERATURE)
+        SBI(fanState, fanBit[e]);
     }
     uint8_t fanDone = 0;
-    for (int f = 0; f <= 3; f++) {
+    for (int8_t f = 0; f <= 3; f++) {
       int8_t pin = fanPin[f];
       if (pin >= 0 && !TEST(fanDone, fanBit[f])) {
         unsigned char newFanSpeed = TEST(fanState, fanBit[f]) ? EXTRUDER_AUTO_FAN_SPEED : 0;
@@ -507,10 +507,16 @@ void Temperature::_temp_error(int e, const char* serial_msg, const char* lcd_msg
 }
 
 void Temperature::max_temp_error(uint8_t e) {
-  _temp_error(e, PSTR(MSG_T_MAXTEMP), PSTR(MSG_ERR_MAXTEMP));
+  #if HOTENDS == 1
+    UNUSED(e);
+  #endif
+  _temp_error(HOTEND_INDEX, PSTR(MSG_T_MAXTEMP), PSTR(MSG_ERR_MAXTEMP));
 }
 void Temperature::min_temp_error(uint8_t e) {
-  _temp_error(e, PSTR(MSG_T_MINTEMP), PSTR(MSG_ERR_MINTEMP));
+  #if HOTENDS == 1
+    UNUSED(e);
+  #endif
+  _temp_error(HOTEND_INDEX, PSTR(MSG_T_MINTEMP), PSTR(MSG_ERR_MINTEMP));
 }
 
 float Temperature::get_pid_output(int e) {
@@ -670,7 +676,7 @@ void Temperature::manage_heater() {
   #endif
 
   // Loop through all hotends
-  for (uint8_t e = 0; e < HOTENDS; e++) {
+  HOTEND_LOOP() {
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS)
       thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
@@ -877,7 +883,7 @@ void Temperature::updateTemperaturesFromRawValues() {
   #if ENABLED(HEATER_0_USES_MAX6675)
     current_temperature_raw[0] = read_max6675();
   #endif
-  for (uint8_t e = 0; e < HOTENDS; e++) {
+  HOTEND_LOOP() {
     current_temperature[e] = Temperature::analog2temp(current_temperature_raw[e], e);
   }
   current_temperature_bed = Temperature::analog2tempBed(current_temperature_bed_raw);
@@ -931,7 +937,7 @@ void Temperature::init() {
   #endif
 
   // Finish init of mult hotend arrays
-  for (int e = 0; e < HOTENDS; e++) {
+  HOTEND_LOOP() {
     // populate with the first value
     maxttemp[e] = maxttemp[0];
     #if ENABLED(PIDTEMP)
@@ -1138,13 +1144,16 @@ void Temperature::init() {
    * their target temperature by a configurable margin.
    * This is called when the temperature is set. (M104, M109)
    */
-  void Temperature::start_watching_heater(int e) {
-    if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
-      watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
-      watch_heater_next_ms[e] = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
+  void Temperature::start_watching_heater(uint8_t e) {
+    #if HOTENDS == 1
+      UNUSED(e);
+    #endif
+    if (degHotend(HOTEND_INDEX) < degTargetHotend(HOTEND_INDEX) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
+      watch_target_temp[HOTEND_INDEX] = degHotend(HOTEND_INDEX) + WATCH_TEMP_INCREASE;
+      watch_heater_next_ms[HOTEND_INDEX] = millis() + (WATCH_TEMP_PERIOD) * 1000UL;
     }
     else
-      watch_heater_next_ms[e] = 0;
+      watch_heater_next_ms[HOTEND_INDEX] = 0;
   }
 #endif
 
@@ -1222,7 +1231,7 @@ void Temperature::init() {
 #endif // THERMAL_PROTECTION_HOTENDS || THERMAL_PROTECTION_BED
 
 void Temperature::disable_all_heaters() {
-  for (int i = 0; i < HOTENDS; i++) setTargetHotend(0, i);
+  HOTEND_LOOP() setTargetHotend(0, e);
   setTargetBed(0);
 
   // If all heaters go down then for sure our print job has stopped

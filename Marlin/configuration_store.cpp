@@ -618,7 +618,7 @@ void Config_ResetDefault() {
 
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND)
-      for (uint8_t e = 0; e < HOTENDS; e++)
+      HOTEND_LOOP
     #else
       int e = 0; UNUSED(e); // only need to write once
     #endif
@@ -834,15 +834,15 @@ void Config_PrintSettings(bool forReplay) {
     #if ENABLED(PIDTEMP)
       #if HOTENDS > 1
         if (forReplay) {
-          for (uint8_t i = 0; i < HOTENDS; i++) {
+          HOTEND_LOOP() {
             CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR("  M301 E", i);
-            SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, i));
-            SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, i)));
-            SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, i)));
+            SERIAL_ECHOPAIR("  M301 E", e);
+            SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, e));
+            SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, e)));
+            SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, e)));
             #if ENABLED(PID_ADD_EXTRUSION_RATE)
-              SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, i));
-              if (i == 0) SERIAL_ECHOPAIR(" L", lpq_len);
+              SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
+              if (e == 0) SERIAL_ECHOPAIR(" L", lpq_len);
             #endif
             SERIAL_EOL;
           }
