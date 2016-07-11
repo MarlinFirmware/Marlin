@@ -398,11 +398,8 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     if (currentScreen != screen) {
       currentScreen = screen;
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
-      encoderTopLine = 0;
-      #if ENABLED(NEWPANEL)
-        encoderPosition = encoder;
-        if (feedback) lcd_quick_feedback();
-      #endif
+      encoderPosition = encoder;
+      if (feedback) lcd_quick_feedback();
       if (screen == lcd_status_screen) {
         defer_return_to_status = false;
         screen_history_depth = 0;
@@ -419,9 +416,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   inline void lcd_save_previous_menu() {
     if (screen_history_depth < COUNT(screen_history)) {
       screen_history[screen_history_depth].menu_function = currentScreen;
-      #if ENABLED(ULTIPANEL)
-        screen_history[screen_history_depth].encoder_position = encoderPosition;
-      #endif
+      screen_history[screen_history_depth].encoder_position = encoderPosition;
       ++screen_history_depth;
     }
   }
@@ -429,10 +424,10 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   static void lcd_goto_previous_menu(bool feedback=false) {
     if (screen_history_depth > 0) {
       --screen_history_depth;
-      lcd_goto_screen(screen_history[screen_history_depth].menu_function, feedback
-        #if ENABLED(ULTIPANEL)
-          , screen_history[screen_history_depth].encoder_position
-        #endif
+      lcd_goto_screen(
+        screen_history[screen_history_depth].menu_function,
+        feedback,
+        screen_history[screen_history_depth].encoder_position
       );
     }
     else
@@ -2444,7 +2439,7 @@ void lcd_init() {
       SET_INPUT(BTN_RT);
     #endif
 
-  #else  // Not NEWPANEL
+  #else // !NEWPANEL
 
     #if ENABLED(SR_LCD_2W_NL) // Non latching 2 wire shift register
       pinMode(SR_DATA_PIN, OUTPUT);
@@ -2459,7 +2454,7 @@ void lcd_init() {
       WRITE(SHIFT_EN, LOW);
     #endif // SR_LCD_2W_NL
 
-  #endif//!NEWPANEL
+  #endif // !NEWPANEL
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
     SET_INPUT(SD_DETECT_PIN);
@@ -2875,6 +2870,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       GET_BUTTON_STATES(buttons);
     #endif //!NEWPANEL
 
+    // Manage encoder rotation
     #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)
       #define ENCODER_DIFF_CW  (encoderDiff -= encoderDirection)
       #define ENCODER_DIFF_CCW (encoderDiff += encoderDirection)
@@ -2890,7 +2886,6 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     #endif
     #define ENCODER_SPIN(_E1, _E2) switch (lastEncoderBits) { case _E1: ENCODER_DIFF_CW; break; case _E2: ENCODER_DIFF_CCW; }
 
-    //manage encoder rotation
     uint8_t enc = 0;
     if (buttons & EN_A) enc |= B01;
     if (buttons & EN_B) enc |= B10;
