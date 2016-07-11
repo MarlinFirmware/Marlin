@@ -1525,7 +1525,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
     current_position[axis] = base_home_pos(axis) + home_offset[axis];
     update_software_endstops(axis);
 
-    #if HAS_BED_PROBE && Z_HOME_DIR < 0
+    #if HAS_BED_PROBE && Z_HOME_DIR < 0 && DISABLED(Z_MIN_PROBE_ENDSTOP)
       if (axis == Z_AXIS) {
         current_position[Z_AXIS] -= zprobe_zoffset;
         #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2362,7 +2362,7 @@ static void homeaxis(AxisEnum axis) {
     home_dir(axis);
 
   // Homing Z towards the bed? Deploy the Z probe or endstop.
-  #if HAS_BED_PROBE
+  #if HAS_BED_PROBE && DISABLED(Z_MIN_PROBE_ENDSTOP)
     if (axis == Z_AXIS && axis_home_dir < 0) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
@@ -2463,7 +2463,7 @@ static void homeaxis(AxisEnum axis) {
   axis_homed[axis] = true;
 
   // Put away the Z probe
-  #if HAS_BED_PROBE
+  #if HAS_BED_PROBE && DISABLED(Z_MIN_PROBE_ENDSTOP)
     if (axis == Z_AXIS && axis_home_dir < 0) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
