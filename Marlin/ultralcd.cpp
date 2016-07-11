@@ -189,9 +189,10 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     static void menu_action_sddirectory(const char* filename, char* longFilename);
   #endif
 
-  #define ENCODER_FEEDRATE_DEADZONE 10
-
   #if DISABLED(LCD_I2C_VIKI)
+    #ifndef ENCODER_FEEDRATE_DEADZONE
+      #define ENCODER_FEEDRATE_DEADZONE 10
+    #endif
     #ifndef ENCODER_STEPS_PER_MENU_ITEM
       #define ENCODER_STEPS_PER_MENU_ITEM 5
     #endif
@@ -199,6 +200,9 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
       #define ENCODER_PULSES_PER_STEP 1
     #endif
   #else
+    #ifndef ENCODER_FEEDRATE_DEADZONE
+      #define ENCODER_FEEDRATE_DEADZONE 4
+    #endif
     #ifndef ENCODER_STEPS_PER_MENU_ITEM
       #define ENCODER_STEPS_PER_MENU_ITEM 2 // VIKI LCD rotary encoder uses a different number of steps per rotation
     #endif
