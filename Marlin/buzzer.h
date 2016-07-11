@@ -124,7 +124,7 @@ class Buzzer {
         this->state.timestamp = millis() + this->state.tone.duration;
         if (this->state.tone.frequency > 0) this->on();
       }
-      else if (millis() >= this->state.timestamp) this->reset();
+      else if (ELAPSED(millis(), this->state.timestamp)) this->reset();
     }
 };
 
