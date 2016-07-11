@@ -58,6 +58,7 @@
 // Select the better font for full graphic displays.
 //#define DISPLAY_CHARSET_ISO10646_1
 //#define DISPLAY_CHARSET_ISO10646_5
+//#define DISPLAY_CHARSET_ISO10646_GREEK
 //#define DISPLAY_CHARSET_ISO10646_KANA
 
 
