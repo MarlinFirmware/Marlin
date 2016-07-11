@@ -46,7 +46,7 @@ class Buzzer {
   private:
     struct state_t {
       tone_t   tone;
-      uint32_t timestamp;
+      uint32_t endtime;
     } state;
 
   protected:
@@ -82,7 +82,7 @@ class Buzzer {
      */
     void reset() {
       this->off();
-      this->state.timestamp = 0;
+      this->state.endtime = 0;
     }
 
   public:
@@ -97,7 +97,7 @@ class Buzzer {
     /**
      * @brief Add a tone to the queue
      * @details Adds a tone_t structure to the ring buffer, will block IO if the
-     * queue is full waiting for one slot to get available.
+     *          queue is full waiting for one slot to get available.
      *
      * @param duration Duration of the tone in milliseconds
      * @param frequency Frequency of the tone in hertz
@@ -114,17 +114,17 @@ class Buzzer {
     /**
      * @brief Loop function
      * @details This function should be called at loop, it will take care of
-     * playing the tones in the queue.
+     *          playing the tones in the queue.
      */
     virtual void tick() {
-      if (!this->state.timestamp) {
+      if (!this->state.endtime) {
         if (this->buffer.isEmpty()) return;
 
         this->state.tone = this->buffer.dequeue();
-        this->state.timestamp = millis() + this->state.tone.duration;
+        this->state.endtime = millis() + this->state.tone.duration;
         if (this->state.tone.frequency > 0) this->on();
       }
-      else if (ELAPSED(millis(), this->state.timestamp)) this->reset();
+      else if (ELAPSED(millis(), this->state.endtime)) this->reset();
     }
 };
 
