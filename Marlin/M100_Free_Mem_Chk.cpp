@@ -57,9 +57,6 @@ void prt_hex_byte(unsigned int);
 void prt_hex_word(unsigned int);
 int how_many_E5s_are_here(unsigned char*);
 
-
-
-
 void gcode_M100() {
   static int m100_not_initialized = 1;
   unsigned char* sp, *ptr;
@@ -73,49 +70,49 @@ void gcode_M100() {
   // probably caused by bad pointers.  Any unexpected values will be flagged in
   // the right hand column to help spotting them.
   //
-#if ENABLED(M100_FREE_MEMORY_DUMPER) // Disable to remove Dump sub-command
-  if (code_seen('D')) {
-    ptr = (unsigned char*) __brkval;
-    //
-    // We want to start and end the dump on a nice 16 byte boundry even though
-    // the values we are using are not 16 byte aligned.
-    //
-    SERIAL_ECHOPGM("\n__brkval : ");
-    prt_hex_word((unsigned int) ptr);
-    ptr = (unsigned char*)((unsigned long) ptr & 0xfff0);
-    sp = top_of_stack();
-    SERIAL_ECHOPGM("\nStack Pointer : ");
-    prt_hex_word((unsigned int) sp);
-    SERIAL_EOL;
-    sp = (unsigned char*)((unsigned long) sp | 0x000f);
-    n = sp - ptr;
-    //
-    // This is the main loop of the Dump command.
-    //
-    while (ptr < sp) {
-      prt_hex_word((unsigned int) ptr); // Print the address
-      SERIAL_CHAR(':');
-      for (i = 0; i < 16; i++) {      // and 16 data bytes
-        prt_hex_byte(*(ptr + i));
-        SERIAL_CHAR(' ');
-        delay(2);
-      }
-      SERIAL_CHAR('|');         // now show where non 0xE5's are
-      for (i = 0; i < 16; i++) {
-        delay(2);
-        if (*(ptr + i) == 0xe5)
-          SERIAL_CHAR(' ');
-        else
-          SERIAL_CHAR('?');
-      }
+  #if ENABLED(M100_FREE_MEMORY_DUMPER) // Disable to remove Dump sub-command
+    if (code_seen('D')) {
+      ptr = (unsigned char*) __brkval;
+      //
+      // We want to start and end the dump on a nice 16 byte boundry even though
+      // the values we are using are not 16 byte aligned.
+      //
+      SERIAL_ECHOPGM("\n__brkval : ");
+      prt_hex_word((unsigned int) ptr);
+      ptr = (unsigned char*)((unsigned long) ptr & 0xfff0);
+      sp = top_of_stack();
+      SERIAL_ECHOPGM("\nStack Pointer : ");
+      prt_hex_word((unsigned int) sp);
       SERIAL_EOL;
-      ptr += 16;
-      delay(2);
+      sp = (unsigned char*)((unsigned long) sp | 0x000f);
+      n = sp - ptr;
+      //
+      // This is the main loop of the Dump command.
+      //
+      while (ptr < sp) {
+        prt_hex_word((unsigned int) ptr); // Print the address
+        SERIAL_CHAR(':');
+        for (i = 0; i < 16; i++) {      // and 16 data bytes
+          prt_hex_byte(*(ptr + i));
+          SERIAL_CHAR(' ');
+          delay(2);
+        }
+        SERIAL_CHAR('|');         // now show where non 0xE5's are
+        for (i = 0; i < 16; i++) {
+          delay(2);
+          if (*(ptr + i) == 0xe5)
+            SERIAL_CHAR(' ');
+          else
+            SERIAL_CHAR('?');
+        }
+        SERIAL_EOL;
+        ptr += 16;
+        delay(2);
+      }
+      SERIAL_ECHOLNPGM("Done.");
+      return;
     }
-    SERIAL_ECHOLNPGM("Done.");
-    return;
-  }
-#endif
+  #endif
   //
   // M100 F   requests the code to return the number of free bytes in the memory pool along with
   // other vital statistics that define the memory pool.
@@ -158,28 +155,28 @@ void gcode_M100() {
   // M100 C x  Corrupts x locations in the free memory pool and reports the locations of the corruption.
   // This is useful to check the correctness of the M100 D and the M100 F commands.
   //
-#if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
-  if (code_seen('C')) {
-    int x = code_value_int(); // x gets the # of locations to corrupt within the memory pool
-    SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
-    ptr = (unsigned char*) __brkval;
-    SERIAL_ECHOPAIR("\n__brkval : ", ptr);
-    ptr += 8;
-    sp = top_of_stack();
-    SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
-    SERIAL_ECHOLNPGM("\n");
-    n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
-    // has altered the stack.
-    j = n / (x + 1);
-    for (i = 1; i <= x; i++) {
-      *(ptr + (i * j)) = i;
-      SERIAL_ECHOPGM("\nCorrupting address: 0x");
-      prt_hex_word((unsigned int)(ptr + (i * j)));
+  #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
+    if (code_seen('C')) {
+      int x = code_value_int(); // x gets the # of locations to corrupt within the memory pool
+      SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
+      ptr = (unsigned char*) __brkval;
+      SERIAL_ECHOPAIR("\n__brkval : ", ptr);
+      ptr += 8;
+      sp = top_of_stack();
+      SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
+      SERIAL_ECHOLNPGM("\n");
+      n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
+      // has altered the stack.
+      j = n / (x + 1);
+      for (i = 1; i <= x; i++) {
+        *(ptr + (i * j)) = i;
+        SERIAL_ECHOPGM("\nCorrupting address: 0x");
+        prt_hex_word((unsigned int)(ptr + (i * j)));
+      }
+      SERIAL_ECHOLNPGM("\n");
+      return;
     }
-    SERIAL_ECHOLNPGM("\n");
-    return;
-  }
-#endif
+  #endif
   //
   // M100 I    Initializes the free memory pool so it can be watched and prints vital
   // statistics that define the free memory pool.
