@@ -2086,9 +2086,6 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_filament_change_option_menu() {
       START_MENU();
-      #if LCD_HEIGHT > 2
-        STATIC_ITEM(MSG_FILAMENT_CHANGE_OPTION_HEADER);
-      #endif
       MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_RESUME, lcd_filament_change_resume_print);
       MENU_ITEM(function, MSG_FILAMENT_CHANGE_OPTION_EXTRUDE, lcd_filament_change_extrude_more);
       END_MENU();
