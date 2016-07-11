@@ -4488,6 +4488,13 @@ inline void gcode_M105() {
 
 #endif
 
+  #ifndef MIN_COOLING_SLOPE_DEG
+    #define MIN_COOLING_SLOPE_DEG 1.50
+  #endif
+  #ifndef MIN_COOLING_SLOPE_TIME
+    #define MIN_COOLING_SLOPE_TIME 60
+  #endif
+
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
  *       Rxxx Wait for extruder(s) to reach temperature. Waits when heating and cooling.
@@ -4600,11 +4607,11 @@ inline void gcode_M109() {
 
     // Prevent a wait-forever situation if R is misused i.e. M109 R0
     if (wants_to_cool) {
-      if (temp < (EXTRUDE_MINTEMP) / 2) break; // always break at (default) 85°
-      // break after 20 seconds if cooling stalls
+      // break after MIN_COOLING_SLOPE_TIME seconds
+      // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG
       if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
-        if (old_temp - temp < 1.0) break;
-        next_cool_check_ms = now + 20000;
+        if (old_temp - temp < MIN_COOLING_SLOPE_DEG) break;
+        next_cool_check_ms = now + 1000UL * MIN_COOLING_SLOPE_TIME;
         old_temp = temp;
       }
     }
@@ -4616,6 +4623,13 @@ inline void gcode_M109() {
 }
 
 #if HAS_TEMP_BED
+
+  #ifndef MIN_COOLING_SLOPE_DEG_BED
+    #define MIN_COOLING_SLOPE_DEG_BED 1.50
+  #endif
+  #ifndef MIN_COOLING_SLOPE_TIME_BED
+    #define MIN_COOLING_SLOPE_TIME_BED 60
+  #endif
 
   /**
    * M190: Sxxx Wait for bed current temp to reach target temp. Waits only when heating
@@ -4709,11 +4723,11 @@ inline void gcode_M109() {
 
       // Prevent a wait-forever situation if R is misused i.e. M190 R0
       if (wants_to_cool) {
-        if (temp < 30.0) break; // always break at 30°
-        // break after 20 seconds if cooling stalls
+        // break after MIN_COOLING_SLOPE_TIME_BED seconds
+        // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_BED
         if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
-          if (old_temp - temp < 1.0) break;
-          next_cool_check_ms = now + 20000;
+          if (old_temp - temp < MIN_COOLING_SLOPE_DEG_BED) break;
+          next_cool_check_ms = now + 1000UL * MIN_COOLING_SLOPE_TIME_BED;
           old_temp = temp;
         }
       }
