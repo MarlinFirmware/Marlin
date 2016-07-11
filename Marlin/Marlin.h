@@ -134,73 +134,69 @@ void manage_inactivity(bool ignore_stepper_queue = false);
   extern bool extruder_duplication_enabled;
 #endif
 
-#if ENABLED(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
-  #define  enable_x() do { X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); } while (0)
-  #define disable_x() do { X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
+#if HAS_X2_ENABLE
+  #define  enable_x() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
+  #define disable_x() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
 #elif HAS_X_ENABLE
   #define  enable_x() X_ENABLE_WRITE( X_ENABLE_ON)
-  #define disable_x() { X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }
+  #define disable_x() do{ X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
 #else
-  #define enable_x() ;
-  #define disable_x() ;
+  #define  enable_x() NOOP
+  #define disable_x() NOOP
 #endif
 
-#if HAS_Y_ENABLE
-  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-    #define  enable_y() { Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }
-    #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
-  #else
-    #define  enable_y() Y_ENABLE_WRITE( Y_ENABLE_ON)
-    #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
-  #endif
+#if HAS_Y2_ENABLE
+  #define  enable_y() do{ Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }while(0)
+  #define disable_y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
+#elif HAS_Y_ENABLE
+  #define  enable_y() Y_ENABLE_WRITE( Y_ENABLE_ON)
+  #define disable_y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
 #else
-  #define enable_y() ;
-  #define disable_y() ;
+  #define  enable_y() NOOP
+  #define disable_y() NOOP
 #endif
 
-#if HAS_Z_ENABLE
-  #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-    #define  enable_z() { Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }
-    #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
-  #else
-    #define  enable_z() Z_ENABLE_WRITE( Z_ENABLE_ON)
-    #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
-  #endif
+#if HAS_Z2_ENABLE
+  #define  enable_z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
+  #define disable_z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
+#elif HAS_Z_ENABLE
+  #define  enable_z() Z_ENABLE_WRITE( Z_ENABLE_ON)
+  #define disable_z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
 #else
-  #define enable_z() ;
-  #define disable_z() ;
+  #define  enable_z() NOOP
+  #define disable_z() NOOP
 #endif
 
 #if HAS_E0_ENABLE
-  #define enable_e0()  E0_ENABLE_WRITE( E_ENABLE_ON)
+  #define  enable_e0() E0_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e0() E0_ENABLE_WRITE(!E_ENABLE_ON)
 #else
-  #define enable_e0()  /* nothing */
-  #define disable_e0() /* nothing */
+  #define  enable_e0() NOOP
+  #define disable_e0() NOOP
 #endif
 
 #if (EXTRUDERS > 1) && HAS_E1_ENABLE
-  #define enable_e1()  E1_ENABLE_WRITE( E_ENABLE_ON)
+  #define  enable_e1() E1_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e1() E1_ENABLE_WRITE(!E_ENABLE_ON)
 #else
-  #define enable_e1()  /* nothing */
-  #define disable_e1() /* nothing */
+  #define  enable_e1() NOOP
+  #define disable_e1() NOOP
 #endif
 
 #if (EXTRUDERS > 2) && HAS_E2_ENABLE
-  #define enable_e2()  E2_ENABLE_WRITE( E_ENABLE_ON)
+  #define  enable_e2() E2_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e2() E2_ENABLE_WRITE(!E_ENABLE_ON)
 #else
-  #define enable_e2()  /* nothing */
-  #define disable_e2() /* nothing */
+  #define  enable_e2() NOOP
+  #define disable_e2() NOOP
 #endif
 
 #if (EXTRUDERS > 3) && HAS_E3_ENABLE
-  #define enable_e3()  E3_ENABLE_WRITE( E_ENABLE_ON)
+  #define  enable_e3() E3_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e3() E3_ENABLE_WRITE(!E_ENABLE_ON)
 #else
-  #define enable_e3()  /* nothing */
-  #define disable_e3() /* nothing */
+  #define  enable_e3() NOOP
+  #define disable_e3() NOOP
 #endif
 
 /**
