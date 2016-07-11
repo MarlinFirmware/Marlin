@@ -38,6 +38,8 @@
     #define MAPPER_ONE_TO_ONE
   #elif ENABLED(DISPLAY_CHARSET_ISO10646_KANA)
     #define MAPPER_ONE_TO_ONE
+  #elif ENABLED(DISPLAY_CHARSET_ISO10646_GREEK)
+    #define MAPPER_ONE_TO_ONE
   #endif
 #else // SIMULATE_ROMFONT
   #if DISPLAY_CHARSET_HD44780 == JAPANESE
@@ -157,13 +159,44 @@
     static uint8_t utf_hi_char; // UTF-8 high part
     static bool seen_c2 = false;
     uint8_t d = c;
-    if ( d >= 0x80 ) { // UTF-8 handling
-      if ( (d >= 0xc0) && (!seen_c2) ) {
-        utf_hi_char = d - 0xc2;
+    if ( d >= 0x80u ) { // UTF-8 handling
+      if ( (d >= 0xc0u) && (!seen_c2) ) {
+        utf_hi_char = d - 0xc2u;
         seen_c2 = true;
         return 0;
       }
       else if (seen_c2) {
+        d &= 0x3fu;
+        #ifndef MAPPER_ONE_TO_ONE
+          HARDWARE_CHAR_OUT((char)pgm_read_byte_near(utf_recode + d + (utf_hi_char << 6) - 0x20));
+        #else
+          HARDWARE_CHAR_OUT((char)(0x80u + (utf_hi_char << 6) + d)) ;
+        #endif
+      }
+      else {
+        HARDWARE_CHAR_OUT('?');
+      }
+    }
+    else {
+      HARDWARE_CHAR_OUT((char) c );
+    }
+    seen_c2 = false;
+    return 1;
+  }
+
+#elif ENABLED(MAPPER_CECF)
+
+  char charset_mapper(char c) {
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_ce = false;
+    uint8_t d = c;
+    if ( d >= 0x80 ) { // UTF-8 handling
+      if ( (d >= 0xc0) && (!seen_ce) ) {
+        utf_hi_char = d - 0xce;
+        seen_ce = true;
+        return 0;
+      }
+      else if (seen_ce) {
         d &= 0x3f;
         #ifndef MAPPER_ONE_TO_ONE
           HARDWARE_CHAR_OUT((char)pgm_read_byte_near(utf_recode + d + (utf_hi_char << 6) - 0x20));
@@ -178,7 +211,38 @@
     else {
       HARDWARE_CHAR_OUT((char) c );
     }
-    seen_c2 = false;
+    seen_ce = false;
+    return 1;
+  }
+
+#elif ENABLED(MAPPER_CECF)
+
+  char charset_mapper(char c) {
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_ce = false;
+    uint8_t d = c;
+    if ( d >= 0x80 ) { // UTF-8 handling
+      if ( (d >= 0xc0) && (!seen_ce) ) {
+        utf_hi_char = d - 0xce;
+        seen_ce = true;
+        return 0;
+      }
+      else if (seen_ce) {
+        d &= 0x3f;
+        #ifndef MAPPER_ONE_TO_ONE
+          HARDWARE_CHAR_OUT((char)pgm_read_byte_near(utf_recode + d + (utf_hi_char << 6) - 0x20));
+        #else
+          HARDWARE_CHAR_OUT((char)(0x80 + (utf_hi_char << 6) + d)) ;
+        #endif
+      }
+      else {
+        HARDWARE_CHAR_OUT('?');
+      }
+    }
+    else {
+      HARDWARE_CHAR_OUT((char) c );
+    }
+    seen_ce = false;
     return 1;
   }
 
