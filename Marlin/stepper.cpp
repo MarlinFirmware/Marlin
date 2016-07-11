@@ -120,7 +120,10 @@ unsigned short Stepper::OCR1A_nominal;
 
 volatile long Stepper::endstops_trigsteps[3];
 
-#if ENABLED(DUAL_X_CARRIAGE)
+#if ENABLED(X_DUAL_STEPPER_DRIVERS)
+  #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)
+  #define X_APPLY_STEP(v,Q) do{ X_STEP_WRITE(v); X2_STEP_WRITE(v); }while(0)
+#elif ENABLED(DUAL_X_CARRIAGE)
   #define X_APPLY_DIR(v,ALWAYS) \
     if (extruder_duplication_enabled || ALWAYS) { \
       X_DIR_WRITE(v); \
@@ -143,15 +146,15 @@ volatile long Stepper::endstops_trigsteps[3];
 #endif
 
 #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  #define Y_APPLY_DIR(v,Q) { Y_DIR_WRITE(v); Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR); }
-  #define Y_APPLY_STEP(v,Q) { Y_STEP_WRITE(v); Y2_STEP_WRITE(v); }
+  #define Y_APPLY_DIR(v,Q) do{ Y_DIR_WRITE(v); Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR); }while(0)
+  #define Y_APPLY_STEP(v,Q) do{ Y_STEP_WRITE(v); Y2_STEP_WRITE(v); }while(0)
 #else
   #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v)
   #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)
 #endif
 
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-  #define Z_APPLY_DIR(v,Q) { Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }
+  #define Z_APPLY_DIR(v,Q) do{ Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }while(0)
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) \
     if (performing_homing) { \
@@ -169,7 +172,7 @@ volatile long Stepper::endstops_trigsteps[3];
       Z2_STEP_WRITE(v); \
     }
   #else
-    #define Z_APPLY_STEP(v,Q) { Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }
+    #define Z_APPLY_STEP(v,Q) do{ Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }while(0)
   #endif
 #else
   #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
@@ -669,14 +672,15 @@ void Stepper::init() {
 
   // Initialize Step Pins
   #if HAS_X_STEP
-    AXIS_INIT(x, X, X);
-    #if ENABLED(DUAL_X_CARRIAGE) && HAS_X2_STEP
-      AXIS_INIT(x, X2, X);
+    #if ENABLED(X_DUAL_STEPPER_DRIVERS) || ENABLED(DUAL_X_CARRIAGE)
+      X2_STEP_INIT;
+      X2_STEP_WRITE(INVERT_X_STEP_PIN);
     #endif
+    AXIS_INIT(x, X, X);
   #endif
 
   #if HAS_Y_STEP
-    #if ENABLED(Y_DUAL_STEPPER_DRIVERS) && HAS_Y2_STEP
+    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
       Y2_STEP_INIT;
       Y2_STEP_WRITE(INVERT_Y_STEP_PIN);
     #endif
@@ -684,7 +688,7 @@ void Stepper::init() {
   #endif
 
   #if HAS_Z_STEP
-    #if ENABLED(Z_DUAL_STEPPER_DRIVERS) && HAS_Z2_STEP
+    #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
       Z2_STEP_INIT;
       Z2_STEP_WRITE(INVERT_Z_STEP_PIN);
     #endif
