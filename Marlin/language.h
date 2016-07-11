@@ -48,6 +48,8 @@
 // cn         Chinese
 // cz         Czech
 // de         German
+// el         Greek
+// el-gr      Greek (Greece)
 // en         English
 // es         Spanish
 // eu         Basque-Euskera
