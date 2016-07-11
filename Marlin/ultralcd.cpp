@@ -398,6 +398,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     if (currentScreen != screen) {
       currentScreen = screen;
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+      encoderTopLine = 0;
       #if ENABLED(NEWPANEL)
         encoderPosition = encoder;
         if (feedback) lcd_quick_feedback();
