@@ -306,9 +306,9 @@ class Temperature {
       #endif
       #ifdef MILLISECONDS_PREHEAT_TIME
         if (celsius == 0.0f)
-          reset_preheat_time(hotend);
-        else if (target_temperature[hotend] == 0.0f)
-          start_preheat_time(hotend);
+          reset_preheat_time(HOTEND_INDEX);
+        else if (target_temperature[HOTEND_INDEX] == 0.0f)
+          start_preheat_time(HOTEND_INDEX);
       #endif
       target_temperature[HOTEND_INDEX] = celsius;
       #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
