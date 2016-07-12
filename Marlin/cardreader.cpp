@@ -416,6 +416,7 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
     else {
       saving = true;
       SERIAL_PROTOCOLPAIR(MSG_SD_WRITE_TO_FILE, name);
+      SERIAL_EOL;
       lcd_setstatus(fname);
     }
   }
