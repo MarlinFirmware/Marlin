@@ -230,7 +230,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
       _thisItemNr = 0;
 
-  #define START_SCREEN() _START_SCREEN(0)
+  #define START_SCREEN() _START_SCREEN(NOOP)
 
   /**
    * START_MENU generates the init code for a menu function

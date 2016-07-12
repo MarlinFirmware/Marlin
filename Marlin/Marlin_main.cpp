@@ -5965,7 +5965,7 @@ void quickstop_stepper() {
    * Use either 'M421 X<linear> Y<linear> Z<linear>' or 'M421 I<xindex> J<yindex> Z<linear>'
    */
   inline void gcode_M421() {
-    int8_t px, py;
+    int8_t px = 0, py = 0;
     float z = 0;
     bool hasX, hasY, hasZ, hasI, hasJ;
     if ((hasX = code_seen('X'))) px = mbl.probe_index_x(code_value_axis_units(X_AXIS));
@@ -6210,7 +6210,9 @@ inline void gcode_M503() {
     disable_e3();
     delay(100);
 
-    millis_t next_tick = 0;
+    #if HAS_BUZZER
+      millis_t next_tick = 0;
+    #endif
 
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
