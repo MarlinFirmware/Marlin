@@ -813,6 +813,16 @@
     #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_3
       #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
     #endif
+    #if ENABLED(AUTO_BED_LEVELING_GRID)
+      #define DELTA_BED_LEVELING_GRID
+    #endif
+  #endif
+
+  /**
+   * When not using other bed leveling...
+   */
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE) && DISABLED(AUTO_BED_LEVELING_GRID) && DISABLED(DELTA_BED_LEVELING_GRID)
+    #define AUTO_BED_LEVELING_3POINT
   #endif
 
   /**
