@@ -247,11 +247,24 @@ class Temperature {
      * Preheating hotends
      */
     #ifdef MILLISECONDS_PREHEAT_TIME
-      static bool is_preheating(uint8_t hotend) {
-        return preheat_end_time[hotend] && PENDING(millis(), preheat_end_time[hotend]);
+      static bool is_preheating(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        return preheat_end_time[HOTEND_INDEX] && PENDING(millis(), preheat_end_time[HOTEND_INDEX]);
       }
-      static void start_preheat_time(uint8_t hotend) { preheat_end_time[hotend] = millis() + MILLISECONDS_PREHEAT_TIME; }
-      static void reset_preheat_time(uint8_t hotend) { preheat_end_time[hotend] = 0; }
+      static void start_preheat_time(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        preheat_end_time[HOTEND_INDEX] = millis() + MILLISECONDS_PREHEAT_TIME;
+      }
+      static void reset_preheat_time(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        preheat_end_time[HOTEND_INDEX] = 0;
+      }
     #else
       #define is_preheating(n) (false)
     #endif
