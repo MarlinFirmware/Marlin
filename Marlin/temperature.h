@@ -76,13 +76,13 @@ class Temperature {
 
     #if ENABLED(PIDTEMP)
 
-      #if ENABLED(PID_PARAMS_PER_HOTEND)
+      #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
 
         static float Kp[HOTENDS], Ki[HOTENDS], Kd[HOTENDS];
         #if ENABLED(PID_ADD_EXTRUSION_RATE)
           static float Kc[HOTENDS];
         #endif
-        #define PID_PARAM(param, e) Temperature::param[e]
+        #define PID_PARAM(param, h) Temperature::param[h]
 
       #else
 
@@ -90,7 +90,7 @@ class Temperature {
         #if ENABLED(PID_ADD_EXTRUSION_RATE)
           static float Kc;
         #endif
-        #define PID_PARAM(param, e) Temperature::param
+        #define PID_PARAM(param, h) Temperature::param
 
       #endif // PID_PARAMS_PER_HOTEND
 
@@ -150,7 +150,7 @@ class Temperature {
 
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
         static float cTerm[HOTENDS];
-        static long last_position[HOTENDS];
+        static long last_e_position;
         static long lpq[LPQ_MAX_LEN];
         static int lpq_ptr;
       #endif
@@ -247,11 +247,24 @@ class Temperature {
      * Preheating hotends
      */
     #ifdef MILLISECONDS_PREHEAT_TIME
-      static bool is_preheating(uint8_t hotend) {
-        return preheat_end_time[hotend] && PENDING(millis(), preheat_end_time[hotend]);
+      static bool is_preheating(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        return preheat_end_time[HOTEND_INDEX] && PENDING(millis(), preheat_end_time[HOTEND_INDEX]);
       }
-      static void start_preheat_time(uint8_t hotend) { preheat_end_time[hotend] = millis() + MILLISECONDS_PREHEAT_TIME; }
-      static void reset_preheat_time(uint8_t hotend) { preheat_end_time[hotend] = 0; }
+      static void start_preheat_time(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        preheat_end_time[HOTEND_INDEX] = millis() + MILLISECONDS_PREHEAT_TIME;
+      }
+      static void reset_preheat_time(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        preheat_end_time[HOTEND_INDEX] = 0;
+      }
     #else
       #define is_preheating(n) (false)
     #endif
@@ -306,9 +319,9 @@ class Temperature {
       #endif
       #ifdef MILLISECONDS_PREHEAT_TIME
         if (celsius == 0.0f)
-          reset_preheat_time(hotend);
-        else if (target_temperature[hotend] == 0.0f)
-          start_preheat_time(hotend);
+          reset_preheat_time(HOTEND_INDEX);
+        else if (target_temperature[HOTEND_INDEX] == 0.0f)
+          start_preheat_time(HOTEND_INDEX);
       #endif
       target_temperature[HOTEND_INDEX] = celsius;
       #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
