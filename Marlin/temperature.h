@@ -76,13 +76,13 @@ class Temperature {
 
     #if ENABLED(PIDTEMP)
 
-      #if ENABLED(PID_PARAMS_PER_HOTEND)
+      #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
 
         static float Kp[HOTENDS], Ki[HOTENDS], Kd[HOTENDS];
         #if ENABLED(PID_ADD_EXTRUSION_RATE)
           static float Kc[HOTENDS];
         #endif
-        #define PID_PARAM(param, e) Temperature::param[e]
+        #define PID_PARAM(param, h) Temperature::param[h]
 
       #else
 
@@ -90,7 +90,7 @@ class Temperature {
         #if ENABLED(PID_ADD_EXTRUSION_RATE)
           static float Kc;
         #endif
-        #define PID_PARAM(param, e) Temperature::param
+        #define PID_PARAM(param, h) Temperature::param
 
       #endif // PID_PARAMS_PER_HOTEND
 
