@@ -128,7 +128,7 @@ volatile bool Temperature::temp_meas_ready = false;
 
   #if ENABLED(PID_ADD_EXTRUSION_RATE)
     float Temperature::cTerm[HOTENDS];
-    long Temperature::last_position[HOTENDS];
+    long Temperature::last_e_position;
     long Temperature::lpq[LPQ_MAX_LEN];
     int Temperature::lpq_ptr = 0;
   #endif
@@ -444,11 +444,11 @@ Temperature::Temperature() { }
 
 void Temperature::updatePID() {
   #if ENABLED(PIDTEMP)
+    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      last_e_position = 0;
+    #endif
     HOTEND_LOOP() {
       temp_iState_max[e] = (PID_INTEGRAL_DRIVE_MAX) / PID_PARAM(Ki, e);
-      #if ENABLED(PID_ADD_EXTRUSION_RATE)
-        last_position[e] = 0;
-      #endif
     }
   #endif
   #if ENABLED(PIDTEMPBED)
@@ -531,10 +531,8 @@ float Temperature::get_pid_output(int e) {
   #if HOTENDS == 1
     UNUSED(e);
     #define _HOTEND_TEST     true
-    #define _HOTEND_EXTRUDER active_extruder
   #else
     #define _HOTEND_TEST     e == active_extruder
-    #define _HOTEND_EXTRUDER e
   #endif
   float pid_output;
   #if ENABLED(PIDTEMP)
@@ -566,14 +564,14 @@ float Temperature::get_pid_output(int e) {
           cTerm[HOTEND_INDEX] = 0;
           if (_HOTEND_TEST) {
             long e_position = stepper.position(E_AXIS);
-            if (e_position > last_position[_HOTEND_EXTRUDER]) {
-              lpq[lpq_ptr++] = e_position - last_position[_HOTEND_EXTRUDER];
-              last_position[_HOTEND_EXTRUDER] = e_position;
+            if (e_position > last_e_position) {
+              lpq[lpq_ptr] = e_position - last_e_position;
+              last_e_position = e_position;
             }
             else {
-              lpq[lpq_ptr++] = 0;
+              lpq[lpq_ptr] = 0;
             }
-            if (lpq_ptr >= lpq_len) lpq_ptr = 0;
+            if (++lpq_ptr >= lpq_len) lpq_ptr = 0;
             cTerm[HOTEND_INDEX] = (lpq[lpq_ptr] / planner.axis_steps_per_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
             pid_output += cTerm[HOTEND_INDEX];
           }
@@ -952,7 +950,7 @@ void Temperature::init() {
       temp_iState_min[e] = 0.0;
       temp_iState_max[e] = (PID_INTEGRAL_DRIVE_MAX) / PID_PARAM(Ki, e);
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
-        last_position[e] = 0;
+        last_e_position = 0;
       #endif
     #endif //PIDTEMP
     #if ENABLED(PIDTEMPBED)
@@ -960,6 +958,10 @@ void Temperature::init() {
       temp_iState_max_bed = (PID_BED_INTEGRAL_DRIVE_MAX) / bedKi;
     #endif //PIDTEMPBED
   }
+
+  #if ENABLED(PIDTEMP) && ENABLED(PID_ADD_EXTRUSION_RATE)
+    last_e_position = 0;
+  #endif
 
   #if HAS_HEATER_0
     SET_OUTPUT(HEATER_0_PIN);

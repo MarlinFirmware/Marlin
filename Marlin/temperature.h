@@ -150,7 +150,7 @@ class Temperature {
 
       #if ENABLED(PID_ADD_EXTRUSION_RATE)
         static float cTerm[HOTENDS];
-        static long last_position[HOTENDS];
+        static long last_e_position;
         static long lpq[LPQ_MAX_LEN];
         static int lpq_ptr;
       #endif
