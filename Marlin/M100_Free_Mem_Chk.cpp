@@ -43,23 +43,23 @@
 #include "Marlin.h"
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
-extern void* __brkval;
+extern char* __brkval;
 extern size_t  __heap_start, __heap_end, __flp;
-
+extern char __bss_end;
 
 //
 // Utility functions used by M100 to get its work done.
 //
 
-unsigned char* top_of_stack();
+char* top_of_stack();
 void prt_hex_nibble(unsigned int);
 void prt_hex_byte(unsigned int);
 void prt_hex_word(unsigned int);
-int how_many_E5s_are_here(unsigned char*);
+int how_many_E5s_are_here(char*);
 
 void gcode_M100() {
-  static int m100_not_initialized = 1;
-  unsigned char* sp, *ptr;
+  static bool m100_not_initialized = true;
+  char* sp, *ptr;
   int i, j, n;
   //
   // M100 D dumps the free memory block from __brkval to the stack pointer.
@@ -72,19 +72,19 @@ void gcode_M100() {
   //
   #if ENABLED(M100_FREE_MEMORY_DUMPER) // Disable to remove Dump sub-command
     if (code_seen('D')) {
-      ptr = (unsigned char*) __brkval;
+      ptr = __brkval ? __brkval : &__bss_end;
       //
       // We want to start and end the dump on a nice 16 byte boundry even though
       // the values we are using are not 16 byte aligned.
       //
-      SERIAL_ECHOPGM("\n__brkval : ");
+      SERIAL_ECHOPGM("\nbss_end : ");
       prt_hex_word((unsigned int) ptr);
-      ptr = (unsigned char*)((unsigned long) ptr & 0xfff0);
+      ptr = (char*)((unsigned long) ptr & 0xfff0);
       sp = top_of_stack();
       SERIAL_ECHOPGM("\nStack Pointer : ");
       prt_hex_word((unsigned int) sp);
       SERIAL_EOL;
-      sp = (unsigned char*)((unsigned long) sp | 0x000f);
+      sp = (char*)((unsigned long) sp | 0x000f);
       n = sp - ptr;
       //
       // This is the main loop of the Dump command.
@@ -95,21 +95,17 @@ void gcode_M100() {
         for (i = 0; i < 16; i++) {      // and 16 data bytes
           prt_hex_byte(*(ptr + i));
           SERIAL_CHAR(' ');
-          delay(2);
         }
         SERIAL_CHAR('|');         // now show where non 0xE5's are
         for (i = 0; i < 16; i++) {
-          delay(2);
-          if (*(ptr + i) == 0xe5)
+          if (*(ptr + i) == (char)0xe5)
             SERIAL_CHAR(' ');
           else
             SERIAL_CHAR('?');
         }
         SERIAL_EOL;
         ptr += 16;
-        delay(2);
       }
-      SERIAL_ECHOLNPGM("Done.");
       return;
     }
   #endif
@@ -119,17 +115,17 @@ void gcode_M100() {
   //
   if (code_seen('F')) {
     #if 0
-      int max_addr = (int) __brkval;
+      int max_addr = (int)  __brkval ? __brkval : &__bss_end;
       int max_cnt = 0;
     #endif
     int block_cnt = 0;
-    ptr = (unsigned char*) __brkval;
+    ptr =  __brkval ? __brkval : &__bss_end;
     sp = top_of_stack();
     n = sp - ptr;
     // Scan through the range looking for the biggest block of 0xE5's we can find
     for (i = 0; i < n; i++) {
-      if (*(ptr + i) == (unsigned char) 0xe5) {
-        j = how_many_E5s_are_here((unsigned char*) ptr + i);
+      if (*(ptr + i) == (char)0xe5) {
+        j = how_many_E5s_are_here(ptr + i);
         if (j > 8) {
           SERIAL_ECHOPAIR("Found ", j);
           SERIAL_ECHOPGM(" bytes free at 0x");
@@ -148,7 +144,6 @@ void gcode_M100() {
     }
     if (block_cnt > 1)
       SERIAL_ECHOLNPGM("\nMemory Corruption detected in free memory area.");
-    SERIAL_ECHOLNPGM("\nDone.");
     return;
   }
   //
@@ -159,8 +154,8 @@ void gcode_M100() {
     if (code_seen('C')) {
       int x = code_value_int(); // x gets the # of locations to corrupt within the memory pool
       SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
-      ptr = (unsigned char*) __brkval;
-      SERIAL_ECHOPAIR("\n__brkval : ", ptr);
+      ptr = __brkval ? __brkval : &__bss_end;
+      SERIAL_ECHOPAIR("\nbss_end : ", ptr);
       ptr += 8;
       sp = top_of_stack();
       SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
@@ -181,10 +176,10 @@ void gcode_M100() {
   // M100 I    Initializes the free memory pool so it can be watched and prints vital
   // statistics that define the free memory pool.
   //
-  if (m100_not_initialized || code_seen('I')) {       // If no sub-command is specified, the first time
-    SERIAL_ECHOLNPGM("Initializing free memory block.\n");    // this happens, it will Initialize.
-    ptr = (unsigned char*) __brkval;        // Repeated M100 with no sub-command will not destroy the
-    SERIAL_ECHOPAIR("\n__brkval : ", ptr);     // state of the initialized free memory pool.
+  if (m100_not_initialized || code_seen('I')) {            // If no sub-command is specified, the first time
+    SERIAL_ECHOLNPGM("Initializing free memory block.\n"); // this happens, it will Initialize.
+    ptr = __brkval ? __brkval : &__bss_end;                // Repeated M100 with no sub-command will not destroy the
+    SERIAL_ECHOPAIR("\nbss_end : ", ptr);                  // state of the initialized free memory pool.
     ptr += 8;
     sp = top_of_stack();
     SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
@@ -194,16 +189,15 @@ void gcode_M100() {
     SERIAL_ECHO(n);
     SERIAL_ECHOLNPGM(" bytes of memory initialized.\n");
     for (i = 0; i < n; i++)
-      *(ptr + i) = (unsigned char) 0xe5;
+      *(ptr + i) = (char)0xe5;
     for (i = 0; i < n; i++) {
-      if (*(ptr + i) != (unsigned char) 0xe5) {
+      if (*(ptr + i) != (char)0xe5) {
         SERIAL_ECHOPAIR("? address : ", ptr + i);
         SERIAL_ECHOPAIR("=", *(ptr + i));
         SERIAL_ECHOLNPGM("\n");
       }
     }
-    m100_not_initialized = 0;
-    SERIAL_ECHOLNPGM("Done.\n");
+    m100_not_initialized = false;
     return;
   }
   return;
@@ -212,8 +206,8 @@ void gcode_M100() {
 // top_of_stack() returns the location of a variable on its stack frame.  The value returned is above
 // the stack once the function returns to the caller.
 
-unsigned char* top_of_stack() {
-  unsigned char x;
+char* top_of_stack() {
+  char x;
   return &x + 1; // x is pulled on return;
 }
 
@@ -226,7 +220,6 @@ void prt_hex_nibble(unsigned int n) {
     SERIAL_ECHO(n);
   else
     SERIAL_ECHO((char)('A' + n - 10));
-  delay(2);
 }
 
 void prt_hex_byte(unsigned int b) {
@@ -242,10 +235,10 @@ void prt_hex_word(unsigned int w) {
 // how_many_E5s_are_here() is a utility function to easily find out how many 0xE5's are
 // at the specified location.  Having this logic as a function simplifies the search code.
 //
-int how_many_E5s_are_here(unsigned char* p) {
+int how_many_E5s_are_here(char* p) {
   int n;
   for (n = 0; n < 32000; n++) {
-    if (*(p + n) != (unsigned char) 0xe5)
+    if (*(p + n) != (char)0xe5)
       return n - 1;
   }
   return -1;
