@@ -618,7 +618,7 @@ void Config_ResetDefault() {
 
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND)
-      HOTEND_LOOP
+      HOTEND_LOOP()
     #else
       int e = 0; UNUSED(e); // only need to write once
     #endif
