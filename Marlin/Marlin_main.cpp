@@ -3948,12 +3948,22 @@ inline void gcode_M17() {
  */
 inline void gcode_M31() {
   millis_t t = print_job_timer.duration();
-  int min = t / 60, sec = t % 60;
-  char time[30];
-  sprintf_P(time, PSTR("%i min, %i sec"), min, sec);
-  SERIAL_ECHO_START;
-  SERIAL_ECHOLN(time);
+  int d = int(t / 60 / 60 / 24),
+      h = int(t / 60 / 60) % 60,
+      m = int(t / 60) % 60,
+      s = int(t % 60);
+  char time[18];                                          // 123456789012345678
+  if (d)
+    sprintf_P(time, PSTR("%id %ih %im %is"), d, h, m, s); // 99d 23h 59m 59s
+  else
+    sprintf_P(time, PSTR("%ih %im %is"), h, m, s);        // 23h 59m 59s
+
   lcd_setstatus(time);
+
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPGM(MSG_PRINT_TIME " ");
+  SERIAL_ECHOLN(time);
+
   thermalManager.autotempShutdown();
 }
 
