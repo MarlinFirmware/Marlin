@@ -1172,8 +1172,7 @@ inline void get_serial_commands() {
           print_job_timer.stop();
           char time[30];
           millis_t t = print_job_timer.duration();
-          int hours = t / 60 / 60, minutes = (t / 60) % 60;
-          sprintf_P(time, PSTR("%i " MSG_END_HOUR " %i " MSG_END_MINUTE), hours, minutes);
+          sprintf_P(time, PSTR("%i " MSG_END_HOUR " %i " MSG_END_MINUTE), int(t / 60 / 60), int(t / 60) % 60);
           SERIAL_ECHO_START;
           SERIAL_ECHOLN(time);
           lcd_setstatus(time, true);

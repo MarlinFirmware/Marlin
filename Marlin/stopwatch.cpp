@@ -88,9 +88,9 @@ bool Stopwatch::isPaused() {
   return (this->state == STOPWATCH_PAUSED) ? true : false;
 }
 
-uint16_t Stopwatch::duration() {
+millis_t Stopwatch::duration() {
   return (((this->isRunning()) ? millis() : this->stopTimestamp)
-          - this->startTimestamp) / 1000 + this->accumulator;
+          - this->startTimestamp) / 1000UL + this->accumulator;
 }
 
 #if ENABLED(DEBUG_STOPWATCH)
