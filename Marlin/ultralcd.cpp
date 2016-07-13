@@ -2476,7 +2476,11 @@ void lcd_init() {
 int lcd_strlen(const char* s) {
   int i = 0, j = 0;
   while (s[i]) {
-    if ((s[i] & 0xc0) != 0x80) j++;
+    #ifdef MAPPER_NON
+      j++;
+    #else
+      if ((s[i] & 0xc0) != 0x80) j++;
+    #endif
     i++;
   }
   return j;
@@ -2485,7 +2489,11 @@ int lcd_strlen(const char* s) {
 int lcd_strlen_P(const char* s) {
   int j = 0;
   while (pgm_read_byte(s)) {
-    if ((pgm_read_byte(s) & 0xc0) != 0x80) j++;
+    #ifdef MAPPER_NON
+      j++; 
+    #else
+      if ((pgm_read_byte(s) & 0xc0) != 0x80) j++;
+    #endif
     s++;
   }
   return j;
