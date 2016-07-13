@@ -68,7 +68,7 @@ unsigned char Temperature::soft_pwm_bed;
 #endif
 
 #if ENABLED(PIDTEMP)
-  #if ENABLED(PID_PARAMS_PER_HOTEND)
+  #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
     float Temperature::Kp[HOTENDS] = ARRAY_BY_HOTENDS1(DEFAULT_Kp),
           Temperature::Ki[HOTENDS] = ARRAY_BY_HOTENDS1((DEFAULT_Ki) * (PID_dT)),
           Temperature::Kd[HOTENDS] = ARRAY_BY_HOTENDS1((DEFAULT_Kd) / (PID_dT));
