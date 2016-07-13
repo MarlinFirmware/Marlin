@@ -27,12 +27,12 @@ PrintCounter::PrintCounter(): super() {
   this->loadStats();
 }
 
-uint16_t PrintCounter::deltaDuration() {
+millis_t PrintCounter::deltaDuration() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     PrintCounter::debug(PSTR("deltaDuration"));
   #endif
 
-  uint16_t tmp = this->lastDuration;
+  millis_t tmp = this->lastDuration;
   this->lastDuration = this->duration();
   return this->lastDuration - tmp;
 }
@@ -88,12 +88,12 @@ void PrintCounter::showStats() {
   SERIAL_ECHO(this->data.totalPrints - this->data.finishedPrints
     - ((this->isRunning() || this->isPaused()) ? 1 : 0)); // Removes 1 from failures with an active counter
 
-  uint32_t t = this->data.printTime / 60;
+  millis_t t = this->data.printTime / 60; // minutes from seconds
   SERIAL_ECHOPGM(", Total print time: ");
-  SERIAL_ECHO(t / 60);
+  SERIAL_ECHO(t / 60); // hours
 
   SERIAL_ECHOPGM("h ");
-  SERIAL_ECHO(t % 60);
+  SERIAL_ECHO(t % 60); // minutes
 
   SERIAL_ECHOPGM("min");
 
@@ -110,10 +110,10 @@ void PrintCounter::showStats() {
 void PrintCounter::tick() {
   if (!this->isRunning()) return;
 
-  static uint32_t update_before = millis(),
+  static millis_t update_before = millis(),
                   eeprom_before = millis();
 
-  uint32_t now = millis();
+  millis_t now = millis();
 
   // Trying to get the amount of calculations down to the bare min
   const static uint16_t i = this->updateInterval * 1000;
@@ -128,8 +128,7 @@ void PrintCounter::tick() {
   }
 
   // Trying to get the amount of calculations down to the bare min
-  const static uint32_t j = this->saveInterval * 1000;
-
+  const static millis_t j = this->saveInterval * 1000;
   if (now - eeprom_before >= j) {
     eeprom_before = now;
     this->saveStats();
