@@ -146,14 +146,7 @@
   #endif // DISPLAY_CHARSET_HD44780
 #endif // SIMULATE_ROMFONT
 
-#if ENABLED(MAPPER_NON)
-
-  char charset_mapper(char c) {
-    HARDWARE_CHAR_OUT( c );
-    return 1;
-  }
-
-#elif ENABLED(MAPPER_C2C3)
+#if ENABLED(MAPPER_C2C3)
 
   char charset_mapper(char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
@@ -353,8 +346,13 @@
 
 #else
 
-  #error "You have to define one of the DISPLAY_INPUT_CODE_MAPPERs in your language_xx.h file" // should not occur because (en) will set.
+  #define MAPPER_NON
 
-#endif // code mappers
+  char charset_mapper(char c) {
+    HARDWARE_CHAR_OUT( c );
+    return 1;
+  }
+
+  #endif // code mappers
 
 #endif // UTF_MAPPER_H

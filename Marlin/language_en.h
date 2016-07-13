@@ -35,10 +35,6 @@
   #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #endif
 
-#if DISABLED(MAPPER_NON) && DISABLED(MAPPER_C2C3) && DISABLED(MAPPER_D0D1) && DISABLED(MAPPER_D0D1_MOD) && DISABLED(MAPPER_E382E383) && DISABLED(MAPPER_CECF)
-  #define MAPPER_NON         // For direct ascii codes
-#endif
-
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME " ready."
 #endif

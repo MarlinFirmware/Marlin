@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_CA_H
 #define LANGUAGE_CA_H
 
-//#define MAPPER_NON
 #define MAPPER_C2C3  // because of "ó"
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
