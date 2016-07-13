@@ -649,8 +649,8 @@
 /**
  * Nozzle cleaning
  */
-#if ENABLED(CLEAN_NOZZLE_FEATURE) && DISABLED(AUTO_BED_LEVELING_FEATURE)
-  #error You must enable AUTO_BED_LEVELING_FEATURE for CLEAN_NOZZLE_FEATURE to work
+#if ENABLED(NOZZLE_CLEAN_FEATURE) && !HAS_BED_PROBE
+  #error Due to internal dependencies you must have a bed probe for NOZZLE_CLEAN_FEATURE to work
 #endif
 
 #endif //SANITYCHECK_H

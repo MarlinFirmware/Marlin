@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef __CLEAN_NOZZLE_H__
-#define __CLEAN_NOZZLE_H__
+#ifndef __NOZZLE_H__
+#define __NOZZLE_H__
 
 #include "Marlin.h"
 #include "point_t.h"
@@ -30,7 +30,7 @@
  * @brief Nozzle class
  *
  * @todo: Do not ignore the end.z value and allow XYZ movements
- * @todo: Currently this feature needs AUTO_BED_LEVELING_FEATURE to be active
+ * @todo: Currently this feature needs HAS_BED_PROBE to be active
  *  due to the do_blocking_move_to*() functions.
  */
 class Nozzle {
@@ -45,6 +45,17 @@ class Nozzle {
      */
     static void stroke(point_t const &start, point_t const &end, uint8_t const &strokes)
     __attribute__ ((optimize ("Os"))) {
+
+      #if ENABLED(NOZZLE_CLEAN_PARK)
+        // Store the current coords
+        point_t const initial = {
+          current_position[X_AXIS],
+          current_position[Y_AXIS],
+          current_position[Z_AXIS],
+          current_position[E_AXIS]
+        };
+      #endif
+
       // Move to the starting point
       do_blocking_move_to_xy(start.x, start.y);
       do_blocking_move_to_z(start.z);
@@ -54,6 +65,12 @@ class Nozzle {
         do_blocking_move_to_xy(end.x, end.y);
         do_blocking_move_to_xy(start.x, start.y);
       }
+
+      #if ENABLED(NOZZLE_CLEAN_PARK)
+        // Move the nozzle to the initial point
+        do_blocking_move_to_z(initial.z);
+        do_blocking_move_to_xy(initial.x, initial.y);
+      #endif
     }
 
     /**
@@ -74,13 +91,15 @@ class Nozzle {
       // Don't allow impossible triangles
       if (A <= 0.0f || P <= 0.0f ) return;
 
-      // Store the current coords
-      point_t const home = {
-        current_position[X_AXIS],
-        current_position[Y_AXIS],
-        current_position[Z_AXIS],
-        current_position[E_AXIS]
-      };
+      #if ENABLED(NOZZLE_CLEAN_PARK)
+        // Store the current coords
+        point_t const initial = {
+          current_position[X_AXIS],
+          current_position[Y_AXIS],
+          current_position[Z_AXIS],
+          current_position[E_AXIS]
+        };
+      #endif
 
       for (uint8_t j = 0; j < strokes; j++) {
         for (uint8_t i = 0; i < (objects << 1); i++) {
@@ -99,9 +118,11 @@ class Nozzle {
         }
       }
 
-      // Move to home/start position
-      do_blocking_move_to_z(home.z);
-      do_blocking_move_to_xy(home.x, home.y);
+      #if ENABLED(NOZZLE_CLEAN_PARK)
+        // Move the nozzle to the initial point
+        do_blocking_move_to_z(initial.z);
+        do_blocking_move_to_xy(initial.x, initial.y);
+      #endif
     }
 
   public:
@@ -118,14 +139,14 @@ class Nozzle {
       switch (pattern) {
         case 1:
           Nozzle::zigzag(
-            CLEAN_NOZZLE_START_PT,
-            CLEAN_NOZZLE_END_PT, strokes, objects);
+            NOZZLE_CLEAN_START_PT,
+            NOZZLE_CLEAN_END_PT, strokes, objects);
           break;
 
         default:
           Nozzle::stroke(
-            CLEAN_NOZZLE_START_PT,
-            CLEAN_NOZZLE_END_PT, strokes);
+            NOZZLE_CLEAN_START_PT,
+            NOZZLE_CLEAN_END_PT, strokes);
       }
     }
 };
