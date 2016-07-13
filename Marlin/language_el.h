@@ -55,16 +55,16 @@
 #define MSG_SET_HOME_OFFSETS                "Ορισμός βασικών μετατοπίσεων" //SHORTEN
 #define MSG_HOME_OFFSETS_APPLIED            "Εφαρμόστηκαν οι μετατοπίσεις" //SHORTEN
 #define MSG_SET_ORIGIN                      "Ορισμός προέλευσης"
-#define MSG_PREHEAT_PLA                     "Προθέρμανση PLA"
-#define MSG_PREHEAT_PLA_N                   MSG_PREHEAT_PLA " "
-#define MSG_PREHEAT_PLA_ALL                 MSG_PREHEAT_PLA " όλα"
-#define MSG_PREHEAT_PLA_BEDONLY             MSG_PREHEAT_PLA " bed" //SHORTEN
-#define MSG_PREHEAT_PLA_SETTINGS            MSG_PREHEAT_PLA " επιβεβαίωση" //SHORTEN
-#define MSG_PREHEAT_ABS                     "Προθέρμανση ABS"
-#define MSG_PREHEAT_ABS_N                   MSG_PREHEAT_ABS " "
-#define MSG_PREHEAT_ABS_ALL                 MSG_PREHEAT_ABS " όλα"
-#define MSG_PREHEAT_ABS_BEDONLY             MSG_PREHEAT_ABS " bed" //SHORTEN
-#define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " επιβεβαίωση" //SHORTEN
+#define MSG_PREHEAT_1                       "Προθέρμανση PLA"
+#define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 " "
+#define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 " όλα"
+#define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 " bed" //SHORTEN
+#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 " επιβεβαίωση" //SHORTEN
+#define MSG_PREHEAT_2                       "Προθέρμανση ABS"
+#define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 " "
+#define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " όλα"
+#define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 " bed" //SHORTEN
+#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " επιβεβαίωση" //SHORTEN
 #define MSG_H1                              "1"
 #define MSG_H2                              "2"
 #define MSG_H3                              "3"
