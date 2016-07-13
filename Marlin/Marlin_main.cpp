@@ -4862,32 +4862,32 @@ inline void gcode_M140() {
         case 0:
           if (code_seen('H')) {
             v = code_value_int();
-            plaPreheatHotendTemp = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
+            preheatHotendTemp1 = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
           }
           if (code_seen('F')) {
             v = code_value_int();
-            plaPreheatFanSpeed = constrain(v, 0, 255);
+            preheatFanSpeed1 = constrain(v, 0, 255);
           }
           #if TEMP_SENSOR_BED != 0
             if (code_seen('B')) {
               v = code_value_int();
-              plaPreheatHPBTemp = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
+              preheatBedTemp1 = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
             }
           #endif
           break;
         case 1:
           if (code_seen('H')) {
             v = code_value_int();
-            absPreheatHotendTemp = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
+            preheatHotendTemp2 = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
           }
           if (code_seen('F')) {
             v = code_value_int();
-            absPreheatFanSpeed = constrain(v, 0, 255);
+            preheatFanSpeed2 = constrain(v, 0, 255);
           }
           #if TEMP_SENSOR_BED != 0
             if (code_seen('B')) {
               v = code_value_int();
-              absPreheatHPBTemp = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
+              preheatBedTemp2 = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
             }
           #endif
           break;
