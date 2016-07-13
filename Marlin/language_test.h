@@ -141,8 +141,8 @@
   #define MSG_DISABLE_STEPPERS                STRG_C2_8
   #define MSG_AUTO_HOME                       STRG_C2_9
   #define MSG_SET_HOME_OFFSETS                STRG_C2_a
-  #define MSG_PREHEAT_PLA                     STRG_C2_b
-  #define MSG_PREHEAT_ABS                     STRG_C3_8
+  #define MSG_PREHEAT_1                       STRG_C2_b
+  #define MSG_PREHEAT_2                       STRG_C3_8
   #define MSG_COOLDOWN                        STRG_C3_9
   #define MSG_SWITCH_PS_OFF                   STRG_C3_a
   #define MSG_MOVE_AXIS                       STRG_C3_b
@@ -176,8 +176,8 @@
   #define MSG_DISABLE_STEPPERS                STRG_D0_8
   #define MSG_AUTO_HOME                       STRG_D0_9
   #define MSG_SET_HOME_OFFSETS                STRG_D0_a
-  #define MSG_PREHEAT_PLA                     STRG_D0_b
-  #define MSG_PREHEAT_ABS                     STRG_D1_8
+  #define MSG_PREHEAT_1                       STRG_D0_b
+  #define MSG_PREHEAT_2                       STRG_D1_8
   #define MSG_COOLDOWN                        STRG_D1_9
   #define MSG_SWITCH_PS_OFF                   STRG_D1_a
   #define MSG_MOVE_AXIS                       STRG_D1_b
@@ -211,8 +211,8 @@
   #define MSG_DISABLE_STEPPERS                STRG_E382_8
   #define MSG_AUTO_HOME                       STRG_E382_9
   #define MSG_SET_HOME_OFFSETS                STRG_E382_a
-  #define MSG_PREHEAT_PLA                     STRG_E382_b
-  #define MSG_PREHEAT_ABS                     STRG_E383_8
+  #define MSG_PREHEAT_1                       STRG_E382_b
+  #define MSG_PREHEAT_2                       STRG_E383_8
   #define MSG_COOLDOWN                        STRG_E383_9
   #define MSG_SWITCH_PS_OFF                   STRG_E383_a
   #define MSG_MOVE_AXIS                       STRG_E383_b
