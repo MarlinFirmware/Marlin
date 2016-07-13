@@ -1293,12 +1293,14 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // DELTA_CALIBRATION_MENU
 
+  float move_menu_scale;
+
   /**
    * If the most recent manual move hasn't been fed to the planner yet,
    * and the planner can accept one, send immediately
    */
   inline void manage_manual_move() {
-    if (manual_move_axis != (int8_t)NO_AXIS && millis() >= manual_move_start_time && !planner.is_full()) {
+    if (manual_move_axis != (int8_t)NO_AXIS && ELAPSED(millis(), manual_move_start_time) && !planner.is_full()) {
       #if ENABLED(DELTA)
         calculate_delta(current_position);
         planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[manual_move_axis]/60, manual_move_e_index);
@@ -1321,7 +1323,7 @@ void kill_screen(const char* lcd_msg) {
     #if EXTRUDERS > 1
       if (axis == E_AXIS) manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
     #endif
-    manual_move_start_time = millis() + 500UL; // 1/2 second delay
+    manual_move_start_time = millis() + (move_menu_scale < 0.99 ? 0UL : 250UL); // delay for bigger moves
     manual_move_axis = (int8_t)axis;
   }
 
@@ -1330,8 +1332,6 @@ void kill_screen(const char* lcd_msg) {
    * "Prepare" > "Move Axis" submenu
    *
    */
-
-  float move_menu_scale;
 
   static void _lcd_move_xyz(const char* name, AxisEnum axis, float min, float max) {
     if (LCD_CLICKED) { lcd_goto_previous_menu(true); return; }

@@ -1707,12 +1707,6 @@ static void clean_up_after_endstop_or_probe_move() {
 
   /**
    * Raise Z to a minimum height to make room for a probe to move
-   *
-   * zprobe_zoffset: Negative of the Z height where the probe engages
-   *        z_raise: The probing raise distance
-   *
-   * The zprobe_zoffset is negative for a switch below the nozzle, so
-   * multiply by Z_HOME_DIR (-1) to move enough away from the bed.
    */
   inline void do_probe_raise(float z_raise) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1723,7 +1717,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
     float z_dest = home_offset[Z_AXIS] + z_raise;
 
-    if ((Z_HOME_DIR) < 0 && zprobe_zoffset < 0)
+    if (zprobe_zoffset < 0)
       z_dest -= zprobe_zoffset;
 
     if (z_dest > current_position[Z_AXIS])
