@@ -821,13 +821,18 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Attention: This is an EXPERIMENTAL feature, in the future the G-code arguments
 // may change to add new functionality like different wipe patterns.
 //
-//#define CLEAN_NOZZLE_FEATURE
+//#define NOZZLE_CLEAN_FEATURE
 
-#if ENABLED(CLEAN_NOZZLE_FEATURE)
-  #define CLEAN_NOZZLE_STROKES  12
-  #define CLEAN_NOZZLE_START_PT { 30, 30, (Z_MIN_POS + 5), 0}
-  #define CLEAN_NOZZLE_END_PT   {100, 60, (Z_MIN_POS + 5), 0}
-  //                            {  X,  Y,               Z, E}
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
+  // Number of pattern repetitions
+  #define NOZZLE_CLEAN_STROKES  12
+
+  //                            {  X,  Y,               Z}
+  #define NOZZLE_CLEAN_START_PT { 30, 30, (Z_MIN_POS + 5)}
+  #define NOZZLE_CLEAN_END_PT   {100, 60, (Z_MIN_POS + 5)}
+
+  // Moves the nozzle to the parked position
+  #define NOZZLE_CLEAN_PARK
 #endif
 
 //
