@@ -2717,18 +2717,15 @@ inline void gcode_G4() {
 
 #endif //FWRETRACT
 
-#if ENABLED(CLEAN_NOZZLE_FEATURE) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if ENABLED(NOZZLE_CLEAN_FEATURE) && ENABLED(AUTO_BED_LEVELING_FEATURE)
   #include "nozzle.h"
 
   inline void gcode_G12() {
     // Don't allow nozzle cleaning without homing first
-    if (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) {
-      axis_unhomed_error(true);
-      return;
-    }
+    if (axis_unhomed_error(true, true, true)) { return; }
 
     uint8_t const pattern = code_seen('P') ? code_value_ushort() : 0;
-    uint8_t const strokes = code_seen('S') ? code_value_ushort() : CLEAN_NOZZLE_STROKES;
+    uint8_t const strokes = code_seen('S') ? code_value_ushort() : NOZZLE_CLEAN_STROKES;
     uint8_t const objects = code_seen('T') ? code_value_ushort() : 3;
 
     Nozzle::clean(pattern, strokes, objects);
@@ -6796,11 +6793,11 @@ void process_next_command() {
           break;
       #endif // FWRETRACT
 
-      #if ENABLED(CLEAN_NOZZLE_FEATURE) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+      #if ENABLED(NOZZLE_CLEAN_FEATURE) && HAS_BED_PROBE
         case 12:
           gcode_G12(); // G12: Clean Nozzle
           break;
-      #endif // CLEAN_NOZZLE_FEATURE
+      #endif // NOZZLE_CLEAN_FEATURE
 
       #if ENABLED(INCH_MODE_SUPPORT)
         case 20: //G20: Inch Mode
