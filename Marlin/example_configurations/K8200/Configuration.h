@@ -805,6 +805,54 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 //
+// Clean Nozzle Feature -- EXPERIMENTAL
+//
+// When enabled allows the user to send G12 to start the nozzle cleaning
+// process, the G-Code accepts two parameters:
+//   "P" for pattern selection
+//   "S" for defining the number of strokes/repetitions
+//
+// Available list of patterns:
+//   P0: This is the default pattern, this process requires a sponge type
+//       material at a fixed bed location, the cleaning process is based on
+//       "strokes" i.e. back-and-forth movements between the starting and end
+//       points.
+//
+//   P1: This starts a zig-zag pattern between (X0, Y0) and (X1, Y1), "T"
+//       defines the number of zig-zag triangles to be done. "S" defines the
+//       number of strokes aka one back-and-forth movement. As an example
+//       sending "G12 P1 S1 T3" will execute:
+//
+//          --
+//         |  (X0, Y1) |     /\        /\        /\     | (X1, Y1)
+//         |           |    /  \      /  \      /  \    |
+//       A |           |   /    \    /    \    /    \   |
+//         |           |  /      \  /      \  /      \  |
+//         |  (X0, Y0) | /        \/        \/        \ | (X1, Y0)
+//          --         +--------------------------------+
+//                       |________|_________|_________|
+//                           T1        T2        T3
+//
+// Caveats: End point Z should use the same value as Start point Z.
+//
+// Attention: This is an EXPERIMENTAL feature, in the future the G-code arguments
+// may change to add new functionality like different wipe patterns.
+//
+//#define NOZZLE_CLEAN_FEATURE
+
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
+  // Number of pattern repetitions
+  #define NOZZLE_CLEAN_STROKES  12
+
+  //                            {  X,  Y,               Z}
+  #define NOZZLE_CLEAN_START_PT { 30, 30, (Z_MIN_POS + 5)}
+  #define NOZZLE_CLEAN_END_PT   {100, 60, (Z_MIN_POS + 5)}
+
+  // Moves the nozzle to the parked position
+  #define NOZZLE_CLEAN_PARK
+#endif
+
+//
 // Print job timer
 //
 // Enable this option to automatically start and stop the
