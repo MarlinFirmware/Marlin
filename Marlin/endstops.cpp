@@ -40,10 +40,10 @@ Endstops endstops;
 
 bool  Endstops::enabled = true,
       Endstops::enabled_globally =
-        #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
-          false
+        #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
+          (true)
         #else
-          true
+          (false)
         #endif
       ;
 volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
@@ -66,10 +66,10 @@ volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_P
 
 Endstops::Endstops() {
   enable_globally(
-    #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
-      false
+    #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
+      (true)
     #else
-      true
+      (false)
     #endif
   );
   enable(true);
