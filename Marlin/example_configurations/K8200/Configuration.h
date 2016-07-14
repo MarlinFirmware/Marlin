@@ -104,8 +104,24 @@
 // build by the user have been successfully uploaded into firmware.
 #define STRING_CONFIG_H_AUTHOR "(K8200, @CONSULitAS)" // Who made the changes.
 #define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
-#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
+#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during boot in line 1
+#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during boot in line 2
+
+//
+// *** VENDORS PLEASE READ *****************************************************
+//
+// Marlin now allow you to have a vendor boot image to be displayed on machine
+// start. When SHOW_CUSTOM_BOOTSCREEN is defined Marlin will first show your
+// custom boot image and them the default Marlin boot image is shown.
+//
+// We suggest for you to take advantage of this new feature and keep the Marlin
+// boot image unmodified. For an example have a look at the bq Hephestos 2
+// example configuration folder.
+//
+//#define SHOW_CUSTOM_BOOTSCREEN
+#if ENABLED(SHOW_BOOTSCREEN) && ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+  #include "_bootscreen.h"
+#endif
 
 // @section machine
 
