@@ -179,9 +179,16 @@
 #define MSG_INFO_EXTRUDERS                  "Extruders"
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protokol"
-#define MSG_INFO_TOTAL_PRINTS               "Gesamte Drucke"
-#define MSG_INFO_FINISHED_PRINTS            "Beendete Drucke"
-#define MSG_INFO_PRINT_TIME                 "Gesamte Druckzeit"
+
+#if LCD_WIDTH > 19
+  #define MSG_INFO_TOTAL_PRINTS             "Gesamte Drucke   "
+  #define MSG_INFO_COMPLETED_PRINTS         "Beendete Drucke  "
+  #define MSG_INFO_PRINT_TIME               "Gesamte Druckzeit"
+#else
+  #define MSG_INFO_PRINT_COUNT              "Prints   "
+  #define MSG_INFO_COMPLETED_PRINTS         "Completed"
+  #define MSG_INFO_PRINT_TIME               "Duration "
+#endif
 #define MSG_INFO_MIN_TEMP                   "Min Temp"
 #define MSG_INFO_MAX_TEMP                   "Max Temp"
 #define MSG_INFO_PSU                        "Stromversorgung"

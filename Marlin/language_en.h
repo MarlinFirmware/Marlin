@@ -555,20 +555,20 @@
 
 #if LCD_WIDTH > 19
   #ifndef MSG_INFO_PRINT_COUNT
-    #define MSG_INFO_PRINT_COUNT              "Print Count "
+    #define MSG_INFO_PRINT_COUNT              "Print Count"
   #endif
-  #ifndef MSG_INFO_FINISHED_PRINTS
-    #define MSG_INFO_FINISHED_PRINTS          "Finished    "
+  #ifndef MSG_INFO_COMPLETED_PRINTS
+    #define MSG_INFO_COMPLETED_PRINTS         "Completed  "
   #endif
   #ifndef MSG_INFO_PRINT_TIME
-    #define MSG_INFO_PRINT_TIME               "Total Time  "
+    #define MSG_INFO_PRINT_TIME               "Total Time "
   #endif
 #else
   #ifndef MSG_INFO_PRINT_COUNT
     #define MSG_INFO_PRINT_COUNT              "Prints   "
   #endif
-  #ifndef MSG_INFO_FINISHED_PRINTS
-    #define MSG_INFO_FINISHED_PRINTS          "Finished "
+  #ifndef MSG_INFO_COMPLETED_PRINTS
+    #define MSG_INFO_COMPLETED_PRINTS         "Completed"
   #endif
   #ifndef MSG_INFO_PRINT_TIME
     #define MSG_INFO_PRINT_TIME               "Duration "
