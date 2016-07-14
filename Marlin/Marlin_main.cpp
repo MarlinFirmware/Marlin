@@ -1624,86 +1624,86 @@ static void clean_up_after_endstop_or_probe_move() {
   refresh_cmd_timeout();
 }
 
-#if HAS_BED_PROBE
-  #if ENABLED(DELTA)
-    /**
-     * Calculate delta, start a line, and set current_position to destination
-     */
-    void prepare_move_to_destination_raw() {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_move_to_destination_raw", destination);
-      #endif
-      refresh_cmd_timeout();
-      calculate_delta(destination);
-      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], (feedrate / 60) * (feedrate_multiplier / 100.0), active_extruder);
-      set_current_to_destination();
-    }
+#if ENABLED(DELTA)
+  /**
+   * Calculate delta, start a line, and set current_position to destination
+   */
+  void prepare_move_to_destination_raw() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_move_to_destination_raw", destination);
+    #endif
+    refresh_cmd_timeout();
+    calculate_delta(destination);
+    planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], (feedrate / 60) * (feedrate_multiplier / 100.0), active_extruder);
+    set_current_to_destination();
+  }
+#endif
+
+/**
+ *  Plan a move to (X, Y, Z) and set the current_position
+ *  The final current_position may not be the one that was requested
+ */
+static void do_blocking_move_to(float x, float y, float z, float feed_rate = 0.0) {
+  float old_feedrate = feedrate;
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) print_xyz(PSTR("do_blocking_move_to"), "", x, y, z);
   #endif
 
-  /**
-   *  Plan a move to (X, Y, Z) and set the current_position
-   *  The final current_position may not be the one that was requested
-   */
-  static void do_blocking_move_to(float x, float y, float z, float feed_rate = 0.0) {
-    float old_feedrate = feedrate;
+  #if ENABLED(DELTA)
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) print_xyz(PSTR("do_blocking_move_to"), "", x, y, z);
-    #endif
+    feedrate = (feed_rate != 0.0) ? feed_rate : XY_PROBE_FEEDRATE;
 
-    #if ENABLED(DELTA)
+    destination[X_AXIS] = x;
+    destination[Y_AXIS] = y;
+    destination[Z_AXIS] = z;
 
-      feedrate = (feed_rate != 0.0) ? feed_rate : XY_PROBE_FEEDRATE;
+    if (x == current_position[X_AXIS] && y == current_position[Y_AXIS])
+      prepare_move_to_destination_raw(); // this will also set_current_to_destination
+    else
+      prepare_move_to_destination();     // this will also set_current_to_destination
 
-      destination[X_AXIS] = x;
-      destination[Y_AXIS] = y;
-      destination[Z_AXIS] = z;
+  #else
 
-      if (x == current_position[X_AXIS] && y == current_position[Y_AXIS])
-        prepare_move_to_destination_raw(); // this will also set_current_to_destination
-      else
-        prepare_move_to_destination();     // this will also set_current_to_destination
-
-    #else
-
-      // If Z needs to raise, do it before moving XY
-      if (current_position[Z_AXIS] < z) {
-        feedrate = (feed_rate != 0.0) ? feed_rate : homing_feedrate[Z_AXIS];
-        current_position[Z_AXIS] = z;
-        line_to_current_position();
-      }
-
-      feedrate = (feed_rate != 0.0) ? feed_rate : XY_PROBE_FEEDRATE;
-      current_position[X_AXIS] = x;
-      current_position[Y_AXIS] = y;
+    // If Z needs to raise, do it before moving XY
+    if (current_position[Z_AXIS] < z) {
+      feedrate = (feed_rate != 0.0) ? feed_rate : homing_feedrate[Z_AXIS];
+      current_position[Z_AXIS] = z;
       line_to_current_position();
+    }
 
-      // If Z needs to lower, do it after moving XY
-      if (current_position[Z_AXIS] > z) {
-        feedrate = (feed_rate != 0.0) ? feed_rate : homing_feedrate[Z_AXIS];
-        current_position[Z_AXIS] = z;
-        line_to_current_position();
-      }
+    feedrate = (feed_rate != 0.0) ? feed_rate : XY_PROBE_FEEDRATE;
+    current_position[X_AXIS] = x;
+    current_position[Y_AXIS] = y;
+    line_to_current_position();
 
-    #endif
+    // If Z needs to lower, do it after moving XY
+    if (current_position[Z_AXIS] > z) {
+      feedrate = (feed_rate != 0.0) ? feed_rate : homing_feedrate[Z_AXIS];
+      current_position[Z_AXIS] = z;
+      line_to_current_position();
+    }
 
-    stepper.synchronize();
+  #endif
 
-    feedrate = old_feedrate;
-  }
+  stepper.synchronize();
 
-  inline void do_blocking_move_to_x(float x, float feed_rate = 0.0) {
-    do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], feed_rate);
-  }
+  feedrate = old_feedrate;
+}
 
-  inline void do_blocking_move_to_y(float y) {
-    do_blocking_move_to(current_position[X_AXIS], y, current_position[Z_AXIS]);
-  }
+inline void do_blocking_move_to_x(float x, float feed_rate = 0.0) {
+  do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], feed_rate);
+}
 
-  inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
-    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, feed_rate);
-  }
+inline void do_blocking_move_to_y(float y) {
+  do_blocking_move_to(current_position[X_AXIS], y, current_position[Z_AXIS]);
+}
 
+inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, feed_rate);
+}
+
+#if HAS_BED_PROBE
   /**
    * Raise Z to a minimum height to make room for a probe to move
    */
