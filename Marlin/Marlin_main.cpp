@@ -1170,12 +1170,6 @@ inline void get_serial_commands() {
         if (card_eof) {
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
           print_job_timer.stop();
-          char time[30];
-          millis_t t = print_job_timer.duration();
-          sprintf_P(time, PSTR("%i " MSG_END_HOUR " %i " MSG_END_MINUTE), int(t / 60 / 60), int(t / 60) % 60);
-          SERIAL_ECHO_START;
-          SERIAL_ECHOLN(time);
-          lcd_setstatus(time, true);
           card.printingHasFinished();
           card.checkautostart(true);
         }
