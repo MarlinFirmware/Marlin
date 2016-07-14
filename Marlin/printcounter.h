@@ -35,8 +35,8 @@ struct printStatistics {    // 13 bytes
   //const uint8_t magic;    // Magic header, it will always be 0x16
   uint16_t totalPrints;     // Number of prints
   uint16_t finishedPrints;  // Number of complete prints
-  uint32_t printTime;       // Total printing time
-  uint32_t longestPrint;    // Longest print job - not in use
+  millis_t printTime;       // Total printing time
+  millis_t longestPrint;    // Longest print job - not in use
 };
 
 class PrintCounter: public Stopwatch {
@@ -74,7 +74,7 @@ class PrintCounter: public Stopwatch {
      * @details Stores the timestamp of the last deltaDuration(), this is
      * required due to the updateInterval cycle.
      */
-    uint16_t lastDuration;
+    millis_t lastDuration;
 
     /**
      * @brief Stats were loaded from EERPROM
@@ -90,7 +90,7 @@ class PrintCounter: public Stopwatch {
      * used internally for print statistics accounting is not intended to be a
      * user callable function.
      */
-    uint16_t deltaDuration();
+    millis_t deltaDuration();
 
   public:
     /**
