@@ -1967,13 +1967,13 @@ void kill_screen(const char* lcd_msg) {
         print_job_counter.loadStats();
         printStatistics stats = print_job_counter.getStats();
 
-        char printTime[6];
-        sprintf(printTime, "%02d:%02d", int(stats.printTime / 3600), int(stats.printTime / 60) % 60);
+        char timeString[8];
+        sprintf_P(timeString, PSTR("%i:%02i"), int(stats.printTime / 60 / 60), int(stats.printTime / 60) % 60);
 
-        START_SCREEN();
-        STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, itostr3left(stats.totalPrints));        // Print Count : 999
-        STATIC_ITEM(MSG_INFO_FINISHED_PRINTS ": ", false, false, itostr3left(stats.finishedPrints)); // Finished    : 666
-        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", false, false, printTime);                              // Total Time  : 12:34
+        START_SCREEN();                                                                              // 12345678901234567890
+        STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, itostr3left(stats.totalPrints));        // Print Count: 999
+        STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS": ", false, false, itostr3left(stats.finishedPrints)); // Completed  : 666
+        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", false, false, timeString);                             // Total Time : 123:45
         END_SCREEN();
       }
     #endif // PRINTCOUNTER

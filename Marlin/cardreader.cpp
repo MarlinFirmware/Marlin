@@ -602,19 +602,19 @@ void CardReader::updir() {
 
 void CardReader::printingHasFinished() {
   stepper.synchronize();
+  file.close();
   if (file_subcall_ctr > 0) { // Heading up to a parent file that called current as a procedure.
-    file.close();
     file_subcall_ctr--;
     openFile(proc_filenames[file_subcall_ctr], true, true);
     setIndex(filespos[file_subcall_ctr]);
     startFileprint();
   }
   else {
-    file.close();
     sdprinting = false;
     if (SD_FINISHED_STEPPERRELEASE)
       enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-    thermalManager.autotempShutdown();
+    print_job_timer.stop();
+    enqueue_and_echo_commands_P(PSTR("M31"));
   }
 }
 

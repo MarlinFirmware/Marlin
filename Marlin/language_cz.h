@@ -209,13 +209,13 @@
 #define MSG_INFO_BAUDRATE                   "Rychlost"
 #define MSG_INFO_PROTOCOL                   "Protokol"
 #if LCD_WIDTH > 19
-  #define MSG_INFO_PRINT_COUNT              "Pocet tisku "
-  #define MSG_INFO_FINISHED_PRINTS          "Dokonceno   "
-  #define MSG_INFO_PRINT_TIME               "Celkovy cas "
+  #define MSG_INFO_PRINT_COUNT              "Pocet tisku"
+  #define MSG_INFO_COMPLETED_PRINTS         "Dokonceno  "
+  #define MSG_INFO_PRINT_TIME               "Celkovy cas"
 #else
-  #define MSG_INFO_PRINT_COUNT              "Tisky    "
-  #define MSG_INFO_FINISHED_PRINTS          "Hotovo   "
-  #define MSG_INFO_PRINT_TIME               "Cas      "
+  #define MSG_INFO_PRINT_COUNT              "Tisky "
+  #define MSG_INFO_COMPLETED_PRINTS         "Hotovo"
+  #define MSG_INFO_PRINT_TIME               "Cas   "
 #endif
 #define MSG_INFO_MIN_TEMP                   "Teplota min"
 #define MSG_INFO_MAX_TEMP                   "Teplota max"
