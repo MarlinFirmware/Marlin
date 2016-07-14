@@ -111,9 +111,9 @@
 // boot image unmodified. For an example have a look at the bq Hephestos 2
 // example configuration folder.
 //
-//#define SHOW_CUSTOM_BOOTSCREEN
+#define SHOW_CUSTOM_BOOTSCREEN
 #if ENABLED(SHOW_BOOTSCREEN) && ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-  #include "_bootscreen.h"
+  #include "_Bootscreen.h"
 #endif
 
 // @section machine
