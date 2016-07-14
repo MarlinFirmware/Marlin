@@ -211,6 +211,12 @@ script:
   - opt_enable PRINTCOUNTER
   - build_marlin
   #
+  # Test CLEAN_NOZZLE_FEATURE
+  #
+  - restore_configs
+  - opt_enable AUTO_BED_LEVELING_FEATURE CLEAN_NOZZLE_FEATURE FIX_MOUNTED_PROBE
+  - build_marlin
+  #
   #
   ######## STANDARD LCD/PANELS ##############
   #
