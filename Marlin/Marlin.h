@@ -389,4 +389,6 @@ void calculate_volumetric_multipliers();
   #endif
 #endif
 
+void safe_delay(uint16_t del);
+
 #endif //MARLIN_H

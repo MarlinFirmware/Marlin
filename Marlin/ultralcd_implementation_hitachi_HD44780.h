@@ -443,15 +443,6 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
     lcd.setCursor(indent, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x03');
   }
 
-  void safe_delay(uint16_t del){
-    while (del > 50) {
-      del -= 50;
-      delay(50);
-      thermalManager.manage_heater();
-    }
-    delay(del);
-  }
-
   void bootscreen() {
     byte top_left[8] = {
       B00000,
