@@ -606,6 +606,7 @@ void kill_screen(const char* lcd_msg) {
 
   static void lcd_main_menu() {
     START_MENU();
+    UNUSED(_skipStatic);
     MENU_ITEM(back, MSG_WATCH);
     if (planner.movesplanned() || IS_SD_PRINTING) {
       MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
@@ -743,6 +744,7 @@ void kill_screen(const char* lcd_msg) {
    */
   static void lcd_tune_menu() {
     START_MENU();
+    UNUSED(_skipStatic);
 
     //
     // ^ Main
@@ -934,6 +936,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_preheat_pla_menu() {
       START_MENU();
+      UNUSED(_skipStatic);
       MENU_ITEM(back, MSG_PREPARE);
       #if HOTENDS == 1
         MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_pla0);
@@ -956,6 +959,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_preheat_abs_menu() {
       START_MENU();
+      UNUSED(_skipStatic);
       MENU_ITEM(back, MSG_PREPARE);
       #if HOTENDS == 1
         MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_abs0);
@@ -1183,6 +1187,7 @@ void kill_screen(const char* lcd_msg) {
      */
     static void lcd_level_bed() {
       START_MENU();
+      UNUSED(_skipStatic);
       MENU_ITEM(back, MSG_LEVEL_BED_CANCEL);
       MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
       END_MENU();
@@ -1198,6 +1203,7 @@ void kill_screen(const char* lcd_msg) {
 
   static void lcd_prepare_menu() {
     START_MENU();
+    UNUSED(_skipStatic);
 
     //
     // ^ Main
@@ -1284,6 +1290,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_delta_calibrate_menu() {
       START_MENU();
+      UNUSED(_skipStatic);
       MENU_ITEM(back, MSG_MAIN);
       MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
       MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_X, PSTR("G0 F8000 X-77.94 Y-45 Z0"));
@@ -1377,7 +1384,7 @@ void kill_screen(const char* lcd_msg) {
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
     if (lcdDrawUpdate) {
-      PGM_P pos_label;
+      PGM_P pos_label = NULL;
       #if EXTRUDERS == 1
         pos_label = PSTR(MSG_MOVE_E);
       #else
@@ -1421,6 +1428,7 @@ void kill_screen(const char* lcd_msg) {
 
   static void _lcd_move_menu_axis() {
     START_MENU();
+    UNUSED(_skipStatic);
     MENU_ITEM(back, MSG_MOVE_AXIS);
 
     if (_MOVE_XYZ_ALLOWED) {
@@ -1466,6 +1474,7 @@ void kill_screen(const char* lcd_msg) {
 
   static void lcd_move_menu() {
     START_MENU();
+    UNUSED(_skipStatic);
     MENU_ITEM(back, MSG_PREPARE);
 
     if (_MOVE_XYZ_ALLOWED)
@@ -1485,6 +1494,7 @@ void kill_screen(const char* lcd_msg) {
 
   static void lcd_control_menu() {
     START_MENU();
+    UNUSED(_skipStatic);
     MENU_ITEM(back, MSG_MAIN);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
@@ -1543,14 +1553,14 @@ void kill_screen(const char* lcd_msg) {
     // Helpers for editing PID Ki & Kd values
     // grab the PID value out of the temp variable; scale it; then update the PID driver
     void copy_and_scalePID_i(int e) {
-      #if DISABLED(PID_PARAMS_PER_HOTEND)
+      #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
         UNUSED(e);
       #endif
       PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
       thermalManager.updatePID();
     }
     void copy_and_scalePID_d(int e) {
-      #if DISABLED(PID_PARAMS_PER_HOTEND)
+      #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
         UNUSED(e);
       #endif
       PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
@@ -1590,6 +1600,7 @@ void kill_screen(const char* lcd_msg) {
    */
   static void lcd_control_temperature_menu() {
     START_MENU();
+    UNUSED(_skipStatic);
 
     //
     // ^ Control
@@ -1726,6 +1737,7 @@ void kill_screen(const char* lcd_msg) {
    */
   static void lcd_control_temperature_preheat_pla_settings_menu() {
     START_MENU();
+    UNUSED(_skipStatic);
     MENU_ITEM(back, MSG_TEMPERATURE);
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &preheatFanSpeed1, 0, 255);
     #if TEMP_SENSOR_0 != 0
@@ -1747,6 +1759,7 @@ void kill_screen(const char* lcd_msg) {
    */
   static void lcd_control_temperature_preheat_abs_settings_menu() {
     START_MENU();
+    UNUSED(_skipStatic);
     MENU_ITEM(back, MSG_TEMPERATURE);
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &preheatFanSpeed2, 0, 255);
     #if TEMP_SENSOR_0 != 0
@@ -1770,6 +1783,7 @@ void kill_screen(const char* lcd_msg) {
    */
   static void lcd_control_motion_menu() {
     START_MENU();
+    UNUSED(_skipStatic);
     MENU_ITEM(back, MSG_CONTROL);
     #if HAS_BED_PROBE
       MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
@@ -1823,6 +1837,7 @@ void kill_screen(const char* lcd_msg) {
    */
   static void lcd_control_volumetric_menu() {
     START_MENU();
+    UNUSED(_skipStatic);
     MENU_ITEM(back, MSG_CONTROL);
 
     MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLUMETRIC_ENABLED, &volumetric_enabled, calculate_volumetric_multipliers);
@@ -1879,6 +1894,7 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(FWRETRACT)
     static void lcd_control_retract_menu() {
       START_MENU();
+      UNUSED(_skipStatic);
       MENU_ITEM(back, MSG_CONTROL);
       MENU_ITEM_EDIT(bool, MSG_AUTORETRACT, &autoretract_enabled);
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT, &retract_length, 0, 100);
@@ -1920,6 +1936,7 @@ void kill_screen(const char* lcd_msg) {
       if (lcdDrawUpdate == 0 && LCD_CLICKED == 0) return; // nothing to do (so don't thrash the SD card)
       uint16_t fileCnt = card.getnrfilenames();
       START_MENU();
+      UNUSED(_skipStatic);
       MENU_ITEM(back, MSG_MAIN);
       card.getWorkDirName();
       if (card.filename[0] == '/') {
@@ -2077,6 +2094,7 @@ void kill_screen(const char* lcd_msg) {
      */
     static void lcd_info_menu() {
       START_MENU();
+      UNUSED(_skipStatic);
       MENU_ITEM(back, MSG_MAIN);
       MENU_ITEM(submenu, MSG_INFO_PRINTER_MENU, lcd_info_printer_menu);        // Printer Info >
       MENU_ITEM(submenu, MSG_INFO_BOARD_MENU, lcd_info_board_menu);            // Board Info >
