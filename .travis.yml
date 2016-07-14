@@ -211,10 +211,16 @@ script:
   - opt_enable PRINTCOUNTER
   - build_marlin
   #
-  # Test CLEAN_NOZZLE_FEATURE
+  # Test NOZZLE_PARK_FEATURE
   #
   - restore_configs
-  - opt_enable AUTO_BED_LEVELING_FEATURE CLEAN_NOZZLE_FEATURE FIX_MOUNTED_PROBE
+  - opt_enable NOZZLE_PARK_FEATURE
+  - build_marlin
+  #
+  # Test NOZZLE_CLEAN_FEATURE
+  #
+  - restore_configs
+  - opt_enable AUTO_BED_LEVELING_FEATURE NOZZLE_CLEAN_FEATURE FIX_MOUNTED_PROBE
   - build_marlin
   #
   #

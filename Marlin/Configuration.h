@@ -788,6 +788,30 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 //
+// Nozzle Park -- EXPERIMENTAL
+//
+// When enabled allows the user to define a special XYZ position, inside the
+// machine's topology, to park the nozzle when idle or when receiving the G27
+// command.
+//
+// The "P" paramenter controls what is the action applied to the Z axis:
+//    P0: (Default) If current Z-pos is lower than Z-park then the nozzle will
+//        be raised to reach Z-park height.
+//
+//    P1: No matter the current Z-pos, the nozzle will be raised/lowered to
+//        reach Z-park height.
+//
+//    P2: The nozzle height will be raised by Z-park amount but never going over
+//        the machine's limit of Z_MAX_POS.
+//
+//#define NOZZLE_PARK_FEATURE
+
+#if ENABLED(NOZZLE_PARK_FEATURE)
+  // Specify a park position as { X, Y, Z }
+  #define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
+#endif
+
+//
 // Clean Nozzle Feature -- EXPERIMENTAL
 //
 // When enabled allows the user to send G12 to start the nozzle cleaning
