@@ -1169,7 +1169,6 @@ inline void get_serial_commands() {
       ) {
         if (card_eof) {
           SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
-          print_job_timer.stop();
           card.printingHasFinished();
           card.checkautostart(true);
         }
