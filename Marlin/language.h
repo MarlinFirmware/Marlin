@@ -119,6 +119,7 @@
 #define MSG_PLANNER_BUFFER_BYTES            "  PlannerBufferBytes: "
 #define MSG_OK                              "ok"
 #define MSG_WAIT                            "wait"
+#define MSG_STATS                           "Stats: "
 #define MSG_FILE_SAVED                      "Done saving file."
 #define MSG_ERR_LINE_NO                     "Line Number is not Last Line Number+1, Last Line: "
 #define MSG_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
