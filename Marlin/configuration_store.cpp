@@ -67,7 +67,7 @@
  *  203            z_offset (float)
  *  207            mesh_num_x (uint8 as set in firmware)
  *  208            mesh_num_y (uint8 as set in firmware)
- *  209 G29 S3 XYZ z_values[][] (float x9, by default)
+ *  209 G29 S3 XYZ z_values[][] (float x9, by default, up to float x 81)
  *
  * AUTO BED LEVELING
  *  245  M851      zprobe_zoffset (float)
