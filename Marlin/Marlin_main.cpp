@@ -7842,11 +7842,6 @@ void clamp_to_software_endstops(float target[3]) {
 
 // This function is used to split lines on mesh borders so each segment is only part of one mesh area
 void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, const uint8_t& extruder, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
-  if (!mbl.active()) {
-    planner.buffer_line(x, y, z, e, fr_mm_s, extruder);
-    set_current_to_destination();
-    return;
-  }
   int pcx = mbl.cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
       pcy = mbl.cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
       cx = mbl.cell_index_x(RAW_POSITION(x, X_AXIS)),
@@ -8007,11 +8002,13 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
     }
     else {
       #if ENABLED(MESH_BED_LEVELING)
-        mesh_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], MMM_TO_MMS_SCALED(feedrate_mm_m), active_extruder);
-        return false;
-      #else
-        line_to_destination(MMM_SCALED(feedrate_mm_m));
+        if (mbl.active()) {
+          mesh_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], MMM_TO_MMS_SCALED(feedrate_mm_m), active_extruder);
+          return false;
+        }
+        else
       #endif
+          line_to_destination(MMM_SCALED(feedrate_mm_m));
     }
     return true;
   }
