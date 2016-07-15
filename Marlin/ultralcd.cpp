@@ -214,25 +214,26 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
    *   _menuLineNr is the menu item to draw and process
    *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
    */
-  #define _START_SCREEN(CODE) \
+  #define _START_SCREEN(CODE, SKIP) \
     ENCODER_DIRECTION_MENUS(); \
     encoderRateMultiplierEnabled = false; \
     if (encoderPosition > 0x8000) encoderPosition = 0; \
     int8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
     NOMORE(encoderTopLine, encoderLine); \
     int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
+    bool _skipStatic = SKIP; \
     CODE; \
     for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
       _thisItemNr = 0;
 
-  #define START_SCREEN() _START_SCREEN(NOOP)
+  #define START_SCREEN() _START_SCREEN(NOOP, false)
 
   /**
    * START_MENU generates the init code for a menu function
    *
    *   wasClicked indicates the controller was clicked
    */
-  #define START_MENU() _START_SCREEN(bool wasClicked = LCD_CLICKED)
+  #define START_MENU() _START_SCREEN(bool wasClicked = LCD_CLICKED, true)
 
   /**
    * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
@@ -270,6 +271,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     _thisItemNr++
 
   #define MENU_ITEM(TYPE, LABEL, ARGS...) do { \
+      _skipStatic = false; \
       _MENU_ITEM_PART_1(TYPE, LABEL, ## ARGS); \
       _MENU_ITEM_PART_2(TYPE, ## ARGS); \
     } while(0)
@@ -277,7 +279,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   // Used to print static text with no visible cursor.
   #define STATIC_ITEM(LABEL, ARGS...) \
     if (_menuLineNr == _thisItemNr) { \
-      if (encoderLine == _thisItemNr && _thisItemNr < LCD_HEIGHT - 1) { \
+      if (_skipStatic && encoderLine <= _thisItemNr) { \
         encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
         lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
       } \
