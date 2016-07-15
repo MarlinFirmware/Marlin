@@ -7863,7 +7863,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
   }
   float nx, ny, nz, ne, normalized_dist;
   if (cx > pcx && TEST(x_splits, cx)) {
-    nx = mbl.get_probe_x(cx) + home_offset[X_AXIS];
+    nx = mbl.get_probe_x(cx) + home_offset[X_AXIS] + position_shift[X_AXIS];
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
     nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
@@ -7871,7 +7871,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
     CBI(x_splits, cx);
   }
   else if (cx < pcx && TEST(x_splits, pcx)) {
-    nx = mbl.get_probe_x(pcx) + home_offset[X_AXIS];
+    nx = mbl.get_probe_x(pcx) + home_offset[X_AXIS] + position_shift[X_AXIS];
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
     nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
@@ -7879,7 +7879,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
     CBI(x_splits, pcx);
   }
   else if (cy > pcy && TEST(y_splits, cy)) {
-    ny = mbl.get_probe_y(cy) + home_offset[Y_AXIS];
+    ny = mbl.get_probe_y(cy) + home_offset[Y_AXIS] + position_shift[Y_AXIS];
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
     nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
@@ -7887,7 +7887,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
     CBI(y_splits, cy);
   }
   else if (cy < pcy && TEST(y_splits, pcy)) {
-    ny = mbl.get_probe_y(pcy) + home_offset[Y_AXIS];
+    ny = mbl.get_probe_y(pcy) + home_offset[Y_AXIS] + position_shift[Y_AXIS];
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
     nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
