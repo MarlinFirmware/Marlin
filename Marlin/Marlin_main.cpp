@@ -1435,7 +1435,16 @@ static void update_software_endstops(AxisEnum axis) {
     sw_endstop_min[axis] = base_min_pos(axis) + offs;
     sw_endstop_max[axis] = base_max_pos(axis) + offs;
   }
-
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) {
+      SERIAL_ECHOPAIR("For ", axis_codes[axis]);
+      SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
+      SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
+      SERIAL_ECHOPAIR("\n sw_endstop_min = ", sw_endstop_min[axis]);
+      SERIAL_ECHOPAIR("\n sw_endstop_max = ", sw_endstop_max[axis]);
+      SERIAL_EOL;
+    }
+  #endif
 }
 
 /**
@@ -1524,7 +1533,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
         current_position[Z_AXIS] -= zprobe_zoffset;
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> zprobe_zoffset==", zprobe_zoffset);
+            SERIAL_ECHOPAIR("> zprobe_zoffset = ", zprobe_zoffset);
             SERIAL_EOL;
           }
         #endif
@@ -1533,7 +1542,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("> home_offset[axis]==", home_offset[axis]);
+        SERIAL_ECHOPAIR("> home_offset[", axis_codes[axis]);
+        SERIAL_ECHOPAIR("] = ", home_offset[axis]);
         SERIAL_EOL;
         DEBUG_POS("", current_position);
       }
@@ -1725,7 +1735,7 @@ inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
 
 #endif //HAS_BED_PROBE
 
-#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE
+#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE || HOTENDS > 1
   static bool axis_unhomed_error(const bool x, const bool y, const bool z) {
     const bool xx = x && !axis_homed[X_AXIS],
                yy = y && !axis_homed[Y_AXIS],
@@ -6541,11 +6551,37 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
     if (tmp_extruder != active_extruder) {
       bool no_move = code_seen('S') && code_value_bool();
-      // Save current position to return to after applying extruder offset
-      if (!no_move) set_destination_to_current();
+      if (!no_move && axis_unhomed_error(true, true, true)) {
+        SERIAL_ECHOLNPGM("No move on toolchange");
+        no_move = true;
+      }
+
+      // Save current position to destination, for use later
+      set_destination_to_current();
+
       #if ENABLED(DUAL_X_CARRIAGE)
-        if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && IsRunning() &&
-            (delayed_move_time || current_position[X_AXIS] != x_home_pos(active_extruder))) {
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOPGM("Dual X Carriage Mode ");
+            switch (dual_x_carriage_mode) {
+              case DXC_DUPLICATION_MODE: SERIAL_ECHOLNPGM("DXC_DUPLICATION_MODE"); break;
+              case DXC_AUTO_PARK_MODE: SERIAL_ECHOLNPGM("DXC_AUTO_PARK_MODE"); break;
+              case DXC_FULL_CONTROL_MODE: SERIAL_ECHOLNPGM("DXC_FULL_CONTROL_MODE"); break;
+            }
+          }
+        #endif
+
+        if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && IsRunning()
+             && (delayed_move_time || current_position[X_AXIS] != x_home_pos(active_extruder))
+           ) {
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_ECHOPAIR("Raise to ", current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT); SERIAL_EOL;
+              SERIAL_ECHOPAIR("MoveX to ", x_home_pos(active_extruder)); SERIAL_EOL;
+              SERIAL_ECHOPAIR("Lower to ", current_position[Z_AXIS]); SERIAL_EOL;
+            }
+          #endif
           // Park old head: 1) raise 2) move to park position 3) lower
           planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
                            current_position[E_AXIS], planner.max_feedrate[Z_AXIS], active_extruder);
@@ -6564,52 +6600,67 @@ inline void gcode_T(uint8_t tmp_extruder) {
         // This function resets the max/min values - the current position may be overwritten below.
         set_axis_is_at_home(X_AXIS);
 
-        if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE) {
-          current_position[X_AXIS] = inactive_extruder_x_pos;
-          inactive_extruder_x_pos = destination[X_AXIS];
-        }
-        else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
-          active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
-          if (active_extruder_parked)
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("New Extruder", current_position);
+        #endif
+
+        switch (dual_x_carriage_mode) {
+          case DXC_FULL_CONTROL_MODE:
             current_position[X_AXIS] = inactive_extruder_x_pos;
-          else
-            current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
-          inactive_extruder_x_pos = destination[X_AXIS];
-          extruder_duplication_enabled = false;
+            inactive_extruder_x_pos = destination[X_AXIS];
+            break;
+          case DXC_DUPLICATION_MODE:
+            active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
+            if (active_extruder_parked)
+              current_position[X_AXIS] = inactive_extruder_x_pos;
+            else
+              current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
+            inactive_extruder_x_pos = destination[X_AXIS];
+            extruder_duplication_enabled = false;
+            break;
+          default:
+            // record raised toolhead position for use by unpark
+            memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+            raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
+            active_extruder_parked = true;
+            delayed_move_time = 0;
+            break;
         }
-        else {
-          // record raised toolhead position for use by unpark
-          memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-          raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
-          active_extruder_parked = true;
-          delayed_move_time = 0;
-        }
-        // No extra case for AUTO_BED_LEVELING_FEATURE in DUAL_X_CARRIAGE. Does that mean they don't work together?
+ 
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOPAIR("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
+            SERIAL_EOL;
+            DEBUG_POS("New extruder (parked)", current_position);
+          }
+        #endif
+
+       // No extra case for AUTO_BED_LEVELING_FEATURE in DUAL_X_CARRIAGE. Does that mean they don't work together?
       #else // !DUAL_X_CARRIAGE
 
-        //
-        // Set current_position to the position of the new nozzle.
-        // Offsets are based on linear distance, so we need to get
-        // the resulting position in coordinate space.
-        //
-        // - With grid or 3-point leveling, offset XYZ by a tilted vector
-        // - With mesh leveling, update Z for the new position
-        // - Otherwise, just use the raw linear distance
-        //
-        // Software endstops are altered here too. Consider a case where:
-        //   E0 at X=0 ... E1 at X=10
-        // When we switch to E1 now X=10, but E1 can't move left.
-        // To express this we apply the change in XY to the software endstops.
-        // E1 can move farther right than E0, so the right limit is extended.
-        //
-        // Note that we don't adjust the Z software endstops. Why not?
-        // Consider a case where Z=0 (here) and switching to E1 makes Z=1
-        // because the bed is 1mm lower at the new position. As long as
-        // the first nozzle is out of the way, the carriage should be
-        // allowed to move 1mm lower. This technically "breaks" the
-        // Z software endstop. But this is technically correct (and
-        // there is no viable alternative).
-        //
+        /**
+         * Set current_position to the position of the new nozzle.
+         * Offsets are based on linear distance, so we need to get
+         * the resulting position in coordinate space.
+         *
+         * - With grid or 3-point leveling, offset XYZ by a tilted vector
+         * - With mesh leveling, update Z for the new position
+         * - Otherwise, just use the raw linear distance
+         *
+         * Software endstops are altered here too. Consider a case where:
+         *   E0 at X=0 ... E1 at X=10
+         * When we switch to E1 now X=10, but E1 can't move left.
+         * To express this we apply the change in XY to the software endstops.
+         * E1 can move farther right than E0, so the right limit is extended.
+         *
+         * Note that we don't adjust the Z software endstops. Why not?
+         * Consider a case where Z=0 (here) and switching to E1 makes Z=1
+         * because the bed is 1mm lower at the new position. As long as
+         * the first nozzle is out of the way, the carriage should be
+         * allowed to move 1mm lower. This technically "breaks" the
+         * Z software endstop. But this is technically correct (and
+         * there is no viable alternative).
+         */
         #if ENABLED(AUTO_BED_LEVELING_FEATURE)
           // Offset extruder, make sure to apply the bed level rotation matrix
           vector_3 tmp_offset_vec = vector_3(hotend_offset[X_AXIS][tmp_extruder],
@@ -6648,14 +6699,31 @@ inline void gcode_T(uint8_t tmp_extruder) {
           #if ENABLED(MESH_BED_LEVELING)
 
             if (mbl.active()) {
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("Z before MBL: ", current_position[Z_AXIS]);
+              #endif
               float xpos = RAW_CURRENT_POSITION(X_AXIS),
                     ypos = RAW_CURRENT_POSITION(Y_AXIS);
               current_position[Z_AXIS] += mbl.get_z(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - mbl.get_z(xpos, ypos);
+              #if ENABLED(DEBUG_LEVELING_FEATURE)
+                if (DEBUGGING(LEVELING)) {
+                  SERIAL_ECHOPAIR(" after: ", current_position[Z_AXIS]);
+                  SERIAL_EOL;
+                }
+              #endif
             }
 
           #endif // MESH_BED_LEVELING
 
         #endif // !AUTO_BED_LEVELING_FEATURE
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOPAIR("Offset Tool XY by { ", xydiff[X_AXIS]);
+            SERIAL_ECHOPAIR(", ", xydiff[X_AXIS]);
+            SERIAL_ECHOLNPGM(" }");
+          }
+        #endif
 
         // The newly-selected extruder XY is actually at...
         current_position[X_AXIS] += xydiff[X_AXIS];
@@ -6670,16 +6738,26 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
       #endif // !DUAL_X_CARRIAGE
 
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) DEBUG_POS("Sync After Toolchange", current_position);
+      #endif
+
       // Tell the planner the new "current position"
       SYNC_PLAN_POSITION_KINEMATIC();
 
       // Move to the "old position" (move the extruder into place)
-      if (!no_move && IsRunning()) prepare_move_to_destination();
+      if (!no_move && IsRunning()) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
+        #endif
+        prepare_move_to_destination();
+      }
 
     } // (tmp_extruder != active_extruder)
 
+    stepper.synchronize();
+
     #if ENABLED(EXT_SOLENOID)
-      stepper.synchronize();
       disable_all_solenoids();
       enable_solenoid_on_active_extruder();
     #endif // EXT_SOLENOID
