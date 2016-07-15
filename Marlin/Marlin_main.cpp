@@ -6587,29 +6587,29 @@ inline void gcode_T(uint8_t tmp_extruder) {
         // No extra case for AUTO_BED_LEVELING_FEATURE in DUAL_X_CARRIAGE. Does that mean they don't work together?
       #else // !DUAL_X_CARRIAGE
 
-        //
-        // Set current_position to the position of the new nozzle.
-        // Offsets are based on linear distance, so we need to get
-        // the resulting position in coordinate space.
-        //
-        // - With grid or 3-point leveling, offset XYZ by a tilted vector
-        // - With mesh leveling, update Z for the new position
-        // - Otherwise, just use the raw linear distance
-        //
-        // Software endstops are altered here too. Consider a case where:
-        //   E0 at X=0 ... E1 at X=10
-        // When we switch to E1 now X=10, but E1 can't move left.
-        // To express this we apply the change in XY to the software endstops.
-        // E1 can move farther right than E0, so the right limit is extended.
-        //
-        // Note that we don't adjust the Z software endstops. Why not?
-        // Consider a case where Z=0 (here) and switching to E1 makes Z=1
-        // because the bed is 1mm lower at the new position. As long as
-        // the first nozzle is out of the way, the carriage should be
-        // allowed to move 1mm lower. This technically "breaks" the
-        // Z software endstop. But this is technically correct (and
-        // there is no viable alternative).
-        //
+        /**
+         * Set current_position to the position of the new nozzle.
+         * Offsets are based on linear distance, so we need to get
+         * the resulting position in coordinate space.
+         *
+         * - With grid or 3-point leveling, offset XYZ by a tilted vector
+         * - With mesh leveling, update Z for the new position
+         * - Otherwise, just use the raw linear distance
+         *
+         * Software endstops are altered here too. Consider a case where:
+         *   E0 at X=0 ... E1 at X=10
+         * When we switch to E1 now X=10, but E1 can't move left.
+         * To express this we apply the change in XY to the software endstops.
+         * E1 can move farther right than E0, so the right limit is extended.
+         *
+         * Note that we don't adjust the Z software endstops. Why not?
+         * Consider a case where Z=0 (here) and switching to E1 makes Z=1
+         * because the bed is 1mm lower at the new position. As long as
+         * the first nozzle is out of the way, the carriage should be
+         * allowed to move 1mm lower. This technically "breaks" the
+         * Z software endstop. But this is technically correct (and
+         * there is no viable alternative).
+         */
         #if ENABLED(AUTO_BED_LEVELING_FEATURE)
           // Offset extruder, make sure to apply the bed level rotation matrix
           vector_3 tmp_offset_vec = vector_3(hotend_offset[X_AXIS][tmp_extruder],
