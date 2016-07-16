@@ -3596,7 +3596,7 @@ inline void gcode_G28() {
          * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
          */
 
-        int abl2 = auto_bed_leveling_grid_points * auto_bed_leveling_grid_points;
+        int abl2 = sq(auto_bed_leveling_grid_points);
 
         double eqnAMatrix[abl2 * 3], // "A" matrix of the linear system of equations
                eqnBVector[abl2],     // "B" vector of Z points
@@ -3629,7 +3629,7 @@ inline void gcode_G28() {
 
           #if ENABLED(DELTA)
             // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
-            float distance_from_center = sqrt(xProbe * xProbe + yProbe * yProbe);
+            float distance_from_center = HYPOT(xProbe, yProbe);
             if (distance_from_center > DELTA_PROBEABLE_RADIUS) continue;
           #endif //DELTA
 
@@ -4252,7 +4252,7 @@ inline void gcode_M42() {
         return;
       }
     #else
-      if (sqrt(X_probe_location * X_probe_location + Y_probe_location * Y_probe_location) > DELTA_PROBEABLE_RADIUS) {
+      if (HYPOT(X_probe_location, Y_probe_location) > DELTA_PROBEABLE_RADIUS) {
         SERIAL_PROTOCOLLNPGM("? (X,Y) location outside of probeable radius.");
         return;
       }
@@ -4342,7 +4342,7 @@ inline void gcode_M42() {
           #else
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
-            while (sqrt(X_current * X_current + Y_current * Y_current) > DELTA_PROBEABLE_RADIUS) {
+            while (HYPOT(X_current, Y_current) > DELTA_PROBEABLE_RADIUS) {
               X_current /= 1.25;
               Y_current /= 1.25;
               if (verbose_level > 3) {
@@ -4378,10 +4378,9 @@ inline void gcode_M42() {
        * data points we have so far
        */
       sum = 0.0;
-      for (uint8_t j = 0; j <= n; j++) {
-        float ss = sample_set[j] - mean;
-        sum += ss * ss;
-      }
+      for (uint8_t j = 0; j <= n; j++)
+        sum += sq(sample_set[j] - mean);
+
       sigma = sqrt(sum / (n + 1));
       if (verbose_level > 0) {
         if (verbose_level > 1) {
@@ -8139,7 +8138,7 @@ void prepare_move_to_destination() {
      * This is important when there are successive arc motions.
      */
     // Vector rotation matrix values
-    float cos_T = 1 - 0.5 * theta_per_segment * theta_per_segment; // Small angle approximation
+    float cos_T = 1 - 0.5 * sq(theta_per_segment); // Small angle approximation
     float sin_T = theta_per_segment;
 
     float arc_target[NUM_AXIS];

@@ -1356,7 +1356,7 @@ void kill_screen(const char* lcd_msg) {
   }
   #if ENABLED(DELTA)
     static float delta_clip_radius_2 =  (DELTA_PRINTABLE_RADIUS) * (DELTA_PRINTABLE_RADIUS);
-    static int delta_clip( float a ) { return sqrt(delta_clip_radius_2 - a*a); }
+    static int delta_clip( float a ) { return sqrt(delta_clip_radius_2 - sq(a)); }
     static void lcd_move_x() { int clip = delta_clip(current_position[Y_AXIS]); _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS, max(sw_endstop_min[X_AXIS], -clip), min(sw_endstop_max[X_AXIS], clip)); }
     static void lcd_move_y() { int clip = delta_clip(current_position[X_AXIS]); _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS, max(sw_endstop_min[Y_AXIS], -clip), min(sw_endstop_max[Y_AXIS], clip)); }
   #else

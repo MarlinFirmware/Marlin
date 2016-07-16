@@ -290,7 +290,7 @@ class Planner {
      */
     static float estimate_acceleration_distance(float initial_rate, float target_rate, float accel) {
       if (accel == 0) return 0; // accel was 0, set acceleration distance to 0
-      return (target_rate * target_rate - initial_rate * initial_rate) / (accel * 2);
+      return (sq(target_rate) - sq(initial_rate)) / (accel * 2);
     }
 
     /**
@@ -303,7 +303,7 @@ class Planner {
      */
     static float intersection_distance(float initial_rate, float final_rate, float accel, float distance) {
       if (accel == 0) return 0; // accel was 0, set intersection distance to 0
-      return (accel * 2 * distance - initial_rate * initial_rate + final_rate * final_rate) / (accel * 4);
+      return (accel * 2 * distance - sq(initial_rate) + sq(final_rate)) / (accel * 4);
     }
 
     /**
@@ -312,7 +312,7 @@ class Planner {
      * 'distance'.
      */
     static float max_allowable_speed(float accel, float target_velocity, float distance) {
-      return sqrt(target_velocity * target_velocity - 2 * accel * distance);
+      return sqrt(sq(target_velocity) - 2 * accel * distance);
     }
 
     static void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor);
