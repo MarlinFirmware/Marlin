@@ -165,8 +165,6 @@
 #define MSG_ERR_MINTEMP                     "Err: T Minima"
 #define MSG_ERR_MAXTEMP_BED                 "Err: T Base Maxima"
 #define MSG_ERR_MINTEMP_BED                 "Err: T Base Minima"
-#define MSG_END_HOUR                        "horas"
-#define MSG_END_MINUTE                      "minutos"
 #define MSG_HEATING                         "Aquecendo..."
 #define MSG_HEATING_COMPLETE                "Aquecida."
 #define MSG_BED_HEATING                     "Aquecendo base.."

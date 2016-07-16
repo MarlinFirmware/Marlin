@@ -182,8 +182,6 @@
 #define MSG_ERR_MINTEMP                     "Error: Temp Minima"
 #define MSG_ERR_MAXTEMP_BED                 "Error: Temp Max Plataforma"
 #define MSG_ERR_MINTEMP_BED                 "Error: Temp Min Plataforma"
-#define MSG_END_HOUR                        "horas"
-#define MSG_END_MINUTE                      "minutos"
 #define MSG_HEATING                         "Calentando..."
 #define MSG_HEATING_COMPLETE                "Calentamiento Completo"
 #define MSG_BED_HEATING                     "Calentando plataforma ..."

@@ -184,8 +184,6 @@
 #define MSG_ERR_MINTEMP                     "Err: temp. min."
 #define MSG_ERR_MAXTEMP_BED                 "Err: MAXTEMP BED"
 #define MSG_ERR_MINTEMP_BED                 "Err: MINTEMP BED"
-#define MSG_END_HOUR                        "horas"
-#define MSG_END_MINUTE                      "minutos"
 #define MSG_HEATING                         "Quentando..."
 #define MSG_HEATING_COMPLETE                "Xa esta quente"
 #define MSG_BED_HEATING                     "Quentando cama"

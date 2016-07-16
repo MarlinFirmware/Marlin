@@ -159,8 +159,6 @@
 #define MSG_ERR_MINTEMP                     LCD_STR_THERMOMETER " UNTERSCHRITTEN"
 #define MSG_ERR_MAXTEMP_BED                 "BETT " LCD_STR_THERMOMETER " ÜBERSCHRITTEN"
 #define MSG_ERR_MINTEMP_BED                 "BETT " LCD_STR_THERMOMETER " UNTERSCHRITTEN"
-#define MSG_END_HOUR                        "Stunden"
-#define MSG_END_MINUTE                      "Minuten"
 #define MSG_HEATING                         "Aufheizen..."
 #define MSG_HEATING_COMPLETE                "Aufgeheizt"
 #define MSG_BED_HEATING                     "Bett aufheizen"
@@ -181,7 +179,7 @@
 #define MSG_INFO_PROTOCOL                   "Protokol"
 
 #if LCD_WIDTH > 19
-  #define MSG_INFO_TOTAL_PRINTS             "Gesamte Drucke   "
+  #define MSG_INFO_PRINT_COUNT              "Gesamte Drucke   "
   #define MSG_INFO_COMPLETED_PRINTS         "Beendete Drucke  "
   #define MSG_INFO_PRINT_TIME               "Gesamte Druckzeit"
 #else

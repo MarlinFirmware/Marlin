@@ -220,8 +220,6 @@
   #define MSG_ERR_MAXTEMP_BED               "\xb4\xd7\xb0:\xcd\xde\xaf\xc4\xde\x20\xbb\xb2\xba\xb3\xb5\xdd\xc1\xae\xb3\xb6" // "ｴﾗｰ:ﾍﾞｯﾄﾞ ｻｲｺｳｵﾝﾁｮｳｶ" ("Err: MAXTEMP BED")
   #define MSG_ERR_MINTEMP_BED               "\xb4\xd7\xb0:\xcd\xde\xaf\xc4\xde\x20\xbb\xb2\xc3\xb2\xb5\xdd\xd0\xcf\xdd"     // "ｴﾗｰ:ﾍﾞｯﾄﾞ ｻｲﾃｲｵﾝﾐﾏﾝ" ("Err: MINTEMP BED")
 #endif
-#define MSG_END_HOUR                        "\xbc\xde\xb6\xdd"                                                 // "ｼﾞｶﾝ" ("hours")
-#define MSG_END_MINUTE                      "\xcc\xdd"                                                         // "ﾌﾝ" ("minutes")
 #define MSG_HEATING                         "\xb6\xc8\xc2\xc1\xad\xb3"                                         // "ｶﾈﾂﾁｭｳ" ("Heating...")
 #define MSG_HEATING_COMPLETE                "\xb6\xc8\xc2\xb6\xdd\xd8\xae\xb3"                                 // "ｶﾈﾂｶﾝﾘｮｳ" ("Heating done.")
 #define MSG_BED_HEATING                     "\xcd\xde\xaf\xc4\xde\x20\xb6\xc8\xc2\xc1\xad\xb3"                 // "ﾍﾞｯﾄﾞ ｶﾈﾂﾁｭｳ" ("Bed Heating.")

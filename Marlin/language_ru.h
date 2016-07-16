@@ -156,8 +156,6 @@
 #define MSG_ERR_MINTEMP                     "Ошибка: Т мин."
 #define MSG_ERR_MAXTEMP_BED                 "Ошибка:Т макс.стол"
 #define MSG_ERR_MINTEMP_BED                 "Ошибка:Т мин.стол"
-#define MSG_END_HOUR                        "часов"
-#define MSG_END_MINUTE                      "минут"
 #define MSG_HEATING                         "Нагреваю сопло..."
 #define MSG_HEATING_COMPLETE                "Нагрев выполнен"
 #define MSG_BED_HEATING                     "Нагреваю стол"
