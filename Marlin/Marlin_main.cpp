@@ -322,6 +322,9 @@ float home_offset[3] = { 0 };
 // Software Endstops. Default to configured limits.
 float sw_endstop_min[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float sw_endstop_max[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+#if ENABLED(DELTA)
+  float delta_clip_start_height = Z_MAX_POS;
+#endif
 
 #if FAN_COUNT > 0
   int fanSpeeds[FAN_COUNT] = { 0 };
@@ -1441,6 +1444,7 @@ static void update_software_endstops(AxisEnum axis) {
     sw_endstop_min[axis] = base_min_pos(axis) + offs;
     sw_endstop_max[axis] = base_max_pos(axis) + offs;
   }
+
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
       SERIAL_ECHOPAIR("For ", axis_codes[axis]);
@@ -1451,6 +1455,13 @@ static void update_software_endstops(AxisEnum axis) {
       SERIAL_EOL;
     }
   #endif
+
+  #if ENABLED(DELTA)
+    if (axis == Z_AXIS) {
+      delta_clip_start_height = sw_endstop_max[axis] - delta_safe_distance_from_top();
+    }
+  #endif
+
 }
 
 /**
@@ -3099,6 +3110,11 @@ inline void gcode_G28() {
           mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS));
       }
     }
+  #endif
+
+  #if ENABLED(DELTA)
+    // move to a height where we can use the full xy-area
+    do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
   clean_up_after_endstop_or_probe_move();
@@ -7539,6 +7555,15 @@ void clamp_to_software_endstops(float target[3]) {
     SERIAL_ECHOPGM(" b="); SERIAL_ECHO(delta[TOWER_2]);
     SERIAL_ECHOPGM(" c="); SERIAL_ECHOLN(delta[TOWER_3]);
     */
+  }
+
+  float delta_safe_distance_from_top() {
+    float cartesian[3] = { 0 };
+    calculate_delta(cartesian);
+    float distance = delta[TOWER_3];
+    cartesian[Y_AXIS] = DELTA_PRINTABLE_RADIUS;
+    calculate_delta(cartesian);
+    return abs(distance - delta[TOWER_3]);
   }
 
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
