@@ -1623,34 +1623,6 @@ inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
 
-//
-// Prepare to do endstop or probe moves
-// with custom feedrates.
-//
-//  - Save current feedrates
-//  - Reset the rate multiplier
-//  - Reset the command timeout
-//  - Enable the endstops (for endstop moves)
-//
-static void setup_for_endstop_or_probe_move() {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("setup_for_endstop_or_probe_move", current_position);
-  #endif
-  saved_feedrate = feedrate;
-  saved_feedrate_multiplier = feedrate_multiplier;
-  feedrate_multiplier = 100;
-  refresh_cmd_timeout();
-}
-
-static void clean_up_after_endstop_or_probe_move() {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("clean_up_after_endstop_or_probe_move", current_position);
-  #endif
-  feedrate = saved_feedrate;
-  feedrate_multiplier = saved_feedrate_multiplier;
-  refresh_cmd_timeout();
-}
-
 #if ENABLED(DELTA)
   /**
    * Calculate delta, start a line, and set current_position to destination
@@ -1734,6 +1706,38 @@ inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, feed_rate);
 }
 
+inline void do_blocking_move_to_xy(float x, float y, float feed_rate = 0.0) {
+  do_blocking_move_to(x, y, current_position[Z_AXIS], feed_rate);
+}
+
+//
+// Prepare to do endstop or probe moves
+// with custom feedrates.
+//
+//  - Save current feedrates
+//  - Reset the rate multiplier
+//  - Reset the command timeout
+//  - Enable the endstops (for endstop moves)
+//
+static void setup_for_endstop_or_probe_move() {
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) DEBUG_POS("setup_for_endstop_or_probe_move", current_position);
+  #endif
+  saved_feedrate = feedrate;
+  saved_feedrate_multiplier = feedrate_multiplier;
+  feedrate_multiplier = 100;
+  refresh_cmd_timeout();
+}
+
+static void clean_up_after_endstop_or_probe_move() {
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) DEBUG_POS("clean_up_after_endstop_or_probe_move", current_position);
+  #endif
+  feedrate = saved_feedrate;
+  feedrate_multiplier = saved_feedrate_multiplier;
+  refresh_cmd_timeout();
+}
+
 #if HAS_BED_PROBE
   /**
    * Raise Z to a minimum height to make room for a probe to move
@@ -1756,33 +1760,31 @@ inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
 
 #endif //HAS_BED_PROBE
 
-#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE || HOTENDS > 1
-  static bool axis_unhomed_error(const bool x, const bool y, const bool z) {
-    const bool xx = x && !axis_homed[X_AXIS],
-               yy = y && !axis_homed[Y_AXIS],
-               zz = z && !axis_homed[Z_AXIS];
-    if (xx || yy || zz) {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM(MSG_HOME " ");
-      if (xx) SERIAL_ECHOPGM(MSG_X);
-      if (yy) SERIAL_ECHOPGM(MSG_Y);
-      if (zz) SERIAL_ECHOPGM(MSG_Z);
-      SERIAL_ECHOLNPGM(" " MSG_FIRST);
+static bool axis_unhomed_error(const bool x, const bool y, const bool z) {
+  const bool xx = x && !axis_homed[X_AXIS],
+             yy = y && !axis_homed[Y_AXIS],
+             zz = z && !axis_homed[Z_AXIS];
+  if (xx || yy || zz) {
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM(MSG_HOME " ");
+    if (xx) SERIAL_ECHOPGM(MSG_X);
+    if (yy) SERIAL_ECHOPGM(MSG_Y);
+    if (zz) SERIAL_ECHOPGM(MSG_Z);
+    SERIAL_ECHOLNPGM(" " MSG_FIRST);
 
-      #if ENABLED(ULTRA_LCD)
-        char message[3 * (LCD_WIDTH) + 1] = ""; // worst case is kana.utf with up to 3*LCD_WIDTH+1
-        strcat_P(message, PSTR(MSG_HOME " "));
-        if (xx) strcat_P(message, PSTR(MSG_X));
-        if (yy) strcat_P(message, PSTR(MSG_Y));
-        if (zz) strcat_P(message, PSTR(MSG_Z));
-        strcat_P(message, PSTR(" " MSG_FIRST));
-        lcd_setstatus(message);
-      #endif
-      return true;
-    }
-    return false;
+    #if ENABLED(ULTRA_LCD)
+      char message[3 * (LCD_WIDTH) + 1] = ""; // worst case is kana.utf with up to 3*LCD_WIDTH+1
+      strcat_P(message, PSTR(MSG_HOME " "));
+      if (xx) strcat_P(message, PSTR(MSG_X));
+      if (yy) strcat_P(message, PSTR(MSG_Y));
+      if (zz) strcat_P(message, PSTR(MSG_Z));
+      strcat_P(message, PSTR(" " MSG_FIRST));
+      lcd_setstatus(message);
+    #endif
+    return true;
   }
-#endif
+  return false;
+}
 
 #if ENABLED(Z_PROBE_SLED)
 
