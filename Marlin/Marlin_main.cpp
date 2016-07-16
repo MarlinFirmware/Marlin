@@ -8083,7 +8083,7 @@ void prepare_move_to_destination() {
     uint8_t clockwise       // Clockwise?
   ) {
 
-    float radius = hypot(offset[X_AXIS], offset[Y_AXIS]),
+    float radius = HYPOT(offset[X_AXIS], offset[Y_AXIS]),
           center_X = current_position[X_AXIS] + offset[X_AXIS],
           center_Y = current_position[Y_AXIS] + offset[Y_AXIS],
           linear_travel = target[Z_AXIS] - current_position[Z_AXIS],
@@ -8102,7 +8102,7 @@ void prepare_move_to_destination() {
     if (angular_travel == 0 && current_position[X_AXIS] == target[X_AXIS] && current_position[Y_AXIS] == target[Y_AXIS])
       angular_travel += RADIANS(360);
 
-    float mm_of_travel = hypot(angular_travel * radius, fabs(linear_travel));
+    float mm_of_travel = HYPOT(angular_travel * radius, fabs(linear_travel));
     if (mm_of_travel < 0.001) return;
     uint16_t segments = floor(mm_of_travel / (MM_PER_ARC_SEGMENT));
     if (segments == 0) segments = 1;
