@@ -580,17 +580,23 @@ static void report_current_position();
     SERIAL_ECHOPAIR(", ", y);
     SERIAL_ECHOPAIR(", ", z);
     SERIAL_ECHOPGM(")");
-    serialprintPGM(suffix);
+
+    if (suffix) serialprintPGM(suffix);
+    else SERIAL_EOL;
   }
-  void print_xyz(const char* prefix,const char* suffix, const float xyz[]) {
+
+  void print_xyz(const char* prefix, const char* suffix, const float xyz[]) {
     print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
   }
+
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    void print_xyz(const char* prefix,const char* suffix, const vector_3 &xyz) {
+    void print_xyz(const char* prefix, const char* suffix, const vector_3 &xyz) {
       print_xyz(prefix, suffix, xyz.x, xyz.y, xyz.z);
     }
   #endif
-  #define DEBUG_POS(SUFFIX,VAR) do{ print_xyz(PSTR(STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); }while(0)
+
+  #define DEBUG_POS(SUFFIX,VAR) do { \
+    print_xyz(PSTR(STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
 #endif
 
 #if ENABLED(DELTA) || ENABLED(SCARA)
@@ -1657,7 +1663,7 @@ static void do_blocking_move_to(float x, float y, float z, float feed_rate = 0.0
   float old_feedrate = feedrate;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) print_xyz(PSTR("do_blocking_move_to"), "", x, y, z);
+    if (DEBUGGING(LEVELING)) print_xyz(PSTR("do_blocking_move_to"), NULL, x, y, z);
   #endif
 
   #if ENABLED(DELTA)
@@ -6626,7 +6632,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
             delayed_move_time = 0;
             break;
         }
- 
+
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOPAIR("Active extruder parked: ", active_extruder_parked ? "yes" : "no");
