@@ -2005,6 +2005,7 @@ static void clean_up_after_endstop_or_probe_move() {
       if (DEBUGGING(LEVELING)) {
         DEBUG_POS("set_probe_deployed", current_position);
         SERIAL_ECHOPAIR("deploy: ", deploy);
+        SERIAL_EOL;
       }
     #endif
 
