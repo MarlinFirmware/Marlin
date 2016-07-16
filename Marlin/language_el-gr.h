@@ -185,8 +185,6 @@
 #define MSG_ERR_MINTEMP                     "Λάθος: ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΤΗΤΑ"
 #define MSG_ERR_MAXTEMP_BED                 "Λάθος: ΜΕΓΙΣΤΗ ΘΕΡΜΟΤΗΤΑ ΚΛΙΝΗΣ"
 #define MSG_ERR_MINTEMP_BED                 "Λάθος: ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΤΗΤΑ ΚΛΙΝΗΣ"
-#define MSG_END_HOUR                        "ώρες"
-#define MSG_END_MINUTE                      "λεπτά"
 #define MSG_HEATING                         "Θερμαίνεται…"
 #define MSG_HEATING_COMPLETE                "Η θέρμανση ολοκληρώθηκε."
 #define MSG_BED_HEATING                     "Θέρμανση κλίνης."

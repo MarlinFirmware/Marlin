@@ -187,8 +187,6 @@
 #define MSG_ERR_MINTEMP_BED                 "ΕΛΑΧΙΣΤΗ ΘΕΡΜΟΚΡΑΣΙΑΣ ΕΠ. ΕΚΤΥΠΩΣΗΣ" //SHORTEN
 #define MSG_HALTED                          "H εκτύπωση διακόπηκε"
 #define MSG_PLEASE_RESET                    "PLEASE RESET" //TRANSLATE
-#define MSG_END_HOUR                        "ώρες"
-#define MSG_END_MINUTE                      "λεπτά"
 #define MSG_HEATING                         "Θερμαίνεται…"
 #define MSG_HEATING_COMPLETE                "Η θέρμανση ολοκληρώθηκε." //SHORTEN
 #define MSG_BED_HEATING                     "Θέρμανση ΕΠ. Εκτύπωσης" //SHORTEN

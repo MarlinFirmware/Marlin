@@ -169,8 +169,6 @@
 #define MSG_ERR_MINTEMP                     "エラー:サイテイオンミマン"          // "Err: MINTEMP"
 #define MSG_ERR_MAXTEMP_BED                 "エラー:ベッド サイコウオンチョウカ"    // "Err: MAXTEMP BED"
 #define MSG_ERR_MINTEMP_BED                 "エラー:ベッド サイテイオンミマン"     // "Err: MINTEMP BED"
-#define MSG_END_HOUR                        "ジカン"                       // "hours"
-#define MSG_END_MINUTE                      "フン"                         // "minutes"
 #define MSG_HEATING                         "カネツチュウ"                   // "Heating..."
 #define MSG_HEATING_COMPLETE                "カネツカンリョウ"                 // "Heating done."
 #define MSG_BED_HEATING                     "ベッド カネツチュウ"              // "Bed Heating."

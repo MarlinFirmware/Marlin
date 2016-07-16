@@ -189,8 +189,6 @@
 #define MSG_ERR_MINTEMP_BED                 "NIZ. TEPL. PODL."
 #define MSG_HALTED                          "TISK. ZASTAVENA"
 #define MSG_PLEASE_RESET                    "Provedte reset"
-#define MSG_END_HOUR                        "hod"
-#define MSG_END_MINUTE                      "min"
 #define MSG_HEATING                         "Zahrivani..."
 #define MSG_HEATING_COMPLETE                "Zahrati hotovo."
 #define MSG_BED_HEATING                     "Zahrivani podl."
