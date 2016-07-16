@@ -171,8 +171,8 @@ void Planner::calculate_trapezoid_for_block(block_t* block, float entry_factor, 
   }
 
   #if ENABLED(ADVANCE)
-    volatile long initial_advance = block->advance * entry_factor * entry_factor;
-    volatile long final_advance = block->advance * exit_factor * exit_factor;
+    volatile long initial_advance = block->advance * sq(entry_factor);
+    volatile long final_advance = block->advance * sq(exit_factor);
   #endif // ADVANCE
 
   // block->accelerate_until = accelerate_steps;
@@ -815,13 +815,13 @@ void Planner::check_axes_activity() {
   else {
     block->millimeters = sqrt(
       #if ENABLED(COREXY)
-        square(delta_mm[X_HEAD]) + square(delta_mm[Y_HEAD]) + square(delta_mm[Z_AXIS])
+        sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_AXIS])
       #elif ENABLED(COREXZ)
-        square(delta_mm[X_HEAD]) + square(delta_mm[Y_AXIS]) + square(delta_mm[Z_HEAD])
+        sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_HEAD])
       #elif ENABLED(COREYZ)
-        square(delta_mm[X_AXIS]) + square(delta_mm[Y_HEAD]) + square(delta_mm[Z_HEAD])
+        sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_HEAD])
       #else
-        square(delta_mm[X_AXIS]) + square(delta_mm[Y_AXIS]) + square(delta_mm[Z_AXIS])
+        sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS])
       #endif
     );
   }
@@ -1030,7 +1030,7 @@ void Planner::check_axes_activity() {
           dsy = current_speed[Y_AXIS] - previous_speed[Y_AXIS],
           dsz = fabs(csz - previous_speed[Z_AXIS]),
           dse = fabs(cse - previous_speed[E_AXIS]),
-          jerk = sqrt(dsx * dsx + dsy * dsy);
+          jerk = HYPOT(dsx, dsy);
 
     //    if ((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
     vmax_junction = block->nominal_speed;
@@ -1086,7 +1086,7 @@ void Planner::check_axes_activity() {
     }
     else {
       long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_steps_per_s2);
-      float advance = ((STEPS_PER_CUBIC_MM_E) * (EXTRUDER_ADVANCE_K)) * (cse * cse * (EXTRUSION_AREA) * (EXTRUSION_AREA)) * 256;
+      float advance = ((STEPS_PER_CUBIC_MM_E) * (EXTRUDER_ADVANCE_K)) * HYPOT(cse, EXTRUSION_AREA) * 256;
       block->advance = advance;
       block->advance_rate = acc_dist ? advance / (float)acc_dist : 0;
     }
