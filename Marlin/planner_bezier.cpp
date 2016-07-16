@@ -105,7 +105,7 @@ inline static float dist1(float x1, float y1, float x2, float y2) { return fabs(
  * the mitigation offered by MIN_STEP and the small computational
  * power available on Arduino, I think it is not wise to implement it.
  */
-void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS], const float offset[4], float feed_rate, uint8_t extruder) {
+void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS], const float offset[4], float fr_mm_s, uint8_t extruder) {
   // Absolute first and second control points are recovered.
   float first0 = position[X_AXIS] + offset[0];
   float first1 = position[Y_AXIS] + offset[1];
@@ -193,9 +193,9 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
       #if ENABLED(AUTO_BED_LEVELING_FEATURE)
         adjust_delta(bez_target);
       #endif
-      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], bez_target[E_AXIS], feed_rate, extruder);
+      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], bez_target[E_AXIS], fr_mm_s, extruder);
     #else
-      planner.buffer_line(bez_target[X_AXIS], bez_target[Y_AXIS], bez_target[Z_AXIS], bez_target[E_AXIS], feed_rate, extruder);
+      planner.buffer_line(bez_target[X_AXIS], bez_target[Y_AXIS], bez_target[Z_AXIS], bez_target[E_AXIS], fr_mm_s, extruder);
     #endif
   }
 }

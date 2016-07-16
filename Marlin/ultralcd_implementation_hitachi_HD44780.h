@@ -742,7 +742,7 @@ static void lcd_implementation_status_screen() {
 
     lcd.setCursor(0, 2);
     lcd.print(LCD_STR_FEEDRATE[0]);
-    lcd.print(itostr3(feedrate_multiplier));
+    lcd.print(itostr3(feedrate_percentage));
     lcd.print('%');
 
     #if LCD_WIDTH > 19 && ENABLED(SDSUPPORT)
