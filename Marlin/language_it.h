@@ -186,8 +186,8 @@
 #define MSG_INFO_PROTOCOL                   "Protocollo"
 #if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              "Contat. stampa"
-  #define MSG_INFO_FINISHED_PRINTS          "Finiti      "
-  #define MSG_INFO_PRINT_TIME               "Tempo totale"
+  #define MSG_INFO_FINISHED_PRINTS          "Finiti        "
+  #define MSG_INFO_PRINT_TIME               "Tempo totale  "
 #else
   #define MSG_INFO_PRINT_COUNT              "Stampe   "
   #define MSG_INFO_FINISHED_PRINTS          "Finiti   "
