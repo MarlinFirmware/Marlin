@@ -1706,10 +1706,6 @@ inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, feed_rate);
 }
 
-inline void do_blocking_move_to_xy(float x, float y, float feed_rate = 0.0) {
-  do_blocking_move_to(x, y, current_position[Z_AXIS], feed_rate);
-}
-
 //
 // Prepare to do endstop or probe moves
 // with custom feedrates.
@@ -1760,31 +1756,33 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif //HAS_BED_PROBE
 
-static bool axis_unhomed_error(const bool x, const bool y, const bool z) {
-  const bool xx = x && !axis_homed[X_AXIS],
-             yy = y && !axis_homed[Y_AXIS],
-             zz = z && !axis_homed[Z_AXIS];
-  if (xx || yy || zz) {
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPGM(MSG_HOME " ");
-    if (xx) SERIAL_ECHOPGM(MSG_X);
-    if (yy) SERIAL_ECHOPGM(MSG_Y);
-    if (zz) SERIAL_ECHOPGM(MSG_Z);
-    SERIAL_ECHOLNPGM(" " MSG_FIRST);
+#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
+  static bool axis_unhomed_error(const bool x, const bool y, const bool z) {
+    const bool xx = x && !axis_homed[X_AXIS],
+               yy = y && !axis_homed[Y_AXIS],
+               zz = z && !axis_homed[Z_AXIS];
+    if (xx || yy || zz) {
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPGM(MSG_HOME " ");
+      if (xx) SERIAL_ECHOPGM(MSG_X);
+      if (yy) SERIAL_ECHOPGM(MSG_Y);
+      if (zz) SERIAL_ECHOPGM(MSG_Z);
+      SERIAL_ECHOLNPGM(" " MSG_FIRST);
 
-    #if ENABLED(ULTRA_LCD)
-      char message[3 * (LCD_WIDTH) + 1] = ""; // worst case is kana.utf with up to 3*LCD_WIDTH+1
-      strcat_P(message, PSTR(MSG_HOME " "));
-      if (xx) strcat_P(message, PSTR(MSG_X));
-      if (yy) strcat_P(message, PSTR(MSG_Y));
-      if (zz) strcat_P(message, PSTR(MSG_Z));
-      strcat_P(message, PSTR(" " MSG_FIRST));
-      lcd_setstatus(message);
-    #endif
-    return true;
+      #if ENABLED(ULTRA_LCD)
+        char message[3 * (LCD_WIDTH) + 1] = ""; // worst case is kana.utf with up to 3*LCD_WIDTH+1
+        strcat_P(message, PSTR(MSG_HOME " "));
+        if (xx) strcat_P(message, PSTR(MSG_X));
+        if (yy) strcat_P(message, PSTR(MSG_Y));
+        if (zz) strcat_P(message, PSTR(MSG_Z));
+        strcat_P(message, PSTR(" " MSG_FIRST));
+        lcd_setstatus(message);
+      #endif
+      return true;
+    }
+    return false;
   }
-  return false;
-}
+#endif
 
 #if ENABLED(Z_PROBE_SLED)
 
