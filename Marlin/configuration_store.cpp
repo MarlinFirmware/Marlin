@@ -49,13 +49,13 @@
  *  104  EEPROM Checksum (uint16_t)
  *
  *  106  M92 XYZE  planner.axis_steps_per_mm (float x4)
- *  122  M203 XYZE planner.max_feedrate (float x4)
+ *  122  M203 XYZE planner.max_feedrate_mm_s (float x4)
  *  138  M201 XYZE planner.max_acceleration_mm_per_s2 (uint32_t x4)
  *  154  M204 P    planner.acceleration (float)
  *  158  M204 R    planner.retract_acceleration (float)
  *  162  M204 T    planner.travel_acceleration (float)
- *  166  M205 S    planner.min_feedrate (float)
- *  170  M205 T    planner.min_travel_feedrate (float)
+ *  166  M205 S    planner.min_feedrate_mm_s (float)
+ *  170  M205 T    planner.min_travel_feedrate_mm_s (float)
  *  174  M205 B    planner.min_segment_time (ulong)
  *  178  M205 X    planner.max_xy_jerk (float)
  *  182  M205 Z    planner.max_z_jerk (float)
@@ -116,7 +116,7 @@
  *  406  M207 Z    retract_zlift (float)
  *  410  M208 S    retract_recover_length (float)
  *  414  M208 W    retract_recover_length_swap (float)
- *  418  M208 F    retract_recover_feedrate (float)
+ *  418  M208 F    retract_recover_feedrate_mm_s (float)
  *
  * Volumetric Extrusion:
  *  422  M200 D    volumetric_enabled (bool)
@@ -201,13 +201,13 @@ void Config_StoreSettings()  {
   eeprom_checksum = 0; // clear before first "real data"
 
   EEPROM_WRITE_VAR(i, planner.axis_steps_per_mm);
-  EEPROM_WRITE_VAR(i, planner.max_feedrate);
+  EEPROM_WRITE_VAR(i, planner.max_feedrate_mm_s);
   EEPROM_WRITE_VAR(i, planner.max_acceleration_mm_per_s2);
   EEPROM_WRITE_VAR(i, planner.acceleration);
   EEPROM_WRITE_VAR(i, planner.retract_acceleration);
   EEPROM_WRITE_VAR(i, planner.travel_acceleration);
-  EEPROM_WRITE_VAR(i, planner.min_feedrate);
-  EEPROM_WRITE_VAR(i, planner.min_travel_feedrate);
+  EEPROM_WRITE_VAR(i, planner.min_feedrate_mm_s);
+  EEPROM_WRITE_VAR(i, planner.min_travel_feedrate_mm_s);
   EEPROM_WRITE_VAR(i, planner.min_segment_time);
   EEPROM_WRITE_VAR(i, planner.max_xy_jerk);
   EEPROM_WRITE_VAR(i, planner.max_z_jerk);
@@ -342,7 +342,7 @@ void Config_StoreSettings()  {
       dummy = 0.0f;
       EEPROM_WRITE_VAR(i, dummy);
     #endif
-    EEPROM_WRITE_VAR(i, retract_recover_feedrate);
+    EEPROM_WRITE_VAR(i, retract_recover_feedrate_mm_s);
   #endif // FWRETRACT
 
   EEPROM_WRITE_VAR(i, volumetric_enabled);
@@ -388,14 +388,14 @@ void Config_RetrieveSettings() {
 
     // version number match
     EEPROM_READ_VAR(i, planner.axis_steps_per_mm);
-    EEPROM_READ_VAR(i, planner.max_feedrate);
+    EEPROM_READ_VAR(i, planner.max_feedrate_mm_s);
     EEPROM_READ_VAR(i, planner.max_acceleration_mm_per_s2);
 
     EEPROM_READ_VAR(i, planner.acceleration);
     EEPROM_READ_VAR(i, planner.retract_acceleration);
     EEPROM_READ_VAR(i, planner.travel_acceleration);
-    EEPROM_READ_VAR(i, planner.min_feedrate);
-    EEPROM_READ_VAR(i, planner.min_travel_feedrate);
+    EEPROM_READ_VAR(i, planner.min_feedrate_mm_s);
+    EEPROM_READ_VAR(i, planner.min_travel_feedrate_mm_s);
     EEPROM_READ_VAR(i, planner.min_segment_time);
     EEPROM_READ_VAR(i, planner.max_xy_jerk);
     EEPROM_READ_VAR(i, planner.max_z_jerk);
@@ -524,7 +524,7 @@ void Config_RetrieveSettings() {
       #else
         EEPROM_READ_VAR(i, dummy);
       #endif
-      EEPROM_READ_VAR(i, retract_recover_feedrate);
+      EEPROM_READ_VAR(i, retract_recover_feedrate_mm_s);
     #endif // FWRETRACT
 
     EEPROM_READ_VAR(i, volumetric_enabled);
@@ -564,7 +564,7 @@ void Config_ResetDefault() {
   long tmp3[] = DEFAULT_MAX_ACCELERATION;
   for (uint8_t i = 0; i < NUM_AXIS; i++) {
     planner.axis_steps_per_mm[i] = tmp1[i];
-    planner.max_feedrate[i] = tmp2[i];
+    planner.max_feedrate_mm_s[i] = tmp2[i];
     planner.max_acceleration_mm_per_s2[i] = tmp3[i];
     #if ENABLED(SCARA)
       if (i < COUNT(axis_scaling))
@@ -575,9 +575,9 @@ void Config_ResetDefault() {
   planner.acceleration = DEFAULT_ACCELERATION;
   planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
   planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
-  planner.min_feedrate = DEFAULT_MINIMUMFEEDRATE;
+  planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
   planner.min_segment_time = DEFAULT_MINSEGMENTTIME;
-  planner.min_travel_feedrate = DEFAULT_MINTRAVELFEEDRATE;
+  planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
   planner.max_xy_jerk = DEFAULT_XYJERK;
   planner.max_z_jerk = DEFAULT_ZJERK;
   planner.max_e_jerk = DEFAULT_EJERK;
@@ -653,7 +653,7 @@ void Config_ResetDefault() {
     #if EXTRUDERS > 1
       retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
     #endif
-    retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
+    retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
   #endif
 
   volumetric_enabled = false;
@@ -706,10 +706,10 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M203 X", planner.max_feedrate[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", planner.max_feedrate[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", planner.max_feedrate[Z_AXIS]);
-  SERIAL_ECHOPAIR(" E", planner.max_feedrate[E_AXIS]);
+  SERIAL_ECHOPAIR("  M203 X", planner.max_feedrate_mm_s[X_AXIS]);
+  SERIAL_ECHOPAIR(" Y", planner.max_feedrate_mm_s[Y_AXIS]);
+  SERIAL_ECHOPAIR(" Z", planner.max_feedrate_mm_s[Z_AXIS]);
+  SERIAL_ECHOPAIR(" E", planner.max_feedrate_mm_s[E_AXIS]);
   SERIAL_EOL;
 
   CONFIG_ECHO_START;
@@ -737,8 +737,8 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum XY jerk (mm/s),  Z=maximum Z jerk (mm/s),  E=maximum E jerk (mm/s)");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M205 S", planner.min_feedrate);
-  SERIAL_ECHOPAIR(" T", planner.min_travel_feedrate);
+  SERIAL_ECHOPAIR("  M205 S", planner.min_feedrate_mm_s);
+  SERIAL_ECHOPAIR(" T", planner.min_travel_feedrate_mm_s);
   SERIAL_ECHOPAIR(" B", planner.min_segment_time);
   SERIAL_ECHOPAIR(" X", planner.max_xy_jerk);
   SERIAL_ECHOPAIR(" Z", planner.max_z_jerk);
@@ -894,7 +894,7 @@ void Config_PrintSettings(bool forReplay) {
     #if EXTRUDERS > 1
       SERIAL_ECHOPAIR(" W", retract_length_swap);
     #endif
-    SERIAL_ECHOPAIR(" F", retract_feedrate_mm_s * 60);
+    SERIAL_ECHOPAIR(" F", MMS_TO_MMM(retract_feedrate_mm_s));
     SERIAL_ECHOPAIR(" Z", retract_zlift);
     SERIAL_EOL;
     CONFIG_ECHO_START;
@@ -906,7 +906,7 @@ void Config_PrintSettings(bool forReplay) {
     #if EXTRUDERS > 1
       SERIAL_ECHOPAIR(" W", retract_recover_length_swap);
     #endif
-    SERIAL_ECHOPAIR(" F", retract_recover_feedrate * 60);
+    SERIAL_ECHOPAIR(" F", MMS_TO_MMM(retract_recover_feedrate_mm_s));
     SERIAL_EOL;
     CONFIG_ECHO_START;
     if (!forReplay) {
