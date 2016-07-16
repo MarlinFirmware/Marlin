@@ -1726,6 +1726,10 @@ inline void do_blocking_move_to_y(float y) {
   do_blocking_move_to(current_position[X_AXIS], y, current_position[Z_AXIS]);
 }
 
+inline void do_blocking_move_to_xy(float x, float y, float feed_rate = 0.0) {
+  do_blocking_move_to(x, y, current_position[Z_AXIS], feed_rate);
+}
+
 inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, feed_rate);
 }
@@ -2125,10 +2129,6 @@ inline void do_blocking_move_to_z(float z, float feed_rate = 0.0) {
     feedrate = old_feedrate;
 
     return current_position[Z_AXIS];
-  }
-
-  inline void do_blocking_move_to_xy(float x, float y, float feed_rate = 0.0) {
-    do_blocking_move_to(x, y, current_position[Z_AXIS], feed_rate);
   }
 
   //
@@ -2902,20 +2902,17 @@ inline void gcode_G28() {
 
       if (home_all_axis || homeX || homeY) {
         // Raise Z before homing any other axes and z is not already high enough (never lower z)
-        float z_dest = home_offset[Z_AXIS] + MIN_Z_HEIGHT_FOR_HOMING;
-        if (z_dest > current_position[Z_AXIS]) {
+        destination[Z_AXIS] = home_offset[Z_AXIS] + MIN_Z_HEIGHT_FOR_HOMING;
+        if (destination[Z_AXIS] > current_position[Z_AXIS]) {
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR("Raise Z (before homing) to ", z_dest);
+              SERIAL_ECHOPAIR("Raise Z (before homing) to ", destination[Z_AXIS]);
               SERIAL_EOL;
             }
           #endif
 
-          feedrate = homing_feedrate[Z_AXIS];
-          line_to_z(z_dest);
-          stepper.synchronize();
-          destination[Z_AXIS] = current_position[Z_AXIS] = z_dest;
+          do_blocking_move_to_z(destination[Z_AXIS]);
         }
       }
 
@@ -3002,8 +2999,6 @@ inline void gcode_G28() {
             destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - (Y_PROBE_OFFSET_FROM_EXTRUDER));
             destination[Z_AXIS] = current_position[Z_AXIS]; //z is already at the right height
 
-            feedrate = XY_PROBE_FEEDRATE;
-
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(LEVELING)) {
                 DEBUG_POS("> Z_SAFE_HOMING > home_all_axis", current_position);
@@ -3012,15 +3007,7 @@ inline void gcode_G28() {
             #endif
 
             // Move in the XY plane
-            line_to_destination();
-            stepper.synchronize();
-
-            /**
-             * Update the current positions for XY, Z is still at least at
-             * MIN_Z_HEIGHT_FOR_HOMING height, no changes there.
-             */
-            current_position[X_AXIS] = destination[X_AXIS];
-            current_position[Y_AXIS] = destination[Y_AXIS];
+            do_blocking_move_to_xy(destination[X_AXIS], destination[Y_AXIS]);
           }
 
           // Let's see if X and Y are homed
