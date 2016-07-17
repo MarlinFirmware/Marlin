@@ -465,6 +465,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // its trigger-point if hardware endstops are active.
 //#define FIX_MOUNTED_PROBE
 
+// The BLTouch probe emulates a servo probe.
+//#define BLTOUCH
+
 // Z Servo Probe, such as an endstop switch on a rotating arm.
 //#define Z_ENDSTOP_SERVO_NR 0
 //#define Z_SERVO_ANGLES {70,0} // Z Servo Deploy and Stow angles
