@@ -163,6 +163,42 @@
 #endif
 
 /**
+ * Only one type of extruder allowed
+ */
+#if (ENABLED(SWITCHING_EXTRUDER) && (ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER))) \
+  || (ENABLED(SINGLENOZZLE) && ENABLED(MIXING_EXTRUDER))
+    #error "Please define only one type of extruder: SINGLENOZZLE, SWITCHING_EXTRUDER, or MIXING_EXTRUDER."
+#endif
+
+/**
+ * Single Stepper Dual Extruder with switching servo
+ */
+#if ENABLED(SWITCHING_EXTRUDER)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #error "SINGLENOZZLE and DUAL_X_CARRIAGE are incompatible."
+  #elif EXTRUDERS != 2
+    #error "SWITCHING_EXTRUDER requires exactly 2 EXTRUDERS."
+  #elif NUM_SERVOS < 1
+    #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
+  #endif
+#endif
+
+/**
+ * Mixing Extruder requirements
+ */
+#if ENABLED(MIXING_EXTRUDER)
+  #if EXTRUDERS > 1
+    #error "MIXING_EXTRUDER currently only supports one extruder."
+  #endif
+  #if MIXING_STEPPERS < 2
+    #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
+  #endif
+  #if ENABLED(FILAMENT_SENSOR)
+    #error "MIXING_EXTRUDER is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway."
+  #endif
+#endif
+
+/**
  * Limited number of servos
  */
 #if defined(NUM_SERVOS) && NUM_SERVOS > 0

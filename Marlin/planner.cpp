@@ -629,6 +629,12 @@ void Planner::check_axes_activity() {
   // Bail if this is a zero-length block
   if (block->step_event_count <= dropsegments) return;
 
+  // For a mixing extruder, get a magnified step_event_count for each
+  #if ENABLED(MIXING_EXTRUDER)
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+      block->mix_event_count[i] = (mixing_factor[i] < 0.0001) ? 0 : block->step_event_count / mixing_factor[i];
+  #endif
+
   #if FAN_COUNT > 0
     for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fanSpeeds[i];
   #endif

@@ -349,7 +349,7 @@ void Config_StoreSettings()  {
 
   // Save filament sizes
   for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
-    if (q < EXTRUDERS) dummy = filament_size[q];
+    if (q < COUNT(filament_size)) dummy = filament_size[q];
     EEPROM_WRITE_VAR(i, dummy);
   }
 
@@ -531,7 +531,7 @@ void Config_RetrieveSettings() {
 
     for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
       EEPROM_READ_VAR(i, dummy);
-      if (q < EXTRUDERS) filament_size[q] = dummy;
+      if (q < COUNT(filament_size)) filament_size[q] = dummy;
     }
 
     if (eeprom_checksum == stored_checksum) {
