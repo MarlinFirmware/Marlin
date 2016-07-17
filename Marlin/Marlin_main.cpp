@@ -316,8 +316,8 @@ float position_shift[3] = { 0 };
 // Set by M206, M428, or menu item. Saved to EEPROM.
 float home_offset[3] = { 0 };
 
-#define RAW_POSITION(POS, AXIS) (POS - home_offset[AXIS] - position_shift[AXIS])
-#define RAW_CURRENT_POSITION(AXIS) (RAW_POSITION(current_position[AXIS], AXIS))
+#define RAW_POSITION(POS, AXIS) (POS - home_offset[AXIS ##_AXIS] - position_shift[AXIS ##_AXIS])
+#define RAW_CURRENT_POSITION(AXIS) (RAW_POSITION(current_position[AXIS ##_AXIS], AXIS))
 
 // Software Endstops. Default to configured limits.
 float sw_endstop_min[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
@@ -2837,7 +2837,7 @@ inline void gcode_G28() {
       // Save known Z position if already homed
       if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
         pre_home_z = current_position[Z_AXIS];
-        pre_home_z += mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS));
+        pre_home_z += mbl.get_z(RAW_CURRENT_POSITION(X), RAW_CURRENT_POSITION(Y));
       }
       mbl.set_active(false);
       current_position[Z_AXIS] = pre_home_z;
@@ -3082,7 +3082,7 @@ inline void gcode_G28() {
           stepper.synchronize();
         #else
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z -
-            mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS))
+            mbl.get_z(RAW_CURRENT_POSITION(X), RAW_CURRENT_POSITION(Y))
             #if Z_HOME_DIR > 0
               + Z_MAX_POS
             #endif
@@ -3094,7 +3094,7 @@ inline void gcode_G28() {
         SYNC_PLAN_POSITION_KINEMATIC();
         mbl.set_active(true);
         current_position[Z_AXIS] = pre_home_z -
-          mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS));
+          mbl.get_z(RAW_CURRENT_POSITION(X), RAW_CURRENT_POSITION(Y));
       }
     }
   #endif
@@ -3302,7 +3302,7 @@ inline void gcode_G28() {
       case MeshReset:
         if (mbl.active()) {
           current_position[Z_AXIS] +=
-            mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS)) - MESH_HOME_SEARCH_Z;
+            mbl.get_z(RAW_CURRENT_POSITION(X), RAW_CURRENT_POSITION(Y)) - MESH_HOME_SEARCH_Z;
           mbl.reset();
           SYNC_PLAN_POSITION_KINEMATIC();
         }
@@ -6711,8 +6711,8 @@ inline void gcode_T(uint8_t tmp_extruder) {
               #if ENABLED(DEBUG_LEVELING_FEATURE)
                 if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("Z before MBL: ", current_position[Z_AXIS]);
               #endif
-              float xpos = RAW_CURRENT_POSITION(X_AXIS),
-                    ypos = RAW_CURRENT_POSITION(Y_AXIS);
+              float xpos = RAW_CURRENT_POSITION(X),
+                    ypos = RAW_CURRENT_POSITION(Y);
               current_position[Z_AXIS] += mbl.get_z(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - mbl.get_z(xpos, ypos);
               #if ENABLED(DEBUG_LEVELING_FEATURE)
                 if (DEBUGGING(LEVELING)) {
@@ -7606,10 +7606,10 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
     set_current_to_destination();
     return;
   }
-  int pcx = mbl.cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
-      pcy = mbl.cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
-      cx = mbl.cell_index_x(RAW_POSITION(x, X_AXIS)),
-      cy = mbl.cell_index_y(RAW_POSITION(y, Y_AXIS));
+  int pcx = mbl.cell_index_x(RAW_CURRENT_POSITION(X)),
+      pcy = mbl.cell_index_y(RAW_CURRENT_POSITION(Y)),
+      cx = mbl.cell_index_x(RAW_POSITION(x, X)),
+      cy = mbl.cell_index_y(RAW_POSITION(y, Y));
   NOMORE(pcx, MESH_NUM_X_POINTS - 2);
   NOMORE(pcy, MESH_NUM_Y_POINTS - 2);
   NOMORE(cx,  MESH_NUM_X_POINTS - 2);
