@@ -321,7 +321,8 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     if (encoderLine >= encoderTopLine + LCD_HEIGHT) { \
       encoderTopLine = encoderLine - (LCD_HEIGHT - 1); \
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
-    }
+    } \
+    UNUSED(_skipStatic)
 
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
 
@@ -1382,7 +1383,7 @@ void kill_screen(const char* lcd_msg) {
         pos_label = PSTR(MSG_MOVE_E);
       #else
         switch (eindex) {
-          case 0: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E1); break;
+          default: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E1); break;
           case 1: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E2); break;
           #if EXTRUDERS > 2
             case 2: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E3); break;
@@ -1543,14 +1544,14 @@ void kill_screen(const char* lcd_msg) {
     // Helpers for editing PID Ki & Kd values
     // grab the PID value out of the temp variable; scale it; then update the PID driver
     void copy_and_scalePID_i(int e) {
-      #if DISABLED(PID_PARAMS_PER_HOTEND)
+      #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
         UNUSED(e);
       #endif
       PID_PARAM(Ki, e) = scalePID_i(raw_Ki);
       thermalManager.updatePID();
     }
     void copy_and_scalePID_d(int e) {
-      #if DISABLED(PID_PARAMS_PER_HOTEND)
+      #if DISABLED(PID_PARAMS_PER_HOTEND) || HOTENDS == 1
         UNUSED(e);
       #endif
       PID_PARAM(Kd, e) = scalePID_d(raw_Kd);
