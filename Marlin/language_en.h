@@ -488,8 +488,14 @@
 #ifndef MSG_PLEASE_RESET
   #define MSG_PLEASE_RESET                    "Please reset"
 #endif
-#ifndef MSG_END_DAY
-  #define MSG_END_DAY                         "days"
+#ifndef MSG_SHORT_DAY
+  #define MSG_SHORT_DAY                       "d" // One character only
+#endif
+#ifndef MSG_SHORT_HOUR
+  #define MSG_SHORT_HOUR                      "h" // One character only
+#endif
+#ifndef MSG_SHORT_MINUTE
+  #define MSG_SHORT_MINUTE                    "m" // One character only
 #endif
 #ifndef MSG_PRINT_TIME
   #define MSG_PRINT_TIME                      "Print time"
