@@ -7841,11 +7841,11 @@ void clamp_to_software_endstops(float target[3]) {
 #if ENABLED(MESH_BED_LEVELING)
 
 // This function is used to split lines on mesh borders so each segment is only part of one mesh area
-void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, const uint8_t& extruder, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
+void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
   int cx1 = mbl.cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
       cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
-      cx2 = mbl.cell_index_x(RAW_POSITION(x, X_AXIS)),
-      cy2 = mbl.cell_index_y(RAW_POSITION(y, Y_AXIS));
+      cx2 = mbl.cell_index_x(RAW_POSITION(destination[X_AXIS], X_AXIS)),
+      cy2 = mbl.cell_index_y(RAW_POSITION(destination[Y_AXIS], Y_AXIS));
   NOMORE(cx1, MESH_NUM_X_POINTS - 2);
   NOMORE(cy1, MESH_NUM_Y_POINTS - 2);
   NOMORE(cx2, MESH_NUM_X_POINTS - 2);
@@ -7853,48 +7853,49 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
 
   if (cx1 == cx2 && cy1 == cy2) {
     // Start and end on same mesh square
-    planner.buffer_line(x, y, z, e, fr_mm_s, extruder);
+    line_to_destination(fr_mm_m);
     set_current_to_destination();
     return;
   }
 
-  #define MBL_SEGMENT_END(axis,AXIS) (current_position[AXIS ##_AXIS] + (axis - current_position[AXIS ##_AXIS]) * normalized_dist)
+  #define MBL_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
 
-  float nx, ny, nz, ne, normalized_dist;
+  float nx, ny, normalized_dist;
   int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
   if (cx2 != cx1 && TEST(x_splits, gcx)) {
     nx = mbl.get_probe_x(gcx) + home_offset[X_AXIS] + position_shift[X_AXIS];
-    normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
-    ny = MBL_SEGMENT_END(y, Y);
+    normalized_dist = (nx - current_position[X_AXIS]) / (destination[X_AXIS] - current_position[X_AXIS]);
+    ny = MBL_SEGMENT_END(Y);
     CBI(x_splits, gcx);
   }
   else if (cy2 != cy1 && TEST(y_splits, gcy)) {
     ny = mbl.get_probe_y(gcy) + home_offset[Y_AXIS] + position_shift[Y_AXIS];
-    normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
-    nx = MBL_SEGMENT_END(x, X);
+    normalized_dist = (ny - current_position[Y_AXIS]) / (destination[Y_AXIS] - current_position[Y_AXIS]);
+    nx = MBL_SEGMENT_END(X);
     CBI(y_splits, gcy);
   }
   else {
     // Already split on a border
-    planner.buffer_line(x, y, z, e, fr_mm_s, extruder);
+    line_to_destination(fr_mm_m);
     set_current_to_destination();
     return;
   }
 
-  nz = MBL_SEGMENT_END(z, Z);
-  ne = MBL_SEGMENT_END(e, E);
+  // Save given destination for after recursion
+  float end[NUM_AXIS];
+  memcpy(end, destination, sizeof(end));
 
-  // Do the split and look for more borders
   destination[X_AXIS] = nx;
   destination[Y_AXIS] = ny;
-  destination[Z_AXIS] = nz;
-  destination[E_AXIS] = ne;
-  mesh_buffer_line(nx, ny, nz, ne, fr_mm_s, extruder, x_splits, y_splits);
-  destination[X_AXIS] = x;
-  destination[Y_AXIS] = y;
-  destination[Z_AXIS] = z;
-  destination[E_AXIS] = e;
-  mesh_buffer_line(x, y, z, e, fr_mm_s, extruder, x_splits, y_splits);
+  destination[Z_AXIS] = MBL_SEGMENT_END(Z);
+  destination[E_AXIS] = MBL_SEGMENT_END(E);
+
+  // Do the split and look for more borders
+  mesh_line_to_destination(fr_mm_m, x_splits, y_splits);
+
+  // Restore destination from stack
+  memcpy(destination, end, sizeof(end));
+  mesh_line_to_destination(fr_mm_m, x_splits, y_splits);
 }
 #endif  // MESH_BED_LEVELING
 
@@ -7992,7 +7993,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
     else {
       #if ENABLED(MESH_BED_LEVELING)
         if (mbl.active()) {
-          mesh_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], MMM_TO_MMS_SCALED(feedrate_mm_m), active_extruder);
+          mesh_line_to_destination(MMM_SCALED(feedrate_mm_m));
           return false;
         }
         else
