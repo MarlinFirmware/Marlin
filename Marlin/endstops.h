@@ -43,7 +43,7 @@ class Endstops {
     #endif
         current_endstop_bits, old_endstop_bits;
         
-    Endstops();
+    Endstops() {};
 
     /**
      * Initialize the endstop pins

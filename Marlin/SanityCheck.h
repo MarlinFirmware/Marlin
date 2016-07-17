@@ -680,6 +680,8 @@
   #error "ABS_PREHEAT_HPB_TEMP is now PREHEAT_2_TEMP_BED. Please update your configuration."
 #elif defined(ABS_PREHEAT_FAN_SPEED)
   #error "ABS_PREHEAT_FAN_SPEED is now PREHEAT_2_FAN_SPEED. Please update your configuration."
+#elif defined(ENDSTOPS_ONLY_FOR_HOMING)
+  #error "ENDSTOPS_ONLY_FOR_HOMING is deprecated. Use (disable) ENDSTOPS_ALWAYS_ON_DEFAULT instead."
 #endif
 
 /**

@@ -127,6 +127,7 @@
  */
 #include "Marlin.h"
 #include "language.h"
+#include "endstops.h"
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"
@@ -659,6 +660,14 @@ void Config_ResetDefault() {
   volumetric_enabled = false;
   for (uint8_t q = 0; q < COUNT(filament_size); q++)
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
+
+  endstops.enable_globally(
+    #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
+      (true)
+    #else
+      (false)
+    #endif
+  );
 
   Config_Postprocess();
 

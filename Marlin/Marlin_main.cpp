@@ -2728,18 +2728,18 @@ inline void gcode_G0_G1() {
  * G4: Dwell S<seconds> or P<milliseconds>
  */
 inline void gcode_G4() {
-  millis_t codenum = 0;
+  millis_t dwell_ms = 0;
 
-  if (code_seen('P')) codenum = code_value_millis(); // milliseconds to wait
-  if (code_seen('S')) codenum = code_value_millis_from_seconds(); // seconds to wait
+  if (code_seen('P')) dwell_ms = code_value_millis(); // milliseconds to wait
+  if (code_seen('S')) dwell_ms = code_value_millis_from_seconds(); // seconds to wait
 
   stepper.synchronize();
   refresh_cmd_timeout();
-  codenum += previous_cmd_ms;  // keep track of when we started waiting
+  dwell_ms += previous_cmd_ms;  // keep track of when we started waiting
 
   if (!lcd_hasstatus()) LCD_MESSAGEPGM(MSG_DWELL);
 
-  while (PENDING(millis(), codenum)) idle();
+  while (PENDING(millis(), dwell_ms)) idle();
 }
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
