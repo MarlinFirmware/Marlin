@@ -184,8 +184,6 @@
 #define MSG_ERR_MINTEMP                     "Err: MINTEMP"
 #define MSG_ERR_MAXTEMP_BED                 "Err: MAXTEMP BED"
 #define MSG_ERR_MINTEMP_BED                 "Err: MINTEMP BED"
-#define MSG_END_HOUR                        "sati"
-#define MSG_END_MINUTE                      "minuta"
 #define MSG_HEATING                         "Grijanje..."
 #define MSG_HEATING_COMPLETE                "Grijanje gotovo."
 #define MSG_BED_HEATING                     "Grijanje Bed-a."
