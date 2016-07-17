@@ -2564,8 +2564,14 @@ void gcode_get_destination() {
     else
       destination[i] = current_position[i];
   }
+
   if (code_seen('F') && code_value_linear_units() > 0.0)
     feedrate = code_value_linear_units();
+
+  #if ENABLED(PRINTCOUNTER)
+    if(!DEBUGGING(DRYRUN))
+      print_job_timer.incFilamentUsed(destination[E_AXIS] - current_position[E_AXIS]);
+  #endif
 }
 
 void unknown_command_error() {
