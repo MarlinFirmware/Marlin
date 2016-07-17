@@ -369,6 +369,21 @@
   #endif //!MANUAL_HOME_POSITIONS
 
   /**
+   * The BLTouch Probe emulates a servo probe
+   */
+  #if ENABLED(BLTOUCH)
+    #undef Z_ENDSTOP_SERVO_NR
+    #undef Z_SERVO_ANGLES
+    #define Z_ENDSTOP_SERVO_NR 0
+    #define Z_SERVO_ANGLES {10,90} // For BLTouch 10=deploy, 90=retract
+    #undef DEACTIVATE_SERVOS_AFTER_MOVE
+    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      #undef Z_MIN_ENDSTOP_INVERTING
+      #define Z_MIN_ENDSTOP_INVERTING false
+    #endif
+  #endif
+
+  /**
    * Auto Bed Leveling and Z Probe Repeatability Test
    */
   #define HAS_PROBING_PROCEDURE (ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))

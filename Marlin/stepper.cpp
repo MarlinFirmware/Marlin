@@ -359,11 +359,11 @@ void Stepper::isr() {
   if (current_block) {
 
     // Update endstops state, if enabled
-    #if HAS_BED_PROBE
-      if (endstops.enabled || endstops.z_probe_enabled) endstops.update();
-    #else
-      if (endstops.enabled) endstops.update();
-    #endif
+    if (endstops.enabled
+      #if HAS_BED_PROBE
+        || endstops.z_probe_enabled
+      #endif
+    ) endstops.update();
 
     // Take multiple steps per interrupt (For high speed moves)
     for (int8_t i = 0; i < step_loops; i++) {
