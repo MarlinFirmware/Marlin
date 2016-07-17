@@ -180,8 +180,6 @@
 #define MSG_ERR_MINTEMP                     "Err: min. temp."
 #define MSG_ERR_MAXTEMP_BED                 "Err: max. temp. loza"
 #define MSG_ERR_MINTEMP_BED                 "Err: min. temp. loza"
-#define MSG_END_HOUR                        "godzin"
-#define MSG_END_MINUTE                      "minut"
 #define MSG_HEATING                         "Rozgrzewanie..."
 #define MSG_HEATING_COMPLETE                "Rozgrzano"
 #define MSG_BED_HEATING                     "Rozgrzewanie loza..."

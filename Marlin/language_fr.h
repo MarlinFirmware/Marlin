@@ -158,8 +158,6 @@
 #define MSG_ERR_MINTEMP                     "Err: TEMP. MIN"
 #define MSG_ERR_MAXTEMP_BED                 "Err: TEMP. MAX PLATEAU"
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP. MIN PLATEAU"
-#define MSG_END_HOUR                        "heures"
-#define MSG_END_MINUTE                      "minutes"
 #define MSG_HEATING                         "En chauffe..."
 #define MSG_HEATING_COMPLETE                "Chauffe terminee"
 #define MSG_BED_HEATING                     "Plateau en chauffe..."

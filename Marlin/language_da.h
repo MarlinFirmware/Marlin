@@ -184,8 +184,6 @@
 #define MSG_ERR_MINTEMP                     "Fejl: Min temp"
 #define MSG_ERR_MAXTEMP_BED                 "Fejl: Maks Plsde temp"
 #define MSG_ERR_MINTEMP_BED                 "Fejl: Min Plade temp"
-#define MSG_END_HOUR                        "Timer"
-#define MSG_END_MINUTE                      "Minutter"
 #define MSG_HEATING                         "Opvarmer..."
 #define MSG_HEATING_COMPLETE                "Opvarmet"
 #define MSG_BED_HEATING                     "Opvarmer plade"

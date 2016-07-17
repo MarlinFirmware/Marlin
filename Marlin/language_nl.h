@@ -157,8 +157,6 @@
 #define MSG_ERR_MINTEMP                     "Err: Min. temp"
 #define MSG_ERR_MAXTEMP_BED                 "Err: Max.tmp bed"
 #define MSG_ERR_MINTEMP_BED                 "Err: Min.tmp bed"
-#define MSG_END_HOUR                        "uur"
-#define MSG_END_MINUTE                      "minuten"
 #define MSG_HEATING                         "Voorwarmen..."
 #define MSG_HEATING_COMPLETE                "Voorverw. kompl."
 #define MSG_BED_HEATING                     "Bed voorverw."

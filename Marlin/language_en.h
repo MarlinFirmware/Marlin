@@ -491,12 +491,6 @@
 #ifndef MSG_END_DAY
   #define MSG_END_DAY                         "days"
 #endif
-#ifndef MSG_END_HOUR
-  #define MSG_END_HOUR                        "hours"
-#endif
-#ifndef MSG_END_MINUTE
-  #define MSG_END_MINUTE                      "minutes"
-#endif
 #ifndef MSG_PRINT_TIME
   #define MSG_PRINT_TIME                      "Print time"
 #endif

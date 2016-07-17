@@ -163,8 +163,6 @@
 #define MSG_ERR_MINTEMP                     "Err: TEMP MINIMA"
 #define MSG_ERR_MAXTEMP_BED                 "Err: TEMP MASSIMA PIATTO"
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP MINIMA PIATTO"
-#define MSG_END_HOUR                        "ore"
-#define MSG_END_MINUTE                      "minuti"
 #define MSG_HEATING                         "Riscaldamento.."
 #define MSG_HEATING_COMPLETE                "Risc. completato"
 #define MSG_BED_HEATING                     "Risc. Piatto.."
