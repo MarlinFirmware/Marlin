@@ -55,7 +55,7 @@
     #define LCD_CONTRAST_MIN 60
     #define LCD_CONTRAST_MAX 140
   #endif
-  
+
   #if ENABLED(MAKRPANEL) || ENABLED(MINIPANEL)
     #define DOGLCD
     #define ULTIPANEL
@@ -267,6 +267,10 @@
         #define DEFAULT_LCD_CONTRAST 32
       #endif
     #endif
+  #endif
+
+  #ifndef BOOTSCREEN_TIMEOUT
+    #define BOOTSCREEN_TIMEOUT 2500
   #endif
 
 #else // CONFIGURATION_LCD
