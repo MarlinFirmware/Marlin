@@ -2738,7 +2738,18 @@ void lcd_update() {
   }
 }
 
+void set_utf_strlen(char* s, uint8_t n) {
+  uint8_t i = 0, j = 0;
+  while (s[i] && (j < n)) {
+    if ((s[i] & 0xC0u) != 0x80u) j++;
+    i++;
+  }
+  while (j++ < n) s[i++] = ' ';
+  s[i] = '\0';
+}
+
 void lcd_finishstatus(bool persist=false) {
+  set_utf_strlen(lcd_status_message, LCD_WIDTH);
   #if !(ENABLED(LCD_PROGRESS_BAR) && (PROGRESS_MSG_EXPIRE > 0))
     UNUSED(persist);
   #endif
@@ -2760,32 +2771,19 @@ void lcd_finishstatus(bool persist=false) {
   void dontExpireStatus() { expire_status_ms = 0; }
 #endif
 
-void set_utf_strlen(char* s, uint8_t n) {
-  uint8_t i = 0, j = 0;
-  while (s[i] && (j < n)) {
-    if ((s[i] & 0xc0u) != 0x80u) j++;
-    i++;
-  }
-  while (j++ < n) s[i++] = ' ';
-  s[i] = '\0';
-}
-
 bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
 
 void lcd_setstatus(const char* message, bool persist) {
   if (lcd_status_message_level > 0) return;
   strncpy(lcd_status_message, message, 3 * (LCD_WIDTH));
-  set_utf_strlen(lcd_status_message, LCD_WIDTH);
   lcd_finishstatus(persist);
 }
 
 void lcd_setstatuspgm(const char* message, uint8_t level) {
-  if (level >= lcd_status_message_level) {
-    strncpy_P(lcd_status_message, message, 3 * (LCD_WIDTH));
-    set_utf_strlen(lcd_status_message, LCD_WIDTH);
-    lcd_status_message_level = level;
-    lcd_finishstatus(level > 0);
-  }
+  if (level < lcd_status_message_level) return;
+  lcd_status_message_level = level;
+  strncpy_P(lcd_status_message, message, 3 * (LCD_WIDTH));
+  lcd_finishstatus(level > 0);
 }
 
 void lcd_setalertstatuspgm(const char* message) {

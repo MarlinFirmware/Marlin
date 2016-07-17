@@ -149,19 +149,21 @@
     #define LCD_PINS_D6 44
     #define LCD_PINS_D7 64
   #else
-    #define BEEPER_PIN 33
     #define LCD_PINS_RS 16
     #define LCD_PINS_ENABLE 17
     #define LCD_PINS_D4 23
     #define LCD_PINS_D5 25
     #define LCD_PINS_D6 27
     #define LCD_PINS_D7 29
-    // Buttons are attached to a shift register
-    // Not wired yet
-    //#define SHIFT_CLK 38
-    //#define SHIFT_LD 42
-    //#define SHIFT_OUT 40
-    //#define SHIFT_EN 17
+    #if DISABLED(NEWPANEL)
+      #define BEEPER_PIN 33
+      // Buttons are attached to a shift register
+      // Not wired yet
+      //#define SHIFT_CLK 38
+      //#define SHIFT_LD 42
+      //#define SHIFT_OUT 40
+      //#define SHIFT_EN 17
+    #endif
   #endif
 
   #if ENABLED(NEWPANEL)
