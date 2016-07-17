@@ -30,8 +30,6 @@
  * @brief Nozzle class
  *
  * @todo: Do not ignore the end.z value and allow XYZ movements
- * @todo: Currently this feature needs HAS_BED_PROBE to be active
- *  due to the do_blocking_move_to*() functions.
  */
 class Nozzle {
   private:
@@ -43,34 +41,40 @@ class Nozzle {
      * @param end point_t defining the ending point
      * @param strokes number of strokes to execute
      */
-    static void stroke(point_t const &start, point_t const &end, uint8_t const &strokes)
-    __attribute__ ((optimize ("Os"))) {
+    static void stroke(
+      __attribute__((unused)) point_t const &start,
+      __attribute__((unused)) point_t const &end,
+      __attribute__((unused)) uint8_t const &strokes
+    ) __attribute__((optimize ("Os"))) {
+      #if ENABLED(NOZZLE_CLEAN_FEATURE)
 
-      #if ENABLED(NOZZLE_CLEAN_PARK)
-        // Store the current coords
-        point_t const initial = {
-          current_position[X_AXIS],
-          current_position[Y_AXIS],
-          current_position[Z_AXIS],
-          current_position[E_AXIS]
-        };
-      #endif
+        #if ENABLED(NOZZLE_CLEAN_PARK)
+          // Store the current coords
+          point_t const initial = {
+            current_position[X_AXIS],
+            current_position[Y_AXIS],
+            current_position[Z_AXIS],
+            current_position[E_AXIS]
+          };
+        #endif // NOZZLE_CLEAN_PARK
 
-      // Move to the starting point
-      do_blocking_move_to_xy(start.x, start.y);
-      do_blocking_move_to_z(start.z);
-
-      // Start the stroke pattern
-      for (uint8_t i = 0; i < (strokes >>1); i++) {
-        do_blocking_move_to_xy(end.x, end.y);
+        // Move to the starting point
         do_blocking_move_to_xy(start.x, start.y);
-      }
+        do_blocking_move_to_z(start.z);
 
-      #if ENABLED(NOZZLE_CLEAN_PARK)
-        // Move the nozzle to the initial point
-        do_blocking_move_to_z(initial.z);
-        do_blocking_move_to_xy(initial.x, initial.y);
-      #endif
+        // Start the stroke pattern
+        for (uint8_t i = 0; i < (strokes >>1); i++) {
+          do_blocking_move_to_xy(end.x, end.y);
+          do_blocking_move_to_xy(start.x, start.y);
+        }
+
+        #if ENABLED(NOZZLE_CLEAN_PARK)
+          // Move the nozzle to the initial point
+          do_blocking_move_to_z(initial.z);
+          do_blocking_move_to_xy(initial.x, initial.y);
+        #endif // NOZZLE_CLEAN_PARK
+
+      #endif // NOZZLE_CLEAN_FEATURE
     }
 
     /**
@@ -82,47 +86,53 @@ class Nozzle {
      * @param strokes number of strokes to execute
      * @param objects number of objects to create
      */
-    static void zigzag(point_t const &start,
-      point_t const &end, uint8_t const &strokes, uint8_t const &objects)
-    __attribute__ ((optimize ("Os"))) {
-      float A = fabs(end.y - start.y); // [twice the] Amplitude
-      float P = fabs(end.x - start.x) / (objects << 1); // Period
+    static void zigzag(
+      __attribute__((unused)) point_t const &start,
+      __attribute__((unused)) point_t const &end,
+      __attribute__((unused)) uint8_t const &strokes,
+      __attribute__((unused)) uint8_t const &objects
+    ) __attribute__((optimize ("Os"))) {
+      #if ENABLED(NOZZLE_CLEAN_FEATURE)
+        float A = fabs(end.y - start.y); // [twice the] Amplitude
+        float P = fabs(end.x - start.x) / (objects << 1); // Period
 
-      // Don't allow impossible triangles
-      if (A <= 0.0f || P <= 0.0f ) return;
+        // Don't allow impossible triangles
+        if (A <= 0.0f || P <= 0.0f ) return;
 
-      #if ENABLED(NOZZLE_CLEAN_PARK)
-        // Store the current coords
-        point_t const initial = {
-          current_position[X_AXIS],
-          current_position[Y_AXIS],
-          current_position[Z_AXIS],
-          current_position[E_AXIS]
-        };
-      #endif
+        #if ENABLED(NOZZLE_CLEAN_PARK)
+          // Store the current coords
+          point_t const initial = {
+            current_position[X_AXIS],
+            current_position[Y_AXIS],
+            current_position[Z_AXIS],
+            current_position[E_AXIS]
+          };
+        #endif // NOZZLE_CLEAN_PARK
 
-      for (uint8_t j = 0; j < strokes; j++) {
-        for (uint8_t i = 0; i < (objects << 1); i++) {
-          float const x = start.x + i * P;
-          float const y = start.y + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
+        for (uint8_t j = 0; j < strokes; j++) {
+          for (uint8_t i = 0; i < (objects << 1); i++) {
+            float const x = start.x + i * P;
+            float const y = start.y + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
 
-          do_blocking_move_to_xy(x, y);
-          if (i == 0) do_blocking_move_to_z(start.z);
+            do_blocking_move_to_xy(x, y);
+            if (i == 0) do_blocking_move_to_z(start.z);
+          }
+
+          for (int i = (objects << 1); i > -1; i--) {
+            float const x = start.x + i * P;
+            float const y = start.y + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
+
+            do_blocking_move_to_xy(x, y);
+          }
         }
 
-        for (int i = (objects << 1); i > -1; i--) {
-          float const x = start.x + i * P;
-          float const y = start.y + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
+        #if ENABLED(NOZZLE_CLEAN_PARK)
+          // Move the nozzle to the initial point
+          do_blocking_move_to_z(initial.z);
+          do_blocking_move_to_xy(initial.x, initial.y);
+        #endif // NOZZLE_CLEAN_PARK
 
-          do_blocking_move_to_xy(x, y);
-        }
-      }
-
-      #if ENABLED(NOZZLE_CLEAN_PARK)
-        // Move the nozzle to the initial point
-        do_blocking_move_to_z(initial.z);
-        do_blocking_move_to_xy(initial.x, initial.y);
-      #endif
+      #endif // NOZZLE_CLEAN_FEATURE
     }
 
   public:
@@ -133,21 +143,52 @@ class Nozzle {
      * @param pattern one of the available patterns
      * @param argument depends on the cleaning pattern
      */
-    static void clean(uint8_t const &pattern,
-      uint8_t const &strokes, uint8_t const &objects = 0)
-    __attribute__ ((optimize ("Os"))) {
-      switch (pattern) {
-        case 1:
-          Nozzle::zigzag(
-            NOZZLE_CLEAN_START_PT,
-            NOZZLE_CLEAN_END_PT, strokes, objects);
-          break;
+    static void clean(
+      __attribute__((unused)) uint8_t const &pattern,
+      __attribute__((unused)) uint8_t const &strokes,
+      __attribute__((unused)) uint8_t const &objects = 0
+    ) __attribute__((optimize ("Os"))) {
+      #if ENABLED(NOZZLE_CLEAN_FEATURE)
+        switch (pattern) {
+          case 1:
+            Nozzle::zigzag(
+              NOZZLE_CLEAN_START_PT,
+              NOZZLE_CLEAN_END_PT, strokes, objects);
+            break;
 
-        default:
-          Nozzle::stroke(
-            NOZZLE_CLEAN_START_PT,
-            NOZZLE_CLEAN_END_PT, strokes);
-      }
+          default:
+            Nozzle::stroke(
+              NOZZLE_CLEAN_START_PT,
+              NOZZLE_CLEAN_END_PT, strokes);
+        }
+      #endif // NOZZLE_CLEAN_FEATURE
+    }
+
+    static void park(
+      __attribute__((unused)) uint8_t const &z_action
+    ) __attribute__((optimize ("Os"))) {
+      #if ENABLED(NOZZLE_PARK_FEATURE)
+        float const z = current_position[Z_AXIS];
+        point_t const park = NOZZLE_PARK_POINT;
+
+        switch(z_action) {
+          case 1: // force Z-park height
+            do_blocking_move_to_z(park.z);
+            break;
+
+          case 2: // Raise by Z-park height
+            do_blocking_move_to_z(
+              (z + park.z > Z_MAX_POS) ? Z_MAX_POS : z + park.z);
+            break;
+
+          default: // Raise to Z-park height if lower
+            if (current_position[Z_AXIS] < park.z)
+              do_blocking_move_to_z(park.z);
+        }
+
+        do_blocking_move_to_xy(park.x, park.y);
+
+      #endif // NOZZLE_PARK_FEATURE
     }
 };
 
