@@ -33,19 +33,19 @@
 #if ENABLED(DAC_STEPPER_CURRENT)
 #include "Wire.h"
 
-#define defaultVDD 5000
-#define BASE_ADDR 0x60
-#define RESET 0B00000110
-#define WAKE 0B00001001
-#define UPDATE 0B00001000
-#define MULTIWRITE 0B01000000
-#define SINGLEWRITE 0B01011000
-#define SEQWRITE 0B01010000
-#define VREFWRITE 0B10000000
-#define GAINWRITE 0B11000000
+#define defaultVDD     5000
+#define BASE_ADDR      0x60
+#define RESET          0B00000110
+#define WAKE           0B00001001
+#define UPDATE         0B00001000
+#define MULTIWRITE     0B01000000
+#define SINGLEWRITE    0B01011000
+#define SEQWRITE       0B01010000
+#define VREFWRITE      0B10000000
+#define GAINWRITE      0B11000000
 #define POWERDOWNWRITE 0B10100000
-#define GENERALCALL 0B0000000
-#define GAINWRITE 0B11000000
+#define GENERALCALL    0B00000000
+#define GAINWRITE      0B11000000
 
 // This is taken from the original lib, makes it easy to edit if needed
 // DAC_OR_ADDRESS defined in pins_BOARD.h  file
