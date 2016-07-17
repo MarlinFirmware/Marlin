@@ -610,35 +610,33 @@
     #define _XMAX_ 101
     #define _YMAX_ 201
     #define _ZMAX_ 301
-    const bool Z2_MAX_ENDSTOP_INVERTING =
-      #if Z2_USE_ENDSTOP == _XMAX_
-        X_MAX_ENDSTOP_INVERTING
-        #define Z2_MAX_PIN X_MAX_PIN
-        #undef USE_XMAX_PLUG
-      #elif Z2_USE_ENDSTOP == _YMAX_
-        Y_MAX_ENDSTOP_INVERTING
-        #define Z2_MAX_PIN Y_MAX_PIN
-        #undef USE_YMAX_PLUG
-      #elif Z2_USE_ENDSTOP == _ZMAX_
-        Z_MAX_ENDSTOP_INVERTING
-        #define Z2_MAX_PIN Z_MAX_PIN
-        #undef USE_ZMAX_PLUG
-      #elif Z2_USE_ENDSTOP == _XMIN_
-        X_MIN_ENDSTOP_INVERTING
-        #define Z2_MAX_PIN X_MIN_PIN
-        #undef USE_XMIN_PLUG
-      #elif Z2_USE_ENDSTOP == _YMIN_
-        Y_MIN_ENDSTOP_INVERTING
-        #define Z2_MAX_PIN Y_MIN_PIN
-        #undef USE_YMIN_PLUG
-      #elif Z2_USE_ENDSTOP == _ZMIN_
-        Z_MIN_ENDSTOP_INVERTING
-        #define Z2_MAX_PIN Z_MIN_PIN
-        #undef USE_ZMIN_PLUG
-      #else
-        0
-      #endif
-    ;
+    #if Z2_USE_ENDSTOP == _XMAX_
+      #define Z2_MAX_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
+      #define Z2_MAX_PIN X_MAX_PIN
+      #undef USE_XMAX_PLUG
+    #elif Z2_USE_ENDSTOP == _YMAX_
+      #define Z2_MAX_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
+      #define Z2_MAX_PIN Y_MAX_PIN
+      #undef USE_YMAX_PLUG
+    #elif Z2_USE_ENDSTOP == _ZMAX_
+      #define Z2_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
+      #define Z2_MAX_PIN Z_MAX_PIN
+      #undef USE_ZMAX_PLUG
+    #elif Z2_USE_ENDSTOP == _XMIN_
+      #define Z2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
+      #define Z2_MAX_PIN X_MIN_PIN
+      #undef USE_XMIN_PLUG
+    #elif Z2_USE_ENDSTOP == _YMIN_
+      #define Z2_MAX_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
+      #define Z2_MAX_PIN Y_MIN_PIN
+      #undef USE_YMIN_PLUG
+    #elif Z2_USE_ENDSTOP == _ZMIN_
+      #define Z2_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
+      #define Z2_MAX_PIN Z_MIN_PIN
+      #undef USE_ZMIN_PLUG
+    #else
+      #define Z2_MAX_ENDSTOP_INVERTING false
+    #endif
   #endif
 
   /**
