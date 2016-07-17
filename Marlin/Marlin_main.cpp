@@ -7842,16 +7842,16 @@ void clamp_to_software_endstops(float target[3]) {
 
 // This function is used to split lines on mesh borders so each segment is only part of one mesh area
 void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, const uint8_t& extruder, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
-  int pcx = mbl.cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
-      pcy = mbl.cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
-      cx = mbl.cell_index_x(RAW_POSITION(x, X_AXIS)),
-      cy = mbl.cell_index_y(RAW_POSITION(y, Y_AXIS));
-  NOMORE(pcx, MESH_NUM_X_POINTS - 2);
-  NOMORE(pcy, MESH_NUM_Y_POINTS - 2);
-  NOMORE(cx, MESH_NUM_X_POINTS - 2);
-  NOMORE(cy, MESH_NUM_Y_POINTS - 2);
+  int cx1 = mbl.cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
+      cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
+      cx2 = mbl.cell_index_x(RAW_POSITION(x, X_AXIS)),
+      cy2 = mbl.cell_index_y(RAW_POSITION(y, Y_AXIS));
+  NOMORE(cx1, MESH_NUM_X_POINTS - 2);
+  NOMORE(cy1, MESH_NUM_Y_POINTS - 2);
+  NOMORE(cx2, MESH_NUM_X_POINTS - 2);
+  NOMORE(cy2, MESH_NUM_Y_POINTS - 2);
 
-  if (pcx == cx && pcy == cy) {
+  if (cx1 == cx2 && cy1 == cy2) {
     // Start and end on same mesh square
     planner.buffer_line(x, y, z, e, fr_mm_s, extruder);
     set_current_to_destination();
@@ -7859,8 +7859,8 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
   }
 
   float nx, ny, nz, ne, normalized_dist;
-  int8_t gcx = max(pcx, cx), gcy = max(pcy, cy);
-  if (cx != pcx && TEST(x_splits, gcx)) {
+  int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+  if (cx2 != cx1 && TEST(x_splits, gcx)) {
     nx = mbl.get_probe_x(gcx) + home_offset[X_AXIS] + position_shift[X_AXIS];
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
@@ -7868,7 +7868,7 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
     ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
     CBI(x_splits, gcx);
   }
-  else if (cy != pcy && TEST(y_splits, gcy)) {
+  else if (cy2 != cy1 && TEST(y_splits, gcy)) {
     ny = mbl.get_probe_y(gcy) + home_offset[Y_AXIS] + position_shift[Y_AXIS];
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
