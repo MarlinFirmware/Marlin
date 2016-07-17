@@ -7858,18 +7858,20 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
     return;
   }
 
+  #define MBL_SEGMENT_END(axis,AXIS) (current_position[AXIS ##_AXIS] + (axis - current_position[AXIS ##_AXIS]) * normalized_dist)
+
   float nx, ny, nz, ne, normalized_dist;
   int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
   if (cx2 != cx1 && TEST(x_splits, gcx)) {
     nx = mbl.get_probe_x(gcx) + home_offset[X_AXIS] + position_shift[X_AXIS];
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
-    ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
+    ny = MBL_SEGMENT_END(y, Y);
     CBI(x_splits, gcx);
   }
   else if (cy2 != cy1 && TEST(y_splits, gcy)) {
     ny = mbl.get_probe_y(gcy) + home_offset[Y_AXIS] + position_shift[Y_AXIS];
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
-    nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
+    nx = MBL_SEGMENT_END(x, X);
     CBI(y_splits, gcy);
   }
   else {
@@ -7879,8 +7881,8 @@ void mesh_buffer_line(float x, float y, float z, const float e, float fr_mm_s, c
     return;
   }
 
-  nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
-  ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
+  nz = MBL_SEGMENT_END(z, Z);
+  ne = MBL_SEGMENT_END(e, E);
 
   // Do the split and look for more borders
   destination[X_AXIS] = nx;
