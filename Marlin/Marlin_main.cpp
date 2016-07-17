@@ -7860,18 +7860,22 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
 
   #define MBL_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
 
-  float nx, ny, normalized_dist;
+  float normalized_dist, end[NUM_AXIS];
+
+  // Split at the left/front border of the right/top square
   int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
   if (cx2 != cx1 && TEST(x_splits, gcx)) {
-    nx = mbl.get_probe_x(gcx) + home_offset[X_AXIS] + position_shift[X_AXIS];
-    normalized_dist = (nx - current_position[X_AXIS]) / (destination[X_AXIS] - current_position[X_AXIS]);
-    ny = MBL_SEGMENT_END(Y);
+    memcpy(end, destination, sizeof(end));
+    destination[X_AXIS] = mbl.get_probe_x(gcx) + home_offset[X_AXIS] + position_shift[X_AXIS];
+    normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
+    destination[Y_AXIS] = MBL_SEGMENT_END(Y);
     CBI(x_splits, gcx);
   }
   else if (cy2 != cy1 && TEST(y_splits, gcy)) {
-    ny = mbl.get_probe_y(gcy) + home_offset[Y_AXIS] + position_shift[Y_AXIS];
-    normalized_dist = (ny - current_position[Y_AXIS]) / (destination[Y_AXIS] - current_position[Y_AXIS]);
-    nx = MBL_SEGMENT_END(X);
+    memcpy(end, destination, sizeof(end));
+    destination[Y_AXIS] = mbl.get_probe_y(gcy) + home_offset[Y_AXIS] + position_shift[Y_AXIS];
+    normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
+    destination[X_AXIS] = MBL_SEGMENT_END(X);
     CBI(y_splits, gcy);
   }
   else {
@@ -7881,12 +7885,6 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
     return;
   }
 
-  // Save given destination for after recursion
-  float end[NUM_AXIS];
-  memcpy(end, destination, sizeof(end));
-
-  destination[X_AXIS] = nx;
-  destination[Y_AXIS] = ny;
   destination[Z_AXIS] = MBL_SEGMENT_END(Z);
   destination[E_AXIS] = MBL_SEGMENT_END(E);
 
