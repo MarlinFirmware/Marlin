@@ -64,20 +64,6 @@ volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_P
  * Class and Instance Methods
  */
 
-Endstops::Endstops() {
-  enable_globally(
-    #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
-      (true)
-    #else
-      (false)
-    #endif
-  );
-  enable(true);
-  #if HAS_BED_PROBE
-    enable_z_probe(false);
-  #endif
-} // Endstops::Endstops
-
 void Endstops::init() {
 
   #if HAS_X_MIN
