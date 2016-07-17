@@ -119,20 +119,20 @@ class Planner {
     static volatile uint8_t block_buffer_head;           // Index of the next block to be pushed
     static volatile uint8_t block_buffer_tail;
 
-    static float max_feedrate[NUM_AXIS]; // Max speeds in mm per second
+    static float max_feedrate_mm_s[NUM_AXIS]; // Max speeds in mm per second
     static float axis_steps_per_mm[NUM_AXIS];
     static unsigned long max_acceleration_steps_per_s2[NUM_AXIS];
     static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
     static millis_t min_segment_time;
-    static float min_feedrate;
+    static float min_feedrate_mm_s;
     static float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
     static float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
     static float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
     static float max_xy_jerk;          // The largest speed change requiring no acceleration
     static float max_z_jerk;
     static float max_e_jerk;
-    static float min_travel_feedrate;
+    static float min_travel_feedrate_mm_s;
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
@@ -211,10 +211,10 @@ class Planner {
        * Add a new linear movement to the buffer.
        *
        *  x,y,z,e   - target position in mm
-       *  feed_rate - (target) speed of the move
+       *  fr_mm_s   - (target) speed of the move (mm/s)
        *  extruder  - target extruder
        */
-      static void buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder);
+      static void buffer_line(float x, float y, float z, const float& e, float fr_mm_s, const uint8_t extruder);
 
       /**
        * Set the planner.position and individual stepper positions.
@@ -229,7 +229,7 @@ class Planner {
 
     #else
 
-      static void buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder);
+      static void buffer_line(const float& x, const float& y, const float& z, const float& e, float fr_mm_s, const uint8_t extruder);
       static void set_position_mm(const float& x, const float& y, const float& z, const float& e);
 
     #endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
@@ -290,7 +290,7 @@ class Planner {
      */
     static float estimate_acceleration_distance(float initial_rate, float target_rate, float accel) {
       if (accel == 0) return 0; // accel was 0, set acceleration distance to 0
-      return (target_rate * target_rate - initial_rate * initial_rate) / (accel * 2);
+      return (sq(target_rate) - sq(initial_rate)) / (accel * 2);
     }
 
     /**
@@ -303,7 +303,7 @@ class Planner {
      */
     static float intersection_distance(float initial_rate, float final_rate, float accel, float distance) {
       if (accel == 0) return 0; // accel was 0, set intersection distance to 0
-      return (accel * 2 * distance - initial_rate * initial_rate + final_rate * final_rate) / (accel * 4);
+      return (accel * 2 * distance - sq(initial_rate) + sq(final_rate)) / (accel * 4);
     }
 
     /**
@@ -312,7 +312,7 @@ class Planner {
      * 'distance'.
      */
     static float max_allowable_speed(float accel, float target_velocity, float distance) {
-      return sqrt(target_velocity * target_velocity - 2 * accel * distance);
+      return sqrt(sq(target_velocity) - 2 * accel * distance);
     }
 
     static void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor);

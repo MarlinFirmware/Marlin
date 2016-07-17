@@ -450,7 +450,7 @@ static void lcd_implementation_status_screen() {
 
   lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(12, 49);
-  lcd_print(itostr3(feedrate_multiplier));
+  lcd_print(itostr3(feedrate_percentage));
   lcd_print('%');
 
   // Status line
