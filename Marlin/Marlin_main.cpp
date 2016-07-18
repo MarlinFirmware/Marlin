@@ -6706,7 +6706,8 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM(">>> gcode_T");
+        SERIAL_ECHOPAIR(">>> gcode_T(", tmp_extruder);
+        SERIAL_ECHOLNPGM(")");
         DEBUG_POS("BEFORE", current_position);
       }
     #endif
@@ -6935,7 +6936,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               SERIAL_ECHOPAIR("Offset Tool XY by { ", xydiff[X_AXIS]);
-              SERIAL_ECHOPAIR(", ", xydiff[X_AXIS]);
+              SERIAL_ECHOPAIR(", ", xydiff[Y_AXIS]);
               SERIAL_ECHOLNPGM(" }");
             }
           #endif
