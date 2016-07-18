@@ -238,8 +238,8 @@
     #error "MESH_BED_LEVELING does not yet support DELTA printers."
   #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
     #error "Select AUTO_BED_LEVELING_FEATURE or MESH_BED_LEVELING, not both."
-  #elif MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
-    #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8."
+  #elif MESH_NUM_X_POINTS > 9 || MESH_NUM_Y_POINTS > 9
+    #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS must be less than 10."
   #endif
 #elif ENABLED(MANUAL_BED_LEVELING)
   #error "MESH_BED_LEVELING is required for MANUAL_BED_LEVELING."
