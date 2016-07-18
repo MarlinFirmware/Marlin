@@ -2741,7 +2741,11 @@ void lcd_update() {
 void set_utf_strlen(char* s, uint8_t n) {
   uint8_t i = 0, j = 0;
   while (s[i] && (j < n)) {
-    if ((s[i] & 0xC0u) != 0x80u) j++;
+    #if ENABLED(MAPPER_NON)
+      j++;
+    #else
+      if ((s[i] & 0xC0u) != 0x80u) j++;
+    #endif
     i++;
   }
   while (j++ < n) s[i++] = ' ';
