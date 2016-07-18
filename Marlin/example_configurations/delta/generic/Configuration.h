@@ -541,6 +541,10 @@
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 4000
+// Speed for the first approach when probing
+#define Z_PROBE_SPEED_FAST (homing_feedrate_mm_m[Z_AXIS])
+// Speed for the second approach when probing
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 
 // Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
 // Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
