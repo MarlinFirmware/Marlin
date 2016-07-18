@@ -35,6 +35,7 @@
   #error "These Printrboard assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h"
 #endif
 
+#define BOARD_NAME         "Printrboard"
 #define LARGE_FLASH        true
 
 // Disable JTAG pins so they can be used for the Extrudrboard
@@ -121,7 +122,8 @@
 #endif // ULTRA_LCD && NEWPANEL
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN 32 //FastIO
+  //FastIO
+  #define BEEPER_PIN 32
   // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0  42 //Non-FastIO
   #define DOGLCD_CS  43 //Non-FastIO

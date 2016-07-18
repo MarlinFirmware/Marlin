@@ -39,45 +39,51 @@
 #endif
 
 /**
+ * We try our best to include sanity checks for all the changes configuration
+ * directives because people have a tendency to use outdated config files with
+ * the bleding edge source code, but sometimes this is not enough. This check
+ * will force a minimum config file revision, otherwise Marlin will not build.
+ */
+#if ! defined(CONFIGURATION_H_VERSION) || CONFIGURATION_H_VERSION < REQUIRED_CONFIGURATION_H_VERSION
+  #error "You are using an old Configuration.h file, update it before building Marlin."
+#endif
+
+#if ! defined(CONFIGURATION_ADV_H_VERSION) || CONFIGURATION_ADV_H_VERSION < REQUIRED_CONFIGURATION_ADV_H_VERSION
+  #error "You are using an old Configuration_adv.h file, update it before building Marlin."
+#endif
+
+/**
  * Marlin release, version and default string
  */
 #ifndef SHORT_BUILD_VERSION
-  #error "SHORT_BUILD_VERSION Information must be specified"
-#endif
-
-#ifndef DETAILED_BUILD_VERSION
-  #error "BUILD_VERSION Information must be specified"
-#endif
-
-#ifndef STRING_DISTRIBUTION_DATE
-  #error "STRING_DISTRIBUTION_DATE Information must be specified"
-#endif
-
-#ifndef PROTOCOL_VERSION
-  #error "PROTOCOL_VERSION Information must be specified"
-#endif
-
-#ifndef MACHINE_NAME
-  #error "MACHINE_NAME Information must be specified"
-#endif
-
-#ifndef SOURCE_CODE_URL
-  #error "SOURCE_CODE_URL Information must be specified"
-#endif
-
-#ifndef DEFAULT_MACHINE_UUID
-  #error "DEFAULT_MACHINE_UUID Information must be specified"
-#endif
-
-#ifndef WEBSITE_URL
-  #error "WEBSITE_URL Information must be specified"
+  #error "SHORT_BUILD_VERSION must be specified."
+#elif !defined(DETAILED_BUILD_VERSION)
+  #error "BUILD_VERSION must be specified."
+#elif !defined(STRING_DISTRIBUTION_DATE)
+  #error "STRING_DISTRIBUTION_DATE must be specified."
+#elif !defined(PROTOCOL_VERSION)
+  #error "PROTOCOL_VERSION must be specified."
+#elif !defined(MACHINE_NAME)
+  #error "MACHINE_NAME must be specified."
+#elif !defined(SOURCE_CODE_URL)
+  #error "SOURCE_CODE_URL must be specified."
+#elif !defined(DEFAULT_MACHINE_UUID)
+  #error "DEFAULT_MACHINE_UUID must be specified."
+#elif !defined(WEBSITE_URL)
+  #error "WEBSITE_URL must be specified."
 #endif
 
 /**
  * Dual Stepper Drivers
  */
-#if ENABLED(Z_DUAL_STEPPER_DRIVERS) && ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  #error "You cannot have dual stepper drivers for both Y and Z."
+#if ENABLED(X_DUAL_STEPPER_DRIVERS) && ENABLED(DUAL_X_CARRIAGE)
+  #error "DUAL_X_CARRIAGE is not compatible with X_DUAL_STEPPER_DRIVERS."
+#elif ENABLED(X_DUAL_STEPPER_DRIVERS) && (!HAS_X2_ENABLE || !HAS_X2_STEP || !HAS_X2_DIR)
+  #error "X_DUAL_STEPPER_DRIVERS requires X2 pins (and an extra E plug)."
+#elif ENABLED(Y_DUAL_STEPPER_DRIVERS) && (!HAS_Y2_ENABLE || !HAS_Y2_STEP || !HAS_Y2_DIR)
+  #error "Y_DUAL_STEPPER_DRIVERS requires Y2 pins (and an extra E plug)."
+#elif ENABLED(Z_DUAL_STEPPER_DRIVERS) && (!HAS_Z2_ENABLE || !HAS_Z2_STEP || !HAS_Z2_DIR)
+  #error "Z_DUAL_STEPPER_DRIVERS requires Z2 pins (and an extra E plug)."
 #endif
 
 /**
@@ -111,17 +117,28 @@
 #endif
 
 /**
+ * Filament Runout needs a pin and either SD Support or Auto print start detection
+ */
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if !HAS_FIL_RUNOUT
+    #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
+  #elif DISABLED(SDSUPPORT) && DISABLED(PRINTJOB_TIMER_AUTOSTART)
+    #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT or PRINTJOB_TIMER_AUTOSTART."
+  #endif
+#endif
+
+/**
  * Filament Change with Extruder Runout Prevention
  */
-#if ENABLED(FILAMENTCHANGEENABLE) && ENABLED(EXTRUDER_RUNOUT_PREVENT)
-  #error "EXTRUDER_RUNOUT_PREVENT currently incompatible with FILAMENTCHANGE."
+#if ENABLED(FILAMENT_CHANGE_FEATURE) && ENABLED(EXTRUDER_RUNOUT_PREVENT)
+  #error "EXTRUDER_RUNOUT_PREVENT is incompatible with FILAMENT_CHANGE_FEATURE."
 #endif
 
 /**
  * Individual axis homing is useless for DELTAS
  */
 #if ENABLED(INDIVIDUAL_AXIS_HOMING_MENU) && ENABLED(DELTA)
-  #error INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics.
+  #error "INDIVIDUAL_AXIS_HOMING_MENU is incompatible with DELTA kinematics."
 #endif
 
 /**
@@ -141,41 +158,62 @@
     #error "EXTRUDERS must be 1 with HEATERS_PARALLEL."
   #endif
 
-  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-    #error "EXTRUDERS must be 1 with Y_DUAL_STEPPER_DRIVERS."
-  #endif
-
-  #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-    #error "EXTRUDERS must be 1 with Z_DUAL_STEPPER_DRIVERS."
-  #endif
-
 #elif ENABLED(SINGLENOZZLE)
   #error "SINGLENOZZLE requires 2 or more EXTRUDERS."
 #endif
 
 /**
+ * Only one type of extruder allowed
+ */
+#if (ENABLED(SWITCHING_EXTRUDER) && (ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER))) \
+  || (ENABLED(SINGLENOZZLE) && ENABLED(MIXING_EXTRUDER))
+    #error "Please define only one type of extruder: SINGLENOZZLE, SWITCHING_EXTRUDER, or MIXING_EXTRUDER."
+#endif
+
+/**
+ * Single Stepper Dual Extruder with switching servo
+ */
+#if ENABLED(SWITCHING_EXTRUDER)
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #error "SINGLENOZZLE and DUAL_X_CARRIAGE are incompatible."
+  #elif EXTRUDERS != 2
+    #error "SWITCHING_EXTRUDER requires exactly 2 EXTRUDERS."
+  #elif NUM_SERVOS < 1
+    #error "SWITCHING_EXTRUDER requires NUM_SERVOS >= 1."
+  #endif
+#endif
+
+/**
+ * Mixing Extruder requirements
+ */
+#if ENABLED(MIXING_EXTRUDER)
+  #if EXTRUDERS > 1
+    #error "MIXING_EXTRUDER currently only supports one extruder."
+  #endif
+  #if MIXING_STEPPERS < 2
+    #error "You must set MIXING_STEPPERS >= 2 for a mixing extruder."
+  #endif
+  #if ENABLED(FILAMENT_SENSOR)
+    #error "MIXING_EXTRUDER is incompatible with FILAMENT_SENSOR. Comment out this line to use it anyway."
+  #endif
+#endif
+
+/**
  * Limited number of servos
  */
-#if NUM_SERVOS > 4
-  #error "The maximum number of SERVOS in Marlin is 4."
-#endif
 #if defined(NUM_SERVOS) && NUM_SERVOS > 0
-  #if X_ENDSTOP_SERVO_NR >= 0 || Y_ENDSTOP_SERVO_NR >= 0 || Z_ENDSTOP_SERVO_NR >= 0
-    #if X_ENDSTOP_SERVO_NR >= NUM_SERVOS
-      #error "X_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
-    #elif Y_ENDSTOP_SERVO_NR >= NUM_SERVOS
-      #error "Y_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
-    #elif Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
-      #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
-    #endif
+  #if NUM_SERVOS > 4
+    #error "The maximum number of SERVOS in Marlin is 4."
+  #elif HAS_Z_SERVO_ENDSTOP && Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
+    #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
   #endif
 #endif
 
 /**
  * Servo deactivation depends on servo endstops
  */
-#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && DISABLED(HAS_SERVO_ENDSTOPS)
-  #error "At least one of the ?_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE."
+#if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE) && !HAS_Z_SERVO_ENDSTOP
+  #error "Z_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE."
 #endif
 
 /**
@@ -198,12 +236,10 @@
 #if ENABLED(MESH_BED_LEVELING)
   #if ENABLED(DELTA)
     #error "MESH_BED_LEVELING does not yet support DELTA printers."
-  #endif
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
     #error "Select AUTO_BED_LEVELING_FEATURE or MESH_BED_LEVELING, not both."
-  #endif
-  #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
-    #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8."
+  #elif MESH_NUM_X_POINTS > 9 || MESH_NUM_Y_POINTS > 9
+    #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS must be less than 10."
   #endif
 #elif ENABLED(MANUAL_BED_LEVELING)
   #error "MESH_BED_LEVELING is required for MANUAL_BED_LEVELING."
@@ -214,6 +250,21 @@
  */
 
 #if PROBE_SELECTED
+
+  #if ENABLED(Z_PROBE_SLED) && ENABLED(DELTA)
+    #error "You cannot use Z_PROBE_SLED with DELTA."
+  #endif
+
+  /**
+   * NUM_SERVOS is required for a Z servo probe
+   */
+  #if HAS_Z_SERVO_ENDSTOP
+    #ifndef NUM_SERVOS
+      #error "You must set NUM_SERVOS for a Z servo probe (Z_ENDSTOP_SERVO_NR)."
+    #elif Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
+      #error "Z_ENDSTOP_SERVO_NR must be less than NUM_SERVOS."
+    #endif
+  #endif
 
   /**
    * A probe needs a pin
@@ -239,11 +290,10 @@
   /**
    * Only allow one probe option to be defined
    */
-  #if (ENABLED(FIX_MOUNTED_PROBE) && (ENABLED(MECHANICAL_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_ENDSTOP_SERVO || ENABLED(Z_PROBE_SLED))) \
-       || (ENABLED(MECHANICAL_PROBE) && (ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_ENDSTOP_SERVO || ENABLED(Z_PROBE_SLED))) \
-       || (ENABLED(Z_PROBE_ALLEN_KEY) && (HAS_Z_ENDSTOP_SERVO || ENABLED(Z_PROBE_SLED))) \
-       || (HAS_Z_ENDSTOP_SERVO && ENABLED(Z_PROBE_SLED))
-    #error "Please define only one type of probe: Z Servo, MECHANICAL_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+  #if (ENABLED(FIX_MOUNTED_PROBE) && (ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))) \
+       || (ENABLED(Z_PROBE_ALLEN_KEY) && (HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))) \
+       || (HAS_Z_SERVO_ENDSTOP && ENABLED(Z_PROBE_SLED))
+    #error "Please define only one type of probe: Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
 
   /**
@@ -274,18 +324,35 @@
     //#if Z_ENDSTOP_SERVO_NR < 0
     //  #error "You must have Z_ENDSTOP_SERVO_NR set to at least 0 or above to use Z_MIN_PROBE_ENDSTOP."
     //#endif
-    //#ifndef SERVO_ENDSTOP_ANGLES
-    //  #error "You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_MIN_PROBE_ENDSTOP."
+    //#ifndef Z_SERVO_ANGLES
+    //  #error "You must have Z_SERVO_ANGLES defined for Z Extend and Retract to use Z_MIN_PROBE_ENDSTOP."
     //#endif
+  #endif
+
+  /**
+   * Make sure Z raise values are set
+   */
+  #if defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
+    #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_RAISE_PROBE_DEPLOY_STOW instead."
+  #elif !defined(Z_RAISE_PROBE_DEPLOY_STOW)
+    #error "You must set Z_RAISE_PROBE_DEPLOY_STOW in your configuration."
+  #elif !defined(Z_RAISE_BETWEEN_PROBINGS)
+    #error "You must set Z_RAISE_BETWEEN_PROBINGS in your configuration."
+  #elif Z_RAISE_PROBE_DEPLOY_STOW < 1
+    #error "Probes need Z_RAISE_PROBE_DEPLOY_STOW >= 1."
+  #elif Z_RAISE_BETWEEN_PROBINGS < 1
+    #error "Probes need Z_RAISE_BETWEEN_PROBINGS >= 1."
   #endif
 
 #else
 
   /**
-   * Require some kind of probe for bed leveling
+   * Require some kind of probe for bed leveling and probe testing
    */
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #error "AUTO_BED_LEVELING_FEATURE requires a probe! Define a Z Servo, MECHANICAL_PROBE, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #error "AUTO_BED_LEVELING_FEATURE requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+  #elif ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+    #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
 
 #endif
@@ -296,15 +363,18 @@
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
   /**
+   * Delta has limited bed leveling options
+   */
+  #if ENABLED(DELTA) && DISABLED(AUTO_BED_LEVELING_GRID)
+    #error "You must use AUTO_BED_LEVELING_GRID for DELTA bed leveling."
+  #endif
+
+  /**
    * Require a Z min pin
    */
   #if !PIN_EXISTS(Z_MIN)
     #if !PIN_EXISTS(Z_MIN_PROBE) || (DISABLED(Z_MIN_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z probe, but not enable it.
-      #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
-        #error "You must have a Z_MIN or Z_PROBE endstop to enable Z_MIN_PROBE_REPEATABILITY_TEST."
-      #else
-        #error "AUTO_BED_LEVELING_FEATURE requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin."
-      #endif
+      #error "AUTO_BED_LEVELING_FEATURE requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin."
     #endif
   #endif
 
@@ -352,12 +422,18 @@
 #endif // AUTO_BED_LEVELING_FEATURE
 
 /**
+ * Advance Extrusion
+ */
+#if ENABLED(ADVANCE) && ENABLED(LIN_ADVANCE)
+  #error "You can enable ADVANCE or LIN_ADVANCE, but not both."
+#endif
+
+/**
  * Filament Width Sensor
  */
 #if ENABLED(FILAMENT_WIDTH_SENSOR) && !HAS_FILAMENT_WIDTH_SENSOR
   #error "FILAMENT_WIDTH_SENSOR requires a FILWIDTH_PIN to be defined."
 #endif
-
 
 /**
  * ULTIPANEL encoder
@@ -378,25 +454,6 @@
 #endif
 
 /**
- * Delta has limited bed leveling options
- */
-#if ENABLED(DELTA)
-
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-
-    #if DISABLED(AUTO_BED_LEVELING_GRID)
-      #error "Only AUTO_BED_LEVELING_GRID is supported with DELTA."
-    #endif
-
-    #if ENABLED(Z_PROBE_SLED)
-      #error "You cannot use Z_PROBE_SLED with DELTA."
-    #endif
-
-  #endif
-
-#endif
-
-/**
  * Don't set more than one kinematic type
  */
 #if (ENABLED(DELTA) && (ENABLED(SCARA) || ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ))) \
@@ -407,10 +464,11 @@
 #endif
 
 /**
- * Allen Key Z probe requires Auto Bed Leveling grid and Delta
+ * Allen Key
+ * Deploying the Allen Key probe uses big moves in z direction. Too dangerous for an unhomed z-axis.
  */
-#if ENABLED(Z_PROBE_ALLEN_KEY) && !(ENABLED(AUTO_BED_LEVELING_GRID) && ENABLED(DELTA))
-  #error "Invalid use of Z_PROBE_ALLEN_KEY."
+#if ENABLED(Z_PROBE_ALLEN_KEY) && (Z_HOME_DIR < 0) && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+  #error "You can't home to a z min endstop with a Z_PROBE_ALLEN_KEY"
 #endif
 
 /**
@@ -519,15 +577,15 @@
  */
 #if EXTRUDERS > 3
   #if !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
-    #error E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board.
+    #error "E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board."
   #endif
 #elif EXTRUDERS > 2
   #if !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
-    #error E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board.
+    #error "E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board."
   #endif
 #elif EXTRUDERS > 1
   #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
-    #error E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board.
+    #error "E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board."
   #endif
 #endif
 
@@ -545,6 +603,13 @@
 #endif
 
 /**
+ * emergency-command parser
+ */
+#if ENABLED(EMERGENCY_PARSER) && ENABLED(USBCON)
+  #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
+#endif
+
+ /**
  * Warnings for old configurations
  */
 #if WATCH_TEMP_PERIOD > 500
@@ -557,8 +622,6 @@
   #error "Z_LATE_ENABLE can't be used with COREXZ."
 #elif defined(X_HOME_RETRACT_MM)
   #error "[XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM."
-#elif defined(PROBE_SERVO_DEACTIVATION_DELAY)
-  #error "PROBE_SERVO_DEACTIVATION_DELAY has been replaced with DEACTIVATE_SERVOS_AFTER_MOVE and SERVO_DEACTIVATION_DELAY."
 #elif defined(BEEPER)
   #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECT)
@@ -593,6 +656,39 @@
   #error "PID_PARAMS_PER_EXTRUDER is deprecated. Use PID_PARAMS_PER_HOTEND instead."
 #elif defined(EXTRUDER_WATTS)
   #error "EXTRUDER_WATTS is deprecated. Use HOTEND_WATTS instead."
+#elif defined(SERVO_ENDSTOP_ANGLES)
+  #error "SERVO_ENDSTOP_ANGLES is deprecated. Use Z_SERVO_ANGLES instead."
+#elif defined(X_ENDSTOP_SERVO_NR) || defined(Y_ENDSTOP_SERVO_NR)
+  #error "X_ENDSTOP_SERVO_NR and Y_ENDSTOP_SERVO_NR are deprecated and should be removed."
+#elif defined(XY_TRAVEL_SPEED)
+  #error "XY_TRAVEL_SPEED is deprecated. Use XY_PROBE_SPEED instead."
+#elif defined(PROBE_SERVO_DEACTIVATION_DELAY)
+  #error "PROBE_SERVO_DEACTIVATION_DELAY is deprecated. Use DEACTIVATE_SERVOS_AFTER_MOVE instead."
+#elif defined(SERVO_DEACTIVATION_DELAY)
+  #error "SERVO_DEACTIVATION_DELAY is deprecated. Use SERVO_DELAY instead."
+#elif ENABLED(FILAMENTCHANGEENABLE)
+  #error "FILAMENTCHANGEENABLE is now FILAMENT_CHANGE_FEATURE. Please update your configuration."
+#elif defined(PLA_PREHEAT_HOTEND_TEMP)
+  #error "PLA_PREHEAT_HOTEND_TEMP is now PREHEAT_1_TEMP_HOTEND. Please update your configuration."
+#elif defined(PLA_PREHEAT_HPB_TEMP)
+  #error "PLA_PREHEAT_HPB_TEMP is now PREHEAT_1_TEMP_BED. Please update your configuration."
+#elif defined(PLA_PREHEAT_FAN_SPEED)
+  #error "PLA_PREHEAT_FAN_SPEED is now PREHEAT_1_FAN_SPEED. Please update your configuration."
+#elif defined(ABS_PREHEAT_HOTEND_TEMP)
+  #error "ABS_PREHEAT_HOTEND_TEMP is now PREHEAT_2_TEMP_HOTEND. Please update your configuration."
+#elif defined(ABS_PREHEAT_HPB_TEMP)
+  #error "ABS_PREHEAT_HPB_TEMP is now PREHEAT_2_TEMP_BED. Please update your configuration."
+#elif defined(ABS_PREHEAT_FAN_SPEED)
+  #error "ABS_PREHEAT_FAN_SPEED is now PREHEAT_2_FAN_SPEED. Please update your configuration."
+#elif defined(ENDSTOPS_ONLY_FOR_HOMING)
+  #error "ENDSTOPS_ONLY_FOR_HOMING is deprecated. Use (disable) ENDSTOPS_ALWAYS_ON_DEFAULT instead."
+#endif
+
+/**
+ * Nozzle cleaning
+ */
+#if ENABLED(NOZZLE_CLEAN_FEATURE) && !HAS_BED_PROBE
+  #error Due to internal dependencies you must have a bed probe for NOZZLE_CLEAN_FEATURE to work
 #endif
 
 #endif //SANITYCHECK_H

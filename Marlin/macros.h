@@ -36,6 +36,7 @@
 // Macros for maths shortcuts
 #define RADIANS(d) ((d)*M_PI/180.0)
 #define DEGREES(r) ((r)*180.0/M_PI)
+#define HYPOT(x,y) sqrt(sq(x)+sq(y))
 
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
@@ -54,6 +55,17 @@
 #define NUMERIC(a) ((a) >= '0' && '9' >= (a))
 #define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
+
+// Macros for initializing arrays
+#define ARRAY_6(v1, v2, v3, v4, v5, v6, args...) { v1, v2, v3, v4, v5, v6 }
+#define ARRAY_5(v1, v2, v3, v4, v5, args...)     { v1, v2, v3, v4, v5 }
+#define ARRAY_4(v1, v2, v3, v4, args...)         { v1, v2, v3, v4 }
+#define ARRAY_3(v1, v2, v3, args...)             { v1, v2, v3 }
+#define ARRAY_2(v1, v2, args...)                 { v1, v2 }
+#define ARRAY_1(v1, args...)                     { v1 }
+
+#define _ARRAY_N(N, args...) ARRAY_ ##N(args)
+#define ARRAY_N(N, args...) _ARRAY_N(N, args)
 
 // Macros for adding
 #define INC_0 1
@@ -86,6 +98,8 @@
 #define PENDING(NOW,SOON) ((long)(NOW-(SOON))<0)
 #define ELAPSED(NOW,SOON) (!PENDING(NOW,SOON))
 
-#define NOOP do{}while(0)
+#define NOOP do{} while(0)
+
+#define CEILING(x,y) (((x) + (y) - 1) / (y))
 
 #endif //__MACROS_H

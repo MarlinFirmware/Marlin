@@ -24,6 +24,8 @@
  * AZTEEG_X3_PRO (Arduino Mega) pin assignments
  */
 
+#define BOARD_NAME "Azteeg X3 Pro"
+
 #include "pins_RAMPS_14.h"
 
 #undef FAN_PIN
@@ -105,27 +107,10 @@
 #undef SERVO0_PIN
 #define SERVO0_PIN         47
 
-//LCD Pins//
-
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN       33
-  // Pins for DOGM SPI LCD Support
-  #define DOGLCD_A0        44
-  #define DOGLCD_CS        45
-  #define LCD_SCREEN_ROT_180
-
-  //The encoder and click button
-  #define BTN_EN1          22
-  #define BTN_EN2           7
-  #define BTN_ENC          39  //the click switch
-
-  #define SDSS             53
-  #define SD_DETECT_PIN 49
-
-  #define KILL_PIN         31
-#endif
-
-#if ENABLED(TEMP_STAT_LEDS)
-  #define STAT_LED_RED     32
-  #define STAT_LED_BLUE    35
+  #undef SD_DETECT_PIN
+  #define SD_DETECT_PIN 49  // For easy adapter board
+#elif ENABLED(TEMP_STAT_LEDS)
+  #define STAT_LED_RED   32
+  #define STAT_LED_BLUE  35
 #endif

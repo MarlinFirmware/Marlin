@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_PT_BR_UTF_H
 #define LANGUAGE_PT_BR_UTF_H
 
-#define MAPPER_NON
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
@@ -49,16 +48,16 @@
 #define MSG_SET_HOME_OFFSETS                "Ajustar Jogo"
 #define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Ajustar orig."
-#define MSG_PREHEAT_PLA                     "Pre-aquecer PLA"
-#define MSG_PREHEAT_PLA_N                   "Pre-aquecer PLA"
-#define MSG_PREHEAT_PLA_ALL                 "Pre-aq.Todo PLA"
-#define MSG_PREHEAT_PLA_BEDONLY             "Pre-aq. PLA " LCD_STR_THERMOMETER "Base"
-#define MSG_PREHEAT_PLA_SETTINGS            "Ajustar PLA"
-#define MSG_PREHEAT_ABS                     "Pre-aquecer ABS"
-#define MSG_PREHEAT_ABS_N                   "Pre-aquecer ABS"
-#define MSG_PREHEAT_ABS_ALL                 "Pre-aq.Todo ABS"
-#define MSG_PREHEAT_ABS_BEDONLY             "Pre-aq. ABS " LCD_STR_THERMOMETER "Base"
-#define MSG_PREHEAT_ABS_SETTINGS            "Ajustar ABS"
+#define MSG_PREHEAT_1                       "Pre-aquecer PLA"
+#define MSG_PREHEAT_1_N                     "Pre-aquecer PLA"
+#define MSG_PREHEAT_1_ALL                   "Pre-aq.Todo PLA"
+#define MSG_PREHEAT_1_BEDONLY               "Pre-aq. PLA " LCD_STR_THERMOMETER "Base"
+#define MSG_PREHEAT_1_SETTINGS              "Ajustar PLA"
+#define MSG_PREHEAT_2                       "Pre-aquecer ABS"
+#define MSG_PREHEAT_2_N                     "Pre-aquecer ABS"
+#define MSG_PREHEAT_2_ALL                   "Pre-aq.Todo ABS"
+#define MSG_PREHEAT_2_BEDONLY               "Pre-aq. ABS " LCD_STR_THERMOMETER "Base"
+#define MSG_PREHEAT_2_SETTINGS              "Ajustar ABS"
 #define MSG_COOLDOWN                        "Esfriar"
 #define MSG_SWITCH_PS_ON                    "Ligar"
 #define MSG_SWITCH_PS_OFF                   "Desligar"
@@ -144,7 +143,8 @@
 #define MSG_INIT_SDCARD                     "Iniciar SD"
 #define MSG_CNG_SDCARD                      "Trocar SD"
 #define MSG_ZPROBE_OUT                      "Son. fora da mesa"
-#define MSG_YX_UNHOMED                      "Pos. Desconhecida"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Deslocamento no Z"
 #define MSG_BABYSTEP_X                      "Passinho X"
 #define MSG_BABYSTEP_Y                      "Passinho Y"
@@ -157,13 +157,10 @@
 #define MSG_ERR_MINTEMP                     "Err: T Mínima"
 #define MSG_ERR_MAXTEMP_BED                 "Err: T Base Máxima"
 #define MSG_ERR_MINTEMP_BED                 "Err: T Base Mínima"
-#define MSG_END_HOUR                        "Horas"
-#define MSG_END_MINUTE                      "Minutos"
 #define MSG_HEATING                         "Aquecendo..."
 #define MSG_HEATING_COMPLETE                "Aquecida."
 #define MSG_BED_HEATING                     "Aquecendo base.."
 #define MSG_BED_DONE                        "Base aquecida."
-
 #define MSG_DELTA_CALIBRATE                 "Calibrar Delta"
 #define MSG_DELTA_CALIBRATE_X               "Calibrar X"
 #define MSG_DELTA_CALIBRATE_Y               "Calibrar Y"

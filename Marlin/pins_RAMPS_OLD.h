@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "MEGA/RAMPS <1.2"
+
 // Uncomment the following line for RAMPS v1.0
 //#define RAMPS_V_1_0
 

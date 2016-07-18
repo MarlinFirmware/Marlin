@@ -48,6 +48,10 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#ifndef BOARD_NAME
+  #define BOARD_NAME "RAMPS 1.4"
+#endif
+
 #define LARGE_FLASH true
 
 #ifdef IS_RAMPS_13
@@ -98,10 +102,8 @@
   #define Z_MIN_PROBE_PIN  32
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
-  #define FILRUNOUT_PIN     4
-#endif
+// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
+#define FIL_RUNOUT_PIN      4
 
 #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF) || ENABLED(IS_RAMPS_EFB)
   #define FAN_PIN           9 // (Sprinter config)
@@ -115,10 +117,6 @@
 #endif
 
 #define PS_ON_PIN          12
-
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) || ENABLED(G3D_PANEL)
-  #define KILL_PIN         41
-#endif
 
 #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF)
   #define HEATER_0_PIN      8
@@ -143,22 +141,32 @@
 
 #if ENABLED(ULTRA_LCD)
 
-  #if ENABLED(NEWPANEL)
-    #if ENABLED(PANEL_ONE)
-      #define LCD_PINS_RS 40
-      #define LCD_PINS_ENABLE 42
-      #define LCD_PINS_D4 65
-      #define LCD_PINS_D5 66
-      #define LCD_PINS_D6 44
-      #define LCD_PINS_D7 64
-    #else
-      #define LCD_PINS_RS 16
-      #define LCD_PINS_ENABLE 17
-      #define LCD_PINS_D4 23
-      #define LCD_PINS_D5 25
-      #define LCD_PINS_D6 27
-      #define LCD_PINS_D7 29
+  #if ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
+    #define LCD_PINS_RS 40
+    #define LCD_PINS_ENABLE 42
+    #define LCD_PINS_D4 65
+    #define LCD_PINS_D5 66
+    #define LCD_PINS_D6 44
+    #define LCD_PINS_D7 64
+  #else
+    #define LCD_PINS_RS 16
+    #define LCD_PINS_ENABLE 17
+    #define LCD_PINS_D4 23
+    #define LCD_PINS_D5 25
+    #define LCD_PINS_D6 27
+    #define LCD_PINS_D7 29
+    #if DISABLED(NEWPANEL)
+      #define BEEPER_PIN 33
+      // Buttons are attached to a shift register
+      // Not wired yet
+      //#define SHIFT_CLK 38
+      //#define SHIFT_LD 42
+      //#define SHIFT_OUT 40
+      //#define SHIFT_EN 17
     #endif
+  #endif
+
+  #if ENABLED(NEWPANEL)
 
     #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
       #define BEEPER_PIN 37
@@ -168,6 +176,12 @@
       #define BTN_ENC 35
 
       #define SD_DETECT_PIN 49
+      #define KILL_PIN 41
+
+      #if ENABLED(BQ_LCD_SMART_CONTROLLER)
+        #define LCD_PIN_BL 39
+      #endif
+
     #elif ENABLED(LCD_I2C_PANELOLU2)
       #define BTN_EN1 47  // reverse if the encoder turns the wrong way.
       #define BTN_EN2 43
@@ -183,6 +197,27 @@
       #define BTN_ENC -1
       #define LCD_SDSS 53
       #define SD_DETECT_PIN 49
+    #elif ENABLED(VIKI2) || ENABLED(miniVIKI)
+      #define BEEPER_PIN       33
+
+      // Pins for DOGM SPI LCD Support
+      #define DOGLCD_A0        44
+      #define DOGLCD_CS        45
+      #define LCD_SCREEN_ROT_180
+
+      #define BTN_EN1          22
+      #define BTN_EN2           7
+      #define BTN_ENC          39
+
+      #define SDSS             53
+      #define SD_DETECT_PIN    -1  // Pin 49 for display sd interface, 72 for easy adapter board
+
+      #define KILL_PIN         31
+
+      #if ENABLED(TEMP_STAT_LEDS)
+        #define STAT_LED_RED   32
+        #define STAT_LED_BLUE  35
+      #endif
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #define BTN_EN1 35  // reverse if the encoder turns the wrong way.
       #define BTN_EN2 37
@@ -218,7 +253,8 @@
 
     #else
 
-      #define BEEPER_PIN 33  // Beeper on AUX-4
+      // Beeper on AUX-4
+      #define BEEPER_PIN 33
 
       // buttons are directly attached using AUX-2
       #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -240,30 +276,13 @@
 
       #if ENABLED(G3D_PANEL)
         #define SD_DETECT_PIN 49
+        #define KILL_PIN 41
       #else
         //        #define SD_DETECT_PIN -1  // Ramps doesn't use this
       #endif
 
     #endif
-  #else // !NEWPANEL (Old-style panel with shift register)
-
-    #define BEEPER_PIN 33   // No Beeper added
-
-    // Buttons are attached to a shift register
-    // Not wired yet
-    //#define SHIFT_CLK 38
-    //#define SHIFT_LD 42
-    //#define SHIFT_OUT 40
-    //#define SHIFT_EN 17
-
-    #define LCD_PINS_RS 16
-    #define LCD_PINS_ENABLE 17
-    #define LCD_PINS_D4 23
-    #define LCD_PINS_D5 25
-    #define LCD_PINS_D6 27
-    #define LCD_PINS_D7 29
-
-  #endif // !NEWPANEL
+  #endif // NEWPANEL
 
 #endif // ULTRA_LCD
 
@@ -279,8 +298,4 @@
   #define SCK_PIN          52
   #define MISO_PIN         50
   #define MOSI_PIN         51
-#endif
-
-#ifndef KILL_PIN
-  //  #define KILL_PIN         -1
 #endif

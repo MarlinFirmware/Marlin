@@ -28,6 +28,7 @@
   #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME "Gen3 Monolithic"
 #define DEBUG_PIN 0
 
 // x axis

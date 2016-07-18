@@ -84,8 +84,9 @@ typedef unsigned long millis_t;
 #define SERIAL_PROTOCOL_F(x,y) MYSERIAL.print(x,y)
 #define SERIAL_PROTOCOLPGM(x) serialprintPGM(PSTR(x))
 #define SERIAL_PROTOCOLLN(x) do{ MYSERIAL.print(x); SERIAL_EOL; }while(0)
-#define SERIAL_PROTOCOLLNPGM(x) do{ serialprintPGM(PSTR(x)); SERIAL_EOL; }while(0)
+#define SERIAL_PROTOCOLLNPGM(x) do{ serialprintPGM(PSTR(x "\n")); }while(0)
 
+#define SERIAL_PROTOCOLPAIR(name, value) SERIAL_ECHOPAIR(name, value)
 
 extern const char errormagic[] PROGMEM;
 extern const char echomagic[] PROGMEM;
@@ -104,6 +105,7 @@ extern const char echomagic[] PROGMEM;
 
 #define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
 
+void serial_echopair_P(const char* s_P, char v);
 void serial_echopair_P(const char* s_P, int v);
 void serial_echopair_P(const char* s_P, long v);
 void serial_echopair_P(const char* s_P, float v);
@@ -122,8 +124,8 @@ FORCE_INLINE void serialprintPGM(const char* str) {
 }
 
 void idle(
-  #if ENABLED(FILAMENTCHANGEENABLE)
-    bool no_stepper_sleep=false  // pass true to keep steppers from disabling on timeout
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    bool no_stepper_sleep = false  // pass true to keep steppers from disabling on timeout
   #endif
 );
 
@@ -133,74 +135,96 @@ void manage_inactivity(bool ignore_stepper_queue = false);
   extern bool extruder_duplication_enabled;
 #endif
 
-#if ENABLED(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
-  #define  enable_x() do { X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); } while (0)
-  #define disable_x() do { X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
+#if HAS_X2_ENABLE
+  #define  enable_x() do{ X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); }while(0)
+  #define disable_x() do{ X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
 #elif HAS_X_ENABLE
   #define  enable_x() X_ENABLE_WRITE( X_ENABLE_ON)
-  #define disable_x() { X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }
+  #define disable_x() do{ X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }while(0)
 #else
-  #define enable_x() ;
-  #define disable_x() ;
+  #define  enable_x() NOOP
+  #define disable_x() NOOP
 #endif
 
-#if HAS_Y_ENABLE
-  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-    #define  enable_y() { Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }
-    #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
+#if HAS_Y2_ENABLE
+  #define  enable_y() do{ Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }while(0)
+  #define disable_y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
+#elif HAS_Y_ENABLE
+  #define  enable_y() Y_ENABLE_WRITE( Y_ENABLE_ON)
+  #define disable_y() do{ Y_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }while(0)
+#else
+  #define  enable_y() NOOP
+  #define disable_y() NOOP
+#endif
+
+#if HAS_Z2_ENABLE
+  #define  enable_z() do{ Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }while(0)
+  #define disable_z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
+#elif HAS_Z_ENABLE
+  #define  enable_z() Z_ENABLE_WRITE( Z_ENABLE_ON)
+  #define disable_z() do{ Z_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }while(0)
+#else
+  #define  enable_z() NOOP
+  #define disable_z() NOOP
+#endif
+
+#if ENABLED(MIXING_EXTRUDER)
+
+  /**
+   * Mixing steppers synchronize their enable (and direction) together
+   */
+  #if MIXING_STEPPERS > 3
+    #define  enable_e0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); E3_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_e0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); E3_ENABLE_WRITE(!E_ENABLE_ON); }
+  #elif MIXING_STEPPERS > 2
+    #define  enable_e0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); E2_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_e0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); E2_ENABLE_WRITE(!E_ENABLE_ON); }
   #else
-    #define  enable_y() Y_ENABLE_WRITE( Y_ENABLE_ON)
-    #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
+    #define  enable_e0() { E0_ENABLE_WRITE( E_ENABLE_ON); E1_ENABLE_WRITE( E_ENABLE_ON); }
+    #define disable_e0() { E0_ENABLE_WRITE(!E_ENABLE_ON); E1_ENABLE_WRITE(!E_ENABLE_ON); }
   #endif
-#else
-  #define enable_y() ;
-  #define disable_y() ;
-#endif
+  #define  enable_e1() NOOP
+  #define disable_e1() NOOP
+  #define  enable_e2() NOOP
+  #define disable_e2() NOOP
+  #define  enable_e3() NOOP
+  #define disable_e3() NOOP
 
-#if HAS_Z_ENABLE
-  #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-    #define  enable_z() { Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }
-    #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
+#else // !MIXING_EXTRUDER
+
+  #if HAS_E0_ENABLE
+    #define  enable_e0() E0_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_e0() E0_ENABLE_WRITE(!E_ENABLE_ON)
   #else
-    #define  enable_z() Z_ENABLE_WRITE( Z_ENABLE_ON)
-    #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
+    #define  enable_e0() NOOP
+    #define disable_e0() NOOP
   #endif
-#else
-  #define enable_z() ;
-  #define disable_z() ;
-#endif
 
-#if HAS_E0_ENABLE
-  #define enable_e0()  E0_ENABLE_WRITE( E_ENABLE_ON)
-  #define disable_e0() E0_ENABLE_WRITE(!E_ENABLE_ON)
-#else
-  #define enable_e0()  /* nothing */
-  #define disable_e0() /* nothing */
-#endif
+  #if E_STEPPERS > 1 && HAS_E1_ENABLE
+    #define  enable_e1() E1_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_e1() E1_ENABLE_WRITE(!E_ENABLE_ON)
+  #else
+    #define  enable_e1() NOOP
+    #define disable_e1() NOOP
+  #endif
 
-#if (EXTRUDERS > 1) && HAS_E1_ENABLE
-  #define enable_e1()  E1_ENABLE_WRITE( E_ENABLE_ON)
-  #define disable_e1() E1_ENABLE_WRITE(!E_ENABLE_ON)
-#else
-  #define enable_e1()  /* nothing */
-  #define disable_e1() /* nothing */
-#endif
+  #if E_STEPPERS > 2 && HAS_E2_ENABLE
+    #define  enable_e2() E2_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_e2() E2_ENABLE_WRITE(!E_ENABLE_ON)
+  #else
+    #define  enable_e2() NOOP
+    #define disable_e2() NOOP
+  #endif
 
-#if (EXTRUDERS > 2) && HAS_E2_ENABLE
-  #define enable_e2()  E2_ENABLE_WRITE( E_ENABLE_ON)
-  #define disable_e2() E2_ENABLE_WRITE(!E_ENABLE_ON)
-#else
-  #define enable_e2()  /* nothing */
-  #define disable_e2() /* nothing */
-#endif
+  #if E_STEPPERS > 3 && HAS_E3_ENABLE
+    #define  enable_e3() E3_ENABLE_WRITE( E_ENABLE_ON)
+    #define disable_e3() E3_ENABLE_WRITE(!E_ENABLE_ON)
+  #else
+    #define  enable_e3() NOOP
+    #define disable_e3() NOOP
+  #endif
 
-#if (EXTRUDERS > 3) && HAS_E3_ENABLE
-  #define enable_e3()  E3_ENABLE_WRITE( E_ENABLE_ON)
-  #define disable_e3() E3_ENABLE_WRITE(!E_ENABLE_ON)
-#else
-  #define enable_e3()  /* nothing */
-  #define disable_e3() /* nothing */
-#endif
+#endif // !MIXING_EXTRUDER
 
 /**
  * The axis order in all axis related arrays is X, Y, Z, E
@@ -217,6 +241,9 @@ enum AxisEnum {NO_AXIS = -1, X_AXIS = 0, A_AXIS = 0, Y_AXIS = 1, B_AXIS = 1, Z_A
 
 #define _AXIS(AXIS) AXIS ##_AXIS
 
+typedef enum { LINEARUNIT_MM = 0, LINEARUNIT_INCH = 1 } LinearUnit;
+typedef enum { TEMPUNIT_C = 0, TEMPUNIT_K = 1, TEMPUNIT_F = 2 } TempUnit;
+
 void enable_all_steppers();
 void disable_all_steppers();
 
@@ -224,12 +251,9 @@ void FlushSerialRequestResend();
 void ok_to_send();
 
 void reset_bed_level();
-void prepare_move();
 void kill(const char*);
 
-#if DISABLED(DELTA) && DISABLED(SCARA)
-  void set_current_position_from_planner();
-#endif
+void quickstop_stepper();
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   void handle_filament_runout();
@@ -273,8 +297,18 @@ inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
   #define CRITICAL_SECTION_END    SREG = _sreg;
 #endif
 
+/**
+ * Feedrate scaling and conversion
+ */
+extern int feedrate_percentage;
+
+#define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
+#define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
+#define MMM_SCALED(MM_M) ((MM_M)*feedrate_percentage/100.0)
+#define MMS_SCALED(MM_S) MMM_SCALED(MM_S)
+#define MMM_TO_MMS_SCALED(MM_M) (MMS_SCALED(MMM_TO_MMS(MM_M)))
+
 extern bool axis_relative_modes[];
-extern int feedrate_multiplier;
 extern bool volumetric_enabled;
 extern int extruder_multiplier[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
@@ -285,12 +319,13 @@ extern float sw_endstop_min[3]; // axis[n].sw_endstop_min
 extern float sw_endstop_max[3]; // axis[n].sw_endstop_max
 extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
+extern volatile bool wait_for_heatup;
 
 // GCode support for external objects
 bool code_seen(char);
-float code_value();
-long code_value_long();
-int16_t code_value_short();
+int code_value_int();
+float code_value_temp_abs();
+float code_value_temp_diff();
 
 #if ENABLED(DELTA)
   extern float delta[3];
@@ -303,6 +338,7 @@ int16_t code_value_short();
   extern float delta_diagonal_rod_trim_tower_3;
   void calculate_delta(float cartesian[3]);
   void recalc_delta_settings(float radius, float diagonal_rod);
+  float delta_safe_distance_from_top();
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     extern int delta_grid_spacing[2];
     void adjust_delta(float cartesian[3]);
@@ -317,7 +353,7 @@ int16_t code_value_short();
   extern float z_endstop_adj;
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if HAS_BED_PROBE
   extern float zprobe_zoffset;
 #endif
 
@@ -343,6 +379,15 @@ int16_t code_value_short();
   extern int meas_delay_cm; //delay distance
 #endif
 
+#if ENABLED(FILAMENT_CHANGE_FEATURE)
+  enum FilamentChangeMenuResponse {
+    FILAMENT_CHANGE_RESPONSE_WAIT_FOR,
+    FILAMENT_CHANGE_RESPONSE_EXTRUDE_MORE,
+    FILAMENT_CHANGE_RESPONSE_RESUME_PRINT
+  };
+  extern FilamentChangeMenuResponse filament_change_menu_response;
+#endif
+
 #if ENABLED(PID_ADD_EXTRUSION_RATE)
   extern int lpq_len;
 #endif
@@ -350,8 +395,8 @@ int16_t code_value_short();
 #if ENABLED(FWRETRACT)
   extern bool autoretract_enabled;
   extern bool retracted[EXTRUDERS]; // extruder[n].retracted
-  extern float retract_length, retract_length_swap, retract_feedrate, retract_zlift;
-  extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
+  extern float retract_length, retract_length_swap, retract_feedrate_mm_s, retract_zlift;
+  extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate_mm_s;
 #endif
 
 // Print job timer
@@ -368,6 +413,23 @@ extern uint8_t active_extruder;
   void print_heaterstates();
 #endif
 
+#if ENABLED(MIXING_EXTRUDER)
+  extern float mixing_factor[MIXING_STEPPERS];
+#endif
+
 void calculate_volumetric_multipliers();
+
+// Buzzer
+#if HAS_BUZZER
+  #if ENABLED(SPEAKER)
+    #include "speaker.h"
+    extern Speaker buzzer;
+  #else
+    #include "buzzer.h"
+    extern Buzzer buzzer;
+  #endif
+#endif
+
+void safe_delay(uint16_t del);
 
 #endif //MARLIN_H

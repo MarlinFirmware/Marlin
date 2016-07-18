@@ -28,6 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega 2560 or Rambo' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME          "Mini Rambo"
 #define LARGE_FLASH         true
 
 #define X_STEP_PIN          37
@@ -94,7 +95,9 @@
 
   #if ENABLED(NEWPANEL)
 
-    #define BEEPER_PIN      84  // Beeper on AUX-4
+    // Beeper on AUX-4
+    #define BEEPER_PIN      84
+
     #define LCD_PINS_RS     82
     #define LCD_PINS_ENABLE 18
     #define LCD_PINS_D4     19

@@ -58,13 +58,21 @@ typedef struct {
   long steps[NUM_AXIS];                     // Step count along each axis
   unsigned long step_event_count;           // The number of step events required to complete this block
 
-  long accelerate_until;                    // The index of the step event on which to stop acceleration
-  long decelerate_after;                    // The index of the step event on which to start decelerating
-  long acceleration_rate;                   // The acceleration rate used for acceleration calculation
+  #if ENABLED(MIXING_EXTRUDER)
+    unsigned long mix_event_count[MIXING_STEPPERS]; // Scaled step_event_count for the mixing steppers
+  #endif
+
+  long accelerate_until,                    // The index of the step event on which to stop acceleration
+       decelerate_after,                    // The index of the step event on which to start decelerating
+       acceleration_rate;                   // The acceleration rate used for acceleration calculation
 
   unsigned char direction_bits;             // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
-  #if ENABLED(ADVANCE)
+  // Advance extrusion
+  #if ENABLED(LIN_ADVANCE)
+    bool use_advance_lead;
+    int e_speed_multiplier8; // Factorised by 2^8 to avoid float
+  #elif ENABLED(ADVANCE)
     long advance_rate;
     volatile long initial_advance;
     volatile long final_advance;
@@ -72,27 +80,26 @@ typedef struct {
   #endif
 
   // Fields used by the motion planner to manage acceleration
-  float nominal_speed;                               // The nominal speed for this block in mm/sec
-  float entry_speed;                                 // Entry speed at previous-current junction in mm/sec
-  float max_entry_speed;                             // Maximum allowable junction entry speed in mm/sec
-  float millimeters;                                 // The total travel of this block in mm
-  float acceleration;                                // acceleration mm/sec^2
-  unsigned char recalculate_flag;                    // Planner flag to recalculate trapezoids on entry junction
-  unsigned char nominal_length_flag;                 // Planner flag for nominal speed always reached
+  float nominal_speed,                               // The nominal speed for this block in mm/sec
+        entry_speed,                                 // Entry speed at previous-current junction in mm/sec
+        max_entry_speed,                             // Maximum allowable junction entry speed in mm/sec
+        millimeters,                                 // The total travel of this block in mm
+        acceleration;                                // acceleration mm/sec^2
+  unsigned char recalculate_flag,                    // Planner flag to recalculate trapezoids on entry junction
+                nominal_length_flag;                 // Planner flag for nominal speed always reached
 
   // Settings for the trapezoid generator
-  unsigned long nominal_rate;                        // The nominal step rate for this block in step_events/sec
-  unsigned long initial_rate;                        // The jerk-adjusted step rate at start of block
-  unsigned long final_rate;                          // The minimal rate at exit
-  unsigned long acceleration_st;                     // acceleration steps/sec^2
+  unsigned long nominal_rate,                        // The nominal step rate for this block in step_events/sec
+                initial_rate,                        // The jerk-adjusted step rate at start of block
+                final_rate,                          // The minimal rate at exit
+                acceleration_steps_per_s2;           // acceleration steps/sec^2
 
   #if FAN_COUNT > 0
     unsigned long fan_speed[FAN_COUNT];
   #endif
 
   #if ENABLED(BARICUDA)
-    unsigned long valve_pressure;
-    unsigned long e_to_p_pressure;
+    unsigned long valve_pressure, e_to_p_pressure;
   #endif
 
   volatile char busy;
@@ -112,20 +119,20 @@ class Planner {
     static volatile uint8_t block_buffer_head;           // Index of the next block to be pushed
     static volatile uint8_t block_buffer_tail;
 
-    static float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
-    static float axis_steps_per_unit[NUM_AXIS];
-    static unsigned long axis_steps_per_sqr_second[NUM_AXIS];
-    static unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
+    static float max_feedrate_mm_s[NUM_AXIS]; // Max speeds in mm per second
+    static float axis_steps_per_mm[NUM_AXIS];
+    static unsigned long max_acceleration_steps_per_s2[NUM_AXIS];
+    static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
     static millis_t min_segment_time;
-    static float min_feedrate;
+    static float min_feedrate_mm_s;
     static float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
     static float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
     static float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
     static float max_xy_jerk;          // The largest speed change requiring no acceleration
     static float max_z_jerk;
     static float max_e_jerk;
-    static float min_travel_feedrate;
+    static float min_travel_feedrate_mm_s;
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
@@ -135,7 +142,7 @@ class Planner {
 
     /**
      * The current position of the tool in absolute steps
-     * Reclculated if any axis_steps_per_unit are changed by gcode
+     * Reclculated if any axis_steps_per_mm are changed by gcode
      */
     static long position[NUM_AXIS];
 
@@ -204,16 +211,16 @@ class Planner {
        * Add a new linear movement to the buffer.
        *
        *  x,y,z,e   - target position in mm
-       *  feed_rate - (target) speed of the move
+       *  fr_mm_s   - (target) speed of the move (mm/s)
        *  extruder  - target extruder
        */
-      static void buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder);
+      static void buffer_line(float x, float y, float z, const float& e, float fr_mm_s, const uint8_t extruder);
 
       /**
        * Set the planner.position and individual stepper positions.
        * Used by G92, G28, G29, and other procedures.
        *
-       * Multiplies by axis_steps_per_unit[] and does necessary conversion
+       * Multiplies by axis_steps_per_mm[] and does necessary conversion
        * for COREXY / COREXZ / COREYZ to set the corresponding stepper positions.
        *
        * Clears previous speed values.
@@ -222,7 +229,7 @@ class Planner {
 
     #else
 
-      static void buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder);
+      static void buffer_line(const float& x, const float& y, const float& z, const float& e, float fr_mm_s, const uint8_t extruder);
       static void set_position_mm(const float& x, const float& y, const float& z, const float& e);
 
     #endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
@@ -281,9 +288,9 @@ class Planner {
      * Calculate the distance (not time) it takes to accelerate
      * from initial_rate to target_rate using the given acceleration:
      */
-    static float estimate_acceleration_distance(float initial_rate, float target_rate, float acceleration) {
-      if (acceleration == 0) return 0; // acceleration was 0, set acceleration distance to 0
-      return (target_rate * target_rate - initial_rate * initial_rate) / (acceleration * 2);
+    static float estimate_acceleration_distance(float initial_rate, float target_rate, float accel) {
+      if (accel == 0) return 0; // accel was 0, set acceleration distance to 0
+      return (sq(target_rate) - sq(initial_rate)) / (accel * 2);
     }
 
     /**
@@ -294,9 +301,9 @@ class Planner {
      * This is used to compute the intersection point between acceleration and deceleration
      * in cases where the "trapezoid" has no plateau (i.e., never reaches maximum speed)
      */
-    static float intersection_distance(float initial_rate, float final_rate, float acceleration, float distance) {
-      if (acceleration == 0) return 0; // acceleration was 0, set intersection distance to 0
-      return (acceleration * 2 * distance - initial_rate * initial_rate + final_rate * final_rate) / (acceleration * 4);
+    static float intersection_distance(float initial_rate, float final_rate, float accel, float distance) {
+      if (accel == 0) return 0; // accel was 0, set intersection distance to 0
+      return (accel * 2 * distance - sq(initial_rate) + sq(final_rate)) / (accel * 4);
     }
 
     /**
@@ -304,8 +311,8 @@ class Planner {
      * to reach 'target_velocity' using 'acceleration' within a given
      * 'distance'.
      */
-    static float max_allowable_speed(float acceleration, float target_velocity, float distance) {
-      return sqrt(target_velocity * target_velocity - 2 * acceleration * distance);
+    static float max_allowable_speed(float accel, float target_velocity, float distance) {
+      return sqrt(sq(target_velocity) - 2 * accel * distance);
     }
 
     static void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor);

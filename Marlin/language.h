@@ -42,28 +42,31 @@
 // See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
 
 // Languages
-// en         English
-// pl         Polish
-// fr         French
-// de         German
-// es         Spanish
-// ru         Russian
-// bg         Bulgarian
-// it         Italian
-// pt         Portuguese
-// pt_utf8    Portuguese (UTF8)
-// pt-br      Portuguese (Brazilian)
-// pt-br_utf8 Portuguese (Brazilian UTF8)
-// fi         Finnish
 // an         Aragonese
-// nl         Dutch
-// gl         Galician
+// bg         Bulgarian
 // ca         Catalan
-// eu         Basque-Euskera
-// kana       Japanese
-// kana_utf8  Japanese (UTF8)
 // cn         Chinese
 // cz         Czech
+// de         German
+// el         Greek
+// el-gr      Greek (Greece)
+// en         English
+// es         Spanish
+// eu         Basque-Euskera
+// fi         Finnish
+// fr         French
+// gl         Galician
+// hr         Croatian
+// it         Italian
+// kana       Japanese
+// kana_utf8  Japanese (UTF8)
+// nl         Dutch
+// pl         Polish
+// pt         Portuguese
+// pt-br      Portuguese (Brazilian)
+// pt-br_utf8 Portuguese (Brazilian UTF8)
+// pt_utf8    Portuguese (UTF8)
+// ru         Russian
 
 #if ENABLED(USE_AUTOMATIC_VERSIONING)
   #include "_Version.h"
@@ -116,6 +119,7 @@
 #define MSG_PLANNER_BUFFER_BYTES            "  PlannerBufferBytes: "
 #define MSG_OK                              "ok"
 #define MSG_WAIT                            "wait"
+#define MSG_STATS                           "Stats: "
 #define MSG_FILE_SAVED                      "Done saving file."
 #define MSG_ERR_LINE_NO                     "Line Number is not Last Line Number+1, Last Line: "
 #define MSG_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
@@ -127,7 +131,7 @@
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
 #define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
+#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID EMERGENCY_PARSER_CAPABILITIES "\n"
 #define MSG_COUNT_X                         " Count X: "
 #define MSG_COUNT_A                         " Count A: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
@@ -156,7 +160,7 @@
 #define MSG_ENDSTOP_OPEN                    "open"
 #define MSG_HOTEND_OFFSET                   "Hotend offsets:"
 
-#define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir"
+#define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define MSG_SD_INIT_FAIL                    "SD init fail"
 #define MSG_SD_VOL_INIT_FAIL                "volume.init failed"
 #define MSG_SD_OPENROOT_FAIL                "openRoot failed"
@@ -170,6 +174,7 @@
 #define MSG_SD_PRINTING_BYTE                "SD printing byte "
 #define MSG_SD_NOT_PRINTING                 "Not SD printing"
 #define MSG_SD_ERR_WRITE_TO_FILE            "error writing to file"
+#define MSG_SD_ERR_READ                     "SD read error"
 #define MSG_SD_CANT_ENTER_SUBDIR            "Cannot enter subdir: "
 
 #define MSG_STEPPER_TOO_HIGH                "Steprate too high: "

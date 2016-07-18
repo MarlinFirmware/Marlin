@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME "Rambo"
+
 #define LARGE_FLASH true
 
 // Servo support
@@ -112,7 +114,8 @@
 
   #if ENABLED(NEWPANEL)
 
-    #define BEEPER_PIN 79      // Beeper on AUX-4
+    // Beeper on AUX-4
+    #define BEEPER_PIN 79
 
     #define LCD_PINS_RS 70
     #define LCD_PINS_ENABLE 71
@@ -134,7 +137,8 @@
 
   #else //!NEWPANEL - old style panel with shift register
 
-    #define BEEPER_PIN 33    // No Beeper added
+    // No Beeper added
+    #define BEEPER_PIN 33
 
     //buttons are attached to a shift register
     // Not wired yet
