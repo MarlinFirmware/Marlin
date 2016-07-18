@@ -100,6 +100,7 @@
 #define MSG_PID_I                           "PID-I"
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
+#define MSG_SELECT                          "\xbe\xdd\xc0\xb8"                                                 // "ｾﾝﾀｸ" ("Select")
 #if LCD_WIDTH > 19
   #define MSG_ACC                           "\xb6\xbf\xb8\xc4\xde mm/s2"                                       // "ｶｿｸﾄﾞ mm/s2" ("Accel")
   #define MSG_VXY_JERK                      "XY\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                          // "XYｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vxy-jerk")
