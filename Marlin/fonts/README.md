@@ -17,7 +17,7 @@ For the second half of the font we now support up to 11x11 pixel.
 - Export as a `*.bdf` file
 - Use `bdf2u8g.exe` to produce the `.h` file. Examples for the existing fonts are in `make_fonts.bat`.
 - Edit the produced `.h` file to match our needs. Find hints in the `dogm_font_data_.h` files.
-- Make a new entry in the font list in `dogm_lcd_implementation.h` before the `#else // fall-back` line:
+- Make a new entry in the font list in `ultralcd_impl_DOGM.h` before the `#else // fall-back` line:
 ```cpp
     #elif ENABLED(DISPLAY_CHARSET_NEWNAME)
       #include "dogm_font_data_yourfont.h"
