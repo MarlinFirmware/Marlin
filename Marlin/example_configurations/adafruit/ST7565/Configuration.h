@@ -499,6 +499,10 @@
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
+// Speed for the first approach when probing
+#define Z_PROBE_SPEED_FAST (homing_feedrate_mm_m[Z_AXIS])
+// Speed for the second approach when probing
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 
 //
 // Allen Key Probe is defined in the Delta example configurations.
