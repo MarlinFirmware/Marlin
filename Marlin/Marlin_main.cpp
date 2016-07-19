@@ -4427,7 +4427,7 @@ inline void gcode_M76() { print_job_timer.pause(); }
 inline void gcode_M77() { print_job_timer.stop(); }
 
 #if ENABLED(PRINTCOUNTER)
-  /*+
+  /**
    * M78: Show print statistics
    */
   inline void gcode_M78() {
