@@ -1,6 +1,9 @@
 ---
 language: c
   #
+notifications:
+  email: false
+  #
 before_install:
   #
   # Fetch the tag information for the current branch
@@ -237,7 +240,7 @@ script:
   # Test NOZZLE_CLEAN_FEATURE
   #
   - restore_configs
-  - opt_enable AUTO_BED_LEVELING_FEATURE NOZZLE_CLEAN_FEATURE FIX_MOUNTED_PROBE
+  - opt_enable NOZZLE_CLEAN_FEATURE
   - build_marlin
   #
   #
