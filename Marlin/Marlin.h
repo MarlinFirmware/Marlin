@@ -39,10 +39,11 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
-
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
+
+#include "utility.h"
 
 #ifndef SANITYCHECK_H
   #error "Your Configuration.h and Configuration_adv.h files are outdated!"
@@ -429,7 +430,5 @@ void calculate_volumetric_multipliers();
     extern Buzzer buzzer;
   #endif
 #endif
-
-void safe_delay(uint16_t del);
 
 #endif //MARLIN_H
