@@ -1,6 +1,9 @@
 ---
 language: c
   #
+notifications:
+  email: false
+  #
 before_install:
   #
   # Fetch the tag information for the current branch
