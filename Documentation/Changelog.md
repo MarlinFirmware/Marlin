@@ -1,3 +1,9 @@
+
+#  BQ Marlin v2.3.1
+---
+### Bugfixes:
+* Fixed acceleration values on Prusa i3 Hephestos (H/HXL).
+
 #  BQ Marlin v2.3.0
 ---
 ### Bugfixes:
