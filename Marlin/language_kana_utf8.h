@@ -100,6 +100,7 @@
 #define MSG_PID_I                           "PID-I"
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
+#define MSG_SELECT                          "センタク"                     // "Select"
 #define MSG_ACC                             "カソクド mm/s2"               // "Accel"
 #define MSG_VXY_JERK                        "XYジク ヤクド mm/s"            // "Vxy-jerk"
 #define MSG_VZ_JERK                         "Zジク ヤクド mm/s"             // "Vz-jerk"
