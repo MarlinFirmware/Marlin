@@ -684,11 +684,4 @@
   #error "ENDSTOPS_ONLY_FOR_HOMING is deprecated. Use (disable) ENDSTOPS_ALWAYS_ON_DEFAULT instead."
 #endif
 
-/**
- * Nozzle cleaning
- */
-#if ENABLED(NOZZLE_CLEAN_FEATURE) && !HAS_BED_PROBE
-  #error Due to internal dependencies you must have a bed probe for NOZZLE_CLEAN_FEATURE to work
-#endif
-
 #endif //SANITYCHECK_H
