@@ -48,7 +48,7 @@ class Nozzle {
     ) __attribute__((optimize ("Os"))) {
       #if ENABLED(NOZZLE_CLEAN_FEATURE)
 
-        #if ENABLED(NOZZLE_CLEAN_PARK)
+        #if ENABLED(NOZZLE_CLEAN_GOBACK)
           // Store the current coords
           point_t const initial = {
             current_position[X_AXIS],
@@ -56,7 +56,7 @@ class Nozzle {
             current_position[Z_AXIS],
             current_position[E_AXIS]
           };
-        #endif // NOZZLE_CLEAN_PARK
+        #endif // NOZZLE_CLEAN_GOBACK
 
         // Move to the starting point
         do_blocking_move_to_xy(start.x, start.y);
@@ -68,11 +68,11 @@ class Nozzle {
           do_blocking_move_to_xy(start.x, start.y);
         }
 
-        #if ENABLED(NOZZLE_CLEAN_PARK)
+        #if ENABLED(NOZZLE_CLEAN_GOBACK)
           // Move the nozzle to the initial point
           do_blocking_move_to_z(initial.z);
           do_blocking_move_to_xy(initial.x, initial.y);
-        #endif // NOZZLE_CLEAN_PARK
+        #endif // NOZZLE_CLEAN_GOBACK
 
       #endif // NOZZLE_CLEAN_FEATURE
     }
@@ -99,7 +99,7 @@ class Nozzle {
         // Don't allow impossible triangles
         if (A <= 0.0f || P <= 0.0f ) return;
 
-        #if ENABLED(NOZZLE_CLEAN_PARK)
+        #if ENABLED(NOZZLE_CLEAN_GOBACK)
           // Store the current coords
           point_t const initial = {
             current_position[X_AXIS],
@@ -107,7 +107,7 @@ class Nozzle {
             current_position[Z_AXIS],
             current_position[E_AXIS]
           };
-        #endif // NOZZLE_CLEAN_PARK
+        #endif // NOZZLE_CLEAN_GOBACK
 
         for (uint8_t j = 0; j < strokes; j++) {
           for (uint8_t i = 0; i < (objects << 1); i++) {
@@ -126,11 +126,11 @@ class Nozzle {
           }
         }
 
-        #if ENABLED(NOZZLE_CLEAN_PARK)
+        #if ENABLED(NOZZLE_CLEAN_GOBACK)
           // Move the nozzle to the initial point
           do_blocking_move_to_z(initial.z);
           do_blocking_move_to_xy(initial.x, initial.y);
-        #endif // NOZZLE_CLEAN_PARK
+        #endif // NOZZLE_CLEAN_GOBACK
 
       #endif // NOZZLE_CLEAN_FEATURE
     }
@@ -152,14 +152,14 @@ class Nozzle {
         switch (pattern) {
           case 1:
             Nozzle::zigzag(
-              NOZZLE_CLEAN_START_PT,
-              NOZZLE_CLEAN_END_PT, strokes, objects);
+              NOZZLE_CLEAN_START_POINT,
+              NOZZLE_CLEAN_END_POINT, strokes, objects);
             break;
 
           default:
             Nozzle::stroke(
-              NOZZLE_CLEAN_START_PT,
-              NOZZLE_CLEAN_END_PT, strokes);
+              NOZZLE_CLEAN_START_POINT,
+              NOZZLE_CLEAN_END_POINT, strokes);
         }
       #endif // NOZZLE_CLEAN_FEATURE
     }
