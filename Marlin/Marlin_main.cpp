@@ -59,6 +59,7 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
+#include "nozzle.h"
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
@@ -1660,7 +1661,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
  *  Plan a move to (X, Y, Z) and set the current_position
  *  The final current_position may not be the one that was requested
  */
-static void do_blocking_move_to(float x, float y, float z, float fr_mm_m = 0.0) {
+void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
   float old_feedrate_mm_m = feedrate_mm_m;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1708,21 +1709,14 @@ static void do_blocking_move_to(float x, float y, float z, float fr_mm_m = 0.0) 
   feedrate_mm_m = old_feedrate_mm_m;
 }
 
-inline void do_blocking_move_to_x(float x, float fr_mm_m = 0.0) {
-  do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_m);
+void do_blocking_move_to_axis_pos(AxisEnum axis, float where, float fr_mm_m/*=0.0*/) {
+  current_position[axis] = where;
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_m);
 }
-
-inline void do_blocking_move_to_y(float y) {
-  do_blocking_move_to(current_position[X_AXIS], y, current_position[Z_AXIS]);
-}
-
-inline void do_blocking_move_to_xy(float x, float y, float fr_mm_m = 0.0) {
-  do_blocking_move_to(x, y, current_position[Z_AXIS], fr_mm_m);
-}
-
-inline void do_blocking_move_to_z(float z, float fr_mm_m = 0.0) {
-  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, fr_mm_m);
-}
+void do_blocking_move_to_x(float x, float fr_mm_m/*=0.0*/) { do_blocking_move_to_axis_pos(X_AXIS, x, fr_mm_m); }
+void do_blocking_move_to_y(float y) { do_blocking_move_to_axis_pos(Y_AXIS, y); }
+void do_blocking_move_to_z(float z, float fr_mm_m/*=0.0*/) { do_blocking_move_to_axis_pos(Z_AXIS, z, fr_mm_m); }
+void do_blocking_move_to_xy(float x, float y, float fr_mm_m/*=0.0*/) { do_blocking_move_to(x, y, current_position[Z_AXIS], fr_mm_m); }
 
 //
 // Prepare to do endstop or probe moves
@@ -2784,9 +2778,7 @@ inline void gcode_G4() {
 
 #endif //FWRETRACT
 
-#if ENABLED(NOZZLE_CLEAN_FEATURE) && HAS_BED_PROBE
-  #include "nozzle.h"
-
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
   /**
    * G12: Clean the nozzle
    */
@@ -2819,8 +2811,6 @@ inline void gcode_G4() {
 #endif
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
-  #include "nozzle.h"
-
   /**
    * G27: Park the nozzle
    */
@@ -3301,7 +3291,7 @@ inline void gcode_G28() {
         }
         // For each G29 S2...
         if (probe_point == 0) {
-          // For the intial G29 S2 make Z a positive value (e.g., 4.0)
+          // For the initial G29 S2 make Z a positive value (e.g., 4.0)
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
             #if Z_HOME_DIR > 0
               + Z_MAX_POS
@@ -7084,7 +7074,7 @@ void process_next_command() {
           break;
       #endif // FWRETRACT
 
-      #if ENABLED(NOZZLE_CLEAN_FEATURE) && HAS_BED_PROBE
+      #if ENABLED(NOZZLE_CLEAN_FEATURE)
         case 12:
           gcode_G12(); // G12: Nozzle Clean
           break;

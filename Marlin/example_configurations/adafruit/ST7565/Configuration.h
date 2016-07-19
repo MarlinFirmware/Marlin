@@ -894,12 +894,12 @@
   // Number of pattern repetitions
   #define NOZZLE_CLEAN_STROKES  12
 
-  //                            {  X,  Y,               Z}
-  #define NOZZLE_CLEAN_START_PT { 30, 30, (Z_MIN_POS + 5)}
-  #define NOZZLE_CLEAN_END_PT   {100, 60, (Z_MIN_POS + 5)}
+  // Specify positions as { X, Y, Z }
+  #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
+  #define NOZZLE_CLEAN_END_POINT   {100, 60, (Z_MIN_POS + 1)}
 
-  // Moves the nozzle to the parked position
-  #define NOZZLE_CLEAN_PARK
+  // Moves the nozzle to the initial position
+  #define NOZZLE_CLEAN_GOBACK
 #endif
 
 //
