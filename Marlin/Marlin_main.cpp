@@ -535,17 +535,6 @@ static bool send_ok[BUFSIZE];
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
-
-  // States for managing Marlin and host communication
-  // Marlin sends messages if blocked or busy
-  enum MarlinBusyState {
-    NOT_BUSY,           // Not in a handler
-    IN_HANDLER,         // Processing a GCode
-    IN_PROCESS,         // Known to be blocking command input (as in G29)
-    PAUSED_FOR_USER,    // Blocking pending any input
-    PAUSED_FOR_INPUT    // Blocking pending text input (concept)
-  };
-
   static MarlinBusyState busy_state = NOT_BUSY;
   static millis_t next_busy_signal_ms = 0;
   uint8_t host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
@@ -3220,9 +3209,6 @@ inline void gcode_G28() {
 #endif
 
 #if ENABLED(MESH_BED_LEVELING)
-
-  enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet, MeshSetZOffset, MeshReset };
-
   inline void _mbl_goto_xy(float x, float y) {
     float old_feedrate_mm_m = feedrate_mm_m;
     feedrate_mm_m = homing_feedrate_mm_m[X_AXIS];
@@ -6832,7 +6818,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
             // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
             float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
                   z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
-          
+
             // Always raise by some amount
             planner.buffer_line(
               current_position[X_AXIS],
@@ -6843,10 +6829,10 @@ inline void gcode_T(uint8_t tmp_extruder) {
               active_extruder
             );
             stepper.synchronize();
-          
+
             move_extruder_servo(active_extruder);
             delay(500);
-          
+
             // Move back down, if needed
             if (z_raise != z_diff) {
               planner.buffer_line(
@@ -6860,7 +6846,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
               stepper.synchronize();
             }
           #endif
-          
+
           /**
            * Set current_position to the position of the new nozzle.
            * Offsets are based on linear distance, so we need to get
@@ -6913,7 +6899,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
             current_position[Z_AXIS] += offset_vec.z;
 
           #else // !AUTO_BED_LEVELING_FEATURE
-  
+
             float xydiff[2] = {
               hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
               hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
@@ -6937,7 +6923,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
               }
 
             #endif // MESH_BED_LEVELING
-  
+
           #endif // !AUTO_BED_LEVELING_FEATURE
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -7000,7 +6986,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
         SERIAL_ECHOLNPGM("<<< gcode_T");
       }
     #endif
-  
+
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ACTIVE_EXTRUDER);
     SERIAL_PROTOCOLLN((int)active_extruder);
