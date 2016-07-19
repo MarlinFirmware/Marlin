@@ -54,14 +54,6 @@ static void lcd_status_screen();
 
 millis_t next_lcd_update_ms;
 
-enum LCDViewAction {
-  LCDVIEW_NONE,
-  LCDVIEW_REDRAW_NOW,
-  LCDVIEW_CALL_REDRAW_NEXT,
-  LCDVIEW_CLEAR_CALL_REDRAW,
-  LCDVIEW_CALL_NO_REDRAW
-};
-
 uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
 
 #if ENABLED(ULTIPANEL)
@@ -133,7 +125,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     static void lcd_filament_change_load_message();
     static void lcd_filament_change_extrude_message();
     static void lcd_filament_change_resume_message();
-  #endif 
+  #endif
 
   #if HAS_LCD_CONTRAST
     static void lcd_set_contrast();
@@ -301,7 +293,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
    *             Scroll as-needed to keep the selected line in view.
    *
    * At this point _thisItemNr equals the total number of items.
-   * 
+   *
    */
 
   // Simple-scroll by using encoderLine as encoderTopLine
@@ -2207,7 +2199,7 @@ void kill_screen(const char* lcd_msg) {
       #endif
       END_SCREEN();
     }
-  
+
     void lcd_filament_change_show_message(FilamentChangeMessage message) {
       switch (message) {
         case FILAMENT_CHANGE_MESSAGE_INIT:
@@ -2507,7 +2499,7 @@ int lcd_strlen_P(const char* s) {
   int j = 0;
   while (pgm_read_byte(s)) {
     #ifdef MAPPER_NON
-      j++; 
+      j++;
     #else
       if ((pgm_read_byte(s) & 0xc0) != 0x80) j++;
     #endif

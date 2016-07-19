@@ -33,7 +33,7 @@ bool Stopwatch::stop() {
   #endif
 
   if (this->isRunning() || this->isPaused()) {
-    this->state = STOPWATCH_STOPPED;
+    this->state = STOPPED;
     this->stopTimestamp = millis();
     return true;
   }
@@ -46,7 +46,7 @@ bool Stopwatch::pause() {
   #endif
 
   if (this->isRunning()) {
-    this->state = STOPWATCH_PAUSED;
+    this->state = PAUSED;
     this->stopTimestamp = millis();
     return true;
   }
@@ -62,7 +62,7 @@ bool Stopwatch::start() {
     if (this->isPaused()) this->accumulator = this->duration();
     else this->reset();
 
-    this->state = STOPWATCH_RUNNING;
+    this->state = RUNNING;
     this->startTimestamp = millis();
     return true;
   }
@@ -74,18 +74,18 @@ void Stopwatch::reset() {
     Stopwatch::debug(PSTR("reset"));
   #endif
 
-  this->state = STOPWATCH_STOPPED;
+  this->state = STOPPED;
   this->startTimestamp = 0;
   this->stopTimestamp = 0;
   this->accumulator = 0;
 }
 
 bool Stopwatch::isRunning() {
-  return (this->state == STOPWATCH_RUNNING) ? true : false;
+  return (this->state == RUNNING) ? true : false;
 }
 
 bool Stopwatch::isPaused() {
-  return (this->state == STOPWATCH_PAUSED) ? true : false;
+  return (this->state == PAUSED) ? true : false;
 }
 
 millis_t Stopwatch::duration() {
