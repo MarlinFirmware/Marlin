@@ -5325,7 +5325,7 @@ inline void gcode_M200() {
     if (volumetric_enabled) {
       filament_size[target_extruder] = code_value_linear_units();
       // make sure all extruders have some sane value for the filament size
-      for (int i = 0; i < COUNT(filament_size); i++)
+      for (uint8_t i = 0; i < COUNT(filament_size); i++)
         if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
     }
   }
@@ -6825,7 +6825,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
             // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
             float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
                   z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
-          
+
             // Always raise by some amount
             planner.buffer_line(
               current_position[X_AXIS],
@@ -6836,10 +6836,10 @@ inline void gcode_T(uint8_t tmp_extruder) {
               active_extruder
             );
             stepper.synchronize();
-          
+
             move_extruder_servo(active_extruder);
             delay(500);
-          
+
             // Move back down, if needed
             if (z_raise != z_diff) {
               planner.buffer_line(
@@ -6853,7 +6853,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
               stepper.synchronize();
             }
           #endif
-          
+
           /**
            * Set current_position to the position of the new nozzle.
            * Offsets are based on linear distance, so we need to get
@@ -6906,7 +6906,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
             current_position[Z_AXIS] += offset_vec.z;
 
           #else // !AUTO_BED_LEVELING_FEATURE
-  
+
             float xydiff[2] = {
               hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
               hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
@@ -6930,7 +6930,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
               }
 
             #endif // MESH_BED_LEVELING
-  
+
           #endif // !AUTO_BED_LEVELING_FEATURE
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -6993,7 +6993,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
         SERIAL_ECHOLNPGM("<<< gcode_T");
       }
     #endif
-  
+
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ACTIVE_EXTRUDER);
     SERIAL_PROTOCOLLN((int)active_extruder);
@@ -8695,6 +8695,6 @@ float calculate_volumetric_multiplier(float diameter) {
 }
 
 void calculate_volumetric_multipliers() {
-  for (int i = 0; i < COUNT(filament_size); i++)
+  for (uint8_t i = 0; i < COUNT(filament_size); i++)
     volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 }
