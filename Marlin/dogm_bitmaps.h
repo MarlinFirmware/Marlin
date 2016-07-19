@@ -21,8 +21,14 @@
  */
 
 /**
- * BitMap for splashscreen
- * Generated with: http://www.digole.com/tools/PicturetoC_Hex_converter.php
+ * Standard Marlin Bitmap for splashscreen
+ *
+ * You may use one of the following tools to generate the C++ bitmap array from
+ * a black and white image:
+ *
+ *  - http://www.marlinfw.org/tools/u8glib/converter.html
+ *  - http://www.digole.com/tools/PicturetoC_Hex_converter.php
+ *
  * Please note that using the high-res version takes 402Bytes of PROGMEM.
  */
 
