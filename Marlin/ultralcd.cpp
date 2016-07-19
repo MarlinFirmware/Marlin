@@ -44,9 +44,9 @@ uint8_t lcd_status_message_level;
 char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kana with up to 3*LCD_WIDTH+1
 
 #if ENABLED(DOGLCD)
-  #include "dogm_lcd_implementation.h"
+  #include "ultralcd_impl_DOGM.h"
 #else
-  #include "ultralcd_implementation_hitachi_HD44780.h"
+  #include "ultralcd_impl_HD44780.h"
 #endif
 
 // The main status screen
