@@ -59,6 +59,7 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
+#include "nozzle.h"
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
@@ -1708,12 +1709,12 @@ static void do_blocking_move_to(float x, float y, float z, float fr_mm_m = 0.0) 
   feedrate_mm_m = old_feedrate_mm_m;
 }
 
-inline void do_blocking_move_to_axis_pos(AxisEnum axis, float where, float fr_mm_m = 0.0) {
+inline void do_blocking_move_to_axis_pos(AxisEnum axis, float where, float fr_mm_m /* = 0.0 */) {
   current_position[axis] = where;
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_m);
 }
 
-inline void do_blocking_move_to_x(float x, float fr_mm_m = 0.0) {
+inline void do_blocking_move_to_x(float x, float fr_mm_m /* = 0.0 */) {
   do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_m);
 }
 
@@ -1721,11 +1722,11 @@ inline void do_blocking_move_to_y(float y) {
   do_blocking_move_to(current_position[X_AXIS], y, current_position[Z_AXIS]);
 }
 
-inline void do_blocking_move_to_xy(float x, float y, float fr_mm_m = 0.0) {
+inline void do_blocking_move_to_xy(float x, float y, float fr_mm_m /* = 0.0 */) {
   do_blocking_move_to(x, y, current_position[Z_AXIS], fr_mm_m);
 }
 
-inline void do_blocking_move_to_z(float z, float fr_mm_m = 0.0) {
+inline void do_blocking_move_to_z(float z, float fr_mm_m /* = 0.0 */) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, fr_mm_m);
 }
 
@@ -2791,9 +2792,7 @@ inline void gcode_G4() {
 
 #endif //FWRETRACT
 
-#if ENABLED(NOZZLE_CLEAN_FEATURE) && HAS_BED_PROBE
-  #include "nozzle.h"
-
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
   /**
    * G12: Clean the nozzle
    */
@@ -2850,8 +2849,6 @@ inline void gcode_G4() {
 #endif // QUICK_HOME
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
-  #include "nozzle.h"
-
   /**
    * G27: Park the nozzle
    */
@@ -6825,7 +6822,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
             // <0 if the new nozzle is higher, >0 if lower. A bigger raise when lower.
             float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
                   z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
-          
+
             // Always raise by some amount
             planner.buffer_line(
               current_position[X_AXIS],
@@ -6836,10 +6833,10 @@ inline void gcode_T(uint8_t tmp_extruder) {
               active_extruder
             );
             stepper.synchronize();
-          
+
             move_extruder_servo(active_extruder);
             delay(500);
-          
+
             // Move back down, if needed
             if (z_raise != z_diff) {
               planner.buffer_line(
@@ -6853,7 +6850,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
               stepper.synchronize();
             }
           #endif
-          
+
           /**
            * Set current_position to the position of the new nozzle.
            * Offsets are based on linear distance, so we need to get
@@ -6906,7 +6903,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
             current_position[Z_AXIS] += offset_vec.z;
 
           #else // !AUTO_BED_LEVELING_FEATURE
-  
+
             float xydiff[2] = {
               hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
               hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
@@ -6930,7 +6927,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
               }
 
             #endif // MESH_BED_LEVELING
-  
+
           #endif // !AUTO_BED_LEVELING_FEATURE
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -6993,7 +6990,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
         SERIAL_ECHOLNPGM("<<< gcode_T");
       }
     #endif
-  
+
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ACTIVE_EXTRUDER);
     SERIAL_PROTOCOLLN((int)active_extruder);
@@ -7091,7 +7088,7 @@ void process_next_command() {
           break;
       #endif // FWRETRACT
 
-      #if ENABLED(NOZZLE_CLEAN_FEATURE) && HAS_BED_PROBE
+      #if ENABLED(NOZZLE_CLEAN_FEATURE)
         case 12:
           gcode_G12(); // G12: Nozzle Clean
           break;
