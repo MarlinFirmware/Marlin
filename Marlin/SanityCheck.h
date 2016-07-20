@@ -573,6 +573,23 @@
 #endif
 
 /**
+ * Basic 2-nozzle duplication mode
+ */
+#if ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+  #if HOTENDS != 2
+    #error "DUAL_NOZZLE_DUPLICATION_MODE requires exactly 2 hotends."
+  #elif ENABLED(DUAL_X_CARRIAGE)
+    #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with DUAL_X_CARRIAGE."
+  #elif ENABLED(SINGLENOZZLE)
+    #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with SINGLENOZZLE."
+  #elif ENABLED(MIXING_EXTRUDER)
+    #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with MIXING_EXTRUDER."
+  #elif ENABLED(SWITCHING_EXTRUDER)
+    #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with SWITCHING_EXTRUDER."
+  #endif
+#endif
+
+/**
  * Test Extruder Pins
  */
 #if EXTRUDERS > 3
