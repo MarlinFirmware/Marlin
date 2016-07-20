@@ -33,8 +33,8 @@
  * License: http://opensource.org/licenses/BSD-3-Clause
  */
 
-#ifndef DOGM_LCD_IMPLEMENTATION_H
-#define DOGM_LCD_IMPLEMENTATION_H
+#ifndef ULTRALCD_IMPL_DOGM_H
+#define ULTRALCD_IMPL_DOGM_H
 
 /**
  * Implementation of the LCD display routines for a DOGM128 graphic display.
@@ -635,4 +635,4 @@ void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
 #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
-#endif //__DOGM_LCD_IMPLEMENTATION_H
+#endif //__ULTRALCD_IMPL_DOGM_H
