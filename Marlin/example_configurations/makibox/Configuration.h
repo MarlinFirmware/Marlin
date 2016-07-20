@@ -759,7 +759,9 @@
  * MOVEMENT SETTINGS
  */
 
-#define HOMING_FEEDRATE {1500, 1500, 120, 0}  // set the homing speeds (mm/min)   ***** MakiBox A6 *****
+// Homing speeds (mm/m)
+#define HOMING_FEEDRATE_XY 1500
+#define HOMING_FEEDRATE_Z  (2*60)
 
 // default settings
 
