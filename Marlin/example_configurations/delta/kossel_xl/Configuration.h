@@ -840,10 +840,8 @@
  * MOVEMENT SETTINGS
  */
 
-// delta homing speeds must be the same on xyz
-#define HOMING_FEEDRATE_XYZ (60*60)
-#define HOMING_FEEDRATE_E 0
-#define HOMING_FEEDRATE { HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_E }
+// Delta only homes to Z
+#define HOMING_FEEDRATE_Z  (60*60)
 
 // variables to calculate steps
 #define XYZ_FULL_STEPS_PER_ROTATION 200

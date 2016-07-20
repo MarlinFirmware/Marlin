@@ -306,7 +306,14 @@ static uint8_t cmd_queue_index_r = 0,
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-const float homing_feedrate_mm_m[] = HOMING_FEEDRATE;
+const float homing_feedrate_mm_m[] = {
+  #if ENABLED(DELTA)
+    HOMING_FEEDRATE_Z, HOMING_FEEDRATE_Z,
+  #else
+    HOMING_FEEDRATE_XY, HOMING_FEEDRATE_XY,
+  #endif
+  HOMING_FEEDRATE_Z, 0
+};
 static float feedrate_mm_m = 1500.0, saved_feedrate_mm_m;
 int feedrate_percentage = 100, saved_feedrate_percentage;
 

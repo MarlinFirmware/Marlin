@@ -848,10 +848,8 @@
  * MOVEMENT SETTINGS
  */
 
-// delta homing speeds must be the same on xyz
-#define HOMING_FEEDRATE_XYZ (200*30)
-#define HOMING_FEEDRATE_E 0
-#define HOMING_FEEDRATE { HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_E }
+// Delta only homes to Z
+#define HOMING_FEEDRATE_Z  (200*30)
 
 // default settings
 // delta speeds must be the same on xyz

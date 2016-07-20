@@ -748,7 +748,9 @@
  * MOVEMENT SETTINGS
  */
 
-#define HOMING_FEEDRATE {2000, 2000, 150, 0}  // set the homing speeds (mm/min)
+// Homing speeds (mm/m)
+#define HOMING_FEEDRATE_XY 2000
+#define HOMING_FEEDRATE_Z  150
 
 // default settings
 
