@@ -175,7 +175,7 @@
  */
 #if ENABLED(SWITCHING_EXTRUDER)
   #if ENABLED(DUAL_X_CARRIAGE)
-    #error "SINGLENOZZLE and DUAL_X_CARRIAGE are incompatible."
+    #error "SWITCHING_EXTRUDER and DUAL_X_CARRIAGE are incompatible."
   #elif EXTRUDERS != 2
     #error "SWITCHING_EXTRUDER requires exactly 2 EXTRUDERS."
   #elif NUM_SERVOS < 1
