@@ -1591,7 +1591,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
 /**
  * Some planner shorthand inline functions
  */
-inline float set_homing_bump_feedrate(AxisEnum axis) {
+inline float get_homing_bump_feedrate(AxisEnum axis) {
   const int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
   int hbd = homing_bump_divisor[axis];
   if (hbd < 1) {
@@ -1599,8 +1599,7 @@ inline float set_homing_bump_feedrate(AxisEnum axis) {
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Warning: Homing Bump Divisor < 1");
   }
-  feedrate_mm_m = homing_feedrate_mm_m[axis] / hbd;
-  return feedrate_mm_m;
+  return homing_feedrate_mm_m[axis] / hbd;
 }
 //
 // line_to_current_position
@@ -1620,7 +1619,7 @@ inline void line_to_axis_pos(AxisEnum axis, float where, float fr_mm_m = 0.0) {
   current_position[axis] = where;
   feedrate_mm_m = (fr_mm_m != 0.0) ? fr_mm_m : homing_feedrate_mm_m[axis];
   planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(feedrate_mm_m), active_extruder);
-  stepper.synchronize(); // The lost one
+  stepper.synchronize();
   feedrate_mm_m = old_feedrate_mm_m;
 }
 
@@ -2068,85 +2067,35 @@ static void clean_up_after_endstop_or_probe_move() {
   // at the height where the probe triggered.
   static float run_z_probe() {
 
-    float old_feedrate_mm_m = feedrate_mm_m;
-
     // Prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
     refresh_cmd_timeout();
 
-    #if ENABLED(DELTA)
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+      planner.bed_level_matrix.set_to_identity();
+    #endif
 
-      float start_z = current_position[Z_AXIS];
-      long start_steps = stepper.position(Z_AXIS);
+    current_position[Z_AXIS] = -(Z_MAX_LENGTH + 10);
+    do_blocking_move_to_z(current_position[Z_AXIS], Z_PROBE_SPEED_FAST);
+    endstops.hit_on_purpose(); // clear endstop hit flags
+    // Get the current stepper position after bumping an endstop
+    current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
+    SYNC_PLAN_POSITION_KINEMATIC(); // tell the planner where we are      feedrate_mm_m = homing_feedrate_mm_m[Z_AXIS];
 
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe (DELTA) 1", current_position);
-      #endif
+    // move up the retract distance
+    current_position[Z_AXIS] += home_bump_mm(Z_AXIS);
+    do_blocking_move_to_z(current_position[Z_AXIS], Z_PROBE_SPEED_FAST);
 
-      // move down slowly until you find the bed
-      feedrate_mm_m = homing_feedrate_mm_m[Z_AXIS] / 4;
-      destination[Z_AXIS] = -10;
-      prepare_move_to_destination_raw(); // this will also set_current_to_destination
-      stepper.synchronize();
-      endstops.hit_on_purpose(); // clear endstop hit flags
+    // move back down slowly to find bed
+    current_position[Z_AXIS] -= home_bump_mm(Z_AXIS) * 2;
+    do_blocking_move_to_z(current_position[Z_AXIS], Z_PROBE_SPEED_SLOW);
+    endstops.hit_on_purpose(); // clear endstop hit flags
+    // Get the current stepper position after bumping an endstop
+    current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
+    SYNC_PLAN_POSITION_KINEMATIC(); // tell the planner where we are
 
-      /**
-       * We have to let the planner know where we are right now as it
-       * is not where we said to go.
-       */
-      long stop_steps = stepper.position(Z_AXIS);
-      float mm = start_z - float(start_steps - stop_steps) / planner.axis_steps_per_mm[Z_AXIS];
-      current_position[Z_AXIS] = mm;
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe (DELTA) 2", current_position);
-      #endif
-
-    #else // !DELTA
-
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-        planner.bed_level_matrix.set_to_identity();
-      #endif
-
-      feedrate_mm_m = homing_feedrate_mm_m[Z_AXIS];
-
-      // Move down until the Z probe (or endstop?) is triggered
-      float zPosition = -(Z_MAX_LENGTH + 10);
-      line_to_z(zPosition);
-      stepper.synchronize();
-
-      // Tell the planner where we ended up - Get this from the stepper handler
-      zPosition = stepper.get_axis_position_mm(Z_AXIS);
-      planner.set_position_mm(
-        current_position[X_AXIS], current_position[Y_AXIS], zPosition,
-        current_position[E_AXIS]
-      );
-
-      // move up the retract distance
-      zPosition += home_bump_mm(Z_AXIS);
-      line_to_z(zPosition);
-      stepper.synchronize();
-      endstops.hit_on_purpose(); // clear endstop hit flags
-
-      // move back down slowly to find bed
-      set_homing_bump_feedrate(Z_AXIS);
-
-      zPosition -= home_bump_mm(Z_AXIS) * 2;
-      line_to_z(zPosition);
-      stepper.synchronize();
-      endstops.hit_on_purpose(); // clear endstop hit flags
-
-      // Get the current stepper position after bumping an endstop
-      current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe", current_position);
-      #endif
-
-    #endif // !DELTA
-
-    SYNC_PLAN_POSITION_KINEMATIC();
-
-    feedrate_mm_m = old_feedrate_mm_m;
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe", current_position);
+    #endif
 
     return current_position[Z_AXIS];
   }
@@ -2431,7 +2380,7 @@ static void homeaxis(AxisEnum axis) {
   line_to_axis_pos(axis, -home_bump_mm(axis) * axis_home_dir);
 
   // Move slowly towards the endstop until triggered
-  line_to_axis_pos(axis, 2 * home_bump_mm(axis) * axis_home_dir, set_homing_bump_feedrate(axis));
+  line_to_axis_pos(axis, 2 * home_bump_mm(axis) * axis_home_dir, get_homing_bump_feedrate(axis));
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("> TRIGGER ENDSTOP", current_position);
