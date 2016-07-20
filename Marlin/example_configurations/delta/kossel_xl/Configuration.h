@@ -833,15 +833,13 @@
   #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
-
-// @section motion
-
-/**
- * MOVEMENT SETTINGS
- */
-
 // Delta only homes to Z
 #define HOMING_FEEDRATE_Z  (60*60)
+
+//
+// MOVEMENT SETTINGS
+// @section motion
+//
 
 // variables to calculate steps
 #define XYZ_FULL_STEPS_PER_ROTATION 200
@@ -851,6 +849,8 @@
 
 // delta speeds must be the same on xyz
 #define XYZ_STEPS (XYZ_FULL_STEPS_PER_ROTATION * XYZ_MICROSTEPS / double(XYZ_BELT_PITCH) / double(XYZ_PULLEY_TEETH))
+
+// default settings
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {XYZ_STEPS, XYZ_STEPS, XYZ_STEPS, 158}   // default steps per unit for PowerWasp
 #define DEFAULT_MAX_FEEDRATE          {200, 200, 200, 25}    // (mm/sec)

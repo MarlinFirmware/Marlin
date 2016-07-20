@@ -749,16 +749,14 @@
   #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
 #endif
 
-
-// @section motion
-
-/**
- * MOVEMENT SETTINGS
- */
-
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (50*60)
 #define HOMING_FEEDRATE_Z  (4*60)
+
+//
+// MOVEMENT SETTINGS
+// @section motion
+//
 
 // default settings
 
