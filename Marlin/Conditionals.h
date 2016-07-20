@@ -829,8 +829,8 @@
       #define Z_PROBE_OFFSET_RANGE_MAX 20
     #endif
     #ifndef XY_PROBE_SPEED
-      #ifdef HOMING_FEEDRATE_XYZ
-        #define XY_PROBE_SPEED HOMING_FEEDRATE_XYZ
+      #ifdef HOMING_FEEDRATE_XY
+        #define XY_PROBE_SPEED HOMING_FEEDRATE_XY
       #else
         #define XY_PROBE_SPEED 4000
       #endif
