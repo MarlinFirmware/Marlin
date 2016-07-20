@@ -833,14 +833,13 @@
 #endif
 
 
-// @section motion
-
-/**
- * MOVEMENT SETTINGS
- */
-
 // Delta only homes to Z
 #define HOMING_FEEDRATE_Z  (200*60)
+
+//
+// MOVEMENT SETTINGS
+// @section motion
+//
 
 #define XYZ_FULL_STEPS_PER_ROTATION 200
 #define XYZ_MICROSTEPS 32

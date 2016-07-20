@@ -836,14 +836,13 @@
 #endif
 
 
-// @section motion
-
-/**
- * MOVEMENT SETTINGS
- */
-
 // Delta only homes to Z
 #define HOMING_FEEDRATE_Z  (200*60)
+
+//
+// MOVEMENT SETTINGS
+// @section motion
+//
 
 // default settings
 // delta speeds must be the same on xyz
