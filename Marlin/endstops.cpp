@@ -66,68 +66,72 @@ volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_P
 
 void Endstops::init() {
 
-  #if HAS_X_MIN
-    SET_INPUT(X_MIN_PIN);
-    #if ENABLED(ENDSTOPPULLUP_XMIN)
-      WRITE(X_MIN_PIN,HIGH);
-    #endif
-  #endif
+  #if DISABLED(MARLIN_SIMULATION_BUILD)
 
-  #if HAS_Y_MIN
-    SET_INPUT(Y_MIN_PIN);
-    #if ENABLED(ENDSTOPPULLUP_YMIN)
-      WRITE(Y_MIN_PIN,HIGH);
+    #if HAS_X_MIN
+      SET_INPUT(X_MIN_PIN);
+      #if ENABLED(ENDSTOPPULLUP_XMIN)
+        WRITE(X_MIN_PIN,HIGH);
+      #endif
     #endif
-  #endif
 
-  #if HAS_Z_MIN
-    SET_INPUT(Z_MIN_PIN);
-    #if ENABLED(ENDSTOPPULLUP_ZMIN)
-      WRITE(Z_MIN_PIN,HIGH);
+    #if HAS_Y_MIN
+      SET_INPUT(Y_MIN_PIN);
+      #if ENABLED(ENDSTOPPULLUP_YMIN)
+        WRITE(Y_MIN_PIN,HIGH);
+      #endif
     #endif
-  #endif
 
-  #if HAS_Z2_MIN
-    SET_INPUT(Z2_MIN_PIN);
-    #if ENABLED(ENDSTOPPULLUP_ZMIN)
-      WRITE(Z2_MIN_PIN,HIGH);
+    #if HAS_Z_MIN
+      SET_INPUT(Z_MIN_PIN);
+      #if ENABLED(ENDSTOPPULLUP_ZMIN)
+        WRITE(Z_MIN_PIN,HIGH);
+      #endif
     #endif
-  #endif
 
-  #if HAS_X_MAX
-    SET_INPUT(X_MAX_PIN);
-    #if ENABLED(ENDSTOPPULLUP_XMAX)
-      WRITE(X_MAX_PIN,HIGH);
+    #if HAS_Z2_MIN
+      SET_INPUT(Z2_MIN_PIN);
+      #if ENABLED(ENDSTOPPULLUP_ZMIN)
+        WRITE(Z2_MIN_PIN,HIGH);
+      #endif
     #endif
-  #endif
 
-  #if HAS_Y_MAX
-    SET_INPUT(Y_MAX_PIN);
-    #if ENABLED(ENDSTOPPULLUP_YMAX)
-      WRITE(Y_MAX_PIN,HIGH);
+    #if HAS_X_MAX
+      SET_INPUT(X_MAX_PIN);
+      #if ENABLED(ENDSTOPPULLUP_XMAX)
+        WRITE(X_MAX_PIN,HIGH);
+      #endif
     #endif
-  #endif
 
-  #if HAS_Z_MAX
-    SET_INPUT(Z_MAX_PIN);
-    #if ENABLED(ENDSTOPPULLUP_ZMAX)
-      WRITE(Z_MAX_PIN,HIGH);
+    #if HAS_Y_MAX
+      SET_INPUT(Y_MAX_PIN);
+      #if ENABLED(ENDSTOPPULLUP_YMAX)
+        WRITE(Y_MAX_PIN,HIGH);
+      #endif
     #endif
-  #endif
 
-  #if HAS_Z2_MAX
-    SET_INPUT(Z2_MAX_PIN);
-    #if ENABLED(ENDSTOPPULLUP_ZMAX)
-      WRITE(Z2_MAX_PIN,HIGH);
+    #if HAS_Z_MAX
+      SET_INPUT(Z_MAX_PIN);
+      #if ENABLED(ENDSTOPPULLUP_ZMAX)
+        WRITE(Z_MAX_PIN,HIGH);
+      #endif
     #endif
-  #endif
 
-  #if HAS_Z_MIN_PROBE_PIN && ENABLED(Z_MIN_PROBE_ENDSTOP) // Check for Z_MIN_PROBE_ENDSTOP so we don't pull a pin high unless it's to be used.
-    SET_INPUT(Z_MIN_PROBE_PIN);
-    #if ENABLED(ENDSTOPPULLUP_ZMIN_PROBE)
-      WRITE(Z_MIN_PROBE_PIN,HIGH);
+    #if HAS_Z2_MAX
+      SET_INPUT(Z2_MAX_PIN);
+      #if ENABLED(ENDSTOPPULLUP_ZMAX)
+        WRITE(Z2_MAX_PIN,HIGH);
+      #endif
     #endif
-  #endif
+
+    #if HAS_Z_MIN_PROBE_PIN && ENABLED(Z_MIN_PROBE_ENDSTOP) // Check for Z_MIN_PROBE_ENDSTOP so we don't pull a pin high unless it's to be used.
+      SET_INPUT(Z_MIN_PROBE_PIN);
+      #if ENABLED(ENDSTOPPULLUP_ZMIN_PROBE)
+        WRITE(Z_MIN_PROBE_PIN,HIGH);
+      #endif
+    #endif
+
+  #endif // MARLIN_SIMULATION_BUILD
 
 } // Endstops::init
 
