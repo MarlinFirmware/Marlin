@@ -33,6 +33,8 @@
   #include "printcounter.h"
 #endif
 
+char conv[9]; // for converted numbers
+
 int preheatHotendTemp1, preheatBedTemp1, preheatFanSpeed1,
     preheatHotendTemp2, preheatBedTemp2, preheatFanSpeed2;
 
@@ -2321,6 +2323,7 @@ void kill_screen(const char* lcd_msg) {
       millis_t next_move_ms = millis(), repeat_ms = KEY_REPEAT_DELAY;
       move_menu_scale = KEY_MOVE_FIRST;             // first move is larger
       no_reentry = true;
+      SERIAL_ECHOLNPGM("Enter Keypad Loop");
       while (REPRAPWORLD_KEYPAD_PRESSED) {
         millis_t now = millis();
         if (ELAPSED(now, next_move_ms)) {
@@ -2335,6 +2338,9 @@ void kill_screen(const char* lcd_msg) {
           manual_move_start_time = now;             // move now
           manage_manual_move();
 
+          SERIAL_ECHOPAIR("Keypad Loop, delay ", repeat_ms);
+          SERIAL_EOL;
+
           next_move_ms = now + repeat_ms;           // next move after current interval
           if (repeat_ms == KEY_REPEAT_DELAY) {      // at the initial interval?
             move_menu_scale = KEY_MOVE_OTHER;       // move in smaller increments
@@ -2345,6 +2351,7 @@ void kill_screen(const char* lcd_msg) {
         }
         idle();
       }
+      SERIAL_ECHOLNPGM("Exit Keypad Loop");
       no_reentry = false;
     }
     static void reprapworld_keypad_move_z_up()    { _reprapworld_keypad_move(Z_AXIS,  1); }
@@ -2616,10 +2623,16 @@ void lcd_update() {
         static uint8_t keypad_debounce = 0;
 
         if (!REPRAPWORLD_KEYPAD_PRESSED) {
-          if (keypad_debounce > 0) keypad_debounce--;
+          if (keypad_debounce > 0) {
+            SERIAL_ECHOPAIR("Keypad Debouncing ", keypad_debounce);
+            SERIAL_EOL;
+            keypad_debounce--;
+          }
         }
         else if (!keypad_debounce) {
           keypad_debounce = 2;
+
+          SERIAL_ECHOLNPGM("Keypad Initial Press");
 
           if (REPRAPWORLD_KEYPAD_MOVE_MENU)       reprapworld_keypad_move_menu();
 
@@ -2840,6 +2853,18 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     DST = ~new_##DST; //invert it, because a pressed switch produces a logical 0
 
 
+  // Make a hex string for debugging
+  char *to_hex(unsigned long value, uint8_t digits=4) {
+    const char *hex_digits = "0123456789ABCDEF";
+    digits = constrain(digits, 2, 8);
+    conv[digits] = '\0';
+    while (digits--) {
+      conv[digits] = hex_digits[value & 0xF];
+      value >>= 4;
+    }
+    return conv;
+  }
+
   /**
    * Read encoder buttons from the hardware registers
    * Warning: This function is called from interrupt context!
@@ -2899,6 +2924,12 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
       #endif
       #if ENABLED(REPRAPWORLD_KEYPAD)
         GET_BUTTON_STATES(buttons_reprapworld_keypad);
+        static uint8_t old_buttons_reprapworld_keypad = 0;
+        if (old_buttons_reprapworld_keypad != buttons_reprapworld_keypad) {
+          old_buttons_reprapworld_keypad = buttons_reprapworld_keypad;
+          SERIAL_ECHOPAIR("Keypad Bits: 0x", to_hex(buttons_reprapworld_keypad, 2));
+          SERIAL_EOL;
+        }
       #endif
     #else
       GET_BUTTON_STATES(buttons);
@@ -2952,8 +2983,6 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
 #define DIGIT(n) ('0' + (n))
 #define DIGIMOD(n) DIGIT((n) % 10)
-
-char conv[8];
 
 // Convert float to rj string with 123 or -12 format
 char *ftostr3(const float& x) { return itostr3((int)x); }
