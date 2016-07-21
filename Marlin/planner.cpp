@@ -946,26 +946,23 @@ void Planner::check_axes_activity() {
 
   // Compute and limit the acceleration rate for the trapezoid generator.
   float steps_per_mm = block->step_event_count / block->millimeters;
-  block->acceleration_steps_per_s2 = ceil((
-    (block->steps[X_AXIS] == 0 && block->steps[Y_AXIS] == 0 && block->steps[Z_AXIS] == 0) ?
-      retract_acceleration : block->steps[E_AXIS] == 0 ?
-      travel_acceleration :
-      acceleration
-    ) * steps_per_mm
-  );
-  // Limit acceleration per axis
-  long acc_st = block->acceleration_steps_per_s2;
-  if (max_acceleration_steps_per_s2[X_AXIS] < (acc_st * block->steps[X_AXIS]) / block->step_event_count)
-    acc_st = (max_acceleration_steps_per_s2[X_AXIS] * block->step_event_count) / block->steps[X_AXIS];
-  if (max_acceleration_steps_per_s2[Y_AXIS] < (acc_st * block->steps[Y_AXIS]) / block->step_event_count)
-    acc_st = (max_acceleration_steps_per_s2[Y_AXIS] * block->step_event_count) / block->steps[Y_AXIS];
-  if (max_acceleration_steps_per_s2[Z_AXIS] < (acc_st * block->steps[Z_AXIS]) / block->step_event_count)
-    acc_st = (max_acceleration_steps_per_s2[Z_AXIS] * block->step_event_count) / block->steps[Z_AXIS];
-  if (max_acceleration_steps_per_s2[E_AXIS] < (acc_st * block->steps[E_AXIS]) / block->step_event_count)
-    acc_st = (max_acceleration_steps_per_s2[E_AXIS] * block->step_event_count) / block->steps[E_AXIS];
-  block->acceleration_steps_per_s2 = acc_st;
-  block->acceleration = acc_st / steps_per_mm;
-  block->acceleration_rate = (long)(acc_st * 16777216.0 / (F_CPU / 8.0));
+  if (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS]) {
+    block->acceleration_steps_per_s2 = ceil(retract_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
+  }
+  else {
+    // Limit acceleration per axis
+    block->acceleration_steps_per_s2 = ceil((block->steps[E_AXIS] ? acceleration : travel_acceleration) * steps_per_mm);
+    if (max_acceleration_steps_per_s2[X_AXIS] < (block->acceleration_steps_per_s2 * block->steps[X_AXIS]) / block->step_event_count)
+      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[X_AXIS] * block->step_event_count) / block->steps[X_AXIS];
+    if (max_acceleration_steps_per_s2[Y_AXIS] < (block->acceleration_steps_per_s2 * block->steps[Y_AXIS]) / block->step_event_count)
+      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[Y_AXIS] * block->step_event_count) / block->steps[Y_AXIS];
+    if (max_acceleration_steps_per_s2[Z_AXIS] < (block->acceleration_steps_per_s2 * block->steps[Z_AXIS]) / block->step_event_count)
+      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[Z_AXIS] * block->step_event_count) / block->steps[Z_AXIS];
+    if (max_acceleration_steps_per_s2[E_AXIS] < (block->acceleration_steps_per_s2 * block->steps[E_AXIS]) / block->step_event_count)
+      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[E_AXIS] * block->step_event_count) / block->steps[E_AXIS];
+  }
+  block->acceleration = block->acceleration_steps_per_s2 / steps_per_mm;
+  block->acceleration_rate = (long)(block->acceleration_steps_per_s2 * 16777216.0 / ((F_CPU) / 8.0));
 
   #if 0  // Use old jerk for now
 
