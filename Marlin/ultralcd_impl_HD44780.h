@@ -20,8 +20,8 @@
  *
  */
 
-#ifndef ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
-#define ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
+#ifndef ULTRALCD_IMPL_HD44780_H
+#define ULTRALCD_IMPL_HD44780_H
 
 /**
 * Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
@@ -1006,4 +1006,4 @@ void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
 
 #endif // LCD_HAS_SLOW_BUTTONS
 
-#endif // ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
+#endif // ULTRALCD_IMPL_HD44780_H

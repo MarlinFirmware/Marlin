@@ -579,6 +579,7 @@ void serial_echopair_P(const char* s_P, float v)         { serialprintPGM(s_P); 
 void serial_echopair_P(const char* s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
+void tool_change(const uint8_t tmp_extruder, const float fr_mm_m=0.0, bool no_move=false);
 static void report_current_position();
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2838,6 +2839,12 @@ inline void gcode_G28() {
     #endif
   #endif
 
+  // Always home with tool 0 active
+  #if HOTENDS > 1
+    uint8_t old_tool_index = active_extruder;
+    tool_change(0, 0, true);
+  #endif
+
   /**
    * For mesh bed leveling deactivate the mesh calculations, will be turned
    * on again when homing all axis
@@ -3139,6 +3146,11 @@ inline void gcode_G28() {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
+  #endif
+
+  // Restore the active tool after homing
+  #if HOTENDS > 1
+    tool_change(old_tool_index, 0, true);
   #endif
 
   report_current_position();
@@ -6622,13 +6634,7 @@ inline void invalid_extruder_error(const uint8_t &e) {
   SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
 }
 
-/**
- * T0-T3: Switch tool, usually switching extruders
- *
- *   F[units/min] Set the movement feedrate
- *   S1           Don't move the tool in XY after change
- */
-inline void gcode_T(uint8_t tmp_extruder) {
+void tool_change(const uint8_t tmp_extruder, const float fr_mm_m/*=0.0*/, bool no_move/*=false*/) {
 
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
@@ -6643,14 +6649,6 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
   #else //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR(">>> gcode_T(", tmp_extruder);
-        SERIAL_ECHOLNPGM(")");
-        DEBUG_POS("BEFORE", current_position);
-      }
-    #endif
-
     #if HOTENDS > 1
 
       if (tmp_extruder >= EXTRUDERS) {
@@ -6660,16 +6658,9 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
       float old_feedrate_mm_m = feedrate_mm_m;
 
-      if (code_seen('F')) {
-        float next_feedrate_mm_m = code_value_axis_units(X_AXIS);
-        if (next_feedrate_mm_m > 0.0) old_feedrate_mm_m = feedrate_mm_m = next_feedrate_mm_m;
-      }
-      else
-        feedrate_mm_m = XY_PROBE_FEEDRATE_MM_M;
+      feedrate_mm_m = fr_mm_m > 0.0 ? (old_feedrate_mm_m = fr_mm_m) : XY_PROBE_FEEDRATE_MM_M;
 
       if (tmp_extruder != active_extruder) {
-        bool no_move = code_seen('S') && code_value_bool();
-
         if (!no_move && axis_unhomed_error(true, true, true)) {
           SERIAL_ECHOLNPGM("No move on toolchange");
           no_move = true;
@@ -6926,18 +6917,49 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
     #endif // HOTENDS <= 1
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        DEBUG_POS("AFTER", current_position);
-        SERIAL_ECHOLNPGM("<<< gcode_T");
-      }
-    #endif
-
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ACTIVE_EXTRUDER);
     SERIAL_PROTOCOLLN((int)active_extruder);
 
   #endif //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
+}
+
+/**
+ * T0-T3: Switch tool, usually switching extruders
+ *
+ *   F[units/min] Set the movement feedrate
+ *   S1           Don't move the tool in XY after change
+ */
+inline void gcode_T(uint8_t tmp_extruder) {
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) {
+      SERIAL_ECHOPAIR(">>> gcode_T(", tmp_extruder);
+      SERIAL_ECHOLNPGM(")");
+      DEBUG_POS("BEFORE", current_position);
+    }
+  #endif
+
+  #if HOTENDS == 1 || (ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1)
+
+    tool_change(tmp_extruder);
+
+  #elif HOTENDS > 1
+
+    tool_change(
+      tmp_extruder,
+      code_seen('F') ? code_value_axis_units(X_AXIS) : 0.0,
+      (tmp_extruder == active_extruder) || (code_seen('S') && code_value_bool())
+    );
+
+  #endif
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) {
+      DEBUG_POS("AFTER", current_position);
+      SERIAL_ECHOLNPGM("<<< gcode_T");
+    }
+  #endif
 }
 
 /**
