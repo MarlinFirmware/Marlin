@@ -564,7 +564,7 @@ void kill_screen(const char* lcd_msg) {
 
   inline void line_to_current(AxisEnum axis) {
     #if ENABLED(DELTA)
-      calculate_delta(current_position);
+      inverse_kinematics(current_position);
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(manual_feedrate_mm_m[axis]), active_extruder);
     #else // !DELTA
       planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(manual_feedrate_mm_m[axis]), active_extruder);
@@ -1301,7 +1301,7 @@ void kill_screen(const char* lcd_msg) {
   inline void manage_manual_move() {
     if (manual_move_axis != (int8_t)NO_AXIS && ELAPSED(millis(), manual_move_start_time) && !planner.is_full()) {
       #if ENABLED(DELTA)
-        calculate_delta(current_position);
+        inverse_kinematics(current_position);
         planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_e_index);
       #else
         planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_e_index);

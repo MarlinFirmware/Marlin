@@ -613,7 +613,7 @@ static void report_current_position();
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_delta", current_position);
     #endif
-    calculate_delta(current_position);
+    inverse_kinematics(current_position);
     planner.set_position_mm(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
   }
   #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_delta()
@@ -1528,7 +1528,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
        * Works out real Homeposition angles using inverse kinematics,
        * and calculates homing offset using forward kinematics
        */
-      calculate_delta(homeposition);
+      inverse_kinematics(homeposition);
 
       // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
       // SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
@@ -1540,7 +1540,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
       // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
       // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
 
-      calculate_SCARA_forward_Transform(delta);
+      forward_kinematics_SCARA(delta);
 
       // SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
       // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
@@ -1658,7 +1658,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_move_to_destination_raw", destination);
     #endif
     refresh_cmd_timeout();
-    calculate_delta(destination);
+    inverse_kinematics(destination);
     planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], MMM_TO_MMS_SCALED(feedrate_mm_m), active_extruder);
     set_current_to_destination();
   }
@@ -5886,7 +5886,7 @@ inline void gcode_M303() {
       //gcode_get_destination(); // For X Y Z E F
       delta[X_AXIS] = delta_x;
       delta[Y_AXIS] = delta_y;
-      calculate_SCARA_forward_Transform(delta);
+      forward_kinematics_SCARA(delta);
       destination[X_AXIS] = delta[X_AXIS] / axis_scaling[X_AXIS];
       destination[Y_AXIS] = delta[Y_AXIS] / axis_scaling[Y_AXIS];
       prepare_move_to_destination();
@@ -6275,7 +6275,7 @@ inline void gcode_M503() {
 
     // Define runplan for move axes
     #if ENABLED(DELTA)
-      #define RUNPLAN(RATE_MM_S) calculate_delta(destination); \
+      #define RUNPLAN(RATE_MM_S) inverse_kinematics(destination); \
                                  planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], RATE_MM_S, active_extruder);
     #else
       #define RUNPLAN(RATE_MM_S) line_to_destination(MMS_TO_MMM(RATE_MM_S));
@@ -6397,7 +6397,7 @@ inline void gcode_M503() {
 
     #if ENABLED(DELTA)
       // Move XYZ to starting position, then E
-      calculate_delta(lastpos);
+      inverse_kinematics(lastpos);
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], lastpos[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
     #else
@@ -7737,7 +7737,7 @@ void clamp_to_software_endstops(float target[3]) {
     delta_diagonal_rod_2_tower_3 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_3);
   }
 
-  void calculate_delta(float cartesian[3]) {
+  void inverse_kinematics(float cartesian[3]) {
 
     delta[TOWER_1] = sqrt(delta_diagonal_rod_2_tower_1
                           - sq(delta_tower1_x - cartesian[X_AXIS])
@@ -7764,14 +7764,14 @@ void clamp_to_software_endstops(float target[3]) {
 
   float delta_safe_distance_from_top() {
     float cartesian[3] = { 0 };
-    calculate_delta(cartesian);
+    inverse_kinematics(cartesian);
     float distance = delta[TOWER_3];
     cartesian[Y_AXIS] = DELTA_PRINTABLE_RADIUS;
-    calculate_delta(cartesian);
+    inverse_kinematics(cartesian);
     return abs(distance - delta[TOWER_3]);
   }
 
-  void forwardKinematics(float z1, float z2, float z3) {
+  void forward_kinematics_DELTA(float z1, float z2, float z3) {
     //As discussed in Wikipedia "Trilateration"
     //we are establishing a new coordinate
     //system in the plane of the three carriage points.
@@ -7840,12 +7840,12 @@ void clamp_to_software_endstops(float target[3]) {
     cartesian_position[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
   };
 
-  void forwardKinematics(float point[3]) {
-    forwardKinematics(point[X_AXIS], point[Y_AXIS], point[Z_AXIS]);
+  void forward_kinematics_DELTA(float point[3]) {
+    forward_kinematics_DELTA(point[X_AXIS], point[Y_AXIS], point[Z_AXIS]);
   }
 
   void set_cartesian_from_steppers() {
-    forwardKinematics(stepper.get_axis_position_mm(X_AXIS),
+    forward_kinematics_DELTA(stepper.get_axis_position_mm(X_AXIS),
                       stepper.get_axis_position_mm(Y_AXIS),
                       stepper.get_axis_position_mm(Z_AXIS));
   }
@@ -7973,7 +7973,7 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
 
 #if ENABLED(DELTA) || ENABLED(SCARA)
 
-  inline bool prepare_delta_move_to(float target[NUM_AXIS]) {
+  inline bool prepare_kinematic_move_to(float target[NUM_AXIS]) {
     float difference[NUM_AXIS];
     for (int8_t i = 0; i < NUM_AXIS; i++) difference[i] = target[i] - current_position[i];
 
@@ -7996,14 +7996,14 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
       for (int8_t i = 0; i < NUM_AXIS; i++)
         target[i] = current_position[i] + difference[i] * fraction;
 
-      calculate_delta(target);
+      inverse_kinematics(target);
 
       #if ENABLED(AUTO_BED_LEVELING_FEATURE)
         if (!bed_leveling_in_progress) adjust_delta(target);
       #endif
 
-      //DEBUG_POS("prepare_delta_move_to", target);
-      //DEBUG_POS("prepare_delta_move_to", delta);
+      //DEBUG_POS("prepare_kinematic_move_to", target);
+      //DEBUG_POS("prepare_kinematic_move_to", delta);
 
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], _feedrate_mm_s, active_extruder);
     }
@@ -8011,10 +8011,6 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
   }
 
 #endif // DELTA || SCARA
-
-#if ENABLED(SCARA)
-  inline bool prepare_scara_move_to(float target[NUM_AXIS]) { return prepare_delta_move_to(target); }
-#endif
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -8114,10 +8110,8 @@ void prepare_move_to_destination() {
     prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS]);
   #endif
 
-  #if ENABLED(SCARA)
-    if (!prepare_scara_move_to(destination)) return;
-  #elif ENABLED(DELTA)
-    if (!prepare_delta_move_to(destination)) return;
+  #if ENABLED(DELTA) || ENABLED(SCARA)
+    if (!prepare_kinematic_move_to(destination)) return;
   #else
     #if ENABLED(DUAL_X_CARRIAGE)
       if (!prepare_move_to_destination_dualx()) return;
@@ -8253,7 +8247,7 @@ void prepare_move_to_destination() {
       clamp_to_software_endstops(arc_target);
 
       #if ENABLED(DELTA) || ENABLED(SCARA)
-        calculate_delta(arc_target);
+        inverse_kinematics(arc_target);
         #if ENABLED(AUTO_BED_LEVELING_FEATURE)
           adjust_delta(arc_target);
         #endif
@@ -8265,7 +8259,7 @@ void prepare_move_to_destination() {
 
     // Ensure last segment arrives at target location.
     #if ENABLED(DELTA) || ENABLED(SCARA)
-      calculate_delta(target);
+      inverse_kinematics(target);
       #if ENABLED(AUTO_BED_LEVELING_FEATURE)
         adjust_delta(target);
       #endif
@@ -8333,7 +8327,7 @@ void prepare_move_to_destination() {
 
 #if ENABLED(SCARA)
 
-  void calculate_SCARA_forward_Transform(float f_scara[3]) {
+  void forward_kinematics_SCARA(float f_scara[3]) {
     // Perform forward kinematics, and place results in delta[3]
     // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
 
@@ -8359,10 +8353,11 @@ void prepare_move_to_destination() {
     //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
   }
 
-  void calculate_delta(float cartesian[3]) {
-    //reverse kinematics.
-    // Perform reversed kinematics, and place results in delta[3]
-    // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+  void inverse_kinematics(float cartesian[3]) {
+    // Inverse kinematics.
+    // Perform SCARA IK and place results in delta[3].
+    // The maths and first version were done by QHARLEY.
+    // Integrated, tweaked by Joachim Cerny in June 2014.
 
     float SCARA_pos[2];
     static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi;

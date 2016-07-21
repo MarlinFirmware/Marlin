@@ -189,7 +189,7 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
     clamp_to_software_endstops(bez_target);
 
     #if ENABLED(DELTA) || ENABLED(SCARA)
-      calculate_delta(bez_target);
+      inverse_kinematics(bez_target);
       #if ENABLED(AUTO_BED_LEVELING_FEATURE)
         adjust_delta(bez_target);
       #endif
