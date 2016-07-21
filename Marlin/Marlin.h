@@ -318,6 +318,10 @@ float code_value_temp_diff();
   void calculate_delta(float cartesian[3]);
   void recalc_delta_settings(float radius, float diagonal_rod);
   float delta_safe_distance_from_top();
+  void set_current_from_steppers();
+  void set_cartesian_from_steppers();
+  void forwardKinematics(float point[3]);
+  void forwardKinematics(float z1, float z2, float z3);
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     extern int delta_grid_spacing[2];
     void adjust_delta(float cartesian[3]);
