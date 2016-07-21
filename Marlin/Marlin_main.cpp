@@ -6076,18 +6076,9 @@ inline void gcode_M400() { stepper.synchronize(); }
 
 void quickstop_stepper() {
   stepper.quick_stop();
-  #if DISABLED(DELTA) && DISABLED(SCARA)
+  #if DISABLED(SCARA)
     stepper.synchronize();
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-      vector_3 pos = planner.adjusted_position(); // values directly from steppers...
-      current_position[X_AXIS] = pos.x;
-      current_position[Y_AXIS] = pos.y;
-      current_position[Z_AXIS] = pos.z;
-    #else
-      current_position[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
-      current_position[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
-      current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
-    #endif
+    set_current_from_steppers();
     sync_plan_position();                       // ...re-apply to planner position
   #endif
 }
