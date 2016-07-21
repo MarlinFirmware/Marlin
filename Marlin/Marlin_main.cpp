@@ -462,7 +462,7 @@ static uint8_t target_extruder;
   #define TOWER_3 Z_AXIS
 
   float delta[3] = { 0 };
-  float cartesian[3] = { 0 };
+  float cartesian_position[3] = { 0 };
   #define SIN_60 0.8660254037844386
   #define COS_60 0.5
   float endstop_adj[3] = { 0 };
@@ -564,6 +564,7 @@ void stop();
 void get_available_commands();
 void process_next_command();
 void prepare_move_to_destination();
+void set_current_from_steppers();
 
 #if ENABLED(ARC_SUPPORT)
   void plan_arc(float target[NUM_AXIS], float* offset, uint8_t clockwise);
@@ -7801,7 +7802,7 @@ void clamp_to_software_endstops(float target[3]) {
     // based on a Java function from
     // "Delta Robot Kinematics by Steve Graves" V3
 
-    // Result is in cartesian[].
+    // Result is in cartesian_position[].
 
     //Create a vector in old coordinates along x axis of new coordinate
     float p12[3] = { delta_tower2_x - delta_tower1_x, delta_tower2_y - delta_tower1_y, z2 - z1 };
@@ -7845,9 +7846,9 @@ void clamp_to_software_endstops(float target[3]) {
     //Now we can start from the origin in the old coords and
     //add vectors in the old coords that represent the
     //Xnew, Ynew and Znew to find the point in the old system
-    cartesian[X_AXIS] = delta_tower1_x + ex[0]*Xnew + ey[0]*Ynew - ez[0]*Znew;
-    cartesian[Y_AXIS] = delta_tower1_y + ex[1]*Xnew + ey[1]*Ynew - ez[1]*Znew;
-    cartesian[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
+    cartesian_position[X_AXIS] = delta_tower1_x + ex[0]*Xnew + ey[0]*Ynew - ez[0]*Znew;
+    cartesian_position[Y_AXIS] = delta_tower1_y + ex[1]*Xnew + ey[1]*Ynew - ez[1]*Znew;
+    cartesian_position[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
   };
 
   void forwardKinematics(float point[3]) {
@@ -7858,13 +7859,6 @@ void clamp_to_software_endstops(float target[3]) {
     forwardKinematics(stepper.get_axis_position_mm(X_AXIS),
                       stepper.get_axis_position_mm(Y_AXIS),
                       stepper.get_axis_position_mm(Z_AXIS));
-  }
-
-  void set_current_from_steppers() {
-    set_cartesian_from_steppers();
-    current_position[X_AXIS] = cartesian[X_AXIS];
-    current_position[Y_AXIS] = cartesian[Y_AXIS];
-    current_position[Z_AXIS] = cartesian[Z_AXIS];
   }
 
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
@@ -7910,6 +7904,24 @@ void clamp_to_software_endstops(float target[3]) {
   #endif // AUTO_BED_LEVELING_FEATURE
 
 #endif // DELTA
+
+void set_current_from_steppers() {
+  #if ENABLED(DELTA)
+    set_cartesian_from_steppers();
+    current_position[X_AXIS] = cartesian_position[X_AXIS];
+    current_position[Y_AXIS] = cartesian_position[Y_AXIS];
+    current_position[Z_AXIS] = cartesian_position[Z_AXIS];
+  #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
+    vector_3 pos = planner.adjusted_position(); // values directly from steppers...
+    current_position[X_AXIS] = pos.x;
+    current_position[Y_AXIS] = pos.y;
+    current_position[Z_AXIS] = pos.z;
+  #else
+    current_position[X_AXIS] = stepper.get_axis_position_mm(X_AXIS); // CORE handled transparently
+    current_position[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
+    current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
+  #endif
+}
 
 #if ENABLED(MESH_BED_LEVELING)
 
