@@ -60,6 +60,7 @@
 #include "pins_arduino.h"
 #include "math.h"
 #include "nozzle.h"
+#include "timestamp_t.h"
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
@@ -4052,22 +4053,15 @@ inline void gcode_M17() {
  * M31: Get the time since the start of SD Print (or last M109)
  */
 inline void gcode_M31() {
-  millis_t t = print_job_timer.duration();
-  int d = int(t / 60 / 60 / 24),
-      h = int(t / 60 / 60) % 60,
-      m = int(t / 60) % 60,
-      s = int(t % 60);
-  char time[18];                                          // 123456789012345678
-  if (d)
-    sprintf_P(time, PSTR("%id %ih %im %is"), d, h, m, s); // 99d 23h 59m 59s
-  else
-    sprintf_P(time, PSTR("%ih %im %is"), h, m, s);        // 23h 59m 59s
+  char buffer[21];
+  timestamp_t time(print_job_timer.duration());
+  time.toString(buffer);
 
-  lcd_setstatus(time);
+  lcd_setstatus(buffer);
 
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM(MSG_PRINT_TIME " ");
-  SERIAL_ECHOLN(time);
+  SERIAL_ECHOLN(buffer);
 
   thermalManager.autotempShutdown();
 }
