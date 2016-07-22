@@ -1679,14 +1679,36 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
 
     feedrate_mm_m = (fr_mm_m != 0.0) ? fr_mm_m : XY_PROBE_FEEDRATE_MM_M;
 
+    // when in the danger zone
+    if (current_position[Z_AXIS] > delta_clip_start_height) {
+      if (delta_clip_start_height < z) { // staying in the danger zone
+        destination[X_AXIS] = x;         // move directly
+        destination[Y_AXIS] = y;
+        destination[Z_AXIS] = z;
+        prepare_move_to_destination_raw(); // this will also set_current_to_destination
+        return;
+      } else {                           // leave the danger zone
+        destination[X_AXIS] = current_position[X_AXIS];
+        destination[Y_AXIS] = current_position[Y_AXIS];
+        destination[Z_AXIS] = delta_clip_start_height;
+        prepare_move_to_destination_raw(); // this will also set_current_to_destination
+      }
+    }
+    if (current_position[Z_AXIS] < z) {  // raise
+      destination[X_AXIS] = current_position[X_AXIS];
+      destination[Y_AXIS] = current_position[Y_AXIS];
+      destination[Z_AXIS] = z;
+      prepare_move_to_destination_raw(); // this will also set_current_to_destination
+    }
     destination[X_AXIS] = x;
     destination[Y_AXIS] = y;
-    destination[Z_AXIS] = z;
+    destination[Z_AXIS] = current_position[Z_AXIS];
+    prepare_move_to_destination(); // this will also set_current_to_destination
 
-    if (x == current_position[X_AXIS] && y == current_position[Y_AXIS])
+    if (current_position[Z_AXIS] > z) { // lower
+      destination[Z_AXIS] = z;
       prepare_move_to_destination_raw(); // this will also set_current_to_destination
-    else
-      prepare_move_to_destination();     // this will also set_current_to_destination
+    }
 
   #else
 
