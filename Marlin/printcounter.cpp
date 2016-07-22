@@ -22,6 +22,7 @@
 
 #include "Marlin.h"
 #include "printcounter.h"
+#include "timestamp_t.h"
 
 PrintCounter::PrintCounter(): super() {
   this->loadStats();
@@ -92,6 +93,9 @@ void PrintCounter::saveStats() {
 }
 
 void PrintCounter::showStats() {
+  char buffer[21];
+  timestamp_t time;
+
   SERIAL_PROTOCOLPGM(MSG_STATS);
 
   SERIAL_ECHOPGM("Prints: ");
@@ -107,17 +111,11 @@ void PrintCounter::showStats() {
   SERIAL_EOL;
   SERIAL_PROTOCOLPGM(MSG_STATS);
 
-  uint32_t t = this->data.printTime / 60;
+  time.timestamp = this->data.printTime;
+  time.toString(buffer);
+
   SERIAL_ECHOPGM("Total time: ");
-
-  SERIAL_ECHO(t / 60 / 24);
-  SERIAL_ECHOPGM("d ");
-
-  SERIAL_ECHO((t / 60) % 24);
-  SERIAL_ECHOPGM("h ");
-
-  SERIAL_ECHO(t % 60);
-  SERIAL_ECHOPGM("min");
+  SERIAL_ECHO(buffer);
 
   #if ENABLED(DEBUG_PRINTCOUNTER)
     SERIAL_ECHOPGM(" (");
@@ -125,17 +123,11 @@ void PrintCounter::showStats() {
     SERIAL_ECHOPGM(")");
   #endif
 
-  uint32_t l = this->data.longestPrint / 60;
+  time.timestamp = this->data.longestPrint;
+  time.toString(buffer);
+
   SERIAL_ECHOPGM(", Longest job: ");
-
-  SERIAL_ECHO(l / 60 / 24);
-  SERIAL_ECHOPGM("d ");
-
-  SERIAL_ECHO((l / 60) % 24);
-  SERIAL_ECHOPGM("h ");
-
-  SERIAL_ECHO(l % 60);
-  SERIAL_ECHOPGM("min");
+  SERIAL_ECHO(buffer);
 
   #if ENABLED(DEBUG_PRINTCOUNTER)
     SERIAL_ECHOPGM(" (");
