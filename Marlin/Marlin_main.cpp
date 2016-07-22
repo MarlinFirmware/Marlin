@@ -1679,35 +1679,35 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
 
     feedrate_mm_m = (fr_mm_m != 0.0) ? fr_mm_m : XY_PROBE_FEEDRATE_MM_M;
 
+    set_destination_to_current();          // sync destination at the start
+
     // when in the danger zone
     if (current_position[Z_AXIS] > delta_clip_start_height) {
-      if (delta_clip_start_height < z) { // staying in the danger zone
-        destination[X_AXIS] = x;         // move directly
+      if (z > delta_clip_start_height) {   // staying in the danger zone
+        destination[X_AXIS] = x;           // move directly (uninterpolated)
         destination[Y_AXIS] = y;
         destination[Z_AXIS] = z;
-        prepare_move_to_destination_raw(); // this will also set_current_to_destination
+        prepare_move_to_destination_raw(); // set_current_to_destination
         return;
-      } else {                           // leave the danger zone
-        destination[X_AXIS] = current_position[X_AXIS];
-        destination[Y_AXIS] = current_position[Y_AXIS];
+      }
+      else {
         destination[Z_AXIS] = delta_clip_start_height;
-        prepare_move_to_destination_raw(); // this will also set_current_to_destination
+        prepare_move_to_destination_raw(); // set_current_to_destination
       }
     }
-    if (current_position[Z_AXIS] < z) {  // raise
-      destination[X_AXIS] = current_position[X_AXIS];
-      destination[Y_AXIS] = current_position[Y_AXIS];
+
+    if (z > current_position[Z_AXIS]) {    // raising?
       destination[Z_AXIS] = z;
-      prepare_move_to_destination_raw(); // this will also set_current_to_destination
+      prepare_move_to_destination_raw();   // set_current_to_destination
     }
+
     destination[X_AXIS] = x;
     destination[Y_AXIS] = y;
-    destination[Z_AXIS] = current_position[Z_AXIS];
-    prepare_move_to_destination(); // this will also set_current_to_destination
+    prepare_move_to_destination();         // set_current_to_destination
 
-    if (current_position[Z_AXIS] > z) { // lower
+    if (z < current_position[Z_AXIS]) {    // lowering?
       destination[Z_AXIS] = z;
-      prepare_move_to_destination_raw(); // this will also set_current_to_destination
+      prepare_move_to_destination_raw();   // set_current_to_destination
     }
 
   #else
