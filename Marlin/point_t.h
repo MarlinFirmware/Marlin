@@ -23,18 +23,49 @@
 #ifndef __POINT_T__
 #define __POINT_T__
 
+/**
+ * @brief Cartesian Point
+ * @details Represents a three dimensional point on Cartesian coordinate system,
+ *          using an additional fourth dimension for the extrusion length.
+ *
+ * @param x The x-coordinate of the point.
+ * @param y The y-coordinate of the point.
+ * @param z The z-coordinate of the point.
+ * @param e The e-coordinate of the point.
+ */
 struct point_t {
   float x;
   float y;
   float z;
   float e;
 
+  /**
+   * @brief Two dimensional point constructor
+   *
+   * @param x The x-coordinate of the point.
+   * @param y The y-coordinate of the point.
+   */
   point_t(float const x, float const y)
     : point_t(x, y, NAN, NAN) {}
 
+  /**
+   * @brief Three dimensional point constructor
+   *
+   * @param x The x-coordinate of the point.
+   * @param y The y-coordinate of the point.
+   * @param z The z-coordinate of the point.
+   */
   point_t(float const x, float const y, float const z)
     : point_t(x, y, z, NAN) {}
 
+  /**
+   * @brief Tree dimensional point constructor with extrusion length
+   *
+   * @param x The x-coordinate of the point.
+   * @param y The y-coordinate of the point.
+   * @param z The z-coordinate of the point.
+   * @param e The e-coordinate of the point.
+   */
   point_t(float const x, float const y, float const z, float const e) {
     this->x = x;
     this->y = y;
@@ -43,4 +74,4 @@ struct point_t {
   }
 };
 
-#endif
+#endif // __POINT_T__
