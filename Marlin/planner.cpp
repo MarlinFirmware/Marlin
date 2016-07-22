@@ -946,31 +946,23 @@ void Planner::check_axes_activity() {
 
   // Compute and limit the acceleration rate for the trapezoid generator.
   float steps_per_mm = block->step_event_count / block->millimeters;
-  long bsx = block->steps[X_AXIS], bsy = block->steps[Y_AXIS], bsz = block->steps[Z_AXIS], bse = block->steps[E_AXIS];
-  if (bsx == 0 && bsy == 0 && bsz == 0) {
+  if (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS]) {
     block->acceleration_steps_per_s2 = ceil(retract_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
   }
-  else if (bse == 0) {
-    block->acceleration_steps_per_s2 = ceil(travel_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
-  }
   else {
-    block->acceleration_steps_per_s2 = ceil(acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
+    // Limit acceleration per axis
+    block->acceleration_steps_per_s2 = ceil((block->steps[E_AXIS] ? acceleration : travel_acceleration) * steps_per_mm);
+    if (max_acceleration_steps_per_s2[X_AXIS] < (block->acceleration_steps_per_s2 * block->steps[X_AXIS]) / block->step_event_count)
+      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[X_AXIS] * block->step_event_count) / block->steps[X_AXIS];
+    if (max_acceleration_steps_per_s2[Y_AXIS] < (block->acceleration_steps_per_s2 * block->steps[Y_AXIS]) / block->step_event_count)
+      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[Y_AXIS] * block->step_event_count) / block->steps[Y_AXIS];
+    if (max_acceleration_steps_per_s2[Z_AXIS] < (block->acceleration_steps_per_s2 * block->steps[Z_AXIS]) / block->step_event_count)
+      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[Z_AXIS] * block->step_event_count) / block->steps[Z_AXIS];
+    if (max_acceleration_steps_per_s2[E_AXIS] < (block->acceleration_steps_per_s2 * block->steps[E_AXIS]) / block->step_event_count)
+      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[E_AXIS] * block->step_event_count) / block->steps[E_AXIS];
   }
-  // Limit acceleration per axis
-  unsigned long acc_st = block->acceleration_steps_per_s2,
-                x_acc_st = max_acceleration_steps_per_s2[X_AXIS],
-                y_acc_st = max_acceleration_steps_per_s2[Y_AXIS],
-                z_acc_st = max_acceleration_steps_per_s2[Z_AXIS],
-                e_acc_st = max_acceleration_steps_per_s2[E_AXIS],
-                allsteps = block->step_event_count;
-  if (x_acc_st < (acc_st * bsx) / allsteps) acc_st = (x_acc_st * allsteps) / bsx;
-  if (y_acc_st < (acc_st * bsy) / allsteps) acc_st = (y_acc_st * allsteps) / bsy;
-  if (z_acc_st < (acc_st * bsz) / allsteps) acc_st = (z_acc_st * allsteps) / bsz;
-  if (e_acc_st < (acc_st * bse) / allsteps) acc_st = (e_acc_st * allsteps) / bse;
-
-  block->acceleration_steps_per_s2 = acc_st;
-  block->acceleration = acc_st / steps_per_mm;
-  block->acceleration_rate = (long)(acc_st * 16777216.0 / (F_CPU / 8.0));
+  block->acceleration = block->acceleration_steps_per_s2 / steps_per_mm;
+  block->acceleration_rate = (long)(block->acceleration_steps_per_s2 * 16777216.0 / ((F_CPU) / 8.0));
 
   #if 0  // Use old jerk for now
 
@@ -1064,12 +1056,12 @@ void Planner::check_axes_activity() {
 
   #if ENABLED(LIN_ADVANCE)
 
-    // bse == allsteps: A problem occurs when there's a very tiny move before a retract.
+    // block->steps[E_AXIS] == block->step_event_count: A problem occurs when there's a very tiny move before a retract.
     // In this case, the retract and the move will be executed together.
     // This leads to an enormous number of advance steps due to a huge e_acceleration.
     // The math is correct, but you don't want a retract move done with advance!
     // So this situation is filtered out here.
-    if (!bse || (!bsx && !bsy && !bsz) || stepper.get_advance_k() == 0 || (uint32_t) bse == allsteps) {
+    if (!block->steps[E_AXIS] || (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS]) || stepper.get_advance_k() == 0 || (uint32_t) block->steps[E_AXIS] == block->step_event_count) {
       block->use_advance_lead = false;
     }
     else {
@@ -1080,7 +1072,7 @@ void Planner::check_axes_activity() {
   #elif ENABLED(ADVANCE)
 
     // Calculate advance rate
-    if (!bse || (!bsx && !bsy && !bsz)) {
+    if (!block->steps[E_AXIS] || (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS])) {
       block->advance_rate = 0;
       block->advance = 0;
     }
