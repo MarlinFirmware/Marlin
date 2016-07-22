@@ -2087,9 +2087,9 @@ static void clean_up_after_endstop_or_probe_move() {
   }
 
   #if ENABLED(DELTA)
-    #define SET_CURRENT_FROM_STEPPERS() current_position[Z_AXIS] = z_before - stepper.get_axis_position_mm(Z_AXIS) + z_mm
+    #define Z_FROM_STEPPERS() z_before + stepper.get_axis_position_mm(Z_AXIS) - z_mm
   #else
-    #define SET_CURRENT_FROM_STEPPERS() current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS)
+    #define Z_FROM_STEPPERS() stepper.get_axis_position_mm(Z_AXIS)
   #endif
 
   // Do a single Z probe and return with current_position[Z_AXIS]
@@ -2104,31 +2104,28 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     #if ENABLED(DELTA)
-      float z_before = current_position[Z_AXIS];
-      float z_mm = stepper.get_axis_position_mm(Z_AXIS);
+      float z_before = current_position[Z_AXIS],         // Current Z
+            z_mm = stepper.get_axis_position_mm(Z_AXIS); // Some tower's current position
     #endif
-    current_position[Z_AXIS] = -(Z_MAX_LENGTH + 10);
-    do_blocking_move_to_z(current_position[Z_AXIS], Z_PROBE_SPEED_FAST);
-    endstops.hit_on_purpose(); // clear endstop hit flags
-    // Get the current stepper position after bumping an endstop
-    SET_CURRENT_FROM_STEPPERS();
-    SYNC_PLAN_POSITION_KINEMATIC(); // tell the planner where we are
+
+    do_blocking_move_to_z(-(Z_MAX_LENGTH + 10), Z_PROBE_SPEED_FAST);
+    endstops.hit_on_purpose();
+    current_position[Z_AXIS] = Z_FROM_STEPPERS();
+    SYNC_PLAN_POSITION_KINEMATIC();
 
     // move up the retract distance
-    current_position[Z_AXIS] += home_bump_mm(Z_AXIS);
-    do_blocking_move_to_z(current_position[Z_AXIS], Z_PROBE_SPEED_FAST);
+    do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), Z_PROBE_SPEED_FAST);
 
     #if ENABLED(DELTA)
       z_before = current_position[Z_AXIS];
       z_mm = stepper.get_axis_position_mm(Z_AXIS);
     #endif
+
     // move back down slowly to find bed
-    current_position[Z_AXIS] -= home_bump_mm(Z_AXIS) * 2;
-    do_blocking_move_to_z(current_position[Z_AXIS], Z_PROBE_SPEED_SLOW);
-    endstops.hit_on_purpose(); // clear endstop hit flags
-    // Get the current stepper position after bumping an endstop
-    SET_CURRENT_FROM_STEPPERS();
-    SYNC_PLAN_POSITION_KINEMATIC(); // tell the planner where we are
+    do_blocking_move_to_z(current_position[Z_AXIS] - home_bump_mm(Z_AXIS) * 2, Z_PROBE_SPEED_SLOW);
+    endstops.hit_on_purpose();
+    current_position[Z_AXIS] = Z_FROM_STEPPERS();
+    SYNC_PLAN_POSITION_KINEMATIC();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("run_z_probe", current_position);
