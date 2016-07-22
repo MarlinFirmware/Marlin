@@ -1472,9 +1472,8 @@ static void update_software_endstops(AxisEnum axis) {
   #endif
 
   #if ENABLED(DELTA)
-    if (axis == Z_AXIS) {
-      delta_clip_start_height = sw_endstop_max[axis] - delta_safe_distance_from_top();
-    }
+    if (axis == Z_AXIS)
+      delta_clip_start_height = sw_endstop_max[Z_AXIS] - delta_safe_distance_from_top();
   #endif
 
 }
@@ -1505,10 +1504,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
   #if ENABLED(DUAL_X_CARRIAGE)
     if (axis == X_AXIS && (active_extruder != 0 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
-      if (active_extruder != 0)
-        current_position[X_AXIS] = x_home_pos(active_extruder);
-      else
-        current_position[X_AXIS] = base_home_pos(X_AXIS) + home_offset[X_AXIS];
+      current_position[X_AXIS] = active_extruder ? x_home_pos(active_extruder) : base_home_pos(X_AXIS) + home_offset[X_AXIS];
       update_software_endstops(X_AXIS);
       return;
     }
@@ -1679,14 +1675,20 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
 
     feedrate_mm_m = (fr_mm_m != 0.0) ? fr_mm_m : XY_PROBE_FEEDRATE_MM_M;
 
-    destination[X_AXIS] = x;
-    destination[Y_AXIS] = y;
-    destination[Z_AXIS] = z;
+    set_destination_to_current();
 
-    if (x == current_position[X_AXIS] && y == current_position[Y_AXIS])
-      prepare_move_to_destination_raw(); // this will also set_current_to_destination
-    else
-      prepare_move_to_destination();     // this will also set_current_to_destination
+    // Move up or down as needed
+    if (z != current_position[Z_AXIS]) {
+      destination[Z_AXIS] = z;
+      prepare_move_to_destination_raw(); // ...set_current_to_destination
+    }
+
+    // Move laterally to XY (with interpolation)
+    if (x != current_position[X_AXIS] || y != current_position[Y_AXIS]) {
+      destination[X_AXIS] = x;
+      destination[Y_AXIS] = y;
+      prepare_move_to_destination();     // ...set_current_to_destination
+    }
 
   #else
 
