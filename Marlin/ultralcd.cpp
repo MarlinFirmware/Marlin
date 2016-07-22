@@ -321,9 +321,6 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     UNUSED(_skipStatic)
 
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
-
-    //#define ENCODER_RATE_MULTIPLIER_DEBUG  // If defined, output the encoder steps per second value
-
     /**
      * MENU_MULTIPLIER_ITEM generates drawing and handling code for a multiplier menu item
      */
@@ -333,8 +330,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
         lastEncoderMovementMillis = 0; \
         _MENU_ITEM_PART_2(type, ## args); \
       } while(0)
-
-  #endif //ENCODER_RATE_MULTIPLIER
+  #endif // ENCODER_RATE_MULTIPLIER
 
   #define MENU_ITEM_DUMMY() do { _thisItemNr++; } while(0)
   #define MENU_ITEM_EDIT(type, label, args...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## args)
@@ -2633,15 +2629,6 @@ void lcd_update() {
 
                 if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
                 else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
-
-                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
-                  SERIAL_ECHO_START;
-                  SERIAL_ECHOPAIR("Enc Step Rate: ", encoderStepRate);
-                  SERIAL_ECHOPAIR("  Multiplier: ", encoderMultiplier);
-                  SERIAL_ECHOPAIR("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
-                  SERIAL_ECHOPAIR("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
-                  SERIAL_EOL;
-                #endif //ENCODER_RATE_MULTIPLIER_DEBUG
               }
 
               lastEncoderMovementMillis = ms;
