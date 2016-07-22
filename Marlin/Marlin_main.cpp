@@ -7998,7 +7998,7 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
 
       inverse_kinematics(target);
 
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
         if (!bed_leveling_in_progress) adjust_delta(target);
       #endif
 
@@ -8248,7 +8248,7 @@ void prepare_move_to_destination() {
 
       #if ENABLED(DELTA) || ENABLED(SCARA)
         inverse_kinematics(arc_target);
-        #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+        #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
           adjust_delta(arc_target);
         #endif
         planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
@@ -8260,7 +8260,7 @@ void prepare_move_to_destination() {
     // Ensure last segment arrives at target location.
     #if ENABLED(DELTA) || ENABLED(SCARA)
       inverse_kinematics(target);
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
         adjust_delta(target);
       #endif
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], fr_mm_s, active_extruder);

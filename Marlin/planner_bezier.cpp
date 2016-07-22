@@ -190,7 +190,7 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
 
     #if ENABLED(DELTA) || ENABLED(SCARA)
       inverse_kinematics(bez_target);
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
         adjust_delta(bez_target);
       #endif
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], bez_target[E_AXIS], fr_mm_s, extruder);
