@@ -6671,7 +6671,6 @@ inline void invalid_extruder_error(const uint8_t &e) {
 }
 
 void tool_change(const uint8_t tmp_extruder, const float fr_mm_m/*=0.0*/, bool no_move/*=false*/) {
-
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
     if (tmp_extruder >= MIXING_VIRTUAL_TOOLS) {
@@ -6950,6 +6949,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_m/*=0.0*/, bool n
 
       // Set the new active extruder
       active_extruder = tmp_extruder;
+
+      UNUSED(fr_mm_m);
+      UNUSED(no_move);
 
     #endif // HOTENDS <= 1
 
