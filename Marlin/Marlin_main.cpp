@@ -1677,7 +1677,7 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
     set_destination_to_current();          // sync destination at the start
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS(PSTR("set_destination_to_current"), destination);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("set_destination_to_current", destination);
     #endif
 
     // when in the danger zone
@@ -1688,7 +1688,7 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
         destination[Z_AXIS] = z;
         prepare_move_to_destination_raw(); // set_current_to_destination
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS(PSTR("danger zone move"), current_position);
+          if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
         #endif
         return;
       }
@@ -1696,7 +1696,7 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
         destination[Z_AXIS] = delta_clip_start_height;
         prepare_move_to_destination_raw(); // set_current_to_destination
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS(PSTR("zone border move"), current_position);
+          if (DEBUGGING(LEVELING)) DEBUG_POS("zone border move", current_position);
         #endif
       }
     }
@@ -1705,7 +1705,7 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
       destination[Z_AXIS] = z;
       prepare_move_to_destination_raw();   // set_current_to_destination
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS(PSTR("z raise move"), current_position);
+        if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
       #endif
     }
 
@@ -1713,14 +1713,14 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
     destination[Y_AXIS] = y;
     prepare_move_to_destination();         // set_current_to_destination
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS(PSTR("xy move"), current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("xy move", current_position);
     #endif
 
     if (z < current_position[Z_AXIS]) {    // lowering?
       destination[Z_AXIS] = z;
       prepare_move_to_destination_raw();   // set_current_to_destination
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS(PSTR("z lower move"), current_position);
+        if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
       #endif
     }
 
