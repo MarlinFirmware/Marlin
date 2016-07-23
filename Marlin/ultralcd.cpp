@@ -1972,17 +1972,26 @@ void kill_screen(const char* lcd_msg) {
       static void lcd_info_stats_menu() {
         if (LCD_CLICKED) { lcd_goto_previous_menu(true); return; }
 
-        printStatistics stats = print_job_timer.getStats();
-        timestamp_t time(stats.printTime);
-
         char buffer[21];
-        time.toString(buffer);
+        printStatistics stats = print_job_timer.getStats();
 
-        START_SCREEN();                                                                              // 12345678901234567890
-        STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, itostr3left(stats.totalPrints));        // Print Count: 999
-        STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS": ", false, false, itostr3left(stats.finishedPrints)); // Completed  : 666
-        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", false, false);                                         // Total Time :
-        STATIC_ITEM("  ", false, false, buffer);                                                     //   12345d 12h 34m
+        START_SCREEN();                                                                                // 12345678901234567890
+        STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, itostr3left(stats.totalPrints));          // Print Count: 999
+        STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS"  : ", false, false, itostr3left(stats.finishedPrints)); // Completed  : 666
+
+        timestamp_t time(stats.printTime);
+        time.toString(buffer);
+        STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", false, false);                                           // Total print Time:
+        STATIC_ITEM("", false, false, buffer);                                                         // 99y 364d 23h 59m 59s
+
+        time.timestamp = stats.longestPrint;
+        time.toString(buffer);
+        STATIC_ITEM(MSG_INFO_PRINT_LONGEST ": ", false, false);                                        // Longest job time:
+        STATIC_ITEM("", false, false, buffer);                                                         // 99y 364d 23h 59m 59s
+
+        sprintf_P(buffer, PSTR("%im"), stats.filamentUsed / 1000);
+        STATIC_ITEM(MSG_INFO_PRINT_FILAMENT ": ", false, false);                                       // Extruded total:
+        STATIC_ITEM("", false, false, buffer);                                                         // 125m
         END_SCREEN();
       }
     #endif // PRINTCOUNTER
