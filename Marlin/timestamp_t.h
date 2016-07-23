@@ -30,13 +30,13 @@ struct timestamp_t {
   uint32_t timestamp;
 
   /**
-   * @brief Date time blank constructor
+   * @brief Timestamp blank constructor
    */
   timestamp_t()
     : timestamp_t(0) {};
 
   /**
-   * @brief Date time constructor
+   * @briefTimestamp constructor
    * @details Initializes the timestamp_t structure based on a number of seconds
    *
    * @param seconds The number of seconds
@@ -46,7 +46,7 @@ struct timestamp_t {
   }
 
   /**
-   * @brief Formats the date as number of years
+   * @brief Formats the timestamp in years
    * @return The number of years
    */
   inline uint8_t year() const {
@@ -54,7 +54,7 @@ struct timestamp_t {
   }
 
   /**
-   * @brief Formats the date as number of days
+   * @brief Formats the timestamp in days
    * @return The number of days
    */
   inline uint16_t day() const {
@@ -62,7 +62,7 @@ struct timestamp_t {
   }
 
   /**
-   * @brief Formats the date as number of hours
+   * @brief Formats the timestamp in hours
    * @return The number of hours
    */
   inline uint32_t hour() const {
@@ -70,7 +70,7 @@ struct timestamp_t {
   }
 
   /**
-   * @brief Formats the date as number of minutes
+   * @brief Formats the timestamp in minutes
    * @return The number of minutes
    */
   inline uint32_t minute() const {
@@ -78,7 +78,7 @@ struct timestamp_t {
   }
 
   /**
-   * @brief Formats the date as number of seconds
+   * @brief Formats the timestamp in seconds
    * @return The number of seconds
    */
   inline uint32_t second() const {
@@ -86,12 +86,14 @@ struct timestamp_t {
   }
 
   /**
-   * @brief Formats the date as a string
+   * @brief Formats the timestamp as a string
    * @details Returns the timestamp formated as a string
    *
-   * @param buffer The array pointed to must be able to accommodate 21 bytes
+   * @param buffer The array pointed to must be able to accommodate 21 bytes when
+   *               on standard mode or 10 bytes otherwise.
+   * @param shorty If true a short representation will be returned.
    *
-   * String output examples:
+   * Standard toString() output examples:
    *  123456789012345678901 (strlen)
    *  135y 364d 23h 59m 59s
    *  364d 23h 59m 59s
@@ -99,19 +101,27 @@ struct timestamp_t {
    *  59m 59s
    *  59s
    *
+   * Short toString() output examples:
+   *  1234567890 (strlen)
+   *  1193046:59
+   *
    */
-  void toString(char *buffer) const {
-    int y = this->year(),
-        d = this->day() % 365,
-        h = this->hour() % 24,
-        m = this->minute() % 60,
-        s = this->second() % 60;
+  void toString(char *buffer, bool const &shorty = false) const {
+    int h = this->hour() % 24,
+        m = this->minute() % 60;
 
-    if (y) sprintf_P(buffer, PSTR("%iy %id %ih %im %is"), y, d, h, m, s);
-    else if (d) sprintf_P(buffer, PSTR("%id %ih %im %is"), d, h, m, s);
-    else if (h) sprintf_P(buffer, PSTR("%ih %im %is"), h, m, s);
-    else if (m) sprintf_P(buffer, PSTR("%im %is"), m, s);
-    else sprintf_P(buffer, PSTR("%is"), s);
+    if (shorty) sprintf_P(buffer, PSTR("%02i:%02i"), h, m);
+    else {
+      int y = this->year(),
+          d = this->day() % 365,
+          s = this->second() % 60;
+
+      if (y) sprintf_P(buffer, PSTR("%iy %id %ih %im %is"), y, d, h, m, s);
+      else if (d) sprintf_P(buffer, PSTR("%id %ih %im %is"), d, h, m, s);
+      else if (h) sprintf_P(buffer, PSTR("%ih %im %is"), h, m, s);
+      else if (m) sprintf_P(buffer, PSTR("%im %is"), m, s);
+      else sprintf_P(buffer, PSTR("%is"), s);
+    }
   }
 };
 

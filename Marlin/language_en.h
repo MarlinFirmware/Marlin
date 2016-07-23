@@ -561,22 +561,35 @@
     #define MSG_INFO_PRINT_COUNT              "Print Count"
   #endif
   #ifndef MSG_INFO_COMPLETED_PRINTS
-    #define MSG_INFO_COMPLETED_PRINTS         "Completed  "
+    #define MSG_INFO_COMPLETED_PRINTS         "Completed"
   #endif
   #ifndef MSG_INFO_PRINT_TIME
-    #define MSG_INFO_PRINT_TIME               "Total Time "
+    #define MSG_INFO_PRINT_TIME               "Total print time"
+  #endif
+  #ifndef MSG_INFO_PRINT_LONGEST
+    #define MSG_INFO_PRINT_LONGEST            "Longest job time"
+  #endif
+  #ifndef MSG_INFO_PRINT_FILAMENT
+    #define MSG_INFO_PRINT_FILAMENT           "Extruded total"
   #endif
 #else
   #ifndef MSG_INFO_PRINT_COUNT
-    #define MSG_INFO_PRINT_COUNT              "Prints   "
+    #define MSG_INFO_PRINT_COUNT              "Prints"
   #endif
   #ifndef MSG_INFO_COMPLETED_PRINTS
     #define MSG_INFO_COMPLETED_PRINTS         "Completed"
   #endif
   #ifndef MSG_INFO_PRINT_TIME
-    #define MSG_INFO_PRINT_TIME               "Duration "
+    #define MSG_INFO_PRINT_TIME               "Total"
+  #endif
+  #ifndef MSG_INFO_PRINT_LONGEST
+    #define MSG_INFO_PRINT_LONGEST            "Longest"
+  #endif
+  #ifndef MSG_INFO_PRINT_FILAMENT
+    #define MSG_INFO_PRINT_FILAMENT           "Extruded"
   #endif
 #endif
+
 #ifndef MSG_INFO_MIN_TEMP
   #define MSG_INFO_MIN_TEMP                   "Min Temp"
 #endif
