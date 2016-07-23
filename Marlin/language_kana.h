@@ -238,14 +238,14 @@
 #define MSG_INFO_EXTRUDERS                  "\xb4\xb8\xbd\xc4\xd9\xb0\xc0\xde\xb0\xbd\xb3"                     // "ｴｸｽﾄﾙｰﾀﾞｰｽｳ" ("Extruders")
 #define MSG_INFO_BAUDRATE                   "\xce\xde\xb0\xda\xb0\xc4"                                         // "ﾎﾞｰﾚｰﾄ" ("Baud")
 #define MSG_INFO_PROTOCOL                   "\xcc\xdf\xdb\xc4\xba\xd9"                                         // "ﾌﾟﾛﾄｺﾙ" ("Protocol")
+#define MSG_INFO_PRINT_COUNT                "\xcc\xdf\xd8\xdd\xc4\xbd\xb3  "                                   // "ﾌﾟﾘﾝﾄｽｳ  " ("Print Count")
+#define MSG_INFO_COMPLETED_PRINTS           "\xb6\xdd\xd8\xae\xb3\xbd\xb3"                                     // "ｶﾝﾘｮｳｽｳ" ("Completed")
+#define MSG_INFO_PRINT_TIME                 "\xcc\xdf\xd8\xdd\xc4\xbc\xde\xb6\xdd\xd9\xb2\xb9\xb2"             // "ﾌﾟﾘﾝﾄｼﾞｶﾝﾙｲｹｲ" ("Total print time")
+#define MSG_INFO_PRINT_LONGEST              "\xbb\xb2\xc1\xae\xb3\xcc\xdf\xd8\xdd\xc4\xbc\xde\xb6\xdd"         // "ｻｲﾁｮｳﾌﾟﾘﾝﾄｼﾞｶﾝ" ("Longest job time")
 #if LCD_WIDTH > 19
-  #define MSG_INFO_PRINT_COUNT              "\xcc\xdf\xd8\xdd\xc4\xbd\xb3  "                                   // "ﾌﾟﾘﾝﾄｽｳ  " ("Print Count")
-  #define MSG_INFO_COMPLETED_PRINTS         "\xb6\xdd\xd8\xae\xb3\xbd\xb3  "                                   // "ｶﾝﾘｮｳｽｳ  " ("Completed  ")
-  #define MSG_INFO_PRINT_TIME               "\xba\xde\xb3\xb9\xb2\xbc\xde\xb6\xdd"                             // "ｺﾞｳｹｲｼﾞｶﾝ" ("Total Time ")
+  #define MSG_INFO_PRINT_FILAMENT           "\xcc\xa8\xd7\xd2\xdd\xc4\xbc\xd6\xb3\xd8\xae\xb3\xd9\xb2\xb9\xb2" // "ﾌｨﾗﾒﾝﾄｼﾖｳﾘｮｳﾙｲｹｲ" ("Extruded total")
 #else
-  #define MSG_INFO_PRINT_COUNT              "\xcc\xdf\xd8\xdd\xc4\xbd\xb3"                                     // "ﾌﾟﾘﾝﾄｽｳ" ("Print Count")
-  #define MSG_INFO_COMPLETED_PRINTS         "\xb6\xdd\xd8\xae\xb3\xbd\xb3"                                     // "ｶﾝﾘｮｳｽｳ" ("Completed  ")
-  #define MSG_INFO_PRINT_TIME               "\xb9\xb2\xb6\xbc\xde\xb6\xdd"                                     // "ｹｲｶｼﾞｶﾝ" ("Duration ")
+  #define MSG_INFO_PRINT_FILAMENT           "\xcc\xa8\xd7\xd2\xdd\xc4\xbf\xb3\xbc\xd6\xb3\xd8\xae\xb3"         // "ﾌｨﾗﾒﾝﾄｿｳｼﾖｳﾘｮｳ" ("Extruded")
 #endif
 #define MSG_INFO_MIN_TEMP                   "\xbe\xaf\xc3\xb2\xbb\xb2\xc3\xb2\xb5\xdd"                         // "ｾｯﾃｲｻｲﾃｲｵﾝ" ("Min Temp")
 #define MSG_INFO_MAX_TEMP                   "\xbe\xaf\xc3\xb2\xbb\xb2\xba\xb3\xb5\xdd"                         // "ｾｯﾃｲｻｲｺｳｵﾝ" ("Max Temp")
