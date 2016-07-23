@@ -175,7 +175,7 @@
  */
 #if ENABLED(SWITCHING_EXTRUDER)
   #if ENABLED(DUAL_X_CARRIAGE)
-    #error "SINGLENOZZLE and DUAL_X_CARRIAGE are incompatible."
+    #error "SWITCHING_EXTRUDER and DUAL_X_CARRIAGE are incompatible."
   #elif EXTRUDERS != 2
     #error "SWITCHING_EXTRUDER requires exactly 2 EXTRUDERS."
   #elif NUM_SERVOS < 1
@@ -570,6 +570,23 @@
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
   #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
+#endif
+
+/**
+ * Basic 2-nozzle duplication mode
+ */
+#if ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+  #if HOTENDS != 2
+    #error "DUAL_NOZZLE_DUPLICATION_MODE requires exactly 2 hotends."
+  #elif ENABLED(DUAL_X_CARRIAGE)
+    #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with DUAL_X_CARRIAGE."
+  #elif ENABLED(SINGLENOZZLE)
+    #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with SINGLENOZZLE."
+  #elif ENABLED(MIXING_EXTRUDER)
+    #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with MIXING_EXTRUDER."
+  #elif ENABLED(SWITCHING_EXTRUDER)
+    #error "DUAL_NOZZLE_DUPLICATION_MODE is incompatible with SWITCHING_EXTRUDER."
+  #endif
 #endif
 
 /**

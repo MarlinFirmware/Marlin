@@ -1394,6 +1394,10 @@ XYZ_CONSTS_FROM_CONFIG(float, max_length,     MAX_LENGTH);
 XYZ_CONSTS_FROM_CONFIG(float, home_bump_mm,   HOME_BUMP_MM);
 XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
 
+#if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+  bool extruder_duplication_enabled = false; // Used in Dual X mode 2
+#endif
+
 #if ENABLED(DUAL_X_CARRIAGE)
 
   #define DXC_FULL_CONTROL_MODE 0
@@ -1425,7 +1429,6 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
   static millis_t delayed_move_time = 0; // used in mode 1
   static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
   static float duplicate_extruder_temp_offset = 0; // used in mode 2
-  bool extruder_duplication_enabled = false; // used in mode 2
 
 #endif //DUAL_X_CARRIAGE
 
@@ -2812,12 +2815,13 @@ inline void gcode_G4() {
     current_position[X_AXIS] = current_position[Y_AXIS] = 0.0;
     sync_plan_position();
 
-    #if ENABLED(DUAL_X_CARRIAGE)
-      int x_axis_home_dir = x_home_dir(active_extruder);
-      extruder_duplication_enabled = false;
-    #else
-      int x_axis_home_dir = home_dir(X_AXIS);
-    #endif
+    int x_axis_home_dir =
+      #if ENABLED(DUAL_X_CARRIAGE)
+        x_home_dir(active_extruder)
+      #else
+        home_dir(X_AXIS)
+      #endif
+    ;
 
     float mlx = max_length(X_AXIS),
           mly = max_length(Y_AXIS),
@@ -2868,6 +2872,10 @@ inline void gcode_G28() {
   #if HOTENDS > 1
     uint8_t old_tool_index = active_extruder;
     tool_change(0, 0, true);
+  #endif
+
+  #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+    extruder_duplication_enabled = false;
   #endif
 
   /**
@@ -2988,7 +2996,6 @@ inline void gcode_G28() {
     if (home_all_axis || homeX) {
       #if ENABLED(DUAL_X_CARRIAGE)
         int tmp_extruder = active_extruder;
-        extruder_duplication_enabled = false;
         active_extruder = !active_extruder;
         HOMEAXIS(X);
         inactive_extruder_x_pos = current_position[X_AXIS];
@@ -6449,7 +6456,17 @@ inline void gcode_M503() {
     delayed_move_time = 0;
   }
 
-#endif // DUAL_X_CARRIAGE
+#elif ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
+
+  inline void gcode_M605() {
+    stepper.synchronize();
+    extruder_duplication_enabled = code_seen('S') && code_value_int() == 2;
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
+    SERIAL_EOL;
+  }
+
+#endif // M605
 
 #if ENABLED(LIN_ADVANCE)
   /**
