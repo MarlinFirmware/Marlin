@@ -1755,15 +1755,15 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
 
   feedrate_mm_m = old_feedrate_mm_m;
 }
-
-void do_blocking_move_to_axis_pos(AxisEnum axis, float where, float fr_mm_m/*=0.0*/) {
-  current_position[axis] = where;
-  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_m);
+void do_blocking_move_to_x(float x, float fr_mm_m/*=0.0*/) {
+  do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_m);
 }
-void do_blocking_move_to_x(float x, float fr_mm_m/*=0.0*/) { do_blocking_move_to_axis_pos(X_AXIS, x, fr_mm_m); }
-void do_blocking_move_to_y(float y) { do_blocking_move_to_axis_pos(Y_AXIS, y); }
-void do_blocking_move_to_z(float z, float fr_mm_m/*=0.0*/) { do_blocking_move_to_axis_pos(Z_AXIS, z, fr_mm_m); }
-void do_blocking_move_to_xy(float x, float y, float fr_mm_m/*=0.0*/) { do_blocking_move_to(x, y, current_position[Z_AXIS], fr_mm_m); }
+void do_blocking_move_to_z(float z, float fr_mm_m/*=0.0*/) {
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, fr_mm_m);
+}
+void do_blocking_move_to_xy(float x, float y, float fr_mm_m/*=0.0*/) {
+  do_blocking_move_to(x, y, current_position[Z_AXIS], fr_mm_m);
+}
 
 //
 // Prepare to do endstop or probe moves
