@@ -2103,12 +2103,6 @@ static void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
-  #if ENABLED(DELTA)
-    #define SET_Z_FROM_STEPPERS() set_current_from_steppers()
-  #else
-    #define SET_Z_FROM_STEPPERS() current_position[Z_AXIS] = LOGICAL_POSITION(stepper.get_axis_position_mm(Z_AXIS), Z_AXIS)
-  #endif
-
   // Do a single Z probe and return with current_position[Z_AXIS]
   // at the height where the probe triggered.
   static float run_z_probe() {
@@ -2120,28 +2114,18 @@ static void clean_up_after_endstop_or_probe_move() {
       planner.bed_level_matrix.set_to_identity();
     #endif
 
-    #if ENABLED(DELTA)
-      float z_before = current_position[Z_AXIS],         // Current Z
-            z_mm = stepper.get_axis_position_mm(Z_AXIS); // Some tower's current position
-    #endif
-
     do_blocking_move_to_z(-(Z_MAX_LENGTH + 10), Z_PROBE_SPEED_FAST);
     endstops.hit_on_purpose();
-    SET_Z_FROM_STEPPERS();
+    set_current_from_steppers();
     SYNC_PLAN_POSITION_KINEMATIC();
 
     // move up the retract distance
     do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), Z_PROBE_SPEED_FAST);
 
-    #if ENABLED(DELTA)
-      z_before = current_position[Z_AXIS];
-      z_mm = stepper.get_axis_position_mm(Z_AXIS);
-    #endif
-
     // move back down slowly to find bed
     do_blocking_move_to_z(current_position[Z_AXIS] - home_bump_mm(Z_AXIS) * 2, Z_PROBE_SPEED_SLOW);
     endstops.hit_on_purpose();
-    SET_Z_FROM_STEPPERS();
+    set_current_from_steppers();
     SYNC_PLAN_POSITION_KINEMATIC();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
