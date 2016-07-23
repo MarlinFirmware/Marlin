@@ -7737,7 +7737,7 @@ void clamp_to_software_endstops(float target[3]) {
     delta_diagonal_rod_2_tower_3 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_3);
   }
 
-  void inverse_kinematics(float cartesian[3]) {
+  void inverse_kinematics(const float in_cartesian[3]) {
 
     delta[TOWER_1] = sqrt(delta_diagonal_rod_2_tower_1
                           - sq(delta_tower1_x - cartesian[X_AXIS])
@@ -8353,7 +8353,7 @@ void prepare_move_to_destination() {
     //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
   }
 
-  void inverse_kinematics(float cartesian[3]) {
+  void inverse_kinematics(const float cartesian[3]) {
     // Inverse kinematics.
     // Perform SCARA IK and place results in delta[3].
     // The maths and first version were done by QHARLEY.

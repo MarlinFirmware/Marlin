@@ -315,7 +315,7 @@ float code_value_temp_diff();
   extern float delta_diagonal_rod_trim_tower_1;
   extern float delta_diagonal_rod_trim_tower_2;
   extern float delta_diagonal_rod_trim_tower_3;
-  void inverse_kinematics(float cartesian[3]);
+  void inverse_kinematics(const float cartesian[3]);
   void recalc_delta_settings(float radius, float diagonal_rod);
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     extern int delta_grid_spacing[2];
@@ -323,7 +323,7 @@ float code_value_temp_diff();
   #endif
 #elif ENABLED(SCARA)
   extern float axis_scaling[3];  // Build size scaling
-  void inverse_kinematics(float cartesian[3]);
+  void inverse_kinematics(const float cartesian[3]);
   void forward_kinematics_SCARA(float f_scara[3]);
 #endif
 
