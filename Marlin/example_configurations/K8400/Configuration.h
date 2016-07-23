@@ -669,6 +669,10 @@
 // @section bedlevel
 
 //#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
+
+// Enable this feature to get detailed logging of G28, G29, M48, etc.
+// Logging is off by default. Enable this logging feature with 'M111 S32'.
+// NOTE: Requires a huge amount of PROGMEM.
 //#define DEBUG_LEVELING_FEATURE
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
