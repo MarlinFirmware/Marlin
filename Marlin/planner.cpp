@@ -65,8 +65,8 @@
 #include "ultralcd.h"
 #include "language.h"
 
-#if ENABLED(MESH_BED_LEVELING)
-  #include "mesh_bed_leveling.h"
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+  #include "Bed_Leveling.h"
 #endif
 
 Planner planner;
@@ -95,9 +95,6 @@ float Planner::max_z_jerk;
 float Planner::max_e_jerk;
 float Planner::min_travel_feedrate;
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
-  matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
-#endif
 
 #if ENABLED(AUTOTEMP)
   float Planner::autotemp_max = 250;
@@ -130,9 +127,9 @@ float Planner::previous_nominal_speed;
  */
 
 Planner::Planner() {
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    bed_level_matrix.set_to_identity();
-  #endif
+//  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+//    bed_level_matrix.set_to_identity();
+//  #endif
   init();
 }
 
@@ -525,11 +522,11 @@ void Planner::check_axes_activity() {
  *  extruder  - target extruder
  */
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
   void Planner::buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder)
 #else
   void Planner::buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder)
-#endif  // AUTO_BED_LEVELING_FEATURE
+#endif  // UNIFIED_BED_LEVELING_FEATURE
 {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
@@ -538,11 +535,27 @@ void Planner::check_axes_activity() {
   // Rest here until there is room in the buffer.
   while (block_buffer_tail == next_buffer_head) idle();
 
-  #if ENABLED(MESH_BED_LEVELING)
-    if (mbl.active())
-      z += mbl.get_z(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
-  #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
-    apply_rotation_xyz(bed_level_matrix, x, y, z);
+  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+    if (bed_leveling_mesh.state.active) {
+	    float correction;
+	    correction = bed_leveling_mesh.get_z_correction(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
+            #if ENABLED(DEBUG_LEVELING_FEATURE)
+	      if (DEBUGGING(MESH_ADJUST)) {
+	  	  SERIAL_ECHOPAIR("buffer_line( ", x );
+		  SERIAL_ECHOPAIR(", ", y );
+		  SERIAL_ECHO(", ");
+		  SERIAL_ECHO_F( z, 6 );
+		  SERIAL_ECHO(") >>>---> [");
+		  SERIAL_ECHO_F( correction, 6 );
+		  SERIAL_ECHOPAIR("] (", x);
+		  SERIAL_ECHOPAIR(", ", y );
+		  SERIAL_ECHO(", ");
+		  SERIAL_ECHO_F( z+correction, 6 );
+		  SERIAL_ECHO(")\n");
+     	      } 
+	    #endif
+	    z += correction;
+    }
   #endif
 
   // The target position of the tool in absolute steps
@@ -1102,46 +1115,56 @@ void Planner::check_axes_activity() {
 
 } // buffer_line()
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE) && DISABLED(DELTA)
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE) && DISABLED(DELTA)		// I think this whole block can go away because everything is mesh based now
+//
+// This function probably can go away with the Unified Bed Leveling. 
+//
 
   /**
    * Get the XYZ position of the steppers as a vector_3.
    *
    * On CORE machines XYZ is derived from ABC.
    */
+
+
+
+/* This function was always only included for certain bed leveling schemes.    It doesn't seem to be used
+ * in the Unified Bed Leveling System
+
   vector_3 Planner::adjusted_position() {
     vector_3 pos = vector_3(stepper.get_axis_position_mm(X_AXIS), stepper.get_axis_position_mm(Y_AXIS), stepper.get_axis_position_mm(Z_AXIS));
 
-    //pos.debug("in Planner::adjusted_position");
+    pos.debug("in Planner::adjusted_position   How did we get here????\n\n");
     //bed_level_matrix.debug("in Planner::adjusted_position");
 
-    matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
+//    matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
     //inverse.debug("in Planner::inverse");
 
-    pos.apply_rotation(inverse);
+//    pos.apply_rotation(inverse);
     //pos.debug("after rotation");
 
     return pos;
   }
+*/
 
-#endif // AUTO_BED_LEVELING_FEATURE && !DELTA
+#endif // UNIFIED_BED_LEVELING_FEATURE 
 
 /**
  * Directly set the planner XYZ position (hence the stepper positions).
  *
  * On CORE machines stepper ABC will be translated from the given XYZ.
  */
-#if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
   void Planner::set_position_mm(float x, float y, float z, const float& e)
 #else
   void Planner::set_position_mm(const float& x, const float& y, const float& z, const float& e)
-#endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
+#endif // UNIFIED_BED_LEVELING_FEATURE
   {
-    #if ENABLED(MESH_BED_LEVELING)
-      if (mbl.active())
-        z += mbl.get_z(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
-    #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
-      apply_rotation_xyz(bed_level_matrix, x, y, z);
+    #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+      if (bed_leveling_mesh.state.active)
+        z += bed_leveling_mesh.get_z_correction(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
+//    #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
+//      apply_rotation_xyz(bed_level_matrix, x, y, z);
     #endif
 
     long nx = position[X_AXIS] = lround(x * axis_steps_per_mm[X_AXIS]),

@@ -366,7 +366,7 @@
   /**
    * Auto Bed Leveling and Z Probe Repeatability Test
    */
-  #define HAS_PROBING_PROCEDURE (ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
+  #define HAS_PROBING_PROCEDURE (ENABLED(UNIFIED_BED_LEVELING_FEATURE) || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
 
   #if HAS_PROBING_PROCEDURE
     // Boundaries for probing based on set limits

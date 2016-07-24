@@ -233,6 +233,9 @@
 #define MSG_DEBUG_DRYRUN                    "DRYRUN"
 #define MSG_DEBUG_COMMUNICATION             "COMMUNICATION"
 #define MSG_DEBUG_LEVELING                  "LEVELING"
+#define MSG_DEBUG_MESH_SEGMENTS             "SEGMENTS"
+#define MSG_DEBUG_MESH_ADJUST               "ADJUSTMENTS"
+
 
 // LCD Menu Messages
 

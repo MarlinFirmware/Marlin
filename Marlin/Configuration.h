@@ -76,6 +76,21 @@
 // For a Delta printer replace the configuration files with the files in the
 // example_configurations/delta directory.
 //
+//#define DELTA
+#ifdef DELTA
+  #define DELTA_PHYSICAL_BED_LEVELING_FEATURE
+  #define DELTA_SEGMENTS_PER_SECOND 160
+  #define DELTA_DIAGONAL_ROD 	198.5			// Was >>>---> 196.0 // mm
+  #define DELTA_SMOOTH_ROD_OFFSET 160.0 // mm
+  #define DELTA_EFFECTOR_OFFSET 34.0 // mm
+  #define DELTA_CARRIAGE_OFFSET 25.0 // mm
+  #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET+0.00)
+  #define DELTA_PRINTABLE_RADIUS 90
+  #define DELTA_PROBEABLE_RADIUS 75	// may not be meaningful in Unified Bed Leveling because we
+					// will probe any point we can reach.  An offset probe will
+					// just shift the circle of points that can be reached 
+					// automatically
+#endif
 
 //===========================================================================
 //============================= SCARA Printer ===============================
@@ -593,87 +608,64 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #endif
 
 //===========================================================================
-//============================ Mesh Bed Leveling ============================
+//============================ Unified Bed Leveling ============================
 //===========================================================================
 
-//#define MESH_BED_LEVELING    // Enable mesh bed leveling.
+#define UNIFIED_BED_LEVELING_FEATURE    	// Enable Unified Bed Leveling.
+//#define DEBUG_LEVELING_FEATURE
+#define UNIFIED_BED_LEVELING_GRID		// Enable the Grid Leveling portion of Unified Bed Leveling
+#define UNIFIED_BED_LEVELING_GRID_POINTS 10 	// Max size of the n x n grid to be probed
 
-#if ENABLED(MESH_BED_LEVELING)
-  #define MESH_INSET 10        // Mesh inset margin on print area
-  #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
-  #define MESH_NUM_Y_POINTS 3
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+  #define MESH_MIN_X X_MIN_POS
+  #define MESH_MAX_X X_MAX_POS
+  #define MESH_MIN_Y Y_MIN_POS
+  #define MESH_MAX_Y Y_MAX_POS
+  #define MESH_NUM_X_POINTS 10  // Don't use more than 15 points per axis
+  #define MESH_NUM_Y_POINTS 10
   #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
 
   //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+  
+  //
+  //
+  #define BIG_RAISE_NOT_NEEDED 45	// These parameters is used during the manual probing of the bed areas
+  #define SIZE_OF_LITTLE_RAISE .25 	// that can not be reached automatically by the Z-Probe.  If the 
+					// distance the nozzle is moving to measure the next point is less 
+					// than this amount, a SIZE_OF_LITTLE_RAISE is done.  This 
+					// makes the manually probing of unreachable bed areas much less 
+					// annoying.  The theory is adjacent Mesh Points should not vary 
+					// by very much.  It should be 'safe' to not raise the nozzle as much.
+
+ // Set the number of grid points per dimension.
+ // You usually won't need more than 4 (squared=16) to get good results.
+  #define AUTO_BED_LEVELING_GRID_POINTS 4
+
+ // Three locations to probe the bed to be used in 3-Point Mesh Leveling
+  #define UBL_PROBE_PT_1_X 40
+  #define UBL_PROBE_PT_1_Y 180
+
+  #define UBL_PROBE_PT_2_X 100
+  #define UBL_PROBE_PT_2_Y 10
+
+  #define UBL_PROBE_PT_3_X 195
+  #define UBL_PROBE_PT_3_Y 185
+
+  // Edge boundaries for Grid Based Mesh Leveling
+  #define LEFT_PROBE_BED_POSITION 39
+  #define RIGHT_PROBE_BED_POSITION 185
+  #define FRONT_PROBE_BED_POSITION 10
+  #define BACK_PROBE_BED_POSITION 185
 
   #if ENABLED(MANUAL_BED_LEVELING)
     #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
   #endif  // MANUAL_BED_LEVELING
 
-#endif  // MESH_BED_LEVELING
-
-//===========================================================================
-//============================ Bed Auto Leveling ============================
-//===========================================================================
-
-// @section bedlevel
-
-//#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
-//#define DEBUG_LEVELING_FEATURE
-
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
-
-  // There are 2 different ways to specify probing locations:
-  //
-  // - "grid" mode
-  //   Probe several points in a rectangular grid.
-  //   You specify the rectangle and the density of sample points.
-  //   This mode is preferred because there are more measurements.
-  //
-  // - "3-point" mode
-  //   Probe 3 arbitrary points on the bed (that aren't collinear)
-  //   You specify the XY coordinates of all 3 points.
-
-  // Enable this to sample the bed in a grid (least squares solution).
-  // Note: this feature generates 10KB extra code size.
-  #define AUTO_BED_LEVELING_GRID
-
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
-
-    #define LEFT_PROBE_BED_POSITION 15
-    #define RIGHT_PROBE_BED_POSITION 170
-    #define FRONT_PROBE_BED_POSITION 20
-    #define BACK_PROBE_BED_POSITION 170
-
-    #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
-
-    // Set the number of grid points per dimension.
-    // You probably don't need more than 3 (squared=9).
-    #define AUTO_BED_LEVELING_GRID_POINTS 2
-
-  #else  // !AUTO_BED_LEVELING_GRID
-
-    // Arbitrary points to probe.
-    // A simple cross-product is used to estimate the plane of the bed.
-    #define ABL_PROBE_PT_1_X 15
-    #define ABL_PROBE_PT_1_Y 180
-    #define ABL_PROBE_PT_2_X 15
-    #define ABL_PROBE_PT_2_Y 20
-    #define ABL_PROBE_PT_3_X 170
-    #define ABL_PROBE_PT_3_Y 20
-
-  #endif // !AUTO_BED_LEVELING_GRID
-
   //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
                                                                              // Useful to retract a deployable Z probe.
-
-  // If you've enabled AUTO_BED_LEVELING_FEATURE and are using the Z Probe for Z Homing,
-  // it is highly recommended you also enable Z_SAFE_HOMING below!
-
-#endif // AUTO_BED_LEVELING_FEATURE
-
+#endif  // UNIFIED_BED_LEVELING_FEATURE
 
 // @section homing
 

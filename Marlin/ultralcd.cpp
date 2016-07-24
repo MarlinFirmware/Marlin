@@ -106,6 +106,11 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   bool encoderRateMultiplierEnabled;
   int32_t lastEncoderMovementMillis;
 
+  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+  extern int UBL_has_control_of_LCD_Panel;
+  extern int G29_encoderDiff;
+  #endif
+
   #if HAS_POWER_SWITCH
     extern bool powersupply;
   #endif
@@ -152,8 +157,8 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     static void lcd_delta_calibrate_menu();
   #endif
 
-  #if ENABLED(MANUAL_BED_LEVELING)
-    #include "mesh_bed_leveling.h"
+  #if ENABLED(MANUAL_BED_LEVELING) || ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+    #include "Bed_Leveling.h"
   #endif
 
   // Function pointer to menu functions.
@@ -168,7 +173,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   static void menu_action_setting_edit_int3(const char* pstr, int* ptr, int minValue, int maxValue);
   static void menu_action_setting_edit_float3(const char* pstr, float* ptr, float minValue, float maxValue);
   static void menu_action_setting_edit_float32(const char* pstr, float* ptr, float minValue, float maxValue);
-  static void menu_action_setting_edit_float43(const char* pstr, float* ptr, float minValue, float maxValue);
+  void menu_action_setting_edit_float43(const char* pstr, float* ptr, float minValue, float maxValue);
   static void menu_action_setting_edit_float5(const char* pstr, float* ptr, float minValue, float maxValue);
   static void menu_action_setting_edit_float51(const char* pstr, float* ptr, float minValue, float maxValue);
   static void menu_action_setting_edit_float52(const char* pstr, float* ptr, float minValue, float maxValue);
@@ -237,7 +242,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
    *
    *   wasClicked indicates the controller was clicked
    */
-  #define START_MENU() _START_SCREEN(bool wasClicked = LCD_CLICKED)
+  #define START_MENU() _START_SCREEN(bool wasClicked = lcd_clicked() )
 
   /**
    * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
@@ -391,7 +396,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     }
   }
 
-  static void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
+  void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
 
   inline void lcd_save_previous_menu() {
     if (screen_history_depth < COUNT(screen_history)) {
@@ -474,7 +479,7 @@ static void lcd_status_screen() {
 
   #if ENABLED(ULTIPANEL)
 
-    bool current_click = LCD_CLICKED;
+    bool current_click = lcd_clicked();
 
     if (ignore_click) {
       if (wait_for_unclick) {
@@ -665,6 +670,69 @@ static void lcd_status_screen() {
 
   #endif //BABYSTEPPING
 
+  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+    bool G29_lcd_clicked(); 
+
+    float Mesh_Edit_Value;
+    int loop_cnt=0, last_seen_bits;
+
+    static void _lcd_mesh_fine_tune( const char* msg) {
+
+	defer_return_to_status = true;
+
+if (loop_cnt++ == 20 || last_seen_bits!=lastEncoderBits ) {
+	loop_cnt = 0;
+	SERIAL_ECHO("In _lcd_mesh_fine_tune() :");
+	SERIAL_ECHO_F( Mesh_Edit_Value, 6);
+	SERIAL_ECHOPAIR(" lastencoderbits:  ", lastEncoderBits);
+	SERIAL_ECHOPAIR(" encoderPosition:  ", ((int32_t) encoderPosition) );
+	SERIAL_ECHOPAIR(" encoderDiff:  ", encoderDiff);
+	SERIAL_ECHOPAIR(" UBL: ", UBL_has_control_of_LCD_Panel);
+	SERIAL_ECHO("\n");
+	last_seen_bits = lastEncoderBits;
+}
+      if (encoderPosition) {
+        Mesh_Edit_Value += ( (float) ((int32_t)encoderPosition)) * .005;
+        encoderPosition = 0;
+        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+      }
+      if (lcdDrawUpdate)
+        lcd_implementation_drawedit(msg, ftostr43sign( (float) Mesh_Edit_Value  ));
+// >>>--->
+      if (/*G29_*/lcd_clicked() ) {
+
+SERIAL_ECHO("IN _LCD_MESH_FINE_TUNE() :");
+SERIAL_ECHO_F( Mesh_Edit_Value, 6);
+SERIAL_ECHOPAIR(" LASTENCODERBITS:  ", lastEncoderBits);
+SERIAL_ECHOPAIR(" ENCODERpOSITION:  ", ((int32_t) encoderPosition) );
+SERIAL_ECHOPAIR(" ENCODERdIFF:  ", encoderDiff);
+SERIAL_ECHOPAIR(" UBL: ", UBL_has_control_of_LCD_Panel);
+SERIAL_ECHO("\n");
+
+	UBL_has_control_of_LCD_Panel=1; 	// We need to lock the normal LCD Panel System outbecause G29 (and G26) are looking for
+	lcd_return_to_status();			// long presses of the Encoder Wheel and the LCD System goes spastic when that happens.   
+						// We will give back control from those routines when the switch is debounced.
+      }						
+    }						
+
+    void _lcd_mesh_edit() { 
+	    _lcd_mesh_fine_tune( PSTR("Mesh Editor: ")); 
+    }
+
+    void lcd_mesh_edit_setup(float inital) { 
+//	    UBL_has_control_of_LCD_Panel=1; 
+	    Mesh_Edit_Value=inital; 
+	    lcd_goto_screen(_lcd_mesh_edit); 
+	    return ; 
+    }
+
+    float lcd_mesh_edit() {  
+	    lcd_goto_screen(_lcd_mesh_edit); 
+	    return Mesh_Edit_Value; 
+    }
+
+  #endif // UNIFIED_BED_LEVELING_FEATURE
+
   /**
    * Watch temperature callbacks
    */
@@ -726,7 +794,7 @@ static void lcd_status_screen() {
 
     // Manual bed leveling, Bed Z:
     #if ENABLED(MANUAL_BED_LEVELING)
-      MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+      MENU_ITEM_EDIT(float43, MSG_BED_Z, &bed_leveling_mesh.state.z_offset, -1, 1);
     #endif
 
     //
@@ -980,7 +1048,7 @@ static void lcd_status_screen() {
     // A raise is added between points if MIN_Z_HEIGHT_FOR_HOMING is in use
     // Note: During Manual Bed Leveling the homed Z position is MESH_HOME_SEARCH_Z
     // Z position will be restored with the final action, a G28
-    inline void _mbl_goto_xy(float x, float y) {
+    inline void _bed_leveling_mesh(float x, float y) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
         #if MIN_Z_HEIGHT_FOR_HOMING > 0
           + MIN_Z_HEIGHT_FOR_HOMING
@@ -1034,10 +1102,10 @@ static void lcd_status_screen() {
       }
 
       static bool debounce_click = false;
-      if (LCD_CLICKED) {
+    if (lcd_clicked()) {
         if (!debounce_click) {
           debounce_click = true; // ignore multiple "clicks" in a row
-          mbl.set_zigzag_z(_lcd_level_bed_position++, current_position[Z_AXIS]);
+          bed_leveling_mesh.set_zigzag_z(_lcd_level_bed_position++, current_position[Z_AXIS]);
           if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
             lcd_goto_screen(_lcd_level_bed_done, true);
 
@@ -1049,7 +1117,7 @@ static void lcd_status_screen() {
             line_to_current(Z_AXIS);
             stepper.synchronize();
 
-            mbl.set_has_mesh(true);
+//          bed_leveling_mesh.set_has_mesh(true);
             enqueue_and_echo_commands_P(PSTR("G28"));
             lcd_return_to_status();
             //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
@@ -1102,10 +1170,10 @@ static void lcd_status_screen() {
       // Set the menu to display ahead of blocking call
       lcd_goto_screen(_lcd_level_bed_moving);
 
-      // _mbl_goto_xy runs the menu loop until the move is done
+      // _bed_leveling_mesh_goto_xy runs the menu loop until the move is done
       int8_t px, py;
-      mbl.zigzag(_lcd_level_bed_position, px, py);
-      _mbl_goto_xy(mbl.get_probe_x(px), mbl.get_probe_y(py));
+      bed_leveling_mesh.zigzag(_lcd_level_bed_position, px, py);
+      _bed_leveling_mesh_goto_xy(bed_leveling_mesh.map_x_index_to_bed_location(px), bed_leveling_mesh.map_y_index_to_bed_location(py));
 
       // After the blocking function returns, change menus
       lcd_goto_screen(_lcd_level_bed_get_z);
@@ -1117,7 +1185,7 @@ static void lcd_status_screen() {
      */
     static void _lcd_level_bed_homing_done() {
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING));
-      if (LCD_CLICKED) {
+    if (lcd_clicked()) {
         _lcd_level_bed_position = 0;
         current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
           #if Z_HOME_DIR > 0
@@ -1151,7 +1219,7 @@ static void lcd_status_screen() {
     static void _lcd_level_bed_continue() {
       defer_return_to_status = true;
       axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
-      mbl.reset();
+      bed_leveling_mesh.reset();
       enqueue_and_echo_commands_P(PSTR("G28"));
       lcd_goto_screen(_lcd_level_bed_homing);
     }
@@ -1201,7 +1269,7 @@ static void lcd_status_screen() {
     //
     // Level Bed
     //
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
       MENU_ITEM(gcode, MSG_LEVEL_BED,
         axis_homed[X_AXIS] && axis_homed[Y_AXIS] ? PSTR("G29") : PSTR("G28\nG29")
       );
@@ -1371,7 +1439,7 @@ static void lcd_status_screen() {
       #endif //EXTRUDERS > 1
       lcd_implementation_drawedit(pos_label, ftostr41sign(current_position[E_AXIS]));
     }
-    if (LCD_CLICKED) lcd_goto_previous_menu(true);
+  if (lcd_clicked()) lcd_goto_previous_menu(true);
   }
 
   #if EXTRUDERS > 1
@@ -1754,7 +1822,7 @@ static void lcd_status_screen() {
     #endif
     // Manual bed leveling, Bed Z:
     #if ENABLED(MANUAL_BED_LEVELING)
-      MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
+      MENU_ITEM_EDIT(float43, MSG_BED_Z, &bed_leveling_mesh.state.z_offset, 0, 1);
     #endif
     MENU_ITEM_EDIT(float5, MSG_ACC, &planner.acceleration, 10, 99000);
     MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &planner.max_xy_jerk, 1, 990);
@@ -1845,7 +1913,7 @@ static void lcd_status_screen() {
           #endif
         );
       }
-      if (LCD_CLICKED) lcd_goto_previous_menu(true);
+    if (lcd_clicked()) lcd_goto_previous_menu(true);
     }
   #endif // HAS_LCD_CONTRAST
 
@@ -1895,7 +1963,7 @@ static void lcd_status_screen() {
      */
     void lcd_sdcard_menu() {
       ENCODER_DIRECTION_MENUS();
-      if (lcdDrawUpdate == 0 && LCD_CLICKED == 0) return; // nothing to do (so don't thrash the SD card)
+    if (lcdDrawUpdate == 0 && lcd_clicked() == 0) return; // nothing to do (so don't thrash the SD card)
       uint16_t fileCnt = card.getnrfilenames();
       START_MENU();
       MENU_ITEM(back, MSG_MAIN);
@@ -1948,7 +2016,7 @@ static void lcd_status_screen() {
         char printTime[6];
         sprintf(printTime, "%02d:%02d", int(stats.printTime / 60), int(stats.printTime % 60));
 
-        if (LCD_CLICKED) lcd_goto_previous_menu(true);
+        if ( lcd_clicked() ) lcd_goto_previous_menu(true);
         START_SCREEN();
         STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", itostr3left(stats.totalPrints));        // Print Count : 999
         STATIC_ITEM(MSG_INFO_FINISHED_PRINTS ": ", itostr3left(stats.finishedPrints)); // Finished    : 666
@@ -1963,7 +2031,7 @@ static void lcd_status_screen() {
      *
      */
     static void lcd_info_thermistors_menu() {
-      if (LCD_CLICKED) lcd_goto_previous_menu(true);
+      if ( lcd_clicked() ) lcd_goto_previous_menu(true);
       START_SCREEN();
       #define THERMISTOR_ID TEMP_SENSOR_0
       #include "thermistornames.h"
@@ -2015,7 +2083,7 @@ static void lcd_status_screen() {
      *
      */
     static void lcd_info_board_menu() {
-      if (LCD_CLICKED) lcd_goto_previous_menu(true);
+      if ( lcd_clicked() ) lcd_goto_previous_menu(true);
       START_SCREEN();
       STATIC_ITEM(BOARD_NAME);                                 // MyPrinterController
       STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE)); // Baud: 250000
@@ -2036,7 +2104,7 @@ static void lcd_status_screen() {
      *
      */
     static void lcd_info_printer_menu() {
-      if (LCD_CLICKED) lcd_goto_previous_menu(true);
+      if ( lcd_clicked() ) lcd_goto_previous_menu(true);
       START_SCREEN();
       STATIC_ITEM(MSG_MARLIN);                                   // Marlin
       STATIC_ITEM(SHORT_BUILD_VERSION);                          // x.x.x-Branch
@@ -2227,7 +2295,7 @@ static void lcd_status_screen() {
   #define menu_edit_type(_type, _name, _strFunc, scale) \
     bool _menu_edit_ ## _name () { \
       ENCODER_DIRECTION_NORMAL(); \
-      bool isClicked = LCD_CLICKED; \
+      bool isClicked =  lcd_clicked() ; \
       if ((int32_t)encoderPosition < 0) encoderPosition = 0; \
       if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue; \
       if (lcdDrawUpdate) \
@@ -2240,7 +2308,7 @@ static void lcd_status_screen() {
     } \
     void menu_edit_ ## _name () { _menu_edit_ ## _name(); } \
     void menu_edit_callback_ ## _name () { if (_menu_edit_ ## _name ()) (*callbackFunc)(); } \
-    static void _menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
+    void _menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
       lcd_save_previous_menu(); \
       \
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; \
@@ -2251,11 +2319,11 @@ static void lcd_status_screen() {
       maxEditValue = maxValue * scale - minEditValue; \
       encoderPosition = (*ptr) * scale - minEditValue; \
     } \
-    static void menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
+    void menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
       currentScreen = menu_edit_ ## _name; \
     }\
-    static void menu_action_setting_edit_callback_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue, screenFunc_t callback) { \
+    void menu_action_setting_edit_callback_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue, screenFunc_t callback) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
       currentScreen = menu_edit_callback_ ## _name; \
       callbackFunc = callback; \
@@ -2332,7 +2400,7 @@ static void lcd_status_screen() {
     #elif PIN_EXISTS(BEEPER)
       buzzer.tone(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
     #endif
-    delay(10); // needed for buttons to settle
+    delay(LCD_FEEDBACK_FREQUENCY_DURATION_MS); // needed for buttons to settle
   }
 
   /**
@@ -2575,7 +2643,7 @@ void lcd_update() {
       #endif
 
       bool encoderPastThreshold = (abs(encoderDiff) >= ENCODER_PULSES_PER_STEP);
-      if (encoderPastThreshold || LCD_CLICKED) {
+      if (encoderPastThreshold ||  lcd_clicked() ) {
         if (encoderPastThreshold) {
           int32_t encoderMultiplier = 1;
 
@@ -2868,6 +2936,13 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         case encrot2: ENCODER_SPIN(encrot1, encrot3); break;
         case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
       }
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+      if (UBL_has_control_of_LCD_Panel) {
+		G29_encoderDiff = encoderDiff;		// Make the encoder's rotation available to G29's Mesh Editor
+		encoderDiff = 0;			// We are going to lie to the LCD Panel and claim the encoder 
+							// wheel has not turned.
+      }
+#endif
     }
     lastEncoderBits = enc;
   }
@@ -2880,7 +2955,18 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     #endif
   }
 
-  bool lcd_clicked() { return LCD_CLICKED; }
+  bool lcd_clicked() { 
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+      if (UBL_has_control_of_LCD_Panel)
+        return 0; 
+      else
+        return LCD_CLICKED; 
+  }
+
+  bool G29_lcd_clicked() { 
+#endif	
+      return LCD_CLICKED; 
+  }
 
 #endif // ULTIPANEL
 

@@ -48,6 +48,11 @@
   #error "Your Configuration.h and Configuration_adv.h files are outdated!"
 #endif
 
+#ifdef UNIFIED_BED_LEVELING_FEATURE || ENABLED(M100_FREE_MEMORY_WATCHER)
+  void prt_hex_word( unsigned int );
+  void prt_hex_byte( unsigned int );
+#endif
+
 #include "Arduino.h"
 
 typedef unsigned long millis_t;
@@ -90,6 +95,7 @@ typedef unsigned long millis_t;
 
 extern const char errormagic[] PROGMEM;
 extern const char echomagic[] PROGMEM;
+extern int Unified_Bed_Leveling_EEPROM_start;
 
 #define SERIAL_ERROR_START serialprintPGM(errormagic)
 #define SERIAL_ERROR(x) SERIAL_PROTOCOL(x)
@@ -99,16 +105,20 @@ extern const char echomagic[] PROGMEM;
 
 #define SERIAL_ECHO_START serialprintPGM(echomagic)
 #define SERIAL_ECHO(x) SERIAL_PROTOCOL(x)
+#define SERIAL_ECHO_F(x,y) SERIAL_PROTOCOL_F(x,y)
 #define SERIAL_ECHOPGM(x) SERIAL_PROTOCOLPGM(x)
 #define SERIAL_ECHOLN(x) SERIAL_PROTOCOLLN(x)
 #define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
 #define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
 
+#define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]))
+
 void serial_echopair_P(const char* s_P, int v);
 void serial_echopair_P(const char* s_P, long v);
 void serial_echopair_P(const char* s_P, float v);
 void serial_echopair_P(const char* s_P, double v);
+void serial_echopair_P(const char* s_P, unsigned int v);
 void serial_echopair_P(const char* s_P, unsigned long v);
 FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
@@ -121,6 +131,11 @@ FORCE_INLINE void serialprintPGM(const char* str) {
     str++;
   }
 }
+
+extern float position_shift[3];
+extern float home_offset[3];
+#define RAW_POSITION(POS, AXIS) (POS - home_offset[AXIS] - position_shift[AXIS])
+#define RAW_CURRENT_POSITION(AXIS) (RAW_POSITION(current_position[AXIS], AXIS))
 
 void idle(
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
@@ -238,6 +253,20 @@ void kill(const char*);
   void handle_filament_runout();
 #endif
 
+
+#ifdef DELTA
+  void gcode_G27();	// Physical Bed Leveling for Delta's
+#endif
+
+  /* 
+   * Movement routines
+   */
+ void do_blocking_move_to(float, float, float, float feed_rate = 0.0 );
+ void do_blocking_move_to_z(float, float feed_rate = 0.0 );  
+ void do_blocking_move_to_x(float, float feed_rate = 0.0 ); 
+ void do_blocking_move_to_xy(float, float, float feed_rate = 0.0 );
+ void clean_up_after_endstop_or_probe_move();
+
 /**
  * Debug flags - not yet widely applied
  */
@@ -248,7 +277,9 @@ enum DebugFlags {
   DEBUG_ERRORS        = _BV(2), ///< Not implemented
   DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
   DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
-  DEBUG_LEVELING      = _BV(5)  ///< Print detailed output for homing and leveling
+  DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
+  DEBUG_MESH_SEGMENTS = _BV(6), ///< Print detailed output for Mesh Segmentation of line moves 
+  DEBUG_MESH_ADJUST   = _BV(7)  ///< Print detailed output for Mesh Adjustment of Coordinates
 };
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
@@ -263,6 +294,21 @@ void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII comma
 void clear_command_queue();
 
 void clamp_to_software_endstops(float target[3]);
+
+float code_value_float();
+unsigned long code_value_ulong();
+long code_value_long();
+int code_value_int();
+uint16_t code_value_ushort();
+uint8_t code_value_byte();
+bool code_value_bool();
+bool code_has_value();
+int16_t code_value_short();
+bool code_seen(char);
+
+float code_value_temp_abs();
+float code_value_temp_diff();
+
 
 extern millis_t previous_cmd_ms;
 inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
@@ -283,6 +329,7 @@ extern int extruder_multiplier[EXTRUDERS]; // sets extrude multiply factor (in p
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS];
+extern float destination[NUM_AXIS];
 extern float home_offset[3]; // axis[n].home_offset
 extern float sw_endstop_min[3]; // axis[n].sw_endstop_min
 extern float sw_endstop_max[3]; // axis[n].sw_endstop_max
@@ -290,6 +337,10 @@ extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
 
 // GCode support for external objects
+bool code_seen(char);
+float code_value();
+long code_value_long();
+int16_t code_value_short();
 bool code_seen(char);
 int code_value_int();
 float code_value_temp_abs();
@@ -304,9 +355,13 @@ float code_value_temp_diff();
   extern float delta_diagonal_rod_trim_tower_1;
   extern float delta_diagonal_rod_trim_tower_2;
   extern float delta_diagonal_rod_trim_tower_3;
+  extern float delta_radius_trim_tower_1;
+  extern float delta_radius_trim_tower_2;
+  extern float delta_radius_trim_tower_3;
+
   void calculate_delta(float cartesian[3]);
   void recalc_delta_settings(float radius, float diagonal_rod);
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
     extern int delta_grid_spacing[2];
     void adjust_delta(float cartesian[3]);
   #endif
@@ -322,6 +377,19 @@ float code_value_temp_diff();
 
 #if HAS_BED_PROBE
   extern float zprobe_zoffset;
+
+  bool set_probe_deployed(bool );
+  void stow_z_probe();
+  void deploy_z_probe(); 
+#define DEPLOY_PROBE() set_probe_deployed( true )
+#define STOW_PROBE() set_probe_deployed( false )
+
+enum ProbeAction {
+    ProbeStay          = 0,
+    ProbeDeploy        = _BV(0),
+    ProbeStow          = _BV(1),
+    ProbeDeployAndStow = (ProbeDeploy | ProbeStow)
+  };
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
@@ -392,5 +460,29 @@ void calculate_volumetric_multipliers();
     extern Buzzer buzzer;
   #endif
 #endif
+
+//
+// Debug Stuff.   This can all go away when the code is released
+//
+#define RED1 65  
+#define RED2 63  
+#define WHITE1 66  
+void status_LED( int pin, int action);
+
+#ifdef UNIFIED_BED_LEVELING_FEATURE
+  extern int Unified_Bed_Leveling_EEPROM_start;
+  extern float fade_scaling_factor_for_current_height;
+
+  #include "vector_3.h"
+  #include "Bed_Leveling.h"
+  #include "qr_solve.h"
+
+  extern bed_leveling bed_leveling_mesh;
+  void gcode_G29();	// Unified Bed Leveling
+  void gcode_G26();	// Mesh Validation Tool
+  bool axis_unhomed_error(const bool, const bool, const bool );
+  float probe_pt(float, float, bool stow=true, int verbose_level=1);
+#endif
+
 
 #endif //MARLIN_H

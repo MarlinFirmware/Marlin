@@ -36,95 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V24"
+#define EEPROM_VERSION "V30"
 
 // Change EEPROM version if these are changed:
-#define EEPROM_OFFSET 100
+#define EEPROM_OFFSET 8
 #define MAX_EXTRUDERS 4
 
-/**
- * V24 EEPROM Layout:
- *
- *  100  Version (char x4)
- *  104  EEPROM Checksum (uint16_t)
- *
- *  106  M92 XYZE  planner.axis_steps_per_mm (float x4)
- *  122  M203 XYZE planner.max_feedrate (float x4)
- *  138  M201 XYZE planner.max_acceleration_mm_per_s2 (uint32_t x4)
- *  154  M204 P    planner.acceleration (float)
- *  158  M204 R    planner.retract_acceleration (float)
- *  162  M204 T    planner.travel_acceleration (float)
- *  166  M205 S    planner.min_feedrate (float)
- *  170  M205 T    planner.min_travel_feedrate (float)
- *  174  M205 B    planner.min_segment_time (ulong)
- *  178  M205 X    planner.max_xy_jerk (float)
- *  182  M205 Z    planner.max_z_jerk (float)
- *  186  M205 E    planner.max_e_jerk (float)
- *  190  M206 XYZ  home_offset (float x3)
- *
- * Mesh bed leveling:
- *  202  M420 S    status (uint8)
- *  203            z_offset (float)
- *  207            mesh_num_x (uint8 as set in firmware)
- *  208            mesh_num_y (uint8 as set in firmware)
- *  209 G29 S3 XYZ z_values[][] (float x9, by default)
- *
- * AUTO BED LEVELING
- *  245  M851      zprobe_zoffset (float)
- *
- * DELTA:
- *  249  M666 XYZ  endstop_adj (float x3)
- *  261  M665 R    delta_radius (float)
- *  265  M665 L    delta_diagonal_rod (float)
- *  269  M665 S    delta_segments_per_second (float)
- *  273  M665 A    delta_diagonal_rod_trim_tower_1 (float)
- *  277  M665 B    delta_diagonal_rod_trim_tower_2 (float)
- *  281  M665 C    delta_diagonal_rod_trim_tower_3 (float)
- *
- * Z_DUAL_ENDSTOPS:
- *  285  M666 Z    z_endstop_adj (float)
- *
- * ULTIPANEL:
- *  289  M145 S0 H plaPreheatHotendTemp (int)
- *  291  M145 S0 B plaPreheatHPBTemp (int)
- *  293  M145 S0 F plaPreheatFanSpeed (int)
- *  295  M145 S1 H absPreheatHotendTemp (int)
- *  297  M145 S1 B absPreheatHPBTemp (int)
- *  299  M145 S1 F absPreheatFanSpeed (int)
- *
- * PIDTEMP:
- *  301  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
- *  317  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
- *  333  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
- *  349  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
- *  365  M301 L        lpq_len (int)
- *
- * PIDTEMPBED:
- *  367  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
- *
- * DOGLCD:
- *  379  M250 C    lcd_contrast (int)
- *
- * SCARA:
- *  381  M365 XYZ  axis_scaling (float x3)
- *
- * FWRETRACT:
- *  393  M209 S    autoretract_enabled (bool)
- *  394  M207 S    retract_length (float)
- *  398  M207 W    retract_length_swap (float)
- *  402  M207 F    retract_feedrate_mm_s (float)
- *  406  M207 Z    retract_zlift (float)
- *  410  M208 S    retract_recover_length (float)
- *  414  M208 W    retract_recover_length_swap (float)
- *  418  M208 F    retract_recover_feedrate (float)
- *
- * Volumetric Extrusion:
- *  422  M200 D    volumetric_enabled (bool)
- *  423  M200 T D  filament_size (float x4) (T0..3)
- *
- *  439  This Slot is Available!
- *
- */
+
 #include "Marlin.h"
 #include "language.h"
 #include "planner.h"
@@ -132,12 +50,33 @@
 #include "ultralcd.h"
 #include "configuration_store.h"
 
-#if ENABLED(MESH_BED_LEVELING)
-  #include "mesh_bed_leveling.h"
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+  #include "Bed_Leveling.h"
 #endif
 
-uint16_t eeprom_checksum;
+uint16_t eeprom_16_bit_CRC;
 const char version[4] = EEPROM_VERSION;
+
+
+// This is a CCITT approved 16-Bit CRC.  It will catch most errors
+// that a Checksum will miss.
+
+uint16_t crc16mp( void *data_p, uint16_t count) {
+    uint16_t  xx;
+    uint8_t   *ptr = (uint8_t *) data_p;
+
+    while (count-- > 0) {
+        eeprom_16_bit_CRC=(uint16_t)(eeprom_16_bit_CRC^(uint16_t)(((uint16_t)*ptr++)<<8));
+        for (xx=0; xx<8; xx++) {
+            if(eeprom_16_bit_CRC & 0x8000) { 
+		    eeprom_16_bit_CRC=(uint16_t)((uint16_t)(eeprom_16_bit_CRC<<1)^0x1021); 
+	    }
+            else  { 
+		    eeprom_16_bit_CRC=(uint16_t)(eeprom_16_bit_CRC<<1);                }
+            }
+        }
+    return(eeprom_16_bit_CRC);
+}
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
@@ -148,7 +87,8 @@ void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
     }
-    eeprom_checksum += c;
+//  eeprom_16_bit_CRC += c;
+    crc16mp( &c, 1);
     pos++;
     value++;
   };
@@ -157,7 +97,8 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
   do {
     uint8_t c = eeprom_read_byte((unsigned char*)pos);
     *value = c;
-    eeprom_checksum += c;
+//  eeprom_16_bit_CRC += c;
+    crc16mp( &c, 1);
     pos++;
     value++;
   } while (--size);
@@ -196,9 +137,14 @@ void Config_StoreSettings()  {
   int i = EEPROM_OFFSET;
 
   EEPROM_WRITE_VAR(i, ver);     // invalidate data first
-  i += sizeof(eeprom_checksum); // Skip the checksum slot
+  				// But as a "To Do" item, we really should include the version 
+				// number in the CRC that we store.   For now it is OK, if it is
+				// wrong (or corrupted) we should check it with the implicit comparison
+				// we do.
+				
+  i += sizeof(eeprom_16_bit_CRC); // Skip the checksum slot
 
-  eeprom_checksum = 0; // clear before first "real data"
+  eeprom_16_bit_CRC = 0xffff; // CCITT prefers a starting value of all 1 bits
 
   EEPROM_WRITE_VAR(i, planner.axis_steps_per_mm);
   EEPROM_WRITE_VAR(i, planner.max_feedrate);
@@ -214,29 +160,6 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, planner.max_e_jerk);
   EEPROM_WRITE_VAR(i, home_offset);
 
-  #if ENABLED(MESH_BED_LEVELING)
-    // Compile time test that sizeof(mbl.z_values) is as expected
-    typedef char c_assert[(sizeof(mbl.z_values) == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS) * sizeof(dummy)) ? 1 : -1];
-    uint8_t mesh_num_x = MESH_NUM_X_POINTS,
-            mesh_num_y = MESH_NUM_Y_POINTS,
-            dummy_uint8 = mbl.status & _BV(MBL_STATUS_HAS_MESH_BIT);
-    EEPROM_WRITE_VAR(i, dummy_uint8);
-    EEPROM_WRITE_VAR(i, mbl.z_offset);
-    EEPROM_WRITE_VAR(i, mesh_num_x);
-    EEPROM_WRITE_VAR(i, mesh_num_y);
-    EEPROM_WRITE_VAR(i, mbl.z_values);
-  #else
-    // For disabled MBL write a default mesh
-    uint8_t mesh_num_x = 3,
-            mesh_num_y = 3,
-            dummy_uint8 = 0;
-    dummy = 0.0f;
-    EEPROM_WRITE_VAR(i, dummy_uint8);
-    EEPROM_WRITE_VAR(i, dummy);
-    EEPROM_WRITE_VAR(i, mesh_num_x);
-    EEPROM_WRITE_VAR(i, mesh_num_y);
-    for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
-  #endif // MESH_BED_LEVELING
 
   #if !HAS_BED_PROBE
     float zprobe_zoffset = 0;
@@ -252,6 +175,9 @@ void Config_StoreSettings()  {
     EEPROM_WRITE_VAR(i, delta_diagonal_rod_trim_tower_1);  // 1 float
     EEPROM_WRITE_VAR(i, delta_diagonal_rod_trim_tower_2);  // 1 float
     EEPROM_WRITE_VAR(i, delta_diagonal_rod_trim_tower_3);  // 1 float
+    EEPROM_WRITE_VAR(i, delta_radius_trim_tower_1); // 1 float
+    EEPROM_WRITE_VAR(i, delta_radius_trim_tower_2); // 1 float
+    EEPROM_WRITE_VAR(i, delta_radius_trim_tower_3); // 1 float
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     EEPROM_WRITE_VAR(i, z_endstop_adj);            // 1 float
     dummy = 0.0f;
@@ -353,7 +279,7 @@ void Config_StoreSettings()  {
     EEPROM_WRITE_VAR(i, dummy);
   }
 
-  uint16_t final_checksum = eeprom_checksum;
+  uint16_t final_checksum = eeprom_16_bit_CRC;
 
   int j = EEPROM_OFFSET;
   EEPROM_WRITE_VAR(j, version);
@@ -363,6 +289,22 @@ void Config_StoreSettings()  {
   SERIAL_ECHO_START;
   SERIAL_ECHOPAIR("Settings Stored (", i);
   SERIAL_ECHOLNPGM(" bytes)");
+
+// It can be argued that the M500 should only save the state of the Unified Bed Leveling System and
+// not the active mesh.  Especially since the Unified Bed Leveling System has its own Load and Store
+// Mesh commands.   But this approach will cause a lot of user pain because they will assume everything
+// modified in RAM has been saved to EEPROM after a M500 command.   So for now, we will also save the
+// active mesh if we have an EEPROM Storage Slot identified.
+//
+// If a user does a M502 that will invalidate the EEPROM Storage Slot until the user does either a Load
+// or Store Mesh command within the Unified Bed Leveling System.  In that case, no mesh will be stored
+// but the user can easily load what ever mesh is appropriate from EEPROM because they should be untouched.
+// 
+#ifdef UNIFIED_BED_LEVELING_FEATURE
+  bed_leveling_mesh.store_state();
+  if (bed_leveling_mesh.state.EEPROM_storage_slot >= 0 )
+	bed_leveling_mesh.store_mesh( bed_leveling_mesh.state.EEPROM_storage_slot );
+#endif
 }
 
 /**
@@ -371,12 +313,22 @@ void Config_StoreSettings()  {
 void Config_RetrieveSettings() {
   int i = EEPROM_OFFSET;
   char stored_ver[4];
-  uint16_t stored_checksum;
+  uint16_t Stored_CRC;
   EEPROM_READ_VAR(i, stored_ver);
-  EEPROM_READ_VAR(i, stored_checksum);
-  //  SERIAL_ECHOPAIR("Version: [", ver);
-  //  SERIAL_ECHOPAIR("] Stored version: [", stored_ver);
-  //  SERIAL_ECHOLNPGM("]");
+  EEPROM_READ_VAR(i, Stored_CRC);
+  /*
+    SERIAL_ECHO("Version: [");
+    prt_hex_byte( EEPROM_VERSION[0] );
+    prt_hex_byte( EEPROM_VERSION[1] );
+    prt_hex_byte( EEPROM_VERSION[2] );
+    prt_hex_byte( EEPROM_VERSION[3] );
+    SERIAL_ECHO("] Stored version: [");
+    prt_hex_byte(stored_ver[0]);
+    prt_hex_byte(stored_ver[1]);
+    prt_hex_byte(stored_ver[2]);
+    prt_hex_byte(stored_ver[3]);
+    SERIAL_ECHOLNPGM("]");
+   */
 
   if (strncmp(version, stored_ver, 3) != 0) {
     Config_ResetDefault();
@@ -384,7 +336,7 @@ void Config_RetrieveSettings() {
   else {
     float dummy = 0;
 
-    eeprom_checksum = 0; // clear before reading first "real data"
+    eeprom_16_bit_CRC = 0xffff; // CCITT prefers a starting value of all 1 bits
 
     // version number match
     EEPROM_READ_VAR(i, planner.axis_steps_per_mm);
@@ -402,28 +354,6 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, planner.max_e_jerk);
     EEPROM_READ_VAR(i, home_offset);
 
-    uint8_t dummy_uint8 = 0, mesh_num_x = 0, mesh_num_y = 0;
-    EEPROM_READ_VAR(i, dummy_uint8);
-    EEPROM_READ_VAR(i, dummy);
-    EEPROM_READ_VAR(i, mesh_num_x);
-    EEPROM_READ_VAR(i, mesh_num_y);
-    #if ENABLED(MESH_BED_LEVELING)
-      mbl.status = dummy_uint8;
-      mbl.z_offset = dummy;
-      if (mesh_num_x == MESH_NUM_X_POINTS && mesh_num_y == MESH_NUM_Y_POINTS) {
-        // EEPROM data fits the current mesh
-        EEPROM_READ_VAR(i, mbl.z_values);
-      }
-      else {
-        // EEPROM data is stale
-        mbl.reset();
-        for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
-      }
-    #else
-      // MBL is disabled - skip the stored data
-      for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
-    #endif // MESH_BED_LEVELING
-
     #if !HAS_BED_PROBE
       float zprobe_zoffset = 0;
     #endif
@@ -437,6 +367,10 @@ void Config_RetrieveSettings() {
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_1);  // 1 float
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_2);  // 1 float
       EEPROM_READ_VAR(i, delta_diagonal_rod_trim_tower_3);  // 1 float
+      EEPROM_READ_VAR(i, delta_radius_trim_tower_1); // 1 float
+      EEPROM_READ_VAR(i, delta_radius_trim_tower_2); // 1 float
+      EEPROM_READ_VAR(i, delta_radius_trim_tower_3); // 1 floa
+      recalc_delta_settings(delta_radius, delta_diagonal_rod);
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       EEPROM_READ_VAR(i, z_endstop_adj);
       dummy = 0.0f;
@@ -534,19 +468,56 @@ void Config_RetrieveSettings() {
       if (q < EXTRUDERS) filament_size[q] = dummy;
     }
 
-    if (eeprom_checksum == stored_checksum) {
-      Config_Postprocess();
+    if (eeprom_16_bit_CRC == Stored_CRC) {
       SERIAL_ECHO_START;
       SERIAL_ECHO(version);
       SERIAL_ECHOPAIR(" stored settings retrieved (", i);
       SERIAL_ECHOLNPGM(" bytes)");
-    }
+      Config_Postprocess(); 
+	}
     else {
       SERIAL_ERROR_START;
+/*
+SERIAL_ECHO(" eeprom_16_bit_CRC:");
+prt_hex_word(eeprom_16_bit_CRC);
+SERIAL_ECHO(" Stored_CRC:");
+prt_hex_word( Stored_CRC);
+SERIAL_ERRORLNPGM("\n");
+*/
       SERIAL_ERRORLNPGM("EEPROM checksum mismatch");
       Config_ResetDefault();
     }
- }
+
+#ifdef UNIFIED_BED_LEVELING_FEATURE
+    Unified_Bed_Leveling_EEPROM_start = (i + 32) & 0xfff8;  	// Pad the end of configuration data so it
+   																// can float up or down a little bit without
+																// disrupting the Unified Bed Leveling data 
+    bed_leveling_mesh.load_state();
+    if ( bed_leveling_mesh.sanity_check() ) {
+      SERIAL_ECHOLNPGM("\nInitializing Bed Leveling State to current firmware settings.\n");
+      bed_leveling_mesh.state = bed_leveling_mesh.pre_initialized;
+      bed_leveling_mesh.store_state();
+    }
+
+    if (bed_leveling_mesh.state.EEPROM_storage_slot >= 0 )  {
+	bed_leveling_mesh.load_mesh( bed_leveling_mesh.state.EEPROM_storage_slot );
+      	SERIAL_ECHOPAIR("Mesh ", bed_leveling_mesh.state.EEPROM_storage_slot );
+        SERIAL_ECHOLNPGM(" loaded from storage.");
+    }
+    else
+        bed_leveling_mesh.reset();
+
+    if ( bed_leveling_mesh.sanity_check() == 0) 
+      SERIAL_PROTOCOLPGM("Unified Bed Leveling sanity checks passed.\n");
+    else {
+      SERIAL_PROTOCOLPGM("?Unable to enable Unified Bed Leveling.\n");
+      bed_leveling_mesh.state.active = 0;
+      bed_leveling_mesh.reset();
+    }
+#endif
+  }
+
+
 
   #if ENABLED(EEPROM_CHITCHAT)
     Config_PrintSettings();
@@ -583,8 +554,8 @@ void Config_ResetDefault() {
   planner.max_e_jerk = DEFAULT_EJERK;
   home_offset[X_AXIS] = home_offset[Y_AXIS] = home_offset[Z_AXIS] = 0;
 
-  #if ENABLED(MESH_BED_LEVELING)
-    mbl.reset();
+  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+    bed_leveling_mesh.reset();
   #endif
 
   #if HAS_BED_PROBE
@@ -599,6 +570,11 @@ void Config_ResetDefault() {
     delta_diagonal_rod_trim_tower_1 = DELTA_DIAGONAL_ROD_TRIM_TOWER_1;
     delta_diagonal_rod_trim_tower_2 = DELTA_DIAGONAL_ROD_TRIM_TOWER_2;
     delta_diagonal_rod_trim_tower_3 = DELTA_DIAGONAL_ROD_TRIM_TOWER_3;
+    delta_radius_trim_tower_1 = DELTA_RADIUS_TRIM_TOWER_1;
+    delta_radius_trim_tower_2 = DELTA_RADIUS_TRIM_TOWER_2;
+    delta_radius_trim_tower_3 = DELTA_RADIUS_TRIM_TOWER_3;
+
+    recalc_delta_settings(delta_radius, delta_diagonal_rod);
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     z_endstop_adj = 0;
   #endif
@@ -661,6 +637,16 @@ void Config_ResetDefault() {
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
 
   Config_Postprocess();
+// If the user is trying to restore the printer to its hard coded default settings, probably
+// it makes sense to reset the mesh.  It is cleaner for the Unified Bed Leveling System to
+// save this state but to be consistent with how the other parameters are handled, we will 
+// wait until the user does an M500 before that happens.
+//
+#ifdef UNIFIED_BED_LEVELING_FEATURE
+      bed_leveling_mesh.state = bed_leveling_mesh.pre_initialized;
+      bed_leveling_mesh.reset();
+//    bed_leveling_mesh.store_state();
+#endif
 
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
@@ -755,25 +741,35 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR(" Z", home_offset[Z_AXIS]);
   SERIAL_EOL;
 
-  #if ENABLED(MESH_BED_LEVELING)
-    if (!forReplay) {
-      SERIAL_ECHOLNPGM("Mesh bed leveling:");
-      CONFIG_ECHO_START;
-    }
-    SERIAL_ECHOPAIR("  M420 S", mbl.has_mesh() ? 1 : 0);
-    SERIAL_ECHOPAIR(" X", MESH_NUM_X_POINTS);
-    SERIAL_ECHOPAIR(" Y", MESH_NUM_Y_POINTS);
-    SERIAL_EOL;
-    for (uint8_t py = 1; py <= MESH_NUM_Y_POINTS; py++) {
-      for (uint8_t px = 1; px <= MESH_NUM_X_POINTS; px++) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  G29 S3 X", px);
-        SERIAL_ECHOPAIR(" Y", py);
-        SERIAL_ECHOPGM(" Z");
-        SERIAL_PROTOCOL_F(mbl.z_values[py-1][px-1], 5);
+  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+    SERIAL_ECHOLNPGM("Unified Bed Leveling:");
+    CONFIG_ECHO_START;
+
+    SERIAL_ECHOPGM("System is: ");
+    if ( bed_leveling_mesh.state.active )
+       SERIAL_ECHOLNPGM("Active\n");
+    else
+       SERIAL_ECHOLNPGM("Deactive\n");
+    SERIAL_ECHOPAIR("Active Mesh Slot: ", bed_leveling_mesh.state.EEPROM_storage_slot );
+    SERIAL_ECHOLNPGM("\n");
+    
+    SERIAL_ECHOPAIR("EEPROM can hold ", (int) ((E2END-sizeof(bed_leveling_mesh.state )
+				    		-Unified_Bed_Leveling_EEPROM_start)/sizeof(bed_leveling_mesh.z_values)));
+    SERIAL_ECHOLNPGM(" meshes. \n");
+
+    SERIAL_ECHOPAIR("\nMESH_NUM_X_POINTS  ", MESH_NUM_X_POINTS );
+    SERIAL_ECHOPAIR("\nMESH_NUM_Y_POINTS  ", MESH_NUM_Y_POINTS );
+    
+    SERIAL_ECHOPAIR("\nMESH_MIN_X         ", MESH_MIN_X );
+    SERIAL_ECHOPAIR("\nMESH_MIN_Y         ", MESH_MIN_Y );
+   
+    SERIAL_ECHOPAIR("\nMESH_MAX_X         ", MESH_MAX_X );
+    SERIAL_ECHOPAIR("\nMESH_MAX_Y         ", MESH_MAX_Y );
+  
+    SERIAL_ECHOPAIR("\nMESH_X_DIST        ", MESH_X_DIST );
+    SERIAL_ECHOPAIR("\nMESH_Y_DIST        ", MESH_Y_DIST );
+    SERIAL_PROTOCOLPGM("\n");
         SERIAL_EOL;
-      }
-    }
   #endif
 
   #if ENABLED(DELTA)
@@ -797,6 +793,9 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOPAIR(" A", delta_diagonal_rod_trim_tower_1);
     SERIAL_ECHOPAIR(" B", delta_diagonal_rod_trim_tower_2);
     SERIAL_ECHOPAIR(" C", delta_diagonal_rod_trim_tower_3);
+    SERIAL_ECHOPAIR(" I", delta_radius_trim_tower_1 );
+    SERIAL_ECHOPAIR(" J", delta_radius_trim_tower_2 );
+    SERIAL_ECHOPAIR(" K", delta_radius_trim_tower_3 );
     SERIAL_EOL;
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     CONFIG_ECHO_START;

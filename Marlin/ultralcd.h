@@ -60,7 +60,7 @@
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
 
-  #define LCD_UPDATE_INTERVAL 100
+  #define LCD_UPDATE_INTERVAL 150
   #define LCD_TIMEOUT_TO_STATUS 15000
 
   #if ENABLED(ULTIPANEL)
@@ -95,7 +95,7 @@
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
 
-  extern bool cancel_heatup;
+  extern bool wait_for_heatup;
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     extern millis_t previous_lcd_status_ms;

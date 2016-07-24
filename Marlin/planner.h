@@ -34,7 +34,7 @@
 
 #include "Marlin.h"
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
   #include "vector_3.h"
 #endif
 
@@ -130,9 +130,9 @@ class Planner {
     static float max_e_jerk;
     static float min_travel_feedrate;
 
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-      static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
-    #endif
+//    #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+//      matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
+//    #endif
 
   private:
 
@@ -194,14 +194,12 @@ class Planner {
 
     static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
 
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
+    #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
 
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
         /**
          * The corrected position, applying the bed level matrix
          */
-        static vector_3 adjusted_position();
-      #endif
+//      static vector_3 adjusted_position();
 
       /**
        * Add a new linear movement to the buffer.
@@ -228,7 +226,7 @@ class Planner {
       static void buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder);
       static void set_position_mm(const float& x, const float& y, const float& z, const float& e);
 
-    #endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
+    #endif // UNIFIED_BED_LEVELING_FEATURE
 
     /**
      * Set the E position (mm) of the planner (and the E stepper)
