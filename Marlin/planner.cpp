@@ -80,30 +80,31 @@ block_t Planner::block_buffer[BLOCK_BUFFER_SIZE];
 volatile uint8_t Planner::block_buffer_head = 0;           // Index of the next block to be pushed
 volatile uint8_t Planner::block_buffer_tail = 0;
 
-float Planner::max_feedrate_mm_s[NUM_AXIS]; // Max speeds in mm per second
-float Planner::axis_steps_per_mm[NUM_AXIS];
-float Planner::steps_to_mm[NUM_AXIS];
-unsigned long Planner::max_acceleration_steps_per_s2[NUM_AXIS];
-unsigned long Planner::max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
+float Planner::max_feedrate_mm_s[NUM_AXIS], // Max speeds in mm per second
+      Planner::axis_steps_per_mm[NUM_AXIS],
+      Planner::steps_to_mm[NUM_AXIS];
+
+unsigned long Planner::max_acceleration_steps_per_s2[NUM_AXIS],
+              Planner::max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
 millis_t Planner::min_segment_time;
-float Planner::min_feedrate_mm_s;
-float Planner::acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
-float Planner::retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
-float Planner::travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-float Planner::max_xy_jerk;          // The largest speed change requiring no acceleration
-float Planner::max_z_jerk;
-float Planner::max_e_jerk;
-float Planner::min_travel_feedrate_mm_s;
+float Planner::min_feedrate_mm_s,
+      Planner::acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
+      Planner::retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
+      Planner::travel_acceleration,  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
+      Planner::max_xy_jerk,          // The largest speed change requiring no acceleration
+      Planner::max_z_jerk,
+      Planner::max_e_jerk,
+      Planner::min_travel_feedrate_mm_s;
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
 #endif
 
 #if ENABLED(AUTOTEMP)
-  float Planner::autotemp_max = 250;
-  float Planner::autotemp_min = 210;
-  float Planner::autotemp_factor = 0.1;
+  float Planner::autotemp_max = 250,
+        Planner::autotemp_min = 210,
+        Planner::autotemp_factor = 0.1;
   bool Planner::autotemp_enabled = false;
 #endif
 
@@ -111,9 +112,8 @@ float Planner::min_travel_feedrate_mm_s;
 
 long Planner::position[NUM_AXIS] = { 0 };
 
-float Planner::previous_speed[NUM_AXIS];
-
-float Planner::previous_nominal_speed;
+float Planner::previous_speed[NUM_AXIS],
+      Planner::previous_nominal_speed;
 
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
   uint8_t Planner::g_uc_extruder_last_move[EXTRUDERS] = { 0 };
