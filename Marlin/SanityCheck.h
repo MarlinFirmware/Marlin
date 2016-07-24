@@ -577,8 +577,20 @@
       #elif !PIN_EXISTS(TEMP_3)
         #error "TEMP_3_PIN not defined for this board."
       #endif
+    #elif TEMP_SENSOR_3 != 0
+      #error "TEMP_SENSOR_3 shouldn't be set with only 3 extruders."
     #endif
+  #elif TEMP_SENSOR_2 != 0
+    #error "TEMP_SENSOR_2 shouldn't be set with only 2 extruders."
+  #elif TEMP_SENSOR_3 != 0
+    #error "TEMP_SENSOR_3 shouldn't be set with only 2 extruders."
   #endif
+#elif TEMP_SENSOR_1 != 0 && DISABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+  #error "TEMP_SENSOR_1 shouldn't be set with only 1 extruder."
+#elif TEMP_SENSOR_2 != 0
+  #error "TEMP_SENSOR_2 shouldn't be set with only 1 extruder."
+#elif TEMP_SENSOR_3 != 0
+  #error "TEMP_SENSOR_3 shouldn't be set with only 1 extruder."
 #endif
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
