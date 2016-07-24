@@ -35,6 +35,8 @@
   #error These Printrboard assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h
 #endif
 
+#define USBCON 1286  // Disable MarlinSerial etc.
+
 #define LARGE_FLASH        true
 
 // Disable JTAG pins so they can be used for the Extrudrboard
