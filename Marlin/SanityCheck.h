@@ -353,6 +353,8 @@
     #error "AUTO_BED_LEVELING_FEATURE requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #elif ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
     #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+  #elif ENABLED(Z_SAFE_HOMING)
+    #error "Z_SAFE_HOMING currently requires a probe."
   #endif
 
 #endif
