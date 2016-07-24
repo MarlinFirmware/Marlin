@@ -360,6 +360,17 @@
 #endif
 
 /**
+ * Make sure Z_SAFE_HOMING point is reachable
+ */
+#if ENABLED(Z_SAFE_HOMING)
+  #if Z_SAFE_HOMING_X_POINT < MIN_PROBE_X || Z_SAFE_HOMING_X_POINT > MAX_PROBE_X
+    #error "The given Z_SAFE_HOMING_X_POINT can't be reached by the Z probe."
+  #elif Z_SAFE_HOMING_Y_POINT < MIN_PROBE_Y || Z_SAFE_HOMING_Y_POINT > MAX_PROBE_Y
+    #error "The given Z_SAFE_HOMING_Y_POINT can't be reached by the Z probe."
+  #endif
+#endif // Z_SAFE_HOMING
+
+/**
  * Auto Bed Leveling
  */
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
