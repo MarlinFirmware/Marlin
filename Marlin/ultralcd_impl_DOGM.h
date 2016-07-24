@@ -58,7 +58,7 @@
 #include "ultralcd_st7920_u8glib_rrd.h"
 #include "Configuration.h"
 
-#include "timestamp_t.h"
+#include "duration_t.h"
 
 #if DISABLED(MAPPER_C2C3) && DISABLED(MAPPER_NON) && ENABLED(USE_BIG_EDIT_FONT)
   #undef USE_BIG_EDIT_FONT
@@ -391,10 +391,10 @@ static void lcd_implementation_status_screen() {
     u8g.setPrintPos(80,48);
 
     char buffer[10];
-    timestamp_t time(print_job_timer.duration());
-    time.toString(buffer, true);
-    if (time.timestamp != 0) lcd_print(buffer);
-    else lcd_printPGM(PSTR("--:--"));
+    duration_t elapsed = print_job_timer.duration();
+    elapsed.toDigital(buffer);
+    lcd_print(buffer);
+
   #endif
 
   // Extruders

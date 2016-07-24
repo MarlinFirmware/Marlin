@@ -31,7 +31,7 @@
 
 #if ENABLED(PRINTCOUNTER)
   #include "printcounter.h"
-  #include "timestamp_t.h"
+  #include "duration_t.h"
 #endif
 
 int preheatHotendTemp1, preheatBedTemp1, preheatFanSpeed1,
@@ -1979,13 +1979,15 @@ void kill_screen(const char* lcd_msg) {
         STATIC_ITEM(MSG_INFO_PRINT_COUNT ": ", false, false, itostr3left(stats.totalPrints));          // Print Count: 999
         STATIC_ITEM(MSG_INFO_COMPLETED_PRINTS"  : ", false, false, itostr3left(stats.finishedPrints)); // Completed  : 666
 
-        timestamp_t time(stats.printTime);
-        time.toString(buffer);
+        duration_t elapsed = stats.printTime;
+        elapsed.toString(buffer);
+
         STATIC_ITEM(MSG_INFO_PRINT_TIME ": ", false, false);                                           // Total print Time:
         STATIC_ITEM("", false, false, buffer);                                                         // 99y 364d 23h 59m 59s
 
-        time.timestamp = stats.longestPrint;
-        time.toString(buffer);
+        elapsed = stats.longestPrint;
+        elapsed.toString(buffer);
+
         STATIC_ITEM(MSG_INFO_PRINT_LONGEST ": ", false, false);                                        // Longest job time:
         STATIC_ITEM("", false, false, buffer);                                                         // 99y 364d 23h 59m 59s
 
