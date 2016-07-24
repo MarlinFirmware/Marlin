@@ -22,7 +22,7 @@
 
 #include "Marlin.h"
 #include "printcounter.h"
-#include "timestamp_t.h"
+#include "duration_t.h"
 
 PrintCounter::PrintCounter(): super() {
   this->loadStats();
@@ -94,7 +94,7 @@ void PrintCounter::saveStats() {
 
 void PrintCounter::showStats() {
   char buffer[21];
-  timestamp_t time;
+  duration_t elapsed;
 
   SERIAL_PROTOCOLPGM(MSG_STATS);
 
@@ -111,8 +111,8 @@ void PrintCounter::showStats() {
   SERIAL_EOL;
   SERIAL_PROTOCOLPGM(MSG_STATS);
 
-  time.timestamp = this->data.printTime;
-  time.toString(buffer);
+  elapsed = this->data.printTime;
+  elapsed.toString(buffer);
 
   SERIAL_ECHOPGM("Total time: ");
   SERIAL_ECHO(buffer);
@@ -123,8 +123,8 @@ void PrintCounter::showStats() {
     SERIAL_ECHOPGM(")");
   #endif
 
-  time.timestamp = this->data.longestPrint;
-  time.toString(buffer);
+  elapsed = this->data.longestPrint;
+  elapsed.toString(buffer);
 
   SERIAL_ECHOPGM(", Longest job: ");
   SERIAL_ECHO(buffer);
