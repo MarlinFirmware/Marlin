@@ -803,9 +803,15 @@ void Planner::check_axes_activity() {
     #endif
   #else
     float delta_mm[4];
-    delta_mm[X_AXIS] = dx / axis_steps_per_mm[X_AXIS];
-    delta_mm[Y_AXIS] = dy / axis_steps_per_mm[Y_AXIS];
-    delta_mm[Z_AXIS] = dz / axis_steps_per_mm[Z_AXIS];
+    #if ENABLED(DELTA)
+      // On delta all axes (should!) have the same steps-per-mm
+      // so calculate distance in steps first, then do one division
+      // at the end to get millimeters
+    #else
+      delta_mm[X_AXIS] = dx / axis_steps_per_mm[X_AXIS];
+      delta_mm[Y_AXIS] = dy / axis_steps_per_mm[Y_AXIS];
+      delta_mm[Z_AXIS] = dz / axis_steps_per_mm[Z_AXIS];
+    #endif
   #endif
   delta_mm[E_AXIS] = (de / axis_steps_per_mm[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiplier[extruder] / 100.0;
 
@@ -820,10 +826,16 @@ void Planner::check_axes_activity() {
         sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_HEAD])
       #elif ENABLED(COREYZ)
         sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_HEAD])
+      #elif ENABLED(DELTA)
+        sq(dx) + sq(dy) + sq(dz)
       #else
         sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS])
       #endif
-    );
+    )
+      #if ENABLED(DELTA)
+        / axis_steps_per_mm[X_AXIS]
+      #endif
+    ;
   }
   float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides
 
