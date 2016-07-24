@@ -27,7 +27,7 @@
 * Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
 **/
 
-#include "timestamp_t.h"
+#include "duration_t.h"
 
 extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
 
@@ -763,10 +763,9 @@ static void lcd_implementation_status_screen() {
     lcd.print(LCD_STR_CLOCK[0]);
 
     char buffer[10];
-    timestamp_t time(print_job_timer.duration());
-    time.toString(buffer, true);
-    if (time.timestamp != 0) lcd_print(buffer);
-    else lcd_printPGM(PSTR("--:--"));
+    duration_t elapsed = print_job_timer.duration();
+    elapsed.toDigital(buffer);
+    lcd_print(buffer);
 
   #endif // LCD_HEIGHT > 3
 

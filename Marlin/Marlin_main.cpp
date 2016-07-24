@@ -60,7 +60,7 @@
 #include "pins_arduino.h"
 #include "math.h"
 #include "nozzle.h"
-#include "timestamp_t.h"
+#include "duration_t.h"
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
@@ -4058,13 +4058,13 @@ inline void gcode_M17() {
  */
 inline void gcode_M31() {
   char buffer[21];
-  timestamp_t time(print_job_timer.duration());
-  time.toString(buffer);
+  duration_t elapsed = print_job_timer.duration();
+  elapsed.toString(buffer);
 
   lcd_setstatus(buffer);
 
   SERIAL_ECHO_START;
-  SERIAL_ECHOPGM(MSG_PRINT_TIME " ");
+  SERIAL_ECHOPGM("Print time: ");
   SERIAL_ECHOLN(buffer);
 
   thermalManager.autotempShutdown();
