@@ -944,7 +944,7 @@ float Stepper::get_axis_position_mm(AxisEnum axis) {
       CRITICAL_SECTION_END;
       // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
       // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
-      axis_steps = (pos1 + ((axis == CORE_AXIS_1) ? pos2 : -pos2)) / 2.0f;
+      axis_steps = (pos1 + ((axis == CORE_AXIS_1) ? pos2 : -pos2)) * 0.5f;
     }
     else
       axis_steps = position(axis);
@@ -973,9 +973,9 @@ void Stepper::endstop_triggered(AxisEnum axis) {
 
     float axis_pos = count_position[axis];
     if (axis == CORE_AXIS_1)
-      axis_pos = (axis_pos + count_position[CORE_AXIS_2]) / 2;
+      axis_pos = (axis_pos + count_position[CORE_AXIS_2]) * 0.5;
     else if (axis == CORE_AXIS_2)
-      axis_pos = (count_position[CORE_AXIS_1] - axis_pos) / 2;
+      axis_pos = (count_position[CORE_AXIS_1] - axis_pos) * 0.5;
     endstops_trigsteps[axis] = axis_pos;
 
   #else // !COREXY && !COREXZ && !COREYZ

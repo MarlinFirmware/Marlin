@@ -319,13 +319,13 @@ unsigned char Temperature::soft_pwm[HOTENDS];
               SERIAL_PROTOCOLPAIR(MSG_T_MIN, min);
               SERIAL_PROTOCOLPAIR(MSG_T_MAX, max);
               if (cycles > 2) {
-                Ku = (4.0 * d) / (3.14159265 * (max - min) / 2.0);
-                Tu = ((float)(t_low + t_high) / 1000.0);
+                Ku = (4.0 * d) / (3.14159265 * (max - min) * 0.5);
+                Tu = ((float)(t_low + t_high) * 0.001);
                 SERIAL_PROTOCOLPAIR(MSG_KU, Ku);
                 SERIAL_PROTOCOLPAIR(MSG_TU, Tu);
                 workKp = 0.6 * Ku;
                 workKi = 2 * workKp / Tu;
-                workKd = workKp * Tu / 8;
+                workKd = workKp * Tu * 0.125;
                 SERIAL_PROTOCOLLNPGM(MSG_CLASSIC_PID);
                 SERIAL_PROTOCOLPAIR(MSG_KP, workKp);
                 SERIAL_PROTOCOLPAIR(MSG_KI, workKi);
@@ -753,7 +753,7 @@ void Temperature::manage_heater() {
       // Get the delayed info and add 100 to reconstitute to a percent of
       // the nominal filament diameter then square it to get an area
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
-      float vm = pow((measurement_delay[meas_shift_index] + 100.0) / 100.0, 2);
+      float vm = pow((measurement_delay[meas_shift_index] + 100.0) * 0.01, 2);
       NOLESS(vm, 0.01);
       volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = vm;
     }

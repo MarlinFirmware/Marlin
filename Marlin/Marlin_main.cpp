@@ -1332,7 +1332,7 @@ inline bool code_value_bool() { return code_value_byte() > 0; }
       case TEMPUNIT_C:
         return code_value_float();
       case TEMPUNIT_F:
-        return (code_value_float() - 32) / 1.8;
+        return (code_value_float() - 32) * 0.5555555556;
       case TEMPUNIT_K:
         return code_value_float() - 272.15;
       default:
@@ -1346,7 +1346,7 @@ inline bool code_value_bool() { return code_value_byte() > 0; }
       case TEMPUNIT_K:
         return code_value_float();
       case TEMPUNIT_F:
-        return code_value_float() / 1.8;
+        return code_value_float() * 0.5555555556;
       default:
         return code_value_float();
     }
@@ -6141,7 +6141,7 @@ inline void gcode_M428() {
   bool err = false;
   LOOP_XYZ(i) {
     if (axis_homed[i]) {
-      float base = (current_position[i] > (sw_endstop_min[i] + sw_endstop_max[i]) / 2) ? base_home_pos(i) : 0,
+      float base = (current_position[i] > (sw_endstop_min[i] + sw_endstop_max[i]) * 0.5) ? base_home_pos(i) : 0,
             diff = current_position[i] - LOGICAL_POSITION(base, i);
       if (diff > -20 && diff < 20) {
         set_home_offset((AxisEnum)i, home_offset[i] - diff);
