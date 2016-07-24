@@ -171,9 +171,15 @@ void Config_Postprocess() {
   // steps per s2 needs to be updated to agree with units per s2
   planner.reset_acceleration_rates();
 
+  // Make sure delta kinematics are updated before refreshing the
+  // planner position so the stepper counts will be set correctly.
   #if ENABLED(DELTA)
     recalc_delta_settings(delta_radius, delta_diagonal_rod);
   #endif
+
+  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
+  // and init stepper.count[], planner.position[] with current_position
+  planner.refresh_positioning();
 
   #if ENABLED(PIDTEMP)
     thermalManager.updatePID();

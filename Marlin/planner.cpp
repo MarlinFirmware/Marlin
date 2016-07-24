@@ -82,6 +82,7 @@ volatile uint8_t Planner::block_buffer_tail = 0;
 
 float Planner::max_feedrate_mm_s[NUM_AXIS]; // Max speeds in mm per second
 float Planner::axis_steps_per_mm[NUM_AXIS];
+float Planner::steps_to_mm[NUM_AXIS];
 unsigned long Planner::max_acceleration_steps_per_s2[NUM_AXIS];
 unsigned long Planner::max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
@@ -783,23 +784,23 @@ void Planner::check_axes_activity() {
   #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
     float delta_mm[6];
     #if ENABLED(COREXY)
-      delta_mm[X_HEAD] = dx / axis_steps_per_mm[A_AXIS];
-      delta_mm[Y_HEAD] = dy / axis_steps_per_mm[B_AXIS];
-      delta_mm[Z_AXIS] = dz / axis_steps_per_mm[Z_AXIS];
-      delta_mm[A_AXIS] = (dx + dy) / axis_steps_per_mm[A_AXIS];
-      delta_mm[B_AXIS] = (dx - dy) / axis_steps_per_mm[B_AXIS];
+      delta_mm[X_HEAD] = dx * steps_to_mm[A_AXIS];
+      delta_mm[Y_HEAD] = dy * steps_to_mm[B_AXIS];
+      delta_mm[Z_AXIS] = dz * steps_to_mm[Z_AXIS];
+      delta_mm[A_AXIS] = (dx + dy) * steps_to_mm[A_AXIS];
+      delta_mm[B_AXIS] = (dx - dy) * steps_to_mm[B_AXIS];
     #elif ENABLED(COREXZ)
-      delta_mm[X_HEAD] = dx / axis_steps_per_mm[A_AXIS];
-      delta_mm[Y_AXIS] = dy / axis_steps_per_mm[Y_AXIS];
-      delta_mm[Z_HEAD] = dz / axis_steps_per_mm[C_AXIS];
-      delta_mm[A_AXIS] = (dx + dz) / axis_steps_per_mm[A_AXIS];
-      delta_mm[C_AXIS] = (dx - dz) / axis_steps_per_mm[C_AXIS];
+      delta_mm[X_HEAD] = dx * steps_to_mm[A_AXIS];
+      delta_mm[Y_AXIS] = dy * steps_to_mm[Y_AXIS];
+      delta_mm[Z_HEAD] = dz * steps_to_mm[C_AXIS];
+      delta_mm[A_AXIS] = (dx + dz) * steps_to_mm[A_AXIS];
+      delta_mm[C_AXIS] = (dx - dz) * steps_to_mm[C_AXIS];
     #elif ENABLED(COREYZ)
-      delta_mm[X_AXIS] = dx / axis_steps_per_mm[X_AXIS];
-      delta_mm[Y_HEAD] = dy / axis_steps_per_mm[B_AXIS];
-      delta_mm[Z_HEAD] = dz / axis_steps_per_mm[C_AXIS];
-      delta_mm[B_AXIS] = (dy + dz) / axis_steps_per_mm[B_AXIS];
-      delta_mm[C_AXIS] = (dy - dz) / axis_steps_per_mm[C_AXIS];
+      delta_mm[X_AXIS] = dx * steps_to_mm[X_AXIS];
+      delta_mm[Y_HEAD] = dy * steps_to_mm[B_AXIS];
+      delta_mm[Z_HEAD] = dz * steps_to_mm[C_AXIS];
+      delta_mm[B_AXIS] = (dy + dz) * steps_to_mm[B_AXIS];
+      delta_mm[C_AXIS] = (dy - dz) * steps_to_mm[C_AXIS];
     #endif
   #else
     float delta_mm[4];
@@ -808,12 +809,12 @@ void Planner::check_axes_activity() {
       // so calculate distance in steps first, then do one division
       // at the end to get millimeters
     #else
-      delta_mm[X_AXIS] = dx / axis_steps_per_mm[X_AXIS];
-      delta_mm[Y_AXIS] = dy / axis_steps_per_mm[Y_AXIS];
-      delta_mm[Z_AXIS] = dz / axis_steps_per_mm[Z_AXIS];
+      delta_mm[X_AXIS] = dx * steps_to_mm[X_AXIS];
+      delta_mm[Y_AXIS] = dy * steps_to_mm[Y_AXIS];
+      delta_mm[Z_AXIS] = dz * steps_to_mm[Z_AXIS];
     #endif
   #endif
-  delta_mm[E_AXIS] = (de / axis_steps_per_mm[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiplier[extruder] / 100.0;
+  delta_mm[E_AXIS] = (de * steps_to_mm[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiplier[extruder] / 100.0;
 
   if (block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
@@ -833,7 +834,7 @@ void Planner::check_axes_activity() {
       #endif
     )
       #if ENABLED(DELTA)
-        / axis_steps_per_mm[X_AXIS]
+        * steps_to_mm[X_AXIS]
       #endif
     ;
   }
@@ -1176,12 +1177,20 @@ void Planner::check_axes_activity() {
 void Planner::set_e_position_mm(const float& e) {
   position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS]);
   stepper.set_e_position(position[E_AXIS]);
+  previous_speed[E_AXIS] = 0.0;
 }
 
 // Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
 void Planner::reset_acceleration_rates() {
   LOOP_XYZE(i)
     max_acceleration_steps_per_s2[i] = max_acceleration_mm_per_s2[i] * axis_steps_per_mm[i];
+}
+
+// Recalculate position, steps_to_mm if axis_steps_per_mm changes!
+void Planner::refresh_positioning() {
+  LOOP_XYZE(i) planner.steps_to_mm[i] = 1.0 / planner.axis_steps_per_mm[i];
+  set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+  reset_acceleration_rates();
 }
 
 #if ENABLED(AUTOTEMP)
