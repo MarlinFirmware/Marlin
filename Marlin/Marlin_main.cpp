@@ -911,16 +911,15 @@ void setup() {
   // Send "ok" after commands by default
   for (int8_t i = 0; i < BUFSIZE; i++) send_ok[i] = true;
 
-  // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
+  // Load data from EEPROM if available (or use defaults)
+  // This also updates variables in the planner, elsewhere
   Config_RetrieveSettings();
 
   // Initialize current position based on home_offset
   memcpy(current_position, home_offset, sizeof(home_offset));
 
-  #if ENABLED(DELTA) || ENABLED(SCARA)
-    // Vital to init kinematic equivalent for X0 Y0 Z0
-    SYNC_PLAN_POSITION_KINEMATIC();
-  #endif
+  // Vital to init stepper/planner equivalent for current_position
+  SYNC_PLAN_POSITION_KINEMATIC();
 
   thermalManager.init();    // Initialize temperature loop
 
@@ -5148,6 +5147,7 @@ inline void gcode_M92() {
       }
     }
   }
+  planner.refresh_positioning();
 }
 
 /**

@@ -572,7 +572,7 @@ float Temperature::get_pid_output(int e) {
               lpq[lpq_ptr] = 0;
             }
             if (++lpq_ptr >= lpq_len) lpq_ptr = 0;
-            cTerm[HOTEND_INDEX] = (lpq[lpq_ptr] / planner.axis_steps_per_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
+            cTerm[HOTEND_INDEX] = (lpq[lpq_ptr] * planner.steps_to_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
             pid_output += cTerm[HOTEND_INDEX];
           }
         #endif //PID_ADD_EXTRUSION_RATE
