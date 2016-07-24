@@ -292,13 +292,25 @@ extern bool volumetric_enabled;
 extern int extruder_multiplier[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-extern float current_position[NUM_AXIS];
-extern float home_offset[3]; // axis[n].home_offset
-extern float sw_endstop_min[3]; // axis[n].sw_endstop_min
-extern float sw_endstop_max[3]; // axis[n].sw_endstop_max
 extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
+
+extern float current_position[NUM_AXIS];
+extern float position_shift[3];
+extern float home_offset[3];
+extern float sw_endstop_min[3];
+extern float sw_endstop_max[3];
+
+#define LOGICAL_POSITION(POS, AXIS) (POS + home_offset[AXIS] + position_shift[AXIS])
+#define RAW_POSITION(POS, AXIS)     (POS - home_offset[AXIS] - position_shift[AXIS])
+#define LOGICAL_X_POSITION(POS)     LOGICAL_POSITION(POS, X_AXIS)
+#define LOGICAL_Y_POSITION(POS)     LOGICAL_POSITION(POS, Y_AXIS)
+#define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
+#define RAW_X_POSITION(POS)         RAW_POSITION(POS, X_AXIS)
+#define RAW_Y_POSITION(POS)         RAW_POSITION(POS, Y_AXIS)
+#define RAW_Z_POSITION(POS)         RAW_POSITION(POS, Z_AXIS)
+#define RAW_CURRENT_POSITION(AXIS)  RAW_POSITION(current_position[AXIS], AXIS)
 
 // GCode support for external objects
 bool code_seen(char);
