@@ -3000,7 +3000,7 @@ inline void gcode_G28() {
         int tmp_extruder = active_extruder;
         active_extruder = !active_extruder;
         HOMEAXIS(X);
-        inactive_extruder_x_pos = current_position[X_AXIS];
+        inactive_extruder_x_pos = RAW_X_POSITION(current_position[X_AXIS]);
         active_extruder = tmp_extruder;
         HOMEAXIS(X);
         // reset state used by the different modes
@@ -6746,16 +6746,16 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_m/*=0.0*/, bool n
 
           switch (dual_x_carriage_mode) {
             case DXC_FULL_CONTROL_MODE:
-              current_position[X_AXIS] = inactive_extruder_x_pos;
-              inactive_extruder_x_pos = destination[X_AXIS];
+              current_position[X_AXIS] = LOGICAL_X_POSITION(inactive_extruder_x_pos);
+              inactive_extruder_x_pos = RAW_X_POSITION(destination[X_AXIS]);
               break;
             case DXC_DUPLICATION_MODE:
               active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
               if (active_extruder_parked)
-                current_position[X_AXIS] = inactive_extruder_x_pos;
+                current_position[X_AXIS] = LOGICAL_X_POSITION(inactive_extruder_x_pos);
               else
                 current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
-              inactive_extruder_x_pos = destination[X_AXIS];
+              inactive_extruder_x_pos = RAW_X_POSITION(destination[X_AXIS]);
               extruder_duplication_enabled = false;
               break;
             default:
@@ -8026,7 +8026,12 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
     if (active_extruder_parked) {
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
         // move duplicate extruder into correct duplication position.
-        planner.set_position_mm(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+        planner.set_position_mm(
+          LOGICAL_X_POSITION(inactive_extruder_x_pos),
+          current_position[Y_AXIS],
+          current_position[Z_AXIS],
+          current_position[E_AXIS]
+        );
         planner.buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset,
                          current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], planner.max_feedrate_mm_s[X_AXIS], 1);
         SYNC_PLAN_POSITION_KINEMATIC();
