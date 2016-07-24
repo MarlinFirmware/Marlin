@@ -1424,11 +1424,11 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
   }
 
   static float inactive_extruder_x_pos = X2_MAX_POS; // used in mode 0 & 1
-  static bool active_extruder_parked = false; // used in mode 1 & 2
-  static float raised_parked_position[NUM_AXIS]; // used in mode 1
-  static millis_t delayed_move_time = 0; // used in mode 1
+  static bool active_extruder_parked = false;        // used in mode 1 & 2
+  static float raised_parked_position[NUM_AXIS];     // used in mode 1
+  static millis_t delayed_move_time = 0;             // used in mode 1
   static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
-  static float duplicate_extruder_temp_offset = 0; // used in mode 2
+  static float duplicate_extruder_temp_offset = 0;   // used in mode 2
 
 #endif //DUAL_X_CARRIAGE
 
