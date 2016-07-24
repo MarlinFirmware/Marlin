@@ -4064,7 +4064,7 @@ inline void gcode_M31() {
   lcd_setstatus(buffer);
 
   SERIAL_ECHO_START;
-  SERIAL_ECHOPGM(MSG_PRINT_TIME " ");
+  SERIAL_ECHOPGM("Print time: ");
   SERIAL_ECHOLN(buffer);
 
   thermalManager.autotempShutdown();
