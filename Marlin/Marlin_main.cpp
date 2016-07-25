@@ -3057,11 +3057,13 @@ bool UBL_state_when_G28_was_entered;	// We probably need to add some configurati
 
           else if (homeZ) { // Don't need to Home Z twice
 
+#ifdef UNIFIED_BED_LEVELING_FEATURE
             // Let's see if X and Y are homed
             if (axis_unhomed_error(true, true, false)) {
   		    bed_leveling_mesh.state.active = UBL_state_when_G28_was_entered;  // Restore state of the UBL System
 		    return;
 	    }
+#endif
 
             /**
              * Make sure the Z probe is within the physical limits
@@ -3155,7 +3157,9 @@ bool UBL_state_when_G28_was_entered;	// We probably need to add some configurati
   #endif
 
   report_current_position();
+  #ifdef UNIFIED_BED_LEVELING_FEATURE
   bed_leveling_mesh.state.active = UBL_state_when_G28_was_entered;  // Restore the state of the UBL System
+  #endif
 }
 
 #if HAS_PROBING_PROCEDURE
