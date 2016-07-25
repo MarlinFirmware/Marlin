@@ -1157,10 +1157,14 @@ void Planner::check_axes_activity() {
 #endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
   {
     #if ENABLED(MESH_BED_LEVELING)
+
       if (mbl.active())
-        z += mbl.get_z(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
+        z += mbl.get_z(RAW_X_POSITION(x), RAW_Y_POSITION(y));
+
     #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
+
       apply_rotation_xyz(bed_level_matrix, x, y, z);
+
     #endif
 
     long nx = position[X_AXIS] = lround(x * axis_steps_per_mm[X_AXIS]),
