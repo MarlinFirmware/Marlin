@@ -616,6 +616,11 @@ bool parse_G26_parameters() {
 
   if (code_seen('K')) 
 	Keep_Heaters_On++;
+	
+  if (code_seen('O'))  {
+	if ( code_has_value() ) 
+		Ooooze_Amount = code_value_float();
+  }
 
   if (code_seen('P')) {
 	Prime_Flag++;
