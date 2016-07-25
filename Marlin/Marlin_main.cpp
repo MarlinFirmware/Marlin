@@ -3637,14 +3637,14 @@ inline void gcode_G28() {
       #endif
 
       // Probe at 3 arbitrary points
-      float z_at_pt_1 = probe_pt( LOGICAL_X_POSITION(ABL_PROBE_PT_1_X, X_AXIS),
-                                  LOGICAL_Y_POSITION(ABL_PROBE_PT_1_Y, Y_AXIS),
+      float z_at_pt_1 = probe_pt( LOGICAL_X_POSITION(ABL_PROBE_PT_1_X),
+                                  LOGICAL_Y_POSITION(ABL_PROBE_PT_1_Y),
                                   stow_probe_after_each, verbose_level),
-            z_at_pt_2 = probe_pt( LOGICAL_X_POSITION(ABL_PROBE_PT_2_X, X_AXIS),
-                                  LOGICAL_Y_POSITION(ABL_PROBE_PT_2_Y, Y_AXIS),
+            z_at_pt_2 = probe_pt( LOGICAL_X_POSITION(ABL_PROBE_PT_2_X),
+                                  LOGICAL_Y_POSITION(ABL_PROBE_PT_2_Y),
                                   stow_probe_after_each, verbose_level),
-            z_at_pt_3 = probe_pt( LOGICAL_X_POSITION(ABL_PROBE_PT_3_X, X_AXIS),
-                                  LOGICAL_Y_POSITION(ABL_PROBE_PT_3_Y, Y_AXIS),
+            z_at_pt_3 = probe_pt( LOGICAL_X_POSITION(ABL_PROBE_PT_3_X),
+                                  LOGICAL_Y_POSITION(ABL_PROBE_PT_3_Y),
                                   stow_probe_after_each, verbose_level);
 
       if (!dryrun) set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
