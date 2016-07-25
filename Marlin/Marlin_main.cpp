@@ -610,6 +610,20 @@ static void report_current_position();
     print_xyz(PSTR(STRINGIFY(VAR) "="), PSTR(" : " SUFFIX "\n"), VAR); } while(0)
 #endif
 
+/**
+ * sync_plan_position
+ * Set planner / stepper positions to the cartesian current_position.
+ * The stepper code translates these coordinates into step units.
+ * Allows translation between steps and millimeters for cartesian & core robots
+ */
+inline void sync_plan_position() {
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
+  #endif
+  planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+}
+inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
+
 #if ENABLED(DELTA) || ENABLED(SCARA)
   inline void sync_plan_position_delta() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -897,16 +911,15 @@ void setup() {
   // Send "ok" after commands by default
   for (int8_t i = 0; i < BUFSIZE; i++) send_ok[i] = true;
 
-  // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
+  // Load data from EEPROM if available (or use defaults)
+  // This also updates variables in the planner, elsewhere
   Config_RetrieveSettings();
 
   // Initialize current position based on home_offset
   memcpy(current_position, home_offset, sizeof(home_offset));
 
-  #if ENABLED(DELTA) || ENABLED(SCARA)
-    // Vital to init kinematic equivalent for X0 Y0 Z0
-    SYNC_PLAN_POSITION_KINEMATIC();
-  #endif
+  // Vital to init stepper/planner equivalent for current_position
+  SYNC_PLAN_POSITION_KINEMATIC();
 
   thermalManager.init();    // Initialize temperature loop
 
@@ -1319,7 +1332,7 @@ inline bool code_value_bool() { return code_value_byte() > 0; }
       case TEMPUNIT_C:
         return code_value_float();
       case TEMPUNIT_F:
-        return (code_value_float() - 32) / 1.8;
+        return (code_value_float() - 32) * 0.5555555556;
       case TEMPUNIT_K:
         return code_value_float() - 272.15;
       default:
@@ -1333,7 +1346,7 @@ inline bool code_value_bool() { return code_value_byte() > 0; }
       case TEMPUNIT_K:
         return code_value_float();
       case TEMPUNIT_F:
-        return code_value_float() / 1.8;
+        return code_value_float() * 0.5555555556;
       default:
         return code_value_float();
     }
@@ -1627,19 +1640,6 @@ inline void line_to_destination(float fr_mm_m) {
 }
 inline void line_to_destination() { line_to_destination(feedrate_mm_m); }
 
-/**
- * sync_plan_position
- * Set planner / stepper positions to the cartesian current_position.
- * The stepper code translates these coordinates into step units.
- * Allows translation between steps and millimeters for cartesian & core robots
- */
-inline void sync_plan_position() {
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position", current_position);
-  #endif
-  planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-}
-inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
 
@@ -5147,6 +5147,7 @@ inline void gcode_M92() {
       }
     }
   }
+  planner.refresh_positioning();
 }
 
 /**
@@ -6140,7 +6141,7 @@ inline void gcode_M428() {
   bool err = false;
   LOOP_XYZ(i) {
     if (axis_homed[i]) {
-      float base = (current_position[i] > (sw_endstop_min[i] + sw_endstop_max[i]) / 2) ? base_home_pos(i) : 0,
+      float base = (current_position[i] > (sw_endstop_min[i] + sw_endstop_max[i]) * 0.5) ? base_home_pos(i) : 0,
             diff = current_position[i] - LOGICAL_POSITION(base, i);
       if (diff > -20 && diff < 20) {
         set_home_offset((AxisEnum)i, home_offset[i] - diff);
