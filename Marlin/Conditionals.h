@@ -130,14 +130,6 @@
     #define NEWPANEL
   #endif
 
-<<<<<<< HEAD
-=======
-  #if ENABLED(MINIPANEL)
-    #define DOGLCD
-    #define ULTIPANEL
-    #define NEWPANEL
-    #define DEFAULT_LCD_CONTRAST 17
-  #endif
 
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
     #define DOGLCD
@@ -145,7 +137,6 @@
     #define ULTIPANEL
   #endif
 
->>>>>>> 2738359... Added support for reprapworld's graphical LCD
   /**
    * I2C PANELS
    */
