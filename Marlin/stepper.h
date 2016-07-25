@@ -262,7 +262,7 @@ class Stepper {
     // Triggered position of an axis in mm (not core-savvy)
     //
     static FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
-      return endstops_trigsteps[axis] / planner.axis_steps_per_mm[axis];
+      return endstops_trigsteps[axis] * planner.steps_to_mm[axis];
     }
 
     #if ENABLED(LIN_ADVANCE)
