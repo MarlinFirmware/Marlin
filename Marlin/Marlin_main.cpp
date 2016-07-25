@@ -61,6 +61,7 @@
 #include "math.h"
 #include "nozzle.h"
 #include "duration_t.h"
+#include "limits.h"
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
@@ -446,6 +447,10 @@ static uint8_t target_extruder;
   ;
 #endif
 
+#if PIN_EXISTS(CONTINUE)
+  bool continueButton = false;
+#endif
+
 #if ENABLED(DELTA)
 
   #define TOWER_1 X_AXIS
@@ -747,6 +752,13 @@ void setup_killpin() {
 
 #endif
 
+void setup_continuepin() {
+  #if PIN_EXISTS(CONTINUE)
+    SET_INPUT(CONTINUE_PIN);
+    WRITE(CONTINUE_PIN, HIGH);
+  #endif
+}
+
 // Set home pin
 void setup_homepin(void) {
   #if HAS_HOME
@@ -861,6 +873,7 @@ void setup() {
   setup_killpin();
 
   setup_powerhold();
+  setup_continuepin();
 
   #if HAS_STEPPER_RESET
     disableStepperDrivers();
@@ -3903,7 +3916,38 @@ inline void gcode_G92() {
     sync_plan_position_e();
 }
 
-#if ENABLED(ULTIPANEL)
+#if ENABLED(ULTIPANEL) || (ENABLED(ULTRA_LCD) && ENABLED(CONTINUE_BUTTON_FEATURE) && PIN_EXISTS(CONTINUE)) || (ENABLED(CONTINUE_BUTTON_FEATURE) && PIN_EXISTS(CONTINUE) && PIN_EXISTS(LED))
+// We need an input and an output.
+  void wait_for_user(millis_t ms) {
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
+
+    ms += (ms > 0) ? previous_cmd_ms : LONG_MAX;  // wait until this time for a click
+    #if PIN_EXISTS(BEEPER)    // Some boards have onboard beepers
+      buzzer.tone(1000, 300);
+    #endif
+    #if PIN_EXISTS(LED)
+      OUT_WRITE(LED_PIN, 1);
+    #endif
+
+    #if ENABLED(ULTIPANEL)
+      if (!lcd_detected()) return;
+      lcd_ignore_click(false);
+      while (PENDING(millis(), ms) && !lcd_clicked()) idle();
+	  lcd_ignore_click();
+    #elif ENABLED(CONTINUE_BUTTON_FEATURE) && PIN_EXISTS(CONTINUE)
+      while (PENDING(millis(), ms) && !continueButton) idle();
+    #endif
+
+    #if PIN_EXISTS(LED)
+      WRITE(LED_PIN, 0);
+    #endif
+    #if PIN_EXISTS(BEEPER)
+      buzzer.tone(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+    #endif
+
+    KEEPALIVE_STATE(IN_HANDLER);
+  }
+
 
   /**
    * M0: Unconditional stop - Wait for user button press on LCD
@@ -3913,45 +3957,36 @@ inline void gcode_G92() {
     char* args = current_command_args;
 
     millis_t codenum = 0;
-    bool hasP = false, hasS = false;
     if (code_seen('P')) {
-      codenum = code_value_millis(); // milliseconds to wait
-      hasP = codenum > 0;
+      codenum = strtod(++args, &args); // skip P or S and go to end of number // milliseconds to wait
     }
-    if (code_seen('S')) {
-      codenum = code_value_millis_from_seconds(); // seconds to wait
-      hasS = codenum > 0;
+    else if (code_seen('S')) {
+      codenum = strtod(++args, &args) * 1000; // skip P or S and go to end of number // seconds to wait
     }
-
-    if (!hasP && !hasS && *args != '\0')
-      lcd_setstatus(args, true);
-    else {
-      LCD_MESSAGEPGM(MSG_USERWAIT);
+    #if ENABLED(ULTRA_LCD)
+	  while (*args == ' ') args++;
+      if (*args != '\0')
+        lcd_setstatus(args, true);
+      else {
+        LCD_MESSAGEPGM(MSG_USERWAIT);
+      }
       #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
         dontExpireStatus();
       #endif
-    }
 
-    lcd_ignore_click();
-    stepper.synchronize();
+    #endif
+
+	stepper.synchronize();
     refresh_cmd_timeout();
-    if (codenum > 0) {
-      codenum += previous_cmd_ms;  // wait until this time for a click
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      while (PENDING(millis(), codenum) && !lcd_clicked()) idle();
-      KEEPALIVE_STATE(IN_HANDLER);
-      lcd_ignore_click(false);
-    }
-    else {
-      if (!lcd_detected()) return;
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      while (!lcd_clicked()) idle();
-      KEEPALIVE_STATE(IN_HANDLER);
-    }
-    if (IS_SD_PRINTING)
-      LCD_MESSAGEPGM(MSG_RESUMING);
-    else
-      LCD_MESSAGEPGM(WELCOME_MSG);
+
+    wait_for_user(codenum);
+
+    #if ENABLED(ULTRA_LCD)
+      if (IS_SD_PRINTING)
+        LCD_MESSAGEPGM(MSG_RESUMING);
+      else
+        LCD_MESSAGEPGM(WELCOME_MSG);
+    #endif
   }
 
 #endif // ULTIPANEL
@@ -7131,12 +7166,12 @@ void process_next_command() {
     break;
 
     case 'M': switch (codenum) {
-      #if ENABLED(ULTIPANEL)
+      #if ENABLED(ULTIPANEL) || (ENABLED(ULTRA_LCD) && ENABLED(CONTINUE_BUTTON_FEATURE) && PIN_EXISTS(CONTINUE)) || (ENABLED(CONTINUE_BUTTON_FEATURE) && PIN_EXISTS(CONTINUE) && PIN_EXISTS(LED))
         case 0: // M0 - Unconditional stop - Wait for user button press on LCD
         case 1: // M1 - Conditional stop - Wait for user button press on LCD
           gcode_M0_M1();
           break;
-      #endif // ULTIPANEL
+      #endif
 
       case 17:
         gcode_M17();
@@ -8528,10 +8563,9 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if HAS_KILL
 
-    // Check if the kill button was pressed and wait just in case it was an accidental
-    // key kill key press
+    // Check if the kill button was pressed and wait just in case it was an accidental key press
     // -------------------------------------------------------------------------------
-    static int killCount = 0;   // make the inactivity button a bit less responsive
+    static int killCount = 0;   // make the button a bit less responsive
     const int KILL_DELAY = 750;
     if (!READ(KILL_PIN))
       killCount++;
@@ -8542,6 +8576,20 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     // KILL the machine
     // ----------------------------------------------------------------
     if (killCount >= KILL_DELAY) kill(PSTR(MSG_KILLED));
+  #endif
+
+  #if PIN_EXISTS(CONTINUE)
+
+    // Check if the continue button was pressed and wait just in case it was an accidental key press
+    // -------------------------------------------------------------------------------
+    static int continueCount = 0;   // make the button a bit less responsive
+    const int CONTINUE_DELAY = 750;
+    if (!READ(CONTINUE_PIN))
+      continueCount++;
+    else if (continueCount > 0)
+      continueCount--;
+
+    continueButton = (continueCount >= CONTINUE_DELAY);
   #endif
 
   #if HAS_HOME
