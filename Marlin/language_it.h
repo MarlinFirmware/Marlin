@@ -94,6 +94,7 @@
 #define MSG_PID_I                           "PID-I"
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
+#define MSG_SELECT                          "Seleziona"
 #define MSG_ACC                             "Accel"
 #define MSG_VXY_JERK                        "Vxy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
@@ -165,6 +166,10 @@
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP MINIMA PIATTO"
 #define MSG_HALTED                          "STAMPANTE FERMATA"
 #define MSG_PLEASE_RESET                    "Riavviare prego"
+#define MSG_SHORT_DAY                       "g" // One character only
+#define MSG_SHORT_HOUR                      "h" // One character only
+#define MSG_SHORT_MINUTE                    "m" // One character only
+#define MSG_PRINT_TIME                      "Durata stampa"
 #define MSG_HEATING                         "Riscaldamento.."
 #define MSG_HEATING_COMPLETE                "Risc. completato"
 #define MSG_BED_HEATING                     "Risc. Piatto.."
@@ -184,12 +189,16 @@
 #define MSG_INFO_PROTOCOL                   "Protocollo"
 #if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              "Contat. stampa"
-  #define MSG_INFO_FINISHED_PRINTS          "Finiti        "
-  #define MSG_INFO_PRINT_TIME               "Tempo totale  "
+  #define MSG_INFO_COMPLETED_PRINTS         "Completati"
+  #define MSG_INFO_PRINT_TIME               "Tempo totale"
+  #define MSG_INFO_PRINT_LONGEST            "Lavoro piu lungo"
+  #define MSG_INFO_PRINT_FILAMENT           "Totale estruso"
 #else
-  #define MSG_INFO_PRINT_COUNT              "Stampe   "
-  #define MSG_INFO_FINISHED_PRINTS          "Finiti   "
-  #define MSG_INFO_PRINT_TIME               "Durata   "
+  #define MSG_INFO_PRINT_COUNT              "Stampe"
+  #define MSG_INFO_COMPLETED_PRINTS         "Completati"
+  #define MSG_INFO_PRINT_TIME               "Durata"
+  #define MSG_INFO_PRINT_LONGEST            "Piu lungo"
+  #define MSG_INFO_PRINT_FILAMENT           "Estruso"
 #endif
 #define MSG_INFO_MIN_TEMP                   "Temp min"
 #define MSG_INFO_MAX_TEMP                   "Temp max"
