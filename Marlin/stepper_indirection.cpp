@@ -42,6 +42,7 @@
 */
 
 #include "stepper_indirection.h"
+
 #include "Configuration.h"
 
 #if ENABLED(HAVE_TMCDRIVER)
