@@ -101,6 +101,8 @@
 #define LCD_PINS_D5 -1
 #define LCD_PINS_D6 -1
 #define LCD_PINS_D7 -1
+
+// Buttons are directly attached using keypad
 #define BTN_EN1 -1
 #define BTN_EN2 -1
 #define BTN_ENC -1 // the click
@@ -111,8 +113,3 @@
 
 #define SD_DETECT_PIN -1  // Minitronics doesn't use this
 #endif
-
-// Buttons are directly attached using keypad
-
-
->>>>>>> 2738359... Added support for reprapworld's graphical LCD
