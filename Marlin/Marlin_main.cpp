@@ -7217,7 +7217,9 @@ recursion_cnt++;
 #endif
 
   mesh_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
+#if ENABLED(DEBUG_LEVELING_FEATURE)
 recursion_cnt--;
+#endif
 }
 #endif  // UNIFIED_BED_LEVELING_FEATURE
 
