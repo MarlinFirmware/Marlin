@@ -118,7 +118,11 @@
     #define REPRAP_DISCOUNT_SMART_CONTROLLER
   #endif
 
-  #if ENABLED(ULTIMAKERCONTROLLER) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) || ENABLED(G3D_PANEL) || ENABLED(RIGIDBOT_PANEL) || ENABLED(REPRAPWORLD_KEYPAD)
+  #if ENABLED(ULTIMAKERCONTROLLER)              \
+   || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) \
+   || ENABLED(G3D_PANEL)                        \
+   || ENABLED(RIGIDBOT_PANEL)                   \
+   || ENABLED(REPRAPWORLD_KEYPAD)
     #define ULTIPANEL
     #define NEWPANEL
   #endif
@@ -126,6 +130,13 @@
   #if ENABLED(RA_CONTROL_PANEL)
     #define LCD_I2C_TYPE_PCA8574
     #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
+    #define ULTIPANEL
+    #define NEWPANEL
+  #endif
+
+  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+    #define DOGLCD
+    #define U8GLIB_ST7920
     #define ULTIPANEL
     #define NEWPANEL
   #endif
