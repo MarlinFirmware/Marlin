@@ -76,40 +76,38 @@
 
 #define BEEPER_PIN -1
 
-
-
 #if ENABLED(DOGLCD)
 
-    #if ENABLED(U8GLIB_ST7920)
-    
-        #define LCD_PINS_RS     15 //CS chip select /SS chip slave select
-        #define LCD_PINS_ENABLE 11 //SID (MOSI)
-        #define LCD_PINS_D4     10 //SCK (CLK) clock     
+  #if ENABLED(U8GLIB_ST7920)
+    #define LCD_PINS_RS     15 //CS chip select /SS chip slave select
+    #define LCD_PINS_ENABLE 11 //SID (MOSI)
+    #define LCD_PINS_D4     10 //SCK (CLK) clock     
 
-        #define BTN_EN1             18
-        #define BTN_EN2             17
-        #define BTN_ENC             25
+    #define BTN_EN1 18
+    #define BTN_EN2 17
+    #define BTN_ENC 25
 
-        
-        #define SD_DETECT_PIN 30
-    #endif
+    #define SD_DETECT_PIN 30
+  #endif
 
 #else
-#define LCD_PINS_RS -1
-#define LCD_PINS_ENABLE -1
-#define LCD_PINS_D4 -1
-#define LCD_PINS_D5 -1
-#define LCD_PINS_D6 -1
-#define LCD_PINS_D7 -1
 
-// Buttons are directly attached using keypad
-#define BTN_EN1 -1
-#define BTN_EN2 -1
-#define BTN_ENC -1 // the click
+  #define LCD_PINS_RS -1
+  #define LCD_PINS_ENABLE -1
+  #define LCD_PINS_D4 -1
+  #define LCD_PINS_D5 -1
+  #define LCD_PINS_D6 -1
+  #define LCD_PINS_D7 -1
 
-#define BLEN_C 2
-#define BLEN_B 1
-#define BLEN_A 0
+  // Buttons are directly attached using keypad
+  #define BTN_EN1 -1
+  #define BTN_EN2 -1
+  #define BTN_ENC -1
 
-#define SD_DETECT_PIN -1  // Minitronics doesn't use this
+  #define BLEN_C 2
+  #define BLEN_B 1
+  #define BLEN_A 0
+
+  #define SD_DETECT_PIN -1  // Minitronics doesn't use this
+
 #endif

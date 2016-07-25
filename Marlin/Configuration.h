@@ -1124,7 +1124,6 @@
 //
 //#define REPRAPWORLD_GRAPHICAL_LCD
 
-
 //
 // Activate one of these if you have a Panucatt Devices
 // Viki 2.0 or mini Viki with Graphic LCD

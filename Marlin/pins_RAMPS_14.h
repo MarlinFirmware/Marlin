@@ -139,25 +139,13 @@
   #define SLED_PIN           -1
 #endif
 
+#if ENABLED(ULTRA_LCD)
 
-
-#if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-
-
-  #define LCD_PINS_RS     49 //CS chip select /SS chip slave select
-  #define LCD_PINS_ENABLE 51 //SID (MOSI)
-  #define LCD_PINS_D4     52 //SCK (CLK) clock     
-
-  #define BTN_EN1             64
-  #define BTN_EN2             59
-  #define BTN_ENC             63
-
-  
-  #define SD_DETECT_PIN 42
-
-#elif ENABLED(ULTRA_LCD)
-
-  #if ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
+  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+    #define LCD_PINS_RS     49 //CS chip select /SS chip slave select
+    #define LCD_PINS_ENABLE 51 //SID (MOSI)
+    #define LCD_PINS_D4     52 //SCK (CLK) clock
+  #elif ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
     #define LCD_PINS_RS 40
     #define LCD_PINS_ENABLE 42
     #define LCD_PINS_D4 65
@@ -198,6 +186,11 @@
         #define LCD_PIN_BL 39
       #endif
 
+    #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+      #define BTN_EN1 64
+      #define BTN_EN2 59
+      #define BTN_ENC 63
+      #define SD_DETECT_PIN 42
     #elif ENABLED(LCD_I2C_PANELOLU2)
       #define BTN_EN1 47  // reverse if the encoder turns the wrong way.
       #define BTN_EN2 43
