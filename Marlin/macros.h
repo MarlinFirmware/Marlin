@@ -23,6 +23,17 @@
 #ifndef MACROS_H
 #define MACROS_H
 
+#define FORCE_INLINE __attribute__((always_inline)) inline
+
+// Bracket code that shouldn't be interrupted
+#ifndef CRITICAL_SECTION_START
+  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
+  #define CRITICAL_SECTION_END    SREG = _sreg;
+#endif
+
+// Remove compiler warning on an unused variable
+#define UNUSED(x) (void) (x)
+
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)
@@ -34,6 +45,9 @@
 #define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (_BV(b))
 
 // Macros for maths shortcuts
+#ifndef M_PI
+  #define M_PI 3.14159265358979323846
+#endif
 #define RADIANS(d) ((d)*M_PI/180.0)
 #define DEGREES(r) ((r)*180.0/M_PI)
 #define HYPOT(x,y) sqrt(sq(x)+sq(y))
