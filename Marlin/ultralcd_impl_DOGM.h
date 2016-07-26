@@ -60,6 +60,10 @@
 
 #include <U8glib.h>
 
+#if ENABLED(SHOW_BOOTSCREEN) && ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+  #include "_Bootscreen.h"
+#endif
+
 #if DISABLED(MAPPER_C2C3) && DISABLED(MAPPER_NON) && ENABLED(USE_BIG_EDIT_FONT)
   #undef USE_BIG_EDIT_FONT
 #endif
@@ -145,7 +149,7 @@
 #elif ENABLED(U8GLIB_ST7920)
   //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
   U8GLIB_ST7920_128X64_RRD u8g(0);
-#elif defined(CARTESIO_UI)
+#elif ENABLED(CARTESIO_UI)
   // The CartesioUI display
   #if DOGLCD_MOSI != -1 && DOGLCD_SCK != -1
     // using SW-SPI
