@@ -4,6 +4,9 @@
 
 #include "Marlin.h"
 #include "Configuration.h"
+#include "planner.h"
+#include "stepper.h"
+#include "temperature.h"
 #include "G29_Unified_Bed_Leveling.h"
 
 #ifdef UNIFIED_BED_LEVELING_FEATURE 
