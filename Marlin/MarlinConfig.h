@@ -26,7 +26,7 @@
 #include "Configuration.h"
 #include "Conditionals_LCD.h"
 #include "Configuration_adv.h"
-#include "Conditionals.h"
+#include "Conditionals_post.h"
 #include "SanityCheck.h"
 
 #endif // MARLIN_CONFIG_H
