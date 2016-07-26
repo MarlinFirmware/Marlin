@@ -27,6 +27,7 @@
 #include "Marlin.h"
 #include "ultralcd.h"
 #include "temperature.h"
+#include "thermistortables.h"
 #include "language.h"
 #include "Sd2PinMap.h"
 
