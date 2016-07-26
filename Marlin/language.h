@@ -68,12 +68,6 @@
 // pt_utf8    Portuguese (UTF8)
 // ru         Russian
 
-#if ENABLED(USE_AUTOMATIC_VERSIONING)
-  #include "_Version.h"
-#else
-  #include "Version.h"
-#endif
-
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
   #define SOURCE_CODE_URL DEFAULT_SOURCE_CODE_URL
