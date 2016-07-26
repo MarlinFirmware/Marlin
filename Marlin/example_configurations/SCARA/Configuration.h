@@ -51,9 +51,6 @@
  */
 #define CONFIGURATION_H_VERSION 010100
 
-#include "boards.h"
-#include "macros.h"
-
 //===========================================================================
 //============================= Getting Started =============================
 //===========================================================================
@@ -111,12 +108,6 @@
 
 // @section info
 
-#if ENABLED(USE_AUTOMATIC_VERSIONING)
-  #include "_Version.h"
-#else
-  #include "Version.h"
-#endif
-
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
@@ -137,9 +128,6 @@
 // example configuration folder.
 //
 //#define SHOW_CUSTOM_BOOTSCREEN
-#if ENABLED(SHOW_BOOTSCREEN) && ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-  #include "_bootscreen.h"
-#endif
 
 // @section machine
 
@@ -1345,7 +1333,4 @@
   //#define FILAMENT_LCD_DISPLAY
 #endif
 
-#include "Configuration_adv.h"
-#include "thermistortables.h"
-
-#endif //CONFIGURATION_H
+#endif // CONFIGURATION_H

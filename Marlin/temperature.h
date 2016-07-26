@@ -29,6 +29,7 @@
 
 #include "Marlin.h"
 #include "planner.h"
+#include "thermistortables.h"
 
 #if ENABLED(PID_ADD_EXTRUSION_RATE)
   #include "stepper.h"
