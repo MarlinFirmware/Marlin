@@ -1358,6 +1358,4 @@
   //#define FILAMENT_LCD_DISPLAY
 #endif
 
-#include "Configuration_adv.h"
-
-#endif //CONFIGURATION_H
+#endif // CONFIGURATION_H

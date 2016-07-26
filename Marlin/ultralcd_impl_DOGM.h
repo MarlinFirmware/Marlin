@@ -36,6 +36,8 @@
 #ifndef ULTRALCD_IMPL_DOGM_H
 #define ULTRALCD_IMPL_DOGM_H
 
+#include "MarlinConfig.h"
+
 /**
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * These are common LCD 128x64 pixel graphic displays.
@@ -51,19 +53,16 @@
   #define LCD_CLICKED (buttons&EN_C)
 #endif
 
-#include <U8glib.h>
 #include "dogm_bitmaps.h"
-
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
-#include "Configuration.h"
-
 #include "duration_t.h"
+
+#include <U8glib.h>
 
 #if DISABLED(MAPPER_C2C3) && DISABLED(MAPPER_NON) && ENABLED(USE_BIG_EDIT_FONT)
   #undef USE_BIG_EDIT_FONT
 #endif
-
 
 #if ENABLED(USE_SMALL_INFOFONT)
   #include "dogm_font_data_6x9_marlin.h"

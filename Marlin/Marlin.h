@@ -39,8 +39,9 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
+#include "MarlinConfig.h"
+
 #include "fastio.h"
-#include "Configuration.h"
 
 #ifndef SANITYCHECK_H
   #error "Your Configuration.h and Configuration_adv.h files are outdated!"
