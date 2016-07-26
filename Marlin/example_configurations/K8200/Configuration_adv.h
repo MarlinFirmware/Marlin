@@ -52,8 +52,6 @@
  */
 #define CONFIGURATION_ADV_H_VERSION 010100
 
-#include "Conditionals_LCD.h"
-
 // @section temperature
 
 //===========================================================================
@@ -804,7 +802,4 @@ const unsigned int dropsegments = 2; //everything with less than this number of 
 
 //#define EXPERIMENTAL_I2CBUS
 
-#include "Conditionals.h"
-#include "SanityCheck.h"
-
-#endif //CONFIGURATION_ADV_H
+#endif // CONFIGURATION_ADV_H

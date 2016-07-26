@@ -27,8 +27,7 @@
 #ifndef mcp4728_h
 #define mcp4728_h
 
-#include "Configuration.h"
-#include "Configuration_adv.h"
+#include "MarlinConfig.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 #include "Wire.h"

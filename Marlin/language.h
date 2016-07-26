@@ -23,7 +23,7 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
-#include "Configuration.h"
+#include "MarlinConfig.h"
 
 // Fallback if no language is set. DON'T CHANGE
 #ifndef LCD_LANGUAGE
