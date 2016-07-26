@@ -29,20 +29,23 @@
 #define BOARD_GEN7_12           11   // Gen7 v1.1, v1.2
 #define BOARD_GEN7_13           12   // Gen7 v1.3
 #define BOARD_GEN7_14           13   // Gen7 v1.4
+#define BOARD_CNCONTROLS_11     111  // Cartesio CN Controls V11
+#define BOARD_CNCONTROLS_12     112  // Cartesio CN Controls V12
 #define BOARD_CHEAPTRONIC       2    // Cheaptronic v1.0
 #define BOARD_SETHI             20   // Sethi 3D_1
 #define BOARD_RAMPS_OLD         3    // MEGA/RAMPS up to 1.2
-#define BOARD_RAMPS_13_EFB      33   // RAMPS 1.3 (Power outputs: Extruder, Fan, Bed)
-#define BOARD_RAMPS_13_EEB      34   // RAMPS 1.3 (Power outputs: Extruder0, Extruder1, Bed)
-#define BOARD_RAMPS_13_EFF      35   // RAMPS 1.3 (Power outputs: Extruder, Fan, Fan)
-#define BOARD_RAMPS_13_EEF      36   // RAMPS 1.3 (Power outputs: Extruder0, Extruder1, Fan)
+#define BOARD_RAMPS_13_EFB      33   // RAMPS 1.3 (Power outputs: Hotend, Fan, Bed)
+#define BOARD_RAMPS_13_EEB      34   // RAMPS 1.3 (Power outputs: Hotend0, Hotend1, Bed)
+#define BOARD_RAMPS_13_EFF      35   // RAMPS 1.3 (Power outputs: Hotend, Fan0, Fan1)
+#define BOARD_RAMPS_13_EEF      36   // RAMPS 1.3 (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS_13_SF       38   // RAMPS 1.3 (Power outputs: Spindle, Controller Fan)
 #define BOARD_FELIX2            37   // Felix 2.0+ Electronics Board (RAMPS like)
 #define BOARD_RIGIDBOARD        42   // Invent-A-Part RigidBoard
-#define BOARD_RAMPS_14_EFB      43   // RAMPS 1.4 (Power outputs: Extruder, Fan, Bed)
-#define BOARD_RAMPS_14_EEB      44   // RAMPS 1.4 (Power outputs: Extruder0, Extruder1, Bed)
-#define BOARD_RAMPS_14_EFF      45   // RAMPS 1.4 (Power outputs: Extruder, Fan, Fan)
-#define BOARD_RAMPS_14_EEF      46   // RAMPS 1.4 (Power outputs: Extruder0, Extruder1, Fan)
+#define BOARD_RIGIDBOARD_V2     52   // Invent-A-Part RigidBoard V2
+#define BOARD_RAMPS_14_EFB      43   // RAMPS 1.4 (Power outputs: Hotend, Fan, Bed)
+#define BOARD_RAMPS_14_EEB      44   // RAMPS 1.4 (Power outputs: Hotend0, Hotend1, Bed)
+#define BOARD_RAMPS_14_EFF      45   // RAMPS 1.4 (Power outputs: Hotend, Fan0, Fan1)
+#define BOARD_RAMPS_14_EEF      46   // RAMPS 1.4 (Power outputs: Hotend0, Hotend1, Fan)
 #define BOARD_RAMPS_14_SF       48   // RAMPS 1.4 (Power outputs: Spindle, Controller Fan)
 #define BOARD_GEN6              5    // Gen6
 #define BOARD_GEN6_DELUXE       51   // Gen6 deluxe
@@ -58,7 +61,8 @@
 #define BOARD_ULTIMAKER_OLD     71   // Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 #define BOARD_ULTIMAIN_2        72   // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
 #define BOARD_3DRAG             77   // 3Drag Controller
-#define BOARD_K8200             78   // Vellemann K8200 Controller (derived from 3Drag Controller)
+#define BOARD_K8200             78   // Velleman K8200 Controller (derived from 3Drag Controller)
+#define BOARD_K8400             79   // Velleman K8400 Controller (derived from 3Drag Controller)
 #define BOARD_TEENSYLU          8    // Teensylu
 #define BOARD_RUMBA             80   // Rumba
 #define BOARD_PRINTRBOARD       81   // Printrboard (AT90USB1286)

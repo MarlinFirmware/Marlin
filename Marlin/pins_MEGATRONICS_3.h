@@ -25,11 +25,11 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Megatronics v3.0"
 #define LARGE_FLASH        true
-
 
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
@@ -71,12 +71,10 @@
 #define E2_DIR_PIN         60
 #define E2_ENABLE_PIN      23
 
-#define SDPOWER -1
 #define SDSS 53
 #define LED_PIN 13
 
 #define PS_ON_PIN 12
-#define KILL_PIN -1
 
 #define HEATER_0_PIN 2
 #define HEATER_1_PIN 9
@@ -85,32 +83,61 @@
 #define FAN_PIN 6
 #define FAN2_PIN 7
 
-#define TEMP_0_PIN   (TEMP_SENSOR_0 == -1 ?  11 : 15) // ANALOG NUMBERING
-#define TEMP_1_PIN   (TEMP_SENSOR_1 == -1 ?  10 : 13) // ANALOG NUMBERING
-#define TEMP_2_PIN   (TEMP_SENSOR_2 == -1 ?   9 : 12) // ANALOG NUMBERING
-#define TEMP_BED_PIN (TEMP_SENSOR_BED == -1 ? 8 : 14) // ANALOG NUMBERING
+#if TEMP_SENSOR_0 == -1
+  #define TEMP_0_PIN   11 // ANALOG NUMBERING
+#else
+  #define TEMP_0_PIN   15 // ANALOG NUMBERING
+#endif
+#if TEMP_SENSOR_1 == -1
+  #define TEMP_1_PIN   10 // ANALOG NUMBERING
+#else
+  #define TEMP_1_PIN   13 // ANALOG NUMBERING
+#endif
+#if TEMP_SENSOR_2 == -1
+  #define TEMP_2_PIN    9 // ANALOG NUMBERING
+#else
+  #define TEMP_2_PIN   12 // ANALOG NUMBERING
+#endif
+#if TEMP_SENSOR_BED == -1
+  #define TEMP_BED_PIN  8 // ANALOG NUMBERING
+#else
+  #define TEMP_BED_PIN 14 // ANALOG NUMBERING
+#endif
 
 #define BEEPER_PIN 61
 
-#define LCD_PINS_RS 32
-#define LCD_PINS_ENABLE 31
-#define LCD_PINS_D4 14
-#define LCD_PINS_D5 30
-#define LCD_PINS_D6 39
-#define LCD_PINS_D7 15
+#if ENABLED(DOGLCD)
 
-#define SHIFT_CLK 43
-#define SHIFT_LD 35
-#define SHIFT_OUT 34
-#define SHIFT_EN 44
+  #if ENABLED(U8GLIB_ST7920)
+    #define LCD_PINS_RS     56 //CS chip select /SS chip slave select
+    #define LCD_PINS_ENABLE 51 //SID (MOSI)
+    #define LCD_PINS_D4     52 //SCK (CLK) clock
+    #define SD_DETECT_PIN 35
+  #endif
+
+#else
+
+  #define LCD_PINS_RS 32
+  #define LCD_PINS_ENABLE 31
+  #define LCD_PINS_D4 14
+  #define LCD_PINS_D5 30
+  #define LCD_PINS_D6 39
+  #define LCD_PINS_D7 15
+  
+  #define SHIFT_CLK 43
+  #define SHIFT_LD 35
+  #define SHIFT_OUT 34
+  #define SHIFT_EN 44
+
+  #define SD_DETECT_PIN 56 // Megatronics v3.1 only
+
+#endif
 
 // Buttons are directly attached using keypad
 #define BTN_EN1 44
 #define BTN_EN2 45
-#define BTN_ENC 33 // the click
+#define BTN_ENC 33
 
 #define BLEN_C 2
 #define BLEN_B 1
 #define BLEN_A 0
-
-#define SD_DETECT_PIN -1 // Megatronics doesn't use this

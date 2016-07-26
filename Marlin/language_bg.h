@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -49,16 +49,16 @@
 #define MSG_SET_HOME_OFFSETS                "Задай Начало"
 #define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Изходна точка"
-#define MSG_PREHEAT_PLA                     "Подгряване PLA"
-#define MSG_PREHEAT_PLA_N                   "Подгряване PLA"
-#define MSG_PREHEAT_PLA_ALL                 "Подгр. PLA Всички"
-#define MSG_PREHEAT_PLA_BEDONLY             "Подгр. PLA Легло"
-#define MSG_PREHEAT_PLA_SETTINGS            "Настройки PLA"
-#define MSG_PREHEAT_ABS                     "Подгряване ABS"
-#define MSG_PREHEAT_ABS_N                   "Подгряване ABS"
-#define MSG_PREHEAT_ABS_ALL                 "Подгр. ABS Всички"
-#define MSG_PREHEAT_ABS_BEDONLY             "Подгр. ABS Легло"
-#define MSG_PREHEAT_ABS_SETTINGS            "Настройки ABS"
+#define MSG_PREHEAT_1                       "Подгряване PLA"
+#define MSG_PREHEAT_1_N                     "Подгряване PLA"
+#define MSG_PREHEAT_1_ALL                   "Подгр. PLA Всички"
+#define MSG_PREHEAT_1_BEDONLY               "Подгр. PLA Легло"
+#define MSG_PREHEAT_1_SETTINGS              "Настройки PLA"
+#define MSG_PREHEAT_2                       "Подгряване ABS"
+#define MSG_PREHEAT_2_N                     "Подгряване ABS"
+#define MSG_PREHEAT_2_ALL                   "Подгр. ABS Всички"
+#define MSG_PREHEAT_2_BEDONLY               "Подгр. ABS Легло"
+#define MSG_PREHEAT_2_SETTINGS              "Настройки ABS"
 #define MSG_COOLDOWN                        "Охлаждане"
 #define MSG_SWITCH_PS_ON                    "Вкл. захранване"
 #define MSG_SWITCH_PS_OFF                   "Изкл. захранване"
@@ -143,15 +143,13 @@
 #define MSG_INIT_SDCARD                     "Иниц. SD-Карта"
 #define MSG_CNG_SDCARD                      "Смяна SD-Карта"
 #define MSG_ZPROBE_OUT                      "Z-сондата е извадена"
-#define MSG_YX_UNHOMED                      "Задайте X/Y преди Z"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Z Отстояние"
 #define MSG_BABYSTEP_X                      "Министъпка X"
 #define MSG_BABYSTEP_Y                      "Министъпка Y"
 #define MSG_BABYSTEP_Z                      "Министъпка Z"
 #define MSG_ENDSTOP_ABORT                   "Стоп Кр.Изключватели"
-#define MSG_END_HOUR                        "часа"
-#define MSG_END_MINUTE                      "минути"
-
 #define MSG_DELTA_CALIBRATE                 "Делта Калибровка"
 #define MSG_DELTA_CALIBRATE_X               "Калибровка X"
 #define MSG_DELTA_CALIBRATE_Y               "Калибровка Y"

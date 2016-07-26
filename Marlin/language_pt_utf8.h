@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_PT_UTF_H
 #define LANGUAGE_PT_UTF_H
 
-#define MAPPER_NON
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
@@ -42,23 +41,27 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Desactivar motores"
 #define MSG_AUTO_HOME                       "Ir para origem"
+#define MSG_AUTO_HOME_X                     "Ir para origem X"
+#define MSG_AUTO_HOME_Y                     "Ir para origem Y"
+#define MSG_AUTO_HOME_Z                     "Ir para origem Z"
 #define MSG_LEVEL_BED_HOMING                "Indo para origem"
-#define MSG_LEVEL_BED_WAITING               "Click to Begin"
-#define MSG_LEVEL_BED_DONE                  "Leveling Done!"
-#define MSG_LEVEL_BED_CANCEL                "Cancel"
+#define MSG_LEVEL_BED_WAITING               "Click para iniciar"
+#define MSG_LEVEL_BED_NEXT_POINT            "Próximo ponto"
+#define MSG_LEVEL_BED_DONE                  "Pronto !"
+#define MSG_LEVEL_BED_CANCEL                "Cancelar"
 #define MSG_SET_HOME_OFFSETS                "Definir desvio"
-#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets aplicados"
 #define MSG_SET_ORIGIN                      "Definir origem"
-#define MSG_PREHEAT_PLA                     "Pre-aquecer PLA"
-#define MSG_PREHEAT_PLA_N                   "Pre-aquecer PLA"
-#define MSG_PREHEAT_PLA_ALL                 "Pre-aq. PLA Tudo"
-#define MSG_PREHEAT_PLA_BEDONLY             "Pre-aq. PLA " LCD_STR_THERMOMETER "Base"
-#define MSG_PREHEAT_PLA_SETTINGS            "Definições PLA"
-#define MSG_PREHEAT_ABS                     "Pre-aquecer ABS"
-#define MSG_PREHEAT_ABS_N                   "Pre-aquecer ABS "
-#define MSG_PREHEAT_ABS_ALL                 "Pre-aq. ABS Tudo"
-#define MSG_PREHEAT_ABS_BEDONLY             "Pre-aq. ABS " LCD_STR_THERMOMETER "Base"
-#define MSG_PREHEAT_ABS_SETTINGS            "Definições ABS"
+#define MSG_PREHEAT_1                       "Pre-aquecer PLA"
+#define MSG_PREHEAT_1_N                     "Pre-aquecer PLA"
+#define MSG_PREHEAT_1_ALL                   "Pre-aq. PLA Tudo"
+#define MSG_PREHEAT_1_BEDONLY               "Pre-aq. PLA " LCD_STR_THERMOMETER "Base"
+#define MSG_PREHEAT_1_SETTINGS              "Definições PLA"
+#define MSG_PREHEAT_2                       "Pre-aquecer ABS"
+#define MSG_PREHEAT_2_N                     "Pre-aquecer ABS "
+#define MSG_PREHEAT_2_ALL                   "Pre-aq. ABS Tudo"
+#define MSG_PREHEAT_2_BEDONLY               "Pre-aq. ABS " LCD_STR_THERMOMETER "Base"
+#define MSG_PREHEAT_2_SETTINGS              "Definições ABS"
 #define MSG_COOLDOWN                        "Arrefecer"
 #define MSG_SWITCH_PS_ON                    "Ligar"
 #define MSG_SWITCH_PS_OFF                   "Desligar"
@@ -148,7 +151,8 @@
 #define MSG_INIT_SDCARD                     "Inici. cartão SD"
 #define MSG_CNG_SDCARD                      "Trocar cartão SD"
 #define MSG_ZPROBE_OUT                      "Sensor fora/base"
-#define MSG_YX_UNHOMED                      "XY antes de Z"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Desvio Z"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
@@ -161,17 +165,16 @@
 #define MSG_ERR_MINTEMP                     "Err: T Mínima"
 #define MSG_ERR_MAXTEMP_BED                 "Err: T Base Máxima"
 #define MSG_ERR_MINTEMP_BED                 "Err: T Base Mínima"
-#define MSG_END_HOUR                        "horas"
-#define MSG_END_MINUTE                      "minutos"
 #define MSG_HEATING                         "Aquecendo..."
 #define MSG_HEATING_COMPLETE                "Aquecida."
 #define MSG_BED_HEATING                     "Aquecendo base.."
 #define MSG_BED_DONE                        "Base aquecida."
-
 #define MSG_DELTA_CALIBRATE                 "Calibração Delta"
 #define MSG_DELTA_CALIBRATE_X               "Calibrar X"
 #define MSG_DELTA_CALIBRATE_Y               "Calibrar Y"
 #define MSG_DELTA_CALIBRATE_Z               "Calibrar Z"
 #define MSG_DELTA_CALIBRATE_CENTER          "Calibrar Centro"
+
+#define MSG_LCD_ENDSTOPS                    "Fim de curso"
 
 #endif // LANGUAGE_PT_UTF_H

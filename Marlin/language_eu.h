@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_EU_H
 #define LANGUAGE_EU_H
 
-#define MAPPER_NON
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
@@ -49,16 +48,16 @@
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Hasiera ipini"
-#define MSG_PREHEAT_PLA                     "Aurreberotu PLA"
-#define MSG_PREHEAT_PLA_N                   "Aurreberotu PLA "
-#define MSG_PREHEAT_PLA_ALL                 "Berotu PLA Guztia"
-#define MSG_PREHEAT_PLA_BEDONLY             "Berotu PLA Ohea"
-#define MSG_PREHEAT_PLA_SETTINGS            "Berotu PLA Konfig"
-#define MSG_PREHEAT_ABS                     "Aurreberotu ABS"
-#define MSG_PREHEAT_ABS_N                   "Aurreberotu ABS "
-#define MSG_PREHEAT_ABS_ALL                 "Berotu ABS Guztia"
-#define MSG_PREHEAT_ABS_BEDONLY             "Berotu ABS Ohea"
-#define MSG_PREHEAT_ABS_SETTINGS            "Berotu ABS Konfig"
+#define MSG_PREHEAT_1                       "Aurreberotu PLA"
+#define MSG_PREHEAT_1_N                     "Aurreberotu PLA "
+#define MSG_PREHEAT_1_ALL                   "Berotu PLA Guztia"
+#define MSG_PREHEAT_1_BEDONLY               "Berotu PLA Ohea"
+#define MSG_PREHEAT_1_SETTINGS              "Berotu PLA Konfig"
+#define MSG_PREHEAT_2                       "Aurreberotu ABS"
+#define MSG_PREHEAT_2_N                     "Aurreberotu ABS "
+#define MSG_PREHEAT_2_ALL                   "Berotu ABS Guztia"
+#define MSG_PREHEAT_2_BEDONLY               "Berotu ABS Ohea"
+#define MSG_PREHEAT_2_SETTINGS              "Berotu ABS Konfig"
 #define MSG_COOLDOWN                        "Hoztu"
 #define MSG_SWITCH_PS_ON                    "Energia piztu"
 #define MSG_SWITCH_PS_OFF                   "Energia itzali"
@@ -142,15 +141,13 @@
 #define MSG_INIT_SDCARD                     "Hasieratu txartela"
 #define MSG_CNG_SDCARD                      "Aldatu txartela"
 #define MSG_ZPROBE_OUT                      "Z ohe hasiera"
-#define MSG_YX_UNHOMED                      "Posizio ezezaguna"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Z konpentsatu"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop deuseztat"
-#define MSG_END_HOUR                        "hours"
-#define MSG_END_MINUTE                      "minutes"
-
 #define MSG_DELTA_CALIBRATE                 "Delta Calibration"
 #define MSG_DELTA_CALIBRATE_X               "Calibrate X"
 #define MSG_DELTA_CALIBRATE_Y               "Calibrate Y"

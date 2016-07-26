@@ -25,16 +25,16 @@
  *
  * Applies to the following boards:
  *
- *  RAMPS_14_EFB (Extruder, Fan, Bed)
- *  RAMPS_14_EEB (Extruder, Extruder, Bed)
- *  RAMPS_14_EFF (Extruder, Fan, Fan)
- *  RAMPS_14_EEF (Extruder, Extruder, Fan)
+ *  RAMPS_14_EFB (Hotend, Fan, Bed)
+ *  RAMPS_14_EEB (Hotend0, Hotend1, Bed)
+ *  RAMPS_14_EFF (Hotend, Fan0, Fan1)
+ *  RAMPS_14_EEF (Hotend0, Hotend1, Fan)
  *  RAMPS_14_SF  (Spindle, Controller Fan)
  *
- *  RAMPS_13_EFB (Extruder, Fan, Bed)
- *  RAMPS_13_EEB (Extruder, Extruder, Bed)
- *  RAMPS_13_EFF (Extruder, Fan, Fan)
- *  RAMPS_13_EEF (Extruder, Extruder, Fan)
+ *  RAMPS_13_EFB (Hotend, Fan, Bed)
+ *  RAMPS_13_EEB (Hotend0, Hotend1, Bed)
+ *  RAMPS_13_EFF (Hotend, Fan0, Fan1)
+ *  RAMPS_13_EEF (Hotend0, Hotend1, Fan)
  *  RAMPS_13_SF  (Spindle, Controller Fan)
  *
  *  Other pins_MYBOARD.h files may override these defaults
@@ -45,7 +45,11 @@
  */
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+#endif
+
+#ifndef BOARD_NAME
+  #define BOARD_NAME "RAMPS 1.4"
 #endif
 
 #define LARGE_FLASH true
@@ -87,7 +91,6 @@
 #define E1_DIR_PIN         34
 #define E1_ENABLE_PIN      30
 
-#define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
 
@@ -99,10 +102,8 @@
   #define Z_MIN_PROBE_PIN  32
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
-  // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
-  #define FILRUNOUT_PIN     4
-#endif
+// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
+#define FIL_RUNOUT_PIN      4
 
 #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF) || ENABLED(IS_RAMPS_EFB)
   #define FAN_PIN           9 // (Sprinter config)
@@ -117,35 +118,22 @@
 
 #define PS_ON_PIN          12
 
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) || ENABLED(G3D_PANEL)
-  #define KILL_PIN         41
-#endif
-
 #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF)
   #define HEATER_0_PIN      8
 #else
   #define HEATER_0_PIN     10   // EXTRUDER 1
+  #if !MB(RAMPS_14_EEF) && !MB(RAMPS_13_EEF) && !MB(RAMPS_14_SF) && !MB(RAMPS_13_SF)
+    #define HEATER_BED_PIN    8    // BED
+  #endif
 #endif
 
-#if MB(RAMPS_14_SF) || MB(RAMPS_13_SF) || ENABLED(IS_RAMPS_EFB)
-  #define HEATER_1_PIN     -1
-#else
+#if !MB(RAMPS_14_SF) && !MB(RAMPS_13_SF) && !ENABLED(IS_RAMPS_EFB)
   #define HEATER_1_PIN      9   // EXTRUDER 2 (FAN On Sprinter)
 #endif
 
-#define HEATER_2_PIN       -1
-
 #define TEMP_0_PIN         13   // ANALOG NUMBERING
 #define TEMP_1_PIN         15   // ANALOG NUMBERING
-#define TEMP_2_PIN         -1   // ANALOG NUMBERING
-
-#if MB(RAMPS_14_EFF) || MB(RAMPS_14_EEF) || MB(RAMPS_14_SF) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
-  #define HEATER_BED_PIN   -1    // NO BED
-#else
-  #define HEATER_BED_PIN    8    // BED
-#endif
-
-#define TEMP_BED_PIN         14   // ANALOG NUMBERING
+#define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN           -1
@@ -153,22 +141,36 @@
 
 #if ENABLED(ULTRA_LCD)
 
-  #if ENABLED(NEWPANEL)
-    #if ENABLED(PANEL_ONE)
-      #define LCD_PINS_RS 40
-      #define LCD_PINS_ENABLE 42
-      #define LCD_PINS_D4 65
-      #define LCD_PINS_D5 66
-      #define LCD_PINS_D6 44
-      #define LCD_PINS_D7 64
-    #else
-      #define LCD_PINS_RS 16
-      #define LCD_PINS_ENABLE 17
-      #define LCD_PINS_D4 23
-      #define LCD_PINS_D5 25
-      #define LCD_PINS_D6 27
-      #define LCD_PINS_D7 29
+  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+    #define LCD_PINS_RS     49 //CS chip select /SS chip slave select
+    #define LCD_PINS_ENABLE 51 //SID (MOSI)
+    #define LCD_PINS_D4     52 //SCK (CLK) clock
+  #elif ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
+    #define LCD_PINS_RS 40
+    #define LCD_PINS_ENABLE 42
+    #define LCD_PINS_D4 65
+    #define LCD_PINS_D5 66
+    #define LCD_PINS_D6 44
+    #define LCD_PINS_D7 64
+  #else
+    #define LCD_PINS_RS 16
+    #define LCD_PINS_ENABLE 17
+    #define LCD_PINS_D4 23
+    #define LCD_PINS_D5 25
+    #define LCD_PINS_D6 27
+    #define LCD_PINS_D7 29
+    #if DISABLED(NEWPANEL)
+      #define BEEPER_PIN 33
+      // Buttons are attached to a shift register
+      // Not wired yet
+      //#define SHIFT_CLK 38
+      //#define SHIFT_LD 42
+      //#define SHIFT_OUT 40
+      //#define SHIFT_EN 17
     #endif
+  #endif
+
+  #if ENABLED(NEWPANEL)
 
     #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
       #define BEEPER_PIN 37
@@ -178,6 +180,17 @@
       #define BTN_ENC 35
 
       #define SD_DETECT_PIN 49
+      #define KILL_PIN 41
+
+      #if ENABLED(BQ_LCD_SMART_CONTROLLER)
+        #define LCD_PIN_BL 39
+      #endif
+
+    #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+      #define BTN_EN1 64
+      #define BTN_EN2 59
+      #define BTN_ENC 63
+      #define SD_DETECT_PIN 42
     #elif ENABLED(LCD_I2C_PANELOLU2)
       #define BTN_EN1 47  // reverse if the encoder turns the wrong way.
       #define BTN_EN2 43
@@ -193,6 +206,27 @@
       #define BTN_ENC -1
       #define LCD_SDSS 53
       #define SD_DETECT_PIN 49
+    #elif ENABLED(VIKI2) || ENABLED(miniVIKI)
+      #define BEEPER_PIN       33
+
+      // Pins for DOGM SPI LCD Support
+      #define DOGLCD_A0        44
+      #define DOGLCD_CS        45
+      #define LCD_SCREEN_ROT_180
+
+      #define BTN_EN1          22
+      #define BTN_EN2           7
+      #define BTN_ENC          39
+
+      #define SDSS             53
+      #define SD_DETECT_PIN    -1  // Pin 49 for display sd interface, 72 for easy adapter board
+
+      #define KILL_PIN         31
+
+      #if ENABLED(TEMP_STAT_LEDS)
+        #define STAT_LED_RED   32
+        #define STAT_LED_BLUE  35
+      #endif
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #define BTN_EN1 35  // reverse if the encoder turns the wrong way.
       #define BTN_EN2 37
@@ -228,7 +262,8 @@
 
     #else
 
-      #define BEEPER_PIN 33  // Beeper on AUX-4
+      // Beeper on AUX-4
+      #define BEEPER_PIN 33
 
       // buttons are directly attached using AUX-2
       #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -250,30 +285,13 @@
 
       #if ENABLED(G3D_PANEL)
         #define SD_DETECT_PIN 49
+        #define KILL_PIN 41
       #else
         //        #define SD_DETECT_PIN -1  // Ramps doesn't use this
       #endif
 
     #endif
-  #else // !NEWPANEL (Old-style panel with shift register)
-
-    #define BEEPER_PIN 33   // No Beeper added
-
-    // Buttons are attached to a shift register
-    // Not wired yet
-    //#define SHIFT_CLK 38
-    //#define SHIFT_LD 42
-    //#define SHIFT_OUT 40
-    //#define SHIFT_EN 17
-
-    #define LCD_PINS_RS 16
-    #define LCD_PINS_ENABLE 17
-    #define LCD_PINS_D4 23
-    #define LCD_PINS_D5 25
-    #define LCD_PINS_D6 27
-    #define LCD_PINS_D7 29
-
-  #endif // !NEWPANEL
+  #endif // NEWPANEL
 
 #endif // ULTRA_LCD
 
@@ -289,8 +307,4 @@
   #define SCK_PIN          52
   #define MISO_PIN         50
   #define MOSI_PIN         51
-#endif
-
-#ifndef KILL_PIN
-  //  #define KILL_PIN         -1
 #endif
