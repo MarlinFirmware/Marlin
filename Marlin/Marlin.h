@@ -37,10 +37,6 @@
 
 #include "fastio.h"
 
-#ifndef SANITYCHECK_H
-  #error "Your Configuration.h and Configuration_adv.h files are outdated!"
-#endif
-
 #include "enum.h"
 #include "utility.h"
 

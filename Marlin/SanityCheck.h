@@ -21,7 +21,7 @@
  */
 
 /**
- * Conditionals.h
- * OBSOLETE: Replaced by Conditionals_LCD.h and Conditionals_post.h
+ * SanityCheck.h
+ * OBSOLETE: Moved to SanityCheck.cpp
  */
-#include "SanityCheck.h"
+#error "Please remove all #include lines from your Configuration.h and Configuration_adv.h files!"
