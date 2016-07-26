@@ -306,6 +306,13 @@
 
 #endif
 
+
+#if ENABLED( UNIFIED_BED_LEVELING_FEATURE )
+  #if DISABLED(ULTRA_LCD)
+       #error "Unified Bed Leveling currently requires an LCD Panel.  This constraint will be relaxed later."
+  #endif
+#endif
+
 /**
  * Auto Bed Leveling
  */
