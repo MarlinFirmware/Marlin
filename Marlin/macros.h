@@ -23,6 +23,17 @@
 #ifndef MACROS_H
 #define MACROS_H
 
+#define FORCE_INLINE __attribute__((always_inline)) inline
+
+// Bracket code that shouldn't be interrupted
+#ifndef CRITICAL_SECTION_START
+  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
+  #define CRITICAL_SECTION_END    SREG = _sreg;
+#endif
+
+// Remove compiler warning on an unused variable
+#define UNUSED(x) (void) (x)
+
 // Macros to make a string from a macro
 #define STRINGIFY_(M) #M
 #define STRINGIFY(M) STRINGIFY_(M)

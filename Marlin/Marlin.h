@@ -22,12 +22,6 @@
 #ifndef MARLIN_H
 #define MARLIN_H
 
-#define  FORCE_INLINE __attribute__((always_inline)) inline
-/**
- * Compiler warning on unused variable.
- */
-#define UNUSED(x) (void) (x)
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -263,11 +257,6 @@ inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
 #if ENABLED(FAST_PWM_FAN)
   void setPwmFrequency(uint8_t pin, int val);
-#endif
-
-#ifndef CRITICAL_SECTION_START
-  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
-  #define CRITICAL_SECTION_END    SREG = _sreg;
 #endif
 
 /**
