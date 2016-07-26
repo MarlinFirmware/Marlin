@@ -175,7 +175,6 @@
 #define MSG_SHORT_DAY                       "d"                          // One character only
 #define MSG_SHORT_HOUR                      "h"                          // One character only
 #define MSG_SHORT_MINUTE                    "m"                          // One character only
-#define MSG_PRINT_TIME                      "プリントジカン"                  // "Print time"
 #define MSG_HEATING                         "カネツチュウ"                   // "Heating..."
 #define MSG_HEATING_COMPLETE                "カネツカンリョウ"                 // "Heating done."
 #define MSG_BED_HEATING                     "ベッド カネツチュウ"              // "Bed Heating."
