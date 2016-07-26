@@ -41,25 +41,27 @@
 
 #include "fastio.h"
 #include "Configuration.h"
-#include "pins.h"
-
-#include "utility.h"
 
 #ifndef SANITYCHECK_H
   #error "Your Configuration.h and Configuration_adv.h files are outdated!"
 #endif
 
-#include "Arduino.h"
-
 #include "enum.h"
+#include "utility.h"
 
 typedef unsigned long millis_t;
 
 #ifdef USBCON
   #include "HardwareSerial.h"
+  #if ENABLED(BLUETOOTH)
+    #define MYSERIAL bluetoothSerial
+  #else
+    #define MYSERIAL Serial
+  #endif // BLUETOOTH
+#else
+  #include "MarlinSerial.h"
+  #define MYSERIAL customizedSerial
 #endif
-
-#include "MarlinSerial.h"
 
 #include "WString.h"
 
@@ -67,16 +69,6 @@ typedef unsigned long millis_t;
   #include "printcounter.h"
 #else
   #include "stopwatch.h"
-#endif
-
-#ifdef USBCON
-  #if ENABLED(BLUETOOTH)
-    #define MYSERIAL bluetoothSerial
-  #else
-    #define MYSERIAL Serial
-  #endif // BLUETOOTH
-#else
-  #define MYSERIAL customizedSerial
 #endif
 
 #define SERIAL_CHAR(x) MYSERIAL.write(x)
