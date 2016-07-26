@@ -110,6 +110,7 @@
 #define MSG_PID_I                           "PID-I"
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
+#define MSG_SELECT                          "Vybrat"
 #define MSG_E1                              " E1"
 #define MSG_E2                              " E2"
 #define MSG_E3                              " E3"
@@ -211,12 +212,16 @@
 #define MSG_INFO_PROTOCOL                   "Protokol"
 #if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              "Pocet tisku"
-  #define MSG_INFO_COMPLETED_PRINTS         "Dokonceno  "
+  #define MSG_INFO_COMPLETED_PRINTS         "Dokonceno"
   #define MSG_INFO_PRINT_TIME               "Celkovy cas"
+  #define MSG_INFO_PRINT_LONGEST            "Nejdelsi tisk"
+  #define MSG_INFO_PRINT_FILAMENT           "Celkem vytlaceno"
 #else
-  #define MSG_INFO_PRINT_COUNT              "Tisky "
+  #define MSG_INFO_PRINT_COUNT              "Tisky"
   #define MSG_INFO_COMPLETED_PRINTS         "Hotovo"
-  #define MSG_INFO_PRINT_TIME               "Cas   "
+  #define MSG_INFO_PRINT_TIME               "Cas"
+  #define MSG_INFO_PRINT_LONGEST            "Nejdelsi"
+  #define MSG_INFO_PRINT_FILAMENT           "Vytlaceno"
 #endif
 #define MSG_INFO_MIN_TEMP                   "Teplota min"
 #define MSG_INFO_MAX_TEMP                   "Teplota max"
