@@ -13,6 +13,8 @@ This is a Development Branch of Marlin.   It is built on a High Resolution Mesh 
 
 ## Usage of the UBL System
 
+Currently, the Unified Bed Leveling System requires the user to have an LCD Panel and a Z-Probe.  Later, when things stabilize, these constraints can be relaxed.  But a small amount of code clean up is necessary before this can happen.
+
 In order to realize the full benefits of the system, the user will need to choose a Mesh size and then populate it with accurate values.   The bulk of the values can be obtained automatically with a G29 P1 M command.   The unreachable (by the probe) areas can be populated by either performing Manual Probing with G29 P2 command or a G29 P3 command which fills an area of the Mesh with a specified value.   It is then anticipated that the user should utilize the new G26 Mesh Validation Command to see how well they have the Mesh defined for thier print bed.   With this information the user would likely move on to the Fine Tuning the Mesh with a set of G29 P4 commands.   The bulk of the UBL System was developed using a 10 x 10 Mesh.   The system can go up to 15 x 15 if needed.
 
 When bringing up the system, it is advisable to start with the Configuration.h file associated with the release and make as few  changes as possible.   The System was developed on a Prusa i3 machine with a 20x4 LCD display.  The closer you are to the development system, the less likely you are to have issues.   Once you have the System up and running correctly it should be OK to start making a few changes at a time to get the Configuration.h file more closely aligned with your preferred configuration.   There is a lot of new code in this package and by moving to your preferred configuration in steps it will help us give you good support.
@@ -25,6 +27,8 @@ The full set of parameters for G29 and G26 are provided at the end of this page.
 ## To Do Items
 The UBL System is currently fully functional on Prusa i3 type machines with a 20x4 LCD Panel.   It is expected to be fully functional on all machine types with or without an LCD Panel prior to it being released as a 'Stable Release'.
 
+- Relax requirement for LCD Panel.
+- Relax requirement for a Z-Probe.
 - Clean up the formatting of the Parameter Options at the bottom of this page.
 - Deltas have not been checked out and verified for correct operation yet.   It should be noted that this code was originally designed and written to address the horrible quality issues I have with my Geeetech Delta printer.   That was my original intent but I got side tracked and ended up with the Cartesian versions running first.    I will get the Delta version going as soon as I get some spare time.  (I have to fix my Delta and put it back together again.  So it may take some time.)   The code was written to be compatible with Delta's and should not be very difficult to get running correctly.   If somebody with a Delta wants to give it a try, PLEASE DO!  And then report back any areas where things are not working correctly.
 - LCD Panel Menu items should be added to facilitate the generation, loading, storing, tilting and editing of a Mesh.   Right now, these are all done using PronterFace.  The control should be expanded to allow operation purely from the LCD Panel.
