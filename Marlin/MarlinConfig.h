@@ -35,6 +35,5 @@
 #endif
 #include "Arduino.h"
 #include "Conditionals_post.h"
-#include "SanityCheck.h"
 
 #endif // MARLIN_CONFIG_H

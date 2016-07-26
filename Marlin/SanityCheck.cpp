@@ -21,12 +21,12 @@
  */
 
 /**
- * SanityCheck.h
+ * SanityCheck.cpp
  *
  * Test configuration values for errors at compile-time.
+ * This is done only once, here, to speed up compilation time.
  */
-#ifndef SANITYCHECK_H
-#define SANITYCHECK_H
+#include "MarlinConfig.h"
 
 /**
  * Due to the high number of issues related with old versions of Arduino IDE
@@ -727,5 +727,3 @@
 #elif defined(HOMING_FEEDRATE)
   #error "HOMING_FEEDRATE is deprecated. Set individual rates with HOMING_FEEDRATE_(XY|Z|E) instead."
 #endif
-
-#endif //SANITYCHECK_H
