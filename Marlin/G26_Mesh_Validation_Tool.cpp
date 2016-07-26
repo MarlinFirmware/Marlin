@@ -222,7 +222,7 @@ struct mesh_index_pair location;
 
 		if ( xi>0 && xi<MESH_NUM_X_POINTS-1 && yi>0 && yi<MESH_NUM_Y_POINTS-1) {  // Do the full circle!
 			k = 0;
-			j = 9;
+			j = 8;
 		} else {
 			k = 0;
 			while ( !direction_is_on_bed(circle_x, circle_y, k)) 	// Make sure k's angle index is on the 
