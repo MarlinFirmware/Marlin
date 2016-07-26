@@ -220,7 +220,6 @@
 #define MSG_SHORT_DAY                       "d"                                                                // One character only
 #define MSG_SHORT_HOUR                      "h"                                                                // One character only
 #define MSG_SHORT_MINUTE                    "m"                                                                // One character only
-#define MSG_PRINT_TIME                      "\xcc\xdf\xd8\xdd\xc4\xbc\xde\xb6\xdd"                             // "ﾌﾟﾘﾝﾄｼﾞｶﾝ" ("Print time")
 #define MSG_HEATING                         "\xb6\xc8\xc2\xc1\xad\xb3"                                         // "ｶﾈﾂﾁｭｳ" ("Heating...")
 #define MSG_HEATING_COMPLETE                "\xb6\xc8\xc2\xb6\xdd\xd8\xae\xb3"                                 // "ｶﾈﾂｶﾝﾘｮｳ" ("Heating done.")
 #define MSG_BED_HEATING                     "\xcd\xde\xaf\xc4\xde\x20\xb6\xc8\xc2\xc1\xad\xb3"                 // "ﾍﾞｯﾄﾞ ｶﾈﾂﾁｭｳ" ("Bed Heating.")
