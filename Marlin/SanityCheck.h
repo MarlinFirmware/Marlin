@@ -311,6 +311,11 @@
   #if DISABLED(ULTRA_LCD)
        #error "Unified Bed Leveling currently requires an LCD Panel.  This constraint will be relaxed later."
   #endif
+  
+  #if !HAS_BED_PROBE
+       #error "Unified Bed Leveling currently requires a Z-Probe.  This constraint will be relaxed later."
+  #endif
+
 #endif
 
 /**
