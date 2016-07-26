@@ -856,7 +856,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // IMPORTANT NOTE: The U8glib library is required for Full Graphic Display!
 //                 https://github.com/olikraus/U8glib_Arduino
 //
-//#define ULTRA_LCD   // Character based
+#define ULTRA_LCD   // Character based
 //#define DOGLCD      // Full graphics display
 
 //
