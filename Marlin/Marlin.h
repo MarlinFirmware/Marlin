@@ -48,7 +48,7 @@
   #error "Your Configuration.h and Configuration_adv.h files are outdated!"
 #endif
 
-#ifdef UNIFIED_BED_LEVELING_FEATURE || ENABLED(M100_FREE_MEMORY_WATCHER)
+#ifdef UNIFIED_BED_LEVELING_FEATURE || M100_FREE_MEMORY_WATCHER
   void prt_hex_word( unsigned int );
   void prt_hex_byte( unsigned int );
 #endif
