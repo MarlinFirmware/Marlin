@@ -46,7 +46,7 @@
  */
 #define CONFIGURATION_ADV_H_VERSION 010100
 
-#include "Conditionals.h"
+#include "Conditionals_LCD.h"
 
 // @section temperature
 

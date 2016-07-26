@@ -34,6 +34,9 @@
 #define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (_BV(b))
 
 // Macros for maths shortcuts
+#ifndef M_PI
+  #define M_PI 3.14159265358979323846
+#endif
 #define RADIANS(d) ((d)*M_PI/180.0)
 #define DEGREES(r) ((r)*180.0/M_PI)
 #define HYPOT(x,y) sqrt(sq(x)+sq(y))
