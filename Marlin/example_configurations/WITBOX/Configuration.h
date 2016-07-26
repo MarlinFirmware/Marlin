@@ -109,10 +109,6 @@
 // example configuration folder.
 //
 //#define SHOW_CUSTOM_BOOTSCREEN
-#if ENABLED(SHOW_BOOTSCREEN) && ENABLED(SHOW_CUSTOM_BOOTSCREEN)
-  #include "_Bootscreen.h"
-#endif
-
 // @section machine
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
