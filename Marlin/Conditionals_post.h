@@ -21,12 +21,10 @@
  */
 
 /**
- * Conditionals.h
+ * Conditionals_post.h
  * Defines that depend on configuration but are not editable.
  */
 
-#ifndef CONDITIONALS_H
-#define CONDITIONALS_H
 
   #include "pins.h"
 
@@ -36,6 +34,8 @@
   #include "Arduino.h"
 
   #include "macros.h"
+#ifndef CONDITIONALS_POST_H
+#define CONDITIONALS_POST_H
 
   #if ENABLED(EMERGENCY_PARSER)
     #define EMERGENCY_PARSER_CAPABILITIES " EMERGENCY_CODES:M108,M112,M410"
@@ -675,4 +675,4 @@
     #define Z_RAISE_BETWEEN_PROBING MIN_Z_HEIGHT_FOR_HOMING
   #endif
 
-#endif //CONDITIONALS_H
+#endif // CONDITIONALS_POST_H
