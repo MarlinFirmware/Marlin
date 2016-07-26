@@ -25,15 +25,6 @@
  * Defines that depend on configuration but are not editable.
  */
 
-
-  #include "pins.h"
-
-  #ifndef USBCON
-    #define HardwareSerial_h // trick to disable the standard HWserial
-  #endif
-  #include "Arduino.h"
-
-  #include "macros.h"
 #ifndef CONDITIONALS_POST_H
 #define CONDITIONALS_POST_H
 
