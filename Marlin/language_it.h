@@ -169,7 +169,6 @@
 #define MSG_SHORT_DAY                       "g" // One character only
 #define MSG_SHORT_HOUR                      "h" // One character only
 #define MSG_SHORT_MINUTE                    "m" // One character only
-#define MSG_PRINT_TIME                      "Durata stampa"
 #define MSG_HEATING                         "Riscaldamento.."
 #define MSG_HEATING_COMPLETE                "Risc. completato"
 #define MSG_BED_HEATING                     "Risc. Piatto.."

@@ -500,9 +500,6 @@
 #ifndef MSG_SHORT_MINUTE
   #define MSG_SHORT_MINUTE                    "m" // One character only
 #endif
-#ifndef MSG_PRINT_TIME
-  #define MSG_PRINT_TIME                      "Print time"
-#endif
 #ifndef MSG_HEATING
   #define MSG_HEATING                         "Heating..."
 #endif
