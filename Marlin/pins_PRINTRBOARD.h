@@ -86,13 +86,6 @@
 
 #define SDSS               26
 
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN           9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
-
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   //we have no buzzer installed
   #define BEEPER_PIN -1
