@@ -573,8 +573,8 @@ void print_line_from_here_to_there( float sx, float sy, float sz, float ex, floa
 
 
 // The parse_G26_Parameters() function used to be inline code for the function.   But 
-// there are so many parameters, it made sense to turn the paramter variables into
-// static globals and get this code out of site from the main routine.    
+// there are so many parameters, it made sense to turn the parameter variables into
+// static globals and get this code out of sight from the main routine.    
 
 bool parse_G26_parameters() {
 
