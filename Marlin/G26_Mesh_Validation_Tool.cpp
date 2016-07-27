@@ -648,7 +648,8 @@ bool parse_G26_parameters() {
   Filament_Factor = 1.75*1.75 / (Filament*Filament);	// If we aren't using 1.75mm filament, we need to
   							// scale up or down the length needed to get the
 							// same volume of filament
-
+ Filament_Factor = Filament*(Nozzle*Nozzle)/(.4*.4) 	// Scale up by nozzle size
+ 
   if (code_seen('H')) {
 	hotend_temp = code_value_float();
 	if ( hotend_temp<165.0 || hotend_temp>280.0 ) {
