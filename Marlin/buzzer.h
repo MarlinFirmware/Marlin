@@ -31,7 +31,7 @@
 
 /**
  * @brief Tone structure
- * @details Simple abstration of a tone based on a duration and a frequency.
+ * @details Simple abstraction of a tone based on a duration and a frequency.
  *
  */
 struct tone_t {
@@ -57,7 +57,7 @@ class Buzzer {
      * @details This will invert the current state of an digital IO pin.
      */
     void invert() {
-      WRITE(BEEPER_PIN, !READ(BEEPER_PIN));
+      TOGGLE(BEEPER_PIN);
     }
 
     /**
