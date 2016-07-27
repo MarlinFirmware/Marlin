@@ -34,7 +34,7 @@ class CardReader {
 public:
   CardReader();
 
-  void initsd();
+  void initsd(bool silent=false);
   void write_command(char *buf);
   //files auto[0-9].g on the sd card are performed in a row
   //this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
@@ -107,10 +107,11 @@ extern CardReader card;
 
 #if PIN_EXISTS(SD_DETECT)
   #if ENABLED(SD_DETECT_INVERTED)
-    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) != 0)
+    #define SD_DETECT_INSERT true
   #else
-    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == 0)
+    #define SD_DETECT_INSERT false
   #endif
+  #define IS_SD_INSERTED (SD_DETECT_INSERT == (READ(SD_DETECT_PIN) != 0))
 #else
   //No card detect line? Assume the card is inserted.
   #define IS_SD_INSERTED true
