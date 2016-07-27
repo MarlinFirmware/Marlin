@@ -581,6 +581,7 @@ bool parse_G26_parameters() {
    Filament_Factor=1.0;
    Nozzle=0.4; 
    Filament=1.75; 
+   Layer_Height = .2;
    Prime_Length=10.0;
    bed_temp=60.0; 
    hotend_temp=205.0;
