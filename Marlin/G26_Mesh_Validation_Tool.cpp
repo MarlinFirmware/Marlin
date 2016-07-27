@@ -49,6 +49,9 @@
 //
 // L #  Layer		Layer height.  (Height of nozzle above bed)  If not specified .20mm will be used.
 //
+// M #  Multiplier	Retraction Multiplier.   Normally not needed.  Retraction defaults to 1.0mm and 
+			un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
+//
 // N #  Nozzle		Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
 //
 // O #  Ooooze		How much your nozzle will Ooooze filament while getting in position to print.  This
@@ -110,6 +113,7 @@ struct mesh_index_pair find_closest_circle_to_print( float, float );
 void mesh_buffer_line(float, float, float, const float, float, const uint8_t& ,// uint16_t , uint16_t );
 		uint16_t x_splits = 0xffff, uint16_t y_splits = 0xffff);
 static float E_Pos_Delta, Filament_Factor=1.0;
+static float Retraction_Multiplier=1.0;
 static float Nozzle=0.4, Filament=1.75, Prime_Length=10.0;
 static float X_Pos, Y_Pos, bed_temp=60.0, hotend_temp=205.0, Ooooze_Amount=0.3;
 static int Prime_Flag=0, Keep_Heaters_On=0; 
@@ -501,14 +505,14 @@ void retract_filament()
 {
   if ( !retracted ) {		// Only retract if we are not already retracted!
 	retracted = true;
-	move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], -1.0 );
+	move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], -1.0 * Retraction_Multiplier );
   }
 }
 
 void un_retract_filament()
 {
   if ( retracted ) {		// Only un-retract if we are retracted.
-	move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], +1.2 );
+	move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],  1.2 * Retraction_Multiplier );
 	retracted = false;
   }
 }
@@ -579,6 +583,7 @@ void print_line_from_here_to_there( float sx, float sy, float sz, float ex, floa
 bool parse_G26_parameters() {
 
    Filament_Factor=1.0;
+   Retraction_Multiplier=1.0;
    Nozzle=0.4; 
    Filament=1.75; 
    Layer_Height = .2;
@@ -610,6 +615,19 @@ bool parse_G26_parameters() {
 	}
   }
 
+  if (code_seen('M')) {
+  	if (code_has_value()) {
+		Retraction_Multiplier = code_value_float();
+		if ( Retraction_Multiplier<.05 || Retraction_Multiplier>15.0 ) {
+        		SERIAL_PROTOCOLPGM("?Specified Retraction Multiplier not plausable.\n");
+			return true;
+		}
+  	} else {
+  	       	SERIAL_PROTOCOLPGM("?Retraction Multiplier must be specified.\n");
+  	       	return true;
+  	}
+  }
+  
   if (code_seen('N')) {
 	Nozzle = code_value_float();
 	if ( Nozzle<.1 || Nozzle>1.0 ) {
