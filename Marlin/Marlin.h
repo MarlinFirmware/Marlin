@@ -90,7 +90,7 @@ typedef unsigned long millis_t;
 
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE) || ENABLED(M100_FREE_MEMORY_WATCHER)
   void prt_hex_word( unsigned int );
-  void prt_hex_byte( unsigned int );
+  void prt_hex_byte( unsigned int );  
 #endif
 
 extern const char errormagic[] PROGMEM;
