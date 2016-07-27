@@ -566,15 +566,6 @@
    * Bed Probe dependencies
    */
   #if HAS_BED_PROBE
-    #ifndef X_PROBE_OFFSET_FROM_EXTRUDER
-      #define X_PROBE_OFFSET_FROM_EXTRUDER 0
-    #endif
-    #ifndef Y_PROBE_OFFSET_FROM_EXTRUDER
-      #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
-    #endif
-    #ifndef Z_PROBE_OFFSET_FROM_EXTRUDER
-      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
-    #endif
     #ifndef Z_PROBE_OFFSET_RANGE_MIN
       #define Z_PROBE_OFFSET_RANGE_MIN -20
     #endif
@@ -593,6 +584,13 @@
     #else
       #define _Z_RAISE_PROBE_DEPLOY_STOW Z_RAISE_PROBE_DEPLOY_STOW
     #endif
+  #else
+    #undef X_PROBE_OFFSET_FROM_EXTRUDER
+    #undef Y_PROBE_OFFSET_FROM_EXTRUDER
+    #undef Z_PROBE_OFFSET_FROM_EXTRUDER
+    #define X_PROBE_OFFSET_FROM_EXTRUDER 0
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
   #endif
 
   /**
