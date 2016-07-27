@@ -353,8 +353,6 @@
     #error "AUTO_BED_LEVELING_FEATURE requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #elif ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
     #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
-  #elif ENABLED(Z_SAFE_HOMING)
-    #error "Z_SAFE_HOMING currently requires a probe."
   #endif
 
 #endif
@@ -364,9 +362,17 @@
  */
 #if ENABLED(Z_SAFE_HOMING)
   #if Z_SAFE_HOMING_X_POINT < MIN_PROBE_X || Z_SAFE_HOMING_X_POINT > MAX_PROBE_X
-    #error "The given Z_SAFE_HOMING_X_POINT can't be reached by the Z probe."
+    #if HAS_BED_PROBE
+      #error "Z_SAFE_HOMING_X_POINT can't be reached by the Z probe."
+    #else
+      #error "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle."
+    #endif
   #elif Z_SAFE_HOMING_Y_POINT < MIN_PROBE_Y || Z_SAFE_HOMING_Y_POINT > MAX_PROBE_Y
-    #error "The given Z_SAFE_HOMING_Y_POINT can't be reached by the Z probe."
+    #if HAS_BED_PROBE
+      #error "Z_SAFE_HOMING_Y_POINT can't be reached by the Z probe."
+    #else
+      #error "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle."
+    #endif
   #endif
 #endif // Z_SAFE_HOMING
 
