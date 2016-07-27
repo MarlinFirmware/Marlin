@@ -48,11 +48,6 @@
   #error "Your Configuration.h and Configuration_adv.h files are outdated!"
 #endif
 
-#ifdef UNIFIED_BED_LEVELING_FEATURE || M100_FREE_MEMORY_WATCHER
-  void prt_hex_word( unsigned int );
-  void prt_hex_byte( unsigned int );
-#endif
-
 #include "Arduino.h"
 
 typedef unsigned long millis_t;
@@ -92,6 +87,11 @@ typedef unsigned long millis_t;
 #define SERIAL_PROTOCOLLNPGM(x) do{ serialprintPGM(PSTR(x "\n")); }while(0)
 
 #define SERIAL_PROTOCOLPAIR(name, value) SERIAL_ECHOPAIR(name, value)
+
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE) || ENABLED(M100_FREE_MEMORY_WATCHER)
+  void prt_hex_word( unsigned int );
+  void prt_hex_byte( unsigned int );
+#endif
 
 extern const char errormagic[] PROGMEM;
 extern const char echomagic[] PROGMEM;
