@@ -279,6 +279,9 @@ K    Keep-On  Keep the heaters turned on at the end of the command.
 
 L #  Layer    Layer height.  (Height of nozzle above bed)  If not specified .20mm will be used.
 
+M #  Multiplier Retraction Multiplier.   Normally not needed.  Retraction defaults to 1.0mm and 
+                un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
+
 N #  Nozzle   Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
 
 O #  Ooooze   How much your nozzle will Ooooze filament while getting in position to print.  This
