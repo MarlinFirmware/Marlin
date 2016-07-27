@@ -3049,12 +3049,11 @@ inline void gcode_G28() {
             SYNC_PLAN_POSITION_KINEMATIC();
 
             /**
-             * Set the Z probe (or just the nozzle) destination to the safe
-             *  homing point
+             * Move the Z probe (or just the nozzle) to the safe homing point
              */
             destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - (X_PROBE_OFFSET_FROM_EXTRUDER));
             destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - (Y_PROBE_OFFSET_FROM_EXTRUDER));
-            destination[Z_AXIS] = current_position[Z_AXIS]; //z is already at the right height
+            destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(LEVELING)) {
