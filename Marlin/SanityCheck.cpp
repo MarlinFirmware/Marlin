@@ -338,8 +338,8 @@
     #error "You must set Z_RAISE_PROBE_DEPLOY_STOW in your configuration."
   #elif !defined(Z_RAISE_BETWEEN_PROBINGS)
     #error "You must set Z_RAISE_BETWEEN_PROBINGS in your configuration."
-  #elif Z_RAISE_PROBE_DEPLOY_STOW < 1
-    #error "Probes need Z_RAISE_PROBE_DEPLOY_STOW >= 1."
+  #elif Z_RAISE_PROBE_DEPLOY_STOW < 0
+    #error "Probes need Z_RAISE_PROBE_DEPLOY_STOW >= 0."
   #elif Z_RAISE_BETWEEN_PROBINGS < 1
     #error "Probes need Z_RAISE_BETWEEN_PROBINGS >= 1."
   #endif
