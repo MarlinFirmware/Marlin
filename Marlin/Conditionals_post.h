@@ -147,6 +147,13 @@
   #endif
 
   /**
+   * DELTA should ignore Z_SAFE_HOMING
+   */
+  #if ENABLED(DELTA)
+    #undef Z_SAFE_HOMING
+  #endif
+
+  /**
    * Safe Homing Options
    */
   #if ENABLED(Z_SAFE_HOMING)
