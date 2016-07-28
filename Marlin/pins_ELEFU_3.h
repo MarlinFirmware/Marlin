@@ -87,11 +87,11 @@
 
   #define BTN_EN1          14
   #define BTN_EN2          39
-  #define BTN_ENC          15  //the click
 
   #define BLEN_C            2
   #define BLEN_B            1
   #define BLEN_A            0
+  #define BTN_ENC          15
 
 #endif // RA_CONTROL_PANEL
 

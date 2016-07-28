@@ -127,11 +127,11 @@
     //buttons are directly attached using AUX-2
     #define BTN_EN1 76
     #define BTN_EN2 77
-    #define BTN_ENC 78  //the click
 
     #define BLEN_C 2
     #define BLEN_B 1
     #define BLEN_A 0
+    #define BTN_ENC 78
 
     #define SD_DETECT_PIN 81 // Ramps doesn't use this
 
@@ -179,7 +179,7 @@
   //The encoder and click button
   #define BTN_EN1 85
   #define BTN_EN2 84
-  #define BTN_ENC 83  //the click switch
+  #define BTN_ENC 83
 
   #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
 
