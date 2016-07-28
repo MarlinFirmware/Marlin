@@ -31,8 +31,7 @@ class Speaker: public Buzzer {
 
     struct state_t {
       tone_t   tone;
-      uint16_t period;
-      uint16_t counter;
+      millis_t next;
     } state;
 
   protected:
@@ -42,8 +41,7 @@ class Speaker: public Buzzer {
      */
     void reset() {
       super::reset();
-      this->state.period = 0;
-      this->state.counter = 0;
+      this->state.next = 0;
     }
 
   public:
@@ -60,29 +58,15 @@ class Speaker: public Buzzer {
      * playing the tones in the queue.
      */
     virtual void tick() {
-      if (!this->state.counter) {
+      const uint32_t now = millis();
+
+      if (now >= this->state.next) {
         if (this->buffer.isEmpty()) return;
 
         this->reset();
         this->state.tone = this->buffer.dequeue();
-
-        // Period is uint16, min frequency will be ~16Hz
-        this->state.period = 1000000UL / this->state.tone.frequency;
-
-        this->state.counter =
-          (this->state.tone.duration * 1000L) / this->state.period;
-
-        this->state.period   >>= 1;
-        this->state.counter <<= 1;
-      } else {
-        const  uint32_t  now = micros();
-        static uint32_t next = now + this->state.period;
-
-        if (now >= next) {
-          --this->state.counter;
-          next = now + this->state.period;
-          if (this->state.tone.frequency > 0) this->invert();
-        }
+        this->state.next = now + this->state.tone.duration;
+        ::tone(BEEPER_PIN, this->state.tone.frequency, this->state.tone.duration);
       }
     }
 };
