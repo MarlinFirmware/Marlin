@@ -183,9 +183,9 @@ each additional Phase that processes it.
                 find the closest points to alter unless the X and Y parameter are used to specify the fill
                 location.
 
-      P4    Phase 4   Fine tune the Mesh.  The Delta Mesh Compensation System assume the existance of
-                      an LCD Panel.  It is possible to fine tune the mesh without the use of an LCD Panel.
-                      (More work and details on doing this later!)
+      P4    Phase 4   Fine tune the Mesh.  The Unified Bed Leveling System assume the existance of
+                      an LCD Panel.  It well be possible to fine tune the mesh without the use of an LCD Panel
+                      soon.  (More work and details on doing this later!)
                       The System will search for the closest Mesh Point to the nozzle.  It will move the
                       nozzle to this location.  The user can use the LCD Panel to carefully adjust the nozzle
                       so it is just barely touching the bed.  When the user clicks the control, the System
@@ -203,10 +203,10 @@ each additional Phase that processes it.
                       Phase 4 is intended to be used with the G26 Mesh Validation Command.   Using the
                       information left on the printer's bed from the G26 command it is very straight forward
                       and easy to fine tune the Mesh.   One concept that is important to remember and that
-                      will make using the Phase 4 command easy to use is this:  You are editing the Mesh Points.
-                      If you have too little clearance and not much plastic was extruded in an area, you want to
-                      LOWER the Mesh Point at the location.  If you did not get good adheasion, you want to
-                      RAISE the Mesh Point at that location.
+                      will make using the Phase 4 command easier to use is this:  You are editing the height of
+                      the nozzle at these locations.  If you have too little clearance and not much plastic 
+                      was extruded in an area, you want to RAISE the nozzle at this location.  If you did not 
+                      get good adheasion, you want to LOWER the nozzle at that location.
 
 
       P5    Phase 5   Adjust Mesh to mean height.  The Mesh is analyzed and the mean height of it is
