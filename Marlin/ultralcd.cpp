@@ -683,7 +683,7 @@ static void lcd_status_screen() {
     static void _lcd_mesh_fine_tune( const char* msg) {
 
 	defer_return_to_status = true;
-
+/*
 if (loop_cnt++ == 20 || last_seen_bits!=lastEncoderBits ) {
 	loop_cnt = 0;
 	SERIAL_ECHO("In _lcd_mesh_fine_tune() :");
@@ -695,6 +695,7 @@ if (loop_cnt++ == 20 || last_seen_bits!=lastEncoderBits ) {
 	SERIAL_ECHO("\n");
 	last_seen_bits = lastEncoderBits;
 }
+*/
       if (encoderPosition) {
         Mesh_Edit_Value += ( (float) ((int32_t)encoderPosition)) * .005;
         encoderPosition = 0;
