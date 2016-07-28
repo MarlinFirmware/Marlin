@@ -28,7 +28,14 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define BOARD_NAME         "Megatronics v3.0"
+#define MEGATRONICS_31
+
+#if ENABLED(MEGATRONICS_31)
+  #define BOARD_NAME       "Megatronics v3.1"
+#else
+  #define BOARD_NAME       "Megatronics v3.0"
+#endif
+
 #define LARGE_FLASH        true
 
 #if ENABLED(Z_PROBE_SLED)
@@ -36,28 +43,28 @@
 #endif
 
 // Servo support
-#define SERVO0_PIN         46 //AUX3-6
-#define SERVO1_PIN         47 //AUX3-5
-#define SERVO2_PIN         48 //AUX3-4
-#define SERVO3_PIN         49 //AUX3-3
+#define SERVO0_PIN         46 // AUX3-6
+#define SERVO1_PIN         47 // AUX3-5
+#define SERVO2_PIN         48 // AUX3-4
+#define SERVO3_PIN         49 // AUX3-3
 
 #define X_STEP_PIN         58
 #define X_DIR_PIN          57
 #define X_ENABLE_PIN       59
 #define X_MIN_PIN          37
-#define X_MAX_PIN          40 // put to -1 to disable
+#define X_MAX_PIN          40
 
 #define Y_STEP_PIN         5
 #define Y_DIR_PIN          17
 #define Y_ENABLE_PIN       4
 #define Y_MIN_PIN          41
-#define Y_MAX_PIN          38 // put to -1 to disable
+#define Y_MAX_PIN          38
 
 #define Z_STEP_PIN         16
 #define Z_DIR_PIN          11
 #define Z_ENABLE_PIN       3
 #define Z_MIN_PIN          18
-#define Z_MAX_PIN          19 // put to -1 to disable
+#define Z_MAX_PIN          19
 
 #define E0_STEP_PIN        28
 #define E0_DIR_PIN         27
@@ -104,36 +111,11 @@
   #define TEMP_BED_PIN 14 // ANALOG NUMBERING
 #endif
 
+/**
+ * Controllers and LCDs
+ */
 #define BEEPER_PIN 61
 
-#if ENABLED(DOGLCD)
-
-  #if ENABLED(U8GLIB_ST7920)
-    #define LCD_PINS_RS     56 //CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE 51 //SID (MOSI)
-    #define LCD_PINS_D4     52 //SCK (CLK) clock
-    #define SD_DETECT_PIN 35
-  #endif
-
-#else
-
-  #define LCD_PINS_RS 32
-  #define LCD_PINS_ENABLE 31
-  #define LCD_PINS_D4 14
-  #define LCD_PINS_D5 30
-  #define LCD_PINS_D6 39
-  #define LCD_PINS_D7 15
-  
-  #define SHIFT_CLK 43
-  #define SHIFT_LD 35
-  #define SHIFT_OUT 34
-  #define SHIFT_EN 44
-
-  #define SD_DETECT_PIN 56 // Megatronics v3.1 only
-
-#endif
-
-// Buttons are directly attached using keypad
 #define BTN_EN1 44
 #define BTN_EN2 45
 #define BTN_ENC 33
@@ -141,3 +123,29 @@
 #define BLEN_C 2
 #define BLEN_B 1
 #define BLEN_A 0
+
+#if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+  #define LCD_PINS_RS     56 // CS chip select / SS chip slave select
+  #define LCD_PINS_ENABLE 51 // SID (MOSI)
+  #define LCD_PINS_D4     52 // SCK (CLK) clock
+  #define SD_DETECT_PIN   35
+#else
+  #define LCD_PINS_RS     32
+  #define LCD_PINS_ENABLE 31
+  #define LCD_PINS_D4     14
+  #define LCD_PINS_D5     30
+  #define LCD_PINS_D6     39
+  #define LCD_PINS_D7     15
+  
+  #define SHIFT_CLK       43
+  #define SHIFT_LD        35
+  #define SHIFT_OUT       34
+  #define SHIFT_EN        44
+
+  #if ENABLED(MEGATRONICS_31)
+    #define SD_DETECT_PIN 56
+  #else
+    #define SD_DETECT_PIN -1
+  #endif
+
+#endif
