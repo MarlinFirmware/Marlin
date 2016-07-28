@@ -106,17 +106,12 @@
 
 #define BEEPER_PIN 61
 
-#if ENABLED(DOGLCD)
-
-  #if ENABLED(U8GLIB_ST7920)
+#if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
     #define LCD_PINS_RS     56 //CS chip select /SS chip slave select
     #define LCD_PINS_ENABLE 51 //SID (MOSI)
     #define LCD_PINS_D4     52 //SCK (CLK) clock
     #define SD_DETECT_PIN 35
-  #endif
-
 #else
-
   #define LCD_PINS_RS 32
   #define LCD_PINS_ENABLE 31
   #define LCD_PINS_D4 14
@@ -130,7 +125,6 @@
   #define SHIFT_EN 44
 
   #define SD_DETECT_PIN 56 // Megatronics v3.1 only
-
 #endif
 
 // Buttons are directly attached using keypad
