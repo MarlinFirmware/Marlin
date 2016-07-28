@@ -4487,6 +4487,13 @@ inline void gcode_M104() {
         #endif
       }
     #endif
+    SERIAL_PROTOCOLPGM(" @:");
+    #ifdef EXTRUDER_WATTS
+      SERIAL_PROTOCOL(((EXTRUDER_WATTS) * thermalManager.getHeaterPower(target_extruder)) / 127);
+      SERIAL_PROTOCOLCHAR('W');
+    #else
+      SERIAL_PROTOCOL(thermalManager.getHeaterPower(target_extruder));
+    #endif
     #if HAS_TEMP_BED
       SERIAL_PROTOCOLPGM(" B@:");
       #ifdef BED_WATTS
@@ -4495,13 +4502,6 @@ inline void gcode_M104() {
       #else
         SERIAL_PROTOCOL(thermalManager.getHeaterPower(-1));
       #endif
-    #endif
-    SERIAL_PROTOCOLPGM(" @:");
-    #ifdef EXTRUDER_WATTS
-      SERIAL_PROTOCOL(((EXTRUDER_WATTS) * thermalManager.getHeaterPower(target_extruder)) / 127);
-      SERIAL_PROTOCOLCHAR('W');
-    #else
-      SERIAL_PROTOCOL(thermalManager.getHeaterPower(target_extruder));
     #endif
     #if HOTENDS > 1
       HOTEND_LOOP() {
