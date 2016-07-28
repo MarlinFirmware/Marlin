@@ -207,6 +207,11 @@ each additional Phase that processes it.
                       the nozzle at these locations.  If you have too little clearance and not much plastic 
                       was extruded in an area, you want to RAISE the nozzle at this location.  If you did not 
                       get good adheasion, you want to LOWER the nozzle at that location.
+                      
+                      Once you get comfortable with the command, you don't even need to look at the LCD Panel.
+                      As the System runs the nozzle around the bed, you can just click the Encoder Wheel if you
+                      like the situation at that location.  If you just want a minor change, a few clicks of the
+                      Encoder Wheel in the right direction are fast and easy to do.
 
 
       P5    Phase 5   Adjust Mesh to mean height.  The Mesh is analyzed and the mean height of it is
