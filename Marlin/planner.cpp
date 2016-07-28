@@ -804,15 +804,9 @@ void Planner::check_axes_activity() {
     #endif
   #else
     float delta_mm[4];
-    #if ENABLED(DELTA)
-      // On delta all axes (should!) have the same steps-per-mm
-      // so calculate distance in steps first, then do one division
-      // at the end to get millimeters
-    #else
-      delta_mm[X_AXIS] = dx * steps_to_mm[X_AXIS];
-      delta_mm[Y_AXIS] = dy * steps_to_mm[Y_AXIS];
-      delta_mm[Z_AXIS] = dz * steps_to_mm[Z_AXIS];
-    #endif
+    delta_mm[X_AXIS] = dx * steps_to_mm[X_AXIS];
+    delta_mm[Y_AXIS] = dy * steps_to_mm[Y_AXIS];
+    delta_mm[Z_AXIS] = dz * steps_to_mm[Z_AXIS];
   #endif
   delta_mm[E_AXIS] = 0.01 * (de * steps_to_mm[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiplier[extruder];
 
@@ -827,21 +821,15 @@ void Planner::check_axes_activity() {
         sq(delta_mm[X_HEAD]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_HEAD])
       #elif ENABLED(COREYZ)
         sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_HEAD]) + sq(delta_mm[Z_HEAD])
-      #elif ENABLED(DELTA)
-        sq(dx) + sq(dy) + sq(dz)
       #else
         sq(delta_mm[X_AXIS]) + sq(delta_mm[Y_AXIS]) + sq(delta_mm[Z_AXIS])
       #endif
-    )
-      #if ENABLED(DELTA)
-        * steps_to_mm[X_AXIS]
-      #endif
-    ;
+    );
   }
   float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   // Calculate moves/second for this move. No divide by zero due to previous checks.
-  float inverse_second = fr_mm_s * inverse_millimeters;
+  float inverse_mm_s = fr_mm_s * inverse_millimeters;
 
   int moves_queued = movesplanned();
 
@@ -853,21 +841,21 @@ void Planner::check_axes_activity() {
     #endif
     #if ENABLED(SLOWDOWN)
       //  segment time im micro seconds
-      unsigned long segment_time = lround(1000000.0/inverse_second);
+      unsigned long segment_time = lround(1000000.0/inverse_mm_s);
       if (mq) {
         if (segment_time < min_segment_time) {
           // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-          inverse_second = 1000000.0 / (segment_time + lround(2 * (min_segment_time - segment_time) / moves_queued));
+          inverse_mm_s = 1000000.0 / (segment_time + lround(2 * (min_segment_time - segment_time) / moves_queued));
           #ifdef XY_FREQUENCY_LIMIT
-            segment_time = lround(1000000.0 / inverse_second);
+            segment_time = lround(1000000.0 / inverse_mm_s);
           #endif
         }
       }
     #endif
   #endif
 
-  block->nominal_speed = block->millimeters * inverse_second; // (mm/sec) Always > 0
-  block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
+  block->nominal_speed = block->millimeters * inverse_mm_s; // (mm/sec) Always > 0
+  block->nominal_rate = ceil(block->step_event_count * inverse_mm_s); // (step/sec) Always > 0
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     static float filwidth_e_count = 0, filwidth_delay_dist = 0;
@@ -907,7 +895,7 @@ void Planner::check_axes_activity() {
   float current_speed[NUM_AXIS];
   float speed_factor = 1.0; //factor <=1 do decrease speed
   LOOP_XYZE(i) {
-    current_speed[i] = delta_mm[i] * inverse_second;
+    current_speed[i] = delta_mm[i] * inverse_mm_s;
     float cs = fabs(current_speed[i]), mf = max_feedrate_mm_s[i];
     if (cs > mf) speed_factor = min(speed_factor, mf / cs);
   }
