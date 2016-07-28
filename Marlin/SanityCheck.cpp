@@ -30,9 +30,8 @@
 
 /**
  * Due to the high number of issues related with old versions of Arduino IDE
- * we are now warning our users to update their toolkits. In a future Marlin
- * release we will stop supporting old IDE versions and will require user
- * action to proceed with compilation in such environments.
+ * we are now disallowing Marlin to compile on obsolete toolkits. The minimal
+ * officially supported version of the Arduino IDE is listed bellow.
  */
 #if !defined(ARDUINO) || ARDUINO < 10600
   #error "Versions of Arduino IDE prior to 1.6.0 are no longer supported, please update your toolkit."
