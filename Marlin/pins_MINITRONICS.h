@@ -105,9 +105,5 @@
   #define BTN_EN2         -1
   #define BTN_ENC         -1
 
-  #define BLEN_C 2
-  #define BLEN_B 1
-  #define BLEN_A 0
-
   #define SD_DETECT_PIN -1  // Minitronics doesn't use this
 #endif

@@ -127,10 +127,6 @@
     //buttons are directly attached using AUX-2
     #define BTN_EN1 76
     #define BTN_EN2 77
-
-    #define BLEN_C 2
-    #define BLEN_B 1
-    #define BLEN_A 0
     #define BTN_ENC 78
 
     #define SD_DETECT_PIN 81 // Ramps doesn't use this
@@ -162,8 +158,6 @@
     #define BL_DW 4
     #define BL_RI 3
     #define BL_ST 2
-    #define BLEN_B 1
-    #define BLEN_A 0
 
   #endif // !NEWPANEL
 

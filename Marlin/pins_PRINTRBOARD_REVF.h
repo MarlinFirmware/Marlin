@@ -113,10 +113,6 @@
   #define BTN_EN2   17
   #define BTN_ENC   18//the click
 
-  #define BLEN_C 2
-  #define BLEN_B 1
-  #define BLEN_A 0
-
   #define SD_DETECT_PIN -1
 
   //encoder rotation values

@@ -120,10 +120,6 @@
 #define BTN_EN2 45
 #define BTN_ENC 33
 
-#define BLEN_C 2
-#define BLEN_B 1
-#define BLEN_A 0
-
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
   #define LCD_PINS_RS     56 // CS chip select / SS chip slave select
   #define LCD_PINS_ENABLE 51 // SID (MOSI)
