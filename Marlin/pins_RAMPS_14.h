@@ -256,7 +256,7 @@
       //The encoder and click button
       #define BTN_EN1 40
       #define BTN_EN2 63
-      #define BTN_ENC 59  //the click switch
+      #define BTN_ENC 59
       //not connected to a pin
       #define SD_DETECT_PIN 49
 

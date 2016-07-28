@@ -89,10 +89,10 @@
 //buttons are directly attached
 #define BTN_EN1 40
 #define BTN_EN2 41
-#define BTN_ENC 19  //the click
 
 #define BLEN_C 2
 #define BLEN_B 1
 #define BLEN_A 0
+#define BTN_ENC 19
 
 #define SD_DETECT_PIN 39
