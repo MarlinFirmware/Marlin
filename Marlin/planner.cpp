@@ -829,7 +829,7 @@ void Planner::check_axes_activity() {
   float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides
 
   // Calculate moves/second for this move. No divide by zero due to previous checks.
-  float inverse_second = fr_mm_s * inverse_millimeters;
+  float inverse_mm_s = fr_mm_s * inverse_millimeters;
 
   int moves_queued = movesplanned();
 
@@ -841,21 +841,21 @@ void Planner::check_axes_activity() {
     #endif
     #if ENABLED(SLOWDOWN)
       //  segment time im micro seconds
-      unsigned long segment_time = lround(1000000.0/inverse_second);
+      unsigned long segment_time = lround(1000000.0/inverse_mm_s);
       if (mq) {
         if (segment_time < min_segment_time) {
           // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-          inverse_second = 1000000.0 / (segment_time + lround(2 * (min_segment_time - segment_time) / moves_queued));
+          inverse_mm_s = 1000000.0 / (segment_time + lround(2 * (min_segment_time - segment_time) / moves_queued));
           #ifdef XY_FREQUENCY_LIMIT
-            segment_time = lround(1000000.0 / inverse_second);
+            segment_time = lround(1000000.0 / inverse_mm_s);
           #endif
         }
       }
     #endif
   #endif
 
-  block->nominal_speed = block->millimeters * inverse_second; // (mm/sec) Always > 0
-  block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
+  block->nominal_speed = block->millimeters * inverse_mm_s; // (mm/sec) Always > 0
+  block->nominal_rate = ceil(block->step_event_count * inverse_mm_s); // (step/sec) Always > 0
 
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     static float filwidth_e_count = 0, filwidth_delay_dist = 0;
@@ -895,7 +895,7 @@ void Planner::check_axes_activity() {
   float current_speed[NUM_AXIS];
   float speed_factor = 1.0; //factor <=1 do decrease speed
   LOOP_XYZE(i) {
-    current_speed[i] = delta_mm[i] * inverse_second;
+    current_speed[i] = delta_mm[i] * inverse_mm_s;
     float cs = fabs(current_speed[i]), mf = max_feedrate_mm_s[i];
     if (cs > mf) speed_factor = min(speed_factor, mf / cs);
   }
