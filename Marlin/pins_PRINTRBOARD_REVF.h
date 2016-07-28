@@ -113,10 +113,6 @@
   #define BTN_EN2   17
   #define BTN_ENC   18//the click
 
-  #define BLEN_C 2
-  #define BLEN_B 1
-  #define BLEN_A 0
-
   #define SD_DETECT_PIN -1
 
   //encoder rotation values
@@ -136,7 +132,7 @@
   //The encoder and click button (FastIO Pins)
   #define BTN_EN1 26
   #define BTN_EN2 27
-  #define BTN_ENC 47  //the click switch
+  #define BTN_ENC 47
 
   #define SDSS 45
   #define SD_DETECT_PIN -1 // FastIO (Manual says 72 I'm not certain cause I can't test)
