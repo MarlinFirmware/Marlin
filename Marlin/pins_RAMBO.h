@@ -150,15 +150,6 @@
     #define LCD_PINS_D6 27
     #define LCD_PINS_D7 29
 
-    //bits in the shift register that carry the buttons for:
-    // left up center down right red
-    #define BL_LE 7
-    #define BL_UP 6
-    #define BL_MI 5
-    #define BL_DW 4
-    #define BL_RI 3
-    #define BL_ST 2
-
   #endif // !NEWPANEL
 
 #endif // ULTRA_LCD
