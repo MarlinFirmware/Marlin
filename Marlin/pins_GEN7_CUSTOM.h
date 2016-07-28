@@ -86,5 +86,5 @@
 //buttons are directly attached
 #define BTN_EN1 11
 #define BTN_EN2 10
-#define BTN_ENC 12  //the click
+#define BTN_ENC 12
 

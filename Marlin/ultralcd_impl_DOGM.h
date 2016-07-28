@@ -42,20 +42,9 @@
  * Implementation of the LCD display routines for a DOGM128 graphic display.
  * These are common LCD 128x64 pixel graphic displays.
  */
-
-#if ENABLED(ULTIPANEL)
-  #define BLEN_A 0
-  #define BLEN_B 1
-  #define BLEN_C 2
-  #define EN_A (_BV(BLEN_A))
-  #define EN_B (_BV(BLEN_B))
-  #define EN_C (_BV(BLEN_C))
-  #define LCD_CLICKED (buttons&EN_C)
-#endif
-
-#include "dogm_bitmaps.h"
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
+#include "dogm_bitmaps.h"
 #include "duration_t.h"
 
 #include <U8glib.h>
