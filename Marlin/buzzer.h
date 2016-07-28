@@ -104,7 +104,6 @@ class Buzzer {
      */
     void tone(uint16_t const &duration, uint16_t const &frequency = 0) {
       while (buffer.isFull()) {
-        delay(5);
         this->tick();
         thermalManager.manage_heater();
       }
