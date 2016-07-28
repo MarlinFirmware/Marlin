@@ -157,6 +157,7 @@
 
 #define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define MSG_SD_INIT_FAIL                    "SD init fail"
+#define MSG_SD_LOCKED                       "SD card locked??"
 #define MSG_SD_VOL_INIT_FAIL                "volume.init failed"
 #define MSG_SD_OPENROOT_FAIL                "openRoot failed"
 #define MSG_SD_CARD_OK                      "SD card ok"
