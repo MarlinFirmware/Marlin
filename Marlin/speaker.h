@@ -32,7 +32,7 @@ class Speaker: public Buzzer {
     struct state_t {
       tone_t   tone;
       uint16_t period;
-      uint16_t cycles;
+      uint16_t counter;
     } state;
 
   protected:
@@ -43,7 +43,7 @@ class Speaker: public Buzzer {
     void reset() {
       super::reset();
       this->state.period = 0;
-      this->state.cycles = 0;
+      this->state.counter = 0;
     }
 
   public:
@@ -60,7 +60,7 @@ class Speaker: public Buzzer {
      * playing the tones in the queue.
      */
     virtual void tick() {
-      if (!this->state.cycles) {
+      if (!this->state.counter) {
         if (this->buffer.isEmpty()) return;
 
         this->reset();
@@ -69,20 +69,18 @@ class Speaker: public Buzzer {
         // Period is uint16, min frequency will be ~16Hz
         this->state.period = 1000000UL / this->state.tone.frequency;
 
-        this->state.cycles =
-          (this->state.tone.duration * 1000L) / this->state.period;
+        this->state.counter =
+          (this->state.tone.counter * 1000L) / this->state.period;
 
-        this->state.period >>= 1;
-        this->state.cycles <<= 1;
+        this->state.period   >>= 1;
+        this->state.counter <<= 1;
+      } else {
+        const  uint32_t  now = micros();
+        static uint32_t next = now + this->state.period;
 
-      }
-      else {
-        uint32_t const us = micros();
-        static uint32_t next = us + this->state.period;
-
-        if (us >= next) {
-          --this->state.cycles;
-          next = us + this->state.period;
+        if (now >= next) {
+          --this->state.counter;
+          next = now + this->state.period;
           if (this->state.tone.frequency > 0) this->invert();
         }
       }
