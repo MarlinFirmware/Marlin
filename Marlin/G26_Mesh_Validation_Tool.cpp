@@ -120,6 +120,7 @@ static int Prime_Flag=0, Keep_Heaters_On=0;
 
 void gcode_G26() {
 float circle_x, circle_y, x, y, dx, dy, xe, ye, tmp;
+float start_angle, end_angle;
 float E_Pos=0.0;
 int   i, j, k, xi, yi; 
 struct mesh_index_pair location;
@@ -222,34 +223,52 @@ struct mesh_index_pair location;
 		}
 
 		xi = location.x_index; 	// Just to shrink the next few lines and make them easier to understand	
-		yi = location.y_index; 
+		yi = location.y_index;
 
-		if ( xi>0 && xi<MESH_NUM_X_POINTS-1 && yi>0 && yi<MESH_NUM_Y_POINTS-1) {  // Do the full circle!
-			k = 0;
-			j = 8;
-		} else {
-			k = 0;
-			while ( !direction_is_on_bed(circle_x, circle_y, k)) 	// Make sure k's angle index is on the 
-				k++;						// bed.  If it isn't, scan forward
-										// for a place it is on the bed.
-
-			while ( direction_is_on_bed(circle_x, circle_y, k) )	// Find where k's angle index goes off the bed.
-				k++;
-			j = k--;						// j will be the ending angle index
-
-			while (direction_is_on_bed(circle_x, circle_y, k) )	// Now scan backwards to find the max arc 
-				k--;						// length that is on the bed
-			k++;							// K is the starting angle index
-
-			if ( xi==MESH_NUM_X_POINTS-1 || yi==MESH_NUM_Y_POINTS-1)// The algorythm up above will over shoot
-				j -= 1;						// by one if we are on the max side.
+		start_angle = 0.0;		// assume it is going to be a full circle
+		end_angle   = 360.0;
+		if ( xi==0 )	{		// Check for bottom edge
+			start_angle = -90.0;	
+			end_angle   =  90.0;
+			if ( yi==0 )		// it is an edge, check for the two left corners
+			   start_angle = 0.0;
+			else
+			   if ( yi==MESH_NUM_Y_POINTS-1 )
+			     end_angle   =  0.0;
+			goto GOT_ANGLES;
 		}
-
-		for( i=k; i<j; i++) {
-			x = circle_x + SIZE_OF_INTERSECTION_CIRCLES * cos( RADIANS( valid_trig_angle( ((float) i) * 360.0/8.0 ) ) );
-			y = circle_y + SIZE_OF_INTERSECTION_CIRCLES * sin( RADIANS( valid_trig_angle( ((float) i) * 360.0/8.0 ) ) );
-			xe = circle_x + SIZE_OF_INTERSECTION_CIRCLES * cos( RADIANS( valid_trig_angle( ((float) i+1) * 360.0/8.0 ) ) );
-			ye = circle_y + SIZE_OF_INTERSECTION_CIRCLES * sin( RADIANS( valid_trig_angle( ((float) i+1) * 360.0/8.0 ) ) );
+		if ( xi==MESH_NUM_X_POINTS-1 ){	// Check for top edge
+			start_angle =  90.0;	
+			end_angle   = 270.0;
+			if ( yi==0 )		// it is an edge, check for the two right corners
+			   end_angle = 180.0;
+			else
+			   if ( yi==MESH_NUM_Y_POINTS-1 )
+			     start_angle   =  180.0;
+			goto GOT_ANGLES;
+		}
+		if ( yi==0 )	{
+			start_angle =   0.0;	// only do the top   side of the cirlce
+			end_angle   = 180.0;
+		}
+		if ( yi==MESH_NUM_Y_POINTS-1 )  {	
+			start_angle = 180.0;	// only do the bottom side of the cirlce
+			end_angle   = 360.0;
+		}
+GOT_ANGLES:
+		for(tmp=start_angle; tmp<end_angle-.1; tmp+=30.0 ) {
+			if ( tmp == start_angle ) {	// if this isn't our first pass through the loop, let's just
+							// reuse the previously calculated values.  The trig operations
+							// are expensive enough we can hear a stutter because of them
+							// without this check.
+				x = circle_x + SIZE_OF_INTERSECTION_CIRCLES * cos( RADIANS( valid_trig_angle(  tmp )) );
+				y = circle_y + SIZE_OF_INTERSECTION_CIRCLES * sin( RADIANS( valid_trig_angle(  tmp )) );
+			} else {
+				x = xe;
+				y = ye;
+			}
+			xe = circle_x + SIZE_OF_INTERSECTION_CIRCLES * cos( RADIANS( valid_trig_angle( tmp+30.0)) );
+			ye = circle_y + SIZE_OF_INTERSECTION_CIRCLES * sin( RADIANS( valid_trig_angle( tmp+30.0)) );
 #ifdef DELTA
 			if ( sqrt( x*x + y*y) > DELTA_PRINTABLE_RADIUS) 	// Check to make sure this part of
 				continue;					// the 'circle' is on the bed.  If
