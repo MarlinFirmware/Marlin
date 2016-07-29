@@ -37,7 +37,6 @@
  * \brief Sd2Card class for V2 SD/SDHC cards
  */
 #include "SdFatConfig.h"
-#include "Sd2PinMap.h"
 #include "SdInfo.h"
 //------------------------------------------------------------------------------
 // SPI speed is F_CPU/2^(1 + index), 0 <= index <= 6

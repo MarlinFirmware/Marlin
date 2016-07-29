@@ -92,13 +92,6 @@
 #define DAC_STEPPER_GAIN     0
 #define DAC_OR_ADDRESS    0x00
 
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN           9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
-
 #if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN -1
 
