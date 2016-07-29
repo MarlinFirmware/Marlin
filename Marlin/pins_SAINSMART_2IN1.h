@@ -24,16 +24,14 @@
  *  Sainsmart 2-in-1 pin assignments
  */
 
+#if HOTENDS > 2
+  #error "Sainsmart 2-in-1 supports up to 2 hotends. Comment this line to keep going."
+#endif
+
+#define BOARD_NAME "Sainsmart"
+
+#define HI_VOLT_PIN_A  9
+#define HI_VOLT_PIN_B  7 // PART FAN in front of board next to Extruder heat
+#define HI_VOLT_PIN_D 10
+
 #include "pins_RAMPS_14_EFB.h"
-
-#undef BOARD_NAME
-#define BOARD_NAME          "Sainsmart"
-
-#undef FAN_PIN
-#define FAN_PIN             7 // PART FAN in front of board next to Extruder heat
-
-#undef HEATER_0_PIN
-#define HEATER_0_PIN        9   // EXTRUDER 1
-
-#undef HEATER_1_PIN
-#define HEATER_1_PIN       10   // EXTRUDER 2

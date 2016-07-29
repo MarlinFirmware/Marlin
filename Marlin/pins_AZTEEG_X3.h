@@ -24,9 +24,13 @@
  * AZTEEG_X3 Arduino Mega with RAMPS v1.4 pin assignments
  */
 
+#if HOTENDS > 2
+  #error "Azteeg X3 supports up to 2 hotends. Comment this line to keep going."
+#endif
+
 #define BOARD_NAME "Azteeg X3"
 
-#include "pins_RAMPS_14_EFB.h"
+#include "pins_RAMPS_14.h"
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 

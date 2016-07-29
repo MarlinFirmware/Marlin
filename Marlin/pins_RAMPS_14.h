@@ -105,32 +105,7 @@
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
 #define FIL_RUNOUT_PIN      4
 
-#if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF) || ENABLED(IS_RAMPS_EFB)
-  #define FAN_PIN           9 // (Sprinter config)
-  #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF)
-    #define CONTROLLERFAN_PIN  -1 // Pin used for the fan to cool controller
-  #endif
-#elif MB(RAMPS_14_EEF) || MB(RAMPS_14_SF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
-  #define FAN_PIN           8
-#else
-  #define FAN_PIN           4 // IO pin. Buffer needed
-#endif
-
 #define PS_ON_PIN          12
-
-#if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF)
-  #define HEATER_0_PIN      8
-#else
-  #define HEATER_0_PIN     10   // EXTRUDER 1
-  #if !MB(RAMPS_14_EEF) && !MB(RAMPS_13_EEF) && !MB(RAMPS_14_SF) && !MB(RAMPS_13_SF)
-    #define HEATER_BED_PIN    8    // BED
-  #endif
-#endif
-
-#if !MB(RAMPS_14_SF) && !MB(RAMPS_13_SF) && !ENABLED(IS_RAMPS_EFB)
-  #define HEATER_1_PIN      9   // EXTRUDER 2 (FAN On Sprinter)
-#endif
-
 #define TEMP_0_PIN         13   // ANALOG NUMBERING
 #define TEMP_1_PIN         15   // ANALOG NUMBERING
 #define TEMP_BED_PIN       14   // ANALOG NUMBERING
@@ -138,6 +113,56 @@
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN           -1
 #endif
+
+
+/**
+ * Hi Voltage PWM Pin Assignments
+ */
+
+#ifndef HI_VOLT_PIN_D
+  #define HI_VOLT_PIN_D  -1
+#endif
+#ifndef HI_VOLT_PIN_C
+  #define HI_VOLT_PIN_C  8
+#endif
+#ifndef HI_VOLT_PIN_B
+  #define HI_VOLT_PIN_B  9
+#endif
+#ifndef HI_VOLT_PIN_A
+  #define HI_VOLT_PIN_A 10
+#endif
+
+#if ENABLED(IS_RAMPS_EFB)                   // Hotend, Fan, Bed
+  #define HEATER_0_PIN   HI_VOLT_PIN_A
+  #define FAN_PIN        HI_VOLT_PIN_B
+  #define HEATER_BED_PIN HI_VOLT_PIN_C
+  #if EXTRUDERS == 1
+    #define FAN1_PIN     HI_VOLT_PIN_D
+  #else
+    #define HEATER_1_PIN HI_VOLT_PIN_D
+  #endif
+#elif MB(RAMPS_13_EEF) || MB(RAMPS_14_EEF)  // Hotend, Hotend, Fan
+  #define HEATER_0_PIN   HI_VOLT_PIN_A
+  #define HEATER_1_PIN   HI_VOLT_PIN_B
+  #define FAN_PIN        HI_VOLT_PIN_C
+#elif MB(RAMPS_13_EEB) || MB(RAMPS_14_EEB)  // Hotend, Hotend, Bed
+  #define HEATER_0_PIN   HI_VOLT_PIN_A
+  #define HEATER_1_PIN   HI_VOLT_PIN_B
+  #define HEATER_BED_PIN HI_VOLT_PIN_C
+  #define FAN_PIN 4 // IO pin. Buffer needed
+#elif MB(RAMPS_13_EFF) || MB(RAMPS_14_EFF)  // Hotend, Fan, Fan (EFF is reversed?)
+  #define HEATER_0_PIN   HI_VOLT_PIN_C
+  #define FAN_PIN        HI_VOLT_PIN_B
+  #define FAN1_PIN       HI_VOLT_PIN_A
+  #define CONTROLLERFAN_PIN  -1
+#elif MB(RAMPS_13_SF) || MB(RAMPS_14_SF)    // Spindle, Fan
+  #define FAN_PIN        HI_VOLT_PIN_C
+#endif
+
+
+/**
+ * LCD Controller Pin Assignments
+ */
 
 #if ENABLED(ULTRA_LCD)
 
@@ -301,4 +326,3 @@
 #else
   #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
-

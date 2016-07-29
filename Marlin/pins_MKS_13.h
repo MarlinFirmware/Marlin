@@ -29,12 +29,15 @@
  *  MKS v1.4  (Extruder, Extruder, Fan, Bed)
  */
 
+#if HOTENDS > 2
+  #error "MKS 1.3/1.4 supports up to 2 hotends. Comment this line to keep going."
+#endif
+
 #define BOARD_NAME "MKS > v1.3"
 
-#include "pins_RAMPS_14_EFB.h"
+#define HI_VOLT_PIN_D 7
 
-#undef HEATER_1_PIN
-#define HEATER_1_PIN        7 // EXTRUDER 2 (-1 on RAMPS 1.4)
+#include "pins_RAMPS_14_EFB.h"
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   /**
