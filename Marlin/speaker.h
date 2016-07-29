@@ -70,7 +70,7 @@ class Speaker: public Buzzer {
         this->state.period = 1000000UL / this->state.tone.frequency;
 
         this->state.counter =
-          (this->state.tone.counter * 1000L) / this->state.period;
+          (this->state.tone.duration * 1000L) / this->state.period;
 
         this->state.period   >>= 1;
         this->state.counter <<= 1;
