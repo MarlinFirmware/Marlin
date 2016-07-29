@@ -375,11 +375,7 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 
 // Buzzer
 #if HAS_BUZZER
-  #if ENABLED(SPEAKER)
-    Speaker buzzer;
-  #else
     Buzzer buzzer;
-  #endif
 #endif
 
 static uint8_t target_extruder;
