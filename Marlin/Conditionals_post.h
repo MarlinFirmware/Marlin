@@ -94,22 +94,29 @@
   #endif
 
   /**
-   * AUTOSET LOCATIONS OF LIMIT SWITCHES
+   * Set the home position based on settings or manual overrides
    */
-  #if ENABLED(MANUAL_HOME_POSITIONS)  // Use manual limit switch locations
+  #ifdef MANUAL_X_HOME_POS
     #define X_HOME_POS MANUAL_X_HOME_POS
+  #elif ENABLED(BED_CENTER_AT_0_0)
+    #define X_HOME_POS ((X_MAX_LENGTH) * (X_HOME_DIR) * 0.5)
+  #else
+    #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
+  #endif
+
+  #ifdef MANUAL_Y_HOME_POS
     #define Y_HOME_POS MANUAL_Y_HOME_POS
+  #elif ENABLED(BED_CENTER_AT_0_0)
+    #define Y_HOME_POS ((Y_MAX_LENGTH) * (Y_HOME_DIR) * 0.5)
+  #else
+    #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
+  #endif
+
+  #ifdef MANUAL_Z_HOME_POS
     #define Z_HOME_POS MANUAL_Z_HOME_POS
-  #else //!MANUAL_HOME_POSITIONS – Use home switch positions based on homing direction and travel limits
-    #if ENABLED(BED_CENTER_AT_0_0)
-      #define X_HOME_POS (X_MAX_LENGTH) * (X_HOME_DIR) * 0.5
-      #define Y_HOME_POS (Y_MAX_LENGTH) * (Y_HOME_DIR) * 0.5
-    #else
-      #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
-      #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
-    #endif
+  #else
     #define Z_HOME_POS (Z_HOME_DIR < 0 ? Z_MIN_POS : Z_MAX_POS)
-  #endif //!MANUAL_HOME_POSITIONS
+  #endif
 
   /**
    * The BLTouch Probe emulates a servo probe
