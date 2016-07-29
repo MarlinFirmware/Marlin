@@ -290,7 +290,7 @@ static void lcd_implementation_init() {
   #endif
 }
 
-static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
+void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
 FORCE_INLINE void _draw_centered_temp(int temp, int x, int y) {
   int degsize = 6 * (temp >= 100 ? 3 : temp >= 10 ? 2 : 1); // number's pixel width
