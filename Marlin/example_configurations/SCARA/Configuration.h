@@ -289,10 +289,6 @@
 #define HEATER_3_MAXTEMP 275
 #define BED_MAXTEMP 150
 
-// If you want the M105 heater power reported in watts, define the BED_WATTS, and (shared for all extruders) EXTRUDER_WATTS
-#define HOTEND_WATTS (2*2/5.9)       // P=U^2/R
-#define BED_WATTS (5.45*5.45/2.2)    // P=U^2/R
-
 //===========================================================================
 //============================= PID Settings ================================
 //===========================================================================
