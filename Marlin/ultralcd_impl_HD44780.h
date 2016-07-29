@@ -39,18 +39,6 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 // via a shift/i2c register.
 
 #if ENABLED(ULTIPANEL)
-  // All UltiPanels might have an encoder - so this is always be mapped onto first two bits
-  #define BLEN_B 1
-  #define BLEN_A 0
-
-  #define EN_B (_BV(BLEN_B)) // The two encoder pins are connected through BTN_EN1 and BTN_EN2
-  #define EN_A (_BV(BLEN_A))
-
-  #if BUTTON_EXISTS(ENC)
-    // encoder click is directly connected
-    #define BLEN_C 2
-    #define EN_C (_BV(BLEN_C))
-  #endif
 
   //
   // Setup other button mappings of each panel
@@ -80,51 +68,35 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
   #elif ENABLED(LCD_I2C_PANELOLU2)
 
-    #if BUTTON_EXISTS(ENC)
-
-      #undef LCD_CLICKED
-      #define LCD_CLICKED (buttons&EN_C)
-
-    #else // Read through I2C if not directly connected to a pin
+    #if !BUTTON_EXISTS(ENC) // Use I2C if not directly connected to a pin
 
       #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
 
       #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
 
       #undef LCD_CLICKED
-      #define LCD_CLICKED (buttons&B_MI)
+      #define LCD_CLICKED (buttons & B_MI)
 
       // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
       #define LCD_HAS_SLOW_BUTTONS
 
     #endif
 
-  #elif ENABLED(REPRAPWORLD_KEYPAD)
-
-    // REPRAPWORLD_KEYPAD defined in ultralcd.h
-
-  #elif ENABLED(NEWPANEL)
-    #define LCD_CLICKED (buttons&EN_C)
-
-  #else // old style ULTIPANEL
-    //bits in the shift register that carry the buttons for:
-    // left up center down right red(stop)
-    #define BL_LE 7
-    #define BL_UP 6
-    #define BL_MI 5
-    #define BL_DW 4
-    #define BL_RI 3
-    #define BL_ST 2
-
-    //automatic, do not change
+  #elif DISABLED(NEWPANEL) // old style ULTIPANEL
+    // Shift register bits correspond to buttons:
+    #define BL_LE 7   // Left
+    #define BL_UP 6   // Up
+    #define BL_MI 5   // Middle
+    #define BL_DW 4   // Down
+    #define BL_RI 3   // Right
+    #define BL_ST 2   // Red Button
     #define B_LE (_BV(BL_LE))
     #define B_UP (_BV(BL_UP))
     #define B_MI (_BV(BL_MI))
     #define B_DW (_BV(BL_DW))
     #define B_RI (_BV(BL_RI))
     #define B_ST (_BV(BL_ST))
-
-    #define LCD_CLICKED (buttons&(B_MI|B_ST))
+    #define LCD_CLICKED ((buttons & B_MI) || (buttons & B_ST))
   #endif
 
 #endif //ULTIPANEL

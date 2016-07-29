@@ -3049,12 +3049,11 @@ inline void gcode_G28() {
             SYNC_PLAN_POSITION_KINEMATIC();
 
             /**
-             * Set the Z probe (or just the nozzle) destination to the safe
-             *  homing point
+             * Move the Z probe (or just the nozzle) to the safe homing point
              */
             destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - (X_PROBE_OFFSET_FROM_EXTRUDER));
             destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - (Y_PROBE_OFFSET_FROM_EXTRUDER));
-            destination[Z_AXIS] = current_position[Z_AXIS]; //z is already at the right height
+            destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(LEVELING)) {
@@ -4469,8 +4468,7 @@ inline void gcode_M104() {
     #endif
     #if HOTENDS > 1
       HOTEND_LOOP() {
-        SERIAL_PROTOCOLPGM(" T");
-        SERIAL_PROTOCOL(e);
+        SERIAL_PROTOCOLPAIR(" T", e);
         SERIAL_PROTOCOLCHAR(':');
         SERIAL_PROTOCOL_F(thermalManager.degHotend(e), 1);
         SERIAL_PROTOCOLPGM(" /");
@@ -4495,8 +4493,7 @@ inline void gcode_M104() {
     #endif
     #if HOTENDS > 1
       HOTEND_LOOP() {
-        SERIAL_PROTOCOLPGM(" @");
-        SERIAL_PROTOCOL(e);
+        SERIAL_PROTOCOLPAIR(" @", e);
         SERIAL_PROTOCOLCHAR(':');
         #ifdef EXTRUDER_WATTS
           SERIAL_PROTOCOL(((EXTRUDER_WATTS) * thermalManager.getHeaterPower(e)) / 127);
@@ -4508,20 +4505,15 @@ inline void gcode_M104() {
     #endif
     #if ENABLED(SHOW_TEMP_ADC_VALUES)
       #if HAS_TEMP_BED
-        SERIAL_PROTOCOLPGM("    ADC B:");
-        SERIAL_PROTOCOL_F(thermalManager.degBed(), 1);
-        SERIAL_PROTOCOLPGM("C->");
-        SERIAL_PROTOCOL_F(thermalManager.rawBedTemp() / OVERSAMPLENR, 0);
+        SERIAL_PROTOCOLPAIR("    ADC B:", thermalManager.current_temperature_bed_raw / OVERSAMPLENR);
       #endif
       HOTEND_LOOP() {
-        SERIAL_PROTOCOLPGM("  T");
-        SERIAL_PROTOCOL(e);
+        SERIAL_PROTOCOLPAIR(" T", e);
         SERIAL_PROTOCOLCHAR(':');
-        SERIAL_PROTOCOL_F(thermalManager.degHotend(e), 1);
-        SERIAL_PROTOCOLPGM("C->");
-        SERIAL_PROTOCOL_F(thermalManager.rawHotendTemp(e) / OVERSAMPLENR, 0);
+        SERIAL_PROTOCOL(thermalManager.current_temperature_raw[e] / OVERSAMPLENR);
       }
     #endif
+    SERIAL_EOL;
   }
 #endif
 

@@ -86,7 +86,7 @@
   #undef BTN_ENC
   #define BTN_EN1 16
   #define BTN_EN2 17
-  #define BTN_ENC 23 //the click
+  #define BTN_ENC 23
 
 #else
 
