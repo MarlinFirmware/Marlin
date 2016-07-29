@@ -716,18 +716,14 @@
 
 // @section homing
 
-// The position of the homing switches
-//#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
-//#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
+// The center of the bed is at (X=0, Y=0)
+//#define BED_CENTER_AT_0_0
 
-// Manual homing switch locations:
-// For deltabots this means top and center of the Cartesian print volume.
-#if ENABLED(MANUAL_HOME_POSITIONS)
-  #define MANUAL_X_HOME_POS 0
-  #define MANUAL_Y_HOME_POS 0
-  #define MANUAL_Z_HOME_POS 0
-  //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
-#endif
+// Manually set the home position. Leave these undefined for automatic settings.
+// For DELTA this is the top-center of the Cartesian print volume.
+//#define MANUAL_X_HOME_POS 0
+//#define MANUAL_Y_HOME_POS 0
+//#define MANUAL_Z_HOME_POS 0 // Distance between the nozzle to printbed after homing
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
