@@ -1577,7 +1577,7 @@ unsigned long cnt;
 	do_blocking_move_to_xy( xProbe, yProbe );
 	new_z = bed_leveling_mesh.z_values[location.x_index][location.y_index] + .001 ;
 
-	round_off = new_z*1000.0;				// we chop of the last digits just to be clean.  We don't want
+	round_off = (long int) (new_z*1000.0);			// we chop off the last digits just to be clean.  We don't want
 	round_off = round_off - (round_off % 5l);		// trailing digits that can not be altered.  Everything starting
 	new_z = ((float) (round_off))/1000.0;			// at 2.5 decimal places will be 0 or 5/
 
