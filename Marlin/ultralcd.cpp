@@ -1437,14 +1437,14 @@ void kill_screen(const char* lcd_msg) {
           MENU_ITEM(gcode, MSG_SELECT MSG_E2, PSTR("T1"));
       #endif
 
-      #if E_STEPPERS == 1
+      #if E_MANUAL == 1
         MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
       #else
         MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E1, lcd_move_e0);
         MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E2, lcd_move_e1);
-        #if E_STEPPERS > 2
+        #if E_MANUAL > 2
           MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E3, lcd_move_e2);
-          #if E_STEPPERS > 3
+          #if E_MANUAL > 3
             MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E4, lcd_move_e3);
           #endif
         #endif
