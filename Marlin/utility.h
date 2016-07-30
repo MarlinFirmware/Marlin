@@ -20,4 +20,9 @@
  *
  */
 
-void safe_delay(uint16_t ms);
+#ifndef __UTILITY_H__
+#define __UTILITY_H__
+
+void safe_delay(millis_t ms);
+
+#endif

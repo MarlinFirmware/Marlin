@@ -35,12 +35,10 @@
 
 #include "MarlinConfig.h"
 
-#include "fastio.h"
-
 #include "enum.h"
+#include "types.h"
+#include "fastio.h"
 #include "utility.h"
-
-typedef unsigned long millis_t;
 
 #ifdef USBCON
   #include "HardwareSerial.h"
