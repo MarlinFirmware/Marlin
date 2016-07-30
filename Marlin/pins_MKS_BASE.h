@@ -32,4 +32,4 @@
 
 #define HI_VOLT_PIN_D 7
 
-#include "pins_RAMPS_14.h"
+#include "pins_RAMPS.h"
