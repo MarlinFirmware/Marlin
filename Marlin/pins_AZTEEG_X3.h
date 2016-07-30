@@ -30,7 +30,7 @@
 
 #define BOARD_NAME "Azteeg X3"
 
-#include "pins_RAMPS_14.h"
+#include "pins_RAMPS.h"
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 

@@ -35,4 +35,4 @@
      // HI_VOLT_PIN_C  8 // B
 #define HI_VOLT_PIN_D 10 // F / E
 
-#include "pins_RAMPS_14.h"
+#include "pins_RAMPS.h"

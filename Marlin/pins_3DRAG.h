@@ -36,7 +36,7 @@
   #define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
 #endif
 
-#include "pins_RAMPS_14.h"
+#include "pins_RAMPS.h"
 
 #undef Z_ENABLE_PIN
 #define Z_ENABLE_PIN       63

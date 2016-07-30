@@ -30,7 +30,7 @@
 
 #define BOARD_NAME "2PrintBeta Due"
 
-#include "pins_RAMPS_14.h"
+#include "pins_RAMPS.h"
 
 #undef TEMP_0_PIN
 #undef TEMP_1_PIN
