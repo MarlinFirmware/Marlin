@@ -4462,7 +4462,7 @@ inline void gcode_M104() {
       SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(target_extruder), 1);
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         SERIAL_PROTOCOLPAIR(" (", thermalManager.current_temperature_raw[target_extruder] / OVERSAMPLENR);
-        SERIAL_CHAR(')')
+        SERIAL_CHAR(')');
       #endif
     #endif
     #if HAS_TEMP_BED
@@ -4472,7 +4472,7 @@ inline void gcode_M104() {
       SERIAL_PROTOCOL_F(thermalManager.degTargetBed(), 1);
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         SERIAL_PROTOCOLPAIR(" (", thermalManager.current_temperature_bed_raw / OVERSAMPLENR);
-        SERIAL_CHAR(')')
+        SERIAL_CHAR(')');
       #endif
     #endif
     #if HOTENDS > 1
@@ -4484,7 +4484,7 @@ inline void gcode_M104() {
         SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(e), 1);
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           SERIAL_PROTOCOLPAIR(" (", thermalManager.current_temperature_raw[e] / OVERSAMPLENR);
-          SERIAL_CHAR(')')
+          SERIAL_CHAR(')');
         #endif
       }
     #endif
