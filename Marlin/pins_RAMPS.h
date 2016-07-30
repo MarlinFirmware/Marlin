@@ -138,49 +138,49 @@
  * Hi Voltage PWM Pin Assignments
  */
 
-#ifndef HI_VOLT_PIN_D
-  #define HI_VOLT_PIN_D  -1
+#ifndef MOSFET_D_PIN
+  #define MOSFET_D_PIN  -1
 #endif
-#ifndef HI_VOLT_PIN_C
-  #define HI_VOLT_PIN_C  8
+#ifndef RAMPS_D8_PIN
+  #define RAMPS_D8_PIN   8
 #endif
-#ifndef HI_VOLT_PIN_B
-  #define HI_VOLT_PIN_B  9
+#ifndef RAMPS_D9_PIN
+  #define RAMPS_D9_PIN   9
 #endif
-#ifndef HI_VOLT_PIN_A
-  #define HI_VOLT_PIN_A 10
+#ifndef RAMPS_D10_PIN
+  #define RAMPS_D10_PIN 10
 #endif
 
-#define HEATER_0_PIN     HI_VOLT_PIN_A
+#define HEATER_0_PIN     RAMPS_D10_PIN
 
 #if ENABLED(IS_RAMPS_EFB)                      // Hotend, Fan, Bed
-  #define FAN_PIN        HI_VOLT_PIN_B
-  #define HEATER_BED_PIN HI_VOLT_PIN_C
-  #define FAN1_PIN 4     // IO pin. Buffer needed
+  #define FAN_PIN        RAMPS_D9_PIN
+  #define HEATER_BED_PIN RAMPS_D8_PIN
 #elif ENABLED(IS_RAMPS_EEF)                    // Hotend, Hotend, Fan
-  #define HEATER_1_PIN   HI_VOLT_PIN_B
-  #define FAN_PIN        HI_VOLT_PIN_C
-  #define FAN1_PIN 4     // IO pin. Buffer needed
+  #define HEATER_1_PIN   RAMPS_D9_PIN
+  #define FAN_PIN        RAMPS_D8_PIN
 #elif ENABLED(IS_RAMPS_EEB)                    // Hotend, Hotend, Bed
-  #define HEATER_1_PIN   HI_VOLT_PIN_B
-  #define HEATER_BED_PIN HI_VOLT_PIN_C
-  #define FAN_PIN 4      // IO pin. Buffer needed
+  #define HEATER_1_PIN   RAMPS_D9_PIN
+  #define HEATER_BED_PIN RAMPS_D8_PIN
 #elif ENABLED(IS_RAMPS_EFF)                    // Hotend, Fan, Fan
-  #define FAN_PIN        HI_VOLT_PIN_B
-  #define FAN1_PIN       HI_VOLT_PIN_C
+  #define FAN_PIN        RAMPS_D9_PIN
+  #define FAN1_PIN       RAMPS_D8_PIN
   #define CONTROLLERFAN_PIN  -1
 #elif ENABLED(IS_RAMPS_SF)                     // Spindle, Fan
-  #define FAN_PIN        HI_VOLT_PIN_C
+  #define FAN_PIN        RAMPS_D8_PIN
 #else                                          // Non-specific are "EFB" by legacy
-  #define FAN_PIN        HI_VOLT_PIN_B
-  #define HEATER_BED_PIN HI_VOLT_PIN_C
+  #define FAN_PIN        RAMPS_D9_PIN
+  #define HEATER_BED_PIN RAMPS_D8_PIN
   #if HOTENDS == 1
-    #define FAN1_PIN     HI_VOLT_PIN_D
+    #define FAN1_PIN     MOSFET_D_PIN
   #else
-    #define HEATER_1_PIN HI_VOLT_PIN_D
+    #define HEATER_1_PIN MOSFET_D_PIN
   #endif
 #endif
 
+#ifndef FAN_PIN
+  #define FAN_PIN 4      // IO pin. Buffer needed
+#endif
 
 /**
  * LCD Controller Pin Assignments

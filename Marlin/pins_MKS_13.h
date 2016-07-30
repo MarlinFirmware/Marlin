@@ -35,7 +35,7 @@
 
 #define BOARD_NAME "MKS > v1.3"
 
-#define HI_VOLT_PIN_D 7
+#define MOSFET_D_PIN 7
 
 #include "pins_RAMPS.h"
 
