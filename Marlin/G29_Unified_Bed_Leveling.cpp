@@ -445,8 +445,8 @@ void gcode_G29() {
       case 5:   Adjust_Mesh_to_Mean();
         	break;
       case 6:   
-		float xyzzy;
-		lcd_implementation_clear();
+		float xyzzy;					// Debug code...   Pay no attention to 
+		lcd_implementation_clear();			// this stuff.  
       		UBL_has_control_of_LCD_Panel = 0;
     		SERIAL_ECHO("Starting Babysteps \n");
 		lcd_mesh_edit_setup(0.123456);
@@ -466,7 +466,7 @@ void gcode_G29() {
     		SERIAL_ECHO("Leaving G29 P6   \n");
         	break;
 
-      case 10: 	UBL_has_control_of_LCD_Panel++;
+      case 10: 	UBL_has_control_of_LCD_Panel++;			// Debug code...  Pan no attention to this stuff
      		SERIAL_ECHO_START;
     		SERIAL_ECHO("Checking G29 has control of LCD Panel:\n");
 	      	while( !G29_lcd_clicked() ) {
@@ -1574,21 +1574,11 @@ unsigned long cnt;
 
 	do_blocking_move_to_z( Z_RAISE_PROBE_DEPLOY_STOW );	// Move the nozzle to where we are going to edit
 	do_blocking_move_to_xy( xProbe, yProbe );
+	new_z = bed_leveling_mesh.z_values[location.x_index][location.y_index] + .001 ;
 
-SERIAL_ECHO("Editing location: [");
-SERIAL_ECHO( location.x_index );
-SERIAL_ECHO("][");
-SERIAL_ECHO( location.y_index );
-SERIAL_ECHO("] = ");
-
-	new_z = bed_leveling_mesh.z_values[location.x_index][location.y_index] + .005 ;
-
-SERIAL_ECHO_F( new_z, 6 );
-SERIAL_ECHO("\n");
-
-	new_z = int(new_z*100.00) / 100.0;		// we chop of the last digits just to be clean.  We don't want
-							// trailing digits that can not be altered.  Everything starting
-							// at 3 decimal places will be 0
+	new_z = int(new_z*1000.0);				// we chop of the last digits just to be clean.  We don't want
+	cnt   = new_z;						// trailing digits that can not be altered.  Everything starting
+	new_z = 							// at 3 decimal places will be 0
 SERIAL_ECHO("Mesh Point Currently At:  ");
 SERIAL_ECHO_F( new_z, 6 );
 SERIAL_ECHO("\n");
@@ -1647,87 +1637,3 @@ FINE_TUNE_EXIT:
 #endif
 
 
-//#if ENABLED(ULTRA_LCD)
-//lcd_setstatus( "Doing G29 UBL !", true);
-//lcd_quick_feedback();
-//#endif
-/*
-  #if ENABLED(ULTIPANEL)
-    #define NEWPANEL  //enable this if you have a click-encoder panel
-    #define ULTRA_LCD
-    #ifndef LCD_WIDTH
-      #define LCD_WIDTH 20
-    #endif
-    #ifndef LCD_HEIGHT
-      #define LCD_HEIGHT 4
-    #endi 
- static void menu_action_setting_edit_float43(const char* pstr, float* ptr, float minValue, float maxValue);
-
-  #define MENU_ITEM_EDIT(type, label, args...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## args)
-
-  #define MENU_ITEM(type, label, args...) do { \
-      _MENU_ITEM_PART_1(type, label, ## args); \
-      _MENU_ITEM_PART_2(type, ## args); \
-    } while(0)
-
-     MENU_ITEM_EDIT(float43, MSG_BED_Z, &bed_leveling_mesh.state.z_offset, -1, 1);
-
-void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
-  lcd.setCursor(1, 1);
-  lcd_printPGM(pstr);
-  if (value != NULL) {
-    lcd.print(':');
-    lcd.setCursor(LCD_WIDTH - lcd_strlen(value), 1);
-    lcd_print(value);
-  }
-}
-   
-    static void _lcd_babystep(const AxisEnum axis, const char* msg) {
-      ENCODER_DIRECTION_NORMAL();
-      if (encoderPosition) {
-        int babystep_increment = (int32_t)encoderPosition * BABYSTEP_MULTIPLICATOR;
-        encoderPosition = 0;
-        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        thermalManager.babystep_axis(axis, babystep_increment);
-        babysteps_done += babystep_increment;
-      }
-      if (lcdDrawUpdate)
-        lcd_implementation_drawedit(msg, ftostr43sign(
-          ((1000 * babysteps_done) / planner.axis_steps_per_mm[axis]) * 0.001f
-        ));
-      if (LCD_CLICKED) lcd_goto_previous_menu(true);
-    }
-
-char* ftostr43sign(const float& x, char plus) {
-  long xx = x * 1000;
-  if (xx == 0)
-    conv[0] = ' ';
-  else if (xx > 0)
-    conv[0] = plus;
-  else {
-    xx = -xx;
-    conv[0] = '-';
-  }
-  conv[1] = DIGIMOD(xx / 1000);
-  conv[2] = '.';
-  conv[3] = DIGIMOD(xx / 100);
-  conv[4] = DIGIMOD(xx / 10);
-  conv[5] = DIGIMOD(xx);
-  conv[6] = '\0';
-  return conv;
-}
-
-  static void lcd_tune_menu() {
-    START_MENU();
-
-    //
-    // ^ Main
-    //
-    MENU_ITEM(back, MSG_MAIN);
-
-    //
-    // Speed:
-    //
-    MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_multiplier, 10, 999);
-
-*/
