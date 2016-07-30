@@ -2110,16 +2110,21 @@ static void clean_up_after_endstop_or_probe_move() {
       planner.bed_level_matrix.set_to_identity();
     #endif
 
-    do_blocking_move_to_z(-(Z_MAX_LENGTH + 10), Z_PROBE_SPEED_FAST);
-    endstops.hit_on_purpose();
-    set_current_from_steppers_for_axis(Z_AXIS);
-    SYNC_PLAN_POSITION_KINEMATIC();
+    #if ENABLED(PROBE_DOUBLE_TOUCH)
+      do_blocking_move_to_z(-(Z_MAX_LENGTH + 10), Z_PROBE_SPEED_FAST);
+      endstops.hit_on_purpose();
+      set_current_from_steppers_for_axis(Z_AXIS);
+      SYNC_PLAN_POSITION_KINEMATIC();
 
-    // move up the retract distance
-    do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), Z_PROBE_SPEED_FAST);
+      // move up the retract distance
+      do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), Z_PROBE_SPEED_FAST);
+    #else
+      // move fast, close to the bed
+      do_blocking_move_to_z(home_bump_mm(Z_AXIS), Z_PROBE_SPEED_FAST);
+    #endif
 
-    // move back down slowly to find bed
-    do_blocking_move_to_z(current_position[Z_AXIS] - home_bump_mm(Z_AXIS) * 2, Z_PROBE_SPEED_SLOW);
+    // move down slowly to find bed
+    do_blocking_move_to_z(current_position[Z_AXIS] -2.0*home_bump_mm(Z_AXIS), Z_PROBE_SPEED_SLOW);
     endstops.hit_on_purpose();
     set_current_from_steppers_for_axis(Z_AXIS);
     SYNC_PLAN_POSITION_KINEMATIC();
