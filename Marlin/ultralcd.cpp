@@ -677,13 +677,17 @@ static void lcd_status_screen() {
   #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
     bool G29_lcd_clicked(); 
 
-    float Mesh_Edit_Value;
-    int loop_cnt=0, last_seen_bits;
+    float Mesh_Edit_Value, Mesh_Edit_Accumulator;	// We round Mesh_Edit_Value to 2.5 decimal places.  So we keep a 
+    							// seperate value that doesn't lose precision.
+    static int loop_cnt=0, last_seen_bits;
 
     static void _lcd_mesh_fine_tune( const char* msg) {
+    static unsigned long last_click=0; 
+    int  last_digit, movement;
+    long int rounded;
 
 	defer_return_to_status = true;
-/*
+/* 
 if (loop_cnt++ == 20 || last_seen_bits!=lastEncoderBits ) {
 	loop_cnt = 0;
 	SERIAL_ECHO("In _lcd_mesh_fine_tune() :");
@@ -692,20 +696,59 @@ if (loop_cnt++ == 20 || last_seen_bits!=lastEncoderBits ) {
 	SERIAL_ECHOPAIR(" encoderPosition:  ", ((int32_t) encoderPosition) );
 	SERIAL_ECHOPAIR(" encoderDiff:  ", encoderDiff);
 	SERIAL_ECHOPAIR(" UBL: ", UBL_has_control_of_LCD_Panel);
-	SERIAL_ECHO("\n");
 	last_seen_bits = lastEncoderBits;
 }
 */
-      if (encoderPosition) {
-        Mesh_Edit_Value += ( (float) ((int32_t)encoderPosition)) * .005;
-        encoderPosition = 0;
-        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+//unsigned long e;
+//int milli_flag=0;
+//e = encoderPosition;
+
+//      milli_flag=0;
+      if (encoderPosition) {						//  If moving the Encoder wheel very slowly, we just go
+        if ( (millis()-last_click) > 500L) {   // 1/4 second delay	//  up or down by 1 position
+//milli_flag++;
+      		if ( ((int32_t)encoderPosition) > 0 )			
+      			encoderPosition = 1;
+		else
+      			encoderPosition = (uint32_t) -1; 
+	}
+        last_click = millis();
+
+        Mesh_Edit_Accumulator += ( (float) ((int32_t)encoderPosition)) * .005 / 2.0 ; 
+        Mesh_Edit_Value       = Mesh_Edit_Accumulator;
+        encoderPosition	      = 0;
+        lcdDrawUpdate	      = LCDVIEW_REDRAW_NOW;
+
+	rounded    = (long int) (Mesh_Edit_Value * 1000.0);
+	last_digit = rounded % 5L; //10L;
+	rounded    = rounded - last_digit;
+	last_digit = rounded % 5L; //10L;
+/*
+if (last_digit!=0 )  {		// if true, we have a rounding error
+SERIAL_ECHO("  Yikes!  a rounding error: ");
+SERIAL_ECHO( rounded );
+}
+*/
+	Mesh_Edit_Value  = ((float) rounded) / 1000.0;
       }
+/*
+SERIAL_ECHO("In _lcd_mesh_fine_tune() :");
+SERIAL_ECHO_F( Mesh_Edit_Value, 6);
+SERIAL_ECHO("  Accumulator:");
+SERIAL_ECHO_F( Mesh_Edit_Accumulator, 6);
+SERIAL_ECHO("  difference:");
+SERIAL_ECHO_F( Mesh_Edit_Accumulator-Mesh_Edit_Value, 6);
+if (milli_flag) SERIAL_ECHO(" * ");
+SERIAL_ECHO("   ");
+SERIAL_ECHO("  enc:");
+SERIAL_ECHO( ((int32_t) e) );
+SERIAL_ECHO("\n");
+*/
       if (lcdDrawUpdate)
         lcd_implementation_drawedit(msg, ftostr43sign( (float) Mesh_Edit_Value  ));
 // >>>--->
       if (/*G29_*/lcd_clicked() ) {
-
+/*
 SERIAL_ECHO("IN _LCD_MESH_FINE_TUNE() :");
 SERIAL_ECHO_F( Mesh_Edit_Value, 6);
 SERIAL_ECHOPAIR(" LASTENCODERBITS:  ", lastEncoderBits);
@@ -713,7 +756,7 @@ SERIAL_ECHOPAIR(" ENCODERpOSITION:  ", ((int32_t) encoderPosition) );
 SERIAL_ECHOPAIR(" ENCODERdIFF:  ", encoderDiff);
 SERIAL_ECHOPAIR(" UBL: ", UBL_has_control_of_LCD_Panel);
 SERIAL_ECHO("\n");
-
+*/
 	UBL_has_control_of_LCD_Panel=1; 	// We need to lock the normal LCD Panel System outbecause G29 (and G26) are looking for
 	lcd_return_to_status();			// long presses of the Encoder Wheel and the LCD System goes spastic when that happens.   
 						// We will give back control from those routines when the switch is debounced.
@@ -725,8 +768,8 @@ SERIAL_ECHO("\n");
     }
 
     void lcd_mesh_edit_setup(float inital) { 
-//	    UBL_has_control_of_LCD_Panel=1; 
-	    Mesh_Edit_Value=inital; 
+	    Mesh_Edit_Value       = inital; 
+    	    Mesh_Edit_Accumulator = inital;
 	    lcd_goto_screen(_lcd_mesh_edit); 
 	    return ; 
     }
@@ -2665,14 +2708,14 @@ void lcd_update() {
                 if (encoderStepRate >= ENCODER_100X_STEPS_PER_SEC)     encoderMultiplier = 100;
                 else if (encoderStepRate >= ENCODER_10X_STEPS_PER_SEC) encoderMultiplier = 10;
 
-                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
+//                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
                   SERIAL_ECHO_START;
                   SERIAL_ECHOPAIR("Enc Step Rate: ", encoderStepRate);
                   SERIAL_ECHOPAIR("  Multiplier: ", encoderMultiplier);
                   SERIAL_ECHOPAIR("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
                   SERIAL_ECHOPAIR("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
                   SERIAL_EOL;
-                #endif //ENCODER_RATE_MULTIPLIER_DEBUG
+//                #endif //ENCODER_RATE_MULTIPLIER_DEBUG
               }
 
               lastEncoderMovementMillis = ms;
@@ -2756,6 +2799,25 @@ void lcd_update() {
     }
 
   }
+
+#if ENABLED(BABYSTEPPING)
+#ifdef QUICK_ACCESS_TO_Z_BABY_STEPPING
+
+static bool quick_mode_needs_to_be_setup=true;		// a few lines of code to minimize our impact on CPU usage.
+							// it may be this should be moved to the init code so we don't
+							// even have to do this quick check.
+  if (quick_mode_needs_to_be_setup ) {
+     quick_mode_needs_to_be_setup = false;
+     pinMode(QUICK_ACCESS_TO_Z_BABY_STEPPING, INPUT_PULLUP);
+  }
+  if ( !digitalRead(QUICK_ACCESS_TO_Z_BABY_STEPPING)) {	// assume an active low pin
+	  if ( currentScreen != _lcd_babystep_z)  {
+		lcd_implementation_clear();
+		lcd_babystep_z();
+	  }
+  }
+#endif
+#endif
 }
 
 void lcd_finishstatus(bool persist=false) {
