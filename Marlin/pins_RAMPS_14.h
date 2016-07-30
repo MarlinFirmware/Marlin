@@ -106,8 +106,9 @@
 #define FIL_RUNOUT_PIN      4
 
 #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF) || ENABLED(IS_RAMPS_EFB)
-  #define FAN_PIN           9 // (Sprinter config)
+  #define FAN_PIN           9 // Middle plug
   #if MB(RAMPS_14_EFF) || MB(RAMPS_13_EFF)
+    #define FAN1_PIN       10
     #define CONTROLLERFAN_PIN  -1 // Pin used for the fan to cool controller
   #endif
 #elif MB(RAMPS_14_EEF) || MB(RAMPS_14_SF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
@@ -123,12 +124,12 @@
 #else
   #define HEATER_0_PIN     10   // EXTRUDER 1
   #if !MB(RAMPS_14_EEF) && !MB(RAMPS_13_EEF) && !MB(RAMPS_14_SF) && !MB(RAMPS_13_SF)
-    #define HEATER_BED_PIN    8    // BED
+    #define HEATER_BED_PIN  8
   #endif
 #endif
 
 #if !MB(RAMPS_14_SF) && !MB(RAMPS_13_SF) && !ENABLED(IS_RAMPS_EFB)
-  #define HEATER_1_PIN      9   // EXTRUDER 2 (FAN On Sprinter)
+  #define HEATER_1_PIN      9   // EXTRUDER 2
 #endif
 
 #define TEMP_0_PIN         13   // ANALOG NUMBERING
