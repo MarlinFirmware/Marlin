@@ -628,7 +628,17 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
 
   //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
-  
+    
+  //#define QUICK_ACCESS_TO_Z_BABY_STEPPING 65	// if this option is enabled and has a pin number defined on it,
+  						// it will give you immediate access to the Z-Baby-Stepping menu
+						// on the LCD Panel.   This is very nice when starting a print.  You
+						// need to have an LCD Panel enabled.  And you need to have a pin with
+						// a switch on it to trigger the behaviour.    If you do not care about
+						// having a Kill Switch on your LCD Panel, you can comment out all lines
+						// in the appropriate pins_???.h file (for your machine) that have 
+						// #defined KILL_PIN.   You can place that pin number here to get instant
+						// access to the Z-Baby-Stepping menu.
+
   //
   //
   #define BIG_RAISE_NOT_NEEDED 45	// These parameters is used during the manual probing of the bed areas
