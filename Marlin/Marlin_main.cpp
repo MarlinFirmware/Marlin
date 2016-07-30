@@ -142,6 +142,7 @@
  * M33  - Get the longname version of a path
  * M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
  * M43  - Pin scan to help locate viable GPIO location  M43 [S start pin #] [E end pin #] [W wait in miliseconds] [R repeat count of pulses]
+ * M44  - Pin Input Scan: Scan for a pin that is connected to a sensor or switch M44 [S start pin #] [E end pin #] [W wait in miliseconds] 
  * M48  - Measure Z_Probe repeatability. M48 [P # of points] [X position] [Y position] [V_erboseness #] [E_ngage Probe] [L # of legs of travel]
  * M75  - Start the print job timer
  * M76  - Pause the print job timer
@@ -825,16 +826,16 @@ void servo_init() {
  *  - Print startup messages and diagnostics
  *  - Get EEPROM or default settings
  *  - Initialize managers for:
- *    • temperature
- *    • planner
- *    • watchdog
- *    • stepper
- *    • photo pin
- *    • servos
- *    • LCD controller
- *    • Digipot I2C
- *    • Z probe sled
- *    • status LEDs
+ *    â€¢ temperature
+ *    â€¢ planner
+ *    â€¢ watchdog
+ *    â€¢ stepper
+ *    â€¢ photo pin
+ *    â€¢ servos
+ *    â€¢ LCD controller
+ *    â€¢ Digipot I2C
+ *    â€¢ Z probe sled
+ *    â€¢ status LEDs
  */
 void setup() {
 
@@ -3555,6 +3556,23 @@ inline void gcode_M42() {
  * R    Repeat pulses on each pin this number of times before continueing to next pin
  *
  */
+
+
+//
+// sensitive_pin() is used by both M43 and M44 to avoid messing with pins that should not be touched.
+// It is cleaner to have it as a function call than as in-line logic.
+//
+static bool sensitive_pin(int p) {
+int i;
+    for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)  {
+	if (p == sensitive_pins[i] || p==68 || p==69 || p==70 || p==71 || p==72 || p==73 || p==74  //causes KILL on my printer
+												)  {
+	  return true;
+      }
+    }
+    return false;	
+}
+
 inline void gcode_M43() {
 int p, i, s=0, e=127, w=500, r=1; 
 
@@ -3572,29 +3590,89 @@ int p, i, s=0, e=127, w=500, r=1;
 
   for(p=s; p<=e; p++) {
     for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
-      if (p == sensitive_pins[i] || p==68 || p==69 || p==70 || p==71 || p==72 || p==73 || p==74  /*causes KILL on my printer */   )  {
-    	  SERIAL_ECHOPAIR("Sensitive Pin: ", p);
-    	  SERIAL_ECHO(" untouched.\n");
-	  goto NO_PULSE;
+      if ( sensitive_pin(p) ) {
+        SERIAL_ECHOPAIR("Sensitive Pin: ", p);
+        SERIAL_ECHO(" untouched.\n");
+      } else {
+    	SERIAL_ECHOPAIR("Pulsing Pin: ", p);
+        pinMode(p, OUTPUT);
+        for(i=0; i<r; i++) {
+           digitalWrite(p, 0);
+           idle();
+           delay(w);
+           digitalWrite(p, 1);
+           idle();
+           delay(w);
+           digitalWrite(p, 0);
+           idle();
+           delay(w);
+        }
       }
-
-    SERIAL_ECHOPAIR("Pulsing Pin: ", p);
-    pinMode(p, OUTPUT);
-    for(i=0; i<r; i++) {
-       digitalWrite(p, 0);
-       idle();
-       delay(w);
-       digitalWrite(p, 1);
-       idle();
-       delay(w);
-       digitalWrite(p, 0);
-       idle();
-       delay(w);
-    }
-NO_PULSE:
     SERIAL_ECHO("\n");
   } 
 }
+
+/**
+ * M44: Input Scan    Scan for a pin that is connected to a sensor or switch
+ *
+ *      This command will scan the non-sensitive pins and read them with Pull Up Resistor
+ *      mode enabled.
+ *
+ * S	Start Pin number.   If not given, will default to 0
+ *
+ * E	End Pin number.   If not given, will default to 127 
+ *
+ * W    Wait time (in miliseconds) between scans.  If not given will default to 500
+ *
+ * R    Repeat range scan this many times
+ */
+
+
+inline void gcode_M44() {
+char c;
+int p, i, j, s=0, e=127, w=500, repeat_cnt=1; 
+
+  if (code_seen('R')) 
+    repeat_cnt = code_value_int();
+
+  if (code_seen('S')) 
+    s = code_value_int();
+
+  if (code_seen('E')) 
+    e = code_value_int();
+
+  if (code_seen('W')) 
+    w = code_value_int();
+
+  for(p=s; p<=e; p++) {
+      if ( sensitive_pin(p) )
+	  SERIAL_PROTOCOL(".");
+      else {
+	  j = p % 10;
+	  c = '0' + j;
+	  SERIAL_PROTOCOL(c);
+      }
+  }
+  SERIAL_PROTOCOL("\n");
+
+  for(i=0; i<repeat_cnt; i++) {
+	  for(p=s; p<=e; p++) {
+	      pinMode(p, INPUT_PULLUP);
+              if ( sensitive_pin(p)) {
+		  SERIAL_PROTOCOL(".");
+	      } else {
+		  j = digitalRead( p );
+		  if ( j & 0x01 )
+		     SERIAL_PROTOCOL("1");
+		  else
+		     SERIAL_PROTOCOL("0");
+	      }
+      }
+      SERIAL_ECHO("\n");
+      idle();
+      delay(w);
+  }
+} 
 
 #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
 
@@ -4122,7 +4200,7 @@ inline void gcode_M109() {
 
     // Prevent a wait-forever situation if R is misused i.e. M109 R0
     if (wants_to_cool) {
-      if (temp < (EXTRUDE_MINTEMP) / 2) break; // always break at (default) 85°
+      if (temp < (EXTRUDE_MINTEMP) / 2) break; // always break at (default) 85Â°
       // break after 20 seconds if cooling stalls
       if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
         if (old_temp - temp < 1.0) break;
@@ -4216,7 +4294,7 @@ inline void gcode_M109() {
 
       // Prevent a wait-forever situation if R is misused i.e. M190 R0
       if (wants_to_cool) {
-        if (temp < 30.0) break; // always break at 30°
+        if (temp < 30.0) break; // always break at 30Â°
         // break after 20 seconds if cooling stalls
         if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
           if (old_temp - temp < 1.0) break;
@@ -4813,7 +4891,7 @@ inline void gcode_M204() {
  *
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
- *    B = Min Segment Time (µs)
+ *    B = Min Segment Time (Âµs)
  *    X = Max XY Jerk (units/sec^2)
  *    Z = Max Z Jerk (units/sec^2)
  *    E = Max E Jerk (units/sec^2)
@@ -6434,8 +6512,12 @@ void process_next_command() {
         gcode_M42();
         break;
 
-      case 43: //M42 -Pin scan to help locate viable GPIO locatione
+      case 43: //M43 -Pin scan to help locate viable GPIO locations
         gcode_M43();
+        break;
+
+      case 44: //M44 -Input Pin scan to help locate viable GPIO locations
+        gcode_M44();
         break;
 
       case 1024:
