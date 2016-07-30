@@ -1316,11 +1316,11 @@ void kill_screen(const char* lcd_msg) {
    * to "current_position" after a short delay.
    */
   inline void manual_move_to_current(AxisEnum axis
-    #if EXTRUDERS > 1
+    #if E_MANUAL > 1
       , int8_t eindex=-1
     #endif
   ) {
-    #if EXTRUDERS > 1
+    #if E_MANUAL > 1
       if (axis == E_AXIS) manual_move_e_index = eindex >= 0 ? eindex : active_extruder;
     #endif
     manual_move_start_time = millis() + (move_menu_scale < 0.99 ? 0UL : 250UL); // delay for bigger moves
@@ -1357,9 +1357,9 @@ void kill_screen(const char* lcd_msg) {
     static void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS, sw_endstop_min[Y_AXIS], sw_endstop_max[Y_AXIS]); }
   #endif
   static void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS, sw_endstop_min[Z_AXIS], sw_endstop_max[Z_AXIS]); }
-  static void lcd_move_e(
-    #if E_STEPPERS > 1
-      int8_t eindex = -1
+  static void _lcd_move_e(
+    #if E_MANUAL > 1
+      int8_t eindex
     #endif
   ) {
     if (LCD_CLICKED) { lcd_goto_previous_menu(true); return; }
@@ -1368,7 +1368,7 @@ void kill_screen(const char* lcd_msg) {
       current_position[E_AXIS] += float((int32_t)encoderPosition) * move_menu_scale;
       encoderPosition = 0;
       manual_move_to_current(E_AXIS
-        #if E_STEPPERS > 1
+        #if E_MANUAL > 1
           , eindex
         #endif
       );
@@ -1376,15 +1376,15 @@ void kill_screen(const char* lcd_msg) {
     }
     if (lcdDrawUpdate) {
       PGM_P pos_label;
-      #if E_STEPPERS == 1
+      #if E_MANUAL == 1
         pos_label = PSTR(MSG_MOVE_E);
       #else
         switch (eindex) {
           default: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E1); break;
           case 1: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E2); break;
-          #if E_STEPPERS > 2
+          #if E_MANUAL > 2
             case 2: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E3); break;
-            #if E_STEPPERS > 3
+            #if E_MANUAL > 3
               case 3: pos_label = PSTR(MSG_MOVE_E MSG_MOVE_E4); break;
             #endif
           #endif
@@ -1394,13 +1394,14 @@ void kill_screen(const char* lcd_msg) {
     }
   }
 
-  #if E_STEPPERS > 1
-    static void lcd_move_e0() { lcd_move_e(0); }
-    static void lcd_move_e1() { lcd_move_e(1); }
-    #if E_STEPPERS > 2
-      static void lcd_move_e2() { lcd_move_e(2); }
-      #if E_STEPPERS > 3
-        static void lcd_move_e3() { lcd_move_e(3); }
+  static void lcd_move_e() { _lcd_move_e(); }
+  #if E_MANUAL > 1
+    static void lcd_move_e0() { _lcd_move_e(0); }
+    static void lcd_move_e1() { _lcd_move_e(1); }
+    #if E_MANUAL > 2
+      static void lcd_move_e2() { _lcd_move_e(2); }
+      #if E_MANUAL > 3
+        static void lcd_move_e3() { _lcd_move_e(3); }
       #endif
     #endif
   #endif
