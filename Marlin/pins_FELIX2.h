@@ -30,7 +30,7 @@
 
 #define BOARD_NAME "Felix 2.0+"
 
-#define HI_VOLT_PIN_D 7
+#define MOSFET_D_PIN 7
 
 #include "pins_RAMPS.h"
 
