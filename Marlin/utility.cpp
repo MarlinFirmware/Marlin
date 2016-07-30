@@ -21,9 +21,10 @@
  */
 
 #include "Marlin.h"
+#include "utility.h"
 #include "temperature.h"
 
-void safe_delay(uint16_t ms) {
+void safe_delay(millis_t ms) {
   while (ms > 50) {
     ms -= 50;
     delay(50);
