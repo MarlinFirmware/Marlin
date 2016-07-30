@@ -1394,8 +1394,9 @@ void kill_screen(const char* lcd_msg) {
     }
   }
 
-  static void lcd_move_e() { _lcd_move_e(); }
-  #if E_MANUAL > 1
+  #if E_MANUAL == 1
+    static void lcd_move_e() { _lcd_move_e(); }
+  #else
     static void lcd_move_e0() { _lcd_move_e(0); }
     static void lcd_move_e1() { _lcd_move_e(1); }
     #if E_MANUAL > 2
