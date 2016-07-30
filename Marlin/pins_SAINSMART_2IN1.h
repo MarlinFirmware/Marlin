@@ -30,8 +30,9 @@
 
 #define BOARD_NAME "Sainsmart"
 
-#define HI_VOLT_PIN_A  9
-#define HI_VOLT_PIN_B  7 // PART FAN in front of board next to Extruder heat
-#define HI_VOLT_PIN_D 10
+#define HI_VOLT_PIN_A  9 // E
+#define HI_VOLT_PIN_B  7 // F PART FAN in front of board next to Extruder heat
+     // HI_VOLT_PIN_C  8 // B
+#define HI_VOLT_PIN_D 10 // F / E
 
-#include "pins_RAMPS_14_EFB.h"
+#include "pins_RAMPS_14.h"

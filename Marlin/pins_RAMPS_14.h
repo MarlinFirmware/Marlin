@@ -151,30 +151,25 @@
   #define HI_VOLT_PIN_A 10
 #endif
 
-#if ENABLED(IS_RAMPS_EFB)                   // Hotend, Fan, Bed
+#if ENABLED(IS_RAMPS_EFB)                      // Hotend, Fan, Bed
   #define HEATER_0_PIN   HI_VOLT_PIN_A
   #define FAN_PIN        HI_VOLT_PIN_B
   #define HEATER_BED_PIN HI_VOLT_PIN_C
-  #if EXTRUDERS == 1
-    #define FAN1_PIN     HI_VOLT_PIN_D
-  #else
-    #define HEATER_1_PIN HI_VOLT_PIN_D
-  #endif
-#elif MB(RAMPS_13_EEF) || MB(RAMPS_14_EEF)  // Hotend, Hotend, Fan
+#elif ENABLED(IS_RAMPS_EEF)                    // Hotend, Hotend, Fan
   #define HEATER_0_PIN   HI_VOLT_PIN_A
   #define HEATER_1_PIN   HI_VOLT_PIN_B
   #define FAN_PIN        HI_VOLT_PIN_C
-#elif MB(RAMPS_13_EEB) || MB(RAMPS_14_EEB)  // Hotend, Hotend, Bed
+#elif ENABLED(IS_RAMPS_EEB)                    // Hotend, Hotend, Bed
   #define HEATER_0_PIN   HI_VOLT_PIN_A
   #define HEATER_1_PIN   HI_VOLT_PIN_B
   #define HEATER_BED_PIN HI_VOLT_PIN_C
   #define FAN_PIN 4 // IO pin. Buffer needed
-#elif MB(RAMPS_13_EFF) || MB(RAMPS_14_EFF)  // Hotend, Fan, Fan (EFF is reversed?)
+#elif ENABLED(IS_RAMPS_EFF)                    // Hotend, Fan, Fan (EFF is reversed?)
   #define HEATER_0_PIN   HI_VOLT_PIN_C
   #define FAN_PIN        HI_VOLT_PIN_B
   #define FAN1_PIN       HI_VOLT_PIN_A
   #define CONTROLLERFAN_PIN  -1
-#elif MB(RAMPS_13_SF) || MB(RAMPS_14_SF)    // Spindle, Fan
+#elif ENABLED(IS_RAMPS_SF)                     // Spindle, Fan
   #define FAN_PIN        HI_VOLT_PIN_C
 #else                                          // Non-specific are "EFB" by legacy
   #define HEATER_0_PIN   HI_VOLT_PIN_A
