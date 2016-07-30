@@ -114,6 +114,25 @@
   #define SLED_PIN           -1
 #endif
 
+/*
+
+// Augmentation for auto-assigning RAMPS plugs
+
+#if DISABLED(IS_RAMPS_EEB) && DISABLED(IS_RAMPS_EEF) && DISABLED(IS_RAMPS_EFB) && DISABLED(IS_RAMPS_EFF) && DISABLED(IS_RAMPS_SF)
+  #if HOTENDS > 1
+    #if TEMP_SENSOR_BED
+      #define IS_RAMPS_EEB
+    #else
+      #define IS_RAMPS_EEF
+    #endif
+  #elif TEMP_SENSOR_BED
+    #define IS_RAMPS_EFB
+  #else
+    #define IS_RAMPS_EFF
+  #endif
+#endif
+
+*/
 
 /**
  * Hi Voltage PWM Pin Assignments
@@ -157,6 +176,15 @@
   #define CONTROLLERFAN_PIN  -1
 #elif MB(RAMPS_13_SF) || MB(RAMPS_14_SF)    // Spindle, Fan
   #define FAN_PIN        HI_VOLT_PIN_C
+#else                                          // Non-specific are "EFB" by legacy
+  #define HEATER_0_PIN   HI_VOLT_PIN_A
+  #define FAN_PIN        HI_VOLT_PIN_B
+  #define HEATER_BED_PIN HI_VOLT_PIN_C
+  #if HOTENDS == 1
+    #define FAN1_PIN     HI_VOLT_PIN_D
+  #else
+    #define HEATER_1_PIN HI_VOLT_PIN_D
+  #endif
 #endif
 
 
