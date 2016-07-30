@@ -103,7 +103,6 @@
 // example configuration folder.
 //
 //#define SHOW_CUSTOM_BOOTSCREEN
-
 // @section machine
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
@@ -1082,6 +1081,12 @@
 // http://reprap.org/wiki/MaKr3d_MaKrPanel
 //
 //#define MAKRPANEL
+
+//
+// ReprapWorld Graphical LCD
+// https://reprapworld.com/?products_details&products_id/1218
+//
+//#define REPRAPWORLD_GRAPHICAL_LCD
 
 //
 // Activate one of these if you have a Panucatt Devices
