@@ -20,15 +20,9 @@
  *
  */
 
-#include "Marlin.h"
-#include "utility.h"
-#include "temperature.h"
+#ifndef __TYPES_H__
+#define __TYPES_H__
 
-void safe_delay(millis_t ms) {
-  while (ms > 50) {
-    ms -= 50;
-    delay(50);
-    thermalManager.manage_heater();
-  }
-  delay(ms);
-}
+typedef unsigned long millis_t;
+
+#endif

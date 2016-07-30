@@ -35,12 +35,10 @@
 
 #include "MarlinConfig.h"
 
-#include "fastio.h"
-
 #include "enum.h"
+#include "types.h"
+#include "fastio.h"
 #include "utility.h"
-
-typedef unsigned long millis_t;
 
 #ifdef USBCON
   #include "HardwareSerial.h"
@@ -314,6 +312,7 @@ float code_value_temp_diff();
     void adjust_delta(float cartesian[3]);
   #endif
 #elif ENABLED(SCARA)
+  extern float delta[3];
   extern float axis_scaling[3];  // Build size scaling
   void inverse_kinematics(const float cartesian[3]);
   void forward_kinematics_SCARA(float f_scara[3]);
@@ -386,13 +385,8 @@ void calculate_volumetric_multipliers();
 
 // Buzzer
 #if HAS_BUZZER
-  #if ENABLED(SPEAKER)
-    #include "speaker.h"
-    extern Speaker buzzer;
-  #else
-    #include "buzzer.h"
-    extern Buzzer buzzer;
-  #endif
+  #include "buzzer.h"
+  extern Buzzer buzzer;
 #endif
 
 /**
