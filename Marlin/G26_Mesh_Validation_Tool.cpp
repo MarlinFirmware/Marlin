@@ -1,6 +1,16 @@
 /*
- * Marlin Firmware -- G26
+ * Marlin Firmware -- G26 - Mesh Validation Tool
  */
+
+#define   FILAMENT_FACTOR 1.0			// This is too much clutter for the main Configuration.h file  But
+#define   RETRACTION_MULTIPLIER 1.0		// some user have expressed an interest in being able to customize
+#define   NOZZLE 0.4 				// these numbers for thier printer so they don't need to type all
+#define   FILAMENT 1.75 			// the options every time they do a Mesh Validation Print.
+#define   LAYER_HEIGHT   .2
+#define   PRIME_LENGTH 10.0			// So, we put these number in an easy to find and change place.
+#define   BED_TEMP 60.0 
+#define   HOTEND_TEMP 205.0
+#define   OOOOZE_AMOUNT 0.3
 
 #include "Marlin.h"
 #include "Configuration.h"
@@ -102,7 +112,7 @@ void prime_nozzle();
 
 static unsigned circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16], Continue_with_closest=0;
 static float G26_E_AXIS_feedrate = 0.035;
-static float Random_Deviation = 0.0, Layer_Height=.20;
+static float Random_Deviation = 0.0, Layer_Height=LAYER_HEIGHT;
 
 #if ENABLED(ULTRA_LCD)
 void lcd_setstatus(const char* message, bool persist);
@@ -112,11 +122,12 @@ float valid_trig_angle( float );
 struct mesh_index_pair find_closest_circle_to_print( float, float );	
 void mesh_buffer_line(float, float, float, const float, float, const uint8_t& ,// uint16_t , uint16_t );
 		uint16_t x_splits = 0xffff, uint16_t y_splits = 0xffff);
-static float E_Pos_Delta, Filament_Factor=1.0;
-static float Retraction_Multiplier=1.0;
-static float Nozzle=0.4, Filament=1.75, Prime_Length=10.0;
-static float X_Pos, Y_Pos, bed_temp=60.0, hotend_temp=205.0, Ooooze_Amount=0.3;
+static float E_Pos_Delta, Filament_Factor=FILAMENT_FACTOR;
+static float Retraction_Multiplier=RETRACTION_MULTIPLIER;
+static float Nozzle=NOZZLE , Filament=FILAMENT, Prime_Length=PRIME_LENGTH;
+static float X_Pos, Y_Pos, bed_temp=BED_TEMP, hotend_temp=HOTEND_TEMP, Ooooze_Amount=OOOOZE_AMOUNT;
 static int Prime_Flag=0, Keep_Heaters_On=0; 
+
 
 void gcode_G26() {
 float circle_x, circle_y, x, y, dx, dy, xe, ye, tmp;
@@ -601,17 +612,18 @@ void print_line_from_here_to_there( float sx, float sy, float sz, float ex, floa
 
 bool parse_G26_parameters() {
 
-   Filament_Factor=1.0;
-   Retraction_Multiplier=1.0;
-   Nozzle=0.4; 
-   Filament=1.75; 
-   Layer_Height = .2;
-   Prime_Length=10.0;
-   bed_temp=60.0; 
-   hotend_temp=205.0;
-   Ooooze_Amount=0.3;
-   Prime_Flag=0;
-   Keep_Heaters_On=0; 
+   Filament_Factor	= FILAMENT_FACTOR;
+   Retraction_Multiplier= RETRACTION_MULTIPLIER;
+   Nozzle		= NOZZLE;
+   Filament		= FILAMENT;
+   Layer_Height 	= LAYER_HEIGHT;
+   Prime_Length		= PRIME_LENGTH;
+   bed_temp		= BED_TEMP;
+   hotend_temp		= HOTEND_TEMP;
+   Ooooze_Amount	= OOOOZE_AMOUNT;
+   Prime_Flag		=0;
+   Keep_Heaters_On	=0; 
+
    X_Pos = current_position[X_AXIS];
    Y_Pos = current_position[Y_AXIS];
 	
