@@ -229,7 +229,7 @@
  * M503 - Print the current settings (from memory not from EEPROM). Use S0 to leave off headings.
  * M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  * M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
- * M665 - Set delta configurations: L<diagonal rod> R<delta radius> S<segments/s> A<alpha diagonal_rod_trim> B<beta diagonal_rod_trim> C<gamma diagonal rod trim>
+ * M665 - Set delta configurations: L<diagonal rod> R<delta radius> S<segments/s> A<alpha diagonal_rod_trim> B<beta> C<gamma> I<alpha radius trim> J<beta> K<gamma>
  * M666 - Set delta endstop adjustment
  * M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
  * M851 - Set Z probe's Z offset in current units. (Negative values apply to probes that extend below the nozzle.)
