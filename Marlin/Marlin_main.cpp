@@ -826,16 +826,16 @@ void servo_init() {
  *  - Print startup messages and diagnostics
  *  - Get EEPROM or default settings
  *  - Initialize managers for:
- *    Ã¢â‚¬Â¢ temperature
- *    Ã¢â‚¬Â¢ planner
- *    Ã¢â‚¬Â¢ watchdog
- *    Ã¢â‚¬Â¢ stepper
- *    Ã¢â‚¬Â¢ photo pin
- *    Ã¢â‚¬Â¢ servos
- *    Ã¢â‚¬Â¢ LCD controller
- *    Ã¢â‚¬Â¢ Digipot I2C
- *    Ã¢â‚¬Â¢ Z probe sled
- *    Ã¢â‚¬Â¢ status LEDs
+ *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ temperature
+ *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ planner
+ *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ watchdog
+ *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ stepper
+ *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ photo pin
+ *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ servos
+ *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ LCD controller
+ *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Digipot I2C
+ *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Z probe sled
+ *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ status LEDs
  */
 void setup() {
 
@@ -4202,7 +4202,7 @@ inline void gcode_M109() {
 
     // Prevent a wait-forever situation if R is misused i.e. M109 R0
     if (wants_to_cool) {
-      if (temp < (EXTRUDE_MINTEMP) / 2) break; // always break at (default) 85Ã‚Â°
+      if (temp < (EXTRUDE_MINTEMP) / 2) break; // always break at (default) 85Ãƒâ€šÃ‚Â°
       // break after 20 seconds if cooling stalls
       if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
         if (old_temp - temp < 1.0) break;
@@ -4296,7 +4296,7 @@ inline void gcode_M109() {
 
       // Prevent a wait-forever situation if R is misused i.e. M190 R0
       if (wants_to_cool) {
-        if (temp < 30.0) break; // always break at 30Ã‚Â°
+        if (temp < 30.0) break; // always break at 30Ãƒâ€šÃ‚Â°
         // break after 20 seconds if cooling stalls
         if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
           if (old_temp - temp < 1.0) break;
@@ -4893,7 +4893,7 @@ inline void gcode_M204() {
  *
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
- *    B = Min Segment Time (Ã‚Âµs)
+ *    B = Min Segment Time (Ãƒâ€šÃ‚Âµs)
  *    X = Max XY Jerk (units/sec^2)
  *    Z = Max Z Jerk (units/sec^2)
  *    E = Max E Jerk (units/sec^2)
@@ -6237,23 +6237,23 @@ inline void gcode_T(uint8_t tmp_extruder) {
           current_position[Z_AXIS] += offset_vec.z;
 
         #else // !AUTO_BED_LEVELING_FEATURE
+*/
 
           float xydiff[2] = {
             hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
             hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
           };
 
-          #if ENABLED(MESH_BED_LEVELING)
-*/
-            if (bed_leveling_mesh.active()) {
+//        #if ENABLED(MESH_BED_LEVELING)
+            if (bed_leveling_mesh.state.active ) {
               float xpos = RAW_CURRENT_POSITION(X_AXIS),
                     ypos = RAW_CURRENT_POSITION(Y_AXIS);
               current_position[Z_AXIS] += bed_leveling_mesh.get_z_correction(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - bed_leveling_mesh.get_z_correction(xpos, ypos);
             }
-/*
-          #endif // MESH_BED_LEVELING
-*/
-        #endif // !AUTO_BED_LEVELING_FEATURE
+
+//        #endif // MESH_BED_LEVELING
+
+        #endif // !UNIFIED_BED_LEVELING_FEATURE
 
         // The newly-selected extruder XY is actually at...
         current_position[X_AXIS] += xydiff[X_AXIS];
