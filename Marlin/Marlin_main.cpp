@@ -826,16 +826,16 @@ void servo_init() {
  *  - Print startup messages and diagnostics
  *  - Get EEPROM or default settings
  *  - Initialize managers for:
- *    â€¢ temperature
- *    â€¢ planner
- *    â€¢ watchdog
- *    â€¢ stepper
- *    â€¢ photo pin
- *    â€¢ servos
- *    â€¢ LCD controller
- *    â€¢ Digipot I2C
- *    â€¢ Z probe sled
- *    â€¢ status LEDs
+ *    Ã¢â‚¬Â¢ temperature
+ *    Ã¢â‚¬Â¢ planner
+ *    Ã¢â‚¬Â¢ watchdog
+ *    Ã¢â‚¬Â¢ stepper
+ *    Ã¢â‚¬Â¢ photo pin
+ *    Ã¢â‚¬Â¢ servos
+ *    Ã¢â‚¬Â¢ LCD controller
+ *    Ã¢â‚¬Â¢ Digipot I2C
+ *    Ã¢â‚¬Â¢ Z probe sled
+ *    Ã¢â‚¬Â¢ status LEDs
  */
 void setup() {
 
@@ -3114,6 +3114,7 @@ bool UBL_state_when_G28_was_entered;	// We probably need to add some configurati
   endstops.not_homing();
 
   // Enable mesh leveling again
+  /*
   #if ENABLED(MESH_BED_LEVELING)
     if (bed_leveling_mesh.has_mesh()) {
       if (home_all_axis || (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && homeZ)) {
@@ -3148,6 +3149,7 @@ bool UBL_state_when_G28_was_entered;	// We probably need to add some configurati
       }
     }
   #endif
+  */
 
   clean_up_after_endstop_or_probe_move();
 
@@ -4200,7 +4202,7 @@ inline void gcode_M109() {
 
     // Prevent a wait-forever situation if R is misused i.e. M109 R0
     if (wants_to_cool) {
-      if (temp < (EXTRUDE_MINTEMP) / 2) break; // always break at (default) 85Â°
+      if (temp < (EXTRUDE_MINTEMP) / 2) break; // always break at (default) 85Ã‚Â°
       // break after 20 seconds if cooling stalls
       if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
         if (old_temp - temp < 1.0) break;
@@ -4294,7 +4296,7 @@ inline void gcode_M109() {
 
       // Prevent a wait-forever situation if R is misused i.e. M190 R0
       if (wants_to_cool) {
-        if (temp < 30.0) break; // always break at 30Â°
+        if (temp < 30.0) break; // always break at 30Ã‚Â°
         // break after 20 seconds if cooling stalls
         if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
           if (old_temp - temp < 1.0) break;
@@ -4891,7 +4893,7 @@ inline void gcode_M204() {
  *
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
- *    B = Min Segment Time (Âµs)
+ *    B = Min Segment Time (Ã‚Âµs)
  *    X = Max XY Jerk (units/sec^2)
  *    Z = Max Z Jerk (units/sec^2)
  *    E = Max E Jerk (units/sec^2)
@@ -5591,12 +5593,15 @@ inline void gcode_M410() {
 }
 
 
-#if ENABLED(MESH_BED_LEVELING)
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
 
   /**
    * M420: Enable/Disable Mesh Bed Leveling
    */
-  inline void gcode_M420() { if (code_seen('S') && code_has_value()) bed_leveling_mesh.set_has_mesh(code_value_bool()); }
+  inline void gcode_M420() { 
+	  if (code_seen('S') && code_has_value()) 
+		  bed_leveling_mesh.state.active = code_value_bool(); 
+  }
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
@@ -5606,8 +5611,8 @@ inline void gcode_M410() {
     int8_t px, py;
     float z = 0;
     bool hasX, hasY, hasZ, hasI, hasJ;
-    if ((hasX = code_seen('X'))) px = bed_leveling_mesh.probe_index_x(code_value_axis_units(X_AXIS));
-    if ((hasY = code_seen('Y'))) py = bed_leveling_mesh.probe_index_y(code_value_axis_units(Y_AXIS));
+    if ((hasX = code_seen('X'))) px = bed_leveling_mesh.find_closest_x_index(code_value_axis_units(X_AXIS));
+    if ((hasY = code_seen('Y'))) py = bed_leveling_mesh.find_closest_x_index(code_value_axis_units(Y_AXIS));
     if ((hasI = code_seen('I'))) px = code_value_axis_units(X_AXIS);
     if ((hasJ = code_seen('J'))) py = code_value_axis_units(Y_AXIS);
     if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
@@ -6204,6 +6209,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
         //
         #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
           // Offset extruder, make sure to apply the bed level rotation matrix
+/*
           vector_3 tmp_offset_vec = vector_3(hotend_offset[X_AXIS][tmp_extruder],
                                              hotend_offset[Y_AXIS][tmp_extruder],
                                              0),
@@ -6238,15 +6244,15 @@ inline void gcode_T(uint8_t tmp_extruder) {
           };
 
           #if ENABLED(MESH_BED_LEVELING)
-
+*/
             if (bed_leveling_mesh.active()) {
               float xpos = RAW_CURRENT_POSITION(X_AXIS),
                     ypos = RAW_CURRENT_POSITION(Y_AXIS);
               current_position[Z_AXIS] += bed_leveling_mesh.get_z_correction(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - bed_leveling_mesh.get_z_correction(xpos, ypos);
             }
-
+/*
           #endif // MESH_BED_LEVELING
-
+*/
         #endif // !AUTO_BED_LEVELING_FEATURE
 
         // The newly-selected extruder XY is actually at...
@@ -6878,7 +6884,7 @@ void process_next_command() {
         gcode_M410();
         break;
 
-      #if ENABLED(MESH_BED_LEVELING)
+      #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
         case 420: // M420 Enable/Disable Mesh Bed Leveling
           gcode_M420();
           break;
