@@ -352,7 +352,7 @@ float code_value_temp_diff();
   extern FilamentChangeMenuResponse filament_change_menu_response;
 #endif
 
-#if ENABLED(PID_ADD_EXTRUSION_RATE)
+#if ENABLED(PID_EXTRUSION_SCALING)
   extern int lpq_len;
 #endif
 

@@ -730,4 +730,6 @@
   #error "HOMING_FEEDRATE is deprecated. Set individual rates with HOMING_FEEDRATE_(XY|Z|E) instead."
 #elif defined(MANUAL_HOME_POSITIONS)
   #error "MANUAL_HOME_POSITIONS is deprecated. Set MANUAL_[XYZ]_HOME_POS as-needed instead."
+#elif defined(PID_ADD_EXTRUSION_RATE)
+  #error "PID_ADD_EXTRUSION_RATE is now PID_EXTRUSION_SCALING and is DISABLED by default. Are you sure you want to use this option? Please update your configuration."
 #endif
