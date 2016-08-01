@@ -27,64 +27,70 @@ Stopwatch::Stopwatch() {
   this->reset();
 }
 
-void Stopwatch::stop() {
+bool Stopwatch::stop() {
   #if ENABLED(DEBUG_STOPWATCH)
-    debug(PSTR("stop"));
+    Stopwatch::debug(PSTR("stop"));
   #endif
 
-  if (!this->isRunning()) return;
-
-  this->status = STPWTCH_STOPPED;
-  this->stopTimestamp = millis();
+  if (this->isRunning() || this->isPaused()) {
+    this->state = STOPPED;
+    this->stopTimestamp = millis();
+    return true;
+  }
+  else return false;
 }
 
-void Stopwatch::pause() {
+bool Stopwatch::pause() {
   #if ENABLED(DEBUG_STOPWATCH)
-    debug(PSTR("pause"));
+    Stopwatch::debug(PSTR("pause"));
   #endif
 
-  if (!this->isRunning()) return;
-
-  this->status = STPWTCH_PAUSED;
-  this->stopTimestamp = millis();
+  if (this->isRunning()) {
+    this->state = PAUSED;
+    this->stopTimestamp = millis();
+    return true;
+  }
+  else return false;
 }
 
-void Stopwatch::start() {
+bool Stopwatch::start() {
   #if ENABLED(DEBUG_STOPWATCH)
-    debug(PSTR("start"));
+    Stopwatch::debug(PSTR("start"));
   #endif
 
-  if (this->isRunning()) return;
+  if (!this->isRunning()) {
+    if (this->isPaused()) this->accumulator = this->duration();
+    else this->reset();
 
-  if (this->isPaused()) this->accumulator = this->duration();
-  else this->reset();
-
-  this->status = STPWTCH_RUNNING;
-  this->startTimestamp = millis();
+    this->state = RUNNING;
+    this->startTimestamp = millis();
+    return true;
+  }
+  else return false;
 }
 
 void Stopwatch::reset() {
   #if ENABLED(DEBUG_STOPWATCH)
-    debug(PSTR("reset"));
+    Stopwatch::debug(PSTR("reset"));
   #endif
 
-  this->status = STPWTCH_STOPPED;
+  this->state = STOPPED;
   this->startTimestamp = 0;
   this->stopTimestamp = 0;
   this->accumulator = 0;
 }
 
 bool Stopwatch::isRunning() {
-  return (this->status == STPWTCH_RUNNING) ? true : false;
+  return (this->state == RUNNING) ? true : false;
 }
 
 bool Stopwatch::isPaused() {
-  return (this->status == STPWTCH_PAUSED) ? true : false;
+  return (this->state == PAUSED) ? true : false;
 }
 
-uint16_t Stopwatch::duration() {
+millis_t Stopwatch::duration() {
   return (((this->isRunning()) ? millis() : this->stopTimestamp)
-          - this->startTimestamp) / 1000 + this->accumulator;
+          - this->startTimestamp) / 1000UL + this->accumulator;
 }
 
 #if ENABLED(DEBUG_STOPWATCH)

@@ -6,3 +6,4 @@
 .\bdf2u8g.exe -b 32 -e 255 ISO10646_5_Cyrillic.bdf ISO10646_5_Cyrillic_5x7 dogm_font_data_ISO10646_5_Cyrillic.h
 .\bdf2u8g.exe -b 32 -e 255 ISO10646_Kana.bdf ISO10646_Kana_5x7 dogm_font_data_ISO10646_Kana.h
 .\bdf2u8g.exe -b 32 -e 255 ISO10646_CN.bdf ISO10646_CN dogm_font_data_ISO10646_CN.h
+.\bdf2u8g.exe -b 32 -e 255 ISO10646_4_Greek.bdf ISO10646_Greek_5x7 dogm_font_data_ISO10646_Greek.h

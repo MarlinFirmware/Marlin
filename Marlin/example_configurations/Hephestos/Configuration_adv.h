@@ -33,7 +33,18 @@
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
 
-#include "Conditionals.h"
+/**
+ *
+ *  ***********************************
+ *  **  ATTENTION TO ALL DEVELOPERS  **
+ *  ***********************************
+ *
+ * You must increment this version number for every significant change such as,
+ * but not limited to: ADD, DELETE RENAME OR REPURPOSE any directive/option.
+ *
+ * Note: Update also Version.h !
+ */
+#define CONFIGURATION_ADV_H_VERSION 010100
 
 // @section temperature
 
@@ -80,20 +91,30 @@
 #endif
 
 /**
- * Thermal Protection parameters for the bed
- * are like the above for the hotends.
- * WATCH_TEMP_BED_PERIOD and WATCH_TEMP_BED_INCREASE are not imlemented now.
+ * Thermal Protection parameters for the bed are just as above for hotends.
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
   #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+
+  /**
+   * Whenever an M140 or M190 increases the target temperature the firmware will wait for the
+   * WATCH_BED_TEMP_PERIOD to expire, and if the temperature hasn't increased by WATCH_BED_TEMP_INCREASE
+   * degrees, the machine is halted, requiring a hard reset. This test restarts with any M140/M190,
+   * but only if the current temperature is far enough below the target for a reliable test.
+   *
+   * If you get too many "Heating failed" errors, increase WATCH_BED_TEMP_PERIOD and/or decrease
+   * WATCH_BED_TEMP_INCREASE. (WATCH_BED_TEMP_INCREASE should not be below 2.)
+   */
+  #define WATCH_BED_TEMP_PERIOD 60                // Seconds
+  #define WATCH_BED_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
 #if ENABLED(PIDTEMP)
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
   // if Kc is chosen well, the additional required power due to increased melting should be compensated.
-  #define PID_ADD_EXTRUSION_RATE
-  #if ENABLED(PID_ADD_EXTRUSION_RATE)
+  //#define PID_EXTRUSION_SCALING
+  #if ENABLED(PID_EXTRUSION_SCALING)
     #define DEFAULT_Kc (100) //heating power=Kc*(e_speed)
     #define LPQ_MAX_LEN 50
   #endif
@@ -118,15 +139,42 @@
 //The M105 command return, besides traditional information, the ADC value read from temperature sensors.
 //#define SHOW_TEMP_ADC_VALUES
 
+/**
+ * High Temperature Thermistor Support
+ *
+ * Thermistors able to support high temperature tend to have a hard time getting
+ * good readings at room and lower temperatures. This means HEATER_X_RAW_LO_TEMP
+ * will probably be caught when the heating element first turns on during the
+ * preheating process, which will trigger a min_temp_error as a safety measure
+ * and force stop everything.
+ * To circumvent this limitation, we allow for a preheat time (during which,
+ * min_temp_error won't be triggered) and add a min_temp buffer to handle
+ * aberrant readings.
+ *
+ * If you want to enable this feature for your hotend thermistor(s)
+ * uncomment and set values > 0 in the constants below
+ */
+
+// The number of consecutive low temperature errors that can occur
+// before a min_temp_error is triggered. (Shouldn't be more than 10.)
+//#define MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED 0
+
+// The number of milliseconds a hotend will preheat before starting to check
+// the temperature. This value should NOT be set to the time it takes the
+// hot end to reach the target temperature, but the time it takes to reach
+// the minimum temperature your thermistor can read. The lower the better/safer.
+// This shouldn't need to be more than 30 seconds (30000)
+//#define MILLISECONDS_PREHEAT_TIME 0
+
 // @section extruder
 
 //  extruder run-out prevention.
 //if the machine is idle, and the temperature over MINTEMP, every couple of SECONDS some filament is extruded
 //#define EXTRUDER_RUNOUT_PREVENT
 #define EXTRUDER_RUNOUT_MINTEMP 190
-#define EXTRUDER_RUNOUT_SECONDS 30.
-#define EXTRUDER_RUNOUT_ESTEPS 14. //mm filament
-#define EXTRUDER_RUNOUT_SPEED 1500.  //extrusion speed
+#define EXTRUDER_RUNOUT_SECONDS 30
+#define EXTRUDER_RUNOUT_ESTEPS 14   // mm filament
+#define EXTRUDER_RUNOUT_SPEED 1500  // extrusion speed
 #define EXTRUDER_RUNOUT_EXTRUDE 100
 
 // @section temperature
@@ -167,24 +215,42 @@
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
-
 //===========================================================================
-//=============================Mechanical Settings===========================
+//============================ Mechanical Settings ==========================
 //===========================================================================
 
 // @section homing
 
-//#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
+// If you want endstops to stay on (by default) even when not homing
+// enable this option. Override at any time with M120, M121.
+#define ENDSTOPS_ALWAYS_ON_DEFAULT
 
 // @section extras
 
 //#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
 
+// Dual X Steppers
+// Uncomment this option to drive two X axis motors.
+// The next unused E driver will be assigned to the second X stepper.
+//#define X_DUAL_STEPPER_DRIVERS
+#if ENABLED(X_DUAL_STEPPER_DRIVERS)
+  // Set true if the two X motors need to rotate in opposite directions
+  #define INVERT_X2_VS_X_DIR true
+#endif
+
+
+// Dual Y Steppers
+// Uncomment this option to drive two Y axis motors.
+// The next unused E driver will be assigned to the second Y stepper.
+//#define Y_DUAL_STEPPER_DRIVERS
+#if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+  // Set true if the two Y motors need to rotate in opposite directions
+  #define INVERT_Y2_VS_Y_DIR true
+#endif
+
 // A single Z stepper driver is usually used to drive 2 stepper motors.
-// Uncomment this define to utilize a separate stepper driver for each Z axis motor.
-// Only a few motherboards support this, like RAMPS, which have dual extruder support (the 2nd, often unused, extruder driver is used
-// to control the 2nd Z axis stepper motor). The pins are currently only defined for a RAMPS motherboards.
-// On a RAMPS (or other 5 driver) motherboard, using this feature will limit you to using 1 extruder.
+// Uncomment this option to use a separate stepper driver for each Z axis motor.
+// The next unused E driver will be assigned to the second Z stepper.
 //#define Z_DUAL_STEPPER_DRIVERS
 
 #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
@@ -206,18 +272,10 @@
 
 #endif // Z_DUAL_STEPPER_DRIVERS
 
-// Same again but for Y Axis.
-//#define Y_DUAL_STEPPER_DRIVERS
-
-#if ENABLED(Y_DUAL_STEPPER_DRIVERS)
-  // Define if the two Y drives need to rotate in opposite directions
-  #define INVERT_Y2_VS_Y_DIR true
-#endif
-
 // Enable this for dual x-carriage printers.
 // A dual x-carriage design has the advantage that the inactive extruder can be parked which
 // prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
-// allowing faster printing speeds.
+// allowing faster printing speeds. Connect your X2 stepper to the first unused E plug.
 //#define DUAL_X_CARRIAGE
 #if ENABLED(DUAL_X_CARRIAGE)
   // Configuration for second X-carriage
@@ -227,15 +285,10 @@
   #define X2_MAX_POS 353    // set maximum to the distance between toolheads when both heads are homed
   #define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
   #define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position
-      // However: In this mode the EXTRUDER_OFFSET_X value for the second extruder provides a software
+      // However: In this mode the HOTEND_OFFSET_X value for the second extruder provides a software
       // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
       // without modifying the firmware (through the "M218 T1 X???" command).
       // Remember: you should set the second extruder x-offset to 0 in your slicer.
-
-  // Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
-  #define X2_ENABLE_PIN 29
-  #define X2_STEP_PIN 25
-  #define X2_DIR_PIN 23
 
   // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
   //    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
@@ -274,9 +327,10 @@
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
-// @section machine
+// Allow duplication mode with a basic dual-nozzle extruder
+//#define DUAL_NOZZLE_DUPLICATION_MODE
 
-//By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
+// By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
 #define INVERT_X_STEP_PIN false
 #define INVERT_Y_STEP_PIN false
 #define INVERT_Z_STEP_PIN false
@@ -348,6 +402,9 @@
 
 // @section lcd
 
+// Include a page of printer information in the LCD Main Menu
+//#define LCD_INFO_MENU
+
 #if ENABLED(SDSUPPORT)
 
   // Some RAMPS and other boards don't detect when an SD card is inserted. You can work
@@ -385,7 +442,6 @@
   // This option allows you to abort SD printing when any endstop is triggered.
   // This feature must be enabled with "M540 S1" or from the LCD menu.
   // To have any effect, endstops must be enabled during SD printing.
-  // With ENDSTOPS_ONLY_FOR_HOMING you must send "M120" to enable endstops.
   //#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 
 #endif // SDSUPPORT
@@ -401,9 +457,10 @@
   //#define USE_SMALL_INFOFONT
 #endif // DOGLCD
 
-// @section more
+// @section safety
 
-// The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
+// The hardware watchdog should reset the microcontroller disabling all outputs,
+// in case the firmware gets stuck and doesn't do temperature regulation.
 #define USE_WATCHDOG
 
 #if ENABLED(USE_WATCHDOG)
@@ -442,11 +499,36 @@
   #define D_FILAMENT 1.75
 #endif
 
+// Implementation of a linear pressure control
+// Assumption: advance = k * (delta velocity)
+// K=0 means advance disabled. A good value for a gregs wade extruder will be around K=75
+//#define LIN_ADVANCE
+
+#if ENABLED(LIN_ADVANCE)
+  #define LIN_ADVANCE_K 75
+#endif
+
+// @section leveling
+
+// Default mesh area is an area with an inset margin on the print area.
+// Below are the macros that are used to define the borders for the mesh area,
+// made available here for specialized needs, ie dual extruder setup.
+#if ENABLED(MESH_BED_LEVELING)
+  #define MESH_MIN_X (X_MIN_POS + MESH_INSET)
+  #define MESH_MAX_X (X_MAX_POS - (MESH_INSET))
+  #define MESH_MIN_Y (Y_MIN_POS + MESH_INSET)
+  #define MESH_MAX_Y (Y_MAX_POS - (MESH_INSET))
+#endif
+
 // @section extras
 
 // Arc interpretation settings:
+#define ARC_SUPPORT  // Disabling this saves ~2738 bytes
 #define MM_PER_ARC_SEGMENT 1
 #define N_ARC_CORRECTION 25
+
+// Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
+//#define BEZIER_CURVE_SUPPORT
 
 const unsigned int dropsegments = 5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 
@@ -469,11 +551,26 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
 
-// @section more
+// @section serial
 
-//The ASCII buffer for receiving from the serial:
+// The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
+
+// Transfer Buffer Size
+// To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
+// To buffer a simple "ok" you need 4 bytes.
+// For ADVANCED_OK (M105) you need 32 bytes.
+// For debug-echo: 128 bytes for the optimal speed.
+// Other output doesn't need to be that speedy.
+// :[0,2,4,8,16,32,64,128,256]
+#define TX_BUFFER_SIZE 0
+
+// Enable an emergency-command parser to intercept certain commands as they
+// enter the serial receive buffer, so they cannot be blocked.
+// Currently handles M108, M112, M410
+// Does not work on boards using AT90USB (USBCON) processors!
+//#define EMERGENCY_PARSER
 
 // Bad Serial-connections can miss a received command by sending an 'ok'
 // Therefore some clients abort after 30 seconds in a timeout.
@@ -506,16 +603,30 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 
 // Add support for experimental filament exchange support M600; requires display
 #if ENABLED(ULTIPANEL)
-  //#define FILAMENTCHANGEENABLE
-  #if ENABLED(FILAMENTCHANGEENABLE)
-    #define FILAMENTCHANGE_XPOS 3
-    #define FILAMENTCHANGE_YPOS 3
-    #define FILAMENTCHANGE_ZADD 10
-    #define FILAMENTCHANGE_FIRSTRETRACT -2
-    #define FILAMENTCHANGE_FINALRETRACT -100
-    #define AUTO_FILAMENT_CHANGE                //This extrude filament until you press the button on LCD
-    #define AUTO_FILAMENT_CHANGE_LENGTH 0.04    //Extrusion length on automatic extrusion loop
-    #define AUTO_FILAMENT_CHANGE_FEEDRATE 300   //Extrusion feedrate (mm/min) on automatic extrusion loop
+  // #define FILAMENT_CHANGE_FEATURE             // Enable filament exchange menu and M600 g-code (used for runout sensor too)
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    #define FILAMENT_CHANGE_X_POS 3             // X position of hotend
+    #define FILAMENT_CHANGE_Y_POS 3             // Y position of hotend
+    #define FILAMENT_CHANGE_Z_ADD 10            // Z addition of hotend (lift)
+    #define FILAMENT_CHANGE_XY_FEEDRATE 100     // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+    #define FILAMENT_CHANGE_Z_FEEDRATE 5        // Z axis feedrate in mm/s (not used for delta printers)
+    #define FILAMENT_CHANGE_RETRACT_LENGTH 2    // Initial retract in mm
+                                                // It is a short retract used immediately after print interrupt before move to filament exchange position
+    #define FILAMENT_CHANGE_RETRACT_FEEDRATE 60 // Initial retract feedrate in mm/s
+    #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload filament length from hotend in mm
+                                                // Longer length for bowden printers to unload filament from whole bowden tube,
+                                                // shorter lenght for printers without bowden to unload filament from extruder only,
+                                                // 0 to disable unloading for manual unloading
+    #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
+    #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
+                                                // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
+                                                // Short or zero length for printers without bowden where loading is not used
+    #define FILAMENT_CHANGE_LOAD_FEEDRATE 10    // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+    #define FILAMENT_CHANGE_EXTRUDE_LENGTH 50   // Extrude filament length in mm after filament is load over the hotend,
+                                                // 0 to disable for manual extrusion
+                                                // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
+                                                // or until outcoming filament color is not clear for filament color change
+    #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
   #endif
 #endif
 
@@ -661,9 +772,9 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
  * devices on the bus.
  *
  * ; Example #1
- * ; This macro send the string "Marlin" to the slave device with address 0x63
+ * ; This macro send the string "Marlin" to the slave device with address 0x63 (99)
  * ; It uses multiple M155 commands with one B<base 10> arg
- * M155 A63  ; Target slave address
+ * M155 A99  ; Target slave address
  * M155 B77  ; M
  * M155 B97  ; a
  * M155 B114 ; r
@@ -673,19 +784,16 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
  * M155 S1   ; Send the current buffer
  *
  * ; Example #2
- * ; Request 6 bytes from slave device with address 0x63
- * M156 A63 B5
+ * ; Request 6 bytes from slave device with address 0x63 (99)
+ * M156 A99 B5
  *
  * ; Example #3
  * ; Example serial output of a M156 request
- * echo:i2c-reply: from:63 bytes:5 data:hello
+ * echo:i2c-reply: from:99 bytes:5 data:hello
  */
 
 // @section i2cbus
 
 //#define EXPERIMENTAL_I2CBUS
 
-#include "Conditionals.h"
-#include "SanityCheck.h"
-
-#endif //CONFIGURATION_ADV_H
+#endif // CONFIGURATION_ADV_H

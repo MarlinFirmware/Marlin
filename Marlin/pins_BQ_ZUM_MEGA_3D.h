@@ -25,8 +25,10 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error Oops! Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu.
+  #error "Oops! Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
 #endif
+
+#define BOARD_NAME "ZUM Mega 3D"
 
 #include "pins_RAMPS_13.h"
 
@@ -58,23 +60,6 @@
 
 #undef PS_ON_PIN             // 12
 #define PS_ON_PIN         81 // External Power Supply
-
-#if ENABLED(BQ_LCD_SMART_CONTROLLER) // Most similar to REPRAP_DISCOUNT_SMART_CONTROLLER
-  #define KILL_PIN        41
-
-  #define BEEPER_PIN      37
-
-  #define BTN_EN1         31
-  #define BTN_EN2         33
-  #define BTN_ENC         35
-
-  #define LCD_PIN_BL      39
-  #define LCD_PINS_RS     16
-  #define LCD_PINS_ENABLE 17
-  #define LCD_PINS_D4     23
-
-  #define SD_DETECT_PIN   49
-#endif
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   #undef Z_MIN_PIN

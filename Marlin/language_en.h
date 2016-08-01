@@ -30,15 +30,10 @@
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
-#if DISABLED(MAPPER_NON) && DISABLED(MAPPER_C2C3) && DISABLED(MAPPER_D0D1) && DISABLED(MAPPER_D0D1_MOD) && DISABLED(MAPPER_E382E383)
-  #define MAPPER_NON         // For direct ascii codes
-#endif
-
 //#define SIMULATE_ROMFONT //Comment in to see what is seen on the character based displays
-#if DISABLED(SIMULATE_ROMFONT) && DISABLED(DISPLAY_CHARSET_ISO10646_1) && DISABLED(DISPLAY_CHARSET_ISO10646_5) && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) && DISABLED(DISPLAY_CHARSET_ISO10646_CN)
+#if DISABLED(SIMULATE_ROMFONT) && DISABLED(DISPLAY_CHARSET_ISO10646_1) && DISABLED(DISPLAY_CHARSET_ISO10646_5) && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) && DISABLED(DISPLAY_CHARSET_ISO10646_CN)
   #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #endif
-
 
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME " ready."
@@ -64,6 +59,15 @@
 #ifndef MSG_AUTO_HOME
   #define MSG_AUTO_HOME                       "Auto home"
 #endif
+#ifndef MSG_AUTO_HOME_X
+  #define MSG_AUTO_HOME_X                     "Home X"
+#endif
+#ifndef MSG_AUTO_HOME_Y
+  #define MSG_AUTO_HOME_Y                     "Home Y"
+#endif
+#ifndef MSG_AUTO_HOME_Z
+  #define MSG_AUTO_HOME_Z                     "Home Z"
+#endif
 #ifndef MSG_LEVEL_BED_HOMING
   #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #endif
@@ -88,35 +92,35 @@
 #ifndef MSG_SET_ORIGIN
   #define MSG_SET_ORIGIN                      "Set origin"
 #endif
-#ifndef MSG_PREHEAT_PLA
-  #define MSG_PREHEAT_PLA                     "Preheat PLA"
+#ifndef MSG_PREHEAT_1
+  #define MSG_PREHEAT_1                       "Preheat PLA"
 #endif
-#ifndef MSG_PREHEAT_PLA_N
-  #define MSG_PREHEAT_PLA_N                   MSG_PREHEAT_PLA " "
+#ifndef MSG_PREHEAT_1_N
+  #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 " "
 #endif
-#ifndef MSG_PREHEAT_PLA_ALL
-  #define MSG_PREHEAT_PLA_ALL                 MSG_PREHEAT_PLA " All"
+#ifndef MSG_PREHEAT_1_ALL
+  #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 " All"
 #endif
-#ifndef MSG_PREHEAT_PLA_BEDONLY
-  #define MSG_PREHEAT_PLA_BEDONLY             MSG_PREHEAT_PLA " Bed"
+#ifndef MSG_PREHEAT_1_BEDONLY
+  #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 " Bed"
 #endif
-#ifndef MSG_PREHEAT_PLA_SETTINGS
-  #define MSG_PREHEAT_PLA_SETTINGS            MSG_PREHEAT_PLA " conf"
+#ifndef MSG_PREHEAT_1_SETTINGS
+  #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 " conf"
 #endif
-#ifndef MSG_PREHEAT_ABS
-  #define MSG_PREHEAT_ABS                     "Preheat ABS"
+#ifndef MSG_PREHEAT_2
+  #define MSG_PREHEAT_2                       "Preheat ABS"
 #endif
-#ifndef MSG_PREHEAT_ABS_N
-  #define MSG_PREHEAT_ABS_N                   MSG_PREHEAT_ABS " "
+#ifndef MSG_PREHEAT_2_N
+  #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 " "
 #endif
-#ifndef MSG_PREHEAT_ABS_ALL
-  #define MSG_PREHEAT_ABS_ALL                 MSG_PREHEAT_ABS " All"
+#ifndef MSG_PREHEAT_2_ALL
+  #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " All"
 #endif
-#ifndef MSG_PREHEAT_ABS_BEDONLY
-  #define MSG_PREHEAT_ABS_BEDONLY             MSG_PREHEAT_ABS " Bed"
+#ifndef MSG_PREHEAT_2_BEDONLY
+  #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 " Bed"
 #endif
-#ifndef MSG_PREHEAT_ABS_SETTINGS
-  #define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " conf"
+#ifndef MSG_PREHEAT_2_SETTINGS
+  #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " conf"
 #endif
 #ifndef MSG_H1
   #define MSG_H1                              "1"
@@ -246,6 +250,9 @@
 #endif
 #ifndef MSG_PID_C
   #define MSG_PID_C                           "PID-C"
+#endif
+#ifndef MSG_SELECT
+  #define MSG_SELECT                          "Select"
 #endif
 #ifndef MSG_E1
   #define MSG_E1                              " E1"
@@ -436,8 +443,11 @@
 #ifndef MSG_ZPROBE_OUT
   #define MSG_ZPROBE_OUT                      "Z probe out. bed"
 #endif
-#ifndef MSG_YX_UNHOMED
-  #define MSG_YX_UNHOMED                      "Home X/Y before Z"
+#ifndef MSG_HOME
+  #define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#endif
+#ifndef MSG_FIRST
+  #define MSG_FIRST                           "first"
 #endif
 #ifndef MSG_ZPROBE_ZOFFSET
   #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
@@ -475,11 +485,20 @@
 #ifndef MSG_ERR_MINTEMP_BED
   #define MSG_ERR_MINTEMP_BED                 "Err: MINTEMP BED"
 #endif
-#ifndef MSG_END_HOUR
-  #define MSG_END_HOUR                        "hours"
+#ifndef MSG_HALTED
+  #define MSG_HALTED                          "PRINTER HALTED"
 #endif
-#ifndef MSG_END_MINUTE
-  #define MSG_END_MINUTE                      "minutes"
+#ifndef MSG_PLEASE_RESET
+  #define MSG_PLEASE_RESET                    "Please reset"
+#endif
+#ifndef MSG_SHORT_DAY
+  #define MSG_SHORT_DAY                       "d" // One character only
+#endif
+#ifndef MSG_SHORT_HOUR
+  #define MSG_SHORT_HOUR                      "h" // One character only
+#endif
+#ifndef MSG_SHORT_MINUTE
+  #define MSG_SHORT_MINUTE                    "m" // One character only
 #endif
 #ifndef MSG_HEATING
   #define MSG_HEATING                         "Heating..."
@@ -508,5 +527,162 @@
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          "Calibrate Center"
 #endif
+
+#ifndef MSG_INFO_MENU
+  #define MSG_INFO_MENU                       "About Printer"
+#endif
+#ifndef MSG_INFO_PRINTER_MENU
+  #define MSG_INFO_PRINTER_MENU               "Printer Info"
+#endif
+#ifndef MSG_INFO_STATS_MENU
+  #define MSG_INFO_STATS_MENU                 "Printer Stats"
+#endif
+#ifndef MSG_INFO_BOARD_MENU
+  #define MSG_INFO_BOARD_MENU                 "Board Info"
+#endif
+#ifndef MSG_INFO_THERMISTOR_MENU
+  #define MSG_INFO_THERMISTOR_MENU            "Thermistors"
+#endif
+#ifndef MSG_INFO_EXTRUDERS
+  #define MSG_INFO_EXTRUDERS                  "Extruders"
+#endif
+#ifndef MSG_INFO_BAUDRATE
+  #define MSG_INFO_BAUDRATE                   "Baud"
+#endif
+#ifndef MSG_INFO_PROTOCOL
+  #define MSG_INFO_PROTOCOL                   "Protocol"
+#endif
+
+#if LCD_WIDTH > 19
+  #ifndef MSG_INFO_PRINT_COUNT
+    #define MSG_INFO_PRINT_COUNT              "Print Count"
+  #endif
+  #ifndef MSG_INFO_COMPLETED_PRINTS
+    #define MSG_INFO_COMPLETED_PRINTS         "Completed"
+  #endif
+  #ifndef MSG_INFO_PRINT_TIME
+    #define MSG_INFO_PRINT_TIME               "Total print time"
+  #endif
+  #ifndef MSG_INFO_PRINT_LONGEST
+    #define MSG_INFO_PRINT_LONGEST            "Longest job time"
+  #endif
+  #ifndef MSG_INFO_PRINT_FILAMENT
+    #define MSG_INFO_PRINT_FILAMENT           "Extruded total"
+  #endif
+#else
+  #ifndef MSG_INFO_PRINT_COUNT
+    #define MSG_INFO_PRINT_COUNT              "Prints"
+  #endif
+  #ifndef MSG_INFO_COMPLETED_PRINTS
+    #define MSG_INFO_COMPLETED_PRINTS         "Completed"
+  #endif
+  #ifndef MSG_INFO_PRINT_TIME
+    #define MSG_INFO_PRINT_TIME               "Total"
+  #endif
+  #ifndef MSG_INFO_PRINT_LONGEST
+    #define MSG_INFO_PRINT_LONGEST            "Longest"
+  #endif
+  #ifndef MSG_INFO_PRINT_FILAMENT
+    #define MSG_INFO_PRINT_FILAMENT           "Extruded"
+  #endif
+#endif
+
+#ifndef MSG_INFO_MIN_TEMP
+  #define MSG_INFO_MIN_TEMP                   "Min Temp"
+#endif
+#ifndef MSG_INFO_MAX_TEMP
+  #define MSG_INFO_MAX_TEMP                   "Max Temp"
+#endif
+#ifndef MSG_INFO_PSU
+  #define MSG_INFO_PSU                        "Power Supply"
+#endif
+
+#ifndef MSG_FILAMENT_CHANGE_HEADER
+  #define MSG_FILAMENT_CHANGE_HEADER          "CHANGE FILAMENT"
+#endif
+#ifndef MSG_FILAMENT_CHANGE_OPTION_HEADER
+  #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CHANGE OPTIONS:"
+#endif
+#ifndef MSG_FILAMENT_CHANGE_OPTION_EXTRUDE
+  #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extrude more"
+#endif
+#ifndef MSG_FILAMENT_CHANGE_OPTION_RESUME
+  #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resume print"
+#endif
+#if LCD_HEIGHT >= 4
+  #ifndef MSG_FILAMENT_CHANGE_INIT_1
+    #define MSG_FILAMENT_CHANGE_INIT_1          "Wait for start"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_INIT_2
+    #define MSG_FILAMENT_CHANGE_INIT_2          "of the filament"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_INIT_3
+    #define MSG_FILAMENT_CHANGE_INIT_3          "change"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
+    #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Wait for"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_2
+    #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filament unload"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_3
+    #define MSG_FILAMENT_CHANGE_UNLOAD_3        ""
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_INSERT_1
+    #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert filament"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_INSERT_2
+    #define MSG_FILAMENT_CHANGE_INSERT_2        "and press button"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_INSERT_3
+    #define MSG_FILAMENT_CHANGE_INSERT_3        "to continue..."
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_LOAD_1
+    #define MSG_FILAMENT_CHANGE_LOAD_1          "Wait for"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_LOAD_2
+    #define MSG_FILAMENT_CHANGE_LOAD_2          "filament load"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_LOAD_3
+    #define MSG_FILAMENT_CHANGE_LOAD_3          ""
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_1
+    #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Wait for"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_2
+    #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filament extrude"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_3
+    #define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_RESUME_1
+    #define MSG_FILAMENT_CHANGE_RESUME_1        "Wait for print"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_RESUME_2
+    #define MSG_FILAMENT_CHANGE_RESUME_2        "to resume"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_RESUME_3
+    #define MSG_FILAMENT_CHANGE_RESUME_3        ""
+  #endif
+#else // LCD_HEIGHT < 4
+  #ifndef MSG_FILAMENT_CHANGE_INIT_1
+    #define MSG_FILAMENT_CHANGE_INIT_1          "Please wait..."
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
+    #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Ejecting..."
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_INSERT_1
+    #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert and Click"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_LOAD_1
+    #define MSG_FILAMENT_CHANGE_LOAD_1          "Loading..."
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_1
+    #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extruding..."
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_RESUME_1
+    #define MSG_FILAMENT_CHANGE_RESUME_1        "Resuming..."
+  #endif
+#endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_EN_H

@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_FR_H
 #define LANGUAGE_FR_H
 
-#define MAPPER_NON
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
@@ -49,16 +48,16 @@
 #define MSG_SET_HOME_OFFSETS                "Regler decal. origine"
 #define MSG_HOME_OFFSETS_APPLIED            "Decalages appliques"
 #define MSG_SET_ORIGIN                      "Regler origine"
-#define MSG_PREHEAT_PLA                     "Prechauffage PLA"
-#define MSG_PREHEAT_PLA_N                   "Prechauff. PLA "
-#define MSG_PREHEAT_PLA_ALL                 "Prech. PLA Tout"
-#define MSG_PREHEAT_PLA_BEDONLY             "Prech. PLA Plateau"
-#define MSG_PREHEAT_PLA_SETTINGS            "Regl. prech. PLA"
-#define MSG_PREHEAT_ABS                     "Prechauffage ABS"
-#define MSG_PREHEAT_ABS_N                   "Prechauff. ABS "
-#define MSG_PREHEAT_ABS_ALL                 "Prech. ABS Tout"
-#define MSG_PREHEAT_ABS_BEDONLY             "Prech. ABS Plateau"
-#define MSG_PREHEAT_ABS_SETTINGS            "Regl. prech. ABS"
+#define MSG_PREHEAT_1                       "Prechauffage PLA"
+#define MSG_PREHEAT_1_N                     "Prechauff. PLA "
+#define MSG_PREHEAT_1_ALL                   "Prech. PLA Tout"
+#define MSG_PREHEAT_1_BEDONLY               "Prech. PLA Plateau"
+#define MSG_PREHEAT_1_SETTINGS              "Regl. prech. PLA"
+#define MSG_PREHEAT_2                       "Prechauffage ABS"
+#define MSG_PREHEAT_2_N                     "Prechauff. ABS "
+#define MSG_PREHEAT_2_ALL                   "Prech. ABS Tout"
+#define MSG_PREHEAT_2_BEDONLY               "Prech. ABS Plateau"
+#define MSG_PREHEAT_2_SETTINGS              "Regl. prech. ABS"
 #define MSG_COOLDOWN                        "Refroidir"
 #define MSG_SWITCH_PS_ON                    "Allumer alim."
 #define MSG_SWITCH_PS_OFF                   "Eteindre alim."
@@ -145,7 +144,8 @@
 #define MSG_INIT_SDCARD                     "Init. la carte SD"
 #define MSG_CNG_SDCARD                      "Changer de carte"
 #define MSG_ZPROBE_OUT                      "Z sonde exte. lit"
-#define MSG_YX_UNHOMED                      "Rev. dans XY av.Z"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Decalage Z"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
@@ -158,13 +158,10 @@
 #define MSG_ERR_MINTEMP                     "Err: TEMP. MIN"
 #define MSG_ERR_MAXTEMP_BED                 "Err: TEMP. MAX PLATEAU"
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP. MIN PLATEAU"
-#define MSG_END_HOUR                        "heures"
-#define MSG_END_MINUTE                      "minutes"
 #define MSG_HEATING                         "En chauffe..."
 #define MSG_HEATING_COMPLETE                "Chauffe terminee"
 #define MSG_BED_HEATING                     "Plateau en chauffe..."
 #define MSG_BED_DONE                        "Chauffe plateau terminee"
-
 #define MSG_DELTA_CALIBRATE                 "Calibration Delta"
 #define MSG_DELTA_CALIBRATE_X               "Calibrer X"
 #define MSG_DELTA_CALIBRATE_Y               "Calibrer Y"

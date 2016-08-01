@@ -25,8 +25,10 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
 #endif
+
+#define BOARD_NAME "Rambo"
 
 #define LARGE_FLASH true
 
@@ -39,17 +41,6 @@
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
 #endif
-
-#undef X_MS1_PIN
-#undef X_MS2_PIN
-#undef Y_MS1_PIN
-#undef Y_MS2_PIN
-#undef Z_MS1_PIN
-#undef Z_MS2_PIN
-#undef E0_MS1_PIN
-#undef E0_MS2_PIN
-#undef E1_MS1_PIN
-#undef E1_MS2_PIN
 
 #define X_STEP_PIN 37
 #define X_DIR_PIN 48
@@ -86,11 +77,7 @@
 
 #if ENABLED(BARICUDA)
   #define HEATER_2_PIN 6
-#else
-  #define HEATER_2_PIN -1
 #endif
-
-#define TEMP_2_PIN -1
 
 #define E0_STEP_PIN         34
 #define E0_DIR_PIN          43
@@ -107,7 +94,6 @@
 #define DIGIPOTSS_PIN 38
 #define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
 
-#define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
 #define FAN_PIN            8
@@ -121,8 +107,6 @@
   Fan_2 2
 ***********************************************************/
 #define PS_ON_PIN          4
-#define KILL_PIN           -1 //80 with Smart Controller LCD
-#define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
 
 #if ENABLED(ULTRA_LCD)
 
@@ -130,7 +114,8 @@
 
   #if ENABLED(NEWPANEL)
 
-    #define BEEPER_PIN 79      // Beeper on AUX-4
+    // Beeper on AUX-4
+    #define BEEPER_PIN 79
 
     #define LCD_PINS_RS 70
     #define LCD_PINS_ENABLE 71
@@ -142,17 +127,14 @@
     //buttons are directly attached using AUX-2
     #define BTN_EN1 76
     #define BTN_EN2 77
-    #define BTN_ENC 78  //the click
-
-    #define BLEN_C 2
-    #define BLEN_B 1
-    #define BLEN_A 0
+    #define BTN_ENC 78
 
     #define SD_DETECT_PIN 81 // Ramps doesn't use this
 
   #else //!NEWPANEL - old style panel with shift register
 
-    #define BEEPER_PIN 33    // No Beeper added
+    // No Beeper added
+    #define BEEPER_PIN 33
 
     //buttons are attached to a shift register
     // Not wired yet
@@ -168,17 +150,6 @@
     #define LCD_PINS_D6 27
     #define LCD_PINS_D7 29
 
-    //bits in the shift register that carry the buttons for:
-    // left up center down right red
-    #define BL_LE 7
-    #define BL_UP 6
-    #define BL_MI 5
-    #define BL_DW 4
-    #define BL_RI 3
-    #define BL_ST 2
-    #define BLEN_B 1
-    #define BLEN_A 0
-
   #endif // !NEWPANEL
 
 #endif // ULTRA_LCD
@@ -193,7 +164,7 @@
   //The encoder and click button
   #define BTN_EN1 85
   #define BTN_EN2 84
-  #define BTN_ENC 83  //the click switch
+  #define BTN_ENC 83
 
   #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
 

@@ -25,11 +25,12 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
 #endif
 
 #define DEFAULT_MACHINE_NAME    "Ultimaker"
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
+#define BOARD_NAME              "Ultimaker 2.x"
 
 #define X_STEP_PIN 25
 #define X_DIR_PIN 23
@@ -55,9 +56,6 @@
 #define HEATER_1_PIN 3
 #define TEMP_1_PIN 9
 
-#define HEATER_2_PIN -1
-#define TEMP_2_PIN -1
-
 #define E0_STEP_PIN         42
 #define E0_DIR_PIN          43
 #define E0_ENABLE_PIN       37
@@ -66,13 +64,9 @@
 #define E1_DIR_PIN          47
 #define E1_ENABLE_PIN       48
 
-#define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            8
 #define FAN_PIN            7
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
-#define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
 #define SAFETY_TRIGGERED_PIN     28 //PIN to detect the safety circuit has triggered
 #define MAIN_VOLTAGE_MEASURE_PIN 14 //Analogue PIN to measure the main voltage, with a 100k - 4k7 resitor divider.
 
@@ -95,10 +89,6 @@
 //buttons are directly attached
 #define BTN_EN1 40
 #define BTN_EN2 41
-#define BTN_ENC 19  //the click
-
-#define BLEN_C 2
-#define BLEN_B 1
-#define BLEN_A 0
+#define BTN_ENC 19
 
 #define SD_DETECT_PIN 39

@@ -27,8 +27,6 @@
 
 #if ENABLED(ULTRA_LCD)
 
-  #include "buzzer.h"
-
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
@@ -42,6 +40,8 @@
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
   bool lcd_detected(void);
+  void lcd_kill_screen();
+  void kill_screen(const char* lcd_msg);
 
   #if ENABLED(LCD_USE_I2C_BUZZER)
     void lcd_buzz(long duration, uint16_t freq);
@@ -53,7 +53,9 @@
 
   #if ENABLED(DOGLCD)
     extern int lcd_contrast;
-    void lcd_setcontrast(uint8_t value);
+    void set_lcd_contrast(int value);
+  #elif ENABLED(SHOW_BOOTSCREEN)
+    void bootscreen();
   #endif
 
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
@@ -63,30 +65,47 @@
   #define LCD_TIMEOUT_TO_STATUS 15000
 
   #if ENABLED(ULTIPANEL)
-    void lcd_buttons_update();
     extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+    void lcd_buttons_update();
+    void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
+    bool lcd_clicked();
+    void lcd_ignore_click(bool b=true);
+
+    #if ENABLED(FILAMENT_CHANGE_FEATURE)
+      void lcd_filament_change_show_message(FilamentChangeMessage message);
+    #endif // FILAMENT_CHANGE_FEATURE
+
   #else
     FORCE_INLINE void lcd_buttons_update() {}
   #endif
 
-  extern int plaPreheatHotendTemp;
-  extern int plaPreheatHPBTemp;
-  extern int plaPreheatFanSpeed;
-  extern int absPreheatHotendTemp;
-  extern int absPreheatHPBTemp;
-  extern int absPreheatFanSpeed;
-
-  extern bool cancel_heatup;
+  extern int preheatHotendTemp1;
+  extern int preheatBedTemp1;
+  extern int preheatFanSpeed1;
+  extern int preheatHotendTemp2;
+  extern int preheatBedTemp2;
+  extern int preheatFanSpeed2;
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     extern millis_t previous_lcd_status_ms;
   #endif
-  void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
-  bool lcd_clicked();
-  void lcd_ignore_click(bool b=true);
+
   bool lcd_blink();
 
-  #if ENABLED(ULTIPANEL) && ENABLED(REPRAPWORLD_KEYPAD)
+  #if ENABLED(ULTIPANEL)
+    #define BLEN_A 0
+    #define BLEN_B 1
+    // Encoder click is directly connected
+    #if BUTTON_EXISTS(ENC)
+      #define BLEN_C 2
+      #define EN_C (_BV(BLEN_C))
+    #endif
+    #define EN_A (_BV(BLEN_A))
+    #define EN_B (_BV(BLEN_B))
+    #define EN_C (_BV(BLEN_C))
+  #endif
+
+  #if ENABLED(REPRAPWORLD_KEYPAD) // is also ULTIPANEL and NEWPANEL
 
     #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
 
@@ -110,41 +129,28 @@
 
     #define REPRAPWORLD_KEYPAD_MOVE_Z_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F3)
     #define REPRAPWORLD_KEYPAD_MOVE_Z_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F2)
+    #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
     #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)
     #define REPRAPWORLD_KEYPAD_MOVE_X_RIGHT (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT)
     #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
     #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
     #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
 
-  #endif //ULTIPANEL && REPRAPWORLD_KEYPAD
+    #define REPRAPWORLD_KEYPAD_PRESSED      (buttons_reprapworld_keypad & ( \
+                                              EN_REPRAPWORLD_KEYPAD_F3 | \
+                                              EN_REPRAPWORLD_KEYPAD_F2 | \
+                                              EN_REPRAPWORLD_KEYPAD_F1 | \
+                                              EN_REPRAPWORLD_KEYPAD_DOWN | \
+                                              EN_REPRAPWORLD_KEYPAD_RIGHT | \
+                                              EN_REPRAPWORLD_KEYPAD_MIDDLE | \
+                                              EN_REPRAPWORLD_KEYPAD_UP | \
+                                              EN_REPRAPWORLD_KEYPAD_LEFT) \
+                                            )
 
-  #if ENABLED(NEWPANEL)
-
-    #define EN_C (_BV(BLEN_C))
-    #define EN_B (_BV(BLEN_B))
-    #define EN_A (_BV(BLEN_A))
-
-    #if ENABLED(REPRAPWORLD_KEYPAD)
-      #define LCD_CLICKED ((buttons&EN_C) || (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_F1))
-    #else
-      #define LCD_CLICKED (buttons&EN_C)
-    #endif
-
-  #else //!NEWPANEL
-
-    //atomic, do not change
-    #define B_LE (_BV(BL_LE))
-    #define B_UP (_BV(BL_UP))
-    #define B_MI (_BV(BL_MI))
-    #define B_DW (_BV(BL_DW))
-    #define B_RI (_BV(BL_RI))
-    #define B_ST (_BV(BL_ST))
-    #define EN_B (_BV(BLEN_B))
-    #define EN_A (_BV(BLEN_A))
-
-    #define LCD_CLICKED ((buttons&B_MI)||(buttons&B_ST))
-
-  #endif //!NEWPANEL
+    #define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1))
+  #elif ENABLED(NEWPANEL)
+    #define LCD_CLICKED (buttons & EN_C)
+  #endif
 
 #else //no LCD
   FORCE_INLINE void lcd_update() {}
@@ -156,8 +162,8 @@
   FORCE_INLINE void lcd_reset_alert_level() {}
   FORCE_INLINE bool lcd_detected(void) { return true; }
 
-  #define LCD_MESSAGEPGM(x) do{}while(0)
-  #define LCD_ALERTMESSAGEPGM(x) do{}while(0)
+  #define LCD_MESSAGEPGM(x) NOOP
+  #define LCD_ALERTMESSAGEPGM(x) NOOP
 
 #endif //ULTRA_LCD
 
@@ -165,19 +171,17 @@ char* itostr2(const uint8_t& x);
 char* itostr3sign(const int& x);
 char* itostr3(const int& x);
 char* itostr3left(const int& x);
-char* itostr4(const int& x);
 char* itostr4sign(const int& x);
 
 char* ftostr3(const float& x);
 char* ftostr4sign(const float& x);
-char* ftostr31ns(const float& x); // float to string without sign character
-char* ftostr31(const float& x);
+char* ftostr41sign(const float& x);
 char* ftostr32(const float& x);
-char* ftostr43(const float& x, char plus=' ');
+char* ftostr43sign(const float& x, char plus=' ');
 char* ftostr12ns(const float& x);
-char* ftostr32sp(const float& x); // remove zero-padding from ftostr32
-char* ftostr5(const float& x);
-char* ftostr51(const float& x);
-char* ftostr52(const float& x);
+char* ftostr5rj(const float& x);
+char* ftostr51sign(const float& x);
+char* ftostr52sign(const float& x);
+char* ftostr52sp(const float& x); // remove zero-padding from ftostr32
 
 #endif //ULTRALCD_H

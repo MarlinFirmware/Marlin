@@ -24,7 +24,10 @@
  * RIGIDBOARD Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#include "pins_RAMPS_14.h"
+#include "pins_RAMPS.h"
+
+#undef BOARD_NAME
+#define BOARD_NAME "RigidBoard"
 
 #if ENABLED(Z_MIN_PROBE_ENDSTOP)
   #undef Z_MAX_PIN

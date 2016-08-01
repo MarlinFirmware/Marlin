@@ -28,13 +28,14 @@
  */
 
 #ifndef __AVR_AT90USB1286__
-  #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu."
 #endif
 
 #if ENABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS)  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin traditional.
-  #error These Printrboard assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h
+  #error "These Printrboard assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h"
 #endif
 
+#define BOARD_NAME         "Printrboard Rev F"
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN          0
@@ -75,17 +76,9 @@
 
 #define FILWIDTH_PIN        2  // ANALOG NUMBERING
 
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
-
 ////LCD Pin Setup////
 
-#define SDPOWER            -1
 #define SDSS               20 // Teensylu pin mapping
-#define LED_PIN            -1
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
-#define ALARM_PIN          -1
 
 // uncomment to enable an I2C based DAC like on the Printrboard REVF
 #define DAC_STEPPER_CURRENT
@@ -97,13 +90,7 @@
 #define DAC_STEPPER_MAX   3520
 #define DAC_STEPPER_VREF     1 //internal Vref, gain 1x = 2.048V
 #define DAC_STEPPER_GAIN     0
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN           9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
+#define DAC_OR_ADDRESS    0x00
 
 #if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN -1
@@ -118,10 +105,6 @@
   #define BTN_EN1   16
   #define BTN_EN2   17
   #define BTN_ENC   18//the click
-
-  #define BLEN_C 2
-  #define BLEN_B 1
-  #define BLEN_A 0
 
   #define SD_DETECT_PIN -1
 
@@ -142,7 +125,7 @@
   //The encoder and click button (FastIO Pins)
   #define BTN_EN1 26
   #define BTN_EN2 27
-  #define BTN_ENC 47  //the click switch
+  #define BTN_ENC 47
 
   #define SDSS 45
   #define SD_DETECT_PIN -1 // FastIO (Manual says 72 I'm not certain cause I can't test)

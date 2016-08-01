@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -49,16 +49,16 @@
 #define MSG_SET_HOME_OFFSETS                "Запомнить парковку"
 #define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Запомнить ноль"
-#define MSG_PREHEAT_PLA                     "Преднагрев PLA"
-#define MSG_PREHEAT_PLA_N                   "Греть PLA Сопло "
-#define MSG_PREHEAT_PLA_ALL                 "Греть PLA Все"
-#define MSG_PREHEAT_PLA_BEDONLY             "Греть PLA Стол"
-#define MSG_PREHEAT_PLA_SETTINGS            "Настройки PLA"
-#define MSG_PREHEAT_ABS                     "Преднагрев ABS"
-#define MSG_PREHEAT_ABS_N                   "Греть ABS Сопло "
-#define MSG_PREHEAT_ABS_ALL                 "Греть ABS Все"
-#define MSG_PREHEAT_ABS_BEDONLY             "Греть ABS Стол"
-#define MSG_PREHEAT_ABS_SETTINGS            "Настройки ABS"
+#define MSG_PREHEAT_1                       "Преднагрев PLA"
+#define MSG_PREHEAT_1_N                     "Греть PLA Сопло "
+#define MSG_PREHEAT_1_ALL                   "Греть PLA Все"
+#define MSG_PREHEAT_1_BEDONLY               "Греть PLA Стол"
+#define MSG_PREHEAT_1_SETTINGS              "Настройки PLA"
+#define MSG_PREHEAT_2                       "Преднагрев ABS"
+#define MSG_PREHEAT_2_N                     "Греть ABS Сопло "
+#define MSG_PREHEAT_2_ALL                   "Греть ABS Все"
+#define MSG_PREHEAT_2_BEDONLY               "Греть ABS Стол"
+#define MSG_PREHEAT_2_SETTINGS              "Настройки ABS"
 #define MSG_COOLDOWN                        "Охлаждение"
 #define MSG_SWITCH_PS_ON                    "Включить Питание"
 #define MSG_SWITCH_PS_OFF                   "Отключить Питание"
@@ -156,13 +156,10 @@
 #define MSG_ERR_MINTEMP                     "Ошибка: Т мин."
 #define MSG_ERR_MAXTEMP_BED                 "Ошибка:Т макс.стол"
 #define MSG_ERR_MINTEMP_BED                 "Ошибка:Т мин.стол"
-#define MSG_END_HOUR                        "часов"
-#define MSG_END_MINUTE                      "минут"
 #define MSG_HEATING                         "Нагреваю сопло..."
 #define MSG_HEATING_COMPLETE                "Нагрев выполнен"
 #define MSG_BED_HEATING                     "Нагреваю стол"
 #define MSG_BED_DONE                        "Стол разогрет"
-
 #define MSG_DELTA_CALIBRATE                 "Калибровка Delta"
 #define MSG_DELTA_CALIBRATE_X               "Калибровать X"
 #define MSG_DELTA_CALIBRATE_Y               "Калибровать Y"
