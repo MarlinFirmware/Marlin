@@ -290,7 +290,7 @@ void Config_StoreSettings()  {
         EEPROM_WRITE(PID_PARAM(Kp, e));
         EEPROM_WRITE(PID_PARAM(Ki, e));
         EEPROM_WRITE(PID_PARAM(Kd, e));
-        #if ENABLED(PID_ADD_EXTRUSION_RATE)
+        #if ENABLED(PID_EXTRUSION_SCALING)
           EEPROM_WRITE(PID_PARAM(Kc, e));
         #else
           dummy = 1.0f; // 1.0 = default kc
@@ -308,7 +308,7 @@ void Config_StoreSettings()  {
 
   } // Hotends Loop
 
-  #if DISABLED(PID_ADD_EXTRUSION_RATE)
+  #if DISABLED(PID_EXTRUSION_SCALING)
     int lpq_len = 20;
   #endif
   EEPROM_WRITE(lpq_len);
@@ -481,7 +481,7 @@ void Config_RetrieveSettings() {
           PID_PARAM(Kp, e) = dummy;
           EEPROM_READ(PID_PARAM(Ki, e));
           EEPROM_READ(PID_PARAM(Kd, e));
-          #if ENABLED(PID_ADD_EXTRUSION_RATE)
+          #if ENABLED(PID_EXTRUSION_SCALING)
             EEPROM_READ(PID_PARAM(Kc, e));
           #else
             EEPROM_READ(dummy);
@@ -496,7 +496,7 @@ void Config_RetrieveSettings() {
       for (uint8_t q = MAX_EXTRUDERS * 4; q--;) EEPROM_READ(dummy);  // Kp, Ki, Kd, Kc
     #endif // !PIDTEMP
 
-    #if DISABLED(PID_ADD_EXTRUSION_RATE)
+    #if DISABLED(PID_EXTRUSION_SCALING)
       int lpq_len;
     #endif
     EEPROM_READ(lpq_len);
@@ -641,11 +641,11 @@ void Config_ResetDefault() {
       PID_PARAM(Kp, e) = DEFAULT_Kp;
       PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
       PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
-      #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      #if ENABLED(PID_EXTRUSION_SCALING)
         PID_PARAM(Kc, e) = DEFAULT_Kc;
       #endif
     }
-    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+    #if ENABLED(PID_EXTRUSION_SCALING)
       lpq_len = 20; // default last-position-queue size
     #endif
   #endif // PIDTEMP
@@ -863,7 +863,7 @@ void Config_PrintSettings(bool forReplay) {
             SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, e));
             SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, e)));
             SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, e)));
-            #if ENABLED(PID_ADD_EXTRUSION_RATE)
+            #if ENABLED(PID_EXTRUSION_SCALING)
               SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
               if (e == 0) SERIAL_ECHOPAIR(" L", lpq_len);
             #endif
@@ -878,7 +878,7 @@ void Config_PrintSettings(bool forReplay) {
         SERIAL_ECHOPAIR("  M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echo values for E0
         SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, 0)));
         SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
-        #if ENABLED(PID_ADD_EXTRUSION_RATE)
+        #if ENABLED(PID_EXTRUSION_SCALING)
           SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, 0));
           SERIAL_ECHOPAIR(" L", lpq_len);
         #endif
