@@ -109,13 +109,6 @@
 #define LED_PIN             6
 #define PS_ON_PIN          27
 
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN         21 // 9
-  #define MISO_PIN        23 // 11
-  #define MOSI_PIN        22 // 10
-#endif
-
 #if ENABLED(ULTIPANEL)
   #define LCD_PINS_RS         8
   #define LCD_PINS_ENABLE     9

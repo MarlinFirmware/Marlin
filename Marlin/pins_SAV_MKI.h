@@ -65,12 +65,6 @@
 #define TEMP_0_PIN          7  // Extruder / Analog pin numbering
 #define TEMP_BED_PIN        6  // Bed / Analog pin numbering
 
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN          9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
 #define SDSS               20         // PB0 - 8 in marlin env.
 
 // Extension header pin mapping

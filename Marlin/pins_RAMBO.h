@@ -127,11 +127,7 @@
     //buttons are directly attached using AUX-2
     #define BTN_EN1 76
     #define BTN_EN2 77
-    #define BTN_ENC 78  //the click
-
-    #define BLEN_C 2
-    #define BLEN_B 1
-    #define BLEN_A 0
+    #define BTN_ENC 78
 
     #define SD_DETECT_PIN 81 // Ramps doesn't use this
 
@@ -154,17 +150,6 @@
     #define LCD_PINS_D6 27
     #define LCD_PINS_D7 29
 
-    //bits in the shift register that carry the buttons for:
-    // left up center down right red
-    #define BL_LE 7
-    #define BL_UP 6
-    #define BL_MI 5
-    #define BL_DW 4
-    #define BL_RI 3
-    #define BL_ST 2
-    #define BLEN_B 1
-    #define BLEN_A 0
-
   #endif // !NEWPANEL
 
 #endif // ULTRA_LCD
@@ -179,7 +164,7 @@
   //The encoder and click button
   #define BTN_EN1 85
   #define BTN_EN2 84
-  #define BTN_ENC 83  //the click switch
+  #define BTN_ENC 83
 
   #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
 

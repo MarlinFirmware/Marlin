@@ -29,7 +29,6 @@
 #include "temperature.h"
 #include "thermistortables.h"
 #include "language.h"
-#include "Sd2PinMap.h"
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
@@ -73,14 +72,14 @@ unsigned char Temperature::soft_pwm_bed;
     float Temperature::Kp[HOTENDS] = ARRAY_BY_HOTENDS1(DEFAULT_Kp),
           Temperature::Ki[HOTENDS] = ARRAY_BY_HOTENDS1((DEFAULT_Ki) * (PID_dT)),
           Temperature::Kd[HOTENDS] = ARRAY_BY_HOTENDS1((DEFAULT_Kd) / (PID_dT));
-    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+    #if ENABLED(PID_EXTRUSION_SCALING)
       float Temperature::Kc[HOTENDS] = ARRAY_BY_HOTENDS1(DEFAULT_Kc);
     #endif
   #else
     float Temperature::Kp = DEFAULT_Kp,
           Temperature::Ki = (DEFAULT_Ki) * (PID_dT),
           Temperature::Kd = (DEFAULT_Kd) / (PID_dT);
-    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+    #if ENABLED(PID_EXTRUSION_SCALING)
       float Temperature::Kc = DEFAULT_Kc;
     #endif
   #endif
@@ -127,7 +126,7 @@ volatile bool Temperature::temp_meas_ready = false;
         Temperature::iTerm[HOTENDS],
         Temperature::dTerm[HOTENDS];
 
-  #if ENABLED(PID_ADD_EXTRUSION_RATE)
+  #if ENABLED(PID_EXTRUSION_SCALING)
     float Temperature::cTerm[HOTENDS];
     long Temperature::last_e_position;
     long Temperature::lpq[LPQ_MAX_LEN];
@@ -445,7 +444,7 @@ Temperature::Temperature() { }
 
 void Temperature::updatePID() {
   #if ENABLED(PIDTEMP)
-    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+    #if ENABLED(PID_EXTRUSION_SCALING)
       last_e_position = 0;
     #endif
     HOTEND_LOOP() {
@@ -561,7 +560,7 @@ float Temperature::get_pid_output(int e) {
 
         pid_output = pTerm[HOTEND_INDEX] + iTerm[HOTEND_INDEX] - dTerm[HOTEND_INDEX];
 
-        #if ENABLED(PID_ADD_EXTRUSION_RATE)
+        #if ENABLED(PID_EXTRUSION_SCALING)
           cTerm[HOTEND_INDEX] = 0;
           if (_HOTEND_TEST) {
             long e_position = stepper.position(E_AXIS);
@@ -576,7 +575,7 @@ float Temperature::get_pid_output(int e) {
             cTerm[HOTEND_INDEX] = (lpq[lpq_ptr] * planner.steps_to_mm[E_AXIS]) * PID_PARAM(Kc, HOTEND_INDEX);
             pid_output += cTerm[HOTEND_INDEX];
           }
-        #endif //PID_ADD_EXTRUSION_RATE
+        #endif // PID_EXTRUSION_SCALING
 
         if (pid_output > PID_MAX) {
           if (pid_error[HOTEND_INDEX] > 0) temp_iState[HOTEND_INDEX] -= pid_error[HOTEND_INDEX]; // conditional un-integration
@@ -599,7 +598,7 @@ float Temperature::get_pid_output(int e) {
       SERIAL_ECHOPAIR(MSG_PID_DEBUG_PTERM, pTerm[HOTEND_INDEX]);
       SERIAL_ECHOPAIR(MSG_PID_DEBUG_ITERM, iTerm[HOTEND_INDEX]);
       SERIAL_ECHOPAIR(MSG_PID_DEBUG_DTERM, dTerm[HOTEND_INDEX]);
-      #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      #if ENABLED(PID_EXTRUSION_SCALING)
         SERIAL_ECHOPAIR(MSG_PID_DEBUG_CTERM, cTerm[HOTEND_INDEX]);
       #endif
       SERIAL_EOL;
@@ -950,7 +949,7 @@ void Temperature::init() {
     #if ENABLED(PIDTEMP)
       temp_iState_min[e] = 0.0;
       temp_iState_max[e] = (PID_INTEGRAL_DRIVE_MAX) / PID_PARAM(Ki, e);
-      #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      #if ENABLED(PID_EXTRUSION_SCALING)
         last_e_position = 0;
       #endif
     #endif //PIDTEMP
@@ -960,7 +959,7 @@ void Temperature::init() {
     #endif //PIDTEMPBED
   }
 
-  #if ENABLED(PIDTEMP) && ENABLED(PID_ADD_EXTRUSION_RATE)
+  #if ENABLED(PIDTEMP) && ENABLED(PID_EXTRUSION_SCALING)
     last_e_position = 0;
   #endif
 
@@ -1021,8 +1020,7 @@ void Temperature::init() {
       OUT_WRITE(MOSI_PIN, HIGH);
       OUT_WRITE(MISO_PIN, HIGH);
     #else
-      pinMode(SS_PIN, OUTPUT);
-      digitalWrite(SS_PIN, HIGH);
+      OUT_WRITE(SS_PIN, HIGH);
     #endif
 
     OUT_WRITE(MAX6675_SS, HIGH);

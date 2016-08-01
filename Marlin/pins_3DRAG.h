@@ -36,7 +36,7 @@
   #define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
 #endif
 
-#include "pins_RAMPS_14.h"
+#include "pins_RAMPS.h"
 
 #undef Z_ENABLE_PIN
 #define Z_ENABLE_PIN       63
@@ -86,7 +86,7 @@
   #undef BTN_ENC
   #define BTN_EN1 16
   #define BTN_EN2 17
-  #define BTN_ENC 23 //the click
+  #define BTN_ENC 23
 
 #else
 
