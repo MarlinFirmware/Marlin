@@ -20,13 +20,9 @@
  *
  */
 
-/**
- * Arduino Mega with RAMPS v1.3 pin assignments
- *
- *  RAMPS_13_EFB (Extruder, Fan, Bed)
- */
+#ifndef __TYPES_H__
+#define __TYPES_H__
 
-#define BOARD_NAME "RAMPS 1.3 EFB"
+typedef unsigned long millis_t;
 
-#define IS_RAMPS_13
-#include "pins_RAMPS_14_EFB.h"
+#endif

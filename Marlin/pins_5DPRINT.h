@@ -63,19 +63,12 @@
 #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
 #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
 
-// The SDSS pin uses a different pin mapping from file Sd2PinMap.h
+// The SDSS pin uses a different pin mapping from file fastio.h
 #define SDSS               20
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN           9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
 
 // Microstepping pins
 // Note that the pin mapping is not from fastio.h
-// See Sd2PinMap.h for the pin configurations
+// See Sd2PinMap.h for the pin configurations ???
 #define X_MS1_PIN 25
 #define X_MS2_PIN 26
 #define Y_MS1_PIN 9

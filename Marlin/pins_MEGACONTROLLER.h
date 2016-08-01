@@ -113,11 +113,11 @@
   //#define LCD_SCREEN_ROT_90
   //#define LCD_SCREEN_ROT_180
   //#define LCD_SCREEN_ROT_270
-  //The encoder and click button
+
   #define BTN_EN1 48
   #define BTN_EN2 11
-  #define BTN_ENC 10  //the click switch
-  //not connected to a pin
+  #define BTN_ENC 10
+
   #define SD_DETECT_PIN 49
-#endif //Minipanel
+#endif // MINIPANEL
 

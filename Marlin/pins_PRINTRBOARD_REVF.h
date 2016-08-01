@@ -92,13 +92,6 @@
 #define DAC_STEPPER_GAIN     0
 #define DAC_OR_ADDRESS    0x00
 
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN           9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
-
 #if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN -1
 
@@ -112,10 +105,6 @@
   #define BTN_EN1   16
   #define BTN_EN2   17
   #define BTN_ENC   18//the click
-
-  #define BLEN_C 2
-  #define BLEN_B 1
-  #define BLEN_A 0
 
   #define SD_DETECT_PIN -1
 
@@ -136,7 +125,7 @@
   //The encoder and click button (FastIO Pins)
   #define BTN_EN1 26
   #define BTN_EN2 27
-  #define BTN_ENC 47  //the click switch
+  #define BTN_ENC 47
 
   #define SDSS 45
   #define SD_DETECT_PIN -1 // FastIO (Manual says 72 I'm not certain cause I can't test)

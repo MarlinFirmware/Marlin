@@ -42,13 +42,35 @@
 #elif MB(RAMPS_OLD)
   #include "pins_RAMPS_OLD.h"
 #elif MB(RAMPS_13_EFB)
-  #include "pins_RAMPS_13_EFB.h"
-#elif MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
+  #define IS_RAMPS_EFB
+  #include "pins_RAMPS_13.h"
+#elif MB(RAMPS_13_EEB)
+  #define IS_RAMPS_EEB
+  #include "pins_RAMPS_13.h"
+#elif MB(RAMPS_13_EFF)
+  #define IS_RAMPS_EFF
+  #include "pins_RAMPS_13.h"
+#elif MB(RAMPS_13_EEF)
+  #define IS_RAMPS_EEF
+  #include "pins_RAMPS_13.h"
+#elif MB(RAMPS_13_SF)
+  #define IS_RAMPS_SF
   #include "pins_RAMPS_13.h"
 #elif MB(RAMPS_14_EFB)
-  #include "pins_RAMPS_14_EFB.h"
-#elif MB(RAMPS_14_EEB) || MB(RAMPS_14_EFF) || MB(RAMPS_14_EEF) || MB(RAMPS_14_SF)
-  #include "pins_RAMPS_14.h"
+  #define IS_RAMPS_EFB
+  #include "pins_RAMPS.h"
+#elif MB(RAMPS_14_EEB)
+  #define IS_RAMPS_EEB
+  #include "pins_RAMPS.h"
+#elif MB(RAMPS_14_EFF)
+  #define IS_RAMPS_EFF
+  #include "pins_RAMPS.h"
+#elif MB(RAMPS_14_EEF)
+  #define IS_RAMPS_EEF
+  #include "pins_RAMPS.h"
+#elif MB(RAMPS_14_SF)
+  #define IS_RAMPS_SF
+  #include "pins_RAMPS.h"
 #elif MB(GEN6)
   #include "pins_GEN6.h"
 #elif MB(GEN6_DELUXE)
@@ -124,7 +146,7 @@
 #elif MB(LEAPFROG)
   #include "pins_LEAPFROG.h"
 #elif MB(BAM_DICE)
-  #include "pins_RAMPS_14.h"
+  #include "pins_RAMPS.h"
 #elif MB(BAM_DICE_DUE)
   #include "pins_BAM_DICE_DUE.h"
 #elif MB(FELIX2)
@@ -431,5 +453,20 @@
     _X2_PINS _Y2_PINS _Z2_PINS \
     X_MS1_PIN, X_MS2_PIN, Y_MS1_PIN, Y_MS2_PIN, Z_MS1_PIN, Z_MS2_PIN \
   }
+
+#define HAS_DIGIPOTSS (PIN_EXISTS(DIGIPOTSS))
+
+#ifndef SCK_PIN
+  #define SCK_PIN  SCK
+#endif
+#ifndef MISO_PIN
+  #define MISO_PIN MISO
+#endif
+#ifndef MOSI_PIN
+  #define MOSI_PIN MOSI
+#endif
+#ifndef SS_PIN
+  #define SS_PIN   SS
+#endif
 
 #endif //__PINS_H

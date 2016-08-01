@@ -94,22 +94,45 @@
   #endif
 
   /**
-   * AUTOSET LOCATIONS OF LIMIT SWITCHES
+   * Set the home position based on settings or manual overrides
    */
-  #if ENABLED(MANUAL_HOME_POSITIONS)  // Use manual limit switch locations
+  #ifdef MANUAL_X_HOME_POS
     #define X_HOME_POS MANUAL_X_HOME_POS
-    #define Y_HOME_POS MANUAL_Y_HOME_POS
-    #define Z_HOME_POS MANUAL_Z_HOME_POS
-  #else //!MANUAL_HOME_POSITIONS – Use home switch positions based on homing direction and travel limits
-    #if ENABLED(BED_CENTER_AT_0_0)
-      #define X_HOME_POS (X_MAX_LENGTH) * (X_HOME_DIR) * 0.5
-      #define Y_HOME_POS (Y_MAX_LENGTH) * (Y_HOME_DIR) * 0.5
+  #elif ENABLED(BED_CENTER_AT_0_0)
+    #if ENABLED(DELTA)
+      #define X_HOME_POS 0
+    #else
+      #define X_HOME_POS ((X_MAX_LENGTH) * (X_HOME_DIR) * 0.5)
+    #endif
+  #else
+    #if ENABLED(DELTA)
+      #define X_HOME_POS ((X_MAX_LENGTH) * 0.5)
     #else
       #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
+    #endif
+  #endif
+
+  #ifdef MANUAL_Y_HOME_POS
+    #define Y_HOME_POS MANUAL_Y_HOME_POS
+  #elif ENABLED(BED_CENTER_AT_0_0)
+    #if ENABLED(DELTA)
+      #define Y_HOME_POS 0
+    #else
+      #define Y_HOME_POS ((Y_MAX_LENGTH) * (Y_HOME_DIR) * 0.5)
+    #endif
+  #else
+    #if ENABLED(DELTA)
+      #define Y_HOME_POS ((Y_MAX_LENGTH) * 0.5)
+    #else
       #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
     #endif
+  #endif
+
+  #ifdef MANUAL_Z_HOME_POS
+    #define Z_HOME_POS MANUAL_Z_HOME_POS
+  #else
     #define Z_HOME_POS (Z_HOME_DIR < 0 ? Z_MIN_POS : Z_MAX_POS)
-  #endif //!MANUAL_HOME_POSITIONS
+  #endif
 
   /**
    * The BLTouch Probe emulates a servo probe
@@ -144,6 +167,13 @@
    */
   #if ENABLED(Z_PROBE_SLED)
     #define Z_SAFE_HOMING
+  #endif
+
+  /**
+   * DELTA should ignore Z_SAFE_HOMING
+   */
+  #if ENABLED(DELTA)
+    #undef Z_SAFE_HOMING
   #endif
 
   /**
@@ -308,6 +338,7 @@
   #if ENABLED(SINGLENOZZLE)             // One hotend, multi-extruder
     #define HOTENDS      1
     #define E_STEPPERS   EXTRUDERS
+    #define E_MANUAL     EXTRUDERS
     #define TOOL_E_INDEX current_block->active_extruder
     #undef TEMP_SENSOR_1_AS_REDUNDANT
     #undef HOTEND_OFFSET_X
@@ -315,6 +346,7 @@
   #elif ENABLED(SWITCHING_EXTRUDER)     // One E stepper, unified E axis, two hotends
     #define HOTENDS      EXTRUDERS
     #define E_STEPPERS   1
+    #define E_MANUAL     1
     #define TOOL_E_INDEX 0
     #ifndef HOTEND_OFFSET_Z
       #define HOTEND_OFFSET_Z { 0 }
@@ -322,10 +354,12 @@
   #elif ENABLED(MIXING_EXTRUDER)        // Multi-stepper, unified E axis, one hotend
     #define HOTENDS      1
     #define E_STEPPERS   MIXING_STEPPERS
+    #define E_MANUAL     1
     #define TOOL_E_INDEX 0
   #else                                 // One stepper, E axis, and hotend per tool
     #define HOTENDS      EXTRUDERS
     #define E_STEPPERS   EXTRUDERS
+    #define E_MANUAL     EXTRUDERS
     #define TOOL_E_INDEX current_block->active_extruder
   #endif
 
@@ -566,15 +600,6 @@
    * Bed Probe dependencies
    */
   #if HAS_BED_PROBE
-    #ifndef X_PROBE_OFFSET_FROM_EXTRUDER
-      #define X_PROBE_OFFSET_FROM_EXTRUDER 0
-    #endif
-    #ifndef Y_PROBE_OFFSET_FROM_EXTRUDER
-      #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
-    #endif
-    #ifndef Z_PROBE_OFFSET_FROM_EXTRUDER
-      #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
-    #endif
     #ifndef Z_PROBE_OFFSET_RANGE_MIN
       #define Z_PROBE_OFFSET_RANGE_MIN -20
     #endif
@@ -593,6 +618,13 @@
     #else
       #define _Z_RAISE_PROBE_DEPLOY_STOW Z_RAISE_PROBE_DEPLOY_STOW
     #endif
+  #else
+    #undef X_PROBE_OFFSET_FROM_EXTRUDER
+    #undef Y_PROBE_OFFSET_FROM_EXTRUDER
+    #undef Z_PROBE_OFFSET_FROM_EXTRUDER
+    #define X_PROBE_OFFSET_FROM_EXTRUDER 0
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
   #endif
 
   /**

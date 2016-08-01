@@ -35,12 +35,10 @@
 
 #include "MarlinConfig.h"
 
-#include "fastio.h"
-
 #include "enum.h"
+#include "types.h"
+#include "fastio.h"
 #include "utility.h"
-
-typedef unsigned long millis_t;
 
 #ifdef USBCON
   #include "HardwareSerial.h"
@@ -97,6 +95,7 @@ void serial_echopair_P(const char* s_P, long v);
 void serial_echopair_P(const char* s_P, float v);
 void serial_echopair_P(const char* s_P, double v);
 void serial_echopair_P(const char* s_P, unsigned long v);
+FORCE_INLINE void serial_echopair_P(const char* s_P, uint8_t v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, uint16_t v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
@@ -313,6 +312,7 @@ float code_value_temp_diff();
     void adjust_delta(float cartesian[3]);
   #endif
 #elif ENABLED(SCARA)
+  extern float delta[3];
   extern float axis_scaling[3];  // Build size scaling
   void inverse_kinematics(const float cartesian[3]);
   void forward_kinematics_SCARA(float f_scara[3]);
@@ -352,7 +352,7 @@ float code_value_temp_diff();
   extern FilamentChangeMenuResponse filament_change_menu_response;
 #endif
 
-#if ENABLED(PID_ADD_EXTRUSION_RATE)
+#if ENABLED(PID_EXTRUSION_SCALING)
   extern int lpq_len;
 #endif
 
@@ -385,13 +385,8 @@ void calculate_volumetric_multipliers();
 
 // Buzzer
 #if HAS_BUZZER
-  #if ENABLED(SPEAKER)
-    #include "speaker.h"
-    extern Speaker buzzer;
-  #else
-    #include "buzzer.h"
-    extern Buzzer buzzer;
-  #endif
+  #include "buzzer.h"
+  extern Buzzer buzzer;
 #endif
 
 /**
