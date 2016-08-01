@@ -698,8 +698,8 @@
   #error "EXTRUDER_OFFSET_[XY] is deprecated. Use HOTEND_OFFSET_[XY] instead."
 #elif defined(PID_PARAMS_PER_EXTRUDER)
   #error "PID_PARAMS_PER_EXTRUDER is deprecated. Use PID_PARAMS_PER_HOTEND instead."
-#elif defined(EXTRUDER_WATTS)
-  #error "EXTRUDER_WATTS is deprecated. Use HOTEND_WATTS instead."
+#elif defined(EXTRUDER_WATTS) || defined(BED_WATTS)
+  #error "EXTRUDER_WATTS and BED_WATTS are deprecated. Remove them from your configuration."
 #elif defined(SERVO_ENDSTOP_ANGLES)
   #error "SERVO_ENDSTOP_ANGLES is deprecated. Use Z_SERVO_ANGLES instead."
 #elif defined(X_ENDSTOP_SERVO_NR) || defined(Y_ENDSTOP_SERVO_NR)
@@ -730,4 +730,6 @@
   #error "HOMING_FEEDRATE is deprecated. Set individual rates with HOMING_FEEDRATE_(XY|Z|E) instead."
 #elif defined(MANUAL_HOME_POSITIONS)
   #error "MANUAL_HOME_POSITIONS is deprecated. Set MANUAL_[XYZ]_HOME_POS as-needed instead."
+#elif defined(PID_ADD_EXTRUSION_RATE)
+  #error "PID_ADD_EXTRUSION_RATE is now PID_EXTRUSION_SCALING and is DISABLED by default. Are you sure you want to use this option? Please update your configuration."
 #endif

@@ -109,7 +109,6 @@
 // example configuration folder.
 //
 //#define SHOW_CUSTOM_BOOTSCREEN
-
 // @section machine
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
@@ -269,10 +268,6 @@
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
 #define BED_MAXTEMP 150
-
-// If you want the M105 heater power reported in watts, define the BED_WATTS, and (shared for all extruders) EXTRUDER_WATTS
-//#define HOTEND_WATTS (12.0*12.0/6.7) // P=U^2/R
-//#define BED_WATTS (12.0*12.0/1.1)    // P=U^2/R
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -520,10 +515,12 @@
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
-// Speed for the first approach when probing
+// Speed for the first approach when double-probing (with PROBE_DOUBLE_TOUCH)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
-// Speed for the second approach when probing
+// Speed for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
+// Use double touch for probing
+//#define PROBE_DOUBLE_TOUCH
 
 // Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
 // Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
@@ -1191,6 +1188,12 @@
 // http://reprap.org/wiki/MaKr3d_MaKrPanel
 //
 //#define MAKRPANEL
+
+//
+// ReprapWorld Graphical LCD
+// https://reprapworld.com/?products_details&products_id/1218
+//
+//#define REPRAPWORLD_GRAPHICAL_LCD
 
 //
 // Activate one of these if you have a Panucatt Devices

@@ -99,17 +99,33 @@
   #ifdef MANUAL_X_HOME_POS
     #define X_HOME_POS MANUAL_X_HOME_POS
   #elif ENABLED(BED_CENTER_AT_0_0)
-    #define X_HOME_POS ((X_MAX_LENGTH) * (X_HOME_DIR) * 0.5)
+    #if ENABLED(DELTA)
+      #define X_HOME_POS 0
+    #else
+      #define X_HOME_POS ((X_MAX_LENGTH) * (X_HOME_DIR) * 0.5)
+    #endif
   #else
-    #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
+    #if ENABLED(DELTA)
+      #define X_HOME_POS ((X_MAX_LENGTH) * 0.5)
+    #else
+      #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
+    #endif
   #endif
 
   #ifdef MANUAL_Y_HOME_POS
     #define Y_HOME_POS MANUAL_Y_HOME_POS
   #elif ENABLED(BED_CENTER_AT_0_0)
-    #define Y_HOME_POS ((Y_MAX_LENGTH) * (Y_HOME_DIR) * 0.5)
+    #if ENABLED(DELTA)
+      #define Y_HOME_POS 0
+    #else
+      #define Y_HOME_POS ((Y_MAX_LENGTH) * (Y_HOME_DIR) * 0.5)
+    #endif
   #else
-    #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
+    #if ENABLED(DELTA)
+      #define Y_HOME_POS ((Y_MAX_LENGTH) * 0.5)
+    #else
+      #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
+    #endif
   #endif
 
   #ifdef MANUAL_Z_HOME_POS
@@ -322,6 +338,7 @@
   #if ENABLED(SINGLENOZZLE)             // One hotend, multi-extruder
     #define HOTENDS      1
     #define E_STEPPERS   EXTRUDERS
+    #define E_MANUAL     EXTRUDERS
     #define TOOL_E_INDEX current_block->active_extruder
     #undef TEMP_SENSOR_1_AS_REDUNDANT
     #undef HOTEND_OFFSET_X
@@ -329,6 +346,7 @@
   #elif ENABLED(SWITCHING_EXTRUDER)     // One E stepper, unified E axis, two hotends
     #define HOTENDS      EXTRUDERS
     #define E_STEPPERS   1
+    #define E_MANUAL     1
     #define TOOL_E_INDEX 0
     #ifndef HOTEND_OFFSET_Z
       #define HOTEND_OFFSET_Z { 0 }
@@ -336,10 +354,12 @@
   #elif ENABLED(MIXING_EXTRUDER)        // Multi-stepper, unified E axis, one hotend
     #define HOTENDS      1
     #define E_STEPPERS   MIXING_STEPPERS
+    #define E_MANUAL     1
     #define TOOL_E_INDEX 0
   #else                                 // One stepper, E axis, and hotend per tool
     #define HOTENDS      EXTRUDERS
     #define E_STEPPERS   EXTRUDERS
+    #define E_MANUAL     EXTRUDERS
     #define TOOL_E_INDEX current_block->active_extruder
   #endif
 
