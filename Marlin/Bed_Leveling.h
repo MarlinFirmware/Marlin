@@ -79,9 +79,8 @@ enum MBLStatus { MBL_STATUS_NONE = 0, MBL_STATUS_HAS_MESH_BIT = 0, MBL_STATUS_AC
 
     int sanity_check();
 
-    static FORCE_INLINE float map_x_index_to_bed_location(int8_t i){ return MESH_MIN_X + (MESH_X_DIST) * i; };
-    static FORCE_INLINE float map_y_index_to_bed_location(int8_t i){ return MESH_MIN_Y + (MESH_Y_DIST) * i; };
-
+    static FORCE_INLINE float map_x_index_to_bed_location(int8_t i){ return ((float) MESH_MIN_X) + ((float) MESH_X_DIST) * (float) i; };
+    static FORCE_INLINE float map_y_index_to_bed_location(int8_t i){ return ((float) MESH_MIN_Y) + ((float) MESH_Y_DIST) * (float) i; }
     void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
     int8_t get_cell_index_x(float x) {
