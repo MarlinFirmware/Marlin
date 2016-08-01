@@ -1182,7 +1182,7 @@ void Planner::reset_acceleration_rates() {
 
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!
 void Planner::refresh_positioning() {
-  LOOP_XYZE(i) planner.steps_to_mm[i] = 1.0 / planner.axis_steps_per_mm[i];
+  LOOP_XYZE(i) steps_to_mm[i] = 1.0 / axis_steps_per_mm[i];
   #if ENABLED(DELTA) || ENABLED(SCARA)
     inverse_kinematics(current_position);
     set_position_mm(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
