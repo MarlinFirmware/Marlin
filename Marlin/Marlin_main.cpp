@@ -939,7 +939,7 @@ void setup() {
     dac_init();
   #endif
 
-  #if ENABLED(Z_PROBE_SLED)
+  #if ENABLED(Z_PROBE_SLED) && PIN_EXISTS(SLED)
     pinMode(SLED_PIN, OUTPUT);
     digitalWrite(SLED_PIN, LOW); // turn it off
   #endif // Z_PROBE_SLED
@@ -1856,8 +1856,10 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // Dock sled a bit closer to ensure proper capturing
     do_blocking_move_to_x(X_MAX_POS + SLED_DOCKING_OFFSET - ((stow) ? 1 : 0));
-    digitalWrite(SLED_PIN, !stow); // switch solenoid
 
+    #if PIN_EXISTS(SLED)
+      digitalWrite(SLED_PIN, !stow); // switch solenoid
+    #endif
   }
 
 #endif // Z_PROBE_SLED

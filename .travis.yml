@@ -56,11 +56,11 @@ before_script:
   #
 script:
   #
-  # Backup Configuration.h, Configuration_adv.h, and pins_RAMPS_14.h
+  # Backup Configuration.h, Configuration_adv.h, and pins_RAMPS.h
   #
   - cp Marlin/Configuration.h Marlin/Configuration.h.backup
   - cp Marlin/Configuration_adv.h Marlin/Configuration_adv.h.backup
-  - cp Marlin/pins_RAMPS_14.h Marlin/pins_RAMPS_14.h.backup
+  - cp Marlin/pins_RAMPS.h Marlin/pins_RAMPS.h.backup
   #
   # Build with the default configurations
   #
@@ -221,7 +221,7 @@ script:
   #
   - restore_configs
   - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
-  - pins_set RAMPS_14 X_MAX_PIN -1
+  - pins_set RAMPS X_MAX_PIN -1
   - opt_set_adv Z2_MAX_PIN 2
   - build_marlin
   #
