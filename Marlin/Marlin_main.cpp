@@ -7172,7 +7172,6 @@ recursion_cnt++;
 
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
-    int ss_x=start_x, ss_y=start_y, dd_x=dest_x, dd_y=dest_y;
     if (DEBUGGING(MESH_SEGMENTS)) {
        for(i=0; i<recursion_cnt; i++)
           SERIAL_ECHOPGM("    ");
@@ -7182,15 +7181,6 @@ recursion_cnt++;
        SERIAL_ECHOPAIR(", ", dest_y);
        SERIAL_ECHOPGM(" )  ");
     }
-#endif
-
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-  if (DEBUGGING(MESH_SEGMENTS)) {
-    if ( start_x != ss_x) {SERIAL_ECHOPAIR("\n CLAMPED start_x to:", start_x); SERIAL_ECHOPAIR(" from: ", ss_x); }
-    if ( start_y != ss_y) {SERIAL_ECHOPAIR("\n CLAMPED start_y to:", start_y); SERIAL_ECHOPAIR(" from: ", ss_y); }
-    if ( dest_x != dd_x) {SERIAL_ECHOPAIR("\n CLAMPED dest_x to:", dest_x); SERIAL_ECHOPAIR(" from: ", dd_x); }
-    if ( dest_y != dd_y) {SERIAL_ECHOPAIR("\n CLAMPED dest_y to:", dest_y); SERIAL_ECHOPAIR(" from: ", dd_y); }
-  }
 #endif
 
 // This is the simple case.  Check if we start and end in (or on) 
