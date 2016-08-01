@@ -531,7 +531,7 @@ static bool send_ok[BUFSIZE];
   boolean chdkActive = false;
 #endif
 
-#if ENABLED(PID_ADD_EXTRUSION_RATE)
+#if ENABLED(PID_EXTRUSION_SCALING)
   int lpq_len = 20;
 #endif
 
@@ -5671,7 +5671,7 @@ inline void gcode_M226() {
    *   I[float] Ki term (unscaled)
    *   D[float] Kd term (unscaled)
    *
-   * With PID_ADD_EXTRUSION_RATE:
+   * With PID_EXTRUSION_SCALING:
    *
    *   C[float] Kc term
    *   L[float] LPQ length
@@ -5686,7 +5686,7 @@ inline void gcode_M226() {
       if (code_seen('P')) PID_PARAM(Kp, e) = code_value_float();
       if (code_seen('I')) PID_PARAM(Ki, e) = scalePID_i(code_value_float());
       if (code_seen('D')) PID_PARAM(Kd, e) = scalePID_d(code_value_float());
-      #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      #if ENABLED(PID_EXTRUSION_SCALING)
         if (code_seen('C')) PID_PARAM(Kc, e) = code_value_float();
         if (code_seen('L')) lpq_len = code_value_float();
         NOMORE(lpq_len, LPQ_MAX_LEN);
@@ -5704,7 +5704,7 @@ inline void gcode_M226() {
       SERIAL_ECHO(unscalePID_i(PID_PARAM(Ki, e)));
       SERIAL_ECHOPGM(" d:");
       SERIAL_ECHO(unscalePID_d(PID_PARAM(Kd, e)));
-      #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      #if ENABLED(PID_EXTRUSION_SCALING)
         SERIAL_ECHOPGM(" c:");
         //Kc does not have scaling applied above, or in resetting defaults
         SERIAL_ECHO(PID_PARAM(Kc, e));
