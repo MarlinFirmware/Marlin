@@ -114,9 +114,6 @@
 
   #if ENABLED(NEWPANEL)
 
-    // Beeper on AUX-4
-    #define BEEPER_PIN 79
-
     #define LCD_PINS_RS 70
     #define LCD_PINS_ENABLE 71
     #define LCD_PINS_D4 72
@@ -124,12 +121,36 @@
     #define LCD_PINS_D6 74
     #define LCD_PINS_D7 75
 
-    //buttons are directly attached using AUX-2
-    #define BTN_EN1 76
-    #define BTN_EN2 77
-    #define BTN_ENC 78
+    #if ENABLED(VIKI2) || ENABLED(miniVIKI)
+      #define BEEPER_PIN 44
 
-    #define SD_DETECT_PIN 81 // Ramps doesn't use this
+      #define DOGLCD_A0  70
+      #define DOGLCD_CS  71
+      #define LCD_SCREEN_ROT_180
+
+      #define BTN_EN1 85
+      #define BTN_EN2 84
+      #define BTN_ENC 83
+
+      #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
+
+      #if ENABLED(TEMP_STAT_LEDS)
+        #define STAT_LED_RED      22
+        #define STAT_LED_BLUE     32
+      #endif
+
+    #else
+
+      #define BEEPER_PIN 79 // AUX-4
+
+      // AUX-2
+      #define BTN_EN1 76
+      #define BTN_EN2 77
+      #define BTN_ENC 78
+
+      #define SD_DETECT_PIN 81
+
+    #endif // VIKI2/miniVIKI
 
   #else //!NEWPANEL - old style panel with shift register
 
@@ -153,24 +174,4 @@
   #endif // !NEWPANEL
 
 #endif // ULTRA_LCD
-
-#if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN 44
-  // Pins for DOGM SPI LCD Support
-  #define DOGLCD_A0  70
-  #define DOGLCD_CS  71
-  #define LCD_SCREEN_ROT_180
-
-  //The encoder and click button
-  #define BTN_EN1 85
-  #define BTN_EN2 84
-  #define BTN_ENC 83
-
-  #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
-
-  #if ENABLED(TEMP_STAT_LEDS)
-    #define STAT_LED_RED      22
-    #define STAT_LED_BLUE     32
-  #endif
-#endif // VIKI2/miniVIKI
 
