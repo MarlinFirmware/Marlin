@@ -7184,12 +7184,6 @@ recursion_cnt++;
     }
 #endif
 
-  NOMORE(start_x, MESH_NUM_X_POINTS - 2);  // These are -2 because the array only goes to MESH_NUM_?_POINTS-1
-  NOMORE(start_y, MESH_NUM_Y_POINTS - 2);  // and the cells are referenced by left side (the lower number) of
-  NOMORE(dest_x,  MESH_NUM_X_POINTS - 2);  // the two edges.
-  NOMORE(dest_y,  MESH_NUM_Y_POINTS - 2);
-
-
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   if (DEBUGGING(MESH_SEGMENTS)) {
     if ( start_x != ss_x) {SERIAL_ECHOPAIR("\n CLAMPED start_x to:", start_x); SERIAL_ECHOPAIR(" from: ", ss_x); }
