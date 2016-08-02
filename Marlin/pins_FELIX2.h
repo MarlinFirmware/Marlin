@@ -30,6 +30,7 @@
 
 #define BOARD_NAME "Felix 2.0+"
 
+// Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
 
 #include "pins_RAMPS.h"
