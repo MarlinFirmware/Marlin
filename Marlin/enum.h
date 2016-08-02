@@ -42,7 +42,7 @@ enum AxisEnum {
   E_AXIS  = 3,
   X_HEAD  = 4,
   Y_HEAD  = 5,
-  Z_HEAD  = 5
+  Z_HEAD  = 6
 };
 
 #define LOOP_XYZ(VAR)  for (uint8_t VAR=X_AXIS; VAR<=Z_AXIS; VAR++)

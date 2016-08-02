@@ -261,7 +261,7 @@ extern int feedrate_percentage;
 
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
-#define MMM_SCALED(MM_M) ((MM_M)*feedrate_percentage/100.0)
+#define MMM_SCALED(MM_M) ((MM_M)*feedrate_percentage*0.01)
 #define MMS_SCALED(MM_S) MMM_SCALED(MM_S)
 #define MMM_TO_MMS_SCALED(MM_M) (MMS_SCALED(MMM_TO_MMS(MM_M)))
 
