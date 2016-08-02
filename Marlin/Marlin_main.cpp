@@ -373,9 +373,14 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
   Stopwatch print_job_timer = Stopwatch();
 #endif
 
-// Buzzer
-#if HAS_BUZZER
-    Buzzer buzzer;
+// Buzzer - I2C on the LCD or a BEEPER_PIN
+#if ENABLED(LCD_USE_I2C_BUZZER)
+  #define BUZZ(d,f) lcd_buzz(d, f)
+#elif HAS_BUZZER
+  Buzzer buzzer;
+  #define BUZZ(d,f) buzzer.tone(d, f)
+#else
+  #define BUZZ(d,f) NOOP
 #endif
 
 static uint8_t target_extruder;
@@ -5657,7 +5662,7 @@ inline void gcode_M226() {
     // Limits the tone duration to 0-5 seconds.
     NOMORE(duration, 5000);
 
-    buzzer.tone(duration, frequency);
+    BUZZ(duration, frequency);
   }
 
 #endif // HAS_BUZZER
@@ -6129,9 +6134,7 @@ inline void gcode_M428() {
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
         LCD_ALERTMESSAGEPGM("Err: Too far!");
-        #if HAS_BUZZER
-          buzzer.tone(200, 40);
-        #endif
+        BUZZ(200, 40);
         err = true;
         break;
       }
@@ -6142,10 +6145,8 @@ inline void gcode_M428() {
     SYNC_PLAN_POSITION_KINEMATIC();
     report_current_position();
     LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
-    #if HAS_BUZZER
-      buzzer.tone(200, 659);
-      buzzer.tone(200, 698);
-    #endif
+    BUZZ(200, 659);
+    BUZZ(200, 698);
   }
 }
 
@@ -6327,7 +6328,7 @@ inline void gcode_M503() {
       #if HAS_BUZZER
         millis_t ms = millis();
         if (ms >= next_tick) {
-          buzzer.tone(300, 2000);
+          BUZZ(300, 2000);
           next_tick = ms + 2500; // Beep every 2.5s while waiting
         }
       #endif
@@ -8470,7 +8471,7 @@ void idle(
     print_job_timer.tick();
   #endif
 
-  #if HAS_BUZZER
+  #if HAS_BUZZER && PIN_EXISTS(BEEPER)
     buzzer.tick();
   #endif
 }

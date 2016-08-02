@@ -384,9 +384,8 @@ extern uint8_t active_extruder;
 void calculate_volumetric_multipliers();
 
 // Buzzer
-#if HAS_BUZZER
+#if HAS_BUZZER && PIN_EXISTS(BEEPER)
   #include "buzzer.h"
-  extern Buzzer buzzer;
 #endif
 
 /**
