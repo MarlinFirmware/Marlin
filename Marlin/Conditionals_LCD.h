@@ -65,8 +65,12 @@
       #define SD_DETECT_INVERTED
     #endif
 
-    #define ENCODER_PULSES_PER_STEP 4
-    #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #ifndef ENCODER_PULSES_PER_STEP
+      #define ENCODER_PULSES_PER_STEP 4
+    #endif
+    #ifndef ENCODER_STEPS_PER_MENU_ITEM
+      #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #endif
   #endif
 
   // Generic support for SSD1306 / SH1106 OLED based LCDs.
@@ -85,7 +89,6 @@
     #ifndef ENCODER_PULSES_PER_STEP
       #define ENCODER_PULSES_PER_STEP 4
     #endif
-
     #ifndef ENCODER_STEPS_PER_MENU_ITEM
       #define ENCODER_STEPS_PER_MENU_ITEM 1
     #endif
@@ -146,7 +149,6 @@
     #ifndef ENCODER_PULSES_PER_STEP
       #define ENCODER_PULSES_PER_STEP 4
     #endif
-
     #ifndef ENCODER_STEPS_PER_MENU_ITEM
       #define ENCODER_STEPS_PER_MENU_ITEM 1
     #endif
@@ -166,6 +168,15 @@
     #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
     #define ULTIPANEL
     #define NEWPANEL
+
+    #define ENCODER_FEEDRATE_DEADZONE 4
+
+    #ifndef ENCODER_PULSES_PER_STEP
+      #define ENCODER_PULSES_PER_STEP 1
+    #endif
+    #ifndef ENCODER_STEPS_PER_MENU_ITEM
+      #define ENCODER_STEPS_PER_MENU_ITEM 2
+    #endif
   #endif
 
   // Shift register panels
