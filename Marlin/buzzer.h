@@ -27,6 +27,8 @@
 #include "circularqueue.h"
 #include "temperature.h"
 
+#include "MarlinConfig.h"
+
 #define TONE_QUEUE_LENGTH 4
 
 /**
@@ -134,5 +136,7 @@ class Buzzer {
       else if (ELAPSED(now, this->state.endtime)) this->reset();
     }
 };
+
+extern Buzzer buzzer;
 
 #endif
