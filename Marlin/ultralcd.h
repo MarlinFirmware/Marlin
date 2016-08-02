@@ -43,7 +43,7 @@
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
 
-  #if ENABLED(LCD_USE_I2C_BUZZER)
+  #if HAS_BUZZER
     void lcd_buzz(long duration, uint16_t freq);
   #endif
 
