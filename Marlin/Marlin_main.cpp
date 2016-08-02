@@ -2520,7 +2520,7 @@ static void homeaxis(AxisEnum axis) {
         SYNC_PLAN_POSITION_KINEMATIC();
       }
 
-      feedrate_mm_m = MMM_TO_MMS(retract_recover_feedrate_mm_s);
+      feedrate_mm_m = MMS_TO_MMM(retract_recover_feedrate_mm_s);
       float move_e = swapping ? retract_length_swap + retract_recover_length_swap : retract_length + retract_recover_length;
       current_position[E_AXIS] -= move_e / volumetric_multiplier[active_extruder];
       sync_plan_position_e();
