@@ -1074,8 +1074,8 @@ void kill_screen(const char* lcd_msg) {
             lcd_return_to_status();
             //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
             #if HAS_BUZZER
-              buzzer.tone(200, 659);
-              buzzer.tone(200, 698);
+              lcd_buzz(200, 659);
+              lcd_buzz(200, 698);
             #endif
           }
           else {
@@ -2342,23 +2342,23 @@ void kill_screen(const char* lcd_msg) {
    * Audio feedback for controller clicks
    *
    */
-
-  #if ENABLED(LCD_USE_I2C_BUZZER)
-    void lcd_buzz(long duration, uint16_t freq) { // called from buzz() in Marlin_main.cpp where lcd is unknown
+  void lcd_buzz(long duration, uint16_t freq) {
+    #if ENABLED(LCD_USE_I2C_BUZZER)
       lcd.buzz(duration, freq);
-    }
-  #endif
+    #elif PIN_EXISTS(BEEPER)
+      buzzer.tone(duration, freq);
+    #endif
+  }
 
   void lcd_quick_feedback() {
     lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
     next_button_update_ms = millis() + 500;
 
     // Buzz and wait. The delay is needed for buttons to settle!
+    lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
     #if ENABLED(LCD_USE_I2C_BUZZER)
-      lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
       delay(10);
     #elif PIN_EXISTS(BEEPER)
-      buzzer.tone(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
       for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
     #endif
   }
