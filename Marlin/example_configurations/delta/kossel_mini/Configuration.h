@@ -1322,6 +1322,14 @@
 //
 //#define SAV_3DLCD
 
+// CONTINUE_BUTTON_FEATURE defines a button, connected to CONTINUE_PIN,
+// for user interaction in case you have no display or panel.
+// To continue in a M0/M1, ...
+// When a BEEPER_PIN is defined beeps for one second.
+// Lights a LED while waiting if LED_PIN is defined.
+//#define CONTINUE_BUTTON_FEATURE
+//#define CONTINUE_PIN 35
+
 //=============================================================================
 //=============================== Extra Features ==============================
 //=============================================================================
