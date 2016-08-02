@@ -29,6 +29,9 @@
 #include "temperature.h"
 #include "thermistortables.h"
 #include "language.h"
+#if ENABLED(BABYSTEPPING)
+  #include "stepper.h"
+#endif
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
