@@ -23,6 +23,8 @@
 #ifndef MACROS_H
 #define MACROS_H
 
+#define NUM_AXIS 4
+
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
 // Bracket code that shouldn't be interrupted

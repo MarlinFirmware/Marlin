@@ -27,9 +27,10 @@
 #ifndef TEMPERATURE_H
 #define TEMPERATURE_H
 
-#include "Marlin.h"
 #include "planner.h"
 #include "thermistortables.h"
+
+#include "MarlinConfig.h"
 
 #if ENABLED(PID_EXTRUSION_SCALING)
   #include "stepper.h"
