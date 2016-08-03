@@ -61,6 +61,7 @@
 #include "math.h"
 #include "nozzle.h"
 #include "duration_t.h"
+#include "types.h"
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
