@@ -190,34 +190,54 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   #endif
 
   /**
-   * START_SCREEN generates the init code for a screen function
+   * START_SCREEN_OR_MENU generates init code for a screen or menu
    *
    *   encoderLine is the position based on the encoder
    *   encoderTopLine is the top menu line to display
    *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
    *   _menuLineNr is the menu item to draw and process
    *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
+   *   _countedItems is the total number of items in the menu (after one call)
    */
-  #define _START_SCREEN(CODE, SKIP) \
+  #define START_SCREEN_OR_MENU(LIMIT) \
     ENCODER_DIRECTION_MENUS(); \
     encoderRateMultiplierEnabled = false; \
     if (encoderPosition > 0x8000) encoderPosition = 0; \
+    static int8_t _countedItems = 0; \
     int8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
-    NOMORE(encoderTopLine, encoderLine); \
-    int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-    bool _skipStatic = SKIP; \
-    CODE; \
-    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
-      _thisItemNr = 0;
+    if (_countedItems > 0 && encoderLine >= _countedItems - LIMIT) { \
+      encoderLine = _countedItems - LIMIT; \
+      encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
+    }
 
-  #define START_SCREEN() _START_SCREEN(NOOP, false)
+  #define SCREEN_OR_MENU_LOOP() \
+    int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
+    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
+      _thisItemNr = 0
 
   /**
-   * START_MENU generates the init code for a menu function
+   * START_SCREEN  Opening code for a screen having only static items.
+   *               Do simplified scrolling of the entire screen.
    *
-   *   wasClicked indicates the controller was clicked
+   * START_MENU    Opening code for a screen with menu items.
+   *               Scroll as-needed to keep the selected line in view.
+   *               'wasClicked' indicates the controller was clicked.
    */
-  #define START_MENU() _START_SCREEN(bool wasClicked = LCD_CLICKED, true)
+  #define START_SCREEN() \
+    START_SCREEN_OR_MENU(LCD_HEIGHT); \
+    encoderTopLine = encoderLine; \
+    bool _skipStatic = false; \
+    SCREEN_OR_MENU_LOOP()
+
+  #define START_MENU() \
+    START_SCREEN_OR_MENU(1); \
+    NOMORE(encoderTopLine, encoderLine); \
+    if (encoderLine >= encoderTopLine + LCD_HEIGHT) { \
+      encoderTopLine = encoderLine - (LCD_HEIGHT - 1); \
+    } \
+    bool wasClicked = LCD_CLICKED; \
+    bool _skipStatic = true; \
+    SCREEN_OR_MENU_LOOP()
 
   /**
    * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
@@ -252,7 +272,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
         return; \
       } \
     } \
-    _thisItemNr++
+    ++_thisItemNr
 
   #define MENU_ITEM(TYPE, LABEL, ARGS...) do { \
       _skipStatic = false; \
@@ -270,42 +290,15 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
       if (lcdDrawUpdate) \
         lcd_implementation_drawmenu_static(_lcdLineNr, PSTR(LABEL), ## ARGS); \
     } \
-    _thisItemNr++
+    ++_thisItemNr
 
-  /**
-   *
-   * END_SCREEN  Closing code for a screen having only static items.
-   *             Do simplified scrolling of the entire screen.
-   *
-   * END_MENU    Closing code for a screen with menu items.
-   *             Scroll as-needed to keep the selected line in view.
-   *
-   * At this point _thisItemNr equals the total number of items.
-   *
-   */
-
-  // Simple-scroll by using encoderLine as encoderTopLine
   #define END_SCREEN() \
     } \
-    NOMORE(encoderLine, _thisItemNr - LCD_HEIGHT); \
-    NOLESS(encoderLine, 0); \
-    encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
-    if (encoderTopLine != encoderLine) { \
-      encoderTopLine = encoderLine; \
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
-    }
+    _countedItems = _thisItemNr
 
-  // Scroll through menu items, scrolling as-needed to stay in view
   #define END_MENU() \
     } \
-    if (encoderLine >= _thisItemNr) { \
-      encoderLine = _thisItemNr - 1; \
-      encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
-    } \
-    if (encoderLine >= encoderTopLine + LCD_HEIGHT) { \
-      encoderTopLine = encoderLine - (LCD_HEIGHT - 1); \
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
-    } \
+    _countedItems = _thisItemNr; \
     UNUSED(_skipStatic)
 
   #if ENABLED(ENCODER_RATE_MULTIPLIER)
