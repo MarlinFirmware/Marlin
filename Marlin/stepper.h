@@ -22,7 +22,7 @@
 
 /**
  * stepper.h - stepper motor driver: executes motion plans of planner.c using the stepper motors
- * Part of Grbl
+ * Derived from Grbl
  *
  * Copyright (c) 2009-2011 Simen Svale Skogsrud
  *
@@ -47,6 +47,7 @@
 #include "speed_lookuptable.h"
 #include "stepper_indirection.h"
 #include "language.h"
+#include "types.h"
 
 class Stepper;
 extern Stepper stepper;
@@ -90,10 +91,6 @@ class Stepper {
       static bool performing_homing;
     #endif
 
-    #if ENABLED(ADVANCE)
-      static long e_steps[4];
-    #endif
-
   private:
 
     static unsigned char last_direction_bits;        // The next stepping-bits to be output
@@ -107,10 +104,23 @@ class Stepper {
     static long counter_X, counter_Y, counter_Z, counter_E;
     static volatile unsigned long step_events_completed; // The number of step events executed in the current block
 
-    #if ENABLED(ADVANCE)
+    #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       static unsigned char old_OCR0A;
-      static long advance_rate, advance, old_advance, final_advance;
-    #endif
+      static volatile unsigned char eISR_Rate;
+      #if ENABLED(LIN_ADVANCE)
+        static volatile int e_steps[E_STEPPERS];
+        static int extruder_advance_k;
+        static int final_estep_rate;
+        static int current_estep_rate[E_STEPPERS]; // Actual extruder speed [steps/s]
+        static int current_adv_steps[E_STEPPERS];  // The amount of current added esteps due to advance.
+                                                  // i.e., the current amount of pressure applied
+                                                  // to the spring (=filament).
+      #else
+        static long e_steps[E_STEPPERS];
+        static long advance_rate, advance, final_advance;
+        static long old_advance;
+      #endif
+    #endif // ADVANCE or LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
     //unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
@@ -125,7 +135,7 @@ class Stepper {
       #ifndef PWM_MOTOR_CURRENT
         #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
       #endif
-      const int motor_current_setting[3] = PWM_MOTOR_CURRENT;
+      static constexpr int motor_current_setting[3] = PWM_MOTOR_CURRENT;
     #endif
 
     //
@@ -138,6 +148,16 @@ class Stepper {
     //
     static volatile signed char count_direction[NUM_AXIS];
 
+    //
+    // Mixing extruder mix counters
+    //
+    #if ENABLED(MIXING_EXTRUDER)
+      static long counter_M[MIXING_STEPPERS];
+      #define MIXING_STEPPERS_LOOP(VAR) \
+        for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++) \
+          if (current_block->mix_event_count[VAR])
+    #endif
+
   public:
 
     //
@@ -148,7 +168,7 @@ class Stepper {
     //
     // Initialize stepper hardware
     //
-    void init();
+    static void init();
 
     //
     // Interrupt Service Routines
@@ -156,20 +176,20 @@ class Stepper {
 
     static void isr();
 
-    #if ENABLED(ADVANCE)
+    #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       static void advance_isr();
     #endif
 
     //
     // Block until all buffered steps are executed
     //
-    void synchronize();
+    static void synchronize();
 
     //
     // Set the current position in steps
     //
-    void set_position(const long& x, const long& y, const long& z, const long& e);
-    void set_e_position(const long& e);
+    static void set_position(const long& x, const long& y, const long& z, const long& e);
+    static void set_e_position(const long& e);
 
     //
     // Set direction bits for all steppers
@@ -179,33 +199,33 @@ class Stepper {
     //
     // Get the position of a stepper, in steps
     //
-    long position(AxisEnum axis);
+    static long position(AxisEnum axis);
 
     //
     // Report the positions of the steppers, in steps
     //
-    void report_positions();
+    static void report_positions();
 
     //
     // Get the position (mm) of an axis based on stepper position(s)
     //
-    float get_axis_position_mm(AxisEnum axis);
+    static float get_axis_position_mm(AxisEnum axis);
 
     //
     // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
     // to notify the subsystem that it is time to go to work.
     //
-    void wake_up();
+    static void wake_up();
 
     //
     // Wait for moves to finish and disable all steppers
     //
-    void finish_and_disable();
+    static void finish_and_disable();
 
     //
     // Quickly stop all steppers and clear the blocks queue
     //
-    void quick_stop();
+    static void quick_stop();
 
     //
     // The direction of a single motor
@@ -213,38 +233,43 @@ class Stepper {
     static FORCE_INLINE bool motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
 
     #if HAS_DIGIPOTSS
-      void digitalPotWrite(int address, int value);
+      static void digitalPotWrite(int address, int value);
     #endif
-    void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2);
-    void digipot_current(uint8_t driver, int current);
-    void microstep_mode(uint8_t driver, uint8_t stepping);
-    void microstep_readings();
+    static void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2);
+    static void digipot_current(uint8_t driver, int current);
+    static void microstep_mode(uint8_t driver, uint8_t stepping);
+    static void microstep_readings();
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      FORCE_INLINE void set_homing_flag(bool state) { performing_homing = state; }
-      FORCE_INLINE void set_z_lock(bool state) { locked_z_motor = state; }
-      FORCE_INLINE void set_z2_lock(bool state) { locked_z2_motor = state; }
+      static FORCE_INLINE void set_homing_flag(bool state) { performing_homing = state; }
+      static FORCE_INLINE void set_z_lock(bool state) { locked_z_motor = state; }
+      static FORCE_INLINE void set_z2_lock(bool state) { locked_z2_motor = state; }
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      void babystep(const uint8_t axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+      static void babystep(const uint8_t axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
     #endif
 
-    inline void kill_current_block() {
+    static inline void kill_current_block() {
       step_events_completed = current_block->step_event_count;
     }
 
     //
     // Handle a triggered endstop
     //
-    void endstop_triggered(AxisEnum axis);
+    static void endstop_triggered(AxisEnum axis);
 
     //
     // Triggered position of an axis in mm (not core-savvy)
     //
-    FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
-      return endstops_trigsteps[axis] / planner.axis_steps_per_unit[axis];
+    static FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
+      return endstops_trigsteps[axis] * planner.steps_to_mm[axis];
     }
+
+    #if ENABLED(LIN_ADVANCE)
+      void advance_M905(const float &k);
+      FORCE_INLINE int get_advance_k() { return extruder_advance_k; }
+    #endif
 
   private:
 
@@ -301,12 +326,25 @@ class Stepper {
       }
 
       #if ENABLED(ADVANCE)
+
         advance = current_block->initial_advance;
         final_advance = current_block->final_advance;
+
         // Do E steps + advance steps
-        e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
-        old_advance = advance >>8;
+        #if ENABLED(MIXING_EXTRUDER)
+          long advance_factor = (advance >> 8) - old_advance;
+          // ...for mixing steppers proportionally
+          MIXING_STEPPERS_LOOP(j)
+            e_steps[j] += advance_factor * current_block->step_event_count / current_block->mix_event_count[j];
+        #else
+          // ...for the active extruder
+          e_steps[TOOL_E_INDEX] += ((advance >> 8) - old_advance);
+        #endif
+
+        old_advance = advance >> 8;
+
       #endif
+
       deceleration_time = 0;
       // step_rate to timer interval
       OCR1A_nominal = calc_timer(current_block->nominal_rate);
@@ -315,6 +353,13 @@ class Stepper {
       acc_step_rate = current_block->initial_rate;
       acceleration_time = calc_timer(acc_step_rate);
       OCR1A = acceleration_time;
+      
+      #if ENABLED(LIN_ADVANCE)
+        if (current_block->use_advance_lead) {
+          current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
+          final_estep_rate = (current_block->nominal_rate * current_block->e_speed_multiplier8) >> 8;
+        }
+      #endif
 
       // SERIAL_ECHO_START;
       // SERIAL_ECHOPGM("advance :");
@@ -327,8 +372,8 @@ class Stepper {
       // SERIAL_ECHOLN(current_block->final_advance/256.0);
     }
 
-    void digipot_init();
-    void microstep_init();
+    static void digipot_init();
+    static void microstep_init();
 
 };
 

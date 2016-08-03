@@ -20,12 +20,22 @@
  *
  */
 
-/**
- * Arduino Mega with RAMPS v1.3 pin assignments
- *
- *  RAMPS_13_EFB (Extruder, Fan, Bed)
- */
+#ifndef MARLIN_CONFIG_H
+#define MARLIN_CONFIG_H
 
-#define IS_RAMPS_13
+#include "fastio.h"
+#include "macros.h"
+#include "boards.h"
+#include "Version.h"
+#include "Configuration.h"
+#include "Conditionals_LCD.h"
+#include "Configuration_adv.h"
+#include "pins.h"
+#ifndef USBCON
+  #define HardwareSerial_h // trick to disable the standard HWserial
+#endif
+#include "Arduino.h"
+#include "Conditionals_post.h"
+#include "SanityCheck.h"
 
-#include "pins_RAMPS_14_EFB.h"
+#endif // MARLIN_CONFIG_H

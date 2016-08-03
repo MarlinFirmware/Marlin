@@ -28,6 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Megatronics"
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN         26
@@ -74,7 +75,8 @@
 #define TEMP_1_PIN         15   // ANALOG NUMBERING
 #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
-#define BEEPER_PIN         33   // AUX-4
+// AUX-4
+#define BEEPER_PIN         33
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
@@ -89,10 +91,6 @@
   #define BTN_EN1         59
   #define BTN_EN2         64
   #define BTN_ENC         43
-
-  #define BLEN_C           2
-  #define BLEN_B           1
-  #define BLEN_A           0
 
   #define SD_DETECT_PIN   -1   // RAMPS doesn't use this
 

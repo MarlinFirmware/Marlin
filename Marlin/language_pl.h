@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_PL_H
 #define LANGUAGE_PL_H
 
-#define MAPPER_NON
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
@@ -51,16 +50,16 @@
 #define MSG_SET_HOME_OFFSETS                "Ust. poz. zer."
 #define MSG_HOME_OFFSETS_APPLIED            "Poz. zerowa ust."
 #define MSG_SET_ORIGIN                      "Ustaw punkt zero"
-#define MSG_PREHEAT_PLA                     "Rozgrzej PLA"
-#define MSG_PREHEAT_PLA_N                   "Rozgrzej PLA "
-#define MSG_PREHEAT_PLA_ALL                 "Roz. PLA Wszystko"
-#define MSG_PREHEAT_PLA_BEDONLY             "Rozgrzej PLA Loze"
-#define MSG_PREHEAT_PLA_SETTINGS            "Ustaw. rozg. PLA"
-#define MSG_PREHEAT_ABS                     "Rozgrzej ABS"
-#define MSG_PREHEAT_ABS_N                   "Rozgrzej ABS "
-#define MSG_PREHEAT_ABS_ALL                 "Roz. ABS Wszystko"
-#define MSG_PREHEAT_ABS_BEDONLY             "Rozgrzej ABS Loze"
-#define MSG_PREHEAT_ABS_SETTINGS            "Ustaw. rozg. ABS"
+#define MSG_PREHEAT_1                       "Rozgrzej PLA"
+#define MSG_PREHEAT_1_N                     "Rozgrzej PLA "
+#define MSG_PREHEAT_1_ALL                   "Roz. PLA Wszystko"
+#define MSG_PREHEAT_1_BEDONLY               "Rozgrzej PLA Loze"
+#define MSG_PREHEAT_1_SETTINGS              "Ustaw. rozg. PLA"
+#define MSG_PREHEAT_2                       "Rozgrzej ABS"
+#define MSG_PREHEAT_2_N                     "Rozgrzej ABS "
+#define MSG_PREHEAT_2_ALL                   "Roz. ABS Wszystko"
+#define MSG_PREHEAT_2_BEDONLY               "Rozgrzej ABS Loze"
+#define MSG_PREHEAT_2_SETTINGS              "Ustaw. rozg. ABS"
 #define MSG_H1                              "1"
 #define MSG_H2                              "2"
 #define MSG_H3                              "3"
@@ -167,7 +166,8 @@
 #define MSG_INIT_SDCARD                     "Inicjal. karty SD"
 #define MSG_CNG_SDCARD                      "Zmiana karty SD"
 #define MSG_ZPROBE_OUT                      "Sonda Z za lozem"
-#define MSG_YX_UNHOMED                      "Wroc w XY przed Z"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Offset Z"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
@@ -180,16 +180,14 @@
 #define MSG_ERR_MINTEMP                     "Err: min. temp."
 #define MSG_ERR_MAXTEMP_BED                 "Err: max. temp. loza"
 #define MSG_ERR_MINTEMP_BED                 "Err: min. temp. loza"
-#define MSG_END_HOUR                        "godzin"
-#define MSG_END_MINUTE                      "minut"
 #define MSG_HEATING                         "Rozgrzewanie..."
 #define MSG_HEATING_COMPLETE                "Rozgrzano"
 #define MSG_BED_HEATING                     "Rozgrzewanie loza..."
 #define MSG_BED_DONE                        "Rozgrzano loze"
-#define MSG_DELTA_CALIBRATE               	"Kalibrowanie Delty"
-#define MSG_DELTA_CALIBRATE_X             	"Kalibruj X"
-#define MSG_DELTA_CALIBRATE_Y             	"Kalibruj Y"
-#define MSG_DELTA_CALIBRATE_Z             	"Kalibruj Z"
-#define MSG_DELTA_CALIBRATE_CENTER        	"Kalibruj środek"
+#define MSG_DELTA_CALIBRATE                 "Kalibrowanie Delty"
+#define MSG_DELTA_CALIBRATE_X               "Kalibruj X"
+#define MSG_DELTA_CALIBRATE_Y               "Kalibruj Y"
+#define MSG_DELTA_CALIBRATE_Z               "Kalibruj Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Kalibruj środek"
 
 #endif // LANGUAGE_PL_H

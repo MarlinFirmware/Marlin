@@ -28,9 +28,11 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if EXTRUDERS > 2
-  #error "Mega Controller supports up to 2 extruders. Comment this line to keep going."
+#if E_STEPPERS > 2 || HOTENDS > 2
+  #error "Mega Controller supports up to 2 hotends / E-steppers. Comment this line to keep going."
 #endif
+
+#define BOARD_NAME "Mega Controller"
 
 #define SERVO0_PIN 30
 #define SERVO1_PIN 31
@@ -111,11 +113,11 @@
   //#define LCD_SCREEN_ROT_90
   //#define LCD_SCREEN_ROT_180
   //#define LCD_SCREEN_ROT_270
-  //The encoder and click button
+
   #define BTN_EN1 48
   #define BTN_EN2 11
-  #define BTN_ENC 10  //the click switch
-  //not connected to a pin
+  #define BTN_ENC 10
+
   #define SD_DETECT_PIN 49
-#endif //Minipanel
+#endif // MINIPANEL
 
