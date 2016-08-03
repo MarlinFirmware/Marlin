@@ -221,13 +221,11 @@ each additional Phase that processes it.
 
       Y #             Specify Y Location for this line of commands
 
-      Z #   Zero      Probes to set the Z Height of the nozzle.  The entire Mesh can be raised or lowered 
-      		      to conform with the measured difference.  With no addition number specified
-                      Z_PROBE_OFFSET_FROM_EXTRUDER is used.  The default location to be probed is the
-		      center of the bed.  If a C parameter is also specified, the current location of the 
-		      nozzle is used.  The X and Y parameters can be used to specify the desired location
-		      to be probed.  
+      Z     Zero      Probes to set the Z Height of the nozzle.  The entire Mesh can be raised or lowered 
+                      by just doing a G29 Z
 
+      Z #   Zero      The entire Mesh can be raised or lowered to conform with the specified difference.  
+      		      Z_PROBE_OFFSET_FROM_EXTRUDER is added to the calculation.  
 
 
      Release Notes:
@@ -579,16 +577,15 @@ void gcode_G29() {
   }
 
   if ( code_seen('Z') ) {
-    measured_z = probe_pt( X_Pos,  Y_Pos, ProbeDeployAndStow, G29_Verbose_Level );
-
-    SERIAL_ECHOPGM( "Measured ");
-    if ( bed_leveling_mesh.state.active ) {
-       measured_z -= bed_leveling_mesh.get_z_correction( X_Pos, Y_Pos);	
-       SERIAL_ECHOPGM( "and Corrected ");
+    if ( code_has_value() )
+       bed_leveling_mesh.state.z_offset = code_value_float();
+    else {
+       measured_z = probe_pt( X_Pos,  Y_Pos, ProbeDeployAndStow, G29_Verbose_Level );
+       bed_leveling_mesh.state.z_offset = measured_z + Z_PROBE_OFFSET_FROM_EXTRUDER;
+       SERIAL_ECHOPGM("Z_Offset Measured: ");
+       SERIAL_ECHO_F( bed_leveling_mesh.state.z_offset, 6 );
+       SERIAL_PROTOCOLLNPGM("\n");
     }
-    SERIAL_ECHOPGM( "Z: ");
-    SERIAL_ECHO_F( measured_z, 6 );
-    SERIAL_PROTOCOLLNPGM("\nDone.\n");
   }
 LEAVE: 
 
