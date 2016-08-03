@@ -41,21 +41,24 @@
 
 #define LARGE_FLASH        true
 
+#define X_STOP_PIN         47
+#define Y_STOP_PIN         18
+#define Z_MAX_PIN          36
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  17
+#endif
+
 #define X_STEP_PIN         33
 #define X_DIR_PIN          32
 #define X_ENABLE_PIN       11
-#define X_STOP_PIN         47
 
 #define Y_STEP_PIN         31
 #define Y_DIR_PIN          30
 #define Y_ENABLE_PIN        8
-#define Y_STOP_PIN         18
 
 #define Z_STEP_PIN         29
 #define Z_DIR_PIN          28
 #define Z_ENABLE_PIN       37
-#define Z_MAX_PIN          36
-#define Z_MIN_PROBE_PIN    17  // Bed Z probe
 
 #define E0_STEP_PIN        35
 #define E0_DIR_PIN         34
