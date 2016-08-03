@@ -31,13 +31,8 @@
 
 #ifndef MarlinSerial_h
 #define MarlinSerial_h
-#include "Marlin.h"
 
-#ifndef CRITICAL_SECTION_START
-  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
-  #define CRITICAL_SECTION_END    SREG = _sreg;
-#endif
-
+#include "MarlinConfig.h"
 
 #ifndef SERIAL_PORT
   #define SERIAL_PORT 0

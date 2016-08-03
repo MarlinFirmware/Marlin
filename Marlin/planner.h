@@ -32,7 +32,8 @@
 #ifndef PLANNER_H
 #define PLANNER_H
 
-#include "Marlin.h"
+#include "types.h"
+#include "MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   #include "vector_3.h"

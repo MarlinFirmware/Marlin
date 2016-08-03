@@ -215,7 +215,6 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 /**
  * The axis order in all axis related arrays is X, Y, Z, E
  */
-#define NUM_AXIS 4
 #define _AXIS(AXIS) AXIS ##_AXIS
 
 void enable_all_steppers();

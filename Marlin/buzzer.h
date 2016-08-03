@@ -23,6 +23,7 @@
 #ifndef __BUZZER_H__
 #define __BUZZER_H__
 
+#include "types.h"
 #include "fastio.h"
 #include "circularqueue.h"
 #include "temperature.h"
@@ -127,7 +128,9 @@ class Buzzer {
 
         if (this->state.tone.frequency > 0) {
           #if ENABLED(SPEAKER)
+            CRITICAL_SECTION_START;
             ::tone(BEEPER_PIN, this->state.tone.frequency, this->state.tone.duration);
+            CRITICAL_SECTION_END;
           #else
             this->on();
           #endif

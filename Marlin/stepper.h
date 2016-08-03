@@ -47,6 +47,7 @@
 #include "speed_lookuptable.h"
 #include "stepper_indirection.h"
 #include "language.h"
+#include "types.h"
 
 class Stepper;
 extern Stepper stepper;
