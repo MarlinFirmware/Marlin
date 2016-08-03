@@ -26,120 +26,119 @@
 #include <Arduino.h>
 
 /**
- * @brief Circular Queue class
+ * @brief   Circular Queue class
  * @details Implementation of the classic ring buffer data structure
  */
-template<typename T, int N>
+template<typename T, uint8_t N>
 class CircularQueue {
   private:
 
     /**
-     * @brief Buffer structure
+     * @brief   Buffer structure
      * @details This structure consolidates all the overhead required to handle
-     * a circular queue such as the pointers and the buffer vector.
+     *          a circular queue such as the pointers and the buffer vector.
      */
     struct buffer_t {
       uint8_t head;
       uint8_t tail;
+      uint8_t count;
       uint8_t size;
-      uint8_t length;
       T queue[N];
     } buffer;
 
   public:
     /**
-     * @brief Class constructor
+     * @brief   Class constructor
      * @details This class requires two template parameters, T defines the type
-     * of the items this queue will handle and N defines the maximum number of
-     * items that can be stored on the queue.
+     *          of item this queue will handle and N defines the maximum number of
+     *          items that can be stored on the queue.
      */
     CircularQueue<T, N>() {
-      this->buffer.length = N;
-      this->buffer.size = this->buffer.head = this->buffer.tail = 0;
+      this->buffer.size = N;
+      this->buffer.count = this->buffer.head = this->buffer.tail = 0;
     }
 
     /**
-     * @brief Removes and returns a item from the queue
-     * @details Removes the oldest item on the queue which is pointed by the
-     * buffer_t head variable, this item is then returned to the caller.
-     * @return type T item
+     * @brief   Removes and returns a item from the queue
+     * @details Removes the oldest item on the queue, pointed to by the
+     *          buffer_t head field. The item is returned to the caller.
+     * @return  type T item
      */
     T dequeue() {
       if (this->isEmpty()) return T();
 
-      T const item = this->buffer.queue[this->buffer.head++];
-      --this->buffer.size;
+      uint8_t index = this->buffer.head;
 
-      if (this->buffer.head == this->buffer.length)
+      --this->buffer.count;
+      if (++this->buffer.head == this->buffer.size)
         this->buffer.head = 0;
 
-      return item;
+      return this->buffer.queue[index];
     }
 
     /**
-     * @brief Adds an item to the queue
-     * @details Adds a item to the queue on the location pointed by the buffer_t
-     * tail vairable, will return false if there is no queue space available.
-     *
-     * @param item Item to be added to the queue
-     * @return true if the operation was successfull
+     * @brief   Adds an item to the queue
+     * @details Adds an item to the queue on the location pointed by the buffer_t
+     *          tail variable. Returns false if no queue space is available.
+     * @param   item Item to be added to the queue
+     * @return  true if the operation was successful
      */
     bool enqueue(T const &item) {
       if (this->isFull()) return false;
 
-      this->buffer.queue[this->buffer.tail++] = item;
-      ++this->buffer.size;
+      this->buffer.queue[this->buffer.tail] = item;
 
-      if (this->buffer.tail == this->buffer.length)
+      ++this->buffer.count;
+      if (++this->buffer.tail == this->buffer.size)
         this->buffer.tail = 0;
 
       return true;
     }
 
     /**
-     * @brief Checks if the queue has no items
+     * @brief   Checks if the queue has no items
      * @details Returns true if there are no items on the queue, false otherwise.
-     * @return true if queue is empty
+     * @return  true if queue is empty
      */
     bool isEmpty() {
-      return this->buffer.size == 0;
+      return this->buffer.count == 0;
     }
 
     /**
-     * @brief Checks if the queue is full
+     * @brief   Checks if the queue is full
      * @details Returns true if the queue is full, false otherwise.
-     * @return true if queue is full
+     * @return  true if queue is full
      */
     bool isFull() {
-      return this->buffer.size == this->buffer.length;
+      return this->buffer.count == this->buffer.size;
     }
 
     /**
-     * @brief Gets the queue size
+     * @brief   Gets the queue size
      * @details Returns the maximum number of items a queue can have.
-     * @return the queue lenght
+     * @return  the queue size
      */
-    uint8_t length() {
-      return this->buffer.length;
+    uint8_t size() {
+      return this->buffer.size;
     }
 
     /**
-     * @brief Gets the next item from the queue without removing it
-     * @details Returns the next item on the queue but the item is not removed
-     * from the queue nor the pointers updated.
-     * @return the queue size
+     * @brief   Gets the next item from the queue without removing it
+     * @details Returns the next item in the queue without removing it
+     *          or updating the pointers.
+     * @return  first item in the queue
      */
-    uint8_t peek() {
+    T peek() {
       return this->buffer.queue[this->buffer.head];
     }
 
     /**
      * @brief Gets the number of items on the queue
      * @details Returns the current number of items stored on the queue.
-     * @return type T item
+     * @return number of items in the queue
      */
-    uint8_t size() {
-      return this->buffer.size;
+    uint8_t count() {
+      return this->buffer.count;
     }
 };
 
