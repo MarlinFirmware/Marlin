@@ -240,11 +240,12 @@ each additional Phase that processes it.
 
       Y #             Specify Y Location for this line of commands
 
-      Z #   Zero  Probes to set the Z Height of the nozzle.  The entire Mesh can be raised or lowered
-              to conform with the measured difference.  With no addition number specified
-              Z_PROBE_OFFSET_FROM_EXTRUDER is used.  The default location to be probed is the
-              center of the bed.  If a C parameter is also specified, the current location of the
-              nozzle is used.  The X and Y parameters can be used to specify the desired location to be probed.
+      Z     Zero      Probes to set the Z Height of the nozzle.  The entire Mesh can be raised or lowered 
+                      by just doing a G29 Z
+
+      Z #   Zero      The entire Mesh can be raised or lowered to conform with the specified difference.  
+                    Z_PROBE_OFFSET_FROM_EXTRUDER is added to the calculation.  
+
 
 ## G26 Parameters
 ~~~~
