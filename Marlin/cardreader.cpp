@@ -616,7 +616,8 @@ void CardReader::printingHasFinished() {
     if (SD_FINISHED_STEPPERRELEASE)
       enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     print_job_timer.stop();
-    enqueue_and_echo_commands_P(PSTR("M31"));
+    if (print_job_timer.duration() > 60)
+      enqueue_and_echo_commands_P(PSTR("M31"));
   }
 }
 
