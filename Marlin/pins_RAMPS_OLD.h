@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "MEGA/RAMPS <1.2"
+
 // Uncomment the following line for RAMPS v1.0
 //#define RAMPS_V_1_0
 
@@ -75,11 +77,4 @@
   #define MAX6675_SS       66// Do not use pin 53 if there is even the remote possibility of using Display/SD card
 #else
   #define MAX6675_SS       66// Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
-#endif
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN          52
-  #define MISO_PIN         50
-  #define MOSI_PIN         51
 #endif

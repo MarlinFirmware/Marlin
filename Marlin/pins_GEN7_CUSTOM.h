@@ -31,6 +31,8 @@
   #error "Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME      "Gen7 Custom"
+
 //x axis pins
 #define X_STEP_PIN      21                  // different from standard GEN7
 #define X_DIR_PIN       20                  // different from standard GEN7
@@ -84,5 +86,5 @@
 //buttons are directly attached
 #define BTN_EN1 11
 #define BTN_EN2 10
-#define BTN_ENC 12  //the click
+#define BTN_ENC 12
 

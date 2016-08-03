@@ -43,9 +43,9 @@ void mcp4728_init() {
   Wire.begin();
   Wire.requestFrom(int(DAC_DEV_ADDRESS), 24);
   while(Wire.available()) {
-    int deviceID = Wire.receive();
-    int hiByte = Wire.receive();
-    int loByte = Wire.receive();
+    int deviceID = Wire.read();
+    int hiByte = Wire.read();
+    int loByte = Wire.read();
 
     int isEEPROM = (deviceID & 0B00001000) >> 3;
     int channel = (deviceID & 0B00110000) >> 4;
@@ -70,10 +70,10 @@ uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value) {
  */
 uint8_t mcp4728_eepromWrite() {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
-  Wire.send(SEQWRITE);
+  Wire.write(SEQWRITE);
   for (uint8_t channel=0; channel <= 3; channel++) {
-    Wire.send(DAC_STEPPER_VREF << 7 | 0 << 5 | DAC_STEPPER_GAIN << 4 | highByte(mcp4728_values[channel]));
-    Wire.send(lowByte(mcp4728_values[channel]));
+    Wire.write(DAC_STEPPER_VREF << 7 | 0 << 5 | DAC_STEPPER_GAIN << 4 | highByte(mcp4728_values[channel]));
+    Wire.write(lowByte(mcp4728_values[channel]));
   }
   return Wire.endTransmission();
 }
@@ -83,7 +83,7 @@ uint8_t mcp4728_eepromWrite() {
  */
 uint8_t mcp4728_setVref_all(uint8_t value) {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
-  Wire.send(VREFWRITE | value << 3 | value << 2 | value << 1 | value);
+  Wire.write(VREFWRITE | value << 3 | value << 2 | value << 1 | value);
   return Wire.endTransmission();
 }
 /**
@@ -91,7 +91,7 @@ uint8_t mcp4728_setVref_all(uint8_t value) {
  */
 uint8_t mcp4728_setGain_all(uint8_t value) {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
-  Wire.send(GAINWRITE | value << 3 | value << 2 | value << 1 | value);
+  Wire.write(GAINWRITE | value << 3 | value << 2 | value << 1 | value);
   return Wire.endTransmission();
 }
 
@@ -120,8 +120,8 @@ uint16_t mcp4728_getVout(uint8_t channel) {
 uint8_t mcp4728_fastWrite() {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
   for (uint8_t channel=0; channel <= 3; channel++) {
-    Wire.send(highByte(mcp4728_values[channel]));
-    Wire.send(lowByte(mcp4728_values[channel]));
+    Wire.write(highByte(mcp4728_values[channel]));
+    Wire.write(lowByte(mcp4728_values[channel]));
   }
   return Wire.endTransmission();
 }
@@ -131,7 +131,7 @@ uint8_t mcp4728_fastWrite() {
  */
 uint8_t mcp4728_simpleCommand(byte simpleCommand) {
   Wire.beginTransmission(GENERALCALL);
-  Wire.send(simpleCommand);
+  Wire.write(simpleCommand);
   return Wire.endTransmission();
 }
 

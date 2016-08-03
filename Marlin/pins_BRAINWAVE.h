@@ -31,6 +31,8 @@
   #error "Oops!  Make sure you have 'Brainwave' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Brainwave"
+
 #define X_STEP_PIN         27
 #define X_DIR_PIN          29
 #define X_ENABLE_PIN       28
@@ -62,11 +64,3 @@
 #define TEMP_BED_PIN        6  // Bed / Analog pin numbering
 
 #define LED_PIN            39
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN           9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
-

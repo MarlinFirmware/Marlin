@@ -22,17 +22,18 @@
 
 #include "Marlin.h"
 #include "printcounter.h"
+#include "duration_t.h"
 
 PrintCounter::PrintCounter(): super() {
   this->loadStats();
 }
 
-uint16_t PrintCounter::deltaDuration() {
+millis_t PrintCounter::deltaDuration() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     PrintCounter::debug(PSTR("deltaDuration"));
   #endif
 
-  uint16_t tmp = this->lastDuration;
+  millis_t tmp = this->lastDuration;
   this->lastDuration = this->duration();
   return this->lastDuration - tmp;
 }
@@ -41,13 +42,25 @@ bool PrintCounter::isLoaded() {
   return this->loaded;
 }
 
+void PrintCounter::incFilamentUsed(double const &amount) {
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    PrintCounter::debug(PSTR("incFilamentUsed"));
+  #endif
+
+  // Refuses to update data if object is not loaded
+  if (!this->isLoaded()) return;
+
+  this->data.filamentUsed += amount; // mm
+}
+
+
 void PrintCounter::initStats() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     PrintCounter::debug(PSTR("initStats"));
   #endif
 
   this->loaded = true;
-  this->data = { 0, 0, 0, 0 };
+  this->data = { 0, 0, 0, 0, 0.0 };
 
   this->saveStats();
   eeprom_write_byte((uint8_t *) this->address, 0x16);
@@ -60,7 +73,8 @@ void PrintCounter::loadStats() {
 
   // Checks if the EEPROM block is initialized
   if (eeprom_read_byte((uint8_t *) this->address) != 0x16) this->initStats();
-  else eeprom_read_block(&this->data, (void *)(this->address + sizeof(uint8_t)), sizeof(printStatistics));
+  else eeprom_read_block(&this->data,
+    (void *)(this->address + sizeof(uint8_t)), sizeof(printStatistics));
 
   this->loaded = true;
 }
@@ -70,32 +84,38 @@ void PrintCounter::saveStats() {
     PrintCounter::debug(PSTR("saveStats"));
   #endif
 
-  // Refuses to save data is object is not loaded
+  // Refuses to save data if object is not loaded
   if (!this->isLoaded()) return;
 
   // Saves the struct to EEPROM
-  eeprom_update_block(&this->data, (void *)(this->address + sizeof(uint8_t)), sizeof(printStatistics));
+  eeprom_update_block(&this->data,
+    (void *)(this->address + sizeof(uint8_t)), sizeof(printStatistics));
 }
 
 void PrintCounter::showStats() {
-  SERIAL_ECHOPGM("Print statistics: Total: ");
+  char buffer[21];
+  duration_t elapsed;
+
+  SERIAL_PROTOCOLPGM(MSG_STATS);
+
+  SERIAL_ECHOPGM("Prints: ");
   SERIAL_ECHO(this->data.totalPrints);
 
   SERIAL_ECHOPGM(", Finished: ");
   SERIAL_ECHO(this->data.finishedPrints);
 
-  SERIAL_ECHOPGM(", Failed: ");
+  SERIAL_ECHOPGM(", Failed: "); // Note: Removes 1 from failures with an active counter
   SERIAL_ECHO(this->data.totalPrints - this->data.finishedPrints
-    - ((this->isRunning() || this->isPaused()) ? 1 : 0)); // Removes 1 from failures with an active counter
+    - ((this->isRunning() || this->isPaused()) ? 1 : 0));
 
-  uint32_t t = this->data.printTime /60;
-  SERIAL_ECHOPGM(", Total print time: ");
-  SERIAL_ECHO(t / 60);
+  SERIAL_EOL;
+  SERIAL_PROTOCOLPGM(MSG_STATS);
 
-  SERIAL_ECHOPGM("h ");
-  SERIAL_ECHO(t % 60);
+  elapsed = this->data.printTime;
+  elapsed.toString(buffer);
 
-  SERIAL_ECHOPGM("min");
+  SERIAL_ECHOPGM("Total time: ");
+  SERIAL_ECHO(buffer);
 
   #if ENABLED(DEBUG_PRINTCOUNTER)
     SERIAL_ECHOPGM(" (");
@@ -103,35 +123,52 @@ void PrintCounter::showStats() {
     SERIAL_ECHOPGM(")");
   #endif
 
-  // @todo longestPrint missing implementation
+  elapsed = this->data.longestPrint;
+  elapsed.toString(buffer);
+
+  SERIAL_ECHOPGM(", Longest job: ");
+  SERIAL_ECHO(buffer);
+
+  #if ENABLED(DEBUG_PRINTCOUNTER)
+    SERIAL_ECHOPGM(" (");
+    SERIAL_ECHO(this->data.longestPrint);
+    SERIAL_ECHOPGM(")");
+  #endif
+
+  SERIAL_EOL;
+  SERIAL_PROTOCOLPGM(MSG_STATS);
+
+  SERIAL_ECHOPGM("Filament used: ");
+  SERIAL_ECHO(this->data.filamentUsed / 1000);
+  SERIAL_ECHOPGM("m");
+
   SERIAL_EOL;
 }
 
 void PrintCounter::tick() {
   if (!this->isRunning()) return;
 
-  static uint32_t update_before = millis(),
-                  eeprom_before = millis();
+  static uint32_t update_last = millis(),
+                  eeprom_last = millis();
 
-  uint32_t now = millis();
+  millis_t now = millis();
 
   // Trying to get the amount of calculations down to the bare min
   const static uint16_t i = this->updateInterval * 1000;
 
-  if (now - update_before >= i) {
+  if (now - update_last >= i) {
     #if ENABLED(DEBUG_PRINTCOUNTER)
       PrintCounter::debug(PSTR("tick"));
     #endif
 
     this->data.printTime += this->deltaDuration();
-    update_before = now;
+    update_last = now;
   }
 
   // Trying to get the amount of calculations down to the bare min
-  const static uint32_t j = this->saveInterval * 1000;
-
-  if (now - eeprom_before >= j) {
-    eeprom_before = now;
+  const static millis_t j = this->saveInterval * 1000;
+  if (now - eeprom_last >= j) {
+    eeprom_last = now;
     this->saveStats();
   }
 }
@@ -163,6 +200,10 @@ bool PrintCounter::stop() {
   if (super::stop()) {
     this->data.finishedPrints++;
     this->data.printTime += this->deltaDuration();
+
+    if (this->duration() > this->data.longestPrint)
+      this->data.longestPrint = this->duration();
+
     this->saveStats();
     return true;
   }

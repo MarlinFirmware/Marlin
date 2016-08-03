@@ -40,10 +40,10 @@ Endstops endstops;
 
 bool  Endstops::enabled = true,
       Endstops::enabled_globally =
-        #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
-          false
+        #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
+          (true)
         #else
-          true
+          (false)
         #endif
       ;
 volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
@@ -63,20 +63,6 @@ volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_P
 /**
  * Class and Instance Methods
  */
-
-Endstops::Endstops() {
-  enable_globally(
-    #if ENABLED(ENDSTOPS_ONLY_FOR_HOMING)
-      false
-    #else
-      true
-    #endif
-  );
-  enable(true);
-  #if HAS_BED_PROBE
-    enable_z_probe(false);
-  #endif
-} // Endstops::Endstops
 
 void Endstops::init() {
 
@@ -186,10 +172,7 @@ void Endstops::report_state() {
       if (stepper.abort_on_endstop_hit) {
         card.sdprinting = false;
         card.closefile();
-        stepper.quick_stop();
-        #if DISABLED(DELTA) && DISABLED(SCARA)
-          set_current_position_from_planner();
-        #endif
+        quickstop_stepper();
         thermalManager.disable_all_heaters(); // switch off all heaters.
       }
     #endif
@@ -197,7 +180,7 @@ void Endstops::report_state() {
 } // Endstops::report_state
 
 void Endstops::M119() {
-  SERIAL_PROTOCOLLN(MSG_M119_REPORT);
+  SERIAL_PROTOCOLLNPGM(MSG_M119_REPORT);
   #if HAS_X_MIN
     SERIAL_PROTOCOLPGM(MSG_X_MIN);
     SERIAL_PROTOCOLLN(((READ(X_MIN_PIN)^X_MIN_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));

@@ -28,6 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Cheaptronic v1.0"
 #define LARGE_FLASH        true
 
 // X motor stepper
@@ -82,9 +83,5 @@
 #define BTN_EN1 -1
 #define BTN_EN2 -1
 #define BTN_ENC -1
-
-#define BLEN_C 2
-#define BLEN_B 1
-#define BLEN_A 0
 
 // Cheaptronic v1.0 doesn't use this

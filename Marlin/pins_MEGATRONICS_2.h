@@ -28,6 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Megatronics v2.0"
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN 26
@@ -100,9 +101,4 @@
 // Buttons are directly attached using keypad
 #define BTN_EN1 61
 #define BTN_EN2 59
-#define BTN_ENC 43 //the click
-
-#define BLEN_C 2
-#define BLEN_B 1
-#define BLEN_A 0
-
+#define BTN_ENC 43

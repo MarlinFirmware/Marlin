@@ -24,7 +24,13 @@
  * BAM&DICE Due (Arduino Mega) pin assignments
  */
 
-#include "pins_RAMPS_14_EFB.h"
+#if HOTENDS > 2
+  #error "2PrintBeta Due supports up to 2 hotends. Comment this line to keep going."
+#endif
+
+#define BOARD_NAME "2PrintBeta Due"
+
+#include "pins_RAMPS.h"
 
 #undef TEMP_0_PIN
 #undef TEMP_1_PIN
