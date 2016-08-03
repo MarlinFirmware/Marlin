@@ -270,10 +270,16 @@
   #endif
 
   /**
-   * Z_MIN_PIN and Z_MIN_PROBE_PIN can't co-exist when Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+   * Require a Z min pin
    */
-  #if HAS_Z_MIN && HAS_Z_MIN_PROBE_PIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #error "A probe cannot have more than one pin! Use Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN or Z_MIN_PROBE_PIN."
+  #if HAS_Z_MIN
+     // Z_MIN_PIN and Z_MIN_PROBE_PIN can't co-exist when Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+    #if HAS_Z_MIN_PROBE_PIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      #error "A probe cannot have more than one pin! Use Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN or Z_MIN_PROBE_PIN."
+    #endif
+  #elif !HAS_Z_MIN_PROBE_PIN || (DISABLED(Z_MIN_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP))
+    // A pin was set for the Z probe, but not enabled.
+    #error "A probe requires a Z_MIN or Z_PROBE pin. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin."
   #endif
 
   /**
@@ -382,15 +388,6 @@
    */
   #if ENABLED(DELTA) && DISABLED(AUTO_BED_LEVELING_GRID)
     #error "You must use AUTO_BED_LEVELING_GRID for DELTA bed leveling."
-  #endif
-
-  /**
-   * Require a Z min pin
-   */
-  #if !PIN_EXISTS(Z_MIN)
-    #if !PIN_EXISTS(Z_MIN_PROBE) || (DISABLED(Z_MIN_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z probe, but not enable it.
-      #error "AUTO_BED_LEVELING_FEATURE requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin."
-    #endif
   #endif
 
   /**
