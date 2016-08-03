@@ -244,7 +244,7 @@ each additional Phase that processes it.
                       by just doing a G29 Z
 
       Z #   Zero      The entire Mesh can be raised or lowered to conform with the specified difference.  
-                    Z_PROBE_OFFSET_FROM_EXTRUDER is added to the calculation.  
+                      Z_PROBE_OFFSET_FROM_EXTRUDER is added to the calculation.  
 
 
 ## G26 Parameters
