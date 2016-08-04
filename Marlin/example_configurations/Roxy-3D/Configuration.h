@@ -138,7 +138,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "UBL on FT-2020"
+#define CUSTOM_MACHINE_NAME "UBL4 FT-2020"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -526,7 +526,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 // Probe Raise options provide clearance for the probe to deploy, stow, and travel.
 //
-#define Z_RAISE_PROBE_DEPLOY_STOW 5 // Raise to make room for the probe to deploy / stow
+#define Z_RAISE_PROBE_DEPLOY_STOW 12 // Raise to make room for the probe to deploy / stow
 #define Z_RAISE_BETWEEN_PROBINGS 5  // Raise between probing points.
 
 //
@@ -612,9 +612,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //===========================================================================
 
 #define UNIFIED_BED_LEVELING_FEATURE    	// Enable Unified Bed Leveling.
-//#define DEBUG_LEVELING_FEATURE
+#define DEBUG_LEVELING_FEATURE
 #define UNIFIED_BED_LEVELING_GRID		// Enable the Grid Leveling portion of Unified Bed Leveling
-#define UNIFIED_BED_LEVELING_GRID_POINTS 10 	// Max size of the n x n grid to be probed
+#define UNIFIED_BED_LEVELING_GRID_POINTS 5 	// Max size of the n x n grid to be probed
 
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
   #define MESH_MIN_X X_MIN_POS
@@ -627,7 +627,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
 
-  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+  #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
   
   #define QUICK_ACCESS_TO_Z_BABY_STEPPING 65	// if this option is enabled and has a pin number defined on it,
   						// it will give you immediate access to the Z-Baby-Stepping menu
@@ -638,7 +638,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 						// in the appropriate pins_???.h file (for your machine) that have 
 						// #defined KILL_PIN.   You can place that pin number here to get instant
 						// access to the Z-Baby-Stepping menu.
-
+  
   //
   //
   #define BIG_RAISE_NOT_NEEDED 45	// These parameters are used during the manual probing of the bed areas
@@ -1175,10 +1175,16 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 #define NUM_SERVOS 1 // Servo index starts with 0 for M280 command
 
+// Servo deactivation
+//
+// With this option servos are powered only during movement, then turned off to prevent jitter.
+
 // Delay (in microseconds) before the next move will start, to give the servo time to reach its target angle.
-// 300ms is a good value but you can try less delay.
-// If the servo can't reach the requested position, increase it.
+// 300ms is a good value but you can try less delay.  If the servo can't reach the requested position, increase it.
+#define DEACTIVATE_SERVOS_AFTER_MOVE
 #define SERVO_DELAY 500
+  
+//
 // Servo Endstops
 //
 // This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
@@ -1187,10 +1193,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define Z_ENDSTOP_SERVO_NR 0
 #define Z_SERVO_ANGLES {33,80} // Z Servo Deploy and Stow angles
 
-// Servo deactivation
-//
-// With this option servos are powered only during movement, then turned off to prevent jitter.
-//#define DEACTIVATE_SERVOS_AFTER_MOVE
 
 /**********************************************************************\
  * Support for a filament diameter sensor
