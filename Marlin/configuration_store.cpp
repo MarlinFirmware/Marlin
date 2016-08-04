@@ -752,7 +752,12 @@ void Config_PrintSettings(bool forReplay) {
        SERIAL_ECHOLNPGM("Deactive\n");
     SERIAL_ECHOPAIR("Active Mesh Slot: ", bed_leveling_mesh.state.EEPROM_storage_slot );
     SERIAL_ECHOLNPGM("\n");
-    
+
+    SERIAL_ECHO("z_offset: ");
+    SERIAL_ECHO_F( bed_leveling_mesh.state.z_offset, 6 );
+    SERIAL_PROTOCOLPGM("\n");
+
+/*    
     SERIAL_ECHOPAIR("EEPROM can hold ", (int) ((E2END-sizeof(bed_leveling_mesh.state )
 				    		-Unified_Bed_Leveling_EEPROM_start)/sizeof(bed_leveling_mesh.z_values)));
     SERIAL_ECHOLNPGM(" meshes. \n");
@@ -765,11 +770,14 @@ void Config_PrintSettings(bool forReplay) {
    
     SERIAL_ECHOPAIR("\nMESH_MAX_X         ", MESH_MAX_X );
     SERIAL_ECHOPAIR("\nMESH_MAX_Y         ", MESH_MAX_Y );
+*/
   
-    SERIAL_ECHOPAIR("\nMESH_X_DIST        ", MESH_X_DIST );
-    SERIAL_ECHOPAIR("\nMESH_Y_DIST        ", MESH_Y_DIST );
+    SERIAL_ECHO("\nMESH_X_DIST        ");
+    SERIAL_ECHO_F( MESH_X_DIST, 6 );
+    SERIAL_ECHO("\nMESH_Y_DIST        ");
+    SERIAL_ECHO_F( MESH_Y_DIST, 6 );
     SERIAL_PROTOCOLPGM("\n");
-        SERIAL_EOL;
+    SERIAL_EOL;
   #endif
 
   #if ENABLED(DELTA)
