@@ -199,18 +199,15 @@
 /**
  * Mesh Bed Leveling
  */
-#if ENABLED(MESH_BED_LEVELING)
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
   #if ENABLED(DELTA)
-    #error "MESH_BED_LEVELING does not yet support DELTA printers."
+    #error "UNIFIED_BED_LEVELING does not yet support DELTA printers."
   #endif
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #error "Select AUTO_BED_LEVELING_FEATURE or MESH_BED_LEVELING, not both."
-  #endif
-  #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
-    #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8."
+  #if MESH_NUM_X_POINTS > 15 || MESH_NUM_Y_POINTS > 15 
+    #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 16."
   #endif
 #elif ENABLED(MANUAL_BED_LEVELING)
-  #error "MESH_BED_LEVELING is required for MANUAL_BED_LEVELING."
+  #error "UNIFIED_BED_LEVELING is required for MANUAL_BED_LEVELING."
 #endif
 
 /**
