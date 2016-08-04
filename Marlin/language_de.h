@@ -159,8 +159,8 @@
 #define MSG_ERR_MINTEMP                     LCD_STR_THERMOMETER " UNTERSCHRITTEN"
 #define MSG_ERR_MAXTEMP_BED                 "BETT " LCD_STR_THERMOMETER " ÜBERSCHRITTEN"
 #define MSG_ERR_MINTEMP_BED                 "BETT " LCD_STR_THERMOMETER " UNTERSCHRITTEN"
-#define MSG_HEATING                         "Aufheizen..."
-#define MSG_HEATING_COMPLETE                "Aufgeheizt"
+#define MSG_HEATING                         "Extr. Aufheizen..."
+#define MSG_HEATING_COMPLETE                "Extr. aufgeheizt"
 #define MSG_BED_HEATING                     "Bett aufheizen"
 #define MSG_BED_DONE                        "Bett aufgeheizt"
 #define MSG_DELTA_CALIBRATE                 "Delta kalibrieren"
@@ -179,13 +179,18 @@
 #define MSG_INFO_PROTOCOL                   "Protokol"
 
 #if LCD_WIDTH > 19
-  #define MSG_INFO_PRINT_COUNT              "Gesamte Drucke   "
-  #define MSG_INFO_COMPLETED_PRINTS         "Beendete Drucke  "
+  #define MSG_INFO_PRINT_COUNT              "Gesamte Drucke"
+  #define MSG_INFO_COMPLETED_PRINTS         "Beendete Drucke"
   #define MSG_INFO_PRINT_TIME               "Gesamte Druckzeit"
+  #define MSG_INFO_PRINT_LONGEST            "Längster Druckjob"
+  #define MSG_INFO_PRINT_FILAMENT           "Gesamt Extrudiert"
+#endif
 #else
-  #define MSG_INFO_PRINT_COUNT              "Prints   "
-  #define MSG_INFO_COMPLETED_PRINTS         "Completed"
-  #define MSG_INFO_PRINT_TIME               "Duration "
+  #define MSG_INFO_PRINT_COUNT              "Drucke"
+  #define MSG_INFO_COMPLETED_PRINTS         "Komplett"
+  #define MSG_INFO_PRINT_TIME               "Gesamt "
+  #define MSG_INFO_PRINT_LONGEST            "Längster"
+  #define MSG_INFO_PRINT_FILAMENT           "Extrud."
 #endif
 #define MSG_INFO_MIN_TEMP                   "Min Temp"
 #define MSG_INFO_MAX_TEMP                   "Max Temp"
