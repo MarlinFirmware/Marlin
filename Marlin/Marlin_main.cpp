@@ -7132,7 +7132,6 @@ void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate,
 static int recursion_cnt=0;
 int i;
 if (DEBUGGING(MESH_SEGMENTS)) {
-
 for(i=0; i<recursion_cnt; i++)
  SERIAL_ECHOPGM("    ");
 SERIAL_ECHOPAIR("starting from [",recursion_cnt);
@@ -7210,9 +7209,6 @@ recursion_cnt++;
 // split the requested move on each of the Mesh Cell boundaries.
   float nx, ny, nz, ne, normalized_dist;
   if (dest_x > start_x && TEST(x_splits, dest_x)) {
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-    SERIAL_ECHOPGM("@");
-#endif
     nx = bed_leveling_mesh.map_x_index_to_bed_location(dest_x) + home_offset[X_AXIS];
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
@@ -7221,9 +7217,6 @@ recursion_cnt++;
     CBI(x_splits, dest_x);
   }
   else if (dest_x < start_x && TEST(x_splits, start_x)) {
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-    SERIAL_ECHOPGM("#");
-#endif
     nx = bed_leveling_mesh.map_x_index_to_bed_location(start_x) + home_offset[X_AXIS];
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
@@ -7232,9 +7225,6 @@ recursion_cnt++;
     CBI(x_splits, start_x);
   }
   else if (dest_y > start_y && TEST(y_splits, dest_y)) {
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-    SERIAL_ECHOPGM("$");
-#endif
     ny = bed_leveling_mesh.map_y_index_to_bed_location(dest_y) + home_offset[Y_AXIS];
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
@@ -7243,9 +7233,6 @@ recursion_cnt++;
     CBI(y_splits, dest_y);
   }
   else if (dest_y < start_y && TEST(y_splits, start_y)) {
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-    SERIAL_ECHOPGM("%");
-#endif
     ny = bed_leveling_mesh.map_y_index_to_bed_location(start_y) + home_offset[Y_AXIS];
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
@@ -7254,9 +7241,6 @@ recursion_cnt++;
     CBI(y_splits, start_y);
   }
   else {
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-    SERIAL_ECHOPGM("&");
-#endif
     // Already split on a border
     planner.buffer_line(x, y, z, e, feed_rate, extruder);
     set_current_to_destination();
