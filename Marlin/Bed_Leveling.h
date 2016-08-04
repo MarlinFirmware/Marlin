@@ -60,7 +60,7 @@ enum MBLStatus { MBL_STATUS_NONE = 0, MBL_STATUS_HAS_MESH_BIT = 0, MBL_STATUS_AC
 						// people from having to regenerate thier mesh data.
 						//
 						// If you change the contents of this struct, please adjust
-						// the padding[] to keep the size the same!!!
+						// the padding[] to keep the size the same!
 	} state, pre_initialized;
 
     float z_values[MESH_NUM_X_POINTS][MESH_NUM_Y_POINTS];
@@ -79,8 +79,9 @@ enum MBLStatus { MBL_STATUS_NONE = 0, MBL_STATUS_HAS_MESH_BIT = 0, MBL_STATUS_AC
 
     int sanity_check();
 
-    static FORCE_INLINE float map_x_index_to_bed_location(int8_t i){ return ((float) MESH_MIN_X) + ((float) MESH_X_DIST) * (float) i; };
-    static FORCE_INLINE float map_y_index_to_bed_location(int8_t i){ return ((float) MESH_MIN_Y) + ((float) MESH_Y_DIST) * (float) i; }
+    static FORCE_INLINE float map_x_index_to_bed_location(int8_t i){ return ((float) MESH_MIN_X) + (((float) MESH_X_DIST) * (float) i); };
+    static FORCE_INLINE float map_y_index_to_bed_location(int8_t i){ return ((float) MESH_MIN_Y) + (((float) MESH_Y_DIST) * (float) i); };
+
     void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
     int8_t get_cell_index_x(float x) {
@@ -115,18 +116,18 @@ enum MBLStatus { MBL_STATUS_NONE = 0, MBL_STATUS_HAS_MESH_BIT = 0, MBL_STATUS_AC
 
       if (cx < 0 || cy < 0)  {
 
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(MESH_ADJUST)) {
-          SERIAL_ECHOPAIR("huh???? get_z_correction(",cx);
-          SERIAL_ECHOPAIR(",",cy);
-          SERIAL_ECHO(")\n");
-	}
-#endif
+           #if ENABLED(DEBUG_LEVELING_FEATURE)
+              if (DEBUGGING(MESH_ADJUST)) {
+                  SERIAL_ECHOPAIR("huh???? get_z_correction(",cx);
+                  SERIAL_ECHOPAIR(",",cy);
+                  SERIAL_ECHO(")\n");
+	      }
+           #endif
 
-#if ENABLED(ULTRA_LCD)
+           #if ENABLED(ULTRA_LCD)
 	      strcpy(lcd_status_message,"get_z_correction() indexes out of range.");
 	      lcd_quick_feedback();
-#endif
+           #endif
 	      return state.z_offset;
       }
 
@@ -142,14 +143,14 @@ enum MBLStatus { MBL_STATUS_NONE = 0, MBL_STATUS_HAS_MESH_BIT = 0, MBL_STATUS_AC
 
 
 
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-     if (DEBUGGING(MESH_ADJUST)) {
-       SERIAL_ECHOPAIR(" raw get_z_correction(", x0);
-       SERIAL_ECHOPAIR(",", y0);
-       SERIAL_ECHO(")=");
-       SERIAL_ECHO_F(z0,6);
-     }
-#endif
+           #if ENABLED(DEBUG_LEVELING_FEATURE)
+                if (DEBUGGING(MESH_ADJUST)) {
+                  SERIAL_ECHOPAIR(" raw get_z_correction(", x0);
+                  SERIAL_ECHOPAIR(",", y0);
+                  SERIAL_ECHO(")=");
+                  SERIAL_ECHO_F(z0,6);
+                }
+           #endif
 
       z0 = z0 * fade_scaling_factor_for_current_height;
 
@@ -169,7 +170,7 @@ enum MBLStatus { MBL_STATUS_NONE = 0, MBL_STATUS_HAS_MESH_BIT = 0, MBL_STATUS_AC
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(MESH_ADJUST)) {
-          SERIAL_ECHO("??? Yikes!!!  NAN in get_z_correction( ");
+          SERIAL_ECHO("??? Yikes!  NAN in get_z_correction( ");
           SERIAL_ECHO(x0);
           SERIAL_ECHO(", ");
           SERIAL_ECHO(y0);
