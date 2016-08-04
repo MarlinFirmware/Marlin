@@ -334,16 +334,14 @@
   /**
    * Make sure Z raise values are set
    */
-  #if defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
-    #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_RAISE_PROBE_DEPLOY_STOW instead."
-  #elif !defined(Z_RAISE_PROBE_DEPLOY_STOW)
-    #error "You must set Z_RAISE_PROBE_DEPLOY_STOW in your configuration."
-  #elif !defined(Z_RAISE_BETWEEN_PROBINGS)
-    #error "You must set Z_RAISE_BETWEEN_PROBINGS in your configuration."
-  #elif Z_RAISE_PROBE_DEPLOY_STOW < 0
-    #error "Probes need Z_RAISE_PROBE_DEPLOY_STOW >= 0."
-  #elif Z_RAISE_BETWEEN_PROBINGS < 0
-    #error "Probes need Z_RAISE_BETWEEN_PROBINGS >= 0."
+  #if !defined(Z_PROBE_DEPLOY_HEIGHT)
+    #error "You must set Z_PROBE_DEPLOY_HEIGHT in your configuration."
+  #elif !defined(Z_PROBE_TRAVEL_HEIGHT)
+    #error "You must set Z_PROBE_TRAVEL_HEIGHT in your configuration."
+  #elif Z_PROBE_DEPLOY_HEIGHT < 0
+    #error "Probes need Z_PROBE_DEPLOY_HEIGHT >= 0."
+  #elif Z_PROBE_TRAVEL_HEIGHT < 0
+    #error "Probes need Z_PROBE_TRAVEL_HEIGHT >= 0."
   #endif
 
 #else
@@ -681,8 +679,6 @@
   #error "SDSLOW deprecated. Set SPI_SPEED to SPI_HALF_SPEED instead."
 #elif defined(SDEXTRASLOW)
   #error "SDEXTRASLOW deprecated. Set SPI_SPEED to SPI_QUARTER_SPEED instead."
-#elif defined(Z_RAISE_BEFORE_HOMING)
-  #error "Z_RAISE_BEFORE_HOMING is deprecated. Use MIN_Z_HEIGHT_FOR_HOMING instead."
 #elif defined(FILAMENT_SENSOR)
   #error "FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead."
 #elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
@@ -729,4 +725,12 @@
   #error "MANUAL_HOME_POSITIONS is deprecated. Set MANUAL_[XYZ]_HOME_POS as-needed instead."
 #elif defined(PID_ADD_EXTRUSION_RATE)
   #error "PID_ADD_EXTRUSION_RATE is now PID_EXTRUSION_SCALING and is DISABLED by default. Are you sure you want to use this option? Please update your configuration."
+#elif defined(Z_RAISE_BEFORE_HOMING)
+  #error "Z_RAISE_BEFORE_HOMING is now Z_HOMING_HEIGHT. Please update your configuration."
+#elif defined(MIN_Z_HEIGHT_FOR_HOMING)
+  #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_HOMING_HEIGHT. Please update your configuration."
+#elif defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
+  #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_PROBE_DEPLOY_HEIGHT instead."
+#elif defined(Z_RAISE_PROBE_DEPLOY_STOW) || defined(Z_RAISE_BETWEEN_PROBINGS)
+  #error "Z_RAISE_PROBE_DEPLOY_STOW and Z_RAISE_BETWEEN_PROBINGS are now Z_PROBE_DEPLOY_HEIGHT and Z_PROBE_TRAVEL_HEIGHT Please update your configuration."
 #endif
