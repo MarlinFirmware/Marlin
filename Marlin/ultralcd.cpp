@@ -767,6 +767,11 @@ SERIAL_ECHO("\n");
 	    _lcd_mesh_fine_tune( PSTR("Mesh Editor: ")); 
     }
 
+    float lcd_mesh_edit() {  
+	    lcd_goto_screen(_lcd_mesh_edit); 
+	    return Mesh_Edit_Value; 
+    }
+
     void lcd_mesh_edit_setup(float inital) { 
 	    Mesh_Edit_Value       = inital; 
     	    Mesh_Edit_Accumulator = inital;
@@ -774,10 +779,22 @@ SERIAL_ECHO("\n");
 	    return ; 
     }
 
-    float lcd_mesh_edit() {  
-	    lcd_goto_screen(_lcd_mesh_edit); 
+    void _lcd_z_offset_edit() { 
+	    _lcd_mesh_fine_tune( PSTR("Z-Offset: ")); 
+    }
+
+    float lcd_z_offset_edit() {  
+	    lcd_goto_screen(_lcd_z_offset_edit); 
 	    return Mesh_Edit_Value; 
     }
+
+    void lcd_z_offset_edit_setup(float inital) { 
+	    Mesh_Edit_Value       = inital; 
+    	    Mesh_Edit_Accumulator = inital;
+	    lcd_goto_screen(_lcd_z_offset_edit); 
+	    return ; 
+    }
+
 
   #endif // UNIFIED_BED_LEVELING_FEATURE
 
@@ -1081,208 +1098,6 @@ SERIAL_ECHO("\n");
     }
 
   #endif
-
-  #if ENABLED(MANUAL_BED_LEVELING)
-
-    /**
-     *
-     * "Prepare" > "Bed Leveling" handlers
-     *
-     */
-
-    static uint8_t _lcd_level_bed_position;
-
-    // Utility to go to the next mesh point
-    // A raise is added between points if MIN_Z_HEIGHT_FOR_HOMING is in use
-    // Note: During Manual Bed Leveling the homed Z position is MESH_HOME_SEARCH_Z
-    // Z position will be restored with the final action, a G28
-    inline void _bed_leveling_mesh(float x, float y) {
-      current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
-        #if MIN_Z_HEIGHT_FOR_HOMING > 0
-          + MIN_Z_HEIGHT_FOR_HOMING
-        #endif
-      ;
-      line_to_current(Z_AXIS);
-      current_position[X_AXIS] = x + home_offset[X_AXIS];
-      current_position[Y_AXIS] = y + home_offset[Y_AXIS];
-      line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
-      #if MIN_Z_HEIGHT_FOR_HOMING > 0
-        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-        line_to_current(Z_AXIS);
-      #endif
-      stepper.synchronize();
-    }
-
-    static void _lcd_level_goto_next_point();
-
-    static void _lcd_level_bed_done() {
-      if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_DONE));
-      lcdDrawUpdate =
-        #if ENABLED(DOGLCD)
-          LCDVIEW_CALL_REDRAW_NEXT
-        #else
-          LCDVIEW_CALL_NO_REDRAW
-        #endif
-      ;
-    }
-
-    /**
-     * Step 7: Get the Z coordinate, then goto next point or exit
-     */
-    static void _lcd_level_bed_get_z() {
-      ENCODER_DIRECTION_NORMAL();
-
-      // Encoder wheel adjusts the Z position
-      if (encoderPosition) {
-        refresh_cmd_timeout();
-        current_position[Z_AXIS] += float((int32_t)encoderPosition) * (MBL_Z_STEP);
-        NOLESS(current_position[Z_AXIS], 0);
-        NOMORE(current_position[Z_AXIS], MESH_HOME_SEARCH_Z * 2);
-        line_to_current(Z_AXIS);
-        lcdDrawUpdate =
-          #if ENABLED(DOGLCD)
-            LCDVIEW_CALL_REDRAW_NEXT
-          #else
-            LCDVIEW_REDRAW_NOW
-          #endif
-        ;
-        encoderPosition = 0;
-      }
-
-      static bool debounce_click = false;
-    if (lcd_clicked()) {
-        if (!debounce_click) {
-          debounce_click = true; // ignore multiple "clicks" in a row
-          bed_leveling_mesh.set_zigzag_z(_lcd_level_bed_position++, current_position[Z_AXIS]);
-          if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
-            lcd_goto_screen(_lcd_level_bed_done, true);
-
-            current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
-              #if MIN_Z_HEIGHT_FOR_HOMING > 0
-                + MIN_Z_HEIGHT_FOR_HOMING
-              #endif
-            ;
-            line_to_current(Z_AXIS);
-            stepper.synchronize();
-
-//          bed_leveling_mesh.set_has_mesh(true);
-            enqueue_and_echo_commands_P(PSTR("G28"));
-            lcd_return_to_status();
-            //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
-            #if HAS_BUZZER
-              buzzer.tone(200, 659);
-              buzzer.tone(200, 698);
-            #endif
-          }
-          else {
-            lcd_goto_screen(_lcd_level_goto_next_point, true);
-          }
-        }
-      }
-      else {
-        debounce_click = false;
-      }
-
-      // Update on first display, then only on updates to Z position
-      // Show message above on clicks instead
-      if (lcdDrawUpdate) {
-        float v = current_position[Z_AXIS] - MESH_HOME_SEARCH_Z;
-        lcd_implementation_drawedit(PSTR(MSG_MOVE_Z), ftostr43sign(v + (v < 0 ? -0.0001 : 0.0001), '+'));
-      }
-
-    }
-
-    /**
-     * Step 6: Display "Next point: 1 / 9" while waiting for move to finish
-     */
-    static void _lcd_level_bed_moving() {
-      if (lcdDrawUpdate) {
-        char msg[10];
-        sprintf_P(msg, PSTR("%i / %u"), (int)(_lcd_level_bed_position + 1), (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS));
-        lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_NEXT_POINT), msg);
-      }
-
-      lcdDrawUpdate =
-        #if ENABLED(DOGLCD)
-          LCDVIEW_CALL_REDRAW_NEXT
-        #else
-          LCDVIEW_CALL_NO_REDRAW
-        #endif
-      ;
-    }
-
-    /**
-     * Step 5: Initiate a move to the next point
-     */
-    static void _lcd_level_goto_next_point() {
-      // Set the menu to display ahead of blocking call
-      lcd_goto_screen(_lcd_level_bed_moving);
-
-      // _bed_leveling_mesh_goto_xy runs the menu loop until the move is done
-      int8_t px, py;
-      bed_leveling_mesh.zigzag(_lcd_level_bed_position, px, py);
-      _bed_leveling_mesh_goto_xy(bed_leveling_mesh.map_x_index_to_bed_location(px), bed_leveling_mesh.map_y_index_to_bed_location(py));
-
-      // After the blocking function returns, change menus
-      lcd_goto_screen(_lcd_level_bed_get_z);
-    }
-
-    /**
-     * Step 4: Display "Click to Begin", wait for click
-     *         Move to the first probe position
-     */
-    static void _lcd_level_bed_homing_done() {
-      if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING));
-    if (lcd_clicked()) {
-        _lcd_level_bed_position = 0;
-        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
-          #if Z_HOME_DIR > 0
-            + Z_MAX_POS
-          #endif
-        ;
-        planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-        lcd_goto_screen(_lcd_level_goto_next_point, true);
-      }
-    }
-
-    /**
-     * Step 3: Display "Homing XYZ" - Wait for homing to finish
-     */
-    static void _lcd_level_bed_homing() {
-      if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_HOMING), NULL);
-      lcdDrawUpdate =
-        #if ENABLED(DOGLCD)
-          LCDVIEW_CALL_REDRAW_NEXT
-        #else
-          LCDVIEW_CALL_NO_REDRAW
-        #endif
-      ;
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-        lcd_goto_screen(_lcd_level_bed_homing_done);
-    }
-
-    /**
-     * Step 2: Continue Bed Leveling...
-     */
-    static void _lcd_level_bed_continue() {
-      defer_return_to_status = true;
-      axis_homed[X_AXIS] = axis_homed[Y_AXIS] = axis_homed[Z_AXIS] = false;
-      bed_leveling_mesh.reset();
-      enqueue_and_echo_commands_P(PSTR("G28"));
-      lcd_goto_screen(_lcd_level_bed_homing);
-    }
-
-    /**
-     * Step 1: MBL entry-point: "Cancel" or "Level Bed"
-     */
-    static void lcd_level_bed() {
-      START_MENU();
-      MENU_ITEM(back, MSG_LEVEL_BED_CANCEL);
-      MENU_ITEM(submenu, MSG_LEVEL_BED, _lcd_level_bed_continue);
-      END_MENU();
-    }
-
-  #endif  // MANUAL_BED_LEVELING
 
   /**
    *
