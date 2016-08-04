@@ -1802,10 +1802,6 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
     float z_dest = LOGICAL_Z_POSITION(z_raise);
-
-    if (zprobe_zoffset < 0)
-      z_dest -= zprobe_zoffset;
-
     if (z_dest > current_position[Z_AXIS])
       do_blocking_move_to_z(z_dest);
   }
