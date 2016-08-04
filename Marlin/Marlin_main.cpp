@@ -282,7 +282,7 @@ bool Running = true;
 uint8_t marlin_debug_flags = DEBUG_NONE;     
 //uint8_t marlin_debug_flags = DEBUG_MESH_SEGMENTS;  //DEBUG_NONE;     
 //uint8_t marlin_debug_flags = DEBUG_MESH_ADJUST;  //DEBUG_NONE;     
-//uint8_t marlin_debug_flags = DEBUG_MESH_ADJUST + DEBUG_MESH_SEGMENTS; 
+//uint8_t marlin_debug_flags = DEBUG_LEVELING | DEBUG_MESH_SEGMENTS | DEBUG_MESH_ADJUST;
 
 float feedrate = 1500.0, saved_feedrate;
 float current_position[NUM_AXIS] = { 0.0 };
@@ -1749,8 +1749,8 @@ void do_blocking_move_to_z(float z, float feed_rate) {
     #endif
     float z_dest = home_offset[Z_AXIS] + z_raise;
 
-    if ((Z_HOME_DIR) < 0 && zprobe_zoffset < 0)
-      z_dest -= zprobe_zoffset;
+//  if ((Z_HOME_DIR) < 0 && zprobe_zoffset < 0)
+//    z_dest -= zprobe_zoffset;
 
 //SERIAL_ECHOPAIR("Extra Info - going to Z=",z_dest);
 //SERIAL_ECHOLNPGM("\n");
@@ -7136,10 +7136,14 @@ if (DEBUGGING(MESH_SEGMENTS)) {
 for(i=0; i<recursion_cnt; i++)
  SERIAL_ECHOPGM("    ");
 SERIAL_ECHOPAIR("starting from [",recursion_cnt);
-SERIAL_ECHOPAIR("] (x=", RAW_CURRENT_POSITION(X_AXIS) );
-SERIAL_ECHOPAIR(",y=", RAW_CURRENT_POSITION(Y_AXIS)),
-SERIAL_ECHOPAIR(") >>>---> mesh_buffer_line(x=",x);
-SERIAL_ECHOPAIR(",y=",y);
+SERIAL_ECHO("] (x=");
+SERIAL_ECHO_F( RAW_CURRENT_POSITION(X_AXIS), 6 );
+SERIAL_ECHO(",y=");
+SERIAL_ECHO_F( RAW_CURRENT_POSITION(Y_AXIS), 6);
+SERIAL_ECHO(") >>>---> mesh_buffer_line(x=");
+SERIAL_ECHO_F( x, 6);
+SERIAL_ECHO(",y=");
+SERIAL_ECHO_F( y, 6);
 SERIAL_ECHOPGM(")\n");
 recursion_cnt++;
 }
@@ -7165,10 +7169,25 @@ recursion_cnt++;
 // to the Mesh Cell Boundaries.   We get the indexes of the current location and the
 // requested destination.
 
+#if ENABLED(DEBUG_LEVELING_FEATURE)
+      SERIAL_ECHOPGM(" home_offset[]={");
+      for(i=0; i<3; i++ ) {
+        SERIAL_ECHO_F( home_offset[i], 6 );
+        SERIAL_ECHO(" ");
+      }
+      SERIAL_ECHO("}\n");
+      SERIAL_ECHOPGM(" position_shift[]={");
+      for(i=0; i<3; i++ ) {
+        SERIAL_ECHO_F( position_shift[i], 6 );
+        SERIAL_ECHO(" ");
+      }
+      SERIAL_ECHO("}\n");
+#endif
+
   int start_x = bed_leveling_mesh.get_cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
       start_y = bed_leveling_mesh.get_cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
-      dest_x = bed_leveling_mesh.get_cell_index_x(RAW_POSITION(x, X_AXIS)),
-      dest_y = bed_leveling_mesh.get_cell_index_y(RAW_POSITION(y, Y_AXIS));
+      dest_x = bed_leveling_mesh.get_cell_index_x( RAW_POSITION(x, X_AXIS)),
+      dest_y = bed_leveling_mesh.get_cell_index_y( RAW_POSITION(y, Y_AXIS));
 
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -7183,12 +7202,10 @@ recursion_cnt++;
     }
 #endif
 
+
 // This is the simple case.  Check if we start and end in (or on) 
 // same mesh cell.  If so, just schedule the segment to be done.
   if (start_x == dest_x && start_y == dest_y) {					
-    planner.buffer_line(x, y, z, e, feed_rate, extruder);
-    set_current_to_destination();
-
 #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(MESH_SEGMENTS)) {
        SERIAL_ECHOPAIR("planner.buffer_line(x=",x);
@@ -7198,6 +7215,8 @@ recursion_cnt++;
        recursion_cnt--;
     }
 #endif
+    planner.buffer_line(x, y, z, e, feed_rate, extruder);
+    set_current_to_destination();
     return;
   }
 
@@ -7205,6 +7224,9 @@ recursion_cnt++;
 // split the requested move on each of the Mesh Cell boundaries.
   float nx, ny, nz, ne, normalized_dist;
   if (dest_x > start_x && TEST(x_splits, dest_x)) {
+#if ENABLED(DEBUG_LEVELING_FEATURE)
+    SERIAL_ECHOPGM("@");
+#endif
     nx = bed_leveling_mesh.map_x_index_to_bed_location(dest_x) + home_offset[X_AXIS];
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
@@ -7213,6 +7235,9 @@ recursion_cnt++;
     CBI(x_splits, dest_x);
   }
   else if (dest_x < start_x && TEST(x_splits, start_x)) {
+#if ENABLED(DEBUG_LEVELING_FEATURE)
+    SERIAL_ECHOPGM("#");
+#endif
     nx = bed_leveling_mesh.map_x_index_to_bed_location(start_x) + home_offset[X_AXIS];
     normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
     ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
@@ -7221,6 +7246,9 @@ recursion_cnt++;
     CBI(x_splits, start_x);
   }
   else if (dest_y > start_y && TEST(y_splits, dest_y)) {
+#if ENABLED(DEBUG_LEVELING_FEATURE)
+    SERIAL_ECHOPGM("$");
+#endif
     ny = bed_leveling_mesh.map_y_index_to_bed_location(dest_y) + home_offset[Y_AXIS];
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
@@ -7229,6 +7257,9 @@ recursion_cnt++;
     CBI(y_splits, dest_y);
   }
   else if (dest_y < start_y && TEST(y_splits, start_y)) {
+#if ENABLED(DEBUG_LEVELING_FEATURE)
+    SERIAL_ECHOPGM("%");
+#endif
     ny = bed_leveling_mesh.map_y_index_to_bed_location(start_y) + home_offset[Y_AXIS];
     normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
     nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
@@ -7237,6 +7268,9 @@ recursion_cnt++;
     CBI(y_splits, start_y);
   }
   else {
+#if ENABLED(DEBUG_LEVELING_FEATURE)
+    SERIAL_ECHOPGM("&");
+#endif
     // Already split on a border
     planner.buffer_line(x, y, z, e, feed_rate, extruder);
     set_current_to_destination();
