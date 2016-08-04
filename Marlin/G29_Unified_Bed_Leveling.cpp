@@ -18,8 +18,10 @@ void lcd_return_to_status();
 bool lcd_clicked();
 extern long babysteps_done;
 void lcd_implementation_clear();
-float lcd_mesh_edit();
 void lcd_mesh_edit_setup(float inital);
+float lcd_mesh_edit();
+void lcd_z_offset_edit_setup( float );
+float lcd_z_offset_edit();
 extern float meshedit_done;
 
 /*
@@ -578,23 +580,62 @@ void gcode_G29() {
 
   if ( code_seen('Z') ) {
     if ( code_has_value() )
-       bed_leveling_mesh.state.z_offset = code_value_float();
+       bed_leveling_mesh.state.z_offset = code_value_float();		// do the simple case.  Just lock in the specified value
     else {
-       measured_z = probe_pt( X_Pos,  Y_Pos, ProbeDeployAndStow, G29_Verbose_Level );
-       bed_leveling_mesh.state.z_offset = measured_z + Z_PROBE_OFFSET_FROM_EXTRUDER;
-       SERIAL_ECHOPGM("Z_Offset Measured: ");
-       SERIAL_ECHO_F( bed_leveling_mesh.state.z_offset, 6 );
-       SERIAL_PROTOCOLLNPGM("\n");
+        save_UBL_active_state_and_disable();
+//      measured_z = probe_pt( X_Pos+X_PROBE_OFFSET_FROM_EXTRUDER,  Y_Pos+Y_PROBE_OFFSET_FROM_EXTRUDER, ProbeDeployAndStow, G29_Verbose_Level );
+
+	measured_z = 1.5;
+	do_blocking_move_to_z(measured_z);     	// Get close to the bed, but leave some space so we don't damage anything
+						// The user is not going to be lockinging in a new Z-Offset very often so
+						// it won't be that painful to spin the Encoder Wheel for 1.5mm
+	lcd_implementation_clear();
+	lcd_z_offset_edit_setup( measured_z );
+	do {
+		measured_z = lcd_z_offset_edit();
+		idle();
+		do_blocking_move_to_z(measured_z);     
+	} while ( !G29_lcd_clicked() );
+
+	UBL_has_control_of_LCD_Panel = 1;	// There is a race condition for the Encoder Wheel getting clicked.
+						// It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune( )
+						// or here.  So, until we are done looking for a long Encoder Wheel Press,
+						// we need to take control of the panel
+	unsigned long cnt;
+	cnt = millis();
+	lcd_return_to_status();
+	while ( G29_lcd_clicked() ) { 		// debounce and watch for abort
+		idle();
+		if ( millis() - cnt > 1500L ) {
+			SERIAL_PROTOCOLLNPGM("\nZ-Offset Adjustment Stopped.");
+			do_blocking_move_to_z(Z_RAISE_PROBE_DEPLOY_STOW);     
+			lcd_setstatus( "Z-Offset Stopped.   ", true);
+  
+			while ( G29_lcd_clicked() )  	{
+				idle();
+			}
+			UBL_has_control_of_LCD_Panel = 0; 
+			restore_UBL_active_state_and_leave(); 
+			goto LEAVE;
+		}
+	}
+	UBL_has_control_of_LCD_Panel = 0; 
+	delay(20);	// We don't want any switch noise. 
+
+	bed_leveling_mesh.state.z_offset = measured_z;
+
+	lcd_implementation_clear();
+	restore_UBL_active_state_and_leave(); 
     }
   }
-LEAVE: 
 
+LEAVE: 
 #if ENABLED(ULTRA_LCD)
-lcd_setstatus( "                         ", true);
-lcd_quick_feedback();
+	lcd_setstatus( "                         ", true);
+	lcd_quick_feedback();
 #endif
-  UBL_has_control_of_LCD_Panel = 0;
-  return;
+  	UBL_has_control_of_LCD_Panel = 0;
+  	return;
 }
 
 
@@ -654,7 +695,7 @@ struct mesh_index_pair location;
 float xProbe, yProbe, measured_z;
 
     UBL_has_control_of_LCD_Panel++;
-    bed_leveling_mesh.state.active = 0;      // we don't do bed level correction because we want the raw data when we probe
+    save_UBL_active_state_and_disable();	 // we don't do bed level correction because we want the raw data when we probe
     DEPLOY_PROBE();
 
     do {
@@ -665,6 +706,7 @@ float xProbe, yProbe, measured_z;
 		       idle();	
     		UBL_has_control_of_LCD_Panel = 0;
 		STOW_PROBE();
+		restore_UBL_active_state_and_leave();
 		return;
 	}
 	location = find_closest_mesh_point_of_type( INVALID, X_Pos,  Y_Pos, 1, NULL);  // the '1' says we want the location to be relative to the probe
@@ -687,8 +729,8 @@ float xProbe, yProbe, measured_z;
 
 LEAVE:
     STOW_PROBE();
+    restore_UBL_active_state_and_leave();
     do_blocking_move_to_xy(X_Pos, Y_Pos);
-    			//, min( planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS])/2.0 ); 
 }
 
  
@@ -720,19 +762,6 @@ struct vector tilt_mesh_based_on_3pts(float pt1, float pt2, float pt3) {
 				// We also need Z to be unity because we are going to be treating this triangle
 				// as the sin() and cos() of the bed's tilt
 	
-	// printf("  --->  [%f,%f,%f] \n", normal.dx, normal.dy, normal.dz);
-
-	// At this location in the code, we can check the correctness of what we generated.
-	// The plane equation is ax+bx+cz=d   And d should be equal to 0.0
-
-	// printf("Double checking results:\n");
-	// a = UBL_PROBE_PT_1_X * normal.dx;
-	// b = UBL_PROBE_PT_1_Y * normal.dy;
-	// c = pt1.z * normal.dz;
-	// d = a + b + c;			// d should be -pt1.z at the origin (0,0)
-	// printf("pt1  d=%f\n", d);
-
-
 	//
 	// All of 3 of these points should give us the same d constant
 	//
@@ -795,7 +824,7 @@ float measure_business_card_thickness(float Height_Value ) {
 float Z1, Z2;
 
 	UBL_has_control_of_LCD_Panel++;
-	bed_leveling_mesh.state.active = 0;      // we don't do bed level correction because we want the raw data when we probe
+        save_UBL_active_state_and_disable();	 // we don't do bed level correction because we want the raw data when we probe
 
 	SERIAL_PROTOCOLLNPGM("Place Shim Under Nozzle and Perform Measurement.");
 	do_blocking_move_to_z( Height_Value );
@@ -815,6 +844,7 @@ float Z1, Z2;
 		SERIAL_ECHO_F( abs(Z1-Z2), 6 );
     		SERIAL_PROTOCOLLNPGM("mm thick.");
 	}
+   	restore_UBL_active_state_and_leave();
 	return abs(Z1-Z2);
 }
 
@@ -828,7 +858,7 @@ unsigned long cnt;
     UBL_has_control_of_LCD_Panel++;
     last_x = -9999.99;
     last_y = -9999.99;
-    bed_leveling_mesh.state.active = 0;      // we don't do bed level correction because we want the raw data when we probe
+    save_UBL_active_state_and_disable();	 // we don't do bed level correction because we want the raw data when we probe
     do_blocking_move_to_z( z_clearance );     
     do_blocking_move_to_xy( X_Pos, Y_Pos );
 
@@ -885,6 +915,7 @@ unsigned long cnt;
 			while ( G29_lcd_clicked() )  	
 				idle();
 			UBL_has_control_of_LCD_Panel = 0;
+   			restore_UBL_active_state_and_leave();
 			return;
 		}
 	}
@@ -900,13 +931,11 @@ unsigned long cnt;
     if ( do_mesh_map )
    	bed_leveling_mesh.display_map(1);
 LEAVE:
+    restore_UBL_active_state_and_leave();
     do_blocking_move_to_z(Z_RAISE_PROBE_DEPLOY_STOW);     
     do_blocking_move_to_xy(X_Pos, Y_Pos);     
 }
 
-//void print_xyz(const char* prefix, const float x, const float y, const float z);
-//void print_xyz(const char* prefix, const float xyz[]);
-//#define DEBUG_POS(PREFIX,VAR) do{ SERIAL_ECHOPGM(PREFIX); print_xyz(" > " STRINGIFY(VAR), VAR); }while(0)
 
 bool G29_Parameter_Parsing() {
 
@@ -997,231 +1026,7 @@ lcd_quick_feedback();
   return false;
 }
 
-//extern matrix_3x3 bed_level_matrix; // Transform to compensate for bed tilt
 
-/*
-void new_set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
-
-      planner.bed_level_matrix.set_to_identity();
-
-      vector_3 pt1 = vector_3(UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y, z_at_pt_1);
-      vector_3 pt2 = vector_3(UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y, z_at_pt_2);
-      vector_3 pt3 = vector_3(UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y, z_at_pt_3);
-
-      pt1.debug("pt1: ");
-      pt2.debug("pt2: ");
-      pt3.debug("pt3: ");
-
-      vector_3 planeNormal = vector_3::cross(pt1 - pt2, pt3 - pt2).get_normal();
-
-      planeNormal.debug("Plane normal before check:");
-
-      if (planeNormal.z < 0) {
-        planeNormal.x = -planeNormal.x;
-        planeNormal.y = -planeNormal.y;
-        planeNormal.z = -planeNormal.z;
-      }
-      planeNormal.debug("Plane normal after check:");
-
-      planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-
-      planner.bed_level_matrix.debug("Bed Level Matrix:");
-
-      print_xyz("Current Position: ", current_position );
-
-      vector_3 corrected_position = planner.adjusted_position();
-
-      corrected_position.debug("corrected_position:");
-
-      current_position[X_AXIS] = corrected_position.x;
-      current_position[Y_AXIS] = corrected_position.y;
-      current_position[Z_AXIS] = corrected_position.z;
-
-//    sync_plan_position();
-}
-*/
-
-/*
-vector_3 plan_get_position() {
-	vector_3 position = vector_3(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
-
-	matrix_3x3 inverse = matrix_3x3::transpose( planner.bed_level_matrix );
-	position.apply_rotation(inverse);
-
-	return position;
-}
-*/
-
-
-/*  vector_3 corrected_position = plan_get_position();
-    current_position[X_AXIS] = corrected_position.x;
-    current_position[Y_AXIS] = corrected_position.y;
-    current_position[Z_AXIS] = corrected_position.z;
-*/
-    // put the bed at 0 so we don't go below it.
-//  current_position[Z_AXIS] = zprobe_zoffset;
-
-//  plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-//
-//  instead of doing this...  We will be tilting the mesh matrix!
-
-
-
-
-
-//      measured_z = probe_pt(xProbe, yProbe, z_before, act, verbose_level);
-
-    /**
-     * OK, do the initial probe to get us close to the bed.
-     * Then retrace the right amount and use that in subsequent probes
-     */
-//    setup_for_endstop_move();
-
-//    probe_pt(X_probe_location, Y_probe_location, Z_RAISE_BEFORE_PROBING,
-//      deploy_probe_for_each_reading ? ProbeDeployAndStow : ProbeDeploy,
-//      verbose_level);
-
-//    raise_z_after_probing();
-//
-//    		do_blocking_move_to_xy(X_Pos-(X_PROBE_OFFSET_FROM_EXTRUDER), Y_Pos-(Y_PROBE_OFFSET_FROM_EXTRUDER) );
-//
-
-/*#if ENABLED(MANUAL_BED_LEVELING)
-  #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
-  #endif  // MANUAL_BED_LEVELING
-
-  #if ENABLED(MESH_BED_LEVELING)
-  #define MESH_MIN_X 10
-  #define MESH_MAX_X (X_MAX_POS - MESH_MIN_X)
-  #define MESH_MIN_Y 10
-  #define MESH_MAX_Y (Y_MAX_POS - MESH_MIN_Y)
-  #define MESH_NUM_X_POINTS 10  // Don't use more than 15 points per axis.  Both RAM and EEPROM usage increases geometrically.
-  #define MESH_NUM_Y_POINTS 10
-  #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0
-*/
-
-
-
-
-#if ENABLED(MESH_BED_LEVELING) && DISABLED(DELTA)			// This is the Cartesian Mesh Leveling
-
-#if DISABLED(MESH_BED_LEVELING) && DISABLED(DELTA)
-
-enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet };
-
-/**
-
-
-#if ENABLED(AUTO_BED_LEVELING_GRID)
-
-#if DISABLED(DELTA)
-
-static void set_bed_level_equation_lsq(double* plane_equation_coefficients) {
-  vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
-  planeNormal.debug("planeNormal");
-  plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-  //bedLevel.debug("bedLevel");
-
-  //plan_bed_level_matrix.debug("bed level before");
-  //vector_3 uncorrected_position = plan_get_position_mm();
-  //uncorrected_position.debug("position before");
-
-  vector_3 corrected_position = plan_get_position();
-  //corrected_position.debug("position after");
-  current_position[X_AXIS] = corrected_position.x;
-  current_position[Y_AXIS] = corrected_position.y;
-  current_position[Z_AXIS] = corrected_position.z;
-
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-  if (marlin_debug_flags & DEBUG_LEVELING) {
-    print_xyz("set_bed_level_equation_lsq > current_position", current_position);
-  }
-#endif
-
-  sync_plan_position();
-}
-
-  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-
-    // Adjust print surface height by linear interpolation over the bed_level array.
-    void adjust_delta(float cartesian[3]) {
-      if (delta_grid_spacing[0] == 0 || delta_grid_spacing[1] == 0) return; // G29 not done!
-
-      int half = (UNIFIED_BED_LEVELING_GRID_POINTS - 1) / 2;
-      float h1 = 0.001 - half, h2 = half - 0.001,
-            grid_x = max(h1, min(h2, cartesian[X_AXIS] / delta_grid_spacing[0])),
-            grid_y = max(h1, min(h2, cartesian[Y_AXIS] / delta_grid_spacing[1]));
-      int floor_x = floor(grid_x), floor_y = floor(grid_y);
-      float ratio_x = grid_x - floor_x, ratio_y = grid_y - floor_y,
-            z1 = bed_level[floor_x + half][floor_y + half],
-            z2 = bed_level[floor_x + half][floor_y + half + 1],
-            z3 = bed_level[floor_x + half + 1][floor_y + half],
-            z4 = bed_level[floor_x + half + 1][floor_y + half + 1],
-            left = (1 - ratio_y) * z1 + ratio_y * z2,
-            right = (1 - ratio_y) * z3 + ratio_y * z4,
-            offset = (1 - ratio_x) * left + ratio_x * right;
-
-      delta[X_AXIS] += offset;
-      delta[Y_AXIS] += offset;
-      delta[Z_AXIS] += offset;
-
-      / **
-      SERIAL_ECHOPGM("grid_x="); SERIAL_ECHO(grid_x);
-      SERIAL_ECHOPGM(" grid_y="); SERIAL_ECHO(grid_y);
-      SERIAL_ECHOPGM(" floor_x="); SERIAL_ECHO(floor_x);
-      SERIAL_ECHOPGM(" floor_y="); SERIAL_ECHO(floor_y);
-      SERIAL_ECHOPGM(" ratio_x="); SERIAL_ECHO(ratio_x);
-      SERIAL_ECHOPGM(" ratio_y="); SERIAL_ECHO(ratio_y);
-      SERIAL_ECHOPGM(" z1="); SERIAL_ECHO(z1);
-      SERIAL_ECHOPGM(" z2="); SERIAL_ECHO(z2);
-      SERIAL_ECHOPGM(" z3="); SERIAL_ECHO(z3);
-      SERIAL_ECHOPGM(" z4="); SERIAL_ECHO(z4);
-      SERIAL_ECHOPGM(" left="); SERIAL_ECHO(left);
-      SERIAL_ECHOPGM(" right="); SERIAL_ECHO(right);
-      SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
-      * /
-    }
-  #endif // UNIFIED_BED_LEVELING_FEATURE
-
-
-#endif // !AUTO_BED_LEVELING_GRID
-
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
-
-#if ENABLED(DELTA)
-
-
-/*
- 
-*/
-
-/*
-
-- - - - - - - - -
-  One way is to think of this in terms of vector analysis. First compute three unit mutually orthogonal vectors based at point A and of the kind you have described.
-
- v1 = B-A; v1 = v1/norm(v1);
- v3 = cross(v1,C-A); v3 = v3/norm(v3);
- v2 = cross(v3,v1); % v2 is already a unit vector
-
-  Now for any arbitrary point P = [x,y,z] we always have:
-
- P-A = dot(P-A,v1)*v1 + dot(P-A,v2)*v2 + dot(P-A,v3)*v3
-
-This means that [dot(P-A,v1),dot(P-A,v2),dot(P-A,v3)] are the coordinates of point P with respect to the v1, v2, v3 axes, and you can rewrite this as a set of linear transformation equations from the original coordinates to the new set. Finding the inverse of this transformation would allow you to express the original coordinates in terms of the new ones.
-*/
-
-/*   0.0     = 00 00 00 00
-     NAN     = 00 00 c0 7f
-    -NAN     = 00 00 c0 ff
-     Infinity= 00 00 80 7f
-    -Infinity= 00 00 80 ff
-*/
-
-#endif
-#endif
-
-#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)   
 //
 // This function goes away after G29 debug is complete.   But for right now, it is a handy
 // routine to dump binary data structures.
@@ -1251,7 +1056,6 @@ void dump( char *str, float f )
 
   SERIAL_PROTOCOL( "\n" );
 }
-#endif
 
 // These are some primative debug routines that will get stripped out later when the code is solid
 // I have some LED's wired up to my RAMPS v1.4 board that let me turn them on and off.  I use them
@@ -1344,6 +1148,37 @@ static int pin_63 = -1, pin_65 = -1, pin_66 = -1;
 	return;
 }
 
+static int UBL_state_at_invokation = 0;
+static int UBL_state_recursion_chk = 0;
+
+void save_UBL_active_state_and_disable()  
+{
+   UBL_state_recursion_chk++;
+   if ( UBL_state_recursion_chk != 1) {
+      	SERIAL_ECHO("save_UBL_active_state_and_disabled() called multiple times in a row. \n");
+	lcd_setstatus( "save_UBL_active() error", true);
+	lcd_quick_feedback();	
+	return;
+   }
+   UBL_state_at_invokation = bed_leveling_mesh.state.active;
+   bed_leveling_mesh.state.active = 0;
+   return;
+}
+
+void restore_UBL_active_state_and_leave()  
+{
+   UBL_state_recursion_chk--;
+   if ( UBL_state_recursion_chk != 0) {
+      	SERIAL_ECHO("restore_UBL_active_state_and_leave() called too many times. \n");
+	lcd_setstatus( "restore_UBL_active() error", true);
+	lcd_quick_feedback();
+	return;
+   }
+   bed_leveling_mesh.state.active = UBL_state_at_invokation;
+   return;
+}
+
+
 //
 // Much of the 'What?' command can be eliminated.  But until we are fully debugged, it is
 // good to have the extra information.   Soon... we prune this to just a few items
@@ -1357,8 +1192,18 @@ void G29_What_Command() {
     	SERIAL_PROTOCOLLNPGM("Active.");
     else
     	SERIAL_PROTOCOLLNPGM("Inactive.");
+    SERIAL_PROTOCOLPGM("\n");
 
-    SERIAL_PROTOCOLPGM("   Mesh: ");
+    SERIAL_ECHO("z_offset: ");
+    SERIAL_ECHO_F( bed_leveling_mesh.state.z_offset, 6 );
+    SERIAL_PROTOCOLPGM("\n");
+
+    SERIAL_ECHOPAIR("UBL_state_at_invokation :", UBL_state_at_invokation);
+    SERIAL_PROTOCOLPGM("\n");
+    SERIAL_ECHOPAIR("UBL_state_recursion_chk :", UBL_state_recursion_chk);
+    SERIAL_PROTOCOLPGM("\n");
+
+    SERIAL_PROTOCOLPGM("Mesh: ");
     prt_hex_word( bed_leveling_mesh.state. EEPROM_storage_slot );
     SERIAL_PROTOCOLPGM(" Loaded.  \n");
     SERIAL_ECHOPAIR("\nG29_Correction_Fade_Height : ", bed_leveling_mesh.state.G29_Correction_Fade_Height );
@@ -1402,10 +1247,10 @@ void G29_What_Command() {
     SERIAL_ECHOPAIR("\nMESH_MIN_Y         ", MESH_MIN_Y );
     SERIAL_ECHOPAIR("\nMESH_MAX_X         ", MESH_MAX_X );
     SERIAL_ECHOPAIR("\nMESH_MAX_Y         ", MESH_MAX_Y );
-    SERIAL_ECHOPAIR("\nMESH_X_DIST        ", MESH_X_DIST );
-    SERIAL_ECHOPAIR("\nMESH_Y_DIST        ", MESH_Y_DIST );
-
-    SERIAL_ECHOPAIR("\nz_offset           ", bed_leveling_mesh.state.z_offset );
+    SERIAL_ECHO("\nMESH_X_DIST        ");
+    SERIAL_ECHO_F( MESH_X_DIST, 6 );
+    SERIAL_ECHO("\nMESH_Y_DIST        ");
+    SERIAL_ECHO_F( MESH_Y_DIST, 6 );
     SERIAL_PROTOCOLPGM("\n");
     idle();
 
@@ -1535,6 +1380,7 @@ struct mesh_index_pair find_closest_mesh_point_of_type(Mesh_Point_Type type, flo
 	return return_val;
 }
 
+
 void fine_tune_mesh( float X_Pos, float Y_Pos, float Height_Value, bool do_mesh_map ) {
 struct mesh_index_pair location;
 float xProbe, yProbe, measured_z, new_z;					
@@ -1542,6 +1388,7 @@ unsigned int i, not_done[16];
 long round_off;
 unsigned long cnt;
 
+    save_UBL_active_state_and_disable();
     for(i=0; i<16; i++) not_done[i]=0xffff;
 #if ENABLED(ULTRA_LCD)
     lcd_setstatus( "Fine Tuning Mesh.", true);
@@ -1621,6 +1468,7 @@ SERIAL_ECHO("\n");
 FINE_TUNE_EXIT:
     if ( do_mesh_map )
    	bed_leveling_mesh.display_map(1);
+    restore_UBL_active_state_and_leave();
     do_blocking_move_to_z(Z_RAISE_PROBE_DEPLOY_STOW);     
     do_blocking_move_to_xy(X_Pos, Y_Pos);     
 
@@ -1632,6 +1480,8 @@ FINE_TUNE_EXIT:
     SERIAL_ECHO("Done Editing Mesh. \n");
     return;
 }
+
+
 
 #endif
 
