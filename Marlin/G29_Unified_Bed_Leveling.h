@@ -66,7 +66,9 @@ void lcd_implementation_drawedit(const char* , const char* value=NULL);
 void gcode_G28();
 extern char conv[8];
 
+void save_UBL_active_state_and_disable();
+void restore_UBL_active_state_and_leave();
+
 #endif  // UNIFIED_BED_LEVELING_FEATURE
 #endif  // G29_UNIFIED_BED_LEVELING_H
-
 
