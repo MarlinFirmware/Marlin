@@ -7169,20 +7169,6 @@ recursion_cnt++;
 // to the Mesh Cell Boundaries.   We get the indexes of the current location and the
 // requested destination.
 
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-      SERIAL_ECHOPGM(" home_offset[]={");
-      for(i=0; i<3; i++ ) {
-        SERIAL_ECHO_F( home_offset[i], 6 );
-        SERIAL_ECHO(" ");
-      }
-      SERIAL_ECHO("}\n");
-      SERIAL_ECHOPGM(" position_shift[]={");
-      for(i=0; i<3; i++ ) {
-        SERIAL_ECHO_F( position_shift[i], 6 );
-        SERIAL_ECHO(" ");
-      }
-      SERIAL_ECHO("}\n");
-#endif
 
   int start_x = bed_leveling_mesh.get_cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
       start_y = bed_leveling_mesh.get_cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
