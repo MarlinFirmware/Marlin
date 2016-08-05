@@ -48,6 +48,93 @@
   #error "You are using an old Configuration_adv.h file, update it before building Marlin."
 #endif
 
+ /**
+ * Warnings for old configurations
+ */
+#if WATCH_TEMP_PERIOD > 500
+  #error "WATCH_TEMP_PERIOD now uses seconds instead of milliseconds."
+#elif DISABLED(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
+  #error "Thermal Runaway Protection for hotends is now enabled with THERMAL_PROTECTION_HOTENDS."
+#elif DISABLED(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
+  #error "Thermal Runaway Protection for the bed is now enabled with THERMAL_PROTECTION_BED."
+#elif ENABLED(COREXZ) && ENABLED(Z_LATE_ENABLE)
+  #error "Z_LATE_ENABLE can't be used with COREXZ."
+#elif defined(X_HOME_RETRACT_MM)
+  #error "[XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM."
+#elif defined(BEEPER)
+  #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
+#elif defined(SDCARDDETECT)
+  #error "SDCARDDETECT is now SD_DETECT_PIN. Please update your pins definitions."
+#elif defined(SDCARDDETECTINVERTED)
+  #error "SDCARDDETECTINVERTED is now SD_DETECT_INVERTED. Please update your configuration."
+#elif defined(BTENABLED)
+  #error "BTENABLED is now BLUETOOTH. Please update your configuration."
+#elif defined(CUSTOM_MENDEL_NAME)
+  #error "CUSTOM_MENDEL_NAME is now CUSTOM_MACHINE_NAME. Please update your configuration."
+#elif defined(HAS_AUTOMATIC_VERSIONING)
+  #error "HAS_AUTOMATIC_VERSIONING is now USE_AUTOMATIC_VERSIONING. Please update your configuration."
+#elif defined(ENABLE_AUTO_BED_LEVELING)
+  #error "ENABLE_AUTO_BED_LEVELING is now AUTO_BED_LEVELING_FEATURE. Please update your configuration."
+#elif defined(SDSLOW)
+  #error "SDSLOW deprecated. Set SPI_SPEED to SPI_HALF_SPEED instead."
+#elif defined(SDEXTRASLOW)
+  #error "SDEXTRASLOW deprecated. Set SPI_SPEED to SPI_QUARTER_SPEED instead."
+#elif defined(FILAMENT_SENSOR)
+  #error "FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead."
+#elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
+  #error "DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead."
+#elif ENABLED(Z_DUAL_ENDSTOPS) && !defined(Z2_USE_ENDSTOP)
+  #error "Z_DUAL_ENDSTOPS settings are simplified. Just set Z2_USE_ENDSTOP to the endstop you want to repurpose for Z2"
+#elif defined(LANGUAGE_INCLUDE)
+  #error "LANGUAGE_INCLUDE has been replaced by LCD_LANGUAGE. Please update your configuration."
+#elif defined(EXTRUDER_OFFSET_X) || defined(EXTRUDER_OFFSET_Y)
+  #error "EXTRUDER_OFFSET_[XY] is deprecated. Use HOTEND_OFFSET_[XY] instead."
+#elif defined(PID_PARAMS_PER_EXTRUDER)
+  #error "PID_PARAMS_PER_EXTRUDER is deprecated. Use PID_PARAMS_PER_HOTEND instead."
+#elif defined(EXTRUDER_WATTS) || defined(BED_WATTS)
+  #error "EXTRUDER_WATTS and BED_WATTS are deprecated. Remove them from your configuration."
+#elif defined(SERVO_ENDSTOP_ANGLES)
+  #error "SERVO_ENDSTOP_ANGLES is deprecated. Use Z_SERVO_ANGLES instead."
+#elif defined(X_ENDSTOP_SERVO_NR) || defined(Y_ENDSTOP_SERVO_NR)
+  #error "X_ENDSTOP_SERVO_NR and Y_ENDSTOP_SERVO_NR are deprecated and should be removed."
+#elif defined(XY_TRAVEL_SPEED)
+  #error "XY_TRAVEL_SPEED is deprecated. Use XY_PROBE_SPEED instead."
+#elif defined(PROBE_SERVO_DEACTIVATION_DELAY)
+  #error "PROBE_SERVO_DEACTIVATION_DELAY is deprecated. Use DEACTIVATE_SERVOS_AFTER_MOVE instead."
+#elif defined(SERVO_DEACTIVATION_DELAY)
+  #error "SERVO_DEACTIVATION_DELAY is deprecated. Use SERVO_DELAY instead."
+#elif ENABLED(FILAMENTCHANGEENABLE)
+  #error "FILAMENTCHANGEENABLE is now FILAMENT_CHANGE_FEATURE. Please update your configuration."
+#elif defined(PLA_PREHEAT_HOTEND_TEMP)
+  #error "PLA_PREHEAT_HOTEND_TEMP is now PREHEAT_1_TEMP_HOTEND. Please update your configuration."
+#elif defined(PLA_PREHEAT_HPB_TEMP)
+  #error "PLA_PREHEAT_HPB_TEMP is now PREHEAT_1_TEMP_BED. Please update your configuration."
+#elif defined(PLA_PREHEAT_FAN_SPEED)
+  #error "PLA_PREHEAT_FAN_SPEED is now PREHEAT_1_FAN_SPEED. Please update your configuration."
+#elif defined(ABS_PREHEAT_HOTEND_TEMP)
+  #error "ABS_PREHEAT_HOTEND_TEMP is now PREHEAT_2_TEMP_HOTEND. Please update your configuration."
+#elif defined(ABS_PREHEAT_HPB_TEMP)
+  #error "ABS_PREHEAT_HPB_TEMP is now PREHEAT_2_TEMP_BED. Please update your configuration."
+#elif defined(ABS_PREHEAT_FAN_SPEED)
+  #error "ABS_PREHEAT_FAN_SPEED is now PREHEAT_2_FAN_SPEED. Please update your configuration."
+#elif defined(ENDSTOPS_ONLY_FOR_HOMING)
+  #error "ENDSTOPS_ONLY_FOR_HOMING is deprecated. Use (disable) ENDSTOPS_ALWAYS_ON_DEFAULT instead."
+#elif defined(HOMING_FEEDRATE)
+  #error "HOMING_FEEDRATE is deprecated. Set individual rates with HOMING_FEEDRATE_(XY|Z|E) instead."
+#elif defined(MANUAL_HOME_POSITIONS)
+  #error "MANUAL_HOME_POSITIONS is deprecated. Set MANUAL_[XYZ]_HOME_POS as-needed instead."
+#elif defined(PID_ADD_EXTRUSION_RATE)
+  #error "PID_ADD_EXTRUSION_RATE is now PID_EXTRUSION_SCALING and is DISABLED by default. Are you sure you want to use this option? Please update your configuration."
+#elif defined(Z_RAISE_BEFORE_HOMING)
+  #error "Z_RAISE_BEFORE_HOMING is now Z_HOMING_HEIGHT. Please update your configuration."
+#elif defined(MIN_Z_HEIGHT_FOR_HOMING)
+  #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_HOMING_HEIGHT. Please update your configuration."
+#elif defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
+  #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_PROBE_DEPLOY_HEIGHT instead."
+#elif defined(Z_RAISE_PROBE_DEPLOY_STOW) || defined(Z_RAISE_BETWEEN_PROBINGS)
+  #error "Z_RAISE_PROBE_DEPLOY_STOW and Z_RAISE_BETWEEN_PROBINGS are now Z_PROBE_DEPLOY_HEIGHT and Z_PROBE_TRAVEL_HEIGHT Please update your configuration."
+#endif
+
 /**
  * Marlin release, version and default string
  */
@@ -646,91 +733,4 @@
  */
 #if ENABLED(EMERGENCY_PARSER) && ENABLED(USBCON)
   #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
-#endif
-
- /**
- * Warnings for old configurations
- */
-#if WATCH_TEMP_PERIOD > 500
-  #error "WATCH_TEMP_PERIOD now uses seconds instead of milliseconds."
-#elif DISABLED(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
-  #error "Thermal Runaway Protection for hotends is now enabled with THERMAL_PROTECTION_HOTENDS."
-#elif DISABLED(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
-  #error "Thermal Runaway Protection for the bed is now enabled with THERMAL_PROTECTION_BED."
-#elif ENABLED(COREXZ) && ENABLED(Z_LATE_ENABLE)
-  #error "Z_LATE_ENABLE can't be used with COREXZ."
-#elif defined(X_HOME_RETRACT_MM)
-  #error "[XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM."
-#elif defined(BEEPER)
-  #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
-#elif defined(SDCARDDETECT)
-  #error "SDCARDDETECT is now SD_DETECT_PIN. Please update your pins definitions."
-#elif defined(SDCARDDETECTINVERTED)
-  #error "SDCARDDETECTINVERTED is now SD_DETECT_INVERTED. Please update your configuration."
-#elif defined(BTENABLED)
-  #error "BTENABLED is now BLUETOOTH. Please update your configuration."
-#elif defined(CUSTOM_MENDEL_NAME)
-  #error "CUSTOM_MENDEL_NAME is now CUSTOM_MACHINE_NAME. Please update your configuration."
-#elif defined(HAS_AUTOMATIC_VERSIONING)
-  #error "HAS_AUTOMATIC_VERSIONING is now USE_AUTOMATIC_VERSIONING. Please update your configuration."
-#elif defined(ENABLE_AUTO_BED_LEVELING)
-  #error "ENABLE_AUTO_BED_LEVELING is now AUTO_BED_LEVELING_FEATURE. Please update your configuration."
-#elif defined(SDSLOW)
-  #error "SDSLOW deprecated. Set SPI_SPEED to SPI_HALF_SPEED instead."
-#elif defined(SDEXTRASLOW)
-  #error "SDEXTRASLOW deprecated. Set SPI_SPEED to SPI_QUARTER_SPEED instead."
-#elif defined(FILAMENT_SENSOR)
-  #error "FILAMENT_SENSOR is deprecated. Use FILAMENT_WIDTH_SENSOR instead."
-#elif defined(DISABLE_MAX_ENDSTOPS) || defined(DISABLE_MIN_ENDSTOPS)
-  #error "DISABLE_MAX_ENDSTOPS and DISABLE_MIN_ENDSTOPS deprecated. Use individual USE_*_PLUG options instead."
-#elif ENABLED(Z_DUAL_ENDSTOPS) && !defined(Z2_USE_ENDSTOP)
-  #error "Z_DUAL_ENDSTOPS settings are simplified. Just set Z2_USE_ENDSTOP to the endstop you want to repurpose for Z2"
-#elif defined(LANGUAGE_INCLUDE)
-  #error "LANGUAGE_INCLUDE has been replaced by LCD_LANGUAGE. Please update your configuration."
-#elif defined(EXTRUDER_OFFSET_X) || defined(EXTRUDER_OFFSET_Y)
-  #error "EXTRUDER_OFFSET_[XY] is deprecated. Use HOTEND_OFFSET_[XY] instead."
-#elif defined(PID_PARAMS_PER_EXTRUDER)
-  #error "PID_PARAMS_PER_EXTRUDER is deprecated. Use PID_PARAMS_PER_HOTEND instead."
-#elif defined(EXTRUDER_WATTS) || defined(BED_WATTS)
-  #error "EXTRUDER_WATTS and BED_WATTS are deprecated. Remove them from your configuration."
-#elif defined(SERVO_ENDSTOP_ANGLES)
-  #error "SERVO_ENDSTOP_ANGLES is deprecated. Use Z_SERVO_ANGLES instead."
-#elif defined(X_ENDSTOP_SERVO_NR) || defined(Y_ENDSTOP_SERVO_NR)
-  #error "X_ENDSTOP_SERVO_NR and Y_ENDSTOP_SERVO_NR are deprecated and should be removed."
-#elif defined(XY_TRAVEL_SPEED)
-  #error "XY_TRAVEL_SPEED is deprecated. Use XY_PROBE_SPEED instead."
-#elif defined(PROBE_SERVO_DEACTIVATION_DELAY)
-  #error "PROBE_SERVO_DEACTIVATION_DELAY is deprecated. Use DEACTIVATE_SERVOS_AFTER_MOVE instead."
-#elif defined(SERVO_DEACTIVATION_DELAY)
-  #error "SERVO_DEACTIVATION_DELAY is deprecated. Use SERVO_DELAY instead."
-#elif ENABLED(FILAMENTCHANGEENABLE)
-  #error "FILAMENTCHANGEENABLE is now FILAMENT_CHANGE_FEATURE. Please update your configuration."
-#elif defined(PLA_PREHEAT_HOTEND_TEMP)
-  #error "PLA_PREHEAT_HOTEND_TEMP is now PREHEAT_1_TEMP_HOTEND. Please update your configuration."
-#elif defined(PLA_PREHEAT_HPB_TEMP)
-  #error "PLA_PREHEAT_HPB_TEMP is now PREHEAT_1_TEMP_BED. Please update your configuration."
-#elif defined(PLA_PREHEAT_FAN_SPEED)
-  #error "PLA_PREHEAT_FAN_SPEED is now PREHEAT_1_FAN_SPEED. Please update your configuration."
-#elif defined(ABS_PREHEAT_HOTEND_TEMP)
-  #error "ABS_PREHEAT_HOTEND_TEMP is now PREHEAT_2_TEMP_HOTEND. Please update your configuration."
-#elif defined(ABS_PREHEAT_HPB_TEMP)
-  #error "ABS_PREHEAT_HPB_TEMP is now PREHEAT_2_TEMP_BED. Please update your configuration."
-#elif defined(ABS_PREHEAT_FAN_SPEED)
-  #error "ABS_PREHEAT_FAN_SPEED is now PREHEAT_2_FAN_SPEED. Please update your configuration."
-#elif defined(ENDSTOPS_ONLY_FOR_HOMING)
-  #error "ENDSTOPS_ONLY_FOR_HOMING is deprecated. Use (disable) ENDSTOPS_ALWAYS_ON_DEFAULT instead."
-#elif defined(HOMING_FEEDRATE)
-  #error "HOMING_FEEDRATE is deprecated. Set individual rates with HOMING_FEEDRATE_(XY|Z|E) instead."
-#elif defined(MANUAL_HOME_POSITIONS)
-  #error "MANUAL_HOME_POSITIONS is deprecated. Set MANUAL_[XYZ]_HOME_POS as-needed instead."
-#elif defined(PID_ADD_EXTRUSION_RATE)
-  #error "PID_ADD_EXTRUSION_RATE is now PID_EXTRUSION_SCALING and is DISABLED by default. Are you sure you want to use this option? Please update your configuration."
-#elif defined(Z_RAISE_BEFORE_HOMING)
-  #error "Z_RAISE_BEFORE_HOMING is now Z_HOMING_HEIGHT. Please update your configuration."
-#elif defined(MIN_Z_HEIGHT_FOR_HOMING)
-  #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_HOMING_HEIGHT. Please update your configuration."
-#elif defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
-  #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_PROBE_DEPLOY_HEIGHT instead."
-#elif defined(Z_RAISE_PROBE_DEPLOY_STOW) || defined(Z_RAISE_BETWEEN_PROBINGS)
-  #error "Z_RAISE_PROBE_DEPLOY_STOW and Z_RAISE_BETWEEN_PROBINGS are now Z_PROBE_DEPLOY_HEIGHT and Z_PROBE_TRAVEL_HEIGHT Please update your configuration."
 #endif
