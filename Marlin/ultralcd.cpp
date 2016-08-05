@@ -2327,6 +2327,8 @@ void kill_screen(const char* lcd_msg) {
       lcd.buzz(duration, freq);
     #elif PIN_EXISTS(BEEPER)
       buzzer.tone(duration, freq);
+    #else
+      UNUSED(duration); UNUSED(freq);
     #endif
   }
 
