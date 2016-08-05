@@ -184,7 +184,6 @@
   #define MSG_INFO_PRINT_TIME               "Gesamte Druckzeit"
   #define MSG_INFO_PRINT_LONGEST            "Längster Druckjob"
   #define MSG_INFO_PRINT_FILAMENT           "Gesamt Extrudiert"
-#endif
 #else
   #define MSG_INFO_PRINT_COUNT              "Drucke"
   #define MSG_INFO_COMPLETED_PRINTS         "Komplett"
