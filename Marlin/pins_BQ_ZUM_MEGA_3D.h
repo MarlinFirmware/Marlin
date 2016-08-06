@@ -56,6 +56,7 @@
 #define DIGIPOTSS_PIN     22
 #define DIGIPOT_CHANNELS  { 4, 5, 3, 0, 1 }
 
+#undef FAN1_PIN
 #define FAN1_PIN          7
 
 #undef PS_ON_PIN             // 12
