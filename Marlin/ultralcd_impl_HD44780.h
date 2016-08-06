@@ -189,10 +189,10 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
 static void lcd_set_custom_characters(
   #if ENABLED(LCD_PROGRESS_BAR)
-    bool progress_bar_set = true
+    bool info_screen_charset = true
   #endif
 ) {
-  byte bedTemp[8] = {
+  static byte bedTemp[8] = {
     B00000,
     B11111,
     B10101,
@@ -202,7 +202,7 @@ static void lcd_set_custom_characters(
     B00000,
     B00000
   }; //thanks Sonny Mounicou
-  byte degree[8] = {
+  static byte degree[8] = {
     B01100,
     B10010,
     B10010,
@@ -212,7 +212,7 @@ static void lcd_set_custom_characters(
     B00000,
     B00000
   };
-  byte thermometer[8] = {
+  static byte thermometer[8] = {
     B00100,
     B01010,
     B01010,
@@ -222,37 +222,7 @@ static void lcd_set_custom_characters(
     B10001,
     B01110
   };
-  byte uplevel[8] = {
-    B00100,
-    B01110,
-    B11111,
-    B00100,
-    B11100,
-    B00000,
-    B00000,
-    B00000
-  }; //thanks joris
-  byte refresh[8] = {
-    B00000,
-    B00110,
-    B11001,
-    B11000,
-    B00011,
-    B10011,
-    B01100,
-    B00000,
-  }; //thanks joris
-  byte folder[8] = {
-    B00000,
-    B11100,
-    B11111,
-    B10001,
-    B10001,
-    B11111,
-    B00000,
-    B00000
-  }; //thanks joris
-  byte feedrate[8] = {
+  static byte feedrate[8] = {
     B11100,
     B10000,
     B11000,
@@ -262,7 +232,7 @@ static void lcd_set_custom_characters(
     B00101,
     B00000
   }; //thanks Sonny Mounicou
-  byte clock[8] = {
+  static byte clock[8] = {
     B00000,
     B01110,
     B10011,
@@ -273,69 +243,97 @@ static void lcd_set_custom_characters(
     B00000
   }; //thanks Sonny Mounicou
 
-  #if ENABLED(LCD_PROGRESS_BAR)
-    static bool char_mode = false;
-    byte progress[3][8] = { {
+  lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
+  lcd.createChar(LCD_STR_DEGREE[0], degree);
+  lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
+  lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
+  lcd.createChar(LCD_STR_CLOCK[0], clock);
+
+  #if ENABLED(SDSUPPORT)
+    static byte uplevel[8] = {
+      B00100,
+      B01110,
+      B11111,
+      B00100,
+      B11100,
       B00000,
-      B10000,
-      B10000,
-      B10000,
-      B10000,
-      B10000,
-      B10000,
-      B00000
-    }, {
       B00000,
-      B10100,
-      B10100,
-      B10100,
-      B10100,
-      B10100,
-      B10100,
       B00000
-    }, {
+    }; //thanks joris
+    static byte refresh[8] = {
       B00000,
-      B10101,
-      B10101,
-      B10101,
-      B10101,
-      B10101,
-      B10101,
+      B00110,
+      B11001,
+      B11000,
+      B00011,
+      B10011,
+      B01100,
+      B00000,
+    }; //thanks joris
+    static byte folder[8] = {
+      B00000,
+      B11100,
+      B11111,
+      B10001,
+      B10001,
+      B11111,
+      B00000,
       B00000
-    } };
-    if (progress_bar_set != char_mode) {
-      char_mode = progress_bar_set;
-      lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
-      lcd.createChar(LCD_STR_DEGREE[0], degree);
-      lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
-      lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
-      lcd.createChar(LCD_STR_CLOCK[0], clock);
-      if (progress_bar_set) {
-        // Progress bar characters for info screen
-        for (int i = 3; i--;) lcd.createChar(LCD_STR_PROGRESS[i], progress[i]);
+    }; //thanks joris
+
+    #if ENABLED(LCD_PROGRESS_BAR)
+      static byte progress[3][8] = { {
+        B00000,
+        B10000,
+        B10000,
+        B10000,
+        B10000,
+        B10000,
+        B10000,
+        B00000
+      }, {
+        B00000,
+        B10100,
+        B10100,
+        B10100,
+        B10100,
+        B10100,
+        B10100,
+        B00000
+      }, {
+        B00000,
+        B10101,
+        B10101,
+        B10101,
+        B10101,
+        B10101,
+        B10101,
+        B00000
+      } };
+      static bool char_mode = false;
+      if (info_screen_charset != char_mode) {
+        char_mode = info_screen_charset;
+        if (info_screen_charset) { // Progress bar characters for info screen
+          for (int i = 3; i--;) lcd.createChar(LCD_STR_PROGRESS[i], progress[i]);
+        }
+        else { // Custom characters for submenus
+          lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
+          lcd.createChar(LCD_STR_REFRESH[0], refresh);
+          lcd.createChar(LCD_STR_FOLDER[0], folder);
+        }
       }
-      else {
-        // Custom characters for submenus
-        lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
-        lcd.createChar(LCD_STR_REFRESH[0], refresh);
-        lcd.createChar(LCD_STR_FOLDER[0], folder);
-      }
-    }
-  #else
-    lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
-    lcd.createChar(LCD_STR_DEGREE[0], degree);
-    lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
-    lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
-    lcd.createChar(LCD_STR_REFRESH[0], refresh);
-    lcd.createChar(LCD_STR_FOLDER[0], folder);
-    lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
-    lcd.createChar(LCD_STR_CLOCK[0], clock);
+    #else
+      lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
+      lcd.createChar(LCD_STR_REFRESH[0], refresh);
+      lcd.createChar(LCD_STR_FOLDER[0], folder);
+    #endif
+
   #endif
 }
 
 static void lcd_implementation_init(
   #if ENABLED(LCD_PROGRESS_BAR)
-    bool progress_bar_set = true
+    bool info_screen_charset = true
   #endif
 ) {
 
@@ -365,7 +363,7 @@ static void lcd_implementation_init(
 
   lcd_set_custom_characters(
     #if ENABLED(LCD_PROGRESS_BAR)
-      progress_bar_set
+      info_screen_charset
     #endif
   );
 
@@ -528,10 +526,11 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
       logo_lines(PSTR(""));
       safe_delay(2000);
     #endif
+
     lcd_set_custom_characters(
-    #if ENABLED(LCD_PROGRESS_BAR)
-      false
-    #endif
+      #if ENABLED(LCD_PROGRESS_BAR)
+        false
+      #endif
     );
   }
 
