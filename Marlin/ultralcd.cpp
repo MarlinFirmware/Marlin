@@ -367,22 +367,22 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 
   /**
    * General function to go directly to a menu
-   * Remembers the previous position
    */
   static void lcd_goto_screen(screenFunc_t screen, const bool feedback = false, const uint32_t encoder = 0) {
     if (currentScreen != screen) {
       currentScreen = screen;
-      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
       encoderPosition = encoder;
-      if (feedback) lcd_quick_feedback();
       if (screen == lcd_status_screen) {
         defer_return_to_status = false;
         screen_history_depth = 0;
       }
+      if (feedback) lcd_quick_feedback();
+      lcd_implementation_clear();
       #if ENABLED(LCD_PROGRESS_BAR)
         // For LCD_PROGRESS_BAR re-initialize custom characters
         lcd_set_custom_characters(screen == lcd_status_screen);
       #endif
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
     }
   }
 
