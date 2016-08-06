@@ -89,6 +89,7 @@ extern const char echomagic[] PROGMEM;
 
 #define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
 
+void serial_echopair_P(const char* s_P, const char *v);
 void serial_echopair_P(const char* s_P, char v);
 void serial_echopair_P(const char* s_P, int v);
 void serial_echopair_P(const char* s_P, long v);

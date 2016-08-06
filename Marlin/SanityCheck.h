@@ -185,6 +185,15 @@
 #endif
 
 /**
+ * Delta requirements
+ */
+#if ENABLED(DELTA)
+  #if DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
+    #error "You probably want to use Max Endstops for DELTA!"
+  #endif
+#endif
+
+/**
  * Babystepping
  */
 #if ENABLED(BABYSTEPPING)
