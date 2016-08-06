@@ -484,15 +484,15 @@ static void lcd_status_screen() {
     }
 
     if (current_click) {
-      lcd_goto_screen(lcd_main_menu, true);
+      #if ENABLED(FILAMENT_LCD_DISPLAY)
+        previous_lcd_status_ms = millis();  // get status message to show up for a while
+      #endif
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
         #if ENABLED(LCD_PROGRESS_BAR)
           false
         #endif
       );
-      #if ENABLED(FILAMENT_LCD_DISPLAY)
-        previous_lcd_status_ms = millis();  // get status message to show up for a while
-      #endif
+      lcd_goto_screen(lcd_main_menu, true);
     }
 
     #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
@@ -2091,7 +2091,6 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_filament_change_resume_print() {
       filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_RESUME_PRINT;
-      lcdDrawUpdate = 2;
       lcd_goto_screen(lcd_status_screen);
     }
 
