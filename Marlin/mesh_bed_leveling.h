@@ -58,22 +58,22 @@
     }
 
     int8_t cell_index_x(float x) {
-      int8_t cx = (x - (MESH_MIN_X)) / (MESH_X_DIST);
+      int8_t cx = (x - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
       return constrain(cx, 0, (MESH_NUM_X_POINTS) - 2);
     }
 
     int8_t cell_index_y(float y) {
-      int8_t cy = (y - (MESH_MIN_Y)) / (MESH_Y_DIST);
+      int8_t cy = (y - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
       return constrain(cy, 0, (MESH_NUM_Y_POINTS) - 2);
     }
 
     int8_t probe_index_x(float x) {
-      int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) / (MESH_X_DIST);
+      int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
       return (px >= 0 && px < (MESH_NUM_X_POINTS)) ? px : -1;
     }
 
     int8_t probe_index_y(float y) {
-      int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) / (MESH_Y_DIST);
+      int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
       return (py >= 0 && py < (MESH_NUM_Y_POINTS)) ? py : -1;
     }
 
