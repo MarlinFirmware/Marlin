@@ -69,7 +69,7 @@
   #error "Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu."
 #endif
 
-#ifndef AT90USBxx_TEENSYPP_ASSIGNMENTS  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin alphabetical.
+#if DISABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS) // use Teensyduino Teensy++2.0 pin assignments instead of Marlin alphabetical.
   #error "Uncomment #define AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h for this config"
   // (or build from command line)
 #endif

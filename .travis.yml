@@ -93,6 +93,12 @@ script:
   - opt_enable PIDTEMPBED
   - build_marlin
   #
+  # Test MAX6675
+  #
+  - restore_configs
+  - opt_set TEMP_SENSOR_0 -2
+  - build_marlin
+  #
   # Test a "Fix Mounted" Probe along with Safe Homing
   #
   - restore_configs
