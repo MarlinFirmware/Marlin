@@ -728,13 +728,17 @@
  * Endstops
  */
 #if DISABLED(USE_XMIN_PLUG) && DISABLED(USE_XMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _XMAX_ && Z2_USE_ENDSTOP <= _XMIN_)
- #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG"
+ #error "You must enable USE_XMIN_PLUG or USE_XMAX_PLUG."
 #elif DISABLED(USE_YMIN_PLUG) && DISABLED(USE_YMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _YMAX_ && Z2_USE_ENDSTOP <= _YMIN_)
- #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG"
+ #error "You must enable USE_YMIN_PLUG or USE_YMAX_PLUG."
 #elif DISABLED(USE_ZMIN_PLUG) && DISABLED(USE_ZMAX_PLUG) && !(ENABLED(Z_DUAL_ENDSTOPS) && Z2_USE_ENDSTOP >= _ZMAX_ && Z2_USE_ENDSTOP <= _ZMIN_)
- #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG"
-#elif ENABLED(Z_DUAL_ENDSTOPS) && !Z2_USE_ENDSTOP
- #error "You must set Z2_USE_ENDSTOP with Z_DUAL_ENDSTOPS"
+ #error "You must enable USE_ZMIN_PLUG or USE_ZMAX_PLUG."
+#elif ENABLED(Z_DUAL_ENDSTOPS)
+  #if !Z2_USE_ENDSTOP
+    #error "You must set Z2_USE_ENDSTOP with Z_DUAL_ENDSTOPS."
+  #elif ENABLED(DELTA)
+    #error "Z_DUAL_ENDSTOPS is not compatible with DELTA."
+  #endif
 #endif
 
 /**

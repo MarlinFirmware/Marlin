@@ -402,7 +402,7 @@ static uint8_t target_extruder;
   #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
 #endif
 
-#if ENABLED(Z_DUAL_ENDSTOPS) && DISABLED(DELTA)
+#if ENABLED(Z_DUAL_ENDSTOPS)
   float z_endstop_adj = 0;
 #endif
 
