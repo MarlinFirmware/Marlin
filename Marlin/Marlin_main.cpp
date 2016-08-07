@@ -8610,8 +8610,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
       float oldepos = current_position[E_AXIS], oldedes = destination[E_AXIS];
       planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
-                       destination[E_AXIS] + (EXTRUDER_RUNOUT_EXTRUDE) * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_mm[E_AXIS],
-                       MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED) * (EXTRUDER_RUNOUT_ESTEPS) / planner.axis_steps_per_mm[E_AXIS], active_extruder);
+                       destination[E_AXIS] + (EXTRUDER_RUNOUT_EXTRUDE) * (EXTRUDER_RUNOUT_ESTEPS) * planner.steps_to_mm[E_AXIS],
+                       MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED) * (EXTRUDER_RUNOUT_ESTEPS) * planner.steps_to_mm[E_AXIS], active_extruder);
       current_position[E_AXIS] = oldepos;
       destination[E_AXIS] = oldedes;
       planner.set_e_position_mm(oldepos);
