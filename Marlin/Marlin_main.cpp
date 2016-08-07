@@ -1810,10 +1810,10 @@ static void clean_up_after_endstop_or_probe_move() {
 #endif //HAS_BED_PROBE
 
 #if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || ENABLED(Z_SAFE_HOMING) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
-  static bool axis_unhomed_error(const bool x, const bool y, const bool z) {
-    const bool xx = x && !axis_homed[X_AXIS],
-               yy = y && !axis_homed[Y_AXIS],
-               zz = z && !axis_homed[Z_AXIS];
+  static bool axis_unknown_error(const bool x, const bool y, const bool z) {
+    const bool xx = x && !axis_known_position[X_AXIS],
+               yy = y && !axis_known_position[Y_AXIS],
+               zz = z && !axis_known_position[Z_AXIS];
     if (xx || yy || zz) {
       SERIAL_ECHO_START;
       SERIAL_ECHOPGM(MSG_HOME " ");
@@ -2054,9 +2054,9 @@ static void clean_up_after_endstop_or_probe_move() {
     do_probe_raise(_Z_PROBE_DEPLOY_HEIGHT);
 
     #if ENABLED(Z_PROBE_SLED)
-      if (axis_unhomed_error(true, false, false)) { stop(); return true; }
+      if (axis_unknown_error(true, false, false)) { stop(); return true; } // Require X to be known
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
-      if (axis_unhomed_error(true, true,  true )) { stop(); return true; }
+      if (axis_unknown_error(true, true,  true )) { stop(); return true; } // Require XYZ to be known
     #endif
 
     float oldXpos = current_position[X_AXIS]; // save x position
@@ -2789,7 +2789,7 @@ inline void gcode_G4() {
    */
   inline void gcode_G12() {
     // Don't allow nozzle cleaning without homing first
-    if (axis_unhomed_error(true, true, true)) { return; }
+    if (axis_unknown_error(true, true, true)) return;
 
     uint8_t const pattern = code_seen('P') ? code_value_ushort() : 0;
     uint8_t const strokes = code_seen('S') ? code_value_ushort() : NOZZLE_CLEAN_STROKES;
@@ -2821,7 +2821,7 @@ inline void gcode_G4() {
    */
   inline void gcode_G27() {
     // Don't allow nozzle parking without homing first
-    if (axis_unhomed_error(true, true, true)) { return; }
+    if (axis_unknown_error(true, true, true)) return;
     uint8_t const z_action = code_seen('P') ? code_value_ushort() : 0;
     Nozzle::park(z_action);
   }
@@ -3085,7 +3085,7 @@ inline void gcode_G28() {
           }
 
           // Let's see if X and Y are homed
-          if (axis_unhomed_error(true, true, false)) return;
+          if (axis_unknown_error(true, true, false)) return;
 
           /**
            * Make sure the Z probe is within the physical limits
@@ -3455,7 +3455,7 @@ inline void gcode_G28() {
     #endif
 
     // Don't allow auto-leveling without homing first
-    if (axis_unhomed_error(true, true, true)) return;
+    if (axis_unknown_error(true, true, true)) return;
 
     int verbose_level = code_seen('V') ? code_value_int() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
@@ -4201,7 +4201,7 @@ inline void gcode_M42() {
    */
   inline void gcode_M48() {
 
-    if (axis_unhomed_error(true, true, true)) return;
+    if (axis_unknown_error(true, true, true)) return;
 
     int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
@@ -6681,7 +6681,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_m/*=0.0*/, bool n
       feedrate_mm_m = fr_mm_m > 0.0 ? (old_feedrate_mm_m = fr_mm_m) : XY_PROBE_FEEDRATE_MM_M;
 
       if (tmp_extruder != active_extruder) {
-        if (!no_move && axis_unhomed_error(true, true, true)) {
+        if (!no_move && axis_unknown_error(true, true, true)) {
           SERIAL_ECHOLNPGM("No move on toolchange");
           no_move = true;
         }
