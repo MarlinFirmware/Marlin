@@ -367,22 +367,22 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 
   /**
    * General function to go directly to a menu
-   * Remembers the previous position
    */
   static void lcd_goto_screen(screenFunc_t screen, const bool feedback = false, const uint32_t encoder = 0) {
     if (currentScreen != screen) {
       currentScreen = screen;
-      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
       encoderPosition = encoder;
-      if (feedback) lcd_quick_feedback();
       if (screen == lcd_status_screen) {
         defer_return_to_status = false;
         screen_history_depth = 0;
       }
+      if (feedback) lcd_quick_feedback();
+      lcd_implementation_clear();
       #if ENABLED(LCD_PROGRESS_BAR)
         // For LCD_PROGRESS_BAR re-initialize custom characters
         lcd_set_custom_characters(screen == lcd_status_screen);
       #endif
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
     }
   }
 
@@ -484,15 +484,15 @@ static void lcd_status_screen() {
     }
 
     if (current_click) {
-      lcd_goto_screen(lcd_main_menu, true);
-      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-        #if ENABLED(LCD_PROGRESS_BAR) && ENABLED(ULTIPANEL)
-          currentScreen == lcd_status_screen
-        #endif
-      );
       #if ENABLED(FILAMENT_LCD_DISPLAY)
         previous_lcd_status_ms = millis();  // get status message to show up for a while
       #endif
+      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
+        #if ENABLED(LCD_PROGRESS_BAR)
+          false
+        #endif
+      );
+      lcd_goto_screen(lcd_main_menu, true);
     }
 
     #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
@@ -2091,7 +2091,6 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_filament_change_resume_print() {
       filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_RESUME_PRINT;
-      lcdDrawUpdate = 2;
       lcd_goto_screen(lcd_status_screen);
     }
 
@@ -2377,12 +2376,15 @@ void kill_screen(const char* lcd_msg) {
     (*callback)();
   }
 
-#endif //ULTIPANEL
+#endif // ULTIPANEL
 
-/** LCD API **/
 void lcd_init() {
 
-  lcd_implementation_init();
+  lcd_implementation_init(
+    #if ENABLED(LCD_PROGRESS_BAR)
+      true
+    #endif
+  );
 
   #if ENABLED(NEWPANEL)
     #if BUTTON_EXISTS(EN1)
@@ -2537,12 +2539,7 @@ void lcd_update() {
 
     bool sd_status = IS_SD_INSERTED;
     if (sd_status != lcd_sd_status && lcd_detected()) {
-      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
-      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-        #if ENABLED(LCD_PROGRESS_BAR) && ENABLED(ULTIPANEL)
-          currentScreen == lcd_status_screen
-        #endif
-      );
+      lcd_sd_status = sd_status;
 
       if (sd_status) {
         card.initsd();
@@ -2553,7 +2550,12 @@ void lcd_update() {
         if (lcd_sd_status != 2) LCD_MESSAGEPGM(MSG_SD_REMOVED);
       }
 
-      lcd_sd_status = sd_status;
+      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
+        #if ENABLED(LCD_PROGRESS_BAR)
+          currentScreen == lcd_status_screen
+        #endif
+      );
     }
 
   #endif //SDSUPPORT && SD_DETECT_PIN
