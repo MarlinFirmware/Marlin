@@ -30,6 +30,11 @@
 
 #define BOARD_NAME "ZUM Mega 3D"
 
+#define RAMPS_D8_PIN  10
+#define RAMPS_D9_PIN  12
+#define RAMPS_D10_PIN  9
+#define MOSFET_D_PIN   7
+
 #include "pins_RAMPS_13.h"
 
 #undef X_MAX_PIN
@@ -37,15 +42,6 @@
 
 #undef Z_ENABLE_PIN
 #define Z_ENABLE_PIN      77 // 62
-
-#undef FAN_PIN
-#define FAN_PIN           12 //  4
-
-#undef HEATER_0_PIN
-#define HEATER_0_PIN       9 // 10
-
-#undef HEATER_1_PIN
-#define HEATER_1_PIN      10 //  9
 
 #undef TEMP_1_PIN
 #define TEMP_1_PIN        14 // 15
@@ -55,9 +51,6 @@
 
 #define DIGIPOTSS_PIN     22
 #define DIGIPOT_CHANNELS  { 4, 5, 3, 0, 1 }
-
-#undef FAN1_PIN
-#define FAN1_PIN          7
 
 #undef PS_ON_PIN             // 12
 #define PS_ON_PIN         81 // External Power Supply
