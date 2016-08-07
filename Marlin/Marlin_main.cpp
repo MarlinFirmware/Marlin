@@ -308,15 +308,15 @@ static uint8_t cmd_queue_index_r = 0,
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-const float homing_feedrate_mm_m[] = {
+const float homing_feedrate_mm_s[] = {
   #if ENABLED(DELTA)
-    HOMING_FEEDRATE_Z, HOMING_FEEDRATE_Z,
+    MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z),
   #else
-    HOMING_FEEDRATE_XY, HOMING_FEEDRATE_XY,
+    MMM_TO_MMS(HOMING_FEEDRATE_XY), MMM_TO_MMS(HOMING_FEEDRATE_XY),
   #endif
-  HOMING_FEEDRATE_Z, 0
+  MMM_TO_MMS(HOMING_FEEDRATE_Z), 0
 };
-static float feedrate_mm_m = 1500.0, saved_feedrate_mm_m;
+static float feedrate_mm_s = MMM_TO_MMS(1500.0), saved_feedrate_mm_s;
 int feedrate_percentage = 100, saved_feedrate_percentage;
 
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
@@ -393,13 +393,13 @@ static uint8_t target_extruder;
 #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-  int xy_probe_feedrate_mm_m = XY_PROBE_SPEED;
+  float xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
   bool bed_leveling_in_progress = false;
-  #define XY_PROBE_FEEDRATE_MM_M xy_probe_feedrate_mm_m
+  #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
 #elif defined(XY_PROBE_SPEED)
-  #define XY_PROBE_FEEDRATE_MM_M XY_PROBE_SPEED
+  #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_SPEED)
 #else
-  #define XY_PROBE_FEEDRATE_MM_M MMS_TO_MMM(PLANNER_XY_FEEDRATE())
+  #define XY_PROBE_FEEDRATE_MM_S PLANNER_XY_FEEDRATE()
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS) && DISABLED(DELTA)
@@ -580,7 +580,7 @@ void serial_echopair_P(const char* s_P, float v)         { serialprintPGM(s_P); 
 void serial_echopair_P(const char* s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
-void tool_change(const uint8_t tmp_extruder, const float fr_mm_m=0.0, bool no_move=false);
+void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
 static void report_current_position();
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1606,7 +1606,7 @@ inline float get_homing_bump_feedrate(AxisEnum axis) {
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Warning: Homing Bump Divisor < 1");
   }
-  return homing_feedrate_mm_m[axis] / hbd;
+  return homing_feedrate_mm_s[axis] / hbd;
 }
 //
 // line_to_current_position
@@ -1614,30 +1614,30 @@ inline float get_homing_bump_feedrate(AxisEnum axis) {
 // (or from wherever it has been told it is located).
 //
 inline void line_to_current_position() {
-  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(feedrate_mm_m), active_extruder);
+  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
 }
 
 inline void line_to_z(float zPosition) {
-  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], MMM_TO_MMS(feedrate_mm_m), active_extruder);
+  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate_mm_s, active_extruder);
 }
 
-inline void line_to_axis_pos(AxisEnum axis, float where, float fr_mm_m = 0.0) {
-  float old_feedrate_mm_m = feedrate_mm_m;
+inline void line_to_axis_pos(AxisEnum axis, float where, float fr_mm_s = 0.0) {
+  float old_feedrate_mm_s = feedrate_mm_s;
   current_position[axis] = where;
-  feedrate_mm_m = (fr_mm_m != 0.0) ? fr_mm_m : homing_feedrate_mm_m[axis];
-  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(feedrate_mm_m), active_extruder);
+  feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[axis];
+  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
   stepper.synchronize();
-  feedrate_mm_m = old_feedrate_mm_m;
+  feedrate_mm_s = old_feedrate_mm_s;
 }
 
 //
 // line_to_destination
 // Move the planner, not necessarily synced with current_position
 //
-inline void line_to_destination(float fr_mm_m) {
-  planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], MMM_TO_MMS(fr_mm_m), active_extruder);
+inline void line_to_destination(float fr_mm_s) {
+  planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], fr_mm_s, active_extruder);
 }
-inline void line_to_destination() { line_to_destination(feedrate_mm_m); }
+inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
 
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
@@ -1652,7 +1652,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
     #endif
     refresh_cmd_timeout();
     inverse_kinematics(destination);
-    planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], MMM_TO_MMS_SCALED(feedrate_mm_m), active_extruder);
+    planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], MMS_SCALED(feedrate_mm_s), active_extruder);
     set_current_to_destination();
   }
 #endif
@@ -1661,8 +1661,8 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
  *  Plan a move to (X, Y, Z) and set the current_position
  *  The final current_position may not be the one that was requested
  */
-void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
-  float old_feedrate_mm_m = feedrate_mm_m;
+void do_blocking_move_to(float x, float y, float z, float fr_mm_s /*=0.0*/) {
+  float old_feedrate_mm_s = feedrate_mm_s;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) print_xyz(PSTR(">>> do_blocking_move_to"), NULL, x, y, z);
@@ -1670,7 +1670,7 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
 
   #if ENABLED(DELTA)
 
-    feedrate_mm_m = (fr_mm_m != 0.0) ? fr_mm_m : XY_PROBE_FEEDRATE_MM_M;
+    feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
     set_destination_to_current();          // sync destination at the start
 
@@ -1730,19 +1730,19 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
 
     // If Z needs to raise, do it before moving XY
     if (current_position[Z_AXIS] < z) {
-      feedrate_mm_m = (fr_mm_m != 0.0) ? fr_mm_m : homing_feedrate_mm_m[Z_AXIS];
+      feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS];
       current_position[Z_AXIS] = z;
       line_to_current_position();
     }
 
-    feedrate_mm_m = (fr_mm_m != 0.0) ? fr_mm_m : XY_PROBE_FEEDRATE_MM_M;
+    feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
     current_position[X_AXIS] = x;
     current_position[Y_AXIS] = y;
     line_to_current_position();
 
     // If Z needs to lower, do it after moving XY
     if (current_position[Z_AXIS] > z) {
-      feedrate_mm_m = (fr_mm_m != 0.0) ? fr_mm_m : homing_feedrate_mm_m[Z_AXIS];
+      feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS];
       current_position[Z_AXIS] = z;
       line_to_current_position();
     }
@@ -1751,16 +1751,16 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_m /*=0.0*/) {
 
   stepper.synchronize();
 
-  feedrate_mm_m = old_feedrate_mm_m;
+  feedrate_mm_s = old_feedrate_mm_s;
 }
-void do_blocking_move_to_x(float x, float fr_mm_m/*=0.0*/) {
-  do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_m);
+void do_blocking_move_to_x(float x, float fr_mm_s/*=0.0*/) {
+  do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
 }
-void do_blocking_move_to_z(float z, float fr_mm_m/*=0.0*/) {
-  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, fr_mm_m);
+void do_blocking_move_to_z(float z, float fr_mm_s/*=0.0*/) {
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, fr_mm_s);
 }
-void do_blocking_move_to_xy(float x, float y, float fr_mm_m/*=0.0*/) {
-  do_blocking_move_to(x, y, current_position[Z_AXIS], fr_mm_m);
+void do_blocking_move_to_xy(float x, float y, float fr_mm_s/*=0.0*/) {
+  do_blocking_move_to(x, y, current_position[Z_AXIS], fr_mm_s);
 }
 
 //
@@ -1776,7 +1776,7 @@ static void setup_for_endstop_or_probe_move() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("setup_for_endstop_or_probe_move", current_position);
   #endif
-  saved_feedrate_mm_m = feedrate_mm_m;
+  saved_feedrate_mm_s = feedrate_mm_s;
   saved_feedrate_percentage = feedrate_percentage;
   feedrate_percentage = 100;
   refresh_cmd_timeout();
@@ -1786,7 +1786,7 @@ static void clean_up_after_endstop_or_probe_move() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) DEBUG_POS("clean_up_after_endstop_or_probe_move", current_position);
   #endif
-  feedrate_mm_m = saved_feedrate_mm_m;
+  feedrate_mm_s = saved_feedrate_mm_s;
   feedrate_percentage = saved_feedrate_percentage;
   refresh_cmd_timeout();
 }
@@ -1881,7 +1881,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_1_X, Z_PROBE_ALLEN_KEY_DEPLOY_1_Y, Z_PROBE_ALLEN_KEY_DEPLOY_1_Z, Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE);
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_1_X, Z_PROBE_ALLEN_KEY_DEPLOY_1_Y, Z_PROBE_ALLEN_KEY_DEPLOY_1_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_2_Z)
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_X
@@ -1896,7 +1896,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_2_X, Z_PROBE_ALLEN_KEY_DEPLOY_2_Y, Z_PROBE_ALLEN_KEY_DEPLOY_2_Z, Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE);
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_2_X, Z_PROBE_ALLEN_KEY_DEPLOY_2_Y, Z_PROBE_ALLEN_KEY_DEPLOY_2_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_3_Z)
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_X
@@ -1911,7 +1911,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_3_X, Z_PROBE_ALLEN_KEY_DEPLOY_3_Y, Z_PROBE_ALLEN_KEY_DEPLOY_3_Z, Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE);
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_3_X, Z_PROBE_ALLEN_KEY_DEPLOY_3_Y, Z_PROBE_ALLEN_KEY_DEPLOY_3_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_4_Z)
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_X
@@ -1926,7 +1926,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_4_X, Z_PROBE_ALLEN_KEY_DEPLOY_4_Y, Z_PROBE_ALLEN_KEY_DEPLOY_4_Z, Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE);
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_4_X, Z_PROBE_ALLEN_KEY_DEPLOY_4_Y, Z_PROBE_ALLEN_KEY_DEPLOY_4_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_4_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_X) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_Y) || defined(Z_PROBE_ALLEN_KEY_DEPLOY_5_Z)
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_X
@@ -1941,7 +1941,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_5_X, Z_PROBE_ALLEN_KEY_DEPLOY_5_Y, Z_PROBE_ALLEN_KEY_DEPLOY_5_Z, Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE);
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_DEPLOY_5_X, Z_PROBE_ALLEN_KEY_DEPLOY_5_Y, Z_PROBE_ALLEN_KEY_DEPLOY_5_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_DEPLOY_5_FEEDRATE));
     #endif
   }
   void run_stow_moves_script() {
@@ -1958,7 +1958,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_1_X, Z_PROBE_ALLEN_KEY_STOW_1_Y, Z_PROBE_ALLEN_KEY_STOW_1_Z, Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE);
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_1_X, Z_PROBE_ALLEN_KEY_STOW_1_Y, Z_PROBE_ALLEN_KEY_STOW_1_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_STOW_2_X) || defined(Z_PROBE_ALLEN_KEY_STOW_2_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_2_Z)
       #ifndef Z_PROBE_ALLEN_KEY_STOW_2_X
@@ -1973,7 +1973,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_2_X, Z_PROBE_ALLEN_KEY_STOW_2_Y, Z_PROBE_ALLEN_KEY_STOW_2_Z, Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE);
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_2_X, Z_PROBE_ALLEN_KEY_STOW_2_Y, Z_PROBE_ALLEN_KEY_STOW_2_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_STOW_3_X) || defined(Z_PROBE_ALLEN_KEY_STOW_3_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_3_Z)
       #ifndef Z_PROBE_ALLEN_KEY_STOW_3_X
@@ -1988,7 +1988,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_3_X, Z_PROBE_ALLEN_KEY_STOW_3_Y, Z_PROBE_ALLEN_KEY_STOW_3_Z, Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE);
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_3_X, Z_PROBE_ALLEN_KEY_STOW_3_Y, Z_PROBE_ALLEN_KEY_STOW_3_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_STOW_4_X) || defined(Z_PROBE_ALLEN_KEY_STOW_4_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_4_Z)
       #ifndef Z_PROBE_ALLEN_KEY_STOW_4_X
@@ -2003,7 +2003,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_4_X, Z_PROBE_ALLEN_KEY_STOW_4_Y, Z_PROBE_ALLEN_KEY_STOW_4_Z, Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE);
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_4_X, Z_PROBE_ALLEN_KEY_STOW_4_Y, Z_PROBE_ALLEN_KEY_STOW_4_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE));
     #endif
     #if defined(Z_PROBE_ALLEN_KEY_STOW_5_X) || defined(Z_PROBE_ALLEN_KEY_STOW_5_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_5_Z)
       #ifndef Z_PROBE_ALLEN_KEY_STOW_5_X
@@ -2018,7 +2018,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #ifndef Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE
         #define Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE 0.0
       #endif
-      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_5_X, Z_PROBE_ALLEN_KEY_STOW_5_Y, Z_PROBE_ALLEN_KEY_STOW_5_Z, Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE);
+      do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_5_X, Z_PROBE_ALLEN_KEY_STOW_5_Y, Z_PROBE_ALLEN_KEY_STOW_5_Z, MMM_TO_MMS(Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE));
     #endif
   }
 #endif
@@ -2122,20 +2122,20 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     #if ENABLED(PROBE_DOUBLE_TOUCH)
-      do_blocking_move_to_z(-(Z_MAX_LENGTH + 10), Z_PROBE_SPEED_FAST);
+      do_blocking_move_to_z(-(Z_MAX_LENGTH + 10), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
       endstops.hit_on_purpose();
       set_current_from_steppers_for_axis(Z_AXIS);
       SYNC_PLAN_POSITION_KINEMATIC();
 
       // move up the retract distance
-      do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), Z_PROBE_SPEED_FAST);
+      do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     #else
       // move fast, close to the bed
-      do_blocking_move_to_z(home_bump_mm(Z_AXIS), Z_PROBE_SPEED_FAST);
+      do_blocking_move_to_z(home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     #endif
 
     // move down slowly to find bed
-    do_blocking_move_to_z(current_position[Z_AXIS] -2.0*home_bump_mm(Z_AXIS), Z_PROBE_SPEED_SLOW);
+    do_blocking_move_to_z(current_position[Z_AXIS] -2.0*home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_SLOW));
     endstops.hit_on_purpose();
     set_current_from_steppers_for_axis(Z_AXIS);
     SYNC_PLAN_POSITION_KINEMATIC();
@@ -2167,7 +2167,7 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     #endif
 
-    float old_feedrate_mm_m = feedrate_mm_m;
+    float old_feedrate_mm_s = feedrate_mm_s;
 
     // Ensure a minimum height before moving the probe
     do_probe_raise(Z_PROBE_TRAVEL_HEIGHT);
@@ -2180,7 +2180,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_ECHOLNPGM(")");
       }
     #endif
-    feedrate_mm_m = XY_PROBE_FEEDRATE_MM_M;
+    feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
     do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2217,7 +2217,7 @@ static void clean_up_after_endstop_or_probe_move() {
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< probe_pt");
     #endif
 
-    feedrate_mm_m = old_feedrate_mm_m;
+    feedrate_mm_s = old_feedrate_mm_s;
 
     return measured_z;
   }
@@ -2509,13 +2509,13 @@ static void homeaxis(AxisEnum axis) {
 
     if (retracting == retracted[active_extruder]) return;
 
-    float old_feedrate_mm_m = feedrate_mm_m;
+    float old_feedrate_mm_s = feedrate_mm_s;
 
     set_destination_to_current();
 
     if (retracting) {
 
-      feedrate_mm_m = MMS_TO_MMM(retract_feedrate_mm_s);
+      feedrate_mm_s = retract_feedrate_mm_s;
       current_position[E_AXIS] += (swapping ? retract_length_swap : retract_length) / volumetric_multiplier[active_extruder];
       sync_plan_position_e();
       prepare_move_to_destination();
@@ -2533,14 +2533,14 @@ static void homeaxis(AxisEnum axis) {
         SYNC_PLAN_POSITION_KINEMATIC();
       }
 
-      feedrate_mm_m = MMS_TO_MMM(retract_recover_feedrate_mm_s);
+      feedrate_mm_s = retract_recover_feedrate_mm_s;
       float move_e = swapping ? retract_length_swap + retract_recover_length_swap : retract_length + retract_recover_length;
       current_position[E_AXIS] -= move_e / volumetric_multiplier[active_extruder];
       sync_plan_position_e();
       prepare_move_to_destination();
     }
 
-    feedrate_mm_m = old_feedrate_mm_m;
+    feedrate_mm_s = old_feedrate_mm_s;
     retracted[active_extruder] = retracting;
 
   } // retract()
@@ -2602,7 +2602,7 @@ void gcode_get_destination() {
   }
 
   if (code_seen('F') && code_value_linear_units() > 0.0)
-    feedrate_mm_m = code_value_linear_units();
+    feedrate_mm_s = MMM_TO_MMS(code_value_linear_units());
 
   #if ENABLED(PRINTCOUNTER)
     if (!DEBUGGING(DRYRUN))
@@ -2846,9 +2846,9 @@ inline void gcode_G4() {
     float mlx = max_length(X_AXIS),
           mly = max_length(Y_AXIS),
           mlratio = mlx > mly ? mly / mlx : mlx / mly,
-          fr_mm_m = min(homing_feedrate_mm_m[X_AXIS], homing_feedrate_mm_m[Y_AXIS]) * sqrt(sq(mlratio) + 1.0);
+          fr_mm_s = min(homing_feedrate_mm_s[X_AXIS], homing_feedrate_mm_s[Y_AXIS]) * sqrt(sq(mlratio) + 1.0);
 
-    do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_m);
+    do_blocking_move_to_xy(1.5 * mlx * x_axis_home_dir, 1.5 * mly * home_dir(Y_AXIS), fr_mm_s);
     endstops.hit_on_purpose(); // clear endstop hit flags
     current_position[X_AXIS] = current_position[Y_AXIS] = 0.0;
 
@@ -2940,7 +2940,7 @@ inline void gcode_G28() {
 
     // Move all carriages up together until the first endstop is hit.
     current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = 3.0 * (Z_MAX_LENGTH);
-    feedrate_mm_m = 1.732 * homing_feedrate_mm_m[X_AXIS];
+    feedrate_mm_s = 1.732 * homing_feedrate_mm_s[X_AXIS];
     line_to_current_position();
     stepper.synchronize();
     endstops.hit_on_purpose(); // clear endstop hit flags
@@ -3157,7 +3157,7 @@ inline void gcode_G28() {
         #if ENABLED(MESH_G28_REST_ORIGIN)
           current_position[Z_AXIS] = 0.0;
           set_destination_to_current();
-          feedrate_mm_m = homing_feedrate_mm_m[Z_AXIS];
+          feedrate_mm_s = homing_feedrate_mm_s[Z_AXIS];
           line_to_destination();
           stepper.synchronize();
           #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3219,8 +3219,8 @@ inline void gcode_G28() {
 
 #if ENABLED(MESH_BED_LEVELING)
   inline void _mbl_goto_xy(float x, float y) {
-    float old_feedrate_mm_m = feedrate_mm_m;
-    feedrate_mm_m = homing_feedrate_mm_m[X_AXIS];
+    float old_feedrate_mm_s = feedrate_mm_s;
+    feedrate_mm_s = homing_feedrate_mm_s[X_AXIS];
 
     current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
       #if Z_PROBE_TRAVEL_HEIGHT > Z_HOMING_HEIGHT
@@ -3240,7 +3240,7 @@ inline void gcode_G28() {
       line_to_current_position();
     #endif
 
-    feedrate_mm_m = old_feedrate_mm_m;
+    feedrate_mm_s = old_feedrate_mm_s;
     stepper.synchronize();
   }
 
@@ -3487,7 +3487,7 @@ inline void gcode_G28() {
         }
       #endif
 
-      xy_probe_feedrate_mm_m = code_seen('S') ? (int)code_value_linear_units() : XY_PROBE_SPEED;
+      xy_probe_feedrate_mm_s = MMM_TO_MMS(code_seen('S') ? code_value_linear_units() : XY_PROBE_SPEED);
 
       int left_probe_bed_position = code_seen('L') ? (int)code_value_axis_units(X_AXIS) : LOGICAL_X_POSITION(LEFT_PROBE_BED_POSITION),
           right_probe_bed_position = code_seen('R') ? (int)code_value_axis_units(X_AXIS) : LOGICAL_X_POSITION(RIGHT_PROBE_BED_POSITION),
@@ -6265,7 +6265,7 @@ inline void gcode_M503() {
       #define RUNPLAN(RATE_MM_S) inverse_kinematics(destination); \
                                  planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], RATE_MM_S, active_extruder);
     #else
-      #define RUNPLAN(RATE_MM_S) line_to_destination(MMS_TO_MMM(RATE_MM_S));
+      #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S);
     #endif
 
     KEEPALIVE_STATE(IN_HANDLER);
@@ -6655,7 +6655,7 @@ inline void invalid_extruder_error(const uint8_t &e) {
   SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
 }
 
-void tool_change(const uint8_t tmp_extruder, const float fr_mm_m/*=0.0*/, bool no_move/*=false*/) {
+void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
     if (tmp_extruder >= MIXING_VIRTUAL_TOOLS) {
@@ -6676,9 +6676,9 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_m/*=0.0*/, bool n
         return;
       }
 
-      float old_feedrate_mm_m = feedrate_mm_m;
+      float old_feedrate_mm_s = feedrate_mm_s;
 
-      feedrate_mm_m = fr_mm_m > 0.0 ? (old_feedrate_mm_m = fr_mm_m) : XY_PROBE_FEEDRATE_MM_M;
+      feedrate_mm_s = fr_mm_s > 0.0 ? (old_feedrate_mm_s = fr_mm_s) : XY_PROBE_FEEDRATE_MM_S;
 
       if (tmp_extruder != active_extruder) {
         if (!no_move && axis_unhomed_error(true, true, true)) {
@@ -6928,14 +6928,14 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_m/*=0.0*/, bool n
         enable_solenoid_on_active_extruder();
       #endif // EXT_SOLENOID
 
-      feedrate_mm_m = old_feedrate_mm_m;
+      feedrate_mm_s = old_feedrate_mm_s;
 
     #else // HOTENDS <= 1
 
       // Set the new active extruder
       active_extruder = tmp_extruder;
 
-      UNUSED(fr_mm_m);
+      UNUSED(fr_mm_s);
       UNUSED(no_move);
 
     #endif // HOTENDS <= 1
@@ -6971,7 +6971,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
 
     tool_change(
       tmp_extruder,
-      code_seen('F') ? code_value_axis_units(X_AXIS) : 0.0,
+      code_seen('F') ? MMM_TO_MMS(code_value_axis_units(X_AXIS)) : 0.0,
       (tmp_extruder == active_extruder) || (code_seen('S') && code_value_bool())
     );
 
@@ -7916,7 +7916,7 @@ void set_current_from_steppers_for_axis(AxisEnum axis) {
 #if ENABLED(MESH_BED_LEVELING)
 
 // This function is used to split lines on mesh borders so each segment is only part of one mesh area
-void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
+void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
   int cx1 = mbl.cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
       cy1 = mbl.cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
       cx2 = mbl.cell_index_x(RAW_X_POSITION(destination[X_AXIS])),
@@ -7928,7 +7928,7 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
 
   if (cx1 == cx2 && cy1 == cy2) {
     // Start and end on same mesh square
-    line_to_destination(fr_mm_m);
+    line_to_destination(fr_mm_s);
     set_current_to_destination();
     return;
   }
@@ -7955,7 +7955,7 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
   }
   else {
     // Already split on a border
-    line_to_destination(fr_mm_m);
+    line_to_destination(fr_mm_s);
     set_current_to_destination();
     return;
   }
@@ -7964,11 +7964,11 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
   destination[E_AXIS] = MBL_SEGMENT_END(E);
 
   // Do the split and look for more borders
-  mesh_line_to_destination(fr_mm_m, x_splits, y_splits);
+  mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
 
   // Restore destination from stack
   memcpy(destination, end, sizeof(end));
-  mesh_line_to_destination(fr_mm_m, x_splits, y_splits);
+  mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
 }
 #endif  // MESH_BED_LEVELING
 
@@ -7981,7 +7981,7 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
     if (cartesian_mm < 0.000001) cartesian_mm = abs(difference[E_AXIS]);
     if (cartesian_mm < 0.000001) return false;
-    float _feedrate_mm_s = MMM_TO_MMS_SCALED(feedrate_mm_m);
+    float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
     float seconds = cartesian_mm / _feedrate_mm_s;
     int steps = max(1, int(delta_segments_per_second * seconds));
     float inv_steps = 1.0/steps;
@@ -8067,12 +8067,12 @@ void mesh_line_to_destination(float fr_mm_m, uint8_t x_splits = 0xff, uint8_t y_
     else {
       #if ENABLED(MESH_BED_LEVELING)
         if (mbl.active()) {
-          mesh_line_to_destination(MMM_SCALED(feedrate_mm_m));
+          mesh_line_to_destination(MMS_SCALED(feedrate_mm_s));
           return false;
         }
         else
       #endif
-          line_to_destination(MMM_SCALED(feedrate_mm_m));
+          line_to_destination(MMS_SCALED(feedrate_mm_s));
     }
     return true;
   }
@@ -8213,7 +8213,7 @@ void prepare_move_to_destination() {
     // Initialize the extruder axis
     arc_target[E_AXIS] = current_position[E_AXIS];
 
-    float fr_mm_s = MMM_TO_MMS_SCALED(feedrate_mm_m);
+    float fr_mm_s = MMS_SCALED(feedrate_mm_s);
 
     millis_t next_idle_ms = millis() + 200UL;
 
@@ -8284,7 +8284,7 @@ void prepare_move_to_destination() {
 #if ENABLED(BEZIER_CURVE_SUPPORT)
 
   void plan_cubic_move(const float offset[4]) {
-    cubic_b_spline(current_position, destination, offset, MMM_TO_MMS_SCALED(feedrate_mm_m), active_extruder);
+    cubic_b_spline(current_position, destination, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
 
     // As far as the parser is concerned, the position is now == target. In reality the
     // motion control system might still be processing the action and the real tool position
