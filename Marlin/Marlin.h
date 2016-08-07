@@ -261,9 +261,7 @@ extern int feedrate_percentage;
 
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
-#define MMM_SCALED(MM_M) ((MM_M)*feedrate_percentage*0.01)
-#define MMS_SCALED(MM_S) MMM_SCALED(MM_S)
-#define MMM_TO_MMS_SCALED(MM_M) (MMS_SCALED(MMM_TO_MMS(MM_M)))
+#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
 
 extern bool axis_relative_modes[];
 extern bool volumetric_enabled;
@@ -391,9 +389,9 @@ void calculate_volumetric_multipliers();
 /**
  * Blocking movement and shorthand functions
  */
-inline void do_blocking_move_to(float x, float y, float z, float fr_mm_m=0.0);
-inline void do_blocking_move_to_x(float x, float fr_mm_m=0.0);
-inline void do_blocking_move_to_z(float z, float fr_mm_m=0.0);
-inline void do_blocking_move_to_xy(float x, float y, float fr_mm_m=0.0);
+inline void do_blocking_move_to(float x, float y, float z, float fr_mm_s=0.0);
+inline void do_blocking_move_to_x(float x, float fr_mm_s=0.0);
+inline void do_blocking_move_to_z(float z, float fr_mm_s=0.0);
+inline void do_blocking_move_to_xy(float x, float y, float fr_mm_s=0.0);
 
 #endif //MARLIN_H
