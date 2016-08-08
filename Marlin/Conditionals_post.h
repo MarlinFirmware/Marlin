@@ -35,33 +35,6 @@
   #endif
 
   /**
-   * Set ENDSTOPPULLUPS for unused endstop switches
-   */
-  #if ENABLED(ENDSTOPPULLUPS)
-    #if ENABLED(USE_XMAX_PLUG)
-      #define ENDSTOPPULLUP_XMAX
-    #endif
-    #if ENABLED(USE_YMAX_PLUG)
-      #define ENDSTOPPULLUP_YMAX
-    #endif
-    #if ENABLED(USE_ZMAX_PLUG)
-      #define ENDSTOPPULLUP_ZMAX
-    #endif
-    #if ENABLED(USE_XMIN_PLUG)
-      #define ENDSTOPPULLUP_XMIN
-    #endif
-    #if ENABLED(USE_YMIN_PLUG)
-      #define ENDSTOPPULLUP_YMIN
-    #endif
-    #if ENABLED(USE_ZMIN_PLUG)
-      #define ENDSTOPPULLUP_ZMIN
-    #endif
-    #if DISABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
-      #define ENDSTOPPULLUP_ZMIN_PROBE
-    #endif
-  #endif
-
-  /**
    * Axis lengths
    */
   #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
@@ -419,6 +392,33 @@
       #else
         #define Z2_MIN_ENDSTOP_INVERTING false
       #endif
+    #endif
+  #endif
+
+  /**
+   * Set ENDSTOPPULLUPS for active endstop switches
+   */
+  #if ENABLED(ENDSTOPPULLUPS)
+    #if ENABLED(USE_XMAX_PLUG)
+      #define ENDSTOPPULLUP_XMAX
+    #endif
+    #if ENABLED(USE_YMAX_PLUG)
+      #define ENDSTOPPULLUP_YMAX
+    #endif
+    #if ENABLED(USE_ZMAX_PLUG)
+      #define ENDSTOPPULLUP_ZMAX
+    #endif
+    #if ENABLED(USE_XMIN_PLUG)
+      #define ENDSTOPPULLUP_XMIN
+    #endif
+    #if ENABLED(USE_YMIN_PLUG)
+      #define ENDSTOPPULLUP_YMIN
+    #endif
+    #if ENABLED(USE_ZMIN_PLUG)
+      #define ENDSTOPPULLUP_ZMIN
+    #endif
+    #if DISABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
+      #define ENDSTOPPULLUP_ZMIN_PROBE
     #endif
   #endif
 
