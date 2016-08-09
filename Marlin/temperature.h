@@ -437,8 +437,8 @@ class Temperature {
     #endif
 
     static void _temp_error(int e, const char* serial_msg, const char* lcd_msg);
-    static void min_temp_error(uint8_t e);
-    static void max_temp_error(uint8_t e);
+    static void min_temp_error(int8_t e);
+    static void max_temp_error(int8_t e);
 
     #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED
 
