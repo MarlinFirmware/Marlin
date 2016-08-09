@@ -145,7 +145,7 @@ struct duration_t {
    *  1193046:59
    */
   void toDigital(char *buffer) const {
-    int h = this->hour() % 24,
+    int h = this->hour(),
         m = this->minute() % 60;
 
     sprintf_P(buffer, PSTR("%02i:%02i"), h, m);
