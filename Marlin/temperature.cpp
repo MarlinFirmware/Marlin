@@ -1021,7 +1021,8 @@ void Temperature::init() {
     #if DISABLED(SDSUPPORT)
       OUT_WRITE(SCK_PIN, LOW);
       OUT_WRITE(MOSI_PIN, HIGH);
-      OUT_WRITE(MISO_PIN, HIGH);
+      SET_INPUT(MISO_PIN);
+      WRITE(MISO_PIN,1);
     #else
       OUT_WRITE(SS_PIN, HIGH);
     #endif
