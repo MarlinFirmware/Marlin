@@ -143,10 +143,11 @@
   #endif
 
   /**
-   * DELTA should ignore Z_SAFE_HOMING
+   * DELTA should ignore Z_SAFE_HOMING and SLOWDOWN
    */
   #if ENABLED(DELTA)
     #undef Z_SAFE_HOMING
+    #undef SLOWDOWN
   #endif
 
   /**
