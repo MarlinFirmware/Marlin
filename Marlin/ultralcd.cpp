@@ -1261,9 +1261,9 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(DELTA_CALIBRATION_MENU)
 
     static void _goto_tower_pos(const float &a) {
-      char cmd[20];
-      sprintf_P(cmd, PSTR("G1 X%i Y%i"), int(-(DELTA_PRINTABLE_RADIUS) * sin(a)), int((DELTA_PRINTABLE_RADIUS) * cos(a)));
-      enqueue_and_echo_commands_P(PSTR("G1 F8000 Z4\nG1 F4000"));
+      char cmd[26];
+      sprintf_P(cmd, PSTR("G1 F4000 X%i Y%i"), int(-(DELTA_PRINTABLE_RADIUS) * sin(a)), int((DELTA_PRINTABLE_RADIUS) * cos(a)));
+      enqueue_and_echo_commands_P(PSTR("G1 F8000 Z4"));
       enqueue_and_echo_command(cmd);
     }
 
