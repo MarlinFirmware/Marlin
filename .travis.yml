@@ -349,6 +349,7 @@ script:
   # Delta Config (generic)
   - restore_configs
   - use_example_configs delta/generic
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU
   - build_marlin
   #
   # Delta Config (generic) + ABL + ALLEN_KEY
