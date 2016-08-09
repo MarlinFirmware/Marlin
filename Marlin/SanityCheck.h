@@ -744,6 +744,6 @@
 /**
  * emergency-command parser
  */
-#if ENABLED(EMERGENCY_PARSER) && ENABLED(USBCON)
+#if ENABLED(EMERGENCY_PARSER) && defined(USBCON)
   #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
 #endif
