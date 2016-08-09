@@ -8671,7 +8671,7 @@ void kill(const char* lcd_msg) {
     UNUSED(lcd_msg);
   #endif
 
-  for (int i = 5; i--;) delay(100); // Wait a short time
+  delay(500); // Wait a short time
 
   cli(); // Stop interrupts
   thermalManager.disable_all_heaters();
