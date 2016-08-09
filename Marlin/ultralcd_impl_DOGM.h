@@ -382,11 +382,12 @@ static void lcd_implementation_status_screen() {
       u8g.drawBox(55, 50, (unsigned int)(71 * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION));
     }
 
-    u8g.setPrintPos(80,48);
-
     char buffer[10];
     duration_t elapsed = print_job_timer.duration();
-    elapsed.toDigital(buffer);
+    bool has_days = (elapsed.value > 60*60*24);
+    elapsed.toDigital(buffer, has_days);
+
+    u8g.setPrintPos(has_days ? 71 : 80, 48);
     lcd_print(buffer);
 
   #endif
