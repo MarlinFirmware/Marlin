@@ -1261,15 +1261,17 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(DELTA_CALIBRATION_MENU)
 
     static void _goto_tower_pos(const float &a) {
-      char cmd[26];
-      sprintf_P(cmd, PSTR("G1 F4000 X%i Y%i"), int(-(DELTA_PRINTABLE_RADIUS) * sin(a)), int((DELTA_PRINTABLE_RADIUS) * cos(a)));
-      enqueue_and_echo_commands_P(PSTR("G1 F8000 Z4"));
-      enqueue_and_echo_command(cmd);
+      do_blocking_move_to(
+        a < 0 ? X_HOME_POS : sin(a) * -(DELTA_PRINTABLE_RADIUS),
+        a < 0 ? Y_HOME_POS : cos(a) *  (DELTA_PRINTABLE_RADIUS),
+        4
+      );
     }
 
     static void _goto_tower_x() { _goto_tower_pos(RADIANS(120)); }
     static void _goto_tower_y() { _goto_tower_pos(RADIANS(240)); }
     static void _goto_tower_z() { _goto_tower_pos(0); }
+    static void _goto_center()  { _goto_tower_pos(-1); }
 
     static void lcd_delta_calibrate_menu() {
       START_MENU();
@@ -1278,7 +1280,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(function, MSG_DELTA_CALIBRATE_X, _goto_tower_x);
       MENU_ITEM(function, MSG_DELTA_CALIBRATE_Y, _goto_tower_y);
       MENU_ITEM(function, MSG_DELTA_CALIBRATE_Z, _goto_tower_z);
-      MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_CENTER, PSTR("G1 F8000 Z4\nG1 F4000 X0 Y0"));
+      MENU_ITEM(function, MSG_DELTA_CALIBRATE_CENTER, _goto_center);
       END_MENU();
     }
 
