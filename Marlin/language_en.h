@@ -569,6 +569,9 @@
   #ifndef MSG_INFO_PRINT_FILAMENT
     #define MSG_INFO_PRINT_FILAMENT           "Extruded total"
   #endif
+  #ifndef MSG_RESET_STATS
+  #define MSG_RESET_STATS                     "Reset statistics"
+  #endif
 #else
   #ifndef MSG_INFO_PRINT_COUNT
     #define MSG_INFO_PRINT_COUNT              "Prints"
@@ -584,6 +587,9 @@
   #endif
   #ifndef MSG_INFO_PRINT_FILAMENT
     #define MSG_INFO_PRINT_FILAMENT           "Extruded"
+  #endif
+  #ifndef MSG_RESET_STATS
+  #define MSG_RESET_STATS                     "Res. stat."
   #endif
 #endif
 
