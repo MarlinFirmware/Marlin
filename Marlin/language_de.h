@@ -70,10 +70,6 @@
 #define MSG_MOVE_Y                          "Y"
 #define MSG_MOVE_Z                          "Z"
 #define MSG_MOVE_E                          "Extruder "
-#define MSG_MOVE_E1                         "0"
-#define MSG_MOVE_E2                         "1"
-#define MSG_MOVE_E3                         "2"
-#define MSG_MOVE_E4                         "3"
 #define MSG_MOVE_01MM                       " 0.1 mm"
 #define MSG_MOVE_1MM                        " 1.0 mm"
 #define MSG_MOVE_10MM                       "10.0 mm"
@@ -99,10 +95,6 @@
 #define MSG_VZ_JERK                         "V Z  Jerk"
 #define MSG_VE_JERK                         "V E  Jerk"
 #define MSG_VMAX                            "V max " // space by purpose
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "V min"
 #define MSG_VTRAV_MIN                       "V min Leerfahrt"
 #define MSG_AMAX                            "A max " // space by purpose
