@@ -835,6 +835,14 @@ void servo_init() {
   void enableStepperDrivers() { pinMode(STEPPER_RESET_PIN, INPUT); }  // set to input, which allows it to be pulled high by pullups
 #endif
 
+#if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
+
+  void i2c_listener(int bytes) {
+    i2c.receive(bytes);        // just echo all bytes received to serial
+  }
+
+#endif
+
 /**
  * Marlin entry-point: Set up before the program loop
  *  - Set up the kill pin, filament runout, power hold
@@ -980,6 +988,10 @@ void setup() {
     for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
       for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
         mixing_virtual_tool_mix[t][i] = mixing_factor[i];
+  #endif
+
+  #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
+    i2c.onReceive(i2c_listener);
   #endif
 }
 
