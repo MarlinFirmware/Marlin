@@ -220,27 +220,6 @@ unsigned char* top_of_stack() {
   return &x + 1; // x is pulled on return;
 }
 
-//
-// 3 support routines to print hex numbers.  We can print a nibble, byte and word
-//
-
-void prt_hex_nibble(unsigned int n) {
-  if (n <= 9)
-    SERIAL_ECHO(n);
-  else
-    SERIAL_ECHO((char)('A' + n - 10));
-  delay(2);
-}
-
-void prt_hex_byte(unsigned int b) {
-  prt_hex_nibble((b & 0xf0) >> 4);
-  prt_hex_nibble(b & 0x0f);
-}
-
-void prt_hex_word(unsigned int w) {
-  prt_hex_byte((w & 0xff00) >> 8);
-  prt_hex_byte(w & 0x0ff);
-}
 
 // how_many_E5s_are_here() is a utility function to easily find out how many 0xE5's are
 // at the specified location.  Having this logic as a function simplifies the search code.
