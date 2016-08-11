@@ -60,13 +60,6 @@ class TWIBus {
     const int timeout = 5;
 
     /**
-     * @brief Target device address
-     * @description The target device address. Persists until changed.
-     *              
-     */
-    uint8_t addr = 0;
-
-    /**
      * @brief Number of bytes on buffer
      * @description Number of bytes in the buffer waiting to be flushed to the bus.
      */
@@ -76,10 +69,16 @@ class TWIBus {
      * @brief Internal buffer
      * @details A fixed buffer. TWI commands can be no longer than this.
      */
-    char buffer[30];
+    char buffer[32];
 
 
   public:
+    /**
+     * @brief Target device address
+     * @description The target device address. Persists until changed.
+     */
+    uint8_t addr = 0;
+
     /**
      * @brief Class constructor
      * @details Initialize the TWI bus and clear the buffer
