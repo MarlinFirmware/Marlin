@@ -390,9 +390,9 @@ void calculate_volumetric_multipliers();
 /**
  * Blocking movement and shorthand functions
  */
-inline void do_blocking_move_to(float x, float y, float z, float fr_mm_s=0.0);
-inline void do_blocking_move_to_x(float x, float fr_mm_s=0.0);
-inline void do_blocking_move_to_z(float z, float fr_mm_s=0.0);
-inline void do_blocking_move_to_xy(float x, float y, float fr_mm_s=0.0);
+void do_blocking_move_to(const float &x, const float &y, const float &z, const float &fr_mm_s=0.0);
+void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
+void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
+void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
 
 #endif //MARLIN_H

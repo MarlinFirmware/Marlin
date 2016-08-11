@@ -79,7 +79,7 @@
     #endif
   #else
     #if ENABLED(DELTA)
-      #define X_HOME_POS ((X_MAX_LENGTH) * 0.5)
+      #define X_HOME_POS (X_MIN_POS + (X_MAX_LENGTH) * 0.5)
     #else
       #define X_HOME_POS (X_HOME_DIR < 0 ? X_MIN_POS : X_MAX_POS)
     #endif
@@ -95,7 +95,7 @@
     #endif
   #else
     #if ENABLED(DELTA)
-      #define Y_HOME_POS ((Y_MAX_LENGTH) * 0.5)
+      #define Y_HOME_POS (Y_MIN_POS + (Y_MAX_LENGTH) * 0.5)
     #else
       #define Y_HOME_POS (Y_HOME_DIR < 0 ? Y_MIN_POS : Y_MAX_POS)
     #endif

@@ -1673,7 +1673,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
  *  Plan a move to (X, Y, Z) and set the current_position
  *  The final current_position may not be the one that was requested
  */
-void do_blocking_move_to(float x, float y, float z, float fr_mm_s /*=0.0*/) {
+void do_blocking_move_to(const float &x, const float &y, const float &z, const float &fr_mm_s /*=0.0*/) {
   float old_feedrate_mm_s = feedrate_mm_s;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1765,13 +1765,13 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_s /*=0.0*/) {
 
   feedrate_mm_s = old_feedrate_mm_s;
 }
-void do_blocking_move_to_x(float x, float fr_mm_s/*=0.0*/) {
+void do_blocking_move_to_x(const float &x, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
 }
-void do_blocking_move_to_z(float z, float fr_mm_s/*=0.0*/) {
+void do_blocking_move_to_z(const float &z, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, fr_mm_s);
 }
-void do_blocking_move_to_xy(float x, float y, float fr_mm_s/*=0.0*/) {
+void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(x, y, current_position[Z_AXIS], fr_mm_s);
 }
 
