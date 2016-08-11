@@ -322,17 +322,17 @@ unsigned char Temperature::soft_pwm[HOTENDS];
               SERIAL_PROTOCOLPAIR(MSG_T_MIN, min);
               SERIAL_PROTOCOLPAIR(MSG_T_MAX, max);
               if (cycles > 2) {
-                Ku = (4.0 * d) / (3.14159265 * (max - min) * 0.5);
+                Ku = (4.0 * d) / (M_PI * (max - min) * 0.5);
                 Tu = ((float)(t_low + t_high) * 0.001);
                 SERIAL_PROTOCOLPAIR(MSG_KU, Ku);
                 SERIAL_PROTOCOLPAIR(MSG_TU, Tu);
                 workKp = 0.6 * Ku;
                 workKi = 2 * workKp / Tu;
                 workKd = workKp * Tu * 0.125;
-                SERIAL_PROTOCOLLNPGM(MSG_CLASSIC_PID);
+                SERIAL_PROTOCOLLNPGM("\n" MSG_CLASSIC_PID);
                 SERIAL_PROTOCOLPAIR(MSG_KP, workKp);
                 SERIAL_PROTOCOLPAIR(MSG_KI, workKi);
-                SERIAL_PROTOCOLPAIR(MSG_KD, workKd);
+                SERIAL_PROTOCOLLNPAIR(MSG_KD, workKd);
                 /**
                 workKp = 0.33*Ku;
                 workKi = workKp/Tu;
@@ -390,40 +390,38 @@ unsigned char Temperature::soft_pwm[HOTENDS];
 
         #if HAS_PID_FOR_BOTH
           const char* estring = hotend < 0 ? "bed" : "";
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kp ", workKp);
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Ki ", workKi);
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kd ", workKd);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kp ", workKp); SERIAL_EOL;
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Ki ", workKi); SERIAL_EOL;
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_", estring); SERIAL_PROTOCOLPAIR("Kd ", workKd); SERIAL_EOL;
         #elif ENABLED(PIDTEMP)
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kp ", workKp);
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Ki ", workKi);
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kd ", workKd);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kp ", workKp); SERIAL_EOL;
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Ki ", workKi); SERIAL_EOL;
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_Kd ", workKd); SERIAL_EOL;
         #else
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKp ", workKp);
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKi ", workKi);
-          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKd ", workKd);
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKp ", workKp); SERIAL_EOL;
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKi ", workKi); SERIAL_EOL;
+          SERIAL_PROTOCOLPAIR("#define  DEFAULT_bedKd ", workKd); SERIAL_EOL;
         #endif
 
-        #define _SET_BED_PID() \
+        #define _SET_BED_PID() do { \
           bedKp = workKp; \
           bedKi = scalePID_i(workKi); \
           bedKd = scalePID_d(workKd); \
-          updatePID()
+          updatePID(); } while(0)
 
-        #define _SET_EXTRUDER_PID() \
+        #define _SET_EXTRUDER_PID() do { \
           PID_PARAM(Kp, hotend) = workKp; \
           PID_PARAM(Ki, hotend) = scalePID_i(workKi); \
           PID_PARAM(Kd, hotend) = scalePID_d(workKd); \
-          updatePID()
+          updatePID(); } while(0)
 
         // Use the result? (As with "M303 U1")
         if (set_result) {
           #if HAS_PID_FOR_BOTH
-            if (hotend < 0) {
+            if (hotend < 0)
               _SET_BED_PID();
-            }
-            else {
+            else
               _SET_EXTRUDER_PID();
-            }
           #elif ENABLED(PIDTEMP)
             _SET_EXTRUDER_PID();
           #else

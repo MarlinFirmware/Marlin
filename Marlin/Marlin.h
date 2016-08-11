@@ -71,6 +71,7 @@
 #define SERIAL_PROTOCOLLNPGM(x) do{ serialprintPGM(PSTR(x "\n")); }while(0)
 
 #define SERIAL_PROTOCOLPAIR(name, value) SERIAL_ECHOPAIR(name, value)
+#define SERIAL_PROTOCOLLNPAIR(name, value) do{ SERIAL_ECHOPAIR(name, value); SERIAL_EOL; }while(0)
 
 extern const char errormagic[] PROGMEM;
 extern const char echomagic[] PROGMEM;
