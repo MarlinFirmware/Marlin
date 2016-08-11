@@ -395,8 +395,7 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
     if (file.open(curDir, fname, O_READ)) {
       filesize = file.fileSize();
       SERIAL_PROTOCOLPAIR(MSG_SD_FILE_OPENED, fname);
-      SERIAL_PROTOCOLPAIR(MSG_SD_SIZE, filesize);
-      SERIAL_EOL;
+      SERIAL_PROTOCOLLNPAIR(MSG_SD_SIZE, filesize);
       sdpos = 0;
 
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
@@ -417,8 +416,7 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
     }
     else {
       saving = true;
-      SERIAL_PROTOCOLPAIR(MSG_SD_WRITE_TO_FILE, name);
-      SERIAL_EOL;
+      SERIAL_PROTOCOLLNPAIR(MSG_SD_WRITE_TO_FILE, name);
       lcd_setstatus(fname);
     }
   }
@@ -449,6 +447,7 @@ void CardReader::removeFile(char* name) {
         if (!myDir.open(curDir, subdirname, O_READ)) {
           SERIAL_PROTOCOLPAIR("open failed, File: ", subdirname);
           SERIAL_PROTOCOLCHAR('.');
+          SERIAL_EOL;
           return;
         }
         else {
