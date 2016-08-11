@@ -5259,15 +5259,13 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    */
   inline void gcode_M155() {
     // Set the target address
-    if (code_seen('A'))
-      i2c.address(code_value_byte());
+    if (code_seen('A')) i2c.address(code_value_byte());
 
     // Add a new byte to the buffer
-    else if (code_seen('B'))
-      i2c.addbyte(code_value_int());
+    if (code_seen('B')) i2c.addbyte(code_value_byte());
 
     // Flush the buffer to the bus
-    else if (code_seen('S')) i2c.send();
+    if (code_seen('S')) i2c.send();
 
     // Reset and rewind the buffer
     else if (code_seen('R')) i2c.reset();
@@ -5279,11 +5277,11 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    * Usage: M156 A<slave device address base 10> B<number of bytes>
    */
   inline void gcode_M156() {
-    uint8_t addr = code_seen('A') ? code_value_byte() : 0;
-    int bytes    = code_seen('B') ? code_value_int() : 1;
+    if (code_seen('A')) i2c.address(code_value_byte());
 
-    if (addr && bytes > 0 && bytes <= 32) {
-      i2c.address(addr);
+    uint8_t bytes = code_seen('B') ? code_value_byte() : 1;
+
+    if (i2c.addr > 0 && bytes > 0 && bytes <= 32) {
       i2c.reqbytes(bytes);
     }
     else {
