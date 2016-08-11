@@ -795,5 +795,6 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 // @section i2cbus
 
 //#define EXPERIMENTAL_I2CBUS
+#define I2C_SLAVE_ADDRESS  0 // Set non-zero to act as a slave
 
 #endif // CONFIGURATION_ADV_H

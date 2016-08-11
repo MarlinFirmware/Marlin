@@ -25,8 +25,12 @@
 
 #include "macros.h"
 
+#include <Wire.h>
+
 // Print debug messages with M111 S2 (Uses 236 bytes of PROGMEM)
 //#define DEBUG_TWIBUS
+
+typedef void (*twiSlaveFunc_t)(int bytes);
 
 /**
  * TWIBUS class
@@ -49,29 +53,28 @@ class TWIBus {
   private:
     /**
      * @brief Timeout value in milliseconds
-     * @details For blocking operations this constant value will set the max
-     * amount of time Marlin will keep waiting for a reply. Useful is something
-     * goes wrong on the bus and the SDA/SCL lines are held up by another device.
+     * @details Maximum amount of time (ms) to wait for a reply.
+     *          Useful if something goes wrong on the bus and the
+     *          SDA/SCL lines are held up by another device.
      */
     const int timeout = 5;
 
     /**
      * @brief Target device address
-     * @description This stores, until the buffer is flushed, the target device
-     * address, take not we do follow Arduino 7bit addressing.
+     * @description The target device address. Persists until changed.
+     *              
      */
     uint8_t addr = 0;
 
     /**
      * @brief Number of bytes on buffer
-     * @description This var holds the total number of bytes on our buffer
-     * waiting to be flushed to the bus.
+     * @description Number of bytes in the buffer waiting to be flushed to the bus.
      */
     uint8_t buffer_s = 0;
 
     /**
      * @brief Internal buffer
-     * @details This is a fixed buffer, TWI command cannot be longer than this
+     * @details A fixed buffer. TWI commands can be no longer than this.
      */
     char buffer[30];
 
@@ -79,49 +82,77 @@ class TWIBus {
   public:
     /**
      * @brief Class constructor
-     * @details Initialized the TWI bus and clears the buffer
+     * @details Initialize the TWI bus and clear the buffer
      */
     TWIBus();
 
     /**
      * @brief Reset the buffer
-     * @details Brings the internal buffer to a known-empty state
+     * @details Set the buffer to a known-empty state
      */
     void reset();
 
     /**
      * @brief Send the buffer data to the bus
-     * @details Flushed the buffer into the bus targeting the cached slave device
-     * address.
+     * @details Flush the buffer to the bus at the target address.
      */
     void send();
 
     /**
      * @brief Add one byte to the buffer
-     * @details Adds the byte to the buffer in a sequential way, if buffer is full
-     * the request is silently ignored.
+     * @details Add a byte to the end of the buffer.
+     *          Silently fails if the buffer is full.
      *
      * @param c a data byte
      */
-    void addbyte(char c);
+    void addbyte(const char c);
 
     /**
-     * @brief Sets the target slave address
-     * @details The target slave address is stored so it can be later used when
-     * the complete packet needs to be sent over the bus.
+     * @brief Set the target slave address
+     * @details The target slave address for sending the full packet.
      *
      * @param addr 7-bit integer address
      */
-    void address(uint8_t addr);
+    void address(const uint8_t addr);
 
     /**
-     * @brief Request data from slave device
-     * @details Requests data from a slave device, when the data is received it will
-     * be relayed to the serial line using a parser-friendly formatting.
+     * @brief Request data from the slave device
+     * @details Request a number of bytes from a slave device.
+     *          This implementation simply sends the data to serial
+     *          in a parser-friendly format.
      *
      * @param bytes the number of bytes to request
      */
-    void reqbytes(uint8_t bytes);
+    void reqbytes(const uint8_t bytes);
+
+    /**
+     * @brief Relay data from the slave device to serial
+     * @details Relay a number of bytes from the bus to
+     *          serial in a parser-friendly format.
+     *
+     * @param bytes the number of bytes to request
+     */
+    void relaydata(uint8_t bytes);
+
+    #if I2C_SLAVE_ADDRESS > 0
+
+      /**
+       * @brief Receive bytes (passively)
+       * @details Receive bytes sent to our slave address.
+       *          and simply echo them to serial.
+       */
+      inline void receive(uint8_t bytes) { relaydata(bytes); }
+
+      /**
+       * @brief Register a slave handler
+       * @details Set a handler to receive data from the bus,
+       *          so we can act as a slave.
+       *
+       * @param handler A function to handle receiving bytes
+       */
+      inline void onReceive(const twiSlaveFunc_t handler) { Wire.onReceive(handler); }
+
+    #endif
 
     #if ENABLED(DEBUG_TWIBUS)
 
