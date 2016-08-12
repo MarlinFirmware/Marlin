@@ -747,3 +747,14 @@
 #if ENABLED(EMERGENCY_PARSER) && defined(USBCON)
   #error "EMERGENCY_PARSER does not work on boards with AT90USB processors (USBCON)."
 #endif
+
+/**
+ * I2C bus
+ */
+#if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
+  #if I2C_SLAVE_ADDRESS < 8
+    #error "I2C_SLAVE_ADDRESS can't be less than 8. (Addresses 0 - 7 are reserved.)"
+  #elif I2C_SLAVE_ADDRESS > 127
+    #error "I2C_SLAVE_ADDRESS can't be over 127. (Only 7 bits allowed.)"
+  #endif
+#endif
