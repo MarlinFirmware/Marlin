@@ -30,7 +30,8 @@
 // Print debug messages with M111 S2 (Uses 236 bytes of PROGMEM)
 //#define DEBUG_TWIBUS
 
-typedef void (*twiSlaveFunc_t)(int bytes);
+typedef void (*twiReceiveFunc_t)(int bytes);
+typedef void (*twiRequestFunc_t)();
 
 /**
  * TWIBUS class
@@ -143,13 +144,20 @@ class TWIBus {
       inline void receive(uint8_t bytes) { relaydata(bytes); }
 
       /**
-       * @brief Register a slave handler
-       * @details Set a handler to receive data from the bus,
-       *          so we can act as a slave.
+       * @brief Register a slave receive handler
+       * @details Set a handler to receive data addressed to us.
        *
        * @param handler A function to handle receiving bytes
        */
-      inline void onReceive(const twiSlaveFunc_t handler) { Wire.onReceive(handler); }
+      inline void onReceive(const twiReceiveFunc_t handler) { Wire.onReceive(handler); }
+
+      /**
+       * @brief Register a slave request handler
+       * @details Set a handler to send data requested from us.
+       *
+       * @param handler A function to handle receiving bytes
+       */
+      inline void onRequest(const twiRequestFunc_t handler) { Wire.onRequest(handler); }
 
     #endif
 
