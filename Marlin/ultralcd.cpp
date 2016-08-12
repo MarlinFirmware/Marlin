@@ -1985,7 +1985,7 @@ void kill_screen(const char* lcd_msg) {
         STATIC_ITEM(MSG_INFO_PRINT_LONGEST ": ", false, false);                                        // Longest job time:
         STATIC_ITEM("", false, false, buffer);                                                         // 99y 364d 23h 59m 59s
 
-        sprintf_P(buffer, PSTR("%ldm"), long(stats.filamentUsed / 1000));
+        sprintf_P(buffer, PSTR("%ld.%im"), long(stats.filamentUsed / 1000), int(stats.filamentUsed / 100) % 10);
         STATIC_ITEM(MSG_INFO_PRINT_FILAMENT ": ", false, false);                                       // Extruded total:
         STATIC_ITEM("", false, false, buffer);                                                         // 125m
         END_SCREEN();
