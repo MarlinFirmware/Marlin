@@ -35,7 +35,7 @@
  * M100 C x Corrupts x locations within the free memory block.   This is useful to check the
  *    correctness of the M100 F and M100 D commands.
  * 
- * Initial version by Roxy-3DPrintBoard
+ * Initial version by Roxy-3D
  */
 #define M100_FREE_MEMORY_DUMPER     // Comment out to remove Dump sub-command
 #define M100_FREE_MEMORY_CORRUPTOR    // Comment out to remove Corrupt sub-command
@@ -64,6 +64,18 @@ void gcode_M100() {
   static int m100_not_initialized = 1;
   unsigned char* sp, *ptr;
   int i, j, n;
+
+  if ( __brkval == 0 ) {		// If so, nobody has done a malloc() and we have 
+    ptr = (unsigned char *) malloc(1);	// no idea where the heap starts.  We need to force
+    *ptr++;				// __brkval to be initialized.  But we also have to 
+    free(ptr);				// work around some compiler omptimizations.  GCC 
+   					// won't even do the call to malloc() if we don't use
+					// the results of the call.  So, we bump the memory
+					// at the pointer and then give back the memory.  This 
+					// will give us a valid idea of where the Global Variables
+					// end and the free memory (above the top of the
+  }					// stack) starts.
+
   //
   // M100 D dumps the free memory block from __brkval to the stack pointer.
   // malloc() eats memory from the start of the block and the stack grows
@@ -73,6 +85,7 @@ void gcode_M100() {
   // probably caused by bad pointers.  Any unexpected values will be flagged in
   // the right hand column to help spotting them.
   //
+
 #if ENABLED(M100_FREE_MEMORY_DUMPER) // Disable to remove Dump sub-command
   if (code_seen('D')) {
     ptr = (unsigned char*) __brkval;
@@ -98,11 +111,9 @@ void gcode_M100() {
       for (i = 0; i < 16; i++) {      // and 16 data bytes
         prt_hex_byte(*(ptr + i));
         SERIAL_CHAR(' ');
-        delay(2);
       }
       SERIAL_CHAR('|');         // now show where non 0xE5's are
       for (i = 0; i < 16; i++) {
-        delay(2);
         if (*(ptr + i) == 0xe5)
           SERIAL_CHAR(' ');
         else
@@ -110,7 +121,7 @@ void gcode_M100() {
       }
       SERIAL_EOL;
       ptr += 16;
-      delay(2);
+      idle();
     }
     SERIAL_ECHOLNPGM("Done.");
     return;
@@ -121,10 +132,8 @@ void gcode_M100() {
   // other vital statistics that define the memory pool.
   //
   if (code_seen('F')) {
-    #if 0
       int max_addr = (int) __brkval;
       int max_cnt = 0;
-    #endif
     int block_cnt = 0;
     ptr = (unsigned char*) __brkval;
     sp = top_of_stack();
@@ -141,12 +150,10 @@ void gcode_M100() {
           i += j;
           block_cnt++;
         }
-        #if 0
           if (j > max_cnt) {      // We don't do anything with this information yet
             max_cnt  = j;     // but we do know where the biggest free memory block is.
             max_addr = (int) ptr + i;
           }
-        #endif
       }
     }
     if (block_cnt > 1)
@@ -160,13 +167,17 @@ void gcode_M100() {
   //
 #if ENABLED(M100_FREE_MEMORY_CORRUPTOR)
   if (code_seen('C')) {
-    int x = code_value_int(); // x gets the # of locations to corrupt within the memory pool
+    int x;
+    if ( code_has_value() ) 
+       x = code_value_int(); // x gets the # of locations to corrupt within the memory pool
+    else
+       x = 1;
     SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
     ptr = (unsigned char*) __brkval;
-    SERIAL_ECHOPAIR("\n__brkval : ", ptr);
+  		SERIAL_ECHOPAIR("\n__brkval : ",(long) ptr );
     ptr += 8;
     sp = top_of_stack();
-    SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
+  		SERIAL_ECHOPAIR("\nStack Pointer : ",(long) sp );
     SERIAL_ECHOLNPGM("\n");
     n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
     // has altered the stack.
@@ -184,23 +195,36 @@ void gcode_M100() {
   // M100 I    Initializes the free memory pool so it can be watched and prints vital
   // statistics that define the free memory pool.
   //
-  if (m100_not_initialized || code_seen('I')) {       // If no sub-command is specified, the first time
-    SERIAL_ECHOLNPGM("Initializing free memory block.\n");    // this happens, it will Initialize.
-    ptr = (unsigned char*) __brkval;        // Repeated M100 with no sub-command will not destroy the
-    SERIAL_ECHOPAIR("\n__brkval : ", ptr);     // state of the initialized free memory pool.
+  if (m100_not_initialized || code_seen('I')) {       		// If no sub-command is specified, the first time
+    SERIAL_ECHOLNPGM("Initializing free memory block.\n");    	// this happens, it will Initialize.
+    ptr = (unsigned char*) __brkval;        			// Repeated M100 with no sub-command will not destroy the
+    SERIAL_ECHOPAIR("\n__brkval : ",(long) ptr );		// state of the initialized free memory pool.
+
+    SERIAL_ECHOPGM("  or 0x");    				// Let's also give the hex version of __brkval
+    ptr = (unsigned char*) __brkval;
+    prt_hex_word((unsigned int) ptr);
+    ptr = (unsigned char*)((unsigned long) ptr & 0xfff0);
+    SERIAL_ECHOPGM("\n");
+
+
+
+
     ptr += 8;
     sp = top_of_stack();
-    SERIAL_ECHOPAIR("\nStack Pointer : ", sp);
-    SERIAL_ECHOLNPGM("\n");
-    n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
-    // has altered the stack.
+    SERIAL_ECHOPAIR("\nStack Pointer : ",(long) sp );
+    SERIAL_ECHOPGM("  or 0x");    				// Let's also give the hex version of sp
+    prt_hex_word((unsigned int) sp);
+    SERIAL_ECHOPGM("\n");
+
+    n = sp - ptr - 64;	// -64 just to keep us from finding interrupt activity that
+    			// has altered the stack.
     SERIAL_ECHO(n);
     SERIAL_ECHOLNPGM(" bytes of memory initialized.\n");
     for (i = 0; i < n; i++)
       *(ptr + i) = (unsigned char) 0xe5;
     for (i = 0; i < n; i++) {
       if (*(ptr + i) != (unsigned char) 0xe5) {
-        SERIAL_ECHOPAIR("? address : ", ptr + i);
+	SERIAL_ECHOPAIR("? address : ", (unsigned long) ptr+i );
         SERIAL_ECHOPAIR("=", *(ptr + i));
         SERIAL_ECHOLNPGM("\n");
       }
