@@ -837,8 +837,17 @@ void servo_init() {
 
 #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
 
-  void i2c_listener(int bytes) {
-    i2c.receive(bytes);        // just echo all bytes received to serial
+  void i2c_on_receive(int bytes) { // just echo all bytes received to serial
+    i2c.receive(bytes);
+  }
+
+  void i2c_on_request() {          // just send dummy data for now
+    static const char *msg = "Hello World!\n";
+    const char *adr = msg;
+    char c;
+    i2c.reset();
+    while (c = *adr++) i2c.addbyte(c);
+    i2c.send();
   }
 
 #endif
@@ -991,7 +1000,8 @@ void setup() {
   #endif
 
   #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
-    i2c.onReceive(i2c_listener);
+    i2c.onReceive(i2c_on_receive);
+    i2c.onRequest(i2c_on_request);
   #endif
 }
 
