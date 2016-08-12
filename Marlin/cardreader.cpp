@@ -276,19 +276,12 @@ void CardReader::openAndPrintFile(const char *name) {
 }
 
 void CardReader::startFileprint() {
-  if (cardOK)
-    sdprinting = true;
-}
-
-void CardReader::pauseSDPrint() {
-  if (sdprinting) sdprinting = false;
+  if (cardOK) sdprinting = true;
 }
 
 void CardReader::stopSDPrint() {
-  if (sdprinting) {
-    sdprinting = false;
-    file.close();
-  }
+  sdprinting = false;
+  if (isFileOpen()) file.close();
 }
 
 void CardReader::openLogFile(char* name) {
@@ -340,7 +333,6 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
      SERIAL_ECHOPGM("Now doing file: ");
      SERIAL_ECHOLN(name);
     }
-    file.close();
   }
   else { //opening fresh file
     file_subcall_ctr = 0; //resetting procedure depth in case user cancels print while in procedure
@@ -348,7 +340,8 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
     SERIAL_ECHOPGM("Now fresh file: ");
     SERIAL_ECHOLN(name);
   }
-  sdprinting = false;
+
+  stopSDPrint();
 
   SdFile myDir;
   curDir = &root;
@@ -425,8 +418,7 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
 void CardReader::removeFile(char* name) {
   if (!cardOK) return;
 
-  file.close();
-  sdprinting = false;
+  stopSDPrint();
 
   SdFile myDir;
   curDir = &root;
