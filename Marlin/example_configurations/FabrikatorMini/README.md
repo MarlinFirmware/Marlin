@@ -3,9 +3,13 @@ This example configuration is for a Turnigy Fabrikator Mini 1.5
 
 It is prepared to work with the following modifications
 * RepRapDiscount Full Graphic Smart Controller
-* tinyFab Heated Bed MK2
+* tinyFab Heated Bed MK2 (http://tinyfab.xyz)
 
 It should work fine with stock printers without any modifications, too.
+
+# Instructions
+Copy the contents of this folder to the "Marlin" folder, overwriting any existing
+files in there. If you are not asked to overwrite any files, you have the wrong folder.
 
 ## Hotend fan not starting
 These configs will only start the hotend fan if a hotend temperature of 50°C has been 
