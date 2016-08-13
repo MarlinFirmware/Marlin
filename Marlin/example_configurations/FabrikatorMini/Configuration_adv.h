@@ -208,7 +208,7 @@
 // extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
 // Multiple extruders can be assigned to the same pin in which case
 // the fan will turn on when any selected extruder is above the threshold.
-#define EXTRUDER_0_AUTO_FAN_PIN -1
+#define EXTRUDER_0_AUTO_FAN_PIN RAMPS_D9_PIN
 #define EXTRUDER_1_AUTO_FAN_PIN -1
 #define EXTRUDER_2_AUTO_FAN_PIN -1
 #define EXTRUDER_3_AUTO_FAN_PIN -1
@@ -318,7 +318,7 @@
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 2
 #define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
-//#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
+#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 // When G28 is called, this option will make Y home before X
 //#define HOME_Y_BEFORE_X
@@ -450,11 +450,11 @@
 #if ENABLED(DOGLCD)
   // save 3120 bytes of PROGMEM by commenting out #define USE_BIG_EDIT_FONT
   // we don't have a big font for Cyrillic, Kana
-  //#define USE_BIG_EDIT_FONT
+  #define USE_BIG_EDIT_FONT
 
   // If you have spare 2300Byte of progmem and want to use a
   // smaller font on the Info-screen uncomment the next line.
-  //#define USE_SMALL_INFOFONT
+  #define USE_SMALL_INFOFONT
 #endif // DOGLCD
 
 // @section safety
@@ -795,6 +795,5 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 // @section i2cbus
 
 //#define EXPERIMENTAL_I2CBUS
-#define I2C_SLAVE_ADDRESS  0 // Set non-zero to act as a slave
 
 #endif // CONFIGURATION_ADV_H

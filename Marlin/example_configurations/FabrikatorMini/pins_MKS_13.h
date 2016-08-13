@@ -40,6 +40,9 @@
 
 #include "pins_RAMPS.h"
 
+// Override FAN_PIN to use EXTRUDER_0_AUTO_FAN_PIN
+#define FAN_PIN -1
+
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   /**
    * VIKI2 Has two groups of wires with...
