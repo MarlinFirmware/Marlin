@@ -835,6 +835,23 @@ void servo_init() {
   void enableStepperDrivers() { pinMode(STEPPER_RESET_PIN, INPUT); }  // set to input, which allows it to be pulled high by pullups
 #endif
 
+#if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
+
+  void i2c_on_receive(int bytes) { // just echo all bytes received to serial
+    i2c.receive(bytes);
+  }
+
+  void i2c_on_request() {          // just send dummy data for now
+    static const char *msg = "Hello World!\n";
+    const char *adr = msg;
+    char c;
+    i2c.reset();
+    while (c = *adr++) i2c.addbyte(c);
+    i2c.send();
+  }
+
+#endif
+
 /**
  * Marlin entry-point: Set up before the program loop
  *  - Set up the kill pin, filament runout, power hold
@@ -980,6 +997,11 @@ void setup() {
     for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
       for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
         mixing_virtual_tool_mix[t][i] = mixing_factor[i];
+  #endif
+
+  #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
+    i2c.onReceive(i2c_on_receive);
+    i2c.onRequest(i2c_on_request);
   #endif
 }
 
@@ -1661,7 +1683,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
  *  Plan a move to (X, Y, Z) and set the current_position
  *  The final current_position may not be the one that was requested
  */
-void do_blocking_move_to(float x, float y, float z, float fr_mm_s /*=0.0*/) {
+void do_blocking_move_to(const float &x, const float &y, const float &z, const float &fr_mm_s /*=0.0*/) {
   float old_feedrate_mm_s = feedrate_mm_s;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1753,13 +1775,13 @@ void do_blocking_move_to(float x, float y, float z, float fr_mm_s /*=0.0*/) {
 
   feedrate_mm_s = old_feedrate_mm_s;
 }
-void do_blocking_move_to_x(float x, float fr_mm_s/*=0.0*/) {
+void do_blocking_move_to_x(const float &x, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
 }
-void do_blocking_move_to_z(float z, float fr_mm_s/*=0.0*/) {
+void do_blocking_move_to_z(const float &z, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z, fr_mm_s);
 }
-void do_blocking_move_to_xy(float x, float y, float fr_mm_s/*=0.0*/) {
+void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(x, y, current_position[Z_AXIS], fr_mm_s);
 }
 
@@ -3280,10 +3302,9 @@ inline void gcode_G28() {
       case MeshReport:
         if (mbl.has_mesh()) {
           SERIAL_PROTOCOLPAIR("State: ", mbl.active() ? "On" : "Off");
-          SERIAL_PROTOCOLPAIR("\nNum X,Y: ", MESH_NUM_X_POINTS);
-          SERIAL_PROTOCOLCHAR(','); SERIAL_PROTOCOL(MESH_NUM_Y_POINTS);
-          SERIAL_PROTOCOLPAIR("\nZ search height: ", MESH_HOME_SEARCH_Z);
-          SERIAL_PROTOCOLPGM("\nZ offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
+          SERIAL_PROTOCOLLNPGM("\nNum X,Y: " STRINGIFY(MESH_NUM_X_POINTS) "," STRINGIFY(MESH_NUM_Y_POINTS));
+          SERIAL_PROTOCOLLNPGM("Z search height: " STRINGIFY(MESH_HOME_SEARCH_Z));
+          SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
           SERIAL_PROTOCOLLNPGM("\nMeasured points:");
           for (py = 0; py < MESH_NUM_Y_POINTS; py++) {
             for (px = 0; px < MESH_NUM_X_POINTS; px++) {
@@ -5247,15 +5268,13 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    */
   inline void gcode_M155() {
     // Set the target address
-    if (code_seen('A'))
-      i2c.address(code_value_byte());
+    if (code_seen('A')) i2c.address(code_value_byte());
 
     // Add a new byte to the buffer
-    else if (code_seen('B'))
-      i2c.addbyte(code_value_int());
+    if (code_seen('B')) i2c.addbyte(code_value_byte());
 
     // Flush the buffer to the bus
-    else if (code_seen('S')) i2c.send();
+    if (code_seen('S')) i2c.send();
 
     // Reset and rewind the buffer
     else if (code_seen('R')) i2c.reset();
@@ -5267,11 +5286,11 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    * Usage: M156 A<slave device address base 10> B<number of bytes>
    */
   inline void gcode_M156() {
-    uint8_t addr = code_seen('A') ? code_value_byte() : 0;
-    int bytes    = code_seen('B') ? code_value_int() : 1;
+    if (code_seen('A')) i2c.address(code_value_byte());
 
-    if (addr && bytes > 0 && bytes <= 32) {
-      i2c.address(addr);
+    uint8_t bytes = code_seen('B') ? code_value_byte() : 1;
+
+    if (i2c.addr > 0 && bytes > 0 && bytes <= 32) {
       i2c.reqbytes(bytes);
     }
     else {

@@ -29,25 +29,28 @@
 #include <Wire.h>
 
 TWIBus::TWIBus() {
-  Wire.begin(); // We use no address so we will join the BUS as the master
+  #if I2C_SLAVE_ADDRESS == 0
+    Wire.begin();                  // No address joins the BUS as the master
+  #else
+    Wire.begin(I2C_SLAVE_ADDRESS); // Join the bus as a slave
+  #endif
   this->reset();
 }
 
 void TWIBus::reset() {
-  this->addr = 0;
   this->buffer_s = 0;
   this->buffer[0] = 0x00;
 }
 
-void TWIBus::address(uint8_t addr) {
+void TWIBus::address(const uint8_t addr) {
   this->addr = addr;
 
   #if ENABLED(DEBUG_TWIBUS)
-    debug(PSTR("sendto"), this->addr);
+    debug(PSTR("address"), this->addr);
   #endif
 }
 
-void TWIBus::addbyte(char c) {
+void TWIBus::addbyte(const char c) {
   if (buffer_s >= sizeof(this->buffer)) return;
   this->buffer[this->buffer_s++] = c;
 
@@ -67,39 +70,35 @@ void TWIBus::send() {
   Wire.write(this->buffer, this->buffer_s);
   Wire.endTransmission();
 
-    // Reset the buffer after sending the data
+  // Reset the buffer after sending the data
   this->reset();
 }
 
-void TWIBus::reqbytes(uint8_t bytes) {
+void TWIBus::reqbytes(const uint8_t bytes) {
   if (!this->addr) return;
 
   #if ENABLED(DEBUG_TWIBUS)
     debug(PSTR("reqbytes"), bytes);
   #endif
 
+  // requestFrom() is a blocking function
   millis_t t = millis() + this->timeout;
   Wire.requestFrom(this->addr, bytes);
+  while (Wire.available() < bytes && PENDING(millis(), t)) { /*nada*/ }
 
-    // requestFrom() is a blocking function
-  while (Wire.available() < bytes) {
-    if (ELAPSED(millis(), t)) break;
-    else continue;
-  }
-
-  SERIAL_ECHO_START;
-  SERIAL_ECHOPAIR("i2c-reply: from:", this->addr);
-  SERIAL_ECHOPAIR(" bytes:", Wire.available());
-  SERIAL_ECHOPGM (" data:");
-
-    // Protect against buffer overflows if the number of received bytes
-    // is less than the number of requested bytes
-  uint8_t wba = Wire.available();
-  for (int i = 0; i < wba; i++) SERIAL_CHAR(Wire.read());
-  SERIAL_EOL;
+  this->relaydata(bytes);
 
   // Reset the buffer after sending the data
   this->reset();
+}
+
+void TWIBus::relaydata(uint8_t bytes) {
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPAIR("i2c-reply: from:", this->addr);
+  SERIAL_ECHOPAIR(" bytes:", bytes);
+  SERIAL_ECHOPGM (" data:");
+  while (bytes-- && Wire.available()) SERIAL_CHAR(Wire.read());
+  SERIAL_EOL;
 }
 
 #if ENABLED(DEBUG_TWIBUS)

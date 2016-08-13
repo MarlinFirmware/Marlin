@@ -384,7 +384,7 @@ static void lcd_implementation_status_screen() {
 
     char buffer[10];
     duration_t elapsed = print_job_timer.duration();
-    bool has_days = (elapsed.value > 60*60*24);
+    bool has_days = (elapsed.value > 60*60*24L);
     elapsed.toDigital(buffer, has_days);
 
     u8g.setPrintPos(has_days ? 71 : 80, 48);

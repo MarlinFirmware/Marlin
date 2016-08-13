@@ -32,12 +32,9 @@
 #if ENABLED(SDSUPPORT)
 
 CardReader::CardReader() {
+  sdprinting = cardOK = saving = logging = false;
   filesize = 0;
   sdpos = 0;
-  sdprinting = false;
-  cardOK = false;
-  saving = false;
-  logging = false;
   workDirDepth = 0;
   file_subcall_ctr = 0;
   memset(workDirParents, 0, sizeof(workDirParents));
@@ -276,19 +273,12 @@ void CardReader::openAndPrintFile(const char *name) {
 }
 
 void CardReader::startFileprint() {
-  if (cardOK)
-    sdprinting = true;
-}
-
-void CardReader::pauseSDPrint() {
-  if (sdprinting) sdprinting = false;
+  if (cardOK) sdprinting = true;
 }
 
 void CardReader::stopSDPrint() {
-  if (sdprinting) {
-    sdprinting = false;
-    file.close();
-  }
+  sdprinting = false;
+  if (isFileOpen()) file.close();
 }
 
 void CardReader::openLogFile(char* name) {
@@ -310,8 +300,11 @@ void CardReader::getAbsFilename(char *t) {
 }
 
 void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
+
   if (!cardOK) return;
-  if (file.isOpen()) { //replacing current file by new file, or subfile call
+
+  uint8_t doing = 0;
+  if (isFileOpen()) { //replacing current file by new file, or subfile call
     if (push_current) {
       if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
         SERIAL_ERROR_START;
@@ -321,40 +314,39 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
         return;
       }
 
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM("SUBROUTINE CALL target:\"");
-      SERIAL_ECHO(name);
-      SERIAL_ECHOPGM("\" parent:\"");
-
-      //store current filename and position
+      // Store current filename and position
       getAbsFilename(proc_filenames[file_subcall_ctr]);
 
-      SERIAL_ECHO(proc_filenames[file_subcall_ctr]);
-      SERIAL_ECHOPGM("\" pos");
-      SERIAL_ECHOLN(sdpos);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("SUBROUTINE CALL target:\"", name);
+      SERIAL_ECHOPAIR("\" parent:\"", proc_filenames[file_subcall_ctr]);
+      SERIAL_ECHOLNPAIR("\" pos", sdpos);
       filespos[file_subcall_ctr] = sdpos;
       file_subcall_ctr++;
     }
     else {
-     SERIAL_ECHO_START;
-     SERIAL_ECHOPGM("Now doing file: ");
-     SERIAL_ECHOLN(name);
+      doing = 1;
     }
-    file.close();
   }
-  else { //opening fresh file
-    file_subcall_ctr = 0; //resetting procedure depth in case user cancels print while in procedure
+  else { // Opening fresh file
+    doing = 2;
+    file_subcall_ctr = 0; // Reset procedure depth in case user cancels print while in procedure
+  }
+
+  if (doing) {
     SERIAL_ECHO_START;
-    SERIAL_ECHOPGM("Now fresh file: ");
-    SERIAL_ECHOLN(name);
+    SERIAL_ECHOPGM("Now ");
+    SERIAL_ECHO(doing == 1 ? "doing" : "fresh");
+    SERIAL_ECHOLNPAIR(" file: ", name);
   }
-  sdprinting = false;
+
+  stopSDPrint();
 
   SdFile myDir;
   curDir = &root;
   char *fname = name;
-
   char *dirname_start, *dirname_end;
+
   if (name[0] == '/') {
     dirname_start = &name[1];
     while (dirname_start != NULL) {
@@ -395,8 +387,7 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
     if (file.open(curDir, fname, O_READ)) {
       filesize = file.fileSize();
       SERIAL_PROTOCOLPAIR(MSG_SD_FILE_OPENED, fname);
-      SERIAL_PROTOCOLPAIR(MSG_SD_SIZE, filesize);
-      SERIAL_EOL;
+      SERIAL_PROTOCOLLNPAIR(MSG_SD_SIZE, filesize);
       sdpos = 0;
 
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
@@ -417,8 +408,7 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
     }
     else {
       saving = true;
-      SERIAL_PROTOCOLPAIR(MSG_SD_WRITE_TO_FILE, name);
-      SERIAL_EOL;
+      SERIAL_PROTOCOLLNPAIR(MSG_SD_WRITE_TO_FILE, name);
       lcd_setstatus(fname);
     }
   }
@@ -427,8 +417,7 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
 void CardReader::removeFile(char* name) {
   if (!cardOK) return;
 
-  file.close();
-  sdprinting = false;
+  stopSDPrint();
 
   SdFile myDir;
   curDir = &root;
@@ -449,6 +438,7 @@ void CardReader::removeFile(char* name) {
         if (!myDir.open(curDir, subdirname, O_READ)) {
           SERIAL_PROTOCOLPAIR("open failed, File: ", subdirname);
           SERIAL_PROTOCOLCHAR('.');
+          SERIAL_EOL;
           return;
         }
         else {
