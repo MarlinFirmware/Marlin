@@ -36,32 +36,22 @@
   #define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
 #endif
 
+#define RAMPS_D8_PIN 9
+#define RAMPS_D9_PIN 8
+#define MOSFET_D_PIN 12
+
 #include "pins_RAMPS.h"
+
+#define HEATER_2_PIN       6
 
 #undef Z_ENABLE_PIN
 #define Z_ENABLE_PIN       63
 
-#undef X_MAX_PIN
-#undef Y_MAX_PIN
 #undef Z_MAX_PIN
-#define X_MAX_PIN          2
-#define Y_MAX_PIN          15
 #define Z_MAX_PIN          -1
 
 #undef SDSS
 #define SDSS               25//53
-
-#undef FAN_PIN
-#define FAN_PIN            8
-
-#undef HEATER_1_PIN
-#undef HEATER_2_PIN
-#undef HEATER_BED_PIN
-#define HEATER_0_PIN       10
-#define HEATER_1_PIN       12
-#define HEATER_2_PIN       6
-
-#define HEATER_BED_PIN     9    // BED
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   #undef BEEPER_PIN
