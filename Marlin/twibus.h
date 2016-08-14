@@ -183,6 +183,7 @@ class TWIBus {
        * @details Send the buffer and clear it.
        */
       void reply(char str[]=NULL);
+      inline void reply(const char str[]) { this->reply((char*)str); }
 
     #endif
 
