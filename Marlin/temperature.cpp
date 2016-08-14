@@ -479,7 +479,7 @@ int Temperature::getHeaterPower(int heater) {
         SBI(fanState, fanBit[e]);
     }
     uint8_t fanDone = 0;
-    for (int8_t f = 0; f <= 3; f++) {
+    for (int8_t f = 0; f < COUNT(fanPin); f++) {
       int8_t pin = fanPin[f];
       if (pin >= 0 && !TEST(fanDone, fanBit[f])) {
         unsigned char newFanSpeed = TEST(fanState, fanBit[f]) ? EXTRUDER_AUTO_FAN_SPEED : 0;
