@@ -62,7 +62,7 @@ class TWIBus {
 
     /**
      * @brief Number of bytes on buffer
-     * @description Number of bytes in the buffer waiting to be flushed to the bus.
+     * @description Number of bytes in the buffer waiting to be flushed to the bus
      */
     uint8_t buffer_s = 0;
 
@@ -94,7 +94,7 @@ class TWIBus {
 
     /**
      * @brief Send the buffer data to the bus
-     * @details Flush the buffer to the bus at the target address.
+     * @details Flush the buffer to the target address
      */
     void send();
 
@@ -108,12 +108,40 @@ class TWIBus {
     void addbyte(const char c);
 
     /**
-     * @brief Set the target slave address
-     * @details The target slave address for sending the full packet.
+     * @brief Add some bytes to the buffer
+     * @details Add bytes to the end of the buffer.
+     *          Concatenates at the buffer size.
      *
-     * @param addr 7-bit integer address
+     * @param src source data address
+     * @param bytes the number of bytes to add
      */
-    void address(const uint8_t addr);
+    void addbytes(char src[], uint8_t bytes);
+
+    /**
+     * @brief Add a null-terminated string to the buffer
+     * @details Add bytes to the end of the buffer up to a nul.
+     *          Concatenates at the buffer size.
+     *
+     * @param str source string address
+     */
+    void addstring(char str[]);
+
+    /**
+     * @brief Set the target slave address
+     * @details The target slave address for sending the full packet
+     *
+     * @param adr 7-bit integer address
+     */
+    void address(const uint8_t adr);
+
+    /**
+     * @brief Echo data on the bus to serial
+     * @details Echo some number of bytes from the bus
+     *          to serial in a parser-friendly format.
+     *
+     * @param bytes the number of bytes to request
+     */
+    static void echodata(uint8_t bytes, const char prefix[], uint8_t adr);
 
     /**
      * @brief Request data from the slave device
@@ -125,27 +153,11 @@ class TWIBus {
      */
     void reqbytes(const uint8_t bytes);
 
-    /**
-     * @brief Relay data from the slave device to serial
-     * @details Relay a number of bytes from the bus to
-     *          serial in a parser-friendly format.
-     *
-     * @param bytes the number of bytes to request
-     */
-    void relaydata(uint8_t bytes);
-
     #if I2C_SLAVE_ADDRESS > 0
 
       /**
-       * @brief Receive bytes (passively)
-       * @details Receive bytes sent to our slave address.
-       *          and simply echo them to serial.
-       */
-      inline void receive(uint8_t bytes) { relaydata(bytes); }
-
-      /**
        * @brief Register a slave receive handler
-       * @details Set a handler to receive data addressed to us.
+       * @details Set a handler to receive data addressed to us
        *
        * @param handler A function to handle receiving bytes
        */
@@ -153,11 +165,24 @@ class TWIBus {
 
       /**
        * @brief Register a slave request handler
-       * @details Set a handler to send data requested from us.
+       * @details Set a handler to send data requested from us
        *
        * @param handler A function to handle receiving bytes
        */
       inline void onRequest(const twiRequestFunc_t handler) { Wire.onRequest(handler); }
+
+      /**
+       * @brief Default handler to receive
+       * @details Receive bytes sent to our slave address
+       *          and simply echo them to serial.
+       */
+      void receive(uint8_t bytes);
+
+      /**
+       * @brief Send a reply to the bus
+       * @details Send the buffer and clear it.
+       */
+      void reply(char str[]=NULL);
 
     #endif
 
@@ -167,7 +192,11 @@ class TWIBus {
        * @brief Prints a debug message
        * @details Prints a simple debug message "TWIBus::function: value"
        */
-      static void debug(const char func[], int32_t val = -1);
+      static void prefix(const char func[]);
+      static void debug(const char func[], uint32_t adr);
+      static void debug(const char func[], char c);
+      static void debug(const char func[], char adr[]);
+      static inline void debug(const char func[], uint8_t v) { debug(func, (uint32_t)v); }
 
     #endif
 };
