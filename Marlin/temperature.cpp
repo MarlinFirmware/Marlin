@@ -987,39 +987,35 @@ void Temperature::init() {
     SET_OUTPUT(HEATER_BED_PIN);
   #endif
 
-  #if ENABLED(FAST_PWM_FAN) || ENABLED(FAN_SOFT_PWM)
-
-    #if HAS_FAN0
-      SET_OUTPUT(FAN_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
-      #endif
-      #if ENABLED(FAN_SOFT_PWM)
-        soft_pwm_fan[0] = fanSpeedSoftPwm[0] / 2;
-      #endif
+  #if HAS_FAN0
+    SET_OUTPUT(FAN_PIN);
+    #if ENABLED(FAST_PWM_FAN)
+      setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
-
-    #if HAS_FAN1
-      SET_OUTPUT(FAN1_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        setPwmFrequency(FAN1_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
-      #endif
-      #if ENABLED(FAN_SOFT_PWM)
-        soft_pwm_fan[1] = fanSpeedSoftPwm[1] / 2;
-      #endif
+    #if ENABLED(FAN_SOFT_PWM)
+      soft_pwm_fan[0] = fanSpeedSoftPwm[0] / 2;
     #endif
+  #endif
 
-    #if HAS_FAN2
-      SET_OUTPUT(FAN2_PIN);
-      #if ENABLED(FAST_PWM_FAN)
-        setPwmFrequency(FAN2_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
-      #endif
-      #if ENABLED(FAN_SOFT_PWM)
-        soft_pwm_fan[2] = fanSpeedSoftPwm[2] / 2;
-      #endif
+  #if HAS_FAN1
+    SET_OUTPUT(FAN1_PIN);
+    #if ENABLED(FAST_PWM_FAN)
+      setPwmFrequency(FAN1_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
+    #if ENABLED(FAN_SOFT_PWM)
+      soft_pwm_fan[1] = fanSpeedSoftPwm[1] / 2;
+    #endif
+  #endif
 
-  #endif // FAST_PWM_FAN || FAN_SOFT_PWM
+  #if HAS_FAN2
+    SET_OUTPUT(FAN2_PIN);
+    #if ENABLED(FAST_PWM_FAN)
+      setPwmFrequency(FAN2_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+    #endif
+    #if ENABLED(FAN_SOFT_PWM)
+      soft_pwm_fan[2] = fanSpeedSoftPwm[2] / 2;
+    #endif
+  #endif
 
   #if ENABLED(HEATER_0_USES_MAX6675)
 
