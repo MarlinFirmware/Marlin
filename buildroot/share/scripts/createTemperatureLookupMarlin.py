@@ -5,7 +5,7 @@ Generates lookup to temperature values for use in a microcontroller in C format 
 http://en.wikipedia.org/wiki/Steinhart-Hart_equation
 
 The main use is for Arduino programs that read data from the circuit board described here:
-http://make.rrrf.org/ts-1.0
+http://reprap.org/wiki/Temperature_Sensor_v2.0
 
 Usage: python createTemperatureLookup.py [options]
 

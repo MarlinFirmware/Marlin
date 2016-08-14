@@ -30,6 +30,7 @@
 
 #define DEFAULT_MACHINE_NAME    "Ultimaker"
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
+#define BOARD_NAME              "Ultimaker 2.x"
 
 #define X_STEP_PIN 25
 #define X_DIR_PIN 23
@@ -88,10 +89,6 @@
 //buttons are directly attached
 #define BTN_EN1 40
 #define BTN_EN2 41
-#define BTN_ENC 19  //the click
-
-#define BLEN_C 2
-#define BLEN_B 1
-#define BLEN_A 0
+#define BTN_ENC 19
 
 #define SD_DETECT_PIN 39

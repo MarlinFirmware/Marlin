@@ -20,12 +20,15 @@
  *
  */
 
-/**
- * Arduino Mega with RAMPS v1.4 pin assignments
- *
- *  RAMPS_14_EFB (Extruder, Fan, Bed)
- */
+#include "Marlin.h"
+#include "utility.h"
+#include "temperature.h"
 
-#define IS_RAMPS_EFB
-
-#include "pins_RAMPS_14.h"
+void safe_delay(millis_t ms) {
+  while (ms > 50) {
+    ms -= 50;
+    delay(50);
+    thermalManager.manage_heater();
+  }
+  delay(ms);
+}

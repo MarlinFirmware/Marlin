@@ -74,6 +74,8 @@
   // (or build from command line)
 #endif
 
+#define BOARD_NAME         "Teensy++2.0"
+
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN         28 //  0 Marlin
@@ -106,13 +108,6 @@
 #define SDSS               20 // 8
 #define LED_PIN             6
 #define PS_ON_PIN          27
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN         21 // 9
-  #define MISO_PIN        23 // 11
-  #define MOSI_PIN        22 // 10
-#endif
 
 #if ENABLED(ULTIPANEL)
   #define LCD_PINS_RS         8

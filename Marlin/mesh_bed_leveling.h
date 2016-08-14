@@ -23,13 +23,12 @@
 #include "Marlin.h"
 
 #if ENABLED(MESH_BED_LEVELING)
-
   #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X))/(MESH_NUM_X_POINTS - 1))
   #define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y))/(MESH_NUM_Y_POINTS - 1))
 
   class mesh_bed_leveling {
   public:
-    bool active;
+    uint8_t status; // Has Mesh and Is Active bits
     float z_offset;
     float z_values[MESH_NUM_Y_POINTS][MESH_NUM_X_POINTS];
 
@@ -40,6 +39,11 @@
     static FORCE_INLINE float get_probe_x(int8_t i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
     static FORCE_INLINE float get_probe_y(int8_t i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
     void set_z(const int8_t px, const int8_t py, const float z) { z_values[py][px] = z; }
+
+    bool active()                 { return TEST(status, MBL_STATUS_ACTIVE_BIT); }
+    void set_active(bool onOff)   { if (onOff) SBI(status, MBL_STATUS_ACTIVE_BIT); else CBI(status, MBL_STATUS_ACTIVE_BIT); }
+    bool has_mesh()               { return TEST(status, MBL_STATUS_HAS_MESH_BIT); }
+    void set_has_mesh(bool onOff) { if (onOff) SBI(status, MBL_STATUS_HAS_MESH_BIT); else CBI(status, MBL_STATUS_HAS_MESH_BIT); }
 
     inline void zigzag(int8_t index, int8_t &px, int8_t &py) {
       px = index % (MESH_NUM_X_POINTS);
@@ -53,12 +57,12 @@
       set_z(px, py, z);
     }
 
-    int8_t cel_index_x(float x) {
+    int8_t cell_index_x(float x) {
       int8_t cx = int(x - (MESH_MIN_X)) / (MESH_X_DIST);
       return constrain(cx, 0, (MESH_NUM_X_POINTS) - 2);
     }
 
-    int8_t cel_index_y(float y) {
+    int8_t cell_index_y(float y) {
       int8_t cy = int(y - (MESH_MIN_Y)) / (MESH_Y_DIST);
       return constrain(cy, 0, (MESH_NUM_Y_POINTS) - 2);
     }
@@ -80,8 +84,8 @@
     }
 
     float get_z(float x0, float y0) {
-      int8_t cx = cel_index_x(x0),
-             cy = cel_index_y(y0);
+      int8_t cx = cell_index_x(x0),
+             cy = cell_index_y(y0);
       if (cx < 0 || cy < 0) return z_offset;
       float z1 = calc_z0(x0,
                          get_probe_x(cx), z_values[cy][cx],

@@ -28,12 +28,6 @@
 // Print debug messages with M111 S2 (Uses 156 bytes of PROGMEM)
 //#define DEBUG_STOPWATCH
 
-enum StopwatchState {
-  STOPWATCH_STOPPED,
-  STOPWATCH_RUNNING,
-  STOPWATCH_PAUSED
-};
-
 /**
  * @brief Stopwatch class
  * @details This class acts as a timer proving stopwatch functionality including
@@ -41,10 +35,16 @@ enum StopwatchState {
  */
 class Stopwatch {
   private:
-    StopwatchState state;
-    uint16_t accumulator;
-    uint32_t startTimestamp;
-    uint32_t stopTimestamp;
+    enum State {
+      STOPPED,
+      RUNNING,
+      PAUSED
+    };
+
+    Stopwatch::State state;
+    millis_t accumulator;
+    millis_t startTimestamp;
+    millis_t stopTimestamp;
 
   public:
     /**
@@ -101,7 +101,7 @@ class Stopwatch {
      * @details Returns the total number of seconds the timer has been running.
      * @return the delta since starting the stopwatch
      */
-    uint16_t duration();
+    millis_t duration();
 
     #if ENABLED(DEBUG_STOPWATCH)
 

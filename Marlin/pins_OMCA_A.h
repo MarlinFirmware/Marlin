@@ -54,6 +54,8 @@
   #error "Oops!  Make sure you have 'SanguinoA' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Alpha OMCA"
+
 #define X_STEP_PIN         21
 #define X_DIR_PIN          20
 #define X_ENABLE_PIN       24

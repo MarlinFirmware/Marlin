@@ -24,28 +24,26 @@
  * AZTEEG_X3 Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#include "pins_RAMPS_14_EFB.h"
+#if HOTENDS > 2
+  #error "Azteeg X3 supports up to 2 hotends. Comment this line to keep going."
+#endif
 
-//LCD Pins//
+#define BOARD_NAME "Azteeg X3"
+
+#include "pins_RAMPS_13.h"
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 
-  #define BEEPER_PIN        33
-
- // Pins for DOGM SPI LCD Support
+  #undef DOGLCD_A0
+  #undef DOGLCD_CS
+  #undef BTN_ENC
   #define DOGLCD_A0         31
   #define DOGLCD_CS         32
-  #define LCD_SCREEN_ROT_180
-
- //The encoder and click button
-  #define BTN_EN1           22
-  #define BTN_EN2            7
-  #define BTN_ENC           12  //the click switch
-
-  #define SDSS              53
-  #define SD_DETECT         -1  // Pin 49 if using display sd interface
+  #define BTN_ENC           12
 
   #if ENABLED(TEMP_STAT_LEDS)
+    #undef STAT_LED_RED
+    #undef STAT_LED_BLUE
     #define STAT_LED_RED    64
     #define STAT_LED_BLUE   63
   #endif

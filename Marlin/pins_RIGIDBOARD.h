@@ -24,19 +24,15 @@
  * RIGIDBOARD Arduino Mega with RAMPS v1.4 pin assignments
  */
 
-#include "pins_RAMPS_14.h"
+#define BOARD_NAME "RigidBoard"
 
-#if ENABLED(Z_MIN_PROBE_ENDSTOP)
-  #undef Z_MAX_PIN
-  #define Z_MAX_PIN -1
-  #undef Z_MIN_PROBE_PIN
+#define RAMPS_D10_PIN       9    // EXTRUDER 1
+#define MOSFET_D_PIN       12    // EXTRUDER 2 or FAN
+#ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  19    // Z-MAX pin J14 End Stops
 #endif
 
-#undef HEATER_0_PIN
-#undef HEATER_1_PIN
-#define HEATER_0_PIN        9    // EXTRUDER 1
-#define HEATER_1_PIN       12    // EXTRUDER 2 (FAN On Sprinter)
+#include "pins_RAMPS.h"
 
 #undef TEMP_0_PIN
 #undef TEMP_1_PIN

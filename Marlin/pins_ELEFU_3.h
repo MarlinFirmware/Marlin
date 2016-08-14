@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Elefu Ra v3"
+
 #define X_STEP_PIN         49
 #define X_DIR_PIN          13
 #define X_ENABLE_PIN       48
@@ -85,11 +87,7 @@
 
   #define BTN_EN1          14
   #define BTN_EN2          39
-  #define BTN_ENC          15  //the click
-
-  #define BLEN_C            2
-  #define BLEN_B            1
-  #define BLEN_A            0
+  #define BTN_ENC          15
 
 #endif // RA_CONTROL_PANEL
 

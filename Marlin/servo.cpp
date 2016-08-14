@@ -21,51 +21,36 @@
  */
 
 /**
- servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
- Copyright (c) 2009 Michael Margolis.  All right reserved.
-
- This library is free software; you can redistribute it and/or
- modify it under the terms of the GNU Lesser General Public
- License as published by the Free Software Foundation; either
- version 2.1 of the License, or (at your option) any later version.
-
- This library is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- Lesser General Public License for more details.
-
- You should have received a copy of the GNU Lesser General Public
- License along with this library; if not, write to the Free Software
- Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
+ * Copyright (c) 2009 Michael Margolis.  All right reserved.
  */
 
 /**
-
- A servo is activated by creating an instance of the Servo class passing the desired pin to the attach() method.
- The servos are pulsed in the background using the value most recently written using the write() method
-
- Note that analogWrite of PWM on pins associated with the timer are disabled when the first servo is attached.
- Timers are seized as needed in groups of 12 servos - 24 servos use two timers, 48 servos will use four.
-
- The methods are:
-
- Servo - Class for manipulating servo motors connected to Arduino pins.
-
- attach(pin )  - Attaches a servo motor to an i/o pin.
- attach(pin, min, max  ) - Attaches to a pin setting min and max values in microseconds
- default min is 544, max is 2400
-
- write()     - Sets the servo angle in degrees.  (invalid angle that is valid as pulse in microseconds is treated as microseconds)
- writeMicroseconds() - Sets the servo pulse width in microseconds
- move(pin, angle) - Sequence of attach(pin), write(angle).
-                    With DEACTIVATE_SERVOS_AFTER_MOVE it waits SERVO_DEACTIVATION_DELAY and detaches.
- read()      - Gets the last written servo pulse width as an angle between 0 and 180.
- readMicroseconds()   - Gets the last written servo pulse width in microseconds. (was read_us() in first release)
- attached()  - Returns true if there is a servo attached.
- detach()    - Stops an attached servos from pulsing its i/o pin.
-
-*/
-#include "Configuration.h"
+ * A servo is activated by creating an instance of the Servo class passing the desired pin to the attach() method.
+ * The servos are pulsed in the background using the value most recently written using the write() method
+ *
+ * Note that analogWrite of PWM on pins associated with the timer are disabled when the first servo is attached.
+ * Timers are seized as needed in groups of 12 servos - 24 servos use two timers, 48 servos will use four.
+ *
+ * The methods are:
+ *
+ * Servo - Class for manipulating servo motors connected to Arduino pins.
+ *
+ * attach(pin)           - Attach a servo motor to an i/o pin.
+ * attach(pin, min, max) - Attach to a pin, setting min and max values in microseconds
+ *                         Default min is 544, max is 2400
+ *
+ * write()               - Set the servo angle in degrees. (Invalid angles —over MIN_PULSE_WIDTH— are treated as µs.)
+ * writeMicroseconds()   - Set the servo pulse width in microseconds.
+ * move(pin, angle)      - Sequence of attach(pin), write(angle), delay(SERVO_DELAY).
+ *                         With DEACTIVATE_SERVOS_AFTER_MOVE it detaches after SERVO_DELAY.
+ * read()                - Get the last-written servo pulse width as an angle between 0 and 180.
+ * readMicroseconds()    - Get the last-written servo pulse width in microseconds.
+ * attached()            - Return true if a servo is attached.
+ * detach()              - Stop an attached servo from pulsing its i/o pin.
+ *
+ */
+#include "MarlinConfig.h"
 
 #if HAS_SERVOS
 
@@ -238,6 +223,7 @@ static void finISR(timer16_Sequence_t timer) {
     }
   #else //!WIRING
     // For arduino - in future: call here to a currently undefined function to reset the timer
+    UNUSED(timer);
   #endif
 }
 
@@ -324,8 +310,8 @@ bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 void Servo::move(int value) {
   if (this->attach(0) >= 0) {
     this->write(value);
+    delay(SERVO_DELAY);
     #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
-      delay(SERVO_DEACTIVATION_DELAY);
       this->detach();
     #endif
   }

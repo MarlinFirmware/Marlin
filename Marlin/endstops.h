@@ -27,7 +27,7 @@
 #ifndef ENDSTOPS_H
 #define ENDSTOPS_H
 
-enum EndstopEnum {X_MIN = 0, Y_MIN = 1, Z_MIN = 2, Z_MIN_PROBE = 3, X_MAX = 4, Y_MAX = 5, Z_MAX = 6, Z2_MIN = 7, Z2_MAX = 8};
+#include "enum.h"
 
 class Endstops {
 
@@ -42,8 +42,8 @@ class Endstops {
       static byte
     #endif
         current_endstop_bits, old_endstop_bits;
-        
-    Endstops();
+
+    Endstops() {};
 
     /**
      * Initialize the endstop pins
@@ -66,21 +66,21 @@ class Endstops {
     static void M119();
 
     // Enable / disable endstop checking globally
-    static FORCE_INLINE void enable_globally(bool onoff=true) { enabled_globally = enabled = onoff; }
+    static void enable_globally(bool onoff=true) { enabled_globally = enabled = onoff; }
 
     // Enable / disable endstop checking
-    static FORCE_INLINE void enable(bool onoff=true) { enabled = onoff; }
+    static void enable(bool onoff=true) { enabled = onoff; }
 
     // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
-    static FORCE_INLINE void not_homing() { enabled = enabled_globally; }
+    static void not_homing() { enabled = enabled_globally; }
 
     // Clear endstops (i.e., they were hit intentionally) to suppress the report
-    static FORCE_INLINE void hit_on_purpose() { endstop_hit_bits = 0; }
+    static void hit_on_purpose() { endstop_hit_bits = 0; }
 
     // Enable / disable endstop z-probe checking
     #if HAS_BED_PROBE
       static volatile bool z_probe_enabled;
-      static FORCE_INLINE void enable_z_probe(bool onoff=true) { z_probe_enabled = onoff; }
+      static void enable_z_probe(bool onoff=true) { z_probe_enabled = onoff; }
     #endif
 
   private:
