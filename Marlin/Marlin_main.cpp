@@ -842,12 +842,7 @@ void servo_init() {
   }
 
   void i2c_on_request() {          // just send dummy data for now
-    static const char *msg = "Hello World!\n";
-    const char *adr = msg;
-    char c;
-    i2c.reset();
-    while (c = *adr++) i2c.addbyte(c);
-    i2c.send();
+    i2c.reply("Hello World!\n");
   }
 
 #endif
