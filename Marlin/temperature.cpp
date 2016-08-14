@@ -465,19 +465,19 @@ int Temperature::getHeaterPower(int heater) {
 
   void Temperature::checkExtruderAutoFans() {
     const int8_t fanPin[] = { EXTRUDER_0_AUTO_FAN_PIN, EXTRUDER_1_AUTO_FAN_PIN, EXTRUDER_2_AUTO_FAN_PIN, EXTRUDER_3_AUTO_FAN_PIN };
-    const int fanBit[] = { 0,
-      EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN ? 0 : 1,
-      EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN ? 0 :
-      EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN ? 1 : 2,
-      EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN ? 0 :
-      EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN ? 1 :
-      EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN ? 2 : 3
+    const int fanBit[] = {
+                    0,
+      AUTO_1_IS_0 ? 0 :               1,
+      AUTO_2_IS_0 ? 0 : AUTO_2_IS_1 ? 1 :               2,
+      AUTO_3_IS_0 ? 0 : AUTO_3_IS_1 ? 1 : AUTO_3_IS_2 ? 2 : 3
     };
     uint8_t fanState = 0;
+ 
     HOTEND_LOOP() {
       if (current_temperature[e] > EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, fanBit[e]);
     }
+ 
     uint8_t fanDone = 0;
     for (int8_t f = 0; f < COUNT(fanPin); f++) {
       int8_t pin = fanPin[f];
@@ -1077,7 +1077,7 @@ void Temperature::init() {
       pinMode(EXTRUDER_0_AUTO_FAN_PIN, OUTPUT);
     #endif
   #endif
-  #if HAS_AUTO_FAN_1 && (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_1 && !AUTO_1_IS_0
     #if EXTRUDER_1_AUTO_FAN_PIN == FAN1_PIN
       SET_OUTPUT(EXTRUDER_1_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
@@ -1087,7 +1087,7 @@ void Temperature::init() {
       pinMode(EXTRUDER_1_AUTO_FAN_PIN, OUTPUT);
     #endif
   #endif
-  #if HAS_AUTO_FAN_2 && (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN) && (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_2 && !AUTO_2_IS_0 && !AUTO_2_IS_1
     #if EXTRUDER_2_AUTO_FAN_PIN == FAN1_PIN
       SET_OUTPUT(EXTRUDER_2_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
@@ -1097,7 +1097,7 @@ void Temperature::init() {
       pinMode(EXTRUDER_2_AUTO_FAN_PIN, OUTPUT);
     #endif
   #endif
-  #if HAS_AUTO_FAN_3 && (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN) && (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN) && (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_2_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_3 && !AUTO_3_IS_0 && !AUTO_3_IS_1 && !AUTO_3_IS_2
     #if EXTRUDER_3_AUTO_FAN_PIN == FAN1_PIN
       SET_OUTPUT(EXTRUDER_3_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
