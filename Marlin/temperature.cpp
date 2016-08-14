@@ -1068,16 +1068,44 @@ void Temperature::init() {
   #endif
 
   #if HAS_AUTO_FAN_0
-    pinMode(EXTRUDER_0_AUTO_FAN_PIN, OUTPUT);
+    #if EXTRUDER_0_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(EXTRUDER_0_AUTO_FAN_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(EXTRUDER_0_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+    #else
+      pinMode(EXTRUDER_0_AUTO_FAN_PIN, OUTPUT);
+    #endif
   #endif
   #if HAS_AUTO_FAN_1 && (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN)
-    pinMode(EXTRUDER_1_AUTO_FAN_PIN, OUTPUT);
+    #if EXTRUDER_1_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(EXTRUDER_1_AUTO_FAN_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(EXTRUDER_1_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+    #else
+      pinMode(EXTRUDER_1_AUTO_FAN_PIN, OUTPUT);
+    #endif
   #endif
   #if HAS_AUTO_FAN_2 && (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN) && (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
-    pinMode(EXTRUDER_2_AUTO_FAN_PIN, OUTPUT);
+    #if EXTRUDER_2_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(EXTRUDER_2_AUTO_FAN_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(EXTRUDER_2_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+    #else
+      pinMode(EXTRUDER_2_AUTO_FAN_PIN, OUTPUT);
+    #endif
   #endif
   #if HAS_AUTO_FAN_3 && (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN) && (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN) && (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_2_AUTO_FAN_PIN)
-    pinMode(EXTRUDER_3_AUTO_FAN_PIN, OUTPUT);
+    #if EXTRUDER_3_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(EXTRUDER_3_AUTO_FAN_PIN);
+      #if ENABLED(FAST_PWM_FAN)
+        setPwmFrequency(EXTRUDER_3_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      #endif
+    #else
+      pinMode(EXTRUDER_3_AUTO_FAN_PIN, OUTPUT);
+    #endif
   #endif
 
   // Use timer0 for temperature measurement
