@@ -185,7 +185,7 @@ int Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TEMP ,
 #endif
 
 #if HAS_AUTO_FAN
-  millis_t Temperature::next_auto_fan_check_ms;
+  millis_t Temperature::next_auto_fan_check_ms = 0;
 #endif
 
 unsigned char Temperature::soft_pwm[HOTENDS];
