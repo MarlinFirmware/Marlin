@@ -86,32 +86,72 @@ void TWIBus::send() {
   this->reset();
 }
 
-void TWIBus::echodata(uint8_t bytes, const char prefix[], uint8_t adr) {
+// static
+void TWIBus::echoprefix(uint8_t bytes, const char prefix[], uint8_t adr) {
   SERIAL_ECHO_START;
   serialprintPGM(prefix);
   SERIAL_ECHOPAIR(": from:", adr);
   SERIAL_ECHOPAIR(" bytes:", bytes);
   SERIAL_ECHOPGM (" data:");
+}
+
+// static
+void TWIBus::echodata(uint8_t bytes, const char prefix[], uint8_t adr) {
+  echoprefix(bytes, prefix, adr);
   while (bytes-- && Wire.available()) SERIAL_CHAR(Wire.read());
   SERIAL_EOL;
 }
 
-void TWIBus::reqbytes(const uint8_t bytes) {
-  if (!this->addr) return;
+void TWIBus::echobuffer(const char prefix[], uint8_t adr) {
+  echoprefix(this->buffer_s, prefix, adr);
+  for (uint8_t i = 0; i < this->buffer_s; i++) SERIAL_CHAR(this->buffer[i]);
+  SERIAL_EOL;
+}
+
+bool TWIBus::request(const uint8_t bytes) {
+  if (!this->addr) return false;
 
   #if ENABLED(DEBUG_TWIBUS)
-    debug(PSTR("reqbytes"), bytes);
+    debug(PSTR("request"), bytes);
   #endif
 
   // requestFrom() is a blocking function
   Wire.requestFrom(this->addr, bytes);
 
-  // Wait until all bytes arrive, or timeout
+  // Wait for all bytes to arrive
   millis_t t = millis() + this->timeout;
-  while (Wire.available() < bytes && PENDING(millis(), t)) { /*nada*/ }
+  while (Wire.available() < bytes)
+    if (ELAPSED(millis(), t)) {
+      #if ENABLED(DEBUG_TWIBUS)
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLNPGM("i2c timeout");
+      #endif
+      return false;
+    }
 
-  // Simply echo the data to the bus
-  this->echodata(bytes, PSTR("i2c-reply"), this->addr);
+  return true;
+}
+
+void TWIBus::relay(const uint8_t bytes) {
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("relay"), bytes);
+  #endif
+
+  if (this->request(bytes))
+    echodata(bytes, PSTR("i2c-reply"), this->addr);
+}
+
+uint8_t TWIBus::capture(char *dst, const uint8_t bytes) {
+  this->reset();
+  uint8_t count = 0;
+  while (count < bytes && Wire.available())
+    dst[count++] = Wire.read();
+  return count;
+}
+
+// static
+void TWIBus::flush() {
+  while (Wire.available()) Wire.read();
 }
 
 #if I2C_SLAVE_ADDRESS > 0
@@ -120,7 +160,7 @@ void TWIBus::reqbytes(const uint8_t bytes) {
     #if ENABLED(DEBUG_TWIBUS)
       debug(PSTR("receive"), bytes);
     #endif
-    this->echodata(bytes, PSTR("i2c-receive"), 0);
+    echodata(bytes, PSTR("i2c-receive"), 0);
   }
 
   void TWIBus::reply(char str[]/*=NULL*/) {
@@ -142,6 +182,7 @@ void TWIBus::reqbytes(const uint8_t bytes) {
 
 #if ENABLED(DEBUG_TWIBUS)
 
+  // static
   void TWIBus::prefix(const char func[]) {
     SERIAL_ECHOPGM("TWIBus::");
     serialprintPGM(func);
