@@ -2686,6 +2686,12 @@ void lcd_update() {
           break;
       }
 
+      #if ENABLED(ULTIPANEL)
+        #define CURRENTSCREEN() (*currentScreen)()
+      #else
+        #define CURRENTSCREEN() lcd_status_screen()
+      #endif
+
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
         static int8_t dot_color = 0;
         dot_color = 1 - dot_color;
@@ -2696,12 +2702,10 @@ void lcd_update() {
           u8g.setColorIndex(dot_color); // Set color for the alive dot
           u8g.drawPixel(127, 63); // draw alive dot
           u8g.setColorIndex(1); // black on white
-          (*currentScreen)();
+          CURRENTSCREEN();
         } while (u8g.nextPage());
-      #elif ENABLED(ULTIPANEL)
-        (*currentScreen)();
       #else
-        lcd_status_screen();
+        CURRENTSCREEN();
       #endif
     }
 
