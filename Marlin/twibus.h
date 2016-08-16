@@ -33,6 +33,8 @@
 typedef void (*twiReceiveFunc_t)(int bytes);
 typedef void (*twiRequestFunc_t)();
 
+#define TWIBUS_BUFFER_SIZE 32
+
 /**
  * TWIBUS class
  *
@@ -70,7 +72,7 @@ class TWIBus {
      * @brief Internal buffer
      * @details A fixed buffer. TWI commands can be no longer than this.
      */
-    char buffer[32];
+    char buffer[TWIBUS_BUFFER_SIZE];
 
 
   public:
@@ -135,6 +137,14 @@ class TWIBus {
     void address(const uint8_t adr);
 
     /**
+     * @brief Prefix for echo to serial
+     * @details Echo a label, length, address, and "data:"
+     *
+     * @param bytes the number of bytes to request
+     */
+    static void echoprefix(uint8_t bytes, const char prefix[], uint8_t adr);
+
+    /**
      * @brief Echo data on the bus to serial
      * @details Echo some number of bytes from the bus
      *          to serial in a parser-friendly format.
@@ -144,14 +154,48 @@ class TWIBus {
     static void echodata(uint8_t bytes, const char prefix[], uint8_t adr);
 
     /**
-     * @brief Request data from the slave device
-     * @details Request a number of bytes from a slave device.
-     *          This implementation simply sends the data to serial
-     *          in a parser-friendly format.
+     * @brief Echo data in the buffer to serial
+     * @details Echo the entire buffer to serial
+     *          to serial in a parser-friendly format.
      *
      * @param bytes the number of bytes to request
      */
-    void reqbytes(const uint8_t bytes);
+    void echobuffer(const char prefix[], uint8_t adr);
+
+    /**
+     * @brief Request data from the slave device and wait.
+     * @details Request a number of bytes from a slave device.
+     *          Wait for the data to arrive until the timeout
+     *          interval expires. Return true on success.
+     *
+     * @param bytes the number of bytes to request
+     * @return status of the request: true=success, false=timeout
+     */
+    bool request(const uint8_t bytes);
+
+    /**
+     * @brief Capture data from the bus into the buffer.
+     * @details Capture data after a request has succeeded.
+     *
+     * @param bytes the number of bytes to request
+     * @return the number of bytes captured to the buffer
+     */
+    uint8_t capture(char *dst, const uint8_t bytes);
+
+    /**
+     * @brief Flush the i2c bus.
+     * @details Get all bytes on the bus and throw them away.
+     */
+    static void flush();
+
+    /**
+     * @brief Request data from the slave device, echo to serial.
+     * @details Request a number of bytes from a slave device and output
+     *          the returned data to serial in a parser-friendly format.
+     *
+     * @param bytes the number of bytes to request
+     */
+    void relay(const uint8_t bytes);
 
     #if I2C_SLAVE_ADDRESS > 0
 
@@ -181,6 +225,7 @@ class TWIBus {
       /**
        * @brief Send a reply to the bus
        * @details Send the buffer and clear it.
+       *          If a string is passed, write it into the buffer first.
        */
       void reply(char str[]=NULL);
       inline void reply(const char str[]) { this->reply((char*)str); }
