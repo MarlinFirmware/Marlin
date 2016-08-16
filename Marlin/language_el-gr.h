@@ -30,9 +30,6 @@
 #ifndef LANGUAGE_EL_GR_H
 #define LANGUAGE_EL_GR_H
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
-
 //#define MAPPER_CECF
 //#define DISPLAY_CHARSET_ISO10646_GREEK
 

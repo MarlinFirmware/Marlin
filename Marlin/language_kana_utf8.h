@@ -32,8 +32,6 @@
 #define LANGUAGE_KANA_UTF_H
 
 #define MAPPER_E382E383
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_KANA
 
 // This just to show the potential benefit of unicode.
