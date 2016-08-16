@@ -209,7 +209,7 @@ script:
   #
   - restore_configs
   - opt_enable_adv BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
-  - opt_set_adv I2C_SLAVE_ADDRESS 1
+  - opt_set_adv I2C_SLAVE_ADDRESS 63
   - build_marlin
   #
   # Enable COREXY
