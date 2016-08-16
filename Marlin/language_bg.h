@@ -31,8 +31,6 @@
 #define LANGUAGE_BG_H
 
 #define MAPPER_D0D1                // For Cyrillic
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_5
 
 #define WELCOME_MSG                         MACHINE_NAME " Готов."
