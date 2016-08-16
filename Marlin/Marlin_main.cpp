@@ -5294,7 +5294,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
     }
   }
 
-#endif //EXPERIMENTAL_I2CBUS
+#endif // EXPERIMENTAL_I2CBUS
 
 /**
  * M200: Set filament diameter and set E axis units to cubic units
