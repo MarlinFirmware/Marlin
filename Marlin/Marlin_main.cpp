@@ -5285,8 +5285,8 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
     uint8_t bytes = code_seen('B') ? code_value_byte() : 1;
 
-    if (i2c.addr > 0 && bytes > 0 && bytes <= 32) {
-      i2c.reqbytes(bytes);
+    if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE) {
+      i2c.relay(bytes);
     }
     else {
       SERIAL_ERROR_START;
