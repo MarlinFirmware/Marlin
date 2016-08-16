@@ -25,7 +25,8 @@
 
 #include "MarlinConfig.h"
 
-//#define SIMULATE_ROMFONT //Comment in to see what is seen on the character based displays
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
 
 // Fallback if no language is set. DON'T CHANGE
 #ifndef LCD_LANGUAGE
