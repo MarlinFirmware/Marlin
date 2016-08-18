@@ -102,6 +102,10 @@ extern float meshedit_done;
       M     Map       Display the Mesh Map Topology.  The parameter can be specified alone (ie. G29 M) or
       		      in combination with many of the other commands.  The Mesh Map option works with
 		      all of the Phase commands (ie. G29 P4 R 5 X 50 Y100 C -.1 M) 
+
+      N    No Home    G29 normally insists that a G28 has been performed.  You can over rule this with an
+      		      N option.  In general, you should not do this.  This can only be done safely with
+		      commands that do not move the nozzle.
 	
 The P or Phase commands are used for the bulk of the work to setup a Mesh.  In general, your Mesh will
 start off being initialized with a G29 P0 or a G29 P1.   Further refinement of the Mesh happens with
@@ -194,17 +198,16 @@ each additional Phase that processes it.
 		      RAISE the Mesh Point at that location.
 
 
-      P5    Phase 5   Adjust Mesh to mean height.  The Mesh is analyzed and the mean height of it is
-      		      calculated.   The Standard deviation of the points within the mesh are also 
-		      calculated.   With this information, the mesh is adjusted to have a mean of 0.0.
-		      Probably, this operation should not be performed on a Mesh if more additions are
-		      going to be made to it.  One of the primary reasons for doing this is to make the
-		      Mesh Map easier to analyze and understand.   But it is also useful for the case where
-		      your G28 homes the Z Axis at a place where the value is significantly different from
-		      the bed's mean value.  (ie.  Most of your bed is more or less than your G28 value.)  If
-		      your Z-Probe-Offset-From-Extruder changes, this command can help you preserve your old
-		      Mesh.   In this case you can use the C (Constant) parameter shift all Mesh Points the
-		      specified distance from the mean.
+      P5    Phase 5   Find Mean Mesh Height and Standard Deviation.   Typically, it is easier to use and
+      		      work with the Mesh if it is Mean Adjusted.  You can specify a C parameter to 
+		      Correct the Mesh to a 0.00 Mean Height.   Adding a C parameter will automatically 
+		      execute a G29 P6 C <mean height>.   
+      
+      P6    Phase 6   Shift Mesh height.  The entire Mesh's height is adjusted by the height specified 
+      		      with the C parameter.  Being able to adjust the height of a Mesh is useful tool.  It
+		      can be used to compensate for poorly calibrated Z-Probes and other errors.  Ideally,
+		      you should have the Mesh adjusted for a Mean Height of 0.00 and the Z-Probe measuring
+		      0.000 at the Z Home location.
 
       Q     Test      Load specified Test Pattern to assist in checking correct operation of system.  This 
       		      command is not anticipated to be of much value to the typical user.  It is intended
@@ -272,7 +275,7 @@ volatile int G29_encoderDiff = 0;	// This is volatile because it is getting chan
 // parameter parsing into a support routine.
 
 static int G29_Verbose_Level = 0, Mesh_Map_Flag = 0, Test_Value = 0;
-static int Phase_Value = -1, Repeat_Flag = 0, Repetition_Cnt = 1, X_Flag = 0, Y_Flag = 0;
+static int Phase_Value = -1, Repeat_Flag = 0, C_Flag=0, Repetition_Cnt = 1, X_Flag = 0, Y_Flag = 0;
 static float X_Pos = 0.0, Y_Pos = 0.0, Height_Value = 5.0, measured_z, card_thickness=0.0;
 static float Constant = 0.0;
 static int Statistics_Flag = 0, Storage_Slot = 0, Business_Card_Mode = 0, Test_Pattern = 0;
@@ -289,13 +292,15 @@ void gcode_G29() {
   G29_Verbose_Level = 0;	// These may change, but let's get some reasonable values into them.
   Repeat_Flag       = 0;
   Repetition_Cnt    = 1;
+  C_Flag            = 0;
 
   if ( Unified_Bed_Leveling_EEPROM_start < 0 ) {
     SERIAL_PROTOCOLLNPGM("?You need to enable your EEPROM and initialize it ");
     SERIAL_PROTOCOLLNPGM("with M502, M500, M501 in that order.\n");
     return;
   }
-  
+ 
+ if ( !code_seen('N') )
  if ( axis_unhomed_error(true, true, true) )	 // Don't allow auto-leveling without homing first
    gcode_G28();
 
@@ -442,28 +447,9 @@ void gcode_G29() {
 //
       case 4:  	fine_tune_mesh( X_Pos, Y_Pos, Height_Value, code_seen('M') );
         	break;
-      case 5:   Adjust_Mesh_to_Mean();
-        	break;
-      case 6:   
-		float xyzzy;					// Debug code...   Pay no attention to 
-		lcd_implementation_clear();			// this stuff.  
-      		UBL_has_control_of_LCD_Panel = 0;
-    		SERIAL_ECHO("Starting Babysteps \n");
-		lcd_mesh_edit_setup(0.123456);
-    		SERIAL_ECHO(" in do-while loop \n");
-		do {
-			xyzzy = lcd_mesh_edit();
-			idle();
-		} while ( !G29_lcd_clicked() );
-		lcd_quick_feedback();
-    		SERIAL_ECHO("Done Mesh Editing:  ");
-    		SERIAL_ECHO_F( xyzzy, 6 );
-    		SERIAL_ECHO("\n");
-		idle();
- 		lcd_return_to_status();
-      		UBL_has_control_of_LCD_Panel = 0;
-		lcd_implementation_clear();
-    		SERIAL_ECHO("Leaving G29 P6   \n");
+      case 5:   Find_Mean_Mesh_Height();
+	    	break;
+      case 6:   Shift_Mesh_Height( );
         	break;
 
       case 10: 	UBL_has_control_of_LCD_Panel++;			// Debug code...  Pan no attention to this stuff
@@ -640,7 +626,7 @@ LEAVE:
 
 
 
-void Adjust_Mesh_to_Mean()  {
+void Find_Mean_Mesh_Height()  {
 int i, j, n; 
 float sum, sum_of_diff_squared, sigma, difference, mean;
 
@@ -669,22 +655,36 @@ float sum, sum_of_diff_squared, sigma, difference, mean;
 	}
     	SERIAL_ECHOPAIR("# of samples: ", n );
 	SERIAL_EOL;
-    	SERIAL_ECHOPAIR("Mean Mesh Height: ", mean );
+    	SERIAL_ECHO("Mean Mesh Height: ");
+    	SERIAL_ECHO_F( mean, 6 );
 	SERIAL_EOL;
    
 	sigma = sqrt( sum_of_diff_squared / (n + 1) );
-    	SERIAL_ECHOPAIR("Standard Deviation: ", sigma );
+    	SERIAL_ECHO("Standard Deviation: ");
+    	SERIAL_ECHO_F( sigma, 6 );
 	SERIAL_EOL;
 
-	for (i = 0; i < MESH_NUM_X_POINTS; i++) {
-		for (j = 0;  j < MESH_NUM_Y_POINTS; j++) {
-			if ( !isnan( bed_leveling_mesh.z_values[i][j]) ) {
-				bed_leveling_mesh.z_values[i][j] += Constant - mean ;
+	if ( C_Flag) {
+		for (i = 0; i < MESH_NUM_X_POINTS; i++) {
+			for (j = 0;  j < MESH_NUM_Y_POINTS; j++) {
+				if ( !isnan( bed_leveling_mesh.z_values[i][j]) ) {
+					bed_leveling_mesh.z_values[i][j] -=  mean + Constant;
+				}
 			}
 		}
 	}
 }
 
+void Shift_Mesh_Height( )  {
+int i, j;
+	for (i = 0; i < MESH_NUM_X_POINTS; i++) {
+		for (j = 0;  j < MESH_NUM_Y_POINTS; j++) {
+			if ( !isnan( bed_leveling_mesh.z_values[i][j]) ) {
+				bed_leveling_mesh.z_values[i][j] += Constant;
+			}
+		}
+	}
+}
 
 
 // probe_entire_mesh( X_Pos, Y_Pos )  probes all invalidated locations of the mesh that can be reached
@@ -990,8 +990,10 @@ lcd_quick_feedback();
   }
 
   if ( code_seen('C') ) {	
-	  if ( code_has_value() )
+	  C_Flag++;
+	  if ( code_has_value() ) {
 		  Constant = code_value_float();
+	  }
   }
 
   if ( code_seen('D') ) {			// Disable the Unified Bed Leveling System
@@ -1063,10 +1065,10 @@ void dump( char *str, float f )
 // or I would light up more or less of them depending upon the value of a variable.   I some times
 // used the white one to indicate a + or - value of the Mesh Point being used in the calculations.
 
-
-// Pin 63  Red   LED
-// Pin 65  Red   LED
-// Pin 66  White LED
+// Pin 44  White LED  Top
+// Pin 63  Red   LED  Right
+// Pin 64  Red   LED  Left
+//
  
 void status_LED( int pin, int action)
 {
@@ -1194,6 +1196,19 @@ void G29_What_Command() {
     	SERIAL_PROTOCOLLNPGM("Inactive.");
     SERIAL_PROTOCOLPGM("\n");
 
+    if ( bed_leveling_mesh.state.EEPROM_storage_slot == 0xffff )
+    	SERIAL_PROTOCOLPGM("No Mesh Loaded.\n");
+    else {
+        SERIAL_PROTOCOLPGM("Mesh: ");
+        prt_hex_word( bed_leveling_mesh.state.EEPROM_storage_slot );
+        SERIAL_PROTOCOLPGM(" Loaded.  \n");
+    }
+
+    SERIAL_ECHOPAIR("\nG29_Correction_Fade_Height : ", bed_leveling_mesh.state.G29_Correction_Fade_Height );
+    SERIAL_PROTOCOLPGM("\n");
+    idle();
+
+
     SERIAL_ECHO("z_offset: ");
     SERIAL_ECHO_F( bed_leveling_mesh.state.z_offset, 6 );
     SERIAL_PROTOCOLPGM("\n");
@@ -1202,13 +1217,6 @@ void G29_What_Command() {
     SERIAL_PROTOCOLPGM("\n");
     SERIAL_ECHOPAIR("UBL_state_recursion_chk :", UBL_state_recursion_chk);
     SERIAL_PROTOCOLPGM("\n");
-
-    SERIAL_PROTOCOLPGM("Mesh: ");
-    prt_hex_word( bed_leveling_mesh.state. EEPROM_storage_slot );
-    SERIAL_PROTOCOLPGM(" Loaded.  \n");
-    SERIAL_ECHOPAIR("\nG29_Correction_Fade_Height : ", bed_leveling_mesh.state.G29_Correction_Fade_Height );
-    SERIAL_PROTOCOLPGM("\n");
-    idle();
 
     SERIAL_PROTOCOLPGM("\n");
     SERIAL_PROTOCOLPGM("Free EEPROM space starts at: 0x");
