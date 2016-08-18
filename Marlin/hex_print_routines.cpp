@@ -34,6 +34,7 @@ void prt_hex_nibble(unsigned int n) {
     SERIAL_ECHO(n);
   else
     SERIAL_ECHO((char)('A' + n - 10));
+  delay(3);
 }
 
 void prt_hex_byte(unsigned int b) {
