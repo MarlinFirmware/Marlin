@@ -85,31 +85,48 @@ enum MBLStatus { MBL_STATUS_NONE = 0, MBL_STATUS_HAS_MESH_BIT = 0, MBL_STATUS_AC
     void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
 
     int8_t get_cell_index_x(float x) {
-      int8_t cx = int(x - (MESH_MIN_X)) / (MESH_X_DIST);
+      int8_t cx = (x - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
       return constrain(cx, 0, (MESH_NUM_X_POINTS) - 2);
     }
 
     int8_t get_cell_index_y(float y) {
-      int8_t cy = int(y - (MESH_MIN_Y)) / (MESH_Y_DIST);
+      int8_t cy = cy = (y - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
       return constrain(cy, 0, (MESH_NUM_Y_POINTS) - 2);
     }
 
     int8_t find_closest_x_index(float x) {
-      int8_t px = int(x - (MESH_MIN_X) + (MESH_X_DIST) / 2) / (MESH_X_DIST);
+      int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
       return (px >= 0 && px < (MESH_NUM_X_POINTS)) ? px : -1;
     }
 
     int8_t find_closest_y_index(float y) {
-      int8_t py = int(y - (MESH_MIN_Y) + (MESH_Y_DIST) / 2) / (MESH_Y_DIST);
+      int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
       return (py >= 0 && py < (MESH_NUM_Y_POINTS)) ? py : -1;
     }
 
-    float calc_z0(float a0, float a1, float z1, float a2, float z2) {
+
+
+    //                           z2   -|
+    //                 z0        |     |
+    //                  |        |    delta_z
+    //   z1             |        |    -|
+    // ---+-------------+--------+----
+    //   a1            a0        a2
+    //    |<---delta_a---------->|
+    //
+    //  float calc_z0() is the basis for all the Mesh Based correction.  It is used to
+    //  find the expected Z Height at a position between two known Z-Height locations
+    //
+    //  It is farly expensive with its 4 floating point additions and 2 floating point 
+    //  multiplications.   
+    
+inline float calc_z0(float a0, float a1, float z1, float a2, float z2) {
       float delta_z = (z2 - z1) / (a2 - a1);
       float delta_a = a0 - a1;
       return z1 + delta_a * delta_z;
     }
 
+ 
     float get_z_correction(float x0, float y0) {
       int8_t cx = get_cell_index_x(x0),
              cy = get_cell_index_y(y0);
@@ -163,10 +180,10 @@ enum MBLStatus { MBL_STATUS_NONE = 0, MBL_STATUS_HAS_MESH_BIT = 0, MBL_STATUS_AC
 #endif
 
       if ( isnan(z0) ) {	// if part of the Mesh is undefined, it will show up as NAN
-	z0 = 0.0;		// in bed_leveling_mesh.z_values[][] and propagate through the calculations.
-				// if our correction is NAN, we throw it out because part of the
-				// Mesh is undefined and we don't have the information we need to
-				// complete the height correction.
+	z0 = 0.0;		// in bed_leveling_mesh.z_values[][] and propagate through the 
+				// calculations. If our correction is NAN, we throw it out 
+				// because part of the Mesh is undefined and we don't have the 
+				// information we need to complete the height correction.
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(MESH_ADJUST)) {
