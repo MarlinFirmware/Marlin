@@ -484,5 +484,4 @@ void status_LED( int pin, int action);
   float probe_pt(float, float, bool stow=true, int verbose_level=1);
 #endif
 
-
 #endif //MARLIN_H
