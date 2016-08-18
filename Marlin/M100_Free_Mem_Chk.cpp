@@ -255,7 +255,7 @@ int how_many_E5s_are_here(unsigned char* p) {
       return n - 1;
   }
   return -1;
-}
+} 
 
 #endif
 
