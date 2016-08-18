@@ -41,7 +41,9 @@ void bed_leveling::load_state()    {
 int k;
 	k = E2END - sizeof( bed_leveling_mesh.state );
 	eeprom_read_block( (void *) &bed_leveling_mesh.state , (void *) k, sizeof(bed_leveling_mesh.state) );
-	this->sanity_check();
+	if ( this->sanity_check() != 0 ) {
+	   SERIAL_PROTOCOLLNPGM("?In load_state() sanity_check() failed. \n");
+	}
 	return;
 }
 
@@ -211,8 +213,6 @@ int i, j;
 
 int bed_leveling::sanity_check() {
   int j, k, error_flag = 0;
-  bool active;
-  float z_offset;
 
 	if (this->state.n_x !=  MESH_NUM_X_POINTS)  {
 	   SERIAL_PROTOCOLLNPGM("?MESH_NUM_X_POINTS set wrong\n");
@@ -261,6 +261,10 @@ int bed_leveling::sanity_check() {
 	  SERIAL_PROTOCOLLNPGM("?No EEPROM storage available for a mesh of this size.\n");
 	  error_flag++;
 	}
+
+//	SERIAL_PROTOCOLPGM("?sanity_check() return value: ");
+//	SERIAL_PROTOCOL( error_flag );
+//	SERIAL_PROTOCOLPGM("\n");
 
 	return error_flag;
 }
