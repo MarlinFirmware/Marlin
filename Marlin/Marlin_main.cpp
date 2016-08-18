@@ -826,16 +826,16 @@ void servo_init() {
  *  - Print startup messages and diagnostics
  *  - Get EEPROM or default settings
  *  - Initialize managers for:
- *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ temperature
- *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ planner
- *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ watchdog
- *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ stepper
- *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ photo pin
- *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ servos
- *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ LCD controller
- *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Digipot I2C
- *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ Z probe sled
- *    ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ status LEDs
+ *    ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ temperature
+ *    ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ planner
+ *    ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ watchdog
+ *    ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ stepper
+ *    ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ photo pin
+ *    ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ servos
+ *    ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ LCD controller
+ *    ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ Digipot I2C
+ *    ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ Z probe sled
+ *    ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ status LEDs
  */
 void setup() {
 
@@ -3576,7 +3576,7 @@ int i;
 }
 
 inline void gcode_M43() {
-int p, i, s=0, e=127, w=500, r=1; 
+int p, j, s=0, e=127, w=500, r=1; 
 
   if (code_seen('R')) 
     r = code_value_int();
@@ -3591,14 +3591,13 @@ int p, i, s=0, e=127, w=500, r=1;
     w = code_value_int();
 
   for(p=s; p<=e; p++) {
-    for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
       if ( sensitive_pin(p) ) {
         SERIAL_ECHOPAIR("Sensitive Pin: ", p);
         SERIAL_ECHO(" untouched.\n");
       } else {
     	SERIAL_ECHOPAIR("Pulsing Pin: ", p);
         pinMode(p, OUTPUT);
-        for(i=0; i<r; i++) {
+        for(j=0; j<r; j++) {
            digitalWrite(p, 0);
            idle();
            delay(w);
@@ -4202,7 +4201,7 @@ inline void gcode_M109() {
 
     // Prevent a wait-forever situation if R is misused i.e. M109 R0
     if (wants_to_cool) {
-      if (temp < (EXTRUDE_MINTEMP) / 2) break; // always break at (default) 85Ãƒâ€šÃ‚Â°
+      if (temp < (EXTRUDE_MINTEMP) / 2) break; // always break at (default) 85ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â°
       // break after 20 seconds if cooling stalls
       if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
         if (old_temp - temp < 1.0) break;
@@ -4296,7 +4295,7 @@ inline void gcode_M109() {
 
       // Prevent a wait-forever situation if R is misused i.e. M190 R0
       if (wants_to_cool) {
-        if (temp < 30.0) break; // always break at 30Ãƒâ€šÃ‚Â°
+        if (temp < 30.0) break; // always break at 30ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â°
         // break after 20 seconds if cooling stalls
         if (!next_cool_check_ms || ELAPSED(now, next_cool_check_ms)) {
           if (old_temp - temp < 1.0) break;
@@ -4893,7 +4892,7 @@ inline void gcode_M204() {
  *
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
- *    B = Min Segment Time (Ãƒâ€šÃ‚Âµs)
+ *    B = Min Segment Time (ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âµs)
  *    X = Max XY Jerk (units/sec^2)
  *    Z = Max Z Jerk (units/sec^2)
  *    E = Max E Jerk (units/sec^2)
