@@ -316,19 +316,6 @@ void Config_RetrieveSettings() {
   uint16_t Stored_CRC;
   EEPROM_READ_VAR(i, stored_ver);
   EEPROM_READ_VAR(i, Stored_CRC);
-  /*
-    SERIAL_ECHO("Version: [");
-    prt_hex_byte( EEPROM_VERSION[0] );
-    prt_hex_byte( EEPROM_VERSION[1] );
-    prt_hex_byte( EEPROM_VERSION[2] );
-    prt_hex_byte( EEPROM_VERSION[3] );
-    SERIAL_ECHO("] Stored version: [");
-    prt_hex_byte(stored_ver[0]);
-    prt_hex_byte(stored_ver[1]);
-    prt_hex_byte(stored_ver[2]);
-    prt_hex_byte(stored_ver[3]);
-    SERIAL_ECHOLNPGM("]");
-   */
 
   if (strncmp(version, stored_ver, 3) != 0) {
     Config_ResetDefault();
@@ -490,12 +477,23 @@ SERIAL_ERRORLNPGM("\n");
 
 #ifdef UNIFIED_BED_LEVELING_FEATURE
     Unified_Bed_Leveling_EEPROM_start = (i + 32) & 0xfff8;  	// Pad the end of configuration data so it
-   																// can float up or down a little bit without
-																// disrupting the Unified Bed Leveling data 
+   								// can float up or down a little bit without
+								// disrupting the Unified Bed Leveling data 
     bed_leveling_mesh.load_state();
-    if ( bed_leveling_mesh.sanity_check() ) {
+    if ( bed_leveling_mesh.sanity_check() == 0 ) {
+      int tmp_mesh; 		// We want to preserve whether the UBL System is Active
+      bool tmp_active;		// If it is, we want to preserve the Mesh that is being used.
+      tmp_mesh = bed_leveling_mesh.state.EEPROM_storage_slot;
+      tmp_active = bed_leveling_mesh.state.active; 
       SERIAL_ECHOLNPGM("\nInitializing Bed Leveling State to current firmware settings.\n");
       bed_leveling_mesh.state = bed_leveling_mesh.pre_initialized;
+      bed_leveling_mesh.state.EEPROM_storage_slot = tmp_mesh;
+      bed_leveling_mesh.state.active              = tmp_active;
+    }
+    else {
+      SERIAL_PROTOCOLPGM("?Unable to enable Unified Bed Leveling.\n");
+      bed_leveling_mesh.state = bed_leveling_mesh.pre_initialized;
+      bed_leveling_mesh.reset();
       bed_leveling_mesh.store_state();
     }
 
@@ -506,18 +504,8 @@ SERIAL_ERRORLNPGM("\n");
     }
     else
         bed_leveling_mesh.reset();
-
-    if ( bed_leveling_mesh.sanity_check() == 0) 
-      SERIAL_PROTOCOLPGM("Unified Bed Leveling sanity checks passed.\n");
-    else {
-      SERIAL_PROTOCOLPGM("?Unable to enable Unified Bed Leveling.\n");
-      bed_leveling_mesh.state.active = 0;
-      bed_leveling_mesh.reset();
-    }
 #endif
   }
-
-
 
   #if ENABLED(EEPROM_CHITCHAT)
     Config_PrintSettings();
@@ -643,8 +631,14 @@ void Config_ResetDefault() {
 // wait until the user does an M500 before that happens.
 //
 #ifdef UNIFIED_BED_LEVELING_FEATURE
+      int tmp_mesh; 		// We want to preserve whether the UBL System is Active
+      bool tmp_active;		// If it is, we want to preserve the Mesh that is being used.
+      tmp_mesh = bed_leveling_mesh.state.EEPROM_storage_slot;
+      tmp_active = bed_leveling_mesh.state.active; 
       bed_leveling_mesh.state = bed_leveling_mesh.pre_initialized;
-      bed_leveling_mesh.reset();
+      bed_leveling_mesh.state.EEPROM_storage_slot = tmp_mesh;
+      bed_leveling_mesh.state.active              = tmp_active;
+//    bed_leveling_mesh.reset();
 //    bed_leveling_mesh.store_state();
 #endif
 
