@@ -244,6 +244,32 @@
 #define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
 #define INCLUDE_LANGUAGE LANGUAGE_INCL(LCD_LANGUAGE)
 
+// Never translate these strings
+#define MSG_X "X"
+#define MSG_Y "Y"
+#define MSG_Z "Z"
+#define MSG_E "E"
+#define MSG_H1 "1"
+#define MSG_H2 "2"
+#define MSG_H3 "3"
+#define MSG_H4 "4"
+#define MSG_N1 " 1"
+#define MSG_N2 " 2"
+#define MSG_N3 " 3"
+#define MSG_N4 " 4"
+#define MSG_E1 " E1"
+#define MSG_E2 " E2"
+#define MSG_E3 " E3"
+#define MSG_E4 " E4"
+#define MSG_MOVE_E1 "1"
+#define MSG_MOVE_E2 "2"
+#define MSG_MOVE_E3 "3"
+#define MSG_MOVE_E4 "4"
+#define MSG_DIAM_E1 " 1"
+#define MSG_DIAM_E2 " 2"
+#define MSG_DIAM_E3 " 3"
+#define MSG_DIAM_E4 " 4"
+
 #include INCLUDE_LANGUAGE
 
 #if DISABLED(SIMULATE_ROMFONT) && DISABLED(DISPLAY_CHARSET_ISO10646_1) && DISABLED(DISPLAY_CHARSET_ISO10646_5) && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) && DISABLED(DISPLAY_CHARSET_ISO10646_CN)
