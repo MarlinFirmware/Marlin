@@ -3609,8 +3609,8 @@ inline void gcode_G28() {
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
       // probe at the points of a lattice grid
-      const int xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (auto_bed_leveling_grid_points - 1),
-                yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points - 1);
+      const float xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (auto_bed_leveling_grid_points - 1),
+                  yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points - 1);
 
       #if ENABLED(DELTA)
         delta_grid_spacing[X_AXIS] = xGridSpacing;
@@ -3639,7 +3639,8 @@ inline void gcode_G28() {
       bool zig = (auto_bed_leveling_grid_points & 1) ? true : false; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
 
       for (int yCount = 0; yCount < auto_bed_leveling_grid_points; yCount++) {
-        double yProbe = front_probe_bed_position + yGridSpacing * yCount;
+        float yBase = front_probe_bed_position + yGridSpacing * yCount,
+              yProbe = floor(yProbe + (yProbe < 0 ? 0 : 0.5));
         int xStart, xStop, xInc;
 
         if (zig) {
@@ -3656,7 +3657,8 @@ inline void gcode_G28() {
         zig = !zig;
 
         for (int xCount = xStart; xCount != xStop; xCount += xInc) {
-          double xProbe = left_probe_bed_position + xGridSpacing * xCount;
+          float xBase = left_probe_bed_position + xGridSpacing * xCount,
+                xProbe = floor(xProbe + (xProbe < 0 ? 0 : 0.5));
 
           #if ENABLED(DELTA)
             // Avoid probing outside the round or hexagonal area of a delta printer
