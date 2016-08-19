@@ -1470,7 +1470,7 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
  * the software endstop positions must be refreshed to remain
  * at the same positions relative to the machine.
  */
-static void update_software_endstops(AxisEnum axis) {
+void update_software_endstops(AxisEnum axis) {
   float offs = LOGICAL_POSITION(0, axis);
 
   #if ENABLED(DUAL_X_CARRIAGE)
