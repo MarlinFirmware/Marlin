@@ -3613,8 +3613,8 @@ inline void gcode_G28() {
                 yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points - 1);
 
       #if ENABLED(DELTA)
-        delta_grid_spacing[0] = xGridSpacing;
-        delta_grid_spacing[1] = yGridSpacing;
+        delta_grid_spacing[X_AXIS] = xGridSpacing;
+        delta_grid_spacing[Y_AXIS] = yGridSpacing;
         float zoffset = zprobe_zoffset;
         if (code_seen('Z')) zoffset += code_value_axis_units(Z_AXIS);
       #else // !DELTA
@@ -7897,12 +7897,12 @@ void clamp_to_software_endstops(float target[3]) {
 
     // Adjust print surface height by linear interpolation over the bed_level array.
     void adjust_delta(float cartesian[3]) {
-      if (delta_grid_spacing[0] == 0 || delta_grid_spacing[1] == 0) return; // G29 not done!
+      if (delta_grid_spacing[X_AXIS] == 0 || delta_grid_spacing[Y_AXIS] == 0) return; // G29 not done!
 
       int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
       float h1 = 0.001 - half, h2 = half - 0.001,
-            grid_x = max(h1, min(h2, RAW_X_POSITION(cartesian[X_AXIS]) / delta_grid_spacing[0])),
-            grid_y = max(h1, min(h2, RAW_Y_POSITION(cartesian[Y_AXIS]) / delta_grid_spacing[1]));
+            grid_x = max(h1, min(h2, RAW_X_POSITION(cartesian[X_AXIS]) / delta_grid_spacing[X_AXIS])),
+            grid_y = max(h1, min(h2, RAW_Y_POSITION(cartesian[Y_AXIS]) / delta_grid_spacing[Y_AXIS]));
       int floor_x = floor(grid_x), floor_y = floor(grid_y);
       float ratio_x = grid_x - floor_x, ratio_y = grid_y - floor_y,
             z1 = bed_level[floor_x + half][floor_y + half],
