@@ -2437,8 +2437,8 @@ static void homeaxis(AxisEnum axis) {
     home_dir(axis);
 
   // Homing Z towards the bed? Deploy the Z probe or endstop.
-  #if HAS_BED_PROBE && DISABLED(Z_MIN_PROBE_ENDSTOP)
-    if (axis == Z_AXIS && axis_home_dir < 0) {
+  #if HAS_BED_PROBE && Z_HOME_DIR < 0 && DISABLED(Z_MIN_PROBE_ENDSTOP)
+    if (axis == Z_AXIS) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
       #endif
@@ -2499,7 +2499,7 @@ static void homeaxis(AxisEnum axis) {
 
   #if ENABLED(DELTA)
     // retrace by the amount specified in endstop_adj
-    if (endstop_adj[axis] * axis_home_dir < 0) {
+    if (endstop_adj[axis] * Z_HOME_DIR < 0) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
           SERIAL_ECHOPAIR("> endstop_adj = ", endstop_adj[axis]);
@@ -2525,8 +2525,8 @@ static void homeaxis(AxisEnum axis) {
   axis_homed[axis] = true;
 
   // Put away the Z probe
-  #if HAS_BED_PROBE && DISABLED(Z_MIN_PROBE_ENDSTOP)
-    if (axis == Z_AXIS && axis_home_dir < 0) {
+  #if HAS_BED_PROBE && Z_HOME_DIR < 0 && DISABLED(Z_MIN_PROBE_ENDSTOP)
+    if (axis == Z_AXIS) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
       #endif
@@ -3636,7 +3636,7 @@ inline void gcode_G28() {
       #endif // !DELTA
 
       int probePointCounter = 0;
-      bool zig = (auto_bed_leveling_grid_points & 1) ? true : false; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
+      bool zig = auto_bed_leveling_grid_points & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
 
       for (int yCount = 0; yCount < auto_bed_leveling_grid_points; yCount++) {
         float yBase = front_probe_bed_position + yGridSpacing * yCount,
