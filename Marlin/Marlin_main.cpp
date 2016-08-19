@@ -2127,6 +2127,28 @@ static void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
+  static void do_probe_move(float z, float fr_mm_m) {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
+    #endif
+
+    // Move down until probe triggered
+    do_blocking_move_to_z(LOGICAL_Z_POSITION(z), MMM_TO_MMS(fr_mm_m));
+
+    // Clear endstop flags
+    endstops.hit_on_purpose();
+
+    // Get Z where the steppers were interrupted
+    set_current_from_steppers_for_axis(Z_AXIS);
+
+    // Tell the planner where we actually are
+    SYNC_PLAN_POSITION_KINEMATIC();
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
+    #endif
+  }
+
   // Do a single Z probe and return with current_position[Z_AXIS]
   // at the height where the probe triggered.
   static float run_z_probe() {
@@ -2143,12 +2165,11 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     #if ENABLED(PROBE_DOUBLE_TOUCH)
-      do_blocking_move_to_z(-(Z_MAX_LENGTH + 10), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
-      endstops.hit_on_purpose();
-      set_current_from_steppers_for_axis(Z_AXIS);
-      SYNC_PLAN_POSITION_KINEMATIC();
 
-      // move up the retract distance
+      // Do a first probe at the fast speed
+      do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_FAST);
+
+      // move up by the bump distance
       do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
     #else
       // move fast, close to the bed
@@ -2156,10 +2177,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     // move down slowly to find bed
-    do_blocking_move_to_z(current_position[Z_AXIS] -2.0*home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_SLOW));
-    endstops.hit_on_purpose();
-    set_current_from_steppers_for_axis(Z_AXIS);
-    SYNC_PLAN_POSITION_KINEMATIC();
+    do_probe_move(-10, Z_PROBE_SPEED_SLOW);
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
