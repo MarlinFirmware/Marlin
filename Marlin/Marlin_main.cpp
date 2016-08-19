@@ -2162,9 +2162,14 @@ static void clean_up_after_endstop_or_probe_move() {
 
       // move up by the bump distance
       do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+
     #else
+
       // move fast, close to the bed
-      do_blocking_move_to_z(home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      float z = LOGICAL_Z_POSITION(home_bump_mm(Z_AXIS));
+      if (zprobe_zoffset < 0) z -= zprobe_zoffset;
+      do_blocking_move_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+
     #endif
 
     // move down slowly to find bed
