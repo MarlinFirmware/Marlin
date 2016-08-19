@@ -622,11 +622,8 @@ void Planner::check_axes_activity() {
     block->steps[Z_AXIS] = labs(dz);
   #endif
 
-  block->steps[E_AXIS] = labs(de);
-  block->steps[E_AXIS] *= volumetric_multiplier[extruder];
-  block->steps[E_AXIS] *= extruder_multiplier[extruder];
-  block->steps[E_AXIS] /= 100;
-  block->step_event_count = max(block->steps[X_AXIS], max(block->steps[Y_AXIS], max(block->steps[Z_AXIS], block->steps[E_AXIS])));
+  block->steps[E_AXIS] = labs(de) * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01 + 0.5;
+  block->step_event_count = MAX4(block->steps[X_AXIS], block->steps[Y_AXIS], block->steps[Z_AXIS], block->steps[E_AXIS]);
 
   // Bail if this is a zero-length block
   if (block->step_event_count <= dropsegments) return;
@@ -809,7 +806,7 @@ void Planner::check_axes_activity() {
     delta_mm[Y_AXIS] = dy * steps_to_mm[Y_AXIS];
     delta_mm[Z_AXIS] = dz * steps_to_mm[Z_AXIS];
   #endif
-  delta_mm[E_AXIS] = 0.01 * (de * steps_to_mm[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiplier[extruder];
+  delta_mm[E_AXIS] = 0.01 * (de * steps_to_mm[E_AXIS]) * volumetric_multiplier[extruder] * flow_percentage[extruder];
 
   if (block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
@@ -930,8 +927,8 @@ void Planner::check_axes_activity() {
     }
     ys0 = axis_segment_time[Y_AXIS][0] = ys0 + segment_time;
 
-    long max_x_segment_time = max(xs0, max(xs1, xs2)),
-         max_y_segment_time = max(ys0, max(ys1, ys2)),
+    long max_x_segment_time = MAX3(xs0, xs1, xs2),
+         max_y_segment_time = MAX3(ys0, ys1, ys2),
          min_xy_segment_time = min(max_x_segment_time, max_y_segment_time);
     if (min_xy_segment_time < MAX_FREQ_TIME) {
       float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME);
