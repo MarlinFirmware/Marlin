@@ -1638,15 +1638,6 @@ inline void line_to_z(float zPosition) {
   planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate_mm_s, active_extruder);
 }
 
-inline void line_to_axis_pos(AxisEnum axis, float where, float fr_mm_s = 0.0) {
-  float old_feedrate_mm_s = feedrate_mm_s;
-  current_position[axis] = where;
-  feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[axis];
-  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
-  stepper.synchronize();
-  feedrate_mm_s = old_feedrate_mm_s;
-}
-
 //
 // line_to_destination
 // Move the planner, not necessarily synced with current_position
@@ -2415,6 +2406,15 @@ static void clean_up_after_endstop_or_probe_move() {
  * Home an individual axis
  */
 
+static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
+  float old_feedrate_mm_s = feedrate_mm_s;
+  current_position[axis] = where;
+  feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[axis];
+  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
+  stepper.synchronize();
+  feedrate_mm_s = old_feedrate_mm_s;
+}
+
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
 static void homeaxis(AxisEnum axis) {
@@ -2456,17 +2456,17 @@ static void homeaxis(AxisEnum axis) {
   #endif
 
   // Move towards the endstop until an endstop is triggered
-  line_to_axis_pos(axis, 1.5 * max_length(axis) * axis_home_dir);
+  do_homing_move(axis, 1.5 * max_length(axis) * axis_home_dir);
 
   // Set the axis position as setup for the move
   current_position[axis] = 0;
   sync_plan_position();
 
   // Move away from the endstop by the axis HOME_BUMP_MM
-  line_to_axis_pos(axis, -home_bump_mm(axis) * axis_home_dir);
+  do_homing_move(axis, -home_bump_mm(axis) * axis_home_dir);
 
   // Move slowly towards the endstop until triggered
-  line_to_axis_pos(axis, 2 * home_bump_mm(axis) * axis_home_dir, get_homing_bump_feedrate(axis));
+  do_homing_move(axis, 2 * home_bump_mm(axis) * axis_home_dir, get_homing_bump_feedrate(axis));
 
   // reset current_position to 0 to reflect hitting endpoint
   current_position[axis] = 0;
@@ -2490,7 +2490,7 @@ static void homeaxis(AxisEnum axis) {
       if (lockZ1) stepper.set_z_lock(true); else stepper.set_z2_lock(true);
 
       // Move to the adjusted endstop height
-      line_to_axis_pos(axis, adj);
+      do_homing_move(axis, adj);
 
       if (lockZ1) stepper.set_z_lock(false); else stepper.set_z2_lock(false);
       stepper.set_homing_flag(false);
@@ -2506,7 +2506,7 @@ static void homeaxis(AxisEnum axis) {
           DEBUG_POS("", current_position);
         }
       #endif
-      line_to_axis_pos(axis, endstop_adj[axis]);
+      do_homing_move(axis, endstop_adj[axis]);
     }
   #endif
 
