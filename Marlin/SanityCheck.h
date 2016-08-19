@@ -191,6 +191,13 @@
   #if DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
     #error "You probably want to use Max Endstops for DELTA!"
   #endif
+  #if ENABLED(AUTO_BED_LEVELING_GRID)
+    #if (AUTO_BED_LEVELING_GRID_POINTS & 1) == 0
+      #error "DELTA requires an odd value for AUTO_BED_LEVELING_GRID_POINTS."
+    #elif AUTO_BED_LEVELING_GRID_POINTS < 3
+      #error "DELTA requires at least 3 AUTO_BED_LEVELING_GRID_POINTS."
+    #endif
+  #endif
 #endif
 
 /**
