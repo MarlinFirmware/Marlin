@@ -379,6 +379,7 @@ extern uint8_t active_extruder;
   extern float mixing_factor[MIXING_STEPPERS];
 #endif
 
+void update_software_endstops(AxisEnum axis);
 void calculate_volumetric_multipliers();
 
 // Buzzer
