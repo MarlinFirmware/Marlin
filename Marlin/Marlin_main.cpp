@@ -2540,7 +2540,7 @@ static void homeaxis(AxisEnum axis) {
       SERIAL_ECHOLNPGM(")");
     }
   #endif
-}
+} // homeaxis()
 
 #if ENABLED(FWRETRACT)
 
@@ -3659,10 +3659,10 @@ inline void gcode_G28() {
           double xProbe = left_probe_bed_position + xGridSpacing * xCount;
 
           #if ENABLED(DELTA)
-            // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
+            // Avoid probing outside the round or hexagonal area of a delta printer
             float distance_from_center = HYPOT(xProbe, yProbe);
             if (distance_from_center > DELTA_PROBEABLE_RADIUS) continue;
-          #endif //DELTA
+          #endif
 
           float measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
