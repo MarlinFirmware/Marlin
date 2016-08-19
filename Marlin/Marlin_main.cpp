@@ -3502,7 +3502,7 @@ inline void gcode_G28() {
 
     int verbose_level = code_seen('V') ? code_value_int() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
-      SERIAL_ECHOLNPGM("?(V)erbose Level is implausible (0-4).");
+      SERIAL_PROTOCOLLNPGM("?(V)erbose Level is implausible (0-4).");
       return;
     }
 
