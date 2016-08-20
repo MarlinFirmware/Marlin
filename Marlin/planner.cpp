@@ -626,7 +626,7 @@ void Planner::check_axes_activity() {
   block->step_event_count = MAX4(block->steps[X_AXIS], block->steps[Y_AXIS], block->steps[Z_AXIS], block->steps[E_AXIS]);
 
   // Bail if this is a zero-length block
-  if (block->step_event_count <= dropsegments) return;
+  if (block->step_event_count < MIN_SEGMENTS_FOR_MOVE) return;
 
   // For a mixing extruder, get a magnified step_event_count for each
   #if ENABLED(MIXING_EXTRUDER)
@@ -808,7 +808,7 @@ void Planner::check_axes_activity() {
   #endif
   delta_mm[E_AXIS] = 0.01 * (de * steps_to_mm[E_AXIS]) * volumetric_multiplier[extruder] * flow_percentage[extruder];
 
-  if (block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments) {
+  if (block->steps[X_AXIS] < MIN_SEGMENTS_FOR_MOVE && block->steps[Y_AXIS] < MIN_SEGMENTS_FOR_MOVE && block->steps[Z_AXIS] < MIN_SEGMENTS_FOR_MOVE) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
   }
   else {
