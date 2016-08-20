@@ -303,6 +303,10 @@ void lcd_kill_screen() {
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
+//
+// Status Screen
+//
+
 FORCE_INLINE void _draw_centered_temp(int temp, int x, int y) {
   int degsize = 6 * (temp >= 100 ? 3 : temp >= 10 ? 2 : 1); // number's pixel width
   u8g.setPrintPos(x - (18 - degsize) / 2, y); // move left if shorter
@@ -473,164 +477,173 @@ static void lcd_implementation_status_screen() {
   #endif
 }
 
-static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
-  if (isSelected) {
-    u8g.setColorIndex(1);  // black on white
-    u8g.drawBox(0, row * (DOG_CHAR_HEIGHT) + 3 - (TALL_FONT_CORRECTION), LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT);
-    u8g.setColorIndex(0);  // following text must be white on black
-  }
-  else {
-    u8g.setColorIndex(1); // unmarked text is black on white
-  }
-  u8g.setPrintPos((START_COL) * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
-}
+#if ENABLED(ULTIPANEL)
 
-#if ENABLED(LCD_INFO_MENU) || ENABLED(FILAMENT_CHANGE_FEATURE)
-
-  static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, bool center=true, bool invert=false, const char* valstr=NULL) {
-
-    lcd_implementation_mark_as_selected(row, invert);
-
-    char c;
-    int8_t n = LCD_WIDTH - (START_COL);
-
-    if (center && !valstr) {
-      int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
-      while (--pad >= 0) { lcd_print(' '); n--; }
-    }
-    while (n > 0 && (c = pgm_read_byte(pstr))) {
-      n -= lcd_print(c);
-      pstr++;
-    }
-    if (valstr) while (n > 0 && (c = *valstr)) {
-      n -= lcd_print(c);
-      valstr++;
-    }
-    while (n-- > 0) lcd_print(' ');
-  }
-
-#endif // LCD_INFO_MENU || FILAMENT_CHANGE_FEATURE
-
-static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, const char* pstr, char pre_char, char post_char) {
-  UNUSED(pre_char);
-
-  char c;
-  uint8_t n = LCD_WIDTH - (START_COL) - 2;
-
-  lcd_implementation_mark_as_selected(row, isSelected);
-
-  while (c = pgm_read_byte(pstr)) {
-    n -= lcd_print(c);
-    pstr++;
-  }
-  while (n--) lcd_print(' ');
-  u8g.setPrintPos(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
-  lcd_print(post_char);
-  lcd_print(' ');
-}
-
-static void _drawmenu_setting_edit_generic(bool isSelected, uint8_t row, const char* pstr, const char* data, bool pgm) {
-  char c;
-  uint8_t vallen = (pgm ? lcd_strlen_P(data) : (lcd_strlen((char*)data)));
-  uint8_t n = LCD_WIDTH - (START_COL) - 2 - vallen;
-
-  lcd_implementation_mark_as_selected(row, isSelected);
-
-  while (c = pgm_read_byte(pstr)) {
-    n -= lcd_print(c);
-    pstr++;
-  }
-  lcd_print(':');
-  while (n--) lcd_print(' ');
-  u8g.setPrintPos(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * vallen, (row + 1) * (DOG_CHAR_HEIGHT));
-  if (pgm)  lcd_printPGM(data);  else  lcd_print((char*)data);
-}
-
-#define lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, false)
-#define lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, true)
-
-#define lcd_implementation_drawmenu_setting_edit_int3(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, itostr3(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_float3(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr3(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_float32(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr32(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_float43(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr43sign(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_float5(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_float52(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr52sign(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_float51(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr51sign(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_long5(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
-
-//Add version for callback functions
-#define lcd_implementation_drawmenu_setting_edit_callback_int3(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, itostr3(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_callback_float3(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr3(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_callback_float32(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr32(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_callback_float43(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr43sign(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_callback_float5(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_callback_float52(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr52sign(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_callback_float51(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr51sign(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_callback_long5(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
-
-void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
-  uint8_t rows = 1;
-  uint8_t lcd_width = LCD_WIDTH - (START_COL), char_width = DOG_CHAR_WIDTH;
-  uint8_t vallen = lcd_strlen(value);
-
-  #if ENABLED(USE_BIG_EDIT_FONT)
-    if (lcd_strlen_P(pstr) <= LCD_WIDTH_EDIT - 1) {
-      lcd_setFont(FONT_MENU_EDIT);
-      lcd_width = LCD_WIDTH_EDIT + 1;
-      char_width = DOG_CHAR_WIDTH_EDIT;
-      if (lcd_strlen_P(pstr) >= LCD_WIDTH_EDIT - vallen) rows = 2;
+  // Set the colors for a menu item based on whether it is selected
+  static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
+    if (isSelected) {
+      u8g.setColorIndex(1);  // black on white
+      u8g.drawBox(0, row * (DOG_CHAR_HEIGHT) + 3 - (TALL_FONT_CORRECTION), LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT);
+      u8g.setColorIndex(0);  // following text must be white on black
     }
     else {
-      lcd_setFont(FONT_MENU);
+      u8g.setColorIndex(1); // unmarked text is black on white
     }
-  #endif
-
-  if (lcd_strlen_P(pstr) > LCD_WIDTH - 2 - vallen) rows = 2;
-
-  const float kHalfChar = (DOG_CHAR_HEIGHT_EDIT) / 2;
-  float rowHeight = u8g.getHeight() / (rows + 1); // 1/(rows+1) = 1/2 or 1/3
-
-  u8g.setPrintPos(0, rowHeight + kHalfChar);
-  lcd_printPGM(pstr);
-  if (value != NULL) {
-    lcd_print(':');
-    u8g.setPrintPos((lcd_width - 1 - vallen) * char_width, rows * rowHeight + kHalfChar);
-    lcd_print(value);
+    u8g.setPrintPos((START_COL) * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
   }
-}
 
-#if ENABLED(SDSUPPORT)
+  #if ENABLED(LCD_INFO_MENU) || ENABLED(FILAMENT_CHANGE_FEATURE)
 
-  static void _drawmenu_sd(bool isSelected, uint8_t row, const char* pstr, const char* filename, char* const longFilename, bool isDir) {
-    UNUSED(pstr);
-    char c;
-    uint8_t n = LCD_WIDTH - (START_COL) - 1;
+    // Draw a static line of text in the same idiom as a menu item
+    static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, bool center=true, bool invert=false, const char* valstr=NULL) {
 
-    if (longFilename[0]) {
-      filename = longFilename;
-      longFilename[n] = '\0';
+      lcd_implementation_mark_as_selected(row, invert);
+
+      char c;
+      int8_t n = LCD_WIDTH - (START_COL);
+
+      if (center && !valstr) {
+        int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
+        while (--pad >= 0) { lcd_print(' '); n--; }
+      }
+      while (n > 0 && (c = pgm_read_byte(pstr))) {
+        n -= lcd_print(c);
+        pstr++;
+      }
+      if (valstr) while (n > 0 && (c = *valstr)) {
+        n -= lcd_print(c);
+        valstr++;
+      }
+      while (n-- > 0) lcd_print(' ');
     }
+
+  #endif // LCD_INFO_MENU || FILAMENT_CHANGE_FEATURE
+
+  // Draw a generic menu item
+  static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, const char* pstr, char pre_char, char post_char) {
+    UNUSED(pre_char);
+
+    char c;
+    uint8_t n = LCD_WIDTH - (START_COL) - 2;
 
     lcd_implementation_mark_as_selected(row, isSelected);
 
-    if (isDir) lcd_print(LCD_STR_FOLDER[0]);
-    while ((c = *filename)) {
+    while (c = pgm_read_byte(pstr)) {
       n -= lcd_print(c);
-      filename++;
+      pstr++;
     }
     while (n--) lcd_print(' ');
+    u8g.setPrintPos(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
+    lcd_print(post_char);
+    lcd_print(' ');
   }
 
-  #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)
-  #define lcd_implementation_drawmenu_sddirectory(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, true)
+  // Macros for specific types of menu items
+  #define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+  #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
+  #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
+  #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
-#endif //SDSUPPORT
+  // Draw a menu item with an editable value
+  static void _drawmenu_setting_edit_generic(bool isSelected, uint8_t row, const char* pstr, const char* data, bool pgm) {
+    char c;
+    uint8_t vallen = (pgm ? lcd_strlen_P(data) : (lcd_strlen((char*)data)));
+    uint8_t n = LCD_WIDTH - (START_COL) - 2 - vallen;
 
-#define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
-#define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
-#define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
-#define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
+    lcd_implementation_mark_as_selected(row, isSelected);
+
+    while (c = pgm_read_byte(pstr)) {
+      n -= lcd_print(c);
+      pstr++;
+    }
+    lcd_print(':');
+    while (n--) lcd_print(' ');
+    u8g.setPrintPos(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * vallen, (row + 1) * (DOG_CHAR_HEIGHT));
+    if (pgm)  lcd_printPGM(data);  else  lcd_print((char*)data);
+  }
+
+  // Macros for edit items
+  #define lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, false)
+  #define lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, data) _drawmenu_setting_edit_generic(sel, row, pstr, data, true)
+
+  #define lcd_implementation_drawmenu_setting_edit_int3(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, itostr3(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_float3(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr3(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_float32(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr32(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_float43(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr43sign(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_float5(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_float52(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr52sign(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_float51(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr51sign(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_long5(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
+
+  #define lcd_implementation_drawmenu_setting_edit_callback_int3(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, itostr3(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_callback_float3(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr3(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_callback_float32(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr32(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_callback_float43(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr43sign(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_callback_float5(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_callback_float52(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr52sign(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_callback_float51(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr51sign(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_callback_long5(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
+  #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
+
+  void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
+    uint8_t rows = 1;
+    uint8_t lcd_width = LCD_WIDTH - (START_COL), char_width = DOG_CHAR_WIDTH;
+    uint8_t vallen = lcd_strlen(value);
+
+    #if ENABLED(USE_BIG_EDIT_FONT)
+      if (lcd_strlen_P(pstr) <= LCD_WIDTH_EDIT - 1) {
+        lcd_setFont(FONT_MENU_EDIT);
+        lcd_width = LCD_WIDTH_EDIT + 1;
+        char_width = DOG_CHAR_WIDTH_EDIT;
+        if (lcd_strlen_P(pstr) >= LCD_WIDTH_EDIT - vallen) rows = 2;
+      }
+      else {
+        lcd_setFont(FONT_MENU);
+      }
+    #endif
+
+    if (lcd_strlen_P(pstr) > LCD_WIDTH - 2 - vallen) rows = 2;
+
+    const float kHalfChar = (DOG_CHAR_HEIGHT_EDIT) / 2;
+    float rowHeight = u8g.getHeight() / (rows + 1); // 1/(rows+1) = 1/2 or 1/3
+
+    u8g.setPrintPos(0, rowHeight + kHalfChar);
+    lcd_printPGM(pstr);
+    if (value != NULL) {
+      lcd_print(':');
+      u8g.setPrintPos((lcd_width - 1 - vallen) * char_width, rows * rowHeight + kHalfChar);
+      lcd_print(value);
+    }
+  }
+
+  #if ENABLED(SDSUPPORT)
+
+    static void _drawmenu_sd(bool isSelected, uint8_t row, const char* pstr, const char* filename, char* const longFilename, bool isDir) {
+      UNUSED(pstr);
+      char c;
+      uint8_t n = LCD_WIDTH - (START_COL) - 1;
+
+      if (longFilename[0]) {
+        filename = longFilename;
+        longFilename[n] = '\0';
+      }
+
+      lcd_implementation_mark_as_selected(row, isSelected);
+
+      if (isDir) lcd_print(LCD_STR_FOLDER[0]);
+      while ((c = *filename)) {
+        n -= lcd_print(c);
+        filename++;
+      }
+      while (n--) lcd_print(' ');
+    }
+
+    #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)
+    #define lcd_implementation_drawmenu_sddirectory(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, true)
+
+  #endif // SDSUPPORT
+
+#endif // ULTIPANEL
 
 #endif //__ULTRALCD_IMPL_DOGM_H
