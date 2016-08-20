@@ -2585,11 +2585,11 @@ void lcd_update() {
       lcd_implementation_update_indicators();
     #endif
 
-    #if ENABLED(LCD_HAS_SLOW_BUTTONS)
-      slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
-    #endif
-
     #if ENABLED(ULTIPANEL)
+
+      #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+        slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
+      #endif
 
       #if ENABLED(REPRAPWORLD_KEYPAD)
 
