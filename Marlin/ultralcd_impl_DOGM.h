@@ -45,6 +45,7 @@
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
 #include "dogm_bitmaps.h"
+#include "utility.h"
 #include "duration_t.h"
 
 #include <U8glib.h>

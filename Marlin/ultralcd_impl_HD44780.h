@@ -24,9 +24,11 @@
 #define ULTRALCD_IMPL_HD44780_H
 
 /**
-* Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
-**/
+ * Implementation of the LCD display routines for a Hitachi HD44780 display.
+ * These are the most common LCD character displays.
+ */
 
+#include "utility.h"
 #include "duration_t.h"
 
 extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
