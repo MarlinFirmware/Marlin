@@ -201,26 +201,20 @@ char lcd_print(char c) {
 }
 
 char lcd_print(const char* str) {
-  char c;
   int i = 0;
-  char n = 0;
-  while ((c = str[i++])) {
-    n += lcd_print(c);
-  }
+  char c, n = 0;
+  while ((c = str[i++])) n += lcd_print(c);
   return n;
 }
 
-/* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
+// Needed for Arduino < 1.0.0
 char lcd_printPGM(const char* str) {
-  char c;
-  char n = 0;
-  while ((c = pgm_read_byte(str++))) {
-    n += lcd_print(c);
-  }
+  char c, n = 0;
+  while ((c = pgm_read_byte(str++))) n += lcd_print(c);
   return n;
 }
 
-/* Warning: This function is called from interrupt context */
+// Initialize or re-initializw the LCD
 static void lcd_implementation_init() {
 
   #if defined(LCD_PIN_BL) && LCD_PIN_BL > -1 // Enable LCD backlight
@@ -291,6 +285,7 @@ static void lcd_implementation_init() {
   #endif // SHOW_BOOTSCREEN
 }
 
+// The kill screen is displayed for unrecoverable conditions
 void lcd_kill_screen() {
   lcd_setFont(FONT_MENU);
   u8g.setPrintPos(0, u8g.getHeight()/4*1);
