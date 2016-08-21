@@ -522,11 +522,11 @@
   #define HAS_THERMALLY_PROTECTED_BED (HAS_TEMP_BED && HAS_HEATER_BED && ENABLED(THERMAL_PROTECTION_BED))
 
   /**
-   * This value is used by M109 when trying to calculate a ballpark safe margin
-   * to prevent wait-forever situation.
+   * This setting is also used by M109 when trying to calculate
+   * a ballpark safe margin to prevent wait-forever situation.
    */
   #ifndef EXTRUDE_MINTEMP
-   #define EXTRUDE_MINTEMP 170
+    #define EXTRUDE_MINTEMP 170
   #endif
 
   /**
