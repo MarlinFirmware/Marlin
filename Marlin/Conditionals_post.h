@@ -165,6 +165,11 @@
     #ifndef Z_SAFE_HOMING_Y_POINT
       #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)
     #endif
+    #define X_TILT_FULCRUM Z_SAFE_HOMING_X_POINT
+    #define Y_TILT_FULCRUM Z_SAFE_HOMING_Y_POINT
+  #else
+    #define X_TILT_FULCRUM X_HOME_POS
+    #define Y_TILT_FULCRUM Y_HOME_POS
   #endif
 
   /**
