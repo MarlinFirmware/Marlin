@@ -95,7 +95,7 @@ unsigned char Temperature::soft_pwm_bed;
 #endif
 
 #if ENABLED(BABYSTEPPING)
-  volatile int Temperature::babystepsTodo[3] = { 0 };
+  volatile int Temperature::babystepsTodo[XYZ] = { 0 };
 #endif
 
 #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0

@@ -103,11 +103,7 @@ FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_
 
 // Things to write to serial from Program memory. Saves 400 to 2k of RAM.
 FORCE_INLINE void serialprintPGM(const char* str) {
-  char ch;
-  while ((ch = pgm_read_byte(str))) {
-    MYSERIAL.write(ch);
-    str++;
-  }
+  while (char ch = pgm_read_byte(str++)) MYSERIAL.write(ch);
 }
 
 void idle(
@@ -245,8 +241,6 @@ void enqueue_and_echo_command_now(const char* cmd); // enqueue now, only return 
 void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
 void clear_command_queue();
 
-void clamp_to_software_endstops(float target[3]);
-
 extern millis_t previous_cmd_ms;
 inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
@@ -268,15 +262,25 @@ extern bool volumetric_enabled;
 extern int flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-extern bool axis_known_position[3]; // axis[n].is_known
-extern bool axis_homed[3]; // axis[n].is_homed
+extern bool axis_known_position[XYZ]; // axis[n].is_known
+extern bool axis_homed[XYZ]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
 
 extern float current_position[NUM_AXIS];
-extern float position_shift[3];
-extern float home_offset[3];
-extern float sw_endstop_min[3];
-extern float sw_endstop_max[3];
+extern float position_shift[XYZ];
+extern float home_offset[XYZ];
+
+// Software Endstops
+void update_software_endstops(AxisEnum axis);
+#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+  extern bool soft_endstops_enabled;
+  void clamp_to_software_endstops(float target[XYZ]);
+#else
+  #define soft_endstops_enabled false
+  #define clamp_to_software_endstops(x) NOOP
+#endif
+extern float soft_endstop_min[XYZ];
+extern float soft_endstop_max[XYZ];
 
 #define LOGICAL_POSITION(POS, AXIS) (POS + home_offset[AXIS] + position_shift[AXIS])
 #define RAW_POSITION(POS, AXIS)     (POS - home_offset[AXIS] - position_shift[AXIS])
@@ -295,25 +299,25 @@ float code_value_temp_abs();
 float code_value_temp_diff();
 
 #if ENABLED(DELTA)
-  extern float delta[3];
-  extern float endstop_adj[3]; // axis[n].endstop_adj
+  extern float delta[ABC];
+  extern float endstop_adj[ABC]; // axis[n].endstop_adj
   extern float delta_radius;
   extern float delta_diagonal_rod;
   extern float delta_segments_per_second;
   extern float delta_diagonal_rod_trim_tower_1;
   extern float delta_diagonal_rod_trim_tower_2;
   extern float delta_diagonal_rod_trim_tower_3;
-  void inverse_kinematics(const float cartesian[3]);
+  void inverse_kinematics(const float cartesian[XYZ]);
   void recalc_delta_settings(float radius, float diagonal_rod);
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     extern int delta_grid_spacing[2];
-    void adjust_delta(float cartesian[3]);
+    void adjust_delta(float cartesian[XYZ]);
   #endif
 #elif ENABLED(SCARA)
-  extern float delta[3];
-  extern float axis_scaling[3];  // Build size scaling
-  void inverse_kinematics(const float cartesian[3]);
-  void forward_kinematics_SCARA(float f_scara[3]);
+  extern float delta[ABC];
+  extern float axis_scaling[ABC];  // Build size scaling
+  void inverse_kinematics(const float cartesian[XYZ]);
+  void forward_kinematics_SCARA(float f_scara[ABC]);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -379,7 +383,6 @@ extern uint8_t active_extruder;
   extern float mixing_factor[MIXING_STEPPERS];
 #endif
 
-void update_software_endstops(AxisEnum axis);
 void calculate_volumetric_multipliers();
 
 // Buzzer
