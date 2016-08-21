@@ -1327,30 +1327,42 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  static void _lcd_move_xyz(const char* name, AxisEnum axis, float min, float max) {
+  static void _lcd_move_xyz(const char* name, AxisEnum axis) {
     if (LCD_CLICKED) { lcd_goto_previous_menu(true); return; }
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
       refresh_cmd_timeout();
+
+      // Limit to software endstops, if enabled
+      float min = (soft_endstops_enabled && min_software_endstops) ? soft_endstop_min[axis] : current_position[axis] - 1000,
+            max = (soft_endstops_enabled && max_software_endstops) ? soft_endstop_max[axis] : current_position[axis] + 1000;
+
+      // Get the new position
       current_position[axis] += float((int32_t)encoderPosition) * move_menu_scale;
-      if (min_software_endstops) NOLESS(current_position[axis], min);
-      if (max_software_endstops) NOMORE(current_position[axis], max);
-      encoderPosition = 0;
+
+      // Delta limits XY based on the current offset from center
+      // This assumes the center is 0,0
+      #if ENABLED(DELTA)
+        if (axis != Z_AXIS) {
+          max = sqrt(sq(DELTA_PRINTABLE_RADIUS) - sq(current_position[Y_AXIS - axis]));
+          min = -max;
+        }
+      #endif
+
+      // Limit only when trying to move towards the limit
+      if ((int32_t)encoderPosition < 0) NOLESS(current_position[axis], min);
+      if ((int32_t)encoderPosition > 0) NOMORE(current_position[axis], max);
+
       manual_move_to_current(axis);
+
+      encoderPosition = 0;
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
     if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr41sign(current_position[axis]));
   }
-  #if ENABLED(DELTA)
-    static float delta_clip_radius_2 =  (DELTA_PRINTABLE_RADIUS) * (DELTA_PRINTABLE_RADIUS);
-    static int delta_clip( float a ) { return sqrt(delta_clip_radius_2 - sq(a)); }
-    static void lcd_move_x() { int clip = delta_clip(current_position[Y_AXIS]); _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS, max(sw_endstop_min[X_AXIS], -clip), min(sw_endstop_max[X_AXIS], clip)); }
-    static void lcd_move_y() { int clip = delta_clip(current_position[X_AXIS]); _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS, max(sw_endstop_min[Y_AXIS], -clip), min(sw_endstop_max[Y_AXIS], clip)); }
-  #else
-    static void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS, sw_endstop_min[X_AXIS], sw_endstop_max[X_AXIS]); }
-    static void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS, sw_endstop_min[Y_AXIS], sw_endstop_max[Y_AXIS]); }
-  #endif
-  static void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS, sw_endstop_min[Z_AXIS], sw_endstop_max[Z_AXIS]); }
+  static void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
+  static void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS); }
+  static void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS); }
   static void _lcd_move_e(
     #if E_MANUAL > 1
       int8_t eindex=-1

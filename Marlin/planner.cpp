@@ -968,7 +968,7 @@ void Planner::check_axes_activity() {
     float junction_deviation = 0.1;
 
     // Compute path unit vector
-    double unit_vec[3];
+    double unit_vec[XYZ];
 
     unit_vec[X_AXIS] = delta_mm[X_AXIS] * inverse_millimeters;
     unit_vec[Y_AXIS] = delta_mm[Y_AXIS] * inverse_millimeters;
