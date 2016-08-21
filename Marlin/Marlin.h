@@ -245,8 +245,6 @@ void enqueue_and_echo_command_now(const char* cmd); // enqueue now, only return 
 void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
 void clear_command_queue();
 
-void clamp_to_software_endstops(float target[3]);
-
 extern millis_t previous_cmd_ms;
 inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
@@ -275,8 +273,18 @@ extern volatile bool wait_for_heatup;
 extern float current_position[NUM_AXIS];
 extern float position_shift[3];
 extern float home_offset[3];
-extern float sw_endstop_min[3];
-extern float sw_endstop_max[3];
+
+// Software Endstops
+void update_software_endstops(AxisEnum axis);
+#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+  extern bool soft_endstops_enabled;
+  void clamp_to_software_endstops(float target[XYZ]);
+#else
+  #define soft_endstops_enabled false
+  #define clamp_to_software_endstops(x) NOOP
+#endif
+extern float soft_endstop_min[XYZ];
+extern float soft_endstop_max[XYZ];
 
 #define LOGICAL_POSITION(POS, AXIS) (POS + home_offset[AXIS] + position_shift[AXIS])
 #define RAW_POSITION(POS, AXIS)     (POS - home_offset[AXIS] - position_shift[AXIS])
@@ -379,7 +387,6 @@ extern uint8_t active_extruder;
   extern float mixing_factor[MIXING_STEPPERS];
 #endif
 
-void update_software_endstops(AxisEnum axis);
 void calculate_volumetric_multipliers();
 
 // Buzzer

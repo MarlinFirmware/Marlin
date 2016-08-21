@@ -205,6 +205,7 @@
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>
  * M209 - Turn Automatic Retract Detection on/off: S<bool> (For slicers that don't support G10/11).
           Every normal extrude-only move will be classified as retract depending on the direction.
+ * M211 - Enable, Disable, and/or Report software endstops: [S<bool>]
  * M218 - Set a tool offset: T<index> X<offset> Y<offset>
  * M220 - Set Feedrate Percentage: S<percent> ("FR" on your LCD)
  * M221 - Set Flow Percentage: S<percent>
@@ -332,9 +333,12 @@ float position_shift[3] = { 0 };
 // Set by M206, M428, or menu item. Saved to EEPROM.
 float home_offset[3] = { 0 };
 
-// Software Endstops. Default to configured limits.
-float sw_endstop_min[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
-float sw_endstop_max[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+// Software Endstops are based on the configured limits.
+#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+  bool soft_endstops_enabled = true;
+#endif
+float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
+      soft_endstop_max[XYZ] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 
 #if FAN_COUNT > 0
   int fanSpeeds[FAN_COUNT] = { 0 };
@@ -1477,21 +1481,21 @@ void update_software_endstops(AxisEnum axis) {
     if (axis == X_AXIS) {
       float dual_max_x = max(hotend_offset[X_AXIS][1], X2_MAX_POS);
       if (active_extruder != 0) {
-        sw_endstop_min[X_AXIS] = X2_MIN_POS + offs;
-        sw_endstop_max[X_AXIS] = dual_max_x + offs;
+        soft_endstop_min[X_AXIS] = X2_MIN_POS + offs;
+        soft_endstop_max[X_AXIS] = dual_max_x + offs;
         return;
       }
       else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
-        sw_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + offs;
-        sw_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
+        soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + offs;
+        soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
         return;
       }
     }
     else
   #endif
   {
-    sw_endstop_min[axis] = base_min_pos(axis) + offs;
-    sw_endstop_max[axis] = base_max_pos(axis) + offs;
+    soft_endstop_min[axis] = base_min_pos(axis) + offs;
+    soft_endstop_max[axis] = base_max_pos(axis) + offs;
   }
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1499,16 +1503,15 @@ void update_software_endstops(AxisEnum axis) {
       SERIAL_ECHOPAIR("For ", axis_codes[axis]);
       SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
       SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
-      SERIAL_ECHOPAIR("\n sw_endstop_min = ", sw_endstop_min[axis]);
-      SERIAL_ECHOPAIR("\n sw_endstop_max = ", sw_endstop_max[axis]);
+      SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
+      SERIAL_ECHOPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
       SERIAL_EOL;
     }
   #endif
 
   #if ENABLED(DELTA)
-    if (axis == Z_AXIS) {
-      delta_clip_start_height = sw_endstop_max[axis] - delta_safe_distance_from_top();
-    }
+    if (axis == Z_AXIS)
+      delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
   #endif
 
 }
@@ -1574,8 +1577,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
        * SCARA home positions are based on configuration since the actual
        * limits are determined by the inverse kinematic transform.
        */
-      sw_endstop_min[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
-      sw_endstop_max[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      soft_endstop_min[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      soft_endstop_max[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
     }
     else
   #endif
@@ -5572,6 +5575,33 @@ inline void gcode_M206() {
 
 #endif // FWRETRACT
 
+/**
+ * M211: Enable, Disable, and/or Report software endstops
+ *
+ * Usage: M211 S1 to enable, M211 S0 to disable, M211 alone for report
+ */
+inline void gcode_M211() {
+  SERIAL_ECHO_START;
+  #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+    if (code_seen('S')) soft_endstops_enabled = code_value_bool();
+  #endif
+  #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+    SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS ": ");
+    serialprintPGM(soft_endstops_enabled ? PSTR(MSG_ON) : PSTR(MSG_OFF));
+  #else
+    SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS ": " MSG_OFF);
+  #endif
+  SERIAL_ECHOPGM("  " MSG_SOFT_MIN ": ");
+  SERIAL_ECHOPAIR(    MSG_X, soft_endstop_min[X_AXIS]);
+  SERIAL_ECHOPAIR(" " MSG_Y, soft_endstop_min[Y_AXIS]);
+  SERIAL_ECHOPAIR(" " MSG_Z, soft_endstop_min[Z_AXIS]);
+  SERIAL_ECHOPGM("  " MSG_SOFT_MAX ": ");
+  SERIAL_ECHOPAIR(    MSG_X, soft_endstop_max[X_AXIS]);
+  SERIAL_ECHOPAIR(" " MSG_Y, soft_endstop_max[Y_AXIS]);
+  SERIAL_ECHOPAIR(" " MSG_Z, soft_endstop_max[Z_AXIS]);
+  SERIAL_EOL;
+}
+
 #if HOTENDS > 1
 
   /**
@@ -6175,7 +6205,7 @@ inline void gcode_M428() {
   bool err = false;
   LOOP_XYZ(i) {
     if (axis_homed[i]) {
-      float base = (current_position[i] > (sw_endstop_min[i] + sw_endstop_max[i]) * 0.5) ? base_home_pos(i) : 0,
+      float base = (current_position[i] > (soft_endstop_min[i] + soft_endstop_max[i]) * 0.5) ? base_home_pos(i) : 0,
             diff = current_position[i] - LOGICAL_POSITION(base, i);
       if (diff > -20 && diff < 20) {
         set_home_offset((AxisEnum)i, home_offset[i] - diff);
@@ -7495,6 +7525,10 @@ void process_next_command() {
           break;
       #endif // FWRETRACT
 
+      case 211: // M211 - Enable, Disable, and/or Report software endstops
+        gcode_M211();
+        break;
+
       #if HOTENDS > 1
         case 218: // M218 - Set a tool offset: T<index> X<offset> Y<offset>
           gcode_M218();
@@ -7749,18 +7783,22 @@ void ok_to_send() {
   SERIAL_EOL;
 }
 
-void clamp_to_software_endstops(float target[3]) {
-  if (min_software_endstops) {
-    NOLESS(target[X_AXIS], sw_endstop_min[X_AXIS]);
-    NOLESS(target[Y_AXIS], sw_endstop_min[Y_AXIS]);
-    NOLESS(target[Z_AXIS], sw_endstop_min[Z_AXIS]);
+#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+
+  void clamp_to_software_endstops(float target[XYZ]) {
+    #if ENABLED(min_software_endstops)
+      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+      NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
+    #endif
+    #if ENABLED(max_software_endstops)
+      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+      NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
+    #endif
   }
-  if (max_software_endstops) {
-    NOMORE(target[X_AXIS], sw_endstop_max[X_AXIS]);
-    NOMORE(target[Y_AXIS], sw_endstop_max[Y_AXIS]);
-    NOMORE(target[Z_AXIS], sw_endstop_max[Z_AXIS]);
-  }
-}
+
+#endif
 
 #if ENABLED(DELTA)
 
