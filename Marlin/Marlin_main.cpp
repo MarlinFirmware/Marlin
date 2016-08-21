@@ -3647,6 +3647,8 @@ inline void gcode_G28() {
 
     bed_leveling_in_progress = true;
 
+    float measured_z = 0;
+
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
       // probe at the points of a lattice grid
@@ -3706,7 +3708,7 @@ inline void gcode_G28() {
             if (sq(xProbe) + sq(yProbe) > sq(DELTA_PROBEABLE_RADIUS) + 0.1) continue;
           #endif
 
-          float measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+          measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
           #if DISABLED(DELTA)
             mean += measured_z;
@@ -3737,14 +3739,16 @@ inline void gcode_G28() {
       float z_at_pt_1 = probe_pt( LOGICAL_X_POSITION(ABL_PROBE_PT_1_X),
                                   LOGICAL_Y_POSITION(ABL_PROBE_PT_1_Y),
                                   stow_probe_after_each, verbose_level),
+
             z_at_pt_2 = probe_pt( LOGICAL_X_POSITION(ABL_PROBE_PT_2_X),
                                   LOGICAL_Y_POSITION(ABL_PROBE_PT_2_Y),
-                                  stow_probe_after_each, verbose_level),
-            z_at_pt_3 = probe_pt( LOGICAL_X_POSITION(ABL_PROBE_PT_3_X),
+                                  stow_probe_after_each, verbose_level);
+
+           measured_z = probe_pt( LOGICAL_X_POSITION(ABL_PROBE_PT_3_X),
                                   LOGICAL_Y_POSITION(ABL_PROBE_PT_3_Y),
                                   stow_probe_after_each, verbose_level);
 
-      if (!dryrun) set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+      if (!dryrun) set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, measured_z);
 
     #endif // !AUTO_BED_LEVELING_GRID
 
@@ -3829,6 +3833,7 @@ inline void gcode_G28() {
             SERIAL_EOL;
           } // yy
           SERIAL_EOL;
+
           if (verbose_level > 3) {
             SERIAL_PROTOCOLLNPGM("\nCorrected Bed Height vs. Bed Topology:");
 
@@ -3854,47 +3859,30 @@ inline void gcode_G28() {
             SERIAL_EOL;
           }
         } //do_topography_map
+
       #endif //!DELTA
+
     #endif // AUTO_BED_LEVELING_GRID
 
     #if DISABLED(DELTA)
+
       if (verbose_level > 0)
         planner.bed_level_matrix.debug("\n\nBed Level Correction Matrix:");
 
       if (!dryrun) {
-        /**
-         * Correct the Z height difference from Z probe position and nozzle tip position.
-         * The Z height on homing is measured by Z probe, but the Z probe is quite far
-         * from the nozzle. When the bed is uneven, this height must be corrected.
-         */
-        float x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
-              y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
-              z_tmp = current_position[Z_AXIS],
-              stepper_z = stepper.get_axis_position_mm(Z_AXIS);  //get the real Z (since planner.adjusted_position is now correcting the plane)
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> BEFORE apply_rotation_xyz > stepper_z = ", stepper_z);
-            SERIAL_ECHOLNPAIR(" ... z_tmp  = ", z_tmp);
-          }
-        #endif
-
-        // Apply the correction sending the Z probe offset
-        apply_rotation_xyz(planner.bed_level_matrix, x_tmp, y_tmp, z_tmp);
-
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING))
-            SERIAL_ECHOLNPAIR("> AFTER apply_rotation_xyz > z_tmp  = ", z_tmp);
-        #endif
-
-        // Adjust the current Z and send it to the planner.
-        current_position[Z_AXIS] += z_tmp - stepper_z;
+        // 
+        // Simplified Z correction - just uses the last probed Z and probe offset.
+        // This relies on the XY being the same as the last probed point,
+        // and it does not subtract the tilted probe offset.
+        //
+        current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS) - (measured_z - soft_endstop_min[Z_AXIS] + zprobe_zoffset);
         SYNC_PLAN_POSITION_KINEMATIC();
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> corrected Z in G29", current_position);
         #endif
       }
+
     #endif // !DELTA
 
     #ifdef Z_PROBE_END_SCRIPT
