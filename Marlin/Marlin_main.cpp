@@ -3326,7 +3326,7 @@ inline void gcode_G28() {
     switch (state) {
       case MeshReport:
         if (mbl.has_mesh()) {
-          SERIAL_PROTOCOLPAIR("State: ", mbl.active() ? "On" : "Off");
+          SERIAL_PROTOCOLPAIR("State: ", mbl.active() ? MSG_ON : MSG_OFF);
           SERIAL_PROTOCOLLNPGM("\nNum X,Y: " STRINGIFY(MESH_NUM_X_POINTS) "," STRINGIFY(MESH_NUM_Y_POINTS));
           SERIAL_PROTOCOLLNPGM("Z search height: " STRINGIFY(MESH_HOME_SEARCH_Z));
           SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
@@ -5557,18 +5557,7 @@ inline void gcode_M206() {
    */
   inline void gcode_M209() {
     if (code_seen('S')) {
-      int t = code_value_int();
-      switch (t) {
-        case 0:
-          autoretract_enabled = false;
-          break;
-        case 1:
-          autoretract_enabled = true;
-          break;
-        default:
-          unknown_command_error();
-          return;
-      }
+      autoretract_enabled = code_value_bool();
       for (int i = 0; i < EXTRUDERS; i++) retracted[i] = false;
     }
   }
@@ -6529,8 +6518,7 @@ inline void gcode_M503() {
     stepper.synchronize();
     extruder_duplication_enabled = code_seen('S') && code_value_int() == 2;
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
-    SERIAL_EOL;
+    SERIAL_ECHOLNPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
   }
 
 #endif // M605
