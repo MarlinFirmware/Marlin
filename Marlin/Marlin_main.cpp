@@ -3397,6 +3397,8 @@ inline void gcode_G28() {
 
     bed_leveling_in_progress = true;
 
+    float xProbe, yProbe, measured_z = 0;
+
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
       // probe at the points of a lattice grid
@@ -3434,8 +3436,8 @@ inline void gcode_G28() {
       bool zig = auto_bed_leveling_grid_points & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
 
       for (uint8_t yCount = 0; yCount < auto_bed_leveling_grid_points; yCount++) {
-        float yBase = front_probe_bed_position + yGridSpacing * yCount,
-              yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
+        float yBase = front_probe_bed_position + yGridSpacing * yCount;
+        yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
         int8_t xStart, xStop, xInc;
 
         if (zig) {
@@ -3452,8 +3454,8 @@ inline void gcode_G28() {
         zig = !zig;
 
         for (int8_t xCount = xStart; xCount != xStop; xCount += xInc) {
-          float xBase = left_probe_bed_position + xGridSpacing * xCount,
-                xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
+          float xBase = left_probe_bed_position + xGridSpacing * xCount;
+          xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
 
           #if ENABLED(DELTA)
             // Avoid probing outside the round or hexagonal area of a delta printer
@@ -3497,12 +3499,12 @@ inline void gcode_G28() {
         vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, 0)
       };
 
-      for (uint8_t i = 0; i < 3; ++i)
-        points[i].z = probe_pt(
-          LOGICAL_X_POSITION(points[i].x),
-          LOGICAL_Y_POSITION(points[i].y),
-          stow_probe_after_each, verbose_level
-        );
+      for (uint8_t i = 0; i < 3; ++i) {
+        // Retain the last probe position
+        xProbe = LOGICAL_X_POSITION(points[i].x);
+        yProbe = LOGICAL_Y_POSITION(points[i].y);
+        measured_z = points[i].z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+      }
 
       if (!dryrun) {
         vector_3 planeNormal = vector_3::cross(points[0] - points[1], points[2] - points[1]).get_normal();
@@ -3635,42 +3637,50 @@ inline void gcode_G28() {
         // Correct the current XYZ position based on the tilted plane.
         //
 
-        // Get the distance from the reference point to the current position
-        // The current XY is in sync with the planner/steppers at this point
-        // but the current Z is only known to the steppers.
+        // 1. Get the distance from the current position to the reference point.
         float x_dist = RAW_CURRENT_POSITION(X_AXIS) - X_TILT_FULCRUM,
               y_dist = RAW_CURRENT_POSITION(Y_AXIS) - Y_TILT_FULCRUM,
-              z_real = RAW_Z_POSITION(stepper.get_axis_position_mm(Z_AXIS));
+              z_real = RAW_CURRENT_POSITION(Z_AXIS),
+              z_zero = 0;
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("BEFORE ROTATION ... x_dist:", x_dist);
-            SERIAL_ECHOPAIR("y_dist:", y_dist);
-            SERIAL_ECHOPAIR("z_real:", z_real);
-          }
+          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
         #endif
 
-        // Apply the matrix to the distance from the reference point to XY,
-        // and from the homed Z to the current Z.
-        apply_rotation_xyz(planner.bed_level_matrix, x_dist, y_dist, z_real);
+        matrix_3x3 inverse = matrix_3x3::transpose(planner.bed_level_matrix);
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("AFTER ROTATION ... x_dist:", x_dist);
-            SERIAL_ECHOPAIR("y_dist:", y_dist);
-            SERIAL_ECHOPAIR("z_real:", z_real);
-          }
-        #endif
+        // 2. Apply the inverse matrix to the distance
+        //    from the reference point to X, Y, and zero.
+        apply_rotation_xyz(inverse, x_dist, y_dist, z_zero);
 
-        // Apply the rotated distance and Z to the current position
-        current_position[X_AXIS] = LOGICAL_X_POSITION(X_TILT_FULCRUM + x_dist);
-        current_position[Y_AXIS] = LOGICAL_Y_POSITION(Y_TILT_FULCRUM + y_dist);
-        current_position[Z_AXIS] = LOGICAL_Z_POSITION(z_real);
+        // 3. Get the matrix-based corrected Z.
+        //    (Even if not used, get it for comparison.)
+        float new_z = z_real + z_zero;
+
+        // 4. Use the last measured distance to the bed, if possible
+        if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
+          && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
+        ) {
+          float simple_z = z_real - (measured_z - (-zprobe_zoffset));
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) {
+              SERIAL_ECHOPAIR("Z from Probe:", simple_z);
+              SERIAL_ECHOPAIR("  Matrix:", new_z);
+              SERIAL_ECHOLNPAIR("  Discrepancy:", simple_z - new_z);
+            }
+          #endif
+          new_z = simple_z;
+        }
+
+        // 5. The rotated XY and corrected Z are now current_position
+        current_position[X_AXIS] = LOGICAL_X_POSITION(x_dist) + X_TILT_FULCRUM;
+        current_position[Y_AXIS] = LOGICAL_Y_POSITION(y_dist) + Y_TILT_FULCRUM;
+        current_position[Z_AXIS] = LOGICAL_Z_POSITION(new_z);
 
         SYNC_PLAN_POSITION_KINEMATIC();
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("> corrected XYZ in G29", current_position);
+          if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
         #endif
       }
 
@@ -7962,8 +7972,8 @@ void set_current_from_steppers_for_axis(AxisEnum axis) {
     LOOP_XYZE(i) difference[i] = target[i] - current_position[i];
 
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
-    if (cartesian_mm < 0.000001) cartesian_mm = abs(difference[E_AXIS]);
-    if (cartesian_mm < 0.000001) return false;
+    if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = abs(difference[E_AXIS]);
+    if (UNEAR_ZERO(cartesian_mm)) return false;
     float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
     float seconds = cartesian_mm / _feedrate_mm_s;
     int steps = max(1, int(delta_segments_per_second * seconds));
