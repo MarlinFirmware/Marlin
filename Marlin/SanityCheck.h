@@ -135,6 +135,8 @@
   #error "Z_RAISE_PROBE_DEPLOY_STOW and Z_RAISE_BETWEEN_PROBINGS are now Z_PROBE_DEPLOY_HEIGHT and Z_PROBE_TRAVEL_HEIGHT Please update your configuration."
 #elif !defined(MIN_SEGMENTS_FOR_MOVE)
   #error "\"dropsegments\" is replaced with MIN_SEGMENTS_FOR_MOVE (and increases by 1). Please update Configuration_adv.h."
+#elif defined(PREVENT_DANGEROUS_EXTRUDE)
+  #error "PREVENT_DANGEROUS_EXTRUDE is now PREVENT_COLD_EXTRUSION. Please update your configuration."
 #endif
 
 /**

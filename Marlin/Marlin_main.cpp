@@ -5844,7 +5844,7 @@ inline void gcode_M226() {
 
 #endif // HAS_LCD_CONTRAST
 
-#if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+#if ENABLED(PREVENT_COLD_EXTRUSION)
 
   /**
    * M302: Allow cold extrudes, or set the minimum extrude temperature
@@ -5879,7 +5879,7 @@ inline void gcode_M226() {
     }
   }
 
-#endif // PREVENT_DANGEROUS_EXTRUDE
+#endif // PREVENT_COLD_EXTRUSION
 
 /**
  * M303: PID relay autotune
@@ -7549,11 +7549,11 @@ void process_next_command() {
           break;
       #endif // HAS_LCD_CONTRAST
 
-      #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+      #if ENABLED(PREVENT_COLD_EXTRUSION)
         case 302: // allow cold extrudes, or set the minimum extrude temperature
           gcode_M302();
           break;
-      #endif // PREVENT_DANGEROUS_EXTRUDE
+      #endif // PREVENT_COLD_EXTRUSION
 
       case 303: // M303 PID autotune
         gcode_M303();
@@ -8121,7 +8121,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
 
 #endif // !DELTA && !SCARA
 
-#if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+#if ENABLED(PREVENT_COLD_EXTRUSION)
 
   inline void prevent_dangerous_extrude(float& curr_e, float& dest_e) {
     if (DEBUGGING(DRYRUN)) return;
@@ -8142,7 +8142,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
     }
   }
 
-#endif // PREVENT_DANGEROUS_EXTRUDE
+#endif // PREVENT_COLD_EXTRUSION
 
 /**
  * Prepare a single move and get ready for the next one
@@ -8154,7 +8154,7 @@ void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
   refresh_cmd_timeout();
 
-  #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
     prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS]);
   #endif
 
