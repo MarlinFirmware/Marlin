@@ -266,13 +266,13 @@ extern bool volumetric_enabled;
 extern int flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-extern bool axis_known_position[3]; // axis[n].is_known
-extern bool axis_homed[3]; // axis[n].is_homed
+extern bool axis_known_position[XYZ]; // axis[n].is_known
+extern bool axis_homed[XYZ]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
 
 extern float current_position[NUM_AXIS];
-extern float position_shift[3];
-extern float home_offset[3];
+extern float position_shift[XYZ];
+extern float home_offset[XYZ];
 
 // Software Endstops
 void update_software_endstops(AxisEnum axis);
@@ -303,25 +303,25 @@ float code_value_temp_abs();
 float code_value_temp_diff();
 
 #if ENABLED(DELTA)
-  extern float delta[3];
-  extern float endstop_adj[3]; // axis[n].endstop_adj
+  extern float delta[ABC];
+  extern float endstop_adj[ABC]; // axis[n].endstop_adj
   extern float delta_radius;
   extern float delta_diagonal_rod;
   extern float delta_segments_per_second;
   extern float delta_diagonal_rod_trim_tower_1;
   extern float delta_diagonal_rod_trim_tower_2;
   extern float delta_diagonal_rod_trim_tower_3;
-  void inverse_kinematics(const float cartesian[3]);
+  void inverse_kinematics(const float cartesian[XYZ]);
   void recalc_delta_settings(float radius, float diagonal_rod);
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     extern int delta_grid_spacing[2];
-    void adjust_delta(float cartesian[3]);
+    void adjust_delta(float cartesian[XYZ]);
   #endif
 #elif ENABLED(SCARA)
-  extern float delta[3];
-  extern float axis_scaling[3];  // Build size scaling
-  void inverse_kinematics(const float cartesian[3]);
-  void forward_kinematics_SCARA(float f_scara[3]);
+  extern float delta[ABC];
+  extern float axis_scaling[ABC];  // Build size scaling
+  void inverse_kinematics(const float cartesian[XYZ]);
+  void forward_kinematics_SCARA(float f_scara[ABC]);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)

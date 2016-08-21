@@ -286,8 +286,8 @@ uint8_t marlin_debug_flags = DEBUG_NONE;
 
 float current_position[NUM_AXIS] = { 0.0 };
 static float destination[NUM_AXIS] = { 0.0 };
-bool axis_known_position[3] = { false };
-bool axis_homed[3] = { false };
+bool axis_known_position[XYZ] = { false };
+bool axis_homed[XYZ] = { false };
 
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
@@ -327,11 +327,11 @@ float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DI
 float volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
 // The distance that XYZ has been offset by G92. Reset by G28.
-float position_shift[3] = { 0 };
+float position_shift[XYZ] = { 0 };
 
 // This offset is added to the configured home position.
 // Set by M206, M428, or menu item. Saved to EEPROM.
-float home_offset[3] = { 0 };
+float home_offset[XYZ] = { 0 };
 
 // Software Endstops are based on the configured limits.
 #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
@@ -462,11 +462,11 @@ static uint8_t target_extruder;
   #define TOWER_2 Y_AXIS
   #define TOWER_3 Z_AXIS
 
-  float delta[3];
-  float cartesian_position[3] = { 0 };
+  float delta[ABC];
+  float cartesian_position[XYZ] = { 0 };
   #define SIN_60 0.8660254037844386
   #define COS_60 0.5
-  float endstop_adj[3] = { 0 };
+  float endstop_adj[ABC] = { 0 };
   // these are the default values, can be overriden with M665
   float delta_radius = DELTA_RADIUS;
   float delta_tower1_x = -SIN_60 * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1); // front left tower
@@ -495,8 +495,8 @@ static uint8_t target_extruder;
 
 #if ENABLED(SCARA)
   float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
-  float delta[3];
-  float axis_scaling[3] = { 1, 1, 1 };    // Build size scaling, default to 1
+  float delta[ABC];
+  float axis_scaling[ABC] = { 1, 1, 1 };    // Build size scaling, default to 1
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -1415,7 +1415,7 @@ DEFINE_PGM_READ_ANY(float,       float);
 DEFINE_PGM_READ_ANY(signed char, byte);
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
-  static const PROGMEM type array##_P[3] =        \
+  static const PROGMEM type array##_P[XYZ] =        \
       { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
   static inline type array(int axis)          \
   { return pgm_read_any(&array##_P[axis]); }
@@ -1555,7 +1555,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
     if (axis == X_AXIS || axis == Y_AXIS) {
 
-      float homeposition[3];
+      float homeposition[XYZ];
       LOOP_XYZ(i) homeposition[i] = LOGICAL_POSITION(base_home_pos(i), i);
 
       // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
@@ -7802,9 +7802,9 @@ void ok_to_send() {
     delta_diagonal_rod_2_tower_3 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_3);
   }
 
-  void inverse_kinematics(const float in_cartesian[3]) {
+  void inverse_kinematics(const float in_cartesian[XYZ]) {
 
-    const float cartesian[3] = {
+    const float cartesian[XYZ] = {
       RAW_X_POSITION(in_cartesian[X_AXIS]),
       RAW_Y_POSITION(in_cartesian[Y_AXIS]),
       RAW_Z_POSITION(in_cartesian[Z_AXIS])
@@ -7834,7 +7834,7 @@ void ok_to_send() {
   }
 
   float delta_safe_distance_from_top() {
-    float cartesian[3] = {
+    float cartesian[XYZ] = {
       LOGICAL_X_POSITION(0),
       LOGICAL_Y_POSITION(0),
       LOGICAL_Z_POSITION(0)
@@ -7915,20 +7915,20 @@ void ok_to_send() {
     cartesian_position[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
   };
 
-  void forward_kinematics_DELTA(float point[3]) {
-    forward_kinematics_DELTA(point[X_AXIS], point[Y_AXIS], point[Z_AXIS]);
+  void forward_kinematics_DELTA(float point[ABC]) {
+    forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
   }
 
   void set_cartesian_from_steppers() {
-    forward_kinematics_DELTA(stepper.get_axis_position_mm(X_AXIS),
-                             stepper.get_axis_position_mm(Y_AXIS),
-                             stepper.get_axis_position_mm(Z_AXIS));
+    forward_kinematics_DELTA(stepper.get_axis_position_mm(A_AXIS),
+                             stepper.get_axis_position_mm(B_AXIS),
+                             stepper.get_axis_position_mm(C_AXIS));
   }
 
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
     // Adjust print surface height by linear interpolation over the bed_level array.
-    void adjust_delta(float cartesian[3]) {
+    void adjust_delta(float cartesian[XYZ]) {
       if (delta_grid_spacing[X_AXIS] == 0 || delta_grid_spacing[Y_AXIS] == 0) return; // G29 not done!
 
       int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
@@ -8401,8 +8401,8 @@ void prepare_move_to_destination() {
 
 #if ENABLED(SCARA)
 
-  void forward_kinematics_SCARA(float f_scara[3]) {
-    // Perform forward kinematics, and place results in delta[3]
+  void forward_kinematics_SCARA(float f_scara[ABC]) {
+    // Perform forward kinematics, and place results in delta[]
     // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
 
     float x_sin, x_cos, y_sin, y_cos;
@@ -8427,9 +8427,9 @@ void prepare_move_to_destination() {
     //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
   }
 
-  void inverse_kinematics(const float cartesian[3]) {
+  void inverse_kinematics(const float cartesian[XYZ]) {
     // Inverse kinematics.
-    // Perform SCARA IK and place results in delta[3].
+    // Perform SCARA IK and place results in delta[].
     // The maths and first version were done by QHARLEY.
     // Integrated, tweaked by Joachim Cerny in June 2014.
 
