@@ -103,11 +103,7 @@ FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_
 
 // Things to write to serial from Program memory. Saves 400 to 2k of RAM.
 FORCE_INLINE void serialprintPGM(const char* str) {
-  char ch;
-  while ((ch = pgm_read_byte(str))) {
-    MYSERIAL.write(ch);
-    str++;
-  }
+  while (char ch = pgm_read_byte(str++)) MYSERIAL.write(ch);
 }
 
 void idle(
