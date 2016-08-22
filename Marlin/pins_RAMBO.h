@@ -32,85 +32,97 @@
 
 #define LARGE_FLASH true
 
-// Servo support
-#define SERVO0_PIN 22 // Motor header MX1
-#define SERVO1_PIN 23 // Motor header MX2
-#define SERVO2_PIN 24 // Motor header MX3
-#define SERVO3_PIN  5 // PWM header pin 5
+//
+// Servos
+//
+#define SERVO0_PIN         22 // Motor header MX1
+#define SERVO1_PIN         23 // Motor header MX2
+#define SERVO2_PIN         24 // Motor header MX3
+#define SERVO3_PIN          5 // PWM header pin 5
 
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
 #endif
 
-#define X_MIN_PIN 12
-#define X_MAX_PIN 24
-#define Y_MIN_PIN 11
-#define Y_MAX_PIN 23
-#define Z_MIN_PIN 10
-#define Z_MAX_PIN 30
+//
+// Limit Switches
+//
+#define X_MIN_PIN          12
+#define X_MAX_PIN          24
+#define Y_MIN_PIN          11
+#define Y_MAX_PIN          23
+#define Z_MIN_PIN          10
+#define Z_MAX_PIN          30
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN 10
+  #define Z_MIN_PROBE_PIN  30
 #endif
 
-#define X_STEP_PIN 37
-#define X_DIR_PIN 48
-#define X_ENABLE_PIN 29
-#define X_MS1_PIN 40
-#define X_MS2_PIN 41
+//
+// Steppers
+//
+#define X_STEP_PIN         37
+#define X_DIR_PIN          48
+#define X_ENABLE_PIN       29
+#define X_MS1_PIN          40
+#define X_MS2_PIN          41
 
-#define Y_STEP_PIN 36
-#define Y_DIR_PIN 49
-#define Y_ENABLE_PIN 28
-#define Y_MS1_PIN 69
-#define Y_MS2_PIN 39
+#define Y_STEP_PIN         36
+#define Y_DIR_PIN          49
+#define Y_ENABLE_PIN       28
+#define Y_MS1_PIN          69
+#define Y_MS2_PIN          39
 
-#define Z_STEP_PIN 35
-#define Z_DIR_PIN 47
-#define Z_ENABLE_PIN 27
-#define Z_MS1_PIN 68
-#define Z_MS2_PIN 67
+#define Z_STEP_PIN         35
+#define Z_DIR_PIN          47
+#define Z_ENABLE_PIN       27
+#define Z_MS1_PIN          68
+#define Z_MS2_PIN          67
 
-#define HEATER_BED_PIN 3
-#define TEMP_BED_PIN 2
+#define E0_STEP_PIN        34
+#define E0_DIR_PIN         43
+#define E0_ENABLE_PIN      26
+#define E0_MS1_PIN         65
+#define E0_MS2_PIN         66
 
-#define HEATER_0_PIN  9
-#define TEMP_0_PIN 0
+#define E1_STEP_PIN        33
+#define E1_DIR_PIN         42
+#define E1_ENABLE_PIN      25
+#define E1_MS1_PIN         63
+#define E1_MS2_PIN         64
 
-#define HEATER_1_PIN 7
-#define TEMP_1_PIN 1
-
-#if ENABLED(BARICUDA)
-  #define HEATER_2_PIN 6
-#endif
-
-#define E0_STEP_PIN         34
-#define E0_DIR_PIN          43
-#define E0_ENABLE_PIN       26
-#define E0_MS1_PIN 65
-#define E0_MS2_PIN 66
-
-#define E1_STEP_PIN         33
-#define E1_DIR_PIN          42
-#define E1_ENABLE_PIN       25
-#define E1_MS1_PIN 63
-#define E1_MS2_PIN 64
-
-#define DIGIPOTSS_PIN 38
+#define DIGIPOTSS_PIN      38
 #define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
 
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          0
+#define TEMP_1_PIN          1
+#define TEMP_BED_PIN        2
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN        9
+#define HEATER_1_PIN        7
+#define HEATER_2_PIN        6
+#define HEATER_BED_PIN      3
+
+#define FAN_PIN             8
+#define FAN1_PIN            6
+#define FAN2_PIN            2
+
+//
+// Misc. Functions
+//
 #define SDSS               53
 #define LED_PIN            13
-#define FAN_PIN            8
-
 #define FILWIDTH_PIN        3  // ANALOG NUMBERING
-
-/**********************************************************
-  Fan Pins
-  Fan_0 8
-  Fan_1 6
-  Fan_2 2
-***********************************************************/
-#define PS_ON_PIN          4
+#define PS_ON_PIN           4
 
 #if ENABLED(ULTRA_LCD)
 
