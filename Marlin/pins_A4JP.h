@@ -30,39 +30,15 @@
 
 #define BOARD_NAME "AJ4P"
 
-// Servo support
+//
+// Servos
+//
 #define SERVO0_PIN 22 // Motor header MX1
 #define SERVO1_PIN 23 // Motor header MX2
 #define SERVO2_PIN 24 // Motor header MX3
 #define SERVO3_PIN  5 // PWM header pin 5
 
-#if ENABLED(Z_PROBE_SLED)
-  #define SLED_PIN -1
-#endif
-
-//Fan_2 2
-
-/*****************
-#if ENABLED(ULTRA_LCD)
-
-  #define KILL_PIN -1 //was 80 Glen maybe a mistake
-
-#endif // ULTRA_LCD */
-
-#if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN 44
-  // Pins for DOGM SPI LCD Support
-  #define DOGLCD_A0  70
-  #define DOGLCD_CS  71
-  #define LCD_SCREEN_ROT_180
-
-  #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
-
-  #if ENABLED(TEMP_STAT_LEDS)
-    #define STAT_LED_RED      22
-    #define STAT_LED_BLUE     32
-  #endif
-#endif // VIKI2/miniVIKI
+#define SLED_PIN -1
 
 #define FILWIDTH_PIN        3  // ANALOG NUMBERING
 
@@ -71,57 +47,81 @@
  ************************************************/
 
 #define LARGE_FLASH true
-#define X_STEP_PIN    37
-#define X_DIR_PIN     48
-#define X_MIN_PIN     12
-#define X_MAX_PIN     24
-#define X_ENABLE_PIN  29
-#define X_MS1_PIN     40
-#define X_MS2_PIN     41
-#define Y_STEP_PIN    36
-#define Y_DIR_PIN     49
-#define Y_MIN_PIN     11
-#define Y_MAX_PIN     23
-#define Y_ENABLE_PIN  28
-#define Y_MS1_PIN     69
-#define Y_MS2_PIN     39
-#define Z_STEP_PIN    35
-#define Z_DIR_PIN     47
-#define Z_MIN_PIN     10
-#define Z_MAX_PIN     30
-#define Z_ENABLE_PIN  27
-#define Z_MS1_PIN     68
-#define Z_MS2_PIN     67
 
-#define HEATER_BED_PIN 3
-#define TEMP_BED_PIN   7 //2014/02/04  0:T0 / 1:T1 / 2:T2 / 7:T3
-#define HEATER_0_PIN   9
-#define TEMP_0_PIN     0
-#define HEATER_1_PIN   7
+//
+// Limit Switches
+//
+#define X_MIN_PIN           12
+#define X_MAX_PIN           24
+#define Y_MIN_PIN           11
+#define Y_MAX_PIN           23
+#define Z_MIN_PIN           10
+#define Z_MAX_PIN           30
 
-#define E0_STEP_PIN   34
-#define E0_DIR_PIN    43
-#define E0_ENABLE_PIN 26
-#define E0_MS1_PIN    65
-#define E0_MS2_PIN    66
-#define E1_STEP_PIN   33
-#define E1_DIR_PIN    42
-#define E1_ENABLE_PIN 25
-#define E1_MS1_PIN    63
-#define E1_MS2_PIN    64
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN   30
+#endif
 
-#define DIGIPOTSS_PIN 38
+//
+// Steppers
+//
+#define X_STEP_PIN          37
+#define X_DIR_PIN           48
+#define X_ENABLE_PIN        29
+#define X_MS1_PIN           40
+#define X_MS2_PIN           41
+
+#define Y_STEP_PIN          36
+#define Y_DIR_PIN           49
+#define Y_ENABLE_PIN        28
+#define Y_MS1_PIN           69
+#define Y_MS2_PIN           39
+
+#define Z_STEP_PIN          35
+#define Z_DIR_PIN           47
+#define Z_ENABLE_PIN        27
+#define Z_MS1_PIN           68
+#define Z_MS2_PIN           67
+
+#define E0_STEP_PIN         34
+#define E0_DIR_PIN          43
+#define E0_ENABLE_PIN       26
+#define E0_MS1_PIN          65
+#define E0_MS2_PIN          66
+
+#define E1_STEP_PIN         33
+#define E1_DIR_PIN          42
+#define E1_ENABLE_PIN       25
+#define E1_MS1_PIN          63
+#define E1_MS2_PIN          64
+
+#define DIGIPOTSS_PIN       38
 #define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN   9
+#define HEATER_1_PIN   7
+#define HEATER_BED_PIN 3
+
+#define FAN_PIN        8
+#define FAN0_PIN       6
+#define FAN1_PIN       2
+
+#define TEMP_0_PIN     0
+#define TEMP_BED_PIN   7
 
 #define SDSS          53
 #define LED_PIN       13
-#define FAN_PIN        8
 #define PS_ON_PIN      4
-#define FAN_0_PIN      6 //Glen
-#define FAN_1_PIN      2 //Glen
 
-// 2015/12/23
-
+//
+// LCD / Controller
+//
 #define LCD_PINS_RS     70 //ext2_5
 #define LCD_PINS_ENABLE 71 //ext2_7
 #define LCD_PINS_D4     72 ///////Ext2 9 ?
@@ -139,3 +139,18 @@
 #define BTN_DOWN        85 //ext2_6
 
 #define HOME_PIN        BTN_HOME
+
+#if ENABLED(VIKI2) || ENABLED(miniVIKI)
+  #define BEEPER_PIN 44
+  // Pins for DOGM SPI LCD Support
+  #define DOGLCD_A0  70
+  #define DOGLCD_CS  71
+  #define LCD_SCREEN_ROT_180
+
+  #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
+
+  #if ENABLED(TEMP_STAT_LEDS)
+    #define STAT_LED_RED      22
+    #define STAT_LED_BLUE     32
+  #endif
+#endif // VIKI2/miniVIKI

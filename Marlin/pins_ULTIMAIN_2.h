@@ -32,43 +32,35 @@
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
 #define BOARD_NAME              "Ultimaker 2.x"
 
-#define X_STEP_PIN 25
-#define X_DIR_PIN 23
-#define X_STOP_PIN 22
-#define X_ENABLE_PIN 27
+//
+// Limit Switches
+//
+#define X_STOP_PIN         22
+#define Y_STOP_PIN         26
+#define Z_STOP_PIN         29
 
-#define Y_STEP_PIN 32
-#define Y_DIR_PIN 33
-#define Y_STOP_PIN 26
-#define Y_ENABLE_PIN 31
+//
+// Steppers
+//
+#define X_STEP_PIN         25
+#define X_DIR_PIN          23
+#define X_ENABLE_PIN       27
 
-#define Z_STEP_PIN 35
-#define Z_DIR_PIN 36
-#define Z_STOP_PIN 29
-#define Z_ENABLE_PIN 34
+#define Y_STEP_PIN         32
+#define Y_DIR_PIN          33
+#define Y_ENABLE_PIN       31
 
-#define HEATER_BED_PIN 4
-#define TEMP_BED_PIN 10
+#define Z_STEP_PIN         35
+#define Z_DIR_PIN          36
+#define Z_ENABLE_PIN       34
 
-#define HEATER_0_PIN  2
-#define TEMP_0_PIN 8
+#define E0_STEP_PIN        42
+#define E0_DIR_PIN         43
+#define E0_ENABLE_PIN      37
 
-#define HEATER_1_PIN 3
-#define TEMP_1_PIN 9
-
-#define E0_STEP_PIN         42
-#define E0_DIR_PIN          43
-#define E0_ENABLE_PIN       37
-
-#define E1_STEP_PIN         49
-#define E1_DIR_PIN          47
-#define E1_ENABLE_PIN       48
-
-#define SDSS               53
-#define LED_PIN            8
-#define FAN_PIN            7
-#define SAFETY_TRIGGERED_PIN     28 //PIN to detect the safety circuit has triggered
-#define MAIN_VOLTAGE_MEASURE_PIN 14 //Analogue PIN to measure the main voltage, with a 100k - 4k7 resitor divider.
+#define E1_STEP_PIN        49
+#define E1_DIR_PIN         47
+#define E1_ENABLE_PIN      48
 
 #define MOTOR_CURRENT_PWM_XY_PIN 44
 #define MOTOR_CURRENT_PWM_Z_PIN 45
@@ -77,18 +69,42 @@
 #define MOTOR_CURRENT_PWM_RANGE 2000
 #define DEFAULT_PWM_MOTOR_CURRENT  {1300, 1300, 1250}
 
-#define BEEPER_PIN 18
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          8
+#define TEMP_1_PIN          9
+#define TEMP_BED_PIN       10
 
-#define LCD_PINS_RS 20
-#define LCD_PINS_ENABLE 15
-#define LCD_PINS_D4 14
-#define LCD_PINS_D5 21
-#define LCD_PINS_D6 5
-#define LCD_PINS_D7 6
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN        2
+#define HEATER_1_PIN        3
+#define HEATER_BED_PIN      4
 
-//buttons are directly attached
-#define BTN_EN1 40
-#define BTN_EN2 41
-#define BTN_ENC 19
+#define FAN_PIN             7
 
-#define SD_DETECT_PIN 39
+//
+// SD Card
+//
+#define SDSS               53
+#define SD_DETECT_PIN      39
+
+#define LED_PIN             8
+#define SAFETY_TRIGGERED_PIN     28 // PIN to detect the safety circuit has triggered
+#define MAIN_VOLTAGE_MEASURE_PIN 14 // ANALOG PIN to measure the main voltage, with a 100k - 4k7 resitor divider.
+
+#define BEEPER_PIN         18
+
+#define LCD_PINS_RS        20
+#define LCD_PINS_ENABLE    15
+#define LCD_PINS_D4        14
+#define LCD_PINS_D5        21
+#define LCD_PINS_D6         5
+#define LCD_PINS_D7         6
+
+// Buttons are directly attached
+#define BTN_EN1            40
+#define BTN_EN2            41
+#define BTN_ENC            19
