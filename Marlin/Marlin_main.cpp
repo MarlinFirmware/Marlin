@@ -1944,6 +1944,10 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
   }
   void run_stow_moves_script() {
+    // disable endstops for the stow procedure
+    bool origZProbeState = endstops.enabled;
+    endstops.enable_z_probe(false);
+    
     #if defined(Z_PROBE_ALLEN_KEY_STOW_1_X) || defined(Z_PROBE_ALLEN_KEY_STOW_1_Y) || defined(Z_PROBE_ALLEN_KEY_STOW_1_Z)
       #ifndef Z_PROBE_ALLEN_KEY_STOW_1_X
         #define Z_PROBE_ALLEN_KEY_STOW_1_X current_position[X_AXIS]
@@ -2019,6 +2023,9 @@ static void clean_up_after_endstop_or_probe_move() {
       #endif
       do_blocking_move_to(Z_PROBE_ALLEN_KEY_STOW_5_X, Z_PROBE_ALLEN_KEY_STOW_5_Y, Z_PROBE_ALLEN_KEY_STOW_5_Z, Z_PROBE_ALLEN_KEY_STOW_5_FEEDRATE);
     #endif
+    
+    // re-set the endstops to their initial state
+    endstops.enable_z_probe(origZProbeState);
   }
 #endif
 
