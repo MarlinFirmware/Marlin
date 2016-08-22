@@ -244,10 +244,11 @@ void MarlinSerial::flush(void) {
     }
 
     tx_buffer.buffer[tx_buffer.head] = c;
-    CRITICAL_SECTION_START;
-      tx_buffer.head = i;
-      SBI(M_UCSRxB, M_UDRIEx);
-    CRITICAL_SECTION_END;
+    { CRITICAL_SECTION_START;
+        tx_buffer.head = i;
+        SBI(M_UCSRxB, M_UDRIEx);
+      CRITICAL_SECTION_END;
+    }
     return;
   }
 
