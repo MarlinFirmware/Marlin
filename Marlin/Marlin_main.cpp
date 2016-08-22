@@ -205,6 +205,7 @@
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>
  * M209 - Turn Automatic Retract Detection on/off: S<bool> (For slicers that don't support G10/11).
           Every normal extrude-only move will be classified as retract depending on the direction.
+ * M211 - Enable, Disable, and/or Report software endstops: [S<bool>]
  * M218 - Set a tool offset: T<index> X<offset> Y<offset>
  * M220 - Set Feedrate Percentage: S<percent> ("FR" on your LCD)
  * M221 - Set Flow Percentage: S<percent>
@@ -285,8 +286,8 @@ uint8_t marlin_debug_flags = DEBUG_NONE;
 
 float current_position[NUM_AXIS] = { 0.0 };
 static float destination[NUM_AXIS] = { 0.0 };
-bool axis_known_position[3] = { false };
-bool axis_homed[3] = { false };
+bool axis_known_position[XYZ] = { false };
+bool axis_homed[XYZ] = { false };
 
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
@@ -326,15 +327,18 @@ float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DI
 float volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
 // The distance that XYZ has been offset by G92. Reset by G28.
-float position_shift[3] = { 0 };
+float position_shift[XYZ] = { 0 };
 
 // This offset is added to the configured home position.
 // Set by M206, M428, or menu item. Saved to EEPROM.
-float home_offset[3] = { 0 };
+float home_offset[XYZ] = { 0 };
 
-// Software Endstops. Default to configured limits.
-float sw_endstop_min[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
-float sw_endstop_max[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+// Software Endstops are based on the configured limits.
+#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+  bool soft_endstops_enabled = true;
+#endif
+float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
+      soft_endstop_max[XYZ] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 
 #if FAN_COUNT > 0
   int fanSpeeds[FAN_COUNT] = { 0 };
@@ -458,11 +462,11 @@ static uint8_t target_extruder;
   #define TOWER_2 Y_AXIS
   #define TOWER_3 Z_AXIS
 
-  float delta[3];
-  float cartesian_position[3] = { 0 };
+  float delta[ABC];
+  float cartesian_position[XYZ] = { 0 };
   #define SIN_60 0.8660254037844386
   #define COS_60 0.5
-  float endstop_adj[3] = { 0 };
+  float endstop_adj[ABC] = { 0 };
   // these are the default values, can be overriden with M665
   float delta_radius = DELTA_RADIUS;
   float delta_tower1_x = -SIN_60 * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1); // front left tower
@@ -491,8 +495,8 @@ static uint8_t target_extruder;
 
 #if ENABLED(SCARA)
   float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
-  float delta[3];
-  float axis_scaling[3] = { 1, 1, 1 };    // Build size scaling, default to 1
+  float delta[ABC];
+  float axis_scaling[ABC] = { 1, 1, 1 };    // Build size scaling, default to 1
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -1411,7 +1415,7 @@ DEFINE_PGM_READ_ANY(float,       float);
 DEFINE_PGM_READ_ANY(signed char, byte);
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
-  static const PROGMEM type array##_P[3] =        \
+  static const PROGMEM type array##_P[XYZ] =        \
       { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
   static inline type array(int axis)          \
   { return pgm_read_any(&array##_P[axis]); }
@@ -1477,21 +1481,21 @@ void update_software_endstops(AxisEnum axis) {
     if (axis == X_AXIS) {
       float dual_max_x = max(hotend_offset[X_AXIS][1], X2_MAX_POS);
       if (active_extruder != 0) {
-        sw_endstop_min[X_AXIS] = X2_MIN_POS + offs;
-        sw_endstop_max[X_AXIS] = dual_max_x + offs;
+        soft_endstop_min[X_AXIS] = X2_MIN_POS + offs;
+        soft_endstop_max[X_AXIS] = dual_max_x + offs;
         return;
       }
       else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
-        sw_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + offs;
-        sw_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
+        soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + offs;
+        soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
         return;
       }
     }
     else
   #endif
   {
-    sw_endstop_min[axis] = base_min_pos(axis) + offs;
-    sw_endstop_max[axis] = base_max_pos(axis) + offs;
+    soft_endstop_min[axis] = base_min_pos(axis) + offs;
+    soft_endstop_max[axis] = base_max_pos(axis) + offs;
   }
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1499,16 +1503,15 @@ void update_software_endstops(AxisEnum axis) {
       SERIAL_ECHOPAIR("For ", axis_codes[axis]);
       SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
       SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
-      SERIAL_ECHOPAIR("\n sw_endstop_min = ", sw_endstop_min[axis]);
-      SERIAL_ECHOPAIR("\n sw_endstop_max = ", sw_endstop_max[axis]);
+      SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
+      SERIAL_ECHOPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
       SERIAL_EOL;
     }
   #endif
 
   #if ENABLED(DELTA)
-    if (axis == Z_AXIS) {
-      delta_clip_start_height = sw_endstop_max[axis] - delta_safe_distance_from_top();
-    }
+    if (axis == Z_AXIS)
+      delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
   #endif
 
 }
@@ -1552,7 +1555,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
     if (axis == X_AXIS || axis == Y_AXIS) {
 
-      float homeposition[3];
+      float homeposition[XYZ];
       LOOP_XYZ(i) homeposition[i] = LOGICAL_POSITION(base_home_pos(i), i);
 
       // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
@@ -1574,8 +1577,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
        * SCARA home positions are based on configuration since the actual
        * limits are determined by the inverse kinematic transform.
        */
-      sw_endstop_min[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
-      sw_endstop_max[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      soft_endstop_min[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      soft_endstop_max[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
     }
     else
   #endif
@@ -3323,7 +3326,7 @@ inline void gcode_G28() {
     switch (state) {
       case MeshReport:
         if (mbl.has_mesh()) {
-          SERIAL_PROTOCOLPAIR("State: ", mbl.active() ? "On" : "Off");
+          SERIAL_PROTOCOLPAIR("State: ", mbl.active() ? MSG_ON : MSG_OFF);
           SERIAL_PROTOCOLLNPGM("\nNum X,Y: " STRINGIFY(MESH_NUM_X_POINTS) "," STRINGIFY(MESH_NUM_Y_POINTS));
           SERIAL_PROTOCOLLNPGM("Z search height: " STRINGIFY(MESH_HOME_SEARCH_Z));
           SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
@@ -3645,7 +3648,7 @@ inline void gcode_G28() {
 
       for (int yCount = 0; yCount < auto_bed_leveling_grid_points; yCount++) {
         float yBase = front_probe_bed_position + yGridSpacing * yCount,
-              yProbe = floor(yProbe + (yProbe < 0 ? 0 : 0.5));
+              yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
         int xStart, xStop, xInc;
 
         if (zig) {
@@ -3663,7 +3666,7 @@ inline void gcode_G28() {
 
         for (int xCount = xStart; xCount != xStop; xCount += xInc) {
           float xBase = left_probe_bed_position + xGridSpacing * xCount,
-                xProbe = floor(xProbe + (xProbe < 0 ? 0 : 0.5));
+                xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
 
           #if ENABLED(DELTA)
             // Avoid probing outside the round or hexagonal area of a delta printer
@@ -5554,23 +5557,39 @@ inline void gcode_M206() {
    */
   inline void gcode_M209() {
     if (code_seen('S')) {
-      int t = code_value_int();
-      switch (t) {
-        case 0:
-          autoretract_enabled = false;
-          break;
-        case 1:
-          autoretract_enabled = true;
-          break;
-        default:
-          unknown_command_error();
-          return;
-      }
+      autoretract_enabled = code_value_bool();
       for (int i = 0; i < EXTRUDERS; i++) retracted[i] = false;
     }
   }
 
 #endif // FWRETRACT
+
+/**
+ * M211: Enable, Disable, and/or Report software endstops
+ *
+ * Usage: M211 S1 to enable, M211 S0 to disable, M211 alone for report
+ */
+inline void gcode_M211() {
+  SERIAL_ECHO_START;
+  #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+    if (code_seen('S')) soft_endstops_enabled = code_value_bool();
+  #endif
+  #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+    SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS ": ");
+    serialprintPGM(soft_endstops_enabled ? PSTR(MSG_ON) : PSTR(MSG_OFF));
+  #else
+    SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS ": " MSG_OFF);
+  #endif
+  SERIAL_ECHOPGM("  " MSG_SOFT_MIN ": ");
+  SERIAL_ECHOPAIR(    MSG_X, soft_endstop_min[X_AXIS]);
+  SERIAL_ECHOPAIR(" " MSG_Y, soft_endstop_min[Y_AXIS]);
+  SERIAL_ECHOPAIR(" " MSG_Z, soft_endstop_min[Z_AXIS]);
+  SERIAL_ECHOPGM("  " MSG_SOFT_MAX ": ");
+  SERIAL_ECHOPAIR(    MSG_X, soft_endstop_max[X_AXIS]);
+  SERIAL_ECHOPAIR(" " MSG_Y, soft_endstop_max[Y_AXIS]);
+  SERIAL_ECHOPAIR(" " MSG_Z, soft_endstop_max[Z_AXIS]);
+  SERIAL_EOL;
+}
 
 #if HOTENDS > 1
 
@@ -5844,7 +5863,7 @@ inline void gcode_M226() {
 
 #endif // HAS_LCD_CONTRAST
 
-#if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+#if ENABLED(PREVENT_COLD_EXTRUSION)
 
   /**
    * M302: Allow cold extrudes, or set the minimum extrude temperature
@@ -5879,7 +5898,7 @@ inline void gcode_M226() {
     }
   }
 
-#endif // PREVENT_DANGEROUS_EXTRUDE
+#endif // PREVENT_COLD_EXTRUSION
 
 /**
  * M303: PID relay autotune
@@ -6175,7 +6194,7 @@ inline void gcode_M428() {
   bool err = false;
   LOOP_XYZ(i) {
     if (axis_homed[i]) {
-      float base = (current_position[i] > (sw_endstop_min[i] + sw_endstop_max[i]) * 0.5) ? base_home_pos(i) : 0,
+      float base = (current_position[i] > (soft_endstop_min[i] + soft_endstop_max[i]) * 0.5) ? base_home_pos(i) : 0,
             diff = current_position[i] - LOGICAL_POSITION(base, i);
       if (diff > -20 && diff < 20) {
         set_home_offset((AxisEnum)i, home_offset[i] - diff);
@@ -6499,8 +6518,7 @@ inline void gcode_M503() {
     stepper.synchronize();
     extruder_duplication_enabled = code_seen('S') && code_value_int() == 2;
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
-    SERIAL_EOL;
+    SERIAL_ECHOLNPAIR(MSG_DUPLICATION_MODE, extruder_duplication_enabled ? MSG_ON : MSG_OFF);
   }
 
 #endif // M605
@@ -7495,6 +7513,10 @@ void process_next_command() {
           break;
       #endif // FWRETRACT
 
+      case 211: // M211 - Enable, Disable, and/or Report software endstops
+        gcode_M211();
+        break;
+
       #if HOTENDS > 1
         case 218: // M218 - Set a tool offset: T<index> X<offset> Y<offset>
           gcode_M218();
@@ -7549,11 +7571,11 @@ void process_next_command() {
           break;
       #endif // HAS_LCD_CONTRAST
 
-      #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+      #if ENABLED(PREVENT_COLD_EXTRUSION)
         case 302: // allow cold extrudes, or set the minimum extrude temperature
           gcode_M302();
           break;
-      #endif // PREVENT_DANGEROUS_EXTRUDE
+      #endif // PREVENT_COLD_EXTRUSION
 
       case 303: // M303 PID autotune
         gcode_M303();
@@ -7749,18 +7771,22 @@ void ok_to_send() {
   SERIAL_EOL;
 }
 
-void clamp_to_software_endstops(float target[3]) {
-  if (min_software_endstops) {
-    NOLESS(target[X_AXIS], sw_endstop_min[X_AXIS]);
-    NOLESS(target[Y_AXIS], sw_endstop_min[Y_AXIS]);
-    NOLESS(target[Z_AXIS], sw_endstop_min[Z_AXIS]);
+#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+
+  void clamp_to_software_endstops(float target[XYZ]) {
+    #if ENABLED(min_software_endstops)
+      NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
+      NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
+      NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
+    #endif
+    #if ENABLED(max_software_endstops)
+      NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
+      NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
+      NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);
+    #endif
   }
-  if (max_software_endstops) {
-    NOMORE(target[X_AXIS], sw_endstop_max[X_AXIS]);
-    NOMORE(target[Y_AXIS], sw_endstop_max[Y_AXIS]);
-    NOMORE(target[Z_AXIS], sw_endstop_max[Z_AXIS]);
-  }
-}
+
+#endif
 
 #if ENABLED(DELTA)
 
@@ -7776,9 +7802,9 @@ void clamp_to_software_endstops(float target[3]) {
     delta_diagonal_rod_2_tower_3 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_3);
   }
 
-  void inverse_kinematics(const float in_cartesian[3]) {
+  void inverse_kinematics(const float in_cartesian[XYZ]) {
 
-    const float cartesian[3] = {
+    const float cartesian[XYZ] = {
       RAW_X_POSITION(in_cartesian[X_AXIS]),
       RAW_Y_POSITION(in_cartesian[Y_AXIS]),
       RAW_Z_POSITION(in_cartesian[Z_AXIS])
@@ -7808,7 +7834,7 @@ void clamp_to_software_endstops(float target[3]) {
   }
 
   float delta_safe_distance_from_top() {
-    float cartesian[3] = {
+    float cartesian[XYZ] = {
       LOGICAL_X_POSITION(0),
       LOGICAL_Y_POSITION(0),
       LOGICAL_Z_POSITION(0)
@@ -7889,20 +7915,20 @@ void clamp_to_software_endstops(float target[3]) {
     cartesian_position[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
   };
 
-  void forward_kinematics_DELTA(float point[3]) {
-    forward_kinematics_DELTA(point[X_AXIS], point[Y_AXIS], point[Z_AXIS]);
+  void forward_kinematics_DELTA(float point[ABC]) {
+    forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
   }
 
   void set_cartesian_from_steppers() {
-    forward_kinematics_DELTA(stepper.get_axis_position_mm(X_AXIS),
-                             stepper.get_axis_position_mm(Y_AXIS),
-                             stepper.get_axis_position_mm(Z_AXIS));
+    forward_kinematics_DELTA(stepper.get_axis_position_mm(A_AXIS),
+                             stepper.get_axis_position_mm(B_AXIS),
+                             stepper.get_axis_position_mm(C_AXIS));
   }
 
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
     // Adjust print surface height by linear interpolation over the bed_level array.
-    void adjust_delta(float cartesian[3]) {
+    void adjust_delta(float cartesian[XYZ]) {
       if (delta_grid_spacing[X_AXIS] == 0 || delta_grid_spacing[Y_AXIS] == 0) return; // G29 not done!
 
       int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
@@ -8121,7 +8147,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
 
 #endif // !DELTA && !SCARA
 
-#if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+#if ENABLED(PREVENT_COLD_EXTRUSION)
 
   inline void prevent_dangerous_extrude(float& curr_e, float& dest_e) {
     if (DEBUGGING(DRYRUN)) return;
@@ -8142,7 +8168,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
     }
   }
 
-#endif // PREVENT_DANGEROUS_EXTRUDE
+#endif // PREVENT_COLD_EXTRUSION
 
 /**
  * Prepare a single move and get ready for the next one
@@ -8154,7 +8180,7 @@ void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
   refresh_cmd_timeout();
 
-  #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
     prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS]);
   #endif
 
@@ -8375,8 +8401,8 @@ void prepare_move_to_destination() {
 
 #if ENABLED(SCARA)
 
-  void forward_kinematics_SCARA(float f_scara[3]) {
-    // Perform forward kinematics, and place results in delta[3]
+  void forward_kinematics_SCARA(float f_scara[ABC]) {
+    // Perform forward kinematics, and place results in delta[]
     // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
 
     float x_sin, x_cos, y_sin, y_cos;
@@ -8401,9 +8427,9 @@ void prepare_move_to_destination() {
     //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
   }
 
-  void inverse_kinematics(const float cartesian[3]) {
+  void inverse_kinematics(const float cartesian[XYZ]) {
     // Inverse kinematics.
-    // Perform SCARA IK and place results in delta[3].
+    // Perform SCARA IK and place results in delta[].
     // The maths and first version were done by QHARLEY.
     // Integrated, tweaked by Joachim Cerny in June 2014.
 

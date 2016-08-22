@@ -538,7 +538,8 @@
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
 //#define BEZIER_CURVE_SUPPORT
 
-const unsigned int dropsegments = 5; //everything with less than this number of steps will be ignored as move and joined with the next movement
+// Moves (or segments) with fewer steps than this will be joined with the next move
+#define MIN_STEPS_PER_SEGMENT 6
 
 // @section temperature
 

@@ -122,7 +122,7 @@ unsigned short Stepper::acc_step_rate; // needed for deceleration start point
 uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
 unsigned short Stepper::OCR1A_nominal;
 
-volatile long Stepper::endstops_trigsteps[3];
+volatile long Stepper::endstops_trigsteps[XYZ];
 
 #if ENABLED(X_DUAL_STEPPER_DRIVERS)
   #define X_APPLY_DIR(v,Q) do{ X_DIR_WRITE(v); X2_DIR_WRITE((v) != INVERT_X2_VS_X_DIR); }while(0)

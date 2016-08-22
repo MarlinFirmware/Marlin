@@ -95,7 +95,7 @@ unsigned char Temperature::soft_pwm_bed;
 #endif
 
 #if ENABLED(BABYSTEPPING)
-  volatile int Temperature::babystepsTodo[3] = { 0 };
+  volatile int Temperature::babystepsTodo[XYZ] = { 0 };
 #endif
 
 #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
@@ -108,7 +108,7 @@ unsigned char Temperature::soft_pwm_bed;
   millis_t Temperature::watch_bed_next_ms = 0;
 #endif
 
-#if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+#if ENABLED(PREVENT_COLD_EXTRUSION)
   bool Temperature::allow_cold_extrude = false;
   float Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
 #endif

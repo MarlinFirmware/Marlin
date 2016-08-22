@@ -573,7 +573,7 @@ void Planner::check_axes_activity() {
 
   long de = target[E_AXIS] - position[E_AXIS];
 
-  #if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
+  #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (de) {
       if (thermalManager.tooColdToExtrude(extruder)) {
         position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
@@ -626,7 +626,7 @@ void Planner::check_axes_activity() {
   block->step_event_count = MAX4(block->steps[X_AXIS], block->steps[Y_AXIS], block->steps[Z_AXIS], block->steps[E_AXIS]);
 
   // Bail if this is a zero-length block
-  if (block->step_event_count <= dropsegments) return;
+  if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return;
 
   // For a mixing extruder, get a magnified step_event_count for each
   #if ENABLED(MIXING_EXTRUDER)
@@ -808,7 +808,7 @@ void Planner::check_axes_activity() {
   #endif
   delta_mm[E_AXIS] = 0.01 * (de * steps_to_mm[E_AXIS]) * volumetric_multiplier[extruder] * flow_percentage[extruder];
 
-  if (block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments) {
+  if (block->steps[X_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Y_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Z_AXIS] < MIN_STEPS_PER_SEGMENT) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
   }
   else {
@@ -968,7 +968,7 @@ void Planner::check_axes_activity() {
     float junction_deviation = 0.1;
 
     // Compute path unit vector
-    double unit_vec[3];
+    double unit_vec[XYZ];
 
     unit_vec[X_AXIS] = delta_mm[X_AXIS] * inverse_millimeters;
     unit_vec[Y_AXIS] = delta_mm[Y_AXIS] * inverse_millimeters;
