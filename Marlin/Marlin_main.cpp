@@ -3670,7 +3670,7 @@ inline void gcode_G28() {
 
           #if ENABLED(DELTA)
             // Avoid probing outside the round or hexagonal area of a delta printer
-            if (sq(xProbe) + sq(yProbe) > sq(DELTA_PROBEABLE_RADIUS)) continue;
+            if (sq(xProbe) + sq(yProbe) > sq(DELTA_PROBEABLE_RADIUS) + 0.1) continue;
           #endif
 
           float measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
