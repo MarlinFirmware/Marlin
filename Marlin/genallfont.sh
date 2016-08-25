@@ -5,7 +5,7 @@ DN_WORK=./tmp1
 DN_EXEC=../buildroot/share/fonts/
 (cd ${DN_EXEC}; gcc -o genpages genpages.c getline.c)
 
-LANGS="cn bg kana_utf8 ru pt_utf8"
+LANGS="an bg ca cn cz da de el el-gr en es eu fi fr gl hr it kana_utf8 nl pl pt-br_utf8 pt_utf8 ru test"
 
 for LANG in ${LANGS} ; do
     rm -rf ${DN_WORK}/
