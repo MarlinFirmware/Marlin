@@ -67,10 +67,8 @@ inline int lcd_print(const char* str) {
     return lcd_printstr  (str, PIXEL_LEN_NOLIMIT);
 }
 
-#ifdef __cplusplus
-inline int lcd_print(wchar_t c) {
+inline int lcd_print_wchar(wchar_t c) {
     return lcd_print_uchar (c, PIXEL_LEN_NOLIMIT);
 }
-#endif
 
 #endif // _LCDPRINT_H

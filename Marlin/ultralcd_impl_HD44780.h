@@ -381,7 +381,7 @@ static void lcd_implementation_clear() { lcd.clear(); }
   void lcd_erase_line(int line) {
     lcd_moveto (0, line);
     for (int i = 0; i < LCD_WIDTH; i++)
-      lcd_print(' ');
+      lcd_print_wchar (' ');
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line

@@ -179,6 +179,17 @@ static void lcd_setFont(char font_nr) {
   }
 }
 
+char lcd_print(char c) {
+  if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
+    u8g.setFont(FONT_SPECIAL_NAME);
+    u8g.print(c);
+    lcd_setFont(currentfont);
+    return 1;
+  } else {
+    return lcd_print_wchar(c);
+  }
+}
+
 // Initialize or re-initializw the LCD
 static void lcd_implementation_init() {
 
@@ -564,7 +575,8 @@ static void lcd_implementation_status_screen() {
     uint8_t vallen = lcd_strlen(value);
 
     #if ENABLED(USE_BIG_EDIT_FONT)
-      if (lcd_strlen_P(pstr) <= LCD_WIDTH_EDIT - 1) {
+      //if (lcd_strlen_P(pstr) <= LCD_WIDTH_EDIT - 1) {
+      if (uxg_GetUtf8StrPixelWidthP (pu8g->getU8g(), pstr) < (DOG_CHAR_WIDTH * LCD_WIDTH_EDIT))
         lcd_setFont(FONT_MENU_EDIT);
         lcd_width = LCD_WIDTH_EDIT + 1;
         char_width = DOG_CHAR_WIDTH_EDIT;
@@ -575,7 +587,7 @@ static void lcd_implementation_status_screen() {
       }
     #endif
 
-    if (lcd_strlen_P(pstr) > LCD_WIDTH - 2 - vallen) rows = 2;
+    if (uxg_GetUtf8StrPixelWidthP (pu8g->getU8g(), pstr) > DOG_CHAR_WIDTH * (LCD_WIDTH - 2 - vallen)) rows = 2;
 
     const float kHalfChar = (DOG_CHAR_HEIGHT_EDIT) / 2;
     float rowHeight = u8g.getHeight() / (rows + 1); // 1/(rows+1) = 1/2 or 1/3
@@ -597,18 +609,22 @@ static void lcd_implementation_status_screen() {
       uint8_t n = LCD_WIDTH - (START_COL) - 1;
 
       if (longFilename[0]) {
-        filename = longFilename;
+        filename = longFilename
         longFilename[n] = '\0';
       }
 
       lcd_implementation_mark_as_selected(row, isSelected);
 
       if (isDir) lcd_print(LCD_STR_FOLDER[0]);
+#if 1
+      lcd_printstr (filename, PIXEL_LEN_NOLIMIT);
+#else
       while ((c = *filename)) {
         n -= lcd_print(c);
         filename++;
       }
       while (n--) lcd_print(' ');
+#endif
     }
 
     #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)

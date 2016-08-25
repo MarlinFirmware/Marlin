@@ -9,7 +9,7 @@
 #ifndef _FONT_UTILS_H
 #define _FONT_UTILS_H
 
-#define DEBUG 1
+#define DEBUG 0
 
 
 #if defined(ARDUINO)

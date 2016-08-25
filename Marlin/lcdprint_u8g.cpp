@@ -19,8 +19,10 @@
 #include <U8glib.h>
 extern U8GLIB *pu8g;
 #define _lcd_write(a) pu8g->print(a)
+#define _lcd_setcursor(col, row) pu8g->setPrintPos((col), (row));
 #else
-#define _lcd_write(a) printf ("Write LCD: %c (%d)\n", (a), (int)(a));
+#define _lcd_write(a) TRACE ("Write LCD: %c (%d)", (a), (int)(a));
+#define _lcd_setcursor(col, row) TRACE ("Set cursor LCD: (%d,%d)", (col), (row));
 #endif
 
 int
@@ -33,8 +35,8 @@ lcd_glyph_height(void)
 void
 lcd_moveto (int col, int row)
 {
-    //TRACE ("u8g moveto (%d, %d)", col, row);
-    pu8g->setPrintPos (col, row);
+    TRACE ("Move to: (%d,%d)", col, row);
+    _lcd_setcursor(col, row);
 }
 
 int
@@ -42,7 +44,7 @@ lcd_print_uchar (wchar_t c, pixel_len_t max_length)
 {
     if (c < 128) {
         TRACE ("draw char: regular %d", (int)c);
-        _lcd_write  ((uint8_t)c);
+        _lcd_write  ((char)c);
         return u8g_GetFontBBXWidth(pu8g->getU8g());
     }
     unsigned int ret;

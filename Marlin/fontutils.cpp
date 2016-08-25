@@ -234,11 +234,11 @@ get_utf8_value_cb (uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t *pval)
     } else if (0x80 == (0xC0 & valcur)) {
         /* error? */
         TRACE ("ERR 1");
-        for (; 0x80 == (0xC0 & valcur); p ++);
+        for (; 0x80 == (0xC0 & valcur); ) { p ++; valcur = cb_read_byte (p); }
     } else {
         /* error */
         TRACE ("ERR 2");
-        for (; ((0xFE & valcur) > 0xFC); p ++);
+        for (; ((0xFE & valcur) > 0xFC); ) { p ++; valcur = cb_read_byte (p); }
     }
     /*if (val == 0) {
         p = NULL;*/
