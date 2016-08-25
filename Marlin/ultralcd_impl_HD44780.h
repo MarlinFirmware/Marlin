@@ -175,7 +175,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7); //RS,Enable,D4,D5,D6,D7
 #endif
 
-#include "utf_mapper.h"
+#include "lcdprint.h"
 
 #if ENABLED(LCD_PROGRESS_BAR)
   static millis_t progress_bar_ms = 0;
@@ -373,22 +373,6 @@ static void lcd_implementation_init(
 }
 
 static void lcd_implementation_clear() { lcd.clear(); }
-
-/* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
-char lcd_printPGM(const char* str) {
-  char c, n = 0;
-  while ((c = pgm_read_byte(str++))) n += charset_mapper(c);
-  return n;
-}
-
-char lcd_print(const char* str) {
-  char c, n = 0;
-  unsigned char i = 0;
-  while ((c = str[i++])) n += charset_mapper(c);
-  return n;
-}
-
-unsigned lcd_print(char c) { return charset_mapper(c); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 

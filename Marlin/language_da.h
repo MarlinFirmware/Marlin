@@ -33,139 +33,139 @@
 #define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 
-#define WELCOME_MSG                         MACHINE_NAME " er klar"
-#define MSG_SD_INSERTED                     "Kort isat"
-#define MSG_SD_REMOVED                      "Kort fjernet"
-#define MSG_LCD_ENDSTOPS                    "Endstops" // Max length 8 characters
-#define MSG_MAIN                            "Menu"
-#define MSG_AUTOSTART                       "Autostart"
-#define MSG_DISABLE_STEPPERS                "Slå alle steppere fra"
-#define MSG_AUTO_HOME                       "Auto Home" // G28
-#define MSG_AUTO_HOME_X                     "Home X"
-#define MSG_AUTO_HOME_Y                     "Home Y"
-#define MSG_AUTO_HOME_Z                     "Home Z"
-#define MSG_LEVEL_BED_HOMING                "Homing XYZ"
-#define MSG_LEVEL_BED_WAITING               "Tryk for at starte bed level"
-#define MSG_LEVEL_BED_NEXT_POINT            "Næste punkt"
-#define MSG_LEVEL_BED_DONE                  "Bed level er færdig!"
-#define MSG_LEVEL_BED_CANCEL                "Annuller bed level"
-#define MSG_SET_HOME_OFFSETS                "Sæt forskyding af home"
-#define MSG_HOME_OFFSETS_APPLIED            "Forskydninger af home pos. er tilføjet"
-#define MSG_SET_ORIGIN                      "Sæt origin"
-#define MSG_PREHEAT_1                       "Forvarm PLA"
-#define MSG_PREHEAT_1_N                     "Forvarm PLA "
-#define MSG_PREHEAT_1_ALL                   "Forvarm PLA Alle"
-#define MSG_PREHEAT_1_BEDONLY               "Forvarm PLA Bed"
-#define MSG_PREHEAT_1_SETTINGS              "Forvarm PLA conf"
-#define MSG_PREHEAT_2                       "Forvarm ABS"
-#define MSG_PREHEAT_2_N                     "Forvarm ABS "
-#define MSG_PREHEAT_2_ALL                   "Forvarm ABS Alle"
-#define MSG_PREHEAT_2_BEDONLY               "Forvarm ABS Bed"
-#define MSG_PREHEAT_2_SETTINGS              "Forvarm ABS conf"
-#define MSG_COOLDOWN                        "Afkøl"
-#define MSG_SWITCH_PS_ON                    "Slå strøm til"
-#define MSG_SWITCH_PS_OFF                   "Slå strøm fra"
-#define MSG_EXTRUDE                         "Extruder"
-#define MSG_RETRACT                         "Retract"
-#define MSG_MOVE_AXIS                       "Flyt akser"
-#define MSG_LEVEL_BED                       "Juster bed"
-#define MSG_MOVE_X                          "Flyt X"
-#define MSG_MOVE_Y                          "Flyt Y"
-#define MSG_MOVE_Z                          "Flyt Z"
-#define MSG_MOVE_E                          "Extruder"
-#define MSG_MOVE_01MM                       "Flyt 0.1mm"
-#define MSG_MOVE_1MM                        "Flyt 1mm"
-#define MSG_MOVE_10MM                       "Flyt 10mm"
-#define MSG_SPEED                           "Hastighed"
-#define MSG_BED_Z                           "Plade Z"
-#define MSG_NOZZLE                          "Dyse"
-#define MSG_BED                             "Plade"
-#define MSG_FAN_SPEED                       "Blæser hastighed"
-#define MSG_FLOW                            "Flow"
-#define MSG_CONTROL                         "Kontrol"
-#define MSG_MIN                             " \002 Min"
-#define MSG_MAX                             " \002 Max"
-#define MSG_FACTOR                          " \002 Fact"
-#define MSG_AUTOTEMP                        "Autotemp"
-#define MSG_ON                              "Til "
-#define MSG_OFF                             "Fra"
-#define MSG_PID_P                           "PID-P"
-#define MSG_PID_I                           "PID-I"
-#define MSG_PID_D                           "PID-D"
-#define MSG_PID_C                           "PID-C"
-#define MSG_ACC                             "Accel"
-#define MSG_VXY_JERK                        "Vxy-jerk"
-#define MSG_VZ_JERK                         "Vz-jerk"
-#define MSG_VE_JERK                         "Ve-jerk"
-#define MSG_VMAX                            "Vmax "
-#define MSG_VMIN                            "Vmin"
-#define MSG_VTRAV_MIN                       "VTrav min"
-#define MSG_AMAX                            "Amax "
-#define MSG_A_RETRACT                       "A-retract"
-#define MSG_A_TRAVEL                        "A-rejse"
-#define MSG_XSTEPS                          "Xsteps/mm"
-#define MSG_YSTEPS                          "Ysteps/mm"
-#define MSG_ZSTEPS                          "Zsteps/mm"
-#define MSG_ESTEPS                          "Esteps/mm"
-#define MSG_TEMPERATURE                     "Temperatur"
-#define MSG_MOTION                          "Bevægelse"
-#define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED              "E in mm3"
-#define MSG_FILAMENT_DIAM                   "Fil. Dia."
-#define MSG_CONTRAST                        "LCD kontrast"
-#define MSG_STORE_EPROM                     "Gem i EEPROM"
-#define MSG_LOAD_EPROM                      "Hent fra EEPROM"
-#define MSG_RESTORE_FAILSAFE                "Gendan failsafe"
-#define MSG_REFRESH                         "Genopfrisk"
-#define MSG_WATCH                           "Info skærm"
-#define MSG_PREPARE                         "Forbered"
-#define MSG_TUNE                            "Tune"
-#define MSG_PAUSE_PRINT                     "Pause printet"
-#define MSG_RESUME_PRINT                    "Forsæt printet"
-#define MSG_STOP_PRINT                      "Stop printet"
-#define MSG_CARD_MENU                       "Print fra SD"
-#define MSG_NO_CARD                         "Intet SD kort"
-#define MSG_DWELL                           "Dvale..."
-#define MSG_USERWAIT                        "Venter på bruger..."
-#define MSG_RESUMING                        "Forsætter printet"
-#define MSG_PRINT_ABORTED                   "Print annulleret"
-#define MSG_NO_MOVE                         "Ingen bevægelse."
-#define MSG_KILLED                          "DRÆBT. "
-#define MSG_STOPPED                         "STOPPET. "
-#define MSG_CONTROL_RETRACT                 "Tilbagetræk mm"
-#define MSG_CONTROL_RETRACT_SWAP            "Skift Re.mm"
-#define MSG_CONTROL_RETRACTF                "Tilbagetræk V"
-#define MSG_CONTROL_RETRACT_ZLIFT           "Hop mm"
-#define MSG_CONTROL_RETRACT_RECOVER         "UnRet +mm"
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    "S UnRet+mm"
-#define MSG_CONTROL_RETRACT_RECOVERF        "UnRet  V"
-#define MSG_AUTORETRACT                     "AutoRetr."
-#define MSG_FILAMENTCHANGE                  "Skift filament"
-#define MSG_INIT_SDCARD                     "Init. SD card"
-#define MSG_CNG_SDCARD                      "Skift SD kort"
-#define MSG_ZPROBE_OUT                      "Probe udenfor plade"
-#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           "first"
-#define MSG_ZPROBE_ZOFFSET                  "Z Offset"
-#define MSG_BABYSTEP_X                      "Babystep X"
-#define MSG_BABYSTEP_Y                      "Babystep Y"
-#define MSG_BABYSTEP_Z                      "Babystep Z"
-#define MSG_ENDSTOP_ABORT                   "Endstop abort"
-#define MSG_HEATING_FAILED_LCD              "Opvarmning mislykkedes"
-#define MSG_ERR_REDUNDANT_TEMP              "Fejl: reserve temp"
-#define MSG_THERMAL_RUNAWAY                 "Temp løber løbsk"
-#define MSG_ERR_MAXTEMP                     "Fejl: Maks temp"
-#define MSG_ERR_MINTEMP                     "Fejl: Min temp"
-#define MSG_ERR_MAXTEMP_BED                 "Fejl: Maks Plsde temp"
-#define MSG_ERR_MINTEMP_BED                 "Fejl: Min Plade temp"
-#define MSG_HEATING                         "Opvarmer..."
-#define MSG_HEATING_COMPLETE                "Opvarmet"
-#define MSG_BED_HEATING                     "Opvarmer plade"
-#define MSG_BED_DONE                        "Plade opvarmet"
-#define MSG_DELTA_CALIBRATE                 "Delta Kalibrering"
-#define MSG_DELTA_CALIBRATE_X               "Kalibrer X"
-#define MSG_DELTA_CALIBRATE_Y               "Kalibrer Y"
-#define MSG_DELTA_CALIBRATE_Z               "Kalibrer Z"
-#define MSG_DELTA_CALIBRATE_CENTER          "Kalibrerings Center"
+#define WELCOME_MSG                         MACHINE_NAME _UxGT(" er klar")
+#define MSG_SD_INSERTED                     _UxGT("Kort isat")
+#define MSG_SD_REMOVED                      _UxGT("Kort fjernet")
+#define MSG_LCD_ENDSTOPS                    _UxGT("Endstops") // Max length 8 characters
+#define MSG_MAIN                            _UxGT("Menu")
+#define MSG_AUTOSTART                       _UxGT("Autostart")
+#define MSG_DISABLE_STEPPERS                _UxGT("Slå alle steppere fra")
+#define MSG_AUTO_HOME                       _UxGT("Auto Home" // G28
+#define MSG_AUTO_HOME_X                     _UxGT("Home X")
+#define MSG_AUTO_HOME_Y                     _UxGT("Home Y")
+#define MSG_AUTO_HOME_Z                     _UxGT("Home Z")
+#define MSG_LEVEL_BED_HOMING                _UxGT("Homing XYZ")
+#define MSG_LEVEL_BED_WAITING               _UxGT("Tryk for at starte bed level")
+#define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Næste punkt")
+#define MSG_LEVEL_BED_DONE                  _UxGT("Bed level er færdig!")
+#define MSG_LEVEL_BED_CANCEL                _UxGT("Annuller bed level")
+#define MSG_SET_HOME_OFFSETS                _UxGT("Sæt forskyding af home")
+#define MSG_HOME_OFFSETS_APPLIED            _UxGT("Forskydninger af home pos. er tilføjet")
+#define MSG_SET_ORIGIN                      _UxGT("Sæt origin")
+#define MSG_PREHEAT_1                       _UxGT("Forvarm PLA")
+#define MSG_PREHEAT_1_N                     _UxGT("Forvarm PLA ")
+#define MSG_PREHEAT_1_ALL                   _UxGT("Forvarm PLA Alle")
+#define MSG_PREHEAT_1_BEDONLY               _UxGT("Forvarm PLA Bed")
+#define MSG_PREHEAT_1_SETTINGS              _UxGT("Forvarm PLA conf")
+#define MSG_PREHEAT_2                       _UxGT("Forvarm ABS")
+#define MSG_PREHEAT_2_N                     _UxGT("Forvarm ABS ")
+#define MSG_PREHEAT_2_ALL                   _UxGT("Forvarm ABS Alle")
+#define MSG_PREHEAT_2_BEDONLY               _UxGT("Forvarm ABS Bed")
+#define MSG_PREHEAT_2_SETTINGS              _UxGT("Forvarm ABS conf")
+#define MSG_COOLDOWN                        _UxGT("Afkøl")
+#define MSG_SWITCH_PS_ON                    _UxGT("Slå strøm til")
+#define MSG_SWITCH_PS_OFF                   _UxGT("Slå strøm fra")
+#define MSG_EXTRUDE                         _UxGT("Extruder")
+#define MSG_RETRACT                         _UxGT("Retract")
+#define MSG_MOVE_AXIS                       _UxGT("Flyt akser")
+#define MSG_LEVEL_BED                       _UxGT("Juster bed")
+#define MSG_MOVE_X                          _UxGT("Flyt X")
+#define MSG_MOVE_Y                          _UxGT("Flyt Y")
+#define MSG_MOVE_Z                          _UxGT("Flyt Z")
+#define MSG_MOVE_E                          _UxGT("Extruder")
+#define MSG_MOVE_01MM                       _UxGT("Flyt 0.1mm")
+#define MSG_MOVE_1MM                        _UxGT("Flyt 1mm")
+#define MSG_MOVE_10MM                       _UxGT("Flyt 10mm")
+#define MSG_SPEED                           _UxGT("Hastighed")
+#define MSG_BED_Z                           _UxGT("Plade Z")
+#define MSG_NOZZLE                          _UxGT("Dyse")
+#define MSG_BED                             _UxGT("Plade")
+#define MSG_FAN_SPEED                       _UxGT("Blæser hastighed")
+#define MSG_FLOW                            _UxGT("Flow")
+#define MSG_CONTROL                         _UxGT("Kontrol")
+#define MSG_MIN                             _UxGT(" \002 Min")
+#define MSG_MAX                             _UxGT(" \002 Max")
+#define MSG_FACTOR                          _UxGT(" \002 Fact")
+#define MSG_AUTOTEMP                        _UxGT("Autotemp")
+#define MSG_ON                              _UxGT("Til ")
+#define MSG_OFF                             _UxGT("Fra")
+#define MSG_PID_P                           _UxGT("PID-P")
+#define MSG_PID_I                           _UxGT("PID-I")
+#define MSG_PID_D                           _UxGT("PID-D")
+#define MSG_PID_C                           _UxGT("PID-C")
+#define MSG_ACC                             _UxGT("Accel")
+#define MSG_VXY_JERK                        _UxGT("Vxy-jerk")
+#define MSG_VZ_JERK                         _UxGT("Vz-jerk")
+#define MSG_VE_JERK                         _UxGT("Ve-jerk")
+#define MSG_VMAX                            _UxGT("Vmax ")
+#define MSG_VMIN                            _UxGT("Vmin")
+#define MSG_VTRAV_MIN                       _UxGT("VTrav min")
+#define MSG_AMAX                            _UxGT("Amax ")
+#define MSG_A_RETRACT                       _UxGT("A-retract")
+#define MSG_A_TRAVEL                        _UxGT("A-rejse")
+#define MSG_XSTEPS                          _UxGT("Xsteps/mm")
+#define MSG_YSTEPS                          _UxGT("Ysteps/mm")
+#define MSG_ZSTEPS                          _UxGT("Zsteps/mm")
+#define MSG_ESTEPS                          _UxGT("Esteps/mm")
+#define MSG_TEMPERATURE                     _UxGT("Temperatur")
+#define MSG_MOTION                          _UxGT("Bevægelse")
+#define MSG_VOLUMETRIC                      _UxGT("Filament")
+#define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
+#define MSG_FILAMENT_DIAM                   _UxGT("Fil. Dia.")
+#define MSG_CONTRAST                        _UxGT("LCD kontrast")
+#define MSG_STORE_EPROM                     _UxGT("Gem i EEPROM")
+#define MSG_LOAD_EPROM                      _UxGT("Hent fra EEPROM")
+#define MSG_RESTORE_FAILSAFE                _UxGT("Gendan failsafe")
+#define MSG_REFRESH                         _UxGT("Genopfrisk")
+#define MSG_WATCH                           _UxGT("Info skærm")
+#define MSG_PREPARE                         _UxGT("Forbered")
+#define MSG_TUNE                            _UxGT("Tune")
+#define MSG_PAUSE_PRINT                     _UxGT("Pause printet")
+#define MSG_RESUME_PRINT                    _UxGT("Forsæt printet")
+#define MSG_STOP_PRINT                      _UxGT("Stop printet")
+#define MSG_CARD_MENU                       _UxGT("Print fra SD")
+#define MSG_NO_CARD                         _UxGT("Intet SD kort")
+#define MSG_DWELL                           _UxGT("Dvale...")
+#define MSG_USERWAIT                        _UxGT("Venter på bruger...")
+#define MSG_RESUMING                        _UxGT("Forsætter printet")
+#define MSG_PRINT_ABORTED                   _UxGT("Print annulleret")
+#define MSG_NO_MOVE                         _UxGT("Ingen bevægelse.")
+#define MSG_KILLED                          _UxGT("DRÆBT. ")
+#define MSG_STOPPED                         _UxGT("STOPPET. ")
+#define MSG_CONTROL_RETRACT                 _UxGT("Tilbagetræk mm")
+#define MSG_CONTROL_RETRACT_SWAP            _UxGT("Skift Re.mm")
+#define MSG_CONTROL_RETRACTF                _UxGT("Tilbagetræk V")
+#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")
+#define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet +mm")
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet+mm")
+#define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
+#define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
+#define MSG_FILAMENTCHANGE                  _UxGT("Skift filament")
+#define MSG_INIT_SDCARD                     _UxGT("Init. SD card")
+#define MSG_CNG_SDCARD                      _UxGT("Skift SD kort")
+#define MSG_ZPROBE_OUT                      _UxGT("Probe udenfor plade")
+#define MSG_HOME                            _UxGT("Home")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           _UxGT("first")
+#define MSG_ZPROBE_ZOFFSET                  _UxGT("Z Offset")
+#define MSG_BABYSTEP_X                      _UxGT("Babystep X")
+#define MSG_BABYSTEP_Y                      _UxGT("Babystep Y")
+#define MSG_BABYSTEP_Z                      _UxGT("Babystep Z")
+#define MSG_ENDSTOP_ABORT                   _UxGT("Endstop abort")
+#define MSG_HEATING_FAILED_LCD              _UxGT("Opvarmning mislykkedes")
+#define MSG_ERR_REDUNDANT_TEMP              _UxGT("Fejl: reserve temp")
+#define MSG_THERMAL_RUNAWAY                 _UxGT("Temp løber løbsk")
+#define MSG_ERR_MAXTEMP                     _UxGT("Fejl: Maks temp")
+#define MSG_ERR_MINTEMP                     _UxGT("Fejl: Min temp")
+#define MSG_ERR_MAXTEMP_BED                 _UxGT("Fejl: Maks Plsde temp")
+#define MSG_ERR_MINTEMP_BED                 _UxGT("Fejl: Min Plade temp")
+#define MSG_HEATING                         _UxGT("Opvarmer...")
+#define MSG_HEATING_COMPLETE                _UxGT("Opvarmet")
+#define MSG_BED_HEATING                     _UxGT("Opvarmer plade")
+#define MSG_BED_DONE                        _UxGT("Plade opvarmet")
+#define MSG_DELTA_CALIBRATE                 _UxGT("Delta Kalibrering")
+#define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibrer X")
+#define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibrer Y")
+#define MSG_DELTA_CALIBRATE_Z               _UxGT("Kalibrer Z")
+#define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Kalibrerings Center")
 
 #endif // LANGUAGE_DA_H

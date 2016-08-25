@@ -25,6 +25,8 @@
 
 #include "MarlinConfig.h"
 
+#define _UxGT(a) a
+
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 
@@ -240,15 +242,17 @@
 
 // LCD Menu Messages
 
+#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(language_data_##M.h)
+#define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
+#define INCLUDE_LANGUAGE_DATA LANGUAGE_DATA_INCL(LCD_LANGUAGE)
+// moved this to ultralcd_impl_DOGM.h
+//#include LANGUAGE_DATA_INCL(cn)
+
 #define LANGUAGE_INCL_(M) STRINGIFY_(language_##M.h)
 #define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
 #define INCLUDE_LANGUAGE LANGUAGE_INCL(LCD_LANGUAGE)
 
 #include INCLUDE_LANGUAGE
-
-#if DISABLED(SIMULATE_ROMFONT) && DISABLED(DISPLAY_CHARSET_ISO10646_1) && DISABLED(DISPLAY_CHARSET_ISO10646_5) && DISABLED(DISPLAY_CHARSET_ISO10646_KANA) && DISABLED(DISPLAY_CHARSET_ISO10646_GREEK) && DISABLED(DISPLAY_CHARSET_ISO10646_CN)
-  #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
-#endif
 
 #include "language_en.h"
 

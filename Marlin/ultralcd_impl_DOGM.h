@@ -36,6 +36,9 @@
 #ifndef ULTRALCD_IMPL_DOGM_H
 #define ULTRALCD_IMPL_DOGM_H
 
+#include <U8glib.h>
+#include "u8g_fontutf8.h"
+
 #include "MarlinConfig.h"
 
 /**
@@ -48,7 +51,6 @@
 #include "utility.h"
 #include "duration_t.h"
 
-#include <U8glib.h>
 
 #if ENABLED(SHOW_BOOTSCREEN) && ENABLED(SHOW_CUSTOM_BOOTSCREEN)
   #include "_Bootscreen.h"
@@ -68,27 +70,11 @@
 #include "dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
 #define FONT_SPECIAL_NAME Marlin_symbols
 
+#include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
+
 #if DISABLED(SIMULATE_ROMFONT)
-  #if ENABLED(DISPLAY_CHARSET_ISO10646_1)
     #include "dogm_font_data_ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7
-  #elif ENABLED(DISPLAY_CHARSET_ISO10646_5)
-    #include "dogm_font_data_ISO10646_5_Cyrillic.h"
-    #define FONT_MENU_NAME ISO10646_5_Cyrillic_5x7
-  #elif ENABLED(DISPLAY_CHARSET_ISO10646_KANA)
-    #include "dogm_font_data_ISO10646_Kana.h"
-    #define FONT_MENU_NAME ISO10646_Kana_5x7
-  #elif ENABLED(DISPLAY_CHARSET_ISO10646_GREEK)
-    #include "dogm_font_data_ISO10646_Greek.h"
-    #define FONT_MENU_NAME ISO10646_Greek_5x7
-  #elif ENABLED(DISPLAY_CHARSET_ISO10646_CN)
-    #include "dogm_font_data_ISO10646_CN.h"
-    #define FONT_MENU_NAME ISO10646_CN
-    #define TALL_FONT_CORRECTION 1
-  #else // fall-back
-    #include "dogm_font_data_ISO10646_1.h"
-    #define FONT_MENU_NAME ISO10646_1_5x7
-  #endif
 #else // SIMULATE_ROMFONT
   #if DISPLAY_CHARSET_HD44780 == JAPANESE
     #include "dogm_font_data_HD44780_J.h"
@@ -167,6 +153,8 @@
   U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0
 #endif
 
+U8GLIB *pu8g = &u8g;
+
 #ifndef LCD_PIXEL_WIDTH
   #define LCD_PIXEL_WIDTH 128
 #endif
@@ -174,10 +162,12 @@
   #define LCD_PIXEL_HEIGHT 64
 #endif
 
-#include "utf_mapper.h"
+#include "lcdprint.h"
 
 int lcd_contrast;
 static char currentfont = 0;
+
+// TODO: merge special font and menu fonts
 
 static void lcd_setFont(char font_nr) {
   switch(font_nr) {
@@ -187,31 +177,6 @@ static void lcd_setFont(char font_nr) {
     case FONT_MENU_EDIT  : {u8g.setFont(FONT_MENU_EDIT_NAME); currentfont = FONT_MENU_EDIT;}; break;
     break;
   }
-}
-
-char lcd_print(char c) {
-  if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
-    u8g.setFont(FONT_SPECIAL_NAME);
-    u8g.print(c);
-    lcd_setFont(currentfont);
-    return 1;
-  } else {
-    return charset_mapper(c);
-  }
-}
-
-char lcd_print(const char* str) {
-  int i = 0;
-  char c, n = 0;
-  while ((c = str[i++])) n += lcd_print(c);
-  return n;
-}
-
-// Needed for Arduino < 1.0.0
-char lcd_printPGM(const char* str) {
-  char c, n = 0;
-  while ((c = pgm_read_byte(str++))) n += lcd_print(c);
-  return n;
 }
 
 // Initialize or re-initializw the LCD
@@ -283,6 +248,8 @@ static void lcd_implementation_init() {
     show_bootscreen = false;
 
   #endif // SHOW_BOOTSCREEN
+
+    uxg_SetUtf8Fonts (g_fontinfo, NUM_ARRAY(g_fontinfo));
 }
 
 // The kill screen is displayed for unrecoverable conditions
