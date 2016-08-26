@@ -9,7 +9,9 @@ Marlin supports HD44780 character LCD and 128x64 graph LCD via U8GLIB.
 Because of the limitation of the HD44780, Marlin can only supports three charsets in those hardwares:
 Japaness(kana_utf8), Russian/Cyrillic(ru), or Western(English or western languages)
 
-For the graphic LCD modules, there's no limitation as before, due to the benefit
+For the graphic LCD modules, there's no limitation as before. User or language maintainer can easily
+change the language translation strings if they save it as UTF-8 encoded. The only extra step is
+regenerate the font data from a exist BDF font file.
 
 
 How to support a new language?
@@ -17,7 +19,7 @@ How to support a new language?
 1. prepare the translation source file
 
 You need to add a language header file language_xx.h,
-where xx is the language/country code, for example en is tor English.
+where xx is the language/country code, for example en is for English.
 You may start with a existing language file by copying it to a new location:
 
 ```bash
