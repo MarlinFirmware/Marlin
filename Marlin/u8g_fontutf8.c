@@ -211,7 +211,7 @@ fontgroup_cb_draw_u8g (void *userdata, font_t *fnt_current, const char *msg)
         return 1;
     }
     pdata->adv += u8g_DrawStr(pdata->pu8g, pdata->x + pdata->adv, pdata->y, (char *) msg);
-    TRACE("adv pos= %d", pdata->adv);
+    //TRACE("adv pos= %d", pdata->adv);
     return 0;
 }
 
@@ -353,7 +353,7 @@ fontgroup_cb_draw_u8gstrlen (void *userdata, font_t *fnt_current, const char *ms
  * Get the screen pixel length of a UTF-8 string
  */
 int
-uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, char *utf8_msg)
+uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, const char *utf8_msg)
 {
     struct _uxg_drawu8_data_t data;
     font_group_t * group = &g_fontgroup_root;

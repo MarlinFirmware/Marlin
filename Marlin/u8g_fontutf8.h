@@ -38,7 +38,7 @@ extern unsigned int uxg_DrawWchar (u8g_t *pu8g, unsigned int x, unsigned int y, 
 extern unsigned int uxg_DrawUtf8Str (u8g_t *pu8g, unsigned int x, unsigned int y, const char *utf8_msg, pixel_len_t max_length);
 extern unsigned int uxg_DrawUtf8StrP (u8g_t *pu8g, unsigned int x, unsigned int y, const char *utf8_msg, pixel_len_t max_length);
 
-extern int uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, char *utf8_msg);
+extern int uxg_GetUtf8StrPixelWidth(u8g_t *pu8g, const char *utf8_msg);
 extern int uxg_GetUtf8StrPixelWidthP(u8g_t *pu8g, const char *utf8_msg);
 
 #define uxg_GetFont(puxg) ((puxg)->font)
