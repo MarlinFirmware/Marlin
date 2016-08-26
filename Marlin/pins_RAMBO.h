@@ -21,6 +21,22 @@
  */
 
 /**
+ * IMPORTANT NOTE:
+ * Rambo users should be sure to compile Marlin using either the RAMBo
+ * board type if using the Arduino IDE - available via the link below - or
+ * the 'rambo' environment if using platformio, by specifying '-e rambo' on
+ * the command line or by changing the value of the 'env_default' variable to
+ * 'rambo' in the supplied platformio.ini.
+ *
+ * If you don't compile using the proper board type, the RAMBo's extended
+ * pins will likely be unavailable and accessories/addons may not work.
+ *
+ * Instructions for installing the Arduino RAMBo board type for the
+ * Arduino IDE are available at:
+ * http://reprap.org/wiki/Rambo_firmware
+ */
+
+/**
  * Rambo pin assignments
  */
 
@@ -139,6 +155,9 @@
 
     #if ENABLED(VIKI2) || ENABLED(miniVIKI)
       #define BEEPER_PIN 44
+      //NB: Panucatt's Viki 2.0 wiring diagram (v1.2) indicates that the
+      //    beeper/buzzer is connected to pin 33; however, the pin used in the
+      //    diagram is actually pin 44, so this is correct.
 
       #define DOGLCD_A0  70
       #define DOGLCD_CS  71
@@ -190,4 +209,3 @@
   #endif // !NEWPANEL
 
 #endif // ULTRA_LCD
-
