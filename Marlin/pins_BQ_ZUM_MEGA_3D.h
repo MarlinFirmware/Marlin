@@ -40,6 +40,9 @@
 #undef X_MAX_PIN
 #define X_MAX_PIN         79 //  2
 
+#undef Z_MIN_PROBE_PIN
+#define Z_MIN_PROBE_PIN   19 // IND_S_5V
+
 #undef Z_ENABLE_PIN
 #define Z_ENABLE_PIN      77 // 62
 
@@ -54,10 +57,3 @@
 
 #undef PS_ON_PIN             // 12
 #define PS_ON_PIN         81 // External Power Supply
-
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
-  #undef Z_MIN_PIN
-  #undef Z_MAX_PIN
-  #define Z_MIN_PIN       19 // IND_S_5V
-  #define Z_MAX_PIN       18 // Z-MIN Label
-#endif

@@ -35,27 +35,37 @@
 #define DEFAULT_MACHINE_NAME "Rumba"
 #define BOARD_NAME           "Rumba"
 
+//
+// Limit Switches
+//
+#define X_MIN_PIN          37
+#define X_MAX_PIN          36
+#define Y_MIN_PIN          35
+#define Y_MAX_PIN          34
+#define Z_MIN_PIN          33
+#define Z_MAX_PIN          32
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  32
+#endif
+
+//
+// Steppers
+//
 #define X_STEP_PIN         17
 #define X_DIR_PIN          16
 #define X_ENABLE_PIN       48
-#define X_MIN_PIN          37
-#define X_MAX_PIN          36
 
 #define Y_STEP_PIN         54
 #define Y_DIR_PIN          47
 #define Y_ENABLE_PIN       55
-#define Y_MIN_PIN          35
-#define Y_MAX_PIN          34
 
 #define Z_STEP_PIN         57
 #define Z_DIR_PIN          56
 #define Z_ENABLE_PIN       62
-#define Z_MIN_PIN          33
-#define Z_MAX_PIN          32
-
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  33
-#endif
 
 #define E0_STEP_PIN        23
 #define E0_DIR_PIN         22
@@ -69,18 +79,17 @@
 #define E2_DIR_PIN         28
 #define E2_ENABLE_PIN      39
 
+//
+// Misc. Functions
+//
 #define LED_PIN            13
-
-#define FAN_PIN             7
-#define FAN1_PIN            8
 
 #define PS_ON_PIN          45
 #define KILL_PIN           46
 
-#define HEATER_0_PIN        2   // EXTRUDER 1
-#define HEATER_1_PIN        3   // EXTRUDER 2
-#define HEATER_2_PIN        6   // EXTRUDER 3
-
+//
+// Temperature Sensors
+//
 #if TEMP_SENSOR_0 == -1
   #define TEMP_0_PIN        6   // ANALOG NUMBERING - connector *K1* on RUMBA thermocouple ADD ON is used
 #else
@@ -99,10 +108,21 @@
   #define TEMP_2_PIN       13   // ANALOG NUMBERING - default connector for thermistor *T2* on rumba board is used
 #endif
 
-//optional for extruder 4 or chamber: #define TEMP_X_PIN         12   // ANALOG NUMBERING - default connector for thermistor *T3* on rumba board is used
-//optional FAN1 can be used as 4th heater output: #define HEATER_3_PIN       8    // EXTRUDER 4
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN        2
+#define HEATER_1_PIN        3
+#define HEATER_2_PIN        6
+#define HEATER_3_PIN        8
+#define HEATER_BED_PIN      9
 
-#define HEATER_BED_PIN      9    // BED
+#define FAN_PIN             7
+#define FAN1_PIN            8
+
+//optional for extruder 4 or chamber:
+// #define TEMP_X_PIN         12   // ANALOG NUMBERING - default connector for thermistor *T3* on rumba board is used
+
 #if TEMP_SENSOR_BED == -1
   #define TEMP_BED_PIN      7    // ANALOG NUMBERING - connector *K3* on RUMBA thermocouple ADD ON is used <-- this can not be used when TEMP_SENSOR_2 is defined as thermocouple
 #else
