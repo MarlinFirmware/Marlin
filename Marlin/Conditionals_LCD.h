@@ -22,7 +22,7 @@
 
 /**
  * Conditionals_LCD.h
- * LCD Defines that depend on configuration but are not editable.
+ * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
 #ifndef CONDITIONALS_LCD_H // Get the LCD defines which are needed first
@@ -315,5 +315,7 @@
     #define E_MANUAL     EXTRUDERS
     #define TOOL_E_INDEX current_block->active_extruder
   #endif
+
+  #define PROBE_SELECTED (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
 
 #endif //CONDITIONALS_LCD_H
