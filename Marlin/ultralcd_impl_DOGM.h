@@ -266,11 +266,11 @@ static void lcd_implementation_init() {
 // The kill screen is displayed for unrecoverable conditions
 void lcd_kill_screen() {
   lcd_setFont(FONT_MENU);
-  lcd_moveto (0, u8g.getHeight()/4*1);
+  lcd_moveto(0, u8g.getHeight()/4*1);
   lcd_print(lcd_status_message);
-  lcd_moveto (0, u8g.getHeight()/4*2);
+  lcd_moveto(0, u8g.getHeight()/4*2);
   lcd_printPGM(PSTR(MSG_HALTED));
-  lcd_moveto (0, u8g.getHeight()/4*3);
+  lcd_moveto(0, u8g.getHeight()/4*3);
   lcd_printPGM(PSTR(MSG_PLEASE_RESET));
 }
 
@@ -282,7 +282,7 @@ static void lcd_implementation_clear() { } // Automatically cleared by Picture L
 
 FORCE_INLINE void _draw_centered_temp(int temp, int x, int y) {
   int degsize = 6 * (temp >= 100 ? 3 : temp >= 10 ? 2 : 1); // number's pixel width
-  lcd_moveto (x - (18 - degsize) / 2, y); // move left if shorter
+  lcd_moveto(x - (18 - degsize) / 2, y); // move left if shorter
   lcd_print(itostr3(temp));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 }
@@ -365,7 +365,7 @@ static void lcd_implementation_status_screen() {
     bool has_days = (elapsed.value > 60*60*24L);
     elapsed.toDigital(buffer, has_days);
 
-    lcd_moveto (has_days ? 71 : 80, 48);
+    lcd_moveto(has_days ? 71 : 80, 48);
     lcd_print(buffer);
 
   #endif
@@ -379,7 +379,7 @@ static void lcd_implementation_status_screen() {
   #endif
 
   // Fan
-  lcd_moveto (104, 27);
+  lcd_moveto(104, 27);
   #if HAS_FAN0
     int per = ((fanSpeeds[0] + 1) * 100) / 256;
     if (per) {
@@ -401,38 +401,38 @@ static void lcd_implementation_status_screen() {
   #endif
   u8g.setColorIndex(0); // white on black
 
-  lcd_moveto (2, XYZ_BASELINE);
+  lcd_moveto(2, XYZ_BASELINE);
   _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-  lcd_moveto (10, XYZ_BASELINE);
+  lcd_moveto(10, XYZ_BASELINE);
   lcd_print(ftostr4sign(current_position[X_AXIS]));
 
-  lcd_moveto (43, XYZ_BASELINE);
+  lcd_moveto(43, XYZ_BASELINE);
   _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-  lcd_moveto (51, XYZ_BASELINE);
+  lcd_moveto(51, XYZ_BASELINE);
   lcd_print(ftostr4sign(current_position[Y_AXIS]));
 
-  lcd_moveto (83, XYZ_BASELINE);
+  lcd_moveto(83, XYZ_BASELINE);
   _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
-  lcd_moveto (91, XYZ_BASELINE);
+  lcd_moveto(91, XYZ_BASELINE);
   lcd_print(ftostr52sp(current_position[Z_AXIS] + 0.00001));
 
   u8g.setColorIndex(1); // black on white
 
   // Feedrate
   lcd_setFont(FONT_MENU);
-  lcd_moveto (3, 49);
+  lcd_moveto(3, 49);
   lcd_print(LCD_STR_FEEDRATE[0]);
 
   lcd_setFont(FONT_STATUSMENU);
-  lcd_moveto (12, 49);
+  lcd_moveto(12, 49);
   lcd_print(itostr3(feedrate_percentage));
   lcd_print('%');
 
   // Status line
   #if ENABLED(USE_SMALL_INFOFONT)
-    lcd_moveto (0, 62);
+    lcd_moveto(0, 62);
   #else
-    lcd_moveto (0, 63);
+    lcd_moveto(0, 63);
   #endif
   #if DISABLED(FILAMENT_LCD_DISPLAY)
     lcd_print(lcd_status_message);
@@ -462,7 +462,7 @@ static void lcd_implementation_status_screen() {
     else {
       u8g.setColorIndex(1); // unmarked text is black on white
     }
-    lcd_moveto ((START_COL) * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
+    lcd_moveto((START_COL) * (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
   }
 
   #if ENABLED(LCD_INFO_MENU) || ENABLED(FILAMENT_CHANGE_FEATURE)
@@ -474,24 +474,10 @@ static void lcd_implementation_status_screen() {
 
       char c;
       int8_t n = LCD_WIDTH - (START_COL);
-#if 1
-      lcd_printstr_P (pstr, PIXEL_LEN_NOLIMIT);
-      lcd_printstr (valstr, PIXEL_LEN_NOLIMIT);
-#else
-      if (center && !valstr) {
-        int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
-        while (--pad >= 0) { lcd_print(' '); n--; }
-      }
-      while (n > 0 && (c = pgm_read_byte(pstr))) {
-        n -= lcd_print(c);
-        pstr++;
-      }
-      if (valstr) while (n > 0 && (c = *valstr)) {
-        n -= lcd_print(c);
-        valstr++;
-      }
-      while (n-- > 0) lcd_print(' ');
-#endif
+
+      lcd_printstr_P(pstr, PIXEL_LEN_NOLIMIT);
+      lcd_printstr(valstr, PIXEL_LEN_NOLIMIT);
+
     }
 
   #endif // LCD_INFO_MENU || FILAMENT_CHANGE_FEATURE
@@ -504,16 +490,9 @@ static void lcd_implementation_status_screen() {
     uint8_t n = LCD_WIDTH - (START_COL) - 2;
 
     lcd_implementation_mark_as_selected(row, isSelected);
-#if 1
-      lcd_printstr_P (pstr, PIXEL_LEN_NOLIMIT);
-#else
-    while (c = pgm_read_byte(pstr)) {
-      n -= lcd_print(c);
-      pstr++;
-    }
-    while (n--) lcd_print(' ');
-#endif
-    lcd_moveto (LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
+
+    lcd_printstr_P(pstr, PIXEL_LEN_NOLIMIT);
+    lcd_moveto(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
     lcd_print(post_char);
     lcd_print(' ');
   }
@@ -531,17 +510,8 @@ static void lcd_implementation_status_screen() {
     uint8_t n = LCD_WIDTH - (START_COL) - 2 - vallen;
 
     lcd_implementation_mark_as_selected(row, isSelected);
-#if 1
-      lcd_printstr_P (pstr, PIXEL_LEN_NOLIMIT);
-#else
-    while (c = pgm_read_byte(pstr)) {
-      n -= lcd_print(c);
-      pstr++;
-    }
-    lcd_print(':');
-    while (n--) lcd_print(' ');
-#endif
-    lcd_moveto (LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * vallen, (row + 1) * (DOG_CHAR_HEIGHT));
+    lcd_printstr_P(pstr, PIXEL_LEN_NOLIMIT);
+    lcd_moveto(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * vallen, (row + 1) * (DOG_CHAR_HEIGHT));
     if (pgm)  lcd_printPGM(data);  else  lcd_print((char*)data);
   }
 
@@ -575,7 +545,6 @@ static void lcd_implementation_status_screen() {
     uint8_t vallen = lcd_strlen(value);
 
     #if ENABLED(USE_BIG_EDIT_FONT)
-      //if (lcd_strlen_P(pstr) <= LCD_WIDTH_EDIT - 1) {
       if (uxg_GetUtf8StrPixelWidthP (pu8g->getU8g(), pstr) < (DOG_CHAR_WIDTH * LCD_WIDTH_EDIT))
         lcd_setFont(FONT_MENU_EDIT);
         lcd_width = LCD_WIDTH_EDIT + 1;
@@ -592,11 +561,11 @@ static void lcd_implementation_status_screen() {
     const float kHalfChar = (DOG_CHAR_HEIGHT_EDIT) / 2;
     float rowHeight = u8g.getHeight() / (rows + 1); // 1/(rows+1) = 1/2 or 1/3
 
-    lcd_moveto (0, rowHeight + kHalfChar);
+    lcd_moveto(0, rowHeight + kHalfChar);
     lcd_printPGM(pstr);
     if (value != NULL) {
       lcd_print(':');
-      lcd_moveto ((lcd_width - 1 - vallen) * char_width, rows * rowHeight + kHalfChar);
+      lcd_moveto((lcd_width - 1 - vallen) * char_width, rows * rowHeight + kHalfChar);
       lcd_print(value);
     }
   }
@@ -609,22 +578,15 @@ static void lcd_implementation_status_screen() {
       uint8_t n = LCD_WIDTH - (START_COL) - 1;
 
       if (longFilename[0]) {
-        filename = longFilename
+        filename = longFilename;
         longFilename[n] = '\0';
       }
 
       lcd_implementation_mark_as_selected(row, isSelected);
 
       if (isDir) lcd_print(LCD_STR_FOLDER[0]);
-#if 1
-      lcd_printstr (filename, PIXEL_LEN_NOLIMIT);
-#else
-      while ((c = *filename)) {
-        n -= lcd_print(c);
-        filename++;
-      }
-      while (n--) lcd_print(' ');
-#endif
+
+      lcd_printstr(filename, PIXEL_LEN_NOLIMIT);
     }
 
     #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)
