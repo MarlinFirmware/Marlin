@@ -3511,6 +3511,38 @@ inline void gcode_G28() {
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOLNPGM(">>> gcode_G29");
         DEBUG_POS("", current_position);
+        SERIAL_ECHOPGM("Probe: ");
+        #if ENABLED(FIX_MOUNTED_PROBE)
+          SERIAL_ECHOLNPGM("FIX_MOUNTED_PROBE");
+        #elif HAS_Z_SERVO_ENDSTOP
+          SERIAL_ECHOLNPGM("SERVO PROBE");
+        #elif ENABLED(BLTOUCH)
+          SERIAL_ECHOLNPGM("BLTOUCH");
+        #elif ENABLED(Z_PROBE_SLED)
+          SERIAL_ECHOLNPGM("Z_PROBE_SLED");
+        #elif ENABLED(Z_PROBE_ALLEN_KEY)
+          SERIAL_ECHOLNPGM("Z_PROBE_ALLEN_KEY");
+        #endif
+        SERIAL_ECHOPAIR("Probe Offset X:", X_PROBE_OFFSET_FROM_EXTRUDER);
+        SERIAL_ECHOPAIR(" Y:", Y_PROBE_OFFSET_FROM_EXTRUDER);
+        SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
+        #if (X_PROBE_OFFSET_FROM_EXTRUDER > 0)
+          SERIAL_ECHOPGM("(Right");
+        #elif (X_PROBE_OFFSET_FROM_EXTRUDER < 0)
+          SERIAL_ECHOPGM("(Left");
+        #endif
+        #if (Y_PROBE_OFFSET_FROM_EXTRUDER > 0)
+          SERIAL_ECHOPGM("-Back");
+        #elif (Y_PROBE_OFFSET_FROM_EXTRUDER < 0)
+          SERIAL_ECHOPGM("-Front");
+        #endif
+        if (zprobe_zoffset < 0)
+          SERIAL_ECHOPGM(" & Below");
+        else if (zprobe_zoffset > 0)
+          SERIAL_ECHOPGM(" & Above");
+        else
+          SERIAL_ECHOPGM(" & Same Z as");
+        SERIAL_ECHOLNPGM(" Nozzle)");
       }
     #endif
 
