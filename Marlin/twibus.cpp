@@ -25,7 +25,6 @@
 #if ENABLED(EXPERIMENTAL_I2CBUS)
 
 #include "twibus.h"
-
 #include <Wire.h>
 
 TWIBus::TWIBus() {
@@ -121,18 +120,12 @@ bool TWIBus::request(const uint8_t bytes) {
   #endif
 
   // requestFrom() is a blocking function
-  Wire.requestFrom(this->addr, bytes);
-
-  // Wait for all bytes to arrive
-  millis_t t = millis() + this->timeout;
-  while (Wire.available() < bytes)
-    if (ELAPSED(millis(), t)) {
-      #if ENABLED(DEBUG_TWIBUS)
-        SERIAL_ECHO_START;
-        SERIAL_ECHOLNPGM("i2c timeout");
-      #endif
-      return false;
-    }
+  if (Wire.requestFrom(this->addr, bytes) == 0) {
+    #if ENABLED(DEBUG_TWIBUS)
+      debug("request fail", this->addr);
+    #endif
+    return false;
+  }
 
   return true;
 }
@@ -151,6 +144,11 @@ uint8_t TWIBus::capture(char *dst, const uint8_t bytes) {
   uint8_t count = 0;
   while (count < bytes && Wire.available())
     dst[count++] = Wire.read();
+
+  #if ENABLED(DEBUG_TWIBUS)
+    debug(PSTR("capture"), count);
+  #endif
+
   return count;
 }
 
