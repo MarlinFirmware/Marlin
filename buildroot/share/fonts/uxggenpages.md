@@ -134,7 +134,7 @@ WQY: http://wenq.org/
 
 WQY 9pt bitmap font: http://wenq.org/daily/wqy-bitmapfont-bdf-gb18030-nightly_build.tar.gz
 
-unifont (16*8 or 16*16): http://unifoundry.com/unifont.html
+unifont (16x8 or 16x16): http://unifoundry.com/unifont.html
 
 
 The following are some documents related to the old version of language engine:
