@@ -82,7 +82,7 @@ typedef struct _font_group_t {
 } font_group_t;
 
 static int
-fontgroup_init (font_group_t * root, uxg_fontinfo_t * fntinfo, int number)
+fontgroup_init (font_group_t * root, const uxg_fontinfo_t * fntinfo, int number)
 {
     root->m_fntifo = fntinfo;
     root->m_fntinfo_num = number;
@@ -193,7 +193,7 @@ struct _uxg_drawu8_data_t {
     void * fnt_prev;
 };
 
-static void
+static int
 fontgroup_cb_draw_u8g (void *userdata, font_t *fnt_current, const char *msg)
 {
     struct _uxg_drawu8_data_t * pdata = userdata;
@@ -267,7 +267,7 @@ uxg_DrawUtf8Str (u8g_t *pu8g, unsigned int x, unsigned int y, const char *utf8_m
 {
     struct _uxg_drawu8_data_t data;
     font_group_t * group = &g_fontgroup_root;
-    font_t *fnt_default = uxg_GetFont(pu8g);
+    const font_t *fnt_default = uxg_GetFont(pu8g);
 
     if (! uxg_Utf8FontIsInited()) {
         u8g_DrawStrP (pu8g, x, y, PSTR("Err: utf8 font not initialized."));

@@ -654,7 +654,7 @@ test_show_uchar()
     hd44780_charmap_t cur;
     int i;
 
-    for (i = 0; i < NUM_TYPE(g_hd44780_charmap); i ++) {
+    for (i = 0; i < NUM_ARRAY(g_hd44780_charmap); i ++) {
         memcpy_P (&cur, g_hd44780_charmap + i, sizeof(cur));
         //fprintf (stdout, "[% 2d] 0x%04X --> 0x%02X,0x%02X%s\n", i, cur.uchar, (int)(cur.idx), (int)(cur.idx2), (pre < cur.uchar?"":" <--- ERROR"));
 #if 1
@@ -735,7 +735,7 @@ lcd_print_uchar (wchar_t c, pixel_len_t max_length)
         _lcd_write  ((uint8_t)c);
         return 1;
     }
-    if (pf_bsearch_r ((void *)g_hd44780_charmap, NUM_TYPE(g_hd44780_charmap), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx) >= 0) {
+    if (pf_bsearch_r ((void *)g_hd44780_charmap, NUM_ARRAY(g_hd44780_charmap), pf_bsearch_cb_comp_hd4map_pgm, (void *)&pinval, &idx) >= 0) {
         // found
         memcpy_P (&localval, g_hd44780_charmap + idx, sizeof (localval));
         assert ((localval.uchar == c) && (localval.uchar == pinval.uchar));
