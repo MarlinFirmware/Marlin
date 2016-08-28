@@ -539,6 +539,10 @@
 // Moves (or segments) with fewer steps than this will be joined with the next move
 #define MIN_STEPS_PER_SEGMENT 6
 
+// The minimum pulse width (in µs) for stepping a stepper.
+// Set this if you find stepping unreliable, or if using a very fast CPU.
+#define MINIMUM_STEPPER_PULSE 0 // (µs) The smallest stepper pulse allowed
+
 // @section temperature
 
 // Control heater 0 and heater 1 in parallel.

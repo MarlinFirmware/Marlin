@@ -28,57 +28,81 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define BOARD_NAME         "Elefu Ra v3"
+#define BOARD_NAME "Elefu Ra v3"
 
+//
+// Limit Switches
+//
+#define X_MIN_PIN          35
+#define X_MAX_PIN          34
+#define Y_MIN_PIN          33
+#define Y_MAX_PIN          32
+#define Z_MIN_PIN          31
+#define Z_MAX_PIN          30
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  30
+#endif
+
+//
+// Steppers
+//
 #define X_STEP_PIN         49
 #define X_DIR_PIN          13
 #define X_ENABLE_PIN       48
-#define X_MIN_PIN          35
-#define X_MAX_PIN          34
 
 #define Y_STEP_PIN         11
 #define Y_DIR_PIN           9
 #define Y_ENABLE_PIN       12
-#define Y_MIN_PIN          33
-#define Y_MAX_PIN          32
 
 #define Z_STEP_PIN          7
 #define Z_DIR_PIN           6
 #define Z_ENABLE_PIN        8
-#define Z_MIN_PIN          31
-#define Z_MAX_PIN          30
-
-#define E2_STEP_PIN        43
-#define E2_DIR_PIN         47
-#define E2_ENABLE_PIN      42
-
-#define E1_STEP_PIN        18
-#define E1_DIR_PIN         19
-#define E1_ENABLE_PIN      38
 
 #define E0_STEP_PIN        40
 #define E0_DIR_PIN         41
 #define E0_ENABLE_PIN      37
 
-#define FAN_PIN            16 //5V PWM
+#define E1_STEP_PIN        18
+#define E1_DIR_PIN         19
+#define E1_ENABLE_PIN      38
 
-#define PS_ON_PIN          10 //Set to -1 if using a manual switch on the PWRSW Connector
-#define SLEEP_WAKE_PIN     26 //This feature still needs work
+#define E2_STEP_PIN        43
+#define E2_DIR_PIN         47
+#define E2_ENABLE_PIN      42
 
-#define HEATER_0_PIN       45 //12V PWM1
-#define HEATER_1_PIN       46 //12V PWM2
-#define HEATER_2_PIN       17 //12V PWM3
-#define HEATER_BED_PIN     44 //DOUBLE 12V PWM
-#define TEMP_0_PIN          3 //ANALOG NUMBERING
-#define TEMP_1_PIN          2 //ANALOG NUMBERING
-#define TEMP_2_PIN          1 //ANALOG NUMBERING
-#define TEMP_BED_PIN        0 //ANALOG NUMBERING
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          3 // ANALOG NUMBERING
+#define TEMP_1_PIN          2 // ANALOG NUMBERING
+#define TEMP_2_PIN          1 // ANALOG NUMBERING
+#define TEMP_BED_PIN        0 // ANALOG NUMBERING
 
-#define BEEPER_PIN         36
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       45 // 12V PWM1
+#define HEATER_1_PIN       46 // 12V PWM2
+#define HEATER_2_PIN       17 // 12V PWM3
+#define HEATER_BED_PIN     44 // DOUBLE 12V PWM
 
-// M240  Triggers a camera by emulating a Canon RC-1 Remote
-// Data from: http://www.doc-diy.net/photo/rc-1_hacked/
+#define FAN_PIN            16 // 5V PWM
+
+//
+// Misc. Functions
+//
+#define PS_ON_PIN          10 // Set to -1 if using a manual switch on the PWRSW Connector
+#define SLEEP_WAKE_PIN     26 // This feature still needs work
 #define PHOTOGRAPH_PIN     29
+
+//
+// LCD / Controller
+//
+#define BEEPER_PIN         36
 
 #if ENABLED(RA_CONTROL_PANEL)
 

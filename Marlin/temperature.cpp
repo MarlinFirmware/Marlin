@@ -1399,7 +1399,12 @@ void Temperature::set_current_temp_raw() {
 }
 
 /**
- * Timer 0 is shared with millies
+ * Timer 0 is shared with millies so don't change the prescaler.
+ *
+ * This ISR uses the compare method so it runs at the base
+ * frequency (16 MHz / 256 = 62500 Hz), but at the TCNT0 set
+ * in OCR0B above (128 or halfway between OVFs).
+ *
  *  - Manage PWM to all the heaters and fan
  *  - Update the raw temperature values
  *  - Check new temperature values for MIN/MAX errors
@@ -1515,6 +1520,7 @@ void Temperature::isr() {
       #endif
     #endif
 
+    // 488.28 Hz (or 1:976.56, 2:1953.12, 3:3906.25, 4:7812.5, 5:7812.5 6:15625, 6:15625 7:31250)
     pwm_count += _BV(SOFT_PWM_SCALE);
     pwm_count &= 0x7f;
 
@@ -1523,7 +1529,7 @@ void Temperature::isr() {
     /**
      * SLOW PWM HEATERS
      *
-     * for heaters drived by relay
+     * For relay-driven heaters
      */
     #ifndef MIN_STATE_TIME
       #define MIN_STATE_TIME 16 // MIN_STATE_TIME * 65.5 = time in milliseconds
