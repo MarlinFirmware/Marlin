@@ -289,9 +289,15 @@ void Stepper::set_directions() {
       count_direction[AXIS ##_AXIS] = 1; \
     }
 
-  SET_STEP_DIR(X); // A
-  SET_STEP_DIR(Y); // B
-  SET_STEP_DIR(Z); // C
+  #if HAS_X_DIR
+    SET_STEP_DIR(X); // A
+  #endif
+  #if HAS_Y_DIR
+    SET_STEP_DIR(Y); // B
+  #endif
+  #if HAS_Z_DIR
+    SET_STEP_DIR(Z); // C
+  #endif
 
   #if DISABLED(ADVANCE)
     if (motor_direction(E_AXIS)) {
@@ -447,9 +453,15 @@ void Stepper::isr() {
         _COUNTER(AXIS) += current_block->steps[_AXIS(AXIS)]; \
         if (_COUNTER(AXIS) > 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS),0); }
 
-      STEP_ADD(X);
-      STEP_ADD(Y);
-      STEP_ADD(Z);
+      #if HAS_X_STEP
+        STEP_ADD(X);
+      #endif
+      #if HAS_Y_STEP
+        STEP_ADD(Y);
+      #endif
+      #if HAS_Z_STEP
+        STEP_ADD(Z);
+      #endif
 
       #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
         #if ENABLED(MIXING_EXTRUDER)
@@ -474,9 +486,15 @@ void Stepper::isr() {
           _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS),0); \
         }
 
-      STEP_IF_COUNTER(X);
-      STEP_IF_COUNTER(Y);
-      STEP_IF_COUNTER(Z);
+      #if HAS_X_STEP
+        STEP_IF_COUNTER(X);
+      #endif
+      #if HAS_Y_STEP
+        STEP_IF_COUNTER(Y);
+      #endif
+      #if HAS_Z_STEP
+        STEP_IF_COUNTER(Z);
+      #endif
 
       #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
         #if ENABLED(MIXING_EXTRUDER)
