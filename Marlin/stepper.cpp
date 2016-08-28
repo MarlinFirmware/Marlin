@@ -449,18 +449,30 @@ void Stepper::isr() {
       #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
       #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
-      #define STEP_ADD(AXIS) \
+      #define PULSE_START(AXIS) \
         _COUNTER(AXIS) += current_block->steps[_AXIS(AXIS)]; \
         if (_COUNTER(AXIS) > 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS),0); }
 
+      #define PULSE_STOP(AXIS) \
+        if (_COUNTER(AXIS) > 0) { \
+          _COUNTER(AXIS) -= current_block->step_event_count; \
+          count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+          _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS),0); \
+        }
+
+      #if MINIMUM_STEPPER_PULSE > 0
+        static uint32_t pulse_start;
+        pulse_start = TCNT0;
+      #endif
+
       #if HAS_X_STEP
-        STEP_ADD(X);
+        PULSE_START(X);
       #endif
       #if HAS_Y_STEP
-        STEP_ADD(Y);
+        PULSE_START(Y);
       #endif
       #if HAS_Z_STEP
-        STEP_ADD(Z);
+        PULSE_START(Z);
       #endif
 
       #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
@@ -475,25 +487,23 @@ void Stepper::isr() {
             if (counter_M[j] > 0) En_STEP_WRITE(j, !INVERT_E_STEP_PIN);
           }
         #else // !MIXING_EXTRUDER
-          STEP_ADD(E);
+          PULSE_START(E);
         #endif
       #endif // !ADVANCE && !LIN_ADVANCE
 
-      #define STEP_IF_COUNTER(AXIS) \
-        if (_COUNTER(AXIS) > 0) { \
-          _COUNTER(AXIS) -= current_block->step_event_count; \
-          count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
-          _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS),0); \
-        }
+      #if MINIMUM_STEPPER_PULSE > 0
+        #define CYCLES_EATEN_BY_CODE 10
+        while ((uint32_t)(TCNT0 - pulse_start) < (MINIMUM_STEPPER_PULSE * (F_CPU / 1000000UL)) - CYCLES_EATEN_BY_CODE) { /* nada */ }
+      #endif
 
       #if HAS_X_STEP
-        STEP_IF_COUNTER(X);
+        PULSE_STOP(X);
       #endif
       #if HAS_Y_STEP
-        STEP_IF_COUNTER(Y);
+        PULSE_STOP(Y);
       #endif
       #if HAS_Z_STEP
-        STEP_IF_COUNTER(Z);
+        PULSE_STOP(Z);
       #endif
 
       #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
@@ -510,7 +520,7 @@ void Stepper::isr() {
             }
           }
         #else // !MIXING_EXTRUDER
-          STEP_IF_COUNTER(E);
+          PULSE_STOP(E);
         #endif
       #endif // !ADVANCE && !LIN_ADVANCE
 
