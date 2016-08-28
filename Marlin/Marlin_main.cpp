@@ -1615,6 +1615,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
       SERIAL_ECHOLNPGM(")");
     }
   #endif
+
+  axis_known_position[axis] = axis_homed[axis] = true;
 }
 
 /**
@@ -2118,7 +2120,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     do_blocking_move_to(oldXpos, oldYpos, current_position[Z_AXIS]); // return to position before deploy
-    endstops.enable_z_probe( deploy );
+    endstops.enable_z_probe(deploy);
     return false;
   }
 
@@ -2416,12 +2418,12 @@ static void clean_up_after_endstop_or_probe_move() {
  */
 
 static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
-  float old_feedrate_mm_s = feedrate_mm_s;
+  current_position[axis] = 0;
+  sync_plan_position();
   current_position[axis] = where;
-  feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[axis];
-  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
+  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[axis], active_extruder);
   stepper.synchronize();
-  feedrate_mm_s = old_feedrate_mm_s;
+  endstops.hit_on_purpose();
 }
 
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
@@ -2430,7 +2432,7 @@ static void homeaxis(AxisEnum axis) {
   #define HOMEAXIS_DO(LETTER) \
     ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
 
-  if (!(axis == X_AXIS ? HOMEAXIS_DO(X) : axis == Y_AXIS ? HOMEAXIS_DO(Y) : axis == Z_AXIS ? HOMEAXIS_DO(Z) : 0)) return;
+  if (!(axis == X_AXIS ? HOMEAXIS_DO(X) : axis == Y_AXIS ? HOMEAXIS_DO(Y) : axis == Z_AXIS ? HOMEAXIS_DO(Z) : false)) return;
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -2455,10 +2457,6 @@ static void homeaxis(AxisEnum axis) {
     }
   #endif
 
-  // Set the axis position as setup for the move
-  current_position[axis] = 0;
-  sync_plan_position();
-
   // Set a flag for Z motor locking
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) stepper.set_homing_flag(true);
@@ -2467,9 +2465,9 @@ static void homeaxis(AxisEnum axis) {
   // Move towards the endstop until an endstop is triggered
   do_homing_move(axis, 1.5 * max_length(axis) * axis_home_dir);
 
-  // Set the axis position as setup for the move
-  current_position[axis] = 0;
-  sync_plan_position();
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 1st Home", current_position[axis]);
+  #endif
 
   // Move away from the endstop by the axis HOME_BUMP_MM
   do_homing_move(axis, -home_bump_mm(axis) * axis_home_dir);
@@ -2477,12 +2475,8 @@ static void homeaxis(AxisEnum axis) {
   // Move slowly towards the endstop until triggered
   do_homing_move(axis, 2 * home_bump_mm(axis) * axis_home_dir, get_homing_bump_feedrate(axis));
 
-  // reset current_position to 0 to reflect hitting endpoint
-  current_position[axis] = 0;
-  sync_plan_position();
-
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("> TRIGGER ENDSTOP", current_position);
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 2nd Home", current_position[axis]);
   #endif
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -2506,32 +2500,35 @@ static void homeaxis(AxisEnum axis) {
     } // Z_AXIS
   #endif
 
+  // Delta has already moved all three towers up in G28
+  // so here it re-homes each tower in turn.
+  // Delta homing treats the axes as normal linear axes.
   #if ENABLED(DELTA)
+
     // retrace by the amount specified in endstop_adj
     if (endstop_adj[axis] * Z_HOME_DIR < 0) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOPAIR("> endstop_adj = ", endstop_adj[axis]);
+          SERIAL_ECHOPAIR("> endstop_adj = ", endstop_adj[axis] * Z_HOME_DIR);
           DEBUG_POS("", current_position);
         }
       #endif
       do_homing_move(axis, endstop_adj[axis]);
     }
+
+  #else
+
+    // Set the axis position to its home position (plus home offsets)
+    set_axis_is_at_home(axis);
+    sync_plan_position();
+
+    destination[axis] = current_position[axis];
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
+    #endif
+
   #endif
-
-  // Set the axis position to its home position (plus home offsets)
-  set_axis_is_at_home(axis);
-
-  SYNC_PLAN_POSITION_KINEMATIC();
-
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
-  #endif
-
-  destination[axis] = current_position[axis];
-  endstops.hit_on_purpose(); // clear endstop hit flags
-  axis_known_position[axis] = true;
-  axis_homed[axis] = true;
 
   // Put away the Z probe
   #if HAS_BED_PROBE && Z_HOME_DIR < 0 && DISABLED(Z_MIN_PROBE_ENDSTOP)
@@ -2979,25 +2976,34 @@ inline void gcode_G28() {
   #if ENABLED(DELTA)
     /**
      * A delta can only safely home all axes at the same time
+     * This is like quick_home_xy() but for 3 towers.
      */
 
-    // Pretend the current position is 0,0,0
-    // This is like quick_home_xy() but for 3 towers.
-    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = 0.0;
+    // Init the current position of all carriages to 0,0,0
+    memset(current_position, 0, sizeof(current_position));
     sync_plan_position();
 
-    // Move all carriages up together until the first endstop is hit.
-    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = 3.0 * (Z_MAX_LENGTH);
-    feedrate_mm_s = 1.732 * homing_feedrate_mm_s[X_AXIS];
+    // Move all carriages together linearly until an endstop is hit.
+    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (Z_MAX_LENGTH + 10);
+    feedrate_mm_s = homing_feedrate_mm_s[X_AXIS];
     line_to_current_position();
     stepper.synchronize();
     endstops.hit_on_purpose(); // clear endstop hit flags
-    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = 0.0;
 
-    // take care of back off and rehome. Now one carriage is at the top.
-    HOMEAXIS(X);
-    HOMEAXIS(Y);
-    HOMEAXIS(Z);
+    // Probably not needed. Double-check this line:
+    memset(current_position, 0, sizeof(current_position));
+
+    // At least one carriage has reached the top.
+    // Now back off and re-home each carriage separately.
+    HOMEAXIS(A);
+    HOMEAXIS(B);
+    HOMEAXIS(C);
+
+    // Set all carriages to their home positions
+    // Do this here all at once for Delta, because
+    // XYZ isn't ABC. Applying this per-tower would
+    // give the impression that they are the same.
+    LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
 
     SYNC_PLAN_POSITION_KINEMATIC();
 
@@ -3177,11 +3183,7 @@ inline void gcode_G28() {
 
   #endif // !DELTA (gcode_G28)
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.not_homing()");
-  #endif
   endstops.not_homing();
-  endstops.hit_on_purpose(); // clear endstop hit flags
 
   // Enable mesh leveling again
   #if ENABLED(MESH_BED_LEVELING)
