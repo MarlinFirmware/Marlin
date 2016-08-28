@@ -1601,21 +1601,6 @@ static void set_axis_is_at_home(AxisEnum axis) {
       #endif
     }
 
-    #if HAS_BED_PROBE && Z_HOME_DIR < 0 && DISABLED(Z_MIN_PROBE_ENDSTOP)
-      if (axis == Z_AXIS) {
-        current_position[Z_AXIS] -= zprobe_zoffset;
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOLNPGM("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***");
-            SERIAL_ECHOLNPAIR("> zprobe_zoffset = ", zprobe_zoffset);
-          }
-        #endif
-      }
-    #elif HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING))
-        SERIAL_ECHOLNPGM("*** Z HOMED TO ENDSTOP (Z_MIN_PROBE_ENDSTOP) ***");
-    #endif
-
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR("> home_offset[", axis_codes[axis]);
