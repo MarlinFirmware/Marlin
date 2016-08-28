@@ -3514,9 +3514,9 @@ inline void gcode_G28() {
         SERIAL_ECHOPAIR(" Y:", Y_PROBE_OFFSET_FROM_EXTRUDER);
         SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
         #if (X_PROBE_OFFSET_FROM_EXTRUDER > 0)
-          SERIAL_ECHOPGM("(Right");
+          SERIAL_ECHOPGM(" (Right");
         #elif (X_PROBE_OFFSET_FROM_EXTRUDER < 0)
-          SERIAL_ECHOPGM("(Left");
+          SERIAL_ECHOPGM(" (Left");
         #endif
         #if (Y_PROBE_OFFSET_FROM_EXTRUDER > 0)
           SERIAL_ECHOPGM("-Back");
