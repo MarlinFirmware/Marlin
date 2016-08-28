@@ -70,7 +70,8 @@ enum DebugFlags {
   DEBUG_ERRORS        = _BV(2), ///< Not implemented
   DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
   DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
-  DEBUG_LEVELING      = _BV(5)  ///< Print detailed output for homing and leveling
+  DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
+  DEBUG_ALL           = 0xFF
 };
 
 enum EndstopEnum {
