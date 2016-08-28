@@ -55,14 +55,6 @@ typedef void (*twiRequestFunc_t)();
 class TWIBus {
   private:
     /**
-     * @brief Timeout value in milliseconds
-     * @details Maximum amount of time (ms) to wait for a reply.
-     *          Useful if something goes wrong on the bus and the
-     *          SDA/SCL lines are held up by another device.
-     */
-    const int timeout = 5;
-
-    /**
      * @brief Number of bytes on buffer
      * @description Number of bytes in the buffer waiting to be flushed to the bus
      */
@@ -165,11 +157,11 @@ class TWIBus {
     /**
      * @brief Request data from the slave device and wait.
      * @details Request a number of bytes from a slave device.
-     *          Wait for the data to arrive until the timeout
-     *          interval expires. Return true on success.
+     *          Wait for the data to arrive, and return true
+     *          on success.
      *
      * @param bytes the number of bytes to request
-     * @return status of the request: true=success, false=timeout
+     * @return status of the request: true=success, false=fail
      */
     bool request(const uint8_t bytes);
 
