@@ -37,7 +37,13 @@ install:
   # Install: Monochrome Graphics Library for LCDs and OLEDs
   - arduino --install-library "U8glib"
   # expose the C API
-  - sudo cp /usr/local/share/arduino/libraries/U8glib/src/clib/u8g.h /usr/local/share/arduino/libraries/U8glib/src/u8g.h
+  - sudo ls -l $HOME/
+  - sudo ls -l $HOME/Arduino/
+  - sudo ls -l $HOME/Arduino/libraries/
+  - sudo ls -l $HOME/Arduino/libraries/U8glib/
+  - sudo ls -l /usr/local/share/arduino/libraries/
+  - sudo cp -f /usr/local/share/arduino/libraries/U8glib/src/clib/u8g.h /usr/local/share/arduino/libraries/U8glib/src/u8g.h
+  - sudo cp -f $HOME/Arduino/libraries/U8glib/src/clib/u8g.h $HOME/Arduino/libraries/U8glib/src/u8g.h
   #
   # Install: L6470 Stepper Motor Driver library
   - git clone https://github.com/ameyer/Arduino-L6470.git
