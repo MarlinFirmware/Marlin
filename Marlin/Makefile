@@ -44,6 +44,9 @@ HARDWARE_MOTHERBOARD ?= 11
 ARDUINO_INSTALL_DIR  ?= ${HOME}/Arduino
 ARDUINO_VERSION      ?= 106
 
+# The installed Libraries are in the User folder
+ARDUINO_USER_DIR ?= ${HOME}/Arduino
+
 # You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
 AVR_TOOLS_PATH ?=
 
@@ -248,6 +251,11 @@ TARGET = $(notdir $(CURDIR))
 VPATH = .
 VPATH += $(BUILD_DIR)
 VPATH += $(HARDWARE_SRC)
+
+# U8glib
+VPATH += $(ARDUINO_USER_DIR)/libraries/U8glib
+VPATH += $(ARDUINO_USER_DIR)/libraries/U8glib/clib
+
 ifeq ($(HARDWARE_VARIANT), $(filter $(HARDWARE_VARIANT),arduino Teensy Sanguino))
 VPATH += $(HARDWARE_DIR)/marlin/avr/libraries/LiquidCrystal/src
 VPATH += $(HARDWARE_DIR)/marlin/avr/libraries/SPI
