@@ -146,3 +146,6 @@ https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
 U8GLIB: https://github.com/olikraus/u8glib.git
 
 UTF-8 for U8GLIB: https://github.com/yhfudev/u8glib-fontutf8.git
+
+Standalone test project for the UTF-8 language engine of Marlin: https://github.com/yhfudev/marlin-fontutf8.git
+
