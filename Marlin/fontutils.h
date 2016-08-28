@@ -74,8 +74,12 @@ uint8_t read_byte_rom(uint8_t * str);
 
 
 #define UNUSED_VARIABLE(a) ((void)(a))
-#define NUM_TYPE(a) (sizeof(a)/sizeof((a)[0]))
 #define MIN(a,b) (((a)>(b))?(b):(a))
+
+#ifndef NUM_ARRAY
+#define NUM_ARRAY(a) (sizeof(a)/sizeof((a)[0]))
+#endif // NUM_ARRAY
+
 
 #ifdef __cplusplus
 extern "C" {
