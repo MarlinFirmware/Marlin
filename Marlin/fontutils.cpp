@@ -321,10 +321,10 @@ utf8_strncpy_cb ( char * destination, const char * source, size_t num, int len_s
             len = 6;
         } else if (0x80 == (0xC0 & valcur)) {
             /* error? */
-            for (; 0x80 == (0xC0 & valcur) && (p < pend); p ++);
+            for (; 0x80 == (0xC0 & valcur) && (p < pend); ) { p ++; valcur = cb_read_byte (p); }
         } else {
             /* error */
-            for (; ((0xFE & valcur) > 0xFC) && (p < pend); p ++);
+            for (; ((0xFE & valcur) > 0xFC) && (p < pend); ) { p ++; valcur = cb_read_byte (p); }
         }
         if (cur + len < num) {
             int i;
