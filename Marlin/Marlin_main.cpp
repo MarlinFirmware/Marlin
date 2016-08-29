@@ -2171,15 +2171,16 @@ static void clean_up_after_endstop_or_probe_move() {
 
     #else
 
-      // move fast, close to the bed
-      float z = LOGICAL_Z_POSITION(home_bump_mm(Z_AXIS));
-      if (zprobe_zoffset < 0) z -= zprobe_zoffset;
-      do_blocking_move_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+      // If the nozzle is above the travel height then
+      // move down quickly before doing the slow probe
+      float z = LOGICAL_Z_POSITION(Z_PROBE_TRAVEL_HEIGHT);
+      if (z < current_position[Z_AXIS])
+        do_blocking_move_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
     #endif
 
     // move down slowly to find bed
-    do_probe_move(-10, Z_PROBE_SPEED_SLOW);
+    do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_SLOW);
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
@@ -2466,7 +2467,7 @@ static void homeaxis(AxisEnum axis) {
   do_homing_move(axis, 1.5 * max_length(axis) * axis_home_dir);
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 1st Home", current_position[axis]);
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 1st Home ", current_position[axis]);
   #endif
 
   // Move away from the endstop by the axis HOME_BUMP_MM
@@ -2476,7 +2477,7 @@ static void homeaxis(AxisEnum axis) {
   do_homing_move(axis, 2 * home_bump_mm(axis) * axis_home_dir, get_homing_bump_feedrate(axis));
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 2nd Home", current_position[axis]);
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 2nd Home ", current_position[axis]);
   #endif
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -3514,9 +3515,9 @@ inline void gcode_G28() {
         SERIAL_ECHOPAIR(" Y:", Y_PROBE_OFFSET_FROM_EXTRUDER);
         SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
         #if (X_PROBE_OFFSET_FROM_EXTRUDER > 0)
-          SERIAL_ECHOPGM("(Right");
+          SERIAL_ECHOPGM(" (Right");
         #elif (X_PROBE_OFFSET_FROM_EXTRUDER < 0)
-          SERIAL_ECHOPGM("(Left");
+          SERIAL_ECHOPGM(" (Left");
         #endif
         #if (Y_PROBE_OFFSET_FROM_EXTRUDER > 0)
           SERIAL_ECHOPGM("-Back");
