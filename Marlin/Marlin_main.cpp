@@ -2467,7 +2467,7 @@ static void homeaxis(AxisEnum axis) {
   do_homing_move(axis, 1.5 * max_length(axis) * axis_home_dir);
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 1st Home", current_position[axis]);
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 1st Home ", current_position[axis]);
   #endif
 
   // Move away from the endstop by the axis HOME_BUMP_MM
@@ -2477,7 +2477,7 @@ static void homeaxis(AxisEnum axis) {
   do_homing_move(axis, 2 * home_bump_mm(axis) * axis_home_dir, get_homing_bump_feedrate(axis));
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 2nd Home", current_position[axis]);
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 2nd Home ", current_position[axis]);
   #endif
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
