@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_AN_H
 #define LANGUAGE_AN_H
 
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" parada.")
 #define MSG_SD_INSERTED                     _UxGT("Tarcheta colocada")
 #define MSG_SD_REMOVED                      _UxGT("Tarcheta retirada")
@@ -75,9 +73,9 @@
 #define MSG_FAN_SPEED                       _UxGT("Ixoriador")
 #define MSG_FLOW                            _UxGT("Fluxo")
 #define MSG_CONTROL                         _UxGT("Control")
-#define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" Min")
-#define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Max")
-#define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Fact")
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Autotemp")
 #define MSG_ON                              _UxGT("On")
 #define MSG_OFF                             _UxGT("Off")

@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_ES_H
 #define LANGUAGE_ES_H
 
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" lista.")
 #define MSG_SD_INSERTED                     _UxGT("Tarjeta colocada")
 #define MSG_SD_REMOVED                      _UxGT("Tarjeta retirada")
@@ -76,14 +74,14 @@
 #define MSG_MOVE_10MM                       _UxGT("Mover 10mm")
 #define MSG_SPEED                           _UxGT("Velocidad")
 #define MSG_BED_Z                           _UxGT("Plataforma Z")
-#define MSG_NOZZLE                          _UxGT("Boquilla")
-#define MSG_BED                             _UxGT("Plataforma")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Boquilla")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Plataforma")
 #define MSG_FAN_SPEED                       _UxGT("Ventilador")
 #define MSG_FLOW                            _UxGT("Flujo")
 #define MSG_CONTROL                         _UxGT("Control")
-#define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" Min")
-#define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Max")
-#define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Fact")
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Temperatura Auto.")
 #define MSG_ON                              _UxGT("Encender")
 #define MSG_OFF                             _UxGT("Apagar")

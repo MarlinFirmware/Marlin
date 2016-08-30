@@ -30,9 +30,6 @@
 #ifndef LANGUAGE_EL_H
 #define LANGUAGE_EL_H
 
-#define MAPPER_CECF
-#define DISPLAY_CHARSET_ISO10646_GREEK
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" έτοιμο.")
 #define MSG_SD_INSERTED                     _UxGT("Εισαγωγή κάρτας")
 #define MSG_SD_REMOVED                      _UxGT("Αφαίρεση κάρτας")
@@ -78,8 +75,8 @@
 #define MSG_MOVE_10MM                       _UxGT("Μετακίνηση 10μμ")
 #define MSG_SPEED                           _UxGT("Ταχύτητα")
 #define MSG_BED_Z                           _UxGT("Επ. Εκτύπωσης Z")
-#define MSG_NOZZLE                          _UxGT("Ακροφύσιο")
-#define MSG_BED                             _UxGT("Κλίνη")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Ακροφύσιο")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Κλίνη")
 #define MSG_FAN_SPEED                       _UxGT("Ταχύτητα ανεμιστήρα")
 #define MSG_FLOW                            _UxGT("Ροή")
 #define MSG_CONTROL                         _UxGT("Έλεγχος")

@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_PL_H
 #define LANGUAGE_PL_H
 
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gotowy.")
 #define MSG_SD_INSERTED                     _UxGT("Karta wlozona")
 #define MSG_SD_REMOVED                      _UxGT("Karta usunieta")
@@ -74,14 +72,14 @@
 #define MSG_MOVE_10MM                       _UxGT("Przesuwaj co 10mm")
 #define MSG_SPEED                           _UxGT("Predkosc")
 #define MSG_BED_Z                           _UxGT("Loze Z")
-#define MSG_NOZZLE                          _UxGT("Dysza")
-#define MSG_BED                             _UxGT("Loze")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Dysza")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Loze")
 #define MSG_FAN_SPEED                       _UxGT("Obroty wiatraka")
 #define MSG_FLOW                            _UxGT("Przeplyw")
 #define MSG_CONTROL                         _UxGT("Ustawienia")
-#define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" Min")
-#define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Max")
-#define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Mnoznik")
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Mnoznik")
 #define MSG_AUTOTEMP                        _UxGT("Auto. temperatura")
 #define MSG_ON                              _UxGT("Wl. ")
 #define MSG_OFF                             _UxGT("Wyl.")

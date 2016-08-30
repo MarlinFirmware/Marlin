@@ -75,8 +75,8 @@
 #define MSG_MOVE_10MM                       _UxGT("移动 10 mm")  //"Move 10mm"
 #define MSG_SPEED                           _UxGT("速度")  //"Speed"
 #define MSG_BED_Z                           _UxGT("热床Z")  //"Bed Z"
-#define MSG_NOZZLE                          _UxGT("喷嘴")  //"Nozzle" 噴嘴
-#define MSG_BED                             _UxGT("热床")  //"Bed"
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 喷嘴")  //"Nozzle" 噴嘴
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 热床")  //"Bed"
 #define MSG_FAN_SPEED                       _UxGT("风扇速度")  //"Fan speed"
 #define MSG_FLOW                            _UxGT("挤出速度")  //"Flow"
 #define MSG_CONTROL                         _UxGT("控制")  //"Control"

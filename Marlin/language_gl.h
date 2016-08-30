@@ -30,9 +30,6 @@
 #ifndef LANGUAGE_GL_H
 #define LANGUAGE_GL_H
 
-#define MAPPER_C2C3
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" lista.")
 #define MSG_SD_INSERTED                     _UxGT("Tarxeta inserida")
 #define MSG_SD_REMOVED                      _UxGT("Tarxeta retirada")
@@ -78,8 +75,8 @@
 #define MSG_MOVE_10MM                       _UxGT("Mover 10mm")
 #define MSG_SPEED                           _UxGT("Velocidade")
 #define MSG_BED_Z                           _UxGT("Cama Z")
-#define MSG_NOZZLE                          _UxGT("Bico")
-#define MSG_BED                             _UxGT("Cama")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Bico")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Cama")
 #define MSG_FAN_SPEED                       _UxGT("Velocidade vent.")
 #define MSG_FLOW                            _UxGT("Fluxo")
 #define MSG_CONTROL                         _UxGT("Control")

@@ -34,8 +34,6 @@
 #ifndef LANGUAGE_CZ_H
 #define LANGUAGE_CZ_H
 
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pripraven.")
 #define MSG_SD_INSERTED                     _UxGT("Karta vlozena")
 #define MSG_SD_REMOVED                      _UxGT("Karta vyjmuta")

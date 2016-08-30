@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_IT_H
 #define LANGUAGE_IT_H
 
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")
 #define MSG_SD_INSERTED                     _UxGT("SD Card inserita")
 #define MSG_SD_REMOVED                      _UxGT("SD Card rimossa")
@@ -81,8 +79,8 @@
   #define MSG_SPEED                         _UxGT("Velocita")
 #endif
 #define MSG_BED_Z                           _UxGT("piatto Z")
-#define MSG_NOZZLE                          _UxGT("Ugello")
-#define MSG_BED                             _UxGT("Piatto")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Ugello")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Piatto")
 #if ENABLED(DOGLCD)
   #define MSG_FAN_SPEED                     _UxGT("Velocità ventola")
 #else
@@ -90,9 +88,9 @@
 #endif
 #define MSG_FLOW                            _UxGT("Flusso")
 #define MSG_CONTROL                         _UxGT("Controllo")
-#define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" Min")
-#define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Max")
-#define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Fact")
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Autotemp")
 #define MSG_ON                              _UxGT("On ")
 #define MSG_OFF                             _UxGT("Off")

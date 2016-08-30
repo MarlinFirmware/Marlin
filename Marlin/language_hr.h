@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_HR_H
 #define LANGUAGE_HR_H
 
-#define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" spreman.")
 #define MSG_SD_INSERTED                     _UxGT("SD kartica umetnuta")
 #define MSG_SD_REMOVED                      _UxGT("SD kartica uklonjena")
@@ -77,8 +75,8 @@
 #define MSG_MOVE_10MM                       _UxGT("Miči 10mm")
 #define MSG_SPEED                           _UxGT("Brzina")
 #define MSG_BED_Z                           _UxGT("Bed Z")
-#define MSG_NOZZLE                          _UxGT("Nozzle")
-#define MSG_BED                             _UxGT("Bed")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Nozzle")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Bed")
 #define MSG_FAN_SPEED                       _UxGT("Brzina ventilatora")
 #define MSG_FLOW                            _UxGT("Flow")
 #define MSG_CONTROL                         _UxGT("Control")

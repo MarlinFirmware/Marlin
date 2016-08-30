@@ -30,9 +30,6 @@
 #ifndef LANGUAGE_DE_H
 #define LANGUAGE_DE_H
 
-#define MAPPER_C2C3
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" bereit")
 #define MSG_SD_INSERTED                     _UxGT("SD-Karte erkannt")
 #define MSG_SD_REMOVED                      _UxGT("SD-Karte entfernt")
@@ -73,14 +70,14 @@
 #define MSG_MOVE_10MM                       _UxGT("10.0 mm")
 #define MSG_SPEED                           _UxGT("Geschw.")
 #define MSG_BED_Z                           _UxGT("Bett Z")
-#define MSG_NOZZLE                          _UxGT("Düse")
-#define MSG_BED                             _UxGT("Bett")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Düse")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Bett")
 #define MSG_FAN_SPEED                       _UxGT("Lüfter")
 #define MSG_FLOW                            _UxGT("Durchfluss")
 #define MSG_CONTROL                         _UxGT("Einstellungen")
-#define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" min")
-#define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" max")
-#define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Faktor")
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" min")
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" max")
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Faktor")
 #define MSG_AUTOTEMP                        _UxGT("AutoTemp")
 #define MSG_ON                              _UxGT("Ein")
 #define MSG_OFF                             _UxGT("Aus")

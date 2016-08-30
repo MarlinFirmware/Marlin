@@ -31,16 +31,19 @@
 #ifndef LANGUAGE_KANA_UTF_H
 #define LANGUAGE_KANA_UTF_H
 
-#define MAPPER_E382E383
-#define DISPLAY_CHARSET_ISO10646_KANA
-
 // This just to show the potential benefit of unicode.
 // This translation can be improved by using the full charset of unicode codeblock U+30A0 to U+30FF.
 
+// force the generator to use all of chars:
+// _UxGT("。「」゛゜ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾ")
+// _UxGT("タダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマ")
+// _UxGT("ミムメモャヤュユョヨラリルレロワヲンヴヷヺ・ーヽ千万円")
+// _UxGT("､･ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ")
+
 // 片仮名表示定義
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" ready.")
-//#define MSG_SD_INSERTED                     _UxGT("カードガソウニュウサレマシタ")        // "Card inserted"
-#define MSG_SD_INSERTED                     _UxGT("ｶｰﾄﾞｶﾞｿｳﾆｭｳｻﾚﾏｼﾀ")        // "Card inserted"
+#define MSG_SD_INSERTED                     _UxGT("カードガソウニュウサレマシタ")        // "Card inserted"
+//#define MSG_SD_INSERTED                     _UxGT("ｶｰﾄﾞｶﾞｿｳﾆｭｳｻﾚﾏｼﾀ")        // "Card inserted"
 #define MSG_SD_REMOVED                      _UxGT("カードガアリマセン")               // "Card removed"
 #define MSG_LCD_ENDSTOPS                    _UxGT("エンドストップ")                  // "Endstops" // Max length 8 characters
 #define MSG_MAIN                            _UxGT("メイン")                       // "Main"
@@ -84,14 +87,14 @@
 #define MSG_MOVE_10MM                       _UxGT(" 10mm イドウ")                 // "Move 10mm"
 #define MSG_SPEED                           _UxGT("ソクド")                       // "Speed"
 #define MSG_BED_Z                           _UxGT("Zオフセット")                   // "Bed Z"
-#define MSG_NOZZLE                          _UxGT("ノズル")                       // "Nozzle"
-#define MSG_BED                             _UxGT("ベッド")                       // "Bed"
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" ノズル")                       // "Nozzle"
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" ベッド")                       // "Bed"
 #define MSG_FAN_SPEED                       _UxGT("ファンソクド")                    // "Fan speed"
 #define MSG_FLOW                            _UxGT("トシュツリョウ")                   // "Flow"
 #define MSG_CONTROL                         _UxGT("セイギョ")                      // "Control"
-#define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" サイテイ") // " Min"
-#define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" サイコウ") // " Max"
-#define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" ファクター") // " Fact"
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" サイテイ") // " Min"
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" サイコウ") // " Max"
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" ファクター") // " Fact"
 #define MSG_AUTOTEMP                        _UxGT("ジドウオンドセイギョ")               // "Autotemp"
 #define MSG_ON                              _UxGT("オン ")                         // "On "
 #define MSG_OFF                             _UxGT("オフ ")                         // "Off"

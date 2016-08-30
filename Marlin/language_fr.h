@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_FR_H
 #define LANGUAGE_FR_H
 
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" prete.")
 #define MSG_SD_INSERTED                     _UxGT("Carte inseree")
 #define MSG_SD_REMOVED                      _UxGT("Carte retiree")
@@ -77,14 +75,14 @@
 #define MSG_MOVE_10MM                       _UxGT("Depl. 10mm")
 #define MSG_SPEED                           _UxGT(" Vitesse")
 #define MSG_BED_Z                           _UxGT("Plateau Z")
-#define MSG_NOZZLE                          _UxGT("Buse")
-#define MSG_BED                             _UxGT("Plateau")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Buse")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Plateau")
 #define MSG_FAN_SPEED                       _UxGT("Vitesse ventil.")
 #define MSG_FLOW                            _UxGT("Flux")
 #define MSG_CONTROL                         _UxGT("Controler")
-#define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" Min")
-#define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Max")
-#define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Facteur")
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Facteur")
 #define MSG_AUTOTEMP                        _UxGT("Temp. Auto.")
 #define MSG_ON                              _UxGT("Marche ")
 #define MSG_OFF                             _UxGT("Arret")

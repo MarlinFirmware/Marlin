@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_PT_BR_H
 #define LANGUAGE_PT_BR_H
 
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")
 #define MSG_SD_INSERTED                     _UxGT("Cartao inserido")
 #define MSG_SD_REMOVED                      _UxGT("Cartao removido")

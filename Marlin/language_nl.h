@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_NL_H
 #define LANGUAGE_NL_H
 
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" gereed.")
 #define MSG_SD_INSERTED                     _UxGT("Kaart ingestoken")
 #define MSG_SD_REMOVED                      _UxGT("Kaart verwijderd")
@@ -71,14 +69,14 @@
 #define MSG_MOVE_10MM                       _UxGT("Verplaats 10mm")
 #define MSG_SPEED                           _UxGT("Snelheid")
 #define MSG_BED_Z                           _UxGT("Bed Z")
-#define MSG_NOZZLE                          _UxGT("Nozzle")
-#define MSG_BED                             _UxGT("Bed")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Nozzle")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Bed")
 #define MSG_FAN_SPEED                       _UxGT("Fan snelheid")
 #define MSG_FLOW                            _UxGT("Flow")
 #define MSG_CONTROL                         _UxGT("Control")
-#define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" Min")
-#define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Max")
-#define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Fact")
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fact")
 #define MSG_AUTOTEMP                        _UxGT("Autotemp")
 #define MSG_ON                              _UxGT("Aan ")
 #define MSG_OFF                             _UxGT("Uit")

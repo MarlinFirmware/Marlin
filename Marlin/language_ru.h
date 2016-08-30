@@ -30,9 +30,6 @@
 #ifndef LANGUAGE_RU_H
 #define LANGUAGE_RU_H
 
-#define MAPPER_D0D1                // For Cyrillic
-#define DISPLAY_CHARSET_ISO10646_5
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" Готов.")
 #define MSG_SD_INSERTED                     _UxGT("Карта вставлена")
 #define MSG_SD_REMOVED                      _UxGT("Карта извлечена")
@@ -75,14 +72,14 @@
 #define MSG_MOVE_10MM                       _UxGT("Движение XY 10mm")
 #define MSG_SPEED                           _UxGT("Скорость")
 #define MSG_BED_Z                           _UxGT("Z стола")
-#define MSG_NOZZLE                          LCD_STR_THERMOMETER _UxGT(" Сопло")
-#define MSG_BED                             LCD_STR_THERMOMETER _UxGT(" Стол")
+#define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Сопло")
+#define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Стол")
 #define MSG_FAN_SPEED                       _UxGT("Кулер")
 #define MSG_FLOW                            _UxGT("Поток")
 #define MSG_CONTROL                         _UxGT("Настройки")
-#define MSG_MIN                             LCD_STR_THERMOMETER _UxGT(" Минимум")
-#define MSG_MAX                             LCD_STR_THERMOMETER _UxGT(" Максимум")
-#define MSG_FACTOR                          LCD_STR_THERMOMETER _UxGT(" Фактор")
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Минимум")
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Максимум")
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Фактор")
 #define MSG_AUTOTEMP                        _UxGT("Автотемпература")
 #define MSG_ON                              _UxGT("Вкл. ")
 #define MSG_OFF                             _UxGT("Откл. ")
