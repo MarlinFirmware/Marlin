@@ -113,14 +113,14 @@ fontgroup_drawwchar (font_group_t * group, const font_t *fnt_default, wchar_t va
     uint8_t buf[2] = {0, 0};
     font_t * fntpqm = NULL;
 
-    //TRACE("got char=%d", (int)val);
+    TRACE("fontgroup_drawwchar char=%d(0x%X)", (int)val, (int)val);
     buf[0] = (uint8_t)(val & 0x7F);
     fntpqm = (font_t *)fontgroup_find (group, val);
     if (NULL == fntpqm) {
         //continue;
         //buf[0] = '?';
         fntpqm = fnt_default;
-        TRACE("Unknown char, use default font");
+        TRACE("Unknown char %d(0x%X), use default font", (int)val, (int)val);
     }
     if (fnt_default != fntpqm) {
         buf[0] |= 0x80; // use upper page to avoid 0x00 error in C. you may want to generate the font data

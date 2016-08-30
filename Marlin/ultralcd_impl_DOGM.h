@@ -56,10 +56,6 @@
   #include "_Bootscreen.h"
 #endif
 
-#if DISABLED(MAPPER_C2C3) && DISABLED(MAPPER_NON) && ENABLED(USE_BIG_EDIT_FONT)
-  #undef USE_BIG_EDIT_FONT
-#endif
-
 #if ENABLED(USE_SMALL_INFOFONT)
   #include "dogm_font_data_6x9_marlin.h"
   #define FONT_STATUSMENU_NAME u8g_font_6x9
@@ -172,10 +168,10 @@ static char currentfont = 0;
 static void lcd_setFont(char font_nr) {
   switch(font_nr) {
     case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
+    default:
     case FONT_MENU       : {u8g.setFont(FONT_MENU_NAME); currentfont = FONT_MENU;}; break;
-    case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
+    //case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
     case FONT_MENU_EDIT  : {u8g.setFont(FONT_MENU_EDIT_NAME); currentfont = FONT_MENU_EDIT;}; break;
-    break;
   }
 }
 
@@ -545,7 +541,7 @@ static void lcd_implementation_status_screen() {
     uint8_t vallen = lcd_strlen(value);
 
     #if ENABLED(USE_BIG_EDIT_FONT)
-      if (uxg_GetUtf8StrPixelWidthP (pu8g->getU8g(), pstr) < (DOG_CHAR_WIDTH * LCD_WIDTH_EDIT))
+      if (uxg_GetUtf8StrPixelWidthP (pu8g->getU8g(), pstr) < (DOG_CHAR_WIDTH * LCD_WIDTH_EDIT)) {
         lcd_setFont(FONT_MENU_EDIT);
         lcd_width = LCD_WIDTH_EDIT + 1;
         char_width = DOG_CHAR_WIDTH_EDIT;
