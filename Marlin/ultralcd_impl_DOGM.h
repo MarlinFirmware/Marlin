@@ -349,6 +349,8 @@ FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) 
   }
 }
 
+//#define DOGM_SD_PERCENT
+
 static void lcd_implementation_status_screen() {
   u8g.setColorIndex(1); // black on white
 
@@ -380,6 +382,13 @@ static void lcd_implementation_status_screen() {
     if (IS_SD_PRINTING) {
       // Progress bar solid part
       u8g.drawBox(55, 50, (unsigned int)(71 * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION));
+    
+      #if ENABLED(DOGM_SD_PERCENT)
+        // Percent complete
+        u8g.setPrintPos(55, 48);
+        u8g.print(itostr3(card.percentDone()));
+        u8g.print('%');
+      #endif
     }
 
     char buffer[10];
@@ -387,7 +396,13 @@ static void lcd_implementation_status_screen() {
     bool has_days = (elapsed.value > 60*60*24L);
     elapsed.toDigital(buffer, has_days);
 
-    u8g.setPrintPos(has_days ? 71 : 80, 48);
+    #if DISABLED(DOGM_SD_PERCENT)
+      #define SD_DURATION_X 71
+    #else
+      #define SD_DURATION_X 89
+    #endif
+
+    u8g.setPrintPos(SD_DURATION_X + (has_days ? 0 : 9), 48);
     lcd_print(buffer);
 
   #endif
