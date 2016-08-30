@@ -386,7 +386,7 @@ void Stepper::isr() {
           #if DISABLED(MIXING_EXTRUDER)
             // Don't step E here for mixing extruder
             count_position[E_AXIS] += count_direction[E_AXIS];
-            e_steps[TOOL_E_INDEX] += motor_direction(E_AXIS) ? -1 : 1;
+            motor_direction(E_AXIS) ? --e_steps[TOOL_E_INDEX] : ++e_steps[TOOL_E_INDEX];
           #endif
         }
 
@@ -599,7 +599,7 @@ void Stepper::isr() {
     else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
       MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
 
-      if (step_rate <= acc_step_rate) { // Still decelerating?
+      if (step_rate < acc_step_rate) { // Still decelerating?
         step_rate = acc_step_rate - step_rate;
         NOLESS(step_rate, current_block->final_rate);
       }
@@ -662,7 +662,7 @@ void Stepper::isr() {
       step_loops = step_loops_nominal;
     }
 
-    OCR1A = (OCR1A < (TCNT1 + 16)) ? (TCNT1 + 16) : OCR1A;
+    NOLESS(OCR1A, TCNT1 + 16);
 
     // If current block is finished, reset pointer
     if (all_steps_done) {
