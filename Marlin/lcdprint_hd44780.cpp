@@ -42,7 +42,11 @@ typedef struct _hd44780_charmap_t {
     uint8_t idx2;  // the char used to be combined with the idx to simulate a single char
 } hd44780_charmap_t;
 
+#if defined(__AVR__)
+#define IV(a) U##a
+#else
 #define IV(a) L##a
+#endif
 
 static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     // sorted by uchar:
@@ -120,6 +124,7 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
 #endif // 0
 
     {IV('¢'), 0xEC, 0},
+    {IV('°'), 0xDF, 0}, // Marlin special: '°'  LCD_STR_DEGREE (0x09)
     {IV('ä'), 0xE1, 0},
     {IV('ö'), 0xEF, 0},
     {IV('÷'), 0xFD, 0},
@@ -135,9 +140,14 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     {IV('π'), 0xF7, 0},
     {IV('ρ'), 0xE6, 0}, // rho
     {IV('σ'), 0xE5, 0}, // sigma
+    {IV('→'), '>', 0}, // Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
+    {IV('↰'), 0x03, 0}, // Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
+    {IV('↻'), 0x04, 0}, // Marlin special: '↻↺⟳⟲'  LCD_STR_REFRESH (0x01)
     {IV('√'), 0xE8, 0},
     {IV('∞'), 0xF3, 0},
+    {IV('⏱'), 0x07, 0}, // Marlin special: '🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧 ⌚⌛⏰⏱⏳⧖⧗'  LCD_STR_CLOCK (0x05)
     {IV('█'), 0xFF, 0},
+
 
     //{IV(''), 0xA0, 0},
     {IV('。'), 0xA1, 0},
@@ -335,7 +345,7 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     {IV('«'), 0xBB, 0},
     {IV('®'), 0xCE, 0},
 
-    {IV('°'), 0xB2, 0},
+    {IV('°'), 0xB2, 0}, // Marlin special: '°'  LCD_STR_DEGREE (0x09)
     //{IV(''), 0xD1, 0},
     {IV('±'), 0x10, 0}, //∓±
     //{'='), 0x1C, 0}, // error
@@ -437,8 +447,11 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     {IV('•'), 0xCD, 0}, // ·
     {IV('℞'), 0xA7, 0}, // ℞ Pt ASCII 158
     {IV('™'), 0xD0, 0},
+    {IV('→'), '>', 0}, // Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
     {IV('↤'), 0xF9, 0}, // ⟻
+    {IV('↰'), 0x03, 0}, // Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
     {IV('↵'), 0xC4, 0},
+    {IV('↻'), 0x04, 0}, // Marlin special: '↻↺⟳⟲'  LCD_STR_REFRESH (0x01)
     {IV('⇥'), 0xFB, 0},
     {IV('√'), 0xBE, 0}, // √
     {IV('∞'), 0xC2, 0}, // infinity
@@ -463,6 +476,7 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     {IV('⎲'), 0x12, 0},
     {IV('⎳'), 0x13, 0},
 
+    {IV('⏱'), 0x07, 0}, // Marlin special: '🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧 ⌚⌛⏰⏱⏳⧖⧗'  LCD_STR_CLOCK (0x05)
     {IV('┌'), 0xC9, 0},
     {IV('┐'), 0xCA, 0},
     {IV('└'), 0xCB, 0},
@@ -487,6 +501,7 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
 #elif DISPLAY_CHARSET_HD44780 == CYRILLIC
 
     {IV('¢'), 0x5C, 0},
+    {IV('°'), 0x01, 0}, // Marlin special: '°'  LCD_STR_DEGREE (0x09)
 
     //{IV(''), 0x80, 0},
     //{IV(''), 0x81, 0},
@@ -521,6 +536,47 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     //{IV(''), 0x9D, 0},
     //{IV(''), 0x9E, 0},
     //{IV(''), 0x9F, 0},
+
+    {IV('Â'), 'A', 0},
+    {IV('Ã'), 'A', 0},
+    {IV('Ä'), 'A', 0},
+    {IV('Æ'), 'A', 'E'},
+    {IV('Ç'), 'C', 0},
+    {IV('É'), 'E', 0},
+    {IV('Ñ'), 'N', 0},
+    {IV('Õ'), 'O', 0},
+    {IV('Ö'), 'O', 0},
+    {IV('×'), 'x', 0},
+    {IV('Ü'), 'U', 0},
+    {IV('à'), 'a', 0},
+    {IV('á'), 'a', 0},
+    {IV('â'), 'a', 0},
+    {IV('ã'), 'a', 0},
+    {IV('ä'), 'a', 0},
+    {IV('å'), 'a', 0},
+    {IV('æ'), 'a', 'e'},
+    {IV('ç'), 'c', 0},
+    {IV('è'), 'e', 0},
+    {IV('é'), 'e', 0},
+    {IV('ê'), 'e', 0},
+    {IV('ë'), 'e', 0},
+    {IV('ì'), 'i', 0},
+    {IV('í'), 'i', 0},
+    {IV('î'), 'i', 0},
+    {IV('ï'), 'i', 0},
+
+    {IV('ñ'), 'n', 0},
+    {IV('ò'), 'o', 0},
+    {IV('ó'), 'o', 0},
+    {IV('ô'), 'o', 0},
+    {IV('õ'), 'o', 0},
+    {IV('ö'), 'o', 0},
+    {IV('ø'), 'o', 0},
+    {IV('ù'), 'u', 0},
+    {IV('ú'), 'u', 0},
+    {IV('û'), 'u', 0},
+    {IV('ü'), 'u', 0},
+    {IV('ÿ'), 'y', 0},
 
     {IV('Ё'), 0xA2, 0},
     {IV('А'), 'A', 0},
@@ -643,7 +699,16 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     //{IV(''), 0xFE, 0},
     //{IV(''), 0xFF, 0},
 
+    {IV('→'), '>', 0}, // Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
+    {IV('↰'), 0x03, 0}, // Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
+    {IV('↻'), 0x04, 0}, // Marlin special: '↻↺⟳⟲'  LCD_STR_REFRESH (0x01)
+    {IV('⏱'), 0x07, 0}, // Marlin special: '🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧 ⌚⌛⏰⏱⏳⧖⧗'  LCD_STR_CLOCK (0x05)
 #endif
+
+    //{IV(''), 0x00, 0}, // Marlin special: ''  LCD_STR_BEDTEMP (0x07)
+    {IV('🌡'), 0x02, 0}, // Marlin special: '🌡'  LCD_STR_THERMOMETER (0x08)
+    {IV('📂'), 0x05, 0}, // Marlin special: '📁📂'  LCD_STR_FOLDER (0x02)
+    //{IV(''), 0x06, 0}, // Marlin special: ''  LCD_STR_FEEDRATE (0x06)
 };
 
 #if DEBUG
@@ -656,12 +721,12 @@ test_show_uchar()
 
     for (i = 0; i < NUM_ARRAY(g_hd44780_charmap); i ++) {
         memcpy_P (&cur, g_hd44780_charmap + i, sizeof(cur));
-        //fprintf (stdout, "[% 2d] 0x%04X --> 0x%02X,0x%02X%s\n", i, cur.uchar, (int)(cur.idx), (int)(cur.idx2), (pre < cur.uchar?"":" <--- ERROR"));
+        //fprintf (stdout, "[% 2d] %" PRIu32 "(0x06%" PRIX32 ") --> 0x%02X,0x%02X%s\n", i, cur.uchar, cur.uchar, (int)(cur.idx), (int)(cur.idx2), (pre < cur.uchar?"":" <--- ERROR"));
 #if 1
-        TRACE("[% 2d] 0x%04X --> 0x%02X,0x%02X%s", i, cur.uchar, (unsigned int)(cur.idx), (unsigned int)(cur.idx2), (pre < cur.uchar?"":" <--- ERROR"));
+        TRACE("[% 2d] %" PRIu32 "(0x%" PRIX32 ") --> 0x%02X,0x%02X%s", i, cur.uchar, cur.uchar, (unsigned int)(cur.idx), (unsigned int)(cur.idx2), (pre < cur.uchar?"":" <--- ERROR"));
 #else
         TRACE("[% 2d]", i);
-        TRACE("0x%04X,", cur.uchar);
+        TRACE("%" PRIu32 "(0x%" PRIX32 "),", cur.uchar, cur.uchar);
         TRACE("0x%02X,", (unsigned int)(cur.idx));
         TRACE("0x%02X,", (unsigned int)(cur.idx2));
         TRACE("%s", (pre < cur.uchar?"":" <--- ERROR"));
@@ -684,8 +749,8 @@ hd44780_charmap_compare (hd44780_charmap_t * v1, hd44780_charmap_t * v2)
 {
     assert (NULL != v1);
     assert (NULL != v2);
-    TRACE ("compare char1(0x%X)", v1->uchar);
-    TRACE ("compare char2(0x%X)", v2->uchar);
+    TRACE ("compare char1 %" PRIu32 "(0x%" PRIX32 ")", v1->uchar, v1->uchar);
+    TRACE ("compare char2 %" PRIu32 "(0x%" PRIX32 ")", v2->uchar, v2->uchar);
     if (v1->uchar < v2->uchar) {
         TRACE ("compare return -1");
         return -1;
@@ -739,7 +804,7 @@ lcd_print_uchar (wchar_t c, pixel_len_t max_length)
         // found
         memcpy_P (&localval, g_hd44780_charmap + idx, sizeof (localval));
         assert ((localval.uchar == c) && (localval.uchar == pinval.uchar));
-        TRACE ("draw char: %d at ROM %d(+%d)", (int)c, (int)localval.idx, (int)localval.idx2);
+        TRACE ("draw char: %" PRIu32 "(0x%" PRIX32 ") at ROM %d(+%d)", c, c, (int)localval.idx, (int)localval.idx2);
         _lcd_write  (localval.idx);
         if (max_length < 2) {
             return 1;
@@ -751,7 +816,7 @@ lcd_print_uchar (wchar_t c, pixel_len_t max_length)
         return 1;
     }
     // print '?' instead
-    TRACE ("draw char: Not found %d (0x%X", (int)c, (int)c);
+    TRACE ("draw char: Not found " PRIu32 "(0x%" PRIX32 ")", c, c);
     _lcd_write  ((uint8_t)'?');
     return 1;
 }
