@@ -140,7 +140,8 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     {IV('π'), 0xF7, 0},
     {IV('ρ'), 0xE6, 0}, // rho
     {IV('σ'), 0xE5, 0}, // sigma
-    {IV('→'), '>', 0}, // Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
+    {IV('←'), 0x7F, 0},
+    {IV('→'), 0x7E, 0}, // Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
     {IV('↰'), 0x03, 0}, // Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
     {IV('↻'), 0x04, 0}, // Marlin special: '↻↺⟳⟲'  LCD_STR_REFRESH (0x01)
     {IV('√'), 0xE8, 0},
@@ -664,8 +665,6 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     //{IV(''), 0xD6, 0},
     //{IV(''), 0xD7, 0},
     //{IV(''), 0xD8, 0},
-    //{IV(''), 0xD9, 0},
-    //{IV(''), 0xDA, 0},
     //{IV(''), 0xDB, 0},
     //{IV(''), 0xDC, 0},
     //{IV(''), 0xDD, 0},
@@ -699,12 +698,16 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     //{IV(''), 0xFE, 0},
     //{IV(''), 0xFF, 0},
 
+    {IV('↑'), 0xD9, 0}, //←↑→↓
+    {IV('↓'), 0xDA, 0},
+
     {IV('→'), '>', 0}, // Marlin special: '⮈⮉⮊⮋➤→' LCD_STR_ARROW_RIGHT (0x03)
     {IV('↰'), 0x03, 0}, // Marlin special: '⮥⮭⮉⇧↑↰'  LCD_STR_UPLEVEL (0x04)
     {IV('↻'), 0x04, 0}, // Marlin special: '↻↺⟳⟲'  LCD_STR_REFRESH (0x01)
     {IV('⏱'), 0x07, 0}, // Marlin special: '🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕚🕛🕜🕝🕞🕟🕠🕡🕢🕣🕤🕥🕦🕧 ⌚⌛⏰⏱⏳⧖⧗'  LCD_STR_CLOCK (0x05)
 #endif
 
+// ◴◵◶◷
     //{IV(''), 0x00, 0}, // Marlin special: ''  LCD_STR_BEDTEMP (0x07)
     {IV('🌡'), 0x02, 0}, // Marlin special: '🌡'  LCD_STR_THERMOMETER (0x08)
     {IV('📂'), 0x05, 0}, // Marlin special: '📁📂'  LCD_STR_FOLDER (0x02)
