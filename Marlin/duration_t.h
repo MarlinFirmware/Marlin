@@ -146,13 +146,11 @@ struct duration_t {
    *  11d 12:33
    */
   void toDigital(char *buffer, bool with_days=false) const {
-    int d = this->day() % 365,
-        h = this->hour()% 24,
-        m = this->minute() % 60;
+    int m = this->minute() % 60;
     if (with_days)
-      sprintf_P(buffer, PSTR("%id %02i:%02i"), d, h, m);
+      sprintf_P(buffer, PSTR("%id %02i:%02i"), (int)this->day(), (int)(this->hour() % 24), m);
     else
-      sprintf_P(buffer, PSTR("%02i:%02i"), h, m);
+      sprintf_P(buffer, PSTR("%02i:%02i"), (int)this->hour(), m);
   }
 };
 
