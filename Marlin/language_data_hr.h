@@ -27,9 +27,9 @@ const u8g_fntpgm_uint8_t fontpage_2_254_254[32] U8G_FONT_SECTION("fontpage_2_254
 
 #define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
-    FONTDATA_ITEM(2, 135, 135, fontpage_2_135_135),
-    FONTDATA_ITEM(2, 140, 141, fontpage_2_140_141),
-    FONTDATA_ITEM(2, 145, 145, fontpage_2_145_145),
-    FONTDATA_ITEM(2, 225, 225, fontpage_2_225_225),
-    FONTDATA_ITEM(2, 254, 254, fontpage_2_254_254),
+    FONTDATA_ITEM(2, 135, 135, fontpage_2_135_135), // 'ć' -- 'ć'
+    FONTDATA_ITEM(2, 140, 141, fontpage_2_140_141), // 'Č' -- 'č'
+    FONTDATA_ITEM(2, 145, 145, fontpage_2_145_145), // 'đ' -- 'đ'
+    FONTDATA_ITEM(2, 225, 225, fontpage_2_225_225), // 'š' -- 'š'
+    FONTDATA_ITEM(2, 254, 254, fontpage_2_254_254), // 'ž' -- 'ž'
 };

@@ -135,6 +135,10 @@ const u8g_fntpgm_uint8_t fontpage_164_182_183[73] U8G_FONT_SECTION("fontpage_164
   0xA0,0x10,0xA0,0x7E,0xA0,0x52,0xA0,0x52,0x20,0x56,0x20,0x10,0xE0,0x0B,0x0B,0x16,
   0x0C,0x00,0xFF,0x7E,0x20,0x42,0x20,0x7E,0xA0,0x48,0xA0,0x48,0xA0,0x7E,0xA0,0x6A,
   0xA0,0xAA,0xA0,0xAA,0xA0,0x2E,0x20,0x08,0xE0};
+const u8g_fntpgm_uint8_t fontpage_164_205_205[45] U8G_FONT_SECTION("fontpage_164_205_205") = {
+  0x00,0x17,0x13,0x00,0xFD,0x00,0x00,0x00,0x00,0x00,0xCD,0xCD,0x00,0x0A,0xFF,0x00,
+  0x00,0x0A,0x0B,0x16,0x0C,0x01,0xFF,0x21,0x00,0x12,0x00,0xFF,0xC0,0x00,0x00,0x7A,
+  0x80,0x4A,0x80,0x7A,0x80,0x4A,0x80,0x7A,0x80,0x48,0x80,0x5B,0x80};
 const u8g_fntpgm_uint8_t fontpage_165_160_160[45] U8G_FONT_SECTION("fontpage_165_160_160") = {
   0x00,0x17,0x13,0x00,0xFD,0x00,0x00,0x00,0x00,0x00,0xA0,0xA0,0x00,0x0A,0xFF,0x00,
   0x00,0x0B,0x0B,0x16,0x0C,0x00,0xFF,0x20,0x00,0x20,0x00,0xFD,0xE0,0x25,0x20,0x25,
@@ -307,10 +311,12 @@ const u8g_fntpgm_uint8_t fontpage_190_128_128[45] U8G_FONT_SECTION("fontpage_190
   0x00,0x17,0x13,0x00,0xFD,0x00,0x00,0x00,0x00,0x00,0x80,0x80,0x00,0x0A,0xFF,0x00,
   0x00,0x0B,0x0B,0x16,0x0C,0x00,0xFF,0x7F,0xC0,0x11,0x00,0x11,0x00,0x11,0x00,0x11,
   0x00,0xFF,0xE0,0x11,0x00,0x21,0x00,0x21,0x00,0x41,0x00,0x81,0x00};
-const u8g_fntpgm_uint8_t fontpage_190_210_210[45] U8G_FONT_SECTION("fontpage_190_210_210") = {
-  0x00,0x17,0x13,0x00,0xFD,0x00,0x00,0x00,0x00,0x00,0xD2,0xD2,0x00,0x0A,0xFF,0x00,
+const u8g_fntpgm_uint8_t fontpage_190_210_211[73] U8G_FONT_SECTION("fontpage_190_210_211") = {
+  0x00,0x17,0x13,0x00,0xFD,0x00,0x00,0x00,0x00,0x00,0xD2,0xD3,0x00,0x0A,0xFF,0x00,
   0x00,0x0A,0x0B,0x16,0x0C,0x01,0xFF,0x10,0x00,0x17,0xC0,0x90,0x40,0x90,0x40,0x90,
-  0x40,0x97,0xC0,0x90,0x40,0x90,0x40,0x20,0x40,0x4F,0xC0,0x80,0x40};
+  0x40,0x97,0xC0,0x90,0x40,0x90,0x40,0x20,0x40,0x4F,0xC0,0x80,0x40,0x09,0x0B,0x16,
+  0x0C,0x01,0xFF,0x08,0x00,0x88,0x80,0x49,0x00,0x2A,0x00,0xFF,0x80,0x00,0x80,0x00,
+  0x80,0x7F,0x80,0x00,0x80,0x00,0x80,0xFF,0x80};
 const u8g_fntpgm_uint8_t fontpage_191_132_133[73] U8G_FONT_SECTION("fontpage_191_132_133") = {
   0x00,0x17,0x13,0x00,0xFD,0x00,0x00,0x00,0x00,0x00,0x84,0x85,0x00,0x0A,0xFF,0x00,
   0x00,0x0B,0x0B,0x16,0x0C,0x00,0xFF,0x17,0xC0,0x20,0x80,0x49,0x00,0x92,0x80,0x24,
@@ -707,177 +713,178 @@ const u8g_fntpgm_uint8_t fontpage_510_154_154[30] U8G_FONT_SECTION("fontpage_510
 
 #define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
-    FONTDATA_ITEM(1, 179, 179, fontpage_1_179_179),
-    FONTDATA_ITEM(69, 191, 191, fontpage_69_191_191),
-    FONTDATA_ITEM(156, 138, 139, fontpage_156_138_139),
-    FONTDATA_ITEM(156, 157, 157, fontpage_156_157_157),
-    FONTDATA_ITEM(156, 170, 170, fontpage_156_170_170),
-    FONTDATA_ITEM(156, 173, 173, fontpage_156_173_173),
-    FONTDATA_ITEM(156, 187, 187, fontpage_156_187_187),
-    FONTDATA_ITEM(156, 203, 203, fontpage_156_203_203),
-    FONTDATA_ITEM(157, 134, 134, fontpage_157_134_134),
-    FONTDATA_ITEM(157, 142, 142, fontpage_157_142_142),
-    FONTDATA_ITEM(157, 206, 206, fontpage_157_206_206),
-    FONTDATA_ITEM(158, 145, 145, fontpage_158_145_145),
-    FONTDATA_ITEM(158, 205, 206, fontpage_158_205_206),
-    FONTDATA_ITEM(158, 220, 220, fontpage_158_220_220),
-    FONTDATA_ITEM(159, 155, 155, fontpage_159_155_155),
-    FONTDATA_ITEM(159, 221, 221, fontpage_159_221_221),
-    FONTDATA_ITEM(159, 225, 225, fontpage_159_225_225),
-    FONTDATA_ITEM(159, 238, 238, fontpage_159_238_238),
-    FONTDATA_ITEM(160, 188, 188, fontpage_160_188_188),
-    FONTDATA_ITEM(160, 207, 207, fontpage_160_207_207),
-    FONTDATA_ITEM(160, 220, 220, fontpage_160_220_220),
-    FONTDATA_ITEM(162, 200, 200, fontpage_162_200_200),
-    FONTDATA_ITEM(162, 229, 229, fontpage_162_229_229),
-    FONTDATA_ITEM(162, 232, 232, fontpage_162_232_232),
-    FONTDATA_ITEM(162, 241, 241, fontpage_162_241_241),
-    FONTDATA_ITEM(162, 243, 243, fontpage_162_243_243),
-    FONTDATA_ITEM(163, 198, 198, fontpage_163_198_198),
-    FONTDATA_ITEM(163, 250, 251, fontpage_163_250_251),
-    FONTDATA_ITEM(164, 134, 134, fontpage_164_134_134),
-    FONTDATA_ITEM(164, 157, 157, fontpage_164_157_157),
-    FONTDATA_ITEM(164, 182, 183, fontpage_164_182_183),
-    FONTDATA_ITEM(165, 160, 160, fontpage_165_160_160),
-    FONTDATA_ITEM(165, 168, 168, fontpage_165_168_168),
-    FONTDATA_ITEM(166, 150, 150, fontpage_166_150_150),
-    FONTDATA_ITEM(166, 207, 207, fontpage_166_207_207),
-    FONTDATA_ITEM(166, 213, 213, fontpage_166_213_213),
-    FONTDATA_ITEM(166, 225, 225, fontpage_166_225_225),
-    FONTDATA_ITEM(166, 240, 240, fontpage_166_240_240),
-    FONTDATA_ITEM(166, 248, 248, fontpage_166_248_248),
-    FONTDATA_ITEM(167, 159, 159, fontpage_167_159_159),
-    FONTDATA_ITEM(167, 214, 214, fontpage_167_214_214),
-    FONTDATA_ITEM(167, 216, 216, fontpage_167_216_216),
-    FONTDATA_ITEM(167, 240, 240, fontpage_167_240_240),
-    FONTDATA_ITEM(168, 142, 142, fontpage_168_142_142),
-    FONTDATA_ITEM(168, 175, 175, fontpage_168_175_175),
-    FONTDATA_ITEM(171, 183, 183, fontpage_171_183_183),
-    FONTDATA_ITEM(172, 180, 180, fontpage_172_180_180),
-    FONTDATA_ITEM(173, 222, 222, fontpage_173_222_222),
-    FONTDATA_ITEM(174, 168, 168, fontpage_174_168_168),
-    FONTDATA_ITEM(174, 215, 215, fontpage_174_215_215),
-    FONTDATA_ITEM(178, 135, 135, fontpage_178_135_135),
-    FONTDATA_ITEM(178, 141, 141, fontpage_178_141_141),
-    FONTDATA_ITEM(178, 150, 150, fontpage_178_150_150),
-    FONTDATA_ITEM(178, 154, 154, fontpage_178_154_154),
-    FONTDATA_ITEM(178, 167, 167, fontpage_178_167_167),
-    FONTDATA_ITEM(178, 169, 169, fontpage_178_169_169),
-    FONTDATA_ITEM(178, 177, 177, fontpage_178_177_177),
-    FONTDATA_ITEM(179, 203, 203, fontpage_179_203_203),
-    FONTDATA_ITEM(182, 216, 216, fontpage_182_216_216),
-    FONTDATA_ITEM(183, 137, 137, fontpage_183_137_137),
-    FONTDATA_ITEM(183, 140, 140, fontpage_183_140_140),
-    FONTDATA_ITEM(183, 185, 185, fontpage_183_185_185),
-    FONTDATA_ITEM(183, 249, 249, fontpage_183_249_249),
-    FONTDATA_ITEM(184, 143, 143, fontpage_184_143_143),
-    FONTDATA_ITEM(184, 177, 177, fontpage_184_177_177),
-    FONTDATA_ITEM(184, 207, 207, fontpage_184_207_207),
-    FONTDATA_ITEM(187, 229, 229, fontpage_187_229_229),
-    FONTDATA_ITEM(187, 242, 242, fontpage_187_242_242),
-    FONTDATA_ITEM(188, 243, 243, fontpage_188_243_243),
-    FONTDATA_ITEM(188, 246, 246, fontpage_188_246_246),
-    FONTDATA_ITEM(189, 138, 138, fontpage_189_138_138),
-    FONTDATA_ITEM(189, 148, 148, fontpage_189_148_148),
-    FONTDATA_ITEM(189, 166, 166, fontpage_189_166_166),
-    FONTDATA_ITEM(190, 128, 128, fontpage_190_128_128),
-    FONTDATA_ITEM(190, 210, 210, fontpage_190_210_210),
-    FONTDATA_ITEM(191, 132, 133, fontpage_191_132_133),
-    FONTDATA_ITEM(191, 174, 174, fontpage_191_174_174),
-    FONTDATA_ITEM(191, 195, 195, fontpage_191_195_195),
-    FONTDATA_ITEM(192, 187, 187, fontpage_192_187_187),
-    FONTDATA_ITEM(192, 226, 226, fontpage_192_226_226),
-    FONTDATA_ITEM(192, 239, 239, fontpage_192_239_239),
-    FONTDATA_ITEM(196, 144, 144, fontpage_196_144_144),
-    FONTDATA_ITEM(196, 183, 183, fontpage_196_183_183),
-    FONTDATA_ITEM(196, 199, 199, fontpage_196_199_199),
-    FONTDATA_ITEM(196, 203, 203, fontpage_196_203_203),
-    FONTDATA_ITEM(196, 211, 211, fontpage_196_211_211),
-    FONTDATA_ITEM(197, 150, 150, fontpage_197_150_150),
-    FONTDATA_ITEM(197, 189, 189, fontpage_197_189_189),
-    FONTDATA_ITEM(197, 212, 212, fontpage_197_212_212),
-    FONTDATA_ITEM(197, 233, 233, fontpage_197_233_233),
-    FONTDATA_ITEM(198, 137, 137, fontpage_198_137_137),
-    FONTDATA_ITEM(198, 161, 161, fontpage_198_161_161),
-    FONTDATA_ITEM(198, 164, 164, fontpage_198_164_164),
-    FONTDATA_ITEM(198, 226, 226, fontpage_198_226_226),
-    FONTDATA_ITEM(199, 137, 137, fontpage_199_137_137),
-    FONTDATA_ITEM(199, 162, 162, fontpage_199_162_162),
-    FONTDATA_ITEM(199, 167, 167, fontpage_199_167_167),
-    FONTDATA_ITEM(199, 210, 210, fontpage_199_210_210),
-    FONTDATA_ITEM(202, 182, 182, fontpage_202_182_182),
-    FONTDATA_ITEM(202, 185, 185, fontpage_202_185_185),
-    FONTDATA_ITEM(202, 240, 240, fontpage_202_240_240),
-    FONTDATA_ITEM(202, 244, 244, fontpage_202_244_244),
-    FONTDATA_ITEM(203, 153, 153, fontpage_203_153_153),
-    FONTDATA_ITEM(203, 176, 176, fontpage_203_176_176),
-    FONTDATA_ITEM(203, 224, 224, fontpage_203_224_224),
-    FONTDATA_ITEM(203, 246, 246, fontpage_203_246_246),
-    FONTDATA_ITEM(205, 130, 130, fontpage_205_130_130),
-    FONTDATA_ITEM(205, 244, 244, fontpage_205_244_244),
-    FONTDATA_ITEM(206, 128, 128, fontpage_206_128_128),
-    FONTDATA_ITEM(206, 186, 186, fontpage_206_186_186),
-    FONTDATA_ITEM(206, 192, 192, fontpage_206_192_192),
-    FONTDATA_ITEM(206, 229, 229, fontpage_206_229_229),
-    FONTDATA_ITEM(206, 255, 255, fontpage_206_255_255),
-    FONTDATA_ITEM(208, 161, 161, fontpage_208_161_161),
-    FONTDATA_ITEM(214, 226, 226, fontpage_214_226_226),
-    FONTDATA_ITEM(214, 229, 229, fontpage_214_229_229),
-    FONTDATA_ITEM(215, 212, 212, fontpage_215_212_212),
-    FONTDATA_ITEM(217, 226, 226, fontpage_217_226_226),
-    FONTDATA_ITEM(218, 203, 203, fontpage_218_203_203),
-    FONTDATA_ITEM(219, 136, 136, fontpage_219_136_136),
-    FONTDATA_ITEM(220, 169, 169, fontpage_220_169_169),
-    FONTDATA_ITEM(221, 144, 144, fontpage_221_144_144),
-    FONTDATA_ITEM(225, 185, 185, fontpage_225_185_185),
-    FONTDATA_ITEM(225, 237, 237, fontpage_225_237_237),
-    FONTDATA_ITEM(228, 249, 249, fontpage_228_249_249),
-    FONTDATA_ITEM(231, 135, 135, fontpage_231_135_135),
-    FONTDATA_ITEM(234, 168, 168, fontpage_234_168_168),
-    FONTDATA_ITEM(234, 181, 181, fontpage_234_181_181),
-    FONTDATA_ITEM(237, 244, 244, fontpage_237_244_244),
-    FONTDATA_ITEM(238, 160, 160, fontpage_238_160_160),
-    FONTDATA_ITEM(243, 239, 239, fontpage_243_239_239),
-    FONTDATA_ITEM(243, 251, 251, fontpage_243_251_251),
-    FONTDATA_ITEM(246, 201, 201, fontpage_246_201_201),
-    FONTDATA_ITEM(253, 200, 200, fontpage_253_200_200),
-    FONTDATA_ITEM(253, 223, 223, fontpage_253_223_223),
-    FONTDATA_ITEM(253, 231, 231, fontpage_253_231_231),
-    FONTDATA_ITEM(253, 234, 234, fontpage_253_234_234),
-    FONTDATA_ITEM(253, 237, 237, fontpage_253_237_237),
-    FONTDATA_ITEM(254, 238, 238, fontpage_254_238_238),
-    FONTDATA_ITEM(259, 234, 234, fontpage_259_234_234),
-    FONTDATA_ITEM(263, 220, 220, fontpage_263_220_220),
-    FONTDATA_ITEM(273, 171, 171, fontpage_273_171_171),
-    FONTDATA_ITEM(273, 197, 197, fontpage_273_197_197),
-    FONTDATA_ITEM(279, 161, 161, fontpage_279_161_161),
-    FONTDATA_ITEM(279, 174, 174, fontpage_279_174_174),
-    FONTDATA_ITEM(279, 190, 190, fontpage_279_190_190),
-    FONTDATA_ITEM(279, 239, 239, fontpage_279_239_239),
-    FONTDATA_ITEM(279, 247, 247, fontpage_279_247_247),
-    FONTDATA_ITEM(280, 131, 131, fontpage_280_131_131),
-    FONTDATA_ITEM(282, 165, 165, fontpage_282_165_165),
-    FONTDATA_ITEM(286, 244, 244, fontpage_286_244_244),
-    FONTDATA_ITEM(286, 253, 253, fontpage_286_253_253),
-    FONTDATA_ITEM(287, 208, 208, fontpage_287_208_208),
-    FONTDATA_ITEM(287, 219, 219, fontpage_287_219_219),
-    FONTDATA_ITEM(288, 128, 128, fontpage_288_128_128),
-    FONTDATA_ITEM(288, 137, 137, fontpage_288_137_137),
-    FONTDATA_ITEM(288, 159, 159, fontpage_288_159_159),
-    FONTDATA_ITEM(289, 232, 232, fontpage_289_232_232),
-    FONTDATA_ITEM(291, 205, 205, fontpage_291_205_205),
-    FONTDATA_ITEM(291, 207, 207, fontpage_291_207_207),
-    FONTDATA_ITEM(297, 136, 136, fontpage_297_136_136),
-    FONTDATA_ITEM(298, 153, 153, fontpage_298_153_153),
-    FONTDATA_ITEM(298, 174, 174, fontpage_298_174_174),
-    FONTDATA_ITEM(298, 255, 255, fontpage_298_255_255),
-    FONTDATA_ITEM(299, 237, 237, fontpage_299_237_237),
-    FONTDATA_ITEM(299, 244, 244, fontpage_299_244_244),
-    FONTDATA_ITEM(300, 205, 205, fontpage_300_205_205),
-    FONTDATA_ITEM(302, 222, 222, fontpage_302_222_222),
-    FONTDATA_ITEM(304, 249, 249, fontpage_304_249_249),
-    FONTDATA_ITEM(305, 132, 132, fontpage_305_132_132),
-    FONTDATA_ITEM(305, 206, 206, fontpage_305_206_206),
-    FONTDATA_ITEM(309, 216, 216, fontpage_309_216_216),
-    FONTDATA_ITEM(510, 154, 154, fontpage_510_154_154),
+    FONTDATA_ITEM(1, 179, 179, fontpage_1_179_179), // '³' -- '³'
+    FONTDATA_ITEM(69, 191, 191, fontpage_69_191_191), // '⊿' -- '⊿'
+    FONTDATA_ITEM(156, 138, 139, fontpage_156_138_139), // '上' -- '下'
+    FONTDATA_ITEM(156, 157, 157, fontpage_156_157_157), // '丝' -- '丝'
+    FONTDATA_ITEM(156, 170, 170, fontpage_156_170_170), // '个' -- '个'
+    FONTDATA_ITEM(156, 173, 173, fontpage_156_173_173), // '中' -- '中'
+    FONTDATA_ITEM(156, 187, 187, fontpage_156_187_187), // '主' -- '主'
+    FONTDATA_ITEM(156, 203, 203, fontpage_156_203_203), // '之' -- '之'
+    FONTDATA_ITEM(157, 134, 134, fontpage_157_134_134), // '了' -- '了'
+    FONTDATA_ITEM(157, 142, 142, fontpage_157_142_142), // '于' -- '于'
+    FONTDATA_ITEM(157, 206, 206, fontpage_157_206_206), // '从' -- '从'
+    FONTDATA_ITEM(158, 145, 145, fontpage_158_145_145), // '休' -- '休'
+    FONTDATA_ITEM(158, 205, 206, fontpage_158_205_206), // '位' -- '低'
+    FONTDATA_ITEM(158, 220, 220, fontpage_158_220_220), // '作' -- '作'
+    FONTDATA_ITEM(159, 155, 155, fontpage_159_155_155), // '供' -- '供'
+    FONTDATA_ITEM(159, 221, 221, fontpage_159_221_221), // '保' -- '保'
+    FONTDATA_ITEM(159, 225, 225, fontpage_159_225_225), // '信' -- '信'
+    FONTDATA_ITEM(159, 238, 238, fontpage_159_238_238), // '修' -- '修'
+    FONTDATA_ITEM(160, 188, 188, fontpage_160_188_188), // '值' -- '值'
+    FONTDATA_ITEM(160, 207, 207, fontpage_160_207_207), // '偏' -- '偏'
+    FONTDATA_ITEM(160, 220, 220, fontpage_160_220_220), // '停' -- '停'
+    FONTDATA_ITEM(162, 200, 200, fontpage_162_200_200), // '先' -- '先'
+    FONTDATA_ITEM(162, 229, 229, fontpage_162_229_229), // '入' -- '入'
+    FONTDATA_ITEM(162, 232, 232, fontpage_162_232_232), // '全' -- '全'
+    FONTDATA_ITEM(162, 241, 241, fontpage_162_241_241), // '共' -- '共'
+    FONTDATA_ITEM(162, 243, 243, fontpage_162_243_243), // '关' -- '关'
+    FONTDATA_ITEM(163, 198, 198, fontpage_163_198_198), // '准' -- '准'
+    FONTDATA_ITEM(163, 250, 251, fontpage_163_250_251), // '出' -- '击'
+    FONTDATA_ITEM(164, 134, 134, fontpage_164_134_134), // '分' -- '分'
+    FONTDATA_ITEM(164, 157, 157, fontpage_164_157_157), // '初' -- '初'
+    FONTDATA_ITEM(164, 182, 183, fontpage_164_182_183), // '制' -- '刷'
+    FONTDATA_ITEM(164, 205, 205, fontpage_164_205_205), // '前' -- '前'
+    FONTDATA_ITEM(165, 160, 160, fontpage_165_160_160), // '加' -- '加'
+    FONTDATA_ITEM(165, 168, 168, fontpage_165_168_168), // '动' -- '动'
+    FONTDATA_ITEM(166, 150, 150, fontpage_166_150_150), // '化' -- '化'
+    FONTDATA_ITEM(166, 207, 207, fontpage_166_207_207), // '协' -- '协'
+    FONTDATA_ITEM(166, 213, 213, fontpage_166_213_213), // '单' -- '单'
+    FONTDATA_ITEM(166, 225, 225, fontpage_166_225_225), // '卡' -- '卡'
+    FONTDATA_ITEM(166, 240, 240, fontpage_166_240_240), // '印' -- '印'
+    FONTDATA_ITEM(166, 248, 248, fontpage_166_248_248), // '卸' -- '卸'
+    FONTDATA_ITEM(167, 159, 159, fontpage_167_159_159), // '原' -- '原'
+    FONTDATA_ITEM(167, 214, 214, fontpage_167_214_214), // '取' -- '取'
+    FONTDATA_ITEM(167, 216, 216, fontpage_167_216_216), // '变' -- '变'
+    FONTDATA_ITEM(167, 240, 240, fontpage_167_240_240), // '台' -- '台'
+    FONTDATA_ITEM(168, 142, 142, fontpage_168_142_142), // '后' -- '后'
+    FONTDATA_ITEM(168, 175, 175, fontpage_168_175_175), // '启' -- '启'
+    FONTDATA_ITEM(171, 183, 183, fontpage_171_183_183), // '喷' -- '喷'
+    FONTDATA_ITEM(172, 180, 180, fontpage_172_180_180), // '嘴' -- '嘴'
+    FONTDATA_ITEM(173, 222, 222, fontpage_173_222_222), // '回' -- '回'
+    FONTDATA_ITEM(174, 168, 168, fontpage_174_168_168), // '在' -- '在'
+    FONTDATA_ITEM(174, 215, 215, fontpage_174_215_215), // '块' -- '块'
+    FONTDATA_ITEM(178, 135, 135, fontpage_178_135_135), // '备' -- '备'
+    FONTDATA_ITEM(178, 141, 141, fontpage_178_141_141), // '复' -- '复'
+    FONTDATA_ITEM(178, 150, 150, fontpage_178_150_150), // '外' -- '外'
+    FONTDATA_ITEM(178, 154, 154, fontpage_178_154_154), // '多' -- '多'
+    FONTDATA_ITEM(178, 167, 167, fontpage_178_167_167), // '大' -- '大'
+    FONTDATA_ITEM(178, 169, 169, fontpage_178_169_169), // '天' -- '天'
+    FONTDATA_ITEM(178, 177, 177, fontpage_178_177_177), // '失' -- '失'
+    FONTDATA_ITEM(179, 203, 203, fontpage_179_203_203), // '始' -- '始'
+    FONTDATA_ITEM(182, 216, 216, fontpage_182_216_216), // '存' -- '存'
+    FONTDATA_ITEM(183, 137, 137, fontpage_183_137_137), // '安' -- '安'
+    FONTDATA_ITEM(183, 140, 140, fontpage_183_140_140), // '完' -- '完'
+    FONTDATA_ITEM(183, 185, 185, fontpage_183_185_185), // '容' -- '容'
+    FONTDATA_ITEM(183, 249, 249, fontpage_183_249_249), // '对' -- '对'
+    FONTDATA_ITEM(184, 143, 143, fontpage_184_143_143), // '小' -- '小'
+    FONTDATA_ITEM(184, 177, 177, fontpage_184_177_177), // '就' -- '就'
+    FONTDATA_ITEM(184, 207, 207, fontpage_184_207_207), // '屏' -- '屏'
+    FONTDATA_ITEM(187, 229, 229, fontpage_187_229_229), // '工' -- '工'
+    FONTDATA_ITEM(187, 242, 242, fontpage_187_242_242), // '已' -- '已'
+    FONTDATA_ITEM(188, 243, 243, fontpage_188_243_243), // '平' -- '平'
+    FONTDATA_ITEM(188, 246, 246, fontpage_188_246_246), // '并' -- '并'
+    FONTDATA_ITEM(189, 138, 138, fontpage_189_138_138), // '床' -- '床'
+    FONTDATA_ITEM(189, 148, 148, fontpage_189_148_148), // '应' -- '应'
+    FONTDATA_ITEM(189, 166, 166, fontpage_189_166_166), // '度' -- '度'
+    FONTDATA_ITEM(190, 128, 128, fontpage_190_128_128), // '开' -- '开'
+    FONTDATA_ITEM(190, 210, 211, fontpage_190_210_211), // '归' -- '当'
+    FONTDATA_ITEM(191, 132, 133, fontpage_191_132_133), // '径' -- '待'
+    FONTDATA_ITEM(191, 174, 174, fontpage_191_174_174), // '微' -- '微'
+    FONTDATA_ITEM(191, 195, 195, fontpage_191_195_195), // '心' -- '心'
+    FONTDATA_ITEM(192, 187, 187, fontpage_192_187_187), // '总' -- '总'
+    FONTDATA_ITEM(192, 226, 226, fontpage_192_226_226), // '恢' -- '恢'
+    FONTDATA_ITEM(192, 239, 239, fontpage_192_239_239), // '息' -- '息'
+    FONTDATA_ITEM(196, 144, 144, fontpage_196_144_144), // '成' -- '成'
+    FONTDATA_ITEM(196, 183, 183, fontpage_196_183_183), // '户' -- '户'
+    FONTDATA_ITEM(196, 199, 199, fontpage_196_199_199), // '扇' -- '扇'
+    FONTDATA_ITEM(196, 203, 203, fontpage_196_203_203), // '手' -- '手'
+    FONTDATA_ITEM(196, 211, 211, fontpage_196_211_211), // '打' -- '打'
+    FONTDATA_ITEM(197, 150, 150, fontpage_197_150_150), // '抖' -- '抖'
+    FONTDATA_ITEM(197, 189, 189, fontpage_197_189_189), // '抽' -- '抽'
+    FONTDATA_ITEM(197, 212, 212, fontpage_197_212_212), // '拔' -- '拔'
+    FONTDATA_ITEM(197, 233, 233, fontpage_197_233_233), // '择' -- '择'
+    FONTDATA_ITEM(198, 137, 137, fontpage_198_137_137), // '按' -- '按'
+    FONTDATA_ITEM(198, 161, 161, fontpage_198_161_161), // '挡' -- '挡'
+    FONTDATA_ITEM(198, 164, 164, fontpage_198_164_164), // '挤' -- '挤'
+    FONTDATA_ITEM(198, 226, 226, fontpage_198_226_226), // '换' -- '换'
+    FONTDATA_ITEM(199, 137, 137, fontpage_199_137_137), // '掉' -- '掉'
+    FONTDATA_ITEM(199, 162, 162, fontpage_199_162_162), // '探' -- '探'
+    FONTDATA_ITEM(199, 167, 167, fontpage_199_167_167), // '控' -- '控'
+    FONTDATA_ITEM(199, 210, 210, fontpage_199_210_210), // '插' -- '插'
+    FONTDATA_ITEM(202, 182, 182, fontpage_202_182_182), // '收' -- '收'
+    FONTDATA_ITEM(202, 185, 185, fontpage_202_185_185), // '改' -- '改'
+    FONTDATA_ITEM(202, 240, 240, fontpage_202_240_240), // '数' -- '数'
+    FONTDATA_ITEM(202, 244, 244, fontpage_202_244_244), // '整' -- '整'
+    FONTDATA_ITEM(203, 153, 153, fontpage_203_153_153), // '料' -- '料'
+    FONTDATA_ITEM(203, 176, 176, fontpage_203_176_176), // '新' -- '新'
+    FONTDATA_ITEM(203, 224, 224, fontpage_203_224_224), // '无' -- '无'
+    FONTDATA_ITEM(203, 246, 246, fontpage_203_246_246), // '时' -- '时'
+    FONTDATA_ITEM(205, 130, 130, fontpage_205_130_130), // '暂' -- '暂'
+    FONTDATA_ITEM(205, 244, 244, fontpage_205_244_244), // '更' -- '更'
+    FONTDATA_ITEM(206, 128, 128, fontpage_206_128_128), // '最' -- '最'
+    FONTDATA_ITEM(206, 186, 186, fontpage_206_186_186), // '机' -- '机'
+    FONTDATA_ITEM(206, 192, 192, fontpage_206_192_192), // '杀' -- '杀'
+    FONTDATA_ITEM(206, 229, 229, fontpage_206_229_229), // '来' -- '来'
+    FONTDATA_ITEM(206, 255, 255, fontpage_206_255_255), // '板' -- '板'
+    FONTDATA_ITEM(208, 161, 161, fontpage_208_161_161), // '校' -- '校'
+    FONTDATA_ITEM(214, 226, 226, fontpage_214_226_226), // '止' -- '止'
+    FONTDATA_ITEM(214, 229, 229, fontpage_214_229_229), // '步' -- '步'
+    FONTDATA_ITEM(215, 212, 212, fontpage_215_212_212), // '比' -- '比'
+    FONTDATA_ITEM(217, 226, 226, fontpage_217_226_226), // '波' -- '波'
+    FONTDATA_ITEM(218, 203, 203, fontpage_218_203_203), // '测' -- '测'
+    FONTDATA_ITEM(219, 136, 136, fontpage_219_136_136), // '消' -- '消'
+    FONTDATA_ITEM(220, 169, 169, fontpage_220_169_169), // '温' -- '温'
+    FONTDATA_ITEM(221, 144, 144, fontpage_221_144_144), // '源' -- '源'
+    FONTDATA_ITEM(225, 185, 185, fontpage_225_185_185), // '点' -- '点'
+    FONTDATA_ITEM(225, 237, 237, fontpage_225_237_237), // '热' -- '热'
+    FONTDATA_ITEM(228, 249, 249, fontpage_228_249_249), // '特' -- '特'
+    FONTDATA_ITEM(231, 135, 135, fontpage_231_135_135), // '率' -- '率'
+    FONTDATA_ITEM(234, 168, 168, fontpage_234_168_168), // '用' -- '用'
+    FONTDATA_ITEM(234, 181, 181, fontpage_234_181_181), // '电' -- '电'
+    FONTDATA_ITEM(237, 244, 244, fontpage_237_244_244), // '直' -- '直'
+    FONTDATA_ITEM(238, 160, 160, fontpage_238_160_160), // '眠' -- '眠'
+    FONTDATA_ITEM(243, 239, 239, fontpage_243_239_239), // '积' -- '积'
+    FONTDATA_ITEM(243, 251, 251, fontpage_243_251_251), // '移' -- '移'
+    FONTDATA_ITEM(246, 201, 201, fontpage_246_201_201), // '等' -- '等'
+    FONTDATA_ITEM(253, 200, 200, fontpage_253_200_200), // '终' -- '终'
+    FONTDATA_ITEM(253, 223, 223, fontpage_253_223_223), // '统' -- '统'
+    FONTDATA_ITEM(253, 231, 231, fontpage_253_231_231), // '继' -- '继'
+    FONTDATA_ITEM(253, 234, 234, fontpage_253_234_234), // '绪' -- '绪'
+    FONTDATA_ITEM(253, 237, 237, fontpage_253_237_237), // '续' -- '续'
+    FONTDATA_ITEM(254, 238, 238, fontpage_254_238_238), // '置' -- '置'
+    FONTDATA_ITEM(259, 234, 234, fontpage_259_234_234), // '自' -- '自'
+    FONTDATA_ITEM(263, 220, 220, fontpage_263_220_220), // '菜' -- '菜'
+    FONTDATA_ITEM(273, 171, 171, fontpage_273_171_171), // '被' -- '被'
+    FONTDATA_ITEM(273, 197, 197, fontpage_273_197_197), // '装' -- '装'
+    FONTDATA_ITEM(279, 161, 161, fontpage_279_161_161), // '计' -- '计'
+    FONTDATA_ITEM(279, 174, 174, fontpage_279_174_174), // '议' -- '议'
+    FONTDATA_ITEM(279, 190, 190, fontpage_279_190_190), // '设' -- '设'
+    FONTDATA_ITEM(279, 239, 239, fontpage_279_239_239), // '误' -- '误'
+    FONTDATA_ITEM(279, 247, 247, fontpage_279_247_247), // '请' -- '请'
+    FONTDATA_ITEM(280, 131, 131, fontpage_280_131_131), // '调' -- '调'
+    FONTDATA_ITEM(282, 165, 165, fontpage_282_165_165), // '败' -- '败'
+    FONTDATA_ITEM(286, 244, 244, fontpage_286_244_244), // '轴' -- '轴'
+    FONTDATA_ITEM(286, 253, 253, fontpage_286_253_253), // '载' -- '载'
+    FONTDATA_ITEM(287, 208, 208, fontpage_287_208_208), // '运' -- '运'
+    FONTDATA_ITEM(287, 219, 219, fontpage_287_219_219), // '进' -- '进'
+    FONTDATA_ITEM(288, 128, 128, fontpage_288_128_128), // '退' -- '退'
+    FONTDATA_ITEM(288, 137, 137, fontpage_288_137_137), // '选' -- '选'
+    FONTDATA_ITEM(288, 159, 159, fontpage_288_159_159), // '速' -- '速'
+    FONTDATA_ITEM(289, 232, 232, fontpage_289_232_232), // '部' -- '部'
+    FONTDATA_ITEM(291, 205, 205, fontpage_291_205_205), // '重' -- '重'
+    FONTDATA_ITEM(291, 207, 207, fontpage_291_207_207), // '量' -- '量'
+    FONTDATA_ITEM(297, 136, 136, fontpage_297_136_136), // '针' -- '针'
+    FONTDATA_ITEM(298, 153, 153, fontpage_298_153_153), // '错' -- '错'
+    FONTDATA_ITEM(298, 174, 174, fontpage_298_174_174), // '键' -- '键'
+    FONTDATA_ITEM(298, 255, 255, fontpage_298_255_255), // '长' -- '长'
+    FONTDATA_ITEM(299, 237, 237, fontpage_299_237_237), // '闭' -- '闭'
+    FONTDATA_ITEM(299, 244, 244, fontpage_299_244_244), // '间' -- '间'
+    FONTDATA_ITEM(300, 205, 205, fontpage_300_205_205), // '降' -- '降'
+    FONTDATA_ITEM(302, 222, 222, fontpage_302_222_222), // '非' -- '非'
+    FONTDATA_ITEM(304, 249, 249, fontpage_304_249_249), // '项' -- '项'
+    FONTDATA_ITEM(305, 132, 132, fontpage_305_132_132), // '预' -- '预'
+    FONTDATA_ITEM(305, 206, 206, fontpage_305_206_206), // '风' -- '风'
+    FONTDATA_ITEM(309, 216, 216, fontpage_309_216_216), // '高' -- '高'
+    FONTDATA_ITEM(510, 154, 154, fontpage_510_154_154), // '：' -- '：'
 };

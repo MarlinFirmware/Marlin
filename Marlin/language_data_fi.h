@@ -16,7 +16,7 @@ const u8g_fntpgm_uint8_t fontpage_1_246_246[31] U8G_FONT_SECTION("fontpage_1_246
 
 #define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
-    FONTDATA_ITEM(1, 179, 179, fontpage_1_179_179),
-    FONTDATA_ITEM(1, 228, 228, fontpage_1_228_228),
-    FONTDATA_ITEM(1, 246, 246, fontpage_1_246_246),
+    FONTDATA_ITEM(1, 179, 179, fontpage_1_179_179), // '³' -- '³'
+    FONTDATA_ITEM(1, 228, 228, fontpage_1_228_228), // 'ä' -- 'ä'
+    FONTDATA_ITEM(1, 246, 246, fontpage_1_246_246), // 'ö' -- 'ö'
 };

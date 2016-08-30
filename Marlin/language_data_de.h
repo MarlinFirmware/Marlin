@@ -24,9 +24,9 @@ const u8g_fntpgm_uint8_t fontpage_1_252_252[31] U8G_FONT_SECTION("fontpage_1_252
 
 #define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
-    FONTDATA_ITEM(1, 179, 179, fontpage_1_179_179),
-    FONTDATA_ITEM(1, 196, 196, fontpage_1_196_196),
-    FONTDATA_ITEM(1, 220, 220, fontpage_1_220_220),
-    FONTDATA_ITEM(1, 228, 228, fontpage_1_228_228),
-    FONTDATA_ITEM(1, 252, 252, fontpage_1_252_252),
+    FONTDATA_ITEM(1, 179, 179, fontpage_1_179_179), // '³' -- '³'
+    FONTDATA_ITEM(1, 196, 196, fontpage_1_196_196), // 'Ä' -- 'Ä'
+    FONTDATA_ITEM(1, 220, 220, fontpage_1_220_220), // 'Ü' -- 'Ü'
+    FONTDATA_ITEM(1, 228, 228, fontpage_1_228_228), // 'ä' -- 'ä'
+    FONTDATA_ITEM(1, 252, 252, fontpage_1_252_252), // 'ü' -- 'ü'
 };

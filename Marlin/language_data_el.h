@@ -87,14 +87,14 @@ const u8g_fntpgm_uint8_t fontpage_64_166_166[25] U8G_FONT_SECTION("fontpage_64_1
 
 #define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
-    FONTDATA_ITEM(7, 136, 136, fontpage_7_136_136),
-    FONTDATA_ITEM(7, 145, 157, fontpage_7_145_157),
-    FONTDATA_ITEM(7, 159, 161, fontpage_7_159_161),
-    FONTDATA_ITEM(7, 163, 167, fontpage_7_163_167),
-    FONTDATA_ITEM(7, 169, 169, fontpage_7_169_169),
-    FONTDATA_ITEM(7, 172, 175, fontpage_7_172_175),
-    FONTDATA_ITEM(7, 177, 199, fontpage_7_177_199),
-    FONTDATA_ITEM(7, 201, 201, fontpage_7_201_201),
-    FONTDATA_ITEM(7, 204, 206, fontpage_7_204_206),
-    FONTDATA_ITEM(64, 166, 166, fontpage_64_166_166),
+    FONTDATA_ITEM(7, 136, 136, fontpage_7_136_136), // 'Έ' -- 'Έ'
+    FONTDATA_ITEM(7, 145, 157, fontpage_7_145_157), // 'Α' -- 'Ν'
+    FONTDATA_ITEM(7, 159, 161, fontpage_7_159_161), // 'Ο' -- 'Ρ'
+    FONTDATA_ITEM(7, 163, 167, fontpage_7_163_167), // 'Σ' -- 'Χ'
+    FONTDATA_ITEM(7, 169, 169, fontpage_7_169_169), // 'Ω' -- 'Ω'
+    FONTDATA_ITEM(7, 172, 175, fontpage_7_172_175), // 'ά' -- 'ί'
+    FONTDATA_ITEM(7, 177, 199, fontpage_7_177_199), // 'α' -- 'χ'
+    FONTDATA_ITEM(7, 201, 201, fontpage_7_201_201), // 'ω' -- 'ω'
+    FONTDATA_ITEM(7, 204, 206, fontpage_7_204_206), // 'ό' -- 'ώ'
+    FONTDATA_ITEM(64, 166, 166, fontpage_64_166_166), // '…' -- '…'
 };

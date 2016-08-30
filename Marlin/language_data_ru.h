@@ -82,12 +82,12 @@ const u8g_fntpgm_uint8_t fontpage_8_206_207[50] U8G_FONT_SECTION("fontpage_8_206
 
 #define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
-    FONTDATA_ITEM(8, 144, 149, fontpage_8_144_149),
-    FONTDATA_ITEM(8, 151, 152, fontpage_8_151_152),
-    FONTDATA_ITEM(8, 154, 164, fontpage_8_154_164),
-    FONTDATA_ITEM(8, 173, 173, fontpage_8_173_173),
-    FONTDATA_ITEM(8, 175, 195, fontpage_8_175_195),
-    FONTDATA_ITEM(8, 197, 201, fontpage_8_197_201),
-    FONTDATA_ITEM(8, 203, 204, fontpage_8_203_204),
-    FONTDATA_ITEM(8, 206, 207, fontpage_8_206_207),
+    FONTDATA_ITEM(8, 144, 149, fontpage_8_144_149), // 'А' -- 'Е'
+    FONTDATA_ITEM(8, 151, 152, fontpage_8_151_152), // 'З' -- 'И'
+    FONTDATA_ITEM(8, 154, 164, fontpage_8_154_164), // 'К' -- 'Ф'
+    FONTDATA_ITEM(8, 173, 173, fontpage_8_173_173), // 'Э' -- 'Э'
+    FONTDATA_ITEM(8, 175, 195, fontpage_8_175_195), // 'Я' -- 'у'
+    FONTDATA_ITEM(8, 197, 201, fontpage_8_197_201), // 'х' -- 'щ'
+    FONTDATA_ITEM(8, 203, 204, fontpage_8_203_204), // 'ы' -- 'ь'
+    FONTDATA_ITEM(8, 206, 207, fontpage_8_206_207), // 'ю' -- 'я'
 };

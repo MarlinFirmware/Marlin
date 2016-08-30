@@ -38,12 +38,12 @@ const u8g_fntpgm_uint8_t fontpage_1_245_245[33] U8G_FONT_SECTION("fontpage_1_245
 
 #define FONTDATA_ITEM(page, begin, end, data) {page, begin, end, NUM_ARRAY(data), data}
 static const uxg_fontinfo_t g_fontinfo[] PROGMEM = {
-    FONTDATA_ITEM(1, 193, 193, fontpage_1_193_193),
-    FONTDATA_ITEM(1, 202, 202, fontpage_1_202_202),
-    FONTDATA_ITEM(1, 225, 225, fontpage_1_225_225),
-    FONTDATA_ITEM(1, 227, 227, fontpage_1_227_227),
-    FONTDATA_ITEM(1, 231, 231, fontpage_1_231_231),
-    FONTDATA_ITEM(1, 237, 237, fontpage_1_237_237),
-    FONTDATA_ITEM(1, 243, 243, fontpage_1_243_243),
-    FONTDATA_ITEM(1, 245, 245, fontpage_1_245_245),
+    FONTDATA_ITEM(1, 193, 193, fontpage_1_193_193), // 'Á' -- 'Á'
+    FONTDATA_ITEM(1, 202, 202, fontpage_1_202_202), // 'Ê' -- 'Ê'
+    FONTDATA_ITEM(1, 225, 225, fontpage_1_225_225), // 'á' -- 'á'
+    FONTDATA_ITEM(1, 227, 227, fontpage_1_227_227), // 'ã' -- 'ã'
+    FONTDATA_ITEM(1, 231, 231, fontpage_1_231_231), // 'ç' -- 'ç'
+    FONTDATA_ITEM(1, 237, 237, fontpage_1_237_237), // 'í' -- 'í'
+    FONTDATA_ITEM(1, 243, 243, fontpage_1_243_243), // 'ó' -- 'ó'
+    FONTDATA_ITEM(1, 245, 245, fontpage_1_245_245), // 'õ' -- 'õ'
 };
