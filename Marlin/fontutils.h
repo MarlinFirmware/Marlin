@@ -70,6 +70,9 @@ uint8_t read_byte_rom(uint8_t * str);
 // sizeof(int)=4; sizeof(long)=8; sizeof(unsigned)=4;
 //#define wchar_t uint32_t
 #define wchar_t size_t
+
+#define PRIu32 "lu"
+#define PRIX32 "lX"
 #endif
 
 
