@@ -683,29 +683,50 @@ void Stepper::isr() {
     old_OCR0A += eISR_Rate;
     OCR0A = old_OCR0A;
 
-    #define STEP_E_ONCE(INDEX) \
-      if (e_steps[INDEX] != 0) { \
-        E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
-        if (e_steps[INDEX] < 0) { \
-          E## INDEX ##_DIR_WRITE(INVERT_E## INDEX ##_DIR); \
-          e_steps[INDEX]++; \
-        } \
-        else { \
-          E## INDEX ##_DIR_WRITE(!INVERT_E## INDEX ##_DIR); \
-          e_steps[INDEX]--; \
-        } \
+    #define SET_E_STEP_DIR(INDEX) \
+      E## INDEX ##_DIR_WRITE(e_steps[INDEX] <= 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
+
+    #define START_E_PULSE(INDEX) \
+      if (e_steps[INDEX]) E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN)
+
+    #define STOP_E_PULSE(INDEX) \
+      if (e_steps[INDEX]) { \
+        e_steps[INDEX] < 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
         E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); \
       }
 
+    SET_E_STEP_DIR(0);
+    #if E_STEPPERS > 1
+      SET_E_STEP_DIR(1);
+      #if E_STEPPERS > 2
+        SET_E_STEP_DIR(2);
+        #if E_STEPPERS > 3
+          SET_E_STEP_DIR(3);
+        #endif
+      #endif
+    #endif
+
     // Step all E steppers that have steps
     for (uint8_t i = 0; i < step_loops; i++) {
-      STEP_E_ONCE(0);
+
+      START_E_PULSE(0);
       #if E_STEPPERS > 1
-        STEP_E_ONCE(1);
+        START_E_PULSE(1);
         #if E_STEPPERS > 2
-          STEP_E_ONCE(2);
+          START_E_PULSE(2);
           #if E_STEPPERS > 3
-            STEP_E_ONCE(3);
+            START_E_PULSE(3);
+          #endif
+        #endif
+      #endif
+
+      STOP_E_PULSE(0);
+      #if E_STEPPERS > 1
+        STOP_E_PULSE(1);
+        #if E_STEPPERS > 2
+          STOP_E_PULSE(2);
+          #if E_STEPPERS > 3
+            STOP_E_PULSE(3);
           #endif
         #endif
       #endif
