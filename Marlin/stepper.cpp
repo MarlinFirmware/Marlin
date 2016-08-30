@@ -450,10 +450,12 @@ void Stepper::isr() {
       #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
       #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
+      // Advance the Bresenham counter; start a pulse if the axis needs a step
       #define PULSE_START(AXIS) \
         _COUNTER(AXIS) += current_block->steps[_AXIS(AXIS)]; \
         if (_COUNTER(AXIS) > 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS),0); }
 
+      // Stop an active pulse, reset the Bresenham counter, update the position
       #define PULSE_STOP(AXIS) \
         if (_COUNTER(AXIS) > 0) { \
           _COUNTER(AXIS) -= current_block->step_event_count; \
@@ -461,6 +463,7 @@ void Stepper::isr() {
           _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS),0); \
         }
 
+      // If a minimum pulse time was specified get the CPU clock
       #if MINIMUM_STEPPER_PULSE > 0
         static uint32_t pulse_start;
         pulse_start = TCNT0;
@@ -476,6 +479,7 @@ void Stepper::isr() {
         PULSE_START(Z);
       #endif
 
+      // For non-advance use linear interpolation for E also
       #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
         #if ENABLED(MIXING_EXTRUDER)
           // Keep updating the single E axis
@@ -492,6 +496,7 @@ void Stepper::isr() {
         #endif
       #endif // !ADVANCE && !LIN_ADVANCE
 
+      // For a minimum pulse time wait before stopping pulses
       #if MINIMUM_STEPPER_PULSE > 0
         #define CYCLES_EATEN_BY_CODE 10
         while ((uint32_t)(TCNT0 - pulse_start) < (MINIMUM_STEPPER_PULSE * (F_CPU / 1000000UL)) - CYCLES_EATEN_BY_CODE) { /* nada */ }
@@ -532,7 +537,7 @@ void Stepper::isr() {
     }
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      // If we have esteps to execute, fire the next ISR "now"
+      // If we have esteps to execute, fire the next advance_isr "now"
       if (e_steps[TOOL_E_INDEX]) OCR0A = TCNT0 + 2;
     #endif
 
