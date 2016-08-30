@@ -118,50 +118,58 @@ BEGIN {
     cur_page=0;
     val_begin=0;
     val_pre=0;
+    utf8_pre="";
+    utf8_begin="";
 }{
     page=\$1;
     val_real=\$2;
+    utf8=\$3;
     # assert (val_real < 128);
     val=val_real + 128;
     if (cur_page != page) {
         if (cur_page != 0) {
             if (val_begin != 0) {
-                print cur_page " " val_begin " " val_pre;
+                print cur_page " " val_begin " " val_pre " " utf8_begin " " utf8_pre;
             }
         }
         cur_page=page;
         val_begin=val;
         val_pre=val;
+        utf8_begin=utf8;
+        utf8_pre=utf8;
     } else {
         if (val_pre + 1 != val) {
             if (cur_page != 0) {
-                print cur_page " " val_begin " " val_pre;
+                print cur_page " " val_begin " " val_pre " " utf8_begin " " utf8_pre;
             }
             val_begin=val;
             val_pre=val;
+            utf8_begin=utf8;
+            utf8_pre=utf8;
         } else {
             val_pre = val;
+            utf8_pre=utf8;
         }
     }
 } END {
     if (cur_page != 0) {
-        print cur_page " " val_begin " " val_pre;
+        print cur_page " " val_begin " " val_pre " " utf8_begin " " utf8_pre;
     }
 }
 EOF
 
 grep -Hrn _UxGT . | grep '"' | \
-  sed 's/[^"]*_UxGT([ \w\t]*"\([^)]*\)"[ \w\t]*).*$/\1/' | \
+  sed 's/_UxGT("/\n&/g;s/[^\n]*\n_UxGT("\([^"]*\)[^\n]*/\1 /g;s/.$//' | \
   ${EXEC_GENPAGES} | \
   sort -k 1n -k 2n | uniq | \
   gawk -v EXEC_PREFIX=${DN_EXEC} -f tmp-proc-page.awk | \
-  while read PAGE BEGIN END; do \
+  while read PAGE BEGIN END UTF8BEGIN UTF8END; do \
     if [ ! -f ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h ]; then \
       ${EXEC_BDF2U8G} -u ${PAGE} -b ${BEGIN} -e ${END} ${FN_FONT} fontpage_${PAGE}_${BEGIN}_${END} ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h > /dev/null 2>&1 ;
       #sed -i 's|#include "u8g.h"|#include "utility/u8g.h"|' ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h ;
     fi ;\
     grep -A 10000000000 u8g_fntpgm_uint8_t ${DN_DATA}/fontpage_${PAGE}_${BEGIN}_${END}.h >> tmpa ;\
-    echo "    FONTDATA_ITEM(${PAGE}, ${BEGIN}, ${END}, fontpage_${PAGE}_${BEGIN}_${END})," >> tmpb ;\
+    echo "    FONTDATA_ITEM(${PAGE}, ${BEGIN}, ${END}, fontpage_${PAGE}_${BEGIN}_${END}), // '${UTF8BEGIN}' -- '${UTF8END}'" >> tmpb ;\
   done
 
 rm -f fontutf8-data.h

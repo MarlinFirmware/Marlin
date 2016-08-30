@@ -159,18 +159,26 @@ utf8_parse (const char* msg, unsigned int len)
 {
     uint8_t *pend = NULL;
     uint8_t *p;
+    uint8_t *pre;
     wchar_t val;
     int page;
 
     pend = (uint8_t *)msg + len;
-    for (p = (uint8_t *)msg; p < pend; ) {
+    for (pre = (uint8_t *)msg; pre < pend; ) {
         val = 0;
-        p = get_utf8_value(p, &val);
+        p = get_utf8_value(pre, &val);
         if (NULL == p) {
             break;
         }
         page = val / 128;
-        if (page > 0) fprintf (stdout, "%d %d\n", page, (val % 128));
+        if (page > 0) {
+            fprintf (stdout, "%d %d ", page, (val % 128));
+            for (; pre < p; pre ++) {
+                fprintf (stdout, "%c", *pre);
+            }
+            fprintf (stdout, "\n");
+        }
+        pre = p;
     }
 }
 
