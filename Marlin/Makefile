@@ -237,7 +237,7 @@ else
 HARDWARE_DIR = ../ArduinoAddons/Arduino_0.xx
 endif
 endif
-HARDWARE_SRC = $(HARDWARE_DIR)/marlin/avr/cores/arduino
+HARDWARE_SRC= $(HARDWARE_DIR)/arduino/avr/cores/arduino
 
 TARGET = $(notdir $(CURDIR))
 
@@ -251,6 +251,8 @@ VPATH += $(HARDWARE_SRC)
 ifeq ($(HARDWARE_VARIANT), $(filter $(HARDWARE_VARIANT),arduino Teensy Sanguino))
 VPATH += $(HARDWARE_DIR)/marlin/avr/libraries/LiquidCrystal/src
 VPATH += $(HARDWARE_DIR)/marlin/avr/libraries/SPI
+VPATH += $(HARDWARE_DIR)/arduino/avr/libraries/SPI
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal/src
 ifeq ($(LIQUID_TWI2), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
@@ -276,6 +278,7 @@ endif
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SUB_VARIANT ?= mega
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/$(HARDWARE_SUB_VARIANT)
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/variants/$(HARDWARE_SUB_VARIANT)
 else
 ifeq ($(HARDWARE_VARIANT), Sanguino)
 VPATH += $(HARDWARE_DIR)/marlin/avr/variants/sanguino
@@ -297,7 +300,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	SdFile.cpp SdVolume.cpp planner.cpp stepper.cpp \
 	temperature.cpp cardreader.cpp configuration_store.cpp \
 	watchdog.cpp SPI.cpp servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
-	dac_mcp4728.cpp vector_3.cpp qr_solve.cpp buzzer.cpp
+	dac_mcp4728.cpp vector_3.cpp qr_solve.cpp endstops.cpp stopwatch.cpp
 ifeq ($(LIQUID_TWI2), 0)
 CXXSRC += LiquidCrystal.cpp
 else
