@@ -35,11 +35,14 @@
   #endif
 
   /**
-   * Axis lengths
+   * Axis lengths and center
    */
   #define X_MAX_LENGTH (X_MAX_POS - (X_MIN_POS))
   #define Y_MAX_LENGTH (Y_MAX_POS - (Y_MIN_POS))
   #define Z_MAX_LENGTH (Z_MAX_POS - (Z_MIN_POS))
+  #define X_CENTER float((X_MIN_POS + X_MAX_POS) * 0.5)
+  #define Y_CENTER float((Y_MIN_POS + Y_MAX_POS) * 0.5)
+  #define Z_CENTER float((Z_MIN_POS + Z_MAX_POS) * 0.5)
 
   /**
    * CoreXY and CoreXZ
@@ -126,6 +129,8 @@
    * Auto Bed Leveling and Z Probe Repeatability Test
    */
   #define HAS_PROBING_PROCEDURE (ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
+
+  #define HOMING_Z_WITH_PROBE (HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
 
   // Boundaries for probing based on set limits
   #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
