@@ -424,9 +424,32 @@
 #define Z_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 
+
+//=============================================================================
+//============================== Movement Settings ============================
+//=============================================================================
+// @section motion
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000, 210.02}  // Steps per unit
+#define DEFAULT_MAX_FEEDRATE          {250, 250, 2, 200}        // mm/sec
+#define DEFAULT_MAX_ACCELERATION      {1000, 1000, 20, 1000}    // X, Y, Z, E max start speed for accelerated moves
+
+#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration in mm/s^2 for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+
+// "Jerk" specifies the minumum speed change that requires acceleration.
+// When changing speed and direction, if the difference is less than the
+// value set here, it may happen instantaneously.
+#define DEFAULT_XYJERK                20.0    // (mm/sec)
+#define DEFAULT_ZJERK                  0.4    // (mm/sec)
+#define DEFAULT_EJERK                  2.0    // (mm/sec)
+
+
 //===========================================================================
 //============================= Z Probe Options =============================
 //===========================================================================
+// @section probes
 
 //
 // Probe Type
@@ -738,26 +761,6 @@
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (150*60)
 #define HOMING_FEEDRATE_Z  200
-
-//
-// MOVEMENT SETTINGS
-// @section motion
-//
-
-// default settings
-
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000, 210.02}  // Steps per unit
-#define DEFAULT_MAX_FEEDRATE          {250, 250, 2, 200}        // mm/sec
-#define DEFAULT_MAX_ACCELERATION      {1000, 1000, 20, 1000}    // X, Y, Z, E max start speed for accelerated moves
-
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration in mm/s^2 for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
-
-// The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
-#define DEFAULT_XYJERK                20.0    // (mm/sec)
-#define DEFAULT_ZJERK                  0.4    // (mm/sec)
-#define DEFAULT_EJERK                  2.0    // (mm/sec)
 
 
 //=============================================================================
