@@ -2902,6 +2902,61 @@ inline void gcode_G4() {
 
 #endif // QUICK_HOME
 
+#if ENABLED(DEBUG_LEVELING_FEATURE)
+
+  void log_machine_info() {
+    SERIAL_ECHOPGM("Machine Type: ");
+    #if ENABLED(DELTA)
+      SERIAL_ECHOLNPGM("Delta");
+    #elif ENABLED(SCARA)
+      SERIAL_ECHOLNPGM("SCARA");
+    #elif ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
+      SERIAL_ECHOLNPGM("Core");
+    #else
+      SERIAL_ECHOLNPGM("Cartesian");
+    #endif
+
+    SERIAL_ECHOPGM("Probe: ");
+    #if ENABLED(FIX_MOUNTED_PROBE)
+      SERIAL_ECHOLNPGM("FIX_MOUNTED_PROBE");
+    #elif HAS_Z_SERVO_ENDSTOP
+      SERIAL_ECHOLNPGM("SERVO PROBE");
+    #elif ENABLED(BLTOUCH)
+      SERIAL_ECHOLNPGM("BLTOUCH");
+    #elif ENABLED(Z_PROBE_SLED)
+      SERIAL_ECHOLNPGM("Z_PROBE_SLED");
+    #elif ENABLED(Z_PROBE_ALLEN_KEY)
+      SERIAL_ECHOLNPGM("Z_PROBE_ALLEN_KEY");
+    #else
+      SERIAL_ECHOLNPGM("NONE");
+    #endif
+
+    #if HAS_BED_PROBE
+      SERIAL_ECHOPAIR("Probe Offset X:", X_PROBE_OFFSET_FROM_EXTRUDER);
+      SERIAL_ECHOPAIR(" Y:", Y_PROBE_OFFSET_FROM_EXTRUDER);
+      SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
+      #if (X_PROBE_OFFSET_FROM_EXTRUDER > 0)
+        SERIAL_ECHOPGM(" (Right");
+      #elif (X_PROBE_OFFSET_FROM_EXTRUDER < 0)
+        SERIAL_ECHOPGM(" (Left");
+      #endif
+      #if (Y_PROBE_OFFSET_FROM_EXTRUDER > 0)
+        SERIAL_ECHOPGM("-Back");
+      #elif (Y_PROBE_OFFSET_FROM_EXTRUDER < 0)
+        SERIAL_ECHOPGM("-Front");
+      #endif
+      if (zprobe_zoffset < 0)
+        SERIAL_ECHOPGM(" & Below");
+      else if (zprobe_zoffset > 0)
+        SERIAL_ECHOPGM(" & Above");
+      else
+        SERIAL_ECHOPGM(" & Same Z as");
+      SERIAL_ECHOLNPGM(" Nozzle)");
+    #endif
+  }
+
+#endif // DEBUG_LEVELING_FEATURE
+
 /**
  * G28: Home all axes according to settings
  *
@@ -2920,7 +2975,10 @@ inline void gcode_G4() {
 inline void gcode_G28() {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(">>> gcode_G28");
+    if (DEBUGGING(LEVELING)) {
+      SERIAL_ECHOLNPGM(">>> gcode_G28");
+      log_machine_info();
+    }
   #endif
 
   // Wait for planner moves to finish!
@@ -3262,6 +3320,7 @@ inline void gcode_G28() {
 #endif
 
 #if ENABLED(MESH_BED_LEVELING)
+
   inline void _mbl_goto_xy(float x, float y) {
     float old_feedrate_mm_s = feedrate_mm_s;
     feedrate_mm_s = homing_feedrate_mm_s[X_AXIS];
@@ -3494,38 +3553,7 @@ inline void gcode_G28() {
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOLNPGM(">>> gcode_G29");
         DEBUG_POS("", current_position);
-        SERIAL_ECHOPGM("Probe: ");
-        #if ENABLED(FIX_MOUNTED_PROBE)
-          SERIAL_ECHOLNPGM("FIX_MOUNTED_PROBE");
-        #elif HAS_Z_SERVO_ENDSTOP
-          SERIAL_ECHOLNPGM("SERVO PROBE");
-        #elif ENABLED(BLTOUCH)
-          SERIAL_ECHOLNPGM("BLTOUCH");
-        #elif ENABLED(Z_PROBE_SLED)
-          SERIAL_ECHOLNPGM("Z_PROBE_SLED");
-        #elif ENABLED(Z_PROBE_ALLEN_KEY)
-          SERIAL_ECHOLNPGM("Z_PROBE_ALLEN_KEY");
-        #endif
-        SERIAL_ECHOPAIR("Probe Offset X:", X_PROBE_OFFSET_FROM_EXTRUDER);
-        SERIAL_ECHOPAIR(" Y:", Y_PROBE_OFFSET_FROM_EXTRUDER);
-        SERIAL_ECHOPAIR(" Z:", zprobe_zoffset);
-        #if (X_PROBE_OFFSET_FROM_EXTRUDER > 0)
-          SERIAL_ECHOPGM(" (Right");
-        #elif (X_PROBE_OFFSET_FROM_EXTRUDER < 0)
-          SERIAL_ECHOPGM(" (Left");
-        #endif
-        #if (Y_PROBE_OFFSET_FROM_EXTRUDER > 0)
-          SERIAL_ECHOPGM("-Back");
-        #elif (Y_PROBE_OFFSET_FROM_EXTRUDER < 0)
-          SERIAL_ECHOPGM("-Front");
-        #endif
-        if (zprobe_zoffset < 0)
-          SERIAL_ECHOPGM(" & Below");
-        else if (zprobe_zoffset > 0)
-          SERIAL_ECHOPGM(" & Above");
-        else
-          SERIAL_ECHOPGM(" & Same Z as");
-        SERIAL_ECHOLNPGM(" Nozzle)");
+        log_machine_info();
       }
     #endif
 
