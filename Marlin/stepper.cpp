@@ -115,7 +115,7 @@ volatile long Stepper::count_position[NUM_AXIS] = { 0 };
 volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
 #if ENABLED(MIXING_EXTRUDER)
-  long Stepper::counter_M[MIXING_STEPPERS];
+  long Stepper::counter_m[MIXING_STEPPERS];
 #endif
 
 unsigned short Stepper::acc_step_rate; // needed for deceleration start point
@@ -340,7 +340,7 @@ void Stepper::isr() {
 
       #if ENABLED(MIXING_EXTRUDER)
         MIXING_STEPPERS_LOOP(i)
-          counter_M[i] = -(current_block->mix_event_count[i] >> 1);
+          counter_m[i] = -(current_block->mix_event_count[i] >> 1);
       #endif
 
       step_events_completed = 0;
@@ -392,12 +392,12 @@ void Stepper::isr() {
 
         #if ENABLED(MIXING_EXTRUDER)
           // Step mixing steppers proportionally
-          long dir = motor_direction(E_AXIS) ? -1 : 1;
+          bool dir = motor_direction(E_AXIS);
           MIXING_STEPPERS_LOOP(j) {
             counter_m[j] += current_block->steps[E_AXIS];
             if (counter_m[j] > 0) {
               counter_m[j] -= current_block->mix_event_count[j];
-              e_steps[j] += dir;
+              dir ? --e_steps[j] : ++e_steps[j];
             }
           }
         #endif
@@ -433,12 +433,12 @@ void Stepper::isr() {
         #if ENABLED(MIXING_EXTRUDER)
 
           // Step mixing steppers proportionally
-          long dir = motor_direction(E_AXIS) ? -1 : 1;
+          bool dir = motor_direction(E_AXIS);
           MIXING_STEPPERS_LOOP(j) {
             counter_m[j] += current_block->steps[E_AXIS];
             if (counter_m[j] > 0) {
               counter_m[j] -= current_block->mix_event_count[j];
-              e_steps[j] += dir;
+              dir ? --e_steps[j] : ++e_steps[j];
             }
           }
 
@@ -487,9 +487,9 @@ void Stepper::isr() {
           // Tick the counters used for this mix
           MIXING_STEPPERS_LOOP(j) {
             // Step mixing steppers (proportionally)
-            counter_M[j] += current_block->steps[E_AXIS];
+            counter_m[j] += current_block->steps[E_AXIS];
             // Step when the counter goes over zero
-            if (counter_M[j] > 0) En_STEP_WRITE(j, !INVERT_E_STEP_PIN);
+            if (counter_m[j] > 0) En_STEP_WRITE(j, !INVERT_E_STEP_PIN);
           }
         #else // !MIXING_EXTRUDER
           PULSE_START(E);
@@ -520,8 +520,8 @@ void Stepper::isr() {
             count_position[E_AXIS] += count_direction[E_AXIS];
           }
           MIXING_STEPPERS_LOOP(j) {
-            if (counter_M[j] > 0) {
-              counter_M[j] -= current_block->mix_event_count[j];
+            if (counter_m[j] > 0) {
+              counter_m[j] -= current_block->mix_event_count[j];
               En_STEP_WRITE(j, INVERT_E_STEP_PIN);
             }
           }
@@ -691,7 +691,7 @@ void Stepper::isr() {
 
     #define STOP_E_PULSE(INDEX) \
       if (e_steps[INDEX]) { \
-        e_steps[INDEX] < 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
+        e_steps[INDEX] <= 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
         E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); \
       }
 
