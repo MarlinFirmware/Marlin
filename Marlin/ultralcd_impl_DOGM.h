@@ -189,29 +189,32 @@ static void lcd_setFont(char font_nr) {
   }
 }
 
-char lcd_print(char c) {
+void lcd_print(char c) {
+  if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
+    u8g.setFont(FONT_SPECIAL_NAME);
+    u8g.print(c);
+    lcd_setFont(currentfont);
+  }
+  else charset_mapper(c);
+}
+
+char lcd_print_and_count(char c) {
   if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
     u8g.setFont(FONT_SPECIAL_NAME);
     u8g.print(c);
     lcd_setFont(currentfont);
     return 1;
-  } else {
-    return charset_mapper(c);
   }
+  else return charset_mapper(c);
 }
 
-char lcd_print(const char* str) {
-  int i = 0;
-  char c, n = 0;
-  while ((c = str[i++])) n += lcd_print(c);
-  return n;
+void lcd_print(const char* str) {
+  for (uint8_t i = 0; char c = str[i]; ++i) lcd_print(c);
 }
 
-// Needed for Arduino < 1.0.0
-char lcd_printPGM(const char* str) {
-  char c, n = 0;
-  while ((c = pgm_read_byte(str++))) n += lcd_print(c);
-  return n;
+/* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
+void lcd_printPGM(const char* str) {
+  for (; char c = pgm_read_byte(str); ++str) lcd_print(c);
 }
 
 // Initialize or re-initializw the LCD
@@ -337,17 +340,19 @@ FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) 
     lcd_printPGM(pstr);
   else {
     if (!axis_homed[axis])
-      lcd_printPGM(PSTR("?"));
+      u8g.print('?');
     else {
       #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
-          lcd_printPGM(PSTR(" "));
+          u8g.print(' ');
         else
       #endif
       lcd_printPGM(pstr);
     }
   }
 }
+
+//#define DOGM_SD_PERCENT
 
 static void lcd_implementation_status_screen() {
   u8g.setColorIndex(1); // black on white
@@ -380,6 +385,13 @@ static void lcd_implementation_status_screen() {
     if (IS_SD_PRINTING) {
       // Progress bar solid part
       u8g.drawBox(55, 50, (unsigned int)(71 * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION));
+    
+      #if ENABLED(DOGM_SD_PERCENT)
+        // Percent complete
+        u8g.setPrintPos(55, 48);
+        u8g.print(itostr3(card.percentDone()));
+        u8g.print('%');
+      #endif
     }
 
     char buffer[10];
@@ -387,7 +399,13 @@ static void lcd_implementation_status_screen() {
     bool has_days = (elapsed.value > 60*60*24L);
     elapsed.toDigital(buffer, has_days);
 
-    u8g.setPrintPos(has_days ? 71 : 80, 48);
+    #if DISABLED(DOGM_SD_PERCENT)
+      #define SD_DURATION_X 71
+    #else
+      #define SD_DURATION_X 89
+    #endif
+
+    u8g.setPrintPos(SD_DURATION_X + (has_days ? 0 : 9), 48);
     lcd_print(buffer);
 
   #endif
@@ -406,7 +424,7 @@ static void lcd_implementation_status_screen() {
     int per = ((fanSpeeds[0] + 1) * 100) / 256;
     if (per) {
       lcd_print(itostr3(per));
-      lcd_print('%');
+      u8g.print('%');
     }
   #endif
 
@@ -448,7 +466,7 @@ static void lcd_implementation_status_screen() {
   lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(12, 49);
   lcd_print(itostr3(feedrate_percentage));
-  lcd_print('%');
+  u8g.print('%');
 
   // Status line
   #if ENABLED(USE_SMALL_INFOFONT)
@@ -467,7 +485,7 @@ static void lcd_implementation_status_screen() {
       lcd_print(ftostr12ns(filament_width_meas));
       lcd_printPGM(PSTR(" factor:"));
       lcd_print(itostr3(100.0 * volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
-      lcd_print('%');
+      u8g.print('%');
     }
   #endif
 }
@@ -499,17 +517,17 @@ static void lcd_implementation_status_screen() {
 
       if (center && !valstr) {
         int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
-        while (--pad >= 0) { lcd_print(' '); n--; }
+        while (--pad >= 0) { u8g.print(' '); n--; }
       }
       while (n > 0 && (c = pgm_read_byte(pstr))) {
-        n -= lcd_print(c);
+        n -= lcd_print_and_count(c);
         pstr++;
       }
       if (valstr) while (n > 0 && (c = *valstr)) {
-        n -= lcd_print(c);
+        n -= lcd_print_and_count(c);
         valstr++;
       }
-      while (n-- > 0) lcd_print(' ');
+      while (n-- > 0) u8g.print(' ');
     }
 
   #endif // LCD_INFO_MENU || FILAMENT_CHANGE_FEATURE
@@ -524,13 +542,13 @@ static void lcd_implementation_status_screen() {
     lcd_implementation_mark_as_selected(row, isSelected);
 
     while (c = pgm_read_byte(pstr)) {
-      n -= lcd_print(c);
+      n -= lcd_print_and_count(c);
       pstr++;
     }
-    while (n--) lcd_print(' ');
+    while (n--) u8g.print(' ');
     u8g.setPrintPos(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
     lcd_print(post_char);
-    lcd_print(' ');
+    u8g.print(' ');
   }
 
   // Macros for specific types of menu items
@@ -548,11 +566,11 @@ static void lcd_implementation_status_screen() {
     lcd_implementation_mark_as_selected(row, isSelected);
 
     while (c = pgm_read_byte(pstr)) {
-      n -= lcd_print(c);
+      n -= lcd_print_and_count(c);
       pstr++;
     }
-    lcd_print(':');
-    while (n--) lcd_print(' ');
+    u8g.print(':');
+    while (n--) u8g.print(' ');
     u8g.setPrintPos(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH) * vallen, (row + 1) * (DOG_CHAR_HEIGHT));
     if (pgm)  lcd_printPGM(data);  else  lcd_print((char*)data);
   }
@@ -606,7 +624,7 @@ static void lcd_implementation_status_screen() {
     u8g.setPrintPos(0, rowHeight + kHalfChar);
     lcd_printPGM(pstr);
     if (value != NULL) {
-      lcd_print(':');
+      u8g.print(':');
       u8g.setPrintPos((lcd_width - 1 - vallen) * char_width, rows * rowHeight + kHalfChar);
       lcd_print(value);
     }
@@ -628,10 +646,10 @@ static void lcd_implementation_status_screen() {
 
       if (isDir) lcd_print(LCD_STR_FOLDER[0]);
       while ((c = *filename)) {
-        n -= lcd_print(c);
+        n -= lcd_print_and_count(c);
         filename++;
       }
-      while (n--) lcd_print(' ');
+      while (n--) u8g.print(' ');
     }
 
     #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)
