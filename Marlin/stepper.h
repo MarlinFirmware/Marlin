@@ -152,7 +152,7 @@ class Stepper {
     // Mixing extruder mix counters
     //
     #if ENABLED(MIXING_EXTRUDER)
-      static long counter_M[MIXING_STEPPERS];
+      static long counter_m[MIXING_STEPPERS];
       #define MIXING_STEPPERS_LOOP(VAR) \
         for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++) \
           if (current_block->mix_event_count[VAR])
