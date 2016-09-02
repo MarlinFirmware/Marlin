@@ -148,9 +148,9 @@ struct duration_t {
   void toDigital(char *buffer, bool with_days=false) const {
     int m = this->minute() % 60;
     if (with_days)
-      sprintf_P(buffer, PSTR("%id %02i:%02i"), this->day(), this->hour() % 24, m);
+      sprintf_P(buffer, PSTR("%id %02i:%02i"), (int)this->day(), (int)(this->hour() % 24), m);
     else
-      sprintf_P(buffer, PSTR("%02i:%02i"), this->hour(), m);
+      sprintf_P(buffer, PSTR("%02i:%02i"), (int)this->hour(), m);
   }
 };
 
