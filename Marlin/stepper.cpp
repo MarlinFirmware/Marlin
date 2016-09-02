@@ -426,7 +426,7 @@ void Stepper::isr() {
           counter_E -= current_block->step_event_count;
           #if DISABLED(MIXING_EXTRUDER)
             // Don't step E here for mixing extruder
-            e_steps[TOOL_E_INDEX] += motor_direction(E_AXIS) ? -1 : 1;
+            motor_direction(E_AXIS) ? --e_steps[TOOL_E_INDEX] : ++e_steps[TOOL_E_INDEX];
           #endif
         }
 
