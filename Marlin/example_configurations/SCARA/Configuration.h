@@ -452,7 +452,7 @@
 #define DEFAULT_RETRACT_ACCELERATION  2000   // E acceleration in mm/s^2 for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   400    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
 
-// "Jerk" specifies the minumum speed change that requires acceleration.
+// "Jerk" specifies the minimum speed change that requires acceleration.
 // When changing speed and direction, if the difference is less than the
 // value set here, it may happen instantaneously.
 #define DEFAULT_XYJERK                5.0     // (mm/sec)
