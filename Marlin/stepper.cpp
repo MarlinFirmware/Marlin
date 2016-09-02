@@ -392,12 +392,12 @@ void Stepper::isr() {
 
         #if ENABLED(MIXING_EXTRUDER)
           // Step mixing steppers proportionally
-          long dir = motor_direction(E_AXIS) ? -1 : 1;
+          bool dir = motor_direction(E_AXIS);
           MIXING_STEPPERS_LOOP(j) {
             counter_m[j] += current_block->steps[E_AXIS];
             if (counter_m[j] > 0) {
               counter_m[j] -= current_block->mix_event_count[j];
-              e_steps[j] += dir;
+              dir ? --e_steps[j] : ++e_steps[j];
             }
           }
         #endif
@@ -433,12 +433,12 @@ void Stepper::isr() {
         #if ENABLED(MIXING_EXTRUDER)
 
           // Step mixing steppers proportionally
-          long dir = motor_direction(E_AXIS) ? -1 : 1;
+          bool dir = motor_direction(E_AXIS);
           MIXING_STEPPERS_LOOP(j) {
             counter_m[j] += current_block->steps[E_AXIS];
             if (counter_m[j] > 0) {
               counter_m[j] -= current_block->mix_event_count[j];
-              e_steps[j] += dir;
+              dir ? --e_steps[j] : ++e_steps[j];
             }
           }
 
@@ -691,7 +691,7 @@ void Stepper::isr() {
 
     #define STOP_E_PULSE(INDEX) \
       if (e_steps[INDEX]) { \
-        e_steps[INDEX] < 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
+        e_steps[INDEX] <= 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
         E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); \
       }
 
