@@ -35,6 +35,18 @@
 #
 # Note that all settings are set with ?=, this means you can override them
 # from the commandline with "make HARDWARE_MOTHERBOARD=71" for example
+#
+# e.g. to Compile for RAMPS with atmega2560 and upload afterwards use this command.
+# it expects arduino version 1.6.9 installed in /root/arduino
+# compile:
+# make ARDUINO_VERSION=10609 AVR_TOOLS_PATH=/root/arduino/hardware/tools/avr/bin/ HARDWARE_MOTHERBOARD=33 ARDUINO_INSTALL_DIR=/root/arduino
+# upload:
+# make ARDUINO_VERSION=10609 AVR_TOOLS_PATH=/root/arduino/hardware/tools/avr/bin/ HARDWARE_MOTHERBOARD=33 ARDUINO_INSTALL_DIR=/root/arduino upload
+# 
+# if uploading doesnt work you can try to add the parameter "AVRDUDE_PROGRAMMER=wiring" 
+#  or start the uploading manually (using stk500)
+# avrdude -C /root/arduino/hardware/tools/avr/etc/avrdude.conf -v -p m2560 -c stk500 -U flash:w:applet/Marlin.hex:i -P /dev/ttyUSB0
+# try to disconnect(USB)&power down and then connect it before running avrdude
 
 # This defined the board you are compiling for (see boards.h for the options)
 HARDWARE_MOTHERBOARD ?= 11
@@ -237,7 +249,7 @@ else
 HARDWARE_DIR = ../ArduinoAddons/Arduino_0.xx
 endif
 endif
-HARDWARE_SRC = $(HARDWARE_DIR)/marlin/avr/cores/arduino
+HARDWARE_SRC= $(HARDWARE_DIR)/arduino/avr/cores/arduino
 
 TARGET = $(notdir $(CURDIR))
 
@@ -251,6 +263,8 @@ VPATH += $(HARDWARE_SRC)
 ifeq ($(HARDWARE_VARIANT), $(filter $(HARDWARE_VARIANT),arduino Teensy Sanguino))
 VPATH += $(HARDWARE_DIR)/marlin/avr/libraries/LiquidCrystal/src
 VPATH += $(HARDWARE_DIR)/marlin/avr/libraries/SPI
+VPATH += $(HARDWARE_DIR)/arduino/avr/libraries/SPI
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal/src
 ifeq ($(LIQUID_TWI2), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
@@ -276,6 +290,7 @@ endif
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SUB_VARIANT ?= mega
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/$(HARDWARE_SUB_VARIANT)
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/variants/$(HARDWARE_SUB_VARIANT)
 else
 ifeq ($(HARDWARE_VARIANT), Sanguino)
 VPATH += $(HARDWARE_DIR)/marlin/avr/variants/sanguino
@@ -297,7 +312,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	SdFile.cpp SdVolume.cpp planner.cpp stepper.cpp \
 	temperature.cpp cardreader.cpp configuration_store.cpp \
 	watchdog.cpp SPI.cpp servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
-	dac_mcp4728.cpp vector_3.cpp qr_solve.cpp buzzer.cpp
+	dac_mcp4728.cpp vector_3.cpp qr_solve.cpp endstops.cpp stopwatch.cpp utility.cpp
 ifeq ($(LIQUID_TWI2), 0)
 CXXSRC += LiquidCrystal.cpp
 else
