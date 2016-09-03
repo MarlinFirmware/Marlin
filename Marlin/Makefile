@@ -35,6 +35,18 @@
 #
 # Note that all settings are set with ?=, this means you can override them
 # from the commandline with "make HARDWARE_MOTHERBOARD=71" for example
+#
+# e.g. to Compile for RAMPS with atmega2560 and upload afterwards use this command.
+# it expects arduino version 1.6.9 installed in /root/arduino
+# compile:
+# make ARDUINO_VERSION=10609 AVR_TOOLS_PATH=/root/arduino/hardware/tools/avr/bin/ HARDWARE_MOTHERBOARD=33 ARDUINO_INSTALL_DIR=/root/arduino
+# upload:
+# make ARDUINO_VERSION=10609 AVR_TOOLS_PATH=/root/arduino/hardware/tools/avr/bin/ HARDWARE_MOTHERBOARD=33 ARDUINO_INSTALL_DIR=/root/arduino upload
+# 
+# if uploading doesnt work you can try to add the parameter "AVRDUDE_PROGRAMMER=wiring" 
+#  or start the uploading manually (using stk500)
+# avrdude -C /root/arduino/hardware/tools/avr/etc/avrdude.conf -v -p m2560 -c stk500 -U flash:w:applet/Marlin.hex:i -P /dev/ttyUSB0
+# try to disconnect(USB)&power down and then connect it before running avrdude
 
 # This defined the board you are compiling for (see boards.h for the options)
 HARDWARE_MOTHERBOARD ?= 11
