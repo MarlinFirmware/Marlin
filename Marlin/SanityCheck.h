@@ -750,6 +750,20 @@
   #elif ENABLED(DELTA)
     #error "Z_DUAL_ENDSTOPS is not compatible with DELTA."
   #endif
+#elif DISABLED(SCARA)
+  #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
+    #error "Enable USE_XMIN_PLUG when homing X to MIN."
+  #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
+    #error "Enable USE_XMAX_PLUG when homing X to MAX."
+  #elif Y_HOME_DIR < 0 && DISABLED(USE_YMIN_PLUG)
+    #error "Enable USE_YMIN_PLUG when homing Y to MIN."
+  #elif Y_HOME_DIR > 0 && DISABLED(USE_YMAX_PLUG)
+    #error "Enable USE_YMAX_PLUG when homing Y to MAX."
+  #elif Z_HOME_DIR < 0 && DISABLED(USE_ZMIN_PLUG)
+    #error "Enable USE_ZMIN_PLUG when homing Z to MIN."
+  #elif Z_HOME_DIR > 0 && DISABLED(USE_ZMAX_PLUG)
+    #error "Enable USE_ZMAX_PLUG when homing Z to MAX."
+  #endif
 #endif
 
 /**
