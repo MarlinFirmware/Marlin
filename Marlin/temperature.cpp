@@ -755,7 +755,7 @@ void Temperature::manage_heater() {
   // Control the extruder rate based on the width sensor
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     if (filament_sensor) {
-      meas_shift_index = filwidth_delay_index1 - meas_delay_cm;
+      meas_shift_index = filwidth_delay_index[0] - meas_delay_cm;
       if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
 
       // Get the delayed info and add 100 to reconstitute to a percent of

@@ -500,13 +500,11 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-  //Variables for Filament Sensor input
-  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
   bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
-  float filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
-  int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1]; //ring buffer to delay measurement  store extruder factor after subtracting 100
-  int filwidth_delay_index1 = 0;  //index into ring buffer
-  int filwidth_delay_index2 = -1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
+  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404
+        filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA;    // Measured filament diameter
+  int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1]; // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
+  int filwidth_delay_index[2] = { 0, -1 };  // Indexes into ring buffer
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
@@ -6137,13 +6135,13 @@ inline void gcode_M400() { stepper.synchronize(); }
     if (code_seen('D')) meas_delay_cm = code_value_int();
     NOMORE(meas_delay_cm, MAX_MEASUREMENT_DELAY);
 
-    if (filwidth_delay_index2 == -1) { // Initialize the ring buffer if not done since startup
+    if (filwidth_delay_index[1] == -1) { // Initialize the ring buffer if not done since startup
       int temp_ratio = thermalManager.widthFil_to_size_ratio();
 
       for (uint8_t i = 0; i < COUNT(measurement_delay); ++i)
         measurement_delay[i] = temp_ratio - 100;  // Subtract 100 to scale within a signed byte
 
-      filwidth_delay_index1 = filwidth_delay_index2 = 0;
+      filwidth_delay_index[0] = filwidth_delay_index[1] = 0;
     }
 
     filament_sensor = true;
