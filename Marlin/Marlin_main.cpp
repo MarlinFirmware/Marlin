@@ -4816,7 +4816,8 @@ inline void gcode_M109() {
 
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
-  LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+  if (wait_for_heatup) LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+
   KEEPALIVE_STATE(IN_HANDLER);
 }
 
@@ -4934,7 +4935,7 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-    LCD_MESSAGEPGM(MSG_BED_DONE);
+    if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
