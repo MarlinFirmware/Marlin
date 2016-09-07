@@ -2166,7 +2166,7 @@ static void clean_up_after_endstop_or_probe_move() {
     refresh_cmd_timeout();
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-      planner.bed_level_matrix.set_to_identity();
+      reset_bed_level();
     #endif
 
     #if ENABLED(PROBE_DOUBLE_TOUCH)
@@ -2276,16 +2276,14 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
-
-    #if DISABLED(DELTA)
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
       static void set_bed_level_equation_lsq(double* plane_equation_coefficients) {
 
         //planner.bed_level_matrix.debug("bed level before");
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          planner.bed_level_matrix.set_to_identity();
+        #if ENABLED(DEBUG_LEVELING_LINEAR)
+          reset_bed_level();
           if (DEBUGGING(LEVELING)) {
             vector_3 uncorrected_position = planner.adjusted_position();
             DEBUG_POS(">>> set_bed_level_equation_lsq", uncorrected_position);
@@ -2308,9 +2306,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SYNC_PLAN_POSITION_KINEMATIC();
       }
 
-    #endif // !DELTA
-
-  #else // !AUTO_BED_LEVELING_GRID
+  #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
     static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
 
@@ -2404,21 +2400,24 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     }
 
-    /**
-     * Reset calibration results to zero.
-     */
-    void reset_bed_level() {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
-      #endif
-      for (int y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
-        for (int x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
-          bed_level[x][y] = 0.0;
-        }
-      }
-    }
-
   #endif // DELTA
+
+  /**
+   * Reset calibration results to zero.
+   */
+  void reset_bed_level() {
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
+
+    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+
+      planner.bed_level_matrix.set_to_identity();
+
+    #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+
+      memset(bed_level, 0, sizeof(bed_level));
+
+    #endif
+  }
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
@@ -3105,10 +3104,7 @@ inline void gcode_G28() {
 
   // For auto bed leveling, clear the level matrix
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    planner.bed_level_matrix.set_to_identity();
-    #if ENABLED(DELTA)
-      reset_bed_level();
-    #endif
+    reset_bed_level();
   #endif
 
   // Always home with tool 0 active
@@ -3666,11 +3662,9 @@ inline void gcode_G28() {
       #endif
 
       // make sure the bed_level_rotation_matrix is identity or the planner will get it wrong
-      planner.bed_level_matrix.set_to_identity();
+      reset_bed_level();
 
-      #if ENABLED(DELTA)
-        reset_bed_level();
-      #else //!DELTA
+      #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
         //vector_3 corrected_position = planner.adjusted_position();
         //corrected_position.debug("position before G29");
@@ -4391,12 +4385,9 @@ inline void gcode_M42() {
     if (verbose_level > 2)
       SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
-    #if ENABLED(DELTA)
-      // we don't do bed level correction in M48 because we want the raw data when we probe
+    // we don't do bed level correction in M48 because we want the raw data when we probe
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       reset_bed_level();
-    #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
-      // we don't do bed level correction in M48 because we want the raw data when we probe
-      planner.bed_level_matrix.set_to_identity();
     #endif
 
     setup_for_endstop_or_probe_move();
