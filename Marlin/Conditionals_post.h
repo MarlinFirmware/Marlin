@@ -61,12 +61,16 @@
     #define NORMAL_AXIS X_AXIS
   #endif
 
+  #define IS_SCARA (ENABLED(SCARA) || ENABLED(MAKERARM_SCARA))
+  #define IS_KINEMATIC (ENABLED(DELTA) || IS_SCARA)
+  #define IS_CARTESIAN !IS_KINEMATIC
+
   /**
-   * SCARA
+   * SCARA cannot use SLOWDOWN and requires QUICKHOME
    */
-  #if ENABLED(SCARA)
+  #if IS_SCARA
     #undef SLOWDOWN
-    #define QUICK_HOME //SCARA needs Quickhome
+    #define QUICK_HOME
   #endif
 
   /**
@@ -133,10 +137,17 @@
   #define HOMING_Z_WITH_PROBE (HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
 
   // Boundaries for probing based on set limits
-  #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MIN_PROBE_Y (max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #if IS_SCARA
+    #define MIN_PROBE_X X_MIN_POS
+    #define MAX_PROBE_X X_MAX_POS
+    #define MIN_PROBE_Y Y_MIN_POS
+    #define MAX_PROBE_Y Y_MAX_POS
+  #else
+    #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+    #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
+    #define MIN_PROBE_Y (max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+    #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+  #endif
 
   #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
 
@@ -165,6 +176,11 @@
     #ifndef Z_SAFE_HOMING_Y_POINT
       #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)
     #endif
+    #define X_TILT_FULCRUM Z_SAFE_HOMING_X_POINT
+    #define Y_TILT_FULCRUM Z_SAFE_HOMING_Y_POINT
+  #else
+    #define X_TILT_FULCRUM X_HOME_POS
+    #define Y_TILT_FULCRUM Y_HOME_POS
   #endif
 
   /**
@@ -652,17 +668,27 @@
     #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_3
       #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
     #endif
-    #if ENABLED(AUTO_BED_LEVELING_GRID)
-      #define DELTA_BED_LEVELING_GRID
-    #endif
   #endif
 
   /**
-   * When not using other bed leveling...
+   * Specify the exact style of auto bed leveling
+   *
+   *  3POINT    - 3 Point Probing with the least-squares solution.
+   *  LINEAR    - Grid Probing with the least-squares solution.
+   *  NONLINEAR - Grid Probing with a mesh solution. Best for large beds.
    */
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE) && DISABLED(AUTO_BED_LEVELING_GRID) && DISABLED(DELTA_BED_LEVELING_GRID)
-    #define AUTO_BED_LEVELING_3POINT
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #if DISABLED(AUTO_BED_LEVELING_GRID)
+      #define AUTO_BED_LEVELING_LINEAR
+      #define AUTO_BED_LEVELING_3POINT
+    #elif IS_KINEMATIC
+      #define AUTO_BED_LEVELING_NONLINEAR
+    #else
+      #define AUTO_BED_LEVELING_LINEAR
+    #endif
   #endif
+
+  #define PLANNER_LEVELING (ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_LINEAR))
 
   /**
    * Buzzer/Speaker

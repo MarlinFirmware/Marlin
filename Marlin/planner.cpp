@@ -98,7 +98,7 @@ float Planner::min_feedrate_mm_s,
       Planner::max_e_jerk,
       Planner::min_travel_feedrate_mm_s;
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if ENABLED(AUTO_BED_LEVELING_LINEAR)
   matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
 #endif
 
@@ -138,7 +138,7 @@ void Planner::init() {
   memset(position, 0, sizeof(position)); // clear position
   LOOP_XYZE(i) previous_speed[i] = 0.0;
   previous_nominal_speed = 0.0;
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
     bed_level_matrix.set_to_identity();
   #endif
 }
@@ -531,12 +531,14 @@ void Planner::check_axes_activity() {
  *  extruder  - target extruder
  */
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
-  void Planner::buffer_line(float x, float y, float z, const float& e, float fr_mm_s, const uint8_t extruder)
-#else
-  void Planner::buffer_line(const float& x, const float& y, const float& z, const float& e, float fr_mm_s, const uint8_t extruder)
-#endif  // AUTO_BED_LEVELING_FEATURE
-{
+void Planner::buffer_line(
+  #if PLANNER_LEVELING
+    float x, float y, float z
+  #else
+    const float& x, const float& y, const float& z
+  #endif
+  , const float& e, float fr_mm_s, const uint8_t extruder
+) {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
@@ -545,10 +547,14 @@ void Planner::check_axes_activity() {
   while (block_buffer_tail == next_buffer_head) idle();
 
   #if ENABLED(MESH_BED_LEVELING)
+
     if (mbl.active())
       z += mbl.get_z(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
-  #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
+
+  #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
+
     apply_rotation_xyz(bed_level_matrix, x, y, z);
+
   #endif
 
   // The target position of the tool in absolute steps
@@ -567,11 +573,22 @@ void Planner::check_axes_activity() {
 
   /*
   SERIAL_ECHO_START;
-  SERIAL_ECHOPAIR("Planner X:", x);
-  SERIAL_ECHOPAIR(" (", dx);
-  SERIAL_ECHOPAIR(") Y:", y);
+  SERIAL_ECHOPGM("Planner ", x);
+  #if IS_KINEMATIC
+    SERIAL_ECHOPAIR("A:", x);
+    SERIAL_ECHOPAIR(" (", dx);
+    SERIAL_ECHOPAIR(") B:", y);
+  #else
+    SERIAL_ECHOPAIR("X:", x);
+    SERIAL_ECHOPAIR(" (", dx);
+    SERIAL_ECHOPAIR(") Y:", y);
+  #endif
   SERIAL_ECHOPAIR(" (", dy);
-  SERIAL_ECHOPAIR(") Z:", z);
+  #elif ENABLED(DELTA)
+    SERIAL_ECHOPAIR(") C:", z);
+  #else
+    SERIAL_ECHOPAIR(") Z:", z);
+  #endif
   SERIAL_ECHOPAIR(" (", dz);
   SERIAL_ECHOLNPGM(")");
   //*/
@@ -1145,32 +1162,34 @@ void Planner::check_axes_activity() {
  *
  * On CORE machines stepper ABC will be translated from the given XYZ.
  */
-#if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
-  void Planner::set_position_mm(float x, float y, float z, const float& e)
-#else
-  void Planner::set_position_mm(const float& x, const float& y, const float& z, const float& e)
-#endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
-  {
-    #if ENABLED(MESH_BED_LEVELING)
+void Planner::set_position_mm(
+  #if PLANNER_LEVELING
+    float x, float y, float z
+  #else
+    const float& x, const float& y, const float& z
+  #endif
+  , const float& e
+) {
+  #if ENABLED(MESH_BED_LEVELING)
 
-      if (mbl.active())
-        z += mbl.get_z(RAW_X_POSITION(x), RAW_Y_POSITION(y));
+    if (mbl.active())
+      z += mbl.get_z(RAW_X_POSITION(x), RAW_Y_POSITION(y));
 
-    #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
-      apply_rotation_xyz(bed_level_matrix, x, y, z);
+    apply_rotation_xyz(bed_level_matrix, x, y, z);
 
-    #endif
+  #endif
 
-    long nx = position[X_AXIS] = lround(x * axis_steps_per_mm[X_AXIS]),
-         ny = position[Y_AXIS] = lround(y * axis_steps_per_mm[Y_AXIS]),
-         nz = position[Z_AXIS] = lround(z * axis_steps_per_mm[Z_AXIS]),
-         ne = position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS]);
-    stepper.set_position(nx, ny, nz, ne);
-    previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
+  long nx = position[X_AXIS] = lround(x * axis_steps_per_mm[X_AXIS]),
+       ny = position[Y_AXIS] = lround(y * axis_steps_per_mm[Y_AXIS]),
+       nz = position[Z_AXIS] = lround(z * axis_steps_per_mm[Z_AXIS]),
+       ne = position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS]);
+  stepper.set_position(nx, ny, nz, ne);
+  previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 
-    LOOP_XYZE(i) previous_speed[i] = 0.0;
-  }
+  LOOP_XYZE(i) previous_speed[i] = 0.0;
+}
 
 /**
  * Directly set the planner E position (hence the stepper E position).

@@ -468,16 +468,16 @@
  * Make sure Z_SAFE_HOMING point is reachable
  */
 #if ENABLED(Z_SAFE_HOMING)
-  #if Z_SAFE_HOMING_X_POINT < MIN_PROBE_X || Z_SAFE_HOMING_X_POINT > MAX_PROBE_X
-    #if HAS_BED_PROBE
+  #if HAS_BED_PROBE
+    #if Z_SAFE_HOMING_X_POINT < MIN_PROBE_X || Z_SAFE_HOMING_X_POINT > MAX_PROBE_X
       #error "Z_SAFE_HOMING_X_POINT can't be reached by the Z probe."
-    #else
-      #error "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle."
-    #endif
-  #elif Z_SAFE_HOMING_Y_POINT < MIN_PROBE_Y || Z_SAFE_HOMING_Y_POINT > MAX_PROBE_Y
-    #if HAS_BED_PROBE
+    #elif Z_SAFE_HOMING_Y_POINT < MIN_PROBE_Y || Z_SAFE_HOMING_Y_POINT > MAX_PROBE_Y
       #error "Z_SAFE_HOMING_Y_POINT can't be reached by the Z probe."
-    #else
+    #endif
+  #else
+    #if Z_SAFE_HOMING_X_POINT < X_MIN_POS || Z_SAFE_HOMING_X_POINT > X_MAX_POS
+      #error "Z_SAFE_HOMING_X_POINT can't be reached by the nozzle."
+    #elif Z_SAFE_HOMING_Y_POINT < Y_MIN_POS || Z_SAFE_HOMING_Y_POINT > Y_MAX_POS
       #error "Z_SAFE_HOMING_Y_POINT can't be reached by the nozzle."
     #endif
   #endif

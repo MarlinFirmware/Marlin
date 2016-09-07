@@ -36,12 +36,11 @@
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   #include "vector_3.h"
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
-    #include "qr_solve.h"
-  #endif
-#endif // AUTO_BED_LEVELING_FEATURE
+#endif
 
-#if ENABLED(MESH_BED_LEVELING)
+#if ENABLED(AUTO_BED_LEVELING_LINEAR)
+  #include "qr_solve.h"
+#elif ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
 #endif
 
@@ -463,7 +462,7 @@ static uint8_t target_extruder;
   #define TOWER_3 Z_AXIS
 
   float delta[ABC];
-  float cartesian_position[XYZ] = { 0 };
+  float cartes[XYZ] = { 0 };
   #define SIN_60 0.8660254037844386
   #define COS_60 0.5
   float endstop_adj[ABC] = { 0 };
@@ -493,10 +492,16 @@ static uint8_t target_extruder;
   static bool home_all_axis = true;
 #endif
 
-#if ENABLED(SCARA)
-  float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
-  float delta[ABC];
-  float axis_scaling[ABC] = { 1, 1, 1 };    // Build size scaling, default to 1
+#if IS_SCARA
+  // Float constants for SCARA calculations
+  const float L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
+              L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
+              L2_2 = sq(float(L2));
+
+  float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND,
+        delta[ABC],
+        axis_scaling[ABC] = { 1, 1, 1 },    // Build size scaling, default to 1
+        cartes[XYZ] = { 0 };
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -554,6 +559,26 @@ static bool send_ok[BUFSIZE];
   #define host_keepalive() ;
   #define KEEPALIVE_STATE(n) ;
 #endif // HOST_KEEPALIVE_FEATURE
+
+#define DEFINE_PGM_READ_ANY(type, reader)       \
+  static inline type pgm_read_any(const type *p)  \
+  { return pgm_read_##reader##_near(p); }
+
+DEFINE_PGM_READ_ANY(float,       float);
+DEFINE_PGM_READ_ANY(signed char, byte);
+
+#define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
+  static const PROGMEM type array##_P[XYZ] =        \
+      { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
+  static inline type array(int axis)          \
+  { return pgm_read_any(&array##_P[axis]); }
+
+XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS);
+XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,   MAX_POS);
+XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,  HOME_POS);
+XYZ_CONSTS_FROM_CONFIG(float, max_length,     MAX_LENGTH);
+XYZ_CONSTS_FROM_CONFIG(float, home_bump_mm,   HOME_BUMP_MM);
+XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
 
 /**
  * ***************************************************************************
@@ -615,9 +640,9 @@ static void report_current_position();
 
 /**
  * sync_plan_position
- * Set planner / stepper positions to the cartesian current_position.
- * The stepper code translates these coordinates into step units.
- * Allows translation between steps and millimeters for cartesian & core robots
+ *
+ * Set the planner/stepper positions directly from current_position with
+ * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */
 inline void sync_plan_position() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -627,17 +652,21 @@ inline void sync_plan_position() {
 }
 inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
 
-#if ENABLED(DELTA) || ENABLED(SCARA)
-  inline void sync_plan_position_delta() {
+#if IS_KINEMATIC
+
+  inline void sync_plan_position_kinematic() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_delta", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_kinematic", current_position);
     #endif
     inverse_kinematics(current_position);
     planner.set_position_mm(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
   }
-  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_delta()
+  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_kinematic()
+
 #else
+
   #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position()
+
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -765,7 +794,6 @@ void setup_homepin(void) {
     WRITE(HOME_PIN, HIGH);
   #endif
 }
-
 
 void setup_photpin() {
   #if HAS_PHOTOGRAPH
@@ -1406,26 +1434,6 @@ bool get_target_extruder_from_command(int code) {
   return false;
 }
 
-#define DEFINE_PGM_READ_ANY(type, reader)       \
-  static inline type pgm_read_any(const type *p)  \
-  { return pgm_read_##reader##_near(p); }
-
-DEFINE_PGM_READ_ANY(float,       float);
-DEFINE_PGM_READ_ANY(signed char, byte);
-
-#define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
-  static const PROGMEM type array##_P[XYZ] =        \
-      { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
-  static inline type array(int axis)          \
-  { return pgm_read_any(&array##_P[axis]); }
-
-XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS);
-XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,   MAX_POS);
-XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,  HOME_POS);
-XYZ_CONSTS_FROM_CONFIG(float, max_length,     MAX_LENGTH);
-XYZ_CONSTS_FROM_CONFIG(float, home_bump_mm,   HOME_BUMP_MM);
-XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
-
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   bool extruder_duplication_enabled = false; // Used in Dual X mode 2
 #endif
@@ -1556,8 +1564,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
       float homeposition[XYZ];
       LOOP_XYZ(i) homeposition[i] = LOGICAL_POSITION(base_home_pos(i), i);
 
-      // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
-      // SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
+      // SERIAL_ECHOPAIR("homeposition[x]= ", homeposition[0]);
+      // SERIAL_ECHOLNPAIR("homeposition[y]= ", homeposition[1]);
 
       /**
        * Works out real Homeposition angles using inverse kinematics,
@@ -1566,17 +1574,17 @@ static void set_axis_is_at_home(AxisEnum axis) {
       inverse_kinematics(homeposition);
       forward_kinematics_SCARA(delta);
 
-      // SERIAL_ECHOPAIR("Delta X=", delta[X_AXIS]);
-      // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      // SERIAL_ECHOPAIR("Delta X=", cartes[X_AXIS]);
+      // SERIAL_ECHOLNPAIR(" Delta Y=", cartes[Y_AXIS]);
 
-      current_position[axis] = LOGICAL_POSITION(delta[axis], axis);
+      current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
 
       /**
        * SCARA home positions are based on configuration since the actual
        * limits are determined by the inverse kinematic transform.
        */
-      soft_endstop_min[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
-      soft_endstop_max[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      soft_endstop_min[axis] = base_min_pos(axis); // + (cartes[axis] - base_home_pos(axis));
+      soft_endstop_max[axis] = base_max_pos(axis); // + (cartes[axis] - base_home_pos(axis));
     }
     else
   #endif
@@ -1661,9 +1669,9 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
   /**
    * Calculate delta, start a line, and set current_position to destination
    */
-  void prepare_move_to_destination_raw() {
+  void prepare_uninterpolated_move_to_destination() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_move_to_destination_raw", destination);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
     #endif
     refresh_cmd_timeout();
     inverse_kinematics(destination);
@@ -1699,7 +1707,7 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
         destination[X_AXIS] = x;           // move directly (uninterpolated)
         destination[Y_AXIS] = y;
         destination[Z_AXIS] = z;
-        prepare_move_to_destination_raw(); // set_current_to_destination
+        prepare_uninterpolated_move_to_destination(); // set_current_to_destination
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("danger zone move", current_position);
         #endif
@@ -1707,7 +1715,7 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
       }
       else {
         destination[Z_AXIS] = delta_clip_start_height;
-        prepare_move_to_destination_raw(); // set_current_to_destination
+        prepare_uninterpolated_move_to_destination(); // set_current_to_destination
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("zone border move", current_position);
         #endif
@@ -1716,7 +1724,7 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 
     if (z > current_position[Z_AXIS]) {    // raising?
       destination[Z_AXIS] = z;
-      prepare_move_to_destination_raw();   // set_current_to_destination
+      prepare_uninterpolated_move_to_destination();   // set_current_to_destination
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z raise move", current_position);
       #endif
@@ -1731,7 +1739,7 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 
     if (z < current_position[Z_AXIS]) {    // lowering?
       destination[Z_AXIS] = z;
-      prepare_move_to_destination_raw();   // set_current_to_destination
+      prepare_uninterpolated_move_to_destination();   // set_current_to_destination
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("z lower move", current_position);
       #endif
@@ -2158,7 +2166,7 @@ static void clean_up_after_endstop_or_probe_move() {
     refresh_cmd_timeout();
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-      planner.bed_level_matrix.set_to_identity();
+      reset_bed_level();
     #endif
 
     #if ENABLED(PROBE_DOUBLE_TOUCH)
@@ -2268,16 +2276,14 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
-
-    #if DISABLED(DELTA)
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
       static void set_bed_level_equation_lsq(double* plane_equation_coefficients) {
 
         //planner.bed_level_matrix.debug("bed level before");
 
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          planner.bed_level_matrix.set_to_identity();
+        #if ENABLED(DEBUG_LEVELING_LINEAR)
+          reset_bed_level();
           if (DEBUGGING(LEVELING)) {
             vector_3 uncorrected_position = planner.adjusted_position();
             DEBUG_POS(">>> set_bed_level_equation_lsq", uncorrected_position);
@@ -2300,9 +2306,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SYNC_PLAN_POSITION_KINEMATIC();
       }
 
-    #endif // !DELTA
-
-  #else // !AUTO_BED_LEVELING_GRID
+  #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
     static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
 
@@ -2396,26 +2400,29 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     }
 
-    /**
-     * Reset calibration results to zero.
-     */
-    void reset_bed_level() {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
-      #endif
-      for (int y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
-        for (int x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
-          bed_level[x][y] = 0.0;
-        }
-      }
-    }
-
   #endif // DELTA
+
+  /**
+   * Reset calibration results to zero.
+   */
+  void reset_bed_level() {
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
+
+    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+
+      planner.bed_level_matrix.set_to_identity();
+
+    #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+
+      memset(bed_level, 0, sizeof(bed_level));
+
+    #endif
+  }
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
 /**
- * Home an individual axis
+ * Home an individual linear axis
  */
 
 static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
@@ -2701,6 +2708,26 @@ void unknown_command_error() {
 
 #endif //HOST_KEEPALIVE_FEATURE
 
+bool position_is_reachable(float target[XYZ]) {
+
+  float dx = RAW_X_POSITION(target[X_AXIS]),
+        dy = RAW_Y_POSITION(target[Y_AXIS]),
+        dz = RAW_Z_POSITION(target[Z_AXIS]);
+  bool good = dx >= X_MIN_POS - 0.0001 && dx <= X_MAX_POS + 0.0001
+           && dy >= Y_MIN_POS - 0.0001 && dy <= Y_MAX_POS + 0.0001
+           && dz >= Z_MIN_POS - 0.0001 && dz <= Z_MAX_POS + 0.0001;
+
+  #if IS_SCARA
+    float R2 = HYPOT2(dx - SCARA_OFFSET_X, dy - SCARA_OFFSET_Y);
+    return good && R2 >= sq(float(MIDDLE_DEAD_ZONE_R)) && R2 <= (sq(L1 + L2) + 0.1);
+  #elif ENABLED(DELTA)
+    float R2 = HYPOT2(dx, dy);
+    return good && R2 <= sq(DELTA_PRINTABLE_RADIUS);
+  #else
+    return good;
+  #endif
+}
+
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
@@ -2908,7 +2935,7 @@ inline void gcode_G4() {
     SERIAL_ECHOPGM("Machine Type: ");
     #if ENABLED(DELTA)
       SERIAL_ECHOLNPGM("Delta");
-    #elif ENABLED(SCARA)
+    #elif IS_SCARA
       SERIAL_ECHOLNPGM("SCARA");
     #elif ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
       SERIAL_ECHOLNPGM("Core");
@@ -2957,6 +2984,97 @@ inline void gcode_G4() {
 
 #endif // DEBUG_LEVELING_FEATURE
 
+#if ENABLED(DELTA)
+
+  /**
+   * A delta can only safely home all axes at the same time
+   * This is like quick_home_xy() but for 3 towers.
+   */
+  inline void home_delta() {
+    // Init the current position of all carriages to 0,0,0
+    memset(current_position, 0, sizeof(current_position));
+    sync_plan_position();
+
+    // Move all carriages together linearly until an endstop is hit.
+    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (Z_MAX_LENGTH + 10);
+    feedrate_mm_s = homing_feedrate_mm_s[X_AXIS];
+    line_to_current_position();
+    stepper.synchronize();
+    endstops.hit_on_purpose(); // clear endstop hit flags
+
+    // Probably not needed. Double-check this line:
+    memset(current_position, 0, sizeof(current_position));
+
+    // At least one carriage has reached the top.
+    // Now back off and re-home each carriage separately.
+    HOMEAXIS(A);
+    HOMEAXIS(B);
+    HOMEAXIS(C);
+
+    // Set all carriages to their home positions
+    // Do this here all at once for Delta, because
+    // XYZ isn't ABC. Applying this per-tower would
+    // give the impression that they are the same.
+    LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
+
+    SYNC_PLAN_POSITION_KINEMATIC();
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("(DELTA)", current_position);
+    #endif
+  }
+
+#endif // DELTA
+
+#if ENABLED(Z_SAFE_HOMING)
+
+  inline void home_z_safely() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Z_SAFE_HOMING >>>");
+    #endif
+
+    // Disallow Z homing if X or Y are unknown
+    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
+      // Z Safe Homing forbids G28 Z
+      LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_ERR_Z_HOMING);
+    }
+    else {
+
+      SYNC_PLAN_POSITION_KINEMATIC();
+
+      /**
+       * Move the Z probe (or just the nozzle) to the safe homing point
+       */
+      destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - (X_PROBE_OFFSET_FROM_EXTRUDER));
+      destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - (Y_PROBE_OFFSET_FROM_EXTRUDER));
+      destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
+
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
+      #endif
+
+      if (position_is_reachable(destination)) {
+        do_blocking_move_to_xy(destination[X_AXIS], destination[Y_AXIS]);
+        stepper.synchronize();
+        HOMEAXIS(Z);
+      }
+      else {
+        LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
+      }
+
+    }
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< Z_SAFE_HOMING");
+    #endif
+  }
+
+#endif
+
 /**
  * G28: Home all axes according to settings
  *
@@ -2986,10 +3104,7 @@ inline void gcode_G28() {
 
   // For auto bed leveling, clear the level matrix
   #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    planner.bed_level_matrix.set_to_identity();
-    #if ENABLED(DELTA)
-      reset_bed_level();
-    #endif
+    reset_bed_level();
   #endif
 
   // Always home with tool 0 active
@@ -3033,42 +3148,8 @@ inline void gcode_G28() {
 
 
   #if ENABLED(DELTA)
-    /**
-     * A delta can only safely home all axes at the same time
-     * This is like quick_home_xy() but for 3 towers.
-     */
 
-    // Init the current position of all carriages to 0,0,0
-    memset(current_position, 0, sizeof(current_position));
-    sync_plan_position();
-
-    // Move all carriages together linearly until an endstop is hit.
-    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (Z_MAX_LENGTH + 10);
-    feedrate_mm_s = homing_feedrate_mm_s[X_AXIS];
-    line_to_current_position();
-    stepper.synchronize();
-    endstops.hit_on_purpose(); // clear endstop hit flags
-
-    // Probably not needed. Double-check this line:
-    memset(current_position, 0, sizeof(current_position));
-
-    // At least one carriage has reached the top.
-    // Now back off and re-home each carriage separately.
-    HOMEAXIS(A);
-    HOMEAXIS(B);
-    HOMEAXIS(C);
-
-    // Set all carriages to their home positions
-    // Do this here all at once for Delta, because
-    // XYZ isn't ABC. Applying this per-tower would
-    // give the impression that they are the same.
-    LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
-
-    SYNC_PLAN_POSITION_KINEMATIC();
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("(DELTA)", current_position);
-    #endif
+    home_delta();
 
   #else // NOT DELTA
 
@@ -3161,76 +3242,18 @@ inline void gcode_G28() {
 
         #if ENABLED(Z_SAFE_HOMING)
 
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> Z_SAFE_HOMING >>>");
-          #endif
+          home_z_safely();
 
-          if (home_all_axis) {
-
-            /**
-             * At this point we already have Z at Z_HOMING_HEIGHT height
-             * No need to move Z any more as this height should already be safe
-             * enough to reach Z_SAFE_HOMING XY positions.
-             * Just make sure the planner is in sync.
-             */
-            SYNC_PLAN_POSITION_KINEMATIC();
-
-            /**
-             * Move the Z probe (or just the nozzle) to the safe homing point
-             */
-            destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - (X_PROBE_OFFSET_FROM_EXTRUDER));
-            destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - (Y_PROBE_OFFSET_FROM_EXTRUDER));
-            destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
-
-            #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) DEBUG_POS("> Z_SAFE_HOMING > home_all_axis", destination);
-            #endif
-
-            // Move in the XY plane
-            do_blocking_move_to_xy(destination[X_AXIS], destination[Y_AXIS]);
-          }
-
-          // Let's see if X and Y are homed
-          if (axis_unhomed_error(true, true, false)) return;
-
-          /**
-           * Make sure the Z probe is within the physical limits
-           * NOTE: This doesn't necessarily ensure the Z probe is also
-           * within the bed!
-           */
-          float cpx = RAW_CURRENT_POSITION(X_AXIS), cpy = RAW_CURRENT_POSITION(Y_AXIS);
-          if (   cpx >= X_MIN_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-              && cpx <= X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-              && cpy >= Y_MIN_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
-              && cpy <= Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)) {
-
-            // Home the Z axis
-            HOMEAXIS(Z);
-          }
-          else {
-            LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
-            SERIAL_ECHO_START;
-            SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
-          }
-
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOLNPGM("<<< Z_SAFE_HOMING");
-            }
-          #endif
-
-        #else // !Z_SAFE_HOMING
+        #else
 
           HOMEAXIS(Z);
 
-        #endif // !Z_SAFE_HOMING
+        #endif
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> (home_all_axis || homeZ) > final", current_position);
         #endif
-
       } // home_all_axis || homeZ
-
     #endif // Z_HOME_DIR < 0
 
     SYNC_PLAN_POSITION_KINEMATIC();
@@ -3571,7 +3594,7 @@ inline void gcode_G28() {
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
-      #if DISABLED(DELTA)
+      #if DISABLED(AUTO_BED_LEVELING_NONLINEAR)
         bool do_topography_map = verbose_level > 2 || code_seen('T');
       #endif
 
@@ -3582,7 +3605,7 @@ inline void gcode_G28() {
 
       int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
 
-      #if DISABLED(DELTA)
+      #if DISABLED(AUTO_BED_LEVELING_NONLINEAR)
         if (code_seen('P')) auto_bed_leveling_grid_points = code_value_int();
         if (auto_bed_leveling_grid_points < 2) {
           SERIAL_PROTOCOLLNPGM("?Number of probed (P)oints is implausible (2 minimum).");
@@ -3639,11 +3662,9 @@ inline void gcode_G28() {
       #endif
 
       // make sure the bed_level_rotation_matrix is identity or the planner will get it wrong
-      planner.bed_level_matrix.set_to_identity();
+      reset_bed_level();
 
-      #if ENABLED(DELTA)
-        reset_bed_level();
-      #else //!DELTA
+      #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
         //vector_3 corrected_position = planner.adjusted_position();
         //corrected_position.debug("position before G29");
@@ -4364,12 +4385,9 @@ inline void gcode_M42() {
     if (verbose_level > 2)
       SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
-    #if ENABLED(DELTA)
-      // we don't do bed level correction in M48 because we want the raw data when we probe
+    // we don't do bed level correction in M48 because we want the raw data when we probe
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       reset_bed_level();
-    #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
-      // we don't do bed level correction in M48 because we want the raw data when we probe
-      planner.bed_level_matrix.set_to_identity();
     #endif
 
     setup_for_endstop_or_probe_move();
@@ -5493,7 +5511,7 @@ inline void gcode_M206() {
     if (code_seen(axis_codes[i]))
       set_home_offset((AxisEnum)i, code_value_axis_units(i));
 
-  #if ENABLED(SCARA)
+  #if IS_SCARA
     if (code_seen('T')) set_home_offset(X_AXIS, code_value_axis_units(X_AXIS)); // Theta
     if (code_seen('P')) set_home_offset(Y_AXIS, code_value_axis_units(Y_AXIS)); // Psi
   #endif
@@ -5974,10 +5992,9 @@ inline void gcode_M303() {
   #endif
 }
 
-#if ENABLED(SCARA)
-  bool SCARA_move_to_cal(uint8_t delta_x, uint8_t delta_y) {
-    //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLNPGM(" Soft endstops disabled");
+#if IS_SCARA
+
+  bool SCARA_move_to_cal(uint8_t delta_a, uint8_t delta_b) {
     if (IsRunning()) {
       //gcode_get_destination(); // For X Y Z E F
       delta[X_AXIS] = delta_x;
@@ -7622,7 +7639,7 @@ void process_next_command() {
         gcode_M303();
         break;
 
-      #if ENABLED(SCARA)
+      #if IS_SCARA
         case 360:  // M360 SCARA Theta pos1
           if (gcode_M360()) return;
           break;
@@ -7864,13 +7881,13 @@ void ok_to_send() {
                           - sq(delta_tower3_y - cartesian[Y_AXIS])
                          ) + cartesian[Z_AXIS];
     /**
-    SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+    SERIAL_ECHOPAIR("cartesian x="), cartesian[X_AXIS]);
+    SERIAL_ECHOPAIR(" y="), cartesian[Y_AXIS]);
+    SERIAL_ECHOLNPAIR(" z=", cartesian[Z_AXIS]);
 
-    SERIAL_ECHOPGM("delta a="); SERIAL_ECHO(delta[TOWER_1]);
-    SERIAL_ECHOPGM(" b="); SERIAL_ECHO(delta[TOWER_2]);
-    SERIAL_ECHOPGM(" c="); SERIAL_ECHOLN(delta[TOWER_3]);
+    SERIAL_ECHOPAIR("delta a="), delta[TOWER_1]);
+    SERIAL_ECHOPAIR(" b="), delta[TOWER_2]);
+    SERIAL_ECHOLNPAIR(" c=", delta[TOWER_3]);
     */
   }
 
@@ -7907,7 +7924,7 @@ void ok_to_send() {
     // based on a Java function from
     // "Delta Robot Kinematics by Steve Graves" V3
 
-    // Result is in cartesian_position[].
+    // Result is in cartes[].
 
     //Create a vector in old coordinates along x axis of new coordinate
     float p12[3] = { delta_tower2_x - delta_tower1_x, delta_tower2_y - delta_tower1_y, z2 - z1 };
@@ -7951,9 +7968,9 @@ void ok_to_send() {
     //Now we can start from the origin in the old coords and
     //add vectors in the old coords that represent the
     //Xnew, Ynew and Znew to find the point in the old system
-    cartesian_position[X_AXIS] = delta_tower1_x + ex[0]*Xnew + ey[0]*Ynew - ez[0]*Znew;
-    cartesian_position[Y_AXIS] = delta_tower1_y + ex[1]*Xnew + ey[1]*Ynew - ez[1]*Znew;
-    cartesian_position[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
+    cartes[X_AXIS] = delta_tower1_x + ex[0]*Xnew + ey[0]*Ynew - ez[0]*Znew;
+    cartes[Y_AXIS] = delta_tower1_y + ex[1]*Xnew + ey[1]*Ynew - ez[1]*Znew;
+    cartes[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
   };
 
   void forward_kinematics_DELTA(float point[ABC]) {
@@ -7991,19 +8008,19 @@ void ok_to_send() {
       delta[Z_AXIS] += offset;
 
       /**
-      SERIAL_ECHOPGM("grid_x="); SERIAL_ECHO(grid_x);
-      SERIAL_ECHOPGM(" grid_y="); SERIAL_ECHO(grid_y);
-      SERIAL_ECHOPGM(" floor_x="); SERIAL_ECHO(floor_x);
-      SERIAL_ECHOPGM(" floor_y="); SERIAL_ECHO(floor_y);
-      SERIAL_ECHOPGM(" ratio_x="); SERIAL_ECHO(ratio_x);
-      SERIAL_ECHOPGM(" ratio_y="); SERIAL_ECHO(ratio_y);
-      SERIAL_ECHOPGM(" z1="); SERIAL_ECHO(z1);
-      SERIAL_ECHOPGM(" z2="); SERIAL_ECHO(z2);
-      SERIAL_ECHOPGM(" z3="); SERIAL_ECHO(z3);
-      SERIAL_ECHOPGM(" z4="); SERIAL_ECHO(z4);
-      SERIAL_ECHOPGM(" left="); SERIAL_ECHO(left);
-      SERIAL_ECHOPGM(" right="); SERIAL_ECHO(right);
-      SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
+      SERIAL_ECHOPAIR("grid_x=", grid_x);
+      SERIAL_ECHOPAIR(" grid_y=", grid_y);
+      SERIAL_ECHOPAIR(" floor_x=", floor_x);
+      SERIAL_ECHOPAIR(" floor_y=", floor_y);
+      SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
+      SERIAL_ECHOPAIR(" ratio_y=", ratio_y);
+      SERIAL_ECHOPAIR(" z1=", z1);
+      SERIAL_ECHOPAIR(" z2=", z2);
+      SERIAL_ECHOPAIR(" z3=", z3);
+      SERIAL_ECHOPAIR(" z4=", z4);
+      SERIAL_ECHOPAIR(" left=", left);
+      SERIAL_ECHOPAIR(" right=", right);
+      SERIAL_ECHOLNPAIR(" offset=", offset);
       */
     }
   #endif // AUTO_BED_LEVELING_FEATURE
@@ -8013,7 +8030,7 @@ void ok_to_send() {
 void set_current_from_steppers_for_axis(AxisEnum axis) {
   #if ENABLED(DELTA)
     set_cartesian_from_steppers();
-    current_position[axis] = LOGICAL_POSITION(cartesian_position[axis], axis);
+    current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
   #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
     vector_3 pos = planner.adjusted_position();
     current_position[axis] = axis == X_AXIS ? pos.x : axis == Y_AXIS ? pos.y : pos.z;
@@ -8095,9 +8112,9 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
     int steps = max(1, int(delta_segments_per_second * seconds));
     float inv_steps = 1.0/steps;
 
-    // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
-    // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
-    // SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
+    // SERIAL_ECHOPAIR("mm=", cartesian_mm);
+    // SERIAL_ECHOPAIR(" seconds=", seconds);
+    // SERIAL_ECHOLNPAIR(" steps=", steps);
 
     for (int s = 1; s <= steps; s++) {
 
@@ -8166,7 +8183,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
 
 #endif // DUAL_X_CARRIAGE
 
-#if DISABLED(DELTA) && DISABLED(SCARA)
+#if IS_CARTESIAN
 
   inline bool prepare_move_to_destination_cartesian() {
     // Do not use feedrate_percentage for E or Z only moves
@@ -8186,7 +8203,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
     return true;
   }
 
-#endif // !DELTA && !SCARA
+#endif // IS_CARTESIAN
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
 
@@ -8225,7 +8242,7 @@ void prepare_move_to_destination() {
     prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS]);
   #endif
 
-  #if ENABLED(DELTA) || ENABLED(SCARA)
+  #if IS_KINEMATIC
     if (!prepare_kinematic_move_to(destination)) return;
   #else
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -8361,9 +8378,9 @@ void prepare_move_to_destination() {
 
       clamp_to_software_endstops(arc_target);
 
-      #if ENABLED(DELTA) || ENABLED(SCARA)
+      #if IS_KINEMATIC
         inverse_kinematics(arc_target);
-        #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+        #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
           adjust_delta(arc_target);
         #endif
         planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
@@ -8373,9 +8390,9 @@ void prepare_move_to_destination() {
     }
 
     // Ensure last segment arrives at target location.
-    #if ENABLED(DELTA) || ENABLED(SCARA)
+    #if IS_KINEMATIC
       inverse_kinematics(target);
-      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
         adjust_delta(target);
       #endif
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], fr_mm_s, active_extruder);
@@ -8443,29 +8460,27 @@ void prepare_move_to_destination() {
 #if ENABLED(SCARA)
 
   void forward_kinematics_SCARA(float f_scara[ABC]) {
-    // Perform forward kinematics, and place results in delta[]
-    // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+    // Perform forward kinematics, and place results in cartes[]
+    // The maths and first version has been done by QHARLEY.
+    // Integrated into masterbranch 06/2014 and slightly restructured
+    // by Joachim Cerny in June 2014
 
-    float x_sin, x_cos, y_sin, y_cos;
+    float x_sin = sin(RADIANS(f_scara[X_AXIS])) * L1,
+          x_cos = cos(RADIANS(f_scara[X_AXIS])) * L1,
+          y_sin = sin(RADIANS(f_scara[Y_AXIS])) * L2,
+          y_cos = cos(RADIANS(f_scara[Y_AXIS])) * L2;
 
-    //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
-    //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
+    cartes[X_AXIS] = x_cos + y_cos + SCARA_OFFSET_X;  //theta
+    cartes[Y_AXIS] = x_sin + y_sin + SCARA_OFFSET_Y;  //theta+phi
 
-    x_sin = sin(f_scara[X_AXIS] / SCARA_RAD2DEG) * Linkage_1;
-    x_cos = cos(f_scara[X_AXIS] / SCARA_RAD2DEG) * Linkage_1;
-    y_sin = sin(f_scara[Y_AXIS] / SCARA_RAD2DEG) * Linkage_2;
-    y_cos = cos(f_scara[Y_AXIS] / SCARA_RAD2DEG) * Linkage_2;
-
-    //SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
-    //SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
-    //SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
-    //SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
-
-    delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;  //theta
-    delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;  //theta+phi
-
-    //SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
-    //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+    //SERIAL_ECHOPAIR("f_delta x=", f_scara[X_AXIS]);
+    //SERIAL_ECHOPAIR(" y=", f_scara[Y_AXIS]);
+    //SERIAL_ECHOPAIR(" x_sin=", x_sin);
+    //SERIAL_ECHOPAIR(" x_cos=", x_cos);
+    //SERIAL_ECHOPAIR(" y_sin=", y_sin);
+    //SERIAL_ECHOLNPAIR(" y_cos=", y_cos);
+    //SERIAL_ECHOPAIR(" cartes[X_AXIS]=", cartes[X_AXIS]);
+    //SERIAL_ECHOLNPAIR(" cartes[Y_AXIS]=", cartes[Y_AXIS]);
   }
 
   void inverse_kinematics(const float cartesian[XYZ]) {
@@ -8477,43 +8492,42 @@ void prepare_move_to_destination() {
     float SCARA_pos[2];
     static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi;
 
-    SCARA_pos[X_AXIS] = RAW_X_POSITION(cartesian[X_AXIS]) * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
-    SCARA_pos[Y_AXIS] = RAW_Y_POSITION(cartesian[Y_AXIS]) * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
+    SCARA_pos[X_AXIS] = RAW_X_POSITION(cartesian[X_AXIS]) * axis_scaling[X_AXIS] - SCARA_OFFSET_X;  //Translate SCARA to standard X Y
+    SCARA_pos[Y_AXIS] = RAW_Y_POSITION(cartesian[Y_AXIS]) * axis_scaling[Y_AXIS] - SCARA_OFFSET_Y;  // With scaling factor.
 
-    #if (Linkage_1 == Linkage_2)
-      SCARA_C2 = ((sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS])) / (2 * (float)L1_2)) - 1;
-    #else
-      SCARA_C2 = (sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2) / 45000;
-    #endif
+    if (L1 == L2)
+      SCARA_C2 = HYPOT2(SCARA_pos[X_AXIS], SCARA_pos[Y_AXIS]) / L1_2_2 - 1;
+    else
+      SCARA_C2 = (HYPOT2(SCARA_pos[X_AXIS], SCARA_pos[Y_AXIS]) - L1_2 - L2_2) / 45000;
 
-    SCARA_S2 = sqrt(1 - sq(SCARA_C2));
+    SCARA_S2 = sqrt(sq(SCARA_C2) - 1);
 
-    SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
-    SCARA_K2 = Linkage_2 * SCARA_S2;
+    SCARA_K1 = L1 + L2 * SCARA_C2;
+    SCARA_K2 = L2 * SCARA_S2;
 
-    SCARA_theta = (atan2(SCARA_pos[X_AXIS], SCARA_pos[Y_AXIS]) - atan2(SCARA_K1, SCARA_K2)) * -1;
+    SCARA_theta = -(atan2(SCARA_pos[X_AXIS], SCARA_pos[Y_AXIS]) - atan2(SCARA_K1, SCARA_K2));
     SCARA_psi = atan2(SCARA_S2, SCARA_C2);
 
-    delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
-    delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
+    delta[X_AXIS] = DEGREES(SCARA_theta);              // Theta is support arm angle
+    delta[Y_AXIS] = DEGREES(SCARA_theta + SCARA_psi);  // Equal to sub arm angle (inverted motor)
     delta[Z_AXIS] = RAW_Z_POSITION(cartesian[Z_AXIS]);
 
     /**
-    SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+    SERIAL_ECHOPAIR("cartesian x=", cartesian[X_AXIS]);
+    SERIAL_ECHOPAIR(" y=", cartesian[Y_AXIS]);
+    SERIAL_ECHOLNPAIR(" z=", cartesian[Z_AXIS]);
 
-    SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
+    SERIAL_ECHOPAIR("scara x=", SCARA_pos[X_AXIS]);
+    SERIAL_ECHOLNPAIR(" y=", SCARA_pos[Y_AXIS]);
 
-    SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
-    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
+    SERIAL_ECHOPAIR("delta x=", delta[X_AXIS]);
+    SERIAL_ECHOPAIR(" y=", delta[Y_AXIS]);
+    SERIAL_ECHOLNPAIR(" z=", delta[Z_AXIS]);
 
-    SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
-    SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
-    SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
-    SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
+    SERIAL_ECHOPAIR("C2=", SCARA_C2);
+    SERIAL_ECHOPAIR(" S2=", SCARA_S2);
+    SERIAL_ECHOPAIR(" Theta=", SCARA_theta);
+    SERIAL_ECHOLNPAIR(" Psi=", SCARA_psi);
     SERIAL_EOL;
     */
   }

@@ -313,7 +313,7 @@ float code_value_temp_diff();
     extern int delta_grid_spacing[2];
     void adjust_delta(float cartesian[XYZ]);
   #endif
-#elif ENABLED(SCARA)
+#elif IS_SCARA
   extern float delta[ABC];
   extern float axis_scaling[ABC];  // Build size scaling
   void inverse_kinematics(const float cartesian[XYZ]);

@@ -75,7 +75,7 @@
 //
 
 //===========================================================================
-//========================= SCARA Settings ==================================
+//============================= SCARA Printer ===============================
 //===========================================================================
 // SCARA-mode for Marlin has been developed by QHARLEY in ZA in 2012/2013. Implemented
 // and slightly reworked by JCERNY in 06/2014 with the goal to bring it into Master-Branch
@@ -83,27 +83,29 @@
 // You might need Z-Min endstop on SCARA-Printer to use this feature. Actually untested!
 // Uncomment to use Morgan scara mode
 #define SCARA
-#define SCARA_SEGMENTS_PER_SECOND 200 // If movement is choppy try lowering this value
-// Length of inner support arm
-#define Linkage_1 150 //mm      Preprocessor cannot handle decimal point...
-// Length of outer support arm     Measure arm lengths precisely and enter
-#define Linkage_2 150 //mm
 
-// SCARA tower offset (position of Tower relative to bed zero position)
-// This needs to be reasonably accurate as it defines the printbed position in the SCARA space.
-#define SCARA_offset_x 100 //mm
-#define SCARA_offset_y -56 //mm
-#define SCARA_RAD2DEG 57.2957795  // to convert RAD to degrees
+#if ENABLED(SCARA)
+  //#define DEBUG_SCARA_KINEMATICS
 
-#define THETA_HOMING_OFFSET 0  //calculatated from Calibration Guide and command M360 / M114 see picture in http://reprap.harleystudio.co.za/?page_id=1073
-#define PSI_HOMING_OFFSET   0  //calculatated from Calibration Guide and command M364 / M114 see picture in http://reprap.harleystudio.co.za/?page_id=1073
+  #define SCARA_SEGMENTS_PER_SECOND 200 // If movement is choppy try lowering this value
+  // Length of inner support arm
+  #define SCARA_LINKAGE_1 150 //mm      Preprocessor cannot handle decimal point...
+  // Length of outer support arm     Measure arm lengths precisely and enter
+  #define SCARA_LINKAGE_2 150 //mm
 
-//some helper variables to make kinematics faster
-#define L1_2 sq(Linkage_1) // do not change
-#define L2_2 sq(Linkage_2) // do not change
+  // SCARA tower offset (position of Tower relative to bed zero position)
+  // This needs to be reasonably accurate as it defines the printbed position in the SCARA space.
+  #define SCARA_OFFSET_X 100 //mm
+  #define SCARA_OFFSET_Y -56 //mm
+
+  #define THETA_HOMING_OFFSET 0  //calculatated from Calibration Guide and command M360 / M114 see picture in http://reprap.harleystudio.co.za/?page_id=1073
+  #define PSI_HOMING_OFFSET   0  //calculatated from Calibration Guide and command M364 / M114 see picture in http://reprap.harleystudio.co.za/?page_id=1073
+
+  #define MIDDLE_DEAD_ZONE_R 0   // Unreachable center radius in single-tower SCARA variants
+#endif
 
 //===========================================================================
-//========================= SCARA Settings end ==============================
+//==================== END ==== SCARA Printer ==== END ======================
 //===========================================================================
 
 // @section info

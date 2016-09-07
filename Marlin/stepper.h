@@ -212,6 +212,13 @@ class Stepper {
     static float get_axis_position_mm(AxisEnum axis);
 
     //
+    // SCARA AB axes are in degrees, not mm
+    //
+    #if IS_SCARA
+      static FORCE_INLINE float get_axis_position_degrees(AxisEnum axis) { return get_axis_position_mm(axis); }
+    #endif
+
+    //
     // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
     // to notify the subsystem that it is time to go to work.
     //
