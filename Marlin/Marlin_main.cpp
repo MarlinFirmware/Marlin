@@ -7890,13 +7890,13 @@ void ok_to_send() {
                           - sq(delta_tower3_y - cartesian[Y_AXIS])
                          ) + cartesian[Z_AXIS];
     /**
-    SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+    SERIAL_ECHOPAIR("cartesian x="), cartesian[X_AXIS]);
+    SERIAL_ECHOPAIR(" y="), cartesian[Y_AXIS]);
+    SERIAL_ECHOLNPAIR(" z=", cartesian[Z_AXIS]);
 
-    SERIAL_ECHOPGM("delta a="); SERIAL_ECHO(delta[TOWER_1]);
-    SERIAL_ECHOPGM(" b="); SERIAL_ECHO(delta[TOWER_2]);
-    SERIAL_ECHOPGM(" c="); SERIAL_ECHOLN(delta[TOWER_3]);
+    SERIAL_ECHOPAIR("delta a="), delta[TOWER_1]);
+    SERIAL_ECHOPAIR(" b="), delta[TOWER_2]);
+    SERIAL_ECHOLNPAIR(" c=", delta[TOWER_3]);
     */
   }
 
@@ -8017,19 +8017,19 @@ void ok_to_send() {
       delta[Z_AXIS] += offset;
 
       /**
-      SERIAL_ECHOPGM("grid_x="); SERIAL_ECHO(grid_x);
-      SERIAL_ECHOPGM(" grid_y="); SERIAL_ECHO(grid_y);
-      SERIAL_ECHOPGM(" floor_x="); SERIAL_ECHO(floor_x);
-      SERIAL_ECHOPGM(" floor_y="); SERIAL_ECHO(floor_y);
-      SERIAL_ECHOPGM(" ratio_x="); SERIAL_ECHO(ratio_x);
-      SERIAL_ECHOPGM(" ratio_y="); SERIAL_ECHO(ratio_y);
-      SERIAL_ECHOPGM(" z1="); SERIAL_ECHO(z1);
-      SERIAL_ECHOPGM(" z2="); SERIAL_ECHO(z2);
-      SERIAL_ECHOPGM(" z3="); SERIAL_ECHO(z3);
-      SERIAL_ECHOPGM(" z4="); SERIAL_ECHO(z4);
-      SERIAL_ECHOPGM(" left="); SERIAL_ECHO(left);
-      SERIAL_ECHOPGM(" right="); SERIAL_ECHO(right);
-      SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
+      SERIAL_ECHOPAIR("grid_x=", grid_x);
+      SERIAL_ECHOPAIR(" grid_y=", grid_y);
+      SERIAL_ECHOPAIR(" floor_x=", floor_x);
+      SERIAL_ECHOPAIR(" floor_y=", floor_y);
+      SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
+      SERIAL_ECHOPAIR(" ratio_y=", ratio_y);
+      SERIAL_ECHOPAIR(" z1=", z1);
+      SERIAL_ECHOPAIR(" z2=", z2);
+      SERIAL_ECHOPAIR(" z3=", z3);
+      SERIAL_ECHOPAIR(" z4=", z4);
+      SERIAL_ECHOPAIR(" left=", left);
+      SERIAL_ECHOPAIR(" right=", right);
+      SERIAL_ECHOLNPAIR(" offset=", offset);
       */
     }
   #endif // AUTO_BED_LEVELING_FEATURE
@@ -8121,9 +8121,9 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
     int steps = max(1, int(delta_segments_per_second * seconds));
     float inv_steps = 1.0/steps;
 
-    // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
-    // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
-    // SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
+    // SERIAL_ECHOPAIR("mm=", cartesian_mm);
+    // SERIAL_ECHOPAIR(" seconds=", seconds);
+    // SERIAL_ECHOLNPAIR(" steps=", steps);
 
     for (int s = 1; s <= steps; s++) {
 
