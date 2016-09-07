@@ -2959,6 +2959,48 @@ inline void gcode_G4() {
 
 #endif // DEBUG_LEVELING_FEATURE
 
+#if ENABLED(DELTA)
+
+  /**
+   * A delta can only safely home all axes at the same time
+   * This is like quick_home_xy() but for 3 towers.
+   */
+  inline void home_delta() {
+    // Init the current position of all carriages to 0,0,0
+    memset(current_position, 0, sizeof(current_position));
+    sync_plan_position();
+
+    // Move all carriages together linearly until an endstop is hit.
+    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (Z_MAX_LENGTH + 10);
+    feedrate_mm_s = homing_feedrate_mm_s[X_AXIS];
+    line_to_current_position();
+    stepper.synchronize();
+    endstops.hit_on_purpose(); // clear endstop hit flags
+
+    // Probably not needed. Double-check this line:
+    memset(current_position, 0, sizeof(current_position));
+
+    // At least one carriage has reached the top.
+    // Now back off and re-home each carriage separately.
+    HOMEAXIS(A);
+    HOMEAXIS(B);
+    HOMEAXIS(C);
+
+    // Set all carriages to their home positions
+    // Do this here all at once for Delta, because
+    // XYZ isn't ABC. Applying this per-tower would
+    // give the impression that they are the same.
+    LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
+
+    SYNC_PLAN_POSITION_KINEMATIC();
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("(DELTA)", current_position);
+    #endif
+  }
+
+#endif // DELTA
+
 /**
  * G28: Home all axes according to settings
  *
@@ -3035,42 +3077,8 @@ inline void gcode_G28() {
 
 
   #if ENABLED(DELTA)
-    /**
-     * A delta can only safely home all axes at the same time
-     * This is like quick_home_xy() but for 3 towers.
-     */
 
-    // Init the current position of all carriages to 0,0,0
-    memset(current_position, 0, sizeof(current_position));
-    sync_plan_position();
-
-    // Move all carriages together linearly until an endstop is hit.
-    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (Z_MAX_LENGTH + 10);
-    feedrate_mm_s = homing_feedrate_mm_s[X_AXIS];
-    line_to_current_position();
-    stepper.synchronize();
-    endstops.hit_on_purpose(); // clear endstop hit flags
-
-    // Probably not needed. Double-check this line:
-    memset(current_position, 0, sizeof(current_position));
-
-    // At least one carriage has reached the top.
-    // Now back off and re-home each carriage separately.
-    HOMEAXIS(A);
-    HOMEAXIS(B);
-    HOMEAXIS(C);
-
-    // Set all carriages to their home positions
-    // Do this here all at once for Delta, because
-    // XYZ isn't ABC. Applying this per-tower would
-    // give the impression that they are the same.
-    LOOP_XYZ(i) set_axis_is_at_home((AxisEnum)i);
-
-    SYNC_PLAN_POSITION_KINEMATIC();
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("(DELTA)", current_position);
-    #endif
+    home_delta();
 
   #else // NOT DELTA
 
