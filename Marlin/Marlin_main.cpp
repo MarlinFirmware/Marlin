@@ -36,12 +36,11 @@
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   #include "vector_3.h"
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
-    #include "qr_solve.h"
-  #endif
-#endif // AUTO_BED_LEVELING_FEATURE
+#endif
 
-#if ENABLED(MESH_BED_LEVELING)
+#if ENABLED(AUTO_BED_LEVELING_LINEAR)
+  #include "qr_solve.h"
+#elif ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
 #endif
 
@@ -493,7 +492,7 @@ static uint8_t target_extruder;
   static bool home_all_axis = true;
 #endif
 
-#if ENABLED(SCARA)
+#if IS_SCARA
   float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
   float delta[ABC];
   float axis_scaling[ABC] = { 1, 1, 1 };    // Build size scaling, default to 1
@@ -615,9 +614,9 @@ static void report_current_position();
 
 /**
  * sync_plan_position
- * Set planner / stepper positions to the cartesian current_position.
- * The stepper code translates these coordinates into step units.
- * Allows translation between steps and millimeters for cartesian & core robots
+ *
+ * Set the planner/stepper positions directly from current_position with
+ * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */
 inline void sync_plan_position() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -627,7 +626,7 @@ inline void sync_plan_position() {
 }
 inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
 
-#if ENABLED(DELTA) || ENABLED(SCARA)
+#if IS_KINEMATIC
   inline void sync_plan_position_delta() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_delta", current_position);
@@ -637,7 +636,9 @@ inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[
   }
   #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_delta()
 #else
+
   #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position()
+
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -765,7 +766,6 @@ void setup_homepin(void) {
     WRITE(HOME_PIN, HIGH);
   #endif
 }
-
 
 void setup_photpin() {
   #if HAS_PHOTOGRAPH
@@ -2415,7 +2415,7 @@ static void clean_up_after_endstop_or_probe_move() {
 #endif // AUTO_BED_LEVELING_FEATURE
 
 /**
- * Home an individual axis
+ * Home an individual linear axis
  */
 
 static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
@@ -2908,7 +2908,7 @@ inline void gcode_G4() {
     SERIAL_ECHOPGM("Machine Type: ");
     #if ENABLED(DELTA)
       SERIAL_ECHOLNPGM("Delta");
-    #elif ENABLED(SCARA)
+    #elif IS_SCARA
       SERIAL_ECHOLNPGM("SCARA");
     #elif ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
       SERIAL_ECHOLNPGM("Core");
@@ -3228,9 +3228,7 @@ inline void gcode_G28() {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> (home_all_axis || homeZ) > final", current_position);
         #endif
-
       } // home_all_axis || homeZ
-
     #endif // Z_HOME_DIR < 0
 
     SYNC_PLAN_POSITION_KINEMATIC();
@@ -3571,7 +3569,7 @@ inline void gcode_G28() {
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
-      #if DISABLED(DELTA)
+      #if DISABLED(AUTO_BED_LEVELING_NONLINEAR)
         bool do_topography_map = verbose_level > 2 || code_seen('T');
       #endif
 
@@ -3582,7 +3580,7 @@ inline void gcode_G28() {
 
       int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
 
-      #if DISABLED(DELTA)
+      #if DISABLED(AUTO_BED_LEVELING_NONLINEAR)
         if (code_seen('P')) auto_bed_leveling_grid_points = code_value_int();
         if (auto_bed_leveling_grid_points < 2) {
           SERIAL_PROTOCOLLNPGM("?Number of probed (P)oints is implausible (2 minimum).");
@@ -5493,7 +5491,7 @@ inline void gcode_M206() {
     if (code_seen(axis_codes[i]))
       set_home_offset((AxisEnum)i, code_value_axis_units(i));
 
-  #if ENABLED(SCARA)
+  #if IS_SCARA
     if (code_seen('T')) set_home_offset(X_AXIS, code_value_axis_units(X_AXIS)); // Theta
     if (code_seen('P')) set_home_offset(Y_AXIS, code_value_axis_units(Y_AXIS)); // Psi
   #endif
@@ -5974,10 +5972,9 @@ inline void gcode_M303() {
   #endif
 }
 
-#if ENABLED(SCARA)
-  bool SCARA_move_to_cal(uint8_t delta_x, uint8_t delta_y) {
-    //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLNPGM(" Soft endstops disabled");
+#if IS_SCARA
+
+  bool SCARA_move_to_cal(uint8_t delta_a, uint8_t delta_b) {
     if (IsRunning()) {
       //gcode_get_destination(); // For X Y Z E F
       delta[X_AXIS] = delta_x;
@@ -7622,7 +7619,7 @@ void process_next_command() {
         gcode_M303();
         break;
 
-      #if ENABLED(SCARA)
+      #if IS_SCARA
         case 360:  // M360 SCARA Theta pos1
           if (gcode_M360()) return;
           break;
@@ -8166,7 +8163,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
 
 #endif // DUAL_X_CARRIAGE
 
-#if DISABLED(DELTA) && DISABLED(SCARA)
+#if IS_CARTESIAN
 
   inline bool prepare_move_to_destination_cartesian() {
     // Do not use feedrate_percentage for E or Z only moves
@@ -8186,7 +8183,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
     return true;
   }
 
-#endif // !DELTA && !SCARA
+#endif // IS_CARTESIAN
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
 
@@ -8225,7 +8222,7 @@ void prepare_move_to_destination() {
     prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS]);
   #endif
 
-  #if ENABLED(DELTA) || ENABLED(SCARA)
+  #if IS_KINEMATIC
     if (!prepare_kinematic_move_to(destination)) return;
   #else
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -8361,9 +8358,9 @@ void prepare_move_to_destination() {
 
       clamp_to_software_endstops(arc_target);
 
-      #if ENABLED(DELTA) || ENABLED(SCARA)
+      #if IS_KINEMATIC
         inverse_kinematics(arc_target);
-        #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+        #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
           adjust_delta(arc_target);
         #endif
         planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
@@ -8373,9 +8370,9 @@ void prepare_move_to_destination() {
     }
 
     // Ensure last segment arrives at target location.
-    #if ENABLED(DELTA) || ENABLED(SCARA)
+    #if IS_KINEMATIC
       inverse_kinematics(target);
-      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
         adjust_delta(target);
       #endif
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], fr_mm_s, active_extruder);
