@@ -271,6 +271,7 @@ ifeq ($(HARDWARE_VARIANT), $(filter $(HARDWARE_VARIANT),arduino Teensy Sanguino)
 VPATH += $(HARDWARE_DIR)/marlin/avr/libraries/LiquidCrystal/src
 VPATH += $(HARDWARE_DIR)/marlin/avr/libraries/SPI
 VPATH += $(HARDWARE_DIR)/arduino/avr/libraries/SPI
+VPATH += $(HARDWARE_DIR)/arduino/avr/libraries/SPI/src
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal/src
 ifeq ($(LIQUID_TWI2), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
