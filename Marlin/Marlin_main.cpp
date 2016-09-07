@@ -2709,6 +2709,26 @@ void unknown_command_error() {
 
 #endif //HOST_KEEPALIVE_FEATURE
 
+bool position_is_reachable(float target[XYZ]) {
+
+  float dx = RAW_X_POSITION(target[X_AXIS]),
+        dy = RAW_Y_POSITION(target[Y_AXIS]),
+        dz = RAW_Z_POSITION(target[Z_AXIS]);
+  bool good = dx >= X_MIN_POS - 0.0001 && dx <= X_MAX_POS + 0.0001
+           && dy >= Y_MIN_POS - 0.0001 && dy <= Y_MAX_POS + 0.0001
+           && dz >= Z_MIN_POS - 0.0001 && dz <= Z_MAX_POS + 0.0001;
+
+  #if IS_SCARA
+    float R2 = HYPOT2(dx - SCARA_OFFSET_X, dy - SCARA_OFFSET_Y);
+    return good && R2 >= sq(float(MIDDLE_DEAD_ZONE_R)) && R2 <= (sq(L1 + L2) + 0.1);
+  #elif ENABLED(DELTA)
+    float R2 = HYPOT2(dx, dy);
+    return good && R2 <= sq(DELTA_PRINTABLE_RADIUS);
+  #else
+    return good;
+  #endif
+}
+
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
