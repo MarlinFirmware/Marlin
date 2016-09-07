@@ -462,7 +462,7 @@ static uint8_t target_extruder;
   #define TOWER_3 Z_AXIS
 
   float delta[ABC];
-  float cartesian_position[XYZ] = { 0 };
+  float cartes[XYZ] = { 0 };
   #define SIN_60 0.8660254037844386
   #define COS_60 0.5
   float endstop_adj[ABC] = { 0 };
@@ -493,9 +493,15 @@ static uint8_t target_extruder;
 #endif
 
 #if IS_SCARA
-  float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND;
-  float delta[ABC];
-  float axis_scaling[ABC] = { 1, 1, 1 };    // Build size scaling, default to 1
+  // Float constants for SCARA calculations
+  const float L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
+              L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
+              L2_2 = sq(float(L2));
+
+  float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND,
+        delta[ABC],
+        axis_scaling[ABC] = { 1, 1, 1 },    // Build size scaling, default to 1
+        cartes[XYZ] = { 0 };
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -1558,8 +1564,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
       float homeposition[XYZ];
       LOOP_XYZ(i) homeposition[i] = LOGICAL_POSITION(base_home_pos(i), i);
 
-      // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
-      // SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
+      // SERIAL_ECHOPAIR("homeposition[x]= ", homeposition[0]);
+      // SERIAL_ECHOLNPAIR("homeposition[y]= ", homeposition[1]);
 
       /**
        * Works out real Homeposition angles using inverse kinematics,
@@ -1568,17 +1574,17 @@ static void set_axis_is_at_home(AxisEnum axis) {
       inverse_kinematics(homeposition);
       forward_kinematics_SCARA(delta);
 
-      // SERIAL_ECHOPAIR("Delta X=", delta[X_AXIS]);
-      // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      // SERIAL_ECHOPAIR("Delta X=", cartes[X_AXIS]);
+      // SERIAL_ECHOLNPAIR(" Delta Y=", cartes[Y_AXIS]);
 
-      current_position[axis] = LOGICAL_POSITION(delta[axis], axis);
+      current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
 
       /**
        * SCARA home positions are based on configuration since the actual
        * limits are determined by the inverse kinematic transform.
        */
-      soft_endstop_min[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
-      soft_endstop_max[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      soft_endstop_min[axis] = base_min_pos(axis); // + (cartes[axis] - base_home_pos(axis));
+      soft_endstop_max[axis] = base_max_pos(axis); // + (cartes[axis] - base_home_pos(axis));
     }
     else
   #endif
@@ -7907,7 +7913,7 @@ void ok_to_send() {
     // based on a Java function from
     // "Delta Robot Kinematics by Steve Graves" V3
 
-    // Result is in cartesian_position[].
+    // Result is in cartes[].
 
     //Create a vector in old coordinates along x axis of new coordinate
     float p12[3] = { delta_tower2_x - delta_tower1_x, delta_tower2_y - delta_tower1_y, z2 - z1 };
@@ -7951,9 +7957,9 @@ void ok_to_send() {
     //Now we can start from the origin in the old coords and
     //add vectors in the old coords that represent the
     //Xnew, Ynew and Znew to find the point in the old system
-    cartesian_position[X_AXIS] = delta_tower1_x + ex[0]*Xnew + ey[0]*Ynew - ez[0]*Znew;
-    cartesian_position[Y_AXIS] = delta_tower1_y + ex[1]*Xnew + ey[1]*Ynew - ez[1]*Znew;
-    cartesian_position[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
+    cartes[X_AXIS] = delta_tower1_x + ex[0]*Xnew + ey[0]*Ynew - ez[0]*Znew;
+    cartes[Y_AXIS] = delta_tower1_y + ex[1]*Xnew + ey[1]*Ynew - ez[1]*Znew;
+    cartes[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
   };
 
   void forward_kinematics_DELTA(float point[ABC]) {
@@ -8013,7 +8019,7 @@ void ok_to_send() {
 void set_current_from_steppers_for_axis(AxisEnum axis) {
   #if ENABLED(DELTA)
     set_cartesian_from_steppers();
-    current_position[axis] = LOGICAL_POSITION(cartesian_position[axis], axis);
+    current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
   #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
     vector_3 pos = planner.adjusted_position();
     current_position[axis] = axis == X_AXIS ? pos.x : axis == Y_AXIS ? pos.y : pos.z;
@@ -8443,29 +8449,27 @@ void prepare_move_to_destination() {
 #if ENABLED(SCARA)
 
   void forward_kinematics_SCARA(float f_scara[ABC]) {
-    // Perform forward kinematics, and place results in delta[]
-    // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+    // Perform forward kinematics, and place results in cartes[]
+    // The maths and first version has been done by QHARLEY.
+    // Integrated into masterbranch 06/2014 and slightly restructured
+    // by Joachim Cerny in June 2014
 
-    float x_sin, x_cos, y_sin, y_cos;
+    float x_sin = sin(RADIANS(f_scara[X_AXIS])) * L1,
+          x_cos = cos(RADIANS(f_scara[X_AXIS])) * L1,
+          y_sin = sin(RADIANS(f_scara[Y_AXIS])) * L2,
+          y_cos = cos(RADIANS(f_scara[Y_AXIS])) * L2;
 
-    //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
-    //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
+    cartes[X_AXIS] = x_cos + y_cos + SCARA_OFFSET_X;  //theta
+    cartes[Y_AXIS] = x_sin + y_sin + SCARA_OFFSET_Y;  //theta+phi
 
-    x_sin = sin(f_scara[X_AXIS] / SCARA_RAD2DEG) * Linkage_1;
-    x_cos = cos(f_scara[X_AXIS] / SCARA_RAD2DEG) * Linkage_1;
-    y_sin = sin(f_scara[Y_AXIS] / SCARA_RAD2DEG) * Linkage_2;
-    y_cos = cos(f_scara[Y_AXIS] / SCARA_RAD2DEG) * Linkage_2;
-
-    //SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
-    //SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
-    //SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
-    //SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
-
-    delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;  //theta
-    delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;  //theta+phi
-
-    //SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
-    //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+    //SERIAL_ECHOPAIR("f_delta x=", f_scara[X_AXIS]);
+    //SERIAL_ECHOPAIR(" y=", f_scara[Y_AXIS]);
+    //SERIAL_ECHOPAIR(" x_sin=", x_sin);
+    //SERIAL_ECHOPAIR(" x_cos=", x_cos);
+    //SERIAL_ECHOPAIR(" y_sin=", y_sin);
+    //SERIAL_ECHOLNPAIR(" y_cos=", y_cos);
+    //SERIAL_ECHOPAIR(" cartes[X_AXIS]=", cartes[X_AXIS]);
+    //SERIAL_ECHOLNPAIR(" cartes[Y_AXIS]=", cartes[Y_AXIS]);
   }
 
   void inverse_kinematics(const float cartesian[XYZ]) {
@@ -8477,43 +8481,42 @@ void prepare_move_to_destination() {
     float SCARA_pos[2];
     static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi;
 
-    SCARA_pos[X_AXIS] = RAW_X_POSITION(cartesian[X_AXIS]) * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
-    SCARA_pos[Y_AXIS] = RAW_Y_POSITION(cartesian[Y_AXIS]) * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
+    SCARA_pos[X_AXIS] = RAW_X_POSITION(cartesian[X_AXIS]) * axis_scaling[X_AXIS] - SCARA_OFFSET_X;  //Translate SCARA to standard X Y
+    SCARA_pos[Y_AXIS] = RAW_Y_POSITION(cartesian[Y_AXIS]) * axis_scaling[Y_AXIS] - SCARA_OFFSET_Y;  // With scaling factor.
 
-    #if (Linkage_1 == Linkage_2)
-      SCARA_C2 = ((sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS])) / (2 * (float)L1_2)) - 1;
-    #else
-      SCARA_C2 = (sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2) / 45000;
-    #endif
+    if (L1 == L2)
+      SCARA_C2 = HYPOT2(SCARA_pos[X_AXIS], SCARA_pos[Y_AXIS]) / L1_2_2 - 1;
+    else
+      SCARA_C2 = (HYPOT2(SCARA_pos[X_AXIS], SCARA_pos[Y_AXIS]) - L1_2 - L2_2) / 45000;
 
-    SCARA_S2 = sqrt(1 - sq(SCARA_C2));
+    SCARA_S2 = sqrt(sq(SCARA_C2) - 1);
 
-    SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
-    SCARA_K2 = Linkage_2 * SCARA_S2;
+    SCARA_K1 = L1 + L2 * SCARA_C2;
+    SCARA_K2 = L2 * SCARA_S2;
 
-    SCARA_theta = (atan2(SCARA_pos[X_AXIS], SCARA_pos[Y_AXIS]) - atan2(SCARA_K1, SCARA_K2)) * -1;
+    SCARA_theta = -(atan2(SCARA_pos[X_AXIS], SCARA_pos[Y_AXIS]) - atan2(SCARA_K1, SCARA_K2));
     SCARA_psi = atan2(SCARA_S2, SCARA_C2);
 
-    delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
-    delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
+    delta[X_AXIS] = DEGREES(SCARA_theta);              // Theta is support arm angle
+    delta[Y_AXIS] = DEGREES(SCARA_theta + SCARA_psi);  // Equal to sub arm angle (inverted motor)
     delta[Z_AXIS] = RAW_Z_POSITION(cartesian[Z_AXIS]);
 
     /**
-    SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+    SERIAL_ECHOPAIR("cartesian x=", cartesian[X_AXIS]);
+    SERIAL_ECHOPAIR(" y=", cartesian[Y_AXIS]);
+    SERIAL_ECHOLNPAIR(" z=", cartesian[Z_AXIS]);
 
-    SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
+    SERIAL_ECHOPAIR("scara x=", SCARA_pos[X_AXIS]);
+    SERIAL_ECHOLNPAIR(" y=", SCARA_pos[Y_AXIS]);
 
-    SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
-    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
+    SERIAL_ECHOPAIR("delta x=", delta[X_AXIS]);
+    SERIAL_ECHOPAIR(" y=", delta[Y_AXIS]);
+    SERIAL_ECHOLNPAIR(" z=", delta[Z_AXIS]);
 
-    SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
-    SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
-    SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
-    SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
+    SERIAL_ECHOPAIR("C2=", SCARA_C2);
+    SERIAL_ECHOPAIR(" S2=", SCARA_S2);
+    SERIAL_ECHOPAIR(" Theta=", SCARA_theta);
+    SERIAL_ECHOLNPAIR(" Psi=", SCARA_psi);
     SERIAL_EOL;
     */
   }
