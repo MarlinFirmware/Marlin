@@ -67,6 +67,7 @@
 #define FONT_SPECIAL_NAME Marlin_symbols
 
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
+#define TALL_FONT_CORRECTION 1
 
 #if DISABLED(SIMULATE_ROMFONT)
     #include "dogm_font_data_ISO10646_1.h"
@@ -170,7 +171,7 @@ static void lcd_setFont(char font_nr) {
     case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
     default:
     case FONT_MENU       : {u8g.setFont(FONT_MENU_NAME); currentfont = FONT_MENU;}; break;
-    //case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
+    case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
     case FONT_MENU_EDIT  : {u8g.setFont(FONT_MENU_EDIT_NAME); currentfont = FONT_MENU_EDIT;}; break;
   }
 }
@@ -278,7 +279,7 @@ static void lcd_implementation_clear() { } // Automatically cleared by Picture L
 
 FORCE_INLINE void _draw_centered_temp(int temp, int x, int y) {
   int degsize = 6 * (temp >= 100 ? 3 : temp >= 10 ? 2 : 1); // number's pixel width
-  lcd_moveto(x - (18 - degsize) / 2, y); // move left if shorter
+  lcd_moveto(x - (18 - degsize) / 2, y + TALL_FONT_CORRECTION); // move left if shorter
   lcd_print(itostr3(temp));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 }
@@ -388,7 +389,7 @@ static void lcd_implementation_status_screen() {
   // Before homing the axis letters are blinking 'X' <-> '?'.
   // When axis is homed but axis_known_position is false the axis letters are blinking 'X' <-> ' '.
   // When everything is ok you see a constant 'X'.
-  #define XYZ_BASELINE 38
+  #define XYZ_BASELINE (38 + TALL_FONT_CORRECTION)
 
   #if ENABLED(USE_SMALL_INFOFONT)
     u8g.drawBox(0, 30, LCD_PIXEL_WIDTH, 10);
