@@ -68,7 +68,7 @@ Now, to compile the firmware for your language, you need change the
 language setting in file Configuration.h.
 
 ```cpp
-#define LCD_LANGUAGE zh_tw
+#define LCD_LANGUAGE zh_TW
 ```
 
 4. compile and update the firmware
@@ -125,6 +125,8 @@ since it use the common bitmap font files and UTF-8 text,
 the maintainer need to confirm that the fonts contains the glyph
 in the language files.
 
+The font file currently used to generate the font data is the file ISO10646-0-3.bdf,
+which is combined with the Marlin's ISO10646-1 fonts with WQY 9pt bitmap font.
 
 Related resources
 -----------------

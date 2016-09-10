@@ -208,6 +208,7 @@ fontgroup_cb_draw_u8g (void *userdata, font_t *fnt_current, const char *msg)
         TRACE ("return end, adv=%d, width=%d, maxlen=%d", pdata->adv, u8g_GetStrPixelWidth(pdata->pu8g, (char *)msg), pdata->max_length);
         return 1;
     }
+    TRACE ("Draw string 0x%X", (int)msg[0]);
     pdata->adv += u8g_DrawStr(pdata->pu8g, pdata->x + pdata->adv, pdata->y, (char *) msg);
     //TRACE("adv pos= %d", pdata->adv);
     return 0;

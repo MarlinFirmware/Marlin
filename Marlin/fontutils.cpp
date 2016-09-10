@@ -254,7 +254,6 @@ get_utf8_value_cb (uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t *pval)
     return p;
 }
 
-
 // uint8_t * get_utf8_value_cb (uint8_t *pstart, read_byte_cb_t cb_read_byte, wchar_t *pval);
 int
 utf8_strlen_cb (const char *pstart, read_byte_cb_t cb_read_byte)
@@ -272,7 +271,7 @@ utf8_strlen_cb (const char *pstart, read_byte_cb_t cb_read_byte)
             break;
         }
         cnt ++;
-        //TRACE ("cnt=%d, ch=0x%X", cnt, (int)ch);
+        TRACE ("cnt=%d, ch=0x%X", cnt, (int)ch);
     }
     return cnt;
 }
