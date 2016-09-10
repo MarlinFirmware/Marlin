@@ -203,11 +203,10 @@ class Planner {
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
 
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-        /**
-         * The corrected position, applying the bed level matrix
-         */
-        static vector_3 adjusted_position();
+      #if ENABLED(MESH_BED_LEVELING)
+        static void apply_leveling(const float &x, const float &y, float &z);
+      #else
+        static void apply_leveling(float &x, float &y, float &z);
       #endif
 
       /**
