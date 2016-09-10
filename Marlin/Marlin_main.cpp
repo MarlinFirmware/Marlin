@@ -500,13 +500,11 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-  //Variables for Filament Sensor input
-  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
   bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
-  float filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
-  int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1]; //ring buffer to delay measurement  store extruder factor after subtracting 100
-  int filwidth_delay_index1 = 0;  //index into ring buffer
-  int filwidth_delay_index2 = -1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
+  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA,  // Nominal filament width. Change with M404
+        filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA;    // Measured filament diameter
+  int8_t measurement_delay[MAX_MEASUREMENT_DELAY + 1]; // Ring buffer to delayed measurement. Store extruder factor after subtracting 100
+  int filwidth_delay_index[2] = { 0, -1 };  // Indexes into ring buffer
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
@@ -554,6 +552,26 @@ static bool send_ok[BUFSIZE];
   #define host_keepalive() ;
   #define KEEPALIVE_STATE(n) ;
 #endif // HOST_KEEPALIVE_FEATURE
+
+#define DEFINE_PGM_READ_ANY(type, reader)       \
+  static inline type pgm_read_any(const type *p)  \
+  { return pgm_read_##reader##_near(p); }
+
+DEFINE_PGM_READ_ANY(float,       float);
+DEFINE_PGM_READ_ANY(signed char, byte);
+
+#define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
+  static const PROGMEM type array##_P[XYZ] =        \
+      { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
+  static inline type array(int axis)          \
+  { return pgm_read_any(&array##_P[axis]); }
+
+XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS);
+XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,   MAX_POS);
+XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,  HOME_POS);
+XYZ_CONSTS_FROM_CONFIG(float, max_length,     MAX_LENGTH);
+XYZ_CONSTS_FROM_CONFIG(float, home_bump_mm,   HOME_BUMP_MM);
+XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
 
 /**
  * ***************************************************************************
@@ -1405,26 +1423,6 @@ bool get_target_extruder_from_command(int code) {
 
   return false;
 }
-
-#define DEFINE_PGM_READ_ANY(type, reader)       \
-  static inline type pgm_read_any(const type *p)  \
-  { return pgm_read_##reader##_near(p); }
-
-DEFINE_PGM_READ_ANY(float,       float);
-DEFINE_PGM_READ_ANY(signed char, byte);
-
-#define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
-  static const PROGMEM type array##_P[XYZ] =        \
-      { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
-  static inline type array(int axis)          \
-  { return pgm_read_any(&array##_P[axis]); }
-
-XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS);
-XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,   MAX_POS);
-XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,  HOME_POS);
-XYZ_CONSTS_FROM_CONFIG(float, max_length,     MAX_LENGTH);
-XYZ_CONSTS_FROM_CONFIG(float, home_bump_mm,   HOME_BUMP_MM);
-XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
   bool extruder_duplication_enabled = false; // Used in Dual X mode 2
@@ -4816,7 +4814,8 @@ inline void gcode_M109() {
 
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
-  LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+  if (wait_for_heatup) LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+
   KEEPALIVE_STATE(IN_HANDLER);
 }
 
@@ -4934,7 +4933,7 @@ inline void gcode_M109() {
 
     } while (wait_for_heatup && TEMP_BED_CONDITIONS);
 
-    LCD_MESSAGEPGM(MSG_BED_DONE);
+    if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
@@ -6136,13 +6135,13 @@ inline void gcode_M400() { stepper.synchronize(); }
     if (code_seen('D')) meas_delay_cm = code_value_int();
     NOMORE(meas_delay_cm, MAX_MEASUREMENT_DELAY);
 
-    if (filwidth_delay_index2 == -1) { // Initialize the ring buffer if not done since startup
+    if (filwidth_delay_index[1] == -1) { // Initialize the ring buffer if not done since startup
       int temp_ratio = thermalManager.widthFil_to_size_ratio();
 
       for (uint8_t i = 0; i < COUNT(measurement_delay); ++i)
         measurement_delay[i] = temp_ratio - 100;  // Subtract 100 to scale within a signed byte
 
-      filwidth_delay_index1 = filwidth_delay_index2 = 0;
+      filwidth_delay_index[0] = filwidth_delay_index[1] = 0;
     }
 
     filament_sensor = true;
