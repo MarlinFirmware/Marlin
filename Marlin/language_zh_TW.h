@@ -116,7 +116,7 @@
 #define MSG_RESTORE_FAILSAFE                _UxGT("恢複安全值")  //"Restore failsafe"
 #define MSG_REFRESH                         _UxGT("刷新")  //"Refresh"
 #define MSG_WATCH                           _UxGT("資訊界面")  //"Info screen"
-#define MSG_PREPARE                         _UxGT("准備")  //"Prepare"
+#define MSG_PREPARE                         _UxGT("準備")  //"Prepare"
 #define MSG_TUNE                            _UxGT("調整")  //"Tune"
 #define MSG_PAUSE_PRINT                     _UxGT("暫停列印")  //"Pause print"
 #define MSG_RESUME_PRINT                    _UxGT("恢複列印")  //"Resume print"

@@ -126,7 +126,7 @@ the maintainer need to confirm that the fonts contains the glyph
 in the language files.
 
 The font file currently used to generate the font data is the file ISO10646-0-3.bdf,
-which is combined with the Marlin's ISO10646-1 fonts with WQY 9pt bitmap font.
+which is combined with the Marlin's ISO10646-1 fonts and WQY 9pt bitmap font.
 
 Related resources
 -----------------
