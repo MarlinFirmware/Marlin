@@ -21,18 +21,18 @@
  */
 
 /**
- * Chineses
+ * Simplified Chineses
  *
  * LCD Menu Messages
  * See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
  *
  */
-#ifndef LANGUAGE_CN_H
-#define LANGUAGE_CN_H
+#ifndef LANGUAGE_ZH_CN_H
+#define LANGUAGE_ZH_CN_H
 
 #define WELCOME_MSG                         MACHINE_NAME _UxGT("已就绪.")  //" ready."
-#define MSG_SD_INSERTED                     _UxGT("卡已插入")  //"Card inserted"
-#define MSG_SD_REMOVED                      _UxGT("卡被拔出")  //"Card removed"
+#define MSG_SD_INSERTED                     _UxGT("存储卡已插入")  //"Card inserted"
+#define MSG_SD_REMOVED                      _UxGT("存储卡被拔出")  //"Card removed"
 #define MSG_LCD_ENDSTOPS                    _UxGT("挡块")  //"Endstops" // Max length 8 characters
 #define MSG_MAIN                            _UxGT("主菜单")  //"Main"
 #define MSG_AUTOSTART                       _UxGT("自动开始")  //"Autostart"
@@ -121,9 +121,9 @@
 #define MSG_PAUSE_PRINT                     _UxGT("暂停打印")  //"Pause print"
 #define MSG_RESUME_PRINT                    _UxGT("恢复打印")  //"Resume print"
 #define MSG_STOP_PRINT                      _UxGT("停止打印")  //"Stop print"
-#define MSG_CARD_MENU                       _UxGT("从SD卡上打印")  //"Print from SD"
-#define MSG_NO_CARD                         _UxGT("无SD卡")  //"No SD card"
-#define MSG_DWELL                           _UxGT("休眠 ...")  //"Sleep..."
+#define MSG_CARD_MENU                       _UxGT("从存储卡上打印")  //"Print from SD"
+#define MSG_NO_CARD                         _UxGT("无存储卡")  //"No SD card"
+#define MSG_DWELL                           _UxGT("休眠中 ...")  //"Sleep..."
 #define MSG_USERWAIT                        _UxGT("等待用户 ...")  //"Wait for user..."
 #define MSG_RESUMING                        _UxGT("恢复打印中")  //"Resuming print"
 #define MSG_PRINT_ABORTED                   _UxGT("打印已取消")  //"Print aborted"
@@ -139,8 +139,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("回抽恢复后进料速率mm/s")  //"UnRet  V" retract_recover_feedrate_mm_s, feedrate for recovering from retraction (mm/s)
 #define MSG_AUTORETRACT                     _UxGT("自动抽回")  //"AutoRetr." autoretract_enabled,
 #define MSG_FILAMENTCHANGE                  _UxGT("更换丝料")  //"Change filament"
-#define MSG_INIT_SDCARD                     _UxGT("初始化SD卡")  //"Init. SD card"
-#define MSG_CNG_SDCARD                      _UxGT("更换SD卡")  //"Change SD card"
+#define MSG_INIT_SDCARD                     _UxGT("初始化存储卡")  //"Init. SD card"
+#define MSG_CNG_SDCARD                      _UxGT("更换存储卡")  //"Change SD card"
 #define MSG_ZPROBE_OUT                      _UxGT("Z探针在热床之外")  //"Z probe out. bed" Z probe is not within the physical limits
 #define MSG_HOME                            _UxGT("归位")  //"Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("先")  //"first"
@@ -185,7 +185,7 @@
 #define MSG_INFO_COMPLETED_PRINTS         _UxGT("完成了")  //"Completed"
 #define MSG_INFO_PRINT_TIME               _UxGT("总打印时间")  //"Total print time"
 #define MSG_INFO_PRINT_LONGEST            _UxGT("最长工作时间")  //"Longest job time"
-#define MSG_INFO_PRINT_FILAMENT           _UxGT("总挤出")  //"Extruded total"
+#define MSG_INFO_PRINT_FILAMENT           _UxGT("总计挤出")  //"Extruded total"
 #else
 #define MSG_INFO_PRINT_COUNT              _UxGT("打印数")  //"Prints"
 #define MSG_INFO_COMPLETED_PRINTS         _UxGT("完成")  //"Completed"
@@ -232,4 +232,4 @@
 #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("恢复中 ...")  //"Resuming..."
 #endif // LCD_HEIGHT < 4
 
-#endif // LANGUAGE_CN_H
+#endif // LANGUAGE_ZH_CN_H
