@@ -82,7 +82,7 @@
 #define MSG_CONTROL                         _UxGT("控制")  //"Control"
 #define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 最小") //" " LCD_STR_THERMOMETER " Min"
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 最大")  //" " LCD_STR_THERMOMETER " Max"
-#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 当前")  //" " LCD_STR_THERMOMETER " Fact"
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 因数")  //" " LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        _UxGT("自动控温")  //"Autotemp"
 #define MSG_ON                              _UxGT("开 ")  //"On "
 #define MSG_OFF                             _UxGT("关 ")  //"Off"
