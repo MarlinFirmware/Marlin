@@ -102,7 +102,7 @@ class Stepper {
 
     // Counter variables for the Bresenham line tracer
     static long counter_X, counter_Y, counter_Z, counter_E;
-    static volatile unsigned long step_events_completed; // The number of step events executed in the current block
+    static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       static unsigned char old_OCR0A;
@@ -152,7 +152,7 @@ class Stepper {
     // Mixing extruder mix counters
     //
     #if ENABLED(MIXING_EXTRUDER)
-      static long counter_M[MIXING_STEPPERS];
+      static long counter_m[MIXING_STEPPERS];
       #define MIXING_STEPPERS_LOOP(VAR) \
         for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++) \
           if (current_block->mix_event_count[VAR])

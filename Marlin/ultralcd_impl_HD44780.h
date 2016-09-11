@@ -546,11 +546,11 @@ FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) 
     lcd_printPGM(pstr);
   else {
     if (!axis_homed[axis])
-      lcd_printPGM(PSTR("?"));
+      lcd.print('?');
     else {
       #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
-          lcd_printPGM(PSTR(" "));
+          lcd.print(' ');
         else
       #endif
       lcd_printPGM(pstr);
@@ -684,7 +684,7 @@ static void lcd_implementation_status_screen() {
         _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
         lcd.print(ftostr4sign(current_position[X_AXIS]));
 
-        lcd_printPGM(PSTR(" "));
+        lcd.print(' ');
 
         _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
         lcd.print(ftostr4sign(current_position[Y_AXIS]));
@@ -796,9 +796,9 @@ static void lcd_implementation_status_screen() {
         int8_t pad = (LCD_WIDTH - u8len) / 2;
         while (--pad >= 0) { lcd.print(' '); n--; }
       }
-      lcd_printstr_P (pstr, n);
+      n = n - lcd_printstr_P (pstr, n);
       if (valstr) {
-        lcd_print (valstr);
+        lcd_printstr (valstr, n);
       }
     }
 

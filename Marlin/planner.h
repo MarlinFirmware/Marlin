@@ -203,11 +203,10 @@ class Planner {
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
 
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-        /**
-         * The corrected position, applying the bed level matrix
-         */
-        static vector_3 adjusted_position();
+      #if ENABLED(MESH_BED_LEVELING)
+        static void apply_leveling(const float &x, const float &y, float &z);
+      #else
+        static void apply_leveling(float &x, float &y, float &z);
       #endif
 
       /**
@@ -320,8 +319,8 @@ class Planner {
 
     static void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor);
 
-    static void reverse_pass_kernel(block_t* previous, block_t* current, block_t* next);
-    static void forward_pass_kernel(block_t* previous, block_t* current, block_t* next);
+    static void reverse_pass_kernel(block_t* current, block_t* next);
+    static void forward_pass_kernel(block_t* previous, block_t* current);
 
     static void reverse_pass();
     static void forward_pass();

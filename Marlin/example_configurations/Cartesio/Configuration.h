@@ -430,9 +430,32 @@
 #define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 
+
+//=============================================================================
+//============================== Movement Settings ============================
+//=============================================================================
+// @section motion
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {71.128,71.128,640,152}
+#define DEFAULT_MAX_FEEDRATE          {200,200,20,20}   // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,10000}     // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+
+#define DEFAULT_ACCELERATION          500     // X, Y, Z and E acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  10000   // E acceleration in mm/s^2 for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+
+// "Jerk" specifies the minimum speed change that requires acceleration.
+// When changing speed and direction, if the difference is less than the
+// value set here, it may happen instantaneously.
+#define DEFAULT_XYJERK                10.0    // (mm/sec)
+#define DEFAULT_ZJERK                  0.4    // (mm/sec)
+#define DEFAULT_EJERK                  5.0    // (mm/sec)
+
+
 //===========================================================================
 //============================= Z Probe Options =============================
 //===========================================================================
+// @section probes
 
 //
 // Probe Type
@@ -744,26 +767,6 @@
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (50*60)
 #define HOMING_FEEDRATE_Z  (10*60)
-
-//
-// MOVEMENT SETTINGS
-// @section motion
-//
-
-// default settings
-
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {71.128,71.128,640,152}
-#define DEFAULT_MAX_FEEDRATE          {200,200,20,20}   // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,10000}     // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
-
-#define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  10000    // E acceleration in mm/s^2 for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
-
-// The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
-#define DEFAULT_XYJERK                10.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.4     // (mm/sec)
-#define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 
 //=============================================================================
