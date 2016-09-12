@@ -2709,12 +2709,13 @@ void lcd_update() {
 
     // We arrive here every ~100ms when idling often enough.
     // Instead of tracking the changes simply redraw the Info Screen ~1 time a second.
-    static int8_t lcd_status_update_delay = 1; // first update one loop delayed
+    static uint8_t lcd_status_update_delay = 1; // first update one loop delayed
     if (
       #if ENABLED(ULTIPANEL)
         currentScreen == lcd_status_screen &&
       #endif
-        !lcd_status_update_delay--) {
+      !lcd_status_update_delay--
+    ) {
       lcd_status_update_delay = 9;
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
@@ -2740,17 +2741,21 @@ void lcd_update() {
       #endif
 
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
-        static int8_t dot_color = 0;
-        dot_color = 1 - dot_color;
-        u8g.firstPage();
-        do {
-          lcd_setFont(FONT_MENU);
-          u8g.setPrintPos(125, 0);
-          u8g.setColorIndex(dot_color); // Set color for the alive dot
-          u8g.drawPixel(127, 63); // draw alive dot
-          u8g.setColorIndex(1); // black on white
-          CURRENTSCREEN();
-        } while (u8g.nextPage());
+        static uint8_t pre_action = LCDVIEW_NONE, dot_color = 0;
+        if (lcdDrawUpdate != LCDVIEW_U8G_CONTINUE) {
+          pre_action = lcdDrawUpdate;
+          dot_color ^= 1;
+          u8g.firstPage();
+        }
+        lcd_setFont(FONT_MENU);
+        u8g.setPrintPos(125, 0);
+        u8g.setColorIndex(dot_color); // Set color for the alive dot
+        u8g.drawPixel(127, 63); // draw alive dot
+        u8g.setColorIndex(1); // black on white
+        screenFunc_t pre_screen = currentScreen;
+        CURRENTSCREEN();
+        if (pre_screen == currentScreen)
+          lcdDrawUpdate = u8g.nextPage() ? (uint8_t)LCDVIEW_U8G_CONTINUE : pre_action;
       #else
         CURRENTSCREEN();
       #endif
