@@ -50,7 +50,6 @@
 // an         Aragonese
 // bg         Bulgarian
 // ca         Catalan
-// cn         Chinese
 // cz         Czech
 // de         German
 // el         Greek
@@ -72,6 +71,8 @@
 // pt-br_utf8 Portuguese (Brazilian UTF8)
 // pt_utf8    Portuguese (UTF8)
 // ru         Russian
+// zh_CN      Simplified Chinese
+// zh_TW      Traditional Chinese
 
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
