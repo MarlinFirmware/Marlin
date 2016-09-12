@@ -202,39 +202,45 @@ class Planner {
     static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
-
-      #if ENABLED(MESH_BED_LEVELING)
-        static void apply_leveling(const float &x, const float &y, float &z);
-      #else
-        static void apply_leveling(float &x, float &y, float &z);
-      #endif
-
-      /**
-       * Add a new linear movement to the buffer.
-       *
-       *  x,y,z,e   - target position in mm
-       *  fr_mm_s   - (target) speed of the move (mm/s)
-       *  extruder  - target extruder
-       */
-      static void buffer_line(float x, float y, float z, const float& e, float fr_mm_s, const uint8_t extruder);
-
-      /**
-       * Set the planner.position and individual stepper positions.
-       * Used by G92, G28, G29, and other procedures.
-       *
-       * Multiplies by axis_steps_per_mm[] and does necessary conversion
-       * for COREXY / COREXZ / COREYZ to set the corresponding stepper positions.
-       *
-       * Clears previous speed values.
-       */
-      static void set_position_mm(float x, float y, float z, const float& e);
-
+      #define ARG_X float lx
+      #define ARG_Y float ly
+      #define ARG_Z float lz
     #else
+      #define ARG_X const float &lx
+      #define ARG_Y const float &ly
+      #define ARG_Z const float &lz
+    #endif
 
-      static void buffer_line(const float& x, const float& y, const float& z, const float& e, float fr_mm_s, const uint8_t extruder);
-      static void set_position_mm(const float& x, const float& y, const float& z, const float& e);
+    #if PLANNER_LEVELING
 
-    #endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
+      /**
+       * Apply leveling to transform a cartesian position
+       * as it will be given to the planner and steppers.
+       */
+      static void apply_leveling(float &lx, float &ly, float &lz);
+      static void unapply_leveling(float &lx, float &ly, float &lz);
+
+    #endif
+
+    /**
+     * Add a new linear movement to the buffer.
+     *
+     *  x,y,z,e   - target position in mm
+     *  fr_mm_s   - (target) speed of the move (mm/s)
+     *  extruder  - target extruder
+     */
+    static void buffer_line(ARG_X, ARG_Y, ARG_Z, const float& e, float fr_mm_s, const uint8_t extruder);
+
+    /**
+     * Set the planner.position and individual stepper positions.
+     * Used by G92, G28, G29, and other procedures.
+     *
+     * Multiplies by axis_steps_per_mm[] and does necessary conversion
+     * for COREXY / COREXZ / COREYZ to set the corresponding stepper positions.
+     *
+     * Clears previous speed values.
+     */
+    static void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float& e);
 
     /**
      * Set the E position (mm) of the planner (and the E stepper)
