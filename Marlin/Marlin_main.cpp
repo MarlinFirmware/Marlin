@@ -764,8 +764,7 @@ void enqueue_and_echo_command_now(const char* cmd) {
 bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   if (_enqueuecommand(cmd, say_ok)) {
     SERIAL_ECHO_START;
-    SERIAL_ECHOPGM(MSG_Enqueueing);
-    SERIAL_ECHO(cmd);
+    SERIAL_ECHOPAIR(MSG_Enqueueing, cmd);
     SERIAL_ECHOLNPGM("\"");
     return true;
   }
@@ -1354,8 +1353,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
       float homeposition[XYZ];
       LOOP_XYZ(i) homeposition[i] = LOGICAL_POSITION(base_home_pos(i), i);
 
-      // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
-      // SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
+      // SERIAL_ECHOPAIR("homeposition X:", homeposition[X_AXIS]);
+      // SERIAL_ECHOLNPAIR(" Y:", homeposition[Y_AXIS]);
 
       /**
        * Works out real Homeposition angles using inverse kinematics,
@@ -1364,8 +1363,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
       inverse_kinematics(homeposition);
       forward_kinematics_SCARA(delta[A_AXIS], delta[B_AXIS]);
 
-      // SERIAL_ECHOPAIR("Delta X=", cartes[X_AXIS]);
-      // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(cartes[Y_AXIS]);
+      // SERIAL_ECHOPAIR("Cartesian X:", cartes[X_AXIS]);
+      // SERIAL_ECHOLNPAIR(" Y:", cartes[Y_AXIS]);
 
       current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
 
@@ -2019,17 +2018,11 @@ static void clean_up_after_endstop_or_probe_move() {
     feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
     do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
-    #endif
     if (DEPLOY_PROBE()) return NAN;
 
     float measured_z = run_z_probe();
 
     if (stow) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
-      #endif
       if (STOW_PROBE()) return NAN;
     }
     else {
@@ -2203,12 +2196,7 @@ static void homeaxis(AxisEnum axis) {
 
   // Homing Z towards the bed? Deploy the Z probe or endstop.
   #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
-      #endif
-      if (DEPLOY_PROBE()) return;
-    }
+    if (axis == Z_AXIS && DEPLOY_PROBE()) return;
   #endif
 
   // Set a flag for Z motor locking
@@ -2286,12 +2274,7 @@ static void homeaxis(AxisEnum axis) {
 
   // Put away the Z probe
   #if HOMING_Z_WITH_PROBE
-    if (axis == Z_AXIS) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOPGM("> ");
-      #endif
-      if (STOW_PROBE()) return;
-    }
+    if (axis == Z_AXIS && STOW_PROBE()) return;
   #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2416,8 +2399,7 @@ void gcode_get_destination() {
 
 void unknown_command_error() {
   SERIAL_ECHO_START;
-  SERIAL_ECHOPGM(MSG_UNKNOWN_COMMAND);
-  SERIAL_ECHO(current_command);
+  SERIAL_ECHOPAIR(MSG_UNKNOWN_COMMAND, current_command);
   SERIAL_ECHOLNPGM("\"");
 }
 
@@ -3713,10 +3695,7 @@ inline void gcode_G28() {
 
     #ifdef Z_PROBE_END_SCRIPT
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOPGM("Z Probe End Script: ");
-          SERIAL_ECHOLNPGM(Z_PROBE_END_SCRIPT);
-        }
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("Z Probe End Script: ", Z_PROBE_END_SCRIPT);
       #endif
       enqueue_and_echo_commands_P(PSTR(Z_PROBE_END_SCRIPT));
       stepper.synchronize();
@@ -4002,8 +3981,7 @@ inline void gcode_M31() {
   lcd_setstatus(buffer);
 
   SERIAL_ECHO_START;
-  SERIAL_ECHOPGM("Print time: ");
-  SERIAL_ECHOLN(buffer);
+  SERIAL_ECHOLNPAIR("Print time: ", buffer);
 
   thermalManager.autotempShutdown();
 }
@@ -5358,8 +5336,7 @@ inline void gcode_M206() {
         endstop_adj[i] = code_value_axis_units(i);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPGM("endstop_adj[");
-            SERIAL_ECHO(axis_codes[i]);
+            SERIAL_ECHOPAIR("endstop_adj[", axis_codes[i]);
             SERIAL_ECHOLNPAIR("] = ", endstop_adj[i]);
           }
         #endif
@@ -5442,16 +5419,17 @@ inline void gcode_M211() {
     if (code_seen('S')) soft_endstops_enabled = code_value_bool();
   #endif
   #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
-    SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS ": ");
+    SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
     serialprintPGM(soft_endstops_enabled ? PSTR(MSG_ON) : PSTR(MSG_OFF));
   #else
-    SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS ": " MSG_OFF);
+    SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
+    SERIAL_ECHOPGM(MSG_OFF);
   #endif
-  SERIAL_ECHOPGM("  " MSG_SOFT_MIN ": ");
+  SERIAL_ECHOPGM(MSG_SOFT_MIN);
   SERIAL_ECHOPAIR(    MSG_X, soft_endstop_min[X_AXIS]);
   SERIAL_ECHOPAIR(" " MSG_Y, soft_endstop_min[Y_AXIS]);
   SERIAL_ECHOPAIR(" " MSG_Z, soft_endstop_min[Z_AXIS]);
-  SERIAL_ECHOPGM("  " MSG_SOFT_MAX ": ");
+  SERIAL_ECHOPGM(MSG_SOFT_MAX);
   SERIAL_ECHOPAIR(    MSG_X, soft_endstop_max[X_AXIS]);
   SERIAL_ECHOPAIR(" " MSG_Y, soft_endstop_max[Y_AXIS]);
   SERIAL_ECHOLNPAIR(" " MSG_Z, soft_endstop_max[Z_AXIS]);
@@ -5569,17 +5547,14 @@ inline void gcode_M226() {
         MOVE_SERVO(servo_index, code_value_int());
       else {
         SERIAL_ECHO_START;
-        SERIAL_ECHOPGM(" Servo ");
-        SERIAL_ECHO(servo_index);
-        SERIAL_ECHOPGM(": ");
-        SERIAL_ECHOLN(servo[servo_index].read());
+        SERIAL_ECHOPAIR(" Servo ", servo_index);
+        SERIAL_ECHOLNPAIR(": ", servo[servo_index].read());
       }
     }
     else {
       SERIAL_ERROR_START;
-      SERIAL_ERROR("Servo ");
-      SERIAL_ERROR(servo_index);
-      SERIAL_ERRORLN(" out of range");
+      SERIAL_ECHOPAIR("Servo ", servo_index);
+      SERIAL_ECHOLNPGM(" out of range");
     }
   }
 
@@ -5635,19 +5610,14 @@ inline void gcode_M226() {
       thermalManager.updatePID();
       SERIAL_ECHO_START;
       #if ENABLED(PID_PARAMS_PER_HOTEND)
-        SERIAL_ECHOPGM(" e:"); // specify extruder in serial output
-        SERIAL_ECHO(e);
+        SERIAL_ECHOPAIR(" e:", e); // specify extruder in serial output
       #endif // PID_PARAMS_PER_HOTEND
-      SERIAL_ECHOPGM(" p:");
-      SERIAL_ECHO(PID_PARAM(Kp, e));
-      SERIAL_ECHOPGM(" i:");
-      SERIAL_ECHO(unscalePID_i(PID_PARAM(Ki, e)));
-      SERIAL_ECHOPGM(" d:");
-      SERIAL_ECHO(unscalePID_d(PID_PARAM(Kd, e)));
+      SERIAL_ECHOPAIR(" p:", PID_PARAM(Kp, e));
+      SERIAL_ECHOPAIR(" i:", unscalePID_i(PID_PARAM(Ki, e)));
+      SERIAL_ECHOPAIR(" d:", unscalePID_d(PID_PARAM(Kd, e)));
       #if ENABLED(PID_EXTRUSION_SCALING)
-        SERIAL_ECHOPGM(" c:");
         //Kc does not have scaling applied above, or in resetting defaults
-        SERIAL_ECHO(PID_PARAM(Kc, e));
+        SERIAL_ECHOPAIR(" c:", PID_PARAM(Kc, e));
       #endif
       SERIAL_EOL;
     }
@@ -5669,12 +5639,9 @@ inline void gcode_M226() {
     thermalManager.updatePID();
 
     SERIAL_ECHO_START;
-    SERIAL_ECHOPGM(" p:");
-    SERIAL_ECHO(thermalManager.bedKp);
-    SERIAL_ECHOPGM(" i:");
-    SERIAL_ECHO(unscalePID_i(thermalManager.bedKi));
-    SERIAL_ECHOPGM(" d:");
-    SERIAL_ECHOLN(unscalePID_d(thermalManager.bedKd));
+    SERIAL_ECHOPAIR(" p:", thermalManager.bedKp);
+    SERIAL_ECHOPAIR(" i:", unscalePID_i(thermalManager.bedKi));
+    SERIAL_ECHOLNPAIR(" d:", unscalePID_d(thermalManager.bedKd));
   }
 
 #endif // PIDTEMPBED
@@ -6138,11 +6105,9 @@ inline void gcode_M503() {
         SERIAL_ECHO(zprobe_zoffset);
       }
       else {
-        SERIAL_ECHOPGM(MSG_Z_MIN);
-        SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MIN);
+        SERIAL_ECHOPAIR(MSG_Z_MIN, Z_PROBE_OFFSET_RANGE_MIN);
         SERIAL_CHAR(' ');
-        SERIAL_ECHOPGM(MSG_Z_MAX);
-        SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MAX);
+        SERIAL_ECHOPAIR(MSG_Z_MAX, Z_PROBE_OFFSET_RANGE_MAX);
       }
     }
     else {
@@ -6863,8 +6828,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
     #endif // HOTENDS <= 1
 
     SERIAL_ECHO_START;
-    SERIAL_ECHOPGM(MSG_ACTIVE_EXTRUDER);
-    SERIAL_PROTOCOLLN((int)active_extruder);
+    SERIAL_ECHOLNPAIR(MSG_ACTIVE_EXTRUDER, (int)active_extruder);
 
   #endif //!MIXING_EXTRUDER || MIXING_VIRTUAL_TOOLS <= 1
 }
@@ -7685,13 +7649,13 @@ void ok_to_send() {
                           - sq(delta_tower3_y - cartesian[Y_AXIS])
                          ) + cartesian[Z_AXIS];
     /**
-    SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+    SERIAL_ECHOPAIR("cartesian x=", cartesian[X_AXIS]);
+    SERIAL_ECHOPAIR(" y=", cartesian[Y_AXIS]);
+    SERIAL_ECHOLNPAIR(" z=", cartesian[Z_AXIS]);
 
-    SERIAL_ECHOPGM("delta a="); SERIAL_ECHO(delta[A_AXIS]);
-    SERIAL_ECHOPGM(" b="); SERIAL_ECHO(delta[B_AXIS]);
-    SERIAL_ECHOPGM(" c="); SERIAL_ECHOLN(delta[C_AXIS]);
+    SERIAL_ECHOPAIR("delta a=", delta[A_AXIS]);
+    SERIAL_ECHOPAIR(" b=", delta[B_AXIS]);
+    SERIAL_ECHOLNPAIR(" c=", delta[C_AXIS]);
     */
   }
 
@@ -7806,19 +7770,19 @@ void ok_to_send() {
       delta[Z_AXIS] += offset;
 
       /**
-      SERIAL_ECHOPGM("grid_x="); SERIAL_ECHO(grid_x);
-      SERIAL_ECHOPGM(" grid_y="); SERIAL_ECHO(grid_y);
-      SERIAL_ECHOPGM(" floor_x="); SERIAL_ECHO(floor_x);
-      SERIAL_ECHOPGM(" floor_y="); SERIAL_ECHO(floor_y);
-      SERIAL_ECHOPGM(" ratio_x="); SERIAL_ECHO(ratio_x);
-      SERIAL_ECHOPGM(" ratio_y="); SERIAL_ECHO(ratio_y);
-      SERIAL_ECHOPGM(" z1="); SERIAL_ECHO(z1);
-      SERIAL_ECHOPGM(" z2="); SERIAL_ECHO(z2);
-      SERIAL_ECHOPGM(" z3="); SERIAL_ECHO(z3);
-      SERIAL_ECHOPGM(" z4="); SERIAL_ECHO(z4);
-      SERIAL_ECHOPGM(" left="); SERIAL_ECHO(left);
-      SERIAL_ECHOPGM(" right="); SERIAL_ECHO(right);
-      SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
+      SERIAL_ECHOPAIR("grid_x=", grid_x);
+      SERIAL_ECHOPAIR(" grid_y=", grid_y);
+      SERIAL_ECHOPAIR(" floor_x=", floor_x);
+      SERIAL_ECHOPAIR(" floor_y=", floor_y);
+      SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
+      SERIAL_ECHOPAIR(" ratio_y=", ratio_y);
+      SERIAL_ECHOPAIR(" z1=", z1);
+      SERIAL_ECHOPAIR(" z2=", z2);
+      SERIAL_ECHOPAIR(" z3=", z3);
+      SERIAL_ECHOPAIR(" z4=", z4);
+      SERIAL_ECHOPAIR(" left=", left);
+      SERIAL_ECHOPAIR(" right=", right);
+      SERIAL_ECHOLNPAIR(" offset=", offset);
       */
     }
   #endif // AUTO_BED_LEVELING_NONLINEAR
@@ -7910,9 +7874,9 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
     int steps = max(1, int(delta_segments_per_second * seconds));
     float inv_steps = 1.0/steps;
 
-    // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
-    // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
-    // SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
+    // SERIAL_ECHOPAIR("mm=", cartesian_mm);
+    // SERIAL_ECHOPAIR(" seconds=", seconds);
+    // SERIAL_ECHOLNPAIR(" steps=", steps);
 
     for (int s = 1; s <= steps; s++) {
 
@@ -8263,24 +8227,24 @@ void prepare_move_to_destination() {
 
     float a_sin, a_cos, b_sin, b_cos;
 
-    //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(a);
-    //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(b);
-
     a_sin = sin(RADIANS(a)) * L1;
     a_cos = cos(RADIANS(a)) * L1;
     b_sin = sin(RADIANS(b)) * L2;
     b_cos = cos(RADIANS(b)) * L2;
 
-    //SERIAL_ECHOPGM(" a_sin="); SERIAL_ECHO(a_sin);
-    //SERIAL_ECHOPGM(" a_cos="); SERIAL_ECHO(a_cos);
-    //SERIAL_ECHOPGM(" b_sin="); SERIAL_ECHO(b_sin);
-    //SERIAL_ECHOPGM(" b_cos="); SERIAL_ECHOLN(b_cos);
-
     cartes[X_AXIS] = a_cos + b_cos + SCARA_OFFSET_X;  //theta
     cartes[Y_AXIS] = a_sin + b_sin + SCARA_OFFSET_Y;  //theta+phi
 
-    //SERIAL_ECHOPGM(" cartes[X_AXIS]="); SERIAL_ECHO(cartes[X_AXIS]);
-    //SERIAL_ECHOPGM(" cartes[Y_AXIS]="); SERIAL_ECHOLN(cartes[Y_AXIS]);
+    /*
+      SERIAL_ECHOPAIR("f_delta x=", a);
+      SERIAL_ECHOPAIR(" y=", b);
+      SERIAL_ECHOPAIR(" a_sin=", a_sin);
+      SERIAL_ECHOPAIR(" a_cos=", a_cos);
+      SERIAL_ECHOPAIR(" b_sin=", b_sin);
+      SERIAL_ECHOLNPAIR(" b_cos=", b_cos);
+      SERIAL_ECHOPAIR(" cartes[X_AXIS]=", cartes[X_AXIS]);
+      SERIAL_ECHOLNPAIR(" cartes[Y_AXIS]=", cartes[Y_AXIS]);
+    //*/
   }
 
   void inverse_kinematics(const float cartesian[XYZ]) {
@@ -8771,25 +8735,21 @@ void setup() {
   MCUSR = 0;
 
   SERIAL_ECHOPGM(MSG_MARLIN);
-  SERIAL_ECHOLNPGM(" " SHORT_BUILD_VERSION);
+  SERIAL_CHAR(' ');
+  SERIAL_ECHOLNPGM(SHORT_BUILD_VERSION);
+  SERIAL_EOL;
 
-  #ifdef STRING_DISTRIBUTION_DATE
-    #ifdef STRING_CONFIG_H_AUTHOR
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
-      SERIAL_ECHOPGM(STRING_DISTRIBUTION_DATE);
-      SERIAL_ECHOPGM(MSG_AUTHOR);
-      SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
-      SERIAL_ECHOPGM("Compiled: ");
-      SERIAL_ECHOLNPGM(__DATE__);
-    #endif // STRING_CONFIG_H_AUTHOR
-  #endif // STRING_DISTRIBUTION_DATE
+  #if defined(STRING_DISTRIBUTION_DATE) && defined(STRING_CONFIG_H_AUTHOR)
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
+    SERIAL_ECHOPGM(STRING_DISTRIBUTION_DATE);
+    SERIAL_ECHOLNPGM(MSG_AUTHOR STRING_CONFIG_H_AUTHOR);
+    SERIAL_ECHOLNPGM("Compiled: " __DATE__);
+  #endif
 
   SERIAL_ECHO_START;
-  SERIAL_ECHOPGM(MSG_FREE_MEMORY);
-  SERIAL_ECHO(freeMemory());
-  SERIAL_ECHOPGM(MSG_PLANNER_BUFFER_BYTES);
-  SERIAL_ECHOLN((int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
+  SERIAL_ECHOPAIR(MSG_FREE_MEMORY, freeMemory());
+  SERIAL_ECHOLNPAIR(MSG_PLANNER_BUFFER_BYTES, (int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
 
   // Send "ok" after commands by default
   for (int8_t i = 0; i < BUFSIZE; i++) send_ok[i] = true;
