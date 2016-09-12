@@ -109,7 +109,7 @@ fi
 
 #(cd ${DN_EXEC}; gcc -o genpages genpages.c getline.c)
 
-rm tmpa tmpb
+rm -f tmpa tmpb
 #rm -f ${DN_EXEC}/fontpage_*.h
 rm -f fontpage_*.h
 
