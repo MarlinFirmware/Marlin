@@ -63,9 +63,6 @@
   #define FONT_STATUSMENU_NAME FONT_MENU_NAME
 #endif
 
-#include "dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
-#define FONT_SPECIAL_NAME Marlin_symbols
-
 #include LANGUAGE_DATA_INCL(LCD_LANGUAGE)
 #define TALL_FONT_CORRECTION 1
 
@@ -164,18 +161,10 @@ U8GLIB *pu8g = &u8g;
 int lcd_contrast;
 static char currentfont = 0;
 
-// TODO: merge special font and menu fonts
-
-static void lcd_setFont(char font_nr) {
-  switch(font_nr) {
-    case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
-    default:
-    case FONT_MENU       : {u8g.setFont(FONT_MENU_NAME); currentfont = FONT_MENU;}; break;
-    case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
-    case FONT_MENU_EDIT  : {u8g.setFont(FONT_MENU_EDIT_NAME); currentfont = FONT_MENU_EDIT;}; break;
-  }
-}
-
+#if ENABLED(USE_SMALL_INFOFONT) || !DISABLED(SIMULATE_ROMFONT)
+#include "dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
+#define FONT_SPECIAL_NAME Marlin_symbols
+static void lcd_setFont(char font_nr);
 char lcd_print_u(wchar_t c) {
   if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
     u8g.setFont(FONT_SPECIAL_NAME);
@@ -184,6 +173,21 @@ char lcd_print_u(wchar_t c) {
     return 1;
   } else {
     return lcd_print_wchar(c);
+  }
+}
+#else
+// The Marlin special symbols is merged in the ISO10646_1_5x7
+#define FONT_SPECIAL_NAME FONT_MENU_NAME
+#define lcd_print_u lcd_print_wchar
+#endif
+
+static void lcd_setFont(char font_nr) {
+  switch(font_nr) {
+    case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
+    default:
+    case FONT_MENU       : {u8g.setFont(FONT_MENU_NAME); currentfont = FONT_MENU;}; break;
+    case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
+    case FONT_MENU_EDIT  : {u8g.setFont(FONT_MENU_EDIT_NAME); currentfont = FONT_MENU_EDIT;}; break;
   }
 }
 
