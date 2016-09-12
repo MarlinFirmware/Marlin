@@ -181,11 +181,9 @@
 #if ENABLED(LCD_PROGRESS_BAR)
   #if DISABLED(SDSUPPORT)
     #error "LCD_PROGRESS_BAR requires SDSUPPORT."
-  #endif
-  #if ENABLED(DOGLCD)
+  #elif ENABLED(DOGLCD)
     #error "LCD_PROGRESS_BAR does not apply to graphical displays."
-  #endif
-  #if ENABLED(FILAMENT_LCD_DISPLAY)
+  #elif ENABLED(FILAMENT_LCD_DISPLAY)
     #error "LCD_PROGRESS_BAR and FILAMENT_LCD_DISPLAY are not fully compatible. Comment out this line to use both."
   #endif
 #endif
