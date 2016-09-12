@@ -176,6 +176,17 @@ static void lcd_setFont(char font_nr) {
   }
 }
 
+char lcd_print_u(wchar_t c) {
+  if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
+    u8g.setFont(FONT_SPECIAL_NAME);
+    u8g.print(c);
+    lcd_setFont(currentfont);
+    return 1;
+  } else {
+    return lcd_print_wchar(c);
+  }
+}
+
 // Initialize or re-initializw the LCD
 static void lcd_implementation_init() {
 
@@ -301,11 +312,11 @@ FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) 
     lcd_printPGM(pstr);
   else {
     if (!axis_homed[axis])
-      lcd_print_wchar('?');
+      lcd_print_u('?');
     else {
       #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
-          lcd_print_wchar(' ');
+          lcd_print_u(' ');
         else
       #endif
       lcd_printPGM(pstr);
@@ -351,7 +362,7 @@ static void lcd_implementation_status_screen() {
         // Percent complete
         u8g.setPrintPos(55, 48);
         lcd_print(itostr3(card.percentDone()));
-        lcd_print_wchar('%');
+        lcd_print_u('%');
       #endif
     }
 
@@ -385,7 +396,7 @@ static void lcd_implementation_status_screen() {
     int per = ((fanSpeeds[0] + 1) * 100) / 256;
     if (per) {
       lcd_print(itostr3(per));
-      lcd_print_wchar('%');
+      lcd_print_u('%');
     }
   #endif
 
@@ -422,12 +433,12 @@ static void lcd_implementation_status_screen() {
   // Feedrate
   lcd_setFont(FONT_MENU);
   lcd_moveto(3, 49);
-  lcd_print_wchar(LCD_STR_FEEDRATE[0]);
+  lcd_print_u(LCD_STR_FEEDRATE[0]);
 
   lcd_setFont(FONT_STATUSMENU);
   lcd_moveto(12, 49);
   lcd_print(itostr3(feedrate_percentage));
-  lcd_print_wchar('%');
+  lcd_print_u('%');
 
   // Status line
   #if ENABLED(USE_SMALL_INFOFONT)
@@ -446,7 +457,7 @@ static void lcd_implementation_status_screen() {
       lcd_print(ftostr12ns(filament_width_meas));
       lcd_printPGM(PSTR(" factor:"));
       lcd_print(itostr3(100.0 * volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
-      lcd_print_wchar('%');
+      lcd_print_u('%');
     }
   #endif
 }
@@ -496,8 +507,8 @@ static void lcd_implementation_status_screen() {
     lcd_printstr_P(pstr, n);
     lcd_moveto(LCD_PIXEL_WIDTH - (DOG_CHAR_WIDTH), (row + 1) * (DOG_CHAR_HEIGHT));
 
-    lcd_print_wchar(post_char);
-    lcd_print_wchar(' ');
+    lcd_print_u(post_char);
+    lcd_print_u(' ');
   }
 
   // Macros for specific types of menu items
@@ -570,7 +581,7 @@ static void lcd_implementation_status_screen() {
     lcd_moveto(0, rowHeight + kHalfChar);
     lcd_printPGM(pstr);
     if (value != NULL) {
-      lcd_print_wchar(':');
+      lcd_print_u(':');
       lcd_moveto((lcd_width - 1 - vallen) * char_width, rows * rowHeight + kHalfChar);
       lcd_print(value);
     }
@@ -590,7 +601,7 @@ static void lcd_implementation_status_screen() {
 
       lcd_implementation_mark_as_selected(row, isSelected);
 
-      if (isDir) lcd_print_wchar (LCD_STR_FOLDER[0]);
+      if (isDir) lcd_print_u (LCD_STR_FOLDER[0]);
 
       n = n * DOG_CHAR_WIDTH;
       lcd_printstr(filename, n);
