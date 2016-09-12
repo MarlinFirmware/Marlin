@@ -123,9 +123,9 @@
 #if ENABLED(DISPLAYTEST)
   #define WELCOME_MSG                         _UxGT("Language TEST")
 
-  #define MSG_WATCH                           _UxGT("Display test")
-  #define MSG_PREPARE                         STRG_OKTAL_b
-  #define MSG_CONTROL                         STRG_OKTAL_c
+  #define MSG_WATCH                           "wt:" STRG_C3_8 STRG_C3_a //_UxGT("Display test")
+  #define MSG_PREPARE                         _UxGT("ja:ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ")
+  #define MSG_CONTROL                         "ru:" STRG_D0_9 STRG_D0_b
 #endif
 
 #if ENABLED(WEST)
