@@ -302,22 +302,24 @@ int code_value_int();
 float code_value_temp_abs();
 float code_value_temp_diff();
 
-#if ENABLED(DELTA)
+#if IS_KINEMATIC
   extern float delta[ABC];
-  extern float endstop_adj[ABC]; // axis[n].endstop_adj
-  extern float delta_radius;
-  extern float delta_diagonal_rod;
-  extern float delta_segments_per_second;
-  extern float delta_diagonal_rod_trim_tower_1;
-  extern float delta_diagonal_rod_trim_tower_2;
-  extern float delta_diagonal_rod_trim_tower_3;
   void inverse_kinematics(const float cartesian[XYZ]);
+#endif
+
+#if ENABLED(DELTA)
+  extern float delta[ABC],
+               endstop_adj[ABC],
+               delta_radius,
+               delta_diagonal_rod,
+               delta_segments_per_second,
+               delta_diagonal_rod_trim_tower_1,
+               delta_diagonal_rod_trim_tower_2,
+               delta_diagonal_rod_trim_tower_3;
   void recalc_delta_settings(float radius, float diagonal_rod);
 #elif IS_SCARA
-  extern float delta[ABC];
   extern float axis_scaling[ABC];  // Build size scaling
-  void inverse_kinematics(const float cartesian[XYZ]);
-  void forward_kinematics_SCARA(float f_scara[ABC]);
+  void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
