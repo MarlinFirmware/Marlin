@@ -465,7 +465,6 @@ static uint8_t target_extruder;
   #define COS_60 0.5
 
   float delta[ABC],
-        cartes[XYZ] = { 0 },
         endstop_adj[ABC] = { 0 };
 
   // these are the default values, can be overriden with M665
@@ -487,7 +486,6 @@ static uint8_t target_extruder;
         delta_clip_start_height = Z_MAX_POS;
 
   float delta_safe_distance_from_top();
-  void get_cartesian_from_steppers();
 
 #else
 
@@ -508,10 +506,10 @@ static uint8_t target_extruder;
 
   float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND,
         delta[ABC],
-        axis_scaling[ABC] = { 1, 1, 1 },    // Build size scaling, default to 1
-        cartes[XYZ] = { 0 };
-  void get_cartesian_from_steppers() { }    // to be written later
+        axis_scaling[ABC] = { 1, 1, 1 };    // Build size scaling, default to 1
 #endif
+
+float cartes[XYZ] = { 0 };
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
@@ -598,6 +596,8 @@ void stop();
 void get_available_commands();
 void process_next_command();
 void prepare_move_to_destination();
+
+void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(AxisEnum axis);
 
 #if ENABLED(ARC_SUPPORT)
@@ -1347,7 +1347,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
     }
   #endif
 
-  #if ENABLED(SCARA)
+  #if ENABLED(MORGAN_SCARA)
 
     if (axis == X_AXIS || axis == Y_AXIS) {
 
@@ -1362,19 +1362,19 @@ static void set_axis_is_at_home(AxisEnum axis) {
        * and calculates homing offset using forward kinematics
        */
       inverse_kinematics(homeposition);
-      forward_kinematics_SCARA(delta);
+      forward_kinematics_SCARA(delta[A_AXIS], delta[B_AXIS]);
 
-      // SERIAL_ECHOPAIR("Delta X=", delta[X_AXIS]);
-      // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      // SERIAL_ECHOPAIR("Delta X=", cartes[X_AXIS]);
+      // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(cartes[Y_AXIS]);
 
-      current_position[axis] = LOGICAL_POSITION(delta[axis], axis);
+      current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
 
       /**
        * SCARA home positions are based on configuration since the actual
        * limits are determined by the inverse kinematic transform.
        */
-      soft_endstop_min[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
-      soft_endstop_max[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      soft_endstop_min[axis] = base_min_pos(axis); // + (cartes[axis] - base_home_pos(axis));
+      soft_endstop_max[axis] = base_max_pos(axis); // + (cartes[axis] - base_home_pos(axis));
     }
     else
   #endif
@@ -5089,7 +5089,7 @@ static void report_current_position() {
 
   stepper.report_positions();
 
-  #if ENABLED(SCARA)
+  #if IS_SCARA
     SERIAL_PROTOCOLPGM("SCARA Theta:");
     SERIAL_PROTOCOL(delta[X_AXIS]);
     SERIAL_PROTOCOLPGM("   Psi+Theta:");
@@ -5327,7 +5327,7 @@ inline void gcode_M206() {
     if (code_seen(axis_codes[i]))
       set_home_offset((AxisEnum)i, code_value_axis_units(i));
 
-  #if ENABLED(SCARA)
+  #if IS_SCARA
     if (code_seen('T')) set_home_offset(X_AXIS, code_value_axis_units(X_AXIS)); // Theta
     if (code_seen('P')) set_home_offset(Y_AXIS, code_value_axis_units(Y_AXIS)); // Psi
   #endif
@@ -5808,17 +5808,16 @@ inline void gcode_M303() {
   #endif
 }
 
-#if ENABLED(SCARA)
-  bool SCARA_move_to_cal(uint8_t delta_x, uint8_t delta_y) {
+#if ENABLED(MORGAN_SCARA)
+  bool SCARA_move_to_cal(uint8_t delta_a, uint8_t delta_b) {
     //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
     //SERIAL_ECHOLNPGM(" Soft endstops disabled");
     if (IsRunning()) {
       //gcode_get_destination(); // For X Y Z E F
-      delta[X_AXIS] = delta_x;
-      delta[Y_AXIS] = delta_y;
-      forward_kinematics_SCARA(delta);
-      destination[X_AXIS] = delta[X_AXIS] / axis_scaling[X_AXIS];
-      destination[Y_AXIS] = delta[Y_AXIS] / axis_scaling[Y_AXIS];
+      forward_kinematics_SCARA(delta_a, delta_b);
+      destination[X_AXIS] = cartes[X_AXIS] / axis_scaling[X_AXIS];
+      destination[Y_AXIS] = cartes[Y_AXIS] / axis_scaling[Y_AXIS];
+      destination[Z_AXIS] = current_position[Z_AXIS];
       prepare_move_to_destination();
       //ok_to_send();
       return true;
@@ -7456,7 +7455,7 @@ void process_next_command() {
         gcode_M303();
         break;
 
-      #if ENABLED(SCARA)
+      #if ENABLED(MORGAN_SCARA)
         case 360:  // M360 SCARA Theta pos1
           if (gcode_M360()) return;
           break;
@@ -7792,12 +7791,6 @@ void ok_to_send() {
 
   void forward_kinematics_DELTA(float point[ABC]) {
     forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
-  }
-
-  void get_cartesian_from_steppers() {
-    forward_kinematics_DELTA(stepper.get_axis_position_mm(A_AXIS),
-                             stepper.get_axis_position_mm(B_AXIS),
-                             stepper.get_axis_position_mm(C_AXIS));
   }
 
   #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
@@ -8274,32 +8267,32 @@ void prepare_move_to_destination() {
 
 #endif // HAS_CONTROLLERFAN
 
-#if ENABLED(SCARA)
+#if IS_SCARA
 
-  void forward_kinematics_SCARA(float f_scara[ABC]) {
-    // Perform forward kinematics, and place results in delta[]
+  void forward_kinematics_SCARA(const float &a, const float &b) {
+    // Perform forward kinematics, and place results in cartes[]
     // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
 
-    float x_sin, x_cos, y_sin, y_cos;
+    float a_sin, a_cos, b_sin, b_cos;
 
-    //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
-    //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
+    //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(a);
+    //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(b);
 
-    x_sin = sin(RADIANS(f_scara[X_AXIS])) * L1;
-    x_cos = cos(RADIANS(f_scara[X_AXIS])) * L1;
-    y_sin = sin(RADIANS(f_scara[Y_AXIS])) * L2;
-    y_cos = cos(RADIANS(f_scara[Y_AXIS])) * L2;
+    a_sin = sin(RADIANS(a)) * L1;
+    a_cos = cos(RADIANS(a)) * L1;
+    b_sin = sin(RADIANS(b)) * L2;
+    b_cos = cos(RADIANS(b)) * L2;
 
-    //SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
-    //SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
-    //SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
-    //SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
+    //SERIAL_ECHOPGM(" a_sin="); SERIAL_ECHO(a_sin);
+    //SERIAL_ECHOPGM(" a_cos="); SERIAL_ECHO(a_cos);
+    //SERIAL_ECHOPGM(" b_sin="); SERIAL_ECHO(b_sin);
+    //SERIAL_ECHOPGM(" b_cos="); SERIAL_ECHOLN(b_cos);
 
-    delta[X_AXIS] = x_cos + y_cos + SCARA_OFFSET_X;  //theta
-    delta[Y_AXIS] = x_sin + y_sin + SCARA_OFFSET_Y;  //theta+phi
+    cartes[X_AXIS] = a_cos + b_cos + SCARA_OFFSET_X;  //theta
+    cartes[Y_AXIS] = a_sin + b_sin + SCARA_OFFSET_Y;  //theta+phi
 
-    //SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
-    //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+    //SERIAL_ECHOPGM(" cartes[X_AXIS]="); SERIAL_ECHO(cartes[X_AXIS]);
+    //SERIAL_ECHOPGM(" cartes[Y_AXIS]="); SERIAL_ECHOLN(cartes[Y_AXIS]);
   }
 
   void inverse_kinematics(const float cartesian[XYZ]) {
@@ -8343,7 +8336,27 @@ void prepare_move_to_destination() {
     //*/
   }
 
-#endif // MORGAN_SCARA
+#endif // IS_SCARA
+
+void get_cartesian_from_steppers() {
+  #if ENABLED(DELTA)
+    forward_kinematics_DELTA(
+      stepper.get_axis_position_mm(A_AXIS),
+      stepper.get_axis_position_mm(B_AXIS),
+      stepper.get_axis_position_mm(C_AXIS)
+    );
+  #elif IS_SCARA
+    forward_kinematics_SCARA(
+      stepper.get_axis_position_degrees(A_AXIS),
+      stepper.get_axis_position_degrees(B_AXIS)
+    );
+    cartes[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
+  #else
+    cartes[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
+    cartes[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
+    cartes[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
+  #endif
+}
 
 #if ENABLED(TEMP_STAT_LEDS)
 
