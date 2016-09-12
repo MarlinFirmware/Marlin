@@ -156,6 +156,7 @@ static const hd44780_charmap_t g_hd44780_charmap[] PROGMEM = {
     {IV('」'), 0xA3, 0},
     {IV('゛'), 0xDE, 0}, // ‶
     {IV('゜'), 0xDF, 0}, // '〫' 
+    {IV('゠'), '=', 0},
     {IV('ァ'), 0xA7, 0},
     {IV('ア'), 0xB1, 0},
     {IV('ィ'), 0xA8, 0},
@@ -846,11 +847,7 @@ lcd_printstr_cb (const char * utf8_str, uint16_t len, uint8_t (*cb_read_byte)(ui
 
     TRACE ("BEGIN lcd_printstr_cb(len=%d, maxlen=%d)", len, max_length);
     pend = (uint8_t *)utf8_str + len;
-    for (p = (uint8_t *)utf8_str; p < pend; ) {
-        if (ret >= max_length) {
-            TRACE ("> max_lenght, quit");
-            break;
-        }
+    for (p = (uint8_t *)utf8_str; (p < pend) && (ret < max_length); ) {
         ch = 0;
         p = get_utf8_value_cb (p, cb_read_byte, &ch);
         if (NULL == p) {
