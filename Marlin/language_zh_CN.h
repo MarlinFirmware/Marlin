@@ -73,12 +73,12 @@
 #define MSG_MOVE_01MM                       _UxGT("移动 0.1 mm")  //"Move 0.1mm"
 #define MSG_MOVE_1MM                        _UxGT("移动 1 mm")  //"Move 1mm"
 #define MSG_MOVE_10MM                       _UxGT("移动 10 mm")  //"Move 10mm"
-#define MSG_SPEED                           _UxGT("速度")  //"Speed"
+#define MSG_SPEED                           _UxGT("速率")  //"Speed"
 #define MSG_BED_Z                           _UxGT("热床Z")  //"Bed Z"
 #define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 喷嘴")  //"Nozzle" 噴嘴
 #define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 热床")  //"Bed"
-#define MSG_FAN_SPEED                       _UxGT("风扇速度")  //"Fan speed"
-#define MSG_FLOW                            _UxGT("挤出速度")  //"Flow"
+#define MSG_FAN_SPEED                       _UxGT("风扇速率")  //"Fan speed"
+#define MSG_FLOW                            _UxGT("挤出速率")  //"Flow"
 #define MSG_CONTROL                         _UxGT("控制")  //"Control"
 #define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 最小") //" " LCD_STR_THERMOMETER " Min"
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 最大")  //" " LCD_STR_THERMOMETER " Max"
@@ -92,9 +92,9 @@
 #define MSG_PID_C                           _UxGT("PID-C")  //"PID-C"
 #define MSG_SELECT                          _UxGT("选择")  //"Select"
 #define MSG_ACC                             _UxGT("加速度")  //"Accel" acceleration
-#define MSG_VXY_JERK                        _UxGT("XY轴抖动速度")  //"Vxy-jerk"
-#define MSG_VZ_JERK                         _UxGT("Z轴抖动速度")  //"Vz-jerk"
-#define MSG_VE_JERK                         _UxGT("挤出机抖动速度")  //"Ve-jerk"
+#define MSG_VXY_JERK                        _UxGT("XY轴抖动速率")  //"Vxy-jerk"
+#define MSG_VZ_JERK                         _UxGT("Z轴抖动速率")  //"Vz-jerk"
+#define MSG_VE_JERK                         _UxGT("挤出机抖动速率")  //"Ve-jerk"
 #define MSG_VMAX                            _UxGT("最大进料速率")  //"Vmax " max_feedrate_mm_s
 #define MSG_VMIN                            _UxGT("最小进料速率")  //"Vmin"  min_feedrate_mm_s
 #define MSG_VTRAV_MIN                       _UxGT("最小移动速率")  //"VTrav min" min_travel_feedrate_mm_s, (target) speed of the move
