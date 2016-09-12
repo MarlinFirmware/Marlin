@@ -465,7 +465,7 @@ static uint8_t target_extruder;
   #define COS_60 0.5
 
   float delta[ABC],
-        cartesian_position[XYZ] = { 0 },
+        cartes[XYZ] = { 0 },
         endstop_adj[ABC] = { 0 };
 
   // these are the default values, can be overriden with M665
@@ -487,7 +487,7 @@ static uint8_t target_extruder;
         delta_clip_start_height = Z_MAX_POS;
 
   float delta_safe_distance_from_top();
-  void set_cartesian_from_steppers();
+  void get_cartesian_from_steppers();
 
 #else
 
@@ -509,8 +509,8 @@ static uint8_t target_extruder;
   float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND,
         delta[ABC],
         axis_scaling[ABC] = { 1, 1, 1 },    // Build size scaling, default to 1
-        cartesian_position[XYZ] = { 0 };
-  void set_cartesian_from_steppers() { }    // to be written later
+        cartes[XYZ] = { 0 };
+  void get_cartesian_from_steppers() { }    // to be written later
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -3412,8 +3412,8 @@ inline void gcode_G28() {
 
         // For DELTA/SCARA we need to apply forward kinematics.
         // This returns raw positions and we remap to the space.
-        set_cartesian_from_steppers();
-        LOOP_XYZ(i) current_position[i] = LOGICAL_POSITION(cartesian_position[i], i);
+        get_cartesian_from_steppers();
+        LOOP_XYZ(i) current_position[i] = LOGICAL_POSITION(cartes[i], i);
 
       #else
 
@@ -7741,7 +7741,7 @@ void ok_to_send() {
     // based on a Java function from
     // "Delta Robot Kinematics by Steve Graves" V3
 
-    // Result is in cartesian_position[].
+    // Result is in cartes[].
 
     //Create a vector in old coordinates along x axis of new coordinate
     float p12[3] = { delta_tower2_x - delta_tower1_x, delta_tower2_y - delta_tower1_y, z2 - z1 };
@@ -7785,16 +7785,16 @@ void ok_to_send() {
     //Now we can start from the origin in the old coords and
     //add vectors in the old coords that represent the
     //Xnew, Ynew and Znew to find the point in the old system
-    cartesian_position[X_AXIS] = delta_tower1_x + ex[0]*Xnew + ey[0]*Ynew - ez[0]*Znew;
-    cartesian_position[Y_AXIS] = delta_tower1_y + ex[1]*Xnew + ey[1]*Ynew - ez[1]*Znew;
-    cartesian_position[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
+    cartes[X_AXIS] = delta_tower1_x + ex[0]*Xnew + ey[0]*Ynew - ez[0]*Znew;
+    cartes[Y_AXIS] = delta_tower1_y + ex[1]*Xnew + ey[1]*Ynew - ez[1]*Znew;
+    cartes[Z_AXIS] = z1             + ex[2]*Xnew + ey[2]*Ynew - ez[2]*Znew;
   };
 
   void forward_kinematics_DELTA(float point[ABC]) {
     forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
   }
 
-  void set_cartesian_from_steppers() {
+  void get_cartesian_from_steppers() {
     forward_kinematics_DELTA(stepper.get_axis_position_mm(A_AXIS),
                              stepper.get_axis_position_mm(B_AXIS),
                              stepper.get_axis_position_mm(C_AXIS));
@@ -7846,8 +7846,8 @@ void ok_to_send() {
 
 void set_current_from_steppers_for_axis(AxisEnum axis) {
   #if ENABLED(DELTA)
-    set_cartesian_from_steppers();
-    current_position[axis] = LOGICAL_POSITION(cartesian_position[axis], axis);
+    get_cartesian_from_steppers();
+    current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
   #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
     vector_3 pos = untilted_stepper_position();
     current_position[axis] = axis == X_AXIS ? pos.x : axis == Y_AXIS ? pos.y : pos.z;
