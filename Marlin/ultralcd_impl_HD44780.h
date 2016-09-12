@@ -546,11 +546,11 @@ FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) 
     lcd_printPGM(pstr);
   else {
     if (!axis_homed[axis])
-      lcd.print('?');
+      lcd_print_wchar('?');
     else {
       #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
-          lcd.print(' ');
+          lcd_print_wchar(' ');
         else
       #endif
       lcd_printPGM(pstr);
@@ -584,15 +584,15 @@ Possible status screens:
 static void lcd_implementation_status_screen() {
 
   #define LCD_TEMP_ONLY(T1,T2) \
-    lcd.print(itostr3(T1 + 0.5)); \
-    lcd.print('/'); \
-    lcd.print(itostr3left(T2 + 0.5))
+    lcd_print(itostr3(T1 + 0.5)); \
+    lcd_print_wchar('/'); \
+    lcd_print(itostr3left(T2 + 0.5))
 
   #define LCD_TEMP(T1,T2,PREFIX) \
-    lcd.print(PREFIX); \
+    lcd_print_wchar(PREFIX); \
     LCD_TEMP_ONLY(T1,T2); \
     lcd_printPGM(PSTR(LCD_STR_DEGREE " ")); \
-    if (T2 < 10) lcd.print(' ')
+    if (T2 < 10) lcd_print_wchar(' ')
 
   //
   // Line 1
@@ -614,10 +614,10 @@ static void lcd_implementation_status_screen() {
 
       lcd_moveto (8, 0);
       #if HOTENDS > 1
-        lcd.print(LCD_STR_THERMOMETER[0]);
+        lcd_print_wchar(LCD_STR_THERMOMETER[0]);
         LCD_TEMP_ONLY(thermalManager.degHotend(1), thermalManager.degTargetHotend(1));
       #else
-        lcd.print(LCD_STR_BEDTEMP[0]);
+        lcd_print_wchar(LCD_STR_BEDTEMP[0]);
         LCD_TEMP_ONLY(thermalManager.degBed(), thermalManager.degTargetBed());
       #endif
 
@@ -659,10 +659,10 @@ static void lcd_implementation_status_screen() {
         lcd_moveto (0, 2);
         lcd_printPGM(PSTR("SD"));
         if (IS_SD_PRINTING)
-          lcd.print(itostr3(card.percentDone()));
+          lcd_print(itostr3(card.percentDone()));
         else
           lcd_printPGM(PSTR("---"));
-          lcd.print('%');
+          lcd_print_wchar('%');
       #endif // SDSUPPORT
 
     #else // LCD_WIDTH >= 20
@@ -682,12 +682,12 @@ static void lcd_implementation_status_screen() {
         // When everything is ok you see a constant 'X'.
 
         _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
-        lcd.print(ftostr4sign(current_position[X_AXIS]));
+        lcd_print(ftostr4sign(current_position[X_AXIS]));
 
-        lcd.print(' ');
+        lcd_print_wchar(' ');
 
         _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
-        lcd.print(ftostr4sign(current_position[Y_AXIS]));
+        lcd_print(ftostr4sign(current_position[Y_AXIS]));
 
       #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
@@ -695,7 +695,7 @@ static void lcd_implementation_status_screen() {
 
     lcd_moveto (LCD_WIDTH - 8, 1);
     _draw_axis_label(Z_AXIS, PSTR(MSG_Z), blink);
-    lcd.print(ftostr52sp(current_position[Z_AXIS] + 0.00001));
+    lcd_print(ftostr52sp(current_position[Z_AXIS] + 0.00001));
 
   #endif // LCD_HEIGHT > 2
 
@@ -707,18 +707,18 @@ static void lcd_implementation_status_screen() {
 
     lcd_moveto (0, 2);
     lcd.print(LCD_STR_FEEDRATE[0]);
-    lcd.print(itostr3(feedrate_percentage));
-    lcd.print('%');
+    lcd_print(itostr3(feedrate_percentage));
+    lcd_print_wchar('%');
 
     #if LCD_WIDTH > 19 && ENABLED(SDSUPPORT)
 
       lcd_moveto (7, 2);
       lcd_printPGM(PSTR("SD"));
       if (IS_SD_PRINTING)
-        lcd.print(itostr3(card.percentDone()));
+        lcd_print(itostr3(card.percentDone()));
       else
         lcd_printPGM(PSTR("---"));
-      lcd.print('%');
+      lcd_print_wchar('%');
 
     #endif // LCD_WIDTH > 19 && SDSUPPORT
 
