@@ -2451,6 +2451,20 @@ void unknown_command_error() {
 
 #endif //HOST_KEEPALIVE_FEATURE
 
+bool position_is_reachable(float target[XYZ]) {
+  float dx = RAW_X_POSITION(target[X_AXIS]),
+        dy = RAW_Y_POSITION(target[Y_AXIS]);
+
+  #if ENABLED(DELTA)
+    return HYPOT2(dx, dy) <= sq(DELTA_PRINTABLE_RADIUS);
+  #else
+    float dz = RAW_Z_POSITION(target[Z_AXIS]);
+    return  dx >= X_MIN_POS - 0.0001 && dx <= X_MAX_POS + 0.0001
+         && dy >= Y_MIN_POS - 0.0001 && dy <= Y_MAX_POS + 0.0001
+         && dz >= Z_MIN_POS - 0.0001 && dz <= Z_MAX_POS + 0.0001;
+  #endif
+}
+
 /**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
@@ -2770,21 +2784,21 @@ inline void gcode_G4() {
     /**
      * Move the Z probe (or just the nozzle) to the safe homing point
      */
-    float cpx = Z_SAFE_HOMING_X_POINT, cpy = Z_SAFE_HOMING_Y_POINT;
+    destination[X_AXIS] = LOGICAL_X_POSITION(Z_SAFE_HOMING_X_POINT);
+    destination[Y_AXIS] = LOGICAL_Y_POSITION(Z_SAFE_HOMING_Y_POINT);
+    destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
+
     #if HAS_BED_PROBE
-      cpx -= X_PROBE_OFFSET_FROM_EXTRUDER;
-      cpy -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+      destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
+      destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
     #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("Z_SAFE_HOMING X:", cpx);
-        SERIAL_ECHOLNPAIR(" Y:", cpy);
-      }
+      if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
     #endif
 
-    if (cpx >= X_MIN_POS && cpx <= X_MAX_POS && cpy >= Y_MIN_POS && cpy <= Y_MAX_POS) {
-      do_blocking_move_to_xy(LOGICAL_X_POSITION(destination[X_AXIS]), LOGICAL_Y_POSITION(destination[Y_AXIS]));
+    if (position_is_reachable(destination)) {
+      do_blocking_move_to_xy(destination[X_AXIS], destination[Y_AXIS]);
       HOMEAXIS(Z);
     }
     else {
