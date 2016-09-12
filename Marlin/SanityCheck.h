@@ -137,6 +137,8 @@
   #error Please replace "const int dropsegments" with "#define MIN_STEPS_PER_SEGMENT" (and increase by 1) in Configuration_adv.h.
 #elif defined(PREVENT_DANGEROUS_EXTRUDE)
   #error "PREVENT_DANGEROUS_EXTRUDE is now PREVENT_COLD_EXTRUSION. Please update your configuration."
+#elif defined(SCARA)
+  #error "SCARA is now MORGAN_SCARA. Please update your configuration."
 #endif
 
 /**
@@ -573,11 +575,12 @@
 /**
  * Don't set more than one kinematic type
  */
-#if (ENABLED(DELTA) && (ENABLED(SCARA) || ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ))) \
+#if (ENABLED(DELTA) && (ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA) || ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ))) \
+ || (ENABLED(DELTA) && (ENABLED(MAKERARM_SCARA) || ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ))) \
  || (ENABLED(SCARA) && (ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ))) \
  || (ENABLED(COREXY) && (ENABLED(COREXZ) || ENABLED(COREYZ))) \
  || (ENABLED(COREXZ) && ENABLED(COREYZ))
-  #error "Please enable only one of DELTA, SCARA, COREXY, COREXZ, or COREYZ."
+  #error "Please enable only one of DELTA, MORGAN_SCARA, MAKERARM_SCARA, COREXY, COREXZ, or COREYZ."
 #endif
 
 /**
@@ -750,7 +753,7 @@
   #elif ENABLED(DELTA)
     #error "Z_DUAL_ENDSTOPS is not compatible with DELTA."
   #endif
-#elif DISABLED(SCARA)
+#elif !IS_SCARA
   #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
     #error "Enable USE_XMIN_PLUG when homing X to MIN."
   #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
