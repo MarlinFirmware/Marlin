@@ -313,15 +313,16 @@ float code_value_temp_diff();
   extern float delta_diagonal_rod_trim_tower_3;
   void inverse_kinematics(const float cartesian[XYZ]);
   void recalc_delta_settings(float radius, float diagonal_rod);
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    extern int delta_grid_spacing[2];
-    void adjust_delta(float cartesian[XYZ]);
-  #endif
 #elif IS_SCARA
   extern float delta[ABC];
   extern float axis_scaling[ABC];  // Build size scaling
   void inverse_kinematics(const float cartesian[XYZ]);
   void forward_kinematics_SCARA(float f_scara[ABC]);
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+  extern int nonlinear_grid_spacing[2];
+  void adjust_delta(float cartesian[XYZ]);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)

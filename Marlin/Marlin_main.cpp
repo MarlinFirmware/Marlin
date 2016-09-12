@@ -486,11 +486,6 @@ static uint8_t target_extruder;
         delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND,
         delta_clip_start_height = Z_MAX_POS;
 
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    int delta_grid_spacing[2] = { 0, 0 };
-    float bed_level[AUTO_BED_LEVELING_GRID_POINTS][AUTO_BED_LEVELING_GRID_POINTS];
-  #endif
-
   float delta_safe_distance_from_top();
   void set_cartesian_from_steppers();
 
@@ -498,6 +493,11 @@ static uint8_t target_extruder;
 
   static bool home_all_axis = true;
 
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+  int nonlinear_grid_spacing[2] = { 0 };
+  float bed_level[AUTO_BED_LEVELING_GRID_POINTS][AUTO_BED_LEVELING_GRID_POINTS];
 #endif
 
 #if IS_SCARA
@@ -3442,8 +3442,9 @@ inline void gcode_G28() {
                   yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points - 1);
 
       #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-        delta_grid_spacing[X_AXIS] = xGridSpacing;
-        delta_grid_spacing[Y_AXIS] = yGridSpacing;
+
+        nonlinear_grid_spacing[X_AXIS] = xGridSpacing;
+        nonlinear_grid_spacing[Y_AXIS] = yGridSpacing;
         float zoffset = zprobe_zoffset;
         if (code_seen('Z')) zoffset += code_value_axis_units(Z_AXIS);
 
@@ -7803,12 +7804,12 @@ void ok_to_send() {
 
     // Adjust print surface height by linear interpolation over the bed_level array.
     void adjust_delta(float cartesian[XYZ]) {
-      if (delta_grid_spacing[X_AXIS] == 0 || delta_grid_spacing[Y_AXIS] == 0) return; // G29 not done!
+      if (nonlinear_grid_spacing[X_AXIS] == 0 || nonlinear_grid_spacing[Y_AXIS] == 0) return; // G29 not done!
 
       int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
       float h1 = 0.001 - half, h2 = half - 0.001,
-            grid_x = max(h1, min(h2, RAW_X_POSITION(cartesian[X_AXIS]) / delta_grid_spacing[X_AXIS])),
-            grid_y = max(h1, min(h2, RAW_Y_POSITION(cartesian[Y_AXIS]) / delta_grid_spacing[Y_AXIS]));
+            grid_x = max(h1, min(h2, RAW_X_POSITION(cartesian[X_AXIS]) / nonlinear_grid_spacing[X_AXIS])),
+            grid_y = max(h1, min(h2, RAW_Y_POSITION(cartesian[Y_AXIS]) / nonlinear_grid_spacing[Y_AXIS]));
       int floor_x = floor(grid_x), floor_y = floor(grid_y);
       float ratio_x = grid_x - floor_x, ratio_y = grid_y - floor_y,
             z1 = bed_level[floor_x + half][floor_y + half],
