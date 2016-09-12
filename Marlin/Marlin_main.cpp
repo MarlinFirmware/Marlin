@@ -2749,6 +2749,57 @@ inline void gcode_G4() {
 
 #endif // DELTA
 
+#if ENABLED(Z_SAFE_HOMING)
+
+  inline void home_z_safely() {
+
+    // Disallow Z homing if X or Y are unknown
+    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
+      LCD_MESSAGEPGM(MSG_ERR_Z_HOMING);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_ERR_Z_HOMING);
+      return;
+    }
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("Z_SAFE_HOMING >>>");
+    #endif
+
+    SYNC_PLAN_POSITION_KINEMATIC();
+
+    /**
+     * Move the Z probe (or just the nozzle) to the safe homing point
+     */
+    float cpx = Z_SAFE_HOMING_X_POINT, cpy = Z_SAFE_HOMING_Y_POINT;
+    #if HAS_BED_PROBE
+      cpx -= X_PROBE_OFFSET_FROM_EXTRUDER;
+      cpy -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+    #endif
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("Z_SAFE_HOMING X:", cpx);
+        SERIAL_ECHOLNPAIR(" Y:", cpy);
+      }
+    #endif
+
+    if (cpx >= X_MIN_POS && cpx <= X_MAX_POS && cpy >= Y_MIN_POS && cpy <= Y_MAX_POS) {
+      do_blocking_move_to_xy(LOGICAL_X_POSITION(destination[X_AXIS]), LOGICAL_Y_POSITION(destination[Y_AXIS]));
+      HOMEAXIS(Z);
+    }
+    else {
+      LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
+    }
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< Z_SAFE_HOMING");
+    #endif
+  }
+
+#endif // Z_SAFE_HOMING
+
 /**
  * G28: Home all axes according to settings
  *
@@ -2823,7 +2874,6 @@ inline void gcode_G28() {
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> endstops.enable(true)");
   #endif
   endstops.enable(true); // Enable endstops for next homing move
-
 
   #if ENABLED(DELTA)
 
@@ -2915,81 +2965,16 @@ inline void gcode_G28() {
 
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
-
       if (home_all_axis || homeZ) {
-
         #if ENABLED(Z_SAFE_HOMING)
-
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> Z_SAFE_HOMING >>>");
-          #endif
-
-          if (home_all_axis) {
-
-            /**
-             * At this point we already have Z at Z_HOMING_HEIGHT height
-             * No need to move Z any more as this height should already be safe
-             * enough to reach Z_SAFE_HOMING XY positions.
-             * Just make sure the planner is in sync.
-             */
-            SYNC_PLAN_POSITION_KINEMATIC();
-
-            /**
-             * Move the Z probe (or just the nozzle) to the safe homing point
-             */
-            destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - (X_PROBE_OFFSET_FROM_EXTRUDER));
-            destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - (Y_PROBE_OFFSET_FROM_EXTRUDER));
-            destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
-
-            #if ENABLED(DEBUG_LEVELING_FEATURE)
-              if (DEBUGGING(LEVELING)) DEBUG_POS("> Z_SAFE_HOMING > home_all_axis", destination);
-            #endif
-
-            // Move in the XY plane
-            do_blocking_move_to_xy(destination[X_AXIS], destination[Y_AXIS]);
-          }
-
-          // Let's see if X and Y are homed
-          if (axis_unhomed_error(true, true, false)) return;
-
-          /**
-           * Make sure the Z probe is within the physical limits
-           * NOTE: This doesn't necessarily ensure the Z probe is also
-           * within the bed!
-           */
-          float cpx = RAW_CURRENT_POSITION(X_AXIS), cpy = RAW_CURRENT_POSITION(Y_AXIS);
-          if (   cpx >= X_MIN_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-              && cpx <= X_MAX_POS - (X_PROBE_OFFSET_FROM_EXTRUDER)
-              && cpy >= Y_MIN_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)
-              && cpy <= Y_MAX_POS - (Y_PROBE_OFFSET_FROM_EXTRUDER)) {
-
-            // Home the Z axis
-            HOMEAXIS(Z);
-          }
-          else {
-            LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
-            SERIAL_ECHO_START;
-            SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
-          }
-
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOLNPGM("<<< Z_SAFE_HOMING");
-            }
-          #endif
-
-        #else // !Z_SAFE_HOMING
-
+          home_z_safely();
+        #else
           HOMEAXIS(Z);
-
-        #endif // !Z_SAFE_HOMING
-
+        #endif
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> (home_all_axis || homeZ) > final", current_position);
         #endif
-
       } // home_all_axis || homeZ
-
     #endif // Z_HOME_DIR < 0
 
     SYNC_PLAN_POSITION_KINEMATIC();
