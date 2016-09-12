@@ -2073,10 +2073,12 @@ static void clean_up_after_endstop_or_probe_move() {
      * using the home XY and Z0 position as the fulcrum.
      */
     vector_3 untilted_stepper_position() {
+      get_cartesian_from_steppers();
+
       vector_3 pos = vector_3(
-        RAW_X_POSITION(stepper.get_axis_position_mm(X_AXIS)) - X_TILT_FULCRUM,
-        RAW_Y_POSITION(stepper.get_axis_position_mm(Y_AXIS)) - Y_TILT_FULCRUM,
-        RAW_Z_POSITION(stepper.get_axis_position_mm(Z_AXIS))
+        cartes[X_AXIS] - X_TILT_FULCRUM,
+        cartes[Y_AXIS] - Y_TILT_FULCRUM,
+        cartes[Z_AXIS]
       );
 
       matrix_3x3 inverse = matrix_3x3::transpose(planner.bed_level_matrix);
@@ -7838,12 +7840,12 @@ void ok_to_send() {
 #endif // DELTA
 
 void set_current_from_steppers_for_axis(AxisEnum axis) {
-  #if ENABLED(DELTA)
-    get_cartesian_from_steppers();
-    current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
-  #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
     vector_3 pos = untilted_stepper_position();
     current_position[axis] = axis == X_AXIS ? pos.x : axis == Y_AXIS ? pos.y : pos.z;
+  #elif IS_KINEMATIC
+    get_cartesian_from_steppers();
+    current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
   #else
     current_position[axis] = stepper.get_axis_position_mm(axis); // CORE handled transparently
   #endif
