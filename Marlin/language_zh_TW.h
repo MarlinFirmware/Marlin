@@ -73,16 +73,16 @@
 #define MSG_MOVE_01MM                       _UxGT("移動 0.1 mm")  //"Move 0.1mm"
 #define MSG_MOVE_1MM                        _UxGT("移動 1 mm")  //"Move 1mm"
 #define MSG_MOVE_10MM                       _UxGT("移動 10 mm")  //"Move 10mm"
-#define MSG_SPEED                           _UxGT("速度")  //"Speed"
+#define MSG_SPEED                           _UxGT("速率")  //"Speed"
 #define MSG_BED_Z                           _UxGT("熱床Z")  //"Bed Z"
 #define MSG_NOZZLE                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 噴嘴")  //"Nozzle" 噴嘴
 #define MSG_BED                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 熱床")  //"Bed"
-#define MSG_FAN_SPEED                       _UxGT("風扇速度")  //"Fan speed"
-#define MSG_FLOW                            _UxGT("擠出速度")  //"Flow"
+#define MSG_FAN_SPEED                       _UxGT("風扇速率")  //"Fan speed"
+#define MSG_FLOW                            _UxGT("擠出速率")  //"Flow"
 #define MSG_CONTROL                         _UxGT("控制")  //"Control"
 #define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 最小") //" " LCD_STR_THERMOMETER " Min"
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 最大")  //" " LCD_STR_THERMOMETER " Max"
-#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 系数")  //" " LCD_STR_THERMOMETER " Fact"
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" 系數")  //" " LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        _UxGT("自動控溫")  //"Autotemp"
 #define MSG_ON                              _UxGT("開 ")  //"On "
 #define MSG_OFF                             _UxGT("關 ")  //"Off"
@@ -92,9 +92,9 @@
 #define MSG_PID_C                           _UxGT("PID-C")  //"PID-C"
 #define MSG_SELECT                          _UxGT("選擇")  //"Select"
 #define MSG_ACC                             _UxGT("加速度")  //"Accel" acceleration
-#define MSG_VXY_JERK                        _UxGT("XY軸抖動速度")  //"Vxy-jerk"
-#define MSG_VZ_JERK                         _UxGT("Z軸抖動速度")  //"Vz-jerk"
-#define MSG_VE_JERK                         _UxGT("擠出機抖動速度")  //"Ve-jerk"
+#define MSG_VXY_JERK                        _UxGT("XY軸抖動速率")  //"Vxy-jerk"
+#define MSG_VZ_JERK                         _UxGT("Z軸抖動速率")  //"Vz-jerk"
+#define MSG_VE_JERK                         _UxGT("擠出機抖動速率")  //"Ve-jerk"
 #define MSG_VMAX                            _UxGT("最大進料速率")  //"Vmax " max_feedrate_mm_s
 #define MSG_VMIN                            _UxGT("最小進料速率")  //"Vmin"  min_feedrate_mm_s
 #define MSG_VTRAV_MIN                       _UxGT("最小移動速率")  //"VTrav min" min_travel_feedrate_mm_s, (target) speed of the move
