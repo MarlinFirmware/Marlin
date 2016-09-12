@@ -2708,17 +2708,24 @@ void lcd_update() {
       #endif
 
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
-        static int8_t dot_color = 0;
-        dot_color = 1 - dot_color;
-        u8g.firstPage();
-        do {
+      static enum LCDViewAction pre_action = LCDVIEW_NONE;
+      static int8_t dot_color = 0;
+        if (lcdDrawUpdate != LCDVIEW_U8G_CONTINUE) {
+          pre_action = (enum LCDViewAction) lcdDrawUpdate;
+          dot_color = 1 - dot_color;
+          u8g.firstPage();
+        }
           lcd_setFont(FONT_MENU);
           u8g.setPrintPos(125, 0);
           u8g.setColorIndex(dot_color); // Set color for the alive dot
           u8g.drawPixel(127, 63); // draw alive dot
           u8g.setColorIndex(1); // black on white
           CURRENTSCREEN();
-        } while (u8g.nextPage());
+        if (u8g.nextPage()) {
+           lcdDrawUpdate = LCDVIEW_U8G_CONTINUE;
+        } else {
+          lcdDrawUpdate = pre_action;
+        }
       #else
         CURRENTSCREEN();
       #endif
