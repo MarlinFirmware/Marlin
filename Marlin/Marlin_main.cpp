@@ -1955,10 +1955,6 @@ static void clean_up_after_endstop_or_probe_move() {
     // Prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
     refresh_cmd_timeout();
 
-    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-      planner.bed_level_matrix.set_to_identity();
-    #endif
-
     #if ENABLED(PROBE_DOUBLE_TOUCH)
 
       // Do a first probe at the fast speed
@@ -2152,21 +2148,22 @@ static void clean_up_after_endstop_or_probe_move() {
       }
     }
 
-    /**
-     * Reset calibration results to zero.
-     */
-    void reset_bed_level() {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
-      #endif
-      for (int y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
-        for (int x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
-          bed_level_grid[x][y] = 0.0;
-        }
-      }
-    }
-
   #endif // DELTA
+
+  /**
+   * Reset calibration results to zero.
+   */
+  void reset_bed_level() {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
+    #endif
+    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+      planner.bed_level_matrix.set_to_identity();
+    #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+      memset(bed_level_grid, 0, sizeof(bed_level_grid));
+      nonlinear_grid_spacing[X_AXIS] = nonlinear_grid_spacing[Y_AXIS] = 0;
+    #endif
+  }
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
@@ -2848,11 +2845,7 @@ inline void gcode_G28() {
   stepper.synchronize();
 
   // For auto bed leveling, clear the level matrix
-  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-    planner.bed_level_matrix.set_to_identity();
-  #endif
-
-  #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     reset_bed_level();
   #endif
 
@@ -3396,21 +3389,15 @@ inline void gcode_G28() {
 
     if (!dryrun) {
 
-      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-        // Reset the bed_level_matrix because leveling
-        // needs to be done without leveling enabled.
-        planner.bed_level_matrix.set_to_identity();
-      #endif
+      // Reset the bed_level_matrix because leveling
+      // needs to be done without leveling enabled.
+      reset_bed_level();
 
       //
       // Re-orient the current position without leveling
       // based on where the steppers are positioned.
       //
       #if IS_KINEMATIC
-
-        #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-          reset_bed_level();
-        #endif
 
         // For DELTA/SCARA we need to apply forward kinematics.
         // This returns raw positions and we remap to the space.
@@ -3756,6 +3743,10 @@ inline void gcode_G28() {
    * G30: Do a single Z probe at the current XY
    */
   inline void gcode_G30() {
+
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+      reset_bed_level();
+    #endif
 
     setup_for_endstop_or_probe_move();
 
@@ -4199,12 +4190,9 @@ inline void gcode_M42() {
     if (verbose_level > 2)
       SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
-    #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-      // we don't do bed level correction in M48 because we want the raw data when we probe
+    // we don't do bed level correction in M48 because we want the raw data when we probe
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       reset_bed_level();
-    #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
-      // we don't do bed level correction in M48 because we want the raw data when we probe
-      planner.bed_level_matrix.set_to_identity();
     #endif
 
     setup_for_endstop_or_probe_move();
