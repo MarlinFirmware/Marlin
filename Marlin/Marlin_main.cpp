@@ -660,14 +660,14 @@ inline void sync_plan_position() {
 inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
 
 #if IS_KINEMATIC
-  inline void sync_plan_position_delta() {
+  inline void sync_plan_position_kinematic() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_delta", current_position);
+      if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_kinematic", current_position);
     #endif
     inverse_kinematics(current_position);
     planner.set_position_mm(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
   }
-  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_delta()
+  #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_kinematic()
 #else
   #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position()
 #endif
