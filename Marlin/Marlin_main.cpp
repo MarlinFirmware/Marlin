@@ -351,6 +351,10 @@ static bool relative_mode = false;
 
 volatile bool wait_for_heatup = true;
 
+#if ENABLED(EMERGENCY_PARSER) && DISABLED(ULTIPANEL)
+  wait_for_user = false;
+#endif
+
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
@@ -3815,7 +3819,7 @@ inline void gcode_G92() {
     sync_plan_position_e();
 }
 
-#if ENABLED(ULTIPANEL)
+#if ENABLED(ULTIPANEL) || ENABLED(EMERGENCY_PARSER)
 
   /**
    * M0: Unconditional stop - Wait for user button press on LCD
@@ -3835,38 +3839,68 @@ inline void gcode_G92() {
       hasS = codenum > 0;
     }
 
-    if (!hasP && !hasS && *args != '\0')
-      lcd_setstatus(args, true);
-    else {
-      LCD_MESSAGEPGM(MSG_USERWAIT);
-      #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
-        dontExpireStatus();
-      #endif
-    }
+    #if ENABLED(ULTIPANEL)
 
-    lcd_ignore_click();
+      if (!hasP && !hasS && *args != '\0')
+        lcd_setstatus(args, true);
+      else {
+        LCD_MESSAGEPGM(MSG_USERWAIT);
+        #if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
+          dontExpireStatus();
+        #endif
+      }
+      lcd_ignore_click();
+
+    #else
+
+      if (!hasP && !hasS && *args != '\0') {
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLN(args);
+      }
+
+    #endif
+
     stepper.synchronize();
     refresh_cmd_timeout();
-    if (codenum > 0) {
-      codenum += previous_cmd_ms;  // wait until this time for a click
+
+    #if ENABLED(ULTIPANEL)
+
+      if (codenum > 0) {
+        codenum += previous_cmd_ms;  // wait until this time for a click
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        while (PENDING(millis(), codenum) && !lcd_clicked()) idle();
+        lcd_ignore_click(false);
+      }
+      else if (lcd_detected()) {
+        KEEPALIVE_STATE(PAUSED_FOR_USER);
+        while (!lcd_clicked()) idle();
+      }
+      else return;
+
+      if (IS_SD_PRINTING)
+        LCD_MESSAGEPGM(MSG_RESUMING);
+      else
+        LCD_MESSAGEPGM(WELCOME_MSG);
+
+    #else
+
       KEEPALIVE_STATE(PAUSED_FOR_USER);
-      while (PENDING(millis(), codenum) && !lcd_clicked()) idle();
-      KEEPALIVE_STATE(IN_HANDLER);
-      lcd_ignore_click(false);
-    }
-    else {
-      if (!lcd_detected()) return;
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      while (!lcd_clicked()) idle();
-      KEEPALIVE_STATE(IN_HANDLER);
-    }
-    if (IS_SD_PRINTING)
-      LCD_MESSAGEPGM(MSG_RESUMING);
-    else
-      LCD_MESSAGEPGM(WELCOME_MSG);
+      wait_for_user = true;
+
+      if (codenum > 0) {
+        codenum += previous_cmd_ms;  // wait until this time for an M108
+        while (PENDING(millis(), codenum) && wait_for_user) idle();
+      }
+      else while (wait_for_user) idle();
+
+      wait_for_user = false;
+
+    #endif
+
+    KEEPALIVE_STATE(IN_HANDLER);
   }
 
-#endif // ULTIPANEL
+#endif // ULTIPANEL || EMERGENCY_PARSER
 
 /**
  * M17: Enable power on all stepper motors
