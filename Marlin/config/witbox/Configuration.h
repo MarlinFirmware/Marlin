@@ -11,7 +11,7 @@
 #define MACHINE_NAME "Witbox"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/witbox"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.2.0"
+#define FIRMWARE_VER "2.3.1" 
 #define BUILD_VER ""
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
@@ -57,6 +57,9 @@
 
 // Define this to have hotbed support
 //#define HEATED_BED_SUPPORT
+
+// The following define selects the stepper profile to use, if enabled printer noise will increase
+// #define PREFER_MAX_SPEED
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -466,8 +469,13 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 // default settings
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {80, 80, 1600, 102.073}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {200, 200, 7.2, 80}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {1000, 1000, 10, 1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+
+#ifndef PREFER_MAX_SPEED
+	#define DEFAULT_MAX_FEEDRATE          {167, 167, 7.2, 80}    // (mm/sec)
+#else
+	#define DEFAULT_MAX_FEEDRATE          {200, 200, 7.2, 80}    // (mm/sec)
+#endif // PREFER_MAX_SPEED
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000   // E acceleration in mm/s^2 for retracts

@@ -200,5 +200,7 @@ const char DE_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Druckdauer";
 const char DE_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Abgeschlossen";
 const char DE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fehlgeschlagen";
 const char DE_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Druckplatte nicht erkannt";
+const char DE_SCREEN_PTFE_TITLE[] PROGMEM               = "Erinnerung";
+const char DE_SCREEN_PTFE_TEXT[] PROGMEM                = "Wechsel das PTFE-R""\xf6""hrchen alle 250 Stunden";
 
 #endif //LANGUAGE_DE_H

@@ -894,7 +894,7 @@ void get_command()
           SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
           SERIAL_ERRORLN(gcode_LastN);
           //Serial.println(gcode_N);
-          FlushSerialRequestResend();
+          FlushSerialRequestResendOk();
           serial_count = 0;
           return;
         }
@@ -912,7 +912,7 @@ void get_command()
             SERIAL_ERROR_START;
             SERIAL_ERRORPGM(MSG_ERR_CHECKSUM_MISMATCH);
             SERIAL_ERRORLN(gcode_LastN);
-            FlushSerialRequestResend();
+            FlushSerialRequestResendOk();
             serial_count = 0;
             return;
             }
@@ -924,7 +924,7 @@ void get_command()
           SERIAL_ERROR_START;
           SERIAL_ERRORPGM(MSG_ERR_NO_CHECKSUM);
           SERIAL_ERRORLN(gcode_LastN);
-          FlushSerialRequestResend();
+          FlushSerialRequestResendOk();
           serial_count = 0;
           return;
         }
@@ -1832,13 +1832,13 @@ void process_commands()
       starpos = (strchr(strchr_pointer + 4,'*'));
       if(starpos!=NULL)
       {
-		  if(*(starpos-1) == ' ') //solve repetier format problem
+		  if(*(starpos-1) == ' ')
 		  {
-			SERIAL_ECHOLN("wrong file format");
 			starpos--;
 		  }
         *(starpos)='\0';
        }
+      SERIAL_ECHO("file to open: "); SERIAL_ECHOLN(strchr_pointer + 4);
       card.openFile(strchr_pointer + 4,true);
       break;
     case 24: //M24 - Start SD print
@@ -1956,11 +1956,15 @@ void process_commands()
       break;
     case 28: //M28 - Start SD write
       starpos = (strchr(strchr_pointer + 4,'*'));
-      if(starpos != NULL){
-        char* npos = strchr(cmdbuffer[bufindr], 'N');
-        strchr_pointer = strchr(npos,' ') + 1;
-        *(starpos) = '\0';
+      if(starpos!=NULL)
+      {
+		  if(*(starpos-1) == ' ')
+		  {
+			starpos--;
+		  }
+        *(starpos)='\0';
       }
+      SERIAL_ECHO("file to open: "); SERIAL_ECHOLN(strchr_pointer + 4);
       card.openFile(strchr_pointer+4,false);
       break;
     case 29: //M29 - Stop SD write
@@ -1971,11 +1975,15 @@ void process_commands()
       if (card.cardOK){
         card.closefile();
         starpos = (strchr(strchr_pointer + 4,'*'));
-        if(starpos != NULL){
-          char* npos = strchr(cmdbuffer[bufindr], 'N');
-          strchr_pointer = strchr(npos,' ') + 1;
-          *(starpos) = '\0';
+        if(starpos!=NULL)
+        {
+		    if(*(starpos-1) == ' ')
+		    {
+			  starpos--;
+		    }
+          *(starpos)='\0';
         }
+			SERIAL_ECHO("file to open: "); SERIAL_ECHOLN(strchr_pointer + 4);
         card.removeFile(strchr_pointer + 4);
       }
       break;
@@ -1996,7 +2004,13 @@ void process_commands()
         namestartpos++; //to skip the '!'
 
       if(starpos!=NULL)
-        *(starpos)='\0';
+	  {
+		  if(*(starpos-1) == ' ')
+		  {
+		    starpos--;
+		  }
+	    *(starpos)='\0';
+  	  }
 
       bool call_procedure=(code_seen('P'));
 
@@ -2017,10 +2031,14 @@ void process_commands()
     case 928: //M928 - Start SD write
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos != NULL){
+		if(*(starpos-1) == ' ')
+		{
+		  starpos--;
+		}
         char* npos = strchr(cmdbuffer[bufindr], 'N');
-        strchr_pointer = strchr(npos,' ') + 1;
         *(starpos) = '\0';
       }
+      
       card.openLogFile(strchr_pointer+5);
       break;
 
@@ -2569,7 +2587,11 @@ Sigma_Exit:
         if (code_seen('S')){
 			if(code_value() > 0)
 			{
-				fanSpeed=255;
+				#if IS_RAMPS
+					fanSpeed = code_value();
+				#else
+					fanSpeed=255;
+				#endif
 			}
 			else
 			{
@@ -4055,7 +4077,12 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       break;
     case 710: // M710 Set the EEPROM and reset the board.
     {
-		  action_erase_EEPROM();
+		SERIAL_PROTOCOLLNPGM(MSG_OK);
+		#ifdef DOGLCD
+			ui::ViewManager::getInstance().activeView(ui::screen_reset);
+		#else
+			action_erase_EEPROM();
+		#endif // DOGLCD
     }
     break;
 
@@ -4276,6 +4303,16 @@ void FlushSerialRequestResend()
   SERIAL_PROTOCOLPGM(MSG_RESEND);
   SERIAL_PROTOCOLLN(gcode_LastN + 1);
   ClearToSend();
+}
+
+void FlushSerialRequestResendOk()
+{
+  //char cmdbuffer[bufindr][100]="Resend:";
+  MYSERIAL.flush();
+  SERIAL_PROTOCOLPGM(MSG_RESEND);
+  SERIAL_PROTOCOLLN(gcode_LastN + 1);
+  previous_millis_cmd = millis();
+  SERIAL_PROTOCOLLNPGM(MSG_OK);
 }
 
 void ClearToSend()

@@ -11,7 +11,7 @@
 #define MACHINE_NAME "Hephestos 2"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.2.0"
+#define FIRMWARE_VER "2.3.1"
 #define BUILD_VER ""
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
@@ -59,6 +59,12 @@
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
 // #define PS_DEFAULT_OFF
+
+// PTFE tube maintenance reminder frequency in hours
+#define PTFE_CHANGE_TIME 250
+
+// The following define selects the stepper profile to use, if enabled printer noise will increase
+// #define PREFER_MAX_SPEED
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -401,9 +407,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000, 204.146} // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {200, 200, 3.3, 200}      // (mm/sec)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000, 210.02} // default steps per unit for Ultimaker
 #define DEFAULT_MAX_ACCELERATION      {1000, 1000, 100, 3000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+
+#ifndef PREFER_MAX_SPEED
+	#define DEFAULT_MAX_FEEDRATE          {167, 167, 3.3, 167}      // (mm/sec)
+#else
+	#define DEFAULT_MAX_FEEDRATE          {200, 200, 3.3, 200}      // (mm/sec)
+#endif // PREFER_MAX_SPEED
 
 #define DEFAULT_ACCELERATION          1000   // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts

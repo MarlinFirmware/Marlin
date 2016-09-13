@@ -200,5 +200,7 @@ const char SE_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tid";
 const char SE_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Avslutade";
 const char SE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Misslyckade";
 const char SE_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Byggplattan inte identifierat";
+const char SE_SCREEN_PTFE_TITLE[] PROGMEM               = "P""\xe5""minnelse";
+const char SE_SCREEN_PTFE_TEXT[] PROGMEM                = """\xc4""ndra PTFE r""\xf6""ret var 250 timmar";
 
 #endif //LANGUAGE_SE_H

@@ -112,7 +112,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
         }
       }
       
-      if(strlen(longFilename) > 0 && longFilename[0] != '.')
+      if(strlen(longFilename) == 0 || longFilename[0] != '.')
       {
 		lsDive(path,dir);
       }
@@ -372,8 +372,13 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
   char *fname=name;
   
   char *dirname_start,*dirname_end;
+
   if(name[0]=='/')
   {
+	workDir=root;
+    curDir=&root;
+    workDirDepth = 0;
+	
     dirname_start=strchr(name,'/')+1;
     while(dirname_start>0)
     {
@@ -385,30 +390,17 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
         char subdirname[FILENAME_LENGTH];
         strncpy(subdirname, dirname_start, dirname_end-dirname_start);
         subdirname[dirname_end-dirname_start]=0;
-        SERIAL_ECHOLN(subdirname);
-        if(!myDir.open(curDir,subdirname,O_READ))
-        {
-          SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
-          SERIAL_PROTOCOL(subdirname);
-          SERIAL_PROTOCOLLNPGM(".");
-          return;
-        }
-        else
-        {
-          //SERIAL_ECHOLN("dive ok");
-        }
-          
-        curDir=&myDir; 
+        
+        chdir(subdirname);
         dirname_start=dirname_end+1;
       }
       else // the reminder after all /fsa/fdsa/ is the filename
       {
         fname=dirname_start;
-        //SERIAL_ECHOLN("remaider");
-        //SERIAL_ECHOLN(fname);
+        curDir=&workDir;
         break;
       }
-      
+
     }
   }
   else //relative path

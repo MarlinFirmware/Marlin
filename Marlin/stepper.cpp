@@ -38,7 +38,11 @@
   #undef MAX_STEP_FREQUENCY
 #endif
 
-#define MAX_STEP_FREQUENCY 32000
+#ifndef PREFER_MAX_SPEED
+	#define MAX_STEP_FREQUENCY 26667
+#else // PREFER_MAX_SPEED
+	#define MAX_STEP_FREQUENCY 32000
+#endif // PREFER_MAX_SPEED
 
 //===========================================================================
 //=============================public variables  ============================
@@ -294,6 +298,32 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   unsigned short timer;
   if (step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
 
+#ifndef PREFER_MAX_SPEED
+  if(step_rate > 13333) // If steprate > 13.333 KHz >> step 16 times
+  {
+    step_rate = (step_rate >> 4) & 0x0fff;
+    step_loops = 16;
+  }
+  else if(step_rate > 6666) // If steprate > 6.666 KHz >> step 8 times
+  {
+    step_rate = (step_rate >> 3) & 0x1fff;
+    step_loops = 8;
+  }
+  else if(step_rate > 3333) // If steprate > 3.333 KHz >> step 4 times
+  {
+    step_rate = (step_rate >> 2) & 0x3fff;
+    step_loops = 4;
+  }
+  else if(step_rate > 1666) // If steprate > 1.666 KHz >> step 2 times
+  {
+    step_rate = (step_rate >> 1) & 0x7fff;
+    step_loops = 2;
+  }
+  else                      // If steprate < 1.666 KHz >> step 1 times
+  {
+    step_loops = 1;
+  }
+#else // PREFER_MAX_SPEED
   if(step_rate > 16000)     // If steprate > 16kHz >> step 32 times
   {
     step_rate = (step_rate >> 5) & 0x07ff;
@@ -323,10 +353,20 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   {
     step_loops = 1;
   }
+#endif // PREFER_MAX_SPEED
 
   unsigned short table_address = (unsigned short)&speed_lookuptable[step_rate];
   timer = (unsigned short)pgm_read_word_near(table_address);
 
+#ifndef PREFER_MAX_SPEED
+  // Check frequency generated (1.666 KHz this should never happen)
+  if(timer < 1200)
+  {
+    timer = 1200;
+    MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
+    MYSERIAL.println(step_rate);
+  }
+#else // PREFER_MAX_SPEED
   // Check frequency generated (1kHz this should never happen)
   if(timer < 2000)
   {
@@ -334,7 +374,7 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
     MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
     MYSERIAL.println(step_rate);
   }
-
+#endif // PREFER_MAX_SPEED
   return timer;
 }
 
@@ -434,20 +474,20 @@ ISR(TIMER1_COMPA_vect)
     }
     if((out_bits & (1<<Y_AXIS))!=0){
       WRITE(Y_DIR_PIN, INVERT_Y_DIR);
-	  
-	  #ifdef Y_DUAL_STEPPER_DRIVERS
-	    WRITE(Y2_DIR_PIN, !(INVERT_Y_DIR == INVERT_Y2_VS_Y_DIR));
-	  #endif
-	  
+    
+    #ifdef Y_DUAL_STEPPER_DRIVERS
+      WRITE(Y2_DIR_PIN, !(INVERT_Y_DIR == INVERT_Y2_VS_Y_DIR));
+    #endif
+    
       count_direction[Y_AXIS]=-1;
     }
     else{
       WRITE(Y_DIR_PIN, !INVERT_Y_DIR);
-	  
-	  #ifdef Y_DUAL_STEPPER_DRIVERS
-	    WRITE(Y2_DIR_PIN, (INVERT_Y_DIR == INVERT_Y2_VS_Y_DIR));
-	  #endif
-	  
+    
+    #ifdef Y_DUAL_STEPPER_DRIVERS
+      WRITE(Y2_DIR_PIN, (INVERT_Y_DIR == INVERT_Y2_VS_Y_DIR));
+    #endif
+    
       count_direction[Y_AXIS]=1;
     }
 
@@ -612,10 +652,10 @@ ISR(TIMER1_COMPA_vect)
 
       counter_x += current_block->steps_x;
 #ifdef CONFIG_STEPPERS_TOSHIBA
-	/* The toshiba stepper controller require much longer pulses
-	 * tjerfore we 'stage' decompose the pulses between high, and
-	 * low instead of doing each in turn. The extra tests add enough
-	 * lag to allow it work with without needing NOPs */ 
+  /* The toshiba stepper controller require much longer pulses
+   * tjerfore we 'stage' decompose the pulses between high, and
+   * low instead of doing each in turn. The extra tests add enough
+   * lag to allow it work with without needing NOPs */ 
       if (counter_x > 0) {
         WRITE(X_STEP_PIN, HIGH);
       }
@@ -699,18 +739,18 @@ ISR(TIMER1_COMPA_vect)
         counter_y += current_block->steps_y;
         if (counter_y > 0) {
           WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
-		  
-		  #ifdef Y_DUAL_STEPPER_DRIVERS
-			WRITE(Y2_STEP_PIN, !INVERT_Y_STEP_PIN);
-		  #endif
-		  
+      
+      #ifdef Y_DUAL_STEPPER_DRIVERS
+      WRITE(Y2_STEP_PIN, !INVERT_Y_STEP_PIN);
+      #endif
+      
           counter_y -= current_block->step_event_count;
           count_position[Y_AXIS]+=count_direction[Y_AXIS];
           WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
-		  
-		  #ifdef Y_DUAL_STEPPER_DRIVERS
-			WRITE(Y2_STEP_PIN, INVERT_Y_STEP_PIN);
-		  #endif
+      
+      #ifdef Y_DUAL_STEPPER_DRIVERS
+      WRITE(Y2_STEP_PIN, INVERT_Y_STEP_PIN);
+      #endif
         }
 
       counter_z += current_block->steps_z;
@@ -900,10 +940,10 @@ void st_init()
   #endif
   #if defined(Y_DIR_PIN) && Y_DIR_PIN > -1
     SET_OUTPUT(Y_DIR_PIN);
-		
-	#if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_DIR_PIN) && (Y2_DIR_PIN > -1)
-	  SET_OUTPUT(Y2_DIR_PIN);
-	#endif
+    
+  #if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_DIR_PIN) && (Y2_DIR_PIN > -1)
+    SET_OUTPUT(Y2_DIR_PIN);
+  #endif
   #endif
   #if defined(Z_DIR_PIN) && Z_DIR_PIN > -1
     SET_OUTPUT(Z_DIR_PIN);
@@ -938,11 +978,11 @@ void st_init()
   #if defined(Y_ENABLE_PIN) && Y_ENABLE_PIN > -1
     SET_OUTPUT(Y_ENABLE_PIN);
     if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
-	
-	#if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_ENABLE_PIN) && (Y2_ENABLE_PIN > -1)
-	  SET_OUTPUT(Y2_ENABLE_PIN);
-	  if(!Y_ENABLE_ON) WRITE(Y2_ENABLE_PIN,HIGH);
-	#endif
+  
+  #if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_ENABLE_PIN) && (Y2_ENABLE_PIN > -1)
+    SET_OUTPUT(Y2_ENABLE_PIN);
+    if(!Y_ENABLE_ON) WRITE(Y2_ENABLE_PIN,HIGH);
+  #endif
   #endif
   #if defined(Z_ENABLE_PIN) && Z_ENABLE_PIN > -1
     SET_OUTPUT(Z_ENABLE_PIN);
@@ -1445,4 +1485,3 @@ void microstep_readings()
       SERIAL_PROTOCOLLN( digitalRead(E1_MS2_PIN));
       #endif
 }
-

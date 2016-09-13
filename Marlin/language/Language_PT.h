@@ -200,5 +200,7 @@ const char PT_SCREEN_VIEW_STATS_TEXT1[] PROGMEM         = "Tempo";
 const char PT_SCREEN_VIEW_STATS_TEXT2[] PROGMEM         = "Conclu""\xed""das";
 const char PT_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Falhadas";
 const char PT_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Base n""\xe3""o detetada";
+const char PT_SCREEN_PTFE_TITLE[] PROGMEM               = "Lembrete";
+const char PT_SCREEN_PTFE_TEXT[] PROGMEM                = "Substitua o tubo PTFE a cada 250 horas";
 
 #endif //LANGUAGE_PT_H

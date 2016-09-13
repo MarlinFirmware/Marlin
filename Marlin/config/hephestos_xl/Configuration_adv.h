@@ -96,8 +96,8 @@
 //===========================================================================
 
 // Rest Position
-#define POSITION_REST_X 0.0
-#define POSITION_REST_Y 290.0
+#define POSITION_REST_X 10.0
+#define POSITION_REST_Y 10.0
 #define POSITION_REST_Z  15.0
 
 // Load/Unload Filament Position

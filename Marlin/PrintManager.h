@@ -97,6 +97,8 @@ class PrintManager : public Subject<PrinterState_t>
 
 		bool getBedMissingFlag();
 		void setBedMissingFlag(bool flag);
+		
+		static bool checkPTFEMaintenance();
 
 	private:
 		void inactivityTriggered();

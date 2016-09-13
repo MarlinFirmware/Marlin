@@ -24,9 +24,16 @@
 
 #include "StatsManager.h"
 
+#include "Configuration.h"
 #include "StorageManager.h"
 
 StatsManager::StatsManager()
+	: m_hours(0)
+	, m_minutes(0)
+	, m_total_prints(0)
+	, m_succeded(0)
+	, m_print_started(false)
+	, m_ptfe_maintenance_flag(false)
 { }
 
 void StatsManager::loadStats()
@@ -60,6 +67,12 @@ void StatsManager::updateTotalTime(Time_t printTime)
 	}
 	else
 	{
+		// Check for PTFE tube maintenance
+		if( (m_hours / PTFE_CHANGE_TIME) < (new_hours / PTFE_CHANGE_TIME) )
+		{
+			m_ptfe_maintenance_flag = true;
+		}
+		
 		m_hours = new_hours;
 	}
 	
@@ -71,6 +84,8 @@ void StatsManager::updateTotalTime(Time_t printTime)
 
 void StatsManager::increaseTotalPrints()
 { 
+	m_print_started = true;
+
 	++m_total_prints;
 	
 	if(m_total_prints == 0xFFFF)
@@ -86,16 +101,27 @@ void StatsManager::increaseTotalPrints()
 
 void StatsManager::increaseSuccededPrints()
 { 
-	++m_succeded;
+	if(m_print_started == true)
+	{
+		++m_succeded;
+		m_print_started = false;
+	}
 	
 	if(m_succeded == 0xFFFF)
 	{
 		resetStats();
 	}
-	else
+	else 
 	{
-		//update succeded prints in memory
-		eeprom::StorageManager::single::instance().setStatSucceded(m_succeded);
+		if(m_succeded > m_total_prints)
+		{
+			m_succeded = m_total_prints;
+		}
+		else
+		{
+			//update succeded prints in memory
+			eeprom::StorageManager::single::instance().setStatSucceded(m_succeded);
+		}
 	}
 }
 

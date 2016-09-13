@@ -1,3 +1,36 @@
+
+#  BQ Marlin v2.3.1
+---
+### Bugfixes:
+* Fixed acceleration values on Prusa i3 Hephestos (H/HXL).
+
+#  BQ Marlin v2.3.0
+---
+### Bugfixes:
+* Fixed: serial commands with filename data fail when sent with line number (W/H/HXL/W2/H2).
+* Fixed: M20 doesn't return folders with very short names (W/H/HXL/W2/H2).
+* Now when hit a wrong line number error, will also return OK message (W/H/HXL/W2/H2).
+* Improved opening files in the SD card deeper than two folders using serial commands with absolute paths (W/H/HXL/W2/H2).
+* Completed prints statistic is not increased if a print has not been previously started (W2/H2).
+* Analog control re-enabled for blower fan (W/H/HXL).
+* Corrected Hephestos 2 "Extruder steps per unit" value on configuration (H2).
+
+### Improvements:
+* Erasing EEPROM through serial shows EEPROM erasing screen in LCD (W2/H2).
+* Changed rest position  (W/H/HXL).
+* Added support for custom builds with filament sensor (H/HXL/H2).
+* Reduced motor noise (W/H/HXL/W2/H2).
+    Stepper management changes:
+    - 16 steps per interrupt for 32 usteps.
+    - Maximum Frequency: 1.667 KHz
+    - Maximum Step Multiplier: x16
+    - Maximum Steps/Second: 26.667 Kstep/s
+    - Maximum Axis Speed (32 usteps): 167 mm/s
+  Note: a new configuration option, PREFER_MAX_SPEED, is available in the configuration files to allow custom builds with previous stepper control profile.
+
+### New features:
+* New screen will remind to replace the PTFE tube every 250 hours of printing (W2/H2).
+
 #  BQ Marlin v2.2.0
 ---
 ### Under the hood:
