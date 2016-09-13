@@ -2092,23 +2092,14 @@ static void clean_up_after_endstop_or_probe_move() {
     /**
      * All DELTA leveling in the Marlin uses NONLINEAR_BED_LEVELING
      */
-    static void extrapolate_one_point(int x, int y, int xdir, int ydir) {
-      if (bed_level_grid[x][y] != 0.0) {
-        return;  // Don't overwrite good values.
-      }
-      float a = 2 * bed_level_grid[x + xdir][y] - bed_level_grid[x + xdir * 2][y]; // Left to right.
-      float b = 2 * bed_level_grid[x][y + ydir] - bed_level_grid[x][y + ydir * 2]; // Front to back.
-      float c = 2 * bed_level_grid[x + xdir][y + ydir] - bed_level_grid[x + xdir * 2][y + ydir * 2]; // Diagonal.
-      float median = c;  // Median is robust (ignores outliers).
-      if (a < b) {
-        if (b < c) median = b;
-        if (c < a) median = a;
-      }
-      else {  // b <= a
-        if (c < b) median = b;
-        if (a < c) median = a;
-      }
-      bed_level_grid[x][y] = median;
+    static void extrapolate_one_point(uint8_t x, uint8_t y, int xdir, int ydir) {
+      if (bed_level_grid[x][y]) return;  // Don't overwrite good values.
+      float a = 2 * bed_level_grid[x + xdir][y] - bed_level_grid[x + xdir * 2][y], // Left to right.
+            b = 2 * bed_level_grid[x][y + ydir] - bed_level_grid[x][y + ydir * 2], // Front to back.
+            c = 2 * bed_level_grid[x + xdir][y + ydir] - bed_level_grid[x + xdir * 2][y + ydir * 2]; // Diagonal.
+      // Median is robust (ignores outliers).
+      bed_level_grid[x][y] = (a < b) ? ((b < c) ? b : (c < a) ? a : c)
+                                     : ((c < b) ? b : (a < c) ? a : c);
     }
 
     /**
@@ -2116,9 +2107,9 @@ static void clean_up_after_endstop_or_probe_move() {
      * using linear extrapolation, away from the center.
      */
     static void extrapolate_unprobed_bed_level() {
-      int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
-      for (int y = 0; y <= half; y++) {
-        for (int x = 0; x <= half; x++) {
+      uint8_t half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
+      for (uint8_t y = 0; y <= half; y++) {
+        for (uint8_t x = 0; x <= half; x++) {
           if (x + y < 3) continue;
           extrapolate_one_point(half - x, half - y, x > 1 ? +1 : 0, y > 1 ? +1 : 0);
           extrapolate_one_point(half + x, half - y, x > 1 ? -1 : 0, y > 1 ? +1 : 0);
@@ -2132,8 +2123,8 @@ static void clean_up_after_endstop_or_probe_move() {
      * Print calibration results for plotting or manual frame adjustment.
      */
     static void print_bed_level() {
-      for (int y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
-        for (int x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
+      for (uint8_t y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
+        for (uint8_t x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
           SERIAL_PROTOCOL_F(bed_level_grid[x][y], 2);
           SERIAL_PROTOCOLCHAR(' ');
         }
