@@ -408,6 +408,9 @@
 #ifndef MSG_ERR_MINTEMP_BED
   #define MSG_ERR_MINTEMP_BED                 "Err: MINTEMP BED"
 #endif
+#ifndef MSG_ERR_Z_HOMING
+  #define MSG_ERR_Z_HOMING                    "G28 Z Forbidden"
+#endif
 #ifndef MSG_HALTED
   #define MSG_HALTED                          "PRINTER HALTED"
 #endif

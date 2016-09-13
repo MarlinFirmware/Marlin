@@ -330,7 +330,7 @@ void Config_StoreSettings()  {
   #endif
   EEPROM_WRITE(lcd_contrast);
 
-  #if ENABLED(SCARA)
+  #if IS_SCARA
     EEPROM_WRITE(axis_scaling); // 3 floats
   #else
     dummy = 1.0f;
@@ -520,7 +520,7 @@ void Config_RetrieveSettings() {
     #endif
     EEPROM_READ(lcd_contrast);
 
-    #if ENABLED(SCARA)
+    #if IS_SCARA
       EEPROM_READ(axis_scaling);  // 3 floats
     #else
       EEPROM_READ(dummy);
@@ -584,7 +584,7 @@ void Config_ResetDefault() {
     planner.axis_steps_per_mm[i] = tmp1[i];
     planner.max_feedrate_mm_s[i] = tmp2[i];
     planner.max_acceleration_mm_per_s2[i] = tmp3[i];
-    #if ENABLED(SCARA)
+    #if IS_SCARA
       if (i < COUNT(axis_scaling))
         axis_scaling[i] = 1;
     #endif
@@ -716,7 +716,7 @@ void Config_PrintSettings(bool forReplay) {
 
   CONFIG_ECHO_START;
 
-  #if ENABLED(SCARA)
+  #if IS_SCARA
     if (!forReplay) {
       SERIAL_ECHOLNPGM("Scaling factors:");
       CONFIG_ECHO_START;

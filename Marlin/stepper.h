@@ -91,6 +91,11 @@ class Stepper {
       static bool performing_homing;
     #endif
 
+    //
+    // Positions of stepper motors, in step units
+    //
+    static volatile long count_position[NUM_AXIS];
+
   private:
 
     static unsigned char last_direction_bits;        // The next stepping-bits to be output
@@ -137,11 +142,6 @@ class Stepper {
       #endif
       static constexpr int motor_current_setting[3] = PWM_MOTOR_CURRENT;
     #endif
-
-    //
-    // Positions of stepper motors, in step units
-    //
-    static volatile long count_position[NUM_AXIS];
 
     //
     // Current direction of stepper motors (+1 or -1)
@@ -210,6 +210,13 @@ class Stepper {
     // Get the position (mm) of an axis based on stepper position(s)
     //
     static float get_axis_position_mm(AxisEnum axis);
+
+    //
+    // SCARA AB axes are in degrees, not mm
+    //
+    #if IS_SCARA
+      static FORCE_INLINE float get_axis_position_degrees(AxisEnum axis) { return get_axis_position_mm(axis); }
+    #endif
 
     //
     // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
