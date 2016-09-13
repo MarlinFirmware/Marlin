@@ -2361,6 +2361,7 @@ void kill_screen(const char* lcd_msg) {
 
   void lcd_quick_feedback() {
     lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+    buttons = 0;
     next_button_update_ms = millis() + 500;
 
     // Buzz and wait. The delay is needed for buttons to settle!
@@ -2850,20 +2851,26 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
    * Warning: This function is called from interrupt context!
    */
   void lcd_buttons_update() {
-    #if ENABLED(NEWPANEL)
-      uint8_t newbutton = 0;
-      #if BUTTON_EXISTS(EN1)
-        if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-      #endif
-      #if BUTTON_EXISTS(EN2)
-        if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-      #endif
-      #if LCD_HAS_DIRECTIONAL_BUTTONS || BUTTON_EXISTS(ENC)
-        millis_t now = millis();
-      #endif
+    millis_t now = millis();
+    if (ELAPSED(now, next_button_update_ms)) {
 
-      #if LCD_HAS_DIRECTIONAL_BUTTONS
-        if (ELAPSED(now, next_button_update_ms)) {
+      #if ENABLED(NEWPANEL)
+        uint8_t newbutton = 0;
+
+        #if BUTTON_EXISTS(EN1)
+          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
+        #endif
+
+        #if BUTTON_EXISTS(EN2)
+          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
+        #endif
+
+        #if BUTTON_EXISTS(ENC)
+          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+        #endif
+
+        #if LCD_HAS_DIRECTIONAL_BUTTONS
+
           if (false) {
             // for the else-ifs below
           }
@@ -2891,23 +2898,21 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
               next_button_update_ms = now + 300;
             }
           #endif
-        }
-      #endif
 
-      #if BUTTON_EXISTS(ENC)
-        if (ELAPSED(now, next_button_update_ms) && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-      #endif
+        #endif // LCD_HAS_DIRECTIONAL_BUTTONS
 
-      buttons = newbutton;
-      #if ENABLED(LCD_HAS_SLOW_BUTTONS)
-        buttons |= slow_buttons;
-      #endif
-      #if ENABLED(REPRAPWORLD_KEYPAD)
-        GET_BUTTON_STATES(buttons_reprapworld_keypad);
-      #endif
-    #else
-      GET_BUTTON_STATES(buttons);
-    #endif //!NEWPANEL
+        buttons = newbutton;
+        #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+          buttons |= slow_buttons;
+        #endif
+        #if ENABLED(REPRAPWORLD_KEYPAD)
+          GET_BUTTON_STATES(buttons_reprapworld_keypad);
+        #endif
+      #else
+        GET_BUTTON_STATES(buttons);
+      #endif //!NEWPANEL
+
+    } // next_button_update_ms
 
     // Manage encoder rotation
     #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)
