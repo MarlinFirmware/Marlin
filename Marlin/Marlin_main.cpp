@@ -36,12 +36,11 @@
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   #include "vector_3.h"
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
-    #include "qr_solve.h"
-  #endif
-#endif // AUTO_BED_LEVELING_FEATURE
+#endif
 
-#if ENABLED(MESH_BED_LEVELING)
+#if ENABLED(AUTO_BED_LEVELING_LINEAR)
+  #include "qr_solve.h"
+#elif ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
 #endif
 
@@ -497,7 +496,12 @@ static uint8_t target_extruder;
 
 #endif
 
-#if ENABLED(SCARA)
+#if IS_SCARA
+  // Float constants for SCARA calculations
+  const float L1 = SCARA_LINKAGE_1, L2 = SCARA_LINKAGE_2,
+              L1_2 = sq(float(L1)), L1_2_2 = 2.0 * L1_2,
+              L2_2 = sq(float(L2));
+
   float delta_segments_per_second = SCARA_SEGMENTS_PER_SECOND,
         delta[ABC],
         axis_scaling[ABC] = { 1, 1, 1 },    // Build size scaling, default to 1
@@ -651,7 +655,7 @@ inline void sync_plan_position() {
 }
 inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
 
-#if ENABLED(DELTA) || ENABLED(SCARA)
+#if IS_KINEMATIC
   inline void sync_plan_position_delta() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_delta", current_position);
@@ -846,10 +850,6 @@ void servo_init() {
      */
     STOW_Z_SERVO();
   #endif
-
-  #if HAS_BED_PROBE
-    endstops.enable_z_probe(false);
-  #endif
 }
 
 /**
@@ -874,216 +874,6 @@ void servo_init() {
   }
 
 #endif
-
-/**
- * Marlin entry-point: Set up before the program loop
- *  - Set up the kill pin, filament runout, power hold
- *  - Start the serial port
- *  - Print startup messages and diagnostics
- *  - Get EEPROM or default settings
- *  - Initialize managers for:
- *    • temperature
- *    • planner
- *    • watchdog
- *    • stepper
- *    • photo pin
- *    • servos
- *    • LCD controller
- *    • Digipot I2C
- *    • Z probe sled
- *    • status LEDs
- */
-void setup() {
-
-  #ifdef DISABLE_JTAG
-    // Disable JTAG on AT90USB chips to free up pins for IO
-    MCUCR = 0x80;
-    MCUCR = 0x80;
-  #endif
-
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    setup_filrunoutpin();
-  #endif
-
-  setup_killpin();
-
-  setup_powerhold();
-
-  #if HAS_STEPPER_RESET
-    disableStepperDrivers();
-  #endif
-
-  MYSERIAL.begin(BAUDRATE);
-  SERIAL_PROTOCOLLNPGM("start");
-  SERIAL_ECHO_START;
-
-  // Check startup - does nothing if bootloader sets MCUSR to 0
-  byte mcu = MCUSR;
-  if (mcu & 1) SERIAL_ECHOLNPGM(MSG_POWERUP);
-  if (mcu & 2) SERIAL_ECHOLNPGM(MSG_EXTERNAL_RESET);
-  if (mcu & 4) SERIAL_ECHOLNPGM(MSG_BROWNOUT_RESET);
-  if (mcu & 8) SERIAL_ECHOLNPGM(MSG_WATCHDOG_RESET);
-  if (mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
-  MCUSR = 0;
-
-  SERIAL_ECHOPGM(MSG_MARLIN);
-  SERIAL_ECHOLNPGM(" " SHORT_BUILD_VERSION);
-
-  #ifdef STRING_DISTRIBUTION_DATE
-    #ifdef STRING_CONFIG_H_AUTHOR
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
-      SERIAL_ECHOPGM(STRING_DISTRIBUTION_DATE);
-      SERIAL_ECHOPGM(MSG_AUTHOR);
-      SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
-      SERIAL_ECHOPGM("Compiled: ");
-      SERIAL_ECHOLNPGM(__DATE__);
-    #endif // STRING_CONFIG_H_AUTHOR
-  #endif // STRING_DISTRIBUTION_DATE
-
-  SERIAL_ECHO_START;
-  SERIAL_ECHOPGM(MSG_FREE_MEMORY);
-  SERIAL_ECHO(freeMemory());
-  SERIAL_ECHOPGM(MSG_PLANNER_BUFFER_BYTES);
-  SERIAL_ECHOLN((int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
-
-  // Send "ok" after commands by default
-  for (int8_t i = 0; i < BUFSIZE; i++) send_ok[i] = true;
-
-  // Load data from EEPROM if available (or use defaults)
-  // This also updates variables in the planner, elsewhere
-  Config_RetrieveSettings();
-
-  // Initialize current position based on home_offset
-  memcpy(current_position, home_offset, sizeof(home_offset));
-
-  // Vital to init stepper/planner equivalent for current_position
-  SYNC_PLAN_POSITION_KINEMATIC();
-
-  thermalManager.init();    // Initialize temperature loop
-
-  #if ENABLED(USE_WATCHDOG)
-    watchdog_init();
-  #endif
-
-  stepper.init();    // Initialize stepper, this enables interrupts!
-  setup_photpin();
-  servo_init();
-
-  #if HAS_CONTROLLERFAN
-    SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
-  #endif
-
-  #if HAS_STEPPER_RESET
-    enableStepperDrivers();
-  #endif
-
-  #if ENABLED(DIGIPOT_I2C)
-    digipot_i2c_init();
-  #endif
-
-  #if ENABLED(DAC_STEPPER_CURRENT)
-    dac_init();
-  #endif
-
-  #if ENABLED(Z_PROBE_SLED) && PIN_EXISTS(SLED)
-    pinMode(SLED_PIN, OUTPUT);
-    digitalWrite(SLED_PIN, LOW); // turn it off
-  #endif // Z_PROBE_SLED
-
-  setup_homepin();
-
-  #ifdef STAT_LED_RED
-    pinMode(STAT_LED_RED, OUTPUT);
-    digitalWrite(STAT_LED_RED, LOW); // turn it off
-  #endif
-
-  #ifdef STAT_LED_BLUE
-    pinMode(STAT_LED_BLUE, OUTPUT);
-    digitalWrite(STAT_LED_BLUE, LOW); // turn it off
-  #endif
-
-  lcd_init();
-  #if ENABLED(SHOW_BOOTSCREEN)
-    #if ENABLED(DOGLCD)
-      safe_delay(BOOTSCREEN_TIMEOUT);
-    #elif ENABLED(ULTRA_LCD)
-      bootscreen();
-      lcd_init();
-    #endif
-  #endif
-
-  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
-    // Initialize mixing to 100% color 1
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      mixing_factor[i] = (i == 0) ? 1 : 0;
-    for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
-      for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-        mixing_virtual_tool_mix[t][i] = mixing_factor[i];
-  #endif
-
-  #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
-    i2c.onReceive(i2c_on_receive);
-    i2c.onRequest(i2c_on_request);
-  #endif
-}
-
-/**
- * The main Marlin program loop
- *
- *  - Save or log commands to SD
- *  - Process available commands (if not saving)
- *  - Call heater manager
- *  - Call inactivity manager
- *  - Call endstop manager
- *  - Call LCD update
- */
-void loop() {
-  if (commands_in_queue < BUFSIZE) get_available_commands();
-
-  #if ENABLED(SDSUPPORT)
-    card.checkautostart(false);
-  #endif
-
-  if (commands_in_queue) {
-
-    #if ENABLED(SDSUPPORT)
-
-      if (card.saving) {
-        char* command = command_queue[cmd_queue_index_r];
-        if (strstr_P(command, PSTR("M29"))) {
-          // M29 closes the file
-          card.closefile();
-          SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
-          ok_to_send();
-        }
-        else {
-          // Write the string from the read buffer to SD
-          card.write_command(command);
-          if (card.logging)
-            process_next_command(); // The card is saving because it's logging
-          else
-            ok_to_send();
-        }
-      }
-      else
-        process_next_command();
-
-    #else
-
-      process_next_command();
-
-    #endif // SDSUPPORT
-
-    // The queue may be reset by a command handler or by code invoked by idle() within a handler
-    if (commands_in_queue) {
-      --commands_in_queue;
-      cmd_queue_index_r = (cmd_queue_index_r + 1) % BUFSIZE;
-    }
-  }
-  endstops.report_state();
-  idle();
-}
 
 void gcode_line_error(const char* err, bool doFlush = true) {
   SERIAL_ERROR_START;
@@ -2161,7 +1951,7 @@ static void clean_up_after_endstop_or_probe_move() {
     // Prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
     refresh_cmd_timeout();
 
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
       planner.bed_level_matrix.set_to_identity();
     #endif
 
@@ -2272,7 +2062,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
-  #if DISABLED(DELTA)
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
     /**
      * Get the stepper positions, apply the rotation matrix
@@ -2302,9 +2092,7 @@ static void clean_up_after_endstop_or_probe_move() {
       return pos;
     }
 
-  #endif // !DELTA
-
-  #if ENABLED(DELTA)
+  #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
     /**
      * All DELTA leveling in the Marlin uses NONLINEAR_BED_LEVELING
@@ -2870,7 +2658,7 @@ inline void gcode_G4() {
     SERIAL_ECHOPGM("Machine Type: ");
     #if ENABLED(DELTA)
       SERIAL_ECHOLNPGM("Delta");
-    #elif ENABLED(SCARA)
+    #elif IS_SCARA
       SERIAL_ECHOLNPGM("SCARA");
     #elif ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
       SERIAL_ECHOLNPGM("Core");
@@ -2947,11 +2735,12 @@ inline void gcode_G28() {
   stepper.synchronize();
 
   // For auto bed leveling, clear the level matrix
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
     planner.bed_level_matrix.set_to_identity();
-    #if ENABLED(DELTA)
-      reset_bed_level();
-    #endif
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+    reset_bed_level();
   #endif
 
   // Always home with tool 0 active
@@ -3533,7 +3322,7 @@ inline void gcode_G28() {
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
-      #if DISABLED(DELTA)
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
         bool do_topography_map = verbose_level > 2 || code_seen('T');
       #endif
 
@@ -3544,7 +3333,7 @@ inline void gcode_G28() {
 
       int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
 
-      #if DISABLED(DELTA)
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
         if (code_seen('P')) auto_bed_leveling_grid_points = code_value_int();
         if (auto_bed_leveling_grid_points < 2) {
           SERIAL_PROTOCOLLNPGM("?Number of probed (P)oints is implausible (2 minimum).");
@@ -3594,17 +3383,19 @@ inline void gcode_G28() {
 
     if (!dryrun) {
 
-      // Reset the bed_level_matrix because leveling
-      // needs to be done without leveling enabled.
-      planner.bed_level_matrix.set_to_identity();
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+        // Reset the bed_level_matrix because leveling
+        // needs to be done without leveling enabled.
+        planner.bed_level_matrix.set_to_identity();
+      #endif
 
       //
       // Re-orient the current position without leveling
       // based on where the steppers are positioned.
       //
-      #if ENABLED(DELTA) || ENABLED(SCARA)
+      #if IS_KINEMATIC
 
-        #if ENABLED(DELTA)
+        #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
           reset_bed_level();
         #endif
 
@@ -3639,12 +3430,14 @@ inline void gcode_G28() {
       const float xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (auto_bed_leveling_grid_points - 1),
                   yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points - 1);
 
-      #if ENABLED(DELTA)
+      #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
         delta_grid_spacing[X_AXIS] = xGridSpacing;
         delta_grid_spacing[Y_AXIS] = yGridSpacing;
         float zoffset = zprobe_zoffset;
         if (code_seen('Z')) zoffset += code_value_axis_units(Z_AXIS);
-      #else // !DELTA
+
+      #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
+
         /**
          * solve the plane equation ax + by + d = z
          * A is the matrix with rows [x y 1] for all the probed points
@@ -3660,7 +3453,8 @@ inline void gcode_G28() {
                eqnBVector[abl2],     // "B" vector of Z points
                mean = 0.0;
         int8_t indexIntoAB[auto_bed_leveling_grid_points][auto_bed_leveling_grid_points];
-      #endif // !DELTA
+
+      #endif // AUTO_BED_LEVELING_LINEAR
 
       int probePointCounter = 0;
       bool zig = auto_bed_leveling_grid_points & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
@@ -3694,16 +3488,19 @@ inline void gcode_G28() {
 
           float measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
-          #if DISABLED(DELTA)
-            mean += measured_z;
+          #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
+            mean += measured_z;
             eqnBVector[probePointCounter] = measured_z;
             eqnAMatrix[probePointCounter + 0 * abl2] = xProbe;
             eqnAMatrix[probePointCounter + 1 * abl2] = yProbe;
             eqnAMatrix[probePointCounter + 2 * abl2] = 1;
             indexIntoAB[xCount][yCount] = probePointCounter;
-          #else
+
+          #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+
             bed_level[xCount][yCount] = measured_z + zoffset;
+
           #endif
 
           probePointCounter++;
@@ -3713,7 +3510,7 @@ inline void gcode_G28() {
         } //xProbe
       } //yProbe
 
-    #else // !AUTO_BED_LEVELING_GRID
+    #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("> 3-point Leveling");
@@ -3759,12 +3556,12 @@ inline void gcode_G28() {
 
     // Calculate leveling, print reports, correct the position
     #if ENABLED(AUTO_BED_LEVELING_GRID)
-      #if ENABLED(DELTA)
+      #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
         if (!dryrun) extrapolate_unprobed_bed_level();
         print_bed_level();
 
-      #else // !DELTA
+      #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
         // solve lsq problem
         double plane_equation_coefficients[3];
@@ -3860,11 +3657,11 @@ inline void gcode_G28() {
           }
         } //do_topography_map
 
-      #endif //!DELTA
+      #endif // AUTO_BED_LEVELING_LINEAR
 
     #endif // AUTO_BED_LEVELING_GRID
 
-    #if DISABLED(DELTA)
+    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
       if (verbose_level > 0)
         planner.bed_level_matrix.debug("\n\nBed Level Correction Matrix:");
@@ -4358,10 +4155,10 @@ inline void gcode_M42() {
     if (verbose_level > 2)
       SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
-    #if ENABLED(DELTA)
+    #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
       // we don't do bed level correction in M48 because we want the raw data when we probe
       reset_bed_level();
-    #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
       // we don't do bed level correction in M48 because we want the raw data when we probe
       planner.bed_level_matrix.set_to_identity();
     #endif
@@ -6361,7 +6158,7 @@ inline void gcode_M503() {
       lastpos[i] = destination[i] = current_position[i];
 
     // Define runplan for move axes
-    #if ENABLED(DELTA)
+    #if IS_KINEMATIC
       #define RUNPLAN(RATE_MM_S) inverse_kinematics(destination); \
                                  planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], RATE_MM_S, active_extruder);
     #else
@@ -6482,7 +6279,7 @@ inline void gcode_M503() {
     destination[E_AXIS] = lastpos[E_AXIS];
     planner.set_e_position_mm(current_position[E_AXIS]);
 
-    #if ENABLED(DELTA)
+    #if IS_KINEMATIC
       // Move XYZ to starting position, then E
       inverse_kinematics(lastpos);
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
@@ -6925,7 +6722,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
            * Z software endstop. But this is technically correct (and
            * there is no viable alternative).
            */
-          #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+          #if ENABLED(AUTO_BED_LEVELING_LINEAR)
             // Offset extruder, make sure to apply the bed level rotation matrix
             vector_3 tmp_offset_vec = vector_3(hotend_offset[X_AXIS][tmp_extruder],
                                                hotend_offset[Y_AXIS][tmp_extruder],
@@ -7961,7 +7758,7 @@ void ok_to_send() {
                              stepper.get_axis_position_mm(C_AXIS));
   }
 
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
     // Adjust print surface height by linear interpolation over the bed_level array.
     void adjust_delta(float cartesian[XYZ]) {
@@ -8001,7 +7798,7 @@ void ok_to_send() {
       SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
       */
     }
-  #endif // AUTO_BED_LEVELING_FEATURE
+  #endif // AUTO_BED_LEVELING_NONLINEAR
 
 #endif // DELTA
 
@@ -8076,7 +7873,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
 }
 #endif  // MESH_BED_LEVELING
 
-#if ENABLED(DELTA) || ENABLED(SCARA)
+#if IS_KINEMATIC
 
   inline bool prepare_kinematic_move_to(float target[NUM_AXIS]) {
     float difference[NUM_AXIS];
@@ -8103,7 +7900,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
 
       inverse_kinematics(target);
 
-      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
         if (!bed_leveling_in_progress) adjust_delta(target);
       #endif
 
@@ -8115,7 +7912,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
     return true;
   }
 
-#endif // DELTA || SCARA
+#endif // IS_KINEMATIC
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
@@ -8161,7 +7958,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
 
 #endif // DUAL_X_CARRIAGE
 
-#if DISABLED(DELTA) && DISABLED(SCARA)
+#if !IS_KINEMATIC
 
   inline bool prepare_move_to_destination_cartesian() {
     // Do not use feedrate_percentage for E or Z only moves
@@ -8181,7 +7978,7 @@ void mesh_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_
     return true;
   }
 
-#endif // !DELTA && !SCARA
+#endif // !IS_KINEMATIC
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
 
@@ -8220,7 +8017,7 @@ void prepare_move_to_destination() {
     prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS]);
   #endif
 
-  #if ENABLED(DELTA) || ENABLED(SCARA)
+  #if IS_KINEMATIC
     if (!prepare_kinematic_move_to(destination)) return;
   #else
     #if ENABLED(DUAL_X_CARRIAGE)
@@ -8356,9 +8153,9 @@ void prepare_move_to_destination() {
 
       clamp_to_software_endstops(arc_target);
 
-      #if ENABLED(DELTA) || ENABLED(SCARA)
+      #if IS_KINEMATIC
         inverse_kinematics(arc_target);
-        #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+        #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
           adjust_delta(arc_target);
         #endif
         planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
@@ -8368,9 +8165,9 @@ void prepare_move_to_destination() {
     }
 
     // Ensure last segment arrives at target location.
-    #if ENABLED(DELTA) || ENABLED(SCARA)
+    #if IS_KINEMATIC
       inverse_kinematics(target);
-      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_FEATURE)
+      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
         adjust_delta(target);
       #endif
       planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], fr_mm_s, active_extruder);
@@ -8446,18 +8243,18 @@ void prepare_move_to_destination() {
     //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
     //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
 
-    x_sin = sin(f_scara[X_AXIS] / SCARA_RAD2DEG) * Linkage_1;
-    x_cos = cos(f_scara[X_AXIS] / SCARA_RAD2DEG) * Linkage_1;
-    y_sin = sin(f_scara[Y_AXIS] / SCARA_RAD2DEG) * Linkage_2;
-    y_cos = cos(f_scara[Y_AXIS] / SCARA_RAD2DEG) * Linkage_2;
+    x_sin = sin(RADIANS(f_scara[X_AXIS])) * L1;
+    x_cos = cos(RADIANS(f_scara[X_AXIS])) * L1;
+    y_sin = sin(RADIANS(f_scara[Y_AXIS])) * L2;
+    y_cos = cos(RADIANS(f_scara[Y_AXIS])) * L2;
 
     //SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
     //SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
     //SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
     //SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
 
-    delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;  //theta
-    delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;  //theta+phi
+    delta[X_AXIS] = x_cos + y_cos + SCARA_OFFSET_X;  //theta
+    delta[Y_AXIS] = x_sin + y_sin + SCARA_OFFSET_Y;  //theta+phi
 
     //SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
     //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
@@ -8469,51 +8266,42 @@ void prepare_move_to_destination() {
     // The maths and first version were done by QHARLEY.
     // Integrated, tweaked by Joachim Cerny in June 2014.
 
-    float SCARA_pos[2];
-    static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi;
+    static float C2, S2, SK1, SK2, THETA, PSI;
 
-    SCARA_pos[X_AXIS] = RAW_X_POSITION(cartesian[X_AXIS]) * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
-    SCARA_pos[Y_AXIS] = RAW_Y_POSITION(cartesian[Y_AXIS]) * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
+    float sx = RAW_X_POSITION(cartesian[X_AXIS]) * axis_scaling[X_AXIS] - SCARA_OFFSET_X,  //Translate SCARA to standard X Y
+          sy = RAW_Y_POSITION(cartesian[Y_AXIS]) * axis_scaling[Y_AXIS] - SCARA_OFFSET_Y;  // With scaling factor.
 
-    #if (Linkage_1 == Linkage_2)
-      SCARA_C2 = ((sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS])) / (2 * (float)L1_2)) - 1;
+    #if (L1 == L2)
+      C2 = HYPOT2(sx, sy) / (2 * L1_2) - 1;
     #else
-      SCARA_C2 = (sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2) / 45000;
+      C2 = (HYPOT2(sx, sy) - L1_2 - L2_2) / 45000;
     #endif
 
-    SCARA_S2 = sqrt(1 - sq(SCARA_C2));
+    S2 = sqrt(1 - sq(C2));
 
-    SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
-    SCARA_K2 = Linkage_2 * SCARA_S2;
+    SK1 = L1 + L2 * C2;
+    SK2 = L2 * S2;
 
-    SCARA_theta = (atan2(SCARA_pos[X_AXIS], SCARA_pos[Y_AXIS]) - atan2(SCARA_K1, SCARA_K2)) * -1;
-    SCARA_psi = atan2(SCARA_S2, SCARA_C2);
+    THETA = (atan2(sx, sy) - atan2(SK1, SK2)) * -1;
+    PSI = atan2(S2, C2);
 
-    delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
-    delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
-    delta[Z_AXIS] = RAW_Z_POSITION(cartesian[Z_AXIS]);
+    delta[A_AXIS] = DEGREES(THETA);        // theta is support arm angle
+    delta[B_AXIS] = DEGREES(THETA + PSI);  // equal to sub arm angle (inverted motor)
+    delta[Z_AXIS] = cartesian[Z_AXIS];
 
     /**
-    SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
-
-    SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
-
-    SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
-    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
-
-    SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
-    SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
-    SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
-    SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
-    SERIAL_EOL;
-    */
+      DEBUG_POS("SCARA IK", cartesian);
+      DEBUG_POS("SCARA IK", delta);
+      SERIAL_ECHOPAIR("  SCARA (x,y) ", sx);
+      SERIAL_ECHOPAIR(",", sy);
+      SERIAL_ECHOPAIR(" C2=", C2);
+      SERIAL_ECHOPAIR(" S2=", S2);
+      SERIAL_ECHOPAIR(" Theta=", THETA);
+      SERIAL_ECHOLNPAIR(" Phi=", PHI);
+    //*/
   }
 
-#endif // SCARA
+#endif // MORGAN_SCARA
 
 #if ENABLED(TEMP_STAT_LEDS)
 
@@ -8886,4 +8674,218 @@ float calculate_volumetric_multiplier(float diameter) {
 void calculate_volumetric_multipliers() {
   for (uint8_t i = 0; i < COUNT(filament_size); i++)
     volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
+}
+
+/**
+ * Marlin entry-point: Set up before the program loop
+ *  - Set up the kill pin, filament runout, power hold
+ *  - Start the serial port
+ *  - Print startup messages and diagnostics
+ *  - Get EEPROM or default settings
+ *  - Initialize managers for:
+ *    • temperature
+ *    • planner
+ *    • watchdog
+ *    • stepper
+ *    • photo pin
+ *    • servos
+ *    • LCD controller
+ *    • Digipot I2C
+ *    • Z probe sled
+ *    • status LEDs
+ */
+void setup() {
+
+  #ifdef DISABLE_JTAG
+    // Disable JTAG on AT90USB chips to free up pins for IO
+    MCUCR = 0x80;
+    MCUCR = 0x80;
+  #endif
+
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    setup_filrunoutpin();
+  #endif
+
+  setup_killpin();
+
+  setup_powerhold();
+
+  #if HAS_STEPPER_RESET
+    disableStepperDrivers();
+  #endif
+
+  MYSERIAL.begin(BAUDRATE);
+  SERIAL_PROTOCOLLNPGM("start");
+  SERIAL_ECHO_START;
+
+  // Check startup - does nothing if bootloader sets MCUSR to 0
+  byte mcu = MCUSR;
+  if (mcu & 1) SERIAL_ECHOLNPGM(MSG_POWERUP);
+  if (mcu & 2) SERIAL_ECHOLNPGM(MSG_EXTERNAL_RESET);
+  if (mcu & 4) SERIAL_ECHOLNPGM(MSG_BROWNOUT_RESET);
+  if (mcu & 8) SERIAL_ECHOLNPGM(MSG_WATCHDOG_RESET);
+  if (mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
+  MCUSR = 0;
+
+  SERIAL_ECHOPGM(MSG_MARLIN);
+  SERIAL_ECHOLNPGM(" " SHORT_BUILD_VERSION);
+
+  #ifdef STRING_DISTRIBUTION_DATE
+    #ifdef STRING_CONFIG_H_AUTHOR
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
+      SERIAL_ECHOPGM(STRING_DISTRIBUTION_DATE);
+      SERIAL_ECHOPGM(MSG_AUTHOR);
+      SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
+      SERIAL_ECHOPGM("Compiled: ");
+      SERIAL_ECHOLNPGM(__DATE__);
+    #endif // STRING_CONFIG_H_AUTHOR
+  #endif // STRING_DISTRIBUTION_DATE
+
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPGM(MSG_FREE_MEMORY);
+  SERIAL_ECHO(freeMemory());
+  SERIAL_ECHOPGM(MSG_PLANNER_BUFFER_BYTES);
+  SERIAL_ECHOLN((int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
+
+  // Send "ok" after commands by default
+  for (int8_t i = 0; i < BUFSIZE; i++) send_ok[i] = true;
+
+  // Load data from EEPROM if available (or use defaults)
+  // This also updates variables in the planner, elsewhere
+  Config_RetrieveSettings();
+
+  // Initialize current position based on home_offset
+  memcpy(current_position, home_offset, sizeof(home_offset));
+
+  // Vital to init stepper/planner equivalent for current_position
+  SYNC_PLAN_POSITION_KINEMATIC();
+
+  thermalManager.init();    // Initialize temperature loop
+
+  #if ENABLED(USE_WATCHDOG)
+    watchdog_init();
+  #endif
+
+  stepper.init();    // Initialize stepper, this enables interrupts!
+  setup_photpin();
+  servo_init();
+
+  #if HAS_BED_PROBE
+    endstops.enable_z_probe(false);
+  #endif
+
+  #if HAS_CONTROLLERFAN
+    SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
+  #endif
+
+  #if HAS_STEPPER_RESET
+    enableStepperDrivers();
+  #endif
+
+  #if ENABLED(DIGIPOT_I2C)
+    digipot_i2c_init();
+  #endif
+
+  #if ENABLED(DAC_STEPPER_CURRENT)
+    dac_init();
+  #endif
+
+  #if ENABLED(Z_PROBE_SLED) && PIN_EXISTS(SLED)
+    pinMode(SLED_PIN, OUTPUT);
+    digitalWrite(SLED_PIN, LOW); // turn it off
+  #endif // Z_PROBE_SLED
+
+  setup_homepin();
+
+  #ifdef STAT_LED_RED
+    pinMode(STAT_LED_RED, OUTPUT);
+    digitalWrite(STAT_LED_RED, LOW); // turn it off
+  #endif
+
+  #ifdef STAT_LED_BLUE
+    pinMode(STAT_LED_BLUE, OUTPUT);
+    digitalWrite(STAT_LED_BLUE, LOW); // turn it off
+  #endif
+
+  lcd_init();
+  #if ENABLED(SHOW_BOOTSCREEN)
+    #if ENABLED(DOGLCD)
+      safe_delay(BOOTSCREEN_TIMEOUT);
+    #elif ENABLED(ULTRA_LCD)
+      bootscreen();
+      lcd_init();
+    #endif
+  #endif
+
+  #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
+    // Initialize mixing to 100% color 1
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+      mixing_factor[i] = (i == 0) ? 1 : 0;
+    for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
+      for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+        mixing_virtual_tool_mix[t][i] = mixing_factor[i];
+  #endif
+
+  #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
+    i2c.onReceive(i2c_on_receive);
+    i2c.onRequest(i2c_on_request);
+  #endif
+}
+
+/**
+ * The main Marlin program loop
+ *
+ *  - Save or log commands to SD
+ *  - Process available commands (if not saving)
+ *  - Call heater manager
+ *  - Call inactivity manager
+ *  - Call endstop manager
+ *  - Call LCD update
+ */
+void loop() {
+  if (commands_in_queue < BUFSIZE) get_available_commands();
+
+  #if ENABLED(SDSUPPORT)
+    card.checkautostart(false);
+  #endif
+
+  if (commands_in_queue) {
+
+    #if ENABLED(SDSUPPORT)
+
+      if (card.saving) {
+        char* command = command_queue[cmd_queue_index_r];
+        if (strstr_P(command, PSTR("M29"))) {
+          // M29 closes the file
+          card.closefile();
+          SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+          ok_to_send();
+        }
+        else {
+          // Write the string from the read buffer to SD
+          card.write_command(command);
+          if (card.logging)
+            process_next_command(); // The card is saving because it's logging
+          else
+            ok_to_send();
+        }
+      }
+      else
+        process_next_command();
+
+    #else
+
+      process_next_command();
+
+    #endif // SDSUPPORT
+
+    // The queue may be reset by a command handler or by code invoked by idle() within a handler
+    if (commands_in_queue) {
+      --commands_in_queue;
+      cmd_queue_index_r = (cmd_queue_index_r + 1) % BUFSIZE;
+    }
+  }
+  endstops.report_state();
+  idle();
 }
