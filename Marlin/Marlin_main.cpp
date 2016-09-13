@@ -3431,7 +3431,7 @@ inline void gcode_G28() {
       #endif // AUTO_BED_LEVELING_LINEAR
 
       int probePointCounter = 0;
-      uint8_t zig = auto_bed_leveling_grid_points & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
+      bool zig = auto_bed_leveling_grid_points & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
 
       for (uint8_t yCount = 0; yCount < auto_bed_leveling_grid_points; yCount++) {
         float yBase = front_probe_bed_position + yGridSpacing * yCount,
@@ -3451,13 +3451,13 @@ inline void gcode_G28() {
 
         zig = !zig;
 
-        for (uint8_t xCount = xStart; xCount != xStop; xCount += xInc) {
+        for (int8_t xCount = xStart; xCount != xStop; xCount += xInc) {
           float xBase = left_probe_bed_position + xGridSpacing * xCount,
                 xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
 
           #if ENABLED(DELTA)
             // Avoid probing outside the round or hexagonal area of a delta printer
-            if (sq(xProbe) + sq(yProbe) > sq(DELTA_PROBEABLE_RADIUS) + 0.1) continue;
+            if (HYPOT2(xProbe, yProbe) > sq(DELTA_PROBEABLE_RADIUS) + 0.1) continue;
           #endif
 
           float measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
