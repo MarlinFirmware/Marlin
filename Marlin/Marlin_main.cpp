@@ -8608,11 +8608,11 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
       && thermalManager.degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP) {
+      bool oldstatus;
       #if ENABLED(SWITCHING_EXTRUDER)
-        bool oldstatus = E0_ENABLE_READ;
+        oldstatus = E0_ENABLE_READ;
         enable_e0();
       #else // !SWITCHING_EXTRUDER
-        bool oldstatus;
         switch (active_extruder) {
           case 0:
             oldstatus = E0_ENABLE_READ;
@@ -8639,15 +8639,14 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
         }
       #endif // !SWITCHING_EXTRUDER
 
-      float oldepos = current_position[E_AXIS], oldedes = destination[E_AXIS];
-      planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
-                       destination[E_AXIS] + (EXTRUDER_RUNOUT_EXTRUDE) * (EXTRUDER_RUNOUT_ESTEPS) * planner.steps_to_mm[E_AXIS],
-                       MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED) * (EXTRUDER_RUNOUT_ESTEPS) * planner.steps_to_mm[E_AXIS], active_extruder);
-      current_position[E_AXIS] = oldepos;
-      destination[E_AXIS] = oldedes;
-      planner.set_e_position_mm(oldepos);
       previous_cmd_ms = ms; // refresh_cmd_timeout()
+      planner.buffer_line(
+        current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
+        current_position[E_AXIS] + EXTRUDER_RUNOUT_EXTRUDE,
+        MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder
+      );
       stepper.synchronize();
+      planner.set_e_position_mm(current_position[E_AXIS]);
       #if ENABLED(SWITCHING_EXTRUDER)
         E0_ENABLE_WRITE(oldstatus);
       #else
