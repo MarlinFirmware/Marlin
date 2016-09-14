@@ -619,12 +619,22 @@
 // Enable Z Probe Repeatability test to see how accurate your probe is
 //#define Z_MIN_PROBE_REPEATABILITY_TEST
 
-//
-// Minimum heights for the probe to deploy/stow and travel.
-// These values specify the distance from the NOZZLE to the BED.
-//
-#define Z_PROBE_DEPLOY_HEIGHT 15 // Z position for the probe to deploy/stow
-#define Z_PROBE_TRAVEL_HEIGHT  5 // Z position for travel between points
+/**
+ * Z probes require clearance when deploying, stowing, and moving between
+ * probe points to avoid hitting the bed and other hardware.
+ * Servo-mounted probes require extra space for the arm to rotate.
+ * Inductive probes need space to keep from triggering early.
+ *
+ * Use these settings to specify the distance (mm) to raise the probe (or
+ * lower the bed). The values set here apply over and above any (negative)
+ * probe Z Offset set with Z_PROBE_OFFSET_FROM_EXTRUDER, M851, or the LCD.
+ * Only integer values >= 1 are valid here.
+ *
+ * Example: `M851 Z-5` with a RAISE of 4  =>  9mm from bed to nozzle.
+ *     But: `M851 Z+1` with a RAISE of 2  =>  2mm from bed to nozzle.
+ */
+#define Z_RAISE_DEPLOY_PROBE   10 // Z Raise for Deploy/Stow
+#define Z_RAISE_BETWEEN_PROBES  5 // Z Raise between probe points
 
 //
 // For M851 give a range for adjusting the Z probe offset
