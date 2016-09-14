@@ -446,14 +446,14 @@
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {44.3090, 22.1545, 1600, 53.5}  // default steps per unit for RigidBot with standard hardware
-                                                                      // default steps for 16-tooth pulleys {100.06,50.06,1600,76},  HPX2-MAX E=504, RigidBot E=53.5, Peter Stoneham's=76
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 44.3090, 22.1545, 1600, 53.5 }  // default steps per unit for RigidBot with standard hardware
+                                                                        // default steps for 16-tooth pulleys { 100.06, 50.06, 1600, 76 }, HPX2-MAX E=504, RigidBot E=53.5, Peter Stoneham's=76
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  */
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 5, 25 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -461,7 +461,7 @@
  *
  * Maximum start speed for accelerated moves: { X, Y, Z, E }
  */
-#define DEFAULT_MAX_ACCELERATION      {800, 800, 100, 10000}
+#define DEFAULT_MAX_ACCELERATION      { 800, 800, 100, 10000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s

@@ -452,13 +452,13 @@
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {400, 400, 400, 163}     // default steps per unit for ***** MakiBox A6 *****
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 400, 400, 400, 163 }     // default steps per unit for ***** MakiBox A6 *****
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  */
-#define DEFAULT_MAX_FEEDRATE          {60, 60, 20, 45}
+#define DEFAULT_MAX_FEEDRATE          { 60, 60, 20, 45 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -466,7 +466,7 @@
  *
  * Maximum start speed for accelerated moves: { X, Y, Z, E }
  */
-#define DEFAULT_MAX_ACCELERATION      {2000,2000,30,10000}
+#define DEFAULT_MAX_ACCELERATION      { 2000, 2000, 30, 10000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s

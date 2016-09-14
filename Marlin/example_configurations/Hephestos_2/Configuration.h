@@ -443,13 +443,13 @@
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000, 210.02}
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 160, 160, 8000, 210.02 }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  */
-#define DEFAULT_MAX_FEEDRATE          {250, 250, 2, 200}
+#define DEFAULT_MAX_FEEDRATE          { 250, 250, 2, 200 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -457,7 +457,7 @@
  *
  * Maximum start speed for accelerated moves: { X, Y, Z, E }
  */
-#define DEFAULT_MAX_ACCELERATION      {1000, 1000, 20, 1000}
+#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 20, 1000 }
 
 /**
  * Default Acceleration (change/s) change = mm/s
