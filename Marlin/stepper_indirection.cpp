@@ -127,6 +127,272 @@ void tmc_init() {
 }
 #endif
 
+#if ENABLED(HAVE_TMC2130DRIVER)
+  #include <SPI.h>
+  #include <Trinamic_TMC2130.h>
+#endif
+
+// Stepper objects of TMC2310 steppers used
+#if ENABLED(X_IS_TMC2130)
+  Trinamic_TMC2130 stepperX(X_CS_PIN);
+#endif
+#if ENABLED(X2_IS_TMC2130)
+  Trinamic_TMC2130 stepperX2(X2_CS_PIN);
+#endif
+#if ENABLED(Y_IS_TMC2130)
+  Trinamic_TMC2130 stepperY(Y_CS_PIN);
+#endif
+#if ENABLED(Y2_IS_TMC2130)
+  Trinamic_TMC2130 stepperY2(Y2_CS_PINR);
+#endif
+#if ENABLED(Z_IS_TMC2130)
+  Trinamic_TMC2130 stepperZ(Z_CS_PIN);
+#endif
+#if ENABLED(Z2_IS_TMC2130)
+  Trinamic_TMC2130 stepperZ2(Z2_CS_PIN);
+#endif
+#if ENABLED(E0_IS_TMC2130)
+  Trinamic_TMC2130 stepperE0(E0_CS_PIN);
+#endif
+#if ENABLED(E1_IS_TMC2130)
+  Trinamic_TMC2130 stepperE1(E1_CS_PIN);
+#endif
+#if ENABLED(E2_IS_TMC2130)
+  Trinamic_TMC2130 stepperE2(E2_CS_PIN);
+#endif
+#if ENABLED(E3_IS_TMC2130)
+  Trinamic_TMC2130 stepperE3(E3_CS_PIN);
+#endif
+
+#if ENABLED(HAVE_TMC2130DRIVER)
+
+  #if ENABLED(TMC2130_ADVANCED_CONFIGURATION)
+
+    void tmc2130_init() {
+
+      // If you've enabled TMC2130_ADVANCED_CONFIGURATION configure your
+      // steppers manually here. The ENABLED(XYZ_IS_TMC2130) is optional,
+
+      #if ENABLED(X_IS_TMC2130)
+        stepperX.init();
+        stepperX.set_I_scale_analog(GLOBAL_I_SCALE_ANALOG);
+        //stepperX.set_internal_Rsense(GLOBAL_INTERNAL_RSENSE);
+        stepperX.set_en_pwm_mode(GLOBAL_EN_PWM_MODE);
+        //stepperX.set_enc_commutation(GLOBAL_ENC_COMMUTATION);
+        stepperX.set_shaft(GLOBAL_SHAFT);
+        //stepperX.set_diag0_error(GLOBAL_DIAG0_ERROR);
+        //stepperX.set_diag0_otpw(GLOBAL_DIAG0_OTPW);
+        //stepperX.set_diag0_stall(GLOBAL_DIAG0_STALL);
+        //stepperX.set_diag1_stall(GLOBAL_DIAG1_STALL);
+        //stepperX.set_diag1_index(GLOBAL_DIAG1_INDEX);
+        //stepperX.set_diag1_onstate(GLOBAL_DIAG1_ONSTATE);
+        //stepperX.set_diag1_steps_skipped(GLOBAL_DIAG1_ONSTATE);
+        //stepperX.set_diag0_int_pushpull(GLOBAL_DIAG0_INT_PUSHPULL);
+        //stepperX.set_diag1_int_pushpull(GLOBAL_DIAG1_INT_PUSHPULL);
+        //stepperX.set_small_hysteresis(GLOBAL_SMALL_HYSTERESIS);
+        //stepperX.set_stop_enable(GLOBAL_STOP_ENABLE);
+        //stepperX.set_direct_mode(GLOBAL_DIRECT_MODE);
+
+        stepperX.set_IHOLD_IRUN(GLOBAL_IHOLD,GLOBAL_IRUN,GLOBAL_IHOLDDELAY);
+        //stepperX.set_TPOWERDOWN(GLOBAL_TPOWERDOWN);
+        //stepperX.set_TPWMTHRS(GLOBAL_TPWMTHRS);
+        //stepperX.set_TCOOLTHRS(GLOBAL_TCOOLTHRS);
+        stepperX.set_THIGH(GLOBAL_THIGH);
+        //stepperX.set_XDIRECT(GLOBAL_XDIRECT);
+        //stepperX.set_VDCMIN(GLOBAL_VDCMIN);
+
+        //stepperX.set_dedge(GLOBAL_DEDGE);
+        //stepperX.set_diss2g(GLOBAL_DISS2G);
+        stepperX.set_intpol(GLOBAL_INTPOL);
+        stepperX.set_mres(GLOBAL_MRES);
+        stepperX.set_sync(GLOBAL_SYNC);
+        stepperX.set_vhighchm(GLOBAL_VHIGHCHM);
+        stepperX.set_vhighfs(GLOBAL_VHIGHFS);
+        //stepperX.set_vsense(GLOBAL_VSENSE);
+        stepperX.set_tbl(GLOBAL_TBL);
+        stepperX.set_chm(GLOBAL_CHM);
+        //stepperX.set_rndtf(GLOBAL_RNDTF);
+        //stepperX.set_disfdcc(GLOBAL_DISFDCC);
+        //stepperX.set_fd(GLOBAL_FD);
+        //stepperX.set_hend(GLOBAL_HEND);
+        //stepperX.set_hstrt(GLOBAL_HSTRT);
+        stepperX.set_toff(GLOBAL_TOFF);
+
+        //stepperX.set_sfilt(GLOBAL_SFILT);
+        //stepperX.set_sgt(GLOBAL_SGT);
+        //stepperX.set_seimin(GLOBAL_SEIMIN);
+        //stepperX.set_sedn(GLOBAL_SEDN);
+        //stepperX.set_semax(GLOBAL_SEMAX);
+        //stepperX.set_seup(GLOBAL_SEUP);
+        //stepperX.set_semin(GLOBAL_SEMIN);
+
+        //stepperX.set_DCCTRL(GLOBAL_DC_TIME, GLOBAL_DC_SG);
+
+        //stepperX.set_freewheel(GLOBAL_FREEWHEEL);
+        //stepperX.set_pwm_symmetric(GLOBAL_PWM_SYMMETRIC);
+        //stepperX.set_pwm_autoscale(GLOBAL_PWM_AUTOSCALE);
+        //stepperX.set_pwm_freq(GLOBAL_PWM_FREQ);
+        //stepperX.set_PWM_GRAD(GLOBAL_PWM_GRAD);
+        //stepperX.set_PWM_AMPL(GLOBAL_PWM_AMPL);
+
+        //stepperX.set_ENCM_CTRL(GLOBAL_ENCM_CTRL);
+      #endif
+
+      #if ENABLED(Y_IS_TMC2130)
+        stepperY.init();
+        stepperY.set_I_scale_analog(GLOBAL_I_SCALE_ANALOG);
+        //stepperY.set_internal_Rsense(GLOBAL_INTERNAL_RSENSE);
+        stepperY.set_en_pwm_mode(GLOBAL_EN_PWM_MODE);
+        //stepperY.set_enc_commutation(GLOBAL_ENC_COMMUTATION);
+        stepperY.set_shaft(GLOBAL_SHAFT);
+        //stepperY.set_diag0_error(GLOBAL_DIAG0_ERROR);
+        //stepperY.set_diag0_otpw(GLOBAL_DIAG0_OTPW);
+        //stepperY.set_diag0_stall(GLOBAL_DIAG0_STALL);
+        //stepperY.set_diag1_stall(GLOBAL_DIAG1_STALL);
+        //stepperY.set_diag1_index(GLOBAL_DIAG1_INDEX);
+        //stepperY.set_diag1_onstate(GLOBAL_DIAG1_ONSTATE);
+        //stepperY.set_diag1_steps_skipped(GLOBAL_DIAG1_ONSTATE);
+        //stepperY.set_diag0_int_pushpull(GLOBAL_DIAG0_INT_PUSHPULL);
+        //stepperY.set_diag1_int_pushpull(GLOBAL_DIAG1_INT_PUSHPULL);
+        //stepperY.set_small_hysteresis(GLOBAL_SMALL_HYSTERESIS);
+        //stepperY.set_stop_enable(GLOBAL_STOP_ENABLE);
+        //stepperY.set_direct_mode(GLOBAL_DIRECT_MODE);
+
+        stepperY.set_IHOLD_IRUN(GLOBAL_IHOLD,GLOBAL_IRUN,GLOBAL_IHOLDDELAY);
+        //stepperY.set_TPOWERDOWN(GLOBAL_TPOWERDOWN);
+        //stepperY.set_TPWMTHRS(GLOBAL_TPWMTHRS);
+        //stepperY.set_TCOOLTHRS(GLOBAL_TCOOLTHRS);
+        stepperY.set_THIGH(GLOBAL_THIGH);
+        //stepperY.set_XDIRECT(GLOBAL_XDIRECT);
+        //stepperY.set_VDCMIN(GLOBAL_VDCMIN);
+
+        //stepperY.set_dedge(GLOBAL_DEDGE);
+        //stepperY.set_diss2g(GLOBAL_DISS2G);
+        stepperY.set_intpol(GLOBAL_INTPOL);
+        stepperY.set_mres(GLOBAL_MRES);
+        stepperY.set_sync(GLOBAL_SYNC);
+        stepperY.set_vhighchm(GLOBAL_VHIGHCHM);
+        stepperY.set_vhighfs(GLOBAL_VHIGHFS);
+        //stepperY.set_vsense(GLOBAL_VSENSE);
+        stepperY.set_tbl(GLOBAL_TBL);
+        stepperY.set_chm(GLOBAL_CHM);
+        //stepperY.set_rndtf(GLOBAL_RNDTF);
+        //stepperY.set_disfdcc(GLOBAL_DISFDCC);
+        //stepperY.set_fd(GLOBAL_FD);
+        //stepperY.set_hend(GLOBAL_HEND);
+        //stepperY.set_hstrt(GLOBAL_HSTRT);
+        stepperY.set_toff(GLOBAL_TOFF);
+
+        //stepperY.set_sfilt(GLOBAL_SFILT);
+        //stepperY.set_sgt(GLOBAL_SGT);
+        //stepperY.set_seimin(GLOBAL_SEIMIN);
+        //stepperY.set_sedn(GLOBAL_SEDN);
+        //stepperY.set_semax(GLOBAL_SEMAX);
+        //stepperY.set_seup(GLOBAL_SEUP);
+        //stepperY.set_semin(GLOBAL_SEMIN);
+
+        //stepperY.set_DCCTRL(GLOBAL_DC_TIME, GLOBAL_DC_SG);
+
+        //stepperY.set_freewheel(GLOBAL_FREEWHEEL);
+        //stepperY.set_pwm_symmetric(GLOBAL_PWM_SYMMETRIC);
+        //stepperY.set_pwm_autoscale(GLOBAL_PWM_AUTOSCALE);
+        //stepperY.set_pwm_freq(GLOBAL_PWM_FREQ);
+        //stepperY.set_PWM_GRAD(GLOBAL_PWM_GRAD);
+        //stepperY.set_PWM_AMPL(GLOBAL_PWM_AMPL);
+
+        //stepperY.set_ENCM_CTRL(GLOBAL_ENCM_CTRL);
+      #endif
+    }
+
+  #else // !TMC2130_ADVANCED_CONFIGURATION
+
+    void tmc2130_init() {
+      #if ENABLED(X_IS_TMC2130)
+        stepperX.init();
+        stepperX.set_mres(X_MRES);
+        stepperX.set_IHOLD_IRUN(X_IHOLD,X_IRUN,X_IHOLDDELAY);
+        stepperX.set_I_scale_analog(X_ISCALE);
+        stepperX.set_tbl(X_TBL);
+        stepperX.set_toff(X_TOFF);
+      #endif
+      #if ENABLED(X2_IS_TMC2130)
+        stepperX2.init();
+        stepperX2.set_mres(X2_MRES);
+        stepperX2.set_IHOLD_IRUN(X2_IHOLD,X2_IRUN,X2_IHOLDDELAY);
+        stepperX2.set_I_scale_analog(X2_ISCALE);
+        stepperX2.set_tbl(X2_TBL);
+        stepperX2.set_toff(X2_TOFF);
+      #endif
+      #if ENABLED(Y_IS_TMC2130)
+        stepperY.init();
+        stepperY.set_mres(Y_MRES);
+        stepperY.set_IHOLD_IRUN(Y_IHOLD,Y_IRUN,Y_IHOLDDELAY);
+        stepperY.set_I_scale_analog(Y_ISCALE);
+        stepperY.set_tbl(Y_TBL);
+        stepperY.set_toff(Y_TOFF);
+      #endif
+      #if ENABLED(Y2_IS_TMC2130)
+        stepperY2.init();
+        stepperY2.set_mres(Y2_MRES);
+        stepperY2.set_IHOLD_IRUN(Y2_IHOLD,Y2_IRUN,Y2_IHOLDDELAY);
+        stepperY2.set_I_scale_analog(Y2_ISCALE);
+        stepperY2.set_tbl(Y2_TBL);
+        stepperY2.set_toff(Y2_TOFF);
+      #endif
+      #if ENABLED(Z_IS_TMC2130)
+        stepperZ.init();
+        stepperZ.set_mres(Z_MRES);
+        stepperZ.set_IHOLD_IRUN(Z_IHOLD,Z_IRUN,Z_IHOLDDELAY);
+        stepperZ.set_I_scale_analog(Z_ISCALE);
+        stepperZ.set_tbl(Z_TBL);
+        stepperZ.set_toff(Z_TOFF);
+      #endif
+      #if ENABLED(Z2_IS_TMC2130)
+        stepperZ2.init();
+        stepperZ2.set_mres(Z2_MRES);
+        stepperZ2.set_IHOLD_IRUN(Z2_IHOLD,Z2_IRUN,Z2_IHOLDDELAY);
+        stepperZ2.set_I_scale_analog(Z2_ISCALE);
+        stepperZ2.set_tbl(Z2_TBL);
+        stepperZ2.set_toff(Z2_TOFF);
+      #endif
+      #if ENABLED(E0_IS_TMC2130)
+        stepperE0.init();
+        stepperE0.set_mres(E0_MRES);
+        stepperE0.set_IHOLD_IRUN(E0_IHOLD,E0_IRUN,E0_IHOLDDELAY);
+        stepperE0.set_I_scale_analog(E0_ISCALE);
+        stepperE0.set_tbl(E0_TBL);
+        stepperE0.set_toff(E0_TOFF);
+      #endif
+      #if ENABLED(E1_IS_TMC2130)
+        stepperE1.init();
+        stepperE1.set_mres(E1_MRES);
+        stepperE1.set_IHOLD_IRUN(E1_IHOLD,E1_IRUN,E1_IHOLDDELAY);
+        stepperE1.set_I_scale_analog(E1_ISCALE);
+        stepperE1.set_tbl(E1_TBL);
+        stepperE1.set_toff(E1_TOFF);
+      #endif
+      #if ENABLED(E2_IS_TMC2130)
+        stepperE2.init();
+        stepperE2.set_mres(E2_MRES);
+        stepperE2.set_IHOLD_IRUN(E2_IHOLD,E2_IRUN,E2_IHOLDDELAY);
+        stepperE2.set_I_scale_analog(E2_ISCALE);
+        stepperE2.set_tbl(E2_TBL);
+        stepperE2.set_toff(E2_TOFF);
+      #endif
+      #if ENABLED(E3_IS_TMC2130)
+        stepperE3.init();
+        stepperE3.set_mres(E3_MRES);
+        stepperE3.set_IHOLD_IRUN(E3_IHOLD,E3_IRUN,E3_IHOLDDELAY);
+        stepperE3.set_I_scale_analog(E3_ISCALE);
+        stepperE3.set_tbl(E3_TBL);
+        stepperE3.set_toff(E3_TOFF);
+      #endif
+    }
+
+  #endif // TMC2130_ADVANCED_CONFIGURATION
+
+#endif // HAVE_TMC2130DRIVER
+
 // L6470 Driver objects and inits
 
 #if ENABLED(HAVE_L6470DRIVER)
