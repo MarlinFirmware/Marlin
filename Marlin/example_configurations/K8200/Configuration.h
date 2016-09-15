@@ -768,7 +768,8 @@
 
     // Set the number of grid points per dimension.
     // You probably don't need more than 3 (squared=9).
-    #define AUTO_BED_LEVELING_GRID_POINTS 3
+    #define ABL_GRID_POINTS_X 3
+    #define ABL_GRID_POINTS_Y ABL_GRID_POINTS_X
 
   #else  // !AUTO_BED_LEVELING_GRID
 

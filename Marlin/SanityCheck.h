@@ -139,6 +139,8 @@
   #error "PREVENT_DANGEROUS_EXTRUDE is now PREVENT_COLD_EXTRUSION. Please update your configuration."
 #elif defined(SCARA)
   #error "SCARA is now MORGAN_SCARA. Please update your configuration."
+#elif defined(AUTO_BED_LEVELING_GRID_POINTS)
+  #error "AUTO_BED_LEVELING_GRID_POINTS is now ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y. Please update your configuration."
 #endif
 
 /**
@@ -196,10 +198,10 @@
     #error "You probably want to use Max Endstops for DELTA!"
   #endif
   #if ENABLED(AUTO_BED_LEVELING_GRID)
-    #if (AUTO_BED_LEVELING_GRID_POINTS & 1) == 0
-      #error "DELTA requires an odd value for AUTO_BED_LEVELING_GRID_POINTS."
-    #elif AUTO_BED_LEVELING_GRID_POINTS < 3
-      #error "DELTA requires at least 3 AUTO_BED_LEVELING_GRID_POINTS."
+    #if (ABL_GRID_POINTS_X & 1) == 0 || (ABL_GRID_POINTS_Y & 1) == 0
+      #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be odd numbers."
+    #elif ABL_GRID_POINTS_X < 3
+      #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be 3 or higher."
     #endif
   #endif
 #endif
