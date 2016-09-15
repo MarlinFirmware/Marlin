@@ -321,7 +321,7 @@ float code_value_temp_diff();
 
 #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
   extern int nonlinear_grid_spacing[2];
-  void adjust_delta(float cartesian[XYZ]);
+  float nonlinear_z_offset(float logical[XYZ]);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)

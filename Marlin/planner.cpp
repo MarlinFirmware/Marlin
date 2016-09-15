@@ -541,6 +541,23 @@ void Planner::check_axes_activity() {
       ly = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
       lz = LOGICAL_Z_POSITION(dz);
 
+    #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+
+      float tmp[XYZ] = { lx, ly, 0 };
+
+      #if ENABLED(DELTA)
+
+        float offset = nonlinear_z_offset(tmp);
+        lx += offset;
+        ly += offset;
+        lz += offset;
+
+      #else
+
+        lz += nonlinear_z_offset(tmp);
+
+      #endif
+
     #endif
   }
 
@@ -561,6 +578,11 @@ void Planner::check_axes_activity() {
       lx = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
       ly = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
       lz = LOGICAL_Z_POSITION(dz);
+
+    #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+
+      float tmp[XYZ] = { lx, ly, 0 };
+      lz -= nonlinear_z_offset(tmp);
 
     #endif
   }
