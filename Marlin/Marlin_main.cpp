@@ -8345,25 +8345,26 @@ void prepare_move_to_destination() {
 
 #endif // HAS_CONTROLLERFAN
 
-#if IS_SCARA
+#if ENABLED(MORGAN_SCARA)
 
+  /**
+   * Morgan SCARA Forward Kinematics. Results in cartes[].
+   * Maths and first version by QHARLEY.
+   * Integrated into Marlin and slightly restructured by Joachim Cerny.
+   */
   void forward_kinematics_SCARA(const float &a, const float &b) {
-    // Perform forward kinematics, and place results in cartes[]
-    // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
 
-    float a_sin, a_cos, b_sin, b_cos;
-
-    a_sin = sin(RADIANS(a)) * L1;
-    a_cos = cos(RADIANS(a)) * L1;
-    b_sin = sin(RADIANS(b)) * L2;
-    b_cos = cos(RADIANS(b)) * L2;
+    float a_sin = sin(RADIANS(a)) * L1,
+          a_cos = cos(RADIANS(a)) * L1,
+          b_sin = sin(RADIANS(b)) * L2,
+          b_cos = cos(RADIANS(b)) * L2;
 
     cartes[X_AXIS] = a_cos + b_cos + SCARA_OFFSET_X;  //theta
     cartes[Y_AXIS] = a_sin + b_sin + SCARA_OFFSET_Y;  //theta+phi
 
     /*
-      SERIAL_ECHOPAIR("f_delta x=", a);
-      SERIAL_ECHOPAIR(" y=", b);
+      SERIAL_ECHOPAIR("Angle a=", a);
+      SERIAL_ECHOPAIR(" b=", b);
       SERIAL_ECHOPAIR(" a_sin=", a_sin);
       SERIAL_ECHOPAIR(" a_cos=", a_cos);
       SERIAL_ECHOPAIR(" b_sin=", b_sin);
@@ -8373,29 +8374,38 @@ void prepare_move_to_destination() {
     //*/
   }
 
+  /**
+   * Morgan SCARA Inverse Kinematics. Results in delta[].
+   *
+   * See http://forums.reprap.org/read.php?185,283327
+   * 
+   * Maths and first version by QHARLEY.
+   * Integrated into Marlin and slightly restructured by Joachim Cerny.
+   */
   void inverse_kinematics(const float logical[XYZ]) {
-    // Inverse kinematics.
-    // Perform SCARA IK and place results in delta[].
-    // The maths and first version were done by QHARLEY.
-    // Integrated, tweaked by Joachim Cerny in June 2014.
 
     static float C2, S2, SK1, SK2, THETA, PSI;
 
     float sx = RAW_X_POSITION(logical[X_AXIS]) - SCARA_OFFSET_X,  // Translate SCARA to standard X Y
           sy = RAW_Y_POSITION(logical[Y_AXIS]) - SCARA_OFFSET_Y;  // With scaling factor.
 
-    #if (L1 == L2)
-      C2 = HYPOT2(sx, sy) / (2 * L1_2) - 1;
-    #else
-      C2 = (HYPOT2(sx, sy) - L1_2 - L2_2) / 45000;
-    #endif
+    if (L1 == L2)
+      C2 = HYPOT2(sx, sy) / L1_2_2 - 1;
+    else
+      C2 = (HYPOT2(sx, sy) - (L1_2 + L2_2)) / (2.0 * L1 * L2);
 
-    S2 = sqrt(1 - sq(C2));
+    S2 = sqrt(sq(C2) - 1);
 
+    // Unrotated Arm1 plus rotated Arm2 gives the distance from Center to End
     SK1 = L1 + L2 * C2;
+
+    // Rotated Arm2 gives the distance from Arm1 to Arm2
     SK2 = L2 * S2;
 
-    THETA = (atan2(sx, sy) - atan2(SK1, SK2)) * -1;
+    // Angle of Arm1 is the difference between Center-to-End angle and the Center-to-Elbow
+    THETA = atan2(SK1, SK2) - atan2(sx, sy);
+
+    // Angle of Arm2
     PSI = atan2(S2, C2);
 
     delta[A_AXIS] = DEGREES(THETA);        // theta is support arm angle
@@ -8414,7 +8424,7 @@ void prepare_move_to_destination() {
     //*/
   }
 
-#endif // IS_SCARA
+#endif // MORGAN_SCARA
 
 #if ENABLED(TEMP_STAT_LEDS)
 
