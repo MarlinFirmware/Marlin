@@ -400,7 +400,6 @@ static uint8_t target_extruder;
 
 #if ENABLED(AUTO_BED_LEVELING_FEATURE)
   float xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
-  bool bed_leveling_in_progress = false;
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
 #elif defined(XY_PROBE_SPEED)
   #define XY_PROBE_FEEDRATE_MM_S MMM_TO_MMS(XY_PROBE_SPEED)
@@ -3434,8 +3433,6 @@ inline void gcode_G28() {
     // Deploy the probe. Probe will raise if needed.
     if (DEPLOY_PROBE()) return;
 
-    bed_leveling_in_progress = true;
-
     float xProbe, yProbe, measured_z = 0;
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
@@ -3576,6 +3573,8 @@ inline void gcode_G28() {
 
     #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
+      // For LINEAR leveling calculate matrix, print reports, correct the position
+
       // solve lsq problem
       double plane_equation_coefficients[3];
       qr_solve(plane_equation_coefficients, abl2, 3, eqnAMatrix, eqnBVector);
@@ -3669,6 +3668,8 @@ inline void gcode_G28() {
         }
       } //do_topography_map
 
+      // For LINEAR and 3POINT leveling correct the current position
+
       if (verbose_level > 0)
         planner.bed_level_matrix.debug("\n\nBed Level Correction Matrix:");
 
@@ -3737,8 +3738,6 @@ inline void gcode_G28() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G29");
     #endif
-
-    bed_leveling_in_progress = false;
 
     report_current_position();
 
@@ -7638,6 +7637,48 @@ void ok_to_send() {
 
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+
+  // Get the Z adjustment for non-linear bed leveling
+  float nonlinear_z_offset(float cartesian[XYZ]) {
+    if (nonlinear_grid_spacing[X_AXIS] == 0 || nonlinear_grid_spacing[Y_AXIS] == 0) return 0; // G29 not done!
+
+    int half_x = (ABL_GRID_POINTS_X - 1) / 2,
+        half_y = (ABL_GRID_POINTS_Y - 1) / 2;
+    float hx2 = half_x - 0.001, hx1 = -hx2,
+          hy2 = half_y - 0.001, hy1 = -hy2,
+          grid_x = max(hx1, min(hx2, RAW_X_POSITION(cartesian[X_AXIS]) / nonlinear_grid_spacing[X_AXIS])),
+          grid_y = max(hy1, min(hy2, RAW_Y_POSITION(cartesian[Y_AXIS]) / nonlinear_grid_spacing[Y_AXIS]));
+    int   floor_x = floor(grid_x), floor_y = floor(grid_y);
+    float ratio_x = grid_x - floor_x, ratio_y = grid_y - floor_y,
+          z1 = bed_level_grid[floor_x + half_x][floor_y + half_y],
+          z2 = bed_level_grid[floor_x + half_x][floor_y + half_y + 1],
+          z3 = bed_level_grid[floor_x + half_x + 1][floor_y + half_y],
+          z4 = bed_level_grid[floor_x + half_x + 1][floor_y + half_y + 1],
+          left = (1 - ratio_y) * z1 + ratio_y * z2,
+          right = (1 - ratio_y) * z3 + ratio_y * z4;
+
+    /*
+      SERIAL_ECHOPAIR("grid_x=", grid_x);
+      SERIAL_ECHOPAIR(" grid_y=", grid_y);
+      SERIAL_ECHOPAIR(" floor_x=", floor_x);
+      SERIAL_ECHOPAIR(" floor_y=", floor_y);
+      SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
+      SERIAL_ECHOPAIR(" ratio_y=", ratio_y);
+      SERIAL_ECHOPAIR(" z1=", z1);
+      SERIAL_ECHOPAIR(" z2=", z2);
+      SERIAL_ECHOPAIR(" z3=", z3);
+      SERIAL_ECHOPAIR(" z4=", z4);
+      SERIAL_ECHOPAIR(" left=", left);
+      SERIAL_ECHOPAIR(" right=", right);
+      SERIAL_ECHOPAIR(" offset=", (1 - ratio_x) * left + ratio_x * right);
+    //*/
+
+    return (1 - ratio_x) * left + ratio_x * right;
+  }
+
+#endif // AUTO_BED_LEVELING_NONLINEAR
+
 #if ENABLED(DELTA)
 
   /**
@@ -7828,50 +7869,6 @@ void ok_to_send() {
     forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);
   }
 
-  #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-
-    // Adjust print surface height by linear interpolation over the bed_level array.
-    void adjust_delta(float cartesian[XYZ]) {
-      if (nonlinear_grid_spacing[X_AXIS] == 0 || nonlinear_grid_spacing[Y_AXIS] == 0) return; // G29 not done!
-
-      int half_x = (ABL_GRID_POINTS_X - 1) / 2,
-          half_y = (ABL_GRID_POINTS_Y - 1) / 2;
-      float hx2 = half_x - 0.001, hx1 = -hx2,
-            hy2 = half_y - 0.001, hy1 = -hy2,
-            grid_x = max(hx1, min(hx2, RAW_X_POSITION(cartesian[X_AXIS]) / nonlinear_grid_spacing[X_AXIS])),
-            grid_y = max(hy1, min(hy2, RAW_Y_POSITION(cartesian[Y_AXIS]) / nonlinear_grid_spacing[Y_AXIS]));
-      int   floor_x = floor(grid_x), floor_y = floor(grid_y);
-      float ratio_x = grid_x - floor_x, ratio_y = grid_y - floor_y,
-            z1 = bed_level_grid[floor_x + half_x][floor_y + half_y],
-            z2 = bed_level_grid[floor_x + half_x][floor_y + half_y + 1],
-            z3 = bed_level_grid[floor_x + half_x + 1][floor_y + half_y],
-            z4 = bed_level_grid[floor_x + half_x + 1][floor_y + half_y + 1],
-            left = (1 - ratio_y) * z1 + ratio_y * z2,
-            right = (1 - ratio_y) * z3 + ratio_y * z4,
-            offset = (1 - ratio_x) * left + ratio_x * right;
-
-      delta[X_AXIS] += offset;
-      delta[Y_AXIS] += offset;
-      delta[Z_AXIS] += offset;
-
-      /**
-      SERIAL_ECHOPAIR("grid_x=", grid_x);
-      SERIAL_ECHOPAIR(" grid_y=", grid_y);
-      SERIAL_ECHOPAIR(" floor_x=", floor_x);
-      SERIAL_ECHOPAIR(" floor_y=", floor_y);
-      SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
-      SERIAL_ECHOPAIR(" ratio_y=", ratio_y);
-      SERIAL_ECHOPAIR(" z1=", z1);
-      SERIAL_ECHOPAIR(" z2=", z2);
-      SERIAL_ECHOPAIR(" z3=", z3);
-      SERIAL_ECHOPAIR(" z4=", z4);
-      SERIAL_ECHOPAIR(" left=", left);
-      SERIAL_ECHOPAIR(" right=", right);
-      SERIAL_ECHOLNPAIR(" offset=", offset);
-      */
-    }
-  #endif // AUTO_BED_LEVELING_NONLINEAR
-
 #endif // DELTA
 
 /**
@@ -8017,10 +8014,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         logical[i] = current_position[i] + difference[i] * fraction;
 
       inverse_kinematics(logical);
-
-      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-        if (!bed_leveling_in_progress) adjust_delta(logical);
-      #endif
 
       //DEBUG_POS("prepare_kinematic_move_to", logical);
       //DEBUG_POS("prepare_kinematic_move_to", delta);
@@ -8272,9 +8265,6 @@ void prepare_move_to_destination() {
 
       #if IS_KINEMATIC
         inverse_kinematics(arc_target);
-        #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-          adjust_delta(arc_target);
-        #endif
         planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
       #else
         planner.buffer_line(arc_target[X_AXIS], arc_target[Y_AXIS], arc_target[Z_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
@@ -8284,9 +8274,6 @@ void prepare_move_to_destination() {
     // Ensure last segment arrives at target location.
     #if IS_KINEMATIC
       inverse_kinematics(logical);
-      #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-        adjust_delta(logical);
-      #endif
       planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], fr_mm_s, active_extruder);
     #else
       planner.buffer_line(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS], logical[E_AXIS], fr_mm_s, active_extruder);
