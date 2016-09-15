@@ -1824,8 +1824,8 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &stepper.abort_on_endstop_hit);
     #endif
     #if IS_SCARA
-      MENU_ITEM_EDIT(float74, MSG_XSCALE, &axis_scaling[X_AXIS], 0.5, 2);
-      MENU_ITEM_EDIT(float74, MSG_YSCALE, &axis_scaling[Y_AXIS], 0.5, 2);
+      MENU_ITEM_EDIT(float52, MSG_XSCALE, &axis_scaling[X_AXIS], 0.5, 2);
+      MENU_ITEM_EDIT(float52, MSG_YSCALE, &axis_scaling[Y_AXIS], 0.5, 2);
     #endif
     END_MENU();
   }
