@@ -303,7 +303,7 @@ float code_value_temp_diff();
 
 #if IS_KINEMATIC
   extern float delta[ABC];
-  void inverse_kinematics(const float cartesian[XYZ]);
+  void inverse_kinematics(const float logical[XYZ]);
 #endif
 
 #if ENABLED(DELTA)
