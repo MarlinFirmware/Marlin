@@ -3445,20 +3445,8 @@ inline void gcode_G28() {
       // Re-orient the current position without leveling
       // based on where the steppers are positioned.
       //
-      #if IS_KINEMATIC
-
-        // For DELTA/SCARA we need to apply forward kinematics.
-        // This returns raw positions and we remap to the space.
-        get_cartesian_from_steppers();
-        LOOP_XYZ(i) current_position[i] = LOGICAL_POSITION(cartes[i], i);
-
-      #else
-
-        // For cartesian/core the steppers are already mapped to
-        // the coordinate space by design.
-        LOOP_XYZ(i) current_position[i] = stepper.get_axis_position_mm((AxisEnum)i);
-
-      #endif // !DELTA
+      get_cartesian_from_steppers();
+      memcpy(current_position, cartes, sizeof(cartes));
 
       // Inform the planner about the new coordinates
       SYNC_PLAN_POSITION_KINEMATIC();
@@ -7918,11 +7906,16 @@ void get_cartesian_from_steppers() {
       stepper.get_axis_position_mm(B_AXIS),
       stepper.get_axis_position_mm(C_AXIS)
     );
+    cartes[X_AXIS] += LOGICAL_X_POSITION(0);
+    cartes[Y_AXIS] += LOGICAL_Y_POSITION(0);
+    cartes[Z_AXIS] += LOGICAL_Z_POSITION(0);
   #elif IS_SCARA
     forward_kinematics_SCARA(
       stepper.get_axis_position_degrees(A_AXIS),
       stepper.get_axis_position_degrees(B_AXIS)
     );
+    cartes[X_AXIS] += LOGICAL_X_POSITION(0);
+    cartes[Y_AXIS] += LOGICAL_Y_POSITION(0);
     cartes[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
   #else
     cartes[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
