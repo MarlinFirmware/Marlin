@@ -255,6 +255,12 @@
 #ifndef MSG_ESTEPS
   #define MSG_ESTEPS                          "Esteps/mm"
 #endif
+#ifndef MSG_XSCALE
+  #define MSG_XSCALE                          "XscaleFact"
+#endif
+#ifndef MSG_YSCALE
+  #define MSG_YSCALE                          "YscaleFact"
+#endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     "Temperature"
 #endif
