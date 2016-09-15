@@ -166,6 +166,7 @@
 #define MSG_ERR_MINTEMP                     "Err: TEMP MINIMA"
 #define MSG_ERR_MAXTEMP_BED                 "Err: TEMP MASSIMA PIATTO"
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP MINIMA PIATTO"
+#define MSG_ERR_Z_HOMING                    "G28 Z Vietato"
 #define MSG_HALTED                          "STAMPANTE FERMATA"
 #define MSG_PLEASE_RESET                    "Riavviare prego"
 #define MSG_SHORT_DAY                       "g" // One character only
