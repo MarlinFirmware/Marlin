@@ -3832,16 +3832,21 @@ inline void gcode_G92() {
 
   LOOP_XYZE(i) {
     if (code_seen(axis_codes[i])) {
-      float p = current_position[i],
-            v = code_value_axis_units(i);
+      #if IS_SCARA
+        current_position[i] = code_value_axis_units(i);
+        if (i != E_AXIS) didXYZ = true;
+      #else
+        float p = current_position[i],
+              v = code_value_axis_units(i);
 
-      current_position[i] = v;
+        current_position[i] = v;
 
-      if (i != E_AXIS) {
-        position_shift[i] += v - p; // Offset the coordinate space
-        update_software_endstops((AxisEnum)i);
-        didXYZ = true;
-      }
+        if (i != E_AXIS) {
+          didXYZ = true;
+          position_shift[i] += v - p; // Offset the coordinate space
+          update_software_endstops((AxisEnum)i);
+        }
+      #endif
     }
   }
   if (didXYZ)
