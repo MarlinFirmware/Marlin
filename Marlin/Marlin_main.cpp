@@ -8043,28 +8043,59 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * small incremental moves for DELTA or SCARA.
    */
   inline bool prepare_kinematic_move_to(float logical[NUM_AXIS]) {
+
+    // Get the top feedrate of the move in the XY plane
+    float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
+
+    // If the move is only in Z don't split up the move.
+    // This shortcut cannot be used if planar bed leveling
+    // is in use, but is fine with mesh-based bed leveling
+    if (logical[X_AXIS] == current_position[X_AXIS] && logical[Y_AXIS] == current_position[Y_AXIS]) {
+      inverse_kinematics(logical);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+      return true;
+    }
+
+    // Get the distance moved in XYZ
     float difference[NUM_AXIS];
     LOOP_XYZE(i) difference[i] = logical[i] - current_position[i];
 
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
     if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = abs(difference[E_AXIS]);
     if (UNEAR_ZERO(cartesian_mm)) return false;
-    float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
+
+    // Minimum number of seconds to move the given distance
     float seconds = cartesian_mm / _feedrate_mm_s;
-    int steps = max(1, int(delta_segments_per_second * seconds));
-    float inv_steps = 1.0/steps;
+
+    // The number of segments-per-second times the duration
+    // gives the number of segments we should produce
+    uint16_t segments = delta_segments_per_second * seconds;
+
+    #if IS_SCARA
+      NOMORE(segments, cartesian_mm * 2);
+    #endif
+
+    NOLESS(segments, 1);
+
+    // Each segment produces this much of the move
+    float inv_segments = 1.0 / segments,
+          segment_distance[XYZE] = {
+            difference[X_AXIS] * inv_segments,
+            difference[Y_AXIS] * inv_segments,
+            difference[Z_AXIS] * inv_segments,
+            difference[E_AXIS] * inv_segments
+          };
 
     // SERIAL_ECHOPAIR("mm=", cartesian_mm);
     // SERIAL_ECHOPAIR(" seconds=", seconds);
-    // SERIAL_ECHOLNPAIR(" steps=", steps);
+    // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    for (int s = 1; s <= steps; s++) {
+    // Set the target to the current position to start
+    LOOP_XYZE(i) logical[i] = current_position[i];
 
-      float fraction = float(s) * inv_steps;
-
-      LOOP_XYZE(i)
-        logical[i] = current_position[i] + difference[i] * fraction;
-
+    // Send all the segments to the planner
+    for (uint16_t s = 0; s < segments; s++) {
+      LOOP_XYZE(i) logical[i] += segment_distance[i];
       inverse_kinematics(logical);
 
       //DEBUG_POS("prepare_kinematic_move_to", logical);
