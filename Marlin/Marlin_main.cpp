@@ -2179,6 +2179,17 @@ static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
   endstops.hit_on_purpose();
 }
 
+/**
+ * Home an individual "raw axis" to its endstop.
+ * This applies to XYZ on Cartesian and Core robots, and
+ * to the individual ABC steppers on DELTA and SCARA.
+ *
+ * At the end of the procedure the axis is marked as
+ * homed and the current position of that axis is updated.
+ * Kinematic robots should wait till all axes are homed
+ * before updating the current position.
+ */
+
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
 static void homeaxis(AxisEnum axis) {
