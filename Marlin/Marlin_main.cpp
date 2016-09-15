@@ -1129,7 +1129,7 @@ inline uint16_t code_value_ushort() { return (uint16_t)strtoul(seen_pointer + 1,
 
 inline uint8_t code_value_byte() { return (uint8_t)(constrain(strtol(seen_pointer + 1, NULL, 10), 0, 255)); }
 
-inline bool code_value_bool() { return code_value_byte() > 0; }
+inline bool code_value_bool() { return !code_has_value() || code_value_byte() > 0; }
 
 #if ENABLED(INCH_MODE_SUPPORT)
   inline void set_input_linear_units(LinearUnit units) {
@@ -5950,7 +5950,7 @@ void quickstop_stepper() {
   /**
    * M420: Enable/Disable Mesh Bed Leveling
    */
-  inline void gcode_M420() { if (code_seen('S') && code_has_value()) mbl.set_has_mesh(code_value_bool()); }
+  inline void gcode_M420() { if (code_seen('S')) mbl.set_has_mesh(code_value_bool()); }
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
