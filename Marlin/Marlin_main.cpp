@@ -1372,8 +1372,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
       // SERIAL_ECHOLNPAIR(" Y:", homeposition[Y_AXIS]);
 
       /**
-       * Works out real Homeposition angles using inverse kinematics,
-       * and calculates homing offset using forward kinematics
+       * Get Home position SCARA arm angles using inverse kinematics,
+       * and calculate homing offset using forward kinematics
        */
       inverse_kinematics(homeposition);
       forward_kinematics_SCARA(delta[A_AXIS], delta[B_AXIS]);
@@ -2030,7 +2030,10 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_ECHOLNPGM(")");
       }
     #endif
+
     feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
+
+    // Move the probe to the given XY
     do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
     if (DEPLOY_PROBE()) return NAN;
@@ -2167,7 +2170,7 @@ static void clean_up_after_endstop_or_probe_move() {
 #endif // AUTO_BED_LEVELING_NONLINEAR
 
 /**
- * Home an individual axis
+ * Home an individual linear axis
  */
 
 static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
@@ -3328,8 +3331,8 @@ inline void gcode_G28() {
       return;
     }
 
-    bool dryrun = code_seen('D');
-    bool stow_probe_after_each = code_seen('E');
+    bool dryrun = code_seen('D'),
+         stow_probe_after_each = code_seen('E');
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
@@ -3418,7 +3421,6 @@ inline void gcode_G28() {
       #endif // !DELTA
 
       // Inform the planner about the new coordinates
-      // (This is probably not needed here)
       SYNC_PLAN_POSITION_KINEMATIC();
     }
 
@@ -3790,11 +3792,11 @@ inline void gcode_G28() {
  * G92: Set current position to given X Y Z E
  */
 inline void gcode_G92() {
-  bool didE = code_seen('E');
+  bool didXYZ = false,
+       didE = code_seen('E');
 
   if (!didE) stepper.synchronize();
 
-  bool didXYZ = false;
   LOOP_XYZE(i) {
     if (code_seen(axis_codes[i])) {
       float p = current_position[i],
@@ -4179,7 +4181,7 @@ inline void gcode_M42() {
     if (verbose_level > 2)
       SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
-    // we don't do bed level correction in M48 because we want the raw data when we probe
+    // Disable bed level correction in M48 because we want the raw data when we probe
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       reset_bed_level();
     #endif
@@ -5776,9 +5778,8 @@ inline void gcode_M303() {
 }
 
 #if ENABLED(MORGAN_SCARA)
+
   bool SCARA_move_to_cal(uint8_t delta_a, uint8_t delta_b) {
-    //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLNPGM(" Soft endstops disabled");
     if (IsRunning()) {
       //gcode_get_destination(); // For X Y Z E F
       forward_kinematics_SCARA(delta_a, delta_b);
@@ -5786,7 +5787,6 @@ inline void gcode_M303() {
       destination[Y_AXIS] = cartes[Y_AXIS];
       destination[Z_AXIS] = current_position[Z_AXIS];
       prepare_move_to_destination();
-      //ok_to_send();
       return true;
     }
     return false;
@@ -7977,7 +7977,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 
-#endif  // MESH_BED_LEVELING
+#endif // MESH_BED_LEVELING
 
 #if IS_KINEMATIC
 
