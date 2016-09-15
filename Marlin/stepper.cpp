@@ -1062,14 +1062,14 @@ void Stepper::report_positions() {
        zpos = count_position[Z_AXIS];
   CRITICAL_SECTION_END;
 
-  #if ENABLED(COREXY) || ENABLED(COREXZ)
+  #if ENABLED(COREXY) || ENABLED(COREXZ) || IS_SCARA
     SERIAL_PROTOCOLPGM(MSG_COUNT_A);
   #else
     SERIAL_PROTOCOLPGM(MSG_COUNT_X);
   #endif
   SERIAL_PROTOCOL(xpos);
 
-  #if ENABLED(COREXY) || ENABLED(COREYZ)
+  #if ENABLED(COREXY) || ENABLED(COREYZ) || IS_SCARA
     SERIAL_PROTOCOLPGM(" B:");
   #else
     SERIAL_PROTOCOLPGM(" Y:");
