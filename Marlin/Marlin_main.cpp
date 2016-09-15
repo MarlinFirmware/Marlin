@@ -1471,7 +1471,7 @@ inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
 
-#if ENABLED(DELTA)
+#if IS_KINEMATIC
   /**
    * Calculate delta, start a line, and set current_position to destination
    */
@@ -1554,6 +1554,30 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
     #endif
+
+  #elif IS_SCARA
+
+    set_destination_to_current();
+
+    // If Z needs to raise, do it before moving XY
+    if (current_position[Z_AXIS] < z) {
+      feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS];
+      destination[Z_AXIS] = z;
+      prepare_uninterpolated_move_to_destination();
+    }
+
+    feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
+
+    destination[X_AXIS] = x;
+    destination[Y_AXIS] = y;
+    prepare_uninterpolated_move_to_destination();
+
+    // If Z needs to lower, do it after moving XY
+    if (current_position[Z_AXIS] > z) {
+      feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS];
+      destination[Z_AXIS] = z;
+      prepare_uninterpolated_move_to_destination();
+    }
 
   #else
 
