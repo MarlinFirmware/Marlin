@@ -658,16 +658,20 @@ inline void sync_plan_position() {
 inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[E_AXIS]); }
 
 #if IS_KINEMATIC
+
   inline void sync_plan_position_kinematic() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_kinematic", current_position);
     #endif
     inverse_kinematics(current_position);
-    planner.set_position_mm(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+    planner.set_position_mm(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], current_position[E_AXIS]);
   }
   #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_kinematic()
+
 #else
+
   #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position()
+
 #endif
 
 #if ENABLED(SDSUPPORT)
@@ -794,7 +798,6 @@ void setup_homepin(void) {
     WRITE(HOME_PIN, HIGH);
   #endif
 }
-
 
 void setup_photpin() {
   #if HAS_PHOTOGRAPH
@@ -1479,7 +1482,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
     #endif
     refresh_cmd_timeout();
     inverse_kinematics(destination);
-    planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], MMS_SCALED(feedrate_mm_s), active_extruder);
+    planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], destination[E_AXIS], MMS_SCALED(feedrate_mm_s), active_extruder);
     set_current_to_destination();
   }
 #endif
@@ -5075,22 +5078,20 @@ static void report_current_position() {
 
   #if IS_SCARA
     SERIAL_PROTOCOLPGM("SCARA Theta:");
-    SERIAL_PROTOCOL(delta[X_AXIS]);
+    SERIAL_PROTOCOL(delta[A_AXIS]);
     SERIAL_PROTOCOLPGM("   Psi+Theta:");
-    SERIAL_PROTOCOL(delta[Y_AXIS]);
-    SERIAL_EOL;
+    SERIAL_PROTOCOLLN(delta[B_AXIS]);
 
     SERIAL_PROTOCOLPGM("SCARA Cal - Theta:");
-    SERIAL_PROTOCOL(delta[X_AXIS]);
+    SERIAL_PROTOCOL(delta[A_AXIS]);
     SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
-    SERIAL_PROTOCOL(delta[Y_AXIS] - delta[X_AXIS] - 90);
-    SERIAL_EOL;
+    SERIAL_PROTOCOLLN(delta[B_AXIS] - delta[A_AXIS] - 90);
 
     SERIAL_PROTOCOLPGM("SCARA step Cal - Theta:");
-    SERIAL_PROTOCOL(delta[X_AXIS] / 90 * planner.axis_steps_per_mm[X_AXIS]);
+    SERIAL_PROTOCOL(delta[A_AXIS] / 90 * planner.axis_steps_per_mm[A_AXIS]);
     SERIAL_PROTOCOLPGM("   Psi+Theta:");
-    SERIAL_PROTOCOL((delta[Y_AXIS] - delta[X_AXIS]) / 90 * planner.axis_steps_per_mm[Y_AXIS]);
-    SERIAL_EOL; SERIAL_EOL;
+    SERIAL_PROTOCOLLN((delta[B_AXIS] - delta[A_AXIS]) / 90 * planner.axis_steps_per_mm[A_AXIS]);
+    SERIAL_EOL;
   #endif
 }
 
@@ -6160,7 +6161,7 @@ inline void gcode_M503() {
     // Define runplan for move axes
     #if IS_KINEMATIC
       #define RUNPLAN(RATE_MM_S) inverse_kinematics(destination); \
-                                 planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], RATE_MM_S, active_extruder);
+                                 planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], destination[E_AXIS], RATE_MM_S, active_extruder);
     #else
       #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S);
     #endif
@@ -6282,8 +6283,8 @@ inline void gcode_M503() {
     #if IS_KINEMATIC
       // Move XYZ to starting position, then E
       inverse_kinematics(lastpos);
-      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
-      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], lastpos[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], destination[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], lastpos[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
     #else
       // Move XY to starting position, then Z, then E
       destination[X_AXIS] = lastpos[X_AXIS];
@@ -8024,7 +8025,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       //DEBUG_POS("prepare_kinematic_move_to", logical);
       //DEBUG_POS("prepare_kinematic_move_to", delta);
 
-      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
     }
     return true;
   }
@@ -8274,7 +8275,7 @@ void prepare_move_to_destination() {
         #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
           adjust_delta(arc_target);
         #endif
-        planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
       #else
         planner.buffer_line(arc_target[X_AXIS], arc_target[Y_AXIS], arc_target[Z_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
       #endif
@@ -8286,7 +8287,7 @@ void prepare_move_to_destination() {
       #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
         adjust_delta(logical);
       #endif
-      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], logical[E_AXIS], fr_mm_s, active_extruder);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], fr_mm_s, active_extruder);
     #else
       planner.buffer_line(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS], logical[E_AXIS], fr_mm_s, active_extruder);
     #endif
@@ -8403,7 +8404,7 @@ void prepare_move_to_destination() {
 
     delta[A_AXIS] = DEGREES(THETA);        // theta is support arm angle
     delta[B_AXIS] = DEGREES(THETA + PSI);  // equal to sub arm angle (inverted motor)
-    delta[Z_AXIS] = logical[Z_AXIS];
+    delta[C_AXIS] = logical[Z_AXIS];
 
     /*
       DEBUG_POS("SCARA IK", logical);
