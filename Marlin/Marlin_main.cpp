@@ -2501,16 +2501,26 @@ void unknown_command_error() {
 
 bool position_is_reachable(float target[XYZ]) {
   float dx = RAW_X_POSITION(target[X_AXIS]),
-        dy = RAW_Y_POSITION(target[Y_AXIS]);
+        dy = RAW_Y_POSITION(target[Y_AXIS]),
+        dz = RAW_Z_POSITION(target[Z_AXIS]);
 
-  #if ENABLED(DELTA)
-    return HYPOT2(dx, dy) <= sq(DELTA_PRINTABLE_RADIUS);
+  bool good;
+  #if IS_SCARA
+    #if MIDDLE_DEAD_ZONE_R > 0
+      const float R2 = HYPOT2(dx - SCARA_OFFSET_X, dy - SCARA_OFFSET_Y);
+      good = (R2 >= sq(float(MIDDLE_DEAD_ZONE_R))) && (R2 <= sq(L1 + L2));
+    #else
+      good = HYPOT2(dx - SCARA_OFFSET_X, dy - SCARA_OFFSET_Y) <= sq(L1 + L2);
+    #endif
+  #elif ENABLED(DELTA)
+    good = HYPOT2(dx, dy) <= sq(DELTA_PRINTABLE_RADIUS);
   #else
-    float dz = RAW_Z_POSITION(target[Z_AXIS]);
-    return  dx >= X_MIN_POS - 0.0001 && dx <= X_MAX_POS + 0.0001
-         && dy >= Y_MIN_POS - 0.0001 && dy <= Y_MAX_POS + 0.0001
-         && dz >= Z_MIN_POS - 0.0001 && dz <= Z_MAX_POS + 0.0001;
+    good = true;
   #endif
+
+  return good && dx >= X_MIN_POS - 0.0001 && dx <= X_MAX_POS + 0.0001
+              && dy >= Y_MIN_POS - 0.0001 && dy <= Y_MAX_POS + 0.0001
+              && dz >= Z_MIN_POS - 0.0001 && dz <= Z_MAX_POS + 0.0001;
 }
 
 /**************************************************
