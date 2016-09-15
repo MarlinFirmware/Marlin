@@ -7992,9 +7992,9 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * This calls planner.buffer_line several times, adding
    * small incremental moves for DELTA or SCARA.
    */
-  inline bool prepare_kinematic_move_to(float target[NUM_AXIS]) {
+  inline bool prepare_kinematic_move_to(float logical[NUM_AXIS]) {
     float difference[NUM_AXIS];
-    LOOP_XYZE(i) difference[i] = target[i] - current_position[i];
+    LOOP_XYZE(i) difference[i] = logical[i] - current_position[i];
 
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
     if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = abs(difference[E_AXIS]);
@@ -8013,18 +8013,18 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       float fraction = float(s) * inv_steps;
 
       LOOP_XYZE(i)
-        target[i] = current_position[i] + difference[i] * fraction;
+        logical[i] = current_position[i] + difference[i] * fraction;
 
-      inverse_kinematics(target);
+      inverse_kinematics(logical);
 
       #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-        if (!bed_leveling_in_progress) adjust_delta(target);
+        if (!bed_leveling_in_progress) adjust_delta(logical);
       #endif
 
-      //DEBUG_POS("prepare_kinematic_move_to", target);
+      //DEBUG_POS("prepare_kinematic_move_to", logical);
       //DEBUG_POS("prepare_kinematic_move_to", delta);
 
-      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], _feedrate_mm_s, active_extruder);
+      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
     }
     return true;
   }
@@ -8156,20 +8156,20 @@ void prepare_move_to_destination() {
    * options for G2/G3 arc generation. In future these options may be GCode tunable.
    */
   void plan_arc(
-    float target[NUM_AXIS], // Destination position
-    float* offset,          // Center of rotation relative to current_position
-    uint8_t clockwise       // Clockwise?
+    float logical[NUM_AXIS], // Destination position
+    float* offset,           // Center of rotation relative to current_position
+    uint8_t clockwise        // Clockwise?
   ) {
 
     float radius = HYPOT(offset[X_AXIS], offset[Y_AXIS]),
           center_X = current_position[X_AXIS] + offset[X_AXIS],
           center_Y = current_position[Y_AXIS] + offset[Y_AXIS],
-          linear_travel = target[Z_AXIS] - current_position[Z_AXIS],
-          extruder_travel = target[E_AXIS] - current_position[E_AXIS],
+          linear_travel = logical[Z_AXIS] - current_position[Z_AXIS],
+          extruder_travel = logical[E_AXIS] - current_position[E_AXIS],
           r_X = -offset[X_AXIS],  // Radius vector from center to current location
           r_Y = -offset[Y_AXIS],
-          rt_X = target[X_AXIS] - center_X,
-          rt_Y = target[Y_AXIS] - center_Y;
+          rt_X = logical[X_AXIS] - center_X,
+          rt_Y = logical[Y_AXIS] - center_Y;
 
     // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
     float angular_travel = atan2(r_X * rt_Y - r_Y * rt_X, r_X * rt_X + r_Y * rt_Y);
@@ -8177,7 +8177,7 @@ void prepare_move_to_destination() {
     if (clockwise) angular_travel -= RADIANS(360);
 
     // Make a circle if the angular rotation is 0
-    if (angular_travel == 0 && current_position[X_AXIS] == target[X_AXIS] && current_position[Y_AXIS] == target[Y_AXIS])
+    if (angular_travel == 0 && current_position[X_AXIS] == logical[X_AXIS] && current_position[Y_AXIS] == logical[Y_AXIS])
       angular_travel += RADIANS(360);
 
     float mm_of_travel = HYPOT(angular_travel * radius, fabs(linear_travel));
@@ -8282,13 +8282,13 @@ void prepare_move_to_destination() {
 
     // Ensure last segment arrives at target location.
     #if IS_KINEMATIC
-      inverse_kinematics(target);
+      inverse_kinematics(logical);
       #if ENABLED(DELTA) && ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-        adjust_delta(target);
+        adjust_delta(logical);
       #endif
-      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], fr_mm_s, active_extruder);
+      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], logical[E_AXIS], fr_mm_s, active_extruder);
     #else
-      planner.buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr_mm_s, active_extruder);
+      planner.buffer_line(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS], logical[E_AXIS], fr_mm_s, active_extruder);
     #endif
 
     // As far as the parser is concerned, the position is now == target. In reality the
@@ -8303,7 +8303,7 @@ void prepare_move_to_destination() {
   void plan_cubic_move(const float offset[4]) {
     cubic_b_spline(current_position, destination, offset, MMS_SCALED(feedrate_mm_s), active_extruder);
 
-    // As far as the parser is concerned, the position is now == target. In reality the
+    // As far as the parser is concerned, the position is now == destination. In reality the
     // motion control system might still be processing the action and the real tool position
     // in any intermediate location.
     set_current_to_destination();
@@ -8376,7 +8376,7 @@ void prepare_move_to_destination() {
     //*/
   }
 
-  void inverse_kinematics(const float cartesian[XYZ]) {
+  void inverse_kinematics(const float logical[XYZ]) {
     // Inverse kinematics.
     // Perform SCARA IK and place results in delta[].
     // The maths and first version were done by QHARLEY.
@@ -8384,8 +8384,8 @@ void prepare_move_to_destination() {
 
     static float C2, S2, SK1, SK2, THETA, PSI;
 
-    float sx = RAW_X_POSITION(cartesian[X_AXIS]) - SCARA_OFFSET_X,  //Translate SCARA to standard X Y
-          sy = RAW_Y_POSITION(cartesian[Y_AXIS]) - SCARA_OFFSET_Y;  // With scaling factor.
+    float sx = RAW_X_POSITION(logical[X_AXIS]) - SCARA_OFFSET_X,  // Translate SCARA to standard X Y
+          sy = RAW_Y_POSITION(logical[Y_AXIS]) - SCARA_OFFSET_Y;  // With scaling factor.
 
     #if (L1 == L2)
       C2 = HYPOT2(sx, sy) / (2 * L1_2) - 1;
@@ -8403,10 +8403,10 @@ void prepare_move_to_destination() {
 
     delta[A_AXIS] = DEGREES(THETA);        // theta is support arm angle
     delta[B_AXIS] = DEGREES(THETA + PSI);  // equal to sub arm angle (inverted motor)
-    delta[Z_AXIS] = cartesian[Z_AXIS];
+    delta[Z_AXIS] = logical[Z_AXIS];
 
-    /**
-      DEBUG_POS("SCARA IK", cartesian);
+    /*
+      DEBUG_POS("SCARA IK", logical);
       DEBUG_POS("SCARA IK", delta);
       SERIAL_ECHOPAIR("  SCARA (x,y) ", sx);
       SERIAL_ECHOPAIR(",", sy);
