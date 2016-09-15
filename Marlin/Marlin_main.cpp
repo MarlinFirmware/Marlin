@@ -596,7 +596,7 @@ void process_next_command();
 void prepare_move_to_destination();
 
 void get_cartesian_from_steppers();
-void set_current_from_steppers_for_axis(AxisEnum axis);
+void set_current_from_steppers_for_axis(const AxisEnum axis);
 
 #if ENABLED(ARC_SUPPORT)
   void plan_arc(float target[NUM_AXIS], float* offset, uint8_t clockwise);
@@ -7898,7 +7898,7 @@ void get_cartesian_from_steppers() {
  *
  * << INCOMPLETE! Still needs to unapply leveling! >>
  */
-void set_current_from_steppers_for_axis(AxisEnum axis) {
+void set_current_from_steppers_for_axis(const AxisEnum axis) {
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
     vector_3 pos = untilted_stepper_position();
     current_position[axis] = axis == X_AXIS ? pos.x : axis == Y_AXIS ? pos.y : pos.z;
