@@ -2122,9 +2122,9 @@ static void clean_up_after_endstop_or_probe_move() {
 #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
   /**
-   * All DELTA leveling in the Marlin uses NONLINEAR_BED_LEVELING
+   * Extrapolate a single point from its neighbors
    */
-  static void extrapolate_one_point(uint8_t x, uint8_t y, int xdir, int ydir) {
+  static void extrapolate_one_point(uint8_t x, uint8_t y, int8_t xdir, int8_t ydir) {
     if (bed_level_grid[x][y]) return;  // Don't overwrite good values.
     float a = 2 * bed_level_grid[x + xdir][y] - bed_level_grid[x + xdir * 2][y], // Left to right.
           b = 2 * bed_level_grid[x][y + ydir] - bed_level_grid[x][y + ydir * 2], // Front to back.
