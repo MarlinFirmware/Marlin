@@ -2137,39 +2137,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
-#if ENABLED(AUTO_BED_LEVELING_LINEAR)
-
-  /**
-   * Get the stepper positions, apply the rotation matrix
-   * using the home XY and Z0 position as the fulcrum.
-   */
-  vector_3 untilted_stepper_position() {
-    get_cartesian_from_steppers();
-
-    vector_3 pos = vector_3(
-      cartes[X_AXIS] - X_TILT_FULCRUM,
-      cartes[Y_AXIS] - Y_TILT_FULCRUM,
-      cartes[Z_AXIS]
-    );
-
-    matrix_3x3 inverse = matrix_3x3::transpose(planner.bed_level_matrix);
-
-    //pos.debug("untilted_stepper_position offset");
-    //bed_level_matrix.debug("untilted_stepper_position");
-    //inverse.debug("in untilted_stepper_position");
-
-    pos.apply_rotation(inverse);
-
-    pos.x = LOGICAL_X_POSITION(pos.x + X_TILT_FULCRUM);
-    pos.y = LOGICAL_Y_POSITION(pos.y + Y_TILT_FULCRUM);
-    pos.z = LOGICAL_Z_POSITION(pos.z);
-
-    //pos.debug("after rotation and reorientation");
-
-    return pos;
-  }
-
-#elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+#if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
   /**
    * Extrapolate a single point from its neighbors
@@ -6033,11 +6001,9 @@ inline void gcode_M400() { stepper.synchronize(); }
 
 void quickstop_stepper() {
   stepper.quick_stop();
-  #if DISABLED(SCARA)
-    stepper.synchronize();
-    LOOP_XYZ(i) set_current_from_steppers_for_axis((AxisEnum)i);
-    SYNC_PLAN_POSITION_KINEMATIC();
-  #endif
+  stepper.synchronize();
+  set_current_from_steppers_for_axis(ALL_AXES);
+  SYNC_PLAN_POSITION_KINEMATIC();
 }
 
 #if ENABLED(MESH_BED_LEVELING)
@@ -7986,19 +7952,16 @@ void get_cartesian_from_steppers() {
  * Set the current_position for an axis based on
  * the stepper positions, removing any leveling that
  * may have been applied.
- *
- * << INCOMPLETE! Still needs to unapply leveling! >>
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
-  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-    vector_3 pos = untilted_stepper_position();
-    current_position[axis] = axis == X_AXIS ? pos.x : axis == Y_AXIS ? pos.y : pos.z;
-  #elif IS_KINEMATIC
-    get_cartesian_from_steppers();
-    current_position[axis] = LOGICAL_POSITION(cartes[axis], axis);
-  #else
-    current_position[axis] = stepper.get_axis_position_mm(axis); // CORE handled transparently
+  get_cartesian_from_steppers();
+  #if PLANNER_LEVELING
+    planner.unapply_leveling(cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS]);
   #endif
+  if (axis == ALL_AXES)
+    memcpy(current_position, cartes, sizeof(cartes));
+  else
+    current_position[axis] = cartes[axis];
 }
 
 #if ENABLED(MESH_BED_LEVELING)
