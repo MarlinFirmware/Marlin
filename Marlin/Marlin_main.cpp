@@ -1350,7 +1350,10 @@ static void set_axis_is_at_home(AxisEnum axis) {
     }
   #endif
 
+  axis_known_position[axis] = axis_homed[axis] = true;
+
   position_shift[axis] = 0;
+  update_software_endstops(axis);
 
   #if ENABLED(DUAL_X_CARRIAGE)
     if (axis == X_AXIS && (active_extruder != 0 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
@@ -1396,7 +1399,6 @@ static void set_axis_is_at_home(AxisEnum axis) {
   #endif
   {
     current_position[axis] = LOGICAL_POSITION(base_home_pos(axis), axis);
-    update_software_endstops(axis);
 
     if (axis == Z_AXIS) {
       #if HAS_BED_PROBE && Z_HOME_DIR < 0
@@ -1429,8 +1431,6 @@ static void set_axis_is_at_home(AxisEnum axis) {
       SERIAL_ECHOLNPGM(")");
     }
   #endif
-
-  axis_known_position[axis] = axis_homed[axis] = true;
 }
 
 /**
