@@ -307,8 +307,7 @@ float code_value_temp_diff();
 #endif
 
 #if ENABLED(DELTA)
-  extern float delta[ABC],
-               endstop_adj[ABC],
+  extern float endstop_adj[ABC],
                delta_radius,
                delta_diagonal_rod,
                delta_segments_per_second,
