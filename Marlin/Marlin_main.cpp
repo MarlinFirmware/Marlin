@@ -3541,7 +3541,8 @@ inline void gcode_G28() {
 
           #if ENABLED(DELTA)
             // Avoid probing outside the round or hexagonal area of a delta printer
-            if (HYPOT2(xProbe, yProbe) > sq(DELTA_PROBEABLE_RADIUS) + 0.1) continue;
+            float pos[XYZ] = { xProbe + X_PROBE_OFFSET_FROM_EXTRUDER, yProbe + Y_PROBE_OFFSET_FROM_EXTRUDER, 0 };
+            if (!position_is_reachable(pos)) continue;
           #endif
 
           measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
@@ -4215,7 +4216,8 @@ inline void gcode_M42() {
         return;
       }
     #else
-      if (HYPOT(RAW_X_POSITION(X_probe_location), RAW_Y_POSITION(Y_probe_location)) > DELTA_PROBEABLE_RADIUS) {
+      float pos[XYZ] = { X_probe_location, Y_probe_location, 0 };
+      if (!position_is_reachable(pos)) {
         SERIAL_PROTOCOLLNPGM("? (X,Y) location outside of probeable radius.");
         return;
       }
