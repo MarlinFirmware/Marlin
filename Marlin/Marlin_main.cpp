@@ -2705,11 +2705,17 @@ inline void gcode_G4() {
         SERIAL_ECHOPGM(" (Right");
       #elif (X_PROBE_OFFSET_FROM_EXTRUDER < 0)
         SERIAL_ECHOPGM(" (Left");
+      #elif (Y_PROBE_OFFSET_FROM_EXTRUDER != 0)
+        SERIAL_ECHOPGM(" (Middle");
+      #else
+        SERIAL_ECHOPGM(" (Aligned With");
       #endif
       #if (Y_PROBE_OFFSET_FROM_EXTRUDER > 0)
         SERIAL_ECHOPGM("-Back");
       #elif (Y_PROBE_OFFSET_FROM_EXTRUDER < 0)
         SERIAL_ECHOPGM("-Front");
+      #elif (X_PROBE_OFFSET_FROM_EXTRUDER != 0)
+        SERIAL_ECHOPGM("-Center");
       #endif
       if (zprobe_zoffset < 0)
         SERIAL_ECHOPGM(" & Below");
