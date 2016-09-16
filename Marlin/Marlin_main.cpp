@@ -7789,34 +7789,38 @@ void ok_to_send() {
    * - Use a fast-inverse-sqrt function and add the reciprocal.
    *   (see above)
    */
+
+  // Macro to obtain the Z position of an individual tower
+  #define DELTA_Z(T) raw[Z_AXIS] + _SQRT(    \
+    delta_diagonal_rod_2_tower_##T - HYPOT2( \
+        delta_tower##T##_x - raw[X_AXIS],    \
+        delta_tower##T##_y - raw[Y_AXIS]     \
+      )                                      \
+    )
+
+  #define DELTA_LOGICAL_IK() do {      \
+    const float raw[XYZ] = {           \
+      RAW_X_POSITION(logical[X_AXIS]), \
+      RAW_Y_POSITION(logical[Y_AXIS]), \
+      RAW_Z_POSITION(logical[Z_AXIS])  \
+    };                                 \
+    delta[A_AXIS] = DELTA_Z(1);        \
+    delta[B_AXIS] = DELTA_Z(2);        \
+    delta[C_AXIS] = DELTA_Z(3);        \
+  } while(0)
+
+  #define DELTA_DEBUG() do { \
+      SERIAL_ECHOPAIR("cartesian X:", raw[X_AXIS]); \
+      SERIAL_ECHOPAIR(" Y:", raw[Y_AXIS]);          \
+      SERIAL_ECHOLNPAIR(" Z:", raw[Z_AXIS]);        \
+      SERIAL_ECHOPAIR("delta A:", delta[A_AXIS]);   \
+      SERIAL_ECHOPAIR(" B:", delta[B_AXIS]);        \
+      SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);      \
+    } while(0)
+
   void inverse_kinematics(const float logical[XYZ]) {
-
-    const float cartesian[XYZ] = {
-      RAW_X_POSITION(logical[X_AXIS]),
-      RAW_Y_POSITION(logical[Y_AXIS]),
-      RAW_Z_POSITION(logical[Z_AXIS])
-    };
-
-    // Macro to obtain the Z position of an individual tower
-    #define DELTA_Z(T) cartesian[Z_AXIS] + _SQRT( \
-      delta_diagonal_rod_2_tower_##T - HYPOT2(    \
-          delta_tower##T##_x - cartesian[X_AXIS], \
-          delta_tower##T##_y - cartesian[Y_AXIS]  \
-        )                                         \
-      )
-
-    delta[A_AXIS] = DELTA_Z(1);
-    delta[B_AXIS] = DELTA_Z(2);
-    delta[C_AXIS] = DELTA_Z(3);
-
-    /*
-      SERIAL_ECHOPAIR("cartesian X:", cartesian[X_AXIS]);
-      SERIAL_ECHOPAIR(" Y:", cartesian[Y_AXIS]);
-      SERIAL_ECHOLNPAIR(" Z:", cartesian[Z_AXIS]);
-      SERIAL_ECHOPAIR("delta A:", delta[A_AXIS]);
-      SERIAL_ECHOPAIR(" B:", delta[B_AXIS]);
-      SERIAL_ECHOLNPAIR(" C:", delta[C_AXIS]);
-    //*/
+    DELTA_LOGICAL_IK();
+    // DELTA_DEBUG();
   }
 
   /**
@@ -8090,19 +8094,87 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // SERIAL_ECHOPAIR(" seconds=", seconds);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    // Set the target to the current position to start
-    LOOP_XYZE(i) logical[i] = current_position[i];
-
     // Send all the segments to the planner
-    for (uint16_t s = 0; s < segments; s++) {
-      LOOP_XYZE(i) logical[i] += segment_distance[i];
-      inverse_kinematics(logical);
 
-      //DEBUG_POS("prepare_kinematic_move_to", logical);
-      //DEBUG_POS("prepare_kinematic_move_to", delta);
+    #if ENABLED(DELTA) && ENABLED(USE_RAW_KINEMATICS)
 
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
-    }
+      #define DELTA_E raw[E_AXIS]
+      #define DELTA_NEXT(ADDEND) LOOP_XYZE(i) raw[i] += ADDEND;
+      #define DELTA_IK() do {       \
+        delta[A_AXIS] = DELTA_Z(1); \
+        delta[B_AXIS] = DELTA_Z(2); \
+        delta[C_AXIS] = DELTA_Z(3); \
+      } while(0)
+
+      // Get the raw current position as starting point
+      float raw[ABC] = {
+        RAW_CURRENT_POSITION(X_AXIS),
+        RAW_CURRENT_POSITION(Y_AXIS),
+        RAW_CURRENT_POSITION(Z_AXIS)
+      };
+
+    #else
+
+      #define DELTA_E logical[E_AXIS]
+      #define DELTA_NEXT(ADDEND) LOOP_XYZE(i) logical[i] += ADDEND;
+
+      #if ENABLED(DELTA)
+        #define DELTA_IK() DELTA_LOGICAL_IK()
+      #else
+        #define DELTA_IK() inverse_kinematics(logical)
+      #endif
+
+      // Get the logical current position as starting point
+      LOOP_XYZE(i) logical[i] = current_position[i];
+
+    #endif
+
+    #if ENABLED(USE_DELTA_IK_INTERPOLATION)
+
+      // Get the starting delta for interpolation
+      if (segments >= 2) inverse_kinematics(logical);
+
+      for (uint16_t s = segments + 1; --s;) {
+        if (s > 1) {
+          // Save the previous delta for interpolation
+          float prev_delta[ABC] = { delta[A_AXIS], delta[B_AXIS], delta[C_AXIS] };
+
+          // Get the delta 2 segments ahead (rather than the next)
+          DELTA_NEXT(segment_distance[i] + segment_distance[i]);
+          DELTA_IK();
+
+          // Move to the interpolated delta position first
+          planner.buffer_line(
+            (prev_delta[A_AXIS] + delta[A_AXIS]) * 0.5,
+            (prev_delta[B_AXIS] + delta[B_AXIS]) * 0.5,
+            (prev_delta[C_AXIS] + delta[C_AXIS]) * 0.5,
+            logical[E_AXIS], _feedrate_mm_s, active_extruder
+          );
+
+          // Do an extra decrement of the loop
+          --s;
+        }
+        else {
+          // Get the last segment delta (only when segments is odd)
+          DELTA_NEXT(segment_distance[i])
+          DELTA_IK();
+        }
+
+        // Move to the non-interpolated position
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_E, _feedrate_mm_s, active_extruder);
+      }
+
+    #else
+
+      // For non-interpolated delta calculate every segment
+      for (uint16_t s = segments + 1; --s;) {
+        DELTA_NEXT(segment_distance[i])
+        DELTA_IK();
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+      }
+
+    #endif
+
     return true;
   }
 
