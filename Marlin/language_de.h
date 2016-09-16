@@ -36,15 +36,20 @@
 #define WELCOME_MSG                         MACHINE_NAME " bereit"
 #define MSG_SD_INSERTED                     "SD-Karte erkannt"
 #define MSG_SD_REMOVED                      "SD-Karte entfernt"
+#define MSG_LCD_ENDSTOPS                    "Endstopp" // Max length 8 characters
 #define MSG_MAIN                            "Hauptmenü"
 #define MSG_AUTOSTART                       "Autostart"
-#define MSG_DISABLE_STEPPERS                "Motoren aus" // M84
+#define MSG_DISABLE_STEPPERS                "Motoren deaktivieren" // M84
 #define MSG_AUTO_HOME                       "Home" // G28
+#define MSG_AUTO_HOME_X                     "Home X"
+#define MSG_AUTO_HOME_Y                     "Home Y"
+#define MSG_AUTO_HOME_Z                     "Home Z"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               "Klick für Start"
+#define MSG_LEVEL_BED_NEXT_POINT            "Nächste Koordinate"
 #define MSG_LEVEL_BED_DONE                  "Fertig"
 #define MSG_LEVEL_BED_CANCEL                "Abbruch"
-#define MSG_SET_HOME_OFFSETS                "Setze Homeoffsets"
+#define MSG_SET_HOME_OFFSETS                "Setze Homeversatz"
 #define MSG_HOME_OFFSETS_APPLIED            "Offsets aktiv"
 #define MSG_SET_ORIGIN                      "Setze Nullpunkt" //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
 #define MSG_PREHEAT_1                       "Vorwärmen PLA"
@@ -88,6 +93,7 @@
 #define MSG_PID_I                           "PID I"
 #define MSG_PID_D                           "PID D"
 #define MSG_PID_C                           "PID C"
+#define MSG_SELECT                          "Auswählen"
 #define MSG_ACC                             "A"
 #define MSG_VXY_JERK                        "V XY Jerk"
 #define MSG_VZ_JERK                         "V Z  Jerk"
@@ -153,9 +159,15 @@
 #define MSG_ERR_MINTEMP                     LCD_STR_THERMOMETER " UNTERSCHRITTEN"
 #define MSG_ERR_MAXTEMP_BED                 "BETT " LCD_STR_THERMOMETER " ÜBERSCHRITTEN"
 #define MSG_ERR_MINTEMP_BED                 "BETT " LCD_STR_THERMOMETER " UNTERSCHRITTEN"
-#define MSG_HEATING                         "Extr. Aufheizen..."
+#define MSG_ERR_Z_HOMING                    "G28 Z Forbidden"
+#define MSG_HALTED                          "DRUCKER STOPP"
+#define MSG_PLEASE_RESET                    "Bitte Resetten"
+#define MSG_SHORT_DAY                       "t" // One character only
+#define MSG_SHORT_HOUR                      "h" // One character only
+#define MSG_SHORT_MINUTE                    "m" // One character only
+#define MSG_HEATING                         "Extr. heizt..."
 #define MSG_HEATING_COMPLETE                "Extr. aufgeheizt"
-#define MSG_BED_HEATING                     "Bett aufheizen"
+#define MSG_BED_HEATING                     "Bett heizt..."
 #define MSG_BED_DONE                        "Bett aufgeheizt"
 #define MSG_DELTA_CALIBRATE                 "Delta kalibrieren"
 #define MSG_DELTA_CALIBRATE_X               "Kalibriere X"
