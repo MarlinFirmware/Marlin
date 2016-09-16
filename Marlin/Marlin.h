@@ -317,7 +317,6 @@ float code_value_temp_diff();
                delta_diagonal_rod_trim_tower_3;
   void recalc_delta_settings(float radius, float diagonal_rod);
 #elif IS_SCARA
-  extern float axis_scaling[ABC];  // Build size scaling
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
 
