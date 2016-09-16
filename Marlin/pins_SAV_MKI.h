@@ -35,6 +35,7 @@
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
 #define BOARD_NAME              "SAV MkI"
 
+#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN         0
