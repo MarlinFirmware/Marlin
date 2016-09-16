@@ -33,6 +33,7 @@
 #define DEFAULT_MACHINE_NAME "Makibox"
 #define BOARD_NAME           "5DPrint D8"
 
+#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
 //

@@ -76,6 +76,7 @@
 
 #define BOARD_NAME         "Teensy++2.0"
 
+#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN         28 //  0 Marlin
