@@ -859,7 +859,7 @@ SERIAL_ECHO("\n");
 
     // Manual bed leveling, Bed Z:
     #if ENABLED(MANUAL_BED_LEVELING)
-      MENU_ITEM_EDIT(float43, MSG_BED_Z, &bed_leveling_mesh.state.z_offset, -1, 1);
+      MENU_ITEM_EDIT(float43, MSG_BED_Z, &blm.state.z_offset, -1, 1);
     #endif
 
     //
@@ -1685,7 +1685,7 @@ SERIAL_ECHO("\n");
     #endif
     // Manual bed leveling, Bed Z:
     #if ENABLED(MANUAL_BED_LEVELING)
-      MENU_ITEM_EDIT(float43, MSG_BED_Z, &bed_leveling_mesh.state.z_offset, 0, 1);
+      MENU_ITEM_EDIT(float43, MSG_BED_Z, &blm.state.z_offset, 0, 1);
     #endif
     MENU_ITEM_EDIT(float5, MSG_ACC, &planner.acceleration, 10, 99000);
     MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &planner.max_xy_jerk, 1, 990);
@@ -2825,8 +2825,8 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 							// wheel has not turned.
       }
 #endif
+      lastEncoderBits = enc;
     }
-    lastEncoderBits = enc;
   }
 
   bool lcd_detected(void) {
