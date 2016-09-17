@@ -22,7 +22,7 @@ When bringing up the system, it is advisable to start with the Configuration.h f
 The full set of parameters for G29 and G26 are provided at the end of this page.
 
 ## Recent Changes
-- Inital Release
+- 9-17-2016    Version 2 of the UBL Code Base.   It should have the Z-Offset bug fixed and other small annoyances items.  It also has a new mesh_buffer_line() routine that is iterative instead of recursive.  It was written to free up CPU cycles to give Delta's the best chance of working well with the high resolution Mesh system.
 
 ## To Do Items
 The UBL System is currently fully functional on Prusa i3 type machines with a 20x4 LCD Panel.   It is expected to be fully functional on all machine types with or without an LCD Panel prior to it being released as a 'Stable Release'.
@@ -31,7 +31,7 @@ The UBL System is currently fully functional on Prusa i3 type machines with a 20
 - Relax requirement for a Z-Probe.
 - Clean up the formatting of the Parameter Options at the bottom of this page.
 - Deltas have not been checked out and verified for correct operation yet.   It should be noted that this code was originally designed and written to address the horrible quality issues I have with my Geeetech Delta printer.   That was my original intent but I got side tracked and ended up with the Cartesian versions running first.    I will get the Delta version going as soon as I get some spare time.  (I have to fix my Delta and put it back together again.  So it may take some time.)   The code was written to be compatible with Delta's and should not be very difficult to get running correctly.   If somebody with a Delta wants to give it a try, PLEASE DO!  And then report back any areas where things are not working correctly.
-- Speed up the mesh_buffer_line() function.  A large inital move will stutter because this function calls itself recursively and starts at the end of the line.    There are a couple of solutions, and really we are only doing this to make the motion a little less surprising.   No harm comes from what it does right now.  (Once moves get queued up, you never see the stutter.)  On solution would be to break the inital movement into two (or three) smaller movements.  Or we could recurse and get the first pieces of the line first.
+~~- Speed up the mesh_buffer_line() function.  A large inital move will stutter because this function calls itself recursively and starts at the end of the line.    There are a couple of solutions, and really we are only doing this to make the motion a little less surprising.   No harm comes from what it does right now.  (Once moves get queued up, you never see the stutter.)  On solution would be to break the inital movement into two (or three) smaller movements.  Or we could recurse and get the first pieces of the line first.~~
 - LCD Panel Menu items should be added to facilitate the generation, loading, storing, tilting and editing of a Mesh.   Right now, these are all done using PronterFace.  The control should be expanded to allow operation purely from the LCD Panel.
 - The UBL System was designed and coded with the expectation that some machines without LCD Panels will be using the system.   Right now, the LCD’s Encoder Wheel is used in a number of places to do fine adjustments.   That requirement can be relaxed and those adjustments should also be possible to be made through PronterFace or Repitier Host.   That (small amount of) extra code is not yet in place.
 - Work with PronterFace and Repetier Host to allow Marlin to use non-proportional fonts.   The problem is when printing out Mesh Maps the use of spaces and minus signs really messes with the appearance of the Mesh.   So, Marlin has to compensate and print extra spaces and dashes in an attempt to even out and align the columns.   Everything is tuned for PronterFace, so Mesh Generation (and editing) is best done with it.   But feel free to use what ever you are comforatable using.
@@ -116,7 +116,9 @@ Marlin is published under the [GPL license](/LICENSE) because we believe in open
 
       M     Map         Display the Mesh Map Topology.  The parameter can be specified alone (ie. G29 M) or
                     in combination with many of the other commands.  The Mesh Map option works with
-                    all of the Phase commands (ie. G29 P4 R 5 X 50 Y100 C -.1 M)
+                    all of the Phase commands (ie. G29 P4 R 5 X 50 Y100 C -.1 M)  Repetier Host does not like
+                    the use of the 'M' option.  If you use Repetier Host, you can substitute a lower case 'm'
+                    or an 'O' to activate the 'M' Option on various commands.
 
 The P or Phase commands are used for the bulk of the work to setup a Mesh.  In general, your Mesh will
 start off being initialized with a G29 P0 or a G29 P1.   Further refinement of the Mesh happens with
@@ -175,6 +177,12 @@ each additional Phase that processes it.
 
                   Phase 2 allows the M (Map) parameter to be specified.  This allows the user to watch the progression
                   of the Mesh being built.
+                  
+                  It should be noted that Manually Probing the bed can take a lot of time.  The author of this
+                  software is not using the Manual Probe option very much any more.  Instead, the unprobed areas are 
+                  filled with a 'safe' value ( G29 P3 R C .5 ???) and then a G26 P C O2.0 is given to create a Mesh Validation
+                  pattern.   Using the Mesh Validation pattern you can then progress to G29 P4 R and edit Mesh Points
+                  that are not perfect.
 
       P3    Phase 3   Fill the unpopulated regions of the Mesh with a fixed value.  The C parameter is used to
                 specify the Constant value to fill all invalid areas of the Mesh.  If no C parameter is
