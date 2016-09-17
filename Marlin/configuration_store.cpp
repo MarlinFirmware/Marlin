@@ -301,9 +301,9 @@ void Config_StoreSettings()  {
 // but the user can easily load what ever mesh is appropriate from EEPROM because they should be untouched.
 // 
 #ifdef UNIFIED_BED_LEVELING_FEATURE
-  bed_leveling_mesh.store_state();
-  if (bed_leveling_mesh.state.EEPROM_storage_slot >= 0 )
-	bed_leveling_mesh.store_mesh( bed_leveling_mesh.state.EEPROM_storage_slot );
+  blm.store_state();
+  if (blm.state.EEPROM_storage_slot >= 0 )
+	blm.store_mesh( blm.state.EEPROM_storage_slot );
 #endif
 }
 
@@ -479,31 +479,39 @@ SERIAL_ERRORLNPGM("\n");
     Unified_Bed_Leveling_EEPROM_start = (i + 32) & 0xfff8;  	// Pad the end of configuration data so it
    								// can float up or down a little bit without
 								// disrupting the Unified Bed Leveling data 
-    bed_leveling_mesh.load_state();
-    if ( bed_leveling_mesh.sanity_check() == 0 ) {
+    blm.load_state();
+
+if ( blm.state.active )
+SERIAL_ECHO(" UBL Active!\n");
+else
+SERIAL_ECHO(" UBL Not active!\n");
+
+    if ( blm.sanity_check() == 0 ) {
       int tmp_mesh; 		// We want to preserve whether the UBL System is Active
       bool tmp_active;		// If it is, we want to preserve the Mesh that is being used.
-      tmp_mesh = bed_leveling_mesh.state.EEPROM_storage_slot;
-      tmp_active = bed_leveling_mesh.state.active; 
+      tmp_mesh = blm.state.EEPROM_storage_slot;
+      tmp_active = blm.state.active; 
       SERIAL_ECHOLNPGM("\nInitializing Bed Leveling State to current firmware settings.\n");
-      bed_leveling_mesh.state = bed_leveling_mesh.pre_initialized;
-      bed_leveling_mesh.state.EEPROM_storage_slot = tmp_mesh;
-      bed_leveling_mesh.state.active              = tmp_active;
+      blm.state = blm.pre_initialized;
+      blm.state.EEPROM_storage_slot = tmp_mesh;
+      blm.state.active              = tmp_active;
     }
     else {
       SERIAL_PROTOCOLPGM("?Unable to enable Unified Bed Leveling.\n");
-      bed_leveling_mesh.state = bed_leveling_mesh.pre_initialized;
-      bed_leveling_mesh.reset();
-      bed_leveling_mesh.store_state();
+      blm.state = blm.pre_initialized;
+      blm.reset();
+      blm.store_state();
     }
 
-    if (bed_leveling_mesh.state.EEPROM_storage_slot >= 0 )  {
-	bed_leveling_mesh.load_mesh( bed_leveling_mesh.state.EEPROM_storage_slot );
-      	SERIAL_ECHOPAIR("Mesh ", bed_leveling_mesh.state.EEPROM_storage_slot );
+    if (blm.state.EEPROM_storage_slot >= 0 )  {
+	blm.load_mesh( blm.state.EEPROM_storage_slot );
+      	SERIAL_ECHOPAIR("Mesh ", blm.state.EEPROM_storage_slot );
         SERIAL_ECHOLNPGM(" loaded from storage.");
     }
-    else
-        bed_leveling_mesh.reset();
+    else  {
+        blm.reset();
+SERIAL_ECHO("UBL System reset() \n");
+    }
 #endif
   }
 
@@ -543,7 +551,7 @@ void Config_ResetDefault() {
   home_offset[X_AXIS] = home_offset[Y_AXIS] = home_offset[Z_AXIS] = 0;
 
   #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-    bed_leveling_mesh.reset();
+    blm.reset();
   #endif
 
   #if HAS_BED_PROBE
@@ -633,13 +641,13 @@ void Config_ResetDefault() {
 #ifdef UNIFIED_BED_LEVELING_FEATURE
       int tmp_mesh; 		// We want to preserve whether the UBL System is Active
       bool tmp_active;		// If it is, we want to preserve the Mesh that is being used.
-      tmp_mesh = bed_leveling_mesh.state.EEPROM_storage_slot;
-      tmp_active = bed_leveling_mesh.state.active; 
-      bed_leveling_mesh.state = bed_leveling_mesh.pre_initialized;
-      bed_leveling_mesh.state.EEPROM_storage_slot = tmp_mesh;
-      bed_leveling_mesh.state.active              = tmp_active;
-//    bed_leveling_mesh.reset();
-//    bed_leveling_mesh.store_state();
+      tmp_mesh = blm.state.EEPROM_storage_slot;
+      tmp_active = blm.state.active; 
+      blm.state = blm.pre_initialized;
+      blm.state.EEPROM_storage_slot = tmp_mesh;
+      blm.state.active              = tmp_active;
+//    blm.reset();
+//    blm.store_state();
 #endif
 
   SERIAL_ECHO_START;
@@ -740,21 +748,22 @@ void Config_PrintSettings(bool forReplay) {
     CONFIG_ECHO_START;
 
     SERIAL_ECHOPGM("System is: ");
-    if ( bed_leveling_mesh.state.active )
+    if ( blm.state.active )
        SERIAL_ECHOLNPGM("Active\n");
     else
        SERIAL_ECHOLNPGM("Deactive\n");
-    SERIAL_ECHOPAIR("Active Mesh Slot: ", bed_leveling_mesh.state.EEPROM_storage_slot );
+    SERIAL_ECHOPAIR("Active Mesh Slot: ", blm.state.EEPROM_storage_slot );
     SERIAL_ECHOLNPGM("\n");
 
     SERIAL_ECHO("z_offset: ");
-    SERIAL_ECHO_F( bed_leveling_mesh.state.z_offset, 6 );
+    SERIAL_ECHO_F( blm.state.z_offset, 6 );
     SERIAL_PROTOCOLPGM("\n");
 
 /*    
-    SERIAL_ECHOPAIR("EEPROM can hold ", (int) ((E2END-sizeof(bed_leveling_mesh.state )
-				    		-Unified_Bed_Leveling_EEPROM_start)/sizeof(bed_leveling_mesh.z_values)));
+    SERIAL_ECHOPAIR("EEPROM can hold ", (int) ((E2END-sizeof(blm.state )
+				    		-Unified_Bed_Leveling_EEPROM_start)/sizeof(blm.z_values)));
     SERIAL_ECHOLNPGM(" meshes. \n");
+*/
 
     SERIAL_ECHOPAIR("\nMESH_NUM_X_POINTS  ", MESH_NUM_X_POINTS );
     SERIAL_ECHOPAIR("\nMESH_NUM_Y_POINTS  ", MESH_NUM_Y_POINTS );
@@ -764,7 +773,6 @@ void Config_PrintSettings(bool forReplay) {
    
     SERIAL_ECHOPAIR("\nMESH_MAX_X         ", MESH_MAX_X );
     SERIAL_ECHOPAIR("\nMESH_MAX_Y         ", MESH_MAX_Y );
-*/
   
     SERIAL_ECHO("\nMESH_X_DIST        ");
     SERIAL_ECHO_F( MESH_X_DIST, 6 );
