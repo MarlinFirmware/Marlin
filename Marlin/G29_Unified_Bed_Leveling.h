@@ -42,7 +42,7 @@ struct vector {
 
 enum Mesh_Point_Type { INVALID=0, REAL=1, SET_IN_BITMAP=2 };
 
-extern bed_leveling bed_leveling_mesh;
+extern bed_leveling blm;
 void axis_unhomed_error(bool);
 void dump( char *str, float f );
 bool G29_lcd_clicked(); 
