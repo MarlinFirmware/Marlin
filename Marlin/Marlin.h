@@ -303,12 +303,11 @@ float code_value_temp_diff();
 
 #if IS_KINEMATIC
   extern float delta[ABC];
-  void inverse_kinematics(const float cartesian[XYZ]);
+  void inverse_kinematics(const float logical[XYZ]);
 #endif
 
 #if ENABLED(DELTA)
-  extern float delta[ABC],
-               endstop_adj[ABC],
+  extern float endstop_adj[ABC],
                delta_radius,
                delta_diagonal_rod,
                delta_segments_per_second,
@@ -322,7 +321,7 @@ float code_value_temp_diff();
 
 #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
   extern int nonlinear_grid_spacing[2];
-  void adjust_delta(float cartesian[XYZ]);
+  float nonlinear_z_offset(float logical[XYZ]);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
