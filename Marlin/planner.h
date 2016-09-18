@@ -51,7 +51,6 @@ extern Planner planner;
  * may never actually be reached due to acceleration limits.
  */
 typedef struct {
-
   unsigned char active_extruder;            // The extruder to move (if E move)
 
   // Fields used by the bresenham algorithm for tracing the line
@@ -97,9 +96,7 @@ typedef struct {
   #if ENABLED(BARICUDA)
     unsigned long valve_pressure, e_to_p_pressure;
   #endif
-
   volatile char busy;
-
 } block_t;
 
 #define BLOCK_MOD(n) ((n)&(BLOCK_BUFFER_SIZE-1))
@@ -208,7 +205,8 @@ class Planner {
        *  feed_rate - (target) speed of the move
        *  extruder  - target extruder
        */
-      static void buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder);
+//    static void buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder);
+      static void buffer_line(float x, float y, float z, float e, float feed_rate, const uint8_t extruder);
 
       /**
        * Set the planner.position and individual stepper positions.
@@ -223,7 +221,8 @@ class Planner {
 
     #else
 
-      static void buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder);
+//    static void buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder);
+      static void buffer_line(float x, float y, float z, float e, float feed_rate, const uint8_t extruder);
       static void set_position_mm(const float& x, const float& y, const float& z, const float& e);
 
     #endif // UNIFIED_BED_LEVELING_FEATURE
