@@ -6290,15 +6290,12 @@ inline void gcode_T(uint8_t tmp_extruder) {
             hotend_offset[Y_AXIS][tmp_extruder] - hotend_offset[Y_AXIS][active_extruder]
           };
 
-//        #if ENABLED(MESH_BED_LEVELING)
             if (blm.state.active ) {
               float xpos = RAW_CURRENT_POSITION(X_AXIS),
                     ypos = RAW_CURRENT_POSITION(Y_AXIS);
               current_position[Z_AXIS] += (blm.get_z_correction(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - blm.get_z_correction(xpos, ypos)) 
-		      				* fade_scaling_factor_for_Z( current_position[Z_AXIS] ) ;
+		      				* blm.fade_scaling_factor_for_Z( current_position[Z_AXIS] ) ;
             }
-
-//        #endif // MESH_BED_LEVELING
 
         #endif // !UNIFIED_BED_LEVELING_FEATURE
 
