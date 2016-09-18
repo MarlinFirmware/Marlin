@@ -352,7 +352,7 @@ static bool relative_mode = false;
 volatile bool wait_for_heatup = true;
 
 #if ENABLED(EMERGENCY_PARSER) && DISABLED(ULTIPANEL)
-  wait_for_user = false;
+  volatile bool wait_for_user = false;
 #endif
 
 const char errormagic[] PROGMEM = "Error:";
@@ -7010,7 +7010,7 @@ void process_next_command() {
     break;
 
     case 'M': switch (codenum) {
-      #if ENABLED(ULTIPANEL)
+      #if ENABLED(ULTIPANEL) || ENABLED(EMERGENCY_PARSER)
         case 0: // M0 - Unconditional stop - Wait for user button press on LCD
         case 1: // M1 - Conditional stop - Wait for user button press on LCD
           gcode_M0_M1();
