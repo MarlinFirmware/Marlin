@@ -273,8 +273,7 @@
 #endif
 
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-  bed_leveling bed_leveling_mesh;
-  float fade_scaling_factor_for_current_height = 0.0;
+  bed_leveling blm;
 #endif
 
 bool Running = true;
@@ -1587,16 +1586,31 @@ inline void set_homing_bump_feedrate(AxisEnum axis) {
 inline void line_to_current_position() {
   planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate / 60, active_extruder);
 }
+
 inline void line_to_z(float zPosition) {
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+  float corrected_z;
+  corrected_z = zPosition + blm.get_z_correction( current_position[X_AXIS], current_position[Y_AXIS]) *  blm.fade_scaling_factor_for_Z(zPosition);
+  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], corrected_z, current_position[E_AXIS], feedrate / 60, active_extruder);
+#else
   planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate / 60, active_extruder);
+#endif
 }
+
 //
 // line_to_destination
 // Move the planner, not necessarily synced with current_position
 //
 void line_to_destination(float mm_m) {
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+  float corrected_z;
+  corrected_z = destination[Z_AXIS] + blm.get_z_correction( destination[X_AXIS], destination[Y_AXIS]) *  blm.fade_scaling_factor_for_Z(destination[Z_AXIS]);
+  planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], corrected_z, destination[E_AXIS], mm_m / 60, active_extruder);
+#else
   planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], mm_m / 60, active_extruder);
+#endif
 }
+
 void line_to_destination() { line_to_destination(feedrate); }
 
 /**
@@ -1710,14 +1724,6 @@ void do_blocking_move_to(float x, float y, float z, float feed_rate) {
 
     #endif
 
-#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-    if (destination[Z_AXIS] > bed_leveling_mesh.state.G29_Correction_Fade_Height )  {
-        fade_scaling_factor_for_current_height = 0.0;
-    } else {
-        fade_scaling_factor_for_current_height = 1.0 - (destination[Z_AXIS] / bed_leveling_mesh.state.G29_Correction_Fade_Height);
-    }
-#endif
-
     stepper.synchronize();
 
     feedrate = old_feedrate;
@@ -1758,14 +1764,6 @@ void do_blocking_move_to_z(float z, float feed_rate) {
     if (z_dest > current_position[Z_AXIS]) {
       do_blocking_move_to_z(z_dest);
     }
-
-#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-    if (destination[Z_AXIS] > bed_leveling_mesh.state.G29_Correction_Fade_Height )  {
-      fade_scaling_factor_for_current_height = 0.0;
-    } else {
-      fade_scaling_factor_for_current_height = 1.0 - (destination[Z_AXIS] / bed_leveling_mesh.state.G29_Correction_Fade_Height);
-    }
-#endif
 }
 #endif //HAS_BED_PROBE
 
@@ -2570,16 +2568,16 @@ void gcode_get_destination() {
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
       if ( i==Z_AXIS ) {   	// it is cheaper to do this check 4x for the Z-Axis
 	      			// than it is to do a code_seen('Z') and then parse the number.
-	   if (destination[Z_AXIS] > bed_leveling_mesh.state.G29_Correction_Fade_Height )  {
+	   if (destination[Z_AXIS] > blm.state.G29_Correction_Fade_Height )  {
 	   	fade_scaling_factor_for_current_height = 0.0;
 	   } else {
-	   	fade_scaling_factor_for_current_height = 1.0 - (destination[Z_AXIS] / bed_leveling_mesh.state.G29_Correction_Fade_Height);
+	   	fade_scaling_factor_for_current_height = 1.0 - (destination[Z_AXIS] * blm.state.G29_Fade_Height_Multiplier);
 	   }
 #if ENABLED(DEBUG_LEVELING_FEATURE)
            if (DEBUGGING(MESH_ADJUST)) {
              SERIAL_ECHOPAIR("Mesh scaling factor set for Z-Height ", destination[Z_AXIS] );
              SERIAL_ECHOPAIR(" to ", fade_scaling_factor_for_current_height );
-             SERIAL_ECHOPAIR(" [Fade=", bed_leveling_mesh.state.G29_Correction_Fade_Height )  ;
+             SERIAL_ECHOPAIR(" [Fade=", blm.state.G29_Correction_Fade_Height )  ;
              SERIAL_ECHO("]\n");
            }
 #endif
@@ -2814,9 +2812,9 @@ bool UBL_state_when_G28_was_entered;	// We probably need to add some configurati
   stepper.synchronize();
 
 #ifdef UNIFIED_BED_LEVELING_FEATURE
-  UBL_state_when_G28_was_entered = bed_leveling_mesh.state.active;  // Remember the state so we can restore it
+  UBL_state_when_G28_was_entered = blm.state.active;  // Remember the state so we can restore it
 
-  bed_leveling_mesh.state.active = 0;		// Turn off the Unified Bed Leveling System.  But
+  blm.state.active = 0;		// Turn off the Unified Bed Leveling System.  But
 #endif						// do not invalidate the matrix.   We don't know what
 						// the user's plans are yet.
 
@@ -3061,7 +3059,7 @@ bool UBL_state_when_G28_was_entered;	// We probably need to add some configurati
 #ifdef UNIFIED_BED_LEVELING_FEATURE
             // Let's see if X and Y are homed
             if (axis_unhomed_error(true, true, false)) {
-  		    bed_leveling_mesh.state.active = UBL_state_when_G28_was_entered;  // Restore state of the UBL System
+  		    blm.state.active = UBL_state_when_G28_was_entered;  // Restore state of the UBL System
 		    return;
 	    }
 #endif
@@ -3113,44 +3111,6 @@ bool UBL_state_when_G28_was_entered;	// We probably need to add some configurati
 
   endstops.not_homing();
 
-  // Enable mesh leveling again
-  /*
-  #if ENABLED(MESH_BED_LEVELING)
-    if (bed_leveling_mesh.has_mesh()) {
-      if (home_all_axis || (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && homeZ)) {
-        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
-          #if Z_HOME_DIR > 0
-            + Z_MAX_POS
-          #endif
-        ;
-        SYNC_PLAN_POSITION_KINEMATIC();
-        bed_leveling_mesh.set_active(true);
-        #if ENABLED(MESH_G28_REST_ORIGIN)
-          current_position[Z_AXIS] = 0.0;
-          set_destination_to_current();
-          feedrate = homing_feedrate[Z_AXIS];
-          line_to_destination();
-          stepper.synchronize();
-        #else
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z -
-            bed_leveling_mesh.get_z_correction(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS))
-            #if Z_HOME_DIR > 0
-              + Z_MAX_POS
-            #endif
-          ;
-        #endif
-      }
-      else if ((axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) && (homeX || homeY)) {
-        current_position[Z_AXIS] = pre_home_z;
-        SYNC_PLAN_POSITION_KINEMATIC();
-        bed_leveling_mesh.set_active(true);
-        current_position[Z_AXIS] = pre_home_z -
-          bed_leveling_mesh.get_z_correction(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS));
-      }
-    }
-  #endif
-  */
-
   clean_up_after_endstop_or_probe_move();
 
   endstops.hit_on_purpose(); // clear endstop hit flags
@@ -3161,7 +3121,7 @@ bool UBL_state_when_G28_was_entered;	// We probably need to add some configurati
 
   report_current_position();
   #ifdef UNIFIED_BED_LEVELING_FEATURE
-  bed_leveling_mesh.state.active = UBL_state_when_G28_was_entered;  // Restore the state of the UBL System
+  blm.state.active = UBL_state_when_G28_was_entered;  // Restore the state of the UBL System
   #endif
 }
 
@@ -3178,7 +3138,7 @@ bool UBL_state_when_G28_was_entered;	// We probably need to add some configurati
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
 
   enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet, MeshSetZOffset, MeshReset };
-  inline void _bed_leveling_mesh_goto_xy(float x, float y) {
+  inline void _blm(float x, float y) {
     float old_feedrate = feedrate;
     feedrate = homing_feedrate[X_AXIS];
 
@@ -3553,9 +3513,11 @@ inline void gcode_M42() {
  *
  * E	End Pin number.   If not given, will default to 127 
  *
- * W    Wait time (in miliseconds) between pulses.  If not given will default to 500
+ * N	No Sensitive Pin Checks.   Use with caution!!!!
  *
  * R    Repeat pulses on each pin this number of times before continueing to next pin
+ *
+ * W    Wait time (in miliseconds) between pulses.  If not given will default to 500
  *
  */
 
@@ -3576,7 +3538,7 @@ int i;
 }
 
 inline void gcode_M43() {
-int p, j, s=0, e=127, w=500, r=1; 
+int p, j, s=0, n_flag=0, e=127, w=500, r=1; 
 
   if (code_seen('R')) 
     r = code_value_int();
@@ -3586,12 +3548,15 @@ int p, j, s=0, e=127, w=500, r=1;
 
   if (code_seen('E')) 
     e = code_value_int();
+  
+  if (code_seen('N') )
+    n_flag++;
 
   if (code_seen('W')) 
     w = code_value_int();
 
   for(p=s; p<=e; p++) {
-      if ( sensitive_pin(p) ) {
+      if ( n_flag==0 && sensitive_pin(p) ) {
         SERIAL_ECHOPAIR("Sensitive Pin: ", p);
         SERIAL_ECHO(" untouched.\n");
       } else {
@@ -3611,6 +3576,7 @@ int p, j, s=0, e=127, w=500, r=1;
       }
     SERIAL_ECHO("\n");
   } 
+  SERIAL_ECHO("Done\n");
 }
 
 /**
@@ -3674,6 +3640,87 @@ int p, i, j, s=0, e=127, w=500, repeat_cnt=1;
       delay(w);
   }
 } 
+
+/*
+ *
+ *	M47 is a temporary MCode for the purpose of helping validate the various bed leveling
+ *	member functions related to Z Correction.   When I need a place to quickly dump some
+ *	values or to flip a flag that I'm using for debugging, I put some code into the M47 
+ *	handler.
+ *
+ *	It will be deleted later when this branch becomes a Release Branch of the Marlin Tree
+ *
+ */
+
+
+//extern int been_to_2_6;
+
+inline void gcode_M47() {
+int i, j, xi, yi,     y0i, y1i, y2i,     x0i, x1i, x2i;
+float x, y, z, z0, z00, z1, z2;
+
+if (code_seen('V') ) {
+//  been_to_2_6=1;
+  return;
+}
+if (code_seen('N') ) {
+//  been_to_2_6=0;
+  return;
+}
+
+	x = 60.00; 
+	xi = blm.get_cell_index_x(x);
+	for( y=0; y<=190.0; y+=10) {
+		y0i = blm.get_cell_index_y(y);
+		y1i = blm.get_cell_index_y(y+.1);
+		y2i = blm.get_cell_index_y(y-.1);
+		SERIAL_PROTOCOLPAIR("At (",xi);
+		SERIAL_PROTOCOLPAIR(",",yi);
+		SERIAL_PROTOCOLPAIR(") [x=",x);
+		SERIAL_PROTOCOLPAIR(",y=",y);
+		SERIAL_PROTOCOL("] ");
+
+		z2 = blm.get_z_correction_along_vertical_mesh_line_at_specific_Y( y-.1, xi, y2i);
+		z0 = blm.get_z_correction(x, y) ;
+		z00= blm.get_z_correction_along_vertical_mesh_line_at_specific_Y(y, xi, y0i);
+		z1 = blm.get_z_correction_along_vertical_mesh_line_at_specific_Y(y+.1, xi, y0i);
+
+		SERIAL_PROTOCOLPAIR(" ", z2);
+		SERIAL_PROTOCOLPAIR(" ", z0);
+		SERIAL_PROTOCOLPAIR(" ", z00);
+		SERIAL_PROTOCOLPAIR(" ", z1);
+		SERIAL_PROTOCOL("\n");
+	}
+
+	SERIAL_PROTOCOL("-------------------------------------------------\n");
+
+	y = 60.00; 
+	yi = blm.get_cell_index_y(y);
+	for( x=0; x<=190.0; x+=10) {
+		x0i = blm.get_cell_index_x(x);
+		x1i = blm.get_cell_index_x(x+.1);
+		x2i = blm.get_cell_index_x(x-.1);
+		SERIAL_PROTOCOLPAIR("At (",x0i);
+		SERIAL_PROTOCOLPAIR(",",yi);
+		SERIAL_PROTOCOLPAIR(") [x=",x);
+		SERIAL_PROTOCOLPAIR(",y=",y);
+		SERIAL_PROTOCOL("] ");
+
+		z2 = blm.get_z_correction_along_horizontal_mesh_line_at_specific_X( x-.1, x2i, yi);
+		z0 = blm.get_z_correction(x, y) ;
+		z00= blm.get_z_correction_along_horizontal_mesh_line_at_specific_X(x, x0i, yi);
+		z1 = blm.get_z_correction_along_horizontal_mesh_line_at_specific_X(x, x1i, yi);
+
+		SERIAL_PROTOCOLPAIR(" ", z2);
+		SERIAL_PROTOCOLPAIR(" ", z0);
+		SERIAL_PROTOCOLPAIR(" ", z00);
+		SERIAL_PROTOCOLPAIR(" ", z1);
+		SERIAL_PROTOCOL("\n");
+	}
+
+}
+
+
 
 #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
 
@@ -3760,7 +3807,7 @@ int p, i, j, s=0, e=127, w=500, repeat_cnt=1;
       SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
     #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)		// we don't do bed level correction in M48 because 
-      bed_leveling_mesh.state.active = 0;
+      blm.state.active = 0;
     #endif
 
     setup_for_endstop_or_probe_move();
@@ -5599,7 +5646,7 @@ inline void gcode_M410() {
    */
   inline void gcode_M420() { 
 	  if (code_seen('S') && code_has_value()) 
-		  bed_leveling_mesh.state.active = code_value_bool(); 
+		  blm.state.active = code_value_bool(); 
   }
 
   /**
@@ -5610,8 +5657,8 @@ inline void gcode_M410() {
     int8_t px, py;
     float z = 0;
     bool hasX, hasY, hasZ, hasI, hasJ;
-    if ((hasX = code_seen('X'))) px = bed_leveling_mesh.find_closest_x_index(code_value_axis_units(X_AXIS));
-    if ((hasY = code_seen('Y'))) py = bed_leveling_mesh.find_closest_x_index(code_value_axis_units(Y_AXIS));
+    if ((hasX = code_seen('X'))) px = blm.find_closest_x_index(code_value_axis_units(X_AXIS));
+    if ((hasY = code_seen('Y'))) py = blm.find_closest_x_index(code_value_axis_units(Y_AXIS));
     if ((hasI = code_seen('I'))) px = code_value_axis_units(X_AXIS);
     if ((hasJ = code_seen('J'))) py = code_value_axis_units(Y_AXIS);
     if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
@@ -5619,7 +5666,7 @@ inline void gcode_M410() {
     if (hasX && hasY && hasZ) {
 
       if (px >= 0 && py >= 0)
-        bed_leveling_mesh.set_z(px, py, z);
+        blm.set_z(px, py, z);
       else {
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
@@ -5627,7 +5674,7 @@ inline void gcode_M410() {
     }
     else if (hasI && hasJ && hasZ) {
       if (px >= 0 && px < MESH_NUM_X_POINTS && py >= 0 && py < MESH_NUM_Y_POINTS)
-        bed_leveling_mesh.set_z(px, py, z);
+        blm.set_z(px, py, z);
       else {
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
@@ -6244,10 +6291,11 @@ inline void gcode_T(uint8_t tmp_extruder) {
           };
 
 //        #if ENABLED(MESH_BED_LEVELING)
-            if (bed_leveling_mesh.state.active ) {
+            if (blm.state.active ) {
               float xpos = RAW_CURRENT_POSITION(X_AXIS),
                     ypos = RAW_CURRENT_POSITION(Y_AXIS);
-              current_position[Z_AXIS] += bed_leveling_mesh.get_z_correction(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - bed_leveling_mesh.get_z_correction(xpos, ypos);
+              current_position[Z_AXIS] += (blm.get_z_correction(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - blm.get_z_correction(xpos, ypos)) 
+		      				* fade_scaling_factor_for_Z( current_position[Z_AXIS] ) ;
             }
 
 //        #endif // MESH_BED_LEVELING
@@ -6528,6 +6576,10 @@ void process_next_command() {
       case 1024:
 	gcode_M1024();
 	break;
+
+      case 47: // M47 Z Correction tests
+        gcode_M47();
+        break;
 
       #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
         case 48: // M48 Z probe repeatability
@@ -7120,188 +7172,6 @@ void clamp_to_software_endstops(float target[3]) {
 
 #endif // DELTA
 
-#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-
-// This function is used to split lines on mesh borders so each segment is only part of one mesh area
-void mesh_buffer_line(float x, float y, float z, const float e, float feed_rate, const uint8_t& extruder, 
-		uint16_t x_splits = 0xffff, uint16_t y_splits = 0xffff) {
-
-
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-static int recursion_cnt=0;
-int i;
-if (DEBUGGING(MESH_SEGMENTS)) {
-for(i=0; i<recursion_cnt; i++)
- SERIAL_ECHOPGM("    ");
-SERIAL_ECHOPAIR("starting from [",recursion_cnt);
-SERIAL_ECHO("] (x=");
-SERIAL_ECHO_F( RAW_CURRENT_POSITION(X_AXIS), 6 );
-SERIAL_ECHO(",y=");
-SERIAL_ECHO_F( RAW_CURRENT_POSITION(Y_AXIS), 6);
-SERIAL_ECHO(") >>>---> mesh_buffer_line(x=");
-SERIAL_ECHO_F( x, 6);
-SERIAL_ECHO(",y=");
-SERIAL_ECHO_F( y, 6);
-SERIAL_ECHOPGM(")\n");
-recursion_cnt++;
-}
-#endif
-
-// First check if the Mesh is active and that we need to pay attention to the information in it.
-// If not...  We bail out immediately
-
-  if ( !bed_leveling_mesh.state.active ) {
-    planner.buffer_line(x, y, z, e, feed_rate, extruder);
-    set_current_to_destination();
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(MESH_SEGMENTS)) {
-      SERIAL_ECHOPGM("   UBL not active.  Leaving.\n");
-      recursion_cnt--;
-    }
-#endif
-    return;
-  }
-
-
-// The Mesh is active.  We need to analyze the requested movement to see how it relates
-// to the Mesh Cell Boundaries.   We get the indexes of the current location and the
-// requested destination.
-
-
-  int start_x = bed_leveling_mesh.get_cell_index_x(RAW_CURRENT_POSITION(X_AXIS)),
-      start_y = bed_leveling_mesh.get_cell_index_y(RAW_CURRENT_POSITION(Y_AXIS)),
-      dest_x = bed_leveling_mesh.get_cell_index_x( RAW_POSITION(x, X_AXIS)),
-      dest_y = bed_leveling_mesh.get_cell_index_y( RAW_POSITION(y, Y_AXIS));
-
-
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(MESH_SEGMENTS)) {
-       for(i=0; i<recursion_cnt; i++)
-          SERIAL_ECHOPGM("    ");
-       SERIAL_ECHOPAIR(" from mesh ( ", start_x);
-       SERIAL_ECHOPAIR(", ", start_y);
-       SERIAL_ECHOPAIR(") --> ( ", dest_x);
-       SERIAL_ECHOPAIR(", ", dest_y);
-       SERIAL_ECHOPGM(" )  ");
-    }
-#endif
-
-
-// This is the simple case.  Check if we start and end in (or on) 
-// same mesh cell.  If so, just schedule the segment to be done.
-  if (start_x == dest_x && start_y == dest_y) {					
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(MESH_SEGMENTS)) {
-       SERIAL_ECHOPAIR("planner.buffer_line(x=",x);
-       SERIAL_ECHOPAIR(",y=",y);
-       SERIAL_ECHOPAIR(",z=",z);
-       SERIAL_ECHOPGM(")  (within the same cell)\n");
-       recursion_cnt--;
-    }
-#endif
-    planner.buffer_line(x, y, z, e, feed_rate, extruder);
-    set_current_to_destination();
-    return;
-  }
-
-// Nope!  It is going to be more complicated than that.  We need to
-// split the requested move on each of the Mesh Cell boundaries.
-  float nx, ny, nz, ne, normalized_dist;
-  if (dest_x > start_x && TEST(x_splits, dest_x)) {
-    nx = bed_leveling_mesh.map_x_index_to_bed_location(dest_x) + home_offset[X_AXIS];
-    normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
-    ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
-    nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
-    ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
-    CBI(x_splits, dest_x);
-  }
-  else if (dest_x < start_x && TEST(x_splits, start_x)) {
-    nx = bed_leveling_mesh.map_x_index_to_bed_location(start_x) + home_offset[X_AXIS];
-    normalized_dist = (nx - current_position[X_AXIS]) / (x - current_position[X_AXIS]);
-    ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
-    nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
-    ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
-    CBI(x_splits, start_x);
-  }
-  else if (dest_y > start_y && TEST(y_splits, dest_y)) {
-    ny = bed_leveling_mesh.map_y_index_to_bed_location(dest_y) + home_offset[Y_AXIS];
-    normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
-    nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
-    nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
-    ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
-    CBI(y_splits, dest_y);
-  }
-  else if (dest_y < start_y && TEST(y_splits, start_y)) {
-    ny = bed_leveling_mesh.map_y_index_to_bed_location(start_y) + home_offset[Y_AXIS];
-    normalized_dist = (ny - current_position[Y_AXIS]) / (y - current_position[Y_AXIS]);
-    nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
-    nz = current_position[Z_AXIS] + (z - current_position[Z_AXIS]) * normalized_dist;
-    ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
-    CBI(y_splits, start_y);
-  }
-  else {
-    // Already split on a border
-    planner.buffer_line(x, y, z, e, feed_rate, extruder);
-    set_current_to_destination();
-
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(MESH_SEGMENTS)) {
-      SERIAL_ECHOPGM("    ");
-      SERIAL_ECHOPAIR("planner.buffer_line(x=",x);
-      SERIAL_ECHOPAIR(",y=",y);
-      SERIAL_ECHOPAIR(",z=",z);
-      SERIAL_ECHOPGM(") (full cell move)\n");
-      recursion_cnt--;
-    }
-#endif
-    return;
-  }
-  // Do the split and look for more borders
-  destination[X_AXIS] = nx;
-  destination[Y_AXIS] = ny;
-  destination[Z_AXIS] = nz;
-  destination[E_AXIS] = ne;
-
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-  if (DEBUGGING(MESH_SEGMENTS)) {
-    SERIAL_ECHOPAIR("1st re-enterant_call [",recursion_cnt);
-    SERIAL_ECHOPAIR("] (nx=",nx);
-    SERIAL_ECHOPAIR(",ny=",ny);
-    SERIAL_ECHOPAIR(")  starting from(x=", RAW_CURRENT_POSITION(X_AXIS) );
-    SERIAL_ECHOPAIR(",y=", RAW_CURRENT_POSITION(Y_AXIS));
-    SERIAL_ECHOPGM(")\n");
-  }
-#endif
-
-  mesh_buffer_line(nx, ny, nz, ne, feed_rate, extruder, x_splits, y_splits);
-  destination[X_AXIS] = x;
-  destination[Y_AXIS] = y;
-  destination[Z_AXIS] = z;
-  destination[E_AXIS] = e;
-
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-  if (DEBUGGING(MESH_SEGMENTS)) {
-    SERIAL_ECHO("               ");
-    SERIAL_ECHO("               ");
-    SERIAL_ECHO("               ");
-    for(i=0; i<recursion_cnt; i++)
-      SERIAL_ECHOPGM("   ");
-    SERIAL_ECHOPAIR("2nd re-enterant_call [",recursion_cnt);
-    SERIAL_ECHOPAIR("] (x=",x);
-    SERIAL_ECHOPAIR(",y=",y);
-    SERIAL_ECHOPAIR(")  starting from(x=", RAW_CURRENT_POSITION(X_AXIS) );
-    SERIAL_ECHOPAIR(",y=", RAW_CURRENT_POSITION(Y_AXIS));
-    SERIAL_ECHOPGM(")\n");
-  }
-#endif
-
-  mesh_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-recursion_cnt--;
-#endif
-}
-#endif  // UNIFIED_BED_LEVELING_FEATURE
-
 #if ENABLED(DELTA) || ENABLED(SCARA)
 
   inline bool prepare_delta_move_to(float target[NUM_AXIS]) {
@@ -7389,17 +7259,19 @@ recursion_cnt--;
 #if DISABLED(DELTA) && DISABLED(SCARA)
 
 bool prepare_move_to_destination_cartesian() {
+    
     // Do not use feedrate_multiplier for E or Z only moves
     if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS]) {
       line_to_destination();
     }
     else {
-      #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-        mesh_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], (feedrate / 60) * (feedrate_multiplier / 100.0), active_extruder);
-        return false;
-      #else
+  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+   mesh_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
+		                  (feedrate*(1.0/60.0))*(feedrate_multiplier*(1.0/100.0) ), active_extruder);
+     return false;
+  #else
         line_to_destination(feedrate * feedrate_multiplier / 100.0);
-      #endif
+  #endif
     }
     return true;
   }
@@ -7432,8 +7304,10 @@ bool prepare_move_to_destination_cartesian() {
 /**
  * Prepare a single move and get ready for the next one
  *
- * (This may call planner.buffer_line several times to put
- *  smaller moves into the planner for DELTA or SCARA.)
+ * (This may call planner.buffer_line() several times to put
+ *  smaller moves into the planner for DELTA or SCARA.  It will
+ *  also generate multiple calls to planner.buffer_line() when the
+ *  UBL System is active.)
  */
 void prepare_move_to_destination() {
   clamp_to_software_endstops(destination);
