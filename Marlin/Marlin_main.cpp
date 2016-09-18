@@ -596,7 +596,7 @@ void process_next_command();
 void prepare_move_to_destination();
 
 void get_cartesian_from_steppers();
-void set_current_from_steppers_for_axis(AxisEnum axis);
+void set_current_from_steppers_for_axis(const AxisEnum axis);
 
 #if ENABLED(ARC_SUPPORT)
   void plan_arc(float target[NUM_AXIS], float* offset, uint8_t clockwise);
@@ -645,9 +645,9 @@ static void report_current_position();
 
 /**
  * sync_plan_position
- * Set planner / stepper positions to the cartesian current_position.
- * The stepper code translates these coordinates into step units.
- * Allows translation between steps and millimeters for cartesian & core robots
+ *
+ * Set the planner/stepper positions directly from current_position with
+ * no kinematic translation. Used for homing axes and cartesian/core syncing.
  */
 inline void sync_plan_position() {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -1323,6 +1323,23 @@ static void set_home_offset(AxisEnum axis, float v) {
   update_software_endstops(axis);
 }
 
+/**
+ * Set an axis' current position to its home position (after homing).
+ *
+ * For Core and Cartesian robots this applies one-to-one when an
+ * individual axis has been homed.
+ *
+ * DELTA should wait until all homing is done before setting the XYZ
+ * current_position to home, because homing is a single operation.
+ * In the case where the axis positions are already known and previously
+ * homed, DELTA could home to X or Y individually by moving either one
+ * to the center. However, homing Z always homes XY and Z.
+ *
+ * SCARA should wait until all XY homing is done before setting the XY
+ * current_position to home, because neither X nor Y is at home until
+ * both are at home. Z can however be homed individually.
+ * 
+ */
 static void set_axis_is_at_home(AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -1355,8 +1372,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
       // SERIAL_ECHOLNPAIR(" Y:", homeposition[Y_AXIS]);
 
       /**
-       * Works out real Homeposition angles using inverse kinematics,
-       * and calculates homing offset using forward kinematics
+       * Get Home position SCARA arm angles using inverse kinematics,
+       * and calculate homing offset using forward kinematics
        */
       inverse_kinematics(homeposition);
       forward_kinematics_SCARA(delta[A_AXIS], delta[B_AXIS]);
@@ -1989,7 +2006,7 @@ static void clean_up_after_endstop_or_probe_move() {
   //   - Raise to the BETWEEN height
   // - Return the probed Z position
   //
-  static float probe_pt(float x, float y, bool stow = true, int verbose_level = 1) {
+  static float probe_pt(const float &x, const float &y, bool stow = true, int verbose_level = 1) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR(">>> probe_pt(", x);
@@ -2013,7 +2030,10 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_ECHOLNPGM(")");
       }
     #endif
+
     feedrate_mm_s = XY_PROBE_FEEDRATE_MM_S;
+
+    // Move the probe to the given XY
     do_blocking_move_to_xy(x - (X_PROBE_OFFSET_FROM_EXTRUDER), y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
 
     if (DEPLOY_PROBE()) return NAN;
@@ -2105,9 +2125,9 @@ static void clean_up_after_endstop_or_probe_move() {
 #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
   /**
-   * All DELTA leveling in the Marlin uses NONLINEAR_BED_LEVELING
+   * Extrapolate a single point from its neighbors
    */
-  static void extrapolate_one_point(uint8_t x, uint8_t y, int xdir, int ydir) {
+  static void extrapolate_one_point(uint8_t x, uint8_t y, int8_t xdir, int8_t ydir) {
     if (bed_level_grid[x][y]) return;  // Don't overwrite good values.
     float a = 2 * bed_level_grid[x + xdir][y] - bed_level_grid[x + xdir * 2][y], // Left to right.
           b = 2 * bed_level_grid[x][y + ydir] - bed_level_grid[x][y + ydir * 2], // Front to back.
@@ -2151,7 +2171,7 @@ static void clean_up_after_endstop_or_probe_move() {
 #endif // AUTO_BED_LEVELING_NONLINEAR
 
 /**
- * Home an individual axis
+ * Home an individual linear axis
  */
 
 static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
@@ -2162,6 +2182,17 @@ static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
   stepper.synchronize();
   endstops.hit_on_purpose();
 }
+
+/**
+ * Home an individual "raw axis" to its endstop.
+ * This applies to XYZ on Cartesian and Core robots, and
+ * to the individual ABC steppers on DELTA and SCARA.
+ *
+ * At the end of the procedure the axis is marked as
+ * homed and the current position of that axis is updated.
+ * Kinematic robots should wait till all axes are homed
+ * before updating the current position.
+ */
 
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
@@ -2678,11 +2709,17 @@ inline void gcode_G4() {
         SERIAL_ECHOPGM(" (Right");
       #elif (X_PROBE_OFFSET_FROM_EXTRUDER < 0)
         SERIAL_ECHOPGM(" (Left");
+      #elif (Y_PROBE_OFFSET_FROM_EXTRUDER != 0)
+        SERIAL_ECHOPGM(" (Middle");
+      #else
+        SERIAL_ECHOPGM(" (Aligned With");
       #endif
       #if (Y_PROBE_OFFSET_FROM_EXTRUDER > 0)
         SERIAL_ECHOPGM("-Back");
       #elif (Y_PROBE_OFFSET_FROM_EXTRUDER < 0)
         SERIAL_ECHOPGM("-Front");
+      #elif (X_PROBE_OFFSET_FROM_EXTRUDER != 0)
+        SERIAL_ECHOPGM("-Center");
       #endif
       if (zprobe_zoffset < 0)
         SERIAL_ECHOPGM(" & Below");
@@ -3295,8 +3332,8 @@ inline void gcode_G28() {
       return;
     }
 
-    bool dryrun = code_seen('D');
-    bool stow_probe_after_each = code_seen('E');
+    bool dryrun = code_seen('D'),
+         stow_probe_after_each = code_seen('E');
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
@@ -3386,7 +3423,6 @@ inline void gcode_G28() {
       #endif // !DELTA
 
       // Inform the planner about the new coordinates
-      // (This is probably not needed here)
       SYNC_PLAN_POSITION_KINEMATIC();
     }
 
@@ -3759,11 +3795,11 @@ inline void gcode_G28() {
  * G92: Set current position to given X Y Z E
  */
 inline void gcode_G92() {
-  bool didE = code_seen('E');
+  bool didXYZ = false,
+       didE = code_seen('E');
 
   if (!didE) stepper.synchronize();
 
-  bool didXYZ = false;
   LOOP_XYZE(i) {
     if (code_seen(axis_codes[i])) {
       float p = current_position[i],
@@ -4148,7 +4184,7 @@ inline void gcode_M42() {
     if (verbose_level > 2)
       SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
-    // we don't do bed level correction in M48 because we want the raw data when we probe
+    // Disable bed level correction in M48 because we want the raw data when we probe
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       reset_bed_level();
     #endif
@@ -5745,9 +5781,8 @@ inline void gcode_M303() {
 }
 
 #if ENABLED(MORGAN_SCARA)
+
   bool SCARA_move_to_cal(uint8_t delta_a, uint8_t delta_b) {
-    //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLNPGM(" Soft endstops disabled");
     if (IsRunning()) {
       //gcode_get_destination(); // For X Y Z E F
       forward_kinematics_SCARA(delta_a, delta_b);
@@ -5755,7 +5790,6 @@ inline void gcode_M303() {
       destination[Y_AXIS] = cartes[Y_AXIS];
       destination[Z_AXIS] = current_position[Z_AXIS];
       prepare_move_to_destination();
-      //ok_to_send();
       return true;
     }
     return false;
@@ -7875,7 +7909,7 @@ void get_cartesian_from_steppers() {
  *
  * << INCOMPLETE! Still needs to unapply leveling! >>
  */
-void set_current_from_steppers_for_axis(AxisEnum axis) {
+void set_current_from_steppers_for_axis(const AxisEnum axis) {
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
     vector_3 pos = untilted_stepper_position();
     current_position[axis] = axis == X_AXIS ? pos.x : axis == Y_AXIS ? pos.y : pos.z;
@@ -7948,7 +7982,7 @@ void set_current_from_steppers_for_axis(AxisEnum axis) {
     mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 
-#endif  // MESH_BED_LEVELING
+#endif // MESH_BED_LEVELING
 
 #if IS_KINEMATIC
 
