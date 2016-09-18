@@ -30,6 +30,11 @@
 #include "configuration_store.h"
 #include "utility.h"
 
+#if ENABLED(BLTOUCH)
+  #include "servo.h"
+  extern Servo servo[NUM_SERVOS];
+#endif
+
 #if ENABLED(PRINTCOUNTER)
   #include "printcounter.h"
   #include "duration_t.h"
@@ -586,6 +591,12 @@ void kill_screen(const char* lcd_msg) {
   static void lcd_main_menu() {
     START_MENU();
     MENU_ITEM(back, MSG_WATCH);
+
+    #if ENABLED(BLTOUCH)
+      if (servo[Z_ENDSTOP_SERVO_NR].read() == BLTouchState_Error)
+        MENU_ITEM(gcode, MSG_RESET_BLTOUCH, "M280 S90 P" STRINGIFY(Z_ENDSTOP_SERVO_NR));
+    #endif
+
     if (planner.movesplanned() || IS_SD_PRINTING) {
       MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
     }
