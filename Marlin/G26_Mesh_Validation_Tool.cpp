@@ -2,9 +2,43 @@
  * Marlin Firmware -- G26 - Mesh Validation Tool
  */
 
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ *
+ * About Marlin
+ *
+ * This firmware is a mashup between Sprinter and grbl.
+ *  - https://github.com/kliment/Sprinter
+ *  - https://github.com/simen/grbl/tree
+ *
+ * It has preliminary support for Matthew Roberts advance algorithm
+ *  - http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
+ */
+
 #define   FILAMENT_FACTOR 1.0			// This is too much clutter for the main Configuration.h file  But
 #define   RETRACTION_MULTIPLIER 1.0		// some user have expressed an interest in being able to customize
-#define   NOZZLE 0.4 				// these numbers for thier printer so they don't need to type all
+#define   NOZZLE 0.3 				// these numbers for thier printer so they don't need to type all
 #define   FILAMENT 1.75 			// the options every time they do a Mesh Validation Print.
 #define   LAYER_HEIGHT   .2
 #define   PRIME_LENGTH 10.0			// So, we put these number in an easy to find and change place.
@@ -17,6 +51,7 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+#include "Bed_Leveling.h"
 #include "G29_Unified_Bed_Leveling.h"
 
 #ifdef UNIFIED_BED_LEVELING_FEATURE 
@@ -90,8 +125,6 @@ extern int UBL_has_control_of_LCD_Panel;
 extern float feedrate;
 extern bool relative_mode;
 extern Planner planner;
-void set_current_to_destination();
-void set_destination_to_current();
 bool prepare_move_to_destination_cartesian();
 void line_to_destination();
 void line_to_destination(float );
@@ -99,7 +132,6 @@ void gcode_G28();
 void sync_plan_position_e();
 void un_retract_filament();
 void retract_filament();
-bool direction_is_on_bed( float , float , int );
 void look_for_lines_to_connect();
 void bit_clear( unsigned int bits[16], int , int );
 void bit_set( unsigned int bits[16], int , int );
@@ -109,10 +141,17 @@ void move_to( float, float, float, float);
 void print_line_from_here_to_there( float sx, float sy, float sz, float ex, float ey, float ez );
 bool turn_on_heaters();
 void prime_nozzle();
+void chirp_at_user();
 
 static unsigned circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16], Continue_with_closest=0;
-static float G26_E_AXIS_feedrate = 0.035;
+static float G26_E_AXIS_feedrate = 0.030;
 static float Random_Deviation = 0.0, Layer_Height=LAYER_HEIGHT;
+
+static bool retracted=false;	// We keep track of the state of the nozzle to know if it
+				// is currently retracted or not.  This allows us to be
+				// less careful because mis-matched retractions and un-retractions
+				// won't leave us in a bad state.
+
 
 #if ENABLED(ULTRA_LCD)
 void lcd_setstatus(const char* message, bool persist);
@@ -120,8 +159,9 @@ void lcd_setstatus(const char* message, bool persist);
 
 float valid_trig_angle( float );
 struct mesh_index_pair find_closest_circle_to_print( float, float );	
-void mesh_buffer_line(float, float, float, const float, float, const uint8_t& ,// uint16_t , uint16_t );
-		uint16_t x_splits = 0xffff, uint16_t y_splits = 0xffff);
+void mesh_buffer_line(float, float, float, float, float, uint8_t );
+//		uint16_t x_splits = 0xffff, uint16_t y_splits = 0xffff);  /* needed for the old mesh_buffer_line() routine */
+
 static float E_Pos_Delta, Filament_Factor=FILAMENT_FACTOR;
 static float Retraction_Multiplier=RETRACTION_MULTIPLIER;
 static float Nozzle=NOZZLE , Filament=FILAMENT, Prime_Length=PRIME_LENGTH;
@@ -188,19 +228,9 @@ struct mesh_index_pair location;
   move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0.0 );
   move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], Ooooze_Amount );
 
-// We are by-passing the G1 command where a check is made to see if the Z-Axis is changing.
-// For efficiency, that is where we set the fade_scaling_factor_for_current_height variable. 
-// We need to duplicate that calculation here to keep everything consistent.
-
- if (destination[Z_AXIS] > bed_leveling_mesh.state.G29_Correction_Fade_Height )  {
- 	fade_scaling_factor_for_current_height = 0.0;
- } else {
- 	fade_scaling_factor_for_current_height = 1.0 - (destination[Z_AXIS] / bed_leveling_mesh.state.G29_Correction_Fade_Height);
- }
-	   
-
+  UBL_has_control_of_LCD_Panel = 1;	// Take control of the LCD Panel!
   do {
-	if ( G29_lcd_clicked() ) {					// Check if the user wants to stop the Mesh Validation
+	if ( G29_lcd_clicked() ) {	// Check if the user wants to stop the Mesh Validation
 		strcpy( lcd_status_message, "Mesh Validation Stopped.");// We can't do lcd_setstatus() without having it continue;
 		while ( G29_lcd_clicked() )				// Debounce the switch click
 	       		idle();	
@@ -217,8 +247,8 @@ struct mesh_index_pair location;
 	   location = find_closest_circle_to_print( X_Pos, Y_Pos );	// Find the closest Mesh Intersection to where
 									// we are now.
     	if (location.x_index>=0 && location.y_index>=0 ) {
-		circle_x = bed_leveling_mesh.map_x_index_to_bed_location(location.x_index); 
-		circle_y = bed_leveling_mesh.map_y_index_to_bed_location(location.y_index);
+		circle_x = blm.map_x_index_to_bed_location(location.x_index); 
+		circle_y = blm.map_y_index_to_bed_location(location.y_index);
 
 // Let's do a couple of quick sanity checks.  We can pull this code out later if we never see it catch a problem
 
@@ -266,32 +296,46 @@ struct mesh_index_pair location;
 			start_angle = 180.0;	// only do the bottom side of the cirlce
 			end_angle   = 360.0;
 		}
+
 GOT_ANGLES:
+
+//
+// Declare and generate a sin() & cos() table to be used during the circle drawing.   This will lighten 
+// the CPU load and make the arc drawing faster and more smooth
+//
+		float sin_table[360/30+1], cos_table[360/30+1];
+		int tmp_div_30;
+		for(i=0; i<=360/30; i++) {
+			cos_table[i] = SIZE_OF_INTERSECTION_CIRCLES * cos( RADIANS( valid_trig_angle(i*30.0)) );
+			sin_table[i] = SIZE_OF_INTERSECTION_CIRCLES * sin( RADIANS( valid_trig_angle(i*30.0)) );
+		}
+
 		for(tmp=start_angle; tmp<end_angle-.1; tmp+=30.0 ) {
-			if ( tmp == start_angle ) {	// if this isn't our first pass through the loop, let's just
-							// reuse the previously calculated values.  The trig operations
-							// are expensive enough we can hear a stutter because of them
-							// without this check.
-				x = circle_x + SIZE_OF_INTERSECTION_CIRCLES * cos( RADIANS( valid_trig_angle(  tmp )) );
-				y = circle_y + SIZE_OF_INTERSECTION_CIRCLES * sin( RADIANS( valid_trig_angle(  tmp )) );
-			} else {
-				x = xe;
-				y = ye;
-			}
-			xe = circle_x + SIZE_OF_INTERSECTION_CIRCLES * cos( RADIANS( valid_trig_angle( tmp+30.0)) );
-			ye = circle_y + SIZE_OF_INTERSECTION_CIRCLES * sin( RADIANS( valid_trig_angle( tmp+30.0)) );
+			tmp_div_30 = tmp/30.0;
+			if ( tmp_div_30 < 0 )
+				tmp_div_30 += 360/30;
+
+			x = circle_x + cos_table[tmp_div_30]; // for speed, these are now a lookup table entry
+			y = circle_y + sin_table[tmp_div_30];
+
+			if ( tmp_div_30 > 11 )
+				tmp_div_30 -= 360/30;
+			xe = circle_x + cos_table[tmp_div_30+1]; // for speed, these are now a lookup table entry
+			ye = circle_y + sin_table[tmp_div_30+1];
 #ifdef DELTA
-			if ( sqrt( x*x + y*y) > DELTA_PRINTABLE_RADIUS) 	// Check to make sure this part of
-				continue;					// the 'circle' is on the bed.  If
-#else										// not, we need to skip
+			if ((x*x+y*y) > (DELTA_PRINTABLE_RADIUS*DELTA_PRINTABLE_RADIUS)) // Check to make sure this part of
+				continue;						// the 'circle' is on the bed.  If
+#else											// not, we need to skip
 
 			x = constrain( x, X_MIN_POS+1, X_MAX_POS-1); 	// This keeps us from bumping the endstops	
 			y = constrain( y, Y_MIN_POS+1, Y_MAX_POS-1); 			
 			xe= constrain( xe, X_MIN_POS+1, X_MAX_POS-1); 			
 			ye= constrain( ye, Y_MIN_POS+1, Y_MAX_POS-1); 			
 #endif
+
 			print_line_from_here_to_there( x, y, Layer_Height, xe, ye, Layer_Height);
 		}
+
 		look_for_lines_to_connect();
 	}
 
@@ -299,8 +343,13 @@ GOT_ANGLES:
 
 LEAVE:
   retract_filament();
-  move_to( destination[X_AXIS], destination[Y_AXIS], Z_RAISE_BETWEEN_PROBINGS, 0);	// Raise the nozzle
-  move_to( X_Pos, Y_Pos, Z_RAISE_BETWEEN_PROBINGS, 0);	// Move back to the starting position
+  destination[Z_AXIS] = Z_RAISE_BETWEEN_PROBINGS;				// Raise the nozzle
+  move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0);	// Raise the nozzle
+
+  destination[X_AXIS] = X_Pos;							// Move back to the starting position
+  destination[Y_AXIS] = Y_Pos;
+  move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0);	// Move back to the starting position
+
   UBL_has_control_of_LCD_Panel = 0;			// Give back control of the LCD Panel!
 
   if ( !Keep_Heaters_On) {
@@ -309,17 +358,6 @@ LEAVE:
   }
 }
 
-bool direction_is_on_bed( float x, float y, int i ) {
-float x1, y1;
-	
-	x1 = x + cos( RADIANS( valid_trig_angle( ((float) i) * 360.0/8.0 ) ) );	// move off of the point in the specified direction
-	y1 = y + sin( RADIANS( valid_trig_angle( ((float) i) * 360.0/8.0 ) ) );
-
-	if ( x1<X_MIN_POS || x1>X_MAX_POS || y1<Y_MIN_POS || y1>Y_MAX_POS) 
-		return false;
-	
-	return true;
-}
 
 float valid_trig_angle( float d ) {
 	while ( d > 360.0 )
@@ -342,8 +380,8 @@ struct mesh_index_pair find_closest_circle_to_print( float X, float Y )
 	for(i=0; i<MESH_NUM_X_POINTS; i++) {
 		for(j=0; j<MESH_NUM_Y_POINTS; j++) {
 			if ( !is_bit_set( circle_flags, i, j) )  {
-				mx = bed_leveling_mesh.map_x_index_to_bed_location(i);	// We found a circle that needs to be printed
-				my = bed_leveling_mesh.map_y_index_to_bed_location(j);
+				mx = blm.map_x_index_to_bed_location(i);	// We found a circle that needs to be printed
+				my = blm.map_y_index_to_bed_location(j);
 
 				dx = X - mx;				// Get the distance to this intersection
 				dy = Y - my;	
@@ -422,11 +460,11 @@ int i, j, k;
 // We found two circles that need a horizontal line to connect them
 // Print it!
 //
-					sx = bed_leveling_mesh.map_x_index_to_bed_location(i);	
+					sx = blm.map_x_index_to_bed_location(i);	
 					sx = sx + SIZE_OF_INTERSECTION_CIRCLES;			// get the right edge of the circle
-					sy = bed_leveling_mesh.map_y_index_to_bed_location(j);
+					sy = blm.map_y_index_to_bed_location(j);
 
-					ex = bed_leveling_mesh.map_x_index_to_bed_location(i+1);	
+					ex = blm.map_x_index_to_bed_location(i+1);	
 					ex = ex - SIZE_OF_INTERSECTION_CIRCLES;			// get the left edge of the circle
 					ey = sy;
 
@@ -449,12 +487,12 @@ int i, j, k;
 //
 // We found two circles that need a vertical line to connect them
 // Print it!
-					sx = bed_leveling_mesh.map_x_index_to_bed_location(i);	
-					sy = bed_leveling_mesh.map_y_index_to_bed_location(j);
+					sx = blm.map_x_index_to_bed_location(i);	
+					sy = blm.map_y_index_to_bed_location(j);
 					sy = sy + SIZE_OF_INTERSECTION_CIRCLES;			// get the top edge of the circle
 
 					ex = sx;
-					ey = bed_leveling_mesh.map_y_index_to_bed_location(j+1); 
+					ey = blm.map_y_index_to_bed_location(j+1); 
 					ey = ey - SIZE_OF_INTERSECTION_CIRCLES;			// get the bottom edge of the circle
 
 					sx= constrain( sx, X_MIN_POS+1, X_MAX_POS-1); 	// This keeps us from bumping the endstops	
@@ -480,56 +518,76 @@ SERIAL_ECHO_F( current_position[Z_AXIS], 6 );
 SERIAL_ECHO(" , ");
 SERIAL_ECHO_F( current_position[E_AXIS], 6 );
 SERIAL_ECHO(" )   destination=( ");
+if ( current_position[X_AXIS] == destination[X_AXIS] )
+SERIAL_ECHO( "-------------" );
+else
 SERIAL_ECHO_F( destination[X_AXIS], 6 );
 SERIAL_ECHO(" , ");
+
+if ( current_position[Y_AXIS] == destination[Y_AXIS] )
+SERIAL_ECHO( "-------------" );
+else
 SERIAL_ECHO_F( destination[Y_AXIS], 6 );
 SERIAL_ECHO(" , ");
+
+if ( current_position[Z_AXIS] == destination[Z_AXIS] )
+SERIAL_ECHO( "-------------" );
+else
 SERIAL_ECHO_F( destination[Z_AXIS], 6 );
 SERIAL_ECHO(" , ");
+
+if ( current_position[E_AXIS] == destination[E_AXIS] )
+SERIAL_ECHO( "-------------" );
+else
 SERIAL_ECHO_F( destination[E_AXIS], 6 );
+
 SERIAL_ECHO(" )   ");
 SERIAL_ECHO( title );
 SERIAL_ECHO("  \n");
+
+pinMode(66, INPUT_PULLUP); // Roxy's Left Switch is on pin 66.  Right Switch is on pin 65
+
+//if ( been_to_2_6 ) {
+//while ( (digitalRead(66) & 0x01) != 0)  
+//	idle();
+//}
+
 }
 
 
 
 void move_to( float x, float y, float z, float e_delta) {
-float feed_value;
-static float last_z =-9999.99;
+float feed_value, e_pos;
+static float last_z = -999.99;
 
    if ( z != last_z )  {
 	last_z = z;
-        fade_scaling_factor_for_current_height = 1.0 - (z / bed_leveling_mesh.state.G29_Correction_Fade_Height);
 	feed_value = planner.max_feedrate[Z_AXIS]/(3.0);	// Base the feed rate off of the configured Z_AXIS feed rate
 
-	destination[Z_AXIS] = z;
-	
-	mesh_buffer_line( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0, 0xffff, 0xffff );
+	e_pos = destination[E_AXIS] + e_delta;
+	mesh_buffer_line( x, y, z, e_pos, feed_value, (unsigned char) 0 );
+
 	stepper.synchronize();
   	set_destination_to_current();
+	return;
    }
 
   if ( x!=destination[X_AXIS] || y!=destination[Y_AXIS])  {	// Check if X or Y is involved in the movement.
-	feed_value =PLANNER_XY_FEEDRATE()/(10.0);		// Yes!  It is a 'normal' movement
+	feed_value = PLANNER_XY_FEEDRATE()/(10.0);		// Yes!  It is a 'normal' movement
   } else  {
 	feed_value = planner.max_feedrate[E_AXIS]/(1.5);	// it is just a retract() or un_retract()
   }
 
   destination[X_AXIS] = x;
   destination[Y_AXIS] = y;
+  destination[Z_AXIS] = z;	// We know the last_z==z or we wouldn't be in this block of code.
   destination[E_AXIS] += e_delta;
 
-  mesh_buffer_line( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0, 0xffff, 0xffff );
+  mesh_buffer_line( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0 );
 
-  stepper.synchronize();
-  set_destination_to_current();
+//  stepper.synchronize();
+//  set_destination_to_current();
 }
-
-static bool retracted=false;	// We keep track of the state of the nozzle to know if it
-				// is currently retracted or not.  This allows us to be
-				// less careful because mis-matched retractions and un-retractions
-				// won't leave us in a bad state.
 
 void retract_filament()
 {
@@ -566,24 +624,25 @@ void un_retract_filament()
 void print_line_from_here_to_there( float sx, float sy, float sz, float ex, float ey, float ez ) {
      float dx, dy, dx_s, dy_s, dx_e, dy_e, dist_start, dist_end, E_Pos_Deltai, Line_Length;
 
-	dx_s = destination[X_AXIS] - sx;		// find our distance from the start of the actual line segment
-	dy_s = destination[Y_AXIS] - sy;
-	dist_start = sqrt( dx_s*dx_s + dy_s*dy_s);
+	dx_s = current_position[X_AXIS] - sx;		// find our distance from the start of the actual line segment
+	dy_s = current_position[Y_AXIS] - sy;
+	dist_start = dx_s*dx_s + dy_s*dy_s;		// We don't need to do a sqrt(), we can compare the distance^2
+							// to save computation time
 
-	dx_e = destination[X_AXIS] - ex;		// find our distance from the end of the actual line segment
-	dy_e = destination[Y_AXIS] - ey;
-	dist_end = sqrt( dx_e*dx_e + dy_e*dy_e);
+	dx_e = current_position[X_AXIS] - ex;		// find our distance from the end of the actual line segment
+	dy_e = current_position[Y_AXIS] - ey;
+	dist_end  = dx_e*dx_e + dy_e*dy_e;
 
      	dx = ex - sx;
 	dy = ey - sy;
-	Line_Length = sqrt(dx*dx+dy*dy);
+	Line_Length= sqrt(dx*dx+dy*dy);
 				
 
 	// If the end point of the line is closer to the nozzle, we are going to
 	// flip the direction of this line.   We will print it from the end to the start.
 	// On very small lines we don't do the optimization because it just isn't worth it.
 	//
-	if ( (dist_end < dist_start) && ( SIZE_OF_INTERSECTION_CIRCLES < abs( Line_Length )) )	{	
+	if ( (dist_end < dist_start) && ( SIZE_OF_INTERSECTION_CIRCLES < abs(Line_Length)) )	{	
 		print_line_from_here_to_there( ex, ey, ez, sx, sy, sz );
 		return;
 	}
@@ -593,9 +652,7 @@ void print_line_from_here_to_there( float sx, float sy, float sz, float ex, floa
 	if ( dist_start > 2.0 )  {
 		retract_filament();
 	}
-
 	move_to( sx, sy, sz, 0.0 );	// Get to the starting point with no extrusion
-
      	dx = ex - sx;
 	dy = ey - sy;
 
@@ -742,9 +799,9 @@ bool parse_G26_parameters() {
 // of the system.
 // 
   if (code_seen('D')) 
-	  bed_leveling_mesh.state.active = 0;
+	  blm.state.active = 0;
   else
-	  bed_leveling_mesh.state.active = 1;
+	  blm.state.active = 1;
 
   return false;
 }
@@ -809,20 +866,21 @@ bool turn_on_heaters() {
 
 void prime_nozzle() {
 	if ( Prime_Flag == -1 )  {	// The user wants to control how much filament gets purged
-		#if ENABLED(ULTRA_LCD)
-		  lcd_setstatus( "User Controled Prime", true);
-		  lcd_quick_feedback();
-		#endif
+		lcd_setstatus( "User Controled Prime", true);
+		chirp_at_user();
 
 		set_destination_to_current();
 
 		un_retract_filament();		// Lets make sure the G26 command doesn't think the filament is
 						// retracted().   We are here because we want to prime the nozzle.
 						// So let's just unretract just to be sure.	
+		UBL_has_control_of_LCD_Panel++;
 		while( !G29_lcd_clicked() ) {
+			chirp_at_user();
 			destination[E_AXIS] += 0.25;
 			mesh_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
-						planner.max_feedrate[E_AXIS]/(15.0), 0, 0xffff, 0xffff );
+//						planner.max_feedrate[E_AXIS]/(15.0), 0, 0xffff, 0xffff );
+						planner.max_feedrate[E_AXIS]/(15.0), 0 );
 
 			stepper.synchronize();		// Without this synchronize, the purge is more consistent,
 							// but because the planner has a buffer, we won't be able
@@ -833,10 +891,12 @@ void prime_nozzle() {
 		}
 
 		strcpy( lcd_status_message, "Done Priming     ");	// We can't do lcd_setstatus() without having it continue;
-										// So...  We cheate to get a message up.
-		while ( G29_lcd_clicked() )	// Debounce the switch
+									// So...  We cheat to get a message up.
+
+		while ( G29_lcd_clicked() )				// Debounce the switch
 				;
 		#if ENABLED(ULTRA_LCD)
+		  UBL_has_control_of_LCD_Panel = 0;
 		  lcd_setstatus( "Done Priming     ", true);		// Now we do it right.
 		  lcd_quick_feedback();
 		#endif
@@ -848,11 +908,21 @@ void prime_nozzle() {
 		set_destination_to_current();
 		destination[E_AXIS] += Prime_Length;
 		mesh_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
-					planner.max_feedrate[E_AXIS]/(15.0), 0, 0xffff, 0xffff );
+//					planner.max_feedrate[E_AXIS]/(15.0), 0, 0xffff, 0xffff );
+					planner.max_feedrate[E_AXIS]/(15.0), 0 );
 		stepper.synchronize();
 		set_destination_to_current();
 		retract_filament();
 	  }
+}
+
+
+void chirp_at_user() {
+#if ENABLED(LCD_USE_I2C_BUZZER)
+   lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+#elif PIN_EXISTS(BEEPER)
+   buzzer.tone(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+#endif
 }
 
 #endif
