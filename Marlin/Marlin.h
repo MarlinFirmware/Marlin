@@ -471,17 +471,20 @@ void status_LED( int pin, int action);
 
 #ifdef UNIFIED_BED_LEVELING_FEATURE
   extern int Unified_Bed_Leveling_EEPROM_start;
-  extern float fade_scaling_factor_for_current_height;
 
   #include "vector_3.h"
   #include "Bed_Leveling.h"
   #include "qr_solve.h"
 
-  extern bed_leveling bed_leveling_mesh;
+//extern bed_leveling blm;
   void gcode_G29();	// Unified Bed Leveling
   void gcode_G26();	// Mesh Validation Tool
+  void mesh_buffer_line(float, float, float, float, float, uint8_t );
   bool axis_unhomed_error(const bool, const bool, const bool );
   float probe_pt(float, float, bool stow=true, int verbose_level=1);
+  void lcd_buttons_update();
+  void set_current_to_destination();
+  void set_destination_to_current();
 #endif
 
 #endif //MARLIN_H
