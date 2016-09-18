@@ -522,41 +522,26 @@ void Planner::check_axes_activity() {
  *  extruder  - target extruder
  */
 
-#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-  void Planner::buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder)
-#else
-  void Planner::buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder)
-#endif  // UNIFIED_BED_LEVELING_FEATURE
+//#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+//  void Planner::buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder)
+//#else
+//  void Planner::buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder)
+//#endif  // UNIFIED_BED_LEVELING_FEATURE
+
+  void Planner::buffer_line(float x, float y, float z, float e, float feed_rate, const uint8_t extruder)
+
 {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
   // If the buffer is full: good! That means we are well ahead of the robot.
   // Rest here until there is room in the buffer.
-  while (block_buffer_tail == next_buffer_head) idle();
+  while (block_buffer_tail == next_buffer_head) { 
+//	status_LED( 63, 1); 				// if enabled, these lines let us see when the block buffer is	
+	idle();						// totally full and we can't process any more commands.  We want
+  }							// the status LED lit up almost constant.
+//status_LED( 63, 0);   
 
-  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-    if (bed_leveling_mesh.state.active) {
-	    float correction;
-	    correction = bed_leveling_mesh.get_z_correction(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
-            #if ENABLED(DEBUG_LEVELING_FEATURE)
-	      if (DEBUGGING(MESH_ADJUST)) {
-	  	  SERIAL_ECHOPAIR("buffer_line( ", x );
-		  SERIAL_ECHOPAIR(", ", y );
-		  SERIAL_ECHO(", ");
-		  SERIAL_ECHO_F( z, 6 );
-		  SERIAL_ECHO(") >>>---> [");
-		  SERIAL_ECHO_F( correction, 6 );
-		  SERIAL_ECHOPAIR("] (", x);
-		  SERIAL_ECHOPAIR(", ", y );
-		  SERIAL_ECHO(", ");
-		  SERIAL_ECHO_F( z+correction, 6 );
-		  SERIAL_ECHO(")\n");
-     	      } 
-	    #endif
-	    z += correction;
-    }
-  #endif
 
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
@@ -1161,8 +1146,8 @@ void Planner::check_axes_activity() {
 #endif // UNIFIED_BED_LEVELING_FEATURE
   {
     #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-      if (bed_leveling_mesh.state.active)
-        z += bed_leveling_mesh.get_z_correction(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]);
+      if (blm.state.active)
+        z -= blm.get_z_correction(x - home_offset[X_AXIS], y - home_offset[Y_AXIS]) * blm.fade_scaling_factor_for_Z( z );
 //    #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
 //      apply_rotation_xyz(bed_level_matrix, x, y, z);
     #endif
