@@ -48,6 +48,8 @@
 // cn         Chinese
 // cz         Czech
 // de         German
+// el         Greek
+// el-gr      Greek (Greece)
 // en         English
 // es         Spanish
 // eu         Basque-Euskera
@@ -117,6 +119,7 @@
 #define MSG_PLANNER_BUFFER_BYTES            "  PlannerBufferBytes: "
 #define MSG_OK                              "ok"
 #define MSG_WAIT                            "wait"
+#define MSG_STATS                           "Stats: "
 #define MSG_FILE_SAVED                      "Done saving file."
 #define MSG_ERR_LINE_NO                     "Line Number is not Last Line Number+1, Last Line: "
 #define MSG_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
@@ -156,6 +159,10 @@
 #define MSG_ENDSTOP_HIT                     "TRIGGERED"
 #define MSG_ENDSTOP_OPEN                    "open"
 #define MSG_HOTEND_OFFSET                   "Hotend offsets:"
+#define MSG_DUPLICATION_MODE                "Duplication mode: "
+#define MSG_SOFT_ENDSTOPS                   "Soft endstops"
+#define MSG_SOFT_MIN                        "Min"
+#define MSG_SOFT_MAX                        "Max"
 
 #define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define MSG_SD_INIT_FAIL                    "SD init fail"
