@@ -118,9 +118,13 @@
    * The BLTouch Probe emulates a servo probe
    */
   #if ENABLED(BLTOUCH)
-    #undef Z_ENDSTOP_SERVO_NR
+    #ifndef Z_ENDSTOP_SERVO_NR
+      #define Z_ENDSTOP_SERVO_NR 0
+    #endif
+    #ifndef NUM_SERVOS
+      #define NUM_SERVOS (Z_ENDSTOP_SERVO_NR + 1)
+    #endif
     #undef Z_SERVO_ANGLES
-    #define Z_ENDSTOP_SERVO_NR 0
     #define Z_SERVO_ANGLES {10,90} // For BLTouch 10=deploy, 90=retract
     #undef DEACTIVATE_SERVOS_AFTER_MOVE
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)

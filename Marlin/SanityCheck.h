@@ -400,7 +400,7 @@
   #if (ENABLED(FIX_MOUNTED_PROBE) && (ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))) \
        || (ENABLED(Z_PROBE_ALLEN_KEY) && (HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))) \
        || (HAS_Z_SERVO_ENDSTOP && ENABLED(Z_PROBE_SLED))
-    #error "Please define only one type of probe: Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #error "Please define only one type of probe: Z Servo/BLTOUCH, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
 
   /**
