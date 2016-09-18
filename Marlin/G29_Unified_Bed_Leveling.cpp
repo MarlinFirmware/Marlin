@@ -1,8 +1,8 @@
 #include "Marlin.h"
 
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-#include "vector_3.h"
-#include "qr_solve.h"
+//#include "vector_3.h"
+//#include "qr_solve.h"
 
 #include "Bed_Leveling.h"
 #include "configuration_store.h"
@@ -16,13 +16,14 @@ void menu_action_setting_edit_float43(const char* pstr, float* ptr, float minVal
 void lcd_babystep_z();
 void lcd_return_to_status();
 bool lcd_clicked();
-extern long babysteps_done;
 void lcd_implementation_clear();
 void lcd_mesh_edit_setup(float inital);
 float lcd_mesh_edit();
 void lcd_z_offset_edit_setup( float );
 float lcd_z_offset_edit();
+
 extern float meshedit_done;
+extern long babysteps_done;
 
 /*
    G29: Unified Bed Leveling by Roxy
@@ -46,7 +47,8 @@ extern float meshedit_done;
 
      Parameters understood by this leveling system:
 
-      A     Activate  Activate the Unified Bed Leveling system.
+      A     Activate  Activate the Unified Bed Leveling system.  The State of the UBL System will be updated
+    		      in the EEPROM and will persist across reset and power cycles.
 
       B #   Business  Use the 'Business Card' mode of the Manual Probe subsystem.  This is invoked as
       		      G29 P2 B   The mode of G29 P2 allows you to use a bussiness card or recipe card
@@ -69,7 +71,8 @@ extern float meshedit_done;
 		      location in its search for the closest unmeasured Mesh Point.  When used with a G29 Z C 
 		      it indicates to use the current location instead of defaulting to the center of the print bed.
 
-      D     Disable   Disable the Unified Bed Leveling system.
+      D     Disable   Disable the Unified Bed Leveling system.  The State of the UBL System will be updated
+      		      in the EEPROM and will persist across reset and power cycles.
 
       F #   Fade      Fade the amount of Mesh Based Compensation over a specified height.  At the specified height, 
       		      no correction is applied and natural printer kenimatics take over.  If no number is specified 
@@ -99,9 +102,12 @@ extern float meshedit_done;
       L #   Load      Load Mesh from the specified location in the EEPROM.  Set this location as activated
                       for subsequent Load and Store operations.
 
-      M     Map       Display the Mesh Map Topology.  The parameter can be specified alone (ie. G29 M) or
-      		      in combination with many of the other commands.  The Mesh Map option works with
-		      all of the Phase commands (ie. G29 P4 R 5 X 50 Y100 C -.1 M) 
+      M     Map       Display the Mesh Map Topology.  A lower case 'm' can be used to get around a problem with
+                      Repetier Host thinking 'M' is the start of a new command.   Also an 'O' can be used to 
+		      flag that the Mesh Map should be displayed.  From a G29 perspective they are all the same.
+		      The parameter can be specified alone (ie. G29 M) or in combination with many of the 
+		      other commands.  The Mesh Map option works with all of the Phase 
+		      commands (ie. G29 P4 R 5 X 50 Y100 C -.1 M) 
 
       N    No Home    G29 normally insists that a G28 has been performed.  You can over rule this with an
       		      N option.  In general, you should not do this.  This can only be done safely with
@@ -230,7 +236,7 @@ each additional Phase that processes it.
                       by just doing a G29 Z
 
       Z #   Zero      The entire Mesh can be raised or lowered to conform with the specified difference.  
-      		      Z_PROBE_OFFSET_FROM_EXTRUDER is added to the calculation.  
+      		      zprobe_zoffset is added to the calculation.  
 
 
      Release Notes:
@@ -252,7 +258,7 @@ each additional Phase that processes it.
 			allows you to get the center area of the Mesh populated (and edited) quicker.   This allows you to 
 			perform a small print and check out your settings quicker.   You do not need to populate the 
 		       	entire mesh to use it.	(You don't want to spend a lot of time generating a mesh only to realize 
-			you don't have the resolution or Z_PROBE_OFFSET_FROM_EXTRUDER set correctly.  The Mesh generation
+			you don't have the resolution or zprobe_zoffset set correctly.  The Mesh generation
 			gathers points closest to where the nozzle is located unless you specify an (X,Y) coordinate pair.
 
 			The Unified Bed Leveling uses a lot of EEPROM storage to hold its data.  And it takes some effort
@@ -317,7 +323,7 @@ void gcode_G29() {
 			SERIAL_PROTOCOLLNPGM("Entire Mesh invalidated.\n");
 			break;						// No more invalid Mesh Points to populate
 		}
-		bed_leveling_mesh.z_values[location.x_index][location.y_index] = NAN;
+		z_values[location.x_index][location.y_index] = NAN;
 	}
 	SERIAL_PROTOCOLLNPGM("Locations invalidated.\n");
   }
@@ -333,25 +339,29 @@ void gcode_G29() {
 	}
 	SERIAL_PROTOCOLLNPGM("Loading Test_Pattern values.\n");
 	switch (Test_Pattern) {
-	case 0: for(i=0; i<MESH_NUM_X_POINTS; i++ ) {						// Create a bowl shape.  This is
-			for(j=0; j<MESH_NUM_Y_POINTS; j++ ) {					// similar to what a user would see with
-				Z1 = (((float) MESH_NUM_X_POINTS)/2.0) - i;			// a poorly calibrated Delta.  
+	case 0: for(i=0; i<MESH_NUM_X_POINTS; i++ ) {				// Create a bowl shape.  This is
+			for(j=0; j<MESH_NUM_Y_POINTS; j++ ) {			// similar to what a user would see with
+				Z1 = (((float) MESH_NUM_X_POINTS)/2.0) - i;	// a poorly calibrated Delta.  
 				Z2 = (((float) MESH_NUM_Y_POINTS)/2.0) - j;
-				bed_leveling_mesh.z_values[i][j] += 2.0 * sqrt( Z1*Z1 + Z2*Z2); 
+				z_values[i][j] += 2.0 * sqrt( Z1*Z1 + Z2*Z2); 
 			}
 		}
 		break;
-	case 1: for(i=0; i<MESH_NUM_X_POINTS; i++ ) {						// Create a diagonal line several Mesh
-			bed_leveling_mesh.z_values[i][i] += 10.0 ; 				// cells thick that is raised
+	case 1: for(i=0; i<MESH_NUM_X_POINTS; i++ ) {				// Create a diagonal line several Mesh
+			z_values[i][i] += 10.0 ; 				// cells thick that is raised
 			if (i<MESH_NUM_Y_POINTS-1)	
-				bed_leveling_mesh.z_values[i][i+1] += 10.0 ; // We want the altered line several mesh points thick
+				z_values[i][i+1] += 10.0 ;			// We want the altered line several mesh points thick
 			if (i>0)			
-				bed_leveling_mesh.z_values[i][i-1] += 10.0 ; // We want the altered line several mesh points thick
+				z_values[i][i-1] += 10.0 ;			// We want the altered line several mesh points thick
 		}
 		break;
 	case 2: for(i=MESH_NUM_X_POINTS/3.0; i<2*(MESH_NUM_X_POINTS/3.0); i++ ) {		// Create a rectangular raised area in
 			for(j=MESH_NUM_Y_POINTS/3.0; j<2*(MESH_NUM_Y_POINTS/3.0); j++ ) {	// the center of the bed
-				bed_leveling_mesh.z_values[i][j] += 10.0 ; 
+				if ( code_seen('C') )   {
+					z_values[i][j] += Constant;		// Allow the user to specify the height because 10mm is
+										// a little bit extreme in some cases.
+				} else
+					z_values[i][j] += 10.0 ; 
 			}
 		}
 		break;
@@ -371,18 +381,18 @@ void gcode_G29() {
 //
 // Zero Mesh Data
 //
-      case 0:	bed_leveling_mesh.reset();
+      case 0:	blm.reset();
         	SERIAL_PROTOCOLLNPGM("Mesh zeroed.\n");
         	break;
 //
 // Invalidate Entire Mesh and Automatically Probe Mesh in areas that can be reached by the probe
 //
       case 1:	if ( !code_seen('C') )  {
-			bed_leveling_mesh.invalidate();
+			blm.invalidate();
 			SERIAL_PROTOCOLLNPGM("Mesh invalidated.  Probing mesh.\n");
 		}
     		if ( G29_Verbose_Level > 1 ) {
-			SERIAL_ECHOPAIR("Probing Mesh Points Closest to (",X_Pos);
+			SERIAL_ECHOPAIR("Probing Mesh Points Cp:losest to (",X_Pos);
 			SERIAL_ECHOPAIR(",",Y_Pos);
         		SERIAL_PROTOCOLLNPGM(")\n");
 		}
@@ -439,7 +449,7 @@ void gcode_G29() {
 			location = find_closest_mesh_point_of_type( INVALID, X_Pos,  Y_Pos, 0, NULL);	// The '0' says we want to use the nozzle's position
 			if ( location.x_index < 0 )
 				break;						// No more invalid Mesh Points to populate
-			bed_leveling_mesh.z_values[location.x_index][location.y_index] = Height_Value;
+			z_values[location.x_index][location.y_index] = Height_Value;
 		}
 		break;
 //
@@ -472,16 +482,16 @@ void gcode_G29() {
 
   if ( code_seen('T') ) {
      float xxx,yyy,zzz;
-	Z1 = probe_pt( UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y, false /*Stow Flag*/, G29_Verbose_Level)+Z_PROBE_OFFSET_FROM_EXTRUDER;
-	Z2 = probe_pt( UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y, false /*Stow Flag*/, G29_Verbose_Level)+Z_PROBE_OFFSET_FROM_EXTRUDER;
-	Z3 = probe_pt( UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y, true  /*Stow Flag*/, G29_Verbose_Level)+Z_PROBE_OFFSET_FROM_EXTRUDER;
+	Z1 = probe_pt( UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y, false /*Stow Flag*/, G29_Verbose_Level)+zprobe_zoffset;
+	Z2 = probe_pt( UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y, false /*Stow Flag*/, G29_Verbose_Level)+zprobe_zoffset;
+	Z3 = probe_pt( UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y, true  /*Stow Flag*/, G29_Verbose_Level)+zprobe_zoffset;
 
 //  We need to adjust Z1, Z2, Z3 by the Mesh Height at these points.  Just because they are non-zero doesn't mean
 //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
 
-	Z1 -= bed_leveling_mesh.get_z_correction( UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y);	
-	Z2 -= bed_leveling_mesh.get_z_correction( UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y);	
-	Z3 -= bed_leveling_mesh.get_z_correction( UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y);
+	Z1 -= blm.get_z_correction( UBL_PROBE_PT_1_X, UBL_PROBE_PT_1_Y);
+	Z2 -= blm.get_z_correction( UBL_PROBE_PT_2_X, UBL_PROBE_PT_2_Y);
+	Z3 -= blm.get_z_correction( UBL_PROBE_PT_3_X, UBL_PROBE_PT_3_Y);
 
 	do_blocking_move_to_xy( (X_MAX_POS-X_MIN_POS)/2.0, (Y_MAX_POS-Y_MIN_POS)/2.0);
 	tilt_mesh_based_on_3pts( Z1, Z2, Z3 );
@@ -504,7 +514,7 @@ void gcode_G29() {
 
 
 //
-// Whe we are fully debugged, this may go away.  But there are some valid
+// When we are fully debugged, this may go away.  But there are some valid
 // use cases for the users.  So we can wait and see what to do with it.
 //
 
@@ -517,20 +527,21 @@ void gcode_G29() {
 //
 
   if ( code_seen('L') ) {			// Load Current Mesh Data
-    Storage_Slot = bed_leveling_mesh.state.EEPROM_storage_slot;
+    Storage_Slot = blm.state.EEPROM_storage_slot;
     if ( code_has_value() )
       Storage_Slot = code_value_int();
 
-    k = E2END - sizeof( bed_leveling_mesh.state );
-    j = (k - Unified_Bed_Leveling_EEPROM_start) / sizeof( bed_leveling_mesh.z_values );
+    k = E2END - sizeof( blm.state );
+    j = (k - Unified_Bed_Leveling_EEPROM_start) / sizeof( z_values );
 
-    if ( Storage_Slot < 0 || Storage_Slot > j || Unified_Bed_Leveling_EEPROM_start <= 0) {
+    if ( Storage_Slot < 0 || Storage_Slot >= j || Unified_Bed_Leveling_EEPROM_start <= 0) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
       return;
     }
-    bed_leveling_mesh.load_mesh( Storage_Slot );
-    bed_leveling_mesh.state.EEPROM_storage_slot = Storage_Slot;
-    bed_leveling_mesh.store_state( );
+    blm.load_mesh( Storage_Slot );
+    blm.state.EEPROM_storage_slot = Storage_Slot;
+    if ( Storage_Slot != blm.state.EEPROM_storage_slot)
+    	blm.store_state();
     SERIAL_PROTOCOLLNPGM("Done.\n");
   }
 
@@ -539,41 +550,47 @@ void gcode_G29() {
 //
 
   if ( code_seen('S') ) {			// Store (or Save) Current Mesh Data
-    Storage_Slot = bed_leveling_mesh.state.EEPROM_storage_slot;
+    Storage_Slot = blm.state.EEPROM_storage_slot;
     if ( code_has_value() )
       Storage_Slot = code_value_int();
 
-    k = E2END - sizeof( bed_leveling_mesh.state );
-    j = (k - Unified_Bed_Leveling_EEPROM_start) / sizeof( bed_leveling_mesh.z_values );
+    k = E2END - sizeof( blm.state );
+    j = (k - Unified_Bed_Leveling_EEPROM_start) / sizeof( z_values );
 
-    if ( Storage_Slot < 0 || Storage_Slot > j || Unified_Bed_Leveling_EEPROM_start <= 0) {
+    if ( Storage_Slot < 0 || Storage_Slot >= j || Unified_Bed_Leveling_EEPROM_start <= 0) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+      SERIAL_PROTOCOLPGM("?Use 0 to ");
+      SERIAL_PROTOCOL(j-1);
+      SERIAL_PROTOCOLPGM("\n");
       goto LEAVE;
     }
-    bed_leveling_mesh.state.EEPROM_storage_slot = Storage_Slot;
-    bed_leveling_mesh.store_state( );
-    bed_leveling_mesh.store_mesh( Storage_Slot );
+    blm.store_mesh( Storage_Slot );
+    blm.state.EEPROM_storage_slot = Storage_Slot;
+//
+//  if ( Storage_Slot != blm.state.EEPROM_storage_slot)
+    blm.store_state();		// Always save an updated copy of the UBL State info
+
     SERIAL_PROTOCOLLNPGM("Done.\n");
   }
 
 
-  if ( code_seen('M') ) {
+  if ( code_seen('M') || code_seen('m') || code_seen('O') ) {
     i = 0;
     if (code_has_value())
       i = code_value_int();
-    bed_leveling_mesh.display_map(i);
+    blm.display_map(i);
   }
 
   if ( code_seen('Z') ) {
     if ( code_has_value() )
-       bed_leveling_mesh.state.z_offset = code_value_float();		// do the simple case.  Just lock in the specified value
+       blm.state.z_offset = code_value_float();		// do the simple case.  Just lock in the specified value
     else {
         save_UBL_active_state_and_disable();
 //      measured_z = probe_pt( X_Pos+X_PROBE_OFFSET_FROM_EXTRUDER,  Y_Pos+Y_PROBE_OFFSET_FROM_EXTRUDER, ProbeDeployAndStow, G29_Verbose_Level );
 
 	measured_z = 1.5;
 	do_blocking_move_to_z(measured_z);     	// Get close to the bed, but leave some space so we don't damage anything
-						// The user is not going to be lockinging in a new Z-Offset very often so
+						// The user is not going to be locking in a new Z-Offset very often so
 						// it won't be that painful to spin the Encoder Wheel for 1.5mm
 	lcd_implementation_clear();
 	lcd_z_offset_edit_setup( measured_z );
@@ -608,7 +625,7 @@ void gcode_G29() {
 	UBL_has_control_of_LCD_Panel = 0; 
 	delay(20);	// We don't want any switch noise. 
 
-	bed_leveling_mesh.state.z_offset = measured_z;
+	blm.state.z_offset = measured_z;
 
 	lcd_implementation_clear();
 	restore_UBL_active_state_and_leave(); 
@@ -635,8 +652,8 @@ float sum, sum_of_diff_squared, sigma, difference, mean;
 	n = 0;
 	for (i = 0; i < MESH_NUM_X_POINTS; i++) {
 		for (j = 0;  j < MESH_NUM_Y_POINTS; j++) {
-			if ( !isnan( bed_leveling_mesh.z_values[i][j]) ) {
-				sum += bed_leveling_mesh.z_values[i][j];
+			if ( !isnan( z_values[i][j]) ) {
+				sum += z_values[i][j];
 				n++;
 			}
 		}
@@ -647,8 +664,8 @@ float sum, sum_of_diff_squared, sigma, difference, mean;
 //
 	for (i = 0; i < MESH_NUM_X_POINTS; i++) {
 		for (j = 0;  j < MESH_NUM_Y_POINTS; j++) {
-			if ( !isnan( bed_leveling_mesh.z_values[i][j]) ) {
-				difference = (bed_leveling_mesh.z_values[i][j] - mean);
+			if ( !isnan( z_values[i][j]) ) {
+				difference = (z_values[i][j] - mean);
 				sum_of_diff_squared += difference * difference;
 			}
 		}
@@ -667,8 +684,8 @@ float sum, sum_of_diff_squared, sigma, difference, mean;
 	if ( C_Flag) {
 		for (i = 0; i < MESH_NUM_X_POINTS; i++) {
 			for (j = 0;  j < MESH_NUM_Y_POINTS; j++) {
-				if ( !isnan( bed_leveling_mesh.z_values[i][j]) ) {
-					bed_leveling_mesh.z_values[i][j] -=  mean + Constant;
+				if ( !isnan( z_values[i][j]) ) {
+					z_values[i][j] -=  mean + Constant;
 				}
 			}
 		}
@@ -679,8 +696,8 @@ void Shift_Mesh_Height( )  {
 int i, j;
 	for (i = 0; i < MESH_NUM_X_POINTS; i++) {
 		for (j = 0;  j < MESH_NUM_Y_POINTS; j++) {
-			if ( !isnan( bed_leveling_mesh.z_values[i][j]) ) {
-				bed_leveling_mesh.z_values[i][j] += Constant;
+			if ( !isnan( z_values[i][j]) ) {
+				z_values[i][j] += Constant;
 			}
 		}
 	}
@@ -711,19 +728,19 @@ float xProbe, yProbe, measured_z;
 	}
 	location = find_closest_mesh_point_of_type( INVALID, X_Pos,  Y_Pos, 1, NULL);  // the '1' says we want the location to be relative to the probe
     	if (location.x_index>=0 && location.y_index>=0 ) {
-		xProbe = bed_leveling_mesh.map_x_index_to_bed_location(location.x_index); 
-		yProbe = bed_leveling_mesh.map_y_index_to_bed_location(location.y_index);
+		xProbe = blm.map_x_index_to_bed_location(location.x_index); 
+		yProbe = blm.map_y_index_to_bed_location(location.y_index);
 		if ( xProbe<MIN_PROBE_X || xProbe>MAX_PROBE_X || yProbe<MIN_PROBE_Y || yProbe>MAX_PROBE_Y)  {
     			SERIAL_PROTOCOLLNPGM("?Error: Attempt to probe off the bed.");
     			UBL_has_control_of_LCD_Panel = 0;
 			goto LEAVE;
 		}
 		measured_z = probe_pt(xProbe, yProbe, ProbeStay, G29_Verbose_Level);
-		bed_leveling_mesh.z_values[location.x_index][location.y_index] = measured_z + Z_PROBE_OFFSET_FROM_EXTRUDER;
+		z_values[location.x_index][location.y_index] = measured_z + Z_PROBE_OFFSET_FROM_EXTRUDER;
 	}
 
 	if ( do_mesh_map )
-    		bed_leveling_mesh.display_map(1);
+    		blm.display_map(1);
 
     } while (location.x_index>=0 && location.y_index>=0 );
 
@@ -792,7 +809,7 @@ SERIAL_ECHO("\n");
 	for (i = 0; i < MESH_NUM_X_POINTS; i++) {
 		for (j = 0;  j < MESH_NUM_Y_POINTS; j++) {
 			c = -((normal.dx*(MESH_MIN_X+i*MESH_X_DIST) + normal.dy*(MESH_MIN_Y+j*MESH_Y_DIST)) - d);
-			bed_leveling_mesh.z_values[i][j] += c;
+			z_values[i][j] += c;
 		}
 	}
 
@@ -864,7 +881,7 @@ unsigned long cnt;
 
     do {
 	if ( do_mesh_map )
-    		bed_leveling_mesh.display_map(1);
+    		blm.display_map(1);
 
 	location = find_closest_mesh_point_of_type( INVALID, X_Pos,  Y_Pos, 0, NULL);	// The '0' says we want to use the nozzle's position
 											// It doesn't matter if the probe can not reach the 
@@ -872,8 +889,8 @@ unsigned long cnt;
     	if (location.x_index<0 && location.y_index<0 ) 
 		continue;
 
-	xProbe = bed_leveling_mesh.map_x_index_to_bed_location(location.x_index); 
-	yProbe = bed_leveling_mesh.map_y_index_to_bed_location(location.y_index);
+	xProbe = blm.map_x_index_to_bed_location(location.x_index); 
+	yProbe = blm.map_y_index_to_bed_location(location.y_index);
 	if ( xProbe<X_MIN_POS || xProbe>X_MAX_POS || yProbe<Y_MIN_POS || yProbe>Y_MAX_POS)  {
 		SERIAL_PROTOCOLLNPGM("?Error: Attempt to probe off the bed.");
 		UBL_has_control_of_LCD_Panel = 0;
@@ -920,16 +937,16 @@ unsigned long cnt;
 		}
 	}
 
-	bed_leveling_mesh.z_values[location.x_index][location.y_index] = current_position[Z_AXIS] - card_thickness;
+	z_values[location.x_index][location.y_index] = current_position[Z_AXIS] - card_thickness;
 	if (G29_Verbose_Level > 2) {
 		SERIAL_PROTOCOL("Mesh Point Measured at: ");
-		SERIAL_PROTOCOL_F( bed_leveling_mesh.z_values[location.x_index][location.y_index], 6 );
+		SERIAL_PROTOCOL_F( z_values[location.x_index][location.y_index], 6 );
 		SERIAL_PROTOCOL("\n");
 	}
     } while (location.x_index>=0 && location.y_index>=0 );
 
     if ( do_mesh_map )
-   	bed_leveling_mesh.display_map(1);
+   	blm.display_map(1);
 LEAVE:
     restore_UBL_active_state_and_leave();
     do_blocking_move_to_z(Z_RAISE_PROBE_DEPLOY_STOW);     
@@ -985,9 +1002,12 @@ lcd_quick_feedback();
   }
 
   if ( code_seen('A') ) {			// Activate the Unified Bed Leveling System
-    bed_leveling_mesh.state.active = 1;
+    blm.state.active = 1;
     SERIAL_PROTOCOLLNPGM("Unified Bed Leveling System activated.\n");
+    blm.store_state();
   }
+
+
 
   if ( code_seen('C') ) {	
 	  C_Flag++;
@@ -997,19 +1017,22 @@ lcd_quick_feedback();
   }
 
   if ( code_seen('D') ) {			// Disable the Unified Bed Leveling System
-    bed_leveling_mesh.state.active = 0;
+    blm.state.active = 0;
     SERIAL_PROTOCOLLNPGM("Unified Bed Leveling System de-activated.\n");
+    blm.store_state();
   }
 
   if ( code_seen('F') ) {
-    bed_leveling_mesh.state.G29_Correction_Fade_Height = 10.00;
+    blm.state.G29_Correction_Fade_Height = 10.00;
     if (code_has_value() ) {
-      bed_leveling_mesh.state.G29_Correction_Fade_Height = code_value_float();
+      blm.state.G29_Correction_Fade_Height = code_value_float();
+      blm.state.G29_Fade_Height_Multiplier = 1.0 / blm.state.G29_Correction_Fade_Height;
     }
-    if (bed_leveling_mesh.state.G29_Correction_Fade_Height<0.0 || bed_leveling_mesh.state.G29_Correction_Fade_Height>100.0) {
-    	SERIAL_PROTOCOLLNPGM("?Bed Level Correction Fade Height Not Plausable.\n");
-    	bed_leveling_mesh.state.G29_Correction_Fade_Height = 10.00;
-	return true;
+    if (blm.state.G29_Correction_Fade_Height<0.0 || blm.state.G29_Correction_Fade_Height>100.0) {
+      SERIAL_PROTOCOLLNPGM("?Bed Level Correction Fade Height Not Plausable.\n");
+      blm.state.G29_Correction_Fade_Height = 10.00;
+      blm.state.G29_Fade_Height_Multiplier = 1.0 / blm.state.G29_Correction_Fade_Height;
+      return true;
     }
   }
 
@@ -1061,20 +1084,45 @@ void dump( char *str, float f )
 
 // These are some primative debug routines that will get stripped out later when the code is solid
 // I have some LED's wired up to my RAMPS v1.4 board that let me turn them on and off.  I use them
-// for different things as I debugged the code.   I would turn them on at certain points in the code
-// or I would light up more or less of them depending upon the value of a variable.   I some times
+// for different things as I debugged the code.   I turn them on at certain points in the code
+// or I light up more or less of them depending upon the value of a variable.   I some times
 // used the white one to indicate a + or - value of the Mesh Point being used in the calculations.
 
 // Pin 44  White LED  Top
 // Pin 63  Red   LED  Right
 // Pin 64  Red   LED  Left
 //
- 
+
+//
+// This code is written to be as fast as possible, not to conserve memory!
+//
 void status_LED( int pin, int action)
 {
-static int pin_63 = -1, pin_65 = -1, pin_66 = -1;
+static int pin_63 = -1, pin_64 = -1, pin_44 = -1;
 
 	switch (pin) {
+	case 44:	if (pin_44== -1){		// if so, we need to initialize the mode to output
+				pin_44 = 0x00;		// toggle the pin's status to simpile On/Off mode
+    				pinMode(44, OUTPUT);
+			}
+			if (action==0) {
+       				digitalWrite(44, 0);
+				pin_44 = 0;	// remember the pin is turned off
+				return;
+			}
+			if (action==1) {
+       				digitalWrite(44, 255);
+				pin_44 = 1;	// remember the pin is turned on
+				return;
+			}
+			if (pin_44) { // toggle the pin's status
+				pin_44 = 0;
+				digitalWrite(44, 0);
+			} else {
+				pin_44 = 1;
+				digitalWrite(44, 255);
+			}
+			break;
 	case 63:	if (pin_63== -1){		// if so, we need to initialize the mode to output
 				pin_63 = 0x00;		// toggle the pin's status to simpile On/Off mode
     				pinMode(63, OUTPUT);
@@ -1098,48 +1146,26 @@ static int pin_63 = -1, pin_65 = -1, pin_66 = -1;
 			}
 			break;
 
-	case 65:	if (pin_65== -1){		// if so, we need to initialize the mode to output
-				pin_65 = 0x00;		// toggle the pin's status to simpile On/Off mode
+	case 64:	if (pin_64== -1){		// if so, we need to initialize the mode to output
+				pin_64 = 0x00;		// toggle the pin's status to simpile On/Off mode
     				pinMode(65, OUTPUT);
 			}
 			if (action==0) {
        				digitalWrite(65, 0);
-				pin_65 = 0;	// remember the pin is turned off
+				pin_64 = 0;	// remember the pin is turned off
 				return;
 			}
 			if (action==1) {
        				digitalWrite(65, 255);
-				pin_65 = 1;	// remember the pin is turned on
+				pin_64 = 1;	// remember the pin is turned on
 				return;
 			}
-			if (pin_65) { // toggle the pin's status
-				pin_65 = 0;
+			if (pin_64) { // toggle the pin's status
+				pin_64 = 0;
 				digitalWrite(65, 0);
 			} else {
-				pin_65 = 1;
+				pin_64 = 1;
 				digitalWrite(65, 255);
-			}
-			break;
-	case 66:	if (pin_66== -1){		// if so, we need to initialize the mode to output
-				pin_66 = 0x00;		// toggle the pin's status to simpile On/Off mode
-    				pinMode(66, OUTPUT);
-			}
-			if (action==0) {
-       				digitalWrite(66, 0);
-				pin_66 = 0;	// remember the pin is turned off
-				return;
-			}
-			if (action==1) {
-       				digitalWrite(66, 255);
-				pin_66 = 1;	// remember the pin is turned on
-				return;
-			}
-			if (pin_66) { // toggle the pin's status
-				pin_66 = 0;
-				digitalWrite(66, 0);
-			} else {
-				pin_66 = 1;
-				digitalWrite(66, 255);
 			}
 			break;
 
@@ -1149,6 +1175,24 @@ static int pin_63 = -1, pin_65 = -1, pin_66 = -1;
 	}
 	return;
 }
+
+//      #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+//if (mesh_switch_needs_init) {
+//   mesh_switch_needs_init =0;
+//   pinMode(66, INPUT_PULLUP); // Roxy's Left Switch is on pin 66.  Right Switch is on pin 65
+//}
+//if (digitalRead(66) & 0x01) {
+//  ...
+//} else {
+//  ...
+//}
+
+
+
+
+
+
+
 
 static int UBL_state_at_invokation = 0;
 static int UBL_state_recursion_chk = 0;
@@ -1162,8 +1206,8 @@ void save_UBL_active_state_and_disable()
 	lcd_quick_feedback();	
 	return;
    }
-   UBL_state_at_invokation = bed_leveling_mesh.state.active;
-   bed_leveling_mesh.state.active = 0;
+   UBL_state_at_invokation = blm.state.active;
+   blm.state.active = 0;
    return;
 }
 
@@ -1176,7 +1220,7 @@ void restore_UBL_active_state_and_leave()
 	lcd_quick_feedback();
 	return;
    }
-   bed_leveling_mesh.state.active = UBL_state_at_invokation;
+   blm.state.active = UBL_state_at_invokation;
    return;
 }
 
@@ -1190,28 +1234,37 @@ void G29_What_Command() {
     k = E2END - Unified_Bed_Leveling_EEPROM_start;
     Statistics_Flag++;
     SERIAL_PROTOCOLPGM("Unified Bed Leveling System ");
-    if ( bed_leveling_mesh.state.active )
-    	SERIAL_PROTOCOLLNPGM("Active.");
+    if ( blm.state.active )
+    	SERIAL_PROTOCOLPGM("Active.");
     else
-    	SERIAL_PROTOCOLLNPGM("Inactive.");
+    	SERIAL_PROTOCOLPGM("Inactive.");
+    SERIAL_PROTOCOLPGM("  -------------------------------------       <----<<< \n"); 	// These arrows are just to help me 
+    											// find this info buried in the clutter
     SERIAL_PROTOCOLPGM("\n");
 
-    if ( bed_leveling_mesh.state.EEPROM_storage_slot == 0xffff )
+    if ( blm.state.EEPROM_storage_slot == 0xffff )  {
     	SERIAL_PROTOCOLPGM("No Mesh Loaded.\n");
+    	SERIAL_PROTOCOLPGM("  -------------------------------------       <----<<< \n"); // These arrows are just to help me 
+											 // find this info buried in the clutter
+    }
     else {
         SERIAL_PROTOCOLPGM("Mesh: ");
-        prt_hex_word( bed_leveling_mesh.state.EEPROM_storage_slot );
-        SERIAL_PROTOCOLPGM(" Loaded.  \n");
+        prt_hex_word( blm.state.EEPROM_storage_slot );
+        SERIAL_PROTOCOLPGM(" Loaded. ");
+    	SERIAL_PROTOCOLPGM("  --------------------------------------------------------       <----<<< \n"); // These arrows are just to help me 
+													 // find this info buried in the clutter
     }
 
-    SERIAL_ECHOPAIR("\nG29_Correction_Fade_Height : ", bed_leveling_mesh.state.G29_Correction_Fade_Height );
-    SERIAL_PROTOCOLPGM("\n");
+
+    SERIAL_ECHOPAIR("\nG29_Correction_Fade_Height : ", blm.state.G29_Correction_Fade_Height );
+    SERIAL_PROTOCOLPGM("  ----------------------------------       <----<<< \n"); 	// These arrows are just to help me 
+    											// find this info buried in the clutter
     idle();
 
 
     SERIAL_ECHO("z_offset: ");
-    SERIAL_ECHO_F( bed_leveling_mesh.state.z_offset, 6 );
-    SERIAL_PROTOCOLPGM("\n");
+    SERIAL_ECHO_F( blm.state.z_offset, 6 );
+    SERIAL_PROTOCOLPGM("  ------------------------------------------------------------       <----<<< \n");
 
     SERIAL_ECHOPAIR("UBL_state_at_invokation :", UBL_state_at_invokation);
     SERIAL_PROTOCOLPGM("\n");
@@ -1229,10 +1282,11 @@ void G29_What_Command() {
     SERIAL_PROTOCOLPGM("\n");
     idle();
 
+    SERIAL_PROTOCOLPGM("sizeof(blm) :  ");
+    SERIAL_PROTOCOL( sizeof(blm ) );
+    SERIAL_PROTOCOLLNPGM("\n");
     SERIAL_PROTOCOLPGM("z_value[][] size: ");
-    SERIAL_PROTOCOL( sizeof(bed_leveling_mesh ) );
-    SERIAL_PROTOCOLPGM("  ");
-    SERIAL_PROTOCOL( sizeof(bed_leveling_mesh.z_values ) );
+    SERIAL_PROTOCOL( sizeof(z_values ) );
     SERIAL_PROTOCOLLNPGM("\n");
 
     SERIAL_PROTOCOLPGM("EEPROM free for UBL: 0x");
@@ -1241,11 +1295,11 @@ void G29_What_Command() {
     idle();
 
     SERIAL_PROTOCOLPGM("EEPROM can hold 0x");
-    prt_hex_word( k / sizeof(bed_leveling_mesh.z_values) );
+    prt_hex_word( k / sizeof(z_values) );
     SERIAL_PROTOCOLPGM(" meshes. \n");
 
     SERIAL_PROTOCOLPGM("sizeof(stat)     :");
-    prt_hex_word( sizeof(bed_leveling_mesh.state) );
+    prt_hex_word( sizeof(blm.state) );
     SERIAL_PROTOCOLPGM("\n");
     idle();
 
@@ -1262,7 +1316,27 @@ void G29_What_Command() {
     SERIAL_PROTOCOLPGM("\n");
     idle();
 
-    if ( bed_leveling_mesh.sanity_check() == 0)
+SERIAL_ECHOPAIR("\nsizeof(block_t): ", (int) sizeof(block_t));
+SERIAL_ECHOPAIR("\nsizeof(planner.block_buffer): ", (int) sizeof(planner.block_buffer));
+SERIAL_ECHOPAIR("\nsizeof(char): ", (int) sizeof(char));
+SERIAL_ECHOPAIR("   sizeof(unsigned char): ", (int) sizeof(unsigned char));
+SERIAL_ECHOPAIR("\nsizeof(int): ", (int) sizeof(int));
+SERIAL_ECHOPAIR("   sizeof(unsigned int): ", (int) sizeof(unsigned int));
+SERIAL_ECHOPAIR("\nsizeof(long): ", (int) sizeof(long));
+SERIAL_ECHOPAIR("   sizeof(unsigned long int): ", (int) sizeof(unsigned long int));
+SERIAL_ECHOPAIR("\nsizeof(float): ", (int) sizeof(float));
+SERIAL_ECHOPAIR("   sizeof(double): ", (int) sizeof(double));
+SERIAL_ECHOPAIR("\nsizeof(void *): ", (int) sizeof(void *));
+struct pf {
+	void *p_f();
+} ptr_func;
+SERIAL_ECHOPAIR("   sizeof(struct pf): ", (int) sizeof( pf ) );
+SERIAL_ECHOPAIR("   sizeof(void *()): ", (int) sizeof( ptr_func ) );
+SERIAL_PROTOCOLPGM("\n");
+
+    idle();
+
+    if ( blm.sanity_check() == 0)
       SERIAL_PROTOCOLPGM("Unified Bed Leveling sanity checks passed.\n");
     return;
 }
@@ -1309,7 +1383,7 @@ void G29_Kompare_Current_Mesh_to_Stored_Mesh()  {
     }
     Storage_Slot = code_value_int();
 
-    k = E2END - sizeof( bed_leveling_mesh.state );
+    k = E2END - sizeof( blm.state );
     j = (k - Unified_Bed_Leveling_EEPROM_start) / sizeof( tmp_z_values );
 
     if ( Storage_Slot < 0 || Storage_Slot > j || Unified_Bed_Leveling_EEPROM_start <= 0) {
@@ -1326,7 +1400,7 @@ void G29_Kompare_Current_Mesh_to_Stored_Mesh()  {
     SERIAL_PROTOCOLPGM("\n");
     for(i=0; i<MESH_NUM_X_POINTS; i++) 
     	for(j=0; j<MESH_NUM_Y_POINTS; j++) 
-    		bed_leveling_mesh.z_values[i][j] = bed_leveling_mesh.z_values[i][j] - tmp_z_values[i][j];
+    		z_values[i][j] = z_values[i][j] - tmp_z_values[i][j];
   }
 
 
@@ -1353,14 +1427,14 @@ struct mesh_index_pair find_closest_mesh_point_of_type(Mesh_Point_Type type, flo
 	for(i=0; i<MESH_NUM_X_POINTS; i++) {
 		for(j=0; j<MESH_NUM_Y_POINTS; j++) {
 
-			if ( (type==INVALID && isnan(bed_leveling_mesh.z_values[i][j])) || 	// Check to see if this location holds the right thing
-				(type==REAL && !isnan(bed_leveling_mesh.z_values[i][j])) ||
+			if ( (type==INVALID && isnan(z_values[i][j])) || 	// Check to see if this location holds the right thing
+				(type==REAL && !isnan(z_values[i][j])) ||
 				(type==SET_IN_BITMAP && is_bit_set(bits, i, j ))  ) {
 
 				// We only get here if we found a Mesh Point of the specified type
 
-				mx = bed_leveling_mesh.map_x_index_to_bed_location(i);// Check if we can probe this mesh location
-				my = bed_leveling_mesh.map_y_index_to_bed_location(j);
+				mx = blm.map_x_index_to_bed_location(i);// Check if we can probe this mesh location
+				my = blm.map_y_index_to_bed_location(j);
 
 				if ( probe_as_reference) {			// If we are using the probe as the reference
 					if ( mx<MIN_PROBE_X || mx>MAX_PROBE_X)	// there are some locations we can't get to.
@@ -1406,7 +1480,7 @@ unsigned long cnt;
     do_blocking_move_to_xy( X_Pos, Y_Pos );
     do {
 	if ( do_mesh_map )
-    		bed_leveling_mesh.display_map(1);
+    		blm.display_map(1);
 
 	location = find_closest_mesh_point_of_type( SET_IN_BITMAP, X_Pos,  Y_Pos, 0, not_done);	// The '0' says we want to use the nozzle's position
 												// It doesn't matter if the probe can not reach this 
@@ -1417,8 +1491,8 @@ unsigned long cnt;
 	bit_clear( not_done, location.x_index, location.y_index );	// Mark this location as 'adjusted' so we will find a
 									// different location the next time through the loop
 
-	xProbe = bed_leveling_mesh.map_x_index_to_bed_location(location.x_index); 
-	yProbe = bed_leveling_mesh.map_y_index_to_bed_location(location.y_index);
+	xProbe = blm.map_x_index_to_bed_location(location.x_index); 
+	yProbe = blm.map_y_index_to_bed_location(location.y_index);
 	if ( xProbe<X_MIN_POS || xProbe>X_MAX_POS || yProbe<Y_MIN_POS || yProbe>Y_MAX_POS)  {	// In theory, we don't need this check.
 		SERIAL_PROTOCOLLNPGM("?Error: Attempt to edit off the bed.");			// This really can't happen, but for now,
 		UBL_has_control_of_LCD_Panel = 0;						// Let's do the check.
@@ -1427,7 +1501,7 @@ unsigned long cnt;
 
 	do_blocking_move_to_z( Z_RAISE_PROBE_DEPLOY_STOW );	// Move the nozzle to where we are going to edit
 	do_blocking_move_to_xy( xProbe, yProbe );
-	new_z = bed_leveling_mesh.z_values[location.x_index][location.y_index] + .001 ;
+	new_z = z_values[location.x_index][location.y_index] + .001 ;
 
 	round_off = (long int) ((new_z+.0025)*1000.0);		// we chop off the last digits just to be clean.  We are rounding to the
 	round_off = round_off - (round_off % 5l);		// closest 0 or 5 at the 3rd decimal place.
@@ -1467,7 +1541,7 @@ SERIAL_ECHO("\n");
 	UBL_has_control_of_LCD_Panel = 0; 
 	delay(20);	// We don't want any switch noise. 
 
-	bed_leveling_mesh.z_values[location.x_index][location.y_index] = new_z;
+	z_values[location.x_index][location.y_index] = new_z;
 
 	lcd_implementation_clear();
 
@@ -1475,7 +1549,7 @@ SERIAL_ECHO("\n");
 
 FINE_TUNE_EXIT:
     if ( do_mesh_map )
-   	bed_leveling_mesh.display_map(1);
+   	blm.display_map(1);
     restore_UBL_active_state_and_leave();
     do_blocking_move_to_z(Z_RAISE_PROBE_DEPLOY_STOW);     
     do_blocking_move_to_xy(X_Pos, Y_Pos);     
