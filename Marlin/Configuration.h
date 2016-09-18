@@ -138,7 +138,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "UBL5 FT-2020"
+#define CUSTOM_MACHINE_NAME "UBL6 FT-2020"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -213,10 +213,10 @@
 //     Use it for Testing or Development purposes. NEVER for production machine.
 //#define DUMMY_THERMISTOR_998_VALUE 25
 //#define DUMMY_THERMISTOR_999_VALUE 100
-// :{ '0': "Not used", '4': "10k !! do not use for a hotend. Bad resolution at high temp. !!", '1': "100k / 4.7k - EPCOS", '51': "100k / 1k - EPCOS", '6': "100k / 4.7k EPCOS - Not as accurate as Table 1", '5': "100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '7': "100k / 4.7k Honeywell 135-104LAG-J01", '71': "100k / 4.7k Honeywell 135-104LAF-J01", '8': "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9': "100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10': "100k / 4.7k RS 198-961", '11': "100k / 4.7k beta 3950 1%", '12': "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13': "100k Hisens 3950  1% up to 300Ã‚Â°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '60': "100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '55': "100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '2': "200k / 4.7k - ATC Semitec 204GT-2", '52': "200k / 1k - ATC Semitec 204GT-2", '-3': "Thermocouple + MAX31855 (only for sensor 0)", '-2': "Thermocouple + MAX6675 (only for sensor 0)", '-1': "Thermocouple + AD595", '3': "Mendel-parts / 4.7k", '1047': "Pt1000 / 4.7k", '1010': "Pt1000 / 1k (non standard)", '20': "PT100 (Ultimainboard V2.x)", '147': "Pt100 / 4.7k", '110': "Pt100 / 1k (non-standard)", '998': "Dummy 1", '999': "Dummy 2" }
+
 
 #define TEMP_SENSOR_0 5		// my printer had a shorted thermistor at the nozzle.  They over crimped the brass insert.
-							// The best replacement I had was a Type-5, so my firmware is different than Erik's and Roxy's.
+				// The best replacement I had was a Type-5, so my firmware is different than Erik's and Roxy's.
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
@@ -266,7 +266,7 @@
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
 //#define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
-#define BANG_MAX 200   // limits current to nozzle while in bang-bang mode; 255=full current
+#define BANG_MAX 225   // limits current to nozzle while in bang-bang mode; 255=full current
 #define PID_MAX BANG_MAX // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #if ENABLED(PIDTEMP)
   //#define PID_AUTOTUNE_MENU // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result.
@@ -482,10 +482,13 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //    O-- FRONT --+
 //  (0,0)
 //
-#define X_PROBE_OFFSET_FROM_EXTRUDER 38   // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -7   // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -10.50// Z offset: -below +above  [the nozzle]
-//#define Z_PROBE_OFFSET_FROM_EXTRUDER -10.40 // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 38   	// X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER -7   	// Y offset: -front +behind [the nozzle]
+//#define Z_PROBE_OFFSET_FROM_EXTRUDER -10.50	// Z offset: -below +above  [the nozzle]
+//#define Z_PROBE_OFFSET_FROM_EXTRUDER -9.50	// Z offset: -below +above  [the nozzle]
+//#define Z_PROBE_OFFSET_FROM_EXTRUDER -11.25	// Z offset: -below +above  [the nozzle]
+//#define Z_PROBE_OFFSET_FROM_EXTRUDER -10.25	// Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -9.00	// Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 7500
@@ -553,6 +556,114 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define Z_PROBE_OFFSET_RANGE_MIN -20
 #define Z_PROBE_OFFSET_RANGE_MAX 20
 
+
+//===========================================================================
+//============================ Unified Bed Leveling ============================
+//===========================================================================
+
+#define UNIFIED_BED_LEVELING_FEATURE    	// Enable Unified Bed Leveling.
+#define DEBUG_LEVELING_FEATURE
+#define UNIFIED_BED_LEVELING_GRID		// Enable the Grid Leveling portion of Unified Bed Leveling
+#define UNIFIED_BED_LEVELING_GRID_POINTS 5 	// Max size of the n x n grid to be probed
+
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+  #define MESH_MIN_X X_MIN_POS
+  #define MESH_MAX_X X_MAX_POS
+  #define MESH_MIN_Y Y_MIN_POS
+  #define MESH_MAX_Y Y_MAX_POS
+  #define MESH_NUM_X_POINTS 11  // Don't use more than 15 points per axis
+  #define MESH_NUM_Y_POINTS 10
+  #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
+
+  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
+
+  #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+
+  #define BIG_RAISE_NOT_NEEDED 45	// These parameters are used during the manual probing of the bed areas
+  #define SIZE_OF_LITTLE_RAISE .25 	// that can not be reached automatically by the Z-Probe.  If the 
+					// distance the nozzle is moving to measure the next point is less 
+					// than this amount, a SIZE_OF_LITTLE_RAISE is done.  This 
+					// makes the manually probing of unreachable bed areas much less 
+					// annoying.  The theory is adjacent Mesh Points should not vary 
+					// by very much.  It should be 'safe' to not raise the nozzle as much.
+
+ // Set the number of grid points per dimension.
+ // You usually won't need more than 4 (squared=16) to get good results.
+  #define AUTO_BED_LEVELING_GRID_POINTS 4
+
+ // Three locations to probe the bed to be used in 3-Point Mesh Leveling
+  #define UBL_PROBE_PT_1_X 40
+  #define UBL_PROBE_PT_1_Y 180
+
+  #define UBL_PROBE_PT_2_X 100
+  #define UBL_PROBE_PT_2_Y 10
+
+  #define UBL_PROBE_PT_3_X 195
+  #define UBL_PROBE_PT_3_Y 185
+
+  // Edge boundaries for Grid Based Mesh Leveling
+  #define LEFT_PROBE_BED_POSITION 39
+  #define RIGHT_PROBE_BED_POSITION 185
+  #define FRONT_PROBE_BED_POSITION 10
+  #define BACK_PROBE_BED_POSITION 185
+
+  #if ENABLED(MANUAL_BED_LEVELING)
+    #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
+  #endif  // MANUAL_BED_LEVELING
+
+  //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
+                                                                             // Useful to retract a deployable Z probe.
+
+// The QUICK_ACCESS_TO_Z_BABY_STEPPING is not really a Unified Bed Leveling feature.  But it was added
+// at the same time as the UBL code was being developed.  It has only been tested with the UBL System
+// active.  If you don't want UBL enabled and feel brave, you should be able to move this #define outside of 
+// the #if ENABLED(UNIFIED_BED_LEVELING_FEATURE) code block.
+
+  #define QUICK_ACCESS_TO_Z_BABY_STEPPING 65	// if this option is enabled and has a pin number defined on it,
+  						// it will give you immediate access to the Z-Baby-Stepping menu
+						// on the LCD Panel.   This is very nice when starting a print.  You
+						// need to have an LCD Panel enabled.  And you need to have a pin with
+						// a switch on it to trigger the behaviour.    If you do not care about
+						// having a Kill Switch on your LCD Panel, you can comment out all lines
+						// in the appropriate pins_???.h file (for your machine) that have 
+						// #defined KILL_PIN.   You can place that pin number here to get instant
+						// access to the Z-Baby-Stepping menu.
+						// Roxy's Left Switch is on pin 66.  Right Switch is on pin 65
+  
+#endif  // UNIFIED_BED_LEVELING_FEATURE
+
+/*********************************************************************\
+* R/C SERVO support
+* Sponsored by TrinityLabs, Reworked by codexmas
+**********************************************************************/
+
+// Number of servos
+//
+// If you select a configuration below, this will receive a default value and does not need to be set manually
+// set it manually if you have more servos than extruders and wish to manually control some
+// leaving it undefined or defining as 0 will disable the servo subsystem
+// If unsure, leave commented / disabled
+//
+#define NUM_SERVOS 1 // Servo index starts with 0 for M280 command
+
+// Servo deactivation
+//
+// With this option servos are powered only during movement, then turned off to prevent jitter.
+
+// Delay (in microseconds) before the next move will start, to give the servo time to reach its target angle.
+// 300ms is a good value but you can try less delay.  If the servo can't reach the requested position, increase it.
+#define DEACTIVATE_SERVOS_AFTER_MOVE
+#define SERVO_DELAY 500
+  
+//
+// Servo Endstops
+//
+// This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
+// Use M851 to set the Z probe vertical offset from the nozzle. Store that setting with M500.
+//
+#define Z_ENDSTOP_SERVO_NR 0
+#define Z_SERVO_ANGLES {40,85} // Z Servo Deploy and Stow angles
+
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{0:'Low',1:'High'}
 #define X_ENABLE_ON 0
@@ -608,7 +719,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 203
+#define X_MAX_POS 200
 #define Y_MAX_POS 180
 #define Z_MAX_POS 175
 
@@ -624,77 +735,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 #endif
-
-//===========================================================================
-//============================ Unified Bed Leveling ============================
-//===========================================================================
-
-#define UNIFIED_BED_LEVELING_FEATURE    	// Enable Unified Bed Leveling.
-#define DEBUG_LEVELING_FEATURE
-#define UNIFIED_BED_LEVELING_GRID		// Enable the Grid Leveling portion of Unified Bed Leveling
-#define UNIFIED_BED_LEVELING_GRID_POINTS 5 	// Max size of the n x n grid to be probed
-
-#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
-  #define MESH_MIN_X X_MIN_POS
-  #define MESH_MAX_X X_MAX_POS
-  #define MESH_MIN_Y Y_MIN_POS
-  #define MESH_MAX_Y Y_MAX_POS
-  #define MESH_NUM_X_POINTS 10  // Don't use more than 15 points per axis
-  #define MESH_NUM_Y_POINTS 10
-  #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
-
-  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
-
-  #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
-  
-  #define QUICK_ACCESS_TO_Z_BABY_STEPPING 65	// if this option is enabled and has a pin number defined on it,
-  						// it will give you immediate access to the Z-Baby-Stepping menu
-						// on the LCD Panel.   This is very nice when starting a print.  You
-						// need to have an LCD Panel enabled.  And you need to have a pin with
-						// a switch on it to trigger the behaviour.    If you do not care about
-						// having a Kill Switch on your LCD Panel, you can comment out all lines
-						// in the appropriate pins_???.h file (for your machine) that have 
-						// #defined KILL_PIN.   You can place that pin number here to get instant
-						// access to the Z-Baby-Stepping menu.
-						// Roxy's Left Switch is on pin 66.  Right Switch is on pin 65
-  
-  //
-  //
-  #define BIG_RAISE_NOT_NEEDED 45	// These parameters are used during the manual probing of the bed areas
-  #define SIZE_OF_LITTLE_RAISE .25 	// that can not be reached automatically by the Z-Probe.  If the 
-					// distance the nozzle is moving to measure the next point is less 
-					// than this amount, a SIZE_OF_LITTLE_RAISE is done.  This 
-					// makes the manually probing of unreachable bed areas much less 
-					// annoying.  The theory is adjacent Mesh Points should not vary 
-					// by very much.  It should be 'safe' to not raise the nozzle as much.
-
- // Set the number of grid points per dimension.
- // You usually won't need more than 4 (squared=16) to get good results.
-  #define AUTO_BED_LEVELING_GRID_POINTS 4
-
- // Three locations to probe the bed to be used in 3-Point Mesh Leveling
-  #define UBL_PROBE_PT_1_X 40
-  #define UBL_PROBE_PT_1_Y 180
-
-  #define UBL_PROBE_PT_2_X 100
-  #define UBL_PROBE_PT_2_Y 10
-
-  #define UBL_PROBE_PT_3_X 195
-  #define UBL_PROBE_PT_3_Y 185
-
-  // Edge boundaries for Grid Based Mesh Leveling
-  #define LEFT_PROBE_BED_POSITION 39
-  #define RIGHT_PROBE_BED_POSITION 185
-  #define FRONT_PROBE_BED_POSITION 10
-  #define BACK_PROBE_BED_POSITION 185
-
-  #if ENABLED(MANUAL_BED_LEVELING)
-    #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
-  #endif  // MANUAL_BED_LEVELING
-
-  //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
-                                                                             // Useful to retract a deployable Z probe.
-#endif  // UNIFIED_BED_LEVELING_FEATURE
 
 // @section homing
 
@@ -722,8 +762,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 #define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
-  #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
-  #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_X_POINT (((X_MIN_POS + X_MAX_POS) / 2)+7)    	// X point for Z homing when homing all axis (G28).
+  #define Z_SAFE_HOMING_Y_POINT (((Y_MIN_POS + Y_MAX_POS) / 2)+12)	// Y point for Z homing when homing all axis (G28).
 #endif
 
 
@@ -742,7 +782,10 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,90}      // default steps per unit for FolgerTech i3-2020
 #define DEFAULT_MAX_FEEDRATE          {250, 250, 2, 17}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,5,750}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+//#define DEFAULT_MAX_ACCELERATION      {1000,1000,5,750}    // X, Y, Z, E maximum start speed for accelerated moves. 
+
+#define DEFAULT_MAX_ACCELERATION      {1000,1000,8,750}    // X, Y, Z, E maximum start speed for accelerated moves. 
+#define DEFAULT_ZJERK                 1.0     // (mm/sec)
 
 #define DEFAULT_ACCELERATION          500    // X, Y, Z and E acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  400    // E acceleration in mm/s^2 for retracts
@@ -750,7 +793,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                17.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.4     // (mm/sec)
+//#define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 4.0    // (mm/sec)
 
 
@@ -1180,37 +1223,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //define BlinkM/CyzRgb Support
 //#define BLINKM
 
-/*********************************************************************\
-* R/C SERVO support
-* Sponsored by TrinityLabs, Reworked by codexmas
-**********************************************************************/
-
-// Number of servos
-//
-// If you select a configuration below, this will receive a default value and does not need to be set manually
-// set it manually if you have more servos than extruders and wish to manually control some
-// leaving it undefined or defining as 0 will disable the servo subsystem
-// If unsure, leave commented / disabled
-//
-#define NUM_SERVOS 1 // Servo index starts with 0 for M280 command
-
-// Servo deactivation
-//
-// With this option servos are powered only during movement, then turned off to prevent jitter.
-
-// Delay (in microseconds) before the next move will start, to give the servo time to reach its target angle.
-// 300ms is a good value but you can try less delay.  If the servo can't reach the requested position, increase it.
-#define DEACTIVATE_SERVOS_AFTER_MOVE
-#define SERVO_DELAY 500
-  
-//
-// Servo Endstops
-//
-// This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
-// Use M851 to set the Z probe vertical offset from the nozzle. Store that setting with M500.
-//
-#define Z_ENDSTOP_SERVO_NR 0
-#define Z_SERVO_ANGLES {40,85} // Z Servo Deploy and Stow angles
 
 
 /**********************************************************************\
