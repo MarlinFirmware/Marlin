@@ -494,7 +494,7 @@ static uint8_t target_extruder;
 
 #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
   int nonlinear_grid_spacing[2] = { 0 };
-  float bed_level_grid[AUTO_BED_LEVELING_GRID_POINTS][AUTO_BED_LEVELING_GRID_POINTS];
+  float bed_level_grid[ABL_GRID_POINTS_X][ABL_GRID_POINTS_Y];
 #endif
 
 #if IS_SCARA
@@ -2122,14 +2122,15 @@ static void clean_up_after_endstop_or_probe_move() {
    * using linear extrapolation, away from the center.
    */
   static void extrapolate_unprobed_bed_level() {
-    uint8_t half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
-    for (uint8_t y = 0; y <= half; y++) {
-      for (uint8_t x = 0; x <= half; x++) {
+    int half_x = (ABL_GRID_POINTS_X - 1) / 2,
+        half_y = (ABL_GRID_POINTS_Y - 1) / 2;
+    for (uint8_t y = 0; y <= half_y; y++) {
+      for (uint8_t x = 0; x <= half_x; x++) {
         if (x + y < 3) continue;
-        extrapolate_one_point(half - x, half - y, x > 1 ? +1 : 0, y > 1 ? +1 : 0);
-        extrapolate_one_point(half + x, half - y, x > 1 ? -1 : 0, y > 1 ? +1 : 0);
-        extrapolate_one_point(half - x, half + y, x > 1 ? +1 : 0, y > 1 ? -1 : 0);
-        extrapolate_one_point(half + x, half + y, x > 1 ? -1 : 0, y > 1 ? -1 : 0);
+        extrapolate_one_point(half_x - x, half_y - y, x > 1 ? +1 : 0, y > 1 ? +1 : 0);
+        extrapolate_one_point(half_x + x, half_y - y, x > 1 ? -1 : 0, y > 1 ? +1 : 0);
+        extrapolate_one_point(half_x - x, half_y + y, x > 1 ? +1 : 0, y > 1 ? -1 : 0);
+        extrapolate_one_point(half_x + x, half_y + y, x > 1 ? -1 : 0, y > 1 ? -1 : 0);
       }
     }
   }
@@ -2138,8 +2139,8 @@ static void clean_up_after_endstop_or_probe_move() {
    * Print calibration results for plotting or manual frame adjustment.
    */
   static void print_bed_level() {
-    for (uint8_t y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
-      for (uint8_t x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
+    for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++) {
+      for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
         SERIAL_PROTOCOL_F(bed_level_grid[x][y], 2);
         SERIAL_PROTOCOLCHAR(' ');
       }
@@ -3308,11 +3309,12 @@ inline void gcode_G28() {
         if (dryrun) SERIAL_PROTOCOLLNPGM("Running in DRY-RUN mode");
       }
 
-      int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
+      int abl_grid_points_x = ABL_GRID_POINTS_X,
+          abl_grid_points_y = ABL_GRID_POINTS_Y;
 
       #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-        if (code_seen('P')) auto_bed_leveling_grid_points = code_value_int();
-        if (auto_bed_leveling_grid_points < 2) {
+        if (code_seen('P')) abl_grid_points_x = abl_grid_points_y = code_value_int();
+        if (abl_grid_points_x < 2) {
           SERIAL_PROTOCOLLNPGM("?Number of probed (P)oints is implausible (2 minimum).");
           return;
         }
@@ -3400,8 +3402,8 @@ inline void gcode_G28() {
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
       // probe at the points of a lattice grid
-      const float xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (auto_bed_leveling_grid_points - 1),
-                  yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points - 1);
+      const float xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (abl_grid_points_x - 1),
+                  yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (abl_grid_points_y - 1);
 
       #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
@@ -3421,30 +3423,31 @@ inline void gcode_G28() {
          * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
          */
 
-        int abl2 = sq(auto_bed_leveling_grid_points);
+        int abl2 = abl_grid_points_x * abl_grid_points_y;
 
         double eqnAMatrix[abl2 * 3], // "A" matrix of the linear system of equations
                eqnBVector[abl2],     // "B" vector of Z points
                mean = 0.0;
-        int8_t indexIntoAB[auto_bed_leveling_grid_points][auto_bed_leveling_grid_points];
+        int indexIntoAB[abl_grid_points_x][abl_grid_points_y];
 
       #endif // AUTO_BED_LEVELING_LINEAR
 
       int probePointCounter = 0;
-      bool zig = auto_bed_leveling_grid_points & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
+      bool zig = abl_grid_points_y & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
 
-      for (uint8_t yCount = 0; yCount < auto_bed_leveling_grid_points; yCount++) {
+      for (uint8_t yCount = 0; yCount < abl_grid_points_y; yCount++) {
         float yBase = front_probe_bed_position + yGridSpacing * yCount;
         yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
+
         int8_t xStart, xStop, xInc;
 
         if (zig) {
           xStart = 0;
-          xStop = auto_bed_leveling_grid_points;
+          xStop = abl_grid_points_x;
           xInc = 1;
         }
         else {
-          xStart = auto_bed_leveling_grid_points - 1;
+          xStart = abl_grid_points_x - 1;
           xStop = -1;
           xInc = -1;
         }
@@ -3579,8 +3582,8 @@ inline void gcode_G28() {
 
         float min_diff = 999;
 
-        for (int8_t yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
-          for (uint8_t xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
+        for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
+          for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
             int ind = indexIntoAB[xx][yy];
             float diff = eqnBVector[ind] - mean,
                   x_tmp = eqnAMatrix[ind + 0 * abl2],
@@ -3604,8 +3607,8 @@ inline void gcode_G28() {
         if (verbose_level > 3) {
           SERIAL_PROTOCOLLNPGM("\nCorrected Bed Height vs. Bed Topology:");
 
-          for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
-            for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
+          for (int8_t yy = abl_grid_points_y - 1; yy >= 0; yy--) {
+            for (uint8_t xx = 0; xx < abl_grid_points_x; xx++) {
               int ind = indexIntoAB[xx][yy];
               float x_tmp = eqnAMatrix[ind + 0 * abl2],
                     y_tmp = eqnAMatrix[ind + 1 * abl2],
@@ -7796,16 +7799,18 @@ void ok_to_send() {
     void adjust_delta(float cartesian[XYZ]) {
       if (nonlinear_grid_spacing[X_AXIS] == 0 || nonlinear_grid_spacing[Y_AXIS] == 0) return; // G29 not done!
 
-      int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
-      float h1 = 0.001 - half, h2 = half - 0.001,
-            grid_x = max(h1, min(h2, RAW_X_POSITION(cartesian[X_AXIS]) / nonlinear_grid_spacing[X_AXIS])),
-            grid_y = max(h1, min(h2, RAW_Y_POSITION(cartesian[Y_AXIS]) / nonlinear_grid_spacing[Y_AXIS]));
-      int floor_x = floor(grid_x), floor_y = floor(grid_y);
+      int half_x = (ABL_GRID_POINTS_X - 1) / 2,
+          half_y = (ABL_GRID_POINTS_Y - 1) / 2;
+      float hx2 = half_x - 0.001, hx1 = -hx2,
+            hy2 = half_y - 0.001, hy1 = -hy2,
+            grid_x = max(hx1, min(hx2, RAW_X_POSITION(cartesian[X_AXIS]) / nonlinear_grid_spacing[X_AXIS])),
+            grid_y = max(hy1, min(hy2, RAW_Y_POSITION(cartesian[Y_AXIS]) / nonlinear_grid_spacing[Y_AXIS]));
+      int   floor_x = floor(grid_x), floor_y = floor(grid_y);
       float ratio_x = grid_x - floor_x, ratio_y = grid_y - floor_y,
-            z1 = bed_level_grid[floor_x + half][floor_y + half],
-            z2 = bed_level_grid[floor_x + half][floor_y + half + 1],
-            z3 = bed_level_grid[floor_x + half + 1][floor_y + half],
-            z4 = bed_level_grid[floor_x + half + 1][floor_y + half + 1],
+            z1 = bed_level_grid[floor_x + half_x][floor_y + half_y],
+            z2 = bed_level_grid[floor_x + half_x][floor_y + half_y + 1],
+            z3 = bed_level_grid[floor_x + half_x + 1][floor_y + half_y],
+            z4 = bed_level_grid[floor_x + half_x + 1][floor_y + half_y + 1],
             left = (1 - ratio_y) * z1 + ratio_y * z2,
             right = (1 - ratio_y) * z3 + ratio_y * z4,
             offset = (1 - ratio_x) * left + ratio_x * right;
