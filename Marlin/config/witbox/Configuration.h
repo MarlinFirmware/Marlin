@@ -11,7 +11,7 @@
 #define MACHINE_NAME "Witbox"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/witbox"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.3.1" 
+#define FIRMWARE_VER "2.4.0" 
 #define BUILD_VER ""
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
