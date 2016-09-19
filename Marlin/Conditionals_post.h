@@ -409,9 +409,6 @@
     #if ENABLED(USE_ZMIN_PLUG)
       #define ENDSTOPPULLUP_ZMIN
     #endif
-    #if DISABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
-      #define ENDSTOPPULLUP_ZMIN_PROBE
-    #endif
   #endif
 
   /**
@@ -589,6 +586,9 @@
    * Bed Probe dependencies
    */
   #if HAS_BED_PROBE
+    #if ENABLED(ENDSTOPPULLUPS) && HAS_Z_MIN_PROBE_PIN
+      #define ENDSTOPPULLUP_ZMIN_PROBE
+    #endif
     #ifndef Z_PROBE_OFFSET_RANGE_MIN
       #define Z_PROBE_OFFSET_RANGE_MIN -20
     #endif
