@@ -2385,6 +2385,120 @@ static void homeaxis(AxisEnum axis) {
 
 #endif
 
+
+#define G2_G3_radius  // adds R support in addition to the existing I & J support
+#if ENABLED(ARC_SUPPORT)
+#ifdef G2_G3_radius
+
+void compute_I_J(bool isclockwise, float radius, float I_J_array[]) {
+ 
+/*
+
+  The center is computed using a two point + radius method.  This method uses vector methods to find the center.  
+  See the following for details: http://mathforum.org/library/drmath/view/53027.html
+
+  This method actually generates the centers af the two circles that can go through the start and
+  the end of the arc segment specified by the current line/gcode
+
+  To determine which center is correct we look at the length of the arc that the
+  machine would travel if that center was selected.  For R> 0 then we pick the shorter
+  arc.  For R< 0 then we pick the longer arc.
+  
+  The equations for the two centers are:
+     x1 = X_current_value
+     x2 = X_next_value
+
+     y1 = Y_current_value
+     y2 = Y_next_value
+
+     r = R_adius
+
+     (xa, ya) - one of the possible centers
+     (xb, yb) - the other possible center
+
+    q = Sqr((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
+
+    xtemp = x1 / 2 + x2 / 2
+    ytemp = y1 / 2 + y2 / 2
+
+    xa = xtemp + Sqr(r ^ 2 - (q / 2) ^ 2) * (y1 - y2) / q
+    ya = ytemp + Sqr(r ^ 2 - (q / 2) ^ 2) * (x2 - x1) / q
+ 
+    xb = xtemp - Sqr(r ^ 2 - (q / 2) ^ 2) * (y1 - y2) / q
+    yb = ytemp - Sqr(r ^ 2 - (q / 2) ^ 2) * (x2 - x1) / q
+ 
+*/
+
+
+
+
+
+/* converting R format to I J format
+   
+  calculates I & J values 
+  (X_current_value, Y_current_value) - this is the point where the PREVIOUIS line/gcode left machine at
+  (X_next_value, Y_next_value) - this is where the CURRENT line/gcode will move the machine to
+  R_adius is the value of the radius specified in the CURRENT line/gcode
+ */
+
+  
+// do the two point calculation
+   
+  float X_current_value = current_position[0];
+  float X_next_value = destination[0];
+
+  float Y_current_value = current_position[1];
+  float Y_next_value = destination[1];
+  float R_adius = radius;
+
+  float q = hypot((X_next_value - X_current_value), (Y_next_value - Y_current_value));
+
+  float xtemp = X_current_value / 2 + X_next_value / 2;
+  float ytemp = Y_current_value / 2 + Y_next_value / 2;
+
+  float center_temp = sqrt(R_adius * R_adius - (q / 2) * (q / 2));
+     
+// (xa, ya) is one of the centers, (xb, yb)  is the other
+  float xa = xtemp + center_temp * (Y_current_value - Y_next_value) / q;
+  float ya = ytemp + center_temp * (X_next_value - X_current_value) / q;
+
+  float xb = xtemp - center_temp * (Y_current_value - Y_next_value) / q;
+  float yb = ytemp - center_temp * (X_next_value - X_current_value) / q;
+
+// now we need to determine the length of the arc between X_current and X_next
+// then we need to make the angle a positive value 
+  float angle_a1_atan2 = atan2(Y_current_value - ya, X_current_value - xa);
+  if (angle_a1_atan2 < 0.0)     {  angle_a1_atan2 = angle_a1_atan2 + 2 * M_PI; }
+  
+  float angle_a2_atan2 = atan2((Y_next_value - ya), (X_next_value - xa));
+  if (angle_a2_atan2 < 0.0)       angle_a2_atan2 = angle_a2_atan2 + 2 * M_PI;
+  
+  float angle_a_dif_atan2 = angle_a1_atan2 - angle_a2_atan2;
+  if (angle_a_dif_atan2 < 0.0)    angle_a_dif_atan2 = angle_a_dif_atan2 + 2 * M_PI;
+    
+// pick a center then change it if we’re wrong
+  float X_center = xb;
+  float Y_center = yb;
+    
+    
+    
+ // G2 - isclockwise is true
+ // G3 - isclockwise is false
+  if (( isclockwise && R_adius > 0 && angle_a_dif_atan2 < M_PI)   ||
+     (!isclockwise && R_adius > 0 && angle_a_dif_atan2 >= M_PI)   ||
+     ( isclockwise && R_adius < 0 && angle_a_dif_atan2 >= M_PI)   ||
+     (!isclockwise && R_adius < 0 && angle_a_dif_atan2 < M_PI))  {
+       X_center = xa;
+       Y_center = ya;
+  }
+
+  I_J_array[0] = (X_center - X_current_value) ;  //value of I 
+  I_J_array[1] = (Y_center - Y_current_value) ;  //value of J
+
+}
+#endif
+#endif
+
 /**
  * ***************************************************************************
  * ***************************** G-CODE HANDLING *****************************
@@ -2523,10 +2637,29 @@ inline void gcode_G0_G1() {
       #endif
 
       // Center of arc as offset from current_position
+#ifdef G2_G3_radius
+
+      float arc_offset[2] = {0 , 0};
+      if(code_seen('R')) {
+#if ENABLED(INCH_MODE_SUPPORT)		  
+        float radius = code_value_float() * linear_unit_factor;
+#else		
+        float radius = code_value_float();
+#endif	
+        compute_I_J(clockwise,radius,arc_offset); 
+      }
+      else {
+  
+        arc_offset[0] = code_seen('I') ? code_value_axis_units(X_AXIS) : 0;
+        arc_offset[1] = code_seen('J') ? code_value_axis_units(Y_AXIS) : 0; 
+      }	  
+#else
       float arc_offset[2] = {
         code_seen('I') ? code_value_axis_units(X_AXIS) : 0,
         code_seen('J') ? code_value_axis_units(Y_AXIS) : 0
       };
+
+#endif  //G2_G3_radius
 
       // Send an arc to the planner
       plan_arc(destination, arc_offset, clockwise);
