@@ -466,7 +466,7 @@
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500, 500, 500, 500 }
 
 /**
  * Default Max Feed Rate (mm/s)
