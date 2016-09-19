@@ -306,12 +306,8 @@
 /**
  * Limited number of servos
  */
-#if defined(NUM_SERVOS) && NUM_SERVOS > 0
-  #if NUM_SERVOS > 4
-    #error "The maximum number of SERVOS in Marlin is 4."
-  #elif HAS_Z_SERVO_ENDSTOP && Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
-    #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
-  #endif
+#if NUM_SERVOS > 4
+  #error "The maximum number of SERVOS in Marlin is 4."
 #endif
 
 /**
@@ -367,7 +363,7 @@
     #ifndef NUM_SERVOS
       #error "You must set NUM_SERVOS for a Z servo probe (Z_ENDSTOP_SERVO_NR)."
     #elif Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
-      #error "Z_ENDSTOP_SERVO_NR must be less than NUM_SERVOS."
+      #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
     #endif
   #endif
 
