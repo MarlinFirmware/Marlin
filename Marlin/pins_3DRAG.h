@@ -58,7 +58,10 @@
 // SD Card
 //
 #undef SDSS
-#define SDSS               25//53
+#define SDSS               25
+
+#undef SD_DETECT_PIN
+#define SD_DETECT_PIN      53
 
 //
 // Heaters / Fans
