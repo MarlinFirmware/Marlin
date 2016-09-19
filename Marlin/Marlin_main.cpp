@@ -1881,6 +1881,11 @@ static void clean_up_after_endstop_or_probe_move() {
     // Make room for probe
     do_probe_raise(_Z_PROBE_DEPLOY_HEIGHT);
 
+    // Check BLTOUCH probe status for an error
+    #if ENABLED(BLTOUCH)
+      if (servo[Z_ENDSTOP_SERVO_NR].read() == BLTouchState_Error) { stop(); return true; }
+    #endif
+
     #if ENABLED(Z_PROBE_SLED)
       if (axis_unhomed_error(true, false, false)) { stop(); return true; }
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
