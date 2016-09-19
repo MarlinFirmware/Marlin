@@ -682,12 +682,12 @@ void Stepper::isr() {
     OCR0A = old_OCR0A;
 
     #define START_E_PULSE(INDEX) \
-      if (e_steps[INDEX]) E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN)
+      if (e_steps[INDEX]) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN)
 
     #define STOP_E_PULSE(INDEX) \
       if (e_steps[INDEX]) { \
         e_steps[INDEX] <= 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
-        E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); \
+        E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
       }
 
     // Step all E steppers that have steps
