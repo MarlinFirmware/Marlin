@@ -1146,7 +1146,7 @@ inline bool code_value_bool() { return !code_has_value() || code_value_byte() > 
   }
 
   inline float axis_unit_factor(int axis) {
-    return (axis == E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
+    return (axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
   }
 
   inline float code_value_linear_units() { return code_value_float() * linear_unit_factor; }
@@ -5045,17 +5045,19 @@ inline void gcode_M85() {
  *      (Follows the same syntax as G92)
  */
 inline void gcode_M92() {
+  if (get_target_extruder_from_command(92)) return;
+
   LOOP_XYZE(i) {
     if (code_seen(axis_codes[i])) {
       if (i == E_AXIS) {
-        float value = code_value_per_axis_unit(i);
+        float value = code_value_per_axis_unit(i + target_extruder);
         if (value < 20.0) {
-          float factor = planner.axis_steps_per_mm[i] / value; // increase e constants if M92 E14 is given for netfab.
+          float factor = planner.axis_steps_per_mm[i + target_extruder] / value; // increase e constants if M92 E14 is given for netfab.
           planner.max_e_jerk *= factor;
-          planner.max_feedrate_mm_s[i] *= factor;
-          planner.max_acceleration_steps_per_s2[i] *= factor;
+          planner.max_feedrate_mm_s[i + target_extruder] *= factor;
+          planner.max_acceleration_steps_per_s2[i + target_extruder] *= factor;
         }
-        planner.axis_steps_per_mm[i] = value;
+        planner.axis_steps_per_mm[i + target_extruder] = value;
       }
       else {
         planner.axis_steps_per_mm[i] = code_value_per_axis_unit(i);
@@ -5234,9 +5236,14 @@ inline void gcode_M200() {
  * M201: Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
  */
 inline void gcode_M201() {
+  if (get_target_extruder_from_command(201)) return;
+
   LOOP_XYZE(i) {
     if (code_seen(axis_codes[i])) {
-      planner.max_acceleration_mm_per_s2[i] = code_value_axis_units(i);
+      if (i == E_AXIS)
+        planner.max_acceleration_mm_per_s2[i + target_extruder] = code_value_axis_units(i + target_extruder);
+      else
+        planner.max_acceleration_mm_per_s2[i] = code_value_axis_units(i);
     }
   }
   // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
@@ -5256,9 +5263,16 @@ inline void gcode_M201() {
  * M203: Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in units/sec
  */
 inline void gcode_M203() {
-  LOOP_XYZE(i)
-    if (code_seen(axis_codes[i]))
-      planner.max_feedrate_mm_s[i] = code_value_axis_units(i);
+  if (get_target_extruder_from_command(203)) return;
+
+  LOOP_XYZE(i) {
+    if (code_seen(axis_codes[i])) {
+      if (i == E_AXIS)
+        planner.max_feedrate_mm_s[i + target_extruder] = code_value_axis_units(i + target_extruder);
+      else
+        planner.max_feedrate_mm_s[i] = code_value_axis_units(i);
+    }
+  }
 }
 
 /**

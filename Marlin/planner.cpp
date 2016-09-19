@@ -81,12 +81,12 @@ block_t Planner::block_buffer[BLOCK_BUFFER_SIZE];
 volatile uint8_t Planner::block_buffer_head = 0;           // Index of the next block to be pushed
 volatile uint8_t Planner::block_buffer_tail = 0;
 
-float Planner::max_feedrate_mm_s[NUM_AXIS], // Max speeds in mm per second
-      Planner::axis_steps_per_mm[NUM_AXIS],
-      Planner::steps_to_mm[NUM_AXIS];
+float Planner::max_feedrate_mm_s[XYZEn], // Max speeds in mm per second
+      Planner::axis_steps_per_mm[XYZEn],
+      Planner::steps_to_mm[XYZEn];
 
-unsigned long Planner::max_acceleration_steps_per_s2[NUM_AXIS],
-              Planner::max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
+unsigned long Planner::max_acceleration_steps_per_s2[XYZEn],
+              Planner::max_acceleration_mm_per_s2[XYZEn]; // Use M201 to override by software
 
 millis_t Planner::min_segment_time;
 float Planner::min_feedrate_mm_s,
@@ -115,6 +115,8 @@ long Planner::position[NUM_AXIS] = { 0 };
 
 float Planner::previous_speed[NUM_AXIS],
       Planner::previous_nominal_speed;
+
+uint8_t Planner::last_extruder = 0;
 
 #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
   uint8_t Planner::g_uc_extruder_last_move[EXTRUDERS] = { 0 };
@@ -617,8 +619,19 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
     lround(lx * axis_steps_per_mm[X_AXIS]),
     lround(ly * axis_steps_per_mm[Y_AXIS]),
     lround(lz * axis_steps_per_mm[Z_AXIS]),
-    lround(e * axis_steps_per_mm[E_AXIS])
+    lround(e * axis_steps_per_mm[E_AXIS + extruder])
   };
+
+  // If changing extruder have to recalculate current position based on 
+  // the steps-per-mm value for the new extruder.
+  #if EXTRUDERS > 1
+    if(last_extruder != extruder && axis_steps_per_mm[E_AXIS + extruder] != 
+                                    axis_steps_per_mm[E_AXIS + last_extruder]) {
+      float factor = float(axis_steps_per_mm[E_AXIS + extruder]) /
+                     float(axis_steps_per_mm[E_AXIS + last_extruder]);
+      position[E_AXIS] = lround(position[E_AXIS] * factor);
+    }
+  #endif
 
   long dx = target[X_AXIS] - position[X_AXIS],
        dy = target[Y_AXIS] - position[Y_AXIS],
@@ -661,7 +674,7 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
         SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
       }
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        if (labs(de) > axis_steps_per_mm[E_AXIS] * (EXTRUDE_MAXLENGTH)) {
+        if (labs(de) > axis_steps_per_mm[E_AXIS + extruder] * (EXTRUDE_MAXLENGTH)) {
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
           SERIAL_ECHO_START;
@@ -885,7 +898,7 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
     delta_mm[Y_AXIS] = dy * steps_to_mm[Y_AXIS];
     delta_mm[Z_AXIS] = dz * steps_to_mm[Z_AXIS];
   #endif
-  delta_mm[E_AXIS] = 0.01 * (de * steps_to_mm[E_AXIS]) * volumetric_multiplier[extruder] * flow_percentage[extruder];
+  delta_mm[E_AXIS] = 0.01 * (de * steps_to_mm[E_AXIS + extruder]) * volumetric_multiplier[extruder] * flow_percentage[extruder];
 
   if (block->steps[X_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Y_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Z_AXIS] < MIN_STEPS_PER_SEGMENT) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
@@ -1036,8 +1049,8 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
       block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[Y_AXIS] * block->step_event_count) / block->steps[Y_AXIS];
     if (max_acceleration_steps_per_s2[Z_AXIS] < (block->acceleration_steps_per_s2 * block->steps[Z_AXIS]) / block->step_event_count)
       block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[Z_AXIS] * block->step_event_count) / block->steps[Z_AXIS];
-    if (max_acceleration_steps_per_s2[E_AXIS] < (block->acceleration_steps_per_s2 * block->steps[E_AXIS]) / block->step_event_count)
-      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[E_AXIS] * block->step_event_count) / block->steps[E_AXIS];
+    if (max_acceleration_steps_per_s2[E_AXIS + extruder] < (block->acceleration_steps_per_s2 * block->steps[E_AXIS]) / block->step_event_count)
+      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[E_AXIS + extruder] * block->step_event_count) / block->steps[E_AXIS];
   }
   block->acceleration = block->acceleration_steps_per_s2 / steps_per_mm;
   block->acceleration_rate = (long)(block->acceleration_steps_per_s2 * 16777216.0 / ((F_CPU) * 0.125));
@@ -1200,7 +1213,8 @@ void Planner::set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
   long nx = position[X_AXIS] = lround(lx * axis_steps_per_mm[X_AXIS]),
        ny = position[Y_AXIS] = lround(ly * axis_steps_per_mm[Y_AXIS]),
        nz = position[Z_AXIS] = lround(lz * axis_steps_per_mm[Z_AXIS]),
-       ne = position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS]);
+       ne = position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS + active_extruder]);
+  last_extruder = active_extruder;
   stepper.set_position(nx, ny, nz, ne);
   previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 
@@ -1211,20 +1225,22 @@ void Planner::set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
  * Directly set the planner E position (hence the stepper E position).
  */
 void Planner::set_e_position_mm(const float& e) {
-  position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS]);
+  position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS + active_extruder]);
+  last_extruder = active_extruder;
   stepper.set_e_position(position[E_AXIS]);
   previous_speed[E_AXIS] = 0.0;
 }
 
 // Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
 void Planner::reset_acceleration_rates() {
-  LOOP_XYZE(i)
+  for (uint8_t i = 0; i < XYZEn; i++)
     max_acceleration_steps_per_s2[i] = max_acceleration_mm_per_s2[i] * axis_steps_per_mm[i];
 }
 
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!
 void Planner::refresh_positioning() {
-  LOOP_XYZE(i) steps_to_mm[i] = 1.0 / axis_steps_per_mm[i];
+  for (uint8_t i = 0; i < XYZEn; i++)
+    steps_to_mm[i] = 1.0 / axis_steps_per_mm[i];
   #if IS_KINEMATIC
     inverse_kinematics(current_position);
     set_position_mm(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], current_position[E_AXIS]);
