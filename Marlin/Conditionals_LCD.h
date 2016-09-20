@@ -318,6 +318,7 @@
 
   /**
    * The BLTouch Probe emulates a servo probe
+   * and uses "special" angles for its state.
    */
   #if ENABLED(BLTOUCH)
     #ifndef Z_ENDSTOP_SERVO_NR
@@ -326,12 +327,22 @@
     #ifndef NUM_SERVOS
       #define NUM_SERVOS (Z_ENDSTOP_SERVO_NR + 1)
     #endif
-    #undef Z_SERVO_ANGLES
-    #define Z_SERVO_ANGLES {10,90} // For BLTouch 10=deploy, 90=retract
     #undef DEACTIVATE_SERVOS_AFTER_MOVE
+    #undef Z_SERVO_ANGLES
+    #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
+
+    #define BLTOUCH_DEPLOY    10
+    #define BLTOUCH_STOW   90
+    #define BLTOUCH_SELFTEST 120
+    #define BLTOUCH_RELEASE  160
+    #define _TEST_BLTOUCH(P) (READ(P##_PIN) != P##_ENDSTOP_INVERTING)
+
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
       #undef Z_MIN_ENDSTOP_INVERTING
       #define Z_MIN_ENDSTOP_INVERTING false
+      #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN)
+    #else
+      #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN_PROBE)
     #endif
   #endif
 
