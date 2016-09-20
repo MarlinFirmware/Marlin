@@ -20,10 +20,10 @@ before_install:
   #
 install:
   #
-  # Install arduino 1.6.9
-  - wget http://downloads-02.arduino.cc/arduino-1.6.9-linux64.tar.xz
-  - tar xf arduino-1.6.9-linux64.tar.xz
-  - sudo mv arduino-1.6.9 /usr/local/share/arduino
+  # Install arduino 1.6.10
+  - wget http://downloads-02.arduino.cc/arduino-1.6.10-linux64.tar.xz
+  - tar xf arduino-1.6.10-linux64.tar.xz
+  - sudo mv arduino-1.6.10 /usr/local/share/arduino
   - ln -s /usr/local/share/arduino/arduino ${TRAVIS_BUILD_DIR}/buildroot/bin/arduino
   #
   # Install: LiquidCrystal_I2C library
@@ -35,7 +35,8 @@ install:
   - sudo mv LiquidTWI2 /usr/local/share/arduino/libraries/LiquidTWI2
   #
   # Install: Monochrome Graphics Library for LCDs and OLEDs
-  - arduino --install-library "U8glib"
+  - git clone https://github.com/olikraus/U8glib_Arduino.git
+  - sudo mv U8glib_Arduino /usr/local/share/arduino/libraries/U8glib
   #
   # Install: L6470 Stepper Motor Driver library
   - git clone https://github.com/ameyer/Arduino-L6470.git
