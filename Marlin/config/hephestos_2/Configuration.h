@@ -131,6 +131,12 @@
 #define HEATER_2_MAXTEMP 250
 #define BED_MAXTEMP 150
 
+// Heated bed is considered hot at this temperature
+#define BED_HOT_TEMP 45
+
+// Heated bed control update frequency
+#define BED_UPDATES_PER_SEC 10
+
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
 // average current. The value should be an integer and the heat bed will be turned on for 1 interval of
 // HEATER_BED_DUTY_CYCLE_DIVIDER intervals.
