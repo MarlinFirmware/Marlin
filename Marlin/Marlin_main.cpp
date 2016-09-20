@@ -1866,6 +1866,12 @@ static void clean_up_after_endstop_or_probe_move() {
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
 
+  #if ENABLED(BLTOUCH)
+    FORCE_INLINE void set_bltouch_deployed(const bool &deploy) {
+      servo[Z_ENDSTOP_SERVO_NR].move(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
+    }
+  #endif
+
   // returns false for ok and true for failure
   static bool set_probe_deployed(bool deploy) {
 
@@ -1881,9 +1887,9 @@ static void clean_up_after_endstop_or_probe_move() {
     // Make room for probe
     do_probe_raise(_Z_PROBE_DEPLOY_HEIGHT);
 
-    // Check BLTOUCH probe status for an error
+    // When deploying make sure BLTOUCH is not already triggered
     #if ENABLED(BLTOUCH)
-      if (servo[Z_ENDSTOP_SERVO_NR].read() == BLTouchState_Error) { stop(); return true; }
+      if (deploy && TEST_BLTOUCH()) { stop(); return true; }
     #endif
 
     #if ENABLED(Z_PROBE_SLED)
@@ -1911,7 +1917,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
           dock_sled(!deploy);
 
-        #elif HAS_Z_SERVO_ENDSTOP
+        #elif HAS_Z_SERVO_ENDSTOP && DISABLED(BLTOUCH)
 
           servo[Z_ENDSTOP_SERVO_NR].move(z_servo_angle[deploy ? 0 : 1]);
 
@@ -1948,8 +1954,18 @@ static void clean_up_after_endstop_or_probe_move() {
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
     #endif
 
+    // Deploy BLTouch at the start of any probe
+    #if ENABLED(BLTOUCH)
+      set_bltouch_deployed(true);
+    #endif
+
     // Move down until probe triggered
     do_blocking_move_to_z(LOGICAL_Z_POSITION(z), MMM_TO_MMS(fr_mm_m));
+
+    // Retract BLTouch immediately after a probe
+    #if ENABLED(BLTOUCH)
+      set_bltouch_deployed(false);
+    #endif
 
     // Clear endstop flags
     endstops.hit_on_purpose();
@@ -2182,11 +2198,21 @@ static void clean_up_after_endstop_or_probe_move() {
  */
 
 static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
+
+  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+    set_bltouch_deployed(true);
+  #endif
+
   current_position[axis] = 0;
   sync_plan_position();
   current_position[axis] = where;
   planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[axis], active_extruder);
   stepper.synchronize();
+
+  #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
+    set_bltouch_deployed(false);
+  #endif
+
   endstops.hit_on_purpose();
 }
 

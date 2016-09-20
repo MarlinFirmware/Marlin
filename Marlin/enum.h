@@ -124,15 +124,6 @@ enum TempState {
   };
 #endif
 
-#if ENABLED(BLTOUCH)
-  enum BLTouchState {
-    BLTouchState_Deploy   = 10,
-    BLTouchState_Stow     = 90,
-    BLTouchState_Selftest = 120,
-    BLTouchState_Error    = 160
-  };
-#endif
-
 #if ENABLED(FILAMENT_CHANGE_FEATURE)
   enum FilamentChangeMenuResponse {
     FILAMENT_CHANGE_RESPONSE_WAIT_FOR,
