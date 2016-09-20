@@ -73,6 +73,7 @@
 #include "TemperatureManager.h"
 #include "SerialManager.h"
 #include "FanManager.h"
+#include "HeatedbedManager.h"
 
 #include "Language.h"
 
@@ -229,7 +230,7 @@ namespace ui
 		Icon * icon_moveaxis = new Icon(icon_size, bits_moveaxis_normal, bits_moveaxis_focused, MSG_ICON_MOVEAXIS());
 		IconStatus<bool> * icon_steppers = new IconStatus<bool>(icon_size, bits_steppers_normal, bits_steppers_focused, bits_steppers_off_normal, bits_steppers_off_focused, MSG_ICON_STEPPERS(), MSG_ICON_STEPPERS_OFF(), &SteppersManager::single::instance());
 		IconWidget<float> * widget_temperature = new IconWidget<float>(widget_size, bits_temperature_widget_normal, bits_temperature_widget_focused, MSG_ICON_TEMPERATURE(), &temp::TemperatureManager::single::instance());
-
+	
 		ScreenMenu * local_view = new ScreenMenu();
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_sd);
@@ -599,6 +600,9 @@ namespace ui
 #ifdef FAN_BOX_PIN
 		OptionToggle<bool>  * option_fan         = new OptionToggle<bool>(option_size, MSG_OPTION_BOX_FAN(), FanManager::toogleState, &FanManager::single::instance());
 #endif // FAN_BOX_PIN
+#if MB(BQ_ZUM_MEGA_3D)
+		OptionToggle<uint8_t>  * option_hotbed   = new OptionToggle<uint8_t> (option_size, MSG_OPTION_HEATED_BED(), HeatedbedManager::toggleMode, &HeatedbedManager::single::instance());
+#endif // MB(BQ_ZUM_MEGA_3D)
 		OptionToggle<bool>  * option_serial      = new OptionToggle<bool> (option_size, MSG_OPTION_SERIAL(), SerialManager::setState, &SerialManager::single::instance());
 		OptionLaunch * option_offset      = new OptionLaunch(option_size, MSG_OPTION_OFFSET());
 		option_offset->add(screen_offset);
@@ -622,6 +626,12 @@ namespace ui
 #ifdef FAN_BOX_PIN
 		local_view->add(option_fan);
 #endif // FAN_BOX_PIN
+#if MB(BQ_ZUM_MEGA_3D)
+		if(HeatedbedManager::single::instance().detected())
+		{
+			local_view->add(option_hotbed);
+		}
+#endif // MB(BQ_ZUM_MEGA_3D)
 		local_view->add(option_serial);
 		local_view->add(option_offset);
 		local_view->add(option_language);
@@ -1031,7 +1041,7 @@ namespace ui
 		local_view->add(screen_print);
 		return local_view;
 	}
-
+	
 	static ScreenPrint * make_screen_print()
 	{
 		IconStatus<PrinterState_t> * icon_play_pause = new IconStatus<PrinterState_t>(icon_size, bits_pause_normal, bits_pause_focused, bits_play_normal, bits_play_focused, MSG_ICON_PAUSE(), MSG_ICON_PLAY(), &PrintManager::single::instance());
