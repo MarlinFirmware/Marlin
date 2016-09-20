@@ -1882,7 +1882,7 @@ static void clean_up_after_endstop_or_probe_move() {
     if (endstops.z_probe_enabled == deploy) return false;
 
     // Make room for probe
-    do_probe_raise(_Z_RAISE_DEPLOY_PROBE);
+    do_probe_raise(_Z_CLEARANCE_DEPLOY_PROBE);
 
     // Check BLTOUCH probe status for an error
     #if ENABLED(BLTOUCH)
@@ -1991,7 +1991,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
       // If the nozzle is above the travel height then
       // move down quickly before doing the slow probe
-      float z = LOGICAL_Z_POSITION(Z_RAISE_BETWEEN_PROBES);
+      float z = LOGICAL_Z_POSITION(Z_CLEARANCE_BETWEEN_PROBES);
       if (z < current_position[Z_AXIS])
         do_blocking_move_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
@@ -2030,7 +2030,7 @@ static void clean_up_after_endstop_or_probe_move() {
     float old_feedrate_mm_s = feedrate_mm_s;
 
     // Ensure a minimum height before moving the probe
-    do_probe_raise(Z_RAISE_BETWEEN_PROBES);
+    do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
 
     // Move to the XY where we shall probe
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2051,7 +2051,7 @@ static void clean_up_after_endstop_or_probe_move() {
     float measured_z = run_z_probe();
 
     if (!stow)
-      do_probe_raise(Z_RAISE_BETWEEN_PROBES);
+      do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
     else
       if (STOW_PROBE()) return NAN;
 
@@ -3097,8 +3097,8 @@ inline void gcode_G28() {
     feedrate_mm_s = homing_feedrate_mm_s[X_AXIS];
 
     current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
-      #if Z_RAISE_BETWEEN_PROBES > Z_HOMING_HEIGHT
-        + Z_RAISE_BETWEEN_PROBES
+      #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
+        + Z_CLEARANCE_BETWEEN_PROBES
       #elif Z_HOMING_HEIGHT > 0
         + Z_HOMING_HEIGHT
       #endif
@@ -3109,7 +3109,7 @@ inline void gcode_G28() {
     current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
     line_to_current_position();
 
-    #if Z_RAISE_BETWEEN_PROBES > 0 || Z_HOMING_HEIGHT > 0
+    #if Z_CLEARANCE_BETWEEN_PROBES > 0 || Z_HOMING_HEIGHT > 0
       current_position[Z_AXIS] = LOGICAL_Z_POSITION(MESH_HOME_SEARCH_Z);
       line_to_current_position();
     #endif
@@ -3204,8 +3204,8 @@ inline void gcode_G28() {
         else {
           // One last "return to the bed" (as originally coded) at completion
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
-            #if Z_RAISE_BETWEEN_PROBES > Z_HOMING_HEIGHT
-              + Z_RAISE_BETWEEN_PROBES
+            #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
+              + Z_CLEARANCE_BETWEEN_PROBES
             #elif Z_HOMING_HEIGHT > 0
               + Z_HOMING_HEIGHT
             #endif
@@ -3558,7 +3558,7 @@ inline void gcode_G28() {
 
     #endif // AUTO_BED_LEVELING_3POINT
 
-    // Raise to _Z_RAISE_DEPLOY_PROBE. Stow the probe.
+    // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
     if (STOW_PROBE()) return;
 
     // Restore state after probing
