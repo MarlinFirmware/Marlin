@@ -33,10 +33,8 @@
 #include "Singleton.h"
 #include "Subject.h"
 
-
 namespace temp
 {
-
 	class TemperatureControl;
 
 
@@ -67,23 +65,39 @@ namespace temp
 			~TemperatureManager();
 
 			void init();
+			void configureSetup();
 
 			void updateLUTCache();
 			short getRawLUTCache(uint8_t index);
 			short getTemperatureLUTCache(uint8_t index);
-
+		
 			void updateCurrentTemperature(float temp);
 			void updateCurrentTemperatureRaw(uint16_t temp);
 
 			uint16_t const & getCurrentTemperature();
 			void setTargetTemperature(uint16_t target);
 			uint16_t const & getTargetTemperature() const;
+			
+			void updateBedLUTCache();
+			short getBedRawLUTCache(uint8_t index);
+			short getBedTemperatureLUTCache(uint8_t index);
+					
+			void updateBedCurrentTemperature(float temp);
+			void updateBedCurrentTemperatureRaw(uint16_t temp);
+			
+			uint16_t const & getBedCurrentTemperature();
+			void setBedTargetTemperature(uint16_t target);
+			uint16_t const & getBedTargetTemperature() const;		
+			
 			void notify();
 			void setBlowerControlState(bool state);
 			void fanControl();
 
 			void manageTemperatureControl();
-
+			
+			//test functions
+			void heatBed();
+			
 		private:
 
 		public:
@@ -95,10 +109,17 @@ namespace temp
 			float m_current_temperature;
 			uint16_t m_current_temperature_raw;
 
+			uint16_t m_bed_target_temperature;
+			float m_bed_current_temperature;
+			uint16_t m_bed_current_temperature_raw;			
+
 			bool m_blower_control;
 
 			LookUpTableEntry m_cache[4];
 			uint16_t m_round_temperature;
+			
+			LookUpTableEntry m_bed_cache[4];
+			uint16_t m_bed_round_temperature;
 	};
 }
 

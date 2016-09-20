@@ -33,12 +33,15 @@
 #include "temperature.h"
 #include "Marlin.h"
 #include "cardreader.h"
+#include "StorageManager.h"
+#include "boards.h"
 
 #ifdef DOGLCD
 	#include "GuiManager.h"
 	#include "TemperatureControl.h"
 	#include "ViewManager.h"
 	#include "FanManager.h"
+	#include "HeatedbedManager.h"
 #endif
 
 namespace temp
@@ -49,8 +52,11 @@ namespace temp
 		, m_current_temperature(0)
 		, m_current_temperature_raw(0)
 #ifdef DOGLCD
+		, m_bed_target_temperature(0)
+		, m_bed_current_temperature(0)
+		, m_bed_current_temperature_raw(0)
 		, m_control()
-#endif
+#endif // DOGLCD
 		, m_blower_control(true)
 	{
 		setTargetTemperature(0);
@@ -62,14 +68,23 @@ namespace temp
 
 #ifdef DOGLCD
 		m_control = new TemperatureControl();
-#endif
+#endif // DOGLCD
+
+#ifdef DOGLCD
+	#if (HEATER_BED_PIN > -1)
+		if(HeatedbedManager::single::instance().detected())
+		{
+			SET_OUTPUT(HEATER_BED_PIN);
+		}
+	#endif
+#endif // DOGLCD
 	}
 
 	TemperatureManager::~TemperatureManager()
 	{
 #ifdef DOGLCD
 		delete m_control;
-#endif
+#endif // DOGLCD
 	}
 
 	void TemperatureManager::init()
@@ -78,13 +93,13 @@ namespace temp
 		ADCSRA = 0x87;
 		ADCSRB = 0x08;
 		ADMUX = 0x45;
-	
+
 		ADCSRA |= 0x40;
 		ADCSRA |= 0x10;
 		delay(1);
 
 		while ((ADCSRA & 0x10) == 0) {}
-
+		
 		uint16_t initial_raw = 0;
 		initial_raw |= ADC;
 		initial_raw *= OVERSAMPLENR;
@@ -107,11 +122,60 @@ namespace temp
 		updateCurrentTemperature(initial_temperature);
 		updateCurrentTemperatureRaw(initial_raw);
 		updateLUTCache();
-
+		
+#ifdef DOGLCD
+		if(HeatedbedManager::single::instance().detected())
+		{
+			ADMUX = 0x47;
+			
+			ADCSRA |= 0x40;
+			ADCSRA |= 0x10;
+			delay(1);
+			
+			uint16_t initial_bed_raw = 0;
+			initial_bed_raw |= ADC;
+			initial_bed_raw *= OVERSAMPLENR;
+			
+			for (i = 1; i < 61; i++)
+			{
+				if ((short)pgm_read_word(&(*tt)[i][0]) > initial_bed_raw)
+				{
+					break;
+				}
+			}
+			
+			float initial_bed_temperature = (short)pgm_read_word(&(*tt)[i-1][1]) +
+				(initial_bed_raw - (short)pgm_read_word(&(*tt)[i-1][0])) *
+				(float)((short)pgm_read_word(&(*tt)[i][1]) - (short)pgm_read_word(&(*tt)[i-1][1])) /
+				(float)((short)pgm_read_word(&(*tt)[i][0]) - (short)pgm_read_word(&(*tt)[i-1][0]));
+			
+			updateBedCurrentTemperature(initial_bed_temperature);
+			updateBedCurrentTemperatureRaw(initial_bed_raw);
+			updateBedLUTCache();
+			
+			ADMUX = 0x45;
+		}
+#endif // DOGLCD
+		configureSetup();
+	}
+	
+	void TemperatureManager::configureSetup()
+	{
+#ifdef DOGLCD
+		if(HeatedbedManager::single::instance().detected())
+		{
+			TCCR2B = 0x0F;
+			OCR2A = 0x7F;
+		}
+		else
+#endif // DOGLCD
+		{
+			TCCR2B = 0x07;
+		}
+		
+		TCCR2A = 0x23;
 
 		ADCSRA |= 0x08;
-		TCCR2A = 0x23;
-		TCCR2B = 0x07;
 		TIMSK2 = 0x01;
 	}
 
@@ -161,7 +225,8 @@ namespace temp
 	{
 #ifdef DOGLCD
 		m_control->setCurrentTemperature(temp);
-#endif		
+#endif // DOGLCD
+		
 		if (m_current_temperature != temp)
 		{
 			m_current_temperature = temp;
@@ -188,7 +253,7 @@ namespace temp
 		m_control->setTargetControl(target);
 	#else
 		target_temperature[0] = target;
-	#endif
+	#endif // DOGLCD
 	}
 
 	uint16_t const & TemperatureManager::getTargetTemperature() const
@@ -197,9 +262,86 @@ namespace temp
 		return m_control->getTargetControl();
 	#else
 		return target_temperature[0];
-	#endif
+	#endif // DOGLCD
+	}
+	
+#ifdef DOGLCD
+	void TemperatureManager::updateBedLUTCache()
+	{
+		uint8_t i;
+		short (*tt)[][2] = (short (*)[][2]) temptable_99;
+
+		if ( (m_bed_current_temperature_raw < (34 * OVERSAMPLENR)) ||
+		     (m_bed_current_temperature_raw > (1009 * OVERSAMPLENR)) )
+		{
+			setBedTargetTemperature(0);
+			m_bed_current_temperature = 0;
+			HeatedbedManager::single::instance().disableHeatedbed();
+			return;
+		}
+
+		for (i = 1; i < 61; i++)
+		{
+			if ((short)pgm_read_word(&(*tt)[i][0]) >= m_bed_current_temperature_raw)
+			{
+				i -= 2;
+				break;
+			}
+		}
+
+		for (uint8_t j = 0; j < 4; i++, j++)
+  		{
+   	 		m_bed_cache[j].raw = pgm_read_word(&(*tt)[i][0]);
+  	 		m_bed_cache[j].temperature = pgm_read_word(&(*tt)[i][1]);
+		}
+	}
+	
+	short TemperatureManager::getBedRawLUTCache(uint8_t index)
+	{
+		return m_bed_cache[index].raw;
+	}
+	
+	short TemperatureManager::getBedTemperatureLUTCache(uint8_t index)
+	{
+		return m_bed_cache[index].temperature;
 	}
 
+	void TemperatureManager::updateBedCurrentTemperature(float temp)
+	{
+		if (m_bed_current_temperature != temp)
+		{
+			m_bed_current_temperature = temp;
+		}
+	}
+
+	void TemperatureManager::updateBedCurrentTemperatureRaw(uint16_t temp)
+	{
+		m_bed_current_temperature_raw = temp;
+	}
+
+	uint16_t const & TemperatureManager::getBedCurrentTemperature()
+	{
+		m_bed_round_temperature = round(m_bed_current_temperature);
+		return m_bed_round_temperature;
+	}
+
+	void TemperatureManager::setBedTargetTemperature(uint16_t target)
+	{
+	#if MB(BQ_ZUM_MEGA_3D)
+		if(HeatedbedManager::single::instance().detected())
+		{
+			m_bed_target_temperature = target;
+			m_bed_target_temperature = constrain (m_bed_target_temperature, 0, BED_MAXTEMP);
+		}
+	#endif // MB(BQ_ZUM_MEGA_3D)
+	}
+
+	uint16_t const & TemperatureManager::getBedTargetTemperature() const
+	{
+		return m_bed_target_temperature;
+	}
+#endif // DOGLCD
+	
 	void TemperatureManager::notify()
 	{
 		if (this->m_observer != 0)
@@ -207,7 +349,7 @@ namespace temp
 			this->m_observer->update(m_current_temperature);
 		}
 	}
-
+	
 	void TemperatureManager::setBlowerControlState(bool state)
 	{
 		m_blower_control = state;
@@ -268,21 +410,46 @@ namespace temp
 	{
 	#ifdef DOGLCD
 		updateLUTCache();
+		#if MB(BQ_ZUM_MEGA_3D)
+			if(HeatedbedManager::single::instance().detected())
+			{
+				updateBedLUTCache();
+			}
+		#endif // MB(BQ_ZUM_MEGA_3D)
 	#else
 		manage_heater();
 	#endif
+	}
+	
+	void TemperatureManager::heatBed()
+	{
+#ifdef DOGLCD
+#if HEATER_BED_PIN > -1
+		if(m_bed_current_temperature < m_bed_target_temperature)
+		{
+			digitalWrite(HEATER_BED_PIN, LOW);
+		}
+		else
+		{
+			digitalWrite(HEATER_BED_PIN, HIGH);
+		}
+#endif // HEATER_BED_PIN > -1
+#endif // DOGLCD
 	}
 }
 
 static bool control_flag = false;
 
 #ifdef DOGLCD
+
 ISR(TIMER2_OVF_vect)
 {
 	static uint8_t temp_counter = 0;
+	static uint16_t bed_control_counter = 0;
+	
 	if (control_flag == true)
 	{
-		temp::TemperatureManager::single::instance().m_control->manageControl();
+		temp::TemperatureManager::single::instance().m_control->manageControl();		
 	 	control_flag = false;
 	}
 
@@ -292,39 +459,101 @@ ISR(TIMER2_OVF_vect)
 		ADCSRA |= 0x40;
 		temp_counter = 0;
 	}
+#if MB(BQ_ZUM_MEGA_3D)
+	if(HeatedbedManager::single::instance().getMode() != eeprom::HEATEDBED_OFF)
+	{
+		bed_control_counter++;
+		uint16_t bed_update_freq = F_CPU / (1024.0 * OCR2A * BED_UPDATES_PER_SEC);
+		if(bed_control_counter == bed_update_freq)
+		{
+			temp::TemperatureManager::single::instance().heatBed();
+			bed_control_counter = 0;			
+		}
+	}
+#endif // MB(BQ_ZUM_MEGA_3D)
 }
 
 ISR(ADC_vect)
 {
+	static uint8_t	target_sensor = 0;
+
 	static uint8_t sample_number = 0;
 	static uint16_t accumulate = 0;
-
+#if MB(BQ_ZUM_MEGA_3D)
+	static uint8_t bed_sample_number = 0;
+	static uint16_t bed_accumulate = 0;
+#endif // MB(BQ_ZUM_MEGA_3D)
 	uint16_t current_sample = ADC;
 
-	accumulate += current_sample;
-	sample_number++;
-
-	if (sample_number == OVERSAMPLENR)
+	switch(target_sensor)
 	{
-		temp::TemperatureManager::single::instance().updateCurrentTemperatureRaw(accumulate);
+		// //Hotend
+		case 0:	
+		accumulate += current_sample;
+				sample_number++;
 
-		for (uint8_t i = 0; i < 4; i++)
-		{
-			if ( accumulate < temp::TemperatureManager::single::instance().getRawLUTCache(i) )
-			{
-				float temperature = temp::TemperatureManager::single::instance().getTemperatureLUTCache(i-1) +
-					(accumulate - temp::TemperatureManager::single::instance().getRawLUTCache(i-1)) *
-					( (float) (temp::TemperatureManager::single::instance().getTemperatureLUTCache(i) - temp::TemperatureManager::single::instance().getTemperatureLUTCache(i-1)) ) /
-					( (float) (temp::TemperatureManager::single::instance().getRawLUTCache(i) - temp::TemperatureManager::single::instance().getRawLUTCache(i-1)) );
+				if (sample_number == OVERSAMPLENR)
+				{
+					temp::TemperatureManager::single::instance().updateCurrentTemperatureRaw(accumulate);
 
-				temp::TemperatureManager::single::instance().updateCurrentTemperature(temperature);
+					for (uint8_t i = 0; i < 4; i++)
+					{
+						if ( accumulate < temp::TemperatureManager::single::instance().getRawLUTCache(i) )
+						{
+							float temperature = temp::TemperatureManager::single::instance().getTemperatureLUTCache(i-1) +
+								(accumulate - temp::TemperatureManager::single::instance().getRawLUTCache(i-1)) *
+								( (float) (temp::TemperatureManager::single::instance().getTemperatureLUTCache(i) - temp::TemperatureManager::single::instance().getTemperatureLUTCache(i-1)) ) /
+								( (float) (temp::TemperatureManager::single::instance().getRawLUTCache(i) - temp::TemperatureManager::single::instance().getRawLUTCache(i-1)) );
+
+							temp::TemperatureManager::single::instance().updateCurrentTemperature(temperature);
+							break;
+						}
+					}
+
+					control_flag = true;
+					sample_number = 0;
+					accumulate = 0;
+				}
+					
+			#if MB(BQ_ZUM_MEGA_3D)
+				if(HeatedbedManager::single::instance().detected())
+				{
+					ADMUX = 0x47;
+					target_sensor = 1;
+				}
+			#endif MB(BQ_ZUM_MEGA_3D)
 				break;
-			}
-		}
+				
+	#if MB(BQ_ZUM_MEGA_3D)
+		case 1: 
+				bed_accumulate += current_sample;
+				++bed_sample_number;
+				if (bed_sample_number == OVERSAMPLENR)
+				{
+					temp::TemperatureManager::single::instance().updateBedCurrentTemperatureRaw(bed_accumulate);
 
-		control_flag = true;
-		sample_number = 0;
-		accumulate = 0;
-	}
+					for (uint8_t i = 0; i < 4; i++)
+					{
+						if ( bed_accumulate < temp::TemperatureManager::single::instance().getBedRawLUTCache(i) )
+						{
+							float temperature = temp::TemperatureManager::single::instance().getBedTemperatureLUTCache(i-1) +
+								(bed_accumulate - temp::TemperatureManager::single::instance().getBedRawLUTCache(i-1)) *
+								( (float) (temp::TemperatureManager::single::instance().getBedTemperatureLUTCache(i) - temp::TemperatureManager::single::instance().getBedTemperatureLUTCache(i-1)) ) /
+								( (float) (temp::TemperatureManager::single::instance().getBedRawLUTCache(i) - temp::TemperatureManager::single::instance().getBedRawLUTCache(i-1)) );
+							
+							temp::TemperatureManager::single::instance().updateBedCurrentTemperature(temperature);
+							break;
+						}
+					}
+					bed_sample_number = 0;
+					bed_accumulate = 0;
+				}
+				
+				ADMUX = 0x45; //hotend sensor
+				target_sensor = 0;
+				break;
+		#endif // MB(BQ_ZUM_MEGA_3D)
+	}	
 }
-#endif //DOGLCD
+
+#endif // DOGLCD
