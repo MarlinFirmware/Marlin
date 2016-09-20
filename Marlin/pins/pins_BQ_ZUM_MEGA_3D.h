@@ -62,14 +62,17 @@
  // Heaters
  #define HEATER_0_PIN       9
  #define HEATER_1_PIN       10
- #define HEATER_BED_PIN     -1
-
- // Thermistors
+ #define HEATER_BED_PIN     8
+ 
+  // Thermistors
  #define TEMP_0_PIN         13  // Analog numbering: DIO67
  #define TEMP_1_PIN         14  // Analog numbering: DIO68
  #define TEMP_2_PIN         15  // Analog numbering: DIO69
- #define TEMP_3_PIN         8   // Analog numbering: DIO62
- #define TEMP_BED_PIN       TEMP_1_PIN
+ #define TEMP_3_PIN         -1   // Analog numbering: DIO62
+ #define TEMP_BED_PIN       TEMP_2_PIN
+
+ // Heated bed sensor
+ #define HBP_HEATER_AUX		5
 
  // Cooling Fans
  #define FAN_BLOWER_PIN     12
