@@ -31,7 +31,7 @@
 #include "Action.h"
 
 #include "Icon.h"
-#include "IconWidget.h"
+#include "IconWidgetBed.h"
 #include "IconStatus.h"
 
 #include "Option.h"
@@ -229,8 +229,19 @@ namespace ui
 		Icon * icon_settings = new Icon(icon_size, bits_settings_normal, bits_settings_focused, MSG_ICON_SETTINGS());
 		Icon * icon_moveaxis = new Icon(icon_size, bits_moveaxis_normal, bits_moveaxis_focused, MSG_ICON_MOVEAXIS());
 		IconStatus<bool> * icon_steppers = new IconStatus<bool>(icon_size, bits_steppers_normal, bits_steppers_focused, bits_steppers_off_normal, bits_steppers_off_focused, MSG_ICON_STEPPERS(), MSG_ICON_STEPPERS_OFF(), &SteppersManager::single::instance());
-		IconWidget<float> * widget_temperature = new IconWidget<float>(widget_size, bits_temperature_widget_normal, bits_temperature_widget_focused, MSG_ICON_TEMPERATURE(), &temp::TemperatureManager::single::instance());
 	
+		Icon * widget_temperature;
+#if MB(BQ_ZUM_MEGA_3D)
+		if(HeatedbedManager::single::instance().detected())
+		{
+			widget_temperature = new IconWidgetBed<float>(widget_size, bits_cold_bed_widget_normal, bits_cold_bed_widget_focused, bits_hot_bed_widget_normal, bits_hot_bed_widget_focused, MSG_ICON_TEMPERATURE(), &temp::TemperatureManager::single::instance());
+		}
+		else
+#endif // MB(BQ_ZUM_MEGA_3D)
+		{
+			widget_temperature = new IconWidgetBed<float>(widget_size, bits_temperature_widget_normal, bits_temperature_widget_focused, NULL, NULL, MSG_ICON_TEMPERATURE(), &temp::TemperatureManager::single::instance());
+		}
+
 		ScreenMenu * local_view = new ScreenMenu();
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_sd);
