@@ -47,6 +47,9 @@ namespace eeprom
 	const uint8_t SERIAL_SCREEN_ON = 0x01;
 	const uint8_t EEPROM_ENABLED = 0x00;
 	const uint8_t EEPROM_DISABLED = 0x01;
+	const uint8_t HEATEDBED_OFF = 0x00;
+	const uint8_t HEATEDBED_ON = 0x01;
+	const uint8_t HEATEDBED_AUTO = 0x02;
 
 	class StorageManager
 	{
@@ -101,6 +104,9 @@ namespace eeprom
 			static void setStatMinutes(uint8_t minutes);
 			static void setStatTotalPrints(uint16_t total_prints);
 			static void setStatSucceded(uint16_t succedded_prints);
+			
+			static const uint8_t getHeatedbedMode();
+			static void setHeatedbedMode(uint8_t heatedbed_mode);
 
 		private:
 			void updateEEPROMVersion();
