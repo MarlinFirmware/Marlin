@@ -95,7 +95,7 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
   volatile unsigned char Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
 
   #if ENABLED(LIN_ADVANCE)
-    volatile int Stepper::e_steps[E_STEPPERS];
+    volatile long Stepper::e_steps[E_STEPPERS];
     int Stepper::extruder_advance_k = LIN_ADVANCE_K,
         Stepper::final_estep_rate,
         Stepper::current_estep_rate[E_STEPPERS],
