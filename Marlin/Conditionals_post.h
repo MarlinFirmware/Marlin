@@ -676,6 +676,7 @@
       #define AUTO_BED_LEVELING_NONLINEAR
     #else
       #define AUTO_BED_LEVELING_LINEAR
+      #define AUTO_BED_LEVELING_LINEAR_GRID
     #endif
   #endif
 
