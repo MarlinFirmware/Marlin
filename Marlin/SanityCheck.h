@@ -139,6 +139,8 @@
   #error "PREVENT_DANGEROUS_EXTRUDE is now PREVENT_COLD_EXTRUSION. Please update your configuration."
 #elif defined(SCARA)
   #error "SCARA is now MORGAN_SCARA. Please update your configuration."
+#elif defined(AUTO_BED_LEVELING_GRID_POINTS)
+  #error "AUTO_BED_LEVELING_GRID_POINTS is now ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y. Please update your configuration."
 #endif
 
 /**
@@ -196,10 +198,10 @@
     #error "You probably want to use Max Endstops for DELTA!"
   #endif
   #if ENABLED(AUTO_BED_LEVELING_GRID)
-    #if (AUTO_BED_LEVELING_GRID_POINTS & 1) == 0
-      #error "DELTA requires an odd value for AUTO_BED_LEVELING_GRID_POINTS."
-    #elif AUTO_BED_LEVELING_GRID_POINTS < 3
-      #error "DELTA requires at least 3 AUTO_BED_LEVELING_GRID_POINTS."
+    #if (ABL_GRID_POINTS_X & 1) == 0 || (ABL_GRID_POINTS_Y & 1) == 0
+      #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be odd numbers."
+    #elif ABL_GRID_POINTS_X < 3
+      #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be 3 or higher."
     #endif
   #endif
 #endif
@@ -304,12 +306,8 @@
 /**
  * Limited number of servos
  */
-#if defined(NUM_SERVOS) && NUM_SERVOS > 0
-  #if NUM_SERVOS > 4
-    #error "The maximum number of SERVOS in Marlin is 4."
-  #elif HAS_Z_SERVO_ENDSTOP && Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
-    #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
-  #endif
+#if NUM_SERVOS > 4
+  #error "The maximum number of SERVOS in Marlin is 4."
 #endif
 
 /**
@@ -365,7 +363,7 @@
     #ifndef NUM_SERVOS
       #error "You must set NUM_SERVOS for a Z servo probe (Z_ENDSTOP_SERVO_NR)."
     #elif Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
-      #error "Z_ENDSTOP_SERVO_NR must be less than NUM_SERVOS."
+      #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
     #endif
   #endif
 
@@ -402,7 +400,7 @@
   #if (ENABLED(FIX_MOUNTED_PROBE) && (ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))) \
        || (ENABLED(Z_PROBE_ALLEN_KEY) && (HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))) \
        || (HAS_Z_SERVO_ENDSTOP && ENABLED(Z_PROBE_SLED))
-    #error "Please define only one type of probe: Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #error "Please define only one type of probe: Z Servo/BLTOUCH, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
 
   /**

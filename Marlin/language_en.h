@@ -366,6 +366,9 @@
 #ifndef MSG_ZPROBE_OUT
   #define MSG_ZPROBE_OUT                      "Z probe out. bed"
 #endif
+#ifndef MSG_RESET_BLTOUCH
+  #define MSG_RESET_BLTOUCH                   "Reset BLTouch"
+#endif
 #ifndef MSG_HOME
   #define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #endif

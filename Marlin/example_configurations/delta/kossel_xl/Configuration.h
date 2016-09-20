@@ -560,6 +560,7 @@
 #define FIX_MOUNTED_PROBE
 
 // The BLTouch probe emulates a servo probe.
+// The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
 //#define BLTOUCH
 
 // Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -844,8 +845,9 @@
     // Non-linear bed leveling will be used.
     // Compensate by interpolating between the nearest four Z probe values for each point.
     // Useful for deltas where the print surface may appear like a bowl or dome shape.
-    // Works best with AUTO_BED_LEVELING_GRID_POINTS 5 or higher.
-    #define AUTO_BED_LEVELING_GRID_POINTS 5
+    // Works best with 5 or more points in each dimension.
+    #define ABL_GRID_POINTS_X 5
+    #define ABL_GRID_POINTS_Y ABL_GRID_POINTS_X
 
   #else  // !AUTO_BED_LEVELING_GRID
 
