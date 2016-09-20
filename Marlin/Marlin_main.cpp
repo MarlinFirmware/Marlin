@@ -1883,7 +1883,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // Check BLTOUCH probe status for an error
     #if ENABLED(BLTOUCH)
-      if (servo[Z_ENDSTOP_SERVO_NR].read() == BLTouchState_Error) { stop(); return true; }
+      if (TEST_BLTOUCH()) { stop(); return true; }
     #endif
 
     #if ENABLED(Z_PROBE_SLED)
