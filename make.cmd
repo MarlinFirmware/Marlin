@@ -38,13 +38,17 @@ echo	1- Witbox
 echo	2- Witbox 2
 echo	3- Hephestos
 echo	4- Hephestos XL
-echo	5- Hephestos 2
+echo	5- Hephestos ZUM
+echo	6- Hephestos ZUM XL
+echo	7- Hephestos 2
 echo.
 echo	Q- Exit updater
 echo.
-choice /c:12345Q>nul
-if errorlevel 6 goto quit
-if errorlevel 5 goto hep2
+choice /c:1234567Q>nul
+if errorlevel 8 goto quit
+if errorlevel 7 goto hep2
+if errorlevel 6 goto hepzxl
+if errorlevel 5 goto hepz
 if errorlevel 4 goto hepxl
 if errorlevel 3 goto heph
 if errorlevel 2 goto wit2
@@ -86,6 +90,14 @@ if errorlevel 1 goto language_de
 :hep2
 SET TARGET=hephestos_2
 goto language_en
+
+:hepzxl
+SET TARGET=hephestos_zum_xl
+goto menu_language
+
+:hepz
+SET TARGET=hephestos_zum
+goto menu_language
 
 :hepxl
 SET TARGET=hephestos_xl
