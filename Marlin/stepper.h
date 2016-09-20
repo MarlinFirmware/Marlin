@@ -113,7 +113,7 @@ class Stepper {
       static unsigned char old_OCR0A;
       static volatile unsigned char eISR_Rate;
       #if ENABLED(LIN_ADVANCE)
-        static volatile int e_steps[E_STEPPERS];
+        static volatile long e_steps[E_STEPPERS];
         static int extruder_advance_k;
         static int final_estep_rate;
         static int current_estep_rate[E_STEPPERS]; // Actual extruder speed [steps/s]
