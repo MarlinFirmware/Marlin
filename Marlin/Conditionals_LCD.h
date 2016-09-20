@@ -316,6 +316,41 @@
     #define TOOL_E_INDEX current_block->active_extruder
   #endif
 
+  /**
+   * The BLTouch Probe emulates a servo probe
+   */
+  #if ENABLED(BLTOUCH)
+    #ifndef Z_ENDSTOP_SERVO_NR
+      #define Z_ENDSTOP_SERVO_NR 0
+    #endif
+    #ifndef NUM_SERVOS
+      #define NUM_SERVOS (Z_ENDSTOP_SERVO_NR + 1)
+    #endif
+    #undef Z_SERVO_ANGLES
+    #define Z_SERVO_ANGLES {10,90} // For BLTouch 10=deploy, 90=retract
+    #undef DEACTIVATE_SERVOS_AFTER_MOVE
+    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      #undef Z_MIN_ENDSTOP_INVERTING
+      #define Z_MIN_ENDSTOP_INVERTING false
+    #endif
+  #endif
+
+  /**
+   * Set a flag for a servo probe
+   */
+  #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
+
+  /**
+   * Set a flag for any enabled probe
+   */
   #define PROBE_SELECTED (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
+
+  /**
+   * Clear probe pin settings when no probe is selected
+   */
+  #if !PROBE_SELECTED
+    #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+    #undef Z_MIN_PROBE_ENDSTOP
+  #endif
 
 #endif //CONDITIONALS_LCD_H
