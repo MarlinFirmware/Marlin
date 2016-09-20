@@ -137,6 +137,10 @@
   #error Please replace "const int dropsegments" with "#define MIN_STEPS_PER_SEGMENT" (and increase by 1) in Configuration_adv.h.
 #elif defined(PREVENT_DANGEROUS_EXTRUDE)
   #error "PREVENT_DANGEROUS_EXTRUDE is now PREVENT_COLD_EXTRUSION. Please update your configuration."
+#elif defined(SCARA)
+  #error "SCARA is now MORGAN_SCARA. Please update your configuration."
+#elif defined(AUTO_BED_LEVELING_GRID_POINTS)
+  #error "AUTO_BED_LEVELING_GRID_POINTS is now ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y. Please update your configuration."
 #endif
 
 /**
@@ -179,11 +183,9 @@
 #if ENABLED(LCD_PROGRESS_BAR)
   #if DISABLED(SDSUPPORT)
     #error "LCD_PROGRESS_BAR requires SDSUPPORT."
-  #endif
-  #if ENABLED(DOGLCD)
+  #elif ENABLED(DOGLCD)
     #error "LCD_PROGRESS_BAR does not apply to graphical displays."
-  #endif
-  #if ENABLED(FILAMENT_LCD_DISPLAY)
+  #elif ENABLED(FILAMENT_LCD_DISPLAY)
     #error "LCD_PROGRESS_BAR and FILAMENT_LCD_DISPLAY are not fully compatible. Comment out this line to use both."
   #endif
 #endif
@@ -196,10 +198,10 @@
     #error "You probably want to use Max Endstops for DELTA!"
   #endif
   #if ENABLED(AUTO_BED_LEVELING_GRID)
-    #if (AUTO_BED_LEVELING_GRID_POINTS & 1) == 0
-      #error "DELTA requires an odd value for AUTO_BED_LEVELING_GRID_POINTS."
-    #elif AUTO_BED_LEVELING_GRID_POINTS < 3
-      #error "DELTA requires at least 3 AUTO_BED_LEVELING_GRID_POINTS."
+    #if (ABL_GRID_POINTS_X & 1) == 0 || (ABL_GRID_POINTS_Y & 1) == 0
+      #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be odd numbers."
+    #elif ABL_GRID_POINTS_X < 3
+      #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be 3 or higher."
     #endif
   #endif
 #endif
@@ -304,12 +306,8 @@
 /**
  * Limited number of servos
  */
-#if defined(NUM_SERVOS) && NUM_SERVOS > 0
-  #if NUM_SERVOS > 4
-    #error "The maximum number of SERVOS in Marlin is 4."
-  #elif HAS_Z_SERVO_ENDSTOP && Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
-    #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
-  #endif
+#if NUM_SERVOS > 4
+  #error "The maximum number of SERVOS in Marlin is 4."
 #endif
 
 /**
@@ -365,7 +363,7 @@
     #ifndef NUM_SERVOS
       #error "You must set NUM_SERVOS for a Z servo probe (Z_ENDSTOP_SERVO_NR)."
     #elif Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
-      #error "Z_ENDSTOP_SERVO_NR must be less than NUM_SERVOS."
+      #error "Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS."
     #endif
   #endif
 
@@ -402,7 +400,7 @@
   #if (ENABLED(FIX_MOUNTED_PROBE) && (ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))) \
        || (ENABLED(Z_PROBE_ALLEN_KEY) && (HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))) \
        || (HAS_Z_SERVO_ENDSTOP && ENABLED(Z_PROBE_SLED))
-    #error "Please define only one type of probe: Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #error "Please define only one type of probe: Z Servo/BLTOUCH, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
 
   /**
@@ -573,11 +571,39 @@
 /**
  * Don't set more than one kinematic type
  */
-#if (ENABLED(DELTA) && (ENABLED(SCARA) || ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ))) \
- || (ENABLED(SCARA) && (ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ))) \
- || (ENABLED(COREXY) && (ENABLED(COREXZ) || ENABLED(COREYZ))) \
- || (ENABLED(COREXZ) && ENABLED(COREYZ))
-  #error "Please enable only one of DELTA, SCARA, COREXY, COREXZ, or COREYZ."
+#define COUNT_KIN_1 0
+#if ENABLED(DELTA)
+  #define COUNT_KIN_2 INCREMENT(COUNT_KIN_1)
+#else
+  #define COUNT_KIN_2 COUNT_KIN_1
+#endif
+#if ENABLED(MORGAN_SCARA)
+  #define COUNT_KIN_3 INCREMENT(COUNT_KIN_2)
+#else
+  #define COUNT_KIN_3 COUNT_KIN_2
+#endif
+#if ENABLED(MAKERARM_SCARA)
+  #define COUNT_KIN_4 INCREMENT(COUNT_KIN_3)
+#else
+  #define COUNT_KIN_4 COUNT_KIN_3
+#endif
+#if ENABLED(COREXY)
+  #define COUNT_KIN_5 INCREMENT(COUNT_KIN_4)
+#else
+  #define COUNT_KIN_5 COUNT_KIN_4
+#endif
+#if ENABLED(COREXZ)
+  #define COUNT_KIN_6 INCREMENT(COUNT_KIN_5)
+#else
+  #define COUNT_KIN_6 COUNT_KIN_5
+#endif
+#if ENABLED(COREYZ)
+  #define COUNT_KIN_7 INCREMENT(COUNT_KIN_6)
+#else
+  #define COUNT_KIN_7 COUNT_KIN_6
+#endif
+#if COUNT_KIN_7 > 1
+  #error "Please enable only one of DELTA, MORGAN_SCARA, MAKERARM_SCARA, COREXY, COREXZ, or COREYZ."
 #endif
 
 /**
@@ -750,7 +776,7 @@
   #elif ENABLED(DELTA)
     #error "Z_DUAL_ENDSTOPS is not compatible with DELTA."
   #endif
-#elif DISABLED(SCARA)
+#elif !IS_SCARA
   #if X_HOME_DIR < 0 && DISABLED(USE_XMIN_PLUG)
     #error "Enable USE_XMIN_PLUG when homing X to MIN."
   #elif X_HOME_DIR > 0 && DISABLED(USE_XMAX_PLUG)
@@ -782,4 +808,137 @@
   #elif I2C_SLAVE_ADDRESS > 127
     #error "I2C_SLAVE_ADDRESS can't be over 127. (Only 7 bits allowed.)"
   #endif
+#endif
+
+/**
+ * Make sure only one display is enabled
+ *
+ * Note: BQ_LCD_SMART_CONTROLLER => REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+ *       REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER => REPRAP_DISCOUNT_SMART_CONTROLLER
+ *       SAV_3DGLCD => U8GLIB_SH1106 => ULTIMAKERCONTROLLER
+ *       miniVIKI => ULTIMAKERCONTROLLER
+ *       VIKI2 => ULTIMAKERCONTROLLER
+ *       ELB_FULL_GRAPHIC_CONTROLLER => ULTIMAKERCONTROLLER
+ *       PANEL_ONE => ULTIMAKERCONTROLLER
+ */
+#define COUNT_LCD_1 0
+#if ENABLED(ULTIMAKERCONTROLLER) \
+    && DISABLED(SAV_3DGLCD) && DISABLED(miniVIKI) && DISABLED(VIKI2) \
+    && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) && DISABLED(PANEL_ONE)
+  #define COUNT_LCD_2 INCREMENT(COUNT_LCD_1)
+#else
+  #define COUNT_LCD_2 COUNT_LCD_1
+#endif
+#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) && DISABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #define COUNT_LCD_3 INCREMENT(COUNT_LCD_2)
+#else
+  #define COUNT_LCD_3 COUNT_LCD_2
+#endif
+#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(BQ_LCD_SMART_CONTROLLER)
+  #define COUNT_LCD_4 INCREMENT(COUNT_LCD_3)
+#else
+  #define COUNT_LCD_4 COUNT_LCD_3
+#endif
+#if ENABLED(CARTESIO_UI)
+  #define COUNT_LCD_5 INCREMENT(COUNT_LCD_4)
+#else
+  #define COUNT_LCD_5 COUNT_LCD_4
+#endif
+#if ENABLED(PANEL_ONE)
+  #define COUNT_LCD_6 INCREMENT(COUNT_LCD_5)
+#else
+  #define COUNT_LCD_6 COUNT_LCD_5
+#endif
+#if ENABLED(MAKRPANEL)
+  #define COUNT_LCD_7 INCREMENT(COUNT_LCD_6)
+#else
+  #define COUNT_LCD_7 COUNT_LCD_6
+#endif
+#if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+  #define COUNT_LCD_8 INCREMENT(COUNT_LCD_7)
+#else
+  #define COUNT_LCD_8 COUNT_LCD_7
+#endif
+#if ENABLED(VIKI2)
+  #define COUNT_LCD_9 INCREMENT(COUNT_LCD_8)
+#else
+  #define COUNT_LCD_9 COUNT_LCD_8
+#endif
+#if ENABLED(miniVIKI)
+  #define COUNT_LCD_10 INCREMENT(COUNT_LCD_9)
+#else
+  #define COUNT_LCD_10 COUNT_LCD_9
+#endif
+#if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+  #define COUNT_LCD_11 INCREMENT(COUNT_LCD_10)
+#else
+  #define COUNT_LCD_11 COUNT_LCD_10
+#endif
+#if ENABLED(G3D_PANEL)
+  #define COUNT_LCD_12 INCREMENT(COUNT_LCD_11)
+#else
+  #define COUNT_LCD_12 COUNT_LCD_11
+#endif
+#if ENABLED(MINIPANEL)
+  #define COUNT_LCD_13 INCREMENT(COUNT_LCD_12)
+#else
+  #define COUNT_LCD_13 COUNT_LCD_12
+#endif
+#if ENABLED(REPRAPWORLD_KEYPAD)
+  #define COUNT_LCD_14 INCREMENT(COUNT_LCD_13)
+#else
+  #define COUNT_LCD_14 COUNT_LCD_13
+#endif
+#if ENABLED(RIGIDBOT_PANEL)
+  #define COUNT_LCD_15 INCREMENT(COUNT_LCD_14)
+#else
+  #define COUNT_LCD_15 COUNT_LCD_14
+#endif
+#if ENABLED(RA_CONTROL_PANEL)
+  #define COUNT_LCD_16 INCREMENT(COUNT_LCD_15)
+#else
+  #define COUNT_LCD_16 COUNT_LCD_15
+#endif
+#if ENABLED(LCD_I2C_SAINSMART_YWROBOT)
+  #define COUNT_LCD_17 INCREMENT(COUNT_LCD_16)
+#else
+  #define COUNT_LCD_17 COUNT_LCD_16
+#endif
+#if ENABLED(LCM1602)
+  #define COUNT_LCD_18 INCREMENT(COUNT_LCD_17)
+#else
+  #define COUNT_LCD_18 COUNT_LCD_17
+#endif
+#if ENABLED(LCD_I2C_PANELOLU2)
+  #define COUNT_LCD_19 INCREMENT(COUNT_LCD_18)
+#else
+  #define COUNT_LCD_19 COUNT_LCD_18
+#endif
+#if ENABLED(LCD_I2C_VIKI)
+  #define COUNT_LCD_20 INCREMENT(COUNT_LCD_19)
+#else
+  #define COUNT_LCD_20 COUNT_LCD_19
+#endif
+#if ENABLED(U8GLIB_SSD1306)
+  #define COUNT_LCD_21 INCREMENT(COUNT_LCD_20)
+#else
+  #define COUNT_LCD_21 COUNT_LCD_20
+#endif
+#if ENABLED(SAV_3DLCD)
+  #define COUNT_LCD_22 INCREMENT(COUNT_LCD_21)
+#else
+  #define COUNT_LCD_22 COUNT_LCD_21
+#endif
+#if ENABLED(BQ_LCD_SMART_CONTROLLER)
+  #define COUNT_LCD_23 INCREMENT(COUNT_LCD_22)
+#else
+  #define COUNT_LCD_23 COUNT_LCD_22
+#endif
+#if ENABLED(SAV_3DGLCD)
+  #define COUNT_LCD_24 INCREMENT(COUNT_LCD_23)
+#else
+  #define COUNT_LCD_24 COUNT_LCD_23
+#endif
+#if COUNT_LCD_24 > 1
+  #error "Please select no more than one LCD controller option."
 #endif

@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V24"
+#define EEPROM_VERSION "V25"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -105,24 +105,21 @@
  * DOGLCD:
  *  379  M250 C    lcd_contrast (int)
  *
- * SCARA:
- *  381  M365 XYZ  axis_scaling (float x3)
- *
  * FWRETRACT:
- *  393  M209 S    autoretract_enabled (bool)
- *  394  M207 S    retract_length (float)
- *  398  M207 W    retract_length_swap (float)
- *  402  M207 F    retract_feedrate_mm_s (float)
- *  406  M207 Z    retract_zlift (float)
- *  410  M208 S    retract_recover_length (float)
- *  414  M208 W    retract_recover_length_swap (float)
- *  418  M208 F    retract_recover_feedrate_mm_s (float)
+ *  381  M209 S    autoretract_enabled (bool)
+ *  382  M207 S    retract_length (float)
+ *  386  M207 W    retract_length_swap (float)
+ *  390  M207 F    retract_feedrate_mm_s (float)
+ *  394  M207 Z    retract_zlift (float)
+ *  398  M208 S    retract_recover_length (float)
+ *  402  M208 W    retract_recover_length_swap (float)
+ *  406  M208 F    retract_recover_feedrate_mm_s (float)
  *
  * Volumetric Extrusion:
- *  422  M200 D    volumetric_enabled (bool)
- *  423  M200 T D  filament_size (float x4) (T0..3)
+ *  410  M200 D    volumetric_enabled (bool)
+ *  411  M200 T D  filament_size (float x4) (T0..3)
  *
- *  439  This Slot is Available!
+ *  427  This Slot is Available!
  *
  */
 #include "Marlin.h"
@@ -330,13 +327,6 @@ void Config_StoreSettings()  {
   #endif
   EEPROM_WRITE(lcd_contrast);
 
-  #if ENABLED(SCARA)
-    EEPROM_WRITE(axis_scaling); // 3 floats
-  #else
-    dummy = 1.0f;
-    EEPROM_WRITE(dummy);
-  #endif
-
   #if ENABLED(FWRETRACT)
     EEPROM_WRITE(autoretract_enabled);
     EEPROM_WRITE(retract_length);
@@ -520,12 +510,6 @@ void Config_RetrieveSettings() {
     #endif
     EEPROM_READ(lcd_contrast);
 
-    #if ENABLED(SCARA)
-      EEPROM_READ(axis_scaling);  // 3 floats
-    #else
-      EEPROM_READ(dummy);
-    #endif
-
     #if ENABLED(FWRETRACT)
       EEPROM_READ(autoretract_enabled);
       EEPROM_READ(retract_length);
@@ -584,10 +568,6 @@ void Config_ResetDefault() {
     planner.axis_steps_per_mm[i] = tmp1[i];
     planner.max_feedrate_mm_s[i] = tmp2[i];
     planner.max_acceleration_mm_per_s2[i] = tmp3[i];
-    #if ENABLED(SCARA)
-      if (i < COUNT(axis_scaling))
-        axis_scaling[i] = 1;
-    #endif
   }
 
   planner.acceleration = DEFAULT_ACCELERATION;
@@ -715,18 +695,6 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_EOL;
 
   CONFIG_ECHO_START;
-
-  #if ENABLED(SCARA)
-    if (!forReplay) {
-      SERIAL_ECHOLNPGM("Scaling factors:");
-      CONFIG_ECHO_START;
-    }
-    SERIAL_ECHOPAIR("  M365 X", axis_scaling[X_AXIS]);
-    SERIAL_ECHOPAIR(" Y", axis_scaling[Y_AXIS]);
-    SERIAL_ECHOPAIR(" Z", axis_scaling[Z_AXIS]);
-    SERIAL_EOL;
-    CONFIG_ECHO_START;
-  #endif // SCARA
 
   if (!forReplay) {
     SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");

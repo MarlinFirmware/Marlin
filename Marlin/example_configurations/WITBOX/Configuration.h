@@ -347,8 +347,9 @@
 #define EXTRUDE_MINTEMP 170
 
 // This option prevents a single extrusion longer than EXTRUDE_MAXLENGTH.
+// Note that for Bowden Extruders a too-small value here may prevent loading.
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH)
+#define EXTRUDE_MAXLENGTH 200
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -428,20 +429,56 @@
 //=============================================================================
 // @section motion
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,600.0*8/3,102.073}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {350, 350, 7.2, 80}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,10,1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+/**
+ * Default Settings
+ *
+ * These settings can be reset by M502
+ *
+ * Note that if EEPROM is enabled, saved values will override these.
+ */
 
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration in mm/s^2 for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+/**
+ * Default Axis Steps Per Unit (steps/mm)
+ * Override with M92
+ */
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,600.0*8/3,102.073}
 
-// "Jerk" specifies the minimum speed change that requires acceleration.
-// When changing speed and direction, if the difference is less than the
-// value set here, it may happen instantaneously.
-#define DEFAULT_XYJERK                10.0    // (mm/sec)
-#define DEFAULT_ZJERK                  0.4    // (mm/sec)
-#define DEFAULT_EJERK                  5.0    // (mm/sec)
+/**
+ * Default Max Feed Rate (mm/s)
+ * Override with M203
+ */
+#define DEFAULT_MAX_FEEDRATE          { 350, 350, 7.2, 80 }
+
+/**
+ * Default Max Acceleration (change/s) change = mm/s
+ * Override with M201
+ *
+ * Maximum start speed for accelerated moves: { X, Y, Z, E }
+ */
+#define DEFAULT_MAX_ACCELERATION      { 1000, 1000, 10, 1000 }
+
+/**
+ * Default Acceleration (change/s) change = mm/s
+ * Override with M204
+ *
+ *   M204 P    Acceleration
+ *   M204 R    Retract Acceleration
+ *   M204 T    Travel Acceleration
+ */
+#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
+
+/**
+ * Defult Jerk (mm/s)
+ *
+ * "Jerk" specifies the minimum speed change that requires acceleration.
+ * When changing speed and direction, if the difference is less than the
+ * value set here, it may happen instantaneously.
+ */
+#define DEFAULT_XYJERK                10.0
+#define DEFAULT_ZJERK                  0.4
+#define DEFAULT_EJERK                  5.0
 
 
 //===========================================================================
@@ -466,6 +503,7 @@
 //#define FIX_MOUNTED_PROBE
 
 // The BLTouch probe emulates a servo probe.
+// The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
 //#define BLTOUCH
 
 // Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -634,7 +672,7 @@
 //========================= Filament Runout Sensor ==========================
 //===========================================================================
 //#define FILAMENT_RUNOUT_SENSOR // Uncomment for defining a filament runout sensor such as a mechanical or opto endstop to check the existence of filament
-                                 // In RAMPS uses servo pin 2. Can be changed in pins file. For other boards pin definition should be made.
+                                 // RAMPS-based boards use SERVO3_PIN. For other boards you may need to define FIL_RUNOUT_PIN.
                                  // It is assumed that when logic high = filament available
                                  //                    when logic  low = filament ran out
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -706,7 +744,8 @@
 
     // Set the number of grid points per dimension.
     // You probably don't need more than 3 (squared=9).
-    #define AUTO_BED_LEVELING_GRID_POINTS 3
+    #define ABL_GRID_POINTS_X 3
+    #define ABL_GRID_POINTS_Y ABL_GRID_POINTS_X
 
   #else  // !AUTO_BED_LEVELING_GRID
 

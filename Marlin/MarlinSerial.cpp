@@ -509,6 +509,9 @@ MarlinSerial customizedSerial;
           switch (state) {
             case state_M108:
               wait_for_heatup = false;
+              #if DISABLED(ULTIPANEL)
+                wait_for_user = false;
+              #endif
               break;
             case state_M112:
               kill(PSTR(MSG_KILLED));

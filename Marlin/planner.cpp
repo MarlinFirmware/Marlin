@@ -98,7 +98,7 @@ float Planner::min_feedrate_mm_s,
       Planner::max_e_jerk,
       Planner::min_travel_feedrate_mm_s;
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if ENABLED(AUTO_BED_LEVELING_LINEAR)
   matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
 #endif
 
@@ -138,7 +138,7 @@ void Planner::init() {
   memset(position, 0, sizeof(position)); // clear position
   LOOP_XYZE(i) previous_speed[i] = 0.0;
   previous_nominal_speed = 0.0;
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
     bed_level_matrix.set_to_identity();
   #endif
 }
@@ -521,37 +521,73 @@ void Planner::check_axes_activity() {
   #endif
 }
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
+#if PLANNER_LEVELING
 
-  void Planner::apply_leveling(
-    #if ENABLED(MESH_BED_LEVELING)
-      const float &x, const float &y
-    #else
-      float &x, float &y
-    #endif
-    , float &z
-  ) {
+  void Planner::apply_leveling(float &lx, float &ly, float &lz) {
     #if ENABLED(MESH_BED_LEVELING)
 
       if (mbl.active())
-        z += mbl.get_z(RAW_X_POSITION(x), RAW_Y_POSITION(y));
+        lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
 
-    #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
-      float tx = RAW_X_POSITION(x) - (X_TILT_FULCRUM),
-            ty = RAW_Y_POSITION(y) - (Y_TILT_FULCRUM),
-            tz = RAW_Z_POSITION(z);
+      float dx = RAW_X_POSITION(lx) - (X_TILT_FULCRUM),
+            dy = RAW_Y_POSITION(ly) - (Y_TILT_FULCRUM),
+            dz = RAW_Z_POSITION(lz);
 
-      apply_rotation_xyz(bed_level_matrix, tx, ty, tz);
+      apply_rotation_xyz(bed_level_matrix, dx, dy, dz);
 
-      x = LOGICAL_X_POSITION(tx + X_TILT_FULCRUM);
-      y = LOGICAL_Y_POSITION(ty + Y_TILT_FULCRUM);
-      z = LOGICAL_Z_POSITION(tz);
+      lx = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
+      ly = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
+      lz = LOGICAL_Z_POSITION(dz);
+
+    #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+
+      float tmp[XYZ] = { lx, ly, 0 };
+
+      #if ENABLED(DELTA)
+
+        float offset = nonlinear_z_offset(tmp);
+        lx += offset;
+        ly += offset;
+        lz += offset;
+
+      #else
+
+        lz += nonlinear_z_offset(tmp);
+
+      #endif
 
     #endif
   }
 
-#endif
+  void Planner::unapply_leveling(float &lx, float &ly, float &lz) {
+    #if ENABLED(MESH_BED_LEVELING)
+
+      if (mbl.active())
+        lz -= mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
+
+    #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
+
+      matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
+
+      float dx = lx - (X_TILT_FULCRUM), dy = ly - (Y_TILT_FULCRUM), dz = lz;
+
+      apply_rotation_xyz(inverse, dx, dy, dz);
+
+      lx = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
+      ly = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
+      lz = LOGICAL_Z_POSITION(dz);
+
+    #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+
+      float tmp[XYZ] = { lx, ly, 0 };
+      lz -= nonlinear_z_offset(tmp);
+
+    #endif
+  }
+
+#endif // PLANNER_LEVELING
 
 /**
  * Planner::buffer_line
@@ -562,15 +598,7 @@ void Planner::check_axes_activity() {
  *  fr_mm_s   - (target) speed of the move
  *  extruder  - target extruder
  */
-
-void Planner::buffer_line(
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
-    float x, float y, float z
-  #else
-    const float& x, const float& y, const float& z
-  #endif
-  , const float& e, float fr_mm_s, const uint8_t extruder
-) {
+void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, const uint8_t extruder) {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
@@ -578,17 +606,17 @@ void Planner::buffer_line(
   // Rest here until there is room in the buffer.
   while (block_buffer_tail == next_buffer_head) idle();
 
-  #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_FEATURE)
-    apply_leveling(x, y, z);
+  #if PLANNER_LEVELING
+    apply_leveling(lx, ly, lz);
   #endif
 
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
   long target[NUM_AXIS] = {
-    lround(x * axis_steps_per_mm[X_AXIS]),
-    lround(y * axis_steps_per_mm[Y_AXIS]),
-    lround(z * axis_steps_per_mm[Z_AXIS]),
+    lround(lx * axis_steps_per_mm[X_AXIS]),
+    lround(ly * axis_steps_per_mm[Y_AXIS]),
+    lround(lz * axis_steps_per_mm[Z_AXIS]),
     lround(e * axis_steps_per_mm[E_AXIS])
   };
 
@@ -598,11 +626,22 @@ void Planner::buffer_line(
 
   /*
   SERIAL_ECHO_START;
-  SERIAL_ECHOPAIR("Planner X:", x);
-  SERIAL_ECHOPAIR(" (", dx);
-  SERIAL_ECHOPAIR(") Y:", y);
+  SERIAL_ECHOPGM("Planner ", x);
+  #if IS_KINEMATIC
+    SERIAL_ECHOPAIR("A:", x);
+    SERIAL_ECHOPAIR(" (", dx);
+    SERIAL_ECHOPAIR(") B:", y);
+  #else
+    SERIAL_ECHOPAIR("X:", x);
+    SERIAL_ECHOPAIR(" (", dx);
+    SERIAL_ECHOPAIR(") Y:", y);
+  #endif
   SERIAL_ECHOPAIR(" (", dy);
-  SERIAL_ECHOPAIR(") Z:", z);
+  #elif ENABLED(DELTA)
+    SERIAL_ECHOPAIR(") C:", z);
+  #else
+    SERIAL_ECHOPAIR(") Z:", z);
+  #endif
   SERIAL_ECHOPAIR(" (", dz);
   SERIAL_ECHOLNPGM(")");
   //*/
@@ -671,7 +710,7 @@ void Planner::buffer_line(
   // For a mixing extruder, get a magnified step_event_count for each
   #if ENABLED(MIXING_EXTRUDER)
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      block->mix_event_count[i] = (mixing_factor[i] < 0.0001) ? 0 : block->step_event_count / mixing_factor[i];
+      block->mix_event_count[i] = UNEAR_ZERO(mixing_factor[i]) ? 0 : block->step_event_count / mixing_factor[i];
   #endif
 
   #if FAN_COUNT > 0
@@ -1124,7 +1163,7 @@ void Planner::buffer_line(
       block->advance_rate = acc_dist ? advance / (float)acc_dist : 0;
     }
     /**
-      SERIAL_ECHO_START;
+     SERIAL_ECHO_START;
      SERIAL_ECHOPGM("advance :");
      SERIAL_ECHO(block->advance/256.0);
      SERIAL_ECHOPGM("advance rate :");
@@ -1152,22 +1191,15 @@ void Planner::buffer_line(
  *
  * On CORE machines stepper ABC will be translated from the given XYZ.
  */
-void Planner::set_position_mm(
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
-    float x, float y, float z
-  #else
-    const float& x, const float& y, const float& z
-  #endif
-  , const float& e
-) {
+void Planner::set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
 
-  #if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_FEATURE)
-    apply_leveling(x, y, z);
+  #if PLANNER_LEVELING
+    apply_leveling(lx, ly, lz);
   #endif
 
-  long nx = position[X_AXIS] = lround(x * axis_steps_per_mm[X_AXIS]),
-       ny = position[Y_AXIS] = lround(y * axis_steps_per_mm[Y_AXIS]),
-       nz = position[Z_AXIS] = lround(z * axis_steps_per_mm[Z_AXIS]),
+  long nx = position[X_AXIS] = lround(lx * axis_steps_per_mm[X_AXIS]),
+       ny = position[Y_AXIS] = lround(ly * axis_steps_per_mm[Y_AXIS]),
+       nz = position[Z_AXIS] = lround(lz * axis_steps_per_mm[Z_AXIS]),
        ne = position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS]);
   stepper.set_position(nx, ny, nz, ne);
   previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
@@ -1193,9 +1225,9 @@ void Planner::reset_acceleration_rates() {
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!
 void Planner::refresh_positioning() {
   LOOP_XYZE(i) steps_to_mm[i] = 1.0 / axis_steps_per_mm[i];
-  #if ENABLED(DELTA) || ENABLED(SCARA)
+  #if IS_KINEMATIC
     inverse_kinematics(current_position);
-    set_position_mm(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+    set_position_mm(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], current_position[E_AXIS]);
   #else
     set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
   #endif
