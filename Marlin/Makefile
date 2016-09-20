@@ -221,7 +221,7 @@ ifeq ($(HARDWARE_DISPLAY), Graphic)
 	CXXSRC += GuiManager.cpp \
 		StepperClass.cpp Language.cpp
 	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp FanManager.cpp \
-		TemperatureControl.cpp StatsManager.cpp
+		TemperatureControl.cpp StatsManager.cpp HeatedbedManager.cpp
 	include ui/ui.mk
 	VPATHTEMP += ui
 endif
@@ -235,7 +235,6 @@ CXXSRC += motion_control.cpp planner.cpp stepper.cpp temperature.cpp cardreader.
 CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp StorageManager.cpp TemperatureManager.cpp
 
 CXXSRC += Marlin_main.cpp MarlinSerial.cpp SDCache.cpp
-
 
 # Define all object files.
 OBJ = ${patsubst %.c,$(BUILD_DIR)/%.o,${CSRC}}
