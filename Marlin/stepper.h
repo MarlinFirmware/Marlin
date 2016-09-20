@@ -118,8 +118,8 @@ class Stepper {
         static int final_estep_rate;
         static int current_estep_rate[E_STEPPERS]; // Actual extruder speed [steps/s]
         static int current_adv_steps[E_STEPPERS];  // The amount of current added esteps due to advance.
-                                                  // i.e., the current amount of pressure applied
-                                                  // to the spring (=filament).
+                                                   // i.e., the current amount of pressure applied
+                                                   // to the spring (=filament).
       #else
         static long e_steps[E_STEPPERS];
         static long advance_rate, advance, final_advance;

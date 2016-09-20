@@ -82,10 +82,10 @@ unsigned int Stepper::cleaning_buffer_counter = 0;
   bool Stepper::locked_z2_motor = false;
 #endif
 
-long  Stepper::counter_X = 0,
-      Stepper::counter_Y = 0,
-      Stepper::counter_Z = 0,
-      Stepper::counter_E = 0;
+long Stepper::counter_X = 0,
+     Stepper::counter_Y = 0,
+     Stepper::counter_Z = 0,
+     Stepper::counter_E = 0;
 
 volatile uint32_t Stepper::step_events_completed = 0; // The number of step events executed in the current block
 
@@ -101,11 +101,11 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
         Stepper::current_estep_rate[E_STEPPERS],
         Stepper::current_adv_steps[E_STEPPERS];
   #else
-    long  Stepper::e_steps[E_STEPPERS],
-          Stepper::final_advance = 0,
-          Stepper::old_advance = 0,
-          Stepper::advance_rate,
-          Stepper::advance;
+    long Stepper::e_steps[E_STEPPERS],
+         Stepper::final_advance = 0,
+         Stepper::old_advance = 0,
+         Stepper::advance_rate,
+         Stepper::advance;
   #endif
 #endif
 
