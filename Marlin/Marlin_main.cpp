@@ -38,7 +38,7 @@
   #include "vector_3.h"
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_LINEAR)
+#if ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
   #include "qr_solve.h"
 #elif ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
@@ -3453,7 +3453,7 @@ inline void gcode_G28() {
         float zoffset = zprobe_zoffset;
         if (code_seen('Z')) zoffset += code_value_axis_units(Z_AXIS);
 
-      #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
+      #elif ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
 
         /**
          * solve the plane equation ax + by + d = z
@@ -3471,7 +3471,7 @@ inline void gcode_G28() {
                mean = 0.0;
         int indexIntoAB[abl_grid_points_x][abl_grid_points_y];
 
-      #endif // AUTO_BED_LEVELING_LINEAR
+      #endif // AUTO_BED_LEVELING_LINEAR_GRID
 
       int probePointCounter = 0;
       bool zig = abl_grid_points_y & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
@@ -3506,7 +3506,7 @@ inline void gcode_G28() {
 
           measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
-          #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+          #if ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
 
             mean += measured_z;
             eqnBVector[probePointCounter] = measured_z;
@@ -3576,7 +3576,7 @@ inline void gcode_G28() {
       if (!dryrun) extrapolate_unprobed_bed_level();
       print_bed_level();
 
-    #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
+    #elif ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
 
       // For LINEAR leveling calculate matrix, print reports, correct the position
 
@@ -3672,6 +3672,10 @@ inline void gcode_G28() {
           SERIAL_EOL;
         }
       } //do_topography_map
+
+    #endif // AUTO_BED_LEVELING_LINEAR_GRID
+
+    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
       // For LINEAR and 3POINT leveling correct the current position
 
@@ -6759,7 +6763,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             float xydiff[2] = { offset_vec.x, offset_vec.y };
             current_position[Z_AXIS] += offset_vec.z;
 
-          #else // !AUTO_BED_LEVELING_FEATURE
+          #else // !AUTO_BED_LEVELING_LINEAR
 
             float xydiff[2] = {
               hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
