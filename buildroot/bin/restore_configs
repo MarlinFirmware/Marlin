@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+cp Marlin/Configuration.h.backup      Marlin/Configuration.h
+cp Marlin/Configuration_adv.h.backup  Marlin/Configuration_adv.h
+cp Marlin/pins_RAMPS_14.h.backup      Marlin/pins_RAMPS_14.h
+
+if [ -f Marlin/_Bootscreen.h ]; then
+  rm Marlin/_Bootscreen.h
+fi
