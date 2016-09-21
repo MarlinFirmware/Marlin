@@ -624,8 +624,8 @@
 // Minimum heights for the probe to deploy/stow and travel.
 // These values specify the distance from the NOZZLE to the BED.
 //
-#define Z_PROBE_DEPLOY_HEIGHT  8 // Z position for the probe to deploy/stow
-#define Z_PROBE_TRAVEL_HEIGHT  7 // Z position for travel between points
+#define Z_PROBE_DEPLOY_HEIGHT  5 // Z position for the probe to deploy/stow
+#define Z_PROBE_TRAVEL_HEIGHT  4 // Z position for travel between points
 
 //
 // For M851 give a range for adjusting the Z probe offset
@@ -1348,7 +1348,7 @@
 // Delay (in microseconds) before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY 300
+#define SERVO_DELAY 25
 
 // Servo deactivation
 //
@@ -1384,5 +1384,8 @@
   //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
   //#define FILAMENT_LCD_DISPLAY
 #endif
+
+#define ENCODER_STEPS_PER_MENU_ITEM 2
+
 
 #endif // CONFIGURATION_H
