@@ -2920,22 +2920,20 @@ inline void gcode_G4() {
     destination[Y_AXIS] = LOGICAL_Y_POSITION(Z_SAFE_HOMING_Y_POINT);
     destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
-    #if HAS_BED_PROBE
-      destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
-      destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
-    #endif
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
-    #endif
-
     if (position_is_reachable(
           destination
-          #if HAS_BED_PROBE
+          #if HOMING_Z_WITH_PROBE
             , true
           #endif
         )
     ) {
+      #if HOMING_Z_WITH_PROBE
+        destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
+        destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+      #endif
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
+      #endif
       do_blocking_move_to_xy(destination[X_AXIS], destination[Y_AXIS]);
       HOMEAXIS(Z);
     }
