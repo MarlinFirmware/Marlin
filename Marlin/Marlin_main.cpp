@@ -1487,7 +1487,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
     planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], destination[E_AXIS], MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
     set_current_to_destination();
   }
-#endif
+#endif // IS_KINEMATIC
 
 /**
  *  Plan a move to (X, Y, Z) and set the current_position
@@ -1554,16 +1554,12 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
       #endif
     }
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
-    #endif
-
   #elif IS_SCARA
 
     set_destination_to_current();
 
     // If Z needs to raise, do it before moving XY
-    if (current_position[Z_AXIS] < z) {
+    if (destination[Z_AXIS] < z) {
       destination[Z_AXIS] = z;
       prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS]);
     }
@@ -1573,7 +1569,7 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
     prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S);
 
     // If Z needs to lower, do it after moving XY
-    if (current_position[Z_AXIS] > z) {
+    if (destination[Z_AXIS] > z) {
       destination[Z_AXIS] = z;
       prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS]);
     }
@@ -1604,6 +1600,10 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
   stepper.synchronize();
 
   feedrate_mm_s = old_feedrate_mm_s;
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
+  #endif
 }
 void do_blocking_move_to_x(const float &x, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
@@ -2846,7 +2846,8 @@ inline void gcode_G4() {
 
     // Move all carriages together linearly until an endstop is hit.
     current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (Z_MAX_LENGTH + 10);
-    planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate_mm_s[X_AXIS], active_extruder);
+    feedrate_mm_s = homing_feedrate_mm_s[X_AXIS];
+    line_to_current_position();
     stepper.synchronize();
     endstops.hit_on_purpose(); // clear endstop hit flags
 
@@ -9015,7 +9016,7 @@ void stop() {
  */
 void setup() {
 
-  #ifdef DISABLE_JTAG
+  #if ENABLED(DISABLE_JTAG)
     // Disable JTAG on AT90USB chips to free up pins for IO
     MCUCR = 0x80;
     MCUCR = 0x80;
