@@ -936,6 +936,9 @@ void Stepper::synchronize() { while (planner.blocks_queued()) idle(); }
  * derive the current XYZ position later on.
  */
 void Stepper::set_position(const long& x, const long& y, const long& z, const long& e) {
+
+  synchronize(); // Bad to set stepper counts in the middle of a move
+
   CRITICAL_SECTION_START;
 
   #if ENABLED(COREXY)
