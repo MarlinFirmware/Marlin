@@ -1211,6 +1211,13 @@ void Planner::set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
 }
 
 /**
+ * Sync from the stepper positions. (e.g., after an interrupted move)
+ */
+void Planner::sync_from_steppers() {
+  LOOP_XYZE(i) position[i] = stepper.position((AxisEnum)i);
+}
+
+/**
  * Directly set the planner E position (hence the stepper E position).
  */
 void Planner::set_e_position_mm(const float& e) {
