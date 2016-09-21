@@ -352,6 +352,42 @@
 
 #if PROBE_SELECTED
 
+  /**
+   * Only allow one probe option to be defined
+   */
+  #define COUNT_PROBE_1 0
+  #if ENABLED(FIX_MOUNTED_PROBE)
+    #define COUNT_PROBE_2 INCREMENT(COUNT_PROBE_1)
+  #else
+    #define COUNT_PROBE_2 COUNT_PROBE_1
+  #endif
+  #if HAS_Z_SERVO_ENDSTOP && DISABLED(BLTOUCH)
+    #define COUNT_PROBE_3 INCREMENT(COUNT_PROBE_2)
+  #else
+    #define COUNT_PROBE_3 COUNT_PROBE_2
+  #endif
+  #if ENABLED(BLTOUCH)
+    #define COUNT_PROBE_4 INCREMENT(COUNT_PROBE_3)
+  #else
+    #define COUNT_PROBE_4 COUNT_PROBE_3
+  #endif
+  #if ENABLED(Z_PROBE_ALLEN_KEY)
+    #define COUNT_PROBE_5 INCREMENT(COUNT_PROBE_4)
+  #else
+    #define COUNT_PROBE_5 COUNT_PROBE_4
+  #endif
+  #if ENABLED(Z_PROBE_SLED)
+    #define COUNT_PROBE_6 INCREMENT(COUNT_PROBE_5)
+  #else
+    #define COUNT_PROBE_6 COUNT_PROBE_5
+  #endif
+  #if COUNT_PROBE_6 > 1
+    #error "Please enable only one probe: FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
+  #endif
+
+  /**
+   * Z_PROBE_SLED is incompatible with DELTA
+   */
   #if ENABLED(Z_PROBE_SLED) && ENABLED(DELTA)
     #error "You cannot use Z_PROBE_SLED with DELTA."
   #endif
@@ -368,72 +404,22 @@
   #endif
 
   /**
-   * A probe needs a pin
+   * Require pin options and pins to be defined
    */
-  #if !PROBE_PIN_CONFIGURED
-    #error "A probe needs a pin! Use Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN or Z_MIN_PROBE_PIN."
-  #endif
-
-  /**
-   * Require a Z min pin
-   */
-  #if HAS_Z_MIN
-     // Z_MIN_PIN and Z_MIN_PROBE_PIN can't co-exist when Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
-    #if HAS_Z_MIN_PROBE_PIN && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-      #error "A probe cannot have more than one pin! Use Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN or Z_MIN_PROBE_PIN."
+  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+      #error "Enable only one option: Z_MIN_PROBE_ENDSTOP or Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN."
+    #elif DISABLED(USE_ZMIN_PLUG)
+      #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires USE_ZMIN_PLUG to be enabled."
+    #elif !HAS_Z_MIN
+      #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires the Z_MIN_PIN to be defined."
     #endif
-  #elif !HAS_Z_MIN_PROBE_PIN || (DISABLED(Z_MIN_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP))
-    // A pin was set for the Z probe, but not enabled.
-    #error "A probe requires a Z_MIN or Z_PROBE pin. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin."
-  #endif
-
-  /**
-   * Make sure the plug is enabled if it's used
-   */
-  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && DISABLED(USE_ZMIN_PLUG)
-    #error "You must enable USE_ZMIN_PLUG if any probe or endstop is connected to the ZMIN plug."
-  #endif
-
-  /**
-   * Only allow one probe option to be defined
-   */
-  #if (ENABLED(FIX_MOUNTED_PROBE) && (ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))) \
-       || (ENABLED(Z_PROBE_ALLEN_KEY) && (HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))) \
-       || (HAS_Z_SERVO_ENDSTOP && ENABLED(Z_PROBE_SLED))
-    #error "Please define only one type of probe: Z Servo/BLTOUCH, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
-  #endif
-
-  /**
-   * Don't allow nonsense probe-pin settings
-   */
-  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && ENABLED(Z_MIN_PROBE_ENDSTOP)
-    #error "You can't enable both Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN and Z_MIN_PROBE_ENDSTOP."
-  #elif ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) && ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)
-    #error "Don't enable DISABLE_Z_MIN_PROBE_ENDSTOP with Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN."
-  #elif ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP) && DISABLED(Z_MIN_PROBE_ENDSTOP)
-    #error "DISABLE_Z_MIN_PROBE_ENDSTOP requires Z_MIN_PROBE_ENDSTOP to be set."
-  #endif
-
-  /**
-   * Require a Z probe pin if Z_MIN_PROBE_ENDSTOP is enabled.
-   */
-  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
     #if !HAS_Z_MIN_PROBE_PIN
-      #error "Z_MIN_PROBE_ENDSTOP requires a Z_MIN_PROBE_PIN in your board's pins_XXXX.h file."
+      #error "Z_MIN_PROBE_ENDSTOP requires the Z_MIN_PROBE_PIN to be defined."
     #endif
-    // Forcing Servo definitions can break some hall effect sensor setups. Leaving these here for further comment.
-    //#ifndef NUM_SERVOS
-    //  #error "You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_MIN_PROBE_ENDSTOP."
-    //#endif
-    //#if defined(NUM_SERVOS) && NUM_SERVOS < 1
-    //  #error "You must have at least 1 servo defined for NUM_SERVOS to use Z_MIN_PROBE_ENDSTOP."
-    //#endif
-    //#if Z_ENDSTOP_SERVO_NR < 0
-    //  #error "You must have Z_ENDSTOP_SERVO_NR set to at least 0 or above to use Z_MIN_PROBE_ENDSTOP."
-    //#endif
-    //#ifndef Z_SERVO_ANGLES
-    //  #error "You must have Z_SERVO_ANGLES defined for Z Extend and Retract to use Z_MIN_PROBE_ENDSTOP."
-    //#endif
+  #else
+    #error "You must enable either Z_MIN_PROBE_ENDSTOP or Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN to use a probe."
   #endif
 
   /**

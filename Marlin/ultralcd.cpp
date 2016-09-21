@@ -31,8 +31,7 @@
 #include "utility.h"
 
 #if ENABLED(BLTOUCH)
-  #include "servo.h"
-  extern Servo servo[NUM_SERVOS];
+  #include "endstops.h"
 #endif
 
 #if ENABLED(PRINTCOUNTER)
@@ -593,8 +592,8 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM(back, MSG_WATCH);
 
     #if ENABLED(BLTOUCH)
-      if (servo[Z_ENDSTOP_SERVO_NR].read() == BLTouchState_Error)
-        MENU_ITEM(gcode, MSG_RESET_BLTOUCH, "M280 S90 P" STRINGIFY(Z_ENDSTOP_SERVO_NR));
+      if (!endstops.z_probe_enabled && TEST_BLTOUCH())
+        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
     #endif
 
     if (planner.movesplanned() || IS_SD_PRINTING) {
@@ -1249,6 +1248,15 @@ void kill_screen(const char* lcd_msg) {
     // Cooldown
     //
     MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+
+    //
+    // BLTouch Self-Test and Reset
+    //
+    #if ENABLED(BLTOUCH)
+      MENU_ITEM(gcode, MSG_BLTOUCH_TEST, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
+      if (!endstops.z_probe_enabled && TEST_BLTOUCH())
+        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
+    #endif
 
     //
     // Switch power on/off

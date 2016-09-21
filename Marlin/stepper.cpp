@@ -82,10 +82,10 @@ unsigned int Stepper::cleaning_buffer_counter = 0;
   bool Stepper::locked_z2_motor = false;
 #endif
 
-long  Stepper::counter_X = 0,
-      Stepper::counter_Y = 0,
-      Stepper::counter_Z = 0,
-      Stepper::counter_E = 0;
+long Stepper::counter_X = 0,
+     Stepper::counter_Y = 0,
+     Stepper::counter_Z = 0,
+     Stepper::counter_E = 0;
 
 volatile uint32_t Stepper::step_events_completed = 0; // The number of step events executed in the current block
 
@@ -95,17 +95,17 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
   volatile unsigned char Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
 
   #if ENABLED(LIN_ADVANCE)
-    volatile int Stepper::e_steps[E_STEPPERS];
+    volatile long Stepper::e_steps[E_STEPPERS];
     int Stepper::extruder_advance_k = LIN_ADVANCE_K,
         Stepper::final_estep_rate,
         Stepper::current_estep_rate[E_STEPPERS],
         Stepper::current_adv_steps[E_STEPPERS];
   #else
-    long  Stepper::e_steps[E_STEPPERS],
-          Stepper::final_advance = 0,
-          Stepper::old_advance = 0,
-          Stepper::advance_rate,
-          Stepper::advance;
+    long Stepper::e_steps[E_STEPPERS],
+         Stepper::final_advance = 0,
+         Stepper::old_advance = 0,
+         Stepper::advance_rate,
+         Stepper::advance;
   #endif
 #endif
 
@@ -299,16 +299,14 @@ void Stepper::set_directions() {
     SET_STEP_DIR(Z); // C
   #endif
 
-  #if DISABLED(ADVANCE)
-    if (motor_direction(E_AXIS)) {
-      REV_E_DIR();
-      count_direction[E_AXIS] = -1;
-    }
-    else {
-      NORM_E_DIR();
-      count_direction[E_AXIS] = 1;
-    }
-  #endif //!ADVANCE
+  if (motor_direction(E_AXIS)) {
+    REV_E_DIR();
+    count_direction[E_AXIS] = -1;
+  }
+  else {
+    NORM_E_DIR();
+    count_direction[E_AXIS] = 1;
+  }
 }
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
@@ -683,28 +681,14 @@ void Stepper::isr() {
     old_OCR0A += eISR_Rate;
     OCR0A = old_OCR0A;
 
-    #define SET_E_STEP_DIR(INDEX) \
-      E## INDEX ##_DIR_WRITE(e_steps[INDEX] <= 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
-
     #define START_E_PULSE(INDEX) \
-      if (e_steps[INDEX]) E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN)
+      if (e_steps[INDEX]) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN)
 
     #define STOP_E_PULSE(INDEX) \
       if (e_steps[INDEX]) { \
         e_steps[INDEX] <= 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
-        E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN); \
+        E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
       }
-
-    SET_E_STEP_DIR(0);
-    #if E_STEPPERS > 1
-      SET_E_STEP_DIR(1);
-      #if E_STEPPERS > 2
-        SET_E_STEP_DIR(2);
-        #if E_STEPPERS > 3
-          SET_E_STEP_DIR(3);
-        #endif
-      #endif
-    #endif
 
     // Step all E steppers that have steps
     for (uint8_t i = 0; i < step_loops; i++) {
