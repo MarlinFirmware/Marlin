@@ -89,10 +89,11 @@
 #if ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA)
   //#define DEBUG_SCARA_KINEMATICS
 
-  #define SCARA_SEGMENTS_PER_SECOND 200 // If movement is choppy try lowering this value
-  // Length of inner support arm
-  #define SCARA_LINKAGE_1 150 //mm      Preprocessor cannot handle decimal point...
-  // Length of outer support arm     Measure arm lengths precisely and enter
+  // If movement is choppy try lowering this value
+  #define SCARA_SEGMENTS_PER_SECOND 200
+
+  // Length of inner and outer support arms. Measure arm lengths precisely.
+  #define SCARA_LINKAGE_1 150 //mm
   #define SCARA_LINKAGE_2 150 //mm
 
   // SCARA tower offset (position of Tower relative to bed zero position)
@@ -100,8 +101,12 @@
   #define SCARA_OFFSET_X 100 //mm
   #define SCARA_OFFSET_Y -56 //mm
 
+  // Radius around the center where the arm cannot reach
+  #define MIDDLE_DEAD_ZONE 0 //mm
+
   #define THETA_HOMING_OFFSET 0  //calculatated from Calibration Guide and command M360 / M114 see picture in http://reprap.harleystudio.co.za/?page_id=1073
   #define PSI_HOMING_OFFSET   0  //calculatated from Calibration Guide and command M364 / M114 see picture in http://reprap.harleystudio.co.za/?page_id=1073
+
 #endif
 
 //===========================================================================

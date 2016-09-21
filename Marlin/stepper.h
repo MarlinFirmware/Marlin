@@ -91,11 +91,6 @@ class Stepper {
       static bool performing_homing;
     #endif
 
-    //
-    // Positions of stepper motors, in step units
-    //
-    static volatile long count_position[NUM_AXIS];
-
   private:
 
     static unsigned char last_direction_bits;        // The next stepping-bits to be output
@@ -142,6 +137,11 @@ class Stepper {
       #endif
       static const int motor_current_setting[3] = PWM_MOTOR_CURRENT;
     #endif
+
+    //
+    // Positions of stepper motors, in step units
+    //
+    static volatile long count_position[NUM_AXIS];
 
     //
     // Current direction of stepper motors (+1 or -1)
