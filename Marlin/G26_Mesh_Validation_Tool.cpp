@@ -159,6 +159,7 @@ void lcd_setstatus(const char* message, bool persist);
 
 float valid_trig_angle( float );
 struct mesh_index_pair find_closest_circle_to_print( float, float );	
+void debug_current_and_destination(char *title);
 void mesh_buffer_line(float, float, float, float, float, uint8_t );
 //		uint16_t x_splits = 0xffff, uint16_t y_splits = 0xffff);  /* needed for the old mesh_buffer_line() routine */
 
@@ -168,6 +169,7 @@ static float Nozzle=NOZZLE , Filament=FILAMENT, Prime_Length=PRIME_LENGTH;
 static float X_Pos, Y_Pos, bed_temp=BED_TEMP, hotend_temp=HOTEND_TEMP, Ooooze_Amount=OOOOZE_AMOUNT;
 static int Prime_Flag=0, Keep_Heaters_On=0; 
 
+int G26_Debug_flag=0;
 
 void gcode_G26() {
 float circle_x, circle_y, x, y, dx, dy, xe, ye, tmp;
@@ -229,6 +231,8 @@ struct mesh_index_pair location;
   move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], Ooooze_Amount );
 
   UBL_has_control_of_LCD_Panel = 1;	// Take control of the LCD Panel!
+  debug_current_and_destination("Starting G26 Mesh Validation Pattern.");
+
   do {
 	if ( G29_lcd_clicked() ) {	// Check if the user wants to stop the Mesh Validation
 		strcpy( lcd_status_message, "Mesh Validation Stopped.");// We can't do lcd_setstatus() without having it continue;
@@ -265,6 +269,12 @@ struct mesh_index_pair location;
 
 		xi = location.x_index; 	// Just to shrink the next few lines and make them easier to understand	
 		yi = location.y_index;
+
+if (G26_Debug_flag!=0) {
+SERIAL_ECHOPAIR("   Doing circle at: (xi=",xi);
+SERIAL_ECHOPAIR(",yi=",yi);
+SERIAL_ECHO(")\n");
+}
 
 		start_angle = 0.0;		// assume it is going to be a full circle
 		end_angle   = 360.0;
@@ -333,11 +343,26 @@ GOT_ANGLES:
 			ye= constrain( ye, Y_MIN_POS+1, Y_MAX_POS-1); 			
 #endif
 
+if (G26_Debug_flag!=0) {
+char ccc, *cptr, seg_msg[50], seg_num[10];
+strcpy(seg_msg,"   segment: ");
+strcpy(seg_num,"    \n");
+cptr = "01234567890ABCDEF????????";
+ccc = cptr[tmp_div_30]; 
+seg_num[1] = ccc;
+strcat(seg_msg, seg_num);
+debug_current_and_destination(seg_msg);
+}
+
 			print_line_from_here_to_there( x, y, Layer_Height, xe, ye, Layer_Height);
 		}
 
+     		debug_current_and_destination("Looking for lines to connect.");
 		look_for_lines_to_connect();
+     		debug_current_and_destination("Done with line connect.");
 	}
+
+     debug_current_and_destination("Done with current circle.");
 
   } while (location.x_index>=0 && location.y_index>=0 );
 
@@ -473,6 +498,15 @@ int i, j, k;
 					ex= constrain( ex, X_MIN_POS+1, X_MAX_POS-1); 			
 					ey= constrain( ey, Y_MIN_POS+1, Y_MAX_POS-1); 			
 
+if (G26_Debug_flag!=0) {
+SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=",sx);
+SERIAL_ECHOPAIR(",sy=",sy);
+SERIAL_ECHOPAIR(") -> (ex=",ex);
+SERIAL_ECHOPAIR(",ey=",ey);
+SERIAL_ECHO(")\n");
+debug_current_and_destination("Connecting horizontal line.");
+}
+
 					print_line_from_here_to_there( sx, sy, Layer_Height, ex, ey, Layer_Height );
 					bit_set( horizontal_mesh_line_flags, i, j);		// Mark it as done so we don't do it again
 				}
@@ -500,6 +534,14 @@ int i, j, k;
 					ex= constrain( ex, X_MIN_POS+1, X_MAX_POS-1); 			
 					ey= constrain( ey, Y_MIN_POS+1, Y_MAX_POS-1); 			
 
+if (G26_Debug_flag!=0) {
+SERIAL_ECHOPAIR(" Connecting with vertical line (sx=",sx);
+SERIAL_ECHOPAIR(",sy=",sy);
+SERIAL_ECHOPAIR(") -> (ex=",ex);
+SERIAL_ECHOPAIR(",ey=",ey);
+SERIAL_ECHO(")\n");
+debug_current_and_destination("Connecting vertical line.");
+}
 					print_line_from_here_to_there( sx, sy, Layer_Height, ex, ey, Layer_Height );
 					bit_set( vertical_mesh_line_flags, i, j);		// Mark it as done so we don't do it again
 				}
@@ -509,6 +551,10 @@ int i, j, k;
 }
 
 void debug_current_and_destination(char *title) {
+
+if (G26_Debug_flag==0)
+	return;
+
 SERIAL_ECHO("    current=( ");
 SERIAL_ECHO_F( current_position[X_AXIS], 6 );
 SERIAL_ECHO(" , ");
@@ -564,8 +610,18 @@ static float last_z = -999.99;
 	last_z = z;
 	feed_value = planner.max_feedrate[Z_AXIS]/(3.0);	// Base the feed rate off of the configured Z_AXIS feed rate
 
+if (G26_Debug_flag!=0) {
+SERIAL_ECHO("  in move_to()  z!=last_z  ");
+SERIAL_ECHOPAIR(" z=",z);
+SERIAL_ECHOPAIR(" last_z=",last_z);
+SERIAL_ECHO("  \n");
+}
+
 	e_pos = destination[E_AXIS] + e_delta;
+
+debug_current_and_destination(" in move_to() before adjusting Z");
 	mesh_buffer_line( x, y, z, e_pos, feed_value, (unsigned char) 0 );
+debug_current_and_destination(" in move_to() after adjusting Z");
 
 	stepper.synchronize();
   	set_destination_to_current();
@@ -583,7 +639,9 @@ static float last_z = -999.99;
   destination[Z_AXIS] = z;	// We know the last_z==z or we wouldn't be in this block of code.
   destination[E_AXIS] += e_delta;
 
+debug_current_and_destination(" in move_to() doing normal move");
   mesh_buffer_line( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0 );
+SERIAL_ECHO(" end of move_to()\n");
 
 //  stepper.synchronize();
 //  set_destination_to_current();
@@ -593,8 +651,14 @@ void retract_filament()
 {
   if ( !retracted ) {		// Only retract if we are not already retracted!
 	retracted = true;
+if (G26_Debug_flag!=0) {
+SERIAL_ECHO(" Decided to do retract.\n");
+}
 	move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], -1.0 * Retraction_Multiplier );
-  }
+if (G26_Debug_flag!=0) {
+SERIAL_ECHO(" Retraction done.\n");
+}
+}
 }
 
 void un_retract_filament()
@@ -602,7 +666,10 @@ void un_retract_filament()
   if ( retracted ) {		// Only un-retract if we are retracted.
 	move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],  1.2 * Retraction_Multiplier );
 	retracted = false;
-  }
+if (G26_Debug_flag!=0) {
+SERIAL_ECHO(" unretract done.\n");
+}
+}
 }
 
 
@@ -643,6 +710,9 @@ void print_line_from_here_to_there( float sx, float sy, float sz, float ex, floa
 	// On very small lines we don't do the optimization because it just isn't worth it.
 	//
 	if ( (dist_end < dist_start) && ( SIZE_OF_INTERSECTION_CIRCLES < abs(Line_Length)) )	{	
+if (G26_Debug_flag!=0) {
+SERIAL_ECHO("  Reversing start and end of print_line_from_here_to_there()\n");
+}
 		print_line_from_here_to_there( ex, ey, ez, sx, sy, sz );
 		return;
 	}
@@ -651,6 +721,9 @@ void print_line_from_here_to_there( float sx, float sy, float sz, float ex, floa
 
 	if ( dist_start > 2.0 )  {
 		retract_filament();
+if (G26_Debug_flag!=0) {
+SERIAL_ECHO("  filament retracted.\n");
+}
 	}
 	move_to( sx, sy, sz, 0.0 );	// Get to the starting point with no extrusion
      	dx = ex - sx;
@@ -659,6 +732,10 @@ void print_line_from_here_to_there( float sx, float sy, float sz, float ex, floa
 	E_Pos_Delta = Line_Length * G26_E_AXIS_feedrate * Filament_Factor;
 
 	un_retract_filament();
+if (G26_Debug_flag!=0) {
+SERIAL_ECHO("  doing printing move.\n");
+debug_current_and_destination("doing final move_to() inside print_line_from_here_to_there()");
+}
 	move_to( ex, ey, ez, E_Pos_Delta);	// Get to the ending point with an appropriate amount of extrusion
 }
 
