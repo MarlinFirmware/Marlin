@@ -328,13 +328,15 @@
       #define NUM_SERVOS (Z_ENDSTOP_SERVO_NR + 1)
     #endif
     #undef DEACTIVATE_SERVOS_AFTER_MOVE
+    #undef SERVO_DELAY
+    #define SERVO_DELAY 50
     #undef Z_SERVO_ANGLES
     #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
 
     #define BLTOUCH_DEPLOY    10
-    #define BLTOUCH_STOW   90
+    #define BLTOUCH_STOW      90
     #define BLTOUCH_SELFTEST 120
-    #define BLTOUCH_RELEASE  160
+    #define BLTOUCH_RESET    160
     #define _TEST_BLTOUCH(P) (READ(P##_PIN) != P##_ENDSTOP_INVERTING)
 
     #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)

@@ -109,6 +109,8 @@ script:
   # ...with AUTO_BED_LEVELING_FEATURE, Z_MIN_PROBE_REPEATABILITY_TEST, & DEBUG_LEVELING_FEATURE
   #
   - opt_enable AUTO_BED_LEVELING_FEATURE Z_MIN_PROBE_REPEATABILITY_TEST DEBUG_LEVELING_FEATURE
+  - opt_set ABL_GRID_POINTS_X 16
+  - opt_set ABL_GRID_POINTS_Y 16
   - build_marlin
   #
   # Test a Sled Z Probe
@@ -374,7 +376,7 @@ script:
   # SCARA Config
   #
   - use_example_configs SCARA
-  - opt_enable AUTO_BED_LEVELING_FEATURE FIX_MOUNTED_PROBE USE_ZMIN_PLUG
+  - opt_enable AUTO_BED_LEVELING_FEATURE FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p
