@@ -1996,11 +1996,11 @@ static void clean_up_after_endstop_or_probe_move() {
     // Clear endstop flags
     endstops.hit_on_purpose();
 
+    // Tell the planner where we actually are
+    planner.sync_from_steppers();
+
     // Get Z where the steppers were interrupted
     set_current_from_steppers_for_axis(Z_AXIS);
-
-    // Tell the planner where we actually are
-    SYNC_PLAN_POSITION_KINEMATIC();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);

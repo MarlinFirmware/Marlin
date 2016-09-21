@@ -243,6 +243,11 @@ class Planner {
     static void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float& e);
 
     /**
+     * Sync from the stepper positions. (e.g., after an interrupted move)
+     */
+    static void sync_from_steppers();
+
+    /**
      * Set the E position (mm) of the planner (and the E stepper)
      */
     static void set_e_position_mm(const float& e);
