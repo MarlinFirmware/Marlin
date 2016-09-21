@@ -59,6 +59,13 @@ namespace ui
 			char m_temperature_info[9];
 			char m_time_info[8];
 			char m_pause_info[9];
+			
+		#if MB(BQ_ZUM_MEGA_3D)
+			uint8_t m_bed_observed;
+			char m_bed_info[9];	
+			bool m_bed_heating;
+			bool m_hotend_heating;
+		#endif
 	};
 }
 #endif //SCREEN_PRINT_H
