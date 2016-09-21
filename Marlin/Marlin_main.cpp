@@ -307,7 +307,7 @@ static uint8_t cmd_queue_index_r = 0,
  * Feed rates are often configured with mm/m
  * but the planner and stepper like mm/s units.
  */
-const float homing_feedrate_mm_s[] = {
+float constexpr homing_feedrate_mm_s[] = {
   #if ENABLED(DELTA)
     MMM_TO_MMS(HOMING_FEEDRATE_Z), MMM_TO_MMS(HOMING_FEEDRATE_Z),
   #else
@@ -1368,6 +1368,9 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
   #if ENABLED(MORGAN_SCARA)
 
+    /**
+     * Morgan SCARA homes XY at the same time
+     */
     if (axis == X_AXIS || axis == Y_AXIS) {
 
       float homeposition[XYZ];
@@ -1399,34 +1402,37 @@ static void set_axis_is_at_home(AxisEnum axis) {
   #endif
   {
     current_position[axis] = LOGICAL_POSITION(base_home_pos(axis), axis);
+  }
 
+  /**
+   * Z Probe Z Homing? Account for the probe's Z offset.
+   */
+  #if HAS_BED_PROBE && Z_HOME_DIR < 0
     if (axis == Z_AXIS) {
-      #if HAS_BED_PROBE && Z_HOME_DIR < 0
-        #if HOMING_Z_WITH_PROBE
-          current_position[Z_AXIS] -= zprobe_zoffset;
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOLNPGM("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***");
-              SERIAL_ECHOLNPAIR("> zprobe_zoffset = ", zprobe_zoffset);
-            }
-          #endif
-        #elif ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING))
-            SERIAL_ECHOLNPGM("*** Z HOMED TO ENDSTOP (Z_MIN_PROBE_ENDSTOP) ***");
+      #if HOMING_Z_WITH_PROBE
+
+        current_position[Z_AXIS] -= zprobe_zoffset;
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOLNPGM("*** Z HOMED WITH PROBE (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) ***");
+            SERIAL_ECHOLNPAIR("> zprobe_zoffset = ", zprobe_zoffset);
+          }
         #endif
+
+      #elif ENABLED(DEBUG_LEVELING_FEATURE)
+
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("*** Z HOMED TO ENDSTOP (Z_MIN_PROBE_ENDSTOP) ***");
+
       #endif
     }
+  #endif
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("> home_offset[", axis_codes[axis]);
-        SERIAL_ECHOLNPAIR("] = ", home_offset[axis]);
-        DEBUG_POS("", current_position);
-      }
-    #endif
-  }
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
+      SERIAL_ECHOPAIR("> home_offset[", axis_codes[axis]);
+      SERIAL_ECHOLNPAIR("] = ", home_offset[axis]);
+      DEBUG_POS("", current_position);
       SERIAL_ECHOPAIR("<<< set_axis_is_at_home(", axis_codes[axis]);
       SERIAL_ECHOLNPGM(")");
     }
@@ -1437,7 +1443,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
  * Some planner shorthand inline functions
  */
 inline float get_homing_bump_feedrate(AxisEnum axis) {
-  const int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
+  int constexpr homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
   int hbd = homing_bump_divisor[axis];
   if (hbd < 1) {
     hbd = 10;
@@ -1475,13 +1481,13 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
   /**
    * Calculate delta, start a line, and set current_position to destination
    */
-  void prepare_uninterpolated_move_to_destination() {
+  void prepare_uninterpolated_move_to_destination(const float fr_mm_s=0.0) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
     #endif
     refresh_cmd_timeout();
     inverse_kinematics(destination);
-    planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], destination[E_AXIS], MMS_SCALED(feedrate_mm_s), active_extruder);
+    planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], destination[E_AXIS], MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
     set_current_to_destination();
   }
 #endif
@@ -1499,7 +1505,7 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 
   #if ENABLED(DELTA)
 
-    feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
+    feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
     set_destination_to_current();          // sync destination at the start
 
@@ -1561,41 +1567,37 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 
     // If Z needs to raise, do it before moving XY
     if (current_position[Z_AXIS] < z) {
-      feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS];
       destination[Z_AXIS] = z;
-      prepare_uninterpolated_move_to_destination();
+      prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS]);
     }
-
-    feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
 
     destination[X_AXIS] = x;
     destination[Y_AXIS] = y;
-    prepare_uninterpolated_move_to_destination();
+    prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S);
 
     // If Z needs to lower, do it after moving XY
     if (current_position[Z_AXIS] > z) {
-      feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS];
       destination[Z_AXIS] = z;
-      prepare_uninterpolated_move_to_destination();
+      prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS]);
     }
 
   #else
 
     // If Z needs to raise, do it before moving XY
     if (current_position[Z_AXIS] < z) {
-      feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS];
+      feedrate_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS];
       current_position[Z_AXIS] = z;
       line_to_current_position();
     }
 
-    feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
+    feedrate_mm_s = fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S;
     current_position[X_AXIS] = x;
     current_position[Y_AXIS] = y;
     line_to_current_position();
 
     // If Z needs to lower, do it after moving XY
     if (current_position[Z_AXIS] > z) {
-      feedrate_mm_s = (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS];
+      feedrate_mm_s = fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS];
       current_position[Z_AXIS] = z;
       line_to_current_position();
     }
@@ -2221,7 +2223,7 @@ static void clean_up_after_endstop_or_probe_move() {
  * Home an individual linear axis
  */
 
-static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
+static void do_homing_move(AxisEnum axis, float where, float fr_mm_s=0.0) {
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     if (axis == Z_AXIS) set_bltouch_deployed(true);
@@ -2230,7 +2232,7 @@ static void do_homing_move(AxisEnum axis, float where, float fr_mm_s = 0.0) {
   current_position[axis] = 0;
   sync_plan_position();
   current_position[axis] = where;
-  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], (fr_mm_s != 0.0) ? fr_mm_s : homing_feedrate_mm_s[axis], active_extruder);
+  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[axis], active_extruder);
   stepper.synchronize();
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
@@ -2287,22 +2289,12 @@ static void homeaxis(AxisEnum axis) {
     if (axis == Z_AXIS) stepper.set_homing_flag(true);
   #endif
 
-  // Move towards the endstop until an endstop is triggered
+  // 1. Fast move towards endstop until triggered
+  // 2. Move away from the endstop by the axis HOME_BUMP_MM
+  // 3. Slow move towards endstop until triggered
   do_homing_move(axis, 1.5 * max_length(axis) * axis_home_dir);
-
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 1st Home ", current_position[axis]);
-  #endif
-
-  // Move away from the endstop by the axis HOME_BUMP_MM
   do_homing_move(axis, -home_bump_mm(axis) * axis_home_dir);
-
-  // Move slowly towards the endstop until triggered
   do_homing_move(axis, 2 * home_bump_mm(axis) * axis_home_dir, get_homing_bump_feedrate(axis));
-
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("> 2nd Home ", current_position[axis]);
-  #endif
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) {
@@ -2349,7 +2341,8 @@ static void homeaxis(AxisEnum axis) {
 
   #else
 
-    // Set the axis position to its home position (plus home offsets)
+    // For cartesian/core machines,
+    // set the axis to its home position
     set_axis_is_at_home(axis);
     sync_plan_position();
 
