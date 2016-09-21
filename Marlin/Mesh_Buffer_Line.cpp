@@ -44,6 +44,8 @@
 #include <avr/io.h>
 #include <math.h>
 
+extern int G26_Debug_flag;
+void debug_current_and_destination(char *title);
 
 void wait_for_button_press();
 
@@ -76,6 +78,15 @@ void mesh_buffer_line(float x_end, float y_end, float z_end, float e_end, float 
 	cell_dest_xi  = blm.get_cell_index_x(x_end);
 	cell_dest_yi  = blm.get_cell_index_y(y_end);
 
+if (G26_Debug_flag!=0) {
+SERIAL_ECHOPAIR(" mesh_buffer_line(xe=",x_end);
+SERIAL_ECHOPAIR(",ye=",y_end);
+SERIAL_ECHOPAIR(",ze=",z_end);
+SERIAL_ECHOPAIR(",ee=",e_end);
+SERIAL_ECHO(")\n");
+debug_current_and_destination("Start of mesh_buffer_line()");
+}
+
 	if ((cell_start_xi == cell_dest_xi) && (cell_start_yi == cell_dest_yi)) {	// if the whole move is within the same cell, 
 											// we don't need to break up the move
 		//
@@ -90,6 +101,9 @@ void mesh_buffer_line(float x_end, float y_end, float z_end, float e_end, float 
 
 			planner.buffer_line(x_end, y_end, z_end + blm.state.z_offset, e_end, feed_rate, extruder);
 			set_current_to_destination();
+if (G26_Debug_flag!=0) {
+debug_current_and_destination("out of bounds in mesh_buffer_line()");
+}
 			return;
 		}
 
@@ -122,6 +136,9 @@ void mesh_buffer_line(float x_end, float y_end, float z_end, float e_end, float 
 					// information we need to complete the height correction.
 		}
 		planner.buffer_line(x_end, y_end, z_end + z0 + blm.state.z_offset, e_end, feed_rate, extruder);
+if (G26_Debug_flag!=0) {
+debug_current_and_destination("FINAL_MOVE in mesh_buffer_line()");
+}
 		set_current_to_destination();
 		return;
 	}
@@ -239,6 +256,9 @@ void mesh_buffer_line(float x_end, float y_end, float z_end, float e_end, float 
 		//
 		// Check if we are at the final destination.  Usually, we won't be, but if it is on a Y Mesh Line, we are done.
 		//
+if (G26_Debug_flag!=0) {
+debug_current_and_destination("vertical move done in mesh_buffer_line()");
+}
 		if (current_position[X_AXIS] != x_end || current_position[Y_AXIS] != y_end)
 			goto FINAL_MOVE;
 		set_current_to_destination();
@@ -287,6 +307,9 @@ void mesh_buffer_line(float x_end, float y_end, float z_end, float e_end, float 
 				planner.buffer_line(x, y, z_position + z0 + blm.state.z_offset, e_position, feed_rate, extruder);
 			  } //else printf("FIRST MOVE PRUNED  ");
 		}
+if (G26_Debug_flag!=0) {
+debug_current_and_destination("horizontal move done in mesh_buffer_line()");
+}
 		if (current_position[X_AXIS] != x_end || current_position[Y_AXIS] != y_end)
 			goto FINAL_MOVE;
 		set_current_to_destination();
@@ -387,6 +410,9 @@ void mesh_buffer_line(float x_end, float y_end, float z_end, float e_end, float 
 			xi_cnt--;
 		}
 	}
+if (G26_Debug_flag!=0) {
+debug_current_and_destination("generic move done in mesh_buffer_line()");
+}
 	if (current_position[0] != x_end || current_position[1] != y_end)  {
 		goto FINAL_MOVE;
 	}
