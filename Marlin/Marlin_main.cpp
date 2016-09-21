@@ -3140,19 +3140,13 @@ inline void gcode_G28() {
         #if ENABLED(MESH_G28_REST_ORIGIN)
           current_position[Z_AXIS] = 0.0;
           set_destination_to_current();
-          feedrate_mm_s = homing_feedrate_mm_s[Z_AXIS];
-          line_to_destination();
+          line_to_destination(homing_feedrate_mm_s[Z_AXIS]);
           stepper.synchronize();
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("MBL Rest Origin", current_position);
           #endif
         #else
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z -
-            mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS))
-            #if Z_HOME_DIR > 0
-              + Z_MAX_POS
-            #endif
-          ;
+          planner.unapply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("MBL adjusted MESH_HOME_SEARCH_Z", current_position);
           #endif
@@ -3162,8 +3156,7 @@ inline void gcode_G28() {
         current_position[Z_AXIS] = pre_home_z;
         SYNC_PLAN_POSITION_KINEMATIC();
         mbl.set_active(true);
-        current_position[Z_AXIS] = pre_home_z -
-          mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS));
+        planner.unapply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("MBL Home X or Y", current_position);
         #endif
