@@ -627,22 +627,23 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
        dz = target[Z_AXIS] - position[Z_AXIS];
 
   /*
-  SERIAL_ECHO_START;
-  SERIAL_ECHOPGM("Planner ", x);
+  SERIAL_ECHOPGM("  Planner ");
+  SERIAL_ECHOPAIR("FR:", fr_mm_s);
+  SERIAL_CHAR(' ');
   #if IS_KINEMATIC
-    SERIAL_ECHOPAIR("A:", x);
+    SERIAL_ECHOPAIR("A:", lx);
     SERIAL_ECHOPAIR(" (", dx);
-    SERIAL_ECHOPAIR(") B:", y);
+    SERIAL_ECHOPAIR(") B:", ly);
   #else
-    SERIAL_ECHOPAIR("X:", x);
+    SERIAL_ECHOPAIR("X:", lx);
     SERIAL_ECHOPAIR(" (", dx);
-    SERIAL_ECHOPAIR(") Y:", y);
+    SERIAL_ECHOPAIR(") Y:", ly);
   #endif
   SERIAL_ECHOPAIR(" (", dy);
-  #elif ENABLED(DELTA)
-    SERIAL_ECHOPAIR(") C:", z);
+  #if ENABLED(DELTA)
+    SERIAL_ECHOPAIR(") C:", lz);
   #else
-    SERIAL_ECHOPAIR(") Z:", z);
+    SERIAL_ECHOPAIR(") Z:", lz);
   #endif
   SERIAL_ECHOPAIR(" (", dz);
   SERIAL_ECHOLNPGM(")");
