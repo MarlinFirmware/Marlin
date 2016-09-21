@@ -3527,7 +3527,7 @@ inline void gcode_G28() {
     // Deploy the probe. Probe will raise if needed.
     if (DEPLOY_PROBE()) return;
 
-    float xProbe, yProbe, measured_z = 0;
+    float xProbe = 0, yProbe = 0, measured_z = 0;
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
