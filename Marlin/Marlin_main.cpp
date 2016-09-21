@@ -1604,7 +1604,10 @@ inline void line_to_z(float zPosition) {
 void line_to_destination(float mm_m) {
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
   float corrected_z;
-  corrected_z = destination[Z_AXIS] + blm.get_z_correction( destination[X_AXIS], destination[Y_AXIS]) *  blm.fade_scaling_factor_for_Z(destination[Z_AXIS]);
+  corrected_z = destination[Z_AXIS];
+  if (blm.state.active) {
+    corrected_z += blm.get_z_correction( destination[X_AXIS], destination[Y_AXIS]) *  blm.fade_scaling_factor_for_Z(destination[Z_AXIS]);
+  }
   planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], corrected_z, destination[E_AXIS], mm_m / 60, active_extruder);
 #else
   planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], mm_m / 60, active_extruder);
@@ -2568,15 +2571,19 @@ void gcode_get_destination() {
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
       if ( i==Z_AXIS ) {   	// it is cheaper to do this check 4x for the Z-Axis
 	      			// than it is to do a code_seen('Z') and then parse the number.
-	   if (destination[Z_AXIS] > blm.state.G29_Correction_Fade_Height )  {
-	   	fade_scaling_factor_for_current_height = 0.0;
-	   } else {
-	   	fade_scaling_factor_for_current_height = 1.0 - (destination[Z_AXIS] * blm.state.G29_Fade_Height_Multiplier);
-	   }
+//	   if (destination[Z_AXIS] > blm.state.G29_Correction_Fade_Height )  {
+//	   	fade_scaling_factor_for_current_height = 0.0;
+//	   } else {
+//	   	fade_scaling_factor_for_current_height = 1.0 - (destination[Z_AXIS] * blm.state.G29_Fade_Height_Multiplier);
+//	   }
+
+	blm.fade_scaling_factor_for_Z( destination[Z_AXIS] ); 	// we ignore the computed value.  We are just getting 
+								// things setup for the new height.
+
 #if ENABLED(DEBUG_LEVELING_FEATURE)
            if (DEBUGGING(MESH_ADJUST)) {
              SERIAL_ECHOPAIR("Mesh scaling factor set for Z-Height ", destination[Z_AXIS] );
-             SERIAL_ECHOPAIR(" to ", fade_scaling_factor_for_current_height );
+             SERIAL_ECHOPAIR(" to ",	blm.fade_scaling_factor_for_Z( destination[Z_AXIS] ) );
              SERIAL_ECHOPAIR(" [Fade=", blm.state.G29_Correction_Fade_Height )  ;
              SERIAL_ECHO("]\n");
            }
@@ -3655,18 +3662,21 @@ int p, i, j, s=0, e=127, w=500, repeat_cnt=1;
 
 //extern int been_to_2_6;
 
+extern int G26_Debug_flag;
 inline void gcode_M47() {
 int i, j, xi, yi,     y0i, y1i, y2i,     x0i, x1i, x2i;
 float x, y, z, z0, z00, z1, z2;
 
-if (code_seen('V') ) {
-//  been_to_2_6=1;
-  return;
-}
-if (code_seen('N') ) {
-//  been_to_2_6=0;
-  return;
-}
+
+	if ( G26_Debug_flag ) {
+		G26_Debug_flag = 0;
+		SERIAL_PROTOCOL("G26 debug turned off.\n");
+	} else {
+		G26_Debug_flag = 1;
+		SERIAL_PROTOCOL("G26 debug turned on.\n");
+	}
+	return;
+
 
 	x = 60.00; 
 	xi = blm.get_cell_index_x(x);
@@ -7254,12 +7264,30 @@ void clamp_to_software_endstops(float target[3]) {
 #endif // DUAL_X_CARRIAGE
 
 #if DISABLED(DELTA) && DISABLED(SCARA)
+void debug_current_and_destination(char *title);
 
 bool prepare_move_to_destination_cartesian() {
     
     // Do not use feedrate_multiplier for E or Z only moves
     if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS]) {
+
+  #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+if ( G26_Debug_flag ) {
+  SERIAL_PROTOCOLPAIR("G1 Z ", destination[Z_AXIS]);
+  debug_current_and_destination("Position at start of G1 Z move");
+} 
+      blm.fade_scaling_factor_for_Z( destination[Z_AXIS] ); 	// we ignore the computed value.  We are just getting 
+								// things setup for the new height.
+  #endif
+
       line_to_destination();
+
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+if ( G26_Debug_flag ) {
+  SERIAL_PROTOCOLPAIR("G1 Z ", destination[Z_AXIS]);
+  debug_current_and_destination("Position at start of G1 Z move");
+} 
+#endif
     }
     else {
   #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
@@ -7270,6 +7298,12 @@ bool prepare_move_to_destination_cartesian() {
         line_to_destination(feedrate * feedrate_multiplier / 100.0);
   #endif
     }
+#if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+if ( G26_Debug_flag ) {
+  SERIAL_PROTOCOL("G1: ");
+  debug_current_and_destination("Position at end of G1 move");
+} 
+#endif
     return true;
   }
 
