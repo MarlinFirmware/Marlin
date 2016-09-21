@@ -450,6 +450,8 @@ float lastpos[4];
   boolean chdkActive = false;
 #endif
 
+bool long_command = false;
+
 extern void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size);
 
 //===========================================================================
@@ -2455,6 +2457,7 @@ Sigma_Exit:
       if(setTargetedHotend(109)){
         break;
       }
+      long_command = true;
 				LCD_MESSAGEPGM(MSG_HEATING_PROCESS);
 				lcd_update();
       
@@ -2553,6 +2556,7 @@ Sigma_Exit:
 					LCD_MESSAGEPGM(MSG_PRINTING);
 					lcd_update();
 				}
+	  long_command = false;
       break;
 
 #if defined(HEATED_BED_SUPPORT) || defined(DOGLCD)
@@ -2563,6 +2567,7 @@ Sigma_Exit:
 		  break;
 		}
 	#endif // DOGLCD
+	long_command = true;
     #if (defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1) || defined(DOGLCD)
         LCD_MESSAGEPGM(MSG_BED_HEATING_PROCESS);
         if (code_seen('S')) {
@@ -2599,6 +2604,7 @@ Sigma_Exit:
         LCD_MESSAGEPGM(MSG_BED_HEATING_DONE);
         previous_millis_cmd = millis();
     #endif // (defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1) || defined(DOGLCD)
+		long_command = false;
         break;
 #endif //defined(HEATED_BED_SUPPORT) || DOGLCD
 
