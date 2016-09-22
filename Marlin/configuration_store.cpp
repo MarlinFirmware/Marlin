@@ -287,7 +287,7 @@ void Config_StoreSettings()  {
 
   // Report storage size
   SERIAL_ECHO_START;
-  SERIAL_ECHOPAIR("Settings Stored (", i);
+  SERIAL_ECHOPAIRPGM("Settings Stored (", i);
   SERIAL_ECHOLNPGM(" bytes)");
 
 // It can be argued that the M500 should only save the state of the Unified Bed Leveling System and
@@ -458,16 +458,16 @@ void Config_RetrieveSettings() {
     if (eeprom_16_bit_CRC == Stored_CRC) {
       SERIAL_ECHO_START;
       SERIAL_ECHO(version);
-      SERIAL_ECHOPAIR(" stored settings retrieved (", i);
+      SERIAL_ECHOPAIRPGM(" stored settings retrieved (", i);
       SERIAL_ECHOLNPGM(" bytes)");
       Config_Postprocess(); 
 	}
     else {
       SERIAL_ERROR_START;
 /*
-SERIAL_ECHO(" eeprom_16_bit_CRC:");
+SERIAL_ECHOPGM(" eeprom_16_bit_CRC:");
 prt_hex_word(eeprom_16_bit_CRC);
-SERIAL_ECHO(" Stored_CRC:");
+SERIAL_ECHOPGM(" Stored_CRC:");
 prt_hex_word( Stored_CRC);
 SERIAL_ERRORLNPGM("\n");
 */
@@ -482,9 +482,9 @@ SERIAL_ERRORLNPGM("\n");
     blm.load_state();
 
 if ( blm.state.active )
-SERIAL_ECHO(" UBL Active!\n");
+SERIAL_ECHOPGM(" UBL Active!\n");
 else
-SERIAL_ECHO(" UBL Not active!\n");
+SERIAL_ECHOPGM(" UBL Not active!\n");
 
     if ( blm.sanity_check() == 0 ) {
       int tmp_mesh; 		// We want to preserve whether the UBL System is Active
@@ -505,12 +505,12 @@ SERIAL_ECHO(" UBL Not active!\n");
 
     if (blm.state.EEPROM_storage_slot >= 0 )  {
 	blm.load_mesh( blm.state.EEPROM_storage_slot );
-      	SERIAL_ECHOPAIR("Mesh ", blm.state.EEPROM_storage_slot );
+      	SERIAL_ECHOPAIRPGM("Mesh ", blm.state.EEPROM_storage_slot );
         SERIAL_ECHOLNPGM(" loaded from storage.");
     }
     else  {
         blm.reset();
-SERIAL_ECHO("UBL System reset() \n");
+SERIAL_ECHOPGM("UBL System reset() \n");
     }
 #endif
   }
@@ -670,10 +670,10 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Steps per unit:");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M92 X", planner.axis_steps_per_mm[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", planner.axis_steps_per_mm[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", planner.axis_steps_per_mm[Z_AXIS]);
-  SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS]);
+  SERIAL_ECHOPAIRPGM("  M92 X", planner.axis_steps_per_mm[X_AXIS]);
+  SERIAL_ECHOPAIRPGM(" Y", planner.axis_steps_per_mm[Y_AXIS]);
+  SERIAL_ECHOPAIRPGM(" Z", planner.axis_steps_per_mm[Z_AXIS]);
+  SERIAL_ECHOPAIRPGM(" E", planner.axis_steps_per_mm[E_AXIS]);
   SERIAL_EOL;
 
   CONFIG_ECHO_START;
@@ -683,9 +683,9 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Scaling factors:");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M365 X", axis_scaling[X_AXIS]);
-    SERIAL_ECHOPAIR(" Y", axis_scaling[Y_AXIS]);
-    SERIAL_ECHOPAIR(" Z", axis_scaling[Z_AXIS]);
+    SERIAL_ECHOPAIRPGM("  M365 X", axis_scaling[X_AXIS]);
+    SERIAL_ECHOPAIRPGM(" Y", axis_scaling[Y_AXIS]);
+    SERIAL_ECHOPAIRPGM(" Z", axis_scaling[Z_AXIS]);
     SERIAL_EOL;
     CONFIG_ECHO_START;
   #endif // SCARA
@@ -694,10 +694,10 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M203 X", planner.max_feedrate[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", planner.max_feedrate[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", planner.max_feedrate[Z_AXIS]);
-  SERIAL_ECHOPAIR(" E", planner.max_feedrate[E_AXIS]);
+  SERIAL_ECHOPAIRPGM("  M203 X", planner.max_feedrate[X_AXIS]);
+  SERIAL_ECHOPAIRPGM(" Y", planner.max_feedrate[Y_AXIS]);
+  SERIAL_ECHOPAIRPGM(" Z", planner.max_feedrate[Z_AXIS]);
+  SERIAL_ECHOPAIRPGM(" E", planner.max_feedrate[E_AXIS]);
   SERIAL_EOL;
 
   CONFIG_ECHO_START;
@@ -705,19 +705,19 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M201 X", planner.max_acceleration_mm_per_s2[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", planner.max_acceleration_mm_per_s2[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", planner.max_acceleration_mm_per_s2[Z_AXIS]);
-  SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS]);
+  SERIAL_ECHOPAIRPGM("  M201 X", planner.max_acceleration_mm_per_s2[X_AXIS]);
+  SERIAL_ECHOPAIRPGM(" Y", planner.max_acceleration_mm_per_s2[Y_AXIS]);
+  SERIAL_ECHOPAIRPGM(" Z", planner.max_acceleration_mm_per_s2[Z_AXIS]);
+  SERIAL_ECHOPAIRPGM(" E", planner.max_acceleration_mm_per_s2[E_AXIS]);
   SERIAL_EOL;
   CONFIG_ECHO_START;
   if (!forReplay) {
     SERIAL_ECHOLNPGM("Accelerations: P=printing, R=retract and T=travel");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M204 P", planner.acceleration);
-  SERIAL_ECHOPAIR(" R", planner.retract_acceleration);
-  SERIAL_ECHOPAIR(" T", planner.travel_acceleration);
+  SERIAL_ECHOPAIRPGM("  M204 P", planner.acceleration);
+  SERIAL_ECHOPAIRPGM(" R", planner.retract_acceleration);
+  SERIAL_ECHOPAIRPGM(" T", planner.travel_acceleration);
   SERIAL_EOL;
 
   CONFIG_ECHO_START;
@@ -725,12 +725,12 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum XY jerk (mm/s),  Z=maximum Z jerk (mm/s),  E=maximum E jerk (mm/s)");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M205 S", planner.min_feedrate);
-  SERIAL_ECHOPAIR(" T", planner.min_travel_feedrate);
-  SERIAL_ECHOPAIR(" B", planner.min_segment_time);
-  SERIAL_ECHOPAIR(" X", planner.max_xy_jerk);
-  SERIAL_ECHOPAIR(" Z", planner.max_z_jerk);
-  SERIAL_ECHOPAIR(" E", planner.max_e_jerk);
+  SERIAL_ECHOPAIRPGM("  M205 S", planner.min_feedrate);
+  SERIAL_ECHOPAIRPGM(" T", planner.min_travel_feedrate);
+  SERIAL_ECHOPAIRPGM(" B", planner.min_segment_time);
+  SERIAL_ECHOPAIRPGM(" X", planner.max_xy_jerk);
+  SERIAL_ECHOPAIRPGM(" Z", planner.max_z_jerk);
+  SERIAL_ECHOPAIRPGM(" E", planner.max_e_jerk);
   SERIAL_EOL;
 
   CONFIG_ECHO_START;
@@ -738,9 +738,9 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Home offset (mm)");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M206 X", home_offset[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", home_offset[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", home_offset[Z_AXIS]);
+  SERIAL_ECHOPAIRPGM("  M206 X", home_offset[X_AXIS]);
+  SERIAL_ECHOPAIRPGM(" Y", home_offset[Y_AXIS]);
+  SERIAL_ECHOPAIRPGM(" Z", home_offset[Z_AXIS]);
   SERIAL_EOL;
 
   #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
@@ -752,31 +752,31 @@ void Config_PrintSettings(bool forReplay) {
        SERIAL_ECHOLNPGM("Active\n");
     else
        SERIAL_ECHOLNPGM("Deactive\n");
-    SERIAL_ECHOPAIR("Active Mesh Slot: ", blm.state.EEPROM_storage_slot );
+    SERIAL_ECHOPAIRPGM("Active Mesh Slot: ", blm.state.EEPROM_storage_slot );
     SERIAL_ECHOLNPGM("\n");
 
-    SERIAL_ECHO("z_offset: ");
+    SERIAL_ECHOPGM("z_offset: ");
     SERIAL_ECHO_F( blm.state.z_offset, 6 );
     SERIAL_PROTOCOLPGM("\n");
 
 /*    
-    SERIAL_ECHOPAIR("EEPROM can hold ", (int) ((E2END-sizeof(blm.state )
+    SERIAL_ECHOPAIRPGM("EEPROM can hold ", (int) ((E2END-sizeof(blm.state )
 				    		-Unified_Bed_Leveling_EEPROM_start)/sizeof(blm.z_values)));
     SERIAL_ECHOLNPGM(" meshes. \n");
 */
 
-    SERIAL_ECHOPAIR("\nMESH_NUM_X_POINTS  ", MESH_NUM_X_POINTS );
-    SERIAL_ECHOPAIR("\nMESH_NUM_Y_POINTS  ", MESH_NUM_Y_POINTS );
+    SERIAL_ECHOPAIRPGM("\nMESH_NUM_X_POINTS  ", MESH_NUM_X_POINTS );
+    SERIAL_ECHOPAIRPGM("\nMESH_NUM_Y_POINTS  ", MESH_NUM_Y_POINTS );
     
-    SERIAL_ECHOPAIR("\nMESH_MIN_X         ", MESH_MIN_X );
-    SERIAL_ECHOPAIR("\nMESH_MIN_Y         ", MESH_MIN_Y );
+    SERIAL_ECHOPAIRPGM("\nMESH_MIN_X         ", MESH_MIN_X );
+    SERIAL_ECHOPAIRPGM("\nMESH_MIN_Y         ", MESH_MIN_Y );
    
-    SERIAL_ECHOPAIR("\nMESH_MAX_X         ", MESH_MAX_X );
-    SERIAL_ECHOPAIR("\nMESH_MAX_Y         ", MESH_MAX_Y );
+    SERIAL_ECHOPAIRPGM("\nMESH_MAX_X         ", MESH_MAX_X );
+    SERIAL_ECHOPAIRPGM("\nMESH_MAX_Y         ", MESH_MAX_Y );
   
-    SERIAL_ECHO("\nMESH_X_DIST        ");
+    SERIAL_ECHOPGM("\nMESH_X_DIST        ");
     SERIAL_ECHO_F( MESH_X_DIST, 6 );
-    SERIAL_ECHO("\nMESH_Y_DIST        ");
+    SERIAL_ECHOPGM("\nMESH_Y_DIST        ");
     SERIAL_ECHO_F( MESH_Y_DIST, 6 );
     SERIAL_PROTOCOLPGM("\n");
     SERIAL_EOL;
@@ -788,24 +788,24 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Endstop adjustment (mm):");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M666 X", endstop_adj[X_AXIS]);
-    SERIAL_ECHOPAIR(" Y", endstop_adj[Y_AXIS]);
-    SERIAL_ECHOPAIR(" Z", endstop_adj[Z_AXIS]);
+    SERIAL_ECHOPAIRPGM("  M666 X", endstop_adj[X_AXIS]);
+    SERIAL_ECHOPAIRPGM(" Y", endstop_adj[Y_AXIS]);
+    SERIAL_ECHOPAIRPGM(" Z", endstop_adj[Z_AXIS]);
     SERIAL_EOL;
     CONFIG_ECHO_START;
     if (!forReplay) {
       SERIAL_ECHOLNPGM("Delta settings: L=diagonal_rod, R=radius, S=segments_per_second, ABC=diagonal_rod_trim_tower_[123]");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M665 L", delta_diagonal_rod);
-    SERIAL_ECHOPAIR(" R", delta_radius);
-    SERIAL_ECHOPAIR(" S", delta_segments_per_second);
-    SERIAL_ECHOPAIR(" A", delta_diagonal_rod_trim_tower_1);
-    SERIAL_ECHOPAIR(" B", delta_diagonal_rod_trim_tower_2);
-    SERIAL_ECHOPAIR(" C", delta_diagonal_rod_trim_tower_3);
-    SERIAL_ECHOPAIR(" I", delta_radius_trim_tower_1 );
-    SERIAL_ECHOPAIR(" J", delta_radius_trim_tower_2 );
-    SERIAL_ECHOPAIR(" K", delta_radius_trim_tower_3 );
+    SERIAL_ECHOPAIRPGM("  M665 L", delta_diagonal_rod);
+    SERIAL_ECHOPAIRPGM(" R", delta_radius);
+    SERIAL_ECHOPAIRPGM(" S", delta_segments_per_second);
+    SERIAL_ECHOPAIRPGM(" A", delta_diagonal_rod_trim_tower_1);
+    SERIAL_ECHOPAIRPGM(" B", delta_diagonal_rod_trim_tower_2);
+    SERIAL_ECHOPAIRPGM(" C", delta_diagonal_rod_trim_tower_3);
+    SERIAL_ECHOPAIRPGM(" I", delta_radius_trim_tower_1 );
+    SERIAL_ECHOPAIRPGM(" J", delta_radius_trim_tower_2 );
+    SERIAL_ECHOPAIRPGM(" K", delta_radius_trim_tower_3 );
     SERIAL_EOL;
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     CONFIG_ECHO_START;
@@ -813,7 +813,7 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Z2 Endstop adjustment (mm):");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M666 Z", z_endstop_adj);
+    SERIAL_ECHOPAIRPGM("  M666 Z", z_endstop_adj);
     SERIAL_EOL;
   #endif // DELTA
 
@@ -823,14 +823,14 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Material heatup parameters:");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M145 S0 H", plaPreheatHotendTemp);
-    SERIAL_ECHOPAIR(" B", plaPreheatHPBTemp);
-    SERIAL_ECHOPAIR(" F", plaPreheatFanSpeed);
+    SERIAL_ECHOPAIRPGM("  M145 S0 H", plaPreheatHotendTemp);
+    SERIAL_ECHOPAIRPGM(" B", plaPreheatHPBTemp);
+    SERIAL_ECHOPAIRPGM(" F", plaPreheatFanSpeed);
     SERIAL_EOL;
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M145 S1 H", absPreheatHotendTemp);
-    SERIAL_ECHOPAIR(" B", absPreheatHPBTemp);
-    SERIAL_ECHOPAIR(" F", absPreheatFanSpeed);
+    SERIAL_ECHOPAIRPGM("  M145 S1 H", absPreheatHotendTemp);
+    SERIAL_ECHOPAIRPGM(" B", absPreheatHPBTemp);
+    SERIAL_ECHOPAIRPGM(" F", absPreheatFanSpeed);
     SERIAL_EOL;
   #endif // ULTIPANEL
 
@@ -845,13 +845,13 @@ void Config_PrintSettings(bool forReplay) {
         if (forReplay) {
           for (uint8_t i = 0; i < HOTENDS; i++) {
             CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR("  M301 E", i);
-            SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, i));
-            SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, i)));
-            SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, i)));
+            SERIAL_ECHOPAIRPGM("  M301 E", i);
+            SERIAL_ECHOPAIRPGM(" P", PID_PARAM(Kp, i));
+            SERIAL_ECHOPAIRPGM(" I", unscalePID_i(PID_PARAM(Ki, i)));
+            SERIAL_ECHOPAIRPGM(" D", unscalePID_d(PID_PARAM(Kd, i)));
             #if ENABLED(PID_ADD_EXTRUSION_RATE)
-              SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, i));
-              if (i == 0) SERIAL_ECHOPAIR(" L", lpq_len);
+              SERIAL_ECHOPAIRPGM(" C", PID_PARAM(Kc, i));
+              if (i == 0) SERIAL_ECHOPAIRPGM(" L", lpq_len);
             #endif
             SERIAL_EOL;
           }
@@ -861,12 +861,12 @@ void Config_PrintSettings(bool forReplay) {
       // !forReplay || HOTENDS == 1
       {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echo values for E0
-        SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, 0)));
-        SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
+        SERIAL_ECHOPAIRPGM("  M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echo values for E0
+        SERIAL_ECHOPAIRPGM(" I", unscalePID_i(PID_PARAM(Ki, 0)));
+        SERIAL_ECHOPAIRPGM(" D", unscalePID_d(PID_PARAM(Kd, 0)));
         #if ENABLED(PID_ADD_EXTRUSION_RATE)
-          SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, 0));
-          SERIAL_ECHOPAIR(" L", lpq_len);
+          SERIAL_ECHOPAIRPGM(" C", PID_PARAM(Kc, 0));
+          SERIAL_ECHOPAIRPGM(" L", lpq_len);
         #endif
         SERIAL_EOL;
       }
@@ -874,9 +874,9 @@ void Config_PrintSettings(bool forReplay) {
 
     #if ENABLED(PIDTEMPBED)
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M304 P", thermalManager.bedKp);
-      SERIAL_ECHOPAIR(" I", unscalePID_i(thermalManager.bedKi));
-      SERIAL_ECHOPAIR(" D", unscalePID_d(thermalManager.bedKd));
+      SERIAL_ECHOPAIRPGM("  M304 P", thermalManager.bedKp);
+      SERIAL_ECHOPAIRPGM(" I", unscalePID_i(thermalManager.bedKi));
+      SERIAL_ECHOPAIRPGM(" D", unscalePID_d(thermalManager.bedKd));
       SERIAL_EOL;
     #endif
 
@@ -888,7 +888,7 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("LCD Contrast:");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M250 C", lcd_contrast);
+    SERIAL_ECHOPAIRPGM("  M250 C", lcd_contrast);
     SERIAL_EOL;
   #endif
 
@@ -899,30 +899,30 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Retract: S=Length (mm) F:Speed (mm/m) Z: ZLift (mm)");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M207 S", retract_length);
+    SERIAL_ECHOPAIRPGM("  M207 S", retract_length);
     #if EXTRUDERS > 1
-      SERIAL_ECHOPAIR(" W", retract_length_swap);
+      SERIAL_ECHOPAIRPGM(" W", retract_length_swap);
     #endif
-    SERIAL_ECHOPAIR(" F", retract_feedrate_mm_s * 60);
-    SERIAL_ECHOPAIR(" Z", retract_zlift);
+    SERIAL_ECHOPAIRPGM(" F", retract_feedrate_mm_s * 60);
+    SERIAL_ECHOPAIRPGM(" Z", retract_zlift);
     SERIAL_EOL;
     CONFIG_ECHO_START;
     if (!forReplay) {
       SERIAL_ECHOLNPGM("Recover: S=Extra length (mm) F:Speed (mm/m)");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M208 S", retract_recover_length);
+    SERIAL_ECHOPAIRPGM("  M208 S", retract_recover_length);
     #if EXTRUDERS > 1
-      SERIAL_ECHOPAIR(" W", retract_recover_length_swap);
+      SERIAL_ECHOPAIRPGM(" W", retract_recover_length_swap);
     #endif
-    SERIAL_ECHOPAIR(" F", retract_recover_feedrate * 60);
+    SERIAL_ECHOPAIRPGM(" F", retract_recover_feedrate * 60);
     SERIAL_EOL;
     CONFIG_ECHO_START;
     if (!forReplay) {
       SERIAL_ECHOLNPGM("Auto-Retract: S=0 to disable, 1 to interpret extrude-only moves as retracts or recoveries");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M209 S", autoretract_enabled ? 1 : 0);
+    SERIAL_ECHOPAIRPGM("  M209 S", autoretract_enabled ? 1 : 0);
     SERIAL_EOL;
 
   #endif // FWRETRACT
@@ -940,19 +940,19 @@ void Config_PrintSettings(bool forReplay) {
   }
 
   CONFIG_ECHO_START;
-  SERIAL_ECHOPAIR("  M200 D", filament_size[0]);
+  SERIAL_ECHOPAIRPGM("  M200 D", filament_size[0]);
   SERIAL_EOL;
   #if EXTRUDERS > 1
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M200 T1 D", filament_size[1]);
+    SERIAL_ECHOPAIRPGM("  M200 T1 D", filament_size[1]);
     SERIAL_EOL;
     #if EXTRUDERS > 2
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M200 T2 D", filament_size[2]);
+      SERIAL_ECHOPAIRPGM("  M200 T2 D", filament_size[2]);
       SERIAL_EOL;
       #if EXTRUDERS > 3
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M200 T3 D", filament_size[3]);
+        SERIAL_ECHOPAIRPGM("  M200 T3 D", filament_size[3]);
         SERIAL_EOL;
       #endif
     #endif
@@ -972,7 +972,7 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
     }
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M851 Z", zprobe_zoffset);
+    SERIAL_ECHOPAIRPGM("  M851 Z", zprobe_zoffset);
     SERIAL_EOL;
   #endif
 }
