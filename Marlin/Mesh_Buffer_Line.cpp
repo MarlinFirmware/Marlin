@@ -79,11 +79,15 @@ void mesh_buffer_line(float x_end, float y_end, float z_end, float e_end, float 
 	cell_dest_yi  = blm.get_cell_index_y(y_end);
 
 if (G26_Debug_flag!=0) {
-SERIAL_ECHOPAIR(" mesh_buffer_line(xe=",x_end);
-SERIAL_ECHOPAIR(",ye=",y_end);
-SERIAL_ECHOPAIR(",ze=",z_end);
-SERIAL_ECHOPAIR(",ee=",e_end);
-SERIAL_ECHO(")\n");
+SERIAL_ECHOPGM(" mesh_buffer_line(xe=");
+SERIAL_ECHO(x_end);
+SERIAL_ECHOPGM(",ye=");
+SERIAL_ECHO(y_end);
+SERIAL_ECHOPGM(",ze=");
+SERIAL_ECHO(z_end);
+SERIAL_ECHOPGM(",ee=");
+SERIAL_ECHO(e_end);
+SERIAL_ECHOPGM(")\n");
 debug_current_and_destination("Start of mesh_buffer_line()");
 }
 
