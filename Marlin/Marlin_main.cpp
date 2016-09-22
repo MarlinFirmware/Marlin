@@ -3546,16 +3546,16 @@ inline void gcode_G28() {
          * so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
          */
 
-        int abl2 = abl_grid_points_x * abl_grid_points_y;
+        int abl2 = abl_grid_points_x * abl_grid_points_y,
+            indexIntoAB[abl_grid_points_x][abl_grid_points_y],
+            probePointCounter = -1;
 
-        double eqnAMatrix[abl2 * 3], // "A" matrix of the linear system of equations
-               eqnBVector[abl2],     // "B" vector of Z points
-               mean = 0.0;
-        int indexIntoAB[abl_grid_points_x][abl_grid_points_y];
+        float eqnAMatrix[abl2 * 3], // "A" matrix of the linear system of equations
+              eqnBVector[abl2],     // "B" vector of Z points
+              mean = 0.0;
 
       #endif // AUTO_BED_LEVELING_LINEAR_GRID
 
-      int probePointCounter = 0;
       bool zig = abl_grid_points_y & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
 
       for (uint8_t yCount = 0; yCount < abl_grid_points_y; yCount++) {
@@ -3581,10 +3581,14 @@ inline void gcode_G28() {
           float xBase = left_probe_bed_position + xGridSpacing * xCount;
           xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
 
-          #if ENABLED(DELTA)
-            // Avoid probing outside the round or hexagonal area of a delta printer
-            float pos[XYZ] = { xProbe + X_PROBE_OFFSET_FROM_EXTRUDER, yProbe + Y_PROBE_OFFSET_FROM_EXTRUDER, 0 };
-            if (!position_is_reachable(pos)) continue;
+          #if ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
+            indexIntoAB[xCount][yCount] = ++probePointCounter;
+          #endif
+
+          #if IS_KINEMATIC
+            // Avoid probing outside the round or hexagonal area
+            float pos[XYZ] = { xProbe, yProbe, 0 };
+            if (!position_is_reachable(pos, true)) continue;
           #endif
 
           measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
@@ -3596,15 +3600,12 @@ inline void gcode_G28() {
             eqnAMatrix[probePointCounter + 0 * abl2] = xProbe;
             eqnAMatrix[probePointCounter + 1 * abl2] = yProbe;
             eqnAMatrix[probePointCounter + 2 * abl2] = 1;
-            indexIntoAB[xCount][yCount] = probePointCounter;
 
           #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
             bed_level_grid[xCount][yCount] = measured_z + zoffset;
 
           #endif
-
-          probePointCounter++;
 
           idle();
 
@@ -3664,7 +3665,7 @@ inline void gcode_G28() {
       // For LINEAR leveling calculate matrix, print reports, correct the position
 
       // solve lsq problem
-      double plane_equation_coefficients[3];
+      float plane_equation_coefficients[3];
       qr_solve(plane_equation_coefficients, abl2, 3, eqnAMatrix, eqnBVector);
 
       mean /= abl2;
