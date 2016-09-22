@@ -193,9 +193,9 @@ float z1, z2, dx, dz, a0ma1diva2ma1;
 
            #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(MESH_ADJUST)) {
-                  SERIAL_ECHOPAIR("huh???? get_z_correction(",cx);
-                  SERIAL_ECHOPAIR(",",cy);
-                  SERIAL_ECHO(")\n");
+                  SERIAL_ECHOPAIRPGM("huh???? get_z_correction(",cx);
+                  SERIAL_ECHOPAIRPGM(",",cy);
+                  SERIAL_ECHOPGM(")\n");
 	      }
            #endif
 
@@ -218,18 +218,18 @@ float z1, z2, dx, dz, a0ma1diva2ma1;
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
            if (DEBUGGING(MESH_ADJUST)) {
-               SERIAL_ECHOPAIR(" raw get_z_correction(", x0);
-               SERIAL_ECHOPAIR(",", y0);
-               SERIAL_ECHO(")=");
+               SERIAL_ECHOPAIRPGM(" raw get_z_correction(", x0);
+               SERIAL_ECHOPAIRPGM(",", y0);
+               SERIAL_ECHOPGM(")=");
                SERIAL_ECHO_F(z0,6);
            }
       #endif
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
      if (DEBUGGING(MESH_ADJUST)) {
-       SERIAL_ECHO(" >>>---> ");
+       SERIAL_ECHOPGM(" >>>---> ");
        SERIAL_ECHO_F(z0,6);
-       SERIAL_ECHO("\n");
+       SERIAL_ECHOPGM("\n");
      }
 #endif
 
@@ -241,11 +241,11 @@ float z1, z2, dx, dz, a0ma1diva2ma1;
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(MESH_ADJUST)) {
-          SERIAL_ECHO("??? Yikes!  NAN in get_z_correction( ");
+          SERIAL_ECHOPGM("??? Yikes!  NAN in get_z_correction( ");
           SERIAL_ECHO(x0);
-          SERIAL_ECHO(", ");
+          SERIAL_ECHOPGM(", ");
           SERIAL_ECHO(y0);
-          SERIAL_ECHO(" )\n");
+          SERIAL_ECHOPGM(" )\n");
         }
 #endif
      }
