@@ -690,12 +690,12 @@ static void lcd_status_screen() {
 /* 
 if (loop_cnt++ == 20 || last_seen_bits!=lastEncoderBits ) {
 	loop_cnt = 0;
-	SERIAL_ECHO("In _lcd_mesh_fine_tune() :");
+	SERIAL_ECHOPGM("In _lcd_mesh_fine_tune() :");
 	SERIAL_ECHO_F( Mesh_Edit_Value, 6);
-	SERIAL_ECHOPAIR(" lastencoderbits:  ", lastEncoderBits);
-	SERIAL_ECHOPAIR(" encoderPosition:  ", ((int32_t) encoderPosition) );
-	SERIAL_ECHOPAIR(" encoderDiff:  ", encoderDiff);
-	SERIAL_ECHOPAIR(" UBL: ", UBL_has_control_of_LCD_Panel);
+	SERIAL_ECHOPAIRPGM(" lastencoderbits:  ", lastEncoderBits);
+	SERIAL_ECHOPAIRPGM(" encoderPosition:  ", ((int32_t) encoderPosition) );
+	SERIAL_ECHOPAIRPGM(" encoderDiff:  ", encoderDiff);
+	SERIAL_ECHOPAIRPGM(" UBL: ", UBL_has_control_of_LCD_Panel);
 	last_seen_bits = lastEncoderBits;
 }
 */
@@ -725,37 +725,37 @@ if (loop_cnt++ == 20 || last_seen_bits!=lastEncoderBits ) {
 	last_digit = rounded % 5L; //10L;
 /*
 if (last_digit!=0 )  {		// if true, we have a rounding error
-SERIAL_ECHO("  Yikes!  a rounding error: ");
+SERIAL_ECHOPGM("  Yikes!  a rounding error: ");
 SERIAL_ECHO( rounded );
 }
 */
 	Mesh_Edit_Value  = ((float) rounded) / 1000.0;
       }
 /*
-SERIAL_ECHO("In _lcd_mesh_fine_tune() :");
+SERIAL_ECHOPGM("In _lcd_mesh_fine_tune() :");
 SERIAL_ECHO_F( Mesh_Edit_Value, 6);
-SERIAL_ECHO("  Accumulator:");
+SERIAL_ECHOPGM("  Accumulator:");
 SERIAL_ECHO_F( Mesh_Edit_Accumulator, 6);
-SERIAL_ECHO("  difference:");
+SERIAL_ECHOPGM("  difference:");
 SERIAL_ECHO_F( Mesh_Edit_Accumulator-Mesh_Edit_Value, 6);
-if (milli_flag) SERIAL_ECHO(" * ");
-SERIAL_ECHO("   ");
-SERIAL_ECHO("  enc:");
+if (milli_flag) SERIAL_ECHOPGM(" * ");
+SERIAL_ECHOPGM("   ");
+SERIAL_ECHOPGM("  enc:");
 SERIAL_ECHO( ((int32_t) e) );
-SERIAL_ECHO("\n");
+SERIAL_ECHOPGM("\n");
 */
       if (lcdDrawUpdate)
         lcd_implementation_drawedit(msg, ftostr43sign( (float) Mesh_Edit_Value  ));
 // >>>--->
       if (/*G29_*/lcd_clicked() ) {
 /*
-SERIAL_ECHO("IN _LCD_MESH_FINE_TUNE() :");
+SERIAL_ECHOPGM("IN _LCD_MESH_FINE_TUNE() :");
 SERIAL_ECHO_F( Mesh_Edit_Value, 6);
-SERIAL_ECHOPAIR(" LASTENCODERBITS:  ", lastEncoderBits);
-SERIAL_ECHOPAIR(" ENCODERpOSITION:  ", ((int32_t) encoderPosition) );
-SERIAL_ECHOPAIR(" ENCODERdIFF:  ", encoderDiff);
-SERIAL_ECHOPAIR(" UBL: ", UBL_has_control_of_LCD_Panel);
-SERIAL_ECHO("\n");
+SERIAL_ECHOPAIRPGM(" LASTENCODERBITS:  ", lastEncoderBits);
+SERIAL_ECHOPAIRPGM(" ENCODERpOSITION:  ", ((int32_t) encoderPosition) );
+SERIAL_ECHOPAIRPGM(" ENCODERdIFF:  ", encoderDiff);
+SERIAL_ECHOPAIRPGM(" UBL: ", UBL_has_control_of_LCD_Panel);
+SERIAL_ECHOPGM("\n");
 */
 	UBL_has_control_of_LCD_Panel=1; 	// We need to lock the normal LCD Panel System outbecause G29 (and G26) are looking for
 	lcd_return_to_status();			// long presses of the Encoder Wheel and the LCD System goes spastic when that happens.   
@@ -2525,10 +2525,10 @@ void lcd_update() {
 
 //                #if ENABLED(ENCODER_RATE_MULTIPLIER_DEBUG)
                   SERIAL_ECHO_START;
-                  SERIAL_ECHOPAIR("Enc Step Rate: ", encoderStepRate);
-                  SERIAL_ECHOPAIR("  Multiplier: ", encoderMultiplier);
-                  SERIAL_ECHOPAIR("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
-                  SERIAL_ECHOPAIR("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
+                  SERIAL_ECHOPAIRPGM("Enc Step Rate: ", encoderStepRate);
+                  SERIAL_ECHOPAIRPGM("  Multiplier: ", encoderMultiplier);
+                  SERIAL_ECHOPAIRPGM("  ENCODER_10X_STEPS_PER_SEC: ", ENCODER_10X_STEPS_PER_SEC);
+                  SERIAL_ECHOPAIRPGM("  ENCODER_100X_STEPS_PER_SEC: ", ENCODER_100X_STEPS_PER_SEC);
                   SERIAL_EOL;
 //                #endif //ENCODER_RATE_MULTIPLIER_DEBUG
               }
