@@ -143,7 +143,7 @@ void gcode_M100() {
       if (*(ptr + i) == (unsigned char) 0xe5) {
         j = how_many_E5s_are_here((unsigned char*) ptr + i);
         if (j > 8) {
-          SERIAL_ECHOPAIR("Found ", j);
+          SERIAL_ECHOPAIRPGM("Found ", j);
           SERIAL_ECHOPGM(" bytes free at 0x");
           prt_hex_word((int) ptr + i);
           SERIAL_EOL;
@@ -174,10 +174,10 @@ void gcode_M100() {
        x = 1;
     SERIAL_ECHOLNPGM("Corrupting free memory block.\n");
     ptr = (unsigned char*) __brkval;
-  		SERIAL_ECHOPAIR("\n__brkval : ",(long) ptr );
+  		SERIAL_ECHOPAIRPGM("\n__brkval : ",(long) ptr );
     ptr += 8;
     sp = top_of_stack();
-  		SERIAL_ECHOPAIR("\nStack Pointer : ",(long) sp );
+  		SERIAL_ECHOPAIRPGM("\nStack Pointer : ",(long) sp );
     SERIAL_ECHOLNPGM("\n");
     n = sp - ptr - 64;    // -64 just to keep us from finding interrupt activity that
     // has altered the stack.
@@ -198,7 +198,7 @@ void gcode_M100() {
   if (m100_not_initialized || code_seen('I')) {       		// If no sub-command is specified, the first time
     SERIAL_ECHOLNPGM("Initializing free memory block.\n");    	// this happens, it will Initialize.
     ptr = (unsigned char*) __brkval;        			// Repeated M100 with no sub-command will not destroy the
-    SERIAL_ECHOPAIR("\n__brkval : ",(long) ptr );		// state of the initialized free memory pool.
+    SERIAL_ECHOPAIRPGM("\n__brkval : ",(long) ptr );		// state of the initialized free memory pool.
 
     SERIAL_ECHOPGM("  or 0x");    				// Let's also give the hex version of __brkval
     ptr = (unsigned char*) __brkval;
@@ -211,7 +211,7 @@ void gcode_M100() {
 
     ptr += 8;
     sp = top_of_stack();
-    SERIAL_ECHOPAIR("\nStack Pointer : ",(long) sp );
+    SERIAL_ECHOPAIRPGM("\nStack Pointer : ",(long) sp );
     SERIAL_ECHOPGM("  or 0x");    				// Let's also give the hex version of sp
     prt_hex_word((unsigned int) sp);
     SERIAL_ECHOPGM("\n");
@@ -224,8 +224,8 @@ void gcode_M100() {
       *(ptr + i) = (unsigned char) 0xe5;
     for (i = 0; i < n; i++) {
       if (*(ptr + i) != (unsigned char) 0xe5) {
-	SERIAL_ECHOPAIR("? address : ", (unsigned long) ptr+i );
-        SERIAL_ECHOPAIR("=", *(ptr + i));
+	SERIAL_ECHOPAIRPGM("? address : ", (unsigned long) ptr+i );
+        SERIAL_ECHOPAIRPGM("=", *(ptr + i));
         SERIAL_ECHOLNPGM("\n");
       }
     }
