@@ -20,10 +20,10 @@ before_install:
   #
 install:
   #
-  # Install arduino 1.6.9
-  - wget http://downloads-02.arduino.cc/arduino-1.6.9-linux64.tar.xz
-  - tar xf arduino-1.6.9-linux64.tar.xz
-  - sudo mv arduino-1.6.9 /usr/local/share/arduino
+  # Install arduino 1.6.10
+  - wget http://downloads-02.arduino.cc/arduino-1.6.10-linux64.tar.xz
+  - tar xf arduino-1.6.10-linux64.tar.xz
+  - sudo mv arduino-1.6.10 /usr/local/share/arduino
   - ln -s /usr/local/share/arduino/arduino ${TRAVIS_BUILD_DIR}/buildroot/bin/arduino
   #
   # Install: LiquidCrystal_I2C library
@@ -35,7 +35,8 @@ install:
   - sudo mv LiquidTWI2 /usr/local/share/arduino/libraries/LiquidTWI2
   #
   # Install: Monochrome Graphics Library for LCDs and OLEDs
-  - arduino --install-library "U8glib"
+  - git clone https://github.com/olikraus/U8glib_Arduino.git
+  - sudo mv U8glib_Arduino /usr/local/share/arduino/libraries/U8glib
   # expose the C API
   - sudo cp -f $HOME/Arduino/libraries/U8glib/src/clib/u8g.h $HOME/Arduino/libraries/U8glib/src/u8g.h
   #
@@ -110,6 +111,8 @@ script:
   # ...with AUTO_BED_LEVELING_FEATURE, Z_MIN_PROBE_REPEATABILITY_TEST, & DEBUG_LEVELING_FEATURE
   #
   - opt_enable AUTO_BED_LEVELING_FEATURE Z_MIN_PROBE_REPEATABILITY_TEST DEBUG_LEVELING_FEATURE
+  - opt_set ABL_GRID_POINTS_X 16
+  - opt_set ABL_GRID_POINTS_Y 16
   - build_marlin
   #
   # Test a Sled Z Probe
@@ -375,7 +378,7 @@ script:
   # SCARA Config
   #
   - use_example_configs SCARA
-  - opt_enable AUTO_BED_LEVELING_FEATURE FIX_MOUNTED_PROBE USE_ZMIN_PLUG
+  - opt_enable AUTO_BED_LEVELING_FEATURE FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p
