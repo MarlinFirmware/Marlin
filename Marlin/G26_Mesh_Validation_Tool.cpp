@@ -271,9 +271,11 @@ struct mesh_index_pair location;
 		yi = location.y_index;
 
 if (G26_Debug_flag!=0) {
-SERIAL_ECHOPAIR("   Doing circle at: (xi=",xi);
-SERIAL_ECHOPAIR(",yi=",yi);
-SERIAL_ECHO(")\n");
+SERIAL_ECHOPGM("   Doing circle at: (xi=");
+SERIAL_ECHO(xi);
+SERIAL_ECHOPGM(",yi=");
+SERIAL_ECHO(yi);
+SERIAL_ECHOPGM(")\n");
 }
 
 		start_angle = 0.0;		// assume it is going to be a full circle
@@ -499,11 +501,15 @@ int i, j, k;
 					ey= constrain( ey, Y_MIN_POS+1, Y_MAX_POS-1); 			
 
 if (G26_Debug_flag!=0) {
-SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=",sx);
-SERIAL_ECHOPAIR(",sy=",sy);
-SERIAL_ECHOPAIR(") -> (ex=",ex);
-SERIAL_ECHOPAIR(",ey=",ey);
-SERIAL_ECHO(")\n");
+SERIAL_ECHOPGM(" Connecting with horizontal line (sx=");
+SERIAL_ECHO(sx);
+SERIAL_ECHOPGM(",sy=");
+SERIAL_ECHO(sy);
+SERIAL_ECHOPGM(") -> (ex=");
+SERIAL_ECHO(ex);
+SERIAL_ECHOPGM(",ey=");
+SERIAL_ECHO(ey);
+SERIAL_ECHOPGM(")\n");
 debug_current_and_destination("Connecting horizontal line.");
 }
 
@@ -535,11 +541,15 @@ debug_current_and_destination("Connecting horizontal line.");
 					ey= constrain( ey, Y_MIN_POS+1, Y_MAX_POS-1); 			
 
 if (G26_Debug_flag!=0) {
-SERIAL_ECHOPAIR(" Connecting with vertical line (sx=",sx);
-SERIAL_ECHOPAIR(",sy=",sy);
-SERIAL_ECHOPAIR(") -> (ex=",ex);
-SERIAL_ECHOPAIR(",ey=",ey);
-SERIAL_ECHO(")\n");
+SERIAL_ECHOPGM(" Connecting with vertical line (sx=");
+SERIAL_ECHO(sx);
+SERIAL_ECHOPGM(",sy=");
+SERIAL_ECHO(sy);
+SERIAL_ECHOPGM(") -> (ex=");
+SERIAL_ECHO(ex);
+SERIAL_ECHOPGM(",ey=");
+SERIAL_ECHO(ey);
+SERIAL_ECHOPGM(")\n");
 debug_current_and_destination("Connecting vertical line.");
 }
 					print_line_from_here_to_there( sx, sy, Layer_Height, ex, ey, Layer_Height );
@@ -555,41 +565,41 @@ void debug_current_and_destination(char *title) {
 if (G26_Debug_flag==0)
 	return;
 
-SERIAL_ECHO("    current=( ");
+SERIAL_ECHOPGM("    current=( ");
 SERIAL_ECHO_F( current_position[X_AXIS], 6 );
-SERIAL_ECHO(" , ");
+SERIAL_ECHOPGM(" , ");
 SERIAL_ECHO_F( current_position[Y_AXIS], 6 );
-SERIAL_ECHO(" , ");
+SERIAL_ECHOPGM(" , ");
 SERIAL_ECHO_F( current_position[Z_AXIS], 6 );
-SERIAL_ECHO(" , ");
+SERIAL_ECHOPGM(" , ");
 SERIAL_ECHO_F( current_position[E_AXIS], 6 );
-SERIAL_ECHO(" )   destination=( ");
+SERIAL_ECHOPGM(" )   destination=( ");
 if ( current_position[X_AXIS] == destination[X_AXIS] )
-SERIAL_ECHO( "-------------" );
+SERIAL_ECHOPGM( "-------------" );
 else
 SERIAL_ECHO_F( destination[X_AXIS], 6 );
-SERIAL_ECHO(" , ");
+SERIAL_ECHOPGM(" , ");
 
 if ( current_position[Y_AXIS] == destination[Y_AXIS] )
-SERIAL_ECHO( "-------------" );
+SERIAL_ECHOPGM( "-------------" );
 else
 SERIAL_ECHO_F( destination[Y_AXIS], 6 );
-SERIAL_ECHO(" , ");
+SERIAL_ECHOPGM(" , ");
 
 if ( current_position[Z_AXIS] == destination[Z_AXIS] )
-SERIAL_ECHO( "-------------" );
+SERIAL_ECHOPGM( "-------------" );
 else
 SERIAL_ECHO_F( destination[Z_AXIS], 6 );
-SERIAL_ECHO(" , ");
+SERIAL_ECHOPGM(" , ");
 
 if ( current_position[E_AXIS] == destination[E_AXIS] )
-SERIAL_ECHO( "-------------" );
+SERIAL_ECHOPGM( "-------------" );
 else
 SERIAL_ECHO_F( destination[E_AXIS], 6 );
 
-SERIAL_ECHO(" )   ");
+SERIAL_ECHOPGM(" )   ");
 SERIAL_ECHO( title );
-SERIAL_ECHO("  \n");
+SERIAL_ECHOPGM("  \n");
 
 pinMode(66, INPUT_PULLUP); // Roxy's Left Switch is on pin 66.  Right Switch is on pin 65
 
@@ -611,7 +621,7 @@ static float last_z = -999.99;
 	feed_value = planner.max_feedrate[Z_AXIS]/(3.0);	// Base the feed rate off of the configured Z_AXIS feed rate
 
 if (G26_Debug_flag!=0) {
-SERIAL_ECHO("  in move_to()  z!=last_z  ");
+SERIAL_ECHOPGM("  in move_to()  z!=last_z  ");
 SERIAL_ECHOPAIR(" z=",z);
 SERIAL_ECHOPAIR(" last_z=",last_z);
 SERIAL_ECHO("  \n");
@@ -641,7 +651,7 @@ debug_current_and_destination(" in move_to() after adjusting Z");
 
 debug_current_and_destination(" in move_to() doing normal move");
   mesh_buffer_line( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0 );
-SERIAL_ECHO(" end of move_to()\n");
+SERIAL_ECHOPGM(" end of move_to()\n");
 
 //  stepper.synchronize();
 //  set_destination_to_current();
@@ -652,11 +662,11 @@ void retract_filament()
   if ( !retracted ) {		// Only retract if we are not already retracted!
 	retracted = true;
 if (G26_Debug_flag!=0) {
-SERIAL_ECHO(" Decided to do retract.\n");
+SERIAL_ECHOPGM(" Decided to do retract.\n");
 }
 	move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], -1.0 * Retraction_Multiplier );
 if (G26_Debug_flag!=0) {
-SERIAL_ECHO(" Retraction done.\n");
+SERIAL_ECHOPGM(" Retraction done.\n");
 }
 }
 }
@@ -667,7 +677,7 @@ void un_retract_filament()
 	move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],  1.2 * Retraction_Multiplier );
 	retracted = false;
 if (G26_Debug_flag!=0) {
-SERIAL_ECHO(" unretract done.\n");
+SERIAL_ECHOPGM(" unretract done.\n");
 }
 }
 }
@@ -711,7 +721,7 @@ void print_line_from_here_to_there( float sx, float sy, float sz, float ex, floa
 	//
 	if ( (dist_end < dist_start) && ( SIZE_OF_INTERSECTION_CIRCLES < abs(Line_Length)) )	{	
 if (G26_Debug_flag!=0) {
-SERIAL_ECHO("  Reversing start and end of print_line_from_here_to_there()\n");
+SERIAL_ECHOPGM("  Reversing start and end of print_line_from_here_to_there()\n");
 }
 		print_line_from_here_to_there( ex, ey, ez, sx, sy, sz );
 		return;
@@ -722,7 +732,7 @@ SERIAL_ECHO("  Reversing start and end of print_line_from_here_to_there()\n");
 	if ( dist_start > 2.0 )  {
 		retract_filament();
 if (G26_Debug_flag!=0) {
-SERIAL_ECHO("  filament retracted.\n");
+SERIAL_ECHOPGM("  filament retracted.\n");
 }
 	}
 	move_to( sx, sy, sz, 0.0 );	// Get to the starting point with no extrusion
@@ -733,7 +743,7 @@ SERIAL_ECHO("  filament retracted.\n");
 
 	un_retract_filament();
 if (G26_Debug_flag!=0) {
-SERIAL_ECHO("  doing printing move.\n");
+SERIAL_ECHOPGM("  doing printing move.\n");
 debug_current_and_destination("doing final move_to() inside print_line_from_here_to_there()");
 }
 	move_to( ex, ey, ez, E_Pos_Delta);	// Get to the ending point with an appropriate amount of extrusion
