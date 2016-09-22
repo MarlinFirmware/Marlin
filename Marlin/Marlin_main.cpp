@@ -2194,7 +2194,8 @@ static void clean_up_after_endstop_or_probe_move() {
 static void do_homing_move(AxisEnum axis, float where, float fr_mm_s=0.0) {
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    if (axis == Z_AXIS) set_bltouch_deployed(true);
+    bool deploy_bltouch = (axis == Z_AXIS && where > 0);
+    if (deploy_bltouch) set_bltouch_deployed(true);
   #endif
 
   current_position[axis] = 0;
@@ -2204,7 +2205,7 @@ static void do_homing_move(AxisEnum axis, float where, float fr_mm_s=0.0) {
   stepper.synchronize();
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
-    if (axis == Z_AXIS) set_bltouch_deployed(false);
+    if (deploy_bltouch) set_bltouch_deployed(false);
   #endif
 
   endstops.hit_on_purpose();
