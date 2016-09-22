@@ -3887,7 +3887,8 @@ float x, y, z, z0, z00, z1, z2;
               X_current /= 1.25;
               Y_current /= 1.25;
               if (verbose_level > 3) {
-                SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
+                SERIAL_ECHOPGM("Pulling point towards center:");
+                SERIAL_ECHO( X_current);
                 SERIAL_ECHOPAIR(", ", Y_current);
                 SERIAL_EOL;
               }
@@ -4882,6 +4883,7 @@ inline void gcode_M201() {
 //
 
 void gcode_M1024() {
+/*
 	SERIAL_ECHOPAIR( "\nplanner.max_feedrate[X] : ", planner.max_feedrate[0] );
 	SERIAL_ECHOPAIR( "\nplanner.max_feedrate[Y] : ", planner.max_feedrate[1] );
 	SERIAL_ECHOPAIR( "\nplanner.max_feedrate[Z] : ", planner.max_feedrate[2] );
@@ -4903,6 +4905,7 @@ void gcode_M1024() {
 	SERIAL_ECHOPAIR( "\nfilament_size[0] = ", filament_size[0]);
 	SERIAL_ECHOPAIR( "\nvolumetric_multiplier[0] = ", volumetric_multiplier[0]);
 	SERIAL_ECHO("\n");
+*/
 }
 
 
