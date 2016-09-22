@@ -25,6 +25,8 @@
 
 #if MB(GEN7_CUSTOM)
   #include "pins_GEN7_CUSTOM.h"
+#elif MB(RAMPS_14_VORON)
+  #include "pins_RAMPS_14_VORON.h"
 #elif MB(GEN7_12)
   #include "pins_GEN7_12.h"
 #elif MB(GEN7_13)
