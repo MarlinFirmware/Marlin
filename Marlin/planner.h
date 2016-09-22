@@ -137,6 +137,7 @@ class Planner {
     static float min_travel_feedrate_mm_s;
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+      static bool abl_enabled;            // Flag that bed leveling is enabled
       static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
     #endif
 
