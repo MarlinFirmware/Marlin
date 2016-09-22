@@ -4230,7 +4230,11 @@ inline void gcode_M42() {
   if (pin_number < 0) return;
 
   for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
-    if (pin_number == sensitive_pins[i]) return;
+    if (pin_number == sensitive_pins[i]) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
+      return;
+    }
 
   pinMode(pin_number, OUTPUT);
   digitalWrite(pin_number, pin_status);
