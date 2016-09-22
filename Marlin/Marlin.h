@@ -87,6 +87,7 @@ typedef unsigned long millis_t;
 #define SERIAL_PROTOCOLLNPGM(x) do{ serialprintPGM(PSTR(x "\n")); }while(0)
 
 #define SERIAL_PROTOCOLPAIR(name, value) SERIAL_ECHOPAIR(name, value)
+#define SERIAL_PROTOCOLPAIRPGM(name, value) SERIAL_ECHOPAIRPGM(name, value)
 
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE) || ENABLED(M100_FREE_MEMORY_WATCHER)
   void prt_hex_word( unsigned int );
@@ -111,6 +112,7 @@ extern int Unified_Bed_Leveling_EEPROM_start;
 #define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
 #define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
+#define SERIAL_ECHOPAIRPGM(name,value) do{ SERIAL_ECHOPGM(name); SERIAL_ECHO(value);} while(0);
 
 #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate[X_AXIS], planner.max_feedrate[Y_AXIS]))
 
