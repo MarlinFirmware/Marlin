@@ -209,6 +209,12 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 
 #endif // !MIXING_EXTRUDER
 
+#define G38_2_3
+#ifdef G38_2_3
+extern bool G38_flag ;   //flag to tell the interrupt handler that a G38 command is being run
+extern bool G38_flag_pass ;   //flag from the interrupt handler to indicate if the endstop went active
+#endif
+
 /**
  * The axis order in all axis related arrays is X, Y, Z, E
  */
