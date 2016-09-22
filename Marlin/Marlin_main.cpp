@@ -581,9 +581,9 @@ static void report_current_position();
 #if ENABLED(DEBUG_LEVELING_FEATURE)
   void print_xyz(const char* prefix, const float x, const float y, const float z) {
     SERIAL_ECHO(prefix);
-    SERIAL_ECHOPAIR(": (", x);
-    SERIAL_ECHOPAIR(", ", y);
-    SERIAL_ECHOPAIR(", ", z);
+    SERIAL_ECHOPAIRPGM(": (", x);
+    SERIAL_ECHOPAIRPGM(", ", y);
+    SERIAL_ECHOPAIRPGM(", ", z);
     SERIAL_ECHOLNPGM(")");
   }
   void print_xyz(const char* prefix, const float xyz[]) {
@@ -795,7 +795,7 @@ void servo_init() {
     #if HAS_Z_SERVO_ENDSTOP
       #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("servo init angle(", z_servo_angle[1]);
+        SERIAL_ECHOPAIRPGM("servo init angle(", z_servo_angle[1]);
         SERIAL_ECHOLNPGM(")");
       }
       #endif 
@@ -1355,7 +1355,7 @@ bool get_target_extruder_from_command(int code) {
       SERIAL_ECHO_START;
       SERIAL_CHAR('M');
       SERIAL_ECHO(code);
-      SERIAL_ECHOPAIR(" " MSG_INVALID_EXTRUDER " ", t);
+      SERIAL_ECHOPAIRPGM(" " MSG_INVALID_EXTRUDER " ", t);
       SERIAL_EOL;
       return true;
     }
@@ -1474,7 +1474,7 @@ static void set_home_offset(AxisEnum axis, float v) {
 static void set_axis_is_at_home(AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> set_axis_is_at_home(", axis);
+      SERIAL_ECHOPAIRPGM(">>> set_axis_is_at_home(", axis);
       SERIAL_ECHOLNPGM(")");
     }
   #endif
@@ -1543,7 +1543,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
         current_position[Z_AXIS] -= zprobe_zoffset;
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> zprobe_zoffset==", zprobe_zoffset);
+            SERIAL_ECHOPAIRPGM("> zprobe_zoffset==", zprobe_zoffset);
             SERIAL_EOL;
           }
         #endif
@@ -1552,14 +1552,14 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("> home_offset[axis]==", home_offset[axis]);
+        SERIAL_ECHOPAIRPGM("> home_offset[axis]==", home_offset[axis]);
         DEBUG_POS("", current_position);
       }
     #endif
   }
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("<<< set_axis_is_at_home(", axis);
+      SERIAL_ECHOPAIRPGM("<<< set_axis_is_at_home(", axis);
       SERIAL_ECHOLNPGM(")");
     }
   #endif
@@ -1757,7 +1757,7 @@ void do_blocking_move_to_z(float z, float feed_rate) {
   inline void do_probe_raise(float z_raise) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("do_probe_raise(", z_raise);
+        SERIAL_ECHOPAIRPGM("do_probe_raise(", z_raise);
         SERIAL_ECHOLNPGM(")");
       }
     #endif
@@ -1766,7 +1766,7 @@ void do_blocking_move_to_z(float z, float feed_rate) {
 //  if ((Z_HOME_DIR) < 0 && zprobe_zoffset < 0)
 //    z_dest -= zprobe_zoffset;
 
-//SERIAL_ECHOPAIR("Extra Info - going to Z=",z_dest);
+//SERIAL_ECHOPAIRPGM("Extra Info - going to Z=",z_dest);
 //SERIAL_ECHOLNPGM("\n");
 
     if (z_dest > current_position[Z_AXIS]) {
@@ -1818,7 +1818,7 @@ void do_blocking_move_to_z(float z, float feed_rate) {
   static void dock_sled(bool stow) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("dock_sled(", stow);
+        SERIAL_ECHOPAIRPGM("dock_sled(", stow);
         SERIAL_ECHOLNPGM(")");
       }
     #endif
@@ -2014,7 +2014,7 @@ void do_blocking_move_to_z(float z, float feed_rate) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         DEBUG_POS("set_probe_deployed", current_position);
-        SERIAL_ECHOPAIR("deploy: ", deploy);
+        SERIAL_ECHOPAIRPGM("deploy: ", deploy);
       }
     #endif
 
@@ -2178,9 +2178,9 @@ void do_blocking_move_to_xy(float x, float y, float feed_rate) {
 float probe_pt(float x, float y, bool stow, int verbose_level) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR(">>> probe_pt(", x);
-        SERIAL_ECHOPAIR(", ", y);
-        SERIAL_ECHOPAIR(", ", stow ? "stow" : "no stow");
+        SERIAL_ECHOPAIRPGM(">>> probe_pt(", x);
+        SERIAL_ECHOPAIRPGM(", ", y);
+        SERIAL_ECHOPAIRPGM(", ", stow ? "stow" : "no stow");
         SERIAL_ECHOLNPGM(")");
         DEBUG_POS("", current_position);
       }
@@ -2194,8 +2194,8 @@ float probe_pt(float x, float y, bool stow, int verbose_level) {
     // Move to the XY where we shall probe
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("> do_blocking_move_to_xy(", x - (X_PROBE_OFFSET_FROM_EXTRUDER));
-        SERIAL_ECHOPAIR(", ", y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
+        SERIAL_ECHOPAIRPGM("> do_blocking_move_to_xy(", x - (X_PROBE_OFFSET_FROM_EXTRUDER));
+        SERIAL_ECHOPAIRPGM(", ", y - (Y_PROBE_OFFSET_FROM_EXTRUDER));
         SERIAL_ECHOLNPGM(")");
       }
     #endif
@@ -2337,7 +2337,7 @@ float probe_pt(float x, float y, bool stow, int verbose_level) {
 static void homeaxis(AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR(">>> homeaxis(", axis);
+      SERIAL_ECHOPAIRPGM(">>> homeaxis(", axis);
       SERIAL_ECHOLNPGM(")");
     }
   #endif
@@ -2445,7 +2445,7 @@ static void homeaxis(AxisEnum axis) {
         destination[axis] = endstop_adj[axis];
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> endstop_adj = ", endstop_adj[axis]);
+            SERIAL_ECHOPAIRPGM("> endstop_adj = ", endstop_adj[axis]);
             DEBUG_POS("", destination);
           }
         #endif
@@ -2459,7 +2459,7 @@ static void homeaxis(AxisEnum axis) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         else {
           if (DEBUGGING(LEVELING)) {
-            SERIAL_ECHOPAIR("> endstop_adj * axis_home_dir = ", endstop_adj[axis] * axis_home_dir);
+            SERIAL_ECHOPAIRPGM("> endstop_adj * axis_home_dir = ", endstop_adj[axis] * axis_home_dir);
             SERIAL_EOL;
           }
         }
@@ -2494,7 +2494,7 @@ static void homeaxis(AxisEnum axis) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("<<< homeaxis(", axis);
+      SERIAL_ECHOPAIRPGM("<<< homeaxis(", axis);
       SERIAL_ECHOLNPGM(")");
     }
   #endif
@@ -2587,10 +2587,10 @@ void gcode_get_destination() {
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
            if (DEBUGGING(MESH_ADJUST)) {
-             SERIAL_ECHOPAIR("Mesh scaling factor set for Z-Height ", destination[Z_AXIS] );
-             SERIAL_ECHOPAIR(" to ",	blm.fade_scaling_factor_for_Z( destination[Z_AXIS] ) );
-             SERIAL_ECHOPAIR(" [Fade=", blm.state.G29_Correction_Fade_Height )  ;
-             SERIAL_ECHO("]\n");
+             SERIAL_ECHOPAIRPGM("Mesh scaling factor set for Z-Height ", destination[Z_AXIS] );
+             SERIAL_ECHOPAIRPGM(" to ",	blm.fade_scaling_factor_for_Z( destination[Z_AXIS] ) );
+             SERIAL_ECHOPAIRPGM(" [Fade=", blm.state.G29_Correction_Fade_Height )  ;
+             SERIAL_ECHOPGM("]\n");
            }
 #endif
       }
@@ -2899,7 +2899,7 @@ bool UBL_state_when_G28_was_entered;	// We probably need to add some configurati
           feedrate = planner.max_feedrate[Z_AXIS] * 60;  // feedrate (mm/m) = max_feedrate (mm/s)
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
-              SERIAL_ECHOPAIR("Raise Z (before homing) to ", (MIN_Z_HEIGHT_FOR_HOMING));
+              SERIAL_ECHOPAIRPGM("Raise Z (before homing) to ", (MIN_Z_HEIGHT_FOR_HOMING));
               SERIAL_EOL;
               DEBUG_POS("> (home_all_axis || homeZ)", current_position);
               DEBUG_POS("> (home_all_axis || homeZ)", destination);
@@ -3260,7 +3260,7 @@ inline void gcode_G92() {
     char* args = current_command_args;
 
     uint8_t test_value = 12;
-    SERIAL_ECHOPAIR("TEST", test_value);
+    SERIAL_ECHOPAIRPGM("TEST", test_value);
 
     millis_t codenum = 0;
     bool hasP = false, hasS = false;
@@ -3569,10 +3569,10 @@ int p, j, s=0, n_flag=0, e=127, w=500, r=1;
 
   for(p=s; p<=e; p++) {
       if ( n_flag==0 && sensitive_pin(p) ) {
-        SERIAL_ECHOPAIR("Sensitive Pin: ", p);
-        SERIAL_ECHO(" untouched.\n");
+        SERIAL_ECHOPAIRPGM("Sensitive Pin: ", p);
+        SERIAL_ECHOPGM(" untouched.\n");
       } else {
-    	SERIAL_ECHOPAIR("Pulsing Pin: ", p);
+    	SERIAL_ECHOPAIRPGM("Pulsing Pin: ", p);
         pinMode(p, OUTPUT);
         for(j=0; j<r; j++) {
            digitalWrite(p, 0);
@@ -3586,9 +3586,9 @@ int p, j, s=0, n_flag=0, e=127, w=500, r=1;
            delay(w);
         }
       }
-    SERIAL_ECHO("\n");
+    SERIAL_ECHOPGM("\n");
   } 
-  SERIAL_ECHO("Done\n");
+  SERIAL_ECHOPGM("Done\n");
 }
 
 /**
@@ -3647,7 +3647,7 @@ int p, i, j, s=0, e=127, w=500, repeat_cnt=1;
 		     SERIAL_PROTOCOL("0");
 	      }
       }
-      SERIAL_ECHO("\n");
+      SERIAL_ECHOPGM("\n");
       idle();
       delay(w);
   }
@@ -3689,10 +3689,10 @@ float x, y, z, z0, z00, z1, z2;
 		y0i = blm.get_cell_index_y(y);
 		y1i = blm.get_cell_index_y(y+.1);
 		y2i = blm.get_cell_index_y(y-.1);
-		SERIAL_PROTOCOLPAIR("At (",xi);
-		SERIAL_PROTOCOLPAIR(",",yi);
-		SERIAL_PROTOCOLPAIR(") [x=",x);
-		SERIAL_PROTOCOLPAIR(",y=",y);
+		SERIAL_PROTOCOLPAIRPGM("At (",xi);
+		SERIAL_PROTOCOLPAIRPGM(",",yi);
+		SERIAL_PROTOCOLPAIRPGM(") [x=",x);
+		SERIAL_PROTOCOLPAIRPGM(",y=",y);
 		SERIAL_PROTOCOL("] ");
 
 		z2 = blm.get_z_correction_along_vertical_mesh_line_at_specific_Y( y-.1, xi, y2i);
@@ -3700,10 +3700,10 @@ float x, y, z, z0, z00, z1, z2;
 		z00= blm.get_z_correction_along_vertical_mesh_line_at_specific_Y(y, xi, y0i);
 		z1 = blm.get_z_correction_along_vertical_mesh_line_at_specific_Y(y+.1, xi, y0i);
 
-		SERIAL_PROTOCOLPAIR(" ", z2);
-		SERIAL_PROTOCOLPAIR(" ", z0);
-		SERIAL_PROTOCOLPAIR(" ", z00);
-		SERIAL_PROTOCOLPAIR(" ", z1);
+		SERIAL_PROTOCOLPAIRPGM(" ", z2);
+		SERIAL_PROTOCOLPAIRPGM(" ", z0);
+		SERIAL_PROTOCOLPAIRPGM(" ", z00);
+		SERIAL_PROTOCOLPAIRPGM(" ", z1);
 		SERIAL_PROTOCOL("\n");
 	}
 
@@ -3715,10 +3715,10 @@ float x, y, z, z0, z00, z1, z2;
 		x0i = blm.get_cell_index_x(x);
 		x1i = blm.get_cell_index_x(x+.1);
 		x2i = blm.get_cell_index_x(x-.1);
-		SERIAL_PROTOCOLPAIR("At (",x0i);
-		SERIAL_PROTOCOLPAIR(",",yi);
-		SERIAL_PROTOCOLPAIR(") [x=",x);
-		SERIAL_PROTOCOLPAIR(",y=",y);
+		SERIAL_PROTOCOLPAIRPGM("At (",x0i);
+		SERIAL_PROTOCOLPAIRPGM(",",yi);
+		SERIAL_PROTOCOLPAIRPGM(") [x=",x);
+		SERIAL_PROTOCOLPAIRPGM(",y=",y);
 		SERIAL_PROTOCOL("] ");
 
 		z2 = blm.get_z_correction_along_horizontal_mesh_line_at_specific_X( x-.1, x2i, yi);
@@ -3726,10 +3726,10 @@ float x, y, z, z0, z00, z1, z2;
 		z00= blm.get_z_correction_along_horizontal_mesh_line_at_specific_X(x, x0i, yi);
 		z1 = blm.get_z_correction_along_horizontal_mesh_line_at_specific_X(x, x1i, yi);
 
-		SERIAL_PROTOCOLPAIR(" ", z2);
-		SERIAL_PROTOCOLPAIR(" ", z0);
-		SERIAL_PROTOCOLPAIR(" ", z00);
-		SERIAL_PROTOCOLPAIR(" ", z1);
+		SERIAL_PROTOCOLPAIRPGM(" ", z2);
+		SERIAL_PROTOCOLPAIRPGM(" ", z0);
+		SERIAL_PROTOCOLPAIRPGM(" ", z00);
+		SERIAL_PROTOCOLPAIRPGM(" ", z1);
 		SERIAL_PROTOCOL("\n");
 	}
 
@@ -3846,8 +3846,8 @@ float x, y, z, z0, z00, z1, z2;
               );
 
         if (verbose_level > 3) {
-          SERIAL_ECHOPAIR("Starting radius: ", radius);
-          SERIAL_ECHOPAIR("   angle: ", angle);
+          SERIAL_ECHOPAIRPGM("Starting radius: ", radius);
+          SERIAL_ECHOPAIRPGM("   angle: ", angle);
           SERIAL_ECHOPGM(" Direction: ");
           if (dir > 0) SERIAL_ECHOPGM("Counter-");
           SERIAL_ECHOLNPGM("Clockwise");
@@ -3889,16 +3889,16 @@ float x, y, z, z0, z00, z1, z2;
               if (verbose_level > 3) {
                 SERIAL_ECHOPGM("Pulling point towards center:");
                 SERIAL_ECHO( X_current);
-                SERIAL_ECHOPAIR(", ", Y_current);
+                SERIAL_ECHOPAIRPGM(", ", Y_current);
                 SERIAL_EOL;
               }
             }
           #endif
           if (verbose_level > 3) {
             SERIAL_PROTOCOLPGM("Going to:");
-            SERIAL_ECHOPAIR(" X", X_current);
-            SERIAL_ECHOPAIR(" Y", Y_current);
-            SERIAL_ECHOPAIR(" Z", current_position[Z_AXIS]);
+            SERIAL_ECHOPAIRPGM(" X", X_current);
+            SERIAL_ECHOPAIRPGM(" Y", Y_current);
+            SERIAL_ECHOPAIRPGM(" Z", current_position[Z_AXIS]);
             SERIAL_EOL;
           }
           do_blocking_move_to_xy(X_current, Y_current);
@@ -4442,7 +4442,7 @@ inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
     }
     else {
       SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("M113 S", (unsigned long)host_keepalive_interval);
+      SERIAL_ECHOPAIRPGM("M113 S", (unsigned long)host_keepalive_interval);
       SERIAL_EOL;
     }
   }
@@ -4884,27 +4884,27 @@ inline void gcode_M201() {
 
 void gcode_M1024() {
 /*
-	SERIAL_ECHOPAIR( "\nplanner.max_feedrate[X] : ", planner.max_feedrate[0] );
-	SERIAL_ECHOPAIR( "\nplanner.max_feedrate[Y] : ", planner.max_feedrate[1] );
-	SERIAL_ECHOPAIR( "\nplanner.max_feedrate[Z] : ", planner.max_feedrate[2] );
-	SERIAL_ECHOPAIR( "\nplanner.max_feedrate[E] : ", planner.max_feedrate[3] );
-	SERIAL_ECHO("\n");
+	SERIAL_ECHOPAIRPGM( "\nplanner.max_feedrate[X] : ", planner.max_feedrate[0] );
+	SERIAL_ECHOPAIRPGM( "\nplanner.max_feedrate[Y] : ", planner.max_feedrate[1] );
+	SERIAL_ECHOPAIRPGM( "\nplanner.max_feedrate[Z] : ", planner.max_feedrate[2] );
+	SERIAL_ECHOPAIRPGM( "\nplanner.max_feedrate[E] : ", planner.max_feedrate[3] );
+	SERIAL_ECHOPGM("\n");
 
-	SERIAL_ECHOPAIR( "\nfloat feedrate=1500.0  : ", feedrate);
-	SERIAL_ECHOPAIR( "\nsaved_feedrate         : ", saved_feedrate);
+	SERIAL_ECHOPAIRPGM( "\nfloat feedrate=1500.0  : ", feedrate);
+	SERIAL_ECHOPAIRPGM( "\nsaved_feedrate         : ", saved_feedrate);
 
-	SERIAL_ECHOPAIR( "\nhoming_feedrate[X] : ", homing_feedrate[0] );
-	SERIAL_ECHOPAIR( "\nhoming_feedrate[Y] : ", homing_feedrate[1] );
-	SERIAL_ECHOPAIR( "\nhoming_feedrate[Z] : ", homing_feedrate[2] );
-	SERIAL_ECHOPAIR( "\nhoming_feedrate[E] : ", homing_feedrate[3] );
+	SERIAL_ECHOPAIRPGM( "\nhoming_feedrate[X] : ", homing_feedrate[0] );
+	SERIAL_ECHOPAIRPGM( "\nhoming_feedrate[Y] : ", homing_feedrate[1] );
+	SERIAL_ECHOPAIRPGM( "\nhoming_feedrate[Z] : ", homing_feedrate[2] );
+	SERIAL_ECHOPAIRPGM( "\nhoming_feedrate[E] : ", homing_feedrate[3] );
 
-	SERIAL_ECHOPAIR( "\nfeedrate_multiplier = ", feedrate_multiplier );
-	SERIAL_ECHOPAIR( "\nsaved_feedrate_multiplier = ", saved_feedrate_multiplier );
+	SERIAL_ECHOPAIRPGM( "\nfeedrate_multiplier = ", feedrate_multiplier );
+	SERIAL_ECHOPAIRPGM( "\nsaved_feedrate_multiplier = ", saved_feedrate_multiplier );
 
-	SERIAL_ECHOPAIR( "\nextruder_multiplier[0] = ", extruder_multiplier[0]);
-	SERIAL_ECHOPAIR( "\nfilament_size[0] = ", filament_size[0]);
-	SERIAL_ECHOPAIR( "\nvolumetric_multiplier[0] = ", volumetric_multiplier[0]);
-	SERIAL_ECHO("\n");
+	SERIAL_ECHOPAIRPGM( "\nextruder_multiplier[0] = ", extruder_multiplier[0]);
+	SERIAL_ECHOPAIRPGM( "\nfilament_size[0] = ", filament_size[0]);
+	SERIAL_ECHOPAIRPGM( "\nvolumetric_multiplier[0] = ", volumetric_multiplier[0]);
+	SERIAL_ECHOPGM("\n");
 */
 }
 
@@ -4932,22 +4932,22 @@ inline void gcode_M203() {
 inline void gcode_M204() {
   if (code_seen('S')) {  // Kept for legacy compatibility. Should NOT BE USED for new developments.
     planner.travel_acceleration = planner.acceleration = code_value_linear_units();
-    SERIAL_ECHOPAIR("Setting Print and Travel Acceleration: ", planner.acceleration);
+    SERIAL_ECHOPAIRPGM("Setting Print and Travel Acceleration: ", planner.acceleration);
     SERIAL_EOL;
   }
   if (code_seen('P')) {
     planner.acceleration = code_value_linear_units();
-    SERIAL_ECHOPAIR("Setting Print Acceleration: ", planner.acceleration);
+    SERIAL_ECHOPAIRPGM("Setting Print Acceleration: ", planner.acceleration);
     SERIAL_EOL;
   }
   if (code_seen('R')) {
     planner.retract_acceleration = code_value_linear_units();
-    SERIAL_ECHOPAIR("Setting Retract Acceleration: ", planner.retract_acceleration);
+    SERIAL_ECHOPAIRPGM("Setting Retract Acceleration: ", planner.retract_acceleration);
     SERIAL_EOL;
   }
   if (code_seen('T')) {
     planner.travel_acceleration = code_value_linear_units();
-    SERIAL_ECHOPAIR("Setting Travel Acceleration: ", planner.travel_acceleration);
+    SERIAL_ECHOPAIRPGM("Setting Travel Acceleration: ", planner.travel_acceleration);
     SERIAL_EOL;
   }
 }
@@ -5030,7 +5030,7 @@ inline void gcode_M206() {
           if (DEBUGGING(LEVELING)) {
             SERIAL_ECHOPGM("endstop_adj[");
             SERIAL_ECHO(axis_codes[i]);
-            SERIAL_ECHOPAIR("] = ", endstop_adj[i]);
+            SERIAL_ECHOPAIRPGM("] = ", endstop_adj[i]);
             SERIAL_EOL;
           }
         #endif
@@ -5050,7 +5050,7 @@ inline void gcode_M206() {
    */
   inline void gcode_M666() {
     if (code_seen('Z')) z_endstop_adj = code_value_axis_units(Z_AXIS);
-    SERIAL_ECHOPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj);
+    SERIAL_ECHOPAIRPGM("Z Endstop Adjustment set to (mm):", z_endstop_adj);
     SERIAL_EOL;
   }
 
@@ -5812,7 +5812,7 @@ inline void gcode_M503() {
       }
     }
     else {
-      SERIAL_ECHOPAIR(": ", zprobe_zoffset);
+      SERIAL_ECHOPAIRPGM(": ", zprobe_zoffset);
     }
 
     SERIAL_EOL;
@@ -7281,7 +7281,7 @@ bool prepare_move_to_destination_cartesian() {
 
   #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
 if ( G26_Debug_flag ) {
-  SERIAL_PROTOCOLPAIR("G1 Z ", destination[Z_AXIS]);
+  SERIAL_PROTOCOLPAIRPGM("G1 Z ", destination[Z_AXIS]);
   SERIAL_PROTOCOL("   Layer Change ");
   debug_current_and_destination("Position at start of G1 Z move");
 } 
@@ -7295,7 +7295,7 @@ set_current_to_destination();
 
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
 if ( G26_Debug_flag ) {
-  SERIAL_PROTOCOLPAIR("G1 Z ", destination[Z_AXIS]);
+  SERIAL_PROTOCOLPAIRPGM("G1 Z ", destination[Z_AXIS]);
   debug_current_and_destination("Position after G1 Z move");
 } 
 #endif
