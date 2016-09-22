@@ -1453,26 +1453,23 @@ inline float get_homing_bump_feedrate(AxisEnum axis) {
   return homing_feedrate_mm_s[axis] / hbd;
 }
 
-#if !IS_KINEMATIC
-  //
-  // line_to_current_position
-  // Move the planner to the current position from wherever it last moved
-  // (or from wherever it has been told it is located).
-  //
-  inline void line_to_current_position() {
-    planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
-  }
+//
+// line_to_current_position
+// Move the planner to the current position from wherever it last moved
+// (or from wherever it has been told it is located).
+//
+inline void line_to_current_position() {
+  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
+}
 
-  //
-  // line_to_destination
-  // Move the planner, not necessarily synced with current_position
-  //
-  inline void line_to_destination(float fr_mm_s) {
-    planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], fr_mm_s, active_extruder);
-  }
-  inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
-
-#endif // !IS_KINEMATIC
+//
+// line_to_destination
+// Move the planner, not necessarily synced with current_position
+//
+inline void line_to_destination(float fr_mm_s) {
+  planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], fr_mm_s, active_extruder);
+}
+inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
 
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
