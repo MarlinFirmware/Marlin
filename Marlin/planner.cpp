@@ -69,6 +69,9 @@
   #include "Bed_Leveling.h"
 #endif
 
+extern int G26_Debug_flag;
+void debug_current_and_destination( char * );
+
 Planner planner;
 
   // public:
@@ -533,6 +536,18 @@ void Planner::check_axes_activity() {
 {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
+
+
+if (G26_Debug_flag!=0) {
+SERIAL_ECHOPAIR(" planner::buffer_line(x=",x);
+SERIAL_ECHOPAIR(",y=",y);
+SERIAL_ECHOPAIR(",z=",z);
+SERIAL_ECHOPAIR(",e=",e);
+SERIAL_ECHOPAIR(",f=",feed_rate);
+SERIAL_ECHOPAIR(",ext=",extruder);
+SERIAL_ECHO(")\n");
+debug_current_and_destination("Start of planner::buffer_line()");
+}
 
   // If the buffer is full: good! That means we are well ahead of the robot.
   // Rest here until there is room in the buffer.
