@@ -1590,7 +1590,11 @@ inline void line_to_current_position() {
 inline void line_to_z(float zPosition) {
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
   float corrected_z;
-  corrected_z = zPosition + blm.get_z_correction( current_position[X_AXIS], current_position[Y_AXIS]) *  blm.fade_scaling_factor_for_Z(zPosition);
+  corrected_z = zPosition;
+  if (blm.state.active) {
+    corrected_z += blm.get_z_correction( current_position[X_AXIS], current_position[Y_AXIS]) *  blm.fade_scaling_factor_for_Z(zPosition);
+  }
+  
   planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], corrected_z, current_position[E_AXIS], feedrate / 60, active_extruder);
 #else
   planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate / 60, active_extruder);
@@ -1608,6 +1612,7 @@ void line_to_destination(float mm_m) {
   if (blm.state.active) {
     corrected_z += blm.get_z_correction( destination[X_AXIS], destination[Y_AXIS]) *  blm.fade_scaling_factor_for_Z(destination[Z_AXIS]);
   }
+
   planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], corrected_z, destination[E_AXIS], mm_m / 60, active_extruder);
 #else
   planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], mm_m / 60, active_extruder);
@@ -7274,6 +7279,7 @@ bool prepare_move_to_destination_cartesian() {
   #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
 if ( G26_Debug_flag ) {
   SERIAL_PROTOCOLPAIR("G1 Z ", destination[Z_AXIS]);
+  SERIAL_PROTOCOL("   Layer Change ");
   debug_current_and_destination("Position at start of G1 Z move");
 } 
       blm.fade_scaling_factor_for_Z( destination[Z_AXIS] ); 	// we ignore the computed value.  We are just getting 
@@ -7282,20 +7288,27 @@ if ( G26_Debug_flag ) {
 
       line_to_destination();
 
+set_current_to_destination();
+
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
 if ( G26_Debug_flag ) {
   SERIAL_PROTOCOLPAIR("G1 Z ", destination[Z_AXIS]);
-  debug_current_and_destination("Position at start of G1 Z move");
+  debug_current_and_destination("Position after G1 Z move");
 } 
 #endif
     }
     else {
   #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
+debug_current_and_destination("Doing normal XY move");
    mesh_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
 		                  (feedrate*(1.0/60.0))*(feedrate_multiplier*(1.0/100.0) ), active_extruder);
+set_current_to_destination();
+
      return false;
   #else
         line_to_destination(feedrate * feedrate_multiplier / 100.0);
+set_current_to_destination();
+
   #endif
     }
 #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)
