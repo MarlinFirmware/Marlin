@@ -392,8 +392,9 @@ void gcode_G29() {
 			SERIAL_PROTOCOLLNPGM("Mesh invalidated.  Probing mesh.\n");
 		}
     		if ( G29_Verbose_Level > 1 ) {
-			SERIAL_ECHOPAIR("Probing Mesh Points Cp:losest to (",X_Pos);
-			SERIAL_ECHOPAIR(",",Y_Pos);
+			SERIAL_ECHOPGM("Probing Mesh Points Closest to (");
+			SERIAL_ECHO(X_Pos);
+			SERIAL_ECHOPAIRPGM(",",Y_Pos);
         		SERIAL_PROTOCOLLNPGM(")\n");
 		}
 		probe_entire_mesh( X_Pos+X_PROBE_OFFSET_FROM_EXTRUDER, Y_Pos+Y_PROBE_OFFSET_FROM_EXTRUDER, code_seen('M') );
@@ -464,7 +465,7 @@ void gcode_G29() {
 
       case 10: 	UBL_has_control_of_LCD_Panel++;			// Debug code...  Pan no attention to this stuff
      		SERIAL_ECHO_START;
-    		SERIAL_ECHO("Checking G29 has control of LCD Panel:\n");
+    		SERIAL_ECHOPGM("Checking G29 has control of LCD Panel:\n");
 	      	while( !G29_lcd_clicked() ) {
 			idle();
 	      		delay(250);
@@ -475,7 +476,7 @@ void gcode_G29() {
 		while ( G29_lcd_clicked() )
 			idle();
 		UBL_has_control_of_LCD_Panel = 0;;
-    		SERIAL_ECHO("G29 giving back control of LCD Panel.\n");
+    		SERIAL_ECHOPGM("G29 giving back control of LCD Panel.\n");
         	break;
     }
   }
@@ -670,14 +671,14 @@ float sum, sum_of_diff_squared, sigma, difference, mean;
 			}
 		}
 	}
-    	SERIAL_ECHOPAIR("# of samples: ", n );
+    	SERIAL_ECHOPAIRPGM("# of samples: ", n );
 	SERIAL_EOL;
-    	SERIAL_ECHO("Mean Mesh Height: ");
+    	SERIAL_ECHOPGM("Mean Mesh Height: ");
     	SERIAL_ECHO_F( mean, 6 );
 	SERIAL_EOL;
    
 	sigma = sqrt( sum_of_diff_squared / (n + 1) );
-    	SERIAL_ECHO("Standard Deviation: ");
+    	SERIAL_ECHOPGM("Standard Deviation: ");
     	SERIAL_ECHO_F( sigma, 6 );
 	SERIAL_EOL;
 
@@ -785,25 +786,25 @@ struct vector tilt_mesh_based_on_3pts(float pt1, float pt2, float pt3) {
 
 	d = normal.dx*UBL_PROBE_PT_1_X + normal.dy*UBL_PROBE_PT_1_Y + normal.dz*pt1;	
 	c = -((normal.dx*UBL_PROBE_PT_1_X + normal.dy*UBL_PROBE_PT_1_Y) - d);
-SERIAL_ECHO("d from first  point: ");
+SERIAL_ECHOPGM("d from first  point: ");
 SERIAL_ECHO_F(d,6);
-SERIAL_ECHO("  c: ");
+SERIAL_ECHOPGM("  c: ");
 SERIAL_ECHO_F(c,6);
-SERIAL_ECHO("\n");
+SERIAL_ECHOPGM("\n");
 	d = normal.dx*UBL_PROBE_PT_2_X + normal.dy*UBL_PROBE_PT_2_Y + normal.dz*pt2;	
 	c = -((normal.dx*UBL_PROBE_PT_2_X + normal.dy*UBL_PROBE_PT_2_Y) - d);
-SERIAL_ECHO("d from second point: ");
+SERIAL_ECHOPGM("d from second point: ");
 SERIAL_ECHO_F(d,6);
-SERIAL_ECHO("  c: ");
+SERIAL_ECHOPGM("  c: ");
 SERIAL_ECHO_F(c,6);
-SERIAL_ECHO("\n");
+SERIAL_ECHOPGM("\n");
 	d = normal.dx*UBL_PROBE_PT_3_X + normal.dy*UBL_PROBE_PT_3_Y + normal.dz*pt3;	
 	c = -((normal.dx*UBL_PROBE_PT_3_X + normal.dy*UBL_PROBE_PT_3_Y) - d);
-SERIAL_ECHO("d from third  point: ");
+SERIAL_ECHOPGM("d from third  point: ");
 SERIAL_ECHO_F(d,6);
-SERIAL_ECHO("  c: ");
+SERIAL_ECHOPGM("  c: ");
 SERIAL_ECHO_F(c,6);
-SERIAL_ECHO("\n");
+SERIAL_ECHOPGM("\n");
 
 
 	for (i = 0; i < MESH_NUM_X_POINTS; i++) {
@@ -857,7 +858,7 @@ float Z1, Z2;
 	do_blocking_move_to_z( current_position[Z_AXIS] + SIZE_OF_LITTLE_RAISE );
 
 	if ( G29_Verbose_Level > 1) {
-		SERIAL_ECHO("Business Card is: ");
+		SERIAL_ECHOPGM("Business Card is: ");
 		SERIAL_ECHO_F( abs(Z1-Z2), 6 );
     		SERIAL_PROTOCOLLNPGM("mm thick.");
 	}
@@ -1169,8 +1170,8 @@ static int pin_63 = -1, pin_64 = -1, pin_44 = -1;
 			}
 			break;
 
-	default:	SERIAL_ECHOPAIR("?Unable to take action on LED pin: ", pin);
-			SERIAL_ECHO(" \n");
+	default:	SERIAL_ECHOPAIRPGM("?Unable to take action on LED pin: ", pin);
+			SERIAL_ECHOPGM(" \n");
 			break;
 	}
 	return;
@@ -1201,7 +1202,7 @@ void save_UBL_active_state_and_disable()
 {
    UBL_state_recursion_chk++;
    if ( UBL_state_recursion_chk != 1) {
-      	SERIAL_ECHO("save_UBL_active_state_and_disabled() called multiple times in a row. \n");
+      	SERIAL_ECHOPGM("save_UBL_active_state_and_disabled() called multiple times in a row. \n");
 	lcd_setstatus( "save_UBL_active() error", true);
 	lcd_quick_feedback();	
 	return;
@@ -1215,7 +1216,7 @@ void restore_UBL_active_state_and_leave()
 {
    UBL_state_recursion_chk--;
    if ( UBL_state_recursion_chk != 0) {
-      	SERIAL_ECHO("restore_UBL_active_state_and_leave() called too many times. \n");
+      	SERIAL_ECHOPGM("restore_UBL_active_state_and_leave() called too many times. \n");
 	lcd_setstatus( "restore_UBL_active() error", true);
 	lcd_quick_feedback();
 	return;
@@ -1256,19 +1257,19 @@ void G29_What_Command() {
     }
 
 
-    SERIAL_ECHOPAIR("\nG29_Correction_Fade_Height : ", blm.state.G29_Correction_Fade_Height );
+    SERIAL_ECHOPAIRPGM("\nG29_Correction_Fade_Height : ", blm.state.G29_Correction_Fade_Height );
     SERIAL_PROTOCOLPGM("  ----------------------------------       <----<<< \n"); 	// These arrows are just to help me 
     											// find this info buried in the clutter
     idle();
 
 
-    SERIAL_ECHO("z_offset: ");
+    SERIAL_ECHOPGM("z_offset: ");
     SERIAL_ECHO_F( blm.state.z_offset, 6 );
     SERIAL_PROTOCOLPGM("  ------------------------------------------------------------       <----<<< \n");
 
-    SERIAL_ECHOPAIR("UBL_state_at_invokation :", UBL_state_at_invokation);
+    SERIAL_ECHOPAIRPGM("UBL_state_at_invokation :", UBL_state_at_invokation);
     SERIAL_PROTOCOLPGM("\n");
-    SERIAL_ECHOPAIR("UBL_state_recursion_chk :", UBL_state_recursion_chk);
+    SERIAL_ECHOPAIRPGM("UBL_state_recursion_chk :", UBL_state_recursion_chk);
     SERIAL_PROTOCOLPGM("\n");
 
     SERIAL_PROTOCOLPGM("\n");
@@ -1303,35 +1304,35 @@ void G29_What_Command() {
     SERIAL_PROTOCOLPGM("\n");
     idle();
 
-    SERIAL_ECHOPAIR("\nMESH_NUM_X_POINTS  ", MESH_NUM_X_POINTS );
-    SERIAL_ECHOPAIR("\nMESH_NUM_Y_POINTS  ", MESH_NUM_Y_POINTS );
-    SERIAL_ECHOPAIR("\nMESH_MIN_X         ", MESH_MIN_X );
-    SERIAL_ECHOPAIR("\nMESH_MIN_Y         ", MESH_MIN_Y );
-    SERIAL_ECHOPAIR("\nMESH_MAX_X         ", MESH_MAX_X );
-    SERIAL_ECHOPAIR("\nMESH_MAX_Y         ", MESH_MAX_Y );
-    SERIAL_ECHO("\nMESH_X_DIST        ");
+    SERIAL_ECHOPAIRPGM("\nMESH_NUM_X_POINTS  ", MESH_NUM_X_POINTS );
+    SERIAL_ECHOPAIRPGM("\nMESH_NUM_Y_POINTS  ", MESH_NUM_Y_POINTS );
+    SERIAL_ECHOPAIRPGM("\nMESH_MIN_X         ", MESH_MIN_X );
+    SERIAL_ECHOPAIRPGM("\nMESH_MIN_Y         ", MESH_MIN_Y );
+    SERIAL_ECHOPAIRPGM("\nMESH_MAX_X         ", MESH_MAX_X );
+    SERIAL_ECHOPAIRPGM("\nMESH_MAX_Y         ", MESH_MAX_Y );
+    SERIAL_ECHOPGM("\nMESH_X_DIST        ");
     SERIAL_ECHO_F( MESH_X_DIST, 6 );
-    SERIAL_ECHO("\nMESH_Y_DIST        ");
+    SERIAL_ECHOPGM("\nMESH_Y_DIST        ");
     SERIAL_ECHO_F( MESH_Y_DIST, 6 );
     SERIAL_PROTOCOLPGM("\n");
     idle();
 
-SERIAL_ECHOPAIR("\nsizeof(block_t): ", (int) sizeof(block_t));
-SERIAL_ECHOPAIR("\nsizeof(planner.block_buffer): ", (int) sizeof(planner.block_buffer));
-SERIAL_ECHOPAIR("\nsizeof(char): ", (int) sizeof(char));
-SERIAL_ECHOPAIR("   sizeof(unsigned char): ", (int) sizeof(unsigned char));
-SERIAL_ECHOPAIR("\nsizeof(int): ", (int) sizeof(int));
-SERIAL_ECHOPAIR("   sizeof(unsigned int): ", (int) sizeof(unsigned int));
-SERIAL_ECHOPAIR("\nsizeof(long): ", (int) sizeof(long));
-SERIAL_ECHOPAIR("   sizeof(unsigned long int): ", (int) sizeof(unsigned long int));
-SERIAL_ECHOPAIR("\nsizeof(float): ", (int) sizeof(float));
-SERIAL_ECHOPAIR("   sizeof(double): ", (int) sizeof(double));
-SERIAL_ECHOPAIR("\nsizeof(void *): ", (int) sizeof(void *));
+SERIAL_ECHOPAIRPGM("\nsizeof(block_t): ", (int) sizeof(block_t));
+SERIAL_ECHOPAIRPGM("\nsizeof(planner.block_buffer): ", (int) sizeof(planner.block_buffer));
+SERIAL_ECHOPAIRPGM("\nsizeof(char): ", (int) sizeof(char));
+SERIAL_ECHOPAIRPGM("   sizeof(unsigned char): ", (int) sizeof(unsigned char));
+SERIAL_ECHOPAIRPGM("\nsizeof(int): ", (int) sizeof(int));
+SERIAL_ECHOPAIRPGM("   sizeof(unsigned int): ", (int) sizeof(unsigned int));
+SERIAL_ECHOPAIRPGM("\nsizeof(long): ", (int) sizeof(long));
+SERIAL_ECHOPAIRPGM("   sizeof(unsigned long int): ", (int) sizeof(unsigned long int));
+SERIAL_ECHOPAIRPGM("\nsizeof(float): ", (int) sizeof(float));
+SERIAL_ECHOPAIRPGM("   sizeof(double): ", (int) sizeof(double));
+SERIAL_ECHOPAIRPGM("\nsizeof(void *): ", (int) sizeof(void *));
 struct pf {
 	void *p_f();
 } ptr_func;
-SERIAL_ECHOPAIR("   sizeof(struct pf): ", (int) sizeof( pf ) );
-SERIAL_ECHOPAIR("   sizeof(void *()): ", (int) sizeof( ptr_func ) );
+SERIAL_ECHOPAIRPGM("   sizeof(struct pf): ", (int) sizeof( pf ) );
+SERIAL_ECHOPAIRPGM("   sizeof(void *()): ", (int) sizeof( ptr_func ) );
 SERIAL_PROTOCOLPGM("\n");
 
     idle();
@@ -1350,12 +1351,12 @@ unsigned char cccc;
 int i, j, kkkk;
 
     SERIAL_ECHO_START;
-    SERIAL_ECHO("EEPROM Dump:\n");
+    SERIAL_ECHOPGM("EEPROM Dump:\n");
     for (i = 0; i < E2END + 1; i += 16) {
       if ( i%4 == 0 )
 	idle();
       prt_hex_word( i );
-      SERIAL_ECHO(": ");
+      SERIAL_ECHOPGM(": ");
       for (j = 0; j < 16; j++) {
         kkkk = i + j;
         eeprom_read_block( &cccc, (void *) kkkk, 1 );
@@ -1394,7 +1395,7 @@ void G29_Kompare_Current_Mesh_to_Stored_Mesh()  {
     j = k-(Storage_Slot+1)*sizeof(tmp_z_values);	
     eeprom_read_block( (void *) &tmp_z_values , (void *) j, sizeof(tmp_z_values) );
 
-    SERIAL_ECHOPAIR("Subtracting Mesh ", Storage_Slot);
+    SERIAL_ECHOPAIRPGM("Subtracting Mesh ", Storage_Slot);
     SERIAL_PROTOCOLPGM(" loaded from EEPROM address ");		// Soon, we can remove the extra clutter of printing
     prt_hex_word(j);						// the address in the EEPROM where the Mesh is stored.
     SERIAL_PROTOCOLPGM("\n");
@@ -1507,9 +1508,9 @@ unsigned long cnt;
 	round_off = round_off - (round_off % 5l);		// closest 0 or 5 at the 3rd decimal place.
 	new_z = ((float) (round_off))/1000.0;			
 
-SERIAL_ECHO("Mesh Point Currently At:  ");
+SERIAL_ECHOPGM("Mesh Point Currently At:  ");
 SERIAL_ECHO_F( new_z, 6 );
-SERIAL_ECHO("\n");
+SERIAL_ECHOPGM("\n");
 
 	lcd_implementation_clear();
 	lcd_mesh_edit_setup( new_z );
@@ -1559,7 +1560,7 @@ FINE_TUNE_EXIT:
     #if ENABLED(ULTRA_LCD)
        lcd_setstatus( "Done Editing Mesh.   ", true);
     #endif
-    SERIAL_ECHO("Done Editing Mesh. \n");
+    SERIAL_ECHOPGM("Done Editing Mesh. \n");
     return;
 }
 
