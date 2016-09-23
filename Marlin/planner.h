@@ -219,7 +219,7 @@ class Planner {
        * as it will be given to the planner and steppers.
        */
       static void apply_leveling(float &lx, float &ly, float &lz);
-      static void unapply_leveling(float &lx, float &ly, float &lz);
+      static void unapply_leveling(float logical[XYZ]);
 
     #endif
 
