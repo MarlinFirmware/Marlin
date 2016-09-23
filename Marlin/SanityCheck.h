@@ -48,7 +48,7 @@
   #error "You are using an old Configuration_adv.h file, update it before building Marlin."
 #endif
 
- /**
+/**
  * Warnings for old configurations
  */
 #if WATCH_TEMP_PERIOD > 500
@@ -448,6 +448,13 @@
     #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
 
+#endif
+
+/**
+ * Homing Bump
+ */
+#if X_HOME_BUMP_MM < 0 || Y_HOME_BUMP_MM < 0 || Z_HOME_BUMP_MM < 0
+  #error "[XYZ]_HOME_BUMP_MM must be greater than or equal to 0."
 #endif
 
 /**
