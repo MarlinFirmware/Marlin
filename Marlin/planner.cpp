@@ -571,7 +571,9 @@ void Planner::check_axes_activity() {
 
       matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
 
-      float dx = lx - (X_TILT_FULCRUM), dy = ly - (Y_TILT_FULCRUM), dz = lz;
+      float dx = RAW_X_POSITION(lx) - (X_TILT_FULCRUM),
+            dy = RAW_Y_POSITION(ly) - (Y_TILT_FULCRUM),
+            dz = RAW_Z_POSITION(lz);
 
       apply_rotation_xyz(inverse, dx, dy, dz);
 
