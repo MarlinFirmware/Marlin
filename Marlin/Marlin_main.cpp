@@ -3150,7 +3150,7 @@ inline void gcode_G28() {
             if (DEBUGGING(LEVELING)) DEBUG_POS("MBL Rest Origin", current_position);
           #endif
         #else
-          planner.unapply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+          planner.unapply_leveling(current_position);
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("MBL adjusted MESH_HOME_SEARCH_Z", current_position);
           #endif
@@ -3160,7 +3160,7 @@ inline void gcode_G28() {
         current_position[Z_AXIS] = pre_home_z;
         SYNC_PLAN_POSITION_KINEMATIC();
         mbl.set_active(true);
-        planner.unapply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+        planner.unapply_leveling(current_position);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("MBL Home X or Y", current_position);
         #endif
@@ -8053,7 +8053,7 @@ void get_cartesian_from_steppers() {
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
   #if PLANNER_LEVELING
-    planner.unapply_leveling(cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS]);
+    planner.unapply_leveling(cartes);
   #endif
   if (axis == ALL_AXES)
     memcpy(current_position, cartes, sizeof(cartes));

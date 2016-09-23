@@ -570,7 +570,7 @@ void Planner::check_axes_activity() {
     #endif
   }
 
-  void Planner::unapply_leveling(float &lx, float &ly, float &lz) {
+  void Planner::unapply_leveling(float logical[XYZ]) {
 
     #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       if (!abl_enabled) return;
@@ -579,26 +579,25 @@ void Planner::check_axes_activity() {
     #if ENABLED(MESH_BED_LEVELING)
 
       if (mbl.active())
-        lz -= mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
+        logical[Z_AXIS] -= mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]));
 
     #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
       matrix_3x3 inverse = matrix_3x3::transpose(bed_level_matrix);
 
-      float dx = RAW_X_POSITION(lx) - (X_TILT_FULCRUM),
-            dy = RAW_Y_POSITION(ly) - (Y_TILT_FULCRUM),
-            dz = RAW_Z_POSITION(lz);
+      float dx = RAW_X_POSITION(logical[X_AXIS]) - (X_TILT_FULCRUM),
+            dy = RAW_Y_POSITION(logical[Y_AXIS]) - (Y_TILT_FULCRUM),
+            dz = RAW_Z_POSITION(logical[Z_AXIS]);
 
       apply_rotation_xyz(inverse, dx, dy, dz);
 
-      lx = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
-      ly = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
-      lz = LOGICAL_Z_POSITION(dz);
+      logical[X_AXIS] = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
+      logical[Y_AXIS] = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
+      logical[Z_AXIS] = LOGICAL_Z_POSITION(dz);
 
     #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
-      float tmp[XYZ] = { lx, ly, 0 };
-      lz -= nonlinear_z_offset(tmp);
+      logical[Z_AXIS] -= nonlinear_z_offset(logical);
 
     #endif
   }
