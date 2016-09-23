@@ -8092,68 +8092,78 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * This calls planner.buffer_line several times, adding
    * small incremental moves for DELTA or SCARA.
    */
-  inline bool prepare_kinematic_move_to(float logical[NUM_AXIS]) {
+  inline bool prepare_kinematic_move_to(float ltarget[NUM_AXIS]) {
 
     // Get the top feedrate of the move in the XY plane
     float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
 
-    // If the move is only in Z don't split up the move.
-    // This shortcut cannot be used if planar bed leveling
-    // is in use, but is fine with mesh-based bed leveling
-    if (logical[X_AXIS] == current_position[X_AXIS] && logical[Y_AXIS] == current_position[Y_AXIS]) {
-      inverse_kinematics(logical);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+    // If the move is only in Z/E don't split up the move
+    if (ltarget[X_AXIS] == current_position[X_AXIS] && ltarget[Y_AXIS] == current_position[Y_AXIS]) {
+      inverse_kinematics(ltarget);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], ltarget[E_AXIS], _feedrate_mm_s, active_extruder);
       return true;
     }
 
-    // Get the distance moved in XYZ
+    // Get the cartesian distances moved in XYZE
     float difference[NUM_AXIS];
-    LOOP_XYZE(i) difference[i] = logical[i] - current_position[i];
+    LOOP_XYZE(i) difference[i] = ltarget[i] - current_position[i];
 
+    // Get the linear distance in XYZ
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
+
+    // If the move is very short, check the E move distance
     if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = abs(difference[E_AXIS]);
+
+    // No E move either? Game over.
     if (UNEAR_ZERO(cartesian_mm)) return false;
 
     // Minimum number of seconds to move the given distance
     float seconds = cartesian_mm / _feedrate_mm_s;
 
     // The number of segments-per-second times the duration
-    // gives the number of segments we should produce
+    // gives the number of segments
     uint16_t segments = delta_segments_per_second * seconds;
 
+    // For SCARA minimum segment size is 0.5mm
     #if IS_SCARA
       NOMORE(segments, cartesian_mm * 2);
     #endif
 
+    // At least one segment is required
     NOLESS(segments, 1);
 
-    // Each segment produces this much of the move
-    float inv_segments = 1.0 / segments,
-          segment_distance[XYZE] = {
-            difference[X_AXIS] * inv_segments,
-            difference[Y_AXIS] * inv_segments,
-            difference[Z_AXIS] * inv_segments,
-            difference[E_AXIS] * inv_segments
+    // The approximate length of each segment
+    float segment_distance[XYZE] = {
+            difference[X_AXIS] / segments,
+            difference[Y_AXIS] / segments,
+            difference[Z_AXIS] / segments,
+            difference[E_AXIS] / segments
           };
 
     // SERIAL_ECHOPAIR("mm=", cartesian_mm);
     // SERIAL_ECHOPAIR(" seconds=", seconds);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    // Send all the segments to the planner
+    // Drop one segment so the last move is to the exact target.
+    // If there's only 1 segment, loops will be skipped entirely.
+    --segments;
+
+    // Using "raw" coordinates saves 6 float subtractions
+    // per segment, saving valuable CPU cycles
 
     #if ENABLED(USE_RAW_KINEMATICS)
 
       // Get the raw current position as starting point
-      float raw[ABC] = {
+      float raw[XYZE] = {
         RAW_CURRENT_POSITION(X_AXIS),
         RAW_CURRENT_POSITION(Y_AXIS),
-        RAW_CURRENT_POSITION(Z_AXIS)
+        RAW_CURRENT_POSITION(Z_AXIS),
+        current_position[E_AXIS]
       };
 
-      #define DELTA_E raw[E_AXIS]
-      #define DELTA_NEXT(ADDEND) LOOP_XYZE(i) raw[i] += ADDEND;
+      #define DELTA_VAR raw
 
+      // Delta can inline its kinematics
       #if ENABLED(DELTA)
         #define DELTA_IK() DELTA_RAW_IK()
       #else
@@ -8163,11 +8173,12 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     #else
 
       // Get the logical current position as starting point
-      LOOP_XYZE(i) logical[i] = current_position[i];
+      float logical[XYZE];
+      memcpy(logical, current_position, sizeof(logical));
 
-      #define DELTA_E logical[E_AXIS]
-      #define DELTA_NEXT(ADDEND) LOOP_XYZE(i) logical[i] += ADDEND;
+      #define DELTA_VAR logical
 
+      // Delta can inline its kinematics
       #if ENABLED(DELTA)
         #define DELTA_IK() DELTA_LOGICAL_IK()
       #else
@@ -8178,16 +8189,26 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     #if ENABLED(USE_DELTA_IK_INTERPOLATION)
 
-      // Get the starting delta for interpolation
-      if (segments >= 2) inverse_kinematics(logical);
+      // Only interpolate XYZ. Advance E normally.
+      #define DELTA_NEXT(ADDEND) LOOP_XYZ(i) DELTA_VAR[i] += ADDEND;
 
+      // Get the starting delta if interpolation is possible
+      if (segments >= 2) DELTA_IK();
+
+      // Loop using decrement
       for (uint16_t s = segments + 1; --s;) {
-        if (s > 1) {
+        // Are there at least 2 moves left?
+        if (s >= 2) {
           // Save the previous delta for interpolation
           float prev_delta[ABC] = { delta[A_AXIS], delta[B_AXIS], delta[C_AXIS] };
 
           // Get the delta 2 segments ahead (rather than the next)
           DELTA_NEXT(segment_distance[i] + segment_distance[i]);
+
+          // Advance E normally
+          DELTA_VAR[E_AXIS] += segment_distance[E_AXIS];
+
+          // Get the exact delta for the move after this
           DELTA_IK();
 
           // Move to the interpolated delta position first
@@ -8195,33 +8216,43 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
             (prev_delta[A_AXIS] + delta[A_AXIS]) * 0.5,
             (prev_delta[B_AXIS] + delta[B_AXIS]) * 0.5,
             (prev_delta[C_AXIS] + delta[C_AXIS]) * 0.5,
-            logical[E_AXIS], _feedrate_mm_s, active_extruder
+            DELTA_VAR[E_AXIS], _feedrate_mm_s, active_extruder
           );
+
+          // Advance E once more for the next move
+          DELTA_VAR[E_AXIS] += segment_distance[E_AXIS];
 
           // Do an extra decrement of the loop
           --s;
         }
         else {
-          // Get the last segment delta (only when segments is odd)
-          DELTA_NEXT(segment_distance[i])
+          // Get the last segment delta. (Used when segments is odd)
+          DELTA_NEXT(segment_distance[i]);
+          DELTA_VAR[E_AXIS] += segment_distance[E_AXIS];
           DELTA_IK();
         }
 
         // Move to the non-interpolated position
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_E, _feedrate_mm_s, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_VAR[E_AXIS], _feedrate_mm_s, active_extruder);
       }
 
     #else
 
+      #define DELTA_NEXT(ADDEND) LOOP_XYZE(i) DELTA_VAR[i] += ADDEND;
+
       // For non-interpolated delta calculate every segment
       for (uint16_t s = segments + 1; --s;) {
-        DELTA_NEXT(segment_distance[i])
+        DELTA_NEXT(segment_distance[i]);
         DELTA_IK();
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_VAR[E_AXIS], _feedrate_mm_s, active_extruder);
       }
 
     #endif
 
+    // Since segment_distance is only approximate,
+    // the final move must be to the exact destination.
+    inverse_kinematics(ltarget);
+    planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], ltarget[E_AXIS], _feedrate_mm_s, active_extruder);
     return true;
   }
 
