@@ -1453,26 +1453,23 @@ inline float get_homing_bump_feedrate(AxisEnum axis) {
   return homing_feedrate_mm_s[axis] / hbd;
 }
 
-#if !IS_KINEMATIC
-  //
-  // line_to_current_position
-  // Move the planner to the current position from wherever it last moved
-  // (or from wherever it has been told it is located).
-  //
-  inline void line_to_current_position() {
-    planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
-  }
+//
+// line_to_current_position
+// Move the planner to the current position from wherever it last moved
+// (or from wherever it has been told it is located).
+//
+inline void line_to_current_position() {
+  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate_mm_s, active_extruder);
+}
 
-  //
-  // line_to_destination
-  // Move the planner, not necessarily synced with current_position
-  //
-  inline void line_to_destination(float fr_mm_s) {
-    planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], fr_mm_s, active_extruder);
-  }
-  inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
-
-#endif // !IS_KINEMATIC
+//
+// line_to_destination
+// Move the planner, not necessarily synced with current_position
+//
+inline void line_to_destination(float fr_mm_s) {
+  planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], fr_mm_s, active_extruder);
+}
+inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
 
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
@@ -1485,12 +1482,19 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("prepare_uninterpolated_move_to_destination", destination);
     #endif
+
+    if ( current_position[X_AXIS] == destination[X_AXIS]
+      && current_position[Y_AXIS] == destination[Y_AXIS]
+      && current_position[Z_AXIS] == destination[Z_AXIS]
+      && current_position[E_AXIS] == destination[E_AXIS]
+    ) return;
+
     refresh_cmd_timeout();
     inverse_kinematics(destination);
     planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], destination[E_AXIS], MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
     set_current_to_destination();
   }
-#endif
+#endif // IS_KINEMATIC
 
 /**
  *  Plan a move to (X, Y, Z) and set the current_position
@@ -1557,16 +1561,12 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
       #endif
     }
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
-    #endif
-
   #elif IS_SCARA
 
     set_destination_to_current();
 
     // If Z needs to raise, do it before moving XY
-    if (current_position[Z_AXIS] < z) {
+    if (destination[Z_AXIS] < z) {
       destination[Z_AXIS] = z;
       prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS]);
     }
@@ -1576,7 +1576,7 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
     prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : XY_PROBE_FEEDRATE_MM_S);
 
     // If Z needs to lower, do it after moving XY
-    if (current_position[Z_AXIS] > z) {
+    if (destination[Z_AXIS] > z) {
       destination[Z_AXIS] = z;
       prepare_uninterpolated_move_to_destination(fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[Z_AXIS]);
     }
@@ -1607,6 +1607,10 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
   stepper.synchronize();
 
   feedrate_mm_s = old_feedrate_mm_s;
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< do_blocking_move_to");
+  #endif
 }
 void do_blocking_move_to_x(const float &x, const float &fr_mm_s/*=0.0*/) {
   do_blocking_move_to(x, current_position[Y_AXIS], current_position[Z_AXIS], fr_mm_s);
@@ -1999,11 +2003,11 @@ static void clean_up_after_endstop_or_probe_move() {
     // Clear endstop flags
     endstops.hit_on_purpose();
 
+    // Tell the planner where we actually are
+    planner.sync_from_steppers();
+
     // Get Z where the steppers were interrupted
     set_current_from_steppers_for_axis(Z_AXIS);
-
-    // Tell the planner where we actually are
-    SYNC_PLAN_POSITION_KINEMATIC();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
@@ -2122,8 +2126,13 @@ static void clean_up_after_endstop_or_probe_move() {
 
   /**
    * Reset calibration results to zero.
+   *
+   * TODO: Proper functions to disable / enable
+   *       bed leveling via a flag, correcting the
+   *       current position in each case.
    */
   void reset_bed_level() {
+    planner.abl_enabled = false;
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
     #endif
@@ -2131,7 +2140,6 @@ static void clean_up_after_endstop_or_probe_move() {
       planner.bed_level_matrix.set_to_identity();
     #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
       memset(bed_level_grid, 0, sizeof(bed_level_grid));
-      nonlinear_grid_spacing[X_AXIS] = nonlinear_grid_spacing[Y_AXIS] = 0;
     #endif
   }
 
@@ -2188,18 +2196,27 @@ static void clean_up_after_endstop_or_probe_move() {
 /**
  * Home an individual linear axis
  */
-
-static void do_homing_move(AxisEnum axis, float where, float fr_mm_s=0.0) {
+static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.0) {
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
     bool deploy_bltouch = (axis == Z_AXIS && where < 0);
     if (deploy_bltouch) set_bltouch_deployed(true);
   #endif
 
+  // Tell the planner we're at Z=0
   current_position[axis] = 0;
-  sync_plan_position();
-  current_position[axis] = where;
-  planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[axis], active_extruder);
+
+  #if IS_SCARA
+    SYNC_PLAN_POSITION_KINEMATIC();
+    current_position[axis] = distance;
+    inverse_kinematics(current_position);
+    planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], current_position[E_AXIS], fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[axis], active_extruder);
+  #else
+    sync_plan_position();
+    current_position[axis] = distance;
+    planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], fr_mm_s ? fr_mm_s : homing_feedrate_mm_s[axis], active_extruder);
+  #endif
+
   stepper.synchronize();
 
   #if HOMING_Z_WITH_PROBE && ENABLED(BLTOUCH)
@@ -2256,6 +2273,9 @@ static void homeaxis(AxisEnum axis) {
     if (axis == Z_AXIS) stepper.set_homing_flag(true);
   #endif
 
+  // Fast move towards endstop until triggered
+  do_homing_move(axis, 1.5 * max_length(axis) * axis_home_dir);
+
   // When homing Z with probe respect probe clearance
   const float bump = axis_home_dir * (
     #if HOMING_Z_WITH_PROBE
@@ -2264,12 +2284,13 @@ static void homeaxis(AxisEnum axis) {
     home_bump_mm(axis)
   );
 
-  // 1. Fast move towards endstop until triggered
-  // 2. Move away from the endstop by the axis HOME_BUMP_MM
-  // 3. Slow move towards endstop until triggered
-  do_homing_move(axis, 1.5 * max_length(axis) * axis_home_dir);
-  do_homing_move(axis, -bump);
-  do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
+  // If a second homing move is configured...
+  if (bump) {
+    // Move away from the endstop by the axis HOME_BUMP_MM
+    do_homing_move(axis, -bump);
+    // Slow move towards endstop until triggered
+    do_homing_move(axis, 2 * bump, get_homing_bump_feedrate(axis));
+  }
 
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) {
@@ -2849,7 +2870,8 @@ inline void gcode_G4() {
 
     // Move all carriages together linearly until an endstop is hit.
     current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = (Z_MAX_LENGTH + 10);
-    planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate_mm_s[X_AXIS], active_extruder);
+    feedrate_mm_s = homing_feedrate_mm_s[X_AXIS];
+    line_to_current_position();
     stepper.synchronize();
     endstops.hit_on_purpose(); // clear endstop hit flags
 
@@ -2902,22 +2924,20 @@ inline void gcode_G4() {
     destination[Y_AXIS] = LOGICAL_Y_POSITION(Z_SAFE_HOMING_Y_POINT);
     destination[Z_AXIS] = current_position[Z_AXIS]; // Z is already at the right height
 
-    #if HAS_BED_PROBE
-      destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
-      destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
-    #endif
-
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
-    #endif
-
     if (position_is_reachable(
           destination
-          #if HAS_BED_PROBE
+          #if HOMING_Z_WITH_PROBE
             , true
           #endif
         )
     ) {
+      #if HOMING_Z_WITH_PROBE
+        destination[X_AXIS] -= X_PROBE_OFFSET_FROM_EXTRUDER;
+        destination[Y_AXIS] -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+      #endif
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
+      #endif
       do_blocking_move_to_xy(destination[X_AXIS], destination[Y_AXIS]);
       HOMEAXIS(Z);
     }
@@ -3133,19 +3153,13 @@ inline void gcode_G28() {
         #if ENABLED(MESH_G28_REST_ORIGIN)
           current_position[Z_AXIS] = 0.0;
           set_destination_to_current();
-          feedrate_mm_s = homing_feedrate_mm_s[Z_AXIS];
-          line_to_destination();
+          line_to_destination(homing_feedrate_mm_s[Z_AXIS]);
           stepper.synchronize();
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("MBL Rest Origin", current_position);
           #endif
         #else
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z -
-            mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS))
-            #if Z_HOME_DIR > 0
-              + Z_MAX_POS
-            #endif
-          ;
+          planner.unapply_leveling(current_position);
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("MBL adjusted MESH_HOME_SEARCH_Z", current_position);
           #endif
@@ -3155,8 +3169,7 @@ inline void gcode_G28() {
         current_position[Z_AXIS] = pre_home_z;
         SYNC_PLAN_POSITION_KINEMATIC();
         mbl.set_active(true);
-        current_position[Z_AXIS] = pre_home_z -
-          mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS));
+        planner.unapply_leveling(current_position);
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("MBL Home X or Y", current_position);
         #endif
@@ -3505,16 +3518,15 @@ inline void gcode_G28() {
 
     stepper.synchronize();
 
+    // Disable auto bed leveling during G29
+    bool auto_bed_leveling_was_enabled = planner.abl_enabled,
+         abl_should_reenable = auto_bed_leveling_was_enabled;
+
+    planner.abl_enabled = false;
+
     if (!dryrun) {
-
-      // Reset the bed_level_matrix because leveling
-      // needs to be done without leveling enabled.
-      reset_bed_level();
-
-      //
       // Re-orient the current position without leveling
       // based on where the steppers are positioned.
-      //
       get_cartesian_from_steppers();
       memcpy(current_position, cartes, sizeof(cartes));
 
@@ -3525,9 +3537,12 @@ inline void gcode_G28() {
     setup_for_endstop_or_probe_move();
 
     // Deploy the probe. Probe will raise if needed.
-    if (DEPLOY_PROBE()) return;
+    if (DEPLOY_PROBE()) {
+      planner.abl_enabled = abl_should_reenable;
+      return;
+    }
 
-    float xProbe, yProbe, measured_z = 0;
+    float xProbe = 0, yProbe = 0, measured_z = 0;
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
@@ -3537,10 +3552,15 @@ inline void gcode_G28() {
 
       #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
 
-        nonlinear_grid_spacing[X_AXIS] = xGridSpacing;
-        nonlinear_grid_spacing[Y_AXIS] = yGridSpacing;
         float zoffset = zprobe_zoffset;
         if (code_seen('Z')) zoffset += code_value_axis_units(Z_AXIS);
+
+        if (xGridSpacing != nonlinear_grid_spacing[X_AXIS] || yGridSpacing != nonlinear_grid_spacing[Y_AXIS]) {
+          nonlinear_grid_spacing[X_AXIS] = xGridSpacing;
+          nonlinear_grid_spacing[Y_AXIS] = yGridSpacing;
+          // Can't re-enable (on error) until the new grid is written
+          abl_should_reenable = false;
+        }
 
       #elif ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
 
@@ -3600,6 +3620,11 @@ inline void gcode_G28() {
 
           measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
+          if (measured_z == NAN) {
+            planner.abl_enabled = abl_should_reenable;
+            return;
+          }
+
           #if ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
 
             mean += measured_z;
@@ -3639,6 +3664,11 @@ inline void gcode_G28() {
         measured_z = points[i].z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
       }
 
+      if (measured_z == NAN) {
+        planner.abl_enabled = abl_should_reenable;
+        return;
+      }
+
       if (!dryrun) {
         vector_3 planeNormal = vector_3::cross(points[0] - points[1], points[2] - points[1]).get_normal();
         if (planeNormal.z < 0) {
@@ -3647,12 +3677,23 @@ inline void gcode_G28() {
           planeNormal.z *= -1;
         }
         planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+
+        // Can't re-enable (on error) until the new grid is written
+        abl_should_reenable = false;
       }
 
     #endif // AUTO_BED_LEVELING_3POINT
 
     // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
-    if (STOW_PROBE()) return;
+    if (STOW_PROBE()) {
+      planner.abl_enabled = abl_should_reenable;
+      return;
+    }
+
+    //
+    // Unless this is a dry run, auto bed leveling will
+    // definitely be enabled after this point
+    //
 
     // Restore state after probing
     clean_up_after_endstop_or_probe_move();
@@ -3842,6 +3883,9 @@ inline void gcode_G28() {
     report_current_position();
 
     KEEPALIVE_STATE(IN_HANDLER);
+
+    // Auto Bed Leveling is complete! Enable if possible.
+    planner.abl_enabled = dryrun ? abl_should_reenable : true;
   }
 
 #endif // AUTO_BED_LEVELING_FEATURE
@@ -3925,6 +3969,8 @@ inline void gcode_G92() {
     SYNC_PLAN_POSITION_KINEMATIC();
   else if (didE)
     sync_plan_position_e();
+
+  report_current_position();
 }
 
 #if ENABLED(ULTIPANEL) || ENABLED(EMERGENCY_PARSER)
@@ -4186,7 +4232,11 @@ inline void gcode_M42() {
   if (pin_number < 0) return;
 
   for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
-    if (pin_number == sensitive_pins[i]) return;
+    if (pin_number == sensitive_pins[i]) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
+      return;
+    }
 
   pinMode(pin_number, OUTPUT);
   digitalWrite(pin_number, pin_status);
@@ -7736,7 +7786,7 @@ void ok_to_send() {
 
   // Get the Z adjustment for non-linear bed leveling
   float nonlinear_z_offset(float cartesian[XYZ]) {
-    if (nonlinear_grid_spacing[X_AXIS] == 0 || nonlinear_grid_spacing[Y_AXIS] == 0) return 0; // G29 not done!
+    if (planner.abl_enabled) return;
 
     int half_x = (ABL_GRID_POINTS_X - 1) / 2,
         half_y = (ABL_GRID_POINTS_Y - 1) / 2;
@@ -7846,15 +7896,19 @@ void ok_to_send() {
       )                                      \
     )
 
+  #define DELTA_RAW_IK() do {   \
+    delta[A_AXIS] = DELTA_Z(1); \
+    delta[B_AXIS] = DELTA_Z(2); \
+    delta[C_AXIS] = DELTA_Z(3); \
+  } while(0)
+
   #define DELTA_LOGICAL_IK() do {      \
     const float raw[XYZ] = {           \
       RAW_X_POSITION(logical[X_AXIS]), \
       RAW_Y_POSITION(logical[Y_AXIS]), \
       RAW_Z_POSITION(logical[Z_AXIS])  \
     };                                 \
-    delta[A_AXIS] = DELTA_Z(1);        \
-    delta[B_AXIS] = DELTA_Z(2);        \
-    delta[C_AXIS] = DELTA_Z(3);        \
+    DELTA_RAW_IK();                    \
   } while(0)
 
   #define DELTA_DEBUG() do { \
@@ -8012,7 +8066,7 @@ void get_cartesian_from_steppers() {
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
   #if PLANNER_LEVELING
-    planner.unapply_leveling(cartes[X_AXIS], cartes[Y_AXIS], cartes[Z_AXIS]);
+    planner.unapply_leveling(cartes);
   #endif
   if (axis == ALL_AXES)
     memcpy(current_position, cartes, sizeof(cartes));
@@ -8091,101 +8145,123 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * This calls planner.buffer_line several times, adding
    * small incremental moves for DELTA or SCARA.
    */
-  inline bool prepare_kinematic_move_to(float logical[NUM_AXIS]) {
+  inline bool prepare_kinematic_move_to(float ltarget[NUM_AXIS]) {
 
     // Get the top feedrate of the move in the XY plane
     float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
 
-    // If the move is only in Z don't split up the move.
-    // This shortcut cannot be used if planar bed leveling
-    // is in use, but is fine with mesh-based bed leveling
-    if (logical[X_AXIS] == current_position[X_AXIS] && logical[Y_AXIS] == current_position[Y_AXIS]) {
-      inverse_kinematics(logical);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+    // If the move is only in Z/E don't split up the move
+    if (ltarget[X_AXIS] == current_position[X_AXIS] && ltarget[Y_AXIS] == current_position[Y_AXIS]) {
+      inverse_kinematics(ltarget);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], ltarget[E_AXIS], _feedrate_mm_s, active_extruder);
       return true;
     }
 
-    // Get the distance moved in XYZ
+    // Get the cartesian distances moved in XYZE
     float difference[NUM_AXIS];
-    LOOP_XYZE(i) difference[i] = logical[i] - current_position[i];
+    LOOP_XYZE(i) difference[i] = ltarget[i] - current_position[i];
 
+    // Get the linear distance in XYZ
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
+
+    // If the move is very short, check the E move distance
     if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = abs(difference[E_AXIS]);
+
+    // No E move either? Game over.
     if (UNEAR_ZERO(cartesian_mm)) return false;
 
     // Minimum number of seconds to move the given distance
     float seconds = cartesian_mm / _feedrate_mm_s;
 
     // The number of segments-per-second times the duration
-    // gives the number of segments we should produce
+    // gives the number of segments
     uint16_t segments = delta_segments_per_second * seconds;
 
+    // For SCARA minimum segment size is 0.5mm
     #if IS_SCARA
       NOMORE(segments, cartesian_mm * 2);
     #endif
 
+    // At least one segment is required
     NOLESS(segments, 1);
 
-    // Each segment produces this much of the move
-    float inv_segments = 1.0 / segments,
-          segment_distance[XYZE] = {
-            difference[X_AXIS] * inv_segments,
-            difference[Y_AXIS] * inv_segments,
-            difference[Z_AXIS] * inv_segments,
-            difference[E_AXIS] * inv_segments
+    // The approximate length of each segment
+    float segment_distance[XYZE] = {
+            difference[X_AXIS] / segments,
+            difference[Y_AXIS] / segments,
+            difference[Z_AXIS] / segments,
+            difference[E_AXIS] / segments
           };
 
     // SERIAL_ECHOPAIR("mm=", cartesian_mm);
     // SERIAL_ECHOPAIR(" seconds=", seconds);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    // Send all the segments to the planner
+    // Drop one segment so the last move is to the exact target.
+    // If there's only 1 segment, loops will be skipped entirely.
+    --segments;
 
-    #if ENABLED(DELTA) && ENABLED(USE_RAW_KINEMATICS)
+    // Using "raw" coordinates saves 6 float subtractions
+    // per segment, saving valuable CPU cycles
 
-      #define DELTA_E raw[E_AXIS]
-      #define DELTA_NEXT(ADDEND) LOOP_XYZE(i) raw[i] += ADDEND;
-      #define DELTA_IK() do {       \
-        delta[A_AXIS] = DELTA_Z(1); \
-        delta[B_AXIS] = DELTA_Z(2); \
-        delta[C_AXIS] = DELTA_Z(3); \
-      } while(0)
+    #if ENABLED(USE_RAW_KINEMATICS)
 
       // Get the raw current position as starting point
-      float raw[ABC] = {
+      float raw[XYZE] = {
         RAW_CURRENT_POSITION(X_AXIS),
         RAW_CURRENT_POSITION(Y_AXIS),
-        RAW_CURRENT_POSITION(Z_AXIS)
+        RAW_CURRENT_POSITION(Z_AXIS),
+        current_position[E_AXIS]
       };
+
+      #define DELTA_VAR raw
+
+      // Delta can inline its kinematics
+      #if ENABLED(DELTA)
+        #define DELTA_IK() DELTA_RAW_IK()
+      #else
+        #define DELTA_IK() inverse_kinematics(raw)
+      #endif
 
     #else
 
-      #define DELTA_E logical[E_AXIS]
-      #define DELTA_NEXT(ADDEND) LOOP_XYZE(i) logical[i] += ADDEND;
+      // Get the logical current position as starting point
+      float logical[XYZE];
+      memcpy(logical, current_position, sizeof(logical));
 
+      #define DELTA_VAR logical
+
+      // Delta can inline its kinematics
       #if ENABLED(DELTA)
         #define DELTA_IK() DELTA_LOGICAL_IK()
       #else
         #define DELTA_IK() inverse_kinematics(logical)
       #endif
 
-      // Get the logical current position as starting point
-      LOOP_XYZE(i) logical[i] = current_position[i];
-
     #endif
 
     #if ENABLED(USE_DELTA_IK_INTERPOLATION)
 
-      // Get the starting delta for interpolation
-      if (segments >= 2) inverse_kinematics(logical);
+      // Only interpolate XYZ. Advance E normally.
+      #define DELTA_NEXT(ADDEND) LOOP_XYZ(i) DELTA_VAR[i] += ADDEND;
 
+      // Get the starting delta if interpolation is possible
+      if (segments >= 2) DELTA_IK();
+
+      // Loop using decrement
       for (uint16_t s = segments + 1; --s;) {
-        if (s > 1) {
+        // Are there at least 2 moves left?
+        if (s >= 2) {
           // Save the previous delta for interpolation
           float prev_delta[ABC] = { delta[A_AXIS], delta[B_AXIS], delta[C_AXIS] };
 
           // Get the delta 2 segments ahead (rather than the next)
           DELTA_NEXT(segment_distance[i] + segment_distance[i]);
+
+          // Advance E normally
+          DELTA_VAR[E_AXIS] += segment_distance[E_AXIS];
+
+          // Get the exact delta for the move after this
           DELTA_IK();
 
           // Move to the interpolated delta position first
@@ -8193,33 +8269,43 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
             (prev_delta[A_AXIS] + delta[A_AXIS]) * 0.5,
             (prev_delta[B_AXIS] + delta[B_AXIS]) * 0.5,
             (prev_delta[C_AXIS] + delta[C_AXIS]) * 0.5,
-            logical[E_AXIS], _feedrate_mm_s, active_extruder
+            DELTA_VAR[E_AXIS], _feedrate_mm_s, active_extruder
           );
+
+          // Advance E once more for the next move
+          DELTA_VAR[E_AXIS] += segment_distance[E_AXIS];
 
           // Do an extra decrement of the loop
           --s;
         }
         else {
-          // Get the last segment delta (only when segments is odd)
-          DELTA_NEXT(segment_distance[i])
+          // Get the last segment delta. (Used when segments is odd)
+          DELTA_NEXT(segment_distance[i]);
+          DELTA_VAR[E_AXIS] += segment_distance[E_AXIS];
           DELTA_IK();
         }
 
         // Move to the non-interpolated position
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_E, _feedrate_mm_s, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_VAR[E_AXIS], _feedrate_mm_s, active_extruder);
       }
 
     #else
 
+      #define DELTA_NEXT(ADDEND) LOOP_XYZE(i) DELTA_VAR[i] += ADDEND;
+
       // For non-interpolated delta calculate every segment
       for (uint16_t s = segments + 1; --s;) {
-        DELTA_NEXT(segment_distance[i])
+        DELTA_NEXT(segment_distance[i]);
         DELTA_IK();
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_VAR[E_AXIS], _feedrate_mm_s, active_extruder);
       }
 
     #endif
 
+    // Since segment_distance is only approximate,
+    // the final move must be to the exact destination.
+    inverse_kinematics(ltarget);
+    planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], ltarget[E_AXIS], _feedrate_mm_s, active_extruder);
     return true;
   }
 
@@ -8554,7 +8640,7 @@ void prepare_move_to_destination() {
     cartes[Y_AXIS] = a_sin + b_sin + SCARA_OFFSET_Y;  //theta+phi
 
     /*
-      SERIAL_ECHOPAIR("Angle a=", a);
+      SERIAL_ECHOPAIR("SCARA FK Angle a=", a);
       SERIAL_ECHOPAIR(" b=", b);
       SERIAL_ECHOPAIR(" a_sin=", a_sin);
       SERIAL_ECHOPAIR(" a_cos=", a_cos);
