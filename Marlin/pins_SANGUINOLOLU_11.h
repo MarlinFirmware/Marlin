@@ -56,7 +56,7 @@
 #if IS_MELZI
   #define LED_PIN          27 // On some broken versions of the Sanguino libraries the pin definitions are wrong, so LED_PIN needs to be 28. But you should upgrade your Sanguino libraries! See #368.
 #elif MB(STB_11)
-  #define LCD_PIN_BL       17 // LCD backlight LED
+  #define LCD_BACKLIGHT_PIN 17 // LCD backlight LED
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
@@ -173,7 +173,7 @@
   // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0             30
   #define DOGLCD_CS             17
-  #define LCD_PIN_BL            28 // backlight LED on PA3
+  #define LCD_BACKLIGHT_PIN     28 // backlight LED on PA3
   // GLCD features
   #define LCD_CONTRAST           1
   // Uncomment screen orientation
