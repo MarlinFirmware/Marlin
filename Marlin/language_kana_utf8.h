@@ -150,6 +150,8 @@
 #define MSG_INIT_SDCARD                     "SDカードサイヨミコミ"             // "Init. SD card"
 #define MSG_CNG_SDCARD                      "SDカードコウカン"               // "Change SD card"
 #define MSG_ZPROBE_OUT                      "Zプローブ ベッドガイ"            // "Z probe out. bed"
+#define MSG_BLTOUCH_SELFTEST                "BLTouch ジコシンダン"          // "BLTouch Self-Test"
+#define MSG_BLTOUCH_RESET                   "BLTouch リセット"             // "Reset BLTouch"
 #define MSG_HOME                            "サキニ"                      // "Home" // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "ヲフッキサセテクダサイ"           // "first"
 #define MSG_ZPROBE_ZOFFSET                  "Zオフセット"                   // "Z Offset"
@@ -164,6 +166,7 @@
 #define MSG_ERR_MINTEMP                     "エラー:サイテイオンミマン"          // "Err: MINTEMP"
 #define MSG_ERR_MAXTEMP_BED                 "エラー:ベッド サイコウオンチョウカ"    // "Err: MAXTEMP BED"
 #define MSG_ERR_MINTEMP_BED                 "エラー:ベッド サイテイオンミマン"     // "Err: MINTEMP BED"
+#define MSG_ERR_Z_HOMING                    MSG_HOME " " MSG_X MSG_Y " " MSG_FIRST // "G28 Z Forbidden"
 #define MSG_HALTED                          "プリンターハテイシシマシタ"         // "PRINTER HALTED"
 #define MSG_PLEASE_RESET                    "リセットシテクダサイ"              // "Please reset"
 #define MSG_SHORT_DAY                       "d"                          // One character only
