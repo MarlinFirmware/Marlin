@@ -281,8 +281,8 @@
       #define KILL_PIN         31
 
       #if ENABLED(TEMP_STAT_LEDS)
-        #define STAT_LED_RED   32
-        #define STAT_LED_BLUE  35
+        #define STAT_LED_RED_PIN   32
+        #define STAT_LED_BLUE_PIN  35
       #endif
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #define BTN_EN1 35  // reverse if the encoder turns the wrong way.
