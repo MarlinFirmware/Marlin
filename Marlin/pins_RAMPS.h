@@ -240,7 +240,7 @@
       #define KILL_PIN 41
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
-        #define LCD_PIN_BL 39
+        #define LCD_BACKLIGHT_PIN 39
       #endif
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
@@ -293,13 +293,13 @@
       #define BEEPER_PIN 23
       #define DOGLCD_CS 29
       #define DOGLCD_A0 27
-      #define LCD_PIN_BL 33
+      #define LCD_BACKLIGHT_PIN 33
     #elif ENABLED(MINIPANEL)
       #define BEEPER_PIN 42
       // Pins for DOGM SPI LCD Support
       #define DOGLCD_A0  44
       #define DOGLCD_CS  66
-      #define LCD_PIN_BL 65 // backlight LED on A11/D65
+      #define LCD_BACKLIGHT_PIN 65 // backlight LED on A11/D65
       #define SDSS   53
 
       #define KILL_PIN 64

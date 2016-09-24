@@ -134,7 +134,7 @@
   // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0        47
   #define DOGLCD_CS        45
-  #define LCD_PIN_BL       44  // backlight LED on PA3
+  #define LCD_BACKLIGHT_PIN 44  // backlight LED on PA3
 
   #define KILL_PIN         12
   // GLCD features
