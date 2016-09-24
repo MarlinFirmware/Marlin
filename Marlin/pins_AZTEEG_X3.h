@@ -42,15 +42,15 @@
   #define BTN_ENC           12
 
   #if ENABLED(TEMP_STAT_LEDS)
-    #undef STAT_LED_RED
-    #undef STAT_LED_BLUE
-    #define STAT_LED_RED    64
-    #define STAT_LED_BLUE   63
+    #undef STAT_LED_RED_PIN
+    #undef STAT_LED_BLUE_PIN
+    #define STAT_LED_RED_PIN    64
+    #define STAT_LED_BLUE_PIN   63
   #endif
 
 #elif ENABLED(TEMP_STAT_LEDS)
 
-  #define STAT_LED_RED       6
-  #define STAT_LED_BLUE     11
+  #define STAT_LED_RED_PIN       6
+  #define STAT_LED_BLUE_PIN     11
 
 #endif
