@@ -723,6 +723,13 @@
 #endif
 
 /**
+ * Temperature status LEDs
+ */
+#if ENABLED(TEMP_STAT_LEDS) && !(PIN_EXISTS(STAT_LED_RED) && PIN_EXISTS(STAT_LED_BLUE))
+  #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN and STAT_LED_BLUE_PIN."
+#endif
+
+/**
  * Basic 2-nozzle duplication mode
  */
 #if ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
