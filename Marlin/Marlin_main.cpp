@@ -7640,7 +7640,7 @@ void process_next_command() {
       #endif
 
       #if HAS_BED_PROBE
-        case 851:
+        case 851: // Set Z Probe Z Offset
           gcode_M851();
           break;
       #endif // HAS_BED_PROBE

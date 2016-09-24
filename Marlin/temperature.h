@@ -65,10 +65,10 @@ class Temperature {
       static float redundant_temperature;
     #endif
 
-    static unsigned char soft_pwm_bed;
+    static uint8_t soft_pwm_bed;
 
     #if ENABLED(FAN_SOFT_PWM)
-      static unsigned char fanSpeedSoftPwm[FAN_COUNT];
+      static uint8_t fanSpeedSoftPwm[FAN_COUNT];
     #endif
 
     #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
@@ -209,10 +209,10 @@ class Temperature {
       static millis_t next_auto_fan_check_ms;
     #endif
 
-    static unsigned char soft_pwm[HOTENDS];
+    static uint8_t soft_pwm[HOTENDS];
 
     #if ENABLED(FAN_SOFT_PWM)
-      static unsigned char soft_pwm_fan[FAN_COUNT];
+      static uint8_t soft_pwm_fan[FAN_COUNT];
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
