@@ -48,7 +48,7 @@
   #error "You are using an old Configuration_adv.h file, update it before building Marlin."
 #endif
 
- /**
+/**
  * Warnings for old configurations
  */
 #if WATCH_TEMP_PERIOD > 500
@@ -130,9 +130,11 @@
 #elif defined(MIN_Z_HEIGHT_FOR_HOMING)
   #error "MIN_Z_HEIGHT_FOR_HOMING is now Z_HOMING_HEIGHT. Please update your configuration."
 #elif defined(Z_RAISE_BEFORE_PROBING) || defined(Z_RAISE_AFTER_PROBING)
-  #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_PROBE_DEPLOY_HEIGHT instead."
+  #error "Z_RAISE_(BEFORE|AFTER)_PROBING are deprecated. Use Z_CLEARANCE_DEPLOY_PROBE instead."
 #elif defined(Z_RAISE_PROBE_DEPLOY_STOW) || defined(Z_RAISE_BETWEEN_PROBINGS)
-  #error "Z_RAISE_PROBE_DEPLOY_STOW and Z_RAISE_BETWEEN_PROBINGS are now Z_PROBE_DEPLOY_HEIGHT and Z_PROBE_TRAVEL_HEIGHT Please update your configuration."
+  #error "Z_RAISE_PROBE_DEPLOY_STOW and Z_RAISE_BETWEEN_PROBINGS are now Z_CLEARANCE_DEPLOY_PROBE and Z_CLEARANCE_BETWEEN_PROBES. Please update your configuration."
+#elif defined(Z_PROBE_DEPLOY_HEIGHT) || defined(Z_PROBE_TRAVEL_HEIGHT)
+  #error "Z_PROBE_DEPLOY_HEIGHT and Z_PROBE_TRAVEL_HEIGHT are now Z_CLEARANCE_DEPLOY_PROBE and Z_CLEARANCE_BETWEEN_PROBES. Please update your configuration."
 #elif !defined(MIN_STEPS_PER_SEGMENT)
   #error Please replace "const int dropsegments" with "#define MIN_STEPS_PER_SEGMENT" (and increase by 1) in Configuration_adv.h.
 #elif defined(PREVENT_DANGEROUS_EXTRUDE)
@@ -425,14 +427,14 @@
   /**
    * Make sure Z raise values are set
    */
-  #if !defined(Z_PROBE_DEPLOY_HEIGHT)
-    #error "You must set Z_PROBE_DEPLOY_HEIGHT in your configuration."
-  #elif !defined(Z_PROBE_TRAVEL_HEIGHT)
-    #error "You must set Z_PROBE_TRAVEL_HEIGHT in your configuration."
-  #elif Z_PROBE_DEPLOY_HEIGHT < 0
-    #error "Probes need Z_PROBE_DEPLOY_HEIGHT >= 0."
-  #elif Z_PROBE_TRAVEL_HEIGHT < 0
-    #error "Probes need Z_PROBE_TRAVEL_HEIGHT >= 0."
+  #if !defined(Z_CLEARANCE_DEPLOY_PROBE)
+    #error "You must define Z_CLEARANCE_DEPLOY_PROBE in your configuration."
+  #elif !defined(Z_CLEARANCE_BETWEEN_PROBES)
+    #error "You must define Z_CLEARANCE_BETWEEN_PROBES in your configuration."
+  #elif Z_CLEARANCE_DEPLOY_PROBE < 0
+    #error "Probes need Z_CLEARANCE_DEPLOY_PROBE >= 0."
+  #elif Z_CLEARANCE_BETWEEN_PROBES < 0
+    #error "Probes need Z_CLEARANCE_BETWEEN_PROBES >= 0."
   #endif
 
 #else
@@ -446,6 +448,13 @@
     #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
 
+#endif
+
+/**
+ * Homing Bump
+ */
+#if X_HOME_BUMP_MM < 0 || Y_HOME_BUMP_MM < 0 || Z_HOME_BUMP_MM < 0
+  #error "[XYZ]_HOME_BUMP_MM must be greater than or equal to 0."
 #endif
 
 /**

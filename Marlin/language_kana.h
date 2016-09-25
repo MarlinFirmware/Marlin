@@ -107,18 +107,15 @@
   #define MSG_VZ_JERK                       "Z\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Zｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vz-jerk")
   #define MSG_VE_JERK                       "\xb4\xb8\xbd\xc4\xd9\xb0\xc0\xde\xb0\x20\xd4\xb8\xc4\xde"         // "ｴｸｽﾄﾙｰﾀﾞｰ ﾔｸﾄﾞ" ("Ve-jerk")
   #define MSG_VMAX                          "\xbb\xb2\xc0\xde\xb2\xb5\xb8\xd8\xbf\xb8\xc4\xde "                // "ｻｲﾀﾞｲｵｸﾘｿｸﾄﾞ " ("Vmax ")
+  #define MSG_VMIN                          "\xbb\xb2\xbc\xae\xb3\xb5\xb8\xd8\xbf\xb8\xc4\xde"                 // "ｻｲｼｮｳｵｸﾘｿｸﾄﾞ" ("Vmin")
+  #define MSG_VTRAV_MIN                     "\xbb\xb2\xbc\xae\xb3\xb2\xc4\xde\xb3\xbf\xb8\xc4\xde"             // "ｻｲｼｮｳｲﾄﾞｳｿｸﾄﾞ" ("VTrav min")
+  #define MSG_AMAX                          "\xbb\xb2\xc0\xde\xb2\xb6\xbf\xb8\xc4\xde "                        // "ｻｲﾀﾞｲｶｿｸﾄﾞ " ("Amax ")
 #else
   #define MSG_ACC                           "\xb6\xbf\xb8\xc4\xde"                                             // "ｶｿｸﾄﾞ" ("Accel")
   #define MSG_VXY_JERK                      "XY\xbc\xde\xb8\x20\xd4\xb8\xc4\xde"                               // "XYｼﾞｸ ﾔｸﾄﾞ" ("Vxy-jerk")
   #define MSG_VZ_JERK                       "Z\xbc\xde\xb8\x20\xd4\xb8\xc4\xde"                                // "Zｼﾞｸ ﾔｸﾄﾞ" ("Vz-jerk")
   #define MSG_VE_JERK                       "E\x20\xd4\xb8\xc4\xde"                                            // "E ﾔｸﾄﾞ" ("Ve-jerk")
   #define MSG_VMAX                          "max\xb5\xb8\xd8\xbf\xb8\xc4\xde "                                 // "maxｵｸﾘｿｸﾄﾞ" ("Vmax ")
-#endif
-#if LCD_WIDTH > 19
-  #define MSG_VMIN                          "\xbb\xb2\xbc\xae\xb3\xb5\xb8\xd8\xbf\xb8\xc4\xde"                 // "ｻｲｼｮｳｵｸﾘｿｸﾄﾞ" ("Vmin")
-  #define MSG_VTRAV_MIN                     "\xbb\xb2\xbc\xae\xb3\xb2\xc4\xde\xb3\xbf\xb8\xc4\xde"             // "ｻｲｼｮｳｲﾄﾞｳｿｸﾄﾞ" ("VTrav min")
-  #define MSG_AMAX                          "\xbb\xb2\xc0\xde\xb2\xb6\xbf\xb8\xc4\xde "                        // "ｻｲﾀﾞｲｶｿｸﾄﾞ " ("Amax ")
-#else
   #define MSG_VMIN                          "min\xb5\xb8\xd8\xbf\xb8\xc4\xde"                                  // "minｵｸﾘｿｸﾄﾞ" ("Vmin")
   #define MSG_VTRAV_MIN                     "min\xb2\xc4\xde\xb3\xbf\xb8\xc4\xde"                              // "minｲﾄﾞｳｿｸﾄﾞ" ("VTrav min")
   #define MSG_AMAX                          "max\xb6\xbf\xb8 "                                                 // "maxｶｿｸ " ("Amax ")
@@ -180,6 +177,12 @@
 #define MSG_INIT_SDCARD                     "SD\xb6\xb0\xc4\xde\xbb\xb2\xd6\xd0\xba\xd0"                       // "SDｶｰﾄﾞｻｲﾖﾐｺﾐ" ("Init. SD card")
 #define MSG_CNG_SDCARD                      "SD\xb6\xb0\xc4\xde\xba\xb3\xb6\xdd"                               // "SDｶｰﾄﾞｺｳｶﾝ" ("Change SD card")
 #define MSG_ZPROBE_OUT                      "Z\xcc\xdf\xdb\xb0\xcc\xde\x20\xcd\xde\xaf\xc4\xde\xb6\xde\xb2"    // "Zﾌﾟﾛｰﾌﾞ ﾍﾞｯﾄﾞｶﾞｲ" ("Z probe out. bed")
+#if LCD_WIDTH > 19
+  #define MSG_BLTOUCH_SELFTEST              "BLTouch \xbc\xde\xba\xbc\xdd\xc0\xde\xdd"                         // "BLTouch ｼﾞｺｼﾝﾀﾞﾝ" ("BLTouch Self-Test")
+#else
+  #define MSG_BLTOUCH_SELFTEST              "BLTouch \xbe\xd9\xcc\xc3\xbd\xc4"                                 // "BLTouch ｾﾙﾌﾃｽﾄ" ("BLTouch Self-Test")
+#endif
+#define MSG_BLTOUCH_RESET                   "BLTouch \xd8\xbe\xaf\xc4"                                         // "BLTouch ﾘｾｯﾄ" ("Reset BLTouch")
 #define MSG_HOME                            "\xbb\xb7\xc6"                                                     // "ｻｷﾆ" ("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #if LCD_WIDTH > 19
   #define MSG_FIRST                         "\xa6\xcc\xaf\xb7\xbb\xbe\xc3\xb8\xc0\xde\xbb\xb2"                 // "ｦﾌｯｷｻｾﾃｸﾀﾞｻｲ" ("first")
@@ -211,6 +214,7 @@
   #define MSG_ERR_MAXTEMP_BED               "\xb4\xd7\xb0:\xcd\xde\xaf\xc4\xde\x20\xbb\xb2\xba\xb3\xb5\xdd"                 // "ｴﾗｰ:ﾍﾞｯﾄﾞ ｻｲｺｳｵﾝ" ("Err: MAXTEMP BED")
   #define MSG_ERR_MINTEMP_BED               "\xb4\xd7\xb0:\xcd\xde\xaf\xc4\xde\x20\xbb\xb2\xc3\xb2\xb5\xdd"                 // "ｴﾗｰ:ﾍﾞｯﾄﾞ ｻｲﾃｲｵﾝ" ("Err: MINTEMP BED")
 #endif
+#define MSG_ERR_Z_HOMING                    MSG_HOME " " MSG_X MSG_Y " " MSG_FIRST                             // "ｻｷﾆ XY ｦﾌｯｷｻｾﾃｸﾀﾞｻｲ" or "ｻｷﾆ XY ｦﾌｯｷｻｾﾖ" ("G28 Z Forbidden")
 #define MSG_HALTED                          "\xcc\xdf\xd8\xdd\xc0\xb0\xca\xc3\xb2\xbc\xbc\xcf\xbc\xc0"         // "ﾌﾟﾘﾝﾀｰﾊﾃｲｼｼﾏｼﾀ" ("PRINTER HALTED")
 #define MSG_PLEASE_RESET                    "\xd8\xbe\xaf\xc4\xbc\xc3\xb8\xc0\xde\xbb\xb2"                     // "ﾘｾｯﾄｼﾃｸﾀﾞｻｲ" ("Please reset")
 #define MSG_SHORT_DAY                       "d"                                                                // One character only

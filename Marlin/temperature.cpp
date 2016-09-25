@@ -64,10 +64,10 @@ int   Temperature::current_temperature_raw[HOTENDS] = { 0 },
   float Temperature::redundant_temperature = 0.0;
 #endif
 
-unsigned char Temperature::soft_pwm_bed;
+uint8_t Temperature::soft_pwm_bed;
 
 #if ENABLED(FAN_SOFT_PWM)
-  unsigned char Temperature::fanSpeedSoftPwm[FAN_COUNT];
+  uint8_t Temperature::fanSpeedSoftPwm[FAN_COUNT];
 #endif
 
 #if ENABLED(PIDTEMP)
@@ -188,10 +188,10 @@ int Temperature::minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_RAW_LO_TEMP ,
   millis_t Temperature::next_auto_fan_check_ms = 0;
 #endif
 
-unsigned char Temperature::soft_pwm[HOTENDS];
+uint8_t Temperature::soft_pwm[HOTENDS];
 
 #if ENABLED(FAN_SOFT_PWM)
-  unsigned char Temperature::soft_pwm_fan[FAN_COUNT];
+  uint8_t Temperature::soft_pwm_fan[FAN_COUNT];
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -482,7 +482,7 @@ int Temperature::getHeaterPower(int heater) {
     for (uint8_t f = 0; f < COUNT(fanPin); f++) {
       int8_t pin = fanPin[f];
       if (pin >= 0 && !TEST(fanDone, fanBit[f])) {
-        unsigned char newFanSpeed = TEST(fanState, fanBit[f]) ? EXTRUDER_AUTO_FAN_SPEED : 0;
+        uint8_t newFanSpeed = TEST(fanState, fanBit[f]) ? EXTRUDER_AUTO_FAN_SPEED : 0;
         // this idiom allows both digital and PWM fan outputs (see M42 handling).
         digitalWrite(pin, newFanSpeed);
         analogWrite(pin, newFanSpeed);
@@ -1286,9 +1286,7 @@ void Temperature::disable_all_heaters() {
   }
 
   #if HAS_TEMP_HOTEND
-    setTargetHotend(0, 0);
-    soft_pwm[0] = 0;
-    WRITE_HEATER_0P(LOW); // Should HEATERS_PARALLEL apply here? Then change to DISABLE_HEATER(0)
+    DISABLE_HEATER(0);
   #endif
 
   #if HOTENDS > 1 && HAS_TEMP_1
@@ -1414,24 +1412,24 @@ ISR(TIMER0_COMPB_vect) { Temperature::isr(); }
 
 void Temperature::isr() {
 
-  static unsigned char temp_count = 0;
+  static uint8_t temp_count = 0;
   static TempState temp_state = StartupDelay;
-  static unsigned char pwm_count = _BV(SOFT_PWM_SCALE);
+  static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
 
   // Static members for each heater
   #if ENABLED(SLOW_PWM_HEATERS)
-    static unsigned char slow_pwm_count = 0;
+    static uint8_t slow_pwm_count = 0;
     #define ISR_STATICS(n) \
-      static unsigned char soft_pwm_ ## n; \
-      static unsigned char state_heater_ ## n = 0; \
-      static unsigned char state_timer_heater_ ## n = 0
+      static uint8_t soft_pwm_ ## n; \
+      static uint8_t state_heater_ ## n = 0; \
+      static uint8_t state_timer_heater_ ## n = 0
   #else
-    #define ISR_STATICS(n) static unsigned char soft_pwm_ ## n
+    #define ISR_STATICS(n) static uint8_t soft_pwm_ ## n
   #endif
 
   // Statics per heater
   ISR_STATICS(0);
-  #if (HOTENDS > 1) || ENABLED(HEATERS_PARALLEL)
+  #if HOTENDS > 1
     ISR_STATICS(1);
     #if HOTENDS > 2
       ISR_STATICS(2);
@@ -1450,15 +1448,11 @@ void Temperature::isr() {
 
   #if DISABLED(SLOW_PWM_HEATERS)
     /**
-     * standard PWM modulation
+     * Standard PWM modulation
      */
     if (pwm_count == 0) {
       soft_pwm_0 = soft_pwm[0];
-      if (soft_pwm_0 > 0) {
-        WRITE_HEATER_0(1);
-      }
-      else WRITE_HEATER_0P(0); // If HEATERS_PARALLEL should apply, change to WRITE_HEATER_0
-
+      WRITE_HEATER_0(soft_pwm_0 > 0 ? 1 : 0);
       #if HOTENDS > 1
         soft_pwm_1 = soft_pwm[1];
         WRITE_HEATER_1(soft_pwm_1 > 0 ? 1 : 0);
@@ -1535,7 +1529,7 @@ void Temperature::isr() {
       #define MIN_STATE_TIME 16 // MIN_STATE_TIME * 65.5 = time in milliseconds
     #endif
 
-    // Macros for Slow PWM timer logic - HEATERS_PARALLEL applies
+    // Macros for Slow PWM timer logic
     #define _SLOW_PWM_ROUTINE(NR, src) \
       soft_pwm_ ## NR = src; \
       if (soft_pwm_ ## NR > 0) { \
