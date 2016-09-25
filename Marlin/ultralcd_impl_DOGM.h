@@ -221,13 +221,11 @@ void lcd_printPGM(const char* str) {
 static void lcd_implementation_init() {
 
   #if PIN_EXISTS(LCD_BACKLIGHT) // Enable LCD backlight
-    pinMode(LCD_BACKLIGHT_PIN, OUTPUT);
-    digitalWrite(LCD_BACKLIGHT_PIN, HIGH);
+    OUT_WRITE(LCD_BACKLIGHT_PIN, HIGH);
   #endif
 
   #if PIN_EXISTS(LCD_RESET)
-    pinMode(LCD_RESET_PIN, OUTPUT);
-    digitalWrite(LCD_RESET_PIN, HIGH);
+    OUT_WRITE(LCD_RESET_PIN, HIGH);
   #endif
 
   #if DISABLED(MINIPANEL) // setContrast not working for Mini Panel

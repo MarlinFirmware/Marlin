@@ -782,7 +782,7 @@ void setup_killpin() {
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
   void setup_filrunoutpin() {
-    pinMode(FIL_RUNOUT_PIN, INPUT);
+    SET_INPUT(FIL_RUNOUT_PIN);
     #if ENABLED(ENDSTOPPULLUP_FIL_RUNOUT)
       WRITE(FIL_RUNOUT_PIN, HIGH);
     #endif
@@ -860,10 +860,9 @@ void servo_init() {
  */
 #if HAS_STEPPER_RESET
   void disableStepperDrivers() {
-    pinMode(STEPPER_RESET_PIN, OUTPUT);
-    digitalWrite(STEPPER_RESET_PIN, LOW);  // drive it down to hold in reset motor driver chips
+    OUT_WRITE(STEPPER_RESET_PIN, LOW);  // drive it down to hold in reset motor driver chips
   }
-  void enableStepperDrivers() { pinMode(STEPPER_RESET_PIN, INPUT); }  // set to input, which allows it to be pulled high by pullups
+  void enableStepperDrivers() { SET_INPUT(STEPPER_RESET_PIN); }  // set to input, which allows it to be pulled high by pullups
 #endif
 
 #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
@@ -9194,8 +9193,7 @@ void setup() {
   #endif
 
   #if ENABLED(Z_PROBE_SLED) && PIN_EXISTS(SLED)
-    pinMode(SLED_PIN, OUTPUT);
-    digitalWrite(SLED_PIN, LOW); // turn it off
+    OUT_WRITE(SLED_PIN, LOW); // turn it off
   #endif // Z_PROBE_SLED
 
   setup_homepin();

@@ -1155,10 +1155,10 @@ void Stepper::report_positions() {
 
   // From Arduino DigitalPotControl example
   void Stepper::digitalPotWrite(int address, int value) {
-    digitalWrite(DIGIPOTSS_PIN, LOW); // take the SS pin low to select the chip
+    WRITE(DIGIPOTSS_PIN, LOW); // take the SS pin low to select the chip
     SPI.transfer(address); //  send in the address and value via SPI:
     SPI.transfer(value);
-    digitalWrite(DIGIPOTSS_PIN, HIGH); // take the SS pin high to de-select the chip:
+    WRITE(DIGIPOTSS_PIN, HIGH); // take the SS pin high to de-select the chip:
     //delay(10);
   }
 
@@ -1275,21 +1275,21 @@ void Stepper::microstep_mode(uint8_t driver, uint8_t stepping_mode) {
 void Stepper::microstep_readings() {
   SERIAL_PROTOCOLLNPGM("MS1,MS2 Pins");
   SERIAL_PROTOCOLPGM("X: ");
-  SERIAL_PROTOCOL(digitalRead(X_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(X_MS2_PIN));
+  SERIAL_PROTOCOL(READ(X_MS1_PIN));
+  SERIAL_PROTOCOLLN(READ(X_MS2_PIN));
   SERIAL_PROTOCOLPGM("Y: ");
-  SERIAL_PROTOCOL(digitalRead(Y_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(Y_MS2_PIN));
+  SERIAL_PROTOCOL(READ(Y_MS1_PIN));
+  SERIAL_PROTOCOLLN(READ(Y_MS2_PIN));
   SERIAL_PROTOCOLPGM("Z: ");
-  SERIAL_PROTOCOL(digitalRead(Z_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(Z_MS2_PIN));
+  SERIAL_PROTOCOL(READ(Z_MS1_PIN));
+  SERIAL_PROTOCOLLN(READ(Z_MS2_PIN));
   SERIAL_PROTOCOLPGM("E0: ");
-  SERIAL_PROTOCOL(digitalRead(E0_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(E0_MS2_PIN));
+  SERIAL_PROTOCOL(READ(E0_MS1_PIN));
+  SERIAL_PROTOCOLLN(READ(E0_MS2_PIN));
   #if HAS_MICROSTEPS_E1
     SERIAL_PROTOCOLPGM("E1: ");
-    SERIAL_PROTOCOL(digitalRead(E1_MS1_PIN));
-    SERIAL_PROTOCOLLN(digitalRead(E1_MS2_PIN));
+    SERIAL_PROTOCOL(READ(E1_MS1_PIN));
+    SERIAL_PROTOCOLLN(READ(E1_MS2_PIN));
   #endif
 }
 
