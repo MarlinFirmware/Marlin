@@ -169,10 +169,8 @@
 
       #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
 
-      #if ENABLED(TEMP_STAT_LEDS)
-        #define STAT_LED_RED      22
-        #define STAT_LED_BLUE     32
-      #endif
+      #define STAT_LED_RED_PIN 22
+      #define STAT_LED_BLUE_PIN 32
 
     #else
 

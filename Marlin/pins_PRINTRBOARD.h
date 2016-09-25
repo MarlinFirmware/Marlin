@@ -131,8 +131,8 @@
 
   #define SDSS 45
   #define SD_DETECT_PIN -1 // FastIO (Manual says 72 I'm not certain cause I can't test)
-  #if ENABLED(TEMP_STAT_LEDS)
-    #define STAT_LED_RED      12 //Non-FastIO
-    #define STAT_LED_BLUE     10 //Non-FastIO
-  #endif
+
+  #define STAT_LED_RED_PIN  12 //Non-FastIO
+  #define STAT_LED_BLUE_PIN 10 //Non-FastIO
+
 #endif
