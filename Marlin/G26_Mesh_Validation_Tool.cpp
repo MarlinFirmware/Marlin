@@ -649,9 +649,9 @@ debug_current_and_destination(" in move_to() after adjusting Z");
   destination[Z_AXIS] = z;	// We know the last_z==z or we wouldn't be in this block of code.
   destination[E_AXIS] += e_delta;
 
-debug_current_and_destination(" in move_to() doing normal move");
+//debug_current_and_destination(" in move_to() doing normal move");
   mesh_buffer_line( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0 );
-SERIAL_ECHOPGM(" end of move_to()\n");
+//SERIAL_ECHOPGM(" end of move_to()\n");
 
 //  stepper.synchronize();
 //  set_destination_to_current();
