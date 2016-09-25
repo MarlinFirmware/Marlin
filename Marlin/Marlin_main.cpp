@@ -6514,18 +6514,19 @@ inline void gcode_M503() {
 inline void gcode_M907() {
   #if HAS_DIGIPOTSS
     LOOP_XYZE(i)
-      if (code_seen(axis_codes[i])) stepper.digipot_current(i, code_value_int());
+    if (code_seen(axis_codes[i])) stepper.digipot_current(i, code_value_int());
     if (code_seen('B')) stepper.digipot_current(4, code_value_int());
     if (code_seen('S')) for (int i = 0; i <= 4; i++) stepper.digipot_current(i, code_value_int());
-  #endif
-  #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-    if (code_seen('X')) stepper.digipot_current(0, code_value_int());
-  #endif
-  #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-    if (code_seen('Z')) stepper.digipot_current(1, code_value_int());
-  #endif
-  #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-    if (code_seen('E')) stepper.digipot_current(2, code_value_int());
+  #elif HAS_MOTOR_CURRENT_PWM
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+      if (code_seen('X')) stepper.digipot_current(0, code_value_int());
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+      if (code_seen('Z')) stepper.digipot_current(1, code_value_int());
+    #endif
+    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+      if (code_seen('E')) stepper.digipot_current(2, code_value_int());
+    #endif
   #endif
   #if ENABLED(DIGIPOT_I2C)
     // this one uses actual amps in floating point
