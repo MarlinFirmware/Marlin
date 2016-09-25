@@ -115,5 +115,5 @@
 //
 // Misc. Functions
 //
-#define STAT_LED_BLUE      -1
-#define STAT_LED_RED       31
+#define STAT_LED_BLUE_PIN  -1
+#define STAT_LED_RED_PIN   31

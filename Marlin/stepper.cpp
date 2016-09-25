@@ -733,19 +733,27 @@ void Stepper::isr() {
 
 void Stepper::init() {
 
-  digipot_init(); //Initialize Digipot Motor Current
-  microstep_init(); //Initialize Microstepping Pins
+  // Init Digipot Motor Current
+  #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
+    digipot_init();
+  #endif
 
-  // initialise TMC Steppers
+  // Init Microstepping Pins
+  #if HAS_MICROSTEPS
+    microstep_init();
+  #endif
+
+  // Init TMC Steppers
   #if ENABLED(HAVE_TMCDRIVER)
     tmc_init();
   #endif
-    // initialise L6470 Steppers
+
+  // Init L6470 Steppers
   #if ENABLED(HAVE_L6470DRIVER)
     L6470_init();
   #endif
 
-  // Initialize Dir Pins
+  // Init Dir Pins
   #if HAS_X_DIR
     X_DIR_INIT;
   #endif
@@ -777,8 +785,7 @@ void Stepper::init() {
     E3_DIR_INIT;
   #endif
 
-  //Initialize Enable Pins - steppers default to disabled.
-
+  // Init Enable Pins - steppers default to disabled.
   #if HAS_X_ENABLE
     X_ENABLE_INIT;
     if (!X_ENABLE_ON) X_ENABLE_WRITE(HIGH);
@@ -787,7 +794,6 @@ void Stepper::init() {
       if (!X_ENABLE_ON) X2_ENABLE_WRITE(HIGH);
     #endif
   #endif
-
   #if HAS_Y_ENABLE
     Y_ENABLE_INIT;
     if (!Y_ENABLE_ON) Y_ENABLE_WRITE(HIGH);
@@ -796,7 +802,6 @@ void Stepper::init() {
       if (!Y_ENABLE_ON) Y2_ENABLE_WRITE(HIGH);
     #endif
   #endif
-
   #if HAS_Z_ENABLE
     Z_ENABLE_INIT;
     if (!Z_ENABLE_ON) Z_ENABLE_WRITE(HIGH);
@@ -805,7 +810,6 @@ void Stepper::init() {
       if (!Z_ENABLE_ON) Z2_ENABLE_WRITE(HIGH);
     #endif
   #endif
-
   #if HAS_E0_ENABLE
     E0_ENABLE_INIT;
     if (!E_ENABLE_ON) E0_ENABLE_WRITE(HIGH);
@@ -823,9 +827,7 @@ void Stepper::init() {
     if (!E_ENABLE_ON) E3_ENABLE_WRITE(HIGH);
   #endif
 
-  //
-  // Init endstops and pullups here
-  //
+  // Init endstops and pullups
   endstops.init();
 
   #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
@@ -839,7 +841,7 @@ void Stepper::init() {
 
   #define E_AXIS_INIT(NUM) AXIS_INIT(e## NUM, E## NUM, E)
 
-  // Initialize Step Pins
+  // Init Step Pins
   #if HAS_X_STEP
     #if ENABLED(X_DUAL_STEPPER_DRIVERS) || ENABLED(DUAL_X_CARRIAGE)
       X2_STEP_INIT;
@@ -1155,143 +1157,167 @@ void Stepper::report_positions() {
 
   // From Arduino DigitalPotControl example
   void Stepper::digitalPotWrite(int address, int value) {
-    digitalWrite(DIGIPOTSS_PIN, LOW); // take the SS pin low to select the chip
+    WRITE(DIGIPOTSS_PIN, LOW); // take the SS pin low to select the chip
     SPI.transfer(address); //  send in the address and value via SPI:
     SPI.transfer(value);
-    digitalWrite(DIGIPOTSS_PIN, HIGH); // take the SS pin high to de-select the chip:
+    WRITE(DIGIPOTSS_PIN, HIGH); // take the SS pin high to de-select the chip:
     //delay(10);
   }
 
 #endif //HAS_DIGIPOTSS
 
-void Stepper::digipot_init() {
-  #if HAS_DIGIPOTSS
-    const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
+#if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
 
-    SPI.begin();
-    pinMode(DIGIPOTSS_PIN, OUTPUT);
-    for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
-      //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
-      digipot_current(i, digipot_motor_current[i]);
-    }
-  #endif
-  #if HAS_MOTOR_CURRENT_PWM
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-      pinMode(MOTOR_CURRENT_PWM_XY_PIN, OUTPUT);
-      digipot_current(0, motor_current_setting[0]);
-    #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-      pinMode(MOTOR_CURRENT_PWM_Z_PIN, OUTPUT);
-      digipot_current(1, motor_current_setting[1]);
-    #endif
-    #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-      pinMode(MOTOR_CURRENT_PWM_E_PIN, OUTPUT);
-      digipot_current(2, motor_current_setting[2]);
-    #endif
-    //Set timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
-    TCCR5B = (TCCR5B & ~(_BV(CS50) | _BV(CS51) | _BV(CS52))) | _BV(CS50);
-  #endif
-}
-
-void Stepper::digipot_current(uint8_t driver, int current) {
-  #if HAS_DIGIPOTSS
-    const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
-    digitalPotWrite(digipot_ch[driver], current);
-  #elif HAS_MOTOR_CURRENT_PWM
-    #define _WRITE_CURRENT_PWM(P) analogWrite(P, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
-    switch (driver) {
+  void Stepper::digipot_init() {
+    #if HAS_DIGIPOTSS
+      static const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
+      SPI.begin();
+      SET_OUTPUT(DIGIPOTSS_PIN);
+      for (uint8_t i = 0; i < COUNT(digipot_motor_current); i++) {
+        //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
+        digipot_current(i, digipot_motor_current[i]);
+      }
+    #elif HAS_MOTOR_CURRENT_PWM
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
-        case 0: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_XY_PIN); break;
+        SET_OUTPUT(MOTOR_CURRENT_PWM_XY_PIN);
+        digipot_current(0, motor_current_setting[0]);
       #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
-        case 1: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_Z_PIN); break;
+        SET_OUTPUT(MOTOR_CURRENT_PWM_Z_PIN);
+        digipot_current(1, motor_current_setting[1]);
       #endif
       #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
-        case 2: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_E_PIN); break;
+        SET_OUTPUT(MOTOR_CURRENT_PWM_E_PIN);
+        digipot_current(2, motor_current_setting[2]);
       #endif
-    }
-  #else
-    UNUSED(driver);
-    UNUSED(current);
-  #endif
-}
+      //Set timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
+      TCCR5B = (TCCR5B & ~(_BV(CS50) | _BV(CS51) | _BV(CS52))) | _BV(CS50);
+    #endif
+  }
 
-void Stepper::microstep_init() {
-  #if HAS_MICROSTEPS_E1
-    pinMode(E1_MS1_PIN, OUTPUT);
-    pinMode(E1_MS2_PIN, OUTPUT);
-  #endif
+  void Stepper::digipot_current(uint8_t driver, int current) {
+    #if HAS_DIGIPOTSS
+      const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
+      digitalPotWrite(digipot_ch[driver], current);
+    #elif HAS_MOTOR_CURRENT_PWM
+      #define _WRITE_CURRENT_PWM(P) analogWrite(P, 255L * current / (MOTOR_CURRENT_PWM_RANGE))
+      switch (driver) {
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_XY)
+          case 0: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_XY_PIN); break;
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
+          case 1: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_Z_PIN); break;
+        #endif
+        #if PIN_EXISTS(MOTOR_CURRENT_PWM_E)
+          case 2: _WRITE_CURRENT_PWM(MOTOR_CURRENT_PWM_E_PIN); break;
+        #endif
+      }
+    #endif
+  }
 
-  #if HAS_MICROSTEPS
-    pinMode(X_MS1_PIN, OUTPUT);
-    pinMode(X_MS2_PIN, OUTPUT);
-    pinMode(Y_MS1_PIN, OUTPUT);
-    pinMode(Y_MS2_PIN, OUTPUT);
-    pinMode(Z_MS1_PIN, OUTPUT);
-    pinMode(Z_MS2_PIN, OUTPUT);
-    pinMode(E0_MS1_PIN, OUTPUT);
-    pinMode(E0_MS2_PIN, OUTPUT);
-    const uint8_t microstep_modes[] = MICROSTEP_MODES;
+#endif
+
+#if HAS_MICROSTEPS
+
+  /**
+   * Software-controlled Microstepping
+   */
+
+  void Stepper::microstep_init() {
+    SET_OUTPUT(X_MS1_PIN);
+    SET_OUTPUT(X_MS2_PIN);
+    #if HAS_MICROSTEPS_Y
+      SET_OUTPUT(Y_MS1_PIN);
+      SET_OUTPUT(Y_MS2_PIN);
+    #endif
+    #if HAS_MICROSTEPS_Z
+      SET_OUTPUT(Z_MS1_PIN);
+      SET_OUTPUT(Z_MS2_PIN);
+    #endif
+    #if HAS_MICROSTEPS_E0
+      SET_OUTPUT(E0_MS1_PIN);
+      SET_OUTPUT(E0_MS2_PIN);
+    #endif
+    #if HAS_MICROSTEPS_E1
+      SET_OUTPUT(E1_MS1_PIN);
+      SET_OUTPUT(E1_MS2_PIN);
+    #endif
+    static const uint8_t microstep_modes[] = MICROSTEP_MODES;
     for (uint16_t i = 0; i < COUNT(microstep_modes); i++)
       microstep_mode(i, microstep_modes[i]);
-  #endif
-}
+  }
 
-/**
- * Software-controlled Microstepping
- */
+  void Stepper::microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2) {
+    if (ms1 >= 0) switch (driver) {
+      case 0: digitalWrite(X_MS1_PIN, ms1); break;
+      #if HAS_MICROSTEPS_Y
+        case 1: digitalWrite(Y_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_MICROSTEPS_Z
+        case 2: digitalWrite(Z_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_MICROSTEPS_E0
+        case 3: digitalWrite(E0_MS1_PIN, ms1); break;
+      #endif
+      #if HAS_MICROSTEPS_E1
+        case 4: digitalWrite(E1_MS1_PIN, ms1); break;
+      #endif
+    }
+    if (ms2 >= 0) switch (driver) {
+      case 0: digitalWrite(X_MS2_PIN, ms2); break;
+      #if HAS_MICROSTEPS_Y
+        case 1: digitalWrite(Y_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_MICROSTEPS_Z
+        case 2: digitalWrite(Z_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_MICROSTEPS_E0
+        case 3: digitalWrite(E0_MS2_PIN, ms2); break;
+      #endif
+      #if HAS_MICROSTEPS_E1
+        case 4: digitalWrite(E1_MS2_PIN, ms2); break;
+      #endif
+    }
+  }
 
-void Stepper::microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2) {
-  if (ms1 >= 0) switch (driver) {
-    case 0: digitalWrite(X_MS1_PIN, ms1); break;
-    case 1: digitalWrite(Y_MS1_PIN, ms1); break;
-    case 2: digitalWrite(Z_MS1_PIN, ms1); break;
-    case 3: digitalWrite(E0_MS1_PIN, ms1); break;
+  void Stepper::microstep_mode(uint8_t driver, uint8_t stepping_mode) {
+    switch (stepping_mode) {
+      case 1: microstep_ms(driver, MICROSTEP1); break;
+      case 2: microstep_ms(driver, MICROSTEP2); break;
+      case 4: microstep_ms(driver, MICROSTEP4); break;
+      case 8: microstep_ms(driver, MICROSTEP8); break;
+      case 16: microstep_ms(driver, MICROSTEP16); break;
+    }
+  }
+
+  void Stepper::microstep_readings() {
+    SERIAL_PROTOCOLLNPGM("MS1,MS2 Pins");
+    SERIAL_PROTOCOLPGM("X: ");
+    SERIAL_PROTOCOL(READ(X_MS1_PIN));
+    SERIAL_PROTOCOLLN(READ(X_MS2_PIN));
+    #if HAS_MICROSTEPS_Y
+      SERIAL_PROTOCOLPGM("Y: ");
+      SERIAL_PROTOCOL(READ(Y_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(Y_MS2_PIN));
+    #endif
+    #if HAS_MICROSTEPS_Z
+      SERIAL_PROTOCOLPGM("Z: ");
+      SERIAL_PROTOCOL(READ(Z_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(Z_MS2_PIN));
+    #endif
+    #if HAS_MICROSTEPS_E0
+      SERIAL_PROTOCOLPGM("E0: ");
+      SERIAL_PROTOCOL(READ(E0_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E0_MS2_PIN));
+    #endif
     #if HAS_MICROSTEPS_E1
-      case 4: digitalWrite(E1_MS1_PIN, ms1); break;
+      SERIAL_PROTOCOLPGM("E1: ");
+      SERIAL_PROTOCOL(READ(E1_MS1_PIN));
+      SERIAL_PROTOCOLLN(READ(E1_MS2_PIN));
     #endif
   }
-  if (ms2 >= 0) switch (driver) {
-    case 0: digitalWrite(X_MS2_PIN, ms2); break;
-    case 1: digitalWrite(Y_MS2_PIN, ms2); break;
-    case 2: digitalWrite(Z_MS2_PIN, ms2); break;
-    case 3: digitalWrite(E0_MS2_PIN, ms2); break;
-    #if PIN_EXISTS(E1_MS2)
-      case 4: digitalWrite(E1_MS2_PIN, ms2); break;
-    #endif
-  }
-}
 
-void Stepper::microstep_mode(uint8_t driver, uint8_t stepping_mode) {
-  switch (stepping_mode) {
-    case 1: microstep_ms(driver, MICROSTEP1); break;
-    case 2: microstep_ms(driver, MICROSTEP2); break;
-    case 4: microstep_ms(driver, MICROSTEP4); break;
-    case 8: microstep_ms(driver, MICROSTEP8); break;
-    case 16: microstep_ms(driver, MICROSTEP16); break;
-  }
-}
-
-void Stepper::microstep_readings() {
-  SERIAL_PROTOCOLLNPGM("MS1,MS2 Pins");
-  SERIAL_PROTOCOLPGM("X: ");
-  SERIAL_PROTOCOL(digitalRead(X_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(X_MS2_PIN));
-  SERIAL_PROTOCOLPGM("Y: ");
-  SERIAL_PROTOCOL(digitalRead(Y_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(Y_MS2_PIN));
-  SERIAL_PROTOCOLPGM("Z: ");
-  SERIAL_PROTOCOL(digitalRead(Z_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(Z_MS2_PIN));
-  SERIAL_PROTOCOLPGM("E0: ");
-  SERIAL_PROTOCOL(digitalRead(E0_MS1_PIN));
-  SERIAL_PROTOCOLLN(digitalRead(E0_MS2_PIN));
-  #if HAS_MICROSTEPS_E1
-    SERIAL_PROTOCOLPGM("E1: ");
-    SERIAL_PROTOCOL(digitalRead(E1_MS1_PIN));
-    SERIAL_PROTOCOLLN(digitalRead(E1_MS2_PIN));
-  #endif
-}
+#endif // HAS_MICROSTEPS
 
 #if ENABLED(LIN_ADVANCE)
 

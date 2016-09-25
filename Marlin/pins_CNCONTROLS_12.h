@@ -111,8 +111,8 @@
 //#define UI1              43
 //#define UI2              37
 
-#define STAT_LED_BLUE      -1
-#define STAT_LED_RED       10 // TOOL_0_PWM_PIN
+#define STAT_LED_BLUE_PIN  -1
+#define STAT_LED_RED_PIN   10 // TOOL_0_PWM_PIN
 
 //
 // SD Card

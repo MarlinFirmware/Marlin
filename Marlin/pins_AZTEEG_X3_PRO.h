@@ -117,6 +117,6 @@
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN    49 // For easy adapter board
 #else
-  #define STAT_LED_RED     32
-  #define STAT_LED_BLUE    35
+  #define STAT_LED_RED_PIN 32
+  #define STAT_LED_BLUE_PIN 35
 #endif

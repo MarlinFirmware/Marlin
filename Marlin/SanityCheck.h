@@ -61,10 +61,6 @@
   #error "Z_LATE_ENABLE can't be used with COREXZ."
 #elif defined(X_HOME_RETRACT_MM)
   #error "[XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM."
-#elif defined(BEEPER)
-  #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
-#elif defined(SDCARDDETECT)
-  #error "SDCARDDETECT is now SD_DETECT_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECTINVERTED)
   #error "SDCARDDETECTINVERTED is now SD_DETECT_INVERTED. Please update your configuration."
 #elif defined(BTENABLED)
@@ -143,6 +139,16 @@
   #error "SCARA is now MORGAN_SCARA. Please update your configuration."
 #elif defined(AUTO_BED_LEVELING_GRID_POINTS)
   #error "AUTO_BED_LEVELING_GRID_POINTS is now ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y. Please update your configuration."
+#elif defined(BEEPER)
+  #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
+#elif defined(SDCARDDETECT)
+  #error "SDCARDDETECT is now SD_DETECT_PIN. Please update your pins definitions."
+#elif defined(STAT_LED_RED) || defined(STAT_LED_BLUE)
+  #error "STAT_LED_RED/STAT_LED_BLUE are now STAT_LED_RED_PIN/STAT_LED_BLUE_PIN. Please update your pins definitions."
+#elif defined(LCD_PIN_BL)
+  #error "LCD_PIN_BL is now LCD_BACKLIGHT_PIN. Please update your pins definitions."
+#elif defined(LCD_PIN_RESET)
+  #error "LCD_PIN_RESET is now LCD_RESET_PIN. Please update your pins definitions."
 #endif
 
 /**
@@ -720,6 +726,13 @@
 
 #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT) && TEMP_SENSOR_1 == 0
   #error "TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT."
+#endif
+
+/**
+ * Temperature status LEDs
+ */
+#if ENABLED(TEMP_STAT_LEDS) && !(PIN_EXISTS(STAT_LED_RED) && PIN_EXISTS(STAT_LED_BLUE))
+  #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN and STAT_LED_BLUE_PIN."
 #endif
 
 /**

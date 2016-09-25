@@ -104,53 +104,51 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN   9
-#define HEATER_1_PIN   7
-#define HEATER_BED_PIN 3
+#define HEATER_0_PIN         9
+#define HEATER_1_PIN         7
+#define HEATER_BED_PIN       3
 
-#define FAN_PIN        8
-#define FAN0_PIN       6
-#define FAN1_PIN       2
+#define FAN_PIN              8
+#define FAN0_PIN             6
+#define FAN1_PIN             2
 
-#define TEMP_0_PIN     0
-#define TEMP_BED_PIN   7
+#define TEMP_0_PIN           0
+#define TEMP_BED_PIN         7
 
-#define SDSS          53
-#define LED_PIN       13
-#define PS_ON_PIN      4
+#define SDSS                53
+#define LED_PIN             13
+#define PS_ON_PIN            4
 
 //
 // LCD / Controller
 //
-#define LCD_PINS_RS     70 //ext2_5
-#define LCD_PINS_ENABLE 71 //ext2_7
-#define LCD_PINS_D4     72 ///////Ext2 9 ?
-#define LCD_PINS_D5     73 ///////Ext2 11 ?
-#define LCD_PINS_D6     74 //ext2_13
-#define LCD_PINS_D7     75 ///////Ext2 15 ?
-#define BEEPER_PIN      -1
+#define LCD_PINS_RS         70 //ext2_5
+#define LCD_PINS_ENABLE     71 //ext2_7
+#define LCD_PINS_D4         72 ///////Ext2 9 ?
+#define LCD_PINS_D5         73 ///////Ext2 11 ?
+#define LCD_PINS_D6         74 //ext2_13
+#define LCD_PINS_D7         75 ///////Ext2 15 ?
+#define BEEPER_PIN          -1
 
-#define BTN_HOME        80 //ext_16
-#define BTN_CENTER      81 //ext_14
-#define BTN_ENC         BTN_CENTER
-#define BTN_RIGHT       82 //ext_12
-#define BTN_LEFT        83 //ext_10
-#define BTN_UP          84 //ext2_8
-#define BTN_DOWN        85 //ext2_6
+#define BTN_HOME            80 //ext_16
+#define BTN_CENTER          81 //ext_14
+#define BTN_ENC             BTN_CENTER
+#define BTN_RIGHT           82 //ext_12
+#define BTN_LEFT            83 //ext_10
+#define BTN_UP              84 //ext2_8
+#define BTN_DOWN            85 //ext2_6
 
-#define HOME_PIN        BTN_HOME
+#define HOME_PIN            BTN_HOME
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN 44
+  #define BEEPER_PIN        44
   // Pins for DOGM SPI LCD Support
-  #define DOGLCD_A0  70
-  #define DOGLCD_CS  71
+  #define DOGLCD_A0         70
+  #define DOGLCD_CS         71
   #define LCD_SCREEN_ROT_180
 
-  #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
+  #define SD_DETECT_PIN     -1 // Pin 72 if using easy adapter board
 
-  #if ENABLED(TEMP_STAT_LEDS)
-    #define STAT_LED_RED      22
-    #define STAT_LED_BLUE     32
-  #endif
+  #define STAT_LED_RED_PIN  22
+  #define STAT_LED_BLUE_PIN 32
 #endif // VIKI2/miniVIKI
