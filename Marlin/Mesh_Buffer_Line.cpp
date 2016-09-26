@@ -57,7 +57,7 @@ void mesh_buffer_line(float x_end, float y_end, float z_end, float e_end, float 
 	int dxi, dyi, xi_cnt, yi_cnt;
 	bool use_X_dist, inf_normalized_flag, inf_m_flag;
 	float x_start, y_start;
-	float x, y, z1, z2, z0;
+	float x, y, z1, z2, z0, z_optimized;
 	float next_mesh_line_x, next_mesh_line_y, a0ma1diva2ma1; 
 	float on_axis_distance, e_normalized_dist, e_position, e_start, z_normalized_dist, z_position, z_start;
 	float dx, dy, adx, ady, m, c;
@@ -120,10 +120,12 @@ debug_current_and_destination("out of bounds in mesh_buffer_line()");
 
 	FINAL_MOVE:
 		a0ma1diva2ma1 = (x_end - mesh_index_to_X_location[cell_dest_xi]) * (float) (1.0 / MESH_X_DIST);
+
 		z1 = z_values[cell_dest_xi][cell_dest_yi] +
 			(z_values[cell_dest_xi + 1][cell_dest_yi] - z_values[cell_dest_xi][cell_dest_yi]) * a0ma1diva2ma1;
-		z2 = z_values[cell_dest_xi + 1][cell_dest_yi + 1] +
-			(z_values[cell_dest_xi][cell_dest_yi + 1] - z_values[cell_dest_xi + 1][cell_dest_yi + 1]) * a0ma1diva2ma1;
+
+		z2 = z_values[cell_dest_xi][cell_dest_yi+1] +
+			(z_values[cell_dest_xi+1][cell_dest_yi+1] - z_values[cell_dest_xi][cell_dest_yi+1]) * a0ma1diva2ma1;
 
 		// we are done with the fractional X distance into the cell.  Now with the two Z-Heights we have calculated, we 
 		// are going to apply the Y-Distance into the cell to interpolate the final Z correction.
@@ -131,13 +133,23 @@ debug_current_and_destination("out of bounds in mesh_buffer_line()");
 		a0ma1diva2ma1 = (y_end - mesh_index_to_Y_location[cell_dest_yi]) * (float) (1.0 / MESH_Y_DIST);
 
 		z0 = z1 + (z2 - z1) * a0ma1diva2ma1;
+
+	
+// debug code to use non-optimized get_z_correction() and to do a sanity check
+// that the correct value is being passed to planner.buffer_line()
 //
-//
-z0 = blm.get_z_correction( x_end, y_end);  // Brute force fix to get rid of weird movements!!!   This goes away soon!
-//
-//		
-		
-		
+z_optimized = z0;
+z0 = blm.get_z_correction( x_end, y_end);
+if ( fabs(z_optimized - z0) > .01 )  {
+debug_current_and_destination("!FINAL_MOVE: z_correction()");
+SERIAL_ECHOPAIRPGM("  x_end=",x_end);
+SERIAL_ECHOPAIRPGM("  y_end=",y_end);
+SERIAL_ECHOPAIRPGM("  z0=",z0);
+SERIAL_ECHOPAIRPGM("  z_optimized=",z_optimized);
+SERIAL_ECHOPAIRPGM("  err=",fabs(z_optimized-z0));
+SERIAL_ECHO("\n");
+}
+
 		z0 = z0 * blm.fade_scaling_factor_for_Z( z_end );
 
 		if (isnan(z0)) {	// if part of the Mesh is undefined, it will show up as NAN
@@ -146,6 +158,8 @@ z0 = blm.get_z_correction( x_end, y_end);  // Brute force fix to get rid of weir
 					// because part of the Mesh is undefined and we don't have the 
 					// information we need to complete the height correction.
 		}
+
+
 		planner.buffer_line(x_end, y_end, z_end + z0 + blm.state.z_offset, e_end, feed_rate, extruder);
 if (G26_Debug_flag!=0) {
 debug_current_and_destination("FINAL_MOVE in mesh_buffer_line()");
@@ -231,12 +245,31 @@ debug_current_and_destination("FINAL_MOVE in mesh_buffer_line()");
 			current_yi += dyi;
 			next_mesh_line_y = mesh_index_to_Y_location[current_yi];
 			if (inf_m_flag)
-				x = x_start;		// if the slope of the line is infinite, we won't do the calculations
+				x = x_start;	// if the slope of the line is infinite, we won't do the calculations
 						// we know the next X is the same so we can recover and continue!
 			else
 				x = (next_mesh_line_y - c) / m;	// Calculate X at the next Y mesh line
 
 			z0 = blm.get_z_correction_along_horizontal_mesh_line_at_specific_X(x, current_xi, current_yi);
+
+
+//
+// debug code to use non-optimized get_z_correction() and to do a sanity check
+// that the correct value is being passed to planner.buffer_line()
+//
+z_optimized = z0;
+z0 = blm.get_z_correction( x, next_mesh_line_y);
+if ( fabs(z_optimized - z0) > .01 )  {
+debug_current_and_destination("!VERTICAL z_correction()");
+SERIAL_ECHOPAIRPGM("  x=", x);
+SERIAL_ECHOPAIRPGM("  next_mesh_line_y=", next_mesh_line_y);
+SERIAL_ECHOPAIRPGM("  z0=", z0);
+SERIAL_ECHOPAIRPGM("  z_optimized=", z_optimized);
+SERIAL_ECHOPAIRPGM("  err=",fabs(z_optimized-z0));
+SERIAL_ECHO("\n");
+}
+
+
 			z0 = z0 * blm.fade_scaling_factor_for_Z( z_end );
 
 			if (isnan(z0)) {	// if part of the Mesh is undefined, it will show up as NAN
@@ -291,6 +324,26 @@ debug_current_and_destination("vertical move done in mesh_buffer_line()");
 			y = m * next_mesh_line_x + c;		// Calculate X at the next Y mesh line
 
 			z0 = blm.get_z_correction_along_vertical_mesh_line_at_specific_Y(y, current_xi, current_yi);
+
+
+//
+// debug code to use non-optimized get_z_correction() and to do a sanity check
+// that the correct value is being passed to planner.buffer_line()
+//
+z_optimized = z0;
+z0 = blm.get_z_correction( next_mesh_line_x, y);
+if ( fabs(z_optimized - z0) > .01 )  {
+debug_current_and_destination("!HORIZONTAL z_correction()");
+SERIAL_ECHOPAIRPGM("  next_mesh_line_x=", next_mesh_line_x);
+SERIAL_ECHOPAIRPGM("  y=", y);
+SERIAL_ECHOPAIRPGM("  z0=", z0);
+SERIAL_ECHOPAIRPGM("  z_optimized=", z_optimized);
+SERIAL_ECHOPAIRPGM("  err=",fabs(z_optimized-z0));
+SERIAL_ECHO("\n");
+}
+
+
+
 			z0 = z0 * blm.fade_scaling_factor_for_Z( z_end );
 
 			if (isnan(z0)) {	// if part of the Mesh is undefined, it will show up as NAN
@@ -367,6 +420,23 @@ debug_current_and_destination("horizontal move done in mesh_buffer_line()");
 //
 			z0 = blm.get_z_correction_along_horizontal_mesh_line_at_specific_X(x, current_xi-left_flag, current_yi+dyi); 
 
+//
+// debug code to use non-optimized get_z_correction() and to do a sanity check
+// that the correct value is being passed to planner.buffer_line()
+//
+z_optimized = z0;
+z0 = blm.get_z_correction( x, next_mesh_line_y);
+if ( fabs(z_optimized - z0) > .01 )  {
+debug_current_and_destination("!General_1: z_correction()");
+SERIAL_ECHOPAIRPGM("  x=", x);
+SERIAL_ECHOPAIRPGM("  next_mesh_line_y=", next_mesh_line_y);
+SERIAL_ECHOPAIRPGM("  z0=", z0);
+SERIAL_ECHOPAIRPGM("  z_optimized=", z_optimized);
+SERIAL_ECHOPAIRPGM("  err=",fabs(z_optimized-z0));
+SERIAL_ECHO("\n");
+}
+
+
 			z0 = z0 * blm.fade_scaling_factor_for_Z( z_end );
 			if (isnan(z0)) {	// if part of the Mesh is undefined, it will show up as NAN
 				z0 = 0.0;	// in z_values[][] and propagate through the 
@@ -395,6 +465,24 @@ debug_current_and_destination("horizontal move done in mesh_buffer_line()");
 // Yes!  Crossing a X Mesh Line next
 //
 			z0 = blm.get_z_correction_along_vertical_mesh_line_at_specific_Y(y, current_xi+dxi, current_yi-down_flag);
+
+
+//
+// debug code to use non-optimized get_z_correction() and to do a sanity check
+// that the correct value is being passed to planner.buffer_line()
+//
+z_optimized = z0;
+z0 = blm.get_z_correction( next_mesh_line_x, y);
+if ( fabs(z_optimized - z0) > .01 )  {
+debug_current_and_destination("!General_2: z_correction()");
+SERIAL_ECHOPAIRPGM("  next_mesh_line_x=", next_mesh_line_x);
+SERIAL_ECHOPAIRPGM("  y=", y);
+SERIAL_ECHOPAIRPGM("  z0=", z0);
+SERIAL_ECHOPAIRPGM("  z_optimized=", z_optimized);
+SERIAL_ECHOPAIRPGM("  err=",fabs(z_optimized-z0));
+SERIAL_ECHO("\n");
+}
+
 
 			z0 = z0 * blm.fade_scaling_factor_for_Z( z_end );
 
