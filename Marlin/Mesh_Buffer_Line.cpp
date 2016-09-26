@@ -131,6 +131,13 @@ debug_current_and_destination("out of bounds in mesh_buffer_line()");
 		a0ma1diva2ma1 = (y_end - mesh_index_to_Y_location[cell_dest_yi]) * (float) (1.0 / MESH_Y_DIST);
 
 		z0 = z1 + (z2 - z1) * a0ma1diva2ma1;
+//
+//
+z0 = blm.get_z_correction( x_end, y_end);  // Brute force fix to get rid of weird movements!!!   This goes away soon!
+//
+//		
+		
+		
 		z0 = z0 * blm.fade_scaling_factor_for_Z( z_end );
 
 		if (isnan(z0)) {	// if part of the Mesh is undefined, it will show up as NAN
