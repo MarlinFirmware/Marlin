@@ -124,6 +124,7 @@ volatile bool Temperature::temp_meas_ready = false;
 
 #if ENABLED(PIDTEMP)
   float Temperature::temp_iState[HOTENDS] = { 0 },
+        Temperature::temp_iOverflow[HOTENDS] = { 0 },
         Temperature::temp_dState[HOTENDS] = { 0 },
         Temperature::pTerm[HOTENDS],
         Temperature::iTerm[HOTENDS],
@@ -144,6 +145,7 @@ volatile bool Temperature::temp_meas_ready = false;
 
 #if ENABLED(PIDTEMPBED)
   float Temperature::temp_iState_bed = { 0 },
+        Temperature::temp_iOverflow_bed = { 0 },
         Temperature::temp_dState_bed = { 0 },
         Temperature::pTerm_bed,
         Temperature::iTerm_bed,
