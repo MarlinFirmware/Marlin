@@ -319,9 +319,9 @@ float code_value_temp_diff();
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-  extern int nonlinear_grid_spacing[2];
-  float nonlinear_z_offset(float logical[XYZ]);
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  extern int bilinear_grid_spacing[2];
+  float bilinear_z_offset(float logical[XYZ]);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)

@@ -21,7 +21,6 @@
  */
 
 /**
- *
  * About Marlin
  *
  * This firmware is a mashup between Sprinter and grbl.
@@ -34,11 +33,11 @@
 
 #include "Marlin.h"
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if HAS_ABL
   #include "vector_3.h"
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
+#if ENABLED(AUTO_BED_LEVELING_LINEAR)
   #include "qr_solve.h"
 #elif ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
@@ -397,7 +396,7 @@ static uint8_t target_extruder;
 
 #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if HAS_ABL
   float xy_probe_feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
   #define XY_PROBE_FEEDRATE_MM_S xy_probe_feedrate_mm_s
 #elif defined(XY_PROBE_SPEED)
@@ -490,8 +489,8 @@ static uint8_t target_extruder;
 
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-  int nonlinear_grid_spacing[2] = { 0 };
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  int bilinear_grid_spacing[2] = { 0 };
   float bed_level_grid[ABL_GRID_POINTS_X][ABL_GRID_POINTS_Y];
 #endif
 
@@ -631,7 +630,7 @@ static void report_current_position();
     print_xyz(prefix, suffix, xyz[X_AXIS], xyz[Y_AXIS], xyz[Z_AXIS]);
   }
 
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if HAS_ABL
     void print_xyz(const char* prefix, const char* suffix, const vector_3 &xyz) {
       print_xyz(prefix, suffix, xyz.x, xyz.y, xyz.z);
     }
@@ -2120,7 +2119,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif // HAS_BED_PROBE
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if HAS_ABL
 
   /**
    * Reset calibration results to zero.
@@ -2134,16 +2133,16 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
     #endif
-    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+    #if ABL_PLANAR
       planner.bed_level_matrix.set_to_identity();
-    #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
       memset(bed_level_grid, 0, sizeof(bed_level_grid));
     #endif
   }
 
-#endif // AUTO_BED_LEVELING_FEATURE
+#endif // HAS_ABL
 
-#if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   /**
    * Extrapolate a single point from its neighbors
@@ -2189,7 +2188,7 @@ static void clean_up_after_endstop_or_probe_move() {
     }
   }
 
-#endif // AUTO_BED_LEVELING_NONLINEAR
+#endif // AUTO_BED_LEVELING_BILINEAR
 
 /**
  * Home an individual linear axis
@@ -2980,7 +2979,7 @@ inline void gcode_G28() {
   stepper.synchronize();
 
   // For auto bed leveling, clear the level matrix
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if HAS_ABL
     reset_bed_level();
   #endif
 
@@ -3392,7 +3391,7 @@ inline void gcode_G28() {
     report_current_position();
   }
 
-#elif ENABLED(AUTO_BED_LEVELING_FEATURE)
+#elif HAS_ABL
 
   /**
    * G29: Detailed Z probe, probes the bed at 3 or more points.
@@ -3400,7 +3399,7 @@ inline void gcode_G28() {
    *
    * Enhanced G29 Auto Bed Leveling Probe Routine
    *
-   * Parameters With AUTO_BED_LEVELING_GRID:
+   * Parameters With ABL_GRID:
    *
    *  P  Set the size of the grid that will be probed (P x P points).
    *     Not supported by non-linear delta printer bed leveling.
@@ -3454,9 +3453,9 @@ inline void gcode_G28() {
     bool dryrun = code_seen('D'),
          stow_probe_after_each = code_seen('E');
 
-    #if ENABLED(AUTO_BED_LEVELING_GRID)
+    #if ABL_GRID
 
-      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+      #if ABL_PLANAR
         bool do_topography_map = verbose_level > 2 || code_seen('T');
       #endif
 
@@ -3468,7 +3467,7 @@ inline void gcode_G28() {
       int abl_grid_points_x = ABL_GRID_POINTS_X,
           abl_grid_points_y = ABL_GRID_POINTS_Y;
 
-      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+      #if ABL_PLANAR
         if (code_seen('P')) abl_grid_points_x = abl_grid_points_y = code_value_int();
         if (abl_grid_points_x < 2) {
           SERIAL_PROTOCOLLNPGM("?Number of probed (P)oints is implausible (2 minimum).");
@@ -3512,7 +3511,7 @@ inline void gcode_G28() {
         return;
       }
 
-    #endif // AUTO_BED_LEVELING_GRID
+    #endif // ABL_GRID
 
     stepper.synchronize();
 
@@ -3541,25 +3540,25 @@ inline void gcode_G28() {
 
     float xProbe = 0, yProbe = 0, measured_z = 0;
 
-    #if ENABLED(AUTO_BED_LEVELING_GRID)
+    #if ABL_GRID
 
       // probe at the points of a lattice grid
       const float xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (abl_grid_points_x - 1),
                   yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (abl_grid_points_y - 1);
 
-      #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
         float zoffset = zprobe_zoffset;
         if (code_seen('Z')) zoffset += code_value_axis_units(Z_AXIS);
 
-        if (xGridSpacing != nonlinear_grid_spacing[X_AXIS] || yGridSpacing != nonlinear_grid_spacing[Y_AXIS]) {
-          nonlinear_grid_spacing[X_AXIS] = xGridSpacing;
-          nonlinear_grid_spacing[Y_AXIS] = yGridSpacing;
+        if (xGridSpacing != bilinear_grid_spacing[X_AXIS] || yGridSpacing != bilinear_grid_spacing[Y_AXIS]) {
+          bilinear_grid_spacing[X_AXIS] = xGridSpacing;
+          bilinear_grid_spacing[Y_AXIS] = yGridSpacing;
           // Can't re-enable (on error) until the new grid is written
           abl_should_reenable = false;
         }
 
-      #elif ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
+      #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
         /**
          * solve the plane equation ax + by + d = z
@@ -3578,7 +3577,7 @@ inline void gcode_G28() {
               eqnBVector[abl2],     // "B" vector of Z points
               mean = 0.0;
 
-      #endif // AUTO_BED_LEVELING_LINEAR_GRID
+      #endif // AUTO_BED_LEVELING_LINEAR
 
       bool zig = abl_grid_points_y & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
 
@@ -3605,7 +3604,7 @@ inline void gcode_G28() {
           float xBase = left_probe_bed_position + xGridSpacing * xCount;
           xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
 
-          #if ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
+          #if ENABLED(AUTO_BED_LEVELING_LINEAR)
             indexIntoAB[xCount][yCount] = ++probePointCounter;
           #endif
 
@@ -3622,7 +3621,7 @@ inline void gcode_G28() {
             return;
           }
 
-          #if ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
+          #if ENABLED(AUTO_BED_LEVELING_LINEAR)
 
             mean += measured_z;
             eqnBVector[probePointCounter] = measured_z;
@@ -3630,7 +3629,7 @@ inline void gcode_G28() {
             eqnAMatrix[probePointCounter + 1 * abl2] = yProbe;
             eqnAMatrix[probePointCounter + 2 * abl2] = 1;
 
-          #elif ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+          #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
             bed_level_grid[xCount][yCount] = measured_z + zoffset;
 
@@ -3700,12 +3699,12 @@ inline void gcode_G28() {
     #endif
 
     // Calculate leveling, print reports, correct the position
-    #if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!dryrun) extrapolate_unprobed_bed_level();
       print_bed_level();
 
-    #elif ENABLED(AUTO_BED_LEVELING_LINEAR_GRID)
+    #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
       // For LINEAR leveling calculate matrix, print reports, correct the position
 
@@ -3802,9 +3801,9 @@ inline void gcode_G28() {
         }
       } //do_topography_map
 
-    #endif // AUTO_BED_LEVELING_LINEAR_GRID
+    #endif // AUTO_BED_LEVELING_LINEAR
 
-    #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+    #if ABL_PLANAR
 
       // For LINEAR and 3POINT leveling correct the current position
 
@@ -3819,7 +3818,7 @@ inline void gcode_G28() {
         // 1. Get the distance from the current position to the reference point.
         float x_dist = RAW_CURRENT_POSITION(X_AXIS) - X_TILT_FULCRUM,
               y_dist = RAW_CURRENT_POSITION(Y_AXIS) - Y_TILT_FULCRUM,
-              z_real = RAW_CURRENT_POSITION(Z_AXIS),
+              z_real = current_position[Z_AXIS],
               z_zero = 0;
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3854,7 +3853,7 @@ inline void gcode_G28() {
         // 5. The rotated XY and corrected Z are now current_position
         current_position[X_AXIS] = LOGICAL_X_POSITION(x_dist) + X_TILT_FULCRUM;
         current_position[Y_AXIS] = LOGICAL_Y_POSITION(y_dist) + Y_TILT_FULCRUM;
-        current_position[Z_AXIS] = LOGICAL_Z_POSITION(new_z);
+        current_position[Z_AXIS] = new_z;
 
         SYNC_PLAN_POSITION_KINEMATIC();
 
@@ -3863,7 +3862,23 @@ inline void gcode_G28() {
         #endif
       }
 
-    #endif // AUTO_BED_LEVELING_LINEAR
+    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+      if (!dryrun) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
+        #endif
+
+        current_position[Z_AXIS] -= bilinear_z_offset(current_position);
+
+        SYNC_PLAN_POSITION_KINEMATIC();
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("G29 corrected Z:", current_position[Z_AXIS]);
+        #endif
+      }
+
+    #endif // ABL_PLANAR
 
     #ifdef Z_PROBE_END_SCRIPT
       #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3885,7 +3900,7 @@ inline void gcode_G28() {
     planner.abl_enabled = dryrun ? abl_should_reenable : true;
   }
 
-#endif // AUTO_BED_LEVELING_FEATURE
+#endif // HAS_ABL
 
 #if HAS_BED_PROBE
 
@@ -3894,7 +3909,7 @@ inline void gcode_G28() {
    */
   inline void gcode_G30() {
 
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #if HAS_ABL
       reset_bed_level();
     #endif
 
@@ -4340,7 +4355,7 @@ inline void gcode_M42() {
       SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
     // Disable bed level correction in M48 because we want the raw data when we probe
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #if HAS_ABL
       reset_bed_level();
     #endif
 
@@ -6806,7 +6821,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             }
           #endif
 
-          // No extra case for AUTO_BED_LEVELING_FEATURE in DUAL_X_CARRIAGE. Does that mean they don't work together?
+          // No extra case for HAS_ABL in DUAL_X_CARRIAGE. Does that mean they don't work together?
         #else // !DUAL_X_CARRIAGE
 
           #if ENABLED(SWITCHING_EXTRUDER)
@@ -6865,7 +6880,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
            * Z software endstop. But this is technically correct (and
            * there is no viable alternative).
            */
-          #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+          #if ABL_PLANAR
             // Offset extruder, make sure to apply the bed level rotation matrix
             vector_3 tmp_offset_vec = vector_3(hotend_offset[X_AXIS][tmp_extruder],
                                                hotend_offset[Y_AXIS][tmp_extruder],
@@ -6893,7 +6908,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             float xydiff[2] = { offset_vec.x, offset_vec.y };
             current_position[Z_AXIS] += offset_vec.z;
 
-          #else // !AUTO_BED_LEVELING_LINEAR
+          #else // !ABL_PLANAR
 
             float xydiff[2] = {
               hotend_offset[X_AXIS][tmp_extruder] - hotend_offset[X_AXIS][active_extruder],
@@ -6917,7 +6932,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
             #endif // MESH_BED_LEVELING
 
-          #endif // !AUTO_BED_LEVELING_FEATURE
+          #endif // !HAS_ABL
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
@@ -7140,11 +7155,11 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
+      #if HAS_ABL || ENABLED(MESH_BED_LEVELING)
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points.
           gcode_G29();
           break;
-      #endif // AUTO_BED_LEVELING_FEATURE
+      #endif // HAS_ABL
 
       #if HAS_BED_PROBE
 
@@ -7780,17 +7795,17 @@ void ok_to_send() {
 
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Get the Z adjustment for non-linear bed leveling
-  float nonlinear_z_offset(float cartesian[XYZ]) {
+  float bilinear_z_offset(float cartesian[XYZ]) {
 
     int half_x = (ABL_GRID_POINTS_X - 1) / 2,
         half_y = (ABL_GRID_POINTS_Y - 1) / 2;
     float hx2 = half_x - 0.001, hx1 = -hx2,
           hy2 = half_y - 0.001, hy1 = -hy2,
-          grid_x = max(hx1, min(hx2, RAW_X_POSITION(cartesian[X_AXIS]) / nonlinear_grid_spacing[X_AXIS])),
-          grid_y = max(hy1, min(hy2, RAW_Y_POSITION(cartesian[Y_AXIS]) / nonlinear_grid_spacing[Y_AXIS]));
+          grid_x = max(hx1, min(hx2, RAW_X_POSITION(cartesian[X_AXIS]) / bilinear_grid_spacing[X_AXIS])),
+          grid_y = max(hy1, min(hy2, RAW_Y_POSITION(cartesian[Y_AXIS]) / bilinear_grid_spacing[Y_AXIS]));
     int   floor_x = floor(grid_x), floor_y = floor(grid_y);
     float ratio_x = grid_x - floor_x, ratio_y = grid_y - floor_y,
           z1 = bed_level_grid[floor_x + half_x][floor_y + half_y],
@@ -7819,7 +7834,7 @@ void ok_to_send() {
     return (1 - ratio_x) * left + ratio_x * right;
   }
 
-#endif // AUTO_BED_LEVELING_NONLINEAR
+#endif // AUTO_BED_LEVELING_BILINEAR
 
 #if ENABLED(DELTA)
 
