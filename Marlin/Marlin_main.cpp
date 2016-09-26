@@ -117,7 +117,7 @@
  * G30 - Single Z probe, probes bed at current XY location.
  * G31 - Dock sled (Z_PROBE_SLED only)
  * G32 - Undock sled (Z_PROBE_SLED only)
- * G38 - Probe target - similar to G28 except it uses the Z_Probe for all three axis
+ * G38 - Probe target - similar to G28 except it uses the Z_MIN endstop for all three axes
  * G90 - Use Absolute Coordinates
  * G91 - Use Relative Coordinates
  * G92 - Set current position to coordinates given
@@ -277,9 +277,9 @@
   TWIBus i2c;
 #endif
 
-#ifdef G38_2_3
-bool G38_flag = false;   // init G38 flags
-bool G38_flag_pass = false;
+#if ENABLED(G38_2_3)
+  bool G38_move = false,
+       G38_endstop_hit = false;
 #endif
 
 bool Running = true;
@@ -1343,7 +1343,7 @@ static void set_home_offset(AxisEnum axis, float v) {
  * SCARA should wait until all XY homing is done before setting the XY
  * current_position to home, because neither X nor Y is at home until
  * both are at home. Z can however be homed individually.
- * 
+ *
  */
 static void set_axis_is_at_home(AxisEnum axis) {
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -2330,146 +2330,6 @@ static void clean_up_after_endstop_or_probe_move() {
   }
 
 #endif // AUTO_BED_LEVELING_BILINEAR
-
-
-#ifdef G38_2_3
-
-#define G38_minimum_move  0.0275   // minimum distance in mm that will produce a move (determined using the print statement in check_move)
-
-bool check_move()  //checks that at least one of the axis in the command line has an actual move
-                   // motion planner only does moves of 0.001mm and larger
-{
-	
-  bool move_flag = false;
-  for(int8_t i=0; i < 3; i++) {
-/* debug used to determine prints
-		SERIAL_PROTOCOLPGM("axis: ");
-		SERIAL_PROTOCOL(axis_codes[i]);
-		SERIAL_PROTOCOLPGM("  code_seen :  ");
-		SERIAL_PROTOCOL(code_seen(axis_codes[i]));
-		SERIAL_PROTOCOLPGM("  destination : ");
-		SERIAL_PROTOCOL(destination[i]);
-		SERIAL_PROTOCOLPGM("  current : ");
-		SERIAL_PROTOCOL(current_position[i]);
-		SERIAL_PROTOCOLPGM("  dif x 1000 : ");
-		SERIAL_PROTOCOLLN((destination[i] - current_position[i]) * 1000);
- */		
-  if (code_seen(axis_codes[i]) && (fabs(destination[i] - current_position[i]) >= G38_minimum_move)) move_flag = true ;
-/*
- ??  0.0275mm produced a move on my machine along with an updated current position. 
-     0.0265mm did NOT produce a move and did NOT change the current position
-     this is very different than the 0.001 in the planner.
-       0.001" is .0254mm so maybe the 0.0275 observed comes from digital storage limitations/conversion/rounding
- */
-  }
-  return move_flag;
-}
-
-
-static void G38_run_probe(bool *G38_pass_fail) {
- 
-  G38_flag = true;  //tell the interrupt handler that we're doing a G38 probe
-  *G38_pass_fail = false;  
-  
-#ifdef X_HOME_BUMP_MM
-#ifdef Y_HOME_BUMP_MM
-#ifdef Z_HOME_BUMP_MM
-  float G38_X_retract_mm = home_bump_mm(X_AXIS);
-  float G38_Y_retract_mm = home_bump_mm(Y_AXIS);
-  float G38_Z_retract_mm = home_bump_mm(Z_AXIS);
-  
-#else
-    
-  float G38_X_retract_mm = 5;
-  float G38_Y_retract_mm = 5;
-  float G38_Z_retract_mm = 2;
-
-#endif
-#endif  
-#endif  
-  
-  // only retract the axis if the axis is in the command
-  if( (!code_seen('X') || (code_value_axis_units(X_AXIS) == 0)))  G38_X_retract_mm = 0;   
-  if( (!code_seen('Y') || (code_value_axis_units(Y_AXIS) == 0)))  G38_Y_retract_mm = 0;
-  if( (!code_seen('Z') || (code_value_axis_units(Z_AXIS) == 0)))  G38_Z_retract_mm = 0;
-
-  // change the direction of the retract if needed
-  if ((destination[X_AXIS] - current_position[X_AXIS])>0) G38_X_retract_mm = -G38_X_retract_mm;
-  if ((destination[Y_AXIS] - current_position[Y_AXIS])>0) G38_Y_retract_mm = -G38_Y_retract_mm;
-  if ((destination[Z_AXIS] - current_position[Z_AXIS])>0) G38_Z_retract_mm = -G38_Z_retract_mm;
-
-  
-  stepper.synchronize();  // wait until the machine is idle
-  
-  bool save_endstops = endstops.enabled;    //remember state of endstops so we can retore them at the end
-  endstops.enable(true);
-    
-  // move until you reach the destination or hit an endstop or hit the target
-  // it's an error unless have hit the target
-  G38_flag_pass = false;
-  *G38_pass_fail = false;
-  
-  planner.buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate_mm_s, active_extruder);
-  stepper.synchronize();
-
-  // we have to let the planner know where we are right now as it is not where we said to go.
-  //  and we need to update current_position[axis]
-  current_position[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
-  current_position[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
-  current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
-  planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS] , current_position[Z_AXIS] , current_position[E_AXIS]);
-
-  *G38_pass_fail = G38_flag_pass ;  // only care if hit target on the first move
-    
-  if (*G38_pass_fail) {  // no sense in doing the remaining moves if we didn't hit the endstop  
-    // move away the retract distance
-    float xPosition = current_position[X_AXIS] + G38_X_retract_mm;
-    float yPosition = current_position[Y_AXIS] + G38_Y_retract_mm;
-    float zPosition = current_position[Z_AXIS] + G38_Z_retract_mm;
-     
-
-  
-    // disable endstops on retract otherwise sometimes can't get away  
-    endstops.enable(false);
-    G38_flag = false; 
-    
-    planner.buffer_line(xPosition, yPosition , zPosition , current_position[E_AXIS], feedrate_mm_s/4, active_extruder);
-    stepper.synchronize();
-
-
-    // move back slowly
-    xPosition -= G38_X_retract_mm * 2;
-    yPosition -= G38_Y_retract_mm * 2;
-    zPosition -= G38_Z_retract_mm * 2;
- 
-
-    // enable endstops on move back
-    endstops.enable(true);
-    G38_flag = true; 
-    
-    planner.buffer_line(xPosition, yPosition , zPosition , current_position[E_AXIS], feedrate_mm_s/4, active_extruder);
-    stepper.synchronize();
-
-    // we have to let the planner know where we are right now as it is not where we said to go.
-    //  and we need to update current_position[axis]
-    current_position[X_AXIS] = stepper.get_axis_position_mm(X_AXIS);
-    current_position[Y_AXIS] = stepper.get_axis_position_mm(Y_AXIS);
-    current_position[Z_AXIS] = stepper.get_axis_position_mm(Z_AXIS);
-    planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS] , current_position[Z_AXIS] , current_position[E_AXIS]);
-    
-  }  
-  
-//  clean_up_after_endstop_move();
-
-  endstops.enable(save_endstops);   //restore endstops to same state as when we started
-
-  endstops.hit_on_purpose();
-  G38_flag = false;  //tell the interrupt handler that we're done
-  
-}
-
-#endif  //G38_2_3
-
 
 /**
  * Home an individual linear axis
@@ -4306,25 +4166,93 @@ inline void gcode_G28() {
 
 #endif // HAS_BED_PROBE
 
-#ifdef G38_2_3
-  inline void gcode_G38(float code_num) { 
-  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) || ENABLED(Z_MIN_PROBE_ENDSTOP)  //must have valid Z_MIN_PROBE definition for this command to work  
-    if ((code_num == 38.2 || code_num == 38.3  ) && (code_seen('X') || code_seen('Y') || code_seen('Z'))) {
-      gcode_get_destination(); // For X Y Z E F
-      if (check_move()) {   // see if the commanded movement will result in a physical movement
-		bool G38_pass_fail = false;
-		G38_run_probe(&G38_pass_fail);
-        if (!G38_pass_fail && (code_num == 38.2) ) SERIAL_PROTOCOLLNPGM(" ERROR - failed to reach target ");
-      }
-    }
-  }
-#else
- 
-    SERIAL_PROTOCOLLNPGM(" ERROR - Z_MIN_PROBE must be enabled ");	
-  }
-#endif	
-#endif //G38_2_3
+#if ENABLED(G38_2_3)
 
+  static bool G38_run_probe() {
+
+    bool G38_pass_fail = false;
+
+    // Get direction of move and retract
+    float retract_mm[XYZ];
+    LOOP_XYZ(i) {
+      float dist = destination[i] - current_position[i];
+      retract_mm[i] = fabs(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm(i) * (dist > 0 ? -1 : 1);
+    }
+
+    stepper.synchronize();  // wait until the machine is idle
+
+    // Move until destination reached or target hit
+    endstops.enable(true);
+    G38_move = true;
+    G38_endstop_hit = false;
+    prepare_move_to_destination();
+    stepper.synchronize();
+    G38_move = false;
+
+    endstops.hit_on_purpose();
+    set_current_from_steppers_for_axis(ALL_AXES);
+    SYNC_PLAN_POSITION_KINEMATIC();
+
+    // Only do remaining moves if target was hit
+    if (G38_endstop_hit) {
+
+      G38_pass_fail = true;
+
+      // Move away by the retract distance
+      set_destination_to_current();
+      LOOP_XYZ(i) destination[i] += retract_mm[i];
+      endstops.enable(false);
+      prepare_move_to_destination();
+      stepper.synchronize();
+
+      feedrate_mm_s /= 4;
+
+      // Bump the target more slowly
+      LOOP_XYZ(i) destination[i] -= retract_mm[i] * 2;
+
+      endstops.enable(true);
+      G38_move = true;
+      prepare_move_to_destination();
+      stepper.synchronize();
+      G38_move = false;
+
+      set_current_from_steppers_for_axis(ALL_AXES);
+      SYNC_PLAN_POSITION_KINEMATIC();
+    }
+
+    endstops.hit_on_purpose();
+    endstops.not_homing();
+    return G38_pass_fail;
+  }
+
+  /**
+   * G38.2 - probe toward workpiece, stop on contact, signal error if failure
+   * G38.3 - probe toward workpiece, stop on contact
+   *
+   * Like G28 except uses Z min endstop for all axes
+   */
+  inline void gcode_G38(bool is_38_2) {
+    // Get X Y Z E F
+    gcode_get_destination();
+
+    setup_for_endstop_or_probe_move();
+
+    // If any axis has enough movement, do the move
+    LOOP_XYZ(i)
+      if (fabs(destination[i] - current_position[i]) >= G38_MINIMUM_MOVE) {
+        if (!code_seen('F')) feedrate_mm_s = homing_feedrate_mm_s[i];
+        // If G38.2 fails throw an error
+        if (!G38_run_probe() && is_38_2) {
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("Failed to reach target");
+        }
+        break;
+      }
+
+    clean_up_after_endstop_or_probe_move();
+  }
+
+#endif // G38_2_3
 
 /**
  * G92: Set current position to given X Y Z E
@@ -7447,22 +7375,31 @@ void process_next_command() {
   // Skip spaces to get the numeric part
   while (*cmd_ptr == ' ') cmd_ptr++;
 
+  // Allow for decimal point in command
+  #if ENABLED(G38_2_3)
+    uint8_t subcode = 0;
+  #endif
+
   uint16_t codenum = 0; // define ahead of goto
 
   // Bail early if there's no code
   bool code_is_good = NUMERIC(*cmd_ptr);
   if (!code_is_good) goto ExitUnknownCommand;
 
-#ifdef G38_2_3
-  double codenum_float;
-  codenum_float = atof(cmd_ptr);  //allow for decimal point in command
-#endif
-
   // Get and skip the code number
   do {
     codenum = (codenum * 10) + (*cmd_ptr - '0');
     cmd_ptr++;
   } while (NUMERIC(*cmd_ptr));
+
+  // Allow for decimal point in command
+  #if ENABLED(G38_2_3)
+    if (*cmd_ptr == '.') {
+      cmd_ptr++;
+      while (NUMERIC(*cmd_ptr))
+        subcode = (subcode * 10) + (*cmd_ptr++ - '0');
+    }
+  #endif
 
   // Skip all spaces to get to the first argument, or nul
   while (*cmd_ptr == ' ') cmd_ptr++;
@@ -7564,12 +7501,13 @@ void process_next_command() {
         #endif // Z_PROBE_SLED
       #endif // HAS_BED_PROBE
 
-      #ifdef G38_2_3
-	   case 38:  //G38.2 & G38.3
-	     gcode_G38(codenum_float);
+      #if ENABLED(G38_2_3)
+        case 38: // G38.2 & G38.3
+          if (subcode == 2 || subcode == 3)
+            gcode_G38(subcode == 2);
           break;
-	 #endif
- 
+      #endif
+
       case 90: // G90
         relative_mode = false;
         break;
@@ -9078,7 +9016,7 @@ void prepare_move_to_destination() {
    * Morgan SCARA Inverse Kinematics. Results in delta[].
    *
    * See http://forums.reprap.org/read.php?185,283327
-   * 
+   *
    * Maths and first version by QHARLEY.
    * Integrated into Marlin and slightly restructured by Joachim Cerny.
    */
