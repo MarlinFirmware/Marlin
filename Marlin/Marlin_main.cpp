@@ -3818,7 +3818,7 @@ inline void gcode_G28() {
         // 1. Get the distance from the current position to the reference point.
         float x_dist = RAW_CURRENT_POSITION(X_AXIS) - X_TILT_FULCRUM,
               y_dist = RAW_CURRENT_POSITION(Y_AXIS) - Y_TILT_FULCRUM,
-              z_real = RAW_CURRENT_POSITION(Z_AXIS),
+              z_real = current_position[Z_AXIS],
               z_zero = 0;
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3853,12 +3853,28 @@ inline void gcode_G28() {
         // 5. The rotated XY and corrected Z are now current_position
         current_position[X_AXIS] = LOGICAL_X_POSITION(x_dist) + X_TILT_FULCRUM;
         current_position[Y_AXIS] = LOGICAL_Y_POSITION(y_dist) + Y_TILT_FULCRUM;
-        current_position[Z_AXIS] = LOGICAL_Z_POSITION(new_z);
+        current_position[Z_AXIS] = new_z;
 
         SYNC_PLAN_POSITION_KINEMATIC();
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
+        #endif
+      }
+
+    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+      if (!dryrun) {
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
+        #endif
+
+        current_position[Z_AXIS] -= bilinear_z_offset(current_position);
+
+        SYNC_PLAN_POSITION_KINEMATIC();
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("G29 corrected Z:", current_position[Z_AXIS]);
         #endif
       }
 
