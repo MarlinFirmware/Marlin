@@ -114,11 +114,9 @@ Marlin is published under the [GPL license](/LICENSE) because we believe in open
       L #   Load        Load Mesh from the specified location in the EEPROM.  Set this location as activated
                         for subsequent Load and Store operations.
 
-      M     Map         Display the Mesh Map Topology.  The parameter can be specified alone (ie. G29 M) or
+      O     Map         Display the Mesh Map Topology.  The parameter can be specified alone (ie. G29 O) or
                     in combination with many of the other commands.  The Mesh Map option works with
-                    all of the Phase commands (ie. G29 P4 R 5 X 50 Y100 C -.1 M)  Repetier Host does not like
-                    the use of the 'M' option.  If you use Repetier Host, you can substitute a lower case 'm'
-                    or an 'O' to activate the 'M' Option on various commands.
+                    all of the Phase commands (ie. G29 P4 R 5 X 50 Y100 C -.1 O)  
 
 The P or Phase commands are used for the bulk of the work to setup a Mesh.  In general, your Mesh will
 start off being initialized with a G29 P0 or a G29 P1.   Further refinement of the Mesh happens with
@@ -159,7 +157,7 @@ each additional Phase that processes it.
                   area you are manually probing.   Note that the command tries to start you in a corner
                   of the bed where movement will be predictable.  You can force the location to be used in
                   the distance calculations by using the X and Y parameters.  You may find it is helpful to
-                  print out a Mesh Map (G29 M ) to understand where the mesh is invalidated and where
+                  print out a Mesh Map (G29 O ) to understand where the mesh is invalidated and where
                   the nozzle will need to move in order to complete the command.    The C parameter is
                   available on the Phase 2 command also and indicates the search for points to measure should
                   be done based on the current location of the nozzle.
@@ -293,7 +291,7 @@ K    Keep-On  Keep the heaters turned on at the end of the command.
 
 L #  Layer    Layer height.  (Height of nozzle above bed)  If not specified .20mm will be used.
 
-M #  Multiplier Retraction Multiplier.   Normally not needed.  Retraction defaults to 1.0mm and 
+Q #  Multiplier Retraction Multiplier.   Normally not needed.  Retraction defaults to 1.0mm and 
                 un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
 
 N #  Nozzle   Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
