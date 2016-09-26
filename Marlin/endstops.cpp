@@ -243,33 +243,27 @@ void Endstops::update() {
   // COPY_BIT: copy the value of COPY_BIT to BIT in bits
   #define COPY_BIT(bits, COPY_BIT, BIT) SET_BIT(bits, BIT, TEST(bits, COPY_BIT))
 
- 
-#if defined(G38_2_3) && defined(Z_MIN_PIN) && Z_MIN_PIN > -1  // If G38 command then check Z_MIN for every axis and every direction  
-  #define UPDATE_ENDSTOP(AXIS,MINMAX) do { \
+  #define _UPDATE_ENDSTOP(AXIS,MINMAX,CODE) do { \
       UPDATE_ENDSTOP_BIT(AXIS, MINMAX); \
       if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX)) && stepper.current_block->steps[_AXIS(AXIS)] > 0) { \
         _ENDSTOP_HIT(AXIS); \
         stepper.endstop_triggered(_AXIS(AXIS)); \
-      } \
-      if (G38_flag) {\
-        UPDATE_ENDSTOP_BIT(Z, MIN); \
-        if (TEST_ENDSTOP(_ENDSTOP(Z, MIN)) && stepper.current_block->steps[_AXIS(AXIS)] > 0) { \
-          _ENDSTOP_HIT(AXIS); \
-          stepper.endstop_triggered(_AXIS(AXIS)); \
-		  G38_flag_pass = true;\
-        } \
+        CODE; \
       } \
     } while(0)
-#else	
-  #define UPDATE_ENDSTOP(AXIS,MINMAX) do { \
-      UPDATE_ENDSTOP_BIT(AXIS, MINMAX); \
-      if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX)) && stepper.current_block->steps[_AXIS(AXIS)] > 0) { \
-        _ENDSTOP_HIT(AXIS); \
-        stepper.endstop_triggered(_AXIS(AXIS)); \
-      } \
-    } while(0)
-	
-#endif	  		
+
+  #if ENABLED(G38_2_3) && PIN_EXISTS(Z_MIN)  // If G38 command then check Z_MIN for every axis and every direction  
+
+    #define UPDATE_ENDSTOP(AXIS,MINMAX) do { \
+        _UPDATE_ENDSTOP(AXIS,MINMAX,NOOP); \
+        if (G38_move) _UPDATE_ENDSTOP(Z, MIN, G38_endstop_hit = true); \
+      } while(0)
+
+  #else	
+
+    #define UPDATE_ENDSTOP(AXIS,MINMAX) _UPDATE_ENDSTOP(AXIS,MINMAX,NOOP)
+
+  #endif
 
   #if ENABLED(COREXY) || ENABLED(COREXZ)
     // Head direction in -X axis for CoreXY and CoreXZ bots.
