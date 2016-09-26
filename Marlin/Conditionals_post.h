@@ -117,8 +117,6 @@
   /**
    * Auto Bed Leveling and Z Probe Repeatability Test
    */
-  #define HAS_PROBING_PROCEDURE (ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
-
   #define HOMING_Z_WITH_PROBE (HAS_BED_PROBE && Z_HOME_DIR < 0 && ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN))
 
   /**
@@ -644,25 +642,14 @@
   #endif
 
   /**
-   * Specify the exact style of auto bed leveling
-   *
-   *  3POINT    - 3 Point Probing with the least-squares solution.
-   *  LINEAR    - Grid Probing with the least-squares solution.
-   *  NONLINEAR - Grid Probing with a mesh solution. Best for large beds.
+   * Set ABL options based on the specific type of leveling
    */
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #if DISABLED(AUTO_BED_LEVELING_GRID)
-      #define AUTO_BED_LEVELING_LINEAR
-      #define AUTO_BED_LEVELING_3POINT
-    #elif IS_KINEMATIC
-      #define AUTO_BED_LEVELING_NONLINEAR
-    #else
-      #define AUTO_BED_LEVELING_LINEAR
-      #define AUTO_BED_LEVELING_LINEAR_GRID
-    #endif
-  #endif
+  #define ABL_PLANAR (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT))
+  #define ABL_GRID   (ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR))
+  #define HAS_ABL    (ABL_PLANAR || ABL_GRID)
 
-  #define PLANNER_LEVELING (ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_FEATURE))
+  #define HAS_PROBING_PROCEDURE (HAS_ABL || ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST))
+  #define PLANNER_LEVELING      (HAS_ABL || ENABLED(MESH_BED_LEVELING))
 
   /**
    * Buzzer/Speaker

@@ -69,8 +69,6 @@
   #error "CUSTOM_MENDEL_NAME is now CUSTOM_MACHINE_NAME. Please update your configuration."
 #elif defined(HAS_AUTOMATIC_VERSIONING)
   #error "HAS_AUTOMATIC_VERSIONING is now USE_AUTOMATIC_VERSIONING. Please update your configuration."
-#elif defined(ENABLE_AUTO_BED_LEVELING)
-  #error "ENABLE_AUTO_BED_LEVELING is now AUTO_BED_LEVELING_FEATURE. Please update your configuration."
 #elif defined(SDSLOW)
   #error "SDSLOW deprecated. Set SPI_SPEED to SPI_HALF_SPEED instead."
 #elif defined(SDEXTRASLOW)
@@ -137,8 +135,12 @@
   #error "PREVENT_DANGEROUS_EXTRUDE is now PREVENT_COLD_EXTRUSION. Please update your configuration."
 #elif defined(SCARA)
   #error "SCARA is now MORGAN_SCARA. Please update your configuration."
-#elif defined(AUTO_BED_LEVELING_GRID_POINTS)
-  #error "AUTO_BED_LEVELING_GRID_POINTS is now ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y. Please update your configuration."
+#elif defined(ENABLE_AUTO_BED_LEVELING)
+  #error "ENABLE_AUTO_BED_LEVELING is deprecated. Specify AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_3POINT."
+#elif defined(AUTO_BED_LEVELING_FEATURE)
+  #error "AUTO_BED_LEVELING_FEATURE is deprecated. Specify AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_3POINT."
+#elif defined(ABL_GRID_POINTS)
+  #error "ABL_GRID_POINTS is now ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y. Please update your configuration."
 #elif defined(BEEPER)
   #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECT)
@@ -205,7 +207,7 @@
   #if DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
     #error "You probably want to use Max Endstops for DELTA!"
   #endif
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
+  #if ABL_GRID
     #if (ABL_GRID_POINTS_X & 1) == 0 || (ABL_GRID_POINTS_Y & 1) == 0
       #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be odd numbers."
     #elif ABL_GRID_POINTS_X < 3
@@ -340,28 +342,55 @@
 #endif
 
 /**
+ * Allow only one bed leveling option to be defined
+ */
+#if HAS_ABL
+  #define COUNT_LEV_1 0
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+    #define COUNT_LEV_2 INCREMENT(COUNT_LEV_1)
+  #else
+    #define COUNT_LEV_2 COUNT_LEV_1
+  #endif
+  #if ENABLED(AUTO_BED_LEVELING_3POINT)
+    #define COUNT_LEV_3 INCREMENT(COUNT_LEV_2)
+  #else
+    #define COUNT_LEV_3 COUNT_LEV_2
+  #endif
+  #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+    #define COUNT_LEV_4 INCREMENT(COUNT_LEV_3)
+  #else
+    #define COUNT_LEV_4 COUNT_LEV_3
+  #endif
+  #if ENABLED(MESH_BED_LEVELING)
+    #define COUNT_LEV_5 INCREMENT(COUNT_LEV_4)
+  #else
+    #define COUNT_LEV_5 COUNT_LEV_4
+  #endif
+  #if COUNT_LEV_5 > 1
+    #error "Select only one of: MESH_BED_LEVELING, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, or AUTO_BED_LEVELING_BILINEAR."
+  #endif
+#endif
+
+/**
  * Mesh Bed Leveling
  */
 #if ENABLED(MESH_BED_LEVELING)
   #if ENABLED(DELTA)
     #error "MESH_BED_LEVELING does not yet support DELTA printers."
-  #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #error "Select AUTO_BED_LEVELING_FEATURE or MESH_BED_LEVELING, not both."
   #elif MESH_NUM_X_POINTS > 9 || MESH_NUM_Y_POINTS > 9
     #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS must be less than 10."
   #endif
 #elif ENABLED(MANUAL_BED_LEVELING)
-  #error "MESH_BED_LEVELING is required for MANUAL_BED_LEVELING."
+  #error "MANUAL_BED_LEVELING only applies to MESH_BED_LEVELING."
 #endif
 
 /**
  * Probes
  */
-
 #if PROBE_SELECTED
 
   /**
-   * Only allow one probe option to be defined
+   * Allow only one probe option to be defined
    */
   #define COUNT_PROBE_1 0
   #if ENABLED(FIX_MOUNTED_PROBE)
@@ -448,8 +477,8 @@
   /**
    * Require some kind of probe for bed leveling and probe testing
    */
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #error "AUTO_BED_LEVELING_FEATURE requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+  #if HAS_ABL
+    #error "Auto Bed Leveling requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #elif ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
     #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
@@ -485,19 +514,23 @@
 /**
  * Auto Bed Leveling
  */
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if HAS_ABL
 
   /**
-   * Delta has limited bed leveling options
+   * Delta and SCARA have limited bed leveling options
    */
-  #if ENABLED(DELTA) && DISABLED(AUTO_BED_LEVELING_GRID)
-    #error "You must use AUTO_BED_LEVELING_GRID for DELTA bed leveling."
+  #if DISABLED(AUTO_BED_LEVELING_BILINEAR)
+    #if ENABLED(DELTA)
+      #error "Only AUTO_BED_LEVELING_BILINEAR is supported for DELTA bed leveling."
+    #elif ENABLED(SCARA)
+      #error "Only AUTO_BED_LEVELING_BILINEAR is supported for SCARA bed leveling."
+    #endif
   #endif
 
   /**
    * Check if Probe_Offset * Grid Points is greater than Probing Range
    */
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
+  #if ABL_GRID
     #ifndef DELTA_PROBEABLE_RADIUS
       // Be sure points are in the right order
       #if LEFT_PROBE_BED_POSITION > RIGHT_PROBE_BED_POSITION
@@ -516,7 +549,7 @@
         #error "The given BACK_PROBE_BED_POSITION can't be reached by the Z probe."
       #endif
     #endif
-  #else // !AUTO_BED_LEVELING_GRID
+  #else // !ABL_GRID
 
     // Check the triangulation points
     #if ABL_PROBE_PT_1_X < MIN_PROBE_X || ABL_PROBE_PT_1_X > MAX_PROBE_X
@@ -533,9 +566,9 @@
       #error "The given ABL_PROBE_PT_3_Y can't be reached by the Z probe."
     #endif
 
-  #endif // !AUTO_BED_LEVELING_GRID
+  #endif // !ABL_GRID
 
-#endif // AUTO_BED_LEVELING_FEATURE
+#endif // HAS_ABL
 
 /**
  * Advance Extrusion
