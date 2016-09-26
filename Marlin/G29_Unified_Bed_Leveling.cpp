@@ -102,9 +102,7 @@ extern long babysteps_done;
       L #   Load      Load Mesh from the specified location in the EEPROM.  Set this location as activated
                       for subsequent Load and Store operations.
 
-      M     Map       Display the Mesh Map Topology.  A lower case 'm' can be used to get around a problem with
-                      Repetier Host thinking 'M' is the start of a new command.   Also an 'O' can be used to 
-		      flag that the Mesh Map should be displayed.  From a G29 perspective they are all the same.
+      O     Map       Display the Mesh Map Topology.  
 		      The parameter can be specified alone (ie. G29 M) or in combination with many of the 
 		      other commands.  The Mesh Map option works with all of the Phase 
 		      commands (ie. G29 P4 R 5 X 50 Y100 C -.1 M) 
@@ -575,7 +573,7 @@ void gcode_G29() {
   }
 
 
-  if ( code_seen('M') || code_seen('m') || code_seen('O') ) {
+  if ( code_seen('O') ) {
     i = 0;
     if (code_has_value())
       i = code_value_int();
