@@ -94,7 +94,7 @@
 //
 // L #  Layer		Layer height.  (Height of nozzle above bed)  If not specified .20mm will be used.
 //
-// M #  Multiplier	Retraction Multiplier.   Normally not needed.  Retraction defaults to 1.0mm and 
+// Q #  Multiplier	Retraction Multiplier.   Normally not needed.  Retraction defaults to 1.0mm and 
 //			un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
 //
 // N #  Nozzle		Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
@@ -790,7 +790,7 @@ bool parse_G26_parameters() {
 	}
   }
 
-  if (code_seen('M')) {
+  if (code_seen('Q')) {
   	if (code_has_value()) {
 		Retraction_Multiplier = code_value_float();
 		if ( Retraction_Multiplier<.05 || Retraction_Multiplier>15.0 ) {
