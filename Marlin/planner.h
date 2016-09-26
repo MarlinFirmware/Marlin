@@ -35,7 +35,7 @@
 #include "types.h"
 #include "MarlinConfig.h"
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if HAS_ABL
   #include "vector_3.h"
 #endif
 
@@ -136,7 +136,7 @@ class Planner {
     static float max_e_jerk;
     static float min_travel_feedrate_mm_s;
 
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #if HAS_ABL
       static bool abl_enabled;            // Flag that bed leveling is enabled
       static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
     #endif
@@ -202,7 +202,7 @@ class Planner {
 
     static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
 
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
+    #if HAS_ABL || ENABLED(MESH_BED_LEVELING)
       #define ARG_X float lx
       #define ARG_Y float ly
       #define ARG_Z float lz
