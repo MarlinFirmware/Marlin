@@ -145,6 +145,7 @@ class Temperature {
 
     #if ENABLED(PIDTEMP)
       static float temp_iState[HOTENDS],
+                   temp_iOverflow[HOTENDS],
                    temp_dState[HOTENDS],
                    pTerm[HOTENDS],
                    iTerm[HOTENDS],
@@ -165,6 +166,7 @@ class Temperature {
 
     #if ENABLED(PIDTEMPBED)
       static float temp_iState_bed,
+                   temp_iOverflow_bed,
                    temp_dState_bed,
                    pTerm_bed,
                    iTerm_bed,
