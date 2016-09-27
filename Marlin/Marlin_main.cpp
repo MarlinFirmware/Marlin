@@ -2136,7 +2136,9 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ABL_PLANAR
       planner.bed_level_matrix.set_to_identity();
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      memset(bed_level_grid, 0, sizeof(bed_level_grid));
+      for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++)
+        for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++)
+          bed_level_grid[x][y] = 1000.0;
     #endif
   }
 
@@ -2148,44 +2150,125 @@ static void clean_up_after_endstop_or_probe_move() {
    * Extrapolate a single point from its neighbors
    */
   static void extrapolate_one_point(uint8_t x, uint8_t y, int8_t xdir, int8_t ydir) {
-    if (bed_level_grid[x][y]) return;  // Don't overwrite good values.
-    float a = 2 * bed_level_grid[x + xdir][y] - bed_level_grid[x + xdir * 2][y], // Left to right.
-          b = 2 * bed_level_grid[x][y + ydir] - bed_level_grid[x][y + ydir * 2], // Front to back.
-          c = 2 * bed_level_grid[x + xdir][y + ydir] - bed_level_grid[x + xdir * 2][y + ydir * 2]; // Diagonal.
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPGM("Extrapolate [");
+        if (x < 10) SERIAL_CHAR(' ');
+        SERIAL_ECHO((int)x);
+        SERIAL_CHAR(xdir ? (xdir > 0 ? '+' : '-') : ' ');
+        SERIAL_CHAR(' ');
+        if (y < 10) SERIAL_CHAR(' ');
+        SERIAL_ECHO((int)y);
+        SERIAL_CHAR(ydir ? (ydir > 0 ? '+' : '-') : ' ');
+        SERIAL_CHAR(']');
+      }
+    #endif
+    if (bed_level_grid[x][y] < 999.0) {
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" (done)");
+      #endif
+      return;  // Don't overwrite good values.
+    }
+
+    // Get X neighbors, Y neighbors, and XY neighbors
+    float a1 = bed_level_grid[x + xdir][y], a2 = bed_level_grid[x + xdir * 2][y],
+          b1 = bed_level_grid[x][y + ydir], b2 = bed_level_grid[x][y + ydir * 2],
+          c1 = bed_level_grid[x + xdir][y + ydir], c2 = bed_level_grid[x + xdir * 2][y + ydir * 2];
+
+    // Treat far unprobed points as zero, near as equal to far
+    if (a2 > 999.0) a2 = 0.0; if (a1 > 999.0) a1 = a2;
+    if (b2 > 999.0) b2 = 0.0; if (b1 > 999.0) b1 = b2;
+    if (c2 > 999.0) c2 = 0.0; if (c1 > 999.0) c1 = c2;
+
+    float a = 2 * a1 - a2, b = 2 * b1 - b2, c = 2 * c1 - c2;
+
+    // Take the average intstead of the median
+    bed_level_grid[x][y] = (a + b + c) / 3.0;
+
     // Median is robust (ignores outliers).
-    bed_level_grid[x][y] = (a < b) ? ((b < c) ? b : (c < a) ? a : c)
-                                   : ((c < b) ? b : (a < c) ? a : c);
+    // bed_level_grid[x][y] = (a < b) ? ((b < c) ? b : (c < a) ? a : c)
+    //                                : ((c < b) ? b : (a < c) ? a : c);
   }
+
+  #define EXTRAPOLATE_FROM_EDGE
+
+  #if ENABLED(EXTRAPOLATE_FROM_EDGE)
+    #if ABL_GRID_POINTS_X < ABL_GRID_POINTS_Y
+      #define HALF_IN_X
+    #elif ABL_GRID_POINTS_Y < ABL_GRID_POINTS_X
+      #define HALF_IN_Y
+    #endif
+  #endif
 
   /**
    * Fill in the unprobed points (corners of circular print surface)
    * using linear extrapolation, away from the center.
    */
   static void extrapolate_unprobed_bed_level() {
-    int half_x = (ABL_GRID_POINTS_X - 1) / 2,
-        half_y = (ABL_GRID_POINTS_Y - 1) / 2;
-    for (uint8_t y = 0; y <= half_y; y++) {
-      for (uint8_t x = 0; x <= half_x; x++) {
-        if (x + y < 3) continue;
-        extrapolate_one_point(half_x - x, half_y - y, x > 1 ? +1 : 0, y > 1 ? +1 : 0);
-        extrapolate_one_point(half_x + x, half_y - y, x > 1 ? -1 : 0, y > 1 ? +1 : 0);
-        extrapolate_one_point(half_x - x, half_y + y, x > 1 ? +1 : 0, y > 1 ? -1 : 0);
-        extrapolate_one_point(half_x + x, half_y + y, x > 1 ? -1 : 0, y > 1 ? -1 : 0);
+    #ifdef HALF_IN_X
+      const uint8_t ctrx2 = 0, xlen = ABL_GRID_POINTS_X - 1;
+    #else
+      const uint8_t ctrx1 = (ABL_GRID_POINTS_X - 1) / 2, // left-of-center
+                    ctrx2 = ABL_GRID_POINTS_X / 2,       // right-of-center
+                    xlen = ctrx1;
+    #endif
+
+    #ifdef HALF_IN_Y
+      const uint8_t ctry2 = 0, ylen = ABL_GRID_POINTS_Y - 1;
+    #else
+      const uint8_t ctry1 = (ABL_GRID_POINTS_Y - 1) / 2, // top-of-center
+                    ctry2 = ABL_GRID_POINTS_Y / 2,       // bottom-of-center
+                    ylen = ctry1;
+    #endif
+
+    for (uint8_t xo = 0; xo <= xlen; xo++)
+      for (uint8_t yo = 0; yo <= ylen; yo++) {
+        uint8_t x2 = ctrx2 + xo, y2 = ctry2 + yo;
+        #ifndef HALF_IN_X
+          uint8_t x1 = ctrx1 - xo;
+        #endif
+        #ifndef HALF_IN_Y
+          uint8_t y1 = ctry1 - yo;
+          #ifndef HALF_IN_X
+            extrapolate_one_point(x1, y1, +1, +1);   //  left-below + +
+          #endif
+          extrapolate_one_point(x2, y1, -1, +1);     // right-below - +
+        #endif
+        #ifndef HALF_IN_X
+          extrapolate_one_point(x1, y2, +1, -1);     //  left-above + -
+        #endif
+        extrapolate_one_point(x2, y2, -1, -1);       // right-above - -
       }
-    }
+
   }
 
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
   static void print_bed_level() {
+    SERIAL_ECHOPGM("Bilinear Leveling Grid:\n ");
+    for (uint8_t x = 1; x < ABL_GRID_POINTS_X + 1; x++) {
+      SERIAL_PROTOCOLPGM("    ");
+      if (x < 10) SERIAL_PROTOCOLCHAR(' ');
+      SERIAL_PROTOCOL((int)x);
+    }
+    SERIAL_EOL;
     for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++) {
+      if (y < 9) SERIAL_PROTOCOLCHAR(' ');
+      SERIAL_PROTOCOL(y + 1);
       for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
-        SERIAL_PROTOCOL_F(bed_level_grid[x][y], 2);
         SERIAL_PROTOCOLCHAR(' ');
+        float offset = bed_level_grid[x][y];
+        if (offset < 999.0) {
+          if (offset > 0) SERIAL_CHAR('+');
+          SERIAL_PROTOCOL_F(offset, 2);
+        }
+        else
+          SERIAL_PROTOCOLPGM(" ====");
       }
       SERIAL_EOL;
     }
+    SERIAL_EOL;
   }
 
 #endif // AUTO_BED_LEVELING_BILINEAR
