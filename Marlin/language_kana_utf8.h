@@ -32,8 +32,6 @@
 #define LANGUAGE_KANA_UTF_H
 
 #define MAPPER_E382E383
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_KANA
 
 // This just to show the potential benefit of unicode.
@@ -106,10 +104,6 @@
 #define MSG_VZ_JERK                         "Zジク ヤクド mm/s"             // "Vz-jerk"
 #define MSG_VE_JERK                         "エクストルーダー ヤクド"          // "Ve-jerk"
 #define MSG_VMAX                            "サイダイオクリソクド "            // "Vmax "
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "サイショウオクリソクド"           // "Vmin"
 #define MSG_VTRAV_MIN                       "サイショウイドウソクド"           // "VTrav min"
 #define MSG_AMAX                            "サイダイカソクド "              // "Amax "

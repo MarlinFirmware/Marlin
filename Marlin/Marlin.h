@@ -60,35 +60,36 @@
   #include "stopwatch.h"
 #endif
 
-#define SERIAL_CHAR(x) MYSERIAL.write(x)
+extern const char echomagic[] PROGMEM;
+extern const char errormagic[] PROGMEM;
+
+#define SERIAL_CHAR(x) (MYSERIAL.write(x))
 #define SERIAL_EOL SERIAL_CHAR('\n')
 
-#define SERIAL_PROTOCOLCHAR(x) SERIAL_CHAR(x)
-#define SERIAL_PROTOCOL(x) MYSERIAL.print(x)
-#define SERIAL_PROTOCOL_F(x,y) MYSERIAL.print(x,y)
-#define SERIAL_PROTOCOLPGM(x) serialprintPGM(PSTR(x))
-#define SERIAL_PROTOCOLLN(x) do{ MYSERIAL.print(x); SERIAL_EOL; }while(0)
-#define SERIAL_PROTOCOLLNPGM(x) do{ serialprintPGM(PSTR(x "\n")); }while(0)
+#define SERIAL_PROTOCOLCHAR(x)              SERIAL_CHAR(x)
+#define SERIAL_PROTOCOL(x)                  (MYSERIAL.print(x))
+#define SERIAL_PROTOCOL_F(x,y)              (MYSERIAL.print(x,y))
+#define SERIAL_PROTOCOLPGM(x)               (serialprintPGM(PSTR(x)))
+#define SERIAL_PROTOCOLLN(x)                do{ MYSERIAL.print(x); SERIAL_EOL; }while(0)
+#define SERIAL_PROTOCOLLNPGM(x)             (serialprintPGM(PSTR(x "\n")))
+#define SERIAL_PROTOCOLPAIR(name, value)    (serial_echopair_P(PSTR(name),(value)))
+#define SERIAL_PROTOCOLLNPAIR(name, value)  do{ SERIAL_PROTOCOLPAIR(name, value); SERIAL_EOL; }while(0)
 
-#define SERIAL_PROTOCOLPAIR(name, value) SERIAL_ECHOPAIR(name, value)
+#define SERIAL_ECHO_START             (serialprintPGM(echomagic))
+#define SERIAL_ECHO(x)                 SERIAL_PROTOCOL(x)
+#define SERIAL_ECHOPGM(x)              SERIAL_PROTOCOLPGM(x)
+#define SERIAL_ECHOLN(x)               SERIAL_PROTOCOLLN(x)
+#define SERIAL_ECHOLNPGM(x)            SERIAL_PROTOCOLLNPGM(x)
+#define SERIAL_ECHOPAIR(name,value)    SERIAL_PROTOCOLPAIR(name, value)
+#define SERIAL_ECHOLNPAIR(name, value) SERIAL_PROTOCOLLNPAIR(name, value)
 
-extern const char errormagic[] PROGMEM;
-extern const char echomagic[] PROGMEM;
+#define SERIAL_ERROR_START            (serialprintPGM(errormagic))
+#define SERIAL_ERROR(x)                SERIAL_PROTOCOL(x)
+#define SERIAL_ERRORPGM(x)             SERIAL_PROTOCOLPGM(x)
+#define SERIAL_ERRORLN(x)              SERIAL_PROTOCOLLN(x)
+#define SERIAL_ERRORLNPGM(x)           SERIAL_PROTOCOLLNPGM(x)
 
-#define SERIAL_ERROR_START serialprintPGM(errormagic)
-#define SERIAL_ERROR(x) SERIAL_PROTOCOL(x)
-#define SERIAL_ERRORPGM(x) SERIAL_PROTOCOLPGM(x)
-#define SERIAL_ERRORLN(x) SERIAL_PROTOCOLLN(x)
-#define SERIAL_ERRORLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
-
-#define SERIAL_ECHO_START serialprintPGM(echomagic)
-#define SERIAL_ECHO(x) SERIAL_PROTOCOL(x)
-#define SERIAL_ECHOPGM(x) SERIAL_PROTOCOLPGM(x)
-#define SERIAL_ECHOLN(x) SERIAL_PROTOCOLLN(x)
-#define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
-
-#define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
-
+void serial_echopair_P(const char* s_P, const char *v);
 void serial_echopair_P(const char* s_P, char v);
 void serial_echopair_P(const char* s_P, int v);
 void serial_echopair_P(const char* s_P, long v);
@@ -260,9 +261,7 @@ extern int feedrate_percentage;
 
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
-#define MMM_SCALED(MM_M) ((MM_M)*feedrate_percentage*0.01)
-#define MMS_SCALED(MM_S) MMM_SCALED(MM_S)
-#define MMM_TO_MMS_SCALED(MM_M) (MMS_SCALED(MMM_TO_MMS(MM_M)))
+#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
 
 extern bool axis_relative_modes[];
 extern bool volumetric_enabled;
@@ -390,9 +389,9 @@ void calculate_volumetric_multipliers();
 /**
  * Blocking movement and shorthand functions
  */
-inline void do_blocking_move_to(float x, float y, float z, float fr_mm_m=0.0);
-inline void do_blocking_move_to_x(float x, float fr_mm_m=0.0);
-inline void do_blocking_move_to_z(float z, float fr_mm_m=0.0);
-inline void do_blocking_move_to_xy(float x, float y, float fr_mm_m=0.0);
+void do_blocking_move_to(const float &x, const float &y, const float &z, const float &fr_mm_s=0.0);
+void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
+void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
+void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
 
 #endif //MARLIN_H

@@ -31,8 +31,6 @@
 #define LANGUAGE_DE_H
 
 #define MAPPER_C2C3
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " bereit"
@@ -69,7 +67,7 @@
 #define MSG_MOVE_X                          "X"
 #define MSG_MOVE_Y                          "Y"
 #define MSG_MOVE_Z                          "Z"
-#define MSG_MOVE_E                          "E"
+#define MSG_MOVE_E                          "Extruder "
 #define MSG_MOVE_01MM                       " 0.1 mm"
 #define MSG_MOVE_1MM                        " 1.0 mm"
 #define MSG_MOVE_10MM                       "10.0 mm"
@@ -95,10 +93,6 @@
 #define MSG_VZ_JERK                         "V Z  Jerk"
 #define MSG_VE_JERK                         "V E  Jerk"
 #define MSG_VMAX                            "V max " // space by purpose
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "V min"
 #define MSG_VTRAV_MIN                       "V min Leerfahrt"
 #define MSG_AMAX                            "A max " // space by purpose
@@ -159,8 +153,8 @@
 #define MSG_ERR_MINTEMP                     LCD_STR_THERMOMETER " UNTERSCHRITTEN"
 #define MSG_ERR_MAXTEMP_BED                 "BETT " LCD_STR_THERMOMETER " ÜBERSCHRITTEN"
 #define MSG_ERR_MINTEMP_BED                 "BETT " LCD_STR_THERMOMETER " UNTERSCHRITTEN"
-#define MSG_HEATING                         "Aufheizen..."
-#define MSG_HEATING_COMPLETE                "Aufgeheizt"
+#define MSG_HEATING                         "Extr. Aufheizen..."
+#define MSG_HEATING_COMPLETE                "Extr. aufgeheizt"
 #define MSG_BED_HEATING                     "Bett aufheizen"
 #define MSG_BED_DONE                        "Bett aufgeheizt"
 #define MSG_DELTA_CALIBRATE                 "Delta kalibrieren"
@@ -179,13 +173,17 @@
 #define MSG_INFO_PROTOCOL                   "Protokol"
 
 #if LCD_WIDTH > 19
-  #define MSG_INFO_PRINT_COUNT              "Gesamte Drucke   "
-  #define MSG_INFO_COMPLETED_PRINTS         "Beendete Drucke  "
+  #define MSG_INFO_PRINT_COUNT              "Gesamte Drucke"
+  #define MSG_INFO_COMPLETED_PRINTS         "Beendete Drucke"
   #define MSG_INFO_PRINT_TIME               "Gesamte Druckzeit"
+  #define MSG_INFO_PRINT_LONGEST            "Längster Druckjob"
+  #define MSG_INFO_PRINT_FILAMENT           "Gesamt Extrudiert"
 #else
-  #define MSG_INFO_PRINT_COUNT              "Prints   "
-  #define MSG_INFO_COMPLETED_PRINTS         "Completed"
-  #define MSG_INFO_PRINT_TIME               "Duration "
+  #define MSG_INFO_PRINT_COUNT              "Drucke"
+  #define MSG_INFO_COMPLETED_PRINTS         "Komplett"
+  #define MSG_INFO_PRINT_TIME               "Gesamt "
+  #define MSG_INFO_PRINT_LONGEST            "Längster"
+  #define MSG_INFO_PRINT_FILAMENT           "Extrud."
 #endif
 #define MSG_INFO_MIN_TEMP                   "Min Temp"
 #define MSG_INFO_MAX_TEMP                   "Max Temp"

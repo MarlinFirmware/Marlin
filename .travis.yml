@@ -93,6 +93,12 @@ script:
   - opt_enable PIDTEMPBED
   - build_marlin
   #
+  # Test MAX6675
+  #
+  - restore_configs
+  - opt_set TEMP_SENSOR_0 -2
+  - build_marlin
+  #
   # Test a "Fix Mounted" Probe along with Safe Homing
   #
   - restore_configs
@@ -199,10 +205,11 @@ script:
   - opt_enable ULTIMAKERCONTROLLER FILAMENT_LCD_DISPLAY
   - build_marlin
   #
-  # Enable BEZIER_CURVE_SUPPORT
+  # Enable BEZIER_CURVE_SUPPORT, EXPERIMENTAL_I2CBUS, and I2C_SLAVE_ADDRESS
   #
   - restore_configs
-  - opt_enable_adv BEZIER_CURVE_SUPPORT
+  - opt_enable_adv BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
+  - opt_set_adv I2C_SLAVE_ADDRESS 63
   - build_marlin
   #
   # Enable COREXY
@@ -343,6 +350,7 @@ script:
   # Delta Config (generic)
   - restore_configs
   - use_example_configs delta/generic
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER DELTA_CALIBRATION_MENU
   - build_marlin
   #
   # Delta Config (generic) + ABL + ALLEN_KEY
