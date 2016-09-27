@@ -3475,11 +3475,15 @@ inline void gcode_G28() {
   inline void gcode_G29() {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
+      bool query = code_seen('Q');
+      uint8_t old_debug_flags = marlin_debug_flags;
+      if (query) marlin_debug_flags |= DEBUG_LEVELING;
       if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOLNPGM(">>> gcode_G29");
-        DEBUG_POS("", current_position);
+        DEBUG_POS(">>> gcode_G29", current_position);
         log_machine_info();
       }
+      marlin_debug_flags = old_debug_flags;
+      if (query) return;
     #endif
 
     // Don't allow auto-leveling without homing first
