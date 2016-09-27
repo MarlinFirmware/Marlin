@@ -56,7 +56,7 @@ typedef struct {
   unsigned char active_extruder;            // The extruder to move (if E move)
 
   // Fields used by the bresenham algorithm for tracing the line
-  long steps[NUM_AXIS];                     // Step count along each axis
+  unsigned long steps[NUM_AXIS];            // Step count along each axis
   unsigned long step_event_count;           // The number of step events required to complete this block
 
   #if ENABLED(MIXING_EXTRUDER)
