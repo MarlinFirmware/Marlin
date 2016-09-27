@@ -2850,6 +2850,47 @@ inline void gcode_G4() {
         SERIAL_ECHOPGM(" & Same Z as");
       SERIAL_ECHOLNPGM(" Nozzle)");
     #endif
+
+    #if HAS_ABL
+      SERIAL_ECHOPGM("Auto Bed Leveling: ");
+      #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+        SERIAL_ECHOPGM("LINEAR");
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        SERIAL_ECHOPGM("BILINEAR");
+      #elif ENABLED(AUTO_BED_LEVELING_3POINT)
+        SERIAL_ECHOPGM("3POINT");
+      #endif
+      if (planner.abl_enabled) {
+        SERIAL_ECHOLNPGM(" (enabled)");
+        #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT)
+          float diff[XYZ] = {
+            stepper.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
+            stepper.get_axis_position_mm(Y_AXIS) - current_position[Y_AXIS],
+            stepper.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]
+          };
+          SERIAL_ECHOPGM("ABL Adjustment X");
+          if (diff[X_AXIS] > 0) SERIAL_CHAR('+');
+          SERIAL_ECHO(diff[X_AXIS]);
+          SERIAL_ECHOPGM(" Y");
+          if (diff[Y_AXIS] > 0) SERIAL_CHAR('+');
+          SERIAL_ECHO(diff[Y_AXIS]);
+          SERIAL_ECHOPGM(" Z");
+          if (diff[Z_AXIS] > 0) SERIAL_CHAR('+');
+          SERIAL_ECHO(diff[Z_AXIS]);
+        #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+          SERIAL_ECHOPAIR("ABL Adjustment Z", bilinear_z_offset(current_position));
+        #endif
+      }
+      SERIAL_EOL;
+    #elif ENABLED(MESH_BED_LEVELING)
+      SERIAL_ECHOPGM("Mesh Bed Leveling");
+      if (mbl.active()) {
+        SERIAL_ECHOLNPGM(" (enabled)");
+        SERIAL_ECHOPAIR("MBL Adjustment Z", mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS)));
+      }
+      SERIAL_EOL;
+    #endif
+
   }
 
 #endif // DEBUG_LEVELING_FEATURE
