@@ -34,10 +34,10 @@
 // Channels available for DAC, For Rigidboard there are 4
 #define DAC_STEPPER_ORDER { 0, 1, 2, 3 }
 
-#define DAC_STEPPER_SENSE    0.11
+#define DAC_STEPPER_SENSE    0.05 //sense resistors on rigidboard stepper chips are .05 value
 #define DAC_STEPPER_ADDRESS  0
-#define DAC_STEPPER_MAX   5000
-#define DAC_STEPPER_VREF     1 //internal Vref, gain 1x = 2.048V
-#define DAC_STEPPER_GAIN     0
-#define DAC_DISABLE_PIN     42 //  set low to enable DAC
+#define DAC_STEPPER_MAX   4096 // was 5000 but max allowable value is actually 4096 
+#define DAC_STEPPER_VREF     1 // internal Vref, gain 2x = 4.096V
+#define DAC_STEPPER_GAIN     1 // value of 1 here sets gain of 2
+#define DAC_DISABLE_PIN     42 // set low to enable DAC
 #define DAC_OR_ADDRESS    0x01
