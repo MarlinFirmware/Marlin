@@ -3516,7 +3516,7 @@ inline void gcode_G28() {
     stepper.synchronize();
 
     // Disable auto bed leveling during G29
-    bool abl_should_reenable = planner.abl_enabled;
+    bool abl_should_enable = planner.abl_enabled;
 
     planner.abl_enabled = false;
 
@@ -3534,7 +3534,7 @@ inline void gcode_G28() {
 
     // Deploy the probe. Probe will raise if needed.
     if (DEPLOY_PROBE()) {
-      planner.abl_enabled = abl_should_reenable;
+      planner.abl_enabled = abl_should_enable;
       return;
     }
 
@@ -3555,7 +3555,7 @@ inline void gcode_G28() {
           bilinear_grid_spacing[X_AXIS] = xGridSpacing;
           bilinear_grid_spacing[Y_AXIS] = yGridSpacing;
           // Can't re-enable (on error) until the new grid is written
-          abl_should_reenable = false;
+          abl_should_enable = false;
         }
 
       #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -3617,7 +3617,7 @@ inline void gcode_G28() {
           measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
           if (measured_z == NAN) {
-            planner.abl_enabled = abl_should_reenable;
+            planner.abl_enabled = abl_should_enable;
             return;
           }
 
@@ -3661,7 +3661,7 @@ inline void gcode_G28() {
       }
 
       if (measured_z == NAN) {
-        planner.abl_enabled = abl_should_reenable;
+        planner.abl_enabled = abl_should_enable;
         return;
       }
 
@@ -3675,14 +3675,14 @@ inline void gcode_G28() {
         planner.bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
 
         // Can't re-enable (on error) until the new grid is written
-        abl_should_reenable = false;
+        abl_should_enable = false;
       }
 
     #endif // AUTO_BED_LEVELING_3POINT
 
     // Raise to _Z_CLEARANCE_DEPLOY_PROBE. Stow the probe.
     if (STOW_PROBE()) {
-      planner.abl_enabled = abl_should_reenable;
+      planner.abl_enabled = abl_should_enable;
       return;
     }
 
@@ -3855,27 +3855,29 @@ inline void gcode_G28() {
         current_position[Y_AXIS] = LOGICAL_Y_POSITION(y_dist) + Y_TILT_FULCRUM;
         current_position[Z_AXIS] = new_z;
 
-        SYNC_PLAN_POSITION_KINEMATIC();
-
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
         #endif
+
+        SYNC_PLAN_POSITION_KINEMATIC();
+        abl_should_enable = true;
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!dryrun) {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
         #endif
 
         current_position[Z_AXIS] -= bilinear_z_offset(current_position);
 
-        SYNC_PLAN_POSITION_KINEMATIC();
-
         #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("G29 corrected Z:", current_position[Z_AXIS]);
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
         #endif
+
+        SYNC_PLAN_POSITION_KINEMATIC();
+        abl_should_enable = true;
       }
 
     #endif // ABL_PLANAR
@@ -3897,7 +3899,7 @@ inline void gcode_G28() {
     KEEPALIVE_STATE(IN_HANDLER);
 
     // Auto Bed Leveling is complete! Enable if possible.
-    planner.abl_enabled = dryrun ? abl_should_reenable : true;
+    planner.abl_enabled = dryrun ? abl_should_enable : true;
   }
 
 #endif // HAS_ABL
