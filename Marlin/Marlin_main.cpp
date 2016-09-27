@@ -490,7 +490,7 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  int bilinear_grid_spacing[2] = { 0 };
+  int bilinear_grid_spacing[2] = { 0 }, bilinear_start[2] = { 0 };
   float bed_level_grid[ABL_GRID_POINTS_X][ABL_GRID_POINTS_Y];
 #endif
 
@@ -3679,9 +3679,15 @@ inline void gcode_G28() {
         float zoffset = zprobe_zoffset;
         if (code_seen('Z')) zoffset += code_value_axis_units(Z_AXIS);
 
-        if (xGridSpacing != bilinear_grid_spacing[X_AXIS] || yGridSpacing != bilinear_grid_spacing[Y_AXIS]) {
+        if ( xGridSpacing != bilinear_grid_spacing[X_AXIS]
+          || yGridSpacing != bilinear_grid_spacing[Y_AXIS]
+          || left_probe_bed_position != bilinear_start[X_AXIS]
+          || front_probe_bed_position != bilinear_start[Y_AXIS]
+        ) {
           bilinear_grid_spacing[X_AXIS] = xGridSpacing;
           bilinear_grid_spacing[Y_AXIS] = yGridSpacing;
+          bilinear_start[X_AXIS] = RAW_X_POSITION(left_probe_bed_position);
+          bilinear_start[Y_AXIS] = RAW_Y_POSITION(front_probe_bed_position);
           // Can't re-enable (on error) until the new grid is written
           abl_should_enable = false;
         }
@@ -7930,38 +7936,43 @@ void ok_to_send() {
   // Get the Z adjustment for non-linear bed leveling
   float bilinear_z_offset(float cartesian[XYZ]) {
 
-    int half_x = (ABL_GRID_POINTS_X - 1) / 2,
-        half_y = (ABL_GRID_POINTS_Y - 1) / 2;
-    float hx2 = half_x - 0.001, hx1 = -hx2,
-          hy2 = half_y - 0.001, hy1 = -hy2,
-          grid_x = max(hx1, min(hx2, RAW_X_POSITION(cartesian[X_AXIS]) / bilinear_grid_spacing[X_AXIS])),
-          grid_y = max(hy1, min(hy2, RAW_Y_POSITION(cartesian[Y_AXIS]) / bilinear_grid_spacing[Y_AXIS]));
-    int   floor_x = floor(grid_x), floor_y = floor(grid_y);
-    float ratio_x = grid_x - floor_x, ratio_y = grid_y - floor_y,
-          z1 = bed_level_grid[floor_x + half_x][floor_y + half_y],
-          z2 = bed_level_grid[floor_x + half_x][floor_y + half_y + 1],
-          z3 = bed_level_grid[floor_x + half_x + 1][floor_y + half_y],
-          z4 = bed_level_grid[floor_x + half_x + 1][floor_y + half_y + 1],
-          left = (1 - ratio_y) * z1 + ratio_y * z2,
-          right = (1 - ratio_y) * z3 + ratio_y * z4;
+    int gridx = (cartesian[X_AXIS] - bilinear_start[X_AXIS]) / bilinear_grid_spacing[X_AXIS],
+        gridy = (cartesian[Y_AXIS] - bilinear_start[Y_AXIS]) / bilinear_grid_spacing[Y_AXIS];
+
+    // What grid box is xy inside?
+    if (gridx < 0) gridx = 0;
+    if (gridx > ABL_GRID_POINTS_X - 1) gridx = ABL_GRID_POINTS_X - 1;
+    if (gridy < 0) gridy = 0;
+    if (gridy > ABL_GRID_POINTS_Y - 1) gridy = ABL_GRID_POINTS_Y - 1;
+
+          // Ratio within the grid box
+    float ratio_x = cartesian[X_AXIS] / bilinear_grid_spacing[X_AXIS] - gridx,
+          ratio_y = cartesian[Y_AXIS] / bilinear_grid_spacing[Y_AXIS] - gridy,
+
+          // Z at the box corners
+          z1 = bed_level_grid[gridx][gridy],         // left-front
+          z2 = bed_level_grid[gridx][gridy + 1],     // left-back
+          z3 = bed_level_grid[gridx + 1][gridy],     // right-front
+          z4 = bed_level_grid[gridx + 1][gridy + 1], // right-back
+
+          L = z1 + (z2 - z1) * ratio_y,   // Linear interp. LF -> LB
+          R = z3 + (z4 - z3) * ratio_y;   // Linear interp. RF -> RB
 
     /*
-      SERIAL_ECHOPAIR("grid_x=", grid_x);
-      SERIAL_ECHOPAIR(" grid_y=", grid_y);
-      SERIAL_ECHOPAIR(" floor_x=", floor_x);
-      SERIAL_ECHOPAIR(" floor_y=", floor_y);
+      SERIAL_ECHOPAIR("gridx=", gridx);
+      SERIAL_ECHOPAIR(" gridy=", gridy);
       SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
       SERIAL_ECHOPAIR(" ratio_y=", ratio_y);
       SERIAL_ECHOPAIR(" z1=", z1);
       SERIAL_ECHOPAIR(" z2=", z2);
       SERIAL_ECHOPAIR(" z3=", z3);
       SERIAL_ECHOPAIR(" z4=", z4);
-      SERIAL_ECHOPAIR(" left=", left);
-      SERIAL_ECHOPAIR(" right=", right);
-      SERIAL_ECHOPAIR(" offset=", (1 - ratio_x) * left + ratio_x * right);
+      SERIAL_ECHOPAIR(" L=", L);
+      SERIAL_ECHOPAIR(" R=", R);
+      SERIAL_ECHOPAIR(" offset=", L + ratio_x * (R - L);
     //*/
 
-    return (1 - ratio_x) * left + ratio_x * right;
+    return L + ratio_x * (R - L);
   }
 
 #endif // AUTO_BED_LEVELING_BILINEAR
