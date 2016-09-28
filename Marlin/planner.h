@@ -33,6 +33,7 @@
 #define PLANNER_H
 
 #include "types.h"
+#include "enum.h"
 #include "MarlinConfig.h"
 
 #if HAS_ABL
@@ -242,16 +243,15 @@ class Planner {
      * Clears previous speed values.
      */
     static void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float& e);
+    static void set_position_mm(const AxisEnum axis, const float& v);
+
+    static FORCE_INLINE void set_z_position_mm(const float& z) { set_position_mm(Z_AXIS, z); }
+    static FORCE_INLINE void set_e_position_mm(const float& e) { set_position_mm(E_AXIS, e); }
 
     /**
      * Sync from the stepper positions. (e.g., after an interrupted move)
      */
     static void sync_from_steppers();
-
-    /**
-     * Set the E position (mm) of the planner (and the E stepper)
-     */
-    static void set_e_position_mm(const float& e);
 
     /**
      * Does the buffer have any blocks queued?
