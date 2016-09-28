@@ -601,12 +601,6 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #define UBL_PROBE_PT_3_X 195
   #define UBL_PROBE_PT_3_Y 185
 
-  // Edge boundaries for Grid Based Mesh Leveling
-  #define LEFT_PROBE_BED_POSITION 39
-  #define RIGHT_PROBE_BED_POSITION 185
-  #define FRONT_PROBE_BED_POSITION 10
-  #define BACK_PROBE_BED_POSITION 185
-
   #if ENABLED(MANUAL_BED_LEVELING)
     #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
   #endif  // MANUAL_BED_LEVELING
@@ -614,21 +608,14 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
                                                                              // Useful to retract a deployable Z probe.
 
-// The QUICK_ACCESS_TO_Z_BABY_STEPPING is not really a Unified Bed Leveling feature.  But it was added
+// The QUICK_ACCESS_TO_Z_BABY_STEPPING_VIA_KILL_PIN is not really a Unified Bed Leveling feature.  But it was added
 // at the same time as the UBL code was being developed.  It has only been tested with the UBL System
 // active.  If you don't want UBL enabled and feel brave, you should be able to move this #define outside of 
 // the #if ENABLED(UNIFIED_BED_LEVELING_FEATURE) code block.
 
-  #define QUICK_ACCESS_TO_Z_BABY_STEPPING 65	// if this option is enabled and has a pin number defined on it,
-  						// it will give you immediate access to the Z-Baby-Stepping menu
-						// on the LCD Panel.   This is very nice when starting a print.  You
-						// need to have an LCD Panel enabled.  And you need to have a pin with
-						// a switch on it to trigger the behaviour.    If you do not care about
-						// having a Kill Switch on your LCD Panel, you can comment out all lines
-						// in the appropriate pins_???.h file (for your machine) that have 
-						// #defined KILL_PIN.   You can place that pin number here to get instant
-						// access to the Z-Baby-Stepping menu.
-						// Roxy's Left Switch is on pin 66.  Right Switch is on pin 65
+#define QUICK_ACCESS_TO_Z_BABY_STEPPING_VIA_KILL_PIN	// CAUTION:  if you enable this option, the Kill Pin will no longer shut 
+							// down the printer when pressed.  It will enable Z-Babystepping.
+
   
 #endif  // UNIFIED_BED_LEVELING_FEATURE
 
