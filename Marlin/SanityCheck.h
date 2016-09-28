@@ -332,6 +332,10 @@
   /**
    * Check if Probe_Offset * Grid Points is greater than Probing Range
    */
+
+/*  UBL doesn't use these Sanity Checks right now.   But we are going to leave them
+ *  in place because it is likely we are going to want something similar put in place.
+ *
   #if ENABLED(AUTO_BED_LEVELING_GRID)
     #ifndef DELTA_PROBEABLE_RADIUS
       // Be sure points are in the right order
@@ -369,6 +373,7 @@
     #endif
 
   #endif // !AUTO_BED_LEVELING_GRID
+*/
 
 #endif // AUTO_BED_LEVELING_FEATURE
 
