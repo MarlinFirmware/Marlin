@@ -1265,6 +1265,10 @@ void G29_What_Command() {
     SERIAL_ECHO_F( blm.state.z_offset, 6 );
     SERIAL_PROTOCOLPGM("  ------------------------------------------------------------       <----<<< \n");
 
+    SERIAL_ECHOPAIRPGM("Kill pin on :", KILL_PIN );
+    SERIAL_ECHOPAIRPGM("  state:", digitalRead(KILL_PIN ) );
+    SERIAL_PROTOCOLPGM("  \n");
+
     SERIAL_ECHOPAIRPGM("UBL_state_at_invokation :", UBL_state_at_invokation);
     SERIAL_PROTOCOLPGM("\n");
     SERIAL_ECHOPAIRPGM("UBL_state_recursion_chk :", UBL_state_recursion_chk);
