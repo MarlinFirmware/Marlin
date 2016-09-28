@@ -7936,27 +7936,29 @@ void ok_to_send() {
   // Get the Z adjustment for non-linear bed leveling
   float bilinear_z_offset(float cartesian[XYZ]) {
 
-    int gridx = (cartesian[X_AXIS] - bilinear_start[X_AXIS]) / bilinear_grid_spacing[X_AXIS],
-        gridy = (cartesian[Y_AXIS] - bilinear_start[Y_AXIS]) / bilinear_grid_spacing[Y_AXIS];
+    // XY relative to the probed area
+    const float x = RAW_X_POSITION(cartesian[X_AXIS]) - bilinear_start[X_AXIS],
+                y = RAW_Y_POSITION(cartesian[Y_AXIS]) - bilinear_start[Y_AXIS];
 
-    // What grid box is xy inside?
-    if (gridx < 0) gridx = 0;
-    if (gridx > ABL_GRID_POINTS_X - 1) gridx = ABL_GRID_POINTS_X - 1;
-    if (gridy < 0) gridy = 0;
-    if (gridy > ABL_GRID_POINTS_Y - 1) gridy = ABL_GRID_POINTS_Y - 1;
+    // Convert to grid box units
+    float ratio_x = x / bilinear_grid_spacing[X_AXIS],
+          ratio_y = y / bilinear_grid_spacing[Y_AXIS];
 
-          // Ratio within the grid box
-    float ratio_x = cartesian[X_AXIS] / bilinear_grid_spacing[X_AXIS] - gridx,
-          ratio_y = cartesian[Y_AXIS] / bilinear_grid_spacing[Y_AXIS] - gridy,
+    // Whole unit is the grid box index
+    int gridx = constrain(int(ratio_x), 0, ABL_GRID_POINTS_X - 2),
+        gridy = constrain(int(ratio_y), 0, ABL_GRID_POINTS_Y - 2);
+
+    // Subtract whole to get the ratio within the grid box
+    ratio_x -= gridx, ratio_y -= gridy;
 
           // Z at the box corners
-          z1 = bed_level_grid[gridx][gridy],         // left-front
-          z2 = bed_level_grid[gridx][gridy + 1],     // left-back
-          z3 = bed_level_grid[gridx + 1][gridy],     // right-front
-          z4 = bed_level_grid[gridx + 1][gridy + 1], // right-back
+    const float z1 = bed_level_grid[gridx][gridy],         // left-front
+                z2 = bed_level_grid[gridx][gridy + 1],     // left-back
+                z3 = bed_level_grid[gridx + 1][gridy],     // right-front
+                z4 = bed_level_grid[gridx + 1][gridy + 1], // right-back
 
-          L = z1 + (z2 - z1) * ratio_y,   // Linear interp. LF -> LB
-          R = z3 + (z4 - z3) * ratio_y;   // Linear interp. RF -> RB
+                L = z1 + (z2 - z1) * ratio_y,   // Linear interp. LF -> LB
+                R = z3 + (z4 - z3) * ratio_y;   // Linear interp. RF -> RB
 
     /*
       SERIAL_ECHOPAIR("gridx=", gridx);
@@ -7969,7 +7971,7 @@ void ok_to_send() {
       SERIAL_ECHOPAIR(" z4=", z4);
       SERIAL_ECHOPAIR(" L=", L);
       SERIAL_ECHOPAIR(" R=", R);
-      SERIAL_ECHOPAIR(" offset=", L + ratio_x * (R - L);
+      SERIAL_ECHOPAIR(" offset=", L + ratio_x * (R - L));
     //*/
 
     return L + ratio_x * (R - L);
