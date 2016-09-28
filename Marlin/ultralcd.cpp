@@ -2616,16 +2616,9 @@ void lcd_update() {
   }
 
 #if ENABLED(BABYSTEPPING)
-#ifdef QUICK_ACCESS_TO_Z_BABY_STEPPING
+#ifdef QUICK_ACCESS_TO_Z_BABY_STEPPING_VIA_KILL_PIN
 
-static bool quick_mode_needs_to_be_setup=true;		// a few lines of code to minimize our impact on CPU usage.
-							// it may be this should be moved to the init code so we don't
-							// even have to do this quick check.
-  if (quick_mode_needs_to_be_setup ) {
-     quick_mode_needs_to_be_setup = false;
-     pinMode(QUICK_ACCESS_TO_Z_BABY_STEPPING, INPUT_PULLUP);
-  }
-  if ( !digitalRead(QUICK_ACCESS_TO_Z_BABY_STEPPING)) {	// assume an active low pin
+  if ( !digitalRead(KILL_PIN)) {	// assume an active low pin
 	  if ( currentScreen != _lcd_babystep_z)  {
 		lcd_implementation_clear();
 		lcd_babystep_z();
