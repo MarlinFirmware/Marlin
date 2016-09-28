@@ -7784,6 +7784,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #endif
 
   #if HAS_KILL
+    #ifndef QUICK_ACCESS_TO_Z_BABY_STEPPING_VIA_KILL_PIN
 
     // Check if the kill button was pressed and wait just in case it was an accidental
     // key kill key press
@@ -7799,6 +7800,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     // KILL the machine
     // ----------------------------------------------------------------
     if (killCount >= KILL_DELAY) kill(PSTR(MSG_KILLED));
+    #endif
   #endif
 
   #if HAS_HOME
