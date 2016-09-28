@@ -2027,6 +2027,12 @@ static void clean_up_after_endstop_or_probe_move() {
       // Do a first probe at the fast speed
       do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_FAST);
 
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        float first_probe_z = current_position[Z_AXIS];
+        if (DEBUGGING(LEVELING))
+          SERIAL_ECHOPAIR("1st Probe Z:", first_probe_z);
+      #endif
+
       // move up by the bump distance
       do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
@@ -2047,6 +2053,13 @@ static void clean_up_after_endstop_or_probe_move() {
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
     #endif
 
+    // Debug: compare probe heights
+    #if ENABLED(PROBE_DOUBLE_TOUCH) && ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("2nd Probe Z:", current_position[Z_AXIS]);
+        SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
+      }
+    #endif
     return current_position[Z_AXIS];
   }
 
