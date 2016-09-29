@@ -564,7 +564,7 @@ void Config_ResetDefault() {
   float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT;
   float tmp2[] = DEFAULT_MAX_FEEDRATE;
   long tmp3[] = DEFAULT_MAX_ACCELERATION;
-  LOOP_XYZE(i) {
+  for (int8_t i = 0; i < XYZEn; i++) {
     planner.axis_steps_per_mm[i] = tmp1[i];
     planner.max_feedrate_mm_s[i] = tmp2[i];
     planner.max_acceleration_mm_per_s2[i] = tmp3[i];
@@ -693,6 +693,13 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR(" Z", planner.axis_steps_per_mm[Z_AXIS]);
   SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS]);
   SERIAL_EOL;
+  #if EXTRUDERS > 1
+    for (short i = 1; i < EXTRUDERS; i++) {
+      SERIAL_ECHOPAIR("  M92 T", i);
+      SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS + i]);
+      SERIAL_EOL;
+    }
+  #endif //EXTRUDERS > 1
 
   CONFIG_ECHO_START;
 
@@ -705,6 +712,13 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR(" Z", planner.max_feedrate_mm_s[Z_AXIS]);
   SERIAL_ECHOPAIR(" E", planner.max_feedrate_mm_s[E_AXIS]);
   SERIAL_EOL;
+  #if EXTRUDERS > 1
+    for (short i = 1; i < EXTRUDERS; i++) {
+      SERIAL_ECHOPAIR("  M203 T", i);
+      SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS + i]);
+      SERIAL_EOL;
+    }
+  #endif //EXTRUDERS > 1
 
   CONFIG_ECHO_START;
   if (!forReplay) {
@@ -716,6 +730,14 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR(" Z", planner.max_acceleration_mm_per_s2[Z_AXIS]);
   SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS]);
   SERIAL_EOL;
+  #if EXTRUDERS > 1
+    for (int8_t i = 1; i < EXTRUDERS; i++) {
+      SERIAL_ECHOPAIR("  M201 T", i);
+      SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS + i]);
+      SERIAL_EOL;
+    }
+  #endif //EXTRUDERS > 1
+
   CONFIG_ECHO_START;
   if (!forReplay) {
     SERIAL_ECHOLNPGM("Accelerations: P=printing, R=retract and T=travel");

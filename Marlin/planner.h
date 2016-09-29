@@ -120,11 +120,11 @@ class Planner {
     static volatile uint8_t block_buffer_head;           // Index of the next block to be pushed
     static volatile uint8_t block_buffer_tail;
 
-    static float max_feedrate_mm_s[NUM_AXIS]; // Max speeds in mm per second
-    static float axis_steps_per_mm[NUM_AXIS];
-    static float steps_to_mm[NUM_AXIS];
-    static unsigned long max_acceleration_steps_per_s2[NUM_AXIS];
-    static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
+    static float max_feedrate_mm_s[XYZEn]; // Max speeds in mm per second
+    static float axis_steps_per_mm[XYZEn];
+    static float steps_to_mm[XYZEn];
+    static unsigned long max_acceleration_steps_per_s2[XYZEn];
+    static unsigned long max_acceleration_mm_per_s2[XYZEn]; // Use M201 to override by software
 
     static millis_t min_segment_time;
     static float min_feedrate_mm_s;
@@ -174,6 +174,11 @@ class Planner {
       // Segment times (in µs). Used for speed calculations
       static long axis_segment_time[2][3];
     #endif
+
+    /**
+     * Last extruder used
+     */
+    static uint8_t last_extruder;
 
   public:
 
