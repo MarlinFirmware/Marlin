@@ -3710,8 +3710,7 @@ inline void gcode_G28() {
     if (!dryrun) {
       // Re-orient the current position without leveling
       // based on where the steppers are positioned.
-      get_cartesian_from_steppers();
-      memcpy(current_position, cartes, sizeof(cartes));
+      set_current_from_steppers_for_axis(ALL_AXES);
 
       // Sync the planner to where the steppers stopped
       planner.sync_from_steppers();
@@ -4051,9 +4050,6 @@ inline void gcode_G28() {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
         #endif
-
-        SYNC_PLAN_POSITION_KINEMATIC();
-        abl_should_enable = true;
       }
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
@@ -4063,14 +4059,13 @@ inline void gcode_G28() {
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
         #endif
 
+        // Unapply the offset because it is going to be immediately applied
+        // and cause compensation movement in Z
         current_position[Z_AXIS] -= bilinear_z_offset(current_position);
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR(" corrected Z:", current_position[Z_AXIS]);
         #endif
-
-        SYNC_PLAN_POSITION_KINEMATIC();
-        abl_should_enable = true;
       }
 
     #endif // ABL_PLANAR
@@ -4093,6 +4088,9 @@ inline void gcode_G28() {
 
     // Auto Bed Leveling is complete! Enable if possible.
     planner.abl_enabled = dryrun ? abl_should_enable : true;
+
+    if (planner.abl_enabled)
+      SYNC_PLAN_POSITION_KINEMATIC();
   }
 
 #endif // HAS_ABL
