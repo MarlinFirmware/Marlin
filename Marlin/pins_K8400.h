@@ -37,10 +37,12 @@
 
 #include "pins_3DRAG.h"
 
-#undef  X_MAX_PIN
-#define X_MAX_PIN     -1
-#undef  Y_MAX_PIN
-#define Y_MAX_PIN     -1
+#undef X_MAX_PIN
+#undef X_MIN_PIN
+#undef Y_MAX_PIN
+#undef Y_MIN_PIN
+#define X_STOP_PIN  3
+#define Y_STOP_PIN 14
 
 #undef E1_STEP_PIN
 #define E1_STEP_PIN   32
