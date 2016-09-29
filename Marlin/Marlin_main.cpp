@@ -7997,36 +7997,50 @@ void ok_to_send() {
           ratio_y = y / bilinear_grid_spacing[Y_AXIS];
 
     // Whole unit is the grid box index
-    int gridx = constrain(int(ratio_x), 0, ABL_GRID_POINTS_X - 2),
-        gridy = constrain(int(ratio_y), 0, ABL_GRID_POINTS_Y - 2);
+    const int gridx = constrain(floor(ratio_x), 0, ABL_GRID_POINTS_X - 2),
+              gridy = constrain(floor(ratio_y), 0, ABL_GRID_POINTS_Y - 2),
+              nextx = gridx + (x < PROBE_BED_WIDTH ? 1 : 0),
+              nexty = gridy + (y < PROBE_BED_HEIGHT ? 1 : 0);
 
     // Subtract whole to get the ratio within the grid box
-    ratio_x -= gridx, ratio_y -= gridy;
+    ratio_x = constrain(ratio_x - gridx, 0.0, 1.0);
+    ratio_y = constrain(ratio_y - gridy, 0.0, 1.0);
 
-          // Z at the box corners
-    const float z1 = bed_level_grid[gridx][gridy],         // left-front
-                z2 = bed_level_grid[gridx][gridy + 1],     // left-back
-                z3 = bed_level_grid[gridx + 1][gridy],     // right-front
-                z4 = bed_level_grid[gridx + 1][gridy + 1], // right-back
+    // Z at the box corners
+    const float z1 = bed_level_grid[gridx][gridy],  // left-front
+                z2 = bed_level_grid[gridx][nexty],  // left-back
+                z3 = bed_level_grid[nextx][gridy],  // right-front
+                z4 = bed_level_grid[nextx][nexty],  // right-back
 
+                // Bilinear interpolate
                 L = z1 + (z2 - z1) * ratio_y,   // Linear interp. LF -> LB
-                R = z3 + (z4 - z3) * ratio_y;   // Linear interp. RF -> RB
+                R = z3 + (z4 - z3) * ratio_y,   // Linear interp. RF -> RB
+                offset = L + ratio_x * (R - L);
 
     /*
-      SERIAL_ECHOPAIR("gridx=", gridx);
-      SERIAL_ECHOPAIR(" gridy=", gridy);
+    static float last_offset = 0;
+    if (fabs(last_offset - offset) > 0.2) {
+      SERIAL_ECHOPGM("Sudden Shift at ");
+      SERIAL_ECHOPAIR("x=", x);
+      SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[X_AXIS]);
+      SERIAL_ECHOLNPAIR(" -> gridx=", gridx);
+      SERIAL_ECHOPAIR(" y=", y);
+      SERIAL_ECHOPAIR(" / ", bilinear_grid_spacing[Y_AXIS]);
+      SERIAL_ECHOLNPAIR(" -> gridy=", gridy);
       SERIAL_ECHOPAIR(" ratio_x=", ratio_x);
-      SERIAL_ECHOPAIR(" ratio_y=", ratio_y);
+      SERIAL_ECHOLNPAIR(" ratio_y=", ratio_y);
       SERIAL_ECHOPAIR(" z1=", z1);
       SERIAL_ECHOPAIR(" z2=", z2);
       SERIAL_ECHOPAIR(" z3=", z3);
-      SERIAL_ECHOPAIR(" z4=", z4);
+      SERIAL_ECHOLNPAIR(" z4=", z4);
       SERIAL_ECHOPAIR(" L=", L);
       SERIAL_ECHOPAIR(" R=", R);
-      SERIAL_ECHOPAIR(" offset=", L + ratio_x * (R - L));
+      SERIAL_ECHOLNPAIR(" offset=", offset);
+    }
+    last_offset = offset;
     //*/
 
-    return L + ratio_x * (R - L);
+    return offset;
   }
 
 #endif // AUTO_BED_LEVELING_BILINEAR
