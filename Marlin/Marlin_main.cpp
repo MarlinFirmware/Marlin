@@ -4097,13 +4097,13 @@ inline void gcode_G28() {
    */
   inline void gcode_G30() {
 
-    #if HAS_ABL
-      reset_bed_level();
+    // Disable leveling so the planner won't mess with us
+    #if PLANNER_LEVELING
+      set_bed_leveling_enabled(false);
     #endif
 
     setup_for_endstop_or_probe_move();
 
-    // TODO: clear the leveling matrix or the planner will be set incorrectly
     float measured_z = probe_pt(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
                                 current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
                                 true, 1);
