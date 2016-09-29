@@ -3706,8 +3706,8 @@ inline void gcode_G28() {
       get_cartesian_from_steppers();
       memcpy(current_position, cartes, sizeof(cartes));
 
-      // Inform the planner about the new coordinates
-      SYNC_PLAN_POSITION_KINEMATIC();
+      // Sync the planner to where the steppers stopped
+      planner.sync_from_steppers();
     }
 
     setup_for_endstop_or_probe_move();
