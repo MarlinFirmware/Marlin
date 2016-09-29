@@ -11847,7 +11847,7 @@ void prepare_move_to_destination() {
           SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
         }
         #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-          if (labs(destination[E_AXIS] - current_position[E_AXIS]) > EXTRUDE_MAXLENGTH) {
+          if (destination[E_AXIS] - current_position[E_AXIS] > EXTRUDE_MAXLENGTH) {
             current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
             SERIAL_ECHO_START();
             SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
