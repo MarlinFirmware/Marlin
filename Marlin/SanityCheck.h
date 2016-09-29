@@ -854,11 +854,11 @@
 /**
  * G38 Probe Target
  */
-#if ENABLED(G38_2_3)
+#if ENABLED(G38_PROBE_TARGET)
   #if !HAS_BED_PROBE
-    #error "G38_2_3 requires a bed probe."
+    #error "G38_PROBE_TARGET requires a bed probe."
   #elif !IS_CARTESIAN
-    #error "G38_2_3 requires a Cartesian machine."
+    #error "G38_PROBE_TARGET requires a Cartesian machine."
   #endif
 #endif
 

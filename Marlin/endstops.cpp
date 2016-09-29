@@ -252,7 +252,7 @@ void Endstops::update() {
       } \
     } while(0)
 
-  #if ENABLED(G38_2_3) && PIN_EXISTS(Z_MIN)  // If G38 command then check Z_MIN for every axis and every direction  
+  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN)  // If G38 command then check Z_MIN for every axis and every direction  
 
     #define UPDATE_ENDSTOP(AXIS,MINMAX) do { \
         _UPDATE_ENDSTOP(AXIS,MINMAX,NOOP); \
