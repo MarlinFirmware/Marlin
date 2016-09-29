@@ -2132,30 +2132,69 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif // HAS_BED_PROBE
 
-#if HAS_ABL
-
+#if PLANNER_LEVELING
   /**
-   * Reset calibration results to zero.
+   * Turn bed leveling on or off, fixing the current
+   * position as-needed.
    *
-   * TODO: Proper functions to disable / enable
-   *       bed leveling via a flag, correcting the
-   *       current position in each case.
+   * Disable: Current position = physical position
+   *  Enable: Current position = "unleveled" physical position
    */
-  void reset_bed_level() {
-    planner.abl_enabled = false;
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
-    #endif
-    #if ABL_PLANAR
-      planner.bed_level_matrix.set_to_identity();
-    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-      for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++)
-        for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++)
-          bed_level_grid[x][y] = 1000.0;
+  void set_bed_leveling_enabled(bool enable=true) {
+    #if ENABLED(MESH_BED_LEVELING)
+
+      if (!enable && mbl.active())
+        current_position[Z_AXIS] +=
+          mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS)) - (MESH_HOME_SEARCH_Z);
+
+      mbl.set_active(enable && mbl.has_mesh()); // was set_has_mesh(). Is this not correct?
+
+    #elif HAS_ABL
+
+      if (enable != planner.abl_enabled) {
+        planner.abl_enabled = !planner.abl_enabled;
+        if (!planner.abl_enabled)
+          set_current_from_steppers_for_axis(
+            #if ABL_PLANAR
+              ALL_AXES
+            #else
+              Z_AXIS
+            #endif
+          );
+        else
+          planner.unapply_leveling(current_position);
+      }
+
     #endif
   }
 
-#endif // HAS_ABL
+
+  /**
+   * Reset calibration results to zero.
+   */
+  void reset_bed_level() {
+    #if ENABLED(MESH_BED_LEVELING)
+      if (mbl.has_mesh()) {
+        set_bed_leveling_enabled(false);
+        mbl.reset();
+        mbl.set_has_mesh(false);
+      }
+    #else
+      planner.abl_enabled = false;
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
+      #endif
+      #if ABL_PLANAR
+        planner.bed_level_matrix.set_to_identity();
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++)
+          for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++)
+            bed_level_grid[x][y] = 1000.0;
+      #endif
+    #endif
+  }
+
+#endif // PLANNER_LEVELING
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
