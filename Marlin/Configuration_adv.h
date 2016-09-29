@@ -532,9 +532,9 @@
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
 //#define BEZIER_CURVE_SUPPORT
 
-// G38 Probe Target
-//#define G38_2_3
-#if ENABLED(G38_2_3)
+// G38.2 and G38.3 Probe Target
+//#define G38_PROBE_TARGET
+#if ENABLED(G38_PROBE_TARGET)
   #define G38_MINIMUM_MOVE 0.0275 // minimum distance in mm that will produce a move (determined using the print statement in check_move)
 #endif
 
