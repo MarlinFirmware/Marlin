@@ -3771,30 +3771,48 @@ inline void gcode_G28() {
 
       #endif // AUTO_BED_LEVELING_LINEAR
 
-      bool zig = abl_grid_points_y & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
+      #if ENABLED(PROBE_Y_FIRST)
+        #define PR_OUTER_VAR xCount
+        #define PR_OUTER_END abl_grid_points_x
+        #define PR_INNER_VAR yCount
+        #define PR_INNER_END abl_grid_points_y
+      #else
+        #define PR_OUTER_VAR yCount
+        #define PR_OUTER_END abl_grid_points_y
+        #define PR_INNER_VAR xCount
+        #define PR_INNER_END abl_grid_points_x
+      #endif
 
-      for (uint8_t yCount = 0; yCount < abl_grid_points_y; yCount++) {
-        float yBase = front_probe_bed_position + yGridSpacing * yCount;
-        yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
+      #if ENABLED(MAKERARM_SCARA)
+        bool zig = true;
+      #else
+        bool zig = PR_OUTER_END & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
+      #endif
 
-        int8_t xStart, xStop, xInc;
+      for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END; PR_OUTER_VAR++) {
+
+        int8_t inStart, inStop, inInc;
 
         if (zig) {
-          xStart = 0;
-          xStop = abl_grid_points_x;
-          xInc = 1;
+          inStart = 0;
+          inStop = PR_INNER_END;
+          inInc = 1;
         }
         else {
-          xStart = abl_grid_points_x - 1;
-          xStop = -1;
-          xInc = -1;
+          inStart = PR_INNER_END - 1;
+          inStop = -1;
+          inInc = -1;
         }
 
         zig = !zig;
 
-        for (int8_t xCount = xStart; xCount != xStop; xCount += xInc) {
-          float xBase = left_probe_bed_position + xGridSpacing * xCount;
+        for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
+
+          float xBase = left_probe_bed_position + xGridSpacing * xCount,
+                yBase = front_probe_bed_position + yGridSpacing * yCount;
+
           xProbe = floor(xBase + (xBase < 0 ? 0 : 0.5));
+          yProbe = floor(yBase + (yBase < 0 ? 0 : 0.5));
 
           #if ENABLED(AUTO_BED_LEVELING_LINEAR)
             indexIntoAB[xCount][yCount] = ++probePointCounter;
