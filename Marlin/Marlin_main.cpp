@@ -225,7 +225,7 @@
  * M406 - Disable Filament Sensor flow control. (Requires FILAMENT_WIDTH_SENSOR)
  * M407 - Display measured filament diameter in millimeters. (Requires FILAMENT_WIDTH_SENSOR)
  * M410 - Quickstop. Abort all planned moves.
- * M420 - Enable/Disable Mesh Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING)
+ * M420 - Enable/Disable Leveling (with current values) S1=enable S0=disable (Requires MESH_BED_LEVELING or ABL)
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING)
  * M428 - Set the home_offset based on the current_position. Nearest edge applies.
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
@@ -6312,12 +6312,14 @@ void quickstop_stepper() {
   SYNC_PLAN_POSITION_KINEMATIC();
 }
 
-#if ENABLED(MESH_BED_LEVELING)
-
+#if PLANNER_LEVELING
   /**
-   * M420: Enable/Disable Mesh Bed Leveling
+   * M420: Enable/Disable Bed Leveling
    */
-  inline void gcode_M420() { if (code_seen('S')) mbl.set_has_mesh(code_value_bool()); }
+  inline void gcode_M420() { if (code_seen('S')) set_bed_leveling_enabled(code_value_bool()); }
+#endif
+
+#if ENABLED(MESH_BED_LEVELING)
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
@@ -7343,11 +7345,11 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if HAS_ABL || ENABLED(MESH_BED_LEVELING)
+      #if PLANNER_LEVELING
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points.
           gcode_G29();
           break;
-      #endif // HAS_ABL
+      #endif // PLANNER_LEVELING
 
       #if HAS_BED_PROBE
 
