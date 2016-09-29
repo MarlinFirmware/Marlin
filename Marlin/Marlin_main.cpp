@@ -3635,24 +3635,31 @@ inline void gcode_G28() {
 
     #if ABL_GRID
 
-      #if ABL_PLANAR
-        bool do_topography_map = verbose_level > 2 || code_seen('T');
-      #endif
-
       if (verbose_level > 0) {
         SERIAL_PROTOCOLLNPGM("G29 Auto Bed Leveling");
         if (dryrun) SERIAL_PROTOCOLLNPGM("Running in DRY-RUN mode");
       }
 
-      int abl_grid_points_x = ABL_GRID_POINTS_X,
-          abl_grid_points_y = ABL_GRID_POINTS_Y;
-
       #if ABL_PLANAR
+
+        bool do_topography_map = verbose_level > 2 || code_seen('T');
+
+        // X and Y specify points in each direction, overriding the default
+        // These values may be saved with the completed mesh
+        int abl_grid_points_x = code_seen('X') ? code_value_int() : ABL_GRID_POINTS_X,
+            abl_grid_points_y = code_seen('Y') ? code_value_int() : ABL_GRID_POINTS_Y;
+
         if (code_seen('P')) abl_grid_points_x = abl_grid_points_y = code_value_int();
-        if (abl_grid_points_x < 2) {
-          SERIAL_PROTOCOLLNPGM("?Number of probed (P)oints is implausible (2 minimum).");
+
+        if (abl_grid_points_x < 2 || abl_grid_points_y < 2) {
+          SERIAL_PROTOCOLLNPGM("?Number of probe points is implausible (2 minimum).");
           return;
         }
+
+      #else
+
+         const int abl_grid_points_x = ABL_GRID_POINTS_X, abl_grid_points_y = ABL_GRID_POINTS_Y;
+
       #endif
 
       xy_probe_feedrate_mm_s = MMM_TO_MMS(code_seen('S') ? code_value_linear_units() : XY_PROBE_SPEED);
