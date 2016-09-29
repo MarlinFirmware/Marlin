@@ -970,6 +970,12 @@ void Stepper::set_position(const long& x, const long& y, const long& z, const lo
   CRITICAL_SECTION_END;
 }
 
+void Stepper::set_position(const AxisEnum &axis, const long& v) {
+  CRITICAL_SECTION_START;
+  count_position[axis] = v;
+  CRITICAL_SECTION_END;
+}
+
 void Stepper::set_e_position(const long& e) {
   CRITICAL_SECTION_START;
   count_position[E_AXIS] = e;

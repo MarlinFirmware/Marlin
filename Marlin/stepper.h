@@ -189,6 +189,7 @@ class Stepper {
     // Set the current position in steps
     //
     static void set_position(const long& x, const long& y, const long& z, const long& e);
+    static void set_position(const AxisEnum& a, const long& v);
     static void set_e_position(const long& e);
 
     //
