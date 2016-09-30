@@ -315,7 +315,7 @@ void Endstops::update() {
   #else
       if (stepper.motor_direction(Z_AXIS))
   #endif
-      { // z -direction
+      { // Z -direction. Gantry down, bed up.
         #if HAS_Z_MIN
 
           #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -341,6 +341,7 @@ void Endstops::update() {
 
         #endif // HAS_Z_MIN
 
+        // When closing the gap check the enabled probe
         #if ENABLED(Z_MIN_PROBE_ENDSTOP)
           if (z_probe_enabled) {
             UPDATE_ENDSTOP(Z, MIN_PROBE);
@@ -348,9 +349,10 @@ void Endstops::update() {
           }
         #endif
       }
-      else { // z +direction
+      else { // Z +direction. Gantry up, bed down.
         #if HAS_Z_MAX
 
+          // Check both Z dual endstops
           #if ENABLED(Z_DUAL_ENDSTOPS)
 
             UPDATE_ENDSTOP_BIT(Z, MAX);
@@ -362,11 +364,13 @@ void Endstops::update() {
 
             test_dual_z_endstops(Z_MAX, Z2_MAX);
 
-          #else // !Z_DUAL_ENDSTOPS
+          // If this pin is not hijacked for the bed probe
+          // then it belongs to the Z endstop
+          #elif DISABLED(Z_MIN_PROBE_ENDSTOP) || Z_MAX_PIN != Z_MIN_PROBE_PIN
 
             UPDATE_ENDSTOP(Z, MAX);
 
-          #endif // !Z_DUAL_ENDSTOPS
+          #endif // !Z_MIN_PROBE_PIN...
         #endif // Z_MAX_PIN
       }
   #if ENABLED(COREXZ)
