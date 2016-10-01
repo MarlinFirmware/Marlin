@@ -158,7 +158,6 @@ class Temperature {
       #endif
 
       static float pid_error[HOTENDS];
-      static bool pid_reset[HOTENDS];
     #endif
 
     #if ENABLED(PIDTEMPBED)
