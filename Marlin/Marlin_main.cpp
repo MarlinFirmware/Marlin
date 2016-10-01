@@ -3783,29 +3783,27 @@ inline void gcode_G28() {
         #define PR_INNER_END abl_grid_points_x
       #endif
 
-      #if ENABLED(MAKERARM_SCARA)
-        bool zig = true;
-      #else
-        bool zig = PR_OUTER_END & 1; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
-      #endif
+      bool zig = PR_OUTER_END & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
 
+      // Outer loop is Y with PROBE_Y_FIRST disabled
       for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_END; PR_OUTER_VAR++) {
 
         int8_t inStart, inStop, inInc;
 
-        if (zig) {
+        if (zig) { // away from origin
           inStart = 0;
           inStop = PR_INNER_END;
           inInc = 1;
         }
-        else {
+        else {     // towards origin
           inStart = PR_INNER_END - 1;
           inStop = -1;
           inInc = -1;
         }
 
-        zig = !zig;
+        zig = !zig; // zag
 
+        // Inner loop is Y with PROBE_Y_FIRST enabled
         for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
 
           float xBase = left_probe_bed_position + xGridSpacing * xCount,
