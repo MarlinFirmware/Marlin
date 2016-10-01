@@ -852,6 +852,17 @@
 #endif
 
 /**
+ * G38 Probe Target
+ */
+#if ENABLED(G38_PROBE_TARGET)
+  #if !HAS_BED_PROBE
+    #error "G38_PROBE_TARGET requires a bed probe."
+  #elif !IS_CARTESIAN
+    #error "G38_PROBE_TARGET requires a Cartesian machine."
+  #endif
+#endif
+
+/**
  * Make sure only one display is enabled
  *
  * Note: BQ_LCD_SMART_CONTROLLER => REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
