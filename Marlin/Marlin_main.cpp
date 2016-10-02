@@ -2046,8 +2046,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         float first_probe_z = current_position[Z_AXIS];
-        if (DEBUGGING(LEVELING))
-          SERIAL_ECHOPAIR("1st Probe Z:", first_probe_z);
+        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("1st Probe Z:", first_probe_z);
       #endif
 
       // move up by the bump distance
