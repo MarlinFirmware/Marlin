@@ -1045,17 +1045,33 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
   else {
     // Limit acceleration per axis
     block->acceleration_steps_per_s2 = ceil((block->steps[E_AXIS] ? acceleration : travel_acceleration) * steps_per_mm);
-    if (max_acceleration_steps_per_s2[X_AXIS] < (block->acceleration_steps_per_s2 * block->steps[X_AXIS]) / block->step_event_count)
-      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[X_AXIS] * block->step_event_count) / block->steps[X_AXIS];
-    if (max_acceleration_steps_per_s2[Y_AXIS] < (block->acceleration_steps_per_s2 * block->steps[Y_AXIS]) / block->step_event_count)
-      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[Y_AXIS] * block->step_event_count) / block->steps[Y_AXIS];
-    if (max_acceleration_steps_per_s2[Z_AXIS] < (block->acceleration_steps_per_s2 * block->steps[Z_AXIS]) / block->step_event_count)
-      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[Z_AXIS] * block->step_event_count) / block->steps[Z_AXIS];
-    if (max_acceleration_steps_per_s2[E_AXIS] < (block->acceleration_steps_per_s2 * block->steps[E_AXIS]) / block->step_event_count)
-      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[E_AXIS] * block->step_event_count) / block->steps[E_AXIS];
+
+    // XXX DEBUG (G)
+    serial_echopair_P(PSTR("acceleration="), acceleration); SERIAL_EOL;
+    serial_echopair_P(PSTR("travel_acceleration="), travel_acceleration); SERIAL_EOL;
+    serial_echopair_P(PSTR("steps_per_mm="), steps_per_mm); SERIAL_EOL;
+    serial_echopair_P(PSTR("block->steps[Z_AXIS]="), block->steps[Z_AXIS]); SERIAL_EOL;
+    serial_echopair_P(PSTR("block->step_event_count="), block->step_event_count); SERIAL_EOL;
+    serial_echopair_P(PSTR("block->acceleration_steps_per_s2="), block->acceleration_steps_per_s2); SERIAL_EOL;
+    serial_echopair_P(PSTR("max_acceleration_mm_per_s2[Z_AXIS]="), max_acceleration_mm_per_s2[Z_AXIS]); SERIAL_EOL;
+    serial_echopair_P(PSTR("acceleration_steps_per_s2="), block->acceleration_steps_per_s2); SERIAL_EOL;
+
+    if (max_acceleration_steps_per_s2[X_AXIS] < ((float)block->acceleration_steps_per_s2 * (float)block->steps[X_AXIS] / (float)block->step_event_count) )
+        block->acceleration_steps_per_s2 = max_acceleration_steps_per_s2[X_AXIS];
+    if (max_acceleration_steps_per_s2[Y_AXIS] < ((float)block->acceleration_steps_per_s2 * (float)block->steps[Y_AXIS] / (float)block->step_event_count) )
+        block->acceleration_steps_per_s2 = max_acceleration_steps_per_s2[Y_AXIS];
+    if (max_acceleration_steps_per_s2[E_AXIS] < ((float)block->acceleration_steps_per_s2 * (float)block->steps[E_AXIS] / (float)block->step_event_count) )
+        block->acceleration_steps_per_s2 = max_acceleration_steps_per_s2[E_AXIS];
+    if (max_acceleration_steps_per_s2[Z_AXIS] < ((float)block->acceleration_steps_per_s2 * (float)block->steps[Z_AXIS] / (float)block->step_event_count) )
+        block->acceleration_steps_per_s2 = max_acceleration_steps_per_s2[Z_AXIS];
+
   }
   block->acceleration = block->acceleration_steps_per_s2 / steps_per_mm;
-  block->acceleration_rate = (long)(block->acceleration_steps_per_s2 * 16777216.0 / ((F_CPU) * 0.125));
+  
+  // XXX
+  serial_echopair_P(PSTR("FINAL block->acceleration="), block->acceleration); SERIAL_EOL;
+
+  block->acceleration_rate = (long)(block->acceleration_steps_per_s2 * (16777216.0 / (F_CPU / 8)));
 
   #if 0  // Use old jerk for now
 
@@ -1101,31 +1117,29 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
   #endif
 
   // Start with a safe speed
-  float vmax_junction = max_xy_jerk * 0.5,
-        vmax_junction_factor = 1.0,
-        mz2 = max_z_jerk * 0.5,
-        me2 = max_e_jerk * 0.5,
-        csz = current_speed[Z_AXIS],
-        cse = current_speed[E_AXIS];
-  if (fabs(csz) > mz2) vmax_junction = min(vmax_junction, mz2);
-  if (fabs(cse) > me2) vmax_junction = min(vmax_junction, me2);
+  float vmax_junction = max_xy_jerk/2; 
+  float vmax_junction_factor = 1.0; 
+  if(fabs(current_speed[Z_AXIS]) > max_z_jerk/2) 
+    vmax_junction = min(vmax_junction, max_z_jerk/2);
+  if(fabs(current_speed[E_AXIS]) > max_e_jerk/2) 
+    vmax_junction = min(vmax_junction, max_e_jerk/2);
   vmax_junction = min(vmax_junction, block->nominal_speed);
   float safe_speed = vmax_junction;
 
   if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
-    float dsx = current_speed[X_AXIS] - previous_speed[X_AXIS],
-          dsy = current_speed[Y_AXIS] - previous_speed[Y_AXIS],
-          dsz = fabs(csz - previous_speed[Z_AXIS]),
-          dse = fabs(cse - previous_speed[E_AXIS]),
-          jerk = HYPOT(dsx, dsy);
-
-    //    if ((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
+    float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
+    //    if((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
     vmax_junction = block->nominal_speed;
     //    }
-    if (jerk > max_xy_jerk) vmax_junction_factor = max_xy_jerk / jerk;
-    if (dsz > max_z_jerk) vmax_junction_factor = min(vmax_junction_factor, max_z_jerk / dsz);
-    if (dse > max_e_jerk) vmax_junction_factor = min(vmax_junction_factor, max_e_jerk / dse);
-
+    if (jerk > max_xy_jerk) {
+      vmax_junction_factor = (max_xy_jerk/jerk);
+    } 
+    if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
+      vmax_junction_factor= min(vmax_junction_factor, (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS])));
+    } 
+    if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
+      vmax_junction_factor = min(vmax_junction_factor, (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS])));
+    } 
     vmax_junction = min(previous_nominal_speed, vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
   }
   block->max_entry_speed = vmax_junction;
