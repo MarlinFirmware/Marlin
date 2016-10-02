@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V25"
+#define EEPROM_VERSION "V26"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -57,69 +57,70 @@
  *  166  M205 S    planner.min_feedrate_mm_s (float)
  *  170  M205 T    planner.min_travel_feedrate_mm_s (float)
  *  174  M205 B    planner.min_segment_time (ulong)
- *  178  M205 X    planner.max_xy_jerk (float)
- *  182  M205 Z    planner.max_z_jerk (float)
- *  186  M205 E    planner.max_e_jerk (float)
- *  190  M206 XYZ  home_offset (float x3)
+ *  178  M205 X    planner.max_jerk[X_AXIS] (float)
+ *  182  M205 Y    planner.max_jerk[Y_AXIS] (float)
+ *  186  M205 Z    planner.max_jerk[Z_AXIS] (float)
+ *  190  M205 E    planner.max_jerk[E_AXIS] (float)
+ *  194  M206 XYZ  home_offset (float x3)
  *
  * Mesh bed leveling:
- *  202  M420 S    status (uint8)
- *  203            z_offset (float)
- *  207            mesh_num_x (uint8 as set in firmware)
- *  208            mesh_num_y (uint8 as set in firmware)
- *  209 G29 S3 XYZ z_values[][] (float x9, by default, up to float x 81)
+ *  206  M420 S    status (uint8)
+ *  207            z_offset (float)
+ *  211            mesh_num_x (uint8 as set in firmware)
+ *  212            mesh_num_y (uint8 as set in firmware)
+ *  213 G29 S3 XYZ z_values[][] (float x9, by default, up to float x 81)
  *
  * AUTO BED LEVELING
- *  245  M851      zprobe_zoffset (float)
+ *  249  M851      zprobe_zoffset (float)
  *
  * DELTA:
- *  249  M666 XYZ  endstop_adj (float x3)
- *  261  M665 R    delta_radius (float)
- *  265  M665 L    delta_diagonal_rod (float)
- *  269  M665 S    delta_segments_per_second (float)
- *  273  M665 A    delta_diagonal_rod_trim_tower_1 (float)
- *  277  M665 B    delta_diagonal_rod_trim_tower_2 (float)
- *  281  M665 C    delta_diagonal_rod_trim_tower_3 (float)
+ *  253  M666 XYZ  endstop_adj (float x3)
+ *  265  M665 R    delta_radius (float)
+ *  269  M665 L    delta_diagonal_rod (float)
+ *  273  M665 S    delta_segments_per_second (float)
+ *  277  M665 A    delta_diagonal_rod_trim_tower_1 (float)
+ *  281  M665 B    delta_diagonal_rod_trim_tower_2 (float)
+ *  285  M665 C    delta_diagonal_rod_trim_tower_3 (float)
  *
  * Z_DUAL_ENDSTOPS:
- *  285  M666 Z    z_endstop_adj (float)
+ *  289  M666 Z    z_endstop_adj (float)
  *
  * ULTIPANEL:
- *  289  M145 S0 H preheatHotendTemp1 (int)
- *  291  M145 S0 B preheatBedTemp1 (int)
- *  293  M145 S0 F preheatFanSpeed1 (int)
- *  295  M145 S1 H preheatHotendTemp2 (int)
- *  297  M145 S1 B preheatBedTemp2 (int)
- *  299  M145 S1 F preheatFanSpeed2 (int)
+ *  293  M145 S0 H preheatHotendTemp1 (int)
+ *  295  M145 S0 B preheatBedTemp1 (int)
+ *  297  M145 S0 F preheatFanSpeed1 (int)
+ *  299  M145 S1 H preheatHotendTemp2 (int)
+ *  301  M145 S1 B preheatBedTemp2 (int)
+ *  303  M145 S1 F preheatFanSpeed2 (int)
  *
  * PIDTEMP:
- *  301  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
- *  317  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
- *  333  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
- *  349  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
- *  365  M301 L        lpq_len (int)
+ *  305  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
+ *  321  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
+ *  337  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
+ *  353  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
+ *  369  M301 L        lpq_len (int)
  *
  * PIDTEMPBED:
- *  367  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
+ *  371  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
  *
  * DOGLCD:
- *  379  M250 C    lcd_contrast (int)
+ *  383  M250 C    lcd_contrast (int)
  *
  * FWRETRACT:
- *  381  M209 S    autoretract_enabled (bool)
- *  382  M207 S    retract_length (float)
- *  386  M207 W    retract_length_swap (float)
- *  390  M207 F    retract_feedrate_mm_s (float)
- *  394  M207 Z    retract_zlift (float)
- *  398  M208 S    retract_recover_length (float)
- *  402  M208 W    retract_recover_length_swap (float)
- *  406  M208 F    retract_recover_feedrate_mm_s (float)
+ *  385  M209 S    autoretract_enabled (bool)
+ *  386  M207 S    retract_length (float)
+ *  390  M207 W    retract_length_swap (float)
+ *  394  M207 F    retract_feedrate_mm_s (float)
+ *  399  M207 Z    retract_zlift (float)
+ *  402  M208 S    retract_recover_length (float)
+ *  406  M208 W    retract_recover_length_swap (float)
+ *  410  M208 F    retract_recover_feedrate_mm_s (float)
  *
  * Volumetric Extrusion:
- *  410  M200 D    volumetric_enabled (bool)
- *  411  M200 T D  filament_size (float x4) (T0..3)
+ *  414  M200 D    volumetric_enabled (bool)
+ *  415  M200 T D  filament_size (float x4) (T0..3)
  *
- *  427  This Slot is Available!
+ *  431  This Slot is Available!
  *
  */
 #include "Marlin.h"
@@ -219,9 +220,7 @@ void Config_StoreSettings()  {
   EEPROM_WRITE(planner.min_feedrate_mm_s);
   EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
   EEPROM_WRITE(planner.min_segment_time);
-  EEPROM_WRITE(planner.max_xy_jerk);
-  EEPROM_WRITE(planner.max_z_jerk);
-  EEPROM_WRITE(planner.max_e_jerk);
+  EEPROM_WRITE(planner.max_jerk);
   EEPROM_WRITE(home_offset);
 
   #if ENABLED(MESH_BED_LEVELING)
@@ -405,9 +404,7 @@ void Config_RetrieveSettings() {
     EEPROM_READ(planner.min_feedrate_mm_s);
     EEPROM_READ(planner.min_travel_feedrate_mm_s);
     EEPROM_READ(planner.min_segment_time);
-    EEPROM_READ(planner.max_xy_jerk);
-    EEPROM_READ(planner.max_z_jerk);
-    EEPROM_READ(planner.max_e_jerk);
+    EEPROM_READ(planner.max_jerk);
     EEPROM_READ(home_offset);
 
     uint8_t dummy_uint8 = 0, mesh_num_x = 0, mesh_num_y = 0;
@@ -576,9 +573,10 @@ void Config_ResetDefault() {
   planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
   planner.min_segment_time = DEFAULT_MINSEGMENTTIME;
   planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
-  planner.max_xy_jerk = DEFAULT_XYJERK;
-  planner.max_z_jerk = DEFAULT_ZJERK;
-  planner.max_e_jerk = DEFAULT_EJERK;
+  planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
+  planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
+  planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
+  planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
   home_offset[X_AXIS] = home_offset[Y_AXIS] = home_offset[Z_AXIS] = 0;
 
   #if ENABLED(MESH_BED_LEVELING)
@@ -734,9 +732,10 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR("  M205 S", planner.min_feedrate_mm_s);
   SERIAL_ECHOPAIR(" T", planner.min_travel_feedrate_mm_s);
   SERIAL_ECHOPAIR(" B", planner.min_segment_time);
-  SERIAL_ECHOPAIR(" X", planner.max_xy_jerk);
-  SERIAL_ECHOPAIR(" Z", planner.max_z_jerk);
-  SERIAL_ECHOPAIR(" E", planner.max_e_jerk);
+  SERIAL_ECHOPAIR(" X", planner.max_jerk[X_AXIS]);
+  SERIAL_ECHOPAIR(" Y", planner.max_jerk[Y_AXIS]);
+  SERIAL_ECHOPAIR(" Z", planner.max_jerk[Z_AXIS]);
+  SERIAL_ECHOPAIR(" E", planner.max_jerk[E_AXIS]);
   SERIAL_EOL;
 
   CONFIG_ECHO_START;
