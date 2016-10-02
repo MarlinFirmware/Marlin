@@ -265,8 +265,8 @@ uint8_t Temperature::soft_pwm[HOTENDS];
           #endif
         ;
 
-        max = max(max, input);
-        min = min(min, input);
+        NOLESS(max, input);
+        NOMORE(min, input);
 
         #if HAS_AUTO_FAN
           if (ELAPSED(ms, next_auto_fan_check_ms)) {
