@@ -95,9 +95,10 @@
 #define MSG_PID_C                           "PID C"
 #define MSG_SELECT                          "Auswählen"
 #define MSG_ACC                             "A"
-#define MSG_VXY_JERK                        "V XY Jerk"
-#define MSG_VZ_JERK                         "V Z  Jerk"
-#define MSG_VE_JERK                         "V E  Jerk"
+#define MSG_VX_JERK                         "V X Jerk"
+#define MSG_VY_JERK                         "V Y Jerk"
+#define MSG_VZ_JERK                         "V Z Jerk"
+#define MSG_VE_JERK                         "V E Jerk"
 #define MSG_VMAX                            "V max " // space by purpose
 #define MSG_VMIN                            "V min"
 #define MSG_VTRAV_MIN                       "V min Leerfahrt"
