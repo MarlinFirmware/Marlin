@@ -540,7 +540,7 @@ float Temperature::get_pid_output(int e) {
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
       if (target_temperature[HOTEND_INDEX] == 0) {
         pid_output = 0;
-        temp_iState[HOTEND_INDEX] = 0.0
+        temp_iState[HOTEND_INDEX] = 0.0;
       }
       else
       {
