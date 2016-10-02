@@ -91,6 +91,8 @@
   #error "SERVO_ENDSTOP_ANGLES is deprecated. Use Z_SERVO_ANGLES instead."
 #elif defined(X_ENDSTOP_SERVO_NR) || defined(Y_ENDSTOP_SERVO_NR)
   #error "X_ENDSTOP_SERVO_NR and Y_ENDSTOP_SERVO_NR are deprecated and should be removed."
+#elif defined(DEFAULT_XYJERK)
+  #error "DEFAULT_XYJERK is deprecated. Use DEFAULT_XJERK and DEFAULT_YJERK instead."
 #elif defined(XY_TRAVEL_SPEED)
   #error "XY_TRAVEL_SPEED is deprecated. Use XY_PROBE_SPEED instead."
 #elif defined(PROBE_SERVO_DEACTIVATION_DELAY)

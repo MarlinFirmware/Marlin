@@ -93,9 +93,7 @@ float Planner::min_feedrate_mm_s,
       Planner::acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
       Planner::retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
       Planner::travel_acceleration,  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-      Planner::max_xy_jerk,          // The largest speed change requiring no acceleration
-      Planner::max_z_jerk,
-      Planner::max_e_jerk,
+      Planner::max_jerk[XYZE],       // The largest speed change requiring no acceleration
       Planner::min_travel_feedrate_mm_s;
 
 #if HAS_ABL
@@ -1101,30 +1099,26 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
   #endif
 
   // Start with a safe speed
-  float vmax_junction = max_xy_jerk * 0.5,
-        vmax_junction_factor = 1.0,
-        mz2 = max_z_jerk * 0.5,
-        me2 = max_e_jerk * 0.5,
-        csz = current_speed[Z_AXIS],
-        cse = current_speed[E_AXIS];
-  if (fabs(csz) > mz2) vmax_junction = min(vmax_junction, mz2);
-  if (fabs(cse) > me2) vmax_junction = min(vmax_junction, me2);
-  vmax_junction = min(vmax_junction, block->nominal_speed);
+  float vmax_junction = max_jerk[X_AXIS] * 0.5, vmax_junction_factor = 1.0;
+  if (max_jerk[Y_AXIS] * 0.5 < fabs(current_speed[Y_AXIS])) NOMORE(vmax_junction, max_jerk[Y_AXIS] * 0.5);
+  if (max_jerk[Z_AXIS] * 0.5 < fabs(current_speed[Z_AXIS])) NOMORE(vmax_junction, max_jerk[Z_AXIS] * 0.5);
+  if (max_jerk[E_AXIS] * 0.5 < fabs(current_speed[E_AXIS])) NOMORE(vmax_junction, max_jerk[E_AXIS] * 0.5);
+  NOMORE(vmax_junction, block->nominal_speed);
   float safe_speed = vmax_junction;
 
-  if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
-    float dsx = current_speed[X_AXIS] - previous_speed[X_AXIS],
-          dsy = current_speed[Y_AXIS] - previous_speed[Y_AXIS],
-          dsz = fabs(csz - previous_speed[Z_AXIS]),
-          dse = fabs(cse - previous_speed[E_AXIS]),
-          jerk = HYPOT(dsx, dsy);
+  if (moves_queued > 1 && previous_nominal_speed > 0.0001) {
+    //if ((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
+        vmax_junction = block->nominal_speed;
+    //}
 
-    //    if ((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
-    vmax_junction = block->nominal_speed;
-    //    }
-    if (jerk > max_xy_jerk) vmax_junction_factor = max_xy_jerk / jerk;
-    if (dsz > max_z_jerk) vmax_junction_factor = min(vmax_junction_factor, max_z_jerk / dsz);
-    if (dse > max_e_jerk) vmax_junction_factor = min(vmax_junction_factor, max_e_jerk / dse);
+    float dsx = fabs(current_speed[X_AXIS] - previous_speed[X_AXIS]),
+          dsy = fabs(current_speed[Y_AXIS] - previous_speed[Y_AXIS]),
+          dsz = fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]),
+          dse = fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]);
+    if (dsx > max_jerk[X_AXIS]) NOMORE(vmax_junction_factor, max_jerk[X_AXIS] / dsx);
+    if (dsy > max_jerk[Y_AXIS]) NOMORE(vmax_junction_factor, max_jerk[Y_AXIS] / dsy);
+    if (dsz > max_jerk[Z_AXIS]) NOMORE(vmax_junction_factor, max_jerk[Z_AXIS] / dsz);
+    if (dse > max_jerk[E_AXIS]) NOMORE(vmax_junction_factor, max_jerk[E_AXIS] / dse);
 
     vmax_junction = min(previous_nominal_speed, vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
   }
@@ -1173,7 +1167,7 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
     }
     else {
       long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_steps_per_s2);
-      float advance = ((STEPS_PER_CUBIC_MM_E) * (EXTRUDER_ADVANCE_K)) * HYPOT(cse, EXTRUSION_AREA) * 256;
+      float advance = ((STEPS_PER_CUBIC_MM_E) * (EXTRUDER_ADVANCE_K)) * HYPOT(current_speed[E_AXIS], EXTRUSION_AREA) * 256;
       block->advance = advance;
       block->advance_rate = acc_dist ? advance / (float)acc_dist : 0;
     }

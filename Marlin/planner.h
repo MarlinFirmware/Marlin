@@ -132,9 +132,7 @@ class Planner {
     static float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
     static float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
     static float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-    static float max_xy_jerk;          // The largest speed change requiring no acceleration
-    static float max_z_jerk;
-    static float max_e_jerk;
+    static float max_jerk[XYZE];       // The largest speed change requiring no acceleration
     static float min_travel_feedrate_mm_s;
 
     #if HAS_ABL
