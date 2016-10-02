@@ -2759,9 +2759,11 @@ inline void gcode_G0_G1(
         const float r = code_value_axis_units(X_AXIS),
                     x1 = current_position[X_AXIS], y1 = current_position[Y_AXIS],
                     x2 = destination[X_AXIS], y2 = destination[Y_AXIS];
-        if (r && (x2 != x1 || y2 != y1)) {
-          const float e = clockwise ? -1 : 1,                     // clockwise -1, counterclockwise 1
-                      dx = x2 - x1, dy = y2 - y1,                 // X and Y differences
+ 		float		e;
+		if (r && (x2 != x1 || y2 != y1)) {
+          if (r >= 0) e = clockwise ? -1 : 1 ;     // clockwise -1, counterclockwise 1
+          else        e = clockwise ? 1 : -1 ;	   // reversed if r is negative
+          float       dx = x2 - x1, dy = y2 - y1,                 // X and Y differences
                       d = HYPOT(dx, dy),                          // Linear distance between the points
                       h = sqrt(sq(r) - sq(d * 0.5)),              // Distance to the arc pivot-point
                       mx = (x1 + x2) * 0.5, my = (y1 + y2) * 0.5, // Point between the two points
