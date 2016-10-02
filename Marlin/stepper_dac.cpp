@@ -102,7 +102,8 @@
     SERIAL_ECHOPAIR(" (",   dac_amps(2));
     SERIAL_ECHOPAIR(") E:", dac_perc(3));
     SERIAL_ECHOPAIR(" (",   dac_amps(3));
-    SERIAL_ECHOLNPGM(")");
+    SERIAL_CHAR(')');
+    SERIAL_EOL;
   }
 
   void dac_commit_eeprom() {
