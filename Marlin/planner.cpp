@@ -658,7 +658,8 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
     SERIAL_ECHOPAIR(") Z:", lz);
   #endif
   SERIAL_ECHOPAIR(" (", dz);
-  SERIAL_ECHOLNPGM(")");
+  SERIAL_CHAR(')');
+  SERIAL_EOL;
   //*/
 
   // DRYRUN ignores all temperature constraints and assures that the extruder is instantly satisfied
