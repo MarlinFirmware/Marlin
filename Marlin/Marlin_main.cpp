@@ -770,7 +770,8 @@ bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   if (_enqueuecommand(cmd, say_ok)) {
     SERIAL_ECHO_START;
     SERIAL_ECHOPAIR(MSG_Enqueueing, cmd);
-    SERIAL_ECHOLNPGM("\"");
+    SERIAL_CHAR('"');
+    SERIAL_EOL;
     return true;
   }
   return false;
@@ -2648,7 +2649,8 @@ void gcode_get_destination() {
 void unknown_command_error() {
   SERIAL_ECHO_START;
   SERIAL_ECHOPAIR(MSG_UNKNOWN_COMMAND, current_command);
-  SERIAL_ECHOLNPGM("\"");
+  SERIAL_CHAR('"');
+  SERIAL_EOL;
 }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
