@@ -544,6 +544,15 @@
 #ifndef MSG_FILAMENT_CHANGE_OPTION_RESUME
   #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resume print"
 #endif
+#ifndef MSG_DRIVE_STRENGTH
+  #define MSG_DRIVE_STRENGTH                  "Drive Strength"
+#endif
+#ifndef MSG_DAC_PERCENT
+  #define MSG_DAC_PERCENT                     "Driver %"
+#endif
+#ifndef MSG_DAC_EEPROM_WRITE
+  #define MSG_DAC_EEPROM_WRITE                "DAC EEPROM Write"
+#endif
 #if LCD_HEIGHT >= 4
   #ifndef MSG_FILAMENT_CHANGE_INIT_1
     #define MSG_FILAMENT_CHANGE_INIT_1          "Wait for start"
