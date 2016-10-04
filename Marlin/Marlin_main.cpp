@@ -197,7 +197,7 @@
  * M205 - Set advanced settings. Current units apply:
             S<print> T<travel> minimum speeds
             B<minimum segment time>
-            X<max xy jerk>, Z<max Z jerk>, E<max E jerk>
+            X<max X jerk>, Y<max Y jerk>, Z<max Z jerk>, E<max E jerk>
  * M206 - Set additional homing offset.
  * M207 - Set Retract Length: S<length>, Feedrate: F<units/min>, and Z lift: Z<distance>. (Requires FWRETRACT)
  * M208 - Set Recover (unretract) Additional (!) Length: S<length> and Feedrate: F<units/min>. (Requires FWRETRACT)
@@ -5780,7 +5780,8 @@ inline void gcode_M204() {
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
  *    B = Min Segment Time (µs)
- *    X = Max XY Jerk (units/sec^2)
+ *    X = Max X Jerk (units/sec^2)
+ *    Y = Max Y Jerk (units/sec^2)
  *    Z = Max Z Jerk (units/sec^2)
  *    E = Max E Jerk (units/sec^2)
  */
