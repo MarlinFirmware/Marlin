@@ -103,8 +103,8 @@
 #define MSG_SELECT                          "\xbe\xdd\xc0\xb8"                                                 // "ｾﾝﾀｸ" ("Select")
 #if LCD_WIDTH > 19
   #define MSG_ACC                           "\xb6\xbf\xb8\xc4\xde mm/s2"                                       // "ｶｿｸﾄﾞ mm/s2" ("Accel")
-  #define MSG_VX_JERK                       "X\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "XYｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vx-jerk")
-  #define MSG_VY_JERK                       "Y\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "XYｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vy-jerk")
+  #define MSG_VX_JERK                       "X\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Xｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vx-jerk")
+  #define MSG_VY_JERK                       "Y\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Yｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vy-jerk")
   #define MSG_VZ_JERK                       "Z\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Zｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vz-jerk")
   #define MSG_VE_JERK                       "\xb4\xb8\xbd\xc4\xd9\xb0\xc0\xde\xb0\x20\xd4\xb8\xc4\xde"         // "ｴｸｽﾄﾙｰﾀﾞｰ ﾔｸﾄﾞ" ("Ve-jerk")
   #define MSG_VMAX                          "\xbb\xb2\xc0\xde\xb2\xb5\xb8\xd8\xbf\xb8\xc4\xde "                // "ｻｲﾀﾞｲｵｸﾘｿｸﾄﾞ " ("Vmax ")
