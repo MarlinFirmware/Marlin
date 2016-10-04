@@ -122,6 +122,7 @@ uint16_t driverX, driverY, driverZ, driverE;
   static void dac_driver_commit();
   static void dac_driver_getValues();
   static void lcd_dac_menu();
+  static void lcd_dac_write_eeprom();
   #endif
 
   #if ENABLED(LCD_INFO_MENU)
@@ -870,10 +871,9 @@ void kill_screen(const char* lcd_msg) {
     driverE = mcp4728_getDrvPct(3);
   } 
 
-  static void dac_driver_commit() 
-  {
-    mcp4728_setDrvPct(driverX, driverY, driverZ, driverE);
-  }
+  static void dac_driver_commit() { mcp4728_setDrvPct(driverX, driverY, driverZ, driverE); }
+
+  static void dac_driver_eeprom_write() { mcp4728_eepromWrite(); }
   
   static void lcd_dac_menu()
   {
@@ -884,6 +884,7 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM_EDIT_CALLBACK(int3, "Driver Y%", &driverY, 0, 100, dac_driver_commit);
     MENU_ITEM_EDIT_CALLBACK(int3, "Driver Z%", &driverZ, 0, 100, dac_driver_commit);
     MENU_ITEM_EDIT_CALLBACK(int3, "Driver E%", &driverE, 0, 100, dac_driver_commit);
+    MENU_ITEM(function, "Write DAC EEPROM", dac_driver_eeprom_write);
    END_MENU();
   }
  #endif
