@@ -62,6 +62,11 @@ millis_t next_lcd_update_ms;
 
 uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
 
+#ifdef DAC_STEPPER_CURRENT
+#include "dac_mcp4728.h"
+uint16_t driverX, driverY, driverZ, driverE;
+#endif
+
 #if ENABLED(ULTIPANEL)
 
   // place-holders for Ki and Kd edits
@@ -113,6 +118,11 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   static void lcd_control_temperature_preheat_abs_settings_menu();
   static void lcd_control_motion_menu();
   static void lcd_control_volumetric_menu();
+  #ifdef DAC_STEPPER_CURRENT
+  static void dac_driver_commit();
+  static void dac_driver_getValues();
+  static void lcd_dac_menu();
+  #endif
 
   #if ENABLED(LCD_INFO_MENU)
     #if ENABLED(PRINTCOUNTER)
@@ -848,6 +858,39 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
+   * "Driver current control" submenu items
+   *
+   */
+  #ifdef DAC_STEPPER_CURRENT
+  static void dac_driver_getValues() 
+  {
+    driverX = mcp4728_getDrvPct(0);
+    driverY = mcp4728_getDrvPct(1);
+    driverZ = mcp4728_getDrvPct(2);
+    driverE = mcp4728_getDrvPct(3);
+  } 
+
+  static void dac_driver_commit() 
+  {
+    mcp4728_setDrvPct(driverX, driverY, driverZ, driverE);
+  }
+  
+  static void lcd_dac_menu()
+  {
+   dac_driver_getValues();
+   START_MENU();    
+    MENU_ITEM(back, MSG_CONTROL);
+    MENU_ITEM_EDIT_CALLBACK(int3, "Driver X%", &driverX, 0, 100, dac_driver_commit);
+    MENU_ITEM_EDIT_CALLBACK(int3, "Driver Y%", &driverY, 0, 100, dac_driver_commit);
+    MENU_ITEM_EDIT_CALLBACK(int3, "Driver Z%", &driverZ, 0, 100, dac_driver_commit);
+    MENU_ITEM_EDIT_CALLBACK(int3, "Driver E%", &driverE, 0, 100, dac_driver_commit);
+   END_MENU();
+  }
+ #endif
+  
+
+  /**
+   *
    * "Prepare" submenu items
    *
    */
@@ -1529,6 +1572,10 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(FWRETRACT)
       MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
     #endif
+    #ifdef  DAC_STEPPER_CURRENT
+      MENU_ITEM(submenu, "Drive Strength", lcd_dac_menu); //MSG_DAC to be added to language.h as "Drive Strength"
+    #endif
+
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
       MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
