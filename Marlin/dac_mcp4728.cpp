@@ -112,6 +112,18 @@ uint16_t mcp4728_getVout(uint8_t channel) {
 }
 */
 
+/* Returns DAC values as a 0-100 percentage of drive strength */
+uint16_t mcp4728_getDrvPct(uint8_t channel) {return (uint16_t)(.5+(((float)mcp4728_values[channel]*100)/DAC_STEPPER_MAX));}
+
+/* Recieves all Drive strengths as 0-100 percent values, updates DAC Values array and calls fastwrite to update the DAC */
+void mcp4728_setDrvPct(float xPct, float yPct, float zPct, float ePct) {
+  mcp4728_values[0] = (xPct * DAC_STEPPER_MAX)/100;
+  mcp4728_values[1] = (yPct * DAC_STEPPER_MAX)/100;
+  mcp4728_values[2] = (zPct * DAC_STEPPER_MAX)/100;
+  mcp4728_values[3] = (ePct * DAC_STEPPER_MAX)/100;
+  mcp4728_fastWrite();
+}
+
 /**
  * FastWrite input register values - All DAC ouput update. refer to DATASHEET 5.6.1
  * DAC Input and PowerDown bits update.
