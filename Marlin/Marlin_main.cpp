@@ -387,7 +387,7 @@ static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL
 // Buzzer - I2C on the LCD or a BEEPER_PIN
 #if ENABLED(LCD_USE_I2C_BUZZER)
   #define BUZZ(d,f) lcd_buzz(d, f)
-#elif HAS_BUZZER
+#elif PIN_EXISTS(BEEPER)
   Buzzer buzzer;
   #define BUZZ(d,f) buzzer.tone(d, f)
 #else
@@ -6717,7 +6717,7 @@ inline void gcode_M503() {
     delay(100);
 
     #if HAS_BUZZER
-      millis_t next_tick = 0;
+      millis_t next_buzz = 0;
     #endif
 
     // Wait for filament insert by user and press button
@@ -6726,9 +6726,9 @@ inline void gcode_M503() {
     while (!lcd_clicked()) {
       #if HAS_BUZZER
         millis_t ms = millis();
-        if (ms >= next_tick) {
+        if (ms >= next_buzz) {
           BUZZ(300, 2000);
-          next_tick = ms + 2500; // Beep every 2.5s while waiting
+          next_buzz = ms + 2500; // Beep every 2.5s while waiting
         }
       #endif
       idle(true);
@@ -8858,6 +8858,7 @@ void prepare_move_to_destination() {
 
     float mm_of_travel = HYPOT(angular_travel * radius, fabs(linear_travel));
     if (mm_of_travel < 0.001) return;
+
     uint16_t segments = floor(mm_of_travel / (MM_PER_ARC_SEGMENT));
     if (segments == 0) segments = 1;
 
@@ -9428,7 +9429,7 @@ void idle(
     print_job_timer.tick();
   #endif
 
-  #if HAS_BUZZER && PIN_EXISTS(BEEPER)
+  #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
     buzzer.tick();
   #endif
 }
