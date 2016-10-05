@@ -414,8 +414,6 @@ const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
 static int serial_count = 0;
 
-const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
-
 // Inactivity shutdown
 millis_t previous_cmd_ms = 0;
 static millis_t max_inactive_time = 0;
@@ -4610,6 +4608,16 @@ inline void gcode_M31() {
 #endif // SDSUPPORT
 
 /**
+ * Sensitive pin test for M42, M226
+ */
+static bool pin_is_protected(uint8_t pin) {
+  static const int sensitive_pins[] = SENSITIVE_PINS;
+  for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
+    if (sensitive_pins[i] == pin) return true;
+  return false;
+}
+
+/**
  * M42: Change pin status via GCode
  *
  *  P<pin>  Pin number (LED if omitted)
@@ -4624,12 +4632,11 @@ inline void gcode_M42() {
   int pin_number = code_seen('P') ? code_value_int() : LED_PIN;
   if (pin_number < 0) return;
 
-  for (uint8_t i = 0; i < COUNT(sensitive_pins); i++)
-    if (pin_number == sensitive_pins[i]) {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
-      return;
-    }
+  if (pin_is_protected(pin_number)) {
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLNPGM(MSG_ERR_PROTECTED_PIN);
+    return;
+  }
 
   pinMode(pin_number, OUTPUT);
   digitalWrite(pin_number, pin_status);
@@ -6050,43 +6057,31 @@ inline void gcode_M221() {
  */
 inline void gcode_M226() {
   if (code_seen('P')) {
-    int pin_number = code_value_int();
-    int pin_state = code_seen('S') ? code_value_int() : -1; // required pin state - default is inverted
+    int pin_number = code_value_int(),
+        pin_state = code_seen('S') ? code_value_int() : -1; // required pin state - default is inverted
 
-    if (pin_state >= -1 && pin_state <= 1) {
+    if (pin_state >= -1 && pin_state <= 1 && pin_number > -1 && !pin_is_protected(pin_number)) {
 
-      for (uint8_t i = 0; i < COUNT(sensitive_pins); i++) {
-        if (sensitive_pins[i] == pin_number) {
-          pin_number = -1;
+      int target = LOW;
+
+      stepper.synchronize();
+
+      pinMode(pin_number, INPUT);
+      switch (pin_state) {
+        case 1:
+          target = HIGH;
           break;
-        }
+        case 0:
+          target = LOW;
+          break;
+        case -1:
+          target = !digitalRead(pin_number);
+          break;
       }
 
-      if (pin_number > -1) {
-        int target = LOW;
+      while (digitalRead(pin_number) != target) idle();
 
-        stepper.synchronize();
-
-        pinMode(pin_number, INPUT);
-
-        switch (pin_state) {
-          case 1:
-            target = HIGH;
-            break;
-
-          case 0:
-            target = LOW;
-            break;
-
-          case -1:
-            target = !digitalRead(pin_number);
-            break;
-        }
-
-        while (digitalRead(pin_number) != target) idle();
-
-      } // pin_number > -1
-    } // pin_state -1 0 1
+    } // pin_state -1 0 1 && pin_number > -1
   } // code_seen('P')
 }
 
