@@ -286,23 +286,73 @@ bool Running = true;
 
 uint8_t marlin_debug_flags = DEBUG_NONE;
 
-float current_position[NUM_AXIS] = { 0.0 };
-static float destination[NUM_AXIS] = { 0.0 };
-bool axis_known_position[XYZ] = { false };
-bool axis_homed[XYZ] = { false };
+/**
+ * Cartesian Current Position
+ *   Used to track the logical position as moves are queued.
+ *   Used by 'line_to_current_position' to do a move after changing it.
+ *   Used by 'SYNC_PLAN_POSITION_KINEMATIC' to update 'planner.position'.
+ */
+float current_position[XYZE] = { 0.0 };
 
+/**
+ * Cartesian Destination
+ *   A temporary position, usually applied to 'current_position'.
+ *   Set with 'gcode_get_destination' or 'set_destination_to_current'.
+ *   'line_to_destination' sets 'current_position' to 'destination'.
+ */
+static float destination[XYZE] = { 0.0 };
+
+/**
+ * axis_homed
+ *   Flags that each linear axis was homed.
+ *   XYZ on cartesian, ABC on delta, ABZ on SCARA.
+ *
+ * axis_known_position
+ *   Flags that the position is known in each linear axis. Set when homed.
+ *   Cleared whenever a stepper powers off, potentially losing its position.
+ */
+bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
+
+/**
+ * GCode line number handling. Hosts may opt to include line numbers when
+ * sending commands to Marlin, and lines will be checked for sequentiality.
+ * M110 S<int> sets the current line number.
+ */
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
+/**
+ * GCode Command Queue
+ * A simple ring buffer of BUFSIZE command strings.
+ *
+ * Commands are copied into this buffer by the command injectors
+ * (immediate, serial, sd card) and they are processed sequentially by
+ * the main loop. The process_next_command function parses the next
+ * command and hands off execution to individual handler functions.
+ */
 static char command_queue[BUFSIZE][MAX_CMD_SIZE];
-static char* current_command, *current_command_args;
-static uint8_t cmd_queue_index_r = 0,
-               cmd_queue_index_w = 0,
-               commands_in_queue = 0;
+static uint8_t cmd_queue_index_r = 0, // Ring buffer read position
+               cmd_queue_index_w = 0, // Ring buffer write position
+               commands_in_queue = 0; // Count of commands in the queue
+
+/**
+ * Current GCode Command
+ * When a GCode handler is running, these will be set
+ */
+static char *current_command,      // The command currently being executed
+            *current_command_args, // The address where arguments begin
+            *seen_pointer;         // Set by code_seen(), used by the code_value functions
+
+/**
+ * Next Injected Command pointer. NULL if no commands are being injected.
+ * Used by Marlin internally to ensure that commands initiated from within
+ * are enqueued ahead of any pending serial or sd card commands.
+ */
+static const char *injected_commands_P = NULL;
 
 #if ENABLED(INCH_MODE_SUPPORT)
-  float linear_unit_factor = 1.0;
-  float volumetric_unit_factor = 1.0;
+  float linear_unit_factor = 1.0, volumetric_unit_factor = 1.0;
 #endif
+
 #if ENABLED(TEMPERATURE_UNITS_SUPPORT)
   TempUnit input_temp_units = TEMPUNIT_C;
 #endif
@@ -320,13 +370,13 @@ float constexpr homing_feedrate_mm_s[] = {
   MMM_TO_MMS(HOMING_FEEDRATE_Z), 0
 };
 static float feedrate_mm_s = MMM_TO_MMS(1500.0), saved_feedrate_mm_s;
-int feedrate_percentage = 100, saved_feedrate_percentage;
+int feedrate_percentage = 100, saved_feedrate_percentage,
+    flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
 
-bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
-int flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
-bool volumetric_enabled = false;
-float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA);
-float volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
+bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
+     volumetric_enabled = false;
+float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
+      volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
 // The distance that XYZ has been offset by G92. Reset by G28.
 float position_shift[XYZ] = { 0 };
@@ -363,12 +413,6 @@ const char echomagic[] PROGMEM = "echo:";
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
 static int serial_count = 0;
-
-// GCode parameter pointer used by code_seen(), code_value_float(), etc.
-static char* seen_pointer;
-
-// Next Immediate GCode Command pointer. NULL if none.
-const char* queued_commands_P = NULL;
 
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
 
@@ -706,32 +750,32 @@ extern "C" {
  * Inject the next "immediate" command, when possible.
  * Return true if any immediate commands remain to inject.
  */
-static bool drain_queued_commands_P() {
-  if (queued_commands_P != NULL) {
+static bool drain_injected_commands_P() {
+  if (injected_commands_P != NULL) {
     size_t i = 0;
     char c, cmd[30];
-    strncpy_P(cmd, queued_commands_P, sizeof(cmd) - 1);
+    strncpy_P(cmd, injected_commands_P, sizeof(cmd) - 1);
     cmd[sizeof(cmd) - 1] = '\0';
     while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
     cmd[i] = '\0';
     if (enqueue_and_echo_command(cmd)) {   // success?
       if (c)                               // newline char?
-        queued_commands_P += i + 1;        // advance to the next command
+        injected_commands_P += i + 1;        // advance to the next command
       else
-        queued_commands_P = NULL;          // nul char? no more commands
+        injected_commands_P = NULL;          // nul char? no more commands
     }
   }
-  return (queued_commands_P != NULL);      // return whether any more remain
+  return (injected_commands_P != NULL);      // return whether any more remain
 }
 
 /**
  * Record one or many commands to run from program memory.
  * Aborts the current queue, if any.
- * Note: drain_queued_commands_P() must be called repeatedly to drain the commands afterwards
+ * Note: drain_injected_commands_P() must be called repeatedly to drain the commands afterwards
  */
 void enqueue_and_echo_commands_P(const char* pgcode) {
-  queued_commands_P = pgcode;
-  drain_queued_commands_P(); // first command executed asap (when possible)
+  injected_commands_P = pgcode;
+  drain_injected_commands_P(); // first command executed asap (when possible)
 }
 
 void clear_command_queue() {
@@ -1085,14 +1129,14 @@ inline void get_serial_commands() {
 
 /**
  * Add to the circular command queue the next command from:
- *  - The command-injection queue (queued_commands_P)
+ *  - The command-injection queue (injected_commands_P)
  *  - The active serial input (usually USB)
  *  - The SD card file being actively printed
  */
 void get_available_commands() {
 
   // if any immediate commands remain, don't get other commands yet
-  if (drain_queued_commands_P()) return;
+  if (drain_injected_commands_P()) return;
 
   get_serial_commands();
 
@@ -8862,15 +8906,11 @@ void prepare_move_to_destination() {
     uint16_t segments = floor(mm_of_travel / (MM_PER_ARC_SEGMENT));
     if (segments == 0) segments = 1;
 
-    float theta_per_segment = angular_travel / segments;
-    float linear_per_segment = linear_travel / segments;
-    float extruder_per_segment = extruder_travel / segments;
-
     /**
      * Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
      * and phi is the angle of rotation. Based on the solution approach by Jens Geisler.
      *     r_T = [cos(phi) -sin(phi);
-     *            sin(phi)  cos(phi] * r ;
+     *            sin(phi)  cos(phi)] * r ;
      *
      * For arc generation, the center of the circle is the axis of rotation and the radius vector is
      * defined from the circle center to the initial position. Each line segment is formed by successive
@@ -8893,13 +8933,12 @@ void prepare_move_to_destination() {
      * This is important when there are successive arc motions.
      */
     // Vector rotation matrix values
-    float cos_T = 1 - 0.5 * sq(theta_per_segment); // Small angle approximation
-    float sin_T = theta_per_segment;
-
-    float arc_target[NUM_AXIS];
-    float sin_Ti, cos_Ti, r_new_Y;
-    uint16_t i;
-    int8_t count = 0;
+    float arc_target[XYZE],
+          theta_per_segment = angular_travel / segments,
+          linear_per_segment = linear_travel / segments,
+          extruder_per_segment = extruder_travel / segments,
+          sin_T = theta_per_segment,
+          cos_T = 1 - 0.5 * sq(theta_per_segment); // Small angle approximation
 
     // Initialize the linear axis
     arc_target[Z_AXIS] = current_position[Z_AXIS];
@@ -8911,18 +8950,18 @@ void prepare_move_to_destination() {
 
     millis_t next_idle_ms = millis() + 200UL;
 
-    for (i = 1; i < segments; i++) { // Iterate (segments-1) times
+    int8_t count = 0;
+    for (uint16_t i = 1; i < segments; i++) { // Iterate (segments-1) times
 
       thermalManager.manage_heater();
-      millis_t now = millis();
-      if (ELAPSED(now, next_idle_ms)) {
-        next_idle_ms = now + 200UL;
+      if (ELAPSED(millis(), next_idle_ms)) {
+        next_idle_ms = millis() + 200UL;
         idle();
       }
 
       if (++count < N_ARC_CORRECTION) {
         // Apply vector rotation matrix to previous r_X / 1
-        r_new_Y = r_X * sin_T + r_Y * cos_T;
+        float r_new_Y = r_X * sin_T + r_Y * cos_T;
         r_X = r_X * cos_T - r_Y * sin_T;
         r_Y = r_new_Y;
       }
@@ -8931,8 +8970,8 @@ void prepare_move_to_destination() {
         // Compute exact location by applying transformation matrix from initial radius vector(=-offset).
         // To reduce stuttering, the sin and cos could be computed at different times.
         // For now, compute both at the same time.
-        cos_Ti = cos(i * theta_per_segment);
-        sin_Ti = sin(i * theta_per_segment);
+        float cos_Ti = cos(i * theta_per_segment),
+              sin_Ti = sin(i * theta_per_segment);
         r_X = -offset[X_AXIS] * cos_Ti + offset[Y_AXIS] * sin_Ti;
         r_Y = -offset[X_AXIS] * sin_Ti - offset[Y_AXIS] * cos_Ti;
         count = 0;
@@ -9202,8 +9241,7 @@ void prepare_move_to_destination() {
 
 float calculate_volumetric_multiplier(float diameter) {
   if (!volumetric_enabled || diameter == 0) return 1.0;
-  float d2 = diameter * 0.5;
-  return 1.0 / (M_PI * d2 * d2);
+  return 1.0 / (M_PI * diameter * 0.5 * diameter * 0.5);
 }
 
 void calculate_volumetric_multipliers() {
