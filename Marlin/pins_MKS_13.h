@@ -120,9 +120,9 @@
   #define BEEPER_PIN      25
 
   // yellow               RED-LED
-  #define STAT_LED_RED    16
+  #define STAT_LED_RED_PIN 16
 
   // white                BLUE-LED
-  #define STAT_LED_BLUE   17
+  #define STAT_LED_BLUE_PIN 17
 
 #endif

@@ -28,6 +28,11 @@
 #include "temperature.h"
 #include "stepper.h"
 #include "configuration_store.h"
+#include "utility.h"
+
+#if ENABLED(BLTOUCH)
+  #include "endstops.h"
+#endif
 
 #if ENABLED(PRINTCOUNTER)
   #include "printcounter.h"
@@ -367,22 +372,22 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 
   /**
    * General function to go directly to a menu
-   * Remembers the previous position
    */
   static void lcd_goto_screen(screenFunc_t screen, const bool feedback = false, const uint32_t encoder = 0) {
     if (currentScreen != screen) {
       currentScreen = screen;
-      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
       encoderPosition = encoder;
-      if (feedback) lcd_quick_feedback();
       if (screen == lcd_status_screen) {
         defer_return_to_status = false;
         screen_history_depth = 0;
       }
+      if (feedback) lcd_quick_feedback();
+      lcd_implementation_clear();
       #if ENABLED(LCD_PROGRESS_BAR)
         // For LCD_PROGRESS_BAR re-initialize custom characters
         lcd_set_custom_characters(screen == lcd_status_screen);
       #endif
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
     }
   }
 
@@ -484,15 +489,15 @@ static void lcd_status_screen() {
     }
 
     if (current_click) {
-      lcd_goto_screen(lcd_main_menu, true);
-      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-        #if ENABLED(LCD_PROGRESS_BAR) && ENABLED(ULTIPANEL)
-          currentScreen == lcd_status_screen
-        #endif
-      );
       #if ENABLED(FILAMENT_LCD_DISPLAY)
         previous_lcd_status_ms = millis();  // get status message to show up for a while
       #endif
+      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
+        #if ENABLED(LCD_PROGRESS_BAR)
+          false
+        #endif
+      );
+      lcd_goto_screen(lcd_main_menu, true);
     }
 
     #if ENABLED(ULTIPANEL_FEEDMULTIPLY)
@@ -546,7 +551,7 @@ void kill_screen(const char* lcd_msg) {
   inline void line_to_current(AxisEnum axis) {
     #if ENABLED(DELTA)
       inverse_kinematics(current_position);
-      planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(manual_feedrate_mm_m[axis]), active_extruder);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], current_position[E_AXIS], MMM_TO_MMS(manual_feedrate_mm_m[axis]), active_extruder);
     #else // !DELTA
       planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(manual_feedrate_mm_m[axis]), active_extruder);
     #endif // !DELTA
@@ -585,6 +590,12 @@ void kill_screen(const char* lcd_msg) {
   static void lcd_main_menu() {
     START_MENU();
     MENU_ITEM(back, MSG_WATCH);
+
+    #if ENABLED(BLTOUCH)
+      if (!endstops.z_probe_enabled && TEST_BLTOUCH())
+        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
+    #endif
+
     if (planner.movesplanned() || IS_SD_PRINTING) {
       MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
     }
@@ -799,15 +810,15 @@ void kill_screen(const char* lcd_msg) {
     // Flow 4:
     //
     #if EXTRUDERS == 1
-      MENU_ITEM_EDIT(int3, MSG_FLOW, &extruder_multiplier[0], 10, 999);
+      MENU_ITEM_EDIT(int3, MSG_FLOW, &flow_percentage[0], 10, 999);
     #else // EXTRUDERS > 1
-      MENU_ITEM_EDIT(int3, MSG_FLOW, &extruder_multiplier[active_extruder], 10, 999);
-      MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N1, &extruder_multiplier[0], 10, 999);
-      MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N2, &extruder_multiplier[1], 10, 999);
+      MENU_ITEM_EDIT(int3, MSG_FLOW, &flow_percentage[active_extruder], 10, 999);
+      MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N1, &flow_percentage[0], 10, 999);
+      MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N2, &flow_percentage[1], 10, 999);
       #if EXTRUDERS > 2
-        MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N3, &extruder_multiplier[2], 10, 999);
+        MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N3, &flow_percentage[2], 10, 999);
         #if EXTRUDERS > 3
-          MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N4, &extruder_multiplier[3], 10, 999);
+          MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N4, &flow_percentage[3], 10, 999);
         #endif //EXTRUDERS > 3
       #endif //EXTRUDERS > 2
     #endif //EXTRUDERS > 1
@@ -1201,7 +1212,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // Level Bed
     //
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #if HAS_ABL
       MENU_ITEM(gcode, MSG_LEVEL_BED,
         axis_homed[X_AXIS] && axis_homed[Y_AXIS] ? PSTR("G29") : PSTR("G28\nG29")
       );
@@ -1239,6 +1250,15 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 
     //
+    // BLTouch Self-Test and Reset
+    //
+    #if ENABLED(BLTOUCH)
+      MENU_ITEM(gcode, MSG_BLTOUCH_SELFTEST, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_SELFTEST)));
+      if (!endstops.z_probe_enabled && TEST_BLTOUCH())
+        MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
+    #endif
+
+    //
     // Switch power on/off
     //
     #if HAS_POWER_SWITCH
@@ -1260,14 +1280,27 @@ void kill_screen(const char* lcd_msg) {
 
   #if ENABLED(DELTA_CALIBRATION_MENU)
 
+    static void _goto_tower_pos(const float &a) {
+      do_blocking_move_to(
+        a < 0 ? X_HOME_POS : sin(a) * -(DELTA_PRINTABLE_RADIUS),
+        a < 0 ? Y_HOME_POS : cos(a) *  (DELTA_PRINTABLE_RADIUS),
+        4
+      );
+    }
+
+    static void _goto_tower_x() { _goto_tower_pos(RADIANS(120)); }
+    static void _goto_tower_y() { _goto_tower_pos(RADIANS(240)); }
+    static void _goto_tower_z() { _goto_tower_pos(0); }
+    static void _goto_center()  { _goto_tower_pos(-1); }
+
     static void lcd_delta_calibrate_menu() {
       START_MENU();
       MENU_ITEM(back, MSG_MAIN);
       MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
-      MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_X, PSTR("G0 F8000 X-77.94 Y-45 Z0"));
-      MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Y, PSTR("G0 F8000 X77.94 Y-45 Z0"));
-      MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Z, PSTR("G0 F8000 X0 Y90 Z0"));
-      MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_CENTER, PSTR("G0 F8000 X0 Y0 Z0"));
+      MENU_ITEM(function, MSG_DELTA_CALIBRATE_X, _goto_tower_x);
+      MENU_ITEM(function, MSG_DELTA_CALIBRATE_Y, _goto_tower_y);
+      MENU_ITEM(function, MSG_DELTA_CALIBRATE_Z, _goto_tower_z);
+      MENU_ITEM(function, MSG_DELTA_CALIBRATE_CENTER, _goto_center);
       END_MENU();
     }
 
@@ -1283,7 +1316,7 @@ void kill_screen(const char* lcd_msg) {
     if (manual_move_axis != (int8_t)NO_AXIS && ELAPSED(millis(), manual_move_start_time) && !planner.is_full()) {
       #if ENABLED(DELTA)
         inverse_kinematics(current_position);
-        planner.buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_e_index);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], current_position[E_AXIS], MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_e_index);
       #else
         planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], MMM_TO_MMS(manual_feedrate_mm_m[manual_move_axis]), manual_move_e_index);
       #endif
@@ -1313,30 +1346,42 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  static void _lcd_move_xyz(const char* name, AxisEnum axis, float min, float max) {
+  static void _lcd_move_xyz(const char* name, AxisEnum axis) {
     if (LCD_CLICKED) { lcd_goto_previous_menu(true); return; }
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
       refresh_cmd_timeout();
+
+      // Limit to software endstops, if enabled
+      float min = (soft_endstops_enabled && min_software_endstops) ? soft_endstop_min[axis] : current_position[axis] - 1000,
+            max = (soft_endstops_enabled && max_software_endstops) ? soft_endstop_max[axis] : current_position[axis] + 1000;
+
+      // Get the new position
       current_position[axis] += float((int32_t)encoderPosition) * move_menu_scale;
-      if (min_software_endstops) NOLESS(current_position[axis], min);
-      if (max_software_endstops) NOMORE(current_position[axis], max);
-      encoderPosition = 0;
+
+      // Delta limits XY based on the current offset from center
+      // This assumes the center is 0,0
+      #if ENABLED(DELTA)
+        if (axis != Z_AXIS) {
+          max = sqrt(sq(DELTA_PRINTABLE_RADIUS) - sq(current_position[Y_AXIS - axis]));
+          min = -max;
+        }
+      #endif
+
+      // Limit only when trying to move towards the limit
+      if ((int32_t)encoderPosition < 0) NOLESS(current_position[axis], min);
+      if ((int32_t)encoderPosition > 0) NOMORE(current_position[axis], max);
+
       manual_move_to_current(axis);
+
+      encoderPosition = 0;
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
     if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr41sign(current_position[axis]));
   }
-  #if ENABLED(DELTA)
-    static float delta_clip_radius_2 =  (DELTA_PRINTABLE_RADIUS) * (DELTA_PRINTABLE_RADIUS);
-    static int delta_clip( float a ) { return sqrt(delta_clip_radius_2 - sq(a)); }
-    static void lcd_move_x() { int clip = delta_clip(current_position[Y_AXIS]); _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS, max(sw_endstop_min[X_AXIS], -clip), min(sw_endstop_max[X_AXIS], clip)); }
-    static void lcd_move_y() { int clip = delta_clip(current_position[X_AXIS]); _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS, max(sw_endstop_min[Y_AXIS], -clip), min(sw_endstop_max[Y_AXIS], clip)); }
-  #else
-    static void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS, sw_endstop_min[X_AXIS], sw_endstop_max[X_AXIS]); }
-    static void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS, sw_endstop_min[Y_AXIS], sw_endstop_max[Y_AXIS]); }
-  #endif
-  static void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS, sw_endstop_min[Z_AXIS], sw_endstop_max[Z_AXIS]); }
+  static void lcd_move_x() { _lcd_move_xyz(PSTR(MSG_MOVE_X), X_AXIS); }
+  static void lcd_move_y() { _lcd_move_xyz(PSTR(MSG_MOVE_Y), Y_AXIS); }
+  static void lcd_move_z() { _lcd_move_xyz(PSTR(MSG_MOVE_Z), Z_AXIS); }
   static void _lcd_move_e(
     #if E_MANUAL > 1
       int8_t eindex=-1
@@ -1392,7 +1437,7 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if ENABLED(DELTA) || ENABLED(SCARA)
+  #if IS_KINEMATIC
     #define _MOVE_XYZ_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
   #else
     #define _MOVE_XYZ_ALLOWED true
@@ -1614,7 +1659,7 @@ void kill_screen(const char* lcd_msg) {
     // Bed:
     //
     #if TEMP_SENSOR_BED != 0
-      MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15);
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_BED, &thermalManager.target_temperature_bed, 0, BED_MAXTEMP - 15, watch_temp_callback_bed);
     #endif
 
     //
@@ -1767,13 +1812,14 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
     #endif
     MENU_ITEM_EDIT(float5, MSG_ACC, &planner.acceleration, 10, 99000);
-    MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &planner.max_xy_jerk, 1, 990);
+    MENU_ITEM_EDIT(float3, MSG_VX_JERK, &planner.max_jerk[X_AXIS], 1, 990);
+    MENU_ITEM_EDIT(float3, MSG_VY_JERK, &planner.max_jerk[Y_AXIS], 1, 990);
     #if ENABLED(DELTA)
-      MENU_ITEM_EDIT(float3, MSG_VZ_JERK, &planner.max_z_jerk, 1, 990);
+      MENU_ITEM_EDIT(float3, MSG_VZ_JERK, &planner.max_jerk[Z_AXIS], 1, 990);
     #else
-      MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &planner.max_z_jerk, 0.1, 990);
+      MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &planner.max_jerk[Z_AXIS], 0.1, 990);
     #endif
-    MENU_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_e_jerk, 1, 990);
+    MENU_ITEM_EDIT(float3, MSG_VE_JERK, &planner.max_jerk[E_AXIS], 1, 990);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_X, &planner.max_feedrate_mm_s[X_AXIS], 1, 999);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Y, &planner.max_feedrate_mm_s[Y_AXIS], 1, 999);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Z, &planner.max_feedrate_mm_s[Z_AXIS], 1, 999);
@@ -1796,10 +1842,6 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM_EDIT_CALLBACK(float51, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
       MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &stepper.abort_on_endstop_hit);
-    #endif
-    #if ENABLED(SCARA)
-      MENU_ITEM_EDIT(float74, MSG_XSCALE, &axis_scaling[X_AXIS], 0.5, 2);
-      MENU_ITEM_EDIT(float74, MSG_YSCALE, &axis_scaling[Y_AXIS], 0.5, 2);
     #endif
     END_MENU();
   }
@@ -1865,6 +1907,7 @@ void kill_screen(const char* lcd_msg) {
    *
    */
   #if ENABLED(FWRETRACT)
+
     static void lcd_control_retract_menu() {
       START_MENU();
       MENU_ITEM(back, MSG_CONTROL);
@@ -1882,6 +1925,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &retract_recover_feedrate_mm_s, 1, 999);
       END_MENU();
     }
+
   #endif // FWRETRACT
 
   #if ENABLED(SDSUPPORT)
@@ -1972,7 +2016,7 @@ void kill_screen(const char* lcd_msg) {
         STATIC_ITEM(MSG_INFO_PRINT_LONGEST ": ", false, false);                                        // Longest job time:
         STATIC_ITEM("", false, false, buffer);                                                         // 99y 364d 23h 59m 59s
 
-        sprintf_P(buffer, PSTR("%im"), stats.filamentUsed / 1000);
+        sprintf_P(buffer, PSTR("%ld.%im"), long(stats.filamentUsed / 1000), int(stats.filamentUsed / 100) % 10);
         STATIC_ITEM(MSG_INFO_PRINT_FILAMENT ": ", false, false);                                       // Extruded total:
         STATIC_ITEM("", false, false, buffer);                                                         // 125m
         END_SCREEN();
@@ -2091,7 +2135,6 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_filament_change_resume_print() {
       filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_RESUME_PRINT;
-      lcdDrawUpdate = 2;
       lcd_goto_screen(lcd_status_screen);
     }
 
@@ -2327,11 +2370,14 @@ void kill_screen(const char* lcd_msg) {
       lcd.buzz(duration, freq);
     #elif PIN_EXISTS(BEEPER)
       buzzer.tone(duration, freq);
+    #else
+      UNUSED(duration); UNUSED(freq);
     #endif
   }
 
   void lcd_quick_feedback() {
     lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+    buttons = 0;
     next_button_update_ms = millis() + 500;
 
     // Buzz and wait. The delay is needed for buttons to settle!
@@ -2375,12 +2421,15 @@ void kill_screen(const char* lcd_msg) {
     (*callback)();
   }
 
-#endif //ULTIPANEL
+#endif // ULTIPANEL
 
-/** LCD API **/
 void lcd_init() {
 
-  lcd_implementation_init();
+  lcd_implementation_init(
+    #if ENABLED(LCD_PROGRESS_BAR)
+      true
+    #endif
+  );
 
   #if ENABLED(NEWPANEL)
     #if BUTTON_EXISTS(EN1)
@@ -2535,12 +2584,6 @@ void lcd_update() {
 
     bool sd_status = IS_SD_INSERTED;
     if (sd_status != lcd_sd_status && lcd_detected()) {
-      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
-      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-        #if ENABLED(LCD_PROGRESS_BAR) && ENABLED(ULTIPANEL)
-          currentScreen == lcd_status_screen
-        #endif
-      );
 
       if (sd_status) {
         card.initsd();
@@ -2552,6 +2595,12 @@ void lcd_update() {
       }
 
       lcd_sd_status = sd_status;
+      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
+        #if ENABLED(LCD_PROGRESS_BAR)
+          currentScreen == lcd_status_screen
+        #endif
+      );
     }
 
   #endif //SDSUPPORT && SD_DETECT_PIN
@@ -2565,11 +2614,11 @@ void lcd_update() {
       lcd_implementation_update_indicators();
     #endif
 
-    #if ENABLED(LCD_HAS_SLOW_BUTTONS)
-      slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
-    #endif
-
     #if ENABLED(ULTIPANEL)
+
+      #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+        slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
+      #endif
 
       #if ENABLED(REPRAPWORLD_KEYPAD)
 
@@ -2669,6 +2718,12 @@ void lcd_update() {
           break;
       }
 
+      #if ENABLED(ULTIPANEL)
+        #define CURRENTSCREEN() (*currentScreen)()
+      #else
+        #define CURRENTSCREEN() lcd_status_screen()
+      #endif
+
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
         static int8_t dot_color = 0;
         dot_color = 1 - dot_color;
@@ -2679,12 +2734,10 @@ void lcd_update() {
           u8g.setColorIndex(dot_color); // Set color for the alive dot
           u8g.drawPixel(127, 63); // draw alive dot
           u8g.setColorIndex(1); // black on white
-          (*currentScreen)();
+          CURRENTSCREEN();
         } while (u8g.nextPage());
-      #elif ENABLED(ULTIPANEL)
-        (*currentScreen)();
       #else
-        lcd_status_screen();
+        CURRENTSCREEN();
       #endif
     }
 
@@ -2814,20 +2867,26 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
    * Warning: This function is called from interrupt context!
    */
   void lcd_buttons_update() {
-    #if ENABLED(NEWPANEL)
-      uint8_t newbutton = 0;
-      #if BUTTON_EXISTS(EN1)
-        if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
-      #endif
-      #if BUTTON_EXISTS(EN2)
-        if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
-      #endif
-      #if LCD_HAS_DIRECTIONAL_BUTTONS || BUTTON_EXISTS(ENC)
-        millis_t now = millis();
-      #endif
+    millis_t now = millis();
+    if (ELAPSED(now, next_button_update_ms)) {
 
-      #if LCD_HAS_DIRECTIONAL_BUTTONS
-        if (ELAPSED(now, next_button_update_ms)) {
+      #if ENABLED(NEWPANEL)
+        uint8_t newbutton = 0;
+
+        #if BUTTON_EXISTS(EN1)
+          if (BUTTON_PRESSED(EN1)) newbutton |= EN_A;
+        #endif
+
+        #if BUTTON_EXISTS(EN2)
+          if (BUTTON_PRESSED(EN2)) newbutton |= EN_B;
+        #endif
+
+        #if BUTTON_EXISTS(ENC)
+          if (BUTTON_PRESSED(ENC)) newbutton |= EN_C;
+        #endif
+
+        #if LCD_HAS_DIRECTIONAL_BUTTONS
+
           if (false) {
             // for the else-ifs below
           }
@@ -2855,23 +2914,21 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
               next_button_update_ms = now + 300;
             }
           #endif
-        }
-      #endif
 
-      #if BUTTON_EXISTS(ENC)
-        if (ELAPSED(now, next_button_update_ms) && BUTTON_PRESSED(ENC)) newbutton |= EN_C;
-      #endif
+        #endif // LCD_HAS_DIRECTIONAL_BUTTONS
 
-      buttons = newbutton;
-      #if ENABLED(LCD_HAS_SLOW_BUTTONS)
-        buttons |= slow_buttons;
-      #endif
-      #if ENABLED(REPRAPWORLD_KEYPAD)
-        GET_BUTTON_STATES(buttons_reprapworld_keypad);
-      #endif
-    #else
-      GET_BUTTON_STATES(buttons);
-    #endif //!NEWPANEL
+        buttons = newbutton;
+        #if ENABLED(LCD_HAS_SLOW_BUTTONS)
+          buttons |= slow_buttons;
+        #endif
+        #if ENABLED(REPRAPWORLD_KEYPAD)
+          GET_BUTTON_STATES(buttons_reprapworld_keypad);
+        #endif
+      #else
+        GET_BUTTON_STATES(buttons);
+      #endif //!NEWPANEL
+
+    } // next_button_update_ms
 
     // Manage encoder rotation
     #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)
@@ -2914,253 +2971,5 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   bool lcd_clicked() { return LCD_CLICKED; }
 
 #endif // ULTIPANEL
-
-/*********************************/
-/** Number to string conversion **/
-/*********************************/
-
-#define DIGIT(n) ('0' + (n))
-#define DIGIMOD(n) DIGIT((n) % 10)
-
-char conv[8];
-
-// Convert float to rj string with 123 or -12 format
-char *ftostr3(const float& x) { return itostr3((int)x); }
-
-// Convert float to rj string with _123, -123, _-12, or __-1 format
-char *ftostr4sign(const float& x) { return itostr4sign((int)x); }
-
-// Convert unsigned int to string with 12 format
-char* itostr2(const uint8_t& x) {
-  int xx = x;
-  conv[0] = DIGIMOD(xx / 10);
-  conv[1] = DIGIMOD(xx);
-  conv[2] = '\0';
-  return conv;
-}
-
-// Convert float to string with +123.4 / -123.4 format
-char* ftostr41sign(const float& x) {
-  int xx = int(abs(x * 10)) % 10000;
-  conv[0] = x >= 0 ? '+' : '-';
-  conv[1] = DIGIMOD(xx / 1000);
-  conv[2] = DIGIMOD(xx / 100);
-  conv[3] = DIGIMOD(xx / 10);
-  conv[4] = '.';
-  conv[5] = DIGIMOD(xx);
-  conv[6] = '\0';
-  return conv;
-}
-
-// Convert signed float to string with 023.45 / -23.45 format
-char *ftostr32(const float& x) {
-  long xx = abs(x * 100);
-  conv[0] = x >= 0 ? DIGIMOD(xx / 10000) : '-';
-  conv[1] = DIGIMOD(xx / 1000);
-  conv[2] = DIGIMOD(xx / 100);
-  conv[3] = '.';
-  conv[4] = DIGIMOD(xx / 10);
-  conv[5] = DIGIMOD(xx);
-  conv[6] = '\0';
-  return conv;
-}
-
-// Convert signed float to string (6 digit) with -1.234 / _0.000 / +1.234 format
-char* ftostr43sign(const float& x, char plus/*=' '*/) {
-  long xx = x * 1000;
-  if (xx == 0)
-    conv[0] = ' ';
-  else if (xx > 0)
-    conv[0] = plus;
-  else {
-    xx = -xx;
-    conv[0] = '-';
-  }
-  conv[1] = DIGIMOD(xx / 1000);
-  conv[2] = '.';
-  conv[3] = DIGIMOD(xx / 100);
-  conv[4] = DIGIMOD(xx / 10);
-  conv[5] = DIGIMOD(xx);
-  conv[6] = '\0';
-  return conv;
-}
-
-// Convert unsigned float to string with 1.23 format
-char* ftostr12ns(const float& x) {
-  long xx = x * 100;
-  xx = abs(xx);
-  conv[0] = DIGIMOD(xx / 100);
-  conv[1] = '.';
-  conv[2] = DIGIMOD(xx / 10);
-  conv[3] = DIGIMOD(xx);
-  conv[4] = '\0';
-  return conv;
-}
-
-// Convert signed int to lj string with +012 / -012 format
-char* itostr3sign(const int& x) {
-  int xx;
-  if (x >= 0) {
-    conv[0] = '+';
-    xx = x;
-  }
-  else {
-    conv[0] = '-';
-    xx = -x;
-  }
-  conv[1] = DIGIMOD(xx / 100);
-  conv[2] = DIGIMOD(xx / 10);
-  conv[3] = DIGIMOD(xx);
-  conv[4] = '.';
-  conv[5] = '0';
-  conv[6] = '\0';
-  return conv;
-}
-
-// Convert signed int to rj string with 123 or -12 format
-char* itostr3(const int& x) {
-  int xx = x;
-  if (xx < 0) {
-    conv[0] = '-';
-    xx = -xx;
-  }
-  else
-    conv[0] = xx >= 100 ? DIGIMOD(xx / 100) : ' ';
-
-  conv[1] = xx >= 10 ? DIGIMOD(xx / 10) : ' ';
-  conv[2] = DIGIMOD(xx);
-  conv[3] = '\0';
-  return conv;
-}
-
-// Convert unsigned int to lj string with 123 format
-char* itostr3left(const int& xx) {
-  if (xx >= 100) {
-    conv[0] = DIGIMOD(xx / 100);
-    conv[1] = DIGIMOD(xx / 10);
-    conv[2] = DIGIMOD(xx);
-    conv[3] = '\0';
-  }
-  else if (xx >= 10) {
-    conv[0] = DIGIMOD(xx / 10);
-    conv[1] = DIGIMOD(xx);
-    conv[2] = '\0';
-  }
-  else {
-    conv[0] = DIGIMOD(xx);
-    conv[1] = '\0';
-  }
-  return conv;
-}
-
-// Convert signed int to rj string with _123, -123, _-12, or __-1 format
-char *itostr4sign(const int& x) {
-  int xx = abs(x);
-  int sign = 0;
-  if (xx >= 100) {
-    conv[1] = DIGIMOD(xx / 100);
-    conv[2] = DIGIMOD(xx / 10);
-  }
-  else if (xx >= 10) {
-    conv[0] = ' ';
-    sign = 1;
-    conv[2] = DIGIMOD(xx / 10);
-  }
-  else {
-    conv[0] = ' ';
-    conv[1] = ' ';
-    sign = 2;
-  }
-  conv[sign] = x < 0 ? '-' : ' ';
-  conv[3] = DIGIMOD(xx);
-  conv[4] = '\0';
-  return conv;
-}
-
-// Convert unsigned float to rj string with 12345 format
-char* ftostr5rj(const float& x) {
-  long xx = abs(x);
-  conv[0] = xx >= 10000 ? DIGIMOD(xx / 10000) : ' ';
-  conv[1] = xx >= 1000 ? DIGIMOD(xx / 1000) : ' ';
-  conv[2] = xx >= 100 ? DIGIMOD(xx / 100) : ' ';
-  conv[3] = xx >= 10 ? DIGIMOD(xx / 10) : ' ';
-  conv[4] = DIGIMOD(xx);
-  conv[5] = '\0';
-  return conv;
-}
-
-// Convert signed float to string with +1234.5 format
-char* ftostr51sign(const float& x) {
-  long xx = abs(x * 10);
-  conv[0] = (x >= 0) ? '+' : '-';
-  conv[1] = DIGIMOD(xx / 10000);
-  conv[2] = DIGIMOD(xx / 1000);
-  conv[3] = DIGIMOD(xx / 100);
-  conv[4] = DIGIMOD(xx / 10);
-  conv[5] = '.';
-  conv[6] = DIGIMOD(xx);
-  conv[7] = '\0';
-  return conv;
-}
-
-// Convert signed float to string with +123.45 format
-char* ftostr52sign(const float& x) {
-  long xx = abs(x * 100);
-  conv[0] = (x >= 0) ? '+' : '-';
-  conv[1] = DIGIMOD(xx / 10000);
-  conv[2] = DIGIMOD(xx / 1000);
-  conv[3] = DIGIMOD(xx / 100);
-  conv[4] = '.';
-  conv[5] = DIGIMOD(xx / 10);
-  conv[6] = DIGIMOD(xx);
-  conv[7] = '\0';
-  return conv;
-}
-
-// Convert signed float to space-padded string with -_23.4_ format
-char* ftostr52sp(const float& x) {
-  long xx = x * 100;
-  uint8_t dig;
-  if (xx < 0) { // negative val = -_0
-    xx = -xx;
-    conv[0] = '-';
-    dig = (xx / 1000) % 10;
-    conv[1] = dig ? DIGIT(dig) : ' ';
-  }
-  else { // positive val = __0
-    dig = (xx / 10000) % 10;
-    if (dig) {
-      conv[0] = DIGIT(dig);
-      conv[1] = DIGIMOD(xx / 1000);
-    }
-    else {
-      conv[0] = ' ';
-      dig = (xx / 1000) % 10;
-      conv[1] = dig ? DIGIT(dig) : ' ';
-    }
-  }
-
-  conv[2] = DIGIMOD(xx / 100); // lsd always
-
-  dig = xx % 10;
-  if (dig) { // 2 decimal places
-    conv[5] = DIGIT(dig);
-    conv[4] = DIGIMOD(xx / 10);
-    conv[3] = '.';
-  }
-  else { // 1 or 0 decimal place
-    dig = (xx / 10) % 10;
-    if (dig) {
-      conv[4] = DIGIT(dig);
-      conv[3] = '.';
-    }
-    else {
-      conv[3] = conv[4] = ' ';
-    }
-    conv[5] = ' ';
-  }
-  conv[6] = '\0';
-  return conv;
-}
 
 #endif // ULTRA_LCD

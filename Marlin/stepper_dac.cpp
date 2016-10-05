@@ -52,8 +52,7 @@
 
   int dac_init() {
     #if PIN_EXISTS(DAC_DISABLE)
-      pinMode(DAC_DISABLE_PIN, OUTPUT);
-      digitalWrite(DAC_DISABLE_PIN, LOW);  // set pin low to enable DAC
+      OUT_WRITE(DAC_DISABLE_PIN, LOW);  // set pin low to enable DAC
     #endif
 
     mcp4728_init();
@@ -103,7 +102,8 @@
     SERIAL_ECHOPAIR(" (",   dac_amps(2));
     SERIAL_ECHOPAIR(") E:", dac_perc(3));
     SERIAL_ECHOPAIR(" (",   dac_amps(3));
-    SERIAL_ECHOLNPGM(")");
+    SERIAL_CHAR(')');
+    SERIAL_EOL;
   }
 
   void dac_commit_eeprom() {

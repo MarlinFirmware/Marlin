@@ -83,7 +83,7 @@
 // uncomment to enable an I2C based DAC like on the Printrboard REVF
 #define DAC_STEPPER_CURRENT
 // Number of channels available for DAC, For Printrboar REVF there are 4
-#define DAC_STEPPER_ORDER {3,2,1,0}
+#define DAC_STEPPER_ORDER { 3, 2, 1, 0 }
 
 #define DAC_STEPPER_SENSE    0.11
 #define DAC_STEPPER_ADDRESS  0
@@ -117,21 +117,18 @@
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   #define BEEPER_PIN 32 //FastIO
-  // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0  42 //Non-FastIO
   #define DOGLCD_CS  43 //Non-FastIO
   #define LCD_SCREEN_ROT_180
 
-  //The encoder and click button (FastIO Pins)
+  // (FastIO Pins)
   #define BTN_EN1 26
   #define BTN_EN2 27
   #define BTN_ENC 47
 
   #define SDSS 45
-  #define SD_DETECT_PIN -1 // FastIO (Manual says 72 I'm not certain cause I can't test)
+  #define SD_DETECT_PIN -1 // FastIO (Manual says 72)
 
-  #if ENABLED(TEMP_STAT_LEDS)
-    #define STAT_LED_RED      12 //Non-FastIO
-    #define STAT_LED_BLUE     10 //Non-FastIO
-  #endif
+  #define STAT_LED_RED_PIN 12 //Non-FastIO
+  #define STAT_LED_BLUE_PIN 10 //Non-FastIO
 #endif

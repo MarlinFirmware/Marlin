@@ -168,14 +168,16 @@
 
 // @section extruder
 
-//  extruder run-out prevention.
-//if the machine is idle, and the temperature over MINTEMP, every couple of SECONDS some filament is extruded
+// Extruder runout prevention.
+// If the machine is idle and the temperature over MINTEMP
+// then extrude some filament every couple of SECONDS.
 //#define EXTRUDER_RUNOUT_PREVENT
-#define EXTRUDER_RUNOUT_MINTEMP 190
-#define EXTRUDER_RUNOUT_SECONDS 30
-#define EXTRUDER_RUNOUT_ESTEPS 14   // mm filament
-#define EXTRUDER_RUNOUT_SPEED 1500  // extrusion speed
-#define EXTRUDER_RUNOUT_EXTRUDE 100
+#if ENABLED(EXTRUDER_RUNOUT_PREVENT)
+  #define EXTRUDER_RUNOUT_MINTEMP 190
+  #define EXTRUDER_RUNOUT_SECONDS 30
+  #define EXTRUDER_RUNOUT_SPEED 1500  // mm/m
+  #define EXTRUDER_RUNOUT_EXTRUDE 5   // mm
+#endif
 
 // @section temperature
 
@@ -530,7 +532,18 @@
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
 //#define BEZIER_CURVE_SUPPORT
 
-const unsigned int dropsegments = 5; //everything with less than this number of steps will be ignored as move and joined with the next movement
+// G38.2 and G38.3 Probe Target
+//#define G38_PROBE_TARGET
+#if ENABLED(G38_PROBE_TARGET)
+  #define G38_MINIMUM_MOVE 0.0275 // minimum distance in mm that will produce a move (determined using the print statement in check_move)
+#endif
+
+// Moves (or segments) with fewer steps than this will be joined with the next move
+#define MIN_STEPS_PER_SEGMENT 6
+
+// The minimum pulse width (in µs) for stepping a stepper.
+// Set this if you find stepping unreliable, or if using a very fast CPU.
+#define MINIMUM_STEPPER_PULSE 0 // (µs) The smallest stepper pulse allowed
 
 // @section temperature
 
@@ -546,7 +559,7 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+  #define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
@@ -795,5 +808,6 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 // @section i2cbus
 
 //#define EXPERIMENTAL_I2CBUS
+#define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
 
 #endif // CONFIGURATION_ADV_H

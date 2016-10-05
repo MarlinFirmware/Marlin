@@ -141,14 +141,19 @@ struct duration_t {
    * @param buffer The array pointed to must be able to accommodate 10 bytes
    *
    * Output examples:
-   *  1234567890 (strlen)
-   *  1193046:59
+   *  123456789 (strlen)
+   *  99:59
+   *  11d 12:33
    */
-  void toDigital(char *buffer) const {
-    int h = this->hour() % 24,
-        m = this->minute() % 60;
-
-    sprintf_P(buffer, PSTR("%02i:%02i"), h, m);
+  void toDigital(char *buffer, bool with_days=false) const {
+    uint16_t h = uint16_t(this->hour()),
+             m = uint16_t(this->minute() % 60UL);
+    if (with_days)
+      sprintf_P(buffer, PSTR("%ud %02u:%02u"), this->day(), h, m);
+    else if (h < 100)
+      sprintf_P(buffer, PSTR("%02u:%02u"), h % 24, m);
+    else
+      sprintf_P(buffer, PSTR("%u:%02u"), h, m);
   }
 };
 

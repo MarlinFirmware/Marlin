@@ -88,8 +88,8 @@
 // build by the user have been successfully uploaded into firmware.
 #define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
 #define SHOW_BOOTSCREEN
-#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during boot in line 1
-#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during boot in line 2
+#define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
+#define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
 
 //
 // *** VENDORS PLEASE READ *****************************************************
@@ -105,15 +105,24 @@
 //#define SHOW_CUSTOM_BOOTSCREEN
 // @section machine
 
-// SERIAL_PORT selects which serial port should be used for communication with the host.
-// This allows the connection of wireless adapters (for instance) to non-default port pins.
-// Serial port 0 is still used by the Arduino bootloader regardless of this setting.
-// :[0,1,2,3,4,5,6,7]
+/**
+ * Select which serial port on the board will be used for communication with the host.
+ * This allows the connection of wireless adapters (for instance) to non-default port pins.
+ * Serial port 0 is always used by the Arduino bootloader regardless of this setting.
+ *
+ * :[0,1,2,3,4,5,6,7]
+ */
 #define SERIAL_PORT 0
 
-// This determines the communication speed of the printer
-// :[2400,9600,19200,38400,57600,115200,250000]
 #define BAUDRATE 250000
+/**
+ * This setting determines the communication speed of the printer.
+ *
+ * 250000 works in most cases, but you might try a lower speed if
+ * you commonly experience drop-outs during host printing.
+ *
+ * :[2400,9600,19200,38400,57600,115200,250000]
+ */
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -169,14 +178,22 @@
 //#define HOTEND_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
 //#define HOTEND_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
-//// The following define selects which power supply you have. Please choose the one that matches your setup
-// 1 = ATX
-// 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
-// :{1:'ATX',2:'X-Box 360'}
+/**
+ * Select your power supply here. Use 0 if you haven't connected the PS_ON_PIN
+ *
+ * 0 = No Power Switch
+ * 1 = ATX
+ * 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
+ *
+ * :{0:'No power switch',1:'ATX',2:'X-Box 360'}
+ */
 #define POWER_SUPPLY 1
 
-// Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
-#define PS_DEFAULT_OFF
+#if POWER_SUPPLY > 0
+  // Enable this option to leave the PSU off at startup.
+  // Power to steppers and heaters will need to be turned on with M80.
+  #define PS_DEFAULT_OFF
+#endif
 
 // @section temperature
 
@@ -281,7 +298,6 @@
                                   // Set/get with gcode: M301 E[extruder number, 0-2]
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
-  #define PID_INTEGRAL_DRIVE_MAX PID_MAX  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
 
   // Felix 2.0+ electronics with v4 Hotend
@@ -327,14 +343,17 @@
 
 // @section extruder
 
-//this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
-//can be software-disabled for whatever purposes by
-#define PREVENT_DANGEROUS_EXTRUDE
-//if PREVENT_DANGEROUS_EXTRUDE is on, you can still disable (uncomment) very long bits of extrusion separately.
-#define PREVENT_LENGTHY_EXTRUDE
-
+// This option prevents extrusion if the temperature is below EXTRUDE_MINTEMP.
+// It also enables the M302 command to set the minimum extrusion temperature
+// or to allow moving the extruder regardless of the hotend temperature.
+// *** IT IS HIGHLY RECOMMENDED TO LEAVE THIS OPTION ENABLED! ***
+#define PREVENT_COLD_EXTRUSION
 #define EXTRUDE_MINTEMP 170
-#define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
+
+// This option prevents a single extrusion longer than EXTRUDE_MAXLENGTH.
+// Note that for Bowden Extruders a too-small value here may prevent loading.
+#define PREVENT_LENGTHY_EXTRUDE
+#define EXTRUDE_MAXLENGTH 200
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -408,16 +427,77 @@
 #define Z_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 
+
+//=============================================================================
+//============================== Movement Settings ============================
+//=============================================================================
+// @section motion
+
+// default steps per unit for Felix 2.0/3.0: 0.00249mm x/y rounding error with 3mm pitch HTD belt and 14 tooth pulleys. 0 z error.
+/**
+ * Default Settings
+ *
+ * These settings can be reset by M502
+ *
+ * Note that if EEPROM is enabled, saved values will override these.
+ */
+
+/**
+ * Default Axis Steps Per Unit (steps/mm)
+ * Override with M92
+ */
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 76.190476, 76.190476, 1600, 164 }
+
+/**
+ * Default Max Feed Rate (mm/s)
+ * Override with M203
+ */
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 5, 25 }
+
+/**
+ * Default Max Acceleration (change/s) change = mm/s
+ * Override with M201
+ *
+ * Maximum start speed for accelerated moves: { X, Y, Z, E }
+ */
+#define DEFAULT_MAX_ACCELERATION      { 5000, 5000, 100, 80000 }
+
+/**
+ * Default Acceleration (change/s) change = mm/s
+ * Override with M204
+ *
+ *   M204 P    Acceleration
+ *   M204 R    Retract Acceleration
+ *   M204 T    Travel Acceleration
+ */
+#define DEFAULT_ACCELERATION          1750    // X, Y, Z and E max acceleration for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  5000    // E acceleration for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
+
+/**
+ * Defult Jerk (mm/s)
+ *
+ * "Jerk" specifies the minimum speed change that requires acceleration.
+ * When changing speed and direction, if the difference is less than the
+ * value set here, it may happen instantaneously.
+ */
+#define DEFAULT_XJERK                 10.0
+#define DEFAULT_YJERK                 10.0
+#define DEFAULT_ZJERK                  0.3
+#define DEFAULT_EJERK                  5.0
+
+
 //===========================================================================
 //============================= Z Probe Options =============================
 //===========================================================================
+// @section probes
 
 //
 // Probe Type
 // Probes are sensors/switches that are activated / deactivated before/after use.
 //
 // Allen Key Probes, Servo Probes, Z-Sled Probes, FIX_MOUNTED_PROBE, etc.
-// You must activate one of these to use AUTO_BED_LEVELING_FEATURE below.
+// You must activate one of these to use Auto Bed Leveling below.
 //
 // Use M851 to set the Z probe vertical offset from the nozzle. Store with M500.
 //
@@ -429,6 +509,7 @@
 //#define FIX_MOUNTED_PROBE
 
 // The BLTouch probe emulates a servo probe.
+// The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
 //#define BLTOUCH
 
 // Z Servo Probe, such as an endstop switch on a rotating arm.
@@ -473,9 +554,6 @@
 // Allen Key Probe is defined in the Delta example configurations.
 //
 
-// Enable Z_MIN_PROBE_ENDSTOP to use _both_ a Z Probe and a Z-min-endstop on the same machine.
-// With this option the Z_MIN_PROBE_PIN will only be used for probing, never for homing.
-//
 // *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
 //
 // To continue using the Z-min-endstop for homing, be sure to disable Z_SAFE_HOMING.
@@ -494,14 +572,22 @@
 //
 // Normally-closed switches are advised and are the default.
 //
+
+//
 // The Z_MIN_PROBE_PIN sets the Arduino pin to use. (See your board's pins file.)
 // Since the RAMPS Aux4->D32 pin maps directly to the Arduino D32 pin, D32 is the
-// default pin for all RAMPS-based boards. Some other boards map differently.
-// To set or change the pin for your board, edit the appropriate pins_XXXXX.h file.
+// default pin for all RAMPS-based boards. Most boards use the X_MAX_PIN by default.
+// To use a different pin you can override it here.
 //
 // WARNING:
 // Setting the wrong pin may have unexpected and potentially disastrous consequences.
 // Use with caution and do your homework.
+//
+//#define Z_MIN_PROBE_PIN X_MAX_PIN
+
+//
+// Enable Z_MIN_PROBE_ENDSTOP to use _both_ a Z Probe and a Z-min-endstop on the same machine.
+// With this option the Z_MIN_PROBE_PIN will only be used for probing, never for homing.
 //
 //#define Z_MIN_PROBE_ENDSTOP
 
@@ -511,20 +597,25 @@
 
 // To use a probe you must enable one of the two options above!
 
-// This option disables the use of the Z_MIN_PROBE_PIN
-// To enable the Z probe pin but disable its use, uncomment the line below. This only affects a
-// Z probe switch if you have a separate Z min endstop also and have activated Z_MIN_PROBE_ENDSTOP above.
-// If you're using the Z MIN endstop connector for your Z probe, this has no effect.
-//#define DISABLE_Z_MIN_PROBE_ENDSTOP
-
 // Enable Z Probe Repeatability test to see how accurate your probe is
 //#define Z_MIN_PROBE_REPEATABILITY_TEST
 
-//
-// Probe Raise options provide clearance for the probe to deploy, stow, and travel.
-//
-#define Z_PROBE_DEPLOY_HEIGHT 15 // Raise to make room for the probe to deploy / stow
-#define Z_PROBE_TRAVEL_HEIGHT 5  // Raise between probing points.
+/**
+ * Z probes require clearance when deploying, stowing, and moving between
+ * probe points to avoid hitting the bed and other hardware.
+ * Servo-mounted probes require extra space for the arm to rotate.
+ * Inductive probes need space to keep from triggering early.
+ *
+ * Use these settings to specify the distance (mm) to raise the probe (or
+ * lower the bed). The values set here apply over and above any (negative)
+ * probe Z Offset set with Z_PROBE_OFFSET_FROM_EXTRUDER, M851, or the LCD.
+ * Only integer values >= 1 are valid here.
+ *
+ * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
+ *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
+ */
+#define Z_CLEARANCE_DEPLOY_PROBE   15 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 
 //
 // For M851 give a range for adjusting the Z probe offset
@@ -596,7 +687,7 @@
 //========================= Filament Runout Sensor ==========================
 //===========================================================================
 //#define FILAMENT_RUNOUT_SENSOR // Uncomment for defining a filament runout sensor such as a mechanical or opto endstop to check the existence of filament
-                                 // In RAMPS uses servo pin 2. Can be changed in pins file. For other boards pin definition should be made.
+                                 // RAMPS-based boards use SERVO3_PIN. For other boards you may need to define FIL_RUNOUT_PIN.
                                  // It is assumed that when logic high = filament available
                                  //                    when logic  low = filament ran out
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -628,68 +719,78 @@
 #endif  // MESH_BED_LEVELING
 
 //===========================================================================
-//============================ Bed Auto Leveling ============================
+//============================ Auto Bed Leveling ============================
 //===========================================================================
-
 // @section bedlevel
 
-//#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
+/**
+ * Select one form of Auto Bed Leveling below.
+ *
+ *  If you're also using the Probe for Z Homing, it's
+ *  highly recommended to enable Z_SAFE_HOMING also!
+ *
+ * - 3POINT
+ *   Probe 3 arbitrary points on the bed (that aren't collinear)
+ *   You specify the XY coordinates of all 3 points.
+ *   The result is a single tilted plane. Best for a flat bed.
+ *
+ * - LINEAR
+ *   Probe several points in a grid.
+ *   You specify the rectangle and the density of sample points.
+ *   The result is a single tilted plane. Best for a flat bed.
+ *
+ * - BILINEAR
+ *   Probe several points in a grid.
+ *   You specify the rectangle and the density of sample points.
+ *   The result is a mesh, best for large or uneven beds.
+ */
+//#define AUTO_BED_LEVELING_3POINT
+//#define AUTO_BED_LEVELING_LINEAR
+//#define AUTO_BED_LEVELING_BILINEAR
 
-// Enable this feature to get detailed logging of G28, G29, M48, etc.
-// Logging is off by default. Enable this logging feature with 'M111 S32'.
-// NOTE: Requires a huge amount of PROGMEM.
+/**
+ * Enable detailed logging of G28, G29, M48, etc.
+ * Turn on with the command 'M111 S32'.
+ * NOTE: Requires a lot of PROGMEM!
+ */
 //#define DEBUG_LEVELING_FEATURE
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-  // There are 2 different ways to specify probing locations:
-  //
-  // - "grid" mode
-  //   Probe several points in a rectangular grid.
-  //   You specify the rectangle and the density of sample points.
-  //   This mode is preferred because there are more measurements.
-  //
-  // - "3-point" mode
-  //   Probe 3 arbitrary points on the bed (that aren't collinear)
-  //   You specify the XY coordinates of all 3 points.
+  // Set the number of grid points per dimension.
+  #define ABL_GRID_POINTS_X 3
+  #define ABL_GRID_POINTS_Y ABL_GRID_POINTS_X
 
-  // Enable this to sample the bed in a grid (least squares solution).
-  // Note: this feature generates 10KB extra code size.
-  #define AUTO_BED_LEVELING_GRID
+  // Set the boundaries for probing (where the probe can reach).
+  #define LEFT_PROBE_BED_POSITION 15
+  #define RIGHT_PROBE_BED_POSITION 170
+  #define FRONT_PROBE_BED_POSITION 20
+  #define BACK_PROBE_BED_POSITION 180
 
-  #if ENABLED(AUTO_BED_LEVELING_GRID)
+  // The Z probe minimum outer margin (to validate G29 parameters).
+  #define MIN_PROBE_EDGE 10
 
-    #define LEFT_PROBE_BED_POSITION 15
-    #define RIGHT_PROBE_BED_POSITION 170
-    #define FRONT_PROBE_BED_POSITION 20
-    #define BACK_PROBE_BED_POSITION 180
+  // Probe along the Y axis, advancing X after each column
+  //#define PROBE_Y_FIRST
 
-    #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
+#elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
-    // Set the number of grid points per dimension.
-    // You probably don't need more than 3 (squared=9).
-    #define AUTO_BED_LEVELING_GRID_POINTS 2
+  // 3 arbitrary points to probe.
+  // A simple cross-product is used to estimate the plane of the bed.
+  #define ABL_PROBE_PT_1_X 15
+  #define ABL_PROBE_PT_1_Y 180
+  #define ABL_PROBE_PT_2_X 15
+  #define ABL_PROBE_PT_2_Y 20
+  #define ABL_PROBE_PT_3_X 170
+  #define ABL_PROBE_PT_3_Y 20
 
-  #else  // !AUTO_BED_LEVELING_GRID
+#endif
 
-    // Arbitrary points to probe.
-    // A simple cross-product is used to estimate the plane of the bed.
-    #define ABL_PROBE_PT_1_X 15
-    #define ABL_PROBE_PT_1_Y 180
-    #define ABL_PROBE_PT_2_X 15
-    #define ABL_PROBE_PT_2_Y 20
-    #define ABL_PROBE_PT_3_X 170
-    #define ABL_PROBE_PT_3_Y 20
-
-  #endif // !AUTO_BED_LEVELING_GRID
-
-  //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
-                                                                             // Useful to retract a deployable Z probe.
-
-  // If you've enabled AUTO_BED_LEVELING_FEATURE and are using the Z Probe for Z Homing,
-  // it is highly recommended you also enable Z_SAFE_HOMING below!
-
-#endif // AUTO_BED_LEVELING_FEATURE
+/**
+ * Commands to execute at the end of G29 probing.
+ * Useful to retract or move the Z probe out of the way.
+ */
+//#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
 
 
 // @section homing
@@ -721,28 +822,6 @@
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (50*60)
 #define HOMING_FEEDRATE_Z  (4*60)
-
-//
-// MOVEMENT SETTINGS
-// @section motion
-//
-
-// default settings
-
-// default steps per unit for Felix 2.0/3.0: 0.00249mm x/y rounding error with 3mm pitch HTD belt and 14 tooth pulleys. 0 z error.
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {76.190476, 76.190476, 1600, 164}
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {5000,5000,100,80000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
-
-#define DEFAULT_ACCELERATION          1750 //1500    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  5000 // E acceleration in mm/s^2 for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000 // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
-
-// The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
-#define DEFAULT_XYJERK                10   // (mm/sec)
-#define DEFAULT_ZJERK                 0.3  //0.4   // (mm/sec)
-#define DEFAULT_EJERK                 5.0    // (mm/sec)
-
 
 //=============================================================================
 //============================= Additional Features ===========================

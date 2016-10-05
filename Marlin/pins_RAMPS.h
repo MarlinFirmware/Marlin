@@ -54,6 +54,9 @@
 
 #define LARGE_FLASH true
 
+//
+// Servos
+//
 #ifdef IS_RAMPS_13
   #define SERVO0_PIN        7 // RAMPS_13 // Will conflict with BTN_EN2 on LCD_I2C_VIKI
 #else
@@ -63,6 +66,9 @@
 #define SERVO2_PIN          5
 #define SERVO3_PIN          4
 
+//
+// Limit Switches
+//
 #define X_MIN_PIN           3
 #ifndef X_MAX_PIN
   #define X_MAX_PIN         2
@@ -71,10 +77,17 @@
 #define Y_MAX_PIN          15
 #define Z_MIN_PIN          18
 #define Z_MAX_PIN          19
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  32
 #endif
 
+//
+// Steppers
+//
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
@@ -95,6 +108,16 @@
 #define E1_DIR_PIN         34
 #define E1_ENABLE_PIN      30
 
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN         13   // ANALOG NUMBERING
+#define TEMP_1_PIN         15   // ANALOG NUMBERING
+#define TEMP_BED_PIN       14   // ANALOG NUMBERING
+
+//
+// Misc. Functions
+//
 #define SDSS               53
 #define LED_PIN            13
 
@@ -105,15 +128,11 @@
 #define FIL_RUNOUT_PIN      4
 
 #define PS_ON_PIN          12
-#define TEMP_0_PIN         13   // ANALOG NUMBERING
-#define TEMP_1_PIN         15   // ANALOG NUMBERING
-#define TEMP_BED_PIN       14   // ANALOG NUMBERING
+#define SLED_PIN           -1
 
-#if ENABLED(Z_PROBE_SLED)
-  #define SLED_PIN           -1
-#endif
-
+//
 // Augmentation for auto-assigning RAMPS plugs
+//
 #if DISABLED(IS_RAMPS_EEB) && DISABLED(IS_RAMPS_EEF) && DISABLED(IS_RAMPS_EFB) && DISABLED(IS_RAMPS_EFF) && DISABLED(IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
   #if HOTENDS > 1
     #if TEMP_SENSOR_BED
@@ -128,10 +147,9 @@
   #endif
 #endif
 
-/**
- * Hi Voltage PWM Pin Assignments
- */
-
+//
+// Heaters / Fans
+//
 #ifndef MOSFET_D_PIN
   #define MOSFET_D_PIN  -1
 #endif
@@ -159,7 +177,6 @@
 #elif ENABLED(IS_RAMPS_EFF)                    // Hotend, Fan, Fan
   #define FAN_PIN        RAMPS_D9_PIN
   #define FAN1_PIN       RAMPS_D8_PIN
-  #define CONTROLLERFAN_PIN  -1
 #elif ENABLED(IS_RAMPS_SF)                     // Spindle, Fan
   #define FAN_PIN        RAMPS_D8_PIN
 #else                                          // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
@@ -176,10 +193,9 @@
   #define FAN_PIN 4      // IO pin. Buffer needed
 #endif
 
-/**
- * LCD Controller Pin Assignments
- */
-
+//
+// LCD / Controller
+//
 #if ENABLED(ULTRA_LCD)
 
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
@@ -224,7 +240,7 @@
       #define KILL_PIN 41
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
-        #define LCD_PIN_BL 39
+        #define LCD_BACKLIGHT_PIN 39
       #endif
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
@@ -264,10 +280,9 @@
 
       #define KILL_PIN         31
 
-      #if ENABLED(TEMP_STAT_LEDS)
-        #define STAT_LED_RED   32
-        #define STAT_LED_BLUE  35
-      #endif
+      #define STAT_LED_RED_PIN 32
+      #define STAT_LED_BLUE_PIN 35
+
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #define BTN_EN1 35  // reverse if the encoder turns the wrong way.
       #define BTN_EN2 37
@@ -278,13 +293,13 @@
       #define BEEPER_PIN 23
       #define DOGLCD_CS 29
       #define DOGLCD_A0 27
-      #define LCD_PIN_BL 33
+      #define LCD_BACKLIGHT_PIN 33
     #elif ENABLED(MINIPANEL)
       #define BEEPER_PIN 42
       // Pins for DOGM SPI LCD Support
       #define DOGLCD_A0  44
       #define DOGLCD_CS  66
-      #define LCD_PIN_BL 65 // backlight LED on A11/D65
+      #define LCD_BACKLIGHT_PIN 65 // backlight LED on A11/D65
       #define SDSS   53
 
       #define KILL_PIN 64

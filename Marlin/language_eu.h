@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_EU_H
 #define LANGUAGE_EU_H
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " prest."
@@ -88,14 +86,11 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_ACC                             "Azelerazioa"
-#define MSG_VXY_JERK                        "Vxy-astindua"
+#define MSG_VX_JERK                         "Vx-astindua"
+#define MSG_VY_JERK                         "Vy-astindua"
 #define MSG_VZ_JERK                         "Vz-astindua"
 #define MSG_VE_JERK                         "Ve-astindua"
 #define MSG_VMAX                            "Vmax "
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax "
