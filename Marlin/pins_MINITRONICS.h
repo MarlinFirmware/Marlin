@@ -74,9 +74,9 @@
 #define SDSS               16
 #define LED_PIN            46
 
-#define TEMP_0_PIN          7 // ANALOG NUMBERING
-#define TEMP_1_PIN          6 // ANALOG NUMBERING
-#define TEMP_BED_PIN        6 // ANALOG NUMBERING
+#define TEMP_0_PIN          7   // Analog Input
+#define TEMP_1_PIN          6   // Analog Input
+#define TEMP_BED_PIN        6   // Analog Input
 
 //
 // Heaters / Fans

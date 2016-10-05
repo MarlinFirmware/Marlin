@@ -74,9 +74,9 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         13 //D27   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define TEMP_1_PIN         15 // 1
-#define TEMP_BED_PIN       14 // 1,2 or I2C
+#define TEMP_0_PIN         13   // Analog Input (D27)
+#define TEMP_1_PIN         15   // Analog Input (1)
+#define TEMP_BED_PIN       14   // Analog Input (1,2 or I2C)
 
 //
 // Heaters / Fans
