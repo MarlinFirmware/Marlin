@@ -78,9 +78,9 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          2  // Extruder / Analog pin numbering
-#define TEMP_1_PIN          1  // Spare / Analog pin numbering
-#define TEMP_BED_PIN        0  // Bed / Analog pin numbering
+#define TEMP_0_PIN          2   // Analog Input
+#define TEMP_1_PIN          1   // Analog Input
+#define TEMP_BED_PIN        0   // Analog Input
 
 //
 // Heaters / Fans
