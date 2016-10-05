@@ -1305,7 +1305,7 @@ bool get_target_extruder_from_command(int code) {
   static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
   static float duplicate_extruder_temp_offset = 0;   // used in mode 2
 
-#endif //DUAL_X_CARRIAGE
+#endif // DUAL_X_CARRIAGE
 
 /**
  * Software endstops can be used to monitor the open end of
@@ -4657,6 +4657,66 @@ inline void gcode_M42() {
   #endif
 }
 
+#if ENABLED(PINS_DEBUGGING)
+
+  #include "pinsDebug.h"
+
+  /**
+   * M43: Pin report and debug
+   *
+   *      P<pin> Will read/watch a single pin
+   *      W      Watch pins for changes until reboot
+   */
+  inline void gcode_M43() {
+    int first_pin = 0, last_pin = DIO_COUNT - 1;
+    if (code_seen('P')) {
+      first_pin = last_pin = code_value_byte();
+      if (first_pin > DIO_COUNT - 1) return;
+    }
+
+    if (code_seen('W') && code_value_bool()) { // watch digital pins
+      byte pin_state[last_pin - first_pin + 1];
+      for (int8_t pin = first_pin; pin <= last_pin; pin++) {
+        if (pin_is_protected(pin)) continue;
+        pinMode(pin, INPUT_PULLUP);
+        // if (IS_ANALOG(pin))
+        //   pin_state[pin - first_pin] = analogRead(pin - analogInputToDigitalPin(0)); // int16_t pin_state[...]
+        // else
+          pin_state[pin - first_pin] = digitalRead(pin);
+      }
+
+      #if ENABLED(EMERGENCY_PARSER)
+        wait_for_user = true;
+      #endif
+
+      for(;;) {
+        for (int8_t pin = first_pin; pin <= last_pin; pin++) {
+          if (pin_is_protected(pin)) continue;
+          byte val;
+          // if (IS_ANALOG(pin))
+          //   val = analogRead(pin - analogInputToDigitalPin(0)); // int16_t val
+          // else
+            val = digitalRead(pin);
+          if (val != pin_state[pin - first_pin]) {
+            report_pin_state(pin);
+            pin_state[pin - first_pin] = val;
+          }
+        }
+
+        #if ENABLED(EMERGENCY_PARSER)
+          if (!wait_for_user) break;
+        #endif
+
+        safe_delay(500);
+      }
+    }
+    else // single pins report
+      for (int8_t pin = first_pin; pin <= last_pin; pin++)
+        report_pin_state(pin);
+  }
+
+#endif // PINS_DEBUGGING
+
 #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
 
   /**
@@ -7646,9 +7706,13 @@ void process_next_command() {
       case 31: // M31: Report time since the start of SD print or last M109
         gcode_M31(); break;
 
-      case 42: //M42 -Change pin status via gcode
-        gcode_M42();
-        break;
+      case 42: // M42: Change pin state
+        gcode_M42(); break;
+
+      #if ENABLED(PINS_DEBUGGING)
+        case 43: // M43: Read pin state
+          gcode_M43(); break;
+      #endif
 
       #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
         case 48: // M48: Z probe repeatability test
