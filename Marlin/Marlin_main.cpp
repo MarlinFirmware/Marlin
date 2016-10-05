@@ -4747,7 +4747,7 @@ inline void gcode_M42() {
 
     randomSeed(millis());
 
-    double mean = 0, sigma = 0, sample_set[n_samples], min = 99999, max = 0;
+    double mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
 
     for (uint8_t n = 0; n < n_samples; n++) {
       if (n_legs) {
