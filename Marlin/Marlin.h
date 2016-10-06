@@ -338,6 +338,16 @@ extern float sw_endstop_max[3]; // axis[n].sw_endstop_max
 extern bool axis_known_position[3]; // axis[n].is_known
 extern bool axis_homed[3]; // axis[n].is_homed
 
+#define LOGICAL_POSITION(POS, AXIS) (POS + home_offset[AXIS] + position_shift[AXIS])
+#define RAW_POSITION(POS, AXIS)     (POS - home_offset[AXIS] - position_shift[AXIS])
+#define LOGICAL_X_POSITION(POS)     LOGICAL_POSITION(POS, X_AXIS)
+#define LOGICAL_Y_POSITION(POS)     LOGICAL_POSITION(POS, Y_AXIS)
+#define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
+#define RAW_X_POSITION(POS)         RAW_POSITION(POS, X_AXIS)
+#define RAW_Y_POSITION(POS)         RAW_POSITION(POS, Y_AXIS)
+#define RAW_Z_POSITION(POS)         RAW_POSITION(POS, Z_AXIS)
+#define RAW_CURRENT_POSITION(AXIS)  RAW_POSITION(current_position[AXIS], AXIS)
+
 // GCode support for external objects
 bool code_seen(char);
 float code_value();
@@ -485,6 +495,7 @@ void status_LED( int pin, int action);
   bool axis_unhomed_error(const bool, const bool, const bool );
   float probe_pt(float, float, bool stow=true, int verbose_level=1);
   void lcd_buttons_update();
+  void lcd_init();
   void set_current_to_destination();
   void set_destination_to_current();
 #endif
