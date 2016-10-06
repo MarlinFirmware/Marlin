@@ -383,7 +383,8 @@ void Config_RetrieveSettings() {
 
   //  SERIAL_ECHOPAIR("Version: [", ver);
   //  SERIAL_ECHOPAIR("] Stored version: [", stored_ver);
-  //  SERIAL_ECHOLNPGM("]");
+  //  SERIAL_CHAR(']');
+  //  SERIAL_EOL;
 
   if (strncmp(version, stored_ver, 3) != 0) {
     Config_ResetDefault();
