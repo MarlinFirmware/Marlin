@@ -218,18 +218,36 @@ class Planner {
        * as it will be given to the planner and steppers.
        */
       static void apply_leveling(float &lx, float &ly, float &lz);
+      static void apply_leveling(float logical[XYZ]) { apply_leveling(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS]); }
       static void unapply_leveling(float logical[XYZ]);
 
     #endif
 
     /**
      * Add a new linear movement to the buffer.
+     * The target is NOT translated to delta/scara
      *
      *  x,y,z,e   - target position in mm
      *  fr_mm_s   - (target) speed of the move (mm/s)
      *  extruder  - target extruder
      */
-    static void buffer_line(ARG_X, ARG_Y, ARG_Z, const float& e, float fr_mm_s, const uint8_t extruder);
+    static void buffer_line(ARG_X, ARG_Y, ARG_Z, const float& e, float fr_mm_s, const uint8_t extruder) {
+      #if PLANNER_LEVELING && ! IS_KINEMATIC
+        apply_leveling(lx, ly, lz);
+      #endif
+      _buffer_line(lx, ly, lz, e, fr_mm_s, extruder);
+    }
+
+    /**
+     * Add a new linear movement to the buffer.
+     * The target is cartesian, it's translated to delta/scara if
+     * needed.
+     *
+     *  target   - x,y,z,e CARTESIAN target in mm
+     *  fr_mm_s  - (target) speed of the move (mm/s)
+     *  extruder - target extruder
+     */
+    static void buffer_line_kinematic(const float target[NUM_AXIS], float fr_mm_s, const uint8_t extruder);
 
     /**
      * Set the planner.position and individual stepper positions.
@@ -240,9 +258,14 @@ class Planner {
      *
      * Clears previous speed values.
      */
-    static void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float& e);
+    static void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
+      #if PLANNER_LEVELING && ! IS_KINEMATIC
+        apply_leveling(lx, ly, lz);
+      #endif
+      _set_position_mm(lx, ly, lz, e);
+    }
+    static void set_position_mm_kinematic(const float position[NUM_AXIS]);
     static void set_position_mm(const AxisEnum axis, const float& v);
-
     static FORCE_INLINE void set_z_position_mm(const float& z) { set_position_mm(Z_AXIS, z); }
     static FORCE_INLINE void set_e_position_mm(const float& e) { set_position_mm(E_AXIS, e); }
 
@@ -317,6 +340,20 @@ class Planner {
       if (accel == 0) return 0; // accel was 0, set intersection distance to 0
       return (accel * 2 * distance - sq(initial_rate) + sq(final_rate)) / (accel * 4);
     }
+
+    /**
+     * Planner::_buffer_line
+     *
+     * Add a new linear movement to the buffer.
+     * Doesn't apply the leveling.
+     *
+     *  x,y,z,e   - target position in mm
+     *  fr_mm_s   - (target) speed of the move
+     *  extruder  - target extruder
+     */
+    static void _buffer_line(const float &lx, const float &ly, const float &lz, const float &e, float fr_mm_s, const uint8_t extruder);
+
+    static void _set_position_mm(const float &lx, const float &ly, const float &lz, const float& e);
 
     /**
      * Calculate the maximum allowable speed at this point, in order

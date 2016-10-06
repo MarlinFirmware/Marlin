@@ -518,6 +518,10 @@
  */
 #if HAS_ABL
 
+  #if ENABLED(USE_RAW_KINEMATICS) || ENABLED(USE_DELTA_IK_INTERPOLATION)
+    #error "USE_RAW_KINEMATICS and USE_DELTA_IK_INTERPOLATION are not compatible with AUTO_BED_LEVELING"
+  #endif
+
   /**
    * Delta and SCARA have limited bed leveling options
    */

@@ -710,8 +710,7 @@ inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("sync_plan_position_kinematic", current_position);
     #endif
-    inverse_kinematics(current_position);
-    planner.set_position_mm(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], current_position[E_AXIS]);
+    planner.set_position_mm_kinematic(current_position);
   }
   #define SYNC_PLAN_POSITION_KINEMATIC() sync_plan_position_kinematic()
 
@@ -1540,8 +1539,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
     ) return;
 
     refresh_cmd_timeout();
-    inverse_kinematics(destination);
-    planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], destination[E_AXIS], MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
+    planner.buffer_line_kinematic(destination, MMS_SCALED(fr_mm_s ? fr_mm_s : feedrate_mm_s), active_extruder);
     set_current_to_destination();
   }
 #endif // IS_KINEMATIC
@@ -6718,8 +6716,7 @@ inline void gcode_M503() {
 
     // Define runplan for move axes
     #if IS_KINEMATIC
-      #define RUNPLAN(RATE_MM_S) inverse_kinematics(destination); \
-                                 planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], destination[E_AXIS], RATE_MM_S, active_extruder);
+      #define RUNPLAN(RATE_MM_S) planner.buffer_line_kinematic(destination, RATE_MM_S, active_extruder);
     #else
       #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S);
     #endif
@@ -6840,9 +6837,7 @@ inline void gcode_M503() {
 
     #if IS_KINEMATIC
       // Move XYZ to starting position, then E
-      inverse_kinematics(lastpos);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], destination[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], lastpos[E_AXIS], FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
+      planner.buffer_line_kinematic(lastpos, FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
     #else
       // Move XY to starting position, then Z, then E
       destination[X_AXIS] = lastpos[X_AXIS];
@@ -8276,8 +8271,8 @@ void ok_to_send() {
       SERIAL_ECHOPAIR(" L=", L);
       SERIAL_ECHOPAIR(" R=", R);
       SERIAL_ECHOLNPAIR(" offset=", offset);
+      last_offset = offset;
     }
-    last_offset = offset;
     //*/
 
     return offset;
@@ -8613,8 +8608,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     // If the move is only in Z/E don't split up the move
     if (ltarget[X_AXIS] == current_position[X_AXIS] && ltarget[Y_AXIS] == current_position[Y_AXIS]) {
-      inverse_kinematics(ltarget);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], ltarget[E_AXIS], _feedrate_mm_s, active_extruder);
+      planner.buffer_line_kinematic(ltarget, _feedrate_mm_s, active_extruder);
       return true;
     }
 
@@ -8757,16 +8751,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       // For non-interpolated delta calculate every segment
       for (uint16_t s = segments + 1; --s;) {
         DELTA_NEXT(segment_distance[i]);
-        DELTA_IK();
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_VAR[E_AXIS], _feedrate_mm_s, active_extruder);
+        planner.buffer_line_kinematic(DELTA_VAR, _feedrate_mm_s, active_extruder);
       }
 
     #endif
 
     // Since segment_distance is only approximate,
     // the final move must be to the exact destination.
-    inverse_kinematics(ltarget);
-    planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], ltarget[E_AXIS], _feedrate_mm_s, active_extruder);
+    planner.buffer_line_kinematic(ltarget, _feedrate_mm_s, active_extruder);
     return true;
   }
 
@@ -9006,21 +8998,11 @@ void prepare_move_to_destination() {
 
       clamp_to_software_endstops(arc_target);
 
-      #if IS_KINEMATIC
-        inverse_kinematics(arc_target);
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
-      #else
-        planner.buffer_line(arc_target[X_AXIS], arc_target[Y_AXIS], arc_target[Z_AXIS], arc_target[E_AXIS], fr_mm_s, active_extruder);
-      #endif
+      planner.buffer_line_kinematic(arc_target, fr_mm_s, active_extruder);
     }
 
     // Ensure last segment arrives at target location.
-    #if IS_KINEMATIC
-      inverse_kinematics(logical);
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], fr_mm_s, active_extruder);
-    #else
-      planner.buffer_line(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS], logical[E_AXIS], fr_mm_s, active_extruder);
-    #endif
+    planner.buffer_line_kinematic(logical, fr_mm_s, active_extruder);
 
     // As far as the parser is concerned, the position is now == target. In reality the
     // motion control system might still be processing the action and the real tool position
