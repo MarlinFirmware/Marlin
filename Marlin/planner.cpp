@@ -522,7 +522,9 @@ void Planner::check_axes_activity() {
 }
 
 #if PLANNER_LEVELING
-
+  /**
+   * lx, ly, lz - logical (cartesian, not delta) positions in mm
+   */
   void Planner::apply_leveling(float &lx, float &ly, float &lz) {
 
     #if HAS_ABL
@@ -549,19 +551,7 @@ void Planner::check_axes_activity() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       float tmp[XYZ] = { lx, ly, 0 };
-
-      #if ENABLED(DELTA)
-
-        float offset = bilinear_z_offset(tmp);
-        lx += offset;
-        ly += offset;
-        lz += offset;
-
-      #else
-
-        lz += bilinear_z_offset(tmp);
-
-      #endif
+      lz += bilinear_z_offset(tmp);
 
     #endif
   }
@@ -601,25 +591,22 @@ void Planner::check_axes_activity() {
 #endif // PLANNER_LEVELING
 
 /**
- * Planner::buffer_line
+ * Planner::_buffer_line
  *
  * Add a new linear movement to the buffer.
+ * Not apply the leveling.
  *
  *  x,y,z,e   - target position in mm
  *  fr_mm_s   - (target) speed of the move
  *  extruder  - target extruder
  */
-void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, const uint8_t extruder) {
+void Planner::_buffer_line(const float &lx, const float &ly, const float &lz, const float &e, float fr_mm_s, const uint8_t extruder) {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
   // If the buffer is full: good! That means we are well ahead of the robot.
   // Rest here until there is room in the buffer.
   while (block_buffer_tail == next_buffer_head) idle();
-
-  #if PLANNER_LEVELING
-    apply_leveling(lx, ly, lz);
-  #endif
 
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
@@ -1196,12 +1183,8 @@ void Planner::buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, co
  *
  * On CORE machines stepper ABC will be translated from the given XYZ.
  */
-void Planner::set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
 
-  #if PLANNER_LEVELING
-    apply_leveling(lx, ly, lz);
-  #endif
-
+void Planner::_set_position_mm(const float &lx, const float &ly, const float &lz, const float &e) {
   long nx = position[X_AXIS] = lround(lx * axis_steps_per_mm[X_AXIS]),
        ny = position[Y_AXIS] = lround(ly * axis_steps_per_mm[Y_AXIS]),
        nz = position[Z_AXIS] = lround(lz * axis_steps_per_mm[Z_AXIS]),
@@ -1211,6 +1194,22 @@ void Planner::set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
 
   memset(previous_speed, 0, sizeof(previous_speed));
 }
+
+void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
+  #if PLANNER_LEVELING
+    float pos[XYZ] = { position[X_AXIS], position[Y_AXIS], position[Z_AXIS] };
+    apply_leveling(pos);
+  #else
+    const float * const pos = position;
+  #endif
+  #if IS_KINEMATIC
+    inverse_kinematics(pos);
+    _set_position_mm(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], position[E_AXIS]);
+  #else
+    _set_position_mm(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], position[E_AXIS]);
+  #endif
+}
+
 
 /**
  * Sync from the stepper positions. (e.g., after an interrupted move)
@@ -1237,12 +1236,7 @@ void Planner::reset_acceleration_rates() {
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!
 void Planner::refresh_positioning() {
   LOOP_XYZE(i) steps_to_mm[i] = 1.0 / axis_steps_per_mm[i];
-  #if IS_KINEMATIC
-    inverse_kinematics(current_position);
-    set_position_mm(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], current_position[E_AXIS]);
-  #else
-    set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-  #endif
+  set_position_mm_kinematic(current_position);
   reset_acceleration_rates();
 }
 
