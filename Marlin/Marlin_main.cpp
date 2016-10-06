@@ -3779,11 +3779,11 @@ float x, y, z, z0, z00, z1, z2;
     float  X_current = current_position[X_AXIS],
            Y_current = current_position[Y_AXIS];
 
-      bool stow_probe_after_each = code_seen('E');
+    bool stow_probe_after_each = code_seen('E');
 
     float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : X_current + X_PROBE_OFFSET_FROM_EXTRUDER;
     #if DISABLED(DELTA)
-      if (X_probe_location < MIN_PROBE_X || X_probe_location > MAX_PROBE_X) {
+      if (X_probe_location < LOGICAL_X_POSITION(MIN_PROBE_X) || X_probe_location > LOGICAL_X_POSITION(MAX_PROBE_X)) {
         out_of_range_error(PSTR("X"));
         return;
       }
@@ -3791,12 +3791,12 @@ float x, y, z, z0, z00, z1, z2;
 
     float Y_probe_location = code_seen('Y') ? code_value_axis_units(Y_AXIS) : Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER;
     #if DISABLED(DELTA)
-      if (Y_probe_location < MIN_PROBE_Y || Y_probe_location > MAX_PROBE_Y) {
+      if (Y_probe_location < LOGICAL_Y_POSITION(MIN_PROBE_Y) || Y_probe_location > LOGICAL_Y_POSITION(MAX_PROBE_Y)) {
         out_of_range_error(PSTR("Y"));
         return;
       }
     #else
-      if (sqrt(X_probe_location * X_probe_location + Y_probe_location * Y_probe_location) > DELTA_PROBEABLE_RADIUS) {
+      if (HYPOT(RAW_X_POSITION(X_probe_location), RAW_Y_POSITION(Y_probe_location)) > DELTA_PROBEABLE_RADIUS) {
         SERIAL_PROTOCOLLNPGM("? (X,Y) location outside of probeable radius.");
         return;
       }
@@ -3821,8 +3821,12 @@ float x, y, z, z0, z00, z1, z2;
     if (verbose_level > 2)
       SERIAL_PROTOCOLLNPGM("Positioning the probe...");
 
-    #if ENABLED(UNIFIED_BED_LEVELING_FEATURE)		// we don't do bed level correction in M48 because 
-      blm.state.active = 0;
+    #if ENABLED(DELTA)
+      // we don't do bed level correction in M48 because we want the raw data when we probe
+      reset_bed_level();
+    #elif ENABLED(AUTO_BED_LEVELING_FEATURE)
+      // we don't do bed level correction in M48 because we want the raw data when we probe
+      planner.bed_level_matrix.set_to_identity();
     #endif
 
     setup_for_endstop_or_probe_move();
@@ -3846,8 +3850,8 @@ float x, y, z, z0, z00, z1, z2;
               );
 
         if (verbose_level > 3) {
-          SERIAL_ECHOPAIRPGM("Starting radius: ", radius);
-          SERIAL_ECHOPAIRPGM("   angle: ", angle);
+          SERIAL_ECHOPAIR("Starting radius: ", radius);
+          SERIAL_ECHOPAIR("   angle: ", angle);
           SERIAL_ECHOPGM(" Direction: ");
           if (dir > 0) SERIAL_ECHOPGM("Counter-");
           SERIAL_ECHOLNPGM("Clockwise");
@@ -3856,7 +3860,6 @@ float x, y, z, z0, z00, z1, z2;
         for (uint8_t l = 0; l < n_legs - 1; l++) {
           double delta_angle;
 
-	  idle();
           if (schizoid_flag)
             // The points of a 5 point star are 72 degrees apart.  We need to
             // skip a point and go to the next one on the star.
@@ -3883,22 +3886,21 @@ float x, y, z, z0, z00, z1, z2;
           #else
             // If we have gone out too far, we can do a simple fix and scale the numbers
             // back in closer to the origin.
-            while (sqrt(X_current * X_current + Y_current * Y_current) > DELTA_PROBEABLE_RADIUS) {
+            while (HYPOT(X_current, Y_current) > DELTA_PROBEABLE_RADIUS) {
               X_current /= 1.25;
               Y_current /= 1.25;
               if (verbose_level > 3) {
-                SERIAL_ECHOPGM("Pulling point towards center:");
-                SERIAL_ECHO( X_current);
-                SERIAL_ECHOPAIRPGM(", ", Y_current);
+                SERIAL_ECHOPAIR("Pulling point towards center:", X_current);
+                SERIAL_ECHOPAIR(", ", Y_current);
                 SERIAL_EOL;
               }
             }
           #endif
           if (verbose_level > 3) {
             SERIAL_PROTOCOLPGM("Going to:");
-            SERIAL_ECHOPAIRPGM(" X", X_current);
-            SERIAL_ECHOPAIRPGM(" Y", Y_current);
-            SERIAL_ECHOPAIRPGM(" Z", current_position[Z_AXIS]);
+            SERIAL_ECHOPAIR(" X", X_current);
+            SERIAL_ECHOPAIR(" Y", Y_current);
+            SERIAL_ECHOPAIR(" Z", current_position[Z_AXIS]);
             SERIAL_EOL;
           }
           do_blocking_move_to_xy(X_current, Y_current);
@@ -3920,10 +3922,9 @@ float x, y, z, z0, z00, z1, z2;
        * data points we have so far
        */
       sum = 0.0;
-      for (uint8_t j = 0; j <= n; j++) {
-        float ss = sample_set[j] - mean;
-        sum += ss * ss;
-      }
+      for (uint8_t j = 0; j <= n; j++)
+        sum += sq(sample_set[j] - mean);
+
       sigma = sqrt(sum / (n + 1));
       if (verbose_level > 0) {
         if (verbose_level > 1) {
