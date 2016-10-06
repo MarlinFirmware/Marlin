@@ -4681,7 +4681,7 @@ inline void gcode_M42() {
     }
 
     if (verbose_level > 0)
-      SERIAL_PROTOCOLLNPGM("M48 Z-Probe Repeatability test");
+      SERIAL_PROTOCOLLNPGM("M48 Z-Probe Repeatability Test");
 
     int8_t n_samples = code_seen('P') ? code_value_byte() : 10;
     if (n_samples < 4 || n_samples > 50) {
@@ -4747,7 +4747,8 @@ inline void gcode_M42() {
 
     randomSeed(millis());
 
-    double mean = 0, sigma = 0, sample_set[n_samples];
+    double mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
+
     for (uint8_t n = 0; n < n_samples; n++) {
       if (n_legs) {
         int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
@@ -4817,7 +4818,7 @@ inline void gcode_M42() {
       } // n_legs
 
       // Probe a single point
-      sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
+      sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, 0);
 
       /**
        * Get the current mean for the data points we have so far
@@ -4825,6 +4826,9 @@ inline void gcode_M42() {
       double sum = 0.0;
       for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
       mean = sum / (n + 1);
+
+      if(sample_set[n] < min) min = sample_set[n];
+      if(sample_set[n] > max) max = sample_set[n];
 
       /**
        * Now, use that mean to calculate the standard deviation for the
@@ -4840,13 +4844,19 @@ inline void gcode_M42() {
           SERIAL_PROTOCOL(n + 1);
           SERIAL_PROTOCOLPGM(" of ");
           SERIAL_PROTOCOL((int)n_samples);
-          SERIAL_PROTOCOLPGM("   z: ");
-          SERIAL_PROTOCOL_F(current_position[Z_AXIS], 6);
+          SERIAL_PROTOCOLPGM(": z: ");
+          SERIAL_PROTOCOL_F(sample_set[n], 3);
           if (verbose_level > 2) {
             SERIAL_PROTOCOLPGM(" mean: ");
-            SERIAL_PROTOCOL_F(mean, 6);
-            SERIAL_PROTOCOLPGM("   sigma: ");
+            SERIAL_PROTOCOL_F(mean, 4);
+            SERIAL_PROTOCOLPGM(" sigma: ");
             SERIAL_PROTOCOL_F(sigma, 6);
+            SERIAL_PROTOCOLPGM(" min: ");
+            SERIAL_PROTOCOL_F(min, 3);
+            SERIAL_PROTOCOLPGM(" max: ");
+            SERIAL_PROTOCOL_F(max, 3);
+            SERIAL_PROTOCOLPGM(" range: ");
+            SERIAL_PROTOCOL_F(max-min, 3);
           }
         }
         SERIAL_EOL;
@@ -4856,15 +4866,26 @@ inline void gcode_M42() {
 
     if (STOW_PROBE()) return;
 
+    SERIAL_PROTOCOLPGM("Finished!");
+    SERIAL_EOL;
+
     if (verbose_level > 0) {
       SERIAL_PROTOCOLPGM("Mean: ");
       SERIAL_PROTOCOL_F(mean, 6);
+      SERIAL_PROTOCOLPGM(" Min: ");
+      SERIAL_PROTOCOL_F(min, 3);
+      SERIAL_PROTOCOLPGM(" Max: ");
+      SERIAL_PROTOCOL_F(max, 3);
+      SERIAL_PROTOCOLPGM(" Range: ");
+      SERIAL_PROTOCOL_F(max-min, 3);
       SERIAL_EOL;
     }
 
     SERIAL_PROTOCOLPGM("Standard Deviation: ");
     SERIAL_PROTOCOL_F(sigma, 6);
-    SERIAL_EOL; SERIAL_EOL;
+    SERIAL_EOL;
+
+    SERIAL_EOL;
 
     clean_up_after_endstop_or_probe_move();
 
