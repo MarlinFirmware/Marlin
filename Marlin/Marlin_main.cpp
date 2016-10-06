@@ -3826,6 +3826,7 @@ inline void gcode_G28() {
           || left_probe_bed_position != bilinear_start[X_AXIS]
           || front_probe_bed_position != bilinear_start[Y_AXIS]
         ) {
+          reset_bed_level();
           bilinear_grid_spacing[X_AXIS] = xGridSpacing;
           bilinear_grid_spacing[Y_AXIS] = yGridSpacing;
           bilinear_start[X_AXIS] = RAW_X_POSITION(left_probe_bed_position);
