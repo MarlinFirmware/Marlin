@@ -60,7 +60,7 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          0
+#define TEMP_0_PIN          0   // Analog Input
 
 //
 // Heaters

@@ -79,10 +79,11 @@
   #define Y_STOP_PIN        8 // Ystop in Ystop socket
 #endif
 #define Z_STOP_PIN         36
-#define TEMP_0_PIN          1  // Extruder / Analog pin numbering
-#define TEMP_BED_PIN        0  // Bed / Analog pin numbering
 
-#define FILWIDTH_PIN        2  // ANALOG NUMBERING
+#define TEMP_0_PIN          1   // Analog Input
+#define TEMP_BED_PIN        0   // Analog Input
+
+#define FILWIDTH_PIN        2   // Analog Input
 
 ////LCD Pin Setup////
 

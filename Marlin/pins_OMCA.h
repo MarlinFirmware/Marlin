@@ -98,9 +98,9 @@
 #define HEATER_0_PIN        3 // DONE PWM on RIGHT connector
 #define HEATER_BED_PIN      4
 
-#define TEMP_0_PIN          0 // ANALOG INPUT NUMBERING
-#define TEMP_1_PIN          1 // ANALOG
-#define TEMP_BED_PIN        2 // 1,2 or I2C
+#define TEMP_0_PIN          0   // Analog Input
+#define TEMP_1_PIN          1   // Analog Input
+#define TEMP_BED_PIN        2   // Analog Input (1,2 or I2C)
 
 #define I2C_SCL            16
 #define I2C_SDA            17
