@@ -73,7 +73,7 @@
 
     NOMORE(val, 100);
 
-    mcp4728_analogWrite(dac_order[channel], val * DAC_STEPPER_MAX / 100);
+    mcp4728_analogWrite(dac_order[channel], val * 0.01 * (DAC_STEPPER_MAX));
     mcp4728_simpleCommand(UPDATE);
   }
 
@@ -86,10 +86,10 @@
     mcp4728_simpleCommand(UPDATE);
   }
 
-  static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) / DAC_STEPPER_MAX; }
-  static float dac_amps(int8_t n) { return (mcp4728_getDrvPct(dac_order[n])*DAC_STEPPER_MAX) / (8.0 * DAC_STEPPER_SENSE); }
+  static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) * (1.0 / (DAC_STEPPER_MAX)); }
+  static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * (0.125 * (DAC_STEPPER_SENSE)); }
   
-  int16_t dac_current_get_percent(int8_t axis) {return mcp4728_getDrvPct(dac_order[axis]); }
+  int16_t dac_current_get_percent(AxisEnum axis) { return mcp4728_getDrvPct(dac_order[axis]); }
   void dac_current_set_percents(int16_t pct[XYZE]) {
     LOOP_XYZE(i) dac_channel_pct[i] = pct[dac_order[i]];
     mcp4728_setDrvPct(dac_channel_pct);
