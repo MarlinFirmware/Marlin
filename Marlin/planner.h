@@ -43,6 +43,12 @@
 class Planner;
 extern Planner planner;
 
+#if IS_KINEMATIC
+  // for inline buffer_line_kinematic
+  extern float delta[ABC];
+  void inverse_kinematics(const float logical[XYZ]);
+#endif
+
 /**
  * struct block_t
  *
@@ -231,7 +237,7 @@ class Planner {
      *  fr_mm_s   - (target) speed of the move (mm/s)
      *  extruder  - target extruder
      */
-    static void buffer_line(ARG_X, ARG_Y, ARG_Z, const float& e, float fr_mm_s, const uint8_t extruder) {
+    static FORCE_INLINE void buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, const uint8_t extruder) {
       #if PLANNER_LEVELING && ! IS_KINEMATIC
         apply_leveling(lx, ly, lz);
       #endif
@@ -247,7 +253,20 @@ class Planner {
      *  fr_mm_s  - (target) speed of the move (mm/s)
      *  extruder - target extruder
      */
-    static void buffer_line_kinematic(const float target[NUM_AXIS], float fr_mm_s, const uint8_t extruder);
+     static FORCE_INLINE void buffer_line_kinematic(const float target[NUM_AXIS], float fr_mm_s, const uint8_t extruder) {
+      #if PLANNER_LEVELING
+        float pos[XYZ]={ target[X_AXIS], target[Y_AXIS], target[Z_AXIS] };
+        apply_leveling(pos);
+      #else
+        const float * const pos=target;
+      #endif
+      #if IS_KINEMATIC
+        inverse_kinematics(pos);
+        _buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], target[E_AXIS], fr_mm_s, extruder);
+      #else
+        _buffer_line(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], target[E_AXIS], fr_mm_s, extruder);
+      #endif
+    }
 
     /**
      * Set the planner.position and individual stepper positions.
@@ -258,7 +277,7 @@ class Planner {
      *
      * Clears previous speed values.
      */
-    static void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
+    static FORCE_INLINE void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
       #if PLANNER_LEVELING && ! IS_KINEMATIC
         apply_leveling(lx, ly, lz);
       #endif
@@ -353,7 +372,7 @@ class Planner {
      */
     static void _buffer_line(const float &lx, const float &ly, const float &lz, const float &e, float fr_mm_s, const uint8_t extruder);
 
-    static void _set_position_mm(const float &lx, const float &ly, const float &lz, const float& e);
+    static void _set_position_mm(const float &lx, const float &ly, const float &lz, const float &e);
 
     /**
      * Calculate the maximum allowable speed at this point, in order

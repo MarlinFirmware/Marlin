@@ -591,30 +591,6 @@ void Planner::check_axes_activity() {
 #endif // PLANNER_LEVELING
 
 /**
- * Add a new linear movement to the buffer.
- * The target is cartesian.
- *
- *  target   - x,y,z,e CARTESIAN target in mm
- *  fr_mm_s  - (target) speed of the move (mm/s)
- *  extruder - target extruder
- */
-void Planner::buffer_line_kinematic(const float target[NUM_AXIS], float fr_mm_s, const uint8_t extruder) {
-  const float* t=target;
-  #if PLANNER_LEVELING
-    float leveled[NUM_AXIS];
-    memcpy(leveled, target, sizeof(leveled));
-    apply_leveling(leveled);
-    t=leveled;
-  #endif
-  #if IS_KINEMATIC
-    inverse_kinematics(t);
-    _buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], t[E_AXIS], fr_mm_s, extruder);
-  #else
-    _buffer_line(t[X_AXIS], t[Y_AXIS], t[Z_AXIS], t[E_AXIS], fr_mm_s, extruder);
-  #endif
-}
-
-/**
  * Planner::_buffer_line
  *
  * Add a new linear movement to the buffer.
@@ -1208,7 +1184,7 @@ void Planner::_buffer_line(const float &lx, const float &ly, const float &lz, co
  * On CORE machines stepper ABC will be translated from the given XYZ.
  */
 
-void Planner::_set_position_mm(const float &lx, const float& ly, const float& lz, const float& e) {
+void Planner::_set_position_mm(const float &lx, const float &ly, const float &lz, const float &e) {
   long nx = position[X_AXIS] = lround(lx * axis_steps_per_mm[X_AXIS]),
        ny = position[Y_AXIS] = lround(ly * axis_steps_per_mm[Y_AXIS]),
        nz = position[Z_AXIS] = lround(lz * axis_steps_per_mm[Z_AXIS]),
@@ -1220,18 +1196,17 @@ void Planner::_set_position_mm(const float &lx, const float& ly, const float& lz
 }
 
 void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
-  const float* t=position;
   #if PLANNER_LEVELING
-    float leveled[NUM_AXIS];
-    memcpy(leveled, position, sizeof(leveled));
-    apply_leveling(leveled);
-    t=leveled;
+    float pos[XYZ]={ position[X_AXIS], position[Y_AXIS], position[Z_AXIS] };
+    apply_leveling(pos);
+  #else
+    const float * const pos=position;
   #endif
   #if IS_KINEMATIC
-    inverse_kinematics(t);
-    _set_position_mm(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], t[E_AXIS]);
+    inverse_kinematics(pos);
+    _set_position_mm(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], position[E_AXIS]);
   #else
-    _set_position_mm(t[X_AXIS], t[Y_AXIS], t[Z_AXIS], t[E_AXIS]);
+    _set_position_mm(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], position[E_AXIS]);
   #endif
 }
 
