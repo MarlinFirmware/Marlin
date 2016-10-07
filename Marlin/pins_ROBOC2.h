@@ -24,6 +24,17 @@
 #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
 #endif
 
+#ifndef BOARD_NAME
+  #define BOARD_NAME "ROBOC2"
+#endif
+
+#ifndef DEFAULT_MACHINE_NAME
+  #define DEFAULT_MACHINE_NAME "RoboC2"
+#endif
+
+#ifndef DEFAULT_SOURCE_CODE_URL
+  #define DEFAULT_SOURCE_CODE_URL "https://github.com/Robo3D/Marlin-C2"
+#endif
 
 #define IS_ROBOC2
 
