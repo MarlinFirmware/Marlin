@@ -6836,10 +6836,10 @@ inline void gcode_M503() {
     planner.set_e_position_mm(current_position[E_AXIS]);
 
     #if IS_KINEMATIC
-      // Move XYZ to starting position, then E
+      // Move XYZ to starting position
       planner.buffer_line_kinematic(lastpos, FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
     #else
-      // Move XY to starting position, then Z, then E
+      // Move XY to starting position, then Z
       destination[X_AXIS] = lastpos[X_AXIS];
       destination[Y_AXIS] = lastpos[Y_AXIS];
       RUNPLAN(FILAMENT_CHANGE_XY_FEEDRATE);
