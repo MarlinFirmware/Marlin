@@ -1568,7 +1568,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
     #endif
     #if ENABLED(DAC_STEPPER_CURRENT)
-      MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu); //MSG_DRIVE_STRENGTH to be added to language.h as "Drive Strength"
+      MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu); 
     #endif
 
     #if ENABLED(EEPROM_SETTINGS)
