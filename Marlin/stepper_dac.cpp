@@ -86,7 +86,7 @@
   }
 
   static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) / DAC_STEPPER_MAX; }
-  static float dac_amps(int8_t n) { return mcp4728_getVout(dac_order[n]) / (8.0 * DAC_STEPPER_SENSE); }
+  static float dac_amps(int8_t n) { return (mcp4728_getDrvPct(dac_order[n])*DAC_STEPPER_MAX) / (8.0 * DAC_STEPPER_SENSE); }
   
   int16_t dac_current_get_percent(int8_t axis) {return mcp4728_getDrvPct(dac_order[axis]); }
   void dac_current_set_percents(int16_t pct[XYZE]) {
