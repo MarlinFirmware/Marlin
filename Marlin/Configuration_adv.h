@@ -810,4 +810,103 @@
 //#define EXPERIMENTAL_I2CBUS
 #define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
 
+/**
+ *  
+ *  Spindle control
+ * 
+ *  The M3, M4 & M5 g-code commands are used to turn the spindle on and off & to set the
+ *  spindle speed.  In this implementation the M4 command is the same as the M3 (assumes
+ *  the spindle rotates in one direction only).
+ * 
+ *  SuperPid is a router/spindle speed controller used in the CNC milling community.
+ *  Marlin can be used to turn the spindle on and off.  It can also be used to set
+ *  the spindle speed from 5,000 to 30,000 RPM.  
+ *
+ *  You'll need to select a 3.3V - 5V signal for the ON/OFF function and optionally
+ *  choose a 0-5V PWM pin for the speed control.
+ *
+ *  uncomment the following to enable the ON/OFF function
+ */
+ 
+//#define SPINDLE_ENABLE
+ 
+ //  uncomment the following to enable speed control
+//#define SPINDLE_SPEED  
+
+ // If SPINDLE_SPEED is enabled but SPINDLE_ENABLE isn't then SPINDLE_SPEED is ignored.
+ 
+#define SPINDLE_ENABLE_INVERT  false   // set to "true" if  the spindle on/off function is reversed
+#define SPINDLE_SPEED_INVERT  true   // set to "true" if the spindle speeds up when you want it to go slower
+#define SPINDLE_POWER_UP_DELAY  5    // delay in seconds to allow the spindle to come up to speed
+#define SPINDLE_POWER_DOWN_DELAY  5    // delay in seconds to allow the spindle to stop
+
+/**
+ *  The M3 & M4 commands use the following equation to convert PWM duty cycle to spindle speed 
+ * 
+ *  RPM = PWM duty cycle * RPM_slope  +  RPM_intercept
+ *    where PWM duty cycle varies from 0 to 100
+ *
+ *  set the following for your controller (ALL MUST BE SET)
+ */
+ 
+#define RPM_SLOPE 302.00    // SuperPID & AzteegX3pro controller pin 5
+#define RPM_INTERCEPT 0     // SuperPID & AzteegX3pro controller pin 5
+#define RPM_MIN  5000       // SuperPID
+#define RPM_MAX 30000       // SuperPID
+ 
+/**
+ *
+ *  In the pins.h file for your board you'll need to add the following:
+ *   #define SPINDLE_ENABLE_PIN xx     // xx is the digital pin number
+ *   #define SPINDLE_SPEED_PIN yy      // yy is the digital pin number
+ *
+ *  Selecting the pin for SPINDLE_ENABLE_PIN is fairly easy.  Just select any free digital
+ *  pin with a 0 to 3.3V-5V logic levels.  
+ *
+ *  It is HIGHLY RECOMMENDED that an external 1k-10k pull up resistor be connected to the 
+ *  SPINDLE_ENABLE_PIN.  This will prevent the spindle from powering on briefly during
+ *  power up or when the controller is reset (which happens whenever you connect or 
+ *  disconnect from the controller). 
+ *
+ *  Picking the PWM pin can be tricky.  There are only 14 PWM pins on an ATMEGA2561.  Some are 
+ *  used by the system interrupts so are unavailable.  Others are usually hardwired in the
+ *  controller to functions you can't do without.  Fans, servos and some specialized functions
+ *  all want to have a PWM pin.  Usually you'll end up picking a function you can do without, 
+ *  commenting that function out (or not enabling it) and assigning it's pin number to the
+ *  speed pin.
+ * 
+ *  Use the following table when selecting the speed pin.
+ *   
+ *  ATMEGA2561 PWM assignments & users
+ *  
+ *  There are 15 PWM ports assigned to 14 physical pins.
+ *     Pin 13 has two ports assigned to it.
+ *  
+ *      Timer   Digital Normally    Used by         Optional    
+ *      & Port   Pin    assigned    system          users   
+ *      TIMER3B   2     X_MAX                       servo
+ *      TIMER3C   3     X_MIN                       servo
+ *      TIMER0B   4     HEATER_4    temp & milli ISR 
+ *      TIMER3A   5     HEATER_5                    servo
+ *      TIMER4A   6     HEATER_6        
+ *      TIMER4B   7     LCD     
+ *      TIMER4C   8     HOTBED      
+ *      TIMER2B   9     HEATER_1        
+ *      TIMER2A   10    HEATER_0        
+ *      TIMER1A   11    HEATER_7    stepper ISR     E axis waveform generator
+ *      TIMER1B   12    PS_ON_PIN   stepper ISR     E axis waveform generator
+ *      TIMER0A   13    LED         step adv ISR    
+ *      TIMER1C   13    LED         LED PWM 
+ *      TIMER5C   44    LCD                         stepper motor current XY PWM
+ *      TIMER5B   45    LCD                         stepper motor current Z PWM
+ *      TIMER5A   46    Z_STEP                      stepper motor current E PWM
+ *  
+ *  In addition to the above, fans can be assigned to PWM pins.  If you pick a pin that's 
+ *  already assigned to a fan then you'll need to delete the fan or change it's pin assignment.
+ *  This needs to be done even if FAN_FAST_PWM is disabled.
+ *  
+ *  NOTE: If you pick a pin that's hardwired to a heater then you'll probably have to connect
+ *        an external 1k-10k pull up resistor to the pin.
+ *   
+ */ 
 #endif // CONFIGURATION_ADV_H
