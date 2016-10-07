@@ -402,8 +402,10 @@ uint8_t active_extruder = 0;
 // Relative Mode. Enable with G91, disable with G90.
 static bool relative_mode = false;
 
+// For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
 volatile bool wait_for_heatup = true;
 
+// For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if ENABLED(EMERGENCY_PARSER) && DISABLED(ULTIPANEL)
   volatile bool wait_for_user = false;
 #endif
@@ -412,6 +414,7 @@ const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
+// Number of characters read in the current line of serial input
 static int serial_count = 0;
 
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
@@ -2267,7 +2270,7 @@ static void clean_up_after_endstop_or_probe_move() {
         if (y < 10) SERIAL_CHAR(' ');
         SERIAL_ECHO((int)y);
         SERIAL_CHAR(ydir ? (ydir > 0 ? '+' : '-') : ' ');
-        SERIAL_ECHOLN(']');
+        SERIAL_CHAR(']');
       }
     #endif
     if (bed_level_grid[x][y] < 999.0) {
@@ -2276,6 +2279,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #endif
       return;  // Don't overwrite good values.
     }
+    SERIAL_EOL;
 
     // Get X neighbors, Y neighbors, and XY neighbors
     float a1 = bed_level_grid[x + xdir][y], a2 = bed_level_grid[x + xdir * 2][y],
@@ -2362,7 +2366,7 @@ static void clean_up_after_endstop_or_probe_move() {
     SERIAL_EOL;
     for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++) {
       if (y < 9) SERIAL_PROTOCOLCHAR(' ');
-      SERIAL_PROTOCOL(y);
+      SERIAL_PROTOCOL((int)y);
       for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
         SERIAL_PROTOCOLCHAR(' ');
         float offset = bed_level_grid[x][y];
@@ -3826,6 +3830,7 @@ inline void gcode_G28() {
           || left_probe_bed_position != bilinear_start[X_AXIS]
           || front_probe_bed_position != bilinear_start[Y_AXIS]
         ) {
+          reset_bed_level();
           bilinear_grid_spacing[X_AXIS] = xGridSpacing;
           bilinear_grid_spacing[Y_AXIS] = yGridSpacing;
           bilinear_start[X_AXIS] = RAW_X_POSITION(left_probe_bed_position);
@@ -4681,7 +4686,7 @@ inline void gcode_M42() {
     }
 
     if (verbose_level > 0)
-      SERIAL_PROTOCOLLNPGM("M48 Z-Probe Repeatability test");
+      SERIAL_PROTOCOLLNPGM("M48 Z-Probe Repeatability Test");
 
     int8_t n_samples = code_seen('P') ? code_value_byte() : 10;
     if (n_samples < 4 || n_samples > 50) {
@@ -4747,7 +4752,8 @@ inline void gcode_M42() {
 
     randomSeed(millis());
 
-    double mean = 0, sigma = 0, sample_set[n_samples];
+    double mean = 0.0, sigma = 0.0, min = 99999.9, max = -99999.9, sample_set[n_samples];
+
     for (uint8_t n = 0; n < n_samples; n++) {
       if (n_legs) {
         int dir = (random(0, 10) > 5.0) ? -1 : 1;  // clockwise or counter clockwise
@@ -4817,7 +4823,7 @@ inline void gcode_M42() {
       } // n_legs
 
       // Probe a single point
-      sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, verbose_level);
+      sample_set[n] = probe_pt(X_probe_location, Y_probe_location, stow_probe_after_each, 0);
 
       /**
        * Get the current mean for the data points we have so far
@@ -4825,6 +4831,9 @@ inline void gcode_M42() {
       double sum = 0.0;
       for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
       mean = sum / (n + 1);
+
+      if(sample_set[n] < min) min = sample_set[n];
+      if(sample_set[n] > max) max = sample_set[n];
 
       /**
        * Now, use that mean to calculate the standard deviation for the
@@ -4840,13 +4849,19 @@ inline void gcode_M42() {
           SERIAL_PROTOCOL(n + 1);
           SERIAL_PROTOCOLPGM(" of ");
           SERIAL_PROTOCOL((int)n_samples);
-          SERIAL_PROTOCOLPGM("   z: ");
-          SERIAL_PROTOCOL_F(current_position[Z_AXIS], 6);
+          SERIAL_PROTOCOLPGM(": z: ");
+          SERIAL_PROTOCOL_F(sample_set[n], 3);
           if (verbose_level > 2) {
             SERIAL_PROTOCOLPGM(" mean: ");
-            SERIAL_PROTOCOL_F(mean, 6);
-            SERIAL_PROTOCOLPGM("   sigma: ");
+            SERIAL_PROTOCOL_F(mean, 4);
+            SERIAL_PROTOCOLPGM(" sigma: ");
             SERIAL_PROTOCOL_F(sigma, 6);
+            SERIAL_PROTOCOLPGM(" min: ");
+            SERIAL_PROTOCOL_F(min, 3);
+            SERIAL_PROTOCOLPGM(" max: ");
+            SERIAL_PROTOCOL_F(max, 3);
+            SERIAL_PROTOCOLPGM(" range: ");
+            SERIAL_PROTOCOL_F(max-min, 3);
           }
         }
         SERIAL_EOL;
@@ -4856,15 +4871,26 @@ inline void gcode_M42() {
 
     if (STOW_PROBE()) return;
 
+    SERIAL_PROTOCOLPGM("Finished!");
+    SERIAL_EOL;
+
     if (verbose_level > 0) {
       SERIAL_PROTOCOLPGM("Mean: ");
       SERIAL_PROTOCOL_F(mean, 6);
+      SERIAL_PROTOCOLPGM(" Min: ");
+      SERIAL_PROTOCOL_F(min, 3);
+      SERIAL_PROTOCOLPGM(" Max: ");
+      SERIAL_PROTOCOL_F(max, 3);
+      SERIAL_PROTOCOLPGM(" Range: ");
+      SERIAL_PROTOCOL_F(max-min, 3);
       SERIAL_EOL;
     }
 
     SERIAL_PROTOCOLPGM("Standard Deviation: ");
     SERIAL_PROTOCOL_F(sigma, 6);
-    SERIAL_EOL; SERIAL_EOL;
+    SERIAL_EOL;
+
+    SERIAL_EOL;
 
     clean_up_after_endstop_or_probe_move();
 
