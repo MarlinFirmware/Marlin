@@ -82,12 +82,12 @@
 // Temperature Sensors
 //
 #if TEMP_SENSOR_0 == -1
-  #define TEMP_0_PIN        8   // ANALOG NUMBERING
+  #define TEMP_0_PIN        8   // Analog Input
 #else
-  #define TEMP_0_PIN       13   // ANALOG NUMBERING
+  #define TEMP_0_PIN       13   // Analog Input
 #endif
-#define TEMP_1_PIN         15   // ANALOG NUMBERING
-#define TEMP_BED_PIN       14   // ANALOG NUMBERING
+#define TEMP_1_PIN         15   // Analog Input
+#define TEMP_BED_PIN       14   // Analog Input
 
 //
 // Heaters / Fans

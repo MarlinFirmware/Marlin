@@ -40,7 +40,7 @@
 
 #define SLED_PIN -1
 
-#define FILWIDTH_PIN        3  // ANALOG NUMBERING
+#define FILWIDTH_PIN        3   // Analog Input
 
 /************************************************
  * Rambo pin assignments old
@@ -112,8 +112,8 @@
 #define FAN0_PIN             6
 #define FAN1_PIN             2
 
-#define TEMP_0_PIN           0
-#define TEMP_BED_PIN         7
+#define TEMP_0_PIN           0   // Analog Input
+#define TEMP_BED_PIN         7   // Analog Input
 
 #define SDSS                53
 #define LED_PIN             13
