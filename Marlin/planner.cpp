@@ -523,7 +523,7 @@ void Planner::check_axes_activity() {
 
 #if PLANNER_LEVELING
   /**
-   * lx, ly, lz - cartesian positions in mm
+   * lx, ly, lz - logical (cartesian, not delta) positions in mm
    */
   void Planner::apply_leveling(float &lx, float &ly, float &lz) {
 
