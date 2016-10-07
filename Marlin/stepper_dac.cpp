@@ -49,6 +49,7 @@
 
   bool dac_present = false;
   const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
+  uint16_t dac_channel_pct[XYZE];
 
   int dac_init() {
     #if PIN_EXISTS(DAC_DISABLE)
