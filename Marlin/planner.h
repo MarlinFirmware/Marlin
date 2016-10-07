@@ -198,17 +198,11 @@ class Planner {
 
     static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
 
-    #if HAS_ABL || ENABLED(MESH_BED_LEVELING)
+    #if PLANNER_LEVELING
+
       #define ARG_X float lx
       #define ARG_Y float ly
       #define ARG_Z float lz
-    #else
-      #define ARG_X const float &lx
-      #define ARG_Y const float &ly
-      #define ARG_Z const float &lz
-    #endif
-
-    #if PLANNER_LEVELING
 
       /**
        * Apply leveling to transform a cartesian position
@@ -217,6 +211,12 @@ class Planner {
       static void apply_leveling(float &lx, float &ly, float &lz);
       static void apply_leveling(float logical[XYZ]) { apply_leveling(logical[X_AXIS], logical[Y_AXIS], logical[Z_AXIS]); }
       static void unapply_leveling(float logical[XYZ]);
+
+    #else
+
+      #define ARG_X const float &lx
+      #define ARG_Y const float &ly
+      #define ARG_Z const float &lz
 
     #endif
 
