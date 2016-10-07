@@ -34,7 +34,7 @@
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
-uint16_t     mcp4728_values[4];
+uint16_t     mcp4728_values[XYZE];
 
 /**
  * Begin I2C, get current values (input register and eeprom) of mcp4728
@@ -116,11 +116,10 @@ uint16_t mcp4728_getVout(uint8_t channel) {
 uint16_t mcp4728_getDrvPct(uint8_t channel) {return (uint16_t)(.5+(((float)mcp4728_values[channel]*100)/DAC_STEPPER_MAX));}
 
 /* Recieves all Drive strengths as 0-100 percent values, updates DAC Values array and calls fastwrite to update the DAC */
-void mcp4728_setDrvPct(float xPct, float yPct, float zPct, float ePct) {
-  mcp4728_values[0] = (xPct * DAC_STEPPER_MAX)/100;
-  mcp4728_values[1] = (yPct * DAC_STEPPER_MAX)/100;
-  mcp4728_values[2] = (zPct * DAC_STEPPER_MAX)/100;
-  mcp4728_values[3] = (ePct * DAC_STEPPER_MAX)/100;
+void mcp4728_setDrvPct(int16_t pct[XYZE]) {
+  for (uint8_t i=0; i <= 3; i++) {
+    mcp4728_values[i] = ((float)pct[i] * DAC_STEPPER_MAX)/100;
+  }
   mcp4728_fastWrite();
 }
 
