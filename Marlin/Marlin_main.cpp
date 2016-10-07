@@ -402,8 +402,10 @@ uint8_t active_extruder = 0;
 // Relative Mode. Enable with G91, disable with G90.
 static bool relative_mode = false;
 
+// For M109 and M190, this flag may be cleared (by M108) to exit the wait loop
 volatile bool wait_for_heatup = true;
 
+// For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
 #if ENABLED(EMERGENCY_PARSER) && DISABLED(ULTIPANEL)
   volatile bool wait_for_user = false;
 #endif
@@ -412,6 +414,7 @@ const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
+// Number of characters read in the current line of serial input
 static int serial_count = 0;
 
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
