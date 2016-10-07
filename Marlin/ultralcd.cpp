@@ -866,7 +866,7 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(DAC_STEPPER_CURRENT)
     static void dac_driver_getValues() {LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent(i); } 
   
-    static void dac_driver_commit() { dac_current_set_percents(driverPercent[]); }
+    static void dac_driver_commit() { dac_current_set_percents(driverPercent); }
   
     static void dac_driver_eeprom_write() { dac_commit_eeprom(); }
     
