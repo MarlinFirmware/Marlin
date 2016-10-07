@@ -91,7 +91,7 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
-  unsigned char Stepper::old_OCR0A;
+  unsigned char Stepper::old_OCR0A = 0;
   volatile unsigned char Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
 
   #if ENABLED(LIN_ADVANCE)
@@ -299,14 +299,16 @@ void Stepper::set_directions() {
     SET_STEP_DIR(Z); // C
   #endif
 
-  if (motor_direction(E_AXIS)) {
-    REV_E_DIR();
-    count_direction[E_AXIS] = -1;
-  }
-  else {
-    NORM_E_DIR();
-    count_direction[E_AXIS] = 1;
-  }
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    if (motor_direction(E_AXIS)) {
+      REV_E_DIR();
+      count_direction[E_AXIS] = -1;
+    }
+    else {
+      NORM_E_DIR();
+      count_direction[E_AXIS] = 1;
+    }
+  #endif // !ADVANCE && !LIN_ADVANCE
 }
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
@@ -680,14 +682,28 @@ void Stepper::isr() {
     old_OCR0A += eISR_Rate;
     OCR0A = old_OCR0A;
 
+    #define SET_E_STEP_DIR(INDEX) \
+      if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
+
     #define START_E_PULSE(INDEX) \
       if (e_steps[INDEX]) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN)
 
     #define STOP_E_PULSE(INDEX) \
       if (e_steps[INDEX]) { \
-        e_steps[INDEX] <= 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
+        e_steps[INDEX] < 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
         E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
       }
+
+    SET_E_STEP_DIR(0);
+    #if E_STEPPERS > 1
+      SET_E_STEP_DIR(1);
+      #if E_STEPPERS > 2
+        SET_E_STEP_DIR(2);
+        #if E_STEPPERS > 3
+          SET_E_STEP_DIR(3);
+        #endif
+      #endif
+    #endif
 
     #define CYCLES_EATEN_BY_E 60
 
