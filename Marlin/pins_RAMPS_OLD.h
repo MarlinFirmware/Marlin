@@ -70,17 +70,17 @@
 #define E0_ENABLE_PIN      30
 
 //
-// Misc. Functions
-//
-#define SDPOWER            48
-#define SDSS               53
-#define LED_PIN            13
-
-//
 // Temperature Sensors
 //
-#define TEMP_0_PIN          2    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
+#define TEMP_0_PIN          2   // Analog Input
+#define TEMP_BED_PIN        1   // Analog Input
+
+// SPI for Max6675 or Max31855 Thermocouple
+#if DISABLED(SDSUPPORT)
+  #define MAX6675_SS       66 // Do not use pin 53 if there is even the remote possibility of using Display/SD card
+#else
+  #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
+#endif
 
 //
 // Heaters / Fans
@@ -95,9 +95,9 @@
   #define FAN_PIN           9
 #endif
 
-// SPI for Max6675 or Max31855 Thermocouple
-#if DISABLED(SDSUPPORT)
-  #define MAX6675_SS       66// Do not use pin 53 if there is even the remote possibility of using Display/SD card
-#else
-  #define MAX6675_SS       66// Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
-#endif
+//
+// Misc. Functions
+//
+#define SDPOWER            48
+#define SDSS               53
+#define LED_PIN            13

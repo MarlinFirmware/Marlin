@@ -89,6 +89,6 @@
 #define FAN_PIN            16
 
 //
-// SD Card
+// Misc. Functions
 //
 #define SDSS               20

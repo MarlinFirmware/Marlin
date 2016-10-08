@@ -90,9 +90,8 @@
 #define FAN_PIN            16  // Fan, PWM
 
 //
-// LCD / Controller
+// Misc. Functions
 //
 #define SDSS               20
 #define SD_DETECT_PIN      12
-
 #define LED_PIN            19

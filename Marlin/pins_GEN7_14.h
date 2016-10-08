@@ -70,6 +70,9 @@
 #define HEATER_0_PIN 4
 #define HEATER_BED_PIN 3
 
+//
+// Misc. Functions
+//
 #define PS_ON_PIN 15
 
 // A pin for debugging

@@ -69,9 +69,11 @@
 
 #define FAN_PIN             5  // 5 is PWMtool3 -> 7 is common PWM pin for all tools
 
-//#define PWM_1_PIN          12
-//#define PWM_2_PIN          13
-//#define SPARE_IO           17
+//
+// Misc. Functions
+//
+#define SDSS               53
+#define SD_DETECT_PIN      15
 
 // Tools
 
@@ -85,6 +87,11 @@
 //#define TOOL_3_PWM_PIN      2
 
 // Common I/O
+
+#define FIL_RUNOUT_PIN     18
+//#define PWM_1_PIN          12
+//#define PWM_2_PIN          13
+//#define SPARE_IO           17
 
 //
 // LCD / Controller
@@ -113,12 +120,3 @@
 
 #define STAT_LED_BLUE_PIN  -1
 #define STAT_LED_RED_PIN   10 // TOOL_0_PWM_PIN
-
-//
-// SD Card
-//
-#define SDSS               53
-#define SD_DETECT_PIN      15
-
-// Other
-#define FIL_RUNOUT_PIN     18

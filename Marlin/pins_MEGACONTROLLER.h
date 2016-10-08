@@ -83,12 +83,6 @@
 #define E1_ENABLE_PIN      25
 
 //
-// Misc. Functions
-//
-#define SDSS               53
-#define LED_PIN            13
-
-//
 // Temperature Sensors
 //
 #if TEMP_SENSOR_0 == -1
@@ -127,6 +121,12 @@
 #define FAN_SOFT_PWM
 
 //
+// Misc. Functions
+//
+#define SDSS               53
+#define LED_PIN            13
+
+//
 // LCD / Controller
 //
 #if ENABLED(MINIPANEL)
@@ -150,4 +150,3 @@
 
   #define SD_DETECT_PIN    49
 #endif // MINIPANEL
-
