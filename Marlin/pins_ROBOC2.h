@@ -77,16 +77,15 @@
 #define SDSS               53
 #define LED_PIN            13
 
-// Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
-#define FILWIDTH_PIN        5 // ANALOG NUMBERING NOT USING IN C2
+#define FILWIDTH_PIN        -1 // ANALOG NUMBERING NOT USING IN C2
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
-#define FILRUNOUT_PIN      20
+#define FILRUNOUT_PIN      45
 #endif
 
 
-#define CONTROLLERFAN_PIN  5 // Pin used for the fan to cool controller
+#define CONTROLLERFAN_PIN  -1 // Pin used for the fan to cool controller
 #define FAN_PIN             7
 #define PS_ON_PIN          12
 
@@ -97,6 +96,6 @@
 #define TEMP_0_PIN         13   // ANALOG NUMBERING default 13
 #define TEMP_1_PIN         15   // ANALOG NUMBERING default 15p
 
-#define HEATER_BED_PIN      8    // BED
+#define HEATER_BED_PIN      -1    // BED
 
 #define TEMP_BED_PIN       14   // ANALOG NUMBERING default 14
