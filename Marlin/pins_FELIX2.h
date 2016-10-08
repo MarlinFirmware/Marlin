@@ -30,16 +30,25 @@
 
 #define BOARD_NAME "Felix 2.0+"
 
+//
+// Heaters / Fans
+//
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
 
 #include "pins_RAMPS.h"
 
+//
+// Misc. Functions
+//
 #undef SDPOWER
 #define SDPOWER             1
 
 #define PS_ON_PIN          12
 
+//
+// LCD / Controller
+//
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
   #define SD_DETECT_PIN 6

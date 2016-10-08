@@ -64,5 +64,8 @@
 #define HEATER_0_PIN       13
 #define HEATER_BED_PIN      4
 
+//
+// Misc. Functions
+//
 #define SDSS               53
 #define PS_ON_PIN           9

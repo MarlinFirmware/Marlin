@@ -30,6 +30,9 @@
 
 #define BOARD_NAME "MKS BASE 1.0"
 
+//
+// Heaters / Fans
+//
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
 

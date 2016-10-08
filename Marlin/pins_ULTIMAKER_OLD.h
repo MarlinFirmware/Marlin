@@ -77,8 +77,8 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          8
-#define TEMP_1_PIN          1
+#define TEMP_0_PIN          8   // Analog Input
+#define TEMP_1_PIN          1   // Analog Input
 
 //
 // Heaters / Fans

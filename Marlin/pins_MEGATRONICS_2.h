@@ -76,13 +76,6 @@
 #define E2_ENABLE_PIN      22
 
 //
-// Misc. Functions
-//
-#define SDSS               53
-#define LED_PIN            13
-#define PS_ON_PIN          12
-
-//
 // Temperature Sensors
 //
 #if TEMP_SENSOR_0 == -1
@@ -112,6 +105,13 @@
 
 #define FAN_PIN             7
 #define FAN1_PIN            6
+
+//
+// Misc. Functions
+//
+#define SDSS               53
+#define LED_PIN            13
+#define PS_ON_PIN          12
 
 //
 // LCD / Controller

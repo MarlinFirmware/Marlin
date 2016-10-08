@@ -71,13 +71,18 @@
 #define HEATER_0_PIN     4
 #define HEATER_BED_PIN   3  // (bed)
 
-#define SDSS            31                  // SCL pin of I2C header || CS Pin for SD Card support
-
+//
+// Misc. Functions
+//
+#define SDSS            31  // SCL pin of I2C header || CS Pin for SD Card support
 #define PS_ON_PIN       19
 
 // A pin for debugging
 #define DEBUG_PIN       -1
 
+//
+// LCD / Controller
+//
 #define BEEPER_PIN      -1
 
 // 4bit LCD Support

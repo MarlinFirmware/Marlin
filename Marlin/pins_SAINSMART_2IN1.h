@@ -30,6 +30,9 @@
 
 #define BOARD_NAME "Sainsmart"
 
+//
+// Heaters / Fans
+//
 #define RAMPS_D10_PIN 9 // E
 #define RAMPS_D9_PIN  7 // F PART FAN in front of board next to Extruder heat
      // RAMPS_D8_PIN  8 // B
