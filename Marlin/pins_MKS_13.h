@@ -35,11 +35,17 @@
 
 #define BOARD_NAME "MKS > v1.3"
 
+//
+// Heaters / Fans
+//
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
 
 #include "pins_RAMPS.h"
 
+//
+// LCD / Controller
+//
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   /**
    * VIKI2 Has two groups of wires with...

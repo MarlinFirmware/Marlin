@@ -76,6 +76,10 @@
 //
 #define HEATER_0_PIN        4  // Extruder
 #define HEATER_BED_PIN     38  // Bed
+
 #define FAN_PIN             3  // Fan
 
+//
+// Misc. Functions
+//
 #define LED_PIN            39
