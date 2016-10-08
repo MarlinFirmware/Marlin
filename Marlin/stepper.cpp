@@ -95,7 +95,7 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
   volatile unsigned char Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
 
   #if ENABLED(LIN_ADVANCE)
-    volatile long Stepper::e_steps[E_STEPPERS];
+    volatile int Stepper::e_steps[E_STEPPERS];
     int Stepper::extruder_advance_k = LIN_ADVANCE_K,
         Stepper::final_estep_rate,
         Stepper::current_estep_rate[E_STEPPERS],
@@ -401,22 +401,6 @@ void Stepper::isr() {
         }
       #endif
 
-      if (current_block->use_advance_lead) {
-        int delta_adv_steps = (((long)extruder_advance_k * current_estep_rate[TOOL_E_INDEX]) >> 9) - current_adv_steps[TOOL_E_INDEX];
-        #if ENABLED(MIXING_EXTRUDER)
-          // Mixing extruders apply advance lead proportionally
-          MIXING_STEPPERS_LOOP(j) {
-            int steps = delta_adv_steps * current_block->step_event_count / current_block->mix_event_count[j];
-            e_steps[j] += steps;
-            current_adv_steps[j] += steps;
-          }
-        #else
-          // For most extruders, advance the single E stepper
-          e_steps[TOOL_E_INDEX] += delta_adv_steps;
-          current_adv_steps[TOOL_E_INDEX] += delta_adv_steps;
-        #endif
-      }
-
     #elif ENABLED(ADVANCE)
 
       // Always count the unified E axis
@@ -535,7 +519,25 @@ void Stepper::isr() {
       break;
     }
   }
-
+  
+  #if ENABLED(LIN_ADVANCE)
+   if (current_block->use_advance_lead) {
+     int delta_adv_steps = (((long)extruder_advance_k * current_estep_rate[TOOL_E_INDEX]) >> 9) - current_adv_steps[TOOL_E_INDEX];
+     #if ENABLED(MIXING_EXTRUDER)
+       // Mixing extruders apply advance lead proportionally
+       MIXING_STEPPERS_LOOP(j) {
+         int steps = delta_adv_steps * current_block->step_event_count / current_block->mix_event_count[j];
+         e_steps[j] += steps;
+         current_adv_steps[j] += steps;
+       }
+     #else
+       // For most extruders, advance the single E stepper
+       e_steps[TOOL_E_INDEX] += delta_adv_steps;
+       current_adv_steps[TOOL_E_INDEX] += delta_adv_steps;
+     #endif
+   }
+  #endif
+  
   #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
     // If we have esteps to execute, fire the next advance_isr "now"
     if (e_steps[TOOL_E_INDEX]) OCR0A = TCNT0 + 2;
@@ -593,7 +595,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = (timer >> 2) * step_loops / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]); //>> 3 is divide by 8. Reason: Timer 0 runs at 16/8=2MHz, Timer 1 at 16/64=0.25MHz. ==> 2/0.25=8.
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
@@ -643,7 +645,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = (timer >> 2) * step_loops / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]);
     #endif
   }
   else {
@@ -653,7 +655,7 @@ void Stepper::isr() {
       if (current_block->use_advance_lead)
         current_estep_rate[TOOL_E_INDEX] = final_estep_rate;
 
-      eISR_Rate = (OCR1A_nominal >> 2) * step_loops_nominal / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = (OCR1A_nominal >> 3) * step_loops_nominal / abs(e_steps[TOOL_E_INDEX]);
 
     #endif
 
