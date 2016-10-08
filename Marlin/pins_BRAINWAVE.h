@@ -31,22 +31,33 @@
   #error "Oops!  Make sure you have 'Brainwave' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define BOARD_NAME         "Brainwave"
+
+#define USBCON 646  // Disable MarlinSerial etc.
+
+//
+// Limit Switches
+//
+#define X_STOP_PIN          7
+#define Y_STOP_PIN          6
+#define Z_STOP_PIN          5
+
+//
+// Steppers
+//
 #define X_STEP_PIN         27
 #define X_DIR_PIN          29
 #define X_ENABLE_PIN       28
-#define X_STOP_PIN          7
 #define X_ATT_PIN          26
 
 #define Y_STEP_PIN         31
 #define Y_DIR_PIN          33
 #define Y_ENABLE_PIN       32
-#define Y_STOP_PIN          6
 #define Y_ATT_PIN          30
 
 #define Z_STEP_PIN         17
 #define Z_DIR_PIN          19
 #define Z_ENABLE_PIN       18
-#define Z_STOP_PIN          5
 #define Z_ATT_PIN          16
 
 #define E0_STEP_PIN        21
@@ -54,19 +65,17 @@
 #define E0_ENABLE_PIN      22
 #define E0_ATT_PIN         20
 
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          7   // Analog Input
+#define TEMP_BED_PIN        6   // Analog Input
+
+//
+// Heaters / Fans
+//
 #define HEATER_0_PIN        4  // Extruder
 #define HEATER_BED_PIN     38  // Bed
 #define FAN_PIN             3  // Fan
 
-#define TEMP_0_PIN          7  // Extruder / Analog pin numbering
-#define TEMP_BED_PIN        6  // Bed / Analog pin numbering
-
 #define LED_PIN            39
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN           9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
-

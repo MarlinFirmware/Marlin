@@ -35,6 +35,7 @@
   #error "These Printrboard assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h"
 #endif
 
+#define BOARD_NAME         "Printrboard Rev F"
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN          0
@@ -82,20 +83,14 @@
 // uncomment to enable an I2C based DAC like on the Printrboard REVF
 #define DAC_STEPPER_CURRENT
 // Number of channels available for DAC, For Printrboar REVF there are 4
-#define DAC_STEPPER_ORDER {3,2,1,0}
+#define DAC_STEPPER_ORDER { 3, 2, 1, 0 }
 
 #define DAC_STEPPER_SENSE    0.11
 #define DAC_STEPPER_ADDRESS  0
 #define DAC_STEPPER_MAX   3520
 #define DAC_STEPPER_VREF     1 //internal Vref, gain 1x = 2.048V
 #define DAC_STEPPER_GAIN     0
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN           9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
+#define DAC_OR_ADDRESS    0x00
 
 #if ENABLED(ULTRA_LCD)
   #define BEEPER_PIN -1
@@ -111,10 +106,6 @@
   #define BTN_EN2   17
   #define BTN_ENC   18//the click
 
-  #define BLEN_C 2
-  #define BLEN_B 1
-  #define BLEN_A 0
-
   #define SD_DETECT_PIN -1
 
   //encoder rotation values
@@ -126,21 +117,18 @@
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   #define BEEPER_PIN 32 //FastIO
-  // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0  42 //Non-FastIO
   #define DOGLCD_CS  43 //Non-FastIO
   #define LCD_SCREEN_ROT_180
 
-  //The encoder and click button (FastIO Pins)
+  // (FastIO Pins)
   #define BTN_EN1 26
   #define BTN_EN2 27
-  #define BTN_ENC 47  //the click switch
+  #define BTN_ENC 47
 
   #define SDSS 45
-  #define SD_DETECT_PIN -1 // FastIO (Manual says 72 I'm not certain cause I can't test)
+  #define SD_DETECT_PIN -1 // FastIO (Manual says 72)
 
-  #if ENABLED(TEMP_STAT_LEDS)
-    #define STAT_LED_RED      12 //Non-FastIO
-    #define STAT_LED_BLUE     10 //Non-FastIO
-  #endif
+  #define STAT_LED_RED_PIN 12 //Non-FastIO
+  #define STAT_LED_BLUE_PIN 10 //Non-FastIO
 #endif

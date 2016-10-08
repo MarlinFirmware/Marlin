@@ -21,15 +21,17 @@
  */
 
 /**
-  HardwareSerial.cpp - Hardware serial library for Wiring
-  Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
-
-  Modified 23 November 2006 by David A. Mellis
-  Modified 28 September 2010 by Mark Sproul
-*/
-
-#include "Marlin.h"
+ * MarlinSerial.cpp - Hardware serial library for Wiring
+ * Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
+ *
+ * Modified 23 November 2006 by David A. Mellis
+ * Modified 28 September 2010 by Mark Sproul
+ * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
+ */
 #include "MarlinSerial.h"
+
+#include "stepper.h"
+#include "Marlin.h"
 
 #ifndef USBCON
 // this next line disables the entire HardwareSerial.cpp,
@@ -37,8 +39,13 @@
 #if defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H)
 
 #if UART_PRESENT(SERIAL_PORT)
-  ring_buffer rx_buffer  =  { { 0 }, 0, 0 };
+  ring_buffer_r rx_buffer  =  { { 0 }, 0, 0 };
+  #if TX_BUFFER_SIZE > 0
+    ring_buffer_t tx_buffer  =  { { 0 }, 0, 0 };
+    static bool _written;
+  #endif
 #endif
+
 
 FORCE_INLINE void store_char(unsigned char c) {
   CRITICAL_SECTION_START;
@@ -54,14 +61,44 @@ FORCE_INLINE void store_char(unsigned char c) {
       rx_buffer.head = i;
     }
   CRITICAL_SECTION_END;
+
+  #if ENABLED(EMERGENCY_PARSER)
+    emergency_parser(c);
+  #endif
 }
 
+#if TX_BUFFER_SIZE > 0
 
-//#elif defined(SIG_USART_RECV)
+  FORCE_INLINE void _tx_udr_empty_irq(void) {
+    // If interrupts are enabled, there must be more data in the output
+    // buffer. Send the next byte
+    uint8_t t = tx_buffer.tail;
+    uint8_t c = tx_buffer.buffer[t];
+    tx_buffer.tail = (t + 1) & (TX_BUFFER_SIZE - 1);
+
+    M_UDRx = c;
+
+    // clear the TXC bit -- "can be cleared by writing a one to its bit
+    // location". This makes sure flush() won't return until the bytes
+    // actually got written
+    SBI(M_UCSRxA, M_TXCx);
+
+    if (tx_buffer.head == tx_buffer.tail) {
+      // Buffer empty, so disable interrupts
+      CBI(M_UCSRxB, M_UDRIEx);
+    }
+  }
+
+  #if defined(M_USARTx_UDRE_vect)
+    ISR(M_USARTx_UDRE_vect) {
+      _tx_udr_empty_irq();
+    }
+  #endif
+
+#endif // TX_BUFFER_SIZE
+
 #if defined(M_USARTx_RX_vect)
-  // fixed by Mark Sproul this is on the 644/644p
-  //SIGNAL(SIG_USART_RECV)
-  SIGNAL(M_USARTx_RX_vect) {
+  ISR(M_USARTx_RX_vect) {
     unsigned char c  =  M_UDRx;
     store_char(c);
   }
@@ -102,25 +139,29 @@ void MarlinSerial::begin(long baud) {
   SBI(M_UCSRxB, M_RXENx);
   SBI(M_UCSRxB, M_TXENx);
   SBI(M_UCSRxB, M_RXCIEx);
+  #if TX_BUFFER_SIZE > 0
+    CBI(M_UCSRxB, M_UDRIEx);
+    _written = false;
+  #endif
 }
 
 void MarlinSerial::end() {
   CBI(M_UCSRxB, M_RXENx);
   CBI(M_UCSRxB, M_TXENx);
   CBI(M_UCSRxB, M_RXCIEx);
+  CBI(M_UCSRxB, M_UDRIEx);
 }
 
+void MarlinSerial::checkRx(void) {
+  if (TEST(M_UCSRxA, M_RXCx)) {
+    uint8_t c  =  M_UDRx;
+    store_char(c);
+  }
+}
 
 int MarlinSerial::peek(void) {
-  int v;
   CRITICAL_SECTION_START;
-  uint8_t t = rx_buffer.tail;
-  if (rx_buffer.head == t) {
-    v = -1;
-  }
-  else {
-    v = rx_buffer.buffer[t];
-  }
+    int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.buffer[rx_buffer.tail];
   CRITICAL_SECTION_END;
   return v;
 }
@@ -128,19 +169,28 @@ int MarlinSerial::peek(void) {
 int MarlinSerial::read(void) {
   int v;
   CRITICAL_SECTION_START;
-  uint8_t t = rx_buffer.tail;
-  if (rx_buffer.head == t) {
-    v = -1;
-  }
-  else {
-    v = rx_buffer.buffer[t];
-    rx_buffer.tail = (uint8_t)(t + 1) & (RX_BUFFER_SIZE - 1);
-  }
+    uint8_t t = rx_buffer.tail;
+    if (rx_buffer.head == t) {
+      v = -1;
+    }
+    else {
+      v = rx_buffer.buffer[t];
+      rx_buffer.tail = (uint8_t)(t + 1) & (RX_BUFFER_SIZE - 1);
+    }
   CRITICAL_SECTION_END;
   return v;
 }
 
-void MarlinSerial::flush() {
+uint8_t MarlinSerial::available(void) {
+  CRITICAL_SECTION_START;
+    uint8_t h = rx_buffer.head,
+            t = rx_buffer.tail;
+  CRITICAL_SECTION_END;
+  return (uint8_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
+}
+
+void MarlinSerial::flush(void) {
+  // RX
   // don't reverse this or there may be problems if the RX interrupt
   // occurs after reading the value of rx_buffer_head but before writing
   // the value to rx_buffer_tail; the previous value of rx_buffer_head
@@ -151,6 +201,86 @@ void MarlinSerial::flush() {
   CRITICAL_SECTION_END;
 }
 
+#if TX_BUFFER_SIZE > 0
+  uint8_t MarlinSerial::availableForWrite(void) {
+    CRITICAL_SECTION_START;
+      uint8_t h = tx_buffer.head;
+      uint8_t t = tx_buffer.tail;
+    CRITICAL_SECTION_END;
+    return (uint8_t)(TX_BUFFER_SIZE + h - t) & (TX_BUFFER_SIZE - 1);
+  }
+
+  void MarlinSerial::write(uint8_t c) {
+    _written = true;
+    CRITICAL_SECTION_START;
+      bool emty = (tx_buffer.head == tx_buffer.tail);
+    CRITICAL_SECTION_END;
+    // If the buffer and the data register is empty, just write the byte
+    // to the data register and be done. This shortcut helps
+    // significantly improve the effective datarate at high (>
+    // 500kbit/s) bitrates, where interrupt overhead becomes a slowdown.
+    if (emty && TEST(M_UCSRxA, M_UDREx)) {
+      CRITICAL_SECTION_START;
+        M_UDRx = c;
+        SBI(M_UCSRxA, M_TXCx);
+      CRITICAL_SECTION_END;
+      return;
+    }
+    uint8_t i = (tx_buffer.head + 1) & (TX_BUFFER_SIZE - 1);
+
+    // If the output buffer is full, there's nothing for it other than to
+    // wait for the interrupt handler to empty it a bit
+    while (i == tx_buffer.tail) {
+      if (!TEST(SREG, SREG_I)) {
+        // Interrupts are disabled, so we'll have to poll the data
+        // register empty flag ourselves. If it is set, pretend an
+        // interrupt has happened and call the handler to free up
+        // space for us.
+        if (TEST(M_UCSRxA, M_UDREx))
+          _tx_udr_empty_irq();
+      } else {
+        // nop, the interrupt handler will free up space for us
+      }
+    }
+
+    tx_buffer.buffer[tx_buffer.head] = c;
+    { CRITICAL_SECTION_START;
+        tx_buffer.head = i;
+        SBI(M_UCSRxB, M_UDRIEx);
+      CRITICAL_SECTION_END;
+    }
+    return;
+  }
+
+  void MarlinSerial::flushTX(void) {
+    // TX
+    // If we have never written a byte, no need to flush. This special
+    // case is needed since there is no way to force the TXC (transmit
+    // complete) bit to 1 during initialization
+    if (!_written)
+      return;
+
+    while (TEST(M_UCSRxB, M_UDRIEx) || !TEST(M_UCSRxA, M_TXCx)) {
+      if (!TEST(SREG, SREG_I) && TEST(M_UCSRxB, M_UDRIEx))
+        // Interrupts are globally disabled, but the DR empty
+        // interrupt should be enabled, so poll the DR empty flag to
+        // prevent deadlock
+        if (TEST(M_UCSRxA, M_UDREx))
+          _tx_udr_empty_irq();
+    }
+    // If we get here, nothing is queued anymore (DRIE is disabled) and
+    // the hardware finished tranmission (TXC is set).
+}
+
+#else
+  void MarlinSerial::write(uint8_t c) {
+    while (!TEST(M_UCSRxA, M_UDREx))
+      ;
+    M_UDRx = c;
+  }
+#endif
+
+// end NEW
 
 /// imports from print.h
 
@@ -249,23 +379,18 @@ void MarlinSerial::println(double n, int digits) {
 // Private Methods /////////////////////////////////////////////////////////////
 
 void MarlinSerial::printNumber(unsigned long n, uint8_t base) {
-  unsigned char buf[8 * sizeof(long)]; // Assumes 8-bit chars.
-  unsigned long i = 0;
-
-  if (n == 0) {
+  if (n) {
+    unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
+    int8_t i = 0;
+    while (n) {
+      buf[i++] = n % base;
+      n /= base;
+    }
+    while (i--)
+      print((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
+  }
+  else
     print('0');
-    return;
-  }
-
-  while (n > 0) {
-    buf[i++] = n % base;
-    n /= base;
-  }
-
-  for (; i > 0; i--)
-    print((char)(buf[i - 1] < 10 ?
-                 '0' + buf[i - 1] :
-                 'A' + buf[i - 1] - 10));
 }
 
 void MarlinSerial::printFloat(double number, uint8_t digits) {
@@ -278,7 +403,7 @@ void MarlinSerial::printFloat(double number, uint8_t digits) {
   // Round correctly so that print(1.999, 2) prints as "2.00"
   double rounding = 0.5;
   for (uint8_t i = 0; i < digits; ++i)
-    rounding /= 10.0;
+    rounding *= 0.1;
 
   number += rounding;
 
@@ -288,14 +413,15 @@ void MarlinSerial::printFloat(double number, uint8_t digits) {
   print(int_part);
 
   // Print the decimal point, but only if there are digits beyond
-  if (digits > 0) print('.');
-
-  // Extract digits from the remainder one at a time
-  while (digits-- > 0) {
-    remainder *= 10.0;
-    int toPrint = int(remainder);
-    print(toPrint);
-    remainder -= toPrint;
+  if (digits) {
+    print('.');
+    // Extract digits from the remainder one at a time
+    while (digits--) {
+      remainder *= 10.0;
+      int toPrint = int(remainder);
+      print(toPrint);
+      remainder -= toPrint;
+    }
   }
 }
 // Preinstantiate Objects //////////////////////////////////////////////////////
@@ -309,4 +435,96 @@ MarlinSerial customizedSerial;
 // For AT90USB targets use the UART for BT interfacing
 #if defined(USBCON) && ENABLED(BLUETOOTH)
   HardwareSerial bluetoothSerial;
+#endif
+
+#if ENABLED(EMERGENCY_PARSER)
+
+  // Currently looking for: M108, M112, M410
+  // If you alter the parser please don't forget to update the capabilities in Conditionals_post.h
+
+  FORCE_INLINE void emergency_parser(unsigned char c) {
+
+    static e_parser_state state = state_RESET;
+
+    switch (state) {
+      case state_RESET:
+        switch (c) {
+          case ' ': break;
+          case 'N': state = state_N;      break;
+          case 'M': state = state_M;      break;
+          default: state = state_IGNORE;
+        }
+        break;
+
+      case state_N:
+        switch (c) {
+          case '0': case '1': case '2':
+          case '3': case '4': case '5':
+          case '6': case '7': case '8':
+          case '9': case '-': case ' ':   break;
+          case 'M': state = state_M;      break;
+          default:  state = state_IGNORE;
+        }
+        break;
+
+      case state_M:
+        switch (c) {
+          case ' ': break;
+          case '1': state = state_M1;     break;
+          case '4': state = state_M4;     break;
+          default: state = state_IGNORE;
+        }
+        break;
+
+      case state_M1:
+        switch (c) {
+          case '0': state = state_M10;    break;
+          case '1': state = state_M11;    break;
+          default: state = state_IGNORE;
+        }
+        break;
+
+      case state_M10:
+        state = (c == '8') ? state_M108 : state_IGNORE;
+        break;
+
+      case state_M11:
+        state = (c == '2') ? state_M112 : state_IGNORE;
+        break;
+
+      case state_M4:
+        state = (c == '1') ? state_M41 : state_IGNORE;
+        break;
+
+      case state_M41:
+        state = (c == '0') ? state_M410 : state_IGNORE;
+        break;
+
+      case state_IGNORE:
+        if (c == '\n') state = state_RESET;
+        break;
+
+      default:
+        if (c == '\n') {
+          switch (state) {
+            case state_M108:
+              wait_for_heatup = false;
+              #if DISABLED(ULTIPANEL)
+                wait_for_user = false;
+              #endif
+              break;
+            case state_M112:
+              kill(PSTR(MSG_KILLED));
+              break;
+            case state_M410:
+              quickstop_stepper();
+              break;
+            default:
+              break;
+          }
+          state = state_RESET;
+        }
+    }
+  }
+
 #endif

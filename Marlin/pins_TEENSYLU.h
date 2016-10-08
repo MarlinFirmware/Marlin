@@ -35,6 +35,9 @@
   #error "These Teensylu assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h"
 #endif
 
+#define BOARD_NAME         "Teensylu"
+
+#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN          0
@@ -73,13 +76,6 @@
 #define TEMP_BED_PIN        6  // Bed / Analog pin numbering
 
 #define SDSS                8
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN           9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 

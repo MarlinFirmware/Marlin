@@ -30,9 +30,6 @@
 #ifndef LANGUAGE_NL_H
 #define LANGUAGE_NL_H
 
-#define MAPPER_NON
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " gereed."
@@ -49,16 +46,16 @@
 #define MSG_SET_HOME_OFFSETS                "Zet home offsets"
 #define MSG_HOME_OFFSETS_APPLIED            "H offset toegep."
 #define MSG_SET_ORIGIN                      "Nulpunt instellen"
-#define MSG_PREHEAT_PLA                     "PLA voorverwarmen"
-#define MSG_PREHEAT_PLA_N                   "PLA voorverw. "
-#define MSG_PREHEAT_PLA_ALL                 "PLA voorverw. aan"
-#define MSG_PREHEAT_PLA_BEDONLY             "PLA voorverw. Bed"
-#define MSG_PREHEAT_PLA_SETTINGS            "PLA verw. conf"
-#define MSG_PREHEAT_ABS                     "ABS voorverwarmen"
-#define MSG_PREHEAT_ABS_N                   "ABS voorverw. "
-#define MSG_PREHEAT_ABS_ALL                 "ABS voorverw. aan"
-#define MSG_PREHEAT_ABS_BEDONLY             "ABS voorverw. Bed"
-#define MSG_PREHEAT_ABS_SETTINGS            "ABS verw. conf"
+#define MSG_PREHEAT_1                       "PLA voorverwarmen"
+#define MSG_PREHEAT_1_N                     "PLA voorverw. "
+#define MSG_PREHEAT_1_ALL                   "PLA voorverw. aan"
+#define MSG_PREHEAT_1_BEDONLY               "PLA voorverw. Bed"
+#define MSG_PREHEAT_1_SETTINGS              "PLA verw. conf"
+#define MSG_PREHEAT_2                       "ABS voorverwarmen"
+#define MSG_PREHEAT_2_N                     "ABS voorverw. "
+#define MSG_PREHEAT_2_ALL                   "ABS voorverw. aan"
+#define MSG_PREHEAT_2_BEDONLY               "ABS voorverw. Bed"
+#define MSG_PREHEAT_2_SETTINGS              "ABS verw. conf"
 #define MSG_COOLDOWN                        "Afkoelen"
 #define MSG_SWITCH_PS_ON                    "Stroom aan"
 #define MSG_SWITCH_PS_OFF                   "Stroom uit"
@@ -90,14 +87,11 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_ACC                             "Versn"
-#define MSG_VXY_JERK                        "Vxy-jerk"
+#define MSG_VX_JERK                         "Vx-jerk"
+#define MSG_VY_JERK                         "Vy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax "
@@ -144,7 +138,8 @@
 #define MSG_INIT_SDCARD                     "Init. SD kaart"
 #define MSG_CNG_SDCARD                      "Verv. SD Kaart"
 #define MSG_ZPROBE_OUT                      "Z probe uit. bed"
-#define MSG_YX_UNHOMED                      "Home X/Y voor Z"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
 #define MSG_BABYSTEP_X                      "Babystap X"
 #define MSG_BABYSTEP_Y                      "Babystap Y"
@@ -157,8 +152,6 @@
 #define MSG_ERR_MINTEMP                     "Err: Min. temp"
 #define MSG_ERR_MAXTEMP_BED                 "Err: Max.tmp bed"
 #define MSG_ERR_MINTEMP_BED                 "Err: Min.tmp bed"
-#define MSG_END_HOUR                        "uur"
-#define MSG_END_MINUTE                      "minuten"
 #define MSG_HEATING                         "Voorwarmen..."
 #define MSG_HEATING_COMPLETE                "Voorverw. kompl."
 #define MSG_BED_HEATING                     "Bed voorverw."

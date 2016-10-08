@@ -51,6 +51,10 @@
   const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
 
   int dac_init() {
+    #if PIN_EXISTS(DAC_DISABLE)
+      OUT_WRITE(DAC_DISABLE_PIN, LOW);  // set pin low to enable DAC
+    #endif
+
     mcp4728_init();
 
     if (mcp4728_simpleCommand(RESET)) return -1;
@@ -98,7 +102,8 @@
     SERIAL_ECHOPAIR(" (",   dac_amps(2));
     SERIAL_ECHOPAIR(") E:", dac_perc(3));
     SERIAL_ECHOPAIR(" (",   dac_amps(3));
-    SERIAL_ECHOLN(")");
+    SERIAL_CHAR(')');
+    SERIAL_EOL;
   }
 
   void dac_commit_eeprom() {

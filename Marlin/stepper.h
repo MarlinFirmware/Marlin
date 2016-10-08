@@ -47,6 +47,7 @@
 #include "speed_lookuptable.h"
 #include "stepper_indirection.h"
 #include "language.h"
+#include "types.h"
 
 class Stepper;
 extern Stepper stepper;
@@ -101,21 +102,21 @@ class Stepper {
 
     // Counter variables for the Bresenham line tracer
     static long counter_X, counter_Y, counter_Z, counter_E;
-    static volatile unsigned long step_events_completed; // The number of step events executed in the current block
+    static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       static unsigned char old_OCR0A;
       static volatile unsigned char eISR_Rate;
       #if ENABLED(LIN_ADVANCE)
-        static volatile int e_steps[EXTRUDERS];
+        static volatile long e_steps[E_STEPPERS];
         static int extruder_advance_k;
         static int final_estep_rate;
-        static int current_estep_rate[EXTRUDERS]; // Actual extruder speed [steps/s]
-        static int current_adv_steps[EXTRUDERS];  // The amount of current added esteps due to advance.
-                                                  // i.e., the current amount of pressure applied
-                                                  // to the spring (=filament).
+        static int current_estep_rate[E_STEPPERS]; // Actual extruder speed [steps/s]
+        static int current_adv_steps[E_STEPPERS];  // The amount of current added esteps due to advance.
+                                                   // i.e., the current amount of pressure applied
+                                                   // to the spring (=filament).
       #else
-        static long e_steps[EXTRUDERS];
+        static long e_steps[E_STEPPERS];
         static long advance_rate, advance, final_advance;
         static long old_advance;
       #endif
@@ -127,7 +128,7 @@ class Stepper {
     static uint8_t step_loops, step_loops_nominal;
     static unsigned short OCR1A_nominal;
 
-    static volatile long endstops_trigsteps[3];
+    static volatile long endstops_trigsteps[XYZ];
     static volatile long endstops_stepsTotal, endstops_stepsDone;
 
     #if HAS_MOTOR_CURRENT_PWM
@@ -146,6 +147,16 @@ class Stepper {
     // Current direction of stepper motors (+1 or -1)
     //
     static volatile signed char count_direction[NUM_AXIS];
+
+    //
+    // Mixing extruder mix counters
+    //
+    #if ENABLED(MIXING_EXTRUDER)
+      static long counter_m[MIXING_STEPPERS];
+      #define MIXING_STEPPERS_LOOP(VAR) \
+        for (uint8_t VAR = 0; VAR < MIXING_STEPPERS; VAR++) \
+          if (current_block->mix_event_count[VAR])
+    #endif
 
   public:
 
@@ -178,6 +189,7 @@ class Stepper {
     // Set the current position in steps
     //
     static void set_position(const long& x, const long& y, const long& z, const long& e);
+    static void set_position(const AxisEnum& a, const long& v);
     static void set_e_position(const long& e);
 
     //
@@ -201,6 +213,13 @@ class Stepper {
     static float get_axis_position_mm(AxisEnum axis);
 
     //
+    // SCARA AB axes are in degrees, not mm
+    //
+    #if IS_SCARA
+      static FORCE_INLINE float get_axis_position_degrees(AxisEnum axis) { return get_axis_position_mm(axis); }
+    #endif
+
+    //
     // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
     // to notify the subsystem that it is time to go to work.
     //
@@ -221,13 +240,16 @@ class Stepper {
     //
     static FORCE_INLINE bool motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
 
-    #if HAS_DIGIPOTSS
+    #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
       static void digitalPotWrite(int address, int value);
+      static void digipot_current(uint8_t driver, int current);
     #endif
-    static void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2);
-    static void digipot_current(uint8_t driver, int current);
-    static void microstep_mode(uint8_t driver, uint8_t stepping);
-    static void microstep_readings();
+
+    #if HAS_MICROSTEPS
+      static void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2);
+      static void microstep_mode(uint8_t driver, uint8_t stepping);
+      static void microstep_readings();
+    #endif
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
       static FORCE_INLINE void set_homing_flag(bool state) { performing_homing = state; }
@@ -252,7 +274,7 @@ class Stepper {
     // Triggered position of an axis in mm (not core-savvy)
     //
     static FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
-      return endstops_trigsteps[axis] / planner.axis_steps_per_mm[axis];
+      return endstops_trigsteps[axis] * planner.steps_to_mm[axis];
     }
 
     #if ENABLED(LIN_ADVANCE)
@@ -315,12 +337,25 @@ class Stepper {
       }
 
       #if ENABLED(ADVANCE)
+
         advance = current_block->initial_advance;
         final_advance = current_block->final_advance;
+
         // Do E steps + advance steps
-        e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
-        old_advance = advance >>8;
+        #if ENABLED(MIXING_EXTRUDER)
+          long advance_factor = (advance >> 8) - old_advance;
+          // ...for mixing steppers proportionally
+          MIXING_STEPPERS_LOOP(j)
+            e_steps[j] += advance_factor * current_block->step_event_count / current_block->mix_event_count[j];
+        #else
+          // ...for the active extruder
+          e_steps[TOOL_E_INDEX] += ((advance >> 8) - old_advance);
+        #endif
+
+        old_advance = advance >> 8;
+
       #endif
+
       deceleration_time = 0;
       // step_rate to timer interval
       OCR1A_nominal = calc_timer(current_block->nominal_rate);
@@ -349,7 +384,10 @@ class Stepper {
     }
 
     static void digipot_init();
-    static void microstep_init();
+
+    #if HAS_MICROSTEPS
+      static void microstep_init();
+    #endif
 
 };
 

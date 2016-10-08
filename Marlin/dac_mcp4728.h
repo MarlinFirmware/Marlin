@@ -27,30 +27,29 @@
 #ifndef mcp4728_h
 #define mcp4728_h
 
-#include "Configuration.h"
-#include "Configuration_adv.h"
+#include "MarlinConfig.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
-#include "WProgram.h"
 #include "Wire.h"
-//#include <Wire.h>
 
-#define defaultVDD 5000
-#define BASE_ADDR 0x60
-#define RESET 0B00000110
-#define WAKE 0B00001001
-#define UPDATE 0B00001000
-#define MULTIWRITE 0B01000000
-#define SINGLEWRITE 0B01011000
-#define SEQWRITE 0B01010000
-#define VREFWRITE 0B10000000
-#define GAINWRITE 0B11000000
+#define defaultVDD     5000
+#define BASE_ADDR      0x60
+#define RESET          0B00000110
+#define WAKE           0B00001001
+#define UPDATE         0B00001000
+#define MULTIWRITE     0B01000000
+#define SINGLEWRITE    0B01011000
+#define SEQWRITE       0B01010000
+#define VREFWRITE      0B10000000
+#define GAINWRITE      0B11000000
 #define POWERDOWNWRITE 0B10100000
-#define GENERALCALL 0B0000000
-#define GAINWRITE 0B11000000
+#define GENERALCALL    0B00000000
+#define GAINWRITE      0B11000000
 
 // This is taken from the original lib, makes it easy to edit if needed
-#define DAC_DEV_ADDRESS (BASE_ADDR | 0x00)
+// DAC_OR_ADDRESS defined in pins_BOARD.h  file
+#define DAC_DEV_ADDRESS (BASE_ADDR | DAC_OR_ADDRESS)
+
 
 void mcp4728_init();
 uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value);

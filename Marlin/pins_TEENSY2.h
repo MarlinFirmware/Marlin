@@ -69,11 +69,14 @@
   #error "Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu."
 #endif
 
-#ifndef AT90USBxx_TEENSYPP_ASSIGNMENTS  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin alphabetical.
+#if DISABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS) // use Teensyduino Teensy++2.0 pin assignments instead of Marlin alphabetical.
   #error "Uncomment #define AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h for this config"
   // (or build from command line)
 #endif
 
+#define BOARD_NAME         "Teensy++2.0"
+
+#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN         28 //  0 Marlin
@@ -106,13 +109,6 @@
 #define SDSS               20 // 8
 #define LED_PIN             6
 #define PS_ON_PIN          27
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN         21 // 9
-  #define MISO_PIN        23 // 11
-  #define MOSI_PIN        22 // 10
-#endif
 
 #if ENABLED(ULTIPANEL)
   #define LCD_PINS_RS         8

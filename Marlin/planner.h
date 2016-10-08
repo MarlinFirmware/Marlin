@@ -32,9 +32,11 @@
 #ifndef PLANNER_H
 #define PLANNER_H
 
-#include "Marlin.h"
+#include "types.h"
+#include "enum.h"
+#include "MarlinConfig.h"
 
-#if ENABLED(AUTO_BED_LEVELING_FEATURE)
+#if HAS_ABL
   #include "vector_3.h"
 #endif
 
@@ -57,6 +59,10 @@ typedef struct {
   // Fields used by the bresenham algorithm for tracing the line
   long steps[NUM_AXIS];                     // Step count along each axis
   unsigned long step_event_count;           // The number of step events required to complete this block
+
+  #if ENABLED(MIXING_EXTRUDER)
+    unsigned long mix_event_count[MIXING_STEPPERS]; // Scaled step_event_count for the mixing steppers
+  #endif
 
   long accelerate_until,                    // The index of the step event on which to stop acceleration
        decelerate_after,                    // The index of the step event on which to start decelerating
@@ -115,22 +121,22 @@ class Planner {
     static volatile uint8_t block_buffer_head;           // Index of the next block to be pushed
     static volatile uint8_t block_buffer_tail;
 
-    static float max_feedrate[NUM_AXIS]; // Max speeds in mm per second
+    static float max_feedrate_mm_s[NUM_AXIS]; // Max speeds in mm per second
     static float axis_steps_per_mm[NUM_AXIS];
+    static float steps_to_mm[NUM_AXIS];
     static unsigned long max_acceleration_steps_per_s2[NUM_AXIS];
     static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
     static millis_t min_segment_time;
-    static float min_feedrate;
+    static float min_feedrate_mm_s;
     static float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
     static float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
     static float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-    static float max_xy_jerk;          // The largest speed change requiring no acceleration
-    static float max_z_jerk;
-    static float max_e_jerk;
-    static float min_travel_feedrate;
+    static float max_jerk[XYZE];       // The largest speed change requiring no acceleration
+    static float min_travel_feedrate_mm_s;
 
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    #if HAS_ABL
+      static bool abl_enabled;            // Flag that bed leveling is enabled
       static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
     #endif
 
@@ -138,7 +144,7 @@ class Planner {
 
     /**
      * The current position of the tool in absolute steps
-     * Reclculated if any axis_steps_per_mm are changed by gcode
+     * Recalculated if any axis_steps_per_mm are changed by gcode
      */
     static long position[NUM_AXIS];
 
@@ -183,6 +189,7 @@ class Planner {
      */
 
     static void reset_acceleration_rates();
+    static void refresh_positioning();
 
     // Manage fans, paste pressure, etc.
     static void check_axes_activity();
@@ -194,46 +201,55 @@ class Planner {
 
     static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
 
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
-
-      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-        /**
-         * The corrected position, applying the bed level matrix
-         */
-        static vector_3 adjusted_position();
-      #endif
-
-      /**
-       * Add a new linear movement to the buffer.
-       *
-       *  x,y,z,e   - target position in mm
-       *  feed_rate - (target) speed of the move
-       *  extruder  - target extruder
-       */
-      static void buffer_line(float x, float y, float z, const float& e, float feed_rate, const uint8_t extruder);
-
-      /**
-       * Set the planner.position and individual stepper positions.
-       * Used by G92, G28, G29, and other procedures.
-       *
-       * Multiplies by axis_steps_per_mm[] and does necessary conversion
-       * for COREXY / COREXZ / COREYZ to set the corresponding stepper positions.
-       *
-       * Clears previous speed values.
-       */
-      static void set_position_mm(float x, float y, float z, const float& e);
-
+    #if HAS_ABL || ENABLED(MESH_BED_LEVELING)
+      #define ARG_X float lx
+      #define ARG_Y float ly
+      #define ARG_Z float lz
     #else
+      #define ARG_X const float &lx
+      #define ARG_Y const float &ly
+      #define ARG_Z const float &lz
+    #endif
 
-      static void buffer_line(const float& x, const float& y, const float& z, const float& e, float feed_rate, const uint8_t extruder);
-      static void set_position_mm(const float& x, const float& y, const float& z, const float& e);
+    #if PLANNER_LEVELING
 
-    #endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
+      /**
+       * Apply leveling to transform a cartesian position
+       * as it will be given to the planner and steppers.
+       */
+      static void apply_leveling(float &lx, float &ly, float &lz);
+      static void unapply_leveling(float logical[XYZ]);
+
+    #endif
 
     /**
-     * Set the E position (mm) of the planner (and the E stepper)
+     * Add a new linear movement to the buffer.
+     *
+     *  x,y,z,e   - target position in mm
+     *  fr_mm_s   - (target) speed of the move (mm/s)
+     *  extruder  - target extruder
      */
-    static void set_e_position_mm(const float& e);
+    static void buffer_line(ARG_X, ARG_Y, ARG_Z, const float& e, float fr_mm_s, const uint8_t extruder);
+
+    /**
+     * Set the planner.position and individual stepper positions.
+     * Used by G92, G28, G29, and other procedures.
+     *
+     * Multiplies by axis_steps_per_mm[] and does necessary conversion
+     * for COREXY / COREXZ / COREYZ to set the corresponding stepper positions.
+     *
+     * Clears previous speed values.
+     */
+    static void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float& e);
+    static void set_position_mm(const AxisEnum axis, const float& v);
+
+    static FORCE_INLINE void set_z_position_mm(const float& z) { set_position_mm(Z_AXIS, z); }
+    static FORCE_INLINE void set_e_position_mm(const float& e) { set_position_mm(E_AXIS, e); }
+
+    /**
+     * Sync from the stepper positions. (e.g., after an interrupted move)
+     */
+    static void sync_from_steppers();
 
     /**
      * Does the buffer have any blocks queued?
@@ -286,7 +302,7 @@ class Planner {
      */
     static float estimate_acceleration_distance(float initial_rate, float target_rate, float accel) {
       if (accel == 0) return 0; // accel was 0, set acceleration distance to 0
-      return (target_rate * target_rate - initial_rate * initial_rate) / (accel * 2);
+      return (sq(target_rate) - sq(initial_rate)) / (accel * 2);
     }
 
     /**
@@ -299,7 +315,7 @@ class Planner {
      */
     static float intersection_distance(float initial_rate, float final_rate, float accel, float distance) {
       if (accel == 0) return 0; // accel was 0, set intersection distance to 0
-      return (accel * 2 * distance - initial_rate * initial_rate + final_rate * final_rate) / (accel * 4);
+      return (accel * 2 * distance - sq(initial_rate) + sq(final_rate)) / (accel * 4);
     }
 
     /**
@@ -308,13 +324,13 @@ class Planner {
      * 'distance'.
      */
     static float max_allowable_speed(float accel, float target_velocity, float distance) {
-      return sqrt(target_velocity * target_velocity - 2 * accel * distance);
+      return sqrt(sq(target_velocity) - 2 * accel * distance);
     }
 
     static void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor);
 
-    static void reverse_pass_kernel(block_t* previous, block_t* current, block_t* next);
-    static void forward_pass_kernel(block_t* previous, block_t* current, block_t* next);
+    static void reverse_pass_kernel(block_t* current, block_t* next);
+    static void forward_pass_kernel(block_t* previous, block_t* current);
 
     static void reverse_pass();
     static void forward_pass();

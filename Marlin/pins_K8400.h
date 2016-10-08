@@ -21,11 +21,34 @@
  */
 
 /**
- * Arduino Mega with RAMPS v1.4 pin assignments
+ * Velleman K8400 (Vertex)
+ * 3DRAG clone
  *
- *  RAMPS_14_EFB (Extruder, Fan, Bed)
+ * K8400 has some minor differences over a normal 3Drag:
+ *  - No X/Y max endstops
+ *  - Second extruder step pin has moved
+ *  - No power supply control
+ *  - Second heater has moved pin
  */
 
-#define IS_RAMPS_EFB
+#define BOARD_NAME              "K8400"
+#define DEFAULT_MACHINE_NAME    "Vertex"
+#define DEFAULT_SOURCE_CODE_URL "https://github.com/birkett/Vertex-K8400-Firmware"
 
-#include "pins_RAMPS_14.h"
+#include "pins_3DRAG.h"
+
+#undef X_MAX_PIN
+#undef X_MIN_PIN
+#undef Y_MAX_PIN
+#undef Y_MIN_PIN
+#define X_STOP_PIN  3
+#define Y_STOP_PIN 14
+
+#undef E1_STEP_PIN
+#define E1_STEP_PIN   32
+
+#undef PS_ON_PIN
+#undef KILL_PIN
+
+#undef HEATER_1_PIN
+#define HEATER_1_PIN  11
