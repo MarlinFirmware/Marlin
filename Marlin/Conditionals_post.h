@@ -706,14 +706,8 @@
   // Stepper pulse duration, in cycles
   #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
 
-  #ifndef DELTA_ENDSTOP_ADJ_X
-    #define DELTA_ENDSTOP_ADJ_X 0
-  #endif
-  #ifndef DELTA_ENDSTOP_ADJ_Y
-    #define DELTA_ENDSTOP_ADJ_Y 0
-  #endif
-  #ifndef DELTA_ENDSTOP_ADJ_Z
-    #define DELTA_ENDSTOP_ADJ_Z 0
+  #ifndef DELTA_ENDSTOP_ADJ
+    #define DELTA_ENDSTOP_ADJ { 0 }
   #endif
 
 #endif // CONDITIONALS_POST_H
