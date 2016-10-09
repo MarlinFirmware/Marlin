@@ -311,8 +311,20 @@ void Stepper::set_directions() {
   #endif // !ADVANCE && !LIN_ADVANCE
 }
 
-// "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
-// It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately.
+/**
+ * Stepper Driver Interrupt
+ *
+ * Directly pulses the stepper motors at high frequency.
+ * Timer 1 runs at a base frequency of 2MHz, with this ISR using OCR1A compare mode.
+ *
+ * OCR1A   Frequency
+ *     1     2 MHz
+ *    50    40 KHz
+ *   100    20 KHz - capped max rate
+ *   200    10 KHz - nominal max rate
+ *  2000     1 KHz - sleep rate
+ *  4000   500  Hz - init rate
+ */
 ISR(TIMER1_COMPA_vect) { Stepper::isr(); }
 
 void Stepper::isr() {
@@ -323,7 +335,7 @@ void Stepper::isr() {
       if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
     cleaning_buffer_counter--;
-    OCR1A = 200;
+    OCR1A = 200; // Run at max speed - 10 KHz
     return;
   }
 
@@ -348,7 +360,7 @@ void Stepper::isr() {
       #if ENABLED(Z_LATE_ENABLE)
         if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
-          OCR1A = 2000; //1ms wait
+          OCR1A = 2000; // Run at slow speed - 1 KHz
           return;
         }
       #endif
@@ -358,7 +370,7 @@ void Stepper::isr() {
       // #endif
     }
     else {
-      OCR1A = 2000; // 1kHz.
+      OCR1A = 2000; // Run at slow speed - 1 KHz
       return;
     }
   }
@@ -903,6 +915,7 @@ void Stepper::init() {
   // output mode = 00 (disconnected)
   TCCR1A &= ~(3 << COM1A0);
   TCCR1A &= ~(3 << COM1B0);
+
   // Set the timer pre-scaler
   // Generally we use a divider of 8, resulting in a 2MHz timer
   // frequency on a 16MHz MCU. If you are going to change this, be
@@ -910,6 +923,7 @@ void Stepper::init() {
   // create_speed_lookuptable.py
   TCCR1B = (TCCR1B & ~(0x07 << CS10)) | (2 << CS10);
 
+  // Init Stepper ISR to 122 Hz for quick starting
   OCR1A = 0x4000;
   TCNT1 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
