@@ -966,7 +966,7 @@ void Stepper::synchronize() { while (planner.blocks_queued()) idle(); }
  * This allows get_axis_position_mm to correctly
  * derive the current XYZ position later on.
  */
-void Stepper::set_position(const long& x, const long& y, const long& z, const long& e) {
+void Stepper::set_position(const long &a, const long &b, const long &c, const long &e) {
 
   synchronize(); // Bad to set stepper counts in the middle of a move
 
@@ -975,37 +975,37 @@ void Stepper::set_position(const long& x, const long& y, const long& z, const lo
   #if ENABLED(COREXY)
     // corexy positioning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
-    count_position[A_AXIS] = x + y;
-    count_position[B_AXIS] = x - y;
-    count_position[Z_AXIS] = z;
+    count_position[A_AXIS] = a + b;
+    count_position[B_AXIS] = a - b;
+    count_position[Z_AXIS] = c;
   #elif ENABLED(COREXZ)
     // corexz planning
-    count_position[A_AXIS] = x + z;
-    count_position[Y_AXIS] = y;
-    count_position[C_AXIS] = x - z;
+    count_position[A_AXIS] = a + c;
+    count_position[Y_AXIS] = b;
+    count_position[C_AXIS] = a - c;
   #elif ENABLED(COREYZ)
     // coreyz planning
-    count_position[X_AXIS] = x;
-    count_position[B_AXIS] = y + z;
-    count_position[C_AXIS] = y - z;
+    count_position[X_AXIS] = a;
+    count_position[B_AXIS] = y + c;
+    count_position[C_AXIS] = y - c;
   #else
     // default non-h-bot planning
-    count_position[X_AXIS] = x;
-    count_position[Y_AXIS] = y;
-    count_position[Z_AXIS] = z;
+    count_position[X_AXIS] = a;
+    count_position[Y_AXIS] = b;
+    count_position[Z_AXIS] = c;
   #endif
 
   count_position[E_AXIS] = e;
   CRITICAL_SECTION_END;
 }
 
-void Stepper::set_position(const AxisEnum &axis, const long& v) {
+void Stepper::set_position(const AxisEnum &axis, const long &v) {
   CRITICAL_SECTION_START;
   count_position[axis] = v;
   CRITICAL_SECTION_END;
 }
 
-void Stepper::set_e_position(const long& e) {
+void Stepper::set_e_position(const long &e) {
   CRITICAL_SECTION_START;
   count_position[E_AXIS] = e;
   CRITICAL_SECTION_END;

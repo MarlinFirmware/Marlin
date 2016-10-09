@@ -6891,8 +6891,7 @@ inline void gcode_M503() {
     KEEPALIVE_STATE(IN_HANDLER);
 
     // Set extruder to saved position
-    current_position[E_AXIS] = lastpos[E_AXIS];
-    destination[E_AXIS] = lastpos[E_AXIS];
+    destination[E_AXIS] = current_position[E_AXIS] = lastpos[E_AXIS];
     planner.set_e_position_mm(current_position[E_AXIS]);
 
     #if IS_KINEMATIC
