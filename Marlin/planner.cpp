@@ -594,13 +594,14 @@ void Planner::check_axes_activity() {
  * Planner::_buffer_line
  *
  * Add a new linear movement to the buffer.
- * Not apply the leveling.
  *
- *  x,y,z,e   - target position in mm
- *  fr_mm_s   - (target) speed of the move
- *  extruder  - target extruder
+ * Leveling and kinematics should be applied ahead of calling this.
+ *
+ *  a,b,c,e     - target positions in mm or degrees
+ *  fr_mm_s     - (target) speed of the move
+ *  extruder    - target extruder
  */
-void Planner::_buffer_line(const float &lx, const float &ly, const float &lz, const float &e, float fr_mm_s, const uint8_t extruder) {
+void Planner::_buffer_line(const float &a, const float &b, const float &c, const float &e, float fr_mm_s, const uint8_t extruder) {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
@@ -611,36 +612,36 @@ void Planner::_buffer_line(const float &lx, const float &ly, const float &lz, co
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
-  long target[NUM_AXIS] = {
-    lround(lx * axis_steps_per_mm[X_AXIS]),
-    lround(ly * axis_steps_per_mm[Y_AXIS]),
-    lround(lz * axis_steps_per_mm[Z_AXIS]),
+  long target[XYZE] = {
+    lround(a * axis_steps_per_mm[X_AXIS]),
+    lround(b * axis_steps_per_mm[Y_AXIS]),
+    lround(c * axis_steps_per_mm[Z_AXIS]),
     lround(e * axis_steps_per_mm[E_AXIS])
   };
 
-  long dx = target[X_AXIS] - position[X_AXIS],
-       dy = target[Y_AXIS] - position[Y_AXIS],
-       dz = target[Z_AXIS] - position[Z_AXIS];
+  long da = target[X_AXIS] - position[X_AXIS],
+       db = target[Y_AXIS] - position[Y_AXIS],
+       dc = target[Z_AXIS] - position[Z_AXIS];
 
   /*
   SERIAL_ECHOPAIR("  Planner FR:", fr_mm_s);
   SERIAL_CHAR(' ');
   #if IS_KINEMATIC
-    SERIAL_ECHOPAIR("A:", lx);
-    SERIAL_ECHOPAIR(" (", dx);
-    SERIAL_ECHOPAIR(") B:", ly);
+    SERIAL_ECHOPAIR("A:", a);
+    SERIAL_ECHOPAIR(" (", da);
+    SERIAL_ECHOPAIR(") B:", b);
   #else
-    SERIAL_ECHOPAIR("X:", lx);
-    SERIAL_ECHOPAIR(" (", dx);
-    SERIAL_ECHOPAIR(") Y:", ly);
+    SERIAL_ECHOPAIR("X:", a);
+    SERIAL_ECHOPAIR(" (", da);
+    SERIAL_ECHOPAIR(") Y:", b);
   #endif
-  SERIAL_ECHOPAIR(" (", dy);
+  SERIAL_ECHOPAIR(" (", db);
   #if ENABLED(DELTA)
-    SERIAL_ECHOPAIR(") C:", lz);
+    SERIAL_ECHOPAIR(") C:", c);
   #else
-    SERIAL_ECHOPAIR(") Z:", lz);
+    SERIAL_ECHOPAIR(") Z:", c);
   #endif
-  SERIAL_ECHOPAIR(" (", dz);
+  SERIAL_ECHOPAIR(" (", dc);
   SERIAL_CHAR(')');
   SERIAL_EOL;
   //*/
@@ -679,24 +680,24 @@ void Planner::_buffer_line(const float &lx, const float &ly, const float &lz, co
   #if ENABLED(COREXY)
     // corexy planning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
-    block->steps[A_AXIS] = labs(dx + dy);
-    block->steps[B_AXIS] = labs(dx - dy);
-    block->steps[Z_AXIS] = labs(dz);
+    block->steps[A_AXIS] = labs(da + db);
+    block->steps[B_AXIS] = labs(da - db);
+    block->steps[Z_AXIS] = labs(dc);
   #elif ENABLED(COREXZ)
     // corexz planning
-    block->steps[A_AXIS] = labs(dx + dz);
-    block->steps[Y_AXIS] = labs(dy);
-    block->steps[C_AXIS] = labs(dx - dz);
+    block->steps[A_AXIS] = labs(da + dc);
+    block->steps[Y_AXIS] = labs(db);
+    block->steps[C_AXIS] = labs(da - dc);
   #elif ENABLED(COREYZ)
     // coreyz planning
-    block->steps[X_AXIS] = labs(dx);
-    block->steps[B_AXIS] = labs(dy + dz);
-    block->steps[C_AXIS] = labs(dy - dz);
+    block->steps[X_AXIS] = labs(da);
+    block->steps[B_AXIS] = labs(db + dc);
+    block->steps[C_AXIS] = labs(db - dc);
   #else
     // default non-h-bot planning
-    block->steps[X_AXIS] = labs(dx);
-    block->steps[Y_AXIS] = labs(dy);
-    block->steps[Z_AXIS] = labs(dz);
+    block->steps[X_AXIS] = labs(da);
+    block->steps[Y_AXIS] = labs(db);
+    block->steps[Z_AXIS] = labs(dc);
   #endif
 
   block->steps[E_AXIS] = labs(de) * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01 + 0.5;
@@ -720,33 +721,33 @@ void Planner::_buffer_line(const float &lx, const float &ly, const float &lz, co
     block->e_to_p_pressure = baricuda_e_to_p_pressure;
   #endif
 
-  // Compute direction bits for this block
-  uint8_t db = 0;
+  // Compute direction bit-mask for this block
+  uint8_t dm = 0;
   #if ENABLED(COREXY)
-    if (dx < 0) SBI(db, X_HEAD); // Save the real Extruder (head) direction in X Axis
-    if (dy < 0) SBI(db, Y_HEAD); // ...and Y
-    if (dz < 0) SBI(db, Z_AXIS);
-    if (dx + dy < 0) SBI(db, A_AXIS); // Motor A direction
-    if (dx - dy < 0) SBI(db, B_AXIS); // Motor B direction
+    if (da < 0) SBI(dm, X_HEAD); // Save the real Extruder (head) direction in X Axis
+    if (db < 0) SBI(dm, Y_HEAD); // ...and Y
+    if (dc < 0) SBI(dm, Z_AXIS);
+    if (da + db < 0) SBI(dm, A_AXIS); // Motor A direction
+    if (da - db < 0) SBI(dm, B_AXIS); // Motor B direction
   #elif ENABLED(COREXZ)
-    if (dx < 0) SBI(db, X_HEAD); // Save the real Extruder (head) direction in X Axis
-    if (dy < 0) SBI(db, Y_AXIS);
-    if (dz < 0) SBI(db, Z_HEAD); // ...and Z
-    if (dx + dz < 0) SBI(db, A_AXIS); // Motor A direction
-    if (dx - dz < 0) SBI(db, C_AXIS); // Motor C direction
+    if (da < 0) SBI(dm, X_HEAD); // Save the real Extruder (head) direction in X Axis
+    if (db < 0) SBI(dm, Y_AXIS);
+    if (dc < 0) SBI(dm, Z_HEAD); // ...and Z
+    if (da + dc < 0) SBI(dm, A_AXIS); // Motor A direction
+    if (da - dc < 0) SBI(dm, C_AXIS); // Motor C direction
   #elif ENABLED(COREYZ)
-    if (dx < 0) SBI(db, X_AXIS);
-    if (dy < 0) SBI(db, Y_HEAD); // Save the real Extruder (head) direction in Y Axis
-    if (dz < 0) SBI(db, Z_HEAD); // ...and Z
-    if (dy + dz < 0) SBI(db, B_AXIS); // Motor B direction
-    if (dy - dz < 0) SBI(db, C_AXIS); // Motor C direction
+    if (da < 0) SBI(dm, X_AXIS);
+    if (db < 0) SBI(dm, Y_HEAD); // Save the real Extruder (head) direction in Y Axis
+    if (dc < 0) SBI(dm, Z_HEAD); // ...and Z
+    if (db + dc < 0) SBI(dm, B_AXIS); // Motor B direction
+    if (db - dc < 0) SBI(dm, C_AXIS); // Motor C direction
   #else
-    if (dx < 0) SBI(db, X_AXIS);
-    if (dy < 0) SBI(db, Y_AXIS);
-    if (dz < 0) SBI(db, Z_AXIS);
+    if (da < 0) SBI(dm, X_AXIS);
+    if (db < 0) SBI(dm, Y_AXIS);
+    if (dc < 0) SBI(dm, Z_AXIS);
   #endif
-  if (de < 0) SBI(db, E_AXIS);
-  block->direction_bits = db;
+  if (de < 0) SBI(dm, E_AXIS);
+  block->direction_bits = dm;
 
   block->active_extruder = extruder;
 
@@ -859,29 +860,29 @@ void Planner::_buffer_line(const float &lx, const float &ly, const float &lz, co
   #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
     float delta_mm[7];
     #if ENABLED(COREXY)
-      delta_mm[X_HEAD] = dx * steps_to_mm[A_AXIS];
-      delta_mm[Y_HEAD] = dy * steps_to_mm[B_AXIS];
-      delta_mm[Z_AXIS] = dz * steps_to_mm[Z_AXIS];
-      delta_mm[A_AXIS] = (dx + dy) * steps_to_mm[A_AXIS];
-      delta_mm[B_AXIS] = (dx - dy) * steps_to_mm[B_AXIS];
+      delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
+      delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
+      delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
+      delta_mm[A_AXIS] = (da + db) * steps_to_mm[A_AXIS];
+      delta_mm[B_AXIS] = (da - db) * steps_to_mm[B_AXIS];
     #elif ENABLED(COREXZ)
-      delta_mm[X_HEAD] = dx * steps_to_mm[A_AXIS];
-      delta_mm[Y_AXIS] = dy * steps_to_mm[Y_AXIS];
-      delta_mm[Z_HEAD] = dz * steps_to_mm[C_AXIS];
-      delta_mm[A_AXIS] = (dx + dz) * steps_to_mm[A_AXIS];
-      delta_mm[C_AXIS] = (dx - dz) * steps_to_mm[C_AXIS];
+      delta_mm[X_HEAD] = da * steps_to_mm[A_AXIS];
+      delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
+      delta_mm[Z_HEAD] = dc * steps_to_mm[C_AXIS];
+      delta_mm[A_AXIS] = (da + dc) * steps_to_mm[A_AXIS];
+      delta_mm[C_AXIS] = (da - dc) * steps_to_mm[C_AXIS];
     #elif ENABLED(COREYZ)
-      delta_mm[X_AXIS] = dx * steps_to_mm[X_AXIS];
-      delta_mm[Y_HEAD] = dy * steps_to_mm[B_AXIS];
-      delta_mm[Z_HEAD] = dz * steps_to_mm[C_AXIS];
-      delta_mm[B_AXIS] = (dy + dz) * steps_to_mm[B_AXIS];
-      delta_mm[C_AXIS] = (dy - dz) * steps_to_mm[C_AXIS];
+      delta_mm[X_AXIS] = da * steps_to_mm[X_AXIS];
+      delta_mm[Y_HEAD] = db * steps_to_mm[B_AXIS];
+      delta_mm[Z_HEAD] = dc * steps_to_mm[C_AXIS];
+      delta_mm[B_AXIS] = (db + dc) * steps_to_mm[B_AXIS];
+      delta_mm[C_AXIS] = (db - dc) * steps_to_mm[C_AXIS];
     #endif
   #else
     float delta_mm[4];
-    delta_mm[X_AXIS] = dx * steps_to_mm[X_AXIS];
-    delta_mm[Y_AXIS] = dy * steps_to_mm[Y_AXIS];
-    delta_mm[Z_AXIS] = dz * steps_to_mm[Z_AXIS];
+    delta_mm[X_AXIS] = da * steps_to_mm[X_AXIS];
+    delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
+    delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
   #endif
   delta_mm[E_AXIS] = 0.01 * (de * steps_to_mm[E_AXIS]) * volumetric_multiplier[extruder] * flow_percentage[extruder];
 
@@ -1184,12 +1185,12 @@ void Planner::_buffer_line(const float &lx, const float &ly, const float &lz, co
  * On CORE machines stepper ABC will be translated from the given XYZ.
  */
 
-void Planner::_set_position_mm(const float &lx, const float &ly, const float &lz, const float &e) {
-  long nx = position[X_AXIS] = lround(lx * axis_steps_per_mm[X_AXIS]),
-       ny = position[Y_AXIS] = lround(ly * axis_steps_per_mm[Y_AXIS]),
-       nz = position[Z_AXIS] = lround(lz * axis_steps_per_mm[Z_AXIS]),
+void Planner::_set_position_mm(const float &a, const float &b, const float &c, const float &e) {
+  long na = position[X_AXIS] = lround(a * axis_steps_per_mm[X_AXIS]),
+       nb = position[Y_AXIS] = lround(b * axis_steps_per_mm[Y_AXIS]),
+       nc = position[Z_AXIS] = lround(c * axis_steps_per_mm[Z_AXIS]),
        ne = position[E_AXIS] = lround(e * axis_steps_per_mm[E_AXIS]);
-  stepper.set_position(nx, ny, nz, ne);
+  stepper.set_position(na, nb, nc, ne);
   previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 
   memset(previous_speed, 0, sizeof(previous_speed));
