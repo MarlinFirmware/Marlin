@@ -62,6 +62,11 @@ millis_t next_lcd_update_ms;
 
 uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
 
+#if ENABLED(DAC_STEPPER_CURRENT)
+  #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
+  uint16_t driverPercent[XYZE];
+#endif
+
 #if ENABLED(ULTIPANEL)
 
   // place-holders for Ki and Kd edits
@@ -113,6 +118,13 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   static void lcd_control_temperature_preheat_abs_settings_menu();
   static void lcd_control_motion_menu();
   static void lcd_control_volumetric_menu();
+
+  #if ENABLED(DAC_STEPPER_CURRENT)
+    static void dac_driver_commit();
+    static void dac_driver_getValues();
+    static void lcd_dac_menu();
+    static void lcd_dac_write_eeprom();
+  #endif
 
   #if ENABLED(LCD_INFO_MENU)
     #if ENABLED(PRINTCOUNTER)
@@ -848,6 +860,31 @@ void kill_screen(const char* lcd_msg) {
 
   /**
    *
+   * "Driver current control" submenu items
+   *
+   */
+  #if ENABLED(DAC_STEPPER_CURRENT)
+    static void dac_driver_getValues() { LOOP_XYZE(i) driverPercent[i] = dac_current_get_percent((AxisEnum)i); }
+
+    static void dac_driver_commit() { dac_current_set_percents(driverPercent); }
+
+    static void dac_driver_eeprom_write() { dac_commit_eeprom(); }
+
+    static void lcd_dac_menu() {
+      dac_driver_getValues();
+      START_MENU();    
+      MENU_ITEM(back, MSG_CONTROL);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_X " " MSG_DAC_PERCENT, &driverPercent[X_AXIS], 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_Y " " MSG_DAC_PERCENT, &driverPercent[Y_AXIS], 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_Z " " MSG_DAC_PERCENT, &driverPercent[Z_AXIS], 0, 100, dac_driver_commit);
+      MENU_ITEM_EDIT_CALLBACK(int3, MSG_E " " MSG_DAC_PERCENT, &driverPercent[E_AXIS], 0, 100, dac_driver_commit);
+      MENU_ITEM(function, MSG_DAC_EEPROM_WRITE, dac_driver_eeprom_write);
+      END_MENU();
+    }
+  #endif
+
+  /**
+   *
    * "Prepare" submenu items
    *
    */
@@ -1529,6 +1566,10 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(FWRETRACT)
       MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
     #endif
+    #if ENABLED(DAC_STEPPER_CURRENT)
+      MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu); 
+    #endif
+
     #if ENABLED(EEPROM_SETTINGS)
       MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
       MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
