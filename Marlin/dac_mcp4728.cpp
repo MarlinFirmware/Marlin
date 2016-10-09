@@ -80,7 +80,7 @@ uint8_t mcp4728_eepromWrite() {
  */
 uint8_t mcp4728_setVref_all(uint8_t value) {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
-  Wire.write(GAINWRITE | (value ? 0x0F : 0x00));
+  Wire.write(VREFWRITE | (value ? 0x0F : 0x00));
   return Wire.endTransmission();
 }
 /**
