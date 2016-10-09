@@ -232,27 +232,32 @@ class Planner {
     /**
      * Planner::_buffer_line
      *
-     * Add a new linear movement to the buffer.
-     * Doesn't apply the leveling.
+     * Add a new direct linear movement to the buffer.
      *
-     *  x,y,z,e   - target position in mm
-     *  fr_mm_s   - (target) speed of the move
+     * Leveling and kinematics should be applied ahead of this.
+     *
+     *  a,b,c,e   - target position in mm or degrees
+     *  fr_mm_s   - (target) speed of the move (mm/s)
      *  extruder  - target extruder
      */
-    static void _buffer_line(const float &lx, const float &ly, const float &lz, const float &e, float fr_mm_s, const uint8_t extruder);
+    static void _buffer_line(const float &a, const float &b, const float &c, const float &e, float fr_mm_s, const uint8_t extruder);
 
-    static void _set_position_mm(const float &lx, const float &ly, const float &lz, const float &e);
+    static void _set_position_mm(const float &a, const float &b, const float &c, const float &e);
 
     /**
      * Add a new linear movement to the buffer.
      * The target is NOT translated to delta/scara
      *
-     *  x,y,z,e   - target position in mm
-     *  fr_mm_s   - (target) speed of the move (mm/s)
-     *  extruder  - target extruder
+     * Leveling will be applied to input on cartesians.
+     * Kinematic machines should call buffer_line_kinematic (for leveled moves).
+     * (Cartesians may also call buffer_line_kinematic.)
+     *
+     *  lx,ly,lz,e   - target position in mm or degrees
+     *  fr_mm_s      - (target) speed of the move (mm/s)
+     *  extruder     - target extruder
      */
     static FORCE_INLINE void buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, const uint8_t extruder) {
-      #if PLANNER_LEVELING && ! IS_KINEMATIC
+      #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(lx, ly, lz);
       #endif
       _buffer_line(lx, ly, lz, e, fr_mm_s, extruder);
@@ -267,7 +272,7 @@ class Planner {
      *  fr_mm_s  - (target) speed of the move (mm/s)
      *  extruder - target extruder
      */
-     static FORCE_INLINE void buffer_line_kinematic(const float target[NUM_AXIS], float fr_mm_s, const uint8_t extruder) {
+    static FORCE_INLINE void buffer_line_kinematic(const float target[XYZE], float fr_mm_s, const uint8_t extruder) {
       #if PLANNER_LEVELING
         float pos[XYZ] = { target[X_AXIS], target[Y_AXIS], target[Z_AXIS] };
         apply_leveling(pos);
@@ -292,7 +297,7 @@ class Planner {
      * Clears previous speed values.
      */
     static FORCE_INLINE void set_position_mm(ARG_X, ARG_Y, ARG_Z, const float &e) {
-      #if PLANNER_LEVELING && ! IS_KINEMATIC
+      #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(lx, ly, lz);
       #endif
       _set_position_mm(lx, ly, lz, e);
