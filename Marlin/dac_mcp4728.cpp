@@ -93,7 +93,7 @@ uint8_t mcp4728_setGain_all(uint8_t value) {
 }
 
 /**
- * Return Input Regiter value
+ * Return Input Register value
  */
 uint16_t mcp4728_getValue(uint8_t channel) { return mcp4728_values[channel]; }
 
