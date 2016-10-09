@@ -430,6 +430,8 @@
   // in ultralcd.cpp@lcd_delta_calibrate_menu()
   //#define DELTA_CALIBRATION_MENU
 
+  //#define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
+
 #endif
 
 // Enable this option for Toshiba steppers
