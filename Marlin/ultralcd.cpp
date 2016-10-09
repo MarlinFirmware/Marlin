@@ -223,7 +223,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     static int8_t _countedItems = 0; \
     int8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
     if (_countedItems > 0 && encoderLine >= _countedItems - LIMIT) { \
-      encoderLine = _countedItems - LIMIT; \
+      encoderLine = max(0, _countedItems - LIMIT); \
       encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
     }
 
