@@ -7302,15 +7302,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
             float z_diff = hotend_offset[Z_AXIS][active_extruder] - hotend_offset[Z_AXIS][tmp_extruder],
                   z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
 
+            set_destination_to_current();
+
             // Always raise by some amount
-            planner.buffer_line(
-              current_position[X_AXIS],
-              current_position[Y_AXIS],
-              current_position[Z_AXIS] + z_raise,
-              current_position[E_AXIS],
-              planner.max_feedrate_mm_s[Z_AXIS],
-              active_extruder
-            );
+            destination[Z_AXIS] += z_raise;
+            planner.buffer_line_kinematic(destination, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
             stepper.synchronize();
 
             move_extruder_servo(active_extruder);
@@ -7318,14 +7314,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
 
             // Move back down, if needed
             if (z_raise != z_diff) {
-              planner.buffer_line(
-                current_position[X_AXIS],
-                current_position[Y_AXIS],
-                current_position[Z_AXIS] + z_diff,
-                current_position[E_AXIS],
-                planner.max_feedrate_mm_s[Z_AXIS],
-                active_extruder
-              );
+              destination[Z_AXIS] = current_position[Z_AXIS] + z_diff;
+              planner.buffer_line_kinematic(destination, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
               stepper.synchronize();
             }
           #endif
