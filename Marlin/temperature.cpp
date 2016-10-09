@@ -137,6 +137,7 @@ volatile bool Temperature::temp_meas_ready = false;
   #endif
 
   float Temperature::pid_error[HOTENDS];
+  bool Temperature::pid_reset[HOTENDS];
 #endif
 
 #if ENABLED(PIDTEMPBED)
@@ -194,6 +195,7 @@ uint8_t Temperature::soft_pwm[HOTENDS];
 #endif
 
 #if HAS_PID_HEATING
+
   void Temperature::PID_autotune(float temp, int hotend, int ncycles, bool set_result/*=false*/) {
     float input = 0.0;
     int cycles = 0;
@@ -450,6 +452,7 @@ int Temperature::getHeaterPower(int heater) {
 }
 
 #if HAS_AUTO_FAN
+
   void Temperature::checkExtruderAutoFans() {
     const int8_t fanPin[] = { EXTRUDER_0_AUTO_FAN_PIN, EXTRUDER_1_AUTO_FAN_PIN, EXTRUDER_2_AUTO_FAN_PIN, EXTRUDER_3_AUTO_FAN_PIN };
     const int fanBit[] = {
@@ -532,17 +535,23 @@ float Temperature::get_pid_output(int e) {
   #endif
   float pid_output;
   #if ENABLED(PIDTEMP)
-    #if ENABLED(PID_OPENLOOP)
-      pid_output = constrain(target_temperature[HOTEND_INDEX], 0, PID_MAX);
-    #else
+    #if DISABLED(PID_OPENLOOP)
       pid_error[HOTEND_INDEX] = target_temperature[HOTEND_INDEX] - current_temperature[HOTEND_INDEX];
       dTerm[HOTEND_INDEX] = K2 * PID_PARAM(Kd, HOTEND_INDEX) * (current_temperature[HOTEND_INDEX] - temp_dState[HOTEND_INDEX]) + K1 * dTerm[HOTEND_INDEX];
       temp_dState[HOTEND_INDEX] = current_temperature[HOTEND_INDEX];
-      if (target_temperature[HOTEND_INDEX] == 0) {
+      if (pid_error[HOTEND_INDEX] > PID_FUNCTIONAL_RANGE) {
+        pid_output = BANG_MAX;
+        pid_reset[HOTEND_INDEX] = true;
+      }
+      else if (pid_error[HOTEND_INDEX] < -(PID_FUNCTIONAL_RANGE) || target_temperature[HOTEND_INDEX] == 0) {
         pid_output = 0;
-        temp_iState[HOTEND_INDEX] = 0.0;
+        pid_reset[HOTEND_INDEX] = true;
       }
       else {
+        if (pid_reset[HOTEND_INDEX]) {
+          temp_iState[HOTEND_INDEX] = 0.0;
+          pid_reset[HOTEND_INDEX] = false;
+        }
         pTerm[HOTEND_INDEX] = PID_PARAM(Kp, HOTEND_INDEX) * pid_error[HOTEND_INDEX];
         temp_iState[HOTEND_INDEX] += pid_error[HOTEND_INDEX];
         iTerm[HOTEND_INDEX] = PID_PARAM(Ki, HOTEND_INDEX) * temp_iState[HOTEND_INDEX];
@@ -575,6 +584,8 @@ float Temperature::get_pid_output(int e) {
           pid_output = 0;
         }
       }
+    #else
+      pid_output = constrain(target_temperature[HOTEND_INDEX], 0, PID_MAX);
     #endif //PID_OPENLOOP
 
     #if ENABLED(PID_DEBUG)
