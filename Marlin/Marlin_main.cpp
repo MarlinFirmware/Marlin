@@ -4899,8 +4899,8 @@ inline void gcode_M42() {
       for (uint8_t j = 0; j <= n; j++) sum += sample_set[j];
       mean = sum / (n + 1);
 
-      if(sample_set[n] < min) min = sample_set[n];
-      if(sample_set[n] > max) max = sample_set[n];
+      NOMORE(min, sample_set[n]);
+      NOLESS(max, sample_set[n]);
 
       /**
        * Now, use that mean to calculate the standard deviation for the
@@ -4956,7 +4956,6 @@ inline void gcode_M42() {
     SERIAL_PROTOCOLPGM("Standard Deviation: ");
     SERIAL_PROTOCOL_F(sigma, 6);
     SERIAL_EOL;
-
     SERIAL_EOL;
 
     clean_up_after_endstop_or_probe_move();
