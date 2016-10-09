@@ -9462,11 +9462,22 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       #endif // !SWITCHING_EXTRUDER
 
       previous_cmd_ms = ms; // refresh_cmd_timeout()
-      planner.buffer_line(
-        current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
-        current_position[E_AXIS] + EXTRUDER_RUNOUT_EXTRUDE,
-        MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder
-      );
+
+      #if IS_KINEMATIC
+        inverse_kinematics(current_position);
+        ADJUST_DELTA(current_position);
+        planner.buffer_line(
+          delta[A_AXIS], delta[B_AXIS], delta[C_AXIS],
+          current_position[E_AXIS] + EXTRUDER_RUNOUT_EXTRUDE,
+          MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder
+        );
+      #else
+        planner.buffer_line(
+          current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
+          current_position[E_AXIS] + EXTRUDER_RUNOUT_EXTRUDE,
+          MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder
+        );
+      #endif
       stepper.synchronize();
       planner.set_e_position_mm(current_position[E_AXIS]);
       #if ENABLED(SWITCHING_EXTRUDER)
