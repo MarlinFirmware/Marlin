@@ -1371,7 +1371,7 @@ void Temperature::set_current_temp_raw() {
  * Timer 0 is shared with millies so don't change the prescaler.
  *
  * This ISR uses the compare method so it runs at the base
- * frequency (16 MHz / 256 = 62500 Hz), but at the TCNT0 set
+ * frequency (16 MHz / 64 / 256 = 976.5625 Hz), but at the TCNT0 set
  * in OCR0B above (128 or halfway between OVFs).
  *
  *  - Manage PWM to all the heaters and fan
@@ -1485,9 +1485,16 @@ void Temperature::isr() {
       #endif
     #endif
 
-    // 488.28 Hz (or 1:976.56, 2:1953.12, 3:3906.25, 4:7812.5, 5:7812.5 6:15625, 6:15625 7:31250)
+    // SOFT_PWM_SCALE to frequency:
+    //
+    // 0: 16000000/64/256/128 =   7.6294 Hz
+    // 1:                / 64 =  15.2588 Hz
+    // 2:                / 32 =  30.5176 Hz
+    // 3:                / 16 =  61.0352 Hz
+    // 4:                /  8 = 122.0703 Hz
+    // 5:                /  4 = 244.1406 Hz
     pwm_count += _BV(SOFT_PWM_SCALE);
-    pwm_count &= 0x7f;
+    pwm_count &= 0x7F;
 
   #else // SLOW_PWM_HEATERS
 
@@ -1586,10 +1593,18 @@ void Temperature::isr() {
       #endif
     #endif //FAN_SOFT_PWM
 
+    // SOFT_PWM_SCALE to frequency:
+    //
+    // 0: 16000000/64/256/128 =   7.6294 Hz
+    // 1:                / 64 =  15.2588 Hz
+    // 2:                / 32 =  30.5176 Hz
+    // 3:                / 16 =  61.0352 Hz
+    // 4:                /  8 = 122.0703 Hz
+    // 5:                /  4 = 244.1406 Hz
     pwm_count += _BV(SOFT_PWM_SCALE);
-    pwm_count &= 0x7f;
+    pwm_count &= 0x7F;
 
-    // increment slow_pwm_count only every 64 pwm_count circa 65.5ms
+    // increment slow_pwm_count only every 64 pwm_count (e.g., every 8s)
     if ((pwm_count % 64) == 0) {
       slow_pwm_count++;
       slow_pwm_count &= 0x7f;
