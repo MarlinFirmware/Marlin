@@ -589,7 +589,9 @@ void Config_ResetDefault() {
   #endif
 
   #if ENABLED(DELTA)
-    endstop_adj[X_AXIS] = endstop_adj[Y_AXIS] = endstop_adj[Z_AXIS] = 0;
+    endstop_adj[X_AXIS] = DELTA_ENDSTOP_ADJ_X;
+    endstop_adj[Y_AXIS] = DELTA_ENDSTOP_ADJ_Y;
+    endstop_adj[Z_AXIS] = DELTA_ENDSTOP_ADJ_Z;
     delta_radius =  DELTA_RADIUS;
     delta_diagonal_rod =  DELTA_DIAGONAL_ROD;
     delta_segments_per_second =  DELTA_SEGMENTS_PER_SECOND;
