@@ -31,6 +31,7 @@
  */
 
 #include "dac_mcp4728.h"
+#include "Marlin.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
