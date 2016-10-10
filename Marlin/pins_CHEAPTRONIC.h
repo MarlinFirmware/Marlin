@@ -75,6 +75,9 @@
 #define HEATER_1_PIN       23 // EXTRUDER 2
 #define HEATER_BED_PIN     22
 
+//
+// LCD / Controller
+//
 // Cheaptronic v1.0 doesn't support LCD
 #define LCD_PINS_RS        -1
 #define LCD_PINS_ENABLE    -1

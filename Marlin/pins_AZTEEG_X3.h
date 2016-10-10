@@ -32,6 +32,9 @@
 
 #include "pins_RAMPS_13.h"
 
+//
+// LCD / Controller
+//
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 
   #undef DOGLCD_A0

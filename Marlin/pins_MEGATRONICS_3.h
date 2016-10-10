@@ -63,6 +63,8 @@
   #define Z_MIN_PROBE_PIN  19
 #endif
 
+#define SLED_PIN           -1
+
 //
 // Steppers
 //
@@ -89,14 +91,6 @@
 #define E2_STEP_PIN        22
 #define E2_DIR_PIN         60
 #define E2_ENABLE_PIN      23
-
-//
-// Misc. Functions
-//
-#define SDSS               53
-#define LED_PIN            13
-#define PS_ON_PIN          12
-#define SLED_PIN           -1
 
 //
 // Temperature Sensors
@@ -132,6 +126,13 @@
 
 #define FAN_PIN             6
 #define FAN1_PIN            7
+
+//
+// Misc. Functions
+//
+#define SDSS               53
+#define LED_PIN            13
+#define PS_ON_PIN          12
 
 //
 // LCD / Controller

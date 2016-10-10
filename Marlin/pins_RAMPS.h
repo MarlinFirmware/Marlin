@@ -85,6 +85,8 @@
   #define Z_MIN_PROBE_PIN  32
 #endif
 
+#define SLED_PIN           -1
+
 //
 // Steppers
 //
@@ -111,24 +113,16 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN         13   // ANALOG NUMBERING
-#define TEMP_1_PIN         15   // ANALOG NUMBERING
-#define TEMP_BED_PIN       14   // ANALOG NUMBERING
+#define TEMP_0_PIN         13   // Analog Input
+#define TEMP_1_PIN         15   // Analog Input
+#define TEMP_BED_PIN       14   // Analog Input
 
-//
-// Misc. Functions
-//
-#define SDSS               53
-#define LED_PIN            13
-
-// Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
-#define FILWIDTH_PIN        5 // ANALOG NUMBERING
-
-// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
-#define FIL_RUNOUT_PIN      4
-
-#define PS_ON_PIN          12
-#define SLED_PIN           -1
+// SPI for Max6675 or Max31855 Thermocouple
+#if DISABLED(SDSUPPORT)
+  #define MAX6675_SS       66 // Do not use pin 53 if there is even the remote possibility of using Display/SD card
+#else
+  #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
+#endif
 
 //
 // Augmentation for auto-assigning RAMPS plugs
@@ -194,14 +188,28 @@
 #endif
 
 //
+// Misc. Functions
+//
+#define SDSS               53
+#define LED_PIN            13
+
+// Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
+#define FILWIDTH_PIN        5   // Analog Input
+
+// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
+#define FIL_RUNOUT_PIN      4
+
+#define PS_ON_PIN          12
+
+//
 // LCD / Controller
 //
 #if ENABLED(ULTRA_LCD)
 
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-    #define LCD_PINS_RS     49 //CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE 51 //SID (MOSI)
-    #define LCD_PINS_D4     52 //SCK (CLK) clock
+    #define LCD_PINS_RS     49 // CS chip select /SS chip slave select
+    #define LCD_PINS_ENABLE 51 // SID (MOSI)
+    #define LCD_PINS_D4     52 // SCK (CLK) clock
   #elif ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
     #define LCD_PINS_RS 40
     #define LCD_PINS_ENABLE 42
@@ -309,11 +317,11 @@
       //#define LCD_SCREEN_ROT_90
       //#define LCD_SCREEN_ROT_180
       //#define LCD_SCREEN_ROT_270
-      //The encoder and click button
+      // The encoder and click button
       #define BTN_EN1 40
       #define BTN_EN2 63
       #define BTN_ENC 59
-      //not connected to a pin
+      // not connected to a pin
       #define SD_DETECT_PIN 49
 
     #else
@@ -350,10 +358,3 @@
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
-
-// SPI for Max6675 or Max31855 Thermocouple
-#if DISABLED(SDSUPPORT)
-  #define MAX6675_SS       66 // Do not use pin 53 if there is even the remote possibility of using Display/SD card
-#else
-  #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
-#endif
