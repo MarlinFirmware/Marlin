@@ -188,9 +188,9 @@ class Stepper {
     //
     // Set the current position in steps
     //
-    static void set_position(const long& x, const long& y, const long& z, const long& e);
-    static void set_position(const AxisEnum& a, const long& v);
-    static void set_e_position(const long& e);
+    static void set_position(const long &a, const long &b, const long &c, const long &e);
+    static void set_position(const AxisEnum &a, const long &v);
+    static void set_e_position(const long &e);
 
     //
     // Set direction bits for all steppers
