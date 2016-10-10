@@ -36,7 +36,7 @@
 #define _PIN_SAY(NAME) { SERIAL_ECHOPGM(STRINGIFY(NAME)); return true; }
 #define PIN_SAY(NAME) if (pin == NAME) _PIN_SAY(_##NAME##_);
 #define ANALOG_PIN_SAY(NAME) if (pin == analogInputToDigitalPin(NAME)) _PIN_SAY(_##NAME##_);
-#define IS_ANALOG(P) if ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(5)))
+#define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(5)))
 
 // Report pin name for a given fastio digital pin index
 static bool report_pin_name(int8_t pin) {
