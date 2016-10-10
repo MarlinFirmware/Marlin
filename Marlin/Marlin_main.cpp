@@ -2225,8 +2225,8 @@ static void clean_up_after_endstop_or_probe_move() {
     #elif HAS_ABL
 
       if (enable != planner.abl_enabled) {
-        planner.abl_enabled = !planner.abl_enabled;
-        if (!planner.abl_enabled)
+        planner.abl_enabled = enable;
+        if (!enable)
           set_current_from_steppers_for_axis(
             #if ABL_PLANAR
               ALL_AXES
