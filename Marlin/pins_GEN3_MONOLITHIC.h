@@ -68,7 +68,7 @@
 #define HEATER_0_PIN       16
 
 //
-// Etc.
+// Misc. Functions
 //
 #define PS_ON_PIN          14 // Alex, does this work on the card?
 

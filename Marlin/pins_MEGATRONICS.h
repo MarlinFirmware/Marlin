@@ -72,13 +72,6 @@
 #define E1_ENABLE_PIN      30
 
 //
-// Misc. Functions
-//
-#define SDSS               53
-#define LED_PIN            13
-#define PS_ON_PIN          12
-
-//
 // Temperature Sensors
 //
 #if TEMP_SENSOR_0 == -1
@@ -97,6 +90,13 @@
 #define HEATER_BED_PIN     10
 
 #define FAN_PIN             7   // IO pin. Buffer needed
+
+//
+// Misc. Functions
+//
+#define SDSS               53
+#define LED_PIN            13
+#define PS_ON_PIN          12
 
 //
 // LCD / Controller
