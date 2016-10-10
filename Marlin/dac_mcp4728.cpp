@@ -69,7 +69,7 @@ uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value) {
 uint8_t mcp4728_eepromWrite() {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
   Wire.write(SEQWRITE);
-  for (uint8_t channel = 0; channel < COUNT(channel); channel++) {
+  for (uint8_t channel = 0; channel < 4; channel++) {
     Wire.write(DAC_STEPPER_VREF << 7 | DAC_STEPPER_GAIN << 4 | highByte(mcp4728_values[channel]));
     Wire.write(lowByte(mcp4728_values[channel]));
   }
@@ -126,7 +126,7 @@ void mcp4728_setDrvPct(int16_t pct[XYZE]) {
  */
 uint8_t mcp4728_fastWrite() {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
-  for (uint8_t channel = 0; channel < COUNT(channel); channel++) {
+  for (uint8_t channel = 0; channel < 4; channel++) {
     Wire.write(highByte(mcp4728_values[channel]));
     Wire.write(lowByte(mcp4728_values[channel]));
   }
