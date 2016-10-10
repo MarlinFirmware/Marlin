@@ -447,7 +447,7 @@
 // "Jerk" specifies the minimum speed change that requires acceleration.
 // When changing speed and direction, if the difference is less than the
 // value set here, it may happen instantaneously.
-#define DEFAULT_XYJERK                7.0    // (mm/sec)
+#define DEFAULT_XYJERK                8.0    // (mm/sec)
 #define DEFAULT_ZJERK                  0.3    // (mm/sec)
 #define DEFAULT_EJERK                  5.0    // (mm/sec)
 
