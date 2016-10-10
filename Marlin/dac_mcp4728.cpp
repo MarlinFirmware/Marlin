@@ -60,6 +60,7 @@ uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value) {
   mcp4728_values[channel] = value;
   return mcp4728_fastWrite();
 }
+
 /**
  * Write all input resistor values to EEPROM using SequencialWrite method.
  * This will update both input register and EEPROM value
@@ -68,7 +69,7 @@ uint8_t mcp4728_analogWrite(uint8_t channel, uint16_t value) {
 uint8_t mcp4728_eepromWrite() {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
   Wire.write(SEQWRITE);
-  for (uint8_t channel = 0; channel < COUNT(channel); channel++) {
+  for (uint8_t channel = 0; channel < COUNT(mcp4728_values); channel++) {
     Wire.write(DAC_STEPPER_VREF << 7 | DAC_STEPPER_GAIN << 4 | highByte(mcp4728_values[channel]));
     Wire.write(lowByte(mcp4728_values[channel]));
   }
@@ -109,10 +110,15 @@ uint16_t mcp4728_getVout(uint8_t channel) {
 }
 */
 
-/* Returns DAC values as a 0-100 percentage of drive strength */
+/**
+ * Returns DAC values as a 0-100 percentage of drive strength
+ */
 uint16_t mcp4728_getDrvPct(uint8_t channel) { return uint16_t(100.0 * mcp4728_values[channel] / (DAC_STEPPER_MAX) + 0.5); }
 
-/* Recieves all Drive strengths as 0-100 percent values, updates DAC Values array and calls fastwrite to update the DAC */
+/**
+ * Receives all Drive strengths as 0-100 percent values, updates
+ * DAC Values array and calls fastwrite to update the DAC.
+ */
 void mcp4728_setDrvPct(int16_t pct[XYZE]) {
   LOOP_XYZE(i) mcp4728_values[i] = 0.01 * pct[i] * (DAC_STEPPER_MAX);
   mcp4728_fastWrite();
@@ -125,7 +131,7 @@ void mcp4728_setDrvPct(int16_t pct[XYZE]) {
  */
 uint8_t mcp4728_fastWrite() {
   Wire.beginTransmission(DAC_DEV_ADDRESS);
-  for (uint8_t channel = 0; channel < COUNT(channel); channel++) {
+  for (uint8_t channel = 0; channel < COUNT(mcp4728_values); channel++) {
     Wire.write(highByte(mcp4728_values[channel]));
     Wire.write(lowByte(mcp4728_values[channel]));
   }
