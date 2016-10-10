@@ -460,13 +460,17 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #define ADJUST_DELTA(V) \
-    if (planner.abl_enabled) { \
-      const float zadj = bilinear_z_offset(V); \
-      delta[A_AXIS] += zadj; \
-      delta[B_AXIS] += zadj; \
-      delta[C_AXIS] += zadj; \
-    }
+  #if ENABLED(DELTA)
+    #define ADJUST_DELTA(V) \
+      if (planner.abl_enabled) { \
+        const float zadj = bilinear_z_offset(V); \
+        delta[A_AXIS] += zadj; \
+        delta[B_AXIS] += zadj; \
+        delta[C_AXIS] += zadj; \
+      }
+  #else
+    #define ADJUST_DELTA(V) if (planner.abl_enabled) { delta[Z_AXIS] += bilinear_z_offset(V); }
+  #endif
 #elif IS_KINEMATIC
   #define ADJUST_DELTA(V) NOOP
 #endif
