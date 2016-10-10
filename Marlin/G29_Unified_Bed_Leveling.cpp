@@ -103,9 +103,9 @@ extern long babysteps_done;
                       for subsequent Load and Store operations.
 
       O     Map       Display the Mesh Map Topology.  
-		      The parameter can be specified alone (ie. G29 M) or in combination with many of the 
+		      The parameter can be specified alone (ie. G29 O) or in combination with many of the 
 		      other commands.  The Mesh Map option works with all of the Phase 
-		      commands (ie. G29 P4 R 5 X 50 Y100 C -.1 M) 
+		      commands (ie. G29 P4 R 5 X 50 Y100 C -.1 O) 
 
       N    No Home    G29 normally insists that a G28 has been performed.  You can over rule this with an
       		      N option.  In general, you should not do this.  This can only be done safely with
@@ -150,7 +150,7 @@ each additional Phase that processes it.
 		      area you are manually probing.   Note that the command tries to start you in a corner
 		      of the bed where movement will be predictable.  You can force the location to be used in
 		      the distance calculations by using the X and Y parameters.  You may find it is helpful to
-		      print out a Mesh Map (G29 M ) to understand where the mesh is invalidated and where
+		      print out a Mesh Map (G29 O ) to understand where the mesh is invalidated and where
 		      the nozzle will need to move in order to complete the command.    The C parameter is 
 		      available on the Phase 2 command also and indicates the search for points to measure should
 		      be done based on the current location of the nozzle.
@@ -166,7 +166,7 @@ each additional Phase that processes it.
 		      to get it to grasp the shim with the same force as when you measured the thickness of the
 		      shim at the start of the command.
 
-		      Phase 2 allows the M (Map) parameter to be specified.  This helps the user see the progression
+		      Phase 2 allows the O (Map) parameter to be specified.  This helps the user see the progression
 		      of the Mesh being built.
 
       P3    Phase 3   Fill the unpopulated regions of the Mesh with a fixed value.  The C parameter is used to
@@ -395,7 +395,7 @@ void gcode_G29() {
 			SERIAL_ECHOPAIRPGM(",",Y_Pos);
         		SERIAL_PROTOCOLLNPGM(")\n");
 		}
-		probe_entire_mesh( X_Pos+X_PROBE_OFFSET_FROM_EXTRUDER, Y_Pos+Y_PROBE_OFFSET_FROM_EXTRUDER, code_seen('M') );
+		probe_entire_mesh( X_Pos+X_PROBE_OFFSET_FROM_EXTRUDER, Y_Pos+Y_PROBE_OFFSET_FROM_EXTRUDER, code_seen('O') || code_seen('M') );
         	break;
 //
 // Manually Probe Mesh in areas that can not be reached by the probe
@@ -433,7 +433,7 @@ void gcode_G29() {
 				return;
 			}
 		}
-		manually_probe_remaining_mesh( X_Pos, Y_Pos, Height_Value, card_thickness, code_seen('M') );
+		manually_probe_remaining_mesh( X_Pos, Y_Pos, Height_Value, card_thickness,  code_seen('O') || code_seen('M') );
         	break;
 //
 // Populate invalid Mesh areas with a constant
@@ -454,7 +454,7 @@ void gcode_G29() {
 //
 // Fine Tune (Or Edit) the Mesh
 //
-      case 4:  	fine_tune_mesh( X_Pos, Y_Pos, Height_Value, code_seen('M') );
+      case 4:  	fine_tune_mesh( X_Pos, Y_Pos, Height_Value,  code_seen('O') || code_seen('M') );
         	break;
       case 5:   Find_Mean_Mesh_Height();
 	    	break;
@@ -573,7 +573,7 @@ void gcode_G29() {
   }
 
 
-  if ( code_seen('O') ) {
+  if (  code_seen('O') || code_seen('M') ) {
     i = 0;
     if (code_has_value())
       i = code_value_int();
