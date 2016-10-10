@@ -33,20 +33,6 @@
 
 #include "Marlin.h"
 
-#if HAS_ABL
-  #include "vector_3.h"
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_LINEAR)
-  #include "qr_solve.h"
-#elif ENABLED(MESH_BED_LEVELING)
-  #include "mesh_bed_leveling.h"
-#endif
-
-#if ENABLED(BEZIER_CURVE_SUPPORT)
-  #include "planner_bezier.h"
-#endif
-
 #include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
@@ -60,6 +46,23 @@
 #include "nozzle.h"
 #include "duration_t.h"
 #include "types.h"
+
+#if HAS_ABL
+  #include "vector_3.h"
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+    #include "qr_solve.h"
+  #endif
+#elif ENABLED(MESH_BED_LEVELING)
+  #include "mesh_bed_leveling.h"
+#endif
+
+#if ENABLED(BEZIER_CURVE_SUPPORT)
+  #include "planner_bezier.h"
+#endif
+
+#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
+  #include "buzzer.h"
+#endif
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
@@ -4560,7 +4563,9 @@ inline void gcode_M31() {
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPAIR("Print time: ", buffer);
 
-  thermalManager.autotempShutdown();
+  #if ENABLED(AUTOTEMP)
+    thermalManager.autotempShutdown();
+  #endif
 }
 
 #if ENABLED(SDSUPPORT)
