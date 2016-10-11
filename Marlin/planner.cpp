@@ -149,7 +149,7 @@ void Planner::init() {
  * Calculate trapezoid parameters, multiplying the entry- and exit-speeds
  * by the provided factors.
  */
-void Planner::calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor) {
+void Planner::calculate_trapezoid_for_block(block_t* const block, const float &entry_factor, const float &exit_factor) {
   uint32_t initial_rate = ceil(block->nominal_rate * entry_factor),
            final_rate = ceil(block->nominal_rate * exit_factor); // (steps per second)
 
@@ -203,29 +203,20 @@ void Planner::calculate_trapezoid_for_block(block_t* block, float entry_factor, 
 
 
 // The kernel called by recalculate() when scanning the plan from last to first entry.
-void Planner::reverse_pass_kernel(block_t* current, block_t* next) {
-  if (!current) return;
-
-  if (next) {
-    // If entry speed is already at the maximum entry speed, no need to recheck. Block is cruising.
-    // If not, block in state of acceleration or deceleration. Reset entry speed to maximum and
-    // check for maximum allowable speed reductions to ensure maximum possible planned speed.
-    float max_entry_speed = current->max_entry_speed;
-    if (current->entry_speed != max_entry_speed) {
-
-      // If nominal length true, max junction speed is guaranteed to be reached. Only compute
-      // for max allowable speed if block is decelerating and nominal length is false.
-      if (!current->nominal_length_flag && max_entry_speed > next->entry_speed) {
-        current->entry_speed = min(max_entry_speed,
-                                   max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
-      }
-      else {
-        current->entry_speed = max_entry_speed;
-      }
-      current->recalculate_flag = true;
-
-    }
-  } // Skip last block. Already initialized and set for recalculation.
+void Planner::reverse_pass_kernel(block_t* const current, const block_t *next) {
+  if (!current || !next) return;
+  // If entry speed is already at the maximum entry speed, no need to recheck. Block is cruising.
+  // If not, block in state of acceleration or deceleration. Reset entry speed to maximum and
+  // check for maximum allowable speed reductions to ensure maximum possible planned speed.
+  float max_entry_speed = current->max_entry_speed;
+  if (current->entry_speed != max_entry_speed) {
+    // If nominal length true, max junction speed is guaranteed to be reached. Only compute
+    // for max allowable speed if block is decelerating and nominal length is false.
+    current->entry_speed = ((current->flag & BLOCK_FLAG_NOMINAL_LENGTH) || max_entry_speed <= next->entry_speed)
+      ? max_entry_speed
+      : min(max_entry_speed, max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
+    current->flag |= BLOCK_FLAG_RECALCULATE;
+  }
 }
 
 /**
@@ -255,21 +246,21 @@ void Planner::reverse_pass() {
 }
 
 // The kernel called by recalculate() when scanning the plan from first to last entry.
-void Planner::forward_pass_kernel(block_t* previous, block_t* current) {
+void Planner::forward_pass_kernel(const block_t* previous, block_t* const current) {
   if (!previous) return;
 
   // If the previous block is an acceleration block, but it is not long enough to complete the
   // full speed change within the block, we need to adjust the entry speed accordingly. Entry
   // speeds have already been reset, maximized, and reverse planned by reverse planner.
   // If nominal length is true, max junction speed is guaranteed to be reached. No need to recheck.
-  if (!previous->nominal_length_flag) {
+  if (!(previous->flag & BLOCK_FLAG_NOMINAL_LENGTH)) {
     if (previous->entry_speed < current->entry_speed) {
       float entry_speed = min(current->entry_speed,
                                max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters));
       // Check for junction speed change
       if (current->entry_speed != entry_speed) {
         current->entry_speed = entry_speed;
-        current->recalculate_flag = true;
+        current->flag |= BLOCK_FLAG_RECALCULATE;
       }
     }
   }
@@ -298,19 +289,18 @@ void Planner::forward_pass() {
  */
 void Planner::recalculate_trapezoids() {
   int8_t block_index = block_buffer_tail;
-  block_t* current;
-  block_t* next = NULL;
+  block_t *current, *next = NULL;
 
   while (block_index != block_buffer_head) {
     current = next;
     next = &block_buffer[block_index];
     if (current) {
       // Recalculate if current block entry or exit junction speed has changed.
-      if (current->recalculate_flag || next->recalculate_flag) {
+      if ((current->flag & BLOCK_FLAG_RECALCULATE) || (next->flag & BLOCK_FLAG_RECALCULATE)) {
         // NOTE: Entry and exit factors always > 0 by all previous logic operations.
         float nom = current->nominal_speed;
         calculate_trapezoid_for_block(current, current->entry_speed / nom, next->entry_speed / nom);
-        current->recalculate_flag = false; // Reset current only to ensure next trapezoid is computed
+        current->flag &= ~BLOCK_FLAG_RECALCULATE; // Reset current only to ensure next trapezoid is computed
       }
     }
     block_index = next_block_index(block_index);
@@ -319,7 +309,7 @@ void Planner::recalculate_trapezoids() {
   if (next) {
     float nom = next->nominal_speed;
     calculate_trapezoid_for_block(next, next->entry_speed / nom, (MINIMUM_PLANNER_SPEED) / nom);
-    next->recalculate_flag = false;
+    next->flag &= ~BLOCK_FLAG_RECALCULATE;
   }
 }
 
@@ -1119,8 +1109,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // block nominal speed limits both the current and next maximum junction speeds. Hence, in both
   // the reverse and forward planners, the corresponding block junction speed will always be at the
   // the maximum junction speed and may always be ignored for any speed reduction checks.
-  block->nominal_length_flag = (block->nominal_speed <= v_allowable);
-  block->recalculate_flag = true; // Always calculate trapezoid for new block
+  block->flag &= ~BLOCK_FLAG_NOMINAL_LENGTH;
+  if (block->nominal_speed <= v_allowable) block->flag |= BLOCK_FLAG_NOMINAL_LENGTH;
+  block->flag |= BLOCK_FLAG_RECALCULATE; // Always calculate trapezoid for new block
 
   // Update previous path unit_vector and nominal speed
   memcpy(previous_speed, current_speed, sizeof(previous_speed));
