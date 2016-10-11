@@ -145,6 +145,8 @@ void Planner::init() {
   #endif
 }
 
+#define MINIMAL_STEP_RATE 120
+
 /**
  * Calculate trapezoid parameters, multiplying the entry- and exit-speeds
  * by the provided factors.
@@ -154,8 +156,8 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
            final_rate = ceil(block->nominal_rate * exit_factor); // (steps per second)
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
-  NOLESS(initial_rate, 120);
-  NOLESS(final_rate, 120);
+  NOLESS(initial_rate, MINIMAL_STEP_RATE);
+  NOLESS(final_rate, MINIMAL_STEP_RATE);
 
   int32_t accel = block->acceleration_steps_per_s2,
           accelerate_steps = ceil(estimate_acceleration_distance(initial_rate, block->nominal_rate, accel)),
@@ -172,13 +174,9 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     plateau_steps = 0;
   }
 
-  #if ENABLED(ADVANCE)
-    volatile int32_t initial_advance = block->advance * sq(entry_factor),
-                       final_advance = block->advance * sq(exit_factor);
-  #endif // ADVANCE
-
   // block->accelerate_until = accelerate_steps;
   // block->decelerate_after = accelerate_steps+plateau_steps;
+
   CRITICAL_SECTION_START;  // Fill variables used by the stepper in a critical section
   if (!block->busy) { // Don't update variables if block is busy.
     block->accelerate_until = accelerate_steps;
@@ -186,8 +184,8 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
     block->initial_rate = initial_rate;
     block->final_rate = final_rate;
     #if ENABLED(ADVANCE)
-      block->initial_advance = initial_advance;
-      block->final_advance = final_advance;
+      block->initial_advance = block->advance * sq(entry_factor);
+      block->final_advance = block->advance * sq(exit_factor);
     #endif
   }
   CRITICAL_SECTION_END;
@@ -230,9 +228,10 @@ void Planner::reverse_pass() {
     block_t* block[3] = { NULL, NULL, NULL };
 
     // Make a local copy of block_buffer_tail, because the interrupt can alter it
-    CRITICAL_SECTION_START;
-      uint8_t tail = block_buffer_tail;
-    CRITICAL_SECTION_END
+    // Is a critical section REALLY needed for a single byte change?
+    //CRITICAL_SECTION_START;
+    uint8_t tail = block_buffer_tail;
+    //CRITICAL_SECTION_END
 
     uint8_t b = BLOCK_MOD(block_buffer_head - 3);
     while (b != tail) {
