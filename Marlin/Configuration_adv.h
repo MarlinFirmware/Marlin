@@ -909,4 +909,9 @@
  *        an external 1k-10k pull up resistor to the pin.
  *   
  */ 
+ 
+ /**
+ * Add M43 command for pins info and testing
+ */
+#define PINS_DEBUGGING
 #endif // CONFIGURATION_ADV_H
