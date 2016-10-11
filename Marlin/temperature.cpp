@@ -1344,8 +1344,22 @@ void Temperature::disable_all_heaters() {
 
     WRITE(MAX6675_SS, 1); // disable TT_MAX6675
 
-    if (max6675_temp & MAX6675_ERROR_MASK)
+    if (max6675_temp & MAX6675_ERROR_MASK) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORPGM("Temp measurement error! ");
+      #if MAX6675_ERROR_MASK == 7
+        SERIAL_ERRORPGM("MAX31855 ");
+        if (max6675_temp & 1)
+          SERIAL_ERRORLNPGM("Open Circuit");
+        else if (max6675_temp & 2)
+          SERIAL_ERRORLNPGM("Short to GND");
+        else if (max6675_temp & 4)
+          SERIAL_ERRORLNPGM("Short to VCC");
+      #else
+        SERIAL_ERRORLNPGM("MAX6675");
+      #endif
       max6675_temp = 4000; // thermocouple open
+    }
     else
       max6675_temp >>= MAX6675_DISCARD_BITS;
 
