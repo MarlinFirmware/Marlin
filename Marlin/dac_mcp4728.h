@@ -24,8 +24,8 @@
  * Arduino library for MicroChip MCP4728 I2C D/A converter.
  */
 
-#ifndef mcp4728_h
-#define mcp4728_h
+#ifndef DAC_MCP4728_H
+#define DAC_MCP4728_H
 
 #include "MarlinConfig.h"
 
@@ -63,5 +63,4 @@ uint16_t mcp4728_getDrvPct(uint8_t channel);
 void mcp4728_setDrvPct(int16_t pct[XYZE]);
 
 #endif
-#endif
-
+#endif // DAC_MCP4728_H
