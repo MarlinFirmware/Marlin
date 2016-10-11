@@ -33,20 +33,6 @@
 
 #include "Marlin.h"
 
-#if HAS_ABL
-  #include "vector_3.h"
-#endif
-
-#if ENABLED(AUTO_BED_LEVELING_LINEAR)
-  #include "qr_solve.h"
-#elif ENABLED(MESH_BED_LEVELING)
-  #include "mesh_bed_leveling.h"
-#endif
-
-#if ENABLED(BEZIER_CURVE_SUPPORT)
-  #include "planner_bezier.h"
-#endif
-
 #include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
@@ -60,6 +46,23 @@
 #include "nozzle.h"
 #include "duration_t.h"
 #include "types.h"
+
+#if HAS_ABL
+  #include "vector_3.h"
+  #if ENABLED(AUTO_BED_LEVELING_LINEAR)
+    #include "qr_solve.h"
+  #endif
+#elif ENABLED(MESH_BED_LEVELING)
+  #include "mesh_bed_leveling.h"
+#endif
+
+#if ENABLED(BEZIER_CURVE_SUPPORT)
+  #include "planner_bezier.h"
+#endif
+
+#if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
+  #include "buzzer.h"
+#endif
 
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
@@ -457,13 +460,17 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  #define ADJUST_DELTA(V) \
-    if (planner.abl_enabled) { \
-      const float zadj = bilinear_z_offset(V); \
-      delta[A_AXIS] += zadj; \
-      delta[B_AXIS] += zadj; \
-      delta[C_AXIS] += zadj; \
-    }
+  #if ENABLED(DELTA)
+    #define ADJUST_DELTA(V) \
+      if (planner.abl_enabled) { \
+        const float zadj = bilinear_z_offset(V); \
+        delta[A_AXIS] += zadj; \
+        delta[B_AXIS] += zadj; \
+        delta[C_AXIS] += zadj; \
+      }
+  #else
+    #define ADJUST_DELTA(V) if (planner.abl_enabled) { delta[Z_AXIS] += bilinear_z_offset(V); }
+  #endif
 #elif IS_KINEMATIC
   #define ADJUST_DELTA(V) NOOP
 #endif
@@ -2218,8 +2225,8 @@ static void clean_up_after_endstop_or_probe_move() {
     #elif HAS_ABL
 
       if (enable != planner.abl_enabled) {
-        planner.abl_enabled = !planner.abl_enabled;
-        if (!planner.abl_enabled)
+        planner.abl_enabled = enable;
+        if (!enable)
           set_current_from_steppers_for_axis(
             #if ABL_PLANAR
               ALL_AXES
@@ -4560,7 +4567,9 @@ inline void gcode_M31() {
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPAIR("Print time: ", buffer);
 
-  thermalManager.autotempShutdown();
+  #if ENABLED(AUTOTEMP)
+    thermalManager.autotempShutdown();
+  #endif
 }
 
 #if ENABLED(SDSUPPORT)
@@ -8814,9 +8823,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       // For non-interpolated delta calculate every segment
       for (uint16_t s = segments + 1; --s;) {
         DELTA_NEXT(segment_distance[i]);
-        DELTA_IK();
-        ADJUST_DELTA(DELTA_VAR);
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_VAR[E_AXIS], _feedrate_mm_s, active_extruder);
+        planner.buffer_line_kinematic(DELTA_VAR, _feedrate_mm_s, active_extruder);
       }
 
     #endif
