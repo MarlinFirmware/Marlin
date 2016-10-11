@@ -85,8 +85,8 @@ float Planner::max_feedrate_mm_s[NUM_AXIS], // Max speeds in mm per second
       Planner::axis_steps_per_mm[NUM_AXIS],
       Planner::steps_to_mm[NUM_AXIS];
 
-unsigned long Planner::max_acceleration_steps_per_s2[NUM_AXIS],
-              Planner::max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
+uint32_t Planner::max_acceleration_steps_per_s2[NUM_AXIS],
+         Planner::max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
 millis_t Planner::min_segment_time;
 float Planner::min_feedrate_mm_s,
@@ -236,6 +236,7 @@ void Planner::reverse_pass() {
 
     uint8_t b = BLOCK_MOD(block_buffer_head - 3);
     while (b != tail) {
+      if (block[0] && (block[0]->flag & BLOCK_FLAG_START_FROM_FULL_HALT)) break;
       b = prev_block_index(b);
       block[2] = block[1];
       block[1] = block[0];
@@ -696,6 +697,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return;
 
+  // Clear the block flags
+  block->flag = 0;
+
   // For a mixing extruder, get a magnified step_event_count for each
   #if ENABLED(MIXING_EXTRUDER)
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
@@ -1011,90 +1015,170 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   // Compute and limit the acceleration rate for the trapezoid generator.
   float steps_per_mm = block->step_event_count / block->millimeters;
+  uint32_t accel;
   if (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS]) {
-    block->acceleration_steps_per_s2 = ceil(retract_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
+    // convert to: acceleration steps/sec^2
+    accel = ceil(retract_acceleration * steps_per_mm);
   }
   else {
+    #define LIMIT_ACCEL(AXIS) do{ \
+      const uint32_t comp = max_acceleration_steps_per_s2[AXIS] * block->step_event_count; \
+      if (accel * block->steps[AXIS] > comp) accel = comp / block->steps[AXIS]; \
+    }while(0)
+
+    // Start with print or travel acceleration
+    accel = ceil((block->steps[E_AXIS] ? acceleration : travel_acceleration) * steps_per_mm);
+
     // Limit acceleration per axis
-    block->acceleration_steps_per_s2 = ceil((block->steps[E_AXIS] ? acceleration : travel_acceleration) * steps_per_mm);
-    if (max_acceleration_steps_per_s2[X_AXIS] < (block->acceleration_steps_per_s2 * block->steps[X_AXIS]) / block->step_event_count)
-      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[X_AXIS] * block->step_event_count) / block->steps[X_AXIS];
-    if (max_acceleration_steps_per_s2[Y_AXIS] < (block->acceleration_steps_per_s2 * block->steps[Y_AXIS]) / block->step_event_count)
-      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[Y_AXIS] * block->step_event_count) / block->steps[Y_AXIS];
-    if (max_acceleration_steps_per_s2[Z_AXIS] < (block->acceleration_steps_per_s2 * block->steps[Z_AXIS]) / block->step_event_count)
-      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[Z_AXIS] * block->step_event_count) / block->steps[Z_AXIS];
-    if (max_acceleration_steps_per_s2[E_AXIS] < (block->acceleration_steps_per_s2 * block->steps[E_AXIS]) / block->step_event_count)
-      block->acceleration_steps_per_s2 = (max_acceleration_steps_per_s2[E_AXIS] * block->step_event_count) / block->steps[E_AXIS];
+    LIMIT_ACCEL(X_AXIS);
+    LIMIT_ACCEL(Y_AXIS);
+    LIMIT_ACCEL(Z_AXIS);
+    LIMIT_ACCEL(E_AXIS);
   }
-  block->acceleration = block->acceleration_steps_per_s2 / steps_per_mm;
-  block->acceleration_rate = (long)(block->acceleration_steps_per_s2 * 16777216.0 / ((F_CPU) * 0.125));
+  block->acceleration_steps_per_s2 = accel;
+  block->acceleration = accel / steps_per_mm;
+  block->acceleration_rate = (long)(accel * 16777216.0 / ((F_CPU) * 0.125)); // * 8.388608
+
+  // Initial limit on the segment entry velocity
+  float vmax_junction;
 
   #if 0  // Use old jerk for now
 
     float junction_deviation = 0.1;
 
     // Compute path unit vector
-    double unit_vec[XYZ];
+    double unit_vec[XYZ] = {
+      delta_mm[X_AXIS] * inverse_millimeters,
+      delta_mm[Y_AXIS] * inverse_millimeters,
+      delta_mm[Z_AXIS] * inverse_millimeters
+    };
 
-    unit_vec[X_AXIS] = delta_mm[X_AXIS] * inverse_millimeters;
-    unit_vec[Y_AXIS] = delta_mm[Y_AXIS] * inverse_millimeters;
-    unit_vec[Z_AXIS] = delta_mm[Z_AXIS] * inverse_millimeters;
+    /*
+       Compute maximum allowable entry speed at junction by centripetal acceleration approximation.
 
-    // Compute maximum allowable entry speed at junction by centripetal acceleration approximation.
-    // Let a circle be tangent to both previous and current path line segments, where the junction
-    // deviation is defined as the distance from the junction to the closest edge of the circle,
-    // collinear with the circle center. The circular segment joining the two paths represents the
-    // path of centripetal acceleration. Solve for max velocity based on max acceleration about the
-    // radius of the circle, defined indirectly by junction deviation. This may be also viewed as
-    // path width or max_jerk in the previous grbl version. This approach does not actually deviate
-    // from path, but used as a robust way to compute cornering speeds, as it takes into account the
-    // nonlinearities of both the junction angle and junction velocity.
-    double vmax_junction = MINIMUM_PLANNER_SPEED; // Set default max junction speed
+       Let a circle be tangent to both previous and current path line segments, where the junction
+       deviation is defined as the distance from the junction to the closest edge of the circle,
+       collinear with the circle center.
+
+       The circular segment joining the two paths represents the path of centripetal acceleration.
+       Solve for max velocity based on max acceleration about the radius of the circle, defined
+       indirectly by junction deviation.
+
+       This may be also viewed as path width or max_jerk in the previous grbl version. This approach
+       does not actually deviate from path, but used as a robust way to compute cornering speeds, as
+       it takes into account the nonlinearities of both the junction angle and junction velocity.
+     */
+
+    vmax_junction = MINIMUM_PLANNER_SPEED; // Set default max junction speed
 
     // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
-    if ((block_buffer_head != block_buffer_tail) && (previous_nominal_speed > 0.0)) {
+    if (block_buffer_head != block_buffer_tail && previous_nominal_speed > 0.0) {
       // Compute cosine of angle between previous and current path. (prev_unit_vec is negative)
       // NOTE: Max junction velocity is computed without sin() or acos() by trig half angle identity.
-      double cos_theta = - previous_unit_vec[X_AXIS] * unit_vec[X_AXIS]
-                         - previous_unit_vec[Y_AXIS] * unit_vec[Y_AXIS]
-                         - previous_unit_vec[Z_AXIS] * unit_vec[Z_AXIS] ;
+      float cos_theta = - previous_unit_vec[X_AXIS] * unit_vec[X_AXIS]
+                        - previous_unit_vec[Y_AXIS] * unit_vec[Y_AXIS]
+                        - previous_unit_vec[Z_AXIS] * unit_vec[Z_AXIS] ;
       // Skip and use default max junction speed for 0 degree acute junction.
       if (cos_theta < 0.95) {
         vmax_junction = min(previous_nominal_speed, block->nominal_speed);
         // Skip and avoid divide by zero for straight junctions at 180 degrees. Limit to min() of nominal speeds.
         if (cos_theta > -0.95) {
           // Compute maximum junction velocity based on maximum acceleration and junction deviation
-          double sin_theta_d2 = sqrt(0.5 * (1.0 - cos_theta)); // Trig half angle identity. Always positive.
+          float sin_theta_d2 = sqrt(0.5 * (1.0 - cos_theta)); // Trig half angle identity. Always positive.
           NOMORE(vmax_junction, sqrt(block->acceleration * junction_deviation * sin_theta_d2 / (1.0 - sin_theta_d2)));
         }
       }
     }
   #endif
 
-  // Start with a safe speed
-  float vmax_junction = max_jerk[X_AXIS] * 0.5, vmax_junction_factor = 1.0;
-  if (max_jerk[Y_AXIS] * 0.5 < fabs(current_speed[Y_AXIS])) NOMORE(vmax_junction, max_jerk[Y_AXIS] * 0.5);
-  if (max_jerk[Z_AXIS] * 0.5 < fabs(current_speed[Z_AXIS])) NOMORE(vmax_junction, max_jerk[Z_AXIS] * 0.5);
-  if (max_jerk[E_AXIS] * 0.5 < fabs(current_speed[E_AXIS])) NOMORE(vmax_junction, max_jerk[E_AXIS] * 0.5);
-  NOMORE(vmax_junction, block->nominal_speed);
-  float safe_speed = vmax_junction;
+  /**
+   * Adapted from Prusa MKS firmware
+   *
+   * Start with a safe speed (from which the machine may halt to stop immediately).
+   */
+
+  // Exit speed limited by a jerk to full halt of a previous last segment
+  static float previous_safe_speed;
+
+  float safe_speed = block->nominal_speed;
+  bool limited = false;
+  LOOP_XYZE(i) {
+    float jerk = fabs(current_speed[i]);
+    if (jerk > max_jerk[i]) {
+      // The actual jerk is lower if it has been limited by the XY jerk.
+      if (limited) {
+        // Spare one division by a following gymnastics:
+        // Instead of jerk *= safe_speed / block->nominal_speed,
+        // multiply max_jerk[i] by the divisor.
+        jerk *= safe_speed;
+        float mjerk = max_jerk[i] * block->nominal_speed;
+        if (jerk > mjerk) safe_speed *= mjerk / jerk;
+      }
+      else {
+        safe_speed = max_jerk[i];
+        limited = true;
+      }
+    }
+  }
 
   if (moves_queued > 1 && previous_nominal_speed > 0.0001) {
-    //if ((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
-        vmax_junction = block->nominal_speed;
-    //}
+    // Estimate a maximum velocity allowed at a joint of two successive segments.
+    // If this maximum velocity allowed is lower than the minimum of the entry / exit safe velocities,
+    // then the machine is not coasting anymore and the safe entry / exit velocities shall be used.
 
-    float dsx = fabs(current_speed[X_AXIS] - previous_speed[X_AXIS]),
-          dsy = fabs(current_speed[Y_AXIS] - previous_speed[Y_AXIS]),
-          dsz = fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]),
-          dse = fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]);
-    if (dsx > max_jerk[X_AXIS]) NOMORE(vmax_junction_factor, max_jerk[X_AXIS] / dsx);
-    if (dsy > max_jerk[Y_AXIS]) NOMORE(vmax_junction_factor, max_jerk[Y_AXIS] / dsy);
-    if (dsz > max_jerk[Z_AXIS]) NOMORE(vmax_junction_factor, max_jerk[Z_AXIS] / dsz);
-    if (dse > max_jerk[E_AXIS]) NOMORE(vmax_junction_factor, max_jerk[E_AXIS] / dse);
-
-    vmax_junction = min(previous_nominal_speed, vmax_junction * vmax_junction_factor); // Limit speed to max previous speed
+    // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
+    bool prev_speed_larger = previous_nominal_speed > block->nominal_speed;
+    float smaller_speed_factor = prev_speed_larger ? (block->nominal_speed / previous_nominal_speed) : (previous_nominal_speed / block->nominal_speed);
+    // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
+    vmax_junction = prev_speed_larger ? block->nominal_speed : previous_nominal_speed;
+    // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
+    float v_factor = 1.f;
+    limited = false;
+    // Now limit the jerk in all axes.
+    LOOP_XYZE(axis) {
+      // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
+      float v_exit = previous_speed[axis], v_entry = current_speed[axis];
+      if (prev_speed_larger) v_exit *= smaller_speed_factor;
+      if (limited) {
+        v_exit *= v_factor;
+        v_entry *= v_factor;
+      }
+      // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
+      float jerk = 
+        (v_exit > v_entry) ?
+          ((v_entry > 0.f || v_exit < 0.f) ?
+            // coasting
+            (v_exit - v_entry) : 
+            // axis reversal
+            max(v_exit, -v_entry)) :
+          // v_exit <= v_entry
+          ((v_entry < 0.f || v_exit > 0.f) ?
+            // coasting
+            (v_entry - v_exit) :
+            // axis reversal
+            max(-v_exit, v_entry));
+      if (jerk > max_jerk[axis]) {
+        v_factor *= max_jerk[axis] / jerk;
+        limited = true;
+      }
+    }
+    if (limited) vmax_junction *= v_factor;
+    // Now the transition velocity is known, which maximizes the shared exit / entry velocity while
+    // respecting the jerk factors, it may be possible, that applying separate safe exit / entry velocities will achieve faster prints.
+    float vmax_junction_threshold = vmax_junction * 0.99f;
+    if (previous_safe_speed > vmax_junction_threshold && safe_speed > vmax_junction_threshold) {
+      // Not coasting. The machine will stop and start the movements anyway,
+      // better to start the segment from start.
+      block->flag |= BLOCK_FLAG_START_FROM_FULL_HALT;
+      vmax_junction = safe_speed;
+    }
   }
+  else {
+    block->flag |= BLOCK_FLAG_START_FROM_FULL_HALT;
+    vmax_junction = safe_speed;
+  }
+
+  // Max entry speed of this block equals the max exit speed of the previous block.
   block->max_entry_speed = vmax_junction;
 
   // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
@@ -1109,13 +1193,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // block nominal speed limits both the current and next maximum junction speeds. Hence, in both
   // the reverse and forward planners, the corresponding block junction speed will always be at the
   // the maximum junction speed and may always be ignored for any speed reduction checks.
-  block->flag &= ~BLOCK_FLAG_NOMINAL_LENGTH;
-  if (block->nominal_speed <= v_allowable) block->flag |= BLOCK_FLAG_NOMINAL_LENGTH;
-  block->flag |= BLOCK_FLAG_RECALCULATE; // Always calculate trapezoid for new block
+  block->flag |= BLOCK_FLAG_RECALCULATE | (block->nominal_speed <= v_allowable ? BLOCK_FLAG_NOMINAL_LENGTH : 0);
 
   // Update previous path unit_vector and nominal speed
   memcpy(previous_speed, current_speed, sizeof(previous_speed));
   previous_nominal_speed = block->nominal_speed;
+  previous_safe_speed = safe_speed;
 
   #if ENABLED(LIN_ADVANCE)
 
