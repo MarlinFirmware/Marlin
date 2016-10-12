@@ -148,6 +148,7 @@
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
  * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted.
+ * M43  - Monitor pins & report changes - report active pins
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  * M75  - Start the print job timer.
  * M76  - Pause the print job timer.
@@ -283,6 +284,10 @@
 #if ENABLED(G38_PROBE_TARGET)
   bool G38_move = false,
        G38_endstop_hit = false;
+#endif
+
+#if ENABLED(PINS_DEBUGGING)
+  bool endstop_monitor_flag = false;
 #endif
 
 bool Running = true;
@@ -4688,10 +4693,17 @@ inline void gcode_M42() {
   /**
    * M43: Pin report and debug
    *
+   *      pin report if just M43 with no codes
    *      P<pin> Will read/watch a single pin
    *      W      Watch pins for changes until reboot
+   *      E      toggles endstop monitor
+   *               reports changes to endstops
+   *               toggles LED when endstop changes
+   *               background function (machine continues to operate as normal)
+   *
    */
   inline void gcode_M43() {
+       
     int first_pin = 0, last_pin = DIO_COUNT - 1;
     if (code_seen('P')) {
       first_pin = last_pin = code_value_byte();
@@ -4734,9 +4746,15 @@ inline void gcode_M42() {
         safe_delay(500);
       }
     }
-    else // single pins report
+        
+    if ( !(code_seen('P') || code_seen('W') || code_seen('E')))   // single pins report
       for (int8_t pin = first_pin; pin <= last_pin; pin++)
-        report_pin_state(pin);
+          report_pin_state(pin);
+    
+    if (code_seen('E')) {
+      endstop_monitor_flag = endstop_monitor_flag ? false : true;
+      SERIAL_PROTOCOLLN((endstop_monitor_flag ? "endstop monitor active" : "endstop monitor disabled"));
+    }    
   }
 
 #endif // PINS_DEBUGGING
@@ -5753,6 +5771,7 @@ inline void gcode_M114() { report_current_position(); }
 inline void gcode_M115() {
   SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
 }
+
 
 /**
  * M117: Set LCD Status Message
