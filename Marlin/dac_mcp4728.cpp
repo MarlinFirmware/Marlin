@@ -31,6 +31,7 @@
  */
 
 #include "dac_mcp4728.h"
+#include "enum.h"
 
 #if ENABLED(DAC_STEPPER_CURRENT)
 
@@ -119,7 +120,7 @@ uint16_t mcp4728_getDrvPct(uint8_t channel) { return uint16_t(100.0 * mcp4728_va
  * Receives all Drive strengths as 0-100 percent values, updates
  * DAC Values array and calls fastwrite to update the DAC.
  */
-void mcp4728_setDrvPct(int16_t pct[XYZE]) {
+void mcp4728_setDrvPct(uint16_t pct[XYZE]) {
   LOOP_XYZE(i) mcp4728_values[i] = 0.01 * pct[i] * (DAC_STEPPER_MAX);
   mcp4728_fastWrite();
 }
