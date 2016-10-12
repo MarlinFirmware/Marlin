@@ -71,12 +71,9 @@
 //
 // Temperature Sensors
 //
-#define SDSS               16
-#define LED_PIN            46
-
-#define TEMP_0_PIN          7 // ANALOG NUMBERING
-#define TEMP_1_PIN          6 // ANALOG NUMBERING
-#define TEMP_BED_PIN        6 // ANALOG NUMBERING
+#define TEMP_0_PIN          7   // Analog Input
+#define TEMP_1_PIN          6   // Analog Input
+#define TEMP_BED_PIN        6   // Analog Input
 
 //
 // Heaters / Fans
@@ -86,6 +83,12 @@
 #define HEATER_BED_PIN      3 // BED
 
 #define FAN_PIN             9
+
+//
+// Misc. Functions
+//
+#define SDSS               16
+#define LED_PIN            46
 
 //
 // LCD / Controller
@@ -118,5 +121,5 @@
   #define BTN_EN2          -1
   #define BTN_ENC          -1
 
-  #define SD_DETECT_PIN    -1  // Minitronics doesn't use this
+  #define SD_DETECT_PIN    -1 // Minitronics doesn't use this
 #endif

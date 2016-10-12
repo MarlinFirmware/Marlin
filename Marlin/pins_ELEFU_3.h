@@ -77,10 +77,10 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          3 // ANALOG NUMBERING
-#define TEMP_1_PIN          2 // ANALOG NUMBERING
-#define TEMP_2_PIN          1 // ANALOG NUMBERING
-#define TEMP_BED_PIN        0 // ANALOG NUMBERING
+#define TEMP_0_PIN          3   // Analog Input
+#define TEMP_1_PIN          2   // Analog Input
+#define TEMP_2_PIN          1   // Analog Input
+#define TEMP_BED_PIN        0   // Analog Input
 
 //
 // Heaters / Fans
@@ -116,34 +116,34 @@
 #endif // RA_CONTROL_PANEL
 
 #if ENABLED(RA_DISCO)
-  //variables for which pins the TLC5947 is using
+  // variables for which pins the TLC5947 is using
   #define TLC_CLOCK_PIN    25
   #define TLC_BLANK_PIN    23
   #define TLC_XLAT_PIN     22
   #define TLC_DATA_PIN     24
 
-  //We also need to define pin to port number mapping for the 2560 to match the pins listed above. If you change the TLC pins, update this as well per the 2560 datasheet!
-  //This currently only works with the RA Board.
-  #define TLC_CLOCK_BIT 3 //bit 3 on port A
-  #define TLC_CLOCK_PORT &PORTA //bit 3 on port A
+  // We also need to define pin to port number mapping for the 2560 to match the pins listed above. If you change the TLC pins, update this as well per the 2560 datasheet!
+  // This currently only works with the RA Board.
+  #define TLC_CLOCK_BIT 3 // bit 3 on port A
+  #define TLC_CLOCK_PORT &PORTA // bit 3 on port A
 
-  #define TLC_BLANK_BIT 1 //bit 1 on port A
-  #define TLC_BLANK_PORT &PORTA //bit 1 on port A
+  #define TLC_BLANK_BIT 1 // bit 1 on port A
+  #define TLC_BLANK_PORT &PORTA // bit 1 on port A
 
-  #define TLC_DATA_BIT 2 //bit 2 on port A
-  #define TLC_DATA_PORT &PORTA //bit 2 on port A
+  #define TLC_DATA_BIT 2 // bit 2 on port A
+  #define TLC_DATA_PORT &PORTA // bit 2 on port A
 
-  #define TLC_XLAT_BIT 0 //bit 0 on port A
-  #define TLC_XLAT_PORT &PORTA //bit 0 on port A
+  #define TLC_XLAT_BIT 0 // bit 0 on port A
+  #define TLC_XLAT_PORT &PORTA // bit 0 on port A
 
-  //change this to match your situation. Lots of TLCs takes up the arduino SRAM very quickly, so be careful
-  //Leave it at at least 1 if you have enabled RA_LIGHTING
-  //The number of TLC5947 boards chained together for use with the animation, additional ones will repeat the animation on them, but are not individually addressable and mimic those before them. You can leave the default at 2 even if you only have 1 TLC5947 module.
+  // change this to match your situation. Lots of TLCs takes up the arduino SRAM very quickly, so be careful
+  // Leave it at at least 1 if you have enabled RA_LIGHTING
+  // The number of TLC5947 boards chained together for use with the animation, additional ones will repeat the animation on them, but are not individually addressable and mimic those before them. You can leave the default at 2 even if you only have 1 TLC5947 module.
   #define NUM_TLCS 2
 
-  //These TRANS_ARRAY values let you change the order the LEDs on the lighting modules will animate for chase functions.
-  //Modify them according to your specific situation.
-  //NOTE: the array should be 8 long for every TLC you have. These defaults assume (2) TLCs.
+  // These TRANS_ARRAY values let you change the order the LEDs on the lighting modules will animate for chase functions.
+  // Modify them according to your specific situation.
+  // NOTE: the array should be 8 long for every TLC you have. These defaults assume (2) TLCs.
   #define TRANS_ARRAY {0, 1, 2, 3, 4, 5, 6, 7, 15, 14, 13, 12, 11, 10, 9, 8} //forwards
   //#define TRANS_ARRAY {7, 6, 5, 4, 3, 2, 1, 0, 8, 9, 10, 11, 12, 13, 14, 15} //backwards
 #endif // RA_DISCO

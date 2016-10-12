@@ -532,6 +532,15 @@
   #define MSG_INFO_PSU                        "Power Supply"
 #endif
 
+#ifndef MSG_DRIVE_STRENGTH
+  #define MSG_DRIVE_STRENGTH                  "Drive Strength"
+#endif
+#ifndef MSG_DAC_PERCENT
+  #define MSG_DAC_PERCENT                     "Driver %"
+#endif
+#ifndef MSG_DAC_EEPROM_WRITE
+  #define MSG_DAC_EEPROM_WRITE                "DAC EEPROM Write"
+#endif
 #ifndef MSG_FILAMENT_CHANGE_HEADER
   #define MSG_FILAMENT_CHANGE_HEADER          "CHANGE FILAMENT"
 #endif

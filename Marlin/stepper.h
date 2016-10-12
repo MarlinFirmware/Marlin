@@ -108,7 +108,7 @@ class Stepper {
       static unsigned char old_OCR0A;
       static volatile unsigned char eISR_Rate;
       #if ENABLED(LIN_ADVANCE)
-        static volatile long e_steps[E_STEPPERS];
+        static volatile int e_steps[E_STEPPERS];
         static int extruder_advance_k;
         static int final_estep_rate;
         static int current_estep_rate[E_STEPPERS]; // Actual extruder speed [steps/s]
@@ -188,9 +188,9 @@ class Stepper {
     //
     // Set the current position in steps
     //
-    static void set_position(const long& x, const long& y, const long& z, const long& e);
-    static void set_position(const AxisEnum& a, const long& v);
-    static void set_e_position(const long& e);
+    static void set_position(const long &a, const long &b, const long &c, const long &e);
+    static void set_position(const AxisEnum &a, const long &v);
+    static void set_e_position(const long &e);
 
     //
     // Set direction bits for all steppers

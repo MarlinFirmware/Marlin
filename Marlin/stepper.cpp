@@ -91,11 +91,11 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
-  unsigned char Stepper::old_OCR0A;
+  unsigned char Stepper::old_OCR0A = 0;
   volatile unsigned char Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
 
   #if ENABLED(LIN_ADVANCE)
-    volatile long Stepper::e_steps[E_STEPPERS];
+    volatile int Stepper::e_steps[E_STEPPERS];
     int Stepper::extruder_advance_k = LIN_ADVANCE_K,
         Stepper::final_estep_rate,
         Stepper::current_estep_rate[E_STEPPERS],
@@ -299,18 +299,32 @@ void Stepper::set_directions() {
     SET_STEP_DIR(Z); // C
   #endif
 
-  if (motor_direction(E_AXIS)) {
-    REV_E_DIR();
-    count_direction[E_AXIS] = -1;
-  }
-  else {
-    NORM_E_DIR();
-    count_direction[E_AXIS] = 1;
-  }
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    if (motor_direction(E_AXIS)) {
+      REV_E_DIR();
+      count_direction[E_AXIS] = -1;
+    }
+    else {
+      NORM_E_DIR();
+      count_direction[E_AXIS] = 1;
+    }
+  #endif // !ADVANCE && !LIN_ADVANCE
 }
 
-// "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
-// It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately.
+/**
+ * Stepper Driver Interrupt
+ *
+ * Directly pulses the stepper motors at high frequency.
+ * Timer 1 runs at a base frequency of 2MHz, with this ISR using OCR1A compare mode.
+ *
+ * OCR1A   Frequency
+ *     1     2 MHz
+ *    50    40 KHz
+ *   100    20 KHz - capped max rate
+ *   200    10 KHz - nominal max rate
+ *  2000     1 KHz - sleep rate
+ *  4000   500  Hz - init rate
+ */
 ISR(TIMER1_COMPA_vect) { Stepper::isr(); }
 
 void Stepper::isr() {
@@ -321,7 +335,7 @@ void Stepper::isr() {
       if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
     cleaning_buffer_counter--;
-    OCR1A = 200;
+    OCR1A = 200; // Run at max speed - 10 KHz
     return;
   }
 
@@ -346,7 +360,7 @@ void Stepper::isr() {
       #if ENABLED(Z_LATE_ENABLE)
         if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
-          OCR1A = 2000; //1ms wait
+          OCR1A = 2000; // Run at slow speed - 1 KHz
           return;
         }
       #endif
@@ -356,7 +370,7 @@ void Stepper::isr() {
       // #endif
     }
     else {
-      OCR1A = 2000; // 1kHz.
+      OCR1A = 2000; // Run at slow speed - 1 KHz
       return;
     }
   }
@@ -389,7 +403,7 @@ void Stepper::isr() {
 
       #if ENABLED(MIXING_EXTRUDER)
         // Step mixing steppers proportionally
-        bool dir = motor_direction(E_AXIS);
+        const bool dir = motor_direction(E_AXIS);
         MIXING_STEPPERS_LOOP(j) {
           counter_m[j] += current_block->steps[E_AXIS];
           if (counter_m[j] > 0) {
@@ -398,22 +412,6 @@ void Stepper::isr() {
           }
         }
       #endif
-
-      if (current_block->use_advance_lead) {
-        int delta_adv_steps = (((long)extruder_advance_k * current_estep_rate[TOOL_E_INDEX]) >> 9) - current_adv_steps[TOOL_E_INDEX];
-        #if ENABLED(MIXING_EXTRUDER)
-          // Mixing extruders apply advance lead proportionally
-          MIXING_STEPPERS_LOOP(j) {
-            int steps = delta_adv_steps * current_block->step_event_count / current_block->mix_event_count[j];
-            e_steps[j] += steps;
-            current_adv_steps[j] += steps;
-          }
-        #else
-          // For most extruders, advance the single E stepper
-          e_steps[TOOL_E_INDEX] += delta_adv_steps;
-          current_adv_steps[TOOL_E_INDEX] += delta_adv_steps;
-        #endif
-      }
 
     #elif ENABLED(ADVANCE)
 
@@ -430,7 +428,7 @@ void Stepper::isr() {
       #if ENABLED(MIXING_EXTRUDER)
 
         // Step mixing steppers proportionally
-        bool dir = motor_direction(E_AXIS);
+        const bool dir = motor_direction(E_AXIS);
         MIXING_STEPPERS_LOOP(j) {
           counter_m[j] += current_block->steps[E_AXIS];
           if (counter_m[j] > 0) {
@@ -534,6 +532,21 @@ void Stepper::isr() {
     }
   }
 
+  #if ENABLED(LIN_ADVANCE)
+    if (current_block->use_advance_lead) {
+      int delta_adv_steps = (((long)extruder_advance_k * current_estep_rate[TOOL_E_INDEX]) >> 9) - current_adv_steps[TOOL_E_INDEX];
+      current_adv_steps[TOOL_E_INDEX] += delta_adv_steps;
+      #if ENABLED(MIXING_EXTRUDER)
+        // Mixing extruders apply advance lead proportionally
+        MIXING_STEPPERS_LOOP(j)
+          e_steps[j] += delta_adv_steps * current_block->step_event_count / current_block->mix_event_count[j];
+      #else
+        // For most extruders, advance the single E stepper
+        e_steps[TOOL_E_INDEX] += delta_adv_steps;
+      #endif
+   }
+  #endif
+  
   #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
     // If we have esteps to execute, fire the next advance_isr "now"
     if (e_steps[TOOL_E_INDEX]) OCR0A = TCNT0 + 2;
@@ -591,7 +604,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = (timer >> 2) * step_loops / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]); //>> 3 is divide by 8. Reason: Timer 1 runs at 16/8=2MHz, Timer 0 at 16/64=0.25MHz. ==> 2/0.25=8.
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
@@ -641,7 +654,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = (timer >> 2) * step_loops / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]);
     #endif
   }
   else {
@@ -651,7 +664,7 @@ void Stepper::isr() {
       if (current_block->use_advance_lead)
         current_estep_rate[TOOL_E_INDEX] = final_estep_rate;
 
-      eISR_Rate = (OCR1A_nominal >> 2) * step_loops_nominal / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = (OCR1A_nominal >> 3) * step_loops_nominal / abs(e_steps[TOOL_E_INDEX]);
 
     #endif
 
@@ -680,14 +693,28 @@ void Stepper::isr() {
     old_OCR0A += eISR_Rate;
     OCR0A = old_OCR0A;
 
+    #define SET_E_STEP_DIR(INDEX) \
+      if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
+
     #define START_E_PULSE(INDEX) \
       if (e_steps[INDEX]) E## INDEX ##_STEP_WRITE(!INVERT_E_STEP_PIN)
 
     #define STOP_E_PULSE(INDEX) \
       if (e_steps[INDEX]) { \
-        e_steps[INDEX] <= 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
+        e_steps[INDEX] < 0 ? ++e_steps[INDEX] : --e_steps[INDEX]; \
         E## INDEX ##_STEP_WRITE(INVERT_E_STEP_PIN); \
       }
+
+    SET_E_STEP_DIR(0);
+    #if E_STEPPERS > 1
+      SET_E_STEP_DIR(1);
+      #if E_STEPPERS > 2
+        SET_E_STEP_DIR(2);
+        #if E_STEPPERS > 3
+          SET_E_STEP_DIR(3);
+        #endif
+      #endif
+    #endif
 
     #define CYCLES_EATEN_BY_E 60
 
@@ -888,6 +915,7 @@ void Stepper::init() {
   // output mode = 00 (disconnected)
   TCCR1A &= ~(3 << COM1A0);
   TCCR1A &= ~(3 << COM1B0);
+
   // Set the timer pre-scaler
   // Generally we use a divider of 8, resulting in a 2MHz timer
   // frequency on a 16MHz MCU. If you are going to change this, be
@@ -895,6 +923,7 @@ void Stepper::init() {
   // create_speed_lookuptable.py
   TCCR1B = (TCCR1B & ~(0x07 << CS10)) | (2 << CS10);
 
+  // Init Stepper ISR to 122 Hz for quick starting
   OCR1A = 0x4000;
   TCNT1 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
@@ -937,7 +966,7 @@ void Stepper::synchronize() { while (planner.blocks_queued()) idle(); }
  * This allows get_axis_position_mm to correctly
  * derive the current XYZ position later on.
  */
-void Stepper::set_position(const long& x, const long& y, const long& z, const long& e) {
+void Stepper::set_position(const long &a, const long &b, const long &c, const long &e) {
 
   synchronize(); // Bad to set stepper counts in the middle of a move
 
@@ -946,37 +975,37 @@ void Stepper::set_position(const long& x, const long& y, const long& z, const lo
   #if ENABLED(COREXY)
     // corexy positioning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
-    count_position[A_AXIS] = x + y;
-    count_position[B_AXIS] = x - y;
-    count_position[Z_AXIS] = z;
+    count_position[A_AXIS] = a + b;
+    count_position[B_AXIS] = a - b;
+    count_position[Z_AXIS] = c;
   #elif ENABLED(COREXZ)
     // corexz planning
-    count_position[A_AXIS] = x + z;
-    count_position[Y_AXIS] = y;
-    count_position[C_AXIS] = x - z;
+    count_position[A_AXIS] = a + c;
+    count_position[Y_AXIS] = b;
+    count_position[C_AXIS] = a - c;
   #elif ENABLED(COREYZ)
     // coreyz planning
-    count_position[X_AXIS] = x;
-    count_position[B_AXIS] = y + z;
-    count_position[C_AXIS] = y - z;
+    count_position[X_AXIS] = a;
+    count_position[B_AXIS] = y + c;
+    count_position[C_AXIS] = y - c;
   #else
     // default non-h-bot planning
-    count_position[X_AXIS] = x;
-    count_position[Y_AXIS] = y;
-    count_position[Z_AXIS] = z;
+    count_position[X_AXIS] = a;
+    count_position[Y_AXIS] = b;
+    count_position[Z_AXIS] = c;
   #endif
 
   count_position[E_AXIS] = e;
   CRITICAL_SECTION_END;
 }
 
-void Stepper::set_position(const AxisEnum &axis, const long& v) {
+void Stepper::set_position(const AxisEnum &axis, const long &v) {
   CRITICAL_SECTION_START;
   count_position[axis] = v;
   CRITICAL_SECTION_END;
 }
 
-void Stepper::set_e_position(const long& e) {
+void Stepper::set_e_position(const long &e) {
   CRITICAL_SECTION_START;
   count_position[E_AXIS] = e;
   CRITICAL_SECTION_END;

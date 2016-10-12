@@ -275,8 +275,6 @@
   #define DIO21_DDR   DDRC
   #define DIO21_PWM   NULL
 
-
-
   #undef PB0
   #define PB0_PIN     PINB0
   #define PB0_RPORT   PINB

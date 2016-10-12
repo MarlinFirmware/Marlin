@@ -518,6 +518,10 @@
  */
 #if HAS_ABL
 
+  #if ENABLED(USE_RAW_KINEMATICS)
+    #error "USE_RAW_KINEMATICS is not compatible with AUTO_BED_LEVELING"
+  #endif
+
   /**
    * Delta and SCARA have limited bed leveling options
    */

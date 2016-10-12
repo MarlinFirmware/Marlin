@@ -78,9 +78,9 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          2  // Extruder / Analog pin numbering
-#define TEMP_1_PIN          1  // Spare / Analog pin numbering
-#define TEMP_BED_PIN        0  // Bed / Analog pin numbering
+#define TEMP_0_PIN          2   // Analog Input
+#define TEMP_1_PIN          1   // Analog Input
+#define TEMP_BED_PIN        0   // Analog Input
 
 //
 // Heaters / Fans
@@ -90,9 +90,8 @@
 #define FAN_PIN            16  // Fan, PWM
 
 //
-// LCD / Controller
+// Misc. Functions
 //
 #define SDSS               20
 #define SD_DETECT_PIN      12
-
 #define LED_PIN            19

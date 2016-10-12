@@ -82,9 +82,9 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          8
-#define TEMP_1_PIN          9
-#define TEMP_BED_PIN       10
+#define TEMP_0_PIN          8   // Analog Input
+#define TEMP_1_PIN          9   // Analog Input
+#define TEMP_BED_PIN       10   // Analog Input
 
 //
 // Heaters / Fans
@@ -93,11 +93,15 @@
 #define HEATER_1_PIN        3
 #define HEATER_BED_PIN      4
 
+#define FAN_PIN             7
+
+//
+// Misc. Functions
+//
 #define SDSS               53
 #define LED_PIN            13
-#define FAN_PIN             7
 #define PS_ON_PIN          12
-#define SUICIDE_PIN        54  //PIN that has to be turned on right after start, to keep power flowing.
+#define SUICIDE_PIN        54  // PIN that has to be turned on right after start, to keep power flowing.
 
 //
 // LCD / Controller
@@ -115,16 +119,16 @@
     #define LCD_PINS_D6 5
     #define LCD_PINS_D7 6
 
-    //buttons are directly attached
+    // buttons are directly attached
     #define BTN_EN1 40
     #define BTN_EN2 42
     #define BTN_ENC 19
 
     #define SD_DETECT_PIN 38
 
-  #else //!NEWPANEL - Old style panel with shift register
+  #else // !NEWPANEL - Old style panel with shift register
 
-    //buttons are attached to a shift register
+    // buttons are attached to a shift register
     #define SHIFT_CLK 38
     #define SHIFT_LD 42
     #define SHIFT_OUT 40

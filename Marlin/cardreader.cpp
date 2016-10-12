@@ -24,7 +24,6 @@
 
 #include "ultralcd.h"
 #include "stepper.h"
-#include "temperature.h"
 #include "language.h"
 
 #include "Marlin.h"
