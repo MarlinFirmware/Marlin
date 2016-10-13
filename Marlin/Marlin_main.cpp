@@ -9737,7 +9737,9 @@ void setup() {
       safe_delay(BOOTSCREEN_TIMEOUT);
     #elif ENABLED(ULTRA_LCD)
       bootscreen();
-      lcd_init();
+      #if DISABLED(SDSUPPORT)
+        lcd_init();
+      #endif
     #endif
   #endif
 
