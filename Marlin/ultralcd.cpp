@@ -1642,14 +1642,14 @@ void kill_screen(const char* lcd_msg) {
       #define _PIDTEMP_FUNCTIONS(eindex) _PIDTEMP_BASE_FUNCTIONS(eindex)
     #endif
 
-    _PIDTEMP_FUNCTIONS(0);
+    _PIDTEMP_FUNCTIONS(0)
     #if ENABLED(PID_PARAMS_PER_HOTEND)
       #if HOTENDS > 1
-        _PIDTEMP_FUNCTIONS(1);
+        _PIDTEMP_FUNCTIONS(1)
         #if HOTENDS > 2
-          _PIDTEMP_FUNCTIONS(2);
+          _PIDTEMP_FUNCTIONS(2)
           #if HOTENDS > 3
-            _PIDTEMP_FUNCTIONS(3);
+            _PIDTEMP_FUNCTIONS(3)
           #endif //HOTENDS > 3
         #endif //HOTENDS > 2
       #endif //HOTENDS > 1
@@ -2368,14 +2368,14 @@ void kill_screen(const char* lcd_msg) {
       callbackFunc = callback; \
     }
 
-  menu_edit_type(int, int3, itostr3, 1);
-  menu_edit_type(float, float3, ftostr3, 1);
-  menu_edit_type(float, float32, ftostr32, 100);
-  menu_edit_type(float, float43, ftostr43sign, 1000);
-  menu_edit_type(float, float5, ftostr5rj, 0.01);
-  menu_edit_type(float, float51, ftostr51sign, 10);
-  menu_edit_type(float, float52, ftostr52sign, 100);
-  menu_edit_type(unsigned long, long5, ftostr5rj, 0.01);
+  menu_edit_type(int, int3, itostr3, 1)
+  menu_edit_type(float, float3, ftostr3, 1)
+  menu_edit_type(float, float32, ftostr32, 100)
+  menu_edit_type(float, float43, ftostr43sign, 1000)
+  menu_edit_type(float, float5, ftostr5rj, 0.01)
+  menu_edit_type(float, float51, ftostr51sign, 10)
+  menu_edit_type(float, float52, ftostr52sign, 100)
+  menu_edit_type(unsigned long, long5, ftostr5rj, 0.01)
 
   /**
    *
