@@ -2316,7 +2316,8 @@ static void clean_up_after_endstop_or_probe_move() {
     //                                : ((c < b) ? b : (a < c) ? a : c);
   }
 
-  #define EXTRAPOLATE_FROM_EDGE
+  //Enable this if your SCARA uses 180° of total area
+  //#define EXTRAPOLATE_FROM_EDGE
 
   #if ENABLED(EXTRAPOLATE_FROM_EDGE)
     #if ABL_GRID_POINTS_X < ABL_GRID_POINTS_Y
