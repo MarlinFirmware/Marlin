@@ -569,9 +569,6 @@ void Stepper::isr() {
 
     #if ENABLED(LIN_ADVANCE)
 
-      if (current_block->use_advance_lead)
-        current_estep_rate[TOOL_E_INDEX] = ((uint32_t)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
-
       if (current_block->use_advance_lead) {
         #if ENABLED(MIXING_EXTRUDER)
           MIXING_STEPPERS_LOOP(j)
