@@ -40,6 +40,19 @@
   #include "vector_3.h"
 #endif
 
+enum BlockFlag {
+    // Recalculate trapezoids on entry junction. For optimization.
+    BLOCK_FLAG_RECALCULATE          = _BV(0),
+
+    // Nominal speed always reached.
+    // i.e., The segment is long enough, so the nominal speed is reachable if accelerating
+    // from a safe speed (in consideration of jerking from zero speed).
+    BLOCK_FLAG_NOMINAL_LENGTH       = _BV(1),
+
+    // Start from a halt at the start of this block, respecting the maximum allowed jerk.
+    BLOCK_FLAG_START_FROM_FULL_HALT = _BV(2)
+};
+
 /**
  * struct block_t
  *
@@ -79,19 +92,18 @@ typedef struct {
   #endif
 
   // Fields used by the motion planner to manage acceleration
-  float nominal_speed,                               // The nominal speed for this block in mm/sec
-        entry_speed,                                 // Entry speed at previous-current junction in mm/sec
-        max_entry_speed,                             // Maximum allowable junction entry speed in mm/sec
-        millimeters,                                 // The total travel of this block in mm
-        acceleration;                                // acceleration mm/sec^2
-  unsigned char recalculate_flag,                    // Planner flag to recalculate trapezoids on entry junction
-                nominal_length_flag;                 // Planner flag for nominal speed always reached
+  float nominal_speed,                          // The nominal speed for this block in mm/sec
+        entry_speed,                            // Entry speed at previous-current junction in mm/sec
+        max_entry_speed,                        // Maximum allowable junction entry speed in mm/sec
+        millimeters,                            // The total travel of this block in mm
+        acceleration;                           // acceleration mm/sec^2
+  uint8_t flag;                                 // Block flags (See BlockFlag enum above)
 
   // Settings for the trapezoid generator
-  unsigned long nominal_rate,                        // The nominal step rate for this block in step_events/sec
-                initial_rate,                        // The jerk-adjusted step rate at start of block
-                final_rate,                          // The minimal rate at exit
-                acceleration_steps_per_s2;           // acceleration steps/sec^2
+  uint32_t nominal_rate,                        // The nominal step rate for this block in step_events/sec
+           initial_rate,                        // The jerk-adjusted step rate at start of block
+           final_rate,                          // The minimal rate at exit
+           acceleration_steps_per_s2;           // acceleration steps/sec^2
 
   #if FAN_COUNT > 0
     unsigned long fan_speed[FAN_COUNT];
@@ -379,10 +391,10 @@ class Planner {
       return sqrt(sq(target_velocity) - 2 * accel * distance);
     }
 
-    static void calculate_trapezoid_for_block(block_t* block, float entry_factor, float exit_factor);
+    static void calculate_trapezoid_for_block(block_t* const block, const float &entry_factor, const float &exit_factor);
 
-    static void reverse_pass_kernel(block_t* current, block_t* next);
-    static void forward_pass_kernel(block_t* previous, block_t* current);
+    static void reverse_pass_kernel(block_t* const current, const block_t *next);
+    static void forward_pass_kernel(const block_t *previous, block_t* const current);
 
     static void reverse_pass();
     static void forward_pass();
