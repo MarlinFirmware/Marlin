@@ -36,7 +36,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD 43
+  #define MOTHERBOARD 44
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
