@@ -44,7 +44,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_ADV_H_VERSION 010101
+#define CONFIGURATION_ADV_H_VERSION 010100
 
 // @section temperature
 
@@ -53,9 +53,9 @@
 //===========================================================================
 
 #if DISABLED(PIDTEMPBED)
-  #define BED_CHECK_INTERVAL 5000 // ms between checks in bang-bang control
+  #define BED_CHECK_INTERVAL 1000 // ms between checks in bang-bang control
   #if ENABLED(BED_LIMIT_SWITCHING)
-    #define BED_HYSTERESIS 2 // Only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
+    #define BED_HYSTERESIS 1 // Only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
   #endif
 #endif
 
@@ -187,7 +187,7 @@
 //This is for controlling a fan to cool down the stepper drivers
 //it will turn on when any driver is enabled
 //and turn off after the set amount of seconds from last driver being disabled again
-#define CONTROLLERFAN_PIN -1 //Pin used for the fan to cool controller (-1 to disable)
+#define CONTROLLERFAN_PIN 2 //Pin used for the fan to cool controller (-1 to disable)
 #define CONTROLLERFAN_SECS 60 //How many seconds, after all motors were disabled, the fan should run
 #define CONTROLLERFAN_SPEED 255  // == full speed
 
@@ -223,7 +223,7 @@
 
 // If you want endstops to stay on (by default) even when not homing
 // enable this option. Override at any time with M120, M121.
-#define ENDSTOPS_ALWAYS_ON_DEFAULT
+//#define ENDSTOPS_ALWAYS_ON_DEFAULT
 
 // @section extras
 
@@ -314,9 +314,9 @@
 // @section homing
 
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
-#define X_HOME_BUMP_MM 5
-#define Y_HOME_BUMP_MM 5
-#define Z_HOME_BUMP_MM 2
+#define X_HOME_BUMP_MM 10
+#define Y_HOME_BUMP_MM 10
+#define Z_HOME_BUMP_MM 3
 #define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 #define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
@@ -496,7 +496,7 @@
 
 #if ENABLED(ADVANCE)
   #define EXTRUDER_ADVANCE_K .0
-  #define D_FILAMENT 1.75
+  #define D_FILAMENT 2.85
 #endif
 
 // Implementation of a linear pressure control
@@ -560,7 +560,7 @@
 
 // The ASCII buffer for serial input
 #define MAX_CMD_SIZE 96
-#define BUFSIZE 4
+#define BUFSIZE 26
 
 // Transfer Buffer Size
 // To save 386 bytes of PROGMEM (and TX_BUFFER_SIZE+3 bytes of RAM) set to 0.
@@ -608,26 +608,26 @@
 
 // Add support for experimental filament exchange support M600; requires display
 #if ENABLED(ULTIPANEL)
-  // #define FILAMENT_CHANGE_FEATURE             // Enable filament exchange menu and M600 g-code (used for runout sensor too)
+  #define FILAMENT_CHANGE_FEATURE               // Enable filament exchange menu and M600 g-code (used for runout sensor too)
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
-    #define FILAMENT_CHANGE_X_POS 65             // X position of hotend
-    #define FILAMENT_CHANGE_Y_POS 100             // Y position of hotend
-    #define FILAMENT_CHANGE_Z_ADD 10            // Z addition of hotend (lift)
+    #define FILAMENT_CHANGE_X_POS 100           // X position of hotend
+    #define FILAMENT_CHANGE_Y_POS 100           // Y position of hotend
+    #define FILAMENT_CHANGE_Z_ADD 20            // Z addition of hotend (lift)
     #define FILAMENT_CHANGE_XY_FEEDRATE 100     // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
     #define FILAMENT_CHANGE_Z_FEEDRATE 5        // Z axis feedrate in mm/s (not used for delta printers)
-    #define FILAMENT_CHANGE_RETRACT_LENGTH 2    // Initial retract in mm
+    #define FILAMENT_CHANGE_RETRACT_LENGTH 5    // Initial retract in mm
                                                 // It is a short retract used immediately after print interrupt before move to filament exchange position
     #define FILAMENT_CHANGE_RETRACT_FEEDRATE 60 // Initial retract feedrate in mm/s
-    #define FILAMENT_CHANGE_UNLOAD_LENGTH 130   // Unload filament length from hotend in mm
+    #define FILAMENT_CHANGE_UNLOAD_LENGTH 600   // Unload filament length from hotend in mm
                                                 // Longer length for bowden printers to unload filament from whole bowden tube,
                                                 // shorter lenght for printers without bowden to unload filament from extruder only,
                                                 // 0 to disable unloading for manual unloading
     #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
-    #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
+    #define FILAMENT_CHANGE_LOAD_LENGTH 600     // Load filament length over hotend in mm
                                                 // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
                                                 // Short or zero length for printers without bowden where loading is not used
     #define FILAMENT_CHANGE_LOAD_FEEDRATE 10    // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
-    #define FILAMENT_CHANGE_EXTRUDE_LENGTH 50   // Extrude filament length in mm after filament is load over the hotend,
+    #define FILAMENT_CHANGE_EXTRUDE_LENGTH 100  // Extrude filament length in mm after filament is load over the hotend,
                                                 // 0 to disable for manual extrusion
                                                 // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
                                                 // or until outcoming filament color is not clear for filament color change
