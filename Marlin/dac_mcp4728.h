@@ -60,7 +60,7 @@ uint16_t mcp4728_getValue(uint8_t channel);
 uint8_t mcp4728_fastWrite();
 uint8_t mcp4728_simpleCommand(byte simpleCommand);
 uint16_t mcp4728_getDrvPct(uint8_t channel);
-void mcp4728_setDrvPct(int16_t pct[XYZE]);
+void mcp4728_setDrvPct(uint16_t pct[XYZE]);
 
 #endif
 #endif // DAC_MCP4728_H
