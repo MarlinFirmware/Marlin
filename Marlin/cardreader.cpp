@@ -83,8 +83,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       // Allocate enough stack space for the full path to a folder, trailing slash, and nul
       boolean prepend_is_empty = (prepend[0] == '\0');
       int len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(lfilename) + 1 + 1;
-      char *path=(char*)malloc(len);
-      if (!path) continue;
+      char path[len];
 
       // Append the FOLDERNAME12/ to the passed string.
       // It contains the full path to the "parent" argument.
@@ -106,7 +105,6 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
         }
       }
       lsDive(path, dir);
-      free(path);
       // close() is done automatically by destructor of SdFile
     }
     else {
@@ -266,13 +264,11 @@ void CardReader::release() {
 }
 
 void CardReader::openAndPrintFile(const char *name) {
-  char *cmd=(char*)malloc(4 + strlen(name) + 1); // Room for "M23 ", filename, and null
-  if (!cmd) return;
+  char cmd[4 + strlen(name) + 1]; // Room for "M23 ", filename, and null
   sprintf_P(cmd, PSTR("M23 %s"), name);
   for (char *c = &cmd[4]; *c; c++) *c = tolower(*c);
   enqueue_and_echo_command(cmd);
   enqueue_and_echo_commands_P(PSTR("M24"));
-  free(cmd);
 }
 
 void CardReader::startFileprint() {
