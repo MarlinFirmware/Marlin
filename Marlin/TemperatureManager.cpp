@@ -27,17 +27,19 @@
 
 #include <math.h>
 
-#include "TemperatureManager.h" 
+#include "TemperatureManager.h"
 
 #include "Configuration.h"
 #include "temperature.h"
 #include "Marlin.h"
 #include "cardreader.h"
+#include "PrintManager.h"
 
 #ifdef DOGLCD
 	#include "GuiManager.h"
 	#include "TemperatureControl.h"
 	#include "ViewManager.h"
+	#include "FanManager.h"
 #endif
 
 namespace temp
@@ -77,7 +79,7 @@ namespace temp
 		ADCSRA = 0x87;
 		ADCSRB = 0x08;
 		ADMUX = 0x45;
-	
+
 		ADCSRA |= 0x40;
 		ADCSRA |= 0x10;
 		delay(1);
@@ -140,9 +142,9 @@ namespace temp
 		}
 
 		for (uint8_t j = 0; j < 4; i++, j++)
-  		{
-   	 		m_cache[j].raw = pgm_read_word(&(*tt)[i][0]);
-  	 		m_cache[j].temperature = pgm_read_word(&(*tt)[i][1]);
+		{
+			m_cache[j].raw = pgm_read_word(&(*tt)[i][0]);
+			m_cache[j].temperature = pgm_read_word(&(*tt)[i][1]);
 		}
 	}
 
@@ -160,7 +162,7 @@ namespace temp
 	{
 #ifdef DOGLCD
 		m_control->setCurrentTemperature(temp);
-#endif		
+#endif
 		if (m_current_temperature != temp)
 		{
 			m_current_temperature = temp;
@@ -241,12 +243,29 @@ namespace temp
 		#endif //FAN_BLOCK_PIN
 			if (m_blower_control == true)
 			{
-				fanSpeed = 0;	
-			}	
+				fanSpeed = 0;
+			}
 		}
 #ifdef FAN_BLOWER_PIN
 		analogWrite(FAN_BLOWER_PIN,fanSpeed);
 #endif
+
+#ifdef FAN_BOX_PIN
+	    if(FanManager::single::instance().state() == true)
+	    {
+			if(!card.isFileOpen() && PrintManager::single::instance().state() != SERIAL_CONTROL)
+			{
+				if(m_current_temperature > min_temp_cooling)
+				{
+				digitalWrite(FAN_BOX_PIN, HIGH);
+				}
+				else
+				{
+				digitalWrite(FAN_BOX_PIN, LOW);
+				}
+			}
+	    }
+#endif //FAN_BOX_PIN
 	}
 
 	void TemperatureManager::manageTemperatureControl()
@@ -268,7 +287,7 @@ ISR(TIMER2_OVF_vect)
 	if (control_flag == true)
 	{
 		temp::TemperatureManager::single::instance().m_control->manageControl();
-	 	control_flag = false;
+		control_flag = false;
 	}
 
 	temp_counter++;
