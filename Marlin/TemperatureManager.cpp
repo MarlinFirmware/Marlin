@@ -38,7 +38,6 @@
 	#include "GuiManager.h"
 	#include "TemperatureControl.h"
 	#include "ViewManager.h"
-	#include "FanManager.h"
 #endif
 
 namespace temp
@@ -248,20 +247,6 @@ namespace temp
 #ifdef FAN_BLOWER_PIN
 		analogWrite(FAN_BLOWER_PIN,fanSpeed);
 #endif
-
-#ifdef FAN_BOX_PIN
-		if(FanManager::single::instance().state() == true)
-		{
-			if(card.isFileOpen() == true)
-			{
-				digitalWrite(FAN_BOX_PIN, HIGH);
-			}
-			else
-			{
-				digitalWrite(FAN_BOX_PIN, LOW);
-			}
-		}
-#endif //FAN_BOX_PIN
 	}
 
 	void TemperatureManager::manageTemperatureControl()

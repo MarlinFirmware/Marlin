@@ -46,6 +46,7 @@
 
 #ifdef DOGLCD
 	#include "StatsManager.h"
+	#include "FanManager.h"
 #endif
 
 bool raised = false;
@@ -671,6 +672,13 @@ void action_start_print()
 		StatsManager::single::instance().increaseTotalPrints();
 #endif //DOGLCD
 
+#ifdef FAN_BOX_PIN
+	if(FanManager::single::instance().state() == true)
+	{
+		digitalWrite(FAN_BOX_PIN, HIGH);
+	}
+#endif //FAN_BOX_PIN
+
 	enquecommand_P(PSTR("G90"));
 	enquecommand_P(PSTR("G92 E0"));
 	enquecommand_P(PSTR("G1 F1800")); // sets slow initial feedrate
@@ -782,6 +790,13 @@ void action_stop_print()
 		Time_t printTime = PrintManager::single::instance().printingTime();
 		StatsManager::single::instance().updateTotalTime(printTime);
 	#endif
+	
+	#ifdef FAN_BOX_PIN
+		if(FanManager::single::instance().state() == true)
+		{
+			digitalWrite(FAN_BOX_PIN, LOW);
+		}
+	#endif //FAN_BOX_PIN
 	
 	for(int i=0; i != num_ok; i++)
 	{
