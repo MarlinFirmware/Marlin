@@ -50,6 +50,7 @@ namespace ui
 
 		private:
 			T m_value;
+			bool m_above_switch;
 			
 			const unsigned char * m_bitmap_2;
 			const unsigned char * m_focused_bitmap_2;
@@ -59,6 +60,7 @@ namespace ui
 	IconWidgetBed<T>::IconWidgetBed(Size const & size, const unsigned char* bitmap, const unsigned char * focused_bitmap, const unsigned char* bitmap_2, const unsigned char * focused_bitmap_2, const char * text, Subject<T> * model)
 		: Icon(size, bitmap, focused_bitmap, text)
 		, Observer<T>(model)
+		, m_above_switch(false)
 		, m_bitmap_2(bitmap_2)
 		, m_focused_bitmap_2(focused_bitmap_2)
 	{ }
@@ -79,13 +81,21 @@ namespace ui
 		painter.setColorIndex(1);
 		
 	#if defined(HBP_HEATER_AUX) && (HBP_HEATER_AUX > -1)
-		if(temp::TemperatureManager::single::instance().getBedCurrentTemperature() < BED_HOT_TEMP)
+		int8_t bed_histeresis = 1;
+		if(m_above_switch)
+		{
+			bed_histeresis *= -1;
+		}
+		
+		if(temp::TemperatureManager::single::instance().getBedCurrentTemperature() < (BED_HOT_TEMP + bed_histeresis))
 		{
 			painter.drawBitmap(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap : m_bitmap);
+			m_above_switch = false;
 		}
 		else
 		{
 			painter.drawBitmap(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap_2 : m_bitmap_2);
+			m_above_switch = true;
 		}
 	#else
 		painter.drawBitmap(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap : m_bitmap);
@@ -98,7 +108,7 @@ namespace ui
 		uint8_t margin = 26;
 		if(m_value > 99)
 		{
-			margin = 20;
+			margin = 23;
 		}
 		else if(m_value < 10 && m_value >= 0)
 		{
