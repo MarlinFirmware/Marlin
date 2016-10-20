@@ -53,6 +53,7 @@
 #define BOARD_WITBOX            41   // bq WITBOX
 #define BOARD_HEPHESTOS         42   // bq Prusa i3 Hephestos
 #define BOARD_BQ_ZUM_MEGA_3D	43   // bq ZUM Mega 3D
+#define BOARD_BQ_HPH_ZUM_3D	44   // bq ZUM Mega 3D for Hephestos ZUM variant
 
 #define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers

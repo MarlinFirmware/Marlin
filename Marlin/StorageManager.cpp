@@ -246,10 +246,14 @@ namespace eeprom
 		{
 			return BOARD_BQ_ZUM_MEGA_3D;
 		}
+		else if(strcmp(board_type, "ZMH") == 0)
+		{
+		        return BOARD_BQ_HPH_ZUM_3D;
+		}
 		else if(strcmp(board_type, "CNC") == 0)
 		{
 			return BOARD_BQ_CNC;
-		}
+		}		
 		return BOARD_RAMPS_13_EFB;
 	}
 
