@@ -678,14 +678,14 @@
  */
 #if HAS_AUTO_FAN
   #if HAS_FAN0
-    #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN."
-    #elif EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN."
-    #elif EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN."
-    #elif EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN."
+    #if E0_AUTO_FAN_PIN == FAN_PIN
+      #error "You cannot set E0_AUTO_FAN_PIN equal to FAN_PIN."
+    #elif E1_AUTO_FAN_PIN == FAN_PIN
+      #error "You cannot set E1_AUTO_FAN_PIN equal to FAN_PIN."
+    #elif E2_AUTO_FAN_PIN == FAN_PIN
+      #error "You cannot set E2_AUTO_FAN_PIN equal to FAN_PIN."
+    #elif E3_AUTO_FAN_PIN == FAN_PIN
+      #error "You cannot set E3_AUTO_FAN_PIN equal to FAN_PIN."
     #endif
   #endif
 #endif
@@ -695,14 +695,14 @@
 #endif
 
 #if HAS_CONTROLLERFAN
-  #if EXTRUDER_0_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
-  #elif EXTRUDER_1_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
-  #elif EXTRUDER_2_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
-  #elif EXTRUDER_3_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
+  #if E0_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error "You cannot set E0_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
+  #elif E1_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error "You cannot set E1_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
+  #elif E2_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error "You cannot set E2_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
+  #elif E3_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error "You cannot set E3_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
   #endif
 #endif
 
