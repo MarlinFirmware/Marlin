@@ -233,15 +233,15 @@ void Endstops::M119() {
 // Check endstops - Called from ISR!
 void Endstops::update() {
 
+  #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
   #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
   #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
   #define _ENDSTOP_HIT(AXIS) SBI(endstop_hit_bits, _ENDSTOP(AXIS, MIN))
-  #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
 
   // UPDATE_ENDSTOP_BIT: set the current endstop bits for an endstop to its status
   #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT(current_endstop_bits, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
-  // COPY_BIT: copy the value of COPY_BIT to BIT in bits
-  #define COPY_BIT(bits, COPY_BIT, BIT) SET_BIT(bits, BIT, TEST(bits, COPY_BIT))
+  // COPY_BIT: copy the value of SRC_BIT to DST_BIT in DST
+  #define COPY_BIT(DST, SRC_BIT, DST_BIT) SET_BIT(DST, DST_BIT, TEST(DST, SRC_BIT))
 
   #define _UPDATE_ENDSTOP(AXIS,MINMAX,CODE) do { \
       UPDATE_ENDSTOP_BIT(AXIS, MINMAX); \
