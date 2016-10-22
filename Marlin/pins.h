@@ -275,6 +275,10 @@
   #define SUICIDE_PIN -1
 #endif
 
+#ifndef MAX_EXTRUDERS
+  #define MAX_EXTRUDERS 4
+#endif
+
 // Marlin needs to account for pins that equal -1
 #define marlinAnalogInputToDigitalPin(p) ((p) == -1 ? -1 : analogInputToDigitalPin(p))
 
