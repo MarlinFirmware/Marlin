@@ -31,7 +31,7 @@
   void mesh_bed_leveling::reset() {
     status = MBL_STATUS_NONE;
     z_offset = 0;
-    memset(z_values, 0, sizeof(z_values));
+    ZERO(z_values);
   }
 
 #endif  // MESH_BED_LEVELING

@@ -671,7 +671,7 @@ void kill_screen(const char* lcd_msg) {
     long babysteps_done = 0;
 
     static void _lcd_babystep(const AxisEnum axis, const char* msg) {
-      if (LCD_CLICKED) { lcd_goto_previous_menu(true); return; }
+      if (LCD_CLICKED) { defer_return_to_status = false; lcd_goto_previous_menu(true); return; }
       ENCODER_DIRECTION_NORMAL();
       if (encoderPosition) {
         int babystep_increment = (int32_t)encoderPosition * BABYSTEP_MULTIPLICATOR;
@@ -689,11 +689,11 @@ void kill_screen(const char* lcd_msg) {
     #if ENABLED(BABYSTEP_XY)
       static void _lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
       static void _lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
-      static void lcd_babystep_x() { babysteps_done = 0; lcd_goto_screen(_lcd_babystep_x); }
-      static void lcd_babystep_y() { babysteps_done = 0; lcd_goto_screen(_lcd_babystep_y); }
+      static void lcd_babystep_x() { lcd_goto_screen(_lcd_babystep_x); babysteps_done = 0; defer_return_to_status = true; }
+      static void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
     #endif
     static void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
-    static void lcd_babystep_z() { babysteps_done = 0; lcd_goto_screen(_lcd_babystep_z); }
+    static void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
 
   #endif //BABYSTEPPING
 
@@ -1038,13 +1038,13 @@ void kill_screen(const char* lcd_msg) {
     // Note: During Manual Bed Leveling the homed Z position is MESH_HOME_SEARCH_Z
     // Z position will be restored with the final action, a G28
     inline void _mbl_goto_xy(float x, float y) {
-      current_position[Z_AXIS] = MESH_HOME_SEARCH_Z + Z_HOMING_HEIGHT;
+      current_position[Z_AXIS] = LOGICAL_Z_POSITION(MESH_HOME_SEARCH_Z + Z_HOMING_HEIGHT);
       line_to_current(Z_AXIS);
-      current_position[X_AXIS] = x + home_offset[X_AXIS];
-      current_position[Y_AXIS] = y + home_offset[Y_AXIS];
+      current_position[X_AXIS] = LOGICAL_X_POSITION(x);
+      current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
       line_to_current(manual_feedrate_mm_m[X_AXIS] <= manual_feedrate_mm_m[Y_AXIS] ? X_AXIS : Y_AXIS);
       #if Z_HOMING_HEIGHT > 0
-        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z; // How do condition and action match?
+        current_position[Z_AXIS] = LOGICAL_Z_POSITION(MESH_HOME_SEARCH_Z);
         line_to_current(Z_AXIS);
       #endif
       stepper.synchronize();

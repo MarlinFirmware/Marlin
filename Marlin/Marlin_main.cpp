@@ -2316,7 +2316,8 @@ static void clean_up_after_endstop_or_probe_move() {
     //                                : ((c < b) ? b : (a < c) ? a : c);
   }
 
-  #define EXTRAPOLATE_FROM_EDGE
+  //Enable this if your SCARA uses 180° of total area
+  //#define EXTRAPOLATE_FROM_EDGE
 
   #if ENABLED(EXTRAPOLATE_FROM_EDGE)
     #if ABL_GRID_POINTS_X < ABL_GRID_POINTS_Y
@@ -3144,7 +3145,7 @@ inline void gcode_G4() {
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> home_delta", current_position);
     #endif
     // Init the current position of all carriages to 0,0,0
-    memset(current_position, 0, sizeof(current_position));
+    ZERO(current_position);
     sync_plan_position();
 
     // Move all carriages together linearly until an endstop is hit.
@@ -3622,9 +3623,10 @@ inline void gcode_G28() {
           }
         }
         else {
-          SERIAL_PROTOCOLLNPGM("X not entered.");
+          SERIAL_CHAR('X'); SERIAL_PROTOCOLLNPGM(" not entered.");
           return;
         }
+
         if (code_seen('Y')) {
           py = code_value_int() - 1;
           if (py < 0 || py >= MESH_NUM_Y_POINTS) {
@@ -3633,14 +3635,15 @@ inline void gcode_G28() {
           }
         }
         else {
-          SERIAL_PROTOCOLLNPGM("Y not entered.");
+          SERIAL_CHAR('Y'); SERIAL_PROTOCOLLNPGM(" not entered.");
           return;
         }
+
         if (code_seen('Z')) {
           mbl.z_values[py][px] = code_value_axis_units(Z_AXIS);
         }
         else {
-          SERIAL_PROTOCOLLNPGM("Z not entered.");
+          SERIAL_CHAR('Z'); SERIAL_PROTOCOLLNPGM(" not entered.");
           return;
         }
         break;
@@ -3650,7 +3653,7 @@ inline void gcode_G28() {
           mbl.z_offset = code_value_axis_units(Z_AXIS);
         }
         else {
-          SERIAL_PROTOCOLLNPGM("Z not entered.");
+          SERIAL_CHAR('Z'); SERIAL_PROTOCOLLNPGM(" not entered.");
           return;
         }
         break;
@@ -9736,7 +9739,9 @@ void setup() {
       safe_delay(BOOTSCREEN_TIMEOUT);
     #elif ENABLED(ULTRA_LCD)
       bootscreen();
-      lcd_init();
+      #if DISABLED(SDSUPPORT)
+        lcd_init();
+      #endif
     #endif
   #endif
 

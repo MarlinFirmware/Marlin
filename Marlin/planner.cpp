@@ -137,8 +137,8 @@ Planner::Planner() { init(); }
 
 void Planner::init() {
   block_buffer_head = block_buffer_tail = 0;
-  memset(position, 0, sizeof(position));
-  memset(previous_speed, 0, sizeof(previous_speed));
+  ZERO(position);
+  ZERO(previous_speed);
   previous_nominal_speed = 0.0;
   #if ABL_PLANAR
     bed_level_matrix.set_to_identity();
@@ -1021,8 +1021,8 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   }
   else {
     #define LIMIT_ACCEL(AXIS) do{ \
-      const uint32_t comp = max_acceleration_steps_per_s2[AXIS] * block->step_event_count; \
-      if (accel * block->steps[AXIS] > comp) accel = comp / block->steps[AXIS]; \
+      if (max_acceleration_steps_per_s2[AXIS] < (accel * block->steps[AXIS]) / block->step_event_count) \
+        accel = (max_acceleration_steps_per_s2[AXIS] * block->step_event_count) / block->steps[AXIS]; \
     }while(0)
 
     // Start with print or travel acceleration
@@ -1206,7 +1206,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     // This leads to an enormous number of advance steps due to a huge e_acceleration.
     // The math is correct, but you don't want a retract move done with advance!
     // So this situation is filtered out here.
-    if (!block->steps[E_AXIS] || (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS]) || stepper.get_advance_k() == 0 || (uint32_t) block->steps[E_AXIS] == block->step_event_count) {
+    if (!block->steps[E_AXIS] || (!block->steps[X_AXIS] && !block->steps[Y_AXIS]) || stepper.get_advance_k() == 0 || (uint32_t) block->steps[E_AXIS] == block->step_event_count) {
       block->use_advance_lead = false;
     }
     else {
@@ -1266,7 +1266,7 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
   stepper.set_position(na, nb, nc, ne);
   previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 
-  memset(previous_speed, 0, sizeof(previous_speed));
+  ZERO(previous_speed);
 }
 
 void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
