@@ -2929,31 +2929,63 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
           }
           #if BUTTON_EXISTS(UP)
             else if (BUTTON_PRESSED(UP)) {
-              encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM);
+              #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)
+                encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM * encoderDirection);
+              #elif ENABLED(REVERSE_MENU_DIRECTION)
+                encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM * encoderDirection);
+              #elif ENABLED(REVERSE_ENCODER_DIRECTION)
+                encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM);
+              #else
+                encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM);
+              #endif
               next_button_update_ms = now + 300;
             }
           #endif
           #if BUTTON_EXISTS(DWN)
             else if (BUTTON_PRESSED(DWN)) {
-              encoderDiff = ENCODER_STEPS_PER_MENU_ITEM;
+              #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)
+                encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM * encoderDirection);
+              #elif ENABLED(REVERSE_MENU_DIRECTION)
+                encoderDiff = ENCODER_STEPS_PER_MENU_ITEM * encoderDirection;
+              #elif ENABLED(REVERSE_ENCODER_DIRECTION)
+                encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM);
+              #else
+                encoderDiff = ENCODER_STEPS_PER_MENU_ITEM;
+              #endif
               next_button_update_ms = now + 300;
             }
           #endif
           #if BUTTON_EXISTS(LFT)
             else if (BUTTON_PRESSED(LFT)) {
-              encoderDiff = -(ENCODER_PULSES_PER_STEP);
+              #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)
+                encoderDiff = -(ENCODER_PULSES_PER_STEP * encoderDirection);
+              #elif ENABLED(REVERSE_MENU_DIRECTION)
+                encoderDiff = ENCODER_PULSES_PER_STEP * encoderDirection;
+              #elif ENABLED(REVERSE_ENCODER_DIRECTION)
+                encoderDiff = -(ENCODER_PULSES_PER_STEP);
+              #else
+                encoderDiff = ENCODER_PULSES_PER_STEP;
+              #endif
               next_button_update_ms = now + 300;
             }
           #endif
           #if BUTTON_EXISTS(RT)
             else if (BUTTON_PRESSED(RT)) {
-              encoderDiff = ENCODER_PULSES_PER_STEP;
+              #if ENABLED(REVERSE_MENU_DIRECTION) && ENABLED(REVERSE_ENCODER_DIRECTION)
+                encoderDiff = ENCODER_PULSES_PER_STEP * encoderDirection;
+              #elif ENABLED(REVERSE_MENU_DIRECTION)
+                encoderDiff = -(ENCODER_PULSES_PER_STEP * encoderDirection);
+              #elif ENABLED(REVERSE_ENCODER_DIRECTION)
+                encoderDiff = ENCODER_PULSES_PER_STEP;
+              #else
+                encoderDiff = -(ENCODER_PULSES_PER_STEP);
+              #endif
               next_button_update_ms = now + 300;
             }
           #endif
 
         #endif // LCD_HAS_DIRECTIONAL_BUTTONS
-
+      
         buttons = newbutton;
         #if ENABLED(LCD_HAS_SLOW_BUTTONS)
           buttons |= slow_buttons;
