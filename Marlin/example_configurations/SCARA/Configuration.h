@@ -146,7 +146,6 @@
  */
 #define SERIAL_PORT 0
 
-#define BAUDRATE 250000
 /**
  * This setting determines the communication speed of the printer.
  *
@@ -155,6 +154,7 @@
  *
  * :[2400,9600,19200,38400,57600,115200,250000]
  */
+#define BAUDRATE 250000
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
