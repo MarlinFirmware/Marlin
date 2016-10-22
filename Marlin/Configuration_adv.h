@@ -503,7 +503,12 @@
 
 // Implementation of a linear pressure control
 // Assumption: advance = k * (delta velocity)
-// K=0 means advance disabled. A good value for a gregs wade extruder will be around K=75
+// K=0 means advance disabled.
+// To get a rough start value for calibration, measure your "free filament length" between the hobbed bolt and the nozzle in cm.
+// Then use the formula that fits your system, where L is the "free filament length":
+// Filament diameter           |   1,75mm  |    3mm     |
+// Stiff filament (PLA)        | K=47*L/10 | K=139*L/10 |
+// Softer filament (ABS, nGen) | K=88*L/10 | K=260*L/10 |
 //#define LIN_ADVANCE
 
 #if ENABLED(LIN_ADVANCE)
