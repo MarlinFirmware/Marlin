@@ -192,14 +192,15 @@
 #if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              "Nbre impressions"
   #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
+  #define MSG_INFO_PRINT_TIME               "Tps impr. total"
   #define MSG_INFO_PRINT_LONGEST            "Impr. la + longue"
   #define MSG_INFO_PRINT_FILAMENT           "Total filament"
 #else
-    #define MSG_INFO_PRINT_COUNT              "Impressions"
-    #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
-    #define MSG_INFO_PRINT_TIME               "Total"
-    #define MSG_INFO_PRINT_LONGEST            "+ long"
-    #define MSG_INFO_PRINT_FILAMENT           "Filament"
+  #define MSG_INFO_PRINT_COUNT              "Impressions"
+  #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
+  #define MSG_INFO_PRINT_TIME               "Total"
+  #define MSG_INFO_PRINT_LONGEST            "+ long"
+  #define MSG_INFO_PRINT_FILAMENT           "Filament"
 #endif
 
 #define MSG_INFO_MIN_TEMP                   "Temp Min"
