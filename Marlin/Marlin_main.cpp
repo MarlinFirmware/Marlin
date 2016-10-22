@@ -3209,7 +3209,7 @@ inline void gcode_G28() {
 #if ENABLED(MESH_BED_LEVELING)
   inline void _mbl_goto_xy(float x, float y) {
     float old_feedrate_mm_m = feedrate_mm_m;
-    feedrate_mm_m = homing_feedrate_mm_m[X_AXIS];
+    feedrate_mm_m = homing_feedrate_mm_m[Z_AXIS];
 
     current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
       #if Z_PROBE_TRAVEL_HEIGHT > Z_HOMING_HEIGHT
@@ -3219,12 +3219,13 @@ inline void gcode_G28() {
       #endif
     ;
     line_to_current_position();
-
+    feedrate_mm_m = homing_feedrate_mm_m[X_AXIS];
     current_position[X_AXIS] = LOGICAL_X_POSITION(x);
     current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
     line_to_current_position();
 
     #if Z_PROBE_TRAVEL_HEIGHT > 0 || Z_HOMING_HEIGHT > 0
+      feedrate_mm_m = homing_feedrate_mm_m[Z_AXIS];
       current_position[Z_AXIS] = LOGICAL_Z_POSITION(MESH_HOME_SEARCH_Z);
       line_to_current_position();
     #endif
