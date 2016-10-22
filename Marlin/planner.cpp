@@ -1021,8 +1021,8 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   }
   else {
     #define LIMIT_ACCEL(AXIS) do{ \
-      const uint32_t comp = max_acceleration_steps_per_s2[AXIS] * block->step_event_count; \
-      if (accel * block->steps[AXIS] > comp) accel = comp / block->steps[AXIS]; \
+      if (max_acceleration_steps_per_s2[AXIS] < (accel * block->steps[AXIS]) / block->step_event_count) \
+        accel = (max_acceleration_steps_per_s2[AXIS] * block->step_event_count) / block->steps[AXIS]; \
     }while(0)
 
     // Start with print or travel acceleration
