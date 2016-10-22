@@ -282,6 +282,22 @@
 // Marlin needs to account for pins that equal -1
 #define marlinAnalogInputToDigitalPin(p) ((p) == -1 ? -1 : analogInputToDigitalPin(p))
 
+//
+// Assign auto fan pins if needed
+//
+#if !defined(E0_AUTO_FAN_PIN) && defined(ORIG_E0_AUTO_FAN_PIN)
+  #define E0_AUTO_FAN_PIN ORIG_E0_AUTO_FAN_PIN
+#endif
+#if !defined(E1_AUTO_FAN_PIN) && defined(ORIG_E1_AUTO_FAN_PIN)
+  #define E1_AUTO_FAN_PIN ORIG_E1_AUTO_FAN_PIN
+#endif
+#if !defined(E2_AUTO_FAN_PIN) && defined(ORIG_E2_AUTO_FAN_PIN)
+  #define E2_AUTO_FAN_PIN ORIG_E2_AUTO_FAN_PIN
+#endif
+#if !defined(E3_AUTO_FAN_PIN) && defined(ORIG_E3_AUTO_FAN_PIN)
+  #define E3_AUTO_FAN_PIN ORIG_E3_AUTO_FAN_PIN
+#endif
+
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
 #define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_MS1_PIN, E0_MS2_PIN,
 #define _E1_PINS
