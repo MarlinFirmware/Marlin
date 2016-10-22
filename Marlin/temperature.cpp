@@ -1019,7 +1019,7 @@ void Temperature::init() {
     max6675_spi.init();
 
     OUT_WRITE(SS_PIN, HIGH);
-    OUT_WRITE(MAX6675_SS, HIGH);
+    OUT_WRITE(MAX6675_SS0, HIGH);
 
   #endif // HEATER_0_USES_MAX6675
 
@@ -1357,7 +1357,7 @@ void Temperature::disable_all_heaters() {
         , PRSPI);
     SPCR = _BV(MSTR) | _BV(SPE) | MAX6675_SPEED_BITS;
 
-    WRITE(MAX6675_SS, 0); // enable TT_MAX6675
+    WRITE(MAX6675_SS0, 0); // enable TT_MAX6675
 
     // ensure 100ns delay - a bit extra is fine
     asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
@@ -1370,7 +1370,7 @@ void Temperature::disable_all_heaters() {
       if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
     }
 
-    WRITE(MAX6675_SS, 1); // disable TT_MAX6675
+    WRITE(MAX6675_SS0, 1); // disable TT_MAX6675
 
     if (max6675_temp & MAX6675_ERROR_MASK) {
       SERIAL_ERROR_START;
