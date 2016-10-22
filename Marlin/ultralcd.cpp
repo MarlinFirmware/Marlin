@@ -1038,13 +1038,13 @@ void kill_screen(const char* lcd_msg) {
     // Note: During Manual Bed Leveling the homed Z position is MESH_HOME_SEARCH_Z
     // Z position will be restored with the final action, a G28
     inline void _mbl_goto_xy(float x, float y) {
-      current_position[Z_AXIS] = MESH_HOME_SEARCH_Z + Z_HOMING_HEIGHT;
+      current_position[Z_AXIS] = LOGICAL_Z_POSITION(MESH_HOME_SEARCH_Z + Z_HOMING_HEIGHT);
       line_to_current(Z_AXIS);
-      current_position[X_AXIS] = x + home_offset[X_AXIS];
-      current_position[Y_AXIS] = y + home_offset[Y_AXIS];
+      current_position[X_AXIS] = LOGICAL_X_POSITION(x);
+      current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
       line_to_current(manual_feedrate_mm_m[X_AXIS] <= manual_feedrate_mm_m[Y_AXIS] ? X_AXIS : Y_AXIS);
       #if Z_HOMING_HEIGHT > 0
-        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z; // How do condition and action match?
+        current_position[Z_AXIS] = LOGICAL_Z_POSITION(MESH_HOME_SEARCH_Z);
         line_to_current(Z_AXIS);
       #endif
       stepper.synchronize();
