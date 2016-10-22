@@ -674,7 +674,7 @@ bool SdBaseFile::open(SdBaseFile* dirFile,
       index = 0;
     }
     // initialize as empty file
-    memset(p, 0, sizeof(dir_t));
+    ZERO(p);
     memcpy(p->name, dname, 11);
 
     // set timestamps
