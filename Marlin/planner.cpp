@@ -137,8 +137,8 @@ Planner::Planner() { init(); }
 
 void Planner::init() {
   block_buffer_head = block_buffer_tail = 0;
-  memset(position, 0, sizeof(position));
-  memset(previous_speed, 0, sizeof(previous_speed));
+  ZERO(position);
+  ZERO(previous_speed);
   previous_nominal_speed = 0.0;
   #if ABL_PLANAR
     bed_level_matrix.set_to_identity();
@@ -1266,7 +1266,7 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
   stepper.set_position(na, nb, nc, ne);
   previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 
-  memset(previous_speed, 0, sizeof(previous_speed));
+  ZERO(previous_speed);
 }
 
 void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
