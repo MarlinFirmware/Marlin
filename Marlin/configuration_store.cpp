@@ -40,7 +40,6 @@
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
-#define MAX_EXTRUDERS 4
 
 /**
  * V24 EEPROM Layout:
