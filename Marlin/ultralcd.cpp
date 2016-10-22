@@ -2924,30 +2924,44 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
         #if LCD_HAS_DIRECTIONAL_BUTTONS
 
+          // Manage directional buttons
+          #if ENABLED(REVERSE_MENU_DIRECTION)
+            #define _ENCODER_UD_STEPS (ENCODER_STEPS_PER_MENU_ITEM * encoderDirection)
+          #else
+            #define _ENCODER_UD_STEPS ENCODER_STEPS_PER_MENU_ITEM
+          #endif
+          #if ENABLED(REVERSE_ENCODER_DIRECTION)
+            #define ENCODER_UD_STEPS _ENCODER_UD_STEPS
+            #define ENCODER_LR_PULSES ENCODER_PULSES_PER_STEP
+          #else
+            #define ENCODER_UD_STEPS -(_ENCODER_UD_STEPS)
+            #define ENCODER_LR_PULSES -(ENCODER_PULSES_PER_STEP)
+          #endif
+
           if (false) {
             // for the else-ifs below
           }
           #if BUTTON_EXISTS(UP)
             else if (BUTTON_PRESSED(UP)) {
-              encoderDiff = -(ENCODER_STEPS_PER_MENU_ITEM);
+              encoderDiff = -(ENCODER_UD_STEPS);
               next_button_update_ms = now + 300;
             }
           #endif
           #if BUTTON_EXISTS(DWN)
             else if (BUTTON_PRESSED(DWN)) {
-              encoderDiff = ENCODER_STEPS_PER_MENU_ITEM;
+              encoderDiff = ENCODER_UD_STEPS;
               next_button_update_ms = now + 300;
             }
           #endif
           #if BUTTON_EXISTS(LFT)
             else if (BUTTON_PRESSED(LFT)) {
-              encoderDiff = -(ENCODER_PULSES_PER_STEP);
+              encoderDiff = -(ENCODER_LR_PULSES);
               next_button_update_ms = now + 300;
             }
           #endif
           #if BUTTON_EXISTS(RT)
             else if (BUTTON_PRESSED(RT)) {
-              encoderDiff = ENCODER_PULSES_PER_STEP;
+              encoderDiff = ENCODER_LR_PULSES;
               next_button_update_ms = now + 300;
             }
           #endif
