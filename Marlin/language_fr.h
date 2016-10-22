@@ -197,7 +197,7 @@
 #else
     #define MSG_INFO_PRINT_COUNT              "Impressions"
     #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
-    #define MSG_INFO_PRINT_TIME               "Total"
+    #define MSG_INFO_PRINT_TIME               "Total" 
     #define MSG_INFO_PRINT_LONGEST            "+ long"
     #define MSG_INFO_PRINT_FILAMENT           "Filament"
 #endif
