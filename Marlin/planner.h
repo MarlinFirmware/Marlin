@@ -166,6 +166,11 @@ class Planner {
      * Nominal speed of previous path line segment
      */
     static float previous_nominal_speed;
+	
+	/**
+	 * Limit where 64bit math is necessary for acceleration calculation
+	 */
+	static unsigned long cutoff_32bit;
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
       /**
