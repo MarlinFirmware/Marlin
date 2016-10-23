@@ -79,7 +79,7 @@
 #define _GET_OUTPUT(IO)  ((DIO ## IO ## _DDR & MASK(DIO ## IO ## _PIN)) != 0)
 
 /// check if pin is an timer
-#define _GET_TIMER(IO)  ((DIO ## IO ## _PWM)
+#define _GET_TIMER(IO)  (DIO ## IO ## _PWM)
 
 //  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
 
