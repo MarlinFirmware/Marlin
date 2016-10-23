@@ -2390,6 +2390,7 @@ void kill_screen(const char* lcd_msg) {
         case X_AXIS: lcd_move_x(); break;
         case Y_AXIS: lcd_move_y(); break;
         case Z_AXIS: lcd_move_z();
+        default: break;
       }
     }
     static void reprapworld_keypad_move_z_up()    { _reprapworld_keypad_move(Z_AXIS,  1); }
