@@ -49,11 +49,6 @@
   static uint8_t heater_ttbllen_map[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN);
 #endif
 
-#if ENABLED(PINS_DEBUGGING)
-  static uint16_t old_endstop_bits_local = 0; //for endstop monitor routine
-  static uint8_t  local_LED_status = 0;
-#endif
-
 Temperature thermalManager;
 
 // public:
@@ -1400,7 +1395,6 @@ void Temperature::set_current_temp_raw() {
 
 #if ENABLED(PINS_DEBUGGING)
 
-  void endstop_monitor() {
   /**  
    * monitors endstops & Z probe for changes
    *
@@ -1411,8 +1405,12 @@ void Temperature::set_current_temp_raw() {
    * that won't matter because this is all manual.
    *
    */ 
-
+   
+  void endstop_monitor() {
+    static uint16_t old_endstop_bits_local = 0;
+    static uint8_t  local_LED_status = 0;
     if (endstop_monitor_flag ) {
+      
       uint16_t current_endstop_bits_local = 0;
       #if HAS_X_MIN
         current_endstop_bits_local |= (READ(X_MIN_PIN) ? _BV(X_MIN) : 0) ;
@@ -1471,8 +1469,7 @@ void Temperature::set_current_temp_raw() {
       
       if (current_endstop_bits_local != old_endstop_bits_local) {
         analogWrite(LED_PIN, local_LED_status );                // toggle LED
-        SERIAL_PROTOCOLPGM("\n");                               // make it easy to see the message
-        SERIAL_PROTOCOLPGM("\n");
+        SERIAL_PROTOCOLPGM("\n\n");                               // make it easy to see the message
         old_endstop_bits_local = current_endstop_bits_local ;   // get ready for next change
         local_LED_status  = (local_LED_status ? 0 : 255);
       }  

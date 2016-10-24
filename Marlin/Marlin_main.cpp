@@ -4752,8 +4752,10 @@ inline void gcode_M42() {
           report_pin_state(pin);
     
     if (code_seen('E')) {
-      endstop_monitor_flag = endstop_monitor_flag ? false : true;
-      SERIAL_PROTOCOLLN((endstop_monitor_flag ? "endstop monitor active" : "endstop monitor disabled"));
+      endstop_monitor_flag ^= true;
+      SERIAL_PROTOCOLPGM("endstop monitor ");
+      SERIAL_PROTOCOL(endstop_monitor_flag ? "en" : "dis");
+      SERIAL_PROTOCOLLNPGM("abled");
     }    
   }
 
