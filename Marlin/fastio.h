@@ -93,6 +93,8 @@
 
 /// set pin as input wrapper
 #define SET_INPUT(IO)  _SET_INPUT(IO)
+/// set pin as input with pullup wrapper
+#define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _WRITE(IO, HIGH); }while(0)
 /// set pin as output wrapper
 #define SET_OUTPUT(IO)  _SET_OUTPUT(IO)
 

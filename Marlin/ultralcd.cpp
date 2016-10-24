@@ -2491,11 +2491,9 @@ void lcd_init() {
     #endif
 
     #if ENABLED(REPRAPWORLD_KEYPAD)
-      pinMode(SHIFT_CLK, OUTPUT);
-      pinMode(SHIFT_LD, OUTPUT);
-      pinMode(SHIFT_OUT, INPUT);
-      WRITE(SHIFT_OUT, HIGH);
-      WRITE(SHIFT_LD, HIGH);
+      SET_OUTPUT(SHIFT_CLK);
+      OUT_WRITE(SHIFT_LD, HIGH);
+      SET_INPUT_PULLUP(SHIFT_OUT);
     #endif
 
     #if BUTTON_EXISTS(UP)
@@ -2514,16 +2512,13 @@ void lcd_init() {
   #else // !NEWPANEL
 
     #if ENABLED(SR_LCD_2W_NL) // Non latching 2 wire shift register
-      pinMode(SR_DATA_PIN, OUTPUT);
-      pinMode(SR_CLK_PIN, OUTPUT);
+      SET_OUTPUT(SR_DATA_PIN);
+      SET_OUTPUT(SR_CLK_PIN);
     #elif defined(SHIFT_CLK)
-      pinMode(SHIFT_CLK, OUTPUT);
-      pinMode(SHIFT_LD, OUTPUT);
-      pinMode(SHIFT_EN, OUTPUT);
-      pinMode(SHIFT_OUT, INPUT);
-      WRITE(SHIFT_OUT, HIGH);
-      WRITE(SHIFT_LD, HIGH);
-      WRITE(SHIFT_EN, LOW);
+      SET_OUTPUT(SHIFT_CLK);
+      OUT_WRITE(SHIFT_LD, HIGH);
+      OUT_WRITE(SHIFT_EN, LOW);
+      SET_INPUT_PULLUP(SHIFT_OUT);
     #endif // SR_LCD_2W_NL
 
   #endif // !NEWPANEL
