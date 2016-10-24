@@ -1321,12 +1321,12 @@ void Planner::set_position_mm(const AxisEnum axis, const float& v) {
 
 // Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
 void Planner::reset_acceleration_rates() {
-  uint32_t highest_acceleration_allaxes_steps_per_s2;
+  uint32_t highest_rate = 1;
   LOOP_XYZE(i) {
     max_acceleration_steps_per_s2[i] = max_acceleration_mm_per_s2[i] * axis_steps_per_mm[i];
-    if (max_acceleration_steps_per_s2[i] > highest_acceleration_allaxes_steps_per_s2) highest_acceleration_allaxes_steps_per_s2 = max_acceleration_steps_per_s2[i];
+    NOLESS(highest_rate, max_acceleration_steps_per_s2[i]);
   }
-  cutoff_long = 4294967295UL / highest_acceleration_allaxes_steps_per_s2;
+  cutoff_long = 4294967295UL / highest_rate;
 }
 
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!
