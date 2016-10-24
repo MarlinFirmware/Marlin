@@ -2082,11 +2082,12 @@ static void clean_up_after_endstop_or_probe_move() {
     // Clear endstop flags
     endstops.hit_on_purpose();
 
-    // Tell the planner where we actually are
-    planner.sync_from_steppers();
-
     // Get Z where the steppers were interrupted
     set_current_from_steppers_for_axis(Z_AXIS);
+
+    // Tell the planner where we actually are
+    SYNC_PLAN_POSITION_KINEMATIC();
+
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
@@ -3819,7 +3820,7 @@ inline void gcode_G28() {
       set_current_from_steppers_for_axis(ALL_AXES);
 
       // Sync the planner to where the steppers stopped
-      planner.sync_from_steppers();
+      SYNC_PLAN_POSITION_KINEMATIC();
     }
 
     setup_for_endstop_or_probe_move();
