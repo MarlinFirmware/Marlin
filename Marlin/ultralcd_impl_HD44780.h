@@ -224,6 +224,16 @@ static void lcd_set_custom_characters(
     B10001,
     B01110
   };
+  static byte uplevel[8] = {
+    B00100,
+    B01110,
+    B11111,
+    B00100,
+    B11100,
+    B00000,
+    B00000,
+    B00000
+  }; //thanks joris
   static byte feedrate[8] = {
     B11100,
     B10000,
@@ -252,16 +262,6 @@ static void lcd_set_custom_characters(
   lcd.createChar(LCD_STR_CLOCK[0], clock);
 
   #if ENABLED(SDSUPPORT)
-    static byte uplevel[8] = {
-      B00100,
-      B01110,
-      B11111,
-      B00100,
-      B11100,
-      B00000,
-      B00000,
-      B00000
-    }; //thanks joris
     static byte refresh[8] = {
       B00000,
       B00110,
@@ -330,6 +330,8 @@ static void lcd_set_custom_characters(
       lcd.createChar(LCD_STR_FOLDER[0], folder);
     #endif
 
+  #else
+    lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
   #endif
 }
 
@@ -911,7 +913,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // SDSUPPORT
 
-  #define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
   #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
   #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
   #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')

@@ -115,6 +115,8 @@ float Planner::min_feedrate_mm_s,
 
 long Planner::position[NUM_AXIS] = { 0 };
 
+uint32_t Planner::cutoff_long;
+
 float Planner::previous_speed[NUM_AXIS],
       Planner::previous_nominal_speed;
 
@@ -1013,26 +1015,42 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   }
 
   // Compute and limit the acceleration rate for the trapezoid generator.
-  float steps_per_mm = block->step_event_count / block->millimeters;
+  float steps_per_mm = block->step_event_count * inverse_millimeters;
   uint32_t accel;
   if (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS]) {
     // convert to: acceleration steps/sec^2
     accel = ceil(retract_acceleration * steps_per_mm);
   }
   else {
-    #define LIMIT_ACCEL(AXIS) do{ \
-      if (max_acceleration_steps_per_s2[AXIS] < (accel * block->steps[AXIS]) / block->step_event_count) \
-        accel = (max_acceleration_steps_per_s2[AXIS] * block->step_event_count) / block->steps[AXIS]; \
+    #define LIMIT_ACCEL_LONG(AXIS) do{ \
+      if (block->steps[AXIS] && max_acceleration_steps_per_s2[AXIS] < accel) { \
+        const uint32_t comp = max_acceleration_steps_per_s2[AXIS] * block->step_event_count; \
+        if (accel * block->steps[AXIS] > comp) accel = comp / block->steps[AXIS]; \
+      } \
+    }while(0)
+	
+    #define LIMIT_ACCEL_FLOAT(AXIS) do{ \
+      if (block->steps[AXIS] && max_acceleration_steps_per_s2[AXIS] < accel) { \
+        const float comp = (float)max_acceleration_steps_per_s2[AXIS] * (float)block->step_event_count; \
+        if ((float)accel * (float)block->steps[AXIS] > comp) accel = comp / (float)block->steps[AXIS]; \
+      } \
     }while(0)
 
     // Start with print or travel acceleration
     accel = ceil((block->steps[E_AXIS] ? acceleration : travel_acceleration) * steps_per_mm);
 
     // Limit acceleration per axis
-    LIMIT_ACCEL(X_AXIS);
-    LIMIT_ACCEL(Y_AXIS);
-    LIMIT_ACCEL(Z_AXIS);
-    LIMIT_ACCEL(E_AXIS);
+    if (block->step_event_count <= cutoff_long){
+      LIMIT_ACCEL_LONG(X_AXIS);
+      LIMIT_ACCEL_LONG(Y_AXIS);
+      LIMIT_ACCEL_LONG(Z_AXIS);
+      LIMIT_ACCEL_LONG(E_AXIS);
+    } else {
+      LIMIT_ACCEL_FLOAT(X_AXIS);
+      LIMIT_ACCEL_FLOAT(Y_AXIS);
+      LIMIT_ACCEL_FLOAT(Z_AXIS);
+      LIMIT_ACCEL_FLOAT(E_AXIS);
+    }
   }
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
@@ -1303,8 +1321,12 @@ void Planner::set_position_mm(const AxisEnum axis, const float& v) {
 
 // Recalculate the steps/s^2 acceleration rates, based on the mm/s^2
 void Planner::reset_acceleration_rates() {
-  LOOP_XYZE(i)
+  uint32_t highest_acceleration_allaxes_steps_per_s2;
+  LOOP_XYZE(i) {
     max_acceleration_steps_per_s2[i] = max_acceleration_mm_per_s2[i] * axis_steps_per_mm[i];
+    if (max_acceleration_steps_per_s2[i] > highest_acceleration_allaxes_steps_per_s2) highest_acceleration_allaxes_steps_per_s2 = max_acceleration_steps_per_s2[i];
+  }
+  cutoff_long = 4294967295UL / highest_acceleration_allaxes_steps_per_s2;
 }
 
 // Recalculate position, steps_to_mm if axis_steps_per_mm changes!

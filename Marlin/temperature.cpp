@@ -669,8 +669,8 @@ void Temperature::manage_heater() {
   updateTemperaturesFromRawValues(); // also resets the watchdog
 
   #if ENABLED(HEATER_0_USES_MAX6675)
-    if (current_temperature[0] > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
-    if (current_temperature[0] < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
+    if (current_temperature[0] > min(HEATER_0_MAXTEMP, MAX6675_TMAX - 1)) max_temp_error(0);
+    if (current_temperature[0] < max(HEATER_0_MINTEMP, MAX6675_TMIN + 0.01)) min_temp_error(0);
   #endif
 
   #if (ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0) || (ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0) || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN
@@ -1355,10 +1355,14 @@ void Temperature::disable_all_heaters() {
       #else
         SERIAL_ERRORLNPGM("MAX6675");
       #endif
-      max6675_temp = 4000; // thermocouple open
+      max6675_temp = MAX6675_TMAX * 4; // thermocouple open
     }
     else
       max6675_temp >>= MAX6675_DISCARD_BITS;
+      #if ENABLED(MAX6675_IS_MAX31855)
+        // Support negative temperature
+        if (max6675_temp & 0x00002000) max6675_temp |= 0xffffc000;
+      #endif
 
     return (int)max6675_temp;
   }

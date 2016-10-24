@@ -634,8 +634,8 @@ static bool send_ok[BUFSIZE];
   static inline type pgm_read_any(const type *p)  \
   { return pgm_read_##reader##_near(p); }
 
-DEFINE_PGM_READ_ANY(float,       float);
-DEFINE_PGM_READ_ANY(signed char, byte);
+DEFINE_PGM_READ_ANY(float,       float)
+DEFINE_PGM_READ_ANY(signed char, byte)
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
   static const PROGMEM type array##_P[XYZ] =        \
@@ -643,12 +643,12 @@ DEFINE_PGM_READ_ANY(signed char, byte);
   static inline type array(int axis)          \
   { return pgm_read_any(&array##_P[axis]); }
 
-XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS);
-XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,   MAX_POS);
-XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,  HOME_POS);
-XYZ_CONSTS_FROM_CONFIG(float, max_length,     MAX_LENGTH);
-XYZ_CONSTS_FROM_CONFIG(float, home_bump_mm,   HOME_BUMP_MM);
-XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
+XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS)
+XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,   MAX_POS)
+XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,  HOME_POS)
+XYZ_CONSTS_FROM_CONFIG(float, max_length,     MAX_LENGTH)
+XYZ_CONSTS_FROM_CONFIG(float, home_bump_mm,   HOME_BUMP_MM)
+XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR)
 
 /**
  * ***************************************************************************
@@ -2082,11 +2082,12 @@ static void clean_up_after_endstop_or_probe_move() {
     // Clear endstop flags
     endstops.hit_on_purpose();
 
-    // Tell the planner where we actually are
-    planner.sync_from_steppers();
-
     // Get Z where the steppers were interrupted
     set_current_from_steppers_for_axis(Z_AXIS);
+
+    // Tell the planner where we actually are
+    SYNC_PLAN_POSITION_KINEMATIC();
+
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
@@ -3819,7 +3820,7 @@ inline void gcode_G28() {
       set_current_from_steppers_for_axis(ALL_AXES);
 
       // Sync the planner to where the steppers stopped
-      planner.sync_from_steppers();
+      SYNC_PLAN_POSITION_KINEMATIC();
     }
 
     setup_for_endstop_or_probe_move();
@@ -8542,7 +8543,7 @@ void ok_to_send() {
     cartes[X_AXIS] = delta_tower1_x + ex[0] * Xnew + ey[0] * Ynew - ez[0] * Znew;
     cartes[Y_AXIS] = delta_tower1_y + ex[1] * Xnew + ey[1] * Ynew - ez[1] * Znew;
     cartes[Z_AXIS] =             z1 + ex[2] * Xnew + ey[2] * Ynew - ez[2] * Znew;
-  };
+  }
 
   void forward_kinematics_DELTA(float point[ABC]) {
     forward_kinematics_DELTA(point[A_AXIS], point[B_AXIS], point[C_AXIS]);

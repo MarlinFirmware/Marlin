@@ -222,8 +222,12 @@
   #if TEMP_SENSOR_0 == -3
     #define HEATER_0_USES_MAX6675
     #define MAX6675_IS_MAX31855
+    #define MAX6675_TMIN -270
+    #define MAX6675_TMAX 1800
   #elif TEMP_SENSOR_0 == -2
     #define HEATER_0_USES_MAX6675
+    #define MAX6675_TMIN 0
+    #define MAX6675_TMAX 1024
   #elif TEMP_SENSOR_0 == -1
     #define HEATER_0_USES_AD595
   #elif TEMP_SENSOR_0 == 0
@@ -306,13 +310,13 @@
   /**
    * ARRAY_BY_EXTRUDERS based on EXTRUDERS
    */
-  #define ARRAY_BY_EXTRUDERS(args...) ARRAY_N(EXTRUDERS, args)
+  #define ARRAY_BY_EXTRUDERS(...) ARRAY_N(EXTRUDERS, __VA_ARGS__)
   #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1, v1, v1)
 
   /**
    * ARRAY_BY_HOTENDS based on HOTENDS
    */
-  #define ARRAY_BY_HOTENDS(args...) ARRAY_N(HOTENDS, args)
+  #define ARRAY_BY_HOTENDS(...) ARRAY_N(HOTENDS, __VA_ARGS__)
   #define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1, v1, v1)
 
   /**

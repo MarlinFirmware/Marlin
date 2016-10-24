@@ -130,7 +130,7 @@
 #define MSG_USERWAIT                        "Atten. de l'util."
 #define MSG_RESUMING                        "Repri. de l'impr."
 #define MSG_PRINT_ABORTED                   "Impr. Annulee"
-#define MSG_NO_MOVE                         "Aucun mouvement."
+#define MSG_NO_MOVE                         "Moteurs bloques."
 #define MSG_KILLED                          "MORT."
 #define MSG_STOPPED                         "STOPPE."
 #define MSG_CONTROL_RETRACT                 "Retraction mm"
@@ -145,6 +145,8 @@
 #define MSG_INIT_SDCARD                     "Init. la carte SD"
 #define MSG_CNG_SDCARD                      "Changer de carte"
 #define MSG_ZPROBE_OUT                      "Z sonde exte. lit"
+#define MSG_BLTOUCH_SELFTEST                "Autotest BLTouch"
+#define MSG_BLTOUCH_RESET                   "RaZ BLTouch"
 #define MSG_HOME                            "Origine"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "Premier"
 #define MSG_ZPROBE_ZOFFSET                  "Decalage Z"
@@ -159,6 +161,7 @@
 #define MSG_ERR_MINTEMP                     "Err: TEMP. MIN"
 #define MSG_ERR_MAXTEMP_BED                 "Err: TEMP. MAX LIT"
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP. MIN LIT"
+#define MSG_ERR_Z_HOMING                    "G28 Z interdit"
 
 #define MSG_HALTED                          "IMPR. STOPPEE"
 #define MSG_PLEASE_RESET                    "RaZ. SVP"
@@ -193,17 +196,19 @@
   #define MSG_INFO_PRINT_LONGEST            "Impr. la + longue"
   #define MSG_INFO_PRINT_FILAMENT           "Total filament"
 #else
-    #define MSG_INFO_PRINT_COUNT              "Impressions"
-    #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
-    #define MSG_INFO_PRINT_TIME               "Total"
-    #define MSG_INFO_PRINT_LONGEST            "+ long"
-    #define MSG_INFO_PRINT_FILAMENT           "Filament"
+  #define MSG_INFO_PRINT_COUNT              "Impressions"
+  #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
+  #define MSG_INFO_PRINT_TIME               "Total"
+  #define MSG_INFO_PRINT_LONGEST            "+ long"
+  #define MSG_INFO_PRINT_FILAMENT           "Filament"
 #endif
 
 #define MSG_INFO_MIN_TEMP                   "Temp Min"
 #define MSG_INFO_MAX_TEMP                   "Temp Max"
 #define MSG_INFO_PSU                        "Alimentation"
-
+#define MSG_DRIVE_STRENGTH                  "Puiss. moteur "
+#define MSG_DAC_PERCENT                     "Driver %"
+#define MSG_DAC_EEPROM_WRITE                "DAC EEPROM sauv."
 #define MSG_FILAMENT_CHANGE_HEADER          "CHANGER FILAMENT"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CHANGER OPTIONS:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "+ extrusion"
