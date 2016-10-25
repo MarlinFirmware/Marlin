@@ -32,6 +32,11 @@
 
 #include "pins_RAMPS_13.h"
 
+#undef SERVO0_PIN
+#undef SERVO1_PIN
+#define SERVO0_PIN  44  // SERVO1 port
+#define SERVO1_PIN  55  // SERVO2 port
+
 //
 // LCD / Controller
 //
