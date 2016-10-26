@@ -68,8 +68,6 @@
     extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
     void lcd_buttons_update();
     void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
-    bool lcd_clicked();
-    void lcd_ignore_click(bool b=true);
 
     #if ENABLED(FILAMENT_CHANGE_FEATURE)
       void lcd_filament_change_show_message(FilamentChangeMessage message);
@@ -79,12 +77,12 @@
     FORCE_INLINE void lcd_buttons_update() {}
   #endif
 
-  extern int preheatHotendTemp1;
-  extern int preheatBedTemp1;
-  extern int preheatFanSpeed1;
-  extern int preheatHotendTemp2;
-  extern int preheatBedTemp2;
-  extern int preheatFanSpeed2;
+  extern int preheatHotendTemp1,
+             preheatBedTemp1,
+             preheatFanSpeed1,
+             preheatHotendTemp2,
+             preheatBedTemp2,
+             preheatFanSpeed2;
 
   #if ENABLED(FILAMENT_LCD_DISPLAY)
     extern millis_t previous_lcd_status_ms;
@@ -150,6 +148,8 @@
     #define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1))
   #elif ENABLED(NEWPANEL)
     #define LCD_CLICKED (buttons & EN_C)
+  #else
+    #define LCD_CLICKED false
   #endif
 
 #else //no LCD
