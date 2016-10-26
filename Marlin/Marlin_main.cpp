@@ -4431,32 +4431,36 @@ inline void gcode_G92() {
 
     #endif
 
+    #if ENABLED(EMERGENCY_PARSER)
+      wait_for_user = true;
+    #endif
+
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
+
     stepper.synchronize();
     refresh_cmd_timeout();
 
     #if ENABLED(ULTIPANEL)
 
+      #if ENABLED(EMERGENCY_PARSER)
+        #define M1_WAIT_CONDITION (!lcd_clicked() && wait_for_user)
+      #else
+        #define M1_WAIT_CONDITION !lcd_clicked()
+      #endif
+
       if (codenum > 0) {
         codenum += previous_cmd_ms;  // wait until this time for a click
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        while (PENDING(millis(), codenum) && !lcd_clicked()) idle();
+        while (PENDING(millis(), codenum) && M1_WAIT_CONDITION) idle();
         lcd_ignore_click(false);
       }
       else if (lcd_detected()) {
-        KEEPALIVE_STATE(PAUSED_FOR_USER);
-        while (!lcd_clicked()) idle();
+        while (M1_WAIT_CONDITION) idle();
       }
-      else return;
+      else goto ExitM1;
 
-      if (IS_SD_PRINTING)
-        LCD_MESSAGEPGM(MSG_RESUMING);
-      else
-        LCD_MESSAGEPGM(WELCOME_MSG);
+      IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
 
     #else
-
-      KEEPALIVE_STATE(PAUSED_FOR_USER);
-      wait_for_user = true;
 
       if (codenum > 0) {
         codenum += previous_cmd_ms;  // wait until this time for an M108
@@ -4464,8 +4468,12 @@ inline void gcode_G92() {
       }
       else while (wait_for_user) idle();
 
-      wait_for_user = false;
+    #endif
 
+ExitM1:
+
+    #if ENABLED(EMERGENCY_PARSER)
+      wait_for_user = false;
     #endif
 
     KEEPALIVE_STATE(IN_HANDLER);
