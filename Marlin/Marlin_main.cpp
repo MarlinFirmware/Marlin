@@ -8313,8 +8313,8 @@ void ok_to_send() {
     // Whole unit is the grid box index
     const int gridx = constrain(floor(ratio_x), 0, ABL_GRID_POINTS_X - 2),
               gridy = constrain(floor(ratio_y), 0, ABL_GRID_POINTS_Y - 2),
-              nextx = gridx + (x < PROBE_BED_WIDTH ? 1 : 0),
-              nexty = gridy + (y < PROBE_BED_HEIGHT ? 1 : 0);
+              nextx = min(gridx + 1, ABL_GRID_POINTS_X - 2),
+              nexty = min(gridy + 1, ABL_GRID_POINTS_Y - 2);
 
     // Subtract whole to get the ratio within the grid box
     ratio_x = constrain(ratio_x - gridx, 0.0, 1.0);
