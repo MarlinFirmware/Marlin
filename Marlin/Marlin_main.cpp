@@ -409,7 +409,7 @@ static bool relative_mode = false;
 volatile bool wait_for_heatup = true;
 
 // For M0/M1, this flag may be cleared (by M108) to exit the wait-for-user loop
-#if ENABLED(EMERGENCY_PARSER) && DISABLED(ULTIPANEL)
+#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
   volatile bool wait_for_user = false;
 #endif
 
@@ -4390,7 +4390,7 @@ inline void gcode_G92() {
   report_current_position();
 }
 
-#if ENABLED(ULTIPANEL) || ENABLED(EMERGENCY_PARSER)
+#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
 
   /**
    * M0: Unconditional stop - Wait for user button press on LCD
@@ -4470,7 +4470,9 @@ inline void gcode_G92() {
 
     #endif
 
-ExitM1:
+#if ENABLED(ULTIPANEL)
+  ExitM1:
+#endif
 
     #if ENABLED(EMERGENCY_PARSER)
       wait_for_user = false;
@@ -4479,7 +4481,7 @@ ExitM1:
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
-#endif // ULTIPANEL || EMERGENCY_PARSER
+#endif // EMERGENCY_PARSER || ULTIPANEL
 
 /**
  * M17: Enable power on all stepper motors
@@ -4721,7 +4723,7 @@ inline void gcode_M42() {
           pin_state[pin - first_pin] = digitalRead(pin);
       }
 
-      #if ENABLED(EMERGENCY_PARSER) && DISABLED(ULTIPANEL)
+      #if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
         wait_for_user = true;
       #endif
 
@@ -4739,7 +4741,7 @@ inline void gcode_M42() {
           }
         }
 
-        #if ENABLED(EMERGENCY_PARSER) && DISABLED(ULTIPANEL)
+        #if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
           if (!wait_for_user) break;
         #endif
 
