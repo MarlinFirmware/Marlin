@@ -38,6 +38,14 @@
 #define RAMPS_D10_PIN  9
 #define MOSFET_D_PIN   7
 
+//
+// Auto fans
+//
+#define ORIG_E0_AUTO_FAN_PIN 11
+#define ORIG_E1_AUTO_FAN_PIN  6
+#define ORIG_E2_AUTO_FAN_PIN  6 
+#define ORIG_E3_AUTO_FAN_PIN  6
+
 #include "pins_RAMPS_13.h"
 
 //
