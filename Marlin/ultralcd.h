@@ -30,12 +30,7 @@
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
-  extern int preheatHotendTemp1,
-             preheatBedTemp1,
-             preheatFanSpeed1,
-             preheatHotendTemp2,
-             preheatBedTemp2,
-             preheatFanSpeed2;
+  extern int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
   int lcd_strlen(const char* s);
   int lcd_strlen_P(const char* s);
