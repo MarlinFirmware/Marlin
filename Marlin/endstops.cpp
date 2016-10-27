@@ -220,8 +220,7 @@ void Endstops::M119() {
   // Pass the result of the endstop test
   void Endstops::test_dual_z_endstops(EndstopEnum es1, EndstopEnum es2) {
     byte z_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for Z, bit 1 for Z2
-    if (stepper.current_block->steps[Z_AXIS] > 0) {
-      stepper.endstop_triggered(Z_AXIS);
+    if (z_test && stepper.current_block->steps[Z_AXIS] > 0) {
       SBI(endstop_hit_bits, Z_MIN);
       if (!stepper.performing_homing || (z_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
         stepper.kill_current_block();
