@@ -329,65 +329,67 @@
     #define _XMAX_ 101
     #define _YMAX_ 201
     #define _ZMAX_ 301
-    #if Z2_USE_ENDSTOP == _XMAX_
-      #define USE_XMAX_PLUG
-    #elif Z2_USE_ENDSTOP == _YMAX_
-      #define USE_YMAX_PLUG
-    #elif Z2_USE_ENDSTOP == _ZMAX_
-      #define USE_ZMAX_PLUG
-    #elif Z2_USE_ENDSTOP == _XMIN_
+    #if Z2_USE_ENDSTOP == _XMIN_
       #define USE_XMIN_PLUG
+    #elif Z2_USE_ENDSTOP == _XMAX_
+      #define USE_XMAX_PLUG
     #elif Z2_USE_ENDSTOP == _YMIN_
       #define USE_YMIN_PLUG
+    #elif Z2_USE_ENDSTOP == _YMAX_
+      #define USE_YMAX_PLUG
     #elif Z2_USE_ENDSTOP == _ZMIN_
       #define USE_ZMIN_PLUG
+    #elif Z2_USE_ENDSTOP == _ZMAX_
+      #define USE_ZMAX_PLUG
     #endif
     #if Z_HOME_DIR > 0
-      #if Z2_USE_ENDSTOP == _XMAX_
-        #define Z2_MAX_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
-        #define Z2_MAX_PIN X_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _YMAX_
-        #define Z2_MAX_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
-        #define Z2_MAX_PIN Y_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _ZMAX_
-        #define Z2_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-        #define Z2_MAX_PIN Z_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _XMIN_
+      #if Z2_USE_ENDSTOP == _XMIN_
         #define Z2_MAX_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
         #define Z2_MAX_PIN X_MIN_PIN
+      #elif Z2_USE_ENDSTOP == _XMAX_
+        #define Z2_MAX_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN X_MAX_PIN
       #elif Z2_USE_ENDSTOP == _YMIN_
         #define Z2_MAX_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
         #define Z2_MAX_PIN Y_MIN_PIN
+      #elif Z2_USE_ENDSTOP == _YMAX_
+        #define Z2_MAX_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Y_MAX_PIN
       #elif Z2_USE_ENDSTOP == _ZMIN_
         #define Z2_MAX_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
         #define Z2_MAX_PIN Z_MIN_PIN
+      #elif Z2_USE_ENDSTOP == _ZMAX_
+        #define Z2_MAX_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
+        #define Z2_MAX_PIN Z_MAX_PIN
       #else
         #define Z2_MAX_ENDSTOP_INVERTING false
       #endif
     #else
-      #if Z2_USE_ENDSTOP == _XMAX_
-        #define Z2_MIN_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
-        #define Z2_MIN_PIN X_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _YMAX_
-        #define Z2_MIN_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
-        #define Z2_MIN_PIN Y_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _ZMAX_
-        #define Z2_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
-        #define Z2_MIN_PIN Z_MAX_PIN
-      #elif Z2_USE_ENDSTOP == _XMIN_
+      #if Z2_USE_ENDSTOP == _XMIN_
         #define Z2_MIN_ENDSTOP_INVERTING X_MIN_ENDSTOP_INVERTING
         #define Z2_MIN_PIN X_MIN_PIN
+      #elif Z2_USE_ENDSTOP == _XMAX_
+        #define Z2_MIN_ENDSTOP_INVERTING X_MAX_ENDSTOP_INVERTING
+        #define Z2_MIN_PIN X_MAX_PIN
       #elif Z2_USE_ENDSTOP == _YMIN_
         #define Z2_MIN_ENDSTOP_INVERTING Y_MIN_ENDSTOP_INVERTING
         #define Z2_MIN_PIN Y_MIN_PIN
+      #elif Z2_USE_ENDSTOP == _YMAX_
+        #define Z2_MIN_ENDSTOP_INVERTING Y_MAX_ENDSTOP_INVERTING
+        #define Z2_MIN_PIN Y_MAX_PIN
       #elif Z2_USE_ENDSTOP == _ZMIN_
         #define Z2_MIN_ENDSTOP_INVERTING Z_MIN_ENDSTOP_INVERTING
         #define Z2_MIN_PIN Z_MIN_PIN
+      #elif Z2_USE_ENDSTOP == _ZMAX_
+        #define Z2_MIN_ENDSTOP_INVERTING Z_MAX_ENDSTOP_INVERTING
+        #define Z2_MIN_PIN Z_MAX_PIN
       #else
         #define Z2_MIN_ENDSTOP_INVERTING false
       #endif
     #endif
   #endif
+
+  #define IS_Z2_OR_PROBE(P) (P == Z2_MIN_PIN || P == Z2_MAX_PIN || P == Z_MIN_PROBE_PIN)
 
   /**
    * Set ENDSTOPPULLUPS for active endstop switches
@@ -452,12 +454,12 @@
   #define HAS_KILL (PIN_EXISTS(KILL))
   #define HAS_SUICIDE (PIN_EXISTS(SUICIDE))
   #define HAS_PHOTOGRAPH (PIN_EXISTS(PHOTOGRAPH))
-  #define HAS_X_MIN (PIN_EXISTS(X_MIN))
-  #define HAS_X_MAX (PIN_EXISTS(X_MAX))
-  #define HAS_Y_MIN (PIN_EXISTS(Y_MIN))
-  #define HAS_Y_MAX (PIN_EXISTS(Y_MAX))
-  #define HAS_Z_MIN (PIN_EXISTS(Z_MIN))
-  #define HAS_Z_MAX (PIN_EXISTS(Z_MAX))
+  #define HAS_X_MIN (PIN_EXISTS(X_MIN) && !IS_Z2_OR_PROBE(X_MIN_PIN))
+  #define HAS_X_MAX (PIN_EXISTS(X_MAX) && !IS_Z2_OR_PROBE(X_MAX_PIN))
+  #define HAS_Y_MIN (PIN_EXISTS(Y_MIN) && !IS_Z2_OR_PROBE(Y_MIN_PIN))
+  #define HAS_Y_MAX (PIN_EXISTS(Y_MAX) && !IS_Z2_OR_PROBE(Y_MAX_PIN))
+  #define HAS_Z_MIN (PIN_EXISTS(Z_MIN) && !IS_Z2_OR_PROBE(Z_MIN_PIN))
+  #define HAS_Z_MAX (PIN_EXISTS(Z_MAX) && !IS_Z2_OR_PROBE(Z_MAX_PIN))
   #define HAS_Z2_MIN (PIN_EXISTS(Z2_MIN))
   #define HAS_Z2_MAX (PIN_EXISTS(Z2_MAX))
   #define HAS_Z_MIN_PROBE_PIN (PIN_EXISTS(Z_MIN_PROBE))
