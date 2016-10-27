@@ -561,9 +561,9 @@ static bool report_pin_name(int8_t pin) {
   #if PIN_EXISTS(X_STEP)
     PIN_SAY(X_STEP_PIN);
   #endif
-  #if PIN_EXISTS(X_STOP)
-    PIN_SAY(X_STOP_PIN);
-  #endif
+//  #if PIN_EXISTS(X_STOP)
+//   PIN_SAY(X_STOP_PIN);  // reported as either X_MIN or X_MAX depending on homing direction
+//  #endif
   #if PIN_EXISTS(X2_DIR)
     PIN_SAY(X2_DIR_PIN);
   #endif
@@ -594,9 +594,9 @@ static bool report_pin_name(int8_t pin) {
   #if PIN_EXISTS(Y_MS2)
     PIN_SAY(Y_MS2_PIN);
   #endif
-  #if PIN_EXISTS(Y_STEP)
-    PIN_SAY(Y_STEP_PIN);
-  #endif
+//  #if PIN_EXISTS(Y_STEP)
+//    PIN_SAY(Y_STEP_PIN);  // reported as either Y_MIN or Y_MAX depending on homing direction
+//  #endif
   #if PIN_EXISTS(Y_STOP)
     PIN_SAY(Y_STOP_PIN);
   #endif
@@ -636,9 +636,9 @@ static bool report_pin_name(int8_t pin) {
   #if PIN_EXISTS(Z_STEP)
     PIN_SAY(Z_STEP_PIN);
   #endif
-  #if PIN_EXISTS(Z_STOP)
-    PIN_SAY(Z_STOP_PIN);
-  #endif
+//  #if PIN_EXISTS(Z_STOP)
+//    PIN_SAY(Z_STOP_PIN);  // reported as either Z_MIN or Z_MAX depending on homing direction
+//  #endif
   #if PIN_EXISTS(Z2_DIR)
     PIN_SAY(Z2_DIR_PIN);
   #endif
