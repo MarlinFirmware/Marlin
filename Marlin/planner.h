@@ -264,7 +264,7 @@ class Planner {
      *  fr_mm_s      - (target) speed of the move (mm/s)
      *  extruder     - target extruder
      */
-    static FORCE_INLINE void buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, float fr_mm_s, const uint8_t extruder) {
+    static FORCE_INLINE void buffer_line(ARG_X, ARG_Y, ARG_Z, const float &e, const float &fr_mm_s, const uint8_t extruder) {
       #if PLANNER_LEVELING && IS_CARTESIAN
         apply_leveling(lx, ly, lz);
       #endif
@@ -280,7 +280,7 @@ class Planner {
      *  fr_mm_s  - (target) speed of the move (mm/s)
      *  extruder - target extruder
      */
-    static FORCE_INLINE void buffer_line_kinematic(const float target[XYZE], float fr_mm_s, const uint8_t extruder) {
+    static FORCE_INLINE void buffer_line_kinematic(const float target[XYZE], const float &fr_mm_s, const uint8_t extruder) {
       #if PLANNER_LEVELING
         float pos[XYZ] = { target[X_AXIS], target[Y_AXIS], target[Z_AXIS] };
         apply_leveling(pos);
@@ -311,9 +311,9 @@ class Planner {
       _set_position_mm(lx, ly, lz, e);
     }
     static void set_position_mm_kinematic(const float position[NUM_AXIS]);
-    static void set_position_mm(const AxisEnum axis, const float& v);
-    static FORCE_INLINE void set_z_position_mm(const float& z) { set_position_mm(Z_AXIS, z); }
-    static FORCE_INLINE void set_e_position_mm(const float& e) { set_position_mm(E_AXIS, e); }
+    static void set_position_mm(const AxisEnum axis, const float &v);
+    static FORCE_INLINE void set_z_position_mm(const float &z) { set_position_mm(Z_AXIS, z); }
+    static FORCE_INLINE void set_e_position_mm(const float &e) { set_position_mm(E_AXIS, e); }
 
     /**
      * Sync from the stepper positions. (e.g., after an interrupted move)
@@ -369,7 +369,7 @@ class Planner {
      * Calculate the distance (not time) it takes to accelerate
      * from initial_rate to target_rate using the given acceleration:
      */
-    static float estimate_acceleration_distance(float initial_rate, float target_rate, float accel) {
+    static float estimate_acceleration_distance(const float &initial_rate, const float &target_rate, const float &accel) {
       if (accel == 0) return 0; // accel was 0, set acceleration distance to 0
       return (sq(target_rate) - sq(initial_rate)) / (accel * 2);
     }
@@ -382,7 +382,7 @@ class Planner {
      * This is used to compute the intersection point between acceleration and deceleration
      * in cases where the "trapezoid" has no plateau (i.e., never reaches maximum speed)
      */
-    static float intersection_distance(float initial_rate, float final_rate, float accel, float distance) {
+    static float intersection_distance(const float &initial_rate, const float &final_rate, const float &accel, const float &distance) {
       if (accel == 0) return 0; // accel was 0, set intersection distance to 0
       return (accel * 2 * distance - sq(initial_rate) + sq(final_rate)) / (accel * 4);
     }
@@ -392,7 +392,7 @@ class Planner {
      * to reach 'target_velocity' using 'acceleration' within a given
      * 'distance'.
      */
-    static float max_allowable_speed(float accel, float target_velocity, float distance) {
+    static float max_allowable_speed(const float &accel, const float &target_velocity, const float &distance) {
       return sqrt(sq(target_velocity) - 2 * accel * distance);
     }
 
