@@ -5549,13 +5549,9 @@ inline void gcode_M140() {
    * M149: Set temperature units
    */
   inline void gcode_M149() {
-    if (code_seen('C')) {
-      set_input_temp_units(TEMPUNIT_C);
-    } else if (code_seen('K')) {
-      set_input_temp_units(TEMPUNIT_K);
-    } else if (code_seen('F')) {
-      set_input_temp_units(TEMPUNIT_F);
-    }
+         if (code_seen('C')) set_input_temp_units(TEMPUNIT_C);
+    else if (code_seen('K')) set_input_temp_units(TEMPUNIT_K);
+    else if (code_seen('F')) set_input_temp_units(TEMPUNIT_F);
   }
 #endif
 
