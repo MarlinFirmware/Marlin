@@ -8125,10 +8125,13 @@ void process_next_command() {
           break;
       #endif // ENABLED(FILAMENT_WIDTH_SENSOR)
 
-      #if ENABLED(MESH_BED_LEVELING)
-        case 420: // M420: Enable/Disable Mesh Bed Leveling
+      #if PLANNER_LEVELING
+        case 420: // M420: Enable/Disable Bed Leveling
           gcode_M420();
           break;
+      #endif
+
+      #if ENABLED(MESH_BED_LEVELING)
         case 421: // M421: Set a Mesh Bed Leveling Z coordinate
           gcode_M421();
           break;
