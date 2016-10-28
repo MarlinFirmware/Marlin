@@ -565,7 +565,14 @@ void Config_RetrieveSettings() {
   #endif
 }
 
-#endif // EEPROM_SETTINGS
+#else // !EEPROM_SETTINGS
+
+  void Config_StoreSettings() {
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLNPGM("EEPROM disabled");
+  }
+
+#endif // !EEPROM_SETTINGS
 
 /**
  * M502 - Reset Configuration
