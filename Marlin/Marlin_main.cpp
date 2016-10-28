@@ -4467,8 +4467,6 @@ inline void gcode_G92() {
       }
       else while (wait_for_user) idle();
 
-      wait_for_user = false;
-
     #endif
 
 #if ENABLED(ULTIPANEL)
@@ -9261,8 +9259,14 @@ void prepare_move_to_destination() {
       bool new_led = (max_temp > 55.0) ? true : (max_temp < 54.0) ? false : red_led;
       if (new_led != red_led) {
         red_led = new_led;
-        WRITE(STAT_LED_RED_PIN, new_led ? HIGH : LOW);
-        WRITE(STAT_LED_BLUE_PIN, new_led ? LOW : HIGH);
+        #if PIN_EXISTS(STAT_LED_RED)
+          WRITE(STAT_LED_RED_PIN, new_led ? HIGH : LOW);
+          #if PIN_EXISTS(STAT_LED_BLUE)
+            WRITE(STAT_LED_BLUE_PIN, new_led ? LOW : HIGH);
+          #endif
+        #else
+          WRITE(STAT_LED_BLUE_PIN, new_led ? HIGH : LOW);
+        #endif
       }
     }
   }
