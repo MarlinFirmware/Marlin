@@ -1391,7 +1391,92 @@ void Temperature::set_current_temp_raw() {
   #endif
   current_temperature_bed_raw = raw_temp_bed_value;
   temp_meas_ready = true;
+
 }
+
+#if ENABLED(PINS_DEBUGGING)
+
+  /**  
+   * monitors endstops & Z probe for changes
+   *
+   * If a change is detected then the LED is toggled and
+   * a message is sent out the serial port
+   *
+   * Yes, we could miss a rapid back & forth change but
+   * that won't matter because this is all manual.
+   *
+   */ 
+   
+  void endstop_monitor() {
+    static uint16_t old_endstop_bits_local = 0;
+    static uint8_t  local_LED_status = 0;
+    if (endstop_monitor_flag ) {
+      
+      uint16_t current_endstop_bits_local = 0;
+      #if HAS_X_MIN
+        current_endstop_bits_local |= (READ(X_MIN_PIN) ? _BV(X_MIN) : 0) ;
+        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(X_MIN)) {
+          SERIAL_PROTOCOLPAIR("X_MIN: ", ((current_endstop_bits_local & _BV(X_MIN)) ? 1 : 0));
+        }
+      #endif
+      #if HAS_X_MAX
+        current_endstop_bits_local |= (READ(X_MAX_PIN) ? _BV(X_MAX) : 0) ;
+        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(X_MAX)) {
+          SERIAL_PROTOCOLPAIR("   X_MAX: ", ((current_endstop_bits_local & _BV(X_MAX)) ? 1 : 0));
+        }
+      #endif
+      #if HAS_Y_MIN
+        current_endstop_bits_local |= (READ(Y_MIN_PIN) ? _BV(Y_MIN) : 0) ;
+        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Y_MIN)) {
+          SERIAL_PROTOCOLPAIR("   Y_MIN: ", ((current_endstop_bits_local & _BV(Y_MIN)) ? 1 : 0));
+        }
+      #endif
+      #if HAS_Y_MAX
+        current_endstop_bits_local |= (READ(Y_MAX_PIN) ? _BV(Y_MAX) : 0) ;
+        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Y_MAX)) {
+          SERIAL_PROTOCOLPAIR("   Y_MAX: ", ((current_endstop_bits_local & _BV(Y_MAX)) ? 1 : 0));
+        }
+      #endif
+      #if HAS_Z_MIN
+        current_endstop_bits_local |= (READ(Z_MIN_PIN) ? _BV(Z_MIN) : 0) ;
+        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Z_MIN)) {
+          SERIAL_PROTOCOLPAIR("   Z_MIN: ", ((current_endstop_bits_local & _BV(Z_MIN)) ? 1 : 0));
+        }
+      #endif
+      #if HAS_Z_MAX
+        current_endstop_bits_local |= (READ(Z_MAX_PIN) ? _BV(Z_MAX) : 0) ;
+        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Z_MAX)) {
+          SERIAL_PROTOCOLPAIR("   Z_MAX: ", ((current_endstop_bits_local & _BV(Z_MAX)) ? 1 : 0));
+        }
+      #endif     
+      #if HAS_Z_MIN_PROBE_PIN
+        current_endstop_bits_local |= (READ(Z_MIN_PROBE_PIN) ? _BV(Z_MIN_PROBE) : 0) ;
+        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Z_MIN_PROBE)) {
+          SERIAL_PROTOCOLPAIR("   PROBE: ", ((current_endstop_bits_local & _BV(Z_MIN_PROBE)) ? 1 : 0));
+        }
+      #endif     
+      #if HAS_Z2_MIN
+        current_endstop_bits_local |= (READ(Z2_MIN_PIN) ? _BV(Z2_MIN) : 0) ;
+        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Z2_MIN)) {
+          SERIAL_PROTOCOLPAIR("   Z2_MIN: ", ((current_endstop_bits_local & _BV(Z2_MIN)) ? 1 : 0));
+        }
+      #endif
+      #if HAS_Z2_MAX
+        current_endstop_bits_local |= (READ(Z2_MAX_PIN) ? _BV(Z2_MAX) : 0) ;
+        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Z2_MAX)) {
+          SERIAL_PROTOCOLPAIR("   Z2_MAX: ", ((current_endstop_bits_local & _BV(Z2_MAX)) ? 1 : 0));
+        }
+      #endif
+      
+      if (current_endstop_bits_local != old_endstop_bits_local) {
+        analogWrite(LED_PIN, local_LED_status );                // toggle LED
+        SERIAL_PROTOCOLPGM("\n\n");                               // make it easy to see the message
+        old_endstop_bits_local = current_endstop_bits_local ;   // get ready for next change
+        local_LED_status  = (local_LED_status ? 0 : 255);
+      }  
+    }  
+  }  
+#endif  // PINS_DEBUGGING
 
 /**
  * Timer 0 is shared with millies so don't change the prescaler.
@@ -1412,8 +1497,8 @@ void Temperature::isr() {
   static uint8_t temp_count = 0;
   static TempState temp_state = StartupDelay;
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
-
-  // Static members for each heater
+ 
+   // Static members for each heater
   #if ENABLED(SLOW_PWM_HEATERS)
     static uint8_t slow_pwm_count = 0;
     #define ISR_STATICS(n) \
@@ -1848,4 +1933,13 @@ void Temperature::isr() {
       }
     }
   #endif //BABYSTEPPING
+  
+
+  #if ENABLED(PINS_DEBUGGING)
+    // run the endstop monitor at 15Hz
+    static uint8_t endstop_monitor_count = 16;  // offset this check from the others
+    endstop_monitor_count += _BV(1);  //  15 Hz
+    endstop_monitor_count &= 0x7F;
+    if (endstop_monitor_count == 0) endstop_monitor();  // report changes in endstop status
+  #endif  
 }
