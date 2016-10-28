@@ -20,9 +20,11 @@
  *
  */
 
+ 
 // How many DIO pins are defined?
 #if defined(DIO85_PIN)
-  #define DIO_COUNT 86
+//  #define DIO_COUNT 86
+  #define DIO_COUNT 70  // digitalRead and other Arduino IDE routines only know about pins 0 through 69
 #elif defined(DIO53_PIN)
   #define DIO_COUNT 54
 #elif defined(DIO47_PIN)
@@ -33,42 +35,72 @@
   #define DIO_COUNT 22
 #endif
 
-#define _PIN_SAY(NAME) { SERIAL_ECHOPGM(STRINGIFY(NAME)); return true; }
-#define PIN_SAY(NAME) if (pin == NAME) _PIN_SAY(_##NAME##_)
-#define ANALOG_PIN_SAY(NAME) if (pin == analogInputToDigitalPin(NAME)) _PIN_SAY(_##NAME##_)
+
+#define _PIN_SAY(NAME) { sprintf(buffer, "%-20s", NAME); SERIAL_ECHO(buffer); return true; }
+#define PIN_SAY(NAME) if (pin == NAME) _PIN_SAY(#NAME);
+
+#define _ANALOG_PIN_SAY(NAME)   { sprintf(buffer, "%-20s", NAME); SERIAL_ECHO(buffer); pin_is_analog = true; return true; }
+#define ANALOG_PIN_SAY(NAME) if (pin == analogInputToDigitalPin(NAME)) _ANALOG_PIN_SAY(#NAME);
+
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(5)))
 
+
+
+int digitalRead_mod(int8_t pin)  // same as digitalRead except the PWM stop section has been removed
+{
+	uint8_t bit = digitalPinToBitMask(pin);
+	uint8_t port = digitalPinToPort(pin);
+  
+	if (port == NOT_A_PIN) return LOW;
+
+	if (*portInputRegister(port) & bit) return HIGH;
+	return LOW;
+}
+
+bool get_pinMode(int8_t pin)
+{
+	uint8_t bit = digitalPinToBitMask(pin);
+	uint8_t port = digitalPinToPort(pin);
+	volatile uint8_t *reg;
+	reg = portModeRegister(port);
+  return   *reg & bit;
+}
+
 // Report pin name for a given fastio digital pin index
-static bool report_pin_name(int8_t pin) {
 
-  SERIAL_ECHO((int)pin);
-  SERIAL_CHAR(' ');
-
+static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
+  
+  char buffer[30];   // for the sprintf statements
+  pin_is_analog = false;   // default to digital pin
+  
   if (IS_ANALOG(pin)) {
-    SERIAL_CHAR('('); SERIAL_CHAR('A');
-    SERIAL_ECHO(int(pin - analogInputToDigitalPin(0)));
-    SERIAL_CHAR(')'); SERIAL_CHAR(' ');
+    sprintf(buffer, "(A%2d)  ", int(pin - analogInputToDigitalPin(0)));
+    SERIAL_ECHO(buffer);   
   }
+  else SERIAL_ECHOPGM("       ");
 
   #if defined(RXD) && RXD > -1
-    if (pin == 0) { SERIAL_ECHOPGM("RXD"); return true; }
+    if (pin == 0) { SERIAL_ECHOPGM("RXD                 "); return true; }
   #endif
   #if defined(TXD) && TXD > -1
-    if (pin == 1) { SERIAL_ECHOPGM("TXD"); return true; }
+    if (pin == 1) { SERIAL_ECHOPGM("TXD                 "); return true; }
   #endif
+
   
-  #if defined(__FD) && __FD > -1   // Pin list updated from 7 OCT RCBugfix branch
-    PIN_SAY(__FD);
+  // Pin list updated from 7 OCT RCBugfix branch
+  #if defined(__FD) && __FD > -1   
+    PIN_SAY(__FD)
   #endif
   #if defined(__FS) && __FS > -1
-    PIN_SAY(__FS);
+    PIN_SAY(__FS)
   #endif
   #if defined(__GD) && __GD > -1
-    PIN_SAY(__GD);
+    PIN_SAY(__GD)
   #endif
   #if defined(__GS) && __GS > -1
-    PIN_SAY(__GS);
+    PIN_SAY(__GS)
   #endif
+ 
   #if PIN_EXISTS(AVR_MISO)
     PIN_SAY(AVR_MISO_PIN);
   #endif
@@ -561,9 +593,9 @@ static bool report_pin_name(int8_t pin) {
   #if PIN_EXISTS(X_STEP)
     PIN_SAY(X_STEP_PIN);
   #endif
-//  #if PIN_EXISTS(X_STOP)
-//   PIN_SAY(X_STOP_PIN);  // reported as either X_MIN or X_MAX depending on homing direction
-//  #endif
+  #if PIN_EXISTS(X_STOP)
+    PIN_SAY(X_STOP_PIN);
+  #endif
   #if PIN_EXISTS(X2_DIR)
     PIN_SAY(X2_DIR_PIN);
   #endif
@@ -594,9 +626,9 @@ static bool report_pin_name(int8_t pin) {
   #if PIN_EXISTS(Y_MS2)
     PIN_SAY(Y_MS2_PIN);
   #endif
-//  #if PIN_EXISTS(Y_STEP)
-//    PIN_SAY(Y_STEP_PIN);  // reported as either Y_MIN or Y_MAX depending on homing direction
-//  #endif
+  #if PIN_EXISTS(Y_STEP)
+    PIN_SAY(Y_STEP_PIN);
+  #endif
   #if PIN_EXISTS(Y_STOP)
     PIN_SAY(Y_STOP_PIN);
   #endif
@@ -636,9 +668,9 @@ static bool report_pin_name(int8_t pin) {
   #if PIN_EXISTS(Z_STEP)
     PIN_SAY(Z_STEP_PIN);
   #endif
-//  #if PIN_EXISTS(Z_STOP)
-//    PIN_SAY(Z_STOP_PIN);  // reported as either Z_MIN or Z_MAX depending on homing direction
-//  #endif
+  #if PIN_EXISTS(Z_STOP)
+    PIN_SAY(Z_STOP_PIN);
+  #endif
   #if PIN_EXISTS(Z2_DIR)
     PIN_SAY(Z2_DIR_PIN);
   #endif
@@ -650,14 +682,374 @@ static bool report_pin_name(int8_t pin) {
   #endif
 
 
-
-
-  SERIAL_ECHOPGM("<unused>");
+  SERIAL_ECHOPGM("<unused>            ");
+  
   return false;
-}
+}  //  report_pin_name
+
+//  True - currently a PWM pin
+static bool PWM_status(uint8_t pin) {
+  char buffer[20];   // for the sprintf statements
+  
+  switch(digitalPinToTimer(pin)) {
+
+    #if defined(TCCR0A) && defined(COM0A1)
+      case TIMER0A:
+        if (TCCR0A & (_BV(COM0A1) | _BV(COM0A0))){
+          sprintf(buffer, "PWM:  %4d", OCR0A); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+      case TIMER0B:
+        if (TCCR0A & (_BV(COM0B1) | _BV(COM0B0))){
+          sprintf(buffer, "PWM:  %4d",OCR0B); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+    #endif
+
+    #if defined(TCCR1A) && defined(COM1A1)
+      case TIMER1A:
+        if (TCCR1A & (_BV(COM1A1) | _BV(COM1A0))){
+          sprintf(buffer, "PWM:  %4d",OCR1A); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+      case TIMER1B:
+        if (TCCR1B & (_BV(COM1B1) | _BV(COM1B0))){
+          sprintf(buffer, "PWM:  %4d",OCR1B); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break; 
+      case TIMER1C:
+        if (TCCR1C & (_BV(COM1C1) | _BV(COM1C0))){
+          sprintf(buffer, "PWM:  %4d",OCR1C); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+    #endif
+
+    #if defined(TCCR2A) && defined(COM2A1)
+      case TIMER2A:
+        if (TCCR2A & (_BV(COM2A1) | _BV(COM2A0))){
+          sprintf(buffer, "PWM:  %4d",OCR2A); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+      case TIMER2B:
+        if (TCCR2B & (_BV(COM2B1) | _BV(COM2B0))){
+          sprintf(buffer, "PWM:  %4d",OCR2B); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+    #endif
+
+    #if defined(TCCR3A) && defined(COM3A1)
+      case TIMER3A:
+        if (TCCR3A & (_BV(COM3A1) | _BV(COM3A0))){
+          sprintf(buffer, "PWM:  %4d",OCR3A); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+      case TIMER3B:
+        if (TCCR3B & (_BV(COM3B1) | _BV(COM3B0))){
+          sprintf(buffer, "PWM:  %4d",OCR3B); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+      case TIMER3C:
+        if (TCCR3C & (_BV(COM3C1) | _BV(COM3C0))){
+          sprintf(buffer, "PWM:  %4d",OCR3C); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+    #endif
+
+    #if defined(TCCR4A)
+      case TIMER4A:
+        if (TCCR4A & (_BV(COM4A1) | _BV(COM4A0))){
+          sprintf(buffer, "PWM:  %4d",OCR4A); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+      case TIMER4B:
+        if (TCCR4B & (_BV(COM4B1) | _BV(COM4B0))){
+          sprintf(buffer, "PWM:  %4d",OCR4B); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+      case TIMER4C:
+        if (TCCR4C & (_BV(COM4C1) | _BV(COM4C0))){
+          sprintf(buffer, "PWM:  %4d",OCR4C); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+    #endif
+          
+    #if defined(TCCR5A) && defined(COM5A1)
+      case TIMER5A:
+        if (TCCR5A & (_BV(COM5A1) | _BV(COM5A0))){
+          sprintf(buffer, "PWM:  %4d",OCR5A); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+      case TIMER5B:
+        if (TCCR5B & (_BV(COM5B1) | _BV(COM5B0))){
+          sprintf(buffer, "PWM:  %4d",OCR5B); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+      case TIMER5C:
+        if (TCCR5C & (_BV(COM5C1) | _BV(COM5C0))){
+          sprintf(buffer, "PWM:  %4d",OCR5C); 
+          SERIAL_ECHO(buffer);
+          return true;
+        }
+        else return false;
+        break;
+    #endif
+
+    case NOT_ON_TIMER:
+      return false;
+      break;
+     
+    default:
+      return false;
+
+  }
+  
+  SERIAL_PROTOCOLPGM("  ");   
+}  //PWM_status
+
+static void PWM_details(uint8_t pin)
+{
+
+  uint8_t  WGM;
+
+  switch(digitalPinToTimer(pin)) {
+ 
+	#if defined(TCCR0A) && defined(COM0A1)
+    case TIMER0A:
+      SERIAL_PROTOCOLPGM("    TIMER0A");
+      WGM = ((TCCR0B & _BV(WGM02)) >> 1 ) | (TCCR0A & (_BV(WGM00) | _BV(WGM01) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK0: ", TIMSK0);
+      if (WGM == 0 || WGM == 2 || WGM == 4 || WGM == 6) SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK0 & _BV(OCIE0A))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK0 & _BV(TOIE0) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;         
+    case TIMER0B:
+      SERIAL_PROTOCOLPGM("    TIMER0B");
+      WGM = ((TCCR0B & _BV(WGM02)) >> 1 ) | (TCCR0A & (_BV(WGM00) | _BV(WGM01) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK0: ", TIMSK0);
+      if (WGM == 0 || WGM == 2 || WGM == 4 || WGM == 6) SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK0 & _BV(OCIE0B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK0 & _BV(TOIE0) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;
+  #endif
+
+  #if defined(TCCR1A) && defined(COM1A1)
+    case TIMER1A:
+      SERIAL_PROTOCOLPGM("    TIMER1A");
+      WGM =   ((TCCR1B & (_BV(WGM12) | _BV(WGM13) )) >> 1 ) | (TCCR1A & (_BV(WGM10) | _BV(WGM11) ));   
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK1: ", TIMSK1);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK1 &  _BV(OCIE1A))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;
+    case TIMER1B:
+      SERIAL_PROTOCOLPGM("    TIMER1B");
+      WGM =   ((TCCR1B & (_BV(WGM12) | _BV(WGM13) )) >> 1 ) | (TCCR1A & (_BV(WGM10) | _BV(WGM11) ));   
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK1: ", TIMSK1);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK1 &  _BV(OCIE1B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");          
+      break;
+    case TIMER1C:
+      SERIAL_PROTOCOLPGM("    TIMER1C");
+      WGM =   ((TCCR1B & (_BV(WGM12) | _BV(WGM13) )) >> 1 ) | (TCCR1A & (_BV(WGM10) | _BV(WGM11) ));   
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK1: ", TIMSK1);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK1 &  _BV(OCIE1C))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;
+  #endif
+
+  #if defined(TCCR2A) && defined(COM2A1)
+    case TIMER2A:
+      SERIAL_PROTOCOLPGM("    TIMER2A");
+      WGM =   ((TCCR2B & _BV(WGM22) ) >> 1 ) | (TCCR2A & (_BV(WGM20) | _BV(WGM21) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK2: ", TIMSK2);
+      if (WGM == 0 || WGM == 2 || WGM == 4 || WGM == 6) SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK2 & (_BV(TOIE2) | _BV(OCIE2A)))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK2 & _BV(TOIE2) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;
+    case TIMER2B:
+      SERIAL_PROTOCOLPGM("    TIMER2B");
+      WGM =   ((TCCR2B & _BV(WGM22) ) >> 1 ) | (TCCR2A & (_BV(WGM20) | _BV(WGM21) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK2: ", TIMSK2);
+      if (WGM == 0 || WGM == 2 || WGM == 4 || WGM == 6) SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK2 & _BV(OCIE2B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK2 & _BV(TOIE2) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break; 
+  #endif
+
+  #if defined(TCCR3A) && defined(COM3A1)
+    case TIMER3A:
+      SERIAL_PROTOCOLPGM("    TIMER3A");
+      WGM =   ((TCCR3B & _BV(WGM32) ) >> 1 ) | (TCCR3A & (_BV(WGM30) | _BV(WGM31) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK3: ", TIMSK3);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK3 &  _BV(OCIE3A))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;      
+    case TIMER3B:
+      SERIAL_PROTOCOLPGM("    TIMER3B");
+      WGM =   ((TCCR3B & _BV(WGM32) ) >> 1 ) | (TCCR3A & (_BV(WGM30) | _BV(WGM31) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK3: ", TIMSK3);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK3 &  _BV(OCIE3B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;
+    case TIMER3C:
+      SERIAL_PROTOCOLPGM("    TIMER3C");
+      WGM =   ((TCCR3B & _BV(WGM32) ) >> 1 ) | (TCCR3A & (_BV(WGM30) | _BV(WGM31) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK3: ", TIMSK3);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK3 &  _BV(OCIE3C))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;
+  #endif
+
+  #if defined(TCCR4A)
+    case TIMER4A:
+      SERIAL_PROTOCOLPGM("    TIMER4A");
+      WGM =   ((TCCR4B & (_BV(WGM42) | _BV(WGM43) )) >> 1 ) | (TCCR4A & (_BV(WGM40) | _BV(WGM41) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK4: ", TIMSK4);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK4 &  _BV(OCIE4A))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;      
+    case TIMER4B:
+      SERIAL_PROTOCOLPGM("    TIMER4B");
+      WGM =   ((TCCR4B & (_BV(WGM42) | _BV(WGM43) )) >> 1 ) | (TCCR4A & (_BV(WGM40) | _BV(WGM41) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK4: ", TIMSK4);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK4 &  _BV(OCIE4B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;      
+    case TIMER4C:
+      SERIAL_PROTOCOLPGM("    TIMER4C");
+      WGM =   ((TCCR4B & (_BV(WGM42) | _BV(WGM43) )) >> 1 ) | (TCCR4A & (_BV(WGM40) | _BV(WGM41) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK4: ", TIMSK4);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK4 &  _BV(OCIE4C))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;      
+
+  #endif
+          
+  #if defined(TCCR5A) && defined(COM5A1)
+    case TIMER5A:
+      SERIAL_PROTOCOLPGM("    TIMER5A");
+      WGM =   ((TCCR5B & (_BV(WGM52) | _BV(WGM53) )) >> 1 ) | (TCCR5A & (_BV(WGM50) | _BV(WGM51) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK5: ", TIMSK5);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK5 &  _BV(OCIE5A))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;      
+    case TIMER5B:
+      SERIAL_PROTOCOLPGM("    TIMER5B");
+      WGM =   ((TCCR5B & (_BV(WGM52) | _BV(WGM53) )) >> 1 ) | (TCCR5A & (_BV(WGM50) | _BV(WGM51) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK5: ", TIMSK5);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK5 &  _BV(OCIE5B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;      
+    case TIMER5C:
+      SERIAL_PROTOCOLPGM("    TIMER5C");
+      WGM =   ((TCCR5B & (_BV(WGM52) | _BV(WGM53) )) >> 1 ) | (TCCR5A & (_BV(WGM50) | _BV(WGM51) ));
+      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
+      SERIAL_PROTOCOLPAIR("    TIMSK5: ", TIMSK5);
+      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
+      else if (TIMSK5 &  _BV(OCIE5C))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
+      else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
+      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
+      break;      
+  #endif
+
+	case NOT_ON_TIMER:
+    break;
+	}
+  SERIAL_PROTOCOLPGM("  ");   
+}  // PWM_details
+
+
 
 inline void report_pin_state(int8_t pin) {
-  if (report_pin_name(pin)) {
+  SERIAL_ECHO((int)pin);
+  SERIAL_CHAR(' ');
+  bool dummy;
+  if (report_pin_name(pin, dummy)) {
     if (pin_is_protected(pin))
       SERIAL_ECHOPGM(" (protected)");
     else {
@@ -673,3 +1065,40 @@ inline void report_pin_state(int8_t pin) {
   }
   SERIAL_EOL;
 }
+
+// pretty report with PWM info
+inline void report_pin_state_extended(int8_t pin, bool ignore) {
+
+  char buffer[30];   // for the sprintf statements
+    
+ // report pin number 
+  sprintf(buffer, "PIN:% 3d ", pin);
+  SERIAL_ECHO(buffer);   
+
+ // report pin name 
+  bool analog_pin;
+  report_pin_name(pin, analog_pin); 
+  
+// report pin state
+  if (pin_is_protected(pin) && ignore == false) 
+    SERIAL_ECHOPGM("protected ");
+  else {
+    if (analog_pin) {
+        sprintf(buffer, "Analog in =% 5d", analogRead(pin - analogInputToDigitalPin(0)));
+        SERIAL_ECHO(buffer); 
+       }
+    else {
+      if (!get_pinMode(pin)) {
+        pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating
+        SERIAL_PROTOCOLPAIR("Input  = ", digitalRead_mod(pin));
+      }  
+      else if  (PWM_status(pin)) ;
+      else SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));  
+    }
+  }
+
+// report PWM capabilities
+  PWM_details(pin);
+  SERIAL_EOL;
+}
+
