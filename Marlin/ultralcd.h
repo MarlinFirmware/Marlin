@@ -30,6 +30,8 @@
   #define BUTTON_EXISTS(BN) (defined(BTN_## BN) && BTN_## BN >= 0)
   #define BUTTON_PRESSED(BN) !READ(BTN_## BN)
 
+  extern int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+
   int lcd_strlen(const char* s);
   int lcd_strlen_P(const char* s);
   void lcd_update();
@@ -65,34 +67,7 @@
   #define LCD_TIMEOUT_TO_STATUS 15000
 
   #if ENABLED(ULTIPANEL)
-    extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
-    void lcd_buttons_update();
-    void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
-    bool lcd_clicked();
-    void lcd_ignore_click(bool b=true);
 
-    #if ENABLED(FILAMENT_CHANGE_FEATURE)
-      void lcd_filament_change_show_message(FilamentChangeMessage message);
-    #endif // FILAMENT_CHANGE_FEATURE
-
-  #else
-    FORCE_INLINE void lcd_buttons_update() {}
-  #endif
-
-  extern int preheatHotendTemp1;
-  extern int preheatBedTemp1;
-  extern int preheatFanSpeed1;
-  extern int preheatHotendTemp2;
-  extern int preheatBedTemp2;
-  extern int preheatFanSpeed2;
-
-  #if ENABLED(FILAMENT_LCD_DISPLAY)
-    extern millis_t previous_lcd_status_ms;
-  #endif
-
-  bool lcd_blink();
-
-  #if ENABLED(ULTIPANEL)
     #define BLEN_A 0
     #define BLEN_B 1
     // Encoder click is directly connected
@@ -103,7 +78,26 @@
     #define EN_A (_BV(BLEN_A))
     #define EN_B (_BV(BLEN_B))
     #define EN_C (_BV(BLEN_C))
+
+    extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+    void lcd_buttons_update();
+    void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
+
+    #if ENABLED(FILAMENT_CHANGE_FEATURE)
+      void lcd_filament_change_show_message(FilamentChangeMessage message);
+    #endif // FILAMENT_CHANGE_FEATURE
+
+  #else
+
+    inline void lcd_buttons_update() {}
+
   #endif
+
+  #if ENABLED(FILAMENT_LCD_DISPLAY)
+    extern millis_t previous_lcd_status_ms;
+  #endif
+
+  bool lcd_blink();
 
   #if ENABLED(REPRAPWORLD_KEYPAD) // is also ULTIPANEL and NEWPANEL
 
@@ -150,21 +144,23 @@
     #define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1))
   #elif ENABLED(NEWPANEL)
     #define LCD_CLICKED (buttons & EN_C)
+  #else
+    #define LCD_CLICKED false
   #endif
 
 #else //no LCD
-  FORCE_INLINE void lcd_update() {}
-  FORCE_INLINE void lcd_init() {}
-  FORCE_INLINE bool lcd_hasstatus() { return false; }
-  FORCE_INLINE void lcd_setstatus(const char* message, const bool persist=false) {UNUSED(message); UNUSED(persist);}
-  FORCE_INLINE void lcd_setstatuspgm(const char* message, const uint8_t level=0) {UNUSED(message); UNUSED(level);}
-  FORCE_INLINE void lcd_buttons_update() {}
-  FORCE_INLINE void lcd_reset_alert_level() {}
-  FORCE_INLINE bool lcd_detected(void) { return true; }
+  inline void lcd_update() {}
+  inline void lcd_init() {}
+  inline bool lcd_hasstatus() { return false; }
+  inline void lcd_setstatus(const char* message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
+  inline void lcd_setstatuspgm(const char* message, const uint8_t level=0) { UNUSED(message); UNUSED(level); }
+  inline void lcd_buttons_update() {}
+  inline void lcd_reset_alert_level() {}
+  inline bool lcd_detected(void) { return true; }
 
   #define LCD_MESSAGEPGM(x) NOOP
   #define LCD_ALERTMESSAGEPGM(x) NOOP
 
-#endif //ULTRA_LCD
+#endif // ULTRA_LCD
 
-#endif //ULTRALCD_H
+#endif // ULTRALCD_H
