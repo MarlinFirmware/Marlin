@@ -278,6 +278,10 @@ extern float current_position[NUM_AXIS];
 extern float position_shift[XYZ];
 extern float home_offset[XYZ];
 
+#if HOTENDS > 1
+  extern float hotend_offset[XYZ][HOTENDS];
+#endif
+
 // Software Endstops
 void update_software_endstops(AxisEnum axis);
 #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
