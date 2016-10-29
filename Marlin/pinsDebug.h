@@ -35,11 +35,12 @@
   #define DIO_COUNT 22
 #endif
 
+#define  NAME_FORMAT "%-28s"
 
-#define _PIN_SAY(NAME) { sprintf(buffer, "%-20s", NAME); SERIAL_ECHO(buffer); return true; }
+#define _PIN_SAY(NAME) { sprintf(buffer, NAME_FORMAT, NAME); SERIAL_ECHO(buffer); return true; }
 #define PIN_SAY(NAME) if (pin == NAME) _PIN_SAY(#NAME);
 
-#define _ANALOG_PIN_SAY(NAME)   { sprintf(buffer, "%-20s", NAME); SERIAL_ECHO(buffer); pin_is_analog = true; return true; }
+#define _ANALOG_PIN_SAY(NAME)   { sprintf(buffer, NAME_FORMAT, NAME); SERIAL_ECHO(buffer); pin_is_analog = true; return true; }
 #define ANALOG_PIN_SAY(NAME) if (pin == analogInputToDigitalPin(NAME)) _ANALOG_PIN_SAY(#NAME);
 
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(5)))
@@ -80,10 +81,10 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   else SERIAL_ECHOPGM("       ");
 
   #if defined(RXD) && RXD > -1
-    if (pin == 0) { SERIAL_ECHOPGM("RXD                 "); return true; }
+    if (pin == 0) { sprintf(buffer, NAME_FORMAT, "RXD"); SERIAL_ECHO(buffer); return true; }
   #endif
   #if defined(TXD) && TXD > -1
-    if (pin == 1) { SERIAL_ECHOPGM("TXD                 "); return true; }
+    if (pin == 1) { sprintf(buffer, NAME_FORMAT, "TXD"); SERIAL_ECHO(buffer); return true; }
   #endif
 
   
@@ -681,8 +682,8 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
     PIN_SAY(Z2_STEP_PIN);
   #endif
 
-
-  SERIAL_ECHOPGM("<unused>            ");
+  sprintf(buffer, NAME_FORMAT, "<unused> ");
+  SERIAL_ECHO(buffer);
   
   return false;
 }  //  report_pin_name
@@ -722,7 +723,7 @@ static bool PWM_status(uint8_t pin) {
         else return false;
         break;
       case TIMER1B:
-        if (TCCR1B & (_BV(COM1B1) | _BV(COM1B0))){
+        if (TCCR1A & (_BV(COM1B1) | _BV(COM1B0))){
           sprintf(buffer, "PWM:  %4d",OCR1B); 
           SERIAL_ECHO(buffer);
           return true;
@@ -730,7 +731,7 @@ static bool PWM_status(uint8_t pin) {
         else return false;
         break; 
       case TIMER1C:
-        if (TCCR1C & (_BV(COM1C1) | _BV(COM1C0))){
+        if (TCCR1A & (_BV(COM1C1) | _BV(COM1C0))){
           sprintf(buffer, "PWM:  %4d",OCR1C); 
           SERIAL_ECHO(buffer);
           return true;
@@ -749,7 +750,7 @@ static bool PWM_status(uint8_t pin) {
         else return false;
         break;
       case TIMER2B:
-        if (TCCR2B & (_BV(COM2B1) | _BV(COM2B0))){
+        if (TCCR2A & (_BV(COM2B1) | _BV(COM2B0))){
           sprintf(buffer, "PWM:  %4d",OCR2B); 
           SERIAL_ECHO(buffer);
           return true;
@@ -768,7 +769,7 @@ static bool PWM_status(uint8_t pin) {
         else return false;
         break;
       case TIMER3B:
-        if (TCCR3B & (_BV(COM3B1) | _BV(COM3B0))){
+        if (TCCR3A & (_BV(COM3B1) | _BV(COM3B0))){
           sprintf(buffer, "PWM:  %4d",OCR3B); 
           SERIAL_ECHO(buffer);
           return true;
@@ -776,7 +777,7 @@ static bool PWM_status(uint8_t pin) {
         else return false;
         break;
       case TIMER3C:
-        if (TCCR3C & (_BV(COM3C1) | _BV(COM3C0))){
+        if (TCCR3A & (_BV(COM3C1) | _BV(COM3C0))){
           sprintf(buffer, "PWM:  %4d",OCR3C); 
           SERIAL_ECHO(buffer);
           return true;
@@ -795,7 +796,7 @@ static bool PWM_status(uint8_t pin) {
         else return false;
         break;
       case TIMER4B:
-        if (TCCR4B & (_BV(COM4B1) | _BV(COM4B0))){
+        if (TCCR4A & (_BV(COM4B1) | _BV(COM4B0))){
           sprintf(buffer, "PWM:  %4d",OCR4B); 
           SERIAL_ECHO(buffer);
           return true;
@@ -803,7 +804,7 @@ static bool PWM_status(uint8_t pin) {
         else return false;
         break;
       case TIMER4C:
-        if (TCCR4C & (_BV(COM4C1) | _BV(COM4C0))){
+        if (TCCR4A & (_BV(COM4C1) | _BV(COM4C0))){
           sprintf(buffer, "PWM:  %4d",OCR4C); 
           SERIAL_ECHO(buffer);
           return true;
@@ -822,7 +823,7 @@ static bool PWM_status(uint8_t pin) {
         else return false;
         break;
       case TIMER5B:
-        if (TCCR5B & (_BV(COM5B1) | _BV(COM5B0))){
+        if (TCCR5A & (_BV(COM5B1) | _BV(COM5B0))){
           sprintf(buffer, "PWM:  %4d",OCR5B); 
           SERIAL_ECHO(buffer);
           return true;
@@ -830,7 +831,7 @@ static bool PWM_status(uint8_t pin) {
         else return false;
         break;
       case TIMER5C:
-        if (TCCR5C & (_BV(COM5C1) | _BV(COM5C0))){
+        if (TCCR5A & (_BV(COM5C1) | _BV(COM5C0))){
           sprintf(buffer, "PWM:  %4d",OCR5C); 
           SERIAL_ECHO(buffer);
           return true;
