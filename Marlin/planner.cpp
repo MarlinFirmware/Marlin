@@ -594,12 +594,6 @@ void Planner::check_axes_activity() {
  *  extruder    - target extruder
  */
 void Planner::_buffer_line(const float &a, const float &b, const float &c, const float &e, float fr_mm_s, const uint8_t extruder) {
-  // Calculate the buffer head after we push this byte
-  int next_buffer_head = next_block_index(block_buffer_head);
-
-  // If the buffer is full: good! That means we are well ahead of the robot.
-  // Rest here until there is room in the buffer.
-  while (block_buffer_tail == next_buffer_head) idle();
 
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
@@ -661,6 +655,13 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       #endif
     }
   #endif
+
+  // Calculate the buffer head after we push this byte
+  int next_buffer_head = next_block_index(block_buffer_head);
+
+  // If the buffer is full: good! That means we are well ahead of the robot.
+  // Rest here until there is room in the buffer.
+  while (block_buffer_tail == next_buffer_head) idle();
 
   // Prepare to set up new block
   block_t* block = &block_buffer[block_buffer_head];
