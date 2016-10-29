@@ -1046,7 +1046,12 @@ inline void get_serial_commands() {
 
       #if DISABLED(EMERGENCY_PARSER)
         // If command was e-stop process now
-        if (strcmp(command, "M108") == 0) wait_for_heatup = false;
+        if (strcmp(command, "M108") == 0) {
+          wait_for_heatup = false;
+          #if ENABLED(ULTIPANEL)
+            wait_for_user = false;
+          #endif
+        }
         if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
         if (strcmp(command, "M410") == 0) { quickstop_stepper(); }
       #endif
@@ -4414,7 +4419,6 @@ inline void gcode_G92() {
           dontExpireStatus();
         #endif
       }
-      lcd_ignore_click();
 
     #else
 
@@ -4425,53 +4429,28 @@ inline void gcode_G92() {
 
     #endif
 
-    #if ENABLED(EMERGENCY_PARSER)
-      wait_for_user = true;
-    #endif
-
+    wait_for_user = true;
     KEEPALIVE_STATE(PAUSED_FOR_USER);
 
     stepper.synchronize();
     refresh_cmd_timeout();
 
-    #if ENABLED(ULTIPANEL)
-
-      #if ENABLED(EMERGENCY_PARSER)
-        #define M1_WAIT_CONDITION (!lcd_clicked() && wait_for_user)
+    if (codenum > 0) {
+      codenum += previous_cmd_ms;  // wait until this time for a click
+      while (PENDING(millis(), codenum) && wait_for_user) idle();
+    }
+    else {
+      #if ENABLED(ULTIPANEL)
+        if (lcd_detected()) {
+          while (wait_for_user) idle();
+          IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
+        }
       #else
-        #define M1_WAIT_CONDITION !lcd_clicked()
+        while (wait_for_user) idle();
       #endif
+    }
 
-      if (codenum > 0) {
-        codenum += previous_cmd_ms;  // wait until this time for a click
-        while (PENDING(millis(), codenum) && M1_WAIT_CONDITION) idle();
-        lcd_ignore_click(false);
-      }
-      else if (lcd_detected()) {
-        while (M1_WAIT_CONDITION) idle();
-      }
-      else goto ExitM1;
-
-      IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
-
-    #else
-
-      if (codenum > 0) {
-        codenum += previous_cmd_ms;  // wait until this time for an M108
-        while (PENDING(millis(), codenum) && wait_for_user) idle();
-      }
-      else while (wait_for_user) idle();
-
-    #endif
-
-#if ENABLED(ULTIPANEL)
-  ExitM1:
-#endif
-
-    #if ENABLED(EMERGENCY_PARSER)
-      wait_for_user = false;
-    #endif
-
+    wait_for_user = false;
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
@@ -5539,47 +5518,27 @@ inline void gcode_M140() {
    *   F<fan speed>
    */
   inline void gcode_M145() {
-    int8_t material = code_seen('S') ? (int8_t)code_value_int() : 0;
-    if (material < 0 || material > 1) {
+    uint8_t material = code_seen('S') ? (uint8_t)code_value_int() : 0;
+    if (material >= COUNT(lcd_preheat_hotend_temp)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_MATERIAL_INDEX);
     }
     else {
       int v;
-      switch (material) {
-        case 0:
-          if (code_seen('H')) {
-            v = code_value_int();
-            preheatHotendTemp1 = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
-          }
-          if (code_seen('F')) {
-            v = code_value_int();
-            preheatFanSpeed1 = constrain(v, 0, 255);
-          }
-          #if TEMP_SENSOR_BED != 0
-            if (code_seen('B')) {
-              v = code_value_int();
-              preheatBedTemp1 = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
-            }
-          #endif
-          break;
-        case 1:
-          if (code_seen('H')) {
-            v = code_value_int();
-            preheatHotendTemp2 = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
-          }
-          if (code_seen('F')) {
-            v = code_value_int();
-            preheatFanSpeed2 = constrain(v, 0, 255);
-          }
-          #if TEMP_SENSOR_BED != 0
-            if (code_seen('B')) {
-              v = code_value_int();
-              preheatBedTemp2 = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
-            }
-          #endif
-          break;
+      if (code_seen('H')) {
+        v = code_value_int();
+        lcd_preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
       }
+      if (code_seen('F')) {
+        v = code_value_int();
+        lcd_preheat_fan_speed[material] = constrain(v, 0, 255);
+      }
+      #if TEMP_SENSOR_BED != 0
+        if (code_seen('B')) {
+          v = code_value_int();
+          lcd_preheat_bed_temp[material] = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
+        }
+      #endif
     }
   }
 
@@ -5590,13 +5549,9 @@ inline void gcode_M140() {
    * M149: Set temperature units
    */
   inline void gcode_M149() {
-    if (code_seen('C')) {
-      set_input_temp_units(TEMPUNIT_C);
-    } else if (code_seen('K')) {
-      set_input_temp_units(TEMPUNIT_K);
-    } else if (code_seen('F')) {
-      set_input_temp_units(TEMPUNIT_F);
-    }
+         if (code_seen('C')) set_input_temp_units(TEMPUNIT_C);
+    else if (code_seen('K')) set_input_temp_units(TEMPUNIT_K);
+    else if (code_seen('F')) set_input_temp_units(TEMPUNIT_F);
   }
 #endif
 
@@ -6874,7 +6829,10 @@ inline void gcode_M503() {
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
 
-    while (!lcd_clicked()) {
+    // LCD click or M108 will clear this
+    wait_for_user = true;
+
+    while (wait_for_user) {
       #if HAS_BUZZER
         millis_t ms = millis();
         if (ms >= next_buzz) {
@@ -6884,9 +6842,6 @@ inline void gcode_M503() {
       #endif
       idle(true);
     }
-    delay(100);
-    while (lcd_clicked()) idle(true);
-    delay(100);
 
     // Show load message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
