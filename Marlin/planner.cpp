@@ -656,64 +656,6 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
   #endif
 
-  // Calculate the buffer head after we push this byte
-  int next_buffer_head = next_block_index(block_buffer_head);
-
-  // If the buffer is full: good! That means we are well ahead of the robot.
-  // Rest here until there is room in the buffer.
-  while (block_buffer_tail == next_buffer_head) idle();
-
-  // Prepare to set up new block
-  block_t* block = &block_buffer[block_buffer_head];
-
-  // Clear all flags, including the "busy" bit
-  block->flag = 0;
-
-  // Number of steps for each axis
-  #if ENABLED(COREXY)
-    // corexy planning
-    // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
-    block->steps[A_AXIS] = labs(da + db);
-    block->steps[B_AXIS] = labs(da - db);
-    block->steps[Z_AXIS] = labs(dc);
-  #elif ENABLED(COREXZ)
-    // corexz planning
-    block->steps[A_AXIS] = labs(da + dc);
-    block->steps[Y_AXIS] = labs(db);
-    block->steps[C_AXIS] = labs(da - dc);
-  #elif ENABLED(COREYZ)
-    // coreyz planning
-    block->steps[X_AXIS] = labs(da);
-    block->steps[B_AXIS] = labs(db + dc);
-    block->steps[C_AXIS] = labs(db - dc);
-  #else
-    // default non-h-bot planning
-    block->steps[X_AXIS] = labs(da);
-    block->steps[Y_AXIS] = labs(db);
-    block->steps[Z_AXIS] = labs(dc);
-  #endif
-
-  block->steps[E_AXIS] = labs(de) * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01 + 0.5;
-  block->step_event_count = MAX4(block->steps[X_AXIS], block->steps[Y_AXIS], block->steps[Z_AXIS], block->steps[E_AXIS]);
-
-  // Bail if this is a zero-length block
-  if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return;
-
-  // For a mixing extruder, get a magnified step_event_count for each
-  #if ENABLED(MIXING_EXTRUDER)
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      block->mix_event_count[i] = UNEAR_ZERO(mixing_factor[i]) ? 0 : block->step_event_count / mixing_factor[i];
-  #endif
-
-  #if FAN_COUNT > 0
-    for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fanSpeeds[i];
-  #endif
-
-  #if ENABLED(BARICUDA)
-    block->valve_pressure = baricuda_valve_pressure;
-    block->e_to_p_pressure = baricuda_e_to_p_pressure;
-  #endif
-
   // Compute direction bit-mask for this block
   uint8_t dm = 0;
   #if ENABLED(COREXY)
@@ -740,7 +682,69 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     if (dc < 0) SBI(dm, Z_AXIS);
   #endif
   if (de < 0) SBI(dm, E_AXIS);
+
+  int32_t esteps = labs(de) * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01 + 0.5;
+
+  // Calculate the buffer head after we push this byte
+  int next_buffer_head = next_block_index(block_buffer_head);
+
+  // If the buffer is full: good! That means we are well ahead of the robot.
+  // Rest here until there is room in the buffer.
+  while (block_buffer_tail == next_buffer_head) idle();
+
+  // Prepare to set up new block
+  block_t* block = &block_buffer[block_buffer_head];
+
+  // Clear all flags, including the "busy" bit
+  block->flag = 0;
+
+  // Set direction bits
   block->direction_bits = dm;
+
+  // Number of steps for each axis
+  #if ENABLED(COREXY)
+    // corexy planning
+    // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
+    block->steps[A_AXIS] = labs(da + db);
+    block->steps[B_AXIS] = labs(da - db);
+    block->steps[Z_AXIS] = labs(dc);
+  #elif ENABLED(COREXZ)
+    // corexz planning
+    block->steps[A_AXIS] = labs(da + dc);
+    block->steps[Y_AXIS] = labs(db);
+    block->steps[C_AXIS] = labs(da - dc);
+  #elif ENABLED(COREYZ)
+    // coreyz planning
+    block->steps[X_AXIS] = labs(da);
+    block->steps[B_AXIS] = labs(db + dc);
+    block->steps[C_AXIS] = labs(db - dc);
+  #else
+    // default non-h-bot planning
+    block->steps[X_AXIS] = labs(da);
+    block->steps[Y_AXIS] = labs(db);
+    block->steps[Z_AXIS] = labs(dc);
+  #endif
+
+  block->steps[E_AXIS] = esteps;
+  block->step_event_count = MAX4(block->steps[X_AXIS], block->steps[Y_AXIS], block->steps[Z_AXIS], esteps);
+
+  // Bail if this is a zero-length block
+  if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return;
+
+  // For a mixing extruder, get a magnified step_event_count for each
+  #if ENABLED(MIXING_EXTRUDER)
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+      block->mix_event_count[i] = UNEAR_ZERO(mixing_factor[i]) ? 0 : block->step_event_count / mixing_factor[i];
+  #endif
+
+  #if FAN_COUNT > 0
+    for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fanSpeeds[i];
+  #endif
+
+  #if ENABLED(BARICUDA)
+    block->valve_pressure = baricuda_valve_pressure;
+    block->e_to_p_pressure = baricuda_e_to_p_pressure;
+  #endif
 
   block->active_extruder = extruder;
 
@@ -768,7 +772,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
 
   // Enable extruder(s)
-  if (block->steps[E_AXIS]) {
+  if (esteps) {
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
@@ -837,7 +841,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     #endif
   }
 
-  if (block->steps[E_AXIS])
+  if (esteps)
     NOLESS(fr_mm_s, min_feedrate_mm_s);
   else
     NOLESS(fr_mm_s, min_travel_feedrate_mm_s);
@@ -1035,7 +1039,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }while(0)
 
     // Start with print or travel acceleration
-    accel = ceil((block->steps[E_AXIS] ? acceleration : travel_acceleration) * steps_per_mm);
+    accel = ceil((esteps ? acceleration : travel_acceleration) * steps_per_mm);
 
     // Limit acceleration per axis
     if (block->step_event_count <= cutoff_long){
@@ -1222,18 +1226,18 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     // This leads to an enormous number of advance steps due to a huge e_acceleration.
     // The math is correct, but you don't want a retract move done with advance!
     // So this situation is filtered out here.
-    if (!block->steps[E_AXIS] || (!block->steps[X_AXIS] && !block->steps[Y_AXIS]) || stepper.get_advance_k() == 0 || (uint32_t) block->steps[E_AXIS] == block->step_event_count) {
+    if (!esteps || (!block->steps[X_AXIS] && !block->steps[Y_AXIS]) || stepper.get_advance_k() == 0 || (uint32_t)esteps == block->step_event_count) {
       block->use_advance_lead = false;
     }
     else {
       block->use_advance_lead = true;
-      block->e_speed_multiplier8 = (block->steps[E_AXIS] << 8) / block->step_event_count;
+      block->e_speed_multiplier8 = (esteps << 8) / block->step_event_count;
     }
 
   #elif ENABLED(ADVANCE)
 
     // Calculate advance rate
-    if (!block->steps[E_AXIS] || (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS])) {
+    if (!esteps || (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS])) {
       block->advance_rate = 0;
       block->advance = 0;
     }
