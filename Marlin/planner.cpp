@@ -180,7 +180,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   // block->decelerate_after = accelerate_steps+plateau_steps;
 
   CRITICAL_SECTION_START;  // Fill variables used by the stepper in a critical section
-  if (!block->busy) { // Don't update variables if block is busy.
+  if (!TEST(block->flag, BLOCK_BIT_BUSY)) { // Don't update variables if block is busy.
     block->accelerate_until = accelerate_steps;
     block->decelerate_after = accelerate_steps + plateau_steps;
     block->initial_rate = initial_rate;
@@ -212,10 +212,10 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t *next) {
   if (current->entry_speed != max_entry_speed) {
     // If nominal length true, max junction speed is guaranteed to be reached. Only compute
     // for max allowable speed if block is decelerating and nominal length is false.
-    current->entry_speed = ((current->flag & BLOCK_FLAG_NOMINAL_LENGTH) || max_entry_speed <= next->entry_speed)
+    current->entry_speed = (TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH) || max_entry_speed <= next->entry_speed)
       ? max_entry_speed
       : min(max_entry_speed, max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
-    current->flag |= BLOCK_FLAG_RECALCULATE;
+    SBI(current->flag, BLOCK_BIT_RECALCULATE);
   }
 }
 
@@ -237,7 +237,7 @@ void Planner::reverse_pass() {
 
     uint8_t b = BLOCK_MOD(block_buffer_head - 3);
     while (b != tail) {
-      if (block[0] && (block[0]->flag & BLOCK_FLAG_START_FROM_FULL_HALT)) break;
+      if (block[0] && TEST(block[0]->flag, BLOCK_BIT_START_FROM_FULL_HALT)) break;
       b = prev_block_index(b);
       block[2] = block[1];
       block[1] = block[0];
@@ -255,14 +255,14 @@ void Planner::forward_pass_kernel(const block_t* previous, block_t* const curren
   // full speed change within the block, we need to adjust the entry speed accordingly. Entry
   // speeds have already been reset, maximized, and reverse planned by reverse planner.
   // If nominal length is true, max junction speed is guaranteed to be reached. No need to recheck.
-  if (!(previous->flag & BLOCK_FLAG_NOMINAL_LENGTH)) {
+  if (!TEST(previous->flag, BLOCK_BIT_NOMINAL_LENGTH)) {
     if (previous->entry_speed < current->entry_speed) {
       float entry_speed = min(current->entry_speed,
                                max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters));
       // Check for junction speed change
       if (current->entry_speed != entry_speed) {
         current->entry_speed = entry_speed;
-        current->flag |= BLOCK_FLAG_RECALCULATE;
+        SBI(current->flag, BLOCK_BIT_RECALCULATE);
       }
     }
   }
@@ -298,11 +298,11 @@ void Planner::recalculate_trapezoids() {
     next = &block_buffer[block_index];
     if (current) {
       // Recalculate if current block entry or exit junction speed has changed.
-      if ((current->flag & BLOCK_FLAG_RECALCULATE) || (next->flag & BLOCK_FLAG_RECALCULATE)) {
+      if (TEST(current->flag, BLOCK_BIT_RECALCULATE) || TEST(next->flag, BLOCK_BIT_RECALCULATE)) {
         // NOTE: Entry and exit factors always > 0 by all previous logic operations.
         float nom = current->nominal_speed;
         calculate_trapezoid_for_block(current, current->entry_speed / nom, next->entry_speed / nom);
-        current->flag &= ~BLOCK_FLAG_RECALCULATE; // Reset current only to ensure next trapezoid is computed
+        CBI(current->flag, BLOCK_BIT_RECALCULATE); // Reset current only to ensure next trapezoid is computed
       }
     }
     block_index = next_block_index(block_index);
@@ -311,7 +311,7 @@ void Planner::recalculate_trapezoids() {
   if (next) {
     float nom = next->nominal_speed;
     calculate_trapezoid_for_block(next, next->entry_speed / nom, (MINIMUM_PLANNER_SPEED) / nom);
-    next->flag &= ~BLOCK_FLAG_RECALCULATE;
+    CBI(next->flag, BLOCK_BIT_RECALCULATE);
   }
 }
 
@@ -594,12 +594,6 @@ void Planner::check_axes_activity() {
  *  extruder    - target extruder
  */
 void Planner::_buffer_line(const float &a, const float &b, const float &c, const float &e, float fr_mm_s, const uint8_t extruder) {
-  // Calculate the buffer head after we push this byte
-  int next_buffer_head = next_block_index(block_buffer_head);
-
-  // If the buffer is full: good! That means we are well ahead of the robot.
-  // Rest here until there is room in the buffer.
-  while (block_buffer_tail == next_buffer_head) idle();
 
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
@@ -662,60 +656,6 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
   #endif
 
-  // Prepare to set up new block
-  block_t* block = &block_buffer[block_buffer_head];
-
-  // Mark block as not busy (Not executed by the stepper interrupt)
-  block->busy = false;
-
-  // Number of steps for each axis
-  #if ENABLED(COREXY)
-    // corexy planning
-    // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
-    block->steps[A_AXIS] = labs(da + db);
-    block->steps[B_AXIS] = labs(da - db);
-    block->steps[Z_AXIS] = labs(dc);
-  #elif ENABLED(COREXZ)
-    // corexz planning
-    block->steps[A_AXIS] = labs(da + dc);
-    block->steps[Y_AXIS] = labs(db);
-    block->steps[C_AXIS] = labs(da - dc);
-  #elif ENABLED(COREYZ)
-    // coreyz planning
-    block->steps[X_AXIS] = labs(da);
-    block->steps[B_AXIS] = labs(db + dc);
-    block->steps[C_AXIS] = labs(db - dc);
-  #else
-    // default non-h-bot planning
-    block->steps[X_AXIS] = labs(da);
-    block->steps[Y_AXIS] = labs(db);
-    block->steps[Z_AXIS] = labs(dc);
-  #endif
-
-  block->steps[E_AXIS] = labs(de) * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01 + 0.5;
-  block->step_event_count = MAX4(block->steps[X_AXIS], block->steps[Y_AXIS], block->steps[Z_AXIS], block->steps[E_AXIS]);
-
-  // Bail if this is a zero-length block
-  if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return;
-
-  // Clear the block flags
-  block->flag = 0;
-
-  // For a mixing extruder, get a magnified step_event_count for each
-  #if ENABLED(MIXING_EXTRUDER)
-    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      block->mix_event_count[i] = UNEAR_ZERO(mixing_factor[i]) ? 0 : block->step_event_count / mixing_factor[i];
-  #endif
-
-  #if FAN_COUNT > 0
-    for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fanSpeeds[i];
-  #endif
-
-  #if ENABLED(BARICUDA)
-    block->valve_pressure = baricuda_valve_pressure;
-    block->e_to_p_pressure = baricuda_e_to_p_pressure;
-  #endif
-
   // Compute direction bit-mask for this block
   uint8_t dm = 0;
   #if ENABLED(COREXY)
@@ -742,7 +682,69 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     if (dc < 0) SBI(dm, Z_AXIS);
   #endif
   if (de < 0) SBI(dm, E_AXIS);
+
+  int32_t esteps = labs(de) * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01 + 0.5;
+
+  // Calculate the buffer head after we push this byte
+  int next_buffer_head = next_block_index(block_buffer_head);
+
+  // If the buffer is full: good! That means we are well ahead of the robot.
+  // Rest here until there is room in the buffer.
+  while (block_buffer_tail == next_buffer_head) idle();
+
+  // Prepare to set up new block
+  block_t* block = &block_buffer[block_buffer_head];
+
+  // Clear all flags, including the "busy" bit
+  block->flag = 0;
+
+  // Set direction bits
   block->direction_bits = dm;
+
+  // Number of steps for each axis
+  #if ENABLED(COREXY)
+    // corexy planning
+    // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
+    block->steps[A_AXIS] = labs(da + db);
+    block->steps[B_AXIS] = labs(da - db);
+    block->steps[Z_AXIS] = labs(dc);
+  #elif ENABLED(COREXZ)
+    // corexz planning
+    block->steps[A_AXIS] = labs(da + dc);
+    block->steps[Y_AXIS] = labs(db);
+    block->steps[C_AXIS] = labs(da - dc);
+  #elif ENABLED(COREYZ)
+    // coreyz planning
+    block->steps[X_AXIS] = labs(da);
+    block->steps[B_AXIS] = labs(db + dc);
+    block->steps[C_AXIS] = labs(db - dc);
+  #else
+    // default non-h-bot planning
+    block->steps[X_AXIS] = labs(da);
+    block->steps[Y_AXIS] = labs(db);
+    block->steps[Z_AXIS] = labs(dc);
+  #endif
+
+  block->steps[E_AXIS] = esteps;
+  block->step_event_count = MAX4(block->steps[X_AXIS], block->steps[Y_AXIS], block->steps[Z_AXIS], esteps);
+
+  // Bail if this is a zero-length block
+  if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return;
+
+  // For a mixing extruder, get a magnified step_event_count for each
+  #if ENABLED(MIXING_EXTRUDER)
+    for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+      block->mix_event_count[i] = UNEAR_ZERO(mixing_factor[i]) ? 0 : block->step_event_count / mixing_factor[i];
+  #endif
+
+  #if FAN_COUNT > 0
+    for (uint8_t i = 0; i < FAN_COUNT; i++) block->fan_speed[i] = fanSpeeds[i];
+  #endif
+
+  #if ENABLED(BARICUDA)
+    block->valve_pressure = baricuda_valve_pressure;
+    block->e_to_p_pressure = baricuda_e_to_p_pressure;
+  #endif
 
   block->active_extruder = extruder;
 
@@ -761,6 +763,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       enable_z();
     }
     if (block->steps[Y_AXIS]) enable_y();
+  #elif ENABLED(COREYZ)
+    if (block->steps[B_AXIS] || block->steps[C_AXIS]) {
+      enable_y();
+      enable_z();
+    }
+    if (block->steps[X_AXIS]) enable_x();
   #else
     if (block->steps[X_AXIS]) enable_x();
     if (block->steps[Y_AXIS]) enable_y();
@@ -770,7 +778,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
 
   // Enable extruder(s)
-  if (block->steps[E_AXIS]) {
+  if (esteps) {
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
@@ -839,7 +847,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     #endif
   }
 
-  if (block->steps[E_AXIS])
+  if (esteps)
     NOLESS(fr_mm_s, min_feedrate_mm_s);
   else
     NOLESS(fr_mm_s, min_travel_feedrate_mm_s);
@@ -1037,7 +1045,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }while(0)
 
     // Start with print or travel acceleration
-    accel = ceil((block->steps[E_AXIS] ? acceleration : travel_acceleration) * steps_per_mm);
+    accel = ceil((esteps ? acceleration : travel_acceleration) * steps_per_mm);
 
     // Limit acceleration per axis
     if (block->step_event_count <= cutoff_long){
@@ -1186,12 +1194,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     if (previous_safe_speed > vmax_junction_threshold && safe_speed > vmax_junction_threshold) {
       // Not coasting. The machine will stop and start the movements anyway,
       // better to start the segment from start.
-      block->flag |= BLOCK_FLAG_START_FROM_FULL_HALT;
+      SBI(block->flag, BLOCK_BIT_START_FROM_FULL_HALT);
       vmax_junction = safe_speed;
     }
   }
   else {
-    block->flag |= BLOCK_FLAG_START_FROM_FULL_HALT;
+    SBI(block->flag, BLOCK_BIT_START_FROM_FULL_HALT);
     vmax_junction = safe_speed;
   }
 
@@ -1224,18 +1232,18 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     // This leads to an enormous number of advance steps due to a huge e_acceleration.
     // The math is correct, but you don't want a retract move done with advance!
     // So this situation is filtered out here.
-    if (!block->steps[E_AXIS] || (!block->steps[X_AXIS] && !block->steps[Y_AXIS]) || stepper.get_advance_k() == 0 || (uint32_t) block->steps[E_AXIS] == block->step_event_count) {
+    if (!esteps || (!block->steps[X_AXIS] && !block->steps[Y_AXIS]) || stepper.get_advance_k() == 0 || (uint32_t)esteps == block->step_event_count) {
       block->use_advance_lead = false;
     }
     else {
       block->use_advance_lead = true;
-      block->e_speed_multiplier8 = (block->steps[E_AXIS] << 8) / block->step_event_count;
+      block->e_speed_multiplier8 = (esteps << 8) / block->step_event_count;
     }
 
   #elif ENABLED(ADVANCE)
 
     // Calculate advance rate
-    if (!block->steps[E_AXIS] || (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS])) {
+    if (!esteps || (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS])) {
       block->advance_rate = 0;
       block->advance = 0;
     }
