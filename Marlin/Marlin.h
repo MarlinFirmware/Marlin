@@ -214,6 +214,10 @@ void manage_inactivity(bool ignore_stepper_queue = false);
               G38_endstop_hit; // flag from the interrupt handler to indicate if the endstop went active
 #endif
 
+#if ENABLED(PINS_DEBUGGING)
+  extern bool endstop_monitor_flag;
+#endif
+
 /**
  * The axis order in all axis related arrays is X, Y, Z, E
  */
