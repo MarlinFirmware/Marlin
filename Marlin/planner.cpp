@@ -763,6 +763,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       enable_z();
     }
     if (block->steps[Y_AXIS]) enable_y();
+  #elif ENABLED(COREYZ)
+    if (block->steps[B_AXIS] || block->steps[C_AXIS]) {
+      enable_y();
+      enable_z();
+    }
+    if (block->steps[X_AXIS]) enable_x();
   #else
     if (block->steps[X_AXIS]) enable_x();
     if (block->steps[Y_AXIS]) enable_y();
