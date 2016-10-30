@@ -449,7 +449,7 @@
 // "Jerk" specifies the minimum speed change that requires acceleration.
 // When changing speed and direction, if the difference is less than the
 // value set here, it may happen instantaneously.
-#define DEFAULT_XYJERK                15.0    // (mm/sec)
+#define DEFAULT_XYJERK                13.0    // (mm/sec)
 #define DEFAULT_ZJERK                  0.3    // (mm/sec)
 #define DEFAULT_EJERK                  5.0    // (mm/sec)
 
@@ -573,7 +573,7 @@
 // These values specify the distance from the NOZZLE to the BED.
 //
 #define Z_PROBE_DEPLOY_HEIGHT 0 // Z position for the probe to deploy/stow
-#define Z_PROBE_TRAVEL_HEIGHT  4 // Z position for travel between points
+#define Z_PROBE_TRAVEL_HEIGHT  10 // Z position for travel between points
 
 //
 // For M851 give a range for adjusting the Z probe offset
@@ -590,9 +590,9 @@
 
 // Disables axis stepper immediately when it's not being used.
 // WARNING: When motors turn off there is a chance of losing position accuracy!
-#define DISABLE_X false
-#define DISABLE_Y false
-#define DISABLE_Z false
+#define DISABLE_X true
+#define DISABLE_Y true
+#define DISABLE_Z true
 // Warn on display about possibly reduced accuracy
 //#define DISABLE_REDUCED_ACCURACY_WARNING
 
@@ -708,10 +708,10 @@
 
   #if ENABLED(AUTO_BED_LEVELING_GRID)
 
-    #define LEFT_PROBE_BED_POSITION 15
+    #define LEFT_PROBE_BED_POSITION 5
     #define RIGHT_PROBE_BED_POSITION 105
     #define FRONT_PROBE_BED_POSITION 30
-    #define BACK_PROBE_BED_POSITION 100
+    #define BACK_PROBE_BED_POSITION 120
 
     #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
@@ -723,7 +723,7 @@
 
     // Arbitrary points to probe.
     // A simple cross-product is used to estimate the plane of the bed.
-    #define ABL_PROBE_PT_1_X 15
+    #define ABL_PROBE_PT_1_X 10
     #define ABL_PROBE_PT_1_Y 90
     #define ABL_PROBE_PT_2_X 15
     #define ABL_PROBE_PT_2_Y 20
@@ -732,7 +732,7 @@
 
   #endif // !AUTO_BED_LEVELING_GRID
 
-  //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
+  //#define Z_PROBE_END_SCRIPT "G1 Z10 F600\nG1 X61 Y63 F3000" // These commands will be executed in the end of G29 routine.
                                                                              // Useful to retract a deployable Z probe.
 
   // If you've enabled AUTO_BED_LEVELING_FEATURE and are using the Z Probe for Z Homing,
@@ -819,7 +819,7 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 200
+#define PREHEAT_1_TEMP_HOTEND 210
 #define PREHEAT_1_TEMP_BED     0
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
@@ -1006,7 +1006,7 @@
 //
 // Use CRC checks and retries on the SD communication.
 //
-//#define SD_CHECK_AND_RETRY
+#define SD_CHECK_AND_RETRY
 
 //
 // ENCODER SETTINGS
@@ -1133,7 +1133,7 @@
 //
 // Note: Usually sold with a white PCB.
 //
-//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 //
 // GADGETS3D G3D LCD/SD Controller
@@ -1252,7 +1252,7 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
