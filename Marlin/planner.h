@@ -74,53 +74,54 @@ enum BlockFlag {
  */
 typedef struct {
 
+  uint8_t flag;                             // Block flags (See BlockFlag enum above)
+
   unsigned char active_extruder;            // The extruder to move (if E move)
 
-  // Fields used by the bresenham algorithm for tracing the line
-  long steps[NUM_AXIS];                     // Step count along each axis
-  unsigned long step_event_count;           // The number of step events required to complete this block
+  // Fields used by the Bresenham algorithm for tracing the line
+  int32_t steps[NUM_AXIS];                  // Step count along each axis
+  uint32_t step_event_count;                // The number of step events required to complete this block
 
   #if ENABLED(MIXING_EXTRUDER)
-    unsigned long mix_event_count[MIXING_STEPPERS]; // Scaled step_event_count for the mixing steppers
+    uint32_t mix_event_count[MIXING_STEPPERS]; // Scaled step_event_count for the mixing steppers
   #endif
 
-  long accelerate_until,                    // The index of the step event on which to stop acceleration
-       decelerate_after,                    // The index of the step event on which to start decelerating
-       acceleration_rate;                   // The acceleration rate used for acceleration calculation
+  int32_t accelerate_until,                 // The index of the step event on which to stop acceleration
+          decelerate_after,                 // The index of the step event on which to start decelerating
+          acceleration_rate;                // The acceleration rate used for acceleration calculation
 
-  unsigned char direction_bits;             // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
+  uint8_t direction_bits;                   // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead;
-    int e_speed_multiplier8; // Factorised by 2^8 to avoid float
+    int16_t e_speed_multiplier8; // Factorised by 2^8 to avoid float
   #elif ENABLED(ADVANCE)
-    long advance_rate;
-    volatile long initial_advance;
-    volatile long final_advance;
+    int32_t advance_rate;
+    volatile int32_t initial_advance;
+    volatile int32_t final_advance;
     float advance;
   #endif
 
   // Fields used by the motion planner to manage acceleration
-  float nominal_speed,                          // The nominal speed for this block in mm/sec
-        entry_speed,                            // Entry speed at previous-current junction in mm/sec
-        max_entry_speed,                        // Maximum allowable junction entry speed in mm/sec
-        millimeters,                            // The total travel of this block in mm
-        acceleration;                           // acceleration mm/sec^2
-  uint8_t flag;                                 // Block flags (See BlockFlag enum above)
+  float nominal_speed,                      // The nominal speed for this block in mm/sec
+        entry_speed,                        // Entry speed at previous-current junction in mm/sec
+        max_entry_speed,                    // Maximum allowable junction entry speed in mm/sec
+        millimeters,                        // The total travel of this block in mm
+        acceleration;                       // acceleration mm/sec^2
 
   // Settings for the trapezoid generator
-  uint32_t nominal_rate,                        // The nominal step rate for this block in step_events/sec
-           initial_rate,                        // The jerk-adjusted step rate at start of block
-           final_rate,                          // The minimal rate at exit
-           acceleration_steps_per_s2;           // acceleration steps/sec^2
+  uint32_t nominal_rate,                    // The nominal step rate for this block in step_events/sec
+           initial_rate,                    // The jerk-adjusted step rate at start of block
+           final_rate,                      // The minimal rate at exit
+           acceleration_steps_per_s2;       // acceleration steps/sec^2
 
   #if FAN_COUNT > 0
-    unsigned long fan_speed[FAN_COUNT];
+    uint32_t fan_speed[FAN_COUNT];
   #endif
 
   #if ENABLED(BARICUDA)
-    unsigned long valve_pressure, e_to_p_pressure;
+    uint32_t valve_pressure, e_to_p_pressure;
   #endif
 
 } block_t;
