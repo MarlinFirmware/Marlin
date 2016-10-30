@@ -40,17 +40,27 @@
   #include "vector_3.h"
 #endif
 
+enum BlockFlagBit {
+  // Recalculate trapezoids on entry junction. For optimization.
+  BLOCK_BIT_RECALCULATE,
+
+  // Nominal speed always reached.
+  // i.e., The segment is long enough, so the nominal speed is reachable if accelerating
+  // from a safe speed (in consideration of jerking from zero speed).
+  BLOCK_BIT_NOMINAL_LENGTH,
+
+  // Start from a halt at the start of this block, respecting the maximum allowed jerk.
+  BLOCK_BIT_START_FROM_FULL_HALT,
+
+  // The block is busy
+  BLOCK_BIT_BUSY
+};
+
 enum BlockFlag {
-    // Recalculate trapezoids on entry junction. For optimization.
-    BLOCK_FLAG_RECALCULATE          = _BV(0),
-
-    // Nominal speed always reached.
-    // i.e., The segment is long enough, so the nominal speed is reachable if accelerating
-    // from a safe speed (in consideration of jerking from zero speed).
-    BLOCK_FLAG_NOMINAL_LENGTH       = _BV(1),
-
-    // Start from a halt at the start of this block, respecting the maximum allowed jerk.
-    BLOCK_FLAG_START_FROM_FULL_HALT = _BV(2)
+  BLOCK_FLAG_RECALCULATE          = _BV(BLOCK_BIT_RECALCULATE),
+  BLOCK_FLAG_NOMINAL_LENGTH       = _BV(BLOCK_BIT_NOMINAL_LENGTH),
+  BLOCK_FLAG_START_FROM_FULL_HALT = _BV(BLOCK_BIT_START_FROM_FULL_HALT),
+  BLOCK_FLAG_BUSY                 = _BV(BLOCK_BIT_BUSY)
 };
 
 /**
@@ -112,8 +122,6 @@ typedef struct {
   #if ENABLED(BARICUDA)
     unsigned long valve_pressure, e_to_p_pressure;
   #endif
-
-  volatile char busy;
 
 } block_t;
 
@@ -341,7 +349,7 @@ class Planner {
     static block_t* get_current_block() {
       if (blocks_queued()) {
         block_t* block = &block_buffer[block_buffer_tail];
-        block->busy = true;
+        SBI(block->flag, BLOCK_BIT_BUSY);
         return block;
       }
       else

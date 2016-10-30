@@ -180,7 +180,7 @@ void Planner::calculate_trapezoid_for_block(block_t* const block, const float &e
   // block->decelerate_after = accelerate_steps+plateau_steps;
 
   CRITICAL_SECTION_START;  // Fill variables used by the stepper in a critical section
-  if (!block->busy) { // Don't update variables if block is busy.
+  if (!TEST(block->flag, BLOCK_BIT_BUSY)) { // Don't update variables if block is busy.
     block->accelerate_until = accelerate_steps;
     block->decelerate_after = accelerate_steps + plateau_steps;
     block->initial_rate = initial_rate;
@@ -212,10 +212,10 @@ void Planner::reverse_pass_kernel(block_t* const current, const block_t *next) {
   if (current->entry_speed != max_entry_speed) {
     // If nominal length true, max junction speed is guaranteed to be reached. Only compute
     // for max allowable speed if block is decelerating and nominal length is false.
-    current->entry_speed = ((current->flag & BLOCK_FLAG_NOMINAL_LENGTH) || max_entry_speed <= next->entry_speed)
+    current->entry_speed = (TEST(current->flag, BLOCK_BIT_NOMINAL_LENGTH) || max_entry_speed <= next->entry_speed)
       ? max_entry_speed
       : min(max_entry_speed, max_allowable_speed(-current->acceleration, next->entry_speed, current->millimeters));
-    current->flag |= BLOCK_FLAG_RECALCULATE;
+    SBI(current->flag, BLOCK_BIT_RECALCULATE);
   }
 }
 
@@ -237,7 +237,7 @@ void Planner::reverse_pass() {
 
     uint8_t b = BLOCK_MOD(block_buffer_head - 3);
     while (b != tail) {
-      if (block[0] && (block[0]->flag & BLOCK_FLAG_START_FROM_FULL_HALT)) break;
+      if (block[0] && TEST(block[0]->flag, BLOCK_BIT_START_FROM_FULL_HALT)) break;
       b = prev_block_index(b);
       block[2] = block[1];
       block[1] = block[0];
@@ -255,14 +255,14 @@ void Planner::forward_pass_kernel(const block_t* previous, block_t* const curren
   // full speed change within the block, we need to adjust the entry speed accordingly. Entry
   // speeds have already been reset, maximized, and reverse planned by reverse planner.
   // If nominal length is true, max junction speed is guaranteed to be reached. No need to recheck.
-  if (!(previous->flag & BLOCK_FLAG_NOMINAL_LENGTH)) {
+  if (!TEST(previous->flag, BLOCK_BIT_NOMINAL_LENGTH)) {
     if (previous->entry_speed < current->entry_speed) {
       float entry_speed = min(current->entry_speed,
                                max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters));
       // Check for junction speed change
       if (current->entry_speed != entry_speed) {
         current->entry_speed = entry_speed;
-        current->flag |= BLOCK_FLAG_RECALCULATE;
+        SBI(current->flag, BLOCK_BIT_RECALCULATE);
       }
     }
   }
@@ -298,11 +298,11 @@ void Planner::recalculate_trapezoids() {
     next = &block_buffer[block_index];
     if (current) {
       // Recalculate if current block entry or exit junction speed has changed.
-      if ((current->flag & BLOCK_FLAG_RECALCULATE) || (next->flag & BLOCK_FLAG_RECALCULATE)) {
+      if (TEST(current->flag, BLOCK_BIT_RECALCULATE) || TEST(next->flag, BLOCK_BIT_RECALCULATE)) {
         // NOTE: Entry and exit factors always > 0 by all previous logic operations.
         float nom = current->nominal_speed;
         calculate_trapezoid_for_block(current, current->entry_speed / nom, next->entry_speed / nom);
-        current->flag &= ~BLOCK_FLAG_RECALCULATE; // Reset current only to ensure next trapezoid is computed
+        CBI(current->flag, BLOCK_BIT_RECALCULATE); // Reset current only to ensure next trapezoid is computed
       }
     }
     block_index = next_block_index(block_index);
@@ -311,7 +311,7 @@ void Planner::recalculate_trapezoids() {
   if (next) {
     float nom = next->nominal_speed;
     calculate_trapezoid_for_block(next, next->entry_speed / nom, (MINIMUM_PLANNER_SPEED) / nom);
-    next->flag &= ~BLOCK_FLAG_RECALCULATE;
+    CBI(next->flag, BLOCK_BIT_RECALCULATE);
   }
 }
 
@@ -666,8 +666,8 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // Prepare to set up new block
   block_t* block = &block_buffer[block_buffer_head];
 
-  // Mark block as not busy (Not executed by the stepper interrupt)
-  block->busy = false;
+  // Clear all flags, including the "busy" bit
+  block->flag = 0;
 
   // Number of steps for each axis
   #if ENABLED(COREXY)
@@ -698,9 +698,6 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   // Bail if this is a zero-length block
   if (block->step_event_count < MIN_STEPS_PER_SEGMENT) return;
-
-  // Clear the block flags
-  block->flag = 0;
 
   // For a mixing extruder, get a magnified step_event_count for each
   #if ENABLED(MIXING_EXTRUDER)
@@ -1187,12 +1184,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     if (previous_safe_speed > vmax_junction_threshold && safe_speed > vmax_junction_threshold) {
       // Not coasting. The machine will stop and start the movements anyway,
       // better to start the segment from start.
-      block->flag |= BLOCK_FLAG_START_FROM_FULL_HALT;
+      SBI(block->flag, BLOCK_BIT_START_FROM_FULL_HALT);
       vmax_junction = safe_speed;
     }
   }
   else {
-    block->flag |= BLOCK_FLAG_START_FROM_FULL_HALT;
+    SBI(block->flag, BLOCK_BIT_START_FROM_FULL_HALT);
     vmax_junction = safe_speed;
   }
 
