@@ -24,6 +24,23 @@
  * Mightyboard Rev.E pin assignments
  */
 
+/**
+ *
+ * This is a starting-point to support the Makerbot Replicator series of 3D printers.
+ * It's not functional because Marlin has limited support for some features.
+ * Marlin will need the following augmentations before it will be supportable:
+ *
+ *   - Support for two or more MAX6675 thermocouples
+ *   - Support for multiple i2c buses to control the MCP4018 digital pots
+ *   - Support for one additional unidirectional SPI bus, to read the thermocouples
+ *   - Support for an RGB LED that may work differently from BLINKM
+ *
+ * The MCP4018 requires separate I2C buses because it has a fixed address (0x2F << 1 = 0x5E)
+ * The thermocouples share the same SCK and DO pins, with their own CS pins.
+ * The controller interface port connects to a 3-wire shift-register display controller
+ *
+ */
+
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
   #error "Oops! Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
