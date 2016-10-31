@@ -115,8 +115,8 @@
 #define HEATER_BED_PIN       3
 
 #define FAN_PIN              8
-#define FAN0_PIN             6
-#define FAN1_PIN             2
+#define FAN1_PIN             6
+#define FAN2_PIN             2
 
 //
 // Misc. Functions
