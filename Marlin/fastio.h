@@ -1835,18 +1835,6 @@
   #define PG5_WPORT   PORTG
   #define PG5_DDR     DDRG
   #define PG5_PWM     &OCR0B
-  #undef PG6
-  #define PG6_PIN     PING6
-  #define PG6_RPORT   PING
-  #define PG6_WPORT   PORTG
-  #define PG6_DDR     DDRG
-  #define PG6_PWM     NULL
-  #undef PG7
-  #define PG7_PIN     PING7
-  #define PG7_RPORT   PING
-  #define PG7_WPORT   PORTG
-  #define PG7_DDR     DDRG
-  #define PG7_PWM     NULL
 
   #undef PH0
   #define PH0_PIN     PINH0

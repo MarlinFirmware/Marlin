@@ -39,6 +39,8 @@
   #include "pins_CHEAPTRONIC.h"
 #elif MB(SETHI)
   #include "pins_SETHI.h"
+#elif MB(MIGHTYBOARD_REVE)
+  #include "pins_MIGHTYBOARD_REVE.h"
 #elif MB(RAMPS_OLD)
   #include "pins_RAMPS_OLD.h"
 #elif MB(RAMPS_13_EFB)
