@@ -21,7 +21,7 @@
  */
 
 // How many DIO pins are defined?
-#if defined(DIO85_PIN)
+#ifdef DIO85_PIN
 //  #define DIO_COUNT 86
   #define DIO_COUNT 70  // digitalRead and other Arduino IDE routines only know about pins 0 through 69
 #elif defined(DIO53_PIN)
@@ -42,68 +42,52 @@ bool endstop_monitor_flag = false;
 #define _PIN_SAY(NAME) { sprintf(buffer, NAME_FORMAT, NAME); SERIAL_ECHO(buffer); return true; }
 #define PIN_SAY(NAME) if (pin == NAME) _PIN_SAY(#NAME);
 
-#define _ANALOG_PIN_SAY(NAME)   { sprintf(buffer, NAME_FORMAT, NAME); SERIAL_ECHO(buffer); pin_is_analog = true; return true; }
+#define _ANALOG_PIN_SAY(NAME) { sprintf(buffer, NAME_FORMAT, NAME); SERIAL_ECHO(buffer); pin_is_analog = true; return true; }
 #define ANALOG_PIN_SAY(NAME) if (pin == analogInputToDigitalPin(NAME)) _ANALOG_PIN_SAY(#NAME);
 
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(5)))
 
-
-
-int digitalRead_mod(int8_t pin)  // same as digitalRead except the PWM stop section has been removed
-{
-	uint8_t bit = digitalPinToBitMask(pin);
+int digitalRead_mod(int8_t pin) { // same as digitalRead except the PWM stop section has been removed
 	uint8_t port = digitalPinToPort(pin);
-  
-	if (port == NOT_A_PIN) return LOW;
-
-	if (*portInputRegister(port) & bit) return HIGH;
-	return LOW;
+	return (port != NOT_A_PIN) && (*portInputRegister(port) & digitalPinToBitMask(pin)) ? HIGH : LOW;
 }
 
-bool get_pinMode(int8_t pin)
-{
-	uint8_t bit = digitalPinToBitMask(pin);
-	uint8_t port = digitalPinToPort(pin);
-	volatile uint8_t *reg;
-	reg = portModeRegister(port);
-  return   *reg & bit;
-}
+/**
+ * Report pin name for a given fastio digital pin index
+ */
+static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
 
-// Report pin name for a given fastio digital pin index
-
-static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
-  
   char buffer[30];   // for the sprintf statements
   pin_is_analog = false;   // default to digital pin
-  
+
   if (IS_ANALOG(pin)) {
     sprintf(buffer, "(A%2d)  ", int(pin - analogInputToDigitalPin(0)));
-    SERIAL_ECHO(buffer);   
+    SERIAL_ECHO(buffer);
   }
   else SERIAL_ECHOPGM("       ");
 
-  #if defined(RXD) && RXD > -1
+  #if defined(RXD) && RXD >= 0
     if (pin == 0) { sprintf(buffer, NAME_FORMAT, "RXD"); SERIAL_ECHO(buffer); return true; }
   #endif
-  #if defined(TXD) && TXD > -1
+
+  #if defined(TXD) && TXD >= 0
     if (pin == 1) { sprintf(buffer, NAME_FORMAT, "TXD"); SERIAL_ECHO(buffer); return true; }
   #endif
 
-  
   // Pin list updated from 7 OCT RCBugfix branch
-  #if defined(__FD) && __FD > -1   
+  #if defined(__FD) && __FD >= 0
     PIN_SAY(__FD)
   #endif
-  #if defined(__FS) && __FS > -1
+  #if defined(__FS) && __FS >= 0
     PIN_SAY(__FS)
   #endif
-  #if defined(__GD) && __GD > -1
+  #if defined(__GD) && __GD >= 0
     PIN_SAY(__GD)
   #endif
-  #if defined(__GS) && __GS > -1
+  #if defined(__GS) && __GS >= 0
     PIN_SAY(__GS)
   #endif
- 
+
   #if PIN_EXISTS(AVR_MISO)
     PIN_SAY(AVR_MISO_PIN);
   #endif
@@ -119,40 +103,40 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(BEEPER)
     PIN_SAY(BEEPER_PIN);
   #endif
-  #if defined(BTN_CENTER) && BTN_CENTER > -1
+  #if defined(BTN_CENTER) && BTN_CENTER >= 0
     PIN_SAY(BTN_CENTER);
   #endif
-  #if defined(BTN_DOWN) && BTN_DOWN > -1
+  #if defined(BTN_DOWN) && BTN_DOWN >= 0
     PIN_SAY(BTN_DOWN);
   #endif
-  #if defined(BTN_DWN) && BTN_DWN > -1
+  #if defined(BTN_DWN) && BTN_DWN >= 0
     PIN_SAY(BTN_DWN);
   #endif
-  #if defined(BTN_EN1) && BTN_EN1 > -1
+  #if defined(BTN_EN1) && BTN_EN1 >= 0
     PIN_SAY(BTN_EN1);
   #endif
-  #if defined(BTN_EN2) && BTN_EN2 > -1
+  #if defined(BTN_EN2) && BTN_EN2 >= 0
     PIN_SAY(BTN_EN2);
   #endif
-  #if defined(BTN_ENC) && BTN_ENC > -1
+  #if defined(BTN_ENC) && BTN_ENC >= 0
     PIN_SAY(BTN_ENC);
   #endif
-  #if defined(BTN_HOME) && BTN_HOME > -1
+  #if defined(BTN_HOME) && BTN_HOME >= 0
     PIN_SAY(BTN_HOME);
   #endif
-  #if defined(BTN_LEFT) && BTN_LEFT > -1
+  #if defined(BTN_LEFT) && BTN_LEFT >= 0
     PIN_SAY(BTN_LEFT);
   #endif
-  #if defined(BTN_LFT) && BTN_LFT > -1
+  #if defined(BTN_LFT) && BTN_LFT >= 0
     PIN_SAY(BTN_LFT);
   #endif
-  #if defined(BTN_RIGHT) && BTN_RIGHT > -1
+  #if defined(BTN_RIGHT) && BTN_RIGHT >= 0
     PIN_SAY(BTN_RIGHT);
   #endif
-  #if defined(BTN_RT) && BTN_RT > -1
+  #if defined(BTN_RT) && BTN_RT >= 0
     PIN_SAY(BTN_RT);
   #endif
-  #if defined(BTN_UP) && BTN_UP > -1
+  #if defined(BTN_UP) && BTN_UP >= 0
     PIN_SAY(BTN_UP);
   #endif
   #if PIN_EXISTS(CONTROLLERFAN)
@@ -161,10 +145,10 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(DAC_DISABLE)
     PIN_SAY(DAC_DISABLE_PIN);
   #endif
-  #if defined(DAC_STEPPER_GAIN) && DAC_STEPPER_GAIN > -1
+  #if defined(DAC_STEPPER_GAIN) && DAC_STEPPER_GAIN >= 0
     PIN_SAY(DAC_STEPPER_GAIN);
   #endif
-  #if defined(DAC_STEPPER_VREF) && DAC_STEPPER_VREF > -1
+  #if defined(DAC_STEPPER_VREF) && DAC_STEPPER_VREF >= 0
     PIN_SAY(DAC_STEPPER_VREF);
   #endif
   #if PIN_EXISTS(DEBUG)
@@ -173,19 +157,19 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(DIGIPOTSS)
     PIN_SAY(DIGIPOTSS_PIN);
   #endif
-  #if defined(DIO_COUNT) && DIO_COUNT > -1
+  #if defined(DIO_COUNT) && DIO_COUNT >= 0
     PIN_SAY(DIO_COUNT);
   #endif
-  #if defined(DOGLCD_A0) && DOGLCD_A0 > -1
+  #if defined(DOGLCD_A0) && DOGLCD_A0 >= 0
     PIN_SAY(DOGLCD_A0);
   #endif
-  #if defined(DOGLCD_CS) && DOGLCD_CS > -1
+  #if defined(DOGLCD_CS) && DOGLCD_CS >= 0
     PIN_SAY(DOGLCD_CS);
   #endif
-  #if defined(DOGLCD_MOSI) && DOGLCD_MOSI > -1
+  #if defined(DOGLCD_MOSI) && DOGLCD_MOSI >= 0
     PIN_SAY(DOGLCD_MOSI);
   #endif
-  #if defined(DOGLCD_SCK) && DOGLCD_SCK > -1
+  #if defined(DOGLCD_SCK) && DOGLCD_SCK >= 0
     PIN_SAY(DOGLCD_SCK);
   #endif
   #if PIN_EXISTS(E0_ATT)
@@ -260,52 +244,52 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(E4_STEP)
     PIN_SAY(E4_STEP_PIN);
   #endif
-  #if defined(encrot1) && encrot1 > -1
+  #if defined(encrot1) && encrot1 >= 0
     PIN_SAY(encrot1);
   #endif
-  #if defined(encrot2) && encrot2 > -1
+  #if defined(encrot2) && encrot2 >= 0
     PIN_SAY(encrot2);
   #endif
-  #if defined(encrot3) && encrot3 > -1
+  #if defined(encrot3) && encrot3 >= 0
     PIN_SAY(encrot3);
   #endif
-  #if defined(EXT_AUX_A0_IO) && EXT_AUX_A0_IO > -1
+  #if defined(EXT_AUX_A0_IO) && EXT_AUX_A0_IO >= 0
     PIN_SAY(EXT_AUX_A0_IO);
   #endif
-  #if defined(EXT_AUX_A1) && EXT_AUX_A1 > -1
+  #if defined(EXT_AUX_A1) && EXT_AUX_A1 >= 0
     PIN_SAY(EXT_AUX_A1);
   #endif
-  #if defined(EXT_AUX_A1_IO) && EXT_AUX_A1_IO > -1
+  #if defined(EXT_AUX_A1_IO) && EXT_AUX_A1_IO >= 0
     PIN_SAY(EXT_AUX_A1_IO);
   #endif
-  #if defined(EXT_AUX_A2) && EXT_AUX_A2 > -1
+  #if defined(EXT_AUX_A2) && EXT_AUX_A2 >= 0
     PIN_SAY(EXT_AUX_A2);
   #endif
-  #if defined(EXT_AUX_A2_IO) && EXT_AUX_A2_IO > -1
+  #if defined(EXT_AUX_A2_IO) && EXT_AUX_A2_IO >= 0
     PIN_SAY(EXT_AUX_A2_IO);
   #endif
-  #if defined(EXT_AUX_A3) && EXT_AUX_A3 > -1
+  #if defined(EXT_AUX_A3) && EXT_AUX_A3 >= 0
     PIN_SAY(EXT_AUX_A3);
   #endif
-  #if defined(EXT_AUX_A3_IO) && EXT_AUX_A3_IO > -1
+  #if defined(EXT_AUX_A3_IO) && EXT_AUX_A3_IO >= 0
     PIN_SAY(EXT_AUX_A3_IO);
   #endif
-  #if defined(EXT_AUX_A4) && EXT_AUX_A4 > -1
+  #if defined(EXT_AUX_A4) && EXT_AUX_A4 >= 0
     PIN_SAY(EXT_AUX_A4);
   #endif
-  #if defined(EXT_AUX_A4_IO) && EXT_AUX_A4_IO > -1
+  #if defined(EXT_AUX_A4_IO) && EXT_AUX_A4_IO >= 0
     PIN_SAY(EXT_AUX_A4_IO);
   #endif
-  #if defined(EXT_AUX_PWM_D24) && EXT_AUX_PWM_D24 > -1
+  #if defined(EXT_AUX_PWM_D24) && EXT_AUX_PWM_D24 >= 0
     PIN_SAY(EXT_AUX_PWM_D24);
   #endif
-  #if defined(EXT_AUX_RX1_D2) && EXT_AUX_RX1_D2 > -1
+  #if defined(EXT_AUX_RX1_D2) && EXT_AUX_RX1_D2 >= 0
     PIN_SAY(EXT_AUX_RX1_D2);
   #endif
-  #if defined(EXT_AUX_SDA_D1) && EXT_AUX_SDA_D1 > -1
+  #if defined(EXT_AUX_SDA_D1) && EXT_AUX_SDA_D1 >= 0
     PIN_SAY(EXT_AUX_SDA_D1);
   #endif
-  #if defined(EXT_AUX_TX1_D3) && EXT_AUX_TX1_D3 > -1
+  #if defined(EXT_AUX_TX1_D3) && EXT_AUX_TX1_D3 >= 0
     PIN_SAY(EXT_AUX_TX1_D3);
   #endif
 
@@ -327,7 +311,7 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(FILWIDTH)
     ANALOG_PIN_SAY(FILWIDTH_PIN);
   #endif
-  #if defined(GEN7_VERSION) && GEN7_VERSION > -1
+  #if defined(GEN7_VERSION) && GEN7_VERSION >= 0
     PIN_SAY(GEN7_VERSION);
   #endif
   #if PIN_EXISTS(HEATER_0)
@@ -357,10 +341,10 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(HEATER_BED)
     PIN_SAY(HEATER_BED_PIN);
   #endif
-  #if defined(I2C_SCL) && I2C_SCL > -1
+  #if defined(I2C_SCL) && I2C_SCL >= 0
     PIN_SAY(I2C_SCL);
   #endif
-  #if defined(I2C_SDA) && I2C_SDA > -1
+  #if defined(I2C_SDA) && I2C_SDA >= 0
     PIN_SAY(I2C_SDA);
   #endif
   #if PIN_EXISTS(KILL)
@@ -369,28 +353,28 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(LCD_BACKLIGHT)
     PIN_SAY(LCD_BACKLIGHT_PIN);
   #endif
-  #if defined(LCD_CONTRAST) && LCD_CONTRAST > -1
+  #if defined(LCD_CONTRAST) && LCD_CONTRAST >= 0
     PIN_SAY(LCD_CONTRAST);
   #endif
-  #if defined(LCD_PINS_D4) && LCD_PINS_D4 > -1
+  #if defined(LCD_PINS_D4) && LCD_PINS_D4 >= 0
     PIN_SAY(LCD_PINS_D4);
   #endif
-  #if defined(LCD_PINS_D5) && LCD_PINS_D5 > -1
+  #if defined(LCD_PINS_D5) && LCD_PINS_D5 >= 0
     PIN_SAY(LCD_PINS_D5);
   #endif
-  #if defined(LCD_PINS_D6) && LCD_PINS_D6 > -1
+  #if defined(LCD_PINS_D6) && LCD_PINS_D6 >= 0
     PIN_SAY(LCD_PINS_D6);
   #endif
-  #if defined(LCD_PINS_D7) && LCD_PINS_D7 > -1
+  #if defined(LCD_PINS_D7) && LCD_PINS_D7 >= 0
     PIN_SAY(LCD_PINS_D7);
   #endif
-  #if defined(LCD_PINS_ENABLE) && LCD_PINS_ENABLE > -1
+  #if defined(LCD_PINS_ENABLE) && LCD_PINS_ENABLE >= 0
     PIN_SAY(LCD_PINS_ENABLE);
   #endif
-  #if defined(LCD_PINS_RS) && LCD_PINS_RS > -1
+  #if defined(LCD_PINS_RS) && LCD_PINS_RS >= 0
     PIN_SAY(LCD_PINS_RS);
   #endif
-  #if defined(LCD_SDSS) && LCD_SDSS > -1
+  #if defined(LCD_SDSS) && LCD_SDSS >= 0
     PIN_SAY(LCD_SDSS);
   #endif
   #if PIN_EXISTS(LED)
@@ -399,7 +383,7 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(MAIN_VOLTAGE_MEASURE)
     PIN_SAY(MAIN_VOLTAGE_MEASURE_PIN);
   #endif
-  #if defined(MAX6675_SS) && MAX6675_SS > -1
+  #if defined(MAX6675_SS) && MAX6675_SS >= 0
     PIN_SAY(MAX6675_SS);
   #endif
   #if PIN_EXISTS(MISO)
@@ -420,7 +404,7 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(MOTOR_CURRENT_PWM_Z)
     PIN_SAY(MOTOR_CURRENT_PWM_Z_PIN);
   #endif
-  #if defined(NUM_TLCS) && NUM_TLCS > -1
+  #if defined(NUM_TLCS) && NUM_TLCS >= 0
     PIN_SAY(NUM_TLCS);
   #endif
   #if PIN_EXISTS(PHOTOGRAPH)
@@ -447,19 +431,19 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(SCK)
     PIN_SAY(SCK_PIN);
   #endif
-  #if defined(SCL) && SCL > -1
+  #if defined(SCL) && SCL >= 0
     PIN_SAY(SCL);
   #endif
   #if PIN_EXISTS(SD_DETECT)
     PIN_SAY(SD_DETECT_PIN);
   #endif
-  #if defined(SDA) && SDA > -1
+  #if defined(SDA) && SDA >= 0
     PIN_SAY(SDA);
   #endif
-  #if defined(SDPOWER) && SDPOWER > -1
+  #if defined(SDPOWER) && SDPOWER >= 0
     PIN_SAY(SDPOWER);
   #endif
-  #if defined(SDSS) && SDSS > -1
+  #if defined(SDSS) && SDSS >= 0
     PIN_SAY(SDSS);
   #endif
   #if PIN_EXISTS(SERVO0)
@@ -474,16 +458,16 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(SERVO3)
     PIN_SAY(SERVO3_PIN);
   #endif
-  #if defined(SHIFT_CLK) && SHIFT_CLK > -1
+  #if defined(SHIFT_CLK) && SHIFT_CLK >= 0
     PIN_SAY(SHIFT_CLK);
   #endif
-  #if defined(SHIFT_EN) && SHIFT_EN > -1
+  #if defined(SHIFT_EN) && SHIFT_EN >= 0
     PIN_SAY(SHIFT_EN);
   #endif
-  #if defined(SHIFT_LD) && SHIFT_LD > -1
+  #if defined(SHIFT_LD) && SHIFT_LD >= 0
     PIN_SAY(SHIFT_LD);
   #endif
-  #if defined(SHIFT_OUT) && SHIFT_OUT > -1
+  #if defined(SHIFT_OUT) && SHIFT_OUT >= 0
     PIN_SAY(SHIFT_OUT);
   #endif
   #if PIN_EXISTS(SLED)
@@ -519,10 +503,10 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(SUICIDE)
     PIN_SAY(SUICIDE_PIN);
   #endif
-  #if defined(TC1) && TC1 > -1
+  #if defined(TC1) && TC1 >= 0
     ANALOG_PIN_SAY(TC1);
   #endif
-  #if defined(TC2) && TC2 > -1
+  #if defined(TC2) && TC2 >= 0
     ANALOG_PIN_SAY(TC2);
   #endif
   #if PIN_EXISTS(TEMP_0)
@@ -546,19 +530,19 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(TEMP_X)
     ANALOG_PIN_SAY(TEMP_X_PIN);
   #endif
-  #if defined(TLC_BLANK_BIT) && TLC_BLANK_BIT > -1
+  #if defined(TLC_BLANK_BIT) && TLC_BLANK_BIT >= 0
     PIN_SAY(TLC_BLANK_BIT);
   #endif
   #if PIN_EXISTS(TLC_BLANK)
     PIN_SAY(TLC_BLANK_PIN);
   #endif
-  #if defined(TLC_CLOCK_BIT) && TLC_CLOCK_BIT > -1
+  #if defined(TLC_CLOCK_BIT) && TLC_CLOCK_BIT >= 0
     PIN_SAY(TLC_CLOCK_BIT);
   #endif
   #if PIN_EXISTS(TLC_CLOCK)
     PIN_SAY(TLC_CLOCK_PIN);
   #endif
-  #if defined(TLC_DATA_BIT) && TLC_DATA_BIT > -1
+  #if defined(TLC_DATA_BIT) && TLC_DATA_BIT >= 0
     PIN_SAY(TLC_DATA_BIT);
   #endif
   #if PIN_EXISTS(TLC_DATA)
@@ -570,7 +554,7 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
   #if PIN_EXISTS(TX_ENABLE)
     PIN_SAY(TX_ENABLE_PIN);
   #endif
-  #if defined(UNUSED_PWM) && UNUSED_PWM > -1
+  #if defined(UNUSED_PWM) && UNUSED_PWM >= 0
     PIN_SAY(UNUSED_PWM);
   #endif
   #if PIN_EXISTS(X_ATT)
@@ -687,14 +671,14 @@ static bool report_pin_name(int8_t pin,bool &pin_is_analog) {
 
   sprintf(buffer, NAME_FORMAT, "<unused> ");
   SERIAL_ECHO(buffer);
-  
+
   return false;
-}  //  report_pin_name
+} // report_pin_name
 
 //  True - currently a PWM pin
 static bool PWM_status(uint8_t pin) {
   char buffer[20];   // for the sprintf statements
-  
+
   switch(digitalPinToTimer(pin)) {
 
     #if defined(TCCR0A) && defined(COM0A1)
@@ -789,7 +773,7 @@ static bool PWM_status(uint8_t pin) {
         break;
     #endif
 
-    #if defined(TCCR4A)
+    #ifdef TCCR4A
       case TIMER4A:
         if (TCCR4A & (_BV(COM4A1) | _BV(COM4A0))){
           sprintf(buffer, "PWM:  %4d",OCR4A); 
@@ -815,7 +799,7 @@ static bool PWM_status(uint8_t pin) {
         else return false;
         break;
     #endif
-          
+
     #if defined(TCCR5A) && defined(COM5A1)
       case TIMER5A:
         if (TCCR5A & (_BV(COM5A1) | _BV(COM5A0))){
@@ -1044,7 +1028,7 @@ static void PWM_details(uint8_t pin)
 	case NOT_ON_TIMER:
     break;
 	}
-  SERIAL_PROTOCOLPGM("  ");   
+  SERIAL_PROTOCOLPGM("  ");
 }  // PWM_details
 
 
@@ -1070,38 +1054,42 @@ inline void report_pin_state(int8_t pin) {
   SERIAL_EOL;
 }
 
+bool get_pinMode(int8_t pin) { return *portModeRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin); }
+
 // pretty report with PWM info
 inline void report_pin_state_extended(int8_t pin, bool ignore) {
 
   char buffer[30];   // for the sprintf statements
-    
- // report pin number 
-  sprintf(buffer, "PIN:% 3d ", pin);
-  SERIAL_ECHO(buffer);   
 
- // report pin name 
+  // report pin number
+  sprintf(buffer, "PIN:% 3d ", pin);
+  SERIAL_ECHO(buffer);
+
+  // report pin name
   bool analog_pin;
-  report_pin_name(pin, analog_pin); 
-  
-// report pin state
-  if (pin_is_protected(pin) && ignore == false) 
+  report_pin_name(pin, analog_pin);
+
+  // report pin state
+  if (pin_is_protected(pin) && !ignore)
     SERIAL_ECHOPGM("protected ");
   else {
     if (analog_pin) {
-        sprintf(buffer, "Analog in =% 5d", analogRead(pin - analogInputToDigitalPin(0)));
-        SERIAL_ECHO(buffer); 
-       }
+      sprintf(buffer, "Analog in =% 5d", analogRead(pin - analogInputToDigitalPin(0)));
+      SERIAL_ECHO(buffer);
+    }
     else {
       if (!get_pinMode(pin)) {
         pinMode(pin, INPUT_PULLUP);  // make sure input isn't floating
         SERIAL_PROTOCOLPAIR("Input  = ", digitalRead_mod(pin));
-      }  
-      else if  (PWM_status(pin)) ;
-      else SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));  
+      }
+      else if (PWM_status(pin)) {
+        // do nothing
+      }
+      else SERIAL_PROTOCOLPAIR("Output = ", digitalRead_mod(pin));
     }
   }
 
-// report PWM capabilities
+  // report PWM capabilities
   PWM_details(pin);
   SERIAL_EOL;
 }
