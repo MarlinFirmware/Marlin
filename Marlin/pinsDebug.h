@@ -20,20 +20,6 @@
  *
  */
 
-// How many DIO pins are defined?
-#ifdef DIO85_PIN
-//  #define DIO_COUNT 86
-  #define DIO_COUNT 70  // digitalRead and other Arduino IDE routines only know about pins 0 through 69
-#elif defined(DIO53_PIN)
-  #define DIO_COUNT 54
-#elif defined(DIO47_PIN)
-  #define DIO_COUNT 48
-#elif defined(DIO31_PIN)
-  #define DIO_COUNT 32
-#elif defined(DIO21_PIN)
-  #define DIO_COUNT 22
-#endif
-
 bool endstop_monitor_flag = false;
 
 #define  NAME_FORMAT "%-28s"   // one place to specify the format of all the sources of names
@@ -156,9 +142,6 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
   #endif
   #if PIN_EXISTS(DIGIPOTSS)
     PIN_SAY(DIGIPOTSS_PIN);
-  #endif
-  #if defined(DIO_COUNT) && DIO_COUNT >= 0
-    PIN_SAY(DIO_COUNT);
   #endif
   #if defined(DOGLCD_A0) && DOGLCD_A0 >= 0
     PIN_SAY(DOGLCD_A0);
