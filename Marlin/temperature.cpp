@@ -1407,69 +1407,69 @@ void Temperature::set_current_temp_raw() {
   void endstop_monitor() {
     static uint16_t old_endstop_bits_local = 0;
     static uint8_t local_LED_status = 0;
-    if (endstop_monitor_flag) {
-      uint16_t current_endstop_bits_local = 0;
+    uint16_t current_endstop_bits_local = 0;
+    #if HAS_X_MIN
+      if (READ(X_MIN_PIN)) SBI(current_endstop_bits_local, X_MIN);
+    #endif
+    #if HAS_X_MAX
+      if (READ(X_MAX_PIN)) SBI(current_endstop_bits_local, X_MAX);
+    #endif
+    #if HAS_Y_MIN
+      if (READ(Y_MIN_PIN)) SBI(current_endstop_bits_local, Y_MIN);
+    #endif
+    #if HAS_Y_MAX
+      if (READ(Y_MAX_PIN)) SBI(current_endstop_bits_local, Y_MAX);
+    #endif
+    #if HAS_Z_MIN
+      if (READ(Z_MIN_PIN)) SBI(current_endstop_bits_local, Z_MIN);
+    #endif
+    #if HAS_Z_MAX
+      if (READ(Z_MAX_PIN)) SBI(current_endstop_bits_local, Z_MAX);
+    #endif
+    #if HAS_Z_MIN_PROBE_PIN
+      if (READ(Z_MIN_PROBE_PIN)) SBI(current_endstop_bits_local, Z_MIN_PROBE);
+    #endif
+    #if HAS_Z2_MIN
+      if (READ(Z2_MIN_PIN)) SBI(current_endstop_bits_local, Z2_MIN);
+    #endif
+    #if HAS_Z2_MAX
+      if (READ(Z2_MAX_PIN)) SBI(current_endstop_bits_local, Z2_MAX);
+    #endif
+
+    uint16_t endstop_change = current_endstop_bits_local ^ old_endstop_bits_local;
+
+    if (endstop_change) {
       #if HAS_X_MIN
-        if (READ(X_MIN_PIN)) current_endstop_bits_local |= _BV(X_MIN);
-        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(X_MIN)) {
-          SERIAL_PROTOCOLPAIR("X_MIN: ", (current_endstop_bits_local & _BV(X_MIN)) ? 1 : 0);
-        }
+        if (TEST(endstop_change, X_MIN)) SERIAL_PROTOCOLPAIR("X_MIN:", !!TEST(current_endstop_bits_local, X_MIN));
       #endif
       #if HAS_X_MAX
-        if (READ(X_MAX_PIN)) current_endstop_bits_local |= _BV(X_MAX);
-        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(X_MAX)) {
-          SERIAL_PROTOCOLPAIR("   X_MAX: ", (current_endstop_bits_local & _BV(X_MAX)) ? 1 : 0);
-        }
+        if (TEST(endstop_change, X_MAX)) SERIAL_PROTOCOLPAIR("  X_MAX:", !!TEST(current_endstop_bits_local, X_MAX));
       #endif
       #if HAS_Y_MIN
-        if (READ(Y_MIN_PIN)) current_endstop_bits_local |= _BV(Y_MIN);
-        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Y_MIN)) {
-          SERIAL_PROTOCOLPAIR("   Y_MIN: ", (current_endstop_bits_local & _BV(Y_MIN)) ? 1 : 0);
-        }
+        if (TEST(endstop_change, Y_MIN)) SERIAL_PROTOCOLPAIR("  Y_MIN:", !!TEST(current_endstop_bits_local, Y_MIN));
       #endif
       #if HAS_Y_MAX
-        if (READ(Y_MAX_PIN)) current_endstop_bits_local |= _BV(Y_MAX);
-        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Y_MAX)) {
-          SERIAL_PROTOCOLPAIR("   Y_MAX: ", (current_endstop_bits_local & _BV(Y_MAX)) ? 1 : 0);
-        }
+        if (TEST(endstop_change, Y_MAX)) SERIAL_PROTOCOLPAIR("  Y_MAX:", !!TEST(current_endstop_bits_local, Y_MAX));
       #endif
       #if HAS_Z_MIN
-        if (READ(Z_MIN_PIN)) current_endstop_bits_local |= _BV(Z_MIN);
-        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Z_MIN)) {
-          SERIAL_PROTOCOLPAIR("   Z_MIN: ", (current_endstop_bits_local & _BV(Z_MIN)) ? 1 : 0);
-        }
+        if (TEST(endstop_change, Z_MIN)) SERIAL_PROTOCOLPAIR("  Z_MIN:", !!TEST(current_endstop_bits_local, Z_MIN));
       #endif
       #if HAS_Z_MAX
-        if (READ(Z_MAX_PIN)) current_endstop_bits_local |= _BV(Z_MAX);
-        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Z_MAX)) {
-          SERIAL_PROTOCOLPAIR("   Z_MAX: ", (current_endstop_bits_local & _BV(Z_MAX)) ? 1 : 0);
-        }
+        if (TEST(endstop_change, Z_MAX)) SERIAL_PROTOCOLPAIR("  Z_MAX:", !!TEST(current_endstop_bits_local, Z_MAX));
       #endif
       #if HAS_Z_MIN_PROBE_PIN
-        if (READ(Z_MIN_PROBE_PIN)) current_endstop_bits_local |= _BV(Z_MIN_PROBE);
-        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Z_MIN_PROBE)) {
-          SERIAL_PROTOCOLPAIR("   PROBE: ", (current_endstop_bits_local & _BV(Z_MIN_PROBE)) ? 1 : 0);
-        }
+        if (TEST(endstop_change, Z_MIN_PROBE)) SERIAL_PROTOCOLPAIR("  PROBE:", !!TEST(current_endstop_bits_local, Z_MIN_PROBE));
       #endif
       #if HAS_Z2_MIN
-        if (READ(Z2_MIN_PIN)) current_endstop_bits_local |= _BV(Z2_MIN);
-        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Z2_MIN)) {
-          SERIAL_PROTOCOLPAIR("   Z2_MIN: ", (current_endstop_bits_local & _BV(Z2_MIN)) ? 1 : 0);
-        }
+        if (TEST(endstop_change, Z2_MIN)) SERIAL_PROTOCOLPAIR("  Z2_MIN:", !!TEST(current_endstop_bits_local, Z2_MIN));
       #endif
       #if HAS_Z2_MAX
-        if (READ(Z2_MAX_PIN)) current_endstop_bits_local |= _BV(Z2_MAX);
-        if ((current_endstop_bits_local ^ old_endstop_bits_local) & _BV(Z2_MAX)) {
-          SERIAL_PROTOCOLPAIR("   Z2_MAX: ", (current_endstop_bits_local & _BV(Z2_MAX)) ? 1 : 0);
-        }
+        if (TEST(endstop_change, Z2_MAX)) SERIAL_PROTOCOLPAIR("  Z2_MAX:", !!TEST(current_endstop_bits_local, Z2_MAX));
       #endif
-
-      if (current_endstop_bits_local != old_endstop_bits_local) {
-        analogWrite(LED_PIN, local_LED_status );                // toggle LED
-        SERIAL_PROTOCOLPGM("\n\n");                             // make it easy to see the message
-        old_endstop_bits_local = current_endstop_bits_local ;   // get ready for next change
-        local_LED_status  = local_LED_status ? 0 : 255;
-      }
+      SERIAL_PROTOCOLPGM("\n\n");
+      analogWrite(LED_PIN, local_LED_status);
+      local_LED_status ^= 255;
+      old_endstop_bits_local = current_endstop_bits_local;
     }
   }
 #endif // PINS_DEBUGGING
@@ -1929,12 +1929,15 @@ void Temperature::isr() {
       }
     }
   #endif //BABYSTEPPING
+
   #if ENABLED(PINS_DEBUGGING)
     extern bool endstop_monitor_flag;
     // run the endstop monitor at 15Hz
     static uint8_t endstop_monitor_count = 16;  // offset this check from the others
-    endstop_monitor_count += _BV(1);  //  15 Hz
-    endstop_monitor_count &= 0x7F;
-    if (endstop_monitor_count == 0) endstop_monitor();  // report changes in endstop status
+    if (endstop_monitor_flag) {
+      endstop_monitor_count += _BV(1);  //  15 Hz
+      endstop_monitor_count &= 0x7F;
+      if (!endstop_monitor_count) endstop_monitor();  // report changes in endstop status
+    }
   #endif
 }
