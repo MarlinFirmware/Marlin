@@ -4676,26 +4676,43 @@ inline void gcode_M42() {
   /**
    * M43: Pin report and debug
    *
-   *      pin report if just M43 with no codes
-   *      P<pin> Will read/watch a single pin
-   *      W      Watch pins for changes until reboot
-   *      E      toggles endstop monitor
-   *               reports changes to endstops
-   *               toggles LED when endstop changes
-   *               background function (machine continues to operate as normal)
+   *      E<bool> Enable / disable background endstop monitoring
+   *               - Machine continues to operate
+   *               - Reports changes to endstops
+   *               - Toggles LED when an endstop changes
+   *
+   *   or
+   *
+   *      P<pin>  Pin to read or watch. If omitted, read/watch all pins.
+   *      W<bool> Watch pins -reporting changes- until reset, click, or M108.
+   *      I<bool> Flag to ignore Marlin's pin protection.
    *
    */
   inline void gcode_M43() {
+
+    // Enable or disable endstop monitoring
+    if (code_seen('E')) {
+      endstop_monitor_flag = code_value_bool();
+      SERIAL_PROTOCOLPGM("endstop monitor ");
+      SERIAL_PROTOCOL(endstop_monitor_flag ? "en" : "dis");
+      SERIAL_PROTOCOLLNPGM("abled");
+      return;
+    }
+
+    // Get the range of pins to test or watch
     int first_pin = 0, last_pin = DIO_COUNT - 1;
     if (code_seen('P')) {
       first_pin = last_pin = code_value_byte();
       if (first_pin > DIO_COUNT - 1) return;
     }
 
+    bool ignore_protection = code_seen('I') ? code_value_bool() : false;
+
+    // Watch until click, M108, or reset
     if (code_seen('W') && code_value_bool()) { // watch digital pins
       byte pin_state[last_pin - first_pin + 1];
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
-        if (pin_is_protected(pin)) continue;
+        if (pin_is_protected(pin) && !ignore_protection) continue;
         pinMode(pin, INPUT_PULLUP);
         // if (IS_ANALOG(pin))
         //   pin_state[pin - first_pin] = analogRead(pin - analogInputToDigitalPin(0)); // int16_t pin_state[...]
@@ -4727,17 +4744,12 @@ inline void gcode_M42() {
 
         safe_delay(500);
       }
+      return;
     }
-    if ( !(code_seen('P') || code_seen('W') || code_seen('E')))   // single pins report
-      for (uint8_t pin = first_pin; pin <= last_pin; pin++)
-        report_pin_state_extended(pin, code_seen('I') );        // "hidden" option to ignore protected list
-    
-    if (code_seen('E')) {
-      endstop_monitor_flag ^= true;
-      SERIAL_PROTOCOLPGM("endstop monitor ");
-      SERIAL_PROTOCOL(endstop_monitor_flag ? "en" : "dis");
-      SERIAL_PROTOCOLLNPGM("abled");
-    }    
+
+    // Report current state of selected pin(s)
+    for (uint8_t pin = first_pin; pin <= last_pin; pin++)
+      report_pin_state_extended(pin, ignore_protection);
   }
 
 #endif // PINS_DEBUGGING
