@@ -34,8 +34,8 @@ bool endstop_monitor_flag = false;
 #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(5)))
 
 int digitalRead_mod(int8_t pin) { // same as digitalRead except the PWM stop section has been removed
-	uint8_t port = digitalPinToPort(pin);
-	return (port != NOT_A_PIN) && (*portInputRegister(port) & digitalPinToBitMask(pin)) ? HIGH : LOW;
+  uint8_t port = digitalPinToPort(pin);
+  return (port != NOT_A_PIN) && (*portInputRegister(port) & digitalPinToBitMask(pin)) ? HIGH : LOW;
 }
 
 /**
@@ -43,7 +43,7 @@ int digitalRead_mod(int8_t pin) { // same as digitalRead except the PWM stop sec
  */
 static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
 
-  char buffer[30];   // for the sprintf statements
+  char buffer[40];   // for the sprintf statements
   pin_is_analog = false;   // default to digital pin
 
   if (IS_ANALOG(pin)) {
@@ -60,7 +60,7 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
     if (pin == 1) { sprintf(buffer, NAME_FORMAT, "TXD"); SERIAL_ECHO(buffer); return true; }
   #endif
 
-  // Pin list updated from 7 OCT RCBugfix branch
+  // Pin list updated from 7 OCT RCBugfix branch   - max length of pin name is 24
   #if defined(__FD) && __FD >= 0
     PIN_SAY(__FD)
   #endif
@@ -278,6 +278,9 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
 
   #if PIN_EXISTS(FAN)
     PIN_SAY(FAN_PIN);
+  #endif
+  #if PIN_EXISTS(FAN0)
+    PIN_SAY(FAN0_PIN);
   #endif
   #if PIN_EXISTS(FAN1)
     PIN_SAY(FAN1_PIN);
@@ -656,10 +659,10 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
 } // report_pin_name
 
 #define PWM_PRINT(V) do{ sprintf(buffer, "PWM:  %4d", V); SERIAL_ECHO(buffer); }while(0)
-#define PWM_CASE(N) \
-  case TIMER##N: \
-    if (TCCR##N & (_BV(COM## N ##1) | _BV(COM## N ##0))) { \
-      PWM_PRINT(OCR##N); \
+#define PWM_CASE(N,Z) \
+  case TIMER##N##Z: \
+    if (TCCR##N ##A & (_BV(COM## N ## Z ##1) | _BV(COM## N ## Z ##0))) { \
+      PWM_PRINT(OCR##N ## Z); \
       return true; \
     } else return false
 
@@ -673,37 +676,37 @@ static bool PWM_status(uint8_t pin) {
   switch(digitalPinToTimer(pin)) {
 
     #if defined(TCCR0A) && defined(COM0A1)
-      PWM_CASE(0A);
-      PWM_CASE(0B);
+      PWM_CASE(0,A);
+      PWM_CASE(0,B);
     #endif
 
     #if defined(TCCR1A) && defined(COM1A1)
-      PWM_CASE(1A);
-      PWM_CASE(1B);
-      PWM_CASE(1C);
+      PWM_CASE(1,A);
+      PWM_CASE(1,B);
+      PWM_CASE(1,C);
     #endif
 
     #if defined(TCCR2A) && defined(COM2A1)
-      PWM_CASE(2A);
-      PWM_CASE(2B);
+      PWM_CASE(2,A);
+      PWM_CASE(2,B);
     #endif
 
     #if defined(TCCR3A) && defined(COM3A1)
-      PWM_CASE(3A);
-      PWM_CASE(3B);
-      PWM_CASE(3C);
+      PWM_CASE(3,A);
+      PWM_CASE(3,B);
+      PWM_CASE(3,C);
     #endif
 
     #ifdef TCCR4A
-      PWM_CASE(4A);
-      PWM_CASE(4B);
-      PWM_CASE(4C);
+      PWM_CASE(4,A);
+      PWM_CASE(4,B);
+      PWM_CASE(4,C);
     #endif
 
     #if defined(TCCR5A) && defined(COM5A1)
-      PWM_CASE(5A);
-      PWM_CASE(5B);
-      PWM_CASE(5C);
+      PWM_CASE(5,A);
+      PWM_CASE(5,B);
+      PWM_CASE(5,C);
     #endif
 
     case NOT_ON_TIMER:
@@ -713,8 +716,9 @@ static bool PWM_status(uint8_t pin) {
   SERIAL_PROTOCOLPGM("  ");
 }  //PWM_status
 
-#define WGM_MAKE3(N) ((TEST(TCCR##N##B, WGM##N##2) >> 1) | (TCCR##N##A & (_BV(WGM##N##0) | _BV(WGM##N##1))))
-#define WGM_MAKE4(N) (WGM_MAKE3(N) | (TEST(TCCR##N##B, WGM##N##3) >> 1))
+
+#define WGM_MAKE3(N) (((TCCR##N##B & _BV(WGM##N##2)) >> 1) | (TCCR##N##A & (_BV(WGM##N##0) | _BV(WGM##N##1)))) 
+#define WGM_MAKE4(N) (WGM_MAKE3(N) | (TCCR##N##B & _BV(WGM##N##3)) >> 1)
 #define TIMER_PREFIX(T,L,N) do{ \
     WGM = WGM_MAKE##N(T); \
     SERIAL_PROTOCOLPGM("    TIMER"); \
@@ -751,7 +755,7 @@ static void PWM_details(uint8_t pin) {
 
   switch(digitalPinToTimer(pin)) {
 
-  	#if defined(TCCR0A) && defined(COM0A1)
+    #if defined(TCCR0A) && defined(COM0A1)
       case TIMER0A:
         TIMER_PREFIX(0,A,3);
         if (WGM_TEST1) err_is_counter();
@@ -881,9 +885,9 @@ static void PWM_details(uint8_t pin) {
         break;
     #endif
 
-  	case NOT_ON_TIMER: break;
+    case NOT_ON_TIMER: break;
 
-	}
+  }
   SERIAL_PROTOCOLPGM("  ");
 }  // PWM_details
 
@@ -915,7 +919,7 @@ bool get_pinMode(int8_t pin) { return *portModeRegister(digitalPinToPort(pin)) &
 // pretty report with PWM info
 inline void report_pin_state_extended(int8_t pin, bool ignore) {
 
-  char buffer[30];   // for the sprintf statements
+  char buffer[40];   // for the sprintf statements
 
   // report pin number
   sprintf(buffer, "PIN:% 3d ", pin);
