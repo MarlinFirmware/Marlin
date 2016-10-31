@@ -733,194 +733,176 @@ static bool PWM_status(uint8_t pin) {
   SERIAL_PROTOCOLPGM("  ");
 }  //PWM_status
 
-static void PWM_details(uint8_t pin)
-{
+#define WGM_MAKE3(N) ((TEST(TCCR##N##B, WGM##N##2) >> 1) | (TCCR##N##A & (_BV(WGM##N##0) | _BV(WGM##N##1))))
+#define WGM_MAKE4(N) (WGM_MAKE3(N) | (TEST(TCCR##N##B, WGM##N##3) >> 1))
+#define TIMER_PREFIX(T,L,N) do{ \
+    WGM = WGM_MAKE##N(T); \
+    SERIAL_PROTOCOLPGM("    TIMER"); \
+    SERIAL_PROTOCOLPGM(STRINGIFY(T) STRINGIFY(L)); \
+    SERIAL_PROTOCOLPAIR("    WGM: ", WGM); \
+    SERIAL_PROTOCOLPAIR("    TIMSK" STRINGIFY(T) ": ", TIMSK##T); \
+  }while(0)
 
-  uint8_t  WGM;
+#define WGM_TEST1 (WGM == 0 || WGM == 2 || WGM == 4 || WGM == 6)
+#define WGM_TEST2 (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)
+
+static void err_is_counter() {
+  SERIAL_PROTOCOLPGM("   Can't ");
+  SERIAL_PROTOCOLPGM("be used as a PWM because ");
+  SERIAL_PROTOCOLPGM("of counter mode");
+}
+static void err_is_interrupt() {
+  SERIAL_PROTOCOLPGM("   Can't ");
+  SERIAL_PROTOCOLPGM("be used as a PWM because ");
+  SERIAL_PROTOCOLPGM("it's ");
+  SERIAL_PROTOCOLPGM("being used as an interrupt");
+}
+static void err_prob_interrupt() {
+  SERIAL_PROTOCOLPGM("   Probably can't ");
+  SERIAL_PROTOCOLPGM("be used as a PWM because ");
+  SERIAL_PROTOCOLPGM("counter/timer is ");
+  SERIAL_PROTOCOLPGM("being used as an interrupt");
+}
+static void can_be_used() { SERIAL_PROTOCOLPGM("   can be used as PWM   "); }
+
+static void PWM_details(uint8_t pin) {
+
+  uint8_t WGM;
 
   switch(digitalPinToTimer(pin)) {
- 
-	#if defined(TCCR0A) && defined(COM0A1)
-    case TIMER0A:
-      SERIAL_PROTOCOLPGM("    TIMER0A");
-      WGM = ((TCCR0B & _BV(WGM02)) >> 1 ) | (TCCR0A & (_BV(WGM00) | _BV(WGM01) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK0: ", TIMSK0);
-      if (WGM == 0 || WGM == 2 || WGM == 4 || WGM == 6) SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK0 & _BV(OCIE0A))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK0 & _BV(TOIE0) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;         
-    case TIMER0B:
-      SERIAL_PROTOCOLPGM("    TIMER0B");
-      WGM = ((TCCR0B & _BV(WGM02)) >> 1 ) | (TCCR0A & (_BV(WGM00) | _BV(WGM01) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK0: ", TIMSK0);
-      if (WGM == 0 || WGM == 2 || WGM == 4 || WGM == 6) SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK0 & _BV(OCIE0B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK0 & _BV(TOIE0) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;
-  #endif
 
-  #if defined(TCCR1A) && defined(COM1A1)
-    case TIMER1A:
-      SERIAL_PROTOCOLPGM("    TIMER1A");
-      WGM =   ((TCCR1B & (_BV(WGM12) | _BV(WGM13) )) >> 1 ) | (TCCR1A & (_BV(WGM10) | _BV(WGM11) ));   
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK1: ", TIMSK1);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK1 &  _BV(OCIE1A))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;
-    case TIMER1B:
-      SERIAL_PROTOCOLPGM("    TIMER1B");
-      WGM =   ((TCCR1B & (_BV(WGM12) | _BV(WGM13) )) >> 1 ) | (TCCR1A & (_BV(WGM10) | _BV(WGM11) ));   
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK1: ", TIMSK1);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK1 &  _BV(OCIE1B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");          
-      break;
-    case TIMER1C:
-      SERIAL_PROTOCOLPGM("    TIMER1C");
-      WGM =   ((TCCR1B & (_BV(WGM12) | _BV(WGM13) )) >> 1 ) | (TCCR1A & (_BV(WGM10) | _BV(WGM11) ));   
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK1: ", TIMSK1);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK1 &  _BV(OCIE1C))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;
-  #endif
+  	#if defined(TCCR0A) && defined(COM0A1)
+      case TIMER0A:
+        TIMER_PREFIX(0,A,3);
+        if (WGM_TEST1) err_is_counter();
+        else if (TEST(TIMSK0, OCIE0A)) err_is_interrupt();
+        else if (TEST(TIMSK0, TOIE0)) err_prob_interrupt();
+        else can_be_used();
+        break;
+      case TIMER0B:
+        TIMER_PREFIX(0,B,3);
+        if (WGM_TEST1) err_is_counter();
+        else if (TEST(TIMSK0, OCIE0B)) err_is_interrupt();
+        else if (TEST(TIMSK0, TOIE0)) err_prob_interrupt();
+        else can_be_used();
+        break;
+    #endif
 
-  #if defined(TCCR2A) && defined(COM2A1)
-    case TIMER2A:
-      SERIAL_PROTOCOLPGM("    TIMER2A");
-      WGM =   ((TCCR2B & _BV(WGM22) ) >> 1 ) | (TCCR2A & (_BV(WGM20) | _BV(WGM21) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK2: ", TIMSK2);
-      if (WGM == 0 || WGM == 2 || WGM == 4 || WGM == 6) SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK2 & (_BV(TOIE2) | _BV(OCIE2A)))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK2 & _BV(TOIE2) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;
-    case TIMER2B:
-      SERIAL_PROTOCOLPGM("    TIMER2B");
-      WGM =   ((TCCR2B & _BV(WGM22) ) >> 1 ) | (TCCR2A & (_BV(WGM20) | _BV(WGM21) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK2: ", TIMSK2);
-      if (WGM == 0 || WGM == 2 || WGM == 4 || WGM == 6) SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK2 & _BV(OCIE2B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK2 & _BV(TOIE2) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break; 
-  #endif
+    #if defined(TCCR1A) && defined(COM1A1)
+      case TIMER1A:
+        TIMER_PREFIX(1,A,4);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK1, OCIE1A)) err_is_interrupt();
+        else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1))) err_prob_interrupt();
+        else can_be_used();
+        break;
+      case TIMER1B:
+        TIMER_PREFIX(1,B,4);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK1, OCIE1B)) err_is_interrupt();
+        else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1))) err_prob_interrupt();
+        else can_be_used();
+        break;
+      case TIMER1C:
+        TIMER_PREFIX(1,C,4);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK1, OCIE1C)) err_is_interrupt();
+        else if (TIMSK1 & (_BV(TOIE1) | _BV(ICIE1))) err_prob_interrupt();
+        else can_be_used();
+        break;
+    #endif
 
-  #if defined(TCCR3A) && defined(COM3A1)
-    case TIMER3A:
-      SERIAL_PROTOCOLPGM("    TIMER3A");
-      WGM =   ((TCCR3B & _BV(WGM32) ) >> 1 ) | (TCCR3A & (_BV(WGM30) | _BV(WGM31) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK3: ", TIMSK3);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK3 &  _BV(OCIE3A))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;      
-    case TIMER3B:
-      SERIAL_PROTOCOLPGM("    TIMER3B");
-      WGM =   ((TCCR3B & _BV(WGM32) ) >> 1 ) | (TCCR3A & (_BV(WGM30) | _BV(WGM31) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK3: ", TIMSK3);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK3 &  _BV(OCIE3B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;
-    case TIMER3C:
-      SERIAL_PROTOCOLPGM("    TIMER3C");
-      WGM =   ((TCCR3B & _BV(WGM32) ) >> 1 ) | (TCCR3A & (_BV(WGM30) | _BV(WGM31) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK3: ", TIMSK3);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK3 &  _BV(OCIE3C))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;
-  #endif
+    #if defined(TCCR2A) && defined(COM2A1)
+      case TIMER2A:
+        TIMER_PREFIX(2,A,3);
+        if (WGM_TEST1) err_is_counter();
+        else if (TIMSK2 & (_BV(TOIE2) | _BV(OCIE2A))) err_is_interrupt();
+        else if (TEST(TIMSK2, TOIE2)) err_prob_interrupt();
+        else can_be_used();
+        break;
+      case TIMER2B:
+        TIMER_PREFIX(2,B,3);
+        if (WGM_TEST1) err_is_counter();
+        else if (TEST(TIMSK2, OCIE2B)) err_is_interrupt();
+        else if (TEST(TIMSK2, TOIE2)) err_prob_interrupt();
+        else can_be_used();
+        break;
+    #endif
 
-  #if defined(TCCR4A)
-    case TIMER4A:
-      SERIAL_PROTOCOLPGM("    TIMER4A");
-      WGM =   ((TCCR4B & (_BV(WGM42) | _BV(WGM43) )) >> 1 ) | (TCCR4A & (_BV(WGM40) | _BV(WGM41) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK4: ", TIMSK4);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK4 &  _BV(OCIE4A))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;      
-    case TIMER4B:
-      SERIAL_PROTOCOLPGM("    TIMER4B");
-      WGM =   ((TCCR4B & (_BV(WGM42) | _BV(WGM43) )) >> 1 ) | (TCCR4A & (_BV(WGM40) | _BV(WGM41) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK4: ", TIMSK4);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK4 &  _BV(OCIE4B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;      
-    case TIMER4C:
-      SERIAL_PROTOCOLPGM("    TIMER4C");
-      WGM =   ((TCCR4B & (_BV(WGM42) | _BV(WGM43) )) >> 1 ) | (TCCR4A & (_BV(WGM40) | _BV(WGM41) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK4: ", TIMSK4);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK4 &  _BV(OCIE4C))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;      
+    #if defined(TCCR3A) && defined(COM3A1)
+      case TIMER3A:
+        TIMER_PREFIX(3,A,3);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK3, OCIE3A)) err_is_interrupt();
+        else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
+        else can_be_used();
+        break;
+      case TIMER3B:
+        TIMER_PREFIX(3,B,3);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK3, OCIE3B)) err_is_interrupt();
+        else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
+        else can_be_used();
+        break;
+      case TIMER3C:
+        TIMER_PREFIX(3,C,3);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK3, OCIE3C)) err_is_interrupt();
+        else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
+        else can_be_used();
+        break;
+    #endif
 
-  #endif
-          
-  #if defined(TCCR5A) && defined(COM5A1)
-    case TIMER5A:
-      SERIAL_PROTOCOLPGM("    TIMER5A");
-      WGM =   ((TCCR5B & (_BV(WGM52) | _BV(WGM53) )) >> 1 ) | (TCCR5A & (_BV(WGM50) | _BV(WGM51) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK5: ", TIMSK5);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK5 &  _BV(OCIE5A))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;      
-    case TIMER5B:
-      SERIAL_PROTOCOLPGM("    TIMER5B");
-      WGM =   ((TCCR5B & (_BV(WGM52) | _BV(WGM53) )) >> 1 ) | (TCCR5A & (_BV(WGM50) | _BV(WGM51) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK5: ", TIMSK5);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK5 &  _BV(OCIE5B))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;      
-    case TIMER5C:
-      SERIAL_PROTOCOLPGM("    TIMER5C");
-      WGM =   ((TCCR5B & (_BV(WGM52) | _BV(WGM53) )) >> 1 ) | (TCCR5A & (_BV(WGM50) | _BV(WGM51) ));
-      SERIAL_PROTOCOLPAIR("    WGM: ", WGM);
-      SERIAL_PROTOCOLPAIR("    TIMSK5: ", TIMSK5);
-      if (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)   SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
-      else if (TIMSK5 &  _BV(OCIE5C))  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because being used to generate an interrupt");
-      else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5)) )  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer being used to generate an interrupt");
-      else SERIAL_PROTOCOLPGM("   can be used as PWM   ");
-      break;      
-  #endif
+    #ifdef TCCR4A
+      case TIMER4A:
+        TIMER_PREFIX(4,A,4);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK4, OCIE4A)) err_is_interrupt();
+        else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4))) err_prob_interrupt();
+        else can_be_used();
+        break;
+      case TIMER4B:
+        TIMER_PREFIX(4,B,4);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK4, OCIE4B)) err_is_interrupt();
+        else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4))) err_prob_interrupt();
+        else can_be_used();
+        break;
+      case TIMER4C:
+        TIMER_PREFIX(4,C,4);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK4, OCIE4C)) err_is_interrupt();
+        else if (TIMSK4 & (_BV(TOIE4) | _BV(ICIE4))) err_prob_interrupt();
+        else can_be_used();
+        break;
+    #endif
 
-	case NOT_ON_TIMER:
-    break;
+    #if defined(TCCR5A) && defined(COM5A1)
+      case TIMER5A:
+        TIMER_PREFIX(5,A,4);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK5, OCIE5A)) err_is_interrupt();
+        else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5))) err_prob_interrupt();
+        else can_be_used();
+        break;
+      case TIMER5B:
+        TIMER_PREFIX(5,B,4);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK5, OCIE5B)) err_is_interrupt();
+        else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5))) err_prob_interrupt();
+        else can_be_used();
+        break;
+      case TIMER5C:
+        TIMER_PREFIX(5,C,4);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK5, OCIE5C)) err_is_interrupt();
+        else if (TIMSK5 & (_BV(TOIE5) | _BV(ICIE5))) err_prob_interrupt();
+        else can_be_used();
+        break;
+    #endif
+
+  	case NOT_ON_TIMER: break;
+
 	}
   SERIAL_PROTOCOLPGM("  ");
 }  // PWM_details
