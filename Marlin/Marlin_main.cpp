@@ -148,6 +148,7 @@
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
  * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted.
+ * M43  - Monitor pins & report changes - report active pins
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  * M75  - Start the print job timer.
  * M76  - Pause the print job timer.
@@ -4675,20 +4676,43 @@ inline void gcode_M42() {
   /**
    * M43: Pin report and debug
    *
-   *      P<pin> Will read/watch a single pin
-   *      W      Watch pins for changes until reboot
+   *      E<bool> Enable / disable background endstop monitoring
+   *               - Machine continues to operate
+   *               - Reports changes to endstops
+   *               - Toggles LED when an endstop changes
+   *
+   *   or
+   *
+   *      P<pin>  Pin to read or watch. If omitted, read/watch all pins.
+   *      W<bool> Watch pins -reporting changes- until reset, click, or M108.
+   *      I<bool> Flag to ignore Marlin's pin protection.
+   *
    */
   inline void gcode_M43() {
-    int first_pin = 0, last_pin = DIO_COUNT - 1;
-    if (code_seen('P')) {
-      first_pin = last_pin = code_value_byte();
-      if (first_pin > DIO_COUNT - 1) return;
+
+    // Enable or disable endstop monitoring
+    if (code_seen('E')) {
+      endstop_monitor_flag = code_value_bool();
+      SERIAL_PROTOCOLPGM("endstop monitor ");
+      SERIAL_PROTOCOL(endstop_monitor_flag ? "en" : "dis");
+      SERIAL_PROTOCOLLNPGM("abled");
+      return;
     }
 
+    // Get the range of pins to test or watch
+    int first_pin = 0, last_pin = NUM_DIGITAL_PINS - 1;
+    if (code_seen('P')) {
+      first_pin = last_pin = code_value_byte();
+      if (first_pin > NUM_DIGITAL_PINS - 1) return;
+    }
+
+    bool ignore_protection = code_seen('I') ? code_value_bool() : false;
+
+    // Watch until click, M108, or reset
     if (code_seen('W') && code_value_bool()) { // watch digital pins
       byte pin_state[last_pin - first_pin + 1];
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
-        if (pin_is_protected(pin)) continue;
+        if (pin_is_protected(pin) && !ignore_protection) continue;
         pinMode(pin, INPUT_PULLUP);
         // if (IS_ANALOG(pin))
         //   pin_state[pin - first_pin] = analogRead(pin - analogInputToDigitalPin(0)); // int16_t pin_state[...]
@@ -4720,10 +4744,12 @@ inline void gcode_M42() {
 
         safe_delay(500);
       }
+      return;
     }
-    else // single pins report
-      for (int8_t pin = first_pin; pin <= last_pin; pin++)
-        report_pin_state(pin);
+
+    // Report current state of selected pin(s)
+    for (uint8_t pin = first_pin; pin <= last_pin; pin++)
+      report_pin_state_extended(pin, ignore_protection);
   }
 
 #endif // PINS_DEBUGGING
