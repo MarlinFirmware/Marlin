@@ -95,7 +95,7 @@ typedef struct {
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
     bool use_advance_lead;
-    int16_t e_speed_multiplier8; // Factorised by 2^8 to avoid float
+    uint32_t abs_adv_steps_multiplier8; // Factorised by 2^8 to avoid float
   #elif ENABLED(ADVANCE)
     int32_t advance_rate;
     volatile int32_t initial_advance;
@@ -196,6 +196,11 @@ class Planner {
       // Segment times (in µs). Used for speed calculations
       static long axis_segment_time[2][3];
     #endif
+    
+    #if ENABLED(LIN_ADVANCE)
+      static float position_float[NUM_AXIS];
+      static float extruder_advance_k;
+    #endif
 
   public:
 
@@ -244,6 +249,10 @@ class Planner {
       #define ARG_Y const float &ly
       #define ARG_Z const float &lz
 
+    #endif
+    
+    #if ENABLED(LIN_ADVANCE)
+      void advance_M905(const float &k);
     #endif
 
     /**
