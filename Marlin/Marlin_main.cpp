@@ -861,11 +861,17 @@ void setup_homepin(void) {
   #endif
 }
 
-void setup_photpin() {
-  #if HAS_PHOTOGRAPH
-    OUT_WRITE(PHOTOGRAPH_PIN, LOW);
-  #endif
-}
+#if HAS_CASE_LIGHT
+
+  void setup_case_light() {
+    #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+      OUT_WRITE(CASE_LIGHT_PIN, HIGH);
+    #else
+      OUT_WRITE(CASE_LIGHT_PIN, LOW);
+    #endif
+  }
+
+#endif
 
 void setup_powerhold() {
   #if HAS_SUICIDE
@@ -7087,6 +7093,38 @@ inline void gcode_M907() {
 
 #endif // HAS_MICROSTEPS
 
+#if HAS_CASE_LIGHT
+  /**
+   * M355: Turn case lights on/off
+   *
+   *   S<int>   change state on/off or sets PWM
+   *
+   */
+  inline void gcode_M355() {
+    if (code_seen('S')) {
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPGM("Case lights ");
+      byte light_pwm = code_value_byte();
+      switch (light_pwm) {
+        case 0: // Disable lights
+          SERIAL_ECHOPGM("off");
+          break;
+        case 1: // Enable lights
+          light_pwm = 255;
+          SERIAL_ECHOPGM("on");
+          break;
+        default: // Enable lights PWM
+          SERIAL_ECHOPAIR("set to: ", (int)map(light_pwm, 0, 255, 0, 100));
+          SERIAL_CHAR('%');
+          break;
+      }
+      analogWrite(CASE_LIGHT_PIN, light_pwm);
+      SERIAL_EOL;
+    }
+  }
+
+#endif // HAS_CASE_LIGHT
+
 #if ENABLED(MIXING_EXTRUDER)
 
   /**
@@ -8194,6 +8232,14 @@ void process_next_command() {
           break;
 
       #endif // HAS_MICROSTEPS
+
+      #if HAS_CASE_LIGHT
+
+        case 355: // M355 Turn case lights on/off
+          gcode_M355();
+          break;
+
+      #endif // HAS_CASE_LIGHT
 
       case 999: // M999: Restart after being Stopped
         gcode_M999();
@@ -9693,8 +9739,15 @@ void setup() {
   #endif
 
   stepper.init();    // Initialize stepper, this enables interrupts!
-  setup_photpin();
   servo_init();
+
+  #if HAS_PHOTOGRAPH
+    OUT_WRITE(PHOTOGRAPH_PIN, LOW);
+  #endif
+
+  #if HAS_CASE_LIGHT
+    setup_case_light();
+  #endif
 
   #if HAS_BED_PROBE
     endstops.enable_z_probe(false);
