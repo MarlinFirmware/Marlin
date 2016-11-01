@@ -73,7 +73,6 @@
     // Encoder click is directly connected
     #if BUTTON_EXISTS(ENC)
       #define BLEN_C 2
-      #define EN_C (_BV(BLEN_C))
     #endif
     #define EN_A (_BV(BLEN_A))
     #define EN_B (_BV(BLEN_B))
