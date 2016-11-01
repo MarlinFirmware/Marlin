@@ -867,6 +867,15 @@ void setup_photpin() {
   #endif
 }
 
+void setup_case_light() {
+  #if HAS_CASE_LIGHT
+    #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+      OUT_WRITE(CASE_LIGHT_PIN, HIGH);
+    #else
+      OUT_WRITE(CASE_LIGHT_PIN, LOW);
+    #endif
+  #endif
+}
 void setup_powerhold() {
   #if HAS_SUICIDE
     OUT_WRITE(SUICIDE_PIN, HIGH);
@@ -7087,6 +7096,39 @@ inline void gcode_M907() {
 
 #endif // HAS_MICROSTEPS
 
+#if HAS_CASE_LIGHT
+  /**
+   * M355: Turn case lights on/off
+   *
+   *   S[index]   change state on/off or sets PWM
+   *
+   */
+  inline void gcode_M355() {
+    if (code_seen('S')) switch (code_value_byte()) {
+      case 0: // Disable lights
+        analogWrite(CASE_LIGHT_PIN, 0);
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLNPGM("Case lights off");
+        break;
+      case 1: // Enable lights
+        analogWrite(CASE_LIGHT_PIN, 255);
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLNPGM("Case lights on");
+        break;
+      case 2 ... 255: // Enable lights PWM
+        byte CaseLightPWM=constrain(code_value_byte(),0,255);
+        int CaseLightPct = map(CaseLightPWM, 0, 255, 0, 100);
+        analogWrite(CASE_LIGHT_PIN, CaseLightPWM);
+        SERIAL_ECHO_START;
+        SERIAL_ECHOPGM("Case lights set to: ");
+        SERIAL_ECHO(CaseLightPct);
+        SERIAL_ECHOLN("%");
+        break;
+    }
+  }
+
+#endif // HAS_CASE_LIGHT
+
 #if ENABLED(MIXING_EXTRUDER)
 
   /**
@@ -8194,6 +8236,14 @@ void process_next_command() {
           break;
 
       #endif // HAS_MICROSTEPS
+
+      #if HAS_CASE_LIGHT
+
+        case 355: // M355 Turn case lights on/off
+          gcode_M355();
+          break;
+
+      #endif // HAS_CASE_LIGHT
 
       case 999: // M999: Restart after being Stopped
         gcode_M999();
@@ -9694,6 +9744,7 @@ void setup() {
 
   stepper.init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
+  setup_case_light();
   servo_init();
 
   #if HAS_BED_PROBE
