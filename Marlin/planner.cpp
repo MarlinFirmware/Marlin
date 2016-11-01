@@ -131,6 +131,11 @@ float Planner::previous_speed[NUM_AXIS],
   long Planner::axis_segment_time[2][3] = { {MAX_FREQ_TIME + 1, 0, 0}, {MAX_FREQ_TIME + 1, 0, 0} };
 #endif
 
+#if ENABLED(LIN_ADVANCE)
+  float Planner::extruder_advance_k = LIN_ADVANCE_K;
+  float Planner::position_float[NUM_AXIS] = { 0 };
+#endif
+
 /**
  * Class and Instance Methods
  */
@@ -140,6 +145,9 @@ Planner::Planner() { init(); }
 void Planner::init() {
   block_buffer_head = block_buffer_tail = 0;
   ZERO(position);
+  #if ENABLED(LIN_ADVANCE)
+    ZERO(position_float);
+  #endif
   ZERO(previous_speed);
   previous_nominal_speed = 0.0;
   #if ABL_PLANAR
@@ -604,6 +612,14 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     lround(c * axis_steps_per_mm[Z_AXIS]),
     lround(e * axis_steps_per_mm[E_AXIS])
   };
+  
+  #if ENABLED(LIN_ADVANCE)
+    float target_float[XYZE] = {a, b, c, e};
+    float de_float = target_float[E_AXIS] - position_float[E_AXIS];
+    float mm_D_float = sqrt(sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS]));
+    
+    memcpy(position_float, target_float, sizeof(position_float));
+  #endif
 
   long da = target[X_AXIS] - position[X_AXIS],
        db = target[Y_AXIS] - position[Y_AXIS],
@@ -1232,12 +1248,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     // This leads to an enormous number of advance steps due to a huge e_acceleration.
     // The math is correct, but you don't want a retract move done with advance!
     // So this situation is filtered out here.
-    if (!esteps || (!block->steps[X_AXIS] && !block->steps[Y_AXIS]) || stepper.get_advance_k() == 0 || (uint32_t)esteps == block->step_event_count) {
+    if (!esteps || (!block->steps[X_AXIS] && !block->steps[Y_AXIS]) || extruder_advance_k == 0.0 || (uint32_t)esteps == block->step_event_count) {
       block->use_advance_lead = false;
     }
     else {
       block->use_advance_lead = true;
-      block->e_speed_multiplier8 = (esteps << 8) / block->step_event_count;
+      block->abs_adv_steps_multiplier8 = lround(extruder_advance_k * (de_float / mm_D_float) * block->nominal_speed / (float)block->nominal_rate * axis_steps_per_mm[Z_AXIS] * 256.0);
     }
 
   #elif ENABLED(ADVANCE)
@@ -1351,6 +1367,17 @@ void Planner::refresh_positioning() {
     if (autotemp_enabled) autotemp_factor = code_value_temp_diff();
     if (code_seen('S')) autotemp_min = code_value_temp_abs();
     if (code_seen('B')) autotemp_max = code_value_temp_abs();
+  }
+
+#endif
+
+#if ENABLED(LIN_ADVANCE)
+
+  void Planner::advance_M905(const float &k) {
+    if (k >= 0.0) extruder_advance_k = k;
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("Advance factor: ", extruder_advance_k);
+    SERIAL_EOL;
   }
 
 #endif
