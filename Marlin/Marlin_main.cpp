@@ -861,12 +861,6 @@ void setup_homepin(void) {
   #endif
 }
 
-void setup_photpin() {
-  #if HAS_PHOTOGRAPH
-    OUT_WRITE(PHOTOGRAPH_PIN, LOW);
-  #endif
-}
-
 #if HAS_CASE_LIGHT
 
   void setup_case_light() {
@@ -9745,8 +9739,11 @@ void setup() {
   #endif
 
   stepper.init();    // Initialize stepper, this enables interrupts!
-  setup_photpin();
   servo_init();
+
+  #if HAS_PHOTOGRAPH
+    OUT_WRITE(PHOTOGRAPH_PIN, LOW);
+  #endif
 
   #if HAS_CASE_LIGHT
     setup_case_light();
