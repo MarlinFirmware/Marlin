@@ -360,6 +360,9 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
   #if PIN_EXISTS(LED)
     PIN_SAY(LED_PIN);
   #endif
+  #if PIN_EXISTS(CASE_LIGHT)
+    PIN_SAY(CASE_LIGHT_PIN);
+  #endif
   #if PIN_EXISTS(MAIN_VOLTAGE_MEASURE)
     PIN_SAY(MAIN_VOLTAGE_MEASURE_PIN);
   #endif
