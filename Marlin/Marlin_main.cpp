@@ -151,6 +151,7 @@
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
  * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted.
+ * M43  - Monitor pins & report changes - report active pins
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  * M75  - Start the print job timer.
  * M76  - Pause the print job timer.
@@ -863,11 +864,17 @@ void setup_homepin(void) {
   #endif
 }
 
-void setup_photpin() {
-  #if HAS_PHOTOGRAPH
-    OUT_WRITE(PHOTOGRAPH_PIN, LOW);
-  #endif
-}
+#if HAS_CASE_LIGHT
+
+  void setup_case_light() {
+    #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+      OUT_WRITE(CASE_LIGHT_PIN, HIGH);
+    #else
+      OUT_WRITE(CASE_LIGHT_PIN, LOW);
+    #endif
+  }
+
+#endif
 
 void setup_powerhold() {
   #if HAS_SUICIDE
@@ -1049,7 +1056,12 @@ inline void get_serial_commands() {
 
       #if DISABLED(EMERGENCY_PARSER)
         // If command was e-stop process now
-        if (strcmp(command, "M108") == 0) wait_for_heatup = false;
+        if (strcmp(command, "M108") == 0) {
+          wait_for_heatup = false;
+          #if ENABLED(ULTIPANEL)
+            wait_for_user = false;
+          #endif
+        }
         if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
         if (strcmp(command, "M410") == 0) { quickstop_stepper(); }
       #endif
@@ -4417,7 +4429,6 @@ inline void gcode_G92() {
           dontExpireStatus();
         #endif
       }
-      lcd_ignore_click();
 
     #else
 
@@ -4428,53 +4439,28 @@ inline void gcode_G92() {
 
     #endif
 
-    #if ENABLED(EMERGENCY_PARSER)
-      wait_for_user = true;
-    #endif
-
+    wait_for_user = true;
     KEEPALIVE_STATE(PAUSED_FOR_USER);
 
     stepper.synchronize();
     refresh_cmd_timeout();
 
-    #if ENABLED(ULTIPANEL)
-
-      #if ENABLED(EMERGENCY_PARSER)
-        #define M1_WAIT_CONDITION (!lcd_clicked() && wait_for_user)
+    if (codenum > 0) {
+      codenum += previous_cmd_ms;  // wait until this time for a click
+      while (PENDING(millis(), codenum) && wait_for_user) idle();
+    }
+    else {
+      #if ENABLED(ULTIPANEL)
+        if (lcd_detected()) {
+          while (wait_for_user) idle();
+          IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
+        }
       #else
-        #define M1_WAIT_CONDITION !lcd_clicked()
+        while (wait_for_user) idle();
       #endif
+    }
 
-      if (codenum > 0) {
-        codenum += previous_cmd_ms;  // wait until this time for a click
-        while (PENDING(millis(), codenum) && M1_WAIT_CONDITION) idle();
-        lcd_ignore_click(false);
-      }
-      else if (lcd_detected()) {
-        while (M1_WAIT_CONDITION) idle();
-      }
-      else goto ExitM1;
-
-      IS_SD_PRINTING ? LCD_MESSAGEPGM(MSG_RESUMING) : LCD_MESSAGEPGM(WELCOME_MSG);
-
-    #else
-
-      if (codenum > 0) {
-        codenum += previous_cmd_ms;  // wait until this time for an M108
-        while (PENDING(millis(), codenum) && wait_for_user) idle();
-      }
-      else while (wait_for_user) idle();
-
-    #endif
-
-#if ENABLED(ULTIPANEL)
-  ExitM1:
-#endif
-
-    #if ENABLED(EMERGENCY_PARSER)
-      wait_for_user = false;
-    #endif
-
+    wait_for_user = false;
     KEEPALIVE_STATE(IN_HANDLER);
   }
 
@@ -4509,20 +4495,17 @@ inline void gcode_G92() {
  *  goes through a reset which sets all I/O pins to tristate)
  *
  *  PWM duty cycle goes from 0 (off) to 255 (always on) 
- * 
  */  
 #if ENABLED(SPINDLE_ENABLE)
 
   inline void delay_for_spindle_power_up() {
     refresh_cmd_timeout();                                                       // wait for spindle to come up to speed
-    if (SPINDLE_POWER_UP_DELAY > 0)  while (PENDING(millis(), SPINDLE_POWER_UP_DELAY * 1000 + previous_cmd_ms)) idle();
-    else                             while (PENDING(millis(), 1000 + previous_cmd_ms)) idle();         // allow at least 1 second for power up
+    while (PENDING(millis(), SPINDLE_POWER_UP_DELAY * 1000 + previous_cmd_ms)) idle();
   }
   
   inline void delay_for_spindle_power_down() {
-    refresh_cmd_timeout();                                                       // wait for spindle to come up to speed
-    if (SPINDLE_POWER_DOWN_DELAY >= 0)  while (PENDING(millis(), SPINDLE_POWER_DOWN_DELAY * 1000 + previous_cmd_ms + 1)) idle(); 
-    else                                while (PENDING(millis(), 1000 + previous_cmd_ms)) idle();    // allow at least 1 second for power down
+    refresh_cmd_timeout();                                                       // wait for spindle to stop turning
+    while (PENDING(millis(), SPINDLE_POWER_DOWN_DELAY * 1000 + previous_cmd_ms + 1)) idle(); 
   }
 
   inline void gcode_M3_M4() {
@@ -4530,9 +4513,9 @@ inline void gcode_G92() {
     // this is the "pretty" version.  It accepts RPM as input
     #if ENABLED(SPINDLE_SPEED)
   
-      // use gcode_M4() to get the points needed to compute the RPM vs OCRxx_VAL line
+      // use gcode_M4() to get the points needed to compute the RPM vs ocr_val line
   
-      // Our final value for OCRxx_VAL is an unsigned 8 bit value between 0 and 255 which usually means uint8_t.
+      // Our final value for ocr_val is an unsigned 8 bit value between 0 and 255 which usually means uint8_t.
       // Went to uint16_t because some of the uint8_t calculations would sometimes give 1000 0000 rather than 1111 1111.
       // Then needed to AND the uint16_t result with 0xffff to make sure we only wrote the byte of interest.
   
@@ -4543,15 +4526,15 @@ inline void gcode_G92() {
         delay_for_spindle_power_down();
       }
       else {
-        int16_t OCRxx_VAL = 2.55 * (spindle_speed - RPM_INTERCEPT)/RPM_SLOPE;      // convert RPM to PWM duty cycle
-        float temp = 2.55 * (spindle_speed - RPM_INTERCEPT)/RPM_SLOPE;
-        if (temp >= 255)                OCRxx_VAL = 255;                                        //limit to max the Atmel PWM will support
-        if (spindle_speed <= RPM_MIN)   OCRxx_VAL = 2.55 * (RPM_MIN - RPM_INTERCEPT)/RPM_SLOPE; // minimum setting
-        if (spindle_speed >= RPM_MAX)   OCRxx_VAL = 2.55 * (RPM_MAX - RPM_INTERCEPT)/RPM_SLOPE; // limit to max RPM
-        if (SPINDLE_SPEED_INVERT==true) OCRxx_VAL = 255 - OCRxx_VAL ; 
+        int16_t ocr_val = 2.55 * (spindle_speed - RPM_INTERCEPT) / RPM_SLOPE;      // convert RPM to PWM duty cycle
+        float temp = 2.55 * (spindle_speed - RPM_INTERCEPT) / RPM_SLOPE;
+        if (temp >= 255)                ocr_val = 255;                                        //limit to max the Atmel PWM will support
+        if (spindle_speed <= RPM_MIN)   ocr_val = 2.55 * (RPM_MIN - RPM_INTERCEPT) / RPM_SLOPE; // minimum setting
+        if (spindle_speed >= RPM_MAX)   ocr_val = 2.55 * (RPM_MAX - RPM_INTERCEPT) / RPM_SLOPE; // limit to max RPM
+        if (SPINDLE_SPEED_INVERT)       ocr_val = 255 - ocr_val; 
         stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before turning spindle on
         WRITE(SPINDLE_ENABLE_PIN, SPINDLE_ENABLE_INVERT);  // turn spindle on (active low)
-        analogWrite(SPINDLE_SPEED_PIN, OCRxx_VAL & 0xff);  //only write lowest byte 
+        analogWrite(SPINDLE_SPEED_PIN, ocr_val & 0xFF);  //only write lowest byte 
         delay_for_spindle_power_up();
       } 
     #else
@@ -4561,9 +4544,8 @@ inline void gcode_G92() {
     #endif
   } 
  
-
 /**
- * gcode_M4 is used for debugging and to get the points needed to compute the RPM vs OCRxx_VAL line
+ * gcode_M4 is used for debugging and to get the points needed to compute the RPM vs ocr_val line
  * 
  * it accepts inputs of 0-255
  *
@@ -4585,7 +4567,7 @@ inline void gcode_G92() {
       else {
         stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before turning spindle on 
         WRITE(SPINDLE_ENABLE_PIN, SPINDLE_ENABLE_INVERT); //turn spindle on (active low) if spindle speed option not enabled
-        if (SPINDLE_SPEED_INVERT) spindle_speed = 255 - spindle_speed ;
+        if (SPINDLE_SPEED_INVERT) spindle_speed = 255 - spindle_speed;
         analogWrite(SPINDLE_SPEED_PIN, spindle_speed);
         delay_for_spindle_power_up();
       } 
@@ -4596,7 +4578,6 @@ inline void gcode_G92() {
     #endif
   }
 
-
  /**
  * M5 turn off spindle
  */
@@ -4605,7 +4586,7 @@ inline void gcode_G92() {
     WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  // turn spindle off
     delay_for_spindle_power_down();
   }
-#endif //SPINDLE_ENABLE
+#endif // SPINDLE_ENABLE
 
 /**
  * M17: Enable power on all stepper motors
@@ -4826,20 +4807,43 @@ inline void gcode_M42() {
   /**
    * M43: Pin report and debug
    *
-   *      P<pin> Will read/watch a single pin
-   *      W      Watch pins for changes until reboot
+   *      E<bool> Enable / disable background endstop monitoring
+   *               - Machine continues to operate
+   *               - Reports changes to endstops
+   *               - Toggles LED when an endstop changes
+   *
+   *   or
+   *
+   *      P<pin>  Pin to read or watch. If omitted, read/watch all pins.
+   *      W<bool> Watch pins -reporting changes- until reset, click, or M108.
+   *      I<bool> Flag to ignore Marlin's pin protection.
+   *
    */
   inline void gcode_M43() {
-    int first_pin = 0, last_pin = DIO_COUNT - 1;
-    if (code_seen('P')) {
-      first_pin = last_pin = code_value_byte();
-      if (first_pin > DIO_COUNT - 1) return;
+
+    // Enable or disable endstop monitoring
+    if (code_seen('E')) {
+      endstop_monitor_flag = code_value_bool();
+      SERIAL_PROTOCOLPGM("endstop monitor ");
+      SERIAL_PROTOCOL(endstop_monitor_flag ? "en" : "dis");
+      SERIAL_PROTOCOLLNPGM("abled");
+      return;
     }
 
+    // Get the range of pins to test or watch
+    int first_pin = 0, last_pin = NUM_DIGITAL_PINS - 1;
+    if (code_seen('P')) {
+      first_pin = last_pin = code_value_byte();
+      if (first_pin > NUM_DIGITAL_PINS - 1) return;
+    }
+
+    bool ignore_protection = code_seen('I') ? code_value_bool() : false;
+
+    // Watch until click, M108, or reset
     if (code_seen('W') && code_value_bool()) { // watch digital pins
       byte pin_state[last_pin - first_pin + 1];
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
-        if (pin_is_protected(pin)) continue;
+        if (pin_is_protected(pin) && !ignore_protection) continue;
         pinMode(pin, INPUT_PULLUP);
         // if (IS_ANALOG(pin))
         //   pin_state[pin - first_pin] = analogRead(pin - analogInputToDigitalPin(0)); // int16_t pin_state[...]
@@ -4871,10 +4875,12 @@ inline void gcode_M42() {
 
         safe_delay(500);
       }
+      return;
     }
-    else // single pins report
-      for (int8_t pin = first_pin; pin <= last_pin; pin++)
-        report_pin_state(pin);
+
+    // Report current state of selected pin(s)
+    for (uint8_t pin = first_pin; pin <= last_pin; pin++)
+      report_pin_state_extended(pin, ignore_protection);
   }
 
 #endif // PINS_DEBUGGING
@@ -5669,47 +5675,27 @@ inline void gcode_M140() {
    *   F<fan speed>
    */
   inline void gcode_M145() {
-    int8_t material = code_seen('S') ? (int8_t)code_value_int() : 0;
-    if (material < 0 || material > 1) {
+    uint8_t material = code_seen('S') ? (uint8_t)code_value_int() : 0;
+    if (material >= COUNT(lcd_preheat_hotend_temp)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_MATERIAL_INDEX);
     }
     else {
       int v;
-      switch (material) {
-        case 0:
-          if (code_seen('H')) {
-            v = code_value_int();
-            preheatHotendTemp1 = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
-          }
-          if (code_seen('F')) {
-            v = code_value_int();
-            preheatFanSpeed1 = constrain(v, 0, 255);
-          }
-          #if TEMP_SENSOR_BED != 0
-            if (code_seen('B')) {
-              v = code_value_int();
-              preheatBedTemp1 = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
-            }
-          #endif
-          break;
-        case 1:
-          if (code_seen('H')) {
-            v = code_value_int();
-            preheatHotendTemp2 = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
-          }
-          if (code_seen('F')) {
-            v = code_value_int();
-            preheatFanSpeed2 = constrain(v, 0, 255);
-          }
-          #if TEMP_SENSOR_BED != 0
-            if (code_seen('B')) {
-              v = code_value_int();
-              preheatBedTemp2 = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
-            }
-          #endif
-          break;
+      if (code_seen('H')) {
+        v = code_value_int();
+        lcd_preheat_hotend_temp[material] = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15);
       }
+      if (code_seen('F')) {
+        v = code_value_int();
+        lcd_preheat_fan_speed[material] = constrain(v, 0, 255);
+      }
+      #if TEMP_SENSOR_BED != 0
+        if (code_seen('B')) {
+          v = code_value_int();
+          lcd_preheat_bed_temp[material] = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15);
+        }
+      #endif
     }
   }
 
@@ -5720,13 +5706,9 @@ inline void gcode_M140() {
    * M149: Set temperature units
    */
   inline void gcode_M149() {
-    if (code_seen('C')) {
-      set_input_temp_units(TEMPUNIT_C);
-    } else if (code_seen('K')) {
-      set_input_temp_units(TEMPUNIT_K);
-    } else if (code_seen('F')) {
-      set_input_temp_units(TEMPUNIT_F);
-    }
+         if (code_seen('C')) set_input_temp_units(TEMPUNIT_C);
+    else if (code_seen('K')) set_input_temp_units(TEMPUNIT_K);
+    else if (code_seen('F')) set_input_temp_units(TEMPUNIT_F);
   }
 #endif
 
@@ -7004,7 +6986,10 @@ inline void gcode_M503() {
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
 
-    while (!lcd_clicked()) {
+    // LCD click or M108 will clear this
+    wait_for_user = true;
+
+    while (wait_for_user) {
       #if HAS_BUZZER
         millis_t ms = millis();
         if (ms >= next_buzz) {
@@ -7014,9 +6999,6 @@ inline void gcode_M503() {
       #endif
       idle(true);
     }
-    delay(100);
-    while (lcd_clicked()) idle(true);
-    delay(100);
 
     // Show load message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
@@ -7137,7 +7119,7 @@ inline void gcode_M503() {
    */
   inline void gcode_M905() {
     stepper.synchronize();
-    stepper.advance_M905(code_seen('K') ? code_value_float() : -1.0);
+    planner.advance_M905(code_seen('K') ? code_value_float() : -1.0);
   }
 #endif
 
@@ -7235,6 +7217,38 @@ inline void gcode_M907() {
   }
 
 #endif // HAS_MICROSTEPS
+
+#if HAS_CASE_LIGHT
+  /**
+   * M355: Turn case lights on/off
+   *
+   *   S<int>   change state on/off or sets PWM
+   *
+   */
+  inline void gcode_M355() {
+    if (code_seen('S')) {
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPGM("Case lights ");
+      byte light_pwm = code_value_byte();
+      switch (light_pwm) {
+        case 0: // Disable lights
+          SERIAL_ECHOPGM("off");
+          break;
+        case 1: // Enable lights
+          light_pwm = 255;
+          SERIAL_ECHOPGM("on");
+          break;
+        default: // Enable lights PWM
+          SERIAL_ECHOPAIR("set to: ", (int)map(light_pwm, 0, 255, 0, 100));
+          SERIAL_CHAR('%');
+          break;
+      }
+      analogWrite(CASE_LIGHT_PIN, light_pwm);
+      SERIAL_EOL;
+    }
+  }
+
+#endif // HAS_CASE_LIGHT
 
 #if ENABLED(MIXING_EXTRUDER)
 
@@ -8358,6 +8372,14 @@ void process_next_command() {
           break;
 
       #endif // HAS_MICROSTEPS
+
+      #if HAS_CASE_LIGHT
+
+        case 355: // M355 Turn case lights on/off
+          gcode_M355();
+          break;
+
+      #endif // HAS_CASE_LIGHT
 
       case 999: // M999: Restart after being Stopped
         gcode_M999();
@@ -9857,16 +9879,24 @@ void setup() {
   #endif
 
   stepper.init();    // Initialize stepper, this enables interrupts!
-  setup_photpin();
   servo_init();
 
+  #if HAS_PHOTOGRAPH
+    OUT_WRITE(PHOTOGRAPH_PIN, LOW);
+  #endif
+
+  #if HAS_CASE_LIGHT
+    setup_case_light();
+  #endif
+
   #if ENABLED(SPINDLE_ENABLE)
-    OUT_WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  //init spindle to off;
+    OUT_WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  // init spindle to off;
     #if ENABLED(SPINDLE_SPEED)
-      pinMode(SPINDLE_SPEED_PIN, OUTPUT);
-      analogWrite(SPINDLE_SPEED_PIN, SPINDLE_SPEED_INVERT ? 255 : 0);  //set to lowest speed
+      SET_OUTPUT(SPINDLE_SPEED_PIN);
+      analogWrite(SPINDLE_SPEED_PIN, SPINDLE_SPEED_INVERT ? 255 : 0);  // set to lowest speed
     #endif
   #endif 
+  
   #if HAS_BED_PROBE
     endstops.enable_z_probe(false);
   #endif
