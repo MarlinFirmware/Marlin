@@ -20,7 +20,7 @@
  *
  */
 
-#include "Configuration.h"
+#include "MarlinConfig.h"
 
 #if ENABLED(AUTO_BED_LEVELING_GRID)
 

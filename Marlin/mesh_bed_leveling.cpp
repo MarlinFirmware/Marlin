@@ -29,11 +29,9 @@
   mesh_bed_leveling::mesh_bed_leveling() { reset(); }
 
   void mesh_bed_leveling::reset() {
-    active = 0;
+    status = MBL_STATUS_NONE;
     z_offset = 0;
-    for (int y = 0; y < MESH_NUM_Y_POINTS; y++)
-      for (int x = 0; x < MESH_NUM_X_POINTS; x++)
-        z_values[y][x] = 0;
+    memset(z_values, 0, sizeof(z_values));
   }
 
 #endif  // MESH_BED_LEVELING

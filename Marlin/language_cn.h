@@ -29,8 +29,6 @@
  */
 #ifndef LANGUAGE_CN_H
 #define LANGUAGE_CN_H
-
-#define MAPPER_NON         // For direct ascii codes
 #define DISPLAY_CHARSET_ISO10646_CN
 
 #define WELCOME_MSG                         "\xa4\xa5\xa6\xa7"
@@ -41,18 +39,22 @@
 #define MSG_DISABLE_STEPPERS                "\xb5\xb6\xb7\xb8\xb9\xba"
 #define MSG_AUTO_HOME                       "\xbb\xbc\xbd"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
+#define MSG_LEVEL_BED_WAITING               "Click to Begin"
+#define MSG_LEVEL_BED_DONE                  "Leveling Done!"
+#define MSG_LEVEL_BED_CANCEL                "Cancel"
 #define MSG_SET_HOME_OFFSETS                "\xbe\xbf\xbb\xbc\xbd\xc0\xc1"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "\xbe\xbf\xbc\xbd"
-#define MSG_PREHEAT_PLA                     "\xc3\xc4 PLA"
-#define MSG_PREHEAT_PLA_N                   MSG_PREHEAT_PLA " "
-#define MSG_PREHEAT_PLA_ALL                 MSG_PREHEAT_PLA " \xc5\xc6"
-#define MSG_PREHEAT_PLA_BEDONLY             MSG_PREHEAT_PLA " \xc4\xc7"
-#define MSG_PREHEAT_PLA_SETTINGS            MSG_PREHEAT_PLA " \xbe\xbf"
-#define MSG_PREHEAT_ABS                     "\xc3\xc4 ABS"
-#define MSG_PREHEAT_ABS_N                   MSG_PREHEAT_ABS " "
-#define MSG_PREHEAT_ABS_ALL                 MSG_PREHEAT_ABS " \xc5\xc6"
-#define MSG_PREHEAT_ABS_BEDONLY             MSG_PREHEAT_ABS " \xbe\xc6"
-#define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " \xbe\xbf"
+#define MSG_PREHEAT_1                       "\xc3\xc4 PLA"
+#define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 " "
+#define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 " \xc5\xc6"
+#define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 " \xc4\xc7"
+#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 " \xbe\xbf"
+#define MSG_PREHEAT_2                       "\xc3\xc4 ABS"
+#define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 " "
+#define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " \xc5\xc6"
+#define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 " \xbe\xc6"
+#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " \xbe\xbf"
 #define MSG_COOLDOWN                        "\xc8\xc9"
 #define MSG_SWITCH_PS_ON                    "\xb9\xcb\xca\xb3"
 #define MSG_SWITCH_PS_OFF                   "\xb9\xcb\xb5\xb6"
@@ -88,10 +90,10 @@
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "
-#define MSG_X                               "x"
-#define MSG_Y                               "y"
-#define MSG_Z                               "z"
-#define MSG_E                               "e"
+#define MSG_X                               "X"
+#define MSG_Y                               "Y"
+#define MSG_Z                               "Z"
+#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax "
@@ -138,28 +140,23 @@
 #define MSG_INIT_SDCARD                     "Init. SD card"
 #define MSG_CNG_SDCARD                      "Change SD card"
 #define MSG_ZPROBE_OUT                      "Z probe out. bed"
-#define MSG_YX_UNHOMED                      "Home X/Y before Z"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
 #define MSG_HEATING_FAILED_LCD              "Heating failed"
-#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP ERROR"
+#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP"
 #define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"
 #define MSG_ERR_MAXTEMP                     "Err: MAXTEMP"
 #define MSG_ERR_MINTEMP                     "Err: MINTEMP"
 #define MSG_ERR_MAXTEMP_BED                 "Err: MAXTEMP BED"
-#define MSG_END_HOUR                        "hours"
-#define MSG_END_MINUTE                      "minutes"
-
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE               "Delta Calibration"
-  #define MSG_DELTA_CALIBRATE_X             "Calibrate X"
-  #define MSG_DELTA_CALIBRATE_Y             "Calibrate Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Calibrate Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "Calibrate Center"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "Delta Calibration"
+#define MSG_DELTA_CALIBRATE_X               "Calibrate X"
+#define MSG_DELTA_CALIBRATE_Y               "Calibrate Y"
+#define MSG_DELTA_CALIBRATE_Z               "Calibrate Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Calibrate Center"
 
 #endif // LANGUAGE_CN_H
-

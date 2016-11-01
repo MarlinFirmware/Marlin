@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-eval "sed -i 's/\(#define *$1\) *.*$/\1 $2/g' Marlin/Configuration.h"

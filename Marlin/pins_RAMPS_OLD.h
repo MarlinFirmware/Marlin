@@ -25,8 +25,10 @@
  */
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
+
+#define BOARD_NAME         "MEGA/RAMPS <1.2"
 
 // Uncomment the following line for RAMPS v1.0
 //#define RAMPS_V_1_0
@@ -56,8 +58,6 @@
 #define SDPOWER            48
 #define SDSS               53
 #define LED_PIN            13
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
 
 #if ENABLED(RAMPS_V_1_0) // RAMPS_V_1_0
   #define HEATER_0_PIN     12    // RAMPS 1.0
@@ -69,11 +69,7 @@
   #define FAN_PIN           9    // RAMPS 1.1
 #endif
 
-#define HEATER_1_PIN        -1
-#define HEATER_2_PIN        -1
 #define TEMP_0_PIN          2    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define TEMP_1_PIN          -1
-#define TEMP_2_PIN          -1
 #define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 
 // SPI for Max6675 or Max31855 Thermocouple
@@ -81,11 +77,4 @@
   #define MAX6675_SS       66// Do not use pin 53 if there is even the remote possibility of using Display/SD card
 #else
   #define MAX6675_SS       66// Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
-#endif
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN          52
-  #define MISO_PIN         50
-  #define MOSI_PIN         51
 #endif

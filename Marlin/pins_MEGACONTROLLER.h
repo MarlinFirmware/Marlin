@@ -25,12 +25,14 @@
  */
 
 #ifndef __AVR_ATmega2560__
-  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#if EXTRUDERS > 2
-  #error Mega Controller supports up to 2 extruders. Comment this line to keep going.
+#if E_STEPPERS > 2 || HOTENDS > 2
+  #error "Mega Controller supports up to 2 hotends / E-steppers. Comment this line to keep going."
 #endif
+
+#define BOARD_NAME "Mega Controller"
 
 #define SERVO0_PIN 30
 #define SERVO1_PIN 31
@@ -63,7 +65,6 @@
 #define E1_DIR_PIN 27
 #define E1_ENABLE_PIN 25
 
-#define SDPOWER -1
 #define SDSS 53
 #define LED_PIN 13
 
@@ -72,19 +73,15 @@
 #define FAN2_PIN 36
 #define FAN_SOFT_PWM
 #define CONTROLLERFAN_PIN FAN2_PIN
-#define PS_ON_PIN -1
-#define KILL_PIN -1
 
 #define HEATER_0_PIN 29 // EXTRUDER 1
 #define HEATER_1_PIN 34 // EXTRUDER 2
-#define HEATER_2_PIN -1
 
 #if TEMP_SENSOR_0 == -1
   #define TEMP_0_PIN 4 // ANALOG NUMBERING
 #else
   #define TEMP_0_PIN 0 // ANALOG NUMBERING
 #endif
-
 
 #if TEMP_SENSOR_1 == -1
   #define TEMP_1_PIN 5 // ANALOG NUMBERING
@@ -116,11 +113,11 @@
   //#define LCD_SCREEN_ROT_90
   //#define LCD_SCREEN_ROT_180
   //#define LCD_SCREEN_ROT_270
-  //The encoder and click button
+
   #define BTN_EN1 48
   #define BTN_EN2 11
-  #define BTN_ENC 10  //the click switch
-  //not connected to a pin
+  #define BTN_ENC 10
+
   #define SD_DETECT_PIN 49
-#endif //Minipanel
+#endif // MINIPANEL
 

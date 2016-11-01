@@ -28,13 +28,14 @@
  */
 
 #ifndef __AVR_AT90USB1286__
-  #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
+  #error "Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu."
 #endif
 
 #if ENABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS)  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin traditional.
-  #error These Printrboard assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h
+  #error "These Printrboard assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h"
 #endif
 
+#define BOARD_NAME         "Printrboard"
 #define LARGE_FLASH        true
 
 // Disable JTAG pins so they can be used for the Extrudrboard
@@ -81,23 +82,9 @@
 
 #define FILWIDTH_PIN        2  // ANALOG NUMBERING
 
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
-
 ////LCD Pin Setup////
 
-#define SDPOWER            -1
 #define SDSS               26
-#define LED_PIN            -1
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1
-
-#if DISABLED(SDSUPPORT)
-  // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN           9
-  #define MISO_PIN         11
-  #define MOSI_PIN         10
-#endif
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   //we have no buzzer installed
@@ -128,7 +115,8 @@
 #endif // ULTRA_LCD && NEWPANEL
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER_PIN 32 //FastIO
+  //FastIO
+  #define BEEPER_PIN 32
   // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0  42 //Non-FastIO
   #define DOGLCD_CS  43 //Non-FastIO
@@ -137,7 +125,7 @@
   //The encoder and click button (FastIO Pins)
   #define BTN_EN1 26
   #define BTN_EN2 27
-  #define BTN_ENC 47  //the click switch
+  #define BTN_ENC 47
 
   #define SDSS 45
   #define SD_DETECT_PIN -1 // FastIO (Manual says 72 I'm not certain cause I can't test)

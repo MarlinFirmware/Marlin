@@ -42,7 +42,8 @@
 */
 
 #include "stepper_indirection.h"
-#include "Configuration.h"
+
+#include "MarlinConfig.h"
 
 #if ENABLED(HAVE_TMCDRIVER)
   #include <SPI.h>

@@ -1,18 +1,62 @@
 # Marlin 3D Printer Firmware
-<img align="top" width=175 src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
- Additional documentation can be found in [The Marlin Wiki](https://github.com/MarlinFirmware/Marlin/wiki/Main-Page).
 
-## Release Candidate -- Marlin 1.1.0-RC4 - 24 March 2016
+<img align="top" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
+
+Additional documentation can be found at [The Marlin Documentation Project](https://www.marlinfw.org/).
+Please test this firmware and inform us if it misbehaves in any way, volunteers are standing by!
+
+## Release Candidate -- Marlin 1.1.0-RC7 - 31 July 2016
 
 __Not for production use – use with caution!__
 
 You can download earlier versions of Marlin on the [Releases page](https://github.com/MarlinFirmware/Marlin/releases). (The latest "stable" release of Marlin is 1.0.2-1.)
 
-You'll always find the latest Release Candidate in the ["RC" branch](https://github.com/MarlinFirmware/Marlin/tree/RC). Bugs that we find in the current Release Candidate are patched in the ["RCBugFix" branch](https://github.com/MarlinFirmware/Marlin/tree/RC), so during beta testing this is where you can always find the latest code on its way towards release.
-
-Future development (Marlin 1.2 and beyond) takes place in the [MarlinDev repository](https://github.com/MarlinFirmware/MarlinDev/).
+The latest Release Candidate lives in the ["RC" branch](https://github.com/MarlinFirmware/Marlin/tree/RC). Bugs that we find in the current Release Candidate are patched in the ["RCBugFix" branch](https://github.com/MarlinFirmware/Marlin/tree/RCBugFix), so during beta testing this is where you can always find the latest code on its way towards release.
 
 ## Recent Changes
+- RC7 - 31 Jul 2016
+  - Add Print Job Timer and Print Counter (`PRINTCOUNTER`)
+  - New `M600` Filament Change (`FILAMENT_CHANGE_FEATURE`)
+  - New `G12` Nozzle Clean (`NOZZLE_CLEAN_FEATURE`)
+  - New `G27` Nozzle Park (`NOZZLE_PARK_FEATURE`)
+  - Add support for `COREYZ`
+  - Add a new Advance Extrusion algorithm (`LIN_ADVANCE`)
+  - Add support for inches, Fahrenheit, Kelvin units (`INCH_MODE_SUPPORT`, `TEMPERATURE_UNITS_SUPPORT`)
+  - Better handling of `G92` shifting of the coordinate space
+  - Add Greek and Croatian languages
+  - Improve the Manual (Mesh) Bed Leveling user interface
+  - Add support for more boards, controllers, and probes:
+    - Vellemann K8400 (`BOARD_K8400`)
+    - RigidBot V2 (`BOARD_RIGIDBOARD_V2`)
+    - Cartesio UI (`BOARD_CNCONTROLS_12`)
+    - BLTouch probe sensor (`BLTOUCH`)
+    - Viki 2 with RAMPS and MKS boards
+  - Improve support for `DELTA` and other kinematics
+  - Improve thermal management, add `WATCH_BED_TEMP_PERIOD`
+  - Better handling of toolchange, multiple tools
+  - Add support for two X steppers `X_DUAL_STEPPER_DRIVERS`
+  - Add support for `SINGLENOZZLE`, `MIXING_EXTRUDER`, and `SWITCHING_EXTRUDER`
+  - Simplified probe configuration, allow usage without bed leveling
+  - And much more… See the [1.1.0-RC7 Change Log](https://github.com/MarlinFirmware/Marlin/releases/tag/1.1.0-RC7) for the complete list of changes.
+
+- RC6 - 24 Apr 2016
+  - Marlin now requires Arduino version 1.6.0 or later
+  - Completed support for CoreXY / CoreXZ
+  - See the [1.1.0-RC6 Change Log](https://github.com/MarlinFirmware/Marlin/releases/tag/1.1.0-RC6) for all the changes.
+
+- RC5 - 01 Apr 2016
+  - Warn if compiling with older versions (<1.50) of Arduino
+  - Fix various LCD menu issues
+  - Add formal support for MKSv1.3 and Sainsmart (RAMPS variants)
+  - Fix bugs in M104, M109, and M190
+  - Fix broken M404 command
+  - Fix issues with M23 and "Start SD Print"
+  - More output for M111
+  - Rename FILAMENT_SENSOR to FILAMENT_WIDTH_SENSOR
+  - Fix SD card bugs
+  - and a lot more
+  - See the [1.1.0-RC5 Change Log](https://github.com/MarlinFirmware/Marlin/releases/tag/1.1.0-RC5) for more!
+
 - RC4 - 24 Mar 2016
   - Many lingering bugs and nagging issues addressed
   - Improvements to LCD menus, CoreXY/CoreXZ, Delta, Bed Leveling, and more…
@@ -52,7 +96,7 @@ The current Marlin dev team consists of:
  - Scott Lahteine [@thinkyhead] - English
  - [@Wurstnase] - Deutsch, English
  - F. Malpartida [@fmalpartida] - English, Spanish
- - [@CONSULitAS] - Deutsch, English
+ - Jochen Groppe [@CONSULitAS] - Deutsch, English
  - [@maverikou]
  - Chris Palmer [@nophead]
  - [@paclema]

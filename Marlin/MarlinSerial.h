@@ -21,21 +21,18 @@
  */
 
 /**
-  HardwareSerial.h - Hardware serial library for Wiring
+  MarlinSerial.h - Hardware serial library for Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   Modified 28 September 2010 by Mark Sproul
+  Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
+
 */
 
 #ifndef MarlinSerial_h
 #define MarlinSerial_h
-#include "Marlin.h"
 
-#ifndef CRITICAL_SECTION_START
-  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
-  #define CRITICAL_SECTION_END    SREG = _sreg;
-#endif
-
+#include "MarlinConfig.h"
 
 #ifndef SERIAL_PORT
   #define SERIAL_PORT 0
@@ -61,14 +58,17 @@
 #define M_UCSRxB SERIAL_REGNAME(UCSR,SERIAL_PORT,B)
 #define M_RXENx SERIAL_REGNAME(RXEN,SERIAL_PORT,)
 #define M_TXENx SERIAL_REGNAME(TXEN,SERIAL_PORT,)
+#define M_TXCx SERIAL_REGNAME(TXC,SERIAL_PORT,)
 #define M_RXCIEx SERIAL_REGNAME(RXCIE,SERIAL_PORT,)
 #define M_UDREx SERIAL_REGNAME(UDRE,SERIAL_PORT,)
+#define M_UDRIEx SERIAL_REGNAME(UDRIE,SERIAL_PORT,)
 #define M_UDRx SERIAL_REGNAME(UDR,SERIAL_PORT,)
 #define M_UBRRxH SERIAL_REGNAME(UBRR,SERIAL_PORT,H)
 #define M_UBRRxL SERIAL_REGNAME(UBRR,SERIAL_PORT,L)
 #define M_RXCx SERIAL_REGNAME(RXC,SERIAL_PORT,)
 #define M_USARTx_RX_vect SERIAL_REGNAME(USART,SERIAL_PORT,_RX_vect)
 #define M_U2Xx SERIAL_REGNAME(U2X,SERIAL_PORT,)
+#define M_USARTx_UDRE_vect SERIAL_REGNAME(USART,SERIAL_PORT,_UDRE_vect)
 
 
 #define DEC 10
@@ -87,18 +87,40 @@
 #ifndef RX_BUFFER_SIZE
   #define RX_BUFFER_SIZE 128
 #endif
+#ifndef TX_BUFFER_SIZE
+  #define TX_BUFFER_SIZE 32
+#endif
 #if !((RX_BUFFER_SIZE == 256) ||(RX_BUFFER_SIZE == 128) ||(RX_BUFFER_SIZE == 64) ||(RX_BUFFER_SIZE == 32) ||(RX_BUFFER_SIZE == 16) ||(RX_BUFFER_SIZE == 8) ||(RX_BUFFER_SIZE == 4) ||(RX_BUFFER_SIZE == 2))
-  #error RX_BUFFER_SIZE has to be a power of 2 and >= 2
+  #error "RX_BUFFER_SIZE has to be a power of 2 and >= 2"
+#endif
+#if !((TX_BUFFER_SIZE == 256) ||(TX_BUFFER_SIZE == 128) ||(TX_BUFFER_SIZE == 64) ||(TX_BUFFER_SIZE == 32) ||(TX_BUFFER_SIZE == 16) ||(TX_BUFFER_SIZE == 8) ||(TX_BUFFER_SIZE == 4) ||(TX_BUFFER_SIZE == 2) ||(TX_BUFFER_SIZE == 0))
+  #error TX_BUFFER_SIZE has to be a power of 2 or 0
 #endif
 
-struct ring_buffer {
+struct ring_buffer_r {
   unsigned char buffer[RX_BUFFER_SIZE];
   volatile uint8_t head;
   volatile uint8_t tail;
 };
 
+#if TX_BUFFER_SIZE > 0
+  struct ring_buffer_t {
+    unsigned char buffer[TX_BUFFER_SIZE];
+    volatile uint8_t head;
+    volatile uint8_t tail;
+  };
+#endif
+
 #if UART_PRESENT(SERIAL_PORT)
-  extern ring_buffer rx_buffer;
+  extern ring_buffer_r rx_buffer;
+  #if TX_BUFFER_SIZE > 0
+    extern ring_buffer_t tx_buffer;
+  #endif
+#endif
+
+#if ENABLED(EMERGENCY_PARSER)
+  #include "language.h"
+  void emergency_parser(unsigned char c);
 #endif
 
 class MarlinSerial { //: public Stream
@@ -110,39 +132,13 @@ class MarlinSerial { //: public Stream
     int peek(void);
     int read(void);
     void flush(void);
-
-    FORCE_INLINE uint8_t available(void) {
-      CRITICAL_SECTION_START;
-        uint8_t h = rx_buffer.head;
-        uint8_t t = rx_buffer.tail;
-      CRITICAL_SECTION_END;
-      return (uint8_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
-    }
-
-    FORCE_INLINE void write(uint8_t c) {
-      while (!TEST(M_UCSRxA, M_UDREx))
-        ;
-      M_UDRx = c;
-    }
-
-    FORCE_INLINE void checkRx(void) {
-      if (TEST(M_UCSRxA, M_RXCx)) {
-        unsigned char c  =  M_UDRx;
-        CRITICAL_SECTION_START;
-          uint8_t h = rx_buffer.head;
-          uint8_t i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);
-
-          // if we should be storing the received character into the location
-          // just before the tail (meaning that the head would advance to the
-          // current location of the tail), we're about to overflow the buffer
-          // and so we don't write the character or advance the head.
-          if (i != rx_buffer.tail) {
-            rx_buffer.buffer[h] = c;
-            rx_buffer.head = i;
-          }
-        CRITICAL_SECTION_END;
-      }
-    }
+    uint8_t available(void);
+    void checkRx(void);
+    void write(uint8_t c);
+    #if TX_BUFFER_SIZE > 0
+      uint8_t availableForWrite(void);
+      void flushTX(void);
+    #endif
 
   private:
     void printNumber(unsigned long, uint8_t);

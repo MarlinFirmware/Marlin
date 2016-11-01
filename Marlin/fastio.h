@@ -2047,11 +2047,6 @@
 #endif
 
 #if defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__)
-  // SPI
-  #define SCK         DIO9
-  #define MISO        DIO11
-  #define MOSI        DIO10
-  #define SS          DIO8
 
   // change for your board
   #define DEBUG_LED   DIO31 /* led D5 red */
@@ -2062,6 +2057,12 @@
 
   //#define AT90USBxx_TEENSYPP_ASSIGNMENTS // Use Teensy++ 2.0 assignments
   #ifndef AT90USBxx_TEENSYPP_ASSIGNMENTS // Use traditional Marlin pin assignments
+
+    // SPI
+    #define SCK         DIO9   // 21
+    #define MISO        DIO11  // 23
+    #define MOSI        DIO10  // 22
+    #define SS          DIO8   // 20
 
     #define DIO0_PIN        PINA0
     #define DIO0_RPORT      PINA
@@ -2706,6 +2707,12 @@
     Teensy   28 29 30 31 32 33 34 35 20 21 22 23 24 25 26 27 10 11 12 13 14 15 16 17 00 01 02 03 04 05 06 07 08 09(46*47)36 37 18 19 38 39 40 41 42 43 44 45
              The pins 46 and 47 are not supported by Teensyduino, but are supported below.
     */
+
+    // SPI
+    #define SCK             DIO21 // 9
+    #define MISO            DIO23 // 11
+    #define MOSI            DIO22 // 10
+    #define SS              DIO20 // 8
 
     #define DIO0_PIN PIND0
     #define DIO0_RPORT PIND
@@ -4038,7 +4045,7 @@
 #endif
 
 #ifndef DIO0_PIN
-  #error pins for this chip not defined in arduino.h! If you write an appropriate pin definition and have this firmware work on your chip, please submit a pull request
+  #error "pins for this chip not defined in arduino.h! If you write an appropriate pin definition and have this firmware work on your chip, please submit a pull request"
 #endif
 
 #endif /* _FASTIO_ARDUINO_H */

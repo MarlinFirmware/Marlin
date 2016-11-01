@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_AN_H
 #define LANGUAGE_AN_H
 
-#define MAPPER_NON
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
@@ -43,18 +42,22 @@
 #define MSG_DISABLE_STEPPERS                "Amortar motors"
 #define MSG_AUTO_HOME                       "Levar a l'orichen"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
+#define MSG_LEVEL_BED_WAITING               "Click to Begin"
+#define MSG_LEVEL_BED_DONE                  "Leveling Done!"
+#define MSG_LEVEL_BED_CANCEL                "Cancel"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#define MSG_HOME_OFFSETS_APPLIED            "Offsets applied"
 #define MSG_SET_ORIGIN                      "Establir zero"
-#define MSG_PREHEAT_PLA                     "Precalentar PLA"
-#define MSG_PREHEAT_PLA_N                   "Precalentar PLA "
-#define MSG_PREHEAT_PLA_ALL                 "Precalentar PLA a"
-#define MSG_PREHEAT_PLA_BEDONLY             "Prec. PLA Base"
-#define MSG_PREHEAT_PLA_SETTINGS            "Achustar tem. PLA"
-#define MSG_PREHEAT_ABS                     "Precalentar ABS"
-#define MSG_PREHEAT_ABS_N                   "Precalentar ABS "
-#define MSG_PREHEAT_ABS_ALL                 "Precalentar ABS a"
-#define MSG_PREHEAT_ABS_BEDONLY             "Prec. ABS Base"
-#define MSG_PREHEAT_ABS_SETTINGS            "Achustar tem. ABS"
+#define MSG_PREHEAT_1                       "Precalentar PLA"
+#define MSG_PREHEAT_1_N                     "Precalentar PLA "
+#define MSG_PREHEAT_1_ALL                   "Precalentar PLA a"
+#define MSG_PREHEAT_1_BEDONLY               "Prec. PLA Base"
+#define MSG_PREHEAT_1_SETTINGS              "Achustar tem. PLA"
+#define MSG_PREHEAT_2                       "Precalentar ABS"
+#define MSG_PREHEAT_2_N                     "Precalentar ABS "
+#define MSG_PREHEAT_2_ALL                   "Precalentar ABS a"
+#define MSG_PREHEAT_2_BEDONLY               "Prec. ABS Base"
+#define MSG_PREHEAT_2_SETTINGS              "Achustar tem. ABS"
 #define MSG_COOLDOWN                        "Enfriar"
 #define MSG_SWITCH_PS_ON                    "Enchegar Fuent"
 #define MSG_SWITCH_PS_OFF                   "Desenchegar Fuent"
@@ -89,10 +92,10 @@
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ves-jerk"
 #define MSG_VMAX                            "Vmax"
-#define MSG_X                               "x"
-#define MSG_Y                               "y"
-#define MSG_Z                               "z"
-#define MSG_E                               "y"
+#define MSG_X                               "X"
+#define MSG_Y                               "Y"
+#define MSG_Z                               "Z"
+#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax"
@@ -138,21 +141,17 @@
 #define MSG_INIT_SDCARD                     "Encetan. tarcheta"
 #define MSG_CNG_SDCARD                      "Cambiar tarcheta"
 #define MSG_ZPROBE_OUT                      "Z probe out. bed"
-#define MSG_YX_UNHOMED                      "Home X/Y before Z"
+#define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           "first"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
-#define MSG_END_HOUR                        "hours"
-#define MSG_END_MINUTE                      "minutes"
-
-#if ENABLED(DELTA_CALIBRATION_MENU)
-  #define MSG_DELTA_CALIBRATE               "Delta Calibration"
-  #define MSG_DELTA_CALIBRATE_X             "Calibrate X"
-  #define MSG_DELTA_CALIBRATE_Y             "Calibrate Y"
-  #define MSG_DELTA_CALIBRATE_Z             "Calibrate Z"
-  #define MSG_DELTA_CALIBRATE_CENTER        "Calibrate Center"
-#endif // DELTA_CALIBRATION_MENU
+#define MSG_DELTA_CALIBRATE                 "Delta Calibration"
+#define MSG_DELTA_CALIBRATE_X               "Calibrate X"
+#define MSG_DELTA_CALIBRATE_Y               "Calibrate Y"
+#define MSG_DELTA_CALIBRATE_Z               "Calibrate Z"
+#define MSG_DELTA_CALIBRATE_CENTER          "Calibrate Center"
 
 #endif // LANGUAGE_AN_H
