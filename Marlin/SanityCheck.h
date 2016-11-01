@@ -1019,3 +1019,53 @@
 #if COUNT_LCD_24 > 1
   #error "Please select no more than one LCD controller option."
 #endif
+
+#if ENABLED( SPINDLE_ENABLE)
+  #if !PIN_EXISTS(SPINDLE_ENABLE)
+    #error "SPINDLE_ENABLE requires SPINDLE_ENABLE_PIN."
+  #elif !defined(SPINDLE_ENABLE_INVERT) || !(SPINDLE_ENABLE_INVERT == true || SPINDLE_ENABLE_INVERT == false)
+    #error "SPINDLE_ENABLE_INVERT missing or incorrectly defined"
+  #elif ENABLED (SPINDLE_SPEED) && PIN_EXISTS(SPINDLE_SPEED)
+    #if !((SPINDLE_SPEED_PIN >=2 && SPINDLE_SPEED_PIN <= 13) || (SPINDLE_SPEED_PIN >=44 && SPINDLE_SPEED_PIN <= 46) )
+      #error "SPINDLE_SPEED_PIN not assigned to a PWM pin"
+    #elif !defined(SPINDLE_SPEED_INVERT) || !(SPINDLE_SPEED_INVERT == true || SPINDLE_SPEED_INVERT == false)
+      #error "SPINDLE_SPEED_INVERT missing or incorrectly defined"
+    #elif !defined(RPM_SLOPE) || !defined(RPM_INTERCEPT) || !defined(RPM_MIN) || !defined(RPM_MAX)
+      #error "spindle speed equation constant(s) missing"
+    #elif SPINDLE_SPEED_PIN == 4 || SPINDLE_SPEED_PIN == 11 || SPINDLE_SPEED_PIN == 12 || SPINDLE_SPEED_PIN == 13
+      #error "Counter/Timer for SPINDLE_SPEED PWM pin is used by a system interrupt "
+    #elif PIN_EXISTS(X_MAX) &&  X_MAX_PIN == SPINDLE_SPEED_PIN && defined(USE_XMAX_PLUG)
+      #error "SPINDLE_SPEED pin is in use by X_MAX endstop"
+    #elif PIN_EXISTS(X_MIN) &&  X_MIN_PIN == SPINDLE_SPEED_PIN && defined(USE_XMIN_PLUG)
+      #error "SPINDLE_SPEED pin is in use by X_MIN endstop "
+    #elif PIN_EXISTS(Z_STEP) &&  Z_STEP_PIN == SPINDLE_SPEED_PIN
+      #error "SPINDLE_SPEED pin in use by Z_STEP "
+    #elif defined(NUM_SERVOS) && (NUM_SERVOS > 0) &&  (SPINDLE_SPEED_PIN == 2 || SPINDLE_SPEED_PIN ==  3 || SPINDLE_SPEED_PIN == 5)
+      #error "Counter/Timer for SPINDLE_SPEED PWM pin is used by the servo system "
+    #elif PIN_EXISTS(EXTRUDER_0_AUTO_FAN) && SPINDLE_SPEED_PIN == EXTRUDER_0_AUTO_FAN_PIN
+      #error "SPINDLE_SPEED PWM pin is used by EXTRUDER_0_AUTO_FAN_PIN"
+    #elif PIN_EXISTS(EXTRUDER_1_AUTO_FAN) && SPINDLE_SPEED_PIN == EXTRUDER_1_AUTO_FAN_PIN 
+      #error "SPINDLE_SPEED PWM pin is used by EXTRUDER_1_AUTO_FAN_PIN"
+    #elif PIN_EXISTS(EXTRUDER_2_AUTO_FAN) && SPINDLE_SPEED_PIN == EXTRUDER_2_AUTO_FAN_PIN 
+      #error "SPINDLE_SPEED PWM pin is used by EXTRUDER_2_AUTO_FAN_PIN"
+    #elif PIN_EXISTS(EXTRUDER_3_AUTO_FAN) && SPINDLE_SPEED_PIN == EXTRUDER_3_AUTO_FAN_PIN  
+      #error "SPINDLE_SPEED PWM pin is used by EXTRUDER_3_AUTO_FAN_PIN"
+    #elif PIN_EXISTS(FAN) && SPINDLE_SPEED_PIN == FAN_PIN 
+      #error "SPINDLE_SPEED PWM pin is used FAN_PIN "
+    #elif PIN_EXISTS(FAN0) && SPINDLE_SPEED_PIN == FAN0_PIN 
+      #error "SPINDLE_SPEED PWM pin is used FAN0_PIN "
+    #elif PIN_EXISTS(FAN1) && SPINDLE_SPEED_PIN == FAN1_PIN
+      #error "SPINDLE_SPEED PWM pin is used FAN1_PIN "
+    #elif PIN_EXISTS(FAN2) && SPINDLE_SPEED_PIN == FAN2_PIN
+     #error "SPINDLE_SPEED PWM pin is used FAN2_PIN "
+    #elif PIN_EXISTS(CONTROLLERFAN) && SPINDLE_SPEED_PIN == CONTROLLERFAN_PIN
+      #error "SPINDLE_SPEED PWM pin is used by CONTROLLERFAN_PIN "
+    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_XY) &&  SPINDLE_SPEED_PIN == MOTOR_CURRENT_PWM_XY_PIN
+      #error "SPINDLE_SPEED PWM pin is used by MOTOR_CURRENT_PWM_XY"
+    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_Z) &&  SPINDLE_SPEED_PIN == MOTOR_CURRENT_PWM_Z_PIN
+      #error "SPINDLE_SPEED PWM pin is used by MOTOR_CURRENT_PWM_Z"
+    #elif PIN_EXISTS(MOTOR_CURRENT_PWM_E) &&  SPINDLE_SPEED_PIN == MOTOR_CURRENT_PWM_E_PIN
+      #error "SPINDLE_SPEED PWM pin is used by MOTOR_CURRENT_PWM_E"
+    #endif  
+  #endif
+#endif   //SPINDLE_ENABLE

@@ -129,6 +129,9 @@
  *
  * M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
  * M1   - Same as M0
+ * M3   - Turn spindle on and set spindle speed
+ * M4   - Same as M3
+ * M5   - Turn spindle off
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
  * M20  - List SD card. (Requires SDSUPPORT)
@@ -4458,6 +4461,133 @@ inline void gcode_G92() {
 #endif // EMERGENCY_PARSER || ULTIPANEL
 
 /**
+ * M3 & M4 spindle commands
+ *  S=0 turns off spindle
+ *  if speed pwm output not defined then just turns it on
+ *
+ *  need at least 12.8KHz (50Hz * 256) for spindle PWM 
+ *    must use hardware PWM because all ISRs are too slow 
+ *        Stepper::isr too slow
+ *        temperature ISR too slow
+ *
+ * NOTE - WGM bits for timers 3, 4 & 5 need to be either 0001 or 0101.
+ *       Any other setting will result in a PWM signal that doesn't
+ *       go from 0 volts to 5 volts.
+ *       
+ *       The system automatically sets those bits to 0001 so special
+ *       initialization is not needed.
+ *       
+ *       WGM bits for timer 2 are automatically set by the system to
+ *       001.  This produces an acceptable 0 volts to 5 volts signal.
+ *       Special initialization is not needed.
+ *       
+ * NOTE - A minimum PWM frequency of 50 Hz is needed.  All of the 
+ *        pre-scaler factors for timers 2, 3, 4 & 5 are acceptable. 
+ *
+ *  SPINDLE_ENABLE_PIN needs an external pullup or else could turn on 
+ *  spindle  during power up or when connecting to the host (usually 
+ *  goes through a reset which sets all I/O pins to tristate)
+ *
+ *  PWM duty cycle goes from 0 (off) to 255 (always on) 
+ * 
+ */  
+#if ENABLED(SPINDLE_ENABLE)
+
+  inline void delay_for_spindle_power_up() {
+    refresh_cmd_timeout();                                                       // wait for spindle to come up to speed
+    if (SPINDLE_POWER_UP_DELAY > 0)  while (PENDING(millis(), SPINDLE_POWER_UP_DELAY * 1000 + previous_cmd_ms)) idle();
+    else                             while (PENDING(millis(), 1000 + previous_cmd_ms)) idle();         // allow at least 1 second for power up
+  }
+  
+  inline void delay_for_spindle_power_down() {
+    refresh_cmd_timeout();                                                       // wait for spindle to come up to speed
+    if (SPINDLE_POWER_DOWN_DELAY >= 0)  while (PENDING(millis(), SPINDLE_POWER_DOWN_DELAY * 1000 + previous_cmd_ms + 1)) idle(); 
+    else                                while (PENDING(millis(), 1000 + previous_cmd_ms)) idle();    // allow at least 1 second for power down
+  }
+
+  inline void gcode_M3_M4() {
+
+    // this is the "pretty" version.  It accepts RPM as input
+    #if ENABLED(SPINDLE_SPEED)
+  
+      // use gcode_M4() to get the points needed to compute the RPM vs OCRxx_VAL line
+  
+      // Our final value for OCRxx_VAL is an unsigned 8 bit value between 0 and 255 which usually means uint8_t.
+      // Went to uint16_t because some of the uint8_t calculations would sometimes give 1000 0000 rather than 1111 1111.
+      // Then needed to AND the uint16_t result with 0xffff to make sure we only wrote the byte of interest.
+  
+      float spindle_speed = code_seen('S') ? code_value_float() : 0; 
+      if (spindle_speed == 0) { 
+        stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before turning spindle off
+        WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  //turn spindle off (active low);
+        delay_for_spindle_power_down();
+      }
+      else {
+        int16_t OCRxx_VAL = 2.55 * (spindle_speed - RPM_INTERCEPT)/RPM_SLOPE;      // convert RPM to PWM duty cycle
+        float temp = 2.55 * (spindle_speed - RPM_INTERCEPT)/RPM_SLOPE;
+        if (temp >= 255)                OCRxx_VAL = 255;                                        //limit to max the Atmel PWM will support
+        if (spindle_speed <= RPM_MIN)   OCRxx_VAL = 2.55 * (RPM_MIN - RPM_INTERCEPT)/RPM_SLOPE; // minimum setting
+        if (spindle_speed >= RPM_MAX)   OCRxx_VAL = 2.55 * (RPM_MAX - RPM_INTERCEPT)/RPM_SLOPE; // limit to max RPM
+        if (SPINDLE_SPEED_INVERT==true) OCRxx_VAL = 255 - OCRxx_VAL ; 
+        stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before turning spindle on
+        WRITE(SPINDLE_ENABLE_PIN, SPINDLE_ENABLE_INVERT);  // turn spindle on (active low)
+        analogWrite(SPINDLE_SPEED_PIN, OCRxx_VAL & 0xff);  //only write lowest byte 
+        delay_for_spindle_power_up();
+      } 
+    #else
+      stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before turning spindle on
+      WRITE(SPINDLE_ENABLE_PIN, SPINDLE_ENABLE_INVERT);  //turn spindle on (active low) if spindle speed option not enabled
+      delay_for_spindle_power_up();
+    #endif
+  } 
+ 
+
+/**
+ * gcode_M4 is used for debugging and to get the points needed to compute the RPM vs OCRxx_VAL line
+ * 
+ * it accepts inputs of 0-255
+ *
+ * To use it you'll need to change the M4 command from "gcode_M3_M4()" to "gcode_M4()"
+ *   
+ * This was used to get the RPM vs. OCRxx PWM values
+ * That was thrown into Excel to determine a best fit line
+ * for use in the M3 routine.
+ */
+
+  inline void gcode_M4() {
+    #if ENABLED(SPINDLE_SPEED)
+      uint8_t spindle_speed = code_seen('S') ? code_value_byte() : 0; 
+      if (spindle_speed == 0) { 
+        stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before turning spindle off
+        WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  //turn spindle off (active low);
+        delay_for_spindle_power_down();
+      }
+      else {
+        stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before turning spindle on 
+        WRITE(SPINDLE_ENABLE_PIN, SPINDLE_ENABLE_INVERT); //turn spindle on (active low) if spindle speed option not enabled
+        if (SPINDLE_SPEED_INVERT) spindle_speed = 255 - spindle_speed ;
+        analogWrite(SPINDLE_SPEED_PIN, spindle_speed);
+        delay_for_spindle_power_up();
+      } 
+    #else
+      stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before turning spindle on
+      WRITE(SPINDLE_ENABLE_PIN, SPINDLE_ENABLE_INVERT);  //turn spindle on (active low) if spindle speed option not enabled
+      delay_for_spindle_power_up();
+    #endif
+  }
+
+
+ /**
+ * M5 turn off spindle
+ */
+  inline void gcode_M5() {
+    stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before turning spindle off
+    WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  // turn spindle off
+    delay_for_spindle_power_down();
+  }
+#endif //SPINDLE_ENABLE
+
+/**
  * M17: Enable power on all stepper motors
  */
 inline void gcode_M17() {
@@ -7683,6 +7813,21 @@ void process_next_command() {
           break;
       #endif // ULTIPANEL
 
+      #if ENABLED(SPINDLE_ENABLE)
+        case 3:
+          gcode_M3_M4();  // M3 - turn spindle on and set spindle speed
+          break;          // synchronizes with movement commands  
+                          
+        case 4:           
+          gcode_M3_M4();  // M4 is the same as M3
+          break;          
+          
+        case 5:
+          gcode_M5();     // M5 - turn spindle off
+          break;          // synchronizes with movement commands 
+     #endif
+
+     
       case 17: // M17: Enable all stepper motors
         gcode_M17();
         break;
@@ -9696,6 +9841,13 @@ void setup() {
   setup_photpin();
   servo_init();
 
+  #if ENABLED(SPINDLE_ENABLE)
+    OUT_WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  //init spindle to off;
+    #if ENABLED(SPINDLE_SPEED)
+      pinMode(SPINDLE_SPEED_PIN, OUTPUT);
+      analogWrite(SPINDLE_SPEED_PIN, SPINDLE_SPEED_INVERT ? 255 : 0);  //set to lowest speed
+    #endif
+  #endif 
   #if HAS_BED_PROBE
     endstops.enable_z_probe(false);
   #endif
