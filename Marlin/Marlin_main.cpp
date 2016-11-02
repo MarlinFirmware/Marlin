@@ -1449,7 +1449,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
     if (axis == X_AXIS || axis == Y_AXIS) {
 
       float homeposition[XYZ];
-      LOOP_XYZ(i) homeposition[i] = LOGICAL_POSITION(base_home_pos(i), i);
+      LOOP_XYZ(i) homeposition[i] = LOGICAL_POSITION(base_home_pos((AxisEnum)i), i);
 
       // SERIAL_ECHOPAIR("homeposition X:", homeposition[X_AXIS]);
       // SERIAL_ECHOLNPAIR(" Y:", homeposition[Y_AXIS]);
@@ -4283,7 +4283,7 @@ inline void gcode_G28() {
     float retract_mm[XYZ];
     LOOP_XYZ(i) {
       float dist = destination[i] - current_position[i];
-      retract_mm[i] = fabs(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm(i) * (dist > 0 ? -1 : 1);
+      retract_mm[i] = fabs(dist) < G38_MINIMUM_MOVE ? 0 : home_bump_mm((AxisEnum)i) * (dist > 0 ? -1 : 1);
     }
 
     stepper.synchronize();  // wait until the machine is idle
@@ -6666,7 +6666,7 @@ inline void gcode_M428() {
   bool err = false;
   LOOP_XYZ(i) {
     if (axis_homed[i]) {
-      float base = (current_position[i] > (soft_endstop_min[i] + soft_endstop_max[i]) * 0.5) ? base_home_pos(i) : 0,
+      float base = (current_position[i] > (soft_endstop_min[i] + soft_endstop_max[i]) * 0.5) ? base_home_pos((AxisEnum)i) : 0,
             diff = current_position[i] - LOGICAL_POSITION(base, i);
       if (diff > -20 && diff < 20) {
         set_home_offset((AxisEnum)i, home_offset[i] - diff);
