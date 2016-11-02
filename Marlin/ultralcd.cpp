@@ -416,7 +416,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     }
   }
 
-  static void lcd_goto_previous_menu(bool feedback=false) {
+  static void lcd_goto_previous_menu() {
     if (screen_history_depth > 0) {
       --screen_history_depth;
       lcd_goto_screen(
@@ -648,7 +648,7 @@ void kill_screen(const char* lcd_msg) {
     long babysteps_done = 0;
 
     static void _lcd_babystep(const AxisEnum axis, const char* msg) {
-      if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(true); }
+      if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
       ENCODER_DIRECTION_NORMAL();
       if (encoderPosition) {
         int babystep_increment = (int32_t)encoderPosition * BABYSTEP_MULTIPLICATOR;
@@ -1357,7 +1357,7 @@ void kill_screen(const char* lcd_msg) {
    */
 
   static void _lcd_move_xyz(const char* name, AxisEnum axis) {
-    if (lcd_clicked) { return lcd_goto_previous_menu(true); }
+    if (lcd_clicked) { return lcd_goto_previous_menu(); }
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
       refresh_cmd_timeout();
@@ -1397,7 +1397,7 @@ void kill_screen(const char* lcd_msg) {
       int8_t eindex=-1
     #endif
   ) {
-    if (lcd_clicked) { return lcd_goto_previous_menu(true); }
+    if (lcd_clicked) { return lcd_goto_previous_menu(); }
     ENCODER_DIRECTION_NORMAL();
     if (encoderPosition) {
       current_position[E_AXIS] += float((int32_t)encoderPosition) * move_menu_scale;
@@ -1884,7 +1884,7 @@ void kill_screen(const char* lcd_msg) {
    */
   #if HAS_LCD_CONTRAST
     static void lcd_set_contrast() {
-      if (lcd_clicked) { return lcd_goto_previous_menu(true); }
+      if (lcd_clicked) { return lcd_goto_previous_menu(); }
       ENCODER_DIRECTION_NORMAL();
       if (encoderPosition) {
         set_lcd_contrast(lcd_contrast + encoderPosition);
@@ -1997,7 +1997,7 @@ void kill_screen(const char* lcd_msg) {
        *
        */
       static void lcd_info_stats_menu() {
-        if (lcd_clicked) { return lcd_goto_previous_menu(true); }
+        if (lcd_clicked) { return lcd_goto_previous_menu(); }
 
         char buffer[21];
         printStatistics stats = print_job_timer.getStats();
@@ -2031,7 +2031,7 @@ void kill_screen(const char* lcd_msg) {
      *
      */
     static void lcd_info_thermistors_menu() {
-      if (lcd_clicked) { return lcd_goto_previous_menu(true); }
+      if (lcd_clicked) { return lcd_goto_previous_menu(); }
       START_SCREEN();
       #define THERMISTOR_ID TEMP_SENSOR_0
       #include "thermistornames.h"
@@ -2083,7 +2083,7 @@ void kill_screen(const char* lcd_msg) {
      *
      */
     static void lcd_info_board_menu() {
-      if (lcd_clicked) { return lcd_goto_previous_menu(true); }
+      if (lcd_clicked) { return lcd_goto_previous_menu(); }
       START_SCREEN();
       STATIC_ITEM(BOARD_NAME, true, true);                           // MyPrinterController
       STATIC_ITEM(MSG_INFO_BAUDRATE ": " STRINGIFY(BAUDRATE), true); // Baud: 250000
@@ -2104,7 +2104,7 @@ void kill_screen(const char* lcd_msg) {
      *
      */
     static void lcd_info_printer_menu() {
-      if (lcd_clicked) { return lcd_goto_previous_menu(true); }
+      if (lcd_clicked) { return lcd_goto_previous_menu(); }
       START_SCREEN();
       STATIC_ITEM(MSG_MARLIN, true, true);                             // Marlin
       STATIC_ITEM(SHORT_BUILD_VERSION, true);                          // x.x.x-Branch
@@ -2300,7 +2300,7 @@ void kill_screen(const char* lcd_msg) {
         lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) / scale)); \
       if (lcd_clicked) { \
         *((_type*)editValue) = ((_type)((int32_t)encoderPosition + minEditValue)) / scale; \
-        lcd_goto_previous_menu(true); \
+        lcd_goto_previous_menu(); \
       } \
       return lcd_clicked; \
     } \
