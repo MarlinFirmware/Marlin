@@ -929,24 +929,18 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   int moves_queued = movesplanned();
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
-  #if ENABLED(OLD_SLOWDOWN) || ENABLED(SLOWDOWN)
-    bool mq = moves_queued > 1 && moves_queued < (BLOCK_BUFFER_SIZE) / 2;
-    #if ENABLED(OLD_SLOWDOWN)
-      if (mq) fr_mm_s *= 2.0 * moves_queued / (BLOCK_BUFFER_SIZE);
-    #endif
-    #if ENABLED(SLOWDOWN)
-      //  segment time im micro seconds
-      unsigned long segment_time = lround(1000000.0/inverse_mm_s);
-      if (mq) {
-        if (segment_time < min_segment_time) {
-          // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-          inverse_mm_s = 1000000.0 / (segment_time + lround(2 * (min_segment_time - segment_time) / moves_queued));
-          #ifdef XY_FREQUENCY_LIMIT
-            segment_time = lround(1000000.0 / inverse_mm_s);
-          #endif
-        }
+  #if ENABLED(SLOWDOWN)
+    // Segment time im micro seconds
+    unsigned long segment_time = lround(1000000.0 / inverse_mm_s);
+    if (moves_queued > 1 && moves_queued < (BLOCK_BUFFER_SIZE) / 2) {
+      if (segment_time < min_segment_time) {
+        // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
+        inverse_mm_s = 1000000.0 / (segment_time + lround(2 * (min_segment_time - segment_time) / moves_queued));
+        #ifdef XY_FREQUENCY_LIMIT
+          segment_time = lround(1000000.0 / inverse_mm_s);
+        #endif
       }
-    #endif
+    }
   #endif
 
   block->nominal_speed = block->millimeters * inverse_mm_s; // (mm/sec) Always > 0
