@@ -224,6 +224,10 @@
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
+// Define a pin to turn case light on/off
+//#define CASE_LIGHT_PIN 4
+//#define CASE_LIGHT_DEFAULT_ON   // Uncomment to set default state to on
+
 //===========================================================================
 //============================ Mechanical Settings ==========================
 //===========================================================================
