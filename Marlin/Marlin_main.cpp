@@ -8698,7 +8698,68 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 
-#endif // MESH_BED_LEVELING
+#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+  /**
+   * Prepare a mesh-leveled linear move in a Cartesian setup,
+   * splitting the move where it crosses mesh borders.
+   */
+  void bilinear_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
+    int cx1 = RAW_CURRENT_POSITION(X_AXIS) / bilinear_grid_spacing[X_AXIS],
+        cy1 = RAW_CURRENT_POSITION(Y_AXIS) / bilinear_grid_spacing[Y_AXIS],
+        cx2 = RAW_X_POSITION(destination[X_AXIS]) / bilinear_grid_spacing[X_AXIS],
+        cy2 = RAW_Y_POSITION(destination[Y_AXIS]) / bilinear_grid_spacing[Y_AXIS];
+    NOMORE(cx1, ABL_GRID_POINTS_X - 2);
+    NOMORE(cy1, ABL_GRID_POINTS_Y - 2);
+    NOMORE(cx2, ABL_GRID_POINTS_X - 2);
+    NOMORE(cy2, ABL_GRID_POINTS_Y - 2);
+
+    if (cx1 == cx2 && cy1 == cy2) {
+      // Start and end on same mesh square
+      line_to_destination(fr_mm_s);
+      set_current_to_destination();
+      return;
+    }
+
+    #define LINE_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
+
+    float normalized_dist, end[NUM_AXIS];
+
+    // Split at the left/front border of the right/top square
+    int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+    if (cx2 != cx1 && TEST(x_splits, gcx)) {
+      memcpy(end, destination, sizeof(end));
+      destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + bilinear_grid_spacing[X_AXIS] * gcx);
+      normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
+      destination[Y_AXIS] = LINE_SEGMENT_END(Y);
+      CBI(x_splits, gcx);
+    }
+    else if (cy2 != cy1 && TEST(y_splits, gcy)) {
+      memcpy(end, destination, sizeof(end));
+      destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + bilinear_grid_spacing[Y_AXIS] * gcy);
+      normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
+      destination[X_AXIS] = LINE_SEGMENT_END(X);
+      CBI(y_splits, gcy);
+    }
+    else {
+      // Already split on a border
+      line_to_destination(fr_mm_s);
+      set_current_to_destination();
+      return;
+    }
+
+    destination[Z_AXIS] = LINE_SEGMENT_END(Z);
+    destination[E_AXIS] = LINE_SEGMENT_END(E);
+
+    // Do the split and look for more borders
+    bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
+
+    // Restore destination from stack
+    memcpy(destination, end, sizeof(end));
+    bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
+  }
+
+#endif // AUTO_BED_LEVELING_BILINEAR
 
 #if IS_KINEMATIC
 
@@ -8889,6 +8950,12 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       #if ENABLED(MESH_BED_LEVELING)
         if (mbl.active()) {
           mesh_line_to_destination(MMS_SCALED(feedrate_mm_s));
+          return false;
+        }
+        else
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        if (planner.abl_enabled) {
+          bilinear_line_to_destination(MMS_SCALED(feedrate_mm_s));
           return false;
         }
         else
