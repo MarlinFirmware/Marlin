@@ -1243,12 +1243,16 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   #if ENABLED(LIN_ADVANCE)
 
+    // Don't use LIN_ADVANCE for blocks if:
+    // !block->steps[E_AXIS]: We don't have E steps todo (Travel move)
+    // !block->steps[X_AXIS] && !block->steps[Y_AXIS]: We don't have a movement in XY direction (Retract / Prime moves)
+    // extruder_advance_k == 0.0: There is no advance factor set
     // block->steps[E_AXIS] == block->step_event_count: A problem occurs when there's a very tiny move before a retract.
     // In this case, the retract and the move will be executed together.
     // This leads to an enormous number of advance steps due to a huge e_acceleration.
     // The math is correct, but you don't want a retract move done with advance!
-    // So this situation is filtered out here.
-    if (!esteps || (!block->steps[X_AXIS] && !block->steps[Y_AXIS]) || extruder_advance_k == 0.0 || (uint32_t)esteps == block->step_event_count) {
+    // de_float <= 0.0: Extruder is running in reverse direction (for example during "Wipe while retracting" (Slic3r) or "Combing" (Cura) movements)
+    if (!esteps || (!block->steps[X_AXIS] && !block->steps[Y_AXIS]) || extruder_advance_k == 0.0 || (uint32_t)esteps == block->step_event_count || de_float <= 0.0) {
       block->use_advance_lead = false;
     }
     else {
