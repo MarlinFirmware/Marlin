@@ -1,4 +1,12 @@
 
+#  BQ Marlin v2.4.0
+---
+### Bugfixes:
+* Added support for box fan when printing through serial (W2).
+
+### New hardware support:
+* Support for new printer Hephestos with BQ-Zum Mega3D board (HZ).
+
 #  BQ Marlin v2.3.1
 ---
 ### Bugfixes:
