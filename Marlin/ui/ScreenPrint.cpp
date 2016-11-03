@@ -92,12 +92,12 @@ namespace ui
 			m_bed_heating = false;
 			uint8_t bed_temp = temp::TemperatureManager::single::instance().getBedCurrentTemperature();
 			uint8_t bed_target = temp::TemperatureManager::single::instance().getBedTargetTemperature();
-			if(bed_temp <= bed_target-3)
+			if(bed_temp <= bed_target-2)
 			{
 				m_bed_heating = true;
 			}
 			
-			if((abs(m_bed_observed - bed_temp) > 1) && m_bed_heating)
+			if((abs(m_bed_observed - bed_temp) >= 1) && m_bed_heating)
 			{
 				char s_target[4] = { 0 };
 				char s_current[4] = { 0 };
