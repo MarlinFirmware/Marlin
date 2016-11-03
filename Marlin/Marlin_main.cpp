@@ -8662,7 +8662,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     #define MBL_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
 
-    float normalized_dist, end[NUM_AXIS];
+    float normalized_dist, end[XYZE];
 
     // Split at the left/front border of the right/top square
     int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
@@ -8700,19 +8700,21 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
 #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
+  #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) / bilinear_grid_spacing[A##_AXIS])
+
   /**
-   * Prepare a mesh-leveled linear move in a Cartesian setup,
-   * splitting the move where it crosses mesh borders.
+   * Prepare a bilinear-leveled linear move on Cartesian,
+   * splitting the move where it crosses grid borders.
    */
-  void bilinear_line_to_destination(float fr_mm_s, uint8_t x_splits = 0xff, uint8_t y_splits = 0xff) {
-    int cx1 = RAW_CURRENT_POSITION(X_AXIS) / bilinear_grid_spacing[X_AXIS],
-        cy1 = RAW_CURRENT_POSITION(Y_AXIS) / bilinear_grid_spacing[Y_AXIS],
-        cx2 = RAW_X_POSITION(destination[X_AXIS]) / bilinear_grid_spacing[X_AXIS],
-        cy2 = RAW_Y_POSITION(destination[Y_AXIS]) / bilinear_grid_spacing[Y_AXIS];
-    NOMORE(cx1, ABL_GRID_POINTS_X - 2);
-    NOMORE(cy1, ABL_GRID_POINTS_Y - 2);
-    NOMORE(cx2, ABL_GRID_POINTS_X - 2);
-    NOMORE(cy2, ABL_GRID_POINTS_Y - 2);
+  void bilinear_line_to_destination(float fr_mm_s, uint16_t x_splits = 0xFFFF, uint16_t y_splits = 0xFFFF) {
+    int cx1 = CELL_INDEX(X, current_position[X_AXIS]),
+        cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
+        cx2 = CELL_INDEX(X, destination[X_AXIS]),
+        cy2 = CELL_INDEX(Y, destination[Y_AXIS]);
+    cx1 = constrain(cx1, 0, ABL_GRID_POINTS_X - 2);
+    cy1 = constrain(cy1, 0, ABL_GRID_POINTS_Y - 2);
+    cx2 = constrain(cx2, 0, ABL_GRID_POINTS_X - 2);
+    cy2 = constrain(cy2, 0, ABL_GRID_POINTS_Y - 2);
 
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
@@ -8723,7 +8725,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     #define LINE_SEGMENT_END(A) (current_position[A ##_AXIS] + (destination[A ##_AXIS] - current_position[A ##_AXIS]) * normalized_dist)
 
-    float normalized_dist, end[NUM_AXIS];
+    float normalized_dist, end[XYZE];
 
     // Split at the left/front border of the right/top square
     int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
