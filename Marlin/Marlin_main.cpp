@@ -8698,7 +8698,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 
-#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+#elif ENABLED(AUTO_BED_LEVELING_BILINEAR) && !IS_KINEMATIC
 
   #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) / bilinear_grid_spacing[A##_AXIS])
 
@@ -8937,7 +8937,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     return true;
   }
 
-#else
+#else // !IS_KINEMATIC
 
   /**
    * Prepare a linear move in a Cartesian setup.
