@@ -132,7 +132,8 @@
 #define BED_MAXTEMP 150
 
 // Heated bed is considered hot at this temperature
-#define BED_HOT_TEMP 50
+#define BED_HOT_TEMP 45
+#define BED_AUTOLEVEL_TEMP 50
 
 // Heated bed control update frequency
 #define BED_UPDATES_PER_SEC 10
