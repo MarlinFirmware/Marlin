@@ -105,14 +105,14 @@ namespace ui
 		{
 			painter.setColorIndex(0);
 		}
-		uint8_t margin = 26;
-		if(m_value > 99)
+		uint8_t margin = 29;
+		if(m_value >= 100)
 		{
 			margin = 23;
 		}
 		else if(m_value < 10 && m_value >= 0)
 		{
-			margin = 32;
+			margin = 35;
 		}
 		painter.setPrintPos(x + margin, y + (m_size.height / 2) - (max_font_height / 2));
 		painter.print(painter.itostr3left((int)m_value));
