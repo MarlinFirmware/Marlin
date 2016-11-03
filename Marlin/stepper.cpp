@@ -982,8 +982,8 @@ void Stepper::set_position(const long &a, const long &b, const long &c, const lo
   #elif ENABLED(COREYZ)
     // coreyz planning
     count_position[X_AXIS] = a;
-    count_position[B_AXIS] = y + c;
-    count_position[C_AXIS] = y - c;
+    count_position[B_AXIS] = b + c;
+    count_position[C_AXIS] = b - c;
   #else
     // default non-h-bot planning
     count_position[X_AXIS] = a;
