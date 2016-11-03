@@ -194,4 +194,12 @@ enum LCDViewAction {
   LCDVIEW_CALL_NO_REDRAW
 };
 
+#if ENABLED(DUAL_X_CARRIAGE)
+  enum DualXMode {
+    DXC_FULL_CONTROL_MODE,
+    DXC_AUTO_PARK_MODE,
+    DXC_DUPLICATION_MODE
+  };
+#endif
+
 #endif // __ENUM_H__
