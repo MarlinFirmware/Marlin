@@ -1303,11 +1303,7 @@ bool get_target_extruder_from_command(int code) {
 
 #if ENABLED(DUAL_X_CARRIAGE)
 
-  #define DXC_FULL_CONTROL_MODE 0
-  #define DXC_AUTO_PARK_MODE    1
-  #define DXC_DUPLICATION_MODE  2
-
-  static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+  static DualXMode dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 
   static float x_home_pos(int extruder) {
     if (extruder == 0)
@@ -6950,7 +6946,7 @@ inline void gcode_M503() {
    */
   inline void gcode_M605() {
     stepper.synchronize();
-    if (code_seen('S')) dual_x_carriage_mode = code_value_byte();
+    if (code_seen('S')) dual_x_carriage_mode = (DualXMode)code_value_byte();
     switch (dual_x_carriage_mode) {
       case DXC_DUPLICATION_MODE:
         if (code_seen('X')) duplicate_extruder_x_offset = max(code_value_axis_units(X_AXIS), X2_MIN_POS - x_home_pos(0));
