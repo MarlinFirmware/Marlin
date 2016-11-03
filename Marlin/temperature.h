@@ -384,7 +384,7 @@ class Temperature {
 
     #if ENABLED(BABYSTEPPING)
 
-      static void babystep_axis(AxisEnum axis, int distance) {
+      static void babystep_axis(const AxisEnum axis, const int distance) {
         #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
           #if ENABLED(BABYSTEP_XY)
             switch (axis) {

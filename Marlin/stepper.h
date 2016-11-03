@@ -257,7 +257,7 @@ class Stepper {
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static void babystep(const uint8_t axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+      static void babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
     #endif
 
     static inline void kill_current_block() {
