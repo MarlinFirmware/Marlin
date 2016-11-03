@@ -2982,13 +2982,9 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     lastEncoderBits = enc;
   }
 
-  bool lcd_detected(void) {
-    #if (ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)) && ENABLED(DETECT_DEVICE)
-      return lcd.LcdDetected() == 1;
-    #else
-      return true;
-    #endif
-  }
+  #if (ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)) && ENABLED(DETECT_DEVICE)
+    bool lcd_detected() { return lcd.LcdDetected() == 1; }
+  #endif
 
 #endif // ULTIPANEL
 
