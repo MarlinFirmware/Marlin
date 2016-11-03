@@ -7305,6 +7305,16 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               current_position[X_AXIS] = LOGICAL_X_POSITION(inactive_extruder_x_pos);
               inactive_extruder_x_pos = RAW_X_POSITION(destination[X_AXIS]);
               break;
+            case DXC_AUTO_PARK_MODE:
+              // record raised toolhead position for use by unpark
+              memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+              raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
+              #if ENABLED(max_software_endstops)
+                NOMORE(raised_parked_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
+              #endif
+              active_extruder_parked = true;
+              delayed_move_time = 0;
+              break;
             case DXC_DUPLICATION_MODE:
               active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
               if (active_extruder_parked)
@@ -7313,13 +7323,6 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
                 current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
               inactive_extruder_x_pos = RAW_X_POSITION(destination[X_AXIS]);
               extruder_duplication_enabled = false;
-              break;
-            default:
-              // record raised toolhead position for use by unpark
-              memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-              raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
-              active_extruder_parked = true;
-              delayed_move_time = 0;
               break;
           }
 
