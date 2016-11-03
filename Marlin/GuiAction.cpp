@@ -84,9 +84,11 @@ void action_preheat()
 
 void action_cooldown()
 {
-
 	temp::TemperatureManager::single::instance().setBlowerControlState(true);
 	temp::TemperatureManager::single::instance().setTargetTemperature(0);
+#if HEATER_BED_PIN > -1
+	temp::TemperatureManager::single::instance().setBedTargetTemperature(0);
+#endif
 }
 
 void action_filament_unload()
@@ -289,7 +291,6 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
 
 void action_get_plane()
 {
-
 	#if Z_MIN_PIN == -1
 		#error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
 	#endif
@@ -796,6 +797,10 @@ void action_stop_print()
 		enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 	}
 	// autotempShutdown();
+	
+#if HEATER_BED_PIN > -1
+	temp::TemperatureManager::single::instance().setBedTargetTemperature(0);
+#endif // HEATER_BED_PIN > -1
 
 	cancel_heatup = true;
 
