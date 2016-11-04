@@ -41,9 +41,14 @@
   void lcd_setstatuspgm(const char* message, const uint8_t level=0);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
-  bool lcd_detected(void);
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
+
+  #if (ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)) && ENABLED(DETECT_DEVICE)
+    bool lcd_detected();
+  #else
+    inline bool lcd_detected() { return true; }
+  #endif
 
   #if HAS_BUZZER
     void lcd_buzz(long duration, uint16_t freq);
@@ -155,7 +160,7 @@
   inline void lcd_setstatuspgm(const char* message, const uint8_t level=0) { UNUSED(message); UNUSED(level); }
   inline void lcd_buttons_update() {}
   inline void lcd_reset_alert_level() {}
-  inline bool lcd_detected(void) { return true; }
+  inline bool lcd_detected() { return true; }
 
   #define LCD_MESSAGEPGM(x) NOOP
   #define LCD_ALERTMESSAGEPGM(x) NOOP

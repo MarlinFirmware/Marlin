@@ -1916,15 +1916,15 @@ void Temperature::isr() {
   } // temp_count >= OVERSAMPLENR
 
   #if ENABLED(BABYSTEPPING)
-    for (uint8_t axis = X_AXIS; axis <= Z_AXIS; axis++) {
+    LOOP_XYZ(axis) {
       int curTodo = babystepsTodo[axis]; //get rid of volatile for performance
 
       if (curTodo > 0) {
-        stepper.babystep(axis,/*fwd*/true);
+        stepper.babystep((AxisEnum)axis,/*fwd*/true);
         babystepsTodo[axis]--; //fewer to do next time
       }
       else if (curTodo < 0) {
-        stepper.babystep(axis,/*fwd*/false);
+        stepper.babystep((AxisEnum)axis,/*fwd*/false);
         babystepsTodo[axis]++; //fewer to do next time
       }
     }
