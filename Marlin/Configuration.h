@@ -1141,6 +1141,10 @@
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000
 
+// LCD_BENCHMARK gives some timing output on the serial.
+// Switch off during normal use.
+#define LCD_BENCHMARK
+
 //
 // CONTROLLER TYPE: Standard
 //
@@ -1216,7 +1220,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
 // MakerLab Mini Panel with graphic

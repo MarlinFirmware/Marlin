@@ -406,7 +406,12 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     }
   }
 
-  static void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
+  int8_t lcd_status_update_delay = 1; // first update one loop delayed
+
+  static void lcd_return_to_status() {
+    lcd_goto_screen(lcd_status_screen);
+    lcd_status_update_delay = 9;
+  }
 
   inline void lcd_save_previous_menu() {
     if (screen_history_depth < COUNT(screen_history)) {
@@ -857,7 +862,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_dac_menu() {
       dac_driver_getValues();
-      START_MENU();    
+      START_MENU();
       MENU_BACK(MSG_CONTROL);
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_X " " MSG_DAC_PERCENT, &driverPercent[X_AXIS], 0, 100, dac_driver_commit);
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_Y " " MSG_DAC_PERCENT, &driverPercent[Y_AXIS], 0, 100, dac_driver_commit);
@@ -1547,7 +1552,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
     #endif
     #if ENABLED(DAC_STEPPER_CURRENT)
-      MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu); 
+      MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu);
     #endif
 
     #if ENABLED(EEPROM_SETTINGS)
@@ -2709,7 +2714,6 @@ void lcd_update() {
 
     // We arrive here every ~100ms when idling often enough.
     // Instead of tracking the changes simply redraw the Info Screen ~1 time a second.
-    static int8_t lcd_status_update_delay = 1; // first update one loop delayed
     if (
       #if ENABLED(ULTIPANEL)
         currentScreen == lcd_status_screen &&
@@ -2719,22 +2723,40 @@ void lcd_update() {
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
 
+    #ifdef LCD_BENCHMARK
+      millis_t t0 = 0;
+      millis_t t1 = 0;
+      millis_t t2 = 0;
+      millis_t dt0t1 = 0;
+      millis_t dt0t2 = 0;
+      millis_t dt1t2 = 0;
+      static millis_t st0t1 = 0;
+      static millis_t st0t2 = 0;
+      static millis_t st1t2 = 0;
+    #endif
+
+    static int continue_update = 1;
+
     if (lcdDrawUpdate) {
 
-      switch (lcdDrawUpdate) {
-        case LCDVIEW_CALL_NO_REDRAW:
-          lcdDrawUpdate = LCDVIEW_NONE;
-          break;
-        case LCDVIEW_CLEAR_CALL_REDRAW: // set by handlers, then altered after (rarely occurs here)
-        case LCDVIEW_CALL_REDRAW_NEXT:  // set by handlers, then altered after (never occurs here?)
-          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
-        case LCDVIEW_NONE:
-          break;
+      if (!continue_update) {
+        switch (lcdDrawUpdate) {
+          case LCDVIEW_CALL_NO_REDRAW:
+            lcdDrawUpdate = LCDVIEW_NONE;
+            break;
+          case LCDVIEW_CLEAR_CALL_REDRAW: // set by handlers, then altered after (rarely occurs here)
+          case LCDVIEW_CALL_REDRAW_NEXT:  // set by handlers, then altered after (never occurs here?)
+            lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+          case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
+          case LCDVIEW_NONE:
+            break;
+        }
       }
 
+      static screenFunc_t drawing_Screen = lcd_status_screen;
+
       #if ENABLED(ULTIPANEL)
-        #define CURRENTSCREEN() (*currentScreen)(), lcd_clicked = false
+        #define CURRENTSCREEN() (*drawing_Screen)(), lcd_clicked = false
       #else
         #define CURRENTSCREEN() lcd_status_screen()
       #endif
@@ -2742,19 +2764,92 @@ void lcd_update() {
       #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
         static int8_t dot_color = 0;
         dot_color = 1 - dot_color;
-        u8g.firstPage();
-        do {
-          lcd_setFont(FONT_MENU);
-          u8g.setPrintPos(125, 0);
-          u8g.setColorIndex(dot_color); // Set color for the alive dot
-          u8g.drawPixel(127, 63); // draw alive dot
-          u8g.setColorIndex(1); // black on white
-          CURRENTSCREEN();
-        } while (u8g.nextPage());
+        #ifdef LCD_BENCHMARK
+          t0 = t2 = millis();
+        #endif
+        if(drawing_Screen == lcd_status_screen) { // distribute to avoid stuttering
+          switch(lcd_status_update_delay) {
+            case 9: u8g.firstPage();
+                  #ifdef LCD_BENCHMARK
+                    t1 = millis();
+                    //SERIAL_ECHO_START;
+                    //SERIAL_ECHOPGM("LCD_first: ");
+                    dt0t1 = t1-t0;
+                    st0t1 += dt0t1;
+                    //SERIAL_ECHO(dt0t1);
+                  #endif
+                  break;
+            #if (PAGE_HEIGHT < 16)
+              case 8:
+              case 6:
+              case 4:
+              case 2:
+            #endif
+            #if (PAGE_HEIGHT < 32)
+              case 5:
+              case 1:
+            #endif
+            case 7:
+            case 3:
+            lcd_setFont(FONT_MENU);
+            u8g.setPrintPos(125, 0);
+            u8g.setColorIndex(dot_color); // Set color for the alive dot
+            u8g.drawPixel(127, 63); // draw alive dot
+            u8g.setColorIndex(1); // black on white
+            CURRENTSCREEN();
+            #ifdef LCD_BENCHMARK
+              t1 = millis();
+              dt0t1 = t1-t0;
+              st0t1 += dt0t1;
+              SERIAL_ECHOPGM("; ");
+              SERIAL_ECHO(dt0t1);
+            #endif
+            continue_update = u8g.nextPage();
+            if(!continue_update) drawing_Screen = currentScreen;
+            #ifdef LCD_BENCHMARK
+              t2 = millis();
+              dt0t2 = t2-t0;
+              st0t2 += dt0t2;
+              dt1t2 = t2-t1;
+              st1t2 += dt1t2;
+              SERIAL_ECHOPGM(", ");
+              SERIAL_ECHO(dt1t2);
+            #endif
+            default: ;
+          }
+        } else { // menues & co. - draw as fast as possible to avoid lagging
+          u8g.firstPage();
+          drawing_Screen = currentScreen;
+          do {
+            #ifdef LCD_BENCHMARK
+              t0 = millis();
+            #endif
+            lcd_setFont(FONT_MENU);
+            u8g.setPrintPos(125, 0);
+            u8g.setColorIndex(dot_color); // Set color for the alive dot
+            u8g.drawPixel(127, 63); // draw alive dot
+            u8g.setColorIndex(1); // black on white
+            CURRENTSCREEN();
+            #ifdef LCD_BENCHMARK
+              t1 = millis();
+              dt0t1 = t1-t0;
+              st0t1 += dt0t1;
+              SERIAL_ECHO("* ");
+              SERIAL_ECHO(dt0t1);
+            #endif
+            continue_update = u8g.nextPage();
+          } while (continue_update);
+          #ifdef LCD_BENCHMARK
+            t0 = millis();
+            st0t2 = t0-t2;
+            st1t2 = st0t2 - st0t1;
+          #endif
+        }
       #else
         CURRENTSCREEN();
       #endif
     }
+
 
     #if ENABLED(ULTIPANEL)
 
@@ -2766,17 +2861,35 @@ void lcd_update() {
 
     #endif // ULTIPANEL
 
-    switch (lcdDrawUpdate) {
-      case LCDVIEW_CLEAR_CALL_REDRAW:
-        lcd_implementation_clear();
-      case LCDVIEW_CALL_REDRAW_NEXT:
-        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        break;
-      case LCDVIEW_REDRAW_NOW:
-        lcdDrawUpdate = LCDVIEW_NONE;
-        break;
-      case LCDVIEW_NONE:
-        break;
+    if (!continue_update) {
+      switch (lcdDrawUpdate) {
+        case LCDVIEW_CLEAR_CALL_REDRAW:
+          lcd_implementation_clear();
+        case LCDVIEW_CALL_REDRAW_NEXT:
+          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+          break;
+        case LCDVIEW_REDRAW_NOW:
+          lcdDrawUpdate = LCDVIEW_NONE;
+          break;
+        case LCDVIEW_NONE:
+          break;
+      }
+      continue_update = 1;
+      #ifdef LCD_BENCHMARK
+        SERIAL_ECHOPGM("\nS_Draw :");
+        SERIAL_ECHO(st0t1);
+        SERIAL_ECHOPGM(" S_Trans :");
+        SERIAL_ECHO(st1t2);
+        SERIAL_ECHOPGM(" S :");
+        SERIAL_ECHO(st0t2);
+        st0t1 = st0t2 = st1t2 = 0;
+        SERIAL_ECHOLNPGM("");
+      #endif
+    } else {
+      #ifdef LCD_BENCHMARK
+        SERIAL_ECHOLNPGM("");
+      #endif
+
     }
 
   }
