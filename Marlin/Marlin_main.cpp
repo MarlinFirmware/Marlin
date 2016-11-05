@@ -2437,6 +2437,102 @@ static void clean_up_after_endstop_or_probe_move() {
     SERIAL_EOL;
   }
 
+  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+    #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1
+    #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1
+    float bed_level_grid_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
+    float bed_level_grid_virt_temp[ABL_GRID_POINTS_X + 2][ABL_GRID_POINTS_Y + 2]; //temporary for calculation (maybe dynamical?)
+    int bilinear_grid_spacing_virt[2] = { 0 };
+
+    static void bed_level_virt_print() {
+      SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
+      for (uint8_t x = 0; x < ABL_GRID_POINTS_VIRT_X; x++) {
+        SERIAL_PROTOCOLPGM("       ");
+        if (x < 10) SERIAL_PROTOCOLCHAR(' ');
+        SERIAL_PROTOCOL((int)x);
+      }
+      SERIAL_EOL;
+      for (uint8_t y = 0; y < ABL_GRID_POINTS_VIRT_Y; y++) {
+        if (y < 10) SERIAL_PROTOCOLCHAR(' ');
+        SERIAL_PROTOCOL((int)y);
+        for (uint8_t x = 0; x < ABL_GRID_POINTS_VIRT_X; x++) {
+          SERIAL_PROTOCOLCHAR(' ');
+          float offset = bed_level_grid_virt[x][y];
+          if (offset < 999.0) {
+            if (offset > 0) SERIAL_CHAR('+');
+            SERIAL_PROTOCOL_F(offset, 5);
+          }
+          else
+            SERIAL_PROTOCOLPGM(" ====");
+        }
+        SERIAL_EOL;
+      }
+      SERIAL_EOL;
+    }
+    #define LINEAR_EXTRAPOLATION(E, I) (E * 2 - I)
+    static void bed_level_virt_prepare() {
+      for (uint8_t y = 1; y <= ABL_GRID_POINTS_Y; y++) {
+
+        for (uint8_t x = 1; x <= ABL_GRID_POINTS_X; x++)
+          bed_level_grid_virt_temp[x][y] = bed_level_grid[x - 1][y - 1];
+
+        bed_level_grid_virt_temp[0][y] = LINEAR_EXTRAPOLATION(
+          bed_level_grid_virt_temp[1][y],
+          bed_level_grid_virt_temp[2][y]
+        );
+
+        bed_level_grid_virt_temp[(ABL_GRID_POINTS_X + 2) - 1][y] =
+          LINEAR_EXTRAPOLATION(
+            bed_level_grid_virt_temp[(ABL_GRID_POINTS_X + 2) - 2][y],
+            bed_level_grid_virt_temp[(ABL_GRID_POINTS_X + 2) - 3][y]
+          );
+      }
+      for (uint8_t x = 0; x < ABL_GRID_POINTS_X + 2; x++) {
+        bed_level_grid_virt_temp[x][0] = LINEAR_EXTRAPOLATION(
+          bed_level_grid_virt_temp[x][1],
+          bed_level_grid_virt_temp[x][2]
+        );
+        bed_level_grid_virt_temp[x][(ABL_GRID_POINTS_Y + 2) - 1] =
+          LINEAR_EXTRAPOLATION(
+            bed_level_grid_virt_temp[x][(ABL_GRID_POINTS_Y + 2) - 2],
+            bed_level_grid_virt_temp[x][(ABL_GRID_POINTS_Y + 2) - 3]
+          );
+      }
+    }
+    static float bed_level_virt_cmr(const float p[4], const uint8_t i, const float t) {
+      return (
+          p[i-1] * -t * sq(1 - t)
+        + p[i]   * (2 - 5 * sq(t) + 3 * t * sq(t))
+        + p[i+1] * t * (1 + 4 * t - 3 * sq(t))
+        - p[i+2] * sq(t) * (1 - t)
+      ) * 0.5;
+    }
+    static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const float &tx, const float &ty) {
+      float row[4], column[4];
+      for (uint8_t i = 0; i < 4; i++) {
+        for (uint8_t j = 0; j < 4; j++) // can be memcopy or through memory access
+          column[j] = bed_level_grid_virt_temp[i + x - 1][j + y - 1];
+        row[i] = bed_level_virt_cmr(column, 1, ty);
+      }
+      return bed_level_virt_cmr(row, 1, tx);
+    }
+    static void bed_level_virt_interpolate() {
+      for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++)
+        for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++)
+          for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ty++)
+            for (uint8_t tx = 0; tx < BILINEAR_SUBDIVISIONS; tx++) {
+              if ((ty && y == ABL_GRID_POINTS_Y - 1) || (tx && x == ABL_GRID_POINTS_X - 1))
+                continue;
+              bed_level_grid_virt[x * (BILINEAR_SUBDIVISIONS) + tx][y * (BILINEAR_SUBDIVISIONS) + ty] =
+                bed_level_virt_2cmr(
+                  x + 1,
+                  y + 1,
+                  (float)tx / (BILINEAR_SUBDIVISIONS),
+                  (float)ty / (BILINEAR_SUBDIVISIONS)
+                );
+            }
+    }
+  #endif // ABL_BILINEAR_SUBDIVISION
 #endif // AUTO_BED_LEVELING_BILINEAR
 
 
@@ -3922,6 +4018,10 @@ inline void gcode_G28() {
           || front_probe_bed_position != bilinear_start[Y_AXIS]
         ) {
           reset_bed_level();
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bilinear_grid_spacing_virt[X_AXIS] = xGridSpacing / (BILINEAR_SUBDIVISIONS);
+            bilinear_grid_spacing_virt[Y_AXIS] = yGridSpacing / (BILINEAR_SUBDIVISIONS);
+          #endif
           bilinear_grid_spacing[X_AXIS] = xGridSpacing;
           bilinear_grid_spacing[Y_AXIS] = yGridSpacing;
           bilinear_start[X_AXIS] = RAW_X_POSITION(left_probe_bed_position);
@@ -4091,6 +4191,12 @@ inline void gcode_G28() {
 
       if (!dryrun) extrapolate_unprobed_bed_level();
       print_bed_level();
+
+      #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+        bed_level_virt_prepare();
+        bed_level_virt_interpolate();
+        bed_level_virt_print();
+      #endif
 
     #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
@@ -8631,6 +8737,18 @@ void ok_to_send() {
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
+  #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+    #define ABL_BG_SPACING(A) bilinear_grid_spacing_virt[A]
+    #define ABL_BG_POINTS_X   ABL_GRID_POINTS_VIRT_X
+    #define ABL_BG_POINTS_Y   ABL_GRID_POINTS_VIRT_Y
+    #define ABL_BG_GRID(X,Y)  bed_level_grid_virt[X][Y]
+  #else
+    #define ABL_BG_SPACING(A) bilinear_grid_spacing[A]
+    #define ABL_BG_POINTS_X   ABL_GRID_POINTS_X
+    #define ABL_BG_POINTS_Y   ABL_GRID_POINTS_Y
+    #define ABL_BG_GRID(X,Y)  bed_level_grid[X][Y]
+  #endif
+
   // Get the Z adjustment for non-linear bed leveling
   float bilinear_z_offset(float cartesian[XYZ]) {
 
@@ -8639,14 +8757,14 @@ void ok_to_send() {
                 y = RAW_Y_POSITION(cartesian[Y_AXIS]) - bilinear_start[Y_AXIS];
 
     // Convert to grid box units
-    float ratio_x = x / bilinear_grid_spacing[X_AXIS],
-          ratio_y = y / bilinear_grid_spacing[Y_AXIS];
+    float ratio_x = x / ABL_BG_SPACING(X_AXIS),
+          ratio_y = y / ABL_BG_SPACING(Y_AXIS);
 
     // Whole units for the grid line indices. Constrained within bounds.
-    const int gridx = constrain(floor(ratio_x), 0, ABL_GRID_POINTS_X - 1),
-              gridy = constrain(floor(ratio_y), 0, ABL_GRID_POINTS_Y - 1),
-              nextx = min(gridx + 1, ABL_GRID_POINTS_X - 1),
-              nexty = min(gridy + 1, ABL_GRID_POINTS_Y - 1);
+    const int gridx = constrain(floor(ratio_x), 0, ABL_BG_POINTS_X - 1),
+              gridy = constrain(floor(ratio_y), 0, ABL_BG_POINTS_Y - 1),
+              nextx = min(gridx + 1, ABL_BG_POINTS_X - 1),
+              nexty = min(gridy + 1, ABL_BG_POINTS_Y - 1);
 
     // Subtract whole to get the ratio within the grid box
     ratio_x -= gridx; ratio_y -= gridy;
@@ -8655,10 +8773,10 @@ void ok_to_send() {
     NOLESS(ratio_x, 0); NOLESS(ratio_y, 0);
 
     // Z at the box corners
-    const float z1 = bed_level_grid[gridx][gridy],  // left-front
-                z2 = bed_level_grid[gridx][nexty],  // left-back
-                z3 = bed_level_grid[nextx][gridy],  // right-front
-                z4 = bed_level_grid[nextx][nexty],  // right-back
+    const float z1 = ABL_BG_GRID(gridx, gridy),  // left-front
+                z2 = ABL_BG_GRID(gridx, nexty),  // left-back
+                z3 = ABL_BG_GRID(nextx, gridy),  // right-front
+                z4 = ABL_BG_GRID(nextx, nexty),  // right-back
 
                 // Bilinear interpolate
                 L = z1 + (z2 - z1) * ratio_y,   // Linear interp. LF -> LB
@@ -9006,7 +9124,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
 #elif ENABLED(AUTO_BED_LEVELING_BILINEAR) && !IS_KINEMATIC
 
-  #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) / bilinear_grid_spacing[A##_AXIS])
+  #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) / ABL_BG_SPACING(A##_AXIS))
 
   /**
    * Prepare a bilinear-leveled linear move on Cartesian,
@@ -9017,10 +9135,10 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
         cx2 = CELL_INDEX(X, destination[X_AXIS]),
         cy2 = CELL_INDEX(Y, destination[Y_AXIS]);
-    cx1 = constrain(cx1, 0, ABL_GRID_POINTS_X - 2);
-    cy1 = constrain(cy1, 0, ABL_GRID_POINTS_Y - 2);
-    cx2 = constrain(cx2, 0, ABL_GRID_POINTS_X - 2);
-    cy2 = constrain(cy2, 0, ABL_GRID_POINTS_Y - 2);
+    cx1 = constrain(cx1, 0, ABL_BG_POINTS_X - 2);
+    cy1 = constrain(cy1, 0, ABL_BG_POINTS_Y - 2);
+    cx2 = constrain(cx2, 0, ABL_BG_POINTS_X - 2);
+    cy2 = constrain(cy2, 0, ABL_BG_POINTS_Y - 2);
 
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
@@ -9037,14 +9155,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       memcpy(end, destination, sizeof(end));
-      destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + bilinear_grid_spacing[X_AXIS] * gcx);
+      destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx);
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = LINE_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
       memcpy(end, destination, sizeof(end));
-      destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + bilinear_grid_spacing[Y_AXIS] * gcy);
+      destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy);
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = LINE_SEGMENT_END(X);
       CBI(y_splits, gcy);
