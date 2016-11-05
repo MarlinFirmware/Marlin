@@ -117,7 +117,7 @@
  * G21 - Set input units to millimeters
  * G28 - Home one or more axes
  * G29 - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
- * G30 - Single Z probe, probes bed at current XY location.
+ * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
  * G31 - Dock sled (Z_PROBE_SLED only)
  * G32 - Undock sled (Z_PROBE_SLED only)
  * G38 - Probe target - similar to G28 except it uses the Z_MIN endstop for all three axes
@@ -4226,8 +4226,16 @@ inline void gcode_G28() {
 
   /**
    * G30: Do a single Z probe at the current XY
+   * Usage:
+   *   G30 <X#> <Y#> <S#>
+   *     X = Probe X position (default=current probe position)
+   *     Y = Probe Y position (default=current probe position)
+   *     S = Stows the probe if 1 (default=1)
    */
   inline void gcode_G30() {
+    float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER;
+    float Y_probe_location = code_seen('Y') ? code_value_axis_units(Y_AXIS) : current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
+    bool stow = code_seen('S') ? code_value_bool() : true;
 
     // Disable leveling so the planner won't mess with us
     #if PLANNER_LEVELING
@@ -4236,9 +4244,9 @@ inline void gcode_G28() {
 
     setup_for_endstop_or_probe_move();
 
-    float measured_z = probe_pt(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
-                                current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
-                                true, 1);
+    float measured_z = probe_pt(X_probe_location,
+                                Y_probe_location,
+                                stow, 1);
 
     SERIAL_PROTOCOLPGM("Bed X: ");
     SERIAL_PROTOCOL(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER + 0.0001);
