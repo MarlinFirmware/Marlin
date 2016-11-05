@@ -289,7 +289,7 @@
 
 bool Running = true;
 
-uint8_t marlin_debug_flags = DEBUG_NONE;
+uint8_t marlin_debug_flags = DEBUG_NONE | DEBUG_LEVELING;
 
 /**
  * Cartesian Current Position
@@ -2401,7 +2401,126 @@ static void clean_up_after_endstop_or_probe_move() {
     }
     SERIAL_EOL;
   }
+#define ABL_GRID_VIRT 3
+#if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
+  #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_POINTS_X-1)*ABL_GRID_VIRT+1
+  #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_POINTS_Y-1)*ABL_GRID_VIRT+1
+  float bed_level_grid_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
+  float bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2][ABL_GRID_POINTS_Y+2];
+  int bilinear_grid_spacing_virt[2] = { 0 };
 
+  static void print_bed_level_virt() {
+    SERIAL_ECHOPGM("DUMP of CATMULL ROM Leveling Grid:\n ");
+    for (uint8_t x = 0; x < ABL_GRID_POINTS_VIRT_X; x++) {
+      SERIAL_PROTOCOLPGM("    ");
+      if (x < 10) SERIAL_PROTOCOLCHAR(' ');
+      SERIAL_PROTOCOL((int)x);
+    }
+    SERIAL_EOL;
+    for (uint8_t y = 0; y < ABL_GRID_POINTS_VIRT_Y; y++) {
+      if (y < 9) SERIAL_PROTOCOLCHAR(' ');
+      SERIAL_PROTOCOL((int)y);
+      for (uint8_t x = 0; x < ABL_GRID_POINTS_VIRT_X; x++) {
+        SERIAL_PROTOCOLCHAR(' ');
+        float offset = bed_level_grid_virt[x][y];
+        if (offset < 999.0) {
+          if (offset > 0) SERIAL_CHAR('+');
+          SERIAL_PROTOCOL_F(offset, 2);
+        }
+        else
+          SERIAL_PROTOCOLPGM(" ====");
+      }
+      SERIAL_EOL;
+    }
+    SERIAL_EOL;
+  }
+  static void print_bed_level_virt_temp() {
+    SERIAL_ECHOPGM("DUMP of Bilinear TEMP Leveling Grid:\n ");
+    for (uint8_t x = 0; x < (ABL_GRID_POINTS_X+2); x++) {
+      SERIAL_PROTOCOLPGM("    ");
+      if (x < 10) SERIAL_PROTOCOLCHAR(' ');
+      SERIAL_PROTOCOL((int)x);
+    }
+    SERIAL_EOL;
+    for (uint8_t y = 0; y < (ABL_GRID_POINTS_Y+2); y++) {
+      if (y < 9) SERIAL_PROTOCOLCHAR(' ');
+      SERIAL_PROTOCOL((int)y);
+      for (uint8_t x = 0; x < (ABL_GRID_POINTS_X+2); x++) {
+        SERIAL_PROTOCOLCHAR(' ');
+        float offset = bed_level_grid_virt_temp[x][y];
+        if (offset < 999.0) {
+          if (offset > 0) SERIAL_CHAR('+');
+          SERIAL_PROTOCOL_F(offset, 2);
+        }
+        else
+          SERIAL_PROTOCOLPGM(" ====");
+      }
+      SERIAL_EOL;
+    }
+    SERIAL_EOL;
+  }
+  static void print_bed_level_virt_points(float p[4]) {
+    SERIAL_EOL;
+      for (uint8_t x = 0; x < 4; x++) {
+        SERIAL_PROTOCOLCHAR(' ');
+        float offset = p[x];
+        if (offset < 999.0) {
+          if (offset > 0) SERIAL_CHAR('+');
+          SERIAL_PROTOCOL_F(offset, 2);
+        }
+	  }
+    SERIAL_EOL;
+  }
+  static void bed_level_virt_prepare() {
+    for (uint8_t y = 0; y < (ABL_GRID_POINTS_Y); y++) {
+      for (uint8_t x = 0; x < (ABL_GRID_POINTS_X); x++) {
+        float offset = bed_level_grid[x][y];
+		bed_level_grid_virt_temp[x+1][y+1]=offset;
+		bed_level_grid_virt[x*ABL_GRID_VIRT][y*ABL_GRID_VIRT]=offset;
+      }
+	  bed_level_grid_virt_temp[0][y+1]=bed_level_grid_virt_temp[1][y+1];
+	  bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2-1][y+1]=bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2-2][y+1];
+    }
+    for (uint8_t x = 0; x < (ABL_GRID_POINTS_X+2); x++) {
+	  bed_level_grid_virt_temp[x][0]=bed_level_grid_virt_temp[x][1];
+	  bed_level_grid_virt_temp[x][ABL_GRID_POINTS_Y+2-1]=bed_level_grid_virt_temp[x][ABL_GRID_POINTS_Y+2-2];
+	}
+  }
+  static float bed_level_virt_cmr(float p[4],uint8_t i, float t){
+	return .5*(-t*(1-t)*(1-t)*p[i-1]+(2-5*t*t+3*t*t*t)*p[i]+t*(1+4*t-3*t*t)*p[i+1]-t*t*(1-t)*p[i+2]);
+  }
+  float bed_level_virt_2cmr(uint8_t x,uint8_t y, float tx, float ty){
+	float row[4],column[4];
+	for (uint8_t i=0;i<4;i++){
+	  for (uint8_t j=0;j<4;j++) // can be memcopy or through memory access
+		column[j]=bed_level_grid_virt_temp[i+x-1][j+y-1];
+	  row[i]=bed_level_virt_cmr(column,1,ty);
+	}
+	return bed_level_virt_cmr(row,1,tx);
+  }
+  static void bed_level_virt_interpolate() {
+    for (uint8_t y = 0; y < (ABL_GRID_POINTS_Y); y++)
+      for (uint8_t x = 0; x < (ABL_GRID_POINTS_X); x++)
+  		for (uint8_t ty = 0; ty < (ABL_GRID_VIRT); ty++)
+    	  for (uint8_t tx = 0; tx < (ABL_GRID_VIRT); tx++) {
+			if((y==ABL_GRID_POINTS_Y-1&&ty!=0)||(x==ABL_GRID_POINTS_X-1&&tx!=0)){
+/*
+          SERIAL_PROTOCOL((int)x);
+      	  SERIAL_PROTOCOLCHAR(',');
+          SERIAL_PROTOCOL((int)y);
+      	  SERIAL_PROTOCOLCHAR('=');
+          SERIAL_PROTOCOL((int)tx);
+      	  SERIAL_PROTOCOLCHAR(',');
+          SERIAL_PROTOCOL((int)ty);
+    SERIAL_EOL;
+*/
+			  continue;
+			}
+			float offset=bed_level_virt_2cmr(x+1,y+1,(float)tx/ABL_GRID_VIRT,(float)ty/ABL_GRID_VIRT);
+      		bed_level_grid_virt[x*ABL_GRID_VIRT+tx][y*ABL_GRID_VIRT+ty]=offset;
+    	  }
+  }
+#endif
 #endif // AUTO_BED_LEVELING_BILINEAR
 
 
@@ -3853,6 +3972,10 @@ inline void gcode_G28() {
           || front_probe_bed_position != bilinear_start[Y_AXIS]
         ) {
           reset_bed_level();
+		  #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
+			bilinear_grid_spacing_virt[X_AXIS] = xGridSpacing/ABL_GRID_VIRT;
+			bilinear_grid_spacing_virt[Y_AXIS] = yGridSpacing/ABL_GRID_VIRT;
+		  #endif
           bilinear_grid_spacing[X_AXIS] = xGridSpacing;
           bilinear_grid_spacing[Y_AXIS] = yGridSpacing;
           bilinear_start[X_AXIS] = RAW_X_POSITION(left_probe_bed_position);
@@ -4022,7 +4145,13 @@ inline void gcode_G28() {
 
       if (!dryrun) extrapolate_unprobed_bed_level();
       print_bed_level();
-
+	//if interpolation
+	  #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
+		bed_level_virt_prepare();
+		print_bed_level_virt_temp();
+		bed_level_virt_interpolate();
+		print_bed_level_virt();
+	  #endif
     #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
 
       // For LINEAR leveling calculate matrix, print reports, correct the position
@@ -8332,15 +8461,25 @@ void ok_to_send() {
     const float x = RAW_X_POSITION(cartesian[X_AXIS]) - bilinear_start[X_AXIS],
                 y = RAW_Y_POSITION(cartesian[Y_AXIS]) - bilinear_start[Y_AXIS];
 
+	#if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
+    // Convert to grid box units
+    float ratio_x = x / bilinear_grid_spacing_virt[X_AXIS],
+          ratio_y = y / bilinear_grid_spacing_virt[Y_AXIS];
+    // Whole units for the grid line indices. Constrained within bounds.
+    const int gridx = constrain(floor(ratio_x), 0, ABL_GRID_POINTS_VIRT_X - 1),
+              gridy = constrain(floor(ratio_y), 0, ABL_GRID_POINTS_VIRT_Y - 1),
+              nextx = min(gridx + 1, ABL_GRID_POINTS_VIRT_X - 1),
+              nexty = min(gridy + 1, ABL_GRID_POINTS_VIRT_Y - 1);
+	#else
     // Convert to grid box units
     float ratio_x = x / bilinear_grid_spacing[X_AXIS],
           ratio_y = y / bilinear_grid_spacing[Y_AXIS];
-
     // Whole units for the grid line indices. Constrained within bounds.
     const int gridx = constrain(floor(ratio_x), 0, ABL_GRID_POINTS_X - 1),
               gridy = constrain(floor(ratio_y), 0, ABL_GRID_POINTS_Y - 1),
               nextx = min(gridx + 1, ABL_GRID_POINTS_X - 1),
               nexty = min(gridy + 1, ABL_GRID_POINTS_Y - 1);
+	#endif
 
     // Subtract whole to get the ratio within the grid box
     ratio_x -= gridx; ratio_y -= gridy;
@@ -8348,11 +8487,19 @@ void ok_to_send() {
     // Never less than 0.0. (Over 1.0 is fine due to previous contraints.)
     NOLESS(ratio_x, 0); NOLESS(ratio_y, 0);
 
+	#if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
+    // Z at the box corners
+    const float z1 = bed_level_grid_virt[gridx][gridy],  // left-front
+                z2 = bed_level_grid_virt[gridx][nexty],  // left-back
+                z3 = bed_level_grid_virt[nextx][gridy],  // right-front
+                z4 = bed_level_grid_virt[nextx][nexty],  // right-back
+	#else
     // Z at the box corners
     const float z1 = bed_level_grid[gridx][gridy],  // left-front
                 z2 = bed_level_grid[gridx][nexty],  // left-back
                 z3 = bed_level_grid[nextx][gridy],  // right-front
                 z4 = bed_level_grid[nextx][nexty],  // right-back
+	#endif
 
                 // Bilinear interpolate
                 L = z1 + (z2 - z1) * ratio_y,   // Linear interp. LF -> LB
