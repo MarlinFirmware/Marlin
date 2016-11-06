@@ -57,8 +57,8 @@
   #error "Thermal Runaway Protection for hotends is now enabled with THERMAL_PROTECTION_HOTENDS."
 #elif DISABLED(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
   #error "Thermal Runaway Protection for the bed is now enabled with THERMAL_PROTECTION_BED."
-#elif ENABLED(COREXZ) && ENABLED(Z_LATE_ENABLE)
-  #error "Z_LATE_ENABLE can't be used with COREXZ."
+#elif (CORE_IS_XZ || CORE_IS_YZ) && ENABLED(Z_LATE_ENABLE)
+  #error "Z_LATE_ENABLE can't be used with COREXZ, COREZX, COREYZ, or COREZY."
 #elif defined(X_HOME_RETRACT_MM)
   #error "[XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM."
 #elif defined(SDCARDDETECTINVERTED)
@@ -644,8 +644,23 @@
 #else
   #define COUNT_KIN_7 COUNT_KIN_6
 #endif
-#if COUNT_KIN_7 > 1
-  #error "Please enable only one of DELTA, MORGAN_SCARA, MAKERARM_SCARA, COREXY, COREXZ, or COREYZ."
+#if ENABLED(COREYX)
+  #define COUNT_KIN_8 INCREMENT(COUNT_KIN_7)
+#else
+  #define COUNT_KIN_8 COUNT_KIN_7
+#endif
+#if ENABLED(COREZX)
+  #define COUNT_KIN_9 INCREMENT(COUNT_KIN_8)
+#else
+  #define COUNT_KIN_9 COUNT_KIN_8
+#endif
+#if ENABLED(COREZY)
+  #define COUNT_KIN_10 INCREMENT(COUNT_KIN_9)
+#else
+  #define COUNT_KIN_10 COUNT_KIN_9
+#endif
+#if COUNT_KIN_10 > 1
+  #error "Please enable only one of DELTA, MORGAN_SCARA, MAKERARM_SCARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, or COREZY."
 #endif
 
 /**
@@ -662,8 +677,8 @@
 #if ENABLED(DUAL_X_CARRIAGE)
   #if EXTRUDERS == 1
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
-  #elif ENABLED(COREXY) || ENABLED(COREXZ)
-    #error "DUAL_X_CARRIAGE cannot be used with COREXY or COREXZ."
+  #elif CORE_IS_XY || CORE_IS_XZ
+    #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, or COREZX."
   #elif !HAS_X2_ENABLE || !HAS_X2_STEP || !HAS_X2_DIR
     #error "DUAL_X_CARRIAGE requires X2 stepper pins to be defined."
   #elif !HAS_X_MAX
