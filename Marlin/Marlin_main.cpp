@@ -289,7 +289,7 @@
 
 bool Running = true;
 
-uint8_t marlin_debug_flags = DEBUG_NONE | DEBUG_LEVELING;
+uint8_t marlin_debug_flags = DEBUG_NONE ;//| DEBUG_LEVELING;
 
 /**
  * Cartesian Current Position
@@ -2379,7 +2379,7 @@ static void clean_up_after_endstop_or_probe_move() {
   static void print_bed_level() {
     SERIAL_ECHOPGM("Bilinear Leveling Grid:\n ");
     for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
-      SERIAL_PROTOCOLPGM("    ");
+      SERIAL_PROTOCOLPGM("     ");
       if (x < 10) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)x);
     }
@@ -2392,7 +2392,7 @@ static void clean_up_after_endstop_or_probe_move() {
         float offset = bed_level_grid[x][y];
         if (offset < 999.0) {
           if (offset > 0) SERIAL_CHAR('+');
-          SERIAL_PROTOCOL_F(offset, 2);
+          SERIAL_PROTOCOL_F(offset, 3);
         }
         else
           SERIAL_PROTOCOLPGM(" ====");
@@ -2401,7 +2401,7 @@ static void clean_up_after_endstop_or_probe_move() {
     }
     SERIAL_EOL;
   }
-#define ABL_GRID_VIRT 3
+#define ABL_GRID_VIRT 2
 #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
   #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_POINTS_X-1)*ABL_GRID_VIRT+1
   #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_POINTS_Y-1)*ABL_GRID_VIRT+1
@@ -2412,7 +2412,7 @@ static void clean_up_after_endstop_or_probe_move() {
   static void print_bed_level_virt() {
     SERIAL_ECHOPGM("DUMP of CATMULL ROM Leveling Grid:\n ");
     for (uint8_t x = 0; x < ABL_GRID_POINTS_VIRT_X; x++) {
-      SERIAL_PROTOCOLPGM("    ");
+      SERIAL_PROTOCOLPGM("       ");
       if (x < 10) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)x);
     }
@@ -2425,7 +2425,7 @@ static void clean_up_after_endstop_or_probe_move() {
         float offset = bed_level_grid_virt[x][y];
         if (offset < 999.0) {
           if (offset > 0) SERIAL_CHAR('+');
-          SERIAL_PROTOCOL_F(offset, 2);
+          SERIAL_PROTOCOL_F(offset, 5);
         }
         else
           SERIAL_PROTOCOLPGM(" ====");
@@ -2504,16 +2504,6 @@ static void clean_up_after_endstop_or_probe_move() {
   		for (uint8_t ty = 0; ty < (ABL_GRID_VIRT); ty++)
     	  for (uint8_t tx = 0; tx < (ABL_GRID_VIRT); tx++) {
 			if((y==ABL_GRID_POINTS_Y-1&&ty!=0)||(x==ABL_GRID_POINTS_X-1&&tx!=0)){
-/*
-          SERIAL_PROTOCOL((int)x);
-      	  SERIAL_PROTOCOLCHAR(',');
-          SERIAL_PROTOCOL((int)y);
-      	  SERIAL_PROTOCOLCHAR('=');
-          SERIAL_PROTOCOL((int)tx);
-      	  SERIAL_PROTOCOLCHAR(',');
-          SERIAL_PROTOCOL((int)ty);
-    SERIAL_EOL;
-*/
 			  continue;
 			}
 			float offset=bed_level_virt_2cmr(x+1,y+1,(float)tx/ABL_GRID_VIRT,(float)ty/ABL_GRID_VIRT);
@@ -4148,7 +4138,7 @@ inline void gcode_G28() {
 	//if interpolation
 	  #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
 		bed_level_virt_prepare();
-		print_bed_level_virt_temp();
+		//print_bed_level_virt_temp();
 		bed_level_virt_interpolate();
 		print_bed_level_virt();
 	  #endif
@@ -8847,8 +8837,11 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
 #elif ENABLED(AUTO_BED_LEVELING_BILINEAR) && !IS_KINEMATIC
 
-  #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) / bilinear_grid_spacing[A##_AXIS])
-
+  #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
+	#define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) / bilinear_grid_spacing_virt[A##_AXIS])
+  #else
+	#define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) / bilinear_grid_spacing[A##_AXIS])
+  #endif
   /**
    * Prepare a bilinear-leveled linear move on Cartesian,
    * splitting the move where it crosses grid borders.
@@ -8858,11 +8851,17 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
         cx2 = CELL_INDEX(X, destination[X_AXIS]),
         cy2 = CELL_INDEX(Y, destination[Y_AXIS]);
+  #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
+    cx1 = constrain(cx1, 0, ABL_GRID_POINTS_VIRT_X - 2);
+    cy1 = constrain(cy1, 0, ABL_GRID_POINTS_VIRT_Y - 2);
+    cx2 = constrain(cx2, 0, ABL_GRID_POINTS_VIRT_X - 2);
+    cy2 = constrain(cy2, 0, ABL_GRID_POINTS_VIRT_Y - 2);
+  #else
     cx1 = constrain(cx1, 0, ABL_GRID_POINTS_X - 2);
     cy1 = constrain(cy1, 0, ABL_GRID_POINTS_Y - 2);
     cx2 = constrain(cx2, 0, ABL_GRID_POINTS_X - 2);
     cy2 = constrain(cy2, 0, ABL_GRID_POINTS_Y - 2);
-
+  #endif
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
       line_to_destination(fr_mm_s);
@@ -8878,14 +8877,22 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       memcpy(end, destination, sizeof(end));
+  #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
+      destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + bilinear_grid_spacing_virt[X_AXIS] * gcx);
+  #else
       destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + bilinear_grid_spacing[X_AXIS] * gcx);
+  #endif
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = LINE_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
       memcpy(end, destination, sizeof(end));
+  #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
+      destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + bilinear_grid_spacing_virt[Y_AXIS] * gcy);
+  #else
       destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + bilinear_grid_spacing[Y_AXIS] * gcy);
+  #endif
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = LINE_SEGMENT_END(X);
       CBI(y_splits, gcy);
