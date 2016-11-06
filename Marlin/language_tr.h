@@ -145,6 +145,8 @@
 #define MSG_INIT_SDCARD                     "Init. SD"
 #define MSG_CNG_SDCARD                      "SD De\xf0i\xfetir"
 #define MSG_ZPROBE_OUT                      "Z Prob A\xe7\xfdk. Tabla"
+#define MSG_BLTOUCH_SELFTEST                "BLTouch Self-Test"
+#define MSG_BLTOUCH_RESET                   "S\xfd\x66\xfdrla BLTouch"
 #define MSG_HOME                            "S\xfd\x66\xfdrla"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "\xf6nce"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
@@ -159,6 +161,7 @@
 #define MSG_ERR_MINTEMP                     "Err: MINSICAKLIK"
 #define MSG_ERR_MAXTEMP_BED                 "Err: MAXSIC. TABLA"
 #define MSG_ERR_MINTEMP_BED                 "Err: MINSIC. TABLA"
+#define MSG_ERR_Z_HOMING                    "G28 Z Yap\xfdlamaz"
 #define MSG_HALTED                          "YAZICI DURDURULDU"
 #define MSG_PLEASE_RESET                    "L\xfctfen resetleyin"
 #define MSG_SHORT_DAY                       "s" // One character only
@@ -201,6 +204,9 @@
 #define MSG_INFO_MAX_TEMP                   "Max S\xfd\x63."
 #define MSG_INFO_PSU                        "G\xfc\xe7 Kayna\xf0\xfd"
 
+#define MSG_DRIVE_STRENGTH                  "\x53\xfc\x72\xfc\x63\xfc \x47\xfc\x63\xfc"
+#define MSG_DAC_PERCENT                     "\x53\xfc\x72\xfc\x63\xfc %"
+#define MSG_DAC_EEPROM_WRITE                "DAC\x27\xfd EEPROM\x27\x61 Yaz"
 #define MSG_FILAMENT_CHANGE_HEADER          "Filaman De\xf0i\xfetir"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "Se\xe7enekler:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extrude more"
