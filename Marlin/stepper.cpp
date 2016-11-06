@@ -968,22 +968,22 @@ void Stepper::set_position(const long &a, const long &b, const long &c, const lo
 
   CRITICAL_SECTION_START;
 
-  #if ENABLED(COREXY)
+  #if CORE_IS_XY
     // corexy positioning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
     count_position[A_AXIS] = a + b;
-    count_position[B_AXIS] = a - b;
+    count_position[B_AXIS] = CORESIGN(a - b);
     count_position[Z_AXIS] = c;
-  #elif ENABLED(COREXZ)
+  #elif CORE_IS_XZ
     // corexz planning
     count_position[A_AXIS] = a + c;
     count_position[Y_AXIS] = b;
-    count_position[C_AXIS] = a - c;
-  #elif ENABLED(COREYZ)
+    count_position[C_AXIS] = CORESIGN(a - c);
+  #elif CORE_IS_YZ
     // coreyz planning
     count_position[X_AXIS] = a;
     count_position[B_AXIS] = b + c;
-    count_position[C_AXIS] = b - c;
+    count_position[C_AXIS] = CORESIGN(b - c);
   #else
     // default non-h-bot planning
     count_position[X_AXIS] = a;
@@ -1023,16 +1023,17 @@ long Stepper::position(AxisEnum axis) {
  */
 float Stepper::get_axis_position_mm(AxisEnum axis) {
   float axis_steps;
-  #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
+  #if IS_CORE
     // Requesting one of the "core" axes?
     if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
       CRITICAL_SECTION_START;
-      long pos1 = count_position[CORE_AXIS_1],
-           pos2 = count_position[CORE_AXIS_2];
-      CRITICAL_SECTION_END;
       // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
       // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
-      axis_steps = (pos1 + ((axis == CORE_AXIS_1) ? pos2 : -pos2)) * 0.5f;
+      axis_steps = 0.5f * (
+        axis == CORE_AXIS_2 ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
+                            : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
+      );
+      CRITICAL_SECTION_END;
     }
     else
       axis_steps = position(axis);
@@ -1057,14 +1058,12 @@ void Stepper::quick_stop() {
 
 void Stepper::endstop_triggered(AxisEnum axis) {
 
-  #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
+  #if IS_CORE
 
-    float axis_pos = count_position[axis];
-    if (axis == CORE_AXIS_1)
-      axis_pos = (axis_pos + count_position[CORE_AXIS_2]) * 0.5;
-    else if (axis == CORE_AXIS_2)
-      axis_pos = (count_position[CORE_AXIS_1] - axis_pos) * 0.5;
-    endstops_trigsteps[axis] = axis_pos;
+    endstops_trigsteps[axis] = 0.5f * (
+      axis == CORE_AXIS_2 ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
+                          : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
+    );
 
   #else // !COREXY && !COREXZ && !COREYZ
 
@@ -1082,21 +1081,21 @@ void Stepper::report_positions() {
        zpos = count_position[Z_AXIS];
   CRITICAL_SECTION_END;
 
-  #if ENABLED(COREXY) || ENABLED(COREXZ) || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_XZ || IS_SCARA
     SERIAL_PROTOCOLPGM(MSG_COUNT_A);
   #else
     SERIAL_PROTOCOLPGM(MSG_COUNT_X);
   #endif
   SERIAL_PROTOCOL(xpos);
 
-  #if ENABLED(COREXY) || ENABLED(COREYZ) || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_YZ || IS_SCARA
     SERIAL_PROTOCOLPGM(" B:");
   #else
     SERIAL_PROTOCOLPGM(" Y:");
   #endif
   SERIAL_PROTOCOL(ypos);
 
-  #if ENABLED(COREXZ) || ENABLED(COREYZ)
+  #if CORE_IS_XZ || CORE_IS_YZ
     SERIAL_PROTOCOLPGM(" C:");
   #else
     SERIAL_PROTOCOLPGM(" Z:");
