@@ -3253,6 +3253,12 @@ inline void gcode_G4() {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Z_SAFE_HOMING", destination);
       #endif
+
+      // This causes the carriage on Dual X to unpark
+      #if ENABLED(DUAL_X_CARRIAGE)
+        active_extruder_parked = false;
+      #endif
+
       do_blocking_move_to_xy(destination[X_AXIS], destination[Y_AXIS]);
       HOMEAXIS(Z);
     }
