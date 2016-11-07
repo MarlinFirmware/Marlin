@@ -8090,23 +8090,23 @@ void process_next_command() {
       case 92: // M92: Set the steps-per-unit for one or more axes
         gcode_M92();
         break;
+      case 114: // M114: Report current position
+        gcode_M114();
+        break;
       case 115: // M115: Report capabilities
         gcode_M115();
         break;
       case 117: // M117: Set LCD message text, if possible
         gcode_M117();
         break;
-      case 114: // M114: Report current position
-        gcode_M114();
+      case 119: // M119: Report endstop states
+        gcode_M119();
         break;
       case 120: // M120: Enable endstops
         gcode_M120();
         break;
       case 121: // M121: Disable endstops
         gcode_M121();
-        break;
-      case 119: // M119: Report endstop states
-        gcode_M119();
         break;
 
       #if ENABLED(HAVE_TMC2130DRIVER)
