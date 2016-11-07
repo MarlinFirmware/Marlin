@@ -216,8 +216,11 @@
 #ifndef MSG_ACC
   #define MSG_ACC                             "Accel"
 #endif
-#ifndef MSG_VXY_JERK
-  #define MSG_VXY_JERK                        "Vxy-jerk"
+#ifndef MSG_VX_JERK
+  #define MSG_VX_JERK                         "Vx-jerk"
+#endif
+#ifndef MSG_VY_JERK
+  #define MSG_VY_JERK                         "Vy-jerk"
 #endif
 #ifndef MSG_VZ_JERK
   #define MSG_VZ_JERK                         "Vz-jerk"
@@ -529,6 +532,15 @@
   #define MSG_INFO_PSU                        "Power Supply"
 #endif
 
+#ifndef MSG_DRIVE_STRENGTH
+  #define MSG_DRIVE_STRENGTH                  "Drive Strength"
+#endif
+#ifndef MSG_DAC_PERCENT
+  #define MSG_DAC_PERCENT                     "Driver %"
+#endif
+#ifndef MSG_DAC_EEPROM_WRITE
+  #define MSG_DAC_EEPROM_WRITE                "DAC EEPROM Write"
+#endif
 #ifndef MSG_FILAMENT_CHANGE_HEADER
   #define MSG_FILAMENT_CHANGE_HEADER          "CHANGE FILAMENT"
 #endif

@@ -92,7 +92,8 @@
 #define MSG_PID_C                           _UxGT("PID-C")  //"PID-C"
 #define MSG_SELECT                          _UxGT("选择")  //"Select"
 #define MSG_ACC                             _UxGT("加速度")  //"Accel" acceleration
-#define MSG_VXY_JERK                        _UxGT("XY轴抖动速率")  //"Vxy-jerk"
+#define MSG_VX_JERK                         _UxGT("X轴抖动速率")  //"Vx-jerk"
+#define MSG_VY_JERK                         _UxGT("Y轴抖动速率")  //"Vy-jerk"
 #define MSG_VZ_JERK                         _UxGT("Z轴抖动速率")  //"Vz-jerk"
 #define MSG_VE_JERK                         _UxGT("挤出机抖动速率")  //"Ve-jerk"
 #define MSG_VMAX                            _UxGT("最大进料速率")  //"Vmax " max_feedrate_mm_s

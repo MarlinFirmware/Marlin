@@ -79,37 +79,55 @@
 #define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
-#define X_STEP_PIN         28 //  0 Marlin
-#define X_DIR_PIN          29 //  1 Marlin
-#define X_ENABLE_PIN       26
-
-#define Y_STEP_PIN         30 //  2 Marlin
-#define Y_DIR_PIN          31 //  3
-#define Y_ENABLE_PIN       26     // Shared w/x
-
-#define Z_STEP_PIN         32 //  4
-#define Z_DIR_PIN          33 //  5
-#define Z_ENABLE_PIN       26 // Shared w/x
-
-#define E0_STEP_PIN        34 //  6
-#define E0_DIR_PIN         35 //  7
-#define E0_ENABLE_PIN      26 // Shared w/x
-
-#define HEATER_0_PIN       15 //  21  // Extruder
-#define HEATER_BED_PIN     14 // 20  // Bed
-#define FAN_PIN            16 // 22  // Fan
-
+//
+// Limit Switches
+//
 #define X_STOP_PIN          2
 #define Y_STOP_PIN          3
 #define Z_STOP_PIN          4
 
-#define TEMP_0_PIN          7 // Extruder / Analog pin numbering
-#define TEMP_BED_PIN        6 // Bed / Analog pin numbering
+//
+// Steppers
+//
+#define X_STEP_PIN         28 // 0 Marlin
+#define X_DIR_PIN          29 // 1 Marlin
+#define X_ENABLE_PIN       26
 
+#define Y_STEP_PIN         30 // 2 Marlin
+#define Y_DIR_PIN          31 // 3
+#define Y_ENABLE_PIN       26 // Shared w/x
+
+#define Z_STEP_PIN         32 // 4
+#define Z_DIR_PIN          33 // 5
+#define Z_ENABLE_PIN       26 // Shared w/x
+
+#define E0_STEP_PIN        34 // 6
+#define E0_DIR_PIN         35 // 7
+#define E0_ENABLE_PIN      26 // Shared w/x
+
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          7   // Analog Input (Extruder)
+#define TEMP_BED_PIN        6   // Analog Input (Bed)
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       15 // 21 // Extruder
+#define HEATER_BED_PIN     14 // 20 // Bed
+#define FAN_PIN            16 // 22 // Fan
+
+//
+// Misc. Functions
+//
 #define SDSS               20 // 8
 #define LED_PIN             6
 #define PS_ON_PIN          27
 
+//
+// LCD / Controller
+//
 #if ENABLED(ULTIPANEL)
   #define LCD_PINS_RS         8
   #define LCD_PINS_ENABLE     9

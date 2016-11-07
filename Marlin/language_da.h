@@ -93,7 +93,8 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_SELECT                          _UxGT("Vælg")
 #define MSG_ACC                             _UxGT("Accel")
-#define MSG_VXY_JERK                        _UxGT("Vxy-jerk")
+#define MSG_VX_JERK                         _UxGT("Vx-jerk")
+#define MSG_VY_JERK                         _UxGT("Vy-jerk")
 #define MSG_VZ_JERK                         _UxGT("Vz-jerk")
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VMAX                            _UxGT("Vmax ")
@@ -200,9 +201,9 @@
 #define MSG_INFO_PSU                        _UxGT("Strømforsyning")
 
 #define MSG_FILAMENT_CHANGE_HEADER          _UxGT("SKIFT FILAMENT")
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   "SKIFTE MULIGHEDER:")
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extruder mere")
-#define MSG_FILAMENT_CHANGE_OPTION_RESUME   "forsæt print")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("SKIFTE MULIGHEDER:")
+#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Extruder mere")
+#define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("forsæt print")
 
 #if LCD_HEIGHT >= 4
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Vent på")

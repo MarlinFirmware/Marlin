@@ -157,9 +157,7 @@ class Temperature {
         static int lpq_ptr;
       #endif
 
-      static float pid_error[HOTENDS],
-                   temp_iState_min[HOTENDS],
-                   temp_iState_max[HOTENDS];
+      static float pid_error[HOTENDS];
       static bool pid_reset[HOTENDS];
     #endif
 
@@ -169,9 +167,7 @@ class Temperature {
                    pTerm_bed,
                    iTerm_bed,
                    dTerm_bed,
-                   pid_error_bed,
-                   temp_iState_min_bed,
-                   temp_iState_max_bed;
+                   pid_error_bed;
     #else
       static millis_t next_bed_check_ms;
     #endif
@@ -376,19 +372,19 @@ class Temperature {
      */
     static void updatePID();
 
-    static void autotempShutdown() {
-      #if ENABLED(AUTOTEMP)
+    #if ENABLED(AUTOTEMP)
+      static void autotempShutdown() {
         if (planner.autotemp_enabled) {
           planner.autotemp_enabled = false;
           if (degTargetHotend(EXTRUDER_IDX) > planner.autotemp_min)
             setTargetHotend(0, EXTRUDER_IDX);
         }
-      #endif
-    }
+      }
+    #endif
 
     #if ENABLED(BABYSTEPPING)
 
-      static void babystep_axis(AxisEnum axis, int distance) {
+      static void babystep_axis(const AxisEnum axis, const int distance) {
         #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
           #if ENABLED(BABYSTEP_XY)
             switch (axis) {

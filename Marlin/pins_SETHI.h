@@ -64,8 +64,8 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          1
-#define TEMP_BED_PIN        2
+#define TEMP_0_PIN          1   // Analog Input
+#define TEMP_BED_PIN        2   // Analog Input
 
 //
 // Heaters / Fans
@@ -81,15 +81,18 @@
   #define FAN_PIN          31
 #endif
 
+//
+// Misc. Functions
+//
 #define PS_ON_PIN          15
 
-//All these generations of Gen7 supply thermistor power
-//via PS_ON, so ignore bad thermistor readings
+// All these generations of Gen7 supply thermistor power
+// via PS_ON, so ignore bad thermistor readings
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 
-//our pin for debugging.
+// our pin for debugging.
 #define DEBUG_PIN           0
 
-//our RS485 pins
+// our RS485 pins
 #define TX_ENABLE_PIN      12
 #define RX_ENABLE_PIN      13

@@ -92,7 +92,8 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_SELECT                          _UxGT("Escolla")
 #define MSG_ACC                             _UxGT("Acel")
-#define MSG_VXY_JERK                        _UxGT("Vxy-jerk")
+#define MSG_VX_JERK                         _UxGT("Vx-jerk")
+#define MSG_VY_JERK                         _UxGT("Vy-jerk")
 #define MSG_VZ_JERK                         _UxGT("Vz-jerk")
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VMAX                            _UxGT("Vmax ")
@@ -178,6 +179,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Extrusores")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baudios")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocolo")
+
 #if LCD_WIDTH > 19
     #define MSG_INFO_PRINT_COUNT              _UxGT("Total traballos")
     #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Total completos")

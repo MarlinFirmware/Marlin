@@ -209,6 +209,11 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 
 #endif // !MIXING_EXTRUDER
 
+#if ENABLED(G38_PROBE_TARGET)
+  extern bool G38_move,        // flag to tell the interrupt handler that a G38 command is being run
+              G38_endstop_hit; // flag from the interrupt handler to indicate if the endstop went active
+#endif
+
 /**
  * The axis order in all axis related arrays is X, Y, Z, E
  */
@@ -265,13 +270,17 @@ extern bool axis_known_position[XYZ]; // axis[n].is_known
 extern bool axis_homed[XYZ]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
 
-#if ENABLED(EMERGENCY_PARSER) && DISABLED(ULTIPANEL)
+#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
   extern volatile bool wait_for_user;
 #endif
 
 extern float current_position[NUM_AXIS];
 extern float position_shift[XYZ];
 extern float home_offset[XYZ];
+
+#if HOTENDS > 1
+  extern float hotend_offset[XYZ][HOTENDS];
+#endif
 
 // Software Endstops
 void update_software_endstops(AxisEnum axis);
@@ -319,9 +328,9 @@ float code_value_temp_diff();
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
 
-#if ENABLED(AUTO_BED_LEVELING_NONLINEAR)
-  extern int nonlinear_grid_spacing[2];
-  float nonlinear_z_offset(float logical[XYZ]);
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  extern int bilinear_grid_spacing[2];
+  float bilinear_z_offset(float logical[XYZ]);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -388,11 +397,6 @@ extern uint8_t active_extruder;
 #endif
 
 void calculate_volumetric_multipliers();
-
-// Buzzer
-#if HAS_BUZZER && PIN_EXISTS(BEEPER)
-  #include "buzzer.h"
-#endif
 
 /**
  * Blocking movement and shorthand functions

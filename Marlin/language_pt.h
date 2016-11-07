@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_PT_H
 #define LANGUAGE_PT_H
 
-#define DISPLAY_CHARSET_ISO10646_1
-
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" pronto.")
 #define MSG_SD_INSERTED                     _UxGT("Cartao inserido")
 #define MSG_SD_REMOVED                      _UxGT("Cartao removido")
@@ -91,7 +89,8 @@
 #define MSG_PID_D                           _UxGT("PID-D")
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_ACC                             _UxGT("Acc")
-#define MSG_VXY_JERK                        _UxGT("Vxy-jerk")
+#define MSG_VX_JERK                         _UxGT("Vx-jerk")
+#define MSG_VY_JERK                         _UxGT("Vy-jerk")
 #define MSG_VZ_JERK                         _UxGT("Vz-jerk")
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VMAX                            _UxGT(" Vmax ")

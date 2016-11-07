@@ -96,7 +96,8 @@
 #define MSG_PID_C                           _UxGT("PID-C")
 #define MSG_SELECT                          _UxGT("Vybrat")
 #define MSG_ACC                             _UxGT("Zrychl")
-#define MSG_VXY_JERK                        _UxGT("Vxy-jerk")
+#define MSG_VX_JERK                         _UxGT("Vx-jerk")
+#define MSG_VY_JERK                         _UxGT("Vy-jerk")
 #define MSG_VZ_JERK                         _UxGT("Vz-jerk")
 #define MSG_VE_JERK                         _UxGT("Ve-jerk")
 #define MSG_VMAX                            _UxGT("Vmax ")
@@ -146,6 +147,8 @@
 #define MSG_INIT_SDCARD                     _UxGT("Nacist SD kartu")
 #define MSG_CNG_SDCARD                      _UxGT("Vymenit SD kartu")
 #define MSG_ZPROBE_OUT                      _UxGT("Sonda Z mimo podl")
+#define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")
+#define MSG_BLTOUCH_RESET                   _UxGT("BLTouch Reset")
 #define MSG_HOME                            _UxGT("Domu")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           _UxGT("prvni")
 #define MSG_ZPROBE_ZOFFSET                  _UxGT("Z ofset")
@@ -160,6 +163,7 @@
 #define MSG_ERR_MINTEMP                     _UxGT("NIZKA TEPLOTA")
 #define MSG_ERR_MAXTEMP_BED                 _UxGT("VYS. TEPL. PODL.")
 #define MSG_ERR_MINTEMP_BED                 _UxGT("NIZ. TEPL. PODL.")
+#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z ZAKAZANO")
 #define MSG_HALTED                          _UxGT("TISK. ZASTAVENA")
 #define MSG_PLEASE_RESET                    _UxGT("Provedte reset")
 #define MSG_SHORT_DAY                       _UxGT("d")
@@ -182,6 +186,7 @@
 #define MSG_INFO_EXTRUDERS                  _UxGT("Extrudery")
 #define MSG_INFO_BAUDRATE                   _UxGT("Rychlost")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokol")
+
 #if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              _UxGT("Pocet tisku")
   #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Dokonceno")
@@ -198,6 +203,9 @@
 #define MSG_INFO_MIN_TEMP                   _UxGT("Teplota min")
 #define MSG_INFO_MAX_TEMP                   _UxGT("Teplota max")
 #define MSG_INFO_PSU                        _UxGT("Nap. zdroj")
+#define MSG_DRIVE_STRENGTH                  _UxGT("Buzeni motoru")
+#define MSG_DAC_PERCENT                     _UxGT("Motor %")
+#define MSG_DAC_EEPROM_WRITE                _UxGT("Ulozit do EEPROM")
 
 #define MSG_FILAMENT_CHANGE_HEADER          _UxGT("VYMENA FILAMENTU")
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("CO DAL?")
