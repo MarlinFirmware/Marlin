@@ -2380,7 +2380,7 @@ static void clean_up_after_endstop_or_probe_move() {
     SERIAL_ECHOPGM("Bilinear Leveling Grid:\n ");
     for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
       SERIAL_PROTOCOLPGM("    ");
-      if (x < 9) SERIAL_PROTOCOLCHAR(' ');
+      if (x < 10) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)x);
     }
     SERIAL_EOL;
