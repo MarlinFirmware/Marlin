@@ -5,7 +5,7 @@
 
 ## Release Branch
 
-The Release branch contains the latest tagged version of Marlin (currently 1.0.2-1 – January 2015). It also includes a version 1.0.1 (December 2014). Any version of Marlin before 1.0.1 (when we started tagging versions) can be collectively referred to as Marlin 1.0.0.
+The Release branch contains the latest tagged version of Marlin (currently 1.0.2-2 – October 2016). It also includes a version 1.0.1 (December 2014). Any version of Marlin before 1.0.1 (when we started tagging versions) can be collectively referred to as Marlin 1.0.0.
 
 ## Patches - 1.0.x Branch
 
@@ -24,15 +24,12 @@ Marlin development is being accelerated to catch up with a long list of issues. 
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
-## Contact
-
-__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo223yimsiforia" target="_blank">. Hangout</a> We have a hangout every 2 weeks. Search the issue list for "Hangout" to determine the time and date of the next event.
-
 ## Credits
 
 The current Marlin dev team consists of:
 
  - Scott Lahteine [@thinkyhead] - English
+ - Roxanne Neufeld [@Roxy-3DPrintBoard] - English
  - Andreas Hardtung [@AnHardt] - Deutsch, English
  - [@Wurstnase] - Deutsch, English
  - [@fmalpartida] - English, Spanish
@@ -44,8 +41,6 @@ The current Marlin dev team consists of:
  - Erik van der Zalm [@ErikZalm]
  - David Braam [@daid]
  - Bernhard Kubicek [@bkubicek]
- - Richard Wackerbarth [@Wackerbarth] - English
- - Roxanne Neufeld [@Roxy-3DPrintBoard] - English
 
 More features have been added by:
   - Alberto Cotronei [@MagoKimbra]
