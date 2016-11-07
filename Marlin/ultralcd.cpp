@@ -1710,6 +1710,11 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &planner.autotemp_enabled);
       MENU_ITEM_EDIT(float3, MSG_MIN, &planner.autotemp_min, 0, HEATER_0_MAXTEMP - 15);
       MENU_ITEM_EDIT(float3, MSG_MAX, &planner.autotemp_max, 0, HEATER_0_MAXTEMP - 15);
+      TRACE ("MSG_FACTOR='" MSG_FACTOR "'; MSG_MIN='" MSG_MIN "'; MSG_MAX='" MSG_MAX "'");
+      TRACE ("MSG_FACTOR='" MSG_FACTOR "' len=%d;", utf8_strlen (MSG_FACTOR));
+      TRACE ("MSG_MIN='" MSG_MIN "' len=%d;", utf8_strlen (MSG_MIN));
+      TRACE ("MSG_MAX='" MSG_MAX "' len=%d;", utf8_strlen (MSG_MAX));
+      
       MENU_ITEM_EDIT(float32, MSG_FACTOR, &planner.autotemp_factor, 0.0, 1.0);
     #endif
 
