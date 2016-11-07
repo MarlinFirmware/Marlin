@@ -790,11 +790,8 @@
 
   #if ENABLED(TMC2130_ADVANCED_CONFIGURATION)
 
-    // If you have enabled TMC2130_ADVANCED_CONFIGURATION,
-    // you can define global settings here, but you still need
-    // to configure the tmc2130.init() method manually in the file
-    //
-    // stepper_indirection.cpp
+    // If you've enabled TMC2130_ADVANCED_CONFIGURATION, define global settings below.
+    // Enabled settings will be automatically applied to all axes specified above.
     //
     // Please read the TMC2130 datasheet:
     // http://www.trinamic.com/_articles/products/integrated-circuits/tmc2130/_datasheet/TMC2130_datasheet.pdf
