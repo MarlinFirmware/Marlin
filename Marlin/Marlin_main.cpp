@@ -1312,7 +1312,7 @@ bool get_target_extruder_from_command(int code) {
 
   static DualXMode dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 
-  static float x_home_pos(int extruder) {
+  static float x_home_pos(const int extruder) {
     if (extruder == 0)
       return LOGICAL_X_POSITION(base_home_pos(X_AXIS));
     else
@@ -1325,9 +1325,7 @@ bool get_target_extruder_from_command(int code) {
       return LOGICAL_X_POSITION(hotend_offset[X_AXIS][1] > 0 ? hotend_offset[X_AXIS][1] : X2_HOME_POS);
   }
 
-  static int x_home_dir(int extruder) {
-    return (extruder == 0) ? X_HOME_DIR : X2_HOME_DIR;
-  }
+  static int x_home_dir(const int extruder) { return extruder ? X2_HOME_DIR : X_HOME_DIR; }
 
   static float inactive_extruder_x_pos = X2_MAX_POS; // used in mode 0 & 1
   static bool active_extruder_parked = false;        // used in mode 1 & 2
