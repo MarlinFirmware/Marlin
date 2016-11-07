@@ -5884,45 +5884,6 @@ inline void gcode_M117() {
  */
 inline void gcode_M119() { endstops.M119(); }
 
-#if ENABLED(HAVE_TMC2130DRIVER)
-  /**
-   * M122: Output Trinamic TMC2130 status to serial output. Very bad formatting.
-   */
-  inline void gcode_M122() {
-    SERIAL_PROTOCOLLNPGM("REPORTING TMC2130 STATUS");
-    #if ENABLED(HAVE_TMC2130DRIVER) && ENABLED(X_IS_TMC2130)
-      stepperX.read_STAT();
-      SERIAL_PROTOCOLLN("X-AXIS: ");
-      SERIAL_PROTOCOLLN((stepperX.isReset() ? "RESET " : "----- "));
-      SERIAL_PROTOCOLLN((stepperX.isError() ? "ERROR " : "----- "));
-      SERIAL_PROTOCOLLN((stepperX.isStallguard() ? "SLGRD " : "----- "));
-      SERIAL_PROTOCOLLN((stepperX.isStandstill() ? "STILL " : "----- "));
-      SERIAL_PROTOCOLLN((stepperX.debug()));
-      SERIAL_PROTOCOLLN("-----");
-    #endif
-    #if ENABLED(HAVE_TMC2130DRIVER) && ENABLED(Y_IS_TMC2130)
-      stepperY.read_STAT();
-      SERIAL_PROTOCOLLN("Y-AXIS: ");
-      SERIAL_PROTOCOLLN((stepperY.isReset() ? "RESET " : "----- "));
-      SERIAL_PROTOCOLLN((stepperY.isError() ? "ERROR " : "----- "));
-      SERIAL_PROTOCOLLN((stepperY.isStallguard() ? "SLGRD " : "----- "));
-      SERIAL_PROTOCOLLN((stepperY.isStandstill() ? "STILL " : "----- "));
-      SERIAL_PROTOCOLLN((stepperY.debug()));
-      SERIAL_PROTOCOLLN("-----");
-    #endif
-    #if ENABLED(HAVE_TMC2130DRIVER) && ENABLED(Z_IS_TMC2130)
-      stepperZ.read_STAT();
-      SERIAL_PROTOCOLLN("Z-AXIS: ");
-      SERIAL_PROTOCOLLN((stepperZ.isReset() ? "RESET " : "----- "));
-      SERIAL_PROTOCOLLN((stepperZ.isError() ? "ERROR " : "----- "));
-      SERIAL_PROTOCOLLN((stepperZ.isStallguard() ? "SLGRD " : "----- "));
-      SERIAL_PROTOCOLLN((stepperZ.isStandstill() ? "STILL " : "----- "));
-      SERIAL_PROTOCOLLN((stepperZ.debug()));
-      SERIAL_PROTOCOLLN("-----");
-    #endif
-  }
-#endif // HAVE_TMC2130DRIVER
-
 /**
  * M120: Enable endstops and set non-homing endstop state to "enabled"
  */
@@ -5932,6 +5893,58 @@ inline void gcode_M120() { endstops.enable_globally(true); }
  * M121: Disable endstops and set non-homing endstop state to "disabled"
  */
 inline void gcode_M121() { endstops.enable_globally(false); }
+
+#if ENABLED(HAVE_TMC2130DRIVER)
+
+  /**
+   * M122: Output Trinamic TMC2130 status to serial output. Very bad formatting.
+   */
+
+  static void tmc2130_report(Trinamic_TMC2130 &stepr, const char *name) {
+    stepr.read_STAT();
+    SERIAL_PROTOCOL(name);
+    SERIAL_PROTOCOL(": ");
+    stepr.isReset() ? SERIAL_PROTOCOLPGM("RESET ") : SERIAL_PROTOCOLPGM("----- ");
+    stepr.isError() ? SERIAL_PROTOCOLPGM("ERROR ") : SERIAL_PROTOCOLPGM("----- ");
+    stepr.isStallguard() ? SERIAL_PROTOCOLPGM("SLGRD ") : SERIAL_PROTOCOLPGM("----- ");
+    stepr.isStandstill() ? SERIAL_PROTOCOLPGM("STILL ") : SERIAL_PROTOCOLPGM("----- ");
+    SERIAL_PROTOCOLLN(stepr.debug());
+  }
+
+  inline void gcode_M122() {
+    SERIAL_PROTOCOLLNPGM("Reporting TMC2130 status");
+    #if ENABLED(X_IS_TMC2130)
+      tmc2130_report(stepperX, "X");
+    #endif
+    #if ENABLED(X2_IS_TMC2130)
+      tmc2130_report(stepperX2, "X2");
+    #endif
+    #if ENABLED(Y_IS_TMC2130)
+      tmc2130_report(stepperY, "Y");
+    #endif
+    #if ENABLED(Y2_IS_TMC2130)
+      tmc2130_report(stepperY2, "Y2");
+    #endif
+    #if ENABLED(Z_IS_TMC2130)
+      tmc2130_report(stepperZ, "Z");
+    #endif
+    #if ENABLED(Z2_IS_TMC2130)
+      tmc2130_report(stepperZ2, "Z2");
+    #endif
+    #if ENABLED(E0_IS_TMC2130)
+      tmc2130_report(stepperE0, "E0");
+    #endif
+    #if ENABLED(E1_IS_TMC2130)
+      tmc2130_report(stepperE1, "E1");
+    #endif
+    #if ENABLED(E2_IS_TMC2130)
+      tmc2130_report(stepperE2, "E2");
+    #endif
+    #if ENABLED(E3_IS_TMC2130)
+      tmc2130_report(stepperE3, "E3");
+    #endif
+  }
+#endif // HAVE_TMC2130DRIVER
 
 #if ENABLED(BLINKM)
 
