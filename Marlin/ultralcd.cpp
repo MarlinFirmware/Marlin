@@ -715,6 +715,13 @@ void kill_screen(const char* lcd_msg) {
     #endif
   #endif
 
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    static void lcd_enqueue_filament_change() {
+      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
+      enqueue_and_echo_commands_P(PSTR("M600"));
+    }
+  #endif
+
   /**
    *
    * "Tune" submenu
@@ -830,7 +837,7 @@ void kill_screen(const char* lcd_msg) {
     // Change filament
     //
     #if ENABLED(FILAMENT_CHANGE_FEATURE)
-       MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
+       MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
     #endif
 
     END_MENU();
