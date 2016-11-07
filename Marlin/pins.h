@@ -39,6 +39,8 @@
   #include "pins_CHEAPTRONIC.h"
 #elif MB(SETHI)
   #include "pins_SETHI.h"
+#elif MB(MIGHTYBOARD_REVE)
+  #include "pins_MIGHTYBOARD_REVE.h"
 #elif MB(RAMPS_OLD)
   #include "pins_RAMPS_OLD.h"
 #elif MB(RAMPS_13_EFB)
@@ -275,8 +277,28 @@
   #define SUICIDE_PIN -1
 #endif
 
+#ifndef MAX_EXTRUDERS
+  #define MAX_EXTRUDERS 4
+#endif
+
 // Marlin needs to account for pins that equal -1
 #define marlinAnalogInputToDigitalPin(p) ((p) == -1 ? -1 : analogInputToDigitalPin(p))
+
+//
+// Assign auto fan pins if needed
+//
+#if !defined(E0_AUTO_FAN_PIN) && defined(ORIG_E0_AUTO_FAN_PIN)
+  #define E0_AUTO_FAN_PIN ORIG_E0_AUTO_FAN_PIN
+#endif
+#if !defined(E1_AUTO_FAN_PIN) && defined(ORIG_E1_AUTO_FAN_PIN)
+  #define E1_AUTO_FAN_PIN ORIG_E1_AUTO_FAN_PIN
+#endif
+#if !defined(E2_AUTO_FAN_PIN) && defined(ORIG_E2_AUTO_FAN_PIN)
+  #define E2_AUTO_FAN_PIN ORIG_E2_AUTO_FAN_PIN
+#endif
+#if !defined(E3_AUTO_FAN_PIN) && defined(ORIG_E3_AUTO_FAN_PIN)
+  #define E3_AUTO_FAN_PIN ORIG_E3_AUTO_FAN_PIN
+#endif
 
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
 #define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, E0_MS1_PIN, E0_MS2_PIN,
@@ -302,7 +324,7 @@
   #endif
 #endif
 
-#define _H0_PINS HEATER_0_PIN, EXTRUDER_0_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_0_PIN),
+#define _H0_PINS HEATER_0_PIN, E0_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_0_PIN),
 #define _H1_PINS
 #define _H2_PINS
 #define _H3_PINS
@@ -310,13 +332,13 @@
 
 #if HOTENDS > 1
   #undef _H1_PINS
-  #define _H1_PINS HEATER_1_PIN, EXTRUDER_1_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_1_PIN),
+  #define _H1_PINS HEATER_1_PIN, E1_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_1_PIN),
   #if HOTENDS > 2
     #undef _H2_PINS
-    #define _H2_PINS HEATER_2_PIN, EXTRUDER_2_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_2_PIN),
+    #define _H2_PINS HEATER_2_PIN, E2_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_2_PIN),
     #if HOTENDS > 3
       #undef _H3_PINS
-      #define _H3_PINS HEATER_3_PIN, EXTRUDER_3_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_3_PIN),
+      #define _H3_PINS HEATER_3_PIN, E3_AUTO_FAN_PIN, marlinAnalogInputToDigitalPin(TEMP_3_PIN),
       #if HOTENDS > 4
         #undef _H4_PINS
         #define _H4_PINS HEATER_4_PIN, marlinAnalogInputToDigitalPin(TEMP_4_PIN),

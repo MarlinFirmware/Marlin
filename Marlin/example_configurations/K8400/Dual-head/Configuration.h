@@ -114,7 +114,6 @@
  */
 #define SERIAL_PORT 0
 
-#define BAUDRATE 250000
 /**
  * This setting determines the communication speed of the printer.
  *
@@ -123,6 +122,7 @@
  *
  * :[2400,9600,19200,38400,57600,115200,250000]
  */
+#define BAUDRATE 250000
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -492,7 +492,7 @@
 #define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
- * Defult Jerk (mm/s)
+ * Default Jerk (mm/s)
  *
  * "Jerk" specifies the minimum speed change that requires acceleration.
  * When changing speed and direction, if the difference is less than the

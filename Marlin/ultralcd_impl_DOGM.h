@@ -85,6 +85,9 @@
     #include "dogm_font_data_ISO10646_CN.h"
     #define FONT_MENU_NAME ISO10646_CN
     #define TALL_FONT_CORRECTION 1
+  #elif ENABLED(DISPLAY_CHARSET_ISO10646_TR)
+    #include "dogm_font_data_ISO10646_1_tr.h"
+    #define FONT_MENU_NAME ISO10646_TR
   #else // fall-back
     #include "dogm_font_data_ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7
@@ -550,7 +553,7 @@ static void lcd_implementation_status_screen() {
   }
 
   // Macros for specific types of menu items
-  #define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
   #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
   #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
   #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')

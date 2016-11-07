@@ -70,6 +70,7 @@
 // pt-br_utf8 Portuguese (Brazilian UTF8)
 // pt_utf8    Portuguese (UTF8)
 // ru         Russian
+// tr         Turkish
 
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
@@ -145,6 +146,7 @@
 #define MSG_Y_MAX                           "y_max: "
 #define MSG_Z_MIN                           "z_min: "
 #define MSG_Z_MAX                           "z_max: "
+#define MSG_Z2_MIN                          "z2_min: "
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"

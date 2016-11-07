@@ -114,7 +114,6 @@
  */
 #define SERIAL_PORT 0
 
-#define BAUDRATE 115200
 /**
  * This setting determines the communication speed of the printer.
  *
@@ -123,6 +122,7 @@
  *
  * :[2400,9600,19200,38400,57600,115200,250000]
  */
+#define BAUDRATE 115200
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -492,7 +492,7 @@
 #define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration for travel (non printing) moves
 
 /**
- * Defult Jerk (mm/s)
+ * Default Jerk (mm/s)
  *
  * "Jerk" specifies the minimum speed change that requires acceleration.
  * When changing speed and direction, if the difference is less than the
@@ -1009,9 +1009,9 @@
 // Here you may choose the language used by Marlin on the LCD menus, the following
 // list of languages are available:
 //    en, an, bg, ca, cn, cz, de, el, el-gr, es, eu, fi, fr, gl, hr, it,
-//    kana, kana_utf8, nl, pl, pt, pt_utf8, pt-br, pt-br_utf8, ru, test
+//    kana, kana_utf8, nl, pl, pt, pt_utf8, pt-br, pt-br_utf8, ru, tr, test
 //
-// :{'en':'English','an':'Aragonese','bg':'Bulgarian','ca':'Catalan','cn':'Chinese','cz':'Czech','de':'German','el':'Greek','el-gr':'Greek (Greece)','es':'Spanish','eu':'Basque-Euskera','fi':'Finnish','fr':'French','gl':'Galician','hr':'Croatian','it':'Italian','kana':'Japanese','kana_utf8':'Japanese (UTF8)','nl':'Dutch','pl':'Polish','pt':'Portuguese','pt-br':'Portuguese (Brazilian)','pt-br_utf8':'Portuguese (Brazilian UTF8)','pt_utf8':'Portuguese (UTF8)','ru':'Russian','test':'TEST'}
+// :{'en':'English','an':'Aragonese','bg':'Bulgarian','ca':'Catalan','cn':'Chinese','cz':'Czech','de':'German','el':'Greek','el-gr':'Greek (Greece)','es':'Spanish','eu':'Basque-Euskera','fi':'Finnish','fr':'French','gl':'Galician','hr':'Croatian','it':'Italian','kana':'Japanese','kana_utf8':'Japanese (UTF8)','nl':'Dutch','pl':'Polish','pt':'Portuguese','pt-br':'Portuguese (Brazilian)','pt-br_utf8':'Portuguese (Brazilian UTF8)','pt_utf8':'Portuguese (UTF8)','ru':'Russian', 'tr':'Turkish', 'test':'TEST'}
 //
 #define LCD_LANGUAGE en
 

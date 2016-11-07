@@ -151,7 +151,7 @@ volatile bool Temperature::temp_meas_ready = false;
   millis_t Temperature::next_bed_check_ms;
 #endif
 
-unsigned long Temperature::raw_temp_value[4] = { 0 };
+unsigned long Temperature::raw_temp_value[MAX_EXTRUDERS] = { 0 };
 unsigned long Temperature::raw_temp_bed_value = 0;
 
 // Init min and max temp with extreme values to prevent false errors during startup
@@ -454,7 +454,7 @@ int Temperature::getHeaterPower(int heater) {
 #if HAS_AUTO_FAN
 
   void Temperature::checkExtruderAutoFans() {
-    const int8_t fanPin[] = { EXTRUDER_0_AUTO_FAN_PIN, EXTRUDER_1_AUTO_FAN_PIN, EXTRUDER_2_AUTO_FAN_PIN, EXTRUDER_3_AUTO_FAN_PIN };
+    const int8_t fanPin[] = { E0_AUTO_FAN_PIN, E1_AUTO_FAN_PIN, E2_AUTO_FAN_PIN, E3_AUTO_FAN_PIN };
     const int fanBit[] = {
                     0,
       AUTO_1_IS_0 ? 0 :               1,
@@ -462,12 +462,12 @@ int Temperature::getHeaterPower(int heater) {
       AUTO_3_IS_0 ? 0 : AUTO_3_IS_1 ? 1 : AUTO_3_IS_2 ? 2 : 3
     };
     uint8_t fanState = 0;
- 
+
     HOTEND_LOOP() {
       if (current_temperature[e] > EXTRUDER_AUTO_FAN_TEMPERATURE)
         SBI(fanState, fanBit[e]);
     }
- 
+
     uint8_t fanDone = 0;
     for (uint8_t f = 0; f < COUNT(fanPin); f++) {
       int8_t pin = fanPin[f];
@@ -669,8 +669,8 @@ void Temperature::manage_heater() {
   updateTemperaturesFromRawValues(); // also resets the watchdog
 
   #if ENABLED(HEATER_0_USES_MAX6675)
-    if (current_temperature[0] > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
-    if (current_temperature[0] < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
+    if (current_temperature[0] > min(HEATER_0_MAXTEMP, MAX6675_TMAX - 1)) max_temp_error(0);
+    if (current_temperature[0] < max(HEATER_0_MINTEMP, MAX6675_TMIN + 0.01)) min_temp_error(0);
   #endif
 
   #if (ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0) || (ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0) || DISABLED(PIDTEMPBED) || HAS_AUTO_FAN
@@ -1043,43 +1043,43 @@ void Temperature::init() {
   #endif
 
   #if HAS_AUTO_FAN_0
-    #if EXTRUDER_0_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(EXTRUDER_0_AUTO_FAN_PIN);
+    #if E0_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(E0_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
-        setPwmFrequency(EXTRUDER_0_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+        setPwmFrequency(E0_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
       #endif
     #else
-      pinMode(EXTRUDER_0_AUTO_FAN_PIN, OUTPUT);
+      SET_OUTPUT(E0_AUTO_FAN_PIN);
     #endif
   #endif
   #if HAS_AUTO_FAN_1 && !AUTO_1_IS_0
-    #if EXTRUDER_1_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(EXTRUDER_1_AUTO_FAN_PIN);
+    #if E1_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(E1_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
-        setPwmFrequency(EXTRUDER_1_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+        setPwmFrequency(E1_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
       #endif
     #else
-      pinMode(EXTRUDER_1_AUTO_FAN_PIN, OUTPUT);
+      SET_OUTPUT(E1_AUTO_FAN_PIN);
     #endif
   #endif
   #if HAS_AUTO_FAN_2 && !AUTO_2_IS_0 && !AUTO_2_IS_1
-    #if EXTRUDER_2_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(EXTRUDER_2_AUTO_FAN_PIN);
+    #if E2_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(E2_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
-        setPwmFrequency(EXTRUDER_2_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+        setPwmFrequency(E2_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
       #endif
     #else
-      pinMode(EXTRUDER_2_AUTO_FAN_PIN, OUTPUT);
+      SET_OUTPUT(E2_AUTO_FAN_PIN);
     #endif
   #endif
   #if HAS_AUTO_FAN_3 && !AUTO_3_IS_0 && !AUTO_3_IS_1 && !AUTO_3_IS_2
-    #if EXTRUDER_3_AUTO_FAN_PIN == FAN1_PIN
-      SET_OUTPUT(EXTRUDER_3_AUTO_FAN_PIN);
+    #if E3_AUTO_FAN_PIN == FAN1_PIN
+      SET_OUTPUT(E3_AUTO_FAN_PIN);
       #if ENABLED(FAST_PWM_FAN)
-        setPwmFrequency(EXTRUDER_3_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+        setPwmFrequency(E3_AUTO_FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
       #endif
     #else
-      pinMode(EXTRUDER_3_AUTO_FAN_PIN, OUTPUT);
+      SET_OUTPUT(E3_AUTO_FAN_PIN);
     #endif
   #endif
 
@@ -1355,10 +1355,14 @@ void Temperature::disable_all_heaters() {
       #else
         SERIAL_ERRORLNPGM("MAX6675");
       #endif
-      max6675_temp = 4000; // thermocouple open
+      max6675_temp = MAX6675_TMAX * 4; // thermocouple open
     }
     else
       max6675_temp >>= MAX6675_DISCARD_BITS;
+      #if ENABLED(MAX6675_IS_MAX31855)
+        // Support negative temperature
+        if (max6675_temp & 0x00002000) max6675_temp |= 0xffffc000;
+      #endif
 
     return (int)max6675_temp;
   }
@@ -1388,6 +1392,87 @@ void Temperature::set_current_temp_raw() {
   current_temperature_bed_raw = raw_temp_bed_value;
   temp_meas_ready = true;
 }
+
+#if ENABLED(PINS_DEBUGGING)
+  /**
+   * monitors endstops & Z probe for changes
+   *
+   * If a change is detected then the LED is toggled and
+   * a message is sent out the serial port
+   *
+   * Yes, we could miss a rapid back & forth change but
+   * that won't matter because this is all manual.
+   *
+   */
+  void endstop_monitor() {
+    static uint16_t old_endstop_bits_local = 0;
+    static uint8_t local_LED_status = 0;
+    uint16_t current_endstop_bits_local = 0;
+    #if HAS_X_MIN
+      if (READ(X_MIN_PIN)) SBI(current_endstop_bits_local, X_MIN);
+    #endif
+    #if HAS_X_MAX
+      if (READ(X_MAX_PIN)) SBI(current_endstop_bits_local, X_MAX);
+    #endif
+    #if HAS_Y_MIN
+      if (READ(Y_MIN_PIN)) SBI(current_endstop_bits_local, Y_MIN);
+    #endif
+    #if HAS_Y_MAX
+      if (READ(Y_MAX_PIN)) SBI(current_endstop_bits_local, Y_MAX);
+    #endif
+    #if HAS_Z_MIN
+      if (READ(Z_MIN_PIN)) SBI(current_endstop_bits_local, Z_MIN);
+    #endif
+    #if HAS_Z_MAX
+      if (READ(Z_MAX_PIN)) SBI(current_endstop_bits_local, Z_MAX);
+    #endif
+    #if HAS_Z_MIN_PROBE_PIN
+      if (READ(Z_MIN_PROBE_PIN)) SBI(current_endstop_bits_local, Z_MIN_PROBE);
+    #endif
+    #if HAS_Z2_MIN
+      if (READ(Z2_MIN_PIN)) SBI(current_endstop_bits_local, Z2_MIN);
+    #endif
+    #if HAS_Z2_MAX
+      if (READ(Z2_MAX_PIN)) SBI(current_endstop_bits_local, Z2_MAX);
+    #endif
+
+    uint16_t endstop_change = current_endstop_bits_local ^ old_endstop_bits_local;
+
+    if (endstop_change) {
+      #if HAS_X_MIN
+        if (TEST(endstop_change, X_MIN)) SERIAL_PROTOCOLPAIR("X_MIN:", !!TEST(current_endstop_bits_local, X_MIN));
+      #endif
+      #if HAS_X_MAX
+        if (TEST(endstop_change, X_MAX)) SERIAL_PROTOCOLPAIR("  X_MAX:", !!TEST(current_endstop_bits_local, X_MAX));
+      #endif
+      #if HAS_Y_MIN
+        if (TEST(endstop_change, Y_MIN)) SERIAL_PROTOCOLPAIR("  Y_MIN:", !!TEST(current_endstop_bits_local, Y_MIN));
+      #endif
+      #if HAS_Y_MAX
+        if (TEST(endstop_change, Y_MAX)) SERIAL_PROTOCOLPAIR("  Y_MAX:", !!TEST(current_endstop_bits_local, Y_MAX));
+      #endif
+      #if HAS_Z_MIN
+        if (TEST(endstop_change, Z_MIN)) SERIAL_PROTOCOLPAIR("  Z_MIN:", !!TEST(current_endstop_bits_local, Z_MIN));
+      #endif
+      #if HAS_Z_MAX
+        if (TEST(endstop_change, Z_MAX)) SERIAL_PROTOCOLPAIR("  Z_MAX:", !!TEST(current_endstop_bits_local, Z_MAX));
+      #endif
+      #if HAS_Z_MIN_PROBE_PIN
+        if (TEST(endstop_change, Z_MIN_PROBE)) SERIAL_PROTOCOLPAIR("  PROBE:", !!TEST(current_endstop_bits_local, Z_MIN_PROBE));
+      #endif
+      #if HAS_Z2_MIN
+        if (TEST(endstop_change, Z2_MIN)) SERIAL_PROTOCOLPAIR("  Z2_MIN:", !!TEST(current_endstop_bits_local, Z2_MIN));
+      #endif
+      #if HAS_Z2_MAX
+        if (TEST(endstop_change, Z2_MAX)) SERIAL_PROTOCOLPAIR("  Z2_MAX:", !!TEST(current_endstop_bits_local, Z2_MAX));
+      #endif
+      SERIAL_PROTOCOLPGM("\n\n");
+      analogWrite(LED_PIN, local_LED_status);
+      local_LED_status ^= 255;
+      old_endstop_bits_local = current_endstop_bits_local;
+    }
+  }
+#endif // PINS_DEBUGGING
 
 /**
  * Timer 0 is shared with millies so don't change the prescaler.
@@ -1758,6 +1843,9 @@ void Temperature::isr() {
   } // switch(temp_state)
 
   if (temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
+
+    temp_count = 0;
+
     // Update the raw values if they've been read. Else we could be updating them during reading.
     if (!temp_meas_ready) set_current_temp_raw();
 
@@ -1766,85 +1854,54 @@ void Temperature::isr() {
       current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
     #endif
 
-    temp_count = 0;
-    for (int i = 0; i < 4; i++) raw_temp_value[i] = 0;
+    ZERO(raw_temp_value);
     raw_temp_bed_value = 0;
 
-    #if HAS_TEMP_0 && DISABLED(HEATER_0_USES_MAX6675)
-      #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
-        #define GE0 <=
+    int constexpr temp_dir[] = {
+      #if ENABLED(HEATER_0_USES_MAX6675)
+         0
+      #elif HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
+        -1
       #else
-        #define GE0 >=
+         1
       #endif
-      if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
-      if (minttemp_raw[0] GE0 current_temperature_raw[0] && !is_preheating(0) && target_temperature[0] > 0.0f) {
-        #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-          if (++consecutive_low_temperature_error[0] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+      #if HAS_TEMP_1 && HOTENDS > 1
+        #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
+          , -1
+        #else
+          ,  1
         #endif
-            min_temp_error(0);
-      }
-      #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-        else
-          consecutive_low_temperature_error[0] = 0;
       #endif
-    #endif
+      #if HAS_TEMP_2 && HOTENDS > 2
+        #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
+          , -1
+        #else
+          ,  1
+        #endif
+      #endif
+      #if HAS_TEMP_3 && HOTENDS > 3
+        #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
+          , -1
+        #else
+          ,  1
+        #endif
+      #endif
+    };
 
-    #if HAS_TEMP_1 && HOTENDS > 1
-      #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
-        #define GE1 <=
-      #else
-        #define GE1 >=
-      #endif
-      if (current_temperature_raw[1] GE1 maxttemp_raw[1]) max_temp_error(1);
-      if (minttemp_raw[1] GE1 current_temperature_raw[1] && !is_preheating(1) && target_temperature[1] > 0.0f) {
+    for (uint8_t e = 0; e < COUNT(temp_dir); e++) {
+      const int tdir = temp_dir[e], rawtemp = current_temperature_raw[e] * tdir;
+      if (rawtemp > maxttemp_raw[e] * tdir && target_temperature[e] > 0.0f) max_temp_error(e);
+      if (rawtemp < minttemp_raw[e] * tdir && !is_preheating(e) && target_temperature[e] > 0.0f) {
         #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-          if (++consecutive_low_temperature_error[1] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
+          if (++consecutive_low_temperature_error[e] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
         #endif
-          min_temp_error(1);
+            min_temp_error(e);
       }
       #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
         else
-          consecutive_low_temperature_error[1] = 0;
+          consecutive_low_temperature_error[e] = 0;
       #endif
-    #endif // TEMP_SENSOR_1
-
-    #if HAS_TEMP_2 && HOTENDS > 2
-      #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
-        #define GE2 <=
-      #else
-        #define GE2 >=
-      #endif
-      if (current_temperature_raw[2] GE2 maxttemp_raw[2]) max_temp_error(2);
-      if (minttemp_raw[2] GE2 current_temperature_raw[2] && !is_preheating(2) && target_temperature[2] > 0.0f) {
-        #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-          if (++consecutive_low_temperature_error[2] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
-        #endif
-          min_temp_error(2);
-      }
-      #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-        else
-          consecutive_low_temperature_error[2] = 0;
-      #endif
-    #endif // TEMP_SENSOR_2
-
-    #if HAS_TEMP_3 && HOTENDS > 3
-      #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
-        #define GE3 <=
-      #else
-        #define GE3 >=
-      #endif
-      if (current_temperature_raw[3] GE3 maxttemp_raw[3]) max_temp_error(3);
-      if (minttemp_raw[3] GE3 current_temperature_raw[3] && !is_preheating(3) && target_temperature[3] > 0.0f) {
-        #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-          if (++consecutive_low_temperature_error[3] >= MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED)
-        #endif
-          min_temp_error(3);
-      }
-      #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
-        else
-          consecutive_low_temperature_error[3] = 0;
-      #endif
-    #endif // TEMP_SENSOR_3
+    }
 
     #if HAS_TEMP_BED
       #if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
@@ -1852,24 +1909,35 @@ void Temperature::isr() {
       #else
         #define GEBED >=
       #endif
-      if (current_temperature_bed_raw GEBED bed_maxttemp_raw) max_temp_error(-1);
+      if (current_temperature_bed_raw GEBED bed_maxttemp_raw && target_temperature_bed > 0.0f) max_temp_error(-1);
       if (bed_minttemp_raw GEBED current_temperature_bed_raw && target_temperature_bed > 0.0f) min_temp_error(-1);
     #endif
 
   } // temp_count >= OVERSAMPLENR
 
   #if ENABLED(BABYSTEPPING)
-    for (uint8_t axis = X_AXIS; axis <= Z_AXIS; axis++) {
+    LOOP_XYZ(axis) {
       int curTodo = babystepsTodo[axis]; //get rid of volatile for performance
 
       if (curTodo > 0) {
-        stepper.babystep(axis,/*fwd*/true);
+        stepper.babystep((AxisEnum)axis,/*fwd*/true);
         babystepsTodo[axis]--; //fewer to do next time
       }
       else if (curTodo < 0) {
-        stepper.babystep(axis,/*fwd*/false);
+        stepper.babystep((AxisEnum)axis,/*fwd*/false);
         babystepsTodo[axis]++; //fewer to do next time
       }
     }
   #endif //BABYSTEPPING
+
+  #if ENABLED(PINS_DEBUGGING)
+    extern bool endstop_monitor_flag;
+    // run the endstop monitor at 15Hz
+    static uint8_t endstop_monitor_count = 16;  // offset this check from the others
+    if (endstop_monitor_flag) {
+      endstop_monitor_count += _BV(1);  //  15 Hz
+      endstop_monitor_count &= 0x7F;
+      if (!endstop_monitor_count) endstop_monitor();  // report changes in endstop status
+    }
+  #endif
 }
