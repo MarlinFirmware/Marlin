@@ -289,7 +289,7 @@
 
 bool Running = true;
 
-uint8_t marlin_debug_flags = DEBUG_NONE ;//| DEBUG_LEVELING;
+uint8_t marlin_debug_flags = DEBUG_NONE;
 
 /**
  * Cartesian Current Position
@@ -2385,7 +2385,7 @@ static void clean_up_after_endstop_or_probe_move() {
     }
     SERIAL_EOL;
     for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++) {
-      if (y < 9) SERIAL_PROTOCOLCHAR(' ');
+      if (y < 10) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)y);
       for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
         SERIAL_PROTOCOLCHAR(' ');
@@ -2401,7 +2401,7 @@ static void clean_up_after_endstop_or_probe_move() {
     }
     SERIAL_EOL;
   }
-#define ABL_GRID_VIRT 2
+#define ABL_GRID_VIRT 3
 #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
   #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_POINTS_X-1)*ABL_GRID_VIRT+1
   #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_POINTS_Y-1)*ABL_GRID_VIRT+1
@@ -2418,7 +2418,7 @@ static void clean_up_after_endstop_or_probe_move() {
     }
     SERIAL_EOL;
     for (uint8_t y = 0; y < ABL_GRID_POINTS_VIRT_Y; y++) {
-      if (y < 9) SERIAL_PROTOCOLCHAR(' ');
+      if (y < 10) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)y);
       for (uint8_t x = 0; x < ABL_GRID_POINTS_VIRT_X; x++) {
         SERIAL_PROTOCOLCHAR(' ');
@@ -2471,19 +2471,20 @@ static void clean_up_after_endstop_or_probe_move() {
 	  }
     SERIAL_EOL;
   }
+  #define LINEAR_EXTRAPOLATION(edge,inner) (edge*2-inner)
   static void bed_level_virt_prepare() {
     for (uint8_t y = 0; y < (ABL_GRID_POINTS_Y); y++) {
       for (uint8_t x = 0; x < (ABL_GRID_POINTS_X); x++) {
         float offset = bed_level_grid[x][y];
 		bed_level_grid_virt_temp[x+1][y+1]=offset;
-		bed_level_grid_virt[x*ABL_GRID_VIRT][y*ABL_GRID_VIRT]=offset;
+		//bed_level_grid_virt[x*ABL_GRID_VIRT][y*ABL_GRID_VIRT]=offset;
       }
-	  bed_level_grid_virt_temp[0][y+1]=bed_level_grid_virt_temp[1][y+1];
-	  bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2-1][y+1]=bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2-2][y+1];
+	  bed_level_grid_virt_temp[0][y+1]=LINEAR_EXTRAPOLATION(bed_level_grid_virt_temp[1][y+1],bed_level_grid_virt_temp[2][y+1]);
+	  bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2-1][y+1]=LINEAR_EXTRAPOLATION(bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2-2][y+1],bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2-3][y+1]);
     }
     for (uint8_t x = 0; x < (ABL_GRID_POINTS_X+2); x++) {
-	  bed_level_grid_virt_temp[x][0]=bed_level_grid_virt_temp[x][1];
-	  bed_level_grid_virt_temp[x][ABL_GRID_POINTS_Y+2-1]=bed_level_grid_virt_temp[x][ABL_GRID_POINTS_Y+2-2];
+	  bed_level_grid_virt_temp[x][0]=LINEAR_EXTRAPOLATION(bed_level_grid_virt_temp[x][1],bed_level_grid_virt_temp[x][2]);
+	  bed_level_grid_virt_temp[x][ABL_GRID_POINTS_Y+2-1]=LINEAR_EXTRAPOLATION(bed_level_grid_virt_temp[x][ABL_GRID_POINTS_Y+2-2],bed_level_grid_virt_temp[x][ABL_GRID_POINTS_Y+2-3]);
 	}
   }
   static float bed_level_virt_cmr(float p[4],uint8_t i, float t){
@@ -4135,7 +4136,6 @@ inline void gcode_G28() {
 
       if (!dryrun) extrapolate_unprobed_bed_level();
       print_bed_level();
-	//if interpolation
 	  #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
 		bed_level_virt_prepare();
 		//print_bed_level_virt_temp();
