@@ -1432,12 +1432,8 @@ static void set_axis_is_at_home(AxisEnum axis) {
   update_software_endstops(axis);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    if (axis == X_AXIS && (active_extruder != 0 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
-      if (active_extruder != 0)
-        current_position[X_AXIS] = x_home_pos(active_extruder);
-      else
-        current_position[X_AXIS] = LOGICAL_X_POSITION(base_home_pos(X_AXIS));
-      update_software_endstops(X_AXIS);
+    if (axis == X_AXIS && (active_extruder == 1 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
+      current_position[X_AXIS] = x_home_pos(active_extruder);
       return;
     }
   #endif
