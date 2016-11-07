@@ -2379,20 +2379,20 @@ static void clean_up_after_endstop_or_probe_move() {
   static void print_bed_level() {
     SERIAL_ECHOPGM("Bilinear Leveling Grid:\n ");
     for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
-      SERIAL_PROTOCOLPGM("     ");
-      if (x < 10) SERIAL_PROTOCOLCHAR(' ');
+      SERIAL_PROTOCOLPGM("    ");
+      if (x < 9) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)x);
     }
     SERIAL_EOL;
     for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++) {
-      if (y < 10) SERIAL_PROTOCOLCHAR(' ');
+      if (y < 9) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)y);
       for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
         SERIAL_PROTOCOLCHAR(' ');
         float offset = bed_level_grid[x][y];
         if (offset < 999.0) {
           if (offset > 0) SERIAL_CHAR('+');
-          SERIAL_PROTOCOL_F(offset, 3);
+          SERIAL_PROTOCOL_F(offset, 2);
         }
         else
           SERIAL_PROTOCOLPGM(" ====");
@@ -2401,7 +2401,6 @@ static void clean_up_after_endstop_or_probe_move() {
     }
     SERIAL_EOL;
   }
-#define ABL_GRID_VIRT 3
 #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
   #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_POINTS_X-1)*ABL_GRID_VIRT+1
   #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_POINTS_Y-1)*ABL_GRID_VIRT+1
@@ -2410,7 +2409,7 @@ static void clean_up_after_endstop_or_probe_move() {
   int bilinear_grid_spacing_virt[2] = { 0 };
 
   static void print_bed_level_virt() {
-    SERIAL_ECHOPGM("DUMP of CATMULL ROM Leveling Grid:\n ");
+    SERIAL_ECHOPGM("Interpolated with CATMULL ROM Leveling Grid:\n ");
     for (uint8_t x = 0; x < ABL_GRID_POINTS_VIRT_X; x++) {
       SERIAL_PROTOCOLPGM("       ");
       if (x < 10) SERIAL_PROTOCOLCHAR(' ');
@@ -2434,50 +2433,12 @@ static void clean_up_after_endstop_or_probe_move() {
     }
     SERIAL_EOL;
   }
-  static void print_bed_level_virt_temp() {
-    SERIAL_ECHOPGM("DUMP of Bilinear TEMP Leveling Grid:\n ");
-    for (uint8_t x = 0; x < (ABL_GRID_POINTS_X+2); x++) {
-      SERIAL_PROTOCOLPGM("    ");
-      if (x < 10) SERIAL_PROTOCOLCHAR(' ');
-      SERIAL_PROTOCOL((int)x);
-    }
-    SERIAL_EOL;
-    for (uint8_t y = 0; y < (ABL_GRID_POINTS_Y+2); y++) {
-      if (y < 9) SERIAL_PROTOCOLCHAR(' ');
-      SERIAL_PROTOCOL((int)y);
-      for (uint8_t x = 0; x < (ABL_GRID_POINTS_X+2); x++) {
-        SERIAL_PROTOCOLCHAR(' ');
-        float offset = bed_level_grid_virt_temp[x][y];
-        if (offset < 999.0) {
-          if (offset > 0) SERIAL_CHAR('+');
-          SERIAL_PROTOCOL_F(offset, 2);
-        }
-        else
-          SERIAL_PROTOCOLPGM(" ====");
-      }
-      SERIAL_EOL;
-    }
-    SERIAL_EOL;
-  }
-  static void print_bed_level_virt_points(float p[4]) {
-    SERIAL_EOL;
-      for (uint8_t x = 0; x < 4; x++) {
-        SERIAL_PROTOCOLCHAR(' ');
-        float offset = p[x];
-        if (offset < 999.0) {
-          if (offset > 0) SERIAL_CHAR('+');
-          SERIAL_PROTOCOL_F(offset, 2);
-        }
-	  }
-    SERIAL_EOL;
-  }
   #define LINEAR_EXTRAPOLATION(edge,inner) (edge*2-inner)
   static void bed_level_virt_prepare() {
     for (uint8_t y = 0; y < (ABL_GRID_POINTS_Y); y++) {
       for (uint8_t x = 0; x < (ABL_GRID_POINTS_X); x++) {
         float offset = bed_level_grid[x][y];
 		bed_level_grid_virt_temp[x+1][y+1]=offset;
-		//bed_level_grid_virt[x*ABL_GRID_VIRT][y*ABL_GRID_VIRT]=offset;
       }
 	  bed_level_grid_virt_temp[0][y+1]=LINEAR_EXTRAPOLATION(bed_level_grid_virt_temp[1][y+1],bed_level_grid_virt_temp[2][y+1]);
 	  bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2-1][y+1]=LINEAR_EXTRAPOLATION(bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2-2][y+1],bed_level_grid_virt_temp[ABL_GRID_POINTS_X+2-3][y+1]);
@@ -4138,7 +4099,6 @@ inline void gcode_G28() {
       print_bed_level();
 	  #if defined(ABL_GRID_VIRT) && ABL_GRID_VIRT > 1
 		bed_level_virt_prepare();
-		//print_bed_level_virt_temp();
 		bed_level_virt_interpolate();
 		print_bed_level_virt();
 	  #endif
