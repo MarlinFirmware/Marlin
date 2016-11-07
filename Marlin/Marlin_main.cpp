@@ -9223,23 +9223,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       switch (dual_x_carriage_mode) {
         case DXC_FULL_CONTROL_MODE:
           break;
-        case DXC_DUPLICATION_MODE:
-          if (active_extruder == 0) {
-            // move duplicate extruder into correct duplication position.
-            planner.set_position_mm(
-              LOGICAL_X_POSITION(inactive_extruder_x_pos),
-              current_position[Y_AXIS],
-              current_position[Z_AXIS],
-              current_position[E_AXIS]
-            );
-            planner.buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset,
-                             current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], planner.max_feedrate_mm_s[X_AXIS], 1);
-            SYNC_PLAN_POSITION_KINEMATIC();
-            stepper.synchronize();
-            extruder_duplication_enabled = true;
-            active_extruder_parked = false;
-          }
-          break;
         case DXC_AUTO_PARK_MODE:
           if (current_position[E_AXIS] == destination[E_AXIS]) {
             // This is a travel move (with no extrusion)
@@ -9258,6 +9241,23 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
           planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], PLANNER_XY_FEEDRATE(), active_extruder);
           planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
           active_extruder_parked = false;
+          break;
+        case DXC_DUPLICATION_MODE:
+          if (active_extruder == 0) {
+            // move duplicate extruder into correct duplication position.
+            planner.set_position_mm(
+              LOGICAL_X_POSITION(inactive_extruder_x_pos),
+              current_position[Y_AXIS],
+              current_position[Z_AXIS],
+              current_position[E_AXIS]
+            );
+            planner.buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset,
+                             current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], planner.max_feedrate_mm_s[X_AXIS], 1);
+            SYNC_PLAN_POSITION_KINEMATIC();
+            stepper.synchronize();
+            extruder_duplication_enabled = true;
+            active_extruder_parked = false;
+          }
           break;
       }
     }
