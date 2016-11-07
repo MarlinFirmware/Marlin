@@ -39,12 +39,16 @@ install:
   - sudo mv U8glib_Arduino /usr/local/share/arduino/libraries/U8glib
   #
   # Install: L6470 Stepper Motor Driver library
-  - git clone https://github.com/ameyer/Arduino-L6470.git
-  - sudo mv Arduino-L6470/L6470 /usr/local/share/arduino/libraries/L6470
+  # - git clone https://github.com/ameyer/Arduino-L6470.git
+  # - sudo mv Arduino-L6470/L6470 /usr/local/share/arduino/libraries/L6470
   #
   # Install: TMC26X Stepper Motor Controller library
-  - git clone https://github.com/trinamic/TMC26XStepper.git
-  - sudo mv TMC26XStepper /usr/local/share/arduino/libraries/TMC26XStepper
+  # - git clone https://github.com/trinamic/TMC26XStepper.git
+  # - sudo mv TMC26XStepper /usr/local/share/arduino/libraries/TMC26XStepper
+  #
+  # Install: TMC2130 Stepper Motor Controller library
+  - git clone https://github.com/MarlinFirmware/Trinamic_TMC2130.git
+  - sudo mv Trinamic_TMC2130/Trinamic_TMC2130 /usr/local/share/arduino/libraries/Trinamic_TMC2130
   #
 before_script:
   #
@@ -378,6 +382,12 @@ script:
   #
   - use_example_configs SCARA
   - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
+  - build_marlin
+  #
+  # TMC2130 Config
+  #
+  - restore_configs
+  - opt_enable_adv HAVE_TMC2130DRIVER X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130 E0_IS_TMC2130
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p
