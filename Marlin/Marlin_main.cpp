@@ -9233,11 +9233,17 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
               return false;
             }
           }
-          delayed_move_time = 0;
           // unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
-          planner.buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
-          planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS], current_position[E_AXIS], PLANNER_XY_FEEDRATE(), active_extruder);
-          planner.buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
+          for (uint8_t i = 0; i < 3; i++)
+            planner.buffer_line(
+              i == 0 ? raised_parked_position[X_AXIS] : current_position[X_AXIS],
+              i == 0 ? raised_parked_position[Y_AXIS] : current_position[Y_AXIS],
+              i == 2 ? current_position[Z_AXIS] : raised_parked_position[Z_AXIS],
+              current_position[E_AXIS],
+              i == 1 ? PLANNER_XY_FEEDRATE() : planner.max_feedrate_mm_s[Z_AXIS],
+              active_extruder
+            );
+          delayed_move_time = 0;
           active_extruder_parked = false;
           break;
         case DXC_DUPLICATION_MODE:
