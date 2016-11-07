@@ -71,6 +71,7 @@
 // pt-br_utf8 Portuguese (Brazilian UTF8)
 // pt_utf8    Portuguese (UTF8)
 // ru         Russian
+// tr         Turkish
 // zh_CN      Simplified Chinese
 // zh_TW      Traditional Chinese
 
