@@ -778,6 +778,9 @@
   #define ABL_GRID_POINTS_X 3
   #define ABL_GRID_POINTS_Y ABL_GRID_POINTS_X
 
+  // Set the number of interpolated segments (for bilinear method)
+  //#define ABL_GRID_VIRT 3
+ 
   // Set the boundaries for probing (where the probe can reach).
   #define LEFT_PROBE_BED_POSITION 15
   #define RIGHT_PROBE_BED_POSITION 170
