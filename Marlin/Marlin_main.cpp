@@ -9668,7 +9668,11 @@ void idle(
     bool no_stepper_sleep/*=false*/
   #endif
 ) {
-  lcd_update();
+  #if ENABLED(BLOCK_LCD_ON_SHORT_MOVES)
+    if (planner.long_move()) lcd_update();
+  #else
+    lcd_update();
+  #endif
   host_keepalive();
   manage_inactivity(
     #if ENABLED(FILAMENT_CHANGE_FEATURE)

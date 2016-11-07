@@ -503,6 +503,13 @@
   #define BABYSTEP_MULTIPLICATOR 1 //faster movements
 #endif
 
+// During short segments like in circles, the update of the LCD Display can take so long that the block buffer gets completely drained.
+// If that happens, the movement of the printer gets very jerky until a longer segment like a longer straight line allows the buffer
+// to be filled again. This small stops also effects print quality in a bad way.
+// Enable BLOCK_LCD_ON_SHORT_MOVES to update the LCD only when there is enough time during a move to do so.
+// Note that this means the display will not show actual values during this time and your printer will also not react to buttons pressed!
+//#define BLOCK_LCD_ON_SHORT_MOVES
+
 // @section extruder
 
 // extruder advance constant (s2/mm3)

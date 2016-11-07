@@ -123,6 +123,10 @@ typedef struct {
   #if ENABLED(BARICUDA)
     uint32_t valve_pressure, e_to_p_pressure;
   #endif
+  
+  #if ENABLED(BLOCK_LCD_ON_SHORT_MOVES)
+    uint32_t segment_time;
+  #endif
 
 } block_t;
 
@@ -365,6 +369,17 @@ class Planner {
       else
         return NULL;
     }
+    
+    #if ENABLED(BLOCK_LCD_ON_SHORT_MOVES)
+      static bool long_move() {
+        if (blocks_queued()) {
+          block_t* block = &block_buffer[block_buffer_tail];
+          return (block->segment_time > 25000UL);
+        }
+        else
+          return true;
+      }
+    #endif
 
     #if ENABLED(AUTOTEMP)
       static float autotemp_max;

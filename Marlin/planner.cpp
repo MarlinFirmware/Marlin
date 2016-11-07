@@ -942,6 +942,14 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       }
     }
   #endif
+  
+  #if ENABLED(BLOCK_LCD_ON_SHORT_MOVES)
+    #if ENABLED(SLOWDOWN)
+      block->segment_time = segment_time;
+    #else
+      block->segment_time = lround(1000000.0/inverse_mm_s);
+    #endif
+  #endif
 
   block->nominal_speed = block->millimeters * inverse_mm_s; // (mm/sec) Always > 0
   block->nominal_rate = ceil(block->step_event_count * inverse_mm_s); // (step/sec) Always > 0
