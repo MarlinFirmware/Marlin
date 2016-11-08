@@ -214,6 +214,8 @@
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>"
  * M240 - Trigger a camera to take a photograph. (Requires CHDK or PHOTOGRAPH_PIN)
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
+ * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
+ * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
  * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
@@ -5783,59 +5785,6 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
 #endif // BLINKM
 
-#if ENABLED(EXPERIMENTAL_I2CBUS)
-
-  /**
-   * M155: Send data to a I2C slave device
-   *
-   * This is a PoC, the formating and arguments for the GCODE will
-   * change to be more compatible, the current proposal is:
-   *
-   *  M155 A<slave device address base 10> ; Sets the I2C slave address the data will be sent to
-   *
-   *  M155 B<byte-1 value in base 10>
-   *  M155 B<byte-2 value in base 10>
-   *  M155 B<byte-3 value in base 10>
-   *
-   *  M155 S1 ; Send the buffered data and reset the buffer
-   *  M155 R1 ; Reset the buffer without sending data
-   *
-   */
-  inline void gcode_M155() {
-    // Set the target address
-    if (code_seen('A')) i2c.address(code_value_byte());
-
-    // Add a new byte to the buffer
-    if (code_seen('B')) i2c.addbyte(code_value_byte());
-
-    // Flush the buffer to the bus
-    if (code_seen('S')) i2c.send();
-
-    // Reset and rewind the buffer
-    else if (code_seen('R')) i2c.reset();
-  }
-
-  /**
-   * M156: Request X bytes from I2C slave device
-   *
-   * Usage: M156 A<slave device address base 10> B<number of bytes>
-   */
-  inline void gcode_M156() {
-    if (code_seen('A')) i2c.address(code_value_byte());
-
-    uint8_t bytes = code_seen('B') ? code_value_byte() : 1;
-
-    if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE) {
-      i2c.relay(bytes);
-    }
-    else {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLN("Bad i2c request");
-    }
-  }
-
-#endif // EXPERIMENTAL_I2CBUS
-
 /**
  * M200: Set filament diameter and set E axis units to cubic units
  *
@@ -6181,6 +6130,59 @@ inline void gcode_M226() {
     } // pin_state -1 0 1 && pin_number > -1
   } // code_seen('P')
 }
+
+#if ENABLED(EXPERIMENTAL_I2CBUS)
+
+  /**
+   * M260: Send data to a I2C slave device
+   *
+   * This is a PoC, the formating and arguments for the GCODE will
+   * change to be more compatible, the current proposal is:
+   *
+   *  M260 A<slave device address base 10> ; Sets the I2C slave address the data will be sent to
+   *
+   *  M260 B<byte-1 value in base 10>
+   *  M260 B<byte-2 value in base 10>
+   *  M260 B<byte-3 value in base 10>
+   *
+   *  M260 S1 ; Send the buffered data and reset the buffer
+   *  M260 R1 ; Reset the buffer without sending data
+   *
+   */
+  inline void gcode_M260() {
+    // Set the target address
+    if (code_seen('A')) i2c.address(code_value_byte());
+
+    // Add a new byte to the buffer
+    if (code_seen('B')) i2c.addbyte(code_value_byte());
+
+    // Flush the buffer to the bus
+    if (code_seen('S')) i2c.send();
+
+    // Reset and rewind the buffer
+    else if (code_seen('R')) i2c.reset();
+  }
+
+  /**
+   * M261: Request X bytes from I2C slave device
+   *
+   * Usage: M261 A<slave device address base 10> B<number of bytes>
+   */
+  inline void gcode_M261() {
+    if (code_seen('A')) i2c.address(code_value_byte());
+
+    uint8_t bytes = code_seen('B') ? code_value_byte() : 1;
+
+    if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE) {
+      i2c.relay(bytes);
+    }
+    else {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLN("Bad i2c request");
+    }
+  }
+
+#endif // EXPERIMENTAL_I2CBUS
 
 #if HAS_SERVOS
 
@@ -7948,18 +7950,6 @@ void process_next_command() {
 
       #endif // BLINKM
 
-      #if ENABLED(EXPERIMENTAL_I2CBUS)
-
-        case 155: // M155: Send data to an i2c slave
-          gcode_M155();
-          break;
-
-        case 156: // M156: Request data from an i2c slave
-          gcode_M156();
-          break;
-
-      #endif //EXPERIMENTAL_I2CBUS
-
       #if ENABLED(MIXING_EXTRUDER)
         case 163: // M163: Set a component weight for mixing extruder
           gcode_M163();
@@ -8081,6 +8071,18 @@ void process_next_command() {
           gcode_M250();
           break;
       #endif // HAS_LCD_CONTRAST
+
+      #if ENABLED(EXPERIMENTAL_I2CBUS)
+
+        case 260: // M260: Send data to an i2c slave
+          gcode_M260();
+          break;
+
+        case 261: // M261: Request data from an i2c slave
+          gcode_M261();
+          break;
+
+      #endif // EXPERIMENTAL_I2CBUS
 
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         case 302: // M302: Allow cold extrudes (set the minimum extrude temperature)
