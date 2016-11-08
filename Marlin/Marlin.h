@@ -270,13 +270,17 @@ extern bool axis_known_position[XYZ]; // axis[n].is_known
 extern bool axis_homed[XYZ]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
 
-#if ENABLED(EMERGENCY_PARSER) && DISABLED(ULTIPANEL)
+#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
   extern volatile bool wait_for_user;
 #endif
 
 extern float current_position[NUM_AXIS];
 extern float position_shift[XYZ];
 extern float home_offset[XYZ];
+
+#if HOTENDS > 1
+  extern float hotend_offset[XYZ][HOTENDS];
+#endif
 
 // Software Endstops
 void update_software_endstops(AxisEnum axis);

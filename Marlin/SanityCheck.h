@@ -153,6 +153,8 @@
   #error "LCD_PIN_BL is now LCD_BACKLIGHT_PIN. Please update your pins definitions."
 #elif defined(LCD_PIN_RESET)
   #error "LCD_PIN_RESET is now LCD_RESET_PIN. Please update your pins definitions."
+#elif defined(EXTRUDER_0_AUTO_FAN_PIN) || defined(EXTRUDER_1_AUTO_FAN_PIN) || defined(EXTRUDER_2_AUTO_FAN_PIN) || defined(EXTRUDER_3_AUTO_FAN_PIN)
+  #error "EXTRUDER_[0123]_AUTO_FAN_PIN is now E[0123]_AUTO_FAN_PIN. Please update your Configuration_adv.h."
 #endif
 
 /**
@@ -678,14 +680,14 @@
  */
 #if HAS_AUTO_FAN
   #if HAS_FAN0
-    #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN."
-    #elif EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN."
-    #elif EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN."
-    #elif EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
-      #error "You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN."
+    #if E0_AUTO_FAN_PIN == FAN_PIN
+      #error "You cannot set E0_AUTO_FAN_PIN equal to FAN_PIN."
+    #elif E1_AUTO_FAN_PIN == FAN_PIN
+      #error "You cannot set E1_AUTO_FAN_PIN equal to FAN_PIN."
+    #elif E2_AUTO_FAN_PIN == FAN_PIN
+      #error "You cannot set E2_AUTO_FAN_PIN equal to FAN_PIN."
+    #elif E3_AUTO_FAN_PIN == FAN_PIN
+      #error "You cannot set E3_AUTO_FAN_PIN equal to FAN_PIN."
     #endif
   #endif
 #endif
@@ -695,14 +697,14 @@
 #endif
 
 #if HAS_CONTROLLERFAN
-  #if EXTRUDER_0_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
-  #elif EXTRUDER_1_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
-  #elif EXTRUDER_2_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
-  #elif EXTRUDER_3_AUTO_FAN_PIN == CONTROLLERFAN_PIN
-    #error "You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
+  #if E0_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error "You cannot set E0_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
+  #elif E1_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error "You cannot set E1_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
+  #elif E2_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error "You cannot set E2_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
+  #elif E3_AUTO_FAN_PIN == CONTROLLERFAN_PIN
+    #error "You cannot set E3_AUTO_FAN_PIN equal to CONTROLLERFAN_PIN."
   #endif
 #endif
 
@@ -770,8 +772,8 @@
 /**
  * Temperature status LEDs
  */
-#if ENABLED(TEMP_STAT_LEDS) && !(PIN_EXISTS(STAT_LED_RED) && PIN_EXISTS(STAT_LED_BLUE))
-  #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN and STAT_LED_BLUE_PIN."
+#if ENABLED(TEMP_STAT_LEDS) && !PIN_EXISTS(STAT_LED_RED) && !PIN_EXISTS(STAT_LED_BLUE)
+  #error "TEMP_STAT_LEDS requires STAT_LED_RED_PIN or STAT_LED_BLUE_PIN, preferably both."
 #endif
 
 /**
@@ -869,6 +871,23 @@
 #endif
 
 /**
+ * Auto Fan check for PWM pins
+ */
+#if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255
+  #define AF_ERR_SUFF "_AUTO_FAN_PIN is not a PWM pin. Set EXTRUDER_AUTO_FAN_SPEED to 255."
+  #if HAS_AUTO_FAN_0
+    static_assert(GET_TIMER(E0_AUTO_FAN_PIN), "E0" AF_ERR_SUFF);
+  #elif HAS_AUTO_FAN_1
+    static_assert(GET_TIMER(E1_AUTO_FAN_PIN), "E1" AF_ERR_SUFF);
+  #elif HAS_AUTO_FAN_2
+    static_assert(GET_TIMER(E2_AUTO_FAN_PIN), "E2" AF_ERR_SUFF);
+  #elif HAS_AUTO_FAN_3
+    static_assert(GET_TIMER(E3_AUTO_FAN_PIN), "E3" AF_ERR_SUFF);
+  #endif
+#endif
+
+
+/**
  * Make sure only one display is enabled
  *
  * Note: BQ_LCD_SMART_CONTROLLER => REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
@@ -942,7 +961,7 @@
 #else
   #define COUNT_LCD_13 COUNT_LCD_12
 #endif
-#if ENABLED(REPRAPWORLD_KEYPAD)
+#if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(CARTESIO_UI)
   #define COUNT_LCD_14 INCREMENT(COUNT_LCD_13)
 #else
   #define COUNT_LCD_14 COUNT_LCD_13

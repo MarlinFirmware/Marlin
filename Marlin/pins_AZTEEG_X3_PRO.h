@@ -106,10 +106,10 @@
 #define CONTROLLERFAN_PIN   4 // Pin used for the fan to cool motherboard (-1 to disable)
 
 // Fans/Water Pump to cool the hotend cool side.
-#define EXTRUDER_0_AUTO_FAN_PIN   5
-#define EXTRUDER_1_AUTO_FAN_PIN   5
-#define EXTRUDER_2_AUTO_FAN_PIN   5
-#define EXTRUDER_3_AUTO_FAN_PIN   5
+#define ORIG_E0_AUTO_FAN_PIN 5
+#define ORIG_E1_AUTO_FAN_PIN 5
+#define ORIG_E2_AUTO_FAN_PIN 5
+#define ORIG_E3_AUTO_FAN_PIN 5
 
 //
 // LCD / Controller

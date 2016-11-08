@@ -109,7 +109,6 @@ class Stepper {
       static volatile unsigned char eISR_Rate;
       #if ENABLED(LIN_ADVANCE)
         static volatile int e_steps[E_STEPPERS];
-        static int extruder_advance_k;
         static int final_estep_rate;
         static int current_estep_rate[E_STEPPERS]; // Actual extruder speed [steps/s]
         static int current_adv_steps[E_STEPPERS];  // The amount of current added esteps due to advance.
@@ -258,7 +257,7 @@ class Stepper {
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static void babystep(const uint8_t axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+      static void babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
     #endif
 
     static inline void kill_current_block() {
@@ -276,11 +275,6 @@ class Stepper {
     static FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
       return endstops_trigsteps[axis] * planner.steps_to_mm[axis];
     }
-
-    #if ENABLED(LIN_ADVANCE)
-      void advance_M905(const float &k);
-      FORCE_INLINE int get_advance_k() { return extruder_advance_k; }
-    #endif
 
   private:
 
@@ -367,8 +361,8 @@ class Stepper {
       
       #if ENABLED(LIN_ADVANCE)
         if (current_block->use_advance_lead) {
-          current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
-          final_estep_rate = (current_block->nominal_rate * current_block->e_speed_multiplier8) >> 8;
+          current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
+          final_estep_rate = (current_block->nominal_rate * current_block->abs_adv_steps_multiplier8) >> 17;
         }
       #endif
 

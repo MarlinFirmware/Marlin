@@ -344,14 +344,14 @@
       #else
         #define BTN_EN1 37
         #define BTN_EN2 35
-        #define BTN_ENC 31  // the click
+        #define BTN_ENC 31 // the click
       #endif
 
       #if ENABLED(G3D_PANEL)
         #define SD_DETECT_PIN 49
         #define KILL_PIN 41
       #else
-        //        #define SD_DETECT_PIN -1  // Ramps doesn't use this
+        //#define SD_DETECT_PIN -1 // Ramps doesn't use this
       #endif
 
     #endif

@@ -96,8 +96,7 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
   #if ENABLED(LIN_ADVANCE)
     volatile int Stepper::e_steps[E_STEPPERS];
-    int Stepper::extruder_advance_k = LIN_ADVANCE_K,
-        Stepper::final_estep_rate,
+    int Stepper::final_estep_rate,
         Stepper::current_estep_rate[E_STEPPERS],
         Stepper::current_adv_steps[E_STEPPERS];
   #else
@@ -162,13 +161,13 @@ volatile long Stepper::endstops_trigsteps[XYZ];
   #if ENABLED(Z_DUAL_ENDSTOPS)
     #define Z_APPLY_STEP(v,Q) \
     if (performing_homing) { \
-      if (Z_HOME_DIR > 0) {\
-        if (!(TEST(endstops.old_endstop_bits, Z_MAX) && (count_direction[Z_AXIS] > 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
-        if (!(TEST(endstops.old_endstop_bits, Z2_MAX) && (count_direction[Z_AXIS] > 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
-      } \
-      else { \
+      if (Z_HOME_DIR < 0) { \
         if (!(TEST(endstops.old_endstop_bits, Z_MIN) && (count_direction[Z_AXIS] < 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
         if (!(TEST(endstops.old_endstop_bits, Z2_MIN) && (count_direction[Z_AXIS] < 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
+      } \
+      else { \
+        if (!(TEST(endstops.old_endstop_bits, Z_MAX) && (count_direction[Z_AXIS] > 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
+        if (!(TEST(endstops.old_endstop_bits, Z2_MAX) && (count_direction[Z_AXIS] > 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
       } \
     } \
     else { \
@@ -344,7 +343,7 @@ void Stepper::isr() {
     // Anything in the buffer?
     current_block = planner.get_current_block();
     if (current_block) {
-      current_block->busy = true;
+      SBI(current_block->flag, BLOCK_BIT_BUSY);
       trapezoid_generator_reset();
 
       // Initialize Bresenham counters to 1/2 the ceiling
@@ -534,7 +533,7 @@ void Stepper::isr() {
 
   #if ENABLED(LIN_ADVANCE)
     if (current_block->use_advance_lead) {
-      int delta_adv_steps = (((long)extruder_advance_k * current_estep_rate[TOOL_E_INDEX]) >> 9) - current_adv_steps[TOOL_E_INDEX];
+      int delta_adv_steps = current_estep_rate[TOOL_E_INDEX] - current_adv_steps[TOOL_E_INDEX];
       current_adv_steps[TOOL_E_INDEX] += delta_adv_steps;
       #if ENABLED(MIXING_EXTRUDER)
         // Mixing extruders apply advance lead proportionally
@@ -572,9 +571,9 @@ void Stepper::isr() {
       if (current_block->use_advance_lead) {
         #if ENABLED(MIXING_EXTRUDER)
           MIXING_STEPPERS_LOOP(j)
-            current_estep_rate[j] = ((uint32_t)acc_step_rate * current_block->e_speed_multiplier8 * current_block->step_event_count / current_block->mix_event_count[j]) >> 8;
+            current_estep_rate[j] = ((uint32_t)acc_step_rate * current_block->abs_adv_steps_multiplier8 * current_block->step_event_count / current_block->mix_event_count[j]) >> 17;
         #else
-          current_estep_rate[TOOL_E_INDEX] = ((uint32_t)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
+          current_estep_rate[TOOL_E_INDEX] = ((uint32_t)acc_step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
         #endif
       }
 
@@ -624,9 +623,9 @@ void Stepper::isr() {
       if (current_block->use_advance_lead) {
         #if ENABLED(MIXING_EXTRUDER)
           MIXING_STEPPERS_LOOP(j)
-            current_estep_rate[j] = ((uint32_t)step_rate * current_block->e_speed_multiplier8 * current_block->step_event_count / current_block->mix_event_count[j]) >> 8;
+            current_estep_rate[j] = ((uint32_t)step_rate * current_block->abs_adv_steps_multiplier8 * current_block->step_event_count / current_block->mix_event_count[j]) >> 17;
         #else
-          current_estep_rate[TOOL_E_INDEX] = ((uint32_t)step_rate * current_block->e_speed_multiplier8) >> 8;
+          current_estep_rate[TOOL_E_INDEX] = ((uint32_t)step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
         #endif
       }
 
@@ -983,8 +982,8 @@ void Stepper::set_position(const long &a, const long &b, const long &c, const lo
   #elif ENABLED(COREYZ)
     // coreyz planning
     count_position[X_AXIS] = a;
-    count_position[B_AXIS] = y + c;
-    count_position[C_AXIS] = y - c;
+    count_position[B_AXIS] = b + c;
+    count_position[C_AXIS] = b - c;
   #else
     // default non-h-bot planning
     count_position[X_AXIS] = a;
@@ -1109,24 +1108,24 @@ void Stepper::report_positions() {
 
 #if ENABLED(BABYSTEPPING)
 
+  #define _ENABLE(axis) enable_## axis()
+  #define _READ_DIR(AXIS) AXIS ##_DIR_READ
+  #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
+  #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
+
+  #define BABYSTEP_AXIS(axis, AXIS, INVERT) { \
+      _ENABLE(axis); \
+      uint8_t old_pin = _READ_DIR(AXIS); \
+      _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^direction^INVERT); \
+      _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
+      delayMicroseconds(2); \
+      _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), true); \
+      _APPLY_DIR(AXIS, old_pin); \
+    }
+
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
-  void Stepper::babystep(const uint8_t axis, const bool direction) {
-
-    #define _ENABLE(axis) enable_## axis()
-    #define _READ_DIR(AXIS) AXIS ##_DIR_READ
-    #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
-    #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
-
-    #define BABYSTEP_AXIS(axis, AXIS, INVERT) { \
-        _ENABLE(axis); \
-        uint8_t old_pin = _READ_DIR(AXIS); \
-        _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^direction^INVERT); \
-        _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
-        delayMicroseconds(2); \
-        _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), true); \
-        _APPLY_DIR(AXIS, old_pin); \
-      }
+  void Stepper::babystep(const AxisEnum axis, const bool direction) {
 
     switch (axis) {
 
@@ -1350,14 +1349,3 @@ void Stepper::report_positions() {
   }
 
 #endif // HAS_MICROSTEPS
-
-#if ENABLED(LIN_ADVANCE)
-
-  void Stepper::advance_M905(const float &k) {
-    if (k >= 0) extruder_advance_k = k;
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("Advance factor: ", extruder_advance_k);
-    SERIAL_EOL;
-  }
-
-#endif // LIN_ADVANCE

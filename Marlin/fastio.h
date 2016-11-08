@@ -79,7 +79,7 @@
 #define _GET_OUTPUT(IO)  ((DIO ## IO ## _DDR & MASK(DIO ## IO ## _PIN)) != 0)
 
 /// check if pin is an timer
-#define _GET_TIMER(IO)  ((DIO ## IO ## _PWM)
+#define _GET_TIMER(IO)  (DIO ## IO ## _PWM)
 
 //  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
 
@@ -93,6 +93,8 @@
 
 /// set pin as input wrapper
 #define SET_INPUT(IO)  _SET_INPUT(IO)
+/// set pin as input with pullup wrapper
+#define SET_INPUT_PULLUP(IO) do{ _SET_INPUT(IO); _WRITE(IO, HIGH); }while(0)
 /// set pin as output wrapper
 #define SET_OUTPUT(IO)  _SET_OUTPUT(IO)
 
@@ -1833,18 +1835,6 @@
   #define PG5_WPORT   PORTG
   #define PG5_DDR     DDRG
   #define PG5_PWM     &OCR0B
-  #undef PG6
-  #define PG6_PIN     PING6
-  #define PG6_RPORT   PING
-  #define PG6_WPORT   PORTG
-  #define PG6_DDR     DDRG
-  #define PG6_PWM     NULL
-  #undef PG7
-  #define PG7_PIN     PING7
-  #define PG7_RPORT   PING
-  #define PG7_WPORT   PORTG
-  #define PG7_DDR     DDRG
-  #define PG7_PWM     NULL
 
   #undef PH0
   #define PH0_PIN     PINH0
