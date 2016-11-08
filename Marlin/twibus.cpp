@@ -77,8 +77,6 @@ void TWIBus::addstring(char str[]) {
 }
 
 void TWIBus::send() {
-  if (!this->addr) return;
-
   #if ENABLED(DEBUG_TWIBUS)
     debug(PSTR("send"), this->addr);
   #endif
