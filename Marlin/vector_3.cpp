@@ -118,6 +118,16 @@ void matrix_3x3::set_to_identity() {
   matrix[6] = 0; matrix[7] = 0; matrix[8] = 1;
 }
 
+matrix_3x3 matrix_3x3::get_by_z_factor(float factor)
+{
+	matrix_3x3 result;
+
+	for ( int i = 0; i < 9; ++i )
+		result.matrix[i] = matrix[i] + ((matrix[0]-1.0)*factor);
+
+	return result;
+}
+
 matrix_3x3 matrix_3x3::create_look_at(vector_3 target) {
   vector_3 z_row = target.get_normal();
   vector_3 x_row = vector_3(1, 0, -target.x / target.z).get_normal();

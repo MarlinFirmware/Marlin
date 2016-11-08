@@ -522,6 +522,10 @@ void Planner::check_axes_activity() {
 }
 
 #if PLANNER_LEVELING
+namespace {
+const float Z_LEVEL_MAX(25.0); // only apply leveling up to this z height
+}
+
   /**
    * lx, ly, lz - logical (cartesian, not delta) positions in mm
    */
@@ -542,7 +546,8 @@ void Planner::check_axes_activity() {
             dy = RAW_Y_POSITION(ly) - (Y_TILT_FULCRUM),
             dz = RAW_Z_POSITION(lz);
 
-      apply_rotation_xyz(bed_level_matrix, dx, dy, dz);
+      if ( dz < Z_LEVEL_MAX )
+          apply_rotation_xyz(bed_level_matrix.get_by_z_factor((Z_LEVEL_MAX - dz) / Z_LEVEL_MAX), dx, dy, dz);
 
       lx = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
       ly = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
@@ -575,7 +580,8 @@ void Planner::check_axes_activity() {
             dy = RAW_Y_POSITION(logical[Y_AXIS]) - (Y_TILT_FULCRUM),
             dz = RAW_Z_POSITION(logical[Z_AXIS]);
 
-      apply_rotation_xyz(inverse, dx, dy, dz);
+      if ( dz < Z_LEVEL_MAX )
+          apply_rotation_xyz(inverse.get_by_z_factor((Z_LEVEL_MAX - dz) / Z_LEVEL_MAX), dx, dy, dz);
 
       logical[X_AXIS] = LOGICAL_X_POSITION(dx + X_TILT_FULCRUM);
       logical[Y_AXIS] = LOGICAL_Y_POSITION(dy + Y_TILT_FULCRUM);
