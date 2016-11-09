@@ -868,11 +868,20 @@ void setup_homepin(void) {
 #if HAS_CASE_LIGHT
 
   void setup_case_light() {
-    #if ENABLED(CASE_LIGHT_DEFAULT_ON)
-      OUT_WRITE(CASE_LIGHT_PIN, HIGH);
-    #else
-      OUT_WRITE(CASE_LIGHT_PIN, LOW);
-    #endif
+    digitalWrite(CASE_LIGHT_PIN,
+      #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+        255
+      #else
+        0
+      #endif
+    );
+    analogWrite(CASE_LIGHT_PIN,
+      #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+        255
+      #else
+        0
+      #endif
+    );
   }
 
 #endif
@@ -7183,33 +7192,30 @@ inline void gcode_M907() {
 #endif // HAS_MICROSTEPS
 
 #if HAS_CASE_LIGHT
+
   /**
-   * M355: Turn case lights on/off
+   * M355: Turn case lights on/off and set brightness
    *
-   *   S<int>   change state on/off or sets PWM
-   *
+   *   S<bool>  Turn case light on or off
+   *   P<byte>  Set case light brightness (PWM pin required)
    */
   inline void gcode_M355() {
+    static bool case_light_on
+      #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+        = true
+      #else
+    ;
+    #endif
+    static uint8_t case_light_brightness = 255;
+    if (code_seen('P')) case_light_brightness = code_value_byte();
     if (code_seen('S')) {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM("Case lights ");
-      byte light_pwm = code_value_byte();
-      switch (light_pwm) {
-        case 0: // Disable lights
-          SERIAL_ECHOPGM("off");
-          break;
-        case 1: // Enable lights
-          light_pwm = 255;
-          SERIAL_ECHOPGM("on");
-          break;
-        default: // Enable lights PWM
-          SERIAL_ECHOPAIR("set to: ", (int)map(light_pwm, 0, 255, 0, 100));
-          SERIAL_CHAR('%');
-          break;
-      }
-      analogWrite(CASE_LIGHT_PIN, light_pwm);
-      SERIAL_EOL;
+      case_light_on = code_value_bool();
+      digitalWrite(CASE_LIGHT_PIN, case_light_on ? HIGH : LOW);
+      analogWrite(CASE_LIGHT_PIN, case_light_on ? case_light_brightness : 0);
     }
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM("Case lights ");
+    case_light_on ? SERIAL_ECHOLNPGM("on") : SERIAL_ECHOLNPGM("off");
   }
 
 #endif // HAS_CASE_LIGHT
