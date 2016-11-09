@@ -160,7 +160,7 @@ void tmc_init() {
     TMC2130Stepper stepperE3(E3_ENABLE_PIN, E3_DIR_PIN, E3_STEP_PIN, E3_CHIP_SELECT);
   #endif
 
-  void tmc_init() {
+  void tmc2130_init() {
     #if ENABLED(X_IS_TMC2130)
       stepperX.begin();
       stepperX.external_ref(0); // Use internal reference voltage for current calculations. This is the default.

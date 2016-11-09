@@ -55,7 +55,7 @@
 
 #if ENABLED(HAVE_TMC2130)
   #include <TMC2130Stepper.h>
-  void tmc_init();
+  void tmc2130_init();
 #endif
 
 // L6470 has STEP on normal pins, but DIR/ENABLE via SPI
