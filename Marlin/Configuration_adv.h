@@ -837,4 +837,9 @@
  */
 //#define PINS_DEBUGGING
 
+/**
+ * Auto-report temperatures with M155 S<seconds>
+ */
+//#define AUTO_REPORT_TEMPERATURES
+
 #endif // CONFIGURATION_ADV_H
