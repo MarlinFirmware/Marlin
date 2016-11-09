@@ -188,6 +188,7 @@
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
  * M150 - Set BlinkM Color R<red> U<green> B<blue>. Values 0-255. (Requires BLINKM)
+ * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
  * M165 - Set the proportions for a mixing extruder. Use parameters ABCDHI to set the mixing factors. (Requires MIXING_EXTRUDER)
@@ -5135,6 +5136,31 @@ inline void gcode_M105() {
   SERIAL_EOL;
 }
 
+#if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+
+  static uint8_t auto_report_temp_interval;
+  static millis_t next_temp_report_ms;
+
+  /**
+   * M155: Set temperature auto-report interval. M155 S<seconds>
+   */
+  inline void gcode_M155() {
+    if (code_seen('S')) {
+      auto_report_temp_interval = code_value_byte();
+      NOMORE(auto_report_temp_interval, 60);
+      next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
+    }
+  }
+
+  inline void auto_report_temperatures() {
+    if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
+      next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
+      print_heaterstates();
+    }
+  }
+
+#endif // AUTO_REPORT_TEMPERATURES
+
 #if FAN_COUNT > 0
 
   /**
@@ -7840,6 +7866,12 @@ void process_next_command() {
         KEEPALIVE_STATE(NOT_BUSY);
         return; // "ok" already printed
 
+      #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+        case 155: // M155: Set temperature auto-report interval
+          gcode_M155();
+          break;
+      #endif
+
       case 109: // M109: Wait for hotend temperature to reach target
         gcode_M109();
         break;
@@ -9663,7 +9695,13 @@ void idle(
   #endif
 ) {
   lcd_update();
+
   host_keepalive();
+
+  #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+    auto_report_temperatures();
+  #endif
+
   manage_inactivity(
     #if ENABLED(FILAMENT_CHANGE_FEATURE)
       no_stepper_sleep
