@@ -127,6 +127,144 @@ void tmc_init() {
 }
 #endif
 
+#if ENABLED(HAVE_TMC2130)
+// Stepper objects of TMC2130 steppers used
+  #if ENABLED(X_IS_TMC2130)
+    TMC2130Stepper stepperX(X_ENABLE_PIN, X_DIR_PIN, X_STEP_PIN, X_CHIP_SELECT);
+  #endif
+  #if ENABLED(X2_IS_TMC2130)
+    TMC2130Stepper stepperX2(X2_ENABLE_PIN, X2_DIR_PIN, X2_STEP_PIN, X2_CHIP_SELECT);
+  #endif
+  #if ENABLED(Y_IS_TMC2130)
+    TMC2130Stepper stepperY(Y_ENABLE_PIN, Y_DIR_PIN, Y_STEP_PIN, Y_CHIP_SELECT);
+  #endif
+  #if ENABLED(Y2_IS_TMC2130)
+    TMC2130Stepper stepperY2(Y2_ENABLE_PIN, Y2_DIR_PIN, Y2_STEP_PIN, Y2_CHIP_SELECT);
+  #endif
+  #if ENABLED(Z_IS_TMC2130)
+    TMC2130Stepper stepperZ(Z_ENABLE_PIN, Z_DIR_PIN, Z_STEP_PIN, Z_CHIP_SELECT);
+  #endif
+  #if ENABLED(Z2_IS_TMC2130)
+    TMC2130Stepper stepperZ2(Z2_ENABLE_PIN, Z2_DIR_PIN, Z2_STEP_PIN, Z2_CHIP_SELECT);
+  #endif
+  #if ENABLED(E0_IS_TMC2130)
+    TMC2130Stepper stepperE0(E0_ENABLE_PIN, E0_DIR_PIN, E0_STEP_PIN, E0_CHIP_SELECT);
+  #endif
+  #if ENABLED(E1_IS_TMC2130)
+    TMC2130Stepper stepperE1(E1_ENABLE_PIN, E1_DIR_PIN, E1_STEP_PIN, E1_CHIP_SELECT);
+  #endif
+  #if ENABLED(E2_IS_TMC2130)
+    TMC2130Stepper stepperE2(E2_ENABLE_PIN, E2_DIR_PIN, E2_STEP_PIN, E2_CHIP_SELECT);
+  #endif
+  #if ENABLED(E3_IS_TMC2130)
+    TMC2130Stepper stepperE3(E3_ENABLE_PIN, E3_DIR_PIN, E3_STEP_PIN, E3_CHIP_SELECT);
+  #endif
+
+  void tmc_init() {
+    #if ENABLED(X_IS_TMC2130)
+      stepperX.begin();
+      stepperX.external_ref(0); // Use internal reference voltage for current calculations. This is the default.
+      stepperX.setCurrent(X_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperX.microsteps((uint8_t)X_MICROSTEPS);
+      stepperX.interpolate(INTERPOLATE);
+      stepperX.hysterisis_start(1); // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+      stepperX.hysterisis_low(-2);
+      stepperX.blank_time(24);
+      stepperX.off_time(5);
+    #endif
+    #if ENABLED(X2_IS_TMC2130)
+      stepperX2.begin();
+      stepperX2.setCurrent(X2_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperX2.microsteps((uint8_t)X2_MICROSTEPS);
+      stepperX2.interpolate(INTERPOLATE);
+      stepperX2.hysterisis_start(1); // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+      stepperX2.hysterisis_low(-2);
+      stepperX2.blank_time(24);
+      stepperX2.off_time(5);
+    #endif
+    #if ENABLED(Y_IS_TMC2130)
+      stepperY.begin();
+      stepperY.setCurrent(Y_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperY.microsteps((uint8_t)Y_MICROSTEPS);
+      stepperY.interpolate(INTERPOLATE);
+      stepperY.hysterisis_start(1); // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+      stepperY.hysterisis_low(-2);
+      stepperY.blank_time(24);
+      stepperY.off_time(5);
+    #endif
+    #if ENABLED(Y2_IS_TMC2130)
+      stepperY2.begin();
+      stepperY2.setCurrent(Y2_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperY2.microsteps((uint8_t)Y2_MICROSTEPS);
+      stepperY2.interpolate(INTERPOLATE);
+      stepperY2.hysterisis_start(1); // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+      stepperY2.hysterisis_low(-2);
+      stepperY2.blank_time(24);
+      stepperY2.off_time(5);
+    #endif
+    #if ENABLED(Z_IS_TMC2130)
+      stepperZ.begin();
+      stepperZ.setCurrent(Z_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperZ.microsteps((uint8_t)Z_MICROSTEPS);
+      stepperZ.interpolate(INTERPOLATE);
+      stepperZ.hysterisis_start(1); // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+      stepperZ.hysterisis_low(-2);
+      stepperZ.blank_time(24);
+      stepperZ.off_time(5);
+    #endif
+    #if ENABLED(Z2_IS_TMC2130)
+      stepperZ2.begin();
+      stepperZ2.setCurrent(Z2_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperZ2.microsteps((uint8_t)Z2_MICROSTEPS);
+      stepperZ2.interpolate(INTERPOLATE);
+      stepperZ2.hysterisis_start(1); // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+      stepperZ2.hysterisis_low(-2);
+      stepperZ2.blank_time(24);
+      stepperZ2.off_time(5);
+    #endif
+    #if ENABLED(E0_IS_TMC2130)
+      stepperE0.begin();
+      stepperE0.setCurrent(E0_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperE0.microsteps((uint8_t)E0_MICROSTEPS);
+      stepperE0.interpolate(INTERPOLATE);
+      stepperE0.hysterisis_start(1); // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+      stepperE0.hysterisis_low(-2);
+      stepperE0.blank_time(24);
+      stepperE0.off_time(5);
+    #endif
+    #if ENABLED(E1_IS_TMC2130)
+      stepperE1.begin();
+      stepperE1.setCurrent(E1_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperE1.microsteps((uint8_t)E1_MICROSTEPS);
+      stepperE1.interpolate(INTERPOLATE);
+      stepperE1.hysterisis_start(1); // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+      stepperE1.hysterisis_low(-2);
+      stepperE1.blank_time(24);
+      stepperE1.off_time(5);
+    #endif
+    #if ENABLED(E2_IS_TMC2130)
+      stepperE2.begin();
+      stepperE2.setCurrent(E2_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperE2.microsteps((uint8_t)E2_MICROSTEPS);
+      stepperE2.interpolate(INTERPOLATE);
+      stepperE2.hysterisis_start(1); // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+      stepperE2.hysterisis_low(-2);
+      stepperE2.blank_time(24);
+      stepperE2.off_time(5);
+    #endif
+    #if ENABLED(E3_IS_TMC2130)
+      stepperE3.begin();
+      stepperE3.setCurrent(E3_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+      stepperE3.microsteps((uint8_t)E3_MICROSTEPS);
+      stepperE3.interpolate(INTERPOLATE);
+      stepperE3.hysterisis_start(1); // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+      stepperE3.hysterisis_low(-2);
+      stepperE3.blank_time(24);
+      stepperE3.off_time(5);
+    #endif
+  }
+#endif
+
 // L6470 Driver objects and inits
 
 #if ENABLED(HAVE_L6470DRIVER)

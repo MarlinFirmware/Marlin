@@ -727,6 +727,64 @@
 
 #endif
 
+#define HAVE_TMC2130
+
+#if ENABLED(HAVE_TMC2130)
+  #define R_SENSE 0.11 // R_sense resistor for SilentStepStick2130
+  #define HOLD_MULTIPLIER 0.5 // Scales down the holding current from run current
+  #define INTERPOLATE 1 // Interpolate X/Y/Z_MICROSTEPS to 256
+
+  #define X_IS_TMC2130
+  #define X_MAX_CURRENT 1000  // rms current in mA
+  #define X_MICROSTEPS 32 // FULLSTEP..256
+  #define X_CHIP_SELECT 64
+
+  #define Y_IS_TMC2130
+  #define Y_MAX_CURRENT 1000  //in mA
+  #define Y_MICROSTEPS 32 // FULLSTEP..256
+  #define Y_CHIP_SELECT 65
+
+  #define Z_IS_TMC2130
+  #define Z_MAX_CURRENT 800  //in mA
+  #define Z_MICROSTEPS 32 // FULLSTEP..256
+  #define Z_CHIP_SELECT 66
+
+  //#define X2_IS_TMC2130
+  //#define X2_MAX_CURRENT 1000  //in mA
+  //#define X2_MICROSTEPS 32 // FULLSTEP..256
+  //#define X2_CHIP_SELECT
+
+  //#define Y2_IS_TMC2130
+  //#define Y2_MAX_CURRENT 1000  //in mA
+  //#define Y2_MICROSTEPS 32 // FULLSTEP..256
+  //#define Y2_CHIP_SELECT
+
+  //#define Z2_IS_TMC2130
+  //#define Z2_MAX_CURRENT 1000  //in mA
+  //#define Z2_MICROSTEPS 32 // FULLSTEP..256
+  //#define Z2_CHIP_SELECT
+
+  //#define E0_IS_TMC2130
+  //#define E0_MAX_CURRENT 1000  //in mA
+  //#define E0_MICROSTEPS 32 // FULLSTEP..256
+  //#define E0_CHIP_SELECT
+
+  //#define E1_IS_TMC2130
+  //#define E1_MAX_CURRENT 1000  //in mA
+  //#define E1_MICROSTEPS 32 // FULLSTEP..256
+  //#define E1_CHIP_SELECT
+
+  //#define E2_IS_TMC2130
+  //#define E2_MAX_CURRENT 1000  //in mA
+  //#define E2_MICROSTEPS 32 // FULLSTEP..256
+  //#define E2_CHIP_SELECT
+
+  //#define E3_IS_TMC2130
+  //#define E3_MAX_CURRENT 1000  //in mA 
+  //#define E3_MICROSTEPS 32 // FULLSTEP..256
+  //#define E3_CHIP_SELECT
+#endif
+
 /******************************************************************************\
  * enable this section if you have L6470  motor drivers.
  * you need to import the L6470 library into the Arduino IDE for this
