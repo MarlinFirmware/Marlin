@@ -46,6 +46,10 @@ install:
   - git clone https://github.com/trinamic/TMC26XStepper.git
   - sudo mv TMC26XStepper /usr/local/share/arduino/libraries/TMC26XStepper
   #
+  # Install: TMC2130 Stepper Motor Controller library
+  - git clone https://github.com/teemuatlut/TMC2130Stepper.git
+  - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
+  #
 before_script:
   #
   # Change current working directory to the build dir
@@ -377,6 +381,12 @@ script:
   #
   - use_example_configs SCARA
   - opt_enable AUTO_BED_LEVELING_BILINEAR FIX_MOUNTED_PROBE USE_ZMIN_PLUG EEPROM_SETTINGS EEPROM_CHITCHAT ULTIMAKERCONTROLLER
+  - build_marlin
+  #
+  # TMC2130 Config
+  #
+  - restore_configs
+  - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p
