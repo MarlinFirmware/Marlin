@@ -842,4 +842,9 @@
  */
 //#define AUTO_REPORT_TEMPERATURES
 
+/**
+ * Include capabilities in M115 output
+ */
+//#define EXTENDED_CAPABILITIES_REPORT
+
 #endif // CONFIGURATION_ADV_H

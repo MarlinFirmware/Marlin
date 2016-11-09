@@ -175,7 +175,7 @@
  * M112 - Emergency stop.
  * M113 - Get or set the timeout interval for Host Keepalive "busy" messages. (Requires HOST_KEEPALIVE_FEATURE)
  * M114 - Report current position.
- * M115 - Report capabilities.
+ * M115 - Report capabilities. (Extended capabilities requires EXTENDED_CAPABILITIES_REPORT)
  * M117 - Display a message on the controller screen. (Requires an LCD)
  * M119 - Report endstops status.
  * M120 - Enable endstops detection.
@@ -5771,7 +5771,71 @@ inline void gcode_M114() { report_current_position(); }
  * M115: Capabilities string
  */
 inline void gcode_M115() {
-  SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
+  SERIAL_PROTOCOLLNPGM(MSG_M115_REPORT);
+
+  #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
+
+    // EEPROM (M500, M501)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if ENABLED(EEPROM_SETTINGS)
+      SERIAL_PROTOCOLLNPGM("EEPROM:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("EEPROM:0");
+    #endif
+
+    // AUTOREPORT_TEMP (M155)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if ENABLED(AUTO_REPORT_TEMPERATURES)
+      SERIAL_PROTOCOLLNPGM("AUTOREPORT_TEMP:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("AUTOREPORT_TEMP:0");
+    #endif
+
+    // PROGRESS (M530 S L, M531 <file>, M532 X L)
+    SERIAL_PROTOCOLPGM("Cap:");
+    SERIAL_PROTOCOLPGM("PROGRESS:0");
+
+    // AUTOLEVEL (G29)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if HAS_ABL
+      SERIAL_PROTOCOLLNPGM("AUTOLEVEL:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("AUTOLEVEL:0");
+    #endif
+
+    // Z_PROBE (G30)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if HAS_BED_PROBE
+      SERIAL_PROTOCOLLNPGM("Z_PROBE:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("Z_PROBE:0");
+    #endif
+
+    // SOFTWARE_POWER (G30)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if HAS_POWER_SWITCH
+      SERIAL_PROTOCOLLNPGM("SOFTWARE_POWER:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("SOFTWARE_POWER:0");
+    #endif
+
+    // TOGGLE_LIGHTS (M355)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if HAS_CASE_LIGHT
+      SERIAL_PROTOCOLLNPGM("TOGGLE_LIGHTS:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("TOGGLE_LIGHTS:0");
+    #endif
+
+    // EMERGENCY_PARSER (M108, M112, M410)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if ENABLED(EMERGENCY_PARSER)
+      SERIAL_PROTOCOLLNPGM("EMERGENCY_PARSER:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("EMERGENCY_PARSER:0");
+    #endif
+
+  #endif // EXTENDED_CAPABILITIES_REPORT
 }
 
 /**
