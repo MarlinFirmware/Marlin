@@ -55,8 +55,8 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          6   // ANALOG INPUT - NOT DIGITAL OUTPUT
-#define TEMP_BED_PIN       10
+#define TEMP_0_PIN          6   // Analog Input
+#define TEMP_BED_PIN       10   // Analog Input
 
 //
 // Heaters / Fans
@@ -64,5 +64,8 @@
 #define HEATER_0_PIN       13
 #define HEATER_BED_PIN      4
 
+//
+// Misc. Functions
+//
 #define SDSS               53
 #define PS_ON_PIN           9

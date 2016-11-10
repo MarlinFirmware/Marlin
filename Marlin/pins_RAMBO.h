@@ -56,6 +56,13 @@
 #define SERVO2_PIN         24 // Motor header MX3
 #define SERVO3_PIN          5 // PWM header pin 5
 
+//
+// Z Probe (when not Z_MIN_PIN)
+//
+#ifndef Z_MIN_PROBE_PIN
+  #define Z_MIN_PROBE_PIN  30
+#endif
+
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
 #endif
@@ -71,42 +78,37 @@
 #define Z_MAX_PIN          30
 
 //
-// Z Probe (when not Z_MIN_PIN)
-//
-#ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  30
-#endif
-
-//
 // Steppers
 //
 #define X_STEP_PIN         37
 #define X_DIR_PIN          48
 #define X_ENABLE_PIN       29
-#define X_MS1_PIN          40
-#define X_MS2_PIN          41
 
 #define Y_STEP_PIN         36
 #define Y_DIR_PIN          49
 #define Y_ENABLE_PIN       28
-#define Y_MS1_PIN          69
-#define Y_MS2_PIN          39
 
 #define Z_STEP_PIN         35
 #define Z_DIR_PIN          47
 #define Z_ENABLE_PIN       27
-#define Z_MS1_PIN          68
-#define Z_MS2_PIN          67
 
 #define E0_STEP_PIN        34
 #define E0_DIR_PIN         43
 #define E0_ENABLE_PIN      26
-#define E0_MS1_PIN         65
-#define E0_MS2_PIN         66
 
 #define E1_STEP_PIN        33
 #define E1_DIR_PIN         42
 #define E1_ENABLE_PIN      25
+
+// Microstepping pins - Mapping not from fastio.h (?)
+#define X_MS1_PIN          40
+#define X_MS2_PIN          41
+#define Y_MS1_PIN          69
+#define Y_MS2_PIN          39
+#define Z_MS1_PIN          68
+#define Z_MS2_PIN          67
+#define E0_MS1_PIN         65
+#define E0_MS2_PIN         66
 #define E1_MS1_PIN         63
 #define E1_MS2_PIN         64
 
@@ -116,9 +118,9 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          0
-#define TEMP_1_PIN          1
-#define TEMP_BED_PIN        2
+#define TEMP_0_PIN          0   // Analog Input
+#define TEMP_1_PIN          1   // Analog Input
+#define TEMP_BED_PIN        2   // Analog Input
 
 //
 // Heaters / Fans
@@ -137,9 +139,12 @@
 //
 #define SDSS               53
 #define LED_PIN            13
-#define FILWIDTH_PIN        3  // ANALOG NUMBERING
+#define FILWIDTH_PIN        3   // Analog Input
 #define PS_ON_PIN           4
 
+//
+// LCD / Controller
+//
 #if ENABLED(ULTRA_LCD)
 
   #define KILL_PIN 80
@@ -155,9 +160,9 @@
 
     #if ENABLED(VIKI2) || ENABLED(miniVIKI)
       #define BEEPER_PIN 44
-      //NB: Panucatt's Viki 2.0 wiring diagram (v1.2) indicates that the
-      //    beeper/buzzer is connected to pin 33; however, the pin used in the
-      //    diagram is actually pin 44, so this is correct.
+      // NB: Panucatt's Viki 2.0 wiring diagram (v1.2) indicates that the
+      //     beeper/buzzer is connected to pin 33; however, the pin used in the
+      //     diagram is actually pin 44, so this is correct.
 
       #define DOGLCD_A0  70
       #define DOGLCD_CS  71
@@ -169,10 +174,8 @@
 
       #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board
 
-      #if ENABLED(TEMP_STAT_LEDS)
-        #define STAT_LED_RED      22
-        #define STAT_LED_BLUE     32
-      #endif
+      #define STAT_LED_RED_PIN 22
+      #define STAT_LED_BLUE_PIN 32
 
     #else
 
@@ -187,12 +190,12 @@
 
     #endif // VIKI2/miniVIKI
 
-  #else //!NEWPANEL - old style panel with shift register
+  #else // !NEWPANEL - old style panel with shift register
 
     // No Beeper added
     #define BEEPER_PIN 33
 
-    //buttons are attached to a shift register
+    // buttons are attached to a shift register
     // Not wired yet
     //#define SHIFT_CLK 38
     //#define SHIFT_LD 42

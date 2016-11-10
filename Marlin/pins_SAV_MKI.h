@@ -35,8 +35,25 @@
 #define DEFAULT_SOURCE_CODE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
 #define BOARD_NAME              "SAV MkI"
 
+#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
+//
+// Servos
+//
+#define SERVO0_PIN         41 // In teensy's pin definition for pinMode (in servo.cpp)
+
+//
+// Limit Switches
+//
+#define X_STOP_PIN         13
+#define Y_STOP_PIN         14
+//#define Z_STOP_PIN         15
+#define Z_STOP_PIN         36  // For inductive sensor.
+
+//
+// Steppers
+//
 #define X_STEP_PIN         0
 #define X_DIR_PIN          1
 #define X_ENABLE_PIN       39
@@ -53,19 +70,25 @@
 #define E0_DIR_PIN         7
 #define E0_ENABLE_PIN      19
 
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          7  // Analog Input (Extruder)
+#define TEMP_BED_PIN        6  // Analog Input (Bed)
+
+//
+// Heaters / Fans
+//
 #define HEATER_0_PIN       21  // Extruder
 #define HEATER_BED_PIN     20  // Bed
-#define FAN_PIN            16  // Fan   -- from Teensyduino environment.
+
+#define FAN_PIN            16  // Fan -- from Teensyduino environment.
                                // For the fan and Teensyduino uses a different pin mapping.
-#define X_STOP_PIN         13
-#define Y_STOP_PIN         14
-//#define Z_STOP_PIN         15
-#define Z_STOP_PIN         36  // For inductive sensor.
 
-#define TEMP_0_PIN          7  // Extruder / Analog pin numbering
-#define TEMP_BED_PIN        6  // Bed / Analog pin numbering
-
-#define SDSS               20         // PB0 - 8 in marlin env.
+//
+// Misc. Functions
+//
+#define SDSS               20  // PB0 - 8 in marlin env.
 
 // Extension header pin mapping
 // ----------------------------
@@ -93,6 +116,9 @@
 #define EXT_AUX_A4_IO             44 // Digital IO, 42 (teensy), 44 (marlin)
 
 
+//
+// LCD / Controller
+//
 #define BEEPER_PIN         -1
 #define LCD_PINS_RS        -1
 #define LCD_PINS_ENABLE    -1
@@ -115,5 +141,3 @@
   #define KILL_PIN           EXT_AUX_A2_IO
   #define HOME_PIN           EXT_AUX_A4_IO
 #endif // SAV_3DLCD || SAV_3DGLCD
-
-#define SERVO0_PIN         41 // In teensy's pin definition for pinMode (in servo.cpp)

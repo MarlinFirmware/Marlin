@@ -56,33 +56,29 @@
 #define Z_DIR_PIN          28
 #define Z_ENABLE_PIN       29
 
-#define E0_STEP_PIN         4    //Edited @ EJE Electronics 20100715
-#define E0_DIR_PIN          2    //Edited @ EJE Electronics 20100715
-#define E0_ENABLE_PIN       3    //Added @ EJE Electronics 20100715
+#define E0_STEP_PIN         4   // Edited @ EJE Electronics 20100715
+#define E0_DIR_PIN          2   // Edited @ EJE Electronics 20100715
+#define E0_ENABLE_PIN       3   // Added @ EJE Electronics 20100715
 
 //
 // Temperature Sensor
 //
-#define TEMP_0_PIN          5    //changed @ rkoeppl 20110410
+#define TEMP_0_PIN          5   // Analog Input
 
 //
 // Heaters
 //
-#define HEATER_0_PIN       14    //changed @ rkoeppl 20110410
+#define HEATER_0_PIN       14   // changed @ rkoeppl 20110410
 
 #if !MB(GEN6)
-  #define HEATER_BED_PIN    1    //changed @ rkoeppl 20110410
-  #define TEMP_BED_PIN      0    //changed @ rkoeppl 20110410
+  #define HEATER_BED_PIN    1   // changed @ rkoeppl 20110410
+  #define TEMP_BED_PIN      0   // Analog Input
 #endif
-
-//
-// SD Card
-//
-#define SDSS               17
 
 //
 // Misc. Functions
 //
+#define SDSS               17
 #define DEBUG_PIN           0
 
 // RS485 pins

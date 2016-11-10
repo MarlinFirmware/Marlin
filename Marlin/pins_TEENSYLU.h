@@ -37,8 +37,19 @@
 
 #define BOARD_NAME         "Teensylu"
 
+#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
+//
+// Limit Switches
+//
+#define X_STOP_PIN         13
+#define Y_STOP_PIN         14
+#define Z_STOP_PIN         15
+
+//
+// Steppers
+//
 #define X_STEP_PIN          0
 #define X_DIR_PIN           1
 #define X_ENABLE_PIN       39
@@ -55,6 +66,15 @@
 #define E0_DIR_PIN          7
 #define E0_ENABLE_PIN      19
 
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          7   // Analog Input (Extruder)
+#define TEMP_BED_PIN        6   // Analog Input (Bed)
+
+//
+// Heaters / Fans
+//
 #define HEATER_0_PIN       21  // Extruder
 #define HEATER_1_PIN       46
 #define HEATER_2_PIN       47
@@ -68,23 +88,23 @@
   #define FAN_PIN          16
 #endif
 
-#define X_STOP_PIN         13
-#define Y_STOP_PIN         14
-#define Z_STOP_PIN         15
-#define TEMP_0_PIN          7  // Extruder / Analog pin numbering
-#define TEMP_BED_PIN        6  // Bed / Analog pin numbering
-
+//
+// Misc. Functions
+//
 #define SDSS                8
 
+//
+// LCD / Controller
+//
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
   #define BEEPER_PIN       -1
 
   #if ENABLED(LCD_I2C_PANELOLU2)
-    #define BTN_EN1        27  //RX1 - fastio.h pin mapping 27
-    #define BTN_EN2        26  //TX1 - fastio.h pin mapping 26
-    #define BTN_ENC        43  //A3  - fastio.h pin mapping 43
-    #define SDSS           40  //use SD card on Panelolu2 (Teensyduino pin mapping)
+    #define BTN_EN1        27  // RX1 - fastio.h pin mapping 27
+    #define BTN_EN2        26  // TX1 - fastio.h pin mapping 26
+    #define BTN_ENC        43  // A3  - fastio.h pin mapping 43
+    #define SDSS           40  // use SD card on Panelolu2 (Teensyduino pin mapping)
   #endif // LCD_I2C_PANELOLU2
 
   #define SD_DETECT_PIN    -1

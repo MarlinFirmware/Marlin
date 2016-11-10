@@ -51,12 +51,12 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          0  // ANALOG INPUT !!
-#define TEMP_1_PIN          9  // 9 for tool2 -> 13 for chambertemp
-#define TEMP_2_PIN         13  // 10 for tool3 -> 13 for chambertemp
-#define TEMP_3_PIN         11  // 11 for tool4 -> 13 for chambertemp
-#define TEMP_BED_PIN       14  // ANALOG INPUT !!
-//#define TEMP_CHAMBER_PIN   13  // ANALOG INPUT !!
+#define TEMP_0_PIN          0   // Analog Input
+#define TEMP_1_PIN          9   // Analog Input.  9 for tool2 -> 13 for chambertemp
+#define TEMP_2_PIN         13   // Analog Input. 10 for tool3 -> 13 for chambertemp
+#define TEMP_3_PIN         11   // Analog Input. 11 for tool4 -> 13 for chambertemp
+#define TEMP_BED_PIN       14   // Analog Input
+//#define TEMP_CHAMBER_PIN   13   // Analog Input
 
 //
 // Heaters / Fans
@@ -69,9 +69,16 @@
 
 #define FAN_PIN             5  // 5 is PWMtool3 -> 7 is common PWM pin for all tools
 
-//#define PWM_1_PIN          12
-//#define PWM_2_PIN          13
-//#define SPARE_IO           17
+#define ORIG_E0_AUTO_FAN_PIN 7
+#define ORIG_E1_AUTO_FAN_PIN 7
+#define ORIG_E2_AUTO_FAN_PIN 7
+#define ORIG_E3_AUTO_FAN_PIN 7
+
+//
+// Misc. Functions
+//
+#define SDSS               53
+#define SD_DETECT_PIN      15
 
 // Tools
 
@@ -85,6 +92,11 @@
 //#define TOOL_3_PWM_PIN      2
 
 // Common I/O
+
+#define FIL_RUNOUT_PIN     18
+//#define PWM_1_PIN          12
+//#define PWM_2_PIN          13
+//#define SPARE_IO           17
 
 //
 // LCD / Controller
@@ -111,14 +123,5 @@
 //#define UI1              43
 //#define UI2              37
 
-#define STAT_LED_BLUE      -1
-#define STAT_LED_RED       10 // TOOL_0_PWM_PIN
-
-//
-// SD Card
-//
-#define SDSS               53
-#define SD_DETECT_PIN      15
-
-// Other
-#define FIL_RUNOUT_PIN     18
+#define STAT_LED_BLUE_PIN  -1
+#define STAT_LED_RED_PIN   10 // TOOL_0_PWM_PIN

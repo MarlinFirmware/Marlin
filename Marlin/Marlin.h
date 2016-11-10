@@ -209,6 +209,11 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 
 #endif // !MIXING_EXTRUDER
 
+#if ENABLED(G38_PROBE_TARGET)
+  extern bool G38_move,        // flag to tell the interrupt handler that a G38 command is being run
+              G38_endstop_hit; // flag from the interrupt handler to indicate if the endstop went active
+#endif
+
 /**
  * The axis order in all axis related arrays is X, Y, Z, E
  */
@@ -220,7 +225,6 @@ void disable_all_steppers();
 void FlushSerialRequestResend();
 void ok_to_send();
 
-void reset_bed_level();
 void kill(const char*);
 
 void quickstop_stepper();
@@ -266,9 +270,17 @@ extern bool axis_known_position[XYZ]; // axis[n].is_known
 extern bool axis_homed[XYZ]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
 
+#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+  extern volatile bool wait_for_user;
+#endif
+
 extern float current_position[NUM_AXIS];
 extern float position_shift[XYZ];
 extern float home_offset[XYZ];
+
+#if HOTENDS > 1
+  extern float hotend_offset[XYZ][HOTENDS];
+#endif
 
 // Software Endstops
 void update_software_endstops(AxisEnum axis);
@@ -298,26 +310,27 @@ int code_value_int();
 float code_value_temp_abs();
 float code_value_temp_diff();
 
+#if IS_KINEMATIC
+  extern float delta[ABC];
+  void inverse_kinematics(const float logical[XYZ]);
+#endif
+
 #if ENABLED(DELTA)
-  extern float delta[ABC];
-  extern float endstop_adj[ABC]; // axis[n].endstop_adj
-  extern float delta_radius;
-  extern float delta_diagonal_rod;
-  extern float delta_segments_per_second;
-  extern float delta_diagonal_rod_trim_tower_1;
-  extern float delta_diagonal_rod_trim_tower_2;
-  extern float delta_diagonal_rod_trim_tower_3;
-  void inverse_kinematics(const float cartesian[XYZ]);
+  extern float endstop_adj[ABC],
+               delta_radius,
+               delta_diagonal_rod,
+               delta_segments_per_second,
+               delta_diagonal_rod_trim_tower_1,
+               delta_diagonal_rod_trim_tower_2,
+               delta_diagonal_rod_trim_tower_3;
   void recalc_delta_settings(float radius, float diagonal_rod);
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    extern int delta_grid_spacing[2];
-    void adjust_delta(float cartesian[XYZ]);
-  #endif
-#elif ENABLED(SCARA)
-  extern float delta[ABC];
-  extern float axis_scaling[ABC];  // Build size scaling
-  void inverse_kinematics(const float cartesian[XYZ]);
-  void forward_kinematics_SCARA(float f_scara[ABC]);
+#elif IS_SCARA
+  void forward_kinematics_SCARA(const float &a, const float &b);
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  extern int bilinear_grid_spacing[2];
+  float bilinear_z_offset(float logical[XYZ]);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -384,11 +397,6 @@ extern uint8_t active_extruder;
 #endif
 
 void calculate_volumetric_multipliers();
-
-// Buzzer
-#if HAS_BUZZER && PIN_EXISTS(BEEPER)
-  #include "buzzer.h"
-#endif
 
 /**
  * Blocking movement and shorthand functions

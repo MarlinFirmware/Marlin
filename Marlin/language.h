@@ -70,6 +70,7 @@
 // pt-br_utf8 Portuguese (Brazilian UTF8)
 // pt_utf8    Portuguese (UTF8)
 // ru         Russian
+// tr         Turkish
 
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
@@ -145,11 +146,14 @@
 #define MSG_Y_MAX                           "y_max: "
 #define MSG_Z_MIN                           "z_min: "
 #define MSG_Z_MAX                           "z_max: "
+#define MSG_Z2_MIN                          "z2_min: "
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define MSG_ERR_M421_PARAMETERS             "M421 requires XYZ or IJZ parameters"
 #define MSG_ERR_MESH_XY                     "Mesh XY or IJ cannot be resolved"
+#define MSG_ERR_ARC_ARGS                    "G2/G3 bad parameters"
+#define MSG_ERR_PROTECTED_PIN               "Protected Pin"
 #define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
 #define MSG_ERR_M303_DISABLED               "PIDTEMP disabled"
 #define MSG_M119_REPORT                     "Reporting endstop status"
@@ -157,9 +161,9 @@
 #define MSG_ENDSTOP_OPEN                    "open"
 #define MSG_HOTEND_OFFSET                   "Hotend offsets:"
 #define MSG_DUPLICATION_MODE                "Duplication mode: "
-#define MSG_SOFT_ENDSTOPS                   "Soft endstops"
-#define MSG_SOFT_MIN                        "Min"
-#define MSG_SOFT_MAX                        "Max"
+#define MSG_SOFT_ENDSTOPS                   "Soft endstops: "
+#define MSG_SOFT_MIN                        "  Min: "
+#define MSG_SOFT_MAX                        "  Max: "
 
 #define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir "
 #define MSG_SD_INIT_FAIL                    "SD init fail"
