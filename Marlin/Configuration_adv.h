@@ -496,6 +496,26 @@
   #define BABYSTEP_MULTIPLICATOR 1 //faster movements
 #endif
 
+// Enabling ENSURE_SMOOTH_MOVES ensures your printer will never stutter (for example in circles with a short segments). That's done in two steps:
+// --1--
+// During short segments like in circles, the update of the LCD Display can take so long that the block buffer gets completely drained.
+// If that happens, the movement of the printer gets very jerky until a longer segment like a longer straight line allows the buffer
+// to be filled again. This small stops also effects print quality in a bad way.
+// Enable ENSURE_SMOOTH_MOVES to update the LCD only when there is enough time during a move to do so.
+// Note that this means the display will not show actual values during this time and your printer will also not react to buttons
+// pressed immediately, except ALWAYS_ALLOW_MENU is also enabled.
+// --2--
+// No block is allowed to take less time than MIN_BLOCK_TIME. That's the time it takes in the main loop to add a new block to the buffer, checking temps,
+// including all interruptions due to interrupts, but without LCD update. If we would allow shorter moves, the buffer would start continously draining.
+//#define ENSURE_SMOOTH_MOVES
+#if ENABLED(ENSURE_SMOOTH_MOVES)
+  //#define ALWAYS_ALLOW_MENU // If enabled, the menu will be always accessible.
+                              // WARNING: If the menu is entered or navigated during short moves, the printer will stutter like without ENSURE_SMOOTH_MOVES!
+  #define LCD_UPDATE_THRESHOLD 170 // Minimum duration in ms of the current segment to allow a LCD update.
+                                   // Default value is valid for graphical LCDs like the REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER.
+  #define MIN_BLOCK_TIME 6 // Minimum duration in ms a single block has to take. You shouldn't need to modify this.
+#endif
+
 // @section extruder
 
 // extruder advance constant (s2/mm3)

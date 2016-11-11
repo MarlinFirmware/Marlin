@@ -937,11 +937,23 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       if (segment_time < min_segment_time) {
         // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
         inverse_mm_s = 1000000.0 / (segment_time + lround(2 * (min_segment_time - segment_time) / moves_queued));
-        #ifdef XY_FREQUENCY_LIMIT
+        #if defined(XY_FREQUENCY_LIMIT) || ENABLED(ENSURE_SMOOTH_MOVES)
           segment_time = lround(1000000.0 / inverse_mm_s);
         #endif
       }
     }
+  #endif
+  
+  #if ENABLED(ENSURE_SMOOTH_MOVES)
+    #if DISABLED(SLOWDOWN)
+      unsigned long segment_time = lround(1000000.0 / inverse_mm_s);
+    #endif
+    if (segment_time < (MIN_BLOCK_TIME) * 1000UL) {
+      // buffer will be draining, set to MIN_BLOCK_TIME.
+      inverse_mm_s = 1000000.0 / (1000.0 * (MIN_BLOCK_TIME));
+      segment_time = (MIN_BLOCK_TIME) * 1000UL;
+    }
+    block->segment_time = segment_time;
   #endif
 
   block->nominal_speed = block->millimeters * inverse_mm_s; // (mm/sec) Always > 0
