@@ -2710,15 +2710,24 @@ void lcd_update() {
     // We arrive here every ~100ms when idling often enough.
     // Instead of tracking the changes simply redraw the Info Screen ~1 time a second.
     static int8_t lcd_status_update_delay = 1; // first update one loop delayed
-    if (
-      #if ENABLED(ULTIPANEL)
-        currentScreen == lcd_status_screen &&
-      #endif
-        !lcd_status_update_delay--) {
-      lcd_status_update_delay = 9;
-      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-    }
+    #if ENABLED(ENSURE_SMOOTH_MOVES) && ENABLED(ALWAYS_ALLOW_MENU)
+      if (planner.long_move()) {
+    #endif
+        if (
+          #if ENABLED(ULTIPANEL)
+            currentScreen == lcd_status_screen &&
+          #endif
+            !lcd_status_update_delay--) {
+          lcd_status_update_delay = 9;
+          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        }
+    #if ENABLED(ENSURE_SMOOTH_MOVES) && ENABLED(ALWAYS_ALLOW_MENU)
+      }
+    #endif
 
+    #if ENABLED(ENSURE_SMOOTH_MOVES) && DISABLED(ALWAYS_ALLOW_MENU)
+      if (planner.long_move()) {
+    #endif
     if (lcdDrawUpdate) {
 
       switch (lcdDrawUpdate) {
@@ -2779,6 +2788,9 @@ void lcd_update() {
         break;
     }
 
+    #if ENABLED(ENSURE_SMOOTH_MOVES) && DISABLED(ALWAYS_ALLOW_MENU)
+      }
+    #endif
   }
 }
 
