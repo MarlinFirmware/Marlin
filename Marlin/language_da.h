@@ -179,68 +179,29 @@
 #define MSG_DELTA_CALIBRATE_Y               "Kalibrer Y"
 #define MSG_DELTA_CALIBRATE_Z               "Kalibrer Z"
 #define MSG_DELTA_CALIBRATE_CENTER          "Kalibrerings Center"
-
-#ifndef MSG_INFO_MENU
 #define MSG_INFO_MENU                       "Om Printer"
-#endif
-#ifndef MSG_INFO_PRINTER_MENU
 #define MSG_INFO_PRINTER_MENU               "Printer Info"
-#endif
-#ifndef MSG_INFO_STATS_MENU
 #define MSG_INFO_STATS_MENU                 "Printer Stats"
-#endif
-#ifndef MSG_INFO_BOARD_MENU
 #define MSG_INFO_BOARD_MENU                 "Kort Info"
-#endif
-#ifndef MSG_INFO_THERMISTOR_MENU
 #define MSG_INFO_THERMISTOR_MENU            "Thermistors"
-#endif
-#ifndef MSG_INFO_EXTRUDERS
 #define MSG_INFO_EXTRUDERS                  "Extruders"
-#endif
-#ifndef MSG_INFO_BAUDRATE
 #define MSG_INFO_BAUDRATE                   "Baud"
-#endif
-#ifndef MSG_INFO_PROTOCOL
 #define MSG_INFO_PROTOCOL                   "Protocol"
-#endif
+
 
 #if LCD_WIDTH > 19
-
-#ifndef MSG_INFO_PRINT_COUNT
 #define MSG_INFO_PRINT_COUNT              "Ant. Prints"
-#endif
-#ifndef MSG_INFO_COMPLETED_PRINTS
 #define MSG_INFO_COMPLETED_PRINTS         "Færdige"
-#endif
-#ifndef MSG_INFO_PRINT_TIME
 #define MSG_INFO_PRINT_TIME               "Total print tid"
-#endif
-#ifndef MSG_INFO_PRINT_LONGEST
 #define MSG_INFO_PRINT_LONGEST            "Længste print"
-#endif
-#ifndef MSG_INFO_PRINT_FILAMENT
 #define MSG_INFO_PRINT_FILAMENT           "Total Extruderet"
 #endif
-
 #else
-#ifndef MSG_INFO_PRINT_COUN
 #define MSG_INFO_PRINT_COUNT              "Prints"
-#endif
-#ifndef MSG_INFO_COMPLETED_PRINTS
 #define MSG_INFO_COMPLETED_PRINTS         "Færdige"
-#endif
-#ifndef MSG_INFO_PRINT_TIME
 #define MSG_INFO_PRINT_TIME               "Total"
-#endif
-#ifndef MSG_INFO_PRINT_LONGEST
 #define MSG_INFO_PRINT_LONGEST            "Længste"
-#endif
-#ifndef MSG_INFO_PRINT_FILAMENT
 #define MSG_INFO_PRINT_FILAMENT           "Extruderet"
-#endif
-#endif
-
 #define MSG_INFO_MIN_TEMP                   "Min Temp"
 #define MSG_INFO_MAX_TEMP                   "Max Temp"
 #define MSG_INFO_PSU                        "Strømfors."
@@ -251,6 +212,8 @@
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "Skift muligheder:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extruder mere"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Forsæt print"
+#endif
+#if LCD_HEIGHT >= 4
 #define MSG_FILAMENT_CHANGE_INIT_1          "Vent på start"
 #define MSG_FILAMENT_CHANGE_INIT_2          "af filament"
 #define MSG_FILAMENT_CHANGE_INIT_3          "skift"
@@ -269,11 +232,14 @@
 #define MSG_FILAMENT_CHANGE_RESUME_1        "Vent på at print"
 #define MSG_FILAMENT_CHANGE_RESUME_2        "fortsætter"
 #define MSG_FILAMENT_CHANGE_RESUME_3        ""
+#endif
+#else // LCD_HEIGHT < 4
 #define MSG_FILAMENT_CHANGE_INIT_1          "Vent venligst..."
 #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Udskyder..."
 #define MSG_FILAMENT_CHANGE_INSERT_1        "Indsæt og klik"
 #define MSG_FILAMENT_CHANGE_LOAD_1          "Indtager..."
 #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extrudere..."
 #define MSG_FILAMENT_CHANGE_RESUME_1        "Fortsætter..."
+#endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_DA_H
