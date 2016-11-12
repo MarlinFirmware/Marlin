@@ -598,7 +598,7 @@
 // For ADVANCED_OK (M105) you need 32 bytes.
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
-// :[0,2,4,8,16,32,64,128,256]
+// :[0, 2, 4, 8, 16, 32, 64, 128, 256]
 #define TX_BUFFER_SIZE 0
 
 // Enable an emergency-command parser to intercept certain commands as they
