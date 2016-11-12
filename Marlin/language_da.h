@@ -183,23 +183,64 @@
 #ifndef MSG_INFO_MENU
 #define MSG_INFO_MENU                       "Om Printer"
 #endif
+#ifndef MSG_INFO_PRINTER_MENU
 #define MSG_INFO_PRINTER_MENU               "Printer Info"
+#endif
+#ifndef MSG_INFO_STATS_MENU
 #define MSG_INFO_STATS_MENU                 "Printer Stats"
+#endif
+#ifndef MSG_INFO_BOARD_MENU
 #define MSG_INFO_BOARD_MENU                 "Kort Info"
+#endif
+#ifndef MSG_INFO_THERMISTOR_MENU
 #define MSG_INFO_THERMISTOR_MENU            "Thermistors"
+#endif
+#ifndef MSG_INFO_EXTRUDERS
 #define MSG_INFO_EXTRUDERS                  "Extruders"
+#endif
+#ifndef MSG_INFO_BAUDRATE
 #define MSG_INFO_BAUDRATE                   "Baud"
+#endif
+#ifndef MSG_INFO_PROTOCOL
 #define MSG_INFO_PROTOCOL                   "Protocol"
+#endif
+
+#if LCD_WIDTH > 19
+
+#ifndef MSG_INFO_PRINT_COUNT
 #define MSG_INFO_PRINT_COUNT              "Ant. Prints"
+#endif
+#ifndef MSG_INFO_COMPLETED_PRINTS
 #define MSG_INFO_COMPLETED_PRINTS         "Færdige"
+#endif
+#ifndef MSG_INFO_PRINT_TIME
 #define MSG_INFO_PRINT_TIME               "Total print tid"
+#endif
+#ifndef MSG_INFO_PRINT_LONGEST
 #define MSG_INFO_PRINT_LONGEST            "Længste print"
+#endif
+#ifndef MSG_INFO_PRINT_FILAMENT
 #define MSG_INFO_PRINT_FILAMENT           "Total Extruderet"
+#endif
+
+#else
+#ifndef MSG_INFO_PRINT_COUN
 #define MSG_INFO_PRINT_COUNT              "Prints"
+#endif
+#ifndef MSG_INFO_COMPLETED_PRINTS
 #define MSG_INFO_COMPLETED_PRINTS         "Færdige"
+#endif
+#ifndef MSG_INFO_PRINT_TIME
 #define MSG_INFO_PRINT_TIME               "Total"
+#endif
+#ifndef MSG_INFO_PRINT_LONGEST
 #define MSG_INFO_PRINT_LONGEST            "Længste"
+#endif
+#ifndef MSG_INFO_PRINT_FILAMENT
 #define MSG_INFO_PRINT_FILAMENT           "Extruderet"
+#endif
+#endif
+
 #define MSG_INFO_MIN_TEMP                   "Min Temp"
 #define MSG_INFO_MAX_TEMP                   "Max Temp"
 #define MSG_INFO_PSU                        "Strømfors."
