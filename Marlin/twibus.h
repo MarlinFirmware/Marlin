@@ -43,11 +43,11 @@ typedef void (*twiRequestFunc_t)();
  * an experimental feature and it's inner workings as well as public facing
  * interface are prune to change in the future.
  *
- * The two main consumers of this class are M155 and M156, where M155 allows
+ * The two main consumers of this class are M260 and M261, where M260 allows
  * Marlin to send a I2C packet to a device (please be aware that no repeated
  * starts are possible), this can be done in caching method by calling multiple
- * times M155 B<byte-1 value in base 10> or a one liner M155, have a look at
- * the gcode_M155() function for more information. M156 allows Marlin to
+ * times M260 B<byte-1 value in base 10> or a one liner M260, have a look at
+ * the gcode_M260() function for more information. M261 allows Marlin to
  * request data from a device, the received data is then relayed into the serial
  * line for host interpretation.
  *

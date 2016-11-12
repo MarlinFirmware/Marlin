@@ -28,12 +28,6 @@
 #ifndef CONDITIONALS_POST_H
 #define CONDITIONALS_POST_H
 
-  #if ENABLED(EMERGENCY_PARSER)
-    #define EMERGENCY_PARSER_CAPABILITIES " EMERGENCY_CODES:M108,M112,M410"
-  #else
-    #define EMERGENCY_PARSER_CAPABILITIES ""
-  #endif
-
   /**
    * Axis lengths and center
    */
