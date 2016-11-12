@@ -168,14 +168,16 @@
 
 // @section extruder
 
-//  extruder run-out prevention.
-//if the machine is idle, and the temperature over MINTEMP, every couple of SECONDS some filament is extruded
+// Extruder runout prevention.
+// If the machine is idle and the temperature over MINTEMP
+// then extrude some filament every couple of SECONDS.
 //#define EXTRUDER_RUNOUT_PREVENT
-#define EXTRUDER_RUNOUT_MINTEMP 190
-#define EXTRUDER_RUNOUT_SECONDS 30
-#define EXTRUDER_RUNOUT_ESTEPS 14   // mm filament
-#define EXTRUDER_RUNOUT_SPEED 1500  // extrusion speed
-#define EXTRUDER_RUNOUT_EXTRUDE 100
+#if ENABLED(EXTRUDER_RUNOUT_PREVENT)
+  #define EXTRUDER_RUNOUT_MINTEMP 190
+  #define EXTRUDER_RUNOUT_SECONDS 30
+  #define EXTRUDER_RUNOUT_SPEED 1500  // mm/m
+  #define EXTRUDER_RUNOUT_EXTRUDE 5   // mm
+#endif
 
 // @section temperature
 
@@ -211,17 +213,28 @@
 
 // @section extruder
 
-// Extruder cooling fans
-// Configure fan pin outputs to automatically turn on/off when the associated
-// extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
-// Multiple extruders can be assigned to the same pin in which case
-// the fan will turn on when any selected extruder is above the threshold.
-#define EXTRUDER_0_AUTO_FAN_PIN -1
-#define EXTRUDER_1_AUTO_FAN_PIN -1
-#define EXTRUDER_2_AUTO_FAN_PIN -1
-#define EXTRUDER_3_AUTO_FAN_PIN -1
+/**
+ * Extruder cooling fans
+ *
+ * Extruder auto fans automatically turn on when their extruders'
+ * temperatures go above EXTRUDER_AUTO_FAN_TEMPERATURE.
+ *
+ * Your board's pins file specifies the recommended pins. Override those here
+ * or set to -1 to disable completely.
+ *
+ * Multiple extruders can be assigned to the same pin in which case
+ * the fan will turn on when any selected extruder is above the threshold.
+ */
+#define E0_AUTO_FAN_PIN -1
+#define E1_AUTO_FAN_PIN -1
+#define E2_AUTO_FAN_PIN -1
+#define E3_AUTO_FAN_PIN -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
+
+// Define a pin to turn case light on/off
+//#define CASE_LIGHT_PIN 4
+//#define CASE_LIGHT_DEFAULT_ON   // Uncomment to set default state to on
 
 //===========================================================================
 //============================ Mechanical Settings ==========================
@@ -308,7 +321,7 @@
   //                           once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
 
   // This is the default power-up mode which can be later using M605.
-  #define DEFAULT_DUAL_X_CARRIAGE_MODE 0
+  #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_FULL_CONTROL_MODE
 
   // Default settings in "Auto-park Mode"
   #define TOOLCHANGE_PARK_ZLIFT   0.2      // the distance to raise Z axis when parking an extruder
@@ -507,9 +520,20 @@
   #define D_FILAMENT 2.85
 #endif
 
-// Implementation of a linear pressure control
-// Assumption: advance = k * (delta velocity)
-// K=0 means advance disabled. A good value for a gregs wade extruder will be around K=75
+/**
+ * Implementation of linear pressure control
+ *
+ * Assumption: advance = k * (delta velocity)
+ * K=0 means advance disabled.
+ * To get a rough start value for calibration, measure your "free filament length"
+ * between the hobbed bolt and the nozzle (in cm). Use the formula below that fits
+ * your setup, where L is the "free filament length":
+ *
+ * Filament diameter           |   1.75mm  |    3.0mm   |
+ * ----------------------------|-----------|------------|
+ * Stiff filament (PLA)        | K=47*L/10 | K=139*L/10 |
+ * Softer filament (ABS, nGen) | K=88*L/10 | K=260*L/10 |
+ */
 //#define LIN_ADVANCE
 
 #if ENABLED(LIN_ADVANCE)
@@ -538,6 +562,12 @@
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
 //#define BEZIER_CURVE_SUPPORT
 
+// G38.2 and G38.3 Probe Target
+//#define G38_PROBE_TARGET
+#if ENABLED(G38_PROBE_TARGET)
+  #define G38_MINIMUM_MOVE 0.0275 // minimum distance in mm that will produce a move (determined using the print statement in check_move)
+#endif
+
 // Moves (or segments) with fewer steps than this will be joined with the next move
 #define MIN_STEPS_PER_SEGMENT 6
 
@@ -559,7 +589,7 @@
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+  #define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
@@ -809,5 +839,10 @@
 
 //#define EXPERIMENTAL_I2CBUS
 #define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
+
+/**
+ * Add M43 command for pins info and testing
+ */
+//#define PINS_DEBUGGING
 
 #endif // CONFIGURATION_ADV_H

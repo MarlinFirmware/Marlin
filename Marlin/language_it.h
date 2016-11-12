@@ -102,7 +102,8 @@
 #define MSG_PID_C                           "PID-C"
 #define MSG_SELECT                          "Seleziona"
 #define MSG_ACC                             "Accel"
-#define MSG_VXY_JERK                        "Vxy-jerk"
+#define MSG_VX_JERK                         "Vx-jerk"
+#define MSG_VY_JERK                         "Vy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "
@@ -166,6 +167,7 @@
 #define MSG_ERR_MINTEMP                     "Err: TEMP MINIMA"
 #define MSG_ERR_MAXTEMP_BED                 "Err: TEMP MASSIMA PIATTO"
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP MINIMA PIATTO"
+#define MSG_ERR_Z_HOMING                    "G28 Z Vietato"
 #define MSG_HALTED                          "STAMPANTE FERMATA"
 #define MSG_PLEASE_RESET                    "Riavviare prego"
 #define MSG_SHORT_DAY                       "g" // One character only

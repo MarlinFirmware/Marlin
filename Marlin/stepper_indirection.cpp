@@ -127,6 +127,87 @@ void tmc_init() {
 }
 #endif
 
+#if ENABLED(HAVE_TMC2130)
+// Stepper objects of TMC2130 steppers used
+  #if ENABLED(X_IS_TMC2130)
+    TMC2130Stepper stepperX(X_ENABLE_PIN, X_DIR_PIN, X_STEP_PIN, X_CHIP_SELECT);
+  #endif
+  #if ENABLED(X2_IS_TMC2130)
+    TMC2130Stepper stepperX2(X2_ENABLE_PIN, X2_DIR_PIN, X2_STEP_PIN, X2_CHIP_SELECT);
+  #endif
+  #if ENABLED(Y_IS_TMC2130)
+    TMC2130Stepper stepperY(Y_ENABLE_PIN, Y_DIR_PIN, Y_STEP_PIN, Y_CHIP_SELECT);
+  #endif
+  #if ENABLED(Y2_IS_TMC2130)
+    TMC2130Stepper stepperY2(Y2_ENABLE_PIN, Y2_DIR_PIN, Y2_STEP_PIN, Y2_CHIP_SELECT);
+  #endif
+  #if ENABLED(Z_IS_TMC2130)
+    TMC2130Stepper stepperZ(Z_ENABLE_PIN, Z_DIR_PIN, Z_STEP_PIN, Z_CHIP_SELECT);
+  #endif
+  #if ENABLED(Z2_IS_TMC2130)
+    TMC2130Stepper stepperZ2(Z2_ENABLE_PIN, Z2_DIR_PIN, Z2_STEP_PIN, Z2_CHIP_SELECT);
+  #endif
+  #if ENABLED(E0_IS_TMC2130)
+    TMC2130Stepper stepperE0(E0_ENABLE_PIN, E0_DIR_PIN, E0_STEP_PIN, E0_CHIP_SELECT);
+  #endif
+  #if ENABLED(E1_IS_TMC2130)
+    TMC2130Stepper stepperE1(E1_ENABLE_PIN, E1_DIR_PIN, E1_STEP_PIN, E1_CHIP_SELECT);
+  #endif
+  #if ENABLED(E2_IS_TMC2130)
+    TMC2130Stepper stepperE2(E2_ENABLE_PIN, E2_DIR_PIN, E2_STEP_PIN, E2_CHIP_SELECT);
+  #endif
+  #if ENABLED(E3_IS_TMC2130)
+    TMC2130Stepper stepperE3(E3_ENABLE_PIN, E3_DIR_PIN, E3_STEP_PIN, E3_CHIP_SELECT);
+  #endif
+
+// Use internal reference voltage for current calculations. This is the default.
+// Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
+  #define _TMC2130_INIT(A) do { \
+    stepper##A.begin(); \
+    stepper##A.external_ref(0); \
+    stepper##A.setCurrent(A##_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER); \
+    stepper##A.microsteps((uint8_t)A##_MICROSTEPS); \
+    stepper##A.interpolate(INTERPOLATE); \
+    stepper##A.hysterisis_start(1); \
+    stepper##A.hysterisis_low(-2); \
+    stepper##A.blank_time(24); \
+    stepper##A.off_time(5); \
+  } while(0)
+
+  void tmc2130_init() {
+    #if ENABLED(X_IS_TMC2130)
+      _TMC2130_INIT(X);
+    #endif
+    #if ENABLED(X2_IS_TMC2130)
+      _TMC2130_INIT(X2);
+    #endif
+    #if ENABLED(Y_IS_TMC2130)
+      _TMC2130_INIT(Y);
+    #endif
+    #if ENABLED(Y2_IS_TMC2130)
+      _TMC2130_INIT(Y2);
+    #endif
+    #if ENABLED(Z_IS_TMC2130)
+      _TMC2130_INIT(Z);
+    #endif
+    #if ENABLED(Z2_IS_TMC2130)
+      _TMC2130_INIT(Z2);
+    #endif
+    #if ENABLED(E0_IS_TMC2130)
+      _TMC2130_INIT(E0);
+    #endif
+    #if ENABLED(E1_IS_TMC2130)
+      _TMC2130_INIT(E1);
+    #endif
+    #if ENABLED(E2_IS_TMC2130)
+      _TMC2130_INIT(E2);
+    #endif
+    #if ENABLED(E3_IS_TMC2130)
+      _TMC2130_INIT(E3);
+    #endif
+  }
+#endif
+
 // L6470 Driver objects and inits
 
 #if ENABLED(HAVE_L6470DRIVER)

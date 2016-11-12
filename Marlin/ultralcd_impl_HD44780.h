@@ -161,7 +161,11 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
-  LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
+  #if defined(SR_STROBE_PIN)
+    LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN, SR_STROBE_PIN);
+  #else
+    LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
+  #endif
 #elif ENABLED(LCM1602)
   #include <Wire.h>
   #include <LCD.h>
@@ -224,6 +228,16 @@ static void lcd_set_custom_characters(
     B10001,
     B01110
   };
+  static byte uplevel[8] = {
+    B00100,
+    B01110,
+    B11111,
+    B00100,
+    B11100,
+    B00000,
+    B00000,
+    B00000
+  }; //thanks joris
   static byte feedrate[8] = {
     B11100,
     B10000,
@@ -252,16 +266,6 @@ static void lcd_set_custom_characters(
   lcd.createChar(LCD_STR_CLOCK[0], clock);
 
   #if ENABLED(SDSUPPORT)
-    static byte uplevel[8] = {
-      B00100,
-      B01110,
-      B11111,
-      B00100,
-      B11100,
-      B00000,
-      B00000,
-      B00000
-    }; //thanks joris
     static byte refresh[8] = {
       B00000,
       B00110,
@@ -330,6 +334,8 @@ static void lcd_set_custom_characters(
       lcd.createChar(LCD_STR_FOLDER[0], folder);
     #endif
 
+  #else
+    lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
   #endif
 }
 
@@ -375,20 +381,15 @@ static void lcd_implementation_init(
 static void lcd_implementation_clear() { lcd.clear(); }
 
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
-char lcd_printPGM(const char* str) {
-  char c, n = 0;
-  while ((c = pgm_read_byte(str++))) n += charset_mapper(c);
-  return n;
+void lcd_printPGM(const char *str) {
+  for (; char c = pgm_read_byte(str); ++str) charset_mapper(c);
 }
 
-char lcd_print(const char* str) {
-  char c, n = 0;
-  unsigned char i = 0;
-  while ((c = str[i++])) n += charset_mapper(c);
-  return n;
+void lcd_print(const char* str) {
+  for (uint8_t i = 0; char c = str[i]; ++i) charset_mapper(c);
 }
 
-unsigned lcd_print(char c) { return charset_mapper(c); }
+void lcd_print(char c) { charset_mapper(c); }
 
 #if ENABLED(SHOW_BOOTSCREEN)
 
@@ -556,11 +557,11 @@ FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) 
     lcd_printPGM(pstr);
   else {
     if (!axis_homed[axis])
-      lcd_printPGM(PSTR("?"));
+      lcd.print('?');
     else {
       #if DISABLED(DISABLE_REDUCED_ACCURACY_WARNING)
         if (!axis_known_position[axis])
-          lcd_printPGM(PSTR(" "));
+          lcd.print(' ');
         else
       #endif
       lcd_printPGM(pstr);
@@ -694,7 +695,7 @@ static void lcd_implementation_status_screen() {
         _draw_axis_label(X_AXIS, PSTR(MSG_X), blink);
         lcd.print(ftostr4sign(current_position[X_AXIS]));
 
-        lcd_printPGM(PSTR(" "));
+        lcd.print(' ');
 
         _draw_axis_label(Y_AXIS, PSTR(MSG_Y), blink);
         lcd.print(ftostr4sign(current_position[Y_AXIS]));
@@ -803,11 +804,11 @@ static void lcd_implementation_status_screen() {
         while (--pad >= 0) { lcd.print(' '); n--; }
       }
       while (n > 0 && (c = pgm_read_byte(pstr))) {
-        n -= lcd_print(c);
+        n -= charset_mapper(c);
         pstr++;
       }
       if (valstr) while (n > 0 && (c = *valstr)) {
-        n -= lcd_print(c);
+        n -= charset_mapper(c);
         valstr++;
       }
       while (n-- > 0) lcd.print(' ');
@@ -821,7 +822,7 @@ static void lcd_implementation_status_screen() {
     lcd.setCursor(0, row);
     lcd.print(sel ? pre_char : ' ');
     while ((c = pgm_read_byte(pstr)) && n > 0) {
-      n -= lcd_print(c);
+      n -= charset_mapper(c);
       pstr++;
     }
     while (n--) lcd.print(' ');
@@ -834,7 +835,7 @@ static void lcd_implementation_status_screen() {
     lcd.setCursor(0, row);
     lcd.print(sel ? pre_char : ' ');
     while ((c = pgm_read_byte(pstr)) && n > 0) {
-      n -= lcd_print(c);
+      n -= charset_mapper(c);
       pstr++;
     }
     lcd.print(':');
@@ -847,7 +848,7 @@ static void lcd_implementation_status_screen() {
     lcd.setCursor(0, row);
     lcd.print(sel ? pre_char : ' ');
     while ((c = pgm_read_byte(pstr)) && n > 0) {
-      n -= lcd_print(c);
+      n -= charset_mapper(c);
       pstr++;
     }
     lcd.print(':');
@@ -899,7 +900,7 @@ static void lcd_implementation_status_screen() {
         longFilename[n] = '\0';
       }
       while ((c = *filename) && n > 0) {
-        n -= lcd_print(c);
+        n -= charset_mapper(c);
         filename++;
       }
       while (n--) lcd.print(' ');
@@ -916,7 +917,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // SDSUPPORT
 
-  #define lcd_implementation_drawmenu_back(sel, row, pstr) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+  #define lcd_implementation_drawmenu_back(sel, row, pstr, dummy) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
   #define lcd_implementation_drawmenu_submenu(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
   #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
   #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
