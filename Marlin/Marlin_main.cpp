@@ -593,7 +593,7 @@ float cartes[XYZ] = { 0 };
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
-  float mixing_factor[MIXING_STEPPERS];
+  float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off, otherwise >= 1.0.
   #if MIXING_VIRTUAL_TOOLS > 1
     float mixing_virtual_tool_mix[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
   #endif
@@ -2662,17 +2662,11 @@ static void homeaxis(AxisEnum axis) {
 
   void normalize_mix() {
     float mix_total = 0.0;
-    for (int i = 0; i < MIXING_STEPPERS; i++) {
-      float v = mixing_factor[i];
-      if (v < 0) v = mixing_factor[i] = 0;
-      mix_total += v;
-    }
+    for (int i = 0; i < MIXING_STEPPERS; i++) mix_total += RECIPROCAL(mixing_factor[i]);
     // Scale all values if they don't add up to ~1.0
-    if (mix_total < 0.9999 || mix_total > 1.0001) {
+    if (!NEAR(mix_total, 1.0)) {
       SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
-      float mix_scale = 1.0 / mix_total;
-      for (int i = 0; i < MIXING_STEPPERS; i++)
-        mixing_factor[i] *= mix_scale;
+      for (int i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= mix_total;
     }
   }
 
@@ -2682,9 +2676,11 @@ static void homeaxis(AxisEnum axis) {
     // The total "must" be 1.0 (but it will be normalized)
     void gcode_get_mix() {
       const char* mixing_codes = "ABCDHI";
-      for (int i = 0; i < MIXING_STEPPERS; i++)
-        mixing_factor[i] = code_seen(mixing_codes[i]) ? code_value_float() : 0;
-
+      for (int i = 0; i < MIXING_STEPPERS; i++) {
+        float v = code_seen(mixing_codes[i]) ? code_value_float() : 0.0;
+        NOLESS(v, 0.0);
+        mixing_factor[i] = RECIPROCAL(v);
+      }
       normalize_mix();
     }
   #endif
@@ -7240,8 +7236,11 @@ inline void gcode_M907() {
    */
   inline void gcode_M163() {
     int mix_index = code_seen('S') ? code_value_int() : 0;
-    float mix_value = code_seen('P') ? code_value_float() : 0.0;
-    if (mix_index < MIXING_STEPPERS) mixing_factor[mix_index] = mix_value;
+    if (mix_index < MIXING_STEPPERS) {
+      float mix_value = code_seen('P') ? code_value_float() : 0.0;
+      NOLESS(mix_value, 0.0);
+      mixing_factor[mix_index] = RECIPROCAL(mix_value);
+    }
   }
 
   #if MIXING_VIRTUAL_TOOLS > 1
@@ -9991,7 +9990,7 @@ void setup() {
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
     // Initialize mixing to 100% color 1
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      mixing_factor[i] = (i == 0) ? 1 : 0;
+      mixing_factor[i] = (i == 0) ? 1.0 : 0.0;
     for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
       for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
         mixing_virtual_tool_mix[t][i] = mixing_factor[i];
