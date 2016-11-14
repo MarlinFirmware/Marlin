@@ -5078,6 +5078,10 @@ inline void gcode_M104() {
 
     if (code_value_temp_abs() > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
+  
+  #if ENABLED(AUTOTEMP)
+    planner.autotemp_M104();
+  #endif
 }
 
 #if HAS_TEMP_HOTEND || HAS_TEMP_BED

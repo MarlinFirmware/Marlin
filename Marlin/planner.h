@@ -373,6 +373,7 @@ class Planner {
       static bool autotemp_enabled;
       static void getHighESpeed();
       static void autotemp_M109();
+      static void autotemp_M104();
     #endif
 
   private:

@@ -1366,6 +1366,13 @@ void Planner::refresh_positioning() {
     if (code_seen('S')) autotemp_min = code_value_temp_abs();
     if (code_seen('B')) autotemp_max = code_value_temp_abs();
   }
+  
+  void Planner::autotemp_M104() {
+    autotemp_enabled = code_seen('F');
+    if (autotemp_enabled) autotemp_factor = code_value_temp_diff();
+    if (code_seen('S')) autotemp_min = code_value_temp_abs();
+    if (code_seen('B')) autotemp_max = code_value_temp_abs();
+  }
 
 #endif
 
