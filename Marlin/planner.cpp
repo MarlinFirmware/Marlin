@@ -1360,7 +1360,7 @@ void Planner::refresh_positioning() {
 
 #if ENABLED(AUTOTEMP)
 
-  void Planner::autotemp_M109() {
+  void Planner::autotemp_M104_M109() {
     autotemp_enabled = code_seen('F');
     if (autotemp_enabled) autotemp_factor = code_value_temp_diff();
     if (code_seen('S')) autotemp_min = code_value_temp_abs();
