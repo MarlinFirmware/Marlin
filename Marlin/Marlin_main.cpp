@@ -2109,6 +2109,22 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
   }
 
+  void test_probe(const char* text) {
+    stepper.synchronize();
+    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+      if (READ(Z_MIN_PROBE_PIN)^Z_MIN_PROBE_ENDSTOP_INVERTING)
+    #else
+      if (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)
+    #endif
+    {
+      LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+      SERIAL_ERROR_START;
+      SERIAL_ERRORPGM("Z-Probe triggered. Increase ");
+      SERIAL_ECHOLN(text);
+      kill(PSTR("Err: ZPROBE"));
+    }
+  }
+
   // Do a single Z probe and return with current_position[Z_AXIS]
   // at the height where the probe triggered.
   static float run_z_probe() {
@@ -2122,6 +2138,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
     #if ENABLED(PROBE_DOUBLE_TOUCH)
 
+      test_probe(PSTR("the height")); // We don't know if we should be at Z_CLEARANCE_BETWEEN_PROBES or Z_CLEARANCE_DEPLOY_PROBE
       // Do a first probe at the fast speed
       do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_FAST);
 
@@ -2133,6 +2150,7 @@ static void clean_up_after_endstop_or_probe_move() {
       // move up by the bump distance
       do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
+      test_probe(PSTR("Z_HOME_BUMP_MM"));
     #else
 
       // If the nozzle is above the travel height then
@@ -2142,6 +2160,7 @@ static void clean_up_after_endstop_or_probe_move() {
       if (z < current_position[Z_AXIS])
         do_blocking_move_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
+      test_probe(PSTR("Z_CLEARANCE_BETWEEN_PROBES"));
     #endif
 
     // move down slowly to find bed
@@ -2195,8 +2214,10 @@ static void clean_up_after_endstop_or_probe_move() {
 
     float measured_z = run_z_probe();
 
-    if (!stow)
+    if (!stow) {
       do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
+      test_probe(PSTR("Z_CLEARANCE_BETWEEN_PROBES"));
+    }
     else
       if (STOW_PROBE()) return NAN;
 
