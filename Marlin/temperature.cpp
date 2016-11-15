@@ -367,17 +367,19 @@ uint8_t Temperature::soft_pwm[HOTENDS];
         SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
         return;
       }
-      // Every 2 seconds...
-      if (ELAPSED(ms, temp_ms + 2000UL)) {
-        #if HAS_TEMP_HOTEND || HAS_TEMP_BED
-          print_heaterstates();
-          SERIAL_EOL;
-        #endif
-
+      #if ENABLED(AUTO_REPORT_TEMPERATURES)
+        if (auto_report_temp_interval && ELAPSED(ms, temp_ms + 1000UL * auto_report_temp_interval))
+      #else
+        // Every 2 seconds...
+        if (ELAPSED(ms, temp_ms + 2000UL))
+      #endif
+      {
+        print_heaterstates();
+        SERIAL_EOL;
         temp_ms = ms;
-      } // every 2 seconds
+      }
       // Over 2 minutes?
-      if (((ms - t1) + (ms - t2)) > (10L * 60L * 1000L * 2L)) {
+      if (((ms - t1) + (ms - t2)) > (10UL * 60UL * 1000UL * 2UL)) {
         SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
         return;
       }

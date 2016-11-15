@@ -5151,11 +5151,11 @@ inline void gcode_M105() {
 
 #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
 
-  static uint8_t auto_report_temp_interval;
+  uint8_t auto_report_temp_interval = 0;
   static millis_t next_temp_report_ms;
 
   /**
-   * M155: Set temperature auto-report interval. M155 S<seconds>
+   * M155: Set temperature auto-report interval. M155 S<seconds>. S0 = off.
    */
   inline void gcode_M155() {
     if (code_seen('S')) {
@@ -5169,6 +5169,7 @@ inline void gcode_M105() {
     if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
       next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
       print_heaterstates();
+      SERIAL_EOL;
     }
   }
 
@@ -5305,7 +5306,9 @@ inline void gcode_M109() {
     now = millis();
     if (ELAPSED(now, next_temp_ms)) { //Print temp & remaining time every 1s while waiting
       next_temp_ms = now + 1000UL;
-      print_heaterstates();
+      #if DISABLED(AUTO_REPORT_TEMPERATURES)
+        print_heaterstates();
+      #endif
       #if TEMP_RESIDENCY_TIME > 0
         SERIAL_PROTOCOLPGM(" W:");
         if (residency_start_ms) {
@@ -5424,7 +5427,9 @@ inline void gcode_M109() {
       now = millis();
       if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
         next_temp_ms = now + 1000UL;
-        print_heaterstates();
+        #if DISABLED(AUTO_REPORT_TEMPERATURES)
+          print_heaterstates();
+        #endif
         #if TEMP_BED_RESIDENCY_TIME > 0
           SERIAL_PROTOCOLPGM(" W:");
           if (residency_start_ms) {
@@ -5806,7 +5811,7 @@ inline void gcode_M115() {
 
     // PROGRESS (M530 S L, M531 <file>, M532 X L)
     SERIAL_PROTOCOLPGM("Cap:");
-    SERIAL_PROTOCOLPGM("PROGRESS:0");
+    SERIAL_PROTOCOLLNPGM("PROGRESS:0");
 
     // AUTOLEVEL (G29)
     SERIAL_PROTOCOLPGM("Cap:");
