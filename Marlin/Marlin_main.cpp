@@ -5080,7 +5080,7 @@ inline void gcode_M104() {
   }
   
   #if ENABLED(AUTOTEMP)
-    planner.autotemp_M104();
+    planner.autotemp_M104_M109();
   #endif
 }
 
@@ -5277,7 +5277,7 @@ inline void gcode_M109() {
   }
 
   #if ENABLED(AUTOTEMP)
-    planner.autotemp_M109();
+    planner.autotemp_M104_M109();
   #endif
 
   #if TEMP_RESIDENCY_TIME > 0

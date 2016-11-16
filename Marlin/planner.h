@@ -372,8 +372,7 @@ class Planner {
       static float autotemp_factor;
       static bool autotemp_enabled;
       static void getHighESpeed();
-      static void autotemp_M109();
-      static void autotemp_M104();
+      static void autotemp_M104_M109();
     #endif
 
   private:
