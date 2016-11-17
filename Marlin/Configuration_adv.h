@@ -225,8 +225,9 @@
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
 // Define a pin to turn case light on/off
-//#define CASE_LIGHT_PIN 4
-//#define CASE_LIGHT_DEFAULT_ON   // Uncomment to set default state to on
+//#define CASE_LIGHT_PIN 11         // M355 S1 or M355 S0 to switch On / Off
+//#define CASE_LIGHT_DEFAULT_ON     // Uncomment to set default state to on
+//#define MENU_ITEM_CASE_LIGHT      // Uncomment to have a Case Light On / Off entry in main menu
 
 //===========================================================================
 //============================ Mechanical Settings ==========================
