@@ -32,8 +32,8 @@
 #define ST7920_CS_PIN   LCD_PINS_RS
 
 //#define PAGE_HEIGHT 8   //128 byte framebuffer
-//#define PAGE_HEIGHT 16  //256 byte framebuffer
-#define PAGE_HEIGHT 32  //512 byte framebuffer
+#define PAGE_HEIGHT 16  //256 byte framebuffer
+//#define PAGE_HEIGHT 32  //512 byte framebuffer
 
 #define LCD_PIXEL_WIDTH 128
 #define LCD_PIXEL_HEIGHT 64
