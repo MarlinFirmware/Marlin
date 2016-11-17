@@ -107,9 +107,8 @@ namespace temp
 		updateCurrentTemperatureRaw(initial_raw);
 		updateLUTCache();
 
-
 		ADCSRA |= 0x08;
-		TCCR2A = 0x23;
+		TCCR2A = 0x03;
 		TCCR2B = 0x07;
 		TIMSK2 = 0x01;
 	}
@@ -184,6 +183,15 @@ namespace temp
 	{
 		m_target_temperature = target;
 	#ifdef DOGLCD
+		if(target > HEATER_0_MINTEMP)
+		{
+			TCCR2A |= 0x20;
+		}
+		else
+		{
+			TCCR2A &= 0xDF;
+		}
+		
 		m_control->setTargetControl(target);
 	#else
 		target_temperature[0] = target;
