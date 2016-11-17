@@ -190,7 +190,7 @@
 #define MSG_INFO_EXTRUDERS                  "エクストルーダースウ"             // "Extruders"
 #define MSG_INFO_BAUDRATE                   "ボーレート"                    // "Baud"
 #define MSG_INFO_PROTOCOL                   "プロトコル"                    // "Protocol"
-#define MSG_INFO_PRINT_COUNT                "プリントスウ   "                // "Print Count"
+#define MSG_INFO_PRINT_COUNT                "プリントスウ "                  // "Print Count"
 #define MSG_INFO_COMPLETED_PRINTS           "カンリョウスウ"                  // "Completed"
 #define MSG_INFO_PRINT_TIME                 "プリントジカンルイケイ"            // "Total print time"
 #define MSG_INFO_PRINT_LONGEST              "サイチョウプリントジカン"           // "Longest job time"
