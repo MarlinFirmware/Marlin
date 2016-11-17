@@ -7231,9 +7231,8 @@ inline void gcode_M907() {
   inline void gcode_M355() {
     static bool case_light_on
       #if ENABLED(CASE_LIGHT_DEFAULT_ON)
-        = true
-        caselight=true
-       #else
+        = true;
+      #else
       ;
     #endif
     static uint8_t case_light_brightness = 255;
