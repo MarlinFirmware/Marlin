@@ -2623,8 +2623,6 @@ void lcd_update() {
   millis_t ms = millis();
   if (ELAPSED(ms, next_lcd_update_ms)) {
 
-    next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
-
     #if ENABLED(LCD_HAS_STATUS_INDICATORS)
       lcd_implementation_update_indicators();
     #endif
@@ -2783,6 +2781,9 @@ void lcd_update() {
       case LCDVIEW_NONE:
         break;
     }
+
+    if (lcdDrawUpdate != LCDVIEW_U8G_CONTINUE)
+      next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
 
   }
 }
