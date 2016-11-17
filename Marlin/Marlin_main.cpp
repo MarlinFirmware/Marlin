@@ -524,6 +524,16 @@ static uint8_t target_extruder;
   ;
 #endif
 
+#if ENABLED(ULTIPANEL) && HAS_CASE_LIGHT
+  bool caselight =
+    #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+      true
+    #else
+      false
+    #endif
+  ;
+#endif
+
 #if ENABLED(DELTA)
 
   #define SIN_60 0.8660254037844386
