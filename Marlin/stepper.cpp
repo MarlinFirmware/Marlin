@@ -91,8 +91,8 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
-  unsigned char Stepper::old_OCR0A = 0;
-  volatile unsigned char Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
+  uint8_t Stepper::old_OCR0A = 0;
+  volatile uint8_t Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
 
   #if ENABLED(LIN_ADVANCE)
     volatile int Stepper::e_steps[E_STEPPERS];
@@ -328,12 +328,12 @@ ISR(TIMER1_COMPA_vect) { Stepper::isr(); }
 
 void Stepper::isr() {
   if (cleaning_buffer_counter) {
+    --cleaning_buffer_counter;
     current_block = NULL;
     planner.discard_current_block();
     #ifdef SD_FINISHED_RELEASECOMMAND
-      if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+      if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
-    cleaning_buffer_counter--;
     OCR1A = 200; // Run at max speed - 10 KHz
     return;
   }
@@ -551,7 +551,6 @@ void Stepper::isr() {
   #endif
 
   // Calculate new timer value
-  uint16_t timer, step_rate;
   if (step_events_completed <= (uint32_t)current_block->accelerate_until) {
 
     MultiU24X32toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
@@ -561,7 +560,7 @@ void Stepper::isr() {
     NOMORE(acc_step_rate, current_block->nominal_rate);
 
     // step_rate to timer interval
-    timer = calc_timer(acc_step_rate);
+    uint16_t timer = calc_timer(acc_step_rate);
     OCR1A = timer;
     acceleration_time += timer;
 
@@ -603,6 +602,7 @@ void Stepper::isr() {
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
+    uint16_t step_rate;
     MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
 
     if (step_rate < acc_step_rate) { // Still decelerating?
@@ -613,7 +613,7 @@ void Stepper::isr() {
       step_rate = current_block->final_rate;
 
     // step_rate to timer interval
-    timer = calc_timer(step_rate);
+    uint16_t timer = calc_timer(step_rate);
     OCR1A = timer;
     deceleration_time += timer;
 

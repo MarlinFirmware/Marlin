@@ -2017,9 +2017,7 @@ static void clean_up_after_endstop_or_probe_move() {
     // When deploying make sure BLTOUCH is not already triggered
     #if ENABLED(BLTOUCH)
       if (deploy && TEST_BLTOUCH()) { stop(); return true; }
-    #endif
-
-    #if ENABLED(Z_PROBE_SLED)
+    #elif ENABLED(Z_PROBE_SLED)
       if (axis_unhomed_error(true, false, false)) { stop(); return true; }
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
       if (axis_unhomed_error(true, true,  true )) { stop(); return true; }
@@ -2102,7 +2100,6 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // Tell the planner where we actually are
     SYNC_PLAN_POSITION_KINEMATIC();
-
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
