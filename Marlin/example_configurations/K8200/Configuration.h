@@ -21,13 +21,6 @@
  */
 
 /**
- * Sample configuration file for Vellemann K8200
- * tested on K8200 with VM8201 (Display)
- * and Arduino 1.6.8 (Mac) by @CONSULitAS, 2016-02-21
- * https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_stable_2016-02-21.zip
- */
-
-/**
  * Configuration.h
  *
  * Basic settings such as:
@@ -57,6 +50,22 @@
  * Note: Update also Version.h !
  */
 #define CONFIGURATION_H_VERSION 010100
+
+/**
+ * Sample configuration file for Vellemann K8200
+ * tested on K8200 with VM8201 (Display)
+ * and Arduino 1.6.12 (Mac OS X) by @CONSULitAS, 2016-11-18
+ * https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_stable_2016-11-18.zip
+ *
+ * Please choose your hardware options for the K8200:
+ */
+
+// VM8201 Display unit
+#define K8200_VM8201
+// K8204 Z axis upgrade rod and coupler -> TODO
+// #define K8200_K8204
+// K8203 direct drive extruder -> TODO
+// #define K8200_K8203
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -146,7 +155,11 @@
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
-#define MACHINE_UUID "2b7dea3b-844e-4ab1-aa96-bb6406607d6e" // K8200 standard config with VM8201 (Display)
+#if ENABLED(K8200_VM8201)
+  #define MACHINE_UUID "2b7dea3b-844e-4ab1-aa96-bb6406607d6e" // K8200 standard config with VM8201 (Display)
+#else
+  #define MACHINE_UUID "92f72de1-c211-452e-9f2b-61ef88a4751e" // K8200 standard config without VM8201 (Display)
+#endif
 
 // This defines the number of extruders
 // :[1, 2, 3, 4]
@@ -194,7 +207,7 @@
  *
  * :{ 0:'No power switch', 1:'ATX', 2:'X-Box 360' }
  */
-#define POWER_SUPPLY 1
+#define POWER_SUPPLY 0
 
 #if POWER_SUPPLY > 0
   // Enable this option to leave the PSU off at startup.
@@ -265,7 +278,7 @@
 #define TEMP_WINDOW     1       // (degC) Window around target to start the residency timer x degC early.
 
 // Bed temperature must be close to target for this long before M190 returns success
-#define TEMP_BED_RESIDENCY_TIME 0   // (seconds)
+#define TEMP_BED_RESIDENCY_TIME 10  // (seconds)
 #define TEMP_BED_HYSTERESIS 3       // (degC) range of +/- temperatures considered "close" to the target one
 #define TEMP_BED_WINDOW     1       // (degC) Window around target to start the residency timer x degC early.
 
@@ -369,11 +382,11 @@
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 
-  // Vellemann K8200 PCB heatbed with standard PCU at 60 degreesC - calculated with PID Autotune and tested
-  // from pidautotune
-  #define  DEFAULT_bedKp 341.88
-  #define  DEFAULT_bedKi 25.32
-  #define  DEFAULT_bedKd 1153.89
+    // Vellemann K8200 PCB heatbed with standard PCU at 60 degreesC - calculated with PID Autotune and tested
+    // from pidautotune
+    #define  DEFAULT_bedKp 341.88
+    #define  DEFAULT_bedKi 25.32
+    #define  DEFAULT_bedKd 1153.89
 #endif // PIDTEMPBED
 
 // @section extruder
@@ -457,9 +470,9 @@
 #define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define X_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
-#define Y_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
-#define Z_MAX_ENDSTOP_INVERTING true  // set to true to invert the logic of the endstop.
+#define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 
 
@@ -480,13 +493,12 @@
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 64.25, 64.25, 2560, 600 }  // default steps per unit for K8200
-
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 64.25, 64.25, 2560, 600}  // for K8200
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  */
-#define DEFAULT_MAX_FEEDRATE          { 500, 500, 5, 500 }
+#define DEFAULT_MAX_FEEDRATE          { 500, 500, 5, 25 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -571,9 +583,9 @@
 //    |           |
 //    O-- FRONT --+
 //  (0,0)
-#define X_PROBE_OFFSET_FROM_EXTRUDER -25     // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35  // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
@@ -648,7 +660,7 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   15 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_DEPLOY_PROBE   10 // Z Clearance for Deploy/Stow
 #define Z_CLEARANCE_BETWEEN_PROBES  5 // Z Clearance between probe points
 
 //
@@ -668,7 +680,7 @@
 // WARNING: When motors turn off there is a chance of losing position accuracy!
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z false // not for K8200 -> looses Steps
+#define DISABLE_Z false
 // Warn on display about possibly reduced accuracy
 //#define DISABLE_REDUCED_ACCURACY_WARNING
 
@@ -681,7 +693,7 @@
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
-#define INVERT_Y_DIR false // was true -> why for K8200?
+#define INVERT_Y_DIR false // K8200: false
 #define INVERT_Z_DIR false
 
 // @section extruder
@@ -693,9 +705,9 @@
 #define INVERT_E3_DIR true
 
 // @section homing
-
-//#define Z_HOMING_HEIGHT 4  // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
-                             // Be sure you have this distance over your Z_MAX_POS in case.
+// K8200: it is usual to have clamps for the glass plate on the heatbed
+#define Z_HOMING_HEIGHT 4   // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
+                            // Be sure you have this distance over your Z_MAX_POS in case.
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -871,7 +883,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS // K8200: uses EEPROM by default
 
 #if ENABLED(EEPROM_SETTINGS)
   // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
@@ -905,12 +917,12 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 190
-#define PREHEAT_1_TEMP_BED     50 // K8200: set back to 70 if you have an upgraded heatbed power supply
+#define PREHEAT_1_TEMP_HOTEND 180
+#define PREHEAT_1_TEMP_BED     50 // K8200: PLA / set back to 70 if you have an upgraded heatbed power supply
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED     60 // K8200: set back to 110 if you have an upgraded heatbed power supply
+#define PREHEAT_2_TEMP_BED     60 // K8200: ABS / set back to 110 if you have an upgraded heatbed power supply
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 //
@@ -1012,13 +1024,16 @@
 //  - Total time printing
 //
 // This information can be viewed by the M78 command.
-//#define PRINTCOUNTER
+#define PRINTCOUNTER
 
 //=============================================================================
 //============================= LCD and SD support ============================
 //=============================================================================
 
 // @section lcd
+
+// K8200: for Display VM8201 with SD slot
+#if ENABLED(K8200_VM8201)
 
 //
 // LCD LANGUAGE
@@ -1054,7 +1069,7 @@
 //
 // :['JAPANESE', 'WESTERN', 'CYRILLIC']
 //
-#define DISPLAY_CHARSET_HD44780 JAPANESE     // K8200: for Display VM8201
+#define DISPLAY_CHARSET_HD44780 JAPANESE // K8200: for Display VM8201 // this is the most common hardware
 
 //
 // LCD TYPE
@@ -1092,7 +1107,7 @@
 //
 // Use CRC checks and retries on the SD communication.
 //
-//#define SD_CHECK_AND_RETRY
+#define SD_CHECK_AND_RETRY
 
 //
 // ENCODER SETTINGS
@@ -1100,13 +1115,13 @@
 // This option overrides the default number of encoder pulses needed to
 // produce one step. Should be increased for high-resolution encoders.
 //
-//#define ENCODER_PULSES_PER_STEP 1
+#define ENCODER_PULSES_PER_STEP 4 // K8200_VM8201: four steps per encoder step
 
 //
 // Use this option to override the number of step signals required to
 // move between next/prev menu items.
 //
-//#define ENCODER_STEPS_PER_MENU_ITEM 5
+#define ENCODER_STEPS_PER_MENU_ITEM 1 // K8200_VM8201: One step per menu item
 
 /**
  * Encoder Direction Options
@@ -1131,14 +1146,14 @@
 //  If CLOCKWISE normally moves DOWN this makes it go UP.
 //  If CLOCKWISE normally moves UP this makes it go DOWN.
 //
-//#define REVERSE_MENU_DIRECTION
+#define REVERSE_MENU_DIRECTION // K8200: for Display VM8201 encoder on right side
 
 //
 // Individual Axis Homing
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-//#define INDIVIDUAL_AXIS_HOMING_MENU
+#define INDIVIDUAL_AXIS_HOMING_MENU
 
 //
 // SPEAKER/BUZZER
@@ -1168,7 +1183,7 @@
 //
 // ULTIMAKER Controller.
 //
-//#define ULTIMAKERCONTROLLER
+#define ULTIMAKERCONTROLLER // K8200: for Display VM8201
 
 //
 // ULTIPANEL as seen on Thingiverse.
@@ -1325,6 +1340,8 @@
 // LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
 //
 //#define SAV_3DLCD
+
+#endif // K8200_VM8201
 
 //=============================================================================
 //=============================== Extra Features ==============================
