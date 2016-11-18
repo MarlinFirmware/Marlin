@@ -190,7 +190,7 @@
 #define MSG_INFO_EXTRUDERS                  "Estrusori"
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocollo"
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Contat. stampa"
   #define MSG_INFO_COMPLETED_PRINTS         "Completati"
   #define MSG_INFO_PRINT_TIME               "Tempo totale"

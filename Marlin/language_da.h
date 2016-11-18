@@ -190,7 +190,7 @@
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocol"
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Ant. Prints"
   #define MSG_INFO_COMPLETED_PRINTS         "Færdige"
   #define MSG_INFO_PRINT_TIME               "Total print tid"
