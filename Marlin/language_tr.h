@@ -186,7 +186,7 @@
 #define MSG_INFO_BAUDRATE                   "\xddleti\xfeim H\xfdz\xfd"
 #define MSG_INFO_PROTOCOL                   "Protokol"
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Bask\xfd Say\xfds\xfd"
   #define MSG_INFO_COMPLETED_PRINTS         "Tamamlanan"
   #define MSG_INFO_PRINT_TIME               "Toplam Bask\xfd S\xfcresi"
