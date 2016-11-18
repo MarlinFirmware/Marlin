@@ -29,6 +29,7 @@
  */
 #ifndef LANGUAGE_CN_H
 #define LANGUAGE_CN_H
+
 #define DISPLAY_CHARSET_ISO10646_CN
 
 #define WELCOME_MSG                         "\xa4\xa5\xa6\xa7"

@@ -488,7 +488,7 @@
   #define MSG_INFO_PROTOCOL                   "Protocol"
 #endif
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #ifndef MSG_INFO_PRINT_COUNT
     #define MSG_INFO_PRINT_COUNT              "Print Count"
   #endif

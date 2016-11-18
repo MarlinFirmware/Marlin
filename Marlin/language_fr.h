@@ -188,8 +188,7 @@
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocole"
 
-
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Nbre impressions"
   #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
   #define MSG_INFO_PRINT_TIME               "Tps impr. total"

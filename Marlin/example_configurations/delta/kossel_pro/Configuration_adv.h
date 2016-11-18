@@ -605,7 +605,7 @@
 // For ADVANCED_OK (M105) you need 32 bytes.
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
-// :[0,2,4,8,16,32,64,128,256]
+// :[0, 2, 4, 8, 16, 32, 64, 128, 256]
 #define TX_BUFFER_SIZE 0
 
 // Enable an emergency-command parser to intercept certain commands as they
@@ -815,22 +815,22 @@
  *
  * ; Example #1
  * ; This macro send the string "Marlin" to the slave device with address 0x63 (99)
- * ; It uses multiple M155 commands with one B<base 10> arg
- * M155 A99  ; Target slave address
- * M155 B77  ; M
- * M155 B97  ; a
- * M155 B114 ; r
- * M155 B108 ; l
- * M155 B105 ; i
- * M155 B110 ; n
- * M155 S1   ; Send the current buffer
+ * ; It uses multiple M260 commands with one B<base 10> arg
+ * M260 A99  ; Target slave address
+ * M260 B77  ; M
+ * M260 B97  ; a
+ * M260 B114 ; r
+ * M260 B108 ; l
+ * M260 B105 ; i
+ * M260 B110 ; n
+ * M260 S1   ; Send the current buffer
  *
  * ; Example #2
  * ; Request 6 bytes from slave device with address 0x63 (99)
- * M156 A99 B5
+ * M261 A99 B5
  *
  * ; Example #3
- * ; Example serial output of a M156 request
+ * ; Example serial output of a M261 request
  * echo:i2c-reply: from:99 bytes:5 data:hello
  */
 
@@ -843,5 +843,15 @@
  * Add M43 command for pins info and testing
  */
 //#define PINS_DEBUGGING
+
+/**
+ * Auto-report temperatures with M155 S<seconds>
+ */
+//#define AUTO_REPORT_TEMPERATURES
+
+/**
+ * Include capabilities in M115 output
+ */
+//#define EXTENDED_CAPABILITIES_REPORT
 
 #endif // CONFIGURATION_ADV_H

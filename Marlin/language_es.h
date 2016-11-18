@@ -209,4 +209,5 @@
 #define MSG_FILAMENT_CHANGE_RESUME_1        "Esperando imp."
 #define MSG_FILAMENT_CHANGE_RESUME_2        "para resumir"
 #define MSG_FILAMENT_CHANGE_RESUME_3        ""
+
 #endif // LANGUAGE_ES_H

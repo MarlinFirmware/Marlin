@@ -117,7 +117,7 @@ typedef struct {
            acceleration_steps_per_s2;       // acceleration steps/sec^2
 
   #if FAN_COUNT > 0
-    uint32_t fan_speed[FAN_COUNT];
+    uint16_t fan_speed[FAN_COUNT];
   #endif
 
   #if ENABLED(BARICUDA)
@@ -372,7 +372,7 @@ class Planner {
       static float autotemp_factor;
       static bool autotemp_enabled;
       static void getHighESpeed();
-      static void autotemp_M109();
+      static void autotemp_M104_M109();
     #endif
 
   private:

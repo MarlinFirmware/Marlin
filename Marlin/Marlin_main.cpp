@@ -117,7 +117,7 @@
  * G21 - Set input units to millimeters
  * G28 - Home one or more axes
  * G29 - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
- * G30 - Single Z probe, probes bed at current XY location.
+ * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
  * G31 - Dock sled (Z_PROBE_SLED only)
  * G32 - Undock sled (Z_PROBE_SLED only)
  * G38 - Probe target - similar to G28 except it uses the Z_MIN endstop for all three axes
@@ -175,7 +175,7 @@
  * M112 - Emergency stop.
  * M113 - Get or set the timeout interval for Host Keepalive "busy" messages. (Requires HOST_KEEPALIVE_FEATURE)
  * M114 - Report current position.
- * M115 - Report capabilities.
+ * M115 - Report capabilities. (Extended capabilities requires EXTENDED_CAPABILITIES_REPORT)
  * M117 - Display a message on the controller screen. (Requires an LCD)
  * M119 - Report endstops status.
  * M120 - Enable endstops detection.
@@ -188,6 +188,7 @@
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
  * M150 - Set BlinkM Color R<red> U<green> B<blue>. Values 0-255. (Requires BLINKM)
+ * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
  * M165 - Set the proportions for a mixing extruder. Use parameters ABCDHI to set the mixing factors. (Requires MIXING_EXTRUDER)
@@ -214,6 +215,8 @@
  * M226 - Wait until a pin is in a given state: "M226 P<pin> S<state>"
  * M240 - Trigger a camera to take a photograph. (Requires CHDK or PHOTOGRAPH_PIN)
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
+ * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
+ * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
  * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
@@ -590,7 +593,7 @@ float cartes[XYZ] = { 0 };
 #endif
 
 #if ENABLED(MIXING_EXTRUDER)
-  float mixing_factor[MIXING_STEPPERS];
+  float mixing_factor[MIXING_STEPPERS]; // Reciprocal of mix proportion. 0.0 = off, otherwise >= 1.0.
   #if MIXING_VIRTUAL_TOOLS > 1
     float mixing_virtual_tool_mix[MIXING_VIRTUAL_TOOLS][MIXING_STEPPERS];
   #endif
@@ -865,11 +868,20 @@ void setup_homepin(void) {
 #if HAS_CASE_LIGHT
 
   void setup_case_light() {
-    #if ENABLED(CASE_LIGHT_DEFAULT_ON)
-      OUT_WRITE(CASE_LIGHT_PIN, HIGH);
-    #else
-      OUT_WRITE(CASE_LIGHT_PIN, LOW);
-    #endif
+    digitalWrite(CASE_LIGHT_PIN,
+      #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+        255
+      #else
+        0
+      #endif
+    );
+    analogWrite(CASE_LIGHT_PIN,
+      #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+        255
+      #else
+        0
+      #endif
+    );
   }
 
 #endif
@@ -2385,7 +2397,7 @@ static void clean_up_after_endstop_or_probe_move() {
     }
     SERIAL_EOL;
     for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++) {
-      if (y < 9) SERIAL_PROTOCOLCHAR(' ');
+      if (y < 10) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)y);
       for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
         SERIAL_PROTOCOLCHAR(' ');
@@ -2721,30 +2733,36 @@ static void homeaxis(AxisEnum axis) {
 
   void normalize_mix() {
     float mix_total = 0.0;
-    for (int i = 0; i < MIXING_STEPPERS; i++) {
-      float v = mixing_factor[i];
-      if (v < 0) v = mixing_factor[i] = 0;
-      mix_total += v;
-    }
+    for (int i = 0; i < MIXING_STEPPERS; i++) mix_total += RECIPROCAL(mixing_factor[i]);
     // Scale all values if they don't add up to ~1.0
-    if (mix_total < 0.9999 || mix_total > 1.0001) {
+    if (!NEAR(mix_total, 1.0)) {
       SERIAL_PROTOCOLLNPGM("Warning: Mix factors must add up to 1.0. Scaling.");
-      float mix_scale = 1.0 / mix_total;
-      for (int i = 0; i < MIXING_STEPPERS; i++)
-        mixing_factor[i] *= mix_scale;
+      for (int i = 0; i < MIXING_STEPPERS; i++) mixing_factor[i] *= mix_total;
     }
   }
 
   #if ENABLED(DIRECT_MIXING_IN_G1)
     // Get mixing parameters from the GCode
-    // Factors that are left out are set to 0
     // The total "must" be 1.0 (but it will be normalized)
+    // If no mix factors are given, the old mix is preserved
     void gcode_get_mix() {
       const char* mixing_codes = "ABCDHI";
-      for (int i = 0; i < MIXING_STEPPERS; i++)
-        mixing_factor[i] = code_seen(mixing_codes[i]) ? code_value_float() : 0;
-
-      normalize_mix();
+      byte mix_bits = 0;
+      for (uint8_t i = 0; i < MIXING_STEPPERS; i++) {
+        if (code_seen(mixing_codes[i])) {
+          SBI(mix_bits, i);
+          float v = code_value_float();
+          NOLESS(v, 0.0);
+          mixing_factor[i] = RECIPROCAL(v);
+        }
+      }
+      // If any mixing factors were included, clear the rest
+      // If none were included, preserve the last mix
+      if (mix_bits) {
+        for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
+          if (!TEST(mix_bits, i)) mixing_factor[i] = 0.0;
+        normalize_mix();
+      }
     }
   #endif
 
@@ -4305,8 +4323,20 @@ inline void gcode_G28() {
 
   /**
    * G30: Do a single Z probe at the current XY
+   * Usage:
+   *   G30 <X#> <Y#> <S#>
+   *     X = Probe X position (default=current probe position)
+   *     Y = Probe Y position (default=current probe position)
+   *     S = Stows the probe if 1 (default=1)
    */
   inline void gcode_G30() {
+    float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
+          Y_probe_location = code_seen('Y') ? code_value_axis_units(Y_AXIS) : current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
+
+    float pos[XYZ] = { X_probe_location, Y_probe_location, LOGICAL_Z_POSITION(0) };
+    if (!position_is_reachable(pos, true)) return;
+
+    bool stow = code_seen('S') ? code_value_bool() : true;
 
     // Disable leveling so the planner won't mess with us
     #if PLANNER_LEVELING
@@ -4315,17 +4345,14 @@ inline void gcode_G28() {
 
     setup_for_endstop_or_probe_move();
 
-    float measured_z = probe_pt(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
-                                current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
-                                true, 1);
+    float measured_z = probe_pt(X_probe_location, Y_probe_location, stow, 1);
 
     SERIAL_PROTOCOLPGM("Bed X: ");
-    SERIAL_PROTOCOL(current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER + 0.0001);
+    SERIAL_PROTOCOL(X_probe_location + 0.0001);
     SERIAL_PROTOCOLPGM(" Y: ");
-    SERIAL_PROTOCOL(current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER + 0.0001);
+    SERIAL_PROTOCOL(Y_probe_location + 0.0001);
     SERIAL_PROTOCOLPGM(" Z: ");
-    SERIAL_PROTOCOL(measured_z + 0.0001);
-    SERIAL_EOL;
+    SERIAL_PROTOCOLLN(measured_z + 0.0001);
 
     clean_up_after_endstop_or_probe_move();
 
@@ -5141,6 +5168,10 @@ inline void gcode_M104() {
 
     if (code_value_temp_abs() > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
+  
+  #if ENABLED(AUTOTEMP)
+    planner.autotemp_M104_M109();
+  #endif
 }
 
 #if HAS_TEMP_HOTEND || HAS_TEMP_BED
@@ -5211,6 +5242,31 @@ inline void gcode_M105() {
 
   SERIAL_EOL;
 }
+
+#if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+
+  static uint8_t auto_report_temp_interval;
+  static millis_t next_temp_report_ms;
+
+  /**
+   * M155: Set temperature auto-report interval. M155 S<seconds>
+   */
+  inline void gcode_M155() {
+    if (code_seen('S')) {
+      auto_report_temp_interval = code_value_byte();
+      NOMORE(auto_report_temp_interval, 60);
+      next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
+    }
+  }
+
+  inline void auto_report_temperatures() {
+    if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
+      next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
+      print_heaterstates();
+    }
+  }
+
+#endif // AUTO_REPORT_TEMPERATURES
 
 #if FAN_COUNT > 0
 
@@ -5311,7 +5367,7 @@ inline void gcode_M109() {
   }
 
   #if ENABLED(AUTOTEMP)
-    planner.autotemp_M109();
+    planner.autotemp_M104_M109();
   #endif
 
   #if TEMP_RESIDENCY_TIME > 0
@@ -5822,7 +5878,71 @@ inline void gcode_M114() { report_current_position(); }
  * M115: Capabilities string
  */
 inline void gcode_M115() {
-  SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
+  SERIAL_PROTOCOLLNPGM(MSG_M115_REPORT);
+
+  #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
+
+    // EEPROM (M500, M501)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if ENABLED(EEPROM_SETTINGS)
+      SERIAL_PROTOCOLLNPGM("EEPROM:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("EEPROM:0");
+    #endif
+
+    // AUTOREPORT_TEMP (M155)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if ENABLED(AUTO_REPORT_TEMPERATURES)
+      SERIAL_PROTOCOLLNPGM("AUTOREPORT_TEMP:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("AUTOREPORT_TEMP:0");
+    #endif
+
+    // PROGRESS (M530 S L, M531 <file>, M532 X L)
+    SERIAL_PROTOCOLPGM("Cap:");
+    SERIAL_PROTOCOLPGM("PROGRESS:0");
+
+    // AUTOLEVEL (G29)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if HAS_ABL
+      SERIAL_PROTOCOLLNPGM("AUTOLEVEL:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("AUTOLEVEL:0");
+    #endif
+
+    // Z_PROBE (G30)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if HAS_BED_PROBE
+      SERIAL_PROTOCOLLNPGM("Z_PROBE:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("Z_PROBE:0");
+    #endif
+
+    // SOFTWARE_POWER (G30)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if HAS_POWER_SWITCH
+      SERIAL_PROTOCOLLNPGM("SOFTWARE_POWER:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("SOFTWARE_POWER:0");
+    #endif
+
+    // TOGGLE_LIGHTS (M355)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if HAS_CASE_LIGHT
+      SERIAL_PROTOCOLLNPGM("TOGGLE_LIGHTS:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("TOGGLE_LIGHTS:0");
+    #endif
+
+    // EMERGENCY_PARSER (M108, M112, M410)
+    SERIAL_PROTOCOLPGM("Cap:");
+    #if ENABLED(EMERGENCY_PARSER)
+      SERIAL_PROTOCOLLNPGM("EMERGENCY_PARSER:1");
+    #else
+      SERIAL_PROTOCOLLNPGM("EMERGENCY_PARSER:0");
+    #endif
+
+  #endif // EXTENDED_CAPABILITIES_REPORT
 }
 
 /**
@@ -5861,59 +5981,6 @@ inline void gcode_M121() { endstops.enable_globally(false); }
   }
 
 #endif // BLINKM
-
-#if ENABLED(EXPERIMENTAL_I2CBUS)
-
-  /**
-   * M155: Send data to a I2C slave device
-   *
-   * This is a PoC, the formating and arguments for the GCODE will
-   * change to be more compatible, the current proposal is:
-   *
-   *  M155 A<slave device address base 10> ; Sets the I2C slave address the data will be sent to
-   *
-   *  M155 B<byte-1 value in base 10>
-   *  M155 B<byte-2 value in base 10>
-   *  M155 B<byte-3 value in base 10>
-   *
-   *  M155 S1 ; Send the buffered data and reset the buffer
-   *  M155 R1 ; Reset the buffer without sending data
-   *
-   */
-  inline void gcode_M155() {
-    // Set the target address
-    if (code_seen('A')) i2c.address(code_value_byte());
-
-    // Add a new byte to the buffer
-    if (code_seen('B')) i2c.addbyte(code_value_byte());
-
-    // Flush the buffer to the bus
-    if (code_seen('S')) i2c.send();
-
-    // Reset and rewind the buffer
-    else if (code_seen('R')) i2c.reset();
-  }
-
-  /**
-   * M156: Request X bytes from I2C slave device
-   *
-   * Usage: M156 A<slave device address base 10> B<number of bytes>
-   */
-  inline void gcode_M156() {
-    if (code_seen('A')) i2c.address(code_value_byte());
-
-    uint8_t bytes = code_seen('B') ? code_value_byte() : 1;
-
-    if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE) {
-      i2c.relay(bytes);
-    }
-    else {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLN("Bad i2c request");
-    }
-  }
-
-#endif // EXPERIMENTAL_I2CBUS
 
 /**
  * M200: Set filament diameter and set E axis units to cubic units
@@ -6260,6 +6327,59 @@ inline void gcode_M226() {
     } // pin_state -1 0 1 && pin_number > -1
   } // code_seen('P')
 }
+
+#if ENABLED(EXPERIMENTAL_I2CBUS)
+
+  /**
+   * M260: Send data to a I2C slave device
+   *
+   * This is a PoC, the formating and arguments for the GCODE will
+   * change to be more compatible, the current proposal is:
+   *
+   *  M260 A<slave device address base 10> ; Sets the I2C slave address the data will be sent to
+   *
+   *  M260 B<byte-1 value in base 10>
+   *  M260 B<byte-2 value in base 10>
+   *  M260 B<byte-3 value in base 10>
+   *
+   *  M260 S1 ; Send the buffered data and reset the buffer
+   *  M260 R1 ; Reset the buffer without sending data
+   *
+   */
+  inline void gcode_M260() {
+    // Set the target address
+    if (code_seen('A')) i2c.address(code_value_byte());
+
+    // Add a new byte to the buffer
+    if (code_seen('B')) i2c.addbyte(code_value_byte());
+
+    // Flush the buffer to the bus
+    if (code_seen('S')) i2c.send();
+
+    // Reset and rewind the buffer
+    else if (code_seen('R')) i2c.reset();
+  }
+
+  /**
+   * M261: Request X bytes from I2C slave device
+   *
+   * Usage: M261 A<slave device address base 10> B<number of bytes>
+   */
+  inline void gcode_M261() {
+    if (code_seen('A')) i2c.address(code_value_byte());
+
+    uint8_t bytes = code_seen('B') ? code_value_byte() : 1;
+
+    if (i2c.addr && bytes && bytes <= TWIBUS_BUFFER_SIZE) {
+      i2c.relay(bytes);
+    }
+    else {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLN("Bad i2c request");
+    }
+  }
+
+#endif // EXPERIMENTAL_I2CBUS
 
 #if HAS_SERVOS
 
@@ -7170,33 +7290,30 @@ inline void gcode_M907() {
 #endif // HAS_MICROSTEPS
 
 #if HAS_CASE_LIGHT
+
   /**
-   * M355: Turn case lights on/off
+   * M355: Turn case lights on/off and set brightness
    *
-   *   S<int>   change state on/off or sets PWM
-   *
+   *   S<bool>  Turn case light on or off
+   *   P<byte>  Set case light brightness (PWM pin required)
    */
   inline void gcode_M355() {
+    static bool case_light_on
+      #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+        = true
+      #else
+    ;
+    #endif
+    static uint8_t case_light_brightness = 255;
+    if (code_seen('P')) case_light_brightness = code_value_byte();
     if (code_seen('S')) {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM("Case lights ");
-      byte light_pwm = code_value_byte();
-      switch (light_pwm) {
-        case 0: // Disable lights
-          SERIAL_ECHOPGM("off");
-          break;
-        case 1: // Enable lights
-          light_pwm = 255;
-          SERIAL_ECHOPGM("on");
-          break;
-        default: // Enable lights PWM
-          SERIAL_ECHOPAIR("set to: ", (int)map(light_pwm, 0, 255, 0, 100));
-          SERIAL_CHAR('%');
-          break;
-      }
-      analogWrite(CASE_LIGHT_PIN, light_pwm);
-      SERIAL_EOL;
+      case_light_on = code_value_bool();
+      digitalWrite(CASE_LIGHT_PIN, case_light_on ? HIGH : LOW);
+      analogWrite(CASE_LIGHT_PIN, case_light_on ? case_light_brightness : 0);
     }
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM("Case lights ");
+    case_light_on ? SERIAL_ECHOLNPGM("on") : SERIAL_ECHOLNPGM("off");
   }
 
 #endif // HAS_CASE_LIGHT
@@ -7213,8 +7330,11 @@ inline void gcode_M907() {
    */
   inline void gcode_M163() {
     int mix_index = code_seen('S') ? code_value_int() : 0;
-    float mix_value = code_seen('P') ? code_value_float() : 0.0;
-    if (mix_index < MIXING_STEPPERS) mixing_factor[mix_index] = mix_value;
+    if (mix_index < MIXING_STEPPERS) {
+      float mix_value = code_seen('P') ? code_value_float() : 0.0;
+      NOLESS(mix_value, 0.0);
+      mixing_factor[mix_index] = RECIPROCAL(mix_value);
+    }
   }
 
   #if MIXING_VIRTUAL_TOOLS > 1
@@ -7917,6 +8037,12 @@ void process_next_command() {
         KEEPALIVE_STATE(NOT_BUSY);
         return; // "ok" already printed
 
+      #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+        case 155: // M155: Set temperature auto-report interval
+          gcode_M155();
+          break;
+      #endif
+
       case 109: // M109: Wait for hotend temperature to reach target
         gcode_M109();
         break;
@@ -8026,18 +8152,6 @@ void process_next_command() {
           break;
 
       #endif // BLINKM
-
-      #if ENABLED(EXPERIMENTAL_I2CBUS)
-
-        case 155: // M155: Send data to an i2c slave
-          gcode_M155();
-          break;
-
-        case 156: // M156: Request data from an i2c slave
-          gcode_M156();
-          break;
-
-      #endif //EXPERIMENTAL_I2CBUS
 
       #if ENABLED(MIXING_EXTRUDER)
         case 163: // M163: Set a component weight for mixing extruder
@@ -8160,6 +8274,18 @@ void process_next_command() {
           gcode_M250();
           break;
       #endif // HAS_LCD_CONTRAST
+
+      #if ENABLED(EXPERIMENTAL_I2CBUS)
+
+        case 260: // M260: Send data to an i2c slave
+          gcode_M260();
+          break;
+
+        case 261: // M261: Request data from an i2c slave
+          gcode_M261();
+          break;
+
+      #endif // EXPERIMENTAL_I2CBUS
 
       #if ENABLED(PREVENT_COLD_EXTRUSION)
         case 302: // M302: Allow cold extrudes (set the minimum extrude temperature)
@@ -9594,7 +9720,7 @@ void disable_all_steppers() {
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #if ENABLED(FILAMENT_RUNOUT_SENSOR)
-    if ((IS_SD_PRINTING || print_job_timer.isRunning()) && !(READ(FIL_RUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
+    if ((IS_SD_PRINTING || print_job_timer.isRunning()) && (READ(FIL_RUNOUT_PIN) == FIL_RUNOUT_INVERTING))
       handle_filament_runout();
   #endif
 
@@ -9775,7 +9901,13 @@ void idle(
   #endif
 ) {
   lcd_update();
+
   host_keepalive();
+
+  #if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+    auto_report_temperatures();
+  #endif
+
   manage_inactivity(
     #if ENABLED(FILAMENT_CHANGE_FEATURE)
       no_stepper_sleep
@@ -9987,7 +10119,7 @@ void setup() {
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
     // Initialize mixing to 100% color 1
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      mixing_factor[i] = (i == 0) ? 1 : 0;
+      mixing_factor[i] = (i == 0) ? 1.0 : 0.0;
     for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
       for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
         mixing_virtual_tool_mix[t][i] = mixing_factor[i];

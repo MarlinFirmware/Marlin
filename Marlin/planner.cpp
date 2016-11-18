@@ -662,7 +662,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
       }
       #if ENABLED(PREVENT_LENGTHY_EXTRUDE)
-        if (labs(de) > axis_steps_per_mm[E_AXIS] * (EXTRUDE_MAXLENGTH)) {
+        if (labs(de) > (int32_t)axis_steps_per_mm[E_AXIS] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
           SERIAL_ECHO_START;
@@ -699,10 +699,11 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
   if (de < 0) SBI(dm, E_AXIS);
 
-  int32_t esteps = labs(de) * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01 + 0.5;
+  float esteps_float = de * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01;
+  int32_t esteps = abs(esteps_float) + 0.5;
 
   // Calculate the buffer head after we push this byte
-  int next_buffer_head = next_block_index(block_buffer_head);
+  int8_t next_buffer_head = next_block_index(block_buffer_head);
 
   // If the buffer is full: good! That means we are well ahead of the robot.
   // Rest here until there is room in the buffer.
@@ -750,7 +751,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // For a mixing extruder, get a magnified step_event_count for each
   #if ENABLED(MIXING_EXTRUDER)
     for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
-      block->mix_event_count[i] = UNEAR_ZERO(mixing_factor[i]) ? 0 : block->step_event_count / mixing_factor[i];
+      block->mix_event_count[i] = mixing_factor[i] * block->step_event_count;
   #endif
 
   #if FAN_COUNT > 0
@@ -798,7 +799,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
-      for (int i = 0; i < EXTRUDERS; i++)
+      for (int8_t i = 0; i < EXTRUDERS; i++)
         if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
 
       switch(extruder) {
@@ -903,7 +904,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     delta_mm[Y_AXIS] = db * steps_to_mm[Y_AXIS];
     delta_mm[Z_AXIS] = dc * steps_to_mm[Z_AXIS];
   #endif
-  delta_mm[E_AXIS] = 0.01 * (de * steps_to_mm[E_AXIS]) * volumetric_multiplier[extruder] * flow_percentage[extruder];
+  delta_mm[E_AXIS] = esteps_float * steps_to_mm[E_AXIS];
 
   if (block->steps[X_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Y_AXIS] < MIN_STEPS_PER_SEGMENT && block->steps[Z_AXIS] < MIN_STEPS_PER_SEGMENT) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
@@ -1251,7 +1252,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
     else {
       block->use_advance_lead = true;
-      block->abs_adv_steps_multiplier8 = lround(extruder_advance_k * (de_float / mm_D_float) * block->nominal_speed / (float)block->nominal_rate * axis_steps_per_mm[Z_AXIS] * 256.0);
+      block->abs_adv_steps_multiplier8 = lround(extruder_advance_k * (de_float / mm_D_float) * block->nominal_speed / (float)block->nominal_rate * axis_steps_per_mm[E_AXIS] * 256.0);
     }
 
   #elif ENABLED(ADVANCE)
@@ -1360,7 +1361,7 @@ void Planner::refresh_positioning() {
 
 #if ENABLED(AUTOTEMP)
 
-  void Planner::autotemp_M109() {
+  void Planner::autotemp_M104_M109() {
     autotemp_enabled = code_seen('F');
     if (autotemp_enabled) autotemp_factor = code_value_temp_diff();
     if (code_seen('S')) autotemp_min = code_value_temp_abs();
