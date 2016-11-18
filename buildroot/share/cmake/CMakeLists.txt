@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 2.8)
 #====================================================================#
 # Usage under Linux:                                                 #
 #                                                                    #
-#    From Marlin sourcefolder:                                       #
-#        mkdir build && cd build                                     #
+#    From buildroot/share/cmake folder:                              #
+#        mkdir -p build && cd build                                  #
 #        cmake ..                                                    #
 #        make                                                        #
 #                                                                    #
 # Usage under Windows:                                               #
 #                                                                    #
-#    From Marlin sourcefolder:                                       #
+#    From buildroot/share/cmake folder:                              #
 #        mkdir build && cd build                                     #
 #        cmake -G"Unix Makefiles" ..                                 #
 #        make                                                        #
@@ -87,4 +87,4 @@ print_programmer_list()
 #====================================================================#
 #  add the project directory into build                              #
 #====================================================================#
-add_subdirectory(Marlin)
+add_subdirectory(../../../Marlin ./Marlin)
