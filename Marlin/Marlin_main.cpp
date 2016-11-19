@@ -7227,7 +7227,7 @@ inline void gcode_M907() {
   inline void gcode_M355() {
     static bool case_light_on
       #if ENABLED(CASE_LIGHT_DEFAULT_ON)
-        = true
+        = true;
       #else
     ;
     #endif
