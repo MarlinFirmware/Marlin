@@ -524,6 +524,16 @@ static uint8_t target_extruder;
   ;
 #endif
 
+#if ENABLED(ULTIPANEL) && HAS_CASE_LIGHT
+  bool case_light_on =
+    #if ENABLED(CASE_LIGHT_DEFAULT_ON)
+      true
+    #else
+      false
+    #endif
+  ;
+#endif
+
 #if ENABLED(DELTA)
 
   #define SIN_60 0.8660254037844386
@@ -7219,12 +7229,6 @@ inline void gcode_M907() {
    *   P<byte>  Set case light brightness (PWM pin required)
    */
   inline void gcode_M355() {
-    static bool case_light_on
-      #if ENABLED(CASE_LIGHT_DEFAULT_ON)
-        = true;
-      #else
-    ;
-    #endif
     static uint8_t case_light_brightness = 255;
     if (code_seen('P')) case_light_brightness = code_value_byte();
     if (code_seen('S')) {
