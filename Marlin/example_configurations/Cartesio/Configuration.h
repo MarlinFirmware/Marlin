@@ -445,6 +445,9 @@
 #define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 
+// If all used endstop pins are able to cause interrupts, you can enable ENDSTOP_INTERRUPTS_FEATURE.
+// Then the function testing the endstops will only be called, if the state of one of the endstops changed.
+//#define ENDSTOP_INTERRUPTS_FEATURE
 
 //=============================================================================
 //============================== Movement Settings ============================
