@@ -374,7 +374,7 @@ class Planner {
       static bool long_move() {
         if (blocks_queued()) {
           block_t* block = &block_buffer[block_buffer_tail];
-          return (block->segment_time > (LCD_UPDATE_THRESHOLD * 1000UL));
+          return block->segment_time > (LCD_UPDATE_THRESHOLD) * 1000UL;
         }
         else
           return true;
