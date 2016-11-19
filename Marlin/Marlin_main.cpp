@@ -89,6 +89,9 @@
   #include "twibus.h"
 #endif
 
+#if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+  #include "endstop_interrupts.h"
+#endif
 /**
  * Look here for descriptions of G-codes:
  *  - http://linuxcnc.org/handbook/gcode/g-code.html
@@ -10014,6 +10017,10 @@ void setup() {
   #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
     i2c.onReceive(i2c_on_receive);
     i2c.onRequest(i2c_on_request);
+  #endif
+
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+    setup_enstop_interrupts();
   #endif
 }
 
