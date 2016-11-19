@@ -728,6 +728,7 @@
 #endif
 
 #define HAVE_TMC2130
+//#define TMC2130_ADVANCED_SETTINGS // Settings below
 
 #if ENABLED(HAVE_TMC2130)
   #define R_SENSE 0.11 // R_sense resistor for SilentStepStick2130
@@ -784,6 +785,56 @@
   //#define E3_MICROSTEPS 16 // FULLSTEP..256
   //#define E3_CHIP_SELECT
 #endif
+
+/*
+ * You can set your own advanced settings by filling in predefined functions.
+ * You can find a list of available functions from the library github page
+ * https://github.com/teemuatlut/TMC2130Stepper
+ */
+#if defined(TMC2130_ADVANCED_SETTINGS)
+  #define X_ADV() { \
+	  stepperX.power_down_delay(255); \
+	  stepperX.shaft_dir(0); \
+  }
+
+  #define Y_ADV() { \
+	}
+
+	#define Z_ADV() { \
+	}
+
+	#define X2_ADV() { \
+	}
+
+  #define Y2_ADV() { \
+	}
+
+  #define Z2_ADV() { \
+	}
+
+  #define E0_ADV() { \
+	}
+
+  #define E1_ADV() { \
+	}
+
+  #define E2_ADV() { \
+	}
+
+  #define E3_ADV() { \
+	}
+#else
+	#define X_ADV() {NOOP;}
+	#define Y_ADV() {NOOP;}
+	#define Z_ADV() {NOOP;}
+	#define X2_ADV() {NOOP;}
+	#define Y2_ADV() {NOOP;}
+	#define Z2_ADV() {NOOP;}
+	#define E0_ADV() {NOOP;}
+	#define E1_ADV() {NOOP;}
+	#define E2_ADV() {NOOP;}
+	#define E3_ADV() {NOOP;}
+#endif  
 
 /******************************************************************************\
  * enable this section if you have L6470  motor drivers.

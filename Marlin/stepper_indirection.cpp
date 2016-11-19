@@ -172,6 +172,7 @@ void tmc_init() {
     stepper##A.hysterisis_low(-2); \
     stepper##A.blank_time(24); \
     stepper##A.off_time(5); \
+    A##_ADV(); \
   } while(0)
 
   void tmc2130_init() {
