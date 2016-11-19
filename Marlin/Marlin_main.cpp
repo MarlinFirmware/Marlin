@@ -92,6 +92,7 @@
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   #include "endstop_interrupts.h"
 #endif
+
 /**
  * Look here for descriptions of G-codes:
  *  - http://linuxcnc.org/handbook/gcode/g-code.html
@@ -10020,7 +10021,7 @@ void setup() {
   #endif
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    setup_enstop_interrupts();
+    setup_endstop_interrupts();
   #endif
 }
 
