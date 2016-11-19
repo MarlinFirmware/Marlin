@@ -110,6 +110,9 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   #if HAS_POWER_SWITCH
     extern bool powersupply;
   #endif
+  #if HAS_CASE_LIGHT
+    extern bool case_light_on;
+  #endif
   const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
   static void lcd_main_menu();
   static void lcd_tune_menu();
@@ -581,6 +584,16 @@ void kill_screen(const char* lcd_msg) {
     START_MENU();
     MENU_BACK(MSG_WATCH);
 
+    //
+    // Switch case light on/off
+    //
+    #if HAS_CASE_LIGHT && ENABLED(MENU_ITEM_CASE_LIGHT)
+      if (case_light_on == 0)
+        MENU_ITEM(gcode, MSG_LIGHTS_ON, PSTR("M355 S1"));
+      else
+        MENU_ITEM(gcode, MSG_LIGHTS_OFF, PSTR("M355 S0"));
+    #endif
+
     #if ENABLED(BLTOUCH)
       if (!endstops.z_probe_enabled && TEST_BLTOUCH())
         MENU_ITEM(gcode, MSG_BLTOUCH_RESET, PSTR("M280 P" STRINGIFY(Z_ENDSTOP_SERVO_NR) " S" STRINGIFY(BLTOUCH_RESET)));
@@ -857,7 +870,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void lcd_dac_menu() {
       dac_driver_getValues();
-      START_MENU();    
+      START_MENU();
       MENU_BACK(MSG_CONTROL);
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_X " " MSG_DAC_PERCENT, &driverPercent[X_AXIS], 0, 100, dac_driver_commit);
       MENU_ITEM_EDIT_CALLBACK(int3, MSG_Y " " MSG_DAC_PERCENT, &driverPercent[Y_AXIS], 0, 100, dac_driver_commit);
@@ -1547,7 +1560,7 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
     #endif
     #if ENABLED(DAC_STEPPER_CURRENT)
-      MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu); 
+      MENU_ITEM(submenu, MSG_DRIVE_STRENGTH, lcd_dac_menu);
     #endif
 
     #if ENABLED(EEPROM_SETTINGS)
