@@ -378,19 +378,21 @@ void Stepper::isr() {
   }
 
   // Update endstops state, if enabled
-  if (endstops.enabled
+  if ((endstops.enabled
     #if HAS_BED_PROBE
       || endstops.z_probe_enabled
     #endif
-  )
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if(e_hit) {
-  #endif
-      endstops.update();
-  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+    )
+    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+      && e_hit
+    #endif
+  ) {
+    endstops.update();
+
+    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
       e_hit--;
-    }
-  #endif
+    #endif
+  }
 
   // Take multiple steps per interrupt (For high speed moves)
   bool all_steps_done = false;
