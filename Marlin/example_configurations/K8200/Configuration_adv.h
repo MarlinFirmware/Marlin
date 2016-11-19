@@ -20,12 +20,6 @@
  *
  */
 
-// Sample configuration file for Vellemann K8200
-// tested on K8200 with VM8201 (Display)
-// and Arduino 1.6.8 (Mac) by @CONSULitAS, 2016-02-21
-// https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_stable_2016-02-21.zip
-
-
 /**
  * Configuration_adv.h
  *
@@ -36,6 +30,15 @@
  * Basic settings can be found in Configuration.h
  *
  */
+
+ /**
+  * Sample configuration file for Vellemann K8200
+  * tested on K8200 with VM8201 (Display)
+  * and Arduino 1.6.12 (Mac) by @CONSULitAS, 2016-11-18
+  * https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_stable_2016-11-18.zip
+  *
+  */
+
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
 
@@ -80,6 +83,7 @@
  * If you get false positives for "Thermal Runaway" increase THERMAL_PROTECTION_HYSTERESIS and/or THERMAL_PROTECTION_PERIOD
  */
 #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+  // K8200 has weak heaters/power supply by default, so you have to relax!
   #define THERMAL_PROTECTION_PERIOD 60        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 8     // Degrees Celsius
 
@@ -92,16 +96,19 @@
    * If you get false positives for "Heating failed" increase WATCH_TEMP_PERIOD and/or decrease WATCH_TEMP_INCREASE
    * WATCH_TEMP_INCREASE should not be below 2.
    */
+  // K8200 has weak heaters/power supply by default, so you have to relax!
   #define WATCH_TEMP_PERIOD 30                // Seconds
-  #define WATCH_TEMP_INCREASE 4               // Degrees Celsius
+  #define WATCH_TEMP_INCREASE 2               // Degrees Celsius
 #endif
 
 /**
  * Thermal Protection parameters for the bed are just as above for hotends.
  */
 #if ENABLED(THERMAL_PROTECTION_BED)
-  #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
-  #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+// K8200 has weak heaters/power supply by default, so you have to relax!
+// the default bed is so weak, that you can hardly go over 75°C
+  #define THERMAL_PROTECTION_BED_PERIOD 60    // Seconds
+  #define THERMAL_PROTECTION_BED_HYSTERESIS 10 // Degrees Celsius
 
   /**
    * Whenever an M140 or M190 increases the target temperature the firmware will wait for the
@@ -358,7 +365,7 @@
 // Default stepper release if idle. Set to 0 to deactivate.
 // Steppers will shut down DEFAULT_STEPPER_DEACTIVE_TIME seconds after the last move when DISABLE_INACTIVE_? is true.
 // Time can be set by M18 and M84.
-#define DEFAULT_STEPPER_DEACTIVE_TIME 60
+#define DEFAULT_STEPPER_DEACTIVE_TIME 120
 #define DISABLE_INACTIVE_X true
 #define DISABLE_INACTIVE_Y true
 #define DISABLE_INACTIVE_Z true  // set to false if the nozzle will fall down on your printed part when print has finished.
@@ -535,7 +542,7 @@
 //#define LIN_ADVANCE
 
 #if ENABLED(LIN_ADVANCE)
-  #define LIN_ADVANCE_K 75
+  #define LIN_ADVANCE_K 140 // start value for PLA on K8200
 #endif
 
 // @section leveling
@@ -567,7 +574,7 @@
 #endif
 
 // Moves (or segments) with fewer steps than this will be joined with the next move
-#define MIN_STEPS_PER_SEGMENT 3
+#define MIN_STEPS_PER_SEGMENT 6
 
 // The minimum pulse width (in µs) for stepping a stepper.
 // Set this if you find stepping unreliable, or if using a very fast CPU.
@@ -605,7 +612,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 0
+#define TX_BUFFER_SIZE 128
 
 // Enable an emergency-command parser to intercept certain commands as they
 // enter the serial receive buffer, so they cannot be blocked.
@@ -644,9 +651,9 @@
 
 // Add support for experimental filament exchange support M600; requires display
 #if ENABLED(ULTIPANEL)
-  // #define FILAMENT_CHANGE_FEATURE             // Enable filament exchange menu and M600 g-code (used for runout sensor too)
+  #define FILAMENT_CHANGE_FEATURE               // Enable filament exchange menu and M600 g-code (used for runout sensor too)
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
-    #define FILAMENT_CHANGE_X_POS 3             // X position of hotend
+    #define FILAMENT_CHANGE_X_POS (X_MAX_POS-3) // X position of hotend
     #define FILAMENT_CHANGE_Y_POS 3             // Y position of hotend
     #define FILAMENT_CHANGE_Z_ADD 10            // Z addition of hotend (lift)
     #define FILAMENT_CHANGE_XY_FEEDRATE 100     // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
