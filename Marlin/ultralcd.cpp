@@ -2707,90 +2707,94 @@ void lcd_update() {
       }
     #endif // ULTIPANEL
 
+    #if ENABLED(ENSURE_SMOOTH_MOVES) && ENABLED(ALWAYS_ALLOW_MENU)
+      #define STATUS_UPDATE_CONDITION planner.long_move()
+    #else
+      #define STATUS_UPDATE_CONDITION true
+    #endif
+    #if ENABLED(ENSURE_SMOOTH_MOVES) && DISABLED(ALWAYS_ALLOW_MENU)
+      #define LCD_HANDLER_CONDITION planner.long_move()
+    #else
+      #define LCD_HANDLER_CONDITION true
+    #endif
+
     // We arrive here every ~100ms when idling often enough.
     // Instead of tracking the changes simply redraw the Info Screen ~1 time a second.
     static int8_t lcd_status_update_delay = 1; // first update one loop delayed
-    #if ENABLED(ENSURE_SMOOTH_MOVES) && ENABLED(ALWAYS_ALLOW_MENU)
-      if (planner.long_move()) {
-    #endif
-        if (
-          #if ENABLED(ULTIPANEL)
-            currentScreen == lcd_status_screen &&
-          #endif
-            !lcd_status_update_delay--) {
-          lcd_status_update_delay = 9;
-          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        }
-    #if ENABLED(ENSURE_SMOOTH_MOVES) && ENABLED(ALWAYS_ALLOW_MENU)
-      }
-    #endif
+    if (STATUS_UPDATE_CONDITION &&
+      #if ENABLED(ULTIPANEL)
+        currentScreen == lcd_status_screen &&
+      #endif
+        !lcd_status_update_delay--
+    ) {
+      lcd_status_update_delay = 9;
+      lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+    }
 
-    #if ENABLED(ENSURE_SMOOTH_MOVES) && DISABLED(ALWAYS_ALLOW_MENU)
-      if (planner.long_move()) {
-    #endif
-    if (lcdDrawUpdate) {
+    if (LCD_HANDLER_CONDITION) {
 
-      switch (lcdDrawUpdate) {
-        case LCDVIEW_CALL_NO_REDRAW:
-          lcdDrawUpdate = LCDVIEW_NONE;
-          break;
-        case LCDVIEW_CLEAR_CALL_REDRAW: // set by handlers, then altered after (rarely occurs here)
-        case LCDVIEW_CALL_REDRAW_NEXT:  // set by handlers, then altered after (never occurs here?)
-          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
-        case LCDVIEW_NONE:
-          break;
+      if (lcdDrawUpdate) {
+
+        switch (lcdDrawUpdate) {
+          case LCDVIEW_CALL_NO_REDRAW:
+            lcdDrawUpdate = LCDVIEW_NONE;
+            break;
+          case LCDVIEW_CLEAR_CALL_REDRAW: // set by handlers, then altered after (rarely occurs here)
+          case LCDVIEW_CALL_REDRAW_NEXT:  // set by handlers, then altered after (never occurs here?)
+            lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+          case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
+          case LCDVIEW_NONE:
+            break;
+        } // switch
+
+        #if ENABLED(ULTIPANEL)
+          #define CURRENTSCREEN() (*currentScreen)(), lcd_clicked = false
+        #else
+          #define CURRENTSCREEN() lcd_status_screen()
+        #endif
+
+        #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
+          static int8_t dot_color = 0;
+          dot_color = 1 - dot_color;
+          u8g.firstPage();
+          do {
+            lcd_setFont(FONT_MENU);
+            u8g.setPrintPos(125, 0);
+            u8g.setColorIndex(dot_color); // Set color for the alive dot
+            u8g.drawPixel(127, 63); // draw alive dot
+            u8g.setColorIndex(1); // black on white
+            CURRENTSCREEN();
+          } while (u8g.nextPage());
+        #else
+          CURRENTSCREEN();
+        #endif
       }
 
       #if ENABLED(ULTIPANEL)
-        #define CURRENTSCREEN() (*currentScreen)(), lcd_clicked = false
-      #else
-        #define CURRENTSCREEN() lcd_status_screen()
-      #endif
 
-      #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
-        static int8_t dot_color = 0;
-        dot_color = 1 - dot_color;
-        u8g.firstPage();
-        do {
-          lcd_setFont(FONT_MENU);
-          u8g.setPrintPos(125, 0);
-          u8g.setColorIndex(dot_color); // Set color for the alive dot
-          u8g.drawPixel(127, 63); // draw alive dot
-          u8g.setColorIndex(1); // black on white
-          CURRENTSCREEN();
-        } while (u8g.nextPage());
-      #else
-        CURRENTSCREEN();
-      #endif
-    }
+        // Return to Status Screen after a timeout
+        if (currentScreen == lcd_status_screen || defer_return_to_status)
+          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+        else if (ELAPSED(ms, return_to_status_ms))
+          lcd_return_to_status();
 
-    #if ENABLED(ULTIPANEL)
+      #endif // ULTIPANEL
 
-      // Return to Status Screen after a timeout
-      if (currentScreen == lcd_status_screen || defer_return_to_status)
-        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-      else if (ELAPSED(ms, return_to_status_ms))
-        lcd_return_to_status();
+      switch (lcdDrawUpdate) {
+        case LCDVIEW_CLEAR_CALL_REDRAW:
+          lcd_implementation_clear();
+        case LCDVIEW_CALL_REDRAW_NEXT:
+          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+          break;
+        case LCDVIEW_REDRAW_NOW:
+          lcdDrawUpdate = LCDVIEW_NONE;
+          break;
+        case LCDVIEW_NONE:
+          break;
+      } // switch
 
-    #endif // ULTIPANEL
+    } // LCD_HANDLER_CONDITION
 
-    switch (lcdDrawUpdate) {
-      case LCDVIEW_CLEAR_CALL_REDRAW:
-        lcd_implementation_clear();
-      case LCDVIEW_CALL_REDRAW_NEXT:
-        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        break;
-      case LCDVIEW_REDRAW_NOW:
-        lcdDrawUpdate = LCDVIEW_NONE;
-        break;
-      case LCDVIEW_NONE:
-        break;
-    }
-
-    #if ENABLED(ENSURE_SMOOTH_MOVES) && DISABLED(ALWAYS_ALLOW_MENU)
-      }
-    #endif
   }
 }
 
