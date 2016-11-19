@@ -794,7 +794,7 @@
 #if defined(TMC2130_ADVANCED_SETTINGS)
   #define X_ADV() { \
 	  stepperX.power_down_delay(255); \
-	  stepperX.shaft_dir(0); \
+	  stepperX.shaft_dir(1); \
   }
 
   #define Y_ADV() { \
