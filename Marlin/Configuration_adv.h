@@ -733,19 +733,19 @@
 #if ENABLED(HAVE_TMC2130)
   #define R_SENSE 0.11 // R_sense resistor for SilentStepStick2130
   #define HOLD_MULTIPLIER 0.5 // Scales down the holding current from run current
-  #define INTERPOLATE 1 // Interpolate X/Y/Z_MICROSTEPS to 256
+  #define INTERPOLATE 0 // Interpolate X/Y/Z_MICROSTEPS to 256
 
   #define X_IS_TMC2130
-  #define X_MAX_CURRENT 1000  // rms current in mA
+  #define X_MAX_CURRENT 800  // rms current in mA
   #define X_MICROSTEPS 16 // FULLSTEP..256
   #define X_CHIP_SELECT 40
 
-  #define Y_IS_TMC2130
-  #define Y_MAX_CURRENT 1000  //in mA
+  //#define Y_IS_TMC2130
+  #define Y_MAX_CURRENT 800  //in mA
   #define Y_MICROSTEPS 16 // FULLSTEP..256
   #define Y_CHIP_SELECT 42
 
-  #define Z_IS_TMC2130
+  //#define Z_IS_TMC2130
   #define Z_MAX_CURRENT 800  //in mA
   #define Z_MICROSTEPS 16 // FULLSTEP..256
   #define Z_CHIP_SELECT 65
@@ -793,8 +793,10 @@
  */
 #if defined(TMC2130_ADVANCED_SETTINGS)
   #define X_ADV() { \
-	  stepperX.power_down_delay(255); \
-	  stepperX.shaft_dir(1); \
+    stepperX.coolstep_min_speed(1048575); \
+    stepperX.sg_stall_value(0); \
+    stepperX.diag1_stall(1); \
+    stepperX.diag1_active_high(1); \
   }
 
   #define Y_ADV() { \
