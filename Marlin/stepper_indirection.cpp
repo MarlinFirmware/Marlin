@@ -163,18 +163,13 @@ void tmc_init() {
 // Use internal reference voltage for current calculations. This is the default.
 // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
   #define _TMC2130_INIT(A) do { \
-    stepper##A.begin(); \
-    stepper##A.external_ref(0); \
+    stepper##A.external_ref(1); \
     stepper##A.setCurrent(A##_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER); \
     stepper##A.microsteps((uint8_t)A##_MICROSTEPS); \
-    stepper##A.interpolate(INTERPOLATE); \
-    stepper##A.hysterisis_start(1); \
-    stepper##A.hysterisis_low(-2); \
     stepper##A.blank_time(24); \
-    stepper##A.off_time(5); \
-    A##_ADV(); \
+    stepper##A.off_time(8); \
   } while(0)
-
+  
   void tmc2130_init() {
     #if ENABLED(X_IS_TMC2130)
       _TMC2130_INIT(X);
