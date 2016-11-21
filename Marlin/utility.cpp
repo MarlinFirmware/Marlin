@@ -35,7 +35,7 @@ void safe_delay(millis_t ms) {
 
 #if ENABLED(ULTRA_LCD)
 
-  char conv[8];
+  char conv[9];
 
   #define DIGIT(n) ('0' + (n))
   #define DIGIMOD(n, f) DIGIT((n)/(f) % 10)
