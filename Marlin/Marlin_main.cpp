@@ -3438,7 +3438,7 @@ inline void gcode_G28() {
 
   endstops.not_homing();
 
-  #if ENABLED(DELTA)
+  #if ENABLED(DELTA) && ENABLED(DELTA_HOME_TO_SAFE_ZONE)
     // move to a height where we can use the full xy-area
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
