@@ -124,10 +124,17 @@
 #endif
 #define MSG_A_RETRACT                       "\xcb\xb7\xba\xd0\xb6\xbf\xb8\xc4\xde"                             // "ﾋｷｺﾐｶｿｸﾄﾞ" ("A-retract")
 #define MSG_A_TRAVEL                        "\xb2\xc4\xde\xb3\xb6\xbf\xb8\xc4\xde"                             // "ｲﾄﾞｳｶｿｸﾄﾞ" ("A-travel")
-#define MSG_XSTEPS                          "Xsteps/mm"
-#define MSG_YSTEPS                          "Ysteps/mm"
-#define MSG_ZSTEPS                          "Zsteps/mm"
-#define MSG_ESTEPS                          "Esteps/mm"
+#if LCD_WIDTH >= 20
+  #define MSG_XSTEPS                          "Xsteps/mm"
+  #define MSG_YSTEPS                          "Ysteps/mm"
+  #define MSG_ZSTEPS                          "Zsteps/mm"
+  #define MSG_ESTEPS                          "Esteps/mm"
+#else
+  #define MSG_XSTEPS                          "Xsteps"
+  #define MSG_YSTEPS                          "Ysteps"
+  #define MSG_ZSTEPS                          "Zsteps"
+  #define MSG_ESTEPS                          "Esteps"
+#endif
 #define MSG_TEMPERATURE                     "\xb5\xdd\xc4\xde"                                                 // "ｵﾝﾄﾞ" ("Temperature")
 #define MSG_MOTION                          "\xb3\xba\xde\xb7\xbe\xaf\xc3\xb2"                                 // "ｳｺﾞｷｾｯﾃｲ" ("Motion")
 #define MSG_VOLUMETRIC                      "\xcc\xa8\xd7\xd2\xdd\xc4"                                         // "ﾌｨﾗﾒﾝﾄ" ("Filament")
