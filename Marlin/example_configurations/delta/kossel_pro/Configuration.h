@@ -22,8 +22,6 @@
 
 /**
  * Example configuration file for OpenBeam Kossel Pro
- * tested on 2015-05-19 by @Wackerbarth
- * using Arduino 1.6.5 (Mac)
  */
 
 /**
@@ -440,6 +438,9 @@
   // If needed, adjust the X, Y, Z calibration coordinates
   // in ultralcd.cpp@lcd_delta_calibrate_menu()
   //#define DELTA_CALIBRATION_MENU
+
+  // After homing move down to a height where XY movement is unconstrained
+  #define DELTA_HOME_TO_SAFE_ZONE
 
   //#define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
 
