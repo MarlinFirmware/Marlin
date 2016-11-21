@@ -799,13 +799,13 @@
     stepperX.diag1_active_high(1); \
   }
 
-  #define Y_ADV() { \
+	#define Y_ADV() { \
 	}
 
-	#define Z_ADV() { \
+  #define Z_ADV() { \
 	}
 
-	#define X2_ADV() { \
+  #define X2_ADV() { \
 	}
 
   #define Y2_ADV() { \
@@ -826,9 +826,9 @@
   #define E3_ADV() { \
 	}
 #else
-	#define X_ADV() {NOOP;}
-	#define Y_ADV() {NOOP;}
-	#define Z_ADV() {NOOP;}
+	#define X_ADV()  {NOOP;}
+	#define Y_ADV()  {NOOP;}
+	#define Z_ADV()  {NOOP;}
 	#define X2_ADV() {NOOP;}
 	#define Y2_ADV() {NOOP;}
 	#define Z2_ADV() {NOOP;}
