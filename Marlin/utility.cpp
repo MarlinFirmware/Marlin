@@ -188,6 +188,21 @@ void safe_delay(millis_t ms) {
     return conv;
   }
 
+  // Convert signed float to string with +1234.56 format
+  char* ftostr62sign(const float& x) {
+    long xx = abs(x * 100);
+    conv[0] = MINUSOR(xx, '+');
+    conv[1] = DIGIMOD(xx, 100000);
+    conv[2] = DIGIMOD(xx, 10000);
+    conv[3] = DIGIMOD(xx, 1000);
+    conv[4] = DIGIMOD(xx, 100);
+    conv[5] = '.';
+    conv[6] = DIGIMOD(xx, 10);
+    conv[7] = DIGIMOD(xx, 1);
+    conv[8] = '\0';
+    return conv;
+  }
+
   // Convert signed float to space-padded string with -_23.4_ format
   char* ftostr52sp(const float& x) {
     long xx = x * 100;
