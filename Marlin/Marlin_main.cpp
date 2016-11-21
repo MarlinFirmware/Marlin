@@ -5891,6 +5891,58 @@ inline void gcode_M120() { endstops.enable_globally(true); }
  */
 inline void gcode_M121() { endstops.enable_globally(false); }
 
+#if ENABLED(HAVE_TMC2130DRIVER)
+
+  /**
+   * M122: Output Trinamic TMC2130 status to serial output. Very bad formatting.
+   */
+
+  static void tmc2130_report(Trinamic_TMC2130 &stepr, const char *name) {
+    stepr.read_STAT();
+    SERIAL_PROTOCOL(name);
+    SERIAL_PROTOCOL(": ");
+    stepr.isReset() ? SERIAL_PROTOCOLPGM("RESET ") : SERIAL_PROTOCOLPGM("----- ");
+    stepr.isError() ? SERIAL_PROTOCOLPGM("ERROR ") : SERIAL_PROTOCOLPGM("----- ");
+    stepr.isStallguard() ? SERIAL_PROTOCOLPGM("SLGRD ") : SERIAL_PROTOCOLPGM("----- ");
+    stepr.isStandstill() ? SERIAL_PROTOCOLPGM("STILL ") : SERIAL_PROTOCOLPGM("----- ");
+    SERIAL_PROTOCOLLN(stepr.debug());
+  }
+
+  inline void gcode_M122() {
+    SERIAL_PROTOCOLLNPGM("Reporting TMC2130 status");
+    #if ENABLED(X_IS_TMC2130)
+      tmc2130_report(stepperX, "X");
+    #endif
+    #if ENABLED(X2_IS_TMC2130)
+      tmc2130_report(stepperX2, "X2");
+    #endif
+    #if ENABLED(Y_IS_TMC2130)
+      tmc2130_report(stepperY, "Y");
+    #endif
+    #if ENABLED(Y2_IS_TMC2130)
+      tmc2130_report(stepperY2, "Y2");
+    #endif
+    #if ENABLED(Z_IS_TMC2130)
+      tmc2130_report(stepperZ, "Z");
+    #endif
+    #if ENABLED(Z2_IS_TMC2130)
+      tmc2130_report(stepperZ2, "Z2");
+    #endif
+    #if ENABLED(E0_IS_TMC2130)
+      tmc2130_report(stepperE0, "E0");
+    #endif
+    #if ENABLED(E1_IS_TMC2130)
+      tmc2130_report(stepperE1, "E1");
+    #endif
+    #if ENABLED(E2_IS_TMC2130)
+      tmc2130_report(stepperE2, "E2");
+    #endif
+    #if ENABLED(E3_IS_TMC2130)
+      tmc2130_report(stepperE3, "E3");
+    #endif
+  }
+#endif // HAVE_TMC2130DRIVER
+
 #if ENABLED(BLINKM)
 
   /**
@@ -8035,14 +8087,17 @@ void process_next_command() {
       case 92: // M92: Set the steps-per-unit for one or more axes
         gcode_M92();
         break;
+      case 114: // M114: Report current position
+        gcode_M114();
+        break;
       case 115: // M115: Report capabilities
         gcode_M115();
         break;
       case 117: // M117: Set LCD message text, if possible
         gcode_M117();
         break;
-      case 114: // M114: Report current position
-        gcode_M114();
+      case 119: // M119: Report endstop states
+        gcode_M119();
         break;
       case 120: // M120: Enable endstops
         gcode_M120();
@@ -8050,9 +8105,12 @@ void process_next_command() {
       case 121: // M121: Disable endstops
         gcode_M121();
         break;
-      case 119: // M119: Report endstop states
-        gcode_M119();
-        break;
+
+      #if ENABLED(HAVE_TMC2130DRIVER)
+        case 122: // M122: Diagnose, used to debug TMC2130
+          gcode_M122();
+          break;
+      #endif
 
       #if ENABLED(ULTIPANEL)
 
