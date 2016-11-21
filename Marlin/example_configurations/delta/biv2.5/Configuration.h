@@ -452,6 +452,9 @@
   // in ultralcd.cpp@lcd_delta_calibrate_menu()
   //#define DELTA_CALIBRATION_MENU
 
+  // After homing move down to a height where XY movement is unconstrained
+  #define DELTA_HOME_TO_SAFE_ZONE
+
   //#define DELTA_ENDSTOP_ADJ { 0, 0, 0 }
 
 #endif
