@@ -5609,6 +5609,11 @@ inline void gcode_M140() {
       OUT_WRITE(SUICIDE_PIN, HIGH);
     #endif
 
+    #if ENABLED(HAVE_TMC2130)
+      delay(100);
+      tmc2130_init();
+    #endif
+
     #if ENABLED(ULTIPANEL)
       powersupply = true;
       LCD_MESSAGEPGM(WELCOME_MSG);
