@@ -136,6 +136,10 @@ float Planner::previous_speed[NUM_AXIS],
   float Planner::position_float[NUM_AXIS] = { 0 };
 #endif
 
+#if ENABLED(ENSURE_SMOOTH_MOVES)
+  uint32_t Planner::block_buffer_runtime_us = 0;
+#endif
+
 /**
  * Class and Instance Methods
  */
@@ -954,6 +958,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
       segment_time = (MIN_BLOCK_TIME) * 1000UL;
     }
     block->segment_time = segment_time;
+    block_buffer_runtime_us += segment_time;
   #endif
 
   block->nominal_speed = block->millimeters * inverse_mm_s; // (mm/sec) Always > 0
