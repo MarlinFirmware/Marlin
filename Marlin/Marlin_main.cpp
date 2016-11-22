@@ -5619,6 +5619,10 @@ inline void gcode_M140() {
       LCD_MESSAGEPGM(WELCOME_MSG);
       lcd_update();
     #endif
+
+    #if ENABLED(HAVE_TMC2130)
+      tmc2130_init();
+    #endif
   }
 
 #endif // HAS_POWER_SWITCH
