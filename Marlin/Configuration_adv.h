@@ -729,6 +729,7 @@
 
 #define HAVE_TMC2130
 //#define TMC2130_ADVANCED_SETTINGS // Settings below
+#define CHECK_OVERTEMP
 
 #if ENABLED(HAVE_TMC2130)
   #define R_SENSE 0.11 // R_sense resistor for SilentStepStick2130
