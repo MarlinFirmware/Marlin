@@ -171,6 +171,16 @@ void tmc_init() {
     A##_ADV(); \
   } while(0)
   
+  #if ENABLED(STEALTHCHOP)
+    #define _TMC2130_STEALTH_CHOP(AX) { \
+      stepper##AX.coolstep_min_speed(0); \
+      stepper##AX.stealthChop(1); \
+      stepper##AX.stealth_max_speed(1); \
+    }
+  #else
+    #define _TMC2130_STEALTH_CHOP(AX) NOOP
+  #endif
+
   void tmc2130_init() {
     #if ENABLED(X_IS_TMC2130)
       _TMC2130_INIT(X);
