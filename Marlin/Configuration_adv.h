@@ -734,7 +734,7 @@
 #if ENABLED(HAVE_TMC2130)
   #define R_SENSE 0.11 // R_sense resistor for SilentStepStick2130
   #define HOLD_MULTIPLIER 0.5 // Scales down the holding current from run current
-  #define INTERPOLATE 0 // Interpolate X/Y/Z_MICROSTEPS to 256
+  #define INTERPOLATE 1 // Interpolate X/Y/Z_MICROSTEPS to 256
 
   #define X_IS_TMC2130
   #define X_MAX_CURRENT 800  // rms current in mA

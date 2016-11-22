@@ -167,6 +167,7 @@ void tmc_init() {
     stepper##A.microsteps((uint8_t)A##_MICROSTEPS); \
     stepper##A.blank_time(24); \
     stepper##A.off_time(8); \
+    stepper##A.interpolate(INTERPOLATE); \
     A##_ADV(); \
   } while(0)
   
