@@ -9497,13 +9497,13 @@ void disable_all_steppers() {
     #if ENABLED(Y_IS_TMC2130)
       OTPWMACRO(Y);
     #endif
-    #if ENABLED(Y_IS_TMC2130)
-      OTPWMACRO(Y);
+    #if ENABLED(Z_IS_TMC2130)
+      OTPWMACRO(Z);
     #endif
     #if ENABLED(X2_IS_TMC2130)
       OTPWMACRO(X2);
     #endif
-    #if ENABLED(Y_IS_TMC2130)
+    #if ENABLED(Y2_IS_TMC2130)
       OTPWMACRO(Y2);
     #endif
     #if ENABLED(Z2_IS_TMC2130)
