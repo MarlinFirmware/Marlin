@@ -612,7 +612,7 @@
 #define Z_MIN_POS 0
 #define X_MAX_POS 105
 #define Y_MAX_POS 100
-#define Z_MAX_POS 190
+#define Z_MAX_POS 200
 
 //===========================================================================
 //========================= Filament Runout Sensor ==========================
@@ -746,7 +746,7 @@
 
 // Homing speeds (mm/m)
 #define HOMING_FEEDRATE_XY (50*60)
-#define HOMING_FEEDRATE_Z  (8*60)
+#define HOMING_FEEDRATE_Z  ( 8*60)
 
 //
 // MOVEMENT SETTINGS
