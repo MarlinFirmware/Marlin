@@ -2418,7 +2418,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_POINTS_X - 1) * ABL_GRID_VIRT + 1
     #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_POINTS_Y - 1) * ABL_GRID_VIRT + 1
     float bed_level_grid_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
-    float bed_level_grid_virt_temp[ABL_GRID_POINTS_X + 2][ABL_GRID_POINTS_Y + 2];
+    float bed_level_grid_virt_temp[ABL_GRID_POINTS_X + 2][ABL_GRID_POINTS_Y + 2]; //temporary for calculation (maybe dynamical?)
     int bilinear_grid_spacing_virt[2] = { 0 };
 
     static void print_bed_level_virt() {
@@ -8530,15 +8530,15 @@ void ok_to_send() {
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   #if ENABLED(ABL_BILINEAR_INTERPOLATE)
-    #define ABLG_SPACING  bilinear_grid_spacing_virt
-    #define ABLG_POINTS_X ABL_GRID_POINTS_VIRT_X
-    #define ABLG_POINTS_Y ABL_GRID_POINTS_VIRT_Y
-    #define ABLG_GRID     bed_level_grid_virt
+    #define ABL_BG_SPACING  bilinear_grid_spacing_virt
+    #define ABL_BG_POINTS_X ABL_GRID_POINTS_VIRT_X
+    #define ABL_BG_POINTS_Y ABL_GRID_POINTS_VIRT_Y
+    #define ABL_BG_GRID     bed_level_grid_virt
   #else
-    #define ABLG_SPACING bilinear_grid_spacing
-    #define ABLG_POINTS_X ABL_GRID_POINTS_X
-    #define ABLG_POINTS_Y ABL_GRID_POINTS_Y
-    #define ABLG_GRID     bed_level_grid
+    #define ABL_BG_SPACING  bilinear_grid_spacing
+    #define ABL_BG_POINTS_X ABL_GRID_POINTS_X
+    #define ABL_BG_POINTS_Y ABL_GRID_POINTS_Y
+    #define ABL_BG_GRID     bed_level_grid
   #endif
 
   // Get the Z adjustment for non-linear bed leveling
@@ -8549,14 +8549,14 @@ void ok_to_send() {
                 y = RAW_Y_POSITION(cartesian[Y_AXIS]) - bilinear_start[Y_AXIS];
 
     // Convert to grid box units
-    float ratio_x = x / ABLG_SPACING[X_AXIS],
-          ratio_y = y / ABLG_SPACING[Y_AXIS];
+    float ratio_x = x / ABL_BG_SPACING[X_AXIS],
+          ratio_y = y / ABL_BG_SPACING[Y_AXIS];
 
     // Whole units for the grid line indices. Constrained within bounds.
-    const int gridx = constrain(floor(ratio_x), 0, ABLG_POINTS_X - 1),
-              gridy = constrain(floor(ratio_y), 0, ABLG_POINTS_Y - 1),
-              nextx = min(gridx + 1, ABLG_POINTS_X - 1),
-              nexty = min(gridy + 1, ABLG_POINTS_Y - 1);
+    const int gridx = constrain(floor(ratio_x), 0, ABL_BG_POINTS_X - 1),
+              gridy = constrain(floor(ratio_y), 0, ABL_BG_POINTS_Y - 1),
+              nextx = min(gridx + 1, ABL_BG_POINTS_X - 1),
+              nexty = min(gridy + 1, ABL_BG_POINTS_Y - 1);
 
     // Subtract whole to get the ratio within the grid box
     ratio_x -= gridx; ratio_y -= gridy;
@@ -8565,10 +8565,10 @@ void ok_to_send() {
     NOLESS(ratio_x, 0); NOLESS(ratio_y, 0);
 
     // Z at the box corners
-    const float z1 = ABLG_GRID[gridx][gridy],  // left-front
-                z2 = ABLG_GRID[gridx][nexty],  // left-back
-                z3 = ABLG_GRID[nextx][gridy],  // right-front
-                z4 = ABLG_GRID[nextx][nexty],  // right-back
+    const float z1 = ABL_BG_GRID[gridx][gridy],  // left-front
+                z2 = ABL_BG_GRID[gridx][nexty],  // left-back
+                z3 = ABL_BG_GRID[nextx][gridy],  // right-front
+                z4 = ABL_BG_GRID[nextx][nexty],  // right-back
 
                 // Bilinear interpolate
                 L = z1 + (z2 - z1) * ratio_y,   // Linear interp. LF -> LB
@@ -8916,7 +8916,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
 #elif ENABLED(AUTO_BED_LEVELING_BILINEAR) && !IS_KINEMATIC
 
-  #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) / ABLG_SPACING[A##_AXIS])
+  #define CELL_INDEX(A,V) ((RAW_##A##_POSITION(V) - bilinear_start[A##_AXIS]) / ABL_BG_SPACING[A##_AXIS])
 
   /**
    * Prepare a bilinear-leveled linear move on Cartesian,
@@ -8927,10 +8927,10 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         cy1 = CELL_INDEX(Y, current_position[Y_AXIS]),
         cx2 = CELL_INDEX(X, destination[X_AXIS]),
         cy2 = CELL_INDEX(Y, destination[Y_AXIS]);
-        cx1 = constrain(cx1, 0, ABLG_POINTS_X - 2);
-        cy1 = constrain(cy1, 0, ABLG_POINTS_Y - 2);
-        cx2 = constrain(cx2, 0, ABLG_POINTS_X - 2);
-        cy2 = constrain(cy2, 0, ABLG_POINTS_Y - 2);
+    cx1 = constrain(cx1, 0, ABL_BG_POINTS_X - 2);
+    cy1 = constrain(cy1, 0, ABL_BG_POINTS_Y - 2);
+    cx2 = constrain(cx2, 0, ABL_BG_POINTS_X - 2);
+    cy2 = constrain(cy2, 0, ABL_BG_POINTS_Y - 2);
 
     if (cx1 == cx2 && cy1 == cy2) {
       // Start and end on same mesh square
@@ -8947,14 +8947,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       memcpy(end, destination, sizeof(end));
-      destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABLG_SPACING[X_AXIS] * gcx);
+      destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABL_BG_SPACING[X_AXIS] * gcx);
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = LINE_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
       memcpy(end, destination, sizeof(end));
-      destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + ABLG_SPACING[Y_AXIS] * gcy);
+      destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + ABL_BG_SPACING[Y_AXIS] * gcy);
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = LINE_SEGMENT_END(X);
       CBI(y_splits, gcy);

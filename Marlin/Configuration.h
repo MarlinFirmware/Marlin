@@ -776,7 +776,7 @@
  * Experimental feature for BILINEAR Auto bed levelling
  * You can interpolate intermediate points after bilinear ABL
  */
-#define ABL_BILINEAR_INTERPOLATE
+//#define ABL_BILINEAR_INTERPOLATE
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR) && ENABLED(ABL_BILINEAR_INTERPOLATE)
   // Amount of interpolated segments for each axis of bed between a real detected points
