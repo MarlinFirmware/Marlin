@@ -184,6 +184,8 @@
 #define MSG_INFO_EXTRUDERS                  "Extruders"
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protokol"
+#define MSG_LIGHTS_ON                       "Gehäuse Licht an"
+#define MSG_LIGHTS_OFF                      "Gehäuse Licht aus"
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Gesamte Drucke"
