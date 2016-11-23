@@ -607,11 +607,11 @@
 // @section machine
 
 // Travel limits after homing (units are in mm)
-#define X_MIN_POS -105
-#define Y_MIN_POS -95
+#define X_MIN_POS -95
+#define Y_MIN_POS -100
 #define Z_MIN_POS 0
 #define X_MAX_POS 105
-#define Y_MAX_POS 90
+#define Y_MAX_POS 100
 #define Z_MAX_POS 190
 
 //===========================================================================
@@ -681,10 +681,10 @@
 
   #if ENABLED(AUTO_BED_LEVELING_GRID)
 
-    #define LEFT_PROBE_BED_POSITION -70
-    #define RIGHT_PROBE_BED_POSITION 80
-    #define FRONT_PROBE_BED_POSITION -70
-    #define BACK_PROBE_BED_POSITION 70
+    #define LEFT_PROBE_BED_POSITION -60
+    #define RIGHT_PROBE_BED_POSITION 90
+    #define FRONT_PROBE_BED_POSITION -80
+    #define BACK_PROBE_BED_POSITION 60
 
     #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
@@ -755,9 +755,9 @@
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {100,100,404,740}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {300, 300, 5, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1500,1500,100,9000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {100,100,400, 740}    // default steps per unit for Prusa i3 ION
+#define DEFAULT_MAX_FEEDRATE          {300,300,  5,  25}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {300,300,100,9000}   // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          1500    // X, Y, Z and E acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration in mm/s^2 for retracts
@@ -766,7 +766,7 @@
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
-#define DEFAULT_EJERK                 5.0    // (mm/sec)
+#define DEFAULT_EJERK                 5.0     // (mm/sec)
 
 
 //=============================================================================
