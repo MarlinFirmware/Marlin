@@ -772,15 +772,27 @@
  */
 //#define DEBUG_LEVELING_FEATURE
 
+/**
+ * Experimental feature for BILINEAR Auto bed levelling
+ * You can interpolate intermediate points after bilinear ABL
+ */
+#define ABL_BILINEAR_INTERPOLATE
+
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR) && ENABLED(ABL_BILINEAR_INTERPOLATE)
+  // Amount of interpolated segments for each axis of bed between a real detected points
+  #define ABL_GRID_VIRT 3
+
+  #if ABL_GRID_VIRT < 2 || ABL_GRID_VIRT > 6
+    #undef ABL_BILINEAR_INTERPOLATE
+  #endif
+#endif
+
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
   // Set the number of grid points per dimension.
   #define ABL_GRID_POINTS_X 3
   #define ABL_GRID_POINTS_Y ABL_GRID_POINTS_X
 
-  // Set the number of interpolated segments (for bilinear method)
-  //#define ABL_GRID_VIRT 3
- 
   // Set the boundaries for probing (where the probe can reach).
   #define LEFT_PROBE_BED_POSITION 15
   #define RIGHT_PROBE_BED_POSITION 170
