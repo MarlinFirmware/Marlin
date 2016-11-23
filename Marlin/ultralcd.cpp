@@ -1041,7 +1041,7 @@ void kill_screen(const char* lcd_msg) {
       line_to_current(Z_AXIS);
       current_position[X_AXIS] = LOGICAL_X_POSITION(x);
       current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
-      line_to_current(manual_feedrate_mm_m[X_AXIS] <= manual_feedrate_mm_m[Y_AXIS] ? X_AXIS : Y_AXIS);
+      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(XY_PROBE_SPEED), active_extruder);
       #if Z_HOMING_HEIGHT > 0
         current_position[Z_AXIS] = LOGICAL_Z_POSITION(MESH_HOME_SEARCH_Z);
         line_to_current(Z_AXIS);
