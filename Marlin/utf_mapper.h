@@ -150,7 +150,7 @@
 
 #if ENABLED(MAPPER_C2C3)
 
-  char charset_mapper(char c) {
+  char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
     static bool seen_c2 = false;
     uint8_t d = c;
@@ -181,7 +181,7 @@
 
 #elif ENABLED(MAPPER_CECF)
 
-  char charset_mapper(char c) {
+  char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
     static bool seen_ce = false;
     uint8_t d = c;
@@ -212,7 +212,7 @@
 
 #elif ENABLED(MAPPER_CECF)
 
-  char charset_mapper(char c) {
+  char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
     static bool seen_ce = false;
     uint8_t d = c;
@@ -243,7 +243,7 @@
 
 #elif ENABLED(MAPPER_D0D1_MOD)
 
-  char charset_mapper(char c) {
+  char charset_mapper(const char c) {
     // it is a Russian alphabet translation
     // except 0401 --> 0xa2 = Ё, 0451 --> 0xb5 = ё
     static uint8_t utf_hi_char; // UTF-8 high part
@@ -280,7 +280,7 @@
 
 #elif ENABLED(MAPPER_D0D1)
 
-  char charset_mapper(char c) {
+  char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
     static bool seen_d5 = false;
     uint8_t d = c;
@@ -311,7 +311,7 @@
 
 #elif ENABLED(MAPPER_E382E383)
 
-  char charset_mapper(char c) {
+  char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
     static bool seen_e3 = false;
     static bool seen_82_83 = false;
@@ -350,7 +350,7 @@
 
   #define MAPPER_NON
 
-  char charset_mapper(char c) {
+  char charset_mapper(const char c) {
     HARDWARE_CHAR_OUT( c );
     return 1;
   }

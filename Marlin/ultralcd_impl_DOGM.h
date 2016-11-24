@@ -191,8 +191,8 @@ u8g_page_t &page = ((u8g_pb_t *)((u8g.getU8g())->dev->dev_mem))->p;
 #define PAGE_UNDER(yb) (u8g.getU8g()->current_page.y0 <= (yb))
 #define PAGE_CONTAINS(ya, yb) (PAGE_UNDER(yb) && u8g.getU8g()->current_page.y1 >= (ya))
 
-static void lcd_setFont(char font_nr) {
-  switch(font_nr) {
+static void lcd_setFont(const char font_nr) {
+  switch (font_nr) {
     case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
     case FONT_MENU       : {u8g.setFont(FONT_MENU_NAME); currentfont = FONT_MENU;}; break;
     case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
@@ -201,7 +201,7 @@ static void lcd_setFont(char font_nr) {
   }
 }
 
-void lcd_print(char c) {
+void lcd_print(const char c) {
   if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
     u8g.setFont(FONT_SPECIAL_NAME);
     u8g.print(c);
@@ -210,7 +210,7 @@ void lcd_print(char c) {
   else charset_mapper(c);
 }
 
-char lcd_print_and_count(char c) {
+char lcd_print_and_count(const char c) {
   if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
     u8g.setFont(FONT_SPECIAL_NAME);
     u8g.print(c);
@@ -220,7 +220,7 @@ char lcd_print_and_count(char c) {
   else return charset_mapper(c);
 }
 
-void lcd_print(const char* str) {
+void lcd_print(const char* const str) {
   for (uint8_t i = 0; char c = str[i]; ++i) lcd_print(c);
 }
 
@@ -268,15 +268,15 @@ static void lcd_implementation_init() {
       }
     #endif // SHOW_CUSTOM_BOOTSCREEN
 
-    int offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2;
+    const uint8_t offx = (u8g.getWidth() - (START_BMPWIDTH)) / 2;
 
     #if ENABLED(START_BMPHIGH)
-      int offy = 0;
+      constexpr uint8_t offy = 0;
     #else
-      int offy = DOG_CHAR_HEIGHT;
+      constexpr uint8_t offy = DOG_CHAR_HEIGHT;
     #endif
 
-    int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
+    const uint8_t txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1) * (DOG_CHAR_WIDTH)) / 2;
 
     if (show_bootscreen) {
       u8g.firstPage();
@@ -286,7 +286,7 @@ static void lcd_implementation_init() {
         #ifndef STRING_SPLASH_LINE2
           u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT), STRING_SPLASH_LINE1);
         #else
-          int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
+          const uint8_t txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1) * (DOG_CHAR_WIDTH)) / 2;
           u8g.drawStr(txt1X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 3 / 2, STRING_SPLASH_LINE1);
           u8g.drawStr(txt2X, u8g.getHeight() - (DOG_CHAR_HEIGHT) * 1 / 2, STRING_SPLASH_LINE2);
         #endif
@@ -315,14 +315,14 @@ static void lcd_implementation_clear() { } // Automatically cleared by Picture L
 // Status Screen
 //
 
-FORCE_INLINE void _draw_centered_temp(int temp, int x, int y) {
-  int degsize = 6 * (temp >= 100 ? 3 : temp >= 10 ? 2 : 1); // number's pixel width
+FORCE_INLINE void _draw_centered_temp(const int temp, const uint8_t x, const uint8_t y) {
+  const uint8_t degsize = 6 * (temp >= 100 ? 3 : temp >= 10 ? 2 : 1); // number's pixel width
   u8g.setPrintPos(x - (18 - degsize) / 2, y); // move left if shorter
   lcd_print(itostr3(temp));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 }
 
-FORCE_INLINE void _draw_heater_status(int x, int heater) {
+FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater) {
   #if HAS_TEMP_BED
     bool isBed = heater < 0;
   #else
@@ -336,8 +336,8 @@ FORCE_INLINE void _draw_heater_status(int x, int heater) {
     _draw_centered_temp((isBed ? thermalManager.degBed() : thermalManager.degHotend(heater)) + 0.5, x, 28);
 
   if (PAGE_CONTAINS(17, 20)) {
-    uint8_t h = isBed ? 7 : 8,
-            y = isBed ? 18 : 17;
+    const uint8_t h = isBed ? 7 : 8,
+                  y = isBed ? 18 : 17;
     if (isBed ? thermalManager.isHeatingBed() : thermalManager.isHeatingHotend(heater)) {
       u8g.setColorIndex(0); // white on black
       u8g.drawBox(x + h, y, 2, 2);
@@ -349,7 +349,7 @@ FORCE_INLINE void _draw_heater_status(int x, int heater) {
   }
 }
 
-FORCE_INLINE void _draw_axis_label(AxisEnum axis, const char *pstr, bool blink) {
+FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink) {
   if (blink)
     lcd_printPGM(pstr);
   else {
@@ -611,7 +611,7 @@ static void lcd_implementation_status_screen() {
   uint8_t row_y1, row_y2;
 
   // Set the colors for a menu item based on whether it is selected
-  static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
+  static void lcd_implementation_mark_as_selected(const uint8_t row, const bool isSelected) {
 
     row_y1 = row * (DOG_CHAR_HEIGHT) + 1;
     row_y2 = row_y1 + (DOG_CHAR_HEIGHT) - 1;
@@ -632,7 +632,7 @@ static void lcd_implementation_status_screen() {
   #if ENABLED(LCD_INFO_MENU) || ENABLED(FILAMENT_CHANGE_FEATURE)
 
     // Draw a static line of text in the same idiom as a menu item
-    static void lcd_implementation_drawmenu_static(uint8_t row, const char* pstr, bool center=true, bool invert=false, const char* valstr=NULL) {
+    static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char* valstr=NULL) {
 
       lcd_implementation_mark_as_selected(row, invert);
 
@@ -659,7 +659,7 @@ static void lcd_implementation_status_screen() {
   #endif // LCD_INFO_MENU || FILAMENT_CHANGE_FEATURE
 
   // Draw a generic menu item
-  static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, const char* pstr, char pre_char, char post_char) {
+  static void lcd_implementation_drawmenu_generic(const bool isSelected, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
     UNUSED(pre_char);
 
     lcd_implementation_mark_as_selected(row, isSelected);
@@ -684,7 +684,7 @@ static void lcd_implementation_status_screen() {
   #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
   // Draw a menu item with an editable value
-  static void _drawmenu_setting_edit_generic(bool isSelected, uint8_t row, const char* pstr, const char* data, bool pgm) {
+  static void _drawmenu_setting_edit_generic(const bool isSelected, const uint8_t row, const char* pstr, const char* const data, const bool pgm) {
 
     lcd_implementation_mark_as_selected(row, isSelected);
 
@@ -729,9 +729,9 @@ static void lcd_implementation_status_screen() {
   #define lcd_implementation_drawmenu_setting_edit_callback_long5(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
   #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
-  void lcd_implementation_drawedit(const char* pstr, const char* value=NULL) {
+  void lcd_implementation_drawedit(const char* const pstr, const char* const value=NULL) {
+    const uint8_t labellen = lcd_strlen_P(pstr), vallen = lcd_strlen(value);
     uint8_t lcd_width, char_width,
-            labellen = lcd_strlen_P(pstr), vallen = lcd_strlen(value),
             rows = (labellen > LCD_WIDTH - 2 - vallen) ? 2 : 1;
 
     #if ENABLED(USE_BIG_EDIT_FONT)
@@ -752,8 +752,8 @@ static void lcd_implementation_status_screen() {
     #endif
 
     // Center either one or two rows
-    uint8_t segmentHeight = u8g.getHeight() / (rows + 1), // 1 / (rows+1) = 1/2 or 1/3
-            baseline = segmentHeight + (DOG_CHAR_HEIGHT_EDIT + 1) / 2;
+    const uint8_t segmentHeight = u8g.getHeight() / (rows + 1); // 1 / (rows+1) = 1/2 or 1/3
+    uint8_t baseline = segmentHeight + (DOG_CHAR_HEIGHT_EDIT + 1) / 2;
 
     if (PAGE_CONTAINS(baseline + 1 - (DOG_CHAR_HEIGHT_EDIT), baseline)) {
       u8g.setPrintPos(0, baseline);
@@ -772,7 +772,7 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(SDSUPPORT)
 
-    static void _drawmenu_sd(bool isSelected, uint8_t row, const char* pstr, const char* filename, char* const longFilename, bool isDir) {
+    static void _drawmenu_sd(const bool isSelected, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const bool isDir) {
       UNUSED(pstr);
 
       lcd_implementation_mark_as_selected(row, isSelected);
