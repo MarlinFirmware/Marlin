@@ -246,6 +246,8 @@
 #define MSG_INFO_EXTRUDERS                  "\xb4\xb8\xbd\xc4\xd9\xb0\xc0\xde\xb0\xbd\xb3"                     // "ｴｸｽﾄﾙｰﾀﾞｰｽｳ" ("Extruders")
 #define MSG_INFO_BAUDRATE                   "\xce\xde\xb0\xda\xb0\xc4"                                         // "ﾎﾞｰﾚｰﾄ" ("Baud")
 #define MSG_INFO_PROTOCOL                   "\xcc\xdf\xdb\xc4\xba\xd9"                                         // "ﾌﾟﾛﾄｺﾙ" ("Protocol")
+#define MSG_LIGHTS_ON                       "\xb7\xae\xb3\xc0\xb2\xc5\xb2\xbc\xae\xb3\xd2\xb2\x20\xb5\xdd"     // "ｷｮｳﾀｲﾅｲｼｮｳﾒｲ ｵﾝ" ("Case light on")
+#define MSG_LIGHTS_OFF                      "\xb7\xae\xb3\xc0\xb2\xc5\xb2\xbc\xae\xb3\xd2\xb2\x20\xb5\xcc"     // "ｷｮｳﾀｲﾅｲｼｮｳﾒｲ ｵﾌ" ("Case light off")
 #define MSG_INFO_PRINT_COUNT                "\xcc\xdf\xd8\xdd\xc4\xbd\xb3"                                     // "ﾌﾟﾘﾝﾄｽｳ" ("Print Count")
 #define MSG_INFO_COMPLETED_PRINTS           "\xb6\xdd\xd8\xae\xb3\xbd\xb3"                                     // "ｶﾝﾘｮｳｽｳ" ("Completed")
 #define MSG_INFO_PRINT_TIME                 "\xcc\xdf\xd8\xdd\xc4\xbc\xde\xb6\xdd\xd9\xb2\xb9\xb2"             // "ﾌﾟﾘﾝﾄｼﾞｶﾝﾙｲｹｲ" ("Total print time")
