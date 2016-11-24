@@ -546,7 +546,7 @@
 // Probe Raise options provide clearance for the probe to deploy, stow, and travel.
 //
 #define Z_RAISE_PROBE_DEPLOY_STOW 10 // Raise to make room for the probe to deploy / stow
-#define Z_RAISE_BETWEEN_PROBINGS 5  // Raise between probing points.
+#define Z_RAISE_BETWEEN_PROBINGS 10  // Raise between probing points.
 
 //
 // For M851 give a range for adjusting the Z probe offset
@@ -601,16 +601,16 @@
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
-#define min_software_endstops false // If true, axis won't move to coordinates less than HOME_POS.
+#define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // @section machine
 
 // Travel limits after homing (units are in mm)
-#define X_MIN_POS -95
-#define Y_MIN_POS -100
+#define X_MIN_POS -98
+#define Y_MIN_POS -95
 #define Z_MIN_POS 0
-#define X_MAX_POS 105
+#define X_MAX_POS 100
 #define Y_MAX_POS 100
 #define Z_MAX_POS 200
 
@@ -682,9 +682,9 @@
   #if ENABLED(AUTO_BED_LEVELING_GRID)
 
     #define LEFT_PROBE_BED_POSITION -60
-    #define RIGHT_PROBE_BED_POSITION 90
-    #define FRONT_PROBE_BED_POSITION -80
-    #define BACK_PROBE_BED_POSITION 60
+    #define RIGHT_PROBE_BED_POSITION 75
+    #define FRONT_PROBE_BED_POSITION -60
+    #define BACK_PROBE_BED_POSITION 100
 
     #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
@@ -745,8 +745,8 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (50*60)
-#define HOMING_FEEDRATE_Z  ( 8*60)
+#define HOMING_FEEDRATE_XY (100*60)
+#define HOMING_FEEDRATE_Z  ( 16*60)
 
 //
 // MOVEMENT SETTINGS
