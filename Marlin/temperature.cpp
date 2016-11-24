@@ -1484,7 +1484,9 @@ void Temperature::isr() {
 
   // Allow UART and stepper ISRs
   DISABLE_TEMPERATURE_INTERRUPT(); //Disable Temperature ISR
-  sei();
+  #if !defined(__MK64FX512__) && !defined(__MK66FX1M0__)
+    sei();
+  #endif
 
   static uint8_t temp_count = 0;
   static TempState temp_state = StartupDelay;
@@ -1952,7 +1954,9 @@ void Temperature::isr() {
     }
   #endif
 
-  cli();
+  #if !defined(__MK64FX512__) && !defined(__MK66FX1M0__)
+    cli();
+  #endif
   in_temp_isr = false;
   ENABLE_TEMPERATURE_INTERRUPT(); //re-enable Temperature ISR
 }

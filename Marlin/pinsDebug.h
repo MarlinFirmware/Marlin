@@ -37,7 +37,37 @@ bool endstop_monitor_flag = false;
 #define _ANALOG_PIN_SAY(NAME) { sprintf(buffer, NAME_FORMAT, NAME); SERIAL_ECHO(buffer); pin_is_analog = true; return true; }
 #define ANALOG_PIN_SAY(NAME) if (pin == analogInputToDigitalPin(NAME)) _ANALOG_PIN_SAY(#NAME);
 
-#define IS_ANALOG(P) ( WITHIN(P, analogInputToDigitalPin(0), analogInputToDigitalPin(15)) || (P) <= analogInputToDigitalPin(5) )
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+  #define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && (P) <= analogInputToDigitalPin(9)) || ((P) >= analogInputToDigitalPin(12) && (P) <= analogInputToDigitalPin(20))
+#else
+  #define IS_ANALOG(P) ( WITHIN(P, analogInputToDigitalPin(0), analogInputToDigitalPin(15)) || (P) <= analogInputToDigitalPin(5) )
+#endif
+
+#if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+  #define FTM0_CH0_PIN 22
+  #define FTM0_CH1_PIN 23
+  #define FTM0_CH2_PIN  9
+  #define FTM0_CH3_PIN 10
+  #define FTM0_CH4_PIN  6
+  #define FTM0_CH5_PIN 20
+  #define FTM0_CH6_PIN 21
+  #define FTM0_CH7_PIN  5
+  #define FTM1_CH0_PIN  3
+  #define FTM1_CH1_PIN  4
+  #define FTM2_CH0_PIN 29
+  #define FTM2_CH1_PIN 30
+  #define FTM3_CH0_PIN  2
+  #define FTM3_CH1_PIN 14
+  #define FTM3_CH2_PIN  7
+  #define FTM3_CH3_PIN  8
+  #define FTM3_CH4_PIN 35
+  #define FTM3_CH5_PIN 36
+  #define FTM3_CH6_PIN 37
+  #define FTM3_CH7_PIN 38
+#elif defined(__MK66FX1M0__)
+  #define TPM1_CH0_PIN 16
+  #define TPM1_CH1_PIN 17
+#endif
 
 int digitalRead_mod(int8_t pin) { // same as digitalRead except the PWM stop section has been removed
   uint8_t port = digitalPinToPort(pin);
@@ -53,7 +83,12 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
   pin_is_analog = false;   // default to digital pin
 
   if (IS_ANALOG(pin)) {
-    sprintf(buffer, "(A%2d)  ", int(pin - analogInputToDigitalPin(0)));
+    #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+      if (pin <= 23)      sprintf(buffer, "(A%2d)  ", int(pin - 14));
+      else if (pin <= 39) sprintf(buffer, "(A%2d)  ", int(pin - 19));
+    #else
+      sprintf(buffer, "(A%2d)  ", int(pin - analogInputToDigitalPin(0)));
+    #endif
     SERIAL_ECHO(buffer);
   }
   else SERIAL_ECHOPGM("       ");
@@ -671,6 +706,13 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
       PWM_PRINT(OCR##N##Z); \
       return true; \
     } else return false
+#define FTM_CASE(N,Z) \
+  case FTM##N##_CH##Z##_PIN: \
+    if (FTM##N##_C##Z##V) { \
+      PWM_PRINT(FTM##N##_C##Z##V); \
+      return true; \
+    } else return false
+
 
 /**
  * Print a pin's PWM status.
@@ -678,6 +720,31 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
  */
 static bool pwm_status(uint8_t pin) {
   char buffer[20];   // for the sprintf statements
+
+  #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+  switch(pin) {
+    FTM_CASE(0,0);
+    FTM_CASE(0,1);
+    FTM_CASE(0,2);
+    FTM_CASE(0,3);
+    FTM_CASE(0,4);
+    FTM_CASE(0,5);
+    FTM_CASE(0,6);
+    FTM_CASE(0,7);
+    FTM_CASE(1,0);
+    FTM_CASE(1,1);
+    FTM_CASE(2,0);
+    FTM_CASE(2,1);
+    FTM_CASE(3,0);
+    FTM_CASE(3,1);
+    FTM_CASE(3,2);
+    FTM_CASE(3,3);
+    FTM_CASE(3,4);
+    FTM_CASE(3,5);
+    FTM_CASE(3,6);
+    FTM_CASE(3,7);
+  }
+  #else
 
   switch(digitalPinToTimer(pin)) {
 
@@ -723,6 +790,7 @@ static bool pwm_status(uint8_t pin) {
     default:
       return false;
   }
+  #endif
   SERIAL_PROTOCOLPGM("  ");
 } // pwm_status
 
@@ -937,7 +1005,12 @@ inline void report_pin_state_extended(int8_t pin, bool ignore) {
     SERIAL_ECHOPGM("protected ");
   else {
     if (analog_pin) {
-      sprintf(buffer, "Analog in =% 5d", analogRead(pin - analogInputToDigitalPin(0)));
+      #if defined(__MK64FX512__) || defined(__MK66FX1M0__)
+        if (pin <= 23)      sprintf(buffer, "Analog in =% 5d", analogRead(pin - 14));
+        else if (pin <= 39) sprintf(buffer, "Analog in =% 5d", analogRead(pin - 19));
+      #else
+        sprintf(buffer, "Analog in =% 5d", analogRead(pin - analogInputToDigitalPin(0)));
+      #endif
       SERIAL_ECHO(buffer);
     }
     else {
