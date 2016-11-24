@@ -31,8 +31,6 @@
 #ifndef LANGUAGE_KANA_H
 #define LANGUAGE_KANA_H
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_KANA
 
 // 片仮名表示定義
