@@ -64,6 +64,9 @@ void lcd_status_screen();
 millis_t next_lcd_update_ms;
 
 uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
+#if ENABLED(DOGLCD)
+  uint8_t drawing_screen = 0;
+#endif
 
 #if ENABLED(DAC_STEPPER_CURRENT)
   #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
@@ -413,6 +416,9 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
       #endif
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
       screen_changed = true;
+      #if ENABLED(DOGLCD)
+        drawing_screen = 0;
+      #endif
     }
   }
 
@@ -2749,6 +2755,9 @@ void lcd_update() {
 
           encoderPosition += (encoderDiff * encoderMultiplier) / ENCODER_PULSES_PER_STEP;
           encoderDiff = 0;
+          #if ENABLED(DOGLCD)
+            drawing_screen = 0;  // refresh the complete screen for a encoder change (different menu-item/value)
+          #endif
         }
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
@@ -2781,20 +2790,28 @@ void lcd_update() {
 
     if (LCD_HANDLER_CONDITION) {
 
-      if (lcdDrawUpdate) {
-
-        switch (lcdDrawUpdate) {
-          case LCDVIEW_CALL_NO_REDRAW:
-            lcdDrawUpdate = LCDVIEW_NONE;
-            break;
-          case LCDVIEW_CLEAR_CALL_REDRAW: // set by handlers, then altered after (rarely occurs here)
-          case LCDVIEW_CALL_REDRAW_NEXT:  // set by handlers, then altered after (never occurs here?)
-            lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-          case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
-          case LCDVIEW_NONE:
-            break;
-        } // switch
-
+      #if ENABLED(DOGLCD)
+        if (lcdDrawUpdate || drawing_screen)
+      #else
+        if (lcdDrawUpdate)
+      #endif
+      {
+        #if ENABLED(DOGLCD)
+          if (!drawing_screen)
+        #endif
+          {
+            switch (lcdDrawUpdate) {
+              case LCDVIEW_CALL_NO_REDRAW:
+                lcdDrawUpdate = LCDVIEW_NONE;
+                break;
+              case LCDVIEW_CLEAR_CALL_REDRAW: // set by handlers, then altered after (rarely occurs here)
+              case LCDVIEW_CALL_REDRAW_NEXT:  // set by handlers, then altered after (never occurs here?)
+                lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+              case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
+              case LCDVIEW_NONE:
+                break;
+            } // switch
+          }
         #if ENABLED(ULTIPANEL)
           #define CURRENTSCREEN() (*currentScreen)(), lcd_clicked = false
         #else
@@ -2802,17 +2819,13 @@ void lcd_update() {
         #endif
 
         #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
-          static int8_t dot_color = 0;
-          dot_color = 1 - dot_color;
-          u8g.firstPage();
-          do {
-            lcd_setFont(FONT_MENU);
-            u8g.setPrintPos(125, 0);
-            u8g.setColorIndex(dot_color); // Set color for the alive dot
-            u8g.drawPixel(127, 63); // draw alive dot
-            u8g.setColorIndex(1); // black on white
-            CURRENTSCREEN();
-          } while (u8g.nextPage());
+          if (!drawing_screen) {
+            u8g.firstPage();
+            drawing_screen = 1;
+          }
+          lcd_setFont(FONT_MENU);
+          CURRENTSCREEN();
+          if (drawing_screen && (drawing_screen = u8g.nextPage())) return;
         #else
           CURRENTSCREEN();
         #endif
@@ -2828,22 +2841,25 @@ void lcd_update() {
 
       #endif // ULTIPANEL
 
-      switch (lcdDrawUpdate) {
-        case LCDVIEW_CLEAR_CALL_REDRAW:
-          lcd_implementation_clear();
-        case LCDVIEW_CALL_REDRAW_NEXT:
-          lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-          break;
-        case LCDVIEW_REDRAW_NOW:
-          lcdDrawUpdate = LCDVIEW_NONE;
-          break;
-        case LCDVIEW_NONE:
-          break;
-      } // switch
-
+      #if ENABLED(DOGLCD)
+        if (!drawing_screen)
+      #endif
+        {
+          switch (lcdDrawUpdate) {
+            case LCDVIEW_CLEAR_CALL_REDRAW:
+              lcd_implementation_clear();
+            case LCDVIEW_CALL_REDRAW_NEXT:
+              lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+              break;
+            case LCDVIEW_REDRAW_NOW:
+              lcdDrawUpdate = LCDVIEW_NONE;
+              break;
+            case LCDVIEW_NONE:
+              break;
+          } // switch
+        }
     } // LCD_HANDLER_CONDITION
-
-  }
+  } // ELAPSED(ms, next_lcd_update_ms)
 }
 
 void set_utf_strlen(char* s, uint8_t n) {
