@@ -376,8 +376,14 @@
 #endif
 
 /**
- * Mesh Bed Leveling
+ * Manual Bed Leveling
  */
+#if ENABLED(MANUAL_BED_LEVELING)
+  #if DISABLED(MESH_BED_LEVELING)
+    #error MESH_BED_LEVELING is required for MANUAL_BED_LEVELING.
+  #endif
+#endif
+
 #if ENABLED(MESH_BED_LEVELING)
   #if ENABLED(DELTA)
     #error "MESH_BED_LEVELING does not yet support DELTA printers."
