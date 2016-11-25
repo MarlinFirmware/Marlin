@@ -190,6 +190,8 @@
 #define MSG_INFO_EXTRUDERS                  "エクストルーダースウ"             // "Extruders"
 #define MSG_INFO_BAUDRATE                   "ボーレート"                    // "Baud"
 #define MSG_INFO_PROTOCOL                   "プロトコル"                    // "Protocol"
+#define MSG_LIGHTS_ON                       "キョウタイナイショウメイ オン"       // "Case light on"
+#define MSG_LIGHTS_OFF                      "キョウタイナイショウメイ オフ"       // "Case light off"
 #define MSG_INFO_PRINT_COUNT                "プリントスウ "                  // "Print Count"
 #define MSG_INFO_COMPLETED_PRINTS           "カンリョウスウ"                  // "Completed"
 #define MSG_INFO_PRINT_TIME                 "プリントジカンルイケイ"            // "Total print time"
