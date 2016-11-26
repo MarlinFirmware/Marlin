@@ -30,8 +30,8 @@
 #ifndef LANGUAGE_EL_GR_H
 #define LANGUAGE_EL_GR_H
 
-//#define MAPPER_CECF
-//#define DISPLAY_CHARSET_ISO10646_GREEK
+#define MAPPER_CECF
+#define DISPLAY_CHARSET_ISO10646_GREEK
 
 #define WELCOME_MSG                         MACHINE_NAME " έτοιμο."
 #define MSG_SD_INSERTED                     "Εισαγωγή κάρτας"
