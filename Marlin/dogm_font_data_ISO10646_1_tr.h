@@ -1,17 +1,39 @@
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 /*
   Fontname: ISO10646-1-tr
-  Copyright: M.Sutas, public domain
+  Copyright: public domain
   Capital A Height: 7, '1' Height: 7
   Calculated Max Values w= 5 h= 9 x= 2 y= 7 dx= 6 dy= 0 ascent= 8 len= 9
   Font Bounding box     w= 6 h= 9 x= 0 y=-2
-  Calculated Min Values           x= 0 y=-2 dx= 0 dy= 0
+  Calculated Min Values           x= 0 y=-1 dx= 0 dy= 0
   Pure Font   ascent = 7 descent=-1
   X Font      ascent = 7 descent=-1
-  Max Font    ascent = 8 descent=-2
+  Max Font    ascent = 8 descent=-1
 */
 #include "U8glib.h"
 const u8g_fntpgm_uint8_t ISO10646_TR[2591] U8G_SECTION(".progmem.ISO10646_TR") = {
-  0,6,9,0,254,7,1,146,3,33,32,255,255,8,254,7,
+  0,6,9,0,254,7,1,146,3,33,32,255,255,8,255,7,
   255,0,0,0,6,0,0,1,7,7,6,2,0,128,128,128,
   128,128,0,128,3,2,2,6,1,5,160,160,5,7,7,6,
   0,0,80,80,248,80,248,80,80,5,7,7,6,0,0,32,
@@ -144,7 +166,7 @@ const u8g_fntpgm_uint8_t ISO10646_TR[2591] U8G_SECTION(".progmem.ISO10646_TR") =
   0,16,32,136,136,136,136,136,112,5,8,8,6,0,0,32,
   80,0,136,136,136,136,112,5,8,8,6,0,0,80,0,136,
   136,136,136,136,112,1,7,7,6,2,0,128,0,128,128,128,
-  128,128,5,9,9,6,0,254,120,128,128,112,8,8,240,32,
+  128,128,5,9,9,6,0,255,120,128,128,112,8,8,240,32,
   96,4,8,8,6,1,255,96,144,144,160,144,144,224,128,5,
   8,8,6,0,0,64,32,0,112,8,120,136,120,5,8,8,
   6,0,0,16,32,0,112,8,120,136,120,5,8,8,6,0,
@@ -152,7 +174,7 @@ const u8g_fntpgm_uint8_t ISO10646_TR[2591] U8G_SECTION(".progmem.ISO10646_TR") =
   144,0,112,8,120,136,120,5,7,7,6,0,0,80,0,112,
   8,120,136,120,5,8,8,6,0,0,32,80,32,112,8,120,
   136,120,5,6,6,6,0,0,208,40,120,160,168,80,5,7,
-  7,6,0,254,112,128,128,136,112,32,96,5,8,8,6,0,
+  7,6,0,255,112,128,128,136,112,32,96,5,8,8,6,0,
   0,64,32,0,112,136,248,128,112,5,8,8,6,0,0,16,
   32,0,112,136,248,128,112,5,8,8,6,0,0,32,80,0,
   112,136,248,128,112,5,7,7,6,0,0,80,0,112,136,248,
@@ -171,5 +193,5 @@ const u8g_fntpgm_uint8_t ISO10646_TR[2591] U8G_SECTION(".progmem.ISO10646_TR") =
   5,8,8,6,0,0,16,32,0,136,136,136,152,104,5,8,
   8,6,0,0,32,80,0,136,136,136,152,104,5,7,7,6,
   0,0,80,0,136,136,136,152,104,1,5,5,6,2,0,128,
-  128,128,128,128,5,7,7,6,0,254,112,128,112,8,240,32,
+  128,128,128,128,5,7,7,6,0,255,112,128,112,8,240,32,
   96,5,8,8,6,0,255,80,0,136,136,136,120,8,112};
