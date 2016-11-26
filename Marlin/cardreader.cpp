@@ -113,7 +113,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       if (pn0 == DIR_NAME_DELETED || pn0 == '.') continue;
       if (longFilename[0] == '.') continue;
 
-      if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
+      if (!DIR_IS_FILE_OR_SUBDIR(&p) || (p.attributes & DIR_ATT_HIDDEN)) continue;
 
       filenameIsDir = DIR_IS_SUBDIR(&p);
 
