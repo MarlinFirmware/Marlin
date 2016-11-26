@@ -508,13 +508,14 @@ static void lcd_implementation_status_screen() {
 
   // Enable to save many cycles by drawing a hollow frame
   #define XYZ_HOLLOW_FRAME
+  #define MENU_HOLLOW_FRAME
 
   #if ENABLED(XYZ_HOLLOW_FRAME)
     #define XYZ_FRAME_TOP 29
     #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 3
   #else
     #define XYZ_FRAME_TOP 30
-    #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 2
+    #define XYZ_FRAME_HEIGHT INFO_FONT_HEIGHT + 1
   #endif
 
   // Before homing the axis letters are blinking 'X' <-> '?'.
@@ -569,13 +570,13 @@ static void lcd_implementation_status_screen() {
   // Feedrate
   //
 
-  if (PAGE_CONTAINS(50 - INFO_FONT_HEIGHT, 49)) {
+  if (PAGE_CONTAINS(51 - INFO_FONT_HEIGHT, 49)) {
     lcd_setFont(FONT_MENU);
-    u8g.setPrintPos(3, 49);
+    u8g.setPrintPos(3, 50);
     lcd_print(LCD_STR_FEEDRATE[0]);
 
     lcd_setFont(FONT_STATUSMENU);
-    u8g.setPrintPos(12, 49);
+    u8g.setPrintPos(12, 50);
     lcd_print(itostr3(feedrate_percentage));
     u8g.print('%');
   }
@@ -584,7 +585,7 @@ static void lcd_implementation_status_screen() {
   // Status line
   //
 
-  #define STATUS_BASELINE (54 + INFO_FONT_HEIGHT)
+  #define STATUS_BASELINE (55 + INFO_FONT_HEIGHT)
 
   if (PAGE_CONTAINS(STATUS_BASELINE + 1 - INFO_FONT_HEIGHT, STATUS_BASELINE)) {
     u8g.setPrintPos(0, STATUS_BASELINE);
@@ -613,19 +614,26 @@ static void lcd_implementation_status_screen() {
   // Set the colors for a menu item based on whether it is selected
   static void lcd_implementation_mark_as_selected(const uint8_t row, const bool isSelected) {
 
-    row_y1 = row * (DOG_CHAR_HEIGHT) + 1;
-    row_y2 = row_y1 + (DOG_CHAR_HEIGHT) - 1;
+    row_y1 = row * (DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION)) + 1;
+    row_y2 = row_y1 + (DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION)) - 1;
 
-    if (!PAGE_CONTAINS(row_y1 + 2 - (TALL_FONT_CORRECTION), row_y2 + 2 - (TALL_FONT_CORRECTION))) return;
+    if (!PAGE_CONTAINS(row_y1 + 1, row_y1 + 1 + DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION))) return;
 
     if (isSelected) {
-      u8g.setColorIndex(1);  // black on white
-      u8g.drawBox(0, row_y1 + 2 - (TALL_FONT_CORRECTION), LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT);
-      u8g.setColorIndex(0);  // following text must be white on black
+      #if ENABLED(MENU_HOLLOW_FRAME)
+        u8g.drawHLine(0, row_y1 + 1, LCD_PIXEL_WIDTH);
+        u8g.drawHLine(0, row_y1 + 1 + DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION), LCD_PIXEL_WIDTH);
+      #else
+        u8g.setColorIndex(1); // black on white
+        u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT - 1 + 2 * (TALL_FONT_CORRECTION));
+        u8g.setColorIndex(0); // white on black
+      #endif
     }
-    else {
-      u8g.setColorIndex(1); // unmarked text is black on white
-    }
+    #if DISABLED(MENU_HOLLOW_FRAME)
+      else {
+        u8g.setColorIndex(1); // unmarked text is black on white
+      }
+    #endif
     u8g.setPrintPos((START_COL) * (DOG_CHAR_WIDTH), row_y2);
   }
 
