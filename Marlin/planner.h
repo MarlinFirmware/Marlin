@@ -162,6 +162,10 @@ class Planner {
       static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
     #endif
 
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      static float z_fade_height, inverse_z_fade_height;
+    #endif
+
   private:
 
     /**
@@ -180,10 +184,10 @@ class Planner {
      */
     static float previous_nominal_speed;
 	
-	/**
- 	 * Limit where 64bit math is necessary for acceleration calculation
- 	 */
- 	static uint32_t cutoff_long;
+    /**
+     * Limit where 64bit math is necessary for acceleration calculation
+     */
+    static uint32_t cutoff_long;
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
       /**
