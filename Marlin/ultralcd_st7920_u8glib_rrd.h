@@ -106,12 +106,49 @@ static void ST7920_SWSPI_SND_8BIT(uint8_t val) {
   ST7920_SND_BIT; // 8
 }
 
-#define ST7920_CS()              {WRITE(ST7920_CS_PIN,1);u8g_10MicroDelay();}
-#define ST7920_NCS()             {WRITE(ST7920_CS_PIN,0);}
-#define ST7920_SET_CMD()         {ST7920_SWSPI_SND_8BIT(0xf8);u8g_10MicroDelay();}
-#define ST7920_SET_DAT()         {ST7920_SWSPI_SND_8BIT(0xfa);u8g_10MicroDelay();}
-#define ST7920_WRITE_BYTE(a)     {ST7920_SWSPI_SND_8BIT((uint8_t)((a)&0xf0u));ST7920_SWSPI_SND_8BIT((uint8_t)((a)<<4u));u8g_10MicroDelay();}
-#define ST7920_WRITE_BYTES(p,l)  {uint8_t i;for(i=0;i<l;i++){ST7920_SWSPI_SND_8BIT(*p&0xf0);ST7920_SWSPI_SND_8BIT(*p<<4);p++;}u8g_10MicroDelay();}
+#define ST7920_CS()              { WRITE(ST7920_CS_PIN,1); u8g_10MicroDelay(); }
+#define ST7920_NCS()             { WRITE(ST7920_CS_PIN,0); }
+#define ST7920_SET_CMD()         { ST7920_SWSPI_SND_8BIT(0xf8); u8g_10MicroDelay(); }
+#define ST7920_SET_DAT()         { ST7920_SWSPI_SND_8BIT(0xfa); u8g_10MicroDelay(); }
+#define ST7920_WRITE_BYTE(a)     { ST7920_SWSPI_SND_8BIT((uint8_t)((a)&0xf0u)); ST7920_SWSPI_SND_8BIT((uint8_t)((a)<<4u)); u8g_10MicroDelay(); }
+#define ST7920_WRITE_BYTES(p,l)  do{   \
+  for (uint8_t i = l + 1 ; --i;) {     \
+    ST7920_SWSPI_SND_8BIT(p[0]&0xf0);  \
+    ST7920_SWSPI_SND_8BIT(p[0]<<4);    \
+    ST7920_SWSPI_SND_8BIT(p[1]&0xf0);  \
+    ST7920_SWSPI_SND_8BIT(p[1]<<4);    \
+    ST7920_SWSPI_SND_8BIT(p[2]&0xf0);  \
+    ST7920_SWSPI_SND_8BIT(p[2]<<4);    \
+    ST7920_SWSPI_SND_8BIT(p[3]&0xf0);  \
+    ST7920_SWSPI_SND_8BIT(p[3]<<4);    \
+    ST7920_SWSPI_SND_8BIT(p[4]&0xf0);  \
+    ST7920_SWSPI_SND_8BIT(p[4]<<4);    \
+    ST7920_SWSPI_SND_8BIT(p[5]&0xf0);  \
+    ST7920_SWSPI_SND_8BIT(p[5]<<4);    \
+    ST7920_SWSPI_SND_8BIT(p[6]&0xf0);  \
+    ST7920_SWSPI_SND_8BIT(p[6]<<4);    \
+    ST7920_SWSPI_SND_8BIT(p[7]&0xf0);  \
+    ST7920_SWSPI_SND_8BIT(p[7]<<4);    \
+    ST7920_SWSPI_SND_8BIT(p[8]&0xf0);  \
+    ST7920_SWSPI_SND_8BIT(p[8]<<4);    \
+    ST7920_SWSPI_SND_8BIT(p[9]&0xf0);  \
+    ST7920_SWSPI_SND_8BIT(p[9]<<4);    \
+    ST7920_SWSPI_SND_8BIT(p[10]&0xf0); \
+    ST7920_SWSPI_SND_8BIT(p[10]<<4);   \
+    ST7920_SWSPI_SND_8BIT(p[11]&0xf0); \
+    ST7920_SWSPI_SND_8BIT(p[11]<<4);   \
+    ST7920_SWSPI_SND_8BIT(p[12]&0xf0); \
+    ST7920_SWSPI_SND_8BIT(p[12]<<4);   \
+    ST7920_SWSPI_SND_8BIT(p[13]&0xf0); \
+    ST7920_SWSPI_SND_8BIT(p[13]<<4);   \
+    ST7920_SWSPI_SND_8BIT(p[14]&0xf0); \
+    ST7920_SWSPI_SND_8BIT(p[14]<<4);   \
+    ST7920_SWSPI_SND_8BIT(p[15]&0xf0); \
+    ST7920_SWSPI_SND_8BIT(p[15]<<4);   \
+    p += 16;                           \
+  }                                    \
+  u8g_10MicroDelay();                  \
+}while(0)
 
 uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg) {
   uint8_t i, y;
@@ -132,8 +169,16 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
         ST7920_WRITE_BYTE(0x80 | y); //set y
         ST7920_WRITE_BYTE(0x80);     //set x = 0
         ST7920_SET_DAT();
-        for (i = 0; i < 2 * (LCD_PIXEL_WIDTH) / 8; i++) //2x width clears both segments
+        for (i = 0; i < (LCD_PIXEL_WIDTH) / 32; i++) { //2x width clears both segments
           ST7920_WRITE_BYTE(0);
+          ST7920_WRITE_BYTE(0);
+          ST7920_WRITE_BYTE(0);
+          ST7920_WRITE_BYTE(0);
+          ST7920_WRITE_BYTE(0);
+          ST7920_WRITE_BYTE(0);
+          ST7920_WRITE_BYTE(0);
+          ST7920_WRITE_BYTE(0);
+        }
         ST7920_SET_CMD();
       }
       ST7920_WRITE_BYTE(0x0C); //display on, cursor+blink off
@@ -149,31 +194,31 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
       ptr = (uint8_t*)pb->buf;
 
       ST7920_CS();
-      for (i = 0; i < PAGE_HEIGHT; i ++) {
+      for (i = PAGE_HEIGHT + 1; --i;) {
         ST7920_SET_CMD();
         if (y < 32) {
-          ST7920_WRITE_BYTE(0x80 | y);       //y
-          ST7920_WRITE_BYTE(0x80);           //x=0
+          ST7920_WRITE_BYTE(0x80 | y);        // y
+          ST7920_WRITE_BYTE(0x80);            // x = 0
         }
         else {
-          ST7920_WRITE_BYTE(0x80 | (y - 32)); //y
-          ST7920_WRITE_BYTE(0x80 | 8);       //x=64
+          ST7920_WRITE_BYTE(0x80 | (y - 32)); // y
+          ST7920_WRITE_BYTE(0x80 | 8);        // x = 64
         }
         ST7920_SET_DAT();
-        ST7920_WRITE_BYTES(ptr, (LCD_PIXEL_WIDTH) / 8); //ptr is incremented inside of macro
+        ST7920_WRITE_BYTES(ptr, (LCD_PIXEL_WIDTH) / 128); //ptr is incremented inside of macro
         y++;
       }
       ST7920_NCS();
     }
     break;
   }
-#if PAGE_HEIGHT == 8
-  return u8g_dev_pb8h1_base_fn(u8g, dev, msg, arg);
-#elif PAGE_HEIGHT == 16
-  return u8g_dev_pb16h1_base_fn(u8g, dev, msg, arg);
-#else
-  return u8g_dev_pb32h1_base_fn(u8g, dev, msg, arg);
-#endif
+  #if PAGE_HEIGHT == 8
+    return u8g_dev_pb8h1_base_fn(u8g, dev, msg, arg);
+  #elif PAGE_HEIGHT == 16
+    return u8g_dev_pb16h1_base_fn(u8g, dev, msg, arg);
+  #else
+    return u8g_dev_pb32h1_base_fn(u8g, dev, msg, arg);
+  #endif
 }
 
 uint8_t   u8g_dev_st7920_128x64_rrd_buf[(LCD_PIXEL_WIDTH) * (PAGE_HEIGHT) / 8] U8G_NOCOMMON;
