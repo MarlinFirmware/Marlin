@@ -215,6 +215,10 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     #define ENCODER_PULSES_PER_STEP 1
   #endif
 
+  #ifndef TALL_FONT_CORRECTION
+    #define TALL_FONT_CORRECTION 0
+  #endif
+
   /**
    * START_SCREEN_OR_MENU generates init code for a screen or menu
    *
@@ -238,7 +242,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 
   #define SCREEN_OR_MENU_LOOP() \
     int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
+    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT - TALL_FONT_CORRECTION; _lcdLineNr++, _menuLineNr++) { \
       _thisItemNr = 0
 
   /**
@@ -249,7 +253,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
    *               Scroll as-needed to keep the selected line in view.
    */
   #define START_SCREEN() \
-    START_SCREEN_OR_MENU(LCD_HEIGHT); \
+    START_SCREEN_OR_MENU(LCD_HEIGHT - TALL_FONT_CORRECTION); \
     encoderTopLine = encoderLine; \
     bool _skipStatic = false; \
     SCREEN_OR_MENU_LOOP()
@@ -257,8 +261,8 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   #define START_MENU() \
     START_SCREEN_OR_MENU(1); \
     NOMORE(encoderTopLine, encoderLine); \
-    if (encoderLine >= encoderTopLine + LCD_HEIGHT) { \
-      encoderTopLine = encoderLine - (LCD_HEIGHT - 1); \
+    if (encoderLine >= encoderTopLine + LCD_HEIGHT - TALL_FONT_CORRECTION) { \
+      encoderTopLine = encoderLine - (LCD_HEIGHT - TALL_FONT_CORRECTION - 1); \
     } \
     bool _skipStatic = true; \
     SCREEN_OR_MENU_LOOP()
