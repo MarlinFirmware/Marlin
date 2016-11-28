@@ -294,8 +294,8 @@ void update_software_endstops(AxisEnum axis);
 extern float soft_endstop_min[XYZ];
 extern float soft_endstop_max[XYZ];
 
-#define LOGICAL_POSITION(POS, AXIS) (POS + home_offset[AXIS] + position_shift[AXIS])
-#define RAW_POSITION(POS, AXIS)     (POS - home_offset[AXIS] - position_shift[AXIS])
+#define LOGICAL_POSITION(POS, AXIS) ((POS) + home_offset[AXIS] + position_shift[AXIS])
+#define RAW_POSITION(POS, AXIS)     ((POS) - home_offset[AXIS] - position_shift[AXIS])
 #define LOGICAL_X_POSITION(POS)     LOGICAL_POSITION(POS, X_AXIS)
 #define LOGICAL_Y_POSITION(POS)     LOGICAL_POSITION(POS, Y_AXIS)
 #define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
