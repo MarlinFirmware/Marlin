@@ -881,27 +881,6 @@ void setup_homepin(void) {
   #endif
 }
 
-#if HAS_CASE_LIGHT
-
-  void setup_case_light() {
-    digitalWrite(CASE_LIGHT_PIN,
-      #if ENABLED(CASE_LIGHT_DEFAULT_ON)
-        255
-      #else
-        0
-      #endif
-    );
-    analogWrite(CASE_LIGHT_PIN,
-      #if ENABLED(CASE_LIGHT_DEFAULT_ON)
-        255
-      #else
-        0
-      #endif
-    );
-  }
-
-#endif
-
 void setup_powerhold() {
   #if HAS_SUICIDE
     OUT_WRITE(SUICIDE_PIN, HIGH);
@@ -7279,6 +7258,13 @@ inline void gcode_M907() {
 
 #if HAS_CASE_LIGHT
 
+  uint8_t case_light_brightness = 255;
+
+  void update_case_light() {
+    digitalWrite(CASE_LIGHT_PIN, case_light_on ? HIGH : LOW);
+    analogWrite(CASE_LIGHT_PIN, case_light_on ? case_light_brightness : 0);
+  }
+
   /**
    * M355: Turn case lights on/off and set brightness
    *
@@ -7286,13 +7272,9 @@ inline void gcode_M907() {
    *   P<byte>  Set case light brightness (PWM pin required)
    */
   inline void gcode_M355() {
-    static uint8_t case_light_brightness = 255;
     if (code_seen('P')) case_light_brightness = code_value_byte();
-    if (code_seen('S')) {
-      case_light_on = code_value_bool();
-      digitalWrite(CASE_LIGHT_PIN, case_light_on ? HIGH : LOW);
-      analogWrite(CASE_LIGHT_PIN, case_light_on ? case_light_brightness : 0);
-    }
+    if (code_seen('S')) case_light_on = code_value_bool();
+    update_case_light();
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM("Case lights ");
     case_light_on ? SERIAL_ECHOLNPGM("on") : SERIAL_ECHOLNPGM("off");
@@ -10020,7 +10002,7 @@ void setup() {
   #endif
 
   #if HAS_CASE_LIGHT
-    setup_case_light();
+    update_case_light();
   #endif
 
   #if HAS_BED_PROBE
