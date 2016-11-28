@@ -487,8 +487,14 @@
 #ifndef MSG_INFO_PROTOCOL
   #define MSG_INFO_PROTOCOL                   "Protocol"
 #endif
+#ifndef MSG_LIGHTS_ON
+  #define MSG_LIGHTS_ON                       "Case light on"
+#endif
+#ifndef MSG_LIGHTS_OFF
+  #define MSG_LIGHTS_OFF                      "Case light off"
+#endif
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #ifndef MSG_INFO_PRINT_COUNT
     #define MSG_INFO_PRINT_COUNT              "Print Count"
   #endif

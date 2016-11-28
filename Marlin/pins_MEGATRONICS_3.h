@@ -28,8 +28,6 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define MEGATRONICS_31
-
 #if ENABLED(MEGATRONICS_31)
   #define BOARD_NAME       "Megatronics v3.1"
 #else

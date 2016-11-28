@@ -89,7 +89,7 @@
 #define MSG_MIN                             LCD_STR_THERMOMETER " \xbb\xb2\xc3\xb2"                            // " ｻｲﾃｲ" (" Min")
 #define MSG_MAX                             LCD_STR_THERMOMETER " \xbb\xb2\xba\xb3"                            // " ｻｲｺｳ" (" Max")
 #define MSG_FACTOR                          LCD_STR_THERMOMETER " \xcc\xa7\xb8\xc0\xb0"                        // " ﾌｧｸﾀｰ" (" Fact")
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_AUTOTEMP                      "\xbc\xde\xc4\xde\xb3\xb5\xdd\xc4\xde\xbe\xb2\xb7\xde\xae"         // "ｼﾞﾄﾞｳｵﾝﾄﾞｾｲｷﾞｮ" ("Autotemp")
 #else
   #define MSG_AUTOTEMP                      "\xbc\xde\xc4\xde\xb3\xb5\xdd\xc4\xde"                             // "ｼﾞﾄﾞｳｵﾝﾄﾞ" ("Autotemp")
@@ -101,7 +101,7 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_SELECT                          "\xbe\xdd\xc0\xb8"                                                 // "ｾﾝﾀｸ" ("Select")
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_ACC                           "\xb6\xbf\xb8\xc4\xde mm/s2"                                       // "ｶｿｸﾄﾞ mm/s2" ("Accel")
   #define MSG_VX_JERK                       "X\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Xｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vx-jerk")
   #define MSG_VY_JERK                       "Y\xbc\xde\xb8\x20\xd4\xb8\xc4\xde mm/s"                           // "Yｼﾞｸ ﾔｸﾄﾞ mm/s" ("Vy-jerk")
@@ -124,15 +124,22 @@
 #endif
 #define MSG_A_RETRACT                       "\xcb\xb7\xba\xd0\xb6\xbf\xb8\xc4\xde"                             // "ﾋｷｺﾐｶｿｸﾄﾞ" ("A-retract")
 #define MSG_A_TRAVEL                        "\xb2\xc4\xde\xb3\xb6\xbf\xb8\xc4\xde"                             // "ｲﾄﾞｳｶｿｸﾄﾞ" ("A-travel")
-#define MSG_XSTEPS                          "Xsteps/mm"
-#define MSG_YSTEPS                          "Ysteps/mm"
-#define MSG_ZSTEPS                          "Zsteps/mm"
-#define MSG_ESTEPS                          "Esteps/mm"
+#if LCD_WIDTH >= 20
+  #define MSG_XSTEPS                          "Xsteps/mm"
+  #define MSG_YSTEPS                          "Ysteps/mm"
+  #define MSG_ZSTEPS                          "Zsteps/mm"
+  #define MSG_ESTEPS                          "Esteps/mm"
+#else
+  #define MSG_XSTEPS                          "Xsteps"
+  #define MSG_YSTEPS                          "Ysteps"
+  #define MSG_ZSTEPS                          "Zsteps"
+  #define MSG_ESTEPS                          "Esteps"
+#endif
 #define MSG_TEMPERATURE                     "\xb5\xdd\xc4\xde"                                                 // "ｵﾝﾄﾞ" ("Temperature")
 #define MSG_MOTION                          "\xb3\xba\xde\xb7\xbe\xaf\xc3\xb2"                                 // "ｳｺﾞｷｾｯﾃｲ" ("Motion")
 #define MSG_VOLUMETRIC                      "\xcc\xa8\xd7\xd2\xdd\xc4"                                         // "ﾌｨﾗﾒﾝﾄ" ("Filament")
 #define MSG_VOLUMETRIC_ENABLED              "E in mm3"
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_FILAMENT_DIAM                 "\xcc\xa8\xd7\xd2\xdd\xc4\xc1\xae\xaf\xb9\xb2"                     // "ﾌｨﾗﾒﾝﾄﾁｮｯｹｲ" ("Fil. Dia.")
 #else
   #define MSG_FILAMENT_DIAM                 "\xcc\xa8\xd7\xd2\xdd\xc4\xb9\xb2"                                 // "ﾌｨﾗﾒﾝﾄｹｲ" ("Fil. Dia.")
@@ -157,7 +164,7 @@
 #define MSG_NO_MOVE                         "\xb3\xba\xde\xb7\xcf\xbe\xdd"                                     // "ｳｺﾞｷﾏｾﾝ" ("No move.")
 #define MSG_KILLED                          "\xcb\xbc\xde\xae\xb3\xc3\xb2\xbc"                                 // "ﾋｼﾞｮｳﾃｲｼ" ("KILLED. ")
 #define MSG_STOPPED                         "\xc3\xb2\xbc\xbc\xcf\xbc\xc0"                                     // "ﾃｲｼｼﾏｼﾀ" ("STOPPED. ")
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_CONTROL_RETRACT               "\xcb\xb7\xba\xd0\xd8\xae\xb3 mm"                                  // "ﾋｷｺﾐﾘｮｳ mm" ("Retract mm")
   #define MSG_CONTROL_RETRACT_SWAP          "\xcb\xb7\xba\xd0\xd8\xae\xb3S mm"                                 // "ﾋｷｺﾐﾘｮｳS mm" ("Swap Re.mm")
   #define MSG_CONTROL_RETRACTF              "\xcb\xb7\xba\xd0\xbf\xb8\xc4\xde mm/s"                            // "ﾋｷｺﾐｿｸﾄﾞ mm/s" ("Retract  V")
@@ -179,14 +186,14 @@
 #define MSG_INIT_SDCARD                     "SD\xb6\xb0\xc4\xde\xbb\xb2\xd6\xd0\xba\xd0"                       // "SDｶｰﾄﾞｻｲﾖﾐｺﾐ" ("Init. SD card")
 #define MSG_CNG_SDCARD                      "SD\xb6\xb0\xc4\xde\xba\xb3\xb6\xdd"                               // "SDｶｰﾄﾞｺｳｶﾝ" ("Change SD card")
 #define MSG_ZPROBE_OUT                      "Z\xcc\xdf\xdb\xb0\xcc\xde\x20\xcd\xde\xaf\xc4\xde\xb6\xde\xb2"    // "Zﾌﾟﾛｰﾌﾞ ﾍﾞｯﾄﾞｶﾞｲ" ("Z probe out. bed")
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_BLTOUCH_SELFTEST              "BLTouch \xbc\xde\xba\xbc\xdd\xc0\xde\xdd"                         // "BLTouch ｼﾞｺｼﾝﾀﾞﾝ" ("BLTouch Self-Test")
 #else
   #define MSG_BLTOUCH_SELFTEST              "BLTouch \xbe\xd9\xcc\xc3\xbd\xc4"                                 // "BLTouch ｾﾙﾌﾃｽﾄ" ("BLTouch Self-Test")
 #endif
 #define MSG_BLTOUCH_RESET                   "BLTouch \xd8\xbe\xaf\xc4"                                         // "BLTouch ﾘｾｯﾄ" ("Reset BLTouch")
 #define MSG_HOME                            "\xbb\xb7\xc6"                                                     // "ｻｷﾆ" ("Home") // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_FIRST                         "\xa6\xcc\xaf\xb7\xbb\xbe\xc3\xb8\xc0\xde\xbb\xb2"                 // "ｦﾌｯｷｻｾﾃｸﾀﾞｻｲ" ("first")
 #else
   #define MSG_FIRST                         "\xa6\xcc\xaf\xb7\xbb\xbe\xd6"                                     // "ｦﾌｯｷｻｾﾖ" ("first")
@@ -195,13 +202,13 @@
 #define MSG_BABYSTEP_X                      "X\xbc\xde\xb8\x20\xcb\xde\xc4\xde\xb3"                            // "Xｼﾞｸ ﾋﾞﾄﾞｳ" ("Babystep X")
 #define MSG_BABYSTEP_Y                      "Y\xbc\xde\xb8\x20\xcb\xde\xc4\xde\xb3"                            // "Yｼﾞｸ ﾋﾞﾄﾞｳ" ("Babystep Y")
 #define MSG_BABYSTEP_Z                      "Z\xbc\xde\xb8\x20\xcb\xde\xc4\xde\xb3"                            // "Zｼﾞｸ ﾋﾞﾄﾞｳ" ("Babystep Z")
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_ENDSTOP_ABORT                 "\xb2\xc4\xde\xb3\xb9\xde\xdd\xb6\xb2\xb9\xdd\xc1\xb7\xc9\xb3"     // "ｲﾄﾞｳｹﾞﾝｶｲｹﾝﾁｷﾉｳ" ("Endstop abort")
 #else
   #define MSG_ENDSTOP_ABORT                 "\xb2\xc4\xde\xb3\xb9\xde\xdd\xb6\xb2\xb9\xdd\xc1"                 // "ｲﾄﾞｳｹﾞﾝｶｲｹﾝﾁ" ("Endstop abort")
 #endif
 #define MSG_HEATING_FAILED_LCD              "\xb6\xc8\xc2\xbc\xaf\xca\xdf\xb2"                                 // "ｶﾈﾂｼｯﾊﾟｲ" ("Heating failed")
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_ERR_REDUNDANT_TEMP            "\xb4\xd7\xb0:\xbc\xde\xae\xb3\xc1\xae\xb3\xbb\xb0\xd0\xbd\xc0\xb0\xb7\xc9\xb3" // "ｴﾗｰ:ｼﾞｮｳﾁｮｳｻｰﾐｽﾀｰｷﾉｳ" ("Err: REDUNDANT TEMP")
 #else
   #define MSG_ERR_REDUNDANT_TEMP            "\xb4\xd7\xb0:\xbc\xde\xae\xb3\xc1\xae\xb3\xbb\xb0\xd0\xbd\xc0"                 // "ｴﾗｰ:ｼﾞｮｳﾁｮｳｻｰﾐｽﾀ" ("Err: REDUNDANT TEMP")
@@ -209,7 +216,7 @@
 #define MSG_THERMAL_RUNAWAY                 "\xc8\xc2\xce\xde\xb3\xbf\xb3"                                                  // "ﾈﾂﾎﾞｳｿｳ" ("THERMAL RUNAWAY")
 #define MSG_ERR_MAXTEMP                     "\xb4\xd7\xb0:\xbb\xb2\xba\xb3\xb5\xdd\xc1\xae\xb3\xb6"                         // "ｴﾗｰ:ｻｲｺｳｵﾝﾁｮｳｶ" ("Err: MAXTEMP")
 #define MSG_ERR_MINTEMP                     "\xb4\xd7\xb0:\xbb\xb2\xc3\xb2\xb5\xdd\xd0\xcf\xdd"                             // "ｴﾗｰ:ｻｲﾃｲｵﾝﾐﾏﾝ" ("Err: MINTEMP")
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_ERR_MAXTEMP_BED               "\xb4\xd7\xb0:\xcd\xde\xaf\xc4\xde\x20\xbb\xb2\xba\xb3\xb5\xdd\xc1\xae\xb3\xb6" // "ｴﾗｰ:ﾍﾞｯﾄﾞ ｻｲｺｳｵﾝﾁｮｳｶ" ("Err: MAXTEMP BED")
   #define MSG_ERR_MINTEMP_BED               "\xb4\xd7\xb0:\xcd\xde\xaf\xc4\xde\x20\xbb\xb2\xc3\xb2\xb5\xdd\xd0\xcf\xdd"     // "ｴﾗｰ:ﾍﾞｯﾄﾞ ｻｲﾃｲｵﾝﾐﾏﾝ" ("Err: MINTEMP BED")
 #else
@@ -239,24 +246,26 @@
 #define MSG_INFO_EXTRUDERS                  "\xb4\xb8\xbd\xc4\xd9\xb0\xc0\xde\xb0\xbd\xb3"                     // "ｴｸｽﾄﾙｰﾀﾞｰｽｳ" ("Extruders")
 #define MSG_INFO_BAUDRATE                   "\xce\xde\xb0\xda\xb0\xc4"                                         // "ﾎﾞｰﾚｰﾄ" ("Baud")
 #define MSG_INFO_PROTOCOL                   "\xcc\xdf\xdb\xc4\xba\xd9"                                         // "ﾌﾟﾛﾄｺﾙ" ("Protocol")
-#define MSG_INFO_PRINT_COUNT                "\xcc\xdf\xd8\xdd\xc4\xbd\xb3  "                                   // "ﾌﾟﾘﾝﾄｽｳ  " ("Print Count")
+#define MSG_LIGHTS_ON                       "\xb7\xae\xb3\xc0\xb2\xc5\xb2\xbc\xae\xb3\xd2\xb2\x20\xb5\xdd"     // "ｷｮｳﾀｲﾅｲｼｮｳﾒｲ ｵﾝ" ("Case light on")
+#define MSG_LIGHTS_OFF                      "\xb7\xae\xb3\xc0\xb2\xc5\xb2\xbc\xae\xb3\xd2\xb2\x20\xb5\xcc"     // "ｷｮｳﾀｲﾅｲｼｮｳﾒｲ ｵﾌ" ("Case light off")
+#define MSG_INFO_PRINT_COUNT                "\xcc\xdf\xd8\xdd\xc4\xbd\xb3"                                     // "ﾌﾟﾘﾝﾄｽｳ" ("Print Count")
 #define MSG_INFO_COMPLETED_PRINTS           "\xb6\xdd\xd8\xae\xb3\xbd\xb3"                                     // "ｶﾝﾘｮｳｽｳ" ("Completed")
 #define MSG_INFO_PRINT_TIME                 "\xcc\xdf\xd8\xdd\xc4\xbc\xde\xb6\xdd\xd9\xb2\xb9\xb2"             // "ﾌﾟﾘﾝﾄｼﾞｶﾝﾙｲｹｲ" ("Total print time")
 #define MSG_INFO_PRINT_LONGEST              "\xbb\xb2\xc1\xae\xb3\xcc\xdf\xd8\xdd\xc4\xbc\xde\xb6\xdd"         // "ｻｲﾁｮｳﾌﾟﾘﾝﾄｼﾞｶﾝ" ("Longest job time")
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_FILAMENT           "\xcc\xa8\xd7\xd2\xdd\xc4\xbc\xd6\xb3\xd8\xae\xb3\xd9\xb2\xb9\xb2" // "ﾌｨﾗﾒﾝﾄｼﾖｳﾘｮｳﾙｲｹｲ" ("Extruded total")
 #else
   #define MSG_INFO_PRINT_FILAMENT           "\xcc\xa8\xd7\xd2\xdd\xc4\xbf\xb3\xbc\xd6\xb3\xd8\xae\xb3"         // "ﾌｨﾗﾒﾝﾄｿｳｼﾖｳﾘｮｳ" ("Extruded")
 #endif
 #define MSG_INFO_MIN_TEMP                   "\xbe\xaf\xc3\xb2\xbb\xb2\xc3\xb2\xb5\xdd"                         // "ｾｯﾃｲｻｲﾃｲｵﾝ" ("Min Temp")
 #define MSG_INFO_MAX_TEMP                   "\xbe\xaf\xc3\xb2\xbb\xb2\xba\xb3\xb5\xdd"                         // "ｾｯﾃｲｻｲｺｳｵﾝ" ("Max Temp")
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PSU                      "\xc3\xde\xdd\xb9\xde\xdd\xbc\xad\xcd\xde\xc2"                     // "ﾃﾞﾝｹﾞﾝｼｭﾍﾞﾂ" ("Power Supply")
 #else
   #define MSG_INFO_PSU                      "\xc3\xde\xdd\xb9\xde\xdd"                                         // "ﾃﾞﾝｹﾞﾝ" ("Power Supply")
 #endif
 #define MSG_DRIVE_STRENGTH                  "\xd3\xb0\xc0\xb0\xb8\xc4\xde\xb3\xd8\xae\xb8"                     // "ﾓｰﾀｰｸﾄﾞｳﾘｮｸ" ("Drive Strength")
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_DAC_PERCENT                   "DAC\xbc\xad\xc2\xd8\xae\xb8 %"                                    // "DACｼｭﾂﾘｮｸ %" ("Driver %")
 #else
   #define MSG_DAC_PERCENT                   "DAC\xbc\xad\xc2\xd8\xae\xb8"                                      // "DACｼｭﾂﾘｮｸ" ("Driver %")
@@ -288,7 +297,7 @@
 #else // LCD_HEIGHT < 4
   #define MSG_FILAMENT_CHANGE_INIT_1        "\xba\xb3\xb6\xdd\xa6\xb6\xb2\xbc\xbc\xcf\xbd"                     // "ｺｳｶﾝｦｶｲｼｼﾏｽ" ("Please wait...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1      "\xcc\xa8\xd7\xd2\xdd\xc4\xc7\xb7\xc0\xde\xbc\xc1\xad\xb3"         // "ﾌｨﾗﾒﾝﾄﾇｷﾀﾞｼﾁｭｳ" ("Ejecting...")
-  #if LCD_WIDTH > 19
+  #if LCD_WIDTH >= 20
     #define MSG_FILAMENT_CHANGE_INSERT_1    "\xbf\xb3\xc6\xad\xb3\xbc\x2c\xb8\xd8\xaf\xb8\xbc\xc3\xb8\xc0\xde\xbb\xb2" // "ｿｳﾆｭｳｼ,ｸﾘｯｸｼﾃｸﾀﾞｻｲ" ("Insert and Click")
   #else
     #define MSG_FILAMENT_CHANGE_INSERT_1    "\xbf\xb3\xc6\xad\xb3\xbc\x2c\xb8\xd8\xaf\xb8\xbe\xd6"                     // "ｿｳﾆｭｳｼ,ｸﾘｯｸｾﾖ" ("Insert and Click")

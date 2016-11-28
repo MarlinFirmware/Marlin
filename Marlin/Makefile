@@ -380,16 +380,14 @@ endif
 CINCS = ${addprefix -I ,${VPATH}}
 CXXINCS = ${addprefix -I ,${VPATH}}
 
-# Compiler flag to set the C Standard level.
-# c89   - "ANSI" C
-# gnu89 - c89 plus GCC extensions
-# c99   - ISO C99 standard (not yet fully implemented)
-# gnu99 - c99 plus GCC extensions
-#CSTANDARD = -std=gnu99
+# Compiler flag to set the C/CPP Standard level.
+CSTANDARD = -std=gnu99
+CXXSTANDARD = -std=gnu++11
 CDEBUG = -g$(DEBUG)
 CWARN = -Wall -Wstrict-prototypes
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct \
 	-fshort-enums -w -ffunction-sections -fdata-sections \
+	-flto \
 	-DARDUINO=$(ARDUINO_VERSION)
 ifneq ($(HARDWARE_MOTHERBOARD),)
 CTUNING += -DMOTHERBOARD=${HARDWARE_MOTHERBOARD}
@@ -397,8 +395,8 @@ endif
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 CEXTRA = -fno-use-cxa-atexit
 
-CFLAGS := $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING)
-CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) -Wall    $(CEXTRA) $(CTUNING)
+CFLAGS := $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING) $(CSTANDARD)
+CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) -Wall    $(CEXTRA) $(CTUNING) $(CXXSTANDARD)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 LDFLAGS = -lm
 
@@ -513,7 +511,7 @@ extcoff: $(TARGET).elf
 	# Link: create ELF output file from library.
 $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Configuration.h
 	$(Pecho) "  CXX   $@"
-	$P $(CC) $(ALL_CXXFLAGS) -Wl,--gc-sections -o $@ -L. $(OBJ) $(LDFLAGS)
+	$P $(CC) $(ALL_CXXFLAGS) -Wl,--gc-sections,--relax -o $@ -L. $(OBJ) $(LDFLAGS)
 
 $(BUILD_DIR)/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
 	$(Pecho) "  CC    $<"

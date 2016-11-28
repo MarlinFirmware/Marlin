@@ -133,4 +133,6 @@
 #define NEAR_ZERO(x) ((x) > -0.000001 && (x) < 0.000001)
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
 
+#define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
+
 #endif //__MACROS_H
