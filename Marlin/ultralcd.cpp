@@ -883,13 +883,15 @@ void kill_screen(const char* lcd_msg) {
     }
   #endif
 
+  constexpr int heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP);
+
   /**
    *
    * "Prepare" submenu items
    *
    */
   void _lcd_preheat(int endnum, const float temph, const float tempb, const int fan) {
-    if (temph > 0) thermalManager.setTargetHotend(temph, endnum);
+    if (temph > 0) thermalManager.setTargetHotend(min(heater_maxtemp[endnum], temph), endnum);
     #if TEMP_SENSOR_BED != 0
       thermalManager.setTargetBed(tempb);
     #else
@@ -1583,7 +1585,6 @@ void kill_screen(const char* lcd_msg) {
 
     #if ENABLED(PIDTEMP)
       int autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(150);
-      const int heater_maxtemp[HOTENDS] = ARRAY_BY_HOTENDS(HEATER_0_MAXTEMP, HEATER_1_MAXTEMP, HEATER_2_MAXTEMP, HEATER_3_MAXTEMP);
     #endif
 
     #if ENABLED(PIDTEMPBED)
