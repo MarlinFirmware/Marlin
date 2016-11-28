@@ -104,6 +104,11 @@ float Planner::min_feedrate_mm_s,
   matrix_3x3 Planner::bed_level_matrix; // Transform to compensate for bed level
 #endif
 
+#if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+  float Planner::z_fade_height = 0.0,
+        Planner::inverse_z_fade_height = 0.0;
+#endif
+
 #if ENABLED(AUTOTEMP)
   float Planner::autotemp_max = 250,
         Planner::autotemp_min = 210,
@@ -531,10 +536,24 @@ void Planner::check_axes_activity() {
       if (!abl_enabled) return;
     #endif
 
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      static float z_fade_factor = 1.0, last_raw_lz = -999.0;
+      if (z_fade_height) {
+        const float raw_lz = RAW_Z_POSITION(lz);
+        if (raw_lz >= z_fade_height) return;
+        if (last_raw_lz != raw_lz) {
+          last_raw_lz = raw_lz;
+          z_fade_factor = 1.0 - raw_lz * inverse_z_fade_height;
+        }
+      }
+      else
+        z_fade_factor = 1.0;
+    #endif
+
     #if ENABLED(MESH_BED_LEVELING)
 
       if (mbl.active())
-        lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly));
+        lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly)) * z_fade_factor;
 
     #elif ABL_PLANAR
 
@@ -551,7 +570,7 @@ void Planner::check_axes_activity() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       float tmp[XYZ] = { lx, ly, 0 };
-      lz += bilinear_z_offset(tmp);
+      lz += bilinear_z_offset(tmp) * z_fade_factor;
 
     #endif
   }
@@ -562,10 +581,20 @@ void Planner::check_axes_activity() {
       if (!abl_enabled) return;
     #endif
 
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      if (z_fade_height && RAW_Z_POSITION(logical[Z_AXIS]) >= z_fade_height) return;
+    #endif
+
     #if ENABLED(MESH_BED_LEVELING)
 
-      if (mbl.active())
-        logical[Z_AXIS] -= mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]));
+      if (mbl.active()) {
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          const float c = mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]));
+          logical[Z_AXIS] = (z_fade_height * (RAW_Z_POSITION(logical[Z_AXIS]) - c)) / (z_fade_height - c);
+        #else
+          logical[Z_AXIS] -= mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]));
+        #endif
+      }
 
     #elif ABL_PLANAR
 
@@ -583,7 +612,12 @@ void Planner::check_axes_activity() {
 
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-      logical[Z_AXIS] -= bilinear_z_offset(logical);
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        const float c = bilinear_z_offset(logical);
+        logical[Z_AXIS] = (z_fade_height * (RAW_Z_POSITION(logical[Z_AXIS]) - c)) / (z_fade_height - c);
+      #else
+        logical[Z_AXIS] -= bilinear_z_offset(logical);
+      #endif
 
     #endif
   }
