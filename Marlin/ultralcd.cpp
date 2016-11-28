@@ -110,9 +110,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   #if HAS_POWER_SWITCH
     extern bool powersupply;
   #endif
-  #if HAS_CASE_LIGHT
-    extern bool case_light_on;
-  #endif
+
   const float manual_feedrate_mm_m[] = MANUAL_FEEDRATE;
   void lcd_main_menu();
   void lcd_tune_menu();
@@ -580,6 +578,19 @@ void kill_screen(const char* lcd_msg) {
 
   #endif //SDSUPPORT
 
+  #if HAS_CASE_LIGHT && ENABLED(MENU_ITEM_CASE_LIGHT)
+
+    extern bool case_light_on;
+    extern void update_case_light();
+
+    void toggle_case_light() {
+      case_light_on = !case_light_on;
+      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+      update_case_light();
+    }
+
+  #endif // MENU_ITEM_CASE_LIGHT
+
   /**
    *
    * "Main" menu
@@ -594,10 +605,10 @@ void kill_screen(const char* lcd_msg) {
     // Switch case light on/off
     //
     #if HAS_CASE_LIGHT && ENABLED(MENU_ITEM_CASE_LIGHT)
-      if (case_light_on == 0)
-        MENU_ITEM(gcode, MSG_LIGHTS_ON, PSTR("M355 S1"));
+      if (case_light_on)
+        MENU_ITEM(function, MSG_LIGHTS_OFF, toggle_case_light);
       else
-        MENU_ITEM(gcode, MSG_LIGHTS_OFF, PSTR("M355 S0"));
+        MENU_ITEM(function, MSG_LIGHTS_ON, toggle_case_light);
     #endif
 
     #if ENABLED(BLTOUCH)
