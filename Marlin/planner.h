@@ -210,6 +210,10 @@ class Planner {
       static float extruder_advance_k;
     #endif
 
+    #if ENABLED(ENSURE_SMOOTH_MOVES)
+      static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
+    #endif
+
   public:
 
     /**
@@ -367,6 +371,9 @@ class Planner {
     static block_t* get_current_block() {
       if (blocks_queued()) {
         block_t* block = &block_buffer[block_buffer_tail];
+        #if ENABLED(ENSURE_SMOOTH_MOVES)
+          block_buffer_runtime_us -= block->segment_time; //We can't be sure how long an active block will take, so don't count it.
+        #endif
         SBI(block->flag, BLOCK_BIT_BUSY);
         return block;
       }
@@ -378,10 +385,14 @@ class Planner {
       static bool long_move() {
         if (blocks_queued()) {
           block_t* block = &block_buffer[block_buffer_tail];
-          return block->segment_time > (LCD_UPDATE_THRESHOLD) * 1000UL;
+          return block_buffer_runtime_us > (LCD_UPDATE_THRESHOLD) * 1000UL + (MIN_BLOCK_TIME) * 3000UL;
         }
         else
           return true;
+      }
+      
+      static void clear_block_buffer_runtime(){
+        block_buffer_runtime_us = 0;
       }
     #endif
 
