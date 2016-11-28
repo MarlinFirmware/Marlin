@@ -258,6 +258,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 
   #define START_MENU() \
     START_SCREEN_OR_MENU(1); \
+    screen_changed = false; \
     NOMORE(encoderTopLine, encoderLine); \
     if (encoderLine >= encoderTopLine + LCD_HEIGHT - TALL_FONT_CORRECTION) { \
       encoderTopLine = encoderLine - (LCD_HEIGHT - TALL_FONT_CORRECTION - 1); \
@@ -296,7 +297,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 
   #define _MENU_ITEM_PART_2(TYPE, ...) \
         menu_action_ ## TYPE(__VA_ARGS__); \
-        return; \
+        if (screen_changed) return; \
       } \
     } \
     ++_thisItemNr
@@ -383,6 +384,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
 
   menuPosition screen_history[10];
   uint8_t screen_history_depth = 0;
+  bool screen_changed;
 
   // LCD and menu clicks
   bool lcd_clicked, wait_for_unclick, defer_return_to_status;
@@ -410,6 +412,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
         lcd_set_custom_characters(screen == lcd_status_screen);
       #endif
       lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+      screen_changed = true;
     }
   }
 
