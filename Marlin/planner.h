@@ -384,7 +384,6 @@ class Planner {
     #if ENABLED(ENSURE_SMOOTH_MOVES)
       static bool long_move() {
         if (blocks_queued()) {
-          block_t* block = &block_buffer[block_buffer_tail];
           return block_buffer_runtime_us > (LCD_UPDATE_THRESHOLD) * 1000UL + (MIN_BLOCK_TIME) * 3000UL;
         }
         else
