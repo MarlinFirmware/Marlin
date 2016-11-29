@@ -18,7 +18,7 @@
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
-#define MACHINE_NAME_M115 "Hephestos_XL"
+#define MACHINE_NAME_M115 "Hephestos_ZUM"
 #define SOURCE_CODE_URL_M115 "http%3A//github.com/bq/Marlin"
 #define FIRMWARE_LANGUAGE_M115 ""
 
@@ -36,7 +36,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_13_EFB
+  #define MOTHERBOARD 44
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -61,9 +61,6 @@
 
 // Define this to have hotbed support
 //#define HEATED_BED_SUPPORT
-
-// The following define selects the stepper profile to use, if enabled printer noise will increase
-// #define PREFER_MAX_SPEED
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -148,7 +145,6 @@
 // If you want the M105 heater power reported in watts, define the BED_WATTS, and (shared for all extruders) EXTRUDER_WATTS
 //#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R
 //#define BED_WATTS (12.0*12.0/1.1)      // P=I^2/R
-
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -236,7 +232,6 @@
 #define EXTRUDE_MINTEMP 170
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
-
 //===========================================================================
 //============================= Thermal Runaway Protection ==================
 //===========================================================================
@@ -321,11 +316,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 //#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
 
-// Disable max endstops for compatibility with endstop checking routine
-#if defined(COREXY) && !defined(DISABLE_MAX_ENDSTOPS)
-  #define DISABLE_MAX_ENDSTOPS
-#endif
-
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0
 #define Y_ENABLE_ON 0
@@ -343,7 +333,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR true
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -358,12 +348,14 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing (units are in mm)
-#define X_MAX_POS 200
+#define X_MAX_POS 215
 #define X_MIN_POS 0
-#define Y_MAX_POS 300
+#define Y_MAX_POS 210
 #define Y_MIN_POS 0
 #define Z_MAX_POS 180
 #define Z_MIN_POS 0
+
+
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
@@ -424,8 +416,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
       #define ABL_MANUAL_PT_3_X X_MAX_POS - 30 + X_PROBE_OFFSET_FROM_EXTRUDER
       #define ABL_MANUAL_PT_3_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
       #define ABL_MANUAL_PT_4_X X_MIN_POS + 30 + X_PROBE_OFFSET_FROM_EXTRUDER
-      #define ABL_MANUAL_PT_4_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER  
-      
+      #define ABL_MANUAL_PT_4_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
+
       #define ABL_PROBE_PT_1_X ABL_MANUAL_PT_1_X
       #define ABL_PROBE_PT_1_Y ABL_MANUAL_PT_1_Y
       #define ABL_PROBE_PT_2_X ABL_MANUAL_PT_2_X
@@ -473,14 +465,13 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
  * MOVEMENT SETTINGS
  */
 
-
-#define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define HOMING_FEEDRATE {2000, 2000, 150, 0} // set the homing speeds (mm/min)
 #define HOMING_SLOW_FEEDRATE {2000, 2000, 150, 0} 
+#define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80, 80, 4000,100.47095761381482}  // default steps per unit for Ultimaker
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {2*80, 2*80, 2*4000,2*100.47095761381482}
 #define DEFAULT_MAX_ACCELERATION      {1100,1100,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #ifndef PREFER_MAX_SPEED
@@ -489,8 +480,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 	#define DEFAULT_MAX_FEEDRATE          {200, 200, 3.3, 25}    // (mm/sec)
 #endif // PREFER_MAX_SPEED
 
-#define DEFAULT_ACCELERATION          650     // X, Y, Z and E acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          650    // X, Y, Z and E acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1000   // E acceleration in mm/s^2 for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
@@ -505,7 +496,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 
-//===========================================================================
 //============================= WITBOX Custom ===============================
 //===========================================================================
 
@@ -526,7 +516,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #endif
 
 #if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
-  #define XY_TRAVEL_SPEED 150		// X and Y axis travel speed between probes and Witbox movements, in mm/s
+  #define XY_TRAVEL_SPEED 150 		// X and Y axis travel speed between probes and Witbox movements, in mm/s
 #endif
 
 #ifdef HEATED_BED_SUPPORT
@@ -535,7 +525,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #endif
 
 //===========================================================================
-//===========================================================================
+//============================= Additional Features ===========================
+//=============================================================================
 
 // Custom M code points
 #define CUSTOM_M_CODES
@@ -573,11 +564,15 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 
 //==============================LCD and SD support=============================
 
-// Character based displays can have different extended charsets. If you see strange or missing characters on yours - try an other definition below.
-#define DISPLAY_CHARSET_HD44870_JAPAN  //  "ääööüüß°"
+// Define your display language below. Replace (en) with your language code and uncomment.
+// en, pl, fr, de, es, ru, it, pt, pt-br, fi, an, nl, ca, eu
+// See also language.h
 //#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
-//#define DISPLAY_CHARSET_HD44870_WESTERN // with better support for European languages. "ÄäÖöÜüß°"
-//#define DISPLAY_CHARSET_DOGM // for full graphics display "ÄäÖÖÜÜß°"
+
+// Define your display language below. Replace (en) with your language code and uncomment.
+// en, pl, fr, de, es, ru, it, pt, pt-br, fi, an, nl, ca, eu, kana, kana_utf8, test
+// See also language.h
+//#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 
 // Choose ONE of these 3 charsets. This has to match your hardware. Ignored for full graphic display.
 // To find out what type you have - compile with (test) - upload - click to get the menu. You'll see two typical lines from the upper half of the charset.
@@ -598,10 +593,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000  // this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
                                                // 0 to disable buzzer feedback  
-
-// PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
-// http://reprap.org/wiki/PanelOne
-//#define PANEL_ONE
 
 // PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
 // http://reprap.org/wiki/PanelOne
@@ -673,10 +664,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
  #define ENCODER_STEPS_PER_MENU_ITEM 1
 #endif
 
-#if defined (PANEL_ONE)
- #define SDSUPPORT
- #define ULTIMAKERCONTROLLER
-#endif
 
 #if defined (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
  #define DOGLCD
@@ -759,7 +746,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 // Shift register panels
 // ---------------------
 // 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
 
 //#define SAV_3DLCD
 #ifdef SAV_3DLCD
@@ -774,7 +761,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
   #define SDSUPPORT
   #define ULTRA_LCD
   #ifdef DOGLCD // Change number of lines to match the DOG graphic display
-    #define LCD_WIDTH 20
+    #define LCD_WIDTH 22
     #define LCD_HEIGHT 5
   #else
     #define LCD_WIDTH 20
@@ -783,7 +770,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #else //no panel but just LCD
   #ifdef ULTRA_LCD
   #ifdef DOGLCD // Change number of lines to match the 128x64 graphics display
-    #define LCD_WIDTH 20
+    #define LCD_WIDTH 22
     #define LCD_HEIGHT 5
   #else
     #define LCD_WIDTH 16
@@ -791,6 +778,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
   #endif
   #endif
 #endif
+
+// sd browsing cache is set to twice LCD height
+#define SD_CACHE_SIZE LCD_HEIGHT*2
+
 
 // default LCD contrast for dogm-like LCD displays
 #ifdef DOGLCD

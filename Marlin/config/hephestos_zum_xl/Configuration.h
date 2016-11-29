@@ -18,7 +18,7 @@
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
-#define MACHINE_NAME_M115 "Hephestos_XL"
+#define MACHINE_NAME_M115 "Hephestos_ZUM_XL"
 #define SOURCE_CODE_URL_M115 "http%3A//github.com/bq/Marlin"
 #define FIRMWARE_LANGUAGE_M115 ""
 
@@ -36,7 +36,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_13_EFB
+  #define MOTHERBOARD 44
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -61,9 +61,6 @@
 
 // Define this to have hotbed support
 //#define HEATED_BED_SUPPORT
-
-// The following define selects the stepper profile to use, if enabled printer noise will increase
-// #define PREFER_MAX_SPEED
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -340,10 +337,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR true
+#define INVERT_X_DIR false
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR true
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -480,7 +477,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80, 80, 4000,100.47095761381482}  // default steps per unit for Ultimaker
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {2*80, 2*80, 2*4000,2*100.47095761381482}  // default steps per unit for Ultimaker
 #define DEFAULT_MAX_ACCELERATION      {1100,1100,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #ifndef PREFER_MAX_SPEED
@@ -489,8 +486,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 	#define DEFAULT_MAX_FEEDRATE          {200, 200, 3.3, 25}    // (mm/sec)
 #endif // PREFER_MAX_SPEED
 
-#define DEFAULT_ACCELERATION          650     // X, Y, Z and E acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  1000    // E acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          650    // X, Y, Z and E acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1000   // E acceleration in mm/s^2 for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   1000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).

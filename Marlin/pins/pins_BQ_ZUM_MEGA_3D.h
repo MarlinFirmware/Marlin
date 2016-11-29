@@ -6,7 +6,8 @@
 *   - bq LCD Smart Controller
 *   - RepRapDiscount Smart Controller
 ****************************************************************************************/
-#if MB(BQ_ZUM_MEGA_3D)
+
+#if MB(BQ_ZUM_MEGA_3D) || MB(BQ_HPH_ZUM_3D)
  #define KNOWN_BOARD 1
  #define LARGE_FLASH true
 
@@ -87,7 +88,7 @@
  // LEDs
  #define LED_PIN            13
 
-#endif // BQCNC
+#endif // BQ_ZUM_3D
 
 /****************************************************************************************
 * bq LCD Smart Controller
@@ -109,4 +110,24 @@
  // SD Card Reader
  #define SDSS                53
  #define SDCARDDETECT        49
+#else
+  #ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
+    #define LCD_PINS_RS 16
+    #define LCD_PINS_ENABLE 23
+    #define LCD_PINS_D4 39
+    #define LCD_PINS_D5 17
+    #define LCD_PINS_D6 43
+    #define LCD_PINS_D7 41
+    
+     // Button & Encoder
+	 #define BTN_EN1             31
+	 #define BTN_EN2             33
+	 #define BTN_ENC             35
+	 // Buzzer
+	 #define BEEPER              37
+	 
+	  // SD Card Reader
+	 #define SDSS                53
+	 #define SDCARDDETECT        49
+  #endif //REPRAP_DISCOUNT_SMART_CONTROLLER
 #endif // BQ_LCD_SMART_CONTROLLER 
