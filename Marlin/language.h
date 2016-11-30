@@ -71,6 +71,7 @@
 // pt_utf8    Portuguese (UTF8)
 // ru         Russian
 // tr         Turkish
+// uk         Ukrainian
 
 #ifdef DEFAULT_SOURCE_CODE_URL
   #undef  SOURCE_CODE_URL
