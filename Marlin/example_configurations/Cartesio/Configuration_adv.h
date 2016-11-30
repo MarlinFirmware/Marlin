@@ -971,7 +971,6 @@
 
 // @section L6470
 
-
 /**
  * Enable this section if you have L6470 motor drivers.
  * You need to import the L6470 library into the Arduino IDE for this.

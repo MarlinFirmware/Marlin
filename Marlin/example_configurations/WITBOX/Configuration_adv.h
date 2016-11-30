@@ -764,6 +764,7 @@
 
 // @section TMC2130
 
+
 /**
  * Enable this for SilentStepStick Trinamic TMC2130 SPI-configurable stepper drivers.
  *
@@ -969,7 +970,6 @@
 #endif // HAVE_TMC2130DRIVER
 
 // @section L6470
-
 
 /**
  * Enable this section if you have L6470 motor drivers.
