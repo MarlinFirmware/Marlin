@@ -886,6 +886,17 @@
 #endif
 
 /**
+ * RGB_LED Requirements
+ */
+#if ENABLED(RGB_LED)
+  #if !(PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B))
+    #error "RGB_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, and RGB_LED_B_PIN."
+  #elif ENABLED(BLINKM)
+    #error "RGB_LED and BLINKM are currently incompatible (both use M150)."
+  #endif
+#endif
+
+/**
  * Auto Fan check for PWM pins
  */
 #if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255
