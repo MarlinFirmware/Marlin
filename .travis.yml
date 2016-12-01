@@ -27,7 +27,7 @@ before_script:
   # ino needs files in src directory
   - ln -s Marlin src
   # remove Marlin.pde as it confuses ino after it finds Marlin.ino
-  - rm Marlin/Marlin.pde
+  - rm Marlin/MarlinOlder.pde
 script:
   # build default config
   - ino build -m mega2560

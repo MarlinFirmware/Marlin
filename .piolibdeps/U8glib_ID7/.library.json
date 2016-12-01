@@ -1,0 +1,40 @@
+{
+    "description": "A library for monochrome TFTs and OLEDs", 
+    "repository": {
+        "url": "https://github.com/olikraus/U8glib_Arduino", 
+        "type": "git"
+    }, 
+    "platforms": [
+        "atmelavr", 
+        "atmelsam"
+    ], 
+    "export": {
+        "exclude": [
+            "extras", 
+            "docs", 
+            "tests", 
+            "test", 
+            "*.doxyfile", 
+            "*.pdf"
+        ], 
+        "include": null
+    }, 
+    "authors": [
+        {
+            "maintainer": true, 
+            "name": "oliver", 
+            "url": null, 
+            "email": "olikraus@gmail.com"
+        }
+    ], 
+    "keywords": [
+        "display"
+    ], 
+    "id": 7, 
+    "name": "U8glib", 
+    "frameworks": [
+        "arduino"
+    ], 
+    "version": "1.19.1", 
+    "homepage": "https://github.com/olikraus/u8glib"
+}
