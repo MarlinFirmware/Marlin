@@ -69,8 +69,8 @@ void safe_delay(millis_t ms);
   // Convert float to rj string with 123 or -12 format
   FORCE_INLINE char *ftostr3(const float& x) { return itostr3((int)x); }
 
-  // Convert float to rj string with _123, -123, _-12, or __-1 format
-  FORCE_INLINE char *ftostr4sign(const float& x) { return itostr4sign((int)x); }
+  // Convert float to rj string with 1234, _123, 12.3, _1.2, -123, _-12, or -1.2 format
+  char *ftostr4sign(const float& fx);
 
 #endif // ULTRA_LCD
 
