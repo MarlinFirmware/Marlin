@@ -153,6 +153,8 @@
 #define MSG_INIT_SDCARD                     "Iniz. SD-Card"
 #define MSG_CNG_SDCARD                      "Cambia SD-Card"
 #define MSG_ZPROBE_OUT                      "Z probe out. bed"
+#define MSG_BLTOUCH_SELFTEST                "Autotest BLTouch"
+#define MSG_BLTOUCH_RESET                   "Resetta BLTouch"
 #define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "prima"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
@@ -190,6 +192,8 @@
 #define MSG_INFO_EXTRUDERS                  "Estrusori"
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocollo"
+#define MSG_LIGHTS_ON                       "Luci Case on"
+#define MSG_LIGHTS_OFF                      "Luci Case off"
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Contat. stampa"
   #define MSG_INFO_COMPLETED_PRINTS         "Completati"
@@ -215,6 +219,9 @@
 #define MSG_INFO_MAX_TEMP                   "Temp max"
 #define MSG_INFO_PSU                        "Alimentatore"
 
+#define MSG_DRIVE_STRENGTH                  "Potenza Drive"
+#define MSG_DAC_PERCENT                     "Driver %"
+#define MSG_DAC_EEPROM_WRITE                "Scrivi DAC EEPROM"
 #define MSG_FILAMENT_CHANGE_HEADER          "CAMBIA FILAMENTO"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CAMBIA OPZIONI:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Estrusione"
