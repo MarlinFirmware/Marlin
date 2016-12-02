@@ -2,6 +2,9 @@
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -17,30 +20,17 @@
  *
  */
 
+#ifndef WATCHDOG_H
+#define WATCHDOG_H
 
-#ifndef SPI_PINS_H_
-#define SPI_PINS_H_
+#include "Marlin.h"
+#include <avr/wdt.h>
 
-/**
- * Define SPI Pins: SCK, MISO, MOSI, SS
- */
-#if (SDSS == 4) || (SDSS == 10) || (SDSS == 52) || (SDSS == 77)
-  #if (SDSS == 4)
-    #define SPI_PIN         87
-    #define SPI_CHAN         1
-  #elif (SDSS == 10)
-    #define SPI_PIN         77
-    #define SPI_CHAN         0
-  #elif (SDSS == 52)
-    #define SPI_PIN         86
-    #define SPI_CHAN         2
-  #else
-    #define SPI_PIN         77
-    #define SPI_CHAN         0
-  #endif
-  #define SCK_PIN           76
-  #define MISO_PIN          74
-  #define MOSI_PIN 75
+// Initialize watchdog with a 4 second interrupt time
+void watchdog_init();
+
+// Reset watchdog. MUST be called at least every 4 seconds after the
+// first watchdog_init or AVR will go into emergency procedures.
+inline void watchdog_reset() { wdt_reset(); }
+
 #endif
-
-#endif /* SPI_PINS_H_ */

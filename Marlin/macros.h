@@ -30,6 +30,11 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
+// Bracket code that shouldn't be interrupted
+#ifndef CRITICAL_SECTION_START
+  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
+  #define CRITICAL_SECTION_END    SREG = _sreg;
+#endif
 
 // Clock speed factor
 #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20

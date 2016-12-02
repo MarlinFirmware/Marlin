@@ -25,8 +25,6 @@
 
 #include "MarlinConfig.h"
 
-#include "src/HAL/HAL.h"
-
 /**
  * Axis indices as enumerated constants
  *

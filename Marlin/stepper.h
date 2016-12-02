@@ -127,7 +127,7 @@ class Stepper {
     //unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
     static unsigned short acc_step_rate; // needed for deceleration start point
     static uint8_t step_loops, step_loops_nominal;
-    static HAL_TIMER_TYPE OCR1A_nominal;
+    static unsigned short OCR1A_nominal;
 
     static volatile long endstops_trigsteps[XYZ];
     static volatile long endstops_stepsTotal, endstops_stepsDone;
@@ -281,8 +281,8 @@ class Stepper {
 
   private:
 
-    static FORCE_INLINE HAL_TIMER_TYPE calc_timer(unsigned short step_rate) {
-      HAL_TIMER_TYPE timer;
+    static FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
+      unsigned short timer;
 
       NOMORE(step_rate, MAX_STEP_FREQUENCY);
 
@@ -300,7 +300,6 @@ class Stepper {
 
       NOLESS(step_rate, F_CPU / 500000);
       step_rate -= F_CPU / 500000; // Correct for minimal speed
-#if defined(ARDUINO_ARCH_AVR)
       if (step_rate >= (8 * 256)) { // higher step rate
         unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
         unsigned char tmp_step_rate = (step_rate & 0x00ff);
@@ -319,9 +318,6 @@ class Stepper {
         MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
         MYSERIAL.println(step_rate);
       }
-#elif defined(ARDUINO_ARCH_SAM)
-      timer = HAL_TIMER_RATE / step_rate;
-#endif
       return timer;
     }
 

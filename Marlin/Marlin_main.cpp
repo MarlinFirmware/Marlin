@@ -251,6 +251,10 @@
   #include "buzzer.h"
 #endif
 
+#if ENABLED(USE_WATCHDOG)
+  #include "watchdog.h"
+#endif
+
 #if ENABLED(BLINKM)
   #include "blinkm.h"
   #include "Wire.h"
@@ -764,8 +768,9 @@ inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[
   int freeMemory() { return SdFatUtil::FreeRam(); }
 #else
 extern "C" {
-  extern char __bss_end;
-  extern char __heap_start;
+
+  extern unsigned int __bss_end;
+  extern unsigned int __heap_start;
   extern void* __brkval;
 
   int freeMemory() {

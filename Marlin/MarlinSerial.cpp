@@ -28,11 +28,10 @@
  * Modified 28 September 2010 by Mark Sproul
  * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
  */
-
-#include "Marlin.h"
-#include "stepper.h"
-
 #include "MarlinSerial.h"
+
+#include "stepper.h"
+#include "Marlin.h"
 
 #ifndef USBCON
 // this next line disables the entire HardwareSerial.cpp,
