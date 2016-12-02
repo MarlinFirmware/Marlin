@@ -581,7 +581,7 @@ void kill_screen(const char* lcd_msg) {
 
   #endif //SDSUPPORT
 
-  #if HAS_CASE_LIGHT && ENABLED(MENU_ITEM_CASE_LIGHT)
+  #if ENABLED(MENU_ITEM_CASE_LIGHT)
 
     extern bool case_light_on;
     extern void update_case_light();
@@ -607,7 +607,7 @@ void kill_screen(const char* lcd_msg) {
     //
     // Switch case light on/off
     //
-    #if HAS_CASE_LIGHT && ENABLED(MENU_ITEM_CASE_LIGHT)
+    #if ENABLED(MENU_ITEM_CASE_LIGHT)
       if (case_light_on)
         MENU_ITEM(function, MSG_LIGHTS_OFF, toggle_case_light);
       else
