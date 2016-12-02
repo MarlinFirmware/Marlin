@@ -20,21 +20,19 @@
  *
  */
 
-#ifndef MARLIN_CONFIG_H
-#define MARLIN_CONFIG_H
+#if defined(ARDUINO_ARCH_SAM)
+ 
+#include "../../../Marlin.h"
 
-#include "macros.h"
-#include "boards.h"
-#include "Version.h"
-#include "Configuration.h"
-#include "Conditionals_LCD.h"
-#include "Configuration_adv.h"
-#include "pins.h"
-#ifndef USBCON
-  #define HardwareSerial_h // trick to disable the standard HWserial
+#if ENABLED(USE_WATCHDOG)
+
+#include "watchdog_Due.h"
+
+// TODO: implement for Due
+void watchdog_init() {
+    // this is a stub
+}
+
+#endif //USE_WATCHDOG
+
 #endif
-#include "Arduino.h"
-#include "Conditionals_post.h"
-#include "SanityCheck.h"
-
-#endif // MARLIN_CONFIG_H

@@ -34,6 +34,7 @@
   #include "stepper.h"
 #endif
 
+<<<<<<< 6c3bba60af6d7f172600d72beb608355823dc75e
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   #include "endstops.h"
 #endif
@@ -44,6 +45,8 @@
   #include "watchdog.h"
 #endif
 */
+=======
+>>>>>>> Initial stage of introducing HAL. Targets are AVR and Due.
 
 #ifdef K1 // Defined in Configuration.h in the PID settings
   #define K2 (1.0-K1)
@@ -1010,6 +1013,8 @@ void Temperature::init() {
 
   #endif //HEATER_0_USES_MAX6675
 
+#if defined(ARDUINO_ARCH_AVR)
+
   #ifdef DIDR2
     #define ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin - 8); }while(0)
   #else
@@ -1040,6 +1045,16 @@ void Temperature::init() {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     ANALOG_SELECT(FILWIDTH_PIN);
   #endif
+
+  // Use timer0 for temperature measurement
+  // Interleave temperature interrupt with millies interrupt
+  OCR0B = 128;
+  SBI(TIMSK0, OCIE0B);
+
+#elif defined(ARDUINO_ARCH_SAM)
+  HAL_timer_start (TEMP_TIMER_NUM, 1000);
+  HAL_timer_enable_interrupt (TEMP_TIMER_NUM);
+#endif
 
   #if HAS_AUTO_FAN_0
     #if E0_AUTO_FAN_PIN == FAN1_PIN
@@ -1081,11 +1096,6 @@ void Temperature::init() {
       SET_OUTPUT(E3_AUTO_FAN_PIN);
     #endif
   #endif
-
-  // Use timer0 for temperature measurement
-  // Interleave temperature interrupt with millies interrupt
-  OCR0B = 128;
-  SBI(TIMSK0, OCIE0B);
 
   // Wait for temperature measurement to settle
   delay(250);
@@ -1485,7 +1495,10 @@ void Temperature::set_current_temp_raw() {
  *  - Check new temperature values for MIN/MAX errors
  *  - Step the babysteps value for each axis towards 0
  */
-ISR(TIMER0_COMPB_vect) { Temperature::isr(); }
+HAL_TEMP_TIMER_ISR {
+  HAL_timer_isr_prologue (TEMP_TIMER_NUM);
+  Temperature::isr();
+}
 
 volatile bool Temperature::in_temp_isr = false;
 
@@ -1743,12 +1756,23 @@ void Temperature::isr() {
 
   #endif // SLOW_PWM_HEATERS
 
+#if defined(ARDUINO_ARCH_AVR)
+
   #define SET_ADMUX_ADCSRA(pin) ADMUX = _BV(REFS0) | (pin & 0x07); SBI(ADCSRA, ADSC)
   #ifdef MUX5
     #define START_ADC(pin) if (pin > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #else
     #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #endif
+
+  #define READ_ADC ADC
+#elif defined (ARDUINO_ARCH_SAM)
+  //TODO: Due equivalent
+  #define START_ADC(pin) HAL_adc_start_conversion(pin)
+
+  //TODO; reads ADC value?
+  #define READ_ADC HAL_adc_result
+#endif
 
   // Prepare or measure a sensor, each one every 12th frame
   switch (temp_state) {
@@ -1761,7 +1785,7 @@ void Temperature::isr() {
       break;
     case MeasureTemp_0:
       #if HAS_TEMP_0
-        raw_temp_value[0] += ADC;
+        raw_temp_value[0] += READ_ADC;
       #endif
       temp_state = PrepareTemp_BED;
       break;
@@ -1775,7 +1799,7 @@ void Temperature::isr() {
       break;
     case MeasureTemp_BED:
       #if HAS_TEMP_BED
-        raw_temp_bed_value += ADC;
+        raw_temp_bed_value += READ_ADC;
       #endif
       temp_state = PrepareTemp_1;
       break;
@@ -1789,7 +1813,7 @@ void Temperature::isr() {
       break;
     case MeasureTemp_1:
       #if HAS_TEMP_1
-        raw_temp_value[1] += ADC;
+        raw_temp_value[1] += READ_ADC;
       #endif
       temp_state = PrepareTemp_2;
       break;
@@ -1803,7 +1827,7 @@ void Temperature::isr() {
       break;
     case MeasureTemp_2:
       #if HAS_TEMP_2
-        raw_temp_value[2] += ADC;
+        raw_temp_value[2] += READ_ADC;
       #endif
       temp_state = PrepareTemp_3;
       break;
@@ -1817,7 +1841,7 @@ void Temperature::isr() {
       break;
     case MeasureTemp_3:
       #if HAS_TEMP_3
-        raw_temp_value[3] += ADC;
+        raw_temp_value[3] += READ_ADC;
       #endif
       temp_state = Prepare_FILWIDTH;
       break;
@@ -1831,10 +1855,10 @@ void Temperature::isr() {
       break;
     case Measure_FILWIDTH:
       #if ENABLED(FILAMENT_WIDTH_SENSOR)
-        // raw_filwidth_value += ADC;  //remove to use an IIR filter approach
-        if (ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
+        // raw_filwidth_value += READ_ADC;  //remove to use an IIR filter approach
+        if (READ_ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
           raw_filwidth_value -= (raw_filwidth_value >> 7); //multiply raw_filwidth_value by 127/128
-          raw_filwidth_value += ((unsigned long)ADC << 7); //add new ADC reading
+          raw_filwidth_value += ((unsigned long)READ_ADC << 7); //add new ADC reading
         }
       #endif
       temp_state = PrepareTemp_0;

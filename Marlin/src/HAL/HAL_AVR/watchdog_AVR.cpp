@@ -20,11 +20,13 @@
  *
  */
 
-#include "Marlin.h"
+#if defined(ARDUINO_ARCH_AVR)
+
+#include "../../../Marlin.h"
 
 #if ENABLED(USE_WATCHDOG)
 
-#include "watchdog.h"
+#include "watchdog_AVR.h"
 
 // Initialize watchdog with a 4 sec interrupt time
 void watchdog_init() {
@@ -53,4 +55,6 @@ void watchdog_init() {
   }
 #endif //WATCHDOG_RESET_MANUAL
 
+
 #endif //USE_WATCHDOG
+#endif
