@@ -26,9 +26,8 @@
 #include "macros.h"
 #include "language.h"
 #include "stopwatch.h"
-#ifdef ARDUINO_ARCH_AVR
 #include <avr/eeprom.h>
-#endif
+
 
 // Print debug messages with M111 S2
 //#define DEBUG_PRINTCOUNTER

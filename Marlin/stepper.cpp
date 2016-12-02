@@ -52,9 +52,7 @@
 #include "ultralcd.h"
 #include "language.h"
 #include "cardreader.h"
-#if defined(ARDUINO_ARCH_AVR)
 #include "speed_lookuptable.h"
-#endif
 
 #if HAS_DIGIPOTSS
   #include <SPI.h>
@@ -121,7 +119,7 @@ volatile signed char Stepper::count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
 unsigned short Stepper::acc_step_rate; // needed for deceleration start point
 uint8_t Stepper::step_loops, Stepper::step_loops_nominal;
-HAL_TIMER_TYPE Stepper::OCR1A_nominal;
+unsigned short Stepper::OCR1A_nominal;
 
 volatile long Stepper::endstops_trigsteps[XYZ];
 
@@ -188,7 +186,6 @@ volatile long Stepper::endstops_trigsteps[XYZ];
   #define E_APPLY_STEP(v,Q) E_STEP_WRITE(v)
 #endif
 
-#if defined(ARDUINO_ARCH_AVR)
 // intRes = longIn1 * longIn2 >> 24
 // uses:
 // r26 to store 0
@@ -244,14 +241,11 @@ volatile long Stepper::endstops_trigsteps[XYZ];
                  : \
                  "r26" , "r27" \
                )
-#elif defined(ARDUINO_ARCH_SAM)
 
-//#define MultiU16X8toH16(intRes, charIn1, intIn2)   intRes = ((charIn1) * (intIn2)) >> 16
+// Some useful constants
 
-#define MultiU24X32toH16(intRes, longIn1, longIn2) intRes = ((uint64_t)(longIn1) * (longIn2)) >> 24
-
-#endif
-
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
 
 /**
  *         __________________________
@@ -324,8 +318,6 @@ void Stepper::set_directions() {
  * Stepper Driver Interrupt
  *
  * Directly pulses the stepper motors at high frequency.
- *
- * AVR :
  * Timer 1 runs at a base frequency of 2MHz, with this ISR using OCR1A compare mode.
  *
  * OCR1A   Frequency
@@ -336,13 +328,7 @@ void Stepper::set_directions() {
  *  2000     1 KHz - sleep rate
  *  4000   500  Hz - init rate
  */
-
-HAL_STEP_TIMER_ISR
-{
-  HAL_timer_isr_prologue (STEP_TIMER_NUM);
-
-  Stepper::isr();
-}
+ISR(TIMER1_COMPA_vect) { Stepper::isr(); }
 
 void Stepper::isr() {
   if (cleaning_buffer_counter) {
@@ -352,7 +338,7 @@ void Stepper::isr() {
     #ifdef SD_FINISHED_RELEASECOMMAND
       if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
-      HAL_timer_set_count (STEP_TIMER_NUM, HAL_TIMER_RATE / 100); // Run at max speed - 10 KHz
+    OCR1A = 200; // Run at max speed - 10 KHz
     return;
   }
 
@@ -381,7 +367,7 @@ void Stepper::isr() {
       #if ENABLED(Z_LATE_ENABLE)
         if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
-          HAL_timer_set_count (STEP_TIMER_NUM, HAL_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
+          OCR1A = 2000; // Run at slow speed - 1 KHz
           return;
         }
       #endif
@@ -391,7 +377,7 @@ void Stepper::isr() {
       // #endif
     }
     else {
-      HAL_timer_set_count (STEP_TIMER_NUM, HAL_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
+      OCR1A = 2000; // Run at slow speed - 1 KHz
       return;
     }
   }
@@ -593,8 +579,8 @@ void Stepper::isr() {
     NOMORE(acc_step_rate, current_block->nominal_rate);
 
     // step_rate to timer interval
-    HAL_TIMER_TYPE timer = calc_timer(acc_step_rate);
-    HAL_timer_set_count (STEP_TIMER_NUM, timer);
+    uint16_t timer = calc_timer(acc_step_rate);
+    OCR1A = timer;
     acceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -631,12 +617,11 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      //TODO: HAL
       eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]); //>> 3 is divide by 8. Reason: Timer 1 runs at 16/8=2MHz, Timer 0 at 16/64=0.25MHz. ==> 2/0.25=8.
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
-    HAL_TIMER_TYPE step_rate;
+    uint16_t step_rate;
     MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
 
     if (step_rate < acc_step_rate) { // Still decelerating?
@@ -647,8 +632,8 @@ void Stepper::isr() {
       step_rate = current_block->final_rate;
 
     // step_rate to timer interval
-    HAL_TIMER_TYPE timer = calc_timer(step_rate);
-    HAL_timer_set_count (STEP_TIMER_NUM, timer);
+    uint16_t timer = calc_timer(step_rate);
+    OCR1A = timer;
     deceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -697,16 +682,12 @@ void Stepper::isr() {
 
     #endif
 
-    HAL_timer_set_count (STEP_TIMER_NUM, OCR1A_nominal);
+    OCR1A = OCR1A_nominal;
     // ensure we're running at the correct step rate, even if we just came off an acceleration
     step_loops = step_loops_nominal;
   }
 
-#if defined(ARDUINO_ARCH_AVR)
   NOLESS(OCR1A, TCNT1 + 16);
-#else
-  //TODO: portable
-#endif
 
   // If current block is finished, reset pointer
   if (all_steps_done) {
@@ -944,7 +925,6 @@ void Stepper::init() {
     E_AXIS_INIT(3);
   #endif
 
-#if defined(ARDUINO_ARCH_AVR)
   // waveform generation = 0100 = CTC
   CBI(TCCR1B, WGM13);
   SBI(TCCR1B, WGM12);
@@ -965,13 +945,6 @@ void Stepper::init() {
   // Init Stepper ISR to 122 Hz for quick starting
   OCR1A = 0x4000;
   TCNT1 = 0;
-#elif defined (ARDUINO_ARCH_SAM)
-  //todo: Due
-
-  HAL_timer_start (STEP_TIMER_NUM, 1000);
-
-#endif
-
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 
   #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
