@@ -7328,8 +7328,8 @@ inline void gcode_M907() {
   uint8_t case_light_brightness = 255;
 
   void update_case_light() {
-    digitalWrite(CASE_LIGHT_PIN, case_light_on ? HIGH : LOW);
-    analogWrite(CASE_LIGHT_PIN, case_light_on ? case_light_brightness : 0);
+    digitalWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
+    analogWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? case_light_brightness : 0);
   }
 
   /**
