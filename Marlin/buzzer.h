@@ -23,8 +23,8 @@
 #ifndef __BUZZER_H__
 #define __BUZZER_H__
 
-#include "src/HAL/HAL.h"
 #include "types.h"
+#include "fastio.h"
 #include "circularqueue.h"
 #include "temperature.h"
 
