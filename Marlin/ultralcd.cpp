@@ -1992,6 +1992,8 @@ void kill_screen(const char* lcd_msg) {
     void lcd_sd_updir() {
       card.updir();
       encoderTopLine = 0;
+      screen_changed = true;
+      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
     }
 
     /**
@@ -2464,6 +2466,8 @@ void kill_screen(const char* lcd_msg) {
       UNUSED(longFilename);
       card.chdir(filename);
       encoderPosition = 0;
+      screen_changed = true;
+      lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
     }
 
   #endif //SDSUPPORT
