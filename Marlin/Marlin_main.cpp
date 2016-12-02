@@ -251,10 +251,6 @@
   #include "buzzer.h"
 #endif
 
-#if ENABLED(USE_WATCHDOG)
-  #include "watchdog.h"
-#endif
-
 #if ENABLED(BLINKM)
   #include "blinkm.h"
   #include "Wire.h"
