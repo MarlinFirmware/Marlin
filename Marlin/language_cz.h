@@ -188,6 +188,8 @@
 #define MSG_INFO_EXTRUDERS                  "Extrudery"
 #define MSG_INFO_BAUDRATE                   "Rychlost"
 #define MSG_INFO_PROTOCOL                   "Protokol"
+#define MSG_LIGHTS_ON                       "Osvetleni Zap"
+#define MSG_LIGHTS_OFF                      "Osvetleni Vyp"
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Pocet tisku"
   #define MSG_INFO_COMPLETED_PRINTS         "Dokonceno"
