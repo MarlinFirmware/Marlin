@@ -5609,10 +5609,19 @@ inline void gcode_M140() {
       OUT_WRITE(SUICIDE_PIN, HIGH);
     #endif
 
+    #if ENABLED(HAVE_TMC2130)
+      delay(100);
+      tmc2130_init();
+    #endif
+
     #if ENABLED(ULTIPANEL)
       powersupply = true;
       LCD_MESSAGEPGM(WELCOME_MSG);
       lcd_update();
+    #endif
+
+    #if ENABLED(HAVE_TMC2130)
+      tmc2130_init();
     #endif
   }
 
@@ -9473,6 +9482,49 @@ void disable_all_steppers() {
   disable_e3();
 }
 
+#if ENABLED(CHECK_OVERTEMP) && ENABLED(HAVE_TMC2130)
+  // Over Temperature Pre-Warn macro. Check if 
+  #define OTPWMACRO(AX) { \
+    if (stepper##AX.checkOT()) { \
+      SERIAL_PROTOCOLLNPGM("AX## stepper temperature prewarn triggered!"); \
+      kill(PSTR(MSG_KILLED)); \
+    } \
+  }
+  void checkOverTemp() {
+    #if ENABLED(X_IS_TMC2130)
+      OTPWMACRO(X);
+    #endif
+    #if ENABLED(Y_IS_TMC2130)
+      OTPWMACRO(Y);
+    #endif
+    #if ENABLED(Z_IS_TMC2130)
+      OTPWMACRO(Z);
+    #endif
+    #if ENABLED(X2_IS_TMC2130)
+      OTPWMACRO(X2);
+    #endif
+    #if ENABLED(Y2_IS_TMC2130)
+      OTPWMACRO(Y2);
+    #endif
+    #if ENABLED(Z2_IS_TMC2130)
+      OTPWMACRO(Z2);
+    #endif
+    #if ENABLED(E0_IS_TMC2130)
+      OTPWMACRO(E0);
+    #endif
+    #if ENABLED(E1_IS_TMC2130)
+      OTPWMACRO(E1);
+    #endif
+    #if ENABLED(E2_IS_TMC2130)
+      OTPWMACRO(E2);
+    #endif
+    #if ENABLED(E3_IS_TMC2130)
+      OTPWMACRO(E3);
+    #endif
+  }
+
+#endif
+
 /**
  * Manage several activities:
  *  - Check for Filament Runout
@@ -9684,6 +9736,10 @@ void idle(
 
   #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
     buzzer.tick();
+  #endif
+
+  #if ENABLED(CHECK_OVERTEMP) && ENABLED(HAVE_TMC2130)
+    checkOverTemp();
   #endif
 }
 

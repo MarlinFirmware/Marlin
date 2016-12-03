@@ -728,6 +728,9 @@
 #endif
 
 #define HAVE_TMC2130
+//#define TMC2130_ADVANCED_SETTINGS // Settings below
+#define CHECK_OVERTEMP
+//#define STEALTHCHOP
 
 #if ENABLED(HAVE_TMC2130)
   #define R_SENSE 0.11 // R_sense resistor for SilentStepStick2130
@@ -735,55 +738,107 @@
   #define INTERPOLATE 1 // Interpolate X/Y/Z_MICROSTEPS to 256
 
   #define X_IS_TMC2130
-  #define X_MAX_CURRENT 1000  // rms current in mA
-  #define X_MICROSTEPS 32 // FULLSTEP..256
-  #define X_CHIP_SELECT 64
+  #define X_MAX_CURRENT 800  // rms current in mA
+  #define X_MICROSTEPS 16 // FULLSTEP..256
+  #define X_CHIP_SELECT 40
 
-  #define Y_IS_TMC2130
-  #define Y_MAX_CURRENT 1000  //in mA
-  #define Y_MICROSTEPS 32 // FULLSTEP..256
-  #define Y_CHIP_SELECT 65
+  //#define Y_IS_TMC2130
+  #define Y_MAX_CURRENT 800  //in mA
+  #define Y_MICROSTEPS 16 // FULLSTEP..256
+  #define Y_CHIP_SELECT 42
 
-  #define Z_IS_TMC2130
+  //#define Z_IS_TMC2130
   #define Z_MAX_CURRENT 800  //in mA
-  #define Z_MICROSTEPS 32 // FULLSTEP..256
-  #define Z_CHIP_SELECT 66
+  #define Z_MICROSTEPS 16 // FULLSTEP..256
+  #define Z_CHIP_SELECT 65
 
   //#define X2_IS_TMC2130
   //#define X2_MAX_CURRENT 1000  //in mA
-  //#define X2_MICROSTEPS 32 // FULLSTEP..256
+  //#define X2_MICROSTEPS 16 // FULLSTEP..256
   //#define X2_CHIP_SELECT
 
   //#define Y2_IS_TMC2130
   //#define Y2_MAX_CURRENT 1000  //in mA
-  //#define Y2_MICROSTEPS 32 // FULLSTEP..256
+  //#define Y2_MICROSTEPS 16 // FULLSTEP..256
   //#define Y2_CHIP_SELECT
 
   //#define Z2_IS_TMC2130
   //#define Z2_MAX_CURRENT 1000  //in mA
-  //#define Z2_MICROSTEPS 32 // FULLSTEP..256
+  //#define Z2_MICROSTEPS 16 // FULLSTEP..256
   //#define Z2_CHIP_SELECT
 
   //#define E0_IS_TMC2130
   //#define E0_MAX_CURRENT 1000  //in mA
-  //#define E0_MICROSTEPS 32 // FULLSTEP..256
+  //#define E0_MICROSTEPS 16 // FULLSTEP..256
   //#define E0_CHIP_SELECT
 
   //#define E1_IS_TMC2130
   //#define E1_MAX_CURRENT 1000  //in mA
-  //#define E1_MICROSTEPS 32 // FULLSTEP..256
+  //#define E1_MICROSTEPS 16 // FULLSTEP..256
   //#define E1_CHIP_SELECT
 
   //#define E2_IS_TMC2130
   //#define E2_MAX_CURRENT 1000  //in mA
-  //#define E2_MICROSTEPS 32 // FULLSTEP..256
+  //#define E2_MICROSTEPS 16 // FULLSTEP..256
   //#define E2_CHIP_SELECT
 
   //#define E3_IS_TMC2130
   //#define E3_MAX_CURRENT 1000  //in mA 
-  //#define E3_MICROSTEPS 32 // FULLSTEP..256
+  //#define E3_MICROSTEPS 16 // FULLSTEP..256
   //#define E3_CHIP_SELECT
 #endif
+
+/*
+ * You can set your own advanced settings by filling in predefined functions.
+ * You can find a list of available functions from the library github page
+ * https://github.com/teemuatlut/TMC2130Stepper
+ */
+#if defined(TMC2130_ADVANCED_SETTINGS)
+  #define X_ADV() { \
+    stepperX.coolstep_min_speed(1048575); \
+    stepperX.sg_stall_value(0); \
+    stepperX.diag1_stall(1); \
+    stepperX.diag1_active_high(1); \
+  }
+
+	#define Y_ADV() { \
+	}
+
+  #define Z_ADV() { \
+	}
+
+  #define X2_ADV() { \
+	}
+
+  #define Y2_ADV() { \
+	}
+
+  #define Z2_ADV() { \
+	}
+
+  #define E0_ADV() { \
+	}
+
+  #define E1_ADV() { \
+	}
+
+  #define E2_ADV() { \
+	}
+
+  #define E3_ADV() { \
+	}
+#else
+	#define X_ADV()  {NOOP;}
+	#define Y_ADV()  {NOOP;}
+	#define Z_ADV()  {NOOP;}
+	#define X2_ADV() {NOOP;}
+	#define Y2_ADV() {NOOP;}
+	#define Z2_ADV() {NOOP;}
+	#define E0_ADV() {NOOP;}
+	#define E1_ADV() {NOOP;}
+	#define E2_ADV() {NOOP;}
+	#define E3_ADV() {NOOP;}
+#endif  
 
 /******************************************************************************\
  * enable this section if you have L6470  motor drivers.
