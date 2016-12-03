@@ -186,142 +186,53 @@
 #define MSG_LIGHTS_ON                       "Upali osvjetljenje"
 #define MSG_LIGHTS_OFF                      "Ugasi osvjetljenje"
 #if LCD_WIDTH >= 20
-  #ifndef MSG_INFO_PRINT_COUNT
     #define MSG_INFO_PRINT_COUNT              "Broj printova"
-  #endif
-  #ifndef MSG_INFO_COMPLETED_PRINTS
     #define MSG_INFO_COMPLETED_PRINTS         "Završeni"
-  #endif
-  #ifndef MSG_INFO_PRINT_TIME
     #define MSG_INFO_PRINT_TIME               "Ukupno vrijeme printanja"
-  #endif
-  #ifndef MSG_INFO_PRINT_LONGEST
     #define MSG_INFO_PRINT_LONGEST            "Trajanje najdužeg printa"
-  #endif
-  #ifndef MSG_INFO_PRINT_FILAMENT
     #define MSG_INFO_PRINT_FILAMENT           "Extrudirano ukupno"
-  #endif
 #else
-  #ifndef MSG_INFO_PRINT_COUNT
     #define MSG_INFO_PRINT_COUNT              "Printovi"
-  #endif
-  #ifndef MSG_INFO_COMPLETED_PRINTS
     #define MSG_INFO_COMPLETED_PRINTS         "Završeni"
-  #endif
-  #ifndef MSG_INFO_PRINT_TIME
     #define MSG_INFO_PRINT_TIME               "Ukupno"
-  #endif
-  #ifndef MSG_INFO_PRINT_LONGEST
     #define MSG_INFO_PRINT_LONGEST            "Najduži"
-  #endif
-  #ifndef MSG_INFO_PRINT_FILAMENT
     #define MSG_INFO_PRINT_FILAMENT           "Extrudirano"
-  #endif
 #endif
-
-#ifndef MSG_INFO_MIN_TEMP
   #define MSG_INFO_MIN_TEMP                   "Min Temp"
-#endif
-#ifndef MSG_INFO_MAX_TEMP
   #define MSG_INFO_MAX_TEMP                   "Max Temp"
-#endif
-#ifndef MSG_INFO_PSU
   #define MSG_INFO_PSU                        "Napajanje"
-#endif
-
-#ifndef MSG_DRIVE_STRENGTH
   #define MSG_DRIVE_STRENGTH                  "Drive Strength"
-#endif
-#ifndef MSG_DAC_PERCENT
   #define MSG_DAC_PERCENT                     "Driver %"
-#endif
-#ifndef MSG_DAC_EEPROM_WRITE
   #define MSG_DAC_EEPROM_WRITE                "DAC EEPROM Write"
-#endif
-#ifndef MSG_FILAMENT_CHANGE_HEADER
   #define MSG_FILAMENT_CHANGE_HEADER          "CHANGE FILAMENT"
-#endif
-#ifndef MSG_FILAMENT_CHANGE_OPTION_HEADER
   #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CHANGE OPTIONS:"
-#endif
-#ifndef MSG_FILAMENT_CHANGE_OPTION_EXTRUDE
   #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extrudiraj više"
-#endif
-#ifndef MSG_FILAMENT_CHANGE_OPTION_RESUME
   #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Nastavi print"
-#endif
 #if LCD_HEIGHT >= 4
-  #ifndef MSG_FILAMENT_CHANGE_INIT_1
     #define MSG_FILAMENT_CHANGE_INIT_1          "Čekaj početak"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INIT_2
     #define MSG_FILAMENT_CHANGE_INIT_2          "filamenta"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INIT_3
     #define MSG_FILAMENT_CHANGE_INIT_3          "promijeni"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
     #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Čekaj"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_2
     #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filament unload"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_3
     #define MSG_FILAMENT_CHANGE_UNLOAD_3        ""
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_1
     #define MSG_FILAMENT_CHANGE_INSERT_1        "Umetni filament"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_2
     #define MSG_FILAMENT_CHANGE_INSERT_2        "i pritisni tipku"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_3
     #define MSG_FILAMENT_CHANGE_INSERT_3        "za nastavak..."
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_1
     #define MSG_FILAMENT_CHANGE_LOAD_1          "Pričekaj"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_2
     #define MSG_FILAMENT_CHANGE_LOAD_2          "filament load"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_3
     #define MSG_FILAMENT_CHANGE_LOAD_3          ""
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_1
     #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Pričekaj"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_2
     #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filament extrude"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_3
     #define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_1
     #define MSG_FILAMENT_CHANGE_RESUME_1        "Wait for print"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_2
     #define MSG_FILAMENT_CHANGE_RESUME_2        "to resume"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_3
     #define MSG_FILAMENT_CHANGE_RESUME_3        ""
-  #endif
 #else // LCD_HEIGHT < 4
-  #ifndef MSG_FILAMENT_CHANGE_INIT_1
     #define MSG_FILAMENT_CHANGE_INIT_1          "Pričekaj..."
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
     #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Ejecting..."
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_1
     #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert and Click"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_1
     #define MSG_FILAMENT_CHANGE_LOAD_1          "Loading..."
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_1
     #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extrudiranje..."
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_1
     #define MSG_FILAMENT_CHANGE_RESUME_1        "Nastavljam..."
   #endif
 #endif // LCD_HEIGHT < 4
