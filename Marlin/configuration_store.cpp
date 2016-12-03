@@ -786,10 +786,10 @@ void Config_ResetDefault() {
       }
       for (uint8_t e = 1; e < HOTENDS; e++) {
         SERIAL_ECHOPAIR("  M218 T", (int)e);
-        SERIAL_ECHOPAIR(" X", hotend_offset[X_AXIS]);
-        SERIAL_ECHOPAIR(" Y", hotend_offset[Y_AXIS]);
+        SERIAL_ECHOPAIR(" X", hotend_offset[X_AXIS][e]);
+        SERIAL_ECHOPAIR(" Y", hotend_offset[Y_AXIS][e]);
         #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
-          SERIAL_ECHOPAIR(" Z", hotend_offset[Z_AXIS]);
+          SERIAL_ECHOPAIR(" Z", hotend_offset[Z_AXIS][e]);
         #endif
         SERIAL_EOL;
       }
