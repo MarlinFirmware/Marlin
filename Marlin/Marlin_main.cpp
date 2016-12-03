@@ -5965,11 +5965,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
     #if ENABLED(BLINKM)
 
       // This variant uses i2c to send the RGB components to the device.
-      SendColors(
-        code_seen('R') ? code_value_byte() : 0,
-        code_seen('U') ? code_value_byte() : 0,
-        code_seen('B') ? code_value_byte() : 0
-      );
+      SendColors(r, g, b);
 
     #else
 
