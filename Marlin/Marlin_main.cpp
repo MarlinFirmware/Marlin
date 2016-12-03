@@ -9950,7 +9950,7 @@ void kill(const char* lcd_msg) {
   disable_all_steppers();
 
   #if HAS_POWER_SWITCH
-    pinMode(PS_ON_PIN, INPUT);
+    SET_INPUT(PS_ON_PIN);
   #endif
 
   suicide();
