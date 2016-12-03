@@ -396,6 +396,10 @@ extern uint8_t active_extruder;
   extern float mixing_factor[MIXING_STEPPERS];
 #endif
 
+#if ENABLED(AUTO_REPORT_TEMPERATURES) && (HAS_TEMP_HOTEND || HAS_TEMP_BED)
+  extern uint8_t auto_report_temp_interval;
+#endif
+
 void calculate_volumetric_multipliers();
 
 /**
