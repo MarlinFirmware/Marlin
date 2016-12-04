@@ -730,21 +730,13 @@ static bool pwm_status(uint8_t pin) {
 #define WGM_TEST2 (WGM == 0 || WGM == 4 || WGM == 12 || WGM == 13)
 
 static void err_is_counter() {
-  SERIAL_PROTOCOLPGM("   Can't ");
-  SERIAL_PROTOCOLPGM("be used as a PWM because ");
-  SERIAL_PROTOCOLPGM("of counter mode");
+  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because of counter mode");
 }
 static void err_is_interrupt() {
-  SERIAL_PROTOCOLPGM("   Can't ");
-  SERIAL_PROTOCOLPGM("be used as a PWM because ");
-  SERIAL_PROTOCOLPGM("it's ");
-  SERIAL_PROTOCOLPGM("being used as an interrupt");
+  SERIAL_PROTOCOLPGM("   Can't be used as a PWM because it's being used as an interrupt");
 }
 static void err_prob_interrupt() {
-  SERIAL_PROTOCOLPGM("   Probably can't ");
-  SERIAL_PROTOCOLPGM("be used as a PWM because ");
-  SERIAL_PROTOCOLPGM("counter/timer is ");
-  SERIAL_PROTOCOLPGM("being used as an interrupt");
+  SERIAL_PROTOCOLPGM("   Probably can't be used as a PWM because counter/timer is being used as an interrupt");
 }
 static void can_be_used() { SERIAL_PROTOCOLPGM("   can be used as PWM   "); }
 

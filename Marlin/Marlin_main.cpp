@@ -3551,6 +3551,9 @@ inline void gcode_G28() {
     stepper.synchronize();
   }
 
+  // Save 130 bytes with non-duplication of PSTR
+  void say_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
+
   /**
    * G29: Mesh-based Z probe, probes a grid and produces a
    *      mesh to compensate for variable bed height
@@ -3663,7 +3666,7 @@ inline void gcode_G28() {
           }
         }
         else {
-          SERIAL_CHAR('X'); SERIAL_PROTOCOLLNPGM(" not entered.");
+          SERIAL_CHAR('X'); say_not_entered();
           return;
         }
 
@@ -3675,7 +3678,7 @@ inline void gcode_G28() {
           }
         }
         else {
-          SERIAL_CHAR('Y'); SERIAL_PROTOCOLLNPGM(" not entered.");
+          SERIAL_CHAR('Y'); say_not_entered();
           return;
         }
 
@@ -3683,7 +3686,7 @@ inline void gcode_G28() {
           mbl.z_values[py][px] = code_value_axis_units(Z_AXIS);
         }
         else {
-          SERIAL_CHAR('Z'); SERIAL_PROTOCOLLNPGM(" not entered.");
+          SERIAL_CHAR('Z'); say_not_entered();
           return;
         }
         break;
@@ -3693,7 +3696,7 @@ inline void gcode_G28() {
           mbl.z_offset = code_value_axis_units(Z_AXIS);
         }
         else {
-          SERIAL_CHAR('Z'); SERIAL_PROTOCOLLNPGM(" not entered.");
+          SERIAL_CHAR('Z'); say_not_entered();
           return;
         }
         break;
@@ -5822,63 +5825,55 @@ inline void gcode_M115() {
   #if ENABLED(EXTENDED_CAPABILITIES_REPORT)
 
     // EEPROM (M500, M501)
-    SERIAL_PROTOCOLPGM("Cap:");
     #if ENABLED(EEPROM_SETTINGS)
-      SERIAL_PROTOCOLLNPGM("EEPROM:1");
+      SERIAL_PROTOCOLLNPGM("Cap:EEPROM:1");
     #else
-      SERIAL_PROTOCOLLNPGM("EEPROM:0");
+      SERIAL_PROTOCOLLNPGM("Cap:EEPROM:0");
     #endif
 
     // AUTOREPORT_TEMP (M155)
-    SERIAL_PROTOCOLPGM("Cap:");
     #if ENABLED(AUTO_REPORT_TEMPERATURES)
-      SERIAL_PROTOCOLLNPGM("AUTOREPORT_TEMP:1");
+      SERIAL_PROTOCOLLNPGM("Cap:AUTOREPORT_TEMP:1");
     #else
-      SERIAL_PROTOCOLLNPGM("AUTOREPORT_TEMP:0");
+      SERIAL_PROTOCOLLNPGM("Cap:AUTOREPORT_TEMP:0");
     #endif
 
     // PROGRESS (M530 S L, M531 <file>, M532 X L)
-    SERIAL_PROTOCOLPGM("Cap:");
-    SERIAL_PROTOCOLLNPGM("PROGRESS:0");
+    SERIAL_PROTOCOLLNPGM("Cap:PROGRESS:0");
 
     // AUTOLEVEL (G29)
-    SERIAL_PROTOCOLPGM("Cap:");
     #if HAS_ABL
-      SERIAL_PROTOCOLLNPGM("AUTOLEVEL:1");
+      SERIAL_PROTOCOLLNPGM("Cap:AUTOLEVEL:1");
     #else
-      SERIAL_PROTOCOLLNPGM("AUTOLEVEL:0");
+      SERIAL_PROTOCOLLNPGM("Cap:AUTOLEVEL:0");
     #endif
 
     // Z_PROBE (G30)
-    SERIAL_PROTOCOLPGM("Cap:");
     #if HAS_BED_PROBE
-      SERIAL_PROTOCOLLNPGM("Z_PROBE:1");
+      SERIAL_PROTOCOLLNPGM("Cap:Z_PROBE:1");
     #else
-      SERIAL_PROTOCOLLNPGM("Z_PROBE:0");
+      SERIAL_PROTOCOLLNPGM("Cap:Z_PROBE:0");
     #endif
 
     // SOFTWARE_POWER (G30)
-    SERIAL_PROTOCOLPGM("Cap:");
     #if HAS_POWER_SWITCH
-      SERIAL_PROTOCOLLNPGM("SOFTWARE_POWER:1");
+      SERIAL_PROTOCOLLNPGM("Cap:SOFTWARE_POWER:1");
     #else
-      SERIAL_PROTOCOLLNPGM("SOFTWARE_POWER:0");
+      SERIAL_PROTOCOLLNPGM("Cap:SOFTWARE_POWER:0");
     #endif
 
     // TOGGLE_LIGHTS (M355)
-    SERIAL_PROTOCOLPGM("Cap:");
     #if HAS_CASE_LIGHT
-      SERIAL_PROTOCOLLNPGM("TOGGLE_LIGHTS:1");
+      SERIAL_PROTOCOLLNPGM("Cap:TOGGLE_LIGHTS:1");
     #else
-      SERIAL_PROTOCOLLNPGM("TOGGLE_LIGHTS:0");
+      SERIAL_PROTOCOLLNPGM("Cap:TOGGLE_LIGHTS:0");
     #endif
 
     // EMERGENCY_PARSER (M108, M112, M410)
-    SERIAL_PROTOCOLPGM("Cap:");
     #if ENABLED(EMERGENCY_PARSER)
-      SERIAL_PROTOCOLLNPGM("EMERGENCY_PARSER:1");
+      SERIAL_PROTOCOLLNPGM("Cap:EMERGENCY_PARSER:1");
     #else
-      SERIAL_PROTOCOLLNPGM("EMERGENCY_PARSER:0");
+      SERIAL_PROTOCOLLNPGM("Cap:EMERGENCY_PARSER:0");
     #endif
 
   #endif // EXTENDED_CAPABILITIES_REPORT
