@@ -169,16 +169,17 @@ void tmc_init() {
     stepper##A.off_time(8); \
     stepper##A.interpolate(INTERPOLATE); \
     A##_ADV(); \
+    _TMC2130_STEALTH_CHOP(A); \
   } while(0)
   
   #if ENABLED(STEALTHCHOP)
-    #define _TMC2130_STEALTH_CHOP(AX) { \
+    #define _TMC2130_STEALTH_CHOP(AX) do { \
       stepper##AX.coolstep_min_speed(0); \
       stepper##AX.stealthChop(1); \
       stepper##AX.stealth_max_speed(1); \
-    }
+    } while (0)
   #else
-    #define _TMC2130_STEALTH_CHOP(AX) NOOP
+    #define _TMC2130_STEALTH_CHOP(B) NOOP
   #endif
 
   void tmc2130_init() {
