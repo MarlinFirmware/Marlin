@@ -78,8 +78,8 @@ Planner planner;
  * A ring buffer of moves described in steps
  */
 block_t Planner::block_buffer[BLOCK_BUFFER_SIZE];
-volatile uint8_t Planner::block_buffer_head = 0;           // Index of the next block to be pushed
-volatile uint8_t Planner::block_buffer_tail = 0;
+volatile uint8_t Planner::block_buffer_head = 0,           // Index of the next block to be pushed
+                 Planner::block_buffer_tail = 0;
 
 float Planner::max_feedrate_mm_s[NUM_AXIS], // Max speeds in mm per second
       Planner::axis_steps_per_mm[NUM_AXIS],
@@ -1374,7 +1374,6 @@ void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
     _set_position_mm(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], position[E_AXIS]);
   #endif
 }
-
 
 /**
  * Sync from the stepper positions. (e.g., after an interrupted move)
