@@ -140,8 +140,8 @@ class Planner {
      * A ring buffer of moves described in steps
      */
     static block_t block_buffer[BLOCK_BUFFER_SIZE];
-    static volatile uint8_t block_buffer_head;           // Index of the next block to be pushed
-    static volatile uint8_t block_buffer_tail;
+    static volatile uint8_t block_buffer_head,  // Index of the next block to be pushed
+                            block_buffer_tail;
 
     static float max_feedrate_mm_s[NUM_AXIS]; // Max speeds in mm per second
     static float axis_steps_per_mm[NUM_AXIS];
@@ -150,12 +150,12 @@ class Planner {
     static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
 
     static millis_t min_segment_time;
-    static float min_feedrate_mm_s;
-    static float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
-    static float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
-    static float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-    static float max_jerk[XYZE];       // The largest speed change requiring no acceleration
-    static float min_travel_feedrate_mm_s;
+    static float min_feedrate_mm_s,
+                 acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
+                 retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
+                 travel_acceleration,  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
+                 max_jerk[XYZE],       // The largest speed change requiring no acceleration
+                 min_travel_feedrate_mm_s;
 
     #if HAS_ABL
       static bool abl_enabled;            // Flag that bed leveling is enabled
