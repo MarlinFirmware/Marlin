@@ -2328,9 +2328,9 @@ void kill_screen(const char* lcd_msg) {
    *   bool _menu_edit_int3();
    *   void menu_edit_int3(); // edit int (interactively)
    *   void menu_edit_callback_int3(); // edit int (interactively) with callback on completion
-   *   void _menu_action_setting_edit_int3(const char* pstr, int* ptr, int minValue, int maxValue);
-   *   void menu_action_setting_edit_int3(const char* pstr, int* ptr, int minValue, int maxValue);
-   *   void menu_action_setting_edit_callback_int3(const char* pstr, int* ptr, int minValue, int maxValue, screenFunc_t callback); // edit int with callback
+   *   void _menu_action_setting_edit_int3(const char * const pstr, int * const ptr, const int minValue, const int maxValue);
+   *   void menu_action_setting_edit_int3(const char * const pstr, int * const ptr, const int minValue, const int maxValue);
+   *   void menu_action_setting_edit_callback_int3(const char * const pstr, int * const ptr, const int minValue, const int maxValue, const screenFunc_t callback); // edit int with callback
    *
    * You can then use one of the menu macros to present the edit interface:
    *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999)
@@ -2343,51 +2343,52 @@ void kill_screen(const char* lcd_msg) {
    *
    *       menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_percentage, 10, 999)
    */
-  #define menu_edit_type(_type, _name, _strFunc, scale) \
+  #define menu_edit_type(_type, _name, _strFunc, _scale) \
     bool _menu_edit_ ## _name () { \
       ENCODER_DIRECTION_NORMAL(); \
       if ((int32_t)encoderPosition < 0) encoderPosition = 0; \
       if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue; \
       if (lcdDrawUpdate) \
-        lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) / scale)); \
+        lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale))); \
       if (lcd_clicked) { \
-        *((_type*)editValue) = ((_type)((int32_t)encoderPosition + minEditValue)) / scale; \
+        *((_type*)editValue) = ((_type)((int32_t)encoderPosition + minEditValue)) * (1.0 / _scale); \
         lcd_goto_previous_menu(); \
       } \
       return lcd_clicked; \
     } \
     void menu_edit_ ## _name () { _menu_edit_ ## _name(); } \
     void menu_edit_callback_ ## _name () { if (_menu_edit_ ## _name ()) (*callbackFunc)(); } \
-    void _menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
+    void _menu_action_setting_edit_ ## _name (const char * const pstr, _type* const ptr, const _type minValue, const _type maxValue) { \
       lcd_save_previous_screen(); \
       \
       lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; \
       \
       editLabel = pstr; \
       editValue = ptr; \
-      minEditValue = minValue * scale; \
-      maxEditValue = maxValue * scale - minEditValue; \
-      encoderPosition = (*ptr) * scale - minEditValue; \
+      minEditValue = minValue * _scale; \
+      maxEditValue = maxValue * _scale - minEditValue; \
+      encoderPosition = (*ptr) * _scale - minEditValue; \
     } \
-    void menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
+    void menu_action_setting_edit_ ## _name (const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
       currentScreen = menu_edit_ ## _name; \
     }\
-    void menu_action_setting_edit_callback_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue, screenFunc_t callback) { \
+    void menu_action_setting_edit_callback_ ## _name (const char * const pstr, _type * const ptr, const _type minValue, const _type maxValue, const screenFunc_t callback) { \
       _menu_action_setting_edit_ ## _name(pstr, ptr, minValue, maxValue); \
       currentScreen = menu_edit_callback_ ## _name; \
       callbackFunc = callback; \
-    }
+    } \
+    typedef void _name
 
-  menu_edit_type(int, int3, itostr3, 1)
-  menu_edit_type(float, float3, ftostr3, 1)
-  menu_edit_type(float, float32, ftostr32, 100)
-  menu_edit_type(float, float43, ftostr43sign, 1000)
-  menu_edit_type(float, float5, ftostr5rj, 0.01)
-  menu_edit_type(float, float51, ftostr51sign, 10)
-  menu_edit_type(float, float52, ftostr52sign, 100)
-  menu_edit_type(float, float62, ftostr62sign, 100)
-  menu_edit_type(unsigned long, long5, ftostr5rj, 0.01)
+  menu_edit_type(int, int3, itostr3, 1);
+  menu_edit_type(float, float3, ftostr3, 1.0);
+  menu_edit_type(float, float32, ftostr32, 100.0);
+  menu_edit_type(float, float43, ftostr43sign, 1000.0);
+  menu_edit_type(float, float5, ftostr5rj, 0.01);
+  menu_edit_type(float, float51, ftostr51sign, 10.0);
+  menu_edit_type(float, float52, ftostr52sign, 100.0);
+  menu_edit_type(float, float62, ftostr62sign, 100.0);
+  menu_edit_type(unsigned long, long5, ftostr5rj, 0.01);
 
   /**
    *
