@@ -143,11 +143,15 @@ class Planner {
     static volatile uint8_t block_buffer_head,  // Index of the next block to be pushed
                             block_buffer_tail;
 
-    static float max_feedrate_mm_s[NUM_AXIS]; // Max speeds in mm per second
-    static float axis_steps_per_mm[NUM_AXIS];
-    static float steps_to_mm[NUM_AXIS];
-    static unsigned long max_acceleration_steps_per_s2[NUM_AXIS];
-    static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
+    #if ENABLED(DISTINCT_E_FACTORS)
+      static uint8_t last_extruder;             // Respond to extruder change
+    #endif
+
+    static float max_feedrate_mm_s[XYZE_N],     // Max speeds in mm per second
+                 axis_steps_per_mm[XYZE_N],
+                 steps_to_mm[XYZE_N];
+    static unsigned long max_acceleration_steps_per_s2[XYZE_N],
+                         max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
 
     static millis_t min_segment_time;
     static float min_feedrate_mm_s,
@@ -343,7 +347,13 @@ class Planner {
     static void set_position_mm_kinematic(const float position[NUM_AXIS]);
     static void set_position_mm(const AxisEnum axis, const float &v);
     static FORCE_INLINE void set_z_position_mm(const float &z) { set_position_mm(Z_AXIS, z); }
-    static FORCE_INLINE void set_e_position_mm(const float &e) { set_position_mm(E_AXIS, e); }
+    static FORCE_INLINE void set_e_position_mm(const float &e) {
+      set_position_mm(E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + active_extruder
+        #endif
+      , e);
+    }
 
     /**
      * Sync from the stepper positions. (e.g., after an interrupted move)
