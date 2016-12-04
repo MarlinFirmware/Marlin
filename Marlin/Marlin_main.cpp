@@ -244,6 +244,7 @@
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
+ * M906 - Set motor current in milliamps using axis codes X, Y, Z, E
  * M907 - Set digital trimpot motor current using axis codes. (Requires a board with digital trimpots)
  * M908 - Control digital trimpot directly. (Requires DAC_STEPPER_CURRENT or DIGIPOTSS_PIN)
  * M909 - Print digipot/DAC current value. (Requires DAC_STEPPER_CURRENT)
@@ -7012,6 +7013,34 @@ inline void gcode_M503() {
   }
 #endif
 
+/**
+ * M906: Set motor current in milliamps using axis codes X, Y, Z, E
+ */
+static void tmc2130_setCurrent(int mA, TMC2130Stepper &stepr, const char *name) {
+  //stepr.read_STAT();
+  SERIAL_PROTOCOL(name);
+  SERIAL_PROTOCOL(" axis driver current: ");
+  SERIAL_PROTOCOL(mA);
+  stepr.setCurrent(mA, 0.11, 0.5);
+  //stepr.isReset() ? SERIAL_PROTOCOLPGM("RESET ") : SERIAL_PROTOCOLPGM("----- ");
+  //stepr.isError() ? SERIAL_PROTOCOLPGM("ERROR ") : SERIAL_PROTOCOLPGM("----- ");
+  //stepr.isStallguard() ? SERIAL_PROTOCOLPGM("SLGRD ") : SERIAL_PROTOCOLPGM("----- ");
+  //stepr.isStandstill() ? SERIAL_PROTOCOLPGM("STILL ") : SERIAL_PROTOCOLPGM("----- ");
+  //SERIAL_PROTOCOLLN(stepr.debug());
+}
+inline void gcode_M906() {
+  #if ENABLED(HAVE_TMC2130)
+    LOOP_XYZE(i) {
+    if (code_seen(axis_codes[i])) {
+      //planner.max_acceleration_mm_per_s2[i] = code_value_axis_units(i);
+      
+    }
+  	if (code_seen('X')) tmc2130_setCurrent(code_value_int, stepperX, "X");
+    if (code_seen('Y')) tmc2130_setCurrent(code_value_int, stepperY, "Y");
+    if (code_seen('Z')) tmc2130_setCurrent(code_value_int, stepperZ, "Z");
+    if (code_seen('E')) tmc2130_setCurrent(code_value_int, stepperE, "E");
+  #endif
+}
 /**
  * M907: Set digital trimpot motor current using axis codes X, Y, Z, E, B, S
  */
