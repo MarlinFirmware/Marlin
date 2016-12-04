@@ -28,9 +28,6 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include <avr/pgmspace.h>
-#include <avr/interrupt.h>
-
 #include "src/HAL/HAL.h"
 
 #include "MarlinConfig.h"
