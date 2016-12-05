@@ -1227,7 +1227,7 @@ inline bool code_value_bool() { return !code_has_value() || code_value_byte() > 
   }
 
   inline float axis_unit_factor(int axis) {
-    return (axis == E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
+    return (axis >= E_AXIS && volumetric_enabled ? volumetric_unit_factor : linear_unit_factor);
   }
 
   inline float code_value_linear_units() { return code_value_float() * linear_unit_factor; }
@@ -5795,21 +5795,37 @@ inline void gcode_M85() {
 }
 
 /**
+ * Multi-stepper support for M92, M201, M203
+ */
+#if ENABLED(DISTINCT_E_FACTORS)
+  #define GET_TARGET_EXTRUDER(CMD) if (get_target_extruder_from_command(CMD)) return
+  #define TARGET_EXTRUDER target_extruder
+#else
+  #define GET_TARGET_EXTRUDER(CMD) NOOP
+  #define TARGET_EXTRUDER 0
+#endif
+
+/**
  * M92: Set axis steps-per-unit for one or more axes, X, Y, Z, and E.
  *      (Follows the same syntax as G92)
+ *
+ *      With multiple extruders use T to specify which one.
  */
 inline void gcode_M92() {
+
+  GET_TARGET_EXTRUDER(92);
+
   LOOP_XYZE(i) {
     if (code_seen(axis_codes[i])) {
       if (i == E_AXIS) {
-        float value = code_value_per_axis_unit(i);
+        float value = code_value_per_axis_unit(E_AXIS + TARGET_EXTRUDER);
         if (value < 20.0) {
-          float factor = planner.axis_steps_per_mm[i] / value; // increase e constants if M92 E14 is given for netfab.
+          float factor = planner.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] / value; // increase e constants if M92 E14 is given for netfab.
           planner.max_jerk[E_AXIS] *= factor;
-          planner.max_feedrate_mm_s[E_AXIS] *= factor;
-          planner.max_acceleration_steps_per_s2[E_AXIS] *= factor;
+          planner.max_feedrate_mm_s[E_AXIS + TARGET_EXTRUDER] *= factor;
+          planner.max_acceleration_steps_per_s2[E_AXIS + TARGET_EXTRUDER] *= factor;
         }
-        planner.axis_steps_per_mm[E_AXIS] = value;
+        planner.axis_steps_per_mm[E_AXIS + TARGET_EXTRUDER] = value;
       }
       else {
         planner.axis_steps_per_mm[i] = code_value_per_axis_unit(i);
@@ -6060,11 +6076,17 @@ inline void gcode_M200() {
 
 /**
  * M201: Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
+ *
+ *       With multiple extruders use T to specify which one.
  */
 inline void gcode_M201() {
+
+  GET_TARGET_EXTRUDER(201);
+
   LOOP_XYZE(i) {
     if (code_seen(axis_codes[i])) {
-      planner.max_acceleration_mm_per_s2[i] = code_value_axis_units(i);
+      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
+      planner.max_acceleration_mm_per_s2[a] = code_value_axis_units(a);
     }
   }
   // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
@@ -6082,11 +6104,18 @@ inline void gcode_M201() {
 
 /**
  * M203: Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in units/sec
+ *
+ *       With multiple extruders use T to specify which one.
  */
 inline void gcode_M203() {
+
+  GET_TARGET_EXTRUDER(203);
+
   LOOP_XYZE(i)
-    if (code_seen(axis_codes[i]))
-      planner.max_feedrate_mm_s[i] = code_value_axis_units(i);
+    if (code_seen(axis_codes[i])) {
+      const uint8_t a = i + (i == E_AXIS ? TARGET_EXTRUDER : 0);
+      planner.max_feedrate_mm_s[a] = code_value_axis_units(a);
+    }
 }
 
 /**
