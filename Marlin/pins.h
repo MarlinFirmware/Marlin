@@ -166,14 +166,71 @@
   #include "pins_MEGACONTROLLER.h"
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins_BQ_ZUM_MEGA_3D.h"
+#elif MB(DUE3DOM)
+  #include "pins_DUE3DOM.h"
+#elif MB(DUE3DOM_MINI)
+  #include "pins_DUE3DOM_MINI.h"
+#elif MB(RADDS)
+  #include "pins_RADDS.h"
+#elif MB(RAMPS_FD_V1)
+  #include "pins_RAMPS_FD.h"
+#elif MB(RAMPS_FD_V2)
+  #include "pins_RAMPS_FD_V2.h"
+#elif MB(RAMPS_SMART_EFB)
+  #define IS_RAMPS_EFB
+  #include "pins_RAMPS_SMART.h"
+#elif MB(RAMPS_SMART_EEB)
+  #define IS_RAMPS_EEB
+  #include "pins_RAMPS_SMART.h"
+#elif MB(RAMPS_SMART_EFF)
+  #define IS_RAMPS_EFF
+  #include "pins_RAMPS_SMART.h"
+#elif MB(RAMPS_SMART_EEF)
+  #define IS_RAMPS_EEF
+  #include "pins_RAMPS_SMART.h"
+#elif MB(RAMPS_SMART_SF)
+  #define IS_RAMPS_SF
+  #include "pins_RAMPS_SMART.h"
+#elif MB(RAMPS_DUO_EFB)
+  #define IS_RAMPS_EFB
+  #include "pins_RAMPS_DUO.h"
+#elif MB(RAMPS_DUO_EEB)
+  #define IS_RAMPS_EEB
+  #include "pins_RAMPS_DUO.h"
+#elif MB(RAMPS_DUO_EFF)
+  #define IS_RAMPS_EFF
+  #include "pins_RAMPS_DUO.h"
+#elif MB(RAMPS_DUO_EEF)
+  #define IS_RAMPS_EEF
+  #include "pins_RAMPS_DUO.h"
+#elif MB(RAMPS_DUO_SF)
+  #define IS_RAMPS_SF
+  #include "pins_RAMPS_DUO.h"
+#elif MB(RAMPS4DUE_EFB)
+  #define IS_RAMPS_EFB
+  #include "pins_RAMPS4DUE.h"
+#elif MB(RAMPS4DUE_EEB)
+  #define IS_RAMPS_EEB
+  #include "pins_RAMPS4DUE.h"
+#elif MB(RAMPS4DUE_EFF)
+  #define IS_RAMPS_EFF
+  #include "pins_RAMPS4DUE.h"
+#elif MB(RAMPS4DUE_EEF)
+  #define IS_RAMPS_EEF
+  #include "pins_RAMPS4DUE.h"
+#elif MB(RAMPS4DUE_SF)
+  #define IS_RAMPS_SF
+  #include "pins_RAMPS4DUE.h"
+#elif MB(ALLIGATOR)
+  #include "pins_ALLIGATOR_R2.h"
+#elif MB(99)
+  #include "pins_99.h"
 #elif MB(AJ4P)
   #include "pins_AJ4P.h"
 #elif MB(MKS_13)
   #include "pins_MKS_13.h"
 #elif MB(SAINSMART_2IN1)
   #include "pins_SAINSMART_2IN1.h"
-#elif MB(RAMPS_FD_V1) || MB(RAMPS_FD_V2)
-  #include "pins_RAMPS_FD_v1.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
@@ -505,17 +562,5 @@
 
 #include "src/HAL/HAL_spi_pins.h"
 
-#ifndef SCK_PIN
-  #define SCK_PIN  HAL_SCK_PIN
-#endif
-#ifndef MISO_PIN
-  #define MISO_PIN HAL_MISO_PIN
-#endif
-#ifndef MOSI_PIN
-  #define MOSI_PIN HAL_MOSI_PIN
-#endif
-#ifndef SS_PIN
-  #define SS_PIN   HAL_SS_PIN
-#endif
 
 #endif //__PINS_H
