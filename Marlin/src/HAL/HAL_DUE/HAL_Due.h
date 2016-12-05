@@ -18,12 +18,12 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ****************************************************************************/
 
-// **************************************************************************
-//
-// Description:          *** HAL for Arduino Due ***
-//
-// ARDUINO_ARCH_SAM
-// **************************************************************************
+/**
+ * Description: HAL for Arduino Due and compatible (SAM3X8E)
+ *
+ * For ARDUINO_ARCH_SAM
+ */
+
 
 #ifndef _HAL_DUE_H
 #define _HAL_DUE_H
@@ -84,13 +84,21 @@ void _delay_ms(int delay);
 
 int freeMemory(void);
 
+// SPI: Extended functions which take a channel number (hardware SPI only)
+/** Write single byte to specified SPI channel */
+void spiSend(uint32_t chan, byte b);
+/** Write buffer to specified SPI channel */
+void spiSend(uint32_t chan, const uint8_t* buf, size_t n);
+/** Read single byte from specified SPI channel */
+uint8_t spiRec(uint32_t chan);
 
+
+
+// EEPROM
 void eeprom_write_byte(unsigned char *pos, unsigned char value);
-
 unsigned char eeprom_read_byte(unsigned char *pos);
 void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
-
 
 
 // timers

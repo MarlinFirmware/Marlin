@@ -18,8 +18,8 @@
  */
 
 
-#ifndef SPI_PINS_H_
-#define SPI_PINS_H_
+#ifndef HAL_SPI_PINS_H_
+#define HAL_SPI_PINS_H_
 
 #ifdef ARDUINO_ARCH_SAM
 
@@ -35,4 +35,4 @@
 
 #endif
 
-#endif /* SPI_PINS_H_ */
+#endif /* HAL_SPI_PINS_H_ */

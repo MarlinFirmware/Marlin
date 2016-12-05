@@ -1301,12 +1301,12 @@ void Temperature::disable_all_heaters() {
     uint32_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 7
     #define MAX6675_DISCARD_BITS 18
-    #define MAX6675_SPEED_BITS (_BV(SPR1)) // clock ÷ 64
+    #define MAX6675_SPEED 5  // (_BV(SPR1)) // clock ÷ 64
   #else
     uint16_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 4
     #define MAX6675_DISCARD_BITS 3
-    #define MAX6675_SPEED_BITS (_BV(SPR0)) // clock ÷ 16
+    #define MAX6675_SPEED 3 // (_BV(SPR0)) // clock ÷ 16
   #endif
 
   int Temperature::read_max6675() {
@@ -1319,14 +1319,8 @@ void Temperature::disable_all_heaters() {
 
     next_max6675_ms = ms + MAX6675_HEAT_INTERVAL;
 
-    CBI(
-      #ifdef PRR
-        PRR
-      #elif defined(PRR0)
-        PRR0
-      #endif
-        , PRSPI);
-    SPCR = _BV(MSTR) | _BV(SPE) | MAX6675_SPEED_BITS;
+    spiBegin();
+    spiInit(MAX6675_SPEED);
 
     WRITE(MAX6675_SS, 0); // enable TT_MAX6675
 
@@ -1337,9 +1331,7 @@ void Temperature::disable_all_heaters() {
     // Read a big-endian temperature value
     max6675_temp = 0;
     for (uint8_t i = sizeof(max6675_temp); i--;) {
-      SPDR = 0;
-      for (;!TEST(SPSR, SPIF););
-      max6675_temp |= SPDR;
+      max6675_temp |= spiRec();
       if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
     }
 
