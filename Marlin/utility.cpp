@@ -74,25 +74,32 @@ void safe_delay(millis_t ms) {
     return str;
   }
 
-  // Convert signed int to rj string with _123, -123, _-12, or __-1 format
+  // Convert signed int to rj string with 1234, _123, -123, _-12, or __-1 format
   char *itostr4sign(const int& x) {
-    int xx = abs(x), sign = 0;
-    if (xx >= 100) {
+    int xx = abs(x);
+    if (x >= 1000) {
+      conv[0] = DIGIMOD(xx, 1000);
       conv[1] = DIGIMOD(xx, 100);
       conv[2] = DIGIMOD(xx, 10);
     }
     else {
-      conv[0] = ' ';
-      if (xx >= 10) {
-        sign = 1;
+      if (xx >= 100) {
+        conv[0] = x < 0 ? '-' : ' ';
+        conv[1] = DIGIMOD(xx, 100);
         conv[2] = DIGIMOD(xx, 10);
       }
       else {
-        conv[1] = ' ';
-        sign = 2;
+        conv[0] = ' ';
+        if (xx >= 10) {
+          conv[1] = x < 0 ? '-' : ' ';
+          conv[2] = DIGIMOD(xx, 10);
+        }
+        else {
+          conv[1] = ' ';
+          conv[2] = x < 0 ? '-' : ' ';
+        }
       }
     }
-    conv[sign] = x < 0 ? '-' : ' ';
     conv[3] = DIGIMOD(xx, 1);
     conv[4] = '\0';
     return conv;
