@@ -729,7 +729,7 @@
 
 #define HAVE_TMC2130
 //#define TMC2130_ADVANCED_SETTINGS // Settings below
-#define CHECK_OVERTEMP
+//#define CHECK_OVERTEMP
 //#define STEALTHCHOP
 
 #if ENABLED(HAVE_TMC2130)
