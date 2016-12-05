@@ -108,6 +108,28 @@ void safe_delay(millis_t ms) {
     conv[4] = '\0';
     return conv;
   }
+  // Convert float to rj string with 1234, _123, 12.3, _1.2, -123, _-12, or -1.0 format
+  char *ftostr4sign(const float& fx) { 
+    int x = (int)(fx * 10); 
+    int xx = abs(x);
+    int cond0 = (x >= 0);
+    int cond1 = (xx >= 100);
+    int cond2 = (xx >= 1000);
+    if (!cond1 || (cond0 && !cond2)) {
+      conv[0] = cond0 ? cond1 ?  DIGIMOD(xx, 100):' ' : '-';
+      conv[1] = DIGIMOD(xx, 10);
+      conv[2] = '.';
+      conv[3] = DIGIMOD(xx, 1);
+    }
+    else {
+      conv[0] = cond0 ? (x >= 10000) ? DIGIMOD(xx, 10000):' ': cond2 ? '-':' ';
+      conv[1] = cond2 ? DIGIMOD(xx, 1000):'-';
+      conv[2] = DIGIMOD(xx, 100);
+      conv[3] = DIGIMOD(xx, 10);
+    }
+    conv[4] = '\0';
+    return conv;
+  }
 
   // Convert signed float to fixed-length string with 023.45 / -23.45 format
   char *ftostr32(const float& x) {
