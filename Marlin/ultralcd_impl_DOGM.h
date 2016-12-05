@@ -758,8 +758,9 @@ static void lcd_implementation_status_screen() {
 
   void lcd_implementation_drawedit(const char* const pstr, const char* const value=NULL) {
     const uint8_t labellen = lcd_strlen_P(pstr),
-                  vallen = lcd_strlen(value),
-                  rows = (labellen > LCD_WIDTH - 2 - vallen) ? 2 : 1;
+                  vallen = lcd_strlen(value);
+
+    uint8_t rows = (labellen > LCD_WIDTH - 2 - vallen) ? 2 : 1;
 
     #if ENABLED(USE_BIG_EDIT_FONT)
       uint8_t lcd_width, char_width;
