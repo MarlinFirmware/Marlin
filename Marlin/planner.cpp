@@ -559,7 +559,7 @@ void Planner::check_axes_activity() {
     #if ENABLED(MESH_BED_LEVELING)
 
       if (mbl.active())
-        lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly)) * z_fade_factor;
+        lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly), z_fade_factor);
 
     #elif ABL_PLANAR
 
@@ -595,7 +595,7 @@ void Planner::check_axes_activity() {
 
       if (mbl.active()) {
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-          const float c = mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]));
+          const float c = mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]), 1.0);
           logical[Z_AXIS] = (z_fade_height * (RAW_Z_POSITION(logical[Z_AXIS]) - c)) / (z_fade_height - c);
         #else
           logical[Z_AXIS] -= mbl.get_z(RAW_X_POSITION(logical[X_AXIS]), RAW_Y_POSITION(logical[Y_AXIS]));
