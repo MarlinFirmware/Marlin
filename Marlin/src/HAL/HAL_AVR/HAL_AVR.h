@@ -19,12 +19,12 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ****************************************************************************/
 
-// **************************************************************************
-//
-// Description:          *** HAL for Arduino AVR ***
-//
-// ARDUINO_ARCH_AVR
-// **************************************************************************
+/**
+ * Description: HAL for AVR
+ *
+ * For ARDUINO_ARCH_AVR
+ */
+
 
 #ifndef _HAL_AVR_H
 #define _HAL_AVR_H
@@ -37,8 +37,8 @@
 
 #include <util/delay.h>
 #include <avr/eeprom.h>
-
-#include "../../../macros.h"
+#include <avr/pgmspace.h>
+#include <avr/interrupt.h>
 
 #include "fastio_AVR.h"
 #include "watchdog_AVR.h"
@@ -80,9 +80,8 @@
 
 int freeMemory(void);
 
-
+// eeprom
 //void eeprom_write_byte(unsigned char *pos, unsigned char value);
-
 //unsigned char eeprom_read_byte(unsigned char *pos);
 
 
