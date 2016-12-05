@@ -185,8 +185,8 @@
 #define MSG_INFO_EXTRUDERS                  "Extrusores"
 #define MSG_INFO_BAUDRATE                   "Baudios"
 #define MSG_INFO_PROTOCOL                   "Protocolo"
-#define MSG_LIGHTS_ON                       "Acender luz LCD"
-#define MSG_LIGHTS_OFF                      "Apagar luz LCD"
+#define MSG_LIGHTS_ON                       "Acender a luz"
+#define MSG_LIGHTS_OFF                      "Apagar a luz"
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Total traballos"
   #define MSG_INFO_COMPLETED_PRINTS         "Total completos"
