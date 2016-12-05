@@ -19,26 +19,22 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ****************************************************************************/
 
-// **************************************************************************
-//
-// Description: Fast IO functions for Arduino Due
-//
-// ARDUINO_ARCH_SAM
-// **************************************************************************
+/**
+ * Description: Fast IO functions for Arduino Due and compatible (SAM3X8E)
+ *
+ * For ARDUINO_ARCH_SAM
+ */
 
 #ifndef	_FASTIO_DUE_H
 #define	_FASTIO_DUE_H
-
-
-
-// --------------------------------------------------------------------------
-//
-// --------------------------------------------------------------------------
 
 /// Read a pin
 #define READ(IO) digitalRead(IO)
 /// Write to a pin
 #define WRITE(IO, v) digitalWrite(IO,v)
+
+/// Set as output and Write to a pin
+#define OUT_WRITE(IO, v) do { pinMode (IO,OUTPUT); digitalWrite(IO,v); } while (0)
 
 /// toggle a pin
 #define TOGGLE(IO)
