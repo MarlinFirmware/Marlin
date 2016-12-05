@@ -22,17 +22,17 @@
 
 #if defined(ARDUINO_ARCH_SAM)
  
-#include "../../../Marlin.h"
+  #include "../../../Marlin.h"
 
-#if ENABLED(USE_WATCHDOG)
+  #if ENABLED(USE_WATCHDOG)
 
-#include "watchdog_Due.h"
+    #include "watchdog_Due.h"
 
-// TODO: implement for Due
-void watchdog_init() {
-    // this is a stub
-}
+    // TODO: implement for Due
+    void watchdog_init() {
+      // this is a stub
+    }
 
-#endif //USE_WATCHDOG
+  #endif //USE_WATCHDOG
 
 #endif
