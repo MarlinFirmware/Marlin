@@ -733,12 +733,12 @@ static void lcd_implementation_status_screen() {
 
     #endif // LCD_WIDTH >= 20 && SDSUPPORT
 
-    lcd.setCursor(LCD_WIDTH - 6, 2);
-    lcd.print(LCD_STR_CLOCK[0]);
-
     char buffer[10];
     duration_t elapsed = print_job_timer.duration();
-    elapsed.toDigital(buffer);
+    uint8_t len = elapsed.toDigital(buffer);
+
+    lcd.setCursor(LCD_WIDTH - len - 1, 2);
+    lcd.print(LCD_STR_CLOCK[0]);
     lcd_print(buffer);
 
   #endif // LCD_HEIGHT > 3
