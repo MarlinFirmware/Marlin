@@ -7015,32 +7015,31 @@ inline void gcode_M503() {
 
 /**
  * M906: Set motor current in milliamps using axis codes X, Y, Z, E
+ * Requires Trinamic TMC2130 stepper drivers with the supporting library from
+ * https://github.com/teemuatlut/TMC2130Stepper
  */
-static void tmc2130_setCurrent(int mA, TMC2130Stepper &stepr, const char *name) {
-  //stepr.read_STAT();
-  SERIAL_PROTOCOL(name);
-  SERIAL_PROTOCOL(" axis driver current: ");
-  SERIAL_PROTOCOL(mA);
-  stepr.setCurrent(mA, 0.11, 0.5);
-  //stepr.isReset() ? SERIAL_PROTOCOLPGM("RESET ") : SERIAL_PROTOCOLPGM("----- ");
-  //stepr.isError() ? SERIAL_PROTOCOLPGM("ERROR ") : SERIAL_PROTOCOLPGM("----- ");
-  //stepr.isStallguard() ? SERIAL_PROTOCOLPGM("SLGRD ") : SERIAL_PROTOCOLPGM("----- ");
-  //stepr.isStandstill() ? SERIAL_PROTOCOLPGM("STILL ") : SERIAL_PROTOCOLPGM("----- ");
-  //SERIAL_PROTOCOLLN(stepr.debug());
-}
-inline void gcode_M906() {
-  #if ENABLED(HAVE_TMC2130)
-    LOOP_XYZE(i) {
-    if (code_seen(axis_codes[i])) {
-      //planner.max_acceleration_mm_per_s2[i] = code_value_axis_units(i);
-      
-    }
-  	if (code_seen('X')) tmc2130_setCurrent(code_value_int, stepperX, "X");
-    if (code_seen('Y')) tmc2130_setCurrent(code_value_int, stepperY, "Y");
-    if (code_seen('Z')) tmc2130_setCurrent(code_value_int, stepperZ, "Z");
-    if (code_seen('E')) tmc2130_setCurrent(code_value_int, stepperE, "E");
-  #endif
-}
+#if defined(HAVE_TMC2130)
+  static void tmc2130_setCurrent(int mA, TMC2130Stepper &stepr, const char *name) {
+    SERIAL_ECHO(name);
+    SERIAL_ECHOPGM(" axis driver current: ");
+    SERIAL_ECHOLN(mA);
+    stepr.setCurrent(mA, 0.11, 0.5);
+  }
+  inline void gcode_M906() {
+    #if defined(X_IS_TMC2130)
+    	if (code_seen('X')) tmc2130_setCurrent(code_value_int(), stepperX, "X");
+    #endif
+    #if defined(Y_IS_TMC2130)
+      if (code_seen('Y')) tmc2130_setCurrent(code_value_int(), stepperY, "Y");
+    #endif
+    #if defined(Z_IS_TMC2130)
+      if (code_seen('Z')) tmc2130_setCurrent(code_value_int(), stepperZ, "Z");
+    #endif
+    #if defined(E0_IS_TMC2130)
+      if (code_seen('E')) tmc2130_setCurrent(code_value_int(), stepperE0, "E");
+    #endif
+  }
+#endif
 /**
  * M907: Set digital trimpot motor current using axis codes X, Y, Z, E, B, S
  */
@@ -8240,6 +8239,12 @@ void process_next_command() {
       #if ENABLED(LIN_ADVANCE)
         case 905: // M905: Set advance K factor.
           gcode_M905();
+          break;
+      #endif
+
+      #if ENABLED(HAVE_TMC2130)
+        case 906: // M906: Set motor current in milliamps using axis codes X, Y, Z, E
+          gcode_M906();
           break;
       #endif
 
