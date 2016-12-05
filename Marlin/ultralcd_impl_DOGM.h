@@ -452,8 +452,14 @@ static void lcd_implementation_status_screen() {
     // Progress bar frame
     //
 
-    if (PAGE_CONTAINS(49, 52 - (TALL_FONT_CORRECTION)))
-      u8g.drawFrame(54, 49, 73, 4 - (TALL_FONT_CORRECTION));  // 49-52 (or 49-51)
+    #define PROGRESS_BAR_X 54
+    #define PROGRESS_BAR_WIDTH (LCD_PIXEL_WIDTH - PROGRESS_BAR_X)
+
+    if (PAGE_CONTAINS(49, 52 - (TALL_FONT_CORRECTION)))       // 49-52 (or 49-51)
+      u8g.drawFrame(
+        PROGRESS_BAR_X, 49,
+        PROGRESS_BAR_WIDTH, 4 - (TALL_FONT_CORRECTION)
+      );
 
     if (IS_SD_PRINTING) {
 
@@ -461,8 +467,11 @@ static void lcd_implementation_status_screen() {
       // Progress bar solid part
       //
 
-      if (PAGE_CONTAINS(50, 51 - (TALL_FONT_CORRECTION)))
-        u8g.drawBox(55, 50, (unsigned int)(71 * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION));
+      if (PAGE_CONTAINS(50, 51 - (TALL_FONT_CORRECTION)))     // 50-51 (or just 50)
+        u8g.drawBox(
+          PROGRESS_BAR_X + 1, 50,
+          (unsigned int)((PROGRESS_BAR_WIDTH - 2) * card.percentDone() * 0.01), 2 - (TALL_FONT_CORRECTION)
+        );
 
       //
       // SD Percent Complete
@@ -483,9 +492,9 @@ static void lcd_implementation_status_screen() {
     //
 
     #if DISABLED(DOGM_SD_PERCENT)
-      #define SD_DURATION_X 71
+      #define SD_DURATION_X (PROGRESS_BAR_X + (PROGRESS_BAR_WIDTH / 2) - len * (DOG_CHAR_WIDTH / 2))
     #else
-      #define SD_DURATION_X 89
+      #define SD_DURATION_X (LCD_PIXEL_WIDTH - len * DOG_CHAR_WIDTH)
     #endif
 
     if (PAGE_CONTAINS(41, 48)) {
@@ -493,9 +502,8 @@ static void lcd_implementation_status_screen() {
       char buffer[10];
       duration_t elapsed = print_job_timer.duration();
       bool has_days = (elapsed.value > 60*60*24L);
-      elapsed.toDigital(buffer, has_days);
-
-      u8g.setPrintPos(SD_DURATION_X + (has_days ? 0 : 9), 48);
+      uint8_t len = elapsed.toDigital(buffer, has_days);
+      u8g.setPrintPos(SD_DURATION_X, 48);
       lcd_print(buffer);
     }
 
@@ -749,11 +757,12 @@ static void lcd_implementation_status_screen() {
   #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
   void lcd_implementation_drawedit(const char* const pstr, const char* const value=NULL) {
-    const uint8_t labellen = lcd_strlen_P(pstr), vallen = lcd_strlen(value);
-    uint8_t lcd_width, char_width,
-            rows = (labellen > LCD_WIDTH - 2 - vallen) ? 2 : 1;
+    const uint8_t labellen = lcd_strlen_P(pstr),
+                  vallen = lcd_strlen(value),
+                  rows = (labellen > LCD_WIDTH - 2 - vallen) ? 2 : 1;
 
     #if ENABLED(USE_BIG_EDIT_FONT)
+      uint8_t lcd_width, char_width;
       if (labellen <= LCD_WIDTH_EDIT - 1) {
         if (labellen >= LCD_WIDTH_EDIT - vallen) rows = 2;
         lcd_width = LCD_WIDTH_EDIT + 1;
@@ -766,8 +775,8 @@ static void lcd_implementation_status_screen() {
         lcd_setFont(FONT_MENU);
       }
     #else
-      lcd_width = LCD_WIDTH - (START_COL);
-      char_width = DOG_CHAR_WIDTH;
+      constexpr uint8_t lcd_width = LCD_WIDTH - (START_COL),
+                        char_width = DOG_CHAR_WIDTH;
     #endif
 
     // Center either one or two rows
