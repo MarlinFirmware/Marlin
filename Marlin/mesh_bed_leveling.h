@@ -83,7 +83,11 @@
       return z1 + delta_a * delta_z;
     }
 
-    float get_z(float x0, float y0) {
+    float get_z(const float &x0, const float &y0
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        , const float &factor
+      #endif
+    ) const {
       int8_t cx = cell_index_x(x0),
              cy = cell_index_y(y0);
       if (cx < 0 || cy < 0) return z_offset;
@@ -96,7 +100,12 @@
       float z0 = calc_z0(y0,
                          get_probe_y(cy), z1,
                          get_probe_y(cy + 1), z2);
-      return z0 + z_offset;
+
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        return z0 * factor + z_offset;
+      #else
+        return z0 + z_offset;
+      #endif
     }
   };
 
