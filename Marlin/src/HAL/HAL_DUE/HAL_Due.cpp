@@ -19,11 +19,11 @@
 ****************************************************************************/
 
 
-// **************************************************************************
-//
-// Description:          *** HAL for Arduino Due ***
-//
-// **************************************************************************
+/**
+ * Description: HAL for Arduino Due and compatible (SAM3X8E)
+ *
+ * For ARDUINO_ARCH_SAM
+ */
 
 #if defined(ARDUINO_ARCH_SAM)
 
@@ -255,5 +255,5 @@ uint16_t HAL_adc_get_result(void)
 	return HAL_adc_result;
 }
 
-#endif
+#endif // ARDUINO_ARCH_SAM
 
