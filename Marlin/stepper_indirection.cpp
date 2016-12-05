@@ -163,8 +163,9 @@ void tmc_init() {
 // Use internal reference voltage for current calculations. This is the default.
 // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
   #define _TMC2130_INIT(A) do { \
+    stepper##A.begin(); \
     stepper##A.setCurrent(A##_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER); \
-    stepper##A.microsteps((uint8_t)A##_MICROSTEPS); \
+    stepper##A.microsteps(A##_MICROSTEPS); \
     stepper##A.blank_time(24); \
     stepper##A.off_time(8); \
     stepper##A.interpolate(INTERPOLATE); \
@@ -174,17 +175,20 @@ void tmc_init() {
   
   #if ENABLED(STEALTHCHOP)
     #define _TMC2130_STEALTH_CHOP(AX) do { \
-      stepper##AX.coolstep_min_speed(0); \
       stepper##AX.stealthChop(1); \
-      stepper##AX.stealth_max_speed(1); \
     } while (0)
   #else
     #define _TMC2130_STEALTH_CHOP(B) NOOP
   #endif
 
   void tmc2130_init() {
+    delay(500); // Let power stabilize before we start configuring the steppers
     #if ENABLED(X_IS_TMC2130)
+      //stepperX.begin();
       _TMC2130_INIT(X);
+      //stepperX.SilentStepStick2130(1000);
+      //stepperX.microsteps(16);
+      //stepperX.stealthChop(1);
     #endif
     #if ENABLED(X2_IS_TMC2130)
       _TMC2130_INIT(X2);
