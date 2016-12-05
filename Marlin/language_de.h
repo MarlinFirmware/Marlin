@@ -146,6 +146,8 @@
 #define MSG_INIT_SDCARD                     "SD-Karte erkennen"  // Manually initialize the SD-card via user interface
 #define MSG_CNG_SDCARD                      "SD-Karte getauscht" // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
 #define MSG_ZPROBE_OUT                      "Sensor ausserhalb"
+#define MSG_BLTOUCH_SELFTEST                "BLTouch Test"
+#define MSG_BLTOUCH_RESET                   "BLTouch Reset"
 #define MSG_HOME                            "Vorher"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "homen"
 #define MSG_ZPROBE_ZOFFSET                  "Z Versatz"
@@ -203,6 +205,10 @@
 #define MSG_INFO_MIN_TEMP                   "Min Temp"
 #define MSG_INFO_MAX_TEMP                   "Max Temp"
 #define MSG_INFO_PSU                        "Stromversorgung"
+
+#define MSG_DRIVE_STRENGTH                  "Motorströme"
+#define MSG_DAC_PERCENT                     "Treiber %"
+#define MSG_DAC_EEPROM_WRITE                "Werte speichern"
 
 #define MSG_FILAMENT_CHANGE_HEADER          "ÄNDERE FILAMENT"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "ÄNDERE OPTIONEN:"
