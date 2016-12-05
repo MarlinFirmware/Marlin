@@ -2224,11 +2224,15 @@ static void clean_up_after_endstop_or_probe_move() {
   void set_bed_leveling_enabled(bool enable=true) {
     #if ENABLED(MESH_BED_LEVELING)
 
-      if (!enable && mbl.active())
-        current_position[Z_AXIS] +=
-          mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS)) - (MESH_HOME_SEARCH_Z);
+      if (enable != mbl.active()) {
 
-      mbl.set_active(enable && mbl.has_mesh()); // was set_has_mesh(). Is this not correct?
+        if (!enable)
+          planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+
+        mbl.set_active(enable && mbl.has_mesh());
+
+        if (enable) planner.unapply_leveling(current_position);
+      }
 
     #elif HAS_ABL
 
@@ -3162,8 +3166,10 @@ inline void gcode_G4() {
     #elif ENABLED(MESH_BED_LEVELING)
       SERIAL_ECHOPGM("Mesh Bed Leveling");
       if (mbl.active()) {
+        float lz = current_position[Z_AXIS];
+        planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], lz);
         SERIAL_ECHOLNPGM(" (enabled)");
-        SERIAL_ECHOPAIR("MBL Adjustment Z", mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS)));
+        SERIAL_ECHOPAIR("MBL Adjustment Z", lz);
       }
       SERIAL_EOL;
     #endif
@@ -3321,13 +3327,15 @@ inline void gcode_G28() {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("MBL was active");
       #endif
-      // Save known Z position if already homed
+      // Use known Z position if already homed
       if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
+        set_bed_leveling_enabled(false);
         pre_home_z = current_position[Z_AXIS];
-        pre_home_z += mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS));
       }
-      mbl.set_active(false);
-      current_position[Z_AXIS] = pre_home_z;
+      else {
+        mbl.set_active(false);
+        current_position[Z_AXIS] = pre_home_z;
+      }
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) DEBUG_POS("Set Z to pre_home_z", current_position);
       #endif
@@ -3703,8 +3711,8 @@ inline void gcode_G28() {
 
       case MeshReset:
         if (mbl.active()) {
-          current_position[Z_AXIS] +=
-            mbl.get_z(RAW_CURRENT_POSITION(X_AXIS), RAW_CURRENT_POSITION(Y_AXIS)) - MESH_HOME_SEARCH_Z;
+          current_position[Z_AXIS] -= MESH_HOME_SEARCH_Z;
+          planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
           mbl.reset();
           SYNC_PLAN_POSITION_KINEMATIC();
         }
@@ -7640,9 +7648,12 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
                 #if ENABLED(DEBUG_LEVELING_FEATURE)
                   if (DEBUGGING(LEVELING)) SERIAL_ECHOPAIR("Z before MBL: ", current_position[Z_AXIS]);
                 #endif
-                float xpos = RAW_CURRENT_POSITION(X_AXIS),
-                      ypos = RAW_CURRENT_POSITION(Y_AXIS);
-                current_position[Z_AXIS] += mbl.get_z(xpos + xydiff[X_AXIS], ypos + xydiff[Y_AXIS]) - mbl.get_z(xpos, ypos);
+                float x2 = current_position[X_AXIS] + xydiff[X_AXIS],
+                      y2 = current_position[Y_AXIS] + xydiff[Y_AXIS],
+                      z1 = current_position[Z_AXIS], z2 = z1;
+                planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], z1);
+                planner.apply_leveling(x2, y2, z2);
+                current_position[Z_AXIS] += z2 - z1;
                 #if ENABLED(DEBUG_LEVELING_FEATURE)
                   if (DEBUGGING(LEVELING))
                     SERIAL_ECHOLNPAIR(" after: ", current_position[Z_AXIS]);
