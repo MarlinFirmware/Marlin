@@ -286,7 +286,7 @@
    *  HOTENDS      - Number of hotends, whether connected or separate
    *  E_STEPPERS   - Number of actual E stepper motors
    *  TOOL_E_INDEX - Index to use when getting/setting the tool state
-   *  
+   *
    */
   #if ENABLED(SINGLENOZZLE)             // One hotend, multi-extruder
     #define HOTENDS      1
@@ -314,6 +314,18 @@
     #define E_STEPPERS   EXTRUDERS
     #define E_MANUAL     EXTRUDERS
     #define TOOL_E_INDEX current_block->active_extruder
+  #endif
+
+  /**
+   * Distinct E Factors – Disable by commenting out DISTINCT_E_FACTORS
+   */
+  #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+    #define XYZE_N (XYZ + E_STEPPERS)
+    #define E_AXIS_N (E_AXIS + extruder)
+  #else
+    #undef DISTINCT_E_FACTORS
+    #define XYZE_N XYZE
+    #define E_AXIS_N E_AXIS
   #endif
 
   /**

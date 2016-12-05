@@ -145,6 +145,9 @@
 // :[1, 2, 3, 4]
 #define EXTRUDERS 2
 
+// Enable if your E steppers or extruder gear ratios are not identical
+//#define DISTINCT_E_FACTORS
+
 // For Cyclops or any "multi-extruder" that shares a single nozzle.
 //#define SINGLENOZZLE
 
@@ -203,7 +206,7 @@
 
 /**
  * --NORMAL IS 4.7kohm PULLUP!-- 1kohm pullup can be used on hotend sensor, using correct resistor and table
- * 
+ *
  * Temperature sensors available:
  *
  *    -3 : thermocouple with MAX31855 (only for sensor 0)
@@ -228,13 +231,13 @@
  *    60 : 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
  *    66 : 4.7M High Temperature thermistor from Dyze Design
  *    70 : the 100K thermistor found in the bq Hephestos 2
- * 
+ *
  *       1k ohm pullup tables - This is atypical, and requires changing out the 4.7k pullup for 1k.
  *                              (but gives greater accuracy and more stable PID)
  *    51 : 100k thermistor - EPCOS (1k pullup)
  *    52 : 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
  *    55 : 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (1k pullup)
- * 
+ *
  *  1047 : Pt1000 with 4k7 pullup
  *  1010 : Pt1000 with 1k pullup (non standard)
  *   147 : Pt100 with 4k7 pullup
@@ -520,26 +523,31 @@
  *
  * These settings can be reset by M502
  *
+ * You can set distinct factors for each E stepper, if needed.
+ * If fewer factors are given, the last will apply to the rest.
+ *
  * Note that if EEPROM is enabled, saved values will override these.
  */
 
 /**
  * Default Axis Steps Per Unit (steps/mm)
  * Override with M92
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
 #define DEFAULT_AXIS_STEPS_PER_UNIT   { 72.9, 72.9, 72.9, 291 }  // default steps per unit for BI v2.5 (cable drive)
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
 #define DEFAULT_MAX_FEEDRATE          { 500, 500, 500, 150 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
+ * (Maximum start speed for accelerated moves)
  * Override with M201
- *
- * Maximum start speed for accelerated moves: { X, Y, Z, E }
+ *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
 #define DEFAULT_MAX_ACCELERATION      { 9000, 9000, 9000, 10000 }
 
