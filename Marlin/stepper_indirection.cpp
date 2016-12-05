@@ -184,11 +184,7 @@ void tmc_init() {
   void tmc2130_init() {
     delay(500); // Let power stabilize before we start configuring the steppers
     #if ENABLED(X_IS_TMC2130)
-      //stepperX.begin();
       _TMC2130_INIT(X);
-      //stepperX.SilentStepStick2130(1000);
-      //stepperX.microsteps(16);
-      //stepperX.stealthChop(1);
     #endif
     #if ENABLED(X2_IS_TMC2130)
       _TMC2130_INIT(X2);
