@@ -189,17 +189,17 @@
 #define MSG_LIGHTS_OFF                      "Oswietlenie wyl."
 
 #if LCD_WIDTH >= 20
-  #define MSG_INFO_PRINT_COUNT              "Licznik wydrukow"
+  #define MSG_INFO_PRINT_COUNT              "Wydrukowano"
   #define MSG_INFO_COMPLETED_PRINTS         "Ukończono"
-  #define MSG_INFO_PRINT_TIME               "Calkow. czad druku"
-  #define MSG_INFO_PRINT_LONGEST            "Najdluzszy czas druku"
-  #define MSG_INFO_PRINT_FILAMENT           "Zuzytp filamentu"
+  #define MSG_INFO_PRINT_TIME               "Czas druku"
+  #define MSG_INFO_PRINT_LONGEST            "Najdl. druk"
+  #define MSG_INFO_PRINT_FILAMENT           "Uzyty fil."
 #else
   #define MSG_INFO_PRINT_COUNT              "Wydrukowano"
   #define MSG_INFO_COMPLETED_PRINTS         "Ukonczono"
   #define MSG_INFO_PRINT_TIME               "Razem"
-  #define MSG_INFO_PRINT_LONGEST            "Najdluzszy"
-  #define MSG_INFO_PRINT_FILAMENT           "Zuzyto fil."
+  #define MSG_INFO_PRINT_LONGEST            "Najdl. druk"
+  #define MSG_INFO_PRINT_FILAMENT           "Uzyty fil."
 #endif
 
 #define MSG_INFO_MIN_TEMP                   "Min Temp"
