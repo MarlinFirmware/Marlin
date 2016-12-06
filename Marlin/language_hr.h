@@ -37,7 +37,7 @@
 #define MSG_SD_REMOVED                      "SD kartica uklonjena"
 #define MSG_LCD_ENDSTOPS                    "Endstops" // Max length 8 characters
 #define MSG_MAIN                            "Main"
-#define MSG_AUTOSTART                       "Automatsko pokretanje"
+#define MSG_AUTOSTART                       "Auto pokretanje"
 #define MSG_DISABLE_STEPPERS                "Ugasi steppere"
 #define MSG_AUTO_HOME                       "Automatski homing"
 #define MSG_AUTO_HOME_X                     "Home-aj X"
@@ -92,6 +92,7 @@
 #define MSG_PID_I                           "PID-I"
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
+#define MSG_SELECT                          "Odaberi"
 #define MSG_ACC                             "Accel"
 #define MSG_VX_JERK                         "Vx-jerk"
 #define MSG_VY_JERK                         "Vy-jerk"
@@ -189,8 +190,8 @@
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Broj printova"
   #define MSG_INFO_COMPLETED_PRINTS         "Završeni"
-  #define MSG_INFO_PRINT_TIME               "Ukupno vrijeme printanja"
-  #define MSG_INFO_PRINT_LONGEST            "Trajanje najdužeg printa"
+  #define MSG_INFO_PRINT_TIME               "Ukupno printanja"
+  #define MSG_INFO_PRINT_LONGEST            "Najduži print"
   #define MSG_INFO_PRINT_FILAMENT           "Extrudirano ukupno"
 #else
   #define MSG_INFO_PRINT_COUNT              "Printovi"
