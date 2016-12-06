@@ -49,7 +49,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_H_VERSION 010100
+#define CONFIGURATION_H_VERSION 010101
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -1443,6 +1443,44 @@
 
   //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
   //#define FILAMENT_LCD_DISPLAY
+#endif
+
+/** 
+  //===========================================================================
+  //========================== RGB LED Strip Control ==========================
+  //===========================================================================
+ * 
+ * 
+ * This feature is to control an RGB LED Strip with the PWM pins on the Arduino
+ * 
+ * *** CAUTION ***
+ * Requires MOFSET Chip between PWM lines and LED's as the arduino cannot
+ * handle the current the LED's will require - Not doing this will destroy
+ * your arduino
+ * *** CAUTION ***
+ * 
+ * Requires LCD & SDCARD support
+ * 
+ * When printing from the SDCARD
+ *  - LED strip will gradually change from blue to yellow as the heated bed gets to target temp
+ *  - LED strip will gradually change from yellow to red as the hotend gets to temperature
+ *  - LED strip will change to white to illuminate work surface
+ *  - LED strip will change to green once print has finished
+ *  - LED strip will turn off after the print has finished and the user has pushed a button 
+ *  
+ * */
+#if ENABLED(ULTIPANEL)
+  #if ENABLED(SDSUPPORT) 
+    
+    #define LED_STRIP
+
+    #if ENABLED(LED_STRIP)
+      #define REDPIN 4
+      #define GREENPIN 5
+      #define BLUEPIN 6
+    #endif
+    
+  #endif
 #endif
 
 #endif // CONFIGURATION_H

@@ -132,6 +132,7 @@
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
  * M150 - Set Status LED Color as R<red> U<green> B<blue>. Values 0-255. (Requires BLINKM or RGB_LED)
+ * M151 - Set RGB LED Strip Color Output R<red> U:<green> B<blue>. Values 0-255 (Requires LED_STRIP)
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
@@ -257,6 +258,10 @@
 #if ENABLED(BLINKM)
   #include "blinkm.h"
   #include "Wire.h"
+#endif
+
+#if ENABLED(LED_STRIP)
+  #include "LED_Strip.h"
 #endif
 
 #if HAS_SERVOS
@@ -5391,6 +5396,20 @@ inline void gcode_M109() {
 
     float temp = thermalManager.degHotend(target_extruder);
 
+    #if ENABLED(LED_STRIP)
+      // Gradually change LED strip from yellow to red as the hotend heats up
+      // Change is calculated from room temperature (20C or 68F) to show a smooth change
+      if(wait_for_heatup) {
+        int r, g, b;
+        float index_multiplier;
+        temp_multiplier = 255 / (theTarget - 20);
+        r = 255;
+        g = 255 - (temp * index_multiplier);
+        b = 0;
+        rgb_to_led_strip(r, g, b);
+      }
+    #endif
+    
     #if TEMP_RESIDENCY_TIME > 0
 
       float temp_diff = fabs(theTarget - temp);
@@ -5419,7 +5438,14 @@ inline void gcode_M109() {
 
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
-  if (wait_for_heatup) LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+  if (wait_for_heatup) {
+    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+    #if ENABLED(LED_STRIP)
+      // Heating is complete, turn the LED Strip to all white
+      rgb_to_led_strip(255, 255, 255);
+    #endif
+  }
+
 
   KEEPALIVE_STATE(IN_HANDLER);
 }
@@ -5510,6 +5536,19 @@ inline void gcode_M109() {
 
       float temp = thermalManager.degBed();
 
+      #if ENABLED(LED_STRIP)
+        if(wait_for_heatup) {
+          // Gradually change LED strip from yellow to red as bed heats up
+          int r, g, b;
+          float index_multiplier;
+          index_multiplier = 255 / (theTarget - 20);
+          r = 255 * (temp / index_multiplier);
+          g = r;
+          b = 255 - (temp * index_multiplier);
+          rgb_to_led_strip(r, g, b);
+        }
+      #endif
+      
       #if TEMP_BED_RESIDENCY_TIME > 0
 
         float temp_diff = fabs(theTarget - temp);
@@ -6045,6 +6084,29 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
 #endif // BLINKM || RGB_LED
 
+#if ENABLED(LED_STRIP)
+
+  /**
+   * M151: Set RGB LED Strip Color - Use R-U-B for R-G-B
+   *
+   * Always sets all 3 components. If a component is left out, set to 0.
+   *
+   * Examples:
+   *
+   *   M150 R255       ; Turn LED Strip to red
+   *   M150 R255 U127  ; Turn LED Strip orange
+   *   M150            ; Turn LED Strip off
+   *   M150 R U B      ; Turn LED Strip white
+   *
+   */
+  inline void gcode_M151() {
+    code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
+    code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
+    code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0
+  );
+  }
+
+#endif // LED_STRIP
 /**
  * M200: Set filament diameter and set E axis units to cubic units
  *
@@ -8253,6 +8315,14 @@ void process_next_command() {
 
       #endif // BLINKM
 
+      #if ENABLED(LED_STRIP)
+
+        case 151: // M151
+          gcode_M151();
+          break;
+
+      #endif //LED_STRIP
+      
       #if ENABLED(MIXING_EXTRUDER)
         case 163: // M163: Set a component weight for mixing extruder
           gcode_M163();
