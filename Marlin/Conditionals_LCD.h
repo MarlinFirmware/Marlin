@@ -22,7 +22,7 @@
 
 /**
  * Conditionals_LCD.h
- * LCD Defines that depend on configuration but are not editable.
+ * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
 #ifndef CONDITIONALS_LCD_H // Get the LCD defines which are needed first
@@ -65,8 +65,12 @@
       #define SD_DETECT_INVERTED
     #endif
 
-    #define ENCODER_PULSES_PER_STEP 4
-    #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #ifndef ENCODER_PULSES_PER_STEP
+      #define ENCODER_PULSES_PER_STEP 4
+    #endif
+    #ifndef ENCODER_STEPS_PER_MENU_ITEM
+      #define ENCODER_STEPS_PER_MENU_ITEM 1
+    #endif
   #endif
 
   // Generic support for SSD1306 / SH1106 OLED based LCDs.
@@ -85,7 +89,6 @@
     #ifndef ENCODER_PULSES_PER_STEP
       #define ENCODER_PULSES_PER_STEP 4
     #endif
-
     #ifndef ENCODER_STEPS_PER_MENU_ITEM
       #define ENCODER_STEPS_PER_MENU_ITEM 1
     #endif
@@ -146,7 +149,6 @@
     #ifndef ENCODER_PULSES_PER_STEP
       #define ENCODER_PULSES_PER_STEP 4
     #endif
-
     #ifndef ENCODER_STEPS_PER_MENU_ITEM
       #define ENCODER_STEPS_PER_MENU_ITEM 1
     #endif
@@ -166,6 +168,15 @@
     #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
     #define ULTIPANEL
     #define NEWPANEL
+
+    #define ENCODER_FEEDRATE_DEADZONE 4
+
+    #ifndef ENCODER_PULSES_PER_STEP
+      #define ENCODER_PULSES_PER_STEP 1
+    #endif
+    #ifndef ENCODER_STEPS_PER_MENU_ITEM
+      #define ENCODER_STEPS_PER_MENU_ITEM 2
+    #endif
   #endif
 
   // Shift register panels
@@ -265,6 +276,106 @@
 
   #ifndef BOOTSCREEN_TIMEOUT
     #define BOOTSCREEN_TIMEOUT 2500
+  #endif
+
+  /**
+   * Extruders have some combination of stepper motors and hotends
+   * so we separate these concepts into the defines:
+   *
+   *  EXTRUDERS    - Number of Selectable Tools
+   *  HOTENDS      - Number of hotends, whether connected or separate
+   *  E_STEPPERS   - Number of actual E stepper motors
+   *  TOOL_E_INDEX - Index to use when getting/setting the tool state
+   *
+   */
+  #if ENABLED(SINGLENOZZLE)             // One hotend, multi-extruder
+    #define HOTENDS      1
+    #define E_STEPPERS   EXTRUDERS
+    #define E_MANUAL     EXTRUDERS
+    #define TOOL_E_INDEX current_block->active_extruder
+    #undef TEMP_SENSOR_1_AS_REDUNDANT
+    #undef HOTEND_OFFSET_X
+    #undef HOTEND_OFFSET_Y
+  #elif ENABLED(SWITCHING_EXTRUDER)     // One E stepper, unified E axis, two hotends
+    #define HOTENDS      EXTRUDERS
+    #define E_STEPPERS   1
+    #define E_MANUAL     1
+    #define TOOL_E_INDEX 0
+    #ifndef HOTEND_OFFSET_Z
+      #define HOTEND_OFFSET_Z { 0 }
+    #endif
+  #elif ENABLED(MIXING_EXTRUDER)        // Multi-stepper, unified E axis, one hotend
+    #define HOTENDS      1
+    #define E_STEPPERS   MIXING_STEPPERS
+    #define E_MANUAL     1
+    #define TOOL_E_INDEX 0
+  #else                                 // One stepper, E axis, and hotend per tool
+    #define HOTENDS      EXTRUDERS
+    #define E_STEPPERS   EXTRUDERS
+    #define E_MANUAL     EXTRUDERS
+    #define TOOL_E_INDEX current_block->active_extruder
+  #endif
+
+  /**
+   * Distinct E Factors – Disable by commenting out DISTINCT_E_FACTORS
+   */
+  #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+    #define XYZE_N (XYZ + E_STEPPERS)
+    #define E_AXIS_N (E_AXIS + extruder)
+  #else
+    #undef DISTINCT_E_FACTORS
+    #define XYZE_N XYZE
+    #define E_AXIS_N E_AXIS
+  #endif
+
+  /**
+   * The BLTouch Probe emulates a servo probe
+   * and uses "special" angles for its state.
+   */
+  #if ENABLED(BLTOUCH)
+    #ifndef Z_ENDSTOP_SERVO_NR
+      #define Z_ENDSTOP_SERVO_NR 0
+    #endif
+    #ifndef NUM_SERVOS
+      #define NUM_SERVOS (Z_ENDSTOP_SERVO_NR + 1)
+    #endif
+    #undef DEACTIVATE_SERVOS_AFTER_MOVE
+    #undef SERVO_DELAY
+    #define SERVO_DELAY 50
+    #undef Z_SERVO_ANGLES
+    #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
+
+    #define BLTOUCH_DEPLOY    10
+    #define BLTOUCH_STOW      90
+    #define BLTOUCH_SELFTEST 120
+    #define BLTOUCH_RESET    160
+    #define _TEST_BLTOUCH(P) (READ(P##_PIN) != P##_ENDSTOP_INVERTING)
+
+    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      #undef Z_MIN_ENDSTOP_INVERTING
+      #define Z_MIN_ENDSTOP_INVERTING false
+      #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN)
+    #else
+      #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN_PROBE)
+    #endif
+  #endif
+
+  /**
+   * Set a flag for a servo probe
+   */
+  #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
+
+  /**
+   * Set a flag for any enabled probe
+   */
+  #define PROBE_SELECTED (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
+
+  /**
+   * Clear probe pin settings when no probe is selected
+   */
+  #if !PROBE_SELECTED
+    #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+    #undef Z_MIN_PROBE_ENDSTOP
   #endif
 
 #endif //CONDITIONALS_LCD_H

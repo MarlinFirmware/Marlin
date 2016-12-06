@@ -23,9 +23,12 @@
 #ifndef __BUZZER_H__
 #define __BUZZER_H__
 
+#include "types.h"
 #include "fastio.h"
 #include "circularqueue.h"
 #include "temperature.h"
+
+#include "MarlinConfig.h"
 
 #define TONE_QUEUE_LENGTH 4
 
@@ -106,7 +109,8 @@ class Buzzer {
         this->tick();
         thermalManager.manage_heater();
       }
-      this->buffer.enqueue((tone_t) { duration, frequency });
+      tone_t tone = { duration, frequency };
+      this->buffer.enqueue(tone);
     }
 
     /**
@@ -125,7 +129,9 @@ class Buzzer {
 
         if (this->state.tone.frequency > 0) {
           #if ENABLED(SPEAKER)
+            CRITICAL_SECTION_START;
             ::tone(BEEPER_PIN, this->state.tone.frequency, this->state.tone.duration);
+            CRITICAL_SECTION_END;
           #else
             this->on();
           #endif
@@ -134,5 +140,7 @@ class Buzzer {
       else if (ELAPSED(now, this->state.endtime)) this->reset();
     }
 };
+
+extern Buzzer buzzer;
 
 #endif

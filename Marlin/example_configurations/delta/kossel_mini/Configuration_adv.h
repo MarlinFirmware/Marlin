@@ -168,14 +168,16 @@
 
 // @section extruder
 
-//  extruder run-out prevention.
-//if the machine is idle, and the temperature over MINTEMP, every couple of SECONDS some filament is extruded
+// Extruder runout prevention.
+// If the machine is idle and the temperature over MINTEMP
+// then extrude some filament every couple of SECONDS.
 //#define EXTRUDER_RUNOUT_PREVENT
-#define EXTRUDER_RUNOUT_MINTEMP 190
-#define EXTRUDER_RUNOUT_SECONDS 30
-#define EXTRUDER_RUNOUT_ESTEPS 14   // mm filament
-#define EXTRUDER_RUNOUT_SPEED 1500  // extrusion speed
-#define EXTRUDER_RUNOUT_EXTRUDE 100
+#if ENABLED(EXTRUDER_RUNOUT_PREVENT)
+  #define EXTRUDER_RUNOUT_MINTEMP 190
+  #define EXTRUDER_RUNOUT_SECONDS 30
+  #define EXTRUDER_RUNOUT_SPEED 1500  // mm/m
+  #define EXTRUDER_RUNOUT_EXTRUDE 5   // mm
+#endif
 
 // @section temperature
 
@@ -203,17 +205,32 @@
 
 // @section extruder
 
-// Extruder cooling fans
-// Configure fan pin outputs to automatically turn on/off when the associated
-// extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
-// Multiple extruders can be assigned to the same pin in which case
-// the fan will turn on when any selected extruder is above the threshold.
-#define EXTRUDER_0_AUTO_FAN_PIN -1
-#define EXTRUDER_1_AUTO_FAN_PIN -1
-#define EXTRUDER_2_AUTO_FAN_PIN -1
-#define EXTRUDER_3_AUTO_FAN_PIN -1
+/**
+ * Extruder cooling fans
+ *
+ * Extruder auto fans automatically turn on when their extruders'
+ * temperatures go above EXTRUDER_AUTO_FAN_TEMPERATURE.
+ *
+ * Your board's pins file specifies the recommended pins. Override those here
+ * or set to -1 to disable completely.
+ *
+ * Multiple extruders can be assigned to the same pin in which case
+ * the fan will turn on when any selected extruder is above the threshold.
+ */
+#define E0_AUTO_FAN_PIN -1
+#define E1_AUTO_FAN_PIN -1
+#define E2_AUTO_FAN_PIN -1
+#define E3_AUTO_FAN_PIN -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
+
+// Define a pin to turn case light on/off
+//#define CASE_LIGHT_PIN 4
+#if PIN_EXISTS(CASE_LIGHT)
+  #define INVERT_CASE_LIGHT false   // Set to true if HIGH is the OFF state (active low)
+  //#define CASE_LIGHT_DEFAULT_ON   // Uncomment to set default state to on
+  //#define MENU_ITEM_CASE_LIGHT    // Uncomment to have a Case Light On / Off entry in main menu
+#endif
 
 //===========================================================================
 //============================ Mechanical Settings ==========================
@@ -300,7 +317,7 @@
   //                           once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
 
   // This is the default power-up mode which can be later using M605.
-  #define DEFAULT_DUAL_X_CARRIAGE_MODE 0
+  #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_FULL_CONTROL_MODE
 
   // Default settings in "Auto-park Mode"
   #define TOOLCHANGE_PARK_ZLIFT   0.2      // the distance to raise Z axis when parking an extruder
@@ -362,6 +379,7 @@
 #define DEFAULT_MINSEGMENTTIME        20000
 
 // If defined the movements slow down when the look ahead buffer is only half full
+// (don't use SLOWDOWN with DELTA because DELTA generates hundreds of segments per second)
 //#define SLOWDOWN
 
 // Frequency limit
@@ -406,6 +424,9 @@
 // Include a page of printer information in the LCD Main Menu
 //#define LCD_INFO_MENU
 
+// On the Info Screen, display XY with one decimal place when possible
+//#define LCD_DECIMAL_SMALL_XY
+
 #if ENABLED(SDSUPPORT)
 
   // Some RAMPS and other boards don't detect when an SD card is inserted. You can work
@@ -447,15 +468,19 @@
 
 #endif // SDSUPPORT
 
-// for dogm lcd displays you can choose some additional fonts:
+// Some additional options are available for graphical displays:
 #if ENABLED(DOGLCD)
-  // save 3120 bytes of PROGMEM by commenting out #define USE_BIG_EDIT_FONT
-  // we don't have a big font for Cyrillic, Kana
+  // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
+  // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
   //#define USE_BIG_EDIT_FONT
 
-  // If you have spare 2300Byte of progmem and want to use a
-  // smaller font on the Info-screen uncomment the next line.
+  // A smaller font may be used on the Info Screen. Costs 2300 bytes of PROGMEM.
+  // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
   //#define USE_SMALL_INFOFONT
+
+  // Enable this option and reduce the value to optimize screen updates.
+  // The normal delay is 10µs. Use the lowest value that still gives a reliable display.
+  //#define DOGM_SPI_DELAY_US 5
 #endif // DOGLCD
 
 // @section safety
@@ -484,6 +509,36 @@
   #define BABYSTEP_MULTIPLICATOR 1 //faster movements
 #endif
 
+//
+// Ensure Smooth Moves
+//
+// Enable this option to prevent the machine from stuttering when printing multiple short segments.
+// This feature uses two strategies to eliminate stuttering:
+//
+// 1. During short segments a Graphical LCD update may take so much time that the planner buffer gets
+//    completely drained. When this happens pauses are introduced between short segments, and print moves
+//    will become jerky until a longer segment provides enough time for the buffer to be filled again.
+//    This jerkiness negatively affects print quality. The ENSURE_SMOOTH_MOVES option addresses the issue
+//    by pausing the LCD until there's enough time to safely update.
+//
+//    NOTE: This will cause the Info Screen to lag and controller buttons may become unresponsive.
+//          Enable ALWAYS_ALLOW_MENU to keep the controller responsive.
+//
+// 2. No block is allowed to take less time than MIN_BLOCK_TIME. That's the time it takes in the main
+//    loop to add a new block to the buffer, check temperatures, etc., including all blocked time due to
+//    interrupts (without LCD update). By enforcing a minimum time-per-move, the buffer is prevented from
+//    draining.
+//
+//#define ENSURE_SMOOTH_MOVES
+#if ENABLED(ENSURE_SMOOTH_MOVES)
+  //#define ALWAYS_ALLOW_MENU      // If enabled, the menu will always be responsive.
+                                   // WARNING: Menu navigation during short moves may cause stuttering!
+  #define LCD_UPDATE_THRESHOLD 135 // (ms) Minimum duration for the current segment to allow an LCD update.
+                                   // Default value is good for graphical LCDs (e.g., REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER).
+                                   // You may try to lower this value until you printer starts stuttering again as if ENSURE_SMOOTH_MOVES is disabled.
+  #define MIN_BLOCK_TIME 6         // (ms) Minimum duration of a single block. You shouldn't need to modify this.
+#endif
+
 // @section extruder
 
 // extruder advance constant (s2/mm3)
@@ -500,9 +555,20 @@
   #define D_FILAMENT 2.85
 #endif
 
-// Implementation of a linear pressure control
-// Assumption: advance = k * (delta velocity)
-// K=0 means advance disabled. A good value for a gregs wade extruder will be around K=75
+/**
+ * Implementation of linear pressure control
+ *
+ * Assumption: advance = k * (delta velocity)
+ * K=0 means advance disabled.
+ * To get a rough start value for calibration, measure your "free filament length"
+ * between the hobbed bolt and the nozzle (in cm). Use the formula below that fits
+ * your setup, where L is the "free filament length":
+ *
+ * Filament diameter           |   1.75mm  |    3.0mm   |
+ * ----------------------------|-----------|------------|
+ * Stiff filament (PLA)        | K=47*L/10 | K=139*L/10 |
+ * Softer filament (ABS, nGen) | K=88*L/10 | K=260*L/10 |
+ */
 //#define LIN_ADVANCE
 
 #if ENABLED(LIN_ADVANCE)
@@ -531,7 +597,18 @@
 // Support for G5 with XYZE destination and IJPQ offsets. Requires ~2666 bytes.
 //#define BEZIER_CURVE_SUPPORT
 
-const unsigned int dropsegments = 5; //everything with less than this number of steps will be ignored as move and joined with the next movement
+// G38.2 and G38.3 Probe Target
+//#define G38_PROBE_TARGET
+#if ENABLED(G38_PROBE_TARGET)
+  #define G38_MINIMUM_MOVE 0.0275 // minimum distance in mm that will produce a move (determined using the print statement in check_move)
+#endif
+
+// Moves (or segments) with fewer steps than this will be joined with the next move
+#define MIN_STEPS_PER_SEGMENT 6
+
+// The minimum pulse width (in µs) for stepping a stepper.
+// Set this if you find stepping unreliable, or if using a very fast CPU.
+#define MINIMUM_STEPPER_PULSE 0 // (µs) The smallest stepper pulse allowed
 
 // @section temperature
 
@@ -547,7 +624,7 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+  #define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
@@ -564,7 +641,7 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 // For ADVANCED_OK (M105) you need 32 bytes.
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
-// :[0,2,4,8,16,32,64,128,256]
+// :[0, 2, 4, 8, 16, 32, 64, 128, 256]
 #define TX_BUFFER_SIZE 0
 
 // Enable an emergency-command parser to intercept certain commands as they
@@ -642,126 +719,336 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
 #if ENABLED(HAVE_TMCDRIVER)
 
   //#define X_IS_TMC
-  #define X_MAX_CURRENT 1000  //in mA
-  #define X_SENSE_RESISTOR 91 //in mOhms
-  #define X_MICROSTEPS 16     //number of microsteps
-
   //#define X2_IS_TMC
-  #define X2_MAX_CURRENT 1000  //in mA
-  #define X2_SENSE_RESISTOR 91 //in mOhms
-  #define X2_MICROSTEPS 16     //number of microsteps
-
   //#define Y_IS_TMC
-  #define Y_MAX_CURRENT 1000  //in mA
-  #define Y_SENSE_RESISTOR 91 //in mOhms
-  #define Y_MICROSTEPS 16     //number of microsteps
-
   //#define Y2_IS_TMC
-  #define Y2_MAX_CURRENT 1000  //in mA
-  #define Y2_SENSE_RESISTOR 91 //in mOhms
-  #define Y2_MICROSTEPS 16     //number of microsteps
-
   //#define Z_IS_TMC
-  #define Z_MAX_CURRENT 1000  //in mA
-  #define Z_SENSE_RESISTOR 91 //in mOhms
-  #define Z_MICROSTEPS 16     //number of microsteps
-
   //#define Z2_IS_TMC
-  #define Z2_MAX_CURRENT 1000  //in mA
-  #define Z2_SENSE_RESISTOR 91 //in mOhms
-  #define Z2_MICROSTEPS 16     //number of microsteps
-
   //#define E0_IS_TMC
-  #define E0_MAX_CURRENT 1000  //in mA
-  #define E0_SENSE_RESISTOR 91 //in mOhms
-  #define E0_MICROSTEPS 16     //number of microsteps
-
   //#define E1_IS_TMC
-  #define E1_MAX_CURRENT 1000  //in mA
-  #define E1_SENSE_RESISTOR 91 //in mOhms
-  #define E1_MICROSTEPS 16     //number of microsteps
-
   //#define E2_IS_TMC
-  #define E2_MAX_CURRENT 1000  //in mA
-  #define E2_SENSE_RESISTOR 91 //in mOhms
-  #define E2_MICROSTEPS 16     //number of microsteps
-
   //#define E3_IS_TMC
-  #define E3_MAX_CURRENT 1000  //in mA
-  #define E3_SENSE_RESISTOR 91 //in mOhms
-  #define E3_MICROSTEPS 16     //number of microsteps
+
+  #define X_MAX_CURRENT     1000 // in mA
+  #define X_SENSE_RESISTOR    91 // in mOhms
+  #define X_MICROSTEPS        16 // number of microsteps
+
+  #define X2_MAX_CURRENT    1000
+  #define X2_SENSE_RESISTOR   91
+  #define X2_MICROSTEPS       16
+
+  #define Y_MAX_CURRENT     1000
+  #define Y_SENSE_RESISTOR    91
+  #define Y_MICROSTEPS        16
+
+  #define Y2_MAX_CURRENT    1000
+  #define Y2_SENSE_RESISTOR   91
+  #define Y2_MICROSTEPS       16
+
+  #define Z_MAX_CURRENT     1000
+  #define Z_SENSE_RESISTOR    91
+  #define Z_MICROSTEPS        16
+
+  #define Z2_MAX_CURRENT    1000
+  #define Z2_SENSE_RESISTOR   91
+  #define Z2_MICROSTEPS       16
+
+  #define E0_MAX_CURRENT    1000
+  #define E0_SENSE_RESISTOR   91
+  #define E0_MICROSTEPS       16
+
+  #define E1_MAX_CURRENT    1000
+  #define E1_SENSE_RESISTOR   91
+  #define E1_MICROSTEPS       16
+
+  #define E2_MAX_CURRENT    1000
+  #define E2_SENSE_RESISTOR   91
+  #define E2_MICROSTEPS       16
+
+  #define E3_MAX_CURRENT    1000
+  #define E3_SENSE_RESISTOR   91
+  #define E3_MICROSTEPS       16
 
 #endif
 
-/******************************************************************************\
- * enable this section if you have L6470  motor drivers.
- * you need to import the L6470 library into the Arduino IDE for this
- ******************************************************************************/
+// @section TMC2130
 
-// @section l6470
+
+/**
+ * Enable this for SilentStepStick Trinamic TMC2130 SPI-configurable stepper drivers.
+ *
+ * To use TMC2130 drivers in SPI mode, you'll also need the TMC2130 Arduino library
+ * (https://github.com/makertum/Trinamic_TMC2130).
+ *
+ * To use TMC2130 stepper drivers in SPI mode connect your SPI2130 pins to
+ * the hardware SPI interface on your board and define the required CS pins
+ * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
+ */
+
+//#define HAVE_TMC2130DRIVER
+
+#if ENABLED(HAVE_TMC2130DRIVER)
+
+  //#define TMC2130_ADVANCED_CONFIGURATION
+
+  // CHOOSE YOUR MOTORS HERE, THIS IS MANDATORY
+  //#define X_IS_TMC2130
+  //#define X2_IS_TMC2130
+  //#define Y_IS_TMC2130
+  //#define Y2_IS_TMC2130
+  //#define Z_IS_TMC2130
+  //#define Z2_IS_TMC2130
+  //#define E0_IS_TMC2130
+  //#define E1_IS_TMC2130
+  //#define E2_IS_TMC2130
+  //#define E3_IS_TMC2130
+
+  #if ENABLED(TMC2130_ADVANCED_CONFIGURATION)
+
+    // If you've enabled TMC2130_ADVANCED_CONFIGURATION, define global settings below.
+    // Enabled settings will be automatically applied to all axes specified above.
+    //
+    // Please read the TMC2130 datasheet:
+    // http://www.trinamic.com/_articles/products/integrated-circuits/tmc2130/_datasheet/TMC2130_datasheet.pdf
+    // All settings here have the same (sometimes cryptic) names as in the datasheet.
+    //
+    // The following, uncommented settings are only suggestion.
+
+    /* GENERAL CONFIGURATION */
+
+    //#define GLOBAL_EN_PWM_MODE        0
+    #define GLOBAL_I_SCALE_ANALOG     1 // [0,1] 0: Normal, 1: AIN
+    //#define GLOBAL_INTERNAL_RSENSE    0 // [0,1] 0: Normal, 1: Internal
+    #define GLOBAL_EN_PWM_MODE        0 // [0,1] 0: Normal, 1: stealthChop with velocity threshold
+    //#define GLOBAL_ENC_COMMUTATION    0 // [0,1]
+    #define GLOBAL_SHAFT              0 // [0,1] 0: normal, 1: invert
+    //#define GLOBAL_DIAG0_ERROR        0 // [0,1]
+    //#define GLOBAL_DIAG0_OTPW         0 // [0,1]
+    //#define GLOBAL_DIAG0_STALL        0 // [0,1]
+    //#define GLOBAL_DIAG1_STALL        0 // [0,1]
+    //#define GLOBAL_DIAG1_INDEX        0 // [0,1]
+    //#define GLOBAL_DIAG1_ONSTATE      0 // [0,1]
+    //#define GLOBAL_DIAG1_ONSTATE      0 // [0,1]
+    //#define GLOBAL_DIAG0_INT_PUSHPULL 0 // [0,1]
+    //#define GLOBAL_DIAG1_INT_PUSHPULL 0 // [0,1]
+    //#define GLOBAL_SMALL_HYSTERESIS   0 // [0,1]
+    //#define GLOBAL_STOP_ENABLE        0 // [0,1]
+    //#define GLOBAL_DIRECT_MODE        0 // [0,1]
+
+    /* VELOCITY-DEPENDENT DRIVE FEATURES */
+
+    #define GLOBAL_IHOLD             22 // [0-31] 0: min, 31: max
+    #define GLOBAL_IRUN              31 // [0-31] 0: min, 31: max
+    #define GLOBAL_IHOLDDELAY        15 // [0-15] 0: min, 15: about 4 seconds
+    //#define GLOBAL_TPOWERDOWN         0 // [0-255] 0: min, 255: about 4 seconds
+    //#define GLOBAL_TPWMTHRS           0 // [0-1048576] e.g. 20 corresponds with 2000 steps/s
+    //#define GLOBAL_TCOOLTHRS          0 // [0-1048576] e.g. 20 corresponds with 2000 steps/s
+    #define GLOBAL_THIGH             10 // [0-1048576] e.g. 20 corresponds with 2000 steps/s
+
+    /* SPI MODE CONFIGURATION */
+
+    //#define GLOBAL_XDIRECT            0
+
+    /* DCSTEP MINIMUM VELOCITY */
+
+    //#define GLOBAL_VDCMIN             0
+
+    /* MOTOR DRIVER CONFIGURATION*/
+
+    //#define GLOBAL_DEDGE              0
+    //#define GLOBAL_DISS2G             0
+    #define GLOBAL_INTPOL             1 // 0: off 1: 256 microstep interpolation
+    #define GLOBAL_MRES              16 // number of microsteps
+    #define GLOBAL_SYNC               1 // [0-15]
+    #define GLOBAL_VHIGHCHM           1 // [0,1] 0: normal, 1: high velocity stepper mode
+    #define GLOBAL_VHIGHFS            0 // [0,1] 0: normal, 1: switch to full steps for high velocities
+    // #define GLOBAL_VSENSE            0 // [0,1] 0: normal, 1: high sensitivity (not recommended)
+    #define GLOBAL_TBL                1 // 0-3: set comparator blank time to 16, 24, 36 or 54 clocks, 1 or 2 is recommended
+    #define GLOBAL_CHM                0 // [0,1] 0: spreadCycle, 1: Constant off time with fast decay time.
+    //#define GLOBAL_RNDTF              0
+    //#define GLOBAL_DISFDCC            0
+    //#define GLOBAL_FD                 0
+    //#define GLOBAL_HEND               0
+    //#define GLOBAL_HSTRT              0
+    #define GLOBAL_TOFF              10 // 0: driver disable, 1: use only with TBL>2, 2-15: off time setting during slow decay phase
+
+    //#define GLOBAL_SFILT              0
+    //#define GLOBAL_SGT                0
+    //#define GLOBAL_SEIMIN             0
+    //#define GLOBAL_SEDN               0
+    //#define GLOBAL_SEMAX              0
+    //#define GLOBAL_SEUP               0
+    //#define GLOBAL_SEMIN              0
+
+    //#define GLOBAL_DC_TIME            0
+    //#define GLOBAL_DC_SG              0
+
+    //#define GLOBAL_FREEWHEEL          0
+    //#define GLOBAL_PWM_SYMMETRIC      0
+    //#define GLOBAL_PWM_AUTOSCALE      0
+    //#define GLOBAL_PWM_FREQ           0
+    //#define GLOBAL_PWM_GRAD           0
+    //#define GLOBAL_PWM_AMPL           0
+
+    //#define GLOBAL_ENCM_CTRL          0
+
+  #else
+
+    #define X_IHOLD          31 // [0-31] 0: min, 31: max
+    #define X_IRUN           31 // [0-31] 0: min, 31: max
+    #define X_IHOLDDELAY     15 // [0-15] 0: min, 15: about 4 seconds
+    #define X_I_SCALE_ANALOG  1 // 0: Normal, 1: AIN
+    #define X_MRES           16 // number of microsteps
+    #define X_TBL             1 // 0-3: set comparator blank time to 16, 24, 36 or 54 clocks, 1 or 2 is recommended
+    #define X_TOFF            8 // 0: driver disable, 1: use only with TBL>2, 2-15: off time setting during slow decay phase
+
+    #define X2_IHOLD         31
+    #define X2_IRUN          31
+    #define X2_IHOLDDELAY    15
+    #define X2_I_SCALE_ANALOG 1
+    #define X2_MRES          16
+    #define X2_TBL            1
+    #define X2_TOFF           8
+
+    #define Y_IHOLD          31
+    #define Y_IRUN           31
+    #define Y_IHOLDDELAY     15
+    #define Y_I_SCALE_ANALOG  1
+    #define Y_MRES           16
+    #define Y_TBL             1
+    #define Y_TOFF            8
+
+    #define Y2_IHOLD         31
+    #define Y2_IRUN          31
+    #define Y2_IHOLDDELAY    15
+    #define Y2_I_SCALE_ANALOG 1
+    #define Y2_MRES          16
+    #define Y2_TBL            1
+    #define Y2_TOFF           8
+
+    #define Z_IHOLD          31
+    #define Z_IRUN           31
+    #define Z_IHOLDDELAY     15
+    #define Z_I_SCALE_ANALOG  1
+    #define Z_MRES           16
+    #define Z_TBL             1
+    #define Z_TOFF            8
+
+    #define Z2_IHOLD         31
+    #define Z2_IRUN          31
+    #define Z2_IHOLDDELAY    15
+    #define Z2_I_SCALE_ANALOG 1
+    #define Z2_MRES          16
+    #define Z2_TBL            1
+    #define Z2_TOFF           8
+
+    #define E0_IHOLD         31
+    #define E0_IRUN          31
+    #define E0_IHOLDDELAY    15
+    #define E0_I_SCALE_ANALOG 1
+    #define E0_MRES          16
+    #define E0_TBL            1
+    #define E0_TOFF           8
+
+    #define E1_IHOLD         31
+    #define E1_IRUN          31
+    #define E1_IHOLDDELAY    15
+    #define E1_I_SCALE_ANALOG 1
+    #define E1_MRES          16
+    #define E1_TBL            1
+    #define E1_TOFF           8
+
+    #define E2_IHOLD         31
+    #define E2_IRUN          31
+    #define E2_IHOLDDELAY    15
+    #define E2_I_SCALE_ANALOG 1
+    #define E2_MRES          16
+    #define E2_TBL            1
+    #define E2_TOFF           8
+
+    #define E3_IHOLD         31
+    #define E3_IRUN          31
+    #define E3_IHOLDDELAY    15
+    #define E3_I_SCALE_ANALOG 1
+    #define E3_MRES          16
+    #define E3_TBL            1
+    #define E3_TOFF           8
+
+  #endif // TMC2130_ADVANCED_CONFIGURATION
+
+#endif // HAVE_TMC2130DRIVER
+
+// @section L6470
+
+/**
+ * Enable this section if you have L6470 motor drivers.
+ * You need to import the L6470 library into the Arduino IDE for this.
+ * (https://github.com/ameyer/Arduino-L6470)
+ */
 
 //#define HAVE_L6470DRIVER
 #if ENABLED(HAVE_L6470DRIVER)
 
   //#define X_IS_L6470
-  #define X_MICROSTEPS 16     //number of microsteps
-  #define X_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
-  #define X_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
-  #define X_STALLCURRENT 1500 //current in mA where the driver will detect a stall
-
   //#define X2_IS_L6470
-  #define X2_MICROSTEPS 16     //number of microsteps
-  #define X2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
-  #define X2_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
-  #define X2_STALLCURRENT 1500 //current in mA where the driver will detect a stall
-
   //#define Y_IS_L6470
-  #define Y_MICROSTEPS 16     //number of microsteps
-  #define Y_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
-  #define Y_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
-  #define Y_STALLCURRENT 1500 //current in mA where the driver will detect a stall
-
   //#define Y2_IS_L6470
-  #define Y2_MICROSTEPS 16     //number of microsteps
-  #define Y2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
-  #define Y2_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
-  #define Y2_STALLCURRENT 1500 //current in mA where the driver will detect a stall
-
   //#define Z_IS_L6470
-  #define Z_MICROSTEPS 16     //number of microsteps
-  #define Z_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
-  #define Z_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
-  #define Z_STALLCURRENT 1500 //current in mA where the driver will detect a stall
-
   //#define Z2_IS_L6470
-  #define Z2_MICROSTEPS 16     //number of microsteps
-  #define Z2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
-  #define Z2_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
-  #define Z2_STALLCURRENT 1500 //current in mA where the driver will detect a stall
-
   //#define E0_IS_L6470
-  #define E0_MICROSTEPS 16     //number of microsteps
-  #define E0_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
-  #define E0_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
-  #define E0_STALLCURRENT 1500 //current in mA where the driver will detect a stall
-
   //#define E1_IS_L6470
-  #define E1_MICROSTEPS 16     //number of microsteps
-  #define E1_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
-  #define E1_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
-  #define E1_STALLCURRENT 1500 //current in mA where the driver will detect a stall
-
   //#define E2_IS_L6470
-  #define E2_MICROSTEPS 16     //number of microsteps
-  #define E2_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
-  #define E2_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
-  #define E2_STALLCURRENT 1500 //current in mA where the driver will detect a stall
-
   //#define E3_IS_L6470
-  #define E3_MICROSTEPS 16     //number of microsteps
-  #define E3_K_VAL 50          // 0 - 255, Higher values, are higher power. Be careful not to go too high
-  #define E3_OVERCURRENT 2000  //maxc current in mA. If the current goes over this value, the driver will switch off
-  #define E3_STALLCURRENT 1500 //current in mA where the driver will detect a stall
+
+  #define X_MICROSTEPS      16 // number of microsteps
+  #define X_K_VAL           50 // 0 - 255, Higher values, are higher power. Be careful not to go too high
+  #define X_OVERCURRENT   2000 // maxc current in mA. If the current goes over this value, the driver will switch off
+  #define X_STALLCURRENT  1500 // current in mA where the driver will detect a stall
+
+  #define X2_MICROSTEPS     16
+  #define X2_K_VAL          50
+  #define X2_OVERCURRENT  2000
+  #define X2_STALLCURRENT 1500
+
+  #define Y_MICROSTEPS      16
+  #define Y_K_VAL           50
+  #define Y_OVERCURRENT   2000
+  #define Y_STALLCURRENT  1500
+
+  #define Y2_MICROSTEPS     16
+  #define Y2_K_VAL          50
+  #define Y2_OVERCURRENT  2000
+  #define Y2_STALLCURRENT 1500
+
+  #define Z_MICROSTEPS      16
+  #define Z_K_VAL           50
+  #define Z_OVERCURRENT   2000
+  #define Z_STALLCURRENT  1500
+
+  #define Z2_MICROSTEPS     16
+  #define Z2_K_VAL          50
+  #define Z2_OVERCURRENT  2000
+  #define Z2_STALLCURRENT 1500
+
+  #define E0_MICROSTEPS     16
+  #define E0_K_VAL          50
+  #define E0_OVERCURRENT  2000
+  #define E0_STALLCURRENT 1500
+
+  #define E1_MICROSTEPS     16
+  #define E1_K_VAL          50
+  #define E1_OVERCURRENT  2000
+  #define E1_STALLCURRENT 1500
+
+  #define E2_MICROSTEPS     16
+  #define E2_K_VAL          50
+  #define E2_OVERCURRENT  2000
+  #define E2_STALLCURRENT 1500
+
+  #define E3_MICROSTEPS     16
+  #define E3_K_VAL          50
+  #define E3_OVERCURRENT  2000
+  #define E3_STALLCURRENT 1500
 
 #endif
 
@@ -774,27 +1061,43 @@ const unsigned int dropsegments = 5; //everything with less than this number of 
  *
  * ; Example #1
  * ; This macro send the string "Marlin" to the slave device with address 0x63 (99)
- * ; It uses multiple M155 commands with one B<base 10> arg
- * M155 A99  ; Target slave address
- * M155 B77  ; M
- * M155 B97  ; a
- * M155 B114 ; r
- * M155 B108 ; l
- * M155 B105 ; i
- * M155 B110 ; n
- * M155 S1   ; Send the current buffer
+ * ; It uses multiple M260 commands with one B<base 10> arg
+ * M260 A99  ; Target slave address
+ * M260 B77  ; M
+ * M260 B97  ; a
+ * M260 B114 ; r
+ * M260 B108 ; l
+ * M260 B105 ; i
+ * M260 B110 ; n
+ * M260 S1   ; Send the current buffer
  *
  * ; Example #2
  * ; Request 6 bytes from slave device with address 0x63 (99)
- * M156 A99 B5
+ * M261 A99 B5
  *
  * ; Example #3
- * ; Example serial output of a M156 request
+ * ; Example serial output of a M261 request
  * echo:i2c-reply: from:99 bytes:5 data:hello
  */
 
 // @section i2cbus
 
 //#define EXPERIMENTAL_I2CBUS
+#define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
+
+/**
+ * Add M43 command for pins info and testing
+ */
+//#define PINS_DEBUGGING
+
+/**
+ * Auto-report temperatures with M155 S<seconds>
+ */
+//#define AUTO_REPORT_TEMPERATURES
+
+/**
+ * Include capabilities in M115 output
+ */
+//#define EXTENDED_CAPABILITIES_REPORT
 
 #endif // CONFIGURATION_ADV_H

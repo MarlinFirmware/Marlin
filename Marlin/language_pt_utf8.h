@@ -30,8 +30,6 @@
 #ifndef LANGUAGE_PT_UTF_H
 #define LANGUAGE_PT_UTF_H
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " pronto."
@@ -92,19 +90,12 @@
 #define MSG_PID_I                           "PID-I"
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
-#define MSG_E1                              "E1"
-#define MSG_E2                              "E2"
-#define MSG_E3                              "E3"
-#define MSG_E4                              "E4"
 #define MSG_ACC                             "Acc"
-#define MSG_VXY_JERK                        "Vxy-jerk"
+#define MSG_VX_JERK                         "Vx-jerk"
+#define MSG_VY_JERK                         "Vy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            " Vmax "
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "Vmin"
 #define MSG_VTRAV_MIN                       "VTrav min"
 #define MSG_AMAX                            "Amax "

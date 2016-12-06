@@ -23,11 +23,15 @@
 #ifndef CARDREADER_H
 #define CARDREADER_H
 
+#include "MarlinConfig.h"
+
 #if ENABLED(SDSUPPORT)
 
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 
 #include "SdFile.h"
+
+#include "types.h"
 #include "enum.h"
 
 class CardReader {
@@ -47,7 +51,6 @@ public:
   void release();
   void openAndPrintFile(const char *name);
   void startFileprint();
-  void pauseSDPrint();
   void stopSDPrint();
   void getStatus();
   void printingHasFinished();
@@ -66,6 +69,7 @@ public:
   void updir();
   void setroot();
 
+  FORCE_INLINE void pauseSDPrint() { sdprinting = false; }
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
   FORCE_INLINE bool eof() { return sdpos >= filesize; }
   FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }

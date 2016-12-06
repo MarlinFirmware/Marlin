@@ -114,3 +114,7 @@ applet/
 # Debug files
 *.dSYM/
 *.su
+
+#PlatformIO files/dirs
+.pioenvs
+.piolib

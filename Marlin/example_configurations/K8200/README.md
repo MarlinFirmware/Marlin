@@ -7,7 +7,7 @@
 * VM8201 uses "DISPLAY_CHARSET_HD44870_JAPAN" and "ULTIMAKERCONTROLLER"
 * german (de) translation with umlaut is supported now - thanks to @AnHardt for the great hardware based umlaut support
 
-I [@CONSULitAS](https://github.com/CONSULitAS) tested the changes on my K8200 with 20x4-LCD and Arduino 1.6.1 for Windows (SD library added to IDE manually) - everything works well.
+I [@CONSULitAS](https://github.com/CONSULitAS) tested the changes on my K8200 with 20x4-LCD and Arduino 1.6.12 for Mac (SD library added to IDE manually), 2016-11-18 - everything works well.
 
 **Source for genuine [Vellemann Firmware](http://www.k8200.eu/support/downloads/)**
 * V2.1.1 (for z axis upgrade, date branched: 2013-06-05): [firmware_k8200_v2.1.1.zip](http://www.k8200.eu/downloads/files/downloads/firmware_k8200_v2.1.1.zip)
