@@ -55,7 +55,7 @@
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 " "
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 " All"
 #define MSG_PREHEAT_1_BEDONLY               "Rozgrzej stol PLA"
-#define MSG_PREHEAT_1_SETTINGS              "Ustaw. rozg. PLA"k
+#define MSG_PREHEAT_1_SETTINGS              "Ustaw. rozg. PLA"
 #define MSG_PREHEAT_2                       "Rozgrzej ABS"
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 " "
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " All"
