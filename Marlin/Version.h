@@ -35,11 +35,9 @@
   /**
    * Marlin release version identifier
    */
-<<<<<<< HEAD
-  #define SHORT_BUILD_VERSION "1.1.0-RC7"
-=======
+
   #define SHORT_BUILD_VERSION "1.1.0-RC8"
->>>>>>> MarlinFirmware/RC
+
 
   /**
    * Verbose version identifier which should contain a reference to the location

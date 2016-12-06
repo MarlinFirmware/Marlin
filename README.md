@@ -5,11 +5,9 @@
 Additional documentation can be found at [The Marlin Documentation Project](https://www.marlinfw.org/).
 Please test this firmware and inform us if it misbehaves in any way, volunteers are standing by!
 
-<<<<<<< HEAD
-## Release Candidate -- Marlin 1.1.0-RC7 - 31 July 2016
-=======
+
 ## Release Candidate -- Marlin 1.1.0-RC8 - 6 Dec 2016
->>>>>>> MarlinFirmware/RC
+
 
 __Not for production use – use with caution!__
 
@@ -18,8 +16,7 @@ You can download earlier versions of Marlin on the [Releases page](https://githu
 The latest Release Candidate lives in the ["RC" branch](https://github.com/MarlinFirmware/Marlin/tree/RC). Bugs that we find in the current Release Candidate are patched in the ["RCBugFix" branch](https://github.com/MarlinFirmware/Marlin/tree/RCBugFix), so during beta testing this is where you can always find the latest code on its way towards release.
 
 ## Recent Changes
-<<<<<<< HEAD
-=======
+
 - RC8 - 06 Dec 2016
   - Major performance improvement for Graphical LCDs
   - Simplified probe configuration
@@ -41,7 +38,6 @@ The latest Release Candidate lives in the ["RC" branch](https://github.com/Marli
   - Support for Printrbot Rev.F
   - New and updated languages
 
->>>>>>> MarlinFirmware/RC
 - RC7 - 31 Jul 2016
   - Add Print Job Timer and Print Counter (`PRINTCOUNTER`)
   - New `M600` Filament Change (`FILAMENT_CHANGE_FEATURE`)
