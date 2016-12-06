@@ -95,8 +95,6 @@
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_BQ_ZUM_MEGA_3D    503  // bq ZUM Mega 3D
 
-#define BOARD_99                99   // This is in pins.h but...?
-
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
 #endif //__BOARDS_H

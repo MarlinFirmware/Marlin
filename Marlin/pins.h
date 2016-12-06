@@ -166,8 +166,6 @@
   #include "pins_MEGACONTROLLER.h"
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins_BQ_ZUM_MEGA_3D.h"
-#elif MB(99)
-  #include "pins_99.h"
 #elif MB(AJ4P)
   #include "pins_AJ4P.h"
 #elif MB(MKS_13)
