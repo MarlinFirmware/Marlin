@@ -55,7 +55,7 @@
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 " "
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 " All"
 #define MSG_PREHEAT_1_BEDONLY               "Rozgrzej stol PLA"
-#define MSG_PREHEAT_1_SETTINGS              "Ustaw. rozg. PLA"
+#define MSG_PREHEAT_1_SETTINGS              "Ustaw. rozg. PLA"k
 #define MSG_PREHEAT_2                       "Rozgrzej ABS"
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 " "
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " All"
@@ -162,7 +162,7 @@
 #define MSG_ERR_MAXTEMP_BED                 "Err max temp stolu"
 #define MSG_ERR_MINTEMP_BED                 "Err min temp stolu"
 #define MSG_ERR_Z_HOMING                    "G28 Z Forbidden"
-#define MSG_HALTED                          "Drukarka zatrzymana"
+#define MSG_HALTED                          "Drukarka zatrzym."
 #define MSG_PLEASE_RESET                    "Prosze zresetowac"
 #define MSG_SHORT_DAY                       "d" // One character only
 #define MSG_SHORT_HOUR                      "g" // One character only
