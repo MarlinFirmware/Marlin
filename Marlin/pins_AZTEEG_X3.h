@@ -32,6 +32,17 @@
 
 #include "pins_RAMPS_13.h"
 
+//
+// Servos
+//
+#undef SERVO0_PIN
+#undef SERVO1_PIN
+#define SERVO0_PIN  44  // SERVO1 port
+#define SERVO1_PIN  55  // SERVO2 port
+
+//
+// LCD / Controller
+//
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 
   #undef DOGLCD_A0
@@ -41,16 +52,14 @@
   #define DOGLCD_CS         32
   #define BTN_ENC           12
 
-  #if ENABLED(TEMP_STAT_LEDS)
-    #undef STAT_LED_RED
-    #undef STAT_LED_BLUE
-    #define STAT_LED_RED    64
-    #define STAT_LED_BLUE   63
-  #endif
+  #undef STAT_LED_RED_PIN
+  #undef STAT_LED_BLUE_PIN
+  #define STAT_LED_RED_PIN  64
+  #define STAT_LED_BLUE_PIN 63
 
-#elif ENABLED(TEMP_STAT_LEDS)
+#else
 
-  #define STAT_LED_RED       6
-  #define STAT_LED_BLUE     11
+  #define STAT_LED_RED_PIN   6
+  #define STAT_LED_BLUE_PIN 11
 
 #endif

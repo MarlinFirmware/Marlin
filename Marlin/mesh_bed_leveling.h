@@ -36,54 +36,58 @@
 
     void reset();
 
-    static FORCE_INLINE float get_probe_x(int8_t i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
-    static FORCE_INLINE float get_probe_y(int8_t i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
-    void set_z(const int8_t px, const int8_t py, const float z) { z_values[py][px] = z; }
+    static FORCE_INLINE float get_probe_x(const int8_t i) { return MESH_MIN_X + (MESH_X_DIST) * i; }
+    static FORCE_INLINE float get_probe_y(const int8_t i) { return MESH_MIN_Y + (MESH_Y_DIST) * i; }
+    void set_z(const int8_t px, const int8_t py, const float &z) { z_values[py][px] = z; }
 
-    bool active()                 { return TEST(status, MBL_STATUS_ACTIVE_BIT); }
-    void set_active(bool onOff)   { if (onOff) SBI(status, MBL_STATUS_ACTIVE_BIT); else CBI(status, MBL_STATUS_ACTIVE_BIT); }
-    bool has_mesh()               { return TEST(status, MBL_STATUS_HAS_MESH_BIT); }
-    void set_has_mesh(bool onOff) { if (onOff) SBI(status, MBL_STATUS_HAS_MESH_BIT); else CBI(status, MBL_STATUS_HAS_MESH_BIT); }
+    bool active() const                 { return TEST(status, MBL_STATUS_ACTIVE_BIT); }
+    void set_active(const bool onOff)   { onOff ? SBI(status, MBL_STATUS_ACTIVE_BIT) : CBI(status, MBL_STATUS_ACTIVE_BIT); }
+    bool has_mesh() const               { return TEST(status, MBL_STATUS_HAS_MESH_BIT); }
+    void set_has_mesh(const bool onOff) { onOff ? SBI(status, MBL_STATUS_HAS_MESH_BIT) : CBI(status, MBL_STATUS_HAS_MESH_BIT); }
 
-    inline void zigzag(int8_t index, int8_t &px, int8_t &py) {
+    inline void zigzag(const int8_t index, int8_t &px, int8_t &py) const {
       px = index % (MESH_NUM_X_POINTS);
       py = index / (MESH_NUM_X_POINTS);
       if (py & 1) px = (MESH_NUM_X_POINTS - 1) - px; // Zig zag
     }
 
-    void set_zigzag_z(int8_t index, float z) {
+    void set_zigzag_z(const int8_t index, const float &z) {
       int8_t px, py;
       zigzag(index, px, py);
       set_z(px, py, z);
     }
 
-    int8_t cell_index_x(float x) {
-      int8_t cx = int(x - (MESH_MIN_X)) / (MESH_X_DIST);
+    int8_t cell_index_x(const float &x) const {
+      int8_t cx = (x - (MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
       return constrain(cx, 0, (MESH_NUM_X_POINTS) - 2);
     }
 
-    int8_t cell_index_y(float y) {
-      int8_t cy = int(y - (MESH_MIN_Y)) / (MESH_Y_DIST);
+    int8_t cell_index_y(const float &y) const {
+      int8_t cy = (y - (MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
       return constrain(cy, 0, (MESH_NUM_Y_POINTS) - 2);
     }
 
-    int8_t probe_index_x(float x) {
-      int8_t px = int(x - (MESH_MIN_X) + (MESH_X_DIST) / 2) / (MESH_X_DIST);
+    int8_t probe_index_x(const float &x) const {
+      int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
       return (px >= 0 && px < (MESH_NUM_X_POINTS)) ? px : -1;
     }
 
-    int8_t probe_index_y(float y) {
-      int8_t py = int(y - (MESH_MIN_Y) + (MESH_Y_DIST) / 2) / (MESH_Y_DIST);
+    int8_t probe_index_y(const float &y) const {
+      int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
       return (py >= 0 && py < (MESH_NUM_Y_POINTS)) ? py : -1;
     }
 
-    float calc_z0(float a0, float a1, float z1, float a2, float z2) {
-      float delta_z = (z2 - z1) / (a2 - a1);
-      float delta_a = a0 - a1;
+    float calc_z0(const float &a0, const float &a1, const float &z1, const float &a2, const float &z2) const {
+      const float delta_z = (z2 - z1) / (a2 - a1);
+      const float delta_a = a0 - a1;
       return z1 + delta_a * delta_z;
     }
 
-    float get_z(float x0, float y0) {
+    float get_z(const float &x0, const float &y0
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        , const float &factor
+      #endif
+    ) const {
       int8_t cx = cell_index_x(x0),
              cy = cell_index_y(y0);
       if (cx < 0 || cy < 0) return z_offset;
@@ -96,7 +100,12 @@
       float z0 = calc_z0(y0,
                          get_probe_y(cy), z1,
                          get_probe_y(cy + 1), z2);
-      return z0 + z_offset;
+
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        return z0 * factor + z_offset;
+      #else
+        return z0 + z_offset;
+      #endif
     }
   };
 

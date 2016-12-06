@@ -36,11 +36,27 @@
 #endif
 
 #define BOARD_NAME         "Printrboard"
+
+#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
 // Disable JTAG pins so they can be used for the Extrudrboard
 #define DISABLE_JTAG       true
 
+//
+// Limit Switches
+//
+#define X_STOP_PIN         35
+#if ENABLED(SDSUPPORT)
+  #define Y_STOP_PIN       37 // Move Ystop to Estop socket
+#else
+  #define Y_STOP_PIN        8 // Ystop in Ystop socket
+#endif
+#define Z_STOP_PIN         36
+
+//
+// Steppers
+//
 #define X_STEP_PIN          0
 #define X_DIR_PIN           1
 #define X_ENABLE_PIN       39
@@ -57,7 +73,16 @@
 #define E0_DIR_PIN          7
 #define E0_ENABLE_PIN      19
 
-#define HEATER_0_PIN       21  // Extruder
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          1   // Analog Input
+#define TEMP_BED_PIN        0   // Analog Input
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       21 // Extruder
 #define HEATER_1_PIN       46
 #define HEATER_2_PIN       47
 #define HEATER_BED_PIN     20
@@ -70,39 +95,32 @@
   #define FAN_PIN          16
 #endif
 
-#define X_STOP_PIN         35
-#if ENABLED(SDSUPPORT)
-  #define Y_STOP_PIN       37 // Move Ystop to Estop socket
-#else
-  #define Y_STOP_PIN        8 // Ystop in Ystop socket
-#endif
-#define Z_STOP_PIN         36
-#define TEMP_0_PIN          1  // Extruder / Analog pin numbering
-#define TEMP_BED_PIN        0  // Bed / Analog pin numbering
-
-#define FILWIDTH_PIN        2  // ANALOG NUMBERING
-
-////LCD Pin Setup////
-
+//
+// Misc. Functions
+//
 #define SDSS               26
+#define FILWIDTH_PIN        2   // Analog Input
 
+//
+// LCD / Controller
+//
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
-  //we have no buzzer installed
+  // we have no buzzer installed
   #define BEEPER_PIN -1
 
-  //LCD Pins
+  // LCD Pins
   #if ENABLED(LCD_I2C_PANELOLU2)
-    #define BTN_EN1 27  //RX1 - fastio.h pin mapping 27
-    #define BTN_EN2 26  //TX1 - fastio.h pin mapping 26
-    #define BTN_ENC 43 //A3 - fastio.h pin mapping 43
-    #define SDSS   40 //use SD card on Panelolu2 (Teensyduino pin mapping)
+    #define BTN_EN1 27 // RX1 - fastio.h pin mapping 27
+    #define BTN_EN2 26 // TX1 - fastio.h pin mapping 26
+    #define BTN_ENC 43 // A3 - fastio.h pin mapping 43
+    #define SDSS    40 // use SD card on Panelolu2 (Teensyduino pin mapping)
   #else
     #define BTN_EN1 16
     #define BTN_EN2 17
-    #define BTN_ENC 18//the click
+    #define BTN_ENC 18 // the click
   #endif // LCD_I2C_PANELOLU2
 
-  //not connected to a pin
+  // not connected to a pin
   #define SD_DETECT_PIN -1
 
   #define LCD_PINS_RS 9
@@ -115,22 +133,22 @@
 #endif // ULTRA_LCD && NEWPANEL
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  //FastIO
+  // FastIO
   #define BEEPER_PIN 32
   // Pins for DOGM SPI LCD Support
-  #define DOGLCD_A0  42 //Non-FastIO
-  #define DOGLCD_CS  43 //Non-FastIO
+  #define DOGLCD_A0  42 // Non-FastIO
+  #define DOGLCD_CS  43 // Non-FastIO
   #define LCD_SCREEN_ROT_180
 
-  //The encoder and click button (FastIO Pins)
+  // The encoder and click button (FastIO Pins)
   #define BTN_EN1 26
   #define BTN_EN2 27
   #define BTN_ENC 47
 
   #define SDSS 45
   #define SD_DETECT_PIN -1 // FastIO (Manual says 72 I'm not certain cause I can't test)
-  #if ENABLED(TEMP_STAT_LEDS)
-    #define STAT_LED_RED      12 //Non-FastIO
-    #define STAT_LED_BLUE     10 //Non-FastIO
-  #endif
+
+  #define STAT_LED_RED_PIN  12 // Non-FastIO
+  #define STAT_LED_BLUE_PIN 10 // Non-FastIO
+
 #endif

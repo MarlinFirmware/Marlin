@@ -51,7 +51,6 @@ public:
   void release();
   void openAndPrintFile(const char *name);
   void startFileprint();
-  void pauseSDPrint();
   void stopSDPrint();
   void getStatus();
   void printingHasFinished();
@@ -70,6 +69,7 @@ public:
   void updir();
   void setroot();
 
+  FORCE_INLINE void pauseSDPrint() { sdprinting = false; }
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
   FORCE_INLINE bool eof() { return sdpos >= filesize; }
   FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }

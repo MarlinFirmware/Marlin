@@ -21,18 +21,16 @@
  */
 
 /**
-  MarlinSerial.cpp - Hardware serial library for Wiring
-  Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
-
-  Modified 23 November 2006 by David A. Mellis
-  Modified 28 September 2010 by Mark Sproul
-  Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
-*/
-
+ * MarlinSerial.cpp - Hardware serial library for Wiring
+ * Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
+ *
+ * Modified 23 November 2006 by David A. Mellis
+ * Modified 28 September 2010 by Mark Sproul
+ * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
+ */
 #include "MarlinSerial.h"
 
 #include "stepper.h"
-
 #include "Marlin.h"
 
 #ifndef USBCON
@@ -70,8 +68,8 @@ FORCE_INLINE void store_char(unsigned char c) {
 }
 
 #if TX_BUFFER_SIZE > 0
-  FORCE_INLINE void _tx_udr_empty_irq(void)
-  {
+
+  FORCE_INLINE void _tx_udr_empty_irq(void) {
     // If interrupts are enabled, there must be more data in the output
     // buffer. Send the next byte
     uint8_t t = tx_buffer.tail;
@@ -97,7 +95,7 @@ FORCE_INLINE void store_char(unsigned char c) {
     }
   #endif
 
-#endif
+#endif // TX_BUFFER_SIZE
 
 #if defined(M_USARTx_RX_vect)
   ISR(M_USARTx_RX_vect) {
@@ -162,15 +160,8 @@ void MarlinSerial::checkRx(void) {
 }
 
 int MarlinSerial::peek(void) {
-  int v;
   CRITICAL_SECTION_START;
-  uint8_t t = rx_buffer.tail;
-  if (rx_buffer.head == t) {
-    v = -1;
-  }
-  else {
-    v = rx_buffer.buffer[t];
-  }
+    int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.buffer[rx_buffer.tail];
   CRITICAL_SECTION_END;
   return v;
 }
@@ -178,22 +169,22 @@ int MarlinSerial::peek(void) {
 int MarlinSerial::read(void) {
   int v;
   CRITICAL_SECTION_START;
-  uint8_t t = rx_buffer.tail;
-  if (rx_buffer.head == t) {
-    v = -1;
-  }
-  else {
-    v = rx_buffer.buffer[t];
-    rx_buffer.tail = (uint8_t)(t + 1) & (RX_BUFFER_SIZE - 1);
-  }
+    uint8_t t = rx_buffer.tail;
+    if (rx_buffer.head == t) {
+      v = -1;
+    }
+    else {
+      v = rx_buffer.buffer[t];
+      rx_buffer.tail = (uint8_t)(t + 1) & (RX_BUFFER_SIZE - 1);
+    }
   CRITICAL_SECTION_END;
   return v;
 }
 
 uint8_t MarlinSerial::available(void) {
   CRITICAL_SECTION_START;
-    uint8_t h = rx_buffer.head;
-    uint8_t t = rx_buffer.tail;
+    uint8_t h = rx_buffer.head,
+            t = rx_buffer.tail;
   CRITICAL_SECTION_END;
   return (uint8_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
 }
@@ -388,23 +379,18 @@ void MarlinSerial::println(double n, int digits) {
 // Private Methods /////////////////////////////////////////////////////////////
 
 void MarlinSerial::printNumber(unsigned long n, uint8_t base) {
-  unsigned char buf[8 * sizeof(long)]; // Assumes 8-bit chars.
-  unsigned long i = 0;
-
-  if (n == 0) {
+  if (n) {
+    unsigned char buf[8 * sizeof(long)]; // Enough space for base 2
+    int8_t i = 0;
+    while (n) {
+      buf[i++] = n % base;
+      n /= base;
+    }
+    while (i--)
+      print((char)(buf[i] + (buf[i] < 10 ? '0' : 'A' - 10)));
+  }
+  else
     print('0');
-    return;
-  }
-
-  while (n > 0) {
-    buf[i++] = n % base;
-    n /= base;
-  }
-
-  for (; i > 0; i--)
-    print((char)(buf[i - 1] < 10 ?
-                 '0' + buf[i - 1] :
-                 'A' + buf[i - 1] - 10));
 }
 
 void MarlinSerial::printFloat(double number, uint8_t digits) {
@@ -417,7 +403,7 @@ void MarlinSerial::printFloat(double number, uint8_t digits) {
   // Round correctly so that print(1.999, 2) prints as "2.00"
   double rounding = 0.5;
   for (uint8_t i = 0; i < digits; ++i)
-    rounding /= 10.0;
+    rounding *= 0.1;
 
   number += rounding;
 
@@ -427,14 +413,15 @@ void MarlinSerial::printFloat(double number, uint8_t digits) {
   print(int_part);
 
   // Print the decimal point, but only if there are digits beyond
-  if (digits > 0) print('.');
-
-  // Extract digits from the remainder one at a time
-  while (digits-- > 0) {
-    remainder *= 10.0;
-    int toPrint = int(remainder);
-    print(toPrint);
-    remainder -= toPrint;
+  if (digits) {
+    print('.');
+    // Extract digits from the remainder one at a time
+    while (digits--) {
+      remainder *= 10.0;
+      int toPrint = int(remainder);
+      print(toPrint);
+      remainder -= toPrint;
+    }
   }
 }
 // Preinstantiate Objects //////////////////////////////////////////////////////
@@ -521,7 +508,7 @@ MarlinSerial customizedSerial;
         if (c == '\n') {
           switch (state) {
             case state_M108:
-              wait_for_heatup = false;
+              wait_for_user = wait_for_heatup = false;
               break;
             case state_M112:
               kill(PSTR(MSG_KILLED));
@@ -536,4 +523,5 @@ MarlinSerial customizedSerial;
         }
     }
   }
+
 #endif

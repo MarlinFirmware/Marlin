@@ -54,6 +54,9 @@
 
 #define LARGE_FLASH true
 
+//
+// Servos
+//
 #ifdef IS_RAMPS_13
   #define SERVO0_PIN        7 // RAMPS_13 // Will conflict with BTN_EN2 on LCD_I2C_VIKI
 #else
@@ -63,6 +66,9 @@
 #define SERVO2_PIN          5
 #define SERVO3_PIN          4
 
+//
+// Limit Switches
+//
 #define X_MIN_PIN           3
 #ifndef X_MAX_PIN
   #define X_MAX_PIN         2
@@ -71,49 +77,61 @@
 #define Y_MAX_PIN          15
 #define Z_MIN_PIN          18
 #define Z_MAX_PIN          19
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  32
 #endif
 
+#define SLED_PIN           -1
+
+//
+// Steppers
+//
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
+#define X_CS_PIN           53
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
 #define Y_ENABLE_PIN       56
+#define Y_CS_PIN           49
 
 #define Z_STEP_PIN         46
 #define Z_DIR_PIN          48
 #define Z_ENABLE_PIN       62
+#define Z_CS_PIN           40
 
 #define E0_STEP_PIN        26
 #define E0_DIR_PIN         28
 #define E0_ENABLE_PIN      24
+#define E0_CS_PIN          42
 
 #define E1_STEP_PIN        36
 #define E1_DIR_PIN         34
 #define E1_ENABLE_PIN      30
+#define E1_CS_PIN          44
 
-#define SDSS               53
-#define LED_PIN            13
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN         13   // Analog Input
+#define TEMP_1_PIN         15   // Analog Input
+#define TEMP_BED_PIN       14   // Analog Input
 
-// Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
-#define FILWIDTH_PIN        5 // ANALOG NUMBERING
-
-// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
-#define FIL_RUNOUT_PIN      4
-
-#define PS_ON_PIN          12
-#define TEMP_0_PIN         13   // ANALOG NUMBERING
-#define TEMP_1_PIN         15   // ANALOG NUMBERING
-#define TEMP_BED_PIN       14   // ANALOG NUMBERING
-
-#if ENABLED(Z_PROBE_SLED)
-  #define SLED_PIN           -1
+// SPI for Max6675 or Max31855 Thermocouple
+#if DISABLED(SDSUPPORT)
+  #define MAX6675_SS       66 // Do not use pin 53 if there is even the remote possibility of using Display/SD card
+#else
+  #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
+//
 // Augmentation for auto-assigning RAMPS plugs
+//
 #if DISABLED(IS_RAMPS_EEB) && DISABLED(IS_RAMPS_EEF) && DISABLED(IS_RAMPS_EFB) && DISABLED(IS_RAMPS_EFF) && DISABLED(IS_RAMPS_SF) && !PIN_EXISTS(MOSFET_D)
   #if HOTENDS > 1
     #if TEMP_SENSOR_BED
@@ -128,10 +146,9 @@
   #endif
 #endif
 
-/**
- * Hi Voltage PWM Pin Assignments
- */
-
+//
+// Heaters / Fans
+//
 #ifndef MOSFET_D_PIN
   #define MOSFET_D_PIN  -1
 #endif
@@ -159,7 +176,6 @@
 #elif ENABLED(IS_RAMPS_EFF)                    // Hotend, Fan, Fan
   #define FAN_PIN        RAMPS_D9_PIN
   #define FAN1_PIN       RAMPS_D8_PIN
-  #define CONTROLLERFAN_PIN  -1
 #elif ENABLED(IS_RAMPS_SF)                     // Spindle, Fan
   #define FAN_PIN        RAMPS_D8_PIN
 #else                                          // Non-specific are "EFB" (i.e., "EFBF" or "EFBE")
@@ -176,16 +192,29 @@
   #define FAN_PIN 4      // IO pin. Buffer needed
 #endif
 
-/**
- * LCD Controller Pin Assignments
- */
+//
+// Misc. Functions
+//
+#define SDSS               53
+#define LED_PIN            13
 
+// Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
+#define FILWIDTH_PIN        5   // Analog Input
+
+// define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
+#define FIL_RUNOUT_PIN      4
+
+#define PS_ON_PIN          12
+
+//
+// LCD / Controller
+//
 #if ENABLED(ULTRA_LCD)
 
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-    #define LCD_PINS_RS     49 //CS chip select /SS chip slave select
-    #define LCD_PINS_ENABLE 51 //SID (MOSI)
-    #define LCD_PINS_D4     52 //SCK (CLK) clock
+    #define LCD_PINS_RS     49 // CS chip select /SS chip slave select
+    #define LCD_PINS_ENABLE 51 // SID (MOSI)
+    #define LCD_PINS_D4     52 // SCK (CLK) clock
   #elif ENABLED(NEWPANEL) && ENABLED(PANEL_ONE)
     #define LCD_PINS_RS 40
     #define LCD_PINS_ENABLE 42
@@ -224,7 +253,7 @@
       #define KILL_PIN 41
 
       #if ENABLED(BQ_LCD_SMART_CONTROLLER)
-        #define LCD_PIN_BL 39
+        #define LCD_BACKLIGHT_PIN 39
       #endif
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
@@ -264,10 +293,9 @@
 
       #define KILL_PIN         31
 
-      #if ENABLED(TEMP_STAT_LEDS)
-        #define STAT_LED_RED   32
-        #define STAT_LED_BLUE  35
-      #endif
+      #define STAT_LED_RED_PIN 32
+      #define STAT_LED_BLUE_PIN 35
+
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
       #define BTN_EN1 35  // reverse if the encoder turns the wrong way.
       #define BTN_EN2 37
@@ -278,13 +306,13 @@
       #define BEEPER_PIN 23
       #define DOGLCD_CS 29
       #define DOGLCD_A0 27
-      #define LCD_PIN_BL 33
+      #define LCD_BACKLIGHT_PIN 33
     #elif ENABLED(MINIPANEL)
       #define BEEPER_PIN 42
       // Pins for DOGM SPI LCD Support
       #define DOGLCD_A0  44
       #define DOGLCD_CS  66
-      #define LCD_PIN_BL 65 // backlight LED on A11/D65
+      #define LCD_BACKLIGHT_PIN 65 // backlight LED on A11/D65
       #define SDSS   53
 
       #define KILL_PIN 64
@@ -294,11 +322,11 @@
       //#define LCD_SCREEN_ROT_90
       //#define LCD_SCREEN_ROT_180
       //#define LCD_SCREEN_ROT_270
-      //The encoder and click button
+      // The encoder and click button
       #define BTN_EN1 40
       #define BTN_EN2 63
       #define BTN_ENC 59
-      //not connected to a pin
+      // not connected to a pin
       #define SD_DETECT_PIN 49
 
     #else
@@ -321,24 +349,17 @@
       #else
         #define BTN_EN1 37
         #define BTN_EN2 35
-        #define BTN_ENC 31  // the click
+        #define BTN_ENC 31 // the click
       #endif
 
       #if ENABLED(G3D_PANEL)
         #define SD_DETECT_PIN 49
         #define KILL_PIN 41
       #else
-        //        #define SD_DETECT_PIN -1  // Ramps doesn't use this
+        //#define SD_DETECT_PIN -1 // Ramps doesn't use this
       #endif
 
     #endif
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
-
-// SPI for Max6675 or Max31855 Thermocouple
-#if DISABLED(SDSUPPORT)
-  #define MAX6675_SS       66 // Do not use pin 53 if there is even the remote possibility of using Display/SD card
-#else
-  #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
-#endif

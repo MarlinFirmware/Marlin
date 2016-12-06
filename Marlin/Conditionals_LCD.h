@@ -22,7 +22,7 @@
 
 /**
  * Conditionals_LCD.h
- * LCD Defines that depend on configuration but are not editable.
+ * Conditionals that need to be set before Configuration_adv.h or pins.h
  */
 
 #ifndef CONDITIONALS_LCD_H // Get the LCD defines which are needed first
@@ -286,7 +286,7 @@
    *  HOTENDS      - Number of hotends, whether connected or separate
    *  E_STEPPERS   - Number of actual E stepper motors
    *  TOOL_E_INDEX - Index to use when getting/setting the tool state
-   *  
+   *
    */
   #if ENABLED(SINGLENOZZLE)             // One hotend, multi-extruder
     #define HOTENDS      1
@@ -314,6 +314,68 @@
     #define E_STEPPERS   EXTRUDERS
     #define E_MANUAL     EXTRUDERS
     #define TOOL_E_INDEX current_block->active_extruder
+  #endif
+
+  /**
+   * Distinct E Factors – Disable by commenting out DISTINCT_E_FACTORS
+   */
+  #if ENABLED(DISTINCT_E_FACTORS) && E_STEPPERS > 1
+    #define XYZE_N (XYZ + E_STEPPERS)
+    #define E_AXIS_N (E_AXIS + extruder)
+  #else
+    #undef DISTINCT_E_FACTORS
+    #define XYZE_N XYZE
+    #define E_AXIS_N E_AXIS
+  #endif
+
+  /**
+   * The BLTouch Probe emulates a servo probe
+   * and uses "special" angles for its state.
+   */
+  #if ENABLED(BLTOUCH)
+    #ifndef Z_ENDSTOP_SERVO_NR
+      #define Z_ENDSTOP_SERVO_NR 0
+    #endif
+    #ifndef NUM_SERVOS
+      #define NUM_SERVOS (Z_ENDSTOP_SERVO_NR + 1)
+    #endif
+    #undef DEACTIVATE_SERVOS_AFTER_MOVE
+    #undef SERVO_DELAY
+    #define SERVO_DELAY 50
+    #undef Z_SERVO_ANGLES
+    #define Z_SERVO_ANGLES { BLTOUCH_DEPLOY, BLTOUCH_STOW }
+
+    #define BLTOUCH_DEPLOY    10
+    #define BLTOUCH_STOW      90
+    #define BLTOUCH_SELFTEST 120
+    #define BLTOUCH_RESET    160
+    #define _TEST_BLTOUCH(P) (READ(P##_PIN) != P##_ENDSTOP_INVERTING)
+
+    #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+      #undef Z_MIN_ENDSTOP_INVERTING
+      #define Z_MIN_ENDSTOP_INVERTING false
+      #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN)
+    #else
+      #define TEST_BLTOUCH() _TEST_BLTOUCH(Z_MIN_PROBE)
+    #endif
+  #endif
+
+  /**
+   * Set a flag for a servo probe
+   */
+  #define HAS_Z_SERVO_ENDSTOP (defined(Z_ENDSTOP_SERVO_NR) && Z_ENDSTOP_SERVO_NR >= 0)
+
+  /**
+   * Set a flag for any enabled probe
+   */
+  #define PROBE_SELECTED (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
+
+  /**
+   * Clear probe pin settings when no probe is selected
+   */
+  #if !PROBE_SELECTED
+    #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+    #undef Z_MIN_PROBE_ENDSTOP
   #endif
 
 #endif //CONDITIONALS_LCD_H

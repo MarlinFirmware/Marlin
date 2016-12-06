@@ -67,6 +67,11 @@
   #include <TMC26XStepper.h>
 #endif
 
+#if ENABLED(HAVE_TMC2130DRIVER)
+  #include <SPI.h>
+  #include <Trinamic_TMC2130.h>
+#endif
+
 #if ENABLED(HAVE_L6470DRIVER)
   #include <SPI.h>
   #include <L6470.h>

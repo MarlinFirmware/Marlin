@@ -23,6 +23,8 @@
 #ifndef __ENUM_H__
 #define __ENUM_H__
 
+#include "MarlinConfig.h"
+
 /**
  * Axis indices as enumerated constants
  *
@@ -42,11 +44,13 @@ enum AxisEnum {
   E_AXIS  = 3,
   X_HEAD  = 4,
   Y_HEAD  = 5,
-  Z_HEAD  = 6
+  Z_HEAD  = 6,
+  ALL_AXES = 100
 };
 
 #define LOOP_XYZ(VAR)  for (uint8_t VAR=X_AXIS; VAR<=Z_AXIS; VAR++)
 #define LOOP_XYZE(VAR) for (uint8_t VAR=X_AXIS; VAR<=E_AXIS; VAR++)
+#define LOOP_XYZE_N(VAR) for (uint8_t VAR=X_AXIS; VAR<XYZE_N; VAR++)
 
 typedef enum {
   LINEARUNIT_MM,
@@ -70,7 +74,8 @@ enum DebugFlags {
   DEBUG_ERRORS        = _BV(2), ///< Not implemented
   DEBUG_DRYRUN        = _BV(3), ///< Ignore temperature setting and E movement commands
   DEBUG_COMMUNICATION = _BV(4), ///< Not implemented
-  DEBUG_LEVELING      = _BV(5)  ///< Print detailed output for homing and leveling
+  DEBUG_LEVELING      = _BV(5), ///< Print detailed output for homing and leveling
+  DEBUG_ALL           = 0xFF
 };
 
 enum EndstopEnum {
@@ -189,5 +194,13 @@ enum LCDViewAction {
   LCDVIEW_CLEAR_CALL_REDRAW,
   LCDVIEW_CALL_NO_REDRAW
 };
+
+#if ENABLED(DUAL_X_CARRIAGE)
+  enum DualXMode {
+    DXC_FULL_CONTROL_MODE,
+    DXC_AUTO_PARK_MODE,
+    DXC_DUPLICATION_MODE
+  };
+#endif
 
 #endif // __ENUM_H__

@@ -109,7 +109,8 @@ class Buzzer {
         this->tick();
         thermalManager.manage_heater();
       }
-      this->buffer.enqueue((tone_t) { duration, frequency });
+      tone_t tone = { duration, frequency };
+      this->buffer.enqueue(tone);
     }
 
     /**
