@@ -1,14 +1,11 @@
 # Marlin 3D Printer Firmware
 
-[![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=RCBugFix)](https://travis-ci.org/MarlinFirmware/Marlin)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
-
 <img align="top" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
 
 Additional documentation can be found at [The Marlin Documentation Project](https://www.marlinfw.org/).
 Please test this firmware and inform us if it misbehaves in any way, volunteers are standing by!
 
-## Release Candidate -- Marlin 1.1.0-RCBugFix - 26 July 2016
+## Release Candidate -- Marlin 1.1.0-RC7 - 31 July 2016
 
 __Not for production use – use with caution!__
 
@@ -17,9 +14,7 @@ You can download earlier versions of Marlin on the [Releases page](https://githu
 The latest Release Candidate lives in the ["RC" branch](https://github.com/MarlinFirmware/Marlin/tree/RC). Bugs that we find in the current Release Candidate are patched in the ["RCBugFix" branch](https://github.com/MarlinFirmware/Marlin/tree/RCBugFix), so during beta testing this is where you can always find the latest code on its way towards release.
 
 ## Recent Changes
-- RCBugFix
-
-- RC7 - 26 Jul 2016
+- RC7 - 31 Jul 2016
   - Add Print Job Timer and Print Counter (`PRINTCOUNTER`)
   - New `M600` Filament Change (`FILAMENT_CHANGE_FEATURE`)
   - New `G12` Nozzle Clean (`NOZZLE_CLEAN_FEATURE`)
@@ -85,7 +80,14 @@ Proposed patches should be submitted as a Pull Request against the [RCBugFix](ht
 - Do submit questions and concerns. The "naive" question is often the one we forget to ask.
 - Follow the proper coding style. Pull requests with styling errors will be delayed. See our [Coding Standards](https://github.com/MarlinFirmware/Marlin/wiki/DNE-Coding-Standards) page for more information.
 
-### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
+## Current Status: Testing
+
+Please test this firmware and inform us if it misbehaves in any way. Volunteers are standing by!
+
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
+[![Travis Build Status](https://travis-ci.org/MarlinFirmware/MarlinDev.svg)](https://travis-ci.org/MarlinFirmware/MarlinDev)
+
+##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
 ## Credits
 
@@ -115,3 +117,5 @@ More features have been added by:
 Marlin is published under the [GPL license](/LICENSE) because we believe in open development. The GPL comes with both rights and obligations. Whether you use Marlin firmware as the driver for your open or closed-source product, you must keep Marlin open, and you must provide your compatible Marlin source code to end users upon request. The most straightforward way to comply with the Marlin license is to make a fork of Marlin on Github, perform your modifications, and direct users to your modified fork.
 
 While we can't prevent the use of this code in products (3D printers, CNC, etc.) that are closed source or crippled by a patent, we would prefer that you choose another firmware or, better yet, make your own.
+
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
