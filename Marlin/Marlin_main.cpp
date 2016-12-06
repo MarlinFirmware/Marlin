@@ -5235,6 +5235,7 @@ inline void gcode_M105() {
     if (auto_report_temp_interval && ELAPSED(millis(), next_temp_report_ms)) {
       next_temp_report_ms = millis() + 1000UL * auto_report_temp_interval;
       print_heaterstates();
+      SERIAL_EOL;
     }
   }
 
