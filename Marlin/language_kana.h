@@ -275,26 +275,23 @@
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "\xc4\xde\xb3\xbb\xa6\xbe\xdd\xc0\xb8\xbc\xc3\xb8\xc0\xde\xbb\xb2" // "ﾄﾞｳｻｦｾﾝﾀｸｼﾃｸﾀﾞｻｲ" ("CHANGE OPTIONS:")
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "\xbb\xd7\xc6\xb5\xbc\xc0\xde\xbd"                                 // "ｻﾗﾆｵｼﾀﾞｽ" ("Extrude more")
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "\xcc\xdf\xd8\xdd\xc4\xbb\xb2\xb6\xb2"                             // "ﾌﾟﾘﾝﾄｻｲｶｲ" ("Resume print")
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1        "\xba\xb3\xb6\xdd\xa6\xb6\xb2\xbc\xbc\xcf\xbd"                     // "ｺｳｶﾝｦｶｲｼｼﾏｽ" ("Wait for start")
   #define MSG_FILAMENT_CHANGE_INIT_2        "\xbc\xca\xde\xd7\xb8\xb5\xcf\xc1\xb8\xc0\xde\xbb\xb2"             // "ｼﾊﾞﾗｸｵﾏﾁｸﾀﾞｻｲ" ("of the filament")
-  #define MSG_FILAMENT_CHANGE_INIT_3        ""                                                                 // "" ("change")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1      "\xcc\xa8\xd7\xd2\xdd\xc4\xc7\xb7\xc0\xde\xbc\xc1\xad\xb3"         // "ﾌｨﾗﾒﾝﾄﾇｷﾀﾞｼﾁｭｳ" ("Wait for")
   #define MSG_FILAMENT_CHANGE_UNLOAD_2      "\xbc\xca\xde\xd7\xb8\xb5\xcf\xc1\xb8\xc0\xde\xbb\xb2"             // "ｼﾊﾞﾗｸｵﾏﾁｸﾀﾞｻｲ" ("filament unload")
-  #define MSG_FILAMENT_CHANGE_UNLOAD_3      ""
   #define MSG_FILAMENT_CHANGE_INSERT_1      "\xcc\xa8\xd7\xd2\xdd\xc4\xa6\xbf\xb3\xc6\xad\xb3\xbc,"            // "ﾌｨﾗﾒﾝﾄｦｿｳﾆｭｳｼ," ("Insert filament")
   #define MSG_FILAMENT_CHANGE_INSERT_2      "\xb8\xd8\xaf\xb8\xbd\xd9\xc4\xbf\xde\xaf\xba\xb3\xbc\xcf\xbd"     // "ｸﾘｯｸｽﾙﾄｿﾞｯｺｳｼﾏｽ" ("and press button")
-  #define MSG_FILAMENT_CHANGE_INSERT_3      ""                                                                 // "" ("to continue...")
   #define MSG_FILAMENT_CHANGE_LOAD_1        "\xcc\xa8\xd7\xd2\xdd\xc4\xbf\xb3\xc3\xdd\xc1\xad\xb3"             // "ﾌｨﾗﾒﾝﾄｿｳﾃﾝﾁｭｳ" ("Wait for")
   #define MSG_FILAMENT_CHANGE_LOAD_2        "\xbc\xca\xde\xd7\xb8\xb5\xcf\xc1\xb8\xc0\xde\xbb\xb2"             // "ｼﾊﾞﾗｸｵﾏﾁｸﾀﾞｻｲ" ("filament load")
-  #define MSG_FILAMENT_CHANGE_LOAD_3        ""
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1     "\xcc\xa8\xd7\xd2\xdd\xc4\xb5\xbc\xc0\xde\xbc\xc1\xad\xb3"         // "ﾌｨﾗﾒﾝﾄｵｼﾀﾞｼﾁｭｳ" ("Wait for")
   #define MSG_FILAMENT_CHANGE_EXTRUDE_2     "\xbc\xca\xde\xd7\xb8\xb5\xcf\xc1\xb8\xc0\xde\xbb\xb2"             // "ｼﾊﾞﾗｸｵﾏﾁｸﾀﾞｻｲ" ("filament extrude")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3     ""
   #define MSG_FILAMENT_CHANGE_RESUME_1      "\xcc\xdf\xd8\xdd\xc4\xa6\xbb\xb2\xb6\xb2\xbc\xcf\xbd"             // "ﾌﾟﾘﾝﾄｦｻｲｶｲｼﾏｽ" ("Wait for print")
   #define MSG_FILAMENT_CHANGE_RESUME_2      "\xbc\xca\xde\xd7\xb8\xb5\xcf\xc1\xb8\xc0\xde\xbb\xb2"             // "ｼﾊﾞﾗｸｵﾏﾁｸﾀﾞｻｲ" ("to resume")
-  #define MSG_FILAMENT_CHANGE_RESUME_3      ""
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1        "\xba\xb3\xb6\xdd\xa6\xb6\xb2\xbc\xbc\xcf\xbd"                     // "ｺｳｶﾝｦｶｲｼｼﾏｽ" ("Please wait...")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1      "\xcc\xa8\xd7\xd2\xdd\xc4\xc7\xb7\xc0\xde\xbc\xc1\xad\xb3"         // "ﾌｨﾗﾒﾝﾄﾇｷﾀﾞｼﾁｭｳ" ("Ejecting...")
   #if LCD_WIDTH >= 20
