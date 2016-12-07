@@ -8,7 +8,7 @@
 Additional documentation can be found at [The Marlin Documentation Project](https://www.marlinfw.org/).
 Please test this firmware and inform us if it misbehaves in any way, volunteers are standing by!
 
-## Release Candidate -- Marlin 1.1.0-RCBugFix - 26 July 2016
+## Release Candidate -- Marlin 1.1.0-RCBugFix - 6 Dec 2016
 
 __Not for production use – use with caution!__
 
@@ -18,6 +18,27 @@ The latest Release Candidate lives in the ["RC" branch](https://github.com/Marli
 
 ## Recent Changes
 - RCBugFix
+
+- RC8 - 06 Dec 2016
+  - Major performance improvement for Graphical LCDs
+  - Simplified probe configuration
+  - Enable Auto Bed Leveling by type
+  - Reduce serial communication errors
+  - Make Bilinear (Mesh) Grid Leveling available for non-delta
+  - Support for Trinamic TMC2130 SilentStepStick SPI-based drivers
+  - Add `M211` to Enable/Disable Software Endstops
+  - Add `M355` to turn the case light on/off and set brightness
+  - Improved I2C class with full master/slave support
+  - Add `G38.2` `G38.3` command option for CNC style probing
+  - Add `MINIMUM_STEPPER_PULSE` option to adjust step pulse duration
+  - Add `R` parameter support for `G2`/`G3`
+  - Add `M43` optional command (`PINS_DEBUGGING`)
+  - Remove SCARA axis scaling
+  - Improved sanity checking of configuration
+  - Improved support for PlatformIO and command-line build
+  - Usable `DELTA_CALIBRATION_MENU`
+  - Support for Printrbot Rev.F
+  - New and updated languages
 
 - RC7 - 26 Jul 2016
   - Add Print Job Timer and Print Counter (`PRINTCOUNTER`)
