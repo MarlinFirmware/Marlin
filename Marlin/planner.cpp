@@ -563,7 +563,11 @@ void Planner::check_axes_activity() {
     #if ENABLED(MESH_BED_LEVELING)
 
       if (mbl.active())
-        lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly), z_fade_factor);
+        lz += mbl.get_z(RAW_X_POSITION(lx), RAW_Y_POSITION(ly)
+          #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+            , z_fade_factor
+          #endif
+          );
 
     #elif ABL_PLANAR
 
