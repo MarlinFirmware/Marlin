@@ -195,12 +195,14 @@
   #define MSG_INFO_PRINT_TIME               "Gesamte Druckzeit"
   #define MSG_INFO_PRINT_LONGEST            "Längster Druckjob"
   #define MSG_INFO_PRINT_FILAMENT           "Gesamt Extrudiert"
+  #define MSG_RESET_STATS                   "Statistik löschen"
 #else
   #define MSG_INFO_PRINT_COUNT              "Drucke"
   #define MSG_INFO_COMPLETED_PRINTS         "Komplett"
   #define MSG_INFO_PRINT_TIME               "Gesamt "
   #define MSG_INFO_PRINT_LONGEST            "Längster"
   #define MSG_INFO_PRINT_FILAMENT           "Extrud."
+  #define MSG_RESET_STATS                   "Stat. Res."
 #endif
 #define MSG_INFO_MIN_TEMP                   "Min Temp"
 #define MSG_INFO_MAX_TEMP                   "Max Temp"
