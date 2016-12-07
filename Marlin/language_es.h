@@ -187,27 +187,35 @@
 #define MSG_INFO_MIN_TEMP                   "Temperatura minima"
 #define MSG_INFO_MAX_TEMP                   "Temperatura maxima"
 #define MSG_INFO_PSU                        "Fuente de poder"
+
 #define MSG_FILAMENT_CHANGE_HEADER          "Cambiar Filamento"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "Opciones de cambio:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extruir mas"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resumir imp."
+
 #define MSG_FILAMENT_CHANGE_INIT_1          "Esperando iniciar"
-#define MSG_FILAMENT_CHANGE_INIT_2          "del filamento"
-#define MSG_FILAMENT_CHANGE_INIT_3          "cambiar"
-#define MSG_FILAMENT_CHANGE_UNLOAD_1        "Esperado por"
-#define MSG_FILAMENT_CHANGE_UNLOAD_2        "filamento expulsado"
-#define MSG_FILAMENT_CHANGE_UNLOAD_3        ""
+
 #define MSG_FILAMENT_CHANGE_INSERT_1        "Inserte filamento"
 #define MSG_FILAMENT_CHANGE_INSERT_2        "y presione el boton"
-#define MSG_FILAMENT_CHANGE_INSERT_3        "para continuar..."
+
+#if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
+  #define MSG_FILAMENT_CHANGE_INIT_2          "del filamento"
+  #define MSG_FILAMENT_CHANGE_INIT_3          "cambiar"
+  #define MSG_FILAMENT_CHANGE_INSERT_3        "para continuar..."
+#else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
+  #define MSG_FILAMENT_CHANGE_INIT_2          "del fil. cambiar"
+  #define MSG_FILAMENT_CHANGE_INSERT_1        "Inserte filamento"
+#endif // LCD_HEIGHT < 4
+
+#define MSG_FILAMENT_CHANGE_UNLOAD_1        "Esperado por"
+#define MSG_FILAMENT_CHANGE_UNLOAD_2        "filamento expulsado"
 #define MSG_FILAMENT_CHANGE_LOAD_1          "Esperado por"
 #define MSG_FILAMENT_CHANGE_LOAD_2          "Cargar filamento"
-#define MSG_FILAMENT_CHANGE_LOAD_3          ""
 #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Esperado por"
 #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "Extruir filamento"
-#define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""
 #define MSG_FILAMENT_CHANGE_RESUME_1        "Esperando imp."
 #define MSG_FILAMENT_CHANGE_RESUME_2        "para resumir"
-#define MSG_FILAMENT_CHANGE_RESUME_3        ""
 
 #endif // LANGUAGE_ES_H
