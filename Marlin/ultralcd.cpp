@@ -1874,7 +1874,7 @@ void kill_screen(const char* lcd_msg) {
       if (e == active_extruder)
         _planner_refresh_positioning();
       else
-        planner.steps_to_mm[i] = 1.0 / planner.axis_steps_per_mm[i];
+        planner.steps_to_mm[e] = 1.0 / planner.axis_steps_per_mm[e];
     }
     void _planner_refresh_e0_positioning() { _reset_e_acceleration_rate(0); }
     void _planner_refresh_e1_positioning() { _reset_e_acceleration_rate(1); }
