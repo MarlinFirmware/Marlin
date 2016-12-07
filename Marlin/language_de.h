@@ -216,6 +216,7 @@
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Drucke weiter"
 
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Warte auf den"
   #define MSG_FILAMENT_CHANGE_INIT_2          "Start des "
   #define MSG_FILAMENT_CHANGE_INIT_3          "Filamentwechsels"
@@ -235,6 +236,7 @@
   #define MSG_FILAMENT_CHANGE_RESUME_2        "Fortsetzung des"
   #define MSG_FILAMENT_CHANGE_RESUME_3        "Druckes"
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Bitte warten..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Auswerfen..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Laden und Klick"

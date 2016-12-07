@@ -209,30 +209,29 @@
 #define MSG_DRIVE_STRENGTH                  "Siła silnika"
 #define MSG_DAC_PERCENT                     "Siła %"
 #define MSG_DAC_EEPROM_WRITE                "Zapisz DAC EEPROM"
+
 #define MSG_FILAMENT_CHANGE_HEADER          "ZMIEN FILAMENT"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "ZMIEN OPCJE:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Ekstruduj wiecej"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Wznow drukowanie"
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Czekam na "
   #define MSG_FILAMENT_CHANGE_INIT_2          "zmiane filamentu"
-  #define MSG_FILAMENT_CHANGE_INIT_3          ""
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Czekam na"
   #define MSG_FILAMENT_CHANGE_UNLOAD_2        "wyjecie filamentu"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_3        ""
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Wloz filament"
   #define MSG_FILAMENT_CHANGE_INSERT_2        "i nacisnij przycisk"
   #define MSG_FILAMENT_CHANGE_INSERT_3        "aby kontynuowac..."
   #define MSG_FILAMENT_CHANGE_LOAD_1          "Czekam na"
   #define MSG_FILAMENT_CHANGE_LOAD_2          "wlozenie filamentu"
-  #define MSG_FILAMENT_CHANGE_LOAD_3          ""
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Czekam na"
   #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "ekstruzje filamentu"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""
   #define MSG_FILAMENT_CHANGE_RESUME_1        "Czekam na"
   #define MSG_FILAMENT_CHANGE_RESUME_2        "wznowienie druku"
-  #define MSG_FILAMENT_CHANGE_RESUME_3        ""
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Prosze czekac..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Wysuwanie..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Wloz i nacisnij prz."

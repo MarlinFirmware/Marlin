@@ -206,11 +206,14 @@
 #define MSG_DRIVE_STRENGTH                  "Potencia motor"
 #define MSG_DAC_PERCENT                     "Motor %"
 #define MSG_DAC_EEPROM_WRITE                "Garda DAC EEPROM"
+
 #define MSG_FILAMENT_CHANGE_HEADER          "TROCO FILAMENTO"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "OPCIONS TROCO:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extruir mais"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Segue traballo"
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Agarde para"
   #define MSG_FILAMENT_CHANGE_INIT_2          "iniciar troco"
   #define MSG_FILAMENT_CHANGE_INIT_3          "de filamento"
@@ -230,6 +233,7 @@
   #define MSG_FILAMENT_CHANGE_RESUME_2        "seguir co"
   #define MSG_FILAMENT_CHANGE_RESUME_3        "traballo"
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Agarde..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Descargando..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Introduza e click"
