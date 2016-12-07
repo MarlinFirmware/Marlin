@@ -222,11 +222,14 @@
 #define MSG_DRIVE_STRENGTH                  "Potenza Drive"
 #define MSG_DAC_PERCENT                     "Driver %"
 #define MSG_DAC_EEPROM_WRITE                "Scrivi DAC EEPROM"
+
 #define MSG_FILAMENT_CHANGE_HEADER          "CAMBIA FILAMENTO"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CAMBIA OPZIONI:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Estrusione"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Riprendi stampa"
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Attendere avvio"
   #define MSG_FILAMENT_CHANGE_INIT_2          "del cambio"
   #define MSG_FILAMENT_CHANGE_INIT_3          "di filamento"
@@ -246,6 +249,7 @@
   #define MSG_FILAMENT_CHANGE_RESUME_2        "la ripresa"
   #define MSG_FILAMENT_CHANGE_RESUME_3        "della stampa"
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Attendere..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Espulsione..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Inserisci e premi"
