@@ -186,6 +186,8 @@
 #define MSG_INFO_EXTRUDERS                  "Ekstruderler"                                               //Ekstruderler
 #define MSG_INFO_BAUDRATE                   "\xddleti\xfeim H\xfdz\xfd"                                  //İletişim Hızı
 #define MSG_INFO_PROTOCOL                   "Protokol"                                                   //Protokol
+#define MSG_LIGHTS_ON                       "Ayd\xfdnlatmay\xfd A\xe7"                                   //Aydınlatmayı Aç
+#define MSG_LIGHTS_OFF                      "Ayd\xfdnlatmay\xfd Kapa"                                    //Aydınlaymayı Kapa
 
 #if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              "Bask\xfd Say\xfds\xfd"                                      //Baskı Sayısı
