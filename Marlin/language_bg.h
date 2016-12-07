@@ -210,30 +210,30 @@
 #define MSG_DRIVE_STRENGTH                  "Drive Strength"
 #define MSG_DAC_PERCENT                     "Driver %"
 #define MSG_DAC_EEPROM_WRITE                "DAC EEPROM Write"
+
 #define MSG_FILAMENT_CHANGE_HEADER          "CHANGE FILAMENT"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CHANGE OPTIONS:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extrude more"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resume print"
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Wait for start"
   #define MSG_FILAMENT_CHANGE_INIT_2          "of the filament"
   #define MSG_FILAMENT_CHANGE_INIT_3          "change"
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Wait for"
   #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filament unload"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_3        ""
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert filament"
   #define MSG_FILAMENT_CHANGE_INSERT_2        "and press button"
   #define MSG_FILAMENT_CHANGE_INSERT_3        "to continue..."
   #define MSG_FILAMENT_CHANGE_LOAD_1          "Wait for"
   #define MSG_FILAMENT_CHANGE_LOAD_2          "filament load"
-  #define MSG_FILAMENT_CHANGE_LOAD_3          ""
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Wait for"
   #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filament extrude"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""
   #define MSG_FILAMENT_CHANGE_RESUME_1        "Wait for print"
   #define MSG_FILAMENT_CHANGE_RESUME_2        "to resume"
-  #define MSG_FILAMENT_CHANGE_RESUME_3        ""
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Please wait..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Ejecting..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert and Click"
