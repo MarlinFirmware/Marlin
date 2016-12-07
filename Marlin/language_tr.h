@@ -214,26 +214,25 @@
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "Se\xe7enekler:"                                             //Seçenekler:
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Daha Ak\xfdt"                                               //Daha Akıt
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Bask\xfdy\xfd s\xfcrd\xfcr"                                 //Baskıyı sürdür
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Ba\xfelama bekleniyor"                                    //Başlama bekleniyor
   #define MSG_FILAMENT_CHANGE_INIT_2          "filaman\xfdn"                                             //filamanın
   #define MSG_FILAMENT_CHANGE_INIT_3          "de\xf0i\xfeimi"                                           //değişimi
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Bekleniyor"                                               //Bekleniyor
   #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filaman\xfdn \xe7\xfdkmas\xfd"                            //filamanın çıkması
-  #define MSG_FILAMENT_CHANGE_UNLOAD_3        ""                                                         //
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Filaman\xfd y\xfckle"                                     //Filamanı yükle
   #define MSG_FILAMENT_CHANGE_INSERT_2        "ve devam i\xe7in"                                         //ve devam için
   #define MSG_FILAMENT_CHANGE_INSERT_3        "tu\xfea bas..."                                           //tuşa bas...
   #define MSG_FILAMENT_CHANGE_LOAD_1          "Bekleniyor"                                               //Bekleniyor
   #define MSG_FILAMENT_CHANGE_LOAD_2          "filaman\xfdn y\xfcklenmesi"                               //filamanın yüklenmesi
-  #define MSG_FILAMENT_CHANGE_LOAD_3          ""                                                         //
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Bekleniyor"                                               //Bekleniyor
   #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filaman akmas\xfd"                                        //filaman akması
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""                                                         //
   #define MSG_FILAMENT_CHANGE_RESUME_1        "Bask\xfdn\xfdn s\xfcrd\xfcr\xfclmesini"                   //Baskının sürdürülmesini
   #define MSG_FILAMENT_CHANGE_RESUME_2        "bekle"                                                    //bekle
-  #define MSG_FILAMENT_CHANGE_RESUME_3        ""                                                         //
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "L\xfctfen bekleyiniz..."                                  //Lütfen bekleyiniz...
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "\xc7\xfdkart\xfdl\xfdyor..."                              //Çıkartılıyor...
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Y\xfckle ve bas"                                          //Yükle ve bas

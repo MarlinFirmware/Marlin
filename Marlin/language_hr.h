@@ -207,12 +207,14 @@
 #define MSG_DRIVE_STRENGTH                  "Drive Strength"
 #define MSG_DAC_PERCENT                     "Driver %"
 #define MSG_DAC_EEPROM_WRITE                "DAC EEPROM Write"
+
 #define MSG_FILAMENT_CHANGE_HEADER          "CHANGE FILAMENT"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CHANGE OPTIONS:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extrudiraj više"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Nastavi print"
 
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Čekaj početak"
   #define MSG_FILAMENT_CHANGE_INIT_2          "filamenta"
   #define MSG_FILAMENT_CHANGE_INIT_3          "promijeni"
@@ -228,6 +230,7 @@
   #define MSG_FILAMENT_CHANGE_RESUME_1        "Wait for print"
   #define MSG_FILAMENT_CHANGE_RESUME_2        "to resume"
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Pričekaj..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Ejecting..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert and Click"

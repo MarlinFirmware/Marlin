@@ -348,7 +348,7 @@ class Planner {
     static void set_position_mm(const AxisEnum axis, const float &v);
     static FORCE_INLINE void set_z_position_mm(const float &z) { set_position_mm(Z_AXIS, z); }
     static FORCE_INLINE void set_e_position_mm(const float &e) {
-      set_position_mm(E_AXIS
+      set_position_mm((AxisEnum)E_AXIS
         #if ENABLED(DISTINCT_E_FACTORS)
           + active_extruder
         #endif
