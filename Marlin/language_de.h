@@ -105,10 +105,8 @@
 #define MSG_AMAX                            "A max " // space by purpose
 #define MSG_A_RETRACT                       "A Retract"
 #define MSG_A_TRAVEL                        "A Leerfahrt"
-#define MSG_XSTEPS                          "X Steps/mm"
-#define MSG_YSTEPS                          "Y Steps/mm"
-#define MSG_ZSTEPS                          "Z Steps/mm"
-#define MSG_ESTEPS                          "E Steps/mm"
+#define MSG_STEPS_PREFIX                    ""
+#define MSG_STEPS_SUFFIX                    " Steps/mm"
 #define MSG_TEMPERATURE                     "Temperatur"
 #define MSG_MOTION                          "Bewegung"
 #define MSG_VOLUMETRIC                      "Filament"

@@ -105,10 +105,8 @@
 #define MSG_AMAX                            "Amax "                                                      //Amax
 #define MSG_A_RETRACT                       "A-retract"                                                  //A-retract
 #define MSG_A_TRAVEL                        "A-travel"                                                   //A-travel
-#define MSG_XSTEPS                          "Xsteps/mm"                                                  //Xsteps/mm
-#define MSG_YSTEPS                          "Ysteps/mm"                                                  //Ysteps/mm
-#define MSG_ZSTEPS                          "Zsteps/mm"                                                  //Zsteps/mm
-#define MSG_ESTEPS                          "Esteps/mm"                                                  //Esteps/mm
+#define MSG_STEPS_PREFIX                    ""
+#define MSG_STEPS_SUFFIX                    "steps/mm"                                                   //steps/mm
 #define MSG_TEMPERATURE                     "S\xfd\x63\x61kl\xfdk"                                       //Sıcaklık
 #define MSG_MOTION                          "Hareket"                                                    //Hareket
 #define MSG_VOLUMETRIC                      "Filaman"                                                    //Filaman
