@@ -1515,9 +1515,9 @@ void kill_screen(const char* lcd_msg) {
 
       #if ENABLED(SWITCHING_EXTRUDER)
         if (active_extruder)
-          MENU_ITEM(gcode, MSG_SELECT MSG_E1, PSTR("T0"));
+          MENU_ITEM(gcode, MSG_SELECT " " MSG_E1, PSTR("T0"));
         else
-          MENU_ITEM(gcode, MSG_SELECT MSG_E2, PSTR("T1"));
+          MENU_ITEM(gcode, MSG_SELECT " " MSG_E2, PSTR("T1"));
       #endif
 
       MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
@@ -1786,12 +1786,12 @@ void kill_screen(const char* lcd_msg) {
       #endif
 
       #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
-        PID_MENU_ITEMS(MSG_E1, 0);
-        PID_MENU_ITEMS(MSG_E2, 1);
+        PID_MENU_ITEMS(" " MSG_E1, 0);
+        PID_MENU_ITEMS(" " MSG_E2, 1);
         #if HOTENDS > 2
-          PID_MENU_ITEMS(MSG_E3, 2);
+          PID_MENU_ITEMS(" " MSG_E3, 2);
           #if HOTENDS > 3
-            PID_MENU_ITEMS(MSG_E4, 3);
+            PID_MENU_ITEMS(" " MSG_E4, 3);
           #endif //HOTENDS > 3
         #endif //HOTENDS > 2
       #else //!PID_PARAMS_PER_HOTEND || HOTENDS == 1
@@ -1962,22 +1962,22 @@ void kill_screen(const char* lcd_msg) {
     //
     // M92 Settings
     //
-    MENU_ITEM_EDIT_CALLBACK(float62, MSG_XSTEPS, &planner.axis_steps_per_mm[X_AXIS], 5, 9999, _planner_refresh_positioning);
-    MENU_ITEM_EDIT_CALLBACK(float62, MSG_YSTEPS, &planner.axis_steps_per_mm[Y_AXIS], 5, 9999, _planner_refresh_positioning);
-    MENU_ITEM_EDIT_CALLBACK(float62, MSG_ZSTEPS, &planner.axis_steps_per_mm[Z_AXIS], 5, 9999, _planner_refresh_positioning);
+    MENU_ITEM_EDIT_CALLBACK(float62, MSG_STEPS_PREFIX MSG_X MSG_STEPS_SUFFIX, &planner.axis_steps_per_mm[X_AXIS], 5, 9999, _planner_refresh_positioning);
+    MENU_ITEM_EDIT_CALLBACK(float62, MSG_STEPS_PREFIX MSG_Y MSG_STEPS_SUFFIX, &planner.axis_steps_per_mm[Y_AXIS], 5, 9999, _planner_refresh_positioning);
+    MENU_ITEM_EDIT_CALLBACK(float62, MSG_STEPS_PREFIX MSG_Z MSG_STEPS_SUFFIX, &planner.axis_steps_per_mm[Z_AXIS], 5, 9999, _planner_refresh_positioning);
 
     #if ENABLED(DISTINCT_E_FACTORS)
-      MENU_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS + active_extruder], 5, 9999, _planner_refresh_positioning);
-      MENU_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS MSG_E1, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_e0_positioning);
-      MENU_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS MSG_E2, &planner.axis_steps_per_mm[E_AXIS + 1], 5, 9999, _planner_refresh_e1_positioning);
+      MENU_ITEM_EDIT_CALLBACK(float62, MSG_STEPS_PREFIX MSG_E MSG_STEPS_SUFFIX, &planner.axis_steps_per_mm[E_AXIS + active_extruder], 5, 9999, _planner_refresh_positioning);
+      MENU_ITEM_EDIT_CALLBACK(float62, MSG_STEPS_PREFIX MSG_E1 MSG_STEPS_SUFFIX, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_e0_positioning);
+      MENU_ITEM_EDIT_CALLBACK(float62, MSG_STEPS_PREFIX MSG_E2 MSG_STEPS_SUFFIX, &planner.axis_steps_per_mm[E_AXIS + 1], 5, 9999, _planner_refresh_e1_positioning);
       #if E_STEPPERS > 2
-        MENU_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS MSG_E3, &planner.axis_steps_per_mm[E_AXIS + 2], 5, 9999, _planner_refresh_e2_positioning);
+        MENU_ITEM_EDIT_CALLBACK(float62, MSG_STEPS_PREFIX MSG_E3 MSG_STEPS_SUFFIX, &planner.axis_steps_per_mm[E_AXIS + 2], 5, 9999, _planner_refresh_e2_positioning);
         #if E_STEPPERS > 3
-          MENU_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS MSG_E4, &planner.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
+          MENU_ITEM_EDIT_CALLBACK(float62, MSG_STEPS_PREFIX MSG_E4 MSG_STEPS_SUFFIX, &planner.axis_steps_per_mm[E_AXIS + 3], 5, 9999, _planner_refresh_e3_positioning);
         #endif
       #endif
     #else
-      MENU_ITEM_EDIT_CALLBACK(float62, MSG_ESTEPS, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
+      MENU_ITEM_EDIT_CALLBACK(float62, MSG_STEPS_PREFIX MSG_E MSG_STEPS_SUFFIX, &planner.axis_steps_per_mm[E_AXIS], 5, 9999, _planner_refresh_positioning);
     #endif
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)

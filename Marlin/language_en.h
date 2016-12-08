@@ -246,17 +246,11 @@
 #ifndef MSG_A_TRAVEL
   #define MSG_A_TRAVEL                        "A-travel"
 #endif
-#ifndef MSG_XSTEPS
-  #define MSG_XSTEPS                          "Xsteps/mm"
+#ifndef MSG_STEPS_PREFIX
+  #define MSG_STEPS_PREFIX                    ""
 #endif
-#ifndef MSG_YSTEPS
-  #define MSG_YSTEPS                          "Ysteps/mm"
-#endif
-#ifndef MSG_ZSTEPS
-  #define MSG_ZSTEPS                          "Zsteps/mm"
-#endif
-#ifndef MSG_ESTEPS
-  #define MSG_ESTEPS                          "Esteps/mm"
+#ifndef MSG_STEPS_SUFFIX
+  #define MSG_STEPS_SUFFIX                    "steps/mm"
 #endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     "Temperature"
