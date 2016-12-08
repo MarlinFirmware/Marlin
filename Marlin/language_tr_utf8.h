@@ -30,7 +30,6 @@
 #ifndef LANGUAGE_TR_UTF_H
 #define LANGUAGE_TR_UTF_H
 
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_TR
 
 #define WELCOME_MSG                         MACHINE_NAME " hazır."                                       //hazır.
