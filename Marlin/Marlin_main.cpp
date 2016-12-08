@@ -1349,7 +1349,6 @@ void update_software_endstops(AxisEnum axis) {
   float offs = LOGICAL_POSITION(0, axis);
 
   #if ENABLED(DUAL_X_CARRIAGE)
-    bool did_update = false;
     if (axis == X_AXIS) {
 
       // In Dual X mode hotend_offset[X] is T1's home position
