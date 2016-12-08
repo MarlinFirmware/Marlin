@@ -158,7 +158,7 @@
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
-#define MSG_ENDSTOP_ABORT                   "Endstopp-Abbr. ein"
+#define MSG_ENDSTOP_ABORT                   "Endstopp-Abbr."
 #define MSG_HEATING_FAILED_LCD              "HEIZEN FEHLGESCHLAGEN"
 #define MSG_ERR_REDUNDANT_TEMP              "REDUND. TEMPERATURABWEICHUNG"
 #define MSG_THERMAL_RUNAWAY                 LCD_STR_THERMOMETER " NICHT ERREICHT"
