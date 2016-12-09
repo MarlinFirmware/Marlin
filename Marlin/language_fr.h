@@ -191,6 +191,8 @@
 #define MSG_INFO_EXTRUDERS                  "Extruders"
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocole"
+#define MSG_LIGHTS_ON                       "Allumer boitier"
+#define MSG_LIGHTS_OFF                      "Eteindre boitier"
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Nbre impressions"
