@@ -1599,7 +1599,7 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 
     // when in the danger zone
     if (current_position[Z_AXIS] > delta_clip_start_height) {
-      if (z > delta_clip_start_height) {   // staying in the danger zone
+      if (z <= delta_clip_start_height) {   // staying in the danger zone
         destination[X_AXIS] = x;           // move directly (uninterpolated)
         destination[Y_AXIS] = y;
         destination[Z_AXIS] = z;
