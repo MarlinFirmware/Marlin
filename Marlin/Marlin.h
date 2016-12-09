@@ -28,9 +28,9 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "src/HAL/HAL.h"
-
 #include "MarlinConfig.h"
+
+#include "src/HAL/HAL.h"
 
 #include "enum.h"
 #include "types.h"
