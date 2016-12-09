@@ -1293,22 +1293,28 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   #if ENABLED(LIN_ADVANCE)
 
-    // Don't use LIN_ADVANCE for blocks if:
-    // !block->steps[E_AXIS]: We don't have E steps todo (Travel move)
-    // !block->steps[X_AXIS] && !block->steps[Y_AXIS]: We don't have a movement in XY direction (Retract / Prime moves)
-    // extruder_advance_k == 0.0: There is no advance factor set
-    // block->steps[E_AXIS] == block->step_event_count: A problem occurs when there's a very tiny move before a retract.
-    // In this case, the retract and the move will be executed together.
-    // This leads to an enormous number of advance steps due to a huge e_acceleration.
-    // The math is correct, but you don't want a retract move done with advance!
-    // de_float <= 0.0: Extruder is running in reverse direction (for example during "Wipe while retracting" (Slic3r) or "Combing" (Cura) movements)
-    if (!esteps || (!block->steps[X_AXIS] && !block->steps[Y_AXIS]) || extruder_advance_k == 0.0 || (uint32_t)esteps == block->step_event_count || de_float <= 0.0) {
-      block->use_advance_lead = false;
-    }
-    else {
-      block->use_advance_lead = true;
+    //
+    // Use LIN_ADVANCE for blocks if all these are true:
+    //
+    // esteps                                          : We have E steps todo (a printing move)
+    // 
+    // block->steps[X_AXIS] || block->steps[Y_AXIS]    : We have a movement in XY direction (i.e., not retract / prime).
+    // 
+    // extruder_advance_k                              : There is an advance factor set.
+    // 
+    // block->steps[E_AXIS] != block->step_event_count : A problem occurs if the move before a retract is too small.
+    //                                                   In that case, the retract and move will be executed together.
+    //                                                   This leads to too many advance steps due to a huge e_acceleration.
+    //                                                   The math is good, but we must avoid retract moves with advance!
+    // de_float > 0.0                                  : Extruder is running forward (e.g., for "Wipe while retracting" (Slic3r) or "Combing" (Cura) moves)
+    //
+    block->use_advance_lead =  esteps
+                            && (block->steps[X_AXIS] || block->steps[Y_AXIS])
+                            && extruder_advance_k
+                            && (uint32_t)esteps != block->step_event_count
+                            && de_float > 0.0;
+    if (block->use_advance_lead)
       block->abs_adv_steps_multiplier8 = lround(extruder_advance_k * (de_float / mm_D_float) * block->nominal_speed / (float)block->nominal_rate * axis_steps_per_mm[E_AXIS_N] * 256.0);
-    }
 
   #elif ENABLED(ADVANCE)
 
