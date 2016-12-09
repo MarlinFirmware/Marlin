@@ -3131,7 +3131,7 @@ inline void gcode_G4() {
 
     uint8_t const pattern = code_seen('P') ? code_value_ushort() : 0;
     uint8_t const strokes = code_seen('S') ? code_value_ushort() : NOZZLE_CLEAN_STROKES;
-    uint8_t const objects = code_seen('T') ? code_value_ushort() : 3;
+    uint8_t const objects = code_seen('T') ? code_value_ushort() : NOZZLE_CLEAN_TRIANGLES;
 
     Nozzle::clean(pattern, strokes, objects);
   }

@@ -57,7 +57,7 @@
    * but not limited to: ADD, DELETE RENAME OR REPURPOSE any directive/option on
    * the configuration files.
    */
-  #define REQUIRED_CONFIGURATION_H_VERSION 010100
+  #define REQUIRED_CONFIGURATION_H_VERSION 010101
   #define REQUIRED_CONFIGURATION_ADV_H_VERSION 010100
 
   /**
