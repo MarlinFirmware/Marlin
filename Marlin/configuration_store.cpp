@@ -133,42 +133,6 @@
   #include "mesh_bed_leveling.h"
 #endif
 
-uint16_t eeprom_checksum;
-const char version[4] = EEPROM_VERSION;
-
-bool eeprom_write_error;
-
-void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
-  if (eeprom_write_error) return;
-  while (size--) {
-    uint8_t * const p = (uint8_t * const)pos;
-    const uint8_t v = *value;
-    // EEPROM has only ~100,000 write cycles,
-    // so only write bytes that have changed!
-    if (v != eeprom_read_byte(p)) {
-      eeprom_write_byte(p, v);
-      if (eeprom_read_byte(p) != v) {
-        SERIAL_ECHO_START;
-        SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
-        eeprom_write_error = true;
-        return;
-      }
-    }
-    eeprom_checksum += v;
-    pos++;
-    value++;
-  };
-}
-void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
-  do {
-    uint8_t c = eeprom_read_byte((unsigned char*)pos);
-    *value = c;
-    eeprom_checksum += c;
-    pos++;
-    value++;
-  } while (--size);
-}
-
 /**
  * Post-process after Retrieve or Reset
  */
@@ -197,6 +161,42 @@ void Config_Postprocess() {
 }
 
 #if ENABLED(EEPROM_SETTINGS)
+
+  uint16_t eeprom_checksum;
+  const char version[4] = EEPROM_VERSION;
+
+  bool eeprom_write_error;
+
+  void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
+    if (eeprom_write_error) return;
+    while (size--) {
+      uint8_t * const p = (uint8_t * const)pos;
+      const uint8_t v = *value;
+      // EEPROM has only ~100,000 write cycles,
+      // so only write bytes that have changed!
+      if (v != eeprom_read_byte(p)) {
+        eeprom_write_byte(p, v);
+        if (eeprom_read_byte(p) != v) {
+          SERIAL_ECHO_START;
+          SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+          eeprom_write_error = true;
+          return;
+        }
+      }
+      eeprom_checksum += v;
+      pos++;
+      value++;
+    };
+  }
+  void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
+    do {
+      uint8_t c = eeprom_read_byte((unsigned char*)pos);
+      *value = c;
+      eeprom_checksum += c;
+      pos++;
+      value++;
+    } while (--size);
+  }
 
   #define DUMMY_PID_VALUE 3000.0f
   #define EEPROM_START() int eeprom_index = EEPROM_OFFSET
