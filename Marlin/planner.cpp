@@ -141,8 +141,8 @@ float Planner::previous_speed[NUM_AXIS],
 #endif
 
 #if ENABLED(LIN_ADVANCE)
-  float Planner::extruder_advance_k = LIN_ADVANCE_K;
-  float Planner::position_float[NUM_AXIS] = { 0 };
+  float Planner::extruder_advance_k = LIN_ADVANCE_K,
+        Planner::position_float[NUM_AXIS] = { 0 };
 #endif
 
 #if ENABLED(ENSURE_SMOOTH_MOVES)
@@ -654,7 +654,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
-  long target[XYZE] = {
+  const long target[XYZE] = {
     lround(a * axis_steps_per_mm[X_AXIS]),
     lround(b * axis_steps_per_mm[Y_AXIS]),
     lround(c * axis_steps_per_mm[Z_AXIS]),
@@ -670,16 +670,16 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    float target_float[XYZE] = {a, b, c, e};
-    float de_float = target_float[E_AXIS] - position_float[E_AXIS];
-    float mm_D_float = sqrt(sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS]));
+    const float target_float[XYZE] = { a, b, c, e },
+                de_float = target_float[E_AXIS] - position_float[E_AXIS],
+                mm_D_float = sqrt(sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS]));
     
     memcpy(position_float, target_float, sizeof(position_float));
   #endif
 
-  long da = target[X_AXIS] - position[X_AXIS],
-       db = target[Y_AXIS] - position[Y_AXIS],
-       dc = target[Z_AXIS] - position[Z_AXIS];
+  const long da = target[X_AXIS] - position[X_AXIS],
+             db = target[Y_AXIS] - position[Y_AXIS],
+             dc = target[Z_AXIS] - position[Z_AXIS];
 
   /*
   SERIAL_ECHOPAIR("  Planner FR:", fr_mm_s);
@@ -755,11 +755,11 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
   if (de < 0) SBI(dm, E_AXIS);
 
-  float esteps_float = de * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01;
-  int32_t esteps = abs(esteps_float) + 0.5;
+  const float esteps_float = de * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01;
+  const int32_t esteps = abs(esteps_float) + 0.5;
 
   // Calculate the buffer head after we push this byte
-  int8_t next_buffer_head = next_block_index(block_buffer_head);
+  const uint8_t next_buffer_head = next_block_index(block_buffer_head);
 
   // If the buffer is full: good! That means we are well ahead of the robot.
   // Rest here until there is room in the buffer.
@@ -852,7 +852,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
-      for (int8_t i = 0; i < EXTRUDERS; i++)
+      for (uint8_t i = 0; i < EXTRUDERS; i++)
         if (g_uc_extruder_last_move[i] > 0) g_uc_extruder_last_move[i]--;
 
       switch(extruder) {
@@ -980,7 +980,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // Calculate moves/second for this move. No divide by zero due to previous checks.
   float inverse_mm_s = fr_mm_s * inverse_millimeters;
 
-  int moves_queued = movesplanned();
+  const uint8_t moves_queued = movesplanned();
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
   #if ENABLED(SLOWDOWN)
@@ -1037,7 +1037,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         // If the index has changed (must have gone forward)...
         if (filwidth_delay_index[0] != filwidth_delay_index[1]) {
           filwidth_e_count = 0; // Reset the E movement counter
-          int8_t meas_sample = thermalManager.widthFil_to_size_ratio() - 100; // Subtract 100 to reduce magnitude - to store in a signed char
+          const int8_t meas_sample = thermalManager.widthFil_to_size_ratio() - 100; // Subtract 100 to reduce magnitude - to store in a signed char
           do {
             filwidth_delay_index[1] = (filwidth_delay_index[1] + 1) % MMD_CM; // The next unused slot
             measurement_delay[filwidth_delay_index[1]] = meas_sample;         // Store the measurement
@@ -1050,7 +1050,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[NUM_AXIS], speed_factor = 1.0; // factor <1 decreases speed
   LOOP_XYZE(i) {
-    float cs = fabs(current_speed[i] = delta_mm[i] * inverse_mm_s);
+    const float cs = fabs(current_speed[i] = delta_mm[i] * inverse_mm_s);
     if (cs > max_feedrate_mm_s[i]) NOMORE(speed_factor, max_feedrate_mm_s[i] / cs);
   }
 
@@ -1058,7 +1058,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #ifdef XY_FREQUENCY_LIMIT
 
     // Check and limit the xy direction change frequency
-    unsigned char direction_change = block->direction_bits ^ old_direction_bits;
+    const unsigned char direction_change = block->direction_bits ^ old_direction_bits;
     old_direction_bits = block->direction_bits;
     segment_time = lround((float)segment_time / speed_factor);
 
@@ -1083,11 +1083,11 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     }
     ys0 = axis_segment_time[Y_AXIS][0] = ys0 + segment_time;
 
-    long max_x_segment_time = MAX3(xs0, xs1, xs2),
-         max_y_segment_time = MAX3(ys0, ys1, ys2),
-         min_xy_segment_time = min(max_x_segment_time, max_y_segment_time);
+    const long max_x_segment_time = MAX3(xs0, xs1, xs2),
+               max_y_segment_time = MAX3(ys0, ys1, ys2),
+               min_xy_segment_time = min(max_x_segment_time, max_y_segment_time);
     if (min_xy_segment_time < MAX_FREQ_TIME) {
-      float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME);
+      const float low_sf = speed_factor * min_xy_segment_time / (MAX_FREQ_TIME);
       NOMORE(speed_factor, low_sf);
     }
   #endif // XY_FREQUENCY_LIMIT
@@ -1100,7 +1100,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   }
 
   // Compute and limit the acceleration rate for the trapezoid generator.
-  float steps_per_mm = block->step_event_count * inverse_millimeters;
+  const float steps_per_mm = block->step_event_count * inverse_millimeters;
   uint32_t accel;
   if (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS]) {
     // convert to: acceleration steps/sec^2
@@ -1256,7 +1256,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     if (limited) vmax_junction *= v_factor;
     // Now the transition velocity is known, which maximizes the shared exit / entry velocity while
     // respecting the jerk factors, it may be possible, that applying separate safe exit / entry velocities will achieve faster prints.
-    float vmax_junction_threshold = vmax_junction * 0.99f;
+    const float vmax_junction_threshold = vmax_junction * 0.99f;
     if (previous_safe_speed > vmax_junction_threshold && safe_speed > vmax_junction_threshold) {
       // Not coasting. The machine will stop and start the movements anyway,
       // better to start the segment from start.
@@ -1273,7 +1273,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   block->max_entry_speed = vmax_junction;
 
   // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
-  float v_allowable = max_allowable_speed(-block->acceleration, MINIMUM_PLANNER_SPEED, block->millimeters);
+  const float v_allowable = max_allowable_speed(-block->acceleration, MINIMUM_PLANNER_SPEED, block->millimeters);
   block->entry_speed = min(vmax_junction, v_allowable);
 
   // Initialize planner efficiency flags
