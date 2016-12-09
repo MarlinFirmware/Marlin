@@ -533,13 +533,19 @@
   /**
    * Helper Macros for heaters and extruder fan
    */
-  #define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, v)
+  #if ENABLED(INVERTED_HEATER_PINS)
+    #define WRITE_HEATER(pin, v) WRITE(pin, !v)
+  #else
+    #define WRITE_HEATER(pin, v) WRITE(pin, v)
+  #endif
+
+  #define WRITE_HEATER_0P(v) WRITE_HEATER(HEATER_0_PIN, v)
   #if HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)
-    #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, v)
+    #define WRITE_HEATER_1(v) WRITE_HEATER(HEATER_1_PIN, v)
     #if HOTENDS > 2
-      #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, v)
+      #define WRITE_HEATER_2(v) WRITE_HEATER(HEATER_2_PIN, v)
       #if HOTENDS > 3
-        #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, v)
+        #define WRITE_HEATER_3(v) WRITE_HEATER(HEATER_3_PIN, v)
       #endif
     #endif
   #endif
@@ -549,7 +555,11 @@
     #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
   #endif
   #if HAS_HEATER_BED
-    #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
+    #if ENABLED(INVERTED_BED_PINS)
+      #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN,!v)
+    #else
+      #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
+    #endif
   #endif
 
   /**
@@ -565,15 +575,20 @@
     #define FAN_COUNT 0
   #endif
 
+  #if ENABLED(INVERTED_FAN_PINS)
+    #define _WRITE_FAN(pin, v) WRITE(pin, !v)
+  #else
+    #define _WRITE_FAN(pin, v) WRITE(pin, v)
+  #endif
   #if HAS_FAN0
-    #define WRITE_FAN(v) WRITE(FAN_PIN, v)
+    #define WRITE_FAN(v) _WRITE_FAN(FAN_PIN, v)
     #define WRITE_FAN0(v) WRITE_FAN(v)
   #endif
   #if HAS_FAN1
-    #define WRITE_FAN1(v) WRITE(FAN1_PIN, v)
+    #define WRITE_FAN1(v) _WRITE_FAN(FAN1_PIN, v)
   #endif
   #if HAS_FAN2
-    #define WRITE_FAN2(v) WRITE(FAN2_PIN, v)
+    #define WRITE_FAN2(v) _WRITE_FAN(FAN2_PIN, v)
   #endif
   #define WRITE_FAN_N(n, v) WRITE_FAN##n(v)
 
