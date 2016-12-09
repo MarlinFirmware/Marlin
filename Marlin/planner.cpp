@@ -1313,16 +1313,15 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #elif ENABLED(ADVANCE)
 
     // Calculate advance rate
-    if (!esteps || (!block->steps[X_AXIS] && !block->steps[Y_AXIS] && !block->steps[Z_AXIS])) {
-      block->advance_rate = 0;
-      block->advance = 0;
-    }
-    else {
-      long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_steps_per_s2);
-      float advance = ((STEPS_PER_CUBIC_MM_E) * (EXTRUDER_ADVANCE_K)) * HYPOT(current_speed[E_AXIS], EXTRUSION_AREA) * 256;
+    if (esteps && (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])) {
+      const long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_steps_per_s2);
+      const float advance = ((STEPS_PER_CUBIC_MM_E) * (EXTRUDER_ADVANCE_K)) * HYPOT(current_speed[E_AXIS], EXTRUSION_AREA) * 256;
       block->advance = advance;
       block->advance_rate = acc_dist ? advance / (float)acc_dist : 0;
     }
+    else
+      block->advance_rate = block->advance = 0;
+
     /**
      SERIAL_ECHO_START;
      SERIAL_ECHOPGM("advance :");
