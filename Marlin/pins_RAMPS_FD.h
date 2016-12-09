@@ -66,7 +66,7 @@
 #define E2_STEP_PIN        32
 #define E2_DIR_PIN         47
 #define E2_ENABLE_PIN      45
-#define E2_ENABLE_PIN      59
+#define E2_CS_PIN          59
 
 //
 // Temperature Sensors
