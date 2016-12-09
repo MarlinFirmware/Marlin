@@ -47,7 +47,9 @@
 
 #define _BV(bit) 	(1 << (bit))
 
-#define analogInputToDigitalPin(IO) IO
+#ifndef analogInputToDigitalPin
+  #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
+#endif
 
 #define     CRITICAL_SECTION_START	uint32_t primask=__get_PRIMASK(); __disable_irq();
 #define     CRITICAL_SECTION_END    if (primask==0) __enable_irq();
@@ -55,13 +57,15 @@
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
 
-#define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
+#ifndef strncpy_P
+  #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
+#endif
 
 // --------------------------------------------------------------------------
 // Types
 // --------------------------------------------------------------------------
 
-#define HAL_TIMER_TYPE unsigned long
+#define HAL_TIMER_TYPE uint32_t
 
 // --------------------------------------------------------------------------
 // Public Variables
@@ -69,6 +73,9 @@
 
 // reset reason set by bootloader
 extern uint8_t MCUSR;
+
+/** result of last ADC conversion */
+extern uint16_t HAL_adc_result;
 
 // --------------------------------------------------------------------------
 // Public functions
@@ -105,7 +112,7 @@ void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 #define STEP_TIMER_NUM 3
 #define TEMP_TIMER_NUM 4
 
-#define HAL_TIMER_RATE 		     (F_CPU/32.0)
+#define HAL_TIMER_RATE 		     (F_CPU/32)
 #define TICKS_PER_NANOSECOND   (HAL_TIMER_RATE)/1000
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()	HAL_timer_enable_interrupt (STEP_TIMER_NUM)
@@ -124,8 +131,6 @@ void HAL_timer_disable_interrupt (uint8_t timer_num);
 
 void HAL_timer_isr_prologue (uint8_t timer_num);
 //
-
-extern uint16_t HAL_adc_result;
 
 void HAL_adc_start_conversion (uint8_t adc_pin);
 uint16_t HAL_adc_get_result(void);
