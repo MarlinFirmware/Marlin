@@ -135,16 +135,25 @@
 uint16_t eeprom_checksum;
 const char version[4] = EEPROM_VERSION;
 
+bool eeprom_write_error;
+
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
-  uint8_t c;
+  if (eeprom_write_error) return;
   while (size--) {
-    eeprom_write_byte((unsigned char*)pos, *value);
-    c = eeprom_read_byte((unsigned char*)pos);
-    if (c != *value) {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+    uint8_t * const p = (uint8_t * const)pos;
+    const uint8_t v = *value;
+    // EEPROM has only ~100,000 write cycles,
+    // so only write bytes that have changed!
+    if (v != eeprom_read_byte(p)) {
+      eeprom_write_byte(p, v);
+      if (eeprom_read_byte(p) != v) {
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+        eeprom_write_error = true;
+        return;
+      }
     }
-    eeprom_checksum += c;
+    eeprom_checksum += v;
     pos++;
     value++;
   };
@@ -202,6 +211,8 @@ void Config_Postprocess() {
     char ver[4] = "000";
 
     EEPROM_START();
+
+    eeprom_write_error = false;
 
     EEPROM_WRITE(ver);     // invalidate data first
     EEPROM_SKIP(eeprom_checksum); // Skip the checksum slot
