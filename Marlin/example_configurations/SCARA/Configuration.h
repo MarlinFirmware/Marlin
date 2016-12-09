@@ -49,7 +49,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_H_VERSION 010100
+#define CONFIGURATION_H_VERSION 010101
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -996,9 +996,8 @@
 //
 // Available list of patterns:
 //   P0: This is the default pattern, this process requires a sponge type
-//       material at a fixed bed location, the cleaning process is based on
-//       "strokes" i.e. back-and-forth movements between the starting and end
-//       points.
+//       material at a fixed bed location. S defines "strokes" i.e.
+//       back-and-forth movements between the starting and end points.
 //
 //   P1: This starts a zig-zag pattern between (X0, Y0) and (X1, Y1), "T"
 //       defines the number of zig-zag triangles to be done. "S" defines the
@@ -1015,6 +1014,7 @@
 //                       |________|_________|_________|
 //                           T1        T2        T3
 //
+//
 // Caveats: End point Z should use the same value as Start point Z.
 //
 // Attention: This is an EXPERIMENTAL feature, in the future the G-code arguments
@@ -1023,8 +1023,14 @@
 //#define NOZZLE_CLEAN_FEATURE
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
-  // Number of pattern repetitions
+  // Default number of pattern repetitions
   #define NOZZLE_CLEAN_STROKES  12
+  
+  // Default number of triangles
+  #define NOZZLE_CLEAN_TRIANGLES  3
+  
+  // If commented, zig-zags will be vertical, rotated from the picture
+  #define NOZZLE_CLEAN_HORIZONTAL
 
   // Specify positions as { X, Y, Z }
   #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
