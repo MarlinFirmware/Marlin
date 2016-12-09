@@ -273,7 +273,7 @@
 #endif
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-  #include "endstop_interrupts.h"
+  #include "src/HAL/HAL_endstop_interrupts.h"
 #endif
 
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
