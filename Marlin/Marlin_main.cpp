@@ -59,6 +59,7 @@
  * G12 - Clean tool
  * G20 - Set input units to inches
  * G21 - Set input units to millimeters
+ * G26 - Resume after emergency stop, without clearing the command buffer. Backwards-compatability alias for M999 S1
  * G28 - Home one or more axes
  * G29 - Detailed Z probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
  * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
@@ -457,6 +458,10 @@ static uint8_t target_extruder;
 
 #if HAS_BED_PROBE
   float zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
+#endif
+
+#if ENABLED(NOZZLE_PROBE)
+  int attempt = 0; //keeps track of probe tries per command, vs per probe move
 #endif
 
 #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS]))
@@ -1716,6 +1721,9 @@ static void setup_for_endstop_or_probe_move() {
   saved_feedrate_percentage = feedrate_percentage;
   feedrate_percentage = 100;
   refresh_cmd_timeout();
+  #if ENABLED(NOZZLE_PROBE)
+    attempt = 0; //resets tries for REPROBE feature
+  #endif
 }
 
 static void clean_up_after_endstop_or_probe_move() {
@@ -1741,6 +1749,8 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     float z_dest = LOGICAL_Z_POSITION(z_raise);
+    //if probe below nozzle/above bed (probe hits sooner)
+    //raise up more to compensate
     if (zprobe_zoffset < 0) z_dest -= zprobe_zoffset;
 
     if (z_dest > current_position[Z_AXIS])
@@ -2068,7 +2078,7 @@ static void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
-  static void do_probe_move(float z, float fr_mm_m) {
+  static bool do_probe_move(float z, float fr_mm_m) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
     #endif
@@ -2085,18 +2095,75 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(BLTOUCH)
       set_bltouch_deployed(false);
     #endif
-
+    
+    //if we reach z before probe is hit, return a failure
+    bool endstop_hit = endstops.endstop_hit_bits & Z_MIN_PROBE;
+    
     // Clear endstop flags
     endstops.hit_on_purpose();
 
     // Get Z where the steppers were interrupted
     set_current_from_steppers_for_axis(Z_AXIS);
-
+    
     // Tell the planner where we actually are
     SYNC_PLAN_POSITION_KINEMATIC();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
+    #endif
+    
+    return endstop_hit;
+  }
+
+  // - Try to probe point, at the specified speed. Handles probe failure.
+  static void attempt_probe(float probe_speed) {
+    #if ENABLED(NOZZLE_PROBE)
+      //loop while attempts not exhausted and probe hasn't succeeded
+      //attempts set by setup_for_endstop_or_probe_move, so you get a fixed number per probe/ABL command
+      //attempt starts at 0, and is incremented with each failure
+      bool success = false;
+      for (; attempt <= REPROBE_ATTEMPTS; attempt++) {
+        success = do_probe_move(PROBE_FAIL_HEIGHT + zprobe_zoffset, probe_speed);
+        if (success)
+          break;
+        //handle failure:
+        #if ENABLED(REWIPE)
+          #if ENABLED(DEBUG_LEVELING_FEATURE)
+            if (DEBUGGING(LEVELING)) SERIAL_ECHOLN("Attempting rewipe");
+          #endif
+          do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
+          point_t const initial = {  //stores probe position in case NOZZLE_CLEAN_GOBACK not set
+            current_position[X_AXIS],
+            current_position[Y_AXIS],
+            current_position[Z_AXIS],
+            current_position[E_AXIS]
+          };
+          //wipe the nozzle with default settings
+          Nozzle::clean(NOZZLE_REWIPE_PATTERN, NOZZLE_CLEAN_STROKES, NOZZLE_CLEAN_TRIANGLES);
+          //now move back over the point, ready to try again
+          do_blocking_move_to_z(initial.z, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+          do_blocking_move_to_xy(initial.x, initial.y, XY_PROBE_FEEDRATE_MM_S);
+        #else
+          //just lift nozzle and try again
+          do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
+        #endif
+        
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("Attempting reprobe #", attempt + 1);
+        #endif
+      }
+      if (!success) { //fail hard
+        do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
+        #if ENABLED(SDSUPPORT)
+          card.closefile();
+          card.sdprinting = false;
+        #endif
+        for (uint8_t i=0; i < BUFSIZE; i++) command_queue[i][0] = '\0';
+  
+        stop();
+      }
+    #else
+      do_probe_move(-(Z_MAX_LENGTH) - 10 + zprobe_zoffset, probe_speed);
     #endif
   }
 
@@ -2112,9 +2179,8 @@ static void clean_up_after_endstop_or_probe_move() {
     refresh_cmd_timeout();
 
     #if ENABLED(PROBE_DOUBLE_TOUCH)
-
       // Do a first probe at the fast speed
-      do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_FAST);
+      attempt_probe(Z_PROBE_SPEED_FAST);
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         float first_probe_z = current_position[Z_AXIS];
@@ -2136,8 +2202,7 @@ static void clean_up_after_endstop_or_probe_move() {
     #endif
 
     // move down slowly to find bed
-    do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_SLOW);
-
+    attempt_probe(Z_PROBE_SPEED_SLOW);
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
     #endif
@@ -3131,7 +3196,7 @@ inline void gcode_G4() {
 
     uint8_t const pattern = code_seen('P') ? code_value_ushort() : 0;
     uint8_t const strokes = code_seen('S') ? code_value_ushort() : NOZZLE_CLEAN_STROKES;
-    uint8_t const objects = code_seen('T') ? code_value_ushort() : 3;
+    uint8_t const objects = code_seen('T') ? code_value_ushort() : NOZZLE_CLEAN_TRIANGLES;
 
     Nozzle::clean(pattern, strokes, objects);
   }
@@ -3148,6 +3213,14 @@ inline void gcode_G4() {
    */
   inline void gcode_G21() { set_input_linear_units(LINEARUNIT_MM); }
 #endif
+
+/**
+ * G26: Resume after E-stop, same as M999 S1
+ */
+inline void gcode_G26() {
+  Running = true;
+  lcd_reset_alert_level();
+}
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   /**
@@ -4082,8 +4155,8 @@ inline void gcode_G28() {
       #endif // AUTO_BED_LEVELING_LINEAR
 
       #if ENABLED(PROBE_Y_FIRST)
-        #define PR_OUTER_VAR xCount
-        #define PR_OUTER_END abl_grid_points_x
+        #define PR_OUTER_VAR xCount            // sets up for loop bounds
+        #define PR_OUTER_END abl_grid_points_x // not sure why PR_*_VAR is initialized here
         #define PR_INNER_VAR yCount
         #define PR_INNER_END abl_grid_points_y
       #else
@@ -4427,10 +4500,16 @@ inline void gcode_G28() {
    *     S = Stows the probe if 1 (default=1)
    */
   inline void gcode_G30() {
-    float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
-          Y_probe_location = code_seen('Y') ? code_value_axis_units(Y_AXIS) : current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
+    if (code_seen('X') && axis_unhomed_error(true, false, false)) return;
+    if (code_seen('Y') && axis_unhomed_error(false, true, false)) return;
+    
+    #if ENABLED(NOZZLE_PROBE) //needs z homing
+      if (axis_unhomed_error(false, false, true)) return;
+    #endif
+    float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : current_position[X_AXIS],
+          Y_probe_location = code_seen('Y') ? code_value_axis_units(Y_AXIS) : current_position[Y_AXIS];
 
-    float pos[XYZ] = { X_probe_location, Y_probe_location, LOGICAL_Z_POSITION(0) };
+    float pos[XYZ] = {X_probe_location, Y_probe_location, LOGICAL_Z_POSITION(0)};
     if (!position_is_reachable(pos, true)) return;
 
     bool stow = code_seen('S') ? code_value_bool() : true;
@@ -5004,7 +5083,7 @@ inline void gcode_M42() {
 
     bool stow_probe_after_each = code_seen('E');
 
-    float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : X_current + X_PROBE_OFFSET_FROM_EXTRUDER;
+    float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : X_current;
     #if DISABLED(DELTA)
       if (X_probe_location < LOGICAL_X_POSITION(MIN_PROBE_X) || X_probe_location > LOGICAL_X_POSITION(MAX_PROBE_X)) {
         out_of_range_error(PSTR("X"));
@@ -5012,7 +5091,7 @@ inline void gcode_M42() {
       }
     #endif
 
-    float Y_probe_location = code_seen('Y') ? code_value_axis_units(Y_AXIS) : Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER;
+    float Y_probe_location = code_seen('Y') ? code_value_axis_units(Y_AXIS) : Y_current;
     #if DISABLED(DELTA)
       if (Y_probe_location < LOGICAL_Y_POSITION(MIN_PROBE_Y) || Y_probe_location > LOGICAL_Y_POSITION(MAX_PROBE_Y)) {
         out_of_range_error(PSTR("Y"));
@@ -8164,6 +8243,10 @@ void process_next_command() {
           gcode_G21();
           break;
       #endif // INCH_MODE_SUPPORT
+
+      case 26: // G26: Resume after E-stop, alias for M999 S1
+        gcode_G26();
+      break;
 
       #if ENABLED(NOZZLE_PARK_FEATURE)
         case 27: // G27: Nozzle Park

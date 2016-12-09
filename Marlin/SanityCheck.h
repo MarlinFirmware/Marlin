@@ -429,8 +429,13 @@
   #else
     #define COUNT_PROBE_6 COUNT_PROBE_5
   #endif
-  #if COUNT_PROBE_6 > 1
-    #error "Please enable only one probe: FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
+  #if ENABLED(NOZZLE_PROBE)
+    #define COUNT_PROBE_7 INCREMENT(COUNT_PROBE_6)
+  #else
+    #define COUNT_PROBE_7 COUNT_PROBE_6
+  #endif
+  #if COUNT_PROBE_7 > 1
+    #error "Please enable only one probe: FIX_MOUNTED_PROBE, NOZZLE_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
   #endif
 
   /**
@@ -439,6 +444,26 @@
   #if ENABLED(Z_PROBE_SLED) && ENABLED(DELTA)
     #error "You cannot use Z_PROBE_SLED with DELTA."
   #endif
+
+  /**
+   * Nozzle-conductivity probe dependencies
+   */
+  #if ENABLED(NOZZLE_PROBE)
+    #ifndef PROBE_FAIL_HEIGHT
+      #error "You must define a failure height to use NOZZLE_PROBE."
+    #endif
+    #if ENABLED(REWIPE) // || ENABLED(PREWIPE)
+      #ifndef NOZZLE_CLEAN_FEATURE
+        #error "Your nozzle probe settings require a wipe pad, but none is defined."
+      #endif
+    #endif
+
+    #if ENABLED(HOMING_Z_WITH_PROBE)
+      #error "Cannot safely use NOZZLE_PROBE to home Z-axis. Change Z_HOME_DIR or enable a seperate Z-min probe."
+    #endif
+  #endif
+
+
 
   /**
    * NUM_SERVOS is required for a Z servo probe

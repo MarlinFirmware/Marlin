@@ -544,10 +544,23 @@
 //
 
 // A Fix-Mounted Probe either doesn't deploy or needs manual deployment.
-// For example an inductive probe, or a setup that uses the nozzle to probe.
-// An inductive probe must be deactivated to go below
-// its trigger-point if hardware endstops are active.
+// For example an inductive probe. An inductive probe must be deactivated to go
+// below its trigger-point if hardware endstops are active.
 //#define FIX_MOUNTED_PROBE
+
+// A Nozzle Probe sense conductivity between the bed and nozzle. Allows for
+// automatic recleaning of nozzles to ensure successful probing.
+// Must be Z-homed before leveling, to know when a probe has failed.
+//#define NOZZLE_PROBE
+#if ENABLED(NOZZLE_PROBE)
+  #define PROBE_FAIL_HEIGHT  -10    //probe will fail this far below the expected probe point
+  #define REPROBE_ATTEMPTS   1      //Maximum number of retries per point. Set to 0 to make one attempt
+  //#define REWIPE                  //Uncomment to rewipe nozzle between attempts. NOZZLE_CLEAN_FEATURE
+                                    //must be setup.
+  #if ENABLED(REWIPE)
+    #define REWIPE_PATTERN   1      //The rewipe pattern to use, as defined in the "Clean Nozzle" section.
+  #endif                            //Currently only 0=stroke 1=triangles
+#endif
 
 // The BLTouch probe emulates a servo probe.
 // The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
@@ -980,13 +993,13 @@
 //
 // Available list of patterns:
 //   P0: This is the default pattern, this process requires a sponge type
-//       material at a fixed bed location, the cleaning process is based on
-//       "strokes" i.e. back-and-forth movements between the starting and end
-//       points.
+//       material at a fixed bed location. S defines "strokes" i.e.
+//       back-and-forth movements between the starting and end points.
 //
 //   P1: This starts a zig-zag pattern between (X0, Y0) and (X1, Y1), "T"
 //       defines the number of zig-zag triangles to be done. "S" defines the
-//       number of strokes aka one back-and-forth movement. As an example
+//       number of strokes aka one back-and-forth movement. Zig-zags will
+//       be performed in whichever dimension is smallest. As an example,
 //       sending "G12 P1 S1 T3" will execute:
 //
 //          --
@@ -1007,8 +1020,11 @@
 //#define NOZZLE_CLEAN_FEATURE
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
-  // Number of pattern repetitions
+  // Default number of pattern repetitions
   #define NOZZLE_CLEAN_STROKES  12
+  
+  // Default number of triangles
+  #define NOZZLE_CLEAN_TRIANGLES  3
 
   // Specify positions as { X, Y, Z }
   #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
