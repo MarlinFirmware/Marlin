@@ -1204,22 +1204,17 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   static float previous_safe_speed;
 
   float safe_speed = block->nominal_speed;
-  bool limited = false;
+  uint8_t limited = 0;
   LOOP_XYZE(i) {
-    float jerk = fabs(current_speed[i]);
-    if (jerk > max_jerk[i]) {
-      // The actual jerk is lower if it has been limited by the XY jerk.
+    const float jerk = fabs(current_speed[i]), maxj = max_jerk[i];
+    if (jerk > maxj) {
       if (limited) {
-        // Spare one division by a following gymnastics:
-        // Instead of jerk *= safe_speed / block->nominal_speed,
-        // multiply max_jerk[i] by the divisor.
-        jerk *= safe_speed;
-        float mjerk = max_jerk[i] * block->nominal_speed;
-        if (jerk > mjerk) safe_speed *= mjerk / jerk;
+        const float mjerk = maxj * block->nominal_speed;
+        if (jerk * safe_speed > mjerk) safe_speed = mjerk / jerk;
       }
       else {
-        safe_speed = max_jerk[i];
-        limited = true;
+        ++limited;
+        safe_speed = maxj;
       }
     }
   }
@@ -1236,7 +1231,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     vmax_junction = prev_speed_larger ? block->nominal_speed : previous_nominal_speed;
     // Factor to multiply the previous / current nominal velocities to get componentwise limited velocities.
     float v_factor = 1.f;
-    limited = false;
+    limited = 0;
     // Now limit the jerk in all axes.
     LOOP_XYZE(axis) {
       // Limit an axis. We have to differentiate: coasting, reversal of an axis, full stop.
