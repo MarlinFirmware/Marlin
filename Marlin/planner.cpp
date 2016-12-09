@@ -1242,22 +1242,15 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         v_entry *= v_factor;
       }
       // Calculate jerk depending on whether the axis is coasting in the same direction or reversing.
-      float jerk = 
-        (v_exit > v_entry) ?
-          ((v_entry > 0.f || v_exit < 0.f) ?
-            // coasting
-            (v_exit - v_entry) : 
-            // axis reversal
-            max(v_exit, -v_entry)) :
-          // v_exit <= v_entry
-          ((v_entry < 0.f || v_exit > 0.f) ?
-            // coasting
-            (v_entry - v_exit) :
-            // axis reversal
-            max(-v_exit, v_entry));
+      const float jerk = (v_exit > v_entry)
+          ? //                                  coasting             axis reversal
+            ( (v_entry > 0.f || v_exit < 0.f) ? (v_exit - v_entry) : max(v_exit, -v_entry) )
+          : // v_exit <= v_entry                coasting             axis reversal
+            ( (v_entry < 0.f || v_exit > 0.f) ? (v_entry - v_exit) : max(-v_exit, v_entry) );
+
       if (jerk > max_jerk[axis]) {
         v_factor *= max_jerk[axis] / jerk;
-        limited = true;
+        ++limited;
       }
     }
     if (limited) vmax_junction *= v_factor;
