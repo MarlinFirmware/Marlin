@@ -215,7 +215,7 @@ class Planner {
     #endif
 
     #if ENABLED(ENSURE_SMOOTH_MOVES)
-      static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
+      volatile static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
     #endif
 
   public:
@@ -387,21 +387,26 @@ class Planner {
         SBI(block->flag, BLOCK_BIT_BUSY);
         return block;
       }
-      else
+      else {
+        #if ENABLED(ENSURE_SMOOTH_MOVES)
+          clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
+        #endif
         return NULL;
+      }
     }
 
     #if ENABLED(ENSURE_SMOOTH_MOVES)
       static bool long_move() {
-        if (block_buffer_runtime_us) {
-          return block_buffer_runtime_us > (LCD_UPDATE_THRESHOLD) * 1000UL + (MIN_BLOCK_TIME) * 3000UL;
-        }
-        else
-          return true;
+        CRITICAL_SECTION_START
+          uint32_t bbru = block_buffer_runtime_us;
+        CRITICAL_SECTION_END
+        return !bbru || bbru > (LCD_UPDATE_THRESHOLD) * 1000UL + (MIN_BLOCK_TIME) * 3000UL;
       }
       
       static void clear_block_buffer_runtime(){
-        block_buffer_runtime_us = 0;
+        CRITICAL_SECTION_START
+          block_buffer_runtime_us = 0;
+        CRITICAL_SECTION_END
       }
     #endif
 
