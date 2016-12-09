@@ -300,28 +300,28 @@ class Stepper {
 
       NOLESS(step_rate, F_CPU / 500000);
       step_rate -= F_CPU / 500000; // Correct for minimal speed
-#if defined(ARDUINO_ARCH_AVR)
-      if (step_rate >= (8 * 256)) { // higher step rate
-        unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
-        unsigned char tmp_step_rate = (step_rate & 0x00ff);
-        unsigned short gain = (unsigned short)pgm_read_word_near(table_address + 2);
-        MultiU16X8toH16(timer, tmp_step_rate, gain);
-        timer = (unsigned short)pgm_read_word_near(table_address) - timer;
-      }
-      else { // lower step rates
-        unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
-        table_address += ((step_rate) >> 1) & 0xfffc;
-        timer = (unsigned short)pgm_read_word_near(table_address);
-        timer -= (((unsigned short)pgm_read_word_near(table_address + 2) * (unsigned char)(step_rate & 0x0007)) >> 3);
-      }
-      if (timer < 100) { // (20kHz - this should never happen)
-        timer = 100;
-        MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
-        MYSERIAL.println(step_rate);
-      }
-#elif defined(ARDUINO_ARCH_SAM)
-      timer = HAL_TIMER_RATE / step_rate;
-#endif
+      #if defined(ARDUINO_ARCH_AVR)
+        if (step_rate >= (8 * 256)) { // higher step rate
+          unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
+          unsigned char tmp_step_rate = (step_rate & 0x00ff);
+          unsigned short gain = (unsigned short)pgm_read_word_near(table_address + 2);
+          MultiU16X8toH16(timer, tmp_step_rate, gain);
+          timer = (unsigned short)pgm_read_word_near(table_address) - timer;
+        }
+        else { // lower step rates
+          unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
+          table_address += ((step_rate) >> 1) & 0xfffc;
+          timer = (unsigned short)pgm_read_word_near(table_address);
+          timer -= (((unsigned short)pgm_read_word_near(table_address + 2) * (unsigned char)(step_rate & 0x0007)) >> 3);
+        }
+        if (timer < 100) { // (20kHz - this should never happen)
+          timer = 100;
+          MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
+          MYSERIAL.println(step_rate);
+        }
+      #else
+        timer = (long)(HAL_TIMER_RATE) / step_rate;
+      #endif
       return timer;
     }
 
