@@ -162,7 +162,17 @@
   #define RAMPS_D10_PIN 10
 #endif
 
-#define HEATER_0_PIN     RAMPS_D10_PIN
+#ifdef PISTON_EXTRUDER
+  #define DRYER_FAN_PIN  RAMPS_D10_PIN //to control the dryer fan
+  #define HEATER_0_PIN   RAMPS_D9_PIN  //needed to pass sanity check
+  #ifdef E_ADJUST_MANUALLY
+    #ifndef E_ADJUST_PIN
+      #define E_ADJUST_PIN 3 //pin to read analog extruder setting
+    #endif
+  #endif
+#else
+  #define HEATER_0_PIN   RAMPS_D10_PIN
+#endif  
 
 #if ENABLED(IS_RAMPS_EFB)                      // Hotend, Fan, Bed
   #define FAN_PIN        RAMPS_D9_PIN
