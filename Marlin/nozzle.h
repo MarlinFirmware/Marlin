@@ -26,9 +26,11 @@
 #include "Marlin.h"
 #include "point_t.h"
 
-constexpr float nozzle_clean_length = fabs(NOZZLE_CLEAN_START_POINT[X_AXIS] - NOZZLE_CLEAN_END_POINT[X_AXIS]) //abs x size of wipe pad
-constexpr float nozzle_clean_height = fabs(NOZZLE_CLEAN_START_POINT[Y_AXIS] - NOZZLE_CLEAN_END_POINT[Y_AXIS]) //abs y size of wipe pad
-constexpr bool NOZZLE_CLEAN_HORIZONTAL = nozzle_clean_length >= nozzle_clean_height; //whether to zig-zag horizontally or vertically
+#if ENABLED(NOZZLE_CLEAN_FEATURE)
+  constexpr float nozzle_clean_length = fabs(NOZZLE_CLEAN_START_POINT[X_AXIS] - NOZZLE_CLEAN_END_POINT[X_AXIS]); //abs x size of wipe pad
+  constexpr float nozzle_clean_height = fabs(NOZZLE_CLEAN_START_POINT[Y_AXIS] - NOZZLE_CLEAN_END_POINT[Y_AXIS]); //abs y size of wipe pad
+  constexpr bool NOZZLE_CLEAN_HORIZONTAL = nozzle_clean_length >= nozzle_clean_height; //whether to zig-zag horizontally or vertically
+#endif //NOZZLE_CLEAN_FEATURE
 
 /**
  * @brief Nozzle class
