@@ -2243,7 +2243,13 @@ static void clean_up_after_endstop_or_probe_move() {
 
     #elif HAS_ABL
 
-      if (enable != planner.abl_enabled) {
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        const bool can_change = (!enable || (bilinear_grid_spacing[0] && bilinear_grid_spacing[1]));
+      #else
+        constexpr bool can_change = true;
+      #endif
+
+      if (can_change && enable != planner.abl_enabled) {
         planner.abl_enabled = enable;
         if (!enable)
           set_current_from_steppers_for_axis(
@@ -7007,10 +7013,27 @@ void quickstop_stepper() {
    *       Z[height] Sets the Z fade height (0 or none to disable)
    */
   inline void gcode_M420() {
-    if (code_seen('S')) set_bed_leveling_enabled(code_value_bool());
+    bool to_enable = false;
+
+    if (code_seen('S')) {
+      to_enable = code_value_bool();
+      set_bed_leveling_enabled(to_enable);
+    }
+
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       if (code_seen('Z')) set_z_fade_height(code_value_linear_units());
     #endif
+
+    if (to_enable && !(
+      #if ENABLED(MESH_BED_LEVELING)
+        mbl.active()
+      #else
+        planner.abl_enabled
+      #endif
+    ) ) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_M420_FAILED);
+    }
   }
 #endif
 
