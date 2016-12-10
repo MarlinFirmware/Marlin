@@ -105,6 +105,11 @@ enum TempState {
   MeasureTemp_2,
   PrepareTemp_3,
   MeasureTemp_3,
+  #if ENABLED(E_ADJUST_MANUALLY)
+    //used in temperatures.cpp
+    Prepare_e_adjust_reading,
+    Measure_e_adjust_reading,
+  #endif  
   Prepare_FILWIDTH,
   Measure_FILWIDTH,
   StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
