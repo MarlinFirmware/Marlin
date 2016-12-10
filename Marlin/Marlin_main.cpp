@@ -5051,7 +5051,8 @@ inline void gcode_M42() {
 
     // Disable bed level correction in M48 because we want the raw data when we probe
     #if HAS_ABL
-      reset_bed_level();
+      const bool abl_was_enabled = planner.abl_enabled;
+      set_bed_leveling_enabled(false);
     #endif
 
     setup_for_endstop_or_probe_move();
@@ -5201,6 +5202,11 @@ inline void gcode_M42() {
     SERIAL_EOL;
 
     clean_up_after_endstop_or_probe_move();
+
+    // Re-enable bed level correction if it has been on
+    #if HAS_ABL
+      set_bed_leveling_enabled(abl_was_enabled);
+    #endif
 
     report_current_position();
   }
