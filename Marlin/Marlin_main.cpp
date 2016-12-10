@@ -575,7 +575,7 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  int bilinear_grid_spacing[2] = { 0 }, bilinear_start[2] = { 0 };
+  int bilinear_grid_spacing[2], bilinear_start[2];
   float bed_level_grid[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
 #endif
 
@@ -2289,20 +2289,21 @@ static void clean_up_after_endstop_or_probe_move() {
    * Reset calibration results to zero.
    */
   void reset_bed_level() {
+    set_bed_leveling_enabled(false);
     #if ENABLED(MESH_BED_LEVELING)
       if (mbl.has_mesh()) {
-        set_bed_leveling_enabled(false);
         mbl.reset();
         mbl.set_has_mesh(false);
       }
     #else
-      planner.abl_enabled = false;
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("reset_bed_level");
       #endif
       #if ABL_PLANAR
         planner.bed_level_matrix.set_to_identity();
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        bilinear_start[X_AXIS] = bilinear_start[Y_AXIS] =
+        bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
         for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
           for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
             bed_level_grid[x][y] = 1000.0;
