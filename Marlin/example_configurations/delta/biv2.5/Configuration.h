@@ -49,7 +49,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_H_VERSION 010101
+#define CONFIGURATION_H_VERSION 010100
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -1079,7 +1079,8 @@
 //
 //   P1: This starts a zig-zag pattern between (X0, Y0) and (X1, Y1), "T"
 //       defines the number of zig-zag triangles to be done. "S" defines the
-//       number of strokes aka one back-and-forth movement. As an example
+//       number of strokes aka one back-and-forth movement. Zig-zags will
+//       be performed in whichever dimension is smallest. As an example,
 //       sending "G12 P1 S1 T3" will execute:
 //
 //          --
@@ -1091,7 +1092,6 @@
 //          --         +--------------------------------+
 //                       |________|_________|_________|
 //                           T1        T2        T3
-//
 //
 // Caveats: End point Z should use the same value as Start point Z.
 //
@@ -1106,9 +1106,6 @@
   
   // Default number of triangles
   #define NOZZLE_CLEAN_TRIANGLES  3
-  
-  // If commented, zig-zags will be vertical, rotated from the picture
-  #define NOZZLE_CLEAN_HORIZONTAL
 
   // Specify positions as { X, Y, Z }
   #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
