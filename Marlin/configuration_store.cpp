@@ -36,18 +36,18 @@
  *
  */
 
-#define EEPROM_VERSION "V28"
+#define EEPROM_VERSION "V29"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V28 EEPROM Layout:
+ * V29 EEPROM Layout:
  *
- *  100  Version (char x4)
- *  104  EEPROM Checksum (uint16_t)
+ *  100  Version                                   (char x4)
+ *  104  EEPROM Checksum                           (uint16_t)
  *
- *  106  E_STEPPERS (uint8_t)
+ *  106            E_STEPPERS (uint8_t)
  *  107  M92 XYZE  planner.axis_steps_per_mm (float x4 ... x7)
  *  123  M203 XYZE planner.max_feedrate_mm_s (float x4 ... x7)
  *  139  M201 XYZE planner.max_acceleration_mm_per_s2 (uint32_t x4 ... x7)
@@ -74,51 +74,59 @@
  * AUTO BED LEVELING
  *  262  M851      zprobe_zoffset (float)
  *
- * DELTA:
- *  266  M666 XYZ  endstop_adj (float x3)
- *  278  M665 R    delta_radius (float)
- *  282  M665 L    delta_diagonal_rod (float)
- *  286  M665 S    delta_segments_per_second (float)
- *  290  M665 A    delta_diagonal_rod_trim_tower_1 (float)
- *  294  M665 B    delta_diagonal_rod_trim_tower_2 (float)
- *  298  M665 C    delta_diagonal_rod_trim_tower_3 (float)
+ * AUTO_BED_LEVELING_BILINEAR (or placeholder):    47 bytes
+ *  266            ABL_GRID_MAX_POINTS_X           (uint8_t)
+ *  267            ABL_GRID_MAX_POINTS_Y           (uint8_t)
+ *  268            bilinear_grid_spacing           (int x2)   from G29: (B-F)/X, (R-L)/Y
+ *  272  G29 L F   bilinear_start                  (int x2)
+ *  276            bed_level_grid[][]              (float x9, up to float x256) +988
  *
- * Z_DUAL_ENDSTOPS:
- *  302  M666 Z    z_endstop_adj (float)
+ * DELTA (if deltabot):                            36 bytes
+ *  312  M666 XYZ  endstop_adj                     (float x3)
+ *  324  M665 R    delta_radius                    (float)
+ *  328  M665 L    delta_diagonal_rod              (float)
+ *  332  M665 S    delta_segments_per_second       (float)
+ *  336  M665 A    delta_diagonal_rod_trim_tower_1 (float)
+ *  340  M665 B    delta_diagonal_rod_trim_tower_2 (float)
+ *  344  M665 C    delta_diagonal_rod_trim_tower_3 (float)
  *
- * ULTIPANEL:
- *  306  M145 S0 H lcd_preheat_hotend_temp (int x2)
- *  310  M145 S0 B lcd_preheat_bed_temp (int x2)
- *  314  M145 S0 F lcd_preheat_fan_speed (int x2)
+ * Z_DUAL_ENDSTOPS:                                4 bytes
+ *  348  M666 Z    z_endstop_adj                   (float)
  *
- * PIDTEMP:
- *  318  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
- *  334  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
- *  350  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
- *  366  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
- *  382  M301 L        lpq_len (int)
+ * ULTIPANEL:                                      6 bytes
+ *  352  M145 S0 H lcd_preheat_hotend_temp         (int x2)
+ *  356  M145 S0 B lcd_preheat_bed_temp            (int x2)
+ *  360  M145 S0 F lcd_preheat_fan_speed           (int x2)
+ *
+ * PIDTEMP:                                        66 bytes
+ *  364  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]  (float x4)
+ *  380  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]  (float x4)
+ *  396  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]  (float x4)
+ *  412  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]  (float x4)
+ *  428  M301 L        lpq_len                     (int)
  *
  * PIDTEMPBED:
- *  384  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
+ *  430  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
  *
- * DOGLCD:
- *  396  M250 C    lcd_contrast (int)
+ * DOGLCD:                                          2 bytes
+ *  442  M250 C    lcd_contrast                     (int)
  *
- * FWRETRACT:
- *  398  M209 S    autoretract_enabled (bool)
- *  399  M207 S    retract_length (float)
- *  403  M207 W    retract_length_swap (float)
- *  407  M207 F    retract_feedrate_mm_s (float)
- *  411  M207 Z    retract_zlift (float)
- *  415  M208 S    retract_recover_length (float)
- *  419  M208 W    retract_recover_length_swap (float)
- *  423  M208 F    retract_recover_feedrate_mm_s (float)
+ * FWRETRACT:                                       29 bytes
+ *  444  M209 S    autoretract_enabled              (bool)
+ *  445  M207 S    retract_length                   (float)
+ *  449  M207 W    retract_length_swap              (float)
+ *  453  M207 F    retract_feedrate_mm_s            (float)
+ *  457  M207 Z    retract_zlift                    (float)
+ *  461  M208 S    retract_recover_length           (float)
+ *  465  M208 W    retract_recover_length_swap      (float)
+ *  469  M208 F    retract_recover_feedrate_mm_s    (float)
  *
- * Volumetric Extrusion:
- *  427  M200 D    volumetric_enabled (bool)
- *  428  M200 T D  filament_size (float x4) (T0..3)
+ * Volumetric Extrusion:                            17 bytes
+ *  473  M200 D    volumetric_enabled               (bool)
+ *  474  M200 T D  filament_size                    (float x4) (T0..3)
  *
- *  444  This Slot is Available!
+ *  490                                Minimum end-point
+ * 1811 (490 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  */
 #include "Marlin.h"
@@ -131,6 +139,11 @@
 
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
+#endif
+
+#if ENABLED(ABL_BILINEAR_SUBDIVISION)
+  extern void bed_level_virt_prepare();
+  extern void bed_level_virt_interpolate();
 #endif
 
 /**
@@ -243,6 +256,10 @@ void Config_Postprocess() {
         LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
     #endif
 
+    //
+    // Mesh Bed Leveling
+    //
+
     #if ENABLED(MESH_BED_LEVELING)
       // Compile time test that sizeof(mbl.z_values) is as expected
       typedef char c_assert[(sizeof(mbl.z_values) == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS) * sizeof(dummy)) ? 1 : -1];
@@ -258,19 +275,44 @@ void Config_Postprocess() {
       // For disabled MBL write a default mesh
       uint8_t mesh_num_x = 3,
               mesh_num_y = 3,
-              dummy_uint8 = 0;
+              mbl_status = 0;
       dummy = 0.0f;
-      EEPROM_WRITE(dummy_uint8);
-      EEPROM_WRITE(dummy);
+      EEPROM_WRITE(mbl_status);
+      EEPROM_WRITE(dummy); // z_offset
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
-      for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_WRITE(dummy);
+      for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummy);
     #endif // MESH_BED_LEVELING
 
     #if !HAS_BED_PROBE
       float zprobe_zoffset = 0;
     #endif
     EEPROM_WRITE(zprobe_zoffset);
+
+    //
+    // Bilinear Auto Bed Leveling
+    //
+
+    #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      // Compile time test that sizeof(bed_level_grid) is as expected
+      typedef char c_assert[(sizeof(bed_level_grid) == (ABL_GRID_MAX_POINTS_X) * (ABL_GRID_MAX_POINTS_Y) * sizeof(dummy)) ? 1 : -1];
+      const uint8_t grid_max_x = ABL_GRID_MAX_POINTS_X, grid_max_y = ABL_GRID_MAX_POINTS_Y;
+      EEPROM_WRITE(grid_max_x);            // 1 byte
+      EEPROM_WRITE(grid_max_y);            // 1 byte
+      EEPROM_WRITE(bilinear_grid_spacing); // 2 ints
+      EEPROM_WRITE(bilinear_start);        // 2 ints
+      EEPROM_WRITE(bed_level_grid);        // 9-256 floats
+    #else
+      // For disabled Bilinear Grid write an empty 3x3 grid
+      const uint8_t grid_max_x = 3, grid_max_y = 3;
+      const int bilinear_start[2] = { 0 }, bilinear_grid_spacing[2] = { 0 };
+      dummy = 0.0f;
+      EEPROM_WRITE(grid_max_x);
+      EEPROM_WRITE(grid_max_y);
+      EEPROM_WRITE(bilinear_grid_spacing);
+      EEPROM_WRITE(bilinear_start);
+      for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_WRITE(dummy);
+    #endif // AUTO_BED_LEVELING_BILINEAR
 
     // 9 floats for DELTA / Z_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
@@ -452,7 +494,11 @@ void Config_Postprocess() {
           LOOP_XYZ(i) EEPROM_READ(hotend_offset[i][e]);
       #endif
 
-      uint8_t dummy_uint8 = 0, mesh_num_x = 0, mesh_num_y = 0;
+      //
+      // Mesh (Manual) Bed Leveling
+      //
+
+      uint8_t dummy_uint8, mesh_num_x, mesh_num_y;
       EEPROM_READ(dummy_uint8);
       EEPROM_READ(dummy);
       EEPROM_READ(mesh_num_x);
@@ -467,17 +513,45 @@ void Config_Postprocess() {
         else {
           // EEPROM data is stale
           mbl.reset();
-          for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ(dummy);
+          for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummy);
         }
       #else
         // MBL is disabled - skip the stored data
-        for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ(dummy);
+        for (uint16_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_READ(dummy);
       #endif // MESH_BED_LEVELING
 
       #if !HAS_BED_PROBE
         float zprobe_zoffset = 0;
       #endif
       EEPROM_READ(zprobe_zoffset);
+
+      //
+      // Bilinear Auto Bed Leveling
+      //
+
+      uint8_t grid_max_x, grid_max_y;
+      EEPROM_READ(grid_max_x);                       // 1 byte
+      EEPROM_READ(grid_max_y);                       // 1 byte
+      #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        if (grid_max_x == ABL_GRID_MAX_POINTS_X && grid_max_y == ABL_GRID_MAX_POINTS_Y) {
+          set_bed_leveling_enabled(false);
+          EEPROM_READ(bilinear_grid_spacing);        // 2 ints
+          EEPROM_READ(bilinear_start);               // 2 ints
+          EEPROM_READ(bed_level_grid);               // 9 to 256 floats
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_prepare();
+            bed_level_virt_interpolate();
+          #endif
+        }
+        else // EEPROM data is stale
+      #endif // AUTO_BED_LEVELING_BILINEAR
+        {
+          // Skip past disabled (or stale) Bilinear Grid data
+          int bgs[2], bs[2];
+          EEPROM_READ(bgs);
+          EEPROM_READ(bs);
+          for (uint16_t q = grid_max_x * grid_max_y; q--;) EEPROM_READ(dummy);
+        }
 
       #if ENABLED(DELTA)
         EEPROM_READ(endstop_adj);                // 3 floats
@@ -647,8 +721,8 @@ void Config_ResetDefault() {
     LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp4[i][e];
   #endif
 
-  #if ENABLED(MESH_BED_LEVELING)
-    mbl.reset();
+  #if PLANNER_LEVELING
+    reset_bed_level();
   #endif
 
   #if HAS_BED_PROBE
@@ -660,9 +734,9 @@ void Config_ResetDefault() {
     endstop_adj[A_AXIS] = adj[A_AXIS];
     endstop_adj[B_AXIS] = adj[B_AXIS];
     endstop_adj[C_AXIS] = adj[C_AXIS];
-    delta_radius =  DELTA_RADIUS;
-    delta_diagonal_rod =  DELTA_DIAGONAL_ROD;
-    delta_segments_per_second =  DELTA_SEGMENTS_PER_SECOND;
+    delta_radius = DELTA_RADIUS;
+    delta_diagonal_rod = DELTA_DIAGONAL_ROD;
+    delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     delta_diagonal_rod_trim_tower_1 = DELTA_DIAGONAL_ROD_TRIM_TOWER_1;
     delta_diagonal_rod_trim_tower_2 = DELTA_DIAGONAL_ROD_TRIM_TOWER_2;
     delta_diagonal_rod_trim_tower_3 = DELTA_DIAGONAL_ROD_TRIM_TOWER_3;
@@ -863,13 +937,10 @@ void Config_ResetDefault() {
 
     #if ENABLED(MESH_BED_LEVELING)
       if (!forReplay) {
-        SERIAL_ECHOLNPGM("Mesh bed leveling:");
+        SERIAL_ECHOLNPGM("Mesh Bed Leveling:");
         CONFIG_ECHO_START;
       }
-      SERIAL_ECHOPAIR("  M420 S", mbl.has_mesh() ? 1 : 0);
-      SERIAL_ECHOPAIR(" X", MESH_NUM_X_POINTS);
-      SERIAL_ECHOPAIR(" Y", MESH_NUM_Y_POINTS);
-      SERIAL_EOL;
+      SERIAL_ECHOLNPAIR("  M420 S", mbl.has_mesh() ? 1 : 0);
       for (uint8_t py = 1; py <= MESH_NUM_Y_POINTS; py++) {
         for (uint8_t px = 1; px <= MESH_NUM_X_POINTS; px++) {
           CONFIG_ECHO_START;
@@ -880,6 +951,12 @@ void Config_ResetDefault() {
           SERIAL_EOL;
         }
       }
+    #elif HAS_ABL
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Auto Bed Leveling:");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOLNPAIR("  M420 S", planner.abl_enabled ? 1 : 0);
     #endif
 
     #if ENABLED(DELTA)

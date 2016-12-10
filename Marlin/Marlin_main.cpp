@@ -2482,7 +2482,7 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_EOL;
     }
     #define LINEAR_EXTRAPOLATION(E, I) (E * 2 - I)
-    static void bed_level_virt_prepare() {
+    void bed_level_virt_prepare() {
       for (uint8_t y = 1; y <= ABL_GRID_MAX_POINTS_Y; y++) {
 
         for (uint8_t x = 1; x <= ABL_GRID_MAX_POINTS_X; x++)
@@ -2528,7 +2528,7 @@ static void clean_up_after_endstop_or_probe_move() {
       }
       return bed_level_virt_cmr(row, 1, tx);
     }
-    static void bed_level_virt_interpolate() {
+    void bed_level_virt_interpolate() {
       for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
         for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
           for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ty++)

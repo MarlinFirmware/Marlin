@@ -330,8 +330,14 @@ float code_value_temp_diff();
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  extern int bilinear_grid_spacing[2];
+  extern int bilinear_grid_spacing[2], bilinear_start[2];
+  extern float bed_level_grid[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
   float bilinear_z_offset(float logical[XYZ]);
+  void set_bed_leveling_enabled(bool enable=true);
+#endif
+
+#if PLANNER_LEVELING
+  void reset_bed_level();
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
