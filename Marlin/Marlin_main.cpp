@@ -576,7 +576,7 @@ static uint8_t target_extruder;
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
   int bilinear_grid_spacing[2] = { 0 }, bilinear_start[2] = { 0 };
-  float bed_level_grid[ABL_GRID_POINTS_X][ABL_GRID_POINTS_Y];
+  float bed_level_grid[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
 #endif
 
 #if IS_SCARA
@@ -2303,8 +2303,8 @@ static void clean_up_after_endstop_or_probe_move() {
       #if ABL_PLANAR
         planner.bed_level_matrix.set_to_identity();
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++)
-          for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++)
+        for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
+          for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
             bed_level_grid[x][y] = 1000.0;
       #endif
     #endif
@@ -2363,9 +2363,9 @@ static void clean_up_after_endstop_or_probe_move() {
   //#define EXTRAPOLATE_FROM_EDGE
 
   #if ENABLED(EXTRAPOLATE_FROM_EDGE)
-    #if ABL_GRID_POINTS_X < ABL_GRID_POINTS_Y
+    #if ABL_GRID_MAX_POINTS_X < ABL_GRID_MAX_POINTS_Y
       #define HALF_IN_X
-    #elif ABL_GRID_POINTS_Y < ABL_GRID_POINTS_X
+    #elif ABL_GRID_MAX_POINTS_Y < ABL_GRID_MAX_POINTS_X
       #define HALF_IN_Y
     #endif
   #endif
@@ -2376,18 +2376,18 @@ static void clean_up_after_endstop_or_probe_move() {
    */
   static void extrapolate_unprobed_bed_level() {
     #ifdef HALF_IN_X
-      const uint8_t ctrx2 = 0, xlen = ABL_GRID_POINTS_X - 1;
+      const uint8_t ctrx2 = 0, xlen = ABL_GRID_MAX_POINTS_X - 1;
     #else
-      const uint8_t ctrx1 = (ABL_GRID_POINTS_X - 1) / 2, // left-of-center
-                    ctrx2 = ABL_GRID_POINTS_X / 2,       // right-of-center
+      const uint8_t ctrx1 = (ABL_GRID_MAX_POINTS_X - 1) / 2, // left-of-center
+                    ctrx2 = ABL_GRID_MAX_POINTS_X / 2,       // right-of-center
                     xlen = ctrx1;
     #endif
 
     #ifdef HALF_IN_Y
-      const uint8_t ctry2 = 0, ylen = ABL_GRID_POINTS_Y - 1;
+      const uint8_t ctry2 = 0, ylen = ABL_GRID_MAX_POINTS_Y - 1;
     #else
-      const uint8_t ctry1 = (ABL_GRID_POINTS_Y - 1) / 2, // top-of-center
-                    ctry2 = ABL_GRID_POINTS_Y / 2,       // bottom-of-center
+      const uint8_t ctry1 = (ABL_GRID_MAX_POINTS_Y - 1) / 2, // top-of-center
+                    ctry2 = ABL_GRID_MAX_POINTS_Y / 2,       // bottom-of-center
                     ylen = ctry1;
     #endif
 
@@ -2417,16 +2417,16 @@ static void clean_up_after_endstop_or_probe_move() {
    */
   static void print_bed_level() {
     SERIAL_ECHOPGM("Bilinear Leveling Grid:\n ");
-    for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
+    for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++) {
       SERIAL_PROTOCOLPGM("    ");
       if (x < 10) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)x);
     }
     SERIAL_EOL;
-    for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++) {
+    for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++) {
       if (y < 10) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)y);
-      for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++) {
+      for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++) {
         SERIAL_PROTOCOLCHAR(' ');
         float offset = bed_level_grid[x][y];
         if (offset < 999.0) {
@@ -2442,10 +2442,10 @@ static void clean_up_after_endstop_or_probe_move() {
   }
 
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-    #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1
-    #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1
+    #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_MAX_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1
+    #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_MAX_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1
     float bed_level_grid_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
-    float bed_level_grid_virt_temp[ABL_GRID_POINTS_X + 2][ABL_GRID_POINTS_Y + 2]; //temporary for calculation (maybe dynamical?)
+    float bed_level_grid_virt_temp[ABL_GRID_MAX_POINTS_X + 2][ABL_GRID_MAX_POINTS_Y + 2]; //temporary for calculation (maybe dynamical?)
     int bilinear_grid_spacing_virt[2] = { 0 };
 
     static void bed_level_virt_print() {
@@ -2475,9 +2475,9 @@ static void clean_up_after_endstop_or_probe_move() {
     }
     #define LINEAR_EXTRAPOLATION(E, I) (E * 2 - I)
     static void bed_level_virt_prepare() {
-      for (uint8_t y = 1; y <= ABL_GRID_POINTS_Y; y++) {
+      for (uint8_t y = 1; y <= ABL_GRID_MAX_POINTS_Y; y++) {
 
-        for (uint8_t x = 1; x <= ABL_GRID_POINTS_X; x++)
+        for (uint8_t x = 1; x <= ABL_GRID_MAX_POINTS_X; x++)
           bed_level_grid_virt_temp[x][y] = bed_level_grid[x - 1][y - 1];
 
         bed_level_grid_virt_temp[0][y] = LINEAR_EXTRAPOLATION(
@@ -2485,21 +2485,21 @@ static void clean_up_after_endstop_or_probe_move() {
           bed_level_grid_virt_temp[2][y]
         );
 
-        bed_level_grid_virt_temp[(ABL_GRID_POINTS_X + 2) - 1][y] =
+        bed_level_grid_virt_temp[(ABL_GRID_MAX_POINTS_X + 2) - 1][y] =
           LINEAR_EXTRAPOLATION(
-            bed_level_grid_virt_temp[(ABL_GRID_POINTS_X + 2) - 2][y],
-            bed_level_grid_virt_temp[(ABL_GRID_POINTS_X + 2) - 3][y]
+            bed_level_grid_virt_temp[(ABL_GRID_MAX_POINTS_X + 2) - 2][y],
+            bed_level_grid_virt_temp[(ABL_GRID_MAX_POINTS_X + 2) - 3][y]
           );
       }
-      for (uint8_t x = 0; x < ABL_GRID_POINTS_X + 2; x++) {
+      for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X + 2; x++) {
         bed_level_grid_virt_temp[x][0] = LINEAR_EXTRAPOLATION(
           bed_level_grid_virt_temp[x][1],
           bed_level_grid_virt_temp[x][2]
         );
-        bed_level_grid_virt_temp[x][(ABL_GRID_POINTS_Y + 2) - 1] =
+        bed_level_grid_virt_temp[x][(ABL_GRID_MAX_POINTS_Y + 2) - 1] =
           LINEAR_EXTRAPOLATION(
-            bed_level_grid_virt_temp[x][(ABL_GRID_POINTS_Y + 2) - 2],
-            bed_level_grid_virt_temp[x][(ABL_GRID_POINTS_Y + 2) - 3]
+            bed_level_grid_virt_temp[x][(ABL_GRID_MAX_POINTS_Y + 2) - 2],
+            bed_level_grid_virt_temp[x][(ABL_GRID_MAX_POINTS_Y + 2) - 3]
           );
       }
     }
@@ -2521,11 +2521,11 @@ static void clean_up_after_endstop_or_probe_move() {
       return bed_level_virt_cmr(row, 1, tx);
     }
     static void bed_level_virt_interpolate() {
-      for (uint8_t y = 0; y < ABL_GRID_POINTS_Y; y++)
-        for (uint8_t x = 0; x < ABL_GRID_POINTS_X; x++)
+      for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
+        for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
           for (uint8_t ty = 0; ty < BILINEAR_SUBDIVISIONS; ty++)
             for (uint8_t tx = 0; tx < BILINEAR_SUBDIVISIONS; tx++) {
-              if ((ty && y == ABL_GRID_POINTS_Y - 1) || (tx && x == ABL_GRID_POINTS_X - 1))
+              if ((ty && y == ABL_GRID_MAX_POINTS_Y - 1) || (tx && x == ABL_GRID_MAX_POINTS_X - 1))
                 continue;
               bed_level_grid_virt[x * (BILINEAR_SUBDIVISIONS) + tx][y * (BILINEAR_SUBDIVISIONS) + ty] =
                 bed_level_virt_2cmr(
@@ -3934,8 +3934,8 @@ inline void gcode_G28() {
 
         // X and Y specify points in each direction, overriding the default
         // These values may be saved with the completed mesh
-        int abl_grid_points_x = code_seen('X') ? code_value_int() : ABL_GRID_POINTS_X,
-            abl_grid_points_y = code_seen('Y') ? code_value_int() : ABL_GRID_POINTS_Y;
+        int abl_grid_points_x = code_seen('X') ? code_value_int() : ABL_GRID_MAX_POINTS_X,
+            abl_grid_points_y = code_seen('Y') ? code_value_int() : ABL_GRID_MAX_POINTS_Y;
 
         if (code_seen('P')) abl_grid_points_x = abl_grid_points_y = code_value_int();
 
@@ -3946,7 +3946,7 @@ inline void gcode_G28() {
 
       #else
 
-         const int abl_grid_points_x = ABL_GRID_POINTS_X, abl_grid_points_y = ABL_GRID_POINTS_Y;
+         const int abl_grid_points_x = ABL_GRID_MAX_POINTS_X, abl_grid_points_y = ABL_GRID_MAX_POINTS_Y;
 
       #endif
 
@@ -8757,8 +8757,8 @@ void ok_to_send() {
     #define ABL_BG_GRID(X,Y)  bed_level_grid_virt[X][Y]
   #else
     #define ABL_BG_SPACING(A) bilinear_grid_spacing[A]
-    #define ABL_BG_POINTS_X   ABL_GRID_POINTS_X
-    #define ABL_BG_POINTS_Y   ABL_GRID_POINTS_Y
+    #define ABL_BG_POINTS_X   ABL_GRID_MAX_POINTS_X
+    #define ABL_BG_POINTS_Y   ABL_GRID_MAX_POINTS_Y
     #define ABL_BG_GRID(X,Y)  bed_level_grid[X][Y]
   #endif
 
