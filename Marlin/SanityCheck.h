@@ -282,6 +282,13 @@
 #endif
 
 /**
+ * Distinct E-factors with only one Extruder
+ */
+#if EXTRUDERS < 2 && ENABLED(DISTINCT_E_FACTORS)
+    #error "EXTRUDERS must at least be set to 2 when DISTINCT_E_FACTORS is enabled."
+#endif
+
+/**
  * Only one type of extruder allowed
  */
 #if (ENABLED(SWITCHING_EXTRUDER) && (ENABLED(SINGLENOZZLE) || ENABLED(MIXING_EXTRUDER))) \
