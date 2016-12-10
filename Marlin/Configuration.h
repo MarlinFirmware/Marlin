@@ -88,7 +88,7 @@
 // example_configurations/MMM directory.
 //
 
-#define PISTON_EXTRUDER //used to set parameters for the Piston Extruder
+//#define PISTON_EXTRUDER //used to set parameters for the Piston Extruder
 #ifdef PISTON_EXTRUDER
   #define E_ADJUST_MANUALLY //variable resistor has one end to ground, other to +5 volts. & wiper to E_ADJUST_PIN
   #ifdef E_ADJUST_MANUALLY
