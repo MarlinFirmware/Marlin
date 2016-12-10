@@ -26,6 +26,10 @@
 #include "Marlin.h"
 #include "point_t.h"
 
+constexpr float nozzle_clean_length = fabs(NOZZLE_CLEAN_START_POINT[X_AXIS] - NOZZLE_CLEAN_END_POINT[X_AXIS]) //abs x size of wipe pad
+constexpr float nozzle_clean_height = fabs(NOZZLE_CLEAN_START_POINT[Y_AXIS] - NOZZLE_CLEAN_END_POINT[Y_AXIS]) //abs y size of wipe pad
+constexpr bool NOZZLE_CLEAN_HORIZONTAL = nozzle_clean_length >= nozzle_clean_height; //whether to zig-zag horizontally or vertically
+
 /**
  * @brief Nozzle class
  *
@@ -93,13 +97,8 @@ class Nozzle {
       __attribute__((unused)) uint8_t const &objects
     ) __attribute__((optimize ("Os"))) {
       #if ENABLED(NOZZLE_CLEAN_FEATURE)
-        #if ENABLED(NOZZLE_CLEAN_HORIZONTAL)
-          float A = fabs(end.y - start.y); // [twice the] Amplitude
-          float P = fabs(end.x - start.x) / (objects << 1); // Period
-        #else
-          float A = fabs(end.x - start.x); // [twice the] Amplitude
-          float P = fabs(end.y - start.y) / (objects << 1); // Period
-        #endif // NOZZLE_CLEAN_HORIZONTAL
+        float A = NOZZLE_CLEAN_HORIZONTAL ? nozzle_clean_height : nozzle_clean_length; // [twice the] Amplitude
+        float P = ( NOZZLE_CLEAN_HORIZONTAL ? nozzle_clean_length : nozzle_clean_height ) / (objects << 1); // Period
 
         // Don't allow impossible triangles
         if (A <= 0.0f || P <= 0.0f ) return;
@@ -116,26 +115,16 @@ class Nozzle {
 
         for (uint8_t j = 0; j < strokes; j++) {
           for (uint8_t i = 0; i < (objects << 1); i++) {
-            #if ENABLED(NOZZLE_CLEAN_HORIZONTAL)
-              float const x = start.x + i * P;
-              float const y = start.y + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
-            #else
-              float const x = start.x + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
-              float const y = start.y + i * P;
-            #endif // NOZZLE_CLEAN_HORIZONTAL
+            float const x = start.x + ( NOZZLE_CLEAN_HORIZONTAL ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
+            float const y = start.y + (!NOZZLE_CLEAN_HORIZONTAL ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
 
             do_blocking_move_to_xy(x, y);
             if (i == 0) do_blocking_move_to_z(start.z);
           }
 
           for (int i = (objects << 1); i > -1; i--) {
-            #if ENABLED(NOZZLE_CLEAN_HORIZONTAL)
-              float const x = start.x + i * P;
-              float const y = start.y + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
-            #else
-              float const x = start.x + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
-              float const y = start.y + i * P;
-            #endif // NOZZLE_CLEAN_HORIZONTAL
+            float const x = start.x + ( NOZZLE_CLEAN_HORIZONTAL ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
+            float const y = start.y + (!NOZZLE_CLEAN_HORIZONTAL ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
 
             do_blocking_move_to_xy(x, y);
           }
