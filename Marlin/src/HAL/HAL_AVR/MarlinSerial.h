@@ -32,7 +32,7 @@
 #ifndef MarlinSerial_h
 #define MarlinSerial_h
 
-#include "MarlinConfig.h"
+#include "../../../MarlinConfig.h"
 
 #ifndef SERIAL_PORT
   #define SERIAL_PORT 0

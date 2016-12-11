@@ -45,6 +45,18 @@
 // Defines
 // --------------------------------------------------------------------------
 
+#if SERIAL_PORT == -1
+  #define MYSERIAL SerialUSB
+#elif SERIAL_PORT == 0
+  #define MYSERIAL Serial
+#elif SERIAL_PORT == 1
+  #define MYSERIAL Serial1
+#elif SERIAL_PORT == 2
+  #define MYSERIAL Serial2
+#elif SERIAL_PORT == 3
+  #define MYSERIAL Serial3
+#endif
+
 #define _BV(bit) 	(1 << (bit))
 
 #ifndef analogInputToDigitalPin
