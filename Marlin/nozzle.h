@@ -92,8 +92,8 @@ class Nozzle {
       __attribute__((unused)) uint8_t const &objects
     ) __attribute__((optimize ("Os"))) {
       #if ENABLED(NOZZLE_CLEAN_FEATURE)
-        float A = fabs(end.y - start.y); // [twice the] Amplitude
-        float P = fabs(end.x - start.x) / (objects << 1); // Period
+        float A = FABS(end.y - start.y); // [twice the] Amplitude
+        float P = FABS(end.x - start.x) / (objects << 1); // Period
 
         // Don't allow impossible triangles
         if (A <= 0.0f || P <= 0.0f ) return;
@@ -111,7 +111,7 @@ class Nozzle {
         for (uint8_t j = 0; j < strokes; j++) {
           for (uint8_t i = 0; i < (objects << 1); i++) {
             float const x = start.x + i * P;
-            float const y = start.y + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
+            float const y = start.y + (A/P) * (P - FABS(FMOD((i*P), (2*P)) - P));
 
             do_blocking_move_to_xy(x, y);
             if (i == 0) do_blocking_move_to_z(start.z);
@@ -119,7 +119,7 @@ class Nozzle {
 
           for (int i = (objects << 1); i > -1; i--) {
             float const x = start.x + i * P;
-            float const y = start.y + (A/P) * (P - fabs(fmod((i*P), (2*P)) - P));
+            float const y = start.y + (A/P) * (P - FABS(fmod((i*P), (2*P)) - P));
 
             do_blocking_move_to_xy(x, y);
           }
