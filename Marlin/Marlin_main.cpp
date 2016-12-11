@@ -91,6 +91,11 @@
  *        Use P to run other files as sub-programs: "M32 P !filename#"
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
+ * M35  - Turn on dryer fan
+ * M36  - Turn off dryer fan
+ * M37  - A(bool) turn on/off the manual extruder Adjust
+ *        S(bool) turn on/off Showing the manual extruder multiplier value
+ *        R##.# set the value of the Range (in percent) of extruder multiplier
  * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted.
  * M43  - Monitor pins & report changes - report active pins
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
@@ -285,6 +290,16 @@
 
 #if ENABLED(SDSUPPORT)
   CardReader card;
+#endif
+
+#if ENABLED(E_ADJUST_MANUALLY)
+  bool e_adjust_active = true, 
+      e_adjust_show = true;
+  float e_adjust_multiplier = 1.000,
+      e_adjust_range = DEFAULT_E_ADJUST_RANGE,
+      e_adjust_slope = e_adjust_range / 51200.0,
+      e_adjust_intercept = 1.0 - e_adjust_slope * 512.0;
+  unsigned long next_e_adjust_show = millis() + DEFAULT_SHOW_INTERVAL;
 #endif
 
 #if ENABLED(EXPERIMENTAL_I2CBUS)
@@ -4810,6 +4825,65 @@ inline void gcode_M31() {
 
 #endif // SDSUPPORT
 
+#ifdef PISTON_EXTRUDER
+  inline void gcode_M35() { //turn on dryer fan
+    WRITE(DRYER_FAN_PIN, 1);
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLN("Dryer fan ON");
+  }  
+  inline void gcode_M36() { //turn off dryer fan
+    WRITE(DRYER_FAN_PIN, 0);
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLN("Dryer fan port OFF");
+  }
+  #if ENABLED(E_ADJUST_MANUALLY)
+    inline void gcode_M37() { 
+      if (code_seen('A')) {
+        e_adjust_active = code_value_bool();
+        if (e_adjust_active){
+          SERIAL_PROTOCOLPGM("manual extruder adjust is ON");        
+          SERIAL_EOL;
+        }
+        else{
+          e_adjust_multiplier = 1.0;
+          SERIAL_PROTOCOLPGM("manual extruder adjust is OFF and ");        
+          SERIAL_PROTOCOLPGM("extruder multiplier is: ");
+          SERIAL_PROTOCOL_F(e_adjust_multiplier, 3);
+          SERIAL_EOL;
+        }
+      }
+      if (code_seen('S')) {
+        e_adjust_show = code_value_bool();
+        if (e_adjust_show){
+          SERIAL_PROTOCOLPGM("show extruder multplier is ON");
+          SERIAL_EOL;
+        }
+        else{
+          SERIAL_PROTOCOLPGM("show extruder multplier is OFF");
+          SERIAL_EOL;
+        }
+      }
+      if (code_seen('R')) {
+        if (e_adjust_range < 0.0 || e_adjust_range > 100.0){
+          SERIAL_PROTOCOLLNPGM("R out of range (0-100)");
+          SERIAL_EOL;
+        }
+        else{
+          float ad_reading = (e_adjust_multiplier - e_adjust_intercept) / e_adjust_range;
+          e_adjust_range = code_value_float();
+          e_adjust_slope = e_adjust_range / 51200.0;
+          e_adjust_intercept = 1.0 - e_adjust_slope * 512.0;
+          e_adjust_multiplier = e_adjust_slope * ad_reading + e_adjust_intercept;
+          SERIAL_PROTOCOLPGM("manual extruder adjust range is: ");
+          SERIAL_PROTOCOL_F(e_adjust_range, 2);
+          SERIAL_PROTOCOLPGM("%");
+          SERIAL_EOL;
+        }
+      }
+    }
+  #endif
+#endif
+
 /**
  * Sensitive pin test for M42, M226
  */
@@ -8166,6 +8240,20 @@ void process_next_command() {
 
       case 31: // M31: Report time since the start of SD print or last M109
         gcode_M31(); break;
+
+      #if ENABLED(PISTON_EXTRUDER)
+          case 35: // M35 turn on dryer fan
+            gcode_M35();
+          break;
+          case 36: // M36 turn off dryer fan
+            gcode_M36();
+          break;
+          #if ENABLED(E_ADJUST_MANUALLY)
+            case 37: // M37 turn on/off displaying & adjusting extrude; set range value
+              gcode_M37();
+            break;
+          #endif  
+      #endif
 
       case 42: // M42: Change pin state
         gcode_M42(); break;
