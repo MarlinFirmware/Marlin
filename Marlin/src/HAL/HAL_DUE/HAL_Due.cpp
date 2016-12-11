@@ -113,57 +113,6 @@ int freeMemory()
 }
 
 // --------------------------------------------------------------------------
-// eeprom
-// --------------------------------------------------------------------------
-
-static bool eeprom_initialised = false;
-static uint8_t eeprom_device_address = 0x50;
-
-static void eeprom_init(void)
-{
-	if (!eeprom_initialised)
-	{
-		Wire.begin();
-		eeprom_initialised = true;
-	}
-}
-
-void eeprom_write_byte(unsigned char *pos, unsigned char value)
-{
-	unsigned eeprom_address = (unsigned) pos;
-
-	eeprom_init();
-
-	Wire.beginTransmission(eeprom_device_address);
-	Wire.write((int)(eeprom_address >> 8));   // MSB
-	Wire.write((int)(eeprom_address & 0xFF)); // LSB
-    Wire.write(value);
-	Wire.endTransmission();
-
-	// wait for write cycle to complete
-	// this could be done more efficiently with "acknowledge polling"
-	delay(5);
-}
-
-
-unsigned char eeprom_read_byte(unsigned char *pos)
-{
-	byte data = 0xFF;
-	unsigned eeprom_address = (unsigned) pos;
-
-	eeprom_init ();
-
-	Wire.beginTransmission(eeprom_device_address);
-	Wire.write((int)(eeprom_address >> 8));   // MSB
-	Wire.write((int)(eeprom_address & 0xFF)); // LSB
-	Wire.endTransmission();
-	Wire.requestFrom(eeprom_device_address, (byte)1);
-	if (Wire.available())
-		data = Wire.read();
-	return data;
-}
-
-// --------------------------------------------------------------------------
 // Timers
 // --------------------------------------------------------------------------
 
