@@ -749,15 +749,15 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR("  M92 X", planner.axis_steps_per_mm[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", planner.axis_steps_per_mm[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", planner.axis_steps_per_mm[Z_AXIS]);
-    #if E_STEPPERS == 1
-      SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS]);
-    #endif
-    SERIAL_EOL;
-    #if ENABLED(DISTINCT_E_FACTORS)
+    #if E_STEPPERS > 1 && ENABLED(DISTINCT_E_FACTORS)
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
+        SERIAL_EOL;
         SERIAL_ECHOPAIR("  M92 T", (int)i);
         SERIAL_ECHOLNPAIR(" E", planner.axis_steps_per_mm[E_AXIS + i]);
       }
+      #else
+      SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS]);
+      SERIAL_EOL;
     #endif
 
     CONFIG_ECHO_START;
@@ -769,15 +769,15 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR("  M203 X", planner.max_feedrate_mm_s[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", planner.max_feedrate_mm_s[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", planner.max_feedrate_mm_s[Z_AXIS]);
-    #if E_STEPPERS == 1
-      SERIAL_ECHOPAIR(" E", planner.max_feedrate_mm_s[E_AXIS]);
-    #endif
-    SERIAL_EOL;
-    #if ENABLED(DISTINCT_E_FACTORS)
+    #if E_STEPPERS > 1 && ENABLED(DISTINCT_E_FACTORS)
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
-        SERIAL_ECHOPAIR("  M203 T", (int)i);
+        SERIAL_EOL;
+        SERIAL_ECHOPAIR("  M92 T", (int)i);
         SERIAL_ECHOLNPAIR(" E", planner.max_feedrate_mm_s[E_AXIS + i]);
       }
+      #else
+      SERIAL_ECHOPAIR(" E", planner.max_feedrate_mm_s[E_AXIS]);
+      SERIAL_EOL;
     #endif
 
     CONFIG_ECHO_START;
@@ -788,15 +788,15 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR("  M201 X", planner.max_acceleration_mm_per_s2[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", planner.max_acceleration_mm_per_s2[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", planner.max_acceleration_mm_per_s2[Z_AXIS]);
-    #if E_STEPPERS == 1
-      SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS]);
-    #endif
-    SERIAL_EOL;
-    #if ENABLED(DISTINCT_E_FACTORS)
+    #if E_STEPPERS > 1 && ENABLED(DISTINCT_E_FACTORS)
       for (uint8_t i = 0; i < E_STEPPERS; i++) {
-        SERIAL_ECHOPAIR("  M201 T", (int)i);
+        SERIAL_EOL;
+        SERIAL_ECHOPAIR("  M92 T", (int)i);
         SERIAL_ECHOLNPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS + i]);
       }
+      #else
+      SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS]);
+      SERIAL_EOL;
     #endif
 
     CONFIG_ECHO_START;
