@@ -23,12 +23,13 @@
 #ifndef __BUZZER_H__
 #define __BUZZER_H__
 
-#include "src/HAL/HAL.h"
 #include "types.h"
 #include "circularqueue.h"
 #include "temperature.h"
 
 #include "MarlinConfig.h"
+
+#include "src/HAL/HAL.h"
 
 #define TONE_QUEUE_LENGTH 4
 
