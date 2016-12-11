@@ -428,6 +428,10 @@ millis_t previous_cmd_ms = 0;
 static millis_t max_inactive_time = 0;
 static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
+#if ENABLED(HAVE_TMC2130) && ENABLED(CHECK_OVERTEMP)
+  long last_cOT = 0;
+#endif
+
 // Print Job Timer
 #if ENABLED(PRINTCOUNTER)
   PrintCounter print_job_timer = PrintCounter();
@@ -9517,44 +9521,58 @@ void disable_all_steppers() {
 }
 
 #if ENABLED(CHECK_OVERTEMP) && ENABLED(HAVE_TMC2130)
-  // Over Temperature Pre-Warn macro. Check if 
+  // Over Temperature Pre-Warn macro.
   #define OTPWMACRO(AX) { \
     if (stepper##AX.checkOT()) { \
-      SERIAL_PROTOCOLLNPGM("AX## stepper temperature prewarn triggered!"); \
-      kill(PSTR(MSG_KILLED)); \
+      SERIAL_ECHO("X"); \
+      SERIAL_ECHOLN(" stepper temperature prewarn triggered!"); \
     } \
   }
+  //kill(PSTR(MSG_KILLED)); 
   void checkOverTemp() {
-    #if ENABLED(X_IS_TMC2130)
-      OTPWMACRO(X);
-    #endif
-    #if ENABLED(Y_IS_TMC2130)
-      OTPWMACRO(Y);
-    #endif
-    #if ENABLED(Z_IS_TMC2130)
-      OTPWMACRO(Z);
-    #endif
-    #if ENABLED(X2_IS_TMC2130)
-      OTPWMACRO(X2);
-    #endif
-    #if ENABLED(Y2_IS_TMC2130)
-      OTPWMACRO(Y2);
-    #endif
-    #if ENABLED(Z2_IS_TMC2130)
-      OTPWMACRO(Z2);
-    #endif
-    #if ENABLED(E0_IS_TMC2130)
-      OTPWMACRO(E0);
-    #endif
-    #if ENABLED(E1_IS_TMC2130)
-      OTPWMACRO(E1);
-    #endif
-    #if ENABLED(E2_IS_TMC2130)
-      OTPWMACRO(E2);
-    #endif
-    #if ENABLED(E3_IS_TMC2130)
-      OTPWMACRO(E3);
-    #endif
+    long _ms = millis();
+    if (_ms - last_cOT > 2000) {
+      uint32_t response = stepperX.DRVSTATUS();
+      MYSERIAL.print("Response: 0x");
+      MYSERIAL.println(response, BIN);
+      if (response & 1UL<<26) {
+        SERIAL_ECHOLN("DB1");
+      } else {
+        SERIAL_ECHOLN("DB2");
+      }
+      last_cOT = _ms;
+ /*     #if ENABLED(X_IS_TMC2130)
+        OTPWMACRO(X);
+      #endif
+      #if ENABLED(Y_IS_TMC2130)
+        OTPWMACRO(Y);
+      #endif
+      #if ENABLED(Z_IS_TMC2130)
+        OTPWMACRO(Z);
+      #endif
+      #if ENABLED(X2_IS_TMC2130)
+        OTPWMACRO(X2);
+      #endif
+      #if ENABLED(Y2_IS_TMC2130)
+        OTPWMACRO(Y2);
+      #endif
+      #if ENABLED(Z2_IS_TMC2130)
+        OTPWMACRO(Z2);
+      #endif
+      #if ENABLED(E0_IS_TMC2130)
+        OTPWMACRO(E0);
+      #endif
+      #if ENABLED(E1_IS_TMC2130)
+        OTPWMACRO(E1);
+      #endif
+      #if ENABLED(E2_IS_TMC2130)
+        OTPWMACRO(E2);
+      #endif
+      #if ENABLED(E3_IS_TMC2130)
+        OTPWMACRO(E3);
+      #endif
+*/
+    }
   }
 
 #endif
