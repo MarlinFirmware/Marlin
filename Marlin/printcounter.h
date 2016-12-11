@@ -26,9 +26,6 @@
 #include "macros.h"
 #include "language.h"
 #include "stopwatch.h"
-#ifdef ARDUINO_ARCH_AVR
-#include <avr/eeprom.h>
-#endif
 
 // Print debug messages with M111 S2
 //#define DEBUG_PRINTCOUNTER
@@ -52,8 +49,12 @@ class PrintCounter: public Stopwatch {
      * @brief EEPROM address
      * @details Defines the start offset address where the data is stored.
      */
-    const uint16_t address = 0x32;
-
+    #if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM)
+      // round up address to next page boundary (assuming 32 byte pages)
+      const uint32_t address = 0x40;
+    #else
+      const uint16_t address = 0x32;
+    #endif
     /**
      * @brief Interval in seconds between counter updates
      * @details This const value defines what will be the time between each

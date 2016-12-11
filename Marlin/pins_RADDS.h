@@ -112,6 +112,8 @@
 #define SDSS                4
 #define PS_ON_PIN          40
 
+#define I2C_EEPROM
+
 //
 // LCD / Controller
 //

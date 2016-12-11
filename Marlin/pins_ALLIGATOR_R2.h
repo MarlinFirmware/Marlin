@@ -104,6 +104,7 @@
 #define DAC1_SYNC              6 // PC24
 
 // 64K SPI EEPROM
+#define SPI_EEPROM
 #define SPI_CHAN_EEPROM1       2
 #define SPI_EEPROM1_CS        25 // PD0
 
