@@ -73,6 +73,10 @@
   #define strncpy_P(dest, src, num) strncpy((dest), (src), (num))
 #endif
 
+// Fix bug in pgm_read_ptr
+#undef pgm_read_ptr
+#define pgm_read_ptr(addr) (*(addr))
+
 // --------------------------------------------------------------------------
 // Types
 // --------------------------------------------------------------------------
