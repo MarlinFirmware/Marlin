@@ -2177,6 +2177,11 @@ static void clean_up_after_endstop_or_probe_move() {
 
     float old_feedrate_mm_s = feedrate_mm_s;
 
+    #if ENABLED(DELTA)
+      if (current_position[Z_AXIS] > delta_clip_start_height)
+        do_blocking_move_to_z(delta_clip_start_height);
+    #endif
+
     // Ensure a minimum height before moving the probe
     do_probe_raise(Z_CLEARANCE_BETWEEN_PROBES);
 
