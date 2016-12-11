@@ -29,8 +29,10 @@
  * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
  */
 
-#include "Marlin.h"
-#include "stepper.h"
+#include "../../../Marlin.h"
+#if ENABLED(EMERGENCY_PARSER)
+  #include "../../../stepper.h"
+#endif
 
 #include "MarlinSerial.h"
 
