@@ -761,7 +761,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     float esteps_float = de * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01;
   #endif
 
-  int32_t esteps = abs(esteps_float) + 0.5;
+  const int32_t esteps = abs(esteps_float) + 0.5;
 
   // Calculate the buffer head after we push this byte
   int8_t next_buffer_head = next_block_index(block_buffer_head);
