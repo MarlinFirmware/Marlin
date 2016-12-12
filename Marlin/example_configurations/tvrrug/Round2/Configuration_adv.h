@@ -507,36 +507,6 @@
   #define BABYSTEP_MULTIPLICATOR 1 //faster movements
 #endif
 
-//
-// Ensure Smooth Moves
-//
-// Enable this option to prevent the machine from stuttering when printing multiple short segments.
-// This feature uses two strategies to eliminate stuttering:
-//
-// 1. During short segments a Graphical LCD update may take so much time that the planner buffer gets
-//    completely drained. When this happens pauses are introduced between short segments, and print moves
-//    will become jerky until a longer segment provides enough time for the buffer to be filled again.
-//    This jerkiness negatively affects print quality. The ENSURE_SMOOTH_MOVES option addresses the issue
-//    by pausing the LCD until there's enough time to safely update.
-//
-//    NOTE: This will cause the Info Screen to lag and controller buttons may become unresponsive.
-//          Enable ALWAYS_ALLOW_MENU to keep the controller responsive.
-//
-// 2. No block is allowed to take less time than MIN_BLOCK_TIME. That's the time it takes in the main
-//    loop to add a new block to the buffer, check temperatures, etc., including all blocked time due to
-//    interrupts (without LCD update). By enforcing a minimum time-per-move, the buffer is prevented from
-//    draining.
-//
-//#define ENSURE_SMOOTH_MOVES
-#if ENABLED(ENSURE_SMOOTH_MOVES)
-  //#define ALWAYS_ALLOW_MENU      // If enabled, the menu will always be responsive.
-                                   // WARNING: Menu navigation during short moves may cause stuttering!
-  #define LCD_UPDATE_THRESHOLD 135 // (ms) Minimum duration for the current segment to allow an LCD update.
-                                   // Default value is good for graphical LCDs (e.g., REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER).
-                                   // You may try to lower this value until you printer starts stuttering again as if ENSURE_SMOOTH_MOVES is disabled.
-  #define MIN_BLOCK_TIME 6         // (ms) Minimum duration of a single block. You shouldn't need to modify this.
-#endif
-
 // @section extruder
 
 // extruder advance constant (s2/mm3)
