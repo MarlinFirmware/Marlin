@@ -91,8 +91,9 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
-  uint8_t Stepper::old_OCR0A = 0;
-  volatile uint8_t Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
+  uint16_t Stepper::nextMainISRrun = 0;
+  uint16_t Stepper::nextAdvanceISRrun = 65535;
+  uint16_t Stepper::eISR_Rate = 65535;
 
   #if ENABLED(LIN_ADVANCE)
     volatile int Stepper::e_steps[E_STEPPERS];
@@ -328,16 +329,63 @@ void Stepper::set_directions() {
  *  2000     1 KHz - sleep rate
  *  4000   500  Hz - init rate
  */
-ISR(TIMER1_COMPA_vect) { Stepper::isr(); }
+ISR(TIMER1_COMPA_vect) {
+  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+    Stepper::ISRhandler();
+  #else
+    Stepper::isr();
+  #endif
+  }
+
+#if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+  void Stepper::ISRhandler() {
+    //Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
+    CBI(TIMSK0, OCIE0B); //Temperature ISR
+    DISABLE_STEPPER_DRIVER_INTERRUPT();
+    sei();
+  
+    if (!nextMainISRrun) {
+      isr();
+    }
+    if (!nextAdvanceISRrun) {
+      advance_isr();
+    }
+  
+    if (nextAdvanceISRrun <= nextMainISRrun) {
+      OCR1A = nextAdvanceISRrun;
+      if (nextMainISRrun)
+        nextMainISRrun -= nextAdvanceISRrun;
+      nextAdvanceISRrun = 0;
+    }
+    else {
+      OCR1A = nextMainISRrun;
+      if (nextAdvanceISRrun && nextAdvanceISRrun != 65535)
+        nextAdvanceISRrun -= nextMainISRrun;
+      nextMainISRrun = 0;
+    }
+  
+    NOLESS(OCR1A, TCNT1 + 16);
+    //Restore original ISR settings
+    cli();
+    SBI(TIMSK0, OCIE0B);
+    ENABLE_STEPPER_DRIVER_INTERRUPT();
+  }
+#endif
 
 void Stepper::isr() {
-  //Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
   #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-    CBI(TIMSK0, OCIE0A); //estepper ISR
+    #define _NEXT_ISR(T) nextMainISRrun = T
+  #else
+    #define _NEXT_ISR(T) OCR1A = T
   #endif
-  CBI(TIMSK0, OCIE0B); //Temperature ISR
-  DISABLE_STEPPER_DRIVER_INTERRUPT();
-  sei();
+  #define _ENABLE_ISRs() cli(); SBI(TIMSK0, OCIE0B); ENABLE_STEPPER_DRIVER_INTERRUPT()
+
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    //Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
+    CBI(TIMSK0, OCIE0B); //Temperature ISR
+    DISABLE_STEPPER_DRIVER_INTERRUPT();
+    sei();
+  #endif
 
   if (cleaning_buffer_counter) {
     --cleaning_buffer_counter;
@@ -346,13 +394,8 @@ void Stepper::isr() {
     #ifdef SD_FINISHED_RELEASECOMMAND
       if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
-    OCR1A = 200; // Run at max speed - 10 KHz
-    //re-enable ISRs
-    #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      SBI(TIMSK0, OCIE0A);
-    #endif
-    SBI(TIMSK0, OCIE0B);
-    ENABLE_STEPPER_DRIVER_INTERRUPT();
+    _NEXT_ISR(200); // Run at max speed - 10 KHz
+    _ENABLE_ISRs(); // re-enable ISRs
     return;
   }
 
@@ -381,12 +424,8 @@ void Stepper::isr() {
       #if ENABLED(Z_LATE_ENABLE)
         if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
-          OCR1A = 2000; // Run at slow speed - 1 KHz
-          #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-            SBI(TIMSK0, OCIE0A);
-          #endif
-          SBI(TIMSK0, OCIE0B);
-          ENABLE_STEPPER_DRIVER_INTERRUPT();
+          _NEXT_ISR(2000); // Run at slow speed - 1 KHz
+          _ENABLE_ISRs(); // re-enable ISRs
           return;
         }
       #endif
@@ -396,12 +435,8 @@ void Stepper::isr() {
       // #endif
     }
     else {
-      OCR1A = 2000; // Run at slow speed - 1 KHz
-      #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-        SBI(TIMSK0, OCIE0A);
-      #endif
-      SBI(TIMSK0, OCIE0B);
-      ENABLE_STEPPER_DRIVER_INTERRUPT();
+      _NEXT_ISR(2000); // Run at slow speed - 1 KHz
+      _ENABLE_ISRs(); // re-enable ISRs
       return;
     }
   }
@@ -586,7 +621,7 @@ void Stepper::isr() {
 
   #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
     // If we have esteps to execute, fire the next advance_isr "now"
-    if (e_steps[TOOL_E_INDEX]) OCR0A = TCNT0 + 2;
+    if (e_steps[TOOL_E_INDEX]) nextAdvanceISRrun = 0;
   #endif
 
   // Calculate new timer value
@@ -600,7 +635,7 @@ void Stepper::isr() {
 
     // step_rate to timer interval
     uint16_t timer = calc_timer(acc_step_rate);
-    OCR1A = timer;
+    _NEXT_ISR(timer);
     acceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -637,7 +672,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]); //>> 3 is divide by 8. Reason: Timer 1 runs at 16/8=2MHz, Timer 0 at 16/64=0.25MHz. ==> 2/0.25=8.
+      eISR_Rate = !e_steps[TOOL_E_INDEX] ? 65535 : timer * step_loops / abs(e_steps[TOOL_E_INDEX]);
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
@@ -653,7 +688,7 @@ void Stepper::isr() {
 
     // step_rate to timer interval
     uint16_t timer = calc_timer(step_rate);
-    OCR1A = timer;
+    _NEXT_ISR(timer);
     deceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -688,7 +723,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = !e_steps[TOOL_E_INDEX] ? 65535 : timer * step_loops / abs(e_steps[TOOL_E_INDEX]);
     #endif
   }
   else {
@@ -698,40 +733,37 @@ void Stepper::isr() {
       if (current_block->use_advance_lead)
         current_estep_rate[TOOL_E_INDEX] = final_estep_rate;
 
-      eISR_Rate = (OCR1A_nominal >> 3) * step_loops_nominal / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = !e_steps[TOOL_E_INDEX] ? 65535 : OCR1A_nominal * step_loops_nominal / abs(e_steps[TOOL_E_INDEX]);
 
     #endif
 
-    OCR1A = OCR1A_nominal;
+    _NEXT_ISR(OCR1A_nominal);
     // ensure we're running at the correct step rate, even if we just came off an acceleration
     step_loops = step_loops_nominal;
   }
 
-  NOLESS(OCR1A, TCNT1 + 16);
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    NOLESS(OCR1A, TCNT1 + 16);
+  #endif
 
   // If current block is finished, reset pointer
   if (all_steps_done) {
     current_block = NULL;
     planner.discard_current_block();
   }
-  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-    SBI(TIMSK0, OCIE0A);
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    _ENABLE_ISRs(); // re-enable ISRs
   #endif
-  SBI(TIMSK0, OCIE0B);
-  ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
   // Timer interrupt for E. e_steps is set in the main routine;
-  // Timer 0 is shared with millies
-  ISR(TIMER0_COMPA_vect) { Stepper::advance_isr(); }
 
   void Stepper::advance_isr() {
-
-    old_OCR0A += eISR_Rate;
-    OCR0A = old_OCR0A;
-
+    
+    nextAdvanceISRrun = eISR_Rate;
+    
     #define SET_E_STEP_DIR(INDEX) \
       if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
 
@@ -980,12 +1012,6 @@ void Stepper::init() {
         current_adv_steps[i] = 0;
       #endif
     }
-
-    #if defined(TCCR0A) && defined(WGM01)
-      CBI(TCCR0A, WGM01);
-      CBI(TCCR0A, WGM00);
-    #endif
-    SBI(TIMSK0, OCIE0A);
 
   #endif // ADVANCE or LIN_ADVANCE
 

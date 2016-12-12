@@ -105,8 +105,9 @@ class Stepper {
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      static uint8_t old_OCR0A;
-      static volatile uint8_t eISR_Rate;
+      static uint16_t nextMainISRrun;
+      static uint16_t nextAdvanceISRrun;
+      static uint16_t eISR_Rate;
       #if ENABLED(LIN_ADVANCE)
         static volatile int e_steps[E_STEPPERS];
         static int final_estep_rate;
@@ -176,6 +177,7 @@ class Stepper {
     static void isr();
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+      static void ISRhandler();
       static void advance_isr();
     #endif
 
