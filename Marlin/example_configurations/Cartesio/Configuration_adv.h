@@ -547,14 +547,7 @@
  *
  * Assumption: advance = k * (delta velocity)
  * K=0 means advance disabled.
- * To get a rough start value for calibration, measure your "free filament length"
- * between the hobbed bolt and the nozzle (in cm). Use the formula below that fits
- * your setup, where L is the "free filament length":
- *
- * Filament diameter           |   1.75mm  |    3.0mm   |
- * ----------------------------|-----------|------------|
- * Stiff filament (PLA)        | K=47*L/10 | K=139*L/10 |
- * Softer filament (ABS, nGen) | K=88*L/10 | K=260*L/10 |
+ * See Marlin documentation for calibration instructions.
  */
 //#define LIN_ADVANCE
 
