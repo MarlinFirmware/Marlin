@@ -749,7 +749,7 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR("  M92 X", planner.axis_steps_per_mm[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", planner.axis_steps_per_mm[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", planner.axis_steps_per_mm[Z_AXIS]);
-    #if E_STEPPERS == 1
+    #if DISABLED(DISTINCT_E_FACTORS)
       SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS]);
     #endif
     SERIAL_EOL;
@@ -769,7 +769,7 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR("  M203 X", planner.max_feedrate_mm_s[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", planner.max_feedrate_mm_s[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", planner.max_feedrate_mm_s[Z_AXIS]);
-    #if E_STEPPERS == 1
+    #if DISABLED(DISTINCT_E_FACTORS)
       SERIAL_ECHOPAIR(" E", planner.max_feedrate_mm_s[E_AXIS]);
     #endif
     SERIAL_EOL;
@@ -788,7 +788,7 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR("  M201 X", planner.max_acceleration_mm_per_s2[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", planner.max_acceleration_mm_per_s2[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", planner.max_acceleration_mm_per_s2[Z_AXIS]);
-    #if E_STEPPERS == 1
+    #if DISABLED(DISTINCT_E_FACTORS)
       SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS]);
     #endif
     SERIAL_EOL;
