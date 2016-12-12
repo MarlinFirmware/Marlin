@@ -33,6 +33,8 @@
 #define MAPPER_C2C3
 #define DISPLAY_CHARSET_ISO10646_1
 
+#define THIS_LANGUAGES_SPECIAL_SYMBOLS      _UxGT("ÄäÖöÜüß²³")
+
 #define WELCOME_MSG                         MACHINE_NAME _UxGT(" bereit")
 #define MSG_SD_INSERTED                     _UxGT("SD-Karte erkannt")
 #define MSG_SD_REMOVED                      _UxGT("SD-Karte entfernt")
