@@ -135,7 +135,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "HEPHESTOS"
+#define CUSTOM_MACHINE_NAME _UxGT("HEPHESTOS")
 
 // Added for BQ
 #define SOURCE_CODE_URL "http://www.bq.com/gb/downloads-prusa-i3-hephestos.html"

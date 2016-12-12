@@ -135,7 +135,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "WITBOX"
+#define CUSTOM_MACHINE_NAME _UxGT("WITBOX")
 
 // Added for BQ
 #define SOURCE_CODE_URL "http://www.bq.com/gb/downloads-witbox.html"
