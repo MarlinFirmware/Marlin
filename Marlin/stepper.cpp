@@ -1098,13 +1098,13 @@ void Stepper::finish_and_disable() {
 
 void Stepper::quick_stop() {
   cleaning_buffer_counter = 5000;
-  #if ENABLED(ENSURE_SMOOTH_MOVES)
-    planner.clear_block_buffer_runtime();
-  #endif
   DISABLE_STEPPER_DRIVER_INTERRUPT();
   while (planner.blocks_queued()) planner.discard_current_block();
   current_block = NULL;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
+  #if ENABLED(ULTRA_LCD)
+    planner.clear_block_buffer_runtime();
+  #endif
 }
 
 void Stepper::endstop_triggered(AxisEnum axis) {
