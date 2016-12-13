@@ -89,7 +89,7 @@
 //
 
 //#define PISTON_EXTRUDER //used to set parameters for the Piston Extruder
-#if ENABLED(PISTON_EXTRUDER)
+//#if ENABLED(PISTON_EXTRUDER)
   #define E_ADJUST_MANUALLY //variable resistor has one end to ground, other to +5 volts. & wiper to E_ADJUST_PIN
   #if ENABLED(E_ADJUST_MANUALLY)
     #define DEFAULT_E_ADJUST_RANGE 10.0 //% above and below a multiplier of 1.0
