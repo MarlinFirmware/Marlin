@@ -2475,7 +2475,7 @@ void kill_screen(const char* lcd_msg) {
   menu_edit_type(float, float5, ftostr5rj, 0.01);
   menu_edit_type(float, float51, ftostr51sign, 10.0);
   menu_edit_type(float, float52, ftostr52sign, 100.0);
-  menu_edit_type(float, float62, ftostr62sign, 100.0);
+  menu_edit_type(float, float62, ftostr62rj, 100.0);
   menu_edit_type(unsigned long, long5, ftostr5rj, 0.01);
 
   /**
