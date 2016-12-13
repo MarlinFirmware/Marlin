@@ -4825,14 +4825,14 @@ inline void gcode_M31() {
 
 #endif // SDSUPPORT
 
-#ifdef PISTON_EXTRUDER
+#if ENABLED(PISTON_EXTRUDER)
   inline void gcode_M35() { //turn on dryer fan
-    WRITE(DRYER_FAN_PIN, 1);
+    WRITE(DRYER_FAN_PIN, HIGH);
     SERIAL_ECHO_START;
     SERIAL_ECHOLN("Dryer fan ON");
   }  
   inline void gcode_M36() { //turn off dryer fan
-    WRITE(DRYER_FAN_PIN, 0);
+    WRITE(DRYER_FAN_PIN, LOW);
     SERIAL_ECHO_START;
     SERIAL_ECHOLN("Dryer fan port OFF");
   }

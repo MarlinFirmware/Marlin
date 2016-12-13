@@ -1812,21 +1812,19 @@ void Temperature::isr() {
       lcd_buttons_update();
       temp_state = MeasureTemp_3;
       break;
-    #if DISABLED(E_ADJUST_MANUALLY)
       case MeasureTemp_3:
         #if HAS_TEMP_3
           raw_temp_value[3] += ADC;
         #endif
-        temp_state = Prepare_FILWIDTH;
-        break;
-    #else
-      case MeasureTemp_3:
-        #if HAS_TEMP_3
-          raw_temp_value[3] += ADC;
-        #endif
-        temp_state = Prepare_e_adjust_reading;
-        break;
-
+      temp_state =
+          #if ENABLED(E_ADJUST_MANUALLY)
+            Prepare_e_adjust_reading
+          #else
+            Prepare_FILWIDTH
+          #endif       
+           break;
+           
+    #if ENABLED(E_ADJUST_MANUALLY)
       case Prepare_e_adjust_reading:
         START_ADC(E_ADJUST_PIN);
         temp_state = Measure_e_adjust_reading;
