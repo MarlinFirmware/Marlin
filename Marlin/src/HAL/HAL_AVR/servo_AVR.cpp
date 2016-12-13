@@ -20,6 +20,7 @@
  *
  */
 
+
 /**
  * servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
  * Copyright (c) 2009 Michael Margolis.  All right reserved.
@@ -50,36 +51,21 @@
  * detach()              - Stop an attached servo from pulsing its i/o pin.
  *
  */
-#include "MarlinConfig.h"
+
+#if defined(ARDUINO_ARCH_AVR)
+
+#include "../../../MarlinConfig.h"
 
 #if HAS_SERVOS
 
 #include <avr/interrupt.h>
 #include <Arduino.h>
 
-#include "servo.h"
+#include "../servo.h"
+#include "../servo_private.h"
 
-#define usToTicks(_us)    (( clockCyclesPerMicrosecond()* _us) / 8)     // converts microseconds to tick (assumes prescale of 8)  // 12 Aug 2009
-#define ticksToUs(_ticks) (( (unsigned)_ticks * 8)/ clockCyclesPerMicrosecond() ) // converts from ticks back to microseconds
-
-#define TRIM_DURATION       2                               // compensation ticks to trim adjust for digitalWrite delays // 12 August 2009
-
-//#define NBR_TIMERS        ((MAX_SERVOS) / (SERVOS_PER_TIMER))
-
-static ServoInfo_t servo_info[MAX_SERVOS];                  // static array of servo info structures
 static volatile int8_t Channel[_Nbr_16timers ];             // counter for the servo being pulsed for each timer (or -1 if refresh interval)
 
-uint8_t ServoCount = 0;                                     // the total number of attached servos
-
-
-// convenience macros
-#define SERVO_INDEX_TO_TIMER(_servo_nbr) ((timer16_Sequence_t)(_servo_nbr / (SERVOS_PER_TIMER))) // returns the timer controlling this servo
-#define SERVO_INDEX_TO_CHANNEL(_servo_nbr) (_servo_nbr % (SERVOS_PER_TIMER))       // returns the index of the servo on this timer
-#define SERVO_INDEX(_timer,_channel)  ((_timer*(SERVOS_PER_TIMER)) + _channel)     // macro to access servo index by timer and channel
-#define SERVO(_timer,_channel)  (servo_info[SERVO_INDEX(_timer,_channel)])       // macro to access servo class by timer and channel
-
-#define SERVO_MIN() (MIN_PULSE_WIDTH - this->min * 4)  // minimum value in uS for this servo
-#define SERVO_MAX() (MAX_PULSE_WIDTH - this->max * 4)  // maximum value in uS for this servo
 
 /************ static functions common to all instances ***********************/
 
@@ -138,8 +124,9 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 
 #endif //!WIRING
 
+/****************** end of static functions ******************************/
 
-static void initISR(timer16_Sequence_t timer) {
+void initISR(timer16_Sequence_t timer) {
   #if ENABLED(_useTimer1)
     if (timer == _timer1) {
       TCCR1A = 0;             // normal counting mode
@@ -198,7 +185,7 @@ static void initISR(timer16_Sequence_t timer) {
   #endif
 }
 
-static void finISR(timer16_Sequence_t timer) {
+void finISR(timer16_Sequence_t timer) {
   // Disable use of the given timer
   #ifdef WIRING
     if (timer == _timer1) {
@@ -317,4 +304,6 @@ void Servo::move(int value) {
   }
 }
 
-#endif
+#endif // HAS_SERVOS
+
+#endif // defined(ARDUINO_ARCH_AVR)
