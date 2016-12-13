@@ -792,29 +792,25 @@ static void lcd_implementation_status_screen() {
 
 #if ENABLED(ULTIPANEL)
 
-  #if ENABLED(LCD_INFO_MENU) || ENABLED(FILAMENT_CHANGE_FEATURE)
-
-    static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
-      UNUSED(invert);
-      char c;
-      int8_t n = LCD_WIDTH;
-      lcd.setCursor(0, row);
-      if (center && !valstr) {
-        int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
-        while (--pad >= 0) { lcd.print(' '); n--; }
-      }
-      while (n > 0 && (c = pgm_read_byte(pstr))) {
-        n -= charset_mapper(c);
-        pstr++;
-      }
-      if (valstr) while (n > 0 && (c = *valstr)) {
-        n -= charset_mapper(c);
-        valstr++;
-      }
-      while (n-- > 0) lcd.print(' ');
+  static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
+    UNUSED(invert);
+    char c;
+    int8_t n = LCD_WIDTH;
+    lcd.setCursor(0, row);
+    if (center && !valstr) {
+      int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
+      while (--pad >= 0) { lcd.print(' '); n--; }
     }
-
-  #endif // LCD_INFO_MENU || FILAMENT_CHANGE_FEATURE
+    while (n > 0 && (c = pgm_read_byte(pstr))) {
+      n -= charset_mapper(c);
+      pstr++;
+    }
+    if (valstr) while (n > 0 && (c = *valstr)) {
+      n -= charset_mapper(c);
+      valstr++;
+    }
+    while (n-- > 0) lcd.print(' ');
+  }
 
   static void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
     char c;
