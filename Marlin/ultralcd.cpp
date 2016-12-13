@@ -390,7 +390,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   bool screen_changed;
 
   // LCD and menu clicks
-  bool lcd_clicked, wait_for_unclick, defer_return_to_status;
+  bool lcd_clicked, wait_for_unclick, defer_return_to_status, no_reentrance;
 
   // Variables used when editing values.
   const char* editLabel;
@@ -420,6 +420,27 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
         drawing_screen = false;
       #endif
     }
+  }
+
+  /**
+   * Synchronize safely while holding the current screen
+   * This blocks all further screen or stripe updates once called
+   */
+  inline void lcd_synchronize() {
+    lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_MOVING));
+    if (no_reentrance) return;
+    no_reentrance = true;
+    screenFunc_t old_screen = currentScreen;
+    lcd_goto_screen(lcd_synchronize);
+    stepper.synchronize();
+    no_reentrance = false;
+    lcd_goto_screen(old_screen);
+  }
+
+  inline void lcd_wait_for_homing() {
+    no_reentrance = true;
+    while (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) idle();
+    no_reentrance = true;
   }
 
   void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
@@ -1063,6 +1084,7 @@ void kill_screen(const char* lcd_msg) {
     // Note: During Manual Bed Leveling the homed Z position is MESH_HOME_SEARCH_Z
     // Z position will be restored with the final action, a G28
     inline void _mbl_goto_xy(float x, float y) {
+      if (no_reentrance) return;
       current_position[Z_AXIS] = LOGICAL_Z_POSITION(MESH_HOME_SEARCH_Z + Z_HOMING_HEIGHT);
       line_to_current(Z_AXIS);
       current_position[X_AXIS] = LOGICAL_X_POSITION(x);
@@ -1072,7 +1094,7 @@ void kill_screen(const char* lcd_msg) {
         current_position[Z_AXIS] = LOGICAL_Z_POSITION(MESH_HOME_SEARCH_Z);
         line_to_current(Z_AXIS);
       #endif
-      stepper.synchronize();
+      lcd_synchronize();
     }
 
     void _lcd_level_goto_next_point();
@@ -1093,6 +1115,8 @@ void kill_screen(const char* lcd_msg) {
      */
     void _lcd_level_bed_get_z() {
       ENCODER_DIRECTION_NORMAL();
+
+      if (no_reentrance) goto KeepDrawing;
 
       // Encoder wheel adjusts the Z position
       if (encoderPosition) {
@@ -1121,7 +1145,7 @@ void kill_screen(const char* lcd_msg) {
 
             current_position[Z_AXIS] = MESH_HOME_SEARCH_Z + Z_HOMING_HEIGHT;
             line_to_current(Z_AXIS);
-            stepper.synchronize();
+            lcd_synchronize();
 
             mbl.set_has_mesh(true);
             enqueue_and_echo_commands_P(PSTR("G28"));
@@ -1141,6 +1165,7 @@ void kill_screen(const char* lcd_msg) {
         debounce_click = false;
       }
 
+KeepDrawing:
       // Update on first display, then only on updates to Z position
       // Show message above on clicks instead
       if (lcdDrawUpdate) {
@@ -1215,8 +1240,9 @@ void kill_screen(const char* lcd_msg) {
           LCDVIEW_CALL_NO_REDRAW
         #endif
       ;
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-        lcd_goto_screen(_lcd_level_bed_homing_done);
+      if (no_reentrance) return;
+      lcd_wait_for_homing();
+      lcd_goto_screen(_lcd_level_bed_homing_done);
     }
 
     /**

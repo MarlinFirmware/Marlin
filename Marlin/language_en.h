@@ -138,6 +138,9 @@
 #ifndef MSG_LEVEL_BED
   #define MSG_LEVEL_BED                       "Level bed"
 #endif
+#ifndef MSG_MOVING
+  #define MSG_MOVING                          "Moving..."
+#endif
 #ifndef MSG_MOVE_X
   #define MSG_MOVE_X                          "Move X"
 #endif
