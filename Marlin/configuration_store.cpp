@@ -47,9 +47,9 @@
  *  100  Version (char x4)
  *  104  EEPROM Checksum (uint16_t)
  *
- *  106  M92 XYZE  planner.axis_steps_per_mm (float x4)
- *  122  M203 XYZE planner.max_feedrate_mm_s (float x4)
- *  138  M201 XYZE planner.max_acceleration_mm_per_s2 (uint32_t x4)
+ *  106  M92 XYZE  planner.axis_steps_per_mm (float x4 ... x7)
+ *  122  M203 XYZE planner.max_feedrate_mm_s (float x4 ... x7)
+ *  138  M201 XYZE planner.max_acceleration_mm_per_s2 (uint32_t x4 ... x7)
  *  154  M204 P    planner.acceleration (float)
  *  158  M204 R    planner.retract_acceleration (float)
  *  162  M204 T    planner.travel_acceleration (float)
@@ -571,10 +571,10 @@ void Config_Postprocess() {
 void Config_ResetDefault() {
   const float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] = DEFAULT_MAX_FEEDRATE;
   const long tmp3[] = DEFAULT_MAX_ACCELERATION;
-  LOOP_XYZE(i) {
-    planner.axis_steps_per_mm[i] = tmp1[i];
-    planner.max_feedrate_mm_s[i] = tmp2[i];
-    planner.max_acceleration_mm_per_s2[i] = tmp3[i];
+  LOOP_XYZE_N(i) {
+    planner.axis_steps_per_mm[i]          = tmp1[i < COUNT(tmp1) ? i : COUNT(tmp1) - 1];
+    planner.max_feedrate_mm_s[i]          = tmp2[i < COUNT(tmp2) ? i : COUNT(tmp2) - 1];
+    planner.max_acceleration_mm_per_s2[i] = tmp3[i < COUNT(tmp3) ? i : COUNT(tmp3) - 1];
   }
 
   planner.acceleration = DEFAULT_ACCELERATION;
@@ -719,8 +719,16 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR("  M92 X", planner.axis_steps_per_mm[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", planner.axis_steps_per_mm[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", planner.axis_steps_per_mm[Z_AXIS]);
-    SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS]);
+    #if E_STEPPERS == 1
+      SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS]);
+    #endif
     SERIAL_EOL;
+    #if ENABLED(DISTINCT_E_FACTORS)
+      for (uint8_t i = 0; i < E_STEPPERS; i++) {
+        SERIAL_ECHOPAIR("  M92 T", (int)i);
+        SERIAL_ECHOLNPAIR(" E", planner.axis_steps_per_mm[E_AXIS + i]);
+      }
+    #endif
 
     CONFIG_ECHO_START;
 
@@ -731,8 +739,16 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR("  M203 X", planner.max_feedrate_mm_s[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", planner.max_feedrate_mm_s[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", planner.max_feedrate_mm_s[Z_AXIS]);
-    SERIAL_ECHOPAIR(" E", planner.max_feedrate_mm_s[E_AXIS]);
+    #if E_STEPPERS == 1
+      SERIAL_ECHOPAIR(" E", planner.max_feedrate_mm_s[E_AXIS]);
+    #endif
     SERIAL_EOL;
+    #if ENABLED(DISTINCT_E_FACTORS)
+      for (uint8_t i = 0; i < E_STEPPERS; i++) {
+        SERIAL_ECHOPAIR("  M203 T", (int)i);
+        SERIAL_ECHOLNPAIR(" E", planner.max_feedrate_mm_s[E_AXIS + i]);
+      }
+    #endif
 
     CONFIG_ECHO_START;
     if (!forReplay) {
@@ -742,8 +758,17 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR("  M201 X", planner.max_acceleration_mm_per_s2[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", planner.max_acceleration_mm_per_s2[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", planner.max_acceleration_mm_per_s2[Z_AXIS]);
-    SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS]);
+    #if E_STEPPERS == 1
+      SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS]);
+    #endif
     SERIAL_EOL;
+    #if ENABLED(DISTINCT_E_FACTORS)
+      for (uint8_t i = 0; i < E_STEPPERS; i++) {
+        SERIAL_ECHOPAIR("  M201 T", (int)i);
+        SERIAL_ECHOLNPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS + i]);
+      }
+    #endif
+
     CONFIG_ECHO_START;
     if (!forReplay) {
       SERIAL_ECHOLNPGM("Accelerations: P=printing, R=retract and T=travel");
@@ -786,10 +811,10 @@ void Config_ResetDefault() {
       }
       for (uint8_t e = 1; e < HOTENDS; e++) {
         SERIAL_ECHOPAIR("  M218 T", (int)e);
-        SERIAL_ECHOPAIR(" X", hotend_offset[X_AXIS]);
-        SERIAL_ECHOPAIR(" Y", hotend_offset[Y_AXIS]);
+        SERIAL_ECHOPAIR(" X", hotend_offset[X_AXIS][e]);
+        SERIAL_ECHOPAIR(" Y", hotend_offset[Y_AXIS][e]);
         #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
-          SERIAL_ECHOPAIR(" Z", hotend_offset[Z_AXIS]);
+          SERIAL_ECHOPAIR(" Z", hotend_offset[Z_AXIS][e]);
         #endif
         SERIAL_EOL;
       }

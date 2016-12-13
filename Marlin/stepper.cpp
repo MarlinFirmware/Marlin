@@ -91,8 +91,8 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
-  unsigned char Stepper::old_OCR0A = 0;
-  volatile unsigned char Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
+  uint8_t Stepper::old_OCR0A = 0;
+  volatile uint8_t Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
 
   #if ENABLED(LIN_ADVANCE)
     volatile int Stepper::e_steps[E_STEPPERS];
@@ -310,6 +310,10 @@ void Stepper::set_directions() {
   #endif // !ADVANCE && !LIN_ADVANCE
 }
 
+#if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+  extern volatile uint8_t e_hit;
+#endif
+
 /**
  * Stepper Driver Interrupt
  *
@@ -327,14 +331,28 @@ void Stepper::set_directions() {
 ISR(TIMER1_COMPA_vect) { Stepper::isr(); }
 
 void Stepper::isr() {
+  //Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
+  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+    CBI(TIMSK0, OCIE0A); //estepper ISR
+  #endif
+  CBI(TIMSK0, OCIE0B); //Temperature ISR
+  DISABLE_STEPPER_DRIVER_INTERRUPT();
+  sei();
+  
   if (cleaning_buffer_counter) {
+    --cleaning_buffer_counter;
     current_block = NULL;
     planner.discard_current_block();
     #ifdef SD_FINISHED_RELEASECOMMAND
-      if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+      if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
-    cleaning_buffer_counter--;
     OCR1A = 200; // Run at max speed - 10 KHz
+    //re-enable ISRs
+    #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+      SBI(TIMSK0, OCIE0A);
+    #endif
+    SBI(TIMSK0, OCIE0B);
+    ENABLE_STEPPER_DRIVER_INTERRUPT();
     return;
   }
 
@@ -343,7 +361,6 @@ void Stepper::isr() {
     // Anything in the buffer?
     current_block = planner.get_current_block();
     if (current_block) {
-      SBI(current_block->flag, BLOCK_BIT_BUSY);
       trapezoid_generator_reset();
 
       // Initialize Bresenham counters to 1/2 the ceiling
@@ -356,10 +373,20 @@ void Stepper::isr() {
 
       step_events_completed = 0;
 
+      #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+        e_hit = 2; // Needed for the case an endstop is already triggered before the new move begins.
+                   // No 'change' can be detected.
+      #endif
+
       #if ENABLED(Z_LATE_ENABLE)
         if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
           OCR1A = 2000; // Run at slow speed - 1 KHz
+          #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+            SBI(TIMSK0, OCIE0A);
+          #endif
+          SBI(TIMSK0, OCIE0B);
+          ENABLE_STEPPER_DRIVER_INTERRUPT();
           return;
         }
       #endif
@@ -370,24 +397,35 @@ void Stepper::isr() {
     }
     else {
       OCR1A = 2000; // Run at slow speed - 1 KHz
+      #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+        SBI(TIMSK0, OCIE0A);
+      #endif
+      SBI(TIMSK0, OCIE0B);
+      ENABLE_STEPPER_DRIVER_INTERRUPT();
       return;
     }
   }
 
   // Update endstops state, if enabled
-  if (endstops.enabled
+  if ((endstops.enabled
     #if HAS_BED_PROBE
       || endstops.z_probe_enabled
     #endif
-  ) endstops.update();
+    )
+    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+      && e_hit
+    #endif
+  ) {
+    endstops.update();
+
+    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+      e_hit--;
+    #endif
+  }
 
   // Take multiple steps per interrupt (For high speed moves)
   bool all_steps_done = false;
   for (int8_t i = 0; i < step_loops; i++) {
-    #ifndef USBCON
-      customizedSerial.checkRx(); // Check for serial chars.
-    #endif
-
     #if ENABLED(LIN_ADVANCE)
 
       counter_E += current_block->steps[E_AXIS];
@@ -552,7 +590,6 @@ void Stepper::isr() {
   #endif
 
   // Calculate new timer value
-  uint16_t timer, step_rate;
   if (step_events_completed <= (uint32_t)current_block->accelerate_until) {
 
     MultiU24X32toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
@@ -562,7 +599,7 @@ void Stepper::isr() {
     NOMORE(acc_step_rate, current_block->nominal_rate);
 
     // step_rate to timer interval
-    timer = calc_timer(acc_step_rate);
+    uint16_t timer = calc_timer(acc_step_rate);
     OCR1A = timer;
     acceleration_time += timer;
 
@@ -604,6 +641,7 @@ void Stepper::isr() {
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
+    uint16_t step_rate;
     MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
 
     if (step_rate < acc_step_rate) { // Still decelerating?
@@ -614,7 +652,7 @@ void Stepper::isr() {
       step_rate = current_block->final_rate;
 
     // step_rate to timer interval
-    timer = calc_timer(step_rate);
+    uint16_t timer = calc_timer(step_rate);
     OCR1A = timer;
     deceleration_time += timer;
 
@@ -676,6 +714,11 @@ void Stepper::isr() {
     current_block = NULL;
     planner.discard_current_block();
   }
+  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+    SBI(TIMSK0, OCIE0A);
+  #endif
+  SBI(TIMSK0, OCIE0B);
+  ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
@@ -773,6 +816,11 @@ void Stepper::init() {
   
   // Init TMC2130 Steppers
   #if ENABLED(HAVE_TMC2130)
+    tmc2130_init();
+  #endif
+
+  // Init TMC2130 Steppers
+  #if ENABLED(HAVE_TMC2130DRIVER)
     tmc2130_init();
   #endif
 
@@ -973,22 +1021,22 @@ void Stepper::set_position(const long &a, const long &b, const long &c, const lo
 
   CRITICAL_SECTION_START;
 
-  #if ENABLED(COREXY)
+  #if CORE_IS_XY
     // corexy positioning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
     count_position[A_AXIS] = a + b;
-    count_position[B_AXIS] = a - b;
+    count_position[B_AXIS] = CORESIGN(a - b);
     count_position[Z_AXIS] = c;
-  #elif ENABLED(COREXZ)
+  #elif CORE_IS_XZ
     // corexz planning
     count_position[A_AXIS] = a + c;
     count_position[Y_AXIS] = b;
-    count_position[C_AXIS] = a - c;
-  #elif ENABLED(COREYZ)
+    count_position[C_AXIS] = CORESIGN(a - c);
+  #elif CORE_IS_YZ
     // coreyz planning
     count_position[X_AXIS] = a;
     count_position[B_AXIS] = b + c;
-    count_position[C_AXIS] = b - c;
+    count_position[C_AXIS] = CORESIGN(b - c);
   #else
     // default non-h-bot planning
     count_position[X_AXIS] = a;
@@ -1028,16 +1076,17 @@ long Stepper::position(AxisEnum axis) {
  */
 float Stepper::get_axis_position_mm(AxisEnum axis) {
   float axis_steps;
-  #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
+  #if IS_CORE
     // Requesting one of the "core" axes?
     if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
       CRITICAL_SECTION_START;
-      long pos1 = count_position[CORE_AXIS_1],
-           pos2 = count_position[CORE_AXIS_2];
-      CRITICAL_SECTION_END;
       // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
       // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
-      axis_steps = (pos1 + ((axis == CORE_AXIS_1) ? pos2 : -pos2)) * 0.5f;
+      axis_steps = 0.5f * (
+        axis == CORE_AXIS_2 ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
+                            : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
+      );
+      CRITICAL_SECTION_END;
     }
     else
       axis_steps = position(axis);
@@ -1054,6 +1103,9 @@ void Stepper::finish_and_disable() {
 
 void Stepper::quick_stop() {
   cleaning_buffer_counter = 5000;
+  #if ENABLED(ENSURE_SMOOTH_MOVES)
+    planner.clear_block_buffer_runtime();
+  #endif
   DISABLE_STEPPER_DRIVER_INTERRUPT();
   while (planner.blocks_queued()) planner.discard_current_block();
   current_block = NULL;
@@ -1062,14 +1114,12 @@ void Stepper::quick_stop() {
 
 void Stepper::endstop_triggered(AxisEnum axis) {
 
-  #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
+  #if IS_CORE
 
-    float axis_pos = count_position[axis];
-    if (axis == CORE_AXIS_1)
-      axis_pos = (axis_pos + count_position[CORE_AXIS_2]) * 0.5;
-    else if (axis == CORE_AXIS_2)
-      axis_pos = (count_position[CORE_AXIS_1] - axis_pos) * 0.5;
-    endstops_trigsteps[axis] = axis_pos;
+    endstops_trigsteps[axis] = 0.5f * (
+      axis == CORE_AXIS_2 ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
+                          : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
+    );
 
   #else // !COREXY && !COREXZ && !COREYZ
 
@@ -1087,21 +1137,21 @@ void Stepper::report_positions() {
        zpos = count_position[Z_AXIS];
   CRITICAL_SECTION_END;
 
-  #if ENABLED(COREXY) || ENABLED(COREXZ) || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_XZ || IS_SCARA
     SERIAL_PROTOCOLPGM(MSG_COUNT_A);
   #else
     SERIAL_PROTOCOLPGM(MSG_COUNT_X);
   #endif
   SERIAL_PROTOCOL(xpos);
 
-  #if ENABLED(COREXY) || ENABLED(COREYZ) || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_YZ || IS_SCARA
     SERIAL_PROTOCOLPGM(" B:");
   #else
     SERIAL_PROTOCOLPGM(" Y:");
   #endif
   SERIAL_PROTOCOL(ypos);
 
-  #if ENABLED(COREXZ) || ENABLED(COREYZ)
+  #if CORE_IS_XZ || CORE_IS_YZ
     SERIAL_PROTOCOLPGM(" C:");
   #else
     SERIAL_PROTOCOLPGM(" Z:");

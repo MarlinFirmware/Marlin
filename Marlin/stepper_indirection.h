@@ -175,9 +175,9 @@
       #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
       #define X2_ENABLE_READ stepperX2.isEnabled()
     #else
-    #if ENABLED(HAVE_TMC2130) && ENABLED(X2_IS_TMC2130)
-      extern TMC2130Stepper stepperX2;
-    #endif
+      #if ENABLED(HAVE_TMC2130) && ENABLED(X2_IS_TMC2130)
+        extern TMC2130Stepper stepperX2;
+      #endif
       #define X2_ENABLE_INIT SET_OUTPUT(X2_ENABLE_PIN)
       #define X2_ENABLE_WRITE(STATE) WRITE(X2_ENABLE_PIN,STATE)
       #define X2_ENABLE_READ READ(X2_ENABLE_PIN)

@@ -78,6 +78,7 @@
 #define BOARD_MEGATRONICS_2     701  // Megatronics v2.0
 #define BOARD_MINITRONICS       702  // Minitronics v1.0/1.1
 #define BOARD_MEGATRONICS_3     703  // Megatronics v3.0
+#define BOARD_MEGATRONICS_31    704  // Megatronics v3.1
 #define BOARD_OMCA_A            90   // Alpha OMCA board
 #define BOARD_OMCA              91   // Final OMCA board
 #define BOARD_RAMBO             301  // Rambo
@@ -93,8 +94,6 @@
 #define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_BQ_ZUM_MEGA_3D    503  // bq ZUM Mega 3D
-
-#define BOARD_99                99   // This is in pins.h but...?
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 

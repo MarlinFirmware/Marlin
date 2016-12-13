@@ -188,7 +188,9 @@
 #define MSG_INFO_EXTRUDERS                  "Extrudery"
 #define MSG_INFO_BAUDRATE                   "Rychlost"
 #define MSG_INFO_PROTOCOL                   "Protokol"
-#if LCD_WIDTH > 19
+#define MSG_LIGHTS_ON                       "Osvetleni Zap"
+#define MSG_LIGHTS_OFF                      "Osvetleni Vyp"
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Pocet tisku"
   #define MSG_INFO_COMPLETED_PRINTS         "Dokonceno"
   #define MSG_INFO_PRINT_TIME               "Celkovy cas"
@@ -212,7 +214,9 @@
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CO DAL?"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Jeste vytlacit"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Obnovit tisk"
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Cekejte prosim"
   #define MSG_FILAMENT_CHANGE_INIT_2          "na zahajeni"
   #define MSG_FILAMENT_CHANGE_INIT_3          "vymeny filamentu"
@@ -232,6 +236,7 @@
   #define MSG_FILAMENT_CHANGE_RESUME_2        "na pokracovani"
   #define MSG_FILAMENT_CHANGE_RESUME_3        "tisku"
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Cekejte..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Vysouvani..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Vlozte, kliknete"

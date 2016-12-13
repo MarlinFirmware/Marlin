@@ -28,12 +28,6 @@
 #ifndef CONDITIONALS_POST_H
 #define CONDITIONALS_POST_H
 
-  #if ENABLED(EMERGENCY_PARSER)
-    #define EMERGENCY_PARSER_CAPABILITIES " EMERGENCY_CODES:M108,M112,M410"
-  #else
-    #define EMERGENCY_PARSER_CAPABILITIES ""
-  #endif
-
   /**
    * Axis lengths and center
    */
@@ -45,20 +39,31 @@
   #define Z_CENTER float((Z_MIN_POS + Z_MAX_POS) * 0.5)
 
   /**
-   * CoreXY and CoreXZ
+   * CoreXY, CoreXZ, and CoreYZ - and their reverse
    */
-  #if ENABLED(COREXY)
-    #define CORE_AXIS_1 A_AXIS // XY from A + B
-    #define CORE_AXIS_2 B_AXIS
-    #define NORMAL_AXIS Z_AXIS
-  #elif ENABLED(COREXZ)
-    #define CORE_AXIS_1 A_AXIS // XZ from A + C
-    #define CORE_AXIS_2 C_AXIS
-    #define NORMAL_AXIS Y_AXIS
-  #elif ENABLED(COREYZ)
-    #define CORE_AXIS_1 B_AXIS // YZ from B + C
-    #define CORE_AXIS_2 C_AXIS
-    #define NORMAL_AXIS X_AXIS
+  #define CORE_IS_XY (ENABLED(COREXY) || ENABLED(COREYX))
+  #define CORE_IS_XZ (ENABLED(COREXZ) || ENABLED(COREZX))
+  #define CORE_IS_YZ (ENABLED(COREYZ) || ENABLED(COREZY))
+  #define IS_CORE (CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ)
+  #if IS_CORE
+    #if CORE_IS_XY
+      #define CORE_AXIS_1 A_AXIS
+      #define CORE_AXIS_2 B_AXIS
+      #define NORMAL_AXIS Z_AXIS
+    #elif CORE_IS_XZ
+      #define CORE_AXIS_1 A_AXIS
+      #define NORMAL_AXIS Y_AXIS
+      #define CORE_AXIS_2 C_AXIS
+    #elif CORE_IS_YZ
+      #define NORMAL_AXIS X_AXIS
+      #define CORE_AXIS_1 B_AXIS
+      #define CORE_AXIS_2 C_AXIS
+    #endif
+    #if (ENABLED(COREYX) || ENABLED(COREZX) || ENABLED(COREZY))
+      #define CORESIGN(n) (-(n))
+    #else
+      #define CORESIGN(n) (n)
+    #endif
   #endif
 
   #define IS_SCARA (ENABLED(MORGAN_SCARA) || ENABLED(MAKERARM_SCARA))

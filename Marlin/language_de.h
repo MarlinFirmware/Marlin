@@ -146,13 +146,15 @@
 #define MSG_INIT_SDCARD                     "SD-Karte erkennen"  // Manually initialize the SD-card via user interface
 #define MSG_CNG_SDCARD                      "SD-Karte getauscht" // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
 #define MSG_ZPROBE_OUT                      "Sensor ausserhalb"
+#define MSG_BLTOUCH_SELFTEST                "BLTouch Test"
+#define MSG_BLTOUCH_RESET                   "BLTouch Reset"
 #define MSG_HOME                            "Vorher"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "homen"
 #define MSG_ZPROBE_ZOFFSET                  "Z Versatz"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
-#define MSG_ENDSTOP_ABORT                   "Endstop-Abbr. ein"
+#define MSG_ENDSTOP_ABORT                   "Endstopp-Abbr. ein"
 #define MSG_HEATING_FAILED_LCD              "HEIZEN FEHLGESCHLAGEN"
 #define MSG_ERR_REDUNDANT_TEMP              "REDUND. TEMPERATURABWEICHUNG"
 #define MSG_THERMAL_RUNAWAY                 LCD_STR_THERMOMETER " NICHT ERREICHT"
@@ -178,14 +180,16 @@
 
 #define MSG_INFO_MENU                       "Über den Drucker"
 #define MSG_INFO_PRINTER_MENU               "Drucker Info"
-#define MSG_INFO_STATS_MENU                 "Drucker Stats"
+#define MSG_INFO_STATS_MENU                 "Drucker Stat."
 #define MSG_INFO_BOARD_MENU                 "Board Info"
 #define MSG_INFO_THERMISTOR_MENU            "Thermistors"
 #define MSG_INFO_EXTRUDERS                  "Extruders"
 #define MSG_INFO_BAUDRATE                   "Baud"
-#define MSG_INFO_PROTOCOL                   "Protokol"
+#define MSG_INFO_PROTOCOL                   "Protokoll"
+#define MSG_LIGHTS_ON                       "Gehäuse Licht an"
+#define MSG_LIGHTS_OFF                      "Gehäuse Licht aus"
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Gesamte Drucke"
   #define MSG_INFO_COMPLETED_PRINTS         "Beendete Drucke"
   #define MSG_INFO_PRINT_TIME               "Gesamte Druckzeit"
@@ -202,36 +206,42 @@
 #define MSG_INFO_MAX_TEMP                   "Max Temp"
 #define MSG_INFO_PSU                        "Stromversorgung"
 
+#define MSG_DRIVE_STRENGTH                  "Motorströme"
+#define MSG_DAC_PERCENT                     "Treiber %"
+#define MSG_DAC_EEPROM_WRITE                "Werte speichern"
+
 #define MSG_FILAMENT_CHANGE_HEADER          "ÄNDERE FILAMENT"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "ÄNDERE OPTIONEN:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extrude mehr"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Drucke weiter"
 
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Warte auf den"
   #define MSG_FILAMENT_CHANGE_INIT_2          "Start des "
   #define MSG_FILAMENT_CHANGE_INIT_3          "Filamentwechsels"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Warte auf das"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_2        "Herausnehmen"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Warte auf"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2        "Herausnahme"
   #define MSG_FILAMENT_CHANGE_UNLOAD_3        "des Filaments"
-  #define MSG_FILAMENT_CHANGE_INSERT_1        "Fädle Filament"
-  #define MSG_FILAMENT_CHANGE_INSERT_2        "ein und drücke"
-  #define MSG_FILAMENT_CHANGE_INSERT_3        "den Knopf..."
-  #define MSG_FILAMENT_CHANGE_LOAD_1          "Warte auf das"
+  #define MSG_FILAMENT_CHANGE_INSERT_1        "Filament einlegen"
+  #define MSG_FILAMENT_CHANGE_INSERT_2        "und Knopf"
+  #define MSG_FILAMENT_CHANGE_INSERT_3        "drücken..."
+  #define MSG_FILAMENT_CHANGE_LOAD_1          "Warte auf"
   #define MSG_FILAMENT_CHANGE_LOAD_2          "Laden des"
   #define MSG_FILAMENT_CHANGE_LOAD_3          "Filaments"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Warte auf das"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "Extrudieren des"
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Warte auf"
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "Extrusion des"
   #define MSG_FILAMENT_CHANGE_EXTRUDE_3       "Filaments"
-  #define MSG_FILAMENT_CHANGE_RESUME_1        "Warte auf das"
-  #define MSG_FILAMENT_CHANGE_RESUME_2        "Fortsetzen des"
+  #define MSG_FILAMENT_CHANGE_RESUME_1        "Warte auf"
+  #define MSG_FILAMENT_CHANGE_RESUME_2        "Fortsetzung des"
   #define MSG_FILAMENT_CHANGE_RESUME_3        "Druckes"
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Bitte warten..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Auswerfen..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Laden und Klick"
   #define MSG_FILAMENT_CHANGE_LOAD_1          "Laden..."
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extruden..."
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extrudieren..."
   #define MSG_FILAMENT_CHANGE_RESUME_1        "Weitermachen..."
 #endif // LCD_HEIGHT < 4
 

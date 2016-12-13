@@ -126,11 +126,15 @@
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
 
+#define MIN3(a, b, c)    min(min(a, b), c)
+#define MIN4(a, b, c, d) min(min(a, b), min(c, d))
 #define MAX3(a, b, c)    max(max(a, b), c)
-#define MAX4(a, b, c, d) max(max(max(a, b), c), d)
+#define MAX4(a, b, c, d) max(max(a, b), max(c, d))
 
 #define UNEAR_ZERO(x) ((x) < 0.000001)
 #define NEAR_ZERO(x) ((x) > -0.000001 && (x) < 0.000001)
 #define NEAR(x,y) NEAR_ZERO((x)-(y))
+
+#define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
 
 #endif //__MACROS_H

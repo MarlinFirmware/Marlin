@@ -117,11 +117,15 @@ typedef struct {
            acceleration_steps_per_s2;       // acceleration steps/sec^2
 
   #if FAN_COUNT > 0
-    uint32_t fan_speed[FAN_COUNT];
+    uint16_t fan_speed[FAN_COUNT];
   #endif
 
   #if ENABLED(BARICUDA)
     uint32_t valve_pressure, e_to_p_pressure;
+  #endif
+  
+  #if ENABLED(ENSURE_SMOOTH_MOVES)
+    uint32_t segment_time;
   #endif
 
 } block_t;
@@ -136,26 +140,34 @@ class Planner {
      * A ring buffer of moves described in steps
      */
     static block_t block_buffer[BLOCK_BUFFER_SIZE];
-    static volatile uint8_t block_buffer_head;           // Index of the next block to be pushed
-    static volatile uint8_t block_buffer_tail;
+    static volatile uint8_t block_buffer_head,  // Index of the next block to be pushed
+                            block_buffer_tail;
 
-    static float max_feedrate_mm_s[NUM_AXIS]; // Max speeds in mm per second
-    static float axis_steps_per_mm[NUM_AXIS];
-    static float steps_to_mm[NUM_AXIS];
-    static unsigned long max_acceleration_steps_per_s2[NUM_AXIS];
-    static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
+    #if ENABLED(DISTINCT_E_FACTORS)
+      static uint8_t last_extruder;             // Respond to extruder change
+    #endif
+
+    static float max_feedrate_mm_s[XYZE_N],     // Max speeds in mm per second
+                 axis_steps_per_mm[XYZE_N],
+                 steps_to_mm[XYZE_N];
+    static unsigned long max_acceleration_steps_per_s2[XYZE_N],
+                         max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
 
     static millis_t min_segment_time;
-    static float min_feedrate_mm_s;
-    static float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
-    static float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
-    static float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-    static float max_jerk[XYZE];       // The largest speed change requiring no acceleration
-    static float min_travel_feedrate_mm_s;
+    static float min_feedrate_mm_s,
+                 acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
+                 retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
+                 travel_acceleration,  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
+                 max_jerk[XYZE],       // The largest speed change requiring no acceleration
+                 min_travel_feedrate_mm_s;
 
     #if HAS_ABL
       static bool abl_enabled;            // Flag that bed leveling is enabled
       static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
+    #endif
+
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      static float z_fade_height, inverse_z_fade_height;
     #endif
 
   private:
@@ -176,10 +188,10 @@ class Planner {
      */
     static float previous_nominal_speed;
 	
-	/**
- 	 * Limit where 64bit math is necessary for acceleration calculation
- 	 */
- 	static uint32_t cutoff_long;
+    /**
+     * Limit where 64bit math is necessary for acceleration calculation
+     */
+    static uint32_t cutoff_long;
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
       /**
@@ -200,6 +212,10 @@ class Planner {
     #if ENABLED(LIN_ADVANCE)
       static float position_float[NUM_AXIS];
       static float extruder_advance_k;
+    #endif
+
+    #if ENABLED(ENSURE_SMOOTH_MOVES)
+      static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
     #endif
 
   public:
@@ -331,7 +347,13 @@ class Planner {
     static void set_position_mm_kinematic(const float position[NUM_AXIS]);
     static void set_position_mm(const AxisEnum axis, const float &v);
     static FORCE_INLINE void set_z_position_mm(const float &z) { set_position_mm(Z_AXIS, z); }
-    static FORCE_INLINE void set_e_position_mm(const float &e) { set_position_mm(E_AXIS, e); }
+    static FORCE_INLINE void set_e_position_mm(const float &e) {
+      set_position_mm((AxisEnum)E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + active_extruder
+        #endif
+      , e);
+    }
 
     /**
      * Sync from the stepper positions. (e.g., after an interrupted move)
@@ -359,6 +381,9 @@ class Planner {
     static block_t* get_current_block() {
       if (blocks_queued()) {
         block_t* block = &block_buffer[block_buffer_tail];
+        #if ENABLED(ENSURE_SMOOTH_MOVES)
+          block_buffer_runtime_us -= block->segment_time; //We can't be sure how long an active block will take, so don't count it.
+        #endif
         SBI(block->flag, BLOCK_BIT_BUSY);
         return block;
       }
@@ -366,13 +391,27 @@ class Planner {
         return NULL;
     }
 
+    #if ENABLED(ENSURE_SMOOTH_MOVES)
+      static bool long_move() {
+        if (blocks_queued()) {
+          return block_buffer_runtime_us > (LCD_UPDATE_THRESHOLD) * 1000UL + (MIN_BLOCK_TIME) * 3000UL;
+        }
+        else
+          return true;
+      }
+      
+      static void clear_block_buffer_runtime(){
+        block_buffer_runtime_us = 0;
+      }
+    #endif
+
     #if ENABLED(AUTOTEMP)
       static float autotemp_max;
       static float autotemp_min;
       static float autotemp_factor;
       static bool autotemp_enabled;
       static void getHighESpeed();
-      static void autotemp_M109();
+      static void autotemp_M104_M109();
     #endif
 
   private:
