@@ -656,34 +656,30 @@ static void lcd_implementation_status_screen() {
     u8g.setPrintPos((START_COL) * (DOG_CHAR_WIDTH), row_y2);
   }
 
-  #if ENABLED(LCD_INFO_MENU) || ENABLED(FILAMENT_CHANGE_FEATURE)
+  // Draw a static line of text in the same idiom as a menu item
+  static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char* valstr=NULL) {
 
-    // Draw a static line of text in the same idiom as a menu item
-    static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char* valstr=NULL) {
+    lcd_implementation_mark_as_selected(row, invert);
 
-      lcd_implementation_mark_as_selected(row, invert);
+    if (!PAGE_CONTAINS(row_y1, row_y2)) return;
 
-      if (!PAGE_CONTAINS(row_y1, row_y2)) return;
+    char c;
+    int8_t n = LCD_WIDTH - (START_COL);
 
-      char c;
-      int8_t n = LCD_WIDTH - (START_COL);
-
-      if (center && !valstr) {
-        int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
-        while (--pad >= 0) { u8g.print(' '); n--; }
-      }
-      while (n > 0 && (c = pgm_read_byte(pstr))) {
-        n -= lcd_print_and_count(c);
-        pstr++;
-      }
-      if (valstr) while (n > 0 && (c = *valstr)) {
-        n -= lcd_print_and_count(c);
-        valstr++;
-      }
-      while (n-- > 0) u8g.print(' ');
+    if (center && !valstr) {
+      int8_t pad = (LCD_WIDTH - lcd_strlen_P(pstr)) / 2;
+      while (--pad >= 0) { u8g.print(' '); n--; }
     }
-
-  #endif // LCD_INFO_MENU || FILAMENT_CHANGE_FEATURE
+    while (n > 0 && (c = pgm_read_byte(pstr))) {
+      n -= lcd_print_and_count(c);
+      pstr++;
+    }
+    if (valstr) while (n > 0 && (c = *valstr)) {
+      n -= lcd_print_and_count(c);
+      valstr++;
+    }
+    while (n-- > 0) u8g.print(' ');
+  }
 
   // Draw a generic menu item
   static void lcd_implementation_drawmenu_generic(const bool isSelected, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
