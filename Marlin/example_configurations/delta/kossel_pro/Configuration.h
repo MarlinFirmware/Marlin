@@ -440,10 +440,7 @@
   #define DELTA_PRINTABLE_RADIUS 127.0
 
   // Delta calibration menu
-  // uncomment to add three points calibration menu option.
   // See http://minow.blogspot.com/index.html#4918805519571907051
-  // If needed, adjust the X, Y, Z calibration coordinates
-  // in ultralcd.cpp@lcd_delta_calibrate_menu()
   //#define DELTA_CALIBRATION_MENU
 
   // After homing move down to a height where XY movement is unconstrained
