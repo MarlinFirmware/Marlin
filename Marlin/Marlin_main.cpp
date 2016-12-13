@@ -256,7 +256,7 @@
 #endif
 
 #if HAS_SERVOS
-  #include "servo.h"
+  #include "src/HAL/servo.h"
 #endif
 
 #if HAS_DIGIPOTSS
