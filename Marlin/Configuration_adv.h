@@ -797,7 +797,7 @@
   //#define X2_IS_TMC2130
   //#define X2_MAX_CURRENT 1000  //in mA
   //#define X2_MICROSTEPS 16 // FULLSTEP..256
-  //#define X2_CHIP_SELECT
+  //#define X2_CHIP_SELECT 
 
   //#define Y2_IS_TMC2130
   //#define Y2_MAX_CURRENT 1000  //in mA

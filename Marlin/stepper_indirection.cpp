@@ -84,7 +84,6 @@
     TMC26XStepper stepperE3(200, E3_ENABLE_PIN, E3_STEP_PIN, E3_DIR_PIN, E3_MAX_CURRENT, E3_SENSE_RESISTOR);
   #endif
 
-#if ENABLED(HAVE_TMCDRIVER)
 void tmc_init() {
   #if ENABLED(X_IS_TMC)
     stepperX.setMicrosteps(X_MICROSTEPS);
