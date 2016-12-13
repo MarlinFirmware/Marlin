@@ -179,6 +179,61 @@
     return 1;
   }
 
+#elif ENABLED(MAPPER_C2C3_TR)
+
+  // the C2C3-mapper extended for the 6 altered symbols from C4 and C5 range.
+
+  char charset_mapper(const char c) {
+    static uint8_t utf_hi_char; // UTF-8 high part
+    static bool seen_c2 = false;
+    static bool seen_c4 = false;
+    static bool seen_c5 = false;
+    uint8_t d = c;
+    if ( d >= 0x80u ) { // UTF-8 handling
+           if ( d == 0xc4u ) {seen_c4 = true; return 0;}
+      else if ( d == 0xc5u ) {seen_c5 = true; return 0;}
+      else if ( (d >= 0xc0u) && (!seen_c2) ) {
+        utf_hi_char = d - 0xc2u;
+        seen_c2 = true;
+        return 0;
+      }
+      else if (seen_c4) {
+        switch(d) {
+          case 0x9eu: d = 0xd0u; break;
+          case 0x9fu: d = 0xf0u; break;
+          case 0xb0u: d = 0xddu; break;
+          case 0xb1u: d = 0xfdu; break;
+          default: d = '?';
+        }
+        HARDWARE_CHAR_OUT((char)d) ;
+      }
+      else if (seen_c5) {
+        switch(d) {
+          case 0x9eu: d = 0xdeu; break;
+          case 0x9fu: d = 0xfeu; break;
+          default: d = '?';
+        }
+        HARDWARE_CHAR_OUT((char)d) ;
+      }
+      else if (seen_c2) {
+        d &= 0x3fu;
+        #ifndef MAPPER_ONE_TO_ONE
+          HARDWARE_CHAR_OUT((char)pgm_read_byte_near(utf_recode + d + (utf_hi_char << 6) - 0x20));
+        #else
+          HARDWARE_CHAR_OUT((char)(0x80u + (utf_hi_char << 6) + d)) ;
+        #endif
+      }
+      else {
+        HARDWARE_CHAR_OUT('?');
+      }
+    }
+    else {
+      HARDWARE_CHAR_OUT((char) c );
+    }
+    seen_c2 = seen_c4 = seen_c5 = false;
+    return 1;
+  }
+
 #elif ENABLED(MAPPER_CECF)
 
   char charset_mapper(const char c) {
