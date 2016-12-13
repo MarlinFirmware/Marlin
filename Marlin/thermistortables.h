@@ -92,7 +92,10 @@ const short temptable_1[][2] PROGMEM = {
   {  993 * OVERSAMPLENR,  15 },
   {  999 * OVERSAMPLENR,  10 },
   { 1004 * OVERSAMPLENR,   5 },
-  { 1008 * OVERSAMPLENR,   0 } // safety
+  { 1008 * OVERSAMPLENR,   0 },
+  { 1012 * OVERSAMPLENR,  -5 },
+  { 1016 * OVERSAMPLENR, -10 },
+  { 1020 * OVERSAMPLENR, -15 }
 };
 #endif
 
