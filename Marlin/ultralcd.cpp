@@ -1283,6 +1283,14 @@ KeepDrawing:
     MENU_BACK(MSG_MAIN);
 
     //
+    // Move Axis
+    //
+    #if ENABLED(DELTA)
+      if (axis_homed[Z_AXIS])
+    #endif
+        MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+
+    //
     // Auto Home
     //
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
@@ -1308,11 +1316,6 @@ KeepDrawing:
     #elif ENABLED(MANUAL_BED_LEVELING)
       MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
     #endif
-
-    //
-    // Move Axis
-    //
-    MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
 
     //
     // Disable Steppers
@@ -1557,58 +1560,48 @@ KeepDrawing:
    *
    */
 
-  #if IS_KINEMATIC
-    #define _MOVE_XYZ_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
-  #else
-    #define _MOVE_XYZ_ALLOWED true
-  #endif
+  screenFunc_t _manual_move_func_ptr;
 
-  void _lcd_move_menu_axis() {
+  void lcd_move_menu_10mm() { move_menu_scale = 10.0; lcd_goto_screen(_manual_move_func_ptr); }
+  void lcd_move_menu_1mm()  { move_menu_scale =  1.0; lcd_goto_screen(_manual_move_func_ptr); }
+  void lcd_move_menu_01mm() { move_menu_scale =  0.1; lcd_goto_screen(_manual_move_func_ptr); }
+
+  void _lcd_move_distance_menu(AxisEnum axis, screenFunc_t func) {
+    _manual_move_func_ptr = func;
     START_MENU();
+    if (LCD_HEIGHT >= 4) {
+      switch(axis) {
+        case X_AXIS:
+          STATIC_ITEM(MSG_MOVE_X, true, true); break;
+        case Y_AXIS:
+          STATIC_ITEM(MSG_MOVE_Y, true, true); break;
+        case Z_AXIS:
+          STATIC_ITEM(MSG_MOVE_Z, true, true); break;
+        default:
+          STATIC_ITEM(MSG_MOVE_E, true, true); break;
+      }
+    }
     MENU_BACK(MSG_MOVE_AXIS);
-
-    if (_MOVE_XYZ_ALLOWED) {
-      MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
-      MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
-    }
-
-    if (move_menu_scale < 10.0) {
-      if (_MOVE_XYZ_ALLOWED) MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
-
-      #if ENABLED(SWITCHING_EXTRUDER)
-        if (active_extruder)
-          MENU_ITEM(gcode, MSG_SELECT " " MSG_E1, PSTR("T0"));
-        else
-          MENU_ITEM(gcode, MSG_SELECT " " MSG_E2, PSTR("T1"));
-      #endif
-
-      MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
-      #if E_MANUAL > 1
-        MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E1, lcd_move_e0);
-        MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E2, lcd_move_e1);
-        #if E_MANUAL > 2
-          MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E3, lcd_move_e2);
-          #if E_MANUAL > 3
-            MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E4, lcd_move_e3);
-          #endif
-        #endif
-      #endif
-    }
+    if (axis == X_AXIS || axis == Y_AXIS)
+      MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
+    MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
+    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
     END_MENU();
   }
-
-  void lcd_move_menu_10mm() {
-    move_menu_scale = 10.0;
-    _lcd_move_menu_axis();
-  }
-  void lcd_move_menu_1mm() {
-    move_menu_scale = 1.0;
-    _lcd_move_menu_axis();
-  }
-  void lcd_move_menu_01mm() {
-    move_menu_scale = 0.1;
-    _lcd_move_menu_axis();
-  }
+  void lcd_move_get_x_amount()        { _lcd_move_distance_menu(X_AXIS, lcd_move_x); }
+  void lcd_move_get_y_amount()        { _lcd_move_distance_menu(Y_AXIS, lcd_move_y); }
+  void lcd_move_get_z_amount()        { _lcd_move_distance_menu(Z_AXIS, lcd_move_z); }
+  void lcd_move_get_e_amount()        { _lcd_move_distance_menu(E_AXIS, lcd_move_e); }
+  #if E_MANUAL > 1
+    void lcd_move_get_e0_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e0); }
+    void lcd_move_get_e1_amount()     { _lcd_move_distance_menu(E_AXIS, lcd_move_e1); }
+    #if E_MANUAL > 2
+      void lcd_move_get_e2_amount()   { _lcd_move_distance_menu(E_AXIS, lcd_move_e2); }
+      #if E_MANUAL > 3
+        void lcd_move_get_e3_amount() { _lcd_move_distance_menu(E_AXIS, lcd_move_e3); }
+      #endif
+    #endif
+  #endif
 
   /**
    *
@@ -1616,16 +1609,63 @@ KeepDrawing:
    *
    */
 
+  #if IS_KINEMATIC
+    #define _MOVE_XYZ_ALLOWED (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+    #if ENABLED(DELTA)
+      #define _MOVE_XY_ALLOWED (current_position[Z_AXIS] <= delta_clip_start_height)
+      void lcd_lower_z_to_clip_height() {
+        if (!no_reentrance) {
+          current_position[Z_AXIS] = delta_clip_start_height;
+          line_to_current(Z_AXIS);
+          lcd_synchronize();
+        }
+      }
+    #else
+      #define _MOVE_XY_ALLOWED true
+    #endif
+  #else
+    #define _MOVE_XYZ_ALLOWED true
+    #define _MOVE_XY_ALLOWED true
+  #endif
+
   void lcd_move_menu() {
     START_MENU();
     MENU_BACK(MSG_PREPARE);
 
-    if (_MOVE_XYZ_ALLOWED)
-      MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
+    if (_MOVE_XYZ_ALLOWED) {
+      if (_MOVE_XY_ALLOWED) {
+        MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_get_x_amount);
+        MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_get_y_amount);
+      }
+      #if ENABLED(DELTA)
+        else
+          MENU_ITEM(function, MSG_FREE_XY, lcd_lower_z_to_clip_height);
+      #endif
 
-    MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
-    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
-    //TODO:X,Y,Z,E
+      MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_get_z_amount);
+    }
+    else
+      MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+
+    #if ENABLED(SWITCHING_EXTRUDER)
+      if (active_extruder)
+        MENU_ITEM(gcode, MSG_SELECT " " MSG_E1, PSTR("T0"));
+      else
+        MENU_ITEM(gcode, MSG_SELECT " " MSG_E2, PSTR("T1"));
+    #endif
+
+    MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_get_e_amount);
+    #if E_MANUAL > 1
+      MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E1, lcd_move_get_e0_amount);
+      MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E2, lcd_move_get_e1_amount);
+      #if E_MANUAL > 2
+        MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E3, lcd_move_get_e2_amount);
+        #if E_MANUAL > 3
+          MENU_ITEM(submenu, MSG_MOVE_E MSG_MOVE_E4, lcd_move_get_e3_amount);
+        #endif
+      #endif
+    #endif
+
     END_MENU();
   }
 

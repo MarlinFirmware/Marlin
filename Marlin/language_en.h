@@ -141,6 +141,9 @@
 #ifndef MSG_MOVING
   #define MSG_MOVING                          "Moving..."
 #endif
+#ifndef MSG_FREE_XY
+  #define MSG_FREE_XY                         "Free XY"
+#endif
 #ifndef MSG_MOVE_X
   #define MSG_MOVE_X                          "Move X"
 #endif
