@@ -30,8 +30,8 @@
 
 #if ENABLED(SDSUPPORT)
 
-#if ENABLED(LED_STRIP)
-  #include "LED_Strip.h"
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) && ENABLED(PRINTER_EVENT_LEDS)
+  #include "RGB_Strip.h"
 #endif
 
 CardReader::CardReader() {
@@ -609,14 +609,12 @@ void CardReader::printingHasFinished() {
     if (SD_FINISHED_STEPPERRELEASE)
       enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     print_job_timer.stop();
-
     if (print_job_timer.duration() > 60)
       enqueue_and_echo_commands_P(PSTR("M31"));
-    }
-    
-    #if ENABLED(LED_STRIP)
-      rgb_print_finished();
-    #endif
   }
+  #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) && ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(0);
+  #endif
+}
 
 #endif //SDSUPPORT

@@ -49,7 +49,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_H_VERSION 010101
+#define CONFIGURATION_H_VERSION 010100
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -249,11 +249,11 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 5
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
-#define TEMP_SENSOR_BED 0
+#define TEMP_SENSOR_BED 5
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25
@@ -412,7 +412,7 @@
 
 // Uncomment one of these options to enable CoreXY, CoreXZ, or CoreYZ kinematics
 // either in the usual order or reversed
-//#define COREXY
+#define COREXY
 //#define COREXZ
 //#define COREYZ
 //#define COREYX
@@ -453,8 +453,8 @@
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-#define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define X_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -486,7 +486,7 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 395.7, 447.6 }
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -547,7 +547,7 @@
 // For example an inductive probe, or a setup that uses the nozzle to probe.
 // An inductive probe must be deactivated to go below
 // its trigger-point if hardware endstops are active.
-//#define FIX_MOUNTED_PROBE
+#define FIX_MOUNTED_PROBE
 
 // The BLTouch probe emulates a servo probe.
 // The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
@@ -578,9 +578,9 @@
 //    |           |
 //    O-- FRONT --+
 //  (0,0)
-#define X_PROBE_OFFSET_FROM_EXTRUDER 10  // X offset: -left  +right  [of the nozzle]
-#define Y_PROBE_OFFSET_FROM_EXTRUDER 10  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+#define X_PROBE_OFFSET_FROM_EXTRUDER 23  // X offset: -left  +right  [of the nozzle]
+#define Y_PROBE_OFFSET_FROM_EXTRUDER 9  // Y offset: -front +behind [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -2.45   // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
@@ -589,7 +589,7 @@
 // Speed for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 // Use double touch for probing
-//#define PROBE_DOUBLE_TOUCH
+#define PROBE_DOUBLE_TOUCH
 
 //
 // Allen Key Probe is defined in the Delta example configurations.
@@ -751,7 +751,7 @@
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
 
-  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+  #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
 
   #if ENABLED(MANUAL_BED_LEVELING)
     #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
@@ -790,7 +790,7 @@
  *   You specify the rectangle and the density of sample points.
  *   The result is a mesh, best for large or uneven beds.
  */
-//#define AUTO_BED_LEVELING_3POINT
+#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
 
@@ -820,22 +820,34 @@
   //#define PROBE_Y_FIRST
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
     // Gradually reduce leveling correction until a set height is reached,
     // at which point movement will be level to the machine's XY plane.
     // The height can be set with M420 Z<height>
     #define ENABLE_LEVELING_FADE_HEIGHT
+
+    // 
+    // Experimental Subdivision of the grid by Catmull-Rom method.
+    // Synthesizes intermediate points to produce a more detailed mesh.
+    // 
+    //#define ABL_BILINEAR_SUBDIVISION
+    #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+      // Number of subdivisions between probe points
+      #define BILINEAR_SUBDIVISIONS 3
+    #endif
+
   #endif
 
 #elif ENABLED(AUTO_BED_LEVELING_3POINT)
 
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
-  #define ABL_PROBE_PT_1_X 15
-  #define ABL_PROBE_PT_1_Y 180
-  #define ABL_PROBE_PT_2_X 15
-  #define ABL_PROBE_PT_2_Y 20
+  #define ABL_PROBE_PT_1_X 25
+  #define ABL_PROBE_PT_1_Y 170
+  #define ABL_PROBE_PT_2_X 25
+  #define ABL_PROBE_PT_2_Y 25
   #define ABL_PROBE_PT_3_X 170
-  #define ABL_PROBE_PT_3_Y 20
+  #define ABL_PROBE_PT_3_Y 25
 
 #endif
 
@@ -865,7 +877,7 @@
 // - If stepper drivers time out, it will need X and Y homing again before Z homing.
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
@@ -890,7 +902,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-//#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS
 
 #if ENABLED(EEPROM_SETTINGS)
   // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
@@ -1094,7 +1106,7 @@
 // SD Card support is disabled by default. If your controller has an SD slot,
 // you must uncomment the following option or it won't work.
 //
-//#define SDSUPPORT
+#define SDSUPPORT
 
 //
 // SD CARD: SPI SPEED
@@ -1142,7 +1154,7 @@
 //
 //  Set this option if CLOCKWISE causes values to DECREASE
 //
-//#define REVERSE_ENCODER_DIRECTION
+#define REVERSE_ENCODER_DIRECTION
 
 //
 // This option reverses the encoder direction for navigating LCD menus.
@@ -1165,7 +1177,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-//#define SPEAKER
+#define SPEAKER
 
 //
 // The duration and frequency for the UI feedback sound.
@@ -1252,7 +1264,7 @@
 // RepRapDiscount FULL GRAPHIC Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
-//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 //
 // MakerLab Mini Panel with graphic
@@ -1452,35 +1464,35 @@
  * 
  * 
  * This feature is to control an RGB LED Strip with the PWM pins on the Arduino
+ * Pins 4, 5, 6 or 11
  * 
  * *** CAUTION ***
  * Requires MOFSET Chip between PWM lines and LED's as the arduino cannot
  * handle the current the LED's will require - Not doing this will destroy
  * your arduino
  * *** CAUTION ***
- * 
- * Requires LCD & SDCARD support
- * 
- * When printing from the SDCARD
- *  - LED strip will gradually change from blue to yellow as the heated bed gets to target temp
- *  - LED strip will gradually change from yellow to red as the hotend gets to temperature
- *  - LED strip will change to white to illuminate work surface
- *  - LED strip will change to green once print has finished
- *  - LED strip will turn off after the print has finished and the user has pushed a button 
  *  
  * */
-#if ENABLED(ULTIPANEL)
-  #if ENABLED(SDSUPPORT) 
-    
-    #define LED_STRIP
+#define RGB_STRIP
+#if ENABLED(RGB_STRIP)
+  #define RGB_LED_R_PIN 5
+  #define RGB_LED_G_PIN 6
+  #define RGB_LED_B_PIN 11
+#endif
 
-    #if ENABLED(LED_STRIP)
-      #define REDPIN 4
-      #define GREENPIN 5
-      #define BLUEPIN 6
-    #endif
-    
-  #endif
+/**
+  //===========================================================================
+  //=========================== Printer Event LEDs ============================
+  //===========================================================================
+ *  When printing, the LEDs will display printer status
+ *  - LEDs will gradually change from blue to violet as the heated bed gets to target temp
+ *  - LEDs will gradually change from violet to red as the hotend gets to temperature
+ *  - LEDs will change to white to illuminate work surface
+ *  - LEDs will change to green once print has finished
+ *  - LEDs will turn off after the print has finished and the user has pushed a button 
+ * */
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+  #define PRINTER_EVENT_LEDS
 #endif
 
 #endif // CONFIGURATION_H

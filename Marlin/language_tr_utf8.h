@@ -186,6 +186,8 @@
 #define MSG_INFO_EXTRUDERS                  "Ekstruderler"                                               //Ekstruderler
 #define MSG_INFO_BAUDRATE                   "İletişim Hızı"                                              //İletişim Hızı
 #define MSG_INFO_PROTOCOL                   "Protokol"                                                   //Protokol
+#define MSG_LIGHTS_ON                       "Aydınlatmayı Aç"                                            //Aydınlatmayı Aç
+#define MSG_LIGHTS_OFF                      "Aydınlatmayı Kapa"                                          //Aydınlaymayı Kapa
 
 #if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              "Baskı Sayısı"                                               //Baskı Sayısı
@@ -212,26 +214,25 @@
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "Seçenekler:"                                                //Seçenekler:
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Daha Akıt"                                                  //Daha Akıt
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Baskıyı sürdür"                                             //Baskıyı sürdür
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Başlama bekleniyor"                                       //Başlama bekleniyor
   #define MSG_FILAMENT_CHANGE_INIT_2          "filamanın"                                                //filamanın
   #define MSG_FILAMENT_CHANGE_INIT_3          "değişimi"                                                 //değişimi
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Bekleniyor"                                               //Bekleniyor
   #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filamanın çıkması"                                        //filamanın çıkması
-  #define MSG_FILAMENT_CHANGE_UNLOAD_3        ""                                                         //
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Filamanı yükle"                                           //Filamanı yükle
   #define MSG_FILAMENT_CHANGE_INSERT_2        "ve devam için"                                            //ve devam için
   #define MSG_FILAMENT_CHANGE_INSERT_3        "tuşa bas..."                                              //tuşa bas...
   #define MSG_FILAMENT_CHANGE_LOAD_1          "Bekleniyor"                                               //Bekleniyor
   #define MSG_FILAMENT_CHANGE_LOAD_2          "filamanın yüklenmesi"                                     //filamanın yüklenmesi
-  #define MSG_FILAMENT_CHANGE_LOAD_3          ""                                                         //
   #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Bekleniyor"                                               //Bekleniyor
   #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filaman akması"                                           //filaman akması
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""                                                         //
   #define MSG_FILAMENT_CHANGE_RESUME_1        "Baskının sürdürülmesini"                                  //Baskının sürdürülmesini
   #define MSG_FILAMENT_CHANGE_RESUME_2        "bekle"                                                    //bekle
-  #define MSG_FILAMENT_CHANGE_RESUME_3        ""                                                         //
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Lütfen bekleyiniz..."                                     //Lütfen bekleyiniz...
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Çıkartılıyor..."                                          //Çıkartılıyor...
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Yükle ve bas"                                             //Yükle ve bas

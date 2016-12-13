@@ -559,60 +559,37 @@
 #ifndef MSG_FILAMENT_CHANGE_OPTION_RESUME
   #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resume print"
 #endif
+
+//
+// Filament Change screens show up to 3 lines on a 4-line display
+//                        ...or up to 2 lines on a 3-line display
+//
 #if LCD_HEIGHT >= 4
   #ifndef MSG_FILAMENT_CHANGE_INIT_1
     #define MSG_FILAMENT_CHANGE_INIT_1          "Wait for start"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INIT_2
     #define MSG_FILAMENT_CHANGE_INIT_2          "of the filament"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INIT_3
     #define MSG_FILAMENT_CHANGE_INIT_3          "change"
   #endif
   #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
     #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Wait for"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_2
     #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filament unload"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_3
-    #define MSG_FILAMENT_CHANGE_UNLOAD_3        ""
   #endif
   #ifndef MSG_FILAMENT_CHANGE_INSERT_1
     #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert filament"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_2
     #define MSG_FILAMENT_CHANGE_INSERT_2        "and press button"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_3
     #define MSG_FILAMENT_CHANGE_INSERT_3        "to continue..."
   #endif
   #ifndef MSG_FILAMENT_CHANGE_LOAD_1
     #define MSG_FILAMENT_CHANGE_LOAD_1          "Wait for"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_2
     #define MSG_FILAMENT_CHANGE_LOAD_2          "filament load"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_3
-    #define MSG_FILAMENT_CHANGE_LOAD_3          ""
   #endif
   #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_1
     #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Wait for"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_2
     #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filament extrude"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_3
-    #define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""
   #endif
   #ifndef MSG_FILAMENT_CHANGE_RESUME_1
     #define MSG_FILAMENT_CHANGE_RESUME_1        "Wait for print"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_2
     #define MSG_FILAMENT_CHANGE_RESUME_2        "to resume"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_3
-    #define MSG_FILAMENT_CHANGE_RESUME_3        ""
   #endif
 #else // LCD_HEIGHT < 4
   #ifndef MSG_FILAMENT_CHANGE_INIT_1

@@ -44,7 +44,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_ADV_H_VERSION 010101
+#define CONFIGURATION_ADV_H_VERSION 010100
 
 // @section temperature
 
@@ -420,7 +420,7 @@
 // @section lcd
 
 // Include a page of printer information in the LCD Main Menu
-//#define LCD_INFO_MENU
+#define LCD_INFO_MENU
 
 // On the Info Screen, display XY with one decimal place when possible
 //#define LCD_DECIMAL_SMALL_XY
@@ -499,7 +499,7 @@
 // Babystepping enables the user to control the axis in tiny amounts, independently from the normal printing process
 // it can e.g. be used to change z-positions in the print startup phase in real-time
 // does not respect endstops!
-//#define BABYSTEPPING
+#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
   #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
                        //not implemented for deltabots!
@@ -527,9 +527,9 @@
 //    interrupts (without LCD update). By enforcing a minimum time-per-move, the buffer is prevented from
 //    draining.
 //
-//#define ENSURE_SMOOTH_MOVES
+#define ENSURE_SMOOTH_MOVES
 #if ENABLED(ENSURE_SMOOTH_MOVES)
-  //#define ALWAYS_ALLOW_MENU      // If enabled, the menu will always be responsive.
+  #define ALWAYS_ALLOW_MENU      // If enabled, the menu will always be responsive.
                                    // WARNING: Menu navigation during short moves may cause stuttering!
   #define LCD_UPDATE_THRESHOLD 135 // (ms) Minimum duration for the current segment to allow an LCD update.
                                    // Default value is good for graphical LCDs (e.g., REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER).
@@ -679,7 +679,7 @@
 
 // Add support for experimental filament exchange support M600; requires display
 #if ENABLED(ULTIPANEL)
-  // #define FILAMENT_CHANGE_FEATURE             // Enable filament exchange menu and M600 g-code (used for runout sensor too)
+  #define FILAMENT_CHANGE_FEATURE             // Enable filament exchange menu and M600 g-code (used for runout sensor too)
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
     #define FILAMENT_CHANGE_X_POS 3             // X position of hotend
     #define FILAMENT_CHANGE_Y_POS 3             // Y position of hotend
