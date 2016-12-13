@@ -1818,9 +1818,9 @@ void Temperature::isr() {
         #endif
       temp_state =
           #if ENABLED(E_ADJUST_MANUALLY)
-            Prepare_e_adjust_reading
+            Prepare_e_adjust_reading;
           #else
-            Prepare_FILWIDTH
+            Prepare_FILWIDTH;
           #endif       
            break;
            
