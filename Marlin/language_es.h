@@ -178,16 +178,19 @@
 #define MSG_INFO_EXTRUDERS                  "Extrusores"
 #define MSG_INFO_BAUDRATE                   "Baudios"
 #define MSG_INFO_PROTOCOL                   "Protocolo"
+#if LCD_WIDTH > 19
 #define MSG_INFO_PRINT_COUNT                "Conteo de impresion"
 #define MSG_INFO_COMPLETED_PRINTS           "Completadas"
 #define MSG_INFO_PRINT_TIME                 "Tiempo total de imp."
 #define MSG_INFO_PRINT_LONGEST              "Impresion mas larga"
 #define MSG_INFO_PRINT_FILAMENT             "Total de Extrusion"
+#else
 #define MSG_INFO_PRINT_COUNT                "Impresiones"
 #define MSG_INFO_COMPLETED_PRINTS           "Completadas"
 #define MSG_INFO_PRINT_TIME                 "Total"
 #define MSG_INFO_PRINT_LONGEST              "Mas larga"
 #define MSG_INFO_PRINT_FILAMENT             "Extrusion"
+#endif
 #define MSG_INFO_MIN_TEMP                   "Temperatura minima"
 #define MSG_INFO_MAX_TEMP                   "Temperatura maxima"
 #define MSG_INFO_PSU                        "Fuente de poder"
