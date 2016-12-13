@@ -108,6 +108,10 @@
 #define MSG_YSTEPS                          "Ypas/mm"
 #define MSG_ZSTEPS                          "Zpas/mm"
 #define MSG_ESTEPS                          "Epas/mm"
+#define MSG_E1STEPS                         "E1pas/mm"
+#define MSG_E2STEPS                         "E2pas/mm"
+#define MSG_E3STEPS                         "E3pas/mm"
+#define MSG_E4STEPS                         "E4pas/mm"
 #define MSG_TEMPERATURE                     "Temperature"
 #define MSG_MOTION                          "Mouvement"
 #define MSG_VOLUMETRIC                      "Filament"
@@ -187,6 +191,8 @@
 #define MSG_INFO_EXTRUDERS                  "Extruders"
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocole"
+#define MSG_LIGHTS_ON                       "Allumer boitier"
+#define MSG_LIGHTS_OFF                      "Eteindre boitier"
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Nbre impressions"

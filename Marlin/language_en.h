@@ -138,6 +138,12 @@
 #ifndef MSG_LEVEL_BED
   #define MSG_LEVEL_BED                       "Level bed"
 #endif
+#ifndef MSG_MOVING
+  #define MSG_MOVING                          "Moving..."
+#endif
+#ifndef MSG_FREE_XY
+  #define MSG_FREE_XY                         "Free XY"
+#endif
 #ifndef MSG_MOVE_X
   #define MSG_MOVE_X                          "Move X"
 #endif
@@ -257,6 +263,18 @@
 #endif
 #ifndef MSG_ESTEPS
   #define MSG_ESTEPS                          "Esteps/mm"
+#endif
+#ifndef MSG_E1STEPS
+  #define MSG_E1STEPS                         "E1steps/mm"
+#endif
+#ifndef MSG_E2STEPS
+  #define MSG_E2STEPS                         "E2steps/mm"
+#endif
+#ifndef MSG_E3STEPS
+  #define MSG_E3STEPS                         "E3steps/mm"
+#endif
+#ifndef MSG_E4STEPS
+  #define MSG_E4STEPS                         "E4steps/mm"
 #endif
 #ifndef MSG_TEMPERATURE
   #define MSG_TEMPERATURE                     "Temperature"
