@@ -43,7 +43,7 @@
 //
 #define ORIG_E0_AUTO_FAN_PIN 11
 #define ORIG_E1_AUTO_FAN_PIN  6
-#define ORIG_E2_AUTO_FAN_PIN  6 
+#define ORIG_E2_AUTO_FAN_PIN  6
 #define ORIG_E3_AUTO_FAN_PIN  6
 
 #include "pins_RAMPS_13.h"
@@ -83,3 +83,15 @@
 //
 #undef PS_ON_PIN             // 12
 #define PS_ON_PIN         81 // External Power Supply
+
+
+// This board has headers for Z-min, Z-max and IND_S_5V *but* as the bq team
+// decided to ship the printer only with the probe and no additional Z-min
+// endstop and the instruction manual advises the user to connect the probe to
+// IND_S_5V the option Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN will not work.
+#ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+  #undef Z_MIN_PIN
+  #undef Z_MAX_PIN
+  #define Z_MIN_PIN       19 // IND_S_5V
+  #define Z_MAX_PIN       18 // Z-MIN Label
+#endif
