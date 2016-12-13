@@ -2502,6 +2502,39 @@ void kill_screen(const char* lcd_msg) {
     void reprapworld_keypad_move_y_down()  { _reprapworld_keypad_move(Y_AXIS,  1); }
     void reprapworld_keypad_move_home()    { enqueue_and_echo_commands_P(PSTR("G28")); } // move all axes home and wait
     void reprapworld_keypad_move_menu()    { lcd_goto_screen(lcd_move_menu); }
+
+    inline void handle_reprapworld_keypad() {
+
+      static uint8_t keypad_debounce = 0;
+
+      if (!REPRAPWORLD_KEYPAD_PRESSED) {
+        if (keypad_debounce > 0) keypad_debounce--;
+      }
+      else if (!keypad_debounce) {
+        keypad_debounce = 2;
+
+        if (REPRAPWORLD_KEYPAD_MOVE_MENU)       reprapworld_keypad_move_menu();
+
+        #if DISABLED(DELTA) && Z_HOME_DIR == -1
+          if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)     reprapworld_keypad_move_z_up();
+        #endif
+
+        if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
+          #if ENABLED(DELTA) || Z_HOME_DIR != -1
+            if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)   reprapworld_keypad_move_z_up();
+          #endif
+          if (REPRAPWORLD_KEYPAD_MOVE_Z_DOWN)   reprapworld_keypad_move_z_down();
+          if (REPRAPWORLD_KEYPAD_MOVE_X_LEFT)   reprapworld_keypad_move_x_left();
+          if (REPRAPWORLD_KEYPAD_MOVE_X_RIGHT)  reprapworld_keypad_move_x_right();
+          if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN)   reprapworld_keypad_move_y_down();
+          if (REPRAPWORLD_KEYPAD_MOVE_Y_UP)     reprapworld_keypad_move_y_up();
+        }
+        else {
+          if (REPRAPWORLD_KEYPAD_MOVE_HOME)     reprapworld_keypad_move_home();
+        }
+      }
+    }
+
   #endif // REPRAPWORLD_KEYPAD
 
   /**
@@ -2773,36 +2806,8 @@ void lcd_update() {
       #endif
 
       #if ENABLED(REPRAPWORLD_KEYPAD)
-
-        static uint8_t keypad_debounce = 0;
-
-        if (!REPRAPWORLD_KEYPAD_PRESSED) {
-          if (keypad_debounce > 0) keypad_debounce--;
-        }
-        else if (!keypad_debounce) {
-          keypad_debounce = 2;
-
-          if (REPRAPWORLD_KEYPAD_MOVE_MENU)       reprapworld_keypad_move_menu();
-
-          #if DISABLED(DELTA) && Z_HOME_DIR == -1
-            if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)     reprapworld_keypad_move_z_up();
-          #endif
-
-          if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
-            #if ENABLED(DELTA) || Z_HOME_DIR != -1
-              if (REPRAPWORLD_KEYPAD_MOVE_Z_UP)   reprapworld_keypad_move_z_up();
-            #endif
-            if (REPRAPWORLD_KEYPAD_MOVE_Z_DOWN)   reprapworld_keypad_move_z_down();
-            if (REPRAPWORLD_KEYPAD_MOVE_X_LEFT)   reprapworld_keypad_move_x_left();
-            if (REPRAPWORLD_KEYPAD_MOVE_X_RIGHT)  reprapworld_keypad_move_x_right();
-            if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN)   reprapworld_keypad_move_y_down();
-            if (REPRAPWORLD_KEYPAD_MOVE_Y_UP)     reprapworld_keypad_move_y_up();
-          }
-          else {
-            if (REPRAPWORLD_KEYPAD_MOVE_HOME)     reprapworld_keypad_move_home();
-          }
-        }
-      #endif // REPRAPWORLD_KEYPAD
+        handle_reprapworld_keypad();
+      #endif
 
       bool encoderPastThreshold = (abs(encoderDiff) >= ENCODER_PULSES_PER_STEP);
       if (encoderPastThreshold || lcd_clicked) {
