@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+arduino --verify --board arduino:avr:mega:cpu=atmega2560 Marlin/Marlin.ino

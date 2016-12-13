@@ -1,4 +1,26 @@
 /**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
  * configuration_store.cpp
  *
  * Configuration and EEPROM storage
@@ -14,83 +36,94 @@
  *
  */
 
-#define EEPROM_VERSION "V21"
+#define EEPROM_VERSION "V28"
+
+// Change EEPROM version if these are changed:
+#define EEPROM_OFFSET 100
 
 /**
- * V19 EEPROM Layout:
+ * V28 EEPROM Layout:
  *
- *  ver
- *  M92 XYZE  axis_steps_per_unit (x4)
- *  M203 XYZE max_feedrate (x4)
- *  M201 XYZE max_acceleration_units_per_sq_second (x4)
- *  M204 P    acceleration
- *  M204 R    retract_acceleration
- *  M204 T    travel_acceleration
- *  M205 S    minimumfeedrate
- *  M205 T    mintravelfeedrate
- *  M205 B    minsegmenttime
- *  M205 X    max_xy_jerk
- *  M205 Z    max_z_jerk
- *  M205 E    max_e_jerk
- *  M206 XYZ  home_offset (x3)
+ *  100  Version (char x4)
+ *  104  EEPROM Checksum (uint16_t)
+ *
+ *  106  E_STEPPERS (uint8_t)
+ *  107  M92 XYZE  planner.axis_steps_per_mm (float x4 ... x7)
+ *  123  M203 XYZE planner.max_feedrate_mm_s (float x4 ... x7)
+ *  139  M201 XYZE planner.max_acceleration_mm_per_s2 (uint32_t x4 ... x7)
+ *  155  M204 P    planner.acceleration (float)
+ *  159  M204 R    planner.retract_acceleration (float)
+ *  163  M204 T    planner.travel_acceleration (float)
+ *  167  M205 S    planner.min_feedrate_mm_s (float)
+ *  171  M205 T    planner.min_travel_feedrate_mm_s (float)
+ *  175  M205 B    planner.min_segment_time (ulong)
+ *  179  M205 X    planner.max_jerk[X_AXIS] (float)
+ *  183  M205 Y    planner.max_jerk[Y_AXIS] (float)
+ *  187  M205 Z    planner.max_jerk[Z_AXIS] (float)
+ *  191  M205 E    planner.max_jerk[E_AXIS] (float)
+ *  195  M206 XYZ  home_offset (float x3)
+ *  207  M218 XYZ  hotend_offset (float x3 per additional hotend)
  *
  * Mesh bed leveling:
- *  M420 S    active
- *            mesh_num_x (set in firmware)
- *            mesh_num_y (set in firmware)
- *  M421 XYZ  z_values[][]
- *  M851      zprobe_zoffset
+ *  219  M420 S    status (uint8)
+ *  220            z_offset (float)
+ *  224            mesh_num_x (uint8 as set in firmware)
+ *  225            mesh_num_y (uint8 as set in firmware)
+ *  226 G29 S3 XYZ z_values[][] (float x9, by default, up to float x 81)
+ *
+ * AUTO BED LEVELING
+ *  262  M851      zprobe_zoffset (float)
  *
  * DELTA:
- *  M666 XYZ  endstop_adj (x3)
- *  M665 R    delta_radius
- *  M665 L    delta_diagonal_rod
- *  M665 S    delta_segments_per_second
- *
- * ULTIPANEL:
- *  M145 S0 H plaPreheatHotendTemp
- *  M145 S0 B plaPreheatHPBTemp
- *  M145 S0 F plaPreheatFanSpeed
- *  M145 S1 H absPreheatHotendTemp
- *  M145 S1 B absPreheatHPBTemp
- *  M145 S1 F absPreheatFanSpeed
- *
- * PIDTEMP:
- *  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]
- *  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]
- *  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]
- *  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]
- *  M301 L        lpq_len
- *
- * PIDTEMPBED:
- *  M304 PID  bedKp, bedKi, bedKd
- *
- * DOGLCD:
- *  M250 C    lcd_contrast
- *
- * SCARA:
- *  M365 XYZ  axis_scaling (x3)
- *
- * FWRETRACT:
- *  M209 S    autoretract_enabled
- *  M207 S    retract_length
- *  M207 W    retract_length_swap
- *  M207 F    retract_feedrate
- *  M207 Z    retract_zlift
- *  M208 S    retract_recover_length
- *  M208 W    retract_recover_length_swap
- *  M208 F    retract_recover_feedrate
- *
- *  M200 D    volumetric_enabled (D>0 makes this enabled)
- *
- *  M200 T D  filament_size (x4) (T0..3)
+ *  266  M666 XYZ  endstop_adj (float x3)
+ *  278  M665 R    delta_radius (float)
+ *  282  M665 L    delta_diagonal_rod (float)
+ *  286  M665 S    delta_segments_per_second (float)
+ *  290  M665 A    delta_diagonal_rod_trim_tower_1 (float)
+ *  294  M665 B    delta_diagonal_rod_trim_tower_2 (float)
+ *  298  M665 C    delta_diagonal_rod_trim_tower_3 (float)
  *
  * Z_DUAL_ENDSTOPS:
- *  M666 Z    z_endstop_adj
+ *  302  M666 Z    z_endstop_adj (float)
+ *
+ * ULTIPANEL:
+ *  306  M145 S0 H lcd_preheat_hotend_temp (int x2)
+ *  310  M145 S0 B lcd_preheat_bed_temp (int x2)
+ *  314  M145 S0 F lcd_preheat_fan_speed (int x2)
+ *
+ * PIDTEMP:
+ *  318  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
+ *  334  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
+ *  350  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
+ *  366  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
+ *  382  M301 L        lpq_len (int)
+ *
+ * PIDTEMPBED:
+ *  384  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
+ *
+ * DOGLCD:
+ *  396  M250 C    lcd_contrast (int)
+ *
+ * FWRETRACT:
+ *  398  M209 S    autoretract_enabled (bool)
+ *  399  M207 S    retract_length (float)
+ *  403  M207 W    retract_length_swap (float)
+ *  407  M207 F    retract_feedrate_mm_s (float)
+ *  411  M207 Z    retract_zlift (float)
+ *  415  M208 S    retract_recover_length (float)
+ *  419  M208 W    retract_recover_length_swap (float)
+ *  423  M208 F    retract_recover_feedrate_mm_s (float)
+ *
+ * Volumetric Extrusion:
+ *  427  M200 D    volumetric_enabled (bool)
+ *  428  M200 T D  filament_size (float x4) (T0..3)
+ *
+ *  444  This Slot is Available!
  *
  */
 #include "Marlin.h"
 #include "language.h"
+#include "endstops.h"
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"
@@ -100,467 +133,568 @@
   #include "mesh_bed_leveling.h"
 #endif
 
-void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
-  uint8_t c;
-  while(size--) {
-    eeprom_write_byte((unsigned char*)pos, *value);
-    c = eeprom_read_byte((unsigned char*)pos);
-    if (c != *value) {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
-    }
-    pos++;
-    value++;
-  };
-}
-void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
-  do {
-    *value = eeprom_read_byte((unsigned char*)pos);
-    pos++;
-    value++;
-  } while (--size);
-}
-#define EEPROM_WRITE_VAR(pos, value) _EEPROM_writeData(pos, (uint8_t*)&value, sizeof(value))
-#define EEPROM_READ_VAR(pos, value) _EEPROM_readData(pos, (uint8_t*)&value, sizeof(value))
-
 /**
- * Store Configuration Settings - M500
+ * Post-process after Retrieve or Reset
  */
+void Config_Postprocess() {
+  // steps per s2 needs to be updated to agree with units per s2
+  planner.reset_acceleration_rates();
 
-#define DUMMY_PID_VALUE 3000.0f
+  // Make sure delta kinematics are updated before refreshing the
+  // planner position so the stepper counts will be set correctly.
+  #if ENABLED(DELTA)
+    recalc_delta_settings(delta_radius, delta_diagonal_rod);
+  #endif
 
-#define EEPROM_OFFSET 100
+  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
+  // and init stepper.count[], planner.position[] with current_position
+  planner.refresh_positioning();
+
+  #if ENABLED(PIDTEMP)
+    thermalManager.updatePID();
+  #endif
+
+  calculate_volumetric_multipliers();
+
+  // Software endstops depend on home_offset
+  LOOP_XYZ(i) update_software_endstops((AxisEnum)i);
+}
 
 #if ENABLED(EEPROM_SETTINGS)
 
-void Config_StoreSettings()  {
-  float dummy = 0.0f;
-  char ver[4] = "000";
-  int i = EEPROM_OFFSET;
-  EEPROM_WRITE_VAR(i, ver); // invalidate data first
-  EEPROM_WRITE_VAR(i, axis_steps_per_unit);
-  EEPROM_WRITE_VAR(i, max_feedrate);
-  EEPROM_WRITE_VAR(i, max_acceleration_units_per_sq_second);
-  EEPROM_WRITE_VAR(i, acceleration);
-  EEPROM_WRITE_VAR(i, retract_acceleration);
-  EEPROM_WRITE_VAR(i, travel_acceleration);
-  EEPROM_WRITE_VAR(i, minimumfeedrate);
-  EEPROM_WRITE_VAR(i, mintravelfeedrate);
-  EEPROM_WRITE_VAR(i, minsegmenttime);
-  EEPROM_WRITE_VAR(i, max_xy_jerk);
-  EEPROM_WRITE_VAR(i, max_z_jerk);
-  EEPROM_WRITE_VAR(i, max_e_jerk);
-  EEPROM_WRITE_VAR(i, home_offset);
+  uint16_t eeprom_checksum;
+  const char version[4] = EEPROM_VERSION;
 
-  uint8_t mesh_num_x = 3;
-  uint8_t mesh_num_y = 3;
-  #if ENABLED(MESH_BED_LEVELING)
-    // Compile time test that sizeof(mbl.z_values) is as expected
-    typedef char c_assert[(sizeof(mbl.z_values) == MESH_NUM_X_POINTS*MESH_NUM_Y_POINTS*sizeof(dummy)) ? 1 : -1];
-    mesh_num_x = MESH_NUM_X_POINTS;
-    mesh_num_y = MESH_NUM_Y_POINTS;
-    EEPROM_WRITE_VAR(i, mbl.active);
-    EEPROM_WRITE_VAR(i, mesh_num_x);
-    EEPROM_WRITE_VAR(i, mesh_num_y);
-    EEPROM_WRITE_VAR(i, mbl.z_values);
-  #else
-    uint8_t dummy_uint8 = 0;
-    EEPROM_WRITE_VAR(i, dummy_uint8);
-    EEPROM_WRITE_VAR(i, mesh_num_x);
-    EEPROM_WRITE_VAR(i, mesh_num_y);
-    dummy = 0.0f;
-    for (uint8_t q=0; q<mesh_num_x*mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
-  #endif // MESH_BED_LEVELING
+  bool eeprom_write_error;
 
-  #if DISABLED(AUTO_BED_LEVELING_FEATURE)
-    float zprobe_zoffset = 0;
-  #endif
-  EEPROM_WRITE_VAR(i, zprobe_zoffset);
-
-  #if ENABLED(DELTA)
-    EEPROM_WRITE_VAR(i, endstop_adj);               // 3 floats
-    EEPROM_WRITE_VAR(i, delta_radius);              // 1 float
-    EEPROM_WRITE_VAR(i, delta_diagonal_rod);        // 1 float
-    EEPROM_WRITE_VAR(i, delta_segments_per_second); // 1 float
-  #elif ENABLED(Z_DUAL_ENDSTOPS)
-    EEPROM_WRITE_VAR(i, z_endstop_adj);            // 1 floats
-    dummy = 0.0f;
-    for (int q=5; q--;) EEPROM_WRITE_VAR(i, dummy);
-  #else
-    dummy = 0.0f;
-    for (int q=6; q--;) EEPROM_WRITE_VAR(i, dummy);
-  #endif
-
-  #if DISABLED(ULTIPANEL)
-    int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED,
-        absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP, absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP, absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
-  #endif // !ULTIPANEL
-
-  EEPROM_WRITE_VAR(i, plaPreheatHotendTemp);
-  EEPROM_WRITE_VAR(i, plaPreheatHPBTemp);
-  EEPROM_WRITE_VAR(i, plaPreheatFanSpeed);
-  EEPROM_WRITE_VAR(i, absPreheatHotendTemp);
-  EEPROM_WRITE_VAR(i, absPreheatHPBTemp);
-  EEPROM_WRITE_VAR(i, absPreheatFanSpeed);
-
-  for (int e = 0; e < 4; e++) {
-
-    #if ENABLED(PIDTEMP)
-      if (e < EXTRUDERS) {
-        EEPROM_WRITE_VAR(i, PID_PARAM(Kp, e));
-        EEPROM_WRITE_VAR(i, PID_PARAM(Ki, e));
-        EEPROM_WRITE_VAR(i, PID_PARAM(Kd, e));
-        #if ENABLED(PID_ADD_EXTRUSION_RATE)
-          EEPROM_WRITE_VAR(i, PID_PARAM(Kc, e));
-        #else
-          dummy = 1.0f; // 1.0 = default kc
-          EEPROM_WRITE_VAR(i, dummy);
-        #endif
+  void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
+    if (eeprom_write_error) return;
+    while (size--) {
+      uint8_t * const p = (uint8_t * const)pos;
+      const uint8_t v = *value;
+      // EEPROM has only ~100,000 write cycles,
+      // so only write bytes that have changed!
+      if (v != eeprom_read_byte(p)) {
+        eeprom_write_byte(p, v);
+        if (eeprom_read_byte(p) != v) {
+          SERIAL_ECHO_START;
+          SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+          eeprom_write_error = true;
+          return;
+        }
       }
-      else
-    #endif // !PIDTEMP
-      {
-        dummy = DUMMY_PID_VALUE; // When read, will not change the existing value
-        EEPROM_WRITE_VAR(i, dummy);
-        dummy = 0.0f;
-        for (int q = 3; q--;) EEPROM_WRITE_VAR(i, dummy);
-      }
-
-  } // Extruders Loop
-
-  #if DISABLED(PID_ADD_EXTRUSION_RATE)
-    int lpq_len = 20;
-  #endif
-  EEPROM_WRITE_VAR(i, lpq_len);
-
-  #if DISABLED(PIDTEMPBED)
-    float bedKp = DUMMY_PID_VALUE, bedKi = DUMMY_PID_VALUE, bedKd = DUMMY_PID_VALUE;
-  #endif
-
-  EEPROM_WRITE_VAR(i, bedKp);
-  EEPROM_WRITE_VAR(i, bedKi);
-  EEPROM_WRITE_VAR(i, bedKd);
-
-  #if DISABLED(HAS_LCD_CONTRAST)
-    const int lcd_contrast = 32;
-  #endif
-  EEPROM_WRITE_VAR(i, lcd_contrast);
-
-  #if ENABLED(SCARA)
-    EEPROM_WRITE_VAR(i, axis_scaling); // 3 floats
-  #else
-    dummy = 1.0f;
-    EEPROM_WRITE_VAR(i, dummy);
-  #endif
-
-  #if ENABLED(FWRETRACT)
-    EEPROM_WRITE_VAR(i, autoretract_enabled);
-    EEPROM_WRITE_VAR(i, retract_length);
-    #if EXTRUDERS > 1
-      EEPROM_WRITE_VAR(i, retract_length_swap);
-    #else
-      dummy = 0.0f;
-      EEPROM_WRITE_VAR(i, dummy);
-    #endif
-    EEPROM_WRITE_VAR(i, retract_feedrate);
-    EEPROM_WRITE_VAR(i, retract_zlift);
-    EEPROM_WRITE_VAR(i, retract_recover_length);
-    #if EXTRUDERS > 1
-      EEPROM_WRITE_VAR(i, retract_recover_length_swap);
-    #else
-      dummy = 0.0f;
-      EEPROM_WRITE_VAR(i, dummy);
-    #endif
-    EEPROM_WRITE_VAR(i, retract_recover_feedrate);
-  #endif // FWRETRACT
-
-  EEPROM_WRITE_VAR(i, volumetric_enabled);
-
-  // Save filament sizes
-  for (int q = 0; q < 4; q++) {
-    if (q < EXTRUDERS) dummy = filament_size[q];
-    EEPROM_WRITE_VAR(i, dummy);
+      eeprom_checksum += v;
+      pos++;
+      value++;
+    };
+  }
+  void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
+    do {
+      uint8_t c = eeprom_read_byte((unsigned char*)pos);
+      *value = c;
+      eeprom_checksum += c;
+      pos++;
+      value++;
+    } while (--size);
   }
 
-  char ver2[4] = EEPROM_VERSION;
-  int j = EEPROM_OFFSET;
-  EEPROM_WRITE_VAR(j, ver2); // validate data
+  #define DUMMY_PID_VALUE 3000.0f
+  #define EEPROM_START() int eeprom_index = EEPROM_OFFSET
+  #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
+  #define EEPROM_WRITE(VAR) _EEPROM_writeData(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
+  #define EEPROM_READ(VAR) _EEPROM_readData(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
 
-  // Report storage size
-  SERIAL_ECHO_START;
-  SERIAL_ECHOPAIR("Settings Stored (", (unsigned long)i);
-  SERIAL_ECHOLNPGM(" bytes)");
-}
+  /**
+   * M500 - Store Configuration
+   */
+  void Config_StoreSettings()  {
+    float dummy = 0.0f;
+    char ver[4] = "000";
 
-/**
- * Retrieve Configuration Settings - M501
- */
+    EEPROM_START();
 
-void Config_RetrieveSettings() {
+    eeprom_write_error = false;
 
-  int i = EEPROM_OFFSET;
-  char stored_ver[4];
-  char ver[4] = EEPROM_VERSION;
-  EEPROM_READ_VAR(i, stored_ver); //read stored version
-  //  SERIAL_ECHOLN("Version: [" << ver << "] Stored version: [" << stored_ver << "]");
+    EEPROM_WRITE(ver);     // invalidate data first
+    EEPROM_SKIP(eeprom_checksum); // Skip the checksum slot
 
-  if (strncmp(ver, stored_ver, 3) != 0) {
-    Config_ResetDefault();
-  }
-  else {
-    float dummy = 0;
+    eeprom_checksum = 0; // clear before first "real data"
 
-    // version number match
-    EEPROM_READ_VAR(i, axis_steps_per_unit);
-    EEPROM_READ_VAR(i, max_feedrate);
-    EEPROM_READ_VAR(i, max_acceleration_units_per_sq_second);
+    const uint8_t esteppers = E_STEPPERS;
+    EEPROM_WRITE(esteppers);
+    EEPROM_WRITE(planner.axis_steps_per_mm);
+    EEPROM_WRITE(planner.max_feedrate_mm_s);
+    EEPROM_WRITE(planner.max_acceleration_mm_per_s2);
 
-    // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
-    reset_acceleration_rates();
+    EEPROM_WRITE(planner.acceleration);
+    EEPROM_WRITE(planner.retract_acceleration);
+    EEPROM_WRITE(planner.travel_acceleration);
+    EEPROM_WRITE(planner.min_feedrate_mm_s);
+    EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
+    EEPROM_WRITE(planner.min_segment_time);
+    EEPROM_WRITE(planner.max_jerk);
+    EEPROM_WRITE(home_offset);
 
-    EEPROM_READ_VAR(i, acceleration);
-    EEPROM_READ_VAR(i, retract_acceleration);
-    EEPROM_READ_VAR(i, travel_acceleration);
-    EEPROM_READ_VAR(i, minimumfeedrate);
-    EEPROM_READ_VAR(i, mintravelfeedrate);
-    EEPROM_READ_VAR(i, minsegmenttime);
-    EEPROM_READ_VAR(i, max_xy_jerk);
-    EEPROM_READ_VAR(i, max_z_jerk);
-    EEPROM_READ_VAR(i, max_e_jerk);
-    EEPROM_READ_VAR(i, home_offset);
+    #if HOTENDS > 1
+      // Skip hotend 0 which must be 0
+      for (uint8_t e = 1; e < HOTENDS; e++)
+        LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
+    #endif
 
-    uint8_t dummy_uint8 = 0, mesh_num_x = 0, mesh_num_y = 0;
-    EEPROM_READ_VAR(i, dummy_uint8);
-    EEPROM_READ_VAR(i, mesh_num_x);
-    EEPROM_READ_VAR(i, mesh_num_y);
     #if ENABLED(MESH_BED_LEVELING)
-      mbl.active = dummy_uint8;
-      if (mesh_num_x == MESH_NUM_X_POINTS && mesh_num_y == MESH_NUM_Y_POINTS) {
-        EEPROM_READ_VAR(i, mbl.z_values);
-      } else {
-        mbl.reset();
-        for (int q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
-      }
+      // Compile time test that sizeof(mbl.z_values) is as expected
+      typedef char c_assert[(sizeof(mbl.z_values) == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS) * sizeof(dummy)) ? 1 : -1];
+      uint8_t mesh_num_x = MESH_NUM_X_POINTS,
+              mesh_num_y = MESH_NUM_Y_POINTS,
+              dummy_uint8 = mbl.status & _BV(MBL_STATUS_HAS_MESH_BIT);
+      EEPROM_WRITE(dummy_uint8);
+      EEPROM_WRITE(mbl.z_offset);
+      EEPROM_WRITE(mesh_num_x);
+      EEPROM_WRITE(mesh_num_y);
+      EEPROM_WRITE(mbl.z_values);
     #else
-      for (int q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
+      // For disabled MBL write a default mesh
+      uint8_t mesh_num_x = 3,
+              mesh_num_y = 3,
+              dummy_uint8 = 0;
+      dummy = 0.0f;
+      EEPROM_WRITE(dummy_uint8);
+      EEPROM_WRITE(dummy);
+      EEPROM_WRITE(mesh_num_x);
+      EEPROM_WRITE(mesh_num_y);
+      for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_WRITE(dummy);
     #endif // MESH_BED_LEVELING
 
-    #if DISABLED(AUTO_BED_LEVELING_FEATURE)
+    #if !HAS_BED_PROBE
       float zprobe_zoffset = 0;
     #endif
-    EEPROM_READ_VAR(i, zprobe_zoffset);
+    EEPROM_WRITE(zprobe_zoffset);
 
+    // 9 floats for DELTA / Z_DUAL_ENDSTOPS
     #if ENABLED(DELTA)
-      EEPROM_READ_VAR(i, endstop_adj);                // 3 floats
-      EEPROM_READ_VAR(i, delta_radius);               // 1 float
-      EEPROM_READ_VAR(i, delta_diagonal_rod);         // 1 float
-      EEPROM_READ_VAR(i, delta_segments_per_second);  // 1 float
+      EEPROM_WRITE(endstop_adj);               // 3 floats
+      EEPROM_WRITE(delta_radius);              // 1 float
+      EEPROM_WRITE(delta_diagonal_rod);        // 1 float
+      EEPROM_WRITE(delta_segments_per_second); // 1 float
+      EEPROM_WRITE(delta_diagonal_rod_trim_tower_1);  // 1 float
+      EEPROM_WRITE(delta_diagonal_rod_trim_tower_2);  // 1 float
+      EEPROM_WRITE(delta_diagonal_rod_trim_tower_3);  // 1 float
     #elif ENABLED(Z_DUAL_ENDSTOPS)
-      EEPROM_READ_VAR(i, z_endstop_adj);
+      EEPROM_WRITE(z_endstop_adj);            // 1 float
       dummy = 0.0f;
-      for (int q=5; q--;) EEPROM_READ_VAR(i, dummy);
+      for (uint8_t q = 8; q--;) EEPROM_WRITE(dummy);
     #else
       dummy = 0.0f;
-      for (int q=6; q--;) EEPROM_READ_VAR(i, dummy);
+      for (uint8_t q = 9; q--;) EEPROM_WRITE(dummy);
     #endif
 
     #if DISABLED(ULTIPANEL)
-      int plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed,
-          absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed;
-    #endif
+      const int lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
+                lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED },
+                lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
+    #endif // !ULTIPANEL
 
-    EEPROM_READ_VAR(i, plaPreheatHotendTemp);
-    EEPROM_READ_VAR(i, plaPreheatHPBTemp);
-    EEPROM_READ_VAR(i, plaPreheatFanSpeed);
-    EEPROM_READ_VAR(i, absPreheatHotendTemp);
-    EEPROM_READ_VAR(i, absPreheatHPBTemp);
-    EEPROM_READ_VAR(i, absPreheatFanSpeed);
+    EEPROM_WRITE(lcd_preheat_hotend_temp);
+    EEPROM_WRITE(lcd_preheat_bed_temp);
+    EEPROM_WRITE(lcd_preheat_fan_speed);
 
-    #if ENABLED(PIDTEMP)
-      for (int e = 0; e < 4; e++) { // 4 = max extruders currently supported by Marlin
-        EEPROM_READ_VAR(i, dummy); // Kp
-        if (e < EXTRUDERS && dummy != DUMMY_PID_VALUE) {
-          // do not need to scale PID values as the values in EEPROM are already scaled
-          PID_PARAM(Kp, e) = dummy;
-          EEPROM_READ_VAR(i, PID_PARAM(Ki, e));
-          EEPROM_READ_VAR(i, PID_PARAM(Kd, e));
-          #if ENABLED(PID_ADD_EXTRUSION_RATE)
-            EEPROM_READ_VAR(i, PID_PARAM(Kc, e));
+    for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
+
+      #if ENABLED(PIDTEMP)
+        if (e < HOTENDS) {
+          EEPROM_WRITE(PID_PARAM(Kp, e));
+          EEPROM_WRITE(PID_PARAM(Ki, e));
+          EEPROM_WRITE(PID_PARAM(Kd, e));
+          #if ENABLED(PID_EXTRUSION_SCALING)
+            EEPROM_WRITE(PID_PARAM(Kc, e));
           #else
-            EEPROM_READ_VAR(i, dummy);
+            dummy = 1.0f; // 1.0 = default kc
+            EEPROM_WRITE(dummy);
           #endif
         }
-        else {
-          for (int q=3; q--;) EEPROM_READ_VAR(i, dummy); // Ki, Kd, Kc
+        else
+      #endif // !PIDTEMP
+        {
+          dummy = DUMMY_PID_VALUE; // When read, will not change the existing value
+          EEPROM_WRITE(dummy); // Kp
+          dummy = 0.0f;
+          for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy); // Ki, Kd, Kc
         }
-      }
-    #else // !PIDTEMP
-      // 4 x 4 = 16 slots for PID parameters
-      for (int q=16; q--;) EEPROM_READ_VAR(i, dummy);  // 4x Kp, Ki, Kd, Kc
-    #endif // !PIDTEMP
 
-    #if DISABLED(PID_ADD_EXTRUSION_RATE)
-      int lpq_len;
+    } // Hotends Loop
+
+    #if DISABLED(PID_EXTRUSION_SCALING)
+      int lpq_len = 20;
     #endif
-    EEPROM_READ_VAR(i, lpq_len);
+    EEPROM_WRITE(lpq_len);
 
     #if DISABLED(PIDTEMPBED)
-      float bedKp, bedKi, bedKd;
-    #endif
-
-    EEPROM_READ_VAR(i, dummy); // bedKp
-    if (dummy != DUMMY_PID_VALUE) {
-      bedKp = dummy;
-      EEPROM_READ_VAR(i, bedKi);
-      EEPROM_READ_VAR(i, bedKd);
-    }
-    else {
-      for (int q=2; q--;) EEPROM_READ_VAR(i, dummy); // bedKi, bedKd
-    }
-
-    #if DISABLED(HAS_LCD_CONTRAST)
-      int lcd_contrast;
-    #endif
-    EEPROM_READ_VAR(i, lcd_contrast);
-
-    #if ENABLED(SCARA)
-      EEPROM_READ_VAR(i, axis_scaling);  // 3 floats
+      dummy = DUMMY_PID_VALUE;
+      for (uint8_t q = 3; q--;) EEPROM_WRITE(dummy);
     #else
-      EEPROM_READ_VAR(i, dummy);
+      EEPROM_WRITE(thermalManager.bedKp);
+      EEPROM_WRITE(thermalManager.bedKi);
+      EEPROM_WRITE(thermalManager.bedKd);
     #endif
+
+    #if !HAS_LCD_CONTRAST
+      const int lcd_contrast = 32;
+    #endif
+    EEPROM_WRITE(lcd_contrast);
 
     #if ENABLED(FWRETRACT)
-      EEPROM_READ_VAR(i, autoretract_enabled);
-      EEPROM_READ_VAR(i, retract_length);
+      EEPROM_WRITE(autoretract_enabled);
+      EEPROM_WRITE(retract_length);
       #if EXTRUDERS > 1
-        EEPROM_READ_VAR(i, retract_length_swap);
+        EEPROM_WRITE(retract_length_swap);
       #else
-        EEPROM_READ_VAR(i, dummy);
+        dummy = 0.0f;
+        EEPROM_WRITE(dummy);
       #endif
-      EEPROM_READ_VAR(i, retract_feedrate);
-      EEPROM_READ_VAR(i, retract_zlift);
-      EEPROM_READ_VAR(i, retract_recover_length);
+      EEPROM_WRITE(retract_feedrate_mm_s);
+      EEPROM_WRITE(retract_zlift);
+      EEPROM_WRITE(retract_recover_length);
       #if EXTRUDERS > 1
-        EEPROM_READ_VAR(i, retract_recover_length_swap);
+        EEPROM_WRITE(retract_recover_length_swap);
       #else
-        EEPROM_READ_VAR(i, dummy);
+        dummy = 0.0f;
+        EEPROM_WRITE(dummy);
       #endif
-      EEPROM_READ_VAR(i, retract_recover_feedrate);
+      EEPROM_WRITE(retract_recover_feedrate_mm_s);
     #endif // FWRETRACT
 
-    EEPROM_READ_VAR(i, volumetric_enabled);
+    EEPROM_WRITE(volumetric_enabled);
 
-    for (int q = 0; q < 4; q++) {
-      EEPROM_READ_VAR(i, dummy);
-      if (q < EXTRUDERS) filament_size[q] = dummy;
+    // Save filament sizes
+    for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
+      if (q < COUNT(filament_size)) dummy = filament_size[q];
+      EEPROM_WRITE(dummy);
     }
 
-    calculate_volumetric_multipliers();
-    // Call updatePID (similar to when we have processed M301)
-    updatePID();
+    uint16_t final_checksum = eeprom_checksum,
+             eeprom_size = eeprom_index;
 
-    // Report settings retrieved and length
+    eeprom_index = EEPROM_OFFSET;
+    EEPROM_WRITE(version);
+    EEPROM_WRITE(final_checksum);
+
+    // Report storage size
     SERIAL_ECHO_START;
-    SERIAL_ECHO(ver);
-    SERIAL_ECHOPAIR(" stored settings retrieved (", (unsigned long)i);
+    SERIAL_ECHOPAIR("Settings Stored (", eeprom_size);
     SERIAL_ECHOLNPGM(" bytes)");
   }
 
-  #if ENABLED(EEPROM_CHITCHAT)
-    Config_PrintSettings();
-  #endif
-}
+  /**
+   * M501 - Retrieve Configuration
+   */
+  void Config_RetrieveSettings() {
 
-#endif // EEPROM_SETTINGS
+    EEPROM_START();
 
-/**
- * Reset Configuration Settings - M502
- */
+    char stored_ver[4];
+    EEPROM_READ(stored_ver);
 
-void Config_ResetDefault() {
-  float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT;
-  float tmp2[] = DEFAULT_MAX_FEEDRATE;
-  long tmp3[] = DEFAULT_MAX_ACCELERATION;
-  for (uint8_t i = 0; i < NUM_AXIS; i++) {
-    axis_steps_per_unit[i] = tmp1[i];
-    max_feedrate[i] = tmp2[i];
-    max_acceleration_units_per_sq_second[i] = tmp3[i];
-    #if ENABLED(SCARA)
-      if (i < COUNT(axis_scaling))
-        axis_scaling[i] = 1;
+    uint16_t stored_checksum;
+    EEPROM_READ(stored_checksum);
+
+    //  SERIAL_ECHOPAIR("Version: [", ver);
+    //  SERIAL_ECHOPAIR("] Stored version: [", stored_ver);
+    //  SERIAL_CHAR(']');
+    //  SERIAL_EOL;
+
+    // Version has to match or defaults are used
+    if (strncmp(version, stored_ver, 3) != 0) {
+      Config_ResetDefault();
+    }
+    else {
+      float dummy = 0;
+
+      eeprom_checksum = 0; // clear before reading first "real data"
+
+      // Number of esteppers may change
+      uint8_t esteppers;
+      EEPROM_READ(esteppers);
+
+      // Get only the number of E stepper parameters previously stored
+      // Any steppers added later are set to their defaults
+      const float def1[] = DEFAULT_AXIS_STEPS_PER_UNIT, def2[] = DEFAULT_MAX_FEEDRATE;
+      const long def3[] = DEFAULT_MAX_ACCELERATION;
+      float tmp1[XYZ + esteppers], tmp2[XYZ + esteppers];
+      long tmp3[XYZ + esteppers];
+      EEPROM_READ(tmp1);
+      EEPROM_READ(tmp2);
+      EEPROM_READ(tmp3);
+      LOOP_XYZE_N(i) {
+        planner.axis_steps_per_mm[i]          = i < XYZ + esteppers ? tmp1[i] : def1[i < COUNT(def1) ? i : COUNT(def1) - 1];
+        planner.max_feedrate_mm_s[i]          = i < XYZ + esteppers ? tmp2[i] : def2[i < COUNT(def2) ? i : COUNT(def2) - 1];
+        planner.max_acceleration_mm_per_s2[i] = i < XYZ + esteppers ? tmp3[i] : def3[i < COUNT(def3) ? i : COUNT(def3) - 1];
+      }
+
+      EEPROM_READ(planner.acceleration);
+      EEPROM_READ(planner.retract_acceleration);
+      EEPROM_READ(planner.travel_acceleration);
+      EEPROM_READ(planner.min_feedrate_mm_s);
+      EEPROM_READ(planner.min_travel_feedrate_mm_s);
+      EEPROM_READ(planner.min_segment_time);
+      EEPROM_READ(planner.max_jerk);
+      EEPROM_READ(home_offset);
+
+      #if HOTENDS > 1
+        // Skip hotend 0 which must be 0
+        for (uint8_t e = 1; e < HOTENDS; e++)
+          LOOP_XYZ(i) EEPROM_READ(hotend_offset[i][e]);
+      #endif
+
+      uint8_t dummy_uint8 = 0, mesh_num_x = 0, mesh_num_y = 0;
+      EEPROM_READ(dummy_uint8);
+      EEPROM_READ(dummy);
+      EEPROM_READ(mesh_num_x);
+      EEPROM_READ(mesh_num_y);
+      #if ENABLED(MESH_BED_LEVELING)
+        mbl.status = dummy_uint8;
+        mbl.z_offset = dummy;
+        if (mesh_num_x == MESH_NUM_X_POINTS && mesh_num_y == MESH_NUM_Y_POINTS) {
+          // EEPROM data fits the current mesh
+          EEPROM_READ(mbl.z_values);
+        }
+        else {
+          // EEPROM data is stale
+          mbl.reset();
+          for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ(dummy);
+        }
+      #else
+        // MBL is disabled - skip the stored data
+        for (uint8_t q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ(dummy);
+      #endif // MESH_BED_LEVELING
+
+      #if !HAS_BED_PROBE
+        float zprobe_zoffset = 0;
+      #endif
+      EEPROM_READ(zprobe_zoffset);
+
+      #if ENABLED(DELTA)
+        EEPROM_READ(endstop_adj);                // 3 floats
+        EEPROM_READ(delta_radius);               // 1 float
+        EEPROM_READ(delta_diagonal_rod);         // 1 float
+        EEPROM_READ(delta_segments_per_second);  // 1 float
+        EEPROM_READ(delta_diagonal_rod_trim_tower_1);  // 1 float
+        EEPROM_READ(delta_diagonal_rod_trim_tower_2);  // 1 float
+        EEPROM_READ(delta_diagonal_rod_trim_tower_3);  // 1 float
+      #elif ENABLED(Z_DUAL_ENDSTOPS)
+        EEPROM_READ(z_endstop_adj);
+        dummy = 0.0f;
+        for (uint8_t q=8; q--;) EEPROM_READ(dummy);
+      #else
+        dummy = 0.0f;
+        for (uint8_t q=9; q--;) EEPROM_READ(dummy);
+      #endif
+
+      #if DISABLED(ULTIPANEL)
+        int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+      #endif
+
+      EEPROM_READ(lcd_preheat_hotend_temp);
+      EEPROM_READ(lcd_preheat_bed_temp);
+      EEPROM_READ(lcd_preheat_fan_speed);
+
+      #if ENABLED(PIDTEMP)
+        for (uint8_t e = 0; e < MAX_EXTRUDERS; e++) {
+          EEPROM_READ(dummy); // Kp
+          if (e < HOTENDS && dummy != DUMMY_PID_VALUE) {
+            // do not need to scale PID values as the values in EEPROM are already scaled
+            PID_PARAM(Kp, e) = dummy;
+            EEPROM_READ(PID_PARAM(Ki, e));
+            EEPROM_READ(PID_PARAM(Kd, e));
+            #if ENABLED(PID_EXTRUSION_SCALING)
+              EEPROM_READ(PID_PARAM(Kc, e));
+            #else
+              EEPROM_READ(dummy);
+            #endif
+          }
+          else {
+            for (uint8_t q=3; q--;) EEPROM_READ(dummy); // Ki, Kd, Kc
+          }
+        }
+      #else // !PIDTEMP
+        // 4 x 4 = 16 slots for PID parameters
+        for (uint8_t q = MAX_EXTRUDERS * 4; q--;) EEPROM_READ(dummy);  // Kp, Ki, Kd, Kc
+      #endif // !PIDTEMP
+
+      #if DISABLED(PID_EXTRUSION_SCALING)
+        int lpq_len;
+      #endif
+      EEPROM_READ(lpq_len);
+
+      #if ENABLED(PIDTEMPBED)
+        EEPROM_READ(dummy); // bedKp
+        if (dummy != DUMMY_PID_VALUE) {
+          thermalManager.bedKp = dummy;
+          EEPROM_READ(thermalManager.bedKi);
+          EEPROM_READ(thermalManager.bedKd);
+        }
+      #else
+        for (uint8_t q=3; q--;) EEPROM_READ(dummy); // bedKp, bedKi, bedKd
+      #endif
+
+      #if !HAS_LCD_CONTRAST
+        int lcd_contrast;
+      #endif
+      EEPROM_READ(lcd_contrast);
+
+      #if ENABLED(FWRETRACT)
+        EEPROM_READ(autoretract_enabled);
+        EEPROM_READ(retract_length);
+        #if EXTRUDERS > 1
+          EEPROM_READ(retract_length_swap);
+        #else
+          EEPROM_READ(dummy);
+        #endif
+        EEPROM_READ(retract_feedrate_mm_s);
+        EEPROM_READ(retract_zlift);
+        EEPROM_READ(retract_recover_length);
+        #if EXTRUDERS > 1
+          EEPROM_READ(retract_recover_length_swap);
+        #else
+          EEPROM_READ(dummy);
+        #endif
+        EEPROM_READ(retract_recover_feedrate_mm_s);
+      #endif // FWRETRACT
+
+      EEPROM_READ(volumetric_enabled);
+
+      for (uint8_t q = 0; q < MAX_EXTRUDERS; q++) {
+        EEPROM_READ(dummy);
+        if (q < COUNT(filament_size)) filament_size[q] = dummy;
+      }
+
+      if (eeprom_checksum == stored_checksum) {
+        Config_Postprocess();
+        SERIAL_ECHO_START;
+        SERIAL_ECHO(version);
+        SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index);
+        SERIAL_ECHOLNPGM(" bytes)");
+      }
+      else {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("EEPROM checksum mismatch");
+        Config_ResetDefault();
+      }
+   }
+
+    #if ENABLED(EEPROM_CHITCHAT)
+      Config_PrintSettings();
     #endif
   }
 
-  // steps per sq second need to be updated to agree with the units per sq second
-  reset_acceleration_rates();
+#else // !EEPROM_SETTINGS
 
-  acceleration = DEFAULT_ACCELERATION;
-  retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
-  travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
-  minimumfeedrate = DEFAULT_MINIMUMFEEDRATE;
-  minsegmenttime = DEFAULT_MINSEGMENTTIME;
-  mintravelfeedrate = DEFAULT_MINTRAVELFEEDRATE;
-  max_xy_jerk = DEFAULT_XYJERK;
-  max_z_jerk = DEFAULT_ZJERK;
-  max_e_jerk = DEFAULT_EJERK;
+  void Config_StoreSettings() {
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLNPGM("EEPROM disabled");
+  }
+
+#endif // !EEPROM_SETTINGS
+
+/**
+ * M502 - Reset Configuration
+ */
+void Config_ResetDefault() {
+  const float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] = DEFAULT_MAX_FEEDRATE;
+  const long tmp3[] = DEFAULT_MAX_ACCELERATION;
+  LOOP_XYZE_N(i) {
+    planner.axis_steps_per_mm[i]          = tmp1[i < COUNT(tmp1) ? i : COUNT(tmp1) - 1];
+    planner.max_feedrate_mm_s[i]          = tmp2[i < COUNT(tmp2) ? i : COUNT(tmp2) - 1];
+    planner.max_acceleration_mm_per_s2[i] = tmp3[i < COUNT(tmp3) ? i : COUNT(tmp3) - 1];
+  }
+
+  planner.acceleration = DEFAULT_ACCELERATION;
+  planner.retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
+  planner.travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
+  planner.min_feedrate_mm_s = DEFAULT_MINIMUMFEEDRATE;
+  planner.min_segment_time = DEFAULT_MINSEGMENTTIME;
+  planner.min_travel_feedrate_mm_s = DEFAULT_MINTRAVELFEEDRATE;
+  planner.max_jerk[X_AXIS] = DEFAULT_XJERK;
+  planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
+  planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
+  planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
   home_offset[X_AXIS] = home_offset[Y_AXIS] = home_offset[Z_AXIS] = 0;
 
-  #if ENABLED(MESH_BED_LEVELING)
-    mbl.active = 0;
+  #if HOTENDS > 1
+    constexpr float tmp4[XYZ][HOTENDS] = {
+      HOTEND_OFFSET_X,
+      HOTEND_OFFSET_Y
+      #ifdef HOTEND_OFFSET_Z
+        , HOTEND_OFFSET_Z
+      #else
+        , { 0 }
+      #endif
+    };
+    static_assert(
+      tmp4[X_AXIS][0] == 0 && tmp4[Y_AXIS][0] == 0 && tmp4[Z_AXIS][0] == 0,
+      "Offsets for the first hotend must be 0.0."
+    );
+    LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp4[i][e];
   #endif
 
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+  #if ENABLED(MESH_BED_LEVELING)
+    mbl.reset();
+  #endif
+
+  #if HAS_BED_PROBE
     zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
   #endif
 
   #if ENABLED(DELTA)
-    endstop_adj[X_AXIS] = endstop_adj[Y_AXIS] = endstop_adj[Z_AXIS] = 0;
+    const float adj[ABC] = DELTA_ENDSTOP_ADJ;
+    endstop_adj[A_AXIS] = adj[A_AXIS];
+    endstop_adj[B_AXIS] = adj[B_AXIS];
+    endstop_adj[C_AXIS] = adj[C_AXIS];
     delta_radius =  DELTA_RADIUS;
     delta_diagonal_rod =  DELTA_DIAGONAL_ROD;
     delta_segments_per_second =  DELTA_SEGMENTS_PER_SECOND;
-    recalc_delta_settings(delta_radius, delta_diagonal_rod);
+    delta_diagonal_rod_trim_tower_1 = DELTA_DIAGONAL_ROD_TRIM_TOWER_1;
+    delta_diagonal_rod_trim_tower_2 = DELTA_DIAGONAL_ROD_TRIM_TOWER_2;
+    delta_diagonal_rod_trim_tower_3 = DELTA_DIAGONAL_ROD_TRIM_TOWER_3;
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     z_endstop_adj = 0;
   #endif
 
   #if ENABLED(ULTIPANEL)
-    plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;
-    plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP;
-    plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
-    absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP;
-    absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
-    absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
+    lcd_preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
+    lcd_preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
+    lcd_preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
+    lcd_preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
+    lcd_preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
+    lcd_preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
   #endif
 
-  #if ENABLED(HAS_LCD_CONTRAST)
+  #if HAS_LCD_CONTRAST
     lcd_contrast = DEFAULT_LCD_CONTRAST;
   #endif
 
   #if ENABLED(PIDTEMP)
-    #if ENABLED(PID_PARAMS_PER_EXTRUDER)
-      for (int e = 0; e < EXTRUDERS; e++)
+    #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
+      HOTEND_LOOP()
     #else
-      int e = 0; // only need to write once
+      int e = 0; UNUSED(e); // only need to write once
     #endif
     {
       PID_PARAM(Kp, e) = DEFAULT_Kp;
       PID_PARAM(Ki, e) = scalePID_i(DEFAULT_Ki);
       PID_PARAM(Kd, e) = scalePID_d(DEFAULT_Kd);
-      #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      #if ENABLED(PID_EXTRUSION_SCALING)
         PID_PARAM(Kc, e) = DEFAULT_Kc;
       #endif
     }
-    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+    #if ENABLED(PID_EXTRUSION_SCALING)
       lpq_len = 20; // default last-position-queue size
     #endif
-    // call updatePID (similar to when we have processed M301)
-    updatePID();
   #endif // PIDTEMP
 
   #if ENABLED(PIDTEMPBED)
-    bedKp = DEFAULT_bedKp;
-    bedKi = scalePID_i(DEFAULT_bedKi);
-    bedKd = scalePID_d(DEFAULT_bedKd);
+    thermalManager.bedKp = DEFAULT_bedKp;
+    thermalManager.bedKi = scalePID_i(DEFAULT_bedKi);
+    thermalManager.bedKd = scalePID_d(DEFAULT_bedKd);
   #endif
 
   #if ENABLED(FWRETRACT)
@@ -569,19 +703,28 @@ void Config_ResetDefault() {
     #if EXTRUDERS > 1
       retract_length_swap = RETRACT_LENGTH_SWAP;
     #endif
-    retract_feedrate = RETRACT_FEEDRATE;
+    retract_feedrate_mm_s = RETRACT_FEEDRATE;
     retract_zlift = RETRACT_ZLIFT;
     retract_recover_length = RETRACT_RECOVER_LENGTH;
     #if EXTRUDERS > 1
       retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
     #endif
-    retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
+    retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
   #endif
 
   volumetric_enabled = false;
-  for (uint8_t q=0; q<COUNT(filament_size); q++)
+  for (uint8_t q = 0; q < COUNT(filament_size); q++)
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
-  calculate_volumetric_multipliers();
+
+  endstops.enable_globally(
+    #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
+      (true)
+    #else
+      (false)
+    #endif
+  );
+
+  Config_Postprocess();
 
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
@@ -589,306 +732,333 @@ void Config_ResetDefault() {
 
 #if DISABLED(DISABLE_M503)
 
-/**
- * Print Configuration Settings - M503
- */
+  #define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START; }while(0)
 
-#define CONFIG_ECHO_START do{ if (!forReplay) SERIAL_ECHO_START; }while(0)
+  /**
+   * M503 - Print Configuration
+   */
+  void Config_PrintSettings(bool forReplay) {
+    // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
 
-void Config_PrintSettings(bool forReplay) {
-  // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
-
-  CONFIG_ECHO_START;
-
-  if (!forReplay) {
-    SERIAL_ECHOLNPGM("Steps per unit:");
     CONFIG_ECHO_START;
-  }
-  SERIAL_ECHOPAIR("  M92 X", axis_steps_per_unit[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", axis_steps_per_unit[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", axis_steps_per_unit[Z_AXIS]);
-  SERIAL_ECHOPAIR(" E", axis_steps_per_unit[E_AXIS]);
-  SERIAL_EOL;
 
-  CONFIG_ECHO_START;
-
-  #if ENABLED(SCARA)
     if (!forReplay) {
-      SERIAL_ECHOLNPGM("Scaling factors:");
+      SERIAL_ECHOLNPGM("Steps per unit:");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M365 X", axis_scaling[X_AXIS]);
-    SERIAL_ECHOPAIR(" Y", axis_scaling[Y_AXIS]);
-    SERIAL_ECHOPAIR(" Z", axis_scaling[Z_AXIS]);
+    SERIAL_ECHOPAIR("  M92 X", planner.axis_steps_per_mm[X_AXIS]);
+    SERIAL_ECHOPAIR(" Y", planner.axis_steps_per_mm[Y_AXIS]);
+    SERIAL_ECHOPAIR(" Z", planner.axis_steps_per_mm[Z_AXIS]);
+    #if DISABLED(DISTINCT_E_FACTORS)
+      SERIAL_ECHOPAIR(" E", planner.axis_steps_per_mm[E_AXIS]);
+    #endif
     SERIAL_EOL;
-    CONFIG_ECHO_START;
-  #endif // SCARA
-
-  if (!forReplay) {
-    SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
-    CONFIG_ECHO_START;
-  }
-  SERIAL_ECHOPAIR("  M203 X", max_feedrate[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", max_feedrate[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", max_feedrate[Z_AXIS]);
-  SERIAL_ECHOPAIR(" E", max_feedrate[E_AXIS]);
-  SERIAL_EOL;
-
-  CONFIG_ECHO_START;
-  if (!forReplay) {
-    SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
-    CONFIG_ECHO_START;
-  }
-  SERIAL_ECHOPAIR("  M201 X", max_acceleration_units_per_sq_second[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", max_acceleration_units_per_sq_second[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", max_acceleration_units_per_sq_second[Z_AXIS]);
-  SERIAL_ECHOPAIR(" E", max_acceleration_units_per_sq_second[E_AXIS]);
-  SERIAL_EOL;
-  CONFIG_ECHO_START;
-  if (!forReplay) {
-    SERIAL_ECHOLNPGM("Accelerations: P=printing, R=retract and T=travel");
-    CONFIG_ECHO_START;
-  }
-  SERIAL_ECHOPAIR("  M204 P", acceleration);
-  SERIAL_ECHOPAIR(" R", retract_acceleration);
-  SERIAL_ECHOPAIR(" T", travel_acceleration);
-  SERIAL_EOL;
-
-  CONFIG_ECHO_START;
-  if (!forReplay) {
-    SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum XY jerk (mm/s),  Z=maximum Z jerk (mm/s),  E=maximum E jerk (mm/s)");
-    CONFIG_ECHO_START;
-  }
-  SERIAL_ECHOPAIR("  M205 S", minimumfeedrate);
-  SERIAL_ECHOPAIR(" T", mintravelfeedrate);
-  SERIAL_ECHOPAIR(" B", minsegmenttime);
-  SERIAL_ECHOPAIR(" X", max_xy_jerk);
-  SERIAL_ECHOPAIR(" Z", max_z_jerk);
-  SERIAL_ECHOPAIR(" E", max_e_jerk);
-  SERIAL_EOL;
-
-  CONFIG_ECHO_START;
-  if (!forReplay) {
-    SERIAL_ECHOLNPGM("Home offset (mm):");
-    CONFIG_ECHO_START;
-  }
-  SERIAL_ECHOPAIR("  M206 X", home_offset[X_AXIS]);
-  SERIAL_ECHOPAIR(" Y", home_offset[Y_AXIS]);
-  SERIAL_ECHOPAIR(" Z", home_offset[Z_AXIS]);
-  SERIAL_EOL;
-
-  #if ENABLED(MESH_BED_LEVELING)
-    if (!forReplay) {
-      SERIAL_ECHOLNPGM("Mesh bed leveling:");
-      CONFIG_ECHO_START;
-    }
-    SERIAL_ECHOPAIR("  M420 S", (unsigned long)mbl.active);
-    SERIAL_ECHOPAIR(" X", (unsigned long)MESH_NUM_X_POINTS);
-    SERIAL_ECHOPAIR(" Y", (unsigned long)MESH_NUM_Y_POINTS);
-    SERIAL_EOL;
-    for (int y=0; y<MESH_NUM_Y_POINTS; y++) {
-      for (int x=0; x<MESH_NUM_X_POINTS; x++) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M421 X", mbl.get_x(x));
-        SERIAL_ECHOPAIR(" Y", mbl.get_y(y));
-        SERIAL_ECHOPAIR(" Z", mbl.z_values[y][x]);
-        SERIAL_EOL;
+    #if ENABLED(DISTINCT_E_FACTORS)
+      for (uint8_t i = 0; i < E_STEPPERS; i++) {
+        SERIAL_ECHOPAIR("  M92 T", (int)i);
+        SERIAL_ECHOLNPAIR(" E", planner.axis_steps_per_mm[E_AXIS + i]);
       }
-    }
-  #endif
+    #endif
 
-  #if ENABLED(DELTA)
     CONFIG_ECHO_START;
+
     if (!forReplay) {
-      SERIAL_ECHOLNPGM("Endstop adjustment (mm):");
+      SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M666 X", endstop_adj[X_AXIS]);
-    SERIAL_ECHOPAIR(" Y", endstop_adj[Y_AXIS]);
-    SERIAL_ECHOPAIR(" Z", endstop_adj[Z_AXIS]);
+    SERIAL_ECHOPAIR("  M203 X", planner.max_feedrate_mm_s[X_AXIS]);
+    SERIAL_ECHOPAIR(" Y", planner.max_feedrate_mm_s[Y_AXIS]);
+    SERIAL_ECHOPAIR(" Z", planner.max_feedrate_mm_s[Z_AXIS]);
+    #if DISABLED(DISTINCT_E_FACTORS)
+      SERIAL_ECHOPAIR(" E", planner.max_feedrate_mm_s[E_AXIS]);
+    #endif
     SERIAL_EOL;
-    CONFIG_ECHO_START;
-    SERIAL_ECHOLNPGM("Delta settings: L=delta_diagonal_rod, R=delta_radius, S=delta_segments_per_second");
-    CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M665 L", delta_diagonal_rod);
-    SERIAL_ECHOPAIR(" R", delta_radius);
-    SERIAL_ECHOPAIR(" S", delta_segments_per_second);
-    SERIAL_EOL;
-  #elif ENABLED(Z_DUAL_ENDSTOPS)
+    #if ENABLED(DISTINCT_E_FACTORS)
+      for (uint8_t i = 0; i < E_STEPPERS; i++) {
+        SERIAL_ECHOPAIR("  M203 T", (int)i);
+        SERIAL_ECHOLNPAIR(" E", planner.max_feedrate_mm_s[E_AXIS + i]);
+      }
+    #endif
+
     CONFIG_ECHO_START;
     if (!forReplay) {
-      SERIAL_ECHOLNPGM("Z2 Endstop adjustment (mm):");
+      SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M666 Z", z_endstop_adj);
-    SERIAL_EOL;  
-  #endif // DELTA
+    SERIAL_ECHOPAIR("  M201 X", planner.max_acceleration_mm_per_s2[X_AXIS]);
+    SERIAL_ECHOPAIR(" Y", planner.max_acceleration_mm_per_s2[Y_AXIS]);
+    SERIAL_ECHOPAIR(" Z", planner.max_acceleration_mm_per_s2[Z_AXIS]);
+    #if DISABLED(DISTINCT_E_FACTORS)
+      SERIAL_ECHOPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS]);
+    #endif
+    SERIAL_EOL;
+    #if ENABLED(DISTINCT_E_FACTORS)
+      for (uint8_t i = 0; i < E_STEPPERS; i++) {
+        SERIAL_ECHOPAIR("  M201 T", (int)i);
+        SERIAL_ECHOLNPAIR(" E", planner.max_acceleration_mm_per_s2[E_AXIS + i]);
+      }
+    #endif
 
-  #if ENABLED(ULTIPANEL)
     CONFIG_ECHO_START;
     if (!forReplay) {
-      SERIAL_ECHOLNPGM("Material heatup parameters:");
+      SERIAL_ECHOLNPGM("Accelerations: P=printing, R=retract and T=travel");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M145 M0 H", (unsigned long)plaPreheatHotendTemp);
-    SERIAL_ECHOPAIR(" B", (unsigned long)plaPreheatHPBTemp);
-    SERIAL_ECHOPAIR(" F", (unsigned long)plaPreheatFanSpeed);
+    SERIAL_ECHOPAIR("  M204 P", planner.acceleration);
+    SERIAL_ECHOPAIR(" R", planner.retract_acceleration);
+    SERIAL_ECHOPAIR(" T", planner.travel_acceleration);
     SERIAL_EOL;
-    CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M145 M1 H", (unsigned long)absPreheatHotendTemp);
-    SERIAL_ECHOPAIR(" B", (unsigned long)absPreheatHPBTemp);
-    SERIAL_ECHOPAIR(" F", (unsigned long)absPreheatFanSpeed);
-    SERIAL_EOL;
-  #endif // ULTIPANEL
-
-  #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
 
     CONFIG_ECHO_START;
     if (!forReplay) {
-      SERIAL_ECHOLNPGM("PID settings:");
+      SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum XY jerk (mm/s),  Z=maximum Z jerk (mm/s),  E=maximum E jerk (mm/s)");
+      CONFIG_ECHO_START;
     }
-    #if ENABLED(PIDTEMP)
-      #if EXTRUDERS > 1
-        if (forReplay) {
-          for (uint8_t i = 0; i < EXTRUDERS; i++) {
-            CONFIG_ECHO_START;
-            SERIAL_ECHOPAIR("  M301 E", (unsigned long)i);
-            SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, i));
-            SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, i)));
-            SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, i)));
-            #if ENABLED(PID_ADD_EXTRUSION_RATE)
-              SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, i));
-              if (i == 0) SERIAL_ECHOPAIR(" L", lpq_len);
-            #endif
-            SERIAL_EOL;
-          }
-        }
-        else
-      #endif // EXTRUDERS > 1
-      // !forReplay || EXTRUDERS == 1
-      {
+    SERIAL_ECHOPAIR("  M205 S", planner.min_feedrate_mm_s);
+    SERIAL_ECHOPAIR(" T", planner.min_travel_feedrate_mm_s);
+    SERIAL_ECHOPAIR(" B", planner.min_segment_time);
+    SERIAL_ECHOPAIR(" X", planner.max_jerk[X_AXIS]);
+    SERIAL_ECHOPAIR(" Y", planner.max_jerk[Y_AXIS]);
+    SERIAL_ECHOPAIR(" Z", planner.max_jerk[Z_AXIS]);
+    SERIAL_ECHOPAIR(" E", planner.max_jerk[E_AXIS]);
+    SERIAL_EOL;
+
+    CONFIG_ECHO_START;
+    if (!forReplay) {
+      SERIAL_ECHOLNPGM("Home offset (mm)");
+      CONFIG_ECHO_START;
+    }
+    SERIAL_ECHOPAIR("  M206 X", home_offset[X_AXIS]);
+    SERIAL_ECHOPAIR(" Y", home_offset[Y_AXIS]);
+    SERIAL_ECHOPAIR(" Z", home_offset[Z_AXIS]);
+    SERIAL_EOL;
+
+    #if HOTENDS > 1
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Hotend offsets (mm)");
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echo values for E0
-        SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, 0)));
-        SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
-        #if ENABLED(PID_ADD_EXTRUSION_RATE)
-          SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, 0));
-          SERIAL_ECHOPAIR(" L", lpq_len);
+      }
+      for (uint8_t e = 1; e < HOTENDS; e++) {
+        SERIAL_ECHOPAIR("  M218 T", (int)e);
+        SERIAL_ECHOPAIR(" X", hotend_offset[X_AXIS][e]);
+        SERIAL_ECHOPAIR(" Y", hotend_offset[Y_AXIS][e]);
+        #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(SWITCHING_EXTRUDER)
+          SERIAL_ECHOPAIR(" Z", hotend_offset[Z_AXIS][e]);
         #endif
         SERIAL_EOL;
       }
-    #endif // PIDTEMP
-
-    #if ENABLED(PIDTEMPBED)
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M304 P", bedKp);
-      SERIAL_ECHOPAIR(" I", unscalePID_i(bedKi));
-      SERIAL_ECHOPAIR(" D", unscalePID_d(bedKd));
-      SERIAL_EOL;
     #endif
 
-  #endif // PIDTEMP || PIDTEMPBED
-
-  #if ENABLED(HAS_LCD_CONTRAST)
-    CONFIG_ECHO_START;
-    if (!forReplay) {
-      SERIAL_ECHOLNPGM("LCD Contrast:");
-      CONFIG_ECHO_START;
-    }
-    SERIAL_ECHOPAIR("  M250 C", (unsigned long)lcd_contrast);
-    SERIAL_EOL;
-  #endif
-
-  #if ENABLED(FWRETRACT)
-
-    CONFIG_ECHO_START;
-    if (!forReplay) {
-      SERIAL_ECHOLNPGM("Retract: S=Length (mm) F:Speed (mm/m) Z: ZLift (mm)");
-      CONFIG_ECHO_START;
-    }
-    SERIAL_ECHOPAIR("  M207 S", retract_length);
-    #if EXTRUDERS > 1
-      SERIAL_ECHOPAIR(" W", retract_length_swap);
-    #endif
-    SERIAL_ECHOPAIR(" F", retract_feedrate*60);
-    SERIAL_ECHOPAIR(" Z", retract_zlift);
-    SERIAL_EOL;
-    CONFIG_ECHO_START;
-    if (!forReplay) {
-      SERIAL_ECHOLNPGM("Recover: S=Extra length (mm) F:Speed (mm/m)");
-      CONFIG_ECHO_START;
-    }
-    SERIAL_ECHOPAIR("  M208 S", retract_recover_length);
-    #if EXTRUDERS > 1
-      SERIAL_ECHOPAIR(" W", retract_recover_length_swap);
-    #endif
-    SERIAL_ECHOPAIR(" F", retract_recover_feedrate*60);
-    SERIAL_EOL;
-    CONFIG_ECHO_START;
-    if (!forReplay) {
-      SERIAL_ECHOLNPGM("Auto-Retract: S=0 to disable, 1 to interpret extrude-only moves as retracts or recoveries");
-      CONFIG_ECHO_START;
-    }
-    SERIAL_ECHOPAIR("  M209 S", (unsigned long)(autoretract_enabled ? 1 : 0));
-    SERIAL_EOL;
-
-  #endif // FWRETRACT
-
-  /**
-   * Volumetric extrusion M200
-   */
-  if (!forReplay) {
-    CONFIG_ECHO_START;
-    SERIAL_ECHOPGM("Filament settings:");
-    if (volumetric_enabled)
-      SERIAL_EOL;
-    else
-      SERIAL_ECHOLNPGM(" Disabled");
-  }
-
-  CONFIG_ECHO_START;
-  SERIAL_ECHOPAIR("  M200 D", filament_size[0]);
-  SERIAL_EOL;
-  #if EXTRUDERS > 1
-    CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M200 T1 D", filament_size[1]);
-    SERIAL_EOL;
-    #if EXTRUDERS > 2
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M200 T2 D", filament_size[2]);
-      SERIAL_EOL;
-      #if EXTRUDERS > 3
+    #if ENABLED(MESH_BED_LEVELING)
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Mesh bed leveling:");
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M200 T3 D", filament_size[3]);
+      }
+      SERIAL_ECHOPAIR("  M420 S", mbl.has_mesh() ? 1 : 0);
+      SERIAL_ECHOPAIR(" X", MESH_NUM_X_POINTS);
+      SERIAL_ECHOPAIR(" Y", MESH_NUM_Y_POINTS);
+      SERIAL_EOL;
+      for (uint8_t py = 1; py <= MESH_NUM_Y_POINTS; py++) {
+        for (uint8_t px = 1; px <= MESH_NUM_X_POINTS; px++) {
+          CONFIG_ECHO_START;
+          SERIAL_ECHOPAIR("  G29 S3 X", (int)px);
+          SERIAL_ECHOPAIR(" Y", (int)py);
+          SERIAL_ECHOPGM(" Z");
+          SERIAL_PROTOCOL_F(mbl.z_values[py-1][px-1], 5);
+          SERIAL_EOL;
+        }
+      }
+    #endif
+
+    #if ENABLED(DELTA)
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Endstop adjustment (mm):");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M666 X", endstop_adj[X_AXIS]);
+      SERIAL_ECHOPAIR(" Y", endstop_adj[Y_AXIS]);
+      SERIAL_ECHOPAIR(" Z", endstop_adj[Z_AXIS]);
+      SERIAL_EOL;
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Delta settings: L=diagonal_rod, R=radius, S=segments_per_second, ABC=diagonal_rod_trim_tower_[123]");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M665 L", delta_diagonal_rod);
+      SERIAL_ECHOPAIR(" R", delta_radius);
+      SERIAL_ECHOPAIR(" S", delta_segments_per_second);
+      SERIAL_ECHOPAIR(" A", delta_diagonal_rod_trim_tower_1);
+      SERIAL_ECHOPAIR(" B", delta_diagonal_rod_trim_tower_2);
+      SERIAL_ECHOPAIR(" C", delta_diagonal_rod_trim_tower_3);
+      SERIAL_EOL;
+    #elif ENABLED(Z_DUAL_ENDSTOPS)
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Z2 Endstop adjustment (mm):");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M666 Z", z_endstop_adj);
+      SERIAL_EOL;
+    #endif // DELTA
+
+    #if ENABLED(ULTIPANEL)
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Material heatup parameters:");
+        CONFIG_ECHO_START;
+      }
+      for (uint8_t i = 0; i < COUNT(lcd_preheat_hotend_temp); i++) {
+        SERIAL_ECHOPAIR("  M145 S", (int)i);
+        SERIAL_ECHOPAIR(" H", lcd_preheat_hotend_temp[i]);
+        SERIAL_ECHOPAIR(" B", lcd_preheat_bed_temp[i]);
+        SERIAL_ECHOPAIR(" F", lcd_preheat_fan_speed[i]);
+        SERIAL_EOL;
+      }
+    #endif // ULTIPANEL
+
+    #if HAS_PID_HEATING
+
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("PID settings:");
+      }
+      #if ENABLED(PIDTEMP)
+        #if HOTENDS > 1
+          if (forReplay) {
+            HOTEND_LOOP() {
+              CONFIG_ECHO_START;
+              SERIAL_ECHOPAIR("  M301 E", e);
+              SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, e));
+              SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, e)));
+              SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, e)));
+              #if ENABLED(PID_EXTRUSION_SCALING)
+                SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, e));
+                if (e == 0) SERIAL_ECHOPAIR(" L", lpq_len);
+              #endif
+              SERIAL_EOL;
+            }
+          }
+          else
+        #endif // HOTENDS > 1
+        // !forReplay || HOTENDS == 1
+        {
+          CONFIG_ECHO_START;
+          SERIAL_ECHOPAIR("  M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echo values for E0
+          SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, 0)));
+          SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
+          #if ENABLED(PID_EXTRUSION_SCALING)
+            SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, 0));
+            SERIAL_ECHOPAIR(" L", lpq_len);
+          #endif
+          SERIAL_EOL;
+        }
+      #endif // PIDTEMP
+
+      #if ENABLED(PIDTEMPBED)
+        CONFIG_ECHO_START;
+        SERIAL_ECHOPAIR("  M304 P", thermalManager.bedKp);
+        SERIAL_ECHOPAIR(" I", unscalePID_i(thermalManager.bedKi));
+        SERIAL_ECHOPAIR(" D", unscalePID_d(thermalManager.bedKd));
         SERIAL_EOL;
       #endif
+
+    #endif // PIDTEMP || PIDTEMPBED
+
+    #if HAS_LCD_CONTRAST
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("LCD Contrast:");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M250 C", lcd_contrast);
+      SERIAL_EOL;
     #endif
-  #endif
 
-  if (!volumetric_enabled) {
+    #if ENABLED(FWRETRACT)
+
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Retract: S=Length (mm) F:Speed (mm/m) Z: ZLift (mm)");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M207 S", retract_length);
+      #if EXTRUDERS > 1
+        SERIAL_ECHOPAIR(" W", retract_length_swap);
+      #endif
+      SERIAL_ECHOPAIR(" F", MMS_TO_MMM(retract_feedrate_mm_s));
+      SERIAL_ECHOPAIR(" Z", retract_zlift);
+      SERIAL_EOL;
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Recover: S=Extra length (mm) F:Speed (mm/m)");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M208 S", retract_recover_length);
+      #if EXTRUDERS > 1
+        SERIAL_ECHOPAIR(" W", retract_recover_length_swap);
+      #endif
+      SERIAL_ECHOPAIR(" F", MMS_TO_MMM(retract_recover_feedrate_mm_s));
+      SERIAL_EOL;
+      CONFIG_ECHO_START;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Auto-Retract: S=0 to disable, 1 to interpret extrude-only moves as retracts or recoveries");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M209 S", autoretract_enabled ? 1 : 0);
+      SERIAL_EOL;
+
+    #endif // FWRETRACT
+
+    /**
+     * Volumetric extrusion M200
+     */
+    if (!forReplay) {
+      CONFIG_ECHO_START;
+      SERIAL_ECHOPGM("Filament settings:");
+      if (volumetric_enabled)
+        SERIAL_EOL;
+      else
+        SERIAL_ECHOLNPGM(" Disabled");
+    }
+
     CONFIG_ECHO_START;
-    SERIAL_ECHOLNPGM("  M200 D0");
-  }
+    SERIAL_ECHOPAIR("  M200 D", filament_size[0]);
+    SERIAL_EOL;
+    #if EXTRUDERS > 1
+      CONFIG_ECHO_START;
+      SERIAL_ECHOPAIR("  M200 T1 D", filament_size[1]);
+      SERIAL_EOL;
+      #if EXTRUDERS > 2
+        CONFIG_ECHO_START;
+        SERIAL_ECHOPAIR("  M200 T2 D", filament_size[2]);
+        SERIAL_EOL;
+        #if EXTRUDERS > 3
+          CONFIG_ECHO_START;
+          SERIAL_ECHOPAIR("  M200 T3 D", filament_size[3]);
+          SERIAL_EOL;
+        #endif
+      #endif
+    #endif
 
-  /**
-   * Auto Bed Leveling
-   */
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    #if ENABLED(CUSTOM_M_CODES)
+    if (!volumetric_enabled) {
+      CONFIG_ECHO_START;
+      SERIAL_ECHOLNPGM("  M200 D0");
+    }
+
+    /**
+     * Auto Bed Leveling
+     */
+    #if HAS_BED_PROBE
       if (!forReplay) {
         CONFIG_ECHO_START;
         SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M" STRINGIFY(CUSTOM_M_CODE_SET_Z_PROBE_OFFSET) " Z", zprobe_zoffset);
-    #else
-      if (!forReplay) {
-        CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("Z-Probe Offset (mm):", zprobe_zoffset);
-      }
+      SERIAL_ECHOPAIR("  M851 Z", zprobe_zoffset);
+      SERIAL_EOL;
     #endif
-    SERIAL_EOL;
-  #endif
-}
+  }
 
 #endif // !DISABLE_M503

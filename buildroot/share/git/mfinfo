@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+#
+# mfinfo
+#
+# Get the following helpful git info about the working directory:
+#
+#   - Remote (upstream) Org name (MarlinFirmware)
+#   - Remote (origin) Org name (your Github username)
+#   - Repo Name (Marlin or MarlinDev)
+#   - Marlin Target branch (RCBugFix or dev)
+#   - Branch Name (the current branch or the one that was passed)
+#
+
+REPO=$(git remote get-url upstream 2>/dev/null | sed -E 's/.*\/(.*)\.git/\1/')
+
+if [[ -z $REPO ]]; then
+  echo "`basename $0`: No 'upstream' remote found." 1>&2 ; exit 1
+fi
+
+ORG=$(git remote get-url upstream 2>/dev/null | sed -E 's/.*[\/:](.*)\/.*$/\1/')
+
+if [[ $ORG != MarlinFirmware ]]; then
+  echo "`basename $0`: Not a Marlin repository."
+  exit 1
+fi
+
+case "$REPO" in
+  Marlin    ) TARG=RCBugFix ;;
+  MarlinDev ) TARG=dev ;;
+esac
+
+FORK=$(git remote get-url origin 2>/dev/null | sed -E 's/.*[\/:](.*)\/.*$/\1/')
+
+case "$#" in
+  0 ) BRANCH=$(git branch 2>/dev/null | grep ^* | sed 's/\* //g') ;;
+  1 ) BRANCH=$1 ;;
+  * ) echo "Usage: `basename $0` [branch]" 1>&2 ; exit 1 ;;
+esac
+
+echo "$ORG $FORK $REPO $TARG $BRANCH"

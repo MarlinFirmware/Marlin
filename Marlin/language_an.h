@@ -53,14 +53,14 @@
 #define MSG_SET_ORIGIN                      "Establir orichen"
 #define MSG_PREHEAT_1                       "Precalentar PLA"
 #define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 " "
-#define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 "Tot"
-#define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 "Base"
-#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 "Config"
+#define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 " Tot"
+#define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 " Base"
+#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 " Conf"
 #define MSG_PREHEAT_2                       "Precalentar ABS"
 #define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 " "
-#define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 "Tot"
-#define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 "Base"
-#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 "Config"
+#define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " Tot"
+#define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 " Base"
+#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " Conf"
 #define MSG_COOLDOWN                        "Enfriar"
 #define MSG_SWITCH_PS_ON                    "Enchegar Fuent"
 #define MSG_SWITCH_PS_OFF                   "Amortar Fuent"
@@ -165,6 +165,12 @@
 #define MSG_ERR_MINTEMP                     "Error: Temp Menima"
 #define MSG_ERR_MAXTEMP_BED                 "Error: Temp Max base"
 #define MSG_ERR_MINTEMP_BED                 "Error: Temp Min base"
+#define MSG_ERR_Z_HOMING                    "G28 Z vedau"
+#define MSG_HALTED                          "IMPRESORA ATURADA"
+#define MSG_PLEASE_RESET                    "Per favor reinic."
+#define MSG_SHORT_DAY                       "d"
+#define MSG_SHORT_HOUR                      "h"
+#define MSG_SHORT_MINUTE                    "m"
 #define MSG_HEATING                         "Calentando..."
 #define MSG_HEATING_COMPLETE                "Calentamiento listo"
 #define MSG_BED_HEATING                     "Calentando base..."
@@ -174,6 +180,7 @@
 #define MSG_DELTA_CALIBRATE_Y               "Calibrar Y"
 #define MSG_DELTA_CALIBRATE_Z               "Calibrar Z"
 #define MSG_DELTA_CALIBRATE_CENTER          "Calibrar Centro"
+
 #define MSG_INFO_MENU                       "Inf. Impresora"
 #define MSG_INFO_PRINTER_MENU               "Inf. Impresora"
 #define MSG_INFO_STATS_MENU                 "Estadisticas Imp."
@@ -184,25 +191,24 @@
 #define MSG_INFO_PROTOCOL                   "Protocolo"
 #define MSG_LIGHTS_ON                       "Enchegar luz"
 #define MSG_LIGHTS_OFF                      "Desenchegar luz"
-#define MSG_INFO_PRINT_COUNT                "Conteo de impresion"
-#define MSG_INFO_COMPLETED_PRINTS           "Completadas"
-#define MSG_INFO_PRINT_TIME                 "Tiempo total d'imp."
-#define MSG_INFO_PRINT_LONGEST              "Impresion mas larga"
-#define MSG_INFO_PRINT_FILAMENT             "Total d'extrusion"
-#define MSG_INFO_PRINT_COUNT                "Impresions"
-#define MSG_INFO_COMPLETED_PRINTS           "Completadas"
-#define MSG_INFO_PRINT_TIME                 "Total"
-#define MSG_INFO_PRINT_LONGEST              "Mas larga"
-#define MSG_INFO_PRINT_FILAMENT             "Extrusion"
+
+#if LCD_WIDTH >= 20
+  #define MSG_INFO_PRINT_COUNT              "Conteo de impresion"
+  #define MSG_INFO_COMPLETED_PRINTS         "Completadas"
+  #define MSG_INFO_PRINT_TIME               "Tiempo total d'imp."
+  #define MSG_INFO_PRINT_LONGEST            "Impresion mas larga"
+  #define MSG_INFO_PRINT_FILAMENT           "Total d'extrusion"
+#else
+  #define MSG_INFO_PRINT_COUNT              "Impresions"
+  #define MSG_INFO_COMPLETED_PRINTS         "Completadas"
+  #define MSG_INFO_PRINT_TIME               "Total"
+  #define MSG_INFO_PRINT_LONGEST            "Mas larga"
+  #define MSG_INFO_PRINT_FILAMENT           "Extrusion"
+#endif
+
 #define MSG_INFO_MIN_TEMP                   "Temperatura menima"
 #define MSG_INFO_MAX_TEMP                   "Temperatura maxima"
 #define MSG_INFO_PSU                        "Fuente de aliment"
-#define MSG_ERR_Z_HOMING                    "G28 Z vedau"
-#define MSG_HALTED                          "IMPRESORA ATURADA"
-#define MSG_PLEASE_RESET                    "Per favor reinic."
-#define MSG_SHORT_DAY                       "d"
-#define MSG_SHORT_HOUR                      "h"
-#define MSG_SHORT_MINUTE                    "m"
 
 #define MSG_DRIVE_STRENGTH                  "Fuerza d'o driver"
 #define MSG_DAC_PERCENT                     "Driver %"
@@ -212,15 +218,15 @@
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extruir mas"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resumir imp."
 
+//
+// Filament Change screens show up to 3 lines on a 4-line display
+//                        ...or up to 2 lines on a 3-line display
+//
 #define MSG_FILAMENT_CHANGE_INIT_1          "Aguardand iniciar"
 
 #define MSG_FILAMENT_CHANGE_INSERT_1        "Meta o filamento"
 #define MSG_FILAMENT_CHANGE_INSERT_2        "y prete lo boton"
 
-//
-// Filament Change screens show up to 3 lines on a 4-line display
-//                        ...or up to 2 lines on a 3-line display
-//
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_2          "d'o filamento"

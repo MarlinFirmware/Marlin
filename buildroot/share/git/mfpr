@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+#
+# mfpr
+#
+# Make a PR of the current branch against RCBugFix or dev
+#
+
+MFINFO=$(mfinfo "$@") || exit
+
+IFS=' ' read -a INFO <<< "$MFINFO"
+
+ORG=${INFO[0]}
+FORK=${INFO[1]}
+REPO=${INFO[2]}
+TARG=${INFO[3]}
+BRANCH=${INFO[4]}
+
+if [[ $BRANCH == "(no" ]]; then
+  echo "Git is busy with merge, rebase, etc."
+  exit 1
+fi
+
+if [[ ! -z "$1" ]]; then { BRANCH=$1 ; git checkout $1 || exit 1; } fi
+
+if [[ $BRANCH == $TARG ]]; then
+  echo "Can't make a PR from $BRANCH" ; exit
+fi
+
+if [ -z "$(git branch -vv | grep ^\* | grep \\[origin)" ]; then firstpush; fi
+
+TOOL=$(which gnome-open xdg-open open | awk '{ print $1 }')
+URL="https://github.com/$ORG/$REPO/compare/$TARG...$FORK:$BRANCH?expand=1"
+
+if [ -z "$TOOL" ]; then
+  echo "Can't find a tool to open the URL:"
+  echo $URL
+else
+  echo "Opening a New PR Form..."
+  "$TOOL" "$URL"
+fi

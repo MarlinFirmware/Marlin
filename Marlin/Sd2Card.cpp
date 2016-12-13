@@ -1,153 +1,161 @@
-/* Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * This file is part of the Arduino Sd2Card Library
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
- * This Library is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This Library is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with the Arduino Sd2Card Library.  If not, see
- * <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * Arduino Sd2Card Library
+ * Copyright (C) 2009 by William Greiman
+ *
+ * This file is part of the Arduino Sd2Card Library
  */
 #include "Marlin.h"
 
 #if ENABLED(SDSUPPORT)
 #include "Sd2Card.h"
+
 //------------------------------------------------------------------------------
 #if DISABLED(SOFTWARE_SPI)
-// functions for hardware SPI
-//------------------------------------------------------------------------------
-// make sure SPCR rate is in expected bits
-#if (SPR0 != 0 || SPR1 != 1)
-#error unexpected SPCR bits
-#endif
-/**
- * Initialize hardware SPI
- * Set SCK rate to F_CPU/pow(2, 1 + spiRate) for spiRate [0,6]
- */
-static void spiInit(uint8_t spiRate) {
-  // See avr processor documentation
-  SPCR = BIT(SPE) | BIT(MSTR) | (spiRate >> 1);
-  SPSR = spiRate & 1 || spiRate == 6 ? 0 : BIT(SPI2X);
-}
-//------------------------------------------------------------------------------
-/** SPI receive a byte */
-static uint8_t spiRec() {
-  SPDR = 0XFF;
-  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-  return SPDR;
-}
-//------------------------------------------------------------------------------
-/** SPI read data - only one call so force inline */
-static inline __attribute__((always_inline))
-void spiRead(uint8_t* buf, uint16_t nbyte) {
-  if (nbyte-- == 0) return;
-  SPDR = 0XFF;
-  for (uint16_t i = 0; i < nbyte; i++) {
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-    buf[i] = SPDR;
+  // functions for hardware SPI
+  //------------------------------------------------------------------------------
+  // make sure SPCR rate is in expected bits
+  #if (SPR0 != 0 || SPR1 != 1)
+    #error "unexpected SPCR bits"
+  #endif
+  /**
+   * Initialize hardware SPI
+   * Set SCK rate to F_CPU/pow(2, 1 + spiRate) for spiRate [0,6]
+   */
+  static void spiInit(uint8_t spiRate) {
+    // See avr processor documentation
+    SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
+    SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
+  }
+  //------------------------------------------------------------------------------
+  /** SPI receive a byte */
+  static uint8_t spiRec() {
     SPDR = 0XFF;
+    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    return SPDR;
   }
-  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-  buf[nbyte] = SPDR;
-}
-//------------------------------------------------------------------------------
-/** SPI send a byte */
-static void spiSend(uint8_t b) {
-  SPDR = b;
-  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-}
-//------------------------------------------------------------------------------
-/** SPI send block - only one call so force inline */
-static inline __attribute__((always_inline))
+  //------------------------------------------------------------------------------
+  /** SPI read data - only one call so force inline */
+  static inline __attribute__((always_inline))
+  void spiRead(uint8_t* buf, uint16_t nbyte) {
+    if (nbyte-- == 0) return;
+    SPDR = 0XFF;
+    for (uint16_t i = 0; i < nbyte; i++) {
+      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+      buf[i] = SPDR;
+      SPDR = 0XFF;
+    }
+    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+    buf[nbyte] = SPDR;
+  }
+  //------------------------------------------------------------------------------
+  /** SPI send a byte */
+  static void spiSend(uint8_t b) {
+    SPDR = b;
+    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+  }
+  //------------------------------------------------------------------------------
+  /** SPI send block - only one call so force inline */
+  static inline __attribute__((always_inline))
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
-  SPDR = token;
-  for (uint16_t i = 0; i < 512; i += 2) {
+    SPDR = token;
+    for (uint16_t i = 0; i < 512; i += 2) {
+      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+      SPDR = buf[i];
+      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
+      SPDR = buf[i + 1];
+    }
     while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-    SPDR = buf[i];
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-    SPDR = buf[i + 1];
   }
-  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-}
-//------------------------------------------------------------------------------
+       //------------------------------------------------------------------------------
 #else  // SOFTWARE_SPI
-//------------------------------------------------------------------------------
-/** nop to tune soft SPI timing */
-#define nop asm volatile ("nop\n\t")
-//------------------------------------------------------------------------------
-/** Soft SPI receive byte */
-static uint8_t spiRec() {
-  uint8_t data = 0;
-  // no interrupts during byte receive - about 8 us
-  cli();
-  // output pin high - like sending 0XFF
-  fastDigitalWrite(SPI_MOSI_PIN, HIGH);
+       //------------------------------------------------------------------------------
+  /** nop to tune soft SPI timing */
+  #define nop asm volatile ("nop\n\t")
+  //------------------------------------------------------------------------------
+  /** Soft SPI receive byte */
+  static uint8_t spiRec() {
+    uint8_t data = 0;
+    // no interrupts during byte receive - about 8 us
+    cli();
+    // output pin high - like sending 0XFF
+    WRITE(SPI_MOSI_PIN, HIGH);
 
-  for (uint8_t i = 0; i < 8; i++) {
-    fastDigitalWrite(SPI_SCK_PIN, HIGH);
+    for (uint8_t i = 0; i < 8; i++) {
+      WRITE(SPI_SCK_PIN, HIGH);
 
-    // adjust so SCK is nice
+      // adjust so SCK is nice
+      nop;
+      nop;
+
+      data <<= 1;
+
+      if (READ(SPI_MISO_PIN)) data |= 1;
+
+      WRITE(SPI_SCK_PIN, LOW);
+    }
+    // enable interrupts
+    sei();
+    return data;
+  }
+  //------------------------------------------------------------------------------
+  /** Soft SPI read data */
+  static void spiRead(uint8_t* buf, uint16_t nbyte) {
+    for (uint16_t i = 0; i < nbyte; i++)
+      buf[i] = spiRec();
+  }
+  //------------------------------------------------------------------------------
+  /** Soft SPI send byte */
+  static void spiSend(uint8_t data) {
+    // no interrupts during byte send - about 8 us
+    cli();
+    for (uint8_t i = 0; i < 8; i++) {
+      WRITE(SPI_SCK_PIN, LOW);
+
+      WRITE(SPI_MOSI_PIN, data & 0X80);
+
+      data <<= 1;
+
+      WRITE(SPI_SCK_PIN, HIGH);
+    }
+    // hold SCK high for a few ns
+    nop;
+    nop;
     nop;
     nop;
 
-    data <<= 1;
-
-    if (fastDigitalRead(SPI_MISO_PIN)) data |= 1;
-
-    fastDigitalWrite(SPI_SCK_PIN, LOW);
+    WRITE(SPI_SCK_PIN, LOW);
+    // enable interrupts
+    sei();
   }
-  // enable interrupts
-  sei();
-  return data;
-}
-//------------------------------------------------------------------------------
-/** Soft SPI read data */
-static void spiRead(uint8_t* buf, uint16_t nbyte) {
-  for (uint16_t i = 0; i < nbyte; i++) {
-    buf[i] = spiRec();
-  }
-}
-//------------------------------------------------------------------------------
-/** Soft SPI send byte */
-static void spiSend(uint8_t data) {
-  // no interrupts during byte send - about 8 us
-  cli();
-  for (uint8_t i = 0; i < 8; i++) {
-    fastDigitalWrite(SPI_SCK_PIN, LOW);
-
-    fastDigitalWrite(SPI_MOSI_PIN, data & 0X80);
-
-    data <<= 1;
-
-    fastDigitalWrite(SPI_SCK_PIN, HIGH);
-  }
-  // hold SCK high for a few ns
-  nop;
-  nop;
-  nop;
-  nop;
-
-  fastDigitalWrite(SPI_SCK_PIN, LOW);
-  // enable interrupts
-  sei();
-}
-//------------------------------------------------------------------------------
-/** Soft SPI send block */
+  //------------------------------------------------------------------------------
+  /** Soft SPI send block */
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
-  spiSend(token);
-  for (uint16_t i = 0; i < 512; i++) {
-    spiSend(buf[i]);
+    spiSend(token);
+    for (uint16_t i = 0; i < 512; i++)
+      spiSend(buf[i]);
   }
-}
 #endif  // SOFTWARE_SPI
 //------------------------------------------------------------------------------
 // send command and return error code.  Return zero for OK
@@ -194,11 +202,13 @@ uint32_t Sd2Card::cardSize() {
     uint8_t c_size_mult = (csd.v1.c_size_mult_high << 1)
                           | csd.v1.c_size_mult_low;
     return (uint32_t)(c_size + 1) << (c_size_mult + read_bl_len - 7);
-  } else if (csd.v2.csd_ver == 1) {
+  }
+  else if (csd.v2.csd_ver == 1) {
     uint32_t c_size = ((uint32_t)csd.v2.c_size_high << 16)
                       | (csd.v2.c_size_mid << 8) | csd.v2.c_size_low;
     return (c_size + 1) << 10;
-  } else {
+  }
+  else {
     error(SD_CARD_ERROR_BAD_CSD);
     return 0;
   }
@@ -209,9 +219,9 @@ void Sd2Card::chipSelectHigh() {
 }
 //------------------------------------------------------------------------------
 void Sd2Card::chipSelectLow() {
-#if DISABLED(SOFTWARE_SPI)
-  spiInit(spiRate_);
-#endif  // SOFTWARE_SPI
+  #if DISABLED(SOFTWARE_SPI)
+    spiInit(spiRate_);
+  #endif  // SOFTWARE_SPI
   digitalWrite(chipSelectPin_, LOW);
 }
 //------------------------------------------------------------------------------
@@ -246,10 +256,10 @@ bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
     lastBlock <<= 9;
   }
   if (cardCommand(CMD32, firstBlock)
-    || cardCommand(CMD33, lastBlock)
-    || cardCommand(CMD38, 0)) {
-      error(SD_CARD_ERROR_ERASE);
-      goto fail;
+      || cardCommand(CMD33, lastBlock)
+      || cardCommand(CMD38, 0)) {
+    error(SD_CARD_ERROR_ERASE);
+    goto fail;
   }
   if (!waitNotBusy(SD_ERASE_TIMEOUT)) {
     error(SD_CARD_ERROR_ERASE_TIMEOUT);
@@ -257,8 +267,7 @@ bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
   }
   chipSelectHigh();
   return true;
-
- fail:
+fail:
   chipSelectHigh();
   return false;
 }
@@ -293,21 +302,21 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   // set pin modes
   pinMode(chipSelectPin_, OUTPUT);
   chipSelectHigh();
-  pinMode(SPI_MISO_PIN, INPUT);
-  pinMode(SPI_MOSI_PIN, OUTPUT);
-  pinMode(SPI_SCK_PIN, OUTPUT);
+  SET_INPUT(SPI_MISO_PIN);
+  SET_OUTPUT(SPI_MOSI_PIN);
+  SET_OUTPUT(SPI_SCK_PIN);
 
-#if DISABLED(SOFTWARE_SPI)
-  // SS must be in output mode even it is not chip select
-  pinMode(SS_PIN, OUTPUT);
-  // set SS high - may be chip select for another SPI device
-#if SET_SPI_SS_HIGH
-  digitalWrite(SS_PIN, HIGH);
-#endif  // SET_SPI_SS_HIGH
-  // set SCK rate for initialization commands
-  spiRate_ = SPI_SD_INIT_RATE;
-  spiInit(spiRate_);
-#endif  // SOFTWARE_SPI
+  #if DISABLED(SOFTWARE_SPI)
+    // SS must be in output mode even it is not chip select
+    SET_OUTPUT(SS_PIN);
+    // set SS high - may be chip select for another SPI device
+    #if SET_SPI_SS_HIGH
+      WRITE(SS_PIN, HIGH);
+    #endif  // SET_SPI_SS_HIGH
+    // set SCK rate for initialization commands
+    spiRate_ = SPI_SD_INIT_RATE;
+    spiInit(spiRate_);
+  #endif  // SOFTWARE_SPI
 
   // must supply min of 74 clock cycles with CS high.
   for (uint8_t i = 0; i < 10; i++) spiSend(0XFF);
@@ -322,7 +331,8 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   // check SD version
   if ((cardCommand(CMD8, 0x1AA) & R1_ILLEGAL_COMMAND)) {
     type(SD_CARD_TYPE_SD1);
-  } else {
+  }
+  else {
     // only need last byte of r7 response
     for (uint8_t i = 0; i < 4; i++) status_ = spiRec();
     if (status_ != 0XAA) {
@@ -353,13 +363,14 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   }
   chipSelectHigh();
 
-#if DISABLED(SOFTWARE_SPI)
-  return setSckRate(sckRateID);
-#else  // SOFTWARE_SPI
-  return true;
-#endif  // SOFTWARE_SPI
+  #if DISABLED(SOFTWARE_SPI)
+    return setSckRate(sckRateID);
+  #else  // SOFTWARE_SPI
+    UNUSED(sckRateID);
+    return true;
+  #endif  // SOFTWARE_SPI
 
- fail:
+fail:
   chipSelectHigh();
   return false;
 }
@@ -373,39 +384,31 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
  * the value zero, false, is returned for failure.
  */
 bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
-#if ENABLED(SD_CHECK_AND_RETRY)
-  uint8_t retryCnt = 3;
   // use address if not SDHC card
-  if (type()!= SD_CARD_TYPE_SDHC) blockNumber <<= 9;
- retry2:
-  retryCnt --;
-  if (cardCommand(CMD17, blockNumber)) {
-    error(SD_CARD_ERROR_CMD17);
-    if (retryCnt > 0) goto retry;
-    goto fail;
-  }
-  if (!readData(dst, 512))
-  {
-    if (retryCnt > 0) goto retry;
-    goto fail;
-  }
-  return true;
- retry:
-   chipSelectHigh();
-   cardCommand(CMD12, 0);//Try sending a stop command, but ignore the result.
-   errorCode_ = 0;
-   goto retry2;
-#else
-  // use address if not SDHC card
-  if (type()!= SD_CARD_TYPE_SDHC) blockNumber <<= 9;
-  if (cardCommand(CMD17, blockNumber)) {
-    error(SD_CARD_ERROR_CMD17);
-    goto fail;
-  }
-  return readData(dst, 512);
-#endif
+  if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
 
- fail:
+  #if ENABLED(SD_CHECK_AND_RETRY)
+    uint8_t retryCnt = 3;
+    do {
+      if (!cardCommand(CMD17, blockNumber)) {
+        if (readData(dst, 512)) return true;
+      }
+      else
+        error(SD_CARD_ERROR_CMD17);
+
+      if (--retryCnt) break;
+
+      chipSelectHigh();
+      cardCommand(CMD12, 0); // Try sending a stop command, ignore the result.
+      errorCode_ = 0;
+    } while (true);
+  #else
+    if (cardCommand(CMD17, blockNumber))
+      error(SD_CARD_ERROR_CMD17);
+    else
+      return readData(dst, 512);
+  #endif
+
   chipSelectHigh();
   return false;
 }
@@ -417,7 +420,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::readData(uint8_t *dst) {
+bool Sd2Card::readData(uint8_t* dst) {
   chipSelectLow();
   return readData(dst, 512);
 }
@@ -488,10 +491,9 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
     uint16_t calcCrc = CRC_CCITT(dst, count);
     uint16_t recvCrc = spiRec() << 8;
     recvCrc |= spiRec();
-    if (calcCrc != recvCrc)
-    {
-        error(SD_CARD_ERROR_CRC);
-        goto fail;
+    if (calcCrc != recvCrc) {
+      error(SD_CARD_ERROR_CRC);
+      goto fail;
     }
   }
 #else
@@ -500,10 +502,13 @@ bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
   spiRec();
 #endif
   chipSelectHigh();
+  // Send an additional dummy byte, required by Toshiba Flash Air SD Card
+  spiSend(0XFF);
   return true;
-
- fail:
+fail:
   chipSelectHigh();
+  // Send an additional dummy byte, required by Toshiba Flash Air SD Card
+  spiSend(0XFF);
   return false;
 }
 //------------------------------------------------------------------------------
@@ -515,8 +520,7 @@ bool Sd2Card::readRegister(uint8_t cmd, void* buf) {
     goto fail;
   }
   return readData(dst, 16);
-
- fail:
+fail:
   chipSelectHigh();
   return false;
 }
@@ -532,15 +536,14 @@ bool Sd2Card::readRegister(uint8_t cmd, void* buf) {
  * the value zero, false, is returned for failure.
  */
 bool Sd2Card::readStart(uint32_t blockNumber) {
-  if (type()!= SD_CARD_TYPE_SDHC) blockNumber <<= 9;
+  if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
   if (cardCommand(CMD18, blockNumber)) {
     error(SD_CARD_ERROR_CMD18);
     goto fail;
   }
   chipSelectHigh();
   return true;
-
- fail:
+fail:
   chipSelectHigh();
   return false;
 }
@@ -558,8 +561,7 @@ bool Sd2Card::readStop() {
   }
   chipSelectHigh();
   return true;
-
- fail:
+fail:
   chipSelectHigh();
   return false;
 }
@@ -592,8 +594,7 @@ bool Sd2Card::waitNotBusy(uint16_t timeoutMillis) {
     if (((uint16_t)millis() - t0) >= timeoutMillis) goto fail;
   }
   return true;
-
- fail:
+fail:
   return false;
 }
 //------------------------------------------------------------------------------
@@ -626,8 +627,7 @@ bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
   }
   chipSelectHigh();
   return true;
-
- fail:
+fail:
   chipSelectHigh();
   return false;
 }
@@ -644,8 +644,7 @@ bool Sd2Card::writeData(const uint8_t* src) {
   if (!writeData(WRITE_MULTIPLE_TOKEN, src)) goto fail;
   chipSelectHigh();
   return true;
-
- fail:
+fail:
   error(SD_CARD_ERROR_WRITE_MULTIPLE);
   chipSelectHigh();
   return false;
@@ -664,8 +663,7 @@ bool Sd2Card::writeData(uint8_t token, const uint8_t* src) {
     goto fail;
   }
   return true;
-
- fail:
+fail:
   chipSelectHigh();
   return false;
 }
@@ -695,8 +693,7 @@ bool Sd2Card::writeStart(uint32_t blockNumber, uint32_t eraseCount) {
   }
   chipSelectHigh();
   return true;
-
- fail:
+fail:
   chipSelectHigh();
   return false;
 }
@@ -713,8 +710,7 @@ bool Sd2Card::writeStop() {
   if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto fail;
   chipSelectHigh();
   return true;
-
- fail:
+fail:
   error(SD_CARD_ERROR_STOP_TRAN);
   chipSelectHigh();
   return false;
