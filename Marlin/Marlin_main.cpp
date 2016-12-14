@@ -4332,45 +4332,34 @@ inline void gcode_G28() {
         // Correct the current XYZ position based on the tilted plane.
         //
 
-        // 1. Get the distance from the current position to the reference point.
-        float x_dist = RAW_CURRENT_POSITION(X_AXIS) - X_TILT_FULCRUM,
-              y_dist = RAW_CURRENT_POSITION(Y_AXIS) - Y_TILT_FULCRUM,
-              z_real = current_position[Z_AXIS],
-              z_zero = 0;
-
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("G29 uncorrected XYZ", current_position);
         #endif
 
-        matrix_3x3 inverse = matrix_3x3::transpose(planner.bed_level_matrix);
+        float converted[XYZ];
+        memcpy(converted, current_position, sizeof(converted));
 
-        // 2. Apply the inverse matrix to the distance
-        //    from the reference point to X, Y, and zero.
-        apply_rotation_xyz(inverse, x_dist, y_dist, z_zero);
+        planner.abl_enabled = true;
+        planner.unapply_leveling(converted); // use conversion machinery
+        planner.abl_enabled = false;
 
-        // 3. Get the matrix-based corrected Z.
-        //    (Even if not used, get it for comparison.)
-        float new_z = z_real + z_zero;
-
-        // 4. Use the last measured distance to the bed, if possible
+        // Use the last measured distance to the bed, if possible
         if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
           && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
         ) {
-          float simple_z = z_real - (measured_z - (-zprobe_zoffset));
+          float simple_z = current_position[Z_AXIS] - (measured_z - (-zprobe_zoffset));
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               SERIAL_ECHOPAIR("Z from Probe:", simple_z);
-              SERIAL_ECHOPAIR("  Matrix:", new_z);
-              SERIAL_ECHOLNPAIR("  Discrepancy:", simple_z - new_z);
+              SERIAL_ECHOPAIR("  Matrix:", converted[Z_AXIS]);
+              SERIAL_ECHOLNPAIR("  Discrepancy:", simple_z - converted[Z_AXIS]);
             }
           #endif
-          new_z = simple_z;
+          converted[Z_AXIS] = simple_z;
         }
 
-        // 5. The rotated XY and corrected Z are now current_position
-        current_position[X_AXIS] = LOGICAL_X_POSITION(x_dist) + X_TILT_FULCRUM;
-        current_position[Y_AXIS] = LOGICAL_Y_POSITION(y_dist) + Y_TILT_FULCRUM;
-        current_position[Z_AXIS] = new_z;
+        // The rotated XY and corrected Z are now current_position
+        memcpy(current_position, converted, sizeof(converted));
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
