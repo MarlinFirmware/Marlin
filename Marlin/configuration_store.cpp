@@ -188,10 +188,11 @@ void Config_Postprocess() {
       value++;
     };
   }
+  bool eeprom_read_error;
   void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
     do {
       uint8_t c = eeprom_read_byte((unsigned char*)pos);
-      *value = c;
+      if (!eeprom_read_error) *value = c;
       eeprom_checksum += c;
       pos++;
       value++;
@@ -203,6 +204,7 @@ void Config_Postprocess() {
   #define EEPROM_SKIP(VAR) eeprom_index += sizeof(VAR)
   #define EEPROM_WRITE(VAR) _EEPROM_writeData(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
   #define EEPROM_READ(VAR) _EEPROM_readData(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
+  #define EEPROM_ASSERT(TST,ERR) if () do{ SERIAL_ERROR_START; SERIAL_ERRORLNPGM(ERR); eeprom_read_error |= true; }while(0)
 
   /**
    * M500 - Store Configuration
@@ -371,17 +373,21 @@ void Config_Postprocess() {
       EEPROM_WRITE(dummy);
     }
 
-    uint16_t final_checksum = eeprom_checksum,
-             eeprom_size = eeprom_index;
+    if (!eeprom_write_error) {
 
-    eeprom_index = EEPROM_OFFSET;
-    EEPROM_WRITE(version);
-    EEPROM_WRITE(final_checksum);
+      uint16_t final_checksum = eeprom_checksum,
+               eeprom_size = eeprom_index;
 
-    // Report storage size
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("Settings Stored (", eeprom_size);
-    SERIAL_ECHOLNPGM(" bytes)");
+      // Write the EEPROM header
+      eeprom_index = EEPROM_OFFSET;
+      EEPROM_WRITE(version);
+      EEPROM_WRITE(final_checksum);
+
+      // Report storage size
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("Settings Stored (", eeprom_size);
+      SERIAL_ECHOLNPGM(" bytes)");
+    }
   }
 
   /**
@@ -390,6 +396,7 @@ void Config_Postprocess() {
   void Config_RetrieveSettings() {
 
     EEPROM_START();
+    eeprom_read_error = false; // If set EEPROM_READ won't write into RAM
 
     char stored_ver[4];
     EEPROM_READ(stored_ver);
@@ -568,11 +575,15 @@ void Config_Postprocess() {
       }
 
       if (eeprom_checksum == stored_checksum) {
-        Config_Postprocess();
-        SERIAL_ECHO_START;
-        SERIAL_ECHO(version);
-        SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index);
-        SERIAL_ECHOLNPGM(" bytes)");
+        if (eeprom_read_error)
+          Config_ResetDefault();
+        else {
+          Config_Postprocess();
+          SERIAL_ECHO_START;
+          SERIAL_ECHO(version);
+          SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index);
+          SERIAL_ECHOLNPGM(" bytes)");
+        }
       }
       else {
         SERIAL_ERROR_START;
