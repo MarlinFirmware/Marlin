@@ -64,6 +64,8 @@ void lcd_status_screen();
 millis_t next_lcd_update_ms;
 
 uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
+millis_t max_display_update_time = 0;
+
 #if ENABLED(DOGLCD)
   bool drawing_screen = false;
 #endif
@@ -2893,7 +2895,11 @@ void lcd_update() {
   #endif //SDSUPPORT && SD_DETECT_PIN
 
   millis_t ms = millis();
-  if (ELAPSED(ms, next_lcd_update_ms)) {
+  if (ELAPSED(ms, next_lcd_update_ms)
+    #if ENABLED(DOGLCD)
+      || drawing_screen
+    #endif
+    ) {
 
     next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
 
@@ -2954,101 +2960,98 @@ void lcd_update() {
       }
     #endif // ULTIPANEL
 
-    #if ENABLED(ENSURE_SMOOTH_MOVES) && ENABLED(ALWAYS_ALLOW_MENU)
-      #define STATUS_UPDATE_CONDITION planner.long_move()
-    #else
-      #define STATUS_UPDATE_CONDITION true
-    #endif
-    #if ENABLED(ENSURE_SMOOTH_MOVES) && DISABLED(ALWAYS_ALLOW_MENU)
-      #define LCD_HANDLER_CONDITION planner.long_move()
-    #else
-      #define LCD_HANDLER_CONDITION true
-    #endif
-
     // We arrive here every ~100ms when idling often enough.
     // Instead of tracking the changes simply redraw the Info Screen ~1 time a second.
     static int8_t lcd_status_update_delay = 1; // first update one loop delayed
-    if (STATUS_UPDATE_CONDITION &&
+    if (
       #if ENABLED(ULTIPANEL)
         currentScreen == lcd_status_screen &&
       #endif
-        !lcd_status_update_delay--
+      !lcd_status_update_delay--
     ) {
-      lcd_status_update_delay = 9;
+      lcd_status_update_delay = 9
+      #if ENABLED(DOGLCD)
+        + 3
+      #endif
+      ;
+      max_display_update_time--;
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
 
-    if (LCD_HANDLER_CONDITION) {
+    millis_t bbr = planner.block_buffer_runtime();
 
-      #if ENABLED(DOGLCD)
-        if (lcdDrawUpdate || drawing_screen)
-      #else
-        if (lcdDrawUpdate)
-      #endif
-      {
-        #if ENABLED(DOGLCD)
-          if (!drawing_screen)
-        #endif
-          {
-            switch (lcdDrawUpdate) {
-              case LCDVIEW_CALL_NO_REDRAW:
-                lcdDrawUpdate = LCDVIEW_NONE;
-                break;
-              case LCDVIEW_CLEAR_CALL_REDRAW: // set by handlers, then altered after (rarely occurs here)
-              case LCDVIEW_CALL_REDRAW_NEXT:  // set by handlers, then altered after (never occurs here?)
-                lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-              case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
-              case LCDVIEW_NONE:
-                break;
-            } // switch
-          }
-        #if ENABLED(ULTIPANEL)
-          #define CURRENTSCREEN() (*currentScreen)(), lcd_clicked = false
-        #else
-          #define CURRENTSCREEN() lcd_status_screen()
-        #endif
-
-        #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
-          if (!drawing_screen) {
-            u8g.firstPage();
-            drawing_screen = 1;
-          }
-          lcd_setFont(FONT_MENU);
-          CURRENTSCREEN();
-          if (drawing_screen && (drawing_screen = u8g.nextPage())) return;
-        #else
-          CURRENTSCREEN();
-        #endif
-      }
-
-      #if ENABLED(ULTIPANEL)
-
-        // Return to Status Screen after a timeout
-        if (currentScreen == lcd_status_screen || defer_return_to_status)
-          return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-        else if (ELAPSED(ms, return_to_status_ms))
-          lcd_return_to_status();
-
-      #endif // ULTIPANEL
-
+    #if ENABLED(DOGLCD)
+      if ((lcdDrawUpdate || drawing_screen) && (!bbr || (bbr > max_display_update_time * 2000)))
+    #else
+      if (lcdDrawUpdate && (!bbr || (bbr > max_display_update_time * 2000)))
+    #endif
+    {
       #if ENABLED(DOGLCD)
         if (!drawing_screen)
       #endif
         {
           switch (lcdDrawUpdate) {
-            case LCDVIEW_CLEAR_CALL_REDRAW:
-              lcd_implementation_clear();
-            case LCDVIEW_CALL_REDRAW_NEXT:
-              lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-              break;
-            case LCDVIEW_REDRAW_NOW:
+            case LCDVIEW_CALL_NO_REDRAW:
               lcdDrawUpdate = LCDVIEW_NONE;
               break;
+            case LCDVIEW_CLEAR_CALL_REDRAW: // set by handlers, then altered after (rarely occurs here)
+            case LCDVIEW_CALL_REDRAW_NEXT:  // set by handlers, then altered after (never occurs here?)
+              lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+            case LCDVIEW_REDRAW_NOW:        // set above, or by a handler through LCDVIEW_CALL_REDRAW_NEXT
             case LCDVIEW_NONE:
               break;
           } // switch
         }
-    } // LCD_HANDLER_CONDITION
+      #if ENABLED(ULTIPANEL)
+        #define CURRENTSCREEN() (*currentScreen)(), lcd_clicked = false
+      #else
+        #define CURRENTSCREEN() lcd_status_screen()
+      #endif
+
+      #if ENABLED(DOGLCD)  // Changes due to different driver architecture of the DOGM display
+        if (!drawing_screen) {
+          u8g.firstPage();
+          drawing_screen = 1;
+        }
+        lcd_setFont(FONT_MENU);
+        CURRENTSCREEN();
+        if (drawing_screen && (drawing_screen = u8g.nextPage())) {
+          max_display_update_time = max(max_display_update_time, millis() - ms);
+          return;
+        }
+      #else
+        CURRENTSCREEN();
+      #endif
+      max_display_update_time = max(max_display_update_time, millis() - ms);
+    }
+
+    #if ENABLED(ULTIPANEL)
+
+      // Return to Status Screen after a timeout
+      if (currentScreen == lcd_status_screen || defer_return_to_status)
+        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
+      else if (ELAPSED(ms, return_to_status_ms))
+        lcd_return_to_status();
+
+    #endif // ULTIPANEL
+
+    #if ENABLED(DOGLCD)
+      if (!drawing_screen)
+    #endif
+      {
+        switch (lcdDrawUpdate) {
+          case LCDVIEW_CLEAR_CALL_REDRAW:
+            lcd_implementation_clear();
+          case LCDVIEW_CALL_REDRAW_NEXT:
+            lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+            break;
+          case LCDVIEW_REDRAW_NOW:
+            lcdDrawUpdate = LCDVIEW_NONE;
+            break;
+          case LCDVIEW_NONE:
+            break;
+        } // switch
+      }
   } // ELAPSED(ms, next_lcd_update_ms)
 }
 
