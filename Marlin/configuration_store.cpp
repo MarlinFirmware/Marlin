@@ -74,59 +74,62 @@
  * AUTO BED LEVELING
  *  262  M851      zprobe_zoffset (float)
  *
+ * ABL_PLANAR (or placeholder):                    36 bytes
+ *  266            planner.bed_level_matrix        (matrix_3x3 = float x9)
+ *
  * AUTO_BED_LEVELING_BILINEAR (or placeholder):    47 bytes
- *  266            ABL_GRID_MAX_POINTS_X           (uint8_t)
- *  267            ABL_GRID_MAX_POINTS_Y           (uint8_t)
- *  268            bilinear_grid_spacing           (int x2)   from G29: (B-F)/X, (R-L)/Y
- *  272  G29 L F   bilinear_start                  (int x2)
- *  276            bed_level_grid[][]              (float x9, up to float x256) +988
+ *  302            ABL_GRID_MAX_POINTS_X           (uint8_t)
+ *  303            ABL_GRID_MAX_POINTS_Y           (uint8_t)
+ *  304            bilinear_grid_spacing           (int x2)   from G29: (B-F)/X, (R-L)/Y
+ *  308  G29 L F   bilinear_start                  (int x2)
+ *  312            bed_level_grid[][]              (float x9, up to float x256) +988
  *
  * DELTA (if deltabot):                            36 bytes
- *  312  M666 XYZ  endstop_adj                     (float x3)
- *  324  M665 R    delta_radius                    (float)
- *  328  M665 L    delta_diagonal_rod              (float)
- *  332  M665 S    delta_segments_per_second       (float)
- *  336  M665 A    delta_diagonal_rod_trim_tower_1 (float)
- *  340  M665 B    delta_diagonal_rod_trim_tower_2 (float)
- *  344  M665 C    delta_diagonal_rod_trim_tower_3 (float)
+ *  348  M666 XYZ  endstop_adj                     (float x3)
+ *  360  M665 R    delta_radius                    (float)
+ *  364  M665 L    delta_diagonal_rod              (float)
+ *  368  M665 S    delta_segments_per_second       (float)
+ *  372  M665 A    delta_diagonal_rod_trim_tower_1 (float)
+ *  376  M665 B    delta_diagonal_rod_trim_tower_2 (float)
+ *  380  M665 C    delta_diagonal_rod_trim_tower_3 (float)
  *
  * Z_DUAL_ENDSTOPS:                                4 bytes
- *  348  M666 Z    z_endstop_adj                   (float)
+ *  384  M666 Z    z_endstop_adj                   (float)
  *
  * ULTIPANEL:                                      6 bytes
- *  352  M145 S0 H lcd_preheat_hotend_temp         (int x2)
- *  356  M145 S0 B lcd_preheat_bed_temp            (int x2)
- *  360  M145 S0 F lcd_preheat_fan_speed           (int x2)
+ *  388  M145 S0 H lcd_preheat_hotend_temp         (int x2)
+ *  392  M145 S0 B lcd_preheat_bed_temp            (int x2)
+ *  396  M145 S0 F lcd_preheat_fan_speed           (int x2)
  *
  * PIDTEMP:                                        66 bytes
- *  364  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]  (float x4)
- *  380  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]  (float x4)
- *  396  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]  (float x4)
- *  412  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]  (float x4)
- *  428  M301 L        lpq_len                     (int)
+ *  400  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]  (float x4)
+ *  416  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]  (float x4)
+ *  432  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]  (float x4)
+ *  448  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]  (float x4)
+ *  464  M301 L        lpq_len                     (int)
  *
  * PIDTEMPBED:
- *  430  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
+ *  466  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
  *
  * DOGLCD:                                          2 bytes
- *  442  M250 C    lcd_contrast                     (int)
+ *  478  M250 C    lcd_contrast                     (int)
  *
  * FWRETRACT:                                       29 bytes
- *  444  M209 S    autoretract_enabled              (bool)
- *  445  M207 S    retract_length                   (float)
- *  449  M207 W    retract_length_swap              (float)
- *  453  M207 F    retract_feedrate_mm_s            (float)
- *  457  M207 Z    retract_zlift                    (float)
- *  461  M208 S    retract_recover_length           (float)
- *  465  M208 W    retract_recover_length_swap      (float)
- *  469  M208 F    retract_recover_feedrate_mm_s    (float)
+ *  480  M209 S    autoretract_enabled              (bool)
+ *  481  M207 S    retract_length                   (float)
+ *  485  M207 W    retract_length_swap              (float)
+ *  489  M207 F    retract_feedrate_mm_s            (float)
+ *  493  M207 Z    retract_zlift                    (float)
+ *  497  M208 S    retract_recover_length           (float)
+ *  501  M208 W    retract_recover_length_swap      (float)
+ *  505  M208 F    retract_recover_feedrate_mm_s    (float)
  *
  * Volumetric Extrusion:                            17 bytes
- *  473  M200 D    volumetric_enabled               (bool)
- *  474  M200 T D  filament_size                    (float x4) (T0..3)
+ *  509  M200 D    volumetric_enabled               (bool)
+ *  510  M200 T D  filament_size                    (float x4) (T0..3)
  *
- *  490                                Minimum end-point
- * 1811 (490 + 36 + 9 + 288 + 988)     Maximum end-point
+ *  526                                Minimum end-point
+ * 1847 (526 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  */
 #include "Marlin.h"
@@ -286,6 +289,17 @@ void Config_Postprocess() {
       float zprobe_zoffset = 0;
     #endif
     EEPROM_WRITE(zprobe_zoffset);
+
+    //
+    // Planar Bed Leveling matrix
+    //
+
+    #if ABL_PLANAR
+      EEPROM_WRITE(planner.bed_level_matrix);
+    #else
+      dummy = 0.0;
+      for (uint8_t q = 9; q--;) EEPROM_WRITE(dummy);
+    #endif
 
     //
     // Bilinear Auto Bed Leveling
@@ -526,6 +540,16 @@ void Config_Postprocess() {
       EEPROM_READ(zprobe_zoffset);
 
       //
+      // Planar Bed Leveling matrix
+      //
+
+      #if ABL_PLANAR
+        EEPROM_READ(planner.bed_level_matrix);
+      #else
+        for (uint8_t q = 9; q--;) EEPROM_READ(dummy);
+      #endif
+
+      //
       // Bilinear Auto Bed Leveling
       //
 
@@ -542,6 +566,7 @@ void Config_Postprocess() {
             bed_level_virt_prepare();
             bed_level_virt_interpolate();
           #endif
+          //set_bed_leveling_enabled(leveling_is_on);
         }
         else // EEPROM data is stale
       #endif // AUTO_BED_LEVELING_BILINEAR

@@ -2229,7 +2229,7 @@ static void clean_up_after_endstop_or_probe_move() {
    * Disable: Current position = physical position
    *  Enable: Current position = "unleveled" physical position
    */
-  void set_bed_leveling_enabled(bool enable=true) {
+  void set_bed_leveling_enabled(bool enable/*=true*/) {
     #if ENABLED(MESH_BED_LEVELING)
 
       if (enable != mbl.active()) {
