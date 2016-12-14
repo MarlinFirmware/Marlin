@@ -2970,9 +2970,9 @@ void lcd_update() {
       !lcd_status_update_delay--
     ) {
       lcd_status_update_delay = 9
-      #if ENABLED(DOGLCD)
-        + 3
-      #endif
+        #if ENABLED(DOGLCD)
+          + 3
+        #endif
       ;
       max_display_update_time--;
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
@@ -2981,9 +2981,9 @@ void lcd_update() {
     millis_t bbr = planner.block_buffer_runtime();
 
     #if ENABLED(DOGLCD)
-      if ((lcdDrawUpdate || drawing_screen) && (!bbr || (bbr > max_display_update_time * 2000)))
+      if ((lcdDrawUpdate || drawing_screen) && (!bbr || (bbr > 2 * max_display_update_time * 1000)))
     #else
-      if (lcdDrawUpdate && (!bbr || (bbr > max_display_update_time * 2000)))
+      if (lcdDrawUpdate && (!bbr || (bbr > 2 * max_display_update_time * 1000)))
     #endif
     {
       #if ENABLED(DOGLCD)
@@ -3016,13 +3016,13 @@ void lcd_update() {
         lcd_setFont(FONT_MENU);
         CURRENTSCREEN();
         if (drawing_screen && (drawing_screen = u8g.nextPage())) {
-          max_display_update_time = max(max_display_update_time, millis() - ms);
+          NOLESS(max_display_update_time, millis() - ms);
           return;
         }
       #else
         CURRENTSCREEN();
       #endif
-      max_display_update_time = max(max_display_update_time, millis() - ms);
+      NOLESS(max_display_update_time, millis() - ms);
     }
 
     #if ENABLED(ULTIPANEL)
