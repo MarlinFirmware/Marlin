@@ -3430,9 +3430,9 @@ inline void gcode_G28() {
   // Wait for planner moves to finish!
   stepper.synchronize();
 
-  // For auto bed leveling, clear the level matrix
-  #if HAS_ABL
-    reset_bed_level();
+  // Disable the leveling matrix before homing
+  #if PLANNER_LEVELING
+    set_bed_leveling_enabled(false);
   #endif
 
   // Always home with tool 0 active
