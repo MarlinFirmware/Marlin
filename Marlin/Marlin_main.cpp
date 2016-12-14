@@ -575,6 +575,7 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  #define UNPROBED 9999.0f
   int bilinear_grid_spacing[2], bilinear_start[2];
   float bed_level_grid[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
 #endif
@@ -2312,7 +2313,7 @@ static void clean_up_after_endstop_or_probe_move() {
         bilinear_grid_spacing[X_AXIS] = bilinear_grid_spacing[Y_AXIS] = 0;
         for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
           for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
-            bed_level_grid[x][y] = 1000.0;
+            bed_level_grid[x][y] = UNPROBED;
       #endif
     #endif
   }
@@ -2338,7 +2339,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_CHAR(']');
       }
     #endif
-    if (bed_level_grid[x][y] < 999.0) {
+    if (bed_level_grid[x][y] != UNPROBED) {
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM(" (done)");
       #endif
@@ -2352,13 +2353,13 @@ static void clean_up_after_endstop_or_probe_move() {
           c1 = bed_level_grid[x + xdir][y + ydir], c2 = bed_level_grid[x + xdir * 2][y + ydir * 2];
 
     // Treat far unprobed points as zero, near as equal to far
-    if (a2 > 999.0) a2 = 0.0; if (a1 > 999.0) a1 = a2;
-    if (b2 > 999.0) b2 = 0.0; if (b1 > 999.0) b1 = b2;
-    if (c2 > 999.0) c2 = 0.0; if (c1 > 999.0) c1 = c2;
+    if (a2 == UNPROBED) a2 = 0.0; if (a1 == UNPROBED) a1 = a2;
+    if (b2 == UNPROBED) b2 = 0.0; if (b1 == UNPROBED) b1 = b2;
+    if (c2 == UNPROBED) c2 = 0.0; if (c1 == UNPROBED) c1 = c2;
 
     float a = 2 * a1 - a2, b = 2 * b1 - b2, c = 2 * c1 - c2;
 
-    // Take the average intstead of the median
+    // Take the average instead of the median
     bed_level_grid[x][y] = (a + b + c) / 3.0;
 
     // Median is robust (ignores outliers).
@@ -2436,7 +2437,7 @@ static void clean_up_after_endstop_or_probe_move() {
       for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++) {
         SERIAL_PROTOCOLCHAR(' ');
         float offset = bed_level_grid[x][y];
-        if (offset < 999.0) {
+        if (offset != UNPROBED) {
           if (offset > 0) SERIAL_CHAR('+');
           SERIAL_PROTOCOL_F(offset, 2);
         }
@@ -2469,7 +2470,7 @@ static void clean_up_after_endstop_or_probe_move() {
         for (uint8_t x = 0; x < ABL_GRID_POINTS_VIRT_X; x++) {
           SERIAL_PROTOCOLCHAR(' ');
           float offset = bed_level_grid_virt[x][y];
-          if (offset < 999.0) {
+          if (offset != UNPROBED) {
             if (offset > 0) SERIAL_CHAR('+');
             SERIAL_PROTOCOL_F(offset, 5);
           }
