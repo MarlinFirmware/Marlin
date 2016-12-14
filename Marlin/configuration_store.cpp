@@ -65,11 +65,11 @@
  *  207  M218 XYZ  hotend_offset (float x3 per additional hotend)
  *
  * Mesh bed leveling:
- *  219  M420 S    status (uint8)
- *  220            z_offset (float)
- *  224            mesh_num_x (uint8 as set in firmware)
- *  225            mesh_num_y (uint8 as set in firmware)
- *  226 G29 S3 XYZ z_values[][] (float x9, by default, up to float x 81)
+ *  219  M420 S    from mbl.status (bool)
+ *  220            mbl.z_offset (float)
+ *  224            MESH_NUM_X_POINTS (uint8 as set in firmware)
+ *  225            MESH_NUM_Y_POINTS (uint8 as set in firmware)
+ *  226 G29 S3 XYZ z_values[][] (float x9, by default, up to float x 81) +288
  *
  * AUTO BED LEVELING
  *  262  M851      zprobe_zoffset (float)
@@ -263,21 +263,19 @@ void Config_Postprocess() {
     #if ENABLED(MESH_BED_LEVELING)
       // Compile time test that sizeof(mbl.z_values) is as expected
       typedef char c_assert[(sizeof(mbl.z_values) == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS) * sizeof(dummy)) ? 1 : -1];
-      uint8_t mesh_num_x = MESH_NUM_X_POINTS,
-              mesh_num_y = MESH_NUM_Y_POINTS,
-              dummy_uint8 = mbl.status & _BV(MBL_STATUS_HAS_MESH_BIT);
-      EEPROM_WRITE(dummy_uint8);
+      const bool leveling_is_on = TEST(mbl.status, MBL_STATUS_HAS_MESH_BIT);
+      const uint8_t mesh_num_x = MESH_NUM_X_POINTS, mesh_num_y = MESH_NUM_Y_POINTS;
+      EEPROM_WRITE(leveling_is_on);
       EEPROM_WRITE(mbl.z_offset);
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
       EEPROM_WRITE(mbl.z_values);
     #else
       // For disabled MBL write a default mesh
-      uint8_t mesh_num_x = 3,
-              mesh_num_y = 3,
-              mbl_status = 0;
+      const bool leveling_is_on = false;
       dummy = 0.0f;
-      EEPROM_WRITE(mbl_status);
+      const uint8_t mesh_num_x = 3, mesh_num_y = 3;
+      EEPROM_WRITE(leveling_is_on);
       EEPROM_WRITE(dummy); // z_offset
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
@@ -498,13 +496,15 @@ void Config_Postprocess() {
       // Mesh (Manual) Bed Leveling
       //
 
-      uint8_t dummy_uint8, mesh_num_x, mesh_num_y;
-      EEPROM_READ(dummy_uint8);
+      bool leveling_is_on;
+      uint8_t mesh_num_x, mesh_num_y;
+      EEPROM_READ(leveling_is_on);
       EEPROM_READ(dummy);
       EEPROM_READ(mesh_num_x);
       EEPROM_READ(mesh_num_y);
+
       #if ENABLED(MESH_BED_LEVELING)
-        mbl.status = dummy_uint8;
+        mbl.status = leveling_is_on ? _BV(MBL_STATUS_HAS_MESH_BIT) : 0;
         mbl.z_offset = dummy;
         if (mesh_num_x == MESH_NUM_X_POINTS && mesh_num_y == MESH_NUM_Y_POINTS) {
           // EEPROM data fits the current mesh
@@ -721,6 +721,7 @@ void Config_ResetDefault() {
     LOOP_XYZ(i) HOTEND_LOOP() hotend_offset[i][e] = tmp4[i][e];
   #endif
 
+  // Applies to all MBL and ABL
   #if PLANNER_LEVELING
     reset_bed_level();
   #endif
