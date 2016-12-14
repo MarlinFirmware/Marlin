@@ -25,6 +25,8 @@
 
 #include "MarlinConfig.h"
 
+#define _UxGT(a) a
+
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 
