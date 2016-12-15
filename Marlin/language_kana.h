@@ -72,6 +72,8 @@
 #define MSG_RETRACT                         "\xcb\xb7\xba\xd0\xbe\xaf\xc3\xb2"                                 // "ﾋｷｺﾐｾｯﾃｲ" ("Retract")
 #define MSG_MOVE_AXIS                       "\xbc\xde\xb8\xb2\xc4\xde\xb3"                                     // "ｼﾞｸｲﾄﾞｳ" ("Move axis")
 #define MSG_LEVEL_BED                       "\xcd\xde\xaf\xc4\xde\xda\xcd\xde\xd8\xdd\xb8\xde"                 // "ﾍﾞｯﾄﾞﾚﾍﾞﾘﾝｸﾞ" ("Level bed")
+#define MSG_MOVING                          "\xb2\xc4\xde\xb3\xc1\xad\xb3"                                     // "ｲﾄﾞｳﾁｭｳ" ("Moving...")
+#define MSG_FREE_XY                         "XY\xbc\xde\xb8\x20\xb6\xb2\xce\xb3"                               // "XYｼﾞｸ ｶｲﾎｳ" ("Free XY")
 #define MSG_MOVE_X                          "X\xbc\xde\xb8\x20\xb2\xc4\xde\xb3"                                // "Xｼﾞｸ ｲﾄﾞｳ" ("Move X")
 #define MSG_MOVE_Y                          "Y\xbc\xde\xb8\x20\xb2\xc4\xde\xb3"                                // "Yｼﾞｸ ｲﾄﾞｳ" ("Move Y")
 #define MSG_MOVE_Z                          "Z\xbc\xde\xb8\x20\xb2\xc4\xde\xb3"                                // "Zｼﾞｸ ｲﾄﾞｳ" ("Move Z")
