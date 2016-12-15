@@ -22,10 +22,10 @@
 
 /**
  * M100 Free Memory Watcher
- * 
+ *
  * This code watches the free memory block between the bottom of the heap and the top of the stack.
  * This memory block is initialized and watched via the M100 command.
- * 
+ *
  * M100 I Initializes the free memory block and prints vitals statistics about the area
  * M100 F Identifies how much of the free memory block remains free and unused.  It also
  *    detects and reports any corruption within the free memory block that may have
@@ -34,7 +34,7 @@
  *    data that does not match the expected value.
  * M100 C x Corrupts x locations within the free memory block.   This is useful to check the
  *    correctness of the M100 F and M100 D commands.
- * 
+ *
  * Initial version by Roxy-3DPrintBoard
  */
 #define M100_FREE_MEMORY_DUMPER     // Comment out to remove Dump sub-command

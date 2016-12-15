@@ -675,7 +675,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     const float target_float[XYZE] = { a, b, c, e },
                 de_float = target_float[E_AXIS] - position_float[E_AXIS],
                 mm_D_float = sqrt(sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS]));
-    
+
     memcpy(position_float, target_float, sizeof(position_float));
   #endif
 
@@ -1108,7 +1108,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         if (accel * block->steps[AXIS] > comp) accel = comp / block->steps[AXIS]; \
       } \
     }while(0)
-	
+
     #define LIMIT_ACCEL_FLOAT(AXIS,INDX) do{ \
       if (block->steps[AXIS] && max_acceleration_steps_per_s2[AXIS+INDX] < accel) { \
         const float comp = (float)max_acceleration_steps_per_s2[AXIS+INDX] * (float)block->step_event_count; \
@@ -1292,11 +1292,11 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     // Use LIN_ADVANCE for blocks if all these are true:
     //
     // esteps                                          : We have E steps todo (a printing move)
-    // 
+    //
     // block->steps[X_AXIS] || block->steps[Y_AXIS]    : We have a movement in XY direction (i.e., not retract / prime).
-    // 
+    //
     // extruder_advance_k                              : There is an advance factor set.
-    // 
+    //
     // block->steps[E_AXIS] != block->step_event_count : A problem occurs if the move before a retract is too small.
     //                                                   In that case, the retract and move will be executed together.
     //                                                   This leads to too many advance steps due to a huge e_acceleration.

@@ -1943,6 +1943,6 @@ void Temperature::isr() {
       if (!endstop_monitor_count) endstop_monitor();  // report changes in endstop status
     }
   #endif
-  
+
   SBI(TIMSK0, OCIE0B); //re-enable Temperature ISR
 }
