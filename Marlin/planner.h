@@ -395,10 +395,16 @@ class Planner {
 
     #if ENABLED(ULTRA_LCD)
 
-      static millis_t block_buffer_runtime() {
+      static uint16_t block_buffer_runtime() {
         CRITICAL_SECTION_START
           millis_t bbru = block_buffer_runtime_us;
         CRITICAL_SECTION_END
+        // To translate µs to ms a division by 1000 would be required.
+        // We introduce 2.4% error here by dividing by 1024.
+        // Doesn't matter because block_buffer_runtime_us is already too small an estimation.
+        bbru >>= 10;
+        // limit to about a minute.
+        NOMORE(bbru, 0xfffful);
         return bbru;
       }
 
