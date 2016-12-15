@@ -530,7 +530,7 @@ static uint8_t target_extruder;
   ;
 #endif
 
-#if ENABLED(ULTIPANEL) && HAS_CASE_LIGHT
+#if HAS_CASE_LIGHT
   bool case_light_on =
     #if ENABLED(CASE_LIGHT_DEFAULT_ON)
       true
