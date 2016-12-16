@@ -331,14 +331,6 @@ void Stepper::set_directions() {
 ISR(TIMER1_COMPA_vect) { Stepper::isr(); }
 
 void Stepper::isr() {
-  //Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
-  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-    CBI(TIMSK0, OCIE0A); //estepper ISR
-  #endif
-  CBI(TIMSK0, OCIE0B); //Temperature ISR
-  DISABLE_STEPPER_DRIVER_INTERRUPT();
-  sei();
-  
   if (cleaning_buffer_counter) {
     --cleaning_buffer_counter;
     current_block = NULL;
@@ -347,12 +339,6 @@ void Stepper::isr() {
       if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
     OCR1A = 200; // Run at max speed - 10 KHz
-    //re-enable ISRs
-    #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      SBI(TIMSK0, OCIE0A);
-    #endif
-    SBI(TIMSK0, OCIE0B);
-    ENABLE_STEPPER_DRIVER_INTERRUPT();
     return;
   }
 
@@ -382,11 +368,6 @@ void Stepper::isr() {
         if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
           OCR1A = 2000; // Run at slow speed - 1 KHz
-          #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-            SBI(TIMSK0, OCIE0A);
-          #endif
-          SBI(TIMSK0, OCIE0B);
-          ENABLE_STEPPER_DRIVER_INTERRUPT();
           return;
         }
       #endif
@@ -397,11 +378,6 @@ void Stepper::isr() {
     }
     else {
       OCR1A = 2000; // Run at slow speed - 1 KHz
-      #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-        SBI(TIMSK0, OCIE0A);
-      #endif
-      SBI(TIMSK0, OCIE0B);
-      ENABLE_STEPPER_DRIVER_INTERRUPT();
       return;
     }
   }
@@ -426,6 +402,10 @@ void Stepper::isr() {
   // Take multiple steps per interrupt (For high speed moves)
   bool all_steps_done = false;
   for (int8_t i = 0; i < step_loops; i++) {
+    #ifndef USBCON
+      customizedSerial.checkRx(); // Check for serial chars.
+    #endif
+
     #if ENABLED(LIN_ADVANCE)
 
       counter_E += current_block->steps[E_AXIS];
@@ -714,11 +694,6 @@ void Stepper::isr() {
     current_block = NULL;
     planner.discard_current_block();
   }
-  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-    SBI(TIMSK0, OCIE0A);
-  #endif
-  SBI(TIMSK0, OCIE0B);
-  ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
