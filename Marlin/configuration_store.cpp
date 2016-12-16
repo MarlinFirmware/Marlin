@@ -238,7 +238,7 @@ void Config_Postprocess() {
 
     eeprom_checksum = 0; // clear before first "real data"
 
-    const uint8_t esteppers = E_STEPPERS;
+    const uint8_t esteppers = COUNT(planner.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
 
     EEPROM_WRITE(planner.axis_steps_per_mm);
