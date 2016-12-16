@@ -479,9 +479,9 @@ void Config_Postprocess() {
       // Get only the number of E stepper parameters previously stored
       // Any steppers added later are set to their defaults
       const float def1[] = DEFAULT_AXIS_STEPS_PER_UNIT, def2[] = DEFAULT_MAX_FEEDRATE;
-      const long def3[] = DEFAULT_MAX_ACCELERATION;
+      const uint32_t def3[] = DEFAULT_MAX_ACCELERATION;
       float tmp1[XYZ + esteppers], tmp2[XYZ + esteppers];
-      long tmp3[XYZ + esteppers];
+      uint32_t tmp3[XYZ + esteppers];
       EEPROM_READ(tmp1);
       EEPROM_READ(tmp2);
       EEPROM_READ(tmp3);
@@ -710,7 +710,7 @@ void Config_Postprocess() {
  */
 void Config_ResetDefault() {
   const float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT, tmp2[] = DEFAULT_MAX_FEEDRATE;
-  const long tmp3[] = DEFAULT_MAX_ACCELERATION;
+  const uint32_t tmp3[] = DEFAULT_MAX_ACCELERATION;
   LOOP_XYZE_N(i) {
     planner.axis_steps_per_mm[i]          = tmp1[i < COUNT(tmp1) ? i : COUNT(tmp1) - 1];
     planner.max_feedrate_mm_s[i]          = tmp2[i < COUNT(tmp2) ? i : COUNT(tmp2) - 1];
