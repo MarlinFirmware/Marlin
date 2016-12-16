@@ -2,9 +2,11 @@
 Marlin 360 3D Printer Firmware
 ==========================
 
-This version of the amazing Marlin 3D Printer Firmware was modified for rotating bed based printers, it is optimized for the R-360 3D printer.
+This version of the amazing Marlin 3D Printer Firmware was modified for rotating bed based printers, it is optimised for the R-360 3D printer.
 
 This version is Developed by Kornel Farkas and Gabor Heves
+
+Please notice this firmware were developed on Arduino Software 1.0.6 and it will not comply on newer versions!
 
 Licence
 ===================
