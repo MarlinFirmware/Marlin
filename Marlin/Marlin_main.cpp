@@ -7106,6 +7106,40 @@ void quickstop_stepper() {
     }
   }
 
+#elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+  /**
+   * M421: Set a single Mesh Bed Leveling Z coordinate
+   *
+   *   M421 I<xindex> J<yindex> Z<linear>
+   */
+  inline void gcode_M421() {
+    int8_t px = 0, py = 0;
+    float z = 0;
+    bool hasI, hasJ, hasZ;
+    if ((hasI = code_seen('I'))) px = code_value_axis_units(X_AXIS);
+    if ((hasJ = code_seen('J'))) py = code_value_axis_units(Y_AXIS);
+    if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
+
+    if (hasI && hasJ && hasZ) {
+      if (px >= 0 && px < ABL_GRID_MAX_POINTS_X && py >= 0 && py < ABL_GRID_MAX_POINTS_X) {
+        bed_level_grid[px][py] = z;
+        #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+          bed_level_virt_prepare();
+          bed_level_virt_interpolate();
+        #endif
+      }
+      else {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM(MSG_ERR_MESH_XY);
+      }
+    }
+    else {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_M421_PARAMETERS);
+    }
+  }
+
 #endif
 
 /**
