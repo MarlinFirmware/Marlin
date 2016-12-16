@@ -123,7 +123,7 @@ typedef struct {
   #if ENABLED(BARICUDA)
     uint32_t valve_pressure, e_to_p_pressure;
   #endif
-  
+
   uint32_t segment_time;
 
 } block_t;
@@ -185,7 +185,7 @@ class Planner {
      * Nominal speed of previous path line segment
      */
     static float previous_nominal_speed;
-	
+
     /**
      * Limit where 64bit math is necessary for acceleration calculation
      */
@@ -206,7 +206,7 @@ class Planner {
       // Segment times (in µs). Used for speed calculations
       static long axis_segment_time[2][3];
     #endif
-    
+
     #if ENABLED(LIN_ADVANCE)
       static float position_float[NUM_AXIS];
       static float extruder_advance_k;
@@ -264,7 +264,7 @@ class Planner {
       #define ARG_Z const float &lz
 
     #endif
-    
+
     #if ENABLED(LIN_ADVANCE)
       void advance_M905(const float &k);
     #endif

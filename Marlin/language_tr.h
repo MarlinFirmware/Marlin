@@ -57,12 +57,12 @@
 #define MSG_HOME_OFFSETS_APPLIED            _UxGT("Offset Tamam")                                       // Offset Tamam
 #define MSG_SET_ORIGIN                      _UxGT("Sıfır Belirle")                                      // Sıfır Belirle
 #define MSG_PREHEAT_1                       _UxGT("Ön Isınma PLA")                                      // Ön Isınma PLA
-#define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")                                    //  
+#define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")                                    //
 #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" Tüm")                                 //  Tüm
 #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Tabla")                               //  Tabla
 #define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" Ayar")                                //  Ayar
 #define MSG_PREHEAT_2                       _UxGT("Ön Isınma ABS")                                      // Ön Isınma ABS
-#define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")                                    //  
+#define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")                                    //
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" Tüm")                                 //  Tüm
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Tabla")                               //  Tabla
 #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" Ayar")                                //  Ayar
@@ -91,7 +91,7 @@
 #define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")                //  Max
 #define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Çarpan")             //  Çarpan
 #define MSG_AUTOTEMP                        _UxGT("Autotemp")                                           //  Autotemp
-#define MSG_ON                              _UxGT("On ")                                                // On 
+#define MSG_ON                              _UxGT("On ")                                                // On
 #define MSG_OFF                             _UxGT("Off")                                                // Off
 #define MSG_PID_P                           _UxGT("PID-P")                                              // PID-P
 #define MSG_PID_I                           _UxGT("PID-I")                                              // PID-I
