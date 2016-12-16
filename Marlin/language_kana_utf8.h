@@ -74,6 +74,8 @@
 #define MSG_RETRACT                         _UxGT("ヒキコミセッテイ")                // "Retract"
 #define MSG_MOVE_AXIS                       _UxGT("ジクイドウ")                    // "Move axis"
 #define MSG_LEVEL_BED                       _UxGT("ベッドレベリング")                // "Level bed"
+#define MSG_MOVING                          _UxGT("イドウチュウ")                   // "Moving..."
+#define MSG_FREE_XY                         _UxGT("XYジク カイホウ")                // "Free XY"
 #define MSG_MOVE_X                          _UxGT("Xジク イドウ")                  // "Move X"
 #define MSG_MOVE_Y                          _UxGT("Yジク イドウ")                  // "Move Y"
 #define MSG_MOVE_Z                          _UxGT("Zジク イドウ")                  // "Move Z"
