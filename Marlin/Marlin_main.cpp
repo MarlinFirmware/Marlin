@@ -3864,7 +3864,7 @@ inline void gcode_G28() {
    *
    * Enhanced G29 Auto Bed Leveling Probe Routine
    *
-   * Parameters With ABL_GRID:
+   * Parameters With LINEAR and BILINEAR:
    *
    *  P  Set the size of the grid that will be probed (P x P points).
    *     Not supported by non-linear delta printer bed leveling.
@@ -3887,6 +3887,10 @@ inline void gcode_G28() {
    *  B  Set the Back limit of the probing grid
    *  L  Set the Left limit of the probing grid
    *  R  Set the Right limit of the probing grid
+   *
+   * Parameters with BILINEAR only:
+   * 
+   *  Z  Supply an additional Z probe offset
    *
    * Global Parameters:
    *
