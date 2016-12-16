@@ -397,7 +397,7 @@ void Config_Postprocess() {
     uint16_t stored_checksum;
     EEPROM_READ(stored_checksum);
 
-    //  SERIAL_ECHOPAIR("Version: [", ver);
+    //  SERIAL_ECHOPAIR("Version: [", version);
     //  SERIAL_ECHOPAIR("] Stored version: [", stored_ver);
     //  SERIAL_CHAR(']');
     //  SERIAL_EOL;
