@@ -2423,7 +2423,7 @@ static void clean_up_after_endstop_or_probe_move() {
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
-  static void print_bed_level() {
+  static void print_bilinear_leveling_grid() {
     SERIAL_ECHOPGM("Bilinear Leveling Grid:\n ");
     for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++) {
       SERIAL_PROTOCOLPGM("    ");
@@ -3701,6 +3701,20 @@ inline void gcode_G28() {
   // Save 130 bytes with non-duplication of PSTR
   void say_not_entered() { SERIAL_PROTOCOLLNPGM(" not entered."); }
 
+  void mbl_mesh_report() {
+    SERIAL_PROTOCOLLNPGM("Num X,Y: " STRINGIFY(MESH_NUM_X_POINTS) "," STRINGIFY(MESH_NUM_Y_POINTS));
+    SERIAL_PROTOCOLLNPGM("Z search height: " STRINGIFY(MESH_HOME_SEARCH_Z));
+    SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
+    SERIAL_PROTOCOLLNPGM("\nMeasured points:");
+    for (uint8_t py = 0; py < MESH_NUM_Y_POINTS; py++) {
+      for (uint8_t px = 0; px < MESH_NUM_X_POINTS; px++) {
+        SERIAL_PROTOCOLPGM("  ");
+        SERIAL_PROTOCOL_F(mbl.z_values[py][px], 5);
+      }
+      SERIAL_EOL;
+    }
+  }
+
   /**
    * G29: Mesh-based Z probe, probes a grid and produces a
    *      mesh to compensate for variable bed height
@@ -3736,21 +3750,11 @@ inline void gcode_G28() {
     switch (state) {
       case MeshReport:
         if (mbl.has_mesh()) {
-          SERIAL_PROTOCOLPAIR("State: ", mbl.active() ? MSG_ON : MSG_OFF);
-          SERIAL_PROTOCOLLNPGM("\nNum X,Y: " STRINGIFY(MESH_NUM_X_POINTS) "," STRINGIFY(MESH_NUM_Y_POINTS));
-          SERIAL_PROTOCOLLNPGM("Z search height: " STRINGIFY(MESH_HOME_SEARCH_Z));
-          SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
-          SERIAL_PROTOCOLLNPGM("\nMeasured points:");
-          for (py = 0; py < MESH_NUM_Y_POINTS; py++) {
-            for (px = 0; px < MESH_NUM_X_POINTS; px++) {
-              SERIAL_PROTOCOLPGM("  ");
-              SERIAL_PROTOCOL_F(mbl.z_values[py][px], 5);
-            }
-            SERIAL_EOL;
-          }
+          SERIAL_PROTOCOLLNPAIR("State: ", mbl.active() ? MSG_ON : MSG_OFF);
+          mbl_mesh_report();
         }
         else
-          SERIAL_PROTOCOLLNPGM("Mesh bed leveling not active.");
+          SERIAL_PROTOCOLLNPGM("Mesh bed leveling has no data.");
         break;
 
       case MeshStart:
@@ -4220,7 +4224,7 @@ inline void gcode_G28() {
     #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!dryrun) extrapolate_unprobed_bed_level();
-      print_bed_level();
+      print_bilinear_leveling_grid();
 
       #if ENABLED(ABL_BILINEAR_SUBDIVISION)
         bed_level_virt_prepare();
@@ -7012,6 +7016,7 @@ void quickstop_stepper() {
    *
    *       S[bool]   Turns leveling on or off
    *       Z[height] Sets the Z fade height (0 or none to disable)
+   *       V[bool]   Verbose - Print the levelng grid
    */
   inline void gcode_M420() {
     bool to_enable = false;
@@ -7032,9 +7037,33 @@ void quickstop_stepper() {
         planner.abl_enabled
       #endif
     ) ) {
+      to_enable = false;
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M420_FAILED);
     }
+
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPAIR("Bed Leveling ", to_enable ? MSG_ON : MSG_OFF);
+
+    // V to print the matrix or mesh
+    if (code_seen('V')) {
+      #if ABL_PLANAR
+        planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        if (bilinear_grid_spacing[X_AXIS]) {
+          print_bilinear_leveling_grid();
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_print();
+          #endif
+        }
+      #elif ENABLED(MESH_BED_LEVELING)
+        if (mbl.has_mesh()) {
+          SERIAL_ECHOLNPGM("Mesh Bed Level data:");
+          mbl_mesh_report();
+        }
+      #endif
+    }
+
   }
 #endif
 
