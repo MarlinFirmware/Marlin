@@ -338,7 +338,7 @@ void Stepper::isr() {
   CBI(TIMSK0, OCIE0B); //Temperature ISR
   DISABLE_STEPPER_DRIVER_INTERRUPT();
   sei();
-  
+
   if (cleaning_buffer_counter) {
     --cleaning_buffer_counter;
     current_block = NULL;
@@ -583,7 +583,7 @@ void Stepper::isr() {
       #endif
    }
   #endif
-  
+
   #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
     // If we have esteps to execute, fire the next advance_isr "now"
     if (e_steps[TOOL_E_INDEX]) OCR0A = TCNT0 + 2;

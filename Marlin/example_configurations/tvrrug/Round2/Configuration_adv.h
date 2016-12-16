@@ -468,12 +468,12 @@
 
 /**
  * Additional options for Graphical Displays
- * 
+ *
  * Use the optimizations here to improve printing performance,
  * which can be adversely affected by graphical display drawing,
  * especially when doing several short moves, and when printing
  * on DELTA and SCARA machines.
- * 
+ *
  * Some of these options may result in the display lagging behind
  * controller events, as there is a trade-off between reliable
  * printing performance versus fast display updates.
