@@ -183,7 +183,7 @@ void Config_Postprocess() {
 
   bool eeprom_write_error;
 
-  void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
+  void _EEPROM_writeData(int &pos, uint8_t* value, uint16_t size) {
     if (eeprom_write_error) return;
     while (size--) {
       uint8_t * const p = (uint8_t * const)pos;
@@ -205,7 +205,7 @@ void Config_Postprocess() {
     };
   }
   bool eeprom_read_error;
-  void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
+  void _EEPROM_readData(int &pos, uint8_t* value, uint16_t size) {
     do {
       uint8_t c = eeprom_read_byte((unsigned char*)pos);
       if (!eeprom_read_error) *value = c;
