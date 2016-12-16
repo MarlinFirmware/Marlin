@@ -9455,7 +9455,9 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       // For non-interpolated delta calculate every segment
       for (uint16_t s = segments + 1; --s;) {
         DELTA_NEXT(segment_distance[i]);
-        planner.buffer_line_kinematic(DELTA_VAR, _feedrate_mm_s, active_extruder);
+        DELTA_IK();
+        ADJUST_DELTA(DELTA_VAR); // Adjust Z if bed leveling is enabled
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_VAR[E_AXIS], _feedrate_mm_s, active_extruder);
       }
 
     #endif
