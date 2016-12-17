@@ -359,7 +359,11 @@ class Stepper {
       step_loops_nominal = step_loops;
       acc_step_rate = current_block->initial_rate;
       acceleration_time = calc_timer(acc_step_rate);
-      OCR1A = acceleration_time;
+      #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+        nextMainISRrun = acceleration_time;
+      #else
+        OCR1A = acceleration_time;
+      #endif
 
       #if ENABLED(LIN_ADVANCE)
         if (current_block->use_advance_lead) {
