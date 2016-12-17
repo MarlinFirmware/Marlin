@@ -25,10 +25,10 @@
 
 //#include "../../../Marlin.h"
 
-// Arduino Due core has watchdog support from version 1.?.? ?
+// Arduino Due core now has watchdog support
 
 void watchdog_init();
 
-inline void watchdog_reset() { }
+inline void watchdog_reset() { watchdogReset(); }
 
 #endif /* WATCHDOG_DUE_H */
