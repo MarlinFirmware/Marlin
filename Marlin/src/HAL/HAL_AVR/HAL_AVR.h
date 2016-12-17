@@ -118,6 +118,32 @@ int freeMemory(void);
 #define HAL_STEP_TIMER_ISR 	ISR(TIMER1_COMPA_vect)
 #define HAL_TEMP_TIMER_ISR  ISR(TIMER0_COMPB_vect)
 
+
+// ADC
+#ifdef DIDR2
+  #define HAL_ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin - 8); }while(0)
+#else
+  #define HAL_ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
+#endif
+
+inline void HAL_adc_init(void) {
+  ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
+  DIDR0 = 0;
+  #ifdef DIDR2
+    DIDR2 = 0;
+  #endif
+}
+
+#define SET_ADMUX_ADCSRA(pin) ADMUX = _BV(REFS0) | (pin & 0x07); SBI(ADCSRA, ADSC)
+#ifdef MUX5
+  #define HAL_START_ADC(pin) if (pin > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
+#else
+  #define HAL_START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
+#endif
+
+#define HAL_READ_ADC ADC
+
+
 // --------------------------------------------------------------------------
 //
 // --------------------------------------------------------------------------

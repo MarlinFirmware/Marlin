@@ -1008,48 +1008,36 @@ void Temperature::init() {
 
   #endif //HEATER_0_USES_MAX6675
 
-#if defined(ARDUINO_ARCH_AVR)
+  HAL_adc_init();
 
-  #ifdef DIDR2
-    #define ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin - 8); }while(0)
-  #else
-    #define ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
-  #endif
-
-  // Set analog inputs
-  ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
-  DIDR0 = 0;
-  #ifdef DIDR2
-    DIDR2 = 0;
-  #endif
   #if HAS_TEMP_0
-    ANALOG_SELECT(TEMP_0_PIN);
+    HAL_ANALOG_SELECT(TEMP_0_PIN);
   #endif
   #if HAS_TEMP_1
-    ANALOG_SELECT(TEMP_1_PIN);
+    HAL_ANALOG_SELECT(TEMP_1_PIN);
   #endif
   #if HAS_TEMP_2
-    ANALOG_SELECT(TEMP_2_PIN);
+    HAL_ANALOG_SELECT(TEMP_2_PIN);
   #endif
   #if HAS_TEMP_3
-    ANALOG_SELECT(TEMP_3_PIN);
+    HAL_ANALOG_SELECT(TEMP_3_PIN);
   #endif
   #if HAS_TEMP_BED
-    ANALOG_SELECT(TEMP_BED_PIN);
+    HAL_ANALOG_SELECT(TEMP_BED_PIN);
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    ANALOG_SELECT(FILWIDTH_PIN);
+    HAL_ANALOG_SELECT(FILWIDTH_PIN);
   #endif
 
-  // Use timer0 for temperature measurement
-  // Interleave temperature interrupt with millies interrupt
-  OCR0B = 128;
-  SBI(TIMSK0, OCIE0B);
-
-#elif defined(ARDUINO_ARCH_SAM)
-  HAL_timer_start (TEMP_TIMER_NUM, 1000);
-  HAL_timer_enable_interrupt (TEMP_TIMER_NUM);
-#endif
+  #if defined(ARDUINO_ARCH_AVR)
+    // Use timer0 for temperature measurement
+    // Interleave temperature interrupt with millies interrupt
+    OCR0B = 128;
+    SBI(TIMSK0, OCIE0B);
+  #else
+    HAL_timer_start (TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
+    HAL_timer_enable_interrupt (TEMP_TIMER_NUM);
+  #endif
 
   #if HAS_AUTO_FAN_0
     #if E0_AUTO_FAN_PIN == FAN1_PIN
@@ -1733,109 +1721,91 @@ void Temperature::isr() {
 
   #endif // SLOW_PWM_HEATERS
 
-#if defined(ARDUINO_ARCH_AVR)
-
-  #define SET_ADMUX_ADCSRA(pin) ADMUX = _BV(REFS0) | (pin & 0x07); SBI(ADCSRA, ADSC)
-  #ifdef MUX5
-    #define START_ADC(pin) if (pin > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
-  #else
-    #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
-  #endif
-
-  #define READ_ADC ADC
-#elif defined (ARDUINO_ARCH_SAM)
-  //TODO: Due equivalent
-  #define START_ADC(pin) HAL_adc_start_conversion(pin)
-
-  //TODO; reads ADC value?
-  #define READ_ADC HAL_adc_result
-#endif
-
   // Prepare or measure a sensor, each one every 12th frame
   switch (temp_state) {
     case PrepareTemp_0:
       #if HAS_TEMP_0
-        START_ADC(TEMP_0_PIN);
+        HAL_START_ADC(TEMP_0_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_0;
       break;
     case MeasureTemp_0:
       #if HAS_TEMP_0
-        raw_temp_value[0] += READ_ADC;
+        raw_temp_value[0] += HAL_READ_ADC;
       #endif
       temp_state = PrepareTemp_BED;
       break;
 
     case PrepareTemp_BED:
       #if HAS_TEMP_BED
-        START_ADC(TEMP_BED_PIN);
+        HAL_START_ADC(TEMP_BED_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_BED;
       break;
     case MeasureTemp_BED:
       #if HAS_TEMP_BED
-        raw_temp_bed_value += READ_ADC;
+        raw_temp_bed_value += HAL_READ_ADC;
       #endif
       temp_state = PrepareTemp_1;
       break;
 
     case PrepareTemp_1:
       #if HAS_TEMP_1
-        START_ADC(TEMP_1_PIN);
+        HAL_START_ADC(TEMP_1_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_1;
       break;
     case MeasureTemp_1:
       #if HAS_TEMP_1
-        raw_temp_value[1] += READ_ADC;
+        raw_temp_value[1] += HAL_READ_ADC;
       #endif
       temp_state = PrepareTemp_2;
       break;
 
     case PrepareTemp_2:
       #if HAS_TEMP_2
-        START_ADC(TEMP_2_PIN);
+        HAL_START_ADC(TEMP_2_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_2;
       break;
     case MeasureTemp_2:
       #if HAS_TEMP_2
-        raw_temp_value[2] += READ_ADC;
+        raw_temp_value[2] += HAL_READ_ADC;
       #endif
       temp_state = PrepareTemp_3;
       break;
 
     case PrepareTemp_3:
       #if HAS_TEMP_3
-        START_ADC(TEMP_3_PIN);
+        HAL_START_ADC(TEMP_3_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_3;
       break;
     case MeasureTemp_3:
       #if HAS_TEMP_3
-        raw_temp_value[3] += READ_ADC;
+        raw_temp_value[3] += HAL_READ_ADC;
       #endif
       temp_state = Prepare_FILWIDTH;
       break;
 
     case Prepare_FILWIDTH:
       #if ENABLED(FILAMENT_WIDTH_SENSOR)
-        START_ADC(FILWIDTH_PIN);
+        HAL_START_ADC(FILWIDTH_PIN);
       #endif
       lcd_buttons_update();
       temp_state = Measure_FILWIDTH;
       break;
     case Measure_FILWIDTH:
       #if ENABLED(FILAMENT_WIDTH_SENSOR)
-        // raw_filwidth_value += READ_ADC;  //remove to use an IIR filter approach
-        if (READ_ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
+        // raw_filwidth_value += HAL_READ_ADC;  //remove to use an IIR filter approach
+        if (HAL_READ_ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
           raw_filwidth_value -= (raw_filwidth_value >> 7); //multiply raw_filwidth_value by 127/128
-          raw_filwidth_value += ((unsigned long)READ_ADC << 7); //add new ADC reading
+          raw_filwidth_value += ((unsigned long)HAL_READ_ADC << 7); //add new ADC reading
         }
       #endif
       temp_state = PrepareTemp_0;
