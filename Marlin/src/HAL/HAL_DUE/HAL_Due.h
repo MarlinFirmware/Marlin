@@ -3,6 +3,7 @@
  Marlin 3D Printer Firmware
  Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  Copyright (c) 2016 Bob Cousins bobcousins42@googlemail.com
+ Copyright (c) 2015-2016 Nico Tonnhofer wurstnase.reprap@gmail.com
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -58,6 +59,25 @@
 #endif
 
 #define _BV(bit) 	(1 << (bit))
+
+#if ENABLED(DELTA_FAST_SQRT)
+  #undef ATAN2
+  #undef FABS
+  #undef POW
+  #undef SQRT
+  #undef CEIL
+  #undef FLOOR
+  #undef LROUND
+  #undef FMOD
+  #define ATAN2(y, x) atan2f(y, x)
+  #define FABS(x) fabsf(x)
+  #define POW(x, y) powf(x, y)
+  #define SQRT(x) sqrtf(x)
+  #define CEIL(x) ceilf(x)
+  #define FLOOR(x) floorf(x)
+  #define LROUND(x) lroundf(x)
+  #define FMOD(x, y) fmodf(x, y)
+#endif
 
 #ifndef analogInputToDigitalPin
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
@@ -129,7 +149,9 @@ void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 #define TEMP_TIMER_NUM 4
 
 #define HAL_TIMER_RATE 		     (F_CPU/32)
-#define TICKS_PER_NANOSECOND   (HAL_TIMER_RATE)/1000
+//#define TICKS_PER_NANOSECOND   (HAL_TIMER_RATE)/1000
+
+#define TEMP_TIMER_FREQUENCY     1000
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()	HAL_timer_enable_interrupt (STEP_TIMER_NUM)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT()	HAL_timer_disable_interrupt (STEP_TIMER_NUM)
@@ -148,8 +170,32 @@ void HAL_timer_disable_interrupt (uint8_t timer_num);
 void HAL_timer_isr_prologue (uint8_t timer_num);
 //
 
+// ADC
+
+#define HAL_ANALOG_SELECT(pin)
+
+inline void HAL_adc_init(void) {}//todo
+
+#define HAL_START_ADC(pin)  HAL_adc_start_conversion(pin)
+#define HAL_READ_ADC        HAL_adc_result
+
+
 void HAL_adc_start_conversion (uint8_t adc_pin);
+
 uint16_t HAL_adc_get_result(void);
+
+//
+uint16_t HAL_getAdcReading(uint8_t chan);
+
+void HAL_startAdcConversion(uint8_t chan);
+uint8_t HAL_pinToAdcChannel(int pin);
+
+uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
+//uint16_t HAL_getAdcSuperSample(uint8_t chan);
+
+void HAL_enable_AdcFreerun(void);
+//void HAL_disable_AdcFreerun(uint8_t chan);
+
 
 
 // --------------------------------------------------------------------------
