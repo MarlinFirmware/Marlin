@@ -456,6 +456,9 @@
 #ifndef MSG_HEATING
   #define MSG_HEATING                         _UxGT("Heating...")
 #endif
+#ifndef MSG_DHT_WARMING
+  #define MSG_DHT_WARMING                     _UxGT("Sensor Warming...")
+#endif
 #ifndef MSG_HEATING_COMPLETE
   #define MSG_HEATING_COMPLETE                _UxGT("Heating done.")
 #endif
@@ -497,7 +500,7 @@
   #define MSG_INFO_THERMISTOR_MENU            _UxGT("Thermistors")
 #endif
 #ifndef MSG_INFO_DHT_MENU
-  #define MSG_INFO_DHT_MENU                   "Temp & Humidity"
+  #define MSG_INFO_DHT_MENU                   _UxGT("Temp & Humidity")
 #endif
 #ifndef MSG_INFO_EXTRUDERS
   #define MSG_INFO_EXTRUDERS                  _UxGT("Extruders")
