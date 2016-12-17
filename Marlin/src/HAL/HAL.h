@@ -79,18 +79,14 @@ void spiRead(uint8_t* buf, uint16_t nbyte);
 /** Write token and then write from 512 byte buffer to SPI (for SD card) */
 void spiSendBlock(uint8_t token, const uint8_t* buf);
 
-#ifdef ARDUINO_ARCH_SAM
-
-  #include "HAL_DUE/HAL_Due.h"
-
-#elif defined(ARDUINO_ARCH_AVR)
-
+#if defined(ARDUINO_ARCH_AVR)
   #include "HAL_AVR/HAL_AVR.h"
-
+#elif defined(ARDUINO_ARCH_SAM)
+  #define CPU_32_BIT
+  #include "HAL_DUE/HAL_Due.h"
+  #include "math_32bit.h"
 #else
-
   #error Unsupported Platform!
-
 #endif
 
 #endif /* HAL_H_ */

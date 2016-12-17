@@ -42,6 +42,7 @@
 
 #include "fastio_AVR.h"
 #include "watchdog_AVR.h"
+#include "math_AVR.h"
 
 #ifdef USBCON
   #include "HardwareSerial.h"
