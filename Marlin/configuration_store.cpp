@@ -238,8 +238,9 @@ void Config_Postprocess() {
 
     eeprom_checksum = 0; // clear before first "real data"
 
-    const uint8_t esteppers = E_STEPPERS;
+    const uint8_t esteppers = COUNT(planner.axis_steps_per_mm) - XYZ;
     EEPROM_WRITE(esteppers);
+
     EEPROM_WRITE(planner.axis_steps_per_mm);
     EEPROM_WRITE(planner.max_feedrate_mm_s);
     EEPROM_WRITE(planner.max_acceleration_mm_per_s2);
@@ -439,7 +440,7 @@ void Config_Postprocess() {
 
       // Report storage size
       SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("Settings Stored (", eeprom_size);
+      SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
       SERIAL_ECHOLNPGM(" bytes)");
     }
   }
@@ -680,7 +681,7 @@ void Config_Postprocess() {
           Config_Postprocess();
           SERIAL_ECHO_START;
           SERIAL_ECHO(version);
-          SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index);
+          SERIAL_ECHOPAIR(" stored settings retrieved (", eeprom_index - (EEPROM_OFFSET));
           SERIAL_ECHOLNPGM(" bytes)");
         }
       }
