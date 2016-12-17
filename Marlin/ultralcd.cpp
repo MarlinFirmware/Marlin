@@ -141,7 +141,7 @@ millis_t max_display_update_time = 0;
     #endif
     void lcd_info_thermistors_menu();
     #if ENABLED(DHT_ENABLE)
-      #include "DHT.h"
+      #include "Marlin_DHT.h"
       float DHT_temperature;
       float DHT_humidity;
       bool DHT_done = false;
@@ -2342,16 +2342,17 @@ KeepDrawing:
         {
           DHT dht;
           dht.setup(DHT_PIN, DHT_TYPE);
-          safe_delay (2000);
+          //Changing this delay to 1600 for a DHT22 still works and displays faster.
+          safe_delay (dht.getMinimumSamplingPeriod());
           DHT_temperature = (dht.getTemperature());
           DHT_humidity = (dht.getHumidity());
           DHT_done = true;
         }
         START_SCREEN();
-          STATIC_ITEM("Ambient");                                                //Ambient
-          STATIC_ITEM(MSG_INFO_DHT_MENU);                                        //Temp & Humidity
-          STATIC_ITEM("Temp (C): ", false, true, itostr3left(DHT_temperature));  //Temp (C): 14
-          STATIC_ITEM("Humidity: ", false, true, itostr3left(DHT_humidity));     //Humidity: 27
+          STATIC_ITEM("Ambient");                                                    //Ambient
+          STATIC_ITEM(MSG_INFO_DHT_MENU);                                            //Temp & Humidity
+          STATIC_ITEM("    Temp (C): ", false, true, itostr3left(DHT_temperature));  //Temp (C): 14
+          STATIC_ITEM("    Humidity: ", false, true, itostr3left(DHT_humidity));     //Humidity: 27
         END_SCREEN();
       }
     #endif // DHT_ENABLE
