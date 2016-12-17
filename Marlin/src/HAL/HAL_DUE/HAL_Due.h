@@ -97,6 +97,14 @@
 #undef pgm_read_ptr
 #define pgm_read_ptr(addr) (*(addr))
 
+#define RST_POWER_ON   1
+#define RST_EXTERNAL   2
+#define RST_BROWN_OUT  4
+#define RST_WATCHDOG   8
+#define RST_JTAG       16
+#define RST_SOFTWARE   32
+#define RST_BACKUP     64
+
 // --------------------------------------------------------------------------
 // Types
 // --------------------------------------------------------------------------
@@ -106,9 +114,6 @@
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
-
-// reset reason set by bootloader
-extern uint8_t MCUSR;
 
 /** result of last ADC conversion */
 extern uint16_t HAL_adc_result;
@@ -122,6 +127,12 @@ void cli(void);
 
 // Enable interrupts
 void sei(void);
+
+/** clear reset reason */
+void HAL_clear_reset_source (void);
+
+/** reset reason */
+uint8_t HAL_get_reset_source (void);
 
 void _delay_ms(int delay);
 

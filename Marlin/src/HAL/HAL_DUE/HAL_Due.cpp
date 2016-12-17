@@ -55,8 +55,6 @@
 // Public Variables
 // --------------------------------------------------------------------------
 
-uint8_t MCUSR;
-
 uint16_t HAL_adc_result;
 
 // --------------------------------------------------------------------------
@@ -85,6 +83,23 @@ void cli(void)
 void sei(void)
 {
 	interrupts();
+}
+
+void HAL_clear_reset_source (void)
+{ }
+
+uint8_t HAL_get_reset_source (void)
+{
+  switch ( (RSTC->RSTC_SR >> 8) & 7)
+  {
+    case 0: return RST_POWER_ON; break;
+    case 1: return RST_BACKUP; break;
+    case 2: return RST_WATCHDOG; break;
+    case 3: return RST_SOFTWARE; break;
+    case 4: return RST_EXTERNAL; break;
+    default:
+      return 0;
+  }
 }
 
 void _delay_ms (int delay_ms)
