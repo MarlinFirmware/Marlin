@@ -33,7 +33,7 @@
 
 #include "../HAL.h"
 
-#include <Wire.h>
+#include "HAL_timers_Due.h"
 
 // --------------------------------------------------------------------------
 // Externals
@@ -43,23 +43,34 @@
 // Local defines
 // --------------------------------------------------------------------------
 
+#define NUM_HARDWARE_TIMERS 9
+
+#define PRESCALER 2
 // --------------------------------------------------------------------------
 // Types
 // --------------------------------------------------------------------------
 
-// --------------------------------------------------------------------------
-// Variables
-// --------------------------------------------------------------------------
 
 // --------------------------------------------------------------------------
 // Public Variables
 // --------------------------------------------------------------------------
 
-uint16_t HAL_adc_result;
-
 // --------------------------------------------------------------------------
 // Private Variables
 // --------------------------------------------------------------------------
+
+const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] =
+  {
+    { TC0, 0, TC0_IRQn, 0},  // 0 - [servo timer5]
+    { TC0, 1, TC1_IRQn, 0},  // 1
+    { TC0, 2, TC2_IRQn, 0},  // 2
+    { TC1, 0, TC3_IRQn, 2},  // 3 - stepper
+    { TC1, 1, TC4_IRQn, 15}, // 4 - temperature
+    { TC1, 2, TC5_IRQn, 0},  // 5 - [servo timer3]
+    { TC2, 0, TC6_IRQn, 0},  // 6
+    { TC2, 1, TC7_IRQn, 0},  // 7
+    { TC2, 2, TC8_IRQn, 0},  // 8
+  };
 
 // --------------------------------------------------------------------------
 // Function prototypes
@@ -73,74 +84,63 @@ uint16_t HAL_adc_result;
 // Public functions
 // --------------------------------------------------------------------------
 
-// disable interrupts
-void cli(void)
+/*
+  Timer_clock1: Prescaler 2 -> 42MHz
+  Timer_clock2: Prescaler 8 -> 10.5MHz
+  Timer_clock3: Prescaler 32 -> 2.625MHz
+  Timer_clock4: Prescaler 128 -> 656.25kHz
+*/
+
+
+void HAL_timer_start (uint8_t timer_num, uint32_t frequency)
 {
-	noInterrupts();
+	Tc *tc = TimerConfig [timer_num].pTimerRegs;
+	IRQn_Type irq = TimerConfig [timer_num].IRQ_Id;
+	uint32_t channel = TimerConfig [timer_num].channel;
+
+	pmc_set_writeprotect(false);
+	pmc_enable_periph_clk((uint32_t)irq);
+  NVIC_SetPriority (irq, TimerConfig [timer_num].priority);
+
+  TC_Configure (tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK1);
+
+	TC_SetRC(tc, channel, VARIANT_MCK/2/frequency);
+	TC_Start(tc, channel);
+
+	// enable interrupt on RC compare
+	tc->TC_CHANNEL[channel].TC_IER = TC_IER_CPCS;
+
+	NVIC_EnableIRQ(irq);
 }
 
-// enable interrupts
-void sei(void)
+void HAL_timer_enable_interrupt (uint8_t timer_num)
 {
-	interrupts();
+	const tTimerConfig *pConfig = &TimerConfig [timer_num];
+
+	pConfig->pTimerRegs->TC_CHANNEL [pConfig->channel].TC_IER = TC_IER_CPCS;
 }
 
-void HAL_clear_reset_source (void)
-{ }
-
-uint8_t HAL_get_reset_source (void)
+void HAL_timer_disable_interrupt (uint8_t timer_num)
 {
-  switch ( (RSTC->RSTC_SR >> 8) & 7)
-  {
-    case 0: return RST_POWER_ON; break;
-    case 1: return RST_BACKUP; break;
-    case 2: return RST_WATCHDOG; break;
-    case 3: return RST_SOFTWARE; break;
-    case 4: return RST_EXTERNAL; break;
-    default:
-      return 0;
-  }
+	const tTimerConfig *pConfig = &TimerConfig [timer_num];
+
+	pConfig->pTimerRegs->TC_CHANNEL [pConfig->channel].TC_IDR = TC_IDR_CPCS;
 }
 
-void _delay_ms (int delay_ms)
+#if 0
+void HAL_timer_set_count (uint8_t timer_num, uint32_t count)
 {
-	//todo: port for Due?
-	delay (delay_ms);
+	const tTimerConfig *pConfig = &TimerConfig [timer_num];
+
+	TC_SetRC (pConfig->pTimerRegs, pConfig->channel, count);
 }
 
-extern "C" {
-  extern unsigned int _ebss; // end of bss section
+void HAL_timer_isr_prologue (uint8_t timer_num) {
+	const tTimerConfig *pConfig = &TimerConfig [timer_num];
+
+	TC_GetStatus (pConfig->pTimerRegs, pConfig->channel);
 }
-
-// return free memory between end of heap (or end bss) and whatever is current
-int freeMemory()
-{
-  int free_memory;
-  int heap_end = (int)_sbrk(0);
-
-  if(heap_end == 0)
-    free_memory = ((int)&free_memory) - ((int)&_ebss);
-  else
-    free_memory = ((int)&free_memory) - heap_end;
-
-  return free_memory;
-
-}
-
-// --------------------------------------------------------------------------
-// ADC
-// --------------------------------------------------------------------------
-
-void HAL_adc_start_conversion (uint8_t adc_pin)
-{
-	HAL_adc_result = analogRead (adc_pin);
-}
-
-uint16_t HAL_adc_get_result(void)
-{
-	// nop
-	return HAL_adc_result;
-}
+#endif
 
 #endif // ARDUINO_ARCH_SAM
 

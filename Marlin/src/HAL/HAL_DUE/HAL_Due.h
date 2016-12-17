@@ -40,7 +40,7 @@
 #include "fastio_Due.h"
 #include "watchdog_Due.h"
 
-
+#include "HAL_timers_Due.h"
 
 // --------------------------------------------------------------------------
 // Defines
@@ -83,8 +83,8 @@
   #define analogInputToDigitalPin(p) ((p < 12u) ? (p) + 54u : -1)
 #endif
 
-#define     CRITICAL_SECTION_START	uint32_t primask=__get_PRIMASK(); __disable_irq();
-#define     CRITICAL_SECTION_END    if (primask==0) __enable_irq();
+#define CRITICAL_SECTION_START	uint32_t primask=__get_PRIMASK(); __disable_irq();
+#define CRITICAL_SECTION_END    if (primask==0) __enable_irq();
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
@@ -109,7 +109,6 @@
 // Types
 // --------------------------------------------------------------------------
 
-#define HAL_TIMER_TYPE uint32_t
 
 // --------------------------------------------------------------------------
 // Public Variables
@@ -155,32 +154,6 @@ void eeprom_read_block (void *__dst, const void *__src, size_t __n);
 void eeprom_update_block (const void *__src, void *__dst, size_t __n);
 
 
-// timers
-#define STEP_TIMER_NUM 3
-#define TEMP_TIMER_NUM 4
-
-#define HAL_TIMER_RATE 		     (F_CPU/32)
-//#define TICKS_PER_NANOSECOND   (HAL_TIMER_RATE)/1000
-
-#define TEMP_TIMER_FREQUENCY     1000
-
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()	HAL_timer_enable_interrupt (STEP_TIMER_NUM)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT()	HAL_timer_disable_interrupt (STEP_TIMER_NUM)
-
-//
-#define HAL_STEP_TIMER_ISR 	void TC3_Handler()
-#define HAL_TEMP_TIMER_ISR 	void TC4_Handler()
-
-void HAL_timer_start (uint8_t timer_num, uint32_t frequency);
-void HAL_timer_set_count (uint8_t timer_num, uint32_t count);
-HAL_TIMER_TYPE HAL_timer_get_count (uint8_t timer_num);
-
-void HAL_timer_enable_interrupt (uint8_t timer_num);
-void HAL_timer_disable_interrupt (uint8_t timer_num);
-
-void HAL_timer_isr_prologue (uint8_t timer_num);
-//
-
 // ADC
 
 #define HAL_ANALOG_SELECT(pin)
@@ -206,7 +179,6 @@ uint16_t HAL_getAdcFreerun(uint8_t chan, bool wait_for_conversion = false);
 
 void HAL_enable_AdcFreerun(void);
 //void HAL_disable_AdcFreerun(uint8_t chan);
-
 
 
 // --------------------------------------------------------------------------
