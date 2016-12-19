@@ -163,12 +163,12 @@
 #endif
 
 #ifndef E_ADJUST_PIN
-  #define E_ADJUST_PIN 3 //pin to read analog extruder setting
+  #define E_ADJUST_PIN 3 //manual extruder adjustment
 #endif
-
+ 
 #if ENABLED(PISTON_EXTRUDER)
-  #define DRYER_FAN_PIN  RAMPS_D10_PIN //to control the dryer fan
-  #define HEATER_0_PIN   RAMPS_D9_PIN  //needed to pass sanity check
+  #define DRYER_FAN_PIN  RAMPS_D10_PIN // the paste extrusion dryer fan
+  #define HEATER_0_PIN   RAMPS_D9_PIN  //prevents interference from temperature control
 #else
   #define HEATER_0_PIN   RAMPS_D10_PIN
 #endif  

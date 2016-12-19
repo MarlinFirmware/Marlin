@@ -106,7 +106,6 @@ enum TempState {
   PrepareTemp_3,
   MeasureTemp_3,
   #if ENABLED(E_ADJUST_MANUALLY)
-    //used in temperatures.cpp
     Prepare_e_adjust_reading,
     Measure_e_adjust_reading,
   #endif  

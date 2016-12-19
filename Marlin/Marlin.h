@@ -362,7 +362,7 @@ float code_value_temp_diff();
 #endif
 
 #if ENABLED(E_ADJUST_MANUALLY)
-  //all instantiated and used in Marlin_main.cpp
+  //all initialized and used in Marlin_main.cpp
   //also used in temperature.cpp
   extern float e_adjust_slope;
   extern float e_adjust_intercept;

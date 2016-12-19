@@ -87,13 +87,11 @@
 // example_configurations/MMM directory.
 //
 
-#define PISTON_EXTRUDER //used to set parameters for the Piston Extruder
-#ifdef PISTON_EXTRUDER
-  #define E_ADJUST_MANUALLY //variable resistor has one end to ground, other to +5 volts. & wiper to E_ADJUST_PIN
-  #ifdef E_ADJUST_MANUALLY
-    #define DEFAULT_E_ADJUST_RANGE 10.0 //% above and below a multiplier of 1.0
-    #define DEFAULT_SHOW_INTERVAL 2000UL //ms between displaying multiplier
-  #endif
+#define PISTON_EXTRUDER //used for the Piston Extruder dryer fan
+#define E_ADJUST_MANUALLY //variable resistor has one end to ground, other to +5 volts. & wiper to E_ADJUST_PIN
+#if ENABLED(E_ADJUST_MANUALLY)
+  #define DEFAULT_E_ADJUST_RANGE 10.0 //% above and below a multiplier of 1.0
+  #define DEFAULT_SHOW_INTERVAL 2000UL //ms between displaying multiplier
 #endif
 
 // @section info

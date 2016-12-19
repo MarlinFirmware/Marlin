@@ -1817,12 +1817,12 @@ void Temperature::isr() {
           raw_temp_value[3] += ADC;
         #endif
       temp_state =
-          #if ENABLED(E_ADJUST_MANUALLY)
-            Prepare_e_adjust_reading;
-          #else
-            Prepare_FILWIDTH;
-          #endif       
-           break;
+        #if ENABLED(E_ADJUST_MANUALLY)
+          Prepare_e_adjust_reading;
+        #else
+          Prepare_FILWIDTH;
+        #endif       
+      break;
            
     #if ENABLED(E_ADJUST_MANUALLY)
       case Prepare_e_adjust_reading:
