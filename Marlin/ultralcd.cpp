@@ -758,7 +758,8 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
     void lcd_enqueue_filament_change() {
       if (thermalManager.tooColdToExtrude(active_extruder)) {
-        lcd_goto_screen(lcd_filament_change_toocold_message);
+        lcd_save_previous_screen();
+        lcd_goto_screen(lcd_filament_change_toocold_menu);
         return;
       }
       lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
@@ -2287,13 +2288,8 @@ void kill_screen(const char* lcd_msg) {
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
     void lcd_filament_change_toocold_menu() {
       START_MENU();
-      if (planner.movesplanned() || IS_SD_PRINTING) {
-        MENU_BACK(MSG_TUNE);
-      }
-      else {
-        MENU_BACK(MSG_PREPARE);
-      }
       STATIC_ITEM(MSG_HEATING_FAILED_LCD, true, true);
+      MENU_BACK(MSG_FILAMENTCHANGE);
       END_MENU();
     }
 
