@@ -322,15 +322,22 @@ float code_value_temp_diff();
                delta_segments_per_second,
                delta_diagonal_rod_trim_tower_1,
                delta_diagonal_rod_trim_tower_2,
-               delta_diagonal_rod_trim_tower_3;
+               delta_diagonal_rod_trim_tower_3,
+               delta_clip_start_height;
   void recalc_delta_settings(float radius, float diagonal_rod);
 #elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  extern int bilinear_grid_spacing[2];
+  extern int bilinear_grid_spacing[2], bilinear_start[2];
+  extern float bed_level_grid[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
   float bilinear_z_offset(float logical[XYZ]);
+  void set_bed_leveling_enabled(bool enable=true);
+#endif
+
+#if PLANNER_LEVELING
+  void reset_bed_level();
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
