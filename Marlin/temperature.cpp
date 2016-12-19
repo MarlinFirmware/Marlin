@@ -1041,6 +1041,9 @@ void Temperature::init() {
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
     ANALOG_SELECT(FILWIDTH_PIN);
   #endif
+  #if ENABLED(E_ADJUST_MANUALLY)
+    ANALOG_SELECT(E_ADJUST_PIN);
+  #endif
 
   #if HAS_AUTO_FAN_0
     #if E0_AUTO_FAN_PIN == FAN1_PIN
@@ -1809,13 +1812,39 @@ void Temperature::isr() {
       lcd_buttons_update();
       temp_state = MeasureTemp_3;
       break;
-    case MeasureTemp_3:
-      #if HAS_TEMP_3
-        raw_temp_value[3] += ADC;
-      #endif
-      temp_state = Prepare_FILWIDTH;
+      case MeasureTemp_3:
+        #if HAS_TEMP_3
+          raw_temp_value[3] += ADC;
+        #endif
+      temp_state =
+        #if ENABLED(E_ADJUST_MANUALLY)
+          Prepare_e_adjust_reading;
+        #else
+          Prepare_FILWIDTH;
+        #endif       
       break;
-
+           
+    #if ENABLED(E_ADJUST_MANUALLY)
+      case Prepare_e_adjust_reading:
+        START_ADC(E_ADJUST_PIN);
+        temp_state = Measure_e_adjust_reading;
+        break;
+      case Measure_e_adjust_reading:
+        if (e_adjust_active){
+          e_adjust_multiplier = 
+            e_adjust_slope * (float)ADC
+            + e_adjust_intercept;
+          if (e_adjust_show && !PENDING(millis(),next_e_adjust_show)){
+            next_e_adjust_show = millis() + DEFAULT_SHOW_INTERVAL;
+            SERIAL_PROTOCOLPGM("extruder multiplier: ");
+            SERIAL_PROTOCOL_F(e_adjust_multiplier, 3);
+            SERIAL_EOL;
+          } //give user feedback if it's time
+        }
+        temp_state = Prepare_FILWIDTH;
+        break;
+    #endif
+  
     case Prepare_FILWIDTH:
       #if ENABLED(FILAMENT_WIDTH_SENSOR)
         START_ADC(FILWIDTH_PIN);
@@ -1943,6 +1972,6 @@ void Temperature::isr() {
       if (!endstop_monitor_count) endstop_monitor();  // report changes in endstop status
     }
   #endif
-  
+
   SBI(TIMSK0, OCIE0B); //re-enable Temperature ISR
 }
