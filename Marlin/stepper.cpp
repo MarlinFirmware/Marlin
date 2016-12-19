@@ -338,7 +338,7 @@ void Stepper::isr() {
   CBI(TIMSK0, OCIE0B); //Temperature ISR
   DISABLE_STEPPER_DRIVER_INTERRUPT();
   sei();
-  
+
   if (cleaning_buffer_counter) {
     --cleaning_buffer_counter;
     current_block = NULL;
@@ -583,7 +583,7 @@ void Stepper::isr() {
       #endif
    }
   #endif
-  
+
   #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
     // If we have esteps to execute, fire the next advance_isr "now"
     if (e_steps[TOOL_E_INDEX]) OCR0A = TCNT0 + 2;
@@ -1098,13 +1098,13 @@ void Stepper::finish_and_disable() {
 
 void Stepper::quick_stop() {
   cleaning_buffer_counter = 5000;
-  #if ENABLED(ENSURE_SMOOTH_MOVES)
-    planner.clear_block_buffer_runtime();
-  #endif
   DISABLE_STEPPER_DRIVER_INTERRUPT();
   while (planner.blocks_queued()) planner.discard_current_block();
   current_block = NULL;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
+  #if ENABLED(ULTRA_LCD)
+    planner.clear_block_buffer_runtime();
+  #endif
 }
 
 void Stepper::endstop_triggered(AxisEnum axis) {
