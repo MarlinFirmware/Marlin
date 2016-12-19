@@ -193,6 +193,7 @@
 #define MSG_INFO_PROTOCOL                   _UxGT("Protocole")
 #define MSG_LIGHTS_ON                       _UxGT("Allumer boitier")
 #define MSG_LIGHTS_OFF                      _UxGT("Eteindre boitier")
+#define MSG_LIGHTS_NONE                     _UxGT("Pas de lumiere boitier")
 
 #if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              _UxGT("Nbre impressions")

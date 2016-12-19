@@ -7593,6 +7593,7 @@ inline void gcode_M907() {
     digitalWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
     analogWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? case_light_brightness : 0);
   }
+#endif // HAS_CASE_LIGHT
 
   /**
    * M355: Turn case lights on/off and set brightness
@@ -7601,12 +7602,17 @@ inline void gcode_M907() {
    *   P<byte>  Set case light brightness (PWM pin required)
    */
   inline void gcode_M355() {
+#if HAS_CASE_LIGHT
     if (code_seen('P')) case_light_brightness = code_value_byte();
     if (code_seen('S')) case_light_on = code_value_bool();
     update_case_light();
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM("Case lights ");
     case_light_on ? SERIAL_ECHOLNPGM("on") : SERIAL_ECHOLNPGM("off");
+#else
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM(MSG_LIGHTS_NONE);
+#endif // HAS_CASE_LIGHT
   }
 
 #endif // HAS_CASE_LIGHT
@@ -8750,13 +8756,9 @@ void process_next_command() {
 
       #endif // HAS_MICROSTEPS
 
-      #if HAS_CASE_LIGHT
-
         case 355: // M355 Turn case lights on/off
           gcode_M355();
           break;
-
-      #endif // HAS_CASE_LIGHT
 
       case 999: // M999: Restart after being Stopped
         gcode_M999();
