@@ -7043,7 +7043,13 @@ void quickstop_stepper() {
     }
 
     SERIAL_ECHO_START;
-    SERIAL_ECHOLNPAIR("Bed Leveling ", to_enable ? MSG_ON : MSG_OFF);
+    SERIAL_ECHOLNPAIR("Bed Leveling ", 
+#if ENABLED(MESH_BED_LEVELING)
+      mbl.active()
+#else
+      planner.abl_enabled
+#endif
+      ? MSG_ON : MSG_OFF);
 
     // V to print the matrix or mesh
     if (code_seen('V')) {
