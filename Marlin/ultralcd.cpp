@@ -3005,12 +3005,15 @@ void lcd_update() {
 
           encoderPosition += (encoderDiff * encoderMultiplier) / ENCODER_PULSES_PER_STEP;
           encoderDiff = 0;
-          #if ENABLED(DOGLCD)
-            drawing_screen = false;  // refresh the complete screen for a encoder change (different menu-item/value)
-          #endif
         }
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        lcdDrawUpdate =
+          #if ENABLED(DOGLCD)
+            LCDVIEW_CALL_REDRAW_NEXT
+          #else
+            LCDVIEW_REDRAW_NOW
+          #endif
+        ;
       }
     #endif // ULTIPANEL
 
