@@ -316,6 +316,7 @@ uint16_t max_display_update_time = 0;
   #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL, 0)
 
   // Used to print static text with no visible cursor.
+  // Parameters: label [, bool center [, bool invert [, char *value] ] ]
   #define STATIC_ITEM(LABEL, ...) \
     if (_menuLineNr == _thisItemNr) { \
       if (_skipStatic && encoderLine <= _thisItemNr) { \
@@ -623,6 +624,47 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // MENU_ITEM_CASE_LIGHT
 
+  #if ENABLED(LCD_PROGRESS_BAR_TEST)
+
+    static void progress_bar_test() {
+      static int8_t bar_percent = 0;
+      if (lcd_clicked) {
+        lcd_goto_previous_menu();
+        lcd_set_custom_characters(false);
+        return;
+      }
+      bar_percent += (int8_t)encoderPosition;
+      bar_percent = constrain(bar_percent, 0, 100);
+      encoderPosition = 0;
+      lcd_implementation_drawmenu_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
+      lcd.setCursor((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
+      lcd.print(itostr3(bar_percent)); lcd.print('%');
+      lcd.setCursor(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
+    }
+
+    void _progress_bar_test() {
+      lcd_goto_screen(progress_bar_test);
+      lcd_set_custom_characters();
+    }
+
+  #endif // LCD_PROGRESS_BAR_TEST
+
+  #if HAS_DEBUG_MENU
+
+    void lcd_debug_menu() {
+      START_MENU();
+
+      MENU_BACK(MSG_MAIN); // ^ Main
+
+      #if ENABLED(LCD_PROGRESS_BAR_TEST)
+        MENU_ITEM(submenu, MSG_PROGRESS_BAR_TEST, _progress_bar_test);
+      #endif
+
+      END_MENU();
+    }
+
+  #endif // HAS_DEBUG_MENU
+
   /**
    *
    * "Main" menu
@@ -632,6 +674,13 @@ void kill_screen(const char* lcd_msg) {
   void lcd_main_menu() {
     START_MENU();
     MENU_BACK(MSG_WATCH);
+
+    //
+    // Debug Menu when certain options are enabled
+    //
+    #if HAS_DEBUG_MENU
+      MENU_ITEM(submenu, MSG_DEBUG_MENU, lcd_debug_menu);
+    #endif
 
     //
     // Switch case light on/off
@@ -1303,12 +1352,6 @@ KeepDrawing:
     #endif
 
     //
-    // Set Home Offsets
-    //
-    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
-    //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
-
-    //
     // Level Bed
     //
     #if HAS_ABL
@@ -1318,6 +1361,12 @@ KeepDrawing:
     #elif ENABLED(MANUAL_BED_LEVELING)
       MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
     #endif
+
+    //
+    // Set Home Offsets
+    //
+    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
+    //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 
     //
     // Disable Steppers
@@ -1341,7 +1390,12 @@ KeepDrawing:
     //
     // Cooldown
     //
-    MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+    bool has_heat = false;
+    HOTEND_LOOP() if (thermalManager.target_temperature[e]) { has_heat = true; break; }
+    #if HAS_TEMP_BED
+      if (thermalManager.target_temperature_bed) has_heat = true;
+    #endif
+    if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 
     //
     // BLTouch Self-Test and Reset
@@ -2698,7 +2752,7 @@ KeepDrawing:
 
   #endif //SDSUPPORT
 
-  void menu_action_setting_edit_bool(const char* pstr, bool* ptr) {UNUSED(pstr); *ptr = !(*ptr); }
+  void menu_action_setting_edit_bool(const char* pstr, bool* ptr) {UNUSED(pstr); *ptr = !(*ptr); lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
   void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callback) {
     menu_action_setting_edit_bool(pstr, ptr);
     (*callback)();
@@ -2838,7 +2892,7 @@ bool lcd_blink() {
  *     - Before exiting the handler set lcdDrawUpdate to:
  *       - LCDVIEW_CLEAR_CALL_REDRAW to clear screen and set LCDVIEW_CALL_REDRAW_NEXT.
  *       - LCDVIEW_REDRAW_NOW or LCDVIEW_NONE to keep drawingm but only in this loop.
- *       - LCDVIEW_REDRAW_NEXT to keep drawing and draw on the next loop also.
+ *       - LCDVIEW_CALL_REDRAW_NEXT to keep drawing and draw on the next loop also.
  *       - LCDVIEW_CALL_NO_REDRAW to keep drawing (or start drawing) with no redraw on the next loop.
  *     - NOTE: For graphical displays menu handlers may be called 2 or more times per loop,
  *             so don't change lcdDrawUpdate without considering this.
@@ -2951,12 +3005,15 @@ void lcd_update() {
 
           encoderPosition += (encoderDiff * encoderMultiplier) / ENCODER_PULSES_PER_STEP;
           encoderDiff = 0;
-          #if ENABLED(DOGLCD)
-            drawing_screen = false;  // refresh the complete screen for a encoder change (different menu-item/value)
-          #endif
         }
         return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
-        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+        lcdDrawUpdate =
+          #if ENABLED(DOGLCD)
+            LCDVIEW_CALL_REDRAW_NEXT
+          #else
+            LCDVIEW_REDRAW_NOW
+          #endif
+        ;
       }
     #endif // ULTIPANEL
 

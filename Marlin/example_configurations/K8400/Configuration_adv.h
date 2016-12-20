@@ -454,6 +454,8 @@
     #define PROGRESS_MSG_EXPIRE   0
     // Enable this to show messages for MSG_TIME then hide them
     //#define PROGRESS_MSG_ONCE
+    // Add a menu item to test the progress bar:
+    //#define LCD_PROGRESS_BAR_TEST
   #endif
 
   // This allows hosts to request long names for files and folders with M33
