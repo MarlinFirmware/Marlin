@@ -1390,7 +1390,12 @@ KeepDrawing:
     //
     // Cooldown
     //
-    MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+    bool has_heat = false;
+    HOTEND_LOOP() if (thermalManager.target_temperature[e]) { has_heat = true; break; }
+    #if HAS_TEMP_BED
+      if (thermalManager.target_temperature_bed) has_heat = true;
+    #endif
+    if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 
     //
     // BLTouch Self-Test and Reset
