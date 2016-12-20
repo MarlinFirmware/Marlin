@@ -2752,7 +2752,7 @@ KeepDrawing:
 
   #endif //SDSUPPORT
 
-  void menu_action_setting_edit_bool(const char* pstr, bool* ptr) {UNUSED(pstr); *ptr = !(*ptr); }
+  void menu_action_setting_edit_bool(const char* pstr, bool* ptr) {UNUSED(pstr); *ptr = !(*ptr); lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; }
   void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, screenFunc_t callback) {
     menu_action_setting_edit_bool(pstr, ptr);
     (*callback)();
@@ -2892,7 +2892,7 @@ bool lcd_blink() {
  *     - Before exiting the handler set lcdDrawUpdate to:
  *       - LCDVIEW_CLEAR_CALL_REDRAW to clear screen and set LCDVIEW_CALL_REDRAW_NEXT.
  *       - LCDVIEW_REDRAW_NOW or LCDVIEW_NONE to keep drawingm but only in this loop.
- *       - LCDVIEW_REDRAW_NEXT to keep drawing and draw on the next loop also.
+ *       - LCDVIEW_CALL_REDRAW_NEXT to keep drawing and draw on the next loop also.
  *       - LCDVIEW_CALL_NO_REDRAW to keep drawing (or start drawing) with no redraw on the next loop.
  *     - NOTE: For graphical displays menu handlers may be called 2 or more times per loop,
  *             so don't change lcdDrawUpdate without considering this.
