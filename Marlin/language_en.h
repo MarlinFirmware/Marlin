@@ -51,6 +51,12 @@
 #ifndef MSG_DISABLE_STEPPERS
   #define MSG_DISABLE_STEPPERS                _UxGT("Disable steppers")
 #endif
+#ifndef MSG_DEBUG_MENU
+  #define MSG_DEBUG_MENU                      _UxGT("Debug Menu")
+#endif
+#ifndef MSG_PROGRESS_BAR_TEST
+  #define MSG_PROGRESS_BAR_TEST               _UxGT("Progress Bar Test")
+#endif
 #ifndef MSG_AUTO_HOME
   #define MSG_AUTO_HOME                       _UxGT("Auto home")
 #endif

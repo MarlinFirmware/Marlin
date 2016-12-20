@@ -278,6 +278,8 @@
     #define BOOTSCREEN_TIMEOUT 2500
   #endif
 
+  #define HAS_DEBUG_MENU ENABLED(LCD_PROGRESS_BAR_TEST)
+
   /**
    * Extruders have some combination of stepper motors and hotends
    * so we separate these concepts into the defines:
