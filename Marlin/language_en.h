@@ -511,6 +511,9 @@
 #ifndef MSG_LIGHTS_OFF
   #define MSG_LIGHTS_OFF                      _UxGT("Case light off")
 #endif
+#ifndef MSG_LIGHTS_NONE
+#define MSG_LIGHTS_NONE                       _UxGT("No case light")
+#endif
 
 #if LCD_WIDTH >= 20
   #ifndef MSG_INFO_PRINT_COUNT
