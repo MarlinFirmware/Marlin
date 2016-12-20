@@ -1352,12 +1352,6 @@ KeepDrawing:
     #endif
 
     //
-    // Set Home Offsets
-    //
-    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
-    //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
-
-    //
     // Level Bed
     //
     #if HAS_ABL
@@ -1367,6 +1361,12 @@ KeepDrawing:
     #elif ENABLED(MANUAL_BED_LEVELING)
       MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
     #endif
+
+    //
+    // Set Home Offsets
+    //
+    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
+    //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 
     //
     // Disable Steppers
