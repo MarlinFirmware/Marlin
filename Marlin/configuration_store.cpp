@@ -183,7 +183,7 @@ void Config_Postprocess() {
 
   bool eeprom_write_error;
 
-  void _EEPROM_writeData(int &pos, uint8_t* value, uint16_t size) {
+  void _EEPROM_writeData(int &pos, const uint8_t* value, uint16_t size) {
     if (eeprom_write_error) return;
     while (size--) {
       uint8_t * const p = (uint8_t * const)pos;
