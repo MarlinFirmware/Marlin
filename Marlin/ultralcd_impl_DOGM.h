@@ -383,9 +383,6 @@ static void lcd_implementation_status_screen() {
 
   bool blink = lcd_blink();
 
-  // Black color, white background
-  u8g.setColorIndex(1);
-
   // Status Menu Font
   lcd_setFont(FONT_STATUSMENU);
 

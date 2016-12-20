@@ -3090,6 +3090,7 @@ void lcd_update() {
           drawing_screen = 1;
         }
         lcd_setFont(FONT_MENU);
+        u8g.setColorIndex(1);
         CURRENTSCREEN();
         if (drawing_screen && (drawing_screen = u8g.nextPage())) {
           NOLESS(max_display_update_time, millis() - ms);
