@@ -530,11 +530,15 @@ void lcd_print(char c) { charset_mapper(c); }
       safe_delay(2000);
     #endif
 
+    /*
+    lcd.clear();
+
     lcd_set_custom_characters(
       #if ENABLED(LCD_PROGRESS_BAR)
         false
       #endif
     );
+    //*/
   }
 
 #endif // SHOW_BOOTSCREEN
@@ -568,6 +572,25 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
     }
   }
 }
+
+#if ENABLED(LCD_PROGRESS_BAR)
+
+  inline void lcd_draw_progress_bar(const uint8_t percent) {
+    int tix = (int)(percent * (LCD_WIDTH) * 3) / 100,
+      cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
+    char msg[LCD_WIDTH + 1], b = ' ';
+    msg[i] = '\0';
+    while (i--) {
+      if (i == cel - 1)
+        b = LCD_STR_PROGRESS[2];
+      else if (i == cel && rem != 0)
+        b = LCD_STR_PROGRESS[rem - 1];
+      msg[i] = b;
+    }
+    lcd.print(msg);
+  }
+
+#endif // LCD_PROGRESS_BAR
 
 /**
 Possible status screens:
@@ -755,21 +778,8 @@ static void lcd_implementation_status_screen() {
     if (card.isFileOpen()) {
       // Draw the progress bar if the message has shown long enough
       // or if there is no message set.
-      if (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0]) {
-        int tix = (int)(card.percentDone() * (LCD_WIDTH) * 3) / 100,
-          cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
-        char msg[LCD_WIDTH + 1], b = ' ';
-        msg[i] = '\0';
-        while (i--) {
-          if (i == cel - 1)
-            b = LCD_STR_PROGRESS[2];
-          else if (i == cel && rem != 0)
-            b = LCD_STR_PROGRESS[rem - 1];
-          msg[i] = b;
-        }
-        lcd.print(msg);
-        return;
-      }
+      if (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])
+        return lcd_draw_progress_bar(card.percentDone());
     } //card.isFileOpen
 
   #elif ENABLED(FILAMENT_LCD_DISPLAY)
