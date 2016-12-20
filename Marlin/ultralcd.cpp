@@ -316,6 +316,7 @@ uint16_t max_display_update_time = 0;
   #define MENU_BACK(LABEL) MENU_ITEM(back, LABEL, 0)
 
   // Used to print static text with no visible cursor.
+  // Parameters: label [, bool center [, bool invert [, char *value] ] ]
   #define STATIC_ITEM(LABEL, ...) \
     if (_menuLineNr == _thisItemNr) { \
       if (_skipStatic && encoderLine <= _thisItemNr) { \
@@ -623,6 +624,47 @@ void kill_screen(const char* lcd_msg) {
 
   #endif // MENU_ITEM_CASE_LIGHT
 
+  #if ENABLED(LCD_PROGRESS_BAR_TEST)
+
+    static void progress_bar_test() {
+      static int8_t bar_percent = 0;
+      if (lcd_clicked) {
+        lcd_goto_previous_menu();
+        lcd_set_custom_characters(false);
+        return;
+      }
+      bar_percent += (int8_t)encoderPosition;
+      bar_percent = constrain(bar_percent, 0, 100);
+      encoderPosition = 0;
+      lcd_implementation_drawmenu_static(0, PSTR(MSG_PROGRESS_BAR_TEST), true, true);
+      lcd.setCursor((LCD_WIDTH) / 2 - 2, LCD_HEIGHT - 2);
+      lcd.print(itostr3(bar_percent)); lcd.print('%');
+      lcd.setCursor(0, LCD_HEIGHT - 1); lcd_draw_progress_bar(bar_percent);
+    }
+
+    void _progress_bar_test() {
+      lcd_goto_screen(progress_bar_test);
+      lcd_set_custom_characters();
+    }
+
+  #endif // LCD_PROGRESS_BAR_TEST
+
+  #if HAS_DEBUG_MENU
+
+    void lcd_debug_menu() {
+      START_MENU();
+
+      MENU_BACK(MSG_MAIN); // ^ Main
+
+      #if ENABLED(LCD_PROGRESS_BAR_TEST)
+        MENU_ITEM(submenu, MSG_PROGRESS_BAR_TEST, _progress_bar_test);
+      #endif
+
+      END_MENU();
+    }
+
+  #endif // HAS_DEBUG_MENU
+
   /**
    *
    * "Main" menu
@@ -632,6 +674,13 @@ void kill_screen(const char* lcd_msg) {
   void lcd_main_menu() {
     START_MENU();
     MENU_BACK(MSG_WATCH);
+
+    //
+    // Debug Menu when certain options are enabled
+    //
+    #if HAS_DEBUG_MENU
+      MENU_ITEM(submenu, MSG_DEBUG_MENU, lcd_debug_menu);
+    #endif
 
     //
     // Switch case light on/off
