@@ -139,10 +139,10 @@
   #define MSG_LEVEL_BED                       _UxGT("Level bed")
 #endif
 #ifndef MSG_MOVING
-  #define MSG_MOVING                          "Moving..."
+  #define MSG_MOVING                          _UxGT("Moving...")
 #endif
 #ifndef MSG_FREE_XY
-  #define MSG_FREE_XY                         "Free XY"
+  #define MSG_FREE_XY                         _UxGT("Free XY")
 #endif
 #ifndef MSG_MOVE_X
   #define MSG_MOVE_X                          _UxGT("Move X")
