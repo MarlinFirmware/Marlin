@@ -64,7 +64,7 @@ void lcd_status_screen();
 millis_t next_lcd_update_ms;
 
 uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to draw, decrements after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial)
-millis_t max_display_update_time = 0;
+uint16_t max_display_update_time = 0;
 
 #if ENABLED(DOGLCD)
   bool drawing_screen = false;
@@ -2978,12 +2978,13 @@ void lcd_update() {
       lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
     }
 
-    millis_t bbr = planner.block_buffer_runtime();
+    // then we want to use 1/2 of the time only.
+    uint16_t bbr2 = planner.block_buffer_runtime() >> 1;
 
     #if ENABLED(DOGLCD)
-      if ((lcdDrawUpdate || drawing_screen) && (!bbr || (bbr > 2 * max_display_update_time * 1000)))
+      if ((lcdDrawUpdate || drawing_screen) && (!bbr2 || (bbr2 > max_display_update_time)))
     #else
-      if (lcdDrawUpdate && (!bbr || (bbr > 2 * max_display_update_time * 1000)))
+      if (lcdDrawUpdate && (!bbr2 || (bbr2 > max_display_update_time)))
     #endif
     {
       #if ENABLED(DOGLCD)
