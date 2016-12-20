@@ -146,8 +146,8 @@
 #define MSG_CONTROL_RETRACT_SWAP            _UxGT("Swap Re.mm")                                         // Swap Re.mm
 #define MSG_CONTROL_RETRACTF                _UxGT("Geri Çekme  V")                                      // Geri Çekme V
 #define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")                                             // Hop mm
-#define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet +mm")                                          // UnRet +mm
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet+mm")                                         // S UnRet+mm
+#define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")                                          // UnRet mm
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRetmm")                                         // S UnRetmm
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")                                           // UnRet V
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")                                          // AutoRetr.
 #define MSG_FILAMENTCHANGE                  _UxGT("Filaman Değiştir")                                   // Filaman Değiştir
