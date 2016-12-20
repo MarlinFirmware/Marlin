@@ -7030,20 +7030,21 @@ void quickstop_stepper() {
       if (code_seen('Z')) set_z_fade_height(code_value_linear_units());
     #endif
 
-    if (to_enable && !(
+    const bool new_status =
       #if ENABLED(MESH_BED_LEVELING)
         mbl.active()
       #else
         planner.abl_enabled
       #endif
-    ) ) {
-      to_enable = false;
+    ;
+
+    if (to_enable && !new_status) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M420_FAILED);
     }
 
     SERIAL_ECHO_START;
-    SERIAL_ECHOLNPAIR("Bed Leveling ", to_enable ? MSG_ON : MSG_OFF);
+    SERIAL_ECHOLNPAIR("Bed Leveling ", new_status ? MSG_ON : MSG_OFF);
 
     // V to print the matrix or mesh
     if (code_seen('V')) {
