@@ -370,10 +370,10 @@
   #define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")
 #endif
 #ifndef MSG_CONTROL_RETRACT_RECOVER
-  #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet +mm")
+  #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
 #endif
 #ifndef MSG_CONTROL_RETRACT_RECOVER_SWAP
-  #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet+mm")
+  #define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRetmm")
 #endif
 #ifndef MSG_CONTROL_RETRACT_RECOVERF
   #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
