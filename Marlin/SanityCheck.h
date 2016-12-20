@@ -27,11 +27,10 @@
  */
 
 /**
- * Due to the high number of issues related with old versions of Arduino IDE
- * we now prevent Marlin from compiling with older toolkits.
+ * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
  */
-#if !defined(ARDUINO) || ARDUINO < 10608
-  #error "Versions of Arduino IDE prior to 1.6.8 are no longer supported, please update your toolkit."
+#if __cplusplus < 201103L
+  #error "Marlin requires C++11 support (gcc >= 4.7, Arduino IDE >= 1.6.8). Please upgrade your toolchain."
 #endif
 
 /**
