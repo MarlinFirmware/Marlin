@@ -142,7 +142,7 @@
 #define MSG_CONTROL_RETRACTF                _UxGT("Retract  V")
 #define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Hop mm")
 #define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRetmm")
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
 #define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
 #define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
 #define MSG_FILAMENTCHANGE                  _UxGT("Promijeni filament")
