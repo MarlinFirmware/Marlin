@@ -201,6 +201,10 @@ void Endstops::M119() {
     SERIAL_PROTOCOLPGM(MSG_Z_MIN);
     SERIAL_PROTOCOLLN(((READ(Z_MIN_PIN)^Z_MIN_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
   #endif
+  #if HAS_Z2_MIN
+    SERIAL_PROTOCOLPGM(MSG_Z2_MIN);
+    SERIAL_PROTOCOLLN(((READ(Z2_MIN_PIN)^Z2_MIN_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
+  #endif
   #if HAS_Z_MAX
     SERIAL_PROTOCOLPGM(MSG_Z_MAX);
     SERIAL_PROTOCOLLN(((READ(Z_MAX_PIN)^Z_MAX_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
@@ -218,10 +222,9 @@ void Endstops::M119() {
 #if ENABLED(Z_DUAL_ENDSTOPS)
 
   // Pass the result of the endstop test
-  void Endstops::test_dual_z_endstops(EndstopEnum es1, EndstopEnum es2) {
+  void Endstops::test_dual_z_endstops(const EndstopEnum es1, const EndstopEnum es2) {
     byte z_test = TEST_ENDSTOP(es1) | (TEST_ENDSTOP(es2) << 1); // bit 0 for Z, bit 1 for Z2
-    if (stepper.current_block->steps[Z_AXIS] > 0) {
-      stepper.endstop_triggered(Z_AXIS);
+    if (z_test && stepper.current_block->steps[Z_AXIS] > 0) {
       SBI(endstop_hit_bits, Z_MIN);
       if (!stepper.performing_homing || (z_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
         stepper.kill_current_block();
@@ -233,15 +236,15 @@ void Endstops::M119() {
 // Check endstops - Called from ISR!
 void Endstops::update() {
 
+  #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
   #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
   #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
   #define _ENDSTOP_HIT(AXIS) SBI(endstop_hit_bits, _ENDSTOP(AXIS, MIN))
-  #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
 
   // UPDATE_ENDSTOP_BIT: set the current endstop bits for an endstop to its status
   #define UPDATE_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT(current_endstop_bits, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
-  // COPY_BIT: copy the value of COPY_BIT to BIT in bits
-  #define COPY_BIT(bits, COPY_BIT, BIT) SET_BIT(bits, BIT, TEST(bits, COPY_BIT))
+  // COPY_BIT: copy the value of SRC_BIT to DST_BIT in DST
+  #define COPY_BIT(DST, SRC_BIT, DST_BIT) SET_BIT(DST, DST_BIT, TEST(DST, SRC_BIT))
 
   #define _UPDATE_ENDSTOP(AXIS,MINMAX,CODE) do { \
       UPDATE_ENDSTOP_BIT(AXIS, MINMAX); \
@@ -252,20 +255,20 @@ void Endstops::update() {
       } \
     } while(0)
 
-  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN)  // If G38 command then check Z_MIN for every axis and every direction  
+  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN)  // If G38 command then check Z_MIN for every axis and every direction
 
     #define UPDATE_ENDSTOP(AXIS,MINMAX) do { \
         _UPDATE_ENDSTOP(AXIS,MINMAX,NOOP); \
         if (G38_move) _UPDATE_ENDSTOP(Z, MIN, G38_endstop_hit = true); \
       } while(0)
 
-  #else	
+  #else
 
     #define UPDATE_ENDSTOP(AXIS,MINMAX) _UPDATE_ENDSTOP(AXIS,MINMAX,NOOP)
 
   #endif
 
-  #if ENABLED(COREXY) || ENABLED(COREXZ)
+  #if CORE_IS_XY || CORE_IS_XZ
     // Head direction in -X axis for CoreXY and CoreXZ bots.
     // If DeltaA == -DeltaB, the movement is only in Y or Z axis
     if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) == stepper.motor_direction(CORE_AXIS_2))) {
@@ -295,11 +298,11 @@ void Endstops::update() {
             #endif
           }
       }
-  #if ENABLED(COREXY) || ENABLED(COREXZ)
+  #if CORE_IS_XY || CORE_IS_XZ
     }
   #endif
 
-  #if ENABLED(COREXY) || ENABLED(COREYZ)
+  #if CORE_IS_XY || CORE_IS_YZ
     // Head direction in -Y axis for CoreXY / CoreYZ bots.
     // If DeltaA == DeltaB, the movement is only in X or Y axis
     if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
@@ -317,11 +320,11 @@ void Endstops::update() {
           UPDATE_ENDSTOP(Y, MAX);
         #endif
       }
-  #if ENABLED(COREXY) || ENABLED(COREYZ)
+  #if CORE_IS_XY || CORE_IS_YZ
     }
   #endif
 
-  #if ENABLED(COREXZ) || ENABLED(COREYZ)
+  #if CORE_IS_XZ || CORE_IS_YZ
     // Head direction in -Z axis for CoreXZ or CoreYZ bots.
     // If DeltaA == DeltaB, the movement is only in X or Y axis
     if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
@@ -387,7 +390,7 @@ void Endstops::update() {
           #endif // !Z_MIN_PROBE_PIN...
         #endif // Z_MAX_PIN
       }
-  #if ENABLED(COREXZ)
+  #if CORE_IS_XZ || CORE_IS_YZ
     }
   #endif
 

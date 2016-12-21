@@ -270,13 +270,17 @@ extern bool axis_known_position[XYZ]; // axis[n].is_known
 extern bool axis_homed[XYZ]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
 
-#if ENABLED(EMERGENCY_PARSER) && DISABLED(ULTIPANEL)
+#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
   extern volatile bool wait_for_user;
 #endif
 
 extern float current_position[NUM_AXIS];
 extern float position_shift[XYZ];
 extern float home_offset[XYZ];
+
+#if HOTENDS > 1
+  extern float hotend_offset[XYZ][HOTENDS];
+#endif
 
 // Software Endstops
 void update_software_endstops(AxisEnum axis);
@@ -290,8 +294,8 @@ void update_software_endstops(AxisEnum axis);
 extern float soft_endstop_min[XYZ];
 extern float soft_endstop_max[XYZ];
 
-#define LOGICAL_POSITION(POS, AXIS) (POS + home_offset[AXIS] + position_shift[AXIS])
-#define RAW_POSITION(POS, AXIS)     (POS - home_offset[AXIS] - position_shift[AXIS])
+#define LOGICAL_POSITION(POS, AXIS) ((POS) + home_offset[AXIS] + position_shift[AXIS])
+#define RAW_POSITION(POS, AXIS)     ((POS) - home_offset[AXIS] - position_shift[AXIS])
 #define LOGICAL_X_POSITION(POS)     LOGICAL_POSITION(POS, X_AXIS)
 #define LOGICAL_Y_POSITION(POS)     LOGICAL_POSITION(POS, Y_AXIS)
 #define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
@@ -318,15 +322,22 @@ float code_value_temp_diff();
                delta_segments_per_second,
                delta_diagonal_rod_trim_tower_1,
                delta_diagonal_rod_trim_tower_2,
-               delta_diagonal_rod_trim_tower_3;
+               delta_diagonal_rod_trim_tower_3,
+               delta_clip_start_height;
   void recalc_delta_settings(float radius, float diagonal_rod);
 #elif IS_SCARA
   void forward_kinematics_SCARA(const float &a, const float &b);
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-  extern int bilinear_grid_spacing[2];
+  extern int bilinear_grid_spacing[2], bilinear_start[2];
+  extern float bed_level_grid[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
   float bilinear_z_offset(float logical[XYZ]);
+  void set_bed_leveling_enabled(bool enable=true);
+#endif
+
+#if PLANNER_LEVELING
+  void reset_bed_level();
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)

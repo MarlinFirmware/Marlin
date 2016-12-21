@@ -43,7 +43,7 @@ void watchdog_init() {
 //=================================== ISR ===================================
 //===========================================================================
 
-// Watchdog timer interrupt, called if main program blocks >1sec and manual reset is enabled.
+// Watchdog timer interrupt, called if main program blocks >4sec and manual reset is enabled.
 #if ENABLED(WATCHDOG_RESET_MANUAL)
   ISR(WDT_vect) {
     SERIAL_ERROR_START;

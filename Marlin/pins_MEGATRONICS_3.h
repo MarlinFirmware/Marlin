@@ -28,8 +28,6 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define MEGATRONICS_31
-
 #if ENABLED(MEGATRONICS_31)
   #define BOARD_NAME       "Megatronics v3.1"
 #else
@@ -155,7 +153,7 @@
   #define LCD_PINS_D5      30
   #define LCD_PINS_D6      39
   #define LCD_PINS_D7      15
-  
+
   #define SHIFT_CLK        43
   #define SHIFT_LD         35
   #define SHIFT_OUT        34

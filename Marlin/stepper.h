@@ -105,11 +105,10 @@ class Stepper {
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      static unsigned char old_OCR0A;
-      static volatile unsigned char eISR_Rate;
+      static uint16_t nextMainISR, nextAdvanceISR, eISR_Rate;
+      #define _NEXT_ISR(T) nextMainISR = T
       #if ENABLED(LIN_ADVANCE)
         static volatile int e_steps[E_STEPPERS];
-        static int extruder_advance_k;
         static int final_estep_rate;
         static int current_estep_rate[E_STEPPERS]; // Actual extruder speed [steps/s]
         static int current_adv_steps[E_STEPPERS];  // The amount of current added esteps due to advance.
@@ -120,6 +119,8 @@ class Stepper {
         static long advance_rate, advance, final_advance;
         static long old_advance;
       #endif
+    #else
+      #define _NEXT_ISR(T) OCR1A = T
     #endif // ADVANCE or LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
@@ -178,6 +179,7 @@ class Stepper {
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       static void advance_isr();
+      static void advance_isr_scheduler();
     #endif
 
     //
@@ -258,7 +260,7 @@ class Stepper {
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static void babystep(const uint8_t axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+      static void babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
     #endif
 
     static inline void kill_current_block() {
@@ -276,11 +278,6 @@ class Stepper {
     static FORCE_INLINE float triggered_position_mm(AxisEnum axis) {
       return endstops_trigsteps[axis] * planner.steps_to_mm[axis];
     }
-
-    #if ENABLED(LIN_ADVANCE)
-      void advance_M905(const float &k);
-      FORCE_INLINE int get_advance_k() { return extruder_advance_k; }
-    #endif
 
   private:
 
@@ -324,8 +321,8 @@ class Stepper {
       return timer;
     }
 
-    // Initializes the trapezoid generator from the current block. Called whenever a new
-    // block begins.
+    // Initialize the trapezoid generator from the current block.
+    // Called whenever a new block begins.
     static FORCE_INLINE void trapezoid_generator_reset() {
 
       static int8_t last_extruder = -1;
@@ -363,12 +360,12 @@ class Stepper {
       step_loops_nominal = step_loops;
       acc_step_rate = current_block->initial_rate;
       acceleration_time = calc_timer(acc_step_rate);
-      OCR1A = acceleration_time;
-      
+      _NEXT_ISR(acceleration_time);
+
       #if ENABLED(LIN_ADVANCE)
         if (current_block->use_advance_lead) {
-          current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->e_speed_multiplier8) >> 8;
-          final_estep_rate = (current_block->nominal_rate * current_block->e_speed_multiplier8) >> 8;
+          current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->abs_adv_steps_multiplier8) >> 17;
+          final_estep_rate = (current_block->nominal_rate * current_block->abs_adv_steps_multiplier8) >> 17;
         }
       #endif
 
