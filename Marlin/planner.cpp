@@ -985,7 +985,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   const uint8_t moves_queued = movesplanned();
 
   // Slow down when the buffer starts to empty, rather than wait at the corner for a buffer refill
-  unsigned long segment_time = lround(1000000.0 / inverse_mm_s);
+  #if ENABLED(SLOWDOWN) || ENABLED(ULTRA_LCD) || defined(XY_FREQUENCY_LIMIT)
+    unsigned long segment_time = lround(1000000.0 / inverse_mm_s);
+  #endif
   #if ENABLED(SLOWDOWN)
     // Segment time im micro seconds
     if (moves_queued > 1 && moves_queued < (BLOCK_BUFFER_SIZE) / 2) {
