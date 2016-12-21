@@ -258,10 +258,10 @@
  *    52 : 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
  *    55 : 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (1k pullup)
  *
- *  1047 : Pt1000 with 4k7 pullup
- *  1010 : Pt1000 with 1k pullup (non standard)
- *   147 : Pt100 with 4k7 pullup
- *   110 : Pt100 with 1k pullup (non standard)
+ *         Use these configuration for Pt1000 (no Pt100) connected directly to analog input with internal pullup
+ *  1047 : Pt1000 with 4k7 pullup (standard pullup)
+ *  1010 : Pt1000 with 1k pullup  (modified circuit or external pullup)
+ *         for Pt100 with amplifier use configurarion 20
  *
  *         Use these for Testing or Development purposes. NEVER for production machine.
  *   998 : Dummy Table that ALWAYS reads 25°C or the temperature defined below.
