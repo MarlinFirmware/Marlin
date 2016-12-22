@@ -222,13 +222,13 @@
 #ifndef E0_AUTO_FAN_PIN
   #define E0_AUTO_FAN_PIN -1 //Do not change!
 #endif
-#ifndef E0_AUTO_FAN_PIN
+#ifndef E1_AUTO_FAN_PIN
   #define E1_AUTO_FAN_PIN -1 //Do not change!
 #endif
-#ifndef E0_AUTO_FAN_PIN
+#ifndef E2_AUTO_FAN_PIN
   #define E2_AUTO_FAN_PIN -1 //Do not change!
 #endif
-#ifndef E0_AUTO_FAN_PIN
+#ifndef E3_AUTO_FAN_PIN
   #define E3_AUTO_FAN_PIN -1 //Do not change!
 #endif
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
