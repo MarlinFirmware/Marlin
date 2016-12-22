@@ -829,7 +829,7 @@ void kill_screen(const char* lcd_msg) {
 
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
     void lcd_enqueue_filament_change() {
-      if (thermalManager.tooColdToExtrude(active_extruder)) {
+      if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder)) {
         lcd_save_previous_screen();
         lcd_goto_screen(lcd_filament_change_toocold_menu);
         return;
