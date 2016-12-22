@@ -308,13 +308,13 @@
       // Remember: you should set the second extruder x-offset to 0 in your slicer.
 
   // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
-  //    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
-  //                           as long as it supports dual x-carriages. (M605 S0)
-  //    Mode 1: Auto-park mode. The firmware will automatically park and unpark the x-carriages on tool changes so
-  //                           that additional slicer support is not required. (M605 S1)
-  //    Mode 2: Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all
-  //                           actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
-  //                           once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
+  //    Mode 0 (DXC_FULL_CONTROL_MODE): Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
+  //                                    as long as it supports dual x-carriages. (M605 S0)
+  //    Mode 1 (DXC_AUTO_PARK_MODE)   : Auto-park mode. The firmware will automatically park and unpark the x-carriages on tool changes so
+  //                                    that additional slicer support is not required. (M605 S1)
+  //    Mode 2 (DXC_DUPLICATION_MODE) : Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all
+  //                                    actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
+  //                                    once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
 
   // This is the default power-up mode which can be later using M605.
   #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_FULL_CONTROL_MODE
@@ -454,6 +454,8 @@
     #define PROGRESS_MSG_EXPIRE   0
     // Enable this to show messages for MSG_TIME then hide them
     //#define PROGRESS_MSG_ONCE
+    // Add a menu item to test the progress bar:
+    //#define LCD_PROGRESS_BAR_TEST
   #endif
 
   // This allows hosts to request long names for files and folders with M33
@@ -466,8 +468,25 @@
 
 #endif // SDSUPPORT
 
-// Some additional options are available for graphical displays:
+/**
+ * Additional options for Graphical Displays
+ *
+ * Use the optimizations here to improve printing performance,
+ * which can be adversely affected by graphical display drawing,
+ * especially when doing several short moves, and when printing
+ * on DELTA and SCARA machines.
+ *
+ * Some of these options may result in the display lagging behind
+ * controller events, as there is a trade-off between reliable
+ * printing performance versus fast display updates.
+ */
 #if ENABLED(DOGLCD)
+  // Enable to save many cycles by drawing a hollow frame on the Info Screen
+  #define XYZ_HOLLOW_FRAME
+
+  // Enable to save many cycles by drawing a hollow frame on Menu Screens
+  #define MENU_HOLLOW_FRAME
+
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
   //#define USE_BIG_EDIT_FONT
@@ -507,36 +526,6 @@
   #define BABYSTEP_MULTIPLICATOR 1 //faster movements
 #endif
 
-//
-// Ensure Smooth Moves
-//
-// Enable this option to prevent the machine from stuttering when printing multiple short segments.
-// This feature uses two strategies to eliminate stuttering:
-//
-// 1. During short segments a Graphical LCD update may take so much time that the planner buffer gets
-//    completely drained. When this happens pauses are introduced between short segments, and print moves
-//    will become jerky until a longer segment provides enough time for the buffer to be filled again.
-//    This jerkiness negatively affects print quality. The ENSURE_SMOOTH_MOVES option addresses the issue
-//    by pausing the LCD until there's enough time to safely update.
-//
-//    NOTE: This will cause the Info Screen to lag and controller buttons may become unresponsive.
-//          Enable ALWAYS_ALLOW_MENU to keep the controller responsive.
-//
-// 2. No block is allowed to take less time than MIN_BLOCK_TIME. That's the time it takes in the main
-//    loop to add a new block to the buffer, check temperatures, etc., including all blocked time due to
-//    interrupts (without LCD update). By enforcing a minimum time-per-move, the buffer is prevented from
-//    draining.
-//
-//#define ENSURE_SMOOTH_MOVES
-#if ENABLED(ENSURE_SMOOTH_MOVES)
-  //#define ALWAYS_ALLOW_MENU      // If enabled, the menu will always be responsive.
-                                   // WARNING: Menu navigation during short moves may cause stuttering!
-  #define LCD_UPDATE_THRESHOLD 135 // (ms) Minimum duration for the current segment to allow an LCD update.
-                                   // Default value is good for graphical LCDs (e.g., REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER).
-                                   // You may try to lower this value until you printer starts stuttering again as if ENSURE_SMOOTH_MOVES is disabled.
-  #define MIN_BLOCK_TIME 6         // (ms) Minimum duration of a single block. You shouldn't need to modify this.
-#endif
-
 // @section extruder
 
 // extruder advance constant (s2/mm3)
@@ -558,14 +547,7 @@
  *
  * Assumption: advance = k * (delta velocity)
  * K=0 means advance disabled.
- * To get a rough start value for calibration, measure your "free filament length"
- * between the hobbed bolt and the nozzle (in cm). Use the formula below that fits
- * your setup, where L is the "free filament length":
- *
- * Filament diameter           |   1.75mm  |    3.0mm   |
- * ----------------------------|-----------|------------|
- * Stiff filament (PLA)        | K=47*L/10 | K=139*L/10 |
- * Softer filament (ABS, nGen) | K=88*L/10 | K=260*L/10 |
+ * See Marlin documentation for calibration instructions.
  */
 //#define LIN_ADVANCE
 

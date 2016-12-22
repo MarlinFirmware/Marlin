@@ -25,6 +25,8 @@
 
 #include "MarlinConfig.h"
 
+#define _UxGT(a) a
+
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 
@@ -151,10 +153,12 @@
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
-#define MSG_ERR_M421_PARAMETERS             "M421 requires XYZ or IJZ parameters"
-#define MSG_ERR_MESH_XY                     "Mesh XY or IJ cannot be resolved"
+#define MSG_ERR_M355_NONE                   "No case light"
+#define MSG_ERR_M421_PARAMETERS             "M421 required parameters missing"
+#define MSG_ERR_MESH_XY                     "Mesh point cannot be resolved"
 #define MSG_ERR_ARC_ARGS                    "G2/G3 bad parameters"
 #define MSG_ERR_PROTECTED_PIN               "Protected Pin"
+#define MSG_ERR_M420_FAILED                 "Failed to enable Bed Leveling"
 #define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
 #define MSG_ERR_M303_DISABLED               "PIDTEMP disabled"
 #define MSG_M119_REPORT                     "Reporting endstop status"
@@ -262,10 +266,10 @@
 #define MSG_N2 " 2"
 #define MSG_N3 " 3"
 #define MSG_N4 " 4"
-#define MSG_E1 " E1"
-#define MSG_E2 " E2"
-#define MSG_E3 " E3"
-#define MSG_E4 " E4"
+#define MSG_E1 "E1"
+#define MSG_E2 "E2"
+#define MSG_E3 "E3"
+#define MSG_E4 "E4"
 #define MSG_MOVE_E1 "1"
 #define MSG_MOVE_E2 "2"
 #define MSG_MOVE_E3 "3"

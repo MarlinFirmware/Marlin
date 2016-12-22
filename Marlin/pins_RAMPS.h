@@ -192,6 +192,12 @@
   #define FAN_PIN 4      // IO pin. Buffer needed
 #endif
 
+#define CONTROLLERFAN_PIN -1 
+#define E0_AUTO_FAN_PIN   -1
+#define E1_AUTO_FAN_PIN   -1
+#define E2_AUTO_FAN_PIN   -1
+#define E3_AUTO_FAN_PIN   -1
+
 //
 // Misc. Functions
 //
