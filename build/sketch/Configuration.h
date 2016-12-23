@@ -49,7 +49,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_H_VERSION 010102
+#define CONFIGURATION_H_VERSION 010103
 
 #define USE_AUTOMATIC_VERSIONING
 
@@ -440,7 +440,7 @@
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,800,152.3}  // default steps per unit for Robo C2
 #define DEFAULT_MAX_FEEDRATE          {300, 300, 6, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1300,1300,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_ACCELERATION      {1200,1200,80,1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration in mm/s^2 for retracts
@@ -449,7 +449,7 @@
 // "Jerk" specifies the minimum speed change that requires acceleration.
 // When changing speed and direction, if the difference is less than the
 // value set here, it may happen instantaneously.
-#define DEFAULT_XYJERK                15.0    // (mm/sec)
+#define DEFAULT_XYJERK                13.0    // (mm/sec)
 #define DEFAULT_ZJERK                  0.3    // (mm/sec)
 #define DEFAULT_EJERK                  5.0    // (mm/sec)
 
@@ -573,7 +573,7 @@
 // These values specify the distance from the NOZZLE to the BED.
 //
 #define Z_PROBE_DEPLOY_HEIGHT 0 // Z position for the probe to deploy/stow
-#define Z_PROBE_TRAVEL_HEIGHT  4 // Z position for travel between points
+#define Z_PROBE_TRAVEL_HEIGHT  10 // Z position for travel between points
 
 //
 // For M851 give a range for adjusting the Z probe offset
@@ -611,7 +611,7 @@
 // @section extruder
 
 // For direct drive set to true, for geared extruder set to false.
-#define INVERT_E0_DIR true
+#define INVERT_E0_DIR false
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -708,10 +708,10 @@
 
   #if ENABLED(AUTO_BED_LEVELING_GRID)
 
-    #define LEFT_PROBE_BED_POSITION 15
+    #define LEFT_PROBE_BED_POSITION 5
     #define RIGHT_PROBE_BED_POSITION 105
     #define FRONT_PROBE_BED_POSITION 30
-    #define BACK_PROBE_BED_POSITION 100
+    #define BACK_PROBE_BED_POSITION 120
 
     #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
@@ -723,7 +723,7 @@
 
     // Arbitrary points to probe.
     // A simple cross-product is used to estimate the plane of the bed.
-    #define ABL_PROBE_PT_1_X 15
+    #define ABL_PROBE_PT_1_X 10
     #define ABL_PROBE_PT_1_Y 90
     #define ABL_PROBE_PT_2_X 15
     #define ABL_PROBE_PT_2_Y 20
@@ -732,7 +732,7 @@
 
   #endif // !AUTO_BED_LEVELING_GRID
 
-  //#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
+  //#define Z_PROBE_END_SCRIPT "G1 Z10 F600\nG1 X61 Y63 F3000" // These commands will be executed in the end of G29 routine.
                                                                              // Useful to retract a deployable Z probe.
 
   // If you've enabled AUTO_BED_LEVELING_FEATURE and are using the Z Probe for Z Homing,
@@ -819,7 +819,7 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 200
+#define PREHEAT_1_TEMP_HOTEND 210
 #define PREHEAT_1_TEMP_BED     0
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
@@ -980,7 +980,7 @@
 // IMPORTANT NOTE: The U8glib library is required for Full Graphic Display!
 //                 https://github.com/olikraus/U8glib_Arduino
 //
-//#define ULTRA_LCD   // Character based
+#define ULTRA_LCD   // Character based
 //#define DOGLCD      // Full graphics display
 
 //
@@ -1006,7 +1006,7 @@
 //
 // Use CRC checks and retries on the SD communication.
 //
-//#define SD_CHECK_AND_RETRY
+#define SD_CHECK_AND_RETRY
 
 //
 // ENCODER SETTINGS
@@ -1133,7 +1133,7 @@
 //
 // Note: Usually sold with a white PCB.
 //
-//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 //
 // GADGETS3D G3D LCD/SD Controller
@@ -1252,7 +1252,7 @@
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
@@ -1316,14 +1316,14 @@
 // Uncomment below to enable
 //#define FILAMENT_WIDTH_SENSOR
 
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.00  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #define FILAMENT_SENSOR_EXTRUDER_NUM 0   //The number of the extruder that has the filament sensor (0,1,2)
   #define MEASUREMENT_DELAY_CM        14   //measurement delay in cm.  This is the distance from filament sensor to middle of barrel
 
-  #define MEASURED_UPPER_LIMIT         3.30  //upper limit factor used for sensor reading validation in mm
-  #define MEASURED_LOWER_LIMIT         1.90  //lower limit factor for sensor reading validation in mm
+  #define MEASURED_UPPER_LIMIT         2  //upper limit factor used for sensor reading validation in mm
+  #define MEASURED_LOWER_LIMIT         1.50  //lower limit factor for sensor reading validation in mm
   #define MAX_MEASUREMENT_DELAY       20     //delay buffer size in bytes (1 byte = 1cm)- limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
 
   #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially

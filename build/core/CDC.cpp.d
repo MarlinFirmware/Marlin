@@ -1,12 +1,12 @@
-C:\Users\Allen\AppData\Local\Temp\build2a5e2ca346d3c26d2a745a12554f4505.tmp\core\CDC.cpp.o: \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\CDC.cpp \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\USBAPI.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\Arduino.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\binary.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\WCharacter.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\WString.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\HardwareSerial.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\Stream.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\Print.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\Printable.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\mega/pins_arduino.h
+/tmp/arduino_build_656283/core/CDC.cpp.o: \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/CDC.cpp \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/USBAPI.h \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Arduino.h \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/binary.h \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/WCharacter.h \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/WString.h \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/HardwareSerial.h \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Stream.h \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Print.h \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Printable.h \
+ /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/variants/mega/pins_arduino.h

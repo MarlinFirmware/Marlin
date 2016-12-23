@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#line 1 "C:\\Users\\Allen\\Documents\\GitHub\\C2 Production\\Marlin-C2\\Marlin\\Marlin.ino"
-#line 1 "C:\\Users\\Allen\\Documents\\GitHub\\C2 Production\\Marlin-C2\\Marlin\\Marlin.ino"
+#line 1 "/home/ximidar/Desktop/Marlin/Marlin/Marlin.ino"
+#line 1 "/home/ximidar/Desktop/Marlin/Marlin/Marlin.ino"
 /**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]

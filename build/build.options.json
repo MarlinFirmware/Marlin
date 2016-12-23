@@ -1,10 +1,10 @@
 {
-  "builtInLibrariesFolders": "C:\\Program Files (x86)\\Arduino\\libraries",
-  "customBuildProperties": "build.warn_data_percentage=75",
+  "builtInLibrariesFolders": "/home/ximidar/Desktop/arduino-1.6.13/libraries",
+  "customBuildProperties": "build.warn_data_percentage=75,runtime.tools.avrdude.path=/home/ximidar/Desktop/arduino-1.6.13/hardware/tools/avr,runtime.tools.avr-gcc.path=/home/ximidar/Desktop/arduino-1.6.13/hardware/tools/avr",
   "fqbn": "arduino:avr:mega:cpu=atmega2560",
-  "hardwareFolders": "C:\\Program Files (x86)\\Arduino\\hardware,C:\\Users\\Allen\\AppData\\Local\\Arduino15\\packages",
-  "otherLibrariesFolders": "C:\\Users\\Allen\\Documents\\Arduino\\libraries",
-  "runtime.ide.version": "10609",
-  "sketchLocation": "C:\\Users\\Allen\\Documents\\GitHub\\C2 Production\\Marlin-C2\\Marlin\\Marlin.ino",
-  "toolsFolders": "C:\\Program Files (x86)\\Arduino\\tools-builder,C:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr,C:\\Users\\Allen\\AppData\\Local\\Arduino15\\packages"
+  "hardwareFolders": "/home/ximidar/Desktop/arduino-1.6.13/hardware",
+  "otherLibrariesFolders": "/home/ximidar/Arduino/libraries",
+  "runtime.ide.version": "10613",
+  "sketchLocation": "/home/ximidar/Desktop/Marlin/Marlin/Marlin.ino",
+  "toolsFolders": "/home/ximidar/Desktop/arduino-1.6.13/tools-builder,/home/ximidar/Desktop/arduino-1.6.13/hardware/tools/avr"
 }
