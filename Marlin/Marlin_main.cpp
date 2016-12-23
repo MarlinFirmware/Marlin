@@ -2436,33 +2436,41 @@ static void clean_up_after_endstop_or_probe_move() {
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
-  static void print_bilinear_leveling_grid() {
-    SERIAL_ECHOPGM("Bilinear Leveling Grid:\n ");
-    for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++) {
-      SERIAL_PROTOCOLPGM("    ");
-      if (x < 10) SERIAL_PROTOCOLCHAR(' ');
+  static void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, float (*fn)(const uint8_t, const uint8_t)) {
+    for (uint8_t x = 0; x < sx; x++) {
+      for (uint8_t i = 0; i < precision + 2 + (x < 10 ? 1 : 0); i++)
+        SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)x);
     }
     SERIAL_EOL;
-    for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++) {
+    for (uint8_t y = 0; y < sy; y++) {
       if (y < 10) SERIAL_PROTOCOLCHAR(' ');
       SERIAL_PROTOCOL((int)y);
-      for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++) {
+      for (uint8_t x = 0; x < sx; x++) {
         SERIAL_PROTOCOLCHAR(' ');
-        float offset = bed_level_grid[x][y];
+        float offset = fn(x, y);
         if (offset != UNPROBED) {
-          if (offset > 0) SERIAL_CHAR('+');
-          SERIAL_PROTOCOL_F(offset, 2);
+          if (offset >= 0) SERIAL_CHAR('+');
+          SERIAL_PROTOCOL_F(offset, precision);
         }
         else
-          SERIAL_PROTOCOLPGM(" ====");
+          for (uint8_t i = 0; i < precision + 3; i++)
+            SERIAL_PROTOCOLCHAR(i ? '=' : ' ');
       }
       SERIAL_EOL;
     }
     SERIAL_EOL;
   }
 
+  static void print_bilinear_leveling_grid() {
+    SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
+    print_2d_array(ABL_GRID_MAX_POINTS_X, ABL_GRID_MAX_POINTS_Y, 2,
+      [](const uint8_t x, const uint8_t y) { return bed_level_grid[x][y]; }
+    );
+  }
+
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+
     #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_MAX_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1
     #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_MAX_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1
     #define ABL_TEMP_POINTS_X (ABL_GRID_MAX_POINTS_X + 2)
@@ -2472,29 +2480,11 @@ static void clean_up_after_endstop_or_probe_move() {
 
     static void bed_level_virt_print() {
       SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
-      for (uint8_t x = 0; x < ABL_GRID_POINTS_VIRT_X; x++) {
-        SERIAL_PROTOCOLPGM("       ");
-        if (x < 10) SERIAL_PROTOCOLCHAR(' ');
-        SERIAL_PROTOCOL((int)x);
-      }
-      SERIAL_EOL;
-      for (uint8_t y = 0; y < ABL_GRID_POINTS_VIRT_Y; y++) {
-        if (y < 10) SERIAL_PROTOCOLCHAR(' ');
-        SERIAL_PROTOCOL((int)y);
-        for (uint8_t x = 0; x < ABL_GRID_POINTS_VIRT_X; x++) {
-          SERIAL_PROTOCOLCHAR(' ');
-          float offset = bed_level_grid_virt[x][y];
-          if (offset != UNPROBED) {
-            if (offset >= 0) SERIAL_CHAR('+');
-            SERIAL_PROTOCOL_F(offset, 5);
-          }
-          else
-            SERIAL_PROTOCOLPGM(" ====");
-        }
-        SERIAL_EOL;
-      }
-      SERIAL_EOL;
+      print_2d_array(ABL_GRID_POINTS_VIRT_X, ABL_GRID_POINTS_VIRT_Y, 5,
+        [](const uint8_t x, const uint8_t y) { return bed_level_grid_virt[x][y]; }
+      );
     }
+
     #define LINEAR_EXTRAPOLATION(E, I) ((E) * 2 - (I))
     float bed_level_virt_coord(const uint8_t x, const uint8_t y) {
       uint8_t ep = 0, ip = 1;
@@ -2532,6 +2522,7 @@ static void clean_up_after_endstop_or_probe_move() {
       }
       return bed_level_grid[x - 1][y - 1];
     }
+
     static float bed_level_virt_cmr(const float p[4], const uint8_t i, const float t) {
       return (
           p[i-1] * -t * sq(1 - t)
@@ -2540,6 +2531,7 @@ static void clean_up_after_endstop_or_probe_move() {
         - p[i+2] * sq(t) * (1 - t)
       ) * 0.5;
     }
+
     static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const float &tx, const float &ty) {
       float row[4], column[4];
       for (uint8_t i = 0; i < 4; i++) {
@@ -2550,6 +2542,7 @@ static void clean_up_after_endstop_or_probe_move() {
       }
       return bed_level_virt_cmr(row, 1, tx);
     }
+
     void bed_level_virt_interpolate() {
       for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
         for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
@@ -2568,7 +2561,6 @@ static void clean_up_after_endstop_or_probe_move() {
     }
   #endif // ABL_BILINEAR_SUBDIVISION
 #endif // AUTO_BED_LEVELING_BILINEAR
-
 
 /**
  * Home an individual linear axis
