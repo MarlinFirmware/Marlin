@@ -103,12 +103,6 @@
 #if ANY_THERMISTOR_IS(70) // bqh2 stock thermistor
   #include "thermistortable_70.h"
 #endif
-#if ANY_THERMISTOR_IS(110) // Pt100 with 1k0 pullup
-  #include "thermistortable_110.h"
-#endif
-#if ANY_THERMISTOR_IS(147) // Pt100 with 4k7 pullup
-  #include "thermistortable_147.h"
-#endif
 #if ANY_THERMISTOR_IS(1010) // Pt1000 with 1k0 pullup
   #include "thermistortable_1010.h"
 #endif
