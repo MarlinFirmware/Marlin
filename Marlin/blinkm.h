@@ -1,6 +1,6 @@
 /*
   blinkm.h
-  Library header file for BlinkM library
+  Library headxxxxer file for BlinkM library
  */
 
 #include "Arduino.h"

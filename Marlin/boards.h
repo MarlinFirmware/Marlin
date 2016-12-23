@@ -3,7 +3,7 @@
 
 #define BOARD_UNKNOWN -1
 
-#define BOARD_GEN7_CUSTOM       10   // Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
+#define BOARD_GEN7_CUSTOM       10   // Gen7 custom (Alfons3 Verxxxxxsion) "https://github.com/Alfons3/Generation_7_Electronics"
 #define BOARD_GEN7_12           11   // Gen7 v1.1, v1.2
 #define BOARD_GEN7_13           12   // Gen7 v1.3
 #define BOARD_GEN7_14           13   // Gen7 v1.4
