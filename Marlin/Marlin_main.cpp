@@ -2471,7 +2471,7 @@ static void clean_up_after_endstop_or_probe_move() {
           SERIAL_PROTOCOLCHAR(' ');
           float offset = bed_level_grid_virt[x][y];
           if (offset != UNPROBED) {
-            if (offset > 0) SERIAL_CHAR('+');
+            if (offset >= 0) SERIAL_CHAR('+');
             SERIAL_PROTOCOL_F(offset, 5);
           }
           else
@@ -2511,6 +2511,46 @@ static void clean_up_after_endstop_or_probe_move() {
           );
       }
     }
+    float bed_level_virt_coord(uint8_t x,uint8_t y) {
+      uint8_t ep=0,ip=1;
+      if (x==0 || x==ABL_GRID_MAX_POINTS_X + 2 - 1){
+        if(x){
+            ep=ABL_GRID_MAX_POINTS_X - 1;
+            ip=ABL_GRID_MAX_POINTS_X - 2;
+        }
+        if (y > 0 && y < ABL_GRID_MAX_POINTS_Y + 2 - 1 )
+          return
+        LINEAR_EXTRAPOLATION(
+          bed_level_grid[ep][y-1],
+          bed_level_grid[ip][y-1]
+        );
+        else
+          return
+        LINEAR_EXTRAPOLATION(
+          bed_level_virt_coord(ep+1,y),
+          bed_level_virt_coord(ip+1,y)
+        );
+      }
+      if (y==0 || y==ABL_GRID_MAX_POINTS_Y + 2 - 1){
+        if(y){
+            ep=ABL_GRID_MAX_POINTS_Y - 1;
+            ip=ABL_GRID_MAX_POINTS_Y - 2;
+        }
+        if (x > 0 && x < ABL_GRID_MAX_POINTS_X + 2 - 1 )
+          return
+        LINEAR_EXTRAPOLATION(
+          bed_level_grid[x-1][ep],
+          bed_level_grid[x-1][ip]
+        );
+        else
+          return
+        LINEAR_EXTRAPOLATION(
+          bed_level_virt_coord(x,ep+1),
+          bed_level_virt_coord(x,ip+1)
+        );
+      }
+      return bed_level_grid[x - 1][y - 1];
+    }
     static float bed_level_virt_cmr(const float p[4], const uint8_t i, const float t) {
       return (
           p[i-1] * -t * sq(1 - t)
@@ -2523,7 +2563,8 @@ static void clean_up_after_endstop_or_probe_move() {
       float row[4], column[4];
       for (uint8_t i = 0; i < 4; i++) {
         for (uint8_t j = 0; j < 4; j++) // can be memcopy or through memory access
-          column[j] = bed_level_grid_virt_temp[i + x - 1][j + y - 1];
+          column[j] = bed_level_virt_coord(i + x - 1,j + y - 1);
+//          column[j] = bed_level_grid_virt_temp[i + x - 1][j + y - 1];
         row[i] = bed_level_virt_cmr(column, 1, ty);
       }
       return bed_level_virt_cmr(row, 1, tx);
@@ -4227,7 +4268,6 @@ inline void gcode_G28() {
       print_bilinear_leveling_grid();
 
       #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-        bed_level_virt_prepare();
         bed_level_virt_interpolate();
         bed_level_virt_print();
       #endif
@@ -7126,7 +7166,6 @@ void quickstop_stepper() {
       if (px >= 0 && px < ABL_GRID_MAX_POINTS_X && py >= 0 && py < ABL_GRID_MAX_POINTS_X) {
         bed_level_grid[px][py] = z;
         #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-          bed_level_virt_prepare();
           bed_level_virt_interpolate();
         #endif
       }
