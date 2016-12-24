@@ -2423,7 +2423,7 @@ static void clean_up_after_endstop_or_probe_move() {
   /**
    * Print calibration results for plotting or manual frame adjustment.
    */
-  static void print_2dimension_array(uint8_t sx, uint8_t sy, uint8_t precision, float (*fn)(uint8_t,uint8_t)) {
+  static void print_2d_array(const uint8_t sx, const uint8_t sy, const uint8_t precision, float (*fn)(const uint8_t, const uint8_t)) {
     for (uint8_t x = 0; x < sx; x++) {
       for (uint8_t i = 0; i < precision + 2 + (x < 10 ? 1 : 0); i++)
         SERIAL_PROTOCOLCHAR(' ');
@@ -2435,14 +2435,14 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_PROTOCOL((int)y);
       for (uint8_t x = 0; x < sx; x++) {
         SERIAL_PROTOCOLCHAR(' ');
-        float offset = fn(x,y);
+        float offset = fn(x, y);
         if (offset != UNPROBED) {
           if (offset >= 0) SERIAL_CHAR('+');
           SERIAL_PROTOCOL_F(offset, precision);
         }
         else
-          for (uint8_t i = 0; i < precision+3; i++)
-            SERIAL_PROTOCOLCHAR(i?'=':' ');
+          for (uint8_t i = 0; i < precision + 3; i++)
+            SERIAL_PROTOCOLCHAR(i ? '=' : ' ');
       }
       SERIAL_EOL;
     }
@@ -2450,11 +2450,8 @@ static void clean_up_after_endstop_or_probe_move() {
   }
   static void print_bilinear_leveling_grid() {
     SERIAL_ECHOLNPGM("Bilinear Leveling Grid:");
-    print_2dimension_array(
-      ABL_GRID_MAX_POINTS_X,
-      ABL_GRID_MAX_POINTS_Y,
-      2,
-      [](uint8_t x, uint8_t y){ return bed_level_grid[x][y]; }
+    print_2d_array(ABL_GRID_MAX_POINTS_X, ABL_GRID_MAX_POINTS_Y, 2,
+      [](const uint8_t x, const uint8_t y){ return bed_level_grid[x][y]; }
     );
   }
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
@@ -2466,11 +2463,8 @@ static void clean_up_after_endstop_or_probe_move() {
 
     static void bed_level_virt_print() {
       SERIAL_ECHOLNPGM("Subdivided with CATMULL ROM Leveling Grid:");
-      print_2dimension_array(
-        ABL_GRID_POINTS_VIRT_X,
-        ABL_GRID_POINTS_VIRT_Y,
-        5,
-        [](uint8_t x,uint8_t y){ return bed_level_grid_virt[x][y]; }
+      print_2d_array(ABL_GRID_POINTS_VIRT_X, ABL_GRID_POINTS_VIRT_Y, 5,
+        [](const uint8_t x, const uint8_t y){ return bed_level_grid_virt[x][y]; }
       );
     }
     #define LINEAR_EXTRAPOLATION(E, I) (E * 2 - I)
