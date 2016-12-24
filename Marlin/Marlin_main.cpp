@@ -254,9 +254,14 @@
   #include "watchdog.h"
 #endif
 
-#if ENABLED(BLINKM)
+#if ENABLED(BLINKM) || ENABLED(RGB_STRIP)
   #include "blinkm.h"
   #include "Wire.h"
+#endif
+
+#if ENABLED(RGB_STRIP)
+  int r, g, b;
+  #include "RGB_Strip.h"
 #endif
 
 #if HAS_SERVOS
@@ -5432,6 +5437,32 @@ inline void gcode_M105() {
     #define MIN_COOLING_SLOPE_TIME 60
   #endif
 
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+
+  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
+
+    #if ENABLED(BLINKM)
+
+      // This variant uses i2c to send the RGB components to the device.
+      SendColors(r, g, b);
+
+    #else
+
+      // This variant uses 3 separate pins for the RGB components.
+      // If the pins can do PWM then their intensity will be set.
+      #if !ENABLED(RGB_STRIP)
+        digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
+        digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
+        digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
+      #endif
+      analogWrite(RGB_LED_R_PIN, r);
+      analogWrite(RGB_LED_G_PIN, g);
+      analogWrite(RGB_LED_B_PIN, b);
+
+    #endif
+  }
+#endif
+
 /**
  * M109: Sxxx Wait for extruder(s) to reach temperature. Waits only when heating.
  *       Rxxx Wait for extruder(s) to reach temperature. Waits when heating and cooling.
@@ -5527,6 +5558,18 @@ inline void gcode_M109() {
 
     float temp = thermalManager.degHotend(target_extruder);
 
+    #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        if(wait_for_heatup) {
+          // Gradually change LED strip from violet to red as extruder heats up
+          r = 255;
+          g = 0;
+          b = map(temp, 30, theTarget, 255, 0);
+          set_led_color(r, g, b);
+        }
+      #endif
+    #endif
+
     #if TEMP_RESIDENCY_TIME > 0
 
       float temp_diff = fabs(theTarget - temp);
@@ -5555,7 +5598,15 @@ inline void gcode_M109() {
 
   } while (wait_for_heatup && TEMP_CONDITIONS);
 
-  if (wait_for_heatup) LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+  if (wait_for_heatup) {
+    LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+
+    #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        handle_led_print_event(1);  // Set LED's ALL WHITE
+      #endif
+    #endif
+  }
 
   KEEPALIVE_STATE(IN_HANDLER);
 }
@@ -5645,6 +5696,16 @@ inline void gcode_M109() {
       refresh_cmd_timeout(); // to prevent stepper_inactive_time from running out
 
       float temp = thermalManager.degBed();
+
+      #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) && ENABLED(PRINTER_EVENT_LEDS)
+        if(wait_for_heatup) {
+          // Gradually change LED strip from blue to violet as bed heats up
+          r = map(temp, 30, theTarget, 0, 255);
+          g = 0;
+          b = 255;
+          set_led_color(r, g, b);
+        }
+      #endif
 
       #if TEMP_BED_RESIDENCY_TIME > 0
 
@@ -5921,6 +5982,9 @@ inline void gcode_M18_M84() {
       #endif
     }
   }
+  #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) && ENABLED(PRINTER_EVENT_LEDS)
+    if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) handle_led_print_event(0);
+  #endif
 }
 
 /**
@@ -6135,7 +6199,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
   }
 #endif // HAVE_TMC2130DRIVER
 
-#if ENABLED(BLINKM) || ENABLED(RGB_LED)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
 
   void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
 
@@ -6179,7 +6243,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
     );
   }
 
-#endif // BLINKM || RGB_LED
+#endif // BLINKM || RGB_LED || RGB_STRIP
 
 /**
  * M200: Set filament diameter and set E axis units to cubic units
@@ -8463,13 +8527,13 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(BLINKM) || ENABLED(RGB_LED)
+      #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
 
         case 150: // M150: Set Status LED Color
           gcode_M150();
           break;
 
-      #endif // BLINKM
+      #endif //ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
 
       #if ENABLED(MIXING_EXTRUDER)
         case 163: // M163: Set a component weight for mixing extruder

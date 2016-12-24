@@ -502,6 +502,9 @@
 #ifndef MSG_INFO_THERMISTOR_MENU
   #define MSG_INFO_THERMISTOR_MENU            _UxGT("Thermistors")
 #endif
+#ifndef MSG_INFO_DHT_MENU
+  #define MSG_INFO_DHT_MENU                   "Temp & Humidity"
+#endif
 #ifndef MSG_INFO_EXTRUDERS
   #define MSG_INFO_EXTRUDERS                  _UxGT("Extruders")
 #endif
