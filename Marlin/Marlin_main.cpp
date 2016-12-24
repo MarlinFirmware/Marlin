@@ -7267,7 +7267,7 @@ inline void gcode_M503() {
    */
   inline void gcode_M600() {
 
-    if (thermalManager.tooColdToExtrude(active_extruder)) {
+    if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
       return;
