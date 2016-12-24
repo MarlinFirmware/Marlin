@@ -151,7 +151,7 @@
   #define MSG_PREHEAT_4_BEDONLY               MSG_PREHEAT_4 _UxGT(" Bed")
 #endif
 #ifndef MSG_PREHEAT_4_SETTINGS
-  #define MSG_PREHEAT_4_SETTINGS              MSG_PREHEAT_4_UxGT(" conf")
+  #define MSG_PREHEAT_4_SETTINGS              MSG_PREHEAT_4 _UxGT(" conf")
 #endif
 #ifndef MSG_PREHEAT_5
   #define MSG_PREHEAT_5                       _UxGT("Preheat HIPS")
