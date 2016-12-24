@@ -966,13 +966,35 @@
 // @section temperature
 
 // Preheat Constants
+/************* PLA *************/
 #define PREHEAT_1_TEMP_HOTEND 180
-#define PREHEAT_1_TEMP_BED     50 // K8200: PLA / set back to 70 if you have an upgraded heatbed power supply
+#define PREHEAT_1_TEMP_BED     70
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
+/************* ABS *************/
 #define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED     60 // K8200: ABS / set back to 110 if you have an upgraded heatbed power supply
+#define PREHEAT_2_TEMP_BED    110
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
+
+/************* PET *************/
+#define PREHEAT_3_TEMP_HOTEND 220
+#define PREHEAT_3_TEMP_BED     60
+#define PREHEAT_3_FAN_SPEED     0 // Value from 0 to 255
+
+/************ RUBBER ***********/
+#define PREHEAT_4_TEMP_HOTEND 230
+#define PREHEAT_4_TEMP_BED     60
+#define PREHEAT_4_FAN_SPEED     0 // Value from 0 to 255
+
+/************* HIPS ************/
+#define PREHEAT_5_TEMP_HOTEND 240
+#define PREHEAT_5_TEMP_BED    110
+#define PREHEAT_5_FAN_SPEED     0 // Value from 0 to 255
+
+/************ NYLON ************/
+#define PREHEAT_6_TEMP_HOTEND 260
+#define PREHEAT_6_TEMP_BED    110
+#define PREHEAT_6_FAN_SPEED     0 // Value from 0 to 255
 
 //
 // Nozzle Park -- EXPERIMENTAL
