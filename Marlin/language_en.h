@@ -136,6 +136,7 @@
 #endif
 #ifndef MSG_PREHEAT_3_SETTINGS
   #define MSG_PREHEAT_3_SETTINGS              MSG_PREHEAT_3 _UxGT(" conf")
+#endif
 #ifndef MSG_PREHEAT_4
   #define MSG_PREHEAT_4                       _UxGT("Preheat RUBBER")
 #endif
@@ -150,6 +151,7 @@
 #endif
 #ifndef MSG_PREHEAT_4_SETTINGS
   #define MSG_PREHEAT_4_SETTINGS              MSG_PREHEAT_4_UxGT(" conf")
+#endif
 #ifndef MSG_PREHEAT_5
   #define MSG_PREHEAT_5                       _UxGT("Preheat HIPS")
 #endif
@@ -164,6 +166,7 @@
 #endif
 #ifndef MSG_PREHEAT_5_SETTINGS
   #define MSG_PREHEAT_5_SETTINGS              MSG_PREHEAT_5 _UxGT(" conf")
+#endif
 #ifndef MSG_PREHEAT_6
   #define MSG_PREHEAT_6                       _UxGT("Preheat NYLON")
 #endif
@@ -178,6 +181,7 @@
 #endif
 #ifndef MSG_PREHEAT_6_SETTINGS
   #define MSG_PREHEAT_6_SETTINGS              MSG_PREHEAT_6 _UxGT(" conf")
+#endif
 #ifndef MSG_COOLDOWN
   #define MSG_COOLDOWN                        _UxGT("Cooldown")
 #endif
