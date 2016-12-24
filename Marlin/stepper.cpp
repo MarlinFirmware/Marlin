@@ -91,9 +91,11 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
+  constexpr uint16_t ADV_NEVER = 65535;
+
   uint16_t Stepper::nextMainISR = 0,
-           Stepper::nextAdvanceISR = 65535,
-           Stepper::eISR_Rate = 65535;
+           Stepper::nextAdvanceISR = ADV_NEVER,
+           Stepper::eISR_Rate = ADV_NEVER;
 
   #if ENABLED(LIN_ADVANCE)
     volatile int Stepper::e_steps[E_STEPPERS];
@@ -107,6 +109,9 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
          Stepper::advance_rate,
          Stepper::advance;
   #endif
+
+  #define ADV_RATE(T, L) (e_steps[TOOL_E_INDEX] ? (T) * (L) / abs(e_steps[TOOL_E_INDEX]) : ADV_NEVER)
+
 #endif
 
 long Stepper::acceleration_time, Stepper::deceleration_time;
@@ -632,7 +637,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = !e_steps[TOOL_E_INDEX] ? 65535 : timer * step_loops / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = ADV_RATE(timer, step_loops);
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
@@ -683,7 +688,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = !e_steps[TOOL_E_INDEX] ? 65535 : timer * step_loops / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = ADV_RATE(timer, step_loops);
     #endif
   }
   else {
@@ -693,7 +698,7 @@ void Stepper::isr() {
       if (current_block->use_advance_lead)
         current_estep_rate[TOOL_E_INDEX] = final_estep_rate;
 
-      eISR_Rate = !e_steps[TOOL_E_INDEX] ? 65535 : OCR1A_nominal * step_loops_nominal / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = ADV_RATE(OCR1A_nominal, step_loops_nominal);
 
     #endif
 
@@ -812,7 +817,7 @@ void Stepper::isr() {
       // The next main ISR comes first
       OCR1A = nextMainISR;
       // New interval for the next advance ISR, if any
-      if (nextAdvanceISR && nextAdvanceISR != 65535)
+      if (nextAdvanceISR && nextAdvanceISR != ADV_NEVER)
         nextAdvanceISR -= nextMainISR;
       // Will call Stepper::isr on the next interrupt
       nextMainISR = 0;
