@@ -86,38 +86,38 @@
  *  301  M666 Z    z_endstop_adj (float)
  *
  * ULTIPANEL:
- *  305  M145 S0 H lcd_preheat_hotend_temp (int x2)
- *  309  M145 S0 B lcd_preheat_bed_temp (int x2)
- *  313  M145 S0 F lcd_preheat_fan_speed (int x2)
+ *  305  M145 S0 H lcd_preheat_hotend_temp (int x6)
+ *  317  M145 S0 B lcd_preheat_bed_temp (int x6)
+ *  329  M145 S0 F lcd_preheat_fan_speed (int 6)
  *
  * PIDTEMP:
- *  317  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
- *  333  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
- *  349  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
- *  365  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
- *  381  M301 L        lpq_len (int)
+ *  341  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0] (float x4)
+ *  357  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1] (float x4)
+ *  383  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2] (float x4)
+ *  399  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3] (float x4)
+ *  415  M301 L        lpq_len (int)
  *
  * PIDTEMPBED:
- *  383  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
+ *  417  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
  *
  * DOGLCD:
- *  395  M250 C    lcd_contrast (int)
+ *  419  M250 C    lcd_contrast (int)
  *
  * FWRETRACT:
- *  397  M209 S    autoretract_enabled (bool)
- *  398  M207 S    retract_length (float)
- *  402  M207 W    retract_length_swap (float)
- *  406  M207 F    retract_feedrate_mm_s (float)
- *  410  M207 Z    retract_zlift (float)
- *  414  M208 S    retract_recover_length (float)
- *  418  M208 W    retract_recover_length_swap (float)
- *  422  M208 F    retract_recover_feedrate_mm_s (float)
+ *  421  M209 S    autoretract_enabled (bool)
+ *  422  M207 S    retract_length (float)
+ *  426  M207 W    retract_length_swap (float)
+ *  430  M207 F    retract_feedrate_mm_s (float)
+ *  434  M207 Z    retract_zlift (float)
+ *  438  M208 S    retract_recover_length (float)
+ *  442  M208 W    retract_recover_length_swap (float)
+ *  446  M208 F    retract_recover_feedrate_mm_s (float)
  *
  * Volumetric Extrusion:
- *  426  M200 D    volumetric_enabled (bool)
- *  427  M200 T D  filament_size (float x4) (T0..3)
+ *  450  M200 D    volumetric_enabled (bool)
+ *  451  M200 T D  filament_size (float x4) (T0..3)
  *
- *  443  This Slot is Available!
+ *  467  This Slot is Available!
  *
  */
 #include "Marlin.h"
@@ -274,9 +274,9 @@ void Config_Postprocess() {
     #endif
 
     #if DISABLED(ULTIPANEL)
-      const int lcd_preheat_hotend_temp[2] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND },
-                lcd_preheat_bed_temp[2] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED },
-                lcd_preheat_fan_speed[2] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED };
+      const int lcd_preheat_hotend_temp[6] = { PREHEAT_1_TEMP_HOTEND, PREHEAT_2_TEMP_HOTEND, PREHEAT_3_TEMP_HOTEND, PREHEAT_4_TEMP_HOTEND, PREHEAT_5_TEMP_HOTEND, PREHEAT_6_TEMP_HOTEND },
+                lcd_preheat_bed_temp[6] = { PREHEAT_1_TEMP_BED, PREHEAT_2_TEMP_BED, PREHEAT_3_TEMP_BED, PREHEAT_4_TEMP_BED, PREHEAT_5_TEMP_BED, PREHEAT_6_TEMP_BED },
+                lcd_preheat_fan_speed[6] = { PREHEAT_1_FAN_SPEED, PREHEAT_2_FAN_SPEED, PREHEAT_3_FAN_SPEED, PREHEAT_4_FAN_SPEED, PREHEAT_5_FAN_SPEED, PREHEAT_6_FAN_SPEED };
     #endif // !ULTIPANEL
 
     EEPROM_WRITE(lcd_preheat_hotend_temp);
@@ -460,7 +460,7 @@ void Config_Postprocess() {
       #endif
 
       #if DISABLED(ULTIPANEL)
-        int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
+        int lcd_preheat_hotend_temp[6], lcd_preheat_bed_temp[6], lcd_preheat_fan_speed[6];
       #endif
 
       EEPROM_READ(lcd_preheat_hotend_temp);
@@ -632,10 +632,22 @@ void Config_ResetDefault() {
   #if ENABLED(ULTIPANEL)
     lcd_preheat_hotend_temp[0] = PREHEAT_1_TEMP_HOTEND;
     lcd_preheat_hotend_temp[1] = PREHEAT_2_TEMP_HOTEND;
+	lcd_preheat_hotend_temp[2] = PREHEAT_3_TEMP_HOTEND;
+	lcd_preheat_hotend_temp[3] = PREHEAT_4_TEMP_HOTEND;
+	lcd_preheat_hotend_temp[4] = PREHEAT_5_TEMP_HOTEND;
+	lcd_preheat_hotend_temp[5] = PREHEAT_6_TEMP_HOTEND;
     lcd_preheat_bed_temp[0] = PREHEAT_1_TEMP_BED;
     lcd_preheat_bed_temp[1] = PREHEAT_2_TEMP_BED;
+	lcd_preheat_bed_temp[2] = PREHEAT_3_TEMP_BED;
+	lcd_preheat_bed_temp[3] = PREHEAT_4_TEMP_BED;
+	lcd_preheat_bed_temp[4] = PREHEAT_5_TEMP_BED;
+	lcd_preheat_bed_temp[5] = PREHEAT_6_TEMP_BED;
     lcd_preheat_fan_speed[0] = PREHEAT_1_FAN_SPEED;
     lcd_preheat_fan_speed[1] = PREHEAT_2_FAN_SPEED;
+	lcd_preheat_fan_speed[2] = PREHEAT_3_FAN_SPEED;
+	lcd_preheat_fan_speed[3] = PREHEAT_4_FAN_SPEED;
+	lcd_preheat_fan_speed[4] = PREHEAT_5_FAN_SPEED;
+	lcd_preheat_fan_speed[5] = PREHEAT_6_FAN_SPEED;
   #endif
 
   #if HAS_LCD_CONTRAST
