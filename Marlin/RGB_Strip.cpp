@@ -1,5 +1,5 @@
 // RGB Led Strip Control
- 
+
 #include "Marlin.h"
 #include "temperature.h" 
 #include "Configuration.h"
@@ -12,7 +12,7 @@
 #endif
 
 #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
- 
+
   void set_rgb_color(const uint8_t r, const uint8_t g, const uint8_t b) {
 
     #if ENABLED(BLINKM)
@@ -38,19 +38,26 @@
   void handle_led_print_event(int code) {
 
     switch(code) {
-      
+
       case(0):        // Print Complete
         LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
         lcd_update();
         set_rgb_color(0, 255, 0);  // Turn RGB LEDs to GREEN
         wait_for_user = true;
-        #if ENABLED(ULTRA_LCD)
-          while (wait_for_user) idle();
+
+        #if ENABLED(ULTRA_LCD || DOGLCD)
+          int waitasec = 0;
+          do {
+           lcd_update();
+           safe_delay(100);
+           waitasec ++;
+           if (waitasec >= 100) break;
+          } while (wait_for_user);
         #endif
 
         wait_for_user = false;
         set_rgb_color(0, 0, 0);  // Turn RGB LEDs off
-        
+
         LCD_MESSAGEPGM(WELCOME_MSG);
         lcd_update();
         break;
@@ -58,7 +65,7 @@
       case(1):      // Printer Ready for Printing (All WHITE)
         set_rgb_color(255, 255, 255);
         break;
-        
+
     } // switch(code)
 
 }
