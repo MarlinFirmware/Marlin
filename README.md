@@ -18,6 +18,9 @@ The latest Release Candidate lives in the ["RC" branch](https://github.com/Marli
 
 ## Recent Changes
 - RCBugFix
+  - RGB Strip - Added timeout while waiting for user.
+  - RGB Strip (non-addressable) support.
+  - DHT sensor support.
 
 - RC8 - 06 Dec 2016
   - Major performance improvement for Graphical LCDs
