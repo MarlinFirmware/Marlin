@@ -7,7 +7,7 @@
   Calculated Min Values           x= 0 y=-2 dx= 0 dy= 0
   Pure Font   ascent = 7 descent=-1
   X Font      ascent = 7 descent=-1
-  Max Font    ascent = 8 descent=-2
+  Max Font    ascent = 8 descent=-2   
 */
 #include <U8glib.h>
 const u8g_fntpgm_uint8_t ISO10646_1_PL_5x7[2732] U8G_FONT_SECTION(".progmem.ISO10646_1_PL_5x7") = {
