@@ -75,7 +75,7 @@
     #include "dogm_font_data_ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7
  #elif ENABLED(DISPLAY_CHARSET_ISO10646_PL)
-    #include "dogm_font_data_ISO10646_1_pl.h"
+    #include "dogm_font_data_ISO10646_1_PL.h"
     #define FONT_MENU_NAME ISO10646_1_PL_5x7	
   #elif ENABLED(DISPLAY_CHARSET_ISO10646_5)
     #include "dogm_font_data_ISO10646_5_Cyrillic.h"
