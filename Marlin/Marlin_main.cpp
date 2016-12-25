@@ -5280,7 +5280,7 @@ inline void gcode_M104() {
 
     if (code_value_temp_abs() > thermalManager.degHotend(target_extruder)) LCD_MESSAGEPGM(MSG_HEATING);
   }
-
+  
   #if ENABLED(AUTOTEMP)
     planner.autotemp_M104_M109();
   #endif
@@ -8523,11 +8523,9 @@ void process_next_command() {
       #endif
 
       #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
-
         case 150: // M150: Set Status LED Color
           gcode_M150();
           break;
-
       #endif //ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
 
       #if ENABLED(MIXING_EXTRUDER)
@@ -8815,9 +8813,11 @@ void process_next_command() {
 
       #endif // HAS_MICROSTEPS
 
+      #if HAS_CASE_LIGHT
       case 355: // M355 Turn case lights on/off
         gcode_M355();
         break;
+      #endif // HAS_CASE_LIGHT
 
       case 999: // M999: Restart after being Stopped
         gcode_M999();
