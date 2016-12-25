@@ -43,18 +43,12 @@
         LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
         lcd_update();
         set_rgb_color(0, 255, 0);  // Turn RGB LEDs to GREEN
-
-        #if !ENABLED(ULTRA_LCD) && !ENABLED(DOGLCD)
-          safe_delay(30000);
-        #endif
-        
         wait_for_user = true;
-        #if ENABLED(ULTRA_LCD) || ENABLED(DOGLCD)
-        //  while (wait_for_user) idle();
-          safe_delay(30000);
+        #if ENABLED(ULTRA_LCD)
+          while (wait_for_user) idle();
         #endif
-        wait_for_user = false;
 
+        wait_for_user = false;
         set_rgb_color(0, 0, 0);  // Turn RGB LEDs off
         
         LCD_MESSAGEPGM(WELCOME_MSG);
