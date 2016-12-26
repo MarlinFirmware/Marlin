@@ -2455,7 +2455,6 @@ static void clean_up_after_endstop_or_probe_move() {
     #define ABL_TEMP_POINTS_X (ABL_GRID_MAX_POINTS_X + 2)
     #define ABL_TEMP_POINTS_Y (ABL_GRID_MAX_POINTS_Y + 2)
     float bed_level_grid_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
-    float bed_level_grid_virt_temp[ABL_TEMP_POINTS_X][ABL_TEMP_POINTS_Y]; //temporary for calculation (maybe dynamical?)
     int bilinear_grid_spacing_virt[2] = { 0 };
 
     static void bed_level_virt_print() {
@@ -2484,35 +2483,6 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_EOL;
     }
     #define LINEAR_EXTRAPOLATION(E, I) ((E) * 2 - (I))
-    void bed_level_virt_prepare() {
-      for (uint8_t y = 1; y <= ABL_GRID_MAX_POINTS_Y; y++) {
-
-        for (uint8_t x = 1; x <= ABL_GRID_MAX_POINTS_X; x++)
-          bed_level_grid_virt_temp[x][y] = bed_level_grid[x - 1][y - 1];
-
-        bed_level_grid_virt_temp[0][y] = LINEAR_EXTRAPOLATION(
-          bed_level_grid_virt_temp[1][y],
-          bed_level_grid_virt_temp[2][y]
-        );
-
-        bed_level_grid_virt_temp[ABL_TEMP_POINTS_X - 1][y] =
-          LINEAR_EXTRAPOLATION(
-            bed_level_grid_virt_temp[ABL_TEMP_POINTS_X - 2][y],
-            bed_level_grid_virt_temp[ABL_TEMP_POINTS_X - 3][y]
-          );
-      }
-      for (uint8_t x = 0; x < ABL_TEMP_POINTS_X; x++) {
-        bed_level_grid_virt_temp[x][0] = LINEAR_EXTRAPOLATION(
-          bed_level_grid_virt_temp[x][1],
-          bed_level_grid_virt_temp[x][2]
-        );
-        bed_level_grid_virt_temp[x][ABL_TEMP_POINTS_Y - 1] =
-          LINEAR_EXTRAPOLATION(
-            bed_level_grid_virt_temp[x][ABL_TEMP_POINTS_Y - 2],
-            bed_level_grid_virt_temp[x][ABL_TEMP_POINTS_Y - 3]
-          );
-      }
-    }
     float bed_level_virt_coord(const uint8_t x, const uint8_t y) {
       uint8_t ep = 0, ip = 1;
       if (!x || x == ABL_TEMP_POINTS_X - 1) {
@@ -2560,9 +2530,8 @@ static void clean_up_after_endstop_or_probe_move() {
     static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const float &tx, const float &ty) {
       float row[4], column[4];
       for (uint8_t i = 0; i < 4; i++) {
-        for (uint8_t j = 0; j < 4; j++) { // can be memcopy or through memory access
+        for (uint8_t j = 0; j < 4; j++) {
           column[j] = bed_level_virt_coord(i + x - 1, j + y - 1);
-          // column[j] = bed_level_grid_virt_temp[i + x - 1][j + y - 1];
         }
         row[i] = bed_level_virt_cmr(column, 1, ty);
       }
