@@ -16,7 +16,7 @@ The latest Release Candidate lives in the ["RC" branch](https://github.com/Marli
 ## Recent Changes
 - RC8 - 06 Dec 2016
   - Add DHT sensor support in 'About Printer' menu
-  - Add RGB strip control via printer events and M150
+  - Add RGB strip control via printer events and `M150`
   - Major performance improvement for Graphical LCDs
   - Simplified probe configuration
   - Enable Auto Bed Leveling by type
