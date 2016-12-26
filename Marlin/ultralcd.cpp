@@ -1570,8 +1570,7 @@ KeepDrawing:
       #if ENABLED(FILAMENT_CHANGE_FEATURE)
         MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
       #endif
-    #endif
-
+    
     //
     // Cooldown
     //
