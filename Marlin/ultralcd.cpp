@@ -47,7 +47,7 @@ extern float zprobe_zoffset;
 
 int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
-#if ENABLED(FILAMENT_LCD_DISPLAY)
+#if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
   millis_t previous_lcd_status_ms = 0;
 #endif
 
@@ -547,7 +547,7 @@ void lcd_status_screen() {
   #if ENABLED(ULTIPANEL)
 
     if (lcd_clicked) {
-      #if ENABLED(FILAMENT_LCD_DISPLAY)
+      #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
         previous_lcd_status_ms = millis();  // get status message to show up for a while
       #endif
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
@@ -3456,7 +3456,7 @@ void lcd_finishstatus(bool persist=false) {
   #endif
   lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 
-  #if ENABLED(FILAMENT_LCD_DISPLAY)
+  #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
     previous_lcd_status_ms = millis();  //get status message to show up for a while
   #endif
 }
