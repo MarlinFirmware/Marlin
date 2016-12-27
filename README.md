@@ -18,6 +18,7 @@ The latest Release Candidate lives in the ["RC" branch](https://github.com/Marli
 
 ## Recent Changes
 - RCBugFix
+  - Fix for issue `#5592`
   - DHT sensor support.
 
 - RC8 - 06 Dec 2016
