@@ -1465,8 +1465,13 @@
  * 
  * This feature is for reading the ambient temperature and humidity near or
  * around the printer.
- * 
- *  
+ *
+ *         *******************************************************
+ *         =========   This will need to be installed!  ==========
+ *         *******************************************************
+ *         DHT Temperature & Humidity Sensor library for Arduino.
+ *         http://www.github.com/markruys/arduino-DHT
+ *         *******************************************************
  * */
 //#define DHT_ENABLE
 #if ENABLED(DHT_ENABLE)

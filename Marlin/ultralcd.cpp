@@ -141,7 +141,7 @@ uint16_t max_display_update_time = 0;
     #endif
     void lcd_info_thermistors_menu();
     #if ENABLED(DHT_ENABLE)
-      #include "Marlin_DHT.h"
+      #include "DHT.h"
       float DHT_temperature;
       float DHT_humidity;
       bool DHT_done = false;
