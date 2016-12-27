@@ -18,6 +18,7 @@ The latest Release Candidate lives in the ["RC" branch](https://github.com/Marli
 
 ## Recent Changes
 - RCBugFix
+  - Added option to automatically store MBL mesh.
   - Fix for issue `#5592`
   - DHT sensor support.
 
