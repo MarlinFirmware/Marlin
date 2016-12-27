@@ -1212,7 +1212,6 @@ void kill_screen(const char* lcd_msg) {
             lcd_synchronize();
 
             mbl.set_has_mesh(true);
-            if (ENABLED(STORE_MBL)) Config_StoreSettings();
             enqueue_and_echo_commands_P(PSTR("G28"));
             lcd_return_to_status();
             //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
