@@ -135,7 +135,7 @@
   #include "pins_MEGATRONICS_3.h"
 #elif MB(MEGATRONICS_31)
   #define MEGATRONICS_31
-  #include "pins_MEGATRONICS_3.h" 
+  #include "pins_MEGATRONICS_3.h"
 #elif MB(OMCA_A)
   #include "pins_OMCA_A.h"
 #elif MB(OMCA)

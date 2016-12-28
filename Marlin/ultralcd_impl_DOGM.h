@@ -383,9 +383,6 @@ static void lcd_implementation_status_screen() {
 
   bool blink = lcd_blink();
 
-  // Black color, white background
-  u8g.setColorIndex(1);
-
   // Status Menu Font
   lcd_setFont(FONT_STATUSMENU);
 
@@ -524,10 +521,6 @@ static void lcd_implementation_status_screen() {
   #define X_LABEL_POS  3
   #define X_VALUE_POS 11
   #define XYZ_SPACING 40
-
-  // Enable to save many cycles by drawing a hollow frame
-  #define XYZ_HOLLOW_FRAME
-  #define MENU_HOLLOW_FRAME
 
   #if ENABLED(XYZ_HOLLOW_FRAME)
     #define XYZ_FRAME_TOP 29
