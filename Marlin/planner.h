@@ -123,10 +123,8 @@ typedef struct {
   #if ENABLED(BARICUDA)
     uint32_t valve_pressure, e_to_p_pressure;
   #endif
-  
-  #if ENABLED(ENSURE_SMOOTH_MOVES)
-    uint32_t segment_time;
-  #endif
+
+  uint32_t segment_time;
 
 } block_t;
 
@@ -140,26 +138,34 @@ class Planner {
      * A ring buffer of moves described in steps
      */
     static block_t block_buffer[BLOCK_BUFFER_SIZE];
-    static volatile uint8_t block_buffer_head;           // Index of the next block to be pushed
-    static volatile uint8_t block_buffer_tail;
+    static volatile uint8_t block_buffer_head,  // Index of the next block to be pushed
+                            block_buffer_tail;
 
-    static float max_feedrate_mm_s[NUM_AXIS]; // Max speeds in mm per second
-    static float axis_steps_per_mm[NUM_AXIS];
-    static float steps_to_mm[NUM_AXIS];
-    static unsigned long max_acceleration_steps_per_s2[NUM_AXIS];
-    static unsigned long max_acceleration_mm_per_s2[NUM_AXIS]; // Use M201 to override by software
+    #if ENABLED(DISTINCT_E_FACTORS)
+      static uint8_t last_extruder;             // Respond to extruder change
+    #endif
+
+    static float max_feedrate_mm_s[XYZE_N],     // Max speeds in mm per second
+                 axis_steps_per_mm[XYZE_N],
+                 steps_to_mm[XYZE_N];
+    static uint32_t max_acceleration_steps_per_s2[XYZE_N],
+                    max_acceleration_mm_per_s2[XYZE_N]; // Use M201 to override by software
 
     static millis_t min_segment_time;
-    static float min_feedrate_mm_s;
-    static float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
-    static float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
-    static float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-    static float max_jerk[XYZE];       // The largest speed change requiring no acceleration
-    static float min_travel_feedrate_mm_s;
+    static float min_feedrate_mm_s,
+                 acceleration,         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
+                 retract_acceleration, // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
+                 travel_acceleration,  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
+                 max_jerk[XYZE],       // The largest speed change requiring no acceleration
+                 min_travel_feedrate_mm_s;
 
     #if HAS_ABL
       static bool abl_enabled;            // Flag that bed leveling is enabled
       static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
+    #endif
+
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      static float z_fade_height, inverse_z_fade_height;
     #endif
 
   private:
@@ -179,11 +185,11 @@ class Planner {
      * Nominal speed of previous path line segment
      */
     static float previous_nominal_speed;
-	
-	/**
- 	 * Limit where 64bit math is necessary for acceleration calculation
- 	 */
- 	static uint32_t cutoff_long;
+
+    /**
+     * Limit where 64bit math is necessary for acceleration calculation
+     */
+    static uint32_t cutoff_long;
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER)
       /**
@@ -200,10 +206,14 @@ class Planner {
       // Segment times (in µs). Used for speed calculations
       static long axis_segment_time[2][3];
     #endif
-    
+
     #if ENABLED(LIN_ADVANCE)
       static float position_float[NUM_AXIS];
       static float extruder_advance_k;
+    #endif
+
+    #if ENABLED(ULTRA_LCD)
+      volatile static uint32_t block_buffer_runtime_us; //Theoretical block buffer runtime in µs
     #endif
 
   public:
@@ -254,7 +264,7 @@ class Planner {
       #define ARG_Z const float &lz
 
     #endif
-    
+
     #if ENABLED(LIN_ADVANCE)
       void advance_M905(const float &k);
     #endif
@@ -298,22 +308,22 @@ class Planner {
      * The target is cartesian, it's translated to delta/scara if
      * needed.
      *
-     *  target   - x,y,z,e CARTESIAN target in mm
+     *  ltarget  - x,y,z,e CARTESIAN target in mm
      *  fr_mm_s  - (target) speed of the move (mm/s)
      *  extruder - target extruder
      */
-    static FORCE_INLINE void buffer_line_kinematic(const float target[XYZE], const float &fr_mm_s, const uint8_t extruder) {
+    static FORCE_INLINE void buffer_line_kinematic(const float ltarget[XYZE], const float &fr_mm_s, const uint8_t extruder) {
       #if PLANNER_LEVELING
-        float pos[XYZ] = { target[X_AXIS], target[Y_AXIS], target[Z_AXIS] };
-        apply_leveling(pos);
+        float lpos[XYZ] = { ltarget[X_AXIS], ltarget[Y_AXIS], ltarget[Z_AXIS] };
+        apply_leveling(lpos);
       #else
-        const float * const pos = target;
+        const float * const lpos = ltarget;
       #endif
       #if IS_KINEMATIC
-        inverse_kinematics(pos);
-        _buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], target[E_AXIS], fr_mm_s, extruder);
+        inverse_kinematics(lpos);
+        _buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], ltarget[E_AXIS], fr_mm_s, extruder);
       #else
-        _buffer_line(pos[X_AXIS], pos[Y_AXIS], pos[Z_AXIS], target[E_AXIS], fr_mm_s, extruder);
+        _buffer_line(lpos[X_AXIS], lpos[Y_AXIS], lpos[Z_AXIS], ltarget[E_AXIS], fr_mm_s, extruder);
       #endif
     }
 
@@ -335,7 +345,13 @@ class Planner {
     static void set_position_mm_kinematic(const float position[NUM_AXIS]);
     static void set_position_mm(const AxisEnum axis, const float &v);
     static FORCE_INLINE void set_z_position_mm(const float &z) { set_position_mm(Z_AXIS, z); }
-    static FORCE_INLINE void set_e_position_mm(const float &e) { set_position_mm(E_AXIS, e); }
+    static FORCE_INLINE void set_e_position_mm(const float &e) {
+      set_position_mm(AxisEnum(E_AXIS
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + active_extruder
+        #endif
+      ), e);
+    }
 
     /**
      * Sync from the stepper positions. (e.g., after an interrupted move)
@@ -363,22 +379,41 @@ class Planner {
     static block_t* get_current_block() {
       if (blocks_queued()) {
         block_t* block = &block_buffer[block_buffer_tail];
+        #if ENABLED(ULTRA_LCD)
+          block_buffer_runtime_us -= block->segment_time; //We can't be sure how long an active block will take, so don't count it.
+        #endif
         SBI(block->flag, BLOCK_BIT_BUSY);
         return block;
       }
-      else
+      else {
+        #if ENABLED(ULTRA_LCD)
+          clear_block_buffer_runtime(); // paranoia. Buffer is empty now - so reset accumulated time to zero.
+        #endif
         return NULL;
+      }
     }
 
-    #if ENABLED(ENSURE_SMOOTH_MOVES)
-      static bool long_move() {
-        if (blocks_queued()) {
-          block_t* block = &block_buffer[block_buffer_tail];
-          return block->segment_time > (LCD_UPDATE_THRESHOLD) * 1000UL;
-        }
-        else
-          return true;
+    #if ENABLED(ULTRA_LCD)
+
+      static uint16_t block_buffer_runtime() {
+        CRITICAL_SECTION_START
+          millis_t bbru = block_buffer_runtime_us;
+        CRITICAL_SECTION_END
+        // To translate µs to ms a division by 1000 would be required.
+        // We introduce 2.4% error here by dividing by 1024.
+        // Doesn't matter because block_buffer_runtime_us is already too small an estimation.
+        bbru >>= 10;
+        // limit to about a minute.
+        NOMORE(bbru, 0xfffful);
+        return bbru;
       }
+
+      static void clear_block_buffer_runtime(){
+        CRITICAL_SECTION_START
+          block_buffer_runtime_us = 0;
+        CRITICAL_SECTION_END
+      }
+
     #endif
 
     #if ENABLED(AUTOTEMP)

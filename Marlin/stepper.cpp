@@ -91,8 +91,11 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
-  uint8_t Stepper::old_OCR0A = 0;
-  volatile uint8_t Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
+  constexpr uint16_t ADV_NEVER = 65535;
+
+  uint16_t Stepper::nextMainISR = 0,
+           Stepper::nextAdvanceISR = ADV_NEVER,
+           Stepper::eISR_Rate = ADV_NEVER;
 
   #if ENABLED(LIN_ADVANCE)
     volatile int Stepper::e_steps[E_STEPPERS];
@@ -106,6 +109,9 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
          Stepper::advance_rate,
          Stepper::advance;
   #endif
+
+  #define ADV_RATE(T, L) (e_steps[TOOL_E_INDEX] ? (T) * (L) / abs(e_steps[TOOL_E_INDEX]) : ADV_NEVER)
+
 #endif
 
 long Stepper::acceleration_time, Stepper::deceleration_time;
@@ -328,9 +334,24 @@ void Stepper::set_directions() {
  *  2000     1 KHz - sleep rate
  *  4000   500  Hz - init rate
  */
-ISR(TIMER1_COMPA_vect) { Stepper::isr(); }
+ISR(TIMER1_COMPA_vect) {
+  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+    Stepper::advance_isr_scheduler();
+  #else
+    Stepper::isr();
+  #endif
+}
 
 void Stepper::isr() {
+  #define _ENABLE_ISRs() cli(); SBI(TIMSK0, OCIE0B); ENABLE_STEPPER_DRIVER_INTERRUPT()
+
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    //Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
+    CBI(TIMSK0, OCIE0B); //Temperature ISR
+    DISABLE_STEPPER_DRIVER_INTERRUPT();
+    sei();
+  #endif
+
   if (cleaning_buffer_counter) {
     --cleaning_buffer_counter;
     current_block = NULL;
@@ -338,7 +359,8 @@ void Stepper::isr() {
     #ifdef SD_FINISHED_RELEASECOMMAND
       if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
-    OCR1A = 200; // Run at max speed - 10 KHz
+    _NEXT_ISR(200); // Run at max speed - 10 KHz
+    _ENABLE_ISRs(); // re-enable ISRs
     return;
   }
 
@@ -367,7 +389,8 @@ void Stepper::isr() {
       #if ENABLED(Z_LATE_ENABLE)
         if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
-          OCR1A = 2000; // Run at slow speed - 1 KHz
+          _NEXT_ISR(2000); // Run at slow speed - 1 KHz
+          _ENABLE_ISRs(); // re-enable ISRs
           return;
         }
       #endif
@@ -377,7 +400,8 @@ void Stepper::isr() {
       // #endif
     }
     else {
-      OCR1A = 2000; // Run at slow speed - 1 KHz
+      _NEXT_ISR(2000); // Run at slow speed - 1 KHz
+      _ENABLE_ISRs(); // re-enable ISRs
       return;
     }
   }
@@ -402,10 +426,6 @@ void Stepper::isr() {
   // Take multiple steps per interrupt (For high speed moves)
   bool all_steps_done = false;
   for (int8_t i = 0; i < step_loops; i++) {
-    #ifndef USBCON
-      customizedSerial.checkRx(); // Check for serial chars.
-    #endif
-
     #if ENABLED(LIN_ADVANCE)
 
       counter_E += current_block->steps[E_AXIS];
@@ -563,10 +583,10 @@ void Stepper::isr() {
       #endif
    }
   #endif
-  
+
   #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
     // If we have esteps to execute, fire the next advance_isr "now"
-    if (e_steps[TOOL_E_INDEX]) OCR0A = TCNT0 + 2;
+    if (e_steps[TOOL_E_INDEX]) nextAdvanceISR = 0;
   #endif
 
   // Calculate new timer value
@@ -580,7 +600,7 @@ void Stepper::isr() {
 
     // step_rate to timer interval
     uint16_t timer = calc_timer(acc_step_rate);
-    OCR1A = timer;
+    _NEXT_ISR(timer);
     acceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -617,7 +637,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]); //>> 3 is divide by 8. Reason: Timer 1 runs at 16/8=2MHz, Timer 0 at 16/64=0.25MHz. ==> 2/0.25=8.
+      eISR_Rate = ADV_RATE(timer, step_loops);
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
@@ -633,7 +653,7 @@ void Stepper::isr() {
 
     // step_rate to timer interval
     uint16_t timer = calc_timer(step_rate);
-    OCR1A = timer;
+    _NEXT_ISR(timer);
     deceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -668,7 +688,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = ADV_RATE(timer, step_loops);
     #endif
   }
   else {
@@ -678,35 +698,37 @@ void Stepper::isr() {
       if (current_block->use_advance_lead)
         current_estep_rate[TOOL_E_INDEX] = final_estep_rate;
 
-      eISR_Rate = (OCR1A_nominal >> 3) * step_loops_nominal / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = ADV_RATE(OCR1A_nominal, step_loops_nominal);
 
     #endif
 
-    OCR1A = OCR1A_nominal;
+    _NEXT_ISR(OCR1A_nominal);
     // ensure we're running at the correct step rate, even if we just came off an acceleration
     step_loops = step_loops_nominal;
   }
 
-  NOLESS(OCR1A, TCNT1 + 16);
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    NOLESS(OCR1A, TCNT1 + 16);
+  #endif
 
   // If current block is finished, reset pointer
   if (all_steps_done) {
     current_block = NULL;
     planner.discard_current_block();
   }
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    _ENABLE_ISRs(); // re-enable ISRs
+  #endif
 }
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
   // Timer interrupt for E. e_steps is set in the main routine;
-  // Timer 0 is shared with millies
-  ISR(TIMER0_COMPA_vect) { Stepper::advance_isr(); }
 
   void Stepper::advance_isr() {
-
-    old_OCR0A += eISR_Rate;
-    OCR0A = old_OCR0A;
-
+    
+    nextAdvanceISR = eISR_Rate;
+    
     #define SET_E_STEP_DIR(INDEX) \
       if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
 
@@ -768,6 +790,46 @@ void Stepper::isr() {
       #endif
     }
 
+  }
+
+  void Stepper::advance_isr_scheduler() {
+    // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
+    CBI(TIMSK0, OCIE0B); // Temperature ISR
+    DISABLE_STEPPER_DRIVER_INTERRUPT();
+    sei();
+
+    // Run main stepping ISR if flagged
+    if (!nextMainISR) isr();
+
+    // Run Advance stepping ISR if flagged
+    if (!nextAdvanceISR) advance_isr();
+  
+    // Is the next advance ISR scheduled before the next main ISR?
+    if (nextAdvanceISR <= nextMainISR) {
+      // Set up the next interrupt
+      OCR1A = nextAdvanceISR;
+      // New interval for the next main ISR
+      if (nextMainISR) nextMainISR -= nextAdvanceISR;
+      // Will call Stepper::advance_isr on the next interrupt
+      nextAdvanceISR = 0;
+    }
+    else {
+      // The next main ISR comes first
+      OCR1A = nextMainISR;
+      // New interval for the next advance ISR, if any
+      if (nextAdvanceISR && nextAdvanceISR != ADV_NEVER)
+        nextAdvanceISR -= nextMainISR;
+      // Will call Stepper::isr on the next interrupt
+      nextMainISR = 0;
+    }
+  
+    // Don't run the ISR faster than possible
+    NOLESS(OCR1A, TCNT1 + 16);
+
+    // Restore original ISR settings
+    cli();
+    SBI(TIMSK0, OCIE0B);
+    ENABLE_STEPPER_DRIVER_INTERRUPT();
   }
 
 #endif // ADVANCE or LIN_ADVANCE
@@ -956,12 +1018,6 @@ void Stepper::init() {
       #endif
     }
 
-    #if defined(TCCR0A) && defined(WGM01)
-      CBI(TCCR0A, WGM01);
-      CBI(TCCR0A, WGM00);
-    #endif
-    SBI(TIMSK0, OCIE0A);
-
   #endif // ADVANCE or LIN_ADVANCE
 
   endstops.enable(true); // Start with endstops active. After homing they can be disabled
@@ -991,22 +1047,22 @@ void Stepper::set_position(const long &a, const long &b, const long &c, const lo
 
   CRITICAL_SECTION_START;
 
-  #if ENABLED(COREXY)
+  #if CORE_IS_XY
     // corexy positioning
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
     count_position[A_AXIS] = a + b;
-    count_position[B_AXIS] = a - b;
+    count_position[B_AXIS] = CORESIGN(a - b);
     count_position[Z_AXIS] = c;
-  #elif ENABLED(COREXZ)
+  #elif CORE_IS_XZ
     // corexz planning
     count_position[A_AXIS] = a + c;
     count_position[Y_AXIS] = b;
-    count_position[C_AXIS] = a - c;
-  #elif ENABLED(COREYZ)
+    count_position[C_AXIS] = CORESIGN(a - c);
+  #elif CORE_IS_YZ
     // coreyz planning
     count_position[X_AXIS] = a;
     count_position[B_AXIS] = b + c;
-    count_position[C_AXIS] = b - c;
+    count_position[C_AXIS] = CORESIGN(b - c);
   #else
     // default non-h-bot planning
     count_position[X_AXIS] = a;
@@ -1046,16 +1102,17 @@ long Stepper::position(AxisEnum axis) {
  */
 float Stepper::get_axis_position_mm(AxisEnum axis) {
   float axis_steps;
-  #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
+  #if IS_CORE
     // Requesting one of the "core" axes?
     if (axis == CORE_AXIS_1 || axis == CORE_AXIS_2) {
       CRITICAL_SECTION_START;
-      long pos1 = count_position[CORE_AXIS_1],
-           pos2 = count_position[CORE_AXIS_2];
-      CRITICAL_SECTION_END;
       // ((a1+a2)+(a1-a2))/2 -> (a1+a2+a1-a2)/2 -> (a1+a1)/2 -> a1
       // ((a1+a2)-(a1-a2))/2 -> (a1+a2-a1+a2)/2 -> (a2+a2)/2 -> a2
-      axis_steps = (pos1 + ((axis == CORE_AXIS_1) ? pos2 : -pos2)) * 0.5f;
+      axis_steps = 0.5f * (
+        axis == CORE_AXIS_2 ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
+                            : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
+      );
+      CRITICAL_SECTION_END;
     }
     else
       axis_steps = position(axis);
@@ -1076,18 +1133,19 @@ void Stepper::quick_stop() {
   while (planner.blocks_queued()) planner.discard_current_block();
   current_block = NULL;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
+  #if ENABLED(ULTRA_LCD)
+    planner.clear_block_buffer_runtime();
+  #endif
 }
 
 void Stepper::endstop_triggered(AxisEnum axis) {
 
-  #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
+  #if IS_CORE
 
-    float axis_pos = count_position[axis];
-    if (axis == CORE_AXIS_1)
-      axis_pos = (axis_pos + count_position[CORE_AXIS_2]) * 0.5;
-    else if (axis == CORE_AXIS_2)
-      axis_pos = (count_position[CORE_AXIS_1] - axis_pos) * 0.5;
-    endstops_trigsteps[axis] = axis_pos;
+    endstops_trigsteps[axis] = 0.5f * (
+      axis == CORE_AXIS_2 ? CORESIGN(count_position[CORE_AXIS_1] - count_position[CORE_AXIS_2])
+                          : count_position[CORE_AXIS_1] + count_position[CORE_AXIS_2]
+    );
 
   #else // !COREXY && !COREXZ && !COREYZ
 
@@ -1105,21 +1163,21 @@ void Stepper::report_positions() {
        zpos = count_position[Z_AXIS];
   CRITICAL_SECTION_END;
 
-  #if ENABLED(COREXY) || ENABLED(COREXZ) || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_XZ || IS_SCARA
     SERIAL_PROTOCOLPGM(MSG_COUNT_A);
   #else
     SERIAL_PROTOCOLPGM(MSG_COUNT_X);
   #endif
   SERIAL_PROTOCOL(xpos);
 
-  #if ENABLED(COREXY) || ENABLED(COREYZ) || IS_SCARA
+  #if CORE_IS_XY || CORE_IS_YZ || IS_SCARA
     SERIAL_PROTOCOLPGM(" B:");
   #else
     SERIAL_PROTOCOLPGM(" Y:");
   #endif
   SERIAL_PROTOCOL(ypos);
 
-  #if ENABLED(COREXZ) || ENABLED(COREYZ)
+  #if CORE_IS_XZ || CORE_IS_YZ
     SERIAL_PROTOCOLPGM(" C:");
   #else
     SERIAL_PROTOCOLPGM(" Z:");

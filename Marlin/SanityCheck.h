@@ -27,11 +27,10 @@
  */
 
 /**
- * Due to the high number of issues related with old versions of Arduino IDE
- * we now prevent Marlin from compiling with older toolkits.
+ * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
  */
-#if !defined(ARDUINO) || ARDUINO < 10608
-  #error "Versions of Arduino IDE prior to 1.6.8 are no longer supported, please update your toolkit."
+#if __cplusplus < 201103L
+  #error "Marlin requires C++11 support (gcc >= 4.7, Arduino IDE >= 1.6.8). Please upgrade your toolchain."
 #endif
 
 /**
@@ -57,8 +56,8 @@
   #error "Thermal Runaway Protection for hotends is now enabled with THERMAL_PROTECTION_HOTENDS."
 #elif DISABLED(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
   #error "Thermal Runaway Protection for the bed is now enabled with THERMAL_PROTECTION_BED."
-#elif ENABLED(COREXZ) && ENABLED(Z_LATE_ENABLE)
-  #error "Z_LATE_ENABLE can't be used with COREXZ."
+#elif (CORE_IS_XZ || CORE_IS_YZ) && ENABLED(Z_LATE_ENABLE)
+  #error "Z_LATE_ENABLE can't be used with COREXZ, COREZX, COREYZ, or COREZY."
 #elif defined(X_HOME_RETRACT_MM)
   #error "[XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM."
 #elif defined(SDCARDDETECTINVERTED)
@@ -142,7 +141,9 @@
 #elif defined(AUTO_BED_LEVELING_FEATURE)
   #error "AUTO_BED_LEVELING_FEATURE is deprecated. Specify AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_3POINT."
 #elif defined(ABL_GRID_POINTS)
-  #error "ABL_GRID_POINTS is now ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y. Please update your configuration."
+  #error "ABL_GRID_POINTS is now ABL_GRID_MAX_POINTS_X and ABL_GRID_MAX_POINTS_Y. Please update your configuration."
+#elif defined(ABL_GRID_POINTS_X) || defined(ABL_GRID_POINTS_Y)
+  #error "ABL_GRID_POINTS_[XY] is now ABL_GRID_MAX_POINTS_[XY]. Please update your configuration."
 #elif defined(BEEPER)
   #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECT)
@@ -212,10 +213,10 @@
     #error "You probably want to use Max Endstops for DELTA!"
   #endif
   #if ABL_GRID
-    #if (ABL_GRID_POINTS_X & 1) == 0 || (ABL_GRID_POINTS_Y & 1) == 0
-      #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be odd numbers."
-    #elif ABL_GRID_POINTS_X < 3
-      #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be 3 or higher."
+    #if (ABL_GRID_MAX_POINTS_X & 1) == 0 || (ABL_GRID_MAX_POINTS_Y & 1) == 0
+      #error "DELTA requires ABL_GRID_MAX_POINTS_X and ABL_GRID_MAX_POINTS_Y to be odd numbers."
+    #elif ABL_GRID_MAX_POINTS_X < 3
+      #error "DELTA requires ABL_GRID_MAX_POINTS_X and ABL_GRID_MAX_POINTS_Y to be 3 or higher."
     #endif
   #endif
 #endif
@@ -454,6 +455,8 @@
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires USE_ZMIN_PLUG to be enabled."
     #elif !HAS_Z_MIN
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires the Z_MIN_PIN to be defined."
+    #elif ENABLED(Z_MIN_PROBE_ENDSTOP_INVERTING) != ENABLED(Z_MIN_ENDSTOP_INVERTING)
+      #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires Z_MIN_ENDSTOP_INVERTING to match Z_MIN_PROBE_ENDSTOP_INVERTING."
     #endif
   #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
     #if !HAS_Z_MIN_PROBE_PIN
@@ -644,8 +647,23 @@
 #else
   #define COUNT_KIN_7 COUNT_KIN_6
 #endif
-#if COUNT_KIN_7 > 1
-  #error "Please enable only one of DELTA, MORGAN_SCARA, MAKERARM_SCARA, COREXY, COREXZ, or COREYZ."
+#if ENABLED(COREYX)
+  #define COUNT_KIN_8 INCREMENT(COUNT_KIN_7)
+#else
+  #define COUNT_KIN_8 COUNT_KIN_7
+#endif
+#if ENABLED(COREZX)
+  #define COUNT_KIN_9 INCREMENT(COUNT_KIN_8)
+#else
+  #define COUNT_KIN_9 COUNT_KIN_8
+#endif
+#if ENABLED(COREZY)
+  #define COUNT_KIN_10 INCREMENT(COUNT_KIN_9)
+#else
+  #define COUNT_KIN_10 COUNT_KIN_9
+#endif
+#if COUNT_KIN_10 > 1
+  #error "Please enable only one of DELTA, MORGAN_SCARA, MAKERARM_SCARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, or COREZY."
 #endif
 
 /**
@@ -662,8 +680,8 @@
 #if ENABLED(DUAL_X_CARRIAGE)
   #if EXTRUDERS == 1
     #error "DUAL_X_CARRIAGE requires 2 (or more) extruders."
-  #elif ENABLED(COREXY) || ENABLED(COREXZ)
-    #error "DUAL_X_CARRIAGE cannot be used with COREXY or COREXZ."
+  #elif CORE_IS_XY || CORE_IS_XZ
+    #error "DUAL_X_CARRIAGE cannot be used with COREXY, COREYX, COREXZ, or COREZX."
   #elif !HAS_X2_ENABLE || !HAS_X2_STEP || !HAS_X2_DIR
     #error "DUAL_X_CARRIAGE requires X2 stepper pins to be defined."
   #elif !HAS_X_MAX
@@ -867,6 +885,17 @@
     #error "G38_PROBE_TARGET requires a bed probe."
   #elif !IS_CARTESIAN
     #error "G38_PROBE_TARGET requires a Cartesian machine."
+  #endif
+#endif
+
+/**
+ * RGB_LED Requirements
+ */
+#if ENABLED(RGB_LED)
+  #if !(PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B))
+    #error "RGB_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, and RGB_LED_B_PIN."
+  #elif ENABLED(BLINKM)
+    #error "RGB_LED and BLINKM are currently incompatible (both use M150)."
   #endif
 #endif
 
