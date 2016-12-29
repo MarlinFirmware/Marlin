@@ -76,6 +76,8 @@
 //
 // Heaters / Fans
 //
+#undef RAMPS_D10_PIN
+#undef MOSFET_D_PIN
 #define RAMPS_D10_PIN       9 // EXTRUDER 1
 #define MOSFET_D_PIN       12 // EXTRUDER 2 or FAN
 
