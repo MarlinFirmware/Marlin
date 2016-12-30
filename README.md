@@ -18,6 +18,7 @@ The latest Release Candidate lives in the ["RC" branch](https://github.com/Marli
 
 ## Recent Changes
 - RCBugFix
+  - DHT Sensor support
 
 - RC8 - 06 Dec 2016
   - Major performance improvement for Graphical LCDs
