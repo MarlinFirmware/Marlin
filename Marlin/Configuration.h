@@ -1460,4 +1460,42 @@
   //#define FILAMENT_LCD_DISPLAY
 #endif
 
+/** 
+  //===========================================================================
+  //========================== RGB LED Strip Control ==========================
+  //===========================================================================
+ * 
+ * 
+ * This feature is to control an RGB LED Strip with the PWM pins on the Arduino
+ * Pins 4, 5, 6. (SERVO4, SERVO3, SERVO2)
+ * 
+ * *** CAUTION ***
+ * Requires MOFSET Chip between PWM lines and LED's as the arduino cannot
+ * handle the current the LED's will require - Not doing this will destroy
+ * your arduino
+ * *** CAUTION ***
+ *  
+ * */
+//#define RGB_STRIP
+#if ENABLED(RGB_STRIP)
+  #define RGB_LED_R_PIN 4
+  #define RGB_LED_G_PIN 5
+  #define RGB_LED_B_PIN 6
+#endif
+
+/**
+  //===========================================================================
+  //=========================== Printer Event LEDs ============================
+  //===========================================================================
+ *  When printing, the LEDs will display printer status
+ *  - LEDs will gradually change from blue to violet as the heated bed gets to target temp
+ *  - LEDs will gradually change from violet to red as the hotend gets to temperature
+ *  - LEDs will change to white to illuminate work surface
+ *  - LEDs will change to green once print has finished
+ *  - LEDs will turn off after the print has finished and the user has pushed a button 
+ * */
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+  #define PRINTER_EVENT_LEDS
+#endif //ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+
 #endif // CONFIGURATION_H
