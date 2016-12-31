@@ -45,7 +45,7 @@
         lcd_update();
         set_rgb_color(0, 255, 0);  // Turn RGB LEDs to GREEN
         wait_for_user = true;
-        byte wait_for_user_timeout;
+        int wait_for_user_timeout;
 
         #if ENABLED(ULTRA_LCD)
           wait_for_user_timeout = 0;
@@ -53,7 +53,7 @@
            lcd_update();
            safe_delay(100);
            wait_for_user_timeout ++;
-           if (wait_for_user_timeout >= wait_to_reset) break;
+           if (wait_for_user_timeout >= RGB_reset_time) break;
           } while (wait_for_user);
         #endif // ULTRA_LCD
 
@@ -63,7 +63,7 @@
            lcd_update();
            safe_delay(100);
            wait_for_user_timeout ++;
-           if (wait_for_user_timeout >= wait_to_reset) break; //
+           if (wait_for_user_timeout >= RGB_reset_time) break;
           } while (wait_for_user);
         #endif // DOGLCD
 
