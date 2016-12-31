@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -692,6 +692,28 @@
                                               // or until outcoming filament color is not clear for filament color change
   #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
 #endif
+
+/** 
+  //=========================================================================
+  //================ DHT11, DHT21 or DHT22 Sensor Readings ==================
+  //=========================================================================
+ * 
+ * This feature is for reading the ambient temperature and humidity near or
+ * around the printer.
+ *
+ *         *******************************************************
+ *         =========   This will need to be installed!  ==========
+ *         *******************************************************
+ *         DHT Temperature & Humidity Sensor library for Arduino.
+ *         http://www.github.com/markruys/arduino-DHT
+ *         *******************************************************
+ * */
+//#define DHT_ENABLE
+#if ENABLED(DHT_ENABLE)
+    #define DHT_TYPE 22     //DHT type 11, 21, or 22
+    #define DHT_PIN A3      //Set pin for the DHT sensor. Default = A3 (AUX1 connector pin3 (outside row))
+
+#endif //DHT_ENABLE
 
 /******************************************************************************\
  * enable this section if you have TMC26X motor drivers.
