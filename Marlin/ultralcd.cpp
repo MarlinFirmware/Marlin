@@ -2409,8 +2409,8 @@ KeepDrawing:
           DHT dht;
           dht.setup(DHT_PIN, DHT_TYPE);
           safe_delay(1800);
-          DHT_temperature = (dht.getTemperature());
-          DHT_humidity = (dht.getHumidity());
+          DHT_temperature = dht.getTemperature();
+          DHT_humidity = dht.getHumidity();
           DHT_done = true;
         }
         START_SCREEN();
