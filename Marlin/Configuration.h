@@ -1475,7 +1475,7 @@
  *         http://www.github.com/markruys/arduino-DHT
  *         *******************************************************
  * */
-#define DHT_ENABLE
+//#define DHT_ENABLE
 #if ENABLED(DHT_ENABLE)
     #define DHT_TYPE 22     //DHT type 11, 21, or 22
     #define DHT_PIN A3      //Set pin for the DHT sensor. Default = A3 (AUX1 connector pin3 (outside row))
