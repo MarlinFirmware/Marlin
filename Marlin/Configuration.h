@@ -751,7 +751,6 @@
   #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
   #define MESH_NUM_Y_POINTS 3
   #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
-  //#define STORE_MBL            // Store the mesh to eprom when done. 
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
 
@@ -759,6 +758,7 @@
 
   #if ENABLED(MANUAL_BED_LEVELING)
     #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
+    //#define STORE_MBL            // Auto-save the mesh to eprom when done.
   #endif  // MANUAL_BED_LEVELING
 
   // Gradually reduce leveling correction until a set height is reached,
