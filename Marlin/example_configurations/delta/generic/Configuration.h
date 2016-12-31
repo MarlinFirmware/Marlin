@@ -1567,7 +1567,7 @@
   #define RGB_LED_R_PIN 4
   #define RGB_LED_G_PIN 5
   #define RGB_LED_B_PIN 6
-  #define RGB_reset_time 600   // Set time for RGB_Strip to turn off. (600 = 60 secs.)
+  #define RGB_reset_time 60   // Set time for RGB_Strip to turn off. (60 = 60 secs.)
 #endif
 
 /**
