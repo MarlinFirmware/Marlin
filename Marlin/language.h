@@ -153,7 +153,7 @@
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
-#define MSG_ERR_M355_NONE                   "No case light"
+#define MSG_ERR_M355_NONE                   "**No case light**"
 #define MSG_ERR_M421_PARAMETERS             "M421 required parameters missing"
 #define MSG_ERR_MESH_XY                     "Mesh point cannot be resolved"
 #define MSG_ERR_ARC_ARGS                    "G2/G3 bad parameters"
