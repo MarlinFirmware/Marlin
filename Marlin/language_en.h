@@ -465,6 +465,12 @@
 #ifndef MSG_DHT_WARMING
   #define MSG_DHT_WARMING                     _UxGT("Sensor Warming...")
 #endif
+#ifndef MSG_DHT_TEMP
+  #define MSG_DHT_TEMP                        _UxGT("    Temp (C): ")
+#endif
+#ifndef MSG_DHT_HUMIDITY
+  #define MSG_DHT_HUMIDITY                    _UxGT("    Humidity: ")
+#endif
 #ifndef MSG_HEATING_COMPLETE
   #define MSG_HEATING_COMPLETE                _UxGT("Heating done.")
 #endif
@@ -489,7 +495,6 @@
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrate Center")
 #endif
-
 #ifndef MSG_INFO_MENU
   #define MSG_INFO_MENU                       _UxGT("About Printer")
 #endif

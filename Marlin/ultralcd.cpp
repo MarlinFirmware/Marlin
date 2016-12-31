@@ -2416,8 +2416,8 @@ KeepDrawing:
         START_SCREEN();
           STATIC_ITEM("Ambient");                                                    //Ambient
           STATIC_ITEM(MSG_INFO_DHT_MENU);                                            //Temp & Humidity
-          STATIC_ITEM("    Temp (C): ", false, true, itostr3left(DHT_temperature));  //Temp (C): 14
-          STATIC_ITEM("    Humidity: ", false, true, itostr3left(DHT_humidity));     //Humidity: 27
+          STATIC_ITEM(MSG_DHT_TEMP, false, true, itostr3left(DHT_temperature));  //Temp (C): 14
+          STATIC_ITEM(MSG_DHT_HUMIDITY, false, true, itostr3left(DHT_humidity));     //Humidity: 27
         END_SCREEN();
       }
     #endif // DHT_ENABLE
