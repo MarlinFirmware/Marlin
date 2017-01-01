@@ -567,6 +567,10 @@
   #define MESH_MAX_Y (Y_MAX_POS - (MESH_INSET))
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  #define UPDATE_GRID_WITH_PROBE_HEIGHT
+#endif
+
 // @section extras
 
 // Arc interpretation settings:
