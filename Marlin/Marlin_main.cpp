@@ -5458,7 +5458,6 @@ inline void gcode_M105() {
       analogWrite(RGB_LED_R_PIN, r);
       analogWrite(RGB_LED_G_PIN, g);
       analogWrite(RGB_LED_B_PIN, b);
-
     #endif
   }
 #endif
@@ -5563,7 +5562,7 @@ inline void gcode_M109() {
           // Gradually change LED strip from violet to red as extruder heats up
           r = 255;
           g = 0;
-          b = map(temp, 30, theTarget, 255, 0);
+          b = map(temp, 0, theTarget, 255, 0);
           set_led_color(r, g, b);
         }
     #endif
@@ -5698,7 +5697,7 @@ inline void gcode_M109() {
       #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) && ENABLED(PRINTER_EVENT_LEDS)
         if(wait_for_heatup) {
           // Gradually change LED strip from blue to violet as bed heats up
-          r = map(temp, 40, theTarget, 0, 255);
+          r = map(temp, 0, theTarget, 0, 255);
           g = 0;
           b = 255;
           set_led_color(r, g, b);
