@@ -7233,6 +7233,16 @@ inline void gcode_M503() {
     if (code_seen('Z')) {
       float value = code_value_axis_units(Z_AXIS);
       if (Z_PROBE_OFFSET_RANGE_MIN <= value && value <= Z_PROBE_OFFSET_RANGE_MAX) {
+        #if ENABLED(UPDATE_GRID_WITH_PROBE_HEIGHT)
+          float height_difference = (value - zprobe_zoffset);
+          for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
+            for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
+              bed_level_grid[x][y] += height_difference;
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_prepare();
+            bed_level_virt_interpolate();
+          #endif
+        #endif
         zprobe_zoffset = value;
         SERIAL_ECHO(zprobe_zoffset);
       }
