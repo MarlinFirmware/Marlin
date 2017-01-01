@@ -463,7 +463,7 @@
   #define MSG_HEATING                         _UxGT("Heating...")
 #endif
 #ifndef MSG_DHT_WARMING
-  #define MSG_DHT_WARMING                     _UxGT("Sensor Warming...")
+  #define MSG_DHT_WARMING                     _UxGT("Sensor Warming")
 #endif
 #ifndef MSG_DHT_TEMP
   #define MSG_DHT_TEMP                        _UxGT("    Temp (C): ")

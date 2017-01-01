@@ -146,6 +146,7 @@ uint16_t max_display_update_time = 0;
       float DHT_humidity;
       bool DHT_done = false;
       void lcd_info_dht_menu();
+      void lcd_info_dht_wait();
     #endif
     void lcd_info_board_menu();
     void lcd_info_menu();
@@ -2408,7 +2409,7 @@ KeepDrawing:
         {
           DHT dht;
           dht.setup(DHT_PIN, DHT_TYPE);
-          safe_delay(1800);
+          safe_delay(2000);
           DHT_temperature = dht.getTemperature();
           DHT_humidity = dht.getHumidity();
           DHT_done = true;
@@ -2420,6 +2421,13 @@ KeepDrawing:
           STATIC_ITEM(MSG_DHT_HUMIDITY, false, true, itostr3left(DHT_humidity));     //Humidity: 27
         END_SCREEN();
       }
+
+      void lcd_info_dht_wait() {
+        lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 1 : 0, PSTR(MSG_LEVEL_BED_WAITING));
+        lcd_implementation_drawmenu_static(LCD_HEIGHT >= 4 ? 2 : 0, PSTR(MSG_DHT_WARMING));
+        if (lcd_clicked) { lcd_goto_screen(lcd_info_dht_menu); }
+      }
+
     #endif // DHT_ENABLE
 
     /**
@@ -2473,7 +2481,7 @@ KeepDrawing:
       MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, lcd_info_thermistors_menu); // Thermistors >
       #if ENABLED(DHT_ENABLE)
         DHT_done = false;
-        MENU_ITEM(submenu, MSG_INFO_DHT_MENU, lcd_info_dht_menu);              // Temp & Humidity >
+        MENU_ITEM(submenu, MSG_INFO_DHT_MENU, lcd_info_dht_wait);              // Temp & Humidity >
       #endif
       #if ENABLED(PRINTCOUNTER)
         MENU_ITEM(submenu, MSG_INFO_STATS_MENU, lcd_info_stats_menu);          // Printer Statistics >
