@@ -1403,7 +1403,7 @@ KeepDrawing:
     // Cooldown
     //
     bool has_heat = false;
-    HOTEND_LOOP() if (thermalManager.target_temperature[e]) { has_heat = true; break; }
+    HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; }
     #if HAS_TEMP_BED
       if (thermalManager.target_temperature_bed) has_heat = true;
     #endif
