@@ -824,7 +824,13 @@ void Config_ResetDefault() {
     retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
   #endif
 
-  volumetric_enabled = false;
+  volumetric_enabled =
+  #if ENABLED(VOLUMETRIC_DEFAULT_ON)
+    true
+  #else
+    false
+  #endif
+  ;
   for (uint8_t q = 0; q < COUNT(filament_size); q++)
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
 
