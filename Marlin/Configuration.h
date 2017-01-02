@@ -1431,7 +1431,7 @@
 // Volumetric filament diameter support
 // Activate this to use the DEFAULT_NOMINAL_FILAMENT_DIA as the default filament diameter
 // M200 D0 to disable
-#define ENABLE_VOLUMETRIC_FILAMENT_DIAMETER
+//#define ENABLE_VOLUMETRIC_FILAMENT_DIAMETER
 
 /**********************************************************************\
  * Support for a filament diameter sensor
