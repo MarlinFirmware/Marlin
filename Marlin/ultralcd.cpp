@@ -72,7 +72,7 @@ uint16_t max_display_update_time = 0;
 
 #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
   #if ENABLED(PRINTER_EVENT_LEDS)
-    extern void handle_led_print_event(int code);
+    #include "RGB_Strip.h"
   #endif
 #endif
 
@@ -1218,7 +1218,9 @@ void kill_screen(const char* lcd_msg) {
               lcd_buzz(200, 659);
               lcd_buzz(200, 698);
             #endif
-            handle_led_print_event(9); // Turn RGB LEDs off
+            #if ENABLED(PRINTER_EVENT_LEDS)
+              handle_led_print_event(9); // Turn RGB LEDs off
+            #endif
           }
           else {
             lcd_goto_screen(_lcd_level_goto_next_point);
@@ -1281,7 +1283,9 @@ KeepDrawing:
     void _lcd_level_bed_homing_done() {
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING));
       if (lcd_clicked) {
-        handle_led_print_event(1);  // Set RGB leds to white
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(1);  // Set RGB leds to white
+        #endif
         _lcd_level_bed_position = 0;
         current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
           #if Z_HOME_DIR > 0
