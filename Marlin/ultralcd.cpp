@@ -1297,8 +1297,6 @@ KeepDrawing:
           LCDVIEW_CALL_NO_REDRAW
         #endif
       ;
-      if (no_reentrance) return;
-      //lcd_wait_for_homing();   //Let's not go there.
       if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])  //added from RC
       lcd_goto_screen(_lcd_level_bed_homing_done);
     }
