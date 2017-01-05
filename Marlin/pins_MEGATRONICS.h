@@ -120,3 +120,14 @@
   #define SD_DETECT_PIN   -1   // RAMPS doesn't use this
 
 #endif // ULTRA_LCD && NEWPANEL
+
+
+// added 1 DEC
+#define SPINDLE_SPEED_PIN      3
+#define SPINDLE_ENABLE_PIN     4  // should have a pullup resistor on this pin
+#define SPINDLE_DIR_PIN       11
+
+// misc
+#if !PIN_EXISTS(CASE_LIGHT)
+  #define CASE_LIGHT_PIN       2
+#endif

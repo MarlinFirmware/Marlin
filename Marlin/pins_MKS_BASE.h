@@ -36,4 +36,31 @@
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
 
+#if !PIN_EXISTS(CASE_LIGHT)         // doesn't already exist so OK to change the definition coming
+  #define OK_TO_CHANGE_CASE_LIGHT   // in from from the include file
+#endif
+
 #include "pins_RAMPS.h"
+
+// added 1 DEC
+#undef  SPINDLE_SPEED_PIN      //definitions in pins_ramps.h are not valid with this board
+#undef  SPINDLE_ENABLE_PIN
+#undef  SPINDLE_DIR_PIN
+
+#if ENABLED(SPINDLE_ENABLE)  // use max endstops
+  #undef  X_MAX_PIN
+  #undef  Y_MAX_PIN
+  #undef  Z_MAX_PIN
+  #define SPINDLE_SPEED_PIN      2
+  #define SPINDLE_ENABLE_PIN    15  // should have a pullup resistor on this pin
+  #define SPINDLE_DIR_PIN       19
+#endif
+
+// misc
+#if ENABLED(OK_TO_CHANGE_CASE_LIGHT)
+  #undef CASE_LIGHT_PIN     // needs a hardware PWM
+  #if !ENABLED(SPINDLE_ENABLE)  // use max endstops
+    #undef  X_MAX_PIN
+    #define CASE_LIGHT_PIN         2
+  #endif
+#endif

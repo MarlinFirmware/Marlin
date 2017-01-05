@@ -94,4 +94,22 @@
   #undef Z_MAX_PIN
   #define Z_MIN_PIN       19 // IND_S_5V
   #define Z_MAX_PIN       18 // Z-MIN Label
+
+// added 9 NOV 2016
+
+// spindle control M3, M4 & M5 commands
+
+#undef  SPINDLE_SPEED_PIN     //definitions in pins_ramps.h are not valid with this board
+#undef  SPINDLE_ENABLE_PIN
+#undef  SPINDLE_DIR_PIN
+
+#if ENABLED(SPINDLE_ENABLE)       // use the AUX_2 connector
+  #define SPINDLE_ENABLE_PIN 40     // should have a pull up/down on it
+  #define SPINDLE_SPEED_PIN  44     // MUST BE A HARDWARE PWM
+  #define SPINDLE_DIR_PIN    42
+#endif
+
+// misc
+#if !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_ENABLE_PIN)   // use the AUX_2 connector
+  #define CASE_LIGHT_PIN   44     // MUST BE A HARDWARE PWM
 #endif

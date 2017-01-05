@@ -41,6 +41,17 @@
  *
  */
 
+/**
+ * Rev B  2 JAN 2017
+ *
+ *  Added pin definitions for:
+ *    M3, M4 & M5 spindle control commands
+ *    case light
+ *
+ *  Corrected pin assignment for MOSFET_B_PIN pin. Changed it from 9 to 11.  The port
+ *  number (B5) agrees with the schematic but B5 is assigned to logical pin 11.
+ */
+
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
   #error "Oops! Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
@@ -137,7 +148,7 @@
 // With no heated bed, an additional 24V fan is possible.
 //
 #define MOSFET_A_PIN     6 // H3
-#define MOSFET_B_PIN     9 // B5
+#define MOSFET_B_PIN    11 // B5 - Rev A of this file had this pin assigned to 9
 #define MOSFET_C_PIN    45 // L4
 #define MOSFET_D_PIN    44 // L5
 
@@ -220,3 +231,19 @@
 #define SDSS                53 // B0
 #define SD_DETECT_PIN       30 // C7
 
+
+
+// Rev B additions
+
+//
+//  M3, M4 & M5 support
+//
+#if ENABLED(SPINDLE_ENABLE)
+  #define SPINDLE_ENABLE_PIN 66 // K4   should be pulled up
+  #define SPINDLE_SPEED_PIN   8 // H5   needs a hardware PWM
+  #define SPINDLE_DIR_PIN    67 // K5
+#endif
+
+#if !PIN_EXISTS(CASE_LIGHT)
+  #define CASE_LIGHT_PIN     44 // L5   needs a hardware PWM
+#endif

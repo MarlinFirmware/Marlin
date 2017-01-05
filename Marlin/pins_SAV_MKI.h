@@ -141,3 +141,18 @@
   #define KILL_PIN           EXT_AUX_A2_IO
   #define HOME_PIN           EXT_AUX_A4_IO
 #endif // SAV_3DLCD || SAV_3DGLCD
+
+
+
+// added 11 DEC 2016
+#if !(ENABLED(SAV_3DLCD) || ENABLED(SAV_3DGLCD))   // try to use the expansion header for spindle control
+
+  #define SPINDLE_SPEED_PIN       24  // 12 AT90USB… pin #
+  #define SPINDLE_ENABLE_PIN      39  // should have a pullup resistor on this pin   41 AT90USB… pin #
+  #define SPINDLE_DIR_PIN         40  // 42 AT90USB… pin #
+
+  // misc
+  #if !PIN_EXISTS(CASE_LIGHT)
+    #define CASE_LIGHT_PIN         0  // 24 AT90USB… pin #
+  #endif
+#endif
