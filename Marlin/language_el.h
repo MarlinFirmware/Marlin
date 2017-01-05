@@ -30,9 +30,6 @@
 #ifndef LANGUAGE_EL_H
 #define LANGUAGE_EL_H
 
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
-
 #define MAPPER_CECF
 #define DISPLAY_CHARSET_ISO10646_GREEK
 
@@ -65,10 +62,6 @@
 #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " όλα"
 #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 " bed" //SHORTEN
 #define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " επιβεβαίωση" //SHORTEN
-#define MSG_H1                              "1"
-#define MSG_H2                              "2"
-#define MSG_H3                              "3"
-#define MSG_H4                              "4"
 #define MSG_COOLDOWN                        "Μειωση θερμοκρασιας"
 #define MSG_SWITCH_PS_ON                    "Ενεργοποίηση"
 #define MSG_SWITCH_PS_OFF                   "Απενεργοποίηση"
@@ -80,20 +73,12 @@
 #define MSG_MOVE_Y                          "Μετακίνηση Y"
 #define MSG_MOVE_Z                          "Μετακίνηση Z"
 #define MSG_MOVE_E                          "Εξωθητήρας"
-#define MSG_MOVE_E1                         "1"
-#define MSG_MOVE_E2                         "2"
-#define MSG_MOVE_E3                         "3"
-#define MSG_MOVE_E4                         "4"
 #define MSG_MOVE_01MM                       "Μετακίνηση 0,1μμ"
 #define MSG_MOVE_1MM                        "Μετακίνηση 1μμ"
 #define MSG_MOVE_10MM                       "Μετακίνηση 10μμ"
 #define MSG_SPEED                           "Ταχύτητα"
 #define MSG_BED_Z                           "Επ. Εκτύπωσης Z"
 #define MSG_NOZZLE                          "Ακροφύσιο"
-#define MSG_N1                              " 1"
-#define MSG_N2                              " 2"
-#define MSG_N3                              " 3"
-#define MSG_N4                              " 4"
 #define MSG_BED                             "Κλίνη"
 #define MSG_FAN_SPEED                       "Ταχύτητα ανεμιστήρα"
 #define MSG_FLOW                            "Ροή"
@@ -108,19 +93,12 @@
 #define MSG_PID_I                           "PID-I"
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
-#define MSG_E1                              " E1"
-#define MSG_E2                              " E2"
-#define MSG_E3                              " E3"
-#define MSG_E4                              " E4"
 #define MSG_ACC                             "Επιτάχυνση"
-#define MSG_VXY_JERK                        "Vαντίδραση xy"
+#define MSG_VX_JERK                         "Vαντίδραση x"
+#define MSG_VY_JERK                         "Vαντίδραση y"
 #define MSG_VZ_JERK                         "Vαντίδραση z"
 #define MSG_VE_JERK                         "Vαντίδραση e"
 #define MSG_VMAX                            "V Μέγιστο"
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "V Ελάχιστο"
 #define MSG_VTRAV_MIN                       "Vελάχ. μετατόπιση"
 #define MSG_AMAX                            "Aμεγ "
@@ -135,10 +113,6 @@
 #define MSG_VOLUMETRIC                      "Νήμα"
 #define MSG_VOLUMETRIC_ENABLED              "Ε σε μμ3"
 #define MSG_FILAMENT_DIAM                   "Διάμετρος νήματος"
-#define MSG_DIAM_E1                         " 1"
-#define MSG_DIAM_E2                         " 2"
-#define MSG_DIAM_E3                         " 3"
-#define MSG_DIAM_E4                         " 4"
 #define MSG_CONTRAST                        "Κοντράστ LCD"
 #define MSG_STORE_EPROM                     "Αποθήκευση"
 #define MSG_LOAD_EPROM                      "Φόρτωση"
@@ -206,7 +180,7 @@
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocol"
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Print Count"
   #define MSG_INFO_COMPLETED_PRINTS         "Completed  "
   #define MSG_INFO_PRINT_TIME               "Total Time "
@@ -224,31 +198,29 @@
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resume print"
 
 #if LCD_HEIGHT >= 4
-  #define MSG_FILAMENT_CHANGE_INIT_1        "Wait for start"
-  #define MSG_FILAMENT_CHANGE_INIT_2        "of the filament"
-  #define MSG_FILAMENT_CHANGE_INIT_3        "change"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1      "Wait for"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_2      "filament unload"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_3      ""
-  #define MSG_FILAMENT_CHANGE_INSERT_1      "Insert filament"
-  #define MSG_FILAMENT_CHANGE_INSERT_2      "and press button"
-  #define MSG_FILAMENT_CHANGE_INSERT_3      "to continue..."
-  #define MSG_FILAMENT_CHANGE_LOAD_1        "Wait for"
-  #define MSG_FILAMENT_CHANGE_LOAD_2        "filament load"
-  #define MSG_FILAMENT_CHANGE_LOAD_3        ""
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     "Wait for"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2     "filament extrude"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3     ""
-  #define MSG_FILAMENT_CHANGE_RESUME_1      "Wait for print"
-  #define MSG_FILAMENT_CHANGE_RESUME_2      "to resume"
-  #define MSG_FILAMENT_CHANGE_RESUME_3      ""
+  // Up to 3 lines allowed
+  #define MSG_FILAMENT_CHANGE_INIT_1          "Wait for start"
+  #define MSG_FILAMENT_CHANGE_INIT_2          "of the filament"
+  #define MSG_FILAMENT_CHANGE_INIT_3          "change"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Wait for"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filament unload"
+  #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert filament"
+  #define MSG_FILAMENT_CHANGE_INSERT_2        "and press button"
+  #define MSG_FILAMENT_CHANGE_INSERT_3        "to continue..."
+  #define MSG_FILAMENT_CHANGE_LOAD_1          "Wait for"
+  #define MSG_FILAMENT_CHANGE_LOAD_2          "filament load"
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Wait for"
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filament extrude"
+  #define MSG_FILAMENT_CHANGE_RESUME_1        "Wait for print"
+  #define MSG_FILAMENT_CHANGE_RESUME_2        "to resume"
 #else // LCD_HEIGHT < 4
-  #define MSG_FILAMENT_CHANGE_INIT_1        "Please wait..."
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1      "Ejecting..."
-  #define MSG_FILAMENT_CHANGE_INSERT_1      "Insert and Click"
-  #define MSG_FILAMENT_CHANGE_LOAD_1        "Loading..."
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     "Extruding..."
-  #define MSG_FILAMENT_CHANGE_RESUME_1      "Resuming..."
+  // Up to 2 lines allowed
+  #define MSG_FILAMENT_CHANGE_INIT_1          "Please wait..."
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Ejecting..."
+  #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert and Click"
+  #define MSG_FILAMENT_CHANGE_LOAD_1          "Loading..."
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extruding..."
+  #define MSG_FILAMENT_CHANGE_RESUME_1        "Resuming..."
 #endif
 
 #endif // LANGUAGE_EL_H

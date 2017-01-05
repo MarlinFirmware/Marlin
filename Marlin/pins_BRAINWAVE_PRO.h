@@ -33,21 +33,32 @@
 
 #include "fastio.h"
 
-#ifndef AT90USBxx_TEENSYPP_ASSIGNMENTS  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin alphabetical.
+#if DISABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS) // use Teensyduino Teensy++2.0 pin assignments instead of Marlin alphabetical.
   #error "Uncomment #define AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h for this config"
 #endif
 
 #define BOARD_NAME         "Brainwave Pro"
 
+#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
+//
+// Limit Switches
+//
 #define X_STOP_PIN         47
 #define Y_STOP_PIN         18
 #define Z_MAX_PIN          36
+
+//
+// Z Probe (when not Z_MIN_PIN)
+//
 #ifndef Z_MIN_PROBE_PIN
   #define Z_MIN_PROBE_PIN  17
 #endif
 
+//
+// Steppers
+//
 #define X_STEP_PIN         33
 #define X_DIR_PIN          32
 #define X_ENABLE_PIN       11
@@ -64,14 +75,23 @@
 #define E0_DIR_PIN         34
 #define E0_ENABLE_PIN      13
 
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          2   // Analog Input
+#define TEMP_1_PIN          1   // Analog Input
+#define TEMP_BED_PIN        0   // Analog Input
+
+//
+// Heaters / Fans
+//
 #define HEATER_0_PIN       15
 #define HEATER_BED_PIN     14  // Bed
 #define FAN_PIN            16  // Fan, PWM
 
-#define TEMP_0_PIN          2  // Extruder / Analog pin numbering
-#define TEMP_1_PIN          1  // Spare / Analog pin numbering
-#define TEMP_BED_PIN        0  // Bed / Analog pin numbering
-
+//
+// Misc. Functions
+//
 #define SDSS               20
-#define LED_PIN            19
 #define SD_DETECT_PIN      12
+#define LED_PIN            19

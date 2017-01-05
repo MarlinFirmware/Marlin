@@ -25,8 +25,15 @@
 
 #include "macros.h"
 
+#include <Wire.h>
+
 // Print debug messages with M111 S2 (Uses 236 bytes of PROGMEM)
 //#define DEBUG_TWIBUS
+
+typedef void (*twiReceiveFunc_t)(int bytes);
+typedef void (*twiRequestFunc_t)();
+
+#define TWIBUS_BUFFER_SIZE 32
 
 /**
  * TWIBUS class
@@ -36,11 +43,11 @@
  * an experimental feature and it's inner workings as well as public facing
  * interface are prune to change in the future.
  *
- * The two main consumers of this class are M155 and M156, where M155 allows
+ * The two main consumers of this class are M260 and M261, where M260 allows
  * Marlin to send a I2C packet to a device (please be aware that no repeated
  * starts are possible), this can be done in caching method by calling multiple
- * times M155 B<byte-1 value in base 10> or a one liner M155, have a look at
- * the gcode_M155() function for more information. M156 allows Marlin to
+ * times M260 B<byte-1 value in base 10> or a one liner M260, have a look at
+ * the gcode_M260() function for more information. M261 allows Marlin to
  * request data from a device, the received data is then relayed into the serial
  * line for host interpretation.
  *
@@ -48,80 +55,174 @@
 class TWIBus {
   private:
     /**
-     * @brief Timeout value in milliseconds
-     * @details For blocking operations this constant value will set the max
-     * amount of time Marlin will keep waiting for a reply. Useful is something
-     * goes wrong on the bus and the SDA/SCL lines are held up by another device.
-     */
-    const int timeout = 5;
-
-    /**
-     * @brief Target device address
-     * @description This stores, until the buffer is flushed, the target device
-     * address, take not we do follow Arduino 7bit addressing.
-     */
-    uint8_t addr = 0;
-
-    /**
      * @brief Number of bytes on buffer
-     * @description This var holds the total number of bytes on our buffer
-     * waiting to be flushed to the bus.
+     * @description Number of bytes in the buffer waiting to be flushed to the bus
      */
     uint8_t buffer_s = 0;
 
     /**
      * @brief Internal buffer
-     * @details This is a fixed buffer, TWI command cannot be longer than this
+     * @details A fixed buffer. TWI commands can be no longer than this.
      */
-    char buffer[30];
+    char buffer[TWIBUS_BUFFER_SIZE];
 
 
   public:
     /**
+     * @brief Target device address
+     * @description The target device address. Persists until changed.
+     */
+    uint8_t addr = 0;
+
+    /**
      * @brief Class constructor
-     * @details Initialized the TWI bus and clears the buffer
+     * @details Initialize the TWI bus and clear the buffer
      */
     TWIBus();
 
     /**
      * @brief Reset the buffer
-     * @details Brings the internal buffer to a known-empty state
+     * @details Set the buffer to a known-empty state
      */
     void reset();
 
     /**
      * @brief Send the buffer data to the bus
-     * @details Flushed the buffer into the bus targeting the cached slave device
-     * address.
+     * @details Flush the buffer to the target address
      */
     void send();
 
     /**
      * @brief Add one byte to the buffer
-     * @details Adds the byte to the buffer in a sequential way, if buffer is full
-     * the request is silently ignored.
+     * @details Add a byte to the end of the buffer.
+     *          Silently fails if the buffer is full.
      *
      * @param c a data byte
      */
-    void addbyte(char c);
+    void addbyte(const char c);
 
     /**
-     * @brief Sets the target slave address
-     * @details The target slave address is stored so it can be later used when
-     * the complete packet needs to be sent over the bus.
+     * @brief Add some bytes to the buffer
+     * @details Add bytes to the end of the buffer.
+     *          Concatenates at the buffer size.
      *
-     * @param addr 7-bit integer address
+     * @param src source data address
+     * @param bytes the number of bytes to add
      */
-    void address(uint8_t addr);
+    void addbytes(char src[], uint8_t bytes);
 
     /**
-     * @brief Request data from slave device
-     * @details Requests data from a slave device, when the data is received it will
-     * be relayed to the serial line using a parser-friendly formatting.
+     * @brief Add a null-terminated string to the buffer
+     * @details Add bytes to the end of the buffer up to a nul.
+     *          Concatenates at the buffer size.
+     *
+     * @param str source string address
+     */
+    void addstring(char str[]);
+
+    /**
+     * @brief Set the target slave address
+     * @details The target slave address for sending the full packet
+     *
+     * @param adr 7-bit integer address
+     */
+    void address(const uint8_t adr);
+
+    /**
+     * @brief Prefix for echo to serial
+     * @details Echo a label, length, address, and "data:"
      *
      * @param bytes the number of bytes to request
      */
-    void reqbytes(uint8_t bytes);
+    static void echoprefix(uint8_t bytes, const char prefix[], uint8_t adr);
+
+    /**
+     * @brief Echo data on the bus to serial
+     * @details Echo some number of bytes from the bus
+     *          to serial in a parser-friendly format.
+     *
+     * @param bytes the number of bytes to request
+     */
+    static void echodata(uint8_t bytes, const char prefix[], uint8_t adr);
+
+    /**
+     * @brief Echo data in the buffer to serial
+     * @details Echo the entire buffer to serial
+     *          to serial in a parser-friendly format.
+     *
+     * @param bytes the number of bytes to request
+     */
+    void echobuffer(const char prefix[], uint8_t adr);
+
+    /**
+     * @brief Request data from the slave device and wait.
+     * @details Request a number of bytes from a slave device.
+     *          Wait for the data to arrive, and return true
+     *          on success.
+     *
+     * @param bytes the number of bytes to request
+     * @return status of the request: true=success, false=fail
+     */
+    bool request(const uint8_t bytes);
+
+    /**
+     * @brief Capture data from the bus into the buffer.
+     * @details Capture data after a request has succeeded.
+     *
+     * @param bytes the number of bytes to request
+     * @return the number of bytes captured to the buffer
+     */
+    uint8_t capture(char *dst, const uint8_t bytes);
+
+    /**
+     * @brief Flush the i2c bus.
+     * @details Get all bytes on the bus and throw them away.
+     */
+    static void flush();
+
+    /**
+     * @brief Request data from the slave device, echo to serial.
+     * @details Request a number of bytes from a slave device and output
+     *          the returned data to serial in a parser-friendly format.
+     *
+     * @param bytes the number of bytes to request
+     */
+    void relay(const uint8_t bytes);
+
+    #if I2C_SLAVE_ADDRESS > 0
+
+      /**
+       * @brief Register a slave receive handler
+       * @details Set a handler to receive data addressed to us
+       *
+       * @param handler A function to handle receiving bytes
+       */
+      inline void onReceive(const twiReceiveFunc_t handler) { Wire.onReceive(handler); }
+
+      /**
+       * @brief Register a slave request handler
+       * @details Set a handler to send data requested from us
+       *
+       * @param handler A function to handle receiving bytes
+       */
+      inline void onRequest(const twiRequestFunc_t handler) { Wire.onRequest(handler); }
+
+      /**
+       * @brief Default handler to receive
+       * @details Receive bytes sent to our slave address
+       *          and simply echo them to serial.
+       */
+      void receive(uint8_t bytes);
+
+      /**
+       * @brief Send a reply to the bus
+       * @details Send the buffer and clear it.
+       *          If a string is passed, write it into the buffer first.
+       */
+      void reply(char str[]=NULL);
+      inline void reply(const char str[]) { this->reply((char*)str); }
+
+    #endif
 
     #if ENABLED(DEBUG_TWIBUS)
 
@@ -129,7 +230,11 @@ class TWIBus {
        * @brief Prints a debug message
        * @details Prints a simple debug message "TWIBus::function: value"
        */
-      static void debug(const char func[], int32_t val = -1);
+      static void prefix(const char func[]);
+      static void debug(const char func[], uint32_t adr);
+      static void debug(const char func[], char c);
+      static void debug(const char func[], char adr[]);
+      static inline void debug(const char func[], uint8_t v) { debug(func, (uint32_t)v); }
 
     #endif
 };

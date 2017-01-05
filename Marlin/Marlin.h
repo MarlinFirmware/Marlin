@@ -60,35 +60,36 @@
   #include "stopwatch.h"
 #endif
 
-#define SERIAL_CHAR(x) MYSERIAL.write(x)
+extern const char echomagic[] PROGMEM;
+extern const char errormagic[] PROGMEM;
+
+#define SERIAL_CHAR(x) (MYSERIAL.write(x))
 #define SERIAL_EOL SERIAL_CHAR('\n')
 
-#define SERIAL_PROTOCOLCHAR(x) SERIAL_CHAR(x)
-#define SERIAL_PROTOCOL(x) MYSERIAL.print(x)
-#define SERIAL_PROTOCOL_F(x,y) MYSERIAL.print(x,y)
-#define SERIAL_PROTOCOLPGM(x) serialprintPGM(PSTR(x))
-#define SERIAL_PROTOCOLLN(x) do{ MYSERIAL.print(x); SERIAL_EOL; }while(0)
-#define SERIAL_PROTOCOLLNPGM(x) do{ serialprintPGM(PSTR(x "\n")); }while(0)
+#define SERIAL_PROTOCOLCHAR(x)              SERIAL_CHAR(x)
+#define SERIAL_PROTOCOL(x)                  (MYSERIAL.print(x))
+#define SERIAL_PROTOCOL_F(x,y)              (MYSERIAL.print(x,y))
+#define SERIAL_PROTOCOLPGM(x)               (serialprintPGM(PSTR(x)))
+#define SERIAL_PROTOCOLLN(x)                do{ MYSERIAL.print(x); SERIAL_EOL; }while(0)
+#define SERIAL_PROTOCOLLNPGM(x)             (serialprintPGM(PSTR(x "\n")))
+#define SERIAL_PROTOCOLPAIR(name, value)    (serial_echopair_P(PSTR(name),(value)))
+#define SERIAL_PROTOCOLLNPAIR(name, value)  do{ SERIAL_PROTOCOLPAIR(name, value); SERIAL_EOL; }while(0)
 
-#define SERIAL_PROTOCOLPAIR(name, value) SERIAL_ECHOPAIR(name, value)
+#define SERIAL_ECHO_START             (serialprintPGM(echomagic))
+#define SERIAL_ECHO(x)                 SERIAL_PROTOCOL(x)
+#define SERIAL_ECHOPGM(x)              SERIAL_PROTOCOLPGM(x)
+#define SERIAL_ECHOLN(x)               SERIAL_PROTOCOLLN(x)
+#define SERIAL_ECHOLNPGM(x)            SERIAL_PROTOCOLLNPGM(x)
+#define SERIAL_ECHOPAIR(name,value)    SERIAL_PROTOCOLPAIR(name, value)
+#define SERIAL_ECHOLNPAIR(name, value) SERIAL_PROTOCOLLNPAIR(name, value)
 
-extern const char errormagic[] PROGMEM;
-extern const char echomagic[] PROGMEM;
+#define SERIAL_ERROR_START            (serialprintPGM(errormagic))
+#define SERIAL_ERROR(x)                SERIAL_PROTOCOL(x)
+#define SERIAL_ERRORPGM(x)             SERIAL_PROTOCOLPGM(x)
+#define SERIAL_ERRORLN(x)              SERIAL_PROTOCOLLN(x)
+#define SERIAL_ERRORLNPGM(x)           SERIAL_PROTOCOLLNPGM(x)
 
-#define SERIAL_ERROR_START serialprintPGM(errormagic)
-#define SERIAL_ERROR(x) SERIAL_PROTOCOL(x)
-#define SERIAL_ERRORPGM(x) SERIAL_PROTOCOLPGM(x)
-#define SERIAL_ERRORLN(x) SERIAL_PROTOCOLLN(x)
-#define SERIAL_ERRORLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
-
-#define SERIAL_ECHO_START serialprintPGM(echomagic)
-#define SERIAL_ECHO(x) SERIAL_PROTOCOL(x)
-#define SERIAL_ECHOPGM(x) SERIAL_PROTOCOLPGM(x)
-#define SERIAL_ECHOLN(x) SERIAL_PROTOCOLLN(x)
-#define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
-
-#define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
-
+void serial_echopair_P(const char* s_P, const char *v);
 void serial_echopair_P(const char* s_P, char v);
 void serial_echopair_P(const char* s_P, int v);
 void serial_echopair_P(const char* s_P, long v);
@@ -102,11 +103,7 @@ FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_
 
 // Things to write to serial from Program memory. Saves 400 to 2k of RAM.
 FORCE_INLINE void serialprintPGM(const char* str) {
-  char ch;
-  while ((ch = pgm_read_byte(str))) {
-    MYSERIAL.write(ch);
-    str++;
-  }
+  while (char ch = pgm_read_byte(str++)) MYSERIAL.write(ch);
 }
 
 void idle(
@@ -212,6 +209,11 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 
 #endif // !MIXING_EXTRUDER
 
+#if ENABLED(G38_PROBE_TARGET)
+  extern bool G38_move,        // flag to tell the interrupt handler that a G38 command is being run
+              G38_endstop_hit; // flag from the interrupt handler to indicate if the endstop went active
+#endif
+
 /**
  * The axis order in all axis related arrays is X, Y, Z, E
  */
@@ -223,7 +225,6 @@ void disable_all_steppers();
 void FlushSerialRequestResend();
 void ok_to_send();
 
-void reset_bed_level();
 void kill(const char*);
 
 void quickstop_stepper();
@@ -244,8 +245,6 @@ void enqueue_and_echo_command_now(const char* cmd); // enqueue now, only return 
 void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
 void clear_command_queue();
 
-void clamp_to_software_endstops(float target[3]);
-
 extern millis_t previous_cmd_ms;
 inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
@@ -260,27 +259,43 @@ extern int feedrate_percentage;
 
 #define MMM_TO_MMS(MM_M) ((MM_M)/60.0)
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
-#define MMM_SCALED(MM_M) ((MM_M)*feedrate_percentage*0.01)
-#define MMS_SCALED(MM_S) MMM_SCALED(MM_S)
-#define MMM_TO_MMS_SCALED(MM_M) (MMS_SCALED(MMM_TO_MMS(MM_M)))
+#define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
 
 extern bool axis_relative_modes[];
 extern bool volumetric_enabled;
-extern int extruder_multiplier[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
+extern int flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-extern bool axis_known_position[3]; // axis[n].is_known
-extern bool axis_homed[3]; // axis[n].is_homed
+extern bool axis_known_position[XYZ]; // axis[n].is_known
+extern bool axis_homed[XYZ]; // axis[n].is_homed
 extern volatile bool wait_for_heatup;
 
-extern float current_position[NUM_AXIS];
-extern float position_shift[3];
-extern float home_offset[3];
-extern float sw_endstop_min[3];
-extern float sw_endstop_max[3];
+#if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
+  extern volatile bool wait_for_user;
+#endif
 
-#define LOGICAL_POSITION(POS, AXIS) (POS + home_offset[AXIS] + position_shift[AXIS])
-#define RAW_POSITION(POS, AXIS)     (POS - home_offset[AXIS] - position_shift[AXIS])
+extern float current_position[NUM_AXIS];
+extern float position_shift[XYZ];
+extern float home_offset[XYZ];
+
+#if HOTENDS > 1
+  extern float hotend_offset[XYZ][HOTENDS];
+#endif
+
+// Software Endstops
+void update_software_endstops(AxisEnum axis);
+#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+  extern bool soft_endstops_enabled;
+  void clamp_to_software_endstops(float target[XYZ]);
+#else
+  #define soft_endstops_enabled false
+  #define clamp_to_software_endstops(x) NOOP
+#endif
+extern float soft_endstop_min[XYZ];
+extern float soft_endstop_max[XYZ];
+
+#define LOGICAL_POSITION(POS, AXIS) ((POS) + home_offset[AXIS] + position_shift[AXIS])
+#define RAW_POSITION(POS, AXIS)     ((POS) - home_offset[AXIS] - position_shift[AXIS])
 #define LOGICAL_X_POSITION(POS)     LOGICAL_POSITION(POS, X_AXIS)
 #define LOGICAL_Y_POSITION(POS)     LOGICAL_POSITION(POS, Y_AXIS)
 #define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
@@ -295,26 +310,27 @@ int code_value_int();
 float code_value_temp_abs();
 float code_value_temp_diff();
 
+#if IS_KINEMATIC
+  extern float delta[ABC];
+  void inverse_kinematics(const float logical[XYZ]);
+#endif
+
 #if ENABLED(DELTA)
-  extern float delta[3];
-  extern float endstop_adj[3]; // axis[n].endstop_adj
-  extern float delta_radius;
-  extern float delta_diagonal_rod;
-  extern float delta_segments_per_second;
-  extern float delta_diagonal_rod_trim_tower_1;
-  extern float delta_diagonal_rod_trim_tower_2;
-  extern float delta_diagonal_rod_trim_tower_3;
-  void inverse_kinematics(const float cartesian[3]);
+  extern float endstop_adj[ABC],
+               delta_radius,
+               delta_diagonal_rod,
+               delta_segments_per_second,
+               delta_diagonal_rod_trim_tower_1,
+               delta_diagonal_rod_trim_tower_2,
+               delta_diagonal_rod_trim_tower_3;
   void recalc_delta_settings(float radius, float diagonal_rod);
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    extern int delta_grid_spacing[2];
-    void adjust_delta(float cartesian[3]);
-  #endif
-#elif ENABLED(SCARA)
-  extern float delta[3];
-  extern float axis_scaling[3];  // Build size scaling
-  void inverse_kinematics(const float cartesian[3]);
-  void forward_kinematics_SCARA(float f_scara[3]);
+#elif IS_SCARA
+  void forward_kinematics_SCARA(const float &a, const float &b);
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+  extern int bilinear_grid_spacing[2];
+  float bilinear_z_offset(float logical[XYZ]);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -339,12 +355,12 @@ float code_value_temp_diff();
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-  extern float filament_width_nominal;  //holds the theoretical filament diameter i.e., 3.00 or 1.75
-  extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
-  extern float filament_width_meas; //holds the filament diameter as accurately measured
-  extern int8_t measurement_delay[];  //ring buffer to delay measurement
-  extern int filwidth_delay_index1, filwidth_delay_index2;  //ring buffer index. used by planner, temperature, and main code
-  extern int meas_delay_cm; //delay distance
+  extern bool filament_sensor;         // Flag that filament sensor readings should control extrusion
+  extern float filament_width_nominal, // Theoretical filament diameter i.e., 3.00 or 1.75
+               filament_width_meas;    // Measured filament diameter
+  extern int8_t measurement_delay[];   // Ring buffer to delay measurement
+  extern int filwidth_delay_index[2];  // Ring buffer indexes. Used by planner, temperature, and main code
+  extern int meas_delay_cm;            // Delay distance
 #endif
 
 #if ENABLED(FILAMENT_CHANGE_FEATURE)
@@ -382,17 +398,12 @@ extern uint8_t active_extruder;
 
 void calculate_volumetric_multipliers();
 
-// Buzzer
-#if HAS_BUZZER && PIN_EXISTS(BEEPER)
-  #include "buzzer.h"
-#endif
-
 /**
  * Blocking movement and shorthand functions
  */
-inline void do_blocking_move_to(float x, float y, float z, float fr_mm_m=0.0);
-inline void do_blocking_move_to_x(float x, float fr_mm_m=0.0);
-inline void do_blocking_move_to_z(float z, float fr_mm_m=0.0);
-inline void do_blocking_move_to_xy(float x, float y, float fr_mm_m=0.0);
+void do_blocking_move_to(const float &x, const float &y, const float &z, const float &fr_mm_s=0.0);
+void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
+void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
+void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
 
 #endif //MARLIN_H

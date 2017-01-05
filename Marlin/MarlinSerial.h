@@ -127,47 +127,47 @@ class MarlinSerial { //: public Stream
 
   public:
     MarlinSerial();
-    void begin(long);
-    void end();
-    int peek(void);
-    int read(void);
-    void flush(void);
-    uint8_t available(void);
-    void checkRx(void);
-    void write(uint8_t c);
+    static void begin(long);
+    static void end();
+    static int peek(void);
+    static int read(void);
+    static void flush(void);
+    static uint8_t available(void);
+    static void checkRx(void);
+    static void write(uint8_t c);
     #if TX_BUFFER_SIZE > 0
-      uint8_t availableForWrite(void);
-      void flushTX(void);
+      static uint8_t availableForWrite(void);
+      static void flushTX(void);
     #endif
 
   private:
-    void printNumber(unsigned long, uint8_t);
-    void printFloat(double, uint8_t);
+    static void printNumber(unsigned long, uint8_t);
+    static void printFloat(double, uint8_t);
 
   public:
-    FORCE_INLINE void write(const char* str) { while (*str) write(*str++); }
-    FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
-    FORCE_INLINE void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
-    FORCE_INLINE void print(const char* str) { write(str); }
+    static FORCE_INLINE void write(const char* str) { while (*str) write(*str++); }
+    static FORCE_INLINE void write(const uint8_t* buffer, size_t size) { while (size--) write(*buffer++); }
+    static FORCE_INLINE void print(const String& s) { for (int i = 0; i < (int)s.length(); i++) write(s[i]); }
+    static FORCE_INLINE void print(const char* str) { write(str); }
 
-    void print(char, int = BYTE);
-    void print(unsigned char, int = BYTE);
-    void print(int, int = DEC);
-    void print(unsigned int, int = DEC);
-    void print(long, int = DEC);
-    void print(unsigned long, int = DEC);
-    void print(double, int = 2);
+    static void print(char, int = BYTE);
+    static void print(unsigned char, int = BYTE);
+    static void print(int, int = DEC);
+    static void print(unsigned int, int = DEC);
+    static void print(long, int = DEC);
+    static void print(unsigned long, int = DEC);
+    static void print(double, int = 2);
 
-    void println(const String& s);
-    void println(const char[]);
-    void println(char, int = BYTE);
-    void println(unsigned char, int = BYTE);
-    void println(int, int = DEC);
-    void println(unsigned int, int = DEC);
-    void println(long, int = DEC);
-    void println(unsigned long, int = DEC);
-    void println(double, int = 2);
-    void println(void);
+    static void println(const String& s);
+    static void println(const char[]);
+    static void println(char, int = BYTE);
+    static void println(unsigned char, int = BYTE);
+    static void println(int, int = DEC);
+    static void println(unsigned int, int = DEC);
+    static void println(long, int = DEC);
+    static void println(unsigned long, int = DEC);
+    static void println(double, int = 2);
+    static void println(void);
 };
 
 extern MarlinSerial customizedSerial;

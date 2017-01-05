@@ -24,6 +24,9 @@
 #define MACROS_H
 
 #define NUM_AXIS 4
+#define XYZE 4
+#define ABC  3
+#define XYZ  3
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
@@ -32,6 +35,9 @@
   #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
   #define CRITICAL_SECTION_END    SREG = _sreg;
 #endif
+
+// Clock speed factor
+#define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20
 
 // Remove compiler warning on an unused variable
 #define UNUSED(x) (void) (x)
@@ -52,7 +58,8 @@
 #endif
 #define RADIANS(d) ((d)*M_PI/180.0)
 #define DEGREES(r) ((r)*180.0/M_PI)
-#define HYPOT(x,y) sqrt(sq(x)+sq(y))
+#define HYPOT2(x,y) (sq(x)+sq(y))
+#define HYPOT(x,y) sqrt(HYPOT2(x,y))
 
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
@@ -71,17 +78,18 @@
 #define NUMERIC(a) ((a) >= '0' && '9' >= (a))
 #define NUMERIC_SIGNED(a) (NUMERIC(a) || (a) == '-')
 #define COUNT(a) (sizeof(a)/sizeof(*a))
+#define ZERO(a) memset(a,0,sizeof(a))
 
 // Macros for initializing arrays
-#define ARRAY_6(v1, v2, v3, v4, v5, v6, args...) { v1, v2, v3, v4, v5, v6 }
-#define ARRAY_5(v1, v2, v3, v4, v5, args...)     { v1, v2, v3, v4, v5 }
-#define ARRAY_4(v1, v2, v3, v4, args...)         { v1, v2, v3, v4 }
-#define ARRAY_3(v1, v2, v3, args...)             { v1, v2, v3 }
-#define ARRAY_2(v1, v2, args...)                 { v1, v2 }
-#define ARRAY_1(v1, args...)                     { v1 }
+#define ARRAY_6(v1, v2, v3, v4, v5, v6, ...) { v1, v2, v3, v4, v5, v6 }
+#define ARRAY_5(v1, v2, v3, v4, v5, ...)     { v1, v2, v3, v4, v5 }
+#define ARRAY_4(v1, v2, v3, v4, ...)         { v1, v2, v3, v4 }
+#define ARRAY_3(v1, v2, v3, ...)             { v1, v2, v3 }
+#define ARRAY_2(v1, v2, ...)                 { v1, v2 }
+#define ARRAY_1(v1, ...)                     { v1 }
 
-#define _ARRAY_N(N, args...) ARRAY_ ##N(args)
-#define ARRAY_N(N, args...) _ARRAY_N(N, args)
+#define _ARRAY_N(N, ...) ARRAY_ ##N(__VA_ARGS__)
+#define ARRAY_N(N, ...) _ARRAY_N(N, __VA_ARGS__)
 
 // Macros for adding
 #define INC_0 1
@@ -117,5 +125,16 @@
 #define NOOP do{} while(0)
 
 #define CEILING(x,y) (((x) + (y) - 1) / (y))
+
+#define MIN3(a, b, c)    min(min(a, b), c)
+#define MIN4(a, b, c, d) min(min(a, b), min(c, d))
+#define MAX3(a, b, c)    max(max(a, b), c)
+#define MAX4(a, b, c, d) max(max(a, b), max(c, d))
+
+#define UNEAR_ZERO(x) ((x) < 0.000001)
+#define NEAR_ZERO(x) ((x) > -0.000001 && (x) < 0.000001)
+#define NEAR(x,y) NEAR_ZERO((x)-(y))
+
+#define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
 
 #endif //__MACROS_H

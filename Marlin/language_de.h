@@ -31,23 +31,26 @@
 #define LANGUAGE_DE_H
 
 #define MAPPER_C2C3
-// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
-//#define SIMULATE_ROMFONT
 #define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " bereit"
 #define MSG_SD_INSERTED                     "SD-Karte erkannt"
 #define MSG_SD_REMOVED                      "SD-Karte entfernt"
+#define MSG_LCD_ENDSTOPS                    "Endstopp" // Max length 8 characters
 #define MSG_MAIN                            "Hauptmenü"
 #define MSG_AUTOSTART                       "Autostart"
-#define MSG_DISABLE_STEPPERS                "Motoren aus" // M84
+#define MSG_DISABLE_STEPPERS                "Motoren deaktivieren" // M84
 #define MSG_AUTO_HOME                       "Home" // G28
+#define MSG_AUTO_HOME_X                     "Home X"
+#define MSG_AUTO_HOME_Y                     "Home Y"
+#define MSG_AUTO_HOME_Z                     "Home Z"
 #define MSG_LEVEL_BED_HOMING                "Homing XYZ"
 #define MSG_LEVEL_BED_WAITING               "Klick für Start"
+#define MSG_LEVEL_BED_NEXT_POINT            "Nächste Koordinate"
 #define MSG_LEVEL_BED_DONE                  "Fertig"
 #define MSG_LEVEL_BED_CANCEL                "Abbruch"
-#define MSG_SET_HOME_OFFSETS                "Setze Homeoffsets"
-#define MSG_HOME_OFFSETS_APPLIED            "Offsets aktiv"
+#define MSG_SET_HOME_OFFSETS                "Setze Homeversatz"
+#define MSG_HOME_OFFSETS_APPLIED            "Homeversatz aktiv"
 #define MSG_SET_ORIGIN                      "Setze Nullpunkt" //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
 #define MSG_PREHEAT_1                       "Vorwärmen PLA"
 #define MSG_PREHEAT_1_N                     "Vorwärmen PLA "
@@ -69,10 +72,10 @@
 #define MSG_MOVE_X                          "X"
 #define MSG_MOVE_Y                          "Y"
 #define MSG_MOVE_Z                          "Z"
-#define MSG_MOVE_E                          "E"
-#define MSG_MOVE_01MM                       " 0.1 mm"
-#define MSG_MOVE_1MM                        " 1.0 mm"
-#define MSG_MOVE_10MM                       "10.0 mm"
+#define MSG_MOVE_E                          "Extruder "
+#define MSG_MOVE_01MM                       " 0,1 mm"
+#define MSG_MOVE_1MM                        " 1,0 mm"
+#define MSG_MOVE_10MM                       "10,0 mm"
 #define MSG_SPEED                           "Geschw."
 #define MSG_BED_Z                           "Bett Z"
 #define MSG_NOZZLE                          "Düse"
@@ -90,15 +93,13 @@
 #define MSG_PID_I                           "PID I"
 #define MSG_PID_D                           "PID D"
 #define MSG_PID_C                           "PID C"
+#define MSG_SELECT                          "Auswählen"
 #define MSG_ACC                             "A"
-#define MSG_VXY_JERK                        "V XY Jerk"
-#define MSG_VZ_JERK                         "V Z  Jerk"
-#define MSG_VE_JERK                         "V E  Jerk"
+#define MSG_VX_JERK                         "V X Jerk"
+#define MSG_VY_JERK                         "V Y Jerk"
+#define MSG_VZ_JERK                         "V Z Jerk"
+#define MSG_VE_JERK                         "V E Jerk"
 #define MSG_VMAX                            "V max " // space by purpose
-#define MSG_X                               "X"
-#define MSG_Y                               "Y"
-#define MSG_Z                               "Z"
-#define MSG_E                               "E"
 #define MSG_VMIN                            "V min"
 #define MSG_VTRAV_MIN                       "V min Leerfahrt"
 #define MSG_AMAX                            "A max " // space by purpose
@@ -131,7 +132,7 @@
 #define MSG_RESUMING                        "Druckfortsetzung"
 #define MSG_PRINT_ABORTED                   "Druck abgebrochen"
 #define MSG_NO_MOVE                         "Motoren eingeschaltet"
-#define MSG_KILLED                          "KILLED"
+#define MSG_KILLED                          "ABGEBROCHEN"
 #define MSG_STOPPED                         "ANGEHALTEN"
 #define MSG_CONTROL_RETRACT                 "Retract mm"
 #define MSG_CONTROL_RETRACT_SWAP            "Wechs. Retract mm"
@@ -145,13 +146,15 @@
 #define MSG_INIT_SDCARD                     "SD-Karte erkennen"  // Manually initialize the SD-card via user interface
 #define MSG_CNG_SDCARD                      "SD-Karte getauscht" // SD-card changed by user. For machines with no autocarddetect. Both send "M21"
 #define MSG_ZPROBE_OUT                      "Sensor ausserhalb"
+#define MSG_BLTOUCH_SELFTEST                "BLTouch Test"
+#define MSG_BLTOUCH_RESET                   "BLTouch Reset"
 #define MSG_HOME                            "Vorher"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "homen"
-#define MSG_ZPROBE_ZOFFSET                  "Z Offset"
+#define MSG_ZPROBE_ZOFFSET                  "Z Versatz"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
-#define MSG_ENDSTOP_ABORT                   "Endstop-Abbr. ein"
+#define MSG_ENDSTOP_ABORT                   "Endstopp-Abbr. ein"
 #define MSG_HEATING_FAILED_LCD              "HEIZEN FEHLGESCHLAGEN"
 #define MSG_ERR_REDUNDANT_TEMP              "REDUND. TEMPERATURABWEICHUNG"
 #define MSG_THERMAL_RUNAWAY                 LCD_STR_THERMOMETER " NICHT ERREICHT"
@@ -159,9 +162,15 @@
 #define MSG_ERR_MINTEMP                     LCD_STR_THERMOMETER " UNTERSCHRITTEN"
 #define MSG_ERR_MAXTEMP_BED                 "BETT " LCD_STR_THERMOMETER " ÜBERSCHRITTEN"
 #define MSG_ERR_MINTEMP_BED                 "BETT " LCD_STR_THERMOMETER " UNTERSCHRITTEN"
-#define MSG_HEATING                         "Aufheizen..."
-#define MSG_HEATING_COMPLETE                "Aufgeheizt"
-#define MSG_BED_HEATING                     "Bett aufheizen"
+#define MSG_ERR_Z_HOMING                    "G28 Z verboten"
+#define MSG_HALTED                          "DRUCKER STOPP"
+#define MSG_PLEASE_RESET                    "Bitte Resetten"
+#define MSG_SHORT_DAY                       "t" // One character only
+#define MSG_SHORT_HOUR                      "h" // One character only
+#define MSG_SHORT_MINUTE                    "m" // One character only
+#define MSG_HEATING                         "Extr. heizt..."
+#define MSG_HEATING_COMPLETE                "Extr. aufgeheizt"
+#define MSG_BED_HEATING                     "Bett heizt..."
 #define MSG_BED_DONE                        "Bett aufgeheizt"
 #define MSG_DELTA_CALIBRATE                 "Delta kalibrieren"
 #define MSG_DELTA_CALIBRATE_X               "Kalibriere X"
@@ -171,25 +180,35 @@
 
 #define MSG_INFO_MENU                       "Über den Drucker"
 #define MSG_INFO_PRINTER_MENU               "Drucker Info"
-#define MSG_INFO_STATS_MENU                 "Drucker Stats"
+#define MSG_INFO_STATS_MENU                 "Drucker Stat."
 #define MSG_INFO_BOARD_MENU                 "Board Info"
 #define MSG_INFO_THERMISTOR_MENU            "Thermistors"
 #define MSG_INFO_EXTRUDERS                  "Extruders"
 #define MSG_INFO_BAUDRATE                   "Baud"
-#define MSG_INFO_PROTOCOL                   "Protokol"
+#define MSG_INFO_PROTOCOL                   "Protokoll"
+#define MSG_LIGHTS_ON                       "Gehäuse Licht an"
+#define MSG_LIGHTS_OFF                      "Gehäuse Licht aus"
 
-#if LCD_WIDTH > 19
-  #define MSG_INFO_PRINT_COUNT              "Gesamte Drucke   "
-  #define MSG_INFO_COMPLETED_PRINTS         "Beendete Drucke  "
+#if LCD_WIDTH >= 20
+  #define MSG_INFO_PRINT_COUNT              "Gesamte Drucke"
+  #define MSG_INFO_COMPLETED_PRINTS         "Beendete Drucke"
   #define MSG_INFO_PRINT_TIME               "Gesamte Druckzeit"
+  #define MSG_INFO_PRINT_LONGEST            "Längster Druckjob"
+  #define MSG_INFO_PRINT_FILAMENT           "Gesamt Extrudiert"
 #else
-  #define MSG_INFO_PRINT_COUNT              "Prints   "
-  #define MSG_INFO_COMPLETED_PRINTS         "Completed"
-  #define MSG_INFO_PRINT_TIME               "Duration "
+  #define MSG_INFO_PRINT_COUNT              "Drucke"
+  #define MSG_INFO_COMPLETED_PRINTS         "Komplett"
+  #define MSG_INFO_PRINT_TIME               "Gesamt "
+  #define MSG_INFO_PRINT_LONGEST            "Längster"
+  #define MSG_INFO_PRINT_FILAMENT           "Extrud."
 #endif
 #define MSG_INFO_MIN_TEMP                   "Min Temp"
 #define MSG_INFO_MAX_TEMP                   "Max Temp"
 #define MSG_INFO_PSU                        "Stromversorgung"
+
+#define MSG_DRIVE_STRENGTH                  "Motorströme"
+#define MSG_DAC_PERCENT                     "Treiber %"
+#define MSG_DAC_EEPROM_WRITE                "Werte speichern"
 
 #define MSG_FILAMENT_CHANGE_HEADER          "ÄNDERE FILAMENT"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "ÄNDERE OPTIONEN:"
@@ -197,30 +216,32 @@
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Drucke weiter"
 
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Warte auf den"
-  #define MSG_FILAMENT_CHANGE_INIT_2          "Start zum "
-  #define MSG_FILAMENT_CHANGE_INIT_3          "Filament wechsel"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Warte auf das"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_2        "herrausnehmen"
+  #define MSG_FILAMENT_CHANGE_INIT_2          "Start des "
+  #define MSG_FILAMENT_CHANGE_INIT_3          "Filamentwechsels"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Warte auf"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2        "Herausnahme"
   #define MSG_FILAMENT_CHANGE_UNLOAD_3        "des Filaments"
-  #define MSG_FILAMENT_CHANGE_INSERT_1        "Fädel Filament"
-  #define MSG_FILAMENT_CHANGE_INSERT_2        "ein und drücke"
-  #define MSG_FILAMENT_CHANGE_INSERT_3        "den Knopf..."
-  #define MSG_FILAMENT_CHANGE_LOAD_1          "Warte auf das"
-  #define MSG_FILAMENT_CHANGE_LOAD_2          "laden des"
+  #define MSG_FILAMENT_CHANGE_INSERT_1        "Filament einlegen"
+  #define MSG_FILAMENT_CHANGE_INSERT_2        "und Knopf"
+  #define MSG_FILAMENT_CHANGE_INSERT_3        "drücken..."
+  #define MSG_FILAMENT_CHANGE_LOAD_1          "Warte auf"
+  #define MSG_FILAMENT_CHANGE_LOAD_2          "Laden des"
   #define MSG_FILAMENT_CHANGE_LOAD_3          "Filaments"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Warte auf das"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "Extruden des"
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Warte auf"
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "Extrusion des"
   #define MSG_FILAMENT_CHANGE_EXTRUDE_3       "Filaments"
-  #define MSG_FILAMENT_CHANGE_RESUME_1        "Warte auf das"
-  #define MSG_FILAMENT_CHANGE_RESUME_2        "fortfahren des"
+  #define MSG_FILAMENT_CHANGE_RESUME_1        "Warte auf"
+  #define MSG_FILAMENT_CHANGE_RESUME_2        "Fortsetzung des"
   #define MSG_FILAMENT_CHANGE_RESUME_3        "Druckes"
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Bitte warten..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Auswerfen..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Laden und Klick"
   #define MSG_FILAMENT_CHANGE_LOAD_1          "Laden..."
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extruden..."
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extrudieren..."
   #define MSG_FILAMENT_CHANGE_RESUME_1        "Weitermachen..."
 #endif // LCD_HEIGHT < 4
 
