@@ -126,7 +126,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "3D Printer"
+#define CUSTOM_MACHINE_NAME "Prusa I3"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -294,6 +294,7 @@
 //  #define  DEFAULT_Kp 28.36
 //  #define  DEFAULT_Ki 2.83
 //  #define  DEFAULT_Kd 71.09
+
   // Ultimaker
  // #define  DEFAULT_Kp 22.2
  // #define  DEFAULT_Ki 1.08
@@ -474,7 +475,7 @@
 
 // Z Servo Probe, such as an endstop switch on a rotating arm.
 #define Z_ENDSTOP_SERVO_NR 0
-#define Z_SERVO_ANGLES {89,0} // Z Servo Deploy and Stow angles
+#define Z_SERVO_ANGLES {87,0} // Z Servo Deploy and Stow angles
 
 // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
 //#define Z_PROBE_SLED
@@ -508,7 +509,7 @@
 // Speed for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 // Use double touch for probing
-//#define PROBE_DOUBLE_TOUCH
+#define PROBE_DOUBLE_TOUCH
 
 //
 // Allen Key Probe is defined in the Delta example configurations.
@@ -565,7 +566,7 @@
 // Probe Raise options provide clearance for the probe to deploy, stow, and travel.
 //
 #define Z_PROBE_DEPLOY_HEIGHT 8 // Raise to make room for the probe to deploy / stow
-#define Z_PROBE_TRAVEL_HEIGHT 3  // Raise between probing points.
+#define Z_PROBE_TRAVEL_HEIGHT 5  // Raise between probing points.
 
 //
 // For M851 give a range for adjusting the Z probe offset
@@ -752,7 +753,7 @@
 // - If stepper drivers time out, it will need X and Y homing again before Z homing.
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
-//#define Z_SAFE_HOMING
+#define Z_SAFE_HOMING
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
@@ -770,8 +771,8 @@
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.92,79.92,4000,100.49}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {300, 300, 5, 25}    // (mm/sec)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.92,79.92,1600,100.49}  // changed PLA(80.15,80.15,1601.5,100.49)
+#define DEFAULT_MAX_FEEDRATE          {300, 300, 2.5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {3000,2000,25,8000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          2000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
@@ -1002,7 +1003,7 @@
 // SD Card support is disabled by default. If your controller has an SD slot,
 // you must uncomment the following option or it won't work.
 //
-//#define SDSUPPORT
+#define SDSUPPORT
 
 //
 // SD CARD: SPI SPEED
@@ -1050,7 +1051,7 @@
 //
 //  Set this option if CLOCKWISE causes values to DECREASE
 //
-//#define REVERSE_ENCODER_DIRECTION
+#define REVERSE_ENCODER_DIRECTION
 
 //
 // This option reverses the encoder direction for navigating LCD menus.
@@ -1058,7 +1059,7 @@
 //  If CLOCKWISE normally moves DOWN this makes it go UP.
 //  If CLOCKWISE normally moves UP this makes it go DOWN.
 //
-//#define REVERSE_MENU_DIRECTION
+#define REVERSE_MENU_DIRECTION
 
 //
 // Individual Axis Homing
