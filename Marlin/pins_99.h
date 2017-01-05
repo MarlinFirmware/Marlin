@@ -21,35 +21,51 @@
  */
 
 /**
- * Gen7 v1.3 pin assignments
+ * Board 99 pin assignments
  */
 
- /**
- * Rev B    26 DEC 2016
- *
- * added pointer to a current Arduino IDE extension
- *
- */
+#define BOARD_NAME          "99 Unknown"
 
-/**
- * A useable Arduino IDE extension (board manager) can be found at
- * https://github.com/Lauszus/Sanguino
- *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
- * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
- *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the SANGUINO board and then select the CPU.
- *
- */
+//
+// Limit Switches
+//
+#define X_STOP_PIN         16
+#define Y_STOP_PIN         67
+#define Z_STOP_PIN         59
 
-#define BOARD_NAME "Gen7 v1.3"
+//
+// Steppers
+//
+#define X_STEP_PIN          2
+#define X_DIR_PIN           3
+#define X_ENABLE_PIN       -1
 
-#define GEN7_VERSION 13 // v1.3
-#include "pins_GEN7_12.h"
+#define Y_STEP_PIN          5
+#define Y_DIR_PIN           6
+#define Y_ENABLE_PIN       -1
+
+#define Z_STEP_PIN         62
+#define Z_DIR_PIN          63
+#define Z_ENABLE_PIN       -1
+
+#define E0_STEP_PIN        65
+#define E0_DIR_PIN         66
+#define E0_ENABLE_PIN      -1
+
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          6   // Analog Input
+#define TEMP_BED_PIN       10   // Analog Input
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       13
+#define HEATER_BED_PIN      4
+
+//
+// Misc. Functions
+//
+#define SDSS               53
+#define PS_ON_PIN           9

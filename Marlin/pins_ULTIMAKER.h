@@ -24,6 +24,14 @@
  * Ultimaker pin assignments
  */
 
+ /**
+ * Rev B   2 JAN 2017
+ *
+ *  Added pin definitions for:
+ *    M3, M4 & M5 spindle control commands
+ *    case light
+ */
+
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
@@ -146,3 +154,22 @@
   #endif // !NEWPANEL
 
 #endif // ULTRA_LCD
+
+
+// Rev B additions
+
+//
+// M3, M4 & M5 (spindle control) support
+//
+#if ENABLED(SPINDLE_ENABLE)      // use the EXP3 PWM header
+  #define SPINDLE_DIR_PIN    11
+  #define SPINDLE_ENABLE_PIN 10  // should have a pull up
+  #define SPINDLE_SPEED_PIN   9
+#endif
+
+//
+// Case light
+//
+#if !PIN_EXISTS(CASE_LIGHT)
+  #define CASE_LIGHT_PIN      8
+#endif

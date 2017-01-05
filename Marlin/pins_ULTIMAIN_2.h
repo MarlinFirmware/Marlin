@@ -24,6 +24,14 @@
  * Ultiboard v2.0 pin assignments
  */
 
+/**
+ * Rev B   2 JAN 2017
+ *
+ *  Added pin definitions for:
+ *    M3, M4 & M5 spindle control commands
+ *    case light
+ */
+
 #ifndef __AVR_ATmega2560__
   #error "Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
 #endif
@@ -110,3 +118,18 @@
 #define BTN_EN1            40
 #define BTN_EN2            41
 #define BTN_ENC            19
+
+// Rev B additions
+
+//
+// M3, M4 & M5 (spindle control) support
+//
+#if ENABLED(SPINDLE_ENABLE)   // use the LED_PIN for spindle speed control or case light
+  #undef  LED_PIN
+  #define SPINDLE_DIR_PIN    16
+  #define SPINDLE_ENABLE_PIN 17  // should have a pull up
+  #define SPINDLE_SPEED_PIN   8  // must have a pull up
+#elif !PIN_EXISTS(CASE_LIGHT) // Case light
+  #undef  LED_PIN
+  #define CASE_LIGHT_PIN      8
+#endif

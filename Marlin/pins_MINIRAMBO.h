@@ -140,3 +140,15 @@
 
   #endif // NEWPANEL
 #endif // ULTRA_LCD
+
+
+
+#if !ENABLED(ULTRA_LCD) && ENABLED(SPINDLE_ENABLE)   // use P1 connector for spindle pins if there's no LCD
+  #define SPINDLE_ENABLE_PIN    18  // should have a pullup resistor on this pin
+  #define SPINDLE_DIR_PIN       19
+  #define SPINDLE_SPEED_PIN      9
+#endif
+
+#if !PIN_EXISTS(CASE_LIGHT) && !ENABLED(ULTRA_LCD) && !ENABLED(SPINDLE_ENABLE)
+  #define CASE_LIGHT_PIN         9
+#endif
