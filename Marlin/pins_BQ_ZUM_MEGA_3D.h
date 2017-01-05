@@ -46,6 +46,18 @@
 #define ORIG_E2_AUTO_FAN_PIN  6
 #define ORIG_E3_AUTO_FAN_PIN  6
 
+// added 9 NOV 2016
+
+// spindle control M3, M4 & M5 commands
+#define SPINDLE_ENABLE_PIN 40     // should have a pull up/down on it
+#define SPINDLE_SPEED_PIN  44     // MUST BE A HARDWARE PWM
+#define SPINDLE_DIR_PIN    42
+
+// misc
+#define CASE_LIGHT_PIN   44     // MUST BE A HARDWARE PWM
+
+
+
 #include "pins_RAMPS_13.h"
 
 //

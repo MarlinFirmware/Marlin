@@ -43,6 +43,8 @@
 #define RAMPS_D9_PIN 8
 #define MOSFET_D_PIN 12
 
+#define CASE_LIGHT_PIN -1     // needs a hardware PWM but one is not available on expansion header
+
 #include "pins_RAMPS.h"
 
 //
@@ -104,3 +106,62 @@
   #define BEEPER_PIN       33
 
 #endif // ULTRA_LCD && NEWPANEL
+
+
+// added 7 NOV 2016
+/**
+ *  M3, M4, M5 spindle control command support
+ *
+ *  If  you want to control the speed of your spindle then you'll have
+ *  have to sacrifce the Extruder and pull some signals off the Z stepper
+ *  driver socket.
+ *
+ *  The following assumes:
+ *    the Z stepper driver socket is empty
+ *    the extruder driver socket has a driver board plugged into it
+ *    the Z stepper wires are attached the the extruder connector
+ *
+ *  If you want to keep the extruder AND don't have a LCD display then
+ *  you can still control the power on/off and spindle direction.
+ *
+ */
+
+/**
+ *  Where to get the spindle signals
+ *
+ *      stepper signal      socket name       socket name
+ *                                    -------
+ *      SPINDLE_ENABLE_PIN  /ENABLE  O|     |O  VMOT
+ *                          MS1      O|     |O  GND
+ *                          MS2      O|     |O  2B
+ *                          MS3      O|     |O  2A
+ *                          /RESET   O|     |O  1A
+ *                          /SLEEP   O|     |O  1B
+ *      SPINDLE_SPEED_PIN   STEP     O|     |O  VDD
+ *      SPINDLE_DIR_PIN     DIR      O|     |O  GND
+ *                                    -------
+ *
+ *  note - socket names vary from vendor to vendor
+ */
+
+#undef  SPINDLE_SPEED_PIN     //definitions in pins_ramps.h are no good with the 3DRAG board
+#undef  SPINDLE_ENABLE_PIN
+#undef  SPINDLE_DIR_PIN
+
+#if ENABLED(SPINDLE_ENABLE) && (!defined(EXTRUDERS) || EXTRUDERS == 0))
+  #undef  E0_DIR_PIN
+  #undef  E0_ENABLE_PIN
+  #undef  E0_STEP_PIN
+  #undef  Z_DIR_PIN
+  #undef  Z_ENABLE_PIN
+  #undef  Z_STEP_PIN
+  #define Z_DIR_PIN             28
+  #define Z_ENABLE_PIN          24
+  #define Z_STEP_PIN            26
+  #define SPINDLE_SPEED_PIN     46
+  #define SPINDLE_ENABLE_PIN    62  // should have a pullup resistor on this pin
+  #define SPINDLE_DIR_PIN       48
+#elif ENABLED(SPINDLE_ENABLE) && !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL))   // use expansion header if LCD not being used
+  #define SPINDLE_ENABLE_PIN    16  // should have a pull up/down on it
+  #define SPINDLE_DIR_PIN       17
+#endif

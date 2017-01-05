@@ -101,3 +101,13 @@
 #define SDPOWER            48
 #define SDSS               53
 #define LED_PIN            13
+
+// added 7 NOV 2016
+// M3, M4 & M5 commands
+
+#define SPINDLE_ENABLE_PIN 41     // should have a pull up/down on it
+#define SPINDLE_SPEED_PIN  45     // MUST BE A HARDWARE PWM
+#define SPINDLE_DIR_PIN    43
+
+#define CASE_LIGHT_PIN     45     // MUST BE A HARDWARE PWM
+

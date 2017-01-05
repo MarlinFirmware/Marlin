@@ -24,6 +24,33 @@
  * Sanguinololu board pin assignments
  */
 
+/**
+ * Rev B    26 DEC 2016
+ *
+ * 1) added pointer to a current Arduino IDE extension
+ * 2) added support for M3, M4 & M5 spindle control commands
+ * 3) added case light pin definition
+ *
+ */
+
+/**
+ * A useable Arduino IDE extension (board manager) can be found at
+ * https://github.com/Lauszus/Sanguino
+ *
+ * This extension has been tested on Arduino 1.6.12 & 1.8.0
+ *
+ * Here's the JSON path:
+ * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
+ *
+ * When installing select 1.0.2
+ *
+ * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Just use the above JSON URL instead of Sparkfun's JSON.
+ *
+ * Once installed select the Sanguino board and then select the CPU.
+ *
+ */
+
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega1284P__)
   #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
 #endif
@@ -211,3 +238,59 @@
   #define SD_DETECT_PIN         -1
 
 #endif // MAKRPANEL
+
+// added 26 DEC 2016
+
+// spindle control M3, M4 & M5 commands
+#if !MB(AZTEEG_X1) && ENABLED(SPINDLE_ENABLE) && ENABLED(SANGUINOLOLU_V_1_2) && !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL))  // try to use IO Header
+  #define SPINDLE_ENABLE_PIN  10     // should have a pull up/down on it
+  #define SPINDLE_SPEED_PIN    4     // MUST BE A HARDWARE PWM
+  #define SPINDLE_DIR_PIN     11
+#elif  ENABLED(SPINDLE_ENABLE) && !MB(MELZI)  // use X stepper motor socket
+
+/**
+ *  If you want to control the speed of your spindle and have an LCD then
+ *  you'll have to sacrifce the Extruder and pull some signals off
+ *  the X stepper driver socket.
+ *
+ *  The following assumes:
+ *    the X stepper driver socket is empty
+ *    the extruder driver socket has a driver board plugged into it
+ *    the X stepper wires are attached the the extruder connector
+ *
+ */
+
+/**
+ *  Where to get the spindle signals
+ *
+ *      spindle signal      socket name       socket name
+ *                                    -------
+ *                          /ENABLE  O|     |O  VMOT
+ *                          MS1      O|     |O  GND
+ *                          MS2      O|     |O  2B
+ *                          MS3      O|     |O  2A
+ *                          /RESET   O|     |O  1A
+ *                          /SLEEP   O|     |O  1B
+ *      SPINDLE_SPEED_PIN   STEP     O|     |O  VDD
+ *      SPINDLE_ENABLE_PIN  DIR      O|     |O  GND
+ *                                    -------
+ *
+ *  note - socket names vary from vendor to vendor
+ */
+
+
+  #undef  X_DIR_PIN
+  #undef  X_ENABLE_PIN
+  #undef  X_STEP_PIN
+  #define X_DIR_PIN              0
+  #define X_ENABLE_PIN          14
+  #define X_STEP_PIN             1
+  #define SPINDLE_SPEED_PIN     15
+  #define SPINDLE_ENABLE_PIN    21  // should have a pullup resistor on this pin
+  #define SPINDLE_DIR_PIN       -1  // don't have a pin available on the socket for the direction pin
+#endif
+
+// misc
+#if !ENABLED(SPINDLE_ENABLE) && ENABLED(SANGUINOLOLU_V_1_2) && !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL))  // try to use IO Header
+  #define CASE_LIGHT_PIN         4   // needs a hardware PWM  - see if IO Header is available
+#endif

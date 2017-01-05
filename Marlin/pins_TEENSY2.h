@@ -139,3 +139,11 @@
   #define BTN_EN2            39
   #define BTN_ENC            40
 #endif
+
+
+// added 18 DEC 2016
+
+#define SPINDLE_ENABLE_PIN    5 // should have a pull up
+#define SPINDLE_SPEED_PIN     0 // needs a hardware PWM
+#define SPINDLE_DIR_PIN       7
+#define CASE_LIGHT_PIN      1 // needs a hardware PWM

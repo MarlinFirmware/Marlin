@@ -140,3 +140,12 @@
 
   #endif // NEWPANEL
 #endif // ULTRA_LCD
+
+
+
+// use P1 connector for spindle pins 
+#define SPINDLE_ENABLE_PIN    18  // should have a pullup resistor on this pin
+#define SPINDLE_DIR_PIN       19
+#define SPINDLE_SPEED_PIN      9
+
+#define CASE_LIGHT_PIN         9

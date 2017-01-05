@@ -363,3 +363,28 @@
   #endif // NEWPANEL
 
 #endif // ULTRA_LCD
+
+// added 7 NOV 2016
+
+// spindle control M3, M4 & M5 commands
+#if ENABLED(SPINDLE_ENABLE) && !PIN_EXISTS(SPINDLE_ENABLE_PIN)
+  #if !defined(NUM_SERVOS) || NUM_SERVOS == 0                                       // try to use servo connector first
+    #define SPINDLE_ENABLE_PIN   4     // should have a pull up/down on it
+    #define SPINDLE_SPEED_PIN  6     // MUST BE A HARDWARE PWM
+    #define SPINDLE_DIR_PIN    5
+  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \
+      && (ENABLED(PANEL_ONE) || ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(MINIPANEL) || ENABLED(REPRAPWORLD_KEYPAD)))  // try to use AUX 2
+    #define SPINDLE_ENABLE_PIN  40     // should have a pull up/down on it
+    #define SPINDLE_SPEED_PIN 44     // MUST BE A HARDWARE PWM
+    #define SPINDLE_DIR_PIN   65
+  #endif
+#endif
+
+#if !PIN_EXISTS(CASE_LIGHT) && !defined(SPINDLE_ENABLE_PIN)
+  #if !defined(NUM_SERVOS) || NUM_SERVOS == 0                                       // try to use servo connector first
+    #define CASE_LIGHT_PIN   6     // MUST BE A HARDWARE PWM
+  #elif !(ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL) \
+      && (ENABLED(PANEL_ONE) || ENABLED(VIKI2) || ENABLED(miniVIKI) || ENABLED(MINIPANEL) || ENABLED(REPRAPWORLD_KEYPAD)))  // try to use AUX 2
+    #define CASE_LIGHT_PIN   44     // MUST BE A HARDWARE PWM
+  #endif
+#endif
