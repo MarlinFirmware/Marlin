@@ -95,6 +95,8 @@
   #include "pins_AZTEEG_X3.h"
 #elif MB(AZTEEG_X3_PRO)
   #include "pins_AZTEEG_X3_PRO.h"
+#elif MB(ANET_10)
+  #include "pins_ANET_10.h"
 #elif MB(ULTIMAKER)
   #include "pins_ULTIMAKER.h"
 #elif MB(ULTIMAKER_OLD)
@@ -560,3 +562,4 @@
 #endif
 
 #endif //__PINS_H
+

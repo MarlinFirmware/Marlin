@@ -59,6 +59,7 @@
 #define BOARD_MELZI_MAKR3D      66   // Melzi with ATmega1284 (MaKr3d version)
 #define BOARD_AZTEEG_X3         67   // Azteeg X3
 #define BOARD_AZTEEG_X3_PRO     68   // Azteeg X3 Pro
+#define BOARD_ANET_10           69   // Anet 1.0 (Melzi clone)
 #define BOARD_ULTIMAKER         7    // Ultimaker
 #define BOARD_ULTIMAKER_OLD     71   // Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 #define BOARD_ULTIMAIN_2        72   // Ultimainboard 2.x (Uses TEMP_SENSOR 20)

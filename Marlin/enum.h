@@ -170,3 +170,4 @@ enum LCDViewAction {
 #endif
 
 #endif // __ENUM_H__
+
