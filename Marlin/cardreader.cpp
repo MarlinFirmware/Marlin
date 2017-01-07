@@ -24,6 +24,7 @@
 
 #include "ultralcd.h"
 #include "stepper.h"
+#include "temperature.h"
 #include "language.h"
 
 #include "Marlin.h"
@@ -31,12 +32,15 @@
 #if ENABLED(SDSUPPORT)
 
 CardReader::CardReader() {
-  sdprinting = cardOK = saving = logging = false;
   filesize = 0;
   sdpos = 0;
+  sdprinting = false;
+  cardOK = false;
+  saving = false;
+  logging = false;
   workDirDepth = 0;
   file_subcall_ctr = 0;
-  ZERO(workDirParents);
+  memset(workDirParents, 0, sizeof(workDirParents));
 
   autostart_stilltocheck = true; //the SD start is delayed, because otherwise the serial cannot answer fast enough to make contact with the host software.
   autostart_index = 0;
@@ -113,7 +117,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       if (pn0 == DIR_NAME_DELETED || pn0 == '.') continue;
       if (longFilename[0] == '.') continue;
 
-      if (!DIR_IS_FILE_OR_SUBDIR(&p) || (p.attributes & DIR_ATT_HIDDEN)) continue;
+      if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
 
       filenameIsDir = DIR_IS_SUBDIR(&p);
 
@@ -272,12 +276,19 @@ void CardReader::openAndPrintFile(const char *name) {
 }
 
 void CardReader::startFileprint() {
-  if (cardOK) sdprinting = true;
+  if (cardOK)
+    sdprinting = true;
+}
+
+void CardReader::pauseSDPrint() {
+  if (sdprinting) sdprinting = false;
 }
 
 void CardReader::stopSDPrint() {
-  sdprinting = false;
-  if (isFileOpen()) file.close();
+  if (sdprinting) {
+    sdprinting = false;
+    file.close();
+  }
 }
 
 void CardReader::openLogFile(char* name) {
@@ -299,11 +310,8 @@ void CardReader::getAbsFilename(char *t) {
 }
 
 void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
-
   if (!cardOK) return;
-
-  uint8_t doing = 0;
-  if (isFileOpen()) { //replacing current file by new file, or subfile call
+  if (file.isOpen()) { //replacing current file by new file, or subfile call
     if (push_current) {
       if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
         SERIAL_ERROR_START;
@@ -313,39 +321,40 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
         return;
       }
 
-      // Store current filename and position
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPGM("SUBROUTINE CALL target:\"");
+      SERIAL_ECHO(name);
+      SERIAL_ECHOPGM("\" parent:\"");
+
+      //store current filename and position
       getAbsFilename(proc_filenames[file_subcall_ctr]);
 
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("SUBROUTINE CALL target:\"", name);
-      SERIAL_ECHOPAIR("\" parent:\"", proc_filenames[file_subcall_ctr]);
-      SERIAL_ECHOLNPAIR("\" pos", sdpos);
+      SERIAL_ECHO(proc_filenames[file_subcall_ctr]);
+      SERIAL_ECHOPGM("\" pos");
+      SERIAL_ECHOLN(sdpos);
       filespos[file_subcall_ctr] = sdpos;
       file_subcall_ctr++;
     }
     else {
-      doing = 1;
+     SERIAL_ECHO_START;
+     SERIAL_ECHOPGM("Now doing file: ");
+     SERIAL_ECHOLN(name);
     }
+    file.close();
   }
-  else { // Opening fresh file
-    doing = 2;
-    file_subcall_ctr = 0; // Reset procedure depth in case user cancels print while in procedure
-  }
-
-  if (doing) {
+  else { //opening fresh file
+    file_subcall_ctr = 0; //resetting procedure depth in case user cancels print while in procedure
     SERIAL_ECHO_START;
-    SERIAL_ECHOPGM("Now ");
-    SERIAL_ECHO(doing == 1 ? "doing" : "fresh");
-    SERIAL_ECHOLNPAIR(" file: ", name);
+    SERIAL_ECHOPGM("Now fresh file: ");
+    SERIAL_ECHOLN(name);
   }
-
-  stopSDPrint();
+  sdprinting = false;
 
   SdFile myDir;
   curDir = &root;
   char *fname = name;
-  char *dirname_start, *dirname_end;
 
+  char *dirname_start, *dirname_end;
   if (name[0] == '/') {
     dirname_start = &name[1];
     while (dirname_start != NULL) {
@@ -386,7 +395,8 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
     if (file.open(curDir, fname, O_READ)) {
       filesize = file.fileSize();
       SERIAL_PROTOCOLPAIR(MSG_SD_FILE_OPENED, fname);
-      SERIAL_PROTOCOLLNPAIR(MSG_SD_SIZE, filesize);
+      SERIAL_PROTOCOLPAIR(MSG_SD_SIZE, filesize);
+      SERIAL_EOL;
       sdpos = 0;
 
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
@@ -407,7 +417,8 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
     }
     else {
       saving = true;
-      SERIAL_PROTOCOLLNPAIR(MSG_SD_WRITE_TO_FILE, name);
+      SERIAL_PROTOCOLPAIR(MSG_SD_WRITE_TO_FILE, name);
+      SERIAL_EOL;
       lcd_setstatus(fname);
     }
   }
@@ -416,7 +427,8 @@ void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
 void CardReader::removeFile(char* name) {
   if (!cardOK) return;
 
-  stopSDPrint();
+  file.close();
+  sdprinting = false;
 
   SdFile myDir;
   curDir = &root;
@@ -437,7 +449,6 @@ void CardReader::removeFile(char* name) {
         if (!myDir.open(curDir, subdirname, O_READ)) {
           SERIAL_PROTOCOLPAIR("open failed, File: ", subdirname);
           SERIAL_PROTOCOLCHAR('.');
-          SERIAL_EOL;
           return;
         }
         else {
