@@ -697,7 +697,8 @@ void serial_echopair_P(const char* s_P, float v)         { serialprintPGM(s_P); 
 void serial_echopair_P(const char* s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_P(const char* s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
-void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
+//void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool no_move=false);
+void tool_change(const uint8_t tmp_extruder, const float fr_mm_s=0.0, bool move=false);
 static void report_current_position();
 
 #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -7712,7 +7713,8 @@ inline void invalid_extruder_error(const uint8_t &e) {
  * Perform a tool-change, which may result in moving the
  * previous tool out of the way and the new tool into place.
  */
-void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+//void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool no_move/*=false*/) {
+void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool move/*=false*/) {
   #if ENABLED(MIXING_EXTRUDER) && MIXING_VIRTUAL_TOOLS > 1
 
     if (tmp_extruder >= MIXING_VIRTUAL_TOOLS)
@@ -7734,9 +7736,11 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       feedrate_mm_s = fr_mm_s > 0.0 ? (old_feedrate_mm_s = fr_mm_s) : XY_PROBE_FEEDRATE_MM_S;
 
       if (tmp_extruder != active_extruder) {
-        if (!no_move && axis_unhomed_error(true, true, true)) {
+        //if (!no_move && axis_unhomed_error(true, true, true)) {
+        if (move && axis_unhomed_error(true, true, true)) {
           SERIAL_ECHOLNPGM("No move on toolchange");
-          no_move = true;
+          //no_move = true;
+          move=false;
         }
 
         // Save current position to destination, for use later
@@ -7972,7 +7976,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
         SYNC_PLAN_POSITION_KINEMATIC();
 
         // Move to the "old position" (move the extruder into place)
-        if (!no_move && IsRunning()) {
+        //if (!no_move && IsRunning()) {
+        if (move && IsRunning()) {
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) DEBUG_POS("Move back", destination);
           #endif
@@ -7996,7 +8001,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
       active_extruder = tmp_extruder;
 
       UNUSED(fr_mm_s);
-      UNUSED(no_move);
+      //UNUSED(no_move);
+      NUSED(move);
 
     #endif // HOTENDS <= 1
 
@@ -8010,7 +8016,8 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
  * T0-T3: Switch tool, usually switching extruders
  *
  *   F[units/min] Set the movement feedrate
- *   S1           Don't move the tool in XY after change
+ *   //S1           Don't move the tool in XY after change
+ *   S1             Move the tool in XY after change
  */
 inline void gcode_T(uint8_t tmp_extruder) {
 
