@@ -1298,7 +1298,7 @@ KeepDrawing:
         #endif
       ;
       if (no_reentrance) return;
-      lcd_wait_for_homing();
+      //lcd_wait_for_homing();
       lcd_goto_screen(_lcd_level_bed_homing_done);
     }
 
