@@ -86,7 +86,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "Autonomous" //"(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "Paul Begley, BB11DHT" //"(none, default config)" // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 CUSTOM_MACHINE_NAME //WEBSITE_URL         // will be shown during bootup in line 2
@@ -592,7 +592,7 @@
 //  (0,0)
 #define X_PROBE_OFFSET_FROM_EXTRUDER -25 //10  // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 0  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -2 //0   // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER 0//-2 //0   // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 3000 //8000
@@ -667,8 +667,8 @@
  * Example: `M851 Z-5` with a CLEARANCE of 4  =>  9mm from bed to nozzle.
  *     But: `M851 Z+1` with a CLEARANCE of 2  =>  2mm from bed to nozzle.
  */
-#define Z_CLEARANCE_DEPLOY_PROBE   3 // Z_PROBE_DEPLOY_HEIGHT? // 15 //0 // Z Clearance for Deploy/Stow
-#define Z_CLEARANCE_BETWEEN_PROBES 3 // Z_PROBE_TRAVEL_HEIGHT? // 5 // Z Clearance between probe points
+#define Z_CLEARANCE_DEPLOY_PROBE   0 //3 // Z_PROBE_DEPLOY_HEIGHT? // 15 //0 // Z Clearance for Deploy/Stow
+#define Z_CLEARANCE_BETWEEN_PROBES 2 //3 // Z_PROBE_TRAVEL_HEIGHT? // 5 // Z Clearance between probe points
 
 //
 // For M851 give a range for adjusting the Z probe offset
@@ -1377,6 +1377,9 @@
 //=============================================================================
 
 // @section extras
+
+// BigBox Enable Splash Screen
+#define START_BMPHIGH
 
 // Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
 //#define FAST_PWM_FAN

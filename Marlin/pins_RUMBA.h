@@ -80,9 +80,10 @@
 #define E1_DIR_PIN         25
 #define E1_ENABLE_PIN      27
 
-#define E2_STEP_PIN        29
-#define E2_DIR_PIN         28
-#define E2_ENABLE_PIN      39
+// E3D BigBox Dual Z
+//#define E2_STEP_PIN        29
+//#define E2_DIR_PIN         28
+//#define E2_ENABLE_PIN      39
 
 //
 // Temperature Sensors
