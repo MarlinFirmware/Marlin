@@ -1379,7 +1379,7 @@
 // @section extras
 
 // BigBox Enable Splash Screen
-//#define START_BMPHIGH
+#define START_BMPHIGH
 
 // Increase the FAN PWM frequency. Removes the PWM noise but increases heating in the FET/Arduino
 //#define FAST_PWM_FAN

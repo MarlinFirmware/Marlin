@@ -40,7 +40,7 @@
     #define START_BMPWIDTH      128
     #define START_BMPHEIGHT      34
     #define START_BMPBYTEWIDTH   15
-    #define STAR_BMPBYTES      510 // START_BMPWIDTH * START_BMPHEIGHT / 8
+    #define START_BMPBYTES      510 // START_BMPWIDTH * START_BMPHEIGHT / 8
 
     const unsigned char start_bmp[START_BMPBYTES] PROGMEM = {
       0xFF, 0xFF, 0xFF, 0x80, 0x0F, 0xFC, 0x0F, 0x81, 0xF8, 0x0F, 0xFC, 0x00, 0xF8, 0x1E, 0x0F, 
