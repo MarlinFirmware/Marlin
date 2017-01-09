@@ -1660,7 +1660,8 @@ KeepDrawing:
       }
     }
     MENU_BACK(MSG_MOVE_AXIS);
-    if (axis == X_AXIS || axis == Y_AXIS)
+    //if (axis == X_AXIS || axis == Y_AXIS)
+    if (axis == X_AXIS || axis == Y_AXIS || axis==Z_AXIS)   // 20170108 PB added 10mm move on z
       MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
     MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
     MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
@@ -1744,6 +1745,13 @@ KeepDrawing:
       #endif
     #endif
 
+    //20170108 PB added menu option to drop bed to lower position.
+    if (axis_homed[Z_AXIS]) {
+      MENU_ITEM(gcode, "Move Z to 295", PSTR("G1 Z295 F3000"));
+    }
+    else {
+      MENU_ITEM(gcode, "Move Z to 295", PSTR("G28\nG1 Z295 F3000"));
+    }
     END_MENU();
   }
 

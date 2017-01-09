@@ -520,10 +520,10 @@
 // does not respect endstops!
 #define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
+  //#define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
                        //not implemented for deltabots!
   #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
-  #define BABYSTEP_MULTIPLICATOR 1 //faster movements
+  #define BABYSTEP_MULTIPLICATOR 40    //For BigBox 40 = 0.01mm //1 //faster movements
 #endif
 
 // @section extruder
