@@ -32,7 +32,7 @@
  * Please note that using the high-res version takes 402Bytes of PROGMEM.
  */
 
-//#define START_BMPHIGH
+#define START_BMPHIGH
 
 #if ENABLED(SHOW_BOOTSCREEN)
   #if ENABLED(START_BMPHIGH)
