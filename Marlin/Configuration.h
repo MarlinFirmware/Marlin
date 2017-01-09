@@ -819,7 +819,7 @@
 
   // Set the number of grid points per dimension.
   #define ABL_GRID_POINTS_X 3
-  #define ABL_GRID_POINTS_Y ABL_GRID_POINTS_X
+  #define ABL_GRID_POINTS_Y (ABL_GRID_POINTS_X)
 
   // Set the boundaries for probing (where the probe can reach).
   #define LEFT_PROBE_BED_POSITION 15
