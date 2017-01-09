@@ -50,6 +50,10 @@
   #define EXTRUDER_IDX  active_extruder
 #endif
 
+#if ENABLED(PIDTEMP)
+extern int pid_method;
+#endif
+
 class Temperature {
 
   public:

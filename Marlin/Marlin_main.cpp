@@ -6778,6 +6778,7 @@ inline void gcode_M303() {
     bool u = code_seen('U') && code_value_bool();
 
     float temp = code_seen('S') ? code_value_temp_abs() : (e < 0 ? 70.0 : 150.0);
+    pid_method = code_seen('O') ? code_value_int() : 0;  // 0 = Classic PID, 1 = Some Overshoot, 2 = No Overshoot
 
     if (e >= 0 && e < HOTENDS)
       target_extruder = e;

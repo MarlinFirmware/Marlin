@@ -209,6 +209,8 @@
 #define MSG_KU                              " Ku: "
 #define MSG_TU                              " Tu: "
 #define MSG_CLASSIC_PID                     " Classic PID "
+#define MSG_SOME_OVERSHOOT                  " Some overshoot "
+#define MSG_NO_OVERSHOOT                    " No overshoot "
 #define MSG_KP                              " Kp: "
 #define MSG_KI                              " Ki: "
 #define MSG_KD                              " Kd: "

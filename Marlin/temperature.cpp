@@ -86,6 +86,7 @@ uint8_t Temperature::soft_pwm_bed;
       float Temperature::Kc = DEFAULT_Kc;
     #endif
   #endif
+  static int pid_method = 0;
 #endif
 
 #if ENABLED(PIDTEMPBED)
@@ -322,29 +323,25 @@ uint8_t Temperature::soft_pwm[HOTENDS];
                 Tu = ((float)(t_low + t_high) * 0.001);
                 SERIAL_PROTOCOLPAIR(MSG_KU, Ku);
                 SERIAL_PROTOCOLPAIR(MSG_TU, Tu);
-                workKp = 0.6 * Ku;
-                workKi = 2 * workKp / Tu;
-                workKd = workKp * Tu * 0.125;
-                SERIAL_PROTOCOLLNPGM("\n" MSG_CLASSIC_PID);
-                SERIAL_PROTOCOLPAIR(MSG_KP, workKp);
-                SERIAL_PROTOCOLPAIR(MSG_KI, workKi);
-                SERIAL_PROTOCOLLNPAIR(MSG_KD, workKd);
-                /**
-                workKp = 0.33*Ku;
-                workKi = workKp/Tu;
-                workKd = workKp*Tu/3;
-                SERIAL_PROTOCOLLNPGM(" Some overshoot");
-                SERIAL_PROTOCOLPAIR(" Kp: ", workKp);
-                SERIAL_PROTOCOLPAIR(" Ki: ", workKi);
-                SERIAL_PROTOCOLPAIR(" Kd: ", workKd);
-                workKp = 0.2*Ku;
-                workKi = 2*workKp/Tu;
-                workKd = workKp*Tu/3;
-                SERIAL_PROTOCOLLNPGM(" No overshoot");
-                SERIAL_PROTOCOLPAIR(" Kp: ", workKp);
-                SERIAL_PROTOCOLPAIR(" Ki: ", workKi);
-                SERIAL_PROTOCOLPAIR(" Kd: ", workKd);
-                */
+                switch (pid_method) {
+                  case 1:
+                    workKp = 0.33*Ku;
+                    workKi = workKp/Tu;
+                    workKd = workKp*Tu/3;
+                    SERIAL_PROTOCOLLNPGM("\n " MSG_SOME_OVERSHOOT);
+                    break;
+                  case 2:
+                    workKp = 0.2*Ku;
+                    workKi = 2*workKp/Tu;
+                    workKd = workKp*Tu/3;
+                    SERIAL_PROTOCOLLNPGM("\n " MSG_NO_OVERSHOOT);
+                    break;
+                  default:
+                    workKp = 0.6 * Ku;
+                    workKi = 2 * workKp / Tu;
+                    workKd = workKp * Tu * 0.125;
+                    SERIAL_PROTOCOLLNPGM("\n" MSG_CLASSIC_PID);
+                }
               }
             }
             #if HAS_PID_FOR_BOTH
