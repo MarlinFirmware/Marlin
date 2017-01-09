@@ -562,7 +562,7 @@
 // made available here for specialized needs, ie dual extruder setup.
 #if ENABLED(MESH_BED_LEVELING)
   #define MESH_MIN_X (MESH_INSET) //(X_MIN_POS + MESH_INSET)
-  #define MESH_MAX_X (X_MAX_POS - (MESH_INSET + X_MIN_POS)) //(X_MAX_POS - (MESH_INSET))
+  #define MESH_MAX_X (X_MAX_POS + X_MIN_POS - MESH_INSET) //(X_MAX_POS - (MESH_INSET))
   #define MESH_MIN_Y MESH_INSET //(Y_MIN_POS + MESH_INSET)
   #define MESH_MAX_Y (200-(MESH_INSET)) //(Y_MAX_POS - (MESH_INSET))
 #endif
