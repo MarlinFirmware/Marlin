@@ -4879,7 +4879,7 @@ inline void gcode_G28() {
             NOMORE(min_diff, eqnBVector[ind] - z_tmp);
 
             if (diff >= 0.0)
-              SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
+              SERIAL_PROTOCOLPGM("  ");   // Include + for column alignment
             else
               SERIAL_PROTOCOLCHAR(' ');
             SERIAL_PROTOCOL_F(diff, 5);
@@ -4902,7 +4902,7 @@ inline void gcode_G28() {
 
               float diff = eqnBVector[ind] - z_tmp - min_diff;
               if (diff >= 0.0)
-                SERIAL_PROTOCOLPGM(" +");
+                SERIAL_PROTOCOLPGM("  ");
               // Include + for column alignment
               else
                 SERIAL_PROTOCOLCHAR(' ');
