@@ -1361,12 +1361,26 @@ KeepDrawing:
     //
     // Dock Extruder to waste box // 20170106 PB 
     //
-      if (axis_homed[Z_AXIS]){
+    if (axis_homed[Z_AXIS]){
         MENU_ITEM(gcode, "Dock Head", PSTR("G90\nT0\nG1 X70 Y200 F3000\nG1 Y240 F2000\nG1 E-4 F4500"));
-      }
-      else{
+    }
+    else{
         MENU_ITEM(gcode, "Dock Head", PSTR("G28\nG90\nG1 X70 Y200 F3000\nG1 Y240 F2000\nG1 E-4 F4500"));
-      }
+    }
+
+    //
+    // Wipe/Clean nozzel in dock
+    // 
+    if (axis_homed[Z_AXIS]){
+        MENU_ITEM(gcode, "Clean Nozzels", PSTR("G90\nT0\nG1 X70 Y200 F3000\nG1 Y240 F2000\nG1 X80 F2000\nG1  Y200 F2000"));
+    }
+    else{
+        MENU_ITEM(gcode, "Clean Nozzels", PSTR("G28\nG90\nT0\nG1 X70 Y200 F3000\nG1 Y240 F2000\nG1 X80 F2000\nG1  Y200 F2000"));
+    }
+ 
+
+
+
       
     //
     // Level Bed
