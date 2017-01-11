@@ -822,9 +822,9 @@
   #define ABL_GRID_MAX_POINTS_Y ABL_GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 2//15
+  #define LEFT_PROBE_BED_POSITION 3//15
   #define RIGHT_PROBE_BED_POSITION (X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER - LEFT_PROBE_BED_POSITION)//265// X_MAX_POS-LEFT_PROBE_BED_POSITION // 265 //170
-  #define FRONT_PROBE_BED_POSITION 2//15 //20
+  #define FRONT_PROBE_BED_POSITION 3//15 //20
   #define BACK_PROBE_BED_POSITION 200-FRONT_PROBE_BED_POSITION //170
 
   // The Z probe minimum outer margin (to validate G29 parameters).
