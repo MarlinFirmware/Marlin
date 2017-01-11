@@ -172,6 +172,7 @@ void tmc_init() {
     stepper##A.interpolate(INTERPOLATE); \
     A##_ADV(); \
     _TMC2130_STEALTH_CHOP(A); \
+    _TMC2130_SENSORLESS_HOMING(A); \
   } while(0)
   
   #if ENABLED(STEALTHCHOP)
@@ -180,6 +181,18 @@ void tmc_init() {
     } while (0)
   #else
     #define _TMC2130_STEALTH_CHOP(B) NOOP
+  #endif
+
+  #if ENABLED(SENSORLESS_HOMING)
+    #define _TMC2130_SENSORLESS_HOMING(AX) do { \
+      stepper##AX.coolstep_min_speed(1048575); \
+      stepper##AX.sg_stall_value(STALL_THRESHOLD); \
+      stepper##AX.sg_filter(1); \
+      stepper##AX.diag1_stall(1); \
+      stepper##AX.diag1_active_high(1); \
+    } while (0)
+  #else
+    #define _TMC2130_SENSORLESS_HOMING(B) NOOP
   #endif
 
   void tmc2130_init() {
