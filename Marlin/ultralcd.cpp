@@ -1369,13 +1369,13 @@ KeepDrawing:
     }
 
     //
-    // Wipe/Clean nozzel in dock
+    // Wipe/Clean nozzle in dock
     // 
     if (axis_homed[Z_AXIS]){
-        MENU_ITEM(gcode, "Clean Nozzels", PSTR("G90\nT0\nG1 X70 Y200 F3000\nG1 Y240 F2000\nG1 X80 F2000\nG1  Y200 F2000"));
+        MENU_ITEM(gcode, "Clean Nozzles", PSTR("G90\nT0\nG1 X70 Y200 F3000\nG1 Y240 F2000\nG1 X80 F2000\nG1  Y200 F2000"));
     }
     else{
-        MENU_ITEM(gcode, "Clean Nozzels", PSTR("G28\nG90\nT0\nG1 X70 Y200 F3000\nG1 Y240 F2000\nG1 X80 F2000\nG1  Y200 F2000"));
+        MENU_ITEM(gcode, "Clean Nozzles", PSTR("G28\nG90\nT0\nG1 X70 Y200 F3000\nG1 Y240 F2000\nG1 X80 F2000\nG1  Y200 F2000"));
     }
  
 
