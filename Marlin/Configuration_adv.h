@@ -1085,6 +1085,6 @@
 *  Activate this to use the DEFAULT_NOMINAL_FILAMENT_DIA as the default filament diameter
 *  M200 D0 to disable
 */ 
-//#define ENABLE_VOLUMETRIC_FILAMENT_DIAMETER
+//#define VOLUMETRIC_DEFAULT_ON
 
 #endif // CONFIGURATION_ADV_H

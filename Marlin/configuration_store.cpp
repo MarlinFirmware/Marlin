@@ -825,7 +825,7 @@ void Config_ResetDefault() {
   #endif
 
   volumetric_enabled =
-  #if ENABLED(ENABLE_VOLUMETRIC_FILAMENT_DIAMETER)
+  #if ENABLED(VOLUMETRIC_DEFAULT_ON)
     true
   #else
     false

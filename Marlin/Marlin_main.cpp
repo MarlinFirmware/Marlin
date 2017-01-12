@@ -389,7 +389,7 @@ int feedrate_percentage = 100, saved_feedrate_percentage,
 
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
      volumetric_enabled = 
-      #if ENABLED(ENABLE_VOLUMETRIC_FILAMENT_DIAMETER)
+      #if ENABLED(VOLUMETRIC_DEFAULT_ON)
         true
       #else
         false
