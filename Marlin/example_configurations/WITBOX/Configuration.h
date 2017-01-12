@@ -1420,11 +1420,6 @@
 // With this option servos are powered only during movement, then turned off to prevent jitter.
 //#define DEACTIVATE_SERVOS_AFTER_MOVE
 
-// Volumetric filament diameter support
-// Activate this to use the DEFAULT_NOMINAL_FILAMENT_DIA as the default filament diameter
-// M200 D0 to disable
-//#define ENABLE_VOLUMETRIC_FILAMENT_DIAMETER
-
 /**********************************************************************\
  * Support for a filament diameter sensor
  * Also allows adjustment of diameter at print time (vs  at slicing)
