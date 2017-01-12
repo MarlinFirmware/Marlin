@@ -190,8 +190,8 @@
 #define MSG_INFO_PRINTER_MENU               _UxGT("Drucker Info")
 #define MSG_INFO_STATS_MENU                 _UxGT("Drucker Stat.")
 #define MSG_INFO_BOARD_MENU                 _UxGT("Board Info")
-#define MSG_INFO_THERMISTOR_MENU            _UxGT("Thermistors")
-#define MSG_INFO_EXTRUDERS                  _UxGT("Extruders")
+#define MSG_INFO_THERMISTOR_MENU            _UxGT("Thermistoren")
+#define MSG_INFO_EXTRUDERS                  _UxGT("Extruder")
 #define MSG_INFO_BAUDRATE                   _UxGT("Baud")
 #define MSG_INFO_PROTOCOL                   _UxGT("Protokoll")
 #define MSG_LIGHTS_ON                       _UxGT("Gehäuse Licht an")
@@ -226,7 +226,7 @@
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Warte auf den")
-  #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("Start des ")
+  #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("Start des")
   #define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("Filamentwechsels")
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Warte auf")
   #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("Herausnahme")
