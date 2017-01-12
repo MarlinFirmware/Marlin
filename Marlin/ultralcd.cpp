@@ -444,7 +444,7 @@ uint16_t max_display_update_time = 0;
   inline void lcd_wait_for_homing() {
     no_reentrance = true;
     while (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) idle();
-    no_reentrance = true;
+    no_reentrance = false;
   }
 
   void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
