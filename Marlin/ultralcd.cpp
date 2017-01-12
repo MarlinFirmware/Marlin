@@ -444,7 +444,7 @@ uint16_t max_display_update_time = 0;
   inline void lcd_wait_for_homing() {
     no_reentrance = true;
     while (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) idle();
-    no_reentrance = true;
+    no_reentrance = false;
   }
 
   void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
@@ -1403,7 +1403,7 @@ KeepDrawing:
     // Cooldown
     //
     bool has_heat = false;
-    HOTEND_LOOP() if (thermalManager.target_temperature[e]) { has_heat = true; break; }
+    HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; }
     #if HAS_TEMP_BED
       if (thermalManager.target_temperature_bed) has_heat = true;
     #endif
