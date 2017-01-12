@@ -61,7 +61,7 @@
  * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
  * G31 - Dock sled (Z_PROBE_SLED only)
  * G32 - Undock sled (Z_PROBE_SLED only)
- * G38 - Probe target - similar to G28 except it uses the Z_MIN endstop for all three axes
+ * G38 - Probe target - similar to G28 except it uses the Z_MIN_PROBE for all three axes
  * G90 - Use Absolute Coordinates
  * G91 - Use Relative Coordinates
  * G92 - Set current position to coordinates given
@@ -4488,31 +4488,32 @@ inline void gcode_G28() {
     set_current_from_steppers_for_axis(ALL_AXES);
     SYNC_PLAN_POSITION_KINEMATIC();
 
-    // Only do remaining moves if target was hit
     if (G38_endstop_hit) {
 
       G38_pass_fail = true;
 
-      // Move away by the retract distance
-      set_destination_to_current();
-      LOOP_XYZ(i) destination[i] += retract_mm[i];
-      endstops.enable(false);
-      prepare_move_to_destination();
-      stepper.synchronize();
+      #if ENABLED(PROBE_DOUBLE_TOUCH)
+        // Move away by the retract distance
+        set_destination_to_current();
+        LOOP_XYZ(i) destination[i] += retract_mm[i];
+        endstops.enable(false);
+        prepare_move_to_destination();
+        stepper.synchronize();
 
-      feedrate_mm_s /= 4;
+        feedrate_mm_s /= 4;
 
-      // Bump the target more slowly
-      LOOP_XYZ(i) destination[i] -= retract_mm[i] * 2;
+        // Bump the target more slowly
+        LOOP_XYZ(i) destination[i] -= retract_mm[i] * 2;
 
-      endstops.enable(true);
-      G38_move = true;
-      prepare_move_to_destination();
-      stepper.synchronize();
-      G38_move = false;
+        endstops.enable(true);
+        G38_move = true;
+        prepare_move_to_destination();
+        stepper.synchronize();
+        G38_move = false;
 
-      set_current_from_steppers_for_axis(ALL_AXES);
-      SYNC_PLAN_POSITION_KINEMATIC();
+        set_current_from_steppers_for_axis(ALL_AXES);
+        SYNC_PLAN_POSITION_KINEMATIC();
+      #endif
     }
 
     endstops.hit_on_purpose();
@@ -4524,7 +4525,7 @@ inline void gcode_G28() {
    * G38.2 - probe toward workpiece, stop on contact, signal error if failure
    * G38.3 - probe toward workpiece, stop on contact
    *
-   * Like G28 except uses Z min endstop for all axes
+   * Like G28 except uses Z min probe for all axes
    */
   inline void gcode_G38(bool is_38_2) {
     // Get X Y Z E F
