@@ -330,7 +330,7 @@ bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
  * sending commands to Marlin, and lines will be checked for sequentiality.
- * M110 S<int> sets the current line number.
+ * M110 N<int> sets the current line number.
  */
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
@@ -5680,7 +5680,7 @@ inline void gcode_M109() {
  * M110: Set Current Line Number
  */
 inline void gcode_M110() {
-  if (code_seen('N')) gcode_N = code_value_long();
+  if (code_seen('N')) gcode_LastN = code_value_long();
 }
 
 /**
