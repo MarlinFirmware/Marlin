@@ -629,7 +629,7 @@ static bool send_ok[BUFSIZE];
 
 #ifdef CHDK
   millis_t chdkHigh = 0;
-  boolean chdkActive = false;
+  bool chdkActive = false;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -966,7 +966,7 @@ void gcode_line_error(const char* err, bool doFlush = true) {
 
 inline void get_serial_commands() {
   static char serial_line_buffer[MAX_CMD_SIZE];
-  static boolean serial_comment_mode = false;
+  static bool serial_comment_mode = false;
 
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.
@@ -1006,7 +1006,7 @@ inline void get_serial_commands() {
 
       if (npos) {
 
-        boolean M110 = strstr_P(command, PSTR("M110")) != NULL;
+        bool M110 = strstr_P(command, PSTR("M110")) != NULL;
 
         if (M110) {
           char* n2pos = strchr(command + 4, 'N');
