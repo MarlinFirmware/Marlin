@@ -856,7 +856,8 @@ void kill_screen(const char* lcd_msg) {
     //
     //Home XY
     //
-    MENU_ITEM(gcode, "Home XY", PSTR("G28 X Y"));
+    //MENU_ITEM(gcode, "Home XY", PSTR("G28 X Y")); Currently this doesn't return to the correct z-height after homing
+    //we want this to pause the machine, raise z, home xy, return to previous position, lower z and resume
 
     //
     // Speed:
