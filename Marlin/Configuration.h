@@ -822,9 +822,9 @@
   #define ABL_GRID_MAX_POINTS_Y ABL_GRID_MAX_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 10//15
+  #define LEFT_PROBE_BED_POSITION 5//15
   #define RIGHT_PROBE_BED_POSITION (X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER - LEFT_PROBE_BED_POSITION)//265// X_MAX_POS-LEFT_PROBE_BED_POSITION // 265 //170
-  #define FRONT_PROBE_BED_POSITION 10//15 //20
+  #define FRONT_PROBE_BED_POSITION 5//15 //20
   #define BACK_PROBE_BED_POSITION 200-FRONT_PROBE_BED_POSITION //170
 
   // The Z probe minimum outer margin (to validate G29 parameters).
@@ -1192,7 +1192,7 @@
 // If you have a speaker that can produce tones, enable it here.
 // By default Marlin assumes you have a buzzer with a fixed frequency.
 //
-//#define SPEAKER
+#define SPEAKER
 
 //
 // The duration and frequency for the UI feedback sound.
