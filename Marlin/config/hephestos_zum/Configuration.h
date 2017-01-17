@@ -61,6 +61,8 @@
 
 // Define this to have hotbed support
 //#define HEATED_BED_SUPPORT
+#define HEATED_BED_ACTIVE LOW
+#define HEATED_BED_INACTIVE HIGH
 
 //===========================================================================
 //============================= Thermal Settings ============================

@@ -187,6 +187,14 @@ unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0,0);
   static int read_max6675();
 #endif
 
+#ifndef HEATED_BED_ACTIVE
+	#define HEATED_BED_ACTIVE HIGH
+#endif // HEATED_BED_ACTIVE
+
+#ifndef HEATED_BED_INACTIVE
+	#define HEATED_BED_INACTIVE LOW
+#endif // HEATED_BED_INACTIVE
+
 //===========================================================================
 //=============================   functions      ============================
 //===========================================================================
@@ -668,7 +676,7 @@ void manage_heater()
       else
       {
         soft_pwm_bed = 0;
-        WRITE(HEATER_BED_PIN,LOW);
+        WRITE(HEATER_BED_PIN,HEATED_BED_INACTIVE);
       }
     #else //#ifdef BED_LIMIT_SWITCHING
       // Check if temperature is within the correct band
@@ -686,7 +694,7 @@ void manage_heater()
       else
       {
         soft_pwm_bed = 0;
-        WRITE(HEATER_BED_PIN,LOW);
+        WRITE(HEATER_BED_PIN,HEATED_BED_INACTIVE);
       }
     #endif
   #endif
@@ -1238,7 +1246,7 @@ void disable_heater()
     target_temperature_bed=0;
     soft_pwm_bed=0;
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1  
-      WRITE(HEATER_BED_PIN,LOW);
+      WRITE(HEATER_BED_PIN,HEATED_BED_INACTIVE);
     #endif
   #endif 
 }
@@ -1271,7 +1279,7 @@ void min_temp_error(uint8_t e) {
 
 void bed_max_temp_error(void) {
 #if HEATER_BED_PIN > -1
-  WRITE(HEATER_BED_PIN, 0);
+  WRITE(HEATER_BED_PIN, HEATED_BED_INACTIVE);
 #endif
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
@@ -1423,7 +1431,7 @@ ISR(TIMER0_COMPB_vect)
 
 #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
     soft_pwm_b = soft_pwm_bed;
-    if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1); else WRITE(HEATER_BED_PIN,0);
+    if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,HEATED_BED_ACTIVE); else WRITE(HEATER_BED_PIN,HEATED_BED_INACTIVE);
 #endif
 #ifdef FAN_SOFT_PWM
     soft_pwm_fan = fanSpeed / 2;
@@ -1448,7 +1456,7 @@ ISR(TIMER0_COMPB_vect)
 #endif
 
 #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-  if(soft_pwm_b < pwm_count) WRITE(HEATER_BED_PIN,0);
+  if(soft_pwm_b < pwm_count) WRITE(HEATER_BED_PIN,HEATED_BED_INACTIVE);
 #endif
 #ifdef FAN_SOFT_PWM
   if(soft_pwm_fan < pwm_count) WRITE(FAN_PIN,0);
@@ -1586,7 +1594,7 @@ ISR(TIMER0_COMPB_vect)
 	  state_timer_heater_b = MIN_STATE_TIME;
 	}
 	state_heater_b = 1;
-	WRITE(HEATER_BED_PIN, 1);
+	WRITE(HEATER_BED_PIN, HEATED_BED_ACTIVE);
       }
     } else {
       // turn OFF heather only if the minimum time is up 
@@ -1596,7 +1604,7 @@ ISR(TIMER0_COMPB_vect)
 	  state_timer_heater_b = MIN_STATE_TIME;
 	}
 	state_heater_b = 0;
-	WRITE(HEATER_BED_PIN, 0);
+	WRITE(HEATER_BED_PIN, HEATED_BED_INACTIVE);
       }
     }
 #endif
@@ -1673,7 +1681,7 @@ ISR(TIMER0_COMPB_vect)
 	state_timer_heater_b = MIN_STATE_TIME;
       }
       state_heater_b = 0;
-      WRITE(HEATER_BED_PIN, 0);
+      WRITE(HEATER_BED_PIN, HEATED_BED_INACTIVE);
     }
   }
 #endif
