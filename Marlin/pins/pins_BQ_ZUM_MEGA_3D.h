@@ -6,7 +6,8 @@
 *   - bq LCD Smart Controller
 *   - RepRapDiscount Smart Controller
 ****************************************************************************************/
-#if MB(BQ_ZUM_MEGA_3D)
+
+#if MB(BQ_ZUM_MEGA_3D) || MB(BQ_HPH_ZUM_3D)
  #define KNOWN_BOARD 1
  #define LARGE_FLASH true
 
@@ -90,7 +91,7 @@
  // LEDs
  #define LED_PIN            13
 
-#endif // BQCNC
+#endif // BQ_ZUM_3D
 
 /****************************************************************************************
 * bq LCD Smart Controller

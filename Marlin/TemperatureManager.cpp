@@ -27,7 +27,7 @@
 
 #include <math.h>
 
-#include "TemperatureManager.h" 
+#include "TemperatureManager.h"
 
 #include "Configuration.h"
 #include "temperature.h"
@@ -35,6 +35,7 @@
 #include "cardreader.h"
 #include "StorageManager.h"
 #include "boards.h"
+#include "PrintManager.h"
 
 #ifdef DOGLCD
 	#include "GuiManager.h"
@@ -176,6 +177,9 @@ namespace temp
 		TCCR2A = 0x23;
 
 		ADCSRA |= 0x08;
+		TCCR2A = 0x03;
+		TCCR2B = 0x07;
+
 		TIMSK2 = 0x01;
 	}
 
@@ -205,9 +209,9 @@ namespace temp
 		}
 
 		for (uint8_t j = 0; j < 4; i++, j++)
-  		{
-   	 		m_cache[j].raw = pgm_read_word(&(*tt)[i][0]);
-  	 		m_cache[j].temperature = pgm_read_word(&(*tt)[i][1]);
+		{
+			m_cache[j].raw = pgm_read_word(&(*tt)[i][0]);
+			m_cache[j].temperature = pgm_read_word(&(*tt)[i][1]);
 		}
 	}
 
@@ -250,6 +254,15 @@ namespace temp
 	{
 		m_target_temperature = target;
 	#ifdef DOGLCD
+		if(target > HEATER_0_MINTEMP)
+		{
+			TCCR2A |= 0x20;
+		}
+		else
+		{
+			TCCR2A &= 0xDF;
+		}
+		
 		m_control->setTargetControl(target);
 	#else
 		target_temperature[0] = target;
@@ -384,25 +397,28 @@ namespace temp
 		#endif //FAN_BLOCK_PIN
 			if (m_blower_control == true)
 			{
-				fanSpeed = 0;	
-			}	
+				fanSpeed = 0;
+			}
 		}
 #ifdef FAN_BLOWER_PIN
 		analogWrite(FAN_BLOWER_PIN,fanSpeed);
 #endif
 
 #ifdef FAN_BOX_PIN
-		if(FanManager::single::instance().state() == true)
-		{
-			if(card.isFileOpen() == true)
+	    if(FanManager::single::instance().state() == true)
+	    {
+			if(!card.isFileOpen() && PrintManager::single::instance().state() != SERIAL_CONTROL)
 			{
+				if(m_current_temperature > min_temp_cooling)
+				{
 				digitalWrite(FAN_BOX_PIN, HIGH);
-			}
-			else
-			{
+				}
+				else
+				{
 				digitalWrite(FAN_BOX_PIN, LOW);
+				}
 			}
-		}
+	    }
 #endif //FAN_BOX_PIN
 	}
 
@@ -449,8 +465,8 @@ ISR(TIMER2_OVF_vect)
 	
 	if (control_flag == true)
 	{
-		temp::TemperatureManager::single::instance().m_control->manageControl();		
-	 	control_flag = false;
+		temp::TemperatureManager::single::instance().m_control->manageControl();
+		control_flag = false;
 	}
 
 	temp_counter++;
