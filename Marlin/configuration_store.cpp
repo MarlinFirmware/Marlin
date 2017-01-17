@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V27"
+#define EEPROM_VERSION "V28"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -126,6 +126,7 @@
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"
+#include "stepper.h"
 #include "configuration_store.h"
 
 #if ENABLED(MESH_BED_LEVELING)
@@ -356,6 +357,15 @@ void Config_Postprocess() {
       EEPROM_WRITE(dummy);
     }
 
+	#if HAS_MOTOR_CURRENT_PWM
+      for (uint8_t q = 3; q--;)
+			EEPROM_WRITE(stepper.motor_current_setting[q]);
+	#else
+		 const int dummy_motor_current_setting[3] = DEFAULT_PWM_MOTOR_CURRENT;
+		for (uint8_t q = 3; q--;)
+			EEPROM_WRITE(dummy_motor_current_setting[q]);
+	#endif
+	
     uint16_t final_checksum = eeprom_checksum,
              eeprom_size = eeprom_index;
 
@@ -537,6 +547,14 @@ void Config_Postprocess() {
         if (q < COUNT(filament_size)) filament_size[q] = dummy;
       }
 
+	  #if HAS_MOTOR_CURRENT_PWM
+        for (uint8_t q = 3; q--;)
+			EEPROM_READ(stepper.motor_current_setting[q]);
+	  #else
+		for (uint8_t q = 3; q--;)
+			EEPROM_READ(dummy);
+	  #endif
+	  
       if (eeprom_checksum == stored_checksum) {
         Config_Postprocess();
         SERIAL_ECHO_START;
@@ -686,6 +704,14 @@ void Config_ResetDefault() {
   for (uint8_t q = 0; q < COUNT(filament_size); q++)
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
 
+  #if HAS_MOTOR_CURRENT_PWM
+    int tmp_motor_current_setting[3]= PWM_MOTOR_CURRENT;
+	for (uint8_t q = 3; q--;)
+	  stepper.motor_current_setting[q] = tmp_motor_current_setting[q];
+  
+	stepper.init();
+  #endif
+	
   endstops.enable_globally(
     #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
       (true)
@@ -1016,6 +1042,18 @@ void Config_ResetDefault() {
       CONFIG_ECHO_START;
       SERIAL_ECHOLNPGM("  M200 D0");
     }
+
+  #if HAS_MOTOR_CURRENT_PWM
+    CONFIG_ECHO_START;
+    if (!forReplay) {
+      SERIAL_ECHOLNPGM("Stepper motor currents:");
+      CONFIG_ECHO_START;
+    }
+    SERIAL_ECHOPAIR("  M907 X", stepper.motor_current_setting[0]);
+    SERIAL_ECHOPAIR(" Z", stepper.motor_current_setting[1]);
+    SERIAL_ECHOPAIR(" E", stepper.motor_current_setting[2]);
+    SERIAL_EOL;
+  #endif	
 
     /**
      * Auto Bed Leveling
