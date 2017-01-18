@@ -5686,7 +5686,7 @@ inline void gcode_M109() {
  * M110: Set Current Line Number
  */
 inline void gcode_M110() {
-  if (code_seen('N')) gcode_LastN = code_value_long();
+  if (code_seen('N')) { gcode_N = code_value_long(); gcode_LastN = gcode_N; }
 }
 
 /**
