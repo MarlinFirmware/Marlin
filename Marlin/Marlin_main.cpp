@@ -5600,7 +5600,7 @@ inline void gcode_M109() {
 
     #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
       #if ENABLED(PRINTER_EVENT_LEDS)
-        handle_led_print_event(1);  // Set LED's ALL WHITE
+        handle_led_print_event(1);  // Set RGBs to WHITE
       #endif
     #endif
   }
@@ -5980,7 +5980,7 @@ inline void gcode_M18_M84() {
     }
   }
   #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) && ENABLED(PRINTER_EVENT_LEDS)
-    if (code_value_temp_abs() <= (EXTRUDE_MINTEMP)/2) handle_led_print_event(0);
+    handle_led_print_event(0);
   #endif
 }
 

@@ -48,9 +48,8 @@
         #if ENABLED(ULTRA_LCD)
           wait_for_user_timeout = 0;
           do {
-           lcd_update();
-           safe_delay(1000);
-           SERIAL_ECHO_START;
+           idle();
+           safe_delay(100);
            SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
            wait_for_user_timeout ++;
            if (wait_for_user_timeout >= RGB_reset_time) break;
@@ -77,8 +76,6 @@
       case(1):      // Printer Ready for Printing (All WHITE)
         set_rgb_color(255, 255, 255);
         break;
-        
-    } // switch(code)
 
 }
 
