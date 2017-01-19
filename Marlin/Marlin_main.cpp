@@ -2208,7 +2208,7 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_PROTOCOLPGM(" Y: ");
       SERIAL_PROTOCOL_F(y, 3);
       SERIAL_PROTOCOLPGM(" Z: ");
-      SERIAL_PROTOCOL_F(measured_z, 3);
+      SERIAL_PROTOCOL_F(measured_z - -zprobe_zoffset + 0.0001, 3);
       SERIAL_EOL;
     }
 
@@ -4455,7 +4455,7 @@ inline void gcode_G28() {
     SERIAL_PROTOCOLPGM(" Y: ");
     SERIAL_PROTOCOL(Y_probe_location + 0.0001);
     SERIAL_PROTOCOLPGM(" Z: ");
-    SERIAL_PROTOCOLLN(measured_z + 0.0001);
+    SERIAL_PROTOCOLLN(measured_z - -zprobe_zoffset + 0.0001);
 
     clean_up_after_endstop_or_probe_move();
 
