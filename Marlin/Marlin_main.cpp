@@ -7145,7 +7145,7 @@ inline void gcode_M503() {
 
 #endif // HAS_BED_PROBE
 
-#if ENABLED(FILAMENT_CHANGE_FEATURE
+#if ENABLED(FILAMENT_CHANGE_FEATURE)
   /**
    * M600: Pause for filament change
    *
