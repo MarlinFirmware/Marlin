@@ -7145,8 +7145,7 @@ inline void gcode_M503() {
 
 #endif // HAS_BED_PROBE
 
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
-
+#if ENABLED(FILAMENT_CHANGE_FEATURE
   /**
    * M600: Pause for filament change
    *
@@ -7244,6 +7243,10 @@ inline void gcode_M503() {
     #if HAS_BUZZER
       millis_t next_buzz = 0;
     #endif
+      millis_t nozzle_timeout = millis() + FILAMENT_CHANGE_NOZZLE_TIMEOUT*1000;
+      bool nozzle_timed_out = false;
+      float temps[4];
+      int iii;
 
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
@@ -7252,15 +7255,41 @@ inline void gcode_M503() {
     wait_for_user = true;
 
     while (wait_for_user) {
+      millis_t ms = millis();
       #if HAS_BUZZER
-        millis_t ms = millis();
         if (ms >= next_buzz) {
           BUZZ(300, 2000);
           next_buzz = ms + 2500; // Beep every 2.5s while waiting
         }
       #endif
+      if (ms >= nozzle_timeout) {
+        if (nozzle_timed_out == false ) {			// if the nozzle time out happens, remember the current temperatures
+	  for( iii=0; iii<HOTENDS; iii++)			// before turning the nozzles off.
+	    temps[iii] = thermalManager.target_temperature[iii];	
+
+          nozzle_timed_out = true;
+
+	  for( iii=0; iii<HOTENDS; iii++)			// turn off all the nozzles
+	    thermalManager.setTargetHotend( 0.0 , iii );
+
+          lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
+	}
+      }
       idle(true);
     }
+
+    if (nozzle_timed_out == true ) {			// Turn nozzles back on.
+      for( iii=0; iii<HOTENDS; iii++)				
+        thermalManager.setTargetHotend( tmps[iii] , iii );
+      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
+    }
+
+KEEP_CHECKING_TEMPS:
+    for( iii=0; iii<HOTENDS; iii++)	{
+      if (abs(thermalManager.degHotend(iii)-temps[iii]) > 3 ) 
+	goto KEEP_CHECKING_TEMPS;
+    }
+
 
     // Show load message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
@@ -7317,7 +7346,6 @@ inline void gcode_M503() {
     // Show status screen
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
   }
-
 #endif // FILAMENT_CHANGE_FEATURE
 
 #if ENABLED(DUAL_X_CARRIAGE)
