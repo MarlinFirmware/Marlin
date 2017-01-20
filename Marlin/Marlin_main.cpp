@@ -7285,6 +7285,7 @@ inline void gcode_M503() {
     }
 
 KEEP_CHECKING_TEMPS:
+    idle();
     for( iii=0; iii<HOTENDS; iii++)	{
       if (abs(thermalManager.degHotend(iii)-temps[iii]) > 3 ) 
 	goto KEEP_CHECKING_TEMPS;
