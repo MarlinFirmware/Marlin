@@ -7223,6 +7223,7 @@ inline void gcode_M503() {
 
     stepper.synchronize();
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_UNLOAD);
+    idle();
 
     // Unload filament
     if (code_seen('L')) destination[E_AXIS] += code_value_axis_units(E_AXIS);
@@ -7250,6 +7251,7 @@ inline void gcode_M503() {
 
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
+    idle();
 
     // LCD click or M108 will clear this
     wait_for_user = true;
@@ -7280,7 +7282,7 @@ inline void gcode_M503() {
 
     if (nozzle_timed_out == true ) {			// Turn nozzles back on.
       for( iii=0; iii<HOTENDS; iii++)				
-        thermalManager.setTargetHotend( tmps[iii] , iii );
+        thermalManager.setTargetHotend( temps[iii] , iii );
       lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
     }
 
