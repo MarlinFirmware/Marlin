@@ -7158,6 +7158,9 @@ inline void gcode_M503() {
    *  Default values are used for omitted arguments.
    *
    */
+
+  bool busy_doing_M600 = false;
+
   inline void gcode_M600() {
 
     if (thermalManager.tooColdToExtrude(active_extruder)) {
@@ -7165,6 +7168,8 @@ inline void gcode_M503() {
       SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
       return;
     }
+
+    busy_doing_M600 = true;  // Stepper Motors can't timeout when this is set
 
     // Show initial message and wait for synchronize steppers
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
@@ -7348,6 +7353,7 @@ KEEP_CHECKING_TEMPS:
 
     // Show status screen
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
+    busy_doing_M600 = false;  // Allow Stepper Motors to be turned off during inactivity
   }
 #endif // FILAMENT_CHANGE_FEATURE
 
@@ -9953,6 +9959,12 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   millis_t ms = millis();
 
   if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) kill(PSTR(MSG_KILLED));
+	
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #ifdef STEPPER_MOTORS_DONT_TIMEOUT_DURING_FILAMENT_CHANGE
+  if (busy_doing_M600 == false )	// We only allow the stepper motors to time out if we are not in the
+  #endif				// middle of an M600 command
+  #endif
 
   if (stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
       && !ignore_stepper_queue && !planner.blocks_queued()) {
