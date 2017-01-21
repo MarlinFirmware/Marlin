@@ -64,7 +64,11 @@
 
     mcp4728_setVref_all(DAC_STEPPER_VREF);
     mcp4728_setGain_all(DAC_STEPPER_GAIN);
-
+    if (mcp4728_getDrvPct(X_AXIS) < 1 || mcp4728_getDrvPct(Y_AXIS) < 1 || mcp4728_getDrvPct(Z_AXIS) < 1 || mcp4728_getDrvPct(E_AXIS) < 1 ) {      
+      LOOP_XYZE(i) dac_channel_pct[i] = DAC_STEPPER_DEFAULTS[dac_order[i]];
+      mcp4728_setDrvPct(dac_channel_pct);
+      mcp4728_eepromWrite();  
+    }
     return 0;
   }
 
