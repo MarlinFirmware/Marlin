@@ -86,7 +86,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "Paul Begley, BB11DHT" //"(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "Autonomous, BB11DHT" //"Paul Begley, BB11DHT" //"(none, default config)" // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 CUSTOM_MACHINE_NAME //WEBSITE_URL         // will be shown during bootup in line 2
@@ -394,7 +394,7 @@
 // This option prevents a single extrusion longer than EXTRUDE_MAXLENGTH.
 // Note that for Bowden Extruders a too-small value here may prevent loading.
 #define PREVENT_LENGTHY_EXTRUDE
-#define EXTRUDE_MAXLENGTH X_MAX_LENGTH+Y_MAX_LENGTH //200
+#define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //200
 
 //===========================================================================
 //======================== Thermal Runaway Protection =======================
@@ -592,7 +592,7 @@
 //  (0,0)
 #define X_PROBE_OFFSET_FROM_EXTRUDER -25 //10  // X offset: -left  +right  [of the nozzle]
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 0  // Y offset: -front +behind [the nozzle]
-#define Z_PROBE_OFFSET_FROM_EXTRUDER -2.2 //-2.6 //0   // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -2.4 //-2.2 //-2.6 //0   // Z offset: -below +above  [the nozzle]
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 10000 //3000 //8000
