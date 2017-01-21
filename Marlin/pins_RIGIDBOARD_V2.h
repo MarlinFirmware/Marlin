@@ -44,3 +44,4 @@
 #define DAC_STEPPER_GAIN     1 // value of 1 here sets gain of 2
 #define DAC_DISABLE_PIN     42 // set low to enable DAC
 #define DAC_OR_ADDRESS    0x01
+#define DAC_STEPPER_DEFAULTS { 75, 80, 90, 70 } //Current percent defaults { X, Y, Z, E }
