@@ -7396,7 +7396,7 @@ bool busy_doing_M600 = false;
 
     if (nozzle_timed_out == true ) {      // Turn nozzles back on if we turned them off.
       for( iii=0; iii<HOTENDS; iii++)
-        thermalManager.setTargetHotend( tmps[iii] , iii );
+        thermalManager.setTargetHotend( temps[iii] , iii );
       lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
     }
 
