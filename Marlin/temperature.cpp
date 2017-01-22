@@ -33,6 +33,10 @@
   #include "stepper.h"
 #endif
 
+#if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+  #include "endstops.h"
+#endif
+
 #if ENABLED(USE_WATCHDOG)
   #include "watchdog.h"
 #endif
@@ -1941,6 +1945,16 @@ void Temperature::isr() {
       endstop_monitor_count += _BV(1);  //  15 Hz
       endstop_monitor_count &= 0x7F;
       if (!endstop_monitor_count) endstop_monitor();  // report changes in endstop status
+    }
+  #endif
+
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+
+    extern volatile uint8_t e_hit;
+
+    if (e_hit && ENDSTOPS_ENABLED) {
+      endstops.update();  // call endstop update routine
+      e_hit--;
     }
   #endif
 
