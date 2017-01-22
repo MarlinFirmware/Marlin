@@ -54,7 +54,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN  32
+  #define Z_MIN_PROBE_PIN  33//32
 #endif
 
 //
@@ -122,11 +122,11 @@
 //
 // Heaters / Fans
 //
-#define HEATER_0_PIN        2
-#define HEATER_1_PIN        3
-#define HEATER_2_PIN        6
-#define HEATER_3_PIN        8
-#define HEATER_BED_PIN      9
+#define HEATER_0_PIN        2     // EXTRUDER 1
+#define HEATER_1_PIN        3     // EXTRUDER 2
+#define HEATER_2_PIN        6     // EXTRUDER 3
+#define HEATER_3_PIN        8     // EXTRUDER 4
+#define HEATER_BED_PIN      9     // BED
 
 #define FAN_PIN             7
 #define FAN1_PIN            8
