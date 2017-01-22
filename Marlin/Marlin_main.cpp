@@ -7358,7 +7358,7 @@ bool busy_doing_M600 = false;
       millis_t next_buzz = 0;
     #endif
               
-    millis_t nozzle_timeout = millis() + FILAMENT_CHANGE_NOZZLE_TIMEOUT*1000;
+    millis_t nozzle_timeout = millis() + FILAMENT_CHANGE_NOZZLE_TIMEOUT*1000L;
     bool nozzle_timed_out = false;
     float temps[4];
     int iii;
