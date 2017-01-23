@@ -2502,7 +2502,7 @@ KeepDrawing:
     STATIC_ITEM("Wait to heat nozzle");
     STATIC_ITEM("");
     STATIC_ITEM("");
-    STATIC_ITEM("   Nozzle On: ", false, true, itostr3left(thermalManager.degHotend(0)));
+    STATIC_ITEM("   Nozzle On: ", false, true, itostr3left(thermalManager.degHotend(active_extruder)));
     END_SCREEN();
   }
 
@@ -2516,7 +2516,7 @@ KeepDrawing:
     #ifdef MSG_FILAMENT_CHANGE_INSERT_3
       STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_3);
     #endif
-    STATIC_ITEM("   Nozzle Off: ", false, true, itostr3left(thermalManager.degHotend(0)));
+    STATIC_ITEM("   Nozzle Off: ", false, true, itostr3left(thermalManager.degHotend(active_extruder)));
     END_SCREEN();
   }
 
