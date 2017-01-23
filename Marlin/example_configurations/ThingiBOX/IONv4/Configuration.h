@@ -126,7 +126,7 @@
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "IONv3"
+#define CUSTOM_MACHINE_NAME "IONv4"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -608,10 +608,10 @@
 
 // Travel limits after homing (units are in mm)
 #define X_MIN_POS -98
-#define Y_MIN_POS -125
+#define Y_MIN_POS -107
 #define Z_MIN_POS 0
 #define X_MAX_POS 100
-#define Y_MAX_POS 100
+#define Y_MAX_POS 103
 #define Z_MAX_POS 200
 
 //===========================================================================
