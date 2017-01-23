@@ -7372,12 +7372,13 @@ bool busy_doing_M600 = false;
 
     while (wait_for_user) {
       millis_t ms = millis();
-      #if HAS_BUZZER
-        if (ms >= next_buzz) {
-          BUZZ(300, 2000);
-          next_buzz = ms + 2500; // Beep every 2.5s while waiting
-        }
-      #endif
+      if (nozzle_timed_out == true)
+        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
+    #if HAS_BUZZER
+      if (ms >= next_buzz) {
+        BUZZ(300, 2000);
+        next_buzz = ms + 2500; // Beep every 2.5s while waiting
+      }
       if (ms >= nozzle_timeout) {
         if (nozzle_timed_out == false ) {                       // if the nozzle time out happens, remember the current temperatures
           for( iii=0; iii<HOTENDS; iii++)                       // before turning the nozzles off.
@@ -7399,14 +7400,15 @@ bool busy_doing_M600 = false;
         thermalManager.setTargetHotend( temps[iii] , iii );
       lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
     }
-
+	  
 KEEP_CHECKING_TEMPS:
     idle();
     for( iii=0; iii<HOTENDS; iii++){
-      if (abs(thermalManager.degHotend(iii)-temps[iii]) > 3 ) 
-      goto KEEP_CHECKING_TEMPS;
+      if (abs(thermalManager.degHotend(iii)-temps[iii]) > 3 ) {
+        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
+        goto KEEP_CHECKING_TEMPS;
+      }
     }
-
     // Show load message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
     idle();
