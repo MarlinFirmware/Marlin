@@ -2591,9 +2591,11 @@ KeepDrawing:
           lcd_goto_screen(lcd_filament_change_extrude_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_heat_nozzle);
           break;
-	      case FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT:
+        case FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_wait_for_nozzles_to_heat);
           break;
         case FILAMENT_CHANGE_MESSAGE_OPTION:
