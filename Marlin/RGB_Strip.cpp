@@ -73,10 +73,27 @@
         lcd_update();
         break;
 
-      case(1):      // Printer Ready for Printing (All WHITE)
+      case(1):      // Turn RGB LEDs White
         set_rgb_color(255, 255, 255);
         break;
 
+      case(2):      // Turn RGB LEDs Yellow
+        set_rgb_color(255, 255, 0);
+        break;
+
+      case(3):      // Turn RGB LEDs Purple
+        set_rgb_color(255, 0, 255);
+        break;
+
+      case(4):      // Turn RGB LEDs Teal
+        set_rgb_color(0, 255, 255);
+        break;
+
+      case(9):      // Turn RGB LEDs off
+        set_rgb_color(0, 0, 0);
+        break;
+
+    } // switch(code)
 }
 
 #endif  // #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)

@@ -70,10 +70,8 @@ uint16_t max_display_update_time = 0;
   bool drawing_screen = false;
 #endif
 
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
-  #if ENABLED(PRINTER_EVENT_LEDS)
+#if ENABLED(RGB_STRIP)
     #include "RGB_Strip.h"
-  #endif
 #endif
 
 #if ENABLED(DAC_STEPPER_CURRENT)

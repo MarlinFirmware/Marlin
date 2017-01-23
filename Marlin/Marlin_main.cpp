@@ -5557,7 +5557,7 @@ inline void gcode_M109() {
 
     float temp = thermalManager.degHotend(target_extruder);
 
-    #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) && ENABLED(PRINTER_EVENT_LEDS)
+    #if ENABLED(PRINTER_EVENT_LEDS)
         if(wait_for_heatup) {
           // Gradually change LED strip from violet to red as extruder heats up
           r = 255;
@@ -5598,10 +5598,8 @@ inline void gcode_M109() {
   if (wait_for_heatup) {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
 
-    #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
-      #if ENABLED(PRINTER_EVENT_LEDS)
-        handle_led_print_event(1);  // Set RGBs to WHITE
-      #endif
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(1);  // Set RGBs ALL WHITE
     #endif
   }
 
@@ -5694,7 +5692,7 @@ inline void gcode_M109() {
 
       float temp = thermalManager.degBed();
 
-      #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) && ENABLED(PRINTER_EVENT_LEDS)
+      #if ENABLED(PRINTER_EVENT_LEDS)
         if(wait_for_heatup) {
           // Gradually change LED strip from blue to violet as bed heats up
           r = map(temp, 0, theTarget, 0, 255);
@@ -5702,7 +5700,7 @@ inline void gcode_M109() {
           b = 255;
           set_led_color(r, g, b);
         }
-      #endif //ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) && ENABLED(PRINTER_EVENT_LEDS)
+      #endif //ENABLED(PRINTER_EVENT_LEDS)
 
       #if TEMP_BED_RESIDENCY_TIME > 0
 
@@ -5979,7 +5977,7 @@ inline void gcode_M18_M84() {
       #endif
     }
   }
-  #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) && ENABLED(PRINTER_EVENT_LEDS)
+  #if ENABLED(PRINTER_EVENT_LEDS)
     handle_led_print_event(0);
   #endif
 }
@@ -7394,6 +7392,10 @@ inline void gcode_M503() {
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
 
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(4);  // Turn RGB LEDs Teal
+    #endif
+              
     // LCD click or M108 will clear this
     wait_for_user = true;
 
@@ -7410,6 +7412,12 @@ inline void gcode_M503() {
 
     // Show load message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(1);  // Turn RGB LEDs White
+    #endif
+
+    idle();
 
     // Load filament
     if (code_seen('L')) destination[E_AXIS] -= code_value_axis_units(E_AXIS);
