@@ -2496,19 +2496,29 @@ KeepDrawing:
       END_SCREEN();
     }
 
-   void lcd_filament_change_wait_for_nozzles_to_heat() {
-      START_SCREEN();
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
-      STATIC_ITEM("Wait to heat nozzle");
-      END_SCREEN();
-    }
+  void lcd_filament_change_wait_for_nozzles_to_heat() {
+    START_SCREEN();
+    STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
+    STATIC_ITEM("Wait to heat nozzle");
+    STATIC_ITEM("");
+    STATIC_ITEM("");
+    STATIC_ITEM("   Nozzle On: ", false, true, itostr3left(thermalManager.degHotend(0)));
+    END_SCREEN();
+  }
 
-   void lcd_filament_change_heat_nozzle() {
-      START_SCREEN();
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
-      STATIC_ITEM("Click to heat nozzle");
-      END_SCREEN();
-    }
+  void lcd_filament_change_heat_nozzle() {
+    START_SCREEN();
+    STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
+    STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_1);
+    #ifdef MSG_FILAMENT_CHANGE_INSERT_2
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_2);
+    #endif
+    #ifdef MSG_FILAMENT_CHANGE_INSERT_3
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_3);
+    #endif
+    STATIC_ITEM("   Nozzle Off: ", false, true, itostr3left(thermalManager.degHotend(0)));
+    END_SCREEN();
+  }
 
     void lcd_filament_change_insert_message() {
       START_SCREEN();
