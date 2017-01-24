@@ -635,6 +635,9 @@
   #ifndef MSG_FILAMENT_CHANGE_INSERT_1
     #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insert and Click")
   #endif
+  #ifndef MSG_FILAMENT_CHANGE_HEATING_1
+    #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Heating...")
+  #endif
   #ifndef MSG_FILAMENT_CHANGE_LOAD_1
     #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Loading...")
   #endif
