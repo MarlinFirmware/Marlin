@@ -583,6 +583,12 @@
 #ifndef MSG_FILAMENT_CHANGE_OPTION_RESUME
   #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Resume print")
 #endif
+#ifndef MSG_FILAMENT_CHANGE_NOZZLE_ON
+  #define MSG_FILAMENT_CHANGE_NOZZLE_ON       _UxGT("   Nozzle On: ")
+#endif
+#ifndef MSG_FILAMENT_CHANGE_NOZZLE_OFF
+  #define MSG_FILAMENT_CHANGE_NOZZLE_OFF      _UxGT("   Nozzle Off: ")
+#endif
 
 //
 // Filament Change screens show up to 3 lines on a 4-line display
@@ -602,6 +608,10 @@
     #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Insert filament")
     #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("and press button")
     #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("to continue...")
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_HEATING_1
+    #define MSG_FILAMENT_CHANGE_HEATING_1       _UxGT("Heating nozzle")
+    #define MSG_FILAMENT_CHANGE_HEATING_2       _UxGT("Please wait...")
   #endif
   #ifndef MSG_FILAMENT_CHANGE_LOAD_1
     #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Wait for")
