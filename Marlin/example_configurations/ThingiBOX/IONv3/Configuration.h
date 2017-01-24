@@ -683,8 +683,8 @@
 
     #define LEFT_PROBE_BED_POSITION -60
     #define RIGHT_PROBE_BED_POSITION 75
-    #define FRONT_PROBE_BED_POSITION -60
-    #define BACK_PROBE_BED_POSITION 100
+    #define FRONT_PROBE_BED_POSITION -75
+    #define BACK_PROBE_BED_POSITION 85
 
     #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
