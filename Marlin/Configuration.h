@@ -253,7 +253,7 @@
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
-#define TEMP_SENSOR_BED 0
+#define TEMP_SENSOR_BED 1 // JAIME: Changed form 0
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25
@@ -302,7 +302,7 @@
 #define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
 #define PID_MAX BANG_MAX // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #if ENABLED(PIDTEMP)
-  //#define PID_AUTOTUNE_MENU // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result.
+  #define PID_AUTOTUNE_MENU // Add PID Autotune to the LCD "Temperature" menu to run M303 and apply the result. - JAIME: Enabled
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
@@ -455,8 +455,8 @@
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop. - JAIME: Changed from false
+#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop. - JAIME: True if using Z-Probe, otherwise False
+#define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop. #z-sensor
 #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
@@ -547,7 +547,7 @@
 // For example an inductive probe, or a setup that uses the nozzle to probe.
 // An inductive probe must be deactivated to go below
 // its trigger-point if hardware endstops are active.
-#define FIX_MOUNTED_PROBE // JAIME: Enabled 
+#define FIX_MOUNTED_PROBE // JAIME: Enabled if using Z-Probe
 
 // The BLTouch probe emulates a servo probe.
 // The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
@@ -580,7 +580,7 @@
 //  (0,0)
 #define X_PROBE_OFFSET_FROM_EXTRUDER 33  // X offset: -left  +right  [of the nozzle] - JAIME: Changed from 10
 #define Y_PROBE_OFFSET_FROM_EXTRUDER 0  // Y offset: -front +behind [the nozzle] - JAIME: Changed from 10
-#define Z_PROBE_OFFSET_FROM_EXTRUDER 0   // Z offset: -below +above  [the nozzle]
+#define Z_PROBE_OFFSET_FROM_EXTRUDER -0.9   // Z offset: -below +above  [the nozzle] - JAIME: Changed from 0
 
 // X and Y axis travel speed (mm/m) between probes
 #define XY_PROBE_SPEED 8000
@@ -589,7 +589,7 @@
 // Speed for the "accurate" probe of each point
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 // Use double touch for probing
-//#define PROBE_DOUBLE_TOUCH
+#define PROBE_DOUBLE_TOUCH // JAIME: Enabled
 
 //
 // Allen Key Probe is defined in the Delta example configurations.
@@ -689,13 +689,13 @@
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR true // JAIME: Changed from false
 #define INVERT_Y_DIR false // JAIME: Changed from true
-#define INVERT_Z_DIR true // JAIME: Changed from false
+#define INVERT_Z_DIR false
 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
-#define INVERT_E1_DIR false
+#define INVERT_E0_DIR true // JAIME: Changed from false
+#define INVERT_E1_DIR true // JAIME: Changed from false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
 
@@ -741,7 +741,7 @@
 //============================ Mesh Bed Leveling ============================
 //===========================================================================
 
-//#define MESH_BED_LEVELING    // Enable mesh bed leveling.
+//#define MESH_BED_LEVELING    // Enable mesh bed leveling. - JAIME: Enabled
 
 #if ENABLED(MESH_BED_LEVELING)
   #define MESH_INSET 10        // Mesh inset margin on print area
@@ -751,7 +751,7 @@
 
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
 
-  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+  #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling. - JAIME: Enabled
 
   #if ENABLED(MANUAL_BED_LEVELING)
     #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
@@ -792,7 +792,7 @@
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
-#define AUTO_BED_LEVELING_BILINEAR // JAIME: Enabled
+#define AUTO_BED_LEVELING_BILINEAR // JAIME: Enabled if using Z-Probe
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -808,10 +808,10 @@
   #define ABL_GRID_POINTS_Y ABL_GRID_POINTS_X
 
   // Set the boundaries for probing (where the probe can reach).
-  #define LEFT_PROBE_BED_POSITION 40 // JAIME: Changed from 15
-  #define RIGHT_PROBE_BED_POSITION 170
+  #define LEFT_PROBE_BED_POSITION 36 // JAIME: Changed from 15
+  #define RIGHT_PROBE_BED_POSITION 190 // JAIME: Ganged from 170
   #define FRONT_PROBE_BED_POSITION 20
-  #define BACK_PROBE_BED_POSITION 170
+  #define BACK_PROBE_BED_POSITION 190 // JAIME: Ganged from 170
 
   // The Z probe minimum outer margin (to validate G29 parameters).
   #define MIN_PROBE_EDGE 10
@@ -842,9 +842,9 @@
 
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
-  #define ABL_PROBE_PT_1_X 40 // JAIME: Changed from 15
+  #define ABL_PROBE_PT_1_X 32 // JAIME: Changed from 15
   #define ABL_PROBE_PT_1_Y 180
-  #define ABL_PROBE_PT_2_X 40 // JAIME: Changed from 15
+  #define ABL_PROBE_PT_2_X 32 // JAIME: Changed from 15
   #define ABL_PROBE_PT_2_Y 20
   #define ABL_PROBE_PT_3_X 170
   #define ABL_PROBE_PT_3_Y 20
@@ -877,7 +877,7 @@
 // - If stepper drivers time out, it will need X and Y homing again before Z homing.
 // - Move the Z probe (or nozzle) to a defined XY point before Z Homing when homing all axes (G28).
 // - Prevent Z homing when the Z probe is outside bed area.
-#define Z_SAFE_HOMING // JAIME: Enabled
+#define Z_SAFE_HOMING // JAIME: Enabled if using Z-Probe
 
 #if ENABLED(Z_SAFE_HOMING)
   #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
@@ -902,7 +902,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-//#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS // JAIME: Enabled
 
 #if ENABLED(EEPROM_SETTINGS)
   // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
@@ -936,13 +936,13 @@
 // @section temperature
 
 // Preheat Constants
-#define PREHEAT_1_TEMP_HOTEND 230 // JAIME: Changed from 180
+#define PREHEAT_1_TEMP_HOTEND 230 // JAIME: Changed from 180 - PLA
 #define PREHEAT_1_TEMP_BED     80 // JAIME: Changed from 70
 #define PREHEAT_1_FAN_SPEED    255 // Value from 0 to 255 - JAIME: Changed from 0
 
 #define PREHEAT_2_TEMP_HOTEND 240
 #define PREHEAT_2_TEMP_BED    110
-#define PREHEAT_2_FAN_SPEED   255 // Value from 0 to 255 -  JAIME: Changed from 0
+#define PREHEAT_2_FAN_SPEED   255 // Value from 0 to 255 -  JAIME: Changed from 0 - ABS
 
 //
 // Nozzle Park -- EXPERIMENTAL
@@ -1002,7 +1002,7 @@
 // Attention: This is an EXPERIMENTAL feature, in the future the G-code arguments
 // may change to add new functionality like different wipe patterns.
 //
-//#define NOZZLE_CLEAN_FEATURE
+#define NOZZLE_CLEAN_FEATURE // JAIME: Enabled
 
 #if ENABLED(NOZZLE_CLEAN_FEATURE)
   // Number of pattern repetitions
@@ -1043,7 +1043,7 @@
 //  - Total time printing
 //
 // This information can be viewed by the M78 command.
-//#define PRINTCOUNTER
+#define PRINTCOUNTER // JAIME: Enabled
 
 //=============================================================================
 //============================= LCD and SD support ============================
@@ -1169,7 +1169,7 @@
 //
 // Add individual axis homing items (Home X, Home Y, and Home Z) to the LCD menu.
 //
-//#define INDIVIDUAL_AXIS_HOMING_MENU
+#define INDIVIDUAL_AXIS_HOMING_MENU // JAIME: Enabled
 
 //
 // SPEAKER/BUZZER
@@ -1255,6 +1255,7 @@
 //
 // GADGETS3D G3D LCD/SD Controller
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
+//
 //
 // Note: Usually sold with a blue PCB.
 //
