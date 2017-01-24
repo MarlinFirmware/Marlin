@@ -668,7 +668,7 @@
  * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
  */
 //#define FILAMENT_CHANGE_FEATURE
-#if ENABLED(FILAMENT_CHANGE_FEATURE)
+#ifdef FILAMENT_CHANGE_FEATURE
   #define FILAMENT_CHANGE_X_POS 3             // X position of hotend
   #define FILAMENT_CHANGE_Y_POS 3             // Y position of hotend
   #define FILAMENT_CHANGE_Z_ADD 10            // Z addition of hotend (lift)
