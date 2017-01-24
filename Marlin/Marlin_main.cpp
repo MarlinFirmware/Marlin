@@ -7379,6 +7379,7 @@ bool busy_doing_M600 = false;
         BUZZ(300, 2000);
         next_buzz = ms + 2500; // Beep every 2.5s while waiting
       }
+    #endif
       if (ms >= nozzle_timeout) {
         if (nozzle_timed_out == false ) {                       // if the nozzle time out happens, remember the current temperatures
           for( iii=0; iii<HOTENDS; iii++)                       // before turning the nozzles off.
