@@ -2499,7 +2499,7 @@ KeepDrawing:
   void lcd_filament_change_wait_for_nozzles_to_heat() {
     START_SCREEN();
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
-    STATIC_ITEM("Wait to heat nozzle");
+    STATIC_ITEM("Heating nozzle...");
     STATIC_ITEM("");
     STATIC_ITEM("");
     STATIC_ITEM("   Nozzle On: ", false, true, itostr3left(thermalManager.degHotend(active_extruder)));
