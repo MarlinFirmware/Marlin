@@ -36,6 +36,9 @@
   #define DEFAULT_SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
 #endif
 
+//
+// Heaters / Fans
+//
 #define RAMPS_D8_PIN 9
 #define RAMPS_D9_PIN 8
 #define MOSFET_D_PIN 12
@@ -55,15 +58,18 @@
 #define Z_ENABLE_PIN       63
 
 //
-// SD Card
-//
-#undef SDSS
-#define SDSS               25//53
-
-//
 // Heaters / Fans
 //
 #define HEATER_2_PIN        6
+
+//
+// Misc. Functions
+//
+#undef SDSS
+#define SDSS               25
+
+#undef SD_DETECT_PIN
+#define SD_DETECT_PIN      53
 
 //
 // LCD / Controller

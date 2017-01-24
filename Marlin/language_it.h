@@ -102,7 +102,8 @@
 #define MSG_PID_C                           "PID-C"
 #define MSG_SELECT                          "Seleziona"
 #define MSG_ACC                             "Accel"
-#define MSG_VXY_JERK                        "Vxy-jerk"
+#define MSG_VX_JERK                         "Vx-jerk"
+#define MSG_VY_JERK                         "Vy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "
@@ -152,6 +153,8 @@
 #define MSG_INIT_SDCARD                     "Iniz. SD-Card"
 #define MSG_CNG_SDCARD                      "Cambia SD-Card"
 #define MSG_ZPROBE_OUT                      "Z probe out. bed"
+#define MSG_BLTOUCH_SELFTEST                "Autotest BLTouch"
+#define MSG_BLTOUCH_RESET                   "Resetta BLTouch"
 #define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "prima"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
@@ -166,6 +169,7 @@
 #define MSG_ERR_MINTEMP                     "Err: TEMP MINIMA"
 #define MSG_ERR_MAXTEMP_BED                 "Err: TEMP MASSIMA PIATTO"
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP MINIMA PIATTO"
+#define MSG_ERR_Z_HOMING                    "G28 Z Vietato"
 #define MSG_HALTED                          "STAMPANTE FERMATA"
 #define MSG_PLEASE_RESET                    "Riavviare prego"
 #define MSG_SHORT_DAY                       "g" // One character only
@@ -188,7 +192,9 @@
 #define MSG_INFO_EXTRUDERS                  "Estrusori"
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocollo"
-#if LCD_WIDTH > 19
+#define MSG_LIGHTS_ON                       "Luci Case on"
+#define MSG_LIGHTS_OFF                      "Luci Case off"
+#if LCD_WIDTH >= 20
   #define MSG_INFO_PRINT_COUNT              "Contat. stampa"
   #define MSG_INFO_COMPLETED_PRINTS         "Completati"
   #define MSG_INFO_PRINT_TIME               "Tempo totale"
@@ -213,11 +219,17 @@
 #define MSG_INFO_MAX_TEMP                   "Temp max"
 #define MSG_INFO_PSU                        "Alimentatore"
 
+#define MSG_DRIVE_STRENGTH                  "Potenza Drive"
+#define MSG_DAC_PERCENT                     "Driver %"
+#define MSG_DAC_EEPROM_WRITE                "Scrivi DAC EEPROM"
+
 #define MSG_FILAMENT_CHANGE_HEADER          "CAMBIA FILAMENTO"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CAMBIA OPZIONI:"
 #define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Estrusione"
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Riprendi stampa"
+
 #if LCD_HEIGHT >= 4
+  // Up to 3 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Attendere avvio"
   #define MSG_FILAMENT_CHANGE_INIT_2          "del cambio"
   #define MSG_FILAMENT_CHANGE_INIT_3          "di filamento"
@@ -237,6 +249,7 @@
   #define MSG_FILAMENT_CHANGE_RESUME_2        "la ripresa"
   #define MSG_FILAMENT_CHANGE_RESUME_3        "della stampa"
 #else // LCD_HEIGHT < 4
+  // Up to 2 lines allowed
   #define MSG_FILAMENT_CHANGE_INIT_1          "Attendere..."
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Espulsione..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Inserisci e premi"

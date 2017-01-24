@@ -29,12 +29,16 @@
 #include "pins_RAMPS.h"
 
 //
+// Servos
+//
 // Tested this pin with bed leveling on a Delta with 1 servo.
 // Physical wire attachment on EXT1: GND, 5V, D47.
 //
 #undef SERVO0_PIN
 #define SERVO0_PIN         47
 
+//
+// Limit Switches
 //
 // Swap the MIN and MAX endstop pins because the X3 Pro comes with only
 // MIN endstop pin headers soldered onto the board.
@@ -80,11 +84,11 @@
 //
 // Temperature Sensors
 //
-#define TEMP_2_PIN         12   // ANALOG NUMBERING
-#define TEMP_3_PIN         11   // ANALOG NUMBERING
-#define TEMP_4_PIN         10   // ANALOG NUMBERING
-#define TC1                 4   // ANALOG NUMBERING Thermo couple on Azteeg X3Pro
-#define TC2                 5   // ANALOG NUMBERING Thermo couple on Azteeg X3Pro
+#define TEMP_2_PIN         12   // Analog Input
+#define TEMP_3_PIN         11   // Analog Input
+#define TEMP_4_PIN         10   // Analog Input
+#define TC1                 4   // Analog Input (Thermo couple on Azteeg X3Pro)
+#define TC2                 5   // Analog Input (Thermo couple on Azteeg X3Pro)
 
 //
 // Heaters / Fans
@@ -97,15 +101,15 @@
 #define HEATER_7_PIN       11
 
 #undef FAN_PIN
-#define FAN_PIN             6 //Part Cooling System
+#define FAN_PIN             6 // Part Cooling System
 
-#define CONTROLLERFAN_PIN   4 //Pin used for the fan to cool motherboard (-1 to disable)
+#define CONTROLLERFAN_PIN   4 // Pin used for the fan to cool motherboard (-1 to disable)
 
 // Fans/Water Pump to cool the hotend cool side.
-#define EXTRUDER_0_AUTO_FAN_PIN   5
-#define EXTRUDER_1_AUTO_FAN_PIN   5
-#define EXTRUDER_2_AUTO_FAN_PIN   5
-#define EXTRUDER_3_AUTO_FAN_PIN   5
+#define ORIG_E0_AUTO_FAN_PIN 5
+#define ORIG_E1_AUTO_FAN_PIN 5
+#define ORIG_E2_AUTO_FAN_PIN 5
+#define ORIG_E3_AUTO_FAN_PIN 5
 
 //
 // LCD / Controller
@@ -117,6 +121,6 @@
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN    49 // For easy adapter board
 #else
-  #define STAT_LED_RED     32
-  #define STAT_LED_BLUE    35
+  #define STAT_LED_RED_PIN 32
+  #define STAT_LED_BLUE_PIN 35
 #endif

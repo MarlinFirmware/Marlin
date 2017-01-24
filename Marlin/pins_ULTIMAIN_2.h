@@ -65,16 +65,16 @@
 #define MOTOR_CURRENT_PWM_XY_PIN 44
 #define MOTOR_CURRENT_PWM_Z_PIN 45
 #define MOTOR_CURRENT_PWM_E_PIN 46
-//Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
+// Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #define MOTOR_CURRENT_PWM_RANGE 2000
 #define DEFAULT_PWM_MOTOR_CURRENT  {1300, 1300, 1250}
 
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          8
-#define TEMP_1_PIN          9
-#define TEMP_BED_PIN       10
+#define TEMP_0_PIN          8   // Analog Input
+#define TEMP_1_PIN          9   // Analog Input
+#define TEMP_BED_PIN       10   // Analog Input
 
 //
 // Heaters / Fans
@@ -86,15 +86,17 @@
 #define FAN_PIN             7
 
 //
-// SD Card
+// Misc. Functions
 //
 #define SDSS               53
 #define SD_DETECT_PIN      39
-
 #define LED_PIN             8
 #define SAFETY_TRIGGERED_PIN     28 // PIN to detect the safety circuit has triggered
 #define MAIN_VOLTAGE_MEASURE_PIN 14 // ANALOG PIN to measure the main voltage, with a 100k - 4k7 resitor divider.
 
+//
+// LCD / Controller
+//
 #define BEEPER_PIN         18
 
 #define LCD_PINS_RS        20

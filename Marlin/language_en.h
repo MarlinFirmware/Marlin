@@ -216,8 +216,11 @@
 #ifndef MSG_ACC
   #define MSG_ACC                             "Accel"
 #endif
-#ifndef MSG_VXY_JERK
-  #define MSG_VXY_JERK                        "Vxy-jerk"
+#ifndef MSG_VX_JERK
+  #define MSG_VX_JERK                         "Vx-jerk"
+#endif
+#ifndef MSG_VY_JERK
+  #define MSG_VY_JERK                         "Vy-jerk"
 #endif
 #ifndef MSG_VZ_JERK
   #define MSG_VZ_JERK                         "Vz-jerk"
@@ -366,6 +369,12 @@
 #ifndef MSG_ZPROBE_OUT
   #define MSG_ZPROBE_OUT                      "Z probe out. bed"
 #endif
+#ifndef MSG_BLTOUCH_SELFTEST
+  #define MSG_BLTOUCH_SELFTEST                "BLTouch Self-Test"
+#endif
+#ifndef MSG_BLTOUCH_RESET
+  #define MSG_BLTOUCH_RESET                   "Reset BLTouch"
+#endif
 #ifndef MSG_HOME
   #define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #endif
@@ -407,6 +416,9 @@
 #endif
 #ifndef MSG_ERR_MINTEMP_BED
   #define MSG_ERR_MINTEMP_BED                 "Err: MINTEMP BED"
+#endif
+#ifndef MSG_ERR_Z_HOMING
+  #define MSG_ERR_Z_HOMING                    "G28 Z Forbidden"
 #endif
 #ifndef MSG_HALTED
   #define MSG_HALTED                          "PRINTER HALTED"
@@ -475,8 +487,14 @@
 #ifndef MSG_INFO_PROTOCOL
   #define MSG_INFO_PROTOCOL                   "Protocol"
 #endif
+#ifndef MSG_LIGHTS_ON
+  #define MSG_LIGHTS_ON                       "Case light on"
+#endif
+#ifndef MSG_LIGHTS_OFF
+  #define MSG_LIGHTS_OFF                      "Case light off"
+#endif
 
-#if LCD_WIDTH > 19
+#if LCD_WIDTH >= 20
   #ifndef MSG_INFO_PRINT_COUNT
     #define MSG_INFO_PRINT_COUNT              "Print Count"
   #endif
@@ -520,6 +538,15 @@
   #define MSG_INFO_PSU                        "Power Supply"
 #endif
 
+#ifndef MSG_DRIVE_STRENGTH
+  #define MSG_DRIVE_STRENGTH                  "Drive Strength"
+#endif
+#ifndef MSG_DAC_PERCENT
+  #define MSG_DAC_PERCENT                     "Driver %"
+#endif
+#ifndef MSG_DAC_EEPROM_WRITE
+  #define MSG_DAC_EEPROM_WRITE                "DAC EEPROM Write"
+#endif
 #ifndef MSG_FILAMENT_CHANGE_HEADER
   #define MSG_FILAMENT_CHANGE_HEADER          "CHANGE FILAMENT"
 #endif
@@ -532,60 +559,37 @@
 #ifndef MSG_FILAMENT_CHANGE_OPTION_RESUME
   #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resume print"
 #endif
+
+//
+// Filament Change screens show up to 3 lines on a 4-line display
+//                        ...or up to 2 lines on a 3-line display
+//
 #if LCD_HEIGHT >= 4
   #ifndef MSG_FILAMENT_CHANGE_INIT_1
     #define MSG_FILAMENT_CHANGE_INIT_1          "Wait for start"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INIT_2
     #define MSG_FILAMENT_CHANGE_INIT_2          "of the filament"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INIT_3
     #define MSG_FILAMENT_CHANGE_INIT_3          "change"
   #endif
   #ifndef MSG_FILAMENT_CHANGE_UNLOAD_1
     #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Wait for"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_2
     #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filament unload"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_UNLOAD_3
-    #define MSG_FILAMENT_CHANGE_UNLOAD_3        ""
   #endif
   #ifndef MSG_FILAMENT_CHANGE_INSERT_1
     #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert filament"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_2
     #define MSG_FILAMENT_CHANGE_INSERT_2        "and press button"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_INSERT_3
     #define MSG_FILAMENT_CHANGE_INSERT_3        "to continue..."
   #endif
   #ifndef MSG_FILAMENT_CHANGE_LOAD_1
     #define MSG_FILAMENT_CHANGE_LOAD_1          "Wait for"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_2
     #define MSG_FILAMENT_CHANGE_LOAD_2          "filament load"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_LOAD_3
-    #define MSG_FILAMENT_CHANGE_LOAD_3          ""
   #endif
   #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_1
     #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Wait for"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_2
     #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filament extrude"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_EXTRUDE_3
-    #define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""
   #endif
   #ifndef MSG_FILAMENT_CHANGE_RESUME_1
     #define MSG_FILAMENT_CHANGE_RESUME_1        "Wait for print"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_2
     #define MSG_FILAMENT_CHANGE_RESUME_2        "to resume"
-  #endif
-  #ifndef MSG_FILAMENT_CHANGE_RESUME_3
-    #define MSG_FILAMENT_CHANGE_RESUME_3        ""
   #endif
 #else // LCD_HEIGHT < 4
   #ifndef MSG_FILAMENT_CHANGE_INIT_1

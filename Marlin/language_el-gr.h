@@ -30,8 +30,8 @@
 #ifndef LANGUAGE_EL_GR_H
 #define LANGUAGE_EL_GR_H
 
-//#define MAPPER_CECF
-//#define DISPLAY_CHARSET_ISO10646_GREEK
+#define MAPPER_CECF
+#define DISPLAY_CHARSET_ISO10646_GREEK
 
 #define WELCOME_MSG                         MACHINE_NAME " έτοιμο."
 #define MSG_SD_INSERTED                     "Εισαγωγή κάρτας"
@@ -94,7 +94,8 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_ACC                             "Επιτάχυνση"
-#define MSG_VXY_JERK                        "Vαντίδραση xy"
+#define MSG_VX_JERK                         "Vαντίδραση x"
+#define MSG_VY_JERK                         "Vαντίδραση y"
 #define MSG_VZ_JERK                         "Vαντίδραση z"
 #define MSG_VE_JERK                         "Vαντίδραση e"
 #define MSG_VMAX                            "Vμεγ "
