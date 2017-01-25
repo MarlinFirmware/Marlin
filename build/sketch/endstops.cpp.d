@@ -1,53 +1,41 @@
-/tmp/arduino_build_656283/sketch/endstops.cpp.o: \
- /tmp/arduino_build_656283/sketch/endstops.cpp \
- /tmp/arduino_build_656283/sketch/Marlin.h \
- /tmp/arduino_build_656283/sketch/MarlinConfig.h \
- /tmp/arduino_build_656283/sketch/fastio.h \
- /tmp/arduino_build_656283/sketch/macros.h \
- /tmp/arduino_build_656283/sketch/boards.h \
- /tmp/arduino_build_656283/sketch/Version.h \
- /tmp/arduino_build_656283/sketch/Configuration.h \
- /tmp/arduino_build_656283/sketch/Conditionals_LCD.h \
- /tmp/arduino_build_656283/sketch/Configuration_adv.h \
- /tmp/arduino_build_656283/sketch/pins.h \
- /tmp/arduino_build_656283/sketch/pins_ROBOC2.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Arduino.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/binary.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/WCharacter.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/WString.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/HardwareSerial.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/USBAPI.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Arduino.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/variants/mega/pins_arduino.h \
- /tmp/arduino_build_656283/sketch/Conditionals_post.h \
- /tmp/arduino_build_656283/sketch/SanityCheck.h \
- /tmp/arduino_build_656283/sketch/enum.h \
- /tmp/arduino_build_656283/sketch/types.h \
- /tmp/arduino_build_656283/sketch/utility.h \
- /tmp/arduino_build_656283/sketch/MarlinSerial.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/WString.h \
- /tmp/arduino_build_656283/sketch/printcounter.h \
- /tmp/arduino_build_656283/sketch/language.h \
- /tmp/arduino_build_656283/sketch/language_en.h \
- /tmp/arduino_build_656283/sketch/stopwatch.h \
- /tmp/arduino_build_656283/sketch/buzzer.h \
- /tmp/arduino_build_656283/sketch/circularqueue.h \
- /tmp/arduino_build_656283/sketch/temperature.h \
- /tmp/arduino_build_656283/sketch/planner.h \
- /tmp/arduino_build_656283/sketch/vector_3.h \
- /tmp/arduino_build_656283/sketch/thermistortables.h \
- /tmp/arduino_build_656283/sketch/cardreader.h \
- /tmp/arduino_build_656283/sketch/SdFile.h \
- /tmp/arduino_build_656283/sketch/SdBaseFile.h \
- /tmp/arduino_build_656283/sketch/SdFatConfig.h \
- /tmp/arduino_build_656283/sketch/SdVolume.h \
- /tmp/arduino_build_656283/sketch/Sd2Card.h \
- /tmp/arduino_build_656283/sketch/SdInfo.h \
- /tmp/arduino_build_656283/sketch/SdFatStructs.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Print.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Printable.h \
- /tmp/arduino_build_656283/sketch/endstops.h \
- /tmp/arduino_build_656283/sketch/stepper.h \
- /tmp/arduino_build_656283/sketch/speed_lookuptable.h \
- /tmp/arduino_build_656283/sketch/stepper_indirection.h \
- /tmp/arduino_build_656283/sketch/ultralcd.h
+C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\endstops.cpp.o: \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\endstops.cpp \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\Marlin.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\MarlinConfig.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\fastio.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\macros.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\boards.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\Version.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\Configuration.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\Conditionals_LCD.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\Configuration_adv.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\pins.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\pins_ROBOC2.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/binary.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/WCharacter.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/WString.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/HardwareSerial.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBAPI.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\mega/pins_arduino.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\Conditionals_post.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\SanityCheck.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\enum.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\types.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\utility.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\MarlinSerial.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/WString.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\stopwatch.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\cardreader.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\endstops.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\temperature.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\planner.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\vector_3.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\thermistortables.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\stepper.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\speed_lookuptable.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\stepper_indirection.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\language.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\language_en.h \
+ C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\sketch\ultralcd.h

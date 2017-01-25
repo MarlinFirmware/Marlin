@@ -1,13 +1,13 @@
-/tmp/arduino_build_656283/core/main.cpp.o: \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/main.cpp \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Arduino.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/binary.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/WCharacter.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/WString.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/HardwareSerial.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Stream.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Print.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Printable.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/USBAPI.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino/Arduino.h \
- /home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/variants/mega/pins_arduino.h
+C:\Users\Allen\AppData\Local\Temp\build403d8c384ed1bd0d8fb01cb7fb3d105a.tmp\core\main.cpp.o: \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino\main.cpp \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/binary.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/WCharacter.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/WString.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/HardwareSerial.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Stream.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Print.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Printable.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBAPI.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\mega/pins_arduino.h
