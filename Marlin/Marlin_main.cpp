@@ -7367,8 +7367,9 @@ bool busy_doing_M600 = false;
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
     idle();
               
-    // LCD click or M108 will clear this
-    wait_for_user = true;
+    wait_for_user = true;		 // LCD click or M108 will clear this
+    for( iii=0; iii<HOTENDS; iii++)      // Nozzles go back to these temperatures
+      temps[iii] = thermalManager.target_temperature[iii];
 
     while (wait_for_user) {
       millis_t ms = millis();
@@ -7381,13 +7382,9 @@ bool busy_doing_M600 = false;
       }
     #endif
       if (ms >= nozzle_timeout) {
-        if (nozzle_timed_out == false ) {                       // if the nozzle time out happens, remember the current temperatures
-          for( iii=0; iii<HOTENDS; iii++)                       // before turning the nozzles off.
-            temps[iii] = thermalManager.target_temperature[iii];
-
-          nozzle_timed_out = true;
-
-          for( iii=0; iii<HOTENDS; iii++)// turn off all the nozzles
+        if (nozzle_timed_out == false ) {         
+          nozzle_timed_out = true;         // if the nozzle time out happens, remember we turned off the nozzles.
+          for( iii=0; iii<HOTENDS; iii++)  // turn off all the nozzles
             thermalManager.setTargetHotend( 0.0 , iii );
 
           lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
