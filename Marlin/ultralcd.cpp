@@ -2493,19 +2493,22 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_UNLOAD_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_3);
       #endif
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE_ON, false, true, itostr3left(thermalManager.degHotend(active_extruder)));
       END_SCREEN();
     }
 
-  void lcd_filament_change_wait_for_nozzles_to_heat() {
-    START_SCREEN();
-    STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
+    void lcd_filament_change_wait_for_nozzles_to_heat() {
+      START_SCREEN();
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
       STATIC_ITEM(MSG_FILAMENT_CHANGE_HEATING_1);
       #ifdef MSG_FILAMENT_CHANGE_HEATING_2
         STATIC_ITEM(MSG_FILAMENT_CHANGE_HEATING_2);
       #endif
+      STATIC_ITEM(" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE_ON, false, true, itostr3left(thermalManager.degHotend(active_extruder)));
     END_SCREEN();
   }
+
   void lcd_filament_change_heat_nozzle() {
     START_SCREEN();
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
@@ -2530,6 +2533,7 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_INSERT_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_3);
       #endif
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE_OFF, false, true, itostr3left(thermalManager.degHotend(active_extruder)));
       END_SCREEN();
     }
 
@@ -2543,6 +2547,7 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_LOAD_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_3);
       #endif
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE_OFF, false, true, itostr3left(thermalManager.degHotend(active_extruder)));
       END_SCREEN();
     }
 
@@ -2556,6 +2561,7 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_EXTRUDE_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_EXTRUDE_3);
       #endif
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE_OFF, false, true, itostr3left(thermalManager.degHotend(active_extruder)));
       END_SCREEN();
     }
 
@@ -2582,12 +2588,15 @@ KeepDrawing:
           lcd_goto_screen(lcd_filament_change_unload_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_INSERT:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_insert_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_LOAD:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_load_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_EXTRUDE:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_extrude_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE:
