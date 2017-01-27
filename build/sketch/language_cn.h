@@ -29,6 +29,7 @@
  */
 #ifndef LANGUAGE_CN_H
 #define LANGUAGE_CN_H
+
 #define DISPLAY_CHARSET_ISO10646_CN
 
 #define WELCOME_MSG                         "\xa4\xa5\xa6\xa7"
@@ -86,7 +87,8 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_ACC                             "Accel"
-#define MSG_VXY_JERK                        "Vxy-jerk"
+#define MSG_VX_JERK                         "Vx-jerk"
+#define MSG_VY_JERK                         "Vy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax "

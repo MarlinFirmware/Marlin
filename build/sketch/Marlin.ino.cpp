@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#line 1 "/home/ximidar/Desktop/Marlin/Marlin/Marlin.ino"
-#line 1 "/home/ximidar/Desktop/Marlin/Marlin/Marlin.ino"
+#line 1 "C:\\Users\\Allen\\Downloads\\Marlin-RC\\Marlin-RC\\Marlin\\Marlin.ino"
+#line 1 "C:\\Users\\Allen\\Downloads\\Marlin-RC\\Marlin-RC\\Marlin\\Marlin.ino"
 /**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -68,6 +68,11 @@
 #if ENABLED(HAVE_TMCDRIVER)
   #include <SPI.h>
   #include <TMC26XStepper.h>
+#endif
+
+#if ENABLED(HAVE_TMC2130DRIVER)
+  #include <SPI.h>
+  #include <Trinamic_TMC2130.h>
 #endif
 
 #if ENABLED(HAVE_L6470DRIVER)

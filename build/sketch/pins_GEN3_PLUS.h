@@ -56,13 +56,11 @@
 #define E0_DIR_PIN         21
 #define E0_ENABLE_PIN      13
 
-#define PS_ON_PIN          14
-
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          0   // ANALOG INPUT (pin 33 extruder)
-#define TEMP_BED_PIN        5   // ANALOG INPUT (pin 34 bed)
+#define TEMP_0_PIN          0   // Analog Input (pin 33 extruder)
+#define TEMP_BED_PIN        5   // Analog Input (pin 34 bed)
 
 //
 // Heaters
@@ -71,6 +69,8 @@
 #define HEATER_BED_PIN     16
 
 //
-// SD Card
+// Misc. Functions
 //
 #define SDSS                4
+#define PS_ON_PIN          14
+

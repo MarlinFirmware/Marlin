@@ -35,11 +35,17 @@
 
 #define BOARD_NAME "MKS > v1.3"
 
+//
+// Heaters / Fans
+//
 // Power outputs EFBF or EFBE
 #define MOSFET_D_PIN 7
 
 #include "pins_RAMPS.h"
 
+//
+// LCD / Controller
+//
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   /**
    * VIKI2 Has two groups of wires with...
@@ -120,9 +126,9 @@
   #define BEEPER_PIN      25
 
   // yellow               RED-LED
-  #define STAT_LED_RED    16
+  #define STAT_LED_RED_PIN 16
 
   // white                BLUE-LED
-  #define STAT_LED_BLUE   17
+  #define STAT_LED_BLUE_PIN 17
 
 #endif

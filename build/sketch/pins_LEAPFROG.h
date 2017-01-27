@@ -64,19 +64,11 @@
 #define E1_ENABLE_PIN      36 // 36
 
 //
-// Misc. Functions
-//
-#define SDSS               11
-#define LED_PIN            13
-#define SOL1_PIN           16
-#define SOL2_PIN           17
-
-//
 // Temperature Sensors
 //
-#define TEMP_0_PIN         13 //D27   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define TEMP_1_PIN         15 // 1
-#define TEMP_BED_PIN       14 // 1,2 or I2C
+#define TEMP_0_PIN         13   // Analog Input (D27)
+#define TEMP_1_PIN         15   // Analog Input (1)
+#define TEMP_BED_PIN       14   // Analog Input (1,2 or I2C)
 
 //
 // Heaters / Fans
@@ -88,5 +80,12 @@
 
 #define FAN_PIN             7
 
-/*  Unused (1) (2) (3) 4 5 6 7 8 9 10 11 12 13 (14) (15) (16) 17 (18) (19) (20) (21) (22) (23) 24 (25) (26) (27) 28 (29) (30) (31)  */
+//
+// Misc. Functions
+//
+#define SDSS               11
+#define LED_PIN            13
+#define SOL1_PIN           16
+#define SOL2_PIN           17
 
+/*  Unused (1) (2) (3) 4 5 6 7 8 9 10 11 12 13 (14) (15) (16) 17 (18) (19) (20) (21) (22) (23) 24 (25) (26) (27) 28 (29) (30) (31)  */
