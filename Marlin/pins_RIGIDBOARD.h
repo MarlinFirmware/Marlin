@@ -87,6 +87,13 @@
 
 #undef  FAN_PIN
 #define FAN_PIN             8 // Same as RAMPS_13_EEF
+#if EXTRUDERS == 2
+  #undef FAN1_PIN
+  #define FAN1_PIN         11
+#else
+  #undef FAN1_PIN
+  #define FAN1_PIN         -1
+#endif
 
 //
 // Misc. Functions
