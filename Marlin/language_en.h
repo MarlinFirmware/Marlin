@@ -486,7 +486,6 @@
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Calibrate Center")
 #endif
-
 #ifndef MSG_INFO_MENU
   #define MSG_INFO_MENU                       _UxGT("About Printer")
 #endif
@@ -583,11 +582,17 @@
 #ifndef MSG_FILAMENT_CHANGE_OPTION_RESUME
   #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Resume print")
 #endif
-#ifndef MSG_FILAMENT_CHANGE_NOZZLE_ON
-  #define MSG_FILAMENT_CHANGE_NOZZLE_ON       _UxGT("   Nozzle On: ")
+#ifndef MSG_FILAMENT_CHANGE_ON
+  #define MSG_FILAMENT_CHANGE_ON              _UxGT(" On: ")
 #endif
-#ifndef MSG_FILAMENT_CHANGE_NOZZLE_OFF
-  #define MSG_FILAMENT_CHANGE_NOZZLE_OFF      _UxGT("   Nozzle Off: ")
+#ifndef MSG_FILAMENT_CHANGE_OFF
+  #define MSG_FILAMENT_CHANGE_OFF             _UxGT(" Off: ")
+#endif
+#ifndef MSG_FILAMENT_CHANGE_NOZZLE
+  #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT(" Nozzle ")
+#endif
+#ifndef MSG_FILAMENT_CHANGE_TEMP
+  #define MSG_FILAMENT_CHANGE_TEMP            _UxGT(" Temp: ")
 #endif
 
 //
