@@ -1,24 +1,33 @@
-/* Arduino SdFat Library
- * Copyright (C) 2009 by William Greiman
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * This file is part of the Arduino SdFat Library
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
- * This Library is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This Library is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with the Arduino SdFat Library.  If not, see
- * <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * Arduino SdFat Library
+ * Copyright (C) 2009 by William Greiman
+ *
+ * This file is part of the Arduino Sd2Card Library
  */
 #include "Marlin.h"
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 #ifndef SdVolume_h
 #define SdVolume_h
 /**
@@ -117,7 +126,7 @@ class SdVolume {
    * \return true for success or false for failure
    */
   bool dbgFat(uint32_t n, uint32_t* v) {return fatGet(n, v);}
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
  private:
   // Allow SdBaseFile access to SdVolume private data.
   friend class SdBaseFile;
@@ -154,12 +163,15 @@ class SdVolume {
   //----------------------------------------------------------------------------
   bool allocContiguous(uint32_t count, uint32_t* curCluster);
   uint8_t blockOfCluster(uint32_t position) const {
-          return (position >> 9) & (blocksPerCluster_ - 1);}
+    return (position >> 9) & (blocksPerCluster_ - 1);
+  }
   uint32_t clusterStartBlock(uint32_t cluster) const {
-           return dataStartBlock_ + ((cluster - 2) << clusterSizeShift_);}
+    return dataStartBlock_ + ((cluster - 2) << clusterSizeShift_);
+  }
   uint32_t blockNumber(uint32_t cluster, uint32_t position) const {
-           return clusterStartBlock(cluster) + blockOfCluster(position);}
-  cache_t *cache() {return &cacheBuffer_;}
+    return clusterStartBlock(cluster) + blockOfCluster(position);
+  }
+  cache_t* cache() {return &cacheBuffer_;}
   uint32_t cacheBlockNumber() {return cacheBlockNumber_;}
 #if USE_MULTIPLE_CARDS
   bool cacheFlush();
@@ -187,11 +199,12 @@ class SdVolume {
     return  cluster >= FAT32EOC_MIN;
   }
   bool readBlock(uint32_t block, uint8_t* dst) {
-    return sdCard_->readBlock(block, dst);}
+    return sdCard_->readBlock(block, dst);
+  }
   bool writeBlock(uint32_t block, const uint8_t* dst) {
     return sdCard_->writeBlock(block, dst);
   }
-//------------------------------------------------------------------------------
+  //------------------------------------------------------------------------------
   // Deprecated functions  - suppress cpplint warnings with NOLINT comment
 #if ALLOW_DEPRECATED_FUNCTIONS && !defined(DOXYGEN)
  public:

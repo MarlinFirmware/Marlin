@@ -1,25 +1,34 @@
-/* Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * This file is part of the Arduino Sd2Card Library
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
- * This Library is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This Library is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with the Arduino Sd2Card Library.  If not, see
- * <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * Arduino Sd2Card Library
+ * Copyright (C) 2009 by William Greiman
+ *
+ * This file is part of the Arduino Sd2Card Library
  */
 
 #include "Marlin.h"
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 
 #ifndef Sd2Card_h
 #define Sd2Card_h
@@ -28,7 +37,6 @@
  * \brief Sd2Card class for V2 SD/SDHC cards
  */
 #include "SdFatConfig.h"
-#include "Sd2PinMap.h"
 #include "SdInfo.h"
 //------------------------------------------------------------------------------
 // SPI speed is F_CPU/2^(1 + index), 0 <= index <= 6
@@ -118,35 +126,35 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
  */
 //------------------------------------------------------------------------------
 #if MEGA_SOFT_SPI && (defined(__AVR_ATmega1280__)||defined(__AVR_ATmega2560__))
-#define SOFTWARE_SPI
+  #define SOFTWARE_SPI
 #elif USE_SOFTWARE_SPI
-#define SOFTWARE_SPI
+  #define SOFTWARE_SPI
 #endif  // MEGA_SOFT_SPI
 //------------------------------------------------------------------------------
 // SPI pin definitions - do not edit here - change in SdFatConfig.h
 //
-#ifndef SOFTWARE_SPI
-// hardware pin defs
-/** The default chip select pin for the SD card is SS. */
-uint8_t const  SD_CHIP_SELECT_PIN = SS_PIN;
-// The following three pins must not be redefined for hardware SPI.
-/** SPI Master Out Slave In pin */
-uint8_t const  SPI_MOSI_PIN = MOSI_PIN;
-/** SPI Master In Slave Out pin */
-uint8_t const  SPI_MISO_PIN = MISO_PIN;
-/** SPI Clock pin */
-uint8_t const  SPI_SCK_PIN = SCK_PIN;
+#if DISABLED(SOFTWARE_SPI)
+  // hardware pin defs
+  /** The default chip select pin for the SD card is SS. */
+  #define SD_CHIP_SELECT_PIN SS_PIN
+  // The following three pins must not be redefined for hardware SPI.
+  /** SPI Master Out Slave In pin */
+  #define SPI_MOSI_PIN MOSI_PIN
+  /** SPI Master In Slave Out pin */
+  #define SPI_MISO_PIN MISO_PIN
+  /** SPI Clock pin */
+  #define SPI_SCK_PIN SCK_PIN
 
 #else  // SOFTWARE_SPI
 
-/** SPI chip select pin */
-uint8_t const SD_CHIP_SELECT_PIN = SOFT_SPI_CS_PIN;
-/** SPI Master Out Slave In pin */
-uint8_t const SPI_MOSI_PIN = SOFT_SPI_MOSI_PIN;
-/** SPI Master In Slave Out pin */
-uint8_t const SPI_MISO_PIN = SOFT_SPI_MISO_PIN;
-/** SPI Clock pin */
-uint8_t const SPI_SCK_PIN = SOFT_SPI_SCK_PIN;
+  /** SPI chip select pin */
+  #define SD_CHIP_SELECT_PIN SOFT_SPI_CS_PIN
+  /** SPI Master Out Slave In pin */
+  #define SPI_MOSI_PIN SOFT_SPI_MOSI_PIN
+  /** SPI Master In Slave Out pin */
+  #define SPI_MISO_PIN SOFT_SPI_MISO_PIN
+  /** SPI Clock pin */
+  #define SPI_SCK_PIN SOFT_SPI_SCK_PIN
 #endif  // SOFTWARE_SPI
 //------------------------------------------------------------------------------
 /**
@@ -178,12 +186,12 @@ class Sd2Card {
    * \return true for success or false for failure.
    */
   bool init(uint8_t sckRateID = SPI_FULL_SPEED,
-    uint8_t chipSelectPin = SD_CHIP_SELECT_PIN);
+            uint8_t chipSelectPin = SD_CHIP_SELECT_PIN);
   bool readBlock(uint32_t block, uint8_t* dst);
   /**
    * Read a card's CID register. The CID contains card identification
    * information such as Manufacturer ID, Product name, Product serial
-   * number and Manufacturing date. 
+   * number and Manufacturing date.
    *
    * \param[out] cid pointer to area for returned data.
    *
@@ -203,7 +211,7 @@ class Sd2Card {
   bool readCSD(csd_t* csd) {
     return readRegister(CMD9, csd);
   }
-  bool readData(uint8_t *dst);
+  bool readData(uint8_t* dst);
   bool readStart(uint32_t blockNumber);
   bool readStop();
   bool setSckRate(uint8_t sckRateID);

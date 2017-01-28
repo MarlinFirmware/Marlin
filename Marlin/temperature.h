@@ -1,193 +1,461 @@
-/*
-  temperature.h - temperature controller
-  Part of Marlin
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
-  Copyright (c) 2011 Erik van der Zalm
+/**
+ * temperature.h - temperature controller
+ */
 
-  Grbl is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+#ifndef TEMPERATURE_H
+#define TEMPERATURE_H
 
-  Grbl is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#ifndef temperature_h
-#define temperature_h 
-
-#include "Marlin.h"
 #include "planner.h"
-#ifdef PID_ADD_EXTRUSION_RATE
+#include "thermistortables.h"
+
+#include "MarlinConfig.h"
+
+#if ENABLED(PID_EXTRUSION_SCALING)
   #include "stepper.h"
 #endif
 
-// public functions
-void tp_init();  //initialize the heating
-void manage_heater(); //it is critical that this is called periodically.
-
-#ifdef FILAMENT_SENSOR
-// For converting raw Filament Width to milimeters 
- float analog2widthFil(); 
- 
-// For converting raw Filament Width to an extrusion ratio 
- int widthFil_to_size_ratio();
+#ifndef SOFT_PWM_SCALE
+  #define SOFT_PWM_SCALE 0
 #endif
 
-// low level conversion routines
-// do not use these routines and variables outside of temperature.cpp
-extern int target_temperature[EXTRUDERS];  
-extern float current_temperature[EXTRUDERS];
-#ifdef SHOW_TEMP_ADC_VALUES
-  extern int current_temperature_raw[EXTRUDERS];
-  extern int current_temperature_bed_raw;
-#endif
-extern int target_temperature_bed;
-extern float current_temperature_bed;
-#ifdef TEMP_SENSOR_1_AS_REDUNDANT
-  extern float redundant_temperature;
-#endif
-
-#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
-  extern unsigned char soft_pwm_bed;
-#endif
-
-#ifdef PIDTEMP
-  extern float Kp,Ki,Kd,Kc;
-  float scalePID_i(float i);
-  float scalePID_d(float d);
-  float unscalePID_i(float i);
-  float unscalePID_d(float d);
-
-#endif
-#ifdef PIDTEMPBED
-  extern float bedKp,bedKi,bedKd;
-#endif
-  
-  
-#ifdef BABYSTEPPING
-  extern volatile int babystepsTodo[3];
-#endif
-  
-//high level conversion routines, for use outside of temperature.cpp
-//inline so that there is no performance decrease.
-//deg=degreeCelsius
-
-FORCE_INLINE float degHotend(uint8_t extruder) {  
-  return current_temperature[extruder];
-};
-
-#ifdef SHOW_TEMP_ADC_VALUES
-  FORCE_INLINE float rawHotendTemp(uint8_t extruder) {  
-    return current_temperature_raw[extruder];
-  };
-
-  FORCE_INLINE float rawBedTemp() {  
-    return current_temperature_bed_raw;
-  };
-#endif
-
-FORCE_INLINE float degBed() {
-  return current_temperature_bed;
-};
-
-FORCE_INLINE float degTargetHotend(uint8_t extruder) {  
-  return target_temperature[extruder];
-};
-
-FORCE_INLINE float degTargetBed() {   
-  return target_temperature_bed;
-};
-
-FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {  
-  target_temperature[extruder] = celsius;
-};
-
-FORCE_INLINE void setTargetBed(const float &celsius) {  
-  target_temperature_bed = celsius;
-};
-
-FORCE_INLINE bool isHeatingHotend(uint8_t extruder){  
-  return target_temperature[extruder] > current_temperature[extruder];
-};
-
-FORCE_INLINE bool isHeatingBed() {
-  return target_temperature_bed > current_temperature_bed;
-};
-
-FORCE_INLINE bool isCoolingHotend(uint8_t extruder) {  
-  return target_temperature[extruder] < current_temperature[extruder];
-};
-
-FORCE_INLINE bool isCoolingBed() {
-  return target_temperature_bed < current_temperature_bed;
-};
-
-#define degHotend0() degHotend(0)
-#define degTargetHotend0() degTargetHotend(0)
-#define setTargetHotend0(_celsius) setTargetHotend((_celsius), 0)
-#define isHeatingHotend0() isHeatingHotend(0)
-#define isCoolingHotend0() isCoolingHotend(0)
-#if EXTRUDERS > 1
-#define degHotend1() degHotend(1)
-#define degTargetHotend1() degTargetHotend(1)
-#define setTargetHotend1(_celsius) setTargetHotend((_celsius), 1)
-#define isHeatingHotend1() isHeatingHotend(1)
-#define isCoolingHotend1() isCoolingHotend(1)
+#if HOTENDS == 1
+  #define HOTEND_LOOP() const int8_t e = 0;
+  #define HOTEND_INDEX  0
+  #define EXTRUDER_IDX  0
 #else
-#define setTargetHotend1(_celsius) do{}while(0)
-#endif
-#if EXTRUDERS > 2
-#define degHotend2() degHotend(2)
-#define degTargetHotend2() degTargetHotend(2)
-#define setTargetHotend2(_celsius) setTargetHotend((_celsius), 2)
-#define isHeatingHotend2() isHeatingHotend(2)
-#define isCoolingHotend2() isCoolingHotend(2)
-#else
-#define setTargetHotend2(_celsius) do{}while(0)
-#endif
-#if EXTRUDERS > 3
-#error Invalid number of extruders
+  #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+  #define HOTEND_INDEX  e
+  #define EXTRUDER_IDX  active_extruder
 #endif
 
+class Temperature {
+
+  public:
+
+    static float current_temperature[HOTENDS],
+                 current_temperature_bed;
+    static int   current_temperature_raw[HOTENDS],
+                 target_temperature[HOTENDS],
+                 current_temperature_bed_raw,
+                 target_temperature_bed;
+
+    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+      static float redundant_temperature;
+    #endif
+
+    static uint8_t soft_pwm_bed;
+
+    #if ENABLED(FAN_SOFT_PWM)
+      static uint8_t fanSpeedSoftPwm[FAN_COUNT];
+    #endif
+
+    #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
+      #define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
+    #endif
+
+    #if ENABLED(PIDTEMP)
+
+      #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
+
+        static float Kp[HOTENDS], Ki[HOTENDS], Kd[HOTENDS];
+        #if ENABLED(PID_EXTRUSION_SCALING)
+          static float Kc[HOTENDS];
+        #endif
+        #define PID_PARAM(param, h) Temperature::param[h]
+
+      #else
+
+        static float Kp, Ki, Kd;
+        #if ENABLED(PID_EXTRUSION_SCALING)
+          static float Kc;
+        #endif
+        #define PID_PARAM(param, h) Temperature::param
+
+      #endif // PID_PARAMS_PER_HOTEND
+
+      // Apply the scale factors to the PID values
+      #define scalePID_i(i)   ( (i) * PID_dT )
+      #define unscalePID_i(i) ( (i) / PID_dT )
+      #define scalePID_d(d)   ( (d) / PID_dT )
+      #define unscalePID_d(d) ( (d) * PID_dT )
+
+    #endif
+
+    #if ENABLED(PIDTEMPBED)
+      static float bedKp, bedKi, bedKd;
+    #endif
+
+    #if ENABLED(BABYSTEPPING)
+      static volatile int babystepsTodo[3];
+    #endif
+
+    #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+      static int watch_target_temp[HOTENDS];
+      static millis_t watch_heater_next_ms[HOTENDS];
+    #endif
+
+    #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+      static int watch_target_bed_temp;
+      static millis_t watch_bed_next_ms;
+    #endif
+
+    #if ENABLED(PREVENT_COLD_EXTRUSION)
+      static bool allow_cold_extrude;
+      static float extrude_min_temp;
+      static bool tooColdToExtrude(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        return allow_cold_extrude ? false : degHotend(HOTEND_INDEX) < extrude_min_temp;
+      }
+    #else
+      static bool tooColdToExtrude(uint8_t e) { UNUSED(e); return false; }
+    #endif
+
+  private:
+
+    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+      static int redundant_temperature_raw;
+      static float redundant_temperature;
+    #endif
+
+    static volatile bool temp_meas_ready;
+
+    #if ENABLED(PIDTEMP)
+      static float temp_iState[HOTENDS],
+                   temp_dState[HOTENDS],
+                   pTerm[HOTENDS],
+                   iTerm[HOTENDS],
+                   dTerm[HOTENDS];
+
+      #if ENABLED(PID_EXTRUSION_SCALING)
+        static float cTerm[HOTENDS];
+        static long last_e_position;
+        static long lpq[LPQ_MAX_LEN];
+        static int lpq_ptr;
+      #endif
+
+      static float pid_error[HOTENDS];
+      static bool pid_reset[HOTENDS];
+    #endif
+
+    #if ENABLED(PIDTEMPBED)
+      static float temp_iState_bed,
+                   temp_dState_bed,
+                   pTerm_bed,
+                   iTerm_bed,
+                   dTerm_bed,
+                   pid_error_bed;
+    #else
+      static millis_t next_bed_check_ms;
+    #endif
+
+    static unsigned long raw_temp_value[4],
+                         raw_temp_bed_value;
+
+    // Init min and max temp with extreme values to prevent false errors during startup
+    static int minttemp_raw[HOTENDS],
+               maxttemp_raw[HOTENDS],
+               minttemp[HOTENDS],
+               maxttemp[HOTENDS];
+
+    #ifdef MAX_CONSECUTIVE_LOW_TEMPERATURE_ERROR_ALLOWED
+      static int consecutive_low_temperature_error[HOTENDS];
+    #endif
+
+    #ifdef MILLISECONDS_PREHEAT_TIME
+      static unsigned long preheat_end_time[HOTENDS];
+    #endif
+
+    #ifdef BED_MINTEMP
+      static int bed_minttemp_raw;
+    #endif
+
+    #ifdef BED_MAXTEMP
+      static int bed_maxttemp_raw;
+    #endif
+
+    #if ENABLED(FILAMENT_WIDTH_SENSOR)
+      static int meas_shift_index;  // Index of a delayed sample in buffer
+    #endif
+
+    #if HAS_AUTO_FAN
+      static millis_t next_auto_fan_check_ms;
+    #endif
+
+    static uint8_t soft_pwm[HOTENDS];
+
+    #if ENABLED(FAN_SOFT_PWM)
+      static uint8_t soft_pwm_fan[FAN_COUNT];
+    #endif
+
+    #if ENABLED(FILAMENT_WIDTH_SENSOR)
+      static int current_raw_filwidth;  //Holds measured filament diameter - one extruder only
+    #endif
+
+  public:
+
+    /**
+     * Instance Methods
+     */
+
+    Temperature();
+
+    void init();
+
+    /**
+     * Static (class) methods
+     */
+    static float analog2temp(int raw, uint8_t e);
+    static float analog2tempBed(int raw);
+
+    /**
+     * Called from the Temperature ISR
+     */
+    static void isr();
+
+    /**
+     * Call periodically to manage heaters
+     */
+    static void manage_heater();
+
+    /**
+     * Preheating hotends
+     */
+    #ifdef MILLISECONDS_PREHEAT_TIME
+      static bool is_preheating(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        return preheat_end_time[HOTEND_INDEX] && PENDING(millis(), preheat_end_time[HOTEND_INDEX]);
+      }
+      static void start_preheat_time(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        preheat_end_time[HOTEND_INDEX] = millis() + MILLISECONDS_PREHEAT_TIME;
+      }
+      static void reset_preheat_time(uint8_t e) {
+        #if HOTENDS == 1
+          UNUSED(e);
+        #endif
+        preheat_end_time[HOTEND_INDEX] = 0;
+      }
+    #else
+      #define is_preheating(n) (false)
+    #endif
+
+    #if ENABLED(FILAMENT_WIDTH_SENSOR)
+      static float analog2widthFil(); // Convert raw Filament Width to millimeters
+      static int widthFil_to_size_ratio(); // Convert raw Filament Width to an extrusion ratio
+    #endif
 
 
-int getHeaterPower(int heater);
-void disable_heater();
-void setWatch();
-void updatePID();
+    //high level conversion routines, for use outside of temperature.cpp
+    //inline so that there is no performance decrease.
+    //deg=degreeCelsius
 
-#if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
-void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
-static int thermal_runaway_state_machine[3]; // = {0,0,0};
-static unsigned long thermal_runaway_timer[3]; // = {0,0,0};
-static bool thermal_runaway = false;
-  #if TEMP_SENSOR_BED != 0
-    static int thermal_runaway_bed_state_machine;
-    static unsigned long thermal_runaway_bed_timer;
-  #endif
-#endif
+    static float degHotend(uint8_t e) {
+      #if HOTENDS == 1
+        UNUSED(e);
+      #endif
+      return current_temperature[HOTEND_INDEX];
+    }
+    static float degBed() { return current_temperature_bed; }
 
-FORCE_INLINE void autotempShutdown(){
- #ifdef AUTOTEMP
- if(autotemp_enabled)
- {
-  autotemp_enabled=false;
-  if(degTargetHotend(active_extruder)>autotemp_min)
-    setTargetHotend(0,active_extruder);
- }
- #endif
-}
+    #if ENABLED(SHOW_TEMP_ADC_VALUES)
+    static float rawHotendTemp(uint8_t e) {
+      #if HOTENDS == 1
+        UNUSED(e);
+      #endif
+      return current_temperature_raw[HOTEND_INDEX];
+    }
+    static float rawBedTemp() { return current_temperature_bed_raw; }
+    #endif
 
-void PID_autotune(float temp, int extruder, int ncycles);
+    static float degTargetHotend(uint8_t e) {
+      #if HOTENDS == 1
+        UNUSED(e);
+      #endif
+      return target_temperature[HOTEND_INDEX];
+    }
+    static float degTargetBed() { return target_temperature_bed; }
 
-void setExtruderAutoFanState(int pin, bool state);
-void checkExtruderAutoFans();
+    #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+      static void start_watching_heater(uint8_t e = 0);
+    #endif
 
-#endif
+    #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+      static void start_watching_bed();
+    #endif
 
+    static void setTargetHotend(const float& celsius, uint8_t e) {
+      #if HOTENDS == 1
+        UNUSED(e);
+      #endif
+      #ifdef MILLISECONDS_PREHEAT_TIME
+        if (celsius == 0.0f)
+          reset_preheat_time(HOTEND_INDEX);
+        else if (target_temperature[HOTEND_INDEX] == 0.0f)
+          start_preheat_time(HOTEND_INDEX);
+      #endif
+      target_temperature[HOTEND_INDEX] = celsius;
+      #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
+        start_watching_heater(HOTEND_INDEX);
+      #endif
+    }
+
+    static void setTargetBed(const float& celsius) {
+      target_temperature_bed = celsius;
+      #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
+        start_watching_bed();
+      #endif
+    }
+
+    static bool isHeatingHotend(uint8_t e) {
+      #if HOTENDS == 1
+        UNUSED(e);
+      #endif
+      return target_temperature[HOTEND_INDEX] > current_temperature[HOTEND_INDEX];
+    }
+    static bool isHeatingBed() { return target_temperature_bed > current_temperature_bed; }
+
+    static bool isCoolingHotend(uint8_t e) {
+      #if HOTENDS == 1
+        UNUSED(e);
+      #endif
+      return target_temperature[HOTEND_INDEX] < current_temperature[HOTEND_INDEX];
+    }
+    static bool isCoolingBed() { return target_temperature_bed < current_temperature_bed; }
+
+    /**
+     * The software PWM power for a heater
+     */
+    static int getHeaterPower(int heater);
+
+    /**
+     * Switch off all heaters, set all target temperatures to 0
+     */
+    static void disable_all_heaters();
+
+    /**
+     * Perform auto-tuning for hotend or bed in response to M303
+     */
+    #if HAS_PID_HEATING
+      static void PID_autotune(float temp, int hotend, int ncycles, bool set_result=false);
+    #endif
+
+    /**
+     * Update the temp manager when PID values change
+     */
+    static void updatePID();
+
+    #if ENABLED(AUTOTEMP)
+      static void autotempShutdown() {
+        if (planner.autotemp_enabled) {
+          planner.autotemp_enabled = false;
+          if (degTargetHotend(EXTRUDER_IDX) > planner.autotemp_min)
+            setTargetHotend(0, EXTRUDER_IDX);
+        }
+      }
+    #endif
+
+    #if ENABLED(BABYSTEPPING)
+
+      static void babystep_axis(const AxisEnum axis, const int distance) {
+        #if IS_CORE
+          #if ENABLED(BABYSTEP_XY)
+            switch (axis) {
+              case CORE_AXIS_1: // X on CoreXY and CoreXZ, Y on CoreYZ
+                babystepsTodo[CORE_AXIS_1] += distance * 2;
+                babystepsTodo[CORE_AXIS_2] += distance * 2;
+                break;
+              case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ and CoreYZ
+                babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
+                babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+                break;
+              case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
+                babystepsTodo[NORMAL_AXIS] += distance;
+                break;
+            }
+          #elif CORE_IS_XZ || CORE_IS_YZ
+            // Only Z stepping needs to be handled here
+            babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
+            babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+          #else
+            babystepsTodo[Z_AXIS] += distance;
+          #endif
+        #else
+          babystepsTodo[axis] += distance;
+        #endif
+      }
+
+    #endif // BABYSTEPPING
+
+  private:
+
+    static void set_current_temp_raw();
+
+    static void updateTemperaturesFromRawValues();
+
+    #if ENABLED(HEATER_0_USES_MAX6675)
+      static int read_max6675();
+    #endif
+
+    static void checkExtruderAutoFans();
+
+    static float get_pid_output(int e);
+
+    #if ENABLED(PIDTEMPBED)
+      static float get_pid_output_bed();
+    #endif
+
+    static void _temp_error(int e, const char* serial_msg, const char* lcd_msg);
+    static void min_temp_error(int8_t e);
+    static void max_temp_error(int8_t e);
+
+    #if ENABLED(THERMAL_PROTECTION_HOTENDS) || HAS_THERMALLY_PROTECTED_BED
+
+      typedef enum TRState { TRInactive, TRFirstHeating, TRStable, TRRunaway } TRstate;
+
+      static void thermal_runaway_protection(TRState* state, millis_t* timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
+
+      #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+        static TRState thermal_runaway_state_machine[HOTENDS];
+        static millis_t thermal_runaway_timer[HOTENDS];
+      #endif
+
+      #if HAS_THERMALLY_PROTECTED_BED
+        static TRState thermal_runaway_bed_state_machine;
+        static millis_t thermal_runaway_bed_timer;
+      #endif
+
+    #endif // THERMAL_PROTECTION
+
+};
+
+extern Temperature thermalManager;
+
+#endif // TEMPERATURE_H

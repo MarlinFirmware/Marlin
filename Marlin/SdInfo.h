@@ -1,24 +1,33 @@
-/* Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * This file is part of the Arduino Sd2Card Library
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
  *
- * This Library is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This Library is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with the Arduino Sd2Card Library.  If not, see
- * <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * Arduino Sd2Card Library
+ * Copyright (C) 2009 by William Greiman
+ *
+ * This file is part of the Arduino Sd2Card Library
  */
 #include "Marlin.h"
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 
 #ifndef SdInfo_h
 #define SdInfo_h
@@ -118,13 +127,13 @@ typedef struct CID {
   /** Manufacturing date month */
   unsigned char mdt_month : 4;
   /** Manufacturing date year low digit */
-  unsigned char mdt_year_low :4;
+  unsigned char mdt_year_low : 4;
   // byte 15
   /** not used always 1 */
   unsigned char always1 : 1;
   /** CRC7 checksum */
   unsigned char crc : 7;
-}cid_t;
+} cid_t;
 //------------------------------------------------------------------------------
 /** CSD for version 1.00 cards */
 typedef struct CSDV1 {
@@ -146,7 +155,7 @@ typedef struct CSDV1 {
   unsigned char c_size_high : 2;
   unsigned char reserved2 : 2;
   unsigned char dsr_imp : 1;
-  unsigned char read_blk_misalign :1;
+  unsigned char read_blk_misalign : 1;
   unsigned char write_blk_misalign : 1;
   unsigned char read_bl_partial : 1;
   // byte 7
@@ -154,7 +163,7 @@ typedef struct CSDV1 {
   // byte 8
   unsigned char vdd_r_curr_max : 3;
   unsigned char vdd_r_curr_min : 3;
-  unsigned char c_size_low :2;
+  unsigned char c_size_low : 2;
   // byte 9
   unsigned char c_size_mult_high : 2;
   unsigned char vdd_w_cur_max : 3;
@@ -186,7 +195,7 @@ typedef struct CSDV1 {
   // byte 15
   unsigned char always1 : 1;
   unsigned char crc : 7;
-}csd1_t;
+} csd1_t;
 //------------------------------------------------------------------------------
 /** CSD for version 2.00 cards */
 typedef struct CSDV2 {
@@ -212,7 +221,7 @@ typedef struct CSDV2 {
   unsigned char reserved2 : 4;
   unsigned char dsr_imp : 1;
   /** fixed to 0 */
-  unsigned char read_blk_misalign :1;
+  unsigned char read_blk_misalign : 1;
   /** fixed to 0 */
   unsigned char write_blk_misalign : 1;
   /** fixed to 0 - no partial read */
@@ -268,7 +277,7 @@ typedef struct CSDV2 {
   unsigned char always1 : 1;
   /** checksum */
   unsigned char crc : 7;
-}csd2_t;
+} csd2_t;
 //------------------------------------------------------------------------------
 /** union of old and new style CSD register */
 union csd_t {
