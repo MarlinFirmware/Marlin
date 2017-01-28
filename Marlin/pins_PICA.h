@@ -48,6 +48,11 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
  * PICA Arduino shield configuration mjrice
  ************************************* */
 
+
+#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+  #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
+#endif
+
  #define KNOWN_BOARD 1
  #define LARGE_FLASH true
 
@@ -100,6 +105,13 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
  #define TEMP_BED_PIN       10
  #define TEMP_2_PIN         11
  #define TEMP_3_PIN         12
+
+// SPI for Max6675 or Max31855 Thermocouple
+#if DISABLED(SDSUPPORT)
+  #define MAX6675_SS       66 // Do not use pin 53 if there is even the remote possibility of using Display/SD card
+#else
+  #define MAX6675_SS       66 // Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
+#endif
 
  // LCD interface pins
  #define LCD_PINS_RS 33
