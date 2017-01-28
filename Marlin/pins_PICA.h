@@ -83,7 +83,7 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
  #define SSR_PIN            6
  #define HEATER_BED_PIN     8 // heat bed
  
-#if MB(PICA_REVB) 
+#if MB(PICA_REVB) // original board used different pins for fet controls, but interferred with some capabilities.
  #define HEATER_0_PIN       9 // extruder 
  #define HEATER_1_PIN       10 // second extruder
  #define FAN_PIN            11
