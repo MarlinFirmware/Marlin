@@ -5562,7 +5562,7 @@ inline void gcode_M109() {
           // Gradually change LED strip from violet to red as extruder heats up
           r = 255;
           g = 0;
-          b = map(temp, 0, theTarget, 255, 0);
+          b = map(temp, 0, theTarget, 255, 10);
           set_led_color(r, g, b);
         }
     #endif
@@ -5695,7 +5695,7 @@ inline void gcode_M109() {
       #if ENABLED(PRINTER_EVENT_LEDS)
         if(wait_for_heatup) {
           // Gradually change LED strip from blue to violet as bed heats up
-          r = map(temp, 0, theTarget, 0, 255);
+          r = map(temp, 0, theTarget, 0, 254);
           g = 0;
           b = 255;
           set_led_color(r, g, b);
