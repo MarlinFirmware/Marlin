@@ -7365,25 +7365,26 @@ bool busy_doing_M600 = false;
               
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
+
     idle();
-              
-    wait_for_user = true;		 // LCD click or M108 will clear this
-    for( iii=0; iii<HOTENDS; iii++)      // Nozzles go back to these temperatures
-      temps[iii] = thermalManager.target_temperature[iii];
+
+    wait_for_user = true;    // LCD click or M108 will clear this
+    for( iii=0; iii<HOTENDS; iii++)      //Save nozzle temps
+      temps[iii] = thermalManager.target_temperature[iii]; 
 
     while (wait_for_user) {
       millis_t ms = millis();
       if (nozzle_timed_out == true)
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
-    #if HAS_BUZZER
-      if (ms >= next_buzz) {
-        BUZZ(300, 2000);
-        next_buzz = ms + 2500; // Beep every 2.5s while waiting
-      }
-    #endif
+      #if HAS_BUZZER
+        if (ms >= next_buzz) {
+          BUZZ(300, 2000);
+          next_buzz = ms + 2500; // Beep every 2.5s while waiting
+        }
+      #endif
       if (ms >= nozzle_timeout) {
-        if (nozzle_timed_out == false ) {         
-          nozzle_timed_out = true;         // if the nozzle time out happens, remember we turned off the nozzles.
+        if (nozzle_timed_out == false ) {
+          nozzle_timed_out = true;         // if the nozzle time out happens, remember we turned off the nozzles. 
           for( iii=0; iii<HOTENDS; iii++)  // turn off all the nozzles
             thermalManager.setTargetHotend( 0.0 , iii );
 
@@ -7407,8 +7408,25 @@ KEEP_CHECKING_TEMPS:
         goto KEEP_CHECKING_TEMPS;
       }
     }
+
+    wait_for_user = true;    // LCD click or M108 will clear this
+
+    while (wait_for_user) {
+      millis_t ms = millis();
+      if (nozzle_timed_out == true)
+        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
+      #if HAS_BUZZER
+        if (ms >= next_buzz) {
+          BUZZ(300, 2000);
+          next_buzz = ms + 2500; // Beep every 2.5s while waiting
+        }
+      #endif
+      idle(true);
+    }
+
     // Show load message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
+
     idle();
 
     // Load filament
