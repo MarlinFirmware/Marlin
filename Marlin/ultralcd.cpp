@@ -2481,10 +2481,7 @@ KeepDrawing:
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_3);
       #endif
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      u8g.setPrintPos(72, 60);
-      u8g.print(itostr3(thermalManager.degHotend(active_extruder)));
-      u8g.print('/');
-      u8g.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+      lcd_impletmentation_hotend_status();
       END_SCREEN();
     }
 
@@ -2500,10 +2497,7 @@ KeepDrawing:
       #endif
       STATIC_ITEM (" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      u8g.setPrintPos(72, 60);
-      u8g.print(itostr3(thermalManager.degHotend(active_extruder)));
-      u8g.print('/');
-      u8g.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+      lcd_impletmentation_hotend_status();
       END_SCREEN();
     }
 
@@ -2516,10 +2510,7 @@ KeepDrawing:
       #endif
       STATIC_ITEM(" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      u8g.setPrintPos(72, 60);
-      u8g.print(itostr3(thermalManager.degHotend(active_extruder)));
-      u8g.print('/');
-      u8g.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+      lcd_impletmentation_hotend_status();
       END_SCREEN();
     }
 
@@ -2532,10 +2523,7 @@ KeepDrawing:
       #endif
       STATIC_ITEM(" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      u8g.setPrintPos(72, 60);
-      u8g.print(itostr3(thermalManager.degHotend(active_extruder)));
-      u8g.print('/');
-      u8g.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+      lcd_impletmentation_hotend_status();
       END_SCREEN();
     }
 
@@ -2550,10 +2538,7 @@ KeepDrawing:
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_3);
       #endif
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      u8g.setPrintPos(72, 60);
-      u8g.print(itostr3(thermalManager.degHotend(active_extruder)));
-      u8g.print('/');
-      u8g.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+      lcd_impletmentation_hotend_status();
       END_SCREEN();
     }
 
@@ -2569,10 +2554,7 @@ KeepDrawing:
       #endif
       STATIC_ITEM(" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      u8g.setPrintPos(72, 60);
-      u8g.print(itostr3(thermalManager.degHotend(active_extruder)));
-      u8g.print('/');
-      u8g.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+      lcd_impletmentation_hotend_status();
       END_SCREEN();
     }
 
@@ -2588,10 +2570,7 @@ KeepDrawing:
       #endif
       STATIC_ITEM(" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      u8g.setPrintPos(72, 60);
-      u8g.print(itostr3(thermalManager.degHotend(active_extruder)));
-      u8g.print('/');
-      u8g.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+      lcd_impletmentation_hotend_status();
       END_SCREEN();
     }
 

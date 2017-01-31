@@ -320,6 +320,13 @@ void lcd_kill_screen() {
   lcd_printPGM(PSTR(MSG_PLEASE_RESET));
 }
 
+void lcd_impletmentation_hotend_status() {
+  u8g.setPrintPos(72, 60);
+  u8g.print(itostr3(thermalManager.degHotend(active_extruder)));
+  u8g.print('/');
+  u8g.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+}
+
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
 //
