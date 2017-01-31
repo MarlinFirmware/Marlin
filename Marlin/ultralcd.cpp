@@ -54,7 +54,6 @@ char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kan
 
 #if ENABLED(DOGLCD)
   #include "ultralcd_impl_DOGM.h"
-  #include <U8glib.h>
 #else
   #include "ultralcd_impl_HD44780.h"
 #endif
