@@ -191,6 +191,8 @@
 #endif
 
 #include "utf_mapper.h"
+   
+ void lcd_impletmentation_hotend_status();
 
 int lcd_contrast;
 static char currentfont = 0;
