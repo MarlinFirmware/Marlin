@@ -153,7 +153,6 @@ uint16_t max_display_update_time = 0;
     void lcd_filament_change_load_message();
     void lcd_filament_change_extrude_message();
     void lcd_filament_change_resume_message();
-    void lcd_impletmentation_hotend_status();
 #endif
 
   #if HAS_LCD_CONTRAST
