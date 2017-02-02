@@ -153,7 +153,7 @@ uint16_t max_display_update_time = 0;
     void lcd_filament_change_load_message();
     void lcd_filament_change_extrude_message();
     void lcd_filament_change_resume_message();
-#endif
+  #endif
 
   #if HAS_LCD_CONTRAST
     void lcd_set_contrast();
@@ -2443,11 +2443,21 @@ KeepDrawing:
     }
   #endif // LCD_INFO_MENU
 
+    /**
+     *
+     * Filament Change Feature Screens
+     *
+     */
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
+
     void lcd_filament_change_toocold_menu() {
       START_MENU();
       STATIC_ITEM(MSG_HEATING_FAILED_LCD, true, true);
-      MENU_BACK(MSG_FILAMENTCHANGE);
+      STATIC_ITEM (MSG_FILAMENT_CHANGE_MINTEMP STRINGIFY(EXTRUDE_MINTEMP) ".", false, false);
+      MENU_BACK(MSG_BACK);
+      STATIC_ITEM (" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      lcd_implementation_hotend_status();
       END_MENU();
     }
 
@@ -2481,7 +2491,7 @@ KeepDrawing:
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_3);
       #endif
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      lcd_impletmentation_hotend_status();
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2497,7 +2507,7 @@ KeepDrawing:
       #endif
       STATIC_ITEM (" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      lcd_impletmentation_hotend_status();
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2510,7 +2520,7 @@ KeepDrawing:
       #endif
       STATIC_ITEM(" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      lcd_impletmentation_hotend_status();
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2523,7 +2533,7 @@ KeepDrawing:
       #endif
       STATIC_ITEM(" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      lcd_impletmentation_hotend_status();
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2538,7 +2548,7 @@ KeepDrawing:
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_3);
       #endif
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      lcd_impletmentation_hotend_status();
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2554,7 +2564,7 @@ KeepDrawing:
       #endif
       STATIC_ITEM(" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      lcd_impletmentation_hotend_status();
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2570,7 +2580,7 @@ KeepDrawing:
       #endif
       STATIC_ITEM(" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
-      lcd_impletmentation_hotend_status();
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2591,9 +2601,11 @@ KeepDrawing:
       switch (message) {
         case FILAMENT_CHANGE_MESSAGE_INIT:
           defer_return_to_status = true;
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_init_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_UNLOAD:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_unload_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_INSERT:

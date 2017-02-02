@@ -33,6 +33,9 @@
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME _UxGT(" ready.")
 #endif
+#ifndef MSG_BACK
+  #define MSG_BACK                            _UxGT("Back")
+#endif
 #ifndef MSG_SD_INSERTED
   #define MSG_SD_INSERTED                     _UxGT("Card inserted")
 #endif
@@ -582,17 +585,11 @@
 #ifndef MSG_FILAMENT_CHANGE_OPTION_RESUME
   #define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Resume print")
 #endif
-#ifndef MSG_FILAMENT_CHANGE_ON
-  #define MSG_FILAMENT_CHANGE_ON              _UxGT(" On: ")
-#endif
-#ifndef MSG_FILAMENT_CHANGE_OFF
-  #define MSG_FILAMENT_CHANGE_OFF             _UxGT(" Off: ")
+#ifndef MSG_FILAMENT_CHANGE_MINTEMP
+  #define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Minimum Temp is ")
 #endif
 #ifndef MSG_FILAMENT_CHANGE_NOZZLE
   #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT(" Nozzle: ")
-#endif
-#ifndef MSG_FILAMENT_CHANGE_TEMP
-  #define MSG_FILAMENT_CHANGE_TEMP            _UxGT(" Temp: ")
 #endif
 
 //

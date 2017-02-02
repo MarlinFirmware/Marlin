@@ -10093,8 +10093,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 	
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
   #ifdef STEPPER_MOTORS_DONT_TIMEOUT_DURING_FILAMENT_CHANGE
-  if (busy_doing_M600 == false )	            // We only allow the stepper motors to time out if we are not in the
-  #endif				// middle of an M600 command
+  if (busy_doing_M600 == false )	   // We only allow the stepper motors to time out if
+  #endif				               // we are not in the middle of an M600 command.
   #endif
              
   if (stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
