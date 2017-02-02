@@ -43,7 +43,6 @@
   void lcd_reset_alert_level();
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
-  void lcd_implementation_hotend_status();
   bool lcd_detected(void);
 
   #if HAS_BUZZER
