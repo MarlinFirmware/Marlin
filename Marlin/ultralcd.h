@@ -85,7 +85,6 @@
 
     #if ENABLED(FILAMENT_CHANGE_FEATURE)
       void lcd_filament_change_show_message(const FilamentChangeMessage message);
-      void lcd_implementation_hotend_status();
     #endif // FILAMENT_CHANGE_FEATURE
 
   #else
