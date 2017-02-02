@@ -60,6 +60,7 @@
     void bootscreen();
   #endif
 
+
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
 
@@ -84,6 +85,7 @@
 
     #if ENABLED(FILAMENT_CHANGE_FEATURE)
       void lcd_filament_change_show_message(const FilamentChangeMessage message);
+      void lcd_implementation_hotend_status();
     #endif // FILAMENT_CHANGE_FEATURE
 
   #else
