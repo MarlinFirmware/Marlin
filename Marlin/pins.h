@@ -196,6 +196,8 @@
   #include "pins_GT2560_REV_A.h"
 #elif MB(GT2560_REV_A_PLUS)
   #include "pins_GT2560_REV_A_PLUS.h"
+#elif MB(PICA) || MB(PICA_REVB)
+  #include "pins_PICA.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
