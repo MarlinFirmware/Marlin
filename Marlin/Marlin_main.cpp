@@ -443,10 +443,6 @@ millis_t previous_cmd_ms = 0;
 static millis_t max_inactive_time = 0;
 static millis_t stepper_inactive_time = (DEFAULT_STEPPER_DEACTIVE_TIME) * 1000UL;
 
-#if ENABLED(HAVE_TMC2130) && ENABLED(CHECK_OVERTEMP)
-  long last_cOT = 0;
-#endif
-
 // Print Job Timer
 #if ENABLED(PRINTCOUNTER)
   PrintCounter print_job_timer = PrintCounter();
@@ -7533,6 +7529,50 @@ inline void gcode_M503() {
       if (code_seen('E')) tmc2130_setCurrent(code_value_int(), stepperE0, "E");
     #endif
   }
+
+  static void tmc2130_report_otpw(TMC2130Stepper &st, const char *name) {
+    SERIAL_ECHO(name);
+    SERIAL_ECHO(" axis temperature prewarn triggered: ");
+    if (st.getOTPW()) {
+      SERIAL_ECHOLN("true");
+    } else {
+      SERIAL_ECHOLN("false");
+    }
+  }
+  static void gcode_M911() {
+    #if defined(X_IS_TMC2130)
+      if (code_seen('X')) tmc2130_report_otpw(stepperX, "X");
+    #endif
+    #if defined(Y_IS_TMC2130)
+      if (code_seen('Y')) tmc2130_report_otpw(stepperY, "Y");
+    #endif
+    #if defined(Z_IS_TMC2130)
+      if (code_seen('Z')) tmc2130_report_otpw(stepperZ, "Z");
+    #endif
+    #if defined(E0_IS_TMC2130)
+      if (code_seen('E')) tmc2130_report_otpw(stepperE0, "E");
+    #endif
+  }
+
+  static void tmc2130_clear_otpw(TMC2130Stepper &st, const char *name) {
+    st.clear_otpw();
+    SERIAL_ECHO(name);
+    SERIAL_ECHOLN(" prewarn flag cleared");
+  }
+  static void gcode_M912() {
+    #if defined(X_IS_TMC2130)
+      if (code_seen('X')) tmc2130_clear_otpw(stepperX, "X");
+    #endif
+    #if defined(Y_IS_TMC2130)
+      if (code_seen('Y')) tmc2130_clear_otpw(stepperY, "Y");
+    #endif
+    #if defined(Z_IS_TMC2130)
+      if (code_seen('Z')) tmc2130_clear_otpw(stepperZ, "Z");
+    #endif
+    #if defined(E0_IS_TMC2130)
+      if (code_seen('E')) tmc2130_clear_otpw(stepperE0, "E");
+    #endif
+  }
 #endif
 /**
  * M907: Set digital trimpot motor current using axis codes X, Y, Z, E, B, S
@@ -8792,6 +8832,16 @@ void process_next_command() {
         #endif
 
       #endif // HAS_DIGIPOTSS || DAC_STEPPER_CURRENT
+
+      #if ENABLED(HAVE_TMC2130)
+        case 911: // M911: Report TMC2130 prewarn triggered flags
+          gcode_M911();
+          break;
+
+        case 912: // M911: Clear TMC2130 prewarn triggered flags
+          gcode_M912();
+          break;
+      #endif
 
       #if HAS_MICROSTEPS
 
@@ -10056,62 +10106,61 @@ void disable_all_steppers() {
   disable_e3();
 }
 
-#if ENABLED(CHECK_OVERTEMP) && ENABLED(HAVE_TMC2130)
-  // Over Temperature Pre-Warn macro.
-  #define OTPWMACRO(AX) { \
-    if (stepper##AX.checkOT()) { \
-      SERIAL_ECHO("X"); \
-      SERIAL_ECHOLN(" stepper temperature prewarn triggered!"); \
-    } \
+#if ENABLED(AUTOMATIC_CURRENT_CONTROL) && ENABLED(HAVE_TMC2130)
+  void automatic_current_control(TMC2130Stepper &st) {
+    if (st.checkOT()) {
+      #if TRIGGERED_MULTIPLIER > 0 && TRIGGERED_MULTIPLIER < 100
+        st.SilentStepStick2130((float)st.getCurrent() * (float)TRIGGERED_MULTIPLIER/100.0);
+      #endif
+    }
+    #if CURRENT_INCREASE > 0
+      else if(!st.getOTPW()) { // Stepper specific flag not triggered -> Increase current
+          uint16_t current = st.getCurrent() + CURRENT_INCREASE;
+          if (current <= AUTO_ADJUST_MAX) st.SilentStepStick2130(current);
+      }
+    #endif
   }
+
+  static long last_cOT = 0;
+
   //kill(PSTR(MSG_KILLED)); 
   void checkOverTemp() {
     long _ms = millis();
-    if (_ms - last_cOT > 2000) {
-      uint32_t response = stepperX.DRVSTATUS();
-      MYSERIAL.print("Response: 0x");
-      MYSERIAL.println(response, BIN);
-      if (response & 1UL<<26) {
-        SERIAL_ECHOLN("DB1");
-      } else {
-        SERIAL_ECHOLN("DB2");
-      }
+    if (_ms - last_cOT > 5000) {
       last_cOT = _ms;
- /*     #if ENABLED(X_IS_TMC2130)
-        OTPWMACRO(X);
+      #if ENABLED(X_IS_TMC2130)
+        automatic_current_control(stepperX);
       #endif
       #if ENABLED(Y_IS_TMC2130)
-        OTPWMACRO(Y);
+        automatic_current_control(stepperY);
       #endif
       #if ENABLED(Z_IS_TMC2130)
-        OTPWMACRO(Z);
+        automatic_current_control(stepperZ);
       #endif
       #if ENABLED(X2_IS_TMC2130)
-        OTPWMACRO(X2);
+        automatic_current_control(stepperX2);
       #endif
       #if ENABLED(Y2_IS_TMC2130)
-        OTPWMACRO(Y2);
+        automatic_current_control(stepperY2);
       #endif
       #if ENABLED(Z2_IS_TMC2130)
-        OTPWMACRO(Z2);
+        automatic_current_control(stepperZ2);
       #endif
       #if ENABLED(E0_IS_TMC2130)
-        OTPWMACRO(E0);
+        automatic_current_control(stepperE0);
       #endif
       #if ENABLED(E1_IS_TMC2130)
-        OTPWMACRO(E1);
+        automatic_current_control(stepperE1);
       #endif
       #if ENABLED(E2_IS_TMC2130)
-        OTPWMACRO(E2);
+        automatic_current_control(stepperE2);
       #endif
       #if ENABLED(E3_IS_TMC2130)
-        OTPWMACRO(E3);
+        automatic_current_control(stepperE3);
       #endif
-*/
     }
   }
-
-#endif
+#endif // ENABLED(CHECK_OVERTEMP) && ENABLED(HAVE_TMC2130)
 
 /**
  * Manage several activities:
@@ -10332,7 +10381,7 @@ void idle(
     buzzer.tick();
   #endif
 
-  #if ENABLED(CHECK_OVERTEMP) && ENABLED(HAVE_TMC2130)
+  #if ENABLED(AUTOMATIC_CURRENT_CONTROL) && ENABLED(HAVE_TMC2130)
     checkOverTemp();
   #endif
 }
