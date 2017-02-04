@@ -710,12 +710,8 @@
  * */
 //#define DHT_ENABLE
 #if ENABLED(DHT_ENABLE)
-    #ifndef LCD_INFO_MENU
-      #define LCD_INFO_MENU //This must be defined as the info is displayed through this menu.
-    #endif
     #define DHT_TYPE 22     //DHT type 11, 21, or 22
-    #define DHT_PIN A3      //Set pin for the DHT sensor. Default = A3 (AUX1 connector pin3 (outside row))
-
+    #define DHT_PIN A3      //Set pin for the DHT sensor. Default = A3 (AUX1 - pin3)
 #endif //DHT_ENABLE
 
 /******************************************************************************\

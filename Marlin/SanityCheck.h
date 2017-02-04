@@ -267,6 +267,9 @@
   #if DISABLED(ULTIPANEL)
     #error "DHT Sensor option requires an LCD controller."
   #endif
+  #if DISABLED(LCD_INFO_MENU)
+    #error "DHT Sensor option requires LCD_INFO_MENU option enabled."
+  #endif
 #endif
 
 /**
