@@ -129,103 +129,93 @@ void tmc_init() {
 #endif
 
 #if ENABLED(HAVE_TMC2130)
+  #define DEFINE_STEPPER(ST) TMC2130Stepper stepper##ST(ST##_ENABLE_PIN, ST##_DIR_PIN, ST##_STEP_PIN, ST##_CHIP_SELECT)
 // Stepper objects of TMC2130 steppers used
   #if ENABLED(X_IS_TMC2130)
-    TMC2130Stepper stepperX(X_ENABLE_PIN, X_DIR_PIN, X_STEP_PIN, X_CHIP_SELECT);
+    DEFINE_STEPPER(X);
   #endif
   #if ENABLED(X2_IS_TMC2130)
-    TMC2130Stepper stepperX2(X2_ENABLE_PIN, X2_DIR_PIN, X2_STEP_PIN, X2_CHIP_SELECT);
+    DEFINE_STEPPER(X2);
   #endif
   #if ENABLED(Y_IS_TMC2130)
-    TMC2130Stepper stepperY(Y_ENABLE_PIN, Y_DIR_PIN, Y_STEP_PIN, Y_CHIP_SELECT);
+    DEFINE_STEPPER(Y);
   #endif
   #if ENABLED(Y2_IS_TMC2130)
-    TMC2130Stepper stepperY2(Y2_ENABLE_PIN, Y2_DIR_PIN, Y2_STEP_PIN, Y2_CHIP_SELECT);
+    DEFINE_STEPPER(Y2);
   #endif
   #if ENABLED(Z_IS_TMC2130)
-    TMC2130Stepper stepperZ(Z_ENABLE_PIN, Z_DIR_PIN, Z_STEP_PIN, Z_CHIP_SELECT);
+    DEFINE_STEPPER(Z);
   #endif
   #if ENABLED(Z2_IS_TMC2130)
-    TMC2130Stepper stepperZ2(Z2_ENABLE_PIN, Z2_DIR_PIN, Z2_STEP_PIN, Z2_CHIP_SELECT);
+    DEFINE_STEPPER(Z2);
   #endif
   #if ENABLED(E0_IS_TMC2130)
-    TMC2130Stepper stepperE0(E0_ENABLE_PIN, E0_DIR_PIN, E0_STEP_PIN, E0_CHIP_SELECT);
+    DEFINE_STEPPER(E0);
   #endif
   #if ENABLED(E1_IS_TMC2130)
-    TMC2130Stepper stepperE1(E1_ENABLE_PIN, E1_DIR_PIN, E1_STEP_PIN, E1_CHIP_SELECT);
+    DEFINE_STEPPER(E1);
   #endif
   #if ENABLED(E2_IS_TMC2130)
-    TMC2130Stepper stepperE2(E2_ENABLE_PIN, E2_DIR_PIN, E2_STEP_PIN, E2_CHIP_SELECT);
+    DEFINE_STEPPER(E2);
   #endif
   #if ENABLED(E3_IS_TMC2130)
-    TMC2130Stepper stepperE3(E3_ENABLE_PIN, E3_DIR_PIN, E3_STEP_PIN, E3_CHIP_SELECT);
+    DEFINE_STEPPER(E3);
   #endif
 
 // Use internal reference voltage for current calculations. This is the default.
 // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
-  #define _TMC2130_INIT(A) do { \
-    stepper##A.begin(); \
-    stepper##A.setCurrent(A##_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER); \
-    stepper##A.microsteps(A##_MICROSTEPS); \
-    stepper##A.blank_time(24); \
-    stepper##A.off_time(8); \
-    stepper##A.interpolate(INTERPOLATE); \
-    A##_ADV(); \
-    _TMC2130_STEALTH_CHOP(A); \
-    _TMC2130_SENSORLESS_HOMING(A); \
-  } while(0)
-  
-  #if ENABLED(STEALTHCHOP)
-    #define _TMC2130_STEALTH_CHOP(AX) do { \
-      stepper##AX.stealthChop(1); \
-    } while (0)
-  #else
-    #define _TMC2130_STEALTH_CHOP(B) NOOP
-  #endif
+  void tmc2130_init(TMC2130Stepper &st, uint16_t max_current, uint16_t microsteps) {
+    st.begin();
+    st.setCurrent(max_current, R_SENSE, HOLD_MULTIPLIER);
+    st.microsteps(microsteps);
+    st.blank_time(24);
+    st.off_time(8);
+    st.interpolate(INTERPOLATE);
+    #if ENABLED(STEALTHCHOP)
+      st.stealthChop(1);
+    #endif
+    #if ENABLED(SENSORLESS_HOMING)
+      st.coolstep_min_speed(1048575);
+      st.sg_stall_value(STALL_THRESHOLD);
+      st.sg_filter(1);
+      st.diag1_stall(1);
+      st.diag1_active_high(1);
+    #endif
+  }
 
-  #if ENABLED(SENSORLESS_HOMING)
-    #define _TMC2130_SENSORLESS_HOMING(AX) do { \
-      stepper##AX.coolstep_min_speed(1048575); \
-      stepper##AX.sg_stall_value(STALL_THRESHOLD); \
-      stepper##AX.sg_filter(1); \
-      stepper##AX.diag1_stall(1); \
-      stepper##AX.diag1_active_high(1); \
-    } while (0)
-  #else
-    #define _TMC2130_SENSORLESS_HOMING(B) NOOP
-  #endif
+  #define _TMC2130_INIT(ST) tmc2130_init(stepper##ST, ST##_MAX_CURRENT, ST##_MICROSTEPS);
 
   void tmc2130_init() {
     delay(500); // Let power stabilize before we start configuring the steppers
     #if ENABLED(X_IS_TMC2130)
-      _TMC2130_INIT(X);
+      _TMC2130_INIT(X)
     #endif
     #if ENABLED(X2_IS_TMC2130)
-      _TMC2130_INIT(X2);
+      _TMC2130_INIT(X2)
     #endif
     #if ENABLED(Y_IS_TMC2130)
-      _TMC2130_INIT(Y);
+      _TMC2130_INIT(Y)
     #endif
     #if ENABLED(Y2_IS_TMC2130)
-      _TMC2130_INIT(Y2);
+      _TMC2130_INIT(Y2)
     #endif
     #if ENABLED(Z_IS_TMC2130)
-      _TMC2130_INIT(Z);
+      _TMC2130_INIT(Z)
     #endif
     #if ENABLED(Z2_IS_TMC2130)
-      _TMC2130_INIT(Z2);
+      _TMC2130_INIT(Z2)
     #endif
     #if ENABLED(E0_IS_TMC2130)
-      _TMC2130_INIT(E0);
+      _TMC2130_INIT(E0)
     #endif
     #if ENABLED(E1_IS_TMC2130)
-      _TMC2130_INIT(E1);
+      _TMC2130_INIT(E1)
     #endif
     #if ENABLED(E2_IS_TMC2130)
-      _TMC2130_INIT(E2);
+      _TMC2130_INIT(E2)
     #endif
     #if ENABLED(E3_IS_TMC2130)
-      _TMC2130_INIT(E3);
+      _TMC2130_INIT(E3)
     #endif
   }
 #endif
