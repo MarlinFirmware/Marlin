@@ -183,7 +183,7 @@ void tmc_init() {
     #endif
   }
 
-  #define _TMC2130_INIT(ST) tmc2130_init(stepper##ST, ST##_MAX_CURRENT, ST##_MICROSTEPS);
+  #define _TMC2130_INIT(ST) tmc2130_init(stepper##ST, ST##_MAX_CURRENT, ST##_MICROSTEPS); ST##_ADV()
 
   void tmc2130_init() {
     delay(500); // Let power stabilize before we start configuring the steppers
