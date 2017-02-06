@@ -7248,6 +7248,7 @@ inline void gcode_M503() {
 
     #if HAS_BUZZER
       millis_t next_buzz = 0;
+      unsigned long int runout_beep = 0;
     #endif
       millis_t nozzle_timeout = millis() + FILAMENT_CHANGE_NOZZLE_TIMEOUT*1000;
       bool nozzle_timed_out = false;
@@ -7263,12 +7264,22 @@ inline void gcode_M503() {
 
     while (wait_for_user) {
       millis_t ms = millis();
-      #if HAS_BUZZER
-        if (ms >= next_buzz) {
-          BUZZ(300, 2000);
-          next_buzz = ms + 2500; // Beep every 2.5s while waiting
-        }
-      #endif
+     #if HAS_BUZZER
+       millis_t ms = millis();
+       if (ms >= next_buzz) {
+         if (runout_beep <= FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS ) { // Only beep as long as we are supposed to!
+         BUZZ(300, 2000);
+         next_buzz = ms + 2500; // Beep every 2s while waiting
+         runout_beep++;
+         }
+         else if (runout_beep == FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS-1  ||
+                  runout_beep == FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS) { // Two short beeps
+           BUZZ(200, 2000);
+           next_buzz = ms + 500; // Beep 
+           runout_beep++;
+         }
+       }
+     #endif
       if (ms >= nozzle_timeout) {
         if (nozzle_timed_out == false ) {			// if the nozzle time out happens, remember the current temperatures
 	  for( iii=0; iii<HOTENDS; iii++)			// before turning the nozzles off.
