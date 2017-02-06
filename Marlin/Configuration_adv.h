@@ -704,6 +704,7 @@
                                                 // or until outcoming filament color is not clear for filament color change
     #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
     #define FILAMENT_CHANGE_NOZZLE_TIMEOUT 300  // Turn off nozzle if user doesn't change filament within this time limit in seconds
+    #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS   250000L       // Number of alert beeps before printer goes quiet
     #define STEPPER_MOTORS_DONT_TIMEOUT_DURING_FILAMENT_CHANGE    // Enable to make stepper motors hold position during filament change even if it 
                                                                   // takes longer than DEFAULT_STEPPER_DEACTIVE_TIME
   #endif
