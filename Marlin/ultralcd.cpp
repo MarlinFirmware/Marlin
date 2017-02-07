@@ -1310,15 +1310,14 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_material1_hotend0);
         MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_material2_hotend0);
       #endif
+      //
+      // Change filament
+      //
+      #if ENABLED(FILAMENT_CHANGE_FEATURE)
+	    if (!thermalManager.tooColdToExtrude(active_extruder))
+	      MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
+	  #endif
 	#endif
-	//
-	// Change filament
-	//
-	#if ENABLED(FILAMENT_CHANGE_FEATURE)
-	  if (!thermalManager.tooColdToExtrude(active_extruder))
-	    MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
-	#endif
-
     //
     // Cooldown
     //
