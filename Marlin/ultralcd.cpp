@@ -2460,7 +2460,7 @@ KeepDrawing:
       STATIC_ITEM (MSG_FILAMENT_CHANGE_MINTEMP STRINGIFY(EXTRUDE_MINTEMP) ".", false, false);
       MENU_BACK(MSG_BACK);
       STATIC_ITEM (" ");
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
       lcd_implementation_hotend_status();
       END_MENU();
     }
@@ -2494,7 +2494,7 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_INIT_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_3);
       #endif
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
       lcd_implementation_hotend_status();
       END_SCREEN();
     }
@@ -2510,7 +2510,7 @@ KeepDrawing:
         STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_3);
       #endif
       STATIC_ITEM (" ");
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
       lcd_implementation_hotend_status();
       END_SCREEN();
     }
@@ -2523,7 +2523,7 @@ KeepDrawing:
         STATIC_ITEM(MSG_FILAMENT_CHANGE_HEATING_2);
       #endif
       STATIC_ITEM(" ");
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
       lcd_implementation_hotend_status();
       END_SCREEN();
     }
@@ -2536,7 +2536,7 @@ KeepDrawing:
         STATIC_ITEM(MSG_FILAMENT_CHANGE_HEAT_2);
       #endif
       STATIC_ITEM(" ");
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
       lcd_implementation_hotend_status();
       END_SCREEN();
     }
@@ -2551,7 +2551,7 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_INSERT_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_3);
       #endif
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
       lcd_implementation_hotend_status();
       END_SCREEN();
     }
@@ -2567,7 +2567,7 @@ KeepDrawing:
         STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_3);
       #endif
       STATIC_ITEM(" ");
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
       lcd_implementation_hotend_status();
       END_SCREEN();
     }
@@ -2583,7 +2583,7 @@ KeepDrawing:
         STATIC_ITEM(MSG_FILAMENT_CHANGE_EXTRUDE_3);
       #endif
       STATIC_ITEM(" ");
-      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
       lcd_implementation_hotend_status();
       END_SCREEN();
     }
