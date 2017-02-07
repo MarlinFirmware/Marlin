@@ -143,10 +143,12 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   #endif // LCD_INFO_MENU
 
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    void lcd_filament_change_toocold_menu();
     void lcd_filament_change_option_menu();
     void lcd_filament_change_init_message();
     void lcd_filament_change_unload_message();
     void lcd_filament_change_insert_message();
+    void lcd_filament_change_heat_nozzle();
     void lcd_filament_change_load_message();
     void lcd_filament_change_extrude_message();
     void lcd_filament_change_resume_message();
