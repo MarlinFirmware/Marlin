@@ -151,6 +151,7 @@ uint16_t max_display_update_time = 0;
     void lcd_filament_change_unload_message();
     void lcd_filament_change_insert_message();
     void lcd_filament_change_load_message();
+    void lcd_filament_change_heat_nozzle();
     void lcd_filament_change_extrude_message();
     void lcd_filament_change_resume_message();
   #endif
