@@ -24,19 +24,11 @@
  * AZTEEG_X3 Arduino Mega with RAMPS v1.4 pin assignments
  */
 
- #ifndef __AVR_ATmega2560__
-  #error "Oops! Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
-#endif
-
 #if HOTENDS > 2
   #error "Azteeg X3 supports up to 2 hotends. Comment this line to keep going."
 #endif
 
 #define BOARD_NAME "Azteeg X3"
-
-#if !PIN_EXISTS(CASE_LIGHT)         // doesn't already exist so OK to change the definition coming
-  #define OK_TO_CHANGE_CASE_LIGHT   // in from from the include file
-#endif
 
 #include "pins_RAMPS_13.h"
 
@@ -70,28 +62,4 @@
   #define STAT_LED_RED_PIN   6
   #define STAT_LED_BLUE_PIN 11
 
-#endif
-
-// added 7 NOV 2016
-// spindle control M3, M4 & M5 commands
-#undef  SPINDLE_SPEED_PIN     //definitions in pins_ramps.h are no good with the AzteegX3 board
-#undef  SPINDLE_ENABLE_PIN
-#undef  SPINDLE_DIR_PIN
-
-#if ENABLED(SPINDLE_ENABLE)
-  #undef  SDA                       // use EXP3 header
-  #undef  SCL
-  #if SERVO0_PIN == 7
-    #undef SERVO0_PIN
-    #def SERVO0_PIN 11
-  #define SPINDLE_SPEED_PIN      7
-  #define SPINDLE_ENABLE_PIN    20  // should have a pullup resistor on this pin
-  #define SPINDLE_DIR_PIN       21
-#endif
-
-// misc
-#if ENABLED(OK_TO_CHANGE_CASE_LIGHT) && STAT_LED_RED_PIN == 6
-  #undef STAT_LED_RED_PIN
-  #undef CASE_LIGHT_PIN
-  #define CASE_LIGHT_PIN 6  // open collector FET driver
 #endif

@@ -71,8 +71,8 @@
 #define E1_DIR_PIN         39
 #define E1_ENABLE_PIN      28
 
-#define E2_STEP_PIN        23 // ? schematic says 24
-#define E2_DIR_PIN         24 // ? schematic says 23
+#define E2_STEP_PIN        23
+#define E2_DIR_PIN         24
 #define E2_ENABLE_PIN      22
 
 //
@@ -129,12 +129,3 @@
 #define BTN_EN1            61
 #define BTN_EN2            59
 #define BTN_ENC            43
-
-
-// added 1 DEC
-#define SPINDLE_SPEED_PIN      3
-#define SPINDLE_ENABLE_PIN    16  // should have a pullup resistor on this pin
-#define SPINDLE_DIR_PIN       11
-
-// misc
-#define CASE_LIGHT_PIN       2

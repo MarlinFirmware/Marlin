@@ -212,11 +212,3 @@
   #endif // !NEWPANEL
 
 #endif // ULTRA_LCD
-
-//  added 2 DEC 2016
-#define SPINDLE_SPEED_PIN     45
-#define SPINDLE_ENABLE_PIN    31  // should have a pullup resistor on this pin
-#define SPINDLE_DIR_PIN       32
-
-// misc
-#define CASE_LIGHT_PIN      46

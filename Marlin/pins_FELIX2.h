@@ -54,8 +54,3 @@
   #define SD_DETECT_PIN 6
 
 #endif // NEWPANEL && ULTRA_LCD
-
-// added 9 NOV
-#undef  SPINDLE_SPEED_PIN      //definitions in pins_ramps.h are not valid with this board
-#undef  SPINDLE_ENABLE_PIN
-#undef  SPINDLE_DIR_PIN

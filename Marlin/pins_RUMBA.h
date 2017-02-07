@@ -148,11 +148,3 @@
 #define BTN_EN1            11
 #define BTN_EN2            12
 #define BTN_ENC            43
-
-//  added 2 DEC 2016
-#define SPINDLE_SPEED_PIN      4
-#define SPINDLE_ENABLE_PIN    14  // should have a pullup resistor on this pin
-#define SPINDLE_DIR_PIN       15
-
-// misc
-#define CASE_LIGHT_PIN      45

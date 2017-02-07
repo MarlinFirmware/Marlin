@@ -73,9 +73,6 @@
  *
  * M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
  * M1   - Same as M0
- * M3   - Turn spindle on, set spindle speed, set rotation to clockwise
- * M4   - Turn spindle on, set spindle speed, set rotation to counter-clockwise
- * M5   - Turn spindle off
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
  * M20  - List SD card. (Requires SDSUPPORT)
@@ -391,7 +388,7 @@ int feedrate_percentage = 100, saved_feedrate_percentage,
     flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
 
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
-     volumetric_enabled =
+     volumetric_enabled = 
       #if ENABLED(VOLUMETRIC_DEFAULT_ON)
         true
       #else
@@ -3422,7 +3419,17 @@ inline void gcode_G4() {
  *  Y   Home to the Y endstop
  *  Z   Home to the Z endstop
  *
+ * Bed leveling
+ *  If there is a valid bed leveling grid then bed leveling is
+ *  turned on after homing is completed - even if it wasn't on
+ *  before G28 was executed.  A valid grid is created either by
+ *  G29 or by M501.  Bed leveling using M501 grids is only
+ *  enabled by the G28 command. Bed leveling using G29 grids is
+ *  enabled within the G29 command.
  */
+ 
+extern bool ABL_grid_valid;
+ 
 inline void gcode_G28() {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3660,6 +3667,9 @@ inline void gcode_G28() {
     tool_change(old_tool_index, 0, true);
   #endif
 
+  #if HAS_ABL
+    set_bed_leveling_enabled(ABL_grid_valid);  // (re)enable bed leveling if the grid is valid
+  #endif
   report_current_position();
 }
 
@@ -3905,7 +3915,7 @@ inline void gcode_G28() {
    *  R  Set the Right limit of the probing grid
    *
    * Parameters with BILINEAR only:
-   *
+   * 
    *  Z  Supply an additional Z probe offset
    *
    * Global Parameters:
@@ -4344,6 +4354,9 @@ inline void gcode_G28() {
         planner.bed_level_matrix.debug("\n\nBed Level Correction Matrix:");
 
       if (!dryrun) {
+        
+        ABL_grid_valid = true;  // let G28 know that the grid is valid so it will be re-enabled after G28 is done
+        
         //
         // Correct the current XYZ position based on the tilted plane.
         //
@@ -4385,6 +4398,9 @@ inline void gcode_G28() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!dryrun) {
+        
+        ABL_grid_valid = true;  // let G28 know that the grid is valid so it will be re-enabled after G28 is done
+        
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
         #endif
@@ -4671,118 +4687,6 @@ inline void gcode_G92() {
   }
 
 #endif // EMERGENCY_PARSER || ULTIPANEL
-
-#if ENABLED(SPINDLE_ENABLE)
-/**
- * M3 & M4 spindle commands
- *  S=0 turns off spindle
- *  if speed pwm output not defined then just turns it on
- *
- *  need at least 12.8KHz (50Hz * 256) for spindle PWM
- *    must use hardware PWM because all ISRs are too slow
- *        Stepper::isr too slow
- *        temperature ISR too slow
- *
- * NOTE - WGM bits for timers 3, 4 & 5 need to be either 0001 or 0101.
- *       Any other setting will result in a PWM signal that doesn't
- *       go from 0 volts to 5 volts.
- *
- *       The system automatically sets those bits to 0001 so special
- *       initialization is not needed.
- *
- *       WGM bits for timer 2 are automatically set by the system to
- *       001.  This produces an acceptable 0 volts to 5 volts signal.
- *       Special initialization is not needed.
- *
- * NOTE - A minimum PWM frequency of 50 Hz is needed.  All of the
- *        pre-scaler factors for timers 2, 3, 4 & 5 are acceptable.
- *
- *  SPINDLE_ENABLE_PIN needs an external pullup or else could turn on
- *  spindle  during power up or when connecting to the host (usually
- *  goes through a reset which sets all I/O pins to tristate)
- *
- *  PWM duty cycle goes from 0 (off) to 255 (always on)
- */
-
-  inline void delay_for_spindle_power_up() {
-    refresh_cmd_timeout();                                                       // wait for spindle to come up to speed
-    while (PENDING(millis(), SPINDLE_POWER_UP_DELAY * 1000 + previous_cmd_ms)) idle();
-  }
-
-  inline void delay_for_spindle_power_down() {
-    refresh_cmd_timeout();                                                       // wait for spindle to stop turning
-    while (PENDING(millis(), SPINDLE_POWER_DOWN_DELAY * 1000 + previous_cmd_ms + 1)) idle();
-  }
-
-  /**
- * ocr_val_mode() is used for debugging and to get the points needed to compute the RPM vs ocr_val line
- *
- * it accepts inputs of 0-255
- */
-
-  inline void ocr_val_mode() {
-    uint8_t spindle_speed = code_value_byte();
-    WRITE(SPINDLE_ENABLE_PIN, SPINDLE_ENABLE_INVERT); //turn spindle on (active low)
-    if (SPINDLE_SPEED_INVERT) spindle_speed = 255 - spindle_speed;
-    analogWrite(SPINDLE_SPEED_PIN, spindle_speed);
-  }
-
-  inline void gcode_M3_M4(bool is_M3) {
-
-    stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before playing with the spindle
-    #if DIRECTION_CHANGE == true
-      bool rotation_dir = (is_M3 && !INVERT_DIRECTION || !is_M3 && INVERT_DIRECTION) ? HIGH : LOW ;
-      if   (STOP_WHEN_CHANGING_DIRECTION \
-         && READ(SPINDLE_ENABLE_PIN) == SPINDLE_ENABLE_INVERT \
-         && READ(SPINDLE_DIR_PIN) != rotation_dir) {
-        WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  // turn spindle off
-        delay_for_spindle_power_down();
-      }
-      digitalWrite(SPINDLE_DIR_PIN, rotation_dir);
-    #endif
-
-      // Our final value for ocr_val is an unsigned 8 bit value between 0 and 255 which usually means uint8_t.
-      // Went to uint16_t because some of the uint8_t calculations would sometimes give 1000 0000 rather than 1111 1111.
-      // Then needed to AND the uint16_t result with 0x00FF to make sure we only wrote the byte of interest.
-
-
-
-    #if ENABLED(SPINDLE_SPEED)
-      if (code_seen('O')) ocr_val_mode();
-      else {
-
-
-        float spindle_speed = code_seen('S') ? code_value_float() : 0;
-        if (spindle_speed == 0) {
-          WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  //turn spindle off (active low);
-          delay_for_spindle_power_down();
-        }
-        else {
-          int16_t ocr_val = (spindle_speed - RPM_INTERCEPT) / RPM_SLOPE;      // convert RPM to PWM duty cycle
-          if (ocr_val >= 255)             ocr_val = 255;                                        //limit to max the Atmel PWM will support
-          if (spindle_speed <= RPM_MIN)   ocr_val = (RPM_MIN - RPM_INTERCEPT) / RPM_SLOPE; // minimum setting
-          if (spindle_speed >= RPM_MAX)   ocr_val = (RPM_MAX - RPM_INTERCEPT) / RPM_SLOPE; // limit to max RPM
-          if (SPINDLE_SPEED_INVERT)       ocr_val = 255 - ocr_val;
-          WRITE(SPINDLE_ENABLE_PIN, SPINDLE_ENABLE_INVERT);  // turn spindle on (active low)
-          analogWrite(SPINDLE_SPEED_PIN, ocr_val & 0xFF);  //only write lowest byte
-          delay_for_spindle_power_up();
-        }
-      }
-    #else
-      WRITE(SPINDLE_ENABLE_PIN, SPINDLE_ENABLE_INVERT);  //turn spindle on (active low) if spindle speed option not enabled
-      delay_for_spindle_power_up();
-    #endif
-  }
-
- /**
- * M5 turn off spindle
- */
-  inline void gcode_M5() {
-    stepper.synchronize();   // wait until previous movement commands (G0, G1, G2 & G3) have completed before turning spindle off
-    WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  // turn spindle off
-    delay_for_spindle_power_down();
-  }
-#endif // SPINDLE_ENABLE
 
 /**
  * M17: Enable power on all stepper motors
@@ -7140,7 +7044,11 @@ void quickstop_stepper() {
 
     if (code_seen('S')) {
       to_enable = code_value_bool();
-      set_bed_leveling_enabled(to_enable);
+      #if HAS_ABL
+        if (axis_unhomed_error(true, true, true)) to_enable = false;  // Don't enable auto-leveling without homing first
+      #endif  
+      if (!ABL_grid_valid) to_enable = false;  // Don't enable auto-leveling without a valid grid
+      set_bed_leveling_enabled(to_enable && ABL_grid_valid);   // Don't enable auto-leveling without a valid grid/matrix
     }
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -7166,14 +7074,16 @@ void quickstop_stepper() {
     // V to print the matrix or mesh
     if (code_seen('V')) {
       #if ABL_PLANAR
-        planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
+        if (ABL_grid_valid) planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
+        else SERIAL_PROTOCOLLNPGM("Bed Level Correction Matrix not yet created");
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        if (bilinear_grid_spacing[X_AXIS]) {
+        if (bilinear_grid_spacing[X_AXIS] && ABL_grid_valid) {
           print_bilinear_leveling_grid();
           #if ENABLED(ABL_BILINEAR_SUBDIVISION)
             bed_level_virt_print();
           #endif
         }
+        else SERIAL_PROTOCOLLNPGM("Bilinear Grid not yet created");
       #elif ENABLED(MESH_BED_LEVELING)
         if (mbl.has_mesh()) {
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
@@ -7706,10 +7616,6 @@ inline void gcode_M907() {
 #if HAS_CASE_LIGHT
 
   uint8_t case_light_brightness = 255;
-  
-  #if !defined(INVERT_CASE_LIGHT)
-    #define INVERT_CASE_LIGHT false  //temporary until M355 PR is implemented
-  #endif  
 
   void update_case_light() {
     digitalWrite(CASE_LIGHT_PIN, case_light_on != INVERT_CASE_LIGHT ? HIGH : LOW);
@@ -8352,18 +8258,6 @@ void process_next_command() {
           gcode_M0_M1();
           break;
       #endif // ULTIPANEL
-
-      #if ENABLED(SPINDLE_ENABLE)
-        case 3:
-          gcode_M3_M4(true);   // M3: turn spindle on, set spindle speed, set rotation direction CW
-          break;               // synchronizes with movement commands
-        case 4:
-          gcode_M3_M4(false);  // M4: turn spindle on, set spindle speed, set rotation direction CCW
-          break;               // synchronizes with movement commands
-        case 5:
-          gcode_M5();     // M5 - turn spindle off
-          break;          // synchronizes with movement commands
-      #endif
 
       case 17: // M17: Enable all stepper motors
         gcode_M17();
@@ -10503,17 +10397,6 @@ void setup() {
 
   #if HAS_CASE_LIGHT
     update_case_light();
-  #endif
-
-  #if ENABLED(SPINDLE_ENABLE)
-    OUT_WRITE(SPINDLE_ENABLE_PIN, !SPINDLE_ENABLE_INVERT);  // init spindle to off
-    #if DIRECTION_CHANGE == true
-      OUT_WRITE(SPINDLE_DIR_PIN, INVERT_DIRECTION ? 255 : 0);  // init rotation to clockwise (M3)
-    #endif
-    #if ENABLED(SPINDLE_SPEED)
-      SET_OUTPUT(SPINDLE_SPEED_PIN);
-      analogWrite(SPINDLE_SPEED_PIN, SPINDLE_SPEED_INVERT ? 255 : 0);  // set to lowest speed
-    #endif
   #endif
 
   #if HAS_BED_PROBE

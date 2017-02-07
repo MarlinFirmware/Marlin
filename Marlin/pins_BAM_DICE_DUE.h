@@ -30,13 +30,6 @@
 
 #define BOARD_NAME "2PrintBeta Due"
 
-/ added 9 NOV 2016
-
-// spindle control M3, M4 & M5 commands
-#define SPINDLE_ENABLE_PIN 66     // should have a pull up/down on it
-#define SPINDLE_DIR_PIN    67
-#define SPINDLE_SPEED_PIN  44     // MUST BE A HARDWARE PWM
-
 #include "pins_RAMPS.h"
 
 //

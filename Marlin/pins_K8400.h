@@ -65,10 +65,4 @@
 //
 #undef PS_ON_PIN
 #undef KILL_PIN
-#undef SD_DETECT_PIN   // per pull request 5619, this pin is not connected
-
-// added 7 NOV 2016   Z_STEP_PIN changed if using spindle controller
-#if Z_STEP_PIN == 26
-  #undef Z_STEP_PIN
-  #define Z_STEP_PIN 32
-#endif
+#undef SD_DETECT_PIN
