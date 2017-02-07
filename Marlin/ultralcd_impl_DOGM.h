@@ -379,11 +379,15 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 
 //#define DOGM_SD_PERCENT
 
+
 static void lcd_implementation_hotend_status() {
-  u8g.setPrintPos(72, 60);
-  u8g.print(itostr3(thermalManager.degHotend(active_extruder)));
-  u8g.print('/');
-  u8g.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+  u8g.setPrintPos(50, 60);
+  lcd_print( (char) '0'+active_extruder );
+  lcd_print( ' ' ); 
+  lcd_print( ' ' ); 
+  lcd_print(itostr3(thermalManager.degHotend(active_extruder)));
+  lcd_print('/');
+  lcd_print(itostr3(thermalManager.degTargetHotend(active_extruder)));
 }
 
 static void lcd_implementation_status_screen() {
