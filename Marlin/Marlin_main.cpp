@@ -7255,7 +7255,27 @@ inline void gcode_M503() {
 
 #if ENABLED(FILAMENT_CHANGE_FEATURE)
 
-bool busy_doing_M600 = false;
+  millis_t next_buzz = 0;
+  unsigned long int runout_beep = 0;
+
+  void filament_change_beep() {
+    millis_t ms = millis(); 
+    if (ms >= next_buzz) { 
+      if (runout_beep <= FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS ) { // Only beep as long as we are supposed to! 
+      BUZZ(300, 2000); 
+      next_buzz = ms + 2500; // Beep every 2.5s while waiting 
+      runout_beep++; 
+      } 
+      else if (runout_beep > FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS  && 
+               runout_beep <= (FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS + 2)) { // Two short beeps 
+        BUZZ(200, 2000); 
+        next_buzz = ms + 500; // Beep  
+        runout_beep++; 
+      }
+    }
+  }
+
+  bool busy_doing_M600 = false;
 
   /**
    * M600: Pause for filament change
@@ -7278,7 +7298,7 @@ bool busy_doing_M600 = false;
     }
 
     busy_doing_M600 = true;  // Stepper Motors can't timeout when this is set
-              
+
     // Show initial message and wait for synchronize steppers
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
     stepper.synchronize();
@@ -7354,35 +7374,31 @@ bool busy_doing_M600 = false;
     disable_e3();
     delay(100);
 
-    #if HAS_BUZZER
-      millis_t next_buzz = 0;
-    #endif
-              
     millis_t nozzle_timeout = millis() + FILAMENT_CHANGE_NOZZLE_TIMEOUT*1000L;
     bool nozzle_timed_out = false;
     float temps[4];
     int iii;
-              
+
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
 
     idle();
 
     wait_for_user = true;    // LCD click or M108 will clear this
+    next_buzz = 0;
+    runout_beep = 0;
     for( iii=0; iii<HOTENDS; iii++)      //Save nozzle temps
       temps[iii] = thermalManager.target_temperature[iii]; 
 
     while (wait_for_user) {
-      millis_t ms = millis();
+      millis_t current_ms = millis();
       if (nozzle_timed_out == true)
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
-      #if HAS_BUZZER
-        if (ms >= next_buzz) {
-          BUZZ(300, 2000);
-          next_buzz = ms + 2500; // Beep every 2.5s while waiting
-        }
-      #endif
-      if (ms >= nozzle_timeout) {
+      #if HAS_BUZZER 
+        filament_change_beep();
+      #endif //HAS_BUZZER
+
+      if (current_ms >= nozzle_timeout) {
         if (nozzle_timed_out == false ) {
           nozzle_timed_out = true;         // if the nozzle time out happens, remember we turned off the nozzles. 
           for( iii=0; iii<HOTENDS; iii++)  // turn off all the nozzles
@@ -7399,7 +7415,7 @@ bool busy_doing_M600 = false;
         thermalManager.setTargetHotend( temps[iii] , iii );
       lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
     }
-	  
+
 KEEP_CHECKING_TEMPS:
     idle();
     for( iii=0; iii<HOTENDS; iii++){
@@ -7410,16 +7426,14 @@ KEEP_CHECKING_TEMPS:
     }
 
     wait_for_user = true;    // LCD click or M108 will clear this
-
+    next_buzz = 0;
+    runout_beep = 0;
     while (wait_for_user) {
-      millis_t ms = millis();
       if (nozzle_timed_out == true)
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
+      else break;
       #if HAS_BUZZER
-        if (ms >= next_buzz) {
-          BUZZ(300, 2000);
-          next_buzz = ms + 2500; // Beep every 2.5s while waiting
-        }
+        filament_change_beep();
       #endif
       idle(true);
     }
@@ -10092,9 +10106,9 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) kill(PSTR(MSG_KILLED));
 	
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
-  #ifdef STEPPER_MOTORS_DONT_TIMEOUT_DURING_FILAMENT_CHANGE
-  if (busy_doing_M600 == false )	   // We only allow the stepper motors to time out if
-  #endif				               // we are not in the middle of an M600 command.
+    #ifdef STEPPER_MOTORS_DONT_TIMEOUT_DURING_FILAMENT_CHANGE
+      if (busy_doing_M600 == false )	   // We only allow the stepper motors to time out if
+    #endif				                       // we are not in the middle of an M600 command.
   #endif
              
   if (stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
