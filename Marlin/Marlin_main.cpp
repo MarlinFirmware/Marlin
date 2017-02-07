@@ -7267,9 +7267,9 @@ inline void gcode_M503() {
       runout_beep++; 
       } 
       else if (runout_beep > FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS  && 
-               runout_beep <= (FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS + 2)) { // Two short beeps 
+               runout_beep <= (FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS + 5)) { // End with a burst of short beeps 
         BUZZ(200, 2000); 
-        next_buzz = ms + 500; // Beep  
+        next_buzz = ms + 400; // Beep  
         runout_beep++; 
       }
     }
@@ -10108,7 +10108,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
     #ifdef STEPPER_MOTORS_DONT_TIMEOUT_DURING_FILAMENT_CHANGE
       if (busy_doing_M600 == false )	   // We only allow the stepper motors to time out if
-    #endif				                       // we are not in the middle of an M600 command.
+    #endif                                 // we are not in the middle of an M600 command.
   #endif
              
   if (stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
