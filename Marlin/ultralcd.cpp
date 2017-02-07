@@ -756,6 +756,11 @@ void kill_screen(const char* lcd_msg) {
 
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
     void lcd_enqueue_filament_change() {
+      if (!DEBUGGING(DRYRUN) && thermalManager.tooColdToExtrude(active_extruder)) {
+        lcd_save_previous_screen();
+        lcd_goto_screen(lcd_filament_change_toocold_menu);
+        return;
+      }
       lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
       enqueue_and_echo_commands_P(PSTR("M600"));
     }
@@ -1305,12 +1310,23 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_material1_hotend0);
         MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_material2_hotend0);
       #endif
-    #endif
+	//
+	// Change filament
+	//
+	#if ENABLED(FILAMENT_CHANGE_FEATURE)
+	  if (!thermalManager.tooColdToExtrude(active_extruder))
+	    MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
+	#endif
 
     //
     // Cooldown
     //
-    MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+    bool has_heat = false;
+    HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; }
+    #if HAS_TEMP_BED
+      if (thermalManager.target_temperature_bed) has_heat = true;
+    #endif
+    if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 
     //
     // BLTouch Self-Test and Reset
@@ -2273,7 +2289,23 @@ void kill_screen(const char* lcd_msg) {
     }
   #endif // LCD_INFO_MENU
 
+    /**
+     *
+     * Filament Change Feature Screens
+     *
+     */
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
+
+    void lcd_filament_change_toocold_menu() {
+      START_MENU();
+      STATIC_ITEM(MSG_HEATING_FAILED_LCD, true, true);
+      STATIC_ITEM (MSG_FILAMENT_CHANGE_MINTEMP STRINGIFY(EXTRUDE_MINTEMP) ".", false, false);
+      MENU_BACK(MSG_BACK);
+      STATIC_ITEM (" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      lcd_implementation_hotend_status();
+      END_MENU();
+    }
 
     void lcd_filament_change_resume_print() {
       filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_RESUME_PRINT;
@@ -2304,6 +2336,8 @@ void kill_screen(const char* lcd_msg) {
       #ifdef MSG_FILAMENT_CHANGE_INIT_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_3);
       #endif
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2317,20 +2351,35 @@ void kill_screen(const char* lcd_msg) {
       #ifdef MSG_FILAMENT_CHANGE_UNLOAD_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_3);
       #endif
+      STATIC_ITEM (" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
-   void lcd_filament_change_wait_for_nozzles_to_heat() {
+    void lcd_filament_change_wait_for_nozzles_to_heat() {
       START_SCREEN();
       STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
-      STATIC_ITEM("Wait to heat nozzle");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEATING_1);
+      #ifdef MSG_FILAMENT_CHANGE_HEATING_2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_HEATING_2);
+      #endif
+      STATIC_ITEM(" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
-   void lcd_filament_change_heat_nozzle() {
+    void lcd_filament_change_heat_nozzle() {
       START_SCREEN();
       STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
-      STATIC_ITEM("Click to heat nozzle");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEAT_1);
+      #ifdef MSG_FILAMENT_CHANGE_INSERT_2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_HEAT_2);
+      #endif
+      STATIC_ITEM(" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2344,6 +2393,8 @@ void kill_screen(const char* lcd_msg) {
       #ifdef MSG_FILAMENT_CHANGE_INSERT_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_3);
       #endif
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2357,6 +2408,9 @@ void kill_screen(const char* lcd_msg) {
       #ifdef MSG_FILAMENT_CHANGE_LOAD_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_3);
       #endif
+      STATIC_ITEM(" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2370,6 +2424,9 @@ void kill_screen(const char* lcd_msg) {
       #ifdef MSG_FILAMENT_CHANGE_EXTRUDE_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_EXTRUDE_3);
       #endif
+      STATIC_ITEM(" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE STRINGIFY(HOTENDS), false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2390,27 +2447,33 @@ void kill_screen(const char* lcd_msg) {
       switch (message) {
         case FILAMENT_CHANGE_MESSAGE_INIT:
           defer_return_to_status = true;
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_init_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_UNLOAD:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_unload_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_INSERT:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_insert_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_LOAD:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_load_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_EXTRUDE:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_extrude_message);
           break;
-	case FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE:
+        case FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_heat_nozzle);
           break;
-	case FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT:
+        case FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT:
+          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_wait_for_nozzles_to_heat);
           break;
-
         case FILAMENT_CHANGE_MESSAGE_OPTION:
           filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_WAIT_FOR;
           lcd_goto_screen(lcd_filament_change_option_menu);
