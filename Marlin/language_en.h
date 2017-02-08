@@ -589,7 +589,7 @@
   #define MSG_FILAMENT_CHANGE_MINTEMP         _UxGT("Minimum Temp is ")
 #endif
 #ifndef MSG_FILAMENT_CHANGE_NOZZLE
-  #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT(" Nozzle: ")
+  #define MSG_FILAMENT_CHANGE_NOZZLE          _UxGT("  Nozzle: ")
 #endif
 
 //
