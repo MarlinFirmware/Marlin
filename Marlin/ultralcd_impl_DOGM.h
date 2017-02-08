@@ -381,7 +381,7 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 
 
 static void lcd_implementation_hotend_status() {
-  u8g.setPrintPos(50, 60);
+  u8g.setPrintPos(60, 60);
   lcd_print( (char) '0'+active_extruder );
   lcd_print( ' ' ); 
   lcd_print( ' ' ); 
