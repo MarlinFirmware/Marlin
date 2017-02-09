@@ -442,6 +442,40 @@
   // using:
   //#define MENU_ADDAUTOSTART
 
+  /**
+   * Sort SD file listings in alphabetical order.
+   *
+   * With this option enabled, items on SD cards will be sorted
+   * by name for easier navigation.
+   *
+   * By default...
+   *
+   *  - Use the slowest -but safest- method for sorting.
+   *  - Folders are sorted to the top.
+   *  - The sort key is statically allocated.
+   *  - No added G-code (M34) support.
+   *  - 40 item sorting limit. (Items after the first 40 are unsorted.)
+   *
+   * SD sorting uses static allocation (as set by SDSORT_LIMIT), allowing the
+   * compiler to calculate the worst-case usage and throw an error if the SRAM
+   * limit is exceeded.
+   *
+   *  - SDSORT_USES_RAM provides faster sorting via a static directory buffer.
+   *  - SDSORT_USES_STACK does the same, but uses a local stack-based buffer.
+   *  - SDSORT_CACHE_NAMES will retain the sorted file listing in RAM. (Expensive!)
+   */
+  //#define SDCARD_SORT_ALPHA
+
+  // SD Card Sorting options
+  #if ENABLED(SDCARD_SORT_ALPHA)
+    #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256).
+    #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
+    #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
+    #define SDSORT_USES_RAM    false  // Pre-allocate a static array for faster pre-sorting.
+    #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
+    #define SDSORT_CACHE_NAMES false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+  #endif
+
   // Show a progress bar on HD44780 LCDs for SD printing
   //#define LCD_PROGRESS_BAR
 

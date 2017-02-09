@@ -298,6 +298,15 @@ script:
   - opt_enable G3D_PANEL SDSUPPORT
   - build_marlin
   #
+  # Add SDCARD_SORT_ALPHA, test G3D_PANEL again
+  #
+  - opt_enable_adv SDCARD_SORT_ALPHA
+  - opt_set_adv SDSORT_GCODE true
+  - opt_set_adv SDSORT_USES_RAM true
+  - opt_set_adv SDSORT_USES_STACK true
+  - opt_set_adv SDSORT_CACHE_NAMES true
+  - build_marlin
+  #
   # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
   #
   - restore_configs
