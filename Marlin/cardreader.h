@@ -104,22 +104,35 @@ private:
       //bool sort_reverse;      // Flag to enable / disable reverse sorting
     #endif
 
-    uint8_t sort_order[SDSORT_LIMIT];
+    // By default the sort index is static
+    #if ENABLED(SDSORT_DYNAMIC_RAM)
+      uint8_t *sort_order;
+    #else
+      uint8_t sort_order[SDSORT_LIMIT];
+    #endif
 
     // Cache filenames to speed up SD menus.
     #if ENABLED(SDSORT_USES_RAM)
 
       // If using dynamic ram for names, allocate on the heap.
       #if ENABLED(SDSORT_CACHE_NAMES)
-        char sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
-        char sortnames[SDSORT_LIMIT][FILENAME_LENGTH];
+        #if ENABLED(SDSORT_DYNAMIC_RAM)
+          char **sortshort, **sortnames;
+        #else
+          char sortshort[SDSORT_LIMIT][FILENAME_LENGTH];
+          char sortnames[SDSORT_LIMIT][FILENAME_LENGTH];
+        #endif
       #elif DISABLED(SDSORT_USES_STACK)
         char sortnames[SDSORT_LIMIT][FILENAME_LENGTH];
       #endif
 
       // Folder sorting uses an isDir array when caching items.
-      #if HAS_FOLDER_SORTING && (ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK))
-        uint8_t isDir[(SDSORT_LIMIT+7)>>3];
+      #if HAS_FOLDER_SORTING
+        #if ENABLED(SDSORT_DYNAMIC_RAM)
+          uint8_t *isDir;
+        #elif ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
+          uint8_t isDir[(SDSORT_LIMIT+7)>>3];
+        #endif
       #endif
 
     #endif // SDSORT_USES_RAM

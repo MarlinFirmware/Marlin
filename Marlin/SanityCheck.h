@@ -213,8 +213,12 @@
     #error "SDSORT_LIMIT must be 256 or smaller."
   #elif SDSORT_LIMIT < 10
     #error "SDSORT_LIMIT should be greater than 9 to be useful."
-  #elif DISABLED(SDSORT_USES_RAM) && ENABLED(SDSORT_CACHE_NAMES)
-    #error "SDSORT_CACHE_NAMES requires SDSORT_USES_RAM (which reads the directory into RAM)."
+  #elif DISABLED(SDSORT_USES_RAM)
+    #if ENABLED(SDSORT_DYNAMIC_RAM)
+      #error "SDSORT_DYNAMIC_RAM requires SDSORT_USES_RAM (which reads the directory into RAM)."
+    #elif ENABLED(SDSORT_CACHE_NAMES)
+      #error "SDSORT_CACHE_NAMES requires SDSORT_USES_RAM (which reads the directory into RAM)."
+    #endif
   #endif
 #endif
 

@@ -463,6 +463,7 @@
    *  - SDSORT_USES_RAM provides faster sorting via a static directory buffer.
    *  - SDSORT_USES_STACK does the same, but uses a local stack-based buffer.
    *  - SDSORT_CACHE_NAMES will retain the sorted file listing in RAM. (Expensive!)
+   *  - SDSORT_DYNAMIC_RAM only uses RAM when the SD menu is visible. (Use with caution!)
    */
   //#define SDCARD_SORT_ALPHA
 
@@ -474,6 +475,7 @@
     #define SDSORT_USES_RAM    false  // Pre-allocate a static array for faster pre-sorting.
     #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
     #define SDSORT_CACHE_NAMES false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+    #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
   #endif
 
   // Show a progress bar on HD44780 LCDs for SD printing
