@@ -152,7 +152,7 @@
 #define MSG_Z2_MIN                          "z2_min: "
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
-#define MSG_FILAMENT_RUNOUT_SENSOR          "filament_Runout_Sensor: "
+#define MSG_FILAMENT_RUNOUT_SENSOR          "filament: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define MSG_ERR_M355_NONE                   "No case light"
 #define MSG_ERR_M421_PARAMETERS             "M421 required parameters missing"
