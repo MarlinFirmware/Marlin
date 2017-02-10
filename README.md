@@ -1,3 +1,17 @@
+# About this fork
+
+The goal of this fork is to add proper support for the Trinamic TMC2130 SPI controlled stepper drivers.
+The configuration will be as easy as any other setting in Marlin.
+For example StealthChop can be enabled by uncommenting #define STEALTHCHOP in configuration_adv.h
+Setting the current can be done directly from the configuration files, or live by using the gcode command M906 X####
+There is no need to adjust the vref potentiometer.
+
+Added features:
+- StealthChop support
+- Current adjustment by configuration and gcode command
+- Check over temperature flags
+- WIP: Automatic current adjustment
+
 # Marlin 3D Printer Firmware
 
 <img align="top" width=175 src="buildroot/share/pixmaps/logo/marlin-250.png" />
