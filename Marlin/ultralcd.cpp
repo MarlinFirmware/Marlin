@@ -950,7 +950,7 @@ void kill_screen(const char* lcd_msg) {
     // Change filament
     //
     #if ENABLED(FILAMENT_CHANGE_FEATURE)
-   	  if (!thermalManager.tooColdToExtrude(active_extruder))
+      if (!thermalManager.tooColdToExtrude(active_extruder))
         MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
     #endif
 
@@ -2446,19 +2446,19 @@ KeepDrawing:
     }
   #endif // LCD_INFO_MENU
 
-    /**
-     *
-     * Filament Change Feature Screens
-     *
-     */
+  /**
+   *
+   * Filament Change Feature Screens
+   *
+   */
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
 
     void lcd_filament_change_toocold_menu() {
       START_MENU();
       STATIC_ITEM(MSG_HEATING_FAILED_LCD, true, true);
-      STATIC_ITEM (MSG_FILAMENT_CHANGE_MINTEMP STRINGIFY(EXTRUDE_MINTEMP) ".", false, false);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_MINTEMP STRINGIFY(EXTRUDE_MINTEMP) ".", false, false);
       MENU_BACK(MSG_BACK);
-      STATIC_ITEM (" ");
+      STATIC_ITEM(" ");
       STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
       lcd_implementation_hotend_status();
       END_MENU();
@@ -2604,31 +2604,24 @@ KeepDrawing:
       switch (message) {
         case FILAMENT_CHANGE_MESSAGE_INIT:
           defer_return_to_status = true;
-          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_init_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_UNLOAD:
-          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_unload_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_INSERT:
-          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_insert_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_LOAD:
-          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_load_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_EXTRUDE:
-          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_extrude_message);
           break;
         case FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE:
-          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_heat_nozzle);
           break;
         case FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT:
-          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
           lcd_goto_screen(lcd_filament_change_wait_for_nozzles_to_heat);
           break;
         case FILAMENT_CHANGE_MESSAGE_OPTION:
