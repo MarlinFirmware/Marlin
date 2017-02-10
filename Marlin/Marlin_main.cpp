@@ -7294,18 +7294,12 @@ inline void gcode_M503() {
   unsigned long int runout_beep = 0;
 
   void filament_change_beep() {
-    millis_t ms = millis(); 
-    if (ms >= next_buzz) { 
-      if (runout_beep <= FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS ) { // Only beep as long as we are supposed to! 
-      BUZZ(300, 2000); 
-      next_buzz = ms + 2500; // Beep every 2.5s while waiting 
-      runout_beep++; 
-      } 
-      else if (runout_beep > FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS  && 
-               runout_beep <= (FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS + 5)) { // End with a burst of short beeps 
-        BUZZ(200, 2000); 
-        next_buzz = ms + 400; // Beep  
-        runout_beep++; 
+    const millis_t ms = millis();
+    if (ELAPSED(ms, next_buzz)) {
+      if (runout_beep <= FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS + 5) { // Only beep as long as we're supposed to
+        next_buzz = ms + (runout_beep <= FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS ? 2500 : 400);
+        BUZZ(300, 2000);
+        runout_beep++;
       }
     }
   }
