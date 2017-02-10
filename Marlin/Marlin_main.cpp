@@ -388,7 +388,7 @@ int feedrate_percentage = 100, saved_feedrate_percentage,
     flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
 
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
-     volumetric_enabled = 
+     volumetric_enabled =
       #if ENABLED(VOLUMETRIC_DEFAULT_ON)
         true
       #else
@@ -1989,6 +1989,7 @@ static void clean_up_after_endstop_or_probe_move() {
   #if ENABLED(BLTOUCH)
     FORCE_INLINE void set_bltouch_deployed(const bool &deploy) {
       servo[Z_ENDSTOP_SERVO_NR].move(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
+      if (deploy && ENABLED(BLTOUCH_M119_MODE)) servo[Z_ENDSTOP_SERVO_NR].move(BLTOUCH_M119);
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
           SERIAL_ECHOPAIR("set_bltouch_deployed(", deploy);
@@ -3902,7 +3903,7 @@ inline void gcode_G28() {
    *  R  Set the Right limit of the probing grid
    *
    * Parameters with BILINEAR only:
-   * 
+   *
    *  Z  Supply an additional Z probe offset
    *
    * Global Parameters:
