@@ -227,7 +227,7 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Вивід..."
   #define MSG_FILAMENT_CHANGE_INSERT_1        "Вставте і нат."
   #define MSG_FILAMENT_CHANGE_LOAD_1          "Ввід..."
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Екстузія..."
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Екструзія..."
   #define MSG_FILAMENT_CHANGE_RESUME_1        "Відновлення..."
 #endif // LCD_HEIGHT < 4
 
