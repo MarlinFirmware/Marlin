@@ -36,213 +36,217 @@
 
 #define DISPLAY_CHARSET_ISO10646_1
 
-#define WELCOME_MSG                         MACHINE_NAME " pripraven."
-#define MSG_SD_INSERTED                     "Karta vlozena"
-#define MSG_SD_REMOVED                      "Karta vyjmuta"
-#define MSG_LCD_ENDSTOPS                    "Endstopy" // maximalne 8 znaku
-#define MSG_MAIN                            "Hlavni nabidka"
-#define MSG_AUTOSTART                       "Autostart"
-#define MSG_DISABLE_STEPPERS                "Uvolnit motory"
-#define MSG_AUTO_HOME                       "Domovska pozice"
-#define MSG_AUTO_HOME_X                     "Domu osa X"
-#define MSG_AUTO_HOME_Y                     "Domu osa Y"
-#define MSG_AUTO_HOME_Z                     "Domu osa Z"
-#define MSG_LEVEL_BED_HOMING                "Mereni podlozky"
-#define MSG_LEVEL_BED_WAITING               "Kliknutim spustte"
-#define MSG_LEVEL_BED_NEXT_POINT            "Dalsi bod"
-#define MSG_LEVEL_BED_DONE                  "Mereni hotovo!"
-#define MSG_LEVEL_BED_CANCEL                "Storno"
-#define MSG_SET_HOME_OFFSETS                "Nastavit ofsety"
-#define MSG_HOME_OFFSETS_APPLIED            "Ofsety nastaveny"
-#define MSG_SET_ORIGIN                      "Nastavit pocatek"
-#define MSG_PREHEAT_1                       "Zahrat PLA"
-#define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 " "
-#define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 " Vse"
-#define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 " Podloz"
-#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 " Nast"
-#define MSG_PREHEAT_2                       "Zahrat ABS"
-#define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 " "
-#define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 " Vse"
-#define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 " Podloz"
-#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 " Nast"
-#define MSG_COOLDOWN                        "Zchladit"
-#define MSG_SWITCH_PS_ON                    "Zapnout napajeni"
-#define MSG_SWITCH_PS_OFF                   "Vypnout napajeni"
-#define MSG_EXTRUDE                         "Vytlacit (extr.)"
-#define MSG_RETRACT                         "Zatlacit (retr.)"
-#define MSG_MOVE_AXIS                       "Posunout osy"
-#define MSG_LEVEL_BED                       "Vyrovnat podlozku"
-#define MSG_MOVE_X                          "Posunout X"
-#define MSG_MOVE_Y                          "Posunout Y"
-#define MSG_MOVE_Z                          "Posunout Z"
-#define MSG_MOVE_E                          "Extruder"
-#define MSG_MOVE_01MM                       "Posunout o 0,1mm"
-#define MSG_MOVE_1MM                        "Posunout o 1mm"
-#define MSG_MOVE_10MM                       "Posunout o 10mm"
-#define MSG_SPEED                           "Rychlost"
-#define MSG_BED_Z                           "Vyska podl."
-#define MSG_NOZZLE                          "Tryska"
-#define MSG_BED                             "Podlozka"
-#define MSG_FAN_SPEED                       "Rychlost vent."
-#define MSG_FLOW                            "Prutok"
-#define MSG_CONTROL                         "Ovladani"
-#define MSG_MIN                             " " LCD_STR_THERMOMETER " Min"
-#define MSG_MAX                             " " LCD_STR_THERMOMETER " Max"
-#define MSG_FACTOR                          " " LCD_STR_THERMOMETER " Fakt"
-#define MSG_AUTOTEMP                        "Autoteplota"
-#define MSG_ON                              "Zap"
-#define MSG_OFF                             "Vyp"
-#define MSG_PID_P                           "PID-P"
-#define MSG_PID_I                           "PID-I"
-#define MSG_PID_D                           "PID-D"
-#define MSG_PID_C                           "PID-C"
-#define MSG_SELECT                          "Vybrat"
-#define MSG_ACC                             "Zrychl"
-#define MSG_VX_JERK                         "Vx-jerk"
-#define MSG_VY_JERK                         "Vy-jerk"
-#define MSG_VZ_JERK                         "Vz-jerk"
-#define MSG_VE_JERK                         "Ve-jerk"
-#define MSG_VMAX                            "Vmax "
-#define MSG_VMIN                            "Vmin"
-#define MSG_VTRAV_MIN                       "VTrav min"
-#define MSG_AMAX                            "Amax "
-#define MSG_A_RETRACT                       "A-retrakt"
-#define MSG_A_TRAVEL                        "A-prejezd"
-#define MSG_XSTEPS                          "Xkroku/mm"
-#define MSG_YSTEPS                          "Ykroku/mm"
-#define MSG_ZSTEPS                          "Zkroku/mm"
-#define MSG_ESTEPS                          "Ekroku/mm"
-#define MSG_TEMPERATURE                     "Teplota"
-#define MSG_MOTION                          "Pohyb"
-#define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED              "E na mm3"
-#define MSG_FILAMENT_DIAM                   "Fil. Prum."
-#define MSG_CONTRAST                        "Kontrast LCD"
-#define MSG_STORE_EPROM                     "Ulozit nastaveni"
-#define MSG_LOAD_EPROM                      "Nacist nastaveni"
-#define MSG_RESTORE_FAILSAFE                "Obnovit vychozi"
-#define MSG_REFRESH                         "Obnovit"
-#define MSG_WATCH                           "Info obrazovka"
-#define MSG_PREPARE                         "Priprava tisku"
-#define MSG_TUNE                            "Doladeni tisku"
-#define MSG_PAUSE_PRINT                     "Pozastavit tisk"
-#define MSG_RESUME_PRINT                    "Obnovit tisk"
-#define MSG_STOP_PRINT                      "Zastavit tisk"
-#define MSG_CARD_MENU                       "Tisknout z SD"
-#define MSG_NO_CARD                         "Zadna SD karta"
-#define MSG_DWELL                           "Uspano..."
-#define MSG_USERWAIT                        "Cekani na uziv..."
-#define MSG_RESUMING                        "Obnovovani tisku"
-#define MSG_PRINT_ABORTED                   "Tisk zrusen"
-#define MSG_NO_MOVE                         "Zadny pohyb."
-#define MSG_KILLED                          "PRERUSENO. "
-#define MSG_STOPPED                         "ZASTAVENO. "
-#define MSG_CONTROL_RETRACT                 "Retrakt mm"
-#define MSG_CONTROL_RETRACT_SWAP            "Vymena Re.mm"
-#define MSG_CONTROL_RETRACTF                "Retraktovat  V"
-#define MSG_CONTROL_RETRACT_ZLIFT           "Zvednuti Z mm"
-#define MSG_CONTROL_RETRACT_RECOVER         "UnRet +mm"
-#define MSG_CONTROL_RETRACT_RECOVER_SWAP    "S UnRet+mm"
-#define MSG_CONTROL_RETRACT_RECOVERF        "UnRet  V"
-#define MSG_AUTORETRACT                     "AutoRetr."
-#define MSG_FILAMENTCHANGE                  "Vymenit filament"
-#define MSG_INIT_SDCARD                     "Nacist SD kartu"
-#define MSG_CNG_SDCARD                      "Vymenit SD kartu"
-#define MSG_ZPROBE_OUT                      "Sonda Z mimo podl"
-#define MSG_BLTOUCH_SELFTEST                "BLTouch Self-Test"
-#define MSG_BLTOUCH_RESET                   "BLTouch Reset"
-#define MSG_HOME                            "Domu"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           "prvni"
-#define MSG_ZPROBE_ZOFFSET                  "Z ofset"
-#define MSG_BABYSTEP_X                      "Babystep X"
-#define MSG_BABYSTEP_Y                      "Babystep Y"
-#define MSG_BABYSTEP_Z                      "Babystep Z"
-#define MSG_ENDSTOP_ABORT                   "Endstop abort"
-#define MSG_HEATING_FAILED_LCD              "Chyba zahrivani"
-#define MSG_ERR_REDUNDANT_TEMP              "REDUND. TEPLOTA"
-#define MSG_THERMAL_RUNAWAY                 "TEPLOTNI SKOK"
-#define MSG_ERR_MAXTEMP                     "VYSOKA TEPLOTA"
-#define MSG_ERR_MINTEMP                     "NIZKA TEPLOTA"
-#define MSG_ERR_MAXTEMP_BED                 "VYS. TEPL. PODL."
-#define MSG_ERR_MINTEMP_BED                 "NIZ. TEPL. PODL."
-#define MSG_ERR_Z_HOMING                    "G28 Z ZAKAZANO"
-#define MSG_HALTED                          "TISK. ZASTAVENA"
-#define MSG_PLEASE_RESET                    "Provedte reset"
-#define MSG_SHORT_DAY                       "d"
-#define MSG_SHORT_HOUR                      "h"
-#define MSG_SHORT_MINUTE                    "m"
-#define MSG_HEATING                         "Zahrivani..."
-#define MSG_HEATING_COMPLETE                "Zahrati hotovo."
-#define MSG_BED_HEATING                     "Zahrivani podl."
-#define MSG_BED_DONE                        "Podlozka hotova."
-#define MSG_DELTA_CALIBRATE                 "Delta Kalibrace"
-#define MSG_DELTA_CALIBRATE_X               "Kalibrovat X"
-#define MSG_DELTA_CALIBRATE_Y               "Kalibrovat Y"
-#define MSG_DELTA_CALIBRATE_Z               "Kalibrovat Z"
-#define MSG_DELTA_CALIBRATE_CENTER          "Kalibrovat Stred"
-#define MSG_INFO_MENU                       "O tiskarne"
-#define MSG_INFO_PRINTER_MENU               "Info o tiskarne"
-#define MSG_INFO_STATS_MENU                 "Statistika"
-#define MSG_INFO_BOARD_MENU                 "Info o desce"
-#define MSG_INFO_THERMISTOR_MENU            "Termistory"
-#define MSG_INFO_EXTRUDERS                  "Extrudery"
-#define MSG_INFO_BAUDRATE                   "Rychlost"
-#define MSG_INFO_PROTOCOL                   "Protokol"
-#define MSG_LIGHTS_ON                       "Osvetleni Zap"
-#define MSG_LIGHTS_OFF                      "Osvetleni Vyp"
+#define WELCOME_MSG                         MACHINE_NAME _UxGT(" pripraven.")
+#define MSG_SD_INSERTED                     _UxGT("Karta vlozena")
+#define MSG_SD_REMOVED                      _UxGT("Karta vyjmuta")
+#define MSG_LCD_ENDSTOPS                    _UxGT("Endstopy") // maximalne 8 znaku
+#define MSG_MAIN                            _UxGT("Hlavni nabidka")
+#define MSG_AUTOSTART                       _UxGT("Autostart")
+#define MSG_DISABLE_STEPPERS                _UxGT("Uvolnit motory")
+#define MSG_AUTO_HOME                       _UxGT("Domovska pozice")
+#define MSG_AUTO_HOME_X                     _UxGT("Domu osa X")
+#define MSG_AUTO_HOME_Y                     _UxGT("Domu osa Y")
+#define MSG_AUTO_HOME_Z                     _UxGT("Domu osa Z")
+#define MSG_LEVEL_BED_HOMING                _UxGT("Mereni podlozky")
+#define MSG_LEVEL_BED_WAITING               _UxGT("Kliknutim spustte")
+#define MSG_LEVEL_BED_NEXT_POINT            _UxGT("Dalsi bod")
+#define MSG_LEVEL_BED_DONE                  _UxGT("Mereni hotovo!")
+#define MSG_LEVEL_BED_CANCEL                _UxGT("Storno")
+#define MSG_SET_HOME_OFFSETS                _UxGT("Nastavit ofsety")
+#define MSG_HOME_OFFSETS_APPLIED            _UxGT("Ofsety nastaveny")
+#define MSG_SET_ORIGIN                      _UxGT("Nastavit pocatek")
+#define MSG_PREHEAT_1                       _UxGT("Zahrat PLA")
+#define MSG_PREHEAT_1_N                     MSG_PREHEAT_1 _UxGT(" ")
+#define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" Vse")
+#define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Podloz")
+#define MSG_PREHEAT_1_SETTINGS              MSG_PREHEAT_1 _UxGT(" Nast")
+#define MSG_PREHEAT_2                       _UxGT("Zahrat ABS")
+#define MSG_PREHEAT_2_N                     MSG_PREHEAT_2 _UxGT(" ")
+#define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" Vse")
+#define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Podloz")
+#define MSG_PREHEAT_2_SETTINGS              MSG_PREHEAT_2 _UxGT(" Nast")
+#define MSG_COOLDOWN                        _UxGT("Zchladit")
+#define MSG_SWITCH_PS_ON                    _UxGT("Zapnout napajeni")
+#define MSG_SWITCH_PS_OFF                   _UxGT("Vypnout napajeni")
+#define MSG_EXTRUDE                         _UxGT("Vytlacit (extr.)")
+#define MSG_RETRACT                         _UxGT("Zatlacit (retr.)")
+#define MSG_MOVE_AXIS                       _UxGT("Posunout osy")
+#define MSG_LEVEL_BED                       _UxGT("Vyrovnat podlozku")
+#define MSG_MOVE_X                          _UxGT("Posunout X")
+#define MSG_MOVE_Y                          _UxGT("Posunout Y")
+#define MSG_MOVE_Z                          _UxGT("Posunout Z")
+#define MSG_MOVE_E                          _UxGT("Extruder")
+#define MSG_MOVE_01MM                       _UxGT("Posunout o 0,1mm")
+#define MSG_MOVE_1MM                        _UxGT("Posunout o 1mm")
+#define MSG_MOVE_10MM                       _UxGT("Posunout o 10mm")
+#define MSG_SPEED                           _UxGT("Rychlost")
+#define MSG_BED_Z                           _UxGT("Vyska podl.")
+#define MSG_NOZZLE                          _UxGT("Tryska")
+#define MSG_BED                             _UxGT("Podlozka")
+#define MSG_FAN_SPEED                       _UxGT("Rychlost vent.")
+#define MSG_FLOW                            _UxGT("Prutok")
+#define MSG_CONTROL                         _UxGT("Ovladani")
+#define MSG_MIN                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Min")
+#define MSG_MAX                             _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Max")
+#define MSG_FACTOR                          _UxGT(" ") LCD_STR_THERMOMETER _UxGT(" Fakt")
+#define MSG_AUTOTEMP                        _UxGT("Autoteplota")
+#define MSG_ON                              _UxGT("Zap")
+#define MSG_OFF                             _UxGT("Vyp")
+#define MSG_PID_P                           _UxGT("PID-P")
+#define MSG_PID_I                           _UxGT("PID-I")
+#define MSG_PID_D                           _UxGT("PID-D")
+#define MSG_PID_C                           _UxGT("PID-C")
+#define MSG_SELECT                          _UxGT("Vybrat")
+#define MSG_ACC                             _UxGT("Zrychl")
+#define MSG_VX_JERK                         _UxGT("Vx-jerk")
+#define MSG_VY_JERK                         _UxGT("Vy-jerk")
+#define MSG_VZ_JERK                         _UxGT("Vz-jerk")
+#define MSG_VE_JERK                         _UxGT("Ve-jerk")
+#define MSG_VMAX                            _UxGT("Vmax ")
+#define MSG_VMIN                            _UxGT("Vmin")
+#define MSG_VTRAV_MIN                       _UxGT("VTrav min")
+#define MSG_AMAX                            _UxGT("Amax ")
+#define MSG_A_RETRACT                       _UxGT("A-retrakt")
+#define MSG_A_TRAVEL                        _UxGT("A-prejezd")
+#define MSG_XSTEPS                          _UxGT("Xkroku/mm")
+#define MSG_YSTEPS                          _UxGT("Ykroku/mm")
+#define MSG_ZSTEPS                          _UxGT("Zkroku/mm")
+#define MSG_ESTEPS                          _UxGT("Ekroku/mm")
+#define MSG_E1STEPS                         _UxGT("E1kroku/mm")
+#define MSG_E2STEPS                         _UxGT("E2kroku/mm")
+#define MSG_E3STEPS                         _UxGT("E3kroku/mm")
+#define MSG_E4STEPS                         _UxGT("E4kroku/mm")
+#define MSG_TEMPERATURE                     _UxGT("Teplota")
+#define MSG_MOTION                          _UxGT("Pohyb")
+#define MSG_VOLUMETRIC                      _UxGT("Filament")
+#define MSG_VOLUMETRIC_ENABLED              _UxGT("E na mm3")
+#define MSG_FILAMENT_DIAM                   _UxGT("Fil. Prum.")
+#define MSG_CONTRAST                        _UxGT("Kontrast LCD")
+#define MSG_STORE_EPROM                     _UxGT("Ulozit nastaveni")
+#define MSG_LOAD_EPROM                      _UxGT("Nacist nastaveni")
+#define MSG_RESTORE_FAILSAFE                _UxGT("Obnovit vychozi")
+#define MSG_REFRESH                         _UxGT("Obnovit")
+#define MSG_WATCH                           _UxGT("Info obrazovka")
+#define MSG_PREPARE                         _UxGT("Priprava tisku")
+#define MSG_TUNE                            _UxGT("Doladeni tisku")
+#define MSG_PAUSE_PRINT                     _UxGT("Pozastavit tisk")
+#define MSG_RESUME_PRINT                    _UxGT("Obnovit tisk")
+#define MSG_STOP_PRINT                      _UxGT("Zastavit tisk")
+#define MSG_CARD_MENU                       _UxGT("Tisknout z SD")
+#define MSG_NO_CARD                         _UxGT("Zadna SD karta")
+#define MSG_DWELL                           _UxGT("Uspano...")
+#define MSG_USERWAIT                        _UxGT("Cekani na uziv...")
+#define MSG_RESUMING                        _UxGT("Obnovovani tisku")
+#define MSG_PRINT_ABORTED                   _UxGT("Tisk zrusen")
+#define MSG_NO_MOVE                         _UxGT("Zadny pohyb.")
+#define MSG_KILLED                          _UxGT("PRERUSENO. ")
+#define MSG_STOPPED                         _UxGT("ZASTAVENO. ")
+#define MSG_CONTROL_RETRACT                 _UxGT("Retrakt mm")
+#define MSG_CONTROL_RETRACT_SWAP            _UxGT("Vymena Re.mm")
+#define MSG_CONTROL_RETRACTF                _UxGT("Retraktovat  V")
+#define MSG_CONTROL_RETRACT_ZLIFT           _UxGT("Zvednuti Z mm")
+#define MSG_CONTROL_RETRACT_RECOVER         _UxGT("UnRet mm")
+#define MSG_CONTROL_RETRACT_RECOVER_SWAP    _UxGT("S UnRet mm")
+#define MSG_CONTROL_RETRACT_RECOVERF        _UxGT("UnRet  V")
+#define MSG_AUTORETRACT                     _UxGT("AutoRetr.")
+#define MSG_FILAMENTCHANGE                  _UxGT("Vymenit filament")
+#define MSG_INIT_SDCARD                     _UxGT("Nacist SD kartu")
+#define MSG_CNG_SDCARD                      _UxGT("Vymenit SD kartu")
+#define MSG_ZPROBE_OUT                      _UxGT("Sonda Z mimo podl")
+#define MSG_BLTOUCH_SELFTEST                _UxGT("BLTouch Self-Test")
+#define MSG_BLTOUCH_RESET                   _UxGT("BLTouch Reset")
+#define MSG_HOME                            _UxGT("Domu")  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
+#define MSG_FIRST                           _UxGT("prvni")
+#define MSG_ZPROBE_ZOFFSET                  _UxGT("Z ofset")
+#define MSG_BABYSTEP_X                      _UxGT("Babystep X")
+#define MSG_BABYSTEP_Y                      _UxGT("Babystep Y")
+#define MSG_BABYSTEP_Z                      _UxGT("Babystep Z")
+#define MSG_ENDSTOP_ABORT                   _UxGT("Endstop abort")
+#define MSG_HEATING_FAILED_LCD              _UxGT("Chyba zahrivani")
+#define MSG_ERR_REDUNDANT_TEMP              _UxGT("REDUND. TEPLOTA")
+#define MSG_THERMAL_RUNAWAY                 _UxGT("TEPLOTNI SKOK")
+#define MSG_ERR_MAXTEMP                     _UxGT("VYSOKA TEPLOTA")
+#define MSG_ERR_MINTEMP                     _UxGT("NIZKA TEPLOTA")
+#define MSG_ERR_MAXTEMP_BED                 _UxGT("VYS. TEPL. PODL.")
+#define MSG_ERR_MINTEMP_BED                 _UxGT("NIZ. TEPL. PODL.")
+#define MSG_ERR_Z_HOMING                    _UxGT("G28 Z ZAKAZANO")
+#define MSG_HALTED                          _UxGT("TISK. ZASTAVENA")
+#define MSG_PLEASE_RESET                    _UxGT("Provedte reset")
+#define MSG_SHORT_DAY                       _UxGT("d")
+#define MSG_SHORT_HOUR                      _UxGT("h")
+#define MSG_SHORT_MINUTE                    _UxGT("m")
+#define MSG_HEATING                         _UxGT("Zahrivani...")
+#define MSG_HEATING_COMPLETE                _UxGT("Zahrati hotovo.")
+#define MSG_BED_HEATING                     _UxGT("Zahrivani podl.")
+#define MSG_BED_DONE                        _UxGT("Podlozka hotova.")
+#define MSG_DELTA_CALIBRATE                 _UxGT("Delta Kalibrace")
+#define MSG_DELTA_CALIBRATE_X               _UxGT("Kalibrovat X")
+#define MSG_DELTA_CALIBRATE_Y               _UxGT("Kalibrovat Y")
+#define MSG_DELTA_CALIBRATE_Z               _UxGT("Kalibrovat Z")
+#define MSG_DELTA_CALIBRATE_CENTER          _UxGT("Kalibrovat Stred")
+#define MSG_INFO_MENU                       _UxGT("O tiskarne")
+#define MSG_INFO_PRINTER_MENU               _UxGT("Info o tiskarne")
+#define MSG_INFO_STATS_MENU                 _UxGT("Statistika")
+#define MSG_INFO_BOARD_MENU                 _UxGT("Info o desce")
+#define MSG_INFO_THERMISTOR_MENU            _UxGT("Termistory")
+#define MSG_INFO_EXTRUDERS                  _UxGT("Extrudery")
+#define MSG_INFO_BAUDRATE                   _UxGT("Rychlost")
+#define MSG_INFO_PROTOCOL                   _UxGT("Protokol")
+#define MSG_LIGHTS_ON                       _UxGT("Osvetleni Zap")
+#define MSG_LIGHTS_OFF                      _UxGT("Osvetleni Vyp")
 #if LCD_WIDTH >= 20
-  #define MSG_INFO_PRINT_COUNT              "Pocet tisku"
-  #define MSG_INFO_COMPLETED_PRINTS         "Dokonceno"
-  #define MSG_INFO_PRINT_TIME               "Celkovy cas"
-  #define MSG_INFO_PRINT_LONGEST            "Nejdelsi tisk"
-  #define MSG_INFO_PRINT_FILAMENT           "Celkem vytlaceno"
+  #define MSG_INFO_PRINT_COUNT              _UxGT("Pocet tisku")
+  #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Dokonceno")
+  #define MSG_INFO_PRINT_TIME               _UxGT("Celkovy cas")
+  #define MSG_INFO_PRINT_LONGEST            _UxGT("Nejdelsi tisk")
+  #define MSG_INFO_PRINT_FILAMENT           _UxGT("Celkem vytlaceno")
 #else
-  #define MSG_INFO_PRINT_COUNT              "Tisky"
-  #define MSG_INFO_COMPLETED_PRINTS         "Hotovo"
-  #define MSG_INFO_PRINT_TIME               "Cas"
-  #define MSG_INFO_PRINT_LONGEST            "Nejdelsi"
-  #define MSG_INFO_PRINT_FILAMENT           "Vytlaceno"
+  #define MSG_INFO_PRINT_COUNT              _UxGT("Tisky")
+  #define MSG_INFO_COMPLETED_PRINTS         _UxGT("Hotovo")
+  #define MSG_INFO_PRINT_TIME               _UxGT("Cas")
+  #define MSG_INFO_PRINT_LONGEST            _UxGT("Nejdelsi")
+  #define MSG_INFO_PRINT_FILAMENT           _UxGT("Vytlaceno")
 #endif
-#define MSG_INFO_MIN_TEMP                   "Teplota min"
-#define MSG_INFO_MAX_TEMP                   "Teplota max"
-#define MSG_INFO_PSU                        "Nap. zdroj"
-#define MSG_DRIVE_STRENGTH                  "Buzeni motoru"
-#define MSG_DAC_PERCENT                     "Motor %"
-#define MSG_DAC_EEPROM_WRITE                "Ulozit do EEPROM"
+#define MSG_INFO_MIN_TEMP                   _UxGT("Teplota min")
+#define MSG_INFO_MAX_TEMP                   _UxGT("Teplota max")
+#define MSG_INFO_PSU                        _UxGT("Nap. zdroj")
+#define MSG_DRIVE_STRENGTH                  _UxGT("Buzeni motoru")
+#define MSG_DAC_PERCENT                     _UxGT("Motor %")
+#define MSG_DAC_EEPROM_WRITE                _UxGT("Ulozit do EEPROM")
 
-#define MSG_FILAMENT_CHANGE_HEADER          "VYMENA FILAMENTU"
-#define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CO DAL?"
-#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Jeste vytlacit"
-#define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Obnovit tisk"
+#define MSG_FILAMENT_CHANGE_HEADER          _UxGT("VYMENA FILAMENTU")
+#define MSG_FILAMENT_CHANGE_OPTION_HEADER   _UxGT("CO DAL?")
+#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  _UxGT("Jeste vytlacit")
+#define MSG_FILAMENT_CHANGE_OPTION_RESUME   _UxGT("Obnovit tisk")
 
 #if LCD_HEIGHT >= 4
   // Up to 3 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1          "Cekejte prosim"
-  #define MSG_FILAMENT_CHANGE_INIT_2          "na zahajeni"
-  #define MSG_FILAMENT_CHANGE_INIT_3          "vymeny filamentu"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Cekejte prosim"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_2        "na vysunuti"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_3        "filamentu"
-  #define MSG_FILAMENT_CHANGE_INSERT_1        "Vlozte filament"
-  #define MSG_FILAMENT_CHANGE_INSERT_2        "a stisknete"
-  #define MSG_FILAMENT_CHANGE_INSERT_3        "tlacitko..."
-  #define MSG_FILAMENT_CHANGE_LOAD_1          "Cekejte prosim"
-  #define MSG_FILAMENT_CHANGE_LOAD_2          "na zavedeni"
-  #define MSG_FILAMENT_CHANGE_LOAD_3          "filamentu"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Cekejte prosim"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "na vytlaceni"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       "filamentu"
-  #define MSG_FILAMENT_CHANGE_RESUME_1        "Cekejte prosim"
-  #define MSG_FILAMENT_CHANGE_RESUME_2        "na pokracovani"
-  #define MSG_FILAMENT_CHANGE_RESUME_3        "tisku"
+  #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Cekejte prosim")
+  #define MSG_FILAMENT_CHANGE_INIT_2          _UxGT("na zahajeni")
+  #define MSG_FILAMENT_CHANGE_INIT_3          _UxGT("vymeny filamentu")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Cekejte prosim")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2        _UxGT("na vysunuti")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_3        _UxGT("filamentu")
+  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vlozte filament")
+  #define MSG_FILAMENT_CHANGE_INSERT_2        _UxGT("a stisknete")
+  #define MSG_FILAMENT_CHANGE_INSERT_3        _UxGT("tlacitko...")
+  #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Cekejte prosim")
+  #define MSG_FILAMENT_CHANGE_LOAD_2          _UxGT("na zavedeni")
+  #define MSG_FILAMENT_CHANGE_LOAD_3          _UxGT("filamentu")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Cekejte prosim")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       _UxGT("na vytlaceni")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_3       _UxGT("filamentu")
+  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Cekejte prosim")
+  #define MSG_FILAMENT_CHANGE_RESUME_2        _UxGT("na pokracovani")
+  #define MSG_FILAMENT_CHANGE_RESUME_3        _UxGT("tisku")
 #else // LCD_HEIGHT < 4
   // Up to 2 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1          "Cekejte..."
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Vysouvani..."
-  #define MSG_FILAMENT_CHANGE_INSERT_1        "Vlozte, kliknete"
-  #define MSG_FILAMENT_CHANGE_LOAD_1          "Zavadeni..."
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Vytlacovani..."
-  #define MSG_FILAMENT_CHANGE_RESUME_1        "Pokracovani..."
+  #define MSG_FILAMENT_CHANGE_INIT_1          _UxGT("Cekejte...")
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Vysouvani...")
+  #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Vlozte, kliknete")
+  #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Zavadeni...")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Vytlacovani...")
+  #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Pokracovani...")
 #endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_CZ_H

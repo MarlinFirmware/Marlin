@@ -27,11 +27,10 @@
  */
 
 /**
- * Due to the high number of issues related with old versions of Arduino IDE
- * we now prevent Marlin from compiling with older toolkits.
+ * Require gcc 4.7 or newer (first included with Arduino 1.6.8) for C++11 features.
  */
-#if !defined(ARDUINO) || ARDUINO < 10608
-  #error "Versions of Arduino IDE prior to 1.6.8 are no longer supported, please update your toolkit."
+#if __cplusplus < 201103L
+  #error "Marlin requires C++11 support (gcc >= 4.7, Arduino IDE >= 1.6.8). Please upgrade your toolchain."
 #endif
 
 /**
@@ -142,7 +141,9 @@
 #elif defined(AUTO_BED_LEVELING_FEATURE)
   #error "AUTO_BED_LEVELING_FEATURE is deprecated. Specify AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_3POINT."
 #elif defined(ABL_GRID_POINTS)
-  #error "ABL_GRID_POINTS is now ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y. Please update your configuration."
+  #error "ABL_GRID_POINTS is now ABL_GRID_MAX_POINTS_X and ABL_GRID_MAX_POINTS_Y. Please update your configuration."
+#elif defined(ABL_GRID_POINTS_X) || defined(ABL_GRID_POINTS_Y)
+  #error "ABL_GRID_POINTS_[XY] is now ABL_GRID_MAX_POINTS_[XY]. Please update your configuration."
 #elif defined(BEEPER)
   #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECT)
@@ -212,10 +213,10 @@
     #error "You probably want to use Max Endstops for DELTA!"
   #endif
   #if ABL_GRID
-    #if (ABL_GRID_POINTS_X & 1) == 0 || (ABL_GRID_POINTS_Y & 1) == 0
-      #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be odd numbers."
-    #elif ABL_GRID_POINTS_X < 3
-      #error "DELTA requires ABL_GRID_POINTS_X and ABL_GRID_POINTS_Y to be 3 or higher."
+    #if (ABL_GRID_MAX_POINTS_X & 1) == 0 || (ABL_GRID_MAX_POINTS_Y & 1) == 0
+      #error "DELTA requires ABL_GRID_MAX_POINTS_X and ABL_GRID_MAX_POINTS_Y to be odd numbers."
+    #elif ABL_GRID_MAX_POINTS_X < 3
+      #error "DELTA requires ABL_GRID_MAX_POINTS_X and ABL_GRID_MAX_POINTS_Y to be 3 or higher."
     #endif
   #endif
 #endif
@@ -243,14 +244,20 @@
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
   #elif DISABLED(SDSUPPORT) && DISABLED(PRINTJOB_TIMER_AUTOSTART)
     #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT or PRINTJOB_TIMER_AUTOSTART."
+  #elif DISABLED(FILAMENT_CHANGE_FEATURE)
+    static_assert(NULL == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "FILAMENT_CHANGE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
   #endif
 #endif
 
 /**
  * Filament Change with Extruder Runout Prevention
  */
-#if ENABLED(FILAMENT_CHANGE_FEATURE) && ENABLED(EXTRUDER_RUNOUT_PREVENT)
-  #error "EXTRUDER_RUNOUT_PREVENT is incompatible with FILAMENT_CHANGE_FEATURE."
+#if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #if DISABLED(ULTIPANEL)
+    #error "FILAMENT_CHANGE_FEATURE currently requires an LCD controller."
+  #elif ENABLED(EXTRUDER_RUNOUT_PREVENT)
+    #error "EXTRUDER_RUNOUT_PREVENT is incompatible with FILAMENT_CHANGE_FEATURE."
+  #endif
 #endif
 
 /**
@@ -454,6 +461,8 @@
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires USE_ZMIN_PLUG to be enabled."
     #elif !HAS_Z_MIN
       #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires the Z_MIN_PIN to be defined."
+    #elif ENABLED(Z_MIN_PROBE_ENDSTOP_INVERTING) != ENABLED(Z_MIN_ENDSTOP_INVERTING)
+      #error "Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN requires Z_MIN_ENDSTOP_INVERTING to match Z_MIN_PROBE_ENDSTOP_INVERTING."
     #endif
   #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
     #if !HAS_Z_MIN_PROBE_PIN

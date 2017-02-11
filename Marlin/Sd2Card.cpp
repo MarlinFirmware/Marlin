@@ -31,6 +31,10 @@
 #if ENABLED(SDSUPPORT)
 #include "Sd2Card.h"
 
+#if ENABLED(USE_WATCHDOG)
+  #include "watchdog.h"
+#endif
+
 //------------------------------------------------------------------------------
 #if DISABLED(SOFTWARE_SPI)
   // functions for hardware SPI
@@ -298,6 +302,12 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   // 16-bit init start time allows over a minute
   uint16_t t0 = (uint16_t)millis();
   uint32_t arg;
+
+  // If init takes more than 4s it could trigger
+  // watchdog leading to a reboot loop.
+  #if ENABLED(USE_WATCHDOG)
+    watchdog_reset();
+  #endif
 
   // set pin modes
   pinMode(chipSelectPin_, OUTPUT);

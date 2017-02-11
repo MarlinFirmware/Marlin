@@ -43,12 +43,7 @@
   void lcd_reset_alert_level();
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
-
-  #if (ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)) && ENABLED(DETECT_DEVICE)
-    bool lcd_detected();
-  #else
-    inline bool lcd_detected() { return true; }
-  #endif
+  bool lcd_detected(void);
 
   #if HAS_BUZZER
     void lcd_buzz(long duration, uint16_t freq);
