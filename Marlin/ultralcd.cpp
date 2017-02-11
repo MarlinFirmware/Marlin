@@ -1415,7 +1415,7 @@ void kill_screen(const char* lcd_msg) {
       // This assumes the center is 0,0
       #if ENABLED(DELTA)
         if (axis != Z_AXIS) {
-          max = sqrt(sq(DELTA_PRINTABLE_RADIUS) - sq(current_position[Y_AXIS - axis]));
+          max = SQRT(sq(DELTA_PRINTABLE_RADIUS) - sq(current_position[Y_AXIS - axis]));
           min = -max;
         }
       #endif
@@ -2486,18 +2486,15 @@ void lcd_init() {
 
   #if ENABLED(NEWPANEL)
     #if BUTTON_EXISTS(EN1)
-      SET_INPUT(BTN_EN1);
-      WRITE(BTN_EN1, HIGH);
+      SET_INPUT_PULLUP(BTN_EN1);
     #endif
 
     #if BUTTON_EXISTS(EN2)
-      SET_INPUT(BTN_EN2);
-      WRITE(BTN_EN2, HIGH);
+      SET_INPUT_PULLUP(BTN_EN2);
     #endif
 
     #if BUTTON_EXISTS(ENC)
-      SET_INPUT(BTN_ENC);
-      WRITE(BTN_ENC, HIGH);
+      SET_INPUT_PULLUP(BTN_ENC);
     #endif
 
     #if ENABLED(REPRAPWORLD_KEYPAD)
@@ -2534,8 +2531,7 @@ void lcd_init() {
   #endif // !NEWPANEL
 
   #if ENABLED(SDSUPPORT) && PIN_EXISTS(SD_DETECT)
-    SET_INPUT(SD_DETECT_PIN);
-    WRITE(SD_DETECT_PIN, HIGH);
+    SET_INPUT_PULLUP(SD_DETECT_PIN);
     lcd_sd_status = 2; // UNKNOWN
   #endif
 
