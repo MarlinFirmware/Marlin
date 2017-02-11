@@ -47,6 +47,7 @@
 // See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
 
 // Languages
+<<<<<<< HEAD
 // an         Aragonese
 // bg         Bulgarian
 // ca         Catalan
@@ -83,6 +84,51 @@
 #ifdef CUSTOM_MACHINE_NAME
   #undef  MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MACHINE_NAME
+=======
+// en English
+// pl Polish
+// fr French
+// de German
+// es Spanish
+// ru Russian
+// it Italian
+// pt Portuguese
+// fi Finnish
+// an Aragonese
+// nl Dutch
+// ca Catalan
+// eu Basque-Euskera
+// cz Czech
+
+#ifndef LANGUAGE_INCLUDE
+  // pick your language from the list above
+  #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
+#endif
+
+#if defined(USE_AUTOMATIC_VERSIONING)
+  #include "_Version.h"
+#else
+  #include "Default_Version.h"
+#endif
+
+#define PROTOCOL_VERSION "1.0"
+
+#if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
+  #define MACHINE_NAME "Ultimaker"
+  #define FIRMWARE_URL "https://github.com/Ultimaker/Marlin"
+#elif MB(RUMBA)
+  #define MACHINE_NAME "Rumba"
+  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+#elif MB(3DRAG)
+  #define MACHINE_NAME "3Drag"
+  #define FIRMWARE_URL "http://3dprint.elettronicain.it/"
+#elif MB(5DPRINT)
+  #define MACHINE_NAME "Makibox"
+  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+#elif MB(SAV_MKI)
+  #define MACHINE_NAME "SAV MkI"
+  #define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
+>>>>>>> MarlinFirmware/1.0.x
 #else
   #ifdef DEFAULT_MACHINE_NAME
     #undef  MACHINE_NAME
@@ -90,6 +136,22 @@
   #endif
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CUSTOM_MACHINE_NAME
+  #undef MACHINE_NAME
+  #define MACHINE_NAME CUSTOM_MACHINE_NAME
+#endif
+
+#ifndef SOURCE_CODE_URL
+  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+#endif
+
+#ifndef DETAILED_BUILD_VERSION
+  #error BUILD_VERSION Information must be specified
+#endif
+
+>>>>>>> MarlinFirmware/1.0.x
 #ifndef MACHINE_UUID
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
@@ -132,7 +194,16 @@
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
 #define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
+<<<<<<< HEAD
 #define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
+=======
+#define MSG_M109_INVALID_EXTRUDER           "M109 Invalid extruder "
+#define MSG_HEATING                         "Heating..."
+#define MSG_HEATING_COMPLETE                "Heating done."
+#define MSG_BED_HEATING                     "Bed Heating."
+#define MSG_BED_DONE                        "Bed done."
+#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
+>>>>>>> MarlinFirmware/1.0.x
 #define MSG_COUNT_X                         " Count X: "
 #define MSG_COUNT_A                         " Count A: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
