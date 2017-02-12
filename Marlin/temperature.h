@@ -60,7 +60,9 @@ class Temperature {
                  target_temperature[HOTENDS],
                  current_temperature_bed_raw,
                  target_temperature_bed;
-
+    
+    static volatile bool in_temp_isr;
+    
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       static float redundant_temperature;
     #endif
