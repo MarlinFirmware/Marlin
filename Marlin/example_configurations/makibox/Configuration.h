@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
@@ -761,6 +761,7 @@
 
   #if ENABLED(MANUAL_BED_LEVELING)
     #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
+    //#define STORE_MBL            // Auto-save the mesh to eprom when done.
   #endif  // MANUAL_BED_LEVELING
 
   // Gradually reduce leveling correction until a set height is reached,
