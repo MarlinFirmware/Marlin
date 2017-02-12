@@ -103,11 +103,11 @@
       digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
       digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
       digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
-      digitalWrite(RGBW_LED_W_PIN, w ? HIGH : LOW);
+      digitalWrite(RGB_LED_W_PIN, w ? HIGH : LOW);
       analogWrite(RGB_LED_R_PIN, r);
       analogWrite(RGB_LED_G_PIN, g);
       analogWrite(RGB_LED_B_PIN, b);
-      analogWrite(RGBW_LED_W_PIN, w);
+      analogWrite(RGB_LED_W_PIN, w);
   }
 
   // Handle the various printer events

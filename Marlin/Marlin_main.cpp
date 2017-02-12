@@ -5455,14 +5455,14 @@ inline void gcode_M105() {
         digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
         digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
           #if ENABLED(RGBW_STRIP)
-            digitalWrite(RGBW_LED_W_PIN, w ? HIGH : LOW);
+            digitalWrite(RGB_LED_W_PIN, w ? HIGH : LOW);
           #endif
       #endif
       analogWrite(RGB_LED_R_PIN, r);
       analogWrite(RGB_LED_G_PIN, g);
       analogWrite(RGB_LED_B_PIN, b);
         #if ENABLED(RGBW_STRIP)
-          analogWrite(RGBW_LED_W_PIN, w);
+          analogWrite(RGB_LED_W_PIN, w);
         #endif
     #endif
   }
@@ -6200,7 +6200,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
   }
 #endif // HAVE_TMC2130DRIVER
 
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
 
   /**
    * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
@@ -6227,7 +6227,7 @@ inline void gcode_M121() { endstops.enable_globally(false); }
     );
   }
 
-#endif // BLINKM || RGB_LED || RGB_STRIP || RGBW_STRIP
+#endif // BLINKM || RGB_LED || RGB_STRIP
 
 /**
  * M200: Set filament diameter and set E axis units to cubic units
