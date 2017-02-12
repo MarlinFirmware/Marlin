@@ -781,8 +781,39 @@ void kill_screen(const char* lcd_msg) {
       void lcd_babystep_x() { lcd_goto_screen(_lcd_babystep_x); babysteps_done = 0; defer_return_to_status = true; }
       void lcd_babystep_y() { lcd_goto_screen(_lcd_babystep_y); babysteps_done = 0; defer_return_to_status = true; }
     #endif
-    void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
-    void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
+
+    #if HAS_BED_PROBE
+
+      void _lcd_babystep_zoffset() {
+        if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
+        ENCODER_DIRECTION_NORMAL();
+        if (encoderPosition) {
+          int babystep_increment = (int32_t)encoderPosition * (BABYSTEP_MULTIPLICATOR);
+          encoderPosition = 0;
+
+          float new_zoffset = zprobe_zoffset + (babystep_increment/planner.axis_steps_per_mm[Z_AXIS]);
+          if (new_zoffset >= Z_PROBE_OFFSET_RANGE_MIN && new_zoffset <= Z_PROBE_OFFSET_RANGE_MAX)
+          {
+            lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+            
+            if (Planner::abl_enabled)
+              thermalManager.babystep_axis(Z_AXIS, babystep_increment);
+      
+            zprobe_zoffset = new_zoffset;
+          }
+        }
+        if (lcdDrawUpdate)
+          lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr43sign(zprobe_zoffset));
+      }
+
+      void lcd_babystep_zoffset() { lcd_goto_screen(_lcd_babystep_zoffset); defer_return_to_status = true; }
+
+    #else // !HAS_BED_PROBE
+
+      void _lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
+      void lcd_babystep_z() { lcd_goto_screen(_lcd_babystep_z); babysteps_done = 0; defer_return_to_status = true; }
+
+    #endif // HAS_BED_PROBE
 
   #endif //BABYSTEPPING
 
@@ -947,7 +978,9 @@ void kill_screen(const char* lcd_msg) {
         MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
         MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
       #endif //BABYSTEP_XY
-      MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
+      #if !HAS_BED_PROBE
+        MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
+      #endif
     #endif
 
     //
@@ -2065,7 +2098,11 @@ KeepDrawing:
     START_MENU();
     MENU_BACK(MSG_CONTROL);
     #if HAS_BED_PROBE
-      MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      #if ENABLED(BABYSTEPPING)
+        MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, lcd_babystep_zoffset);
+      #else
+        MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      #endif
     #endif
     // Manual bed leveling, Bed Z:
     #if ENABLED(MANUAL_BED_LEVELING)
