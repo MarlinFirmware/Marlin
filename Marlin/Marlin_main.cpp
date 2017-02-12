@@ -5473,6 +5473,7 @@ inline void gcode_M105() {
  *       Rxxx Wait for extruder(s) to reach temperature. Waits when heating and cooling.
  */
 inline void gcode_M109() {
+  float starting_temp = thermalManager.degHotend(target_extruder);
 
   if (get_target_extruder_from_command(109)) return;
   if (DEBUGGING(DRYRUN)) return;
@@ -5568,7 +5569,7 @@ inline void gcode_M109() {
           // Gradually change LED strip from violet to red as extruder heats up
           r = 255;
           g = 0;
-          b = map(temp, 0, theTarget, 255, 10);
+          b = map(temp, starting_temp, theTarget, 255, 10);
           set_led_color(r, g, b, w);
         }
     #endif
@@ -5621,11 +5622,14 @@ inline void gcode_M109() {
     #define MIN_COOLING_SLOPE_TIME_BED 60
   #endif
 
+
   /**
    * M190: Sxxx Wait for bed current temp to reach target temp. Waits only when heating
    *       Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
    */
   inline void gcode_M190() {
+    float starting_temp = thermalManager.degBed();
+
     if (DEBUGGING(DRYRUN)) return;
 
     LCD_MESSAGEPGM(MSG_BED_HEATING);
@@ -5701,7 +5705,7 @@ inline void gcode_M109() {
       #if ENABLED(PRINTER_EVENT_LEDS)
         if(wait_for_heatup) {
           // Gradually change LED strip from blue to violet as bed heats up
-          r = map(temp, 0, theTarget, 0, 254);
+          r = map(temp, starting_temp, theTarget, 0, 254);
           g = 0;
           b = 255;
           set_led_color(r, g, b, w);

@@ -920,10 +920,10 @@
  * RGBW_STRIP Requirements
  */
 #if ENABLED(RGBW_STRIP)
-  #if !(RGB_STRIP)
+  #if !ENABLED(RGB_STRIP)
     #error "RGBW_STRIP requires RGB_STRIP to be enabled."
-  #elif !(PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B) && PIN_EXISTS(RGBW_LED_W))
-    #error "RGBW_STRIP requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGBW_LED_W_PIN."
+  #elif !(PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B) && PIN_EXISTS(RGB_LED_W))
+    #error "RGBW_STRIP requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGB_LED_W_PIN."
   #elif ENABLED(BLINKM)
     #error "RGBW_STRIP and BLINKM are currently incompatible (both use M150)."
   #endif

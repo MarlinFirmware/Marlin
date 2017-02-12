@@ -57,7 +57,7 @@
         #if ENABLED(DOGLCD)
           wait_for_user_timeout = 0;
           do {
-           lcd_update();
+           idle();
            safe_delay(100);
            wait_for_user_timeout ++;
            if (wait_for_user_timeout >= RGB_reset_time) break;
@@ -68,7 +68,7 @@
         set_rgb_color(0, 0, 0);  // Turn RGB LEDs off
 
         LCD_MESSAGEPGM(WELCOME_MSG);
-        lcd_update();
+        idle();
         break;
       case(1):      // Turn RGB LEDs White
         set_rgb_color(255, 255, 255);
@@ -117,7 +117,7 @@
     switch(code) {
       case(0):        // Print Complete
         LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
-        lcd_update();
+        idle();
         set_rgb_color(0, 255, 0, 0);  // Turn RGB LEDs to GREEN
         wait_for_user = true;
         int wait_for_user_timeout;
@@ -137,7 +137,7 @@
         #if ENABLED(DOGLCD)
           wait_for_user_timeout = 0;
           do {
-           lcd_update();
+           idle();
            safe_delay(100);
            wait_for_user_timeout ++;
            if (wait_for_user_timeout >= RGB_reset_time) break;
@@ -148,7 +148,7 @@
         set_rgb_color(0, 0, 0, 0);  // Turn RGB LEDs off
 
         LCD_MESSAGEPGM(WELCOME_MSG);
-        lcd_update();
+        idle();
         break;
       case(1):      // Turn RGB LEDs White
         set_rgb_color(0, 0, 0, 255);
