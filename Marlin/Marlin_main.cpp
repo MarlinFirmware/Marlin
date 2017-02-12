@@ -2937,7 +2937,7 @@ bool position_is_reachable(float target[XYZ]
       return HYPOT2(dx - SCARA_OFFSET_X, dy - SCARA_OFFSET_Y) <= sq(L1 + L2);
     #endif
   #elif ENABLED(DELTA)
-    return HYPOT2(dx, dy) <= sq(DELTA_PRINTABLE_RADIUS);
+    return HYPOT2(dx, dy) <= sq((float)(DELTA_PRINTABLE_RADIUS));
   #else
     const float dz = RAW_Z_POSITION(target[Z_AXIS]);
     return dx >= X_MIN_POS - 0.0001 && dx <= X_MAX_POS + 0.0001
