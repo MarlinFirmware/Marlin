@@ -1488,7 +1488,7 @@
   #endif
 
   #define RGB_reset_time 600   // Set time for RGB_Strip to turn off. (600 = 60 secs.)
-#endif // ENABLED(RGB_STRIP) || ENABLED (RGBW_STRIP)
+#endif // ENABLED(RGB_STRIP)
 
 /**
   //===========================================================================

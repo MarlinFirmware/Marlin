@@ -254,12 +254,12 @@
   #include "watchdog.h"
 #endif
 
-#if ENABLED(BLINKM) || ENABLED(RGB_STRIP) || ENABLED (RGBW_STRIP)
+#if ENABLED(BLINKM) || ENABLED(RGB_STRIP)
   #include "blinkm.h"
   #include "Wire.h"
 #endif
 
-#if ENABLED(RGB_STRIP) || ENABLED (RGBW_STRIP)
+#if ENABLED(RGB_STRIP)
   int r, g, b, w;
   #include "RGB_Strip.h"
 #endif
