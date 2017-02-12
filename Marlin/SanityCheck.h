@@ -429,8 +429,13 @@
   #else
     #define COUNT_PROBE_6 COUNT_PROBE_5
   #endif
-  #if COUNT_PROBE_6 > 1
-    #error "Please enable only one probe: FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
+  #if ENABLED(Z_RACK_PINION)
+    #define COUNT_PROBE_7 INCREMENT(COUNT_PROBE_6)
+  #else
+    #define COUNT_PROBE_7 COUNT_PROBE_6
+  #endif  
+  #if COUNT_PROBE_7 > 1
+    #error "Please enable only one probe: FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or Z_RACK_PINION."
   #endif
 
   /**
@@ -491,7 +496,7 @@
    * Require some kind of probe for bed leveling and probe testing
    */
   #if HAS_ABL
-    #error "Auto Bed Leveling requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
+    #error "Auto Bed Leveling requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, FIX_MOUNTED_PROBE, or Z_RACK_PINION."
   #elif ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
     #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
