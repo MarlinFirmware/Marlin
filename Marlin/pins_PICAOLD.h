@@ -88,17 +88,10 @@ AD12 = 66;  AD13 = 67;  AD14 = 68;  AD15 = 69;
  #define SSR_PIN            6
  #define HEATER_BED_PIN     8 // heat bed
  
-#if MB(PICA_REVB) 
  #define HEATER_0_PIN       9 // extruder 
  #define HEATER_1_PIN       10 // second extruder
  #define FAN_PIN            11
  #define FAN_2_PIN          12
-#else
- #define HEATER_0_PIN       10 // extruder 
- #define HEATER_1_PIN       2 // second extruder
- #define FAN_PIN            9
- #define FAN_2_PIN          7
-#endif
 
  #define TEMP_0_PIN         9   // ANALOG NUMBERING
  #define TEMP_1_PIN         10
