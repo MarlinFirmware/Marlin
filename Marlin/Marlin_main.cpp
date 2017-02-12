@@ -7991,6 +7991,11 @@ inline void gcode_M503() {
           #endif
         #endif
 
+        #if ENABLED(BABYSTEPPING)
+          if (planner.abl_enabled)
+            thermalManager.babystep_axis(Z_AXIS, lround((value - zprobe_zoffset) * planner.axis_steps_per_mm[Z_AXIS]));
+        #endif
+
         zprobe_zoffset = value;
         SERIAL_ECHO(zprobe_zoffset);
       }
