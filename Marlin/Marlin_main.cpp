@@ -131,7 +131,7 @@
  * M140 - Set bed target temp. S<temp>
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
- * M150 - Set Status LED (or RGB Strip) Color as R<red> U<green> B<blue>. Values 0-255. (Requires BLINKMm, RGB_LED, or RGB_Strip)
+ * M150 - Set Status LED (or RGB Strip) Color as R<red> U<green> B<blue>. Values 0-255. (Requires BLINKMm, RGB_LED, RGB_STRIP, or RGBW_STRIP)
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
@@ -254,13 +254,13 @@
   #include "watchdog.h"
 #endif
 
-#if ENABLED(BLINKM) || ENABLED(RGB_STRIP)
+#if ENABLED(BLINKM) || ENABLED(RGB_STRIP) || ENABLED (RGBW_STRIP)
   #include "blinkm.h"
   #include "Wire.h"
 #endif
 
-#if ENABLED(RGB_STRIP)
-  int r, g, b;
+#if ENABLED(RGB_STRIP) || ENABLED (RGBW_STRIP)
+  int r, g, b, w;
   #include "RGB_Strip.h"
 #endif
 
@@ -5437,9 +5437,9 @@ inline void gcode_M105() {
     #define MIN_COOLING_SLOPE_TIME 60
   #endif
 
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
 
-  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
+  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w) {
 
     #if ENABLED(BLINKM)
 
@@ -5454,10 +5454,16 @@ inline void gcode_M105() {
         digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
         digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
         digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
+          #if ENABLED(RGBW_STRIP)
+            digitalWrite(RGBW_LED_W_PIN, w ? HIGH : LOW);
+          #endif
       #endif
       analogWrite(RGB_LED_R_PIN, r);
       analogWrite(RGB_LED_G_PIN, g);
       analogWrite(RGB_LED_B_PIN, b);
+        #if ENABLED(RGBW_STRIP)
+          analogWrite(RGBW_LED_W_PIN, w);
+        #endif
     #endif
   }
 #endif
@@ -5563,7 +5569,7 @@ inline void gcode_M109() {
           r = 255;
           g = 0;
           b = map(temp, 0, theTarget, 255, 10);
-          set_led_color(r, g, b);
+          set_led_color(r, g, b, w);
         }
     #endif
 
@@ -5698,7 +5704,7 @@ inline void gcode_M109() {
           r = map(temp, 0, theTarget, 0, 254);
           g = 0;
           b = 255;
-          set_led_color(r, g, b);
+          set_led_color(r, g, b, w);
         }
       #endif //ENABLED(PRINTER_EVENT_LEDS)
 
@@ -6194,10 +6200,10 @@ inline void gcode_M121() { endstops.enable_globally(false); }
   }
 #endif // HAVE_TMC2130DRIVER
 
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
 
   /**
-   * M150: Set Status LED Color - Use R-U-B for R-G-B
+   * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
    *
    * Always sets all 3 components. If a component is left out, set to 0.
    *
@@ -6207,17 +6213,21 @@ inline void gcode_M121() { endstops.enable_globally(false); }
    *   M150 R255 U127  ; Turn LED orange (PWM only)
    *   M150            ; Turn LED off
    *   M150 R U B      ; Turn LED white
+   *   
+   *   If RGBW,
+   *   M150 W          ; Turn LED White
    *
    */
   inline void gcode_M150() {
     set_led_color(
       code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
       code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
-      code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0
+      code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('W') ? (code_has_value() ? code_value_byte() : 255) : 0
     );
   }
 
-#endif // BLINKM || RGB_LED || RGB_STRIP
+#endif // BLINKM || RGB_LED || RGB_STRIP || RGBW_STRIP
 
 /**
  * M200: Set filament diameter and set E axis units to cubic units
@@ -8511,11 +8521,11 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+      #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
         case 150: // M150: Set Status LED Color
           gcode_M150();
           break;
-      #endif //ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+      #endif // BLINKM || RGB_LED || RGB_STRIP || RGBW_STRIP
 
       #if ENABLED(MIXING_EXTRUDER)
         case 163: // M163: Set a component weight for mixing extruder

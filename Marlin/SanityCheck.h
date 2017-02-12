@@ -906,6 +906,28 @@
 #endif
 
 /**
+ * RGB_STRIP Requirements
+ */
+#if ENABLED(RGB_STRIP)
+  #if !(PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B))
+    #error "RGBW_LED requires RGB_LED_R_PIN, RGB_LED_G_PIN, and RGB_LED_B_PIN."
+  #elif ENABLED(BLINKM)
+    #error "RGB_STRIP and BLINKM are currently incompatible (both use M150)."
+  #endif
+#endif
+
+/**
+ * RGBW_STRIP Requirements
+ */
+#if ENABLED(RGBW_STRIP)
+  #if !(PIN_EXISTS(RGB_LED_R) && PIN_EXISTS(RGB_LED_G) && PIN_EXISTS(RGB_LED_B) && PIN_EXISTS(RGBW_LED_W))
+    #error "RGBW_STRIP requires RGB_LED_R_PIN, RGB_LED_G_PIN, RGB_LED_B_PIN, and RGBW_LED_W_PIN."
+  #elif ENABLED(BLINKM)
+    #error "RGBW_STRIP and BLINKM are currently incompatible (both use M150)."
+  #endif
+#endif
+
+/**
  * Auto Fan check for PWM pins
  */
 #if HAS_AUTO_FAN && EXTRUDER_AUTO_FAN_SPEED != 255

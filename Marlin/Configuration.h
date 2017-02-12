@@ -1477,12 +1477,18 @@
  *  
  * */
 //#define RGB_STRIP
-#if ENABLED(RGB_STRIP)
+//#define RGBW_STRIP
+#if ENABLED(RGB_STRIP) || ENABLED (RGBW_STRIP)
   #define RGB_LED_R_PIN 4
   #define RGB_LED_G_PIN 5
   #define RGB_LED_B_PIN 6
+
+  #if ENABLED (RGBW_STRIP)
+    #define RGBW_LED_W_PIN 11
+  #endif
+
   #define RGB_reset_time 600   // Set time for RGB_Strip to turn off. (600 = 60 secs.)
-#endif
+#endif // ENABLED(RGB_STRIP) || ENABLED (RGBW_STRIP)
 
 /**
   //===========================================================================
