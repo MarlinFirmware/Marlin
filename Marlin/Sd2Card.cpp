@@ -406,7 +406,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
       else
         error(SD_CARD_ERROR_CMD17);
 
-      if (--retryCnt) break;
+      if (!--retryCnt) break;
 
       chipSelectHigh();
       cardCommand(CMD12, 0); // Try sending a stop command, ignore the result.
