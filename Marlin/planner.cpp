@@ -673,10 +673,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   #if ENABLED(LIN_ADVANCE)
     const float target_float[XYZE] = { a, b, c, e },
-                de_float = target_float[E_AXIS] - position_float[E_AXIS],
                 mm_D_float = sqrt(sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS]));
-
-    memcpy(position_float, target_float, sizeof(position_float));
   #endif
 
   const long da = target[X_AXIS] - position[X_AXIS],
@@ -707,15 +704,27 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   //*/
 
   // DRYRUN ignores all temperature constraints and assures that the extruder is instantly satisfied
-  if (DEBUGGING(DRYRUN)) position[E_AXIS] = target[E_AXIS];
+  if (DEBUGGING(DRYRUN)) {
+    position[E_AXIS] = target[E_AXIS];
+    #if ENABLED(LIN_ADVANCE)
+      position_float[E_AXIS] = target_float[E_AXIS];
+    #endif
+  }
 
   long de = target[E_AXIS] - position[E_AXIS];
+  #if ENABLED(LIN_ADVANCE)
+    float de_float = target_float[E_AXIS] - position_float[E_AXIS];
+  #endif
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     if (de) {
       if (thermalManager.tooColdToExtrude(extruder)) {
         position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
         de = 0; // no difference
+        #if ENABLED(LIN_ADVANCE)
+          position_float[E_AXIS] = target_float[E_AXIS];
+          de_float = 0;
+        #endif
         SERIAL_ECHO_START;
         SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
       }
@@ -723,6 +732,10 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         if (labs(de) > (int32_t)axis_steps_per_mm[E_AXIS_N] * (EXTRUDE_MAXLENGTH)) { // It's not important to get max. extrusion length in a precision < 1mm, so save some cycles and cast to int
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
+          #if ENABLED(LIN_ADVANCE)
+            position_float[E_AXIS] = target_float[E_AXIS];
+            de_float = 0;
+          #endif
           SERIAL_ECHO_START;
           SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
         }
@@ -1342,6 +1355,9 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
   // Update the position (only when a move was queued)
   memcpy(position, target, sizeof(position));
+  #if ENABLED(LIN_ADVANCE)
+    memcpy(position_float, target_float, sizeof(position_float));
+  #endif
 
   recalculate();
 
@@ -1367,6 +1383,12 @@ void Planner::_set_position_mm(const float &a, const float &b, const float &c, c
        nb = position[Y_AXIS] = lround(b * axis_steps_per_mm[Y_AXIS]),
        nc = position[Z_AXIS] = lround(c * axis_steps_per_mm[Z_AXIS]),
        ne = position[E_AXIS] = lround(e * axis_steps_per_mm[_EINDEX]);
+  #if ENABLED(LIN_ADVANCE)
+    position_float[X_AXIS] = a;
+    position_float[Y_AXIS] = b;
+    position_float[Z_AXIS] = c;
+    position_float[E_AXIS] = e;
+  #endif
   stepper.set_position(na, nb, nc, ne);
   previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
   ZERO(previous_speed);
@@ -1392,6 +1414,9 @@ void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
  */
 void Planner::sync_from_steppers() {
   LOOP_XYZE(i) position[i] = stepper.position((AxisEnum)i);
+  #if ENABLED(LIN_ADVANCE)
+    LOOP_XYZE(i) position_float[i] = stepper.position((AxisEnum)i) * steps_to_mm[i];
+  #endif
 }
 
 /**
@@ -1405,6 +1430,9 @@ void Planner::set_position_mm(const AxisEnum axis, const float& v) {
     const uint8_t axis_index = axis;
   #endif
   position[axis] = lround(v * axis_steps_per_mm[axis_index]);
+  #if ENABLED(LIN_ADVANCE)
+    position_float[axis] = v;
+  #endif
   stepper.set_position(axis, v);
   previous_speed[axis] = 0.0;
 }
