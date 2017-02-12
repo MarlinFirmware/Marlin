@@ -56,6 +56,66 @@
 #define MSG_PREHEAT_2_ALL                   "Pre-aq.Todo ABS"
 #define MSG_PREHEAT_2_BEDONLY               "Pre-aq. ABS " LCD_STR_THERMOMETER "Base"
 #define MSG_PREHEAT_2_SETTINGS              "Ajustar ABS"
+#ifndef MSG_PREHEAT_3
+  #define MSG_PREHEAT_3                       _UxGT("Preheat PET")
+#endif
+#ifndef MSG_PREHEAT_3_N
+  #define MSG_PREHEAT_3_N                     MSG_PREHEAT_3 _UxGT(" ")
+#endif
+#ifndef MSG_PREHEAT_3_ALL
+  #define MSG_PREHEAT_3_ALL                   MSG_PREHEAT_3 _UxGT(" All")
+#endif
+#ifndef MSG_PREHEAT_3_BEDONLY
+  #define MSG_PREHEAT_3_BEDONLY               MSG_PREHEAT_3 _UxGT(" Bed")
+#endif
+#ifndef MSG_PREHEAT_3_SETTINGS
+  #define MSG_PREHEAT_3_SETTINGS              MSG_PREHEAT_3 _UxGT(" conf")
+#endif
+#ifndef MSG_PREHEAT_4
+  #define MSG_PREHEAT_4                       _UxGT("Preheat RUBBER")
+#endif
+#ifndef MSG_PREHEAT_4_N
+  #define MSG_PREHEAT_4_N                     MSG_PREHEAT_4 _UxGT(" ")
+#endif
+#ifndef MSG_PREHEAT_4_ALL
+  #define MSG_PREHEAT_4_ALL                   MSG_PREHEAT_4 _UxGT(" All")
+#endif
+#ifndef MSG_PREHEAT_4_BEDONLY
+  #define MSG_PREHEAT_4_BEDONLY               MSG_PREHEAT_4 _UxGT(" Bed")
+#endif
+#ifndef MSG_PREHEAT_4_SETTINGS
+  #define MSG_PREHEAT_4_SETTINGS              MSG_PREHEAT_4 _UxGT(" conf")
+#endif
+#ifndef MSG_PREHEAT_5
+  #define MSG_PREHEAT_5                       _UxGT("Preheat HIPS")
+#endif
+#ifndef MSG_PREHEAT_5_N
+  #define MSG_PREHEAT_5_N                     MSG_PREHEAT_5 _UxGT(" ")
+#endif
+#ifndef MSG_PREHEAT_5ALL
+  #define MSG_PREHEAT_5_ALL                   MSG_PREHEAT_5 _UxGT(" All")
+#endif
+#ifndef MSG_PREHEAT_5_BEDONLY
+  #define MSG_PREHEAT_5_BEDONLY               MSG_PREHEAT_5 _UxGT(" Bed")
+#endif
+#ifndef MSG_PREHEAT_5_SETTINGS
+  #define MSG_PREHEAT_5_SETTINGS              MSG_PREHEAT_5 _UxGT(" conf")
+#endif
+#ifndef MSG_PREHEAT_6
+  #define MSG_PREHEAT_6                       _UxGT("Preheat NYLON")
+#endif
+#ifndef MSG_PREHEAT_6_N
+  #define MSG_PREHEAT_6_N                     MSG_PREHEAT_6 _UxGT(" ")
+#endif
+#ifndef MSG_PREHEAT_6_ALL
+  #define MSG_PREHEAT_6_ALL                   MSG_PREHEAT_6 _UxGT(" All")
+#endif
+#ifndef MSG_PREHEAT_6_BEDONLY
+  #define MSG_PREHEAT_6_BEDONLY               MSG_PREHEAT_6 _UxGT(" Bed")
+#endif
+#ifndef MSG_PREHEAT_6_SETTINGS
+  #define MSG_PREHEAT_6_SETTINGS              MSG_PREHEAT_6 _UxGT(" conf")
+#endif
 #define MSG_COOLDOWN                        "Esfriar"
 #define MSG_SWITCH_PS_ON                    "Ligar"
 #define MSG_SWITCH_PS_OFF                   "Desligar"
