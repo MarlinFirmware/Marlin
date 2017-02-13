@@ -757,7 +757,12 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
   if (de < 0) SBI(dm, E_AXIS);
 
-  const float esteps_float = de * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01;
+  float esteps_float = de * volumetric_multiplier[extruder] * flow_percentage[extruder] * 0.01
+    #if ENABLED(E_ADJUST_MANUALLY)
+      * e_adjust_multiplier //adjust e during printing
+    #endif
+  ;
+  
   const int32_t esteps = abs(esteps_float) + 0.5;
 
   // Calculate the buffer head after we push this byte

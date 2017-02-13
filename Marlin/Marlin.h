@@ -361,6 +361,18 @@ float code_value_temp_diff();
   extern int baricuda_e_to_p_pressure;
 #endif
 
+#if ENABLED(E_ADJUST_MANUALLY)
+  //all initialized and used in Marlin_main.cpp
+  //also used in temperature.cpp
+  extern float e_adjust_slope;
+  extern float e_adjust_intercept;
+  extern bool e_adjust_active;
+  extern bool e_adjust_show;
+  extern unsigned long next_e_adjust_show;
+  //also used in temperature.cpp and planner.cpp
+  extern float e_adjust_multiplier;
+#endif
+
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   extern bool filament_sensor;         // Flag that filament sensor readings should control extrusion
   extern float filament_width_nominal, // Theoretical filament diameter i.e., 3.00 or 1.75
