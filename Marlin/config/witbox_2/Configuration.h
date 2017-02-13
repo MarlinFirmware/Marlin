@@ -11,7 +11,7 @@
 #define MACHINE_NAME "Witbox 2"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.4.1"
+#define FIRMWARE_VER "2.5.0"
 #define BUILD_VER ""
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
