@@ -143,6 +143,7 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
   #endif // LCD_INFO_MENU
 
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    void lcd_filament_change_toocold_menu();
     void lcd_filament_change_option_menu();
     void lcd_filament_change_init_message();
     void lcd_filament_change_unload_message();
@@ -756,6 +757,11 @@ void kill_screen(const char* lcd_msg) {
 
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
     void lcd_enqueue_filament_change() {
+      if (thermalManager.tooColdToExtrude(active_extruder)) {
+        lcd_save_previous_screen();
+        lcd_goto_screen(lcd_filament_change_toocold_menu);
+        return;
+      }
       lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
       enqueue_and_echo_commands_P(PSTR("M600"));
     }
@@ -1304,6 +1310,12 @@ void kill_screen(const char* lcd_msg) {
       #else
         MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_material1_hotend0);
         MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_material2_hotend0);
+      #endif
+      //
+      // Change filament
+      //
+      #if ENABLED(FILAMENT_CHANGE_FEATURE)
+        MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
       #endif
     #endif
 
@@ -2274,6 +2286,12 @@ void kill_screen(const char* lcd_msg) {
   #endif // LCD_INFO_MENU
 
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
+    void lcd_filament_change_toocold_menu() {
+      START_MENU();
+      STATIC_ITEM(MSG_HEATING_FAILED_LCD, true, true);
+      MENU_BACK(MSG_FILAMENTCHANGE);
+      END_MENU();
+    }
 
     void lcd_filament_change_resume_print() {
       filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_RESUME_PRINT;
