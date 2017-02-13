@@ -5567,9 +5567,9 @@ inline void gcode_M109() {
     #if ENABLED(PRINTER_EVENT_LEDS)
         if(wait_for_heatup) {
           // Gradually change LED strip from violet to red as extruder heats up
-          r = 255;
+          r = 253;
           g = 0;
-          b = map(temp, starting_temp, theTarget, 255, 10);
+          b = map(temp, starting_temp, theTarget, 255, 15);
           set_led_color(r, g, b, w);
         }
     #endif
@@ -5611,6 +5611,7 @@ inline void gcode_M109() {
   }
 
   KEEPALIVE_STATE(IN_HANDLER);
+  starting_temp = 0;
 }
 
 #if HAS_TEMP_BED
@@ -5705,7 +5706,7 @@ inline void gcode_M109() {
       #if ENABLED(PRINTER_EVENT_LEDS)
         if(wait_for_heatup) {
           // Gradually change LED strip from blue to violet as bed heats up
-          r = map(temp, starting_temp, theTarget, 0, 254);
+          r = map(temp, starting_temp, theTarget, 0, 253);
           g = 0;
           b = 255;
           set_led_color(r, g, b, w);
@@ -5742,6 +5743,7 @@ inline void gcode_M109() {
 
     if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
     KEEPALIVE_STATE(IN_HANDLER);
+    starting_temp = 0;
   }
 
 #endif // HAS_TEMP_BED

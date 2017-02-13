@@ -70,7 +70,7 @@ uint16_t max_display_update_time = 0;
   bool drawing_screen = false;
 #endif
 
-#if ENABLED(RGB_STRIP)
+#if ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
     #include "RGB_Strip.h"
 #endif
 
