@@ -672,8 +672,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   #endif
 
   #if ENABLED(LIN_ADVANCE)
-    const float target_float[XYZE] = { a, b, c, e },
-                mm_D_float = sqrt(sq(target_float[X_AXIS] - position_float[X_AXIS]) + sq(target_float[Y_AXIS] - position_float[Y_AXIS]));
+    const float mm_D_float = sqrt(sq(a - position_float[X_AXIS]) + sq(b - position_float[Y_AXIS]));
   #endif
 
   const long da = target[X_AXIS] - position[X_AXIS],
@@ -707,13 +706,14 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   if (DEBUGGING(DRYRUN)) {
     position[E_AXIS] = target[E_AXIS];
     #if ENABLED(LIN_ADVANCE)
-      position_float[E_AXIS] = target_float[E_AXIS];
+      position_float[E_AXIS] = e;
     #endif
   }
 
   long de = target[E_AXIS] - position[E_AXIS];
+
   #if ENABLED(LIN_ADVANCE)
-    float de_float = target_float[E_AXIS] - position_float[E_AXIS];
+    float de_float = e - position_float[E_AXIS];
   #endif
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -722,7 +722,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
         position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
         de = 0; // no difference
         #if ENABLED(LIN_ADVANCE)
-          position_float[E_AXIS] = target_float[E_AXIS];
+          position_float[E_AXIS] = e;
           de_float = 0;
         #endif
         SERIAL_ECHO_START;
@@ -733,7 +733,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
           de = 0; // no difference
           #if ENABLED(LIN_ADVANCE)
-            position_float[E_AXIS] = target_float[E_AXIS];
+            position_float[E_AXIS] = e;
             de_float = 0;
           #endif
           SERIAL_ECHO_START;
@@ -1356,7 +1356,10 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   // Update the position (only when a move was queued)
   memcpy(position, target, sizeof(position));
   #if ENABLED(LIN_ADVANCE)
-    memcpy(position_float, target_float, sizeof(position_float));
+    position_float[X_AXIS] = a;
+    position_float[Y_AXIS] = b;
+    position_float[Z_AXIS] = c;
+    position_float[E_AXIS] = e;
   #endif
 
   recalculate();
