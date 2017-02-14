@@ -343,7 +343,7 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 void Stepper::isr() {
-  #define _ENABLE_ISRs() cli(); SBI(TIMSK0, OCIE0B); ENABLE_STEPPER_DRIVER_INTERRUPT()
+  #define _ENABLE_ISRs() cli(); if (thermalManager.in_temp_isr) CBI(TIMSK0, OCIE0B); else SBI(TIMSK0, OCIE0B); ENABLE_STEPPER_DRIVER_INTERRUPT()
 
   uint16_t timer, remainder, ocr_val;
 
@@ -868,7 +868,10 @@ void Stepper::isr() {
 
     // Restore original ISR settings
     cli();
-    SBI(TIMSK0, OCIE0B);
+    if (thermalManager.in_temp_isr)
+      CBI(TIMSK0, OCIE0B);
+    else
+      SBI(TIMSK0, OCIE0B);
     ENABLE_STEPPER_DRIVER_INTERRUPT();
   }
 
