@@ -405,9 +405,6 @@
 //#define COREZX
 //#define COREZY
 
-// Enable this option for Toshiba steppers
-//#define CONFIG_STEPPERS_TOSHIBA
-
 //===========================================================================
 //============================== Endstop Settings ===========================
 //===========================================================================
@@ -729,6 +726,9 @@
 #define INVERT_X_DIR true
 #define INVERT_Y_DIR true
 #define INVERT_Z_DIR true
+
+// Enable this option for Toshiba stepper drivers
+//#define CONFIG_STEPPERS_TOSHIBA
 
 // @section extruder
 
