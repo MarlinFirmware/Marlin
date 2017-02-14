@@ -166,14 +166,16 @@ script:
   #
   # Test DUAL_X_CARRIAGE
   #
-  - restore_configs
-  - opt_set MOTHERBOARD BOARD_RUMBA
-  - opt_set EXTRUDERS 2
-  - opt_set TEMP_SENSOR_1 1
-  - opt_set TEMP_SENSOR_BED 0 # gcc bug if enabled
-  - opt_enable USE_XMAX_PLUG
-  - opt_enable_adv DUAL_X_CARRIAGE
-  - build_marlin
+  # gcc bug
+  #
+  #- restore_configs
+  #- opt_set MOTHERBOARD BOARD_RUMBA
+  #- opt_set EXTRUDERS 2
+  #- opt_set TEMP_SENSOR_1 1
+  #- opt_set TEMP_SENSOR_BED 0
+  #- opt_enable USE_XMAX_PLUG
+  #- opt_enable_adv DUAL_X_CARRIAGE
+  #- build_marlin
   #
   # Test SPEAKER with BOARD_BQ_ZUM_MEGA_3D and BQ_LCD_SMART_CONTROLLER
   #
