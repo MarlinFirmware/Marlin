@@ -342,12 +342,13 @@ ISR(TIMER1_COMPA_vect) {
   #endif
 }
 
-void Stepper::isr() {
-  #define _ENABLE_ISRs() cli(); SBI(TIMSK0, OCIE0B); ENABLE_STEPPER_DRIVER_INTERRUPT()
+#define _ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr) CBI(TIMSK0, OCIE0B); else SBI(TIMSK0, OCIE0B); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
-  uint16_t timer, remainder, ocr_val;
+void Stepper::isr() {
 
   static uint32_t step_remaining = 0;
+
+  uint16_t ocr_val;
 
   #define ENDSTOP_NOMINAL_OCR_VAL 3000    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
   #define OCR_VAL_TOLERANCE 1000          // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
@@ -366,7 +367,7 @@ void Stepper::isr() {
     #define SPLIT(L) do { \
       _SPLIT(L); \
       if (ENDSTOPS_ENABLED && L > ENDSTOP_NOMINAL_OCR_VAL) { \
-        remainder = (uint16_t)L % (ENDSTOP_NOMINAL_OCR_VAL); \
+        uint16_t remainder = (uint16_t)L % (ENDSTOP_NOMINAL_OCR_VAL); \
         ocr_val = (remainder < OCR_VAL_TOLERANCE) ? ENDSTOP_NOMINAL_OCR_VAL + remainder : ENDSTOP_NOMINAL_OCR_VAL; \
         step_remaining = (uint16_t)L - ocr_val; \
       } \
@@ -374,13 +375,16 @@ void Stepper::isr() {
 
     if (step_remaining && ENDSTOPS_ENABLED) {   // Just check endstops - not yet time for a step
       endstops.update();
-      ocr_val = step_remaining;
       if (step_remaining > ENDSTOP_NOMINAL_OCR_VAL) {
-        step_remaining = step_remaining - ENDSTOP_NOMINAL_OCR_VAL;
+        step_remaining -= ENDSTOP_NOMINAL_OCR_VAL;
         ocr_val = ENDSTOP_NOMINAL_OCR_VAL;
       }
-      else step_remaining = 0;  //  last one before the ISR that does the step
-      _NEXT_ISR(ocr_val);  //
+      else {
+        ocr_val = step_remaining;
+        step_remaining = 0;  //  last one before the ISR that does the step
+      }
+
+      _NEXT_ISR(ocr_val);
 
       NOLESS(OCR1A, TCNT1 + 16);
 
@@ -867,9 +871,7 @@ void Stepper::isr() {
     NOLESS(OCR1A, TCNT1 + 16);
 
     // Restore original ISR settings
-    cli();
-    SBI(TIMSK0, OCIE0B);
-    ENABLE_STEPPER_DRIVER_INTERRUPT();
+    _ENABLE_ISRs();
   }
 
 #endif // ADVANCE or LIN_ADVANCE
