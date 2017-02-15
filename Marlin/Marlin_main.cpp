@@ -91,6 +91,7 @@
  *        Use P to run other files as sub-programs: "M32 P !filename#"
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
+ * M34  - Set SD Card sorting options. (Requires SDCARD_SORT_ALPHA)
  * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted.
  * M43  - Monitor pins & report changes - report active pins
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
@@ -4843,6 +4844,20 @@ inline void gcode_M31() {
 
   #endif
 
+  #if ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_GCODE)
+    /**
+     * M34: Set SD Card Sorting Options
+     */
+    inline void gcode_M34() {
+      if (code_seen('S')) card.setSortOn(code_value_bool());
+      if (code_seen('F')) {
+        int v = code_value_long();
+        card.setSortFolders(v < 0 ? -1 : v > 0 ? 1 : 0);
+      }
+      //if (code_seen('R')) card.setSortReverse(code_value_bool());
+    }
+  #endif // SDCARD_SORT_ALPHA && SDSORT_GCODE
+
   /**
    * M928: Start SD Write
    */
@@ -8288,6 +8303,11 @@ void process_next_command() {
           case 33: // M33: Get the long full path to a file or folder
             gcode_M33(); break;
         #endif
+
+        #if ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_GCODE)
+          case 34: //M34 - Set SD card sorting options
+            gcode_M34(); break;
+        #endif // SDCARD_SORT_ALPHA && SDSORT_GCODE
 
         case 928: // M928: Start SD write
           gcode_M928(); break;

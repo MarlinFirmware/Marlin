@@ -2277,12 +2277,17 @@ KeepDrawing:
 
       for (uint16_t i = 0; i < fileCnt; i++) {
         if (_menuLineNr == _thisItemNr) {
-          card.getfilename(
-             #if ENABLED(SDCARD_RATHERRECENTFIRST)
-               fileCnt-1 -
-             #endif
-             i
-          );
+          #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
+            int nr = fileCnt - 1 - i;
+          #else
+            int nr = i;
+          #endif
+
+          #if ENABLED(SDCARD_SORT_ALPHA)
+            card.getfilename_sorted(nr);
+          #else
+            card.getfilename(nr);
+          #endif
 
           if (card.filenameIsDir)
             MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
