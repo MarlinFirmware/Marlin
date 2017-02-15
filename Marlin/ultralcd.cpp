@@ -238,15 +238,15 @@ uint16_t max_display_update_time = 0;
     encoderRateMultiplierEnabled = false; \
     if (encoderPosition > 0x8000) encoderPosition = 0; \
     static int8_t _countedItems = 0; \
-    int8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
-    if (_countedItems > 0 && encoderLine >= _countedItems - LIMIT) { \
-      encoderLine = max(0, _countedItems - LIMIT); \
+    int8_t encoderLine = encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM); \
+    if (_countedItems > 0 && encoderLine >= _countedItems - (LIMIT)) { \
+      encoderLine = max(0, _countedItems - (LIMIT)); \
       encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
     }
 
   #define SCREEN_OR_MENU_LOOP() \
     int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT - TALL_FONT_CORRECTION; _lcdLineNr++, _menuLineNr++) { \
+    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT - (TALL_FONT_CORRECTION); _lcdLineNr++, _menuLineNr++) { \
       _thisItemNr = 0
 
   /**
@@ -257,7 +257,7 @@ uint16_t max_display_update_time = 0;
    *               Scroll as-needed to keep the selected line in view.
    */
   #define START_SCREEN() \
-    START_SCREEN_OR_MENU(LCD_HEIGHT - TALL_FONT_CORRECTION); \
+    START_SCREEN_OR_MENU(LCD_HEIGHT - (TALL_FONT_CORRECTION)); \
     encoderTopLine = encoderLine; \
     bool _skipStatic = false; \
     SCREEN_OR_MENU_LOOP()
@@ -266,8 +266,8 @@ uint16_t max_display_update_time = 0;
     START_SCREEN_OR_MENU(1); \
     screen_changed = false; \
     NOMORE(encoderTopLine, encoderLine); \
-    if (encoderLine >= encoderTopLine + LCD_HEIGHT - TALL_FONT_CORRECTION) { \
-      encoderTopLine = encoderLine - (LCD_HEIGHT - TALL_FONT_CORRECTION - 1); \
+    if (encoderLine >= encoderTopLine + LCD_HEIGHT - (TALL_FONT_CORRECTION)) { \
+      encoderTopLine = encoderLine - (LCD_HEIGHT - (TALL_FONT_CORRECTION) - 1); \
     } \
     bool _skipStatic = true; \
     SCREEN_OR_MENU_LOOP()
