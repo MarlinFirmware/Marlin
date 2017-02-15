@@ -7328,6 +7328,10 @@ inline void gcode_M503() {
 
     busy_doing_M600 = true;  // Stepper Motors can't timeout when this is set
 
+    // Pause the print job timer
+    bool job_running = print_job_timer.isRunning();
+    print_job_timer.pause();
+
     // Show initial message and wait for synchronize steppers
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
     stepper.synchronize();
@@ -7518,6 +7522,10 @@ inline void gcode_M503() {
 
     // Show status screen
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
+
+    // Resume the print job timer if it was running
+    if (job_running) print_job_timer.start();
+
     busy_doing_M600 = false;  // Allow Stepper Motors to be turned off during inactivity
   }
 
