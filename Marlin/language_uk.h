@@ -231,7 +231,7 @@
   #define MSG_FILAMENT_CHANGE_UNLOAD_1        _UxGT("Вивід...")
   #define MSG_FILAMENT_CHANGE_INSERT_1        _UxGT("Вставте і нат.")
   #define MSG_FILAMENT_CHANGE_LOAD_1          _UxGT("Ввід...")
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Екстузія...")
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       _UxGT("Екструзія...")
   #define MSG_FILAMENT_CHANGE_RESUME_1        _UxGT("Відновлення...")
 #endif // LCD_HEIGHT < 4
 

@@ -206,6 +206,23 @@
 #endif
 
 /**
+ * SD File Sorting
+ */
+#if ENABLED(SDCARD_SORT_ALPHA)
+  #if SDSORT_LIMIT > 256
+    #error "SDSORT_LIMIT must be 256 or smaller."
+  #elif SDSORT_LIMIT < 10
+    #error "SDSORT_LIMIT should be greater than 9 to be useful."
+  #elif DISABLED(SDSORT_USES_RAM)
+    #if ENABLED(SDSORT_DYNAMIC_RAM)
+      #error "SDSORT_DYNAMIC_RAM requires SDSORT_USES_RAM (which reads the directory into RAM)."
+    #elif ENABLED(SDSORT_CACHE_NAMES)
+      #error "SDSORT_CACHE_NAMES requires SDSORT_USES_RAM (which reads the directory into RAM)."
+    #endif
+  #endif
+#endif
+
+/**
  * Delta requirements
  */
 #if ENABLED(DELTA)
@@ -244,14 +261,20 @@
     #error "FILAMENT_RUNOUT_SENSOR requires FIL_RUNOUT_PIN."
   #elif DISABLED(SDSUPPORT) && DISABLED(PRINTJOB_TIMER_AUTOSTART)
     #error "FILAMENT_RUNOUT_SENSOR requires SDSUPPORT or PRINTJOB_TIMER_AUTOSTART."
+  #elif DISABLED(FILAMENT_CHANGE_FEATURE)
+    static_assert(NULL == strstr(FILAMENT_RUNOUT_SCRIPT, "M600"), "FILAMENT_CHANGE_FEATURE is required to use M600 with FILAMENT_RUNOUT_SENSOR.");
   #endif
 #endif
 
 /**
  * Filament Change with Extruder Runout Prevention
  */
-#if ENABLED(FILAMENT_CHANGE_FEATURE) && ENABLED(EXTRUDER_RUNOUT_PREVENT)
-  #error "EXTRUDER_RUNOUT_PREVENT is incompatible with FILAMENT_CHANGE_FEATURE."
+#if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #if DISABLED(ULTIPANEL)
+    #error "FILAMENT_CHANGE_FEATURE currently requires an LCD controller."
+  #elif ENABLED(EXTRUDER_RUNOUT_PREVENT)
+    #error "EXTRUDER_RUNOUT_PREVENT is incompatible with FILAMENT_CHANGE_FEATURE."
+  #endif
 #endif
 
 /**

@@ -787,8 +787,6 @@ void Config_ResetDefault() {
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
       HOTEND_LOOP()
-    #else
-      int e = 0; UNUSED(e); // only need to write once
     #endif
     {
       PID_PARAM(Kp, e) = DEFAULT_Kp;
@@ -824,7 +822,13 @@ void Config_ResetDefault() {
     retract_recover_feedrate_mm_s = RETRACT_RECOVER_FEEDRATE;
   #endif
 
-  volumetric_enabled = false;
+  volumetric_enabled =
+  #if ENABLED(VOLUMETRIC_DEFAULT_ON)
+    true
+  #else
+    false
+  #endif
+  ;
   for (uint8_t q = 0; q < COUNT(filament_size); q++)
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
 

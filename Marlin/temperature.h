@@ -40,12 +40,12 @@
   #define SOFT_PWM_SCALE 0
 #endif
 
+#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+
 #if HOTENDS == 1
-  #define HOTEND_LOOP() const int8_t e = 0;
   #define HOTEND_INDEX  0
   #define EXTRUDER_IDX  0
 #else
-  #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
   #define HOTEND_INDEX  e
   #define EXTRUDER_IDX  active_extruder
 #endif
@@ -60,6 +60,8 @@ class Temperature {
                  target_temperature[HOTENDS],
                  current_temperature_bed_raw,
                  target_temperature_bed;
+
+    static volatile bool in_temp_isr;
 
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       static float redundant_temperature;
