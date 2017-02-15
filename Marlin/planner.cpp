@@ -1418,7 +1418,7 @@ void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
 void Planner::sync_from_steppers() {
   LOOP_XYZE(i) position[i] = stepper.position((AxisEnum)i);
   #if ENABLED(LIN_ADVANCE)
-    LOOP_XYZE(i) position_float[i] = stepper.position((AxisEnum)i) * steps_to_mm[i];
+    LOOP_XYZE(i) position_float[i] = stepper.position((AxisEnum)i) * (i == E_AXIS ? steps_to_mm[E_AXIS + active_extruder] : steps_to_mm[i]);
   #endif
 }
 
