@@ -66,6 +66,9 @@ class Temperature {
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       static float redundant_temperature;
     #endif
+    #if ENABLED(PIDTEMPBED_LIST)
+        static bool pidbed_gcode_override;
+    #endif
 
     static uint8_t soft_pwm_bed;
 
