@@ -104,6 +104,10 @@ class Temperature {
     #endif
 
     #if ENABLED(PIDTEMPBED)
+    #if ENABLED(PIDTEMPBED_LIST)
+        static float bedKpList[],
+        bedKiList[], bedKdList[], bedTcList[];
+    #endif
       static float bedKp, bedKi, bedKd;
     #endif
 
@@ -329,6 +333,40 @@ class Temperature {
 
     static void setTargetBed(const float& celsius) {
       target_temperature_bed = celsius;
+        #if ENABLED(PIDTEMPBED_LIST)
+        if(!pidbed_gcode_override) {
+            uint8_t pid_index_for_target_temperature_bed = 0;
+            for (uint8_t t = 0; t < DEFAULT_bed_LISTSIZE; ++t) {
+                pid_index_for_target_temperature_bed =
+                abs(celsius - bedTcList[pid_index_for_target_temperature_bed]) > abs(celsius - bedTcList[t]) ?
+                t : pid_index_for_target_temperature_bed;
+            }
+            bedKd = scalePID_d(bedKdList[pid_index_for_target_temperature_bed]);
+            bedKi = scalePID_i(bedKiList[pid_index_for_target_temperature_bed]);
+            bedKp = bedKpList[pid_index_for_target_temperature_bed];
+            updatePID();
+        #if ENABLED(PID_BED_LIST_DEBUG)
+            SERIAL_ECHO_START;
+            SERIAL_ECHOPGM(" PID_BED_LIST_DEBUG ");
+            SERIAL_ECHOPGM(": Switched to Idx ");
+            SERIAL_ECHO((unsigned)pid_index_for_target_temperature_bed);
+            SERIAL_ECHOPGM(" for ");
+            SERIAL_ECHO(celsius);
+            SERIAL_ECHOPGM(" p ");
+            SERIAL_ECHO(bedKp);
+            SERIAL_ECHOPGM(" i ");
+            SERIAL_ECHO(unscalePID_i(bedKi));
+            SERIAL_ECHOPGM(" d ");
+            SERIAL_ECHOLN(unscalePID_d(bedKd));
+        #endif //PID_BED_DEBUG
+        }
+        #if ENABLED(PID_BED_LIST_DEBUG)
+        else {
+            SERIAL_ECHO_START;
+            SERIAL_ECHOLNPGM(" PID_BED_LIST_DEBUG : Switching disabled due to M304");
+        }
+        #endif
+        #endif
       #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
         start_watching_bed();
       #endif

@@ -89,9 +89,16 @@ uint8_t Temperature::soft_pwm_bed;
 #endif
 
 #if ENABLED(PIDTEMPBED)
-  float Temperature::bedKp = DEFAULT_bedKp,
-        Temperature::bedKi = ((DEFAULT_bedKi) * PID_dT),
-        Temperature::bedKd = ((DEFAULT_bedKd) / PID_dT);
+  #if ENABLED(PIDTEMPBED_LIST)
+    float Temperature::bedKpList[] = DEFAULT_bedKp_LIST,
+          Temperature::bedKiList[] = DEFAULT_bedKi_LIST,
+          Temperature::bedKdList[] = DEFAULT_bedKd_LIST,
+          Temperature::bedTcList[] = DEFAULT_bedTc_LIST;
+    bool Temperature::pidbed_gcode_override = false;
+#endif
+    float Temperature::bedKp = DEFAULT_bedKp,
+          Temperature::bedKi = ((DEFAULT_bedKi) * PID_dT),
+          Temperature::bedKd = ((DEFAULT_bedKd) / PID_dT);
 #endif
 
 #if ENABLED(BABYSTEPPING)

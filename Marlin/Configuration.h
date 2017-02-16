@@ -354,6 +354,19 @@
 
 #if ENABLED(PIDTEMPBED)
 
+  // Uncomment this to enable PID-Switching for your bed. You can tune multiple temperatures and marlin will
+  // automatically choose the right PID-Tuning for you.
+  #define PIDTEMPBED_LIST
+
+  #if ENABLED(PIDTEMPBED_LIST)
+    //#define PID_BED_LIST_DEBUG                // Sends debug data to the serial port.
+    #define DEFAULT_bed_LISTSIZE 2              // How many temperatures do you have tuned?
+    #define DEFAULT_bedTc_LIST {65,90}          // {Temp1,   Temp2,   ... ,TempN}
+    #define DEFAULT_bedKp_LIST {22.54,53.26}    // {Temp1Kp, Temp2Kp, ... ,TempNKp}
+    #define DEFAULT_bedKi_LIST {0.64,1.88}      // {Temp1Ki, Temp2Ki, ... ,TempNKi}
+    #define DEFAULT_bedKd_LIST {198.03,376.30}  // {Temp1Kd, Temp2Kd, ... ,TempNKd}
+  #endif
+
   //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)

@@ -6662,6 +6662,15 @@ inline void gcode_M226() {
 #if ENABLED(PIDTEMPBED)
 
   inline void gcode_M304() {
+#if ENABLED(PIDTEMPBED_LIST)
+      thermalManager.pidbed_gcode_override = true;
+      #if ENABLED(PID_BED_LIST_DEBUG)
+        SERIAL_ECHO_START;
+        SERIAL_ECHOPGM(" PID_BED_LIST_DEBUG ");
+        SERIAL_ECHOLNPGM(": Disabled Autoswitching due to M304");
+       #endif //PID_BED_DEBUG
+#endif
+      
     if (code_seen('P')) thermalManager.bedKp = code_value_float();
     if (code_seen('I')) thermalManager.bedKi = scalePID_i(code_value_float());
     if (code_seen('D')) thermalManager.bedKd = scalePID_d(code_value_float());
