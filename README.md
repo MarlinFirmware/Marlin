@@ -18,7 +18,7 @@ The latest Release Candidate lives in the ["RC" branch](https://github.com/Marli
 
 ## Recent Changes
 - RCBugFix
-
+  - DHT Sensor support 
   - Fixed broken MBL
   - M600 heater timeout option
 
