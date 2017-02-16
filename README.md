@@ -18,7 +18,9 @@ The latest Release Candidate lives in the ["RC" branch](https://github.com/Marli
 
 ## Recent Changes
 - RCBugFix
-  - Added RGB strip support by @boweeble (Modified from PR #5395)
+
+  - Fixed broken MBL
+  - M600 heater timeout option
 
 - RC8 - 06 Dec 2016
   - Major performance improvement for Graphical LCDs

@@ -7470,7 +7470,7 @@ inline void gcode_M503() {
     #if ENABLED(PRINTER_EVENT_LEDS)
       handle_led_print_event(4);  // Turn RGB LEDs Teal
     #endif
-
+    
     wait_for_user = true;    // LCD click or M108 will clear this
     next_buzz = 0;
     runout_beep = 0;
