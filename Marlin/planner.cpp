@@ -661,6 +661,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     LROUND(b * axis_steps_per_mm[Y_AXIS]),
     LROUND(c * axis_steps_per_mm[Z_AXIS]),
     LROUND(e * axis_steps_per_mm[E_AXIS_N])
+  };
 
   // When changing extruders recalculate steps corresponding to the E position
   #if ENABLED(DISTINCT_E_FACTORS)

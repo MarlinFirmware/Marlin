@@ -759,7 +759,7 @@ inline void sync_plan_position_e() { planner.set_e_position_mm(current_position[
 
 #endif
 
-#if ENABLED(SDSUPPORT)
+/*#if ENABLED(SDSUPPORT)
   #include "SdFatUtil.h"
   int freeMemory() { return SdFatUtil::FreeRam(); }
 #else
@@ -778,7 +778,7 @@ extern "C" {
     return free_memory;
   }
 }
-#endif //!SDSUPPORT
+#endif //!SDSUPPORT*/
 
 #if ENABLED(DIGIPOT_I2C)
   extern void digipot_i2c_set_current(int channel, float current);
@@ -8975,10 +8975,10 @@ void ok_to_send() {
           ratio_y = y / ABL_BG_SPACING(Y_AXIS);
 
     // Whole units for the grid line indices. Constrained within bounds.
-    const int gridx = constrain(FLOOR(ratio_x), 0, ABL_GRID_POINTS_X - 1),
-              gridy = constrain(FLOOR(ratio_y), 0, ABL_GRID_POINTS_Y - 1),
-              nextx = min(gridx + 1, ABL_GRID_POINTS_X - 1),
-              nexty = min(gridy + 1, ABL_GRID_POINTS_Y - 1);
+    const int gridx = constrain(FLOOR(ratio_x), 0, ABL_BG_POINTS_X - 1),
+              gridy = constrain(FLOOR(ratio_y), 0, ABL_BG_POINTS_Y - 1),
+              nextx = min(gridx + 1, ABL_BG_POINTS_X - 1),
+              nexty = min(gridy + 1, ABL_BG_POINTS_Y - 1);
 
     // Subtract whole to get the ratio within the grid box
     ratio_x -= gridx; ratio_y -= gridy;

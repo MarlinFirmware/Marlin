@@ -34,7 +34,6 @@
   #include "stepper.h"
 #endif
 
-<<<<<<< 6c3bba60af6d7f172600d72beb608355823dc75e
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   #include "endstops.h"
 #endif
@@ -45,8 +44,6 @@
   #include "watchdog.h"
 #endif
 */
-=======
->>>>>>> Initial stage of introducing HAL. Targets are AVR and Due.
 
 #ifdef K1 // Defined in Configuration.h in the PID settings
   #define K2 (1.0-K1)
@@ -1489,7 +1486,7 @@ void Temperature::isr() {
   in_temp_isr = true;
   
   // Allow UART and stepper ISRs
-  CBI(TIMSK0, OCIE0B); //Disable Temperature ISR
+  DISABLE_TEMPERATURE_INTERRUPT(); //Disable Temperature ISR
   sei();
 
   static uint8_t temp_count = 0;
@@ -1948,5 +1945,5 @@ void Temperature::isr() {
 
   cli();
   in_temp_isr = false;
-  SBI(TIMSK0, OCIE0B); //re-enable Temperature ISR
+  ENABLE_TEMPERATURE_INTERRUPT(); //re-enable Temperature ISR
 }

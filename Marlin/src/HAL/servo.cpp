@@ -67,10 +67,8 @@
 ServoInfo_t servo_info[MAX_SERVOS];                  // static array of servo info structures
 uint8_t ServoCount = 0;                              // the total number of attached servos
 
-
 #define SERVO_MIN() (MIN_PULSE_WIDTH - this->min * 4)  // minimum value in uS for this servo
 #define SERVO_MAX() (MAX_PULSE_WIDTH - this->max * 4)  // maximum value in uS for this servo
-
 /************ static functions common to all instances ***********************/
 
 static boolean isTimerActive(timer16_Sequence_t timer) {

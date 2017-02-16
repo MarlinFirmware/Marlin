@@ -31,10 +31,6 @@
 #if ENABLED(SDSUPPORT)
 #include "Sd2Card.h"
 
-#if ENABLED(USE_WATCHDOG)
-  #include "watchdog.h"
-#endif
-
 //------------------------------------------------------------------------------
 // send command and return error code.  Return zero for OK
 uint8_t Sd2Card::cardCommand(uint8_t cmd, uint32_t arg) {
