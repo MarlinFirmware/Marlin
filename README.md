@@ -14,6 +14,11 @@ You can download earlier versions of Marlin on the [Releases page](https://githu
 The latest Release Candidate lives in the ["RC" branch](https://github.com/MarlinFirmware/Marlin/tree/RC). Bugs that we find in the current Release Candidate are patched in the ["RCBugFix" branch](https://github.com/MarlinFirmware/Marlin/tree/RCBugFix), so during beta testing this is where you can always find the latest code on its way towards release.
 
 ## Recent Changes
+
+- RCBugFix
+  - Fixed broken MBL
+  - M600 heater timeout option
+
 - RC8 - 06 Dec 2016
   - Major performance improvement for Graphical LCDs
   - Simplified probe configuration
