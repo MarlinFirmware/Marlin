@@ -7418,6 +7418,9 @@ inline void gcode_M503() {
     next_buzz = 0;
     runout_beep = 0;
     HOTEND_LOOP() temps[e] = thermalManager.target_temperature[e]; // Save nozzle temps
+    #if HAS_TEMP_BED
+      float temps_bed = thermalManager.target_temperature_bed; // Save bed temp
+    #endif
 
     while (wait_for_user) {
       millis_t current_ms = millis();
@@ -7432,14 +7435,21 @@ inline void gcode_M503() {
         if (!nozzle_timed_out) {
           nozzle_timed_out = true; // on nozzle timeout remember the nozzles need to be reheated
           HOTEND_LOOP() thermalManager.setTargetHotend(0, e); // Turn off all the nozzles
+          #if HAS_TEMP_BED
+            thermalManager.setTargetBed(0); // Turn off Bed
+          #endif
           lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
         }
       }
       idle(true);
     }
 
-    if (nozzle_timed_out)      // Turn nozzles back on if they were turned off
+    if (nozzle_timed_out) {     // Turn nozzles and bed back on if they were turned off
       HOTEND_LOOP() thermalManager.setTargetHotend(temps[e], e);
+      #if HAS_TEMP_BED
+        thermalManager.setTargetBed(temps_bed);
+      #endif
+    }
 
     // Show "wait for heating"
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
