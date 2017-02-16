@@ -65,12 +65,6 @@
       #define SD_DETECT_INVERTED
     #endif
 
-    #ifndef ENCODER_PULSES_PER_STEP
-      #define ENCODER_PULSES_PER_STEP 4
-    #endif
-    #ifndef ENCODER_STEPS_PER_MENU_ITEM
-      #define ENCODER_STEPS_PER_MENU_ITEM 1
-    #endif
   #endif
 
   // Generic support for SSD1306 / SH1106 OLED based LCDs.
@@ -85,14 +79,6 @@
 
   #if ENABLED(BQ_LCD_SMART_CONTROLLER)
     #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-
-    #ifndef ENCODER_PULSES_PER_STEP
-      #define ENCODER_PULSES_PER_STEP 4
-    #endif
-    #ifndef ENCODER_STEPS_PER_MENU_ITEM
-      #define ENCODER_STEPS_PER_MENU_ITEM 1
-    #endif
-
     #ifndef LONG_FILENAME_HOST_SUPPORT
       #define LONG_FILENAME_HOST_SUPPORT
     #endif
@@ -145,14 +131,6 @@
     #define LCD_I2C_TYPE_MCP23017
     #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
     #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
-
-    #ifndef ENCODER_PULSES_PER_STEP
-      #define ENCODER_PULSES_PER_STEP 4
-    #endif
-    #ifndef ENCODER_STEPS_PER_MENU_ITEM
-      #define ENCODER_STEPS_PER_MENU_ITEM 1
-    #endif
-
     #define ULTIPANEL
     #define NEWPANEL
   #endif
@@ -176,6 +154,17 @@
     #endif
     #ifndef ENCODER_STEPS_PER_MENU_ITEM
       #define ENCODER_STEPS_PER_MENU_ITEM 2
+    #endif
+  #endif
+
+  // Set encoder detents for well-known controllers
+  #if ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+   || ENABLED(BQ_LCD_SMART_CONTROLLER) || ENABLED(LCD_I2C_PANELOLU2) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
+    #ifndef ENCODER_PULSES_PER_STEP
+      #define ENCODER_PULSES_PER_STEP 4
+    #endif
+    #ifndef ENCODER_STEPS_PER_MENU_ITEM
+      #define ENCODER_STEPS_PER_MENU_ITEM 1
     #endif
   #endif
 

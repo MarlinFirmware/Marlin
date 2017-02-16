@@ -592,6 +592,14 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 
 #endif // LCD_PROGRESS_BAR
 
+static void lcd_implementation_hotend_status() {
+  lcd.setCursor(10, 3);
+  lcd.print(LCD_STR_THERMOMETER[active_extruder]);
+  lcd.print(itostr3(thermalManager.degHotend(active_extruder)));
+  lcd.print('/');
+  lcd.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+}
+
 /**
 Possible status screens:
 16x2   |000/000 B000/000|

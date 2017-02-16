@@ -54,6 +54,7 @@ char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kan
 
 #if ENABLED(DOGLCD)
   #include "ultralcd_impl_DOGM.h"
+  #include <U8glib.h>
 #else
   #include "ultralcd_impl_HD44780.h"
 #endif
@@ -155,6 +156,7 @@ uint16_t max_display_update_time = 0;
     void lcd_filament_change_unload_message();
     void lcd_filament_change_insert_message();
     void lcd_filament_change_load_message();
+    void lcd_filament_change_heat_nozzle();
     void lcd_filament_change_extrude_message();
     void lcd_filament_change_resume_message();
   #endif
@@ -242,15 +244,15 @@ uint16_t max_display_update_time = 0;
     encoderRateMultiplierEnabled = false; \
     if (encoderPosition > 0x8000) encoderPosition = 0; \
     static int8_t _countedItems = 0; \
-    int8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
-    if (_countedItems > 0 && encoderLine >= _countedItems - LIMIT) { \
-      encoderLine = max(0, _countedItems - LIMIT); \
+    int8_t encoderLine = encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM); \
+    if (_countedItems > 0 && encoderLine >= _countedItems - (LIMIT)) { \
+      encoderLine = max(0, _countedItems - (LIMIT)); \
       encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM); \
     }
 
   #define SCREEN_OR_MENU_LOOP() \
     int8_t _menuLineNr = encoderTopLine, _thisItemNr; \
-    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT - TALL_FONT_CORRECTION; _lcdLineNr++, _menuLineNr++) { \
+    for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT - (TALL_FONT_CORRECTION); _lcdLineNr++, _menuLineNr++) { \
       _thisItemNr = 0
 
   /**
@@ -261,7 +263,7 @@ uint16_t max_display_update_time = 0;
    *               Scroll as-needed to keep the selected line in view.
    */
   #define START_SCREEN() \
-    START_SCREEN_OR_MENU(LCD_HEIGHT - TALL_FONT_CORRECTION); \
+    START_SCREEN_OR_MENU(LCD_HEIGHT - (TALL_FONT_CORRECTION)); \
     encoderTopLine = encoderLine; \
     bool _skipStatic = false; \
     SCREEN_OR_MENU_LOOP()
@@ -270,8 +272,8 @@ uint16_t max_display_update_time = 0;
     START_SCREEN_OR_MENU(1); \
     screen_changed = false; \
     NOMORE(encoderTopLine, encoderLine); \
-    if (encoderLine >= encoderTopLine + LCD_HEIGHT - TALL_FONT_CORRECTION) { \
-      encoderTopLine = encoderLine - (LCD_HEIGHT - TALL_FONT_CORRECTION - 1); \
+    if (encoderLine >= encoderTopLine + LCD_HEIGHT - (TALL_FONT_CORRECTION)) { \
+      encoderTopLine = encoderLine - (LCD_HEIGHT - (TALL_FONT_CORRECTION) - 1); \
     } \
     bool _skipStatic = true; \
     SCREEN_OR_MENU_LOOP()
@@ -443,12 +445,6 @@ uint16_t max_display_update_time = 0;
     stepper.synchronize();
     no_reentrance = false;
     lcd_goto_screen(old_screen);
-  }
-
-  inline void lcd_wait_for_homing() {
-    no_reentrance = true;
-    while (!axis_homed[X_AXIS] || !axis_homed[Y_AXIS] || !axis_homed[Z_AXIS]) idle();
-    no_reentrance = true;
   }
 
   void lcd_return_to_status() { lcd_goto_screen(lcd_status_screen); }
@@ -958,7 +954,8 @@ void kill_screen(const char* lcd_msg) {
     // Change filament
     //
     #if ENABLED(FILAMENT_CHANGE_FEATURE)
-       MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
+      if (!thermalManager.tooColdToExtrude(active_extruder))
+        MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
     #endif
 
     END_MENU();
@@ -1307,9 +1304,8 @@ KeepDrawing:
           LCDVIEW_CALL_NO_REDRAW
         #endif
       ;
-      if (no_reentrance) return;
-      lcd_wait_for_homing();
-      lcd_goto_screen(_lcd_level_bed_homing_done);
+      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS])
+        lcd_goto_screen(_lcd_level_bed_homing_done);
     }
 
     /**
@@ -1401,11 +1397,13 @@ KeepDrawing:
         MENU_ITEM(function, MSG_PREHEAT_1, lcd_preheat_material1_hotend0);
         MENU_ITEM(function, MSG_PREHEAT_2, lcd_preheat_material2_hotend0);
       #endif
+
       //
       // Change filament
       //
       #if ENABLED(FILAMENT_CHANGE_FEATURE)
-        MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
+        if (!thermalManager.tooColdToExtrude(active_extruder))
+          MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_enqueue_filament_change);
       #endif
     #endif
 
@@ -1413,7 +1411,7 @@ KeepDrawing:
     // Cooldown
     //
     bool has_heat = false;
-    HOTEND_LOOP() if (thermalManager.target_temperature[e]) { has_heat = true; break; }
+    HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; break; }
     #if HAS_TEMP_BED
       if (thermalManager.target_temperature_bed) has_heat = true;
     #endif
@@ -1564,7 +1562,7 @@ KeepDrawing:
       // This assumes the center is 0,0
       #if ENABLED(DELTA)
         if (axis != Z_AXIS) {
-          max = sqrt(sq(DELTA_PRINTABLE_RADIUS) - sq(current_position[Y_AXIS - axis]));
+          max = sqrt(sq((float)(DELTA_PRINTABLE_RADIUS)) - sq(current_position[Y_AXIS - axis]));
           min = -max;
         }
       #endif
@@ -2287,12 +2285,17 @@ KeepDrawing:
 
       for (uint16_t i = 0; i < fileCnt; i++) {
         if (_menuLineNr == _thisItemNr) {
-          card.getfilename(
-             #if ENABLED(SDCARD_RATHERRECENTFIRST)
-               fileCnt-1 -
-             #endif
-             i
-          );
+          #if ENABLED(SDCARD_RATHERRECENTFIRST) && DISABLED(SDCARD_SORT_ALPHA)
+            int nr = fileCnt - 1 - i;
+          #else
+            int nr = i;
+          #endif
+
+          #if ENABLED(SDCARD_SORT_ALPHA)
+            card.getfilename_sorted(nr);
+          #else
+            card.getfilename(nr);
+          #endif
 
           if (card.filenameIsDir)
             MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
@@ -2453,11 +2456,21 @@ KeepDrawing:
     }
   #endif // LCD_INFO_MENU
 
+  /**
+   *
+   * Filament Change Feature Screens
+   *
+   */
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
+
     void lcd_filament_change_toocold_menu() {
       START_MENU();
       STATIC_ITEM(MSG_HEATING_FAILED_LCD, true, true);
-      MENU_BACK(MSG_FILAMENTCHANGE);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_MINTEMP STRINGIFY(EXTRUDE_MINTEMP) ".", false, false);
+      MENU_BACK(MSG_BACK);
+      STATIC_ITEM(" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
+      lcd_implementation_hotend_status();
       END_MENU();
     }
 
@@ -2490,6 +2503,8 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_INIT_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INIT_3);
       #endif
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2503,6 +2518,35 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_UNLOAD_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_UNLOAD_3);
       #endif
+      STATIC_ITEM (" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
+      lcd_implementation_hotend_status();
+      END_SCREEN();
+    }
+
+    void lcd_filament_change_wait_for_nozzles_to_heat() {
+      START_SCREEN();
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEATING_1);
+      #ifdef MSG_FILAMENT_CHANGE_HEATING_2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_HEATING_2);
+      #endif
+      STATIC_ITEM(" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
+      lcd_implementation_hotend_status();
+      END_SCREEN();
+    }
+
+    void lcd_filament_change_heat_nozzle() {
+      START_SCREEN();
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, true, true);
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_HEAT_1);
+      #ifdef MSG_FILAMENT_CHANGE_INSERT_2
+        STATIC_ITEM(MSG_FILAMENT_CHANGE_HEAT_2);
+      #endif
+      STATIC_ITEM(" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2516,6 +2560,8 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_INSERT_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_INSERT_3);
       #endif
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2529,6 +2575,9 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_LOAD_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_LOAD_3);
       #endif
+      STATIC_ITEM(" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2542,6 +2591,9 @@ KeepDrawing:
       #ifdef MSG_FILAMENT_CHANGE_EXTRUDE_3
         STATIC_ITEM(MSG_FILAMENT_CHANGE_EXTRUDE_3);
       #endif
+      STATIC_ITEM(" ");
+      STATIC_ITEM(MSG_FILAMENT_CHANGE_NOZZLE, false, true);
+      lcd_implementation_hotend_status();
       END_SCREEN();
     }
 
@@ -2575,6 +2627,12 @@ KeepDrawing:
           break;
         case FILAMENT_CHANGE_MESSAGE_EXTRUDE:
           lcd_goto_screen(lcd_filament_change_extrude_message);
+          break;
+        case FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE:
+          lcd_goto_screen(lcd_filament_change_heat_nozzle);
+          break;
+        case FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT:
+          lcd_goto_screen(lcd_filament_change_wait_for_nozzles_to_heat);
           break;
         case FILAMENT_CHANGE_MESSAGE_OPTION:
           filament_change_menu_response = FILAMENT_CHANGE_RESPONSE_WAIT_FOR;

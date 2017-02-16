@@ -442,6 +442,42 @@
   // using:
   //#define MENU_ADDAUTOSTART
 
+  /**
+   * Sort SD file listings in alphabetical order.
+   *
+   * With this option enabled, items on SD cards will be sorted
+   * by name for easier navigation.
+   *
+   * By default...
+   *
+   *  - Use the slowest -but safest- method for sorting.
+   *  - Folders are sorted to the top.
+   *  - The sort key is statically allocated.
+   *  - No added G-code (M34) support.
+   *  - 40 item sorting limit. (Items after the first 40 are unsorted.)
+   *
+   * SD sorting uses static allocation (as set by SDSORT_LIMIT), allowing the
+   * compiler to calculate the worst-case usage and throw an error if the SRAM
+   * limit is exceeded.
+   *
+   *  - SDSORT_USES_RAM provides faster sorting via a static directory buffer.
+   *  - SDSORT_USES_STACK does the same, but uses a local stack-based buffer.
+   *  - SDSORT_CACHE_NAMES will retain the sorted file listing in RAM. (Expensive!)
+   *  - SDSORT_DYNAMIC_RAM only uses RAM when the SD menu is visible. (Use with caution!)
+   */
+  //#define SDCARD_SORT_ALPHA
+
+  // SD Card Sorting options
+  #if ENABLED(SDCARD_SORT_ALPHA)
+    #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256).
+    #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
+    #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
+    #define SDSORT_USES_RAM    false  // Pre-allocate a static array for faster pre-sorting.
+    #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
+    #define SDSORT_CACHE_NAMES false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+    #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
+  #endif
+
   // Show a progress bar on HD44780 LCDs for SD printing
   //#define LCD_PROGRESS_BAR
 
@@ -685,12 +721,16 @@
   #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
                                               // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
                                               // Short or zero length for printers without bowden where loading is not used
-  #define FILAMENT_CHANGE_LOAD_FEEDRATE 10    // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+  #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
   #define FILAMENT_CHANGE_EXTRUDE_LENGTH 50   // Extrude filament length in mm after filament is load over the hotend,
                                               // 0 to disable for manual extrusion
                                               // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
                                               // or until outcoming filament color is not clear for filament color change
   #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
+  #define FILAMENT_CHANGE_NOZZLE_TIMEOUT 45L  // Turn off nozzle if user doesn't change filament within this time limit in seconds
+  #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS  5L  // Number of alert beeps before printer goes quiet
+  #define FILAMENT_CHANGE_NO_STEPPER_TIMEOUT         // Enable to have stepper motors hold position during filament change
+                                                     // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
 #endif
 
 /******************************************************************************\
@@ -1084,5 +1124,15 @@
  * Include capabilities in M115 output
  */
 //#define EXTENDED_CAPABILITIES_REPORT
+
+
+/**
+ * Volumetric extrusion default state
+ * Activate to make volumetric extrusion the default method,
+ * with DEFAULT_NOMINAL_FILAMENT_DIA as the default diameter.
+ *
+ * M200 D0 to disable, M200 Dn to set a new diameter.
+ */ 
+//#define VOLUMETRIC_DEFAULT_ON
 
 #endif // CONFIGURATION_ADV_H

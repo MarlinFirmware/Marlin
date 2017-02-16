@@ -91,6 +91,7 @@
  *        Use P to run other files as sub-programs: "M32 P !filename#"
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
+ * M34  - Set SD Card sorting options. (Requires SDCARD_SORT_ALPHA)
  * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted.
  * M43  - Monitor pins & report changes - report active pins
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
@@ -335,7 +336,7 @@ bool axis_homed[XYZ] = { false }, axis_known_position[XYZ] = { false };
 /**
  * GCode line number handling. Hosts may opt to include line numbers when
  * sending commands to Marlin, and lines will be checked for sequentiality.
- * M110 S<int> sets the current line number.
+ * M110 N<int> sets the current line number.
  */
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
@@ -393,7 +394,13 @@ int feedrate_percentage = 100, saved_feedrate_percentage,
     flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100);
 
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
-     volumetric_enabled = false;
+     volumetric_enabled =
+      #if ENABLED(VOLUMETRIC_DEFAULT_ON)
+        true
+      #else
+        false
+      #endif
+      ;
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
       volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
@@ -634,7 +641,7 @@ static bool send_ok[BUFSIZE];
 
 #ifdef CHDK
   millis_t chdkHigh = 0;
-  boolean chdkActive = false;
+  bool chdkActive = false;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -971,7 +978,7 @@ void gcode_line_error(const char* err, bool doFlush = true) {
 
 inline void get_serial_commands() {
   static char serial_line_buffer[MAX_CMD_SIZE];
-  static boolean serial_comment_mode = false;
+  static bool serial_comment_mode = false;
 
   // If the command buffer is empty for too long,
   // send "wait" to indicate Marlin is still waiting.
@@ -1011,7 +1018,7 @@ inline void get_serial_commands() {
 
       if (npos) {
 
-        boolean M110 = strstr_P(command, PSTR("M110")) != NULL;
+        bool M110 = strstr_P(command, PSTR("M110")) != NULL;
 
         if (M110) {
           char* n2pos = strchr(command + 4, 'N');
@@ -1194,15 +1201,11 @@ inline bool code_has_value() {
 }
 
 inline float code_value_float() {
-  float ret;
   char* e = strchr(seen_pointer, 'E');
-  if (e) {
-    *e = 0;
-    ret = strtod(seen_pointer + 1, NULL);
-    *e = 'E';
-  }
-  else
-    ret = strtod(seen_pointer + 1, NULL);
+  if (!e) return strtod(seen_pointer + 1, NULL);
+  *e = 0;
+  float ret = strtod(seen_pointer + 1, NULL);
+  *e = 'E';
   return ret;
 }
 
@@ -1990,8 +1993,13 @@ static void clean_up_after_endstop_or_probe_move() {
   #define STOW_PROBE() set_probe_deployed(false)
 
   #if ENABLED(BLTOUCH)
+    void bltouch_command(int angle) {
+      servo[Z_ENDSTOP_SERVO_NR].move(angle);  // Give the BL-Touch the command and wait
+      safe_delay(375);
+    }
+
     FORCE_INLINE void set_bltouch_deployed(const bool &deploy) {
-      servo[Z_ENDSTOP_SERVO_NR].move(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
+      bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
           SERIAL_ECHOPAIR("set_bltouch_deployed(", deploy);
@@ -2019,7 +2027,15 @@ static void clean_up_after_endstop_or_probe_move() {
 
     // When deploying make sure BLTOUCH is not already triggered
     #if ENABLED(BLTOUCH)
-      if (deploy && TEST_BLTOUCH()) { stop(); return true; }
+      if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
+        bltouch_command(BLTOUCH_RESET);    // try to reset it.
+        set_bltouch_deployed(true);        // Also needs to deploy and stow to
+        set_bltouch_deployed(false);       // clear the triggered condition.
+        if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
+          stop();                          // punt!
+          return true;
+        }
+      }
     #elif ENABLED(Z_PROBE_SLED)
       if (axis_unhomed_error(true, false, false)) { stop(); return true; }
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
@@ -2211,7 +2227,7 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_PROTOCOLPGM(" Y: ");
       SERIAL_PROTOCOL_F(y, 3);
       SERIAL_PROTOCOLPGM(" Z: ");
-      SERIAL_PROTOCOL_F(measured_z, 3);
+      SERIAL_PROTOCOL_F(measured_z - -zprobe_zoffset + 0.0001, 3);
       SERIAL_EOL;
     }
 
@@ -2457,8 +2473,9 @@ static void clean_up_after_endstop_or_probe_move() {
   #if ENABLED(ABL_BILINEAR_SUBDIVISION)
     #define ABL_GRID_POINTS_VIRT_X (ABL_GRID_MAX_POINTS_X - 1) * (BILINEAR_SUBDIVISIONS) + 1
     #define ABL_GRID_POINTS_VIRT_Y (ABL_GRID_MAX_POINTS_Y - 1) * (BILINEAR_SUBDIVISIONS) + 1
+    #define ABL_TEMP_POINTS_X (ABL_GRID_MAX_POINTS_X + 2)
+    #define ABL_TEMP_POINTS_Y (ABL_GRID_MAX_POINTS_Y + 2)
     float bed_level_grid_virt[ABL_GRID_POINTS_VIRT_X][ABL_GRID_POINTS_VIRT_Y];
-    float bed_level_grid_virt_temp[ABL_GRID_MAX_POINTS_X + 2][ABL_GRID_MAX_POINTS_Y + 2]; //temporary for calculation (maybe dynamical?)
     int bilinear_grid_spacing_virt[2] = { 0 };
 
     static void bed_level_virt_print() {
@@ -2476,7 +2493,7 @@ static void clean_up_after_endstop_or_probe_move() {
           SERIAL_PROTOCOLCHAR(' ');
           float offset = bed_level_grid_virt[x][y];
           if (offset != UNPROBED) {
-            if (offset > 0) SERIAL_CHAR('+');
+            if (offset >= 0) SERIAL_CHAR('+');
             SERIAL_PROTOCOL_F(offset, 5);
           }
           else
@@ -2486,35 +2503,42 @@ static void clean_up_after_endstop_or_probe_move() {
       }
       SERIAL_EOL;
     }
-    #define LINEAR_EXTRAPOLATION(E, I) (E * 2 - I)
-    void bed_level_virt_prepare() {
-      for (uint8_t y = 1; y <= ABL_GRID_MAX_POINTS_Y; y++) {
-
-        for (uint8_t x = 1; x <= ABL_GRID_MAX_POINTS_X; x++)
-          bed_level_grid_virt_temp[x][y] = bed_level_grid[x - 1][y - 1];
-
-        bed_level_grid_virt_temp[0][y] = LINEAR_EXTRAPOLATION(
-          bed_level_grid_virt_temp[1][y],
-          bed_level_grid_virt_temp[2][y]
-        );
-
-        bed_level_grid_virt_temp[(ABL_GRID_MAX_POINTS_X + 2) - 1][y] =
-          LINEAR_EXTRAPOLATION(
-            bed_level_grid_virt_temp[(ABL_GRID_MAX_POINTS_X + 2) - 2][y],
-            bed_level_grid_virt_temp[(ABL_GRID_MAX_POINTS_X + 2) - 3][y]
+    #define LINEAR_EXTRAPOLATION(E, I) ((E) * 2 - (I))
+    float bed_level_virt_coord(const uint8_t x, const uint8_t y) {
+      uint8_t ep = 0, ip = 1;
+      if (!x || x == ABL_TEMP_POINTS_X - 1) {
+        if (x) {
+          ep = ABL_GRID_MAX_POINTS_X - 1;
+          ip = ABL_GRID_MAX_POINTS_X - 2;
+        }
+        if (y > 0 && y < ABL_TEMP_POINTS_Y - 1)
+          return LINEAR_EXTRAPOLATION(
+            bed_level_grid[ep][y - 1],
+            bed_level_grid[ip][y - 1]
+          );
+        else
+          return LINEAR_EXTRAPOLATION(
+            bed_level_virt_coord(ep + 1, y),
+            bed_level_virt_coord(ip + 1, y)
           );
       }
-      for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X + 2; x++) {
-        bed_level_grid_virt_temp[x][0] = LINEAR_EXTRAPOLATION(
-          bed_level_grid_virt_temp[x][1],
-          bed_level_grid_virt_temp[x][2]
-        );
-        bed_level_grid_virt_temp[x][(ABL_GRID_MAX_POINTS_Y + 2) - 1] =
-          LINEAR_EXTRAPOLATION(
-            bed_level_grid_virt_temp[x][(ABL_GRID_MAX_POINTS_Y + 2) - 2],
-            bed_level_grid_virt_temp[x][(ABL_GRID_MAX_POINTS_Y + 2) - 3]
+      if (!y || y == ABL_TEMP_POINTS_Y - 1) {
+        if (y) {
+          ep = ABL_GRID_MAX_POINTS_Y - 1;
+          ip = ABL_GRID_MAX_POINTS_Y - 2;
+        }
+        if (x > 0 && x < ABL_TEMP_POINTS_X - 1)
+          return LINEAR_EXTRAPOLATION(
+            bed_level_grid[x - 1][ep],
+            bed_level_grid[x - 1][ip]
+          );
+        else
+          return LINEAR_EXTRAPOLATION(
+            bed_level_virt_coord(x, ep + 1),
+            bed_level_virt_coord(x, ip + 1)
           );
       }
+      return bed_level_grid[x - 1][y - 1];
     }
     static float bed_level_virt_cmr(const float p[4], const uint8_t i, const float t) {
       return (
@@ -2527,8 +2551,9 @@ static void clean_up_after_endstop_or_probe_move() {
     static float bed_level_virt_2cmr(const uint8_t x, const uint8_t y, const float &tx, const float &ty) {
       float row[4], column[4];
       for (uint8_t i = 0; i < 4; i++) {
-        for (uint8_t j = 0; j < 4; j++) // can be memcopy or through memory access
-          column[j] = bed_level_grid_virt_temp[i + x - 1][j + y - 1];
+        for (uint8_t j = 0; j < 4; j++) {
+          column[j] = bed_level_virt_coord(i + x - 1, j + y - 1);
+        }
         row[i] = bed_level_virt_cmr(column, 1, ty);
       }
       return bed_level_virt_cmr(row, 1, tx);
@@ -2940,7 +2965,7 @@ bool position_is_reachable(float target[XYZ]
       return HYPOT2(dx - SCARA_OFFSET_X, dy - SCARA_OFFSET_Y) <= sq(L1 + L2);
     #endif
   #elif ENABLED(DELTA)
-    return HYPOT2(dx, dy) <= sq(DELTA_PRINTABLE_RADIUS);
+    return HYPOT2(dx, dy) <= sq((float)(DELTA_PRINTABLE_RADIUS));
   #else
     const float dz = RAW_Z_POSITION(target[Z_AXIS]);
     return dx >= X_MIN_POS - 0.0001 && dx <= X_MAX_POS + 0.0001
@@ -3905,7 +3930,7 @@ inline void gcode_G28() {
    *  R  Set the Right limit of the probing grid
    *
    * Parameters with BILINEAR only:
-   * 
+   *
    *  Z  Supply an additional Z probe offset
    *
    * Global Parameters:
@@ -4232,7 +4257,6 @@ inline void gcode_G28() {
       print_bilinear_leveling_grid();
 
       #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-        bed_level_virt_prepare();
         bed_level_virt_interpolate();
         bed_level_virt_print();
       #endif
@@ -4458,7 +4482,7 @@ inline void gcode_G28() {
     SERIAL_PROTOCOLPGM(" Y: ");
     SERIAL_PROTOCOL(Y_probe_location + 0.0001);
     SERIAL_PROTOCOLPGM(" Z: ");
-    SERIAL_PROTOCOLLN(measured_z + 0.0001);
+    SERIAL_PROTOCOLLN(measured_z - -zprobe_zoffset + 0.0001);
 
     clean_up_after_endstop_or_probe_move();
 
@@ -4824,6 +4848,20 @@ inline void gcode_M31() {
     }
 
   #endif
+
+  #if ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_GCODE)
+    /**
+     * M34: Set SD Card Sorting Options
+     */
+    inline void gcode_M34() {
+      if (code_seen('S')) card.setSortOn(code_value_bool());
+      if (code_seen('F')) {
+        int v = code_value_long();
+        card.setSortFolders(v < 0 ? -1 : v > 0 ? 1 : 0);
+      }
+      //if (code_seen('R')) card.setSortReverse(code_value_bool());
+    }
+  #endif // SDCARD_SORT_ALPHA && SDSORT_GCODE
 
   /**
    * M928: Start SD Write
@@ -5623,7 +5661,6 @@ inline void gcode_M109() {
     #define MIN_COOLING_SLOPE_TIME_BED 60
   #endif
 
-
   /**
    * M190: Sxxx Wait for bed current temp to reach target temp. Waits only when heating
    *       Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
@@ -5752,7 +5789,7 @@ inline void gcode_M109() {
  * M110: Set Current Line Number
  */
 inline void gcode_M110() {
-  if (code_seen('N')) gcode_N = code_value_long();
+  if (code_seen('N')) gcode_LastN = code_value_long();
 }
 
 /**
@@ -7180,7 +7217,6 @@ void quickstop_stepper() {
       if (px >= 0 && px < ABL_GRID_MAX_POINTS_X && py >= 0 && py < ABL_GRID_MAX_POINTS_X) {
         bed_level_grid[px][py] = z;
         #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-          bed_level_virt_prepare();
           bed_level_virt_interpolate();
         #endif
       }
@@ -7307,6 +7343,22 @@ inline void gcode_M503() {
 
 #if ENABLED(FILAMENT_CHANGE_FEATURE)
 
+  millis_t next_buzz = 0;
+  unsigned long int runout_beep = 0;
+
+  void filament_change_beep() {
+    const millis_t ms = millis();
+    if (ELAPSED(ms, next_buzz)) {
+      if (runout_beep <= FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS + 5) { // Only beep as long as we're supposed to
+        next_buzz = ms + (runout_beep <= FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS ? 2500 : 400);
+        BUZZ(300, 2000);
+        runout_beep++;
+      }
+    }
+  }
+
+  static bool busy_doing_M600 = false;
+
   /**
    * M600: Pause for filament change
    *
@@ -7327,6 +7379,12 @@ inline void gcode_M503() {
       return;
     }
 
+    busy_doing_M600 = true;  // Stepper Motors can't timeout when this is set
+
+    // Pause the print job timer
+    bool job_running = print_job_timer.isRunning();
+    print_job_timer.pause();
+
     // Show initial message and wait for synchronize steppers
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
     stepper.synchronize();
@@ -7343,8 +7401,6 @@ inline void gcode_M503() {
     #else
       #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S);
     #endif
-
-    KEEPALIVE_STATE(IN_HANDLER);
 
     // Initial retract before move to filament change position
     if (code_seen('E')) destination[E_AXIS] += code_value_axis_units(E_AXIS);
@@ -7384,6 +7440,7 @@ inline void gcode_M503() {
 
     stepper.synchronize();
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_UNLOAD);
+    idle();
 
     // Unload filament
     if (code_seen('L')) destination[E_AXIS] += code_value_axis_units(E_AXIS);
@@ -7401,32 +7458,76 @@ inline void gcode_M503() {
     disable_e3();
     delay(100);
 
-    #if HAS_BUZZER
-      millis_t next_buzz = 0;
-    #endif
+    millis_t nozzle_timeout = millis() + FILAMENT_CHANGE_NOZZLE_TIMEOUT * 1000L;
+    bool nozzle_timed_out = false;
+    float temps[4];
 
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
 
+    idle();
+
     #if ENABLED(PRINTER_EVENT_LEDS)
       handle_led_print_event(4);  // Turn RGB LEDs Teal
     #endif
-              
-    // LCD click or M108 will clear this
-    wait_for_user = true;
+
+    wait_for_user = true;    // LCD click or M108 will clear this
+    next_buzz = 0;
+    runout_beep = 0;
+    HOTEND_LOOP() temps[e] = thermalManager.target_temperature[e]; // Save nozzle temps
 
     while (wait_for_user) {
-      #if HAS_BUZZER
-        millis_t ms = millis();
-        if (ms >= next_buzz) {
-          BUZZ(300, 2000);
-          next_buzz = ms + 2500; // Beep every 2.5s while waiting
+      millis_t current_ms = millis();
+      if (nozzle_timed_out)
+        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
+
+      #if HAS_BUZZER 
+        filament_change_beep();
+      #endif
+
+      if (current_ms >= nozzle_timeout) {
+        if (!nozzle_timed_out) {
+          nozzle_timed_out = true; // on nozzle timeout remember the nozzles need to be reheated
+          HOTEND_LOOP() thermalManager.setTargetHotend(0, e); // Turn off all the nozzles
+          lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
         }
+      }
+      idle(true);
+    }
+
+    if (nozzle_timed_out)      // Turn nozzles back on if they were turned off
+      HOTEND_LOOP() thermalManager.setTargetHotend(temps[e], e);
+
+    // Show "wait for heating"
+    lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
+
+    wait_for_heatup = true;
+    while (wait_for_heatup) {
+      idle();
+      wait_for_heatup = false;
+      HOTEND_LOOP() {
+        if (abs(thermalManager.degHotend(e) - temps[e]) > 3) {
+          wait_for_heatup = true;
+          break;
+        }
+      }
+    }
+
+    // Show "insert filament"
+    if (nozzle_timed_out)
+      lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
+
+    wait_for_user = true;    // LCD click or M108 will clear this
+    next_buzz = 0;
+    runout_beep = 0;
+    while (wait_for_user && nozzle_timed_out) {
+      #if HAS_BUZZER
+        filament_change_beep();
       #endif
       idle(true);
     }
 
-    // Show load message
+    // Show "load" message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
 
     #if ENABLED(PRINTER_EVENT_LEDS)
@@ -7461,8 +7562,6 @@ inline void gcode_M503() {
 
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_RESUME);
 
-    KEEPALIVE_STATE(IN_HANDLER);
-
     // Set extruder to saved position
     destination[E_AXIS] = current_position[E_AXIS] = lastpos[E_AXIS];
     planner.set_e_position_mm(current_position[E_AXIS]);
@@ -7486,6 +7585,11 @@ inline void gcode_M503() {
 
     // Show status screen
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_STATUS);
+
+    // Resume the print job timer if it was running
+    if (job_running) print_job_timer.start();
+
+    busy_doing_M600 = false;  // Allow Stepper Motors to be turned off during inactivity
   }
 
 #endif // FILAMENT_CHANGE_FEATURE
@@ -8330,6 +8434,11 @@ void process_next_command() {
           case 33: // M33: Get the long full path to a file or folder
             gcode_M33(); break;
         #endif
+
+        #if ENABLED(SDCARD_SORT_ALPHA) && ENABLED(SDSORT_GCODE)
+          case 34: //M34 - Set SD card sorting options
+            gcode_M34(); break;
+        #endif // SDCARD_SORT_ALPHA && SDSORT_GCODE
 
         case 928: // M928: Start SD write
           gcode_M928(); break;
@@ -10094,7 +10203,14 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) kill(PSTR(MSG_KILLED));
 
-  if (stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
+  // Prevent steppers timing-out in the middle of M600
+  #if ENABLED(FILAMENT_CHANGE_FEATURE) && ENABLED(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
+    #define M600_TEST !busy_doing_M600
+  #else
+    #define M600_TEST true
+  #endif
+             
+  if (M600_TEST && stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
       && !ignore_stepper_queue && !planner.blocks_queued()) {
     #if ENABLED(DISABLE_INACTIVE_X)
       disable_x();
@@ -10493,6 +10609,12 @@ void setup() {
     for (uint8_t t = 0; t < MIXING_VIRTUAL_TOOLS; t++)
       for (uint8_t i = 0; i < MIXING_STEPPERS; i++)
         mixing_virtual_tool_mix[t][i] = mixing_factor[i];
+  #endif
+
+  #if ENABLED(BLTOUCH)
+    bltouch_command(BLTOUCH_RESET);    // Just in case the BLTouch is in the error state, try to
+    set_bltouch_deployed(true);        // reset it. Also needs to deploy and stow to clear the
+    set_bltouch_deployed(false);       // error condition.
   #endif
 
   #if ENABLED(EXPERIMENTAL_I2CBUS) && I2C_SLAVE_ADDRESS > 0
