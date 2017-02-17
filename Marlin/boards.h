@@ -117,8 +117,6 @@
 #define BOARD_RAMPS4DUE_SF     1548  // RAMPS4DUE (Power outputs: Spindle, Controller Fan)
 #define BOARD_ALLIGATOR        1602  // Alligator Board R2
 
-#define BOARD_99                99   // This is in pins.h but...?
-
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
 #endif //__BOARDS_H

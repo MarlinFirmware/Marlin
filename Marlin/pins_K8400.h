@@ -65,3 +65,4 @@
 //
 #undef PS_ON_PIN
 #undef KILL_PIN
+#undef SD_DETECT_PIN

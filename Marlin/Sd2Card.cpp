@@ -173,6 +173,12 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   uint16_t t0 = (uint16_t)millis();
   uint32_t arg;
 
+  // If init takes more than 4s it could trigger
+  // watchdog leading to a reboot loop.
+  #if ENABLED(USE_WATCHDOG)
+    watchdog_reset();
+  #endif
+
   // set pin modes
 //todo: should use chipSelectPin ?
   spiBegin();
@@ -259,7 +265,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
       else
         error(SD_CARD_ERROR_CMD17);
 
-      if (--retryCnt) break;
+      if (!--retryCnt) break;
 
       chipSelectHigh();
       cardCommand(CMD12, 0); // Try sending a stop command, ignore the result.

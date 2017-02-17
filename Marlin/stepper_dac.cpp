@@ -49,7 +49,7 @@
 
   bool dac_present = false;
   const uint8_t dac_order[NUM_AXIS] = DAC_STEPPER_ORDER;
-  uint16_t dac_channel_pct[XYZE];
+  uint16_t dac_channel_pct[XYZE] = DAC_STEPPER_DFLT;
 
   int dac_init() {
     #if PIN_EXISTS(DAC_DISABLE)
@@ -64,6 +64,11 @@
 
     mcp4728_setVref_all(DAC_STEPPER_VREF);
     mcp4728_setGain_all(DAC_STEPPER_GAIN);
+    
+    if (mcp4728_getDrvPct(0) < 1 || mcp4728_getDrvPct(1) < 1 || mcp4728_getDrvPct(2) < 1 || mcp4728_getDrvPct(3) < 1 ) {
+      mcp4728_setDrvPct(dac_channel_pct);
+      mcp4728_eepromWrite();
+    }
 
     return 0;
   }
@@ -88,7 +93,7 @@
 
   static float dac_perc(int8_t n) { return 100.0 * mcp4728_getValue(dac_order[n]) * (1.0 / (DAC_STEPPER_MAX)); }
   static float dac_amps(int8_t n) { return mcp4728_getDrvPct(dac_order[n]) * (DAC_STEPPER_MAX) * 0.125 * (1.0 / (DAC_STEPPER_SENSE)); }
-  
+
   int16_t dac_current_get_percent(AxisEnum axis) { return mcp4728_getDrvPct(dac_order[axis]); }
   void dac_current_set_percents(int16_t pct[XYZE]) {
     LOOP_XYZE(i) dac_channel_pct[i] = pct[dac_order[i]];
@@ -101,7 +106,7 @@
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Stepper current values in % (Amps):");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR(" X:",  dac_perc(X_AXIS)); 
+    SERIAL_ECHOPAIR(" X:",  dac_perc(X_AXIS));
     SERIAL_ECHOPAIR(" (",   dac_amps(X_AXIS));
     SERIAL_ECHOPAIR(") Y:", dac_perc(Y_AXIS));
     SERIAL_ECHOPAIR(" (",   dac_amps(Y_AXIS));
