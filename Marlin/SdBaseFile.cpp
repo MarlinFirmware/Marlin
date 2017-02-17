@@ -1122,7 +1122,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
   // if not a directory file or miss-positioned return an error
   if (!isDir() || (0X1F & curPosition_)) return -1;
 
-  //If we have a longFilename buffer, mark it as invalid. If we find a long filename it will be filled automaticly.
+  //If we have a longFilename buffer, mark it as invalid. If we find a long filename it will be filled automatically.
   if (longFilename != NULL) longFilename[0] = '\0';
 
   while (1) {
