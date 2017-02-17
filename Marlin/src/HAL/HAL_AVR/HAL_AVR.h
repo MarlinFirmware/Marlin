@@ -110,6 +110,9 @@ int freeMemory(void);
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
 
+#define ENABLE_TEMPERATURE_INTERRUPT()  SBI(TIMSK0, OCIE0B)
+#define DISABLE_TEMPERATURE_INTERRUPT() CBI(TIMSK0, OCIE0B)
+
 //void HAL_timer_start (uint8_t timer_num, uint32_t frequency);
 #define HAL_timer_start (timer_num,frequency)
 

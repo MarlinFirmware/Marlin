@@ -305,7 +305,7 @@ HAL_STEP_TIMER_ISR
   #endif
 }
 
-#define _ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr) CBI(TIMSK0, OCIE0B); else SBI(TIMSK0, OCIE0B); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
+#define _ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
 
 void Stepper::isr() {
 
@@ -318,7 +318,7 @@ void Stepper::isr() {
 
   #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
     // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
-    CBI(TIMSK0, OCIE0B); // Temperature ISR
+    DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
     DISABLE_STEPPER_DRIVER_INTERRUPT();
     sei();
   #endif
@@ -348,8 +348,11 @@ void Stepper::isr() {
       }
 
       _NEXT_ISR(ocr_val);
-
-      NOLESS(OCR1A, TCNT1 + 16);
+      #ifdef CPU_32_BIT
+        //todo: HAL?
+      #else
+        NOLESS(OCR1A, TCNT1 + 16);
+      #endif
 
       _ENABLE_ISRs(); // re-enable ISRs
       return;
@@ -842,7 +845,7 @@ void Stepper::isr() {
 
   void Stepper::advance_isr_scheduler() {
     // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
-    CBI(TIMSK0, OCIE0B); // Temperature ISR
+    DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
     DISABLE_STEPPER_DRIVER_INTERRUPT();
     sei();
 

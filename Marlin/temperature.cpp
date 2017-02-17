@@ -1478,7 +1478,7 @@ void Temperature::isr() {
   in_temp_isr = true;
   
   // Allow UART and stepper ISRs
-  CBI(TIMSK0, OCIE0B); //Disable Temperature ISR
+  DISABLE_TEMPERATURE_INTERRUPT(); //Disable Temperature ISR
   sei();
 
   static uint8_t temp_count = 0;
@@ -1937,5 +1937,5 @@ void Temperature::isr() {
 
   cli();
   in_temp_isr = false;
-  SBI(TIMSK0, OCIE0B); //re-enable Temperature ISR
+  ENABLE_TEMPERATURE_INTERRUPT(); //re-enable Temperature ISR
 }
