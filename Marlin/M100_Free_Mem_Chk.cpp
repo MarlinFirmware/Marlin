@@ -74,7 +74,7 @@ void gcode_M100() {
     if (code_seen('D')) {
       ptr = __brkval ? __brkval : &__bss_end;
       //
-      // We want to start and end the dump on a nice 16 byte boundry even though
+      // We want to start and end the dump on a nice 16 byte boundary even though
       // the values we are using are not 16 byte aligned.
       //
       SERIAL_ECHOPGM("\nbss_end : ");
