@@ -3457,6 +3457,10 @@ inline void gcode_G28() {
     }
   #endif
 
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    handle_led_print_event(2);  // Turn RGB on to Yellow
+  #endif
+
   // Wait for planner moves to finish!
   stepper.synchronize();
 
@@ -3616,6 +3620,11 @@ inline void gcode_G28() {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> (home_all_axis || homeZ) > final", current_position);
         #endif
+
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(9);  // Turn RGBs off
+        #endif
+
       } // home_all_axis || homeZ
     #endif // Z_HOME_DIR < 0
 
