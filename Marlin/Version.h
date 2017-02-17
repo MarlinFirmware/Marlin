@@ -22,7 +22,7 @@
 
 /**
  * This file is the standard Marlin version identifier file, all fields can be
- * overriden by the ones defined on _Version.h by using the Configuration.h
+ * overridden by the ones defined on _Version.h by using the Configuration.h
  * directive USE_AUTOMATIC_VERSIONING.
  */
 
