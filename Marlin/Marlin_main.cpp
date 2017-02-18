@@ -7347,10 +7347,11 @@ inline void gcode_M503() {
     #endif
 
     // Initial retract before move to filament change position
-    if (code_seen('E')) destination[E_AXIS] += code_value_axis_units(E_AXIS);
-    #if defined(FILAMENT_CHANGE_RETRACT_LENGTH) && FILAMENT_CHANGE_RETRACT_LENGTH > 0
-      else destination[E_AXIS] -= FILAMENT_CHANGE_RETRACT_LENGTH;
-    #endif
+    destination[E_AXIS] += code_seen('E') ? code_value_axis_units(E_AXIS) : 0
+      #if defined(FILAMENT_CHANGE_RETRACT_LENGTH) && FILAMENT_CHANGE_RETRACT_LENGTH > 0
+        - (FILAMENT_CHANGE_RETRACT_LENGTH)
+      #endif
+    ;
 
     RUNPLAN(FILAMENT_CHANGE_RETRACT_FEEDRATE);
 
@@ -7387,10 +7388,11 @@ inline void gcode_M503() {
     idle();
 
     // Unload filament
-    if (code_seen('L')) destination[E_AXIS] += code_value_axis_units(E_AXIS);
-    #if defined(FILAMENT_CHANGE_UNLOAD_LENGTH) && FILAMENT_CHANGE_UNLOAD_LENGTH > 0
-      else destination[E_AXIS] -= FILAMENT_CHANGE_UNLOAD_LENGTH;
-    #endif
+    destination[E_AXIS] += code_seen('L') ? code_value_axis_units(E_AXIS) : 0
+      #if FILAMENT_CHANGE_UNLOAD_LENGTH > 0
+        - (FILAMENT_CHANGE_UNLOAD_LENGTH)
+      #endif
+    ;
 
     RUNPLAN(FILAMENT_CHANGE_UNLOAD_FEEDRATE);
 
@@ -7471,29 +7473,39 @@ inline void gcode_M503() {
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
 
     // Load filament
-    if (code_seen('L')) destination[E_AXIS] -= code_value_axis_units(E_AXIS);
-    #if defined(FILAMENT_CHANGE_LOAD_LENGTH) && FILAMENT_CHANGE_LOAD_LENGTH > 0
-      else destination[E_AXIS] += FILAMENT_CHANGE_LOAD_LENGTH;
-    #endif
+    destination[E_AXIS] += code_seen('L') ? -code_value_axis_units(E_AXIS) : 0
+      #if FILAMENT_CHANGE_LOAD_LENGTH > 0
+        + FILAMENT_CHANGE_LOAD_LENGTH
+      #endif
+    ;
 
     RUNPLAN(FILAMENT_CHANGE_LOAD_FEEDRATE);
     stepper.synchronize();
 
     #if defined(FILAMENT_CHANGE_EXTRUDE_LENGTH) && FILAMENT_CHANGE_EXTRUDE_LENGTH > 0
+  
       do {
-        // Extrude filament to get into hotend
+        // "Wait for filament extrude"
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_EXTRUDE);
+
+        // Extrude filament to get into hotend
         destination[E_AXIS] += FILAMENT_CHANGE_EXTRUDE_LENGTH;
         RUNPLAN(FILAMENT_CHANGE_EXTRUDE_FEEDRATE);
         stepper.synchronize();
-        // Ask user if more filament should be extruded
+
+        // Show "Extrude More" / "Resume" menu and wait for reply
         KEEPALIVE_STATE(PAUSED_FOR_USER);
+        wait_for_user = false;
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_OPTION);
         while (filament_change_menu_response == FILAMENT_CHANGE_RESPONSE_WAIT_FOR) idle(true);
         KEEPALIVE_STATE(IN_HANDLER);
-      } while (filament_change_menu_response != FILAMENT_CHANGE_RESPONSE_RESUME_PRINT);
+
+        // Keep looping if "Extrude More" was selected
+      } while (filament_change_menu_response == FILAMENT_CHANGE_RESPONSE_EXTRUDE_MORE);
+
     #endif
 
+    // "Wait for print to resume"
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_RESUME);
 
     // Set extruder to saved position
