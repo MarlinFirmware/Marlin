@@ -1416,10 +1416,16 @@ void Planner::set_position_mm_kinematic(const float position[NUM_AXIS]) {
  * Sync from the stepper positions. (e.g., after an interrupted move)
  */
 void Planner::sync_from_steppers() {
-  LOOP_XYZE(i) position[i] = stepper.position((AxisEnum)i);
-  #if ENABLED(LIN_ADVANCE)
-    LOOP_XYZE(i) position_float[i] = stepper.position((AxisEnum)i) * (i == E_AXIS ? steps_to_mm[E_AXIS + active_extruder] : steps_to_mm[i]);
-  #endif
+  LOOP_XYZE(i) {
+    position[i] = stepper.position((AxisEnum)i);
+    #if ENABLED(LIN_ADVANCE)
+      position_float[i] = position[i] * steps_to_mm[i
+        #if ENABLED(DISTINCT_E_FACTORS)
+          + (i == E_AXIS ? active_extruder : 0)
+        #endif
+      ];
+    #endif
+  }
 }
 
 /**
