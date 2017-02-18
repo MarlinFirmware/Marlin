@@ -226,6 +226,10 @@ void Endstops::M119() {
     SERIAL_PROTOCOLPGM(MSG_Z_PROBE);
     SERIAL_PROTOCOLLN(((READ(Z_MIN_PROBE_PIN)^Z_MIN_PROBE_ENDSTOP_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
   #endif
+  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    SERIAL_PROTOCOLPGM(MSG_FILAMENT_RUNOUT_SENSOR);
+    SERIAL_PROTOCOLLN(((READ(FIL_RUNOUT_PIN)^FIL_RUNOUT_INVERTING) ? MSG_ENDSTOP_HIT : MSG_ENDSTOP_OPEN));
+  #endif
 } // Endstops::M119
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -264,14 +268,14 @@ void Endstops::update() {
       } \
     } while(0)
 
-  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN)  // If G38 command then check Z_MIN for every axis and every direction  
+  #if ENABLED(G38_PROBE_TARGET) && PIN_EXISTS(Z_MIN)  // If G38 command then check Z_MIN for every axis and every direction
 
     #define UPDATE_ENDSTOP(AXIS,MINMAX) do { \
         _UPDATE_ENDSTOP(AXIS,MINMAX,NOOP); \
         if (G38_move) _UPDATE_ENDSTOP(Z, MIN, G38_endstop_hit = true); \
       } while(0)
 
-  #else	
+  #else
 
     #define UPDATE_ENDSTOP(AXIS,MINMAX) _UPDATE_ENDSTOP(AXIS,MINMAX,NOOP)
 

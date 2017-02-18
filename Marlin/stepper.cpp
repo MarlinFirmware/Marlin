@@ -96,12 +96,16 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
-  #ifdef CPU_32_BIT
-    uint32_t Stepper::old_OCR0A = 0;
-    volatile uint32_t Stepper::eISR_Rate = 200 * EXTRUDER_TIMER_FACTOR; // Keep the ISR at a low rate until needed
+#ifdef CPU_32_BIT
+  constexpr uint32_t ADV_NEVER = 0xFFFFFFFF;
+  uint32_t Stepper::nextMainISR = 0,
+           Stepper::nextAdvanceISR = ADV_NEVER,
+           Stepper::eISR_Rate = ADV_NEVER;
   #else
-    uint8_t Stepper::old_OCR0A = 0;
-    volatile uint8_t Stepper::eISR_Rate = 200; // Keep the ISR at a low rate until needed
+  constexpr uint16_t ADV_NEVER = 65535;
+  uint16_t Stepper::nextMainISR = 0,
+           Stepper::nextAdvanceISR = ADV_NEVER,
+           Stepper::eISR_Rate = ADV_NEVER;
   #endif
 
   #if ENABLED(LIN_ADVANCE)
@@ -116,6 +120,9 @@ volatile uint32_t Stepper::step_events_completed = 0; // The number of step even
          Stepper::advance_rate,
          Stepper::advance;
   #endif
+
+  #define ADV_RATE(T, L) (e_steps[TOOL_E_INDEX] ? (T) * (L) / abs(e_steps[TOOL_E_INDEX]) : ADV_NEVER)
+
 #endif
 
 long Stepper::acceleration_time, Stepper::deceleration_time;
@@ -291,11 +298,67 @@ void Stepper::set_directions() {
 HAL_STEP_TIMER_ISR
 {
   HAL_timer_isr_prologue (STEP_TIMER_NUM);
-
-  Stepper::isr();
+  #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+    Stepper::advance_isr_scheduler();
+  #else
+    Stepper::isr();
+  #endif
 }
 
+#define _ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr)DISABLE_TEMPERATURE_INTERRUPT(); else ENABLE_TEMPERATURE_INTERRUPT(); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
+
 void Stepper::isr() {
+
+  static uint32_t step_remaining = 0;
+
+  uint16_t ocr_val;
+
+  #define ENDSTOP_NOMINAL_OCR_VAL 3000    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
+  #define OCR_VAL_TOLERANCE 1000          // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
+
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
+    DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
+    DISABLE_STEPPER_DRIVER_INTERRUPT();
+    sei();
+  #endif
+
+  #define _SPLIT(L) (ocr_val = (uint16_t)L)
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+    #define SPLIT(L) _SPLIT(L)
+  #else                 // sample endstops in between step pulses
+    #define SPLIT(L) do { \
+      _SPLIT(L); \
+      if (ENDSTOPS_ENABLED && L > ENDSTOP_NOMINAL_OCR_VAL) { \
+        uint16_t remainder = (uint16_t)L % (ENDSTOP_NOMINAL_OCR_VAL); \
+        ocr_val = (remainder < OCR_VAL_TOLERANCE) ? ENDSTOP_NOMINAL_OCR_VAL + remainder : ENDSTOP_NOMINAL_OCR_VAL; \
+        step_remaining = (uint16_t)L - ocr_val; \
+      } \
+    } while(0)
+
+    if (step_remaining && ENDSTOPS_ENABLED) {   // Just check endstops - not yet time for a step
+      endstops.update();
+      if (step_remaining > ENDSTOP_NOMINAL_OCR_VAL) {
+        step_remaining -= ENDSTOP_NOMINAL_OCR_VAL;
+        ocr_val = ENDSTOP_NOMINAL_OCR_VAL;
+      }
+      else {
+        ocr_val = step_remaining;
+        step_remaining = 0;  //  last one before the ISR that does the step
+      }
+
+      _NEXT_ISR(ocr_val);
+      #ifdef CPU_32_BIT
+        //todo: HAL?
+      #else
+        NOLESS(OCR1A, TCNT1 + 16);
+      #endif
+
+      _ENABLE_ISRs(); // re-enable ISRs
+      return;
+    }
+  # endif
+
   if (cleaning_buffer_counter) {
     --cleaning_buffer_counter;
     current_block = NULL;
@@ -303,7 +366,8 @@ void Stepper::isr() {
     #ifdef SD_FINISHED_RELEASECOMMAND
       if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
-      HAL_timer_set_count (STEP_TIMER_NUM, HAL_TIMER_RATE / 10000); // Run at max speed - 10 KHz
+    _NEXT_ISR(HAL_TIMER_RATE / 10000); // Run at max speed - 10 KHz
+    _ENABLE_ISRs(); // re-enable ISRs
     return;
   }
 
@@ -336,7 +400,8 @@ void Stepper::isr() {
       #if ENABLED(Z_LATE_ENABLE)
         if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
-          HAL_timer_set_count (STEP_TIMER_NUM, HAL_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
+          _NEXT_ISR(HAL_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
+          _ENABLE_ISRs(); // re-enable ISRs
           return;
         }
       #endif
@@ -346,35 +411,27 @@ void Stepper::isr() {
       // #endif
     }
     else {
-      HAL_timer_set_count (STEP_TIMER_NUM, HAL_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
+      _NEXT_ISR(HAL_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
+      _ENABLE_ISRs(); // re-enable ISRs
       return;
     }
   }
 
   // Update endstops state, if enabled
-  if ((endstops.enabled
-    #if HAS_BED_PROBE
-      || endstops.z_probe_enabled
-    #endif
-    )
-    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-      && e_hit
-    #endif
-  ) {
-    endstops.update();
 
-    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+    if (ENDSTOPS_ENABLED && e_hit) {
+      endstops.update();
       e_hit--;
-    #endif
-  }
+    }
+  #else
+    if (ENDSTOPS_ENABLED) endstops.update();
+  #endif
 
   // Take multiple steps per interrupt (For high speed moves)
   bool all_steps_done = false;
   for (int8_t i = 0; i < step_loops; i++) {
-    #ifndef USBCON
-      customizedSerial.checkRx(); // Check for serial chars.
-    #endif
-
     #if ENABLED(LIN_ADVANCE)
 
       counter_E += current_block->steps[E_AXIS];
@@ -553,10 +610,10 @@ void Stepper::isr() {
       #endif
    }
   #endif
-  
+
   #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
     // If we have esteps to execute, fire the next advance_isr "now"
-    if (e_steps[TOOL_E_INDEX]) OCR0A = TCNT0 + 2;
+    if (e_steps[TOOL_E_INDEX]) nextAdvanceISR = 0;
   #endif
 
   // Calculate new timer value
@@ -574,7 +631,10 @@ void Stepper::isr() {
 
     // step_rate to timer interval
     HAL_TIMER_TYPE timer = calc_timer(acc_step_rate);
-    HAL_timer_set_count (STEP_TIMER_NUM, timer);
+
+    SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    _NEXT_ISR(ocr_val);
+
     acceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -612,7 +672,7 @@ void Stepper::isr() {
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       //TODO: HAL
-      eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]); //>> 3 is divide by 8. Reason: Timer 1 runs at 16/8=2MHz, Timer 0 at 16/64=0.25MHz. ==> 2/0.25=8.
+      eISR_Rate = ADV_RATE(timer, step_loops);
     #endif
   }
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
@@ -633,7 +693,10 @@ void Stepper::isr() {
 
     // step_rate to timer interval
     HAL_TIMER_TYPE timer = calc_timer(step_rate);
-    HAL_timer_set_count (STEP_TIMER_NUM, timer);
+
+    SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    _NEXT_ISR(ocr_val);
+
     deceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -668,7 +731,7 @@ void Stepper::isr() {
     #endif // ADVANCE or LIN_ADVANCE
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      eISR_Rate = (timer >> 3) * step_loops / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = ADV_RATE(timer, step_loops);
     #endif
   }
   else {
@@ -678,22 +741,25 @@ void Stepper::isr() {
       if (current_block->use_advance_lead)
         current_estep_rate[TOOL_E_INDEX] = final_estep_rate;
 
-      eISR_Rate = (OCR1A_nominal >> 3) * step_loops_nominal / abs(e_steps[TOOL_E_INDEX]);
+      eISR_Rate = ADV_RATE(OCR1A_nominal, step_loops_nominal);
 
     #endif
 
-    HAL_timer_set_count (STEP_TIMER_NUM, OCR1A_nominal);
+    SPLIT(OCR1A_nominal);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    _NEXT_ISR(ocr_val);
     // ensure we're running at the correct step rate, even if we just came off an acceleration
     step_loops = step_loops_nominal;
   }
 
-  #ifdef CPU_32_BIT
-    // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
-    uint32_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM);
-    uint32_t stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
-    HAL_timer_set_count(STEP_TIMER_NUM, stepper_timer_count < stepper_timer_current_count ? stepper_timer_current_count : stepper_timer_count);
-  #else
-    NOLESS(OCR1A, TCNT1 + 16);
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    #ifdef CPU_32_BIT
+      // Make sure stepper interrupt does not monopolise CPU by adjusting count to give about 8 us room
+      uint32_t stepper_timer_count = HAL_timer_get_count(STEP_TIMER_NUM);
+      uint32_t stepper_timer_current_count = HAL_timer_get_current_count(STEP_TIMER_NUM) + 8 * HAL_TICKS_PER_US;
+      HAL_timer_set_count(STEP_TIMER_NUM, stepper_timer_count < stepper_timer_current_count ? stepper_timer_current_count : stepper_timer_count);
+    #else
+      NOLESS(OCR1A, TCNT1 + 16);
+    #endif
   #endif
 
   // If current block is finished, reset pointer
@@ -701,18 +767,18 @@ void Stepper::isr() {
     current_block = NULL;
     planner.discard_current_block();
   }
+  #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
+    _ENABLE_ISRs(); // re-enable ISRs
+  #endif
 }
 
 #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
 
   // Timer interrupt for E. e_steps is set in the main routine;
-  // Timer 0 is shared with millies
-  ISR(TIMER0_COMPA_vect) { Stepper::advance_isr(); }
 
   void Stepper::advance_isr() {
 
-    old_OCR0A += eISR_Rate;
-    OCR0A = old_OCR0A;
+    nextAdvanceISR = eISR_Rate;
 
     #define SET_E_STEP_DIR(INDEX) \
       if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
@@ -775,6 +841,44 @@ void Stepper::isr() {
       #endif
     }
 
+  }
+
+  void Stepper::advance_isr_scheduler() {
+    // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
+    DISABLE_TEMPERATURE_INTERRUPT(); // Temperature ISR
+    DISABLE_STEPPER_DRIVER_INTERRUPT();
+    sei();
+
+    // Run main stepping ISR if flagged
+    if (!nextMainISR) isr();
+
+    // Run Advance stepping ISR if flagged
+    if (!nextAdvanceISR) advance_isr();
+
+    // Is the next advance ISR scheduled before the next main ISR?
+    if (nextAdvanceISR <= nextMainISR) {
+      // Set up the next interrupt
+      OCR1A = nextAdvanceISR;
+      // New interval for the next main ISR
+      if (nextMainISR) nextMainISR -= nextAdvanceISR;
+      // Will call Stepper::advance_isr on the next interrupt
+      nextAdvanceISR = 0;
+    }
+    else {
+      // The next main ISR comes first
+      OCR1A = nextMainISR;
+      // New interval for the next advance ISR, if any
+      if (nextAdvanceISR && nextAdvanceISR != ADV_NEVER)
+        nextAdvanceISR -= nextMainISR;
+      // Will call Stepper::isr on the next interrupt
+      nextMainISR = 0;
+    }
+
+    // Don't run the ISR faster than possible
+    NOLESS(OCR1A, TCNT1 + 16);
+
+    // Restore original ISR settings
+    _ENABLE_ISRs();
   }
 
 #endif // ADVANCE or LIN_ADVANCE
@@ -978,12 +1082,6 @@ void Stepper::init() {
       #endif
     }
 
-    #if defined(TCCR0A) && defined(WGM01)
-      CBI(TCCR0A, WGM01);
-      CBI(TCCR0A, WGM00);
-    #endif
-    SBI(TIMSK0, OCIE0A);
-
   #endif // ADVANCE or LIN_ADVANCE
 
   endstops.enable(true); // Start with endstops active. After homing they can be disabled
@@ -1095,13 +1193,13 @@ void Stepper::finish_and_disable() {
 
 void Stepper::quick_stop() {
   cleaning_buffer_counter = 5000;
-  #if ENABLED(ENSURE_SMOOTH_MOVES)
-    planner.clear_block_buffer_runtime();
-  #endif
   DISABLE_STEPPER_DRIVER_INTERRUPT();
   while (planner.blocks_queued()) planner.discard_current_block();
   current_block = NULL;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
+  #if ENABLED(ULTRA_LCD)
+    planner.clear_block_buffer_runtime();
+  #endif
 }
 
 void Stepper::endstop_triggered(AxisEnum axis) {
