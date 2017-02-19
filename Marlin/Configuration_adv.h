@@ -876,36 +876,21 @@
   //#define E3_MAX_CURRENT  1000
   //#define E3_MICROSTEPS     16
   //#define E3_CHIP_SELECT    -1
-#endif // ENABLED(HAVE_TMC2130)
 
-/*
- * You can set your own advanced settings by filling in predefined functions.
- * You can find a list of available functions from the library github page
- * https://github.com/teemuatlut/TMC2130Stepper
- */
-#if defined(TMC2130_ADVANCED_SETTINGS)
-  #define  X_ADV() {  }
-	#define  Y_ADV() {  }
-  #define  Z_ADV() {  }
-  #define X2_ADV() {  }
-  #define Y2_ADV() {  }
-  #define Z2_ADV() {  }
-  #define E0_ADV() {  }
-  #define E1_ADV() {  }
-  #define E2_ADV() {  }
-  #define E3_ADV() {  }
-#else // !defined(TMC2130_ADVANCED_SETTINGS)
-	#define X_ADV()  {NOOP;}
-	#define Y_ADV()  {NOOP;}
-	#define Z_ADV()  {NOOP;}
-	#define X2_ADV() {NOOP;}
-	#define Y2_ADV() {NOOP;}
-	#define Z2_ADV() {NOOP;}
-	#define E0_ADV() {NOOP;}
-	#define E1_ADV() {NOOP;}
-	#define E2_ADV() {NOOP;}
-	#define E3_ADV() {NOOP;}
-#endif // defined(TMC2130_ADVANCED_SETTINGS)
+  /*
+   * You can set your own advanced settings by filling in predefined functions.
+   * A list of available functions can be found on the library github page
+   * https://github.com/teemuatlut/TMC2130Stepper
+   *
+   * Example:
+   * #define TMC2130_ADV() { \
+   *   stepperX.diag0_temp_prewarn(1); \
+   *   stepperX.interpolate(0); \
+   * }
+   */
+  #define  TMC2130_ADV() {  }
+
+#endif // ENABLED(HAVE_TMC2130)
 
 /******************************************************************************\
  * enable this section if you have L6470  motor drivers.
