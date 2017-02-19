@@ -7706,9 +7706,9 @@ inline void gcode_M503() {
   }
 #else
   #define MSG_NOT_TMC2130 SERIAL_PROTOCOLLN("Command requires TMC2130 drivers")
-  inline void gcode_M906() {MSG_NOT_TMC2130}
-  inline void gcode_M911() {MSG_NOT_TMC2130}
-  inline void gcode_M912() {MSG_NOT_TMC2130}
+  inline void gcode_M906() {MSG_NOT_TMC2130;}
+  inline void gcode_M911() {MSG_NOT_TMC2130;}
+  inline void gcode_M912() {MSG_NOT_TMC2130;}
 #endif // HAVE_TMC2130
 /**
  * M907: Set digital trimpot motor current using axis codes X, Y, Z, E, B, S
