@@ -757,22 +757,33 @@
 #endif
 
 /******************************************************************************\
- * enable this section if you have TMC2130 SPI stepper motor drivers.
- * you need to import the TMC2130Stepper library into the Arduino IDE for this
+ * Enable this section if you have TMC2130 SPI stepper motor drivers.
+ * You first need to import the TMC2130Stepper library into the Arduino IDE.
+ * You can use the Arduino Library Manager for installation, or download from
  * https://github.com/teemuatlut/TMC2130Stepper
  ******************************************************************************/
 
 #define HAVE_TMC2130
 
-#define STEALTHCHOP
-//#define TMC2130_ADVANCED_SETTINGS // Settings below
-
-#define AUTOMATIC_CURRENT_CONTROL // Automatically increase current until prewarn triggered, then backoff a bit
-#define TRIGGERED_MULTIPLIER  90  // [%], after prewarn gets triggered, this sets the new current level
-#define CURRENT_INCREASE      50  // [mA], After each check (5s), increase current by this much
-#define AUTO_ADJUST_MAX     1300  // [mA], Maximum current for automatic current adjustment
-
 #if ENABLED(HAVE_TMC2130)
+  #define STEALTHCHOP
+  //#define TMC2130_ADVANCED_SETTINGS // Settings below
+
+  /*
+   * Let Marlin automatically control stepper current.
+   * This is still an experimental feature.
+   * Increase current every 5s by CURRENT_STEP until stepper temperature prewarn gets triggered,
+   * then decrease current by CURRENT_STEP until temperature prewarn is cleared.
+   * Adjusting starts from X/Y/Z/E_MAX_CURRENT but will not increase over AUTO_ADJUST_MAX
+   */ 
+  #define AUTOMATIC_CURRENT_CONTROL
+  #define CURRENT_STEP          50  // [mA]
+  #define AUTO_ADJUST_MAX     1300  // [mA], 1300mA_rms = 1840mA_peak
+
+  /*
+   * Stepper driver settings
+   */
+
   #define R_SENSE           0.11  // R_sense resistor for SilentStepStick2130
   #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
   #define INTERPOLATE          1  // Interpolate X/Y/Z_MICROSTEPS to 256
@@ -780,7 +791,7 @@
   #define X_IS_TMC2130
   #define X_MAX_CURRENT     1000  // rms current in mA
   #define X_MICROSTEPS        16  // FULLSTEP..256
-  #define X_CHIP_SELECT       40
+  #define X_CHIP_SELECT       40  // Pin
 
   #define Y_IS_TMC2130
   #define Y_MAX_CURRENT     1000
@@ -855,7 +866,7 @@
 	#define E1_ADV() {NOOP;}
 	#define E2_ADV() {NOOP;}
 	#define E3_ADV() {NOOP;}
-#endif // !defined(TMC2130_ADVANCED_SETTINGS)
+#endif // defined(TMC2130_ADVANCED_SETTINGS)
 
 /******************************************************************************\
  * enable this section if you have L6470  motor drivers.
