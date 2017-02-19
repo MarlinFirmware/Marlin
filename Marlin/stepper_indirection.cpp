@@ -183,40 +183,42 @@ void tmc_init() {
     #endif
   }
 
-  #define _TMC2130_INIT(ST) tmc2130_init(stepper##ST, ST##_MAX_CURRENT, ST##_MICROSTEPS); ST##_ADV()
+  #define TMC2130_INIT(ST) tmc2130_init(stepper##ST, ST##_MAX_CURRENT, ST##_MICROSTEPS);
 
   void tmc2130_init() {
     delay(500); // Let power stabilize before we start configuring the steppers
     #if ENABLED(X_IS_TMC2130)
-      _TMC2130_INIT(X)
+      TMC2130_INIT(X)
     #endif
     #if ENABLED(X2_IS_TMC2130)
-      _TMC2130_INIT(X2)
+      TMC2130_INIT(X2)
     #endif
     #if ENABLED(Y_IS_TMC2130)
-      _TMC2130_INIT(Y)
+      TMC2130_INIT(Y)
     #endif
     #if ENABLED(Y2_IS_TMC2130)
-      _TMC2130_INIT(Y2)
+      TMC2130_INIT(Y2)
     #endif
     #if ENABLED(Z_IS_TMC2130)
-      _TMC2130_INIT(Z)
+      TMC2130_INIT(Z)
     #endif
     #if ENABLED(Z2_IS_TMC2130)
-      _TMC2130_INIT(Z2)
+      TMC2130_INIT(Z2)
     #endif
     #if ENABLED(E0_IS_TMC2130)
-      _TMC2130_INIT(E0)
+      TMC2130_INIT(E0)
     #endif
     #if ENABLED(E1_IS_TMC2130)
-      _TMC2130_INIT(E1)
+      TMC2130_INIT(E1)
     #endif
     #if ENABLED(E2_IS_TMC2130)
-      _TMC2130_INIT(E2)
+      TMC2130_INIT(E2)
     #endif
     #if ENABLED(E3_IS_TMC2130)
-      _TMC2130_INIT(E3)
+      TMC2130_INIT(E3)
     #endif
+
+    TMC2130_ADV()
   }
 #endif
 
