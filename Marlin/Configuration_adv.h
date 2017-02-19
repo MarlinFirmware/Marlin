@@ -803,11 +803,10 @@
  * https://github.com/teemuatlut/TMC2130Stepper
  ******************************************************************************/
 
-#define HAVE_TMC2130
+//#define HAVE_TMC2130
 
 #if ENABLED(HAVE_TMC2130)
   #define STEALTHCHOP
-  //#define TMC2130_ADVANCED_SETTINGS // Settings below
 
   /*
    * Let Marlin automatically control stepper current.
@@ -816,7 +815,7 @@
    * then decrease current by CURRENT_STEP until temperature prewarn is cleared.
    * Adjusting starts from X/Y/Z/E_MAX_CURRENT but will not increase over AUTO_ADJUST_MAX
    */ 
-  #define AUTOMATIC_CURRENT_CONTROL
+  //#define AUTOMATIC_CURRENT_CONTROL
   #define CURRENT_STEP          50  // [mA]
   #define AUTO_ADJUST_MAX     1300  // [mA], 1300mA_rms = 1840mA_peak
 
