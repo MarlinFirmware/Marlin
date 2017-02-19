@@ -7666,7 +7666,7 @@ inline void gcode_M503() {
       SERIAL_ECHOLN("false");
     }
   }
-  static void gcode_M911() {
+  inline void gcode_M911() {
     #if defined(X_IS_TMC2130)
       tmc2130_report_otpw(stepperX, "X");
     #endif
@@ -7690,7 +7690,7 @@ inline void gcode_M503() {
     SERIAL_ECHO(name);
     SERIAL_ECHOLN(" prewarn flag cleared");
   }
-  static void gcode_M912() {
+  inline void gcode_M912() {
     #if defined(X_IS_TMC2130)
       if (code_seen('X')) tmc2130_clear_otpw(stepperX, "X");
     #endif
