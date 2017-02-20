@@ -180,7 +180,7 @@
       /*
         z_optimized = z0;
         z0 = ubl.get_z_correction(end[X_AXIS], end[Y_AXIS]);
-        if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
+        if (FABS(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
         debug_current_and_destination((char*)"FINAL_MOVE: z_correction()");
         if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
         if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
@@ -188,7 +188,7 @@
         SERIAL_ECHOPAIR("  end[Y_AXIS]=", end[Y_AXIS]);
         SERIAL_ECHOPAIR("  z0=", z0);
         SERIAL_ECHOPAIR("  z_optimized=", z_optimized);
-        SERIAL_ECHOPAIR("  err=",fabs(z_optimized - z0));
+        SERIAL_ECHOPAIR("  err=", FABS(z_optimized - z0));
         SERIAL_EOL;
         }
       //*/
@@ -285,7 +285,7 @@
         /*
           z_optimized = z0;
           z0 = ubl.get_z_correction(x, next_mesh_line_y);
-          if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
+          if (FABS(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
             debug_current_and_destination((char*)"VERTICAL z_correction()");
           if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
             if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
@@ -293,7 +293,7 @@
           SERIAL_ECHOPAIR("  next_mesh_line_y=", next_mesh_line_y);
           SERIAL_ECHOPAIR("  z0=", z0);
           SERIAL_ECHOPAIR("  z_optimized=", z_optimized);
-          SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
+          SERIAL_ECHOPAIR("  err=", FABS(z_optimized-z0));
           SERIAL_ECHO("\n");
           }
         //*/
@@ -370,7 +370,7 @@
         /*
           z_optimized = z0;
           z0 = ubl.get_z_correction(next_mesh_line_x, y);
-          if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
+          if (FABS(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
             debug_current_and_destination((char*)"HORIZONTAL z_correction()");
           if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
             if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
@@ -378,7 +378,7 @@
           SERIAL_ECHOPAIR("  y=", y);
           SERIAL_ECHOPAIR("  z0=", z0);
           SERIAL_ECHOPAIR("  z_optimized=", z_optimized);
-          SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
+          SERIAL_ECHOPAIR("  err=", FABS(z_optimized-z0));
           SERIAL_ECHO("\n");
           }
         //*/
@@ -465,7 +465,7 @@
         /*
           z_optimized = z0;
           z0 = ubl.get_z_correction(x, next_mesh_line_y);
-          if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
+          if (FABS(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
             debug_current_and_destination((char*)"General_1: z_correction()");
             if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
             if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  "); {
@@ -474,7 +474,7 @@
             SERIAL_ECHOPAIR("  next_mesh_line_y=", next_mesh_line_y);
             SERIAL_ECHOPAIR("  z0=", z0);
             SERIAL_ECHOPAIR("  z_optimized=", z_optimized);
-            SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
+            SERIAL_ECHOPAIR("  err=", FABS(z_optimized-z0));
             SERIAL_ECHO("\n");
           }
         //*/
@@ -516,7 +516,7 @@
         /*
           z_optimized = z0;
           z0 = ubl.get_z_correction(next_mesh_line_x, y);
-          if (fabs(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
+          if (FABS(z_optimized - z0) > .01 || isnan(z0) || isnan(z_optimized)) {
           debug_current_and_destination((char*)"General_2: z_correction()");
           if (isnan(z0)) SERIAL_ECHO(" z0==NAN  ");
           if (isnan(z_optimized)) SERIAL_ECHO(" z_optimized==NAN  ");
@@ -524,7 +524,7 @@
           SERIAL_ECHOPAIR("  y=", y);
           SERIAL_ECHOPAIR("  z0=", z0);
           SERIAL_ECHOPAIR("  z_optimized=", z_optimized);
-          SERIAL_ECHOPAIR("  err=",fabs(z_optimized-z0));
+          SERIAL_ECHOPAIR("  err=", FABS(z_optimized-z0));
           SERIAL_ECHO("\n");
           }
         //*/

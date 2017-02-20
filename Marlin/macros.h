@@ -30,11 +30,6 @@
 
 #define FORCE_INLINE __attribute__((always_inline)) inline
 
-// Bracket code that shouldn't be interrupted
-#ifndef CRITICAL_SECTION_START
-  #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
-  #define CRITICAL_SECTION_END    SREG = _sreg;
-#endif
 
 // Clock speed factor
 #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20
@@ -59,7 +54,6 @@
 #define RADIANS(d) ((d)*M_PI/180.0)
 #define DEGREES(r) ((r)*180.0/M_PI)
 #define HYPOT2(x,y) (sq(x)+sq(y))
-#define HYPOT(x,y) sqrt(HYPOT2(x,y))
 
 // Macros to contrain values
 #define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
@@ -139,5 +133,18 @@
 
 #define RECIPROCAL(x) (NEAR_ZERO(x) ? 0.0 : 1.0 / (x))
 #define FIXFLOAT(f) (f + 0.00001)
+
+//
+// Maths macros that can be overridden by HAL
+//
+#define ATAN2(y, x) atan2(y, x)
+#define FABS(x)     fabs(x)
+#define POW(x, y)   pow(x, y)
+#define SQRT(x)     sqrt(x)
+#define CEIL(x)     ceil(x)
+#define FLOOR(x)    floor(x)
+#define LROUND(x)   lround(x)
+#define FMOD(x, y)  fmod(x, y)
+#define HYPOT(x,y)  SQRT(HYPOT2(x,y))
 
 #endif //__MACROS_H

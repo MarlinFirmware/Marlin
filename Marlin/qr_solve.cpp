@@ -521,7 +521,7 @@ float dnrm2(int n, float x[], int incx)
       }
       ix += incx;
     }
-    norm = scale * sqrt(ssq);
+    norm = scale * SQRT(ssq);
   }
   return norm;
 }
@@ -791,12 +791,12 @@ void dqrdc(float a[], int lda, int n, int p, float qraux[], int jpvt[],
           daxpy(n - l + 1, t, a + l - 1 + (l - 1)*lda, 1, a + l - 1 + (j - 1)*lda, 1);
           if (pl <= j && j <= pu) {
             if (qraux[j - 1] != 0.0) {
-              tt = 1.0 - pow(r8_abs(a[l - 1 + (j - 1) * lda]) / qraux[j - 1], 2);
+              tt = 1.0 - POW(r8_abs(a[l - 1 + (j - 1) * lda]) / qraux[j - 1], 2);
               tt = r8_max(tt, 0.0);
               t = tt;
-              tt = 1.0 + 0.05 * tt * pow(qraux[j - 1] / work[j - 1], 2);
+              tt = 1.0 + 0.05 * tt * POW(qraux[j - 1] / work[j - 1], 2);
               if (tt != 1.0)
-                qraux[j - 1] = qraux[j - 1] * sqrt(t);
+                qraux[j - 1] = qraux[j - 1] * SQRT(t);
               else {
                 qraux[j - 1] = dnrm2(n - l, a + l + (j - 1) * lda, 1);
                 work[j - 1] = qraux[j - 1];

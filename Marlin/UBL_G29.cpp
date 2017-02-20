@@ -442,7 +442,7 @@
           if (code_seen('B')) {
             card_thickness = code_has_value() ? code_value_float() : measure_business_card_thickness(height);
 
-            if (fabs(card_thickness) > 1.5) {
+            if (FABS(card_thickness) > 1.5) {
               SERIAL_PROTOCOLLNPGM("?Error in Business Card measurement.\n");
               return;
             }
@@ -713,7 +713,7 @@
     SERIAL_ECHO_F(mean, 6);
     SERIAL_EOL;
 
-    sigma = sqrt(sum_of_diff_squared / (n + 1));
+    sigma = SQRT(sum_of_diff_squared / (n + 1));
     SERIAL_ECHOPGM("Standard Deviation: ");
     SERIAL_ECHO_F(sigma, 6);
     SERIAL_EOL;

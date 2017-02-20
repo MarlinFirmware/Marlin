@@ -63,7 +63,7 @@ vector_3 vector_3::get_normal() {
   return normalized;
 }
 
-float vector_3::get_length() { return sqrt((x * x) + (y * y) + (z * z)); }
+float vector_3::get_length() { return SQRT((x * x) + (y * y) + (z * z)); }
 
 void vector_3::normalize() {
   const float inv_length = 1.0 / get_length();
