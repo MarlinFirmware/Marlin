@@ -802,6 +802,20 @@ static void lcd_implementation_status_screen() {
 
 #if ENABLED(ULTIPANEL)
 
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+
+    static void lcd_implementation_hotend_status(const uint8_t row) {
+      if (row < LCD_HEIGHT) {
+        lcd.setCursor(LCD_WIDTH - 9, row);
+        lcd.print(LCD_STR_THERMOMETER[active_extruder]);
+        lcd.print(itostr3(thermalManager.degHotend(active_extruder)));
+        lcd.print('/');
+        lcd.print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+      }
+    }
+
+  #endif // FILAMENT_CHANGE_FEATURE
+
   static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
     UNUSED(invert);
     char c;
