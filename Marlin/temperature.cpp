@@ -479,6 +479,7 @@ int Temperature::getHeaterPower(int heater) {
       int8_t pin = fanPin[f];
       if (pin >= 0 && !TEST(fanDone, fanBit[f])) {
         uint8_t newFanSpeed = TEST(fanState, fanBit[f]) ? EXTRUDER_AUTO_FAN_SPEED : 0;
+        autoFanSpeeds[f] = newFanSpeed;
         // this idiom allows both digital and PWM fan outputs (see M42 handling).
         digitalWrite(pin, newFanSpeed);
         analogWrite(pin, newFanSpeed);

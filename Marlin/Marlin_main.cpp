@@ -233,6 +233,7 @@
 #include "nozzle.h"
 #include "duration_t.h"
 #include "types.h"
+#include "power.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "UBL.h"
@@ -431,6 +432,12 @@ float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
 #if FAN_COUNT > 0
   int fanSpeeds[FAN_COUNT] = { 0 };
 #endif
+
+#if HAS_CONTROLLERFAN
+  int controllerFanSpeed = 0;
+#endif
+
+int autoFanSpeeds[HOTENDS] = { 0 };
 
 // The active extruder (tool). Set with T<extruder> command.
 uint8_t active_extruder = 0;
@@ -895,9 +902,9 @@ void setup_powerhold() {
   #endif
   #if HAS_POWER_SWITCH
     #if ENABLED(PS_DEFAULT_OFF)
-      OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+      powerManager.power_off();
     #else
-      OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
+      powerManager.power_on();
     #endif
   #endif
 }
@@ -5839,7 +5846,7 @@ inline void gcode_M140() {
    * M80: Turn on Power Supply
    */
   inline void gcode_M80() {
-    OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); //GND
+    powerManager.power_on();
 
     /**
      * If you have a switch on suicide pin, this is useful
@@ -5879,7 +5886,7 @@ inline void gcode_M81() {
     stepper.synchronize();
     suicide();
   #elif HAS_POWER_SWITCH
-    OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+    powerManager.power_on();
   #endif
   #if ENABLED(ULTIPANEL)
     #if HAS_POWER_SWITCH
@@ -9901,6 +9908,8 @@ void prepare_move_to_destination() {
 
       // Fan off if no steppers have been enabled for CONTROLLERFAN_SECS seconds
       uint8_t speed = (!lastMotorOn || ELAPSED(ms, lastMotorOn + (CONTROLLERFAN_SECS) * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
+      controllerFanSpeed = speed;
+
 
       // allows digital or PWM fan output to be used (see M42 handling)
       digitalWrite(CONTROLLERFAN_PIN, speed);
@@ -10290,6 +10299,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #if HAS_CONTROLLERFAN
     controllerFan(); // Check if fan should be turned on to cool stepper drivers down
   #endif
+
+  powerManager.check();
 
   #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     if (ELAPSED(ms, previous_cmd_ms + (EXTRUDER_RUNOUT_SECONDS) * 1000UL)
