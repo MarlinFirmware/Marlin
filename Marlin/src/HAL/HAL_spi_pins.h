@@ -2,9 +2,6 @@
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,24 +17,22 @@
  *
  */
 
-#ifndef MARLIN_CONFIG_H
-#define MARLIN_CONFIG_H
 
-#include "macros.h"
-#include "src/HAL/HAL.h"
-#include "boards.h"
-#include "Version.h"
-#include "Configuration.h"
-#include "Conditionals_LCD.h"
-#include "Configuration_adv.h"
-#include "pins.h"
-#if defined(ARDUINO_ARCH_AVR)
-  #ifndef USBCON
-    #define HardwareSerial_h // trick to disable the standard HWserial
-  #endif
+#ifndef HAL_SPI_PINS_H_
+#define HAL_SPI_PINS_H_
+
+#ifdef ARDUINO_ARCH_SAM
+
+  #include "HAL_DUE/spi_pins.h"
+
+#elif defined(ARDUINO_ARCH_AVR)
+
+  #include "HAL_AVR/spi_pins.h"
+
+#else
+
+  #error Unsupported Platform!
+
 #endif
-#include "Arduino.h"
-#include "Conditionals_post.h"
-#include "SanityCheck.h"
 
-#endif // MARLIN_CONFIG_H
+#endif /* HAL_SPI_PINS_H_ */

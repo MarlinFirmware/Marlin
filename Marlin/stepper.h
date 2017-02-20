@@ -52,31 +52,6 @@
 class Stepper;
 extern Stepper stepper;
 
-// intRes = intIn1 * intIn2 >> 16
-// uses:
-// r26 to store 0
-// r27 to store the byte 1 of the 24 bit result
-#define MultiU16X8toH16(intRes, charIn1, intIn2) \
-  asm volatile ( \
-                 "clr r26 \n\t" \
-                 "mul %A1, %B2 \n\t" \
-                 "movw %A0, r0 \n\t" \
-                 "mul %A1, %A2 \n\t" \
-                 "add %A0, r1 \n\t" \
-                 "adc %B0, r26 \n\t" \
-                 "lsr r0 \n\t" \
-                 "adc %A0, r26 \n\t" \
-                 "adc %B0, r26 \n\t" \
-                 "clr r1 \n\t" \
-                 : \
-                 "=&r" (intRes) \
-                 : \
-                 "d" (charIn1), \
-                 "d" (intIn2) \
-                 : \
-                 "r26" \
-               )
-
 class Stepper {
 
   public:
@@ -105,8 +80,13 @@ class Stepper {
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+    #ifdef CPU_32_BIT
+      static uint32_t nextMainISR, nextAdvanceISR, eISR_Rate;
+    #else
       static uint16_t nextMainISR, nextAdvanceISR, eISR_Rate;
+    #endif
       #define _NEXT_ISR(T) nextMainISR = T
+
       #if ENABLED(LIN_ADVANCE)
         static volatile int e_steps[E_STEPPERS];
         static int final_estep_rate;
@@ -120,14 +100,14 @@ class Stepper {
         static long old_advance;
       #endif
     #else
-      #define _NEXT_ISR(T) OCR1A = T
+      #define _NEXT_ISR(T) HAL_timer_set_count(STEP_TIMER_NUM, T);
     #endif // ADVANCE or LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
     //unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
-    static unsigned short acc_step_rate; // needed for deceleration start point
+    static HAL_TIMER_TYPE acc_step_rate; // needed for deceleration start point
     static uint8_t step_loops, step_loops_nominal;
-    static unsigned short OCR1A_nominal;
+    static HAL_TIMER_TYPE OCR1A_nominal;
 
     static volatile long endstops_trigsteps[XYZ];
     static volatile long endstops_stepsTotal, endstops_stepsDone;
@@ -281,43 +261,71 @@ class Stepper {
 
   private:
 
-    static FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
-      unsigned short timer;
+    static FORCE_INLINE HAL_TIMER_TYPE calc_timer(HAL_TIMER_TYPE step_rate) {
+      HAL_TIMER_TYPE timer;
 
       NOMORE(step_rate, MAX_STEP_FREQUENCY);
 
-      if (step_rate > 20000) { // If steprate > 20kHz >> step 4 times
-        step_rate >>= 2;
-        step_loops = 4;
-      }
-      else if (step_rate > 10000) { // If steprate > 10kHz >> step 2 times
-        step_rate >>= 1;
-        step_loops = 2;
-      }
-      else {
-        step_loops = 1;
-      }
+      // TODO: tidy this up, use condtionals_post.h
+      #ifdef CPU_32_BIT
+        #if ENABLED(DISABLE_MULTI_STEPPING)
+          step_loops = 1;
+        #else
+          if (step_rate > STEP_DOUBLER_FREQUENCY * 2) { // If steprate > (STEP_DOUBLER_FREQUENCY * 2) kHz >> step 4 times
+            step_rate >>= 2;
+            step_loops = 4;
+          }
+          else if (step_rate > STEP_DOUBLER_FREQUENCY) { // If steprate > STEP_DOUBLER_FREQUENCY kHz >> step 2 times
+            step_rate >>= 1;
+            step_loops = 2;
+          }
+          else {
+            step_loops = 1;
+          }
+        #endif
+      #else
+        if (step_rate > 20000) { // If steprate > 20kHz >> step 4 times
+          step_rate >>= 2;
+          step_loops = 4;
+        }
+        else if (step_rate > 10000) { // If steprate > 10kHz >> step 2 times
+          step_rate >>= 1;
+          step_loops = 2;
+        }
+        else {
+          step_loops = 1;
+        }
+      #endif
 
-      NOLESS(step_rate, F_CPU / 500000);
-      step_rate -= F_CPU / 500000; // Correct for minimal speed
-      if (step_rate >= (8 * 256)) { // higher step rate
-        unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
-        unsigned char tmp_step_rate = (step_rate & 0x00ff);
-        unsigned short gain = (unsigned short)pgm_read_word_near(table_address + 2);
-        MultiU16X8toH16(timer, tmp_step_rate, gain);
-        timer = (unsigned short)pgm_read_word_near(table_address) - timer;
-      }
-      else { // lower step rates
-        unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
-        table_address += ((step_rate) >> 1) & 0xfffc;
-        timer = (unsigned short)pgm_read_word_near(table_address);
-        timer -= (((unsigned short)pgm_read_word_near(table_address + 2) * (unsigned char)(step_rate & 0x0007)) >> 3);
-      }
-      if (timer < 100) { // (20kHz - this should never happen)
-        timer = 100;
-        MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
-        MYSERIAL.println(step_rate);
-      }
+      #ifdef CPU_32_BIT
+        // In case of high-performance processor, it is able to calculate in real-time 
+        timer = (uint32_t)(HAL_STEPPER_TIMER_RATE) / step_rate;
+        if (timer < (HAL_STEPPER_TIMER_RATE / (STEP_DOUBLER_FREQUENCY * 2))) { // (STEP_DOUBLER_FREQUENCY * 2 kHz - this should never happen)
+          timer = (HAL_STEPPER_TIMER_RATE / (STEP_DOUBLER_FREQUENCY * 2));
+        }
+      #else
+        NOLESS(step_rate, F_CPU / 500000);
+        step_rate -= F_CPU / 500000; // Correct for minimal speed
+        if (step_rate >= (8 * 256)) { // higher step rate
+          unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate >> 8)][0];
+          unsigned char tmp_step_rate = (step_rate & 0x00ff);
+          unsigned short gain = (unsigned short)pgm_read_word_near(table_address + 2);
+          MultiU16X8toH16(timer, tmp_step_rate, gain);
+          timer = (unsigned short)pgm_read_word_near(table_address) - timer;
+        }
+        else { // lower step rates
+          unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
+          table_address += ((step_rate) >> 1) & 0xfffc;
+          timer = (unsigned short)pgm_read_word_near(table_address);
+          timer -= (((unsigned short)pgm_read_word_near(table_address + 2) * (unsigned char)(step_rate & 0x0007)) >> 3);
+        }
+        if (timer < 100) { // (20kHz - this should never happen)
+          timer = 100;
+          MYSERIAL.print(MSG_STEPPER_TOO_HIGH);
+          MYSERIAL.println(step_rate);
+        }
+      #endif
+
       return timer;
     }
 

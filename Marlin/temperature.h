@@ -74,7 +74,12 @@ class Temperature {
     #endif
 
     #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
-      #define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
+      #if defined(ARDUINO_ARCH_AVR)
+        #define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
+      #else
+        // TODO: where does 12.0 come from?
+        #define PID_dT ((OVERSAMPLENR * 12.0) / TEMP_TIMER_FREQUENCY)
+      #endif
     #endif
 
     #if ENABLED(PIDTEMP)

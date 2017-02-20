@@ -1137,16 +1137,16 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
 
     // Limit acceleration per axis
     if (block->step_event_count <= cutoff_long) {
-      LIMIT_ACCEL_LONG(X_AXIS,0);
-      LIMIT_ACCEL_LONG(Y_AXIS,0);
-      LIMIT_ACCEL_LONG(Z_AXIS,0);
-      LIMIT_ACCEL_LONG(E_AXIS,extruder);
+      LIMIT_ACCEL_LONG(X_AXIS, 0);
+      LIMIT_ACCEL_LONG(Y_AXIS, 0);
+      LIMIT_ACCEL_LONG(Z_AXIS, 0);
+      LIMIT_ACCEL_LONG(E_AXIS, extruder);
     }
     else {
-      LIMIT_ACCEL_FLOAT(X_AXIS,0);
-      LIMIT_ACCEL_FLOAT(Y_AXIS,0);
-      LIMIT_ACCEL_FLOAT(Z_AXIS,0);
-      LIMIT_ACCEL_FLOAT(E_AXIS,extruder);
+      LIMIT_ACCEL_FLOAT(X_AXIS, 0);
+      LIMIT_ACCEL_FLOAT(Y_AXIS, 0);
+      LIMIT_ACCEL_FLOAT(Z_AXIS, 0);
+      LIMIT_ACCEL_FLOAT(E_AXIS, extruder);
     }
   }
   block->acceleration_steps_per_s2 = accel;
