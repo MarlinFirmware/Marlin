@@ -166,6 +166,65 @@
   #include "pins_MEGACONTROLLER.h"
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins_BQ_ZUM_MEGA_3D.h"
+#elif MB(DUE3DOM)
+  #include "pins_DUE3DOM.h"
+#elif MB(DUE3DOM_MINI)
+  #include "pins_DUE3DOM_MINI.h"
+#elif MB(RADDS)
+  #include "pins_RADDS.h"
+#elif MB(RAMPS_FD_V1)
+  #include "pins_RAMPS_FD.h"
+#elif MB(RAMPS_FD_V2)
+  #include "pins_RAMPS_FD_V2.h"
+#elif MB(RAMPS_SMART_EFB)
+  #define IS_RAMPS_EFB
+  #include "pins_RAMPS_SMART.h"
+#elif MB(RAMPS_SMART_EEB)
+  #define IS_RAMPS_EEB
+  #include "pins_RAMPS_SMART.h"
+#elif MB(RAMPS_SMART_EFF)
+  #define IS_RAMPS_EFF
+  #include "pins_RAMPS_SMART.h"
+#elif MB(RAMPS_SMART_EEF)
+  #define IS_RAMPS_EEF
+  #include "pins_RAMPS_SMART.h"
+#elif MB(RAMPS_SMART_SF)
+  #define IS_RAMPS_SF
+  #include "pins_RAMPS_SMART.h"
+#elif MB(RAMPS_DUO_EFB)
+  #define IS_RAMPS_EFB
+  #include "pins_RAMPS_DUO.h"
+#elif MB(RAMPS_DUO_EEB)
+  #define IS_RAMPS_EEB
+  #include "pins_RAMPS_DUO.h"
+#elif MB(RAMPS_DUO_EFF)
+  #define IS_RAMPS_EFF
+  #include "pins_RAMPS_DUO.h"
+#elif MB(RAMPS_DUO_EEF)
+  #define IS_RAMPS_EEF
+  #include "pins_RAMPS_DUO.h"
+#elif MB(RAMPS_DUO_SF)
+  #define IS_RAMPS_SF
+  #include "pins_RAMPS_DUO.h"
+#elif MB(RAMPS4DUE_EFB)
+  #define IS_RAMPS_EFB
+  #include "pins_RAMPS4DUE.h"
+#elif MB(RAMPS4DUE_EEB)
+  #define IS_RAMPS_EEB
+  #include "pins_RAMPS4DUE.h"
+#elif MB(RAMPS4DUE_EFF)
+  #define IS_RAMPS_EFF
+  #include "pins_RAMPS4DUE.h"
+#elif MB(RAMPS4DUE_EEF)
+  #define IS_RAMPS_EEF
+  #include "pins_RAMPS4DUE.h"
+#elif MB(RAMPS4DUE_SF)
+  #define IS_RAMPS_SF
+  #include "pins_RAMPS4DUE.h"
+#elif MB(ALLIGATOR)
+  #include "pins_ALLIGATOR_R2.h"
+#elif MB(99)
+  #include "pins_99.h"
 #elif MB(AJ4P)
   #include "pins_AJ4P.h"
 #elif MB(MKS_13)
@@ -499,56 +558,9 @@
 
 #define HAS_DIGIPOTSS (PIN_EXISTS(DIGIPOTSS))
 
-/**
- * Define SPI Pins: SCK, MISO, MOSI, SS
- */
-#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
-  #define AVR_SCK_PIN  13
-  #define AVR_MISO_PIN 12
-  #define AVR_MOSI_PIN 11
-  #define AVR_SS_PIN   10
-#elif defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__)
-  #define AVR_SCK_PIN  7
-  #define AVR_MISO_PIN 6
-  #define AVR_MOSI_PIN 5
-  #define AVR_SS_PIN   4
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-  #define AVR_SCK_PIN  52
-  #define AVR_MISO_PIN 50
-  #define AVR_MOSI_PIN 51
-  #define AVR_SS_PIN   53
-#elif defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__)
-  #if ENABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS)
-    // Teensy pin assignments
-    #define AVR_SCK_PIN  21
-    #define AVR_MISO_PIN 23
-    #define AVR_MOSI_PIN 22
-    #define AVR_SS_PIN   20
-  #else
-    // Traditional pin assignments
-    #define AVR_SCK_PIN  9
-    #define AVR_MISO_PIN 11
-    #define AVR_MOSI_PIN 10
-    #define AVR_SS_PIN   8
-  #endif
-#elif defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
-  #define AVR_SCK_PIN  10
-  #define AVR_MISO_PIN 12
-  #define AVR_MOSI_PIN 11
-  #define AVR_SS_PIN   16
-#endif
+// Note: default SPI pins are defined in the HAL
 
-#ifndef SCK_PIN
-  #define SCK_PIN  AVR_SCK_PIN
-#endif
-#ifndef MISO_PIN
-  #define MISO_PIN AVR_MISO_PIN
-#endif
-#ifndef MOSI_PIN
-  #define MOSI_PIN AVR_MOSI_PIN
-#endif
-#ifndef SS_PIN
-  #define SS_PIN   AVR_SS_PIN
-#endif
+#include "src/HAL/HAL_spi_pins.h"
+
 
 #endif //__PINS_H

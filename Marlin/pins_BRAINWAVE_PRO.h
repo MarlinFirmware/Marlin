@@ -31,8 +31,6 @@
   #error "Oops!  Make sure you have 'Brainwave Pro' selected from the 'Tools -> Boards' menu."
 #endif
 
-#include "fastio.h"
-
 #if DISABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS) // use Teensyduino Teensy++2.0 pin assignments instead of Marlin alphabetical.
   #error "Uncomment #define AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h for this config"
 #endif

@@ -94,6 +94,28 @@
 #define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_BQ_ZUM_MEGA_3D    503  // bq ZUM Mega 3D
+//ARM 32
+#define BOARD_DUE3DOM          1411  // DUE3DOM for Arduino DUE
+#define BOARD_DUE3DOM_MINI     1412  // DUE3DOM MINI for Arduino DUE
+#define BOARD_RADDS            1502  // RADDS
+#define BOARD_RAMPS_FD_V1      1503  // RAMPS-FD v1
+#define BOARD_RAMPS_FD_V2      1504  // RAMPS-FD v2
+#define BOARD_RAMPS_SMART_EFB  1523  // RAMPS-SMART (Power outputs: Hotend, Fan, Bed)
+#define BOARD_RAMPS_SMART_EEB  1524  // RAMPS-SMART (Power outputs: Hotend0, Hotend1, Bed)
+#define BOARD_RAMPS_SMART_EFF  1525  // RAMPS-SMART (Power outputs: Hotend, Fan0, Fan1)
+#define BOARD_RAMPS_SMART_EEF  1526  // RAMPS-SMART (Power outputs: Hotend0, Hotend1, Fan)
+#define BOARD_RAMPS_SMART_SF   1528  // RAMPS-SMART (Power outputs: Spindle, Controller Fan)
+#define BOARD_RAMPS_DUO_EFB    1533  // RAMPS Duo (Power outputs: Hotend, Fan, Bed)
+#define BOARD_RAMPS_DUO_EEB    1534  // RAMPS Duo (Power outputs: Hotend0, Hotend1, Bed)
+#define BOARD_RAMPS_DUO_EFF    1535  // RAMPS Duo (Power outputs: Hotend, Fan0, Fan1)
+#define BOARD_RAMPS_DUO_EEF    1536  // RAMPS Duo (Power outputs: Hotend0, Hotend1, Fan)
+#define BOARD_RAMPS_DUO_SF     1538  // RAMPS Duo (Power outputs: Spindle, Controller Fan)
+#define BOARD_RAMPS4DUE_EFB    1543  // RAMPS4DUE (Power outputs: Hotend, Fan, Bed)
+#define BOARD_RAMPS4DUE_EEB    1544  // RAMPS4DUE (Power outputs: Hotend0, Hotend1, Bed)
+#define BOARD_RAMPS4DUE_EFF    1545  // RAMPS4DUE (Power outputs: Hotend, Fan0, Fan1)
+#define BOARD_RAMPS4DUE_EEF    1546  // RAMPS4DUE (Power outputs: Hotend0, Hotend1, Fan)
+#define BOARD_RAMPS4DUE_SF     1548  // RAMPS4DUE (Power outputs: Spindle, Controller Fan)
+#define BOARD_ALLIGATOR        1602  // Alligator Board R2
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
