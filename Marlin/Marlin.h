@@ -444,6 +444,10 @@ void report_current_position();
   #endif
 #endif
 
+#if HAS_CONTROLLERFAN
+  extern int controllerFanSpeed;
+#endif
+
 #if ENABLED(BARICUDA)
   extern uint8_t baricuda_valve_pressure, baricuda_e_to_p_pressure;
 #endif

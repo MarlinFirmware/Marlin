@@ -73,6 +73,10 @@
   #include "mesh_bed_leveling.h"
 #endif
 
+#if ENABLED(AUTO_POWER_CONTROL)
+  #include "power.h"
+#endif
+
 Planner planner;
 
   // public:
@@ -849,6 +853,11 @@ void Planner::_buffer_steps(const int32_t (&target)[ABCE], float fr_mm_s, const 
 
   block->active_extruder = extruder;
 
+  #if ENABLED(AUTO_POWER_CONTROL)
+    if (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS])
+        powerManager.power_on();
+  #endif
+
   //enable active axes
   #if CORE_IS_XY
     if (block->steps[A_AXIS] || block->steps[B_AXIS]) {
@@ -880,6 +889,9 @@ void Planner::_buffer_steps(const int32_t (&target)[ABCE], float fr_mm_s, const 
 
   // Enable extruder(s)
   if (esteps) {
+    #if ENABLED(AUTO_POWER_CONTROL)
+      powerManager.power_on();
+    #endif
 
     #if ENABLED(DISABLE_INACTIVE_EXTRUDER) // Enable only the selected extruder
 
