@@ -28,28 +28,27 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include <util/delay.h>
-#include <avr/pgmspace.h>
-#include <avr/eeprom.h>
-#include <avr/interrupt.h>
-
 #include "MarlinConfig.h"
+
+#include "src/HAL/HAL.h"
 
 #include "enum.h"
 #include "types.h"
-#include "fastio.h"
 #include "utility.h"
 
-#ifdef USBCON
-  #include "HardwareSerial.h"
-  #if ENABLED(BLUETOOTH)
-    #define MYSERIAL bluetoothSerial
+// For AVR only, define a serial interface based on configuration
+#if defined(ARDUINO_ARCH_AVR)
+  #ifdef USBCON
+    #include "HardwareSerial.h"
+    #if ENABLED(BLUETOOTH)
+      #define MYSERIAL bluetoothSerial
+    #else
+      #define MYSERIAL Serial
+    #endif // BLUETOOTH
   #else
-    #define MYSERIAL Serial
-  #endif // BLUETOOTH
-#else
-  #include "MarlinSerial.h"
-  #define MYSERIAL customizedSerial
+    #include "MarlinSerial.h"
+    #define MYSERIAL customizedSerial
+  #endif
 #endif
 
 #include "WString.h"

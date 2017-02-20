@@ -23,11 +23,10 @@
 #ifndef PRINTCOUNTER_H
 #define PRINTCOUNTER_H
 
-#include "macros.h"
+#include "Marlin.h"
+
 #include "language.h"
 #include "stopwatch.h"
-#include <avr/eeprom.h>
-
 
 // Print debug messages with M111 S2
 //#define DEBUG_PRINTCOUNTER
@@ -51,8 +50,14 @@ class PrintCounter: public Stopwatch {
      * @brief EEPROM address
      * @details Defines the start offset address where the data is stored.
      */
-    const uint16_t address = 0x32;
-
+    #if ENABLED(I2C_EEPROM) || ENABLED(SPI_EEPROM)
+      // round up address to next page boundary (assuming 32 byte pages)
+      const uint32_t address = 0x40;
+    #elif defined(CPU_32_BIT)
+      const uint32_t address = 0x32;
+    #else
+      const uint16_t address = 0x32;
+    #endif
     /**
      * @brief Interval in seconds between counter updates
      * @details This const value defines what will be the time between each
