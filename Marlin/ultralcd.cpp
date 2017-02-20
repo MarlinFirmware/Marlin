@@ -3272,6 +3272,17 @@ void lcd_setstatuspgm(const char* const message, uint8_t level) {
   lcd_finishstatus(level > 0);
 }
 
+void status_printf(uint8_t level, const char *Status, ...){
+  if (level < lcd_status_message_level) return;
+  lcd_status_message_level = level;
+  va_list args;
+  va_start(args, Status);
+  vsnprintf(lcd_status_message, 3 * (LCD_WIDTH), Status, args);
+  va_end(args);
+  lcd_finishstatus(level > 0);
+}
+
+
 void lcd_setalertstatuspgm(const char* const message) {
   lcd_setstatuspgm(message, 1);
   #if ENABLED(ULTIPANEL)
