@@ -32,7 +32,9 @@
 #ifndef MARLINSERIAL_H
 #define MARLINSERIAL_H
 
-#include "MarlinConfig.h"
+#include "../../../MarlinConfig.h"
+
+#include <WString.h>
 
 #ifndef SERIAL_PORT
   #define SERIAL_PORT 0

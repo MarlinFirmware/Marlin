@@ -20,9 +20,10 @@
  *
  */
 
-#include "Marlin.h"
 #include "printcounter.h"
 #include "duration_t.h"
+
+#include "Marlin.h"
 
 PrintCounter::PrintCounter(): super() {
   this->loadStats();
@@ -63,7 +64,7 @@ void PrintCounter::initStats() {
   this->data = { 0, 0, 0, 0, 0.0 };
 
   this->saveStats();
-  eeprom_write_byte((uint8_t *) this->address, 0x16);
+  eeprom_write_byte((uint8_t *)this->address, 0x16);
 }
 
 void PrintCounter::loadStats() {
@@ -72,7 +73,7 @@ void PrintCounter::loadStats() {
   #endif
 
   // Checks if the EEPROM block is initialized
-  if (eeprom_read_byte((uint8_t *) this->address) != 0x16) this->initStats();
+  if (eeprom_read_byte((uint8_t *)this->address) != 0x16) this->initStats();
   else eeprom_read_block(&this->data,
     (void *)(this->address + sizeof(uint8_t)), sizeof(printStatistics));
 

@@ -72,8 +72,6 @@
                                     0 )
 #endif
 
-volatile uint8_t e_hit = 0; // Different from 0 when the endstops should be tested in detail.
-                            // Must be reset to 0 by the test function when finished.
 
 // Install Pin change interrupt for a pin. Can be called multiple times.
 void pciSetup(byte pin) {
@@ -82,14 +80,6 @@ void pciSetup(byte pin) {
   SBI(PCICR, digitalPinToPCICRbit(pin)); // enable interrupt for the group
 }
 
-// This is what is really done inside the interrupts.
-FORCE_INLINE void endstop_ISR_worker( void ) {
-  e_hit = 2; // Because the detection of a e-stop hit has a 1 step debouncer it has to be called at least twice.
-}
-
-// Use one Routine to handle each group
-// One ISR for all EXT-Interrupts
-void endstop_ISR(void) { endstop_ISR_worker(); }
 
 // Handlers for pin change interrupts
 #ifdef PCINT0_vect

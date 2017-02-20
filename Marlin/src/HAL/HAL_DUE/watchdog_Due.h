@@ -20,24 +20,15 @@
  *
  */
 
-#ifndef MARLIN_CONFIG_H
-#define MARLIN_CONFIG_H
+#ifndef WATCHDOG_DUE_H
+#define WATCHDOG_DUE_H
 
-#include "macros.h"
-#include "src/HAL/HAL.h"
-#include "boards.h"
-#include "Version.h"
-#include "Configuration.h"
-#include "Conditionals_LCD.h"
-#include "Configuration_adv.h"
-#include "pins.h"
-#if defined(ARDUINO_ARCH_AVR)
-  #ifndef USBCON
-    #define HardwareSerial_h // trick to disable the standard HWserial
-  #endif
-#endif
-#include "Arduino.h"
-#include "Conditionals_post.h"
-#include "SanityCheck.h"
+//#include "../../../Marlin.h"
 
-#endif // MARLIN_CONFIG_H
+// Arduino Due core now has watchdog support
+
+void watchdog_init();
+
+inline void watchdog_reset() { watchdogReset(); }
+
+#endif /* WATCHDOG_DUE_H */

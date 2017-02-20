@@ -20,24 +20,18 @@
  *
  */
 
-#ifndef MARLIN_CONFIG_H
-#define MARLIN_CONFIG_H
+#ifndef WATCHDOG_AVR_H
+#define WATCHDOG_AVR_H
 
-#include "macros.h"
-#include "src/HAL/HAL.h"
-#include "boards.h"
-#include "Version.h"
-#include "Configuration.h"
-#include "Conditionals_LCD.h"
-#include "Configuration_adv.h"
-#include "pins.h"
-#if defined(ARDUINO_ARCH_AVR)
-  #ifndef USBCON
-    #define HardwareSerial_h // trick to disable the standard HWserial
-  #endif
+//#include "../../../Marlin.h"
+
+#include <avr/wdt.h>
+
+// Initialize watchdog with a 4 second interrupt time
+void watchdog_init();
+
+// Reset watchdog. MUST be called at least every 4 seconds after the
+// first watchdog_init or AVR will go into emergency procedures.
+inline void watchdog_reset() { wdt_reset(); }
+
 #endif
-#include "Arduino.h"
-#include "Conditionals_post.h"
-#include "SanityCheck.h"
-
-#endif // MARLIN_CONFIG_H

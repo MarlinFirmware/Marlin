@@ -31,136 +31,6 @@
 #if ENABLED(SDSUPPORT)
 #include "Sd2Card.h"
 
-#if ENABLED(USE_WATCHDOG)
-  #include "watchdog.h"
-#endif
-
-//------------------------------------------------------------------------------
-#if DISABLED(SOFTWARE_SPI)
-  // functions for hardware SPI
-  //------------------------------------------------------------------------------
-  // make sure SPCR rate is in expected bits
-  #if (SPR0 != 0 || SPR1 != 1)
-    #error "unexpected SPCR bits"
-  #endif
-  /**
-   * Initialize hardware SPI
-   * Set SCK rate to F_CPU/pow(2, 1 + spiRate) for spiRate [0,6]
-   */
-  static void spiInit(uint8_t spiRate) {
-    // See avr processor documentation
-    SPCR = _BV(SPE) | _BV(MSTR) | (spiRate >> 1);
-    SPSR = spiRate & 1 || spiRate == 6 ? 0 : _BV(SPI2X);
-  }
-  //------------------------------------------------------------------------------
-  /** SPI receive a byte */
-  static uint8_t spiRec() {
-    SPDR = 0XFF;
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-    return SPDR;
-  }
-  //------------------------------------------------------------------------------
-  /** SPI read data - only one call so force inline */
-  static inline __attribute__((always_inline))
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
-    if (nbyte-- == 0) return;
-    SPDR = 0XFF;
-    for (uint16_t i = 0; i < nbyte; i++) {
-      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-      buf[i] = SPDR;
-      SPDR = 0XFF;
-    }
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-    buf[nbyte] = SPDR;
-  }
-  //------------------------------------------------------------------------------
-  /** SPI send a byte */
-  static void spiSend(uint8_t b) {
-    SPDR = b;
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-  }
-  //------------------------------------------------------------------------------
-  /** SPI send block - only one call so force inline */
-  static inline __attribute__((always_inline))
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
-    SPDR = token;
-    for (uint16_t i = 0; i < 512; i += 2) {
-      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-      SPDR = buf[i];
-      while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-      SPDR = buf[i + 1];
-    }
-    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
-  }
-       //------------------------------------------------------------------------------
-#else  // SOFTWARE_SPI
-       //------------------------------------------------------------------------------
-  /** nop to tune soft SPI timing */
-  #define nop asm volatile ("nop\n\t")
-  //------------------------------------------------------------------------------
-  /** Soft SPI receive byte */
-  static uint8_t spiRec() {
-    uint8_t data = 0;
-    // no interrupts during byte receive - about 8 us
-    cli();
-    // output pin high - like sending 0XFF
-    WRITE(SPI_MOSI_PIN, HIGH);
-
-    for (uint8_t i = 0; i < 8; i++) {
-      WRITE(SPI_SCK_PIN, HIGH);
-
-      // adjust so SCK is nice
-      nop;
-      nop;
-
-      data <<= 1;
-
-      if (READ(SPI_MISO_PIN)) data |= 1;
-
-      WRITE(SPI_SCK_PIN, LOW);
-    }
-    // enable interrupts
-    sei();
-    return data;
-  }
-  //------------------------------------------------------------------------------
-  /** Soft SPI read data */
-  static void spiRead(uint8_t* buf, uint16_t nbyte) {
-    for (uint16_t i = 0; i < nbyte; i++)
-      buf[i] = spiRec();
-  }
-  //------------------------------------------------------------------------------
-  /** Soft SPI send byte */
-  static void spiSend(uint8_t data) {
-    // no interrupts during byte send - about 8 us
-    cli();
-    for (uint8_t i = 0; i < 8; i++) {
-      WRITE(SPI_SCK_PIN, LOW);
-
-      WRITE(SPI_MOSI_PIN, data & 0X80);
-
-      data <<= 1;
-
-      WRITE(SPI_SCK_PIN, HIGH);
-    }
-    // hold SCK high for a few ns
-    nop;
-    nop;
-    nop;
-    nop;
-
-    WRITE(SPI_SCK_PIN, LOW);
-    // enable interrupts
-    sei();
-  }
-  //------------------------------------------------------------------------------
-  /** Soft SPI send block */
-  void spiSendBlock(uint8_t token, const uint8_t* buf) {
-    spiSend(token);
-    for (uint16_t i = 0; i < 512; i++)
-      spiSend(buf[i]);
-  }
-#endif  // SOFTWARE_SPI
 //------------------------------------------------------------------------------
 // send command and return error code.  Return zero for OK
 uint8_t Sd2Card::cardCommand(uint8_t cmd, uint32_t arg) {
@@ -310,23 +180,12 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   #endif
 
   // set pin modes
-  pinMode(chipSelectPin_, OUTPUT);
-  chipSelectHigh();
-  SET_INPUT(SPI_MISO_PIN);
-  SET_OUTPUT(SPI_MOSI_PIN);
-  SET_OUTPUT(SPI_SCK_PIN);
+//todo: should use chipSelectPin ?
+  spiBegin();
 
-  #if DISABLED(SOFTWARE_SPI)
-    // SS must be in output mode even it is not chip select
-    SET_OUTPUT(SS_PIN);
-    // set SS high - may be chip select for another SPI device
-    #if SET_SPI_SS_HIGH
-      WRITE(SS_PIN, HIGH);
-    #endif  // SET_SPI_SS_HIGH
-    // set SCK rate for initialization commands
-    spiRate_ = SPI_SD_INIT_RATE;
-    spiInit(spiRate_);
-  #endif  // SOFTWARE_SPI
+  // set SCK rate for initialization commands
+  spiRate_ = SPI_SD_INIT_RATE;
+  spiInit(spiRate_);
 
   // must supply min of 74 clock cycles with CS high.
   for (uint8_t i = 0; i < 10; i++) spiSend(0XFF);

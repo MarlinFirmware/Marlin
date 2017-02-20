@@ -31,8 +31,11 @@
 
 #include "MarlinSerial.h"
 
-#include "stepper.h"
-#include "Marlin.h"
+#include "../../../Marlin.h"
+
+#if ENABLED(EMERGENCY_PARSER)
+  #include "../../../stepper.h"
+#endif
 
 // Disable HardwareSerial.cpp to support chips without a UART (Attiny, etc.)
 

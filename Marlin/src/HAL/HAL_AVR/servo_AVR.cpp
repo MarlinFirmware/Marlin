@@ -20,6 +20,7 @@
  *
  */
 
+
 /**
  * servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
  * Copyright (c) 2009 Michael Margolis.  All right reserved.
@@ -50,36 +51,21 @@
  * detach()              - Stop an attached servo from pulsing its i/o pin.
  *
  */
-#include "MarlinConfig.h"
+
+#if defined(ARDUINO_ARCH_AVR)
+
+#include "../../../MarlinConfig.h"
 
 #if HAS_SERVOS
 
 #include <avr/interrupt.h>
 #include <Arduino.h>
 
-#include "servo.h"
+#include "../servo.h"
+#include "../servo_private.h"
 
-#define usToTicks(_us)    (( clockCyclesPerMicrosecond()* _us) / 8)     // converts microseconds to tick (assumes prescale of 8)  // 12 Aug 2009
-#define ticksToUs(_ticks) (( (unsigned)_ticks * 8)/ clockCyclesPerMicrosecond() ) // converts from ticks back to microseconds
-
-#define TRIM_DURATION       2                               // compensation ticks to trim adjust for digitalWrite delays // 12 August 2009
-
-//#define NBR_TIMERS        ((MAX_SERVOS) / (SERVOS_PER_TIMER))
-
-static ServoInfo_t servo_info[MAX_SERVOS];                  // static array of servo info structures
 static volatile int8_t Channel[_Nbr_16timers ];             // counter for the servo being pulsed for each timer (or -1 if refresh interval)
 
-uint8_t ServoCount = 0;                                     // the total number of attached servos
-
-
-// convenience macros
-#define SERVO_INDEX_TO_TIMER(_servo_nbr) ((timer16_Sequence_t)(_servo_nbr / (SERVOS_PER_TIMER))) // returns the timer controlling this servo
-#define SERVO_INDEX_TO_CHANNEL(_servo_nbr) (_servo_nbr % (SERVOS_PER_TIMER))       // returns the index of the servo on this timer
-#define SERVO_INDEX(_timer,_channel)  ((_timer*(SERVOS_PER_TIMER)) + _channel)     // macro to access servo index by timer and channel
-#define SERVO(_timer,_channel)  (servo_info[SERVO_INDEX(_timer,_channel)])       // macro to access servo class by timer and channel
-
-#define SERVO_MIN() (MIN_PULSE_WIDTH - this->min * 4)  // minimum value in uS for this servo
-#define SERVO_MAX() (MAX_PULSE_WIDTH - this->max * 4)  // maximum value in uS for this servo
 
 /************ static functions common to all instances ***********************/
 
@@ -138,8 +124,9 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 
 #endif // WIRING
 
+/****************** end of static functions ******************************/
 
-static void initISR(timer16_Sequence_t timer) {
+void initISR(timer16_Sequence_t timer) {
   #if ENABLED(_useTimer1)
     if (timer == _timer1) {
       TCCR1A = 0;             // normal counting mode
@@ -198,7 +185,7 @@ static void initISR(timer16_Sequence_t timer) {
   #endif
 }
 
-static void finISR(timer16_Sequence_t timer) {
+void finISR(timer16_Sequence_t timer) {
   // Disable use of the given timer
   #ifdef WIRING
     if (timer == _timer1) {
@@ -227,94 +214,6 @@ static void finISR(timer16_Sequence_t timer) {
   #endif
 }
 
-static bool isTimerActive(timer16_Sequence_t timer) {
-  // returns true if any servo is active on this timer
-  for (uint8_t channel = 0; channel < SERVOS_PER_TIMER; channel++) {
-    if (SERVO(timer, channel).Pin.isActive)
-      return true;
-  }
-  return false;
-}
+#endif // HAS_SERVOS
 
-
-/****************** end of static functions ******************************/
-
-Servo::Servo() {
-  if (ServoCount < MAX_SERVOS) {
-    this->servoIndex = ServoCount++;                    // assign a servo index to this instance
-    servo_info[this->servoIndex].ticks = usToTicks(DEFAULT_PULSE_WIDTH);   // store default values  - 12 Aug 2009
-  }
-  else
-    this->servoIndex = INVALID_SERVO;  // too many servos
-}
-
-int8_t Servo::attach(int pin) {
-  return this->attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
-}
-
-int8_t Servo::attach(int pin, int min, int max) {
-
-  if (this->servoIndex >= MAX_SERVOS) return -1;
-
-  if (pin > 0) servo_info[this->servoIndex].Pin.nbr = pin;
-  pinMode(servo_info[this->servoIndex].Pin.nbr, OUTPUT); // set servo pin to output
-
-  // todo min/max check: abs(min - MIN_PULSE_WIDTH) /4 < 128
-  this->min = (MIN_PULSE_WIDTH - min) / 4; //resolution of min/max is 4 uS
-  this->max = (MAX_PULSE_WIDTH - max) / 4;
-
-  // initialize the timer if it has not already been initialized
-  timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
-  if (!isTimerActive(timer)) initISR(timer);
-  servo_info[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
-
-  return this->servoIndex;
-}
-
-void Servo::detach() {
-  servo_info[this->servoIndex].Pin.isActive = false;
-  timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
-  if (!isTimerActive(timer)) finISR(timer);
-}
-
-void Servo::write(int value) {
-  if (value < MIN_PULSE_WIDTH) { // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
-    value = map(constrain(value, 0, 180), 0, 180, SERVO_MIN(), SERVO_MAX());
-  }
-  this->writeMicroseconds(value);
-}
-
-void Servo::writeMicroseconds(int value) {
-  // calculate and store the values for the given channel
-  byte channel = this->servoIndex;
-  if (channel < MAX_SERVOS) {  // ensure channel is valid
-    // ensure pulse width is valid
-    value = constrain(value, SERVO_MIN(), SERVO_MAX()) - (TRIM_DURATION);
-    value = usToTicks(value);  // convert to ticks after compensating for interrupt overhead - 12 Aug 2009
-
-    CRITICAL_SECTION_START;
-    servo_info[channel].ticks = value;
-    CRITICAL_SECTION_END;
-  }
-}
-
-// return the value as degrees
-int Servo::read() { return map(this->readMicroseconds() + 1, SERVO_MIN(), SERVO_MAX(), 0, 180); }
-
-int Servo::readMicroseconds() {
-  return (this->servoIndex == INVALID_SERVO) ? 0 : ticksToUs(servo_info[this->servoIndex].ticks) + TRIM_DURATION;
-}
-
-bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
-
-void Servo::move(int value) {
-  if (this->attach(0) >= 0) {
-    this->write(value);
-    delay(SERVO_DELAY);
-    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
-      this->detach();
-    #endif
-  }
-}
-
-#endif
+#endif // defined(ARDUINO_ARCH_AVR)

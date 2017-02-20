@@ -23,16 +23,21 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
-#ifdef USBCON
-  #include "HardwareSerial.h"
-  #if ENABLED(BLUETOOTH)
-    #define MYSERIAL bluetoothSerial
+#include "src/HAL/HAL.h"
+
+// For AVR only, define a serial interface based on configuration
+#ifdef ARDUINO_ARCH_AVR
+  #ifdef USBCON
+    #include "HardwareSerial.h"
+    #if ENABLED(BLUETOOTH)
+      #define MYSERIAL bluetoothSerial
+    #else
+      #define MYSERIAL Serial
+    #endif // BLUETOOTH
   #else
-    #define MYSERIAL Serial
-  #endif // BLUETOOTH
-#else
-  #include "MarlinSerial.h"
-  #define MYSERIAL customizedSerial
+    #include "MarlinSerial.h"
+    #define MYSERIAL customizedSerial
+  #endif
 #endif
 
 extern const char echomagic[] PROGMEM;

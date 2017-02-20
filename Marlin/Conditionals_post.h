@@ -163,13 +163,37 @@
     #define DEFAULT_KEEPALIVE_INTERVAL 2
   #endif
 
+  #ifdef __SAM3X8E__
+    /**
+     * Hidden options for developer
+     */
+    // Double stepping start from STEP_DOUBLER_FREQUENCY + 1, quad stepping start from STEP_DOUBLER_FREQUENCY * 2 + 1
+    #ifndef STEP_DOUBLER_FREQUENCY
+      #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
+        #define STEP_DOUBLER_FREQUENCY 60000 // Hz
+      #else
+        #define STEP_DOUBLER_FREQUENCY 80000 // Hz
+      #endif
+    #endif
+    // Disable double / quad stepping
+    //#define DISABLE_MULTI_STEPPING
+  #endif
+
   /**
    * MAX_STEP_FREQUENCY differs for TOSHIBA
    */
   #if ENABLED(CONFIG_STEPPERS_TOSHIBA)
+    #ifdef __SAM3X8E__
+      #define MAX_STEP_FREQUENCY STEP_DOUBLER_FREQUENCY // Max step frequency for Toshiba Stepper Controllers, 96kHz is close to maximum for an Arduino Due
+    #else
     #define MAX_STEP_FREQUENCY 10000 // Max step frequency for Toshiba Stepper Controllers
+    #endif
+  #else
+    #ifdef __SAM3X8E__
+      #define MAX_STEP_FREQUENCY (STEP_DOUBLER_FREQUENCY * 4) // Max step frequency for the Due is approx. 330kHz
   #else
     #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
+  #endif
   #endif
 
   // MS1 MS2 Stepper Driver Microstepping mode table
@@ -177,7 +201,16 @@
   #define MICROSTEP2 HIGH,LOW
   #define MICROSTEP4 LOW,HIGH
   #define MICROSTEP8 HIGH,HIGH
+  #ifdef __SAM3X8E__
+    #if MB(ALLIGATOR)
+      #define MICROSTEP16 LOW,LOW
+      #define MICROSTEP32 HIGH,HIGH
+    #else
+      #define MICROSTEP16 HIGH,HIGH
+    #endif
+  #else
   #define MICROSTEP16 HIGH,HIGH
+  #endif
 
   /**
    * Advance calculated values
@@ -289,6 +322,10 @@
   #elif TEMP_SENSOR_BED > 0
     #define THERMISTORBED TEMP_SENSOR_BED
     #define BED_USES_THERMISTOR
+  #endif
+
+  #ifdef __SAM3X8E__
+    #define HEATER_USES_AD595 (ENABLED(HEATER_0_USES_AD595) || ENABLED(HEATER_1_USES_AD595) || ENABLED(HEATER_2_USES_AD595) || ENABLED(HEATER_3_USES_AD595))
   #endif
 
   /**
@@ -533,13 +570,19 @@
   /**
    * Helper Macros for heaters and extruder fan
    */
-  #define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, v)
+  #if ENABLED(INVERTED_HEATER_PINS)
+    #define WRITE_HEATER(pin, v) WRITE(pin, !v)
+  #else
+    #define WRITE_HEATER(pin, v) WRITE(pin, v)
+  #endif
+
+  #define WRITE_HEATER_0P(v) WRITE_HEATER(HEATER_0_PIN, v)
   #if HOTENDS > 1 || ENABLED(HEATERS_PARALLEL)
-    #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, v)
+    #define WRITE_HEATER_1(v) WRITE_HEATER(HEATER_1_PIN, v)
     #if HOTENDS > 2
-      #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, v)
+      #define WRITE_HEATER_2(v) WRITE_HEATER(HEATER_2_PIN, v)
       #if HOTENDS > 3
-        #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, v)
+        #define WRITE_HEATER_3(v) WRITE_HEATER(HEATER_3_PIN, v)
       #endif
     #endif
   #endif
@@ -549,7 +592,11 @@
     #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
   #endif
   #if HAS_HEATER_BED
-    #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
+    #if ENABLED(INVERTED_BED_PINS)
+      #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN,!v)
+    #else
+      #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
+    #endif
   #endif
 
   /**
@@ -565,15 +612,20 @@
     #define FAN_COUNT 0
   #endif
 
+  #if ENABLED(INVERTED_FAN_PINS)
+    #define _WRITE_FAN(pin, v) WRITE(pin, !v)
+  #else
+    #define _WRITE_FAN(pin, v) WRITE(pin, v)
+  #endif
   #if HAS_FAN0
-    #define WRITE_FAN(v) WRITE(FAN_PIN, v)
+    #define WRITE_FAN(v) _WRITE_FAN(FAN_PIN, v)
     #define WRITE_FAN0(v) WRITE_FAN(v)
   #endif
   #if HAS_FAN1
-    #define WRITE_FAN1(v) WRITE(FAN1_PIN, v)
+    #define WRITE_FAN1(v) _WRITE_FAN(FAN1_PIN, v)
   #endif
   #if HAS_FAN2
-    #define WRITE_FAN2(v) WRITE(FAN2_PIN, v)
+    #define WRITE_FAN2(v) _WRITE_FAN(FAN2_PIN, v)
   #endif
   #define WRITE_FAN_N(n, v) WRITE_FAN##n(v)
 
@@ -731,9 +783,21 @@
 
   // Stepper pulse duration, in cycles
   #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
+  #ifdef __SAM3X8E__
+    // Add additional delay for between direction signal and pulse signal of stepper
+    #ifndef STEPPER_DIRECTION_DELAY
+      #define STEPPER_DIRECTION_DELAY 0 // time in microseconds
+    #endif
+  #endif
 
   #ifndef DELTA_ENDSTOP_ADJ
     #define DELTA_ENDSTOP_ADJ { 0 }
+  #endif
+
+  #ifndef __SAM3X8E__
+    #undef UI_VOLTAGE_LEVEL
+    #undef RADDS_DISPLAY
+    #undef MOTOR_CURRENT
   #endif
 
   #if ENABLED(SDCARD_SORT_ALPHA)
@@ -743,6 +807,26 @@
   // LCD timeout to status screen default is 15s
   #ifndef LCD_TIMEOUT_TO_STATUS
     #define LCD_TIMEOUT_TO_STATUS 15000
+  #endif
+
+  // Use float instead of double. Needs profiling.
+  #if defined(ARDUINO_ARCH_SAM) && ENABLED(DELTA_FAST_SQRT)
+    #undef ATAN2
+    #undef FABS
+    #undef POW
+    #undef SQRT
+    #undef CEIL
+    #undef FLOOR
+    #undef LROUND
+    #undef FMOD
+    #define ATAN2(y, x) atan2f(y, x)
+    #define FABS(x) fabsf(x)
+    #define POW(x, y) powf(x, y)
+    #define SQRT(x) sqrtf(x)
+    #define CEIL(x) ceilf(x)
+    #define FLOOR(x) floorf(x)
+    #define LROUND(x) lroundf(x)
+    #define FMOD(x, y) fmodf(x, y)
   #endif
 
 #endif // CONDITIONALS_POST_H

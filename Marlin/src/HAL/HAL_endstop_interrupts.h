@@ -2,9 +2,6 @@
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
- * Based on Sprinter and grbl.
- * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -20,24 +17,33 @@
  *
  */
 
-#ifndef MARLIN_CONFIG_H
-#define MARLIN_CONFIG_H
 
-#include "macros.h"
-#include "src/HAL/HAL.h"
-#include "boards.h"
-#include "Version.h"
-#include "Configuration.h"
-#include "Conditionals_LCD.h"
-#include "Configuration_adv.h"
-#include "pins.h"
+#ifndef HAL_ENDSTOP_INTERRUPTS_H_
+#define HAL_ENDSTOP_INTERRUPTS_H_
+
+volatile uint8_t e_hit = 0; // Different from 0 when the endstops should be tested in detail.
+                            // Must be reset to 0 by the test function when finished.
+
+// This is what is really done inside the interrupts.
+FORCE_INLINE void endstop_ISR_worker( void ) {
+  e_hit = 2; // Because the detection of a e-stop hit has a 1 step debouncer it has to be called at least twice.
+}
+
+// One ISR for all EXT-Interrupts
+void endstop_ISR(void) { endstop_ISR_worker(); }
+
 #if defined(ARDUINO_ARCH_AVR)
-  #ifndef USBCON
-    #define HardwareSerial_h // trick to disable the standard HWserial
-  #endif
-#endif
-#include "Arduino.h"
-#include "Conditionals_post.h"
-#include "SanityCheck.h"
 
-#endif // MARLIN_CONFIG_H
+  #include "HAL_AVR/endstop_interrupts.h"
+
+#elif defined(ARDUINO_ARCH_SAM)
+
+  #include "HAL_DUE/endstop_interrupts.h"
+
+#else
+
+  #error Unsupported Platform!
+
+#endif
+
+#endif /* HAL_ENDSTOP_INTERRUPTS_H_ */
