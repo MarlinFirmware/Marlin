@@ -20,9 +20,9 @@
  *
  */
 
-/************************************************
+/**
  * Rambo pin assignments MODIFIED FOR A4JP
- ************************************************/
+ */
 
 #ifndef __AVR_ATmega2560__
   #error "Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
