@@ -121,6 +121,10 @@
   #include "pins_SAV_MKI.h"
 #elif MB(TEENSY2)
   #include "pins_TEENSY2.h"
+#elif MB(TEENSY35)
+  #include "pins_TEENSY35.h"
+#elif MB(TEENSY36)
+  #include "pins_TEENSY36.h"
 #elif MB(GEN3_PLUS)
   #include "pins_GEN3_PLUS.h"
 #elif MB(GEN3_MONOLITHIC)
@@ -166,6 +170,8 @@
   #include "pins_MEGACONTROLLER.h"
 #elif MB(BQ_ZUM_MEGA_3D)
   #include "pins_BQ_ZUM_MEGA_3D.h"
+#elif MB(SCOOVO_X9H)
+  #include "pins_SCOOVO_X9H.h"
 #elif MB(DUE3DOM)
   #include "pins_DUE3DOM.h"
 #elif MB(DUE3DOM_MINI)

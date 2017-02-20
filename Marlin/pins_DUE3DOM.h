@@ -28,7 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Due' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define BOARD_NAME         "DUE3DOM"
+#define BOARD_NAME "DUE3DOM"
 
 //
 // Servos

@@ -759,10 +759,11 @@
                                               // 0 to disable for manual extrusion
                                               // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
                                               // or until outcoming filament color is not clear for filament color change
-  #define FILAMENT_CHANGE_NOZZLE_TIMEOUT 45L  // Turn off nozzle if user doesn't change filament within this time limit in seconds
-  #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS  5L  // Number of alert beeps before printer goes quiet
-  #define FILAMENT_CHANGE_NO_STEPPER_TIMEOUT         // Enable to have stepper motors hold position during filament change
-                                                     // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
+  #define FILAMENT_CHANGE_NOZZLE_TIMEOUT 45   // Turn off nozzle if user doesn't change filament within this time limit in seconds
+  #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS 5 // Number of alert beeps before printer goes quiet
+  #define FILAMENT_CHANGE_NO_STEPPER_TIMEOUT  // Enable to have stepper motors hold position during filament change
+                                              // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
+  //#define PARK_HEAD_ON_PAUSE                // Go to filament change position on pause, return to print position on resume
 #endif
 
 // @section tmc
@@ -852,7 +853,7 @@
    * Increase current every 5s by CURRENT_STEP until stepper temperature prewarn gets triggered,
    * then decrease current by CURRENT_STEP until temperature prewarn is cleared.
    * Adjusting starts from X/Y/Z/E_MAX_CURRENT but will not increase over AUTO_ADJUST_MAX
-   */ 
+   */
   //#define AUTOMATIC_CURRENT_CONTROL
   #define CURRENT_STEP          50  // [mA]
   #define AUTO_ADJUST_MAX     1300  // [mA], 1300mA_rms = 1840mA_peak
@@ -1040,7 +1041,7 @@
 #define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
 
 /**
- * Add M43 command for pins info and testing
+ * Add M43, M44 and M45 commands for pins info and testing
  */
 //#define PINS_DEBUGGING
 
@@ -1067,7 +1068,7 @@
  * with DEFAULT_NOMINAL_FILAMENT_DIA as the default diameter.
  *
  * M200 D0 to disable, M200 Dn to set a new diameter.
- */ 
+ */
 //#define VOLUMETRIC_DEFAULT_ON
 
 /**

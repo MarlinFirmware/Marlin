@@ -28,7 +28,7 @@
   #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
 #endif
 
-#define BOARD_NAME         "CN Controls V11"
+#define BOARD_NAME "CN Controls V11"
 
 //#define LARGE_FLASH true
 

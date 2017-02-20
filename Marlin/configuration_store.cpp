@@ -164,6 +164,10 @@
   #include "stepper_indirection.h"
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "UBL.h"
+#endif
+
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)
   extern void bed_level_virt_interpolate();
 #endif
@@ -246,7 +250,7 @@ void Config_Postprocess() {
   /**
    * M500 - Store Configuration
    */
-  void Config_StoreSettings()  {
+  bool Config_StoreSettings() {
     float dummy = 0.0f;
     char ver[4] = "000";
 
@@ -534,12 +538,20 @@ void Config_Postprocess() {
       SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
       SERIAL_ECHOLNPGM(" bytes)");
     }
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      ubl.store_state();
+      if (ubl.state.eeprom_storage_slot >= 0)
+        ubl.store_mesh(ubl.state.eeprom_storage_slot);
+    #endif
+
+    return !eeprom_write_error;
   }
 
   /**
    * M501 - Retrieve Configuration
    */
-  void Config_RetrieveSettings() {
+  bool Config_RetrieveSettings() {
 
     EEPROM_START();
     eeprom_read_error = false; // If set EEPROM_READ won't write into RAM
@@ -832,18 +844,58 @@ void Config_Postprocess() {
         SERIAL_ERRORLNPGM("EEPROM checksum mismatch");
         Config_ResetDefault();
       }
-   }
 
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        ubl.eeprom_start = (eeprom_index + 32) & 0xFFF8; // Pad the end of configuration data so it
+                                                         // can float up or down a little bit without
+                                                         // disrupting the Unified Bed Leveling data
+        ubl.load_state();
+
+        SERIAL_ECHOPGM(" UBL ");
+        if (!ubl.state.active) SERIAL_ECHO("not ");
+        SERIAL_ECHOLNPGM("active!");
+
+        if (!ubl.sanity_check()) {
+          int tmp_mesh;                                // We want to preserve whether the UBL System is Active
+          bool tmp_active;                             // If it is, we want to preserve the Mesh that is being used.
+          tmp_mesh = ubl.state.eeprom_storage_slot;
+          tmp_active = ubl.state.active;
+          SERIAL_ECHOLNPGM("\nInitializing Bed Leveling State to current firmware settings.\n");
+          ubl.state = ubl.pre_initialized;             // Initialize with the pre_initialized data structure
+          ubl.state.eeprom_storage_slot = tmp_mesh;    // But then restore some data we don't want mangled
+          ubl.state.active = tmp_active;
+        }
+        else {
+          SERIAL_PROTOCOLPGM("?Unable to enable Unified Bed Leveling.\n");
+          ubl.state = ubl.pre_initialized;
+          ubl.reset();
+          ubl.store_state();
+        }
+
+        if (ubl.state.eeprom_storage_slot >= 0) {
+          ubl.load_mesh(ubl.state.eeprom_storage_slot);
+          SERIAL_ECHOPAIR("Mesh ", ubl.state.eeprom_storage_slot);
+          SERIAL_ECHOLNPGM(" loaded from storage.");
+        }
+        else {
+          ubl.reset();
+          SERIAL_ECHOLNPGM("UBL System reset()");
+        }
+      #endif
+    }
     #if ENABLED(EEPROM_CHITCHAT)
       Config_PrintSettings();
     #endif
+
+    return !eeprom_read_error;
   }
 
 #else // !EEPROM_SETTINGS
 
-  void Config_StoreSettings() {
+  bool Config_StoreSettings() {
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM("EEPROM disabled");
+    return false;
   }
 
 #endif // !EEPROM_SETTINGS
@@ -1145,6 +1197,7 @@ void Config_ResetDefault() {
     #endif
 
     #if ENABLED(MESH_BED_LEVELING)
+
       if (!forReplay) {
         SERIAL_ECHOLNPGM("Mesh Bed Leveling:");
         CONFIG_ECHO_START;
@@ -1160,12 +1213,50 @@ void Config_ResetDefault() {
           SERIAL_EOL;
         }
       }
+
+    #elif ENABLED(AUTO_BED_LEVELING_UBL)
+
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Unified Bed Leveling:");
+        CONFIG_ECHO_START;
+      }
+
+      SERIAL_ECHOLNPAIR("  M420 S", ubl.state.active ? 1 : 0);
+
+      if (!forReplay) {
+        SERIAL_ECHOPGM("\nUBL is ");
+        ubl.state.active ? SERIAL_CHAR('A') : SERIAL_ECHOPGM("Ina");
+        SERIAL_ECHOLNPAIR("ctive\n\nActive Mesh Slot: ", ubl.state.eeprom_storage_slot);
+
+        SERIAL_ECHOPGM("z_offset: ");
+        SERIAL_ECHO_F(ubl.state.z_offset, 6);
+        SERIAL_EOL;
+
+        SERIAL_ECHOPAIR("EEPROM can hold ", (int)((UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values)));
+        SERIAL_ECHOLNPGM(" meshes.\n");
+
+        SERIAL_ECHOLNPGM("UBL_MESH_NUM_X_POINTS  " STRINGIFY(UBL_MESH_NUM_X_POINTS));
+        SERIAL_ECHOLNPGM("UBL_MESH_NUM_Y_POINTS  " STRINGIFY(UBL_MESH_NUM_Y_POINTS));
+
+        SERIAL_ECHOLNPGM("UBL_MESH_MIN_X         " STRINGIFY(UBL_MESH_MIN_X));
+        SERIAL_ECHOLNPGM("UBL_MESH_MIN_Y         " STRINGIFY(UBL_MESH_MIN_Y));
+
+        SERIAL_ECHOLNPGM("UBL_MESH_MAX_X         " STRINGIFY(UBL_MESH_MAX_X));
+        SERIAL_ECHOLNPGM("UBL_MESH_MAX_Y         " STRINGIFY(UBL_MESH_MAX_Y));
+
+        SERIAL_ECHOLNPGM("MESH_X_DIST        " STRINGIFY(MESH_X_DIST));
+        SERIAL_ECHOLNPGM("MESH_Y_DIST        " STRINGIFY(MESH_Y_DIST));
+        SERIAL_EOL;
+      }
+
     #elif HAS_ABL
+
       if (!forReplay) {
         SERIAL_ECHOLNPGM("Auto Bed Leveling:");
         CONFIG_ECHO_START;
       }
       SERIAL_ECHOLNPAIR("  M420 S", planner.abl_enabled ? 1 : 0);
+
     #endif
 
     #if ENABLED(DELTA)

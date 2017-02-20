@@ -1,6 +1,8 @@
 ---
 language: c
   #
+dist: trusty
+sudo: required
 notifications:
   email: false
   #
@@ -18,12 +20,22 @@ before_install:
   - sleep 3
   - export DISPLAY=:1.0
   #
+  # Teensy compiling
+  - lsb_release -a
+  - sudo apt-get -qq update
+  - sudo apt-get install -y binutils-arm-none-eabi
+  # - wget http://mirrors.kernel.org/ubuntu/pool/universe/b/binutils-arm-none-eabi/binutils-arm-none-eabi_2.24-2ubuntu2+4_amd64.deb
+  # - sudo dpkg -i binutils-arm-none-eabi_2.24-2ubuntu2+4_amd64.deb
+  - sudo apt-get install -y gcc-arm-none-eabi
+  # - wget http://mirrors.kernel.org/ubuntu/pool/universe/g/gcc-arm-none-eabi/gcc-arm-none-eabi_4.8.2-14ubuntu1+6_amd64.deb
+  # - sudo dpkg -i gcc-arm-none-eabi_4.8.2-14ubuntu1+6_amd64.deb
+  #
 install:
   #
-  # Install arduino 1.6.10
-  - wget http://downloads-02.arduino.cc/arduino-1.6.10-linux64.tar.xz
-  - tar xf arduino-1.6.10-linux64.tar.xz
-  - sudo mv arduino-1.6.10 /usr/local/share/arduino
+  # Install arduino 1.8.0
+  - wget http://downloads-02.arduino.cc/arduino-1.8.0-linux64.tar.xz
+  - tar xf arduino-1.8.0-linux64.tar.xz
+  - sudo mv arduino-1.8.0 /usr/local/share/arduino
   - ln -s /usr/local/share/arduino/arduino ${TRAVIS_BUILD_DIR}/buildroot/bin/arduino
   #
   # Install: LiquidCrystal_I2C library
@@ -49,6 +61,32 @@ install:
   # Install: TMC2130 Stepper Motor Controller library
   - git clone https://github.com/teemuatlut/TMC2130Stepper.git
   - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
+
+  # Install Teensy stuff
+
+  - git clone https://github.com/ARM-software/CMSIS.git
+  - sudo cp CMSIS/CMSIS/Lib/GCC/*.a /usr/lib/arm-none-eabi/lib/
+
+  - git clone https://github.com/teemuatlut/teensyfiles_for_marlin.git
+  - sudo mkdir -p /usr/local/share/arduino/hardware/teensy/avr
+  - sudo cp teensyfiles_for_marlin/*.txt /usr/local/share/arduino/hardware/teensy/avr/
+
+  - git clone https://github.com/PaulStoffregen/cores.git
+  - sudo mv cores /usr/local/share/arduino/hardware/teensy/avr
+
+  # Teensy libraries
+
+  - git clone https://github.com/PaulStoffregen/Wire.git
+  - git clone https://github.com/PaulStoffregen/SPI.git
+  - git clone https://github.com/PaulStoffregen/Servo.git
+  - sudo mkdir -p /usr/local/share/arduino/hardware/teensy/avr/libraries/
+  - sudo mv Wire /usr/local/share/arduino/hardware/teensy/avr/libraries/
+  - sudo mv SPI /usr/local/share/arduino/hardware/teensy/avr/libraries/
+  - sudo mv Servo /usr/local/share/arduino/hardware/teensy/avr/libraries/
+
+  - mkdir -p /usr/local/share/arduino/hardware/tools/arm
+  - sudo ln -s /usr/bin /usr/local/share/arduino/hardware/tools/arm/bin
+  - sudo ln -s /usr/lib /usr/local/share/arduino/hardware/tools/arm/lib
   #
 before_script:
   #
@@ -117,25 +155,24 @@ script:
   - opt_set ABL_GRID_POINTS_Y 16
   - build_marlin
   #
-  # Test a Sled Z Probe
+  # Test a simple build of AUTO_BED_LEVELING_UBL
   #
   - restore_configs
-  - opt_enable Z_PROBE_SLED
+  - opt_enable AUTO_BED_LEVELING_UBL UBL_G26_MESH_EDITING ENABLE_LEVELING_FADE_HEIGHT FIX_MOUNTED_PROBE EEPROM_SETTINGS G3D_PANEL
   - build_marlin
   #
+  # Test a Sled Z Probe
   # ...with AUTO_BED_LEVELING_LINEAR, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, and EEPROM_CHITCHAT
   #
-  - opt_enable AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
+  - restore_configs
+  - opt_enable Z_PROBE_SLED AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
   - build_marlin
   #
   # Test a Servo Probe
+  # ...with AUTO_BED_LEVELING_3POINT, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, EEPROM_CHITCHAT, EXTENDED_CAPABILITIES_REPORT, and AUTO_REPORT_TEMPERATURES
   #
   - restore_configs
   - opt_enable NUM_SERVOS Z_ENDSTOP_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
-  - build_marlin
-  #
-  # ...with AUTO_BED_LEVELING_3POINT, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, EEPROM_CHITCHAT, EXTENDED_CAPABILITIES_REPORT, and AUTO_REPORT_TEMPERATURES
-  #
   - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
   - opt_enable_adv EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES
   - build_marlin
@@ -143,7 +180,13 @@ script:
   # Test MESH_BED_LEVELING feature, with LCD
   #
   - restore_configs
-  - opt_enable MESH_BED_LEVELING MESH_G28_REST_ORIGIN MANUAL_BED_LEVELING ULTIMAKERCONTROLLER
+  - opt_enable MESH_BED_LEVELING MESH_G28_REST_ORIGIN LCD_BED_LEVELING ULTIMAKERCONTROLLER
+  - build_marlin
+  #
+  # Test PROBE_MANUALLY feature, with LCD support
+  #
+  - restore_configs
+  - opt_enable PROBE_MANUALLY AUTO_BED_LEVELING_BILINEAR LCD_BED_LEVELING ULTIMAKERCONTROLLER
   - build_marlin
   #
   # Test EEPROM_SETTINGS, EEPROM_CHITCHAT, M100_FREE_MEMORY_WATCHER,
@@ -195,11 +238,11 @@ script:
   - opt_set MOTHERBOARD BOARD_MINIRAMBO
   - build_marlin
   #
-  # Test FILAMENT_CHANGE_FEATURE and LCD_INFO_MENU
+  # Test FILAMENT_CHANGE_FEATURE, PARK_HEAD_ON_PAUSE, and LCD_INFO_MENU
   #
   - restore_configs
   - opt_enable ULTIMAKERCONTROLLER
-  - opt_enable_adv FILAMENT_CHANGE_FEATURE LCD_INFO_MENU
+  - opt_enable_adv FILAMENT_CHANGE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
   - build_marlin
   #
   # Enable filament sensor
@@ -234,11 +277,11 @@ script:
   #
   # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
   #
-  - restore_configs
-  - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
-  - pins_set RAMPS X_MAX_PIN -1
-  - opt_set_adv Z2_MAX_PIN 2
-  - build_marlin
+  # - restore_configs
+  # - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
+  # - pins_set RAMPS X_MAX_PIN -1
+  # - opt_set_adv Z2_MAX_PIN 2
+  # - build_marlin
   #
   # Test PRINTCOUNTER
   #
@@ -411,3 +454,259 @@ script:
   #
   # To be added in nightly test branch
   #
+  # Backup Configuration.h, Configuration_adv.h, and pins_RAMPS.h
+  #
+  - restore_configs
+  - opt_set MOTHERBOARD BOARD_TEENSY35
+  - cp Marlin/Configuration.h Marlin/Configuration.h.backup
+  - cp Marlin/Configuration_adv.h Marlin/Configuration_adv.h.backup
+  - cp Marlin/pins_RAMPS.h Marlin/pins_RAMPS.h.backup
+  #
+  # Test Teensy3.5 with default config
+  #
+  - build_marlin_teensy35
+  #
+  # Test heated bed temperature sensor
+  #
+  - opt_set TEMP_SENSOR_BED 1
+  - build_marlin_teensy35
+  #
+  # Test 2 extruders on basic RAMPS 1.4
+  #
+  - opt_set EXTRUDERS 2
+  - opt_set TEMP_SENSOR_1 1
+  - build_marlin_teensy35
+  #
+  # Test PIDTEMPBED
+  #
+  - restore_configs
+  - opt_enable PIDTEMPBED
+  - build_marlin_teensy35
+  #
+  # Test a "Fix Mounted" Probe along with Safe Homing
+  #
+  - restore_configs
+  - opt_enable FIX_MOUNTED_PROBE Z_SAFE_HOMING
+  - build_marlin_teensy35
+  #
+  # ...with AUTO_BED_LEVELING_LINEAR, Z_MIN_PROBE_REPEATABILITY_TEST, and DEBUG_LEVELING_FEATURE
+  #
+  - opt_enable AUTO_BED_LEVELING_LINEAR Z_MIN_PROBE_REPEATABILITY_TEST DEBUG_LEVELING_FEATURE
+  - opt_set ABL_GRID_POINTS_X 16
+  - opt_set ABL_GRID_POINTS_Y 16
+  - build_marlin_teensy35
+  #
+  # Test a Sled Z Probe
+  #
+  - restore_configs
+  - opt_enable Z_PROBE_SLED
+  - build_marlin_teensy35
+  #
+  # ...with AUTO_BED_LEVELING_LINEAR, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, and EEPROM_CHITCHAT
+  #
+  - opt_enable AUTO_BED_LEVELING_LINEAR DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
+  - build_marlin_teensy35
+  #
+  # Test a Servo Probe
+  #
+  - restore_configs
+  - opt_enable NUM_SERVOS Z_ENDSTOP_SERVO_NR Z_SERVO_ANGLES DEACTIVATE_SERVOS_AFTER_MOVE
+  - build_marlin_teensy35
+  #
+  # ...with AUTO_BED_LEVELING_3POINT, DEBUG_LEVELING_FEATURE, EEPROM_SETTINGS, EEPROM_CHITCHAT, EXTENDED_CAPABILITIES_REPORT, and AUTO_REPORT_TEMPERATURES
+  #
+  - opt_enable AUTO_BED_LEVELING_3POINT DEBUG_LEVELING_FEATURE EEPROM_SETTINGS EEPROM_CHITCHAT
+  - opt_enable_adv EXTENDED_CAPABILITIES_REPORT AUTO_REPORT_TEMPERATURES
+  - build_marlin_teensy35
+  #
+  # Test MESH_BED_LEVELING feature, with LCD
+  #
+  - restore_configs
+  - opt_enable MESH_BED_LEVELING MESH_G28_REST_ORIGIN MANUAL_BED_LEVELING ULTIMAKERCONTROLLER
+  - build_marlin_teensy35
+  #
+  # Test EEPROM_SETTINGS, EEPROM_CHITCHAT, M100_FREE_MEMORY_WATCHER,
+  #   INCH_MODE_SUPPORT, TEMPERATURE_UNITS_SUPPORT
+  #
+  - restore_configs
+  # - opt_enable M100_FREE_MEMORY_WATCHER // Compiler error!
+  - opt_enable EEPROM_SETTINGS EEPROM_CHITCHAT INCH_MODE_SUPPORT TEMPERATURE_UNITS_SUPPORT
+  - build_marlin_teensy35
+  #
+  # Mixing Extruder
+  #
+  - restore_configs
+  - opt_enable MIXING_EXTRUDER
+  - opt_set MIXING_STEPPERS 2
+  - build_marlin_teensy35
+  #
+  # Test DUAL_X_CARRIAGE
+  #
+  #- restore_configs
+  #- opt_set EXTRUDERS 2
+  #- opt_set TEMP_SENSOR_1 1
+  #- opt_enable USE_XMAX_PLUG
+  #- opt_enable_adv DUAL_X_CARRIAGE
+  #- build_marlin_teensy35
+  #
+  # Test SWITCHING_EXTRUDER
+  #
+  - restore_configs
+  - opt_set EXTRUDERS 2
+  - opt_enable NUM_SERVOS
+  - opt_set NUM_SERVOS 1
+  - opt_set TEMP_SENSOR_1 1
+  - opt_enable SWITCHING_EXTRUDER ULTIMAKERCONTROLLER
+  - build_marlin_teensy35
+  #
+  # Test FILAMENT_CHANGE_FEATURE and LCD_INFO_MENU
+  #
+  - restore_configs
+  - opt_enable ULTIMAKERCONTROLLER
+  - opt_enable_adv FILAMENT_CHANGE_FEATURE LCD_INFO_MENU
+  - build_marlin_teensy35
+  #
+  # Enable filament sensor
+  #
+  - restore_configs
+  - opt_enable FILAMENT_WIDTH_SENSOR
+  - build_marlin_teensy35
+  #
+  # Enable filament sensor with LCD display
+  #
+  - opt_enable ULTIMAKERCONTROLLER FILAMENT_LCD_DISPLAY
+  - build_marlin_teensy35
+  #
+  # Enable BEZIER_CURVE_SUPPORT, EXPERIMENTAL_I2CBUS, and I2C_SLAVE_ADDRESS
+  #
+  - restore_configs
+  - opt_enable_adv BEZIER_CURVE_SUPPORT EXPERIMENTAL_I2CBUS
+  - opt_set_adv I2C_SLAVE_ADDRESS 63
+  - build_marlin_teensy35
+  #
+  # Enable COREXY
+  #
+  - restore_configs
+  - opt_enable COREXY
+  - build_marlin_teensy35
+  #
+  # Enable COREXZ
+  #
+  - restore_configs
+  - opt_enable COREXZ
+  - build_marlin_teensy35
+  #
+  # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
+  #
+  - restore_configs
+  - opt_enable_adv Z_DUAL_STEPPER_DRIVERS Z_DUAL_ENDSTOPS
+  - pins_set RAMPS X_MAX_PIN -1
+  - opt_set_adv Z2_MAX_PIN 2
+  - build_marlin_teensy35
+  #
+  # Test PRINTCOUNTER
+  #
+  - restore_configs
+  - opt_enable PRINTCOUNTER
+  - build_marlin_teensy35
+  #
+  # Test NOZZLE_PARK_FEATURE
+  #
+  - restore_configs
+  - opt_enable NOZZLE_PARK_FEATURE
+  - build_marlin_teensy35
+  #
+  # Test NOZZLE_CLEAN_FEATURE
+  #
+  - restore_configs
+  - opt_enable NOZZLE_CLEAN_FEATURE
+  - build_marlin_teensy35
+  #
+  #
+  ######## STANDARD LCD/PANELS ##############
+  #
+  # ULTRA_LCD
+  #
+  - restore_configs
+  - opt_enable ULTRA_LCD
+  - build_marlin_teensy35
+  #
+  # DOGLCD
+  #
+  - restore_configs
+  - opt_enable DOGLCD
+  - build_marlin_teensy35
+  #
+  # ULTIMAKERCONTROLLER
+  #
+  - restore_configs
+  - opt_enable ULTIMAKERCONTROLLER
+  - build_marlin_teensy35
+  #
+  # MAKRPANEL
+  # Needs to use Melzi and Sanguino hardware
+  #
+  #- restore_configs
+  #- opt_enable MAKRPANEL
+  #- build_marlin
+  #
+  # REPRAP_DISCOUNT_SMART_CONTROLLER, SDSUPPORT, and BABYSTEPPING
+  #
+  - restore_configs
+  - opt_enable REPRAP_DISCOUNT_SMART_CONTROLLER SDSUPPORT BABYSTEPPING
+  - build_marlin_teensy35
+  #
+  # G3D_PANEL
+  #
+  - restore_configs
+  - opt_enable G3D_PANEL SDSUPPORT
+  - build_marlin_teensy35
+  #
+  # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+  #
+  - restore_configs
+  - opt_enable REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER SDSUPPORT
+  - build_marlin_teensy35
+  #
+  # REPRAPWORLD_KEYPAD
+  #
+  # Cant find configuration details to get it to compile
+  #- restore_configs
+  #- opt_enable ULTRA_LCD REPRAPWORLD_KEYPAD REPRAPWORLD_KEYPAD_MOVE_STEP
+  #- build_marlin
+  #
+  # RA_CONTROL_PANEL
+  #
+  - restore_configs
+  - opt_enable RA_CONTROL_PANEL
+  - build_marlin_teensy35
+  #
+  ######## I2C LCD/PANELS ##############
+  #
+  # !!!ATTENTION!!!
+  # Most I2C configurations are failing at the moment because they require
+  # a different Liquid Crystal library "LiquidTWI2".
+  #
+  # LCD_I2C_SAINSMART_YWROBOT
+  #
+  #- restore_configs
+  #- opt_enable LCD_I2C_SAINSMART_YWROBOT
+  #- build_marlin
+  #
+  # LCD_I2C_PANELOLU2
+  #
+  #- restore_configs
+  #- opt_enable LCD_I2C_PANELOLU2
+  #- build_marlin
+  #
+  # LCD_I2C_VIKI
+  #
+  #- restore_configs
+  #- opt_enable LCD_I2C_VIKI
+  #- build_marlin
+  #
+  # LCM1602
+  #
+  - restore_configs
+  - opt_enable LCM1602
+  - build_marlin_teensy35

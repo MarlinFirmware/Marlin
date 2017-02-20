@@ -28,29 +28,14 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include <util/delay.h>
-#include <avr/pgmspace.h>
-#include <avr/eeprom.h>
-#include <avr/interrupt.h>
-
 #include "MarlinConfig.h"
+
+#include "src/HAL/HAL.h"
 
 #include "enum.h"
 #include "types.h"
-#include "fastio.h"
 #include "utility.h"
-
-#ifdef USBCON
-  #include "HardwareSerial.h"
-  #if ENABLED(BLUETOOTH)
-    #define MYSERIAL bluetoothSerial
-  #else
-    #define MYSERIAL Serial
-  #endif // BLUETOOTH
-#else
-  #include "MarlinSerial.h"
-  #define MYSERIAL customizedSerial
-#endif
+#include "serial.h"
 
 #include "WString.h"
 
@@ -59,52 +44,6 @@
 #else
   #include "stopwatch.h"
 #endif
-
-extern const char echomagic[] PROGMEM;
-extern const char errormagic[] PROGMEM;
-
-#define SERIAL_CHAR(x) (MYSERIAL.write(x))
-#define SERIAL_EOL SERIAL_CHAR('\n')
-
-#define SERIAL_PROTOCOLCHAR(x)              SERIAL_CHAR(x)
-#define SERIAL_PROTOCOL(x)                  (MYSERIAL.print(x))
-#define SERIAL_PROTOCOL_F(x,y)              (MYSERIAL.print(x,y))
-#define SERIAL_PROTOCOLPGM(x)               (serialprintPGM(PSTR(x)))
-#define SERIAL_PROTOCOLLN(x)                do{ MYSERIAL.print(x); SERIAL_EOL; }while(0)
-#define SERIAL_PROTOCOLLNPGM(x)             (serialprintPGM(PSTR(x "\n")))
-#define SERIAL_PROTOCOLPAIR(name, value)    (serial_echopair_P(PSTR(name),(value)))
-#define SERIAL_PROTOCOLLNPAIR(name, value)  do{ SERIAL_PROTOCOLPAIR(name, value); SERIAL_EOL; }while(0)
-
-#define SERIAL_ECHO_START             (serialprintPGM(echomagic))
-#define SERIAL_ECHO(x)                 SERIAL_PROTOCOL(x)
-#define SERIAL_ECHOPGM(x)              SERIAL_PROTOCOLPGM(x)
-#define SERIAL_ECHOLN(x)               SERIAL_PROTOCOLLN(x)
-#define SERIAL_ECHOLNPGM(x)            SERIAL_PROTOCOLLNPGM(x)
-#define SERIAL_ECHOPAIR(name,value)    SERIAL_PROTOCOLPAIR(name, value)
-#define SERIAL_ECHOLNPAIR(name, value) SERIAL_PROTOCOLLNPAIR(name, value)
-
-#define SERIAL_ERROR_START            (serialprintPGM(errormagic))
-#define SERIAL_ERROR(x)                SERIAL_PROTOCOL(x)
-#define SERIAL_ERRORPGM(x)             SERIAL_PROTOCOLPGM(x)
-#define SERIAL_ERRORLN(x)              SERIAL_PROTOCOLLN(x)
-#define SERIAL_ERRORLNPGM(x)           SERIAL_PROTOCOLLNPGM(x)
-
-void serial_echopair_P(const char* s_P, const char *v);
-void serial_echopair_P(const char* s_P, char v);
-void serial_echopair_P(const char* s_P, int v);
-void serial_echopair_P(const char* s_P, long v);
-void serial_echopair_P(const char* s_P, float v);
-void serial_echopair_P(const char* s_P, double v);
-void serial_echopair_P(const char* s_P, unsigned long v);
-FORCE_INLINE void serial_echopair_P(const char* s_P, uint8_t v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, uint16_t v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
-
-// Things to write to serial from Program memory. Saves 400 to 2k of RAM.
-FORCE_INLINE void serialprintPGM(const char* str) {
-  while (char ch = pgm_read_byte(str++)) MYSERIAL.write(ch);
-}
 
 void idle(
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
@@ -220,6 +159,7 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 #define _AXIS(AXIS) AXIS ##_AXIS
 
 void enable_all_steppers();
+void disable_e_steppers();
 void disable_all_steppers();
 
 void FlushSerialRequestResend();
@@ -240,9 +180,8 @@ extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); //put a single ASCII command at the end of the current buffer or return false when it is full
-void enqueue_and_echo_command_now(const char* cmd); // enqueue now, only return when the command has been enqueued
-void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
+bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); // Add a single command to the end of the buffer. Return false on failure.
+void enqueue_and_echo_commands_P(const char * const cmd);          // Set one or more commands to be prioritized over the next Serial/SD command.
 void clear_command_queue();
 
 extern millis_t previous_cmd_ms;
@@ -304,7 +243,7 @@ extern float current_position[NUM_AXIS];
 extern float soft_endstop_min[XYZ];
 extern float soft_endstop_max[XYZ];
 
-#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+#if HAS_SOFTWARE_ENDSTOPS
   extern bool soft_endstops_enabled;
   void clamp_to_software_endstops(float target[XYZ]);
 #else
@@ -360,7 +299,10 @@ float code_value_temp_diff();
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
-  extern uint8_t host_keepalive_interval;
+  extern MarlinBusyState busy_state;
+  #define KEEPALIVE_STATE(n) do{ busy_state = n; }while(0)
+#else
+  #define KEEPALIVE_STATE(n) NOOP
 #endif
 
 #if FAN_COUNT > 0
@@ -423,5 +365,9 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
 void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
 void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
+
+#if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
+  bool axis_unhomed_error(const bool x, const bool y, const bool z);
+#endif
 
 #endif //MARLIN_H

@@ -71,6 +71,8 @@
 #define BOARD_BRAINWAVE         82   // Brainwave (AT90USB646)
 #define BOARD_SAV_MKI           83   // SAV Mk-I (AT90USB1286)
 #define BOARD_TEENSY2           84   // Teensy++2.0 (AT90USB1286) - CLI compile: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
+#define BOARD_TEENSY35          841  // Teensy3.5
+#define BOARD_TEENSY36          842  // Teensy3.6
 #define BOARD_BRAINWAVE_PRO     85   // Brainwave Pro (AT90USB1286)
 #define BOARD_GEN3_PLUS         9    // Gen3+
 #define BOARD_GEN3_MONOLITHIC   22   // Gen3 Monolithic Electronics
@@ -83,7 +85,7 @@
 #define BOARD_OMCA              91   // Final OMCA board
 #define BOARD_RAMBO             301  // Rambo
 #define BOARD_MINIRAMBO         302  // Mini-Rambo
-#define BOARD_AJ4P              303  // AJ4P
+#define BOARD_SCOOVO_X9H        303  // abee Scoovo X9H
 #define BOARD_MEGACONTROLLER    310  // Mega controller
 #define BOARD_ELEFU_3           21   // Elefu Ra Board (v3)
 #define BOARD_5DPRINT           88   // 5DPrint D8 Driver Board

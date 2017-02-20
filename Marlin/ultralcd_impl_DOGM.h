@@ -213,7 +213,7 @@ static void lcd_setFont(const char font_nr) {
 }
 
 void lcd_print(const char c) {
-  if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
+  if (WITHIN(c, 1, LCD_STR_SPECIAL_MAX)) {
     u8g.setFont(FONT_SPECIAL_NAME);
     u8g.print(c);
     lcd_setFont(currentfont);
@@ -222,7 +222,7 @@ void lcd_print(const char c) {
 }
 
 char lcd_print_and_count(const char c) {
-  if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
+  if (WITHIN(c, 1, LCD_STR_SPECIAL_MAX)) {
     u8g.setFont(FONT_SPECIAL_NAME);
     u8g.print(c);
     lcd_setFont(currentfont);
@@ -320,7 +320,7 @@ void lcd_kill_screen() {
   lcd_printPGM(PSTR(MSG_PLEASE_RESET));
 }
 
-static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
+void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
 //
 // Status Screen
@@ -535,12 +535,19 @@ static void lcd_implementation_status_screen() {
   // When everything is ok you see a constant 'X'.
 
   static char xstring[5], ystring[5], zstring[7];
+  #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
+    static char wstring[5], mstring[4];
+  #endif
 
   // At the first page, regenerate the XYZ strings
   if (page.page == 0) {
     strcpy(xstring, ftostr4sign(current_position[X_AXIS]));
     strcpy(ystring, ftostr4sign(current_position[Y_AXIS]));
-    strcpy(zstring, ftostr52sp(current_position[Z_AXIS] + 0.00001));
+    strcpy(zstring, ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
+    #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
+      strcpy(wstring, ftostr12ns(filament_width_meas));
+      strcpy(mstring, itostr3(100.0 * volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
+    #endif
   }
 
   if (PAGE_CONTAINS(XYZ_FRAME_TOP, XYZ_FRAME_TOP + XYZ_FRAME_HEIGHT - 1)) {
@@ -591,6 +598,22 @@ static void lcd_implementation_status_screen() {
     u8g.setPrintPos(12, 50);
     lcd_print(itostr3(feedrate_percentage));
     u8g.print('%');
+
+    //
+    // Filament sensor display if SD is disabled
+    //
+    #if DISABLED(SDSUPPORT) && ENABLED(FILAMENT_LCD_DISPLAY)
+      u8g.setPrintPos(56, 50);
+      lcd_print(wstring);
+      u8g.setPrintPos(102, 50);
+      lcd_print(mstring);
+      u8g.print('%');
+      lcd_setFont(FONT_MENU);
+      u8g.setPrintPos(47, 50);
+      lcd_print(LCD_STR_FILAM_DIA);
+      u8g.setPrintPos(93, 50);
+      lcd_print(LCD_STR_FILAM_MUL);
+    #endif
   }
 
   //
@@ -602,19 +625,21 @@ static void lcd_implementation_status_screen() {
   if (PAGE_CONTAINS(STATUS_BASELINE + 1 - INFO_FONT_HEIGHT, STATUS_BASELINE)) {
     u8g.setPrintPos(0, STATUS_BASELINE);
 
-    #if DISABLED(FILAMENT_LCD_DISPLAY)
-      lcd_print(lcd_status_message);
-    #else
+    #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
       if (PENDING(millis(), previous_lcd_status_ms + 5000UL)) {  //Display both Status message line and Filament display on the last line
         lcd_print(lcd_status_message);
       }
       else {
-        lcd_printPGM(PSTR("dia:"));
+        lcd_printPGM(PSTR(LCD_STR_FILAM_DIA));
+        u8g.print(':');
         lcd_print(ftostr12ns(filament_width_meas));
-        lcd_printPGM(PSTR(" factor:"));
+        lcd_printPGM(PSTR("  " LCD_STR_FILAM_MUL));
+        u8g.print(':');
         lcd_print(itostr3(100.0 * volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
         u8g.print('%');
       }
+    #else
+      lcd_print(lcd_status_message);
     #endif
   }
 }

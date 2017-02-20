@@ -62,7 +62,7 @@ void Nozzle::zigzag(
   __attribute__((unused)) uint8_t const &objects
 ) {
   #if ENABLED(NOZZLE_CLEAN_FEATURE)
-    const float A = nozzle_clean_horizontal ? nozzle_clean_height : nozzle_clean_length, // [twice the] Amplitude
+    float const A =  nozzle_clean_horizontal ? nozzle_clean_height : nozzle_clean_length, // [twice the] Amplitude
                 P = (nozzle_clean_horizontal ? nozzle_clean_length : nozzle_clean_height) / (objects << 1); // Period
 
     // Don't allow impossible triangles
@@ -79,18 +79,20 @@ void Nozzle::zigzag(
     #endif // NOZZLE_CLEAN_GOBACK
 
     for (uint8_t j = 0; j < strokes; j++) {
-      for (uint8_t i = 0; i < (objects << 1); i++) {
-        float const x = start.x + ( nozzle_clean_horizontal ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
-        float const y = start.y + (!nozzle_clean_horizontal ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
-
+      for (uint8_t i = 0; i < objects << 1; i++) {
+        float const m1 = i * P,
+                    m2 = (A / P) * (P - FABS(FMOD(m1, (2 * P)) - P)),
+                    x = start.x + (nozzle_clean_horizontal ? m1 : m2),
+                    y = start.y + (nozzle_clean_horizontal ? m2 : m1);
         do_blocking_move_to_xy(x, y);
         if (i == 0) do_blocking_move_to_z(start.z);
       }
 
-      for (int i = (objects << 1); i > -1; i--) {
-        float const x = start.x + ( nozzle_clean_horizontal ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
-        float const y = start.y + (!nozzle_clean_horizontal ? i * P : (A/P) * (P - fabs(fmod((i*P), (2*P)) - P)) );
-
+      for (int8_t i = objects << 1; i >= 0; i--) {
+        float const m1 = i * P,
+                    m2 = (A / P) * (P - FABS(FMOD(m1, (2 * P)) - P)),
+                    x = start.x + (nozzle_clean_horizontal ? m1 : m2),
+                    y = start.y + (nozzle_clean_horizontal ? m2 : m1);
         do_blocking_move_to_xy(x, y);
       }
     }

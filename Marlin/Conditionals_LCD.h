@@ -67,6 +67,14 @@
 
   #endif
 
+  #if ENABLED(OLED_PANEL_TINYBOY2)
+    #define U8GLIB_SSD1306
+    #define ULTIPANEL
+    #define NEWPANEL
+    #define REVERSE_ENCODER_DIRECTION
+    #define REVERSE_MENU_DIRECTION
+  #endif
+
   // Generic support for SSD1306 / SH1106 OLED based LCDs.
   #if ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SH1106)
     #define ULTRA_LCD  //general LCD support, also 16x2
@@ -158,7 +166,7 @@
   #endif
 
   // Set encoder detents for well-known controllers
-  #if ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) \
+  #if ENABLED(miniVIKI) || ENABLED(VIKI2) || ENABLED(ELB_FULL_GRAPHIC_CONTROLLER) || ENABLED(OLED_PANEL_TINYBOY2) \
    || ENABLED(BQ_LCD_SMART_CONTROLLER) || ENABLED(LCD_I2C_PANELOLU2) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
     #ifndef ENCODER_PULSES_PER_STEP
       #define ENCODER_PULSES_PER_STEP 4
@@ -224,6 +232,10 @@
     #define LCD_STR_SPECIAL_MAX '\x09'
     // Maximum here is 0x1f because 0x20 is ' ' (space) and the normal charsets begin.
     // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
+
+    // Symbol characters
+    #define LCD_STR_FILAM_DIA   "\xf8"
+    #define LCD_STR_FILAM_MUL   "\xa4"
   #else
     /* Custom characters defined in the first 8 characters of the LCD */
     #define LCD_STR_BEDTEMP     "\x00"  // Print only as a char. This will have 'unexpected' results when used in a string!
@@ -359,14 +371,16 @@
   /**
    * Set a flag for any enabled probe
    */
-  #define PROBE_SELECTED (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
+  #define PROBE_SELECTED (ENABLED(PROBE_MANUALLY) || ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
 
   /**
    * Clear probe pin settings when no probe is selected
    */
-  #if !PROBE_SELECTED
+  #if !PROBE_SELECTED || ENABLED(PROBE_MANUALLY)
     #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
     #undef Z_MIN_PROBE_ENDSTOP
   #endif
+
+  #define HAS_SOFTWARE_ENDSTOPS (ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS))
 
 #endif //CONDITIONALS_LCD_H

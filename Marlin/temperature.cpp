@@ -24,6 +24,8 @@
  * temperature.cpp - temperature control
  */
 
+
+
 #include "Marlin.h"
 #include "ultralcd.h"
 #include "temperature.h"
@@ -35,10 +37,6 @@
 
 #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
   #include "endstops.h"
-#endif
-
-#if ENABLED(USE_WATCHDOG)
-  #include "watchdog.h"
 #endif
 
 #ifdef K1 // Defined in Configuration.h in the PID settings
@@ -666,6 +664,17 @@ float Temperature::get_pid_output(int e) {
  *  - Apply filament width to the extrusion rate (may move)
  *  - Update the heated bed PID output value
  */
+
+/**
+ * The following line SOMETIMES results in the dreaded "unable to find a register to spill in class 'POINTER_REGS'"
+ * compile error.
+ *    thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
+ *
+ * This is due to a bug in the C++ compiler used by the Arduino IDE from 1.6.10 to at least 1.8.1.
+ *
+ * The work around is to add the compiler flag "__attribute__((__optimize__("O2")))" to the declaration for manage_heater()
+ */
+//void Temperature::manage_heater()  __attribute__((__optimize__("O2")));
 void Temperature::manage_heater() {
 
   if (!temp_meas_ready) return;
@@ -730,7 +739,7 @@ void Temperature::manage_heater() {
     #endif // THERMAL_PROTECTION_HOTENDS
 
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
-      if (fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
+      if (FABS(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
         _temp_error(0, PSTR(MSG_REDUNDANCY), PSTR(MSG_ERR_REDUNDANT_TEMP));
       }
     #endif
@@ -753,7 +762,7 @@ void Temperature::manage_heater() {
       // Get the delayed info and add 100 to reconstitute to a percent of
       // the nominal filament diameter then square it to get an area
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
-      float vm = pow((measurement_delay[meas_shift_index] + 100.0) * 0.01, 2);
+      float vm = POW((measurement_delay[meas_shift_index] + 100.0) * 0.01, 2);
       NOLESS(vm, 0.01);
       volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = vm;
     }
@@ -773,11 +782,11 @@ void Temperature::manage_heater() {
     #if ENABLED(PIDTEMPBED)
       float pid_output = get_pid_output_bed();
 
-      soft_pwm_bed = current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP ? (int)pid_output >> 1 : 0;
+      soft_pwm_bed = WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP) ? (int)pid_output >> 1 : 0;
 
     #elif ENABLED(BED_LIMIT_SWITCHING)
       // Check if temperature is within the correct band
-      if (current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP) {
+      if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
         if (current_temperature_bed >= target_temperature_bed + BED_HYSTERESIS)
           soft_pwm_bed = 0;
         else if (current_temperature_bed <= target_temperature_bed - (BED_HYSTERESIS))
@@ -789,7 +798,7 @@ void Temperature::manage_heater() {
       }
     #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
       // Check if temperature is within the correct range
-      if (current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP) {
+      if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
         soft_pwm_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
       }
       else {
@@ -969,9 +978,6 @@ void Temperature::init() {
     #if ENABLED(FAST_PWM_FAN)
       setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
-    #if ENABLED(FAN_SOFT_PWM)
-      soft_pwm_fan[0] = fanSpeedSoftPwm[0] >> 1;
-    #endif
   #endif
 
   #if HAS_FAN1
@@ -979,18 +985,12 @@ void Temperature::init() {
     #if ENABLED(FAST_PWM_FAN)
       setPwmFrequency(FAN1_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
-    #if ENABLED(FAN_SOFT_PWM)
-      soft_pwm_fan[1] = fanSpeedSoftPwm[1] >> 1;
-    #endif
   #endif
 
   #if HAS_FAN2
     SET_OUTPUT(FAN2_PIN);
     #if ENABLED(FAST_PWM_FAN)
       setPwmFrequency(FAN2_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
-    #endif
-    #if ENABLED(FAN_SOFT_PWM)
-      soft_pwm_fan[2] = fanSpeedSoftPwm[2] >> 1;
     #endif
   #endif
 
@@ -1005,35 +1005,35 @@ void Temperature::init() {
 
   #endif //HEATER_0_USES_MAX6675
 
-  #ifdef DIDR2
-    #define ANALOG_SELECT(pin) do{ if (pin < 8) SBI(DIDR0, pin); else SBI(DIDR2, pin - 8); }while(0)
-  #else
-    #define ANALOG_SELECT(pin) do{ SBI(DIDR0, pin); }while(0)
-  #endif
+  HAL_adc_init();
 
-  // Set analog inputs
-  ADCSRA = _BV(ADEN) | _BV(ADSC) | _BV(ADIF) | 0x07;
-  DIDR0 = 0;
-  #ifdef DIDR2
-    DIDR2 = 0;
-  #endif
   #if HAS_TEMP_0
-    ANALOG_SELECT(TEMP_0_PIN);
+    HAL_ANALOG_SELECT(TEMP_0_PIN);
   #endif
   #if HAS_TEMP_1
-    ANALOG_SELECT(TEMP_1_PIN);
+    HAL_ANALOG_SELECT(TEMP_1_PIN);
   #endif
   #if HAS_TEMP_2
-    ANALOG_SELECT(TEMP_2_PIN);
+    HAL_ANALOG_SELECT(TEMP_2_PIN);
   #endif
   #if HAS_TEMP_3
-    ANALOG_SELECT(TEMP_3_PIN);
+    HAL_ANALOG_SELECT(TEMP_3_PIN);
   #endif
   #if HAS_TEMP_BED
-    ANALOG_SELECT(TEMP_BED_PIN);
+    HAL_ANALOG_SELECT(TEMP_BED_PIN);
   #endif
   #if ENABLED(FILAMENT_WIDTH_SENSOR)
-    ANALOG_SELECT(FILWIDTH_PIN);
+    HAL_ANALOG_SELECT(FILWIDTH_PIN);
+  #endif
+
+  #if defined(ARDUINO_ARCH_AVR)
+    // Use timer0 for temperature measurement
+    // Interleave temperature interrupt with millies interrupt
+    OCR0B = 128;
+    SBI(TIMSK0, OCIE0B);
+  #else
+    HAL_timer_start (TEMP_TIMER_NUM, TEMP_TIMER_FREQUENCY);
+    HAL_timer_enable_interrupt (TEMP_TIMER_NUM);
   #endif
 
   #if HAS_AUTO_FAN_0
@@ -1076,11 +1076,6 @@ void Temperature::init() {
       SET_OUTPUT(E3_AUTO_FAN_PIN);
     #endif
   #endif
-
-  // Use timer0 for temperature measurement
-  // Interleave temperature interrupt with millies interrupt
-  OCR0B = 128;
-  SBI(TIMSK0, OCIE0B);
 
   // Wait for temperature measurement to settle
   delay(250);
@@ -1291,12 +1286,12 @@ void Temperature::disable_all_heaters() {
     uint32_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 7
     #define MAX6675_DISCARD_BITS 18
-    #define MAX6675_SPEED_BITS (_BV(SPR1)) // clock ÷ 64
+    #define MAX6675_SPEED 3  // (_BV(SPR1)) // clock ÷ 64
   #else
     uint16_t max6675_temp = 2000;
     #define MAX6675_ERROR_MASK 4
     #define MAX6675_DISCARD_BITS 3
-    #define MAX6675_SPEED_BITS (_BV(SPR0)) // clock ÷ 16
+    #define MAX6675_SPEED 2 // (_BV(SPR0)) // clock ÷ 16
   #endif
 
   int Temperature::read_max6675() {
@@ -1309,14 +1304,8 @@ void Temperature::disable_all_heaters() {
 
     next_max6675_ms = ms + MAX6675_HEAT_INTERVAL;
 
-    CBI(
-      #ifdef PRR
-        PRR
-      #elif defined(PRR0)
-        PRR0
-      #endif
-        , PRSPI);
-    SPCR = _BV(MSTR) | _BV(SPE) | MAX6675_SPEED_BITS;
+    spiBegin();
+    spiInit(MAX6675_SPEED);
 
     WRITE(MAX6675_SS, 0); // enable TT_MAX6675
 
@@ -1327,9 +1316,7 @@ void Temperature::disable_all_heaters() {
     // Read a big-endian temperature value
     max6675_temp = 0;
     for (uint8_t i = sizeof(max6675_temp); i--;) {
-      SPDR = 0;
-      for (;!TEST(SPSR, SPIF););
-      max6675_temp |= SPDR;
+      max6675_temp |= spiRec();
       if (i > 0) max6675_temp <<= 8; // shift left if not the last byte
     }
 
@@ -1482,7 +1469,10 @@ void Temperature::set_current_temp_raw() {
  *  - For PINS_DEBUGGING, monitor and report endstop pins
  *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
  */
-ISR(TIMER0_COMPB_vect) { Temperature::isr(); }
+HAL_TEMP_TIMER_ISR {
+  HAL_timer_isr_prologue (TEMP_TIMER_NUM);
+  Temperature::isr();
+}
 
 volatile bool Temperature::in_temp_isr = false;
 
@@ -1491,14 +1481,18 @@ void Temperature::isr() {
   // at the end of its run, potentially causing re-entry. This flag prevents it.
   if (in_temp_isr) return;
   in_temp_isr = true;
-  
+
   // Allow UART and stepper ISRs
-  CBI(TIMSK0, OCIE0B); //Disable Temperature ISR
-  sei();
+  DISABLE_TEMPERATURE_INTERRUPT(); //Disable Temperature ISR
+  #if !defined(__MK64FX512__) && !defined(__MK66FX1M0__)
+    sei();
+  #endif
 
   static uint8_t temp_count = 0;
   static TempState temp_state = StartupDelay;
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
+  // avoid multiple loads of pwm_count
+  uint8_t pwm_count_tmp = pwm_count;
 
   // Static members for each heater
   #if ENABLED(SLOW_PWM_HEATERS)
@@ -1508,7 +1502,7 @@ void Temperature::isr() {
       static uint8_t state_heater_ ## n = 0; \
       static uint8_t state_timer_heater_ ## n = 0
   #else
-    #define ISR_STATICS(n) static uint8_t soft_pwm_ ## n
+    #define ISR_STATICS(n) static uint8_t soft_pwm_ ## n = 0
   #endif
 
   // Statics per heater
@@ -1531,72 +1525,82 @@ void Temperature::isr() {
   #endif
 
   #if DISABLED(SLOW_PWM_HEATERS)
+    constexpr uint8_t pwm_mask =
+      #if ENABLED(SOFT_PWM_DITHER)
+        _BV(SOFT_PWM_SCALE) - 1
+      #else
+        0
+      #endif
+    ;
+
     /**
      * Standard PWM modulation
      */
-    if (pwm_count == 0) {
-      soft_pwm_0 = soft_pwm[0];
-      WRITE_HEATER_0(soft_pwm_0 > 0 ? HIGH : LOW);
+    if (pwm_count_tmp >= 127) {
+      pwm_count_tmp -= 127;
+      soft_pwm_0 = (soft_pwm_0 & pwm_mask) + soft_pwm[0];
+      WRITE_HEATER_0(soft_pwm_0 > pwm_mask ? HIGH : LOW);
       #if HOTENDS > 1
-        soft_pwm_1 = soft_pwm[1];
-        WRITE_HEATER_1(soft_pwm_1 > 0 ? HIGH : LOW);
+        soft_pwm_1 = (soft_pwm_1 & pwm_mask) + soft_pwm[1];
+        WRITE_HEATER_1(soft_pwm_1 > pwm_mask ? HIGH : LOW);
         #if HOTENDS > 2
-          soft_pwm_2 = soft_pwm[2];
-          WRITE_HEATER_2(soft_pwm_2 > 0 ? HIGH : LOW);
+          soft_pwm_2 = (soft_pwm_2 & pwm_mask) + soft_pwm[2];
+          WRITE_HEATER_2(soft_pwm_2 > pwm_mask ? HIGH : LOW);
           #if HOTENDS > 3
-            soft_pwm_3 = soft_pwm[3];
-            WRITE_HEATER_3(soft_pwm_3 > 0 ? HIGH : LOW);
+            soft_pwm_3 = (soft_pwm_3 & pwm_mask) + soft_pwm[3];
+            WRITE_HEATER_3(soft_pwm_3 > pwm_mask ? HIGH : LOW);
           #endif
         #endif
       #endif
 
       #if HAS_HEATER_BED
-        soft_pwm_BED = soft_pwm_bed;
-        WRITE_HEATER_BED(soft_pwm_BED > 0 ? HIGH : LOW);
+        soft_pwm_BED = (soft_pwm_BED & pwm_mask) + soft_pwm_bed;
+        WRITE_HEATER_BED(soft_pwm_BED > pwm_mask ? HIGH : LOW);
       #endif
 
       #if ENABLED(FAN_SOFT_PWM)
         #if HAS_FAN0
-          soft_pwm_fan[0] = fanSpeedSoftPwm[0] >> 1;
-          WRITE_FAN(soft_pwm_fan[0] > 0 ? HIGH : LOW);
+          soft_pwm_fan[0] = (soft_pwm_fan[0] & pwm_mask) + fanSpeedSoftPwm[0] >> 1;
+          WRITE_FAN(soft_pwm_fan[0] > pwm_mask ? HIGH : LOW);
         #endif
         #if HAS_FAN1
-          soft_pwm_fan[1] = fanSpeedSoftPwm[1] >> 1;
-          WRITE_FAN1(soft_pwm_fan[1] > 0 ? HIGH : LOW);
+          soft_pwm_fan[1] = (soft_pwm_fan[1] & pwm_mask) + fanSpeedSoftPwm[1] >> 1;
+          WRITE_FAN1(soft_pwm_fan[1] > pwm_mask ? HIGH : LOW);
         #endif
         #if HAS_FAN2
-          soft_pwm_fan[2] = fanSpeedSoftPwm[2] >> 1;
-          WRITE_FAN2(soft_pwm_fan[2] > 0 ? HIGH : LOW);
+          soft_pwm_fan[2] = (soft_pwm_fan[2] & pwm_mask) + fanSpeedSoftPwm[2] >> 1;
+          WRITE_FAN2(soft_pwm_fan[2] > pwm_mask ? HIGH : LOW);
         #endif
       #endif
     }
-
-    if (soft_pwm_0 < pwm_count) WRITE_HEATER_0(0);
-    #if HOTENDS > 1
-      if (soft_pwm_1 < pwm_count) WRITE_HEATER_1(0);
+    else {
+      if (soft_pwm_0 <= pwm_count_tmp) WRITE_HEATER_0(0);
+      #if HOTENDS > 1
+        if (soft_pwm_1 <= pwm_count_tmp) WRITE_HEATER_1(0);
+      #endif
       #if HOTENDS > 2
-        if (soft_pwm_2 < pwm_count) WRITE_HEATER_2(0);
-        #if HOTENDS > 3
-          if (soft_pwm_3 < pwm_count) WRITE_HEATER_3(0);
+        if (soft_pwm_2 <= pwm_count_tmp) WRITE_HEATER_2(0);
+      #endif
+      #if HOTENDS > 3
+        if (soft_pwm_3 <= pwm_count_tmp) WRITE_HEATER_3(0);
+      #endif
+
+      #if HAS_HEATER_BED
+        if (soft_pwm_BED <= pwm_count_tmp) WRITE_HEATER_BED(0);
+      #endif
+
+      #if ENABLED(FAN_SOFT_PWM)
+        #if HAS_FAN0
+          if (soft_pwm_fan[0] <= pwm_count_tmp) WRITE_FAN(0);
+        #endif
+        #if HAS_FAN1
+          if (soft_pwm_fan[1] <= pwm_count_tmp) WRITE_FAN1(0);
+        #endif
+        #if HAS_FAN2
+          if (soft_pwm_fan[2] <= pwm_count_tmp) WRITE_FAN2(0);
         #endif
       #endif
-    #endif
-
-    #if HAS_HEATER_BED
-      if (soft_pwm_BED < pwm_count) WRITE_HEATER_BED(0);
-    #endif
-
-    #if ENABLED(FAN_SOFT_PWM)
-      #if HAS_FAN0
-        if (soft_pwm_fan[0] < pwm_count) WRITE_FAN(0);
-      #endif
-      #if HAS_FAN1
-        if (soft_pwm_fan[1] < pwm_count) WRITE_FAN1(0);
-      #endif
-      #if HAS_FAN2
-        if (soft_pwm_fan[2] < pwm_count) WRITE_FAN2(0);
-      #endif
-    #endif
+    }
 
     // SOFT_PWM_SCALE to frequency:
     //
@@ -1606,8 +1610,7 @@ void Temperature::isr() {
     // 3:                / 16 =  61.0352 Hz
     // 4:                /  8 = 122.0703 Hz
     // 5:                /  4 = 244.1406 Hz
-    pwm_count += _BV(SOFT_PWM_SCALE);
-    pwm_count &= 0x7F;
+    pwm_count = pwm_count_tmp + _BV(SOFT_PWM_SCALE);
 
   #else // SLOW_PWM_HEATERS
 
@@ -1681,7 +1684,8 @@ void Temperature::isr() {
     #endif
 
     #if ENABLED(FAN_SOFT_PWM)
-      if (pwm_count == 0) {
+      if (pwm_count_tmp >= 127) {
+        pwm_count_tmp = 0;
         #if HAS_FAN0
           soft_pwm_fan[0] = fanSpeedSoftPwm[0] >> 1;
           WRITE_FAN(soft_pwm_fan[0] > 0 ? HIGH : LOW);
@@ -1696,15 +1700,15 @@ void Temperature::isr() {
         #endif
       }
       #if HAS_FAN0
-        if (soft_pwm_fan[0] < pwm_count) WRITE_FAN(0);
+        if (soft_pwm_fan[0] <= pwm_count_tmp) WRITE_FAN(0);
       #endif
       #if HAS_FAN1
-        if (soft_pwm_fan[1] < pwm_count) WRITE_FAN1(0);
+        if (soft_pwm_fan[1] <= pwm_count_tmp) WRITE_FAN1(0);
       #endif
       #if HAS_FAN2
-        if (soft_pwm_fan[2] < pwm_count) WRITE_FAN2(0);
+        if (soft_pwm_fan[2] <= pwm_count_tmp) WRITE_FAN2(0);
       #endif
-    #endif //FAN_SOFT_PWM
+    #endif // FAN_SOFT_PWM
 
     // SOFT_PWM_SCALE to frequency:
     //
@@ -1714,13 +1718,13 @@ void Temperature::isr() {
     // 3:                / 16 =  61.0352 Hz
     // 4:                /  8 = 122.0703 Hz
     // 5:                /  4 = 244.1406 Hz
-    pwm_count += _BV(SOFT_PWM_SCALE);
-    pwm_count &= 0x7F;
+    pwm_count = pwm_count_tmp + _BV(SOFT_PWM_SCALE);
 
-    // increment slow_pwm_count only every 64 pwm_count (e.g., every 8s)
-    if ((pwm_count % 64) == 0) {
+    // increment slow_pwm_count only every 64th pwm_count,
+    // i.e. yielding a PWM frequency of 16/128 Hz (8s).
+    if (((pwm_count >> SOFT_PWM_SCALE) & 0x3F) == 0) {
       slow_pwm_count++;
-      slow_pwm_count &= 0x7f;
+      slow_pwm_count &= 0x7F;
 
       // EXTRUDER 0
       if (state_timer_heater_0 > 0) state_timer_heater_0--;
@@ -1736,102 +1740,95 @@ void Temperature::isr() {
       #if HAS_HEATER_BED
         if (state_timer_heater_BED > 0) state_timer_heater_BED--;
       #endif
-    } // (pwm_count % 64) == 0
+    } // ((pwm_count >> SOFT_PWM_SCALE) & 0x3F) == 0
 
   #endif // SLOW_PWM_HEATERS
-
-  #define SET_ADMUX_ADCSRA(pin) ADMUX = _BV(REFS0) | (pin & 0x07); SBI(ADCSRA, ADSC)
-  #ifdef MUX5
-    #define START_ADC(pin) if (pin > 7) ADCSRB = _BV(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
-  #else
-    #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
-  #endif
 
   // Prepare or measure a sensor, each one every 12th frame
   switch (temp_state) {
     case PrepareTemp_0:
       #if HAS_TEMP_0
-        START_ADC(TEMP_0_PIN);
+        HAL_START_ADC(TEMP_0_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_0;
       break;
     case MeasureTemp_0:
       #if HAS_TEMP_0
-        raw_temp_value[0] += ADC;
+        raw_temp_value[0] += HAL_READ_ADC;
       #endif
       temp_state = PrepareTemp_BED;
       break;
 
     case PrepareTemp_BED:
       #if HAS_TEMP_BED
-        START_ADC(TEMP_BED_PIN);
+        HAL_START_ADC(TEMP_BED_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_BED;
       break;
     case MeasureTemp_BED:
       #if HAS_TEMP_BED
-        raw_temp_bed_value += ADC;
+        raw_temp_bed_value += HAL_READ_ADC;
       #endif
       temp_state = PrepareTemp_1;
       break;
 
     case PrepareTemp_1:
       #if HAS_TEMP_1
-        START_ADC(TEMP_1_PIN);
+        HAL_START_ADC(TEMP_1_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_1;
       break;
     case MeasureTemp_1:
       #if HAS_TEMP_1
-        raw_temp_value[1] += ADC;
+        raw_temp_value[1] += HAL_READ_ADC;
       #endif
       temp_state = PrepareTemp_2;
       break;
 
     case PrepareTemp_2:
       #if HAS_TEMP_2
-        START_ADC(TEMP_2_PIN);
+        HAL_START_ADC(TEMP_2_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_2;
       break;
     case MeasureTemp_2:
       #if HAS_TEMP_2
-        raw_temp_value[2] += ADC;
+        raw_temp_value[2] += HAL_READ_ADC;
       #endif
       temp_state = PrepareTemp_3;
       break;
 
     case PrepareTemp_3:
       #if HAS_TEMP_3
-        START_ADC(TEMP_3_PIN);
+        HAL_START_ADC(TEMP_3_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_3;
       break;
     case MeasureTemp_3:
       #if HAS_TEMP_3
-        raw_temp_value[3] += ADC;
+        raw_temp_value[3] += HAL_READ_ADC;
       #endif
       temp_state = Prepare_FILWIDTH;
       break;
 
     case Prepare_FILWIDTH:
       #if ENABLED(FILAMENT_WIDTH_SENSOR)
-        START_ADC(FILWIDTH_PIN);
+        HAL_START_ADC(FILWIDTH_PIN);
       #endif
       lcd_buttons_update();
       temp_state = Measure_FILWIDTH;
       break;
     case Measure_FILWIDTH:
       #if ENABLED(FILAMENT_WIDTH_SENSOR)
-        // raw_filwidth_value += ADC;  //remove to use an IIR filter approach
-        if (ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
+        // raw_filwidth_value += HAL_READ_ADC;  //remove to use an IIR filter approach
+        if (HAL_READ_ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
           raw_filwidth_value -= (raw_filwidth_value >> 7); //multiply raw_filwidth_value by 127/128
-          raw_filwidth_value += ((unsigned long)ADC << 7); //add new ADC reading
+          raw_filwidth_value += ((unsigned long)HAL_READ_ADC << 7); //add new ADC reading
         }
       #endif
       temp_state = PrepareTemp_0;
@@ -1957,7 +1954,9 @@ void Temperature::isr() {
     }
   #endif
 
-  cli();
+  #if !defined(__MK64FX512__) && !defined(__MK66FX1M0__)
+    cli();
+  #endif
   in_temp_isr = false;
-  SBI(TIMSK0, OCIE0B); //re-enable Temperature ISR
+  ENABLE_TEMPERATURE_INTERRUPT(); //re-enable Temperature ISR
 }

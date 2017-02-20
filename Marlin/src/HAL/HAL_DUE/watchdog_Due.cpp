@@ -20,17 +20,20 @@
  *
  */
 
-#ifndef WATCHDOG_H
-#define WATCHDOG_H
+#ifdef ARDUINO_ARCH_SAM
+ 
+#include "../../../MarlinConfig.h"
 
-#include "Marlin.h"
-#include <avr/wdt.h>
+#if ENABLED(USE_WATCHDOG)
 
-// Initialize watchdog with a 4 second interrupt time
-void watchdog_init();
+  #include "watchdog_Due.h"
 
-// Reset watchdog. MUST be called at least every 4 seconds after the
-// first watchdog_init or AVR will go into emergency procedures.
-inline void watchdog_reset() { wdt_reset(); }
+  void watchdogSetup(void) {
+    // do whatever. don't remove this function.
+  }
+
+  void watchdog_init(void) { watchdogEnable(4000); }
+
+#endif // USE_WATCHDOG
 
 #endif
