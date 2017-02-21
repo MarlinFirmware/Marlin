@@ -145,7 +145,6 @@
 #endif
 
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-  extern void bed_level_virt_prepare();
   extern void bed_level_virt_interpolate();
 #endif
 
@@ -564,7 +563,6 @@ void Config_Postprocess() {
           EEPROM_READ(bilinear_start);               // 2 ints
           EEPROM_READ(bed_level_grid);               // 9 to 256 floats
           #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_prepare();
             bed_level_virt_interpolate();
           #endif
           //set_bed_leveling_enabled(leveling_is_on);
@@ -787,8 +785,6 @@ void Config_ResetDefault() {
   #if ENABLED(PIDTEMP)
     #if ENABLED(PID_PARAMS_PER_HOTEND) && HOTENDS > 1
       HOTEND_LOOP()
-    #else
-      int e = 0; UNUSED(e); // only need to write once
     #endif
     {
       PID_PARAM(Kp, e) = DEFAULT_Kp;

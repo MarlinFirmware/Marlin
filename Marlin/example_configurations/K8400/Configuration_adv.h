@@ -442,6 +442,42 @@
   // using:
   //#define MENU_ADDAUTOSTART
 
+  /**
+   * Sort SD file listings in alphabetical order.
+   *
+   * With this option enabled, items on SD cards will be sorted
+   * by name for easier navigation.
+   *
+   * By default...
+   *
+   *  - Use the slowest -but safest- method for sorting.
+   *  - Folders are sorted to the top.
+   *  - The sort key is statically allocated.
+   *  - No added G-code (M34) support.
+   *  - 40 item sorting limit. (Items after the first 40 are unsorted.)
+   *
+   * SD sorting uses static allocation (as set by SDSORT_LIMIT), allowing the
+   * compiler to calculate the worst-case usage and throw an error if the SRAM
+   * limit is exceeded.
+   *
+   *  - SDSORT_USES_RAM provides faster sorting via a static directory buffer.
+   *  - SDSORT_USES_STACK does the same, but uses a local stack-based buffer.
+   *  - SDSORT_CACHE_NAMES will retain the sorted file listing in RAM. (Expensive!)
+   *  - SDSORT_DYNAMIC_RAM only uses RAM when the SD menu is visible. (Use with caution!)
+   */
+  //#define SDCARD_SORT_ALPHA
+
+  // SD Card Sorting options
+  #if ENABLED(SDCARD_SORT_ALPHA)
+    #define SDSORT_LIMIT       40     // Maximum number of sorted items (10-256).
+    #define FOLDER_SORTING     -1     // -1=above  0=none  1=below
+    #define SDSORT_GCODE       false  // Allow turning sorting on/off with LCD and M34 g-code.
+    #define SDSORT_USES_RAM    false  // Pre-allocate a static array for faster pre-sorting.
+    #define SDSORT_USES_STACK  false  // Prefer the stack for pre-sorting to give back some SRAM. (Negated by next 2 options.)
+    #define SDSORT_CACHE_NAMES false  // Keep sorted items in RAM longer for speedy performance. Most expensive option.
+    #define SDSORT_DYNAMIC_RAM false  // Use dynamic allocation (within SD menus). Least expensive option. Set SDSORT_LIMIT before use!
+  #endif
+
   // Show a progress bar on HD44780 LCDs for SD printing
   //#define LCD_PROGRESS_BAR
 
@@ -659,33 +695,42 @@
   #define RETRACT_RECOVER_FEEDRATE 8     //default feedrate for recovering from retraction (mm/s)
 #endif
 
-// Add support for experimental filament exchange support M600; requires display
-#if ENABLED(ULTIPANEL)
-  #define FILAMENT_CHANGE_FEATURE               // Enable filament exchange menu and M600 g-code (used for runout sensor too)
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
-    #define FILAMENT_CHANGE_X_POS 100           // X position of hotend
-    #define FILAMENT_CHANGE_Y_POS 100           // Y position of hotend
-    #define FILAMENT_CHANGE_Z_ADD 20            // Z addition of hotend (lift)
-    #define FILAMENT_CHANGE_XY_FEEDRATE 100     // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
-    #define FILAMENT_CHANGE_Z_FEEDRATE 5        // Z axis feedrate in mm/s (not used for delta printers)
-    #define FILAMENT_CHANGE_RETRACT_LENGTH 5    // Initial retract in mm
-                                                // It is a short retract used immediately after print interrupt before move to filament exchange position
-    #define FILAMENT_CHANGE_RETRACT_FEEDRATE 60 // Initial retract feedrate in mm/s
-    #define FILAMENT_CHANGE_UNLOAD_LENGTH 600   // Unload filament length from hotend in mm
-                                                // Longer length for bowden printers to unload filament from whole bowden tube,
-                                                // shorter lenght for printers without bowden to unload filament from extruder only,
-                                                // 0 to disable unloading for manual unloading
-    #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
-    #define FILAMENT_CHANGE_LOAD_LENGTH 600     // Load filament length over hotend in mm
-                                                // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
-                                                // Short or zero length for printers without bowden where loading is not used
-    #define FILAMENT_CHANGE_LOAD_FEEDRATE 10    // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
-    #define FILAMENT_CHANGE_EXTRUDE_LENGTH 100  // Extrude filament length in mm after filament is load over the hotend,
-                                                // 0 to disable for manual extrusion
-                                                // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
-                                                // or until outcoming filament color is not clear for filament color change
-    #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
-  #endif
+/**
+ * Filament Change
+ * Experimental filament change support.
+ * Adds the GCode M600 for initiating filament change.
+ *
+ * Requires an LCD display.
+ * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
+ */
+//#define FILAMENT_CHANGE_FEATURE
+#if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #define FILAMENT_CHANGE_X_POS 100           // X position of hotend
+  #define FILAMENT_CHANGE_Y_POS 100           // Y position of hotend
+  #define FILAMENT_CHANGE_Z_ADD 20            // Z addition of hotend (lift)
+  #define FILAMENT_CHANGE_XY_FEEDRATE 100     // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+  #define FILAMENT_CHANGE_Z_FEEDRATE 5        // Z axis feedrate in mm/s (not used for delta printers)
+  #define FILAMENT_CHANGE_RETRACT_FEEDRATE 60 // Initial retract feedrate in mm/s
+  #define FILAMENT_CHANGE_RETRACT_LENGTH 5    // Initial retract in mm
+                                              // It is a short retract used immediately after print interrupt before move to filament exchange position
+  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
+  #define FILAMENT_CHANGE_UNLOAD_LENGTH 600   // Unload filament length from hotend in mm
+                                              // Longer length for bowden printers to unload filament from whole bowden tube,
+                                              // shorter length for printers without bowden to unload filament from extruder only,
+                                              // 0 to disable unloading for manual unloading
+  #define FILAMENT_CHANGE_LOAD_FEEDRATE 6     // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+  #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
+                                              // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
+                                              // Short or zero length for printers without bowden where loading is not used
+  #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
+  #define FILAMENT_CHANGE_EXTRUDE_LENGTH 100  // Extrude filament length in mm after filament is loaded over the hotend,
+                                              // 0 to disable for manual extrusion
+                                              // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
+                                              // or until outcoming filament color is not clear for filament color change
+  #define FILAMENT_CHANGE_NOZZLE_TIMEOUT 45L  // Turn off nozzle if user doesn't change filament within this time limit in seconds
+  #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS  5L  // Number of alert beeps before printer goes quiet
+  #define FILAMENT_CHANGE_NO_STEPPER_TIMEOUT         // Enable to have stepper motors hold position during filament change
+                                                     // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
 #endif
 
 /******************************************************************************\

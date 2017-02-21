@@ -342,15 +342,56 @@ ISR(TIMER1_COMPA_vect) {
   #endif
 }
 
+#define _ENABLE_ISRs() do { cli(); if (thermalManager.in_temp_isr) CBI(TIMSK0, OCIE0B); else SBI(TIMSK0, OCIE0B); ENABLE_STEPPER_DRIVER_INTERRUPT(); } while(0)
+
 void Stepper::isr() {
-  #define _ENABLE_ISRs() cli(); SBI(TIMSK0, OCIE0B); ENABLE_STEPPER_DRIVER_INTERRUPT()
+
+  static uint32_t step_remaining = 0;
+
+  uint16_t ocr_val;
+
+  #define ENDSTOP_NOMINAL_OCR_VAL 3000    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
+  #define OCR_VAL_TOLERANCE 1000          // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
 
   #if DISABLED(ADVANCE) && DISABLED(LIN_ADVANCE)
-    //Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
-    CBI(TIMSK0, OCIE0B); //Temperature ISR
+    // Disable Timer0 ISRs and enable global ISR again to capture UART events (incoming chars)
+    CBI(TIMSK0, OCIE0B); // Temperature ISR
     DISABLE_STEPPER_DRIVER_INTERRUPT();
     sei();
   #endif
+
+  #define _SPLIT(L) (ocr_val = (uint16_t)L)
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+    #define SPLIT(L) _SPLIT(L)
+  #else                 // sample endstops in between step pulses
+    #define SPLIT(L) do { \
+      _SPLIT(L); \
+      if (ENDSTOPS_ENABLED && L > ENDSTOP_NOMINAL_OCR_VAL) { \
+        uint16_t remainder = (uint16_t)L % (ENDSTOP_NOMINAL_OCR_VAL); \
+        ocr_val = (remainder < OCR_VAL_TOLERANCE) ? ENDSTOP_NOMINAL_OCR_VAL + remainder : ENDSTOP_NOMINAL_OCR_VAL; \
+        step_remaining = (uint16_t)L - ocr_val; \
+      } \
+    } while(0)
+
+    if (step_remaining && ENDSTOPS_ENABLED) {   // Just check endstops - not yet time for a step
+      endstops.update();
+      if (step_remaining > ENDSTOP_NOMINAL_OCR_VAL) {
+        step_remaining -= ENDSTOP_NOMINAL_OCR_VAL;
+        ocr_val = ENDSTOP_NOMINAL_OCR_VAL;
+      }
+      else {
+        ocr_val = step_remaining;
+        step_remaining = 0;  //  last one before the ISR that does the step
+      }
+
+      _NEXT_ISR(ocr_val);
+
+      NOLESS(OCR1A, TCNT1 + 16);
+
+      _ENABLE_ISRs(); // re-enable ISRs
+      return;
+    }
+  # endif
 
   if (cleaning_buffer_counter) {
     --cleaning_buffer_counter;
@@ -407,21 +448,16 @@ void Stepper::isr() {
   }
 
   // Update endstops state, if enabled
-  if ((endstops.enabled
-    #if HAS_BED_PROBE
-      || endstops.z_probe_enabled
-    #endif
-    )
-    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-      && e_hit
-    #endif
-  ) {
-    endstops.update();
 
-    #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+
+  #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
+    if (ENDSTOPS_ENABLED && e_hit) {
+      endstops.update();
       e_hit--;
-    #endif
-  }
+    }
+  #else
+    if (ENDSTOPS_ENABLED) endstops.update();
+  #endif
 
   // Take multiple steps per interrupt (For high speed moves)
   bool all_steps_done = false;
@@ -600,7 +636,10 @@ void Stepper::isr() {
 
     // step_rate to timer interval
     uint16_t timer = calc_timer(acc_step_rate);
-    _NEXT_ISR(timer);
+
+    SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    _NEXT_ISR(ocr_val);
+
     acceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -653,7 +692,10 @@ void Stepper::isr() {
 
     // step_rate to timer interval
     uint16_t timer = calc_timer(step_rate);
-    _NEXT_ISR(timer);
+
+    SPLIT(timer);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    _NEXT_ISR(ocr_val);
+
     deceleration_time += timer;
 
     #if ENABLED(LIN_ADVANCE)
@@ -702,7 +744,9 @@ void Stepper::isr() {
 
     #endif
 
-    _NEXT_ISR(OCR1A_nominal);
+    SPLIT(OCR1A_nominal);  // split step into multiple ISRs if larger than  ENDSTOP_NOMINAL_OCR_VAL
+    _NEXT_ISR(ocr_val);
+
     // ensure we're running at the correct step rate, even if we just came off an acceleration
     step_loops = step_loops_nominal;
   }
@@ -726,9 +770,9 @@ void Stepper::isr() {
   // Timer interrupt for E. e_steps is set in the main routine;
 
   void Stepper::advance_isr() {
-    
+
     nextAdvanceISR = eISR_Rate;
-    
+
     #define SET_E_STEP_DIR(INDEX) \
       if (e_steps[INDEX]) E## INDEX ##_DIR_WRITE(e_steps[INDEX] < 0 ? INVERT_E## INDEX ##_DIR : !INVERT_E## INDEX ##_DIR)
 
@@ -803,7 +847,7 @@ void Stepper::isr() {
 
     // Run Advance stepping ISR if flagged
     if (!nextAdvanceISR) advance_isr();
-  
+
     // Is the next advance ISR scheduled before the next main ISR?
     if (nextAdvanceISR <= nextMainISR) {
       // Set up the next interrupt
@@ -822,14 +866,12 @@ void Stepper::isr() {
       // Will call Stepper::isr on the next interrupt
       nextMainISR = 0;
     }
-  
+
     // Don't run the ISR faster than possible
     NOLESS(OCR1A, TCNT1 + 16);
 
     // Restore original ISR settings
-    cli();
-    SBI(TIMSK0, OCIE0B);
-    ENABLE_STEPPER_DRIVER_INTERRUPT();
+    _ENABLE_ISRs();
   }
 
 #endif // ADVANCE or LIN_ADVANCE

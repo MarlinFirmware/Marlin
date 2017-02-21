@@ -622,22 +622,41 @@ static void lcd_implementation_status_screen() {
 #if ENABLED(ULTIPANEL)
 
   uint8_t row_y1, row_y2;
+  uint8_t constexpr row_height = DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION);
+
+  #if ENABLED(FILAMENT_CHANGE_FEATURE)
+
+    static void lcd_implementation_hotend_status(const uint8_t row) {
+      row_y1 = row * row_height + 1;
+      row_y2 = row_y1 + row_height - 1;
+
+      if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return;
+
+      u8g.setPrintPos(LCD_PIXEL_WIDTH - 11 * (DOG_CHAR_WIDTH), row_y2);
+      lcd_print('E');
+      lcd_print((char)('0' + active_extruder));
+      lcd_print(' ');
+      lcd_print(itostr3(thermalManager.degHotend(active_extruder)));
+      lcd_print('/');
+      lcd_print(itostr3(thermalManager.degTargetHotend(active_extruder)));
+    }
+
+  #endif // FILAMENT_CHANGE_FEATURE
 
   // Set the colors for a menu item based on whether it is selected
   static void lcd_implementation_mark_as_selected(const uint8_t row, const bool isSelected) {
+    row_y1 = row * row_height + 1;
+    row_y2 = row_y1 + row_height - 1;
 
-    row_y1 = row * (DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION)) + 1;
-    row_y2 = row_y1 + (DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION)) - 1;
-
-    if (!PAGE_CONTAINS(row_y1 + 1, row_y1 + 1 + DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION))) return;
+    if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return;
 
     if (isSelected) {
       #if ENABLED(MENU_HOLLOW_FRAME)
         u8g.drawHLine(0, row_y1 + 1, LCD_PIXEL_WIDTH);
-        u8g.drawHLine(0, row_y1 + 1 + DOG_CHAR_HEIGHT + 2 * (TALL_FONT_CORRECTION), LCD_PIXEL_WIDTH);
+        u8g.drawHLine(0, row_y2 + 2, LCD_PIXEL_WIDTH);
       #else
         u8g.setColorIndex(1); // black on white
-        u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT - 1 + 2 * (TALL_FONT_CORRECTION));
+        u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, row_height - 1);
         u8g.setColorIndex(0); // white on black
       #endif
     }
