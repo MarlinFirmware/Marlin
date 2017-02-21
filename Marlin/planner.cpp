@@ -109,8 +109,8 @@ float Planner::min_feedrate_mm_s,
 #endif
 
 #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
-  float Planner::z_fade_height = 0.0,
-        Planner::inverse_z_fade_height = 0.0;
+  float Planner::z_fade_height,
+        Planner::inverse_z_fade_height;
 #endif
 
 #if ENABLED(AUTOTEMP)
