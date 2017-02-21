@@ -84,7 +84,7 @@ bool Power::is_power_needed() {
 }
 
 void Power::check() {
-#if (POWER_SUPPLY > 0)
+#if (POWER_SUPPLY > 0) && ENABLED(AUTO_POWER_CONTROL)
     static millis_t lastPowerOn = 0;
     static millis_t nextPowerCheck = 0;
     millis_t ms = millis();
