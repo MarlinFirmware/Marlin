@@ -221,6 +221,11 @@
   #endif
   #define HAS_POWER_SWITCH (POWER_SUPPLY > 0 && PIN_EXISTS(PS_ON))
 
+  // Default to 30 seconds timeout
+  #ifndef POWER_TIMEOUT
+    #define POWER_TIMEOUT 30
+  #endif
+
   /**
    * Temp Sensor defines
    */

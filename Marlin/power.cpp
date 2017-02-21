@@ -1,26 +1,39 @@
-//
-// Created by christopher on 20.02.17.
-//
+/**
+ * Marlin 3D Printer Firmware
+ * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * power.cpp - temperature control
+ */
 
 #include "power.h"
 #include "temperature.h"
 #include "stepper_indirection.h"
 #include "Marlin.h"
-#include "MarlinConfig.h"
-#include "ultralcd.h"
 
-void Power::check() {
-  bool powerNeeded = false;
-  static millis_t lastPowerOn = 0;
-  static millis_t nextPowerCheck = 0;
-  millis_t ms = millis();
-  if (ELAPSED(ms, nextPowerCheck)) {
-    nextPowerCheck = ms + 2500UL;
-
+bool Power::is_power_needed() {
 #if ENABLED(FAN_NEEDS_POWER)
     for (uint8_t i = 0; i < FAN_COUNT; i++) {
       if (fanSpeeds[i] > 0) {
-        powerNeeded = true;
+        return true;
       }
     }
 #endif
@@ -28,14 +41,14 @@ void Power::check() {
 #if ENABLED(AUTO_FAN_NEEDS_POWER)
     for (uint8_t i = 0; i < HOTENDS; i++) {
       if (autoFanSpeeds[i] > 0) {
-        powerNeeded = true;
+        return true;
       }
     }
 #endif
 
-#if ENABLED(CONTROLLERFAN_NEEDS_POWER)
+#if ENABLED(CONTROLLERFAN_NEEDS_POWER) && HAS_CONTROLLERFAN
     if (controllerFanSpeed > 0) {
-      powerNeeded = true;
+      return true;
     }
 #endif
 
@@ -43,7 +56,7 @@ void Power::check() {
         thermalManager.soft_pwm_bed > 0
         || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
 #if E_STEPPERS > 1
-      || E1_ENABLE_READ == E_ENABLE_ON
+        || E1_ENABLE_READ == E_ENABLE_ON
 #if HAS_X2_ENABLE
               || X2_ENABLE_READ == X_ENABLE_ON
 #endif
@@ -55,34 +68,49 @@ void Power::check() {
 #endif
 #endif
             ) {
-      powerNeeded = true;
+        return true;
     }
 
     for (uint8_t i = 0; i < HOTENDS; i++) {
-      if (thermalManager.target_temperature[i] > 0) {
-        powerNeeded = true;
-      }
+        if (thermalManager.target_temperature[i] > 0) {
+            return true;
+        }
     }
 
     if (thermalManager.target_temperature_bed > 0) {
-      powerNeeded = true;
+        return true;
     }
+    return false;
+}
 
-    if (powerNeeded) {
-      lastPowerOn = ms;
-      this->power_on();
-    } else {
-      if (!lastPowerOn || ELAPSED(ms, lastPowerOn + (POWER_TIMEOUT) * 1000UL)) this->power_off();
+void Power::check() {
+#if (POWER_SUPPLY > 0)
+    static millis_t lastPowerOn = 0;
+    static millis_t nextPowerCheck = 0;
+    millis_t ms = millis();
+    if (ELAPSED(ms, nextPowerCheck)) {
+        nextPowerCheck = ms + 2500UL;
+
+        if (this->is_power_needed()) {
+            lastPowerOn = ms;
+            this->power_on();
+        } else {
+            if (!lastPowerOn || ELAPSED(ms, lastPowerOn + (POWER_TIMEOUT) * 1000UL)) this->power_off();
+        }
     }
-  }
+#endif
 }
 
 void Power::power_on() {
-  OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
+#if (POWER_SUPPLY > 0)
+    OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
+#endif
 }
 
 void Power::power_off() {
-  OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+#if (POWER_SUPPLY > 0)
+    OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+#endif
 }
 
 

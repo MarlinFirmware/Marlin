@@ -370,7 +370,9 @@ float code_value_temp_diff();
   extern int fanSpeeds[FAN_COUNT];
 #endif
 
-extern int controllerFanSpeed;
+#if HAS_CONTROLLERFAN
+  extern int controllerFanSpeed;
+#endif
 extern int autoFanSpeeds[HOTENDS];
 
 #if ENABLED(BARICUDA)
