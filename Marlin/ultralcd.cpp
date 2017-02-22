@@ -411,6 +411,21 @@ uint16_t max_display_update_time = 0;
    * General function to go directly to a screen
    */
   void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0) {
+  #ifdef DOUBLE_CLICK_JUMPS_TO_Z_BABYSTEPPING
+  #if ENABLED(BABYSTEPPING)
+    if (currentScreen==lcd_status_screen && screen==lcd_main_menu)	// We are in leaving the status screen to goto the main_menu 
+      status_screen_click_time = millis();				// screen.  Mark the time so we know how quick the user is
+									// pressing buttons.
+    if (currentScreen==lcd_main_menu)  {
+      if ( screen==lcd_status_screen && status_screen_click_time+DOUBLE_CLICK_TIME_WINDOW>millis() ) {
+        lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+        status_screen_click_time = 0;
+        lcd_babystep_z();
+        return;
+      }
+    }
+  #endif
+  #endif
     if (currentScreen != screen) {
       currentScreen = screen;
       encoderPosition = encoder;
@@ -755,8 +770,6 @@ void kill_screen(const char* lcd_msg) {
   }
 
   #if ENABLED(BABYSTEPPING)
-
-    long babysteps_done = 0;
 
     void _lcd_babystep(const AxisEnum axis, const char* msg) {
       if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
