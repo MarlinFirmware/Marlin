@@ -613,7 +613,7 @@ void Stepper::isr() {
   if (step_events_completed <= (uint32_t)current_block->accelerate_until) {
 
     #ifdef CPU_32_BIT
-      MultiU32X32toH32(acc_step_rate, acceleration_time, current_block->acceleration_rate);
+      MultiU32X24toH32(acc_step_rate, acceleration_time, current_block->acceleration_rate);
     #else
       MultiU24X32toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
     #endif
@@ -671,7 +671,7 @@ void Stepper::isr() {
   else if (step_events_completed > (uint32_t)current_block->decelerate_after) {
     HAL_TIMER_TYPE step_rate;
     #ifdef CPU_32_BIT
-      MultiU32X32toH32(step_rate, deceleration_time, current_block->acceleration_rate);
+      MultiU32X24toH32(step_rate, deceleration_time, current_block->acceleration_rate);
     #else
       MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
     #endif
