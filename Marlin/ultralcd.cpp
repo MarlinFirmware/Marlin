@@ -3277,7 +3277,7 @@ void status_printf(uint8_t level, const char *status, ...) {
   lcd_status_message_level = level;
   va_list args;
   va_start(args, status);
-  vsnprintf(lcd_status_message, 3 * (LCD_WIDTH), status, args);
+  vsnprintf_P(lcd_status_message, 3 * (LCD_WIDTH), status, args);
   va_end(args);
   lcd_finishstatus(level > 0);
 }
