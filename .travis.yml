@@ -226,10 +226,10 @@ script:
   - opt_enable COREXY
   - build_marlin
   #
-  # Enable COREXZ
+  # Enable COREYX (swapped)
   #
   - restore_configs
-  - opt_enable COREXZ
+  - opt_enable COREYX
   - build_marlin
   #
   # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
