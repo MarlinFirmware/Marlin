@@ -28,5 +28,6 @@
  */
 
 #define MultiU32X32toH32(intRes, longIn1, longIn2) intRes = ((uint64_t)longIn1 * longIn2 + 0x80000000) >> 32
+#define MultiU32X24toH32(intRes, longIn1, longIn2) intRes = ((uint64_t)longIn1 * longIn2 + 0x00800000) >> 24
 
 #endif
