@@ -1,4 +1,3 @@
----
 **Marlin firmware for the Leapfrog Creatr**
 ===
 
