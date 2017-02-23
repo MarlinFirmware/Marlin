@@ -41,7 +41,7 @@ The sensor is connected to Servo pin 0 (closest to the reset button).
 |Self test|`M280 P0 S120`
 |Reset alarm|`M280 P0 S160`
 
-The firmware is set to do a bilinear leveling with a grid of 4x4 and safe homing in the center of the bed.<br>
+The firmware is set to do a bilinear leveling with a grid of **5 x 5** (with subdivision 3x3) and safe homing in the center of the bed.<br>
 **DON'T `G28 (Home)` AFTER `G29 (Autoleveling)`. It will just remove the correction from the printer**
 
 If your sensor is a perfect replica of the ANTlabs sensor, you might change to the builtin define and revert the behavior of the endstop.
