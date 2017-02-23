@@ -10117,6 +10117,9 @@ void calculate_volumetric_multipliers() {
 }
 
 void enable_all_steppers() {
+#if ENABLED(AUTO_POWER_CONTROL)
+  powerManager.power_on();
+#endif
   enable_x();
   enable_y();
   enable_z();

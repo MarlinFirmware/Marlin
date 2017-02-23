@@ -27,12 +27,15 @@
 #ifndef POWER_H
 #define POWER_H
 
+#include "Marlin.h"
+
 class Power {
 public:
     void check();
     void power_on();
     void power_off();
 private:
+    static millis_t lastPowerOn;
     bool is_power_needed();
 };
 

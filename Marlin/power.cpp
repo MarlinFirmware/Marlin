@@ -24,10 +24,11 @@
  * power.cpp - temperature control
  */
 
-#include "power.h"
 #include "temperature.h"
 #include "stepper_indirection.h"
-#include "Marlin.h"
+#include "power.h"
+
+millis_t Power::lastPowerOn;
 
 bool Power::is_power_needed() {
 #if ENABLED(FAN_NEEDS_POWER)
@@ -85,17 +86,16 @@ bool Power::is_power_needed() {
 
 void Power::check() {
 #if (POWER_SUPPLY > 0) && ENABLED(AUTO_POWER_CONTROL)
-    static millis_t lastPowerOn = 0;
     static millis_t nextPowerCheck = 0;
     millis_t ms = millis();
     if (ELAPSED(ms, nextPowerCheck)) {
         nextPowerCheck = ms + 2500UL;
 
         if (this->is_power_needed()) {
-            lastPowerOn = ms;
+            this->lastPowerOn = ms;
             this->power_on();
         } else {
-            if (!lastPowerOn || ELAPSED(ms, lastPowerOn + (POWER_TIMEOUT) * 1000UL)) this->power_off();
+            if (!this->lastPowerOn || ELAPSED(ms, this->lastPowerOn + (POWER_TIMEOUT) * 1000UL)) this->power_off();
         }
     }
 #endif
@@ -103,6 +103,7 @@ void Power::check() {
 
 void Power::power_on() {
 #if (POWER_SUPPLY > 0)
+    this->lastPowerOn = millis();
     OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
 #endif
 }
