@@ -12,3 +12,4 @@ NOTE: The look and feel of the Hephestos 2 while navigating the LCD menu will ch
                 SD printing now disables the heater when finished
  * 2016/07/13 - Update the `DEFAULT_AXIS_STEPS_PER_UNIT` for the Z axis
                 Increased the `DEFAULT_XYJERK`
+ * 2016/12/13 - Configuration updated.

@@ -722,4 +722,8 @@
     #define DELTA_ENDSTOP_ADJ { 0 }
   #endif
 
+  #if ENABLED(SDCARD_SORT_ALPHA)
+    #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
+  #endif
+
 #endif // CONDITIONALS_POST_H
