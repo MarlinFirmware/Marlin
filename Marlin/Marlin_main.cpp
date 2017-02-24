@@ -3164,8 +3164,9 @@ inline void gcode_G4() {
     const uint8_t pattern = code_seen('P') ? code_value_ushort() : 0,
                   strokes = code_seen('S') ? code_value_ushort() : NOZZLE_CLEAN_STROKES,
                   objects = code_seen('T') ? code_value_ushort() : NOZZLE_CLEAN_TRIANGLES;
+    const float radius = code_seen('R') ? code_value_float() : NOZZLE_CLEAN_CIRCLE_RADIUS;
 
-    Nozzle::clean(pattern, strokes, objects);
+    Nozzle::clean(pattern, strokes, radius, objects);
   }
 #endif
 
