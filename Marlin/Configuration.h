@@ -1000,6 +1000,10 @@
 //                       |________|_________|_________|
 //                           T1        T2        T3
 //
+//   P2: This starts a circular pattern with circle with middle in
+//       NOZZLE_CLEAN_CIRCLE_MIDDLE radius of R and stroke count of S.
+//       Before starting the circle nozzle goes to NOZZLE_CLEAN_START_POINT.
+//
 // Caveats: End point Z should use the same value as Start point Z.
 //
 // Attention: This is an EXPERIMENTAL feature, in the future the G-code arguments
@@ -1014,6 +1018,13 @@
   // Specify positions as { X, Y, Z }
   #define NOZZLE_CLEAN_START_POINT { 30, 30, (Z_MIN_POS + 1)}
   #define NOZZLE_CLEAN_END_POINT   {100, 60, (Z_MIN_POS + 1)}
+
+  // Circural pattern radius
+  #define NOZZLE_CLEAN_CIRCLE_RADIUS 6.5
+  // Circular pattern circle fragments number
+  #define NOZZLE_CLEAN_CIRCLE_FN 10
+  // Middle point of circle
+  #define NOZZLE_CLEAN_CIRCLE_MIDDLE NOZZLE_CLEAN_START_POINT
 
   // Moves the nozzle to the initial position
   #define NOZZLE_CLEAN_GOBACK
