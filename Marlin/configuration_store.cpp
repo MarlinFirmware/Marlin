@@ -221,6 +221,26 @@ void Config_Postprocess() {
   #define EEPROM_READ(VAR) _EEPROM_readData(eeprom_index, (uint8_t*)&VAR, sizeof(VAR))
   #define EEPROM_ASSERT(TST,ERR) if () do{ SERIAL_ERROR_START; SERIAL_ERRORLNPGM(ERR); eeprom_read_error |= true; }while(0)
 
+  char stored_ver[4];
+
+  void eeprom_version_change_check(){   //warn if EEPROM layout version has changed
+    EEPROM_START();
+    eeprom_read_error = false; // If set EEPROM_READ won't write into RAM
+
+    EEPROM_READ(stored_ver);
+
+    if (strncmp(version, stored_ver, 3) != 0) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(" WARNING - configuration NOT restored from EEPROM because EEPROM version has changed");
+      SERIAL_PROTOCOLPAIR(".  New Version: ", version);
+      SERIAL_PROTOCOLLNPAIR("  Stored version: ", stored_ver);
+      SERIAL_PROTOCOLLNPGM(".  use M500 command to save configuration to EEPROM to restore auto load from EEPROM");
+      SERIAL_PROTOCOLLNPGM(".  OPTIONAL: go back to previous software, use M501 to read values from EEPROM & then");
+      SERIAL_PROTOCOLLNPGM(".            update configuration files accordingly.");
+    }
+  }
+
+
   /**
    * M500 - Store Configuration
    */
@@ -452,7 +472,6 @@ void Config_Postprocess() {
     EEPROM_START();
     eeprom_read_error = false; // If set EEPROM_READ won't write into RAM
 
-    char stored_ver[4];
     EEPROM_READ(stored_ver);
 
     uint16_t stored_checksum;

@@ -277,6 +277,10 @@
   #include "endstop_interrupts.h"
 #endif
 
+#if ENABLED(EEPROM_SETTINGS)
+  uint8_t wait_for_host_init_string_to_finish = 1;
+#endif
+
 #if ENABLED(M100_FREE_MEMORY_WATCHER)
   void gcode_M100();
 #endif
@@ -7423,7 +7427,7 @@ inline void gcode_M503() {
       if (nozzle_timed_out)
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
 
-      #if HAS_BUZZER 
+      #if HAS_BUZZER
         filament_change_beep();
       #endif
 
@@ -7483,7 +7487,7 @@ inline void gcode_M503() {
     stepper.synchronize();
 
     #if defined(FILAMENT_CHANGE_EXTRUDE_LENGTH) && FILAMENT_CHANGE_EXTRUDE_LENGTH > 0
-  
+
       do {
         // "Wait for filament extrude"
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_EXTRUDE);
@@ -10157,7 +10161,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #else
     #define M600_TEST true
   #endif
-             
+
   if (M600_TEST && stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
       && !ignore_stepper_queue && !planner.blocks_queued()) {
     #if ENABLED(DISABLE_INACTIVE_X)
@@ -10587,6 +10591,17 @@ void setup() {
  */
 void loop() {
   if (commands_in_queue < BUFSIZE) get_available_commands();
+
+  #if ENABLED(EEPROM_SETTINGS)
+    if (wait_for_host_init_string_to_finish) {
+      if (commands_in_queue != 0 && wait_for_host_init_string_to_finish == 1) wait_for_host_init_string_to_finish = 2;
+      if (commands_in_queue == 0 && wait_for_host_init_string_to_finish >= 2) wait_for_host_init_string_to_finish++;
+      if (wait_for_host_init_string_to_finish >= 250) {
+        wait_for_host_init_string_to_finish = 0;
+        eeprom_version_change_check();
+      }
+    }
+  #endif
 
   #if ENABLED(SDSUPPORT)
     card.checkautostart(false);

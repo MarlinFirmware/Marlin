@@ -40,4 +40,8 @@ void Config_StoreSettings();
   FORCE_INLINE void Config_RetrieveSettings() { Config_ResetDefault(); Config_PrintSettings(); }
 #endif
 
+#if ENABLED(EEPROM_SETTINGS)
+  void eeprom_version_change_check();
+#endif
+
 #endif //CONFIGURATION_STORE_H
