@@ -7632,24 +7632,26 @@ inline void gcode_M503() {
     SERIAL_ECHOLN(st.getCurrent());
   }
   inline void gcode_M906() {
-    bool setX = code_seen('X'), setY = code_seen('Y'), setZ = code_seen('Z'), setE = code_seen('E');
-    bool report = (!setX && !setY && !setZ && !setE);
+    uint16_t values[NUM_AXIS];
+    for (uint8_t st = 0; st < NUM_AXIS; st++) {
+      values[st] = code_seen(axis_codes[st]) ? code_value_int() : 0;
+    }
 
     #if defined(X_IS_TMC2130)
-    	if (setX) tmc2130_setCurrent(code_value_int(), stepperX, "X");
-      else if (report) tmc2130_getCurrent(stepperX, "X");
+    	if (values[0]) tmc2130_setCurrent(values[0], stepperX, "X");
+      else tmc2130_getCurrent(stepperX, "X");
     #endif
     #if defined(Y_IS_TMC2130)
-      if (setY) tmc2130_setCurrent(code_value_int(), stepperY, "Y");
-      else if (report) tmc2130_getCurrent(stepperY, "Y");
+      if (values[1]) tmc2130_setCurrent(values[1], stepperY, "Y");
+      else tmc2130_getCurrent(stepperY, "Y");
     #endif
     #if defined(Z_IS_TMC2130)
-      if (setZ) tmc2130_setCurrent(code_value_int(), stepperZ, "Z");
-      else if (report) tmc2130_getCurrent(stepperZ, "Z");
+      if (values[2]) tmc2130_setCurrent(values[2], stepperZ, "Z");
+      else tmc2130_getCurrent(stepperZ, "Z");
     #endif
     #if defined(E0_IS_TMC2130)
-      if (setE) tmc2130_setCurrent(code_value_int(), stepperE0, "E");
-      else if (report) tmc2130_getCurrent(stepperE0, "E");
+      if (values[3]) tmc2130_setCurrent(values[3], stepperE0, "E");
+      else tmc2130_getCurrent(stepperE0, "E");
     #endif
   }
 
