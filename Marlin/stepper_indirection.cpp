@@ -166,7 +166,7 @@ void tmc_init() {
 // Following values from Trinamic's spreadsheet with values for a NEMA17 (42BYGHW609)
   void tmc2130_init(TMC2130Stepper &st, uint16_t max_current, uint16_t microsteps) {
     st.begin();
-    st.setCurrent(max_current, R_SENSE, HOLD_MULTIPLIER);
+    st.setCurrent(st.getCurrent(), R_SENSE, HOLD_MULTIPLIER);
     st.microsteps(microsteps);
     st.blank_time(24);
     st.off_time(8);
