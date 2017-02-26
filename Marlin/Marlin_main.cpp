@@ -4035,6 +4035,11 @@ inline void gcode_G28() {
    *  L  Set the Left limit of the probing grid
    *  R  Set the Right limit of the probing grid
    *
+   * Parameters with DEBUG_LEVELING_FEATURE only:
+   *
+   *  C  Make a totally fake grid with no actual probing.
+   *     For use in testing when no probing is possible.
+   *
    * Parameters with BILINEAR leveling only:
    *
    *  Z  Supply an additional Z probe offset
@@ -4075,6 +4080,12 @@ inline void gcode_G28() {
       #if DISABLED(PROBE_MANUALLY)
         if (query) return;
       #endif
+    #endif
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE) && DISABLED(PROBE_MANUALLY)
+      const bool faux = code_seen('C') && code_value_bool();
+    #else
+      bool constexpr faux = false;
     #endif
 
     // Don't allow auto-leveling without homing first
@@ -4292,7 +4303,7 @@ inline void gcode_G28() {
         SYNC_PLAN_POSITION_KINEMATIC();
       }
 
-      setup_for_endstop_or_probe_move();
+      if (!faux) setup_for_endstop_or_probe_move();
 
       //xProbe = yProbe = measured_z = 0;
 
@@ -4550,7 +4561,7 @@ inline void gcode_G28() {
               if (!position_is_reachable(pos, true)) continue;
             #endif
 
-            measured_z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+            measured_z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
 
             if (isnan(measured_z)) {
               planner.abl_enabled = abl_should_enable;
@@ -4585,7 +4596,7 @@ inline void gcode_G28() {
           // Retain the last probe position
           xProbe = LOGICAL_X_POSITION(points[i].x);
           yProbe = LOGICAL_Y_POSITION(points[i].y);
-          measured_z = points[i].z = probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
+          measured_z = points[i].z = faux ? 0.001 * random(-100, 101) : probe_pt(xProbe, yProbe, stow_probe_after_each, verbose_level);
         }
 
         if (isnan(measured_z)) {
@@ -4624,7 +4635,7 @@ inline void gcode_G28() {
     //
 
     // Restore state after probing
-    clean_up_after_endstop_or_probe_move();
+    if (!faux) clean_up_after_endstop_or_probe_move();
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) DEBUG_POS("> probing complete", current_position);
