@@ -554,9 +554,9 @@ static uint8_t target_extruder;
 
   // these are the default values, can be overriden with M665
   float delta_radius = DELTA_RADIUS,
-        delta_tower_angle_trim_1 = DELTA_TOWER_ANGLE_TRIM_1;
-        delta_tower_angle_trim_2 = DELTA_TOWER_ANGLE_TRIM_2;
-        delta_tower_angle_trim_3 = DELTA_TOWER_ANGLE_TRIM_3;
+        delta_tower_angle_trim_1 = DELTA_TOWER_ANGLE_TRIM_1,
+        delta_tower_angle_trim_2 = DELTA_TOWER_ANGLE_TRIM_2,
+        delta_tower_angle_trim_3 = DELTA_TOWER_ANGLE_TRIM_3,
         delta_tower1_x = -sin( (60 - delta_tower_angle_trim_1) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1), // front left tower
         delta_tower1_y = -cos( (60 - delta_tower_angle_trim_1) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1),
         delta_tower2_x =  sin( (60 + delta_tower_angle_trim_2) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2), // front right tower
