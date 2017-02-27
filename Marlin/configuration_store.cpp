@@ -84,7 +84,7 @@
  *  308  G29 L F   bilinear_start                  (int x2)
  *  312            bed_level_grid[][]              (float x9, up to float x256) +988
  *
- * DELTA (if deltabot):                            36 bytes
+ * DELTA (if deltabot):                            48 bytes
  *  348  M666 XYZ  endstop_adj                     (float x3)
  *  360  M665 R    delta_radius                    (float)
  *  364  M665 L    delta_diagonal_rod              (float)
@@ -92,6 +92,9 @@
  *  372  M665 A    delta_diagonal_rod_trim_tower_1 (float)
  *  376  M665 B    delta_diagonal_rod_trim_tower_2 (float)
  *  380  M665 C    delta_diagonal_rod_trim_tower_3 (float)
+ *  384  M665 I    delta_tower_angle_trim_1        (float)
+ *  388  M665 J    delta_tower_angle_trim_2        (float)
+ *  392  M665 K    delta_tower_angle_trim_3        (float)
  *
  * Z_DUAL_ENDSTOPS:                                4 bytes
  *  384  M666 Z    z_endstop_adj                   (float)
@@ -356,6 +359,9 @@ void Config_Postprocess() {
       EEPROM_WRITE(delta_diagonal_rod_trim_tower_1);  // 1 float
       EEPROM_WRITE(delta_diagonal_rod_trim_tower_2);  // 1 float
       EEPROM_WRITE(delta_diagonal_rod_trim_tower_3);  // 1 float
+      EEPROM_WRITE(delta_tower_angle_trim_1); // 1 float
+      EEPROM_WRITE(delta_tower_angle_trim_2); // 1 float
+      EEPROM_WRITE(delta_tower_angle_trim_3); // 1 float
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       EEPROM_WRITE(z_endstop_adj);            // 1 float
       dummy = 0.0f;
@@ -681,6 +687,9 @@ void Config_Postprocess() {
         EEPROM_READ(delta_diagonal_rod_trim_tower_1);  // 1 float
         EEPROM_READ(delta_diagonal_rod_trim_tower_2);  // 1 float
         EEPROM_READ(delta_diagonal_rod_trim_tower_3);  // 1 float
+        EEPROM_READ(delta_tower_angle_trim_1); // 1 float
+        EEPROM_READ(delta_tower_angle_trim_2); // 1 float
+        EEPROM_READ(delta_tower_angle_trim_3); // 1 float
       #elif ENABLED(Z_DUAL_ENDSTOPS)
         EEPROM_READ(z_endstop_adj);
         dummy = 0.0f;
@@ -909,6 +918,9 @@ void Config_ResetDefault() {
     delta_diagonal_rod_trim_tower_1 = DELTA_DIAGONAL_ROD_TRIM_TOWER_1;
     delta_diagonal_rod_trim_tower_2 = DELTA_DIAGONAL_ROD_TRIM_TOWER_2;
     delta_diagonal_rod_trim_tower_3 = DELTA_DIAGONAL_ROD_TRIM_TOWER_3;
+    delta_tower_angle_trim_1 = DELTA_TOWER_ANGLE_TRIM_1;
+    delta_tower_angle_trim_2 = DELTA_TOWER_ANGLE_TRIM_2;
+    delta_tower_angle_trim_3 = DELTA_TOWER_ANGLE_TRIM_3;
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     z_endstop_adj = 0;
   #endif
@@ -1179,7 +1191,7 @@ void Config_ResetDefault() {
       SERIAL_EOL;
       CONFIG_ECHO_START;
       if (!forReplay) {
-        SERIAL_ECHOLNPGM("Delta settings: L=diagonal_rod, R=radius, S=segments_per_second, ABC=diagonal_rod_trim_tower_[123]");
+        SERIAL_ECHOLNPGM("Delta settings: L=diagonal_rod, R=radius, S=segments_per_second, ABC=diagonal_rod_trim_tower_[123], IJK=tower_angle_trim[123]");
         CONFIG_ECHO_START;
       }
       SERIAL_ECHOPAIR("  M665 L", delta_diagonal_rod);
@@ -1188,6 +1200,9 @@ void Config_ResetDefault() {
       SERIAL_ECHOPAIR(" A", delta_diagonal_rod_trim_tower_1);
       SERIAL_ECHOPAIR(" B", delta_diagonal_rod_trim_tower_2);
       SERIAL_ECHOPAIR(" C", delta_diagonal_rod_trim_tower_3);
+      SERIAL_ECHOPAIR(" I", delta_tower_angle_trim_1);
+      SERIAL_ECHOPAIR(" J", delta_tower_angle_trim_2);
+      SERIAL_ECHOPAIR(" K", delta_tower_angle_trim_3);
       SERIAL_EOL;
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       CONFIG_ECHO_START;
