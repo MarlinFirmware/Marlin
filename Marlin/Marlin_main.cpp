@@ -7601,7 +7601,41 @@ inline void gcode_M503() {
    */
   inline void gcode_M905() {
     stepper.synchronize();
-    planner.advance_M905(code_seen('K') ? code_value_float() : -1.0);
+    
+    float newD = -1;
+    float newW = -1;
+    float newH = -1;
+    
+    if (code_seen('K')) {
+      float newK = code_value_float();
+      if (newK >= 0.0)
+        planner.set_extruder_advance_k(newK);
+    }
+
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("Advance factor: ", planner.get_extruder_advance_k());
+    SERIAL_EOL;
+    
+    if (code_seen('D'))
+      newD = code_value_float();
+    if (code_seen('W'))
+      newW = code_value_float();
+    if (code_seen('H'))
+      newH = code_value_float();
+
+    if (newD > 0 && newW > 0 && newH > 0) {
+      float E_D_ratio = newW * newH / (sq(newD / 2) * M_PI);
+      planner.set_E_D_ratio(E_D_ratio);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("E/D ratio: ", E_D_ratio);
+      SERIAL_EOL;
+    }
+    else if (newD != -1 || newW != -1 || newH != -1) {
+      planner.set_E_D_ratio(0);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPGM("E/D ratio: Automatic");
+      SERIAL_EOL;
+    }
   }
 #endif
 
