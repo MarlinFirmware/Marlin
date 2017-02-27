@@ -6376,6 +6376,9 @@ inline void gcode_M206() {
     if (code_seen('A')) delta_diagonal_rod_trim_tower_1 = code_value_linear_units();
     if (code_seen('B')) delta_diagonal_rod_trim_tower_2 = code_value_linear_units();
     if (code_seen('C')) delta_diagonal_rod_trim_tower_3 = code_value_linear_units();
+    if (code_seen('I')) delta_tower_angle_trim_1 = code_value_linear_units();
+    if (code_seen('J')) delta_tower_angle_trim_2 = code_value_linear_units();
+    if (code_seen('K')) delta_tower_angle_trim_3 = code_value_linear_units();
     recalc_delta_settings(delta_radius, delta_diagonal_rod);
   }
   /**

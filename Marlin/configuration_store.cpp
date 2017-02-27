@@ -335,6 +335,9 @@ void Config_Postprocess() {
       EEPROM_WRITE(delta_diagonal_rod_trim_tower_1);  // 1 float
       EEPROM_WRITE(delta_diagonal_rod_trim_tower_2);  // 1 float
       EEPROM_WRITE(delta_diagonal_rod_trim_tower_3);  // 1 float
+      EEPROM_WRITE(delta_tower_angle_trim_1); // 1 float
+      EEPROM_WRITE(delta_tower_angle_trim_2); // 1 float
+      EEPROM_WRITE(delta_tower_angle_trim_3); // 1 float
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       EEPROM_WRITE(z_endstop_adj);            // 1 float
       dummy = 0.0f;
@@ -585,6 +588,9 @@ void Config_Postprocess() {
         EEPROM_READ(delta_diagonal_rod_trim_tower_1);  // 1 float
         EEPROM_READ(delta_diagonal_rod_trim_tower_2);  // 1 float
         EEPROM_READ(delta_diagonal_rod_trim_tower_3);  // 1 float
+        EEPROM_READ(delta_tower_angle_trim_1); // 1 float
+        EEPROM_READ(delta_tower_angle_trim_2); // 1 float
+        EEPROM_READ(delta_tower_angle_trim_3); // 1 float
       #elif ENABLED(Z_DUAL_ENDSTOPS)
         EEPROM_READ(z_endstop_adj);
         dummy = 0.0f;
@@ -765,6 +771,9 @@ void Config_ResetDefault() {
     delta_diagonal_rod_trim_tower_1 = DELTA_DIAGONAL_ROD_TRIM_TOWER_1;
     delta_diagonal_rod_trim_tower_2 = DELTA_DIAGONAL_ROD_TRIM_TOWER_2;
     delta_diagonal_rod_trim_tower_3 = DELTA_DIAGONAL_ROD_TRIM_TOWER_3;
+    delta_tower_angle_trim_1 = DELTA_TOWER_ANGLE_TRIM_1;
+    delta_tower_angle_trim_2 = DELTA_TOWER_ANGLE_TRIM_2;
+    delta_tower_angle_trim_3 = DELTA_TOWER_ANGLE_TRIM_3;
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     z_endstop_adj = 0;
   #endif
@@ -1009,6 +1018,9 @@ void Config_ResetDefault() {
       SERIAL_ECHOPAIR(" A", delta_diagonal_rod_trim_tower_1);
       SERIAL_ECHOPAIR(" B", delta_diagonal_rod_trim_tower_2);
       SERIAL_ECHOPAIR(" C", delta_diagonal_rod_trim_tower_3);
+      SERIAL_ECHOPAIR(" I", delta_tower_angle_trim_1);
+      SERIAL_ECHOPAIR(" J", delta_tower_angle_trim_2);
+      SERIAL_ECHOPAIR(" K", delta_tower_angle_trim_3);
       SERIAL_EOL;
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       CONFIG_ECHO_START;
