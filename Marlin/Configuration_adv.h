@@ -589,6 +589,30 @@
 
 #if ENABLED(LIN_ADVANCE)
   #define LIN_ADVANCE_K 75
+  
+  /**
+   * Some Slicers produce gcode with randomly jumping extrusion widths from time to time, for example within one perimeter of 0.4mm a single segment of 0.05mm width.
+   * While this is harmless for normal printing (the fluid nature of the filament will close this very, very tiny gap), it will screw up the LIN_ADVANCE pressure adaption.
+   * 
+   * In this case, you can use LIN_ADVANCE_E_D_RATIO to lock the ratio between extrusion length and distance traveled to a fixed value.
+   * Note that using a fixed ratio will lead to wrong nozzle pressures if your slicer is using variable widths or layer heights within one print!
+   * This is only the default value after printer power on, it can be overwritten in start-gcode using for example "M905 W0.4 H0.2 D1.75" where:
+   * - W is the extrusion width in mm
+   * - H is the layer height in mm
+   * - D is the filament diameter in mm
+   * 
+   * See Marlin documentation for start-gcode examples.
+   * 0 means auto-detect ratio based on given gcode G1 print moves.
+   * 
+   * Slicers known to work with auto-detection, including variable gap fill or layer height feature (0):
+   * Slic3r
+   * Prusa Slic3r
+   * 
+   * Slicers known to produce faulty gcode in the meaning of LIN_ADVANCE, therefore needing a fixed ratio:
+   * Cura
+   */
+  #define LIN_ADVANCE_E_D_RATIO 0 // Enter your calculated ratio (or 0) here according to the folmula W * H / ((D / 2)^2 * PI)
+                                  // For example 0.4 * 0.2 / ((1.75 / 2)^2 * PI) = 0.033260135
 #endif
 
 // @section leveling
