@@ -1155,7 +1155,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   }
   block->acceleration_steps_per_s2 = accel;
   block->acceleration = accel / steps_per_mm;
-  block->acceleration_rate = (long)(accel * 16777216.0 / (HAL_TIMER_RATE)); // 16777216 = <<24
+  block->acceleration_rate = (long)(accel * 16777216.0 / (HAL_STEPPER_TIMER_RATE)); // 16777216 = <<24
 
   // Initial limit on the segment entry velocity
   float vmax_junction;

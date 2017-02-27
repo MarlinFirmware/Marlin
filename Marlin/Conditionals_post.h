@@ -163,7 +163,7 @@
     #define DEFAULT_KEEPALIVE_INTERVAL 2
   #endif
 
-  #ifdef __SAM3X8E__
+  #ifdef CPU_32_BIT
     /**
      * Hidden options for developer
      */
@@ -783,7 +783,7 @@
 
   // Stepper pulse duration, in cycles
   #define STEP_PULSE_CYCLES ((MINIMUM_STEPPER_PULSE) * CYCLES_PER_MICROSECOND)
-  #ifdef __SAM3X8E__
+  #ifdef CPU_32_BIT
     // Add additional delay for between direction signal and pulse signal of stepper
     #ifndef STEPPER_DIRECTION_DELAY
       #define STEPPER_DIRECTION_DELAY 0 // time in microseconds

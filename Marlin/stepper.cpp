@@ -359,7 +359,7 @@ void Stepper::isr() {
     #ifdef SD_FINISHED_RELEASECOMMAND
       if (!cleaning_buffer_counter && (SD_FINISHED_STEPPERRELEASE)) enqueue_and_echo_commands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
-    _NEXT_ISR(HAL_TIMER_RATE / 10000); // Run at max speed - 10 KHz
+    _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 10000); // Run at max speed - 10 KHz
     _ENABLE_ISRs(); // re-enable ISRs
     return;
   }
@@ -393,7 +393,7 @@ void Stepper::isr() {
       #if ENABLED(Z_LATE_ENABLE)
         if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
-          _NEXT_ISR(HAL_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
+          _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
           _ENABLE_ISRs(); // re-enable ISRs
           return;
         }
@@ -404,7 +404,7 @@ void Stepper::isr() {
       // #endif
     }
     else {
-      _NEXT_ISR(HAL_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
+      _NEXT_ISR(HAL_STEPPER_TIMER_RATE / 1000); // Run at slow speed - 1 KHz
       _ENABLE_ISRs(); // re-enable ISRs
       return;
     }
@@ -505,7 +505,7 @@ void Stepper::isr() {
     #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_CODE
       static uint32_t pulse_start;
       #ifdef CPU_32_BIT
-        pulse_start = HAL_timer_get_current_count(STEPPER_TIMER);
+        pulse_start = HAL_timer_get_current_count(STEP_TIMER_NUM);
       #else
         pulse_start = TCNT0;
       #endif
@@ -542,8 +542,8 @@ void Stepper::isr() {
     #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_CODE
       #ifdef CPU_32_BIT
         // MINIMUM_STEPPER_PULSE = 0... pulse width = 820ns, 1... 1.5μs, 2... 2.24μs, 3... 3.34μs, 4... 4.08μs, 5... 5.18μs
-        while (HAL_timer_get_current_count(STEPPER_TIMER) - pulse_start < (STEP_PULSE_CYCLES - CYCLES_EATEN_BY_CODE) / STEPPER_TIMER_PRESCALE) { /* nada */ }
-        pulse_start = HAL_timer_get_current_count(STEPPER_TIMER);
+        while (HAL_timer_get_current_count(STEP_TIMER_NUM) - pulse_start < (STEP_PULSE_CYCLES - CYCLES_EATEN_BY_CODE) / STEPPER_TIMER_PRESCALE) { /* nada */ }
+        pulse_start = HAL_timer_get_current_count(STEP_TIMER_NUM);
       #else
         while ((uint32_t)(TCNT0 - pulse_start) < STEP_PULSE_CYCLES - CYCLES_EATEN_BY_CODE) { /* nada */ }
       #endif
@@ -584,7 +584,7 @@ void Stepper::isr() {
     #ifdef CPU_32_BIT
       // For a minimum pulse time wait before stopping low pulses
       #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_CODE
-        if (i < step_loops - 1) while (HAL_timer_get_current_count(STEPPER_TIMER) - pulse_start < (STEP_PULSE_CYCLES - CYCLES_EATEN_BY_CODE) / STEPPER_TIMER_PRESCALE) { /* nada */ }
+        if (i < step_loops - 1) while (HAL_timer_get_current_count(STEP_TIMER_NUM) - pulse_start < (STEP_PULSE_CYCLES - CYCLES_EATEN_BY_CODE) / STEPPER_TIMER_PRESCALE) { /* nada */ }
       #endif
     #endif
   }
