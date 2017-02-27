@@ -35,6 +35,8 @@
 
 #include <stdint.h>
 
+#include "Arduino.h"
+
 #include <util/delay.h>
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
@@ -94,6 +96,7 @@ int freeMemory(void);
 #define TEMP_TIMER_NUM 0
 
 #define HAL_TIMER_RATE 	((F_CPU) / 8.0)
+#define HAL_STEPPER_TIMER_RATE HAL_TIMER_RATE
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  SBI(TIMSK1, OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() CBI(TIMSK1, OCIE1A)
