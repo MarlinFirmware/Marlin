@@ -59,6 +59,8 @@
           do {
            idle();
            safe_delay(100);
+           if (wait_for_user_timeout == RGB_reset_time / 2)
+           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
            wait_for_user_timeout ++;
            if (wait_for_user_timeout >= RGB_reset_time) break;
           } while (wait_for_user);
@@ -139,6 +141,8 @@
           do {
            idle();
            safe_delay(100);
+           if (wait_for_user_timeout == RGB_reset_time / 2)
+           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
            wait_for_user_timeout ++;
            if (wait_for_user_timeout >= RGB_reset_time) break;
           } while (wait_for_user);

@@ -7398,6 +7398,10 @@ inline void gcode_M503() {
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
     stepper.synchronize();
 
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(4);  // Turn RGB LEDs Teal
+    #endif
+
     float lastpos[NUM_AXIS];
 
     // Save current position of all axes
@@ -7476,10 +7480,6 @@ inline void gcode_M503() {
 
     idle();
 
-    #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(4);  // Turn RGB LEDs Teal
-    #endif
-    
     wait_for_user = true;    // LCD click or M108 will clear this
     next_buzz = 0;
     runout_beep = 0;
@@ -7499,6 +7499,10 @@ inline void gcode_M503() {
           nozzle_timed_out = true; // on nozzle timeout remember the nozzles need to be reheated
           HOTEND_LOOP() thermalManager.setTargetHotend(0, e); // Turn off all the nozzles
           lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
+
+          #if ENABLED(PRINTER_EVENT_LEDS)
+            handle_led_print_event(5);  // Turn RGB LEDs Teal dimmed
+          #endif
         }
       }
       idle(true);
@@ -7506,6 +7510,10 @@ inline void gcode_M503() {
 
     if (nozzle_timed_out)      // Turn nozzles back on if they were turned off
       HOTEND_LOOP() thermalManager.setTargetHotend(temps[e], e);
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        handle_led_print_event(6);  // Turn RGB LEDs Teal - Half
+      #endif
 
     // Show "wait for heating"
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_WAIT_FOR_NOZZLES_TO_HEAT);
@@ -7536,14 +7544,12 @@ inline void gcode_M503() {
       idle(true);
     }
 
-    // Show "load" message
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        handle_led_print_event(4);  // Turn RGB LEDs Teal Full
+      #endif
+
+    // Show load message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
-
-    #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(1);  // Turn RGB LEDs White
-    #endif
-
-    idle();
 
     // Load filament
     if (code_seen('L')) destination[E_AXIS] -= code_value_axis_units(E_AXIS);
@@ -7570,6 +7576,10 @@ inline void gcode_M503() {
     #endif
 
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_RESUME);
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(1);  // Turn RGB LEDs White
+    #endif
 
     // Set extruder to saved position
     destination[E_AXIS] = current_position[E_AXIS] = lastpos[E_AXIS];
