@@ -42,7 +42,7 @@
 #define EEPROM_OFFSET 100
 
 /**
- * V31 EEPROM Layout:
+ * V32 EEPROM Layout:
  *
  *  100  Version                                    (char x4)
  *  104  EEPROM Checksum                            (uint16_t)
@@ -147,7 +147,6 @@
  *
  *  574                                Minimum end-point
  * 1895 (574 + 36 + 9 + 288 + 988)     Maximum end-point
- *
  */
 #include "Marlin.h"
 #include "language.h"
