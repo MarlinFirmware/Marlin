@@ -142,6 +142,7 @@ float Planner::previous_speed[NUM_AXIS],
 
 #if ENABLED(LIN_ADVANCE)
   float Planner::extruder_advance_k = LIN_ADVANCE_K,
+        Planner::E_D_ratio = LIN_ADVANCE_E_D_RATIO,
         Planner::position_float[NUM_AXIS] = { 0 };
 #endif
 
@@ -1323,8 +1324,15 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
                             && extruder_advance_k
                             && (uint32_t)esteps != block->step_event_count
                             && de_float > 0.0;
-    if (block->use_advance_lead)
-      block->abs_adv_steps_multiplier8 = lround(extruder_advance_k * (de_float / mm_D_float) * block->nominal_speed / (float)block->nominal_rate * axis_steps_per_mm[E_AXIS_N] * 256.0);
+    if (block->use_advance_lead) {
+      // Check if we should use the fixed E_D_ratio
+      if (UNEAR_ZERO(E_D_ratio)) {
+        block->abs_adv_steps_multiplier8 = lround(extruder_advance_k * (de_float / mm_D_float) * block->nominal_speed / (float)block->nominal_rate * axis_steps_per_mm[E_AXIS_N] * 256.0);
+      }
+      else {
+        block->abs_adv_steps_multiplier8 = lround(extruder_advance_k * E_D_ratio * block->nominal_speed / (float)block->nominal_rate * axis_steps_per_mm[E_AXIS_N] * 256.0);
+      }
+    }
 
   #elif ENABLED(ADVANCE)
 
@@ -1475,17 +1483,6 @@ void Planner::refresh_positioning() {
     if (autotemp_enabled) autotemp_factor = code_value_temp_diff();
     if (code_seen('S')) autotemp_min = code_value_temp_abs();
     if (code_seen('B')) autotemp_max = code_value_temp_abs();
-  }
-
-#endif
-
-#if ENABLED(LIN_ADVANCE)
-
-  void Planner::advance_M905(const float &k) {
-    if (k >= 0.0) extruder_advance_k = k;
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("Advance factor: ", extruder_advance_k);
-    SERIAL_EOL;
   }
 
 #endif
