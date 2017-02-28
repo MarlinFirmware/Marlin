@@ -31,8 +31,6 @@
 
 #include <stdint.h>
 
-#include "../../MarlinConfig.h"
-
 /**
  * SPI speed where 0 <= index <= 6
  *
@@ -79,7 +77,7 @@ void spiRead(uint8_t* buf, uint16_t nbyte);
 /** Write token and then write from 512 byte buffer to SPI (for SD card) */
 void spiSendBlock(uint8_t token, const uint8_t* buf);
 
-#if defined(ARDUINO_ARCH_AVR)
+#ifdef ARDUINO_ARCH_AVR
   #include "HAL_AVR/HAL_AVR.h"
 #elif defined(ARDUINO_ARCH_SAM)
   #define CPU_32_BIT
