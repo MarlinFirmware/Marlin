@@ -125,7 +125,7 @@
 #elif ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
   #undef BEEPER_PIN
-  #define BEEPER_PIN -1
+  #define BEEPER_PIN 37
 
   #undef  SD_DETECT_PIN
   #define SD_DETECT_PIN 22
