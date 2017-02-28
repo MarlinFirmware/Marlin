@@ -24,13 +24,13 @@
 #define MARLIN_CONFIG_H
 
 #include "macros.h"
+#include "src/HAL/HAL.h"
 #include "boards.h"
 #include "Version.h"
 #include "Configuration.h"
 #include "Conditionals_LCD.h"
 #include "Configuration_adv.h"
 #include "pins.h"
-#include "src/HAL/HAL.h"
 #if defined(ARDUINO_ARCH_AVR)
   #ifndef USBCON
     #define HardwareSerial_h // trick to disable the standard HWserial
