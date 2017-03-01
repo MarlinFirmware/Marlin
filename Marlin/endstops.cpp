@@ -275,8 +275,15 @@ void Endstops::update() {
   #if CORE_IS_XY || CORE_IS_XZ
     // Head direction in -X axis for CoreXY and CoreXZ bots.
     // If DeltaA == -DeltaB, the movement is only in Y or Z axis
-    if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) == stepper.motor_direction(CORE_AXIS_2))) {
-      if (stepper.motor_direction(X_HEAD))
+    #if ENABLED(COREXY) || ENABLED(COREXZ)
+      if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) == stepper.motor_direction(CORE_AXIS_2))) {
+        if (stepper.motor_direction(X_HEAD))
+    #else   // must be either COREYX or COREZX so direction of one axis is reversed as compared to COREXY and COREXZ
+      if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
+        if (!stepper.motor_direction(X_HEAD))
+      #endif
+
+
   #else
     if (stepper.motor_direction(X_AXIS))   // stepping along -X axis (regular Cartesian bot)
   #endif
@@ -309,8 +316,14 @@ void Endstops::update() {
   #if CORE_IS_XY || CORE_IS_YZ
     // Head direction in -Y axis for CoreXY / CoreYZ bots.
     // If DeltaA == DeltaB, the movement is only in X or Y axis
-    if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
-      if (stepper.motor_direction(Y_HEAD))
+    #if ENABLED(COREXY) || ENABLED(COREYZ)
+      if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
+        if (stepper.motor_direction(Y_HEAD))
+      #else  // must be either COREYX or COREZY so direction of one axis is reversed as compared to COREXY and COREYZ
+      if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) === stepper.motor_direction(CORE_AXIS_2))) {
+        if (!stepper.motor_direction(Y_HEAD))
+      #endif
+
   #else
       if (stepper.motor_direction(Y_AXIS))   // -direction
   #endif
@@ -331,8 +344,14 @@ void Endstops::update() {
   #if CORE_IS_XZ || CORE_IS_YZ
     // Head direction in -Z axis for CoreXZ or CoreYZ bots.
     // If DeltaA == DeltaB, the movement is only in X or Y axis
-    if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
-      if (stepper.motor_direction(Z_HEAD))
+    #if ENABLED(COREXZ) || ENABLED(COREYZ)
+      if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
+        if (stepper.motor_direction(Z_HEAD))
+      #else  // must be either COREZX or COREZY so direction of one axis is reversed as compared to COREXZ and COREYZ
+      if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) == stepper.motor_direction(CORE_AXIS_2))) {
+        if (!stepper.motor_direction(Z_HEAD))
+      #endif
+
   #else
       if (stepper.motor_direction(Z_AXIS))
   #endif
