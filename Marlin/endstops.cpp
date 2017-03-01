@@ -273,8 +273,6 @@ void Endstops::update() {
   #endif
 
   #if CORE_IS_XY || CORE_IS_XZ
-    // Head direction in -X axis for CoreXY and CoreXZ bots.
-    // If DeltaA == -DeltaB, the movement is only in only one axis
     #if ENABLED(COREYX) || ENABLED(COREZX)
       #define CORE_X_CMP !=
       #define CORE_X_NOT !
@@ -282,6 +280,10 @@ void Endstops::update() {
       #define CORE_X_CMP ==
       #define CORE_X_NOT
     #endif
+    // Head direction in -X axis for CoreXY and CoreXZ bots.
+    // If steps differ, both axes are moving.
+    // If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z, handled below)
+    // If DeltaA ==  DeltaB, the movement is only in the 1st axis (X)
     if (stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2] || stepper.motor_direction(CORE_AXIS_1) CORE_X_CMP stepper.motor_direction(CORE_AXIS_2)) {
       if (CORE_X_NOT stepper.motor_direction(X_HEAD))
   #else
@@ -324,7 +326,9 @@ void Endstops::update() {
 
   #if CORE_IS_XY || CORE_IS_YZ
     // Head direction in -Y axis for CoreXY / CoreYZ bots.
-    // If DeltaA == DeltaB, the movement is in only one axis
+    // If steps differ, both axes are moving
+    // If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y)
+    // If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z)
     if (stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2] || stepper.motor_direction(CORE_AXIS_1) CORE_YZ_CMP stepper.motor_direction(CORE_AXIS_2)) {
       if (CORE_YZ_NOT stepper.motor_direction(Y_HEAD))
   #else
@@ -346,7 +350,9 @@ void Endstops::update() {
 
   #if CORE_IS_XZ || CORE_IS_YZ
     // Head direction in -Z axis for CoreXZ or CoreYZ bots.
-    // If DeltaA == DeltaB, the movement is in only one axis
+    // If steps differ, both axes are moving
+    // If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y, already handled above)
+    // If DeltaA == -DeltaB, the movement is only in the 2nd axis (Z)
     if (stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2] || stepper.motor_direction(CORE_AXIS_1) CORE_YZ_CMP stepper.motor_direction(CORE_AXIS_2)) {
       if (CORE_YZ_NOT stepper.motor_direction(Z_HEAD))
   #else
