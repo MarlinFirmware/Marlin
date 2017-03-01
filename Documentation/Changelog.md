@@ -1,3 +1,11 @@
+#  BQ Marlin v2.5.0
+---
+### Improvements:
+* Modified the PWM control of the hotend in standby. (H2/W2)
+
+### New hardware support:
+* Support for hephestos 2 heatedbed with automatic bed presence detection (H2).
+* Support for hephestos Zum heatedbed (HZ).
 
 #  BQ Marlin v2.4.0
 ---
