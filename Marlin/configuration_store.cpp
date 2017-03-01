@@ -42,7 +42,7 @@
 #define EEPROM_OFFSET 100
 
 /**
- * V29 EEPROM Layout:
+ * V30 EEPROM Layout:
  *
  *  100  Version                                   (char x4)
  *  104  EEPROM Checksum                           (uint16_t)
@@ -84,7 +84,7 @@
  *  308  G29 L F   bilinear_start                  (int x2)
  *  312            bed_level_grid[][]              (float x9, up to float x256) +988
  *
- * DELTA (if deltabot):                            36 bytes
+ * DELTA (if deltabot):                            48 bytes
  *  348  M666 XYZ  endstop_adj                     (float x3)
  *  360  M665 R    delta_radius                    (float)
  *  364  M665 L    delta_diagonal_rod              (float)
@@ -92,6 +92,9 @@
  *  372  M665 A    delta_diagonal_rod_trim_tower_1 (float)
  *  376  M665 B    delta_diagonal_rod_trim_tower_2 (float)
  *  380  M665 C    delta_diagonal_rod_trim_tower_3 (float)
+ *  384  M665 I    delta_tower_angle_trim_1        (float)
+ *  388  M665 J    delta_tower_angle_trim_2        (float)
+ *  392  M665 K    delta_tower_angle_trim_3        (float)
  *
  * Z_DUAL_ENDSTOPS:                                4 bytes
  *  384  M666 Z    z_endstop_adj                   (float)
