@@ -273,17 +273,26 @@ void Endstops::update() {
   #endif
 
   #if CORE_IS_XY || CORE_IS_XZ
+    #if ENABLED(COREYX) || ENABLED(COREZX)
+      #define CORE_X_CMP !=
+      #define CORE_X_NOT !
+    #else
+      #define CORE_X_CMP ==
+      #define CORE_X_NOT
+    #endif
     // Head direction in -X axis for CoreXY and CoreXZ bots.
-    // If DeltaA == -DeltaB, the movement is only in Y or Z axis
-    if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) == stepper.motor_direction(CORE_AXIS_2))) {
-      if (stepper.motor_direction(X_HEAD))
+    // If steps differ, both axes are moving.
+    // If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z, handled below)
+    // If DeltaA ==  DeltaB, the movement is only in the 1st axis (X)
+    if (stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2] || stepper.motor_direction(CORE_AXIS_1) CORE_X_CMP stepper.motor_direction(CORE_AXIS_2)) {
+      if (CORE_X_NOT stepper.motor_direction(X_HEAD))
   #else
-    if (stepper.motor_direction(X_AXIS))   // stepping along -X axis (regular Cartesian bot)
+      if (stepper.motor_direction(X_AXIS))   // stepping along -X axis (regular Cartesian bot)
   #endif
       { // -direction
         #if ENABLED(DUAL_X_CARRIAGE)
           // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
-          if ((stepper.current_block->active_extruder == 0 && X_HOME_DIR == -1) || (stepper.current_block->active_extruder != 0 && X2_HOME_DIR == -1))
+          if ((stepper.current_block->active_extruder == 0 && X_HOME_DIR < 0) || (stepper.current_block->active_extruder != 0 && X2_HOME_DIR < 0))
         #endif
           {
             #if HAS_X_MIN
@@ -294,7 +303,7 @@ void Endstops::update() {
       else { // +direction
         #if ENABLED(DUAL_X_CARRIAGE)
           // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
-          if ((stepper.current_block->active_extruder == 0 && X_HOME_DIR == 1) || (stepper.current_block->active_extruder != 0 && X2_HOME_DIR == 1))
+          if ((stepper.current_block->active_extruder == 0 && X_HOME_DIR > 0) || (stepper.current_block->active_extruder != 0 && X2_HOME_DIR > 0))
         #endif
           {
             #if HAS_X_MAX
@@ -306,11 +315,22 @@ void Endstops::update() {
     }
   #endif
 
+  // Handle swapped vs. typical Core axis order
+  #if ENABLED(COREYX) || ENABLED(COREZY) || ENABLED(COREZX)
+    #define CORE_YZ_CMP ==
+    #define CORE_YZ_NOT !
+  #elif CORE_IS_XY || CORE_IS_YZ || CORE_IS_XZ
+    #define CORE_YZ_CMP !=
+    #define CORE_YZ_NOT
+  #endif
+
   #if CORE_IS_XY || CORE_IS_YZ
     // Head direction in -Y axis for CoreXY / CoreYZ bots.
-    // If DeltaA == DeltaB, the movement is only in X or Y axis
-    if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
-      if (stepper.motor_direction(Y_HEAD))
+    // If steps differ, both axes are moving
+    // If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y)
+    // If DeltaA == -DeltaB, the movement is only in the 2nd axis (Y or Z)
+    if (stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2] || stepper.motor_direction(CORE_AXIS_1) CORE_YZ_CMP stepper.motor_direction(CORE_AXIS_2)) {
+      if (CORE_YZ_NOT stepper.motor_direction(Y_HEAD))
   #else
       if (stepper.motor_direction(Y_AXIS))   // -direction
   #endif
@@ -330,9 +350,11 @@ void Endstops::update() {
 
   #if CORE_IS_XZ || CORE_IS_YZ
     // Head direction in -Z axis for CoreXZ or CoreYZ bots.
-    // If DeltaA == DeltaB, the movement is only in X or Y axis
-    if ((stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2]) || (stepper.motor_direction(CORE_AXIS_1) != stepper.motor_direction(CORE_AXIS_2))) {
-      if (stepper.motor_direction(Z_HEAD))
+    // If steps differ, both axes are moving
+    // If DeltaA ==  DeltaB, the movement is only in the 1st axis (X or Y, already handled above)
+    // If DeltaA == -DeltaB, the movement is only in the 2nd axis (Z)
+    if (stepper.current_block->steps[CORE_AXIS_1] != stepper.current_block->steps[CORE_AXIS_2] || stepper.motor_direction(CORE_AXIS_1) CORE_YZ_CMP stepper.motor_direction(CORE_AXIS_2)) {
+      if (CORE_YZ_NOT stepper.motor_direction(Z_HEAD))
   #else
       if (stepper.motor_direction(Z_AXIS))
   #endif
