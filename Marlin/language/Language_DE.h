@@ -202,5 +202,6 @@ const char DE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fehlgeschlagen";
 const char DE_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Druckplatte nicht erkannt";
 const char DE_SCREEN_PTFE_TITLE[] PROGMEM               = "Erinnerung";
 const char DE_SCREEN_PTFE_TEXT[] PROGMEM                = "Wechsel das PTFE-R""\xf6""hrchen alle 250 Stunden";
+const char DE_OPTION_HEATED_BED[] PROGMEM               = "Heizbett";
 
 #endif //LANGUAGE_DE_H

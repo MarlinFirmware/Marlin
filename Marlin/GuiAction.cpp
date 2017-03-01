@@ -46,6 +46,8 @@
 
 #ifdef DOGLCD
 	#include "StatsManager.h"
+	#include "HeatedbedManager.h"
+	#include "FanManager.h"
 #endif
 
 bool raised = false;
@@ -83,9 +85,11 @@ void action_preheat()
 
 void action_cooldown()
 {
-
 	temp::TemperatureManager::single::instance().setBlowerControlState(true);
 	temp::TemperatureManager::single::instance().setTargetTemperature(0);
+#if HEATER_BED_PIN > -1
+	temp::TemperatureManager::single::instance().setBedTargetTemperature(0);
+#endif
 }
 
 void action_filament_unload()
@@ -288,10 +292,34 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
 
 void action_get_plane()
 {
-
 	#if Z_MIN_PIN == -1
 		#error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
 	#endif
+	
+#ifdef DOGLCD
+#if HEATER_BED_PIN > -1
+	if(HeatedbedManager::single::instance().detected())
+	{
+		temp::TemperatureManager::single::instance().setBedTargetTemperature(0);
+		while(HeatedbedManager::single::instance().detected() && temp::TemperatureManager::single::instance().getBedCurrentTemperature() > BED_AUTOLEVEL_TEMP)
+		{
+			unsigned long curtime = millis();
+			if(( millis() - curtime) > 1000 ) //Print Temp Reading every 1 second while heating up.
+			{
+				float tt=temp::TemperatureManager::single::instance().getCurrentTemperature();
+				SERIAL_PROTOCOLPGM("T:");
+				SERIAL_PROTOCOL(tt);
+				SERIAL_PROTOCOLPGM(" E:");
+				SERIAL_PROTOCOL((int)0);
+				SERIAL_PROTOCOLPGM(" B:");
+				SERIAL_PROTOCOL_F(temp::TemperatureManager::single::instance().getBedCurrentTemperature(),1);
+				SERIAL_PROTOCOLLN("");
+				curtime = millis();
+			}
+		};
+	}
+#endif // HEATER_BED_PIN > -1
+#endif // DOGLCD
 
 	// Prevent user from running a G29 without first homing in X and Y
 	if (! (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS]) )
@@ -626,7 +654,6 @@ void action_start_print()
 
 	char cmd[LONG_FILENAME_LENGTH];
 	char* c;
-
 	if(PrintManager::single::instance().state() == PRINTING)
 	{
 		serial_printing = false;
@@ -670,6 +697,13 @@ void action_start_print()
 		PrintManager::single::instance().state(READY);
 		StatsManager::single::instance().increaseTotalPrints();
 #endif //DOGLCD
+
+#ifdef FAN_BOX_PIN
+	if(FanManager::single::instance().state() == true)
+	{
+		digitalWrite(FAN_BOX_PIN, HIGH);
+	}
+#endif //FAN_BOX_PIN
 
 	enquecommand_P(PSTR("G90"));
 	enquecommand_P(PSTR("G92 E0"));
@@ -771,6 +805,10 @@ void action_stop_print()
 		enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 	}
 	// autotempShutdown();
+	
+#if HEATER_BED_PIN > -1
+	temp::TemperatureManager::single::instance().setBedTargetTemperature(0);
+#endif // HEATER_BED_PIN > -1
 
 	cancel_heatup = true;
 
@@ -782,6 +820,13 @@ void action_stop_print()
 		Time_t printTime = PrintManager::single::instance().printingTime();
 		StatsManager::single::instance().updateTotalTime(printTime);
 	#endif
+	
+	#ifdef FAN_BOX_PIN
+		if(FanManager::single::instance().state() == true)
+		{
+			digitalWrite(FAN_BOX_PIN, LOW);
+		}
+	#endif //FAN_BOX_PIN
 	
 	for(int i=0; i != num_ok; i++)
 	{

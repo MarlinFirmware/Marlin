@@ -202,5 +202,6 @@ const char IT_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Non riusciti";
 const char IT_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Piano non rilevato";
 const char IT_SCREEN_PTFE_TITLE[] PROGMEM               = "Promemoria";
 const char IT_SCREEN_PTFE_TEXT[] PROGMEM                = "Cambia il tubo PTFE ogni 250 ore";
+const char IT_OPTION_HEATED_BED[] PROGMEM               = "Heated bed";
 
 #endif //LANGUAGE_IT_H

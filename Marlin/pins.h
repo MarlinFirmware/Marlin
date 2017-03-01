@@ -122,7 +122,7 @@
   #include "pins/pins_LEAPFROG.h"
 #elif MB(BQ_CNC)
   #include "pins/pins_BQ_CNC.h"
-#elif MB(BQ_ZUM_MEGA_3D)
+#elif MB(BQ_ZUM_MEGA_3D) || MB(BQ_HPH_ZUM_3D)
   #include "pins/pins_BQ_ZUM_MEGA_3D.h"
 #elif MB(HEPHESTOS)
   #include "pins/pins_HEPHESTOS.h"

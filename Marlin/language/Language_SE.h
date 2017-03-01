@@ -202,5 +202,6 @@ const char SE_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Misslyckade";
 const char SE_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Byggplattan inte identifierat";
 const char SE_SCREEN_PTFE_TITLE[] PROGMEM               = "P""\xe5""minnelse";
 const char SE_SCREEN_PTFE_TEXT[] PROGMEM                = """\xc4""ndra PTFE r""\xf6""ret var 250 timmar";
+const char SE_OPTION_HEATED_BED[] PROGMEM               = "Varm s""\xe4""ng";
 
 #endif //LANGUAGE_SE_H

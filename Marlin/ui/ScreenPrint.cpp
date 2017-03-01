@@ -45,6 +45,11 @@ namespace ui
 		, m_percent_done(0)
 		, m_printing_status(PRINTING)
 		, m_target_temperature(0)
+#if MB(BQ_ZUM_MEGA_3D)
+		, m_bed_observed(0)
+		, m_bed_heating(false)
+		, m_hotend_heating(true)
+#endif
 	{
 		m_target_temperature = temp::TemperatureManager::single::instance().getTargetTemperature();
 		char t_target[4] = { 0 };
@@ -74,7 +79,47 @@ namespace ui
 	void ScreenPrint::draw()
 	{
 		uint32_t m_current_millis = millis();
-		if ( (m_current_millis - m_previous_millis >= 1500) && (planner_priority == false) )
+		
+		bool buffer_priority = false;
+		if(planner_priority && !long_command)
+		{
+			buffer_priority = true;
+		}
+		
+	#if MB(BQ_ZUM_MEGA_3D)
+		if ( (m_current_millis - m_previous_millis >= 1000) && !buffer_priority )
+		{
+			m_bed_heating = false;
+			uint8_t bed_temp = temp::TemperatureManager::single::instance().getBedCurrentTemperature();
+			uint8_t bed_target = temp::TemperatureManager::single::instance().getBedTargetTemperature();
+			if(bed_temp <= bed_target-2)
+			{
+				m_bed_heating = true;
+			}
+			
+			if((abs(m_bed_observed - bed_temp) >= 1) && m_bed_heating)
+			{
+				char s_target[4] = { 0 };
+				char s_current[4] = { 0 };
+				dtostrf(bed_target, 3, 0, s_target);
+				dtostrf(bed_temp, 3, 0, s_current);
+				strcpy(m_bed_info, s_current);
+				strcat(m_bed_info, "/");
+				strcat(m_bed_info, s_target);
+				strcat(m_bed_info, "B");
+				
+				m_bed_heating = true;
+				m_needs_drawing = true;
+			}
+			
+			if(abs(m_bed_observed - bed_temp) > 1)
+			{
+				m_bed_observed = bed_temp;
+			}
+		}
+	#endif // MB(BQ_ZUM_MEGA_3D)
+		
+		if ( (m_current_millis - m_previous_millis >= 1500) && !buffer_priority )
 		{
 			m_previous_millis = m_current_millis;
 			m_printed_time = PrintManager::printingTime();
@@ -134,7 +179,10 @@ namespace ui
 			strcat(m_temperature_info, "/");
 			strcat(m_temperature_info, t_target);
 			strcat(m_temperature_info, "\xb0");
-
+			
+		#if MB(BQ_ZUM_MEGA_3D)
+			m_hotend_heating = true;
+		#endif // MB(BQ_ZUM_MEGA_3D)
 			m_needs_drawing = true;
 		}
 
@@ -149,9 +197,22 @@ namespace ui
 				// Paint title on top of screen
 				painter.title(m_title);
 				painter.setColorIndex(1);
-
-				painter.setPrintPos(127 - (strlen(m_temperature_info) * 6) + 1, 3);
-				painter.print(m_temperature_info);
+				
+			#if MB(BQ_ZUM_MEGA_3D)
+				if(m_hotend_heating || !m_bed_heating)
+				{
+			#endif // MB(BQ_ZUM_MEGA_3D)
+					painter.setPrintPos(127 - (strlen(m_temperature_info) * 6) + 1, 3);
+					painter.print(m_temperature_info);
+			#if MB(BQ_ZUM_MEGA_3D)
+				}
+				else
+			
+				{
+					painter.setPrintPos(127 - (strlen(m_bed_info) * 6) + 1, 3);
+					painter.print(m_bed_info);
+				}
+			#endif // MB(BQ_ZUM_MEGA_3D)
 
 				if(m_printing_status == PRINTING || m_printing_status == READY)
 				{
@@ -223,8 +284,19 @@ namespace ui
 			strcat(m_temperature_info, "/");
 			strcat(m_temperature_info, t_target);
 			strcat(m_temperature_info, "\xb0");
-
+			
 			m_needs_drawing = true;
 		}
+	
+	#if MB(BQ_ZUM_MEGA_3D)
+		if(m_observed <= (m_target_temperature - 5))
+		{
+			m_hotend_heating = true;
+		}
+		else
+		{
+			m_hotend_heating = false;
+		}
+	#endif // MB(BQ_ZUM_MEGA_3D)
 	}
 }

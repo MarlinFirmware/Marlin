@@ -202,5 +202,6 @@ const char FR_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = """\xc9""checs";
 const char FR_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Plateau non d""\xe9""tect""\xe9""";
 const char FR_SCREEN_PTFE_TITLE[] PROGMEM               = "R""\xe9""f""\xe9""rentiel";
 const char FR_SCREEN_PTFE_TEXT[] PROGMEM                = "Changer le tube en PTFE toutes les 250 h";
+const char FR_OPTION_HEATED_BED[] PROGMEM               = "Plateau chauf";
 
 #endif //LANGUAGE_FR_H

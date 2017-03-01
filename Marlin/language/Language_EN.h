@@ -202,5 +202,6 @@ const char EN_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Failed";
 const char EN_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Bed not detected";
 const char EN_SCREEN_PTFE_TITLE[] PROGMEM               = "Reminder";
 const char EN_SCREEN_PTFE_TEXT[] PROGMEM                = "Change the PTFE tube every 250 hours";
+const char EN_OPTION_HEATED_BED[] PROGMEM               = "Heatbed";
 
 #endif //LANGUAGE_EN_H

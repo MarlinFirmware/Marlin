@@ -170,6 +170,12 @@ else ifeq ($(MACHINE_MODEL), Hephestos)
 	VPATHTEMP += config/hephestos
 else ifeq ($(MACHINE_MODEL), Hephestos XL)
 	VPATHTEMP += config/hephestos_xl
+else ifeq ($(MACHINE_MODEL), Hephestos ZUM)
+	VPATHTEMP += config/hephestos_zum
+else ifeq ($(MACHINE_MODEL), Hephestos ZUM XL)
+	VPATHTEMP += config/hephestos_zum_xl
+else ifeq ($(MACHINE_MODEL), Hephestos ZUM Heated Bed)
+	VPATHTEMP += config/hephestos_zum_heated_bed
 else ifeq ($(MACHINE_MODEL), Witbox 2)
 	VPATHTEMP += config/witbox_2
 else ifeq ($(MACHINE_MODEL), Hephestos 2)
@@ -221,7 +227,7 @@ ifeq ($(HARDWARE_DISPLAY), Graphic)
 	CXXSRC += GuiManager.cpp \
 		StepperClass.cpp Language.cpp
 	CXXSRC += LightManager.cpp PrintManager.cpp SDManager.cpp SerialManager.cpp SteppersManager.cpp FanManager.cpp \
-		TemperatureControl.cpp StatsManager.cpp
+		TemperatureControl.cpp StatsManager.cpp HeatedbedManager.cpp
 	include ui/ui.mk
 	VPATHTEMP += ui
 endif
@@ -235,7 +241,6 @@ CXXSRC += motion_control.cpp planner.cpp stepper.cpp temperature.cpp cardreader.
 CXXSRC += Action.cpp GuiAction.cpp AutoLevelManager.cpp OffsetManager.cpp StorageManager.cpp TemperatureManager.cpp
 
 CXXSRC += Marlin_main.cpp MarlinSerial.cpp SDCache.cpp
-
 
 # Define all object files.
 OBJ = ${patsubst %.c,$(BUILD_DIR)/%.o,${CSRC}}
@@ -425,6 +430,25 @@ hephestos_xl:
 	$(L) $(ECHO) Configurating for $@ printer...
 	$(L) $(ECHO) Language selected: English [EN] \(by default\)
 	$(L) $(COPY) config$(PATHSEP)hephestos_xl$(PATHSEP)Makefile .config_mach
+	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
+
+# 1st Generation printers with new board
+hephestos_zum:
+	$(L) $(ECHO) Configurating for $@ printer...
+	$(L) $(ECHO) Language selected: English [EN] \(by default\)
+	$(L) $(COPY) config$(PATHSEP)hephestos_zum$(PATHSEP)Makefile .config_mach
+	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
+
+hephestos_zum_xl:
+	$(L) $(ECHO) Configurating for $@ printer...
+	$(L) $(ECHO) Language selected: English [EN] \(by default\)
+	$(L) $(COPY) config$(PATHSEP)hephestos_zum_xl$(PATHSEP)Makefile .config_mach
+	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
+
+hephestos_zum_heated_bed:
+	$(L) $(ECHO) Configurating for $@ printer...
+	$(L) $(ECHO) Language selected: English [EN] \(by default\)
+	$(L) $(COPY) config$(PATHSEP)hephestos_zum_heated_bed$(PATHSEP)Makefile .config_mach
 	$(L) $(COPY) language$(PATHSEP)en$(PATHSEP)Makefile .config_lang
 
 # 2nd Generation printers

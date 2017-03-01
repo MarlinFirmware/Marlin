@@ -327,4 +327,6 @@ extern void calculate_volumetric_multipliers();
   void filrunout();
 #endif // FILAMENT_RUNOUT_SENSOR
 
+extern bool long_command;
+
 #endif

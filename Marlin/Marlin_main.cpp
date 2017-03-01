@@ -71,6 +71,9 @@
 #include "TemperatureManager.h"
 #include "AutoLevelManager.h"
 #include "StorageManager.h"
+#ifdef DOGLCD
+	#include "HeatedbedManager.h"
+#endif
 
 #include "Action.h"
 #include "GuiAction.h"
@@ -446,6 +449,8 @@ float lastpos[4];
   unsigned long chdkHigh = 0;
   boolean chdkActive = false;
 #endif
+
+bool long_command = false;
 
 extern void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size);
 
@@ -1849,6 +1854,13 @@ void process_commands()
 		starttime=millis();
 		feedmultiply = 100;
 		PrintManager::single::instance().state(PRINTING);
+	
+		if(HeatedbedManager::single::instance().getMode() == eeprom::HEATEDBED_ON && PrintManager::single::instance().state() != SERIAL_CONTROL)
+		{
+			char cmd[LONG_FILENAME_LENGTH];
+			sprintf_P(cmd, PSTR("M190 S%d"), ABS_PREHEAT_HPB_TEMP);
+			enquecommand(cmd);
+		}
 	  }
       else if(PrintManager::single::instance().state() == SERIAL_CONTROL && card.isFileAtBegin() == false)
 	  {
@@ -2365,11 +2377,17 @@ Sigma_Exit:
     case 112: //  M112 -Emergency Stop
       kill();
       break;
-#ifdef HEATED_BED_SUPPORT
+#if defined(HEATED_BED_SUPPORT) || defined(DOGLCD)
     case 140: // M140 set bed temp
+	#ifdef DOGLCD
+	    if(HeatedbedManager::single::instance().getMode() == eeprom::HEATEDBED_OFF)
+	    {
+		  break;
+		}
+	#endif // DOGLCD
       if (code_seen('S')) setTargetBed(code_value());
       break;
-#endif //HEATED_BED_SUPPORT
+#endif //HEATED_BED_SUPPORT || DOGLCD
     case 105 : // M105
       if(setTargetedHotend(105)){
         break;
@@ -2439,6 +2457,7 @@ Sigma_Exit:
       if(setTargetedHotend(109)){
         break;
       }
+      long_command = true;
 				LCD_MESSAGEPGM(MSG_HEATING_PROCESS);
 				lcd_update();
       
@@ -2537,11 +2556,19 @@ Sigma_Exit:
 					LCD_MESSAGEPGM(MSG_PRINTING);
 					lcd_update();
 				}
+	  long_command = false;
       break;
 
-#ifdef HEATED_BED_SUPPORT
+#if defined(HEATED_BED_SUPPORT) || defined(DOGLCD)
     case 190: // M190 - Wait for bed heater to reach target.
-    #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
+	#ifdef DOGLCD
+	    if(HeatedbedManager::single::instance().getMode() == eeprom::HEATEDBED_OFF)
+	    {
+		  break;
+		}
+	#endif // DOGLCD
+	long_command = true;
+    #if (defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1) || defined(DOGLCD)
         LCD_MESSAGEPGM(MSG_BED_HEATING_PROCESS);
         if (code_seen('S')) {
           setTargetBed(code_value());
@@ -2551,7 +2578,6 @@ Sigma_Exit:
           CooldownNoWait = false;
         }
         codenum = millis();
-        
         cancel_heatup = false;
         target_direction = isHeatingBed(); // true if heating, false if cooling
 
@@ -2577,9 +2603,10 @@ Sigma_Exit:
         }
         LCD_MESSAGEPGM(MSG_BED_HEATING_DONE);
         previous_millis_cmd = millis();
-    #endif
+    #endif // (defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1) || defined(DOGLCD)
+		long_command = false;
         break;
-#endif // HEATED_BED_SUPPORT
+#endif //defined(HEATED_BED_SUPPORT) || DOGLCD
 
     #if defined(FAN_PIN) && FAN_PIN > -1
       case 106: //M106 Fan On

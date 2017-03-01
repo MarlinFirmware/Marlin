@@ -269,6 +269,7 @@ void PrintManager::inactivityTriggered()
 	{
 		case COMPLETE:
 			temp::TemperatureManager::single::instance().setTargetTemperature(0);
+			temp::TemperatureManager::single::instance().setBedTargetTemperature(0);
 			SteppersManager::disableAllSteppers();
 			if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)
 			{
@@ -278,6 +279,7 @@ void PrintManager::inactivityTriggered()
 		case STOPPED:
 			level_plate_step = 0;
 			temp::TemperatureManager::single::instance().setTargetTemperature(0);
+			temp::TemperatureManager::single::instance().setBedTargetTemperature(0);
 			SteppersManager::disableAllSteppers();
 			ui::ViewManager::getInstance().activeView(ui::screen_inactivity);
 			if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)
@@ -289,6 +291,7 @@ void PrintManager::inactivityTriggered()
 			if(!card.sdprinting)
 			{			
 				temp::TemperatureManager::single::instance().setTargetTemperature(0);
+				temp::TemperatureManager::single::instance().setBedTargetTemperature(0);
 				SteppersManager::disableAllSteppers();
 			}
 			if(LightManager::single::instance().getMode() == eeprom::LIGHT_AUTO)

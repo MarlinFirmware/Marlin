@@ -44,6 +44,7 @@ namespace eeprom
 	static uint8_t * const ADDR_SERIAL         = (uint8_t *) 503;
 	static uint8_t * const ADDR_LANGUAGE       = (uint8_t *) 504;
 	static uint8_t * const ADDR_BOX_FAN        = (uint8_t *) 505;
+	static uint8_t * const ADDR_HEATED_BED     = (uint8_t *) 506;
 	static uint8_t * const ADDR_PROTECTED_ZONE = (uint8_t *) 4068;
 	static uint8_t * const ADDR_STAT_SUCCEDED  = (uint8_t *) 4069;
 	static uint8_t * const ADDR_STAT_FLAG      = (uint8_t *) 4071;
@@ -246,10 +247,14 @@ namespace eeprom
 		{
 			return BOARD_BQ_ZUM_MEGA_3D;
 		}
+		else if(strcmp(board_type, "ZMH") == 0)
+		{
+		        return BOARD_BQ_HPH_ZUM_3D;
+		}
 		else if(strcmp(board_type, "CNC") == 0)
 		{
 			return BOARD_BQ_CNC;
-		}
+		}		
 		return BOARD_RAMPS_13_EFB;
 	}
 
@@ -362,6 +367,23 @@ namespace eeprom
 	void StorageManager::setStatSucceded(uint16_t succedded_prints)
 	{
 		StorageManager::single::instance().writeData(ADDR_STAT_SUCCEDED, (uint8_t*)&succedded_prints, sizeof(succedded_prints));
+	}
+	
+	const uint8_t StorageManager::getHeatedbedMode()
+	{
+		uint8_t heatedbed_mode = StorageManager::single::instance().readByte(ADDR_HEATED_BED);
+		if(heatedbed_mode == 0xFF)
+		{
+			heatedbed_mode = HEATEDBED_AUTO;
+			setHeatedbedMode(heatedbed_mode);
+		}
+		
+		return heatedbed_mode;
+	}
+	
+	void StorageManager::setHeatedbedMode(uint8_t heatedbed_mode)
+	{
+		StorageManager::single::instance().writeByte(ADDR_HEATED_BED, heatedbed_mode);
 	}
 	
 	uint8_t StorageManager::readByte(uint8_t * address)

@@ -202,5 +202,6 @@ const char ES_SCREEN_VIEW_STATS_TEXT3[] PROGMEM         = "Fallidos";
 const char ES_SCREEN_BASE_ERROR_TEXT[] PROGMEM          = "Base no detectada";
 const char ES_SCREEN_PTFE_TITLE[] PROGMEM               = "Recordatorio";
 const char ES_SCREEN_PTFE_TEXT[] PROGMEM                = "Cambia el tubo PTFE cada 250 horas";
+const char ES_OPTION_HEATED_BED[] PROGMEM               = "Cama caliente";
 
 #endif //LANGUAGE_ES_H

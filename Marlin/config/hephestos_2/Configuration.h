@@ -11,7 +11,7 @@
 #define MACHINE_NAME "Hephestos 2"
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.3.1"
+#define FIRMWARE_VER "2.5.0"
 #define BUILD_VER ""
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
@@ -130,6 +130,13 @@
 #define HEATER_1_MAXTEMP 250
 #define HEATER_2_MAXTEMP 250
 #define BED_MAXTEMP 150
+
+// Heated bed is considered hot at this temperature
+#define BED_HOT_TEMP 45
+#define BED_AUTOLEVEL_TEMP 50
+
+// Heated bed control update frequency
+#define BED_UPDATES_PER_SEC 10
 
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
 // average current. The value should be an integer and the heat bed will be turned on for 1 interval of
