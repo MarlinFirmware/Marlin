@@ -150,7 +150,7 @@ struct duration_t {
              m = uint16_t(this->minute() % 60UL);
     if (with_days) {
       uint16_t d = this->day();
-      sprintf_P(buffer, PSTR("%ud %02u:%02u"), d, h, m);
+      sprintf_P(buffer, PSTR("%ud %02u:%02u"), d, h % 24, m);
       return d >= 10 ? 8 : 7;
     }
     else if (h < 100) {
