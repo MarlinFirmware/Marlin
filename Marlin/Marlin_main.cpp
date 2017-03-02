@@ -5208,8 +5208,8 @@ inline void gcode_M42() {
             SERIAL_PROTOCOLPGM(" range: ");
             SERIAL_PROTOCOL_F(max-min, 3);
           }
+          SERIAL_EOL;
         }
-        SERIAL_EOL;
       }
 
     } // End of probe loop
