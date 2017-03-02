@@ -425,6 +425,9 @@
 // On the Info Screen, display XY with one decimal place when possible
 //#define LCD_DECIMAL_SMALL_XY
 
+// The timeout (in ms) to return to the status screen from sub-menus
+//#define LCD_TIMEOUT_TO_STATUS 15000
+
 #if ENABLED(SDSUPPORT)
 
   // Some RAMPS and other boards don't detect when an SD card is inserted. You can work
@@ -1124,6 +1127,17 @@
  * Include capabilities in M115 output
  */
 //#define EXTENDED_CAPABILITIES_REPORT
+
+
+/**
+ * Double Clicking of LCD Panel's Encoder Wheel while at the Status Screen will jump
+ * to the Z-BabyStepping menu.
+ */
+//#define DOUBLE_CLICK_JUMPS_TO_Z_BABYSTEPPING
+#define DOUBLE_CLICK_TIME_WINDOW 1250   // How quickly the double click must be done in miliseconds.
+                                        // Please notice this time must be a little bit longer than what
+                                        // is actually desired because there is some latency in detecting a
+                                        // change in LCD Panel Button Status.
 
 
 /**

@@ -49,6 +49,12 @@ int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2
   millis_t previous_lcd_status_ms = 0;
 #endif
 
+#if ENABLED(BABYSTEPPING)
+  long babysteps_done = 0;
+  millis_t status_screen_click_time = 0;
+  static void lcd_babystep_z();
+#endif
+
 uint8_t lcd_status_message_level;
 char lcd_status_message[3 * (LCD_WIDTH) + 1] = WELCOME_MSG; // worst case is kana with up to 3*LCD_WIDTH+1
 
@@ -411,6 +417,21 @@ uint16_t max_display_update_time = 0;
    * General function to go directly to a screen
    */
   void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0) {
+    #ifdef DOUBLE_CLICK_JUMPS_TO_Z_BABYSTEPPING
+      #if ENABLED(BABYSTEPPING) 
+        if (currentScreen==lcd_status_screen && screen==lcd_main_menu)  // We are in leaving the status screen to goto the main_menu  
+          status_screen_click_time = millis();       // screen.  Mark the time so we know how quick the user is 
+                     // pressing buttons. 
+        if (currentScreen==lcd_main_menu)  { 
+          if ( screen==lcd_status_screen && status_screen_click_time+DOUBLE_CLICK_TIME_WINDOW>millis() ) { 
+            lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; 
+            status_screen_click_time = 0; 
+            lcd_babystep_z(); 
+          return; 
+          } 
+        } 
+      #endif 
+    #endif 
     if (currentScreen != screen) {
       currentScreen = screen;
       encoderPosition = encoder;
@@ -755,8 +776,6 @@ void kill_screen(const char* lcd_msg) {
   }
 
   #if ENABLED(BABYSTEPPING)
-
-    long babysteps_done = 0;
 
     void _lcd_babystep(const AxisEnum axis, const char* msg) {
       if (lcd_clicked) { defer_return_to_status = false; return lcd_goto_previous_menu(); }
@@ -3269,6 +3288,16 @@ void lcd_setstatuspgm(const char* const message, uint8_t level) {
   if (level < lcd_status_message_level) return;
   lcd_status_message_level = level;
   strncpy_P(lcd_status_message, message, 3 * (LCD_WIDTH));
+  lcd_finishstatus(level > 0);
+}
+
+void status_printf(uint8_t level, const char *status, ...) {
+  if (level < lcd_status_message_level) return;
+  lcd_status_message_level = level;
+  va_list args;
+  va_start(args, status);
+  vsnprintf_P(lcd_status_message, 3 * (LCD_WIDTH), status, args);
+  va_end(args);
   lcd_finishstatus(level > 0);
 }
 
