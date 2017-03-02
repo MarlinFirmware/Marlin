@@ -1130,6 +1130,17 @@
 
 
 /**
+ * Double Clicking of LCD Panel's Encoder Wheel while at the Status Screen will jump
+ * to the Z-BabyStepping menu.
+ */
+//#define DOUBLE_CLICK_JUMPS_TO_Z_BABYSTEPPING
+#define DOUBLE_CLICK_TIME_WINDOW 1250   // How quickly the double click must be done in miliseconds.
+                                        // Please notice this time must be a little bit longer than what
+                                        // is actually desired because there is some latency in detecting a
+                                        // change in LCD Panel Button Status.
+
+
+/**
  * Volumetric extrusion default state
  * Activate to make volumetric extrusion the default method,
  * with DEFAULT_NOMINAL_FILAMENT_DIA as the default diameter.
