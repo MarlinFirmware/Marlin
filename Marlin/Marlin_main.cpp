@@ -4945,10 +4945,10 @@ inline void gcode_M42() {
     }
 
     // Get the range of pins to test or watch
-    int first_pin = 0, last_pin = NUM_DIGITAL_PINS - 1;
+    int first_pin = 0, last_pin = (NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS) - 1;
     if (code_seen('P')) {
       first_pin = last_pin = code_value_byte();
-      if (first_pin > NUM_DIGITAL_PINS - 1) return;
+      if (first_pin > (NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS) - 1) return;
     }
 
     bool ignore_protection = code_seen('I') ? code_value_bool() : false;
@@ -7423,7 +7423,7 @@ inline void gcode_M503() {
       if (nozzle_timed_out)
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
 
-      #if HAS_BUZZER 
+      #if HAS_BUZZER
         filament_change_beep();
       #endif
 
@@ -7483,7 +7483,7 @@ inline void gcode_M503() {
     stepper.synchronize();
 
     #if defined(FILAMENT_CHANGE_EXTRUDE_LENGTH) && FILAMENT_CHANGE_EXTRUDE_LENGTH > 0
-  
+
       do {
         // "Wait for filament extrude"
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_EXTRUDE);
@@ -10174,7 +10174,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #else
     #define M600_TEST true
   #endif
-             
+
   if (M600_TEST && stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
       && !ignore_stepper_queue && !planner.blocks_queued()) {
     #if ENABLED(DISABLE_INACTIVE_X)
