@@ -1164,6 +1164,13 @@
 //#define EXTENDED_CAPABILITIES_REPORT
 
 /**
+ * Double-click the Encoder button on the Status Screen for Z Babystepping.
+ */
+//#define DOUBLECLICK_FOR_Z_BABYSTEPPING
+#define DOUBLECLICK_MAX_INTERVAL 1250   // Maximum interval between clicks, in milliseconds.
+                                        // Note: You may need to add extra time to mitigate controller latency.
+
+/**
  * Volumetric extrusion default state
  * Activate to make volumetric extrusion the default method,
  * with DEFAULT_NOMINAL_FILAMENT_DIA as the default diameter.

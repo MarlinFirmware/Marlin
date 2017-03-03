@@ -51,7 +51,6 @@ int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2
 
 #if ENABLED(BABYSTEPPING)
   long babysteps_done = 0;
-  millis_t status_screen_click_time = 0;
   static void lcd_babystep_z();
 #endif
 
@@ -417,22 +416,20 @@ uint16_t max_display_update_time = 0;
    * General function to go directly to a screen
    */
   void lcd_goto_screen(screenFunc_t screen, const uint32_t encoder = 0) {
-    #ifdef DOUBLE_CLICK_JUMPS_TO_Z_BABYSTEPPING
-      #if ENABLED(BABYSTEPPING) 
-        if (currentScreen==lcd_status_screen && screen==lcd_main_menu)  // We are in leaving the status screen to goto the main_menu  
-          status_screen_click_time = millis();       // screen.  Mark the time so we know how quick the user is 
-                     // pressing buttons. 
-        if (currentScreen==lcd_main_menu)  { 
-          if ( screen==lcd_status_screen && status_screen_click_time+DOUBLE_CLICK_TIME_WINDOW>millis() ) { 
-            lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; 
-            status_screen_click_time = 0; 
-            lcd_babystep_z(); 
-          return; 
-          } 
-        } 
-      #endif 
-    #endif 
     if (currentScreen != screen) {
+
+      #if ENABLED(DOUBLECLICK_FOR_Z_BABYSTEPPING) && ENABLED(BABYSTEPPING)
+        static millis_t doubleclick_expire_ms = 0;
+        // Going to lcd_main_menu from status screen? Remember first click time.
+        // Going back to status screen within a very short time? Go to Z babystepping.
+        if (screen == lcd_main_menu) {
+          if (currentScreen == lcd_status_screen)
+            doubleclick_expire_ms = millis() + DOUBLECLICK_MAX_INTERVAL;
+        }
+        else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms))
+          screen = lcd_babystep_z;
+      #endif 
+
       currentScreen = screen;
       encoderPosition = encoder;
       if (screen == lcd_status_screen) {
