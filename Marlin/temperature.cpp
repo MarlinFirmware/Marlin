@@ -1483,16 +1483,10 @@ void Temperature::set_current_temp_raw() {
  */
 ISR(TIMER0_COMPB_vect) { Temperature::isr(); }
 
-volatile bool Temperature::in_temp_isr = false;
-
 void Temperature::isr() {
-  // The stepper ISR can interrupt this ISR. When it does it re-enables this ISR
-  // at the end of its run, potentially causing re-entry. This flag prevents it.
-  if (in_temp_isr) return;
-  in_temp_isr = true;
-  
-  // Allow UART and stepper ISRs
+  // Allow UART ISRs
   CBI(TIMSK0, OCIE0B); //Disable Temperature ISR
+  CBI(TIMSK1, OCIE1A); //Disable Stepper ISR
   sei();
 
   static uint8_t temp_count = 0;
@@ -1957,6 +1951,6 @@ void Temperature::isr() {
   #endif
 
   cli();
-  in_temp_isr = false;
   SBI(TIMSK0, OCIE0B); //re-enable Temperature ISR
+  SBI(TIMSK1, OCIE1A); //re-enable Stepper ISR
 }
