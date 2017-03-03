@@ -304,7 +304,7 @@ void Stepper::isr() {
 
   static uint32_t step_remaining = 0;
 
-  uint16_t ocr_val;
+  HAL_TIMER_TYPE ocr_val;
 
   #define ENDSTOP_NOMINAL_OCR_VAL 3000    // check endstops every 1.5ms to guarantee two stepper ISRs within 5ms for BLTouch
   #define OCR_VAL_TOLERANCE 1000          // First max delay is 2.0ms, last min delay is 0.5ms, all others 1.5ms
@@ -316,7 +316,7 @@ void Stepper::isr() {
     sei();
   #endif
 
-  #define _SPLIT(L) (ocr_val = (uint16_t)L)
+  #define _SPLIT(L) (ocr_val = (HAL_TIMER_TYPE)L)
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     #define SPLIT(L) _SPLIT(L)
   #else                 // sample endstops in between step pulses
