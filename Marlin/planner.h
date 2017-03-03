@@ -210,6 +210,7 @@ class Planner {
     #if ENABLED(LIN_ADVANCE)
       static float position_float[NUM_AXIS];
       static float extruder_advance_k;
+      static float advance_ed_ratio;
     #endif
 
     #if ENABLED(ULTRA_LCD)
@@ -266,7 +267,9 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      void advance_M905(const float &k);
+      static void set_extruder_advance_k(const float &k) { extruder_advance_k = k; };
+      static float get_extruder_advance_k() { return extruder_advance_k; };
+      static void set_advance_ed_ratio(const float &ratio) { advance_ed_ratio = ratio; };
     #endif
 
     /**
