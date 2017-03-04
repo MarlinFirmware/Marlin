@@ -458,13 +458,16 @@ void Config_Postprocess() {
     uint16_t stored_checksum;
     EEPROM_READ(stored_checksum);
 
-    //  SERIAL_ECHOPAIR("Version: [", version);
-    //  SERIAL_ECHOPAIR("] Stored version: [", stored_ver);
-    //  SERIAL_CHAR(']');
-    //  SERIAL_EOL;
-
     // Version has to match or defaults are used
     if (strncmp(version, stored_ver, 3) != 0) {
+      if (stored_ver[0] != 'V') {
+        stored_ver[0] = '?';
+        stored_ver[1] = '\0';
+      }
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPGM("EEPROM version mismatch ");
+      SERIAL_ECHOPAIR("(EEPROM=", stored_ver);
+      SERIAL_ECHOLNPGM(" Marlin=" EEPROM_VERSION ")");
       Config_ResetDefault();
     }
     else {
