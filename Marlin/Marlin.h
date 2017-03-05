@@ -278,10 +278,11 @@ extern float current_position[NUM_AXIS];
 
 // Workspace offsets
 #if DISABLED(NO_WORKSPACE_OFFSETS)
-  extern float position_shift[XYZ];
-  extern float home_offset[XYZ];
-  #define LOGICAL_POSITION(POS, AXIS) ((POS) + home_offset[AXIS] + position_shift[AXIS])
-  #define RAW_POSITION(POS, AXIS)     ((POS) - home_offset[AXIS] - position_shift[AXIS])
+  extern float position_shift[XYZ],
+               home_offset[XYZ],
+               workspace_offset[XYZ];
+  #define LOGICAL_POSITION(POS, AXIS) ((POS) + workspace_offset[AXIS])
+  #define RAW_POSITION(POS, AXIS)     ((POS) - workspace_offset[AXIS])
 #else
   #define LOGICAL_POSITION(POS, AXIS) (POS)
   #define RAW_POSITION(POS, AXIS)     (POS)
