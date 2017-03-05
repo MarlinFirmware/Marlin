@@ -405,6 +405,9 @@ float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DI
   // Set by M206, M428, or menu item. Saved to EEPROM.
   float home_offset[XYZ] = { 0 };
 
+  // The above two are combined to save on computes
+  float workspace_offset[XYZ] = { 0 };
+
 #endif
 
 // Software Endstops are based on the configured limits.
@@ -1349,7 +1352,7 @@ bool get_target_extruder_from_command(int code) {
    * at the same positions relative to the machine.
    */
   void update_software_endstops(const AxisEnum axis) {
-    const float offs = LOGICAL_POSITION(0, axis);
+    const float offs = workspace_offset[axis] = LOGICAL_POSITION(0, axis);
 
     #if ENABLED(DUAL_X_CARRIAGE)
       if (axis == X_AXIS) {
@@ -1408,7 +1411,7 @@ bool get_target_extruder_from_command(int code) {
    * Since this changes the current_position, code should
    * call sync_plan_position soon after this.
    */
-  static void set_home_offset(AxisEnum axis, float v) {
+  static void set_home_offset(const AxisEnum axis, const float v) {
     current_position[axis] += v - home_offset[axis];
     home_offset[axis] = v;
     update_software_endstops(axis);
