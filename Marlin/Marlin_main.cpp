@@ -1567,8 +1567,8 @@ inline void line_to_destination(float fr_mm_s) {
 }
 inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
 
-inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
-inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
+inline void set_current_to_destination() { COPY(current_position, destination); }
+inline void set_destination_to_current() { COPY(destination, current_position); }
 
 #if IS_KINEMATIC
   /**
@@ -3583,7 +3583,7 @@ inline void gcode_G28() {
         HOMEAXIS(X);
 
         // Consider the active extruder to be parked
-        memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+        COPY(raised_parked_position, current_position);
         delayed_move_time = 0;
         active_extruder_parked = true;
 
@@ -4383,7 +4383,7 @@ inline void gcode_G28() {
         #endif
 
         float converted[XYZ];
-        memcpy(converted, current_position, sizeof(converted));
+        COPY(converted, current_position);
 
         planner.abl_enabled = true;
         planner.unapply_leveling(converted); // use conversion machinery
@@ -4405,7 +4405,7 @@ inline void gcode_G28() {
         }
 
         // The rotated XY and corrected Z are now current_position
-        memcpy(current_position, converted, sizeof(converted));
+        COPY(current_position, converted);
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
@@ -7965,7 +7965,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               break;
             case DXC_AUTO_PARK_MODE:
               // record raised toolhead position for use by unpark
-              memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+              COPY(raised_parked_position, current_position);
               raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
               #if ENABLED(max_software_endstops)
                 NOMORE(raised_parked_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
@@ -9332,7 +9332,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     planner.unapply_leveling(cartes);
   #endif
   if (axis == ALL_AXES)
-    memcpy(current_position, cartes, sizeof(cartes));
+    COPY(current_position, cartes);
   else
     current_position[axis] = cartes[axis];
 }
@@ -9367,14 +9367,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // Split at the left/front border of the right/top square
     int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
-      memcpy(end, destination, sizeof(end));
+      COPY(end, destination);
       destination[X_AXIS] = LOGICAL_X_POSITION(mbl.get_probe_x(gcx));
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = MBL_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
-      memcpy(end, destination, sizeof(end));
+      COPY(end, destination);
       destination[Y_AXIS] = LOGICAL_Y_POSITION(mbl.get_probe_y(gcy));
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = MBL_SEGMENT_END(X);
@@ -9394,7 +9394,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
 
     // Restore destination from stack
-    memcpy(destination, end, sizeof(end));
+    COPY(destination, end);
     mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 
@@ -9430,14 +9430,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // Split at the left/front border of the right/top square
     int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
-      memcpy(end, destination, sizeof(end));
+      COPY(end, destination);
       destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx);
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = LINE_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
-      memcpy(end, destination, sizeof(end));
+      COPY(end, destination);
       destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy);
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = LINE_SEGMENT_END(X);
@@ -9457,7 +9457,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
 
     // Restore destination from stack
-    memcpy(destination, end, sizeof(end));
+    COPY(destination, end);
     bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 
@@ -9552,7 +9552,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
       // Get the logical current position as starting point
       float logical[XYZE];
-      memcpy(logical, current_position, sizeof(logical));
+      COPY(logical, current_position);
 
       #define DELTA_VAR logical
 
@@ -10527,7 +10527,7 @@ void setup() {
 
   #if DISABLED(NO_WORKSPACE_OFFSETS)
     // Initialize current position based on home_offset
-    memcpy(current_position, home_offset, sizeof(home_offset));
+    COPY(current_position, home_offset);
   #else
     ZERO(current_position);
   #endif

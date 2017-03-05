@@ -1298,7 +1298,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   block->flag |= BLOCK_FLAG_RECALCULATE | (block->nominal_speed <= v_allowable ? BLOCK_FLAG_NOMINAL_LENGTH : 0);
 
   // Update previous path unit_vector and nominal speed
-  memcpy(previous_speed, current_speed, sizeof(previous_speed));
+  COPY(previous_speed, current_speed);
   previous_nominal_speed = block->nominal_speed;
   previous_safe_speed = safe_speed;
 
@@ -1360,7 +1360,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
   block_buffer_head = next_buffer_head;
 
   // Update the position (only when a move was queued)
-  memcpy(position, target, sizeof(position));
+  COPY(position, target);
   #if ENABLED(LIN_ADVANCE)
     position_float[X_AXIS] = a;
     position_float[Y_AXIS] = b;
