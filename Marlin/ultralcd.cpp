@@ -1374,6 +1374,19 @@ KeepDrawing:
     //
     #if TEMP_SENSOR_0 != 0
 
+      //
+      // Cooldown
+      //
+      bool has_heat = false;
+      HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; break; }
+      #if HAS_TEMP_BED
+        if (thermalManager.target_temperature_bed) has_heat = true;
+      #endif
+      if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+
+      //
+      // Preheat for Material 1 and 2
+      //
       #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_BED != 0
         MENU_ITEM(submenu, MSG_PREHEAT_1, lcd_preheat_material1_menu);
         MENU_ITEM(submenu, MSG_PREHEAT_2, lcd_preheat_material2_menu);
@@ -1391,16 +1404,6 @@ KeepDrawing:
       #endif
 
     #endif // TEMP_SENSOR_0 != 0
-
-    //
-    // Cooldown
-    //
-    bool has_heat = false;
-    HOTEND_LOOP() if (thermalManager.target_temperature[HOTEND_INDEX]) { has_heat = true; break; }
-    #if HAS_TEMP_BED
-      if (thermalManager.target_temperature_bed) has_heat = true;
-    #endif
-    if (has_heat) MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 
     //
     // BLTouch Self-Test and Reset
