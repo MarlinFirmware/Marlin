@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V29"
+#define EEPROM_VERSION "V30"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V29 EEPROM Layout:
+ * V30 EEPROM Layout:
  *
  *  100  Version                                   (char x4)
  *  104  EEPROM Checksum                           (uint16_t)
@@ -69,67 +69,68 @@
  *  220            mbl.z_offset (float)
  *  224            MESH_NUM_X_POINTS (uint8 as set in firmware)
  *  225            MESH_NUM_Y_POINTS (uint8 as set in firmware)
- *  226 G29 S3 XYZ z_values[][] (float x9, by default, up to float x 81) +288
+ *  226            z_fade_height (float)
+ *  230 G29 S3 XYZ z_values[][] (float x9, by default, up to float x 81) +288
  *
  * AUTO BED LEVELING
- *  262  M851      zprobe_zoffset (float)
+ *  266  M851      zprobe_zoffset (float)
  *
  * ABL_PLANAR (or placeholder):                    36 bytes
- *  266            planner.bed_level_matrix        (matrix_3x3 = float x9)
+ *  270            planner.bed_level_matrix        (matrix_3x3 = float x9)
  *
  * AUTO_BED_LEVELING_BILINEAR (or placeholder):    47 bytes
- *  302            ABL_GRID_MAX_POINTS_X           (uint8_t)
- *  303            ABL_GRID_MAX_POINTS_Y           (uint8_t)
- *  304            bilinear_grid_spacing           (int x2)   from G29: (B-F)/X, (R-L)/Y
- *  308  G29 L F   bilinear_start                  (int x2)
- *  312            bed_level_grid[][]              (float x9, up to float x256) +988
+ *  306            ABL_GRID_MAX_POINTS_X           (uint8_t)
+ *  307            ABL_GRID_MAX_POINTS_Y           (uint8_t)
+ *  308            bilinear_grid_spacing           (int x2)   from G29: (B-F)/X, (R-L)/Y
+ *  312  G29 L F   bilinear_start                  (int x2)
+ *  316            bed_level_grid[][]              (float x9, up to float x256) +988
  *
  * DELTA (if deltabot):                            36 bytes
- *  348  M666 XYZ  endstop_adj                     (float x3)
- *  360  M665 R    delta_radius                    (float)
- *  364  M665 L    delta_diagonal_rod              (float)
- *  368  M665 S    delta_segments_per_second       (float)
- *  372  M665 A    delta_diagonal_rod_trim_tower_1 (float)
- *  376  M665 B    delta_diagonal_rod_trim_tower_2 (float)
- *  380  M665 C    delta_diagonal_rod_trim_tower_3 (float)
+ *  352  M666 XYZ  endstop_adj                     (float x3)
+ *  364  M665 R    delta_radius                    (float)
+ *  368  M665 L    delta_diagonal_rod              (float)
+ *  372  M665 S    delta_segments_per_second       (float)
+ *  376  M665 A    delta_diagonal_rod_trim_tower_1 (float)
+ *  380  M665 B    delta_diagonal_rod_trim_tower_2 (float)
+ *  384  M665 C    delta_diagonal_rod_trim_tower_3 (float)
  *
  * Z_DUAL_ENDSTOPS:                                4 bytes
- *  384  M666 Z    z_endstop_adj                   (float)
+ *  388  M666 Z    z_endstop_adj                   (float)
  *
  * ULTIPANEL:                                      6 bytes
- *  388  M145 S0 H lcd_preheat_hotend_temp         (int x2)
- *  392  M145 S0 B lcd_preheat_bed_temp            (int x2)
- *  396  M145 S0 F lcd_preheat_fan_speed           (int x2)
+ *  392  M145 S0 H lcd_preheat_hotend_temp         (int x2)
+ *  396  M145 S0 B lcd_preheat_bed_temp            (int x2)
+ *  400  M145 S0 F lcd_preheat_fan_speed           (int x2)
  *
  * PIDTEMP:                                        66 bytes
- *  400  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]  (float x4)
- *  416  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]  (float x4)
- *  432  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]  (float x4)
- *  448  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]  (float x4)
- *  464  M301 L        lpq_len                     (int)
+ *  404  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]  (float x4)
+ *  420  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]  (float x4)
+ *  436  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]  (float x4)
+ *  452  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]  (float x4)
+ *  468  M301 L        lpq_len                     (int)
  *
  * PIDTEMPBED:
- *  466  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
+ *  470  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
  *
  * DOGLCD:                                          2 bytes
- *  478  M250 C    lcd_contrast                     (int)
+ *  482  M250 C    lcd_contrast                     (int)
  *
  * FWRETRACT:                                       29 bytes
- *  480  M209 S    autoretract_enabled              (bool)
- *  481  M207 S    retract_length                   (float)
- *  485  M207 W    retract_length_swap              (float)
- *  489  M207 F    retract_feedrate_mm_s            (float)
- *  493  M207 Z    retract_zlift                    (float)
- *  497  M208 S    retract_recover_length           (float)
- *  501  M208 W    retract_recover_length_swap      (float)
- *  505  M208 F    retract_recover_feedrate_mm_s    (float)
+ *  484  M209 S    autoretract_enabled              (bool)
+ *  485  M207 S    retract_length                   (float)
+ *  489  M207 W    retract_length_swap              (float)
+ *  493  M207 F    retract_feedrate_mm_s            (float)
+ *  497  M207 Z    retract_zlift                    (float)
+ *  501  M208 S    retract_recover_length           (float)
+ *  505  M208 W    retract_recover_length_swap      (float)
+ *  509  M208 F    retract_recover_feedrate_mm_s    (float)
  *
  * Volumetric Extrusion:                            17 bytes
- *  509  M200 D    volumetric_enabled               (bool)
- *  510  M200 T D  filament_size                    (float x4) (T0..3)
+ *  513  M200 D    volumetric_enabled               (bool)
+ *  514  M200 T D  filament_size                    (float x4) (T0..3)
  *
- *  526                                Minimum end-point
- * 1847 (526 + 36 + 9 + 288 + 988)     Maximum end-point
+ *  530                                Minimum end-point
+ * 1851 (526 + 36 + 9 + 288 + 4 + 988)     Maximum end-point
  *
  */
 #include "Marlin.h"
@@ -277,6 +278,11 @@ void Config_Postprocess() {
       EEPROM_WRITE(mbl.z_offset);
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        EEPROM_WRITE(planner.z_fade_height);
+      #else
+    	EEPROM_WRITE(0.0f); //write dummy value
+      #endif // LEVELING_FADE_HEIGHT
       EEPROM_WRITE(mbl.z_values);
     #else
       // For disabled MBL write a default mesh
@@ -287,6 +293,7 @@ void Config_Postprocess() {
       EEPROM_WRITE(dummy); // z_offset
       EEPROM_WRITE(mesh_num_x);
       EEPROM_WRITE(mesh_num_y);
+      EEPROM_WRITE(dummy); // z_fade_height
       for (uint8_t q = mesh_num_x * mesh_num_y; q--;) EEPROM_WRITE(dummy);
     #endif // MESH_BED_LEVELING
 
@@ -528,6 +535,13 @@ void Config_Postprocess() {
       EEPROM_READ(dummy);
       EEPROM_READ(mesh_num_x);
       EEPROM_READ(mesh_num_y);
+      
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+        EEPROM_READ(planner.z_fade_height);
+        planner.inverse_z_fade_height = RECIPROCAL(planner.z_fade_height);
+      #else
+        EEPROM_READ(dummy);
+      #endif // LEVELING_FADE_HEIGHT
 
       #if ENABLED(MESH_BED_LEVELING)
         mbl.status = leveling_is_on ? _BV(MBL_STATUS_HAS_MESH_BIT) : 0;
