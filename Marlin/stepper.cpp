@@ -451,7 +451,7 @@ void Stepper::isr() {
 
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (ENDSTOPS_ENABLED && e_hit) {
+    if (e_hit && ENDSTOPS_ENABLED) {
       endstops.update();
       e_hit--;
     }

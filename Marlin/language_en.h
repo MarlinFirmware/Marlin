@@ -105,6 +105,9 @@
 #ifndef MSG_PREHEAT_1_ALL
   #define MSG_PREHEAT_1_ALL                   MSG_PREHEAT_1 _UxGT(" All")
 #endif
+#ifndef MSG_PREHEAT_1_END
+  #define MSG_PREHEAT_1_END                   MSG_PREHEAT_1 _UxGT(" End")
+#endif
 #ifndef MSG_PREHEAT_1_BEDONLY
   #define MSG_PREHEAT_1_BEDONLY               MSG_PREHEAT_1 _UxGT(" Bed")
 #endif
@@ -120,6 +123,9 @@
 #ifndef MSG_PREHEAT_2_ALL
   #define MSG_PREHEAT_2_ALL                   MSG_PREHEAT_2 _UxGT(" All")
 #endif
+#ifndef MSG_PREHEAT_2_END
+  #define MSG_PREHEAT_2_END                   MSG_PREHEAT_2 _UxGT(" End")
+#endif
 #ifndef MSG_PREHEAT_2_BEDONLY
   #define MSG_PREHEAT_2_BEDONLY               MSG_PREHEAT_2 _UxGT(" Bed")
 #endif
@@ -128,9 +134,6 @@
 #endif
 #ifndef MSG_COOLDOWN
   #define MSG_COOLDOWN                        _UxGT("Cooldown")
-#endif
-#ifndef MSG_HOTEND
-  #define MSG_HOTEND                          _UxGT("Hotend")
 #endif
 #ifndef MSG_SWITCH_PS_ON
   #define MSG_SWITCH_PS_ON                    _UxGT("Switch power on")
