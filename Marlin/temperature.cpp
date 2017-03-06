@@ -1477,9 +1477,11 @@ void Temperature::set_current_temp_raw() {
  * in OCR0B above (128 or halfway between OVFs).
  *
  *  - Manage PWM to all the heaters and fan
- *  - Update the raw temperature values
- *  - Check new temperature values for MIN/MAX errors
+ *  - Prepare or Measure one of the raw ADC sensor values
+ *  - Check new temperature values for MIN/MAX errors (kill on error)
  *  - Step the babysteps value for each axis towards 0
+ *  - For PINS_DEBUGGING, monitor and report endstop pins
+ *  - For ENDSTOP_INTERRUPTS_FEATURE check endstops if flagged
  */
 ISR(TIMER0_COMPB_vect) { Temperature::isr(); }
 
@@ -1535,37 +1537,37 @@ void Temperature::isr() {
      */
     if (pwm_count == 0) {
       soft_pwm_0 = soft_pwm[0];
-      WRITE_HEATER_0(soft_pwm_0 > 0 ? 1 : 0);
+      WRITE_HEATER_0(soft_pwm_0 > 0 ? HIGH : LOW);
       #if HOTENDS > 1
         soft_pwm_1 = soft_pwm[1];
-        WRITE_HEATER_1(soft_pwm_1 > 0 ? 1 : 0);
+        WRITE_HEATER_1(soft_pwm_1 > 0 ? HIGH : LOW);
         #if HOTENDS > 2
           soft_pwm_2 = soft_pwm[2];
-          WRITE_HEATER_2(soft_pwm_2 > 0 ? 1 : 0);
+          WRITE_HEATER_2(soft_pwm_2 > 0 ? HIGH : LOW);
           #if HOTENDS > 3
             soft_pwm_3 = soft_pwm[3];
-            WRITE_HEATER_3(soft_pwm_3 > 0 ? 1 : 0);
+            WRITE_HEATER_3(soft_pwm_3 > 0 ? HIGH : LOW);
           #endif
         #endif
       #endif
 
       #if HAS_HEATER_BED
         soft_pwm_BED = soft_pwm_bed;
-        WRITE_HEATER_BED(soft_pwm_BED > 0 ? 1 : 0);
+        WRITE_HEATER_BED(soft_pwm_BED > 0 ? HIGH : LOW);
       #endif
 
       #if ENABLED(FAN_SOFT_PWM)
         #if HAS_FAN0
           soft_pwm_fan[0] = fanSpeedSoftPwm[0] >> 1;
-          WRITE_FAN(soft_pwm_fan[0] > 0 ? 1 : 0);
+          WRITE_FAN(soft_pwm_fan[0] > 0 ? HIGH : LOW);
         #endif
         #if HAS_FAN1
           soft_pwm_fan[1] = fanSpeedSoftPwm[1] >> 1;
-          WRITE_FAN1(soft_pwm_fan[1] > 0 ? 1 : 0);
+          WRITE_FAN1(soft_pwm_fan[1] > 0 ? HIGH : LOW);
         #endif
         #if HAS_FAN2
           soft_pwm_fan[2] = fanSpeedSoftPwm[2] >> 1;
-          WRITE_FAN2(soft_pwm_fan[2] > 0 ? 1 : 0);
+          WRITE_FAN2(soft_pwm_fan[2] > 0 ? HIGH : LOW);
         #endif
       #endif
     }
@@ -1683,15 +1685,15 @@ void Temperature::isr() {
       if (pwm_count == 0) {
         #if HAS_FAN0
           soft_pwm_fan[0] = fanSpeedSoftPwm[0] >> 1;
-          WRITE_FAN(soft_pwm_fan[0] > 0 ? 1 : 0);
+          WRITE_FAN(soft_pwm_fan[0] > 0 ? HIGH : LOW);
         #endif
         #if HAS_FAN1
           soft_pwm_fan[1] = fanSpeedSoftPwm[1] >> 1;
-          WRITE_FAN1(soft_pwm_fan[1] > 0 ? 1 : 0);
+          WRITE_FAN1(soft_pwm_fan[1] > 0 ? HIGH : LOW);
         #endif
         #if HAS_FAN2
           soft_pwm_fan[2] = fanSpeedSoftPwm[2] >> 1;
-          WRITE_FAN2(soft_pwm_fan[2] > 0 ? 1 : 0);
+          WRITE_FAN2(soft_pwm_fan[2] > 0 ? HIGH : LOW);
         #endif
       }
       #if HAS_FAN0
