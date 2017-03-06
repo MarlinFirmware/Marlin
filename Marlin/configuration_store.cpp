@@ -36,7 +36,7 @@
  *
  */
 
-#define EEPROM_VERSION "V29"
+#define EEPROM_VERSION "V30"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
@@ -128,7 +128,19 @@
  *  509  M200 D    volumetric_enabled               (bool)
  *  510  M200 T D  filament_size                    (float x4) (T0..3)
  *
- *  526                                Minimum end-point
+ * TMC2130:                                         20 bytes
+ *  526  M906 X    TMC2130  X-stepper current       (uint16_t)
+ *  528  M906 Y    TMC2130  Y-stepper current       (uint16_t)
+ *  530  M906 Z    TMC2130  Z-stepper current       (uint16_t)
+ *  532  M906 X2   TMC2130 X2-stepper current       (uint16_t)
+ *  534  M906 Y2   TMC2130 Y2-stepper current       (uint16_t)
+ *  536  M906 Z2   TMC2130 Z2-stepper current       (uint16_t)
+ *  538  M906 E0   TMC2130 E0-stepper current       (uint16_t)
+ *  540  M906 E1   TMC2130 E1-stepper current       (uint16_t)
+ *  542  M906 E2   TMC2130 E2-stepper current       (uint16_t)
+ *  544  M906 E3   TMC2130 E3-stepper current       (uint16_t)
+ *
+ *  546                                Minimum end-point
  * 1847 (526 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  */
@@ -142,6 +154,10 @@
 
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
+#endif
+
+#if ENABLED(HAVE_TMC2130)
+	#include "stepper_indirection.h"
 #endif
 
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)
@@ -432,6 +448,80 @@ void Config_Postprocess() {
       EEPROM_WRITE(dummy);
     }
 
+    #if ENABLED(HAVE_TMC2130)
+    	uint16_t val;
+  		#if ENABLED(X_IS_TMC2130)
+  			val = stepperX.getCurrent();
+  			EEPROM_WRITE(val);
+  		#else
+	      dummy = 0U;
+	      EEPROM_WRITE(dummy);
+  		#endif
+  		#if ENABLED(Y_IS_TMC2130)
+  			val = stepperY.getCurrent();
+  			EEPROM_WRITE(val);
+  		#else
+	      dummy = 0U;
+	      EEPROM_WRITE(dummy);
+  		#endif
+  		#if ENABLED(Z_IS_TMC2130)
+  			val = stepperZ.getCurrent();
+  			EEPROM_WRITE(val);
+  		#else
+	      dummy = 0U;
+	      EEPROM_WRITE(dummy);
+  		#endif
+  		#if ENABLED(X2_IS_TMC2130)
+  			val = stepperX2.getCurrent();
+  			EEPROM_WRITE(val);
+  		#else
+	      dummy = 0U;
+	      EEPROM_WRITE(dummy);
+  		#endif
+  		#if ENABLED(Y2_IS_TMC2130)
+  			val = stepperY2.getCurrent();
+  			EEPROM_WRITE(val);
+  		#else
+	      dummy = 0U;
+	      EEPROM_WRITE(dummy);
+  		#endif
+  		#if ENABLED(Z2_IS_TMC2130)
+  			val = stepperZ2.getCurrent();
+  			EEPROM_WRITE(val);
+  		#else
+	      dummy = 0U;
+	      EEPROM_WRITE(dummy);
+  		#endif
+  		#if ENABLED(E0_IS_TMC2130)
+  			val = stepperE0.getCurrent();
+  			EEPROM_WRITE(val);
+  		#else
+	      dummy = 0U;
+	      EEPROM_WRITE(dummy);
+  		#endif
+  		#if ENABLED(E1_IS_TMC2130)
+  			val = stepperE1.getCurrent();
+  			EEPROM_WRITE(val);
+  		#else
+	      dummy = 0U;
+	      EEPROM_WRITE(dummy);
+  		#endif
+  		#if ENABLED(E2_IS_TMC2130)
+  			val = stepperE2.getCurrent();
+  			EEPROM_WRITE(val);
+  		#else
+	      dummy = 0U;
+	      EEPROM_WRITE(dummy);
+  		#endif
+  		#if ENABLED(E3_IS_TMC2130)
+  			val = stepperE3.getCurrent();
+  			EEPROM_WRITE(val);
+  		#else
+	      dummy = 0U;
+	      EEPROM_WRITE(dummy);
+  		#endif
+  	#endif
+
     if (!eeprom_write_error) {
 
       uint16_t final_checksum = eeprom_checksum,
@@ -684,6 +774,72 @@ void Config_Postprocess() {
         if (q < COUNT(filament_size)) filament_size[q] = dummy;
       }
 
+	    #if ENABLED(HAVE_TMC2130)
+	    	uint16_t val;
+	  		#if ENABLED(X_IS_TMC2130)
+	  			EEPROM_READ(val);
+	  			stepperX.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+	  		#else
+		      EEPROM_READ(dummy);
+	  		#endif
+	  		#if ENABLED(Y_IS_TMC2130)
+	  			EEPROM_READ(val);
+	  			stepperY.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+	  		#else
+		      EEPROM_READ(dummy);
+	  		#endif
+	  		#if ENABLED(Z_IS_TMC2130)
+	  			EEPROM_READ(val);
+	  			stepperZ.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+	  		#else
+		      EEPROM_READ(dummy);
+	  		#endif
+
+	  		#if ENABLED(X2_IS_TMC2130)
+	  			EEPROM_READ(val);
+	  			stepperX2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+	  		#else
+		      EEPROM_READ(dummy);
+	  		#endif
+	  		#if ENABLED(Y2_IS_TMC2130)
+	  			EEPROM_READ(val);
+	  			stepperY2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+	  		#else
+		      EEPROM_READ(dummy);
+	  		#endif
+	  		#if ENABLED(Z2_IS_TMC2130)
+	  			EEPROM_READ(val);
+	  			stepperZ2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+	  		#else
+		      EEPROM_READ(dummy);
+	  		#endif
+
+	  		#if ENABLED(E0_IS_TMC2130)
+	  			EEPROM_READ(val);
+	  			stepperE0.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+	  		#else
+		      EEPROM_READ(dummy);
+	  		#endif
+	  		#if ENABLED(E1_IS_TMC2130)
+	  			EEPROM_READ(val);
+	  			stepperE1.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+	  		#else
+		      EEPROM_READ(dummy);
+	  		#endif
+	  		#if ENABLED(E2_IS_TMC2130)
+	  			EEPROM_READ(val);
+	  			stepperE2.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+	  		#else
+		      EEPROM_READ(dummy);
+	  		#endif
+	  		#if ENABLED(E3_IS_TMC2130)
+	  			EEPROM_READ(val);
+	  			stepperE3.setCurrent(val, R_SENSE, HOLD_MULTIPLIER);
+	  		#else
+		      EEPROM_READ(dummy);
+	  		#endif
+	  	#endif
+
       if (eeprom_checksum == stored_checksum) {
         if (eeprom_read_error)
           Config_ResetDefault();
@@ -851,6 +1007,39 @@ void Config_ResetDefault() {
       (false)
     #endif
   );
+
+  #if ENABLED(HAVE_TMC2130)
+  	#if ENABLED(X_IS_TMC2130)
+  		stepperX.setCurrent(X_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  	#endif
+  	#if ENABLED(Y_IS_TMC2130)
+  		stepperY.setCurrent(Y_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  	#endif
+  	#if ENABLED(Z_IS_TMC2130)
+  		stepperZ.setCurrent(Z_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  	#endif
+  	#if ENABLED(X2_IS_TMC2130)
+  		stepperX2.setCurrent(X2_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  	#endif
+  	#if ENABLED(Y2_IS_TMC2130)
+  		stepperY2.setCurrent(Y2_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  	#endif
+  	#if ENABLED(Z2_IS_TMC2130)
+  		stepperZ2.setCurrent(Z2_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  	#endif
+  	#if ENABLED(E0_IS_TMC2130)
+  		stepperE0.setCurrent(E0_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  	#endif
+  	#if ENABLED(E1_IS_TMC2130)
+  		stepperE1.setCurrent(E1_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  	#endif
+  	#if ENABLED(E2_IS_TMC2130)
+  		stepperE2.setCurrent(E2_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  	#endif
+  	#if ENABLED(E3_IS_TMC2130)
+  		stepperE3.setCurrent(E3_MAX_CURRENT, R_SENSE, HOLD_MULTIPLIER);
+  	#endif
+  #endif
 
   Config_Postprocess();
 
@@ -1191,6 +1380,49 @@ void Config_ResetDefault() {
       CONFIG_ECHO_START;
       SERIAL_ECHOPAIR("  M851 Z", zprobe_zoffset);
       SERIAL_EOL;
+    #endif
+
+    /**
+     * TMC2130 stepper driver current
+     */
+    #if ENABLED(HAVE_TMC2130)
+      if (!forReplay) {
+        CONFIG_ECHO_START;
+        SERIAL_ECHOLNPGM("Stepper driver current:");
+      }
+      CONFIG_ECHO_START;
+      SERIAL_ECHO(" M906");
+    	#if ENABLED(X_IS_TMC2130)
+    		SERIAL_ECHOPAIR(" X", stepperX.getCurrent());
+    	#endif
+    	#if ENABLED(Y_IS_TMC2130)
+    		SERIAL_ECHOPAIR(" Y", stepperY.getCurrent());
+    	#endif
+    	#if ENABLED(Z_IS_TMC2130)
+    		SERIAL_ECHOPAIR(" Z", stepperZ.getCurrent());
+    	#endif
+    	#if ENABLED(X2_IS_TMC2130)
+    		SERIAL_ECHOPAIR(" X2", stepperX2.getCurrent());
+    	#endif
+    	#if ENABLED(Y2_IS_TMC2130)
+    		SERIAL_ECHOPAIR(" Y2", stepperY2.getCurrent());
+    	#endif
+    	#if ENABLED(Z2_IS_TMC2130)
+    		SERIAL_ECHOPAIR(" Z2", stepperZ2.getCurrent());
+    	#endif
+    	#if ENABLED(E0_IS_TMC2130)
+    		SERIAL_ECHOPAIR(" E0", stepperE0.getCurrent());
+    	#endif
+    	#if ENABLED(E1_IS_TMC2130)
+    		SERIAL_ECHOPAIR(" E1", stepperE1.getCurrent());
+    	#endif
+    	#if ENABLED(E2_IS_TMC2130)
+    		SERIAL_ECHOPAIR(" E2", stepperE2.getCurrent());
+    	#endif
+    	#if ENABLED(E3_IS_TMC2130)
+    		SERIAL_ECHOPAIR(" E3", stepperE3.getCurrent());
+    	#endif
+    	SERIAL_EOL;
     #endif
   }
 
