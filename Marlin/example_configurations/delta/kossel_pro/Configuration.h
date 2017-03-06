@@ -53,7 +53,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_H_VERSION 010101
+#define CONFIGURATION_H_VERSION 010100
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -961,11 +961,6 @@
 //#define MANUAL_X_HOME_POS 0
 //#define MANUAL_Y_HOME_POS 0
 #define MANUAL_Z_HOME_POS 277 // Distance between the nozzle to printbed after homing
-
-// Delta tower angle adjustments
-#define DELTA_TOWER_ANGLE_TRIM_1 0.00
-#define DELTA_TOWER_ANGLE_TRIM_2 0.00
-#define DELTA_TOWER_ANGLE_TRIM_3 0.00
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
