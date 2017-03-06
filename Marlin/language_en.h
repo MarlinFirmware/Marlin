@@ -129,6 +129,9 @@
 #ifndef MSG_COOLDOWN
   #define MSG_COOLDOWN                        _UxGT("Cooldown")
 #endif
+#ifndef MSG_HOTEND
+  #define MSG_HOTEND                          _UxGT("Hotend")
+#endif
 #ifndef MSG_SWITCH_PS_ON
   #define MSG_SWITCH_PS_ON                    _UxGT("Switch power on")
 #endif
