@@ -171,8 +171,10 @@ void Config_Postprocess() {
 
   calculate_volumetric_multipliers();
 
-  // Software endstops depend on home_offset
-  LOOP_XYZ(i) update_software_endstops((AxisEnum)i);
+  #if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
+    // Software endstops depend on home_offset
+    LOOP_XYZ(i) update_software_endstops((AxisEnum)i);
+  #endif
 }
 
 #if ENABLED(EEPROM_SETTINGS)
@@ -251,6 +253,9 @@ void Config_Postprocess() {
     EEPROM_WRITE(planner.min_travel_feedrate_mm_s);
     EEPROM_WRITE(planner.min_segment_time);
     EEPROM_WRITE(planner.max_jerk);
+    #if ENABLED(NO_WORKSPACE_OFFSETS)
+      float home_offset[XYZ] = { 0 };
+    #endif
     EEPROM_WRITE(home_offset);
 
     #if HOTENDS > 1
@@ -501,6 +506,10 @@ void Config_Postprocess() {
       EEPROM_READ(planner.min_travel_feedrate_mm_s);
       EEPROM_READ(planner.min_segment_time);
       EEPROM_READ(planner.max_jerk);
+
+      #if ENABLED(NO_WORKSPACE_OFFSETS)
+        float home_offset[XYZ];
+      #endif
       EEPROM_READ(home_offset);
 
       #if HOTENDS > 1
@@ -729,7 +738,9 @@ void Config_ResetDefault() {
   planner.max_jerk[Y_AXIS] = DEFAULT_YJERK;
   planner.max_jerk[Z_AXIS] = DEFAULT_ZJERK;
   planner.max_jerk[E_AXIS] = DEFAULT_EJERK;
-  home_offset[X_AXIS] = home_offset[Y_AXIS] = home_offset[Z_AXIS] = 0;
+  #if DISABLED(NO_WORKSPACE_OFFSETS)
+    ZERO(home_offset);
+  #endif
 
   #if HOTENDS > 1
     constexpr float tmp4[XYZ][HOTENDS] = {
@@ -940,15 +951,17 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR(" E", planner.max_jerk[E_AXIS]);
     SERIAL_EOL;
 
-    CONFIG_ECHO_START;
-    if (!forReplay) {
-      SERIAL_ECHOLNPGM("Home offset (mm)");
+    #if DISABLED(NO_WORKSPACE_OFFSETS)
       CONFIG_ECHO_START;
-    }
-    SERIAL_ECHOPAIR("  M206 X", home_offset[X_AXIS]);
-    SERIAL_ECHOPAIR(" Y", home_offset[Y_AXIS]);
-    SERIAL_ECHOPAIR(" Z", home_offset[Z_AXIS]);
-    SERIAL_EOL;
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Home offset (mm)");
+        CONFIG_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M206 X", home_offset[X_AXIS]);
+      SERIAL_ECHOPAIR(" Y", home_offset[Y_AXIS]);
+      SERIAL_ECHOPAIR(" Z", home_offset[Z_AXIS]);
+      SERIAL_EOL;
+    #endif
 
     #if HOTENDS > 1
       CONFIG_ECHO_START;

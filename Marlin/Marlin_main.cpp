@@ -396,12 +396,19 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
       volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
-// The distance that XYZ has been offset by G92. Reset by G28.
-float position_shift[XYZ] = { 0 };
+#if DISABLED(NO_WORKSPACE_OFFSETS)
 
-// This offset is added to the configured home position.
-// Set by M206, M428, or menu item. Saved to EEPROM.
-float home_offset[XYZ] = { 0 };
+  // The distance that XYZ has been offset by G92. Reset by G28.
+  float position_shift[XYZ] = { 0 };
+
+  // This offset is added to the configured home position.
+  // Set by M206, M428, or menu item. Saved to EEPROM.
+  float home_offset[XYZ] = { 0 };
+
+  // The above two are combined to save on computes
+  float workspace_offset[XYZ] = { 0 };
+
+#endif
 
 // Software Endstops are based on the configured limits.
 #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
@@ -1333,76 +1340,83 @@ bool get_target_extruder_from_command(int code) {
 
 #endif // DUAL_X_CARRIAGE
 
-/**
- * Software endstops can be used to monitor the open end of
- * an axis that has a hardware endstop on the other end. Or
- * they can prevent axes from moving past endstops and grinding.
- *
- * To keep doing their job as the coordinate system changes,
- * the software endstop positions must be refreshed to remain
- * at the same positions relative to the machine.
- */
-void update_software_endstops(AxisEnum axis) {
-  float offs = LOGICAL_POSITION(0, axis);
+#if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
 
-  #if ENABLED(DUAL_X_CARRIAGE)
-    if (axis == X_AXIS) {
+  /**
+   * Software endstops can be used to monitor the open end of
+   * an axis that has a hardware endstop on the other end. Or
+   * they can prevent axes from moving past endstops and grinding.
+   *
+   * To keep doing their job as the coordinate system changes,
+   * the software endstop positions must be refreshed to remain
+   * at the same positions relative to the machine.
+   */
+  void update_software_endstops(const AxisEnum axis) {
+    const float offs = workspace_offset[axis] = LOGICAL_POSITION(0, axis);
 
-      // In Dual X mode hotend_offset[X] is T1's home position
-      float dual_max_x = max(hotend_offset[X_AXIS][1], X2_MAX_POS);
+    #if ENABLED(DUAL_X_CARRIAGE)
+      if (axis == X_AXIS) {
 
-      if (active_extruder != 0) {
-        // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
-        soft_endstop_min[X_AXIS] = X2_MIN_POS + offs;
-        soft_endstop_max[X_AXIS] = dual_max_x + offs;
+        // In Dual X mode hotend_offset[X] is T1's home position
+        float dual_max_x = max(hotend_offset[X_AXIS][1], X2_MAX_POS);
+
+        if (active_extruder != 0) {
+          // T1 can move from X2_MIN_POS to X2_MAX_POS or X2 home position (whichever is larger)
+          soft_endstop_min[X_AXIS] = X2_MIN_POS + offs;
+          soft_endstop_max[X_AXIS] = dual_max_x + offs;
+        }
+        else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
+          // In Duplication Mode, T0 can move as far left as X_MIN_POS
+          // but not so far to the right that T1 would move past the end
+          soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + offs;
+          soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
+        }
+        else {
+          // In other modes, T0 can move from X_MIN_POS to X_MAX_POS
+          soft_endstop_min[axis] = base_min_pos(axis) + offs;
+          soft_endstop_max[axis] = base_max_pos(axis) + offs;
+        }
       }
-      else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
-        // In Duplication Mode, T0 can move as far left as X_MIN_POS
-        // but not so far to the right that T1 would move past the end
-        soft_endstop_min[X_AXIS] = base_min_pos(X_AXIS) + offs;
-        soft_endstop_max[X_AXIS] = min(base_max_pos(X_AXIS), dual_max_x - duplicate_extruder_x_offset) + offs;
+    #else
+      soft_endstop_min[axis] = base_min_pos(axis) + offs;
+      soft_endstop_max[axis] = base_max_pos(axis) + offs;
+    #endif
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("For ", axis_codes[axis]);
+        #if DISABLED(NO_WORKSPACE_OFFSETS)
+          SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
+          SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
+        #endif
+        SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
+        SERIAL_ECHOLNPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
       }
-      else {
-        // In other modes, T0 can move from X_MIN_POS to X_MAX_POS
-        soft_endstop_min[axis] = base_min_pos(axis) + offs;
-        soft_endstop_max[axis] = base_max_pos(axis) + offs;
-      }
-    }
-  #else
-    soft_endstop_min[axis] = base_min_pos(axis) + offs;
-    soft_endstop_max[axis] = base_max_pos(axis) + offs;
-  #endif
+    #endif
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("For ", axis_codes[axis]);
-      SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
-      SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
-      SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
-      SERIAL_ECHOLNPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
-    }
-  #endif
+    #if ENABLED(DELTA)
+      if (axis == Z_AXIS)
+        delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
+    #endif
+  }
 
-  #if ENABLED(DELTA)
-    if (axis == Z_AXIS)
-      delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
-  #endif
+#endif // NO_WORKSPACE_OFFSETS
 
-}
-
-/**
- * Change the home offset for an axis, update the current
- * position and the software endstops to retain the same
- * relative distance to the new home.
- *
- * Since this changes the current_position, code should
- * call sync_plan_position soon after this.
- */
-static void set_home_offset(AxisEnum axis, float v) {
-  current_position[axis] += v - home_offset[axis];
-  home_offset[axis] = v;
-  update_software_endstops(axis);
-}
+#if DISABLED(NO_WORKSPACE_OFFSETS)
+  /**
+   * Change the home offset for an axis, update the current
+   * position and the software endstops to retain the same
+   * relative distance to the new home.
+   *
+   * Since this changes the current_position, code should
+   * call sync_plan_position soon after this.
+   */
+  static void set_home_offset(const AxisEnum axis, const float v) {
+    current_position[axis] += v - home_offset[axis];
+    home_offset[axis] = v;
+    update_software_endstops(axis);
+  }
+#endif // NO_WORKSPACE_OFFSETS
 
 /**
  * Set an axis' current position to its home position (after homing).
@@ -1433,8 +1447,10 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
   axis_known_position[axis] = axis_homed[axis] = true;
 
-  position_shift[axis] = 0;
-  update_software_endstops(axis);
+  #if DISABLED(NO_WORKSPACE_OFFSETS)
+    position_shift[axis] = 0;
+    update_software_endstops(axis);
+  #endif
 
   #if ENABLED(DUAL_X_CARRIAGE)
     if (axis == X_AXIS && (active_extruder == 1 || dual_x_carriage_mode == DXC_DUPLICATION_MODE)) {
@@ -1507,8 +1523,10 @@ static void set_axis_is_at_home(AxisEnum axis) {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
-      SERIAL_ECHOPAIR("> home_offset[", axis_codes[axis]);
-      SERIAL_ECHOLNPAIR("] = ", home_offset[axis]);
+      #if DISABLED(NO_WORKSPACE_OFFSETS)
+        SERIAL_ECHOPAIR("> home_offset[", axis_codes[axis]);
+        SERIAL_ECHOLNPAIR("] = ", home_offset[axis]);
+      #endif
       DEBUG_POS("", current_position);
       SERIAL_ECHOPAIR("<<< set_axis_is_at_home(", axis_codes[axis]);
       SERIAL_CHAR(')');
@@ -1549,8 +1567,8 @@ inline void line_to_destination(float fr_mm_s) {
 }
 inline void line_to_destination() { line_to_destination(feedrate_mm_s); }
 
-inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
-inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
+inline void set_current_to_destination() { COPY(current_position, destination); }
+inline void set_destination_to_current() { COPY(destination, current_position); }
 
 #if IS_KINEMATIC
   /**
@@ -3557,7 +3575,7 @@ inline void gcode_G28() {
         HOMEAXIS(X);
 
         // Consider the active extruder to be parked
-        memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+        COPY(raised_parked_position, current_position);
         delayed_move_time = 0;
         active_extruder_parked = true;
 
@@ -4357,7 +4375,7 @@ inline void gcode_G28() {
         #endif
 
         float converted[XYZ];
-        memcpy(converted, current_position, sizeof(converted));
+        COPY(converted, current_position);
 
         planner.abl_enabled = true;
         planner.unapply_leveling(converted); // use conversion machinery
@@ -4379,7 +4397,7 @@ inline void gcode_G28() {
         }
 
         // The rotated XY and corrected Z are now current_position
-        memcpy(current_position, converted, sizeof(converted));
+        COPY(current_position, converted);
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("G29 corrected XYZ", current_position);
@@ -4595,8 +4613,10 @@ inline void gcode_G92() {
 
         if (i != E_AXIS) {
           didXYZ = true;
-          position_shift[i] += v - p; // Offset the coordinate space
-          update_software_endstops((AxisEnum)i);
+          #if DISABLED(NO_WORKSPACE_OFFSETS)
+            position_shift[i] += v - p; // Offset the coordinate space
+            update_software_endstops((AxisEnum)i);
+          #endif
         }
       #endif
     }
@@ -6326,22 +6346,26 @@ inline void gcode_M205() {
   if (code_seen('E')) planner.max_jerk[E_AXIS] = code_value_axis_units(E_AXIS);
 }
 
-/**
- * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
- */
-inline void gcode_M206() {
-  LOOP_XYZ(i)
-    if (code_seen(axis_codes[i]))
-      set_home_offset((AxisEnum)i, code_value_axis_units(i));
+#if DISABLED(NO_WORKSPACE_OFFSETS)
 
-  #if ENABLED(MORGAN_SCARA)
-    if (code_seen('T')) set_home_offset(A_AXIS, code_value_axis_units(A_AXIS)); // Theta
-    if (code_seen('P')) set_home_offset(B_AXIS, code_value_axis_units(B_AXIS)); // Psi
-  #endif
+  /**
+   * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
+   */
+  inline void gcode_M206() {
+    LOOP_XYZ(i)
+      if (code_seen(axis_codes[i]))
+        set_home_offset((AxisEnum)i, code_value_axis_units(i));
 
-  SYNC_PLAN_POSITION_KINEMATIC();
-  report_current_position();
-}
+    #if ENABLED(MORGAN_SCARA)
+      if (code_seen('T')) set_home_offset(A_AXIS, code_value_axis_units(A_AXIS)); // Theta
+      if (code_seen('P')) set_home_offset(B_AXIS, code_value_axis_units(B_AXIS)); // Psi
+    #endif
+
+    SYNC_PLAN_POSITION_KINEMATIC();
+    report_current_position();
+  }
+
+#endif // NO_WORKSPACE_OFFSETS
 
 #if ENABLED(DELTA)
   /**
@@ -7165,45 +7189,49 @@ void quickstop_stepper() {
 
 #endif
 
-/**
- * M428: Set home_offset based on the distance between the
- *       current_position and the nearest "reference point."
- *       If an axis is past center its endstop position
- *       is the reference-point. Otherwise it uses 0. This allows
- *       the Z offset to be set near the bed when using a max endstop.
- *
- *       M428 can't be used more than 2cm away from 0 or an endstop.
- *
- *       Use M206 to set these values directly.
- */
-inline void gcode_M428() {
-  bool err = false;
-  LOOP_XYZ(i) {
-    if (axis_homed[i]) {
-      float base = (current_position[i] > (soft_endstop_min[i] + soft_endstop_max[i]) * 0.5) ? base_home_pos((AxisEnum)i) : 0,
-            diff = current_position[i] - LOGICAL_POSITION(base, i);
-      if (diff > -20 && diff < 20) {
-        set_home_offset((AxisEnum)i, home_offset[i] - diff);
+#if DISABLED(NO_WORKSPACE_OFFSETS)
+
+  /**
+   * M428: Set home_offset based on the distance between the
+   *       current_position and the nearest "reference point."
+   *       If an axis is past center its endstop position
+   *       is the reference-point. Otherwise it uses 0. This allows
+   *       the Z offset to be set near the bed when using a max endstop.
+   *
+   *       M428 can't be used more than 2cm away from 0 or an endstop.
+   *
+   *       Use M206 to set these values directly.
+   */
+  inline void gcode_M428() {
+    bool err = false;
+    LOOP_XYZ(i) {
+      if (axis_homed[i]) {
+        float base = (current_position[i] > (soft_endstop_min[i] + soft_endstop_max[i]) * 0.5) ? base_home_pos((AxisEnum)i) : 0,
+              diff = current_position[i] - LOGICAL_POSITION(base, i);
+        if (diff > -20 && diff < 20) {
+          set_home_offset((AxisEnum)i, home_offset[i] - diff);
+        }
+        else {
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
+          LCD_ALERTMESSAGEPGM("Err: Too far!");
+          BUZZ(200, 40);
+          err = true;
+          break;
+        }
       }
-      else {
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
-        LCD_ALERTMESSAGEPGM("Err: Too far!");
-        BUZZ(200, 40);
-        err = true;
-        break;
-      }
+    }
+
+    if (!err) {
+      SYNC_PLAN_POSITION_KINEMATIC();
+      report_current_position();
+      LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
+      BUZZ(200, 659);
+      BUZZ(200, 698);
     }
   }
 
-  if (!err) {
-    SYNC_PLAN_POSITION_KINEMATIC();
-    report_current_position();
-    LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
-    BUZZ(200, 659);
-    BUZZ(200, 698);
-  }
-}
+#endif // NO_WORKSPACE_OFFSETS
 
 /**
  * M500: Store settings in EEPROM
@@ -7929,7 +7957,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               break;
             case DXC_AUTO_PARK_MODE:
               // record raised toolhead position for use by unpark
-              memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+              COPY(raised_parked_position, current_position);
               raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
               #if ENABLED(max_software_endstops)
                 NOMORE(raised_parked_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
@@ -8073,10 +8101,14 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
           // The newly-selected extruder XY is actually at...
           current_position[X_AXIS] += xydiff[X_AXIS];
           current_position[Y_AXIS] += xydiff[Y_AXIS];
-          for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
-            position_shift[i] += xydiff[i];
-            update_software_endstops((AxisEnum)i);
-          }
+          #if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE)
+            for (uint8_t i = X_AXIS; i <= Y_AXIS; i++) {
+              #if DISABLED(NO_WORKSPACE_OFFSETS)
+                position_shift[i] += xydiff[i];
+              #endif
+              update_software_endstops((AxisEnum)i);
+            }
+          #endif
 
           // Set the new active extruder
           active_extruder = tmp_extruder;
@@ -8631,9 +8663,12 @@ void process_next_command() {
       case 205: //M205: Set advanced settings
         gcode_M205();
         break;
-      case 206: // M206: Set home offsets
-        gcode_M206();
-        break;
+
+      #if DISABLED(NO_WORKSPACE_OFFSETS)
+        case 206: // M206: Set home offsets
+          gcode_M206();
+          break;
+      #endif
 
       #if ENABLED(DELTA)
         case 665: // M665: Set delta configurations
@@ -8797,9 +8832,11 @@ void process_next_command() {
           break;
       #endif
 
-      case 428: // M428: Apply current_position to home_offset
-        gcode_M428();
-        break;
+      #if DISABLED(NO_WORKSPACE_OFFSETS)
+        case 428: // M428: Apply current_position to home_offset
+          gcode_M428();
+          break;
+      #endif
 
       case 500: // M500: Store settings in EEPROM
         gcode_M500();
@@ -9287,7 +9324,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     planner.unapply_leveling(cartes);
   #endif
   if (axis == ALL_AXES)
-    memcpy(current_position, cartes, sizeof(cartes));
+    COPY(current_position, cartes);
   else
     current_position[axis] = cartes[axis];
 }
@@ -9322,14 +9359,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // Split at the left/front border of the right/top square
     int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
-      memcpy(end, destination, sizeof(end));
+      COPY(end, destination);
       destination[X_AXIS] = LOGICAL_X_POSITION(mbl.get_probe_x(gcx));
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = MBL_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
-      memcpy(end, destination, sizeof(end));
+      COPY(end, destination);
       destination[Y_AXIS] = LOGICAL_Y_POSITION(mbl.get_probe_y(gcy));
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = MBL_SEGMENT_END(X);
@@ -9349,7 +9386,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
 
     // Restore destination from stack
-    memcpy(destination, end, sizeof(end));
+    COPY(destination, end);
     mesh_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 
@@ -9385,14 +9422,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // Split at the left/front border of the right/top square
     int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
-      memcpy(end, destination, sizeof(end));
+      COPY(end, destination);
       destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx);
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = LINE_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
-      memcpy(end, destination, sizeof(end));
+      COPY(end, destination);
       destination[Y_AXIS] = LOGICAL_Y_POSITION(bilinear_start[Y_AXIS] + ABL_BG_SPACING(Y_AXIS) * gcy);
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = LINE_SEGMENT_END(X);
@@ -9412,7 +9449,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
 
     // Restore destination from stack
-    memcpy(destination, end, sizeof(end));
+    COPY(destination, end);
     bilinear_line_to_destination(fr_mm_s, x_splits, y_splits);
   }
 
@@ -9507,7 +9544,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
       // Get the logical current position as starting point
       float logical[XYZE];
-      memcpy(logical, current_position, sizeof(logical));
+      COPY(logical, current_position);
 
       #define DELTA_VAR logical
 
@@ -10480,8 +10517,12 @@ void setup() {
   // This also updates variables in the planner, elsewhere
   Config_RetrieveSettings();
 
-  // Initialize current position based on home_offset
-  memcpy(current_position, home_offset, sizeof(home_offset));
+  #if DISABLED(NO_WORKSPACE_OFFSETS)
+    // Initialize current position based on home_offset
+    COPY(current_position, home_offset);
+  #else
+    ZERO(current_position);
+  #endif
 
   // Vital to init stepper/planner equivalent for current_position
   SYNC_PLAN_POSITION_KINEMATIC();
