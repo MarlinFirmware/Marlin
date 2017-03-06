@@ -1087,17 +1087,17 @@ void Temperature::init() {
   delay(250);
 
   #define TEMP_MIN_ROUTINE(NR) \
-    minttemp[NR] = HEATER_ ## NR ## _MINTEMP; \
-    while(analog2temp(minttemp_raw[NR], NR) < HEATER_ ## NR ## _MINTEMP) { \
-      if (HEATER_ ## NR ## _RAW_LO_TEMP < HEATER_ ## NR ## _RAW_HI_TEMP) \
+    minttemp[NR] = HEATER_ ##NR## _MINTEMP; \
+    while(analog2temp(minttemp_raw[NR], NR) < HEATER_ ##NR## _MINTEMP) { \
+      if (HEATER_ ##NR## _RAW_LO_TEMP < HEATER_ ##NR## _RAW_HI_TEMP) \
         minttemp_raw[NR] += OVERSAMPLENR; \
       else \
         minttemp_raw[NR] -= OVERSAMPLENR; \
     }
   #define TEMP_MAX_ROUTINE(NR) \
-    maxttemp[NR] = HEATER_ ## NR ## _MAXTEMP; \
-    while(analog2temp(maxttemp_raw[NR], NR) > HEATER_ ## NR ## _MAXTEMP) { \
-      if (HEATER_ ## NR ## _RAW_LO_TEMP < HEATER_ ## NR ## _RAW_HI_TEMP) \
+    maxttemp[NR] = HEATER_ ##NR## _MAXTEMP; \
+    while(analog2temp(maxttemp_raw[NR], NR) > HEATER_ ##NR## _MAXTEMP) { \
+      if (HEATER_ ##NR## _RAW_LO_TEMP < HEATER_ ##NR## _RAW_HI_TEMP) \
         maxttemp_raw[NR] -= OVERSAMPLENR; \
       else \
         maxttemp_raw[NR] += OVERSAMPLENR; \
@@ -1256,7 +1256,7 @@ void Temperature::disable_all_heaters() {
   #define DISABLE_HEATER(NR) { \
     setTargetHotend(0, NR); \
     soft_pwm[NR] = 0; \
-    WRITE_HEATER_ ## NR (LOW); \
+    WRITE_HEATER_ ##NR (LOW); \
   }
 
   #if HAS_TEMP_HOTEND
@@ -1621,29 +1621,29 @@ void Temperature::isr() {
 
     // Macros for Slow PWM timer logic
     #define _SLOW_PWM_ROUTINE(NR, src) \
-      soft_pwm_ ## NR = src; \
-      if (soft_pwm_ ## NR > 0) { \
-        if (state_timer_heater_ ## NR == 0) { \
-          if (state_heater_ ## NR == 0) state_timer_heater_ ## NR = MIN_STATE_TIME; \
-          state_heater_ ## NR = 1; \
-          WRITE_HEATER_ ## NR(1); \
+      soft_pwm_ ##NR = src; \
+      if (soft_pwm_ ##NR > 0) { \
+        if (state_timer_heater_ ##NR == 0) { \
+          if (state_heater_ ##NR == 0) state_timer_heater_ ##NR = MIN_STATE_TIME; \
+          state_heater_ ##NR = 1; \
+          WRITE_HEATER_ ##NR(1); \
         } \
       } \
       else { \
-        if (state_timer_heater_ ## NR == 0) { \
-          if (state_heater_ ## NR == 1) state_timer_heater_ ## NR = MIN_STATE_TIME; \
-          state_heater_ ## NR = 0; \
-          WRITE_HEATER_ ## NR(0); \
+        if (state_timer_heater_ ##NR == 0) { \
+          if (state_heater_ ##NR == 1) state_timer_heater_ ##NR = MIN_STATE_TIME; \
+          state_heater_ ##NR = 0; \
+          WRITE_HEATER_ ##NR(0); \
         } \
       }
     #define SLOW_PWM_ROUTINE(n) _SLOW_PWM_ROUTINE(n, soft_pwm[n])
 
     #define PWM_OFF_ROUTINE(NR) \
-      if (soft_pwm_ ## NR < slow_pwm_count) { \
-        if (state_timer_heater_ ## NR == 0) { \
-          if (state_heater_ ## NR == 1) state_timer_heater_ ## NR = MIN_STATE_TIME; \
-          state_heater_ ## NR = 0; \
-          WRITE_HEATER_ ## NR (0); \
+      if (soft_pwm_ ##NR < slow_pwm_count) { \
+        if (state_timer_heater_ ##NR == 0) { \
+          if (state_heater_ ##NR == 1) state_timer_heater_ ##NR = MIN_STATE_TIME; \
+          state_heater_ ##NR = 0; \
+          WRITE_HEATER_ ##NR (0); \
         } \
       }
 
