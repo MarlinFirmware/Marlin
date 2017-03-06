@@ -85,8 +85,8 @@
   #endif
 
   #define _TMC_INIT(A) do{ \
-    stepper##A.setMicrosteps(A##_MICROSTEPS);
-    stepper##A.start();
+    stepper##A.setMicrosteps(A##_MICROSTEPS); \
+    stepper##A.start(); \
   } while(0)
 
   void tmc_init() {
