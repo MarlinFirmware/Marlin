@@ -761,14 +761,15 @@
                                                      // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
 #endif
 
-/******************************************************************************\
- * enable this section if you have TMC26X motor drivers.
- * you need to import the TMC26XStepper library into the Arduino IDE for this
- ******************************************************************************/
-
 // @section tmc
 
+/**
+ * Enable this section if you have TMC26X motor drivers.
+ * You will need to import the TMC26XStepper library into the Arduino IDE for this
+ * (https://github.com/trinamic/TMC26XStepper.git)
+ */
 //#define HAVE_TMCDRIVER
+
 #if ENABLED(HAVE_TMCDRIVER)
 
   //#define X_IS_TMC
@@ -826,23 +827,31 @@
 
 // @section TMC2130
 
-
 /**
  * Enable this for SilentStepStick Trinamic TMC2130 SPI-configurable stepper drivers.
  *
- * To use TMC2130 drivers in SPI mode, you'll also need the TMC2130 Arduino library
- * (https://github.com/makertum/Trinamic_TMC2130).
+ * You'll also need the TMC2130Stepper Arduino library
+ * (https://github.com/teemuatlut/TMC2130Stepper).
  *
  * To use TMC2130 stepper drivers in SPI mode connect your SPI2130 pins to
  * the hardware SPI interface on your board and define the required CS pins
  * in your `pins_MYBOARD.h` file. (e.g., RAMPS 1.4 uses AUX3 pins `X_CS_PIN 53`, `Y_CS_PIN 49`, etc.).
  */
+//#define HAVE_TMC2130
 
-//#define HAVE_TMC2130DRIVER
+#if ENABLED(HAVE_TMC2130)
+  #define STEALTHCHOP
 
-#if ENABLED(HAVE_TMC2130DRIVER)
-
-  //#define TMC2130_ADVANCED_CONFIGURATION
+  /**
+   * Let Marlin automatically control stepper current.
+   * This is still an experimental feature.
+   * Increase current every 5s by CURRENT_STEP until stepper temperature prewarn gets triggered,
+   * then decrease current by CURRENT_STEP until temperature prewarn is cleared.
+   * Adjusting starts from X/Y/Z/E_MAX_CURRENT but will not increase over AUTO_ADJUST_MAX
+   */ 
+  //#define AUTOMATIC_CURRENT_CONTROL
+  #define CURRENT_STEP          50  // [mA]
+  #define AUTO_ADJUST_MAX     1300  // [mA], 1300mA_rms = 1840mA_peak
 
   // CHOOSE YOUR MOTORS HERE, THIS IS MANDATORY
   //#define X_IS_TMC2130
@@ -856,188 +865,76 @@
   //#define E2_IS_TMC2130
   //#define E3_IS_TMC2130
 
-  #if ENABLED(TMC2130_ADVANCED_CONFIGURATION)
+  /**
+   * Stepper driver settings
+   */
 
-    // If you've enabled TMC2130_ADVANCED_CONFIGURATION, define global settings below.
-    // Enabled settings will be automatically applied to all axes specified above.
-    //
-    // Please read the TMC2130 datasheet:
-    // http://www.trinamic.com/_articles/products/integrated-circuits/tmc2130/_datasheet/TMC2130_datasheet.pdf
-    // All settings here have the same (sometimes cryptic) names as in the datasheet.
-    //
-    // The following, uncommented settings are only suggestion.
+  #define R_SENSE           0.11  // R_sense resistor for SilentStepStick2130
+  #define HOLD_MULTIPLIER    0.5  // Scales down the holding current from run current
+  #define INTERPOLATE          1  // Interpolate X/Y/Z_MICROSTEPS to 256
 
-    /* GENERAL CONFIGURATION */
+  #define X_MAX_CURRENT     1000  // rms current in mA
+  #define X_MICROSTEPS        16  // FULLSTEP..256
+  #define X_CHIP_SELECT       40  // Pin
 
-    //#define GLOBAL_EN_PWM_MODE        0
-    #define GLOBAL_I_SCALE_ANALOG     1 // [0,1] 0: Normal, 1: AIN
-    //#define GLOBAL_INTERNAL_RSENSE    0 // [0,1] 0: Normal, 1: Internal
-    #define GLOBAL_EN_PWM_MODE        0 // [0,1] 0: Normal, 1: stealthChop with velocity threshold
-    //#define GLOBAL_ENC_COMMUTATION    0 // [0,1]
-    #define GLOBAL_SHAFT              0 // [0,1] 0: normal, 1: invert
-    //#define GLOBAL_DIAG0_ERROR        0 // [0,1]
-    //#define GLOBAL_DIAG0_OTPW         0 // [0,1]
-    //#define GLOBAL_DIAG0_STALL        0 // [0,1]
-    //#define GLOBAL_DIAG1_STALL        0 // [0,1]
-    //#define GLOBAL_DIAG1_INDEX        0 // [0,1]
-    //#define GLOBAL_DIAG1_ONSTATE      0 // [0,1]
-    //#define GLOBAL_DIAG1_ONSTATE      0 // [0,1]
-    //#define GLOBAL_DIAG0_INT_PUSHPULL 0 // [0,1]
-    //#define GLOBAL_DIAG1_INT_PUSHPULL 0 // [0,1]
-    //#define GLOBAL_SMALL_HYSTERESIS   0 // [0,1]
-    //#define GLOBAL_STOP_ENABLE        0 // [0,1]
-    //#define GLOBAL_DIRECT_MODE        0 // [0,1]
+  #define Y_MAX_CURRENT     1000
+  #define Y_MICROSTEPS        16
+  #define Y_CHIP_SELECT       42
 
-    /* VELOCITY-DEPENDENT DRIVE FEATURES */
+  #define Z_MAX_CURRENT     1000
+  #define Z_MICROSTEPS        16
+  #define Z_CHIP_SELECT       65
 
-    #define GLOBAL_IHOLD             22 // [0-31] 0: min, 31: max
-    #define GLOBAL_IRUN              31 // [0-31] 0: min, 31: max
-    #define GLOBAL_IHOLDDELAY        15 // [0-15] 0: min, 15: about 4 seconds
-    //#define GLOBAL_TPOWERDOWN         0 // [0-255] 0: min, 255: about 4 seconds
-    //#define GLOBAL_TPWMTHRS           0 // [0-1048576] e.g. 20 corresponds with 2000 steps/s
-    //#define GLOBAL_TCOOLTHRS          0 // [0-1048576] e.g. 20 corresponds with 2000 steps/s
-    #define GLOBAL_THIGH             10 // [0-1048576] e.g. 20 corresponds with 2000 steps/s
+  //#define X2_MAX_CURRENT  1000
+  //#define X2_MICROSTEPS     16
+  //#define X2_CHIP_SELECT    -1
 
-    /* SPI MODE CONFIGURATION */
+  //#define Y2_MAX_CURRENT  1000
+  //#define Y2_MICROSTEPS     16
+  //#define Y2_CHIP_SELECT    -1
 
-    //#define GLOBAL_XDIRECT            0
+  //#define Z2_MAX_CURRENT  1000
+  //#define Z2_MICROSTEPS     16
+  //#define Z2_CHIP_SELECT    -1
 
-    /* DCSTEP MINIMUM VELOCITY */
+  //#define E0_MAX_CURRENT  1000
+  //#define E0_MICROSTEPS     16
+  //#define E0_CHIP_SELECT    -1
 
-    //#define GLOBAL_VDCMIN             0
+  //#define E1_MAX_CURRENT  1000
+  //#define E1_MICROSTEPS     16
+  //#define E1_CHIP_SELECT    -1
 
-    /* MOTOR DRIVER CONFIGURATION*/
+  //#define E2_MAX_CURRENT  1000
+  //#define E2_MICROSTEPS     16
+  //#define E2_CHIP_SELECT    -1
 
-    //#define GLOBAL_DEDGE              0
-    //#define GLOBAL_DISS2G             0
-    #define GLOBAL_INTPOL             1 // 0: off 1: 256 microstep interpolation
-    #define GLOBAL_MRES              16 // number of microsteps
-    #define GLOBAL_SYNC               1 // [0-15]
-    #define GLOBAL_VHIGHCHM           1 // [0,1] 0: normal, 1: high velocity stepper mode
-    #define GLOBAL_VHIGHFS            0 // [0,1] 0: normal, 1: switch to full steps for high velocities
-    // #define GLOBAL_VSENSE            0 // [0,1] 0: normal, 1: high sensitivity (not recommended)
-    #define GLOBAL_TBL                1 // 0-3: set comparator blank time to 16, 24, 36 or 54 clocks, 1 or 2 is recommended
-    #define GLOBAL_CHM                0 // [0,1] 0: spreadCycle, 1: Constant off time with fast decay time.
-    //#define GLOBAL_RNDTF              0
-    //#define GLOBAL_DISFDCC            0
-    //#define GLOBAL_FD                 0
-    //#define GLOBAL_HEND               0
-    //#define GLOBAL_HSTRT              0
-    #define GLOBAL_TOFF              10 // 0: driver disable, 1: use only with TBL>2, 2-15: off time setting during slow decay phase
+  //#define E3_MAX_CURRENT  1000
+  //#define E3_MICROSTEPS     16
+  //#define E3_CHIP_SELECT    -1
 
-    //#define GLOBAL_SFILT              0
-    //#define GLOBAL_SGT                0
-    //#define GLOBAL_SEIMIN             0
-    //#define GLOBAL_SEDN               0
-    //#define GLOBAL_SEMAX              0
-    //#define GLOBAL_SEUP               0
-    //#define GLOBAL_SEMIN              0
+  /**
+   * You can set your own advanced settings by filling in predefined functions.
+   * A list of available functions can be found on the library github page
+   * https://github.com/teemuatlut/TMC2130Stepper
+   *
+   * Example:
+   * #define TMC2130_ADV() { \
+   *   stepperX.diag0_temp_prewarn(1); \
+   *   stepperX.interpolate(0); \
+   * }
+   */
+  #define  TMC2130_ADV() {  }
 
-    //#define GLOBAL_DC_TIME            0
-    //#define GLOBAL_DC_SG              0
-
-    //#define GLOBAL_FREEWHEEL          0
-    //#define GLOBAL_PWM_SYMMETRIC      0
-    //#define GLOBAL_PWM_AUTOSCALE      0
-    //#define GLOBAL_PWM_FREQ           0
-    //#define GLOBAL_PWM_GRAD           0
-    //#define GLOBAL_PWM_AMPL           0
-
-    //#define GLOBAL_ENCM_CTRL          0
-
-  #else
-
-    #define X_IHOLD          31 // [0-31] 0: min, 31: max
-    #define X_IRUN           31 // [0-31] 0: min, 31: max
-    #define X_IHOLDDELAY     15 // [0-15] 0: min, 15: about 4 seconds
-    #define X_I_SCALE_ANALOG  1 // 0: Normal, 1: AIN
-    #define X_MRES           16 // number of microsteps
-    #define X_TBL             1 // 0-3: set comparator blank time to 16, 24, 36 or 54 clocks, 1 or 2 is recommended
-    #define X_TOFF            8 // 0: driver disable, 1: use only with TBL>2, 2-15: off time setting during slow decay phase
-
-    #define X2_IHOLD         31
-    #define X2_IRUN          31
-    #define X2_IHOLDDELAY    15
-    #define X2_I_SCALE_ANALOG 1
-    #define X2_MRES          16
-    #define X2_TBL            1
-    #define X2_TOFF           8
-
-    #define Y_IHOLD          31
-    #define Y_IRUN           31
-    #define Y_IHOLDDELAY     15
-    #define Y_I_SCALE_ANALOG  1
-    #define Y_MRES           16
-    #define Y_TBL             1
-    #define Y_TOFF            8
-
-    #define Y2_IHOLD         31
-    #define Y2_IRUN          31
-    #define Y2_IHOLDDELAY    15
-    #define Y2_I_SCALE_ANALOG 1
-    #define Y2_MRES          16
-    #define Y2_TBL            1
-    #define Y2_TOFF           8
-
-    #define Z_IHOLD          31
-    #define Z_IRUN           31
-    #define Z_IHOLDDELAY     15
-    #define Z_I_SCALE_ANALOG  1
-    #define Z_MRES           16
-    #define Z_TBL             1
-    #define Z_TOFF            8
-
-    #define Z2_IHOLD         31
-    #define Z2_IRUN          31
-    #define Z2_IHOLDDELAY    15
-    #define Z2_I_SCALE_ANALOG 1
-    #define Z2_MRES          16
-    #define Z2_TBL            1
-    #define Z2_TOFF           8
-
-    #define E0_IHOLD         31
-    #define E0_IRUN          31
-    #define E0_IHOLDDELAY    15
-    #define E0_I_SCALE_ANALOG 1
-    #define E0_MRES          16
-    #define E0_TBL            1
-    #define E0_TOFF           8
-
-    #define E1_IHOLD         31
-    #define E1_IRUN          31
-    #define E1_IHOLDDELAY    15
-    #define E1_I_SCALE_ANALOG 1
-    #define E1_MRES          16
-    #define E1_TBL            1
-    #define E1_TOFF           8
-
-    #define E2_IHOLD         31
-    #define E2_IRUN          31
-    #define E2_IHOLDDELAY    15
-    #define E2_I_SCALE_ANALOG 1
-    #define E2_MRES          16
-    #define E2_TBL            1
-    #define E2_TOFF           8
-
-    #define E3_IHOLD         31
-    #define E3_IRUN          31
-    #define E3_IHOLDDELAY    15
-    #define E3_I_SCALE_ANALOG 1
-    #define E3_MRES          16
-    #define E3_TBL            1
-    #define E3_TOFF           8
-
-  #endif // TMC2130_ADVANCED_CONFIGURATION
-
-#endif // HAVE_TMC2130DRIVER
-
-// @section L6470
+#endif // ENABLED(HAVE_TMC2130)
 
 /**
  * Enable this section if you have L6470 motor drivers.
  * You need to import the L6470 library into the Arduino IDE for this.
  * (https://github.com/ameyer/Arduino-L6470)
  */
+
+// @section l6470
 
 //#define HAVE_L6470DRIVER
 #if ENABLED(HAVE_L6470DRIVER)
