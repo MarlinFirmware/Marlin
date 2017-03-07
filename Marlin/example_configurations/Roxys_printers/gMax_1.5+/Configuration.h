@@ -563,6 +563,10 @@
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
+//
+// Allen Key Probe is defined in the Delta example configurations.
+//
+
 // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
 // X and Y offsets must be integers.
 //
@@ -592,10 +596,6 @@
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 // Use double touch for probing
 //#define PROBE_DOUBLE_TOUCH
-
-//
-// Allen Key Probe is defined in the Delta example configurations.
-//
 
 // *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
 //
