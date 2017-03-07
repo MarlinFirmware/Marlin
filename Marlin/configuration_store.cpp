@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V30"
+#define EEPROM_VERSION "V31"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V30 EEPROM Layout:
+ * V31 EEPROM Layout:
  *
  *  100  Version                                   (char x4)
  *  104  EEPROM Checksum                           (uint16_t)
@@ -96,55 +96,56 @@
  *  388  M665 J    delta_tower_angle_trim_2        (float)
  *  392  M665 K    delta_tower_angle_trim_3        (float)
  *
- * Z_DUAL_ENDSTOPS:                                4 bytes
- *  384  M666 Z    z_endstop_adj                   (float)
+ * Z_DUAL_ENDSTOPS (if not deltabot):              48 bytes
+ *  348  M666 Z    z_endstop_adj                   (float)
+ *  ---            dummy data                      (float x11)
  *
  * ULTIPANEL:                                      6 bytes
- *  388  M145 S0 H lcd_preheat_hotend_temp         (int x2)
- *  392  M145 S0 B lcd_preheat_bed_temp            (int x2)
- *  396  M145 S0 F lcd_preheat_fan_speed           (int x2)
+ *  396  M145 S0 H lcd_preheat_hotend_temp         (int x2)
+ *  400  M145 S0 B lcd_preheat_bed_temp            (int x2)
+ *  404  M145 S0 F lcd_preheat_fan_speed           (int x2)
  *
  * PIDTEMP:                                        66 bytes
- *  400  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]  (float x4)
- *  416  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]  (float x4)
- *  432  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]  (float x4)
- *  448  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]  (float x4)
- *  464  M301 L        lpq_len                     (int)
+ *  408  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]  (float x4)
+ *  424  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]  (float x4)
+ *  440  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]  (float x4)
+ *  456  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]  (float x4)
+ *  472  M301 L        lpq_len                     (int)
  *
- * PIDTEMPBED:
- *  466  M304 PID  thermalManager.bedKp, thermalManager.bedKi, thermalManager.bedKd (float x3)
+ * PIDTEMPBED:                                      12 bytes
+ *  474  M304 PID  thermalManager.bedKp, .bedKi, .bedKd (float x3)
  *
  * DOGLCD:                                          2 bytes
- *  478  M250 C    lcd_contrast                     (int)
+ *  486  M250 C    lcd_contrast                     (int)
  *
  * FWRETRACT:                                       29 bytes
- *  480  M209 S    autoretract_enabled              (bool)
- *  481  M207 S    retract_length                   (float)
- *  485  M207 W    retract_length_swap              (float)
- *  489  M207 F    retract_feedrate_mm_s            (float)
- *  493  M207 Z    retract_zlift                    (float)
- *  497  M208 S    retract_recover_length           (float)
- *  501  M208 W    retract_recover_length_swap      (float)
- *  505  M208 F    retract_recover_feedrate_mm_s    (float)
+ *  488  M209 S    autoretract_enabled              (bool)
+ *  489  M207 S    retract_length                   (float)
+ *  493  M207 W    retract_length_swap              (float)
+ *  497  M207 F    retract_feedrate_mm_s            (float)
+ *  501  M207 Z    retract_zlift                    (float)
+ *  505  M208 S    retract_recover_length           (float)
+ *  509  M208 W    retract_recover_length_swap      (float)
+ *  513  M208 F    retract_recover_feedrate_mm_s    (float)
  *
  * Volumetric Extrusion:                            17 bytes
- *  509  M200 D    volumetric_enabled               (bool)
- *  510  M200 T D  filament_size                    (float x4) (T0..3)
+ *  517  M200 D    volumetric_enabled               (bool)
+ *  518  M200 T D  filament_size                    (float x4) (T0..3)
  *
- * TMC2130:                                         20 bytes
- *  526  M906 X    TMC2130  X-stepper current       (uint16_t)
- *  528  M906 Y    TMC2130  Y-stepper current       (uint16_t)
- *  530  M906 Z    TMC2130  Z-stepper current       (uint16_t)
- *  532  M906 X2   TMC2130 X2-stepper current       (uint16_t)
- *  534  M906 Y2   TMC2130 Y2-stepper current       (uint16_t)
- *  536  M906 Z2   TMC2130 Z2-stepper current       (uint16_t)
- *  538  M906 E0   TMC2130 E0-stepper current       (uint16_t)
- *  540  M906 E1   TMC2130 E1-stepper current       (uint16_t)
- *  542  M906 E2   TMC2130 E2-stepper current       (uint16_t)
- *  544  M906 E3   TMC2130 E3-stepper current       (uint16_t)
+ * TMC2130 Stepper Current:                         20 bytes
+ *  534  M906 X    stepperX current                 (uint16_t)
+ *  536  M906 Y    stepperY current                 (uint16_t)
+ *  538  M906 Z    stepperZ current                 (uint16_t)
+ *  540  M906 X2   stepperX2 current                (uint16_t)
+ *  542  M906 Y2   stepperY2 current                (uint16_t)
+ *  544  M906 Z2   stepperZ2 current                (uint16_t)
+ *  546  M906 E0   stepperE0 current                (uint16_t)
+ *  548  M906 E1   stepperE1 current                (uint16_t)
+ *  550  M906 E2   stepperE2 current                (uint16_t)
+ *  552  M906 E3   stepperE3 current                (uint16_t)
  *
- *  546                                Minimum end-point
- * 1867 (546 + 36 + 9 + 288 + 988)     Maximum end-point
+ *  554                                Minimum end-point
+ * 1875 (554 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  */
 #include "Marlin.h"
@@ -365,10 +366,10 @@ void Config_Postprocess() {
     #elif ENABLED(Z_DUAL_ENDSTOPS)
       EEPROM_WRITE(z_endstop_adj);            // 1 float
       dummy = 0.0f;
-      for (uint8_t q = 8; q--;) EEPROM_WRITE(dummy);
+      for (uint8_t q = 11; q--;) EEPROM_WRITE(dummy);
     #else
       dummy = 0.0f;
-      for (uint8_t q = 9; q--;) EEPROM_WRITE(dummy);
+      for (uint8_t q = 12; q--;) EEPROM_WRITE(dummy);
     #endif
 
     #if DISABLED(ULTIPANEL)
@@ -693,10 +694,10 @@ void Config_Postprocess() {
       #elif ENABLED(Z_DUAL_ENDSTOPS)
         EEPROM_READ(z_endstop_adj);
         dummy = 0.0f;
-        for (uint8_t q=8; q--;) EEPROM_READ(dummy);
+        for (uint8_t q=11; q--;) EEPROM_READ(dummy);
       #else
         dummy = 0.0f;
-        for (uint8_t q=9; q--;) EEPROM_READ(dummy);
+        for (uint8_t q=12; q--;) EEPROM_READ(dummy);
       #endif
 
       #if DISABLED(ULTIPANEL)
@@ -1191,7 +1192,7 @@ void Config_ResetDefault() {
       SERIAL_EOL;
       CONFIG_ECHO_START;
       if (!forReplay) {
-        SERIAL_ECHOLNPGM("Delta settings: L=diagonal_rod, R=radius, S=segments_per_second, ABC=diagonal_rod_trim_tower_[123], IJK=tower_angle_trim[123]");
+        SERIAL_ECHOLNPGM("Delta settings: L=diagonal rod, R=radius, S=segments-per-second, ABC=diagonal rod trim, IJK=tower angle trim");
         CONFIG_ECHO_START;
       }
       SERIAL_ECHOPAIR("  M665 L", delta_diagonal_rod);

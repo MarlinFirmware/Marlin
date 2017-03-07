@@ -185,7 +185,7 @@
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires FILAMENT_CHANGE_FEATURE)
- * M665 - Set delta configurations: "M665 L<diagonal rod> R<delta radius> S<segments/s>" (Requires DELTA)
+ * M665 - Set delta configurations: "M665 L<diagonal rod> R<delta radius> S<segments/s> A<rod A trim mm> B<rod B trim mm> C<rod C trim mm> I<tower A trim angle> J<tower B trim angle> K<tower C trim angle>" (Requires DELTA)
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
@@ -556,9 +556,6 @@ static uint8_t target_extruder;
 
 #if ENABLED(DELTA)
 
-  #define SIN_60 0.8660254037844386
-  #define COS_60 0.5
-
   float delta[ABC],
         endstop_adj[ABC] = { 0 };
 
@@ -567,12 +564,12 @@ static uint8_t target_extruder;
         delta_tower_angle_trim_1 = DELTA_TOWER_ANGLE_TRIM_1,
         delta_tower_angle_trim_2 = DELTA_TOWER_ANGLE_TRIM_2,
         delta_tower_angle_trim_3 = DELTA_TOWER_ANGLE_TRIM_3,
-        delta_tower1_x = -sin( (60 - delta_tower_angle_trim_1) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1), // front left tower
-        delta_tower1_y = -cos( (60 - delta_tower_angle_trim_1) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1),
-        delta_tower2_x =  sin( (60 + delta_tower_angle_trim_2) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2), // front right tower
-        delta_tower2_y = -cos( (60 + delta_tower_angle_trim_2) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2),
-        delta_tower3_x = -sin( (     delta_tower_angle_trim_3) * PI/180),                                                    // back middle tower
-        delta_tower3_y =  cos( (     delta_tower_angle_trim_3) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_3),
+        delta_tower1_x = -sin(RADIANS(60 - delta_tower_angle_trim_1)) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1), // front left tower
+        delta_tower1_y = -cos(RADIANS(60 - delta_tower_angle_trim_1)) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1),
+        delta_tower2_x =  sin(RADIANS(60 + delta_tower_angle_trim_2)) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2), // front right tower
+        delta_tower2_y = -cos(RADIANS(60 + delta_tower_angle_trim_2)) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2),
+        delta_tower3_x = -sin(RADIANS(     delta_tower_angle_trim_3)),                                                    // back middle tower
+        delta_tower3_y =  cos(RADIANS(     delta_tower_angle_trim_3)) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_3),
         delta_diagonal_rod = DELTA_DIAGONAL_ROD,
         delta_diagonal_rod_trim_tower_1 = DELTA_DIAGONAL_ROD_TRIM_TOWER_1,
         delta_diagonal_rod_trim_tower_2 = DELTA_DIAGONAL_ROD_TRIM_TOWER_2,
@@ -9146,12 +9143,12 @@ void ok_to_send() {
    * settings have been changed (e.g., by M665).
    */
   void recalc_delta_settings(float radius, float diagonal_rod) {
-    delta_tower1_x = -sin( (60 - delta_tower_angle_trim_1) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1), // front left tower
-    delta_tower1_y = -cos( (60 - delta_tower_angle_trim_1) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1),
-    delta_tower2_x =  sin( (60 + delta_tower_angle_trim_2) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2), // front right tower
-    delta_tower2_y = -cos( (60 + delta_tower_angle_trim_2) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2),
-    delta_tower3_x = -sin( (     delta_tower_angle_trim_3) * PI/180),                                              // back middle tower
-    delta_tower3_y =  cos( (     delta_tower_angle_trim_3) * PI/180) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_3),
+    delta_tower1_x = -sin(RADIANS(60 - delta_tower_angle_trim_1)) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1), // front left tower
+    delta_tower1_y = -cos(RADIANS(60 - delta_tower_angle_trim_1)) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1),
+    delta_tower2_x =  sin(RADIANS(60 + delta_tower_angle_trim_2)) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2), // front right tower
+    delta_tower2_y = -cos(RADIANS(60 + delta_tower_angle_trim_2)) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2),
+    delta_tower3_x = -sin(RADIANS(     delta_tower_angle_trim_3)),                                              // back middle tower
+    delta_tower3_y =  cos(RADIANS(     delta_tower_angle_trim_3)) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_3),
     delta_diagonal_rod_2_tower_1 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_1);
     delta_diagonal_rod_2_tower_2 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_2);
     delta_diagonal_rod_2_tower_3 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_3);
