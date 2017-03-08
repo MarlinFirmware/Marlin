@@ -866,11 +866,11 @@
 //===========================================================================
 //========================= Unified Bed Leveling ============================
 //===========================================================================
-    #define UBL_MESH_INSET 1          // Mesh inset margin on print area
-    #define UBL_MESH_NUM_X_POINTS 10  // Don't use more than 15 points per axis, implementation limited.
+    #define UBL_MESH_INSET 1         // Mesh inset margin on print area
+    #define UBL_MESH_NUM_X_POINTS 10 // Don't use more than 15 points per axis, implementation limited.
     #define UBL_MESH_NUM_Y_POINTS 10
-    #define UBL_PROBE_PT_1_X 39       // These set the probe locations for when UBL does a 3-Point leveling	
-    #define UBL_PROBE_PT_1_Y 180      // of the mesh.
+    #define UBL_PROBE_PT_1_X 39    // These set the probe locations for when UBL does a 3-Point leveling	
+    #define UBL_PROBE_PT_1_Y 180   // of the mesh.
     #define UBL_PROBE_PT_2_X 39
     #define UBL_PROBE_PT_2_Y 20
     #define UBL_PROBE_PT_3_X 180
