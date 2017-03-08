@@ -185,7 +185,7 @@
  * M503 - Print the current settings (in memory): "M503 S<verbose>". S0 specifies compact output.
  * M540 - Enable/disable SD card abort on endstop hit: "M540 S<state>". (Requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  * M600 - Pause for filament change: "M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>". (Requires FILAMENT_CHANGE_FEATURE)
- * M665 - Set delta configurations: "M665 L<diagonal rod> R<delta radius> S<segments/s>" (Requires DELTA)
+ * M665 - Set delta configurations: "M665 L<diagonal rod> R<delta radius> S<segments/s> A<rod A trim mm> B<rod B trim mm> C<rod C trim mm> I<tower A trim angle> J<tower B trim angle> K<tower C trim angle>" (Requires DELTA)
  * M666 - Set delta endstop adjustment. (Requires DELTA)
  * M605 - Set dual x-carriage movement mode: "M605 S<mode> [X<x_offset>] [R<temp_offset>]". (Requires DUAL_X_CARRIAGE)
  * M851 - Set Z probe's Z offset in current units. (Negative = below the nozzle.)
@@ -556,28 +556,18 @@ static uint8_t target_extruder;
 
 #if ENABLED(DELTA)
 
-  #define SIN_60 0.8660254037844386
-  #define COS_60 0.5
-
   float delta[ABC],
         endstop_adj[ABC] = { 0 };
 
-  // these are the default values, can be overriden with M665
-  float delta_radius = DELTA_RADIUS,
-        delta_tower1_x = -SIN_60 * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1), // front left tower
-        delta_tower1_y = -COS_60 * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1),
-        delta_tower2_x =  SIN_60 * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2), // front right tower
-        delta_tower2_y = -COS_60 * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2),
-        delta_tower3_x = 0,                                                    // back middle tower
-        delta_tower3_y = (delta_radius + DELTA_RADIUS_TRIM_TOWER_3),
-        delta_diagonal_rod = DELTA_DIAGONAL_ROD,
-        delta_diagonal_rod_trim_tower_1 = DELTA_DIAGONAL_ROD_TRIM_TOWER_1,
-        delta_diagonal_rod_trim_tower_2 = DELTA_DIAGONAL_ROD_TRIM_TOWER_2,
-        delta_diagonal_rod_trim_tower_3 = DELTA_DIAGONAL_ROD_TRIM_TOWER_3,
-        delta_diagonal_rod_2_tower_1 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_1),
-        delta_diagonal_rod_2_tower_2 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_2),
-        delta_diagonal_rod_2_tower_3 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_3),
-        delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND,
+  // These values are loaded or reset at boot time when setup() calls
+  // Config_RetrieveSettings(), which calls recalc_delta_settings().
+  float delta_radius,
+        delta_tower_angle_trim[ABC],
+        delta_tower[ABC][2],
+        delta_diagonal_rod,
+        delta_diagonal_rod_trim[ABC],
+        delta_diagonal_rod_2_tower[ABC],
+        delta_segments_per_second,
         delta_clip_start_height = Z_MAX_POS;
 
   float delta_safe_distance_from_top();
@@ -6334,9 +6324,12 @@ inline void gcode_M205() {
     if (code_seen('L')) delta_diagonal_rod = code_value_linear_units();
     if (code_seen('R')) delta_radius = code_value_linear_units();
     if (code_seen('S')) delta_segments_per_second = code_value_float();
-    if (code_seen('A')) delta_diagonal_rod_trim_tower_1 = code_value_linear_units();
-    if (code_seen('B')) delta_diagonal_rod_trim_tower_2 = code_value_linear_units();
-    if (code_seen('C')) delta_diagonal_rod_trim_tower_3 = code_value_linear_units();
+    if (code_seen('A')) delta_diagonal_rod_trim[A_AXIS] = code_value_linear_units();
+    if (code_seen('B')) delta_diagonal_rod_trim[B_AXIS] = code_value_linear_units();
+    if (code_seen('C')) delta_diagonal_rod_trim[C_AXIS] = code_value_linear_units();
+    if (code_seen('I')) delta_tower_angle_trim[A_AXIS] = code_value_linear_units();
+    if (code_seen('J')) delta_tower_angle_trim[B_AXIS] = code_value_linear_units();
+    if (code_seen('K')) delta_tower_angle_trim[C_AXIS] = code_value_linear_units();
     recalc_delta_settings(delta_radius, delta_diagonal_rod);
   }
   /**
@@ -9140,15 +9133,15 @@ void ok_to_send() {
    * settings have been changed (e.g., by M665).
    */
   void recalc_delta_settings(float radius, float diagonal_rod) {
-    delta_tower1_x = -SIN_60 * (radius + DELTA_RADIUS_TRIM_TOWER_1);  // front left tower
-    delta_tower1_y = -COS_60 * (radius + DELTA_RADIUS_TRIM_TOWER_1);
-    delta_tower2_x =  SIN_60 * (radius + DELTA_RADIUS_TRIM_TOWER_2);  // front right tower
-    delta_tower2_y = -COS_60 * (radius + DELTA_RADIUS_TRIM_TOWER_2);
-    delta_tower3_x = 0.0;                                             // back middle tower
-    delta_tower3_y = (radius + DELTA_RADIUS_TRIM_TOWER_3);
-    delta_diagonal_rod_2_tower_1 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_1);
-    delta_diagonal_rod_2_tower_2 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_2);
-    delta_diagonal_rod_2_tower_3 = sq(diagonal_rod + delta_diagonal_rod_trim_tower_3);
+    delta_tower[A_AXIS][X_AXIS] = -sin(RADIANS(60 - delta_tower_angle_trim[A_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1), // front left tower
+    delta_tower[A_AXIS][Y_AXIS] = -cos(RADIANS(60 - delta_tower_angle_trim[A_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1),
+    delta_tower[B_AXIS][X_AXIS] =  sin(RADIANS(60 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2), // front right tower
+    delta_tower[B_AXIS][Y_AXIS] = -cos(RADIANS(60 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2),
+    delta_tower[C_AXIS][X_AXIS] = -sin(RADIANS(     delta_tower_angle_trim[C_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_3), // back middle tower
+    delta_tower[C_AXIS][Y_AXIS] =  cos(RADIANS(     delta_tower_angle_trim[C_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_3),
+    delta_diagonal_rod_2_tower[A_AXIS] = sq(diagonal_rod + delta_diagonal_rod_trim[A_AXIS]);
+    delta_diagonal_rod_2_tower[B_AXIS] = sq(diagonal_rod + delta_diagonal_rod_trim[B_AXIS]);
+    delta_diagonal_rod_2_tower[C_AXIS] = sq(diagonal_rod + delta_diagonal_rod_trim[C_AXIS]);
   }
 
   #if ENABLED(DELTA_FAST_SQRT)
@@ -9198,17 +9191,17 @@ void ok_to_send() {
    */
 
   // Macro to obtain the Z position of an individual tower
-  #define DELTA_Z(T) raw[Z_AXIS] + _SQRT(    \
-    delta_diagonal_rod_2_tower_##T - HYPOT2( \
-        delta_tower##T##_x - raw[X_AXIS],    \
-        delta_tower##T##_y - raw[Y_AXIS]     \
-      )                                      \
+  #define DELTA_Z(T) raw[Z_AXIS] + _SQRT(     \
+    delta_diagonal_rod_2_tower[T] - HYPOT2(   \
+        delta_tower[T][X_AXIS] - raw[X_AXIS], \
+        delta_tower[T][Y_AXIS] - raw[Y_AXIS]  \
+      )                                       \
     )
 
   #define DELTA_RAW_IK() do {   \
-    delta[A_AXIS] = DELTA_Z(1); \
-    delta[B_AXIS] = DELTA_Z(2); \
-    delta[C_AXIS] = DELTA_Z(3); \
+    delta[A_AXIS] = DELTA_Z(A_AXIS); \
+    delta[B_AXIS] = DELTA_Z(B_AXIS); \
+    delta[C_AXIS] = DELTA_Z(C_AXIS); \
   } while(0)
 
   #define DELTA_LOGICAL_IK() do {      \
@@ -9278,7 +9271,7 @@ void ok_to_send() {
    */
   void forward_kinematics_DELTA(float z1, float z2, float z3) {
     // Create a vector in old coordinates along x axis of new coordinate
-    float p12[3] = { delta_tower2_x - delta_tower1_x, delta_tower2_y - delta_tower1_y, z2 - z1 };
+    float p12[3] = { delta_tower[B_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[B_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z2 - z1 };
 
     // Get the Magnitude of vector.
     float d = sqrt( sq(p12[0]) + sq(p12[1]) + sq(p12[2]) );
@@ -9287,7 +9280,7 @@ void ok_to_send() {
     float ex[3] = { p12[0] / d, p12[1] / d, p12[2] / d };
 
     // Get the vector from the origin of the new system to the third point.
-    float p13[3] = { delta_tower3_x - delta_tower1_x, delta_tower3_y - delta_tower1_y, z3 - z1 };
+    float p13[3] = { delta_tower[C_AXIS][X_AXIS] - delta_tower[A_AXIS][X_AXIS], delta_tower[C_AXIS][Y_AXIS] - delta_tower[A_AXIS][Y_AXIS], z3 - z1 };
 
     // Use the dot product to find the component of this vector on the X axis.
     float i = ex[0] * p13[0] + ex[1] * p13[1] + ex[2] * p13[2];
@@ -9315,15 +9308,15 @@ void ok_to_send() {
 
     // We now have the d, i and j values defined in Wikipedia.
     // Plug them into the equations defined in Wikipedia for Xnew, Ynew and Znew
-    float Xnew = (delta_diagonal_rod_2_tower_1 - delta_diagonal_rod_2_tower_2 + sq(d)) / (d * 2),
-          Ynew = ((delta_diagonal_rod_2_tower_1 - delta_diagonal_rod_2_tower_3 + HYPOT2(i, j)) / 2 - i * Xnew) / j,
-          Znew = sqrt(delta_diagonal_rod_2_tower_1 - HYPOT2(Xnew, Ynew));
+    float Xnew = (delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[B_AXIS] + sq(d)) / (d * 2),
+          Ynew = ((delta_diagonal_rod_2_tower[A_AXIS] - delta_diagonal_rod_2_tower[C_AXIS] + HYPOT2(i, j)) / 2 - i * Xnew) / j,
+          Znew = sqrt(delta_diagonal_rod_2_tower[A_AXIS] - HYPOT2(Xnew, Ynew));
 
     // Start from the origin of the old coordinates and add vectors in the
     // old coords that represent the Xnew, Ynew and Znew to find the point
     // in the old system.
-    cartes[X_AXIS] = delta_tower1_x + ex[0] * Xnew + ey[0] * Ynew - ez[0] * Znew;
-    cartes[Y_AXIS] = delta_tower1_y + ex[1] * Xnew + ey[1] * Ynew - ez[1] * Znew;
+    cartes[X_AXIS] = delta_tower[A_AXIS][X_AXIS] + ex[0] * Xnew + ey[0] * Ynew - ez[0] * Znew;
+    cartes[Y_AXIS] = delta_tower[A_AXIS][Y_AXIS] + ex[1] * Xnew + ey[1] * Ynew - ez[1] * Znew;
     cartes[Z_AXIS] =             z1 + ex[2] * Xnew + ey[2] * Ynew - ez[2] * Znew;
   }
 
