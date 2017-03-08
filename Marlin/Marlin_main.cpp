@@ -858,17 +858,17 @@ bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
 
 void setup_killpin() {
   #if HAS_KILL
-    SET_INPUT(KILL_PIN);
-    WRITE(KILL_PIN, HIGH);
+    SET_INPUT_PULLUP(KILL_PIN);
   #endif
 }
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
 
   void setup_filrunoutpin() {
-    SET_INPUT(FIL_RUNOUT_PIN);
     #if ENABLED(ENDSTOPPULLUP_FIL_RUNOUT)
-      WRITE(FIL_RUNOUT_PIN, HIGH);
+      SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
+    #else
+      SET_INPUT(FIL_RUNOUT_PIN);
     #endif
   }
 
@@ -877,8 +877,7 @@ void setup_killpin() {
 // Set home pin
 void setup_homepin(void) {
   #if HAS_HOME
-    SET_INPUT(HOME_PIN);
-    WRITE(HOME_PIN, HIGH);
+    SET_INPUT_PULLUP(HOME_PIN);
   #endif
 }
 
