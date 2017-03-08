@@ -557,12 +557,8 @@
 //#define FIX_MOUNTED_PROBE
 
 // The BLTouch probe emulates a servo probe.
-// The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
+// The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below in servo setup section to override.
 //#define BLTOUCH
-
-// Z Servo Probe, such as an endstop switch on a rotating arm.
-//#define Z_ENDSTOP_SERVO_NR 0
-//#define Z_SERVO_ANGLES {70,0} // Z Servo Deploy and Stow angles
 
 // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
 //#define Z_PROBE_SLED
@@ -711,8 +707,9 @@
 #define Z_HOMING_HEIGHT 2    // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
 
-// Direction of endstops when homing; 1=MAX, -1=MIN
-// :[-1,1]
+// ENDSTOP SETTINGS:
+// Sets direction of endstops when homing; 1=MAX, -1=MIN
+// :[-1, 1]
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
@@ -730,11 +727,6 @@
   #define Y_MAX_POS 180
   #define Z_MAX_POS 175
 
-// If enabled, axes won't move below MIN_POS in response to movement commands.
-#define MIN_SOFTWARE_ENDSTOPS
-// If enabled, axes won't move above MAX_POS in response to movement commands.
-#define MAX_SOFTWARE_ENDSTOPS
-
 /**
  * Filament Runout Sensor
  * A mechanical or opto endstop is used to check for the presence of filament.
@@ -751,34 +743,6 @@
 #endif
 
 //===========================================================================
-//============================ Mesh Bed Leveling ============================
-//===========================================================================
-
-//#define MESH_BED_LEVELING    // Enable mesh bed leveling.
-
-#if ENABLED(MESH_BED_LEVELING)
-  #define MESH_INSET 10        // Mesh inset margin on print area
-  #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
-  #define MESH_NUM_Y_POINTS 3
-  #define MANUAL_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
-
-  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
-
-  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
-
-  #if ENABLED(MANUAL_BED_LEVELING)
-    #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
-  #endif  // MANUAL_BED_LEVELING
-
-  // Gradually reduce leveling correction until a set height is reached,
-  // at which point movement will be level to the machine's XY plane.
-  // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
-
-#endif  // MESH_BED_LEVELING
-
-//===========================================================================
-//============================ Auto Bed Leveling ============================
 //=============================== Bed Leveling ==============================
 //===========================================================================
 // @section bedlevel
@@ -902,11 +866,11 @@
 //===========================================================================
 //========================= Unified Bed Leveling ============================
 //===========================================================================
-    #define UBL_MESH_INSET 1          // Mesh inset margin on print area
-    #define UBL_MESH_NUM_X_POINTS 10  // Don't use more than 15 points per axis, implementation limited.
+    #define UBL_MESH_INSET 1         // Mesh inset margin on print area
+    #define UBL_MESH_NUM_X_POINTS 10 // Don't use more than 15 points per axis, implementation limited.
     #define UBL_MESH_NUM_Y_POINTS 10
-    #define UBL_PROBE_PT_1_X 39       // These set the probe locations for when UBL does a 3-Point leveling	
-    #define UBL_PROBE_PT_1_Y 180      // of the mesh.
+    #define UBL_PROBE_PT_1_X 39    // These set the probe locations for when UBL does a 3-Point leveling	
+    #define UBL_PROBE_PT_1_Y 180   // of the mesh.
     #define UBL_PROBE_PT_2_X 39
     #define UBL_PROBE_PT_2_Y 20
     #define UBL_PROBE_PT_3_X 180
@@ -1493,6 +1457,12 @@
 // If unsure, leave commented / disabled
 //
 //#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+
+// Connector number that the servo is plugged into
+//#define Z_ENDSTOP_SERVO_NR 0
+
+// Angles to deploy and retract the servo
+#define Z_SERVO_ANGLES {40,85} // Z Servo Deploy and Stow angles
 
 // Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.

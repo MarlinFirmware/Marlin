@@ -40,6 +40,7 @@
 #include "fastio.h"
 #include "utility.h"
 
+
 #ifdef USBCON
   #include "HardwareSerial.h"
   #if ENABLED(BLUETOOTH)
@@ -81,7 +82,9 @@ extern const char errormagic[] PROGMEM;
 #define SERIAL_ECHOLN(x)               SERIAL_PROTOCOLLN(x)
 #define SERIAL_ECHOLNPGM(x)            SERIAL_PROTOCOLLNPGM(x)
 #define SERIAL_ECHOPAIR(name,value)    SERIAL_PROTOCOLPAIR(name, value)
+#define SERIAL_ECHOPAIRPGM(name,value) do{ SERIAL_ECHOPGM(name); SERIAL_ECHO(value);} while(0);
 #define SERIAL_ECHOLNPAIR(name, value) SERIAL_PROTOCOLLNPAIR(name, value)
+#define SERIAL_ECHO_F(x,y)             SERIAL_PROTOCOL_F(x,y)
 
 #define SERIAL_ERROR_START            (serialprintPGM(errormagic))
 #define SERIAL_ERROR(x)                SERIAL_PROTOCOL(x)
@@ -91,10 +94,19 @@ extern const char errormagic[] PROGMEM;
 
 void serial_echopair_P(const char* s_P, const char *v);
 void serial_echopair_P(const char* s_P, char v);
+#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER)
+  void prt_hex_word( unsigned int );
+  void prt_hex_byte( unsigned int );  
+#endif
+
+#if ENABLED(AUTO_BED_LEVELING_UBL) 
+extern int Unified_Bed_Leveling_EEPROM_start;
+#endif
 void serial_echopair_P(const char* s_P, int v);
 void serial_echopair_P(const char* s_P, long v);
 void serial_echopair_P(const char* s_P, float v);
 void serial_echopair_P(const char* s_P, double v);
+void serial_echopair_P(const char* s_P, unsigned int v);
 void serial_echopair_P(const char* s_P, unsigned long v);
 FORCE_INLINE void serial_echopair_P(const char* s_P, uint8_t v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, uint16_t v) { serial_echopair_P(s_P, (int)v); }
@@ -423,5 +435,9 @@ void do_blocking_move_to(const float &x, const float &y, const float &z, const f
 void do_blocking_move_to_x(const float &x, const float &fr_mm_s=0.0);
 void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
 void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
+#ifdef AUTO_BED_LEVELING_UBL
+#include "UBL.h"
+extern bed_leveling blm;
+#endif
 
 #endif //MARLIN_H
