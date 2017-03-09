@@ -1438,6 +1438,11 @@
 //
 //#define SAV_3DLCD
 
+//
+// TinyBoy2 128x64 OLED / Encoder Panel
+//
+//#define OLED_PANEL_TINYBOY2
+
 #endif // K8200_VM8201
 
 //=============================================================================
