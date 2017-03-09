@@ -4607,8 +4607,10 @@ inline void gcode_G92() {
         current_position[i] = code_value_axis_units(i);
         if (i != E_AXIS) didXYZ = true;
       #else
-        float p = current_position[i],
-              v = code_value_axis_units(i);
+        #if DISABLED(NO_WORKSPACE_OFFSETS)
+          float p = current_position[i];
+        #endif
+        float v = code_value_axis_units(i);
 
         current_position[i] = v;
 
