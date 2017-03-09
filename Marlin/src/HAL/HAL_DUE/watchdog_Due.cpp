@@ -22,20 +22,18 @@
 
 #ifdef ARDUINO_ARCH_SAM
  
-  #include "../../../Marlin.h"
+#include "../../../MarlinConfig.h"
 
-  #if ENABLED(USE_WATCHDOG)
+#if ENABLED(USE_WATCHDOG)
 
-    #include "watchdog_Due.h"
+  #include "watchdog_Due.h"
 
-    // Initialize watchdog with a 4 second interrupt time
-    void watchdogSetup(void) { watchdogEnable(4000); }
+  void watchdogSetup(void) {
+    // do whatever. don't remove this function.
+  }
 
-    // TODO: implement for Due
-    void watchdog_init() {
-      // this is a stub
-    }
+  void watchdog_init(void) { watchdogEnable(4000); }
 
-  #endif // USE_WATCHDOG
+#endif // USE_WATCHDOG
 
 #endif

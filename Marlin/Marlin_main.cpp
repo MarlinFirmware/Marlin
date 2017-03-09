@@ -11051,6 +11051,10 @@ void setup() {
     disableStepperDrivers();
   #endif
 
+  #if ENABLED(USE_WATCHDOG)
+    watchdog_init();
+  #endif
+
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
@@ -11099,10 +11103,6 @@ void setup() {
   SYNC_PLAN_POSITION_KINEMATIC();
 
   thermalManager.init();    // Initialize temperature loop
-
-  #if ENABLED(USE_WATCHDOG)
-    watchdog_init();
-  #endif
 
   stepper.init();    // Initialize stepper, this enables interrupts!
   servo_init();
