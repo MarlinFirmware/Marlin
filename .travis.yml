@@ -47,8 +47,8 @@ install:
   # - sudo mv TMC26XStepper /usr/local/share/arduino/libraries/TMC26XStepper
   #
   # Install: TMC2130 Stepper Motor Controller library
-  - git clone https://github.com/MarlinFirmware/Trinamic_TMC2130.git
-  - sudo mv Trinamic_TMC2130/Trinamic_TMC2130 /usr/local/share/arduino/libraries/Trinamic_TMC2130
+  - git clone https://github.com/teemuatlut/TMC2130Stepper.git
+  - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
   #
 before_script:
   #
@@ -226,10 +226,10 @@ script:
   - opt_enable COREXY
   - build_marlin
   #
-  # Enable COREXZ
+  # Enable COREYX (swapped)
   #
   - restore_configs
-  - opt_enable COREXZ
+  - opt_enable COREYX
   - build_marlin
   #
   # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
@@ -396,7 +396,9 @@ script:
   # TMC2130 Config
   #
   - restore_configs
-  - opt_enable_adv HAVE_TMC2130DRIVER X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130 E0_IS_TMC2130
+  - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
+  - build_marlin
+  - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p

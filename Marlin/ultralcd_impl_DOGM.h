@@ -634,7 +634,7 @@ static void lcd_implementation_status_screen() {
 
       u8g.setPrintPos(LCD_PIXEL_WIDTH - 11 * (DOG_CHAR_WIDTH), row_y2);
       lcd_print('E');
-      lcd_print((char)('0' + active_extruder));
+      lcd_print((char)('1' + active_extruder));
       lcd_print(' ');
       lcd_print(itostr3(thermalManager.degHotend(active_extruder)));
       lcd_print('/');
