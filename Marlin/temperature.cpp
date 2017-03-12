@@ -1521,7 +1521,7 @@ void Temperature::isr() {
       static uint8_t state_heater_ ## n = 0; \
       static uint8_t state_timer_heater_ ## n = 0
   #else
-    #define ISR_STATICS(n) static uint8_t soft_pwm_ ## n
+    #define ISR_STATICS(n) static uint8_t soft_pwm_ ## n = 0
   #endif
 
   // Statics per heater
@@ -1544,43 +1544,51 @@ void Temperature::isr() {
   #endif
 
   #if DISABLED(SLOW_PWM_HEATERS)
+    constexpr uint8_t pwm_mask =
+      #if ENABLED(SOFT_PWM_DITHER)
+        _BV(SOFT_PWM_SCALE) - 1
+      #else
+        0
+      #endif
+    ;
+
     /**
      * Standard PWM modulation
      */
     if (pwm_count >= 127) {
-      pwm_count = 0;
-      soft_pwm_0 = soft_pwm[0];
-      WRITE_HEATER_0(soft_pwm_0 > 0 ? HIGH : LOW);
+      pwm_count -= 127;
+      soft_pwm_0 = (soft_pwm_0 & pwm_mask) + soft_pwm[0];
+      WRITE_HEATER_0(soft_pwm_0 > pwm_mask ? HIGH : LOW);
       #if HOTENDS > 1
-        soft_pwm_1 = soft_pwm[1];
-        WRITE_HEATER_1(soft_pwm_1 > 0 ? HIGH : LOW);
+        soft_pwm_1 = (soft_pwm_1 & pwm_mask) + soft_pwm[1];
+        WRITE_HEATER_1(soft_pwm_1 > pwm_mask ? HIGH : LOW);
         #if HOTENDS > 2
-          soft_pwm_2 = soft_pwm[2];
-          WRITE_HEATER_2(soft_pwm_2 > 0 ? HIGH : LOW);
+          soft_pwm_2 = (soft_pwm_2 & pwm_mask) + soft_pwm[2];
+          WRITE_HEATER_2(soft_pwm_2 > pwm_mask ? HIGH : LOW);
           #if HOTENDS > 3
-            soft_pwm_3 = soft_pwm[3];
-            WRITE_HEATER_3(soft_pwm_3 > 0 ? HIGH : LOW);
+            soft_pwm_3 = (soft_pwm_3 & pwm_mask) + soft_pwm[3];
+            WRITE_HEATER_3(soft_pwm_3 > pwm_mask ? HIGH : LOW);
           #endif
         #endif
       #endif
 
       #if HAS_HEATER_BED
-        soft_pwm_BED = soft_pwm_bed;
-        WRITE_HEATER_BED(soft_pwm_BED > 0 ? HIGH : LOW);
+        soft_pwm_BED = (soft_pwm_BED & pwm_mask) + soft_pwm_bed;
+        WRITE_HEATER_BED(soft_pwm_BED > pwm_mask ? HIGH : LOW);
       #endif
 
       #if ENABLED(FAN_SOFT_PWM)
         #if HAS_FAN0
-          soft_pwm_fan[0] = fanSpeedSoftPwm[0] >> 1;
-          WRITE_FAN(soft_pwm_fan[0] > 0 ? HIGH : LOW);
+          soft_pwm_fan[0] = (soft_pwm_fan[0] & pwm_mask) + fanSpeedSoftPwm[0] >> 1;
+          WRITE_FAN(soft_pwm_fan[0] > pwm_mask ? HIGH : LOW);
         #endif
         #if HAS_FAN1
-          soft_pwm_fan[1] = fanSpeedSoftPwm[1] >> 1;
-          WRITE_FAN1(soft_pwm_fan[1] > 0 ? HIGH : LOW);
+          soft_pwm_fan[1] = (soft_pwm_fan[1] & pwm_mask) + fanSpeedSoftPwm[1] >> 1;
+          WRITE_FAN1(soft_pwm_fan[1] > pwm_mask ? HIGH : LOW);
         #endif
         #if HAS_FAN2
-          soft_pwm_fan[2] = fanSpeedSoftPwm[2] >> 1;
-          WRITE_FAN2(soft_pwm_fan[2] > 0 ? HIGH : LOW);
+          soft_pwm_fan[2] = (soft_pwm_fan[2] & pwm_mask) + fanSpeedSoftPwm[2] >> 1;
+          WRITE_FAN2(soft_pwm_fan[2] > pwm_mask ? HIGH : LOW);
         #endif
       #endif
     }

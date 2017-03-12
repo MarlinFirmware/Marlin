@@ -1424,6 +1424,12 @@
 // at zero value, there are 128 effective control positions.
 #define SOFT_PWM_SCALE 0
 
+// If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
+// be used to mitigate the associated resolution loss. If enabled,
+// some of the PWM cycles are stretched so on average the wanted
+// duty cycle is attained.
+//#define SOFT_PWM_DITHER
+
 // Temperature status LEDs that display the hotend and bed temperature.
 // If all hotends and bed temperature and temperature setpoint are < 54C then the BLUE led is on.
 // Otherwise the RED led is on. There is 1C hysteresis.
