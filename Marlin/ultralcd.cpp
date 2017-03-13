@@ -2845,6 +2845,66 @@ KeepDrawing:
   menu_edit_type(float, float62, ftostr62rj, 100.0);
   menu_edit_type(unsigned long, long5, ftostr5rj, 0.01);
 
+#if ENABLED(ADC_KEYPAD)  
+  /**
+  *
+  * Handlers for ADC Keypad input
+  *
+  */
+  inline void handle_adc_keypad() {
+  if (buttons_reprapworld_keypad != 0) {
+        lcd_quick_feedback();
+        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
+
+        if ((currentScreen == lcd_main_menu) || (currentScreen == lcd_tune_menu) || (currentScreen == lcd_prepare_menu) || (currentScreen == lcd_control_menu)
+  #if ENABLED(SDSUPPORT)
+          || (currentScreen == lcd_sdcard_menu)
+  #endif
+          || (currentScreen == lcd_move_menu)
+          || (currentScreen == lcd_move_get_x_amount)
+          || (currentScreen == lcd_move_get_y_amount)
+          || (currentScreen == lcd_move_get_z_amount)
+          || (currentScreen == lcd_move_get_e_amount)
+          || (currentScreen == lcd_move_menu_10mm)
+          || (currentScreen == lcd_move_menu_1mm)
+          || (currentScreen == lcd_move_menu_01mm)
+          || (currentScreen == lcd_control_temperature_menu)
+          || (currentScreen == lcd_control_temperature_preheat_material1_settings_menu)
+          || (currentScreen == lcd_control_temperature_preheat_material2_settings_menu)
+          || (currentScreen == lcd_control_motion_menu)
+          || (currentScreen == lcd_control_volumetric_menu)
+  #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_BED != 0
+          || (currentScreen == lcd_preheat_m1_menu) || (currentScreen == lcd_preheat_m2_menu)
+  #else
+          || (currentScreen == lcd_preheat_m1) || (currentScreen == lcd_preheat_m2)
+  #endif
+          )
+        {
+          if (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_DOWN)
+            encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
+          else if (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_UP)
+            encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
+
+          if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
+            menu_action_back();
+        }
+        else
+        {
+          if (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_DOWN)
+            encoderPosition += ENCODER_PULSES_PER_STEP;
+          else if (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_UP)
+            encoderPosition -= ENCODER_PULSES_PER_STEP;
+        }
+      #ifdef ADC_KEYPAD_DEBUG
+        SERIAL_PROTOCOLPGM("buttons_reprapworld_keypad = ");
+        SERIAL_PROTOCOLLN((unsigned long)buttons_reprapworld_keypad);
+        SERIAL_PROTOCOLPGM("encoderPosition = ");
+        SERIAL_PROTOCOLLN((unsigned long)encoderPosition);
+      #endif
+      }
+	}
+  #endif 
+  
   /**
    *
    * Handlers for RepRap World Keypad input
@@ -3174,58 +3234,8 @@ void lcd_update() {
       #endif
 
 	  #if ENABLED(ADC_KEYPAD)
-      if (buttons_reprapworld_keypad != 0)
-      {
-        lcd_quick_feedback();
-        lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
-        return_to_status_ms = millis() + LCD_TIMEOUT_TO_STATUS;
-        if ((currentScreen == lcd_main_menu) || (currentScreen == lcd_tune_menu) || (currentScreen == lcd_prepare_menu) || (currentScreen == lcd_control_menu)
-  #if ENABLED(SDSUPPORT)
-          || (currentScreen == lcd_sdcard_menu)
-  #endif
-          || (currentScreen == lcd_move_menu)
-          || (currentScreen == lcd_move_get_x_amount)
-          || (currentScreen == lcd_move_get_y_amount)
-          || (currentScreen == lcd_move_get_z_amount)
-          || (currentScreen == lcd_move_get_e_amount)
-          || (currentScreen == lcd_move_menu_10mm)
-          || (currentScreen == lcd_move_menu_1mm)
-          || (currentScreen == lcd_move_menu_01mm)
-          || (currentScreen == lcd_control_temperature_menu)
-          || (currentScreen == lcd_control_temperature_preheat_material1_settings_menu)
-          || (currentScreen == lcd_control_temperature_preheat_material2_settings_menu)
-          || (currentScreen == lcd_control_motion_menu)
-          || (currentScreen == lcd_control_volumetric_menu)
-  #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_BED != 0
-          || (currentScreen == lcd_preheat_m1_menu) || (currentScreen == lcd_preheat_m2_menu)
-  #else
-          || (currentScreen == lcd_preheat_material1) || (currentScreen == lcd_preheat_material2)
-  #endif
-          )
-        {
-          if (EN_REPRAPWORLD_KEYPAD_DOWN)
-            encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
-          else if (EN_REPRAPWORLD_KEYPAD_UP)
-            encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
-
-          if (EN_REPRAPWORLD_KEYPAD_LEFT)
-            menu_action_back();
-        }
-        else
-        {
-          if (EN_REPRAPWORLD_KEYPAD_DOWN)
-            encoderPosition += ENCODER_PULSES_PER_STEP;
-          else if (EN_REPRAPWORLD_KEYPAD_UP)
-            encoderPosition -= ENCODER_PULSES_PER_STEP;
-        }
-      #ifdef ADC_KEYPAD_DEBUG
-        SERIAL_PROTOCOLPGM("buttons_reprapworld_keypad = ");
-        SERIAL_PROTOCOLLN((unsigned long)buttons_reprapworld_keypad);
-        SERIAL_PROTOCOLPGM("encoderPosition = ");
-        SERIAL_PROTOCOLLN((unsigned long)encoderPosition);
-      #endif
-      }
-    #elif ENABLED(REPRAPWORLD_KEYPAD)
+      handle_adc_keypad();
+	  #elif ENABLED(REPRAPWORLD_KEYPAD)
       handle_reprapworld_keypad();
 	  #endif
 
