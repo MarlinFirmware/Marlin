@@ -224,6 +224,8 @@
   #error "UBL_GRANULAR_SEGMENTATION_FOR_CARTESIAN is now SEGMENT_LEVELED_MOVES. Please update your configuration."
 #elif HAS_PID_HEATING && (defined(K1) || !defined(PID_K1))
   #error "K1 is now PID_K1. Please update your configuration."
+#elif defined(PROBE_DOUBLE_TOUCH)
+  #error "PROBE_DOUBLE_TOUCH is now MULTIPLE_PROBING. Please update your configuration."
 #endif
 
 /**
@@ -696,6 +698,10 @@ static_assert(1 >= 0
     #error "Probes need Z_CLEARANCE_DEPLOY_PROBE >= 0."
   #elif Z_CLEARANCE_BETWEEN_PROBES < 0
     #error "Probes need Z_CLEARANCE_BETWEEN_PROBES >= 0."
+  #endif
+
+  #if MULTIPLE_PROBING && MULTIPLE_PROBING < 2
+    #error "MULTIPLE_PROBING must be >= 2."
   #endif
 
 #else
