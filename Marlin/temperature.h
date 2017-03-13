@@ -218,6 +218,10 @@ class Temperature {
     #endif
 
   public:
+#ifdef ADC_KEYPAD
+	  static uint32_t current_ADCKey_raw;
+	  static uint8_t ADCKey_count;
+#endif
 
     /**
      * Instance Methods

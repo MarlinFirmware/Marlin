@@ -94,6 +94,7 @@
 #define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_BQ_ZUM_MEGA_3D    503  // bq ZUM Mega 3D
+#define BOARD_ANET_10			100  // Anet v1.0
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 

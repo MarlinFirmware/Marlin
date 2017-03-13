@@ -107,6 +107,8 @@ enum TempState {
   MeasureTemp_3,
   Prepare_FILWIDTH,
   Measure_FILWIDTH,
+  Prepare_ADC_KEY,
+  Measure_ADC_KEY,
   StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
 
