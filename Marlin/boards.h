@@ -52,6 +52,7 @@
 #define BOARD_GEN6_DELUXE       51   // Gen6 deluxe
 #define BOARD_SANGUINOLOLU_11   6    // Sanguinololu < 1.2
 #define BOARD_SANGUINOLOLU_12   62   // Sanguinololu 1.2 and above
+#define BOARD_ANET_10           621  // Anet v1.0
 #define BOARD_MELZI             63   // Melzi
 #define BOARD_STB_11            64   // STB V1.1
 #define BOARD_AZTEEG_X1         65   // Azteeg X1
@@ -94,7 +95,6 @@
 #define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 #define BOARD_BQ_ZUM_MEGA_3D    503  // bq ZUM Mega 3D
-#define BOARD_ANET_10			100  // Anet v1.0
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 

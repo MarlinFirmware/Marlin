@@ -81,6 +81,8 @@
   #include "pins_SANGUINOLOLU_11.h"
 #elif MB(SANGUINOLOLU_12)
   #include "pins_SANGUINOLOLU_12.h"
+#elif MB(ANET_10)
+  #include "pins_ANET_10.h"
 #elif MB(MELZI)
   #include "pins_MELZI.h"
 #elif MB(STB_11)
@@ -172,8 +174,6 @@
   #include "pins_MKS_13.h"
 #elif MB(SAINSMART_2IN1)
   #include "pins_SAINSMART_2IN1.h"
-#elif MB(ANET_10)
-  #include "pins_ANET_10.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif

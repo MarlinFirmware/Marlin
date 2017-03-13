@@ -2990,14 +2990,12 @@ void lcd_init() {
       SET_INPUT_PULLUP(BTN_ENC);
     #endif
 
-	  #if ENABLED(ADC_KEYPAD)
-	  #else
-    #if ENABLED(REPRAPWORLD_KEYPAD)
+  #if ENABLED(REPRAPWORLD_KEYPAD) && !ENABLED(ADC_KEYPAD)
       SET_OUTPUT(SHIFT_CLK);
       OUT_WRITE(SHIFT_LD, HIGH);
       SET_INPUT_PULLUP(SHIFT_OUT);
     #endif
-    #endif
+
 
     #if BUTTON_EXISTS(UP)
       SET_INPUT(BTN_UP);
@@ -3199,25 +3197,25 @@ void lcd_update() {
           || (currentScreen == lcd_control_motion_menu)
           || (currentScreen == lcd_control_volumetric_menu)
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_BED != 0
-          || (currentScreen == lcd_preheat_material1_menu) || (currentScreen == lcd_preheat_material2_menu)
+          || (currentScreen == lcd_preheat_m1_menu) || (currentScreen == lcd_preheat_m2_menu)
   #else
           || (currentScreen == lcd_preheat_material1) || (currentScreen == lcd_preheat_material2)
   #endif
           )
         {
-          if (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_DOWN)
+          if (EN_REPRAPWORLD_KEYPAD_DOWN)
             encoderPosition -= ENCODER_STEPS_PER_MENU_ITEM;
-          else if (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_UP)
+          else if (EN_REPRAPWORLD_KEYPAD_UP)
             encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;
 
-          if (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
+          if (EN_REPRAPWORLD_KEYPAD_LEFT)
             menu_action_back();
         }
         else
         {
-          if (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_DOWN)
+          if (EN_REPRAPWORLD_KEYPAD_DOWN)
             encoderPosition += ENCODER_PULSES_PER_STEP;
-          else if (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_UP)
+          else if (EN_REPRAPWORLD_KEYPAD_UP)
             encoderPosition -= ENCODER_PULSES_PER_STEP;
         }
       #ifdef ADC_KEYPAD_DEBUG
