@@ -409,15 +409,19 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
       volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
-  // The distance that XYZ has been offset by G92. Reset by G28.
-  float position_shift[XYZ] = { 0 };
+#if DISABLED(NO_WORKSPACE_OFFSETS)
 
-  // This offset is added to the configured home position.
-  // Set by M206, M428, or menu item. Saved to EEPROM.
-  float home_offset[XYZ] = { 0 };
-
-  // The above two are combined to save on computes
-  float workspace_offset[XYZ] = { 0 };
+  // The distance that XYZ has been offset by G92. Reset by G28. 
+  float position_shift[XYZ] = { 0 }; 
+ 
+  // This offset is added to the configured home position. 
+  // Set by M206, M428, or menu item. Saved to EEPROM. 
+  float home_offset[XYZ] = { 0 }; 
+ 
+  // The above two are combined to save on computes 
+  float workspace_offset[XYZ] = { 0 }; 
+ 
+#endif 
 
 // Software Endstops are based on the configured limits.
 #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
@@ -1375,29 +1379,28 @@ bool get_target_extruder_from_command(int code) {
           soft_endstop_max[axis] = base_max_pos(axis) + offs;
         }
       }
-    #else
-      soft_endstop_min[axis] = base_min_pos(axis) + offs;
-      soft_endstop_max[axis] = base_max_pos(axis) + offs;
-    #endif
+	  #else
+		soft_endstop_min[axis] = base_min_pos(axis) + offs;
+		soft_endstop_max[axis] = base_max_pos(axis) + offs;
+	  #endif
 
-    #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("For ", axis_codes[axis]);
-        #if DISABLED(NO_WORKSPACE_OFFSETS)
-          SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
-          SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
-        #endif
-        SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
-        SERIAL_ECHOLNPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
-      }
-    #endif
+      #if ENABLED(DEBUG_LEVELING_FEATURE)
+        if (DEBUGGING(LEVELING)) {
+          SERIAL_ECHOPAIR("For ", axis_codes[axis]);
+          #if DISABLED(NO_WORKSPACE_OFFSETS)
+            SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
+            SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
+          #endif
+          SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
+          SERIAL_ECHOLNPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
+        }
+      #endif
 
-    #if ENABLED(DELTA)
-      if (axis == Z_AXIS)
-        delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
-    #endif
+      #if ENABLED(DELTA)
+        if (axis == Z_AXIS)
+          delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
+      #endif
   }
-
 #endif // NO_WORKSPACE_OFFSETS
 
 #if DISABLED(NO_WORKSPACE_OFFSETS)
