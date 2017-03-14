@@ -21,18 +21,48 @@
  */
 
 /**
- * BAM&DICE Due (Arduino Mega) pin assignments
+ * Board 99 pin assignments
  */
 
-#if HOTENDS > 2
-  #error "2PrintBeta Due supports up to 2 hotends. Comment this line to keep going."
-#endif
+#define BOARD_NAME          "99 Unknown"
 
-#define BOARD_NAME "2PrintBeta Due"
+//
+// Limit Switches
+//
+#define X_STOP_PIN         16
+#define Y_STOP_PIN         67
+#define Z_STOP_PIN         59
 
-#include "pins_RAMPS.h"
+//
+// Steppers
+//
+#define X_STEP_PIN          2
+#define X_DIR_PIN           3
+#define X_ENABLE_PIN       -1
 
-#undef TEMP_0_PIN
-#undef TEMP_1_PIN
-#define TEMP_0_PIN          9 // ANALOG NUMBERING
-#define TEMP_1_PIN         11 // ANALOG NUMBERING
+#define Y_STEP_PIN          5
+#define Y_DIR_PIN           6
+#define Y_ENABLE_PIN       -1
+
+#define Z_STEP_PIN         62
+#define Z_DIR_PIN          63
+#define Z_ENABLE_PIN       -1
+
+#define E0_STEP_PIN        65
+#define E0_DIR_PIN         66
+#define E0_ENABLE_PIN      -1
+
+//
+// Temperature Sensors
+//
+#define TEMP_0_PIN          6   // ANALOG INPUT - NOT DIGITAL OUTPUT
+#define TEMP_BED_PIN       10
+
+//
+// Heaters / Fans
+//
+#define HEATER_0_PIN       13
+#define HEATER_BED_PIN      4
+
+#define SDSS               53
+#define PS_ON_PIN           9

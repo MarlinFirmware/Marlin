@@ -28,6 +28,8 @@
   #error "Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu."
 #endif
 
+#define MEGATRONICS_31
+
 #if ENABLED(MEGATRONICS_31)
   #define BOARD_NAME       "Megatronics v3.1"
 #else
@@ -61,8 +63,6 @@
   #define Z_MIN_PROBE_PIN  19
 #endif
 
-#define SLED_PIN           -1
-
 //
 // Steppers
 //
@@ -91,27 +91,35 @@
 #define E2_ENABLE_PIN      23
 
 //
+// Misc. Functions
+//
+#define SDSS               53
+#define LED_PIN            13
+#define PS_ON_PIN          12
+#define SLED_PIN           -1
+
+//
 // Temperature Sensors
 //
 #if TEMP_SENSOR_0 == -1
-  #define TEMP_0_PIN       11   // Analog Input
+  #define TEMP_0_PIN       11 // ANALOG NUMBERING
 #else
-  #define TEMP_0_PIN       15   // Analog Input
+  #define TEMP_0_PIN       15 // ANALOG NUMBERING
 #endif
 #if TEMP_SENSOR_1 == -1
-  #define TEMP_1_PIN       10   // Analog Input
+  #define TEMP_1_PIN       10 // ANALOG NUMBERING
 #else
-  #define TEMP_1_PIN       13   // Analog Input
+  #define TEMP_1_PIN       13 // ANALOG NUMBERING
 #endif
 #if TEMP_SENSOR_2 == -1
-  #define TEMP_2_PIN        9   // Analog Input
+  #define TEMP_2_PIN        9 // ANALOG NUMBERING
 #else
-  #define TEMP_2_PIN       12   // Analog Input
+  #define TEMP_2_PIN       12 // ANALOG NUMBERING
 #endif
 #if TEMP_SENSOR_BED == -1
-  #define TEMP_BED_PIN      8   // Analog Input
+  #define TEMP_BED_PIN      8 // ANALOG NUMBERING
 #else
-  #define TEMP_BED_PIN     14   // Analog Input
+  #define TEMP_BED_PIN     14 // ANALOG NUMBERING
 #endif
 
 //
@@ -124,13 +132,6 @@
 
 #define FAN_PIN             6
 #define FAN1_PIN            7
-
-//
-// Misc. Functions
-//
-#define SDSS               53
-#define LED_PIN            13
-#define PS_ON_PIN          12
 
 //
 // LCD / Controller

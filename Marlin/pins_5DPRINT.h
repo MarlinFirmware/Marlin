@@ -33,7 +33,6 @@
 #define DEFAULT_MACHINE_NAME "Makibox"
 #define BOARD_NAME           "5DPrint D8"
 
-#define USBCON 1286  // Disable MarlinSerial etc.
 #define LARGE_FLASH        true
 
 //
@@ -75,8 +74,8 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          1   // Analog Input
-#define TEMP_BED_PIN        0   // Analog Input
+#define TEMP_0_PIN          1  // Analog
+#define TEMP_BED_PIN        0  // Analog
 
 //
 // Heaters / Fans
@@ -89,6 +88,6 @@
 #define FAN_PIN            16
 
 //
-// Misc. Functions
+// SD Card
 //
 #define SDSS               20

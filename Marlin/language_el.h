@@ -94,8 +94,7 @@
 #define MSG_PID_D                           "PID-D"
 #define MSG_PID_C                           "PID-C"
 #define MSG_ACC                             "Επιτάχυνση"
-#define MSG_VX_JERK                         "Vαντίδραση x"
-#define MSG_VY_JERK                         "Vαντίδραση y"
+#define MSG_VXY_JERK                        "Vαντίδραση xy"
 #define MSG_VZ_JERK                         "Vαντίδραση z"
 #define MSG_VE_JERK                         "Vαντίδραση e"
 #define MSG_VMAX                            "V Μέγιστο"
@@ -180,7 +179,7 @@
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocol"
 
-#if LCD_WIDTH >= 20
+#if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              "Print Count"
   #define MSG_INFO_COMPLETED_PRINTS         "Completed  "
   #define MSG_INFO_PRINT_TIME               "Total Time "
@@ -198,29 +197,31 @@
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resume print"
 
 #if LCD_HEIGHT >= 4
-  // Up to 3 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1          "Wait for start"
-  #define MSG_FILAMENT_CHANGE_INIT_2          "of the filament"
-  #define MSG_FILAMENT_CHANGE_INIT_3          "change"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Wait for"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filament unload"
-  #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert filament"
-  #define MSG_FILAMENT_CHANGE_INSERT_2        "and press button"
-  #define MSG_FILAMENT_CHANGE_INSERT_3        "to continue..."
-  #define MSG_FILAMENT_CHANGE_LOAD_1          "Wait for"
-  #define MSG_FILAMENT_CHANGE_LOAD_2          "filament load"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Wait for"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filament extrude"
-  #define MSG_FILAMENT_CHANGE_RESUME_1        "Wait for print"
-  #define MSG_FILAMENT_CHANGE_RESUME_2        "to resume"
+  #define MSG_FILAMENT_CHANGE_INIT_1        "Wait for start"
+  #define MSG_FILAMENT_CHANGE_INIT_2        "of the filament"
+  #define MSG_FILAMENT_CHANGE_INIT_3        "change"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      "Wait for"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_2      "filament unload"
+  #define MSG_FILAMENT_CHANGE_UNLOAD_3      ""
+  #define MSG_FILAMENT_CHANGE_INSERT_1      "Insert filament"
+  #define MSG_FILAMENT_CHANGE_INSERT_2      "and press button"
+  #define MSG_FILAMENT_CHANGE_INSERT_3      "to continue..."
+  #define MSG_FILAMENT_CHANGE_LOAD_1        "Wait for"
+  #define MSG_FILAMENT_CHANGE_LOAD_2        "filament load"
+  #define MSG_FILAMENT_CHANGE_LOAD_3        ""
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     "Wait for"
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_2     "filament extrude"
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_3     ""
+  #define MSG_FILAMENT_CHANGE_RESUME_1      "Wait for print"
+  #define MSG_FILAMENT_CHANGE_RESUME_2      "to resume"
+  #define MSG_FILAMENT_CHANGE_RESUME_3      ""
 #else // LCD_HEIGHT < 4
-  // Up to 2 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1          "Please wait..."
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Ejecting..."
-  #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert and Click"
-  #define MSG_FILAMENT_CHANGE_LOAD_1          "Loading..."
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extruding..."
-  #define MSG_FILAMENT_CHANGE_RESUME_1        "Resuming..."
+  #define MSG_FILAMENT_CHANGE_INIT_1        "Please wait..."
+  #define MSG_FILAMENT_CHANGE_UNLOAD_1      "Ejecting..."
+  #define MSG_FILAMENT_CHANGE_INSERT_1      "Insert and Click"
+  #define MSG_FILAMENT_CHANGE_LOAD_1        "Loading..."
+  #define MSG_FILAMENT_CHANGE_EXTRUDE_1     "Extruding..."
+  #define MSG_FILAMENT_CHANGE_RESUME_1      "Resuming..."
 #endif
 
 #endif // LANGUAGE_EL_H

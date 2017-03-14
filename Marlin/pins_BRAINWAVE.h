@@ -33,8 +33,6 @@
 
 #define BOARD_NAME         "Brainwave"
 
-#define USBCON 646  // Disable MarlinSerial etc.
-
 //
 // Limit Switches
 //
@@ -68,18 +66,14 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          7   // Analog Input
-#define TEMP_BED_PIN        6   // Analog Input
+#define TEMP_0_PIN          7  // Extruder / Analog pin numbering
+#define TEMP_BED_PIN        6  // Bed / Analog pin numbering
 
 //
 // Heaters / Fans
 //
 #define HEATER_0_PIN        4  // Extruder
 #define HEATER_BED_PIN     38  // Bed
-
 #define FAN_PIN             3  // Fan
 
-//
-// Misc. Functions
-//
 #define LED_PIN            39
