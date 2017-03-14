@@ -7385,7 +7385,7 @@ inline void gcode_M503() {
       if (nozzle_timed_out)
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
 
-      #if HAS_BUZZER 
+      #if HAS_BUZZER
         filament_change_beep();
       #endif
 
@@ -7445,7 +7445,7 @@ inline void gcode_M503() {
     stepper.synchronize();
 
     #if defined(FILAMENT_CHANGE_EXTRUDE_LENGTH) && FILAMENT_CHANGE_EXTRUDE_LENGTH > 0
-  
+
       do {
         // "Wait for filament extrude"
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_EXTRUDE);
@@ -8033,6 +8033,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
                   z_raise = 0.3 + (z_diff > 0.0 ? z_diff : 0.0);
 
             // Always raise by some amount (destination copied from current_position earlier)
+            float save_Z = destination[Z_AXIS];  // save Z for later on
             destination[Z_AXIS] += z_raise;
             planner.buffer_line_kinematic(destination, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
             stepper.synchronize();
@@ -8046,6 +8047,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               planner.buffer_line_kinematic(destination, planner.max_feedrate_mm_s[Z_AXIS], active_extruder);
               stepper.synchronize();
             }
+            destination[Z_AXIS] = save_Z;  // restore original Z position so the 'Move to the "old position"' is correct
           #endif
 
           /**
@@ -10306,7 +10308,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #else
     #define M600_TEST true
   #endif
-             
+
   if (M600_TEST && stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
       && !ignore_stepper_queue && !planner.blocks_queued()) {
     #if ENABLED(DISABLE_INACTIVE_X)
