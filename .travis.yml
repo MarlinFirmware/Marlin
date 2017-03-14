@@ -50,6 +50,10 @@ install:
   - git clone https://github.com/teemuatlut/TMC2130Stepper.git
   - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
   #
+  # Install: Sanguino hardware support for arduino
+  - git clone https://github.com/Lauszus/Sanguino.git
+  - sudo mv Sanguino /usr/local/share/arduino/hardware/Sanguino
+  #
 before_script:
   #
   # Change current working directory to the build dir
@@ -326,6 +330,12 @@ script:
   - opt_enable RA_CONTROL_PANEL
   - build_marlin
   #
+  #
+  # ADC Keypad
+  #
+  - restore_configs
+  - opt_enable ADC_KEYPAD
+  - build_marlin
   ######## I2C LCD/PANELS ##############
   #
   # !!!ATTENTION!!!
