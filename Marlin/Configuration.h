@@ -50,7 +50,7 @@
  * Note: Update also Version.h !
  */
 #define CONFIGURATION_H_VERSION 010104
-#define FIRMWARE_VER "1.1.4"
+#define FIRMWARE_VERSION "1.1.4"
 #define USE_AUTOMATIC_VERSIONING
 
 //===========================================================================

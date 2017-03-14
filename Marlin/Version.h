@@ -63,7 +63,7 @@
   /**
    * @todo: Missing documentation block
    */
-  #define PROTOCOL_VERSION "1.0"
+  #define PROTOCOL_VERSION "C2"
 
   /**
    * Defines a generic printer name to be output to the LCD after booting Marlin.
