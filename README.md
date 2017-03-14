@@ -5,7 +5,7 @@
 Additional documentation can be found at [The Marlin Documentation Project](https://www.marlinfw.org/).
 Please test this firmware and inform us if it misbehaves in any way, volunteers are standing by!
 
-For Robo C2 users, replace your START GCODE with this:
+For Robo C2 users, if using Marlin v1.1.3 or earlier use this for your START GCODE:
 
 ```
 G21
