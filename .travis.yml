@@ -423,7 +423,7 @@ script:
   # anet A8 standard config
   #
   - restore_configs
-  - use_example_configs Anet/A8-\ 5buttonkeypad-\ no\ autolevel
+  - use_example_configs "Anet/A8- 5buttonkeypad- no autolevel"
   - build_marlin_sanguino
   
   ######## Board Types #############
