@@ -410,6 +410,7 @@ script:
   - build_marlin
   - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP
   - build_marlin
+
   #
   # tvrrug Config need to check board type for sanguino atmega644p
   #
@@ -417,6 +418,14 @@ script:
   #- build_marlin
   #
   #
+  
+  #
+  # anet A8 standard config
+  #
+  - restore_configs
+  - use_example_configs Anet/A8-\ 5buttonkeypad-\ no autolevel
+  - build_marlin_sanguino
+  
   ######## Board Types #############
   #
   # To be added in nightly test branch

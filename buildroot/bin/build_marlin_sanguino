@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+arduino --verify --board Sanguino:avr:sanguino:cpu=atmega1284p Marlin/Marlin.ino
