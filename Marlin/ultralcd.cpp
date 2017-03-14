@@ -80,7 +80,12 @@ uint16_t max_display_update_time = 0;
 #endif
 
 #if ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
-    #include "RGB_Strip.h"
+  #include "RGB_Strip.h"
+#endif 
+
+#if ENABLED(LEDSTRIP)
+  #include "ledstrip.h"
+  static void lcd_led_lighting();
 #endif
 
 #if ENABLED(DAC_STEPPER_CURRENT)
@@ -754,6 +759,13 @@ void kill_screen(const char* lcd_msg) {
       }
     #endif //SDSUPPORT
 
+    //
+    // LEDSTRIP COMMAND
+    //  
+    #if ENABLED(LEDSTRIP)
+      MENU_ITEM(submenu, MSG_LED_LIGHTING, lcd_led_lighting );
+    #endif
+
     #if ENABLED(LCD_INFO_MENU)
       MENU_ITEM(submenu, MSG_INFO_MENU, lcd_info_menu);
     #endif
@@ -767,16 +779,14 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if DISABLED(NO_WORKSPACE_OFFSETS)
-    /**
-     * Set the home offset based on the current_position
-     */
-    void lcd_set_home_offsets() {
-      // M428 Command
-      enqueue_and_echo_commands_P(PSTR("M428"));
-      lcd_return_to_status();
-    }
-  #endif
+  /**
+   * Set the home offset based on the current_position
+   */
+  void lcd_set_home_offsets() {
+    // M428 Command
+    enqueue_and_echo_commands_P(PSTR("M428"));
+    lcd_return_to_status();
+  }
 
   #if ENABLED(BABYSTEPPING)
 
@@ -1015,7 +1025,7 @@ void kill_screen(const char* lcd_msg) {
   void _lcd_preheat(int endnum, const float temph, const float tempb, const int fan) {
     if (temph > 0) thermalManager.setTargetHotend(min(heater_maxtemp[endnum], temph), endnum);
     #if TEMP_SENSOR_BED != 0
-      if (tempb >= 0) thermalManager.setTargetBed(tempb);
+      thermalManager.setTargetBed(tempb);
     #else
       UNUSED(tempb);
     #endif
@@ -1773,7 +1783,11 @@ KeepDrawing:
   void lcd_move_menu() {
     START_MENU();
     MENU_BACK(MSG_PREPARE);
-
+    
+    #if ENABLED(LEDSTRIP)
+      MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    #endif
+        
     if (_MOVE_XYZ_ALLOWED) {
       if (_MOVE_XY_ALLOWED) {
         MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_get_x_amount);
@@ -1810,6 +1824,49 @@ KeepDrawing:
 
     END_MENU();
   }
+
+/**
+ *
+ * "Main" > "Lightning" submenu
+ *    
+ */
+#if ENABLED(LEDSTRIP)
+
+  int ledstrip_segment = 0;
+  char ledstripgcode[15];
+
+  void lcd_led_command (int pi) {
+    sprintf_P(ledstripgcode, PSTR("M150 P%i S%i"), pi, ledstrip_segment);
+    enqueue_and_echo_command(ledstripgcode);
+  }
+  
+  void lcd_led_poweron() {
+    lcd_led_command(LED_POWERON);
+  }
+  
+  void lcd_led_poweroff() {
+    lcd_led_command(LED_POWEROFF);
+  }
+  
+  void lcd_led_powerhalf() {
+    lcd_led_command(LED_POWERHALF);
+  }
+  
+  static void lcd_led_lighting() {
+
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM_EDIT(int3, "Strip Segment ", &ledstrip_segment, 0, LEDSTRIP_NSEGMENT );
+    
+    MENU_ITEM(function, "Strip Power On", lcd_led_poweron);  
+    MENU_ITEM(function, "Strip Power Half", lcd_led_powerhalf);  
+    MENU_ITEM(function, "Strip Power Off", lcd_led_poweroff);  
+
+    END_MENU();
+  }
+  
+ #endif
+
 
   /**
    *

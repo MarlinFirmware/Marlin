@@ -1472,37 +1472,7 @@
 
   //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
   //#define FILAMENT_LCD_DISPLAY
-#endif
-
-/** 
-  //===========================================================================
-  //========================== RGB LED Strip Control ==========================
-  //===========================================================================
- * 
- * 
- * This feature is to control an RGB LED Strip with the PWM pins on the Arduino
- * Pins 4, 5, 6. (SERVO4, SERVO3, SERVO2)
- * 
- * *** CAUTION ***
- * Requires MOFSET Chip between PWM lines and LED's as the arduino cannot
- * handle the current the LED's will require - Not doing this will destroy
- * your arduino
- * *** CAUTION ***
- *  
- * */
-//#define RGB_STRIP
-//#define RGBW_STRIP
-#if ENABLED(RGB_STRIP) || ENABLED (RGBW_STRIP)
-  #define RGB_LED_R_PIN 4
-  #define RGB_LED_G_PIN 5
-  #define RGB_LED_B_PIN 6
-
-  #if ENABLED (RGBW_STRIP)
-    #define RGBW_LED_W_PIN 11
-  #endif
-
-  #define RGB_reset_time 600   // Set time for RGB_Strip to turn off. (600 = 60 secs.)
-#endif // ENABLED(RGB_STRIP)
+#endif //FILAMENT_WIDTH_SENSOR
 
 /**
   //===========================================================================

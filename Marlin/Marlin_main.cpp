@@ -129,7 +129,7 @@
  * M140 - Set bed target temp. S<temp>
  * M145 - Set heatup values for materials on the LCD. H<hotend> B<bed> F<fan speed> for S<material> (0=PLA, 1=ABS)
  * M149 - Set temperature units. (Requires TEMPERATURE_UNITS_SUPPORT)
- * M150 - Set Status LED (or RGB Strip) Color as R<red> U<green> B<blue>. Values 0-255. (Requires BLINKMm, RGB_LED, RGB_STRIP, or RGBW_STRIP)
+ * M150 - Set Status LED (or RGB Strip) Color as R<red> U<green> B<blue>. Values 0-255. (Requires BLINKMm, RGB_LED, RGB_STRIP, RGBW_STRIP, or LEDSTRIP)
  * M155 - Auto-report temperatures with interval of S<seconds>. (Requires AUTO_REPORT_TEMPERATURES)
  * M163 - Set a single proportion for a mixing extruder. (Requires MIXING_EXTRUDER)
  * M164 - Save the mix as a virtual extruder. (Requires MIXING_EXTRUDER and MIXING_VIRTUAL_TOOLS)
@@ -263,6 +263,11 @@
 #if ENABLED(RGB_STRIP)
   int r, g, b, w;
   #include "RGB_Strip.h"
+#endif
+
+#if ENABLED(LEDSTRIP)
+  #include <FastLED.h>
+  #include "ledstrip.h"
 #endif
 
 #if HAS_SERVOS
@@ -404,7 +409,8 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
       volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
-#if DISABLED(NO_WORKSPACE_OFFSETS)
+// The distance that XYZ has been offset by G92. Reset by G28.
+float position_shift[XYZ] = { 0 };
 
   // The distance that XYZ has been offset by G92. Reset by G28.
   float position_shift[XYZ] = { 0 };
@@ -5518,7 +5524,7 @@ inline void gcode_M105() {
  *       Rxxx Wait for extruder(s) to reach temperature. Waits when heating and cooling.
  */
 inline void gcode_M109() {
-  float starting_temp = thermalManager.degHotend(target_extruder);
+  float starting_temp_e = (thermalManager.degHotend(target_extruder)) - 2;
 
   if (get_target_extruder_from_command(109)) return;
   if (DEBUGGING(DRYRUN)) return;
@@ -5610,12 +5616,25 @@ inline void gcode_M109() {
     float temp = thermalManager.degHotend(target_extruder);
 
     #if ENABLED(PRINTER_EVENT_LEDS)
+        #if ENABLED(LEDSTRIP)
+          uint8_t r, g, b;
+        #endif
         if(wait_for_heatup) {
           // Gradually change LED strip from violet to red as extruder heats up
-          r = 253;
+          r = 255;
           g = 0;
-          b = map(temp, starting_temp, theTarget, 255, 15);
-          set_led_color(r, g, b, w);
+          b = map(temp, starting_temp_e, theTarget, 255, 15);
+          #if ENABLED(LEDSTRIP)
+            #if ENABLED(DEBUG_LEDSTRIP)
+              SERIAL_ECHO_START;
+              SERIAL_ECHOPAIR("Red: ", r);
+              SERIAL_ECHOPAIR(" Green: ", g);
+              SERIAL_ECHOLNPAIR(" Blue: ", b);
+            #endif
+            SendColorsOnLedstrip (255, 0, b, 0, 1);
+          #else
+            set_led_color(r, g, b, w);
+          #endif
         }
     #endif
 
@@ -5656,7 +5675,6 @@ inline void gcode_M109() {
   }
 
   KEEPALIVE_STATE(IN_HANDLER);
-  starting_temp = 0;
 }
 
 #if HAS_TEMP_BED
@@ -5673,7 +5691,7 @@ inline void gcode_M109() {
    *       Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
    */
   inline void gcode_M190() {
-    float starting_temp = thermalManager.degBed();
+    float starting_temp_b = (thermalManager.degBed()) - 2;
 
     if (DEBUGGING(DRYRUN)) return;
 
@@ -5748,14 +5766,27 @@ inline void gcode_M109() {
       float temp = thermalManager.degBed();
 
       #if ENABLED(PRINTER_EVENT_LEDS)
+        #if ENABLED(LEDSTRIP)
+          uint8_t r, g, b;
+        #endif
         if(wait_for_heatup) {
           // Gradually change LED strip from blue to violet as bed heats up
-          r = map(temp, starting_temp, theTarget, 0, 253);
+          r = map(temp, starting_temp_b, theTarget, 0, 253);
           g = 0;
           b = 255;
-          set_led_color(r, g, b, w);
+          #if ENABLED(LEDSTRIP)
+            #if ENABLED(DEBUG_LEDSTRIP)
+              SERIAL_ECHO_START;
+              SERIAL_ECHOPAIR("Red: ", r);
+              SERIAL_ECHOPAIR(" Green: ", g);
+              SERIAL_ECHOLNPAIR(" Blue: ", b);
+            #endif
+            SendColorsOnLedstrip (r, 0, 255, 0, 1);
+          #else
+            set_led_color(r, g, b, w);
+          #endif
         }
-      #endif //ENABLED(PRINTER_EVENT_LEDS)
+      #endif // PRINTER_EVENT_LEDS
 
       #if TEMP_BED_RESIDENCY_TIME > 0
 
@@ -5787,7 +5818,6 @@ inline void gcode_M109() {
 
     if (wait_for_heatup) LCD_MESSAGEPGM(MSG_BED_DONE);
     KEEPALIVE_STATE(IN_HANDLER);
-    starting_temp = 0;
   }
 
 #endif // HAS_TEMP_BED
@@ -6034,7 +6064,7 @@ inline void gcode_M18_M84() {
     }
   }
   #if ENABLED(PRINTER_EVENT_LEDS)
-    handle_led_print_event(0);
+    handle_led_print_event(0);  // Turn RGB green with click to off or timeout to off
   #endif
 }
 
@@ -6198,7 +6228,6 @@ inline void gcode_M120() { endstops.enable_globally(true); }
  */
 inline void gcode_M121() { endstops.enable_globally(false); }
 
-<<<<<<< HEAD
 #if ENABLED(HAVE_TMC2130DRIVER)
 
   /**
@@ -6253,27 +6282,6 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
 #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
 
-  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
-
-    #if ENABLED(BLINKM)
-
-      // This variant uses i2c to send the RGB components to the device.
-      SendColors(r, g, b);
-
-    #else
-
-      // This variant uses 3 separate pins for the RGB components.
-      // If the pins can do PWM then their intensity will be set.
-      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
-      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
-      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
-      analogWrite(RGB_LED_R_PIN, r);
-      analogWrite(RGB_LED_G_PIN, g);
-      analogWrite(RGB_LED_B_PIN, b);
-
-    #endif
-  }
-
   /**
    * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
    *
@@ -6299,7 +6307,34 @@ inline void gcode_M121() { endstops.enable_globally(false); }
     );
   }
 
-#endif // BLINKM || RGB_LED || RGB_STRIP
+#elif ENABLED(LEDSTRIP)
+
+  /**
+   *
+   * M150: Set Status LED Color - Use R-V-B for R-G-B
+   *       use S for segment 1 2 3...0 for all
+   *       use P for power 1 is on 2 is half on 3 is off
+   *       "M150 P1" turn on all ledstrip with saved color (by default linen white)
+   *       "M150 R130 V50 B80 S1"  change the color of segment 1 and store this color value for this segment
+   *       "M150 S1 P2" turn on half of the leds in segment1 with saved color for this segment (black by default)
+   *       "M150 R30 V70 B10" change the color of entire ledstrip and save this color for future use
+   *
+   */
+
+  inline void gcode_M150() {
+    SendColorsOnLedstrip(
+      code_seen('R') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('U') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('B') ? (code_has_value() ? code_value_byte() : 255) : 0,
+      code_seen('S') ? code_has_value() : 0,
+      code_seen('P') ? (byte)code_has_value() : LED_POWERNOCHG
+    );
+    #if ENABLED(DEBUG_LEDSTRIP)
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPAIR("code_seen:", code_value_byte());
+    #endif
+  }
+#endif // LEDSTRIP, BLINKM, RGB_LED, RGB(W)_STRIP
 
 /**
  * M200: Set filament diameter and set E axis units to cubic units
@@ -8805,7 +8840,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
+      #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP) || ENABLED(LEDSTRIP)
         case 150: // M150: Set Status LED Color
           gcode_M150();
           break;
@@ -10881,6 +10916,10 @@ void setup() {
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
     setup_endstop_interrupts();
+  #endif
+
+  #if ENABLED(LEDSTRIP)
+    SendColorsOnLedstrip (0, 0, 0, 0, 0);  // Turn off the strip
   #endif
 }
 
