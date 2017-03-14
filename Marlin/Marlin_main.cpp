@@ -409,9 +409,6 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES,
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DIA),
       volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0);
 
-// The distance that XYZ has been offset by G92. Reset by G28.
-float position_shift[XYZ] = { 0 };
-
   // The distance that XYZ has been offset by G92. Reset by G28.
   float position_shift[XYZ] = { 0 };
 
@@ -421,8 +418,6 @@ float position_shift[XYZ] = { 0 };
 
   // The above two are combined to save on computes
   float workspace_offset[XYZ] = { 0 };
-
-#endif
 
 // Software Endstops are based on the configured limits.
 #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
