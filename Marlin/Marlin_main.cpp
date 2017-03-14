@@ -2030,14 +2030,26 @@ static void clean_up_after_endstop_or_probe_move() {
         set_bltouch_deployed(true);        // Also needs to deploy and stow to
         set_bltouch_deployed(false);       // clear the triggered condition.
         if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("STOP called because of BLTouch error - restart with M999");
           stop();                          // punt!
           return true;
         }
       }
     #elif ENABLED(Z_PROBE_SLED)
-      if (axis_unhomed_error(true, false, false)) { stop(); return true; }
+      if (axis_unhomed_error(true, false, false)) {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("STOP called because of unhomed error - restart with M999"");
+        stop();
+        return true;
+      }
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
-      if (axis_unhomed_error(true, true,  true )) { stop(); return true; }
+      if (axis_unhomed_error(true, true,  true )) {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("STOP called because of unhomed error - restart with M999"");
+        stop();
+        return true;
+      }
     #endif
 
     const float oldXpos = current_position[X_AXIS],
@@ -7385,7 +7397,7 @@ inline void gcode_M503() {
       if (nozzle_timed_out)
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
 
-      #if HAS_BUZZER 
+      #if HAS_BUZZER
         filament_change_beep();
       #endif
 
@@ -7445,7 +7457,7 @@ inline void gcode_M503() {
     stepper.synchronize();
 
     #if defined(FILAMENT_CHANGE_EXTRUDE_LENGTH) && FILAMENT_CHANGE_EXTRUDE_LENGTH > 0
-  
+
       do {
         // "Wait for filament extrude"
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_EXTRUDE);
@@ -10298,7 +10310,11 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   millis_t ms = millis();
 
-  if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) kill(PSTR(MSG_KILLED));
+  if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) {
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLNPGM("KILL caused by too much inactive time");
+    kill(PSTR(MSG_KILLED));
+  }
 
   // Prevent steppers timing-out in the middle of M600
   #if ENABLED(FILAMENT_CHANGE_FEATURE) && ENABLED(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
@@ -10306,7 +10322,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #else
     #define M600_TEST true
   #endif
-             
+
   if (M600_TEST && stepper_inactive_time && ELAPSED(ms, previous_cmd_ms + stepper_inactive_time)
       && !ignore_stepper_queue && !planner.blocks_queued()) {
     #if ENABLED(DISABLE_INACTIVE_X)
@@ -10348,7 +10364,10 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     // Exceeded threshold and we can confirm that it was not accidental
     // KILL the machine
     // ----------------------------------------------------------------
-    if (killCount >= KILL_DELAY) kill(PSTR(MSG_KILLED));
+    if (killCount >= KILL_DELAY) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("KILL caused by KILL button/pin");
+      kill(PSTR(MSG_KILLED));
   #endif
 
   #if HAS_HOME
