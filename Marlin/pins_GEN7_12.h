@@ -24,8 +24,35 @@
  * Gen7 v1.1, v1.2, v1.3 pin assignments
  */
 
+ /**
+ * Rev B    26 DEC 2016
+ *
+ * 1) added pointer to a current Arduino IDE extension
+ * 2) added support for M3, M4 & M5 spindle control commands
+ * 3) added case light pin definition
+ *
+ */
+
+/**
+ * A useable Arduino IDE extension (board manager) can be found at
+ * https://github.com/Lauszus/Sanguino
+ *
+ * This extension has been tested on Arduino 1.6.12 & 1.8.0
+ *
+ * Here's the JSON path:
+ * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
+ *
+ * When installing select 1.0.2
+ *
+ * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Just use the above JSON URL instead of Sparkfun's JSON.
+ *
+ * Once installed select the Sanguino board and then select the CPU.
+ *
+ */
+
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
-  #error "Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu."
+  #error "Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu."
 #endif
 
 #ifndef BOARD_NAME
@@ -39,10 +66,13 @@
 //
 // Limit Switches
 //
-#define X_STOP_PIN          7
-#define Y_STOP_PIN          5
+#define X_MIN_PIN           7   // added 6 NOV 2016
+#define Y_MIN_PIN           5   // added 6 NOV 2016
 #define Z_MIN_PIN           1
 #define Z_MAX_PIN           0
+#define Y_MAX_PIN           2   // added 6 NOV 2016
+#define X_MAX_PIN           6   // added 6 NOV 2016
+
 
 //
 // Z Probe (when not Z_MIN_PIN)
@@ -101,3 +131,19 @@
 #define TX_ENABLE_PIN      12
 #define RX_ENABLE_PIN      13
 
+
+// added 26 DEC 2016
+
+#define SPINDLE_LASER_ENABLE_PIN   10 // should have a pull up/down on it
+#if GEN7_VERSION < 13
+  #define SPINDLE_SPEED_LASER_POWER_PIN  16     // MUST BE A HARDWARE PWM
+#else  // Gen7 v1.3 removed the I2C connector & signals so need to get PWM off the PC power supply header
+  #define SPINDLE_SPEED_LASER_POWER_PIN  15     // MUST BE A HARDWARE PWM
+#endif
+#define SPINDLE_DIR_PIN    11
+
+if GEN7_VERSION < 13
+  #define CASE_LIGHT_PIN   16     // MUST BE A HARDWARE PWM
+#else     // Gen7 v1.3 removed the I2C connector & signals so need to get PWM off the PC power supply header
+  #define CASE_LIGHT_PIN   15     // MUST BE A HARDWARE PWM
+#endif

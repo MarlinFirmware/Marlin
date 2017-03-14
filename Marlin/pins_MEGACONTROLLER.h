@@ -150,3 +150,11 @@
 
   #define SD_DETECT_PIN    49
 #endif // MINIPANEL
+
+// added 1 DEC
+#define SPINDLE_SPEED_LASER_POWER_PIN      6
+#define SPINDLE_LASER_ENABLE_PIN     7  // should have a pullup resistor on this pin
+#define SPINDLE_DIR_PIN        8
+
+// misc
+#define CASE_LIGHT_PIN       2

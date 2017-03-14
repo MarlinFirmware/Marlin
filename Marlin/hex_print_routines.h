@@ -20,36 +20,14 @@
  *
  */
 
-/**
- * Gen7 v1.3 pin assignments
- */
+#ifndef HEX_PRINT_ROUTINES_H
+#define HEX_PRINT_ROUTINES_H
 
- /**
- * Rev B    26 DEC 2016
- *
- * added pointer to a current Arduino IDE extension
- *
- */
+//
+// 3 support routines to print hex numbers.  We can print a nibble, byte and word
+//
+void prt_hex_nibble(uint8_t n);
+void prt_hex_byte(uint8_t b);
+void prt_hex_word(uint16_t w);
 
-/**
- * A useable Arduino IDE extension (board manager) can be found at
- * https://github.com/Lauszus/Sanguino
- *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
- * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
- *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the Sanguino board and then select the CPU.
- *
- */
-
-#define BOARD_NAME "Gen7 v1.3"
-
-#define GEN7_VERSION 13 // v1.3
-#include "pins_GEN7_12.h"
+#endif // HEX_PRINT_ROUTINES_H

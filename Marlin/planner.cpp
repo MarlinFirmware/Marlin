@@ -450,12 +450,7 @@ void Planner::check_axes_activity() {
     if (!axis_active[Z_AXIS]) disable_z();
   #endif
   #if ENABLED(DISABLE_E)
-    if (!axis_active[E_AXIS]) {
-      disable_e0();
-      disable_e1();
-      disable_e2();
-      disable_e3();
-    }
+    if (!axis_active[E_AXIS]) disable_e_steppers();
   #endif
 
   #if FAN_COUNT > 0

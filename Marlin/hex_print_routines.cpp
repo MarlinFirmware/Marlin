@@ -20,36 +20,28 @@
  *
  */
 
-/**
- * Gen7 v1.3 pin assignments
- */
 
- /**
- * Rev B    26 DEC 2016
- *
- * added pointer to a current Arduino IDE extension
- *
- */
+#include "Marlin.h"
+#if ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(M100_FREE_MEMORY_WATCHER)
 
-/**
- * A useable Arduino IDE extension (board manager) can be found at
- * https://github.com/Lauszus/Sanguino
- *
- * This extension has been tested on Arduino 1.6.12 & 1.8.0
- *
- * Here's the JSON path:
- * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
- *
- * When installing select 1.0.2
- *
- * Installation instructions can be found at https://learn.sparkfun.com/pages/CustomBoardsArduino
- * Just use the above JSON URL instead of Sparkfun's JSON.
- *
- * Once installed select the Sanguino board and then select the CPU.
- *
- */
+#include "hex_print_routines.h"
 
-#define BOARD_NAME "Gen7 v1.3"
+void prt_hex_nibble(uint8_t n) {
+  if (n <= 9)
+    SERIAL_ECHO(n);
+  else
+    SERIAL_ECHO((char)('A' + n - 10));
+  delay(3);
+}
 
-#define GEN7_VERSION 13 // v1.3
-#include "pins_GEN7_12.h"
+void prt_hex_byte(uint8_t b) {
+  prt_hex_nibble((b & 0xF0) >> 4);
+  prt_hex_nibble(b & 0x0F);
+}
+
+void prt_hex_word(uint16_t w) {
+  prt_hex_byte((w & 0xFF00) >> 8);
+  prt_hex_byte(w & 0x0FF);
+}
+
+#endif // AUTO_BED_LEVELING_UBL || M100_FREE_MEMORY_WATCHER

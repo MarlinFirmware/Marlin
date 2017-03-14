@@ -378,7 +378,7 @@ static void lcd_implementation_init(
   lcd.clear();
 }
 
-static void lcd_implementation_clear() { lcd.clear(); }
+void lcd_implementation_clear() { lcd.clear(); }
 
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
 void lcd_printPGM(const char *str) {
