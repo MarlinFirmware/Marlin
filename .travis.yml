@@ -51,8 +51,7 @@ install:
   - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
   #
   # Install: Sanguino hardware support for arduino
-  - wget https://github.com/Lauszus/Sanguino/releases/download/1.0.2/Sanguino-1.0.2.zip
-  - unzip Sanguino-1.0.2.zip
+  - git clone https://github.com/thijsk/Sanguino.git
   - sudo mv Sanguino /usr/local/share/arduino/hardware/Sanguino
   #
 before_script:
