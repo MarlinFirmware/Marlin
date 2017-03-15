@@ -49,8 +49,8 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_H_VERSION 010104
-#define FIRMWARE_VERSION "1.1.4"
+#define CONFIGURATION_H_VERSION 010103
+
 #define USE_AUTOMATIC_VERSIONING
 
 //===========================================================================
@@ -440,7 +440,7 @@
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,800,152.3}  // default steps per unit for Robo C2
 #define DEFAULT_MAX_FEEDRATE          {300, 300, 6, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1200,1200,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_ACCELERATION      {1300,1300,100,3000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          1000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration in mm/s^2 for retracts
@@ -449,7 +449,7 @@
 // "Jerk" specifies the minimum speed change that requires acceleration.
 // When changing speed and direction, if the difference is less than the
 // value set here, it may happen instantaneously.
-#define DEFAULT_XYJERK                12.0    // (mm/sec)
+#define DEFAULT_XYJERK                13.0    // (mm/sec)
 #define DEFAULT_ZJERK                  0.3    // (mm/sec)
 #define DEFAULT_EJERK                  5.0    // (mm/sec)
 
@@ -513,7 +513,7 @@
 // Speed for the first approach when double-probing (with PROBE_DOUBLE_TOUCH)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 // Speed for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 3)
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 // Use double touch for probing
 #define PROBE_DOUBLE_TOUCH
 
@@ -572,8 +572,8 @@
 // Minimum heights for the probe to deploy/stow and travel.
 // These values specify the distance from the NOZZLE to the BED.
 //
-#define Z_PROBE_DEPLOY_HEIGHT  15  // Z position for the probe to deploy/stow
-#define Z_PROBE_TRAVEL_HEIGHT  15 // Z position for travel between points
+#define Z_PROBE_DEPLOY_HEIGHT 15 // Z position for the probe to deploy/stow
+#define Z_PROBE_TRAVEL_HEIGHT  20 // Z position for travel between points
 
 //
 // For M851 give a range for adjusting the Z probe offset
@@ -637,8 +637,8 @@
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 122
-#define Y_MAX_POS 124
+#define X_MAX_POS 126
+#define Y_MAX_POS 126
 #define Z_MAX_POS 160
 
 //===========================================================================
@@ -709,9 +709,9 @@
   #if ENABLED(AUTO_BED_LEVELING_GRID)
 
     #define LEFT_PROBE_BED_POSITION 10
-    #define RIGHT_PROBE_BED_POSITION 112
+    #define RIGHT_PROBE_BED_POSITION 116
     #define FRONT_PROBE_BED_POSITION 30
-    #define BACK_PROBE_BED_POSITION 114
+    #define BACK_PROBE_BED_POSITION 116
 
     #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
@@ -724,7 +724,7 @@
     // Arbitrary points to probe.
     // A simple cross-product is used to estimate the plane of the bed.
     #define ABL_PROBE_PT_1_X 10
-    #define ABL_PROBE_PT_1_Y 90
+    #define ABL_PROBE_PT_1_Y 100
     #define ABL_PROBE_PT_2_X 15
     #define ABL_PROBE_PT_2_Y 20
     #define ABL_PROBE_PT_3_X 100
@@ -744,7 +744,7 @@
 // @section homing
 
 // The center of the bed is at (X=0, Y=0)
-//#define BED_CENTER_AT_0_0
+#define BED_CENTER_AT_61_62
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.
@@ -980,7 +980,7 @@
 // IMPORTANT NOTE: The U8glib library is required for Full Graphic Display!
 //                 https://github.com/olikraus/U8glib_Arduino
 //
-//#define ULTRA_LCD   // Character based
+#define ULTRA_LCD   // Character based
 //#define DOGLCD      // Full graphics display
 
 //
@@ -1316,14 +1316,14 @@
 // Uncomment below to enable
 //#define FILAMENT_WIDTH_SENSOR
 
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.00  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #define FILAMENT_SENSOR_EXTRUDER_NUM 0   //The number of the extruder that has the filament sensor (0,1,2)
   #define MEASUREMENT_DELAY_CM        14   //measurement delay in cm.  This is the distance from filament sensor to middle of barrel
 
-  #define MEASURED_UPPER_LIMIT         3.30  //upper limit factor used for sensor reading validation in mm
-  #define MEASURED_LOWER_LIMIT         1.90  //lower limit factor for sensor reading validation in mm
+  #define MEASURED_UPPER_LIMIT         2  //upper limit factor used for sensor reading validation in mm
+  #define MEASURED_LOWER_LIMIT         1.50  //lower limit factor for sensor reading validation in mm
   #define MAX_MEASUREMENT_DELAY       20     //delay buffer size in bytes (1 byte = 1cm)- limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
 
   #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially

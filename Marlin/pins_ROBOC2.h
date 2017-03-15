@@ -41,9 +41,9 @@
 #define LARGE_FLASH true
 
 
-#define SERVO1_PIN          -1
-#define SERVO2_PIN          -1
-#define SERVO3_PIN          -1
+#define SERVO1_PIN          6
+#define SERVO2_PIN          5
+#define SERVO3_PIN          4
 
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
@@ -75,7 +75,7 @@
 
 #define SDPOWER            -1
 #define SDSS               53
-#define LED_PIN            5
+#define LED_PIN            13
 
 #define FILWIDTH_PIN        -1 // ANALOG NUMBERING NOT USING IN C2
 
@@ -85,7 +85,7 @@
 #endif
 
 
-#define CONTROLLERFAN_PIN  6 // Pin used for the fan to cool controller
+#define CONTROLLERFAN_PIN  -1 // Pin used for the fan to cool controller
 #define FAN_PIN             7
 #define PS_ON_PIN          12
 
@@ -96,9 +96,9 @@
 #define TEMP_0_PIN         13   // ANALOG NUMBERING default 13
 #define TEMP_1_PIN         15   // ANALOG NUMBERING default 15p
 
-#define HEATER_BED_PIN      8    // BED
+#define HEATER_BED_PIN      -1    // BED
 
-#define TEMP_BED_PIN       14   // ONLY FOR R2
+#define TEMP_BED_PIN       -1   // ANALOG NUMBERING default 14
 
 #define LCD_PINS_RS 16
     #define LCD_PINS_ENABLE 17
