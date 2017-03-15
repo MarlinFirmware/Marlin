@@ -67,6 +67,8 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
      SERIAL_ECHOLNPAIR(" colorSaved.red Saved:", colorSaved[segment].red);
      SERIAL_ECHOLNPAIR(" colorSaved.green Saved:", colorSaved[segment].green);
      SERIAL_ECHOLNPAIR(" colorSaved.blue Saved:", colorSaved[segment].blue);
+     SERIAL_ECHOLNPAIR(" power = ", power);
+     SERIAL_ECHOLNPAIR(" segment = ", segment);
      SERIAL_ECHOLN("--------------------------------");
    #endif
 
@@ -79,6 +81,8 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
      SERIAL_ECHOLN("LEDSTRIP.CPP");
      SERIAL_ECHOLNPAIR(" power = ", power);
      SERIAL_ECHOLNPAIR(" Total LED Value = ", (red + grn + blu));
+     SERIAL_ECHOLNPAIR(" power = ", power);
+     SERIAL_ECHOLNPAIR(" segment = ", segment);
      SERIAL_ECHOLN("--------------------------------");
    #endif
 
@@ -128,17 +132,18 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
        if (blu >= 0)
          leds[j].blue = blu;
      }
-     #if ENABLED(DEBUG_LEDSTRIP)
-       SERIAL_ECHO_START;
-       SERIAL_ECHOLN("--------------------------------");
-       SERIAL_ECHOLN("LEDSTRIP.CPP");
-       SERIAL_ECHOLNPAIR(" led.red Saved:", leds[j].red);
-       SERIAL_ECHOLNPAIR(" leds.green Saved:", leds[j].green = grn);
-       SERIAL_ECHOLNPAIR(" leds.blue Saved:", leds[j].blue = blu);
-       SERIAL_ECHOLN("--------------------------------");
-     #endif
    }
    FastLED.show();
+   #if ENABLED(DEBUG_LEDSTRIP)
+     SERIAL_ECHO_START;
+     SERIAL_ECHOLN("--------------------------------");
+     SERIAL_ECHOLN("LEDSTRIP.CPP after FastLED.show");
+     SERIAL_ECHOLNPAIR(" led.red Saved:", leds[j].red);
+     SERIAL_ECHOLNPAIR(" leds.green Saved:", leds[j].green);
+     SERIAL_ECHOLNPAIR(" leds.blue Saved:", leds[j].blue);
+     SERIAL_ECHOLNPAIR(" power:", power);
+     SERIAL_ECHOLN("--------------------------------");
+   #endif
    return LEDSTRIP_OK;
 }
 
