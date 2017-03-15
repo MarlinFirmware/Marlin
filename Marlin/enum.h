@@ -165,16 +165,6 @@ enum TempState {
   };
 #endif
 
-#if ENABLED(PROBE_MANUALLY)
-  enum ABLState {
-    ABLReport,
-    ABLStart,
-    ABLNext,
-    ABLSet,
-    ABLReset
-  };
-#endif
-
 /**
  * SD Card
  */

@@ -189,7 +189,7 @@ uint16_t max_display_update_time = 0;
     void lcd_delta_calibrate_menu();
   #endif
 
-  #if ENABLED(MANUAL_BED_LEVELING)
+  #if ENABLED(MESH_BED_LEVELING) && ENABLED(LCD_BED_LEVELING)
     #include "mesh_bed_leveling.h"
   #endif
 
@@ -990,7 +990,7 @@ void kill_screen(const char* lcd_msg) {
     MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_percentage, 10, 999);
 
     // Manual bed leveling, Bed Z:
-    #if ENABLED(MANUAL_BED_LEVELING)
+    #if ENABLED(LCD_BED_LEVELING)
       MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
     #endif
 
@@ -1329,7 +1329,7 @@ void kill_screen(const char* lcd_msg) {
 
   #endif
 
-  #if ENABLED(MANUAL_BED_LEVELING)
+  #if ENABLED(LCD_BED_LEVELING)
 
     /**
      *
@@ -1375,8 +1375,8 @@ void kill_screen(const char* lcd_msg) {
       if (encoderPosition) {
         refresh_cmd_timeout();
         current_position[Z_AXIS] += float((int32_t)encoderPosition) * (MBL_Z_STEP);
-        NOLESS(current_position[Z_AXIS], -(MANUAL_PROBE_Z_RANGE) * 0.5);
-        NOMORE(current_position[Z_AXIS], (MANUAL_PROBE_Z_RANGE) * 0.5);
+        NOLESS(current_position[Z_AXIS], -(LCD_PROBE_Z_RANGE) * 0.5);
+        NOMORE(current_position[Z_AXIS], (LCD_PROBE_Z_RANGE) * 0.5);
         line_to_current(Z_AXIS);
         lcdDrawUpdate = LCDVIEW_KEEP_REDRAWING;
         encoderPosition = 0;
@@ -1491,7 +1491,7 @@ KeepDrawing:
       END_MENU();
     }
 
-  #endif  // MANUAL_BED_LEVELING
+  #endif  // LCD_BED_LEVELING
 
   /**
    *
@@ -1532,7 +1532,7 @@ KeepDrawing:
       MENU_ITEM(gcode, MSG_LEVEL_BED,
         axis_homed[X_AXIS] && axis_homed[Y_AXIS] ? PSTR("G29") : PSTR("G28\nG29")
       );
-    #elif ENABLED(MANUAL_BED_LEVELING)
+    #elif ENABLED(LCD_BED_LEVELING)
       MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
     #endif
 
@@ -2261,7 +2261,7 @@ KeepDrawing:
       MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
     #endif
     // Manual bed leveling, Bed Z:
-    #if ENABLED(MANUAL_BED_LEVELING)
+    #if ENABLED(LCD_BED_LEVELING)
       MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);
     #endif
     MENU_ITEM_EDIT(float5, MSG_ACC, &planner.acceleration, 10, 99000);
