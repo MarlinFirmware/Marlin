@@ -49,7 +49,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_H_VERSION 010103
+#define CONFIGURATION_H_VERSION 010105
 
 #define USE_AUTOMATIC_VERSIONING
 
@@ -637,8 +637,8 @@
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 126
-#define Y_MAX_POS 126
+#define X_MAX_POS 127
+#define Y_MAX_POS 127
 #define Z_MAX_POS 160
 
 //===========================================================================
@@ -709,9 +709,9 @@
   #if ENABLED(AUTO_BED_LEVELING_GRID)
 
     #define LEFT_PROBE_BED_POSITION 10
-    #define RIGHT_PROBE_BED_POSITION 116
+    #define RIGHT_PROBE_BED_POSITION 117
     #define FRONT_PROBE_BED_POSITION 30
-    #define BACK_PROBE_BED_POSITION 116
+    #define BACK_PROBE_BED_POSITION 117
 
     #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
@@ -744,7 +744,7 @@
 // @section homing
 
 // The center of the bed is at (X=0, Y=0)
-#define BED_CENTER_AT_61_62
+#define BED_CENTER_AT_63_63
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.

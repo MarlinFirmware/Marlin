@@ -35,7 +35,8 @@
   /**
    * Marlin release version identifier
    */
-  #define SHORT_BUILD_VERSION "1.1.4-C2"
+  #define SHORT_BUILD_VERSION "1.1.5-C2"
+  #define FIRMWARE_VERSION "1.1.5"
 
   /**
    * Verbose version identifier which should contain a reference to the location
@@ -57,13 +58,13 @@
    * but not limited to: ADD, DELETE RENAME OR REPURPOSE any directive/option on
    * the configuration files.
    */
-  #define REQUIRED_CONFIGURATION_H_VERSION 010102
-  #define REQUIRED_CONFIGURATION_ADV_H_VERSION 010101
+  #define REQUIRED_CONFIGURATION_H_VERSION 010105
+  #define REQUIRED_CONFIGURATION_ADV_H_VERSION 010102
 
   /**
    * @todo: Missing documentation block
    */
-  #define PROTOCOL_VERSION "1.0"
+  #define PROTOCOL_VERSION "C2"
 
   /**
    * Defines a generic printer name to be output to the LCD after booting Marlin.
