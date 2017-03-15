@@ -87,40 +87,43 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
    #endif
 
    if (red + grn + blu <= 3){  // no color change use the saved color or black
-     if (power == LED_POWERON){
-      for(byte i = 0; i < updtend; i++) 
-       leds[i + (updshift * updtend)] = colorSaved[segment];
-     #if ENABLED(DEBUG_LEDSTRIP)
-       SERIAL_ECHO_START;
-       SERIAL_ECHOPAIR("LED_POWERON:", LED_POWERON);
-       SERIAL_ECHOLNPAIR(" | Segment Saved:", colorSaved[segment]);
-       SERIAL_ECHOLNPAIR(" Total LED Value = ", (red + grn + blu));
-     #endif
-     }
-     else if (power == LED_POWEROFF){
-      for(byte i = 0; i < updtend; i++) 
-       leds[i + (updshift * updtend)] = CRGB::Black;
-     #if ENABLED(DEBUG_LEDSTRIP)
-       SERIAL_ECHO_START;
-       SERIAL_ECHOPAIR("LED_POWEROFF:", LED_POWEROFF);
-       SERIAL_ECHOLNPAIR(" | Segment Saved:", colorSaved[segment]);
-     #endif
-     }
-     else if (power == LED_POWERHALF){
-      for(byte i = 0; i < updtend; i++) 
-       leds[i + (updshift * updtend)] = (i % 2)? colorSaved[segment]:CRGB::Black;
-     #if ENABLED(DEBUG_LEDSTRIP)
-       SERIAL_ECHO_START;
-       SERIAL_ECHOPAIR("LED_POWERHALF:", LED_POWERHALF);
-       SERIAL_ECHOLNPAIR(" | Segment Saved:", colorSaved[segment]);
-     #endif
-     }
-     else
-       return LEDSTRIP_NOACTION;
-     #if ENABLED(DEBUG_LEDSTRIP)
-       SERIAL_ECHO_START;
-       SERIAL_ECHOLN("No Action");
-     #endif
+      switch(power) {
+        case LED_POWEROFF:
+          for(byte i = 0; i < updtend; i++) 
+           leds[i + (updshift * updtend)] = CRGB::Black;
+          #if ENABLED(DEBUG_LEDSTRIP)
+            SERIAL_ECHO_START;
+            SERIAL_ECHOPAIR("LED_POWEROFF:", LED_POWEROFF);
+            SERIAL_ECHOLNPAIR(" | Segment Saved:", colorSaved[segment]);
+          #endif
+          break;
+        case LED_POWERON:
+          for(byte i = 0; i < updtend; i++) 
+            leds[i + (updshift * updtend)] = colorSaved[segment];
+          #if ENABLED(DEBUG_LEDSTRIP)
+            SERIAL_ECHO_START;
+            SERIAL_ECHOPAIR("LED_POWERON:", LED_POWERON);
+            SERIAL_ECHOLNPAIR(" | Segment Saved:", colorSaved[segment]);
+            SERIAL_ECHOLNPAIR(" Total LED Value = ", (red + grn + blu));
+          #endif
+          break;
+        case LED_POWERHALF:
+          for(byte i = 0; i < updtend; i++) 
+           leds[i + (updshift * updtend)] = (i % 2)? colorSaved[segment]:CRGB::Black;
+          #if ENABLED(DEBUG_LEDSTRIP)
+            SERIAL_ECHO_START;
+            SERIAL_ECHOPAIR("LED_POWERHALF:", LED_POWERHALF);
+            SERIAL_ECHOLNPAIR(" | Segment Saved:", colorSaved[segment]);
+          #endif
+          break;
+        case LED_POWERNOCHG:
+          return LEDSTRIP_NOACTION;
+          #if ENABLED(DEBUG_LEDSTRIP)
+            SERIAL_ECHO_START;
+            SERIAL_ECHOLN("No Action");
+          #endif
+          break;
+      }
    }
    else {
      for(byte i = 0; i < updtend; i++) { 
@@ -149,9 +152,6 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
 
   // Handle the various printer events
   void handle_led_print_event(int code) {
-    char ledstripgcode[20];
-    int ledstrip_segment = 0;
-    byte pi = 1;
     switch(code) {
       case(0):        // Print Complete
         #if ENABLED(DEBUG_LEDSTRIP)
@@ -162,35 +162,39 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
         LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
         lcd_update();
         SendColorsOnLedstrip (0, 255, 0, 0, 1);  // Turn LEDs Green
-        wait_for_user = true;
-        int wait_for_user_timeout;
 
-        #if ENABLED(ULTRA_LCD)
-          wait_for_user_timeout = 0;
-          do {
-           idle();
-           safe_delay(100);
-           if (wait_for_user_timeout == LEDSTRIP_RESET_TIME / 2)
-           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
-           wait_for_user_timeout ++;
-           if (wait_for_user_timeout >= LEDSTRIP_RESET_TIME) break;
-          } while (wait_for_user);
-        #endif // ULTRA_LCD
+        #if DISABLED(NO_PAUSE_OR_TIMEOUT)
+          wait_for_user = true;
+          int wait_for_user_timeout;
 
-        #if ENABLED(DOGLCD)
-          wait_for_user_timeout = 0;
-          do {
-           idle();
-           safe_delay(100);
-           if (wait_for_user_timeout == LEDSTRIP_RESET_TIME / 2)
-           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
-           wait_for_user_timeout ++;
-           if (wait_for_user_timeout >= LEDSTRIP_RESET_TIME) break;
-          } while (wait_for_user);
-        #endif // DOGLCD
+          #if ENABLED(ULTRA_LCD)
+            wait_for_user_timeout = 0;
+            do {
+             idle();
+             safe_delay(100);
+             if (wait_for_user_timeout == LEDSTRIP_RESET_TIME / 2)
+             SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
+             wait_for_user_timeout ++;
+             if (wait_for_user_timeout >= LEDSTRIP_RESET_TIME) break;
+            } while (wait_for_user);
+          #endif // ULTRA_LCD
+  
+          #if ENABLED(DOGLCD)
+            wait_for_user_timeout = 0;
+            do {
+             idle();
+             safe_delay(100);
+             if (wait_for_user_timeout == LEDSTRIP_RESET_TIME / 2)
+             SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
+             wait_for_user_timeout ++;
+             if (wait_for_user_timeout >= LEDSTRIP_RESET_TIME) break;
+            } while (wait_for_user);
+          #endif // DOGLCD
 
-        wait_for_user = false;
-        SendColorsOnLedstrip (0, 0, 0, 0, 0);  // Turn RGB LEDs off
+          wait_for_user = false;
+          SendColorsOnLedstrip (0, 0, 0, 0, 0);  // Turn RGB LEDs off
+        #endif  // NO_PAUSE_OR_TIMEOUT
+
         LCD_MESSAGEPGM(WELCOME_MSG);
         idle();
         break;
@@ -215,21 +219,21 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
         #endif
         SendColorsOnLedstrip (255, 0, 255, 0, 1);
         break;
-      case(4):      // Turn RGB LEDs Teal
+      case(4):      // Turn RGB LEDs Aqua
         #if ENABLED(DEBUG_LEDSTRIP)
           SERIAL_ECHO_START;
           SERIAL_ECHOLNPAIR("PRINTER_EVENT:", 4);
         #endif
         SendColorsOnLedstrip (0, 255, 255, 0, 1);
         break;
-      case(5):      // Turn RGB LEDs Teal dimmed
+      case(5):      // Turn RGB LEDs Aqua dimmed
         #if ENABLED(DEBUG_LEDSTRIP)
           SERIAL_ECHO_START;
           SERIAL_ECHOLNPAIR("PRINTER_EVENT:", 5);
         #endif
         SendColorsOnLedstrip (0, 50, 50, 0, 1);
         break;
-      case(6):      // Turn RGB LEDs Teal half
+      case(6):      // Turn RGB LEDs Aqua half
         #if ENABLED(DEBUG_LEDSTRIP)
           SERIAL_ECHO_START;
           SERIAL_ECHOLNPAIR("PRINTER_EVENT:", 6);

@@ -837,6 +837,7 @@
  * */
 #if ENABLED(RGB_STRIP) || ENABLED(LEDSTRIP)
   #define PRINTER_EVENT_LEDS
+  #define NO_PAUSE_OR_TIMEOUT  // Removes the pause for click or timeout on event 0 (End of print).
 #endif
 
 

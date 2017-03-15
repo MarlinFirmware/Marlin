@@ -39,35 +39,38 @@
         LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
         lcd_update();
         set_rgb_color(0, 255, 0);  // Turn RGB LEDs to GREEN
-        wait_for_user = true;
-        int wait_for_user_timeout;
 
-        #if ENABLED(ULTRA_LCD)
-          wait_for_user_timeout = 0;
-          do {
-           idle();
-           safe_delay(100);
-           if (wait_for_user_timeout == RGB_reset_time / 2)
-           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
-           wait_for_user_timeout ++;
-           if (wait_for_user_timeout >= RGB_reset_time) break;
-          } while (wait_for_user);
-        #endif // ULTRA_LCD
-
-        #if ENABLED(DOGLCD)
-          wait_for_user_timeout = 0;
-          do {
-           idle();
-           safe_delay(100);
-           if (wait_for_user_timeout == RGB_reset_time / 2)
-           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
-           wait_for_user_timeout ++;
-           if (wait_for_user_timeout >= RGB_reset_time) break;
-          } while (wait_for_user);
-        #endif // DOGLCD
-
-        wait_for_user = false;
-        set_rgb_color(0, 0, 0);  // Turn RGB LEDs off
+        #if DISABLED(NO_PAUSE_OR_TIMEOUT)
+          wait_for_user = true;
+          int wait_for_user_timeout;
+  
+          #if ENABLED(ULTRA_LCD)
+            wait_for_user_timeout = 0;
+            do {
+             idle();
+             safe_delay(100);
+             if (wait_for_user_timeout == RGB_reset_time / 2)
+             SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
+             wait_for_user_timeout ++;
+             if (wait_for_user_timeout >= RGB_reset_time) break;
+            } while (wait_for_user);
+          #endif // ULTRA_LCD
+  
+          #if ENABLED(DOGLCD)
+            wait_for_user_timeout = 0;
+            do {
+             idle();
+             safe_delay(100);
+             if (wait_for_user_timeout == RGB_reset_time / 2)
+             SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
+             wait_for_user_timeout ++;
+             if (wait_for_user_timeout >= RGB_reset_time) break;
+            } while (wait_for_user);
+          #endif // DOGLCD
+  
+          wait_for_user = false;
+          set_rgb_color(0, 0, 0);  // Turn RGB LEDs off
+        #endif  // NO_PAUSE_OR_TIMEOUT
 
         LCD_MESSAGEPGM(WELCOME_MSG);
         idle();
@@ -81,13 +84,13 @@
       case(3):      // Turn RGB LEDs Purple
         set_rgb_color(255, 0, 255);
         break;
-      case(4):      // Turn RGB LEDs Teal
+      case(4):      // Turn RGB LEDs Aqua
         set_rgb_color(0, 255, 255);
         break;
-      case(5):      // Turn RGB LEDs Teal dimmed
+      case(5):      // Turn RGB LEDs Aqua dimmed
         set_rgb_color(0, 50, 50);
         break;
-      case(6):      // Turn RGB LEDs Teal half
+      case(6):      // Turn RGB LEDs Aqua half
         set_rgb_color(0, 127, 127);
         break;
       case(9):      // Turn RGB LEDs off
@@ -121,35 +124,38 @@
         LCD_MESSAGEPGM(MSG_INFO_COMPLETED_PRINTS);
         idle();
         set_rgb_color(0, 255, 0, 0);  // Turn RGB LEDs to GREEN
-        wait_for_user = true;
-        int wait_for_user_timeout;
 
-        #if ENABLED(ULTRA_LCD)
-          wait_for_user_timeout = 0;
-          do {
-           idle();
-           safe_delay(100);
-           if (wait_for_user_timeout == RGB_reset_time / 2)
-           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
-           wait_for_user_timeout ++;
-           if (wait_for_user_timeout >= RGB_reset_time) break;
-          } while (wait_for_user);
-        #endif // ULTRA_LCD
-
-        #if ENABLED(DOGLCD)
-          wait_for_user_timeout = 0;
-          do {
-           idle();
-           safe_delay(100);
-           if (wait_for_user_timeout == RGB_reset_time / 2)
-           SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
-           wait_for_user_timeout ++;
-           if (wait_for_user_timeout >= RGB_reset_time) break;
-          } while (wait_for_user);
-        #endif // DOGLCD
-
-        wait_for_user = false;
-        set_rgb_color(0, 0, 0, 0);  // Turn RGB LEDs off
+        #if DISABLED(NO_PAUSE_OR_TIMEOUT)
+          wait_for_user = true;
+          int wait_for_user_timeout;
+  
+          #if ENABLED(ULTRA_LCD)
+            wait_for_user_timeout = 0;
+            do {
+             idle();
+             safe_delay(100);
+             if (wait_for_user_timeout == RGB_reset_time / 2)
+             SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
+             wait_for_user_timeout ++;
+             if (wait_for_user_timeout >= RGB_reset_time) break;
+            } while (wait_for_user);
+          #endif // ULTRA_LCD
+  
+          #if ENABLED(DOGLCD)
+            wait_for_user_timeout = 0;
+            do {
+             idle();
+             safe_delay(100);
+             if (wait_for_user_timeout == RGB_reset_time / 2)
+             SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
+             wait_for_user_timeout ++;
+             if (wait_for_user_timeout >= RGB_reset_time) break;
+            } while (wait_for_user);
+          #endif // DOGLCD
+  
+          wait_for_user = false;
+          set_rgb_color(0, 0, 0, 0);  // Turn RGB LEDs off
+        #endif  // NO_PAUSE_OR_TIMEOUT
 
         LCD_MESSAGEPGM(WELCOME_MSG);
         idle();

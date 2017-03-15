@@ -1487,6 +1487,7 @@
  * */
 #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
   #define PRINTER_EVENT_LEDS
+  //#define NO_PAUSE_OR_TIMEOUT  // Removes the pause for click or timeout on event 0 (End of print).
 #endif
 
 #endif // CONFIGURATION_H
