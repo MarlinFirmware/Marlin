@@ -787,8 +787,7 @@
   #define LEDSTRIP_NLED 45 // Number of LEDs in the strip
   #define LEDSTRIP_NSEGMENT 3 // LEDS maybe divided in segments for ease of use
   #define LEDSTRIP_TYPE WS2812B
-  #define LEDSTRIP_EXCHANGE_RU  // G-R-B LEDs if enabled, else R-G-B LEDs.
-                                // This changes it for the chip, not the commands.
+  #define LEDSTRIP_EXCHANGE_RU  // GRB LEDs if enabled, else RGB LEDs.
   #define LEDSTRIP_RESET_TIME 600   // Set time for LEDSTRIP to turn off. (600 = 60 secs.)
   #define MSG_LED_LIGHTING "Lighting" // Move to language_en.h?
   //#define DEBUG_LEDSTRIP // Debug to serial monitor

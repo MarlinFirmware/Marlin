@@ -1783,11 +1783,7 @@ KeepDrawing:
   void lcd_move_menu() {
     START_MENU();
     MENU_BACK(MSG_PREPARE);
-    
-    #if ENABLED(LEDSTRIP)
-      MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-    #endif
-        
+
     if (_MOVE_XYZ_ALLOWED) {
       if (_MOVE_XY_ALLOWED) {
         MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_get_x_amount);
@@ -1836,37 +1832,51 @@ KeepDrawing:
   char ledstripgcode[15];
 
   void lcd_led_command (int pi) {
-    sprintf_P(ledstripgcode, PSTR("M150 P%i S%i"), pi, ledstrip_segment);
+    sprintf_P(ledstripgcode, PSTR("M150 S%i P%i"), ledstrip_segment, pi);
     enqueue_and_echo_command(ledstripgcode);
   }
-  
+
   void lcd_led_poweron() {
+    #if ENABLED(DEBUG_LEDSTRIP)
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLN("--------------------------------");
+      SERIAL_ECHOLN("ULTRALCD.CPP");
+      SERIAL_ECHOLNPAIR(" LED_POWERON = ", LED_POWERON);
+    #endif
     lcd_led_command(LED_POWERON);
   }
-  
+
   void lcd_led_poweroff() {
+    #if ENABLED(DEBUG_LEDSTRIP)
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLN("--------------------------------");
+      SERIAL_ECHOLN("ULTRALCD.CPP");
+      SERIAL_ECHOLNPAIR(" LED_POWEROFF = ", LED_POWEROFF);
+    #endif
     lcd_led_command(LED_POWEROFF);
   }
-  
+
   void lcd_led_powerhalf() {
+    #if ENABLED(DEBUG_LEDSTRIP)
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLN("--------------------------------");
+      SERIAL_ECHOLN("ULTRALCD.CPP");
+      SERIAL_ECHOLNPAIR(" LED_POWERHALF = ", LED_POWERHALF);
+    #endif
     lcd_led_command(LED_POWERHALF);
   }
-  
+
   static void lcd_led_lighting() {
 
     START_MENU();
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
     MENU_ITEM_EDIT(int3, "Strip Segment ", &ledstrip_segment, 0, LEDSTRIP_NSEGMENT );
-    
-    MENU_ITEM(function, "Strip Power On", lcd_led_poweron);  
-    MENU_ITEM(function, "Strip Power Half", lcd_led_powerhalf);  
-    MENU_ITEM(function, "Strip Power Off", lcd_led_poweroff);  
-
+    MENU_ITEM(function, "Strip Power On", lcd_led_poweron);
+    MENU_ITEM(function, "Strip Power Half", lcd_led_powerhalf);
+    MENU_ITEM(function, "Strip Power Off", lcd_led_poweroff);
     END_MENU();
   }
-  
- #endif
-
+ #endif // LEDSTRIP
 
   /**
    *

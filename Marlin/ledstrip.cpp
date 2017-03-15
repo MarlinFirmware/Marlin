@@ -3,34 +3,28 @@
   Created by Philippe Hervier Feb 2016.
 */
 #include "Marlin.h"
-#include "temperature.h" 
-#include "Configuration.h"
 #include "ultralcd.h"
 #include "language.h"
 
 #if ENABLED(LEDSTRIP)
-
+   
 #include "ledstrip.h"
 #include <FastLED.h>
-
 
 CRGB leds[LEDSTRIP_NLED];
 CRGB colorSaved[LEDSTRIP_NSEGMENT+1];
 
 boolean initialized = false;
 
-#if ENABLED(LEDSTRIP_EXCHANGE_RU)
-byte SendColorsOnLedstrip (int grn, int red, int blu, byte segment, byte power) {
-#else
-byte SendColorsOnLedstrip (int red, int grn, int blu, byte segment, byte power) {
-#endif
-   #if ! defined(LEDSTRIP_PIN)
+void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte power) {
+  
+   #if !defined(LEDSTRIP_PIN)
     return LEDSTRIP_NOLEDSPIN;
    #endif
-   #if ! defined(LEDSTRIP_NLED)
+   #if !defined(LEDSTRIP_NLED)
     return LEDSTRIP_NONLEDS;
    #endif
-   #if ! defined(LEDSTRIP_NSEGMENT)
+   #if !defined(LEDSTRIP_NSEGMENT)
     #define LEDSTRIP_NSEGMENT 1
    #endif
    if (segment > LEDSTRIP_NSEGMENT || segment < 0)
@@ -38,42 +32,91 @@ byte SendColorsOnLedstrip (int red, int grn, int blu, byte segment, byte power) 
 
    if (!initialized){
     //memset8( leds, 0, LEDSTRIP_NLED * sizeof(CRGB));
-    FastLED.addLeds<LEDSTRIP_TYPE, LEDSTRIP_PIN, RGB>(leds, LEDSTRIP_NLED);
+    #if ENABLED(LEDSTRIP_EXCHANGE_RU)
+      FastLED.addLeds<LEDSTRIP_TYPE, LEDSTRIP_PIN, GRB>(leds, LEDSTRIP_NLED);
+    #else
+      FastLED.addLeds<LEDSTRIP_TYPE, LEDSTRIP_PIN, RGB>(leds, LEDSTRIP_NLED);
+    #endif
     FastLED.clear();
     colorSaved[0]=CRGB::Linen;
     for (int i = 1; i <= LEDSTRIP_NSEGMENT; i++)
       colorSaved[i]=CRGB::Seashell;
+
     initialized = true;
    }
+   #if ENABLED(DEBUG_LEDSTRIP)
+     SERIAL_ECHO_START;
+     SERIAL_ECHOLN("--------------------------------");
+     SERIAL_ECHOLN("LEDSTRIP.CPP BEFORE COLOR UPDATE");
+     SERIAL_ECHOLNPAIR(" colorSaved.red Saved:", colorSaved[segment].red);
+     SERIAL_ECHOLNPAIR(" colorSaved.green Saved:", colorSaved[segment].green);
+     SERIAL_ECHOLNPAIR(" colorSaved.blue Saved:", colorSaved[segment].blue);
+   #endif
 
    // update saved color
-     if (red >= 0)
-       colorSaved[segment].red  = red;
-     if (grn >= 0)
-       colorSaved[segment].green= grn;
-     if (blu >= 0)
-       colorSaved[segment].blue = blu;
+   if (red != colorSaved[segment].red)
+     colorSaved[segment].red = red;
+   if (grn != colorSaved[segment].green)
+     colorSaved[segment].green = grn;
+   if (blu != colorSaved[segment].blue)
+     colorSaved[segment].blue = blu;
+
+   #if ENABLED(DEBUG_LEDSTRIP)
+     SERIAL_ECHO_START;
+     SERIAL_ECHOLN("LEDSTRIP.CPP AFTER COLOR UPDATE");
+     SERIAL_ECHOLNPAIR(" colorSaved.red Saved:", colorSaved[segment].red);
+     SERIAL_ECHOLNPAIR(" colorSaved.green Saved:", colorSaved[segment].green);
+     SERIAL_ECHOLNPAIR(" colorSaved.blue Saved:", colorSaved[segment].blue);
+     SERIAL_ECHOLN("--------------------------------");
+   #endif
 
    byte updtend = (segment > 0) ? LEDSTRIP_NLED/LEDSTRIP_NSEGMENT : LEDSTRIP_NLED ;
    byte updshift = (segment > 0) ? (segment-1) : 0;
    byte j;
 
+   #if ENABLED(DEBUG_LEDSTRIP)
+     SERIAL_ECHO_START;
+     SERIAL_ECHOLN("LEDSTRIP.CPP");
+     SERIAL_ECHOLNPAIR(" power = ", power);
+     SERIAL_ECHOLNPAIR(" Total LED Value = ", (red + grn + blu));
+     SERIAL_ECHOLN("--------------------------------");
+   #endif
+
    if (red + grn + blu <= 3){  // no color change use the saved color or black
      if (power == LED_POWERON){
       for(byte i = 0; i < updtend; i++) 
        leds[i + (updshift * updtend)] = colorSaved[segment];
+     #if ENABLED(DEBUG_LEDSTRIP)
+       SERIAL_ECHO_START;
+       SERIAL_ECHOPAIR("LED_POWERON:", LED_POWERON);
+       SERIAL_ECHOLNPAIR(" | Segment Saved:", colorSaved[segment]);
+       SERIAL_ECHOLNPAIR(" Total LED Value = ", (red + grn + blu));
+     #endif
      }
      else if (power == LED_POWEROFF){
       for(byte i = 0; i < updtend; i++) 
        leds[i + (updshift * updtend)] = CRGB::Black;
-
+     #if ENABLED(DEBUG_LEDSTRIP)
+       SERIAL_ECHO_START;
+       SERIAL_ECHOPAIR("LED_POWEROFF:", LED_POWEROFF);
+       SERIAL_ECHOLNPAIR(" | Segment Saved:", colorSaved[segment]);
+     #endif
      }
      else if (power == LED_POWERHALF){
       for(byte i = 0; i < updtend; i++) 
        leds[i + (updshift * updtend)] = (i % 2)? colorSaved[segment]:CRGB::Black;
+     #if ENABLED(DEBUG_LEDSTRIP)
+       SERIAL_ECHO_START;
+       SERIAL_ECHOPAIR("LED_POWERHALF:", LED_POWERHALF);
+       SERIAL_ECHOLNPAIR(" | Segment Saved:", colorSaved[segment]);
+     #endif
      }
      else
        return LEDSTRIP_NOACTION;
+     #if ENABLED(DEBUG_LEDSTRIP)
+       SERIAL_ECHO_START;
+       SERIAL_ECHOLN("No Action");
+     #endif
    }
    else {
      for(byte i = 0; i < updtend; i++) { 
@@ -85,6 +128,15 @@ byte SendColorsOnLedstrip (int red, int grn, int blu, byte segment, byte power) 
        if (blu >= 0)
          leds[j].blue = blu;
      }
+     #if ENABLED(DEBUG_LEDSTRIP)
+       SERIAL_ECHO_START;
+       SERIAL_ECHOLN("--------------------------------");
+       SERIAL_ECHOLN("LEDSTRIP.CPP");
+       SERIAL_ECHOLNPAIR(" led.red Saved:", leds[j].red);
+       SERIAL_ECHOLNPAIR(" leds.green Saved:", leds[j].green = grn);
+       SERIAL_ECHOLNPAIR(" leds.blue Saved:", leds[j].blue = blu);
+       SERIAL_ECHOLN("--------------------------------");
+     #endif
    }
    FastLED.show();
    return LEDSTRIP_OK;

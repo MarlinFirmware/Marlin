@@ -3618,9 +3618,9 @@ inline void gcode_G28() {
           if (DEBUGGING(LEVELING)) DEBUG_POS("> (home_all_axis || homeZ) > final", current_position);
         #endif
 
-        #if ENABLED(PRINTER_EVENT_LEDS)
-          handle_led_print_event(9);  // Turn RGBs off
-        #endif
+        //#if ENABLED(PRINTER_EVENT_LEDS)
+        //  handle_led_print_event(9);  // Turn RGBs off
+        //#endif
 
       } // home_all_axis || homeZ
     #endif // Z_HOME_DIR < 0
@@ -3692,6 +3692,10 @@ inline void gcode_G28() {
   #endif
 
   report_current_position();
+
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    handle_led_print_event(9);  // Turn RGB LEDs off
+  #endif
 }
 
 #if HAS_PROBING_PROCEDURE
@@ -6329,10 +6333,6 @@ inline void gcode_M121() { endstops.enable_globally(false); }
       code_seen('S') ? code_has_value() : 0,
       code_seen('P') ? (byte)code_has_value() : LED_POWERNOCHG
     );
-    #if ENABLED(DEBUG_LEDSTRIP)
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPAIR("code_seen:", code_value_byte());
-    #endif
   }
 #endif // LEDSTRIP, BLINKM, RGB_LED, RGB(W)_STRIP
 
