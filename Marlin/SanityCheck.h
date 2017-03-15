@@ -130,6 +130,8 @@
   #error "Z_RAISE_PROBE_DEPLOY_STOW and Z_RAISE_BETWEEN_PROBINGS are now Z_CLEARANCE_DEPLOY_PROBE and Z_CLEARANCE_BETWEEN_PROBES. Please update your configuration."
 #elif defined(Z_PROBE_DEPLOY_HEIGHT) || defined(Z_PROBE_TRAVEL_HEIGHT)
   #error "Z_PROBE_DEPLOY_HEIGHT and Z_PROBE_TRAVEL_HEIGHT are now Z_CLEARANCE_DEPLOY_PROBE and Z_CLEARANCE_BETWEEN_PROBES. Please update your configuration."
+#elif defined(MESH_HOME_SEARCH_Z)
+  #error "MESH_HOME_SEARCH_Z is now MANUAL_PROBE_Z_RANGE. Please update your configuration."
 #elif !defined(MIN_STEPS_PER_SEGMENT)
   #error Please replace "const int dropsegments" with "#define MIN_STEPS_PER_SEGMENT" (and increase by 1) in Configuration_adv.h.
 #elif defined(PREVENT_DANGEROUS_EXTRUDE)
