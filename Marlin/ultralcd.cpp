@@ -779,14 +779,16 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  /**
-   * Set the home offset based on the current_position
-   */
-  void lcd_set_home_offsets() {
-    // M428 Command
-    enqueue_and_echo_commands_P(PSTR("M428"));
-    lcd_return_to_status();
-  }
+  #if DISABLED(NO_WORKSPACE_OFFSETS)
+    /**
+     * Set the home offset based on the current_position
+     */
+    void lcd_set_home_offsets() {
+      // M428 Command
+      enqueue_and_echo_commands_P(PSTR("M428"));
+      lcd_return_to_status();
+    }
+  #endif
 
   #if ENABLED(BABYSTEPPING)
 
@@ -1025,7 +1027,7 @@ void kill_screen(const char* lcd_msg) {
   void _lcd_preheat(int endnum, const float temph, const float tempb, const int fan) {
     if (temph > 0) thermalManager.setTargetHotend(min(heater_maxtemp[endnum], temph), endnum);
     #if TEMP_SENSOR_BED != 0
-      thermalManager.setTargetBed(tempb);
+      if (tempb >= 0) thermalManager.setTargetBed(tempb);
     #else
       UNUSED(tempb);
     #endif
@@ -1295,7 +1297,6 @@ void kill_screen(const char* lcd_msg) {
             mbl.set_has_mesh(true);
             enqueue_and_echo_commands_P(PSTR("G28"));
             lcd_return_to_status();
-            //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
             #if HAS_BUZZER
               lcd_buzz(200, 659);
               lcd_buzz(200, 698);
@@ -1919,11 +1920,11 @@ KeepDrawing:
   #if ENABLED(PID_AUTOTUNE_MENU)
 
     #if ENABLED(PIDTEMP)
-      int autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(150);
+      int autotune_temp[HOTENDS] = ARRAY_BY_HOTENDS1(195);
     #endif
 
     #if ENABLED(PIDTEMPBED)
-      int autotune_temp_bed = 70;
+      int autotune_temp_bed = 50;
     #endif
 
     void _lcd_autotune(int e) {

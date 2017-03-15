@@ -763,7 +763,7 @@
 //  LEDSTRIP allow the use of a ledstrip on output pin with M150 gcode
 //   M150:  Set Status LED Color - Use R-U-B for R-G-B
 //          R for red value (from 0 to 255)
-//          V for green value (from 0 to 255)
+//          U for green value (from 0 to 255)
 //          B for blue value (from 0 to 255)
 //          S for segment 1 2 3...0 for all
 //          P for power 1 is on 2 is half on 3 is off

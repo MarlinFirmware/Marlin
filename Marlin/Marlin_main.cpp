@@ -159,7 +159,7 @@
  * M250 - Set LCD contrast: "M250 C<contrast>" (0-63). (Requires LCD support)
  * M260 - i2c Send Data (Requires EXPERIMENTAL_I2CBUS)
  * M261 - i2c Request Data (Requires EXPERIMENTAL_I2CBUS)
- * M280 - Set servo position absolute: "M280 P<index> S<angle|µs>". (Requires servos)
+ * M280 - Set servo position absolute: "M280 P<index> S<angle|Âµs>". (Requires servos)
  * M300 - Play beep sound S<frequency Hz> P<duration ms>
  * M301 - Set PID parameters P I and D. (Requires PIDTEMP)
  * M302 - Allow cold extrudes, or set the minimum extrude S<temperature>. (Requires PREVENT_COLD_EXTRUSION)
@@ -411,17 +411,17 @@ float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DI
 
 #if DISABLED(NO_WORKSPACE_OFFSETS)
 
-  // The distance that XYZ has been offset by G92. Reset by G28. 
-  float position_shift[XYZ] = { 0 }; 
- 
-  // This offset is added to the configured home position. 
-  // Set by M206, M428, or menu item. Saved to EEPROM. 
-  float home_offset[XYZ] = { 0 }; 
- 
-  // The above two are combined to save on computes 
-  float workspace_offset[XYZ] = { 0 }; 
- 
-#endif 
+  // The distance that XYZ has been offset by G92. Reset by G28.
+  float position_shift[XYZ] = { 0 };
+
+  // This offset is added to the configured home position.
+  // Set by M206, M428, or menu item. Saved to EEPROM.
+  float home_offset[XYZ] = { 0 };
+
+  // The above two are combined to save on computes
+  float workspace_offset[XYZ] = { 0 };
+
+#endif
 
 // Software Endstops are based on the configured limits.
 #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
@@ -1379,28 +1379,29 @@ bool get_target_extruder_from_command(int code) {
           soft_endstop_max[axis] = base_max_pos(axis) + offs;
         }
       }
-	  #else
-		soft_endstop_min[axis] = base_min_pos(axis) + offs;
-		soft_endstop_max[axis] = base_max_pos(axis) + offs;
-	  #endif
+    #else
+      soft_endstop_min[axis] = base_min_pos(axis) + offs;
+      soft_endstop_max[axis] = base_max_pos(axis) + offs;
+    #endif
 
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) {
-          SERIAL_ECHOPAIR("For ", axis_codes[axis]);
-          #if DISABLED(NO_WORKSPACE_OFFSETS)
-            SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
-            SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
-          #endif
-          SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
-          SERIAL_ECHOLNPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
-        }
-      #endif
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) {
+        SERIAL_ECHOPAIR("For ", axis_codes[axis]);
+        #if DISABLED(NO_WORKSPACE_OFFSETS)
+          SERIAL_ECHOPAIR(" axis:\n home_offset = ", home_offset[axis]);
+          SERIAL_ECHOPAIR("\n position_shift = ", position_shift[axis]);
+        #endif
+        SERIAL_ECHOPAIR("\n soft_endstop_min = ", soft_endstop_min[axis]);
+        SERIAL_ECHOLNPAIR("\n soft_endstop_max = ", soft_endstop_max[axis]);
+      }
+    #endif
 
-      #if ENABLED(DELTA)
-        if (axis == Z_AXIS)
-          delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
-      #endif
+    #if ENABLED(DELTA)
+      if (axis == Z_AXIS)
+        delta_clip_start_height = soft_endstop_max[axis] - delta_safe_distance_from_top();
+    #endif
   }
+
 #endif // NO_WORKSPACE_OFFSETS
 
 #if DISABLED(NO_WORKSPACE_OFFSETS)
@@ -2395,7 +2396,7 @@ static void clean_up_after_endstop_or_probe_move() {
     //                                : ((c < b) ? b : (a < c) ? a : c);
   }
 
-  //Enable this if your SCARA uses 180° of total area
+  //Enable this if your SCARA uses 180Â° of total area
   //#define EXTRAPOLATE_FROM_EDGE
 
   #if ENABLED(EXTRAPOLATE_FROM_EDGE)
@@ -5621,11 +5622,11 @@ inline void gcode_M109() {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
         #if ENABLED(LEDSTRIP)
-          uint8_t r, g, b;
+          byte r, g, b;
         #endif
         if(wait_for_heatup) {
           // Gradually change LED strip from violet to red as extruder heats up
-          r = 255;
+          r = 253;
           g = 0;
           b = map(temp, starting_temp_e, theTarget, 255, 15);
           #if ENABLED(LEDSTRIP)
@@ -5636,11 +5637,12 @@ inline void gcode_M109() {
               SERIAL_ECHOLNPAIR(" Blue: ", b);
             #endif
             SendColorsOnLedstrip (255, 0, b, 0, 1);
+            safe_delay(50);
           #else
             set_led_color(r, g, b, w);
           #endif
         }
-    #endif
+    #endif // PRINTER_EVENT_LEDS
 
     #if TEMP_RESIDENCY_TIME > 0
 
@@ -5771,7 +5773,7 @@ inline void gcode_M109() {
 
       #if ENABLED(PRINTER_EVENT_LEDS)
         #if ENABLED(LEDSTRIP)
-          uint8_t r, g, b;
+          byte r, g, b;
         #endif
         if(wait_for_heatup) {
           // Gradually change LED strip from blue to violet as bed heats up
@@ -5786,6 +5788,7 @@ inline void gcode_M109() {
               SERIAL_ECHOLNPAIR(" Blue: ", b);
             #endif
             SendColorsOnLedstrip (r, 0, 255, 0, 1);
+            safe_delay(500);
           #else
             set_led_color(r, g, b, w);
           #endif
@@ -6232,59 +6235,28 @@ inline void gcode_M120() { endstops.enable_globally(true); }
  */
 inline void gcode_M121() { endstops.enable_globally(false); }
 
-#if ENABLED(HAVE_TMC2130DRIVER)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED)
 
-  /**
-   * M122: Output Trinamic TMC2130 status to serial output. Very bad formatting.
-   */
+  void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
 
-  static void tmc2130_report(Trinamic_TMC2130 &stepr, const char *name) {
-    stepr.read_STAT();
-    SERIAL_PROTOCOL(name);
-    SERIAL_PROTOCOL(": ");
-    stepr.isReset() ? SERIAL_PROTOCOLPGM("RESET ") : SERIAL_PROTOCOLPGM("----- ");
-    stepr.isError() ? SERIAL_PROTOCOLPGM("ERROR ") : SERIAL_PROTOCOLPGM("----- ");
-    stepr.isStallguard() ? SERIAL_PROTOCOLPGM("SLGRD ") : SERIAL_PROTOCOLPGM("----- ");
-    stepr.isStandstill() ? SERIAL_PROTOCOLPGM("STILL ") : SERIAL_PROTOCOLPGM("----- ");
-    SERIAL_PROTOCOLLN(stepr.debug());
-  }
+    #if ENABLED(BLINKM)
 
-  inline void gcode_M122() {
-    SERIAL_PROTOCOLLNPGM("Reporting TMC2130 status");
-    #if ENABLED(X_IS_TMC2130)
-      tmc2130_report(stepperX, "X");
-    #endif
-    #if ENABLED(X2_IS_TMC2130)
-      tmc2130_report(stepperX2, "X2");
-    #endif
-    #if ENABLED(Y_IS_TMC2130)
-      tmc2130_report(stepperY, "Y");
-    #endif
-    #if ENABLED(Y2_IS_TMC2130)
-      tmc2130_report(stepperY2, "Y2");
-    #endif
-    #if ENABLED(Z_IS_TMC2130)
-      tmc2130_report(stepperZ, "Z");
-    #endif
-    #if ENABLED(Z2_IS_TMC2130)
-      tmc2130_report(stepperZ2, "Z2");
-    #endif
-    #if ENABLED(E0_IS_TMC2130)
-      tmc2130_report(stepperE0, "E0");
-    #endif
-    #if ENABLED(E1_IS_TMC2130)
-      tmc2130_report(stepperE1, "E1");
-    #endif
-    #if ENABLED(E2_IS_TMC2130)
-      tmc2130_report(stepperE2, "E2");
-    #endif
-    #if ENABLED(E3_IS_TMC2130)
-      tmc2130_report(stepperE3, "E3");
+      // This variant uses i2c to send the RGB components to the device.
+      SendColors(r, g, b);
+
+    #else
+
+      // This variant uses 3 separate pins for the RGB components.
+      // If the pins can do PWM then their intensity will be set.
+      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
+      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
+      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
+      analogWrite(RGB_LED_R_PIN, r);
+      analogWrite(RGB_LED_G_PIN, g);
+      analogWrite(RGB_LED_B_PIN, b);
+
     #endif
   }
-#endif // HAVE_TMC2130DRIVER
-
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
 
   /**
    * M150: Set Status LED Color - Use R-U-B-W for R-G-B-W
@@ -6442,7 +6414,7 @@ inline void gcode_M204() {
  *
  *    S = Min Feed Rate (units/s)
  *    T = Min Travel Feed Rate (units/s)
- *    B = Min Segment Time (µs)
+ *    B = Min Segment Time (Âµs)
  *    X = Max X Jerk (units/sec^2)
  *    Y = Max Y Jerk (units/sec^2)
  *    Z = Max Z Jerk (units/sec^2)
@@ -10747,16 +10719,16 @@ void stop() {
  *  - Print startup messages and diagnostics
  *  - Get EEPROM or default settings
  *  - Initialize managers for:
- *    • temperature
- *    • planner
- *    • watchdog
- *    • stepper
- *    • photo pin
- *    • servos
- *    • LCD controller
- *    • Digipot I2C
- *    • Z probe sled
- *    • status LEDs
+ *    â€¢ temperature
+ *    â€¢ planner
+ *    â€¢ watchdog
+ *    â€¢ stepper
+ *    â€¢ photo pin
+ *    â€¢ servos
+ *    â€¢ LCD controller
+ *    â€¢ Digipot I2C
+ *    â€¢ Z probe sled
+ *    â€¢ status LEDs
  */
 void setup() {
 

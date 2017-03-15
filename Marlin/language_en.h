@@ -569,7 +569,6 @@
 #ifndef MSG_INFO_PSU
   #define MSG_INFO_PSU                        _UxGT("Power Supply")
 #endif
-
 #ifndef MSG_DRIVE_STRENGTH
   #define MSG_DRIVE_STRENGTH                  _UxGT("Drive Strength")
 #endif
