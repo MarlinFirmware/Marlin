@@ -10897,10 +10897,9 @@ void setup() {
     analogWrite(RGB_LED_R_PIN, 255);
     analogWrite(RGB_LED_G_PIN, 255);
     analogWrite(RGB_LED_B_PIN, 255);
-    #if ENABLED(RGBW_STRIP)
-      digitalWrite(RGB_LED_W_PIN, HIGH);
-      analogWrite(RGB_LED_W_PIN, 255);
-    #endif
+  #elif ENABLED(RGBW_STRIP) && ENABLED(LIGHT_ON_POWERUP)
+    digitalWrite(RGB_LED_W_PIN, HIGH);
+    analogWrite(RGB_LED_W_PIN, 255);
   #endif
 
   #if ENABLED(LEDSTRIP) && ENABLED(LIGHT_ON_POWERUP)
