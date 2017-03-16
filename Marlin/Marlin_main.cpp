@@ -6235,7 +6235,7 @@ inline void gcode_M120() { endstops.enable_globally(true); }
  */
 inline void gcode_M121() { endstops.enable_globally(false); }
 
-#if ENABLED(BLINKM) || ENABLED(RGB_LED)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
 
   void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
 
@@ -8816,7 +8816,7 @@ void process_next_command() {
         case 150: // M150: Set Status LED Color
           gcode_M150();
           break;
-      #endif // BLINKM || RGB_LED || RGB_STRIP || RGBW_STRIP
+      #endif
 
       #if ENABLED(MIXING_EXTRUDER)
         case 163: // M163: Set a component weight for mixing extruder
@@ -10890,7 +10890,22 @@ void setup() {
     setup_endstop_interrupts();
   #endif
 
-  #if ENABLED(LEDSTRIP)
+  #if ENABLED(RGB_STRIP) && ENABLED(LIGHT_ON_POWERUP)
+    digitalWrite(RGB_LED_R_PIN, HIGH);
+    digitalWrite(RGB_LED_G_PIN, HIGH);
+    digitalWrite(RGB_LED_B_PIN, HIGH);
+    analogWrite(RGB_LED_R_PIN, 255);
+    analogWrite(RGB_LED_G_PIN, 255);
+    analogWrite(RGB_LED_B_PIN, 255);
+    #if ENABLED(RGBW_STRIP)
+      digitalWrite(RGB_LED_W_PIN, HIGH);
+      analogWrite(RGB_LED_W_PIN, 255);
+    #endif
+  #endif
+
+  #if ENABLED(LEDSTRIP) && ENABLED(LIGHT_ON_POWERUP)
+    SendColorsOnLedstrip (255, 255, 255, 0, 1);  // Turn on the strip
+  #elif ENABLED(LEDSTRIP)
     SendColorsOnLedstrip (0, 0, 0, 0, 0);  // Turn off the strip
   #endif
 }

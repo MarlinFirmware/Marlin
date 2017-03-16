@@ -2,7 +2,7 @@
  
 #include "Marlin.h"
 #include "temperature.h" 
-#include "Configuration.h"
+#include "Configuration_adv.h"
 #include "ultralcd.h"
 #include "RGB_Strip.h"
 #include "language.h"

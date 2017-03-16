@@ -760,44 +760,26 @@
   #define FILAMENT_CHANGE_NO_STEPPER_TIMEOUT         // Enable to have stepper motors hold position during filament change
                                                      // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
 #endif
-//  LEDSTRIP allow the use of a ledstrip on output pin with M150 gcode
-//   M150:  Set Status LED Color - Use R-U-B for R-G-B
-//          R for red value (from 0 to 255)
-//          U for green value (from 0 to 255)
-//          B for blue value (from 0 to 255)
-//          S for segment 1 2 3...0 for all
-//          P for power 1 is on 2 is half on 3 is off
-//          
-//          "M150 P1" turn on all ledstrip with saved color (by default linen white)
-//          "M150 R130 U50 B80 S1"  change the color of segment 1 and store this color value for this segment
-//          "M150 S1 P2" turn on half of the leds in segment1 with saved color for this segment (seashell white by default)
-//          "M150 R30 U70 B10" change the color of entire ledstrip and save this color for futur use
-//
-//          Syntax for use in the program: SendColorsOnLedstrip(red, green, blue, segment, power);
-//
-//           *****************************************************************
-//           **NOTE: This feature requires FastLED library to be installed. **
-//           **         https://github.com/FastLED/FastLED.git              **
-//           *****************************************************************
 
-//#define LEDSTRIP
+/*
+ *  BlinkM/CyzRgb Support
+ */
+//#define BLINKM
 
-#if ENABLED(LEDSTRIP)
-  #define LEDSTRIP_PIN 42 // Output pin for the strip
-  #define LEDSTRIP_NLED 45 // Number of LEDs in the strip
-  #define LEDSTRIP_NSEGMENT 3 // LEDS maybe divided in segments for ease of use
-  #define LEDSTRIP_TYPE WS2812B
-  #define LEDSTRIP_EXCHANGE_RU  // GRB LEDs if enabled, else RGB LEDs.
-  #define LEDSTRIP_RESET_TIME 600   // Set time for LEDSTRIP to turn off. (600 = 60 secs.)
-  #define MSG_LED_LIGHTING "Lighting" // Move to language_en.h?
-  //#define DEBUG_LEDSTRIP // Debug to serial monitor
-#endif // LEDSTRIP
+/*
+ *  Support for an RGB LED using 3 separate pins with optional PWM
+ */
+//#define RGB_LED
+#if ENABLED(RGB_LED)
+  #define RGB_LED_R_PIN 40
+  #define RGB_LED_G_PIN 42
+  #define RGB_LED_B_PIN 44
+#endif //RGB_LED
 
-/** 
-  //===========================================================================
-  //========================== RGB LED Strip Control ==========================
-  //===========================================================================
- *
+/*
+ *  ===========================================================================
+ *  ========================== RGB LED Strip Control ==========================
+ *  ===========================================================================
  *
  * This feature is to control an RGB LED Strip with the PWM pins on the Arduino
  * Pins 4, 5, 6. (SERVO4, SERVO3, SERVO2)
@@ -807,43 +789,86 @@
  * handle the current the LED's will require - Not doing this will destroy
  * your arduino
  * *** CAUTION ***
- *
- * */
+ */
 //#define RGB_STRIP
-//#define RGBW_STRIP
 
-#if ENABLED(RGB_STRIP) || ENABLED (RGBW_STRIP)
+#if ENABLED(RGB_STRIP)
   #define RGB_LED_R_PIN 4
   #define RGB_LED_G_PIN 5
   #define RGB_LED_B_PIN 6
+  
+  //#define RGBW_STRIP
+    #if ENABLED (RGBW_STRIP)
+      #define RGB_LED_W_PIN 44
+    #endif
 
-  #if ENABLED (RGBW_STRIP)
-    #define RGB_LED_W_PIN 44
-  #endif
+  #define RGB_reset_time 600      // Set time for RGB_Strip to turn off. (600 = 60 secs.)
+  //#define LIGHT_ON_POWERUP      // Light the entire strip WHITE on startup.
 
-  #define RGB_reset_time 600   // Set time for RGB_Strip to turn off. (600 = 60 secs.)
 #endif // RGB_STRIP
 
-/**
-  //===========================================================================
-  //===================== Printer Event Strip Control =========================
-  //===========================================================================
+/*  
+ *   LEDSTRIP allows the use of an addressable ledstrip on output pin with M150 gcode.
+ *   M150:  Set Status LED Color - Use R-U-B for R-G-B
+ *          R for red value (from 0 to 255)
+ *          U for green value (from 0 to 255)
+ *          B for blue value (from 0 to 255)
+ *          S for segment 1 2 3...0 for all
+ *          P for power 1 is on 2 is half on 3 is off
+ *          
+ *          "M150 P1" - Turn on the entire ledstrip with saved color (by default linen white)
+ *          "M150 R130 U50 B80 S1" - Change the color of segment 1 and store this color value for this segment
+ *          "M150 S1 P2" - Turn on half of the leds in segment1 with saved color for this segment (seashell white by default)
+ *          "M150 R30 U70 B10" - Change the color of the entire ledstrip and save this color for future use
+ *
+ *          Syntax for use in the program: SendColorsOnLedstrip(red, green, blue, segment, power);
+ *
+ *           *****************************************************************
+ *           **NOTE: This feature requires FastLED library to be installed. **
+ *           **         https://github.com/FastLED/FastLED.git              **
+ *           
+ *           *****************************************************************
+ */
+//#define LEDSTRIP
+
+#if ENABLED(LEDSTRIP)
+
+      /* Strip specific items */
+  #define LEDSTRIP_PIN 42         // Output pin for the strip.
+  #define LEDSTRIP_NLED 45        // Number of LEDs in the strip.
+  #define LEDSTRIP_NSEGMENT 3     // LEDS maybe divided in segments for ease of use.
+  #define LEDSTRIP_TYPE WS2812B   // APA102, WS2811, WS2812, WS2812B, UCS1903, UCS2903, LPD8806, P9813
+  #define LEDSTRIP_EXCHANGE_RU    // GRB LEDs if enabled, else RGB LEDs.
+
+      /* System specific options */
+  #define LEDSTRIP_RESET_TIME 600 // Set time for the entire strip to turn off. (600 = 60 secs.)
+  //#define LIGHT_ON_POWERUP      // Light the entire strip WHITE on startup.
+
+      /* This will go away once everything works */
+  //#define DEBUG_LEDSTRIP        // Debug to serial monitor.
+  
+#endif // LEDSTRIP
+
+/*
+ *  ===========================================================================
+ *  ===================== Printer Event Strip Control =========================
+ *  ===========================================================================
  *  When printing, the LEDs will display printer status
  *  - LEDs will gradually change from blue to violet as the heated bed gets to target temp
  *  - LEDs will gradually change from violet to red as the hotend gets to temperature
  *  - LEDs will change to white to illuminate work surface
  *  - LEDs will change to green once print has finished
  *  - LEDs will turn off after the print has finished and the user has pushed a button 
- * */
-#if ENABLED(RGB_STRIP) || ENABLED(LEDSTRIP)
+ */
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(LEDSTRIP)
   #define PRINTER_EVENT_LEDS
-  #define NO_PAUSE_OR_TIMEOUT  // Removes the pause for click or timeout on event 0 (End of print).
+  //#define NO_PAUSE_OR_TIMEOUT  // Removes the pause for click or timeout on event 0 (End of print).
 #endif
 
 
 // @section tmc
 
-/**
+/*
  * Enable this section if you have TMC26X motor drivers.
  * You will need to import the TMC26XStepper library into the Arduino IDE for this
  * (https://github.com/trinamic/TMC26XStepper.git)
