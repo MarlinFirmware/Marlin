@@ -414,7 +414,7 @@ float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DI
 #endif
 
 // Software Endstops are based on the configured limits.
-#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+#if HAS_SOFTWARE_ENDSTOPS
   bool soft_endstops_enabled = true;
 #endif
 float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
@@ -3698,7 +3698,7 @@ inline void gcode_G28() {
   inline void gcode_G29() {
 
     static int probe_index = -1;
-    #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+    #if HAS_SOFTWARE_ENDSTOPS
       static bool enable_soft_endstops;
     #endif
 
@@ -3733,7 +3733,7 @@ inline void gcode_G28() {
         }
         // For each G29 S2...
         if (probe_index == 0) {
-          #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+          #if HAS_SOFTWARE_ENDSTOPS
             // For the initial G29 S2 save software endstop state
             enable_soft_endstops = soft_endstops_enabled;
           #endif
@@ -3741,7 +3741,7 @@ inline void gcode_G28() {
         else {
           // For G29 S2 after adjusting Z.
           mbl.set_zigzag_z(probe_index - 1, current_position[Z_AXIS]);
-          #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+          #if HAS_SOFTWARE_ENDSTOPS
             soft_endstops_enabled = enable_soft_endstops;
           #endif
         }
@@ -3750,7 +3750,7 @@ inline void gcode_G28() {
           mbl.zigzag(probe_index, px, py);
           _mbl_goto_xy(mbl.get_probe_x(px), mbl.get_probe_y(py));
 
-          #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+          #if HAS_SOFTWARE_ENDSTOPS
             // Disable software endstops to allow manual adjustment
             // If G29 is not completed, they will not be re-enabled
             soft_endstops_enabled = false;
@@ -6372,10 +6372,8 @@ inline void gcode_M205() {
  */
 inline void gcode_M211() {
   SERIAL_ECHO_START;
-  #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+  #if HAS_SOFTWARE_ENDSTOPS
     if (code_seen('S')) soft_endstops_enabled = code_value_bool();
-  #endif
-  #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
     SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
     serialprintPGM(soft_endstops_enabled ? PSTR(MSG_ON) : PSTR(MSG_OFF));
   #else
@@ -8978,7 +8976,7 @@ void ok_to_send() {
   SERIAL_EOL;
 }
 
-#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+#if HAS_SOFTWARE_ENDSTOPS
 
   /**
    * Constrain the given coordinates to the software endstops.
