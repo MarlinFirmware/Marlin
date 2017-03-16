@@ -1596,9 +1596,20 @@ KeepDrawing:
     if (encoderPosition) {
       refresh_cmd_timeout();
 
-      // Limit to software endstops, if enabled
-      float min = (soft_endstops_enabled && min_software_endstops) ? soft_endstop_min[axis] : current_position[axis] - 1000,
-            max = (soft_endstops_enabled && max_software_endstops) ? soft_endstop_max[axis] : current_position[axis] + 1000;
+      float min = current_position[axis] - 1000,
+            max = current_position[axis] + 1000;
+
+      #if HAS_SOFTWARE_ENDSTOPS
+        // Limit to software endstops, if enabled
+        if (soft_endstops_enabled) {
+          #if ENABLED(min_software_endstops)
+            min = soft_endstop_min[axis];
+          #endif
+          #if ENABLED(max_software_endstops)
+            max = soft_endstop_max[axis];
+          #endif
+        }
+      #endif
 
       // Get the new position
       current_position[axis] += float((int32_t)encoderPosition) * move_menu_scale;

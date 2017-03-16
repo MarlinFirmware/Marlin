@@ -8982,6 +8982,7 @@ void ok_to_send() {
    * Constrain the given coordinates to the software endstops.
    */
   void clamp_to_software_endstops(float target[XYZ]) {
+    if (!soft_endstops_enabled) return;
     #if ENABLED(min_software_endstops)
       NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
       NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
