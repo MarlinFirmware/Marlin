@@ -6034,7 +6034,7 @@ static void report_current_position() {
 /**
  * M114: Output current position to serial port
  */
-inline void gcode_M114() { report_current_position(); }
+inline void gcode_M114() { stepper.synchronize(); report_current_position(); }
 
 /**
  * M115: Capabilities string
