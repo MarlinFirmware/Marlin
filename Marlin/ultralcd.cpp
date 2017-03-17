@@ -138,6 +138,13 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
       void lcd_info_stats_menu();
     #endif
     void lcd_info_thermistors_menu();
+    #if ENABLED(DHT_ENABLE)
+      #include "Marlin_DHT.h"
+      float DHT_temperature;
+      float DHT_humidity;
+      bool DHT_done = false;
+      void lcd_info_dht_menu();
+    #endif
     void lcd_info_board_menu();
     void lcd_info_menu();
   #endif // LCD_INFO_MENU
@@ -2219,6 +2226,34 @@ void kill_screen(const char* lcd_msg) {
 
     /**
      *
+     * About Printer > Amb Temp & Humidity
+     *
+     */
+
+    #if ENABLED(DHT_ENABLE)
+
+      void lcd_info_dht_menu(){
+        if (lcd_clicked) { return lcd_goto_previous_menu(); }
+        if (DHT_done == false)
+        {
+          DHT dht;
+          dht.setup(DHT_PIN, DHT_TYPE);
+          safe_delay (1800);
+          DHT_temperature = (dht.getTemperature());
+          DHT_humidity = (dht.getHumidity());
+          DHT_done = true;
+        }
+        START_SCREEN();
+          STATIC_ITEM("Ambient");                                                    //Ambient
+          STATIC_ITEM(MSG_INFO_DHT_MENU);                                            //Temp & Humidity
+          STATIC_ITEM("    Temp (C): ", false, true, itostr3left(DHT_temperature));  //Temp (C): 14
+          STATIC_ITEM("    Humidity: ", false, true, itostr3left(DHT_humidity));     //Humidity: 27
+        END_SCREEN();
+      }
+    #endif // DHT_ENABLE
+
+    /**
+     *
      * About Printer > Board Info
      *
      */
@@ -2266,6 +2301,10 @@ void kill_screen(const char* lcd_msg) {
       MENU_ITEM(submenu, MSG_INFO_PRINTER_MENU, lcd_info_printer_menu);        // Printer Info >
       MENU_ITEM(submenu, MSG_INFO_BOARD_MENU, lcd_info_board_menu);            // Board Info >
       MENU_ITEM(submenu, MSG_INFO_THERMISTOR_MENU, lcd_info_thermistors_menu); // Thermistors >
+      #if ENABLED(DHT_ENABLE)
+        DHT_done = false;
+        MENU_ITEM(submenu, MSG_INFO_DHT_MENU, lcd_info_dht_menu);              // Temp & Humidity >
+      #endif
       #if ENABLED(PRINTCOUNTER)
         MENU_ITEM(submenu, MSG_INFO_STATS_MENU, lcd_info_stats_menu);          // Printer Statistics >
       #endif

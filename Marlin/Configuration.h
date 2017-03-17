@@ -206,7 +206,7 @@
 
 /**
  * --NORMAL IS 4.7kohm PULLUP!-- 1kohm pullup can be used on hotend sensor, using correct resistor and table
- * 
+ *
  * Temperature sensors available:
  *
  *    -3 : thermocouple with MAX31855 (only for sensor 0)
@@ -231,13 +231,13 @@
  *    60 : 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
  *    66 : 4.7M High Temperature thermistor from Dyze Design
  *    70 : the 100K thermistor found in the bq Hephestos 2
- * 
+ *
  *       1k ohm pullup tables - This is atypical, and requires changing out the 4.7k pullup for 1k.
  *                              (but gives greater accuracy and more stable PID)
  *    51 : 100k thermistor - EPCOS (1k pullup)
  *    52 : 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
  *    55 : 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (1k pullup)
- * 
+ *
  *  1047 : Pt1000 with 4k7 pullup
  *  1010 : Pt1000 with 1k pullup (non standard)
  *   147 : Pt100 with 4k7 pullup
@@ -728,7 +728,7 @@
 //========================= Filament Runout Sensor ==========================
 //===========================================================================
 //#define FILAMENT_RUNOUT_SENSOR // Uncomment for defining a filament runout sensor such as a mechanical or opto endstop to check the existence of filament
-                                 // RAMPS-based boards use SERVO3_PIN. For other boards you may need to define FIL_RUNOUT_PIN.
+                                 // RAMPS-based boards use SERVO4_PIN. For other boards you may need to define FIL_RUNOUT_PIN.
                                  // It is assumed that when logic high = filament available
                                  //                    when logic  low = filament ran out
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
@@ -826,10 +826,10 @@
     // The height can be set with M420 Z<height>
     #define ENABLE_LEVELING_FADE_HEIGHT
 
-    // 
+    //
     // Experimental Subdivision of the grid by Catmull-Rom method.
     // Synthesizes intermediate points to produce a more detailed mesh.
-    // 
+    //
     //#define ABL_BILINEAR_SUBDIVISION
     #if ENABLED(ABL_BILINEAR_SUBDIVISION)
       // Number of subdivisions between probe points
@@ -1456,5 +1456,60 @@
   //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
   //#define FILAMENT_LCD_DISPLAY
 #endif
+
+/** 
+  //=========================================================================
+  //================ DHT11, DHT21 or DHT22 Sensor Readings ==================
+  //=========================================================================
+ * 
+ * This feature is for reading the ambient temperature and humidity near or
+ * around the printer.
+ * 
+ *  
+ * */
+//#define DHT_ENABLE
+#if ENABLED(DHT_ENABLE)
+    #define DHT_TYPE 22     //DHT type 11, 21, or 22
+    #define DHT_PIN A3      //Set pin for the DHT sensor. Default = A3 (AUX1 connector pin3 (outside row))
+
+#endif //DHT_ENABLE
+
+/** 
+  //===========================================================================
+  //========================== RGB LED Strip Control ==========================
+  //===========================================================================
+ * 
+ * 
+ * This feature is to control an RGB LED Strip with the PWM pins on the Arduino
+ * Pins 4, 5, 6. (SERVO4, SERVO3, SERVO2)
+ * 
+ * *** CAUTION ***
+ * Requires MOFSET Chip between PWM lines and LED's as the arduino cannot
+ * handle the current the LED's will require - Not doing this will destroy
+ * your arduino
+ * *** CAUTION ***
+ *  
+ * */
+//#define RGB_STRIP
+#if ENABLED(RGB_STRIP)
+  #define RGB_LED_R_PIN 4
+  #define RGB_LED_G_PIN 5
+  #define RGB_LED_B_PIN 6
+#endif
+
+/**
+  //===========================================================================
+  //=========================== Printer Event LEDs ============================
+  //===========================================================================
+ *  When printing, the LEDs will display printer status
+ *  - LEDs will gradually change from blue to violet as the heated bed gets to target temp
+ *  - LEDs will gradually change from violet to red as the hotend gets to temperature
+ *  - LEDs will change to white to illuminate work surface
+ *  - LEDs will change to green once print has finished
+ *  - LEDs will turn off after the print has finished and the user has pushed a button 
+ * */
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
+  #define PRINTER_EVENT_LEDS
+#endif //ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP)
 
 #endif // CONFIGURATION_H

@@ -438,6 +438,9 @@
 #ifndef MSG_HEATING
   #define MSG_HEATING                         "Heating..."
 #endif
+#ifndef MSG_DHT_WARMING
+  #define MSG_DHT_WARMING                     "Sensor Warming..."
+#endif
 #ifndef MSG_HEATING_COMPLETE
   #define MSG_HEATING_COMPLETE                "Heating done."
 #endif
@@ -462,7 +465,6 @@
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          "Calibrate Center"
 #endif
-
 #ifndef MSG_INFO_MENU
   #define MSG_INFO_MENU                       "About Printer"
 #endif
@@ -477,6 +479,9 @@
 #endif
 #ifndef MSG_INFO_THERMISTOR_MENU
   #define MSG_INFO_THERMISTOR_MENU            "Thermistors"
+#endif
+#ifndef MSG_INFO_DHT_MENU
+  #define MSG_INFO_DHT_MENU                   "Temp & Humidity"
 #endif
 #ifndef MSG_INFO_EXTRUDERS
   #define MSG_INFO_EXTRUDERS                  "Extruders"
