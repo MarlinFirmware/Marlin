@@ -1357,7 +1357,6 @@ KeepDrawing:
     void _lcd_level_bed_homing_done() {
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING));
       if (lcd_clicked) {
-<<<<<<< HEAD
         #if ENABLED(PRINTER_EVENT_LEDS)
           handle_led_print_event(1);  // Set RGB leds to white
         #endif
@@ -1368,9 +1367,7 @@ KeepDrawing:
           #endif
         ;
         planner.set_position_mm(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-=======
         manual_probe_index = 0;
->>>>>>> refs/remotes/MarlinFirmware/RCBugFix
         lcd_goto_screen(_lcd_level_goto_next_point);
       }
     }
