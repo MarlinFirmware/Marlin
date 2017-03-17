@@ -231,6 +231,7 @@
  *    60 : 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
  *    66 : 4.7M High Temperature thermistor from Dyze Design
  *    70 : the 100K thermistor found in the bq Hephestos 2
+ *    75 : 100k Generic Silicon Heat Pad typically a NTC 100K MGB18-104F39050L32 thermistor
  *
  *       1k ohm pullup tables - This is atypical, and requires changing out the 4.7k pullup for 1k.
  *                              (but gives greater accuracy and more stable PID)
@@ -537,9 +538,6 @@
 // The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
 //#define BLTOUCH
 
-// Z Servo Probe, such as an endstop switch on a rotating arm.
-//#define Z_ENDSTOP_SERVO_NR 0
-//#define Z_SERVO_ANGLES {70,0} // Z Servo Deploy and Stow angles
 
 // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
 //#define Z_PROBE_SLED
@@ -775,10 +773,22 @@
  *   Probe several points in a grid.
  *   You specify the rectangle and the density of sample points.
  *   The result is a mesh, best for large or uneven beds.
+ *
+ * - UBL Unified Bed Leveling
+ *   A comprehensive bed leveling system that combines features and benefits from previous
+ *   bed leveling system.  The UBL Bed Leveling System also includes an integrated and easy to use
+ *   Mesh Generation, Mesh Validation and Mesh Editing system.
+ *     - Currently, the UBL Bed Leveling System is only checked out for Cartesian Printers.  But with
+ *       that said, it was primarily designed to handle poor quality Delta Printers.  If you feel 
+ *       adventurous and have a Delta, please post an issue if something doesn't work correctly.  
+ *       Initially, you will need to reduce your declared bed size so you have a rectangular area to
+ *       test on.
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
+//#define MESH_BED_LEVELING    
+//#define AUTO_BED_LEVELING_UBL
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -786,6 +796,13 @@
  * NOTE: Requires a lot of PROGMEM!
  */
 //#define DEBUG_LEVELING_FEATURE
+
+#if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) 
+  // Gradually reduce leveling correction until a set height is reached,
+  // at which point movement will be level to the machine's XY plane.
+  // The height can be set with M420 Z<height>
+  #define ENABLE_LEVELING_FADE_HEIGHT
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -807,10 +824,6 @@
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-    // Gradually reduce leveling correction until a set height is reached,
-    // at which point movement will be level to the machine's XY plane.
-    // The height can be set with M420 Z<height>
-    #define ENABLE_LEVELING_FADE_HEIGHT
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -1417,10 +1430,16 @@
 //
 //#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
 
+// Connector number that the servo is plugged into
+//#define Z_ENDSTOP_SERVO_NR 0
+
+// Angles to deploy and retract the servo
+//#define Z_SERVO_ANGLES {70,0} // Z Servo Deploy and Stow angles
+
 // Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY 300
+//#define SERVO_DELAY 300
 
 // Servo deactivation
 //

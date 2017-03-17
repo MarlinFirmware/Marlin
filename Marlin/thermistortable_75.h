@@ -29,7 +29,7 @@
 // the higher earlier entries in the table to give better accuracy.  But for speed reasons, if these
 // temperatures are not going to be used, it is better to leave them commented out.
 
-const short temptable_75[][2] PROGMEM = { // Generic Silicon Heat Pad with NTC 100K thermistor
+const short temptable_75[][2] PROGMEM = { // Generic Silicon Heat Pad with NTC 100K MGB18-104F39050L32 thermistor
     { (short) ( 111.06 * OVERSAMPLENR ),  200 }, // v=0.542	r=571.747	res=0.501 degC/count  
 //  { (short) ( 174.87 * OVERSAMPLENR ),  175 }, // v=0.854	r=967.950	res=0.311 degC/count  These values are valid.  But they serve no
 //  { (short) ( 191.64 * OVERSAMPLENR ),  170 }, // v=0.936	r=1082.139	res=0.284 degC/count  purpose.  It is better to delete them so

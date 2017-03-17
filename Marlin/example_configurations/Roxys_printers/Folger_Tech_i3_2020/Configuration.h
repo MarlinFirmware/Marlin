@@ -1,7 +1,4 @@
 
-//#define Roxy_work
-
-
 /**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -91,6 +88,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define CUSTOM_MACHINE_NAME "UBL5.0 FT2020"
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
@@ -135,7 +133,6 @@
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
   #define MOTHERBOARD BOARD_RAMPS_14_EFB
-  //#define MOTHERBOARD BOARD_SANGUINOLOLU_12  //for Bob's playing around
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
@@ -236,6 +233,7 @@
  *    60 : 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
  *    66 : 4.7M High Temperature thermistor from Dyze Design
  *    70 : the 100K thermistor found in the bq Hephestos 2
+ *    75 : 100k Generic Silicon Heat Pad typically a NTC 100K MGB18-104F39050L32 thermistor
  *
  *       1k ohm pullup tables - This is atypical, and requires changing out the 4.7k pullup for 1k.
  *                              (but gives greater accuracy and more stable PID)
@@ -557,7 +555,7 @@
 //#define FIX_MOUNTED_PROBE
 
 // The BLTouch probe emulates a servo probe.
-// The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below in servo setup section to override.
+// The default connector is SERVO 0. Set Z_ENDSTOP_SERVO_NR below to override.
 //#define BLTOUCH
 
 // Enable if you have a Z probe mounted on a sled like those designed by Charles Bell.
@@ -642,7 +640,7 @@
 // To use a probe you must enable one of the two options above!
 
 // Enable Z Probe Repeatability test to see how accurate your probe is
-//#define Z_MIN_PROBE_REPEATABILITY_TEST
+#define Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
  * Z probes require clearance when deploying, stowing, and moving between
@@ -745,6 +743,33 @@
 //===========================================================================
 //=============================== Bed Leveling ==============================
 //===========================================================================
+
+//#define MESH_BED_LEVELING    // Enable mesh bed leveling.
+
+#if ENABLED(MESH_BED_LEVELING)
+  #define MESH_INSET 10        // Mesh inset margin on print area
+  #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
+  #define MESH_NUM_Y_POINTS 3
+  #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
+
+  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
+
+  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+
+  #if ENABLED(MANUAL_BED_LEVELING)
+    #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
+  #endif  // MANUAL_BED_LEVELING
+
+  // Gradually reduce leveling correction until a set height is reached,
+  // at which point movement will be level to the machine's XY plane.
+  // The height can be set with M420 Z<height>
+  #define ENABLE_LEVELING_FADE_HEIGHT
+
+#endif  // MESH_BED_LEVELING
+
+//===========================================================================
+//============================ Auto Bed Leveling ============================
+//===========================================================================
 // @section bedlevel
 
 /**
@@ -772,6 +797,11 @@
  *   A comprehensive bed leveling system that combines features and benefits from previous
  *   bed leveling system.  The UBL Bed Leveling System also includes an integrated and easy to use
  *   Mesh Generation, Mesh Validation and Mesh Editing system.
+ *     - Currently, the UBL Bed Leveling System is only checked out for Cartesian Printers.  But with
+ *       that said, it was primarily designed to handle poor quality Delta Printers.  If you feel 
+ *       adventurous and have a Delta, please post an issue if something doesn't work correctly.  
+ *       Initially, you will need to reduce your declared bed size so you have a rectangular area to
+ *       test on.
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
@@ -779,9 +809,6 @@
 //#define MESH_BED_LEVELING    
 //#define AUTO_BED_LEVELING_UBL
 
-#if ENABLED(Roxy_work)
-  #define AUTO_BED_LEVELING_UBL
-#endif
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -892,9 +919,9 @@
 
 // Manually set the home position. Leave these undefined for automatic settings.
 // For DELTA this is the top-center of the Cartesian print volume.
-//#define MANUAL_X_HOME_POS 100
-//#define MANUAL_Y_HOME_POS 100
-//#define MANUAL_Z_HOME_POS 20
+#define MANUAL_X_HOME_POS 100
+#define MANUAL_Y_HOME_POS 100
+#define MANUAL_Z_HOME_POS 20
 
 // Use "Z Safe Homing" to avoid homing with a Z probe outside the bed area.
 //
@@ -1245,7 +1272,7 @@
 //
 // ULTIPANEL as seen on Thingiverse.
 //
-//#define ULTIPANEL
+#define ULTIPANEL
 
 //
 // Cartesio UI
@@ -1291,7 +1318,7 @@
 //
 // Note: Usually sold with a white PCB.
 //
-//#define REPRAP_DISCOUNT_SMART_CONTROLLER
+#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 //
 // GADGETS3D G3D LCD/SD Controller
@@ -1456,10 +1483,10 @@
 // leaving it undefined or defining as 0 will disable the servo subsystem
 // If unsure, leave commented / disabled
 //
-//#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+#define NUM_SERVOS 2 // Servo index starts with 0 for M280 command
 
 // Connector number that the servo is plugged into
-//#define Z_ENDSTOP_SERVO_NR 0
+#define Z_ENDSTOP_SERVO_NR 0
 
 // Angles to deploy and retract the servo
 #define Z_SERVO_ANGLES {40,85} // Z Servo Deploy and Stow angles
@@ -1472,7 +1499,7 @@
 // Servo deactivation
 //
 // With this option servos are powered only during movement, then turned off to prevent jitter.
-//#define DEACTIVATE_SERVOS_AFTER_MOVE
+#define DEACTIVATE_SERVOS_AFTER_MOVE
 
 /**********************************************************************\
  * Support for a filament diameter sensor
@@ -1504,25 +1531,5 @@
   //#define FILAMENT_LCD_DISPLAY
 #endif
 
-
-#if ENABLED(Roxy_work)
-  #undef CUSTOM_MACHINE_NAME
-  #undef Z_MIN_PROBE_REPEATABILITY_TEST   // Hack to make things compile clean with Roxy_work enabled
-  #undef ULTIPANEL
-  #undef REPRAP_DISCOUNT_SMART_CONTROLLER
-  #undef NUM_SERVOS 
-  #undef Z_ENDSTOP_SERVO_NR
-  #undef DEACTIVATE_SERVOS_AFTER_MOVE
-  #undef EEPROM_SETTINGS
-
-  #define CUSTOM_MACHINE_NAME "UBL4.6 FT2020"
-  #define Z_MIN_PROBE_REPEATABILITY_TEST
-  #define ULTIPANEL
-  #define REPRAP_DISCOUNT_SMART_CONTROLLER
-  #define NUM_SERVOS 1 
-  #define Z_ENDSTOP_SERVO_NR 0
-  #define DEACTIVATE_SERVOS_AFTER_MOVE
-  #define EEPROM_SETTINGS
-#endif  
 
 #endif // CONFIGURATION_H
