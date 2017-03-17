@@ -10329,7 +10329,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   }
 
   #ifdef CHDK // Check if pin should be set to LOW after M240 set it to HIGH
-    if (chdkActive && PENDING(ms, chdkHigh + CHDK_DELAY)) {
+    if (chdkActive && ELAPSED(ms, chdkHigh + CHDK_DELAY)) {
       chdkActive = false;
       WRITE(CHDK, LOW);
     }
