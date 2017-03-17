@@ -228,6 +228,8 @@
 #if ENABLED(DELTA)
   #if DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
     #error "You probably want to use Max Endstops for DELTA!"
+  #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    #error "DELTA is incompatible with ENABLE_LEVELING_FADE_HEIGHT. Please disable it."
   #endif
   #if ABL_GRID
     #if (ABL_GRID_MAX_POINTS_X & 1) == 0 || (ABL_GRID_MAX_POINTS_Y & 1) == 0
