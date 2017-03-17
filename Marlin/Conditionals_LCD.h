@@ -369,6 +369,6 @@
     #undef Z_MIN_PROBE_ENDSTOP
   #endif
 
-  #define HAS_SOFTWARE_ENDSTOPS (ENABLED(min_software_endstops) || ENABLED(max_software_endstops))
+  #define HAS_SOFTWARE_ENDSTOPS (ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS))
 
 #endif //CONDITIONALS_LCD_H
