@@ -9677,7 +9677,10 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
     // Since segment_distance is only approximate,
     // the final move must be to the exact destination.
-    planner.buffer_line_kinematic(ltarget, _feedrate_mm_s, active_extruder);
+    memcpy(DELTA_VAR, ltarget, sizeof(DELTA_VAR));
+    DELTA_IK();
+    ADJUST_DELTA(DELTA_VAR); // Adjust Z if bed leveling is enabled
+    planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], DELTA_VAR[E_AXIS], _feedrate_mm_s, active_extruder);
     return true;
   }
 
