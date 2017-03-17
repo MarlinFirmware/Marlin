@@ -9566,43 +9566,17 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // If there's only 1 segment, loops will be skipped entirely.
     --segments;
 
-    // Using "raw" coordinates saves 6 float subtractions
-    // per segment, saving valuable CPU cycles
+    // Get the logical current position as starting point
+    float logical[XYZE];
+    COPY(logical, current_position);
 
-    #if ENABLED(USE_RAW_KINEMATICS)
+    #define DELTA_VAR logical
 
-      // Get the raw current position as starting point
-      float raw[XYZE] = {
-        RAW_CURRENT_POSITION(X_AXIS),
-        RAW_CURRENT_POSITION(Y_AXIS),
-        RAW_CURRENT_POSITION(Z_AXIS),
-        current_position[E_AXIS]
-      };
-
-      #define DELTA_VAR raw
-
-      // Delta can inline its kinematics
-      #if ENABLED(DELTA)
-        #define DELTA_IK() DELTA_RAW_IK()
-      #else
-        #define DELTA_IK() inverse_kinematics(raw)
-      #endif
-
+    // Delta can inline its kinematics
+    #if ENABLED(DELTA)
+      #define DELTA_IK() DELTA_LOGICAL_IK()
     #else
-
-      // Get the logical current position as starting point
-      float logical[XYZE];
-      COPY(logical, current_position);
-
-      #define DELTA_VAR logical
-
-      // Delta can inline its kinematics
-      #if ENABLED(DELTA)
-        #define DELTA_IK() DELTA_LOGICAL_IK()
-      #else
-        #define DELTA_IK() inverse_kinematics(logical)
-      #endif
-
+      #define DELTA_IK() inverse_kinematics(logical)
     #endif
 
     #if ENABLED(USE_DELTA_IK_INTERPOLATION)
