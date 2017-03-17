@@ -5567,7 +5567,7 @@ inline void gcode_M109() {
 
     #if ENABLED(PRINTER_EVENT_LEDS)
         #if ENABLED(LEDSTRIP)
-          byte r, g, b;
+          byte r, g, b, b_fade;
         #endif
         if(wait_for_heatup) {
           // Gradually change LED strip from violet to red as extruder heats up
@@ -5581,8 +5581,11 @@ inline void gcode_M109() {
               SERIAL_ECHOPAIR(" Green: ", g);
               SERIAL_ECHOLNPAIR(" Blue: ", b);
             #endif
-            SendColorsOnLedstrip (255, 0, b, 0, 1);
-            safe_delay(50);
+            if(b_fade == 0) SendColorsOnLedstrip (r, g, b, 0, 1);
+            if((b_fade - b) >= 2) {
+              SendColorsOnLedstrip (r, g, b, 0, 1);
+              b_fade = b;
+            }
           #else
             set_led_color(r, g, b, w);
           #endif
@@ -5718,7 +5721,7 @@ inline void gcode_M109() {
 
       #if ENABLED(PRINTER_EVENT_LEDS)
         #if ENABLED(LEDSTRIP)
-          byte r, g, b;
+          byte r, g, b, r_fade;
         #endif
         if(wait_for_heatup) {
           // Gradually change LED strip from blue to violet as bed heats up
@@ -5732,8 +5735,11 @@ inline void gcode_M109() {
               SERIAL_ECHOPAIR(" Green: ", g);
               SERIAL_ECHOLNPAIR(" Blue: ", b);
             #endif
-            SendColorsOnLedstrip (r, 0, 255, 0, 1);
-            safe_delay(500);
+            if(r_fade == 0) SendColorsOnLedstrip (r, g, b, 0, 1);
+            if((r - r_fade) >= 2) {
+              SendColorsOnLedstrip (r, g, b, 0, 1);
+              r_fade = r;
+            }
           #else
             set_led_color(r, g, b, w);
           #endif

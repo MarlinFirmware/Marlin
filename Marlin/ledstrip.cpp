@@ -15,6 +15,7 @@ CRGB leds[LEDSTRIP_NLED];
 CRGB colorSaved[LEDSTRIP_NSEGMENT+1];
 
 boolean initialized = false;
+byte r_bak, b_bak;
 
 void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte power) {
   
