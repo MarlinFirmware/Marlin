@@ -697,15 +697,11 @@
 //#define Z_HOMING_HEIGHT 4  // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
 
-// ENDSTOP SETTINGS:
-// Sets direction of endstops when homing; 1=MAX, -1=MIN
-// :[-1, 1]
+// Direction of endstops when homing; 1=MAX, -1=MIN
+// :[-1,1]
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
-
-#define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
-#define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // @section machine
 
@@ -716,6 +712,11 @@
 #define X_MAX_POS 215
 #define Y_MAX_POS 210
 #define Z_MAX_POS 180
+
+// If enabled, axes won't move below MIN_POS in response to movement commands.
+#define MIN_SOFTWARE_ENDSTOPS
+// If enabled, axes won't move above MAX_POS in response to movement commands.
+#define MAX_SOFTWARE_ENDSTOPS
 
 /**
  * Filament Runout Sensor
@@ -742,9 +743,9 @@
   #define MESH_INSET 10        // Mesh inset margin on print area
   #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
   #define MESH_NUM_Y_POINTS 3
-  #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
+  #define MANUAL_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
 
-  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
+  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
 
   //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
 
