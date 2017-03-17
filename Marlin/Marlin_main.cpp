@@ -9572,77 +9572,17 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     float logical[XYZE];
     COPY(logical, current_position);
 
-    #if ENABLED(USE_DELTA_IK_INTERPOLATION)
-
-      // Only interpolate XYZ. Advance E normally.
-      #define DELTA_NEXT(ADDEND) LOOP_XYZ(i) logical[i] += ADDEND;
-
-      // Get the starting delta if interpolation is possible
-      if (segments >= 2) {
-        DELTA_IK();
-        ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
-      }
-
-      // Loop using decrement
-      for (uint16_t s = segments + 1; --s;) {
-        // Are there at least 2 moves left?
-        if (s >= 2) {
-          // Save the previous delta for interpolation
-          float prev_delta[ABC] = { delta[A_AXIS], delta[B_AXIS], delta[C_AXIS] };
-
-          // Get the delta 2 segments ahead (rather than the next)
-          DELTA_NEXT(segment_distance[i] + segment_distance[i]);
-
-          // Advance E normally
-          logical[E_AXIS] += segment_distance[E_AXIS];
-
-          // Get the exact delta for the move after this
-          DELTA_IK();
-          ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
-
-          // Move to the interpolated delta position first
-          planner.buffer_line(
-            (prev_delta[A_AXIS] + delta[A_AXIS]) * 0.5,
-            (prev_delta[B_AXIS] + delta[B_AXIS]) * 0.5,
-            (prev_delta[C_AXIS] + delta[C_AXIS]) * 0.5,
-            logical[E_AXIS], _feedrate_mm_s, active_extruder
-          );
-
-          // Advance E once more for the next move
-          logical[E_AXIS] += segment_distance[E_AXIS];
-
-          // Do an extra decrement of the loop
-          --s;
-        }
-        else {
-          // Get the last segment delta. (Used when segments is odd)
-          DELTA_NEXT(segment_distance[i]);
-          logical[E_AXIS] += segment_distance[E_AXIS];
-          DELTA_IK();
-          ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
-        }
-
-        // Move to the non-interpolated position
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
-      }
-
-    #else
-
-      #define DELTA_NEXT(ADDEND) LOOP_XYZE(i) logical[i] += ADDEND;
-
-      // For non-interpolated delta calculate every segment
-      for (uint16_t s = segments + 1; --s;) {
-        DELTA_NEXT(segment_distance[i]);
-        #if ENABLED(DELTA)
-          DELTA_LOGICAL_IK(); // Delta can inline its kinematics
-        #else
-          inverse_kinematics(logical);
-        #endif
-        ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
-        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
-      }
-
-    #endif
+    // Calculate and execute the segments
+    for (uint16_t s = segments + 1; --s;) {
+      LOOP_XYZE(i) logical[i] += segment_distance[i];
+      #if ENABLED(DELTA)
+        DELTA_LOGICAL_IK(); // Delta can inline its kinematics
+      #else
+        inverse_kinematics(logical);
+      #endif
+      ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+    }
 
     // Since segment_distance is only approximate,
     // the final move must be to the exact destination.
