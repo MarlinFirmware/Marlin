@@ -1491,7 +1491,7 @@ void Temperature::isr() {
   // at the end of its run, potentially causing re-entry. This flag prevents it.
   if (in_temp_isr) return;
   in_temp_isr = true;
-  
+
   // Allow UART and stepper ISRs
   CBI(TIMSK0, OCIE0B); //Disable Temperature ISR
   sei();
