@@ -1602,10 +1602,10 @@ KeepDrawing:
       #if HAS_SOFTWARE_ENDSTOPS
         // Limit to software endstops, if enabled
         if (soft_endstops_enabled) {
-          #if ENABLED(min_software_endstops)
+          #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
             min = soft_endstop_min[axis];
           #endif
-          #if ENABLED(max_software_endstops)
+          #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
             max = soft_endstop_max[axis];
           #endif
         }
