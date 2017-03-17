@@ -1220,7 +1220,7 @@ void kill_screen(const char* lcd_msg) {
      *
      */
 
-    static uint8_t _lcd_level_bed_position;
+    static uint8_t manual_probe_index;
 
     // Utility to go to the next mesh point
     inline void _manual_probe_xy(float x, float y) {
@@ -1266,8 +1266,8 @@ void kill_screen(const char* lcd_msg) {
       }
 
       if (lcd_clicked) {
-        mbl.set_zigzag_z(_lcd_level_bed_position++, current_position[Z_AXIS]);
-        if (_lcd_level_bed_position == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
+        mbl.set_zigzag_z(manual_probe_index++, current_position[Z_AXIS]);
+        if (manual_probe_index == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
           lcd_goto_screen(_lcd_level_bed_done);
 
           #if MANUAL_PROBE_HEIGHT > 0
@@ -1307,7 +1307,7 @@ KeepDrawing:
     void _lcd_level_bed_moving() {
       if (lcdDrawUpdate) {
         char msg[10];
-        sprintf_P(msg, PSTR("%i / %u"), (int)(_lcd_level_bed_position + 1), (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS));
+        sprintf_P(msg, PSTR("%i / %u"), (int)(manual_probe_index + 1), (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS));
         lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_NEXT_POINT), msg);
       }
 
@@ -1323,7 +1323,7 @@ KeepDrawing:
 
       // _manual_probe_xy runs the menu loop until the move is done
       int8_t px, py;
-      mbl.zigzag(_lcd_level_bed_position, px, py);
+      mbl.zigzag(manual_probe_index, px, py);
       _manual_probe_xy(mbl.get_probe_x(px), mbl.get_probe_y(py));
 
       // After the blocking function returns, change menus
@@ -1337,7 +1337,7 @@ KeepDrawing:
     void _lcd_level_bed_homing_done() {
       if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_WAITING));
       if (lcd_clicked) {
-        _lcd_level_bed_position = 0;
+        manual_probe_index = 0;
         lcd_goto_screen(_lcd_level_goto_next_point);
       }
     }
