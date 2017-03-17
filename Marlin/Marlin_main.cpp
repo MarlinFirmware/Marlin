@@ -122,6 +122,7 @@
  * M119 - Report endstops status.
  * M120 - Enable endstops detection.
  * M121 - Disable endstops detection.
+ * M125 - Store current postiion and move to filament change position. (Requires RB_PAUSE_RESUME)
  * M126 - Solenoid Air Valve Open. (Requires BARICUDA)
  * M127 - Solenoid Air Valve Closed. (Requires BARICUDA)
  * M128 - EtoP Open. (Requires BARICUDA)
@@ -4725,18 +4726,61 @@ inline void gcode_M17() {
    */
   inline void gcode_M23() { card.openFile(current_command_args, true); }
 
+  #if ENABLED(RB_PAUSE_RESUME)
+    float lastpos[NUM_AXIS];
+    bool job_running = false;
+    #if IS_KINEMATIC
+      #define RUNPLAN(RATE_MM_S) planner.buffer_line_kinematic(destination, RATE_MM_S, active_extruder);
+    #else
+      #define RUNPLAN(RATE_MM_S) line_to_destination(RATE_MM_S);
+    #endif
+  #endif
+
   /**
    * M24: Start SD Print
    */
   inline void gcode_M24() {
     card.startFileprint();
     print_job_timer.start();
+    #if ENABLED(RB_PAUSE_RESUME)
+      if (job_running) {
+        // Set extruder to saved position
+        destination[E_AXIS] = current_position[E_AXIS] = lastpos[E_AXIS];
+        planner.set_e_position_mm(current_position[E_AXIS]);
+    
+        #if IS_KINEMATIC
+          // Move XYZ to starting position
+          planner.buffer_line_kinematic(lastpos, FILAMENT_CHANGE_XY_FEEDRATE, active_extruder);
+        #else
+          // Move XY to starting position, then Z
+          destination[X_AXIS] = lastpos[X_AXIS];
+          destination[Y_AXIS] = lastpos[Y_AXIS];
+          RUNPLAN(FILAMENT_CHANGE_XY_FEEDRATE);
+          destination[Z_AXIS] = lastpos[Z_AXIS];
+          RUNPLAN(FILAMENT_CHANGE_Z_FEEDRATE);
+        #endif
+        stepper.synchronize();
+    
+        #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+          filament_ran_out = false;
+        #endif
+        LOOP_XYZE(i)
+          current_position[i] = destination[i];    
+      }
+    #endif
+
   }
 
   /**
    * M25: Pause SD Print
    */
-  inline void gcode_M25() { card.pauseSDPrint(); }
+  inline void gcode_M25() { 
+    card.pauseSDPrint();
+    print_job_timer.pause();
+    #if ENABLED(RB_PAUSE_RESUME)
+      enqueue_and_echo_commands_P(PSTR("M125")); //must get enqueued with pauseSDPrint is set so it is the last command in the command buffer
+    #endif
+  }
 
   /**
    * M26: Set SD Card file index
@@ -6121,6 +6165,66 @@ inline void gcode_M120() { endstops.enable_globally(true); }
  */
 inline void gcode_M121() { endstops.enable_globally(false); }
 
+/**
+ * M125: Move to Filament Change Position (called after pausing, prevents the blob deposit on the print during pause)
+ * this command stores current position for later resume to last position, lifts the z and presents the part to the operator.
+ */
+#if ENABLED(RB_PAUSE_RESUME)
+  inline void gcode_M125() {
+    job_running = (planner.blocks_queued() || card.isFileOpen());
+    
+    // Save current position of all axes
+    LOOP_XYZE(i)
+      lastpos[i] = destination[i] = current_position[i];
+
+    // Initial retract before move to filament change position
+    destination[E_AXIS] += code_seen('E') ? code_value_axis_units(E_AXIS) : 0
+      #if defined(FILAMENT_CHANGE_RETRACT_LENGTH) && FILAMENT_CHANGE_RETRACT_LENGTH > 0
+        - (FILAMENT_CHANGE_RETRACT_LENGTH)
+      #endif
+    ;
+  
+    RUNPLAN(FILAMENT_CHANGE_RETRACT_FEEDRATE);
+      
+    // Lift Z axis
+    float z_lift = code_seen('Z') ? code_value_axis_units(Z_AXIS) :
+      #if defined(FILAMENT_CHANGE_Z_ADD) && FILAMENT_CHANGE_Z_ADD > 0
+        FILAMENT_CHANGE_Z_ADD
+      #else
+        0
+      #endif
+    ;
+  
+    if (z_lift > 0) {
+      destination[Z_AXIS] += z_lift;
+      NOMORE(destination[Z_AXIS], Z_MAX_POS);
+      RUNPLAN(FILAMENT_CHANGE_Z_FEEDRATE);
+    }
+  
+    // Move XY axes to filament exchange position
+    if (code_seen('X')) destination[X_AXIS] = code_value_axis_units(X_AXIS);
+    #ifdef FILAMENT_CHANGE_X_POS
+      else destination[X_AXIS] = FILAMENT_CHANGE_X_POS;
+    #endif
+
+    if (code_seen('Y')) destination[Y_AXIS] = code_value_axis_units(Y_AXIS);
+    #ifdef FILAMENT_CHANGE_Y_POS
+      else destination[Y_AXIS] = FILAMENT_CHANGE_Y_POS;
+    #endif
+ 
+    RUNPLAN(FILAMENT_CHANGE_XY_FEEDRATE);
+    //wait for all moves to execute     
+    stepper.synchronize();
+    disable_e0();
+    disable_e1();
+    disable_e2();
+    disable_e3();
+            
+    //Set current position to destination
+    LOOP_XYZE(i)
+      current_position[i] = destination[i]; 
+  }
+#endif //RB_PAUSE_RESUME
 #if ENABLED(BLINKM) || ENABLED(RGB_LED)
 
   void set_led_color(const uint8_t r, const uint8_t g, const uint8_t b) {
@@ -7288,14 +7392,20 @@ inline void gcode_M503() {
     busy_doing_M600 = true;  // Stepper Motors can't timeout when this is set
 
     // Pause the print job timer
-    bool job_running = print_job_timer.isRunning();
+    #if !ENABLED(RB_PAUSE_RESUME)
+      bool job_running = print_job_timer.isRunning();
+    #else
+      job_running = print_job_timer.isRunning();
+    #endif
     print_job_timer.pause();
 
     // Show initial message and wait for synchronize steppers
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INIT);
     stepper.synchronize();
 
-    float lastpos[NUM_AXIS];
+    #if !ENABLED(RB_PAUSE_RESUME) //prevent double declare when RB_PAUSE_RESUME is enabled
+      float lastpos[NUM_AXIS];
+    #endif
 
     // Save current position of all axes
     LOOP_XYZE(i)
@@ -8440,6 +8550,10 @@ void process_next_command() {
           gcode_M24(); break;
         case 25: // M25: Pause SD print
           gcode_M25(); break;
+        #if ENABLED(RB_PAUSE_RESUME)
+          case 125: // M125: Store current position and move to filament change position
+            gcode_M125(); break;
+        #endif
         case 26: // M26: Set SD index
           gcode_M26(); break;
         case 27: // M27: Get SD status
