@@ -608,11 +608,18 @@ void kill_screen(const char* lcd_msg) {
     void lcd_sdcard_pause() {
       card.pauseSDPrint();
       print_job_timer.pause();
+      #if ENABLED(RB_PAUSE_RESUME)
+        enqueue_and_echo_commands_P(PSTR("M125"));
+      #endif 
     }
 
     void lcd_sdcard_resume() {
-      card.startFileprint();
-      print_job_timer.start();
+      #if ENABLED(RB_PAUSE_RESUME)
+        enqueue_and_echo_commands_P(PSTR("M24"));
+      #else 
+        card.startFileprint();
+        print_job_timer.start();
+      #endif 
     }
 
     void lcd_sdcard_stop() {
