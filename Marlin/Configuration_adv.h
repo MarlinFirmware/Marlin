@@ -846,6 +846,7 @@
 
       /* This will go away once everything works */
   //#define DEBUG_LEDSTRIP        // Debug to serial monitor.
+  //#define DEDUG_LEDSTRIP_FADE   // "
   
 #endif // LEDSTRIP
 

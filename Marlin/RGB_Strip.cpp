@@ -31,6 +31,40 @@
     #endif
   }
 
+  /*  Handle the various printer events
+   *  
+   *  0 - Green and timed or click to OFF.
+   *  1 - White       - Used for main printing as a case light.
+   *  2 - Yellow      - Used when homing.
+   *  3 - Purple      - Not currently used.
+   *  4 - Aqua        - Used for filament change.
+   *  5 - Aqua dimmed - Used for filment change hotend timed out.
+   *  6 - Aqua Half   - Used for filament change hotend heating.
+   *  7 - Red         - Not currently used.
+   *  9 - Off         - Used for after homing and after main printing.
+   */
+
+        /* OTHER COLORS BY NAME AND VALUE FOR REFERENCE
+         *        COLOR NAME           R   G(U)  B
+         * Candle                     255, 147, 41
+         * 40W Tungsten               255, 197, 143
+         * 100W Tungsten              255, 214, 170
+         * Halogen                    255, 241, 224
+         * Carbon Arc                 255, 250, 244
+         * High Noon Sun              255, 255, 251
+         * Direct Sunlight            255, 255, 255
+         * Overcast Sky               201, 226, 255
+         * Clear Blue Sky             64, 156, 255
+         * Warm Fluorescent           255, 244, 229
+         * Standard Fluorescent       244, 255, 250
+         * Cool White Fluorescent     212, 235, 255
+         * Full Spectrum Fluorescent  255, 244, 242
+         * Grow Light Fluorescent     255, 239, 247
+         * 
+         *      OTHER COLORS
+         * Black Light Fluorescent    167, 0, 255
+         */
+
   // Handle the various printer events
   void handle_led_print_event(int code) {
         
@@ -92,6 +126,9 @@
         break;
       case(6):      // Turn RGB LEDs Aqua half
         set_rgb_color(0, 127, 127);
+        break;
+      case(7):      // Turn RGB LEDs Red
+        set_rgb_color(255, 0, 0);
         break;
       case(9):      // Turn RGB LEDs off
         set_rgb_color(0, 0, 0);
