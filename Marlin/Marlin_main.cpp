@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -91,8 +91,6 @@
  * M34  - Set SD Card sorting options. (Requires SDCARD_SORT_ALPHA)
  * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted.
  * M43  - Monitor pins & report changes - report active pins
- * M44  - Scan a range of ports by pulsing the output.  This helps the user locate unused pins on their controller board
- * M45  - Scans a range of ports displaying current values for pins.  Useful to check values of a sensor or switch
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  * M75  - Start the print job timer.
  * M76  - Pause the print job timer.
@@ -4957,145 +4955,7 @@ inline void gcode_M42() {
     for (uint8_t pin = first_pin; pin <= last_pin; pin++)
       report_pin_state_extended(pin, ignore_protection);
   }
- 
-/**
- * M44: Scan for a pin to help the user locate unused pins on their controller board
- *      Either an LED or volt meter can be placed on the desired pin.
- *      This command will scan the non-sensitive pins and put a voltage on the pin for
- *      a short duration.   
- *
- * S	Start Pin number.   If not given, will default to 0
- *
- * E	End Pin number.   If not given, will default to 127 
- *
- * N	No Sensitive Pin Checks.   Use with caution!!!!
- *
- * R    Repeat pulses on each pin this number of times before continueing to next pin
- *
- * W    Wait time (in miliseconds) between pulses.  If not given will default to 500
- *
- */
 
-
-//
-// sensitive_pin() is used by both M43 and M44 to avoid messing with pins that should not be touched.
-// It is cleaner to have it as a function call than as in-line logic.
-//
-
-  static bool sensitive_pin(int p) {
-    int i;
-
-    if (p==68 || p==69 || p==70 || p==71 || p==72 || p==73 || p==74 )  // These pins cause bad things to happen on MEGA2560
-      return true;
-
-    return pin_is_protected(p);
-  }
-
-  inline void gcode_M44() {
-  int p, j, s=0, n_flag=0, e=127, w=500, r=1; 
-
-    if (code_seen('R')) 
-      r = code_value_int();
-
-    if (code_seen('S')) 
-      s = code_value_int();
-
-    if (code_seen('E')) 
-      e = code_value_int();
-  
-    if (code_seen('N') )
-      n_flag++;
-
-    if (code_seen('W')) 
-      w = code_value_int();
-
-    for(p=s; p<=e; p++) {
-        if ( n_flag==0 && sensitive_pin(p) ) {
-          SERIAL_ECHOPAIRPGM("Sensitive Pin: ", p);
-          SERIAL_ECHOPGM(" untouched.\n");
-        } else {
-      	SERIAL_ECHOPAIRPGM("Pulsing Pin: ", p);
-          pinMode(p, OUTPUT);
-          for(j=0; j<r; j++) {
-             digitalWrite(p, 0);
-             idle();
-             delay(w);
-             digitalWrite(p, 1);
-             idle();
-             delay(w);
-             digitalWrite(p, 0);
-             idle();
-             delay(w);
-          }
-        }
-      SERIAL_ECHOPGM("\n");
-    } 
-    SERIAL_ECHOPGM("Done\n");
-    return;
-  }
-
-/**
- * M45: Input Scan    Scan a range for a pin that is connected to a sensor or switch
- *
- *      This command will scan the non-sensitive pins and read them with Pull Up Resistor
- *      mode enabled.
- *
- * S	Start Pin number.   If not given, will default to 0
- *
- * E	End Pin number.   If not given, will default to 127 
- *
- * W    Wait time (in miliseconds) between scans.  If not given will default to 500
- *
- * R    Repeat range scan this many times
- */
-
-
-  inline void gcode_M45() {
-  char c;
-  int p, i, j, s=0, e=127, w=500, repeat_cnt=1; 
-
-    if (code_seen('R')) 
-      repeat_cnt = code_value_int();
-
-    if (code_seen('S')) 
-      s = code_value_int();
-
-    if (code_seen('E')) 
-      e = code_value_int();
-
-    if (code_seen('W')) 
-      w = code_value_int();
-
-    for(p=s; p<=e; p++) {
-      if ( sensitive_pin(p) )
-        SERIAL_PROTOCOL(".");
-      else {
-        j = p % 10;
-        c = '0' + j;
-        SERIAL_PROTOCOL(c);
-      }
-    }
-    SERIAL_PROTOCOL("\n");
-
-    for(i=0; i<repeat_cnt; i++) {
-      for(p=s; p<=e; p++) {
-        pinMode(p, INPUT_PULLUP);
-        if ( sensitive_pin(p)) {
-          SERIAL_PROTOCOL(".");
-        } else {
-          j = digitalRead( p );
-          if ( j & 0x01 )
-            SERIAL_PROTOCOL("1");
-          else
-            SERIAL_PROTOCOL("0");
-        }
-      }
-      SERIAL_ECHOPGM("\n");
-      idle();
-      delay(w);
-    }
-    return;
-  } 
 #endif // PINS_DEBUGGING
 
 #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
@@ -7145,7 +7005,7 @@ void quickstop_stepper() {
           #endif
         }
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      	blm.display_map(0);  // Right now, we only support one type of map
+        blm.display_map(0);  // Right now, we only support one type of map
       #elif ENABLED(MESH_BED_LEVELING)
         if (mbl.has_mesh()) {
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
@@ -8581,10 +8441,6 @@ void process_next_command() {
       #if ENABLED(PINS_DEBUGGING)
         case 43: // M43: Read pin state
           gcode_M43(); break;
-        case 44: // M44: Scan for a pin to help the user locate unused pins on their controller board
-          gcode_M44(); break;
-        case 45: // M45: Input Scan - Scans for a pin that is connected to a sensor or switch
-          gcode_M45(); break;
       #endif
 
 
@@ -8596,10 +8452,10 @@ void process_next_command() {
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
         case 49: // M49: Turn on or off G26_Debug_flag for verbose output
-	  if (G26_Debug_flag) {
+    if (G26_Debug_flag) {
             SERIAL_PROTOCOLPGM("UBL Debug Flag turned off.\n");
             G26_Debug_flag = 0; }
-	  else {
+    else {
             SERIAL_PROTOCOLPGM("UBL Debug Flag turned on.\n");
             G26_Debug_flag++; }
           break;
@@ -9826,9 +9682,9 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
 
 //        UBL_line_to_destination(MMS_SCALED(feedrate_mm_s));
 
-          UBL_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
-//		                  (feedrate*(1.0/60.0))*(feedrate_percentage*(1.0/100.0) ), active_extruder);
-		                  MMS_SCALED(feedrate_mm_s), active_extruder);
+          UBL_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS],
+//                      (feedrate*(1.0/60.0))*(feedrate_percentage*(1.0/100.0) ), active_extruder);
+                      MMS_SCALED(feedrate_mm_s), active_extruder);
 
           return false;
         }
