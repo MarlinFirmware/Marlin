@@ -116,6 +116,7 @@
 #define MSG_SOFTWARE_RESET                  " Software Reset"
 #define MSG_AUTHOR                          " | Author: "
 #define MSG_CONFIGURATION_VER               " Last Updated: "
+#define MSG_MACHINE_NAME                    " Machine Name: "
 #define MSG_FREE_MEMORY                     " Free Memory: "
 #define MSG_PLANNER_BUFFER_BYTES            "  PlannerBufferBytes: "
 #define MSG_OK                              "ok"

@@ -3636,12 +3636,12 @@ inline void gcode_G28() {
 
   report_current_position();
 
-  #if ENABLED(PRINTER_EVENT_LEDS)
-    handle_led_print_event(9);  // Turn RGB LEDs off
-  #endif
-  
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
+  #endif
+
+  #if ENABLED(PRINTER_EVENT_LEDS)
+    handle_led_print_event(9);  // Turn RGB LEDs off
   #endif
 }
 
