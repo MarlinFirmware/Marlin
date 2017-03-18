@@ -584,6 +584,10 @@
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
+//
+// Allen Key Probe is defined in the Delta example configurations.
+//
+
 // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
 // X and Y offsets must be integers.
 //
@@ -613,10 +617,6 @@
 #define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
 // Use double touch for probing
 //#define PROBE_DOUBLE_TOUCH
-
-//
-// Allen Key Probe is defined in the Delta example configurations.
-//
 
 // *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
 //
@@ -864,28 +864,28 @@
 
 #elif ENABLED(MESH_BED_LEVELING)
 
-//===========================================================================
-//=================================== Mesh ==================================
-//===========================================================================
+  //===========================================================================
+  //=================================== Mesh ==================================
+  //===========================================================================
 
-  #define MANUAL_PROBE_Z_RANGE 4 // Z after Home, bed somewhere below but above 0.0.
+  #define MANUAL_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
   #define MESH_INSET 10          // Mesh inset margin on print area
   #define MESH_NUM_X_POINTS 3    // Don't use more than 7 points per axis, implementation limited.
   #define MESH_NUM_Y_POINTS 3
 
-  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
+  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
 
   //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
 
   #if ENABLED(MANUAL_BED_LEVELING)
     #define MBL_Z_STEP 0.025     // Step size while manually probing Z axis.
-  #endif  // MANUAL_BED_LEVELING
+  #endif
 
 #elif ENABLED(AUTO_BED_LEVELING_UBL)
 
-//===========================================================================
-//========================= Unified Bed Leveling ============================
-//===========================================================================
+  //===========================================================================
+  //========================= Unified Bed Leveling ============================
+  //===========================================================================
 
   #define UBL_MESH_INSET 1          // Mesh inset margin on print area
   #define UBL_MESH_NUM_X_POINTS 10  // Don't use more than 15 points per axis, implementation limited.
