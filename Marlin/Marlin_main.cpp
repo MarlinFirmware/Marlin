@@ -1,6 +1,6 @@
 ﻿/**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -234,6 +234,10 @@
 #include "duration_t.h"
 #include "types.h"
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "UBL.h"
+#endif
+
 #if HAS_ABL
   #include "vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -307,6 +311,10 @@
        G38_endstop_hit = false;
 #endif
 
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  bed_leveling blm;
+#endif
+
 bool Running = true;
 
 uint8_t marlin_debug_flags = DEBUG_NONE;
@@ -325,7 +333,7 @@ float current_position[XYZE] = { 0.0 };
  *   Set with 'gcode_get_destination' or 'set_destination_to_current'.
  *   'line_to_destination' sets 'current_position' to 'destination'.
  */
-static float destination[XYZE] = { 0.0 };
+float destination[XYZE] = { 0.0 };
 
 /**
  * axis_homed
@@ -716,7 +724,7 @@ static void report_current_position();
     SERIAL_ECHOPAIR("(", x);
     SERIAL_ECHOPAIR(", ", y);
     SERIAL_ECHOPAIR(", ", z);
-    SERIAL_ECHOPGM(")");
+    SERIAL_CHAR(')');
 
     if (suffix) serialprintPGM(suffix);
     else SERIAL_EOL;
@@ -1770,7 +1778,7 @@ static void clean_up_after_endstop_or_probe_move() {
 #endif //HAS_BED_PROBE
 
 #if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
-  static bool axis_unhomed_error(const bool x, const bool y, const bool z) {
+  bool axis_unhomed_error(const bool x, const bool y, const bool z) {
     const bool xx = x && !axis_homed[X_AXIS],
                yy = y && !axis_homed[Y_AXIS],
                zz = z && !axis_homed[Z_AXIS];
@@ -2019,7 +2027,7 @@ static void clean_up_after_endstop_or_probe_move() {
   #endif
 
   // returns false for ok and true for failure
-  static bool set_probe_deployed(bool deploy) {
+  bool set_probe_deployed(bool deploy) {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
@@ -2040,14 +2048,26 @@ static void clean_up_after_endstop_or_probe_move() {
         set_bltouch_deployed(true);        // Also needs to deploy and stow to
         set_bltouch_deployed(false);       // clear the triggered condition.
         if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM(MSG_STOP_BLTOUCH);
           stop();                          // punt!
           return true;
         }
       }
     #elif ENABLED(Z_PROBE_SLED)
-      if (axis_unhomed_error(true, false, false)) { stop(); return true; }
+      if (axis_unhomed_error(true, false, false)) {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM(MSG_STOP_UNHOMED);
+        stop();
+        return true;
+      }
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
-      if (axis_unhomed_error(true, true,  true )) { stop(); return true; }
+      if (axis_unhomed_error(true, true,  true )) {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM(MSG_STOP_UNHOMED);
+        stop();
+        return true;
+      }
     #endif
 
     const float oldXpos = current_position[X_AXIS],
@@ -2194,7 +2214,8 @@ static void clean_up_after_endstop_or_probe_move() {
   //   - Raise to the BETWEEN height
   // - Return the probed Z position
   //
-  static float probe_pt(const float &x, const float &y, const bool stow = true, const int verbose_level = 1) {
+//float probe_pt(const float &x, const float &y, const bool stow = true, const int verbose_level = 1) {
+  float probe_pt(const float x, const float y, const bool stow, const int verbose_level) {
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       if (DEBUGGING(LEVELING)) {
         SERIAL_ECHOPAIR(">>> probe_pt(", x);
@@ -3289,10 +3310,12 @@ inline void gcode_G4() {
         SERIAL_ECHOPGM("BILINEAR");
       #elif ENABLED(AUTO_BED_LEVELING_3POINT)
         SERIAL_ECHOPGM("3POINT");
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        SERIAL_ECHOPGM("UBL");
       #endif
       if (planner.abl_enabled) {
         SERIAL_ECHOLNPGM(" (enabled)");
-        #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT)
+        #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
           float diff[XYZ] = {
             stepper.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
             stepper.get_axis_position_mm(Y_AXIS) - current_position[Y_AXIS],
@@ -3853,7 +3876,7 @@ inline void gcode_G28() {
     report_current_position();
   }
 
-#elif HAS_ABL
+#elif HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
 
   /**
    * G29: Detailed Z probe, probes the bed at 3 or more points.
@@ -4406,7 +4429,7 @@ inline void gcode_G28() {
       SYNC_PLAN_POSITION_KINEMATIC();
   }
 
-#endif // HAS_ABL
+#endif // HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
 
 #if HAS_BED_PROBE
 
@@ -7152,6 +7175,8 @@ void quickstop_stepper() {
             bed_level_virt_print();
           #endif
         }
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        blm.display_map(0);  // Right now, we only support one type of map
       #elif ENABLED(MESH_BED_LEVELING)
         if (mbl.has_mesh()) {
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
@@ -8482,6 +8507,12 @@ void process_next_command() {
           break;
       #endif // INCH_MODE_SUPPORT
 
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        case 26: // G26: Mesh Validation Pattern generation
+          gcode_G26();
+          break;
+      #endif // AUTO_BED_LEVELING_UBL
+
       #if ENABLED(NOZZLE_PARK_FEATURE)
         case 27: // G27: Nozzle Park
           gcode_G27();
@@ -8493,7 +8524,8 @@ void process_next_command() {
         break;
 
       #if PLANNER_LEVELING
-        case 29: // G29 Detailed Z probe, probes the bed at 3 or more points.
+        case 29: // G29 Detailed Z probe, probes the bed at 3 or more points,
+                 // or provides access to the UBL System if enabled.
           gcode_G29();
           break;
       #endif // PLANNER_LEVELING
@@ -8600,9 +8632,21 @@ void process_next_command() {
           gcode_M43(); break;
       #endif
 
+
       #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
         case 48: // M48: Z probe repeatability test
           gcode_M48();
+          break;
+      #endif // Z_MIN_PROBE_REPEATABILITY_TEST
+
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        case 49: // M49: Turn on or off G26_Debug_flag for verbose output
+    if (G26_Debug_flag) {
+            SERIAL_PROTOCOLPGM("UBL Debug Flag turned off.\n");
+            G26_Debug_flag = 0; }
+    else {
+            SERIAL_PROTOCOLPGM("UBL Debug Flag turned on.\n");
+            G26_Debug_flag++; }
           break;
       #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
@@ -9243,7 +9287,7 @@ void ok_to_send() {
       SERIAL_ECHOLNPAIR(" offset=", offset);
     }
     last_offset = offset;
-    //*/
+    */
 
     return offset;
   }
@@ -9726,6 +9770,18 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       #if ENABLED(MESH_BED_LEVELING)
         if (mbl.active()) {
           mesh_line_to_destination(MMS_SCALED(feedrate_mm_s));
+          return false;
+        }
+        else
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        if (blm.state.active) {
+
+//        UBL_line_to_destination(MMS_SCALED(feedrate_mm_s));
+
+          UBL_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS],
+//                      (feedrate*(1.0/60.0))*(feedrate_percentage*(1.0/100.0) ), active_extruder);
+                      MMS_SCALED(feedrate_mm_s), active_extruder);
+
           return false;
         }
         else
@@ -10330,7 +10386,11 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   millis_t ms = millis();
 
-  if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) kill(PSTR(MSG_KILLED));
+  if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) {
+    SERIAL_ERROR_START;
+    SERIAL_ECHOLNPAIR(MSG_KILL_INACTIVE_TIME, current_command);
+    kill(PSTR(MSG_KILLED));
+  }
 
   // Prevent steppers timing-out in the middle of M600
   #if ENABLED(FILAMENT_CHANGE_FEATURE) && ENABLED(FILAMENT_CHANGE_NO_STEPPER_TIMEOUT)
@@ -10380,7 +10440,11 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     // Exceeded threshold and we can confirm that it was not accidental
     // KILL the machine
     // ----------------------------------------------------------------
-    if (killCount >= KILL_DELAY) kill(PSTR(MSG_KILLED));
+    if (killCount >= KILL_DELAY) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_KILL_BUTTON);
+      kill(PSTR(MSG_KILLED));
+    }
   #endif
 
   #if HAS_HOME
@@ -10722,9 +10786,9 @@ void setup() {
   #endif
 
   #if ENABLED(RGB_LED)
-    pinMode(RGB_LED_R_PIN, OUTPUT);
-    pinMode(RGB_LED_G_PIN, OUTPUT);
-    pinMode(RGB_LED_B_PIN, OUTPUT);
+    SET_OUTPUT(RGB_LED_R_PIN);
+    SET_OUTPUT(RGB_LED_G_PIN);
+    SET_OUTPUT(RGB_LED_B_PIN);
   #endif
 
   lcd_init();

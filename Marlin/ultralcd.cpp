@@ -30,6 +30,8 @@
 #include "configuration_store.h"
 #include "utility.h"
 
+extern float zprobe_zoffset;
+
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
 #endif
@@ -129,6 +131,11 @@ uint16_t max_display_update_time = 0;
 
   bool encoderRateMultiplierEnabled;
   int32_t lastEncoderMovementMillis;
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+  extern int UBL_has_control_of_LCD_Panel;
+  extern int G29_encoderDiff;
+  #endif
 
   #if HAS_POWER_SWITCH
     extern bool powersupply;
@@ -817,6 +824,89 @@ void kill_screen(const char* lcd_msg) {
 
   #endif //BABYSTEPPING
 
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+
+    float Mesh_Edit_Value, Mesh_Edit_Accumulator; // We round Mesh_Edit_Value to 2.5 decimal places.  So we keep a
+                                                  // seperate value that doesn't lose precision.
+    static int loop_cnt=0, last_seen_bits;
+
+    static void _lcd_mesh_fine_tune( const char* msg) {
+      static unsigned long last_click=0;
+      int  last_digit, movement;
+      long int rounded;
+
+      defer_return_to_status = true;
+      if (encoderPosition) {                     // If moving the Encoder wheel very slowly, we just go
+        if ( (millis() - last_click) > 500L) {   // up or down by 1 position
+          if ( ((int32_t)encoderPosition) > 0 ) {
+            encoderPosition = 1;
+          }
+          else {
+            encoderPosition = (uint32_t) -1;
+          }
+        }
+        last_click = millis();
+
+        Mesh_Edit_Accumulator += ( (float) ((int32_t)encoderPosition)) * .005 / 2.0 ;
+        Mesh_Edit_Value       = Mesh_Edit_Accumulator;
+        encoderPosition       = 0;
+        lcdDrawUpdate       = LCDVIEW_REDRAW_NOW;
+
+        rounded    = (long int) (Mesh_Edit_Value * 1000.0);
+        last_digit = rounded % 5L; //10L;
+        rounded    = rounded - last_digit;
+        last_digit = rounded % 5L; //10L;
+        Mesh_Edit_Value  = ((float) rounded) / 1000.0;
+      }
+
+      if (lcdDrawUpdate) {
+        lcd_implementation_drawedit(msg, ftostr43sign( (float) Mesh_Edit_Value  ));
+      }
+
+      if ( !UBL_has_control_of_LCD_Panel && LCD_CLICKED ) {
+        UBL_has_control_of_LCD_Panel=1;   // We need to lock the normal LCD Panel System outbecause G29 (and G26) are looking for
+        lcd_return_to_status();           // long presses of the Encoder Wheel and the LCD System goes spastic when that happens.
+                                          // We will give back control from those routines when the switch is debounced.
+      }
+    }
+
+
+    void _lcd_mesh_edit() {
+      _lcd_mesh_fine_tune( PSTR("Mesh Editor: "));
+    }
+
+    float lcd_mesh_edit() {
+      lcd_goto_screen(_lcd_mesh_edit);
+      return Mesh_Edit_Value;
+    }
+
+    void lcd_mesh_edit_setup(float inital) {
+      Mesh_Edit_Value       = inital;
+      Mesh_Edit_Accumulator = inital;
+      lcd_goto_screen(_lcd_mesh_edit);
+      return ;
+    }
+
+    void _lcd_z_offset_edit() {
+      _lcd_mesh_fine_tune( PSTR("Z-Offset: "));
+    }
+
+    float lcd_z_offset_edit() {
+      lcd_goto_screen(_lcd_z_offset_edit);
+      return Mesh_Edit_Value;
+    }
+
+    void lcd_z_offset_edit_setup(float inital) {
+      Mesh_Edit_Value       = inital;
+      Mesh_Edit_Accumulator = inital;
+      lcd_goto_screen(_lcd_z_offset_edit);
+      return ;
+    }
+
+
+  #endif // AUTO_BED_LEVELING_UBL
+
+
   /**
    * Watch temperature callbacks
    */
@@ -1327,7 +1417,11 @@ KeepDrawing:
     void _lcd_level_bed_moving() {
       if (lcdDrawUpdate) {
         char msg[10];
-        sprintf_P(msg, PSTR("%i / %u"), (int)(manual_probe_index + 1), (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS));
+        #if ENABLED(MESH_BED_LEVELING)
+          sprintf_P(msg, PSTR("%i / %u"), (int)(manual_probe_index + 1), (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS));
+        #elif ENABLED(AUTO_BED_LEVELING_UBL)
+          sprintf_P(msg, PSTR("%i / %u"), (int)(manual_probe_index + 1), (UBL_MESH_NUM_X_POINTS) * (UBL_MESH_NUM_Y_POINTS));
+        #endif
         lcd_implementation_drawedit(PSTR(MSG_LEVEL_BED_NEXT_POINT), msg);
       }
 
@@ -3191,8 +3285,14 @@ void lcd_update() {
 
     lcd_buttons_update();
 
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      const bool UBL_CONDITION = !UBL_has_control_of_LCD_Panel;
+    #else
+      constexpr bool UBL_CONDITION = true;
+    #endif
+
     // If the action button is pressed...
-    if (LCD_CLICKED) {
+    if (UBL_CONDITION && LCD_CLICKED) {
       if (!wait_for_unclick) {           // If not waiting for a debounce release:
         wait_for_unclick = true;         //  Set debounce flag to ignore continous clicks
         lcd_clicked = !wait_for_user;    //  Keep the click if not waiting for a user-click
@@ -3601,14 +3701,34 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         case encrot2: ENCODER_SPIN(encrot1, encrot3); break;
         case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
       }
+      #if ENABLED(AUTO_BED_LEVELING_UBL)
+        if (UBL_has_control_of_LCD_Panel) {
+          G29_encoderDiff = encoderDiff;    // Make the encoder's rotation available to G29's Mesh Editor
+          encoderDiff = 0;                  // We are going to lie to the LCD Panel and claim the encoder
+                                            // wheel has not turned.
+        }
+      #endif
+      lastEncoderBits = enc;
     }
-    lastEncoderBits = enc;
   }
 
   #if (ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)) && ENABLED(DETECT_DEVICE)
     bool lcd_detected() { return lcd.LcdDetected() == 1; }
   #else
     bool lcd_detected() { return true; }
+  #endif
+
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    void chirp_at_user() {
+      #if ENABLED(LCD_USE_I2C_BUZZER)
+        lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+      #elif PIN_EXISTS(BEEPER)
+        buzzer.tone(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+      #endif
+    }
+
+    bool G29_lcd_clicked() { return LCD_CLICKED; }
+
   #endif
 
 #endif // ULTIPANEL

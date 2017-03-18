@@ -388,10 +388,13 @@ static_assert(1 >= 0
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
     + 1
   #endif
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+    + 1
+  #endif
   #if ENABLED(MESH_BED_LEVELING)
     + 1
   #endif
-  , "Select only one of: MESH_BED_LEVELING, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, or AUTO_BED_LEVELING_BILINEAR."
+  , "Select only one of: MESH_BED_LEVELING, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_BILINEAR or AUTO_BED_LEVELING_UBL."
 );
 
 /**
@@ -402,6 +405,21 @@ static_assert(1 >= 0
     #error "MESH_BED_LEVELING does not yet support DELTA printers."
   #elif MESH_NUM_X_POINTS > 9 || MESH_NUM_Y_POINTS > 9
     #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS must be less than 10."
+  #endif
+#elif ENABLED(MANUAL_BED_LEVELING)
+  #error "MANUAL_BED_LEVELING only applies to MESH_BED_LEVELING."
+#endif
+
+/**
+ * Unified Bed Leveling
+ */
+#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #if ENABLED(DELTA)
+    #error "AUTO_BED_LEVELING_UBL does not yet support DELTA printers."
+  #elif DISABLED(NEWPANEL)
+    #error "AUTO_BED_LEVELING_UBL requires an LCD controller."
+  #elif UBL_MESH_NUM_X_POINTS > 15 || UBL_MESH_NUM_Y_POINTS > 15
+    #error "UBL_MESH_NUM_X_POINTS and UBL_MESH_NUM_Y_POINTS must be less than 16."
   #endif
 #endif
 
@@ -433,6 +451,7 @@ static_assert(1 >= 0
   #endif
   , "Please enable only one probe: PROBE_MANUALLY, FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
 );
+
 
 #if PROBE_SELECTED
 
@@ -577,21 +596,26 @@ static_assert(1 >= 0
       #endif
     #endif
   #else // !ABL_GRID
-
-    // Check the triangulation points
-    #if ABL_PROBE_PT_1_X < MIN_PROBE_X || ABL_PROBE_PT_1_X > MAX_PROBE_X
-      #error "The given ABL_PROBE_PT_1_X can't be reached by the Z probe."
-    #elif ABL_PROBE_PT_2_X < MIN_PROBE_X || ABL_PROBE_PT_2_X > MAX_PROBE_X
-      #error "The given ABL_PROBE_PT_2_X can't be reached by the Z probe."
-    #elif ABL_PROBE_PT_3_X < MIN_PROBE_X || ABL_PROBE_PT_3_X > MAX_PROBE_X
-      #error "The given ABL_PROBE_PT_3_X can't be reached by the Z probe."
-    #elif ABL_PROBE_PT_1_Y < MIN_PROBE_Y || ABL_PROBE_PT_1_Y > MAX_PROBE_Y
-      #error "The given ABL_PROBE_PT_1_Y can't be reached by the Z probe."
-    #elif ABL_PROBE_PT_2_Y < MIN_PROBE_Y || ABL_PROBE_PT_2_Y > MAX_PROBE_Y
-      #error "The given ABL_PROBE_PT_2_Y can't be reached by the Z probe."
-    #elif ABL_PROBE_PT_3_Y < MIN_PROBE_Y || ABL_PROBE_PT_3_Y > MAX_PROBE_Y
-      #error "The given ABL_PROBE_PT_3_Y can't be reached by the Z probe."
-    #endif
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #ifndef EEPROM_SETTINGS
+        #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS. Please update your configuration."
+      #endif
+    #else // !UBL
+      // Check the triangulation points
+      #if ABL_PROBE_PT_1_X < MIN_PROBE_X || ABL_PROBE_PT_1_X > MAX_PROBE_X
+        #error "The given ABL_PROBE_PT_1_X can't be reached by the Z probe."
+      #elif ABL_PROBE_PT_2_X < MIN_PROBE_X || ABL_PROBE_PT_2_X > MAX_PROBE_X
+        #error "The given ABL_PROBE_PT_2_X can't be reached by the Z probe."
+      #elif ABL_PROBE_PT_3_X < MIN_PROBE_X || ABL_PROBE_PT_3_X > MAX_PROBE_X
+        #error "The given ABL_PROBE_PT_3_X can't be reached by the Z probe."
+      #elif ABL_PROBE_PT_1_Y < MIN_PROBE_Y || ABL_PROBE_PT_1_Y > MAX_PROBE_Y
+        #error "The given ABL_PROBE_PT_1_Y can't be reached by the Z probe."
+      #elif ABL_PROBE_PT_2_Y < MIN_PROBE_Y || ABL_PROBE_PT_2_Y > MAX_PROBE_Y
+        #error "The given ABL_PROBE_PT_2_Y can't be reached by the Z probe."
+      #elif ABL_PROBE_PT_3_Y < MIN_PROBE_Y || ABL_PROBE_PT_3_Y > MAX_PROBE_Y
+        #error "The given ABL_PROBE_PT_3_Y can't be reached by the Z probe."
+      #endif
+    #endif // !AUTO_BED_LEVEING_UBL
 
   #endif // !ABL_GRID
 
