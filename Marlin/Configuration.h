@@ -86,8 +86,13 @@
 // and processor overload (too many expensive atan2 calls).
 #define R_360_DELTA_SEGMENTS_PER_SECOND 250 //normal 250
 
+//The original formula to calculate this number:
+//(large gear teeth count /  small gear teeth count) / ( 360 / motor step degree * motor step ratio {1/x} ) / 2
+//(36 / 10) (360 / 1.8 *16 ) /2 = 5760
 //steps for full rotation -5760 to 5760 //TODO Use the full rotation here not half
+//This value overide the Y settings in DEFAULT_AXIS_STEPS_PER_UNIT 
 #define R_360_STEPS_PER_ROTATION 5760
+
 
 //Speed up in the middle. It helps if there is too much fillamet get deposited to the center of the printing bed
 //Will make a quick move when larger than alpha condition(tn) and smaller than x_diff condition(mm)
@@ -98,7 +103,7 @@
 //Choose only one 
 //Method 1 uses angles for detecting shorter paths. Arduino MEGA can't handle more than 5 digit accuracy with floats. Accuracy problems can couse skipping and twisted prints.(prepare_move)
 //#define R_360_SHORTER_WAY_DETECTION_METHOD_1
-//Method 2 Works with steps and integers. This is experiental. (plan_buffer_line)
+//Method 2 Works with steps and integers. (plan_buffer_line)
 #define R_360_SHORTER_WAY_DETECTION_METHOD_2
 
 
@@ -383,7 +388,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.3388,18.3346494441863,4000,327.1089} //e:720 wades  //79.5355// default steps per unit for (R-360 Y 15.9431734297273 calculated)R_360_STEPS_PER_ROTATION/(PI*2)
+//R-360 do not use the Y value it uses steps per rotation 
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,18,250,327} //e:720 wades  //(80,18,4000,327)// default steps per unit for (R-360 Y 15.9431734297273 calculated)R_360_STEPS_PER_ROTATION/(PI*2)
 #define DEFAULT_MAX_FEEDRATE          {500, 1200, 5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
