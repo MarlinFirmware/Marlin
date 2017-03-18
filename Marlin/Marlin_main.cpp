@@ -5918,12 +5918,7 @@ inline void gcode_M18_M84() {
       if (code_seen('Y')) disable_y();
       if (code_seen('Z')) disable_z();
       #if ((E0_ENABLE_PIN != X_ENABLE_PIN) && (E1_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
-        if (code_seen('E')) {
-          disable_e0();
-          disable_e1();
-          disable_e2();
-          disable_e3();
-        }
+        if (code_seen('E')) disable_e_steppers();
       #endif
     }
   }
@@ -7330,10 +7325,7 @@ inline void gcode_M503() {
 
     // Synchronize steppers and then disable extruders steppers for manual filament changing
     stepper.synchronize();
-    disable_e0();
-    disable_e1();
-    disable_e2();
-    disable_e3();
+    disable_e_steppers();
     delay(100);
 
     millis_t nozzle_timeout = millis() + (millis_t)(FILAMENT_CHANGE_NOZZLE_TIMEOUT) * 1000L;
@@ -10123,14 +10115,18 @@ void enable_all_steppers() {
   enable_e3();
 }
 
-void disable_all_steppers() {
-  disable_x();
-  disable_y();
-  disable_z();
+void disable_e_steppers() {
   disable_e0();
   disable_e1();
   disable_e2();
   disable_e3();
+}
+
+void disable_all_steppers() {
+  disable_x();
+  disable_y();
+  disable_z();
+  disable_e_steppers();
 }
 
 #if ENABLED(AUTOMATIC_CURRENT_CONTROL)
@@ -10240,10 +10236,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       disable_z();
     #endif
     #if ENABLED(DISABLE_INACTIVE_E)
-      disable_e0();
-      disable_e1();
-      disable_e2();
-      disable_e3();
+      disable_e_steppers();
     #endif
   }
 
