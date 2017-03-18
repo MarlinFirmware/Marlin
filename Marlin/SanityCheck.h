@@ -130,6 +130,8 @@
   #error "Z_RAISE_PROBE_DEPLOY_STOW and Z_RAISE_BETWEEN_PROBINGS are now Z_CLEARANCE_DEPLOY_PROBE and Z_CLEARANCE_BETWEEN_PROBES. Please update your configuration."
 #elif defined(Z_PROBE_DEPLOY_HEIGHT) || defined(Z_PROBE_TRAVEL_HEIGHT)
   #error "Z_PROBE_DEPLOY_HEIGHT and Z_PROBE_TRAVEL_HEIGHT are now Z_CLEARANCE_DEPLOY_PROBE and Z_CLEARANCE_BETWEEN_PROBES. Please update your configuration."
+#elif defined(MESH_HOME_SEARCH_Z)
+  #error "MESH_HOME_SEARCH_Z is now MANUAL_PROBE_Z_RANGE. Please update your configuration."
 #elif !defined(MIN_STEPS_PER_SEGMENT)
   #error Please replace "const int dropsegments" with "#define MIN_STEPS_PER_SEGMENT" (and increase by 1) in Configuration_adv.h.
 #elif defined(PREVENT_DANGEROUS_EXTRUDE)
@@ -156,6 +158,8 @@
   #error "LCD_PIN_RESET is now LCD_RESET_PIN. Please update your pins definitions."
 #elif defined(EXTRUDER_0_AUTO_FAN_PIN) || defined(EXTRUDER_1_AUTO_FAN_PIN) || defined(EXTRUDER_2_AUTO_FAN_PIN) || defined(EXTRUDER_3_AUTO_FAN_PIN)
   #error "EXTRUDER_[0123]_AUTO_FAN_PIN is now E[0123]_AUTO_FAN_PIN. Please update your Configuration_adv.h."
+#elif defined(min_software_endstops) || defined(max_software_endstops)
+  #error "(min|max)_software_endstops are now (MIN|MAX)_SOFTWARE_ENDSTOPS. Please update your configuration."
 #endif
 
 /**
@@ -228,6 +232,8 @@
 #if ENABLED(DELTA)
   #if DISABLED(USE_XMAX_PLUG) && DISABLED(USE_YMAX_PLUG) && DISABLED(USE_ZMAX_PLUG)
     #error "You probably want to use Max Endstops for DELTA!"
+  #elif ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+    #error "DELTA is incompatible with ENABLE_LEVELING_FADE_HEIGHT. Please disable it."
   #endif
   #if ABL_GRID
     #if (ABL_GRID_MAX_POINTS_X & 1) == 0 || (ABL_GRID_MAX_POINTS_Y & 1) == 0
@@ -372,32 +378,21 @@
 /**
  * Allow only one bed leveling option to be defined
  */
-#if HAS_ABL
-  #define COUNT_LEV_1 0
+static_assert(1 >= 0
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
-    #define COUNT_LEV_2 INCREMENT(COUNT_LEV_1)
-  #else
-    #define COUNT_LEV_2 COUNT_LEV_1
+    + 1
   #endif
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
-    #define COUNT_LEV_3 INCREMENT(COUNT_LEV_2)
-  #else
-    #define COUNT_LEV_3 COUNT_LEV_2
+    + 1
   #endif
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
-    #define COUNT_LEV_4 INCREMENT(COUNT_LEV_3)
-  #else
-    #define COUNT_LEV_4 COUNT_LEV_3
+    + 1
   #endif
   #if ENABLED(MESH_BED_LEVELING)
-    #define COUNT_LEV_5 INCREMENT(COUNT_LEV_4)
-  #else
-    #define COUNT_LEV_5 COUNT_LEV_4
+    + 1
   #endif
-  #if COUNT_LEV_5 > 1
-    #error "Select only one of: MESH_BED_LEVELING, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, or AUTO_BED_LEVELING_BILINEAR."
-  #endif
-#endif
+  , "Select only one of: MESH_BED_LEVELING, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, or AUTO_BED_LEVELING_BILINEAR."
+);
 
 /**
  * Mesh Bed Leveling
@@ -408,47 +403,38 @@
   #elif MESH_NUM_X_POINTS > 9 || MESH_NUM_Y_POINTS > 9
     #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS must be less than 10."
   #endif
-#elif ENABLED(MANUAL_BED_LEVELING)
-  #error "MANUAL_BED_LEVELING only applies to MESH_BED_LEVELING."
 #endif
 
 /**
  * Probes
  */
-#if PROBE_SELECTED
 
-  /**
-   * Allow only one probe option to be defined
-   */
-  #define COUNT_PROBE_1 0
+/**
+ * Allow only one probe option to be defined
+ */
+static_assert(1 >= 0
+  #if ENABLED(PROBE_MANUALLY)
+    + 1
+  #endif
   #if ENABLED(FIX_MOUNTED_PROBE)
-    #define COUNT_PROBE_2 INCREMENT(COUNT_PROBE_1)
-  #else
-    #define COUNT_PROBE_2 COUNT_PROBE_1
+    + 1
   #endif
   #if HAS_Z_SERVO_ENDSTOP && DISABLED(BLTOUCH)
-    #define COUNT_PROBE_3 INCREMENT(COUNT_PROBE_2)
-  #else
-    #define COUNT_PROBE_3 COUNT_PROBE_2
+    + 1
   #endif
   #if ENABLED(BLTOUCH)
-    #define COUNT_PROBE_4 INCREMENT(COUNT_PROBE_3)
-  #else
-    #define COUNT_PROBE_4 COUNT_PROBE_3
+    + 1
   #endif
   #if ENABLED(Z_PROBE_ALLEN_KEY)
-    #define COUNT_PROBE_5 INCREMENT(COUNT_PROBE_4)
-  #else
-    #define COUNT_PROBE_5 COUNT_PROBE_4
+    + 1
   #endif
   #if ENABLED(Z_PROBE_SLED)
-    #define COUNT_PROBE_6 INCREMENT(COUNT_PROBE_5)
-  #else
-    #define COUNT_PROBE_6 COUNT_PROBE_5
+    + 1
   #endif
-  #if COUNT_PROBE_6 > 1
-    #error "Please enable only one probe: FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
-  #endif
+  , "Please enable only one probe: PROBE_MANUALLY, FIX_MOUNTED_PROBE, Z Servo, BLTOUCH, Z_PROBE_ALLEN_KEY, or Z_PROBE_SLED."
+);
+
+#if PROBE_SELECTED
 
   /**
    * Z_PROBE_SLED is incompatible with DELTA
@@ -513,6 +499,13 @@
     #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a probe! Define a Z Servo, Z_PROBE_ALLEN_KEY, Z_PROBE_SLED, or FIX_MOUNTED_PROBE."
   #endif
 
+#endif
+
+/**
+ * MANUAL_BED_LEVELING requirements
+ */
+#if ENABLED(MANUAL_BED_LEVELING) && DISABLED(MESH_BED_LEVELING)
+  #error "MANUAL_BED_LEVELING requires MESH_BED_LEVELING."
 #endif
 
 /**
@@ -639,55 +632,36 @@
 /**
  * Don't set more than one kinematic type
  */
-#define COUNT_KIN_1 0
-#if ENABLED(DELTA)
-  #define COUNT_KIN_2 INCREMENT(COUNT_KIN_1)
-#else
-  #define COUNT_KIN_2 COUNT_KIN_1
-#endif
-#if ENABLED(MORGAN_SCARA)
-  #define COUNT_KIN_3 INCREMENT(COUNT_KIN_2)
-#else
-  #define COUNT_KIN_3 COUNT_KIN_2
-#endif
-#if ENABLED(MAKERARM_SCARA)
-  #define COUNT_KIN_4 INCREMENT(COUNT_KIN_3)
-#else
-  #define COUNT_KIN_4 COUNT_KIN_3
-#endif
-#if ENABLED(COREXY)
-  #define COUNT_KIN_5 INCREMENT(COUNT_KIN_4)
-#else
-  #define COUNT_KIN_5 COUNT_KIN_4
-#endif
-#if ENABLED(COREXZ)
-  #define COUNT_KIN_6 INCREMENT(COUNT_KIN_5)
-#else
-  #define COUNT_KIN_6 COUNT_KIN_5
-#endif
-#if ENABLED(COREYZ)
-  #define COUNT_KIN_7 INCREMENT(COUNT_KIN_6)
-#else
-  #define COUNT_KIN_7 COUNT_KIN_6
-#endif
-#if ENABLED(COREYX)
-  #define COUNT_KIN_8 INCREMENT(COUNT_KIN_7)
-#else
-  #define COUNT_KIN_8 COUNT_KIN_7
-#endif
-#if ENABLED(COREZX)
-  #define COUNT_KIN_9 INCREMENT(COUNT_KIN_8)
-#else
-  #define COUNT_KIN_9 COUNT_KIN_8
-#endif
-#if ENABLED(COREZY)
-  #define COUNT_KIN_10 INCREMENT(COUNT_KIN_9)
-#else
-  #define COUNT_KIN_10 COUNT_KIN_9
-#endif
-#if COUNT_KIN_10 > 1
-  #error "Please enable only one of DELTA, MORGAN_SCARA, MAKERARM_SCARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, or COREZY."
-#endif
+static_assert(1 >= 0
+  #if ENABLED(DELTA)
+    + 1
+  #endif
+  #if ENABLED(MORGAN_SCARA)
+    + 1
+  #endif
+  #if ENABLED(MAKERARM_SCARA)
+    + 1
+  #endif
+  #if ENABLED(COREXY)
+    + 1
+  #endif
+  #if ENABLED(COREXZ)
+    + 1
+  #endif
+  #if ENABLED(COREYZ)
+    + 1
+  #endif
+  #if ENABLED(COREYX)
+    + 1
+  #endif
+  #if ENABLED(COREZX)
+    + 1
+  #endif
+  #if ENABLED(COREZY)
+    + 1
+  #endif
+  , "Please enable only one of DELTA, MORGAN_SCARA, MAKERARM_SCARA, COREXY, COREYX, COREXZ, COREZX, COREYZ, or COREZY."
+);
 
 /**
  * Allen Key
@@ -950,124 +924,77 @@
  *       ELB_FULL_GRAPHIC_CONTROLLER => ULTIMAKERCONTROLLER
  *       PANEL_ONE => ULTIMAKERCONTROLLER
  */
-#define COUNT_LCD_1 0
-#if ENABLED(ULTIMAKERCONTROLLER) \
-    && DISABLED(SAV_3DGLCD) && DISABLED(miniVIKI) && DISABLED(VIKI2) \
-    && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) && DISABLED(PANEL_ONE)
-  #define COUNT_LCD_2 INCREMENT(COUNT_LCD_1)
-#else
-  #define COUNT_LCD_2 COUNT_LCD_1
-#endif
-#if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) && DISABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-  #define COUNT_LCD_3 INCREMENT(COUNT_LCD_2)
-#else
-  #define COUNT_LCD_3 COUNT_LCD_2
-#endif
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(BQ_LCD_SMART_CONTROLLER)
-  #define COUNT_LCD_4 INCREMENT(COUNT_LCD_3)
-#else
-  #define COUNT_LCD_4 COUNT_LCD_3
-#endif
-#if ENABLED(CARTESIO_UI)
-  #define COUNT_LCD_5 INCREMENT(COUNT_LCD_4)
-#else
-  #define COUNT_LCD_5 COUNT_LCD_4
-#endif
-#if ENABLED(PANEL_ONE)
-  #define COUNT_LCD_6 INCREMENT(COUNT_LCD_5)
-#else
-  #define COUNT_LCD_6 COUNT_LCD_5
-#endif
-#if ENABLED(MAKRPANEL)
-  #define COUNT_LCD_7 INCREMENT(COUNT_LCD_6)
-#else
-  #define COUNT_LCD_7 COUNT_LCD_6
-#endif
-#if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-  #define COUNT_LCD_8 INCREMENT(COUNT_LCD_7)
-#else
-  #define COUNT_LCD_8 COUNT_LCD_7
-#endif
-#if ENABLED(VIKI2)
-  #define COUNT_LCD_9 INCREMENT(COUNT_LCD_8)
-#else
-  #define COUNT_LCD_9 COUNT_LCD_8
-#endif
-#if ENABLED(miniVIKI)
-  #define COUNT_LCD_10 INCREMENT(COUNT_LCD_9)
-#else
-  #define COUNT_LCD_10 COUNT_LCD_9
-#endif
-#if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-  #define COUNT_LCD_11 INCREMENT(COUNT_LCD_10)
-#else
-  #define COUNT_LCD_11 COUNT_LCD_10
-#endif
-#if ENABLED(G3D_PANEL)
-  #define COUNT_LCD_12 INCREMENT(COUNT_LCD_11)
-#else
-  #define COUNT_LCD_12 COUNT_LCD_11
-#endif
-#if ENABLED(MINIPANEL)
-  #define COUNT_LCD_13 INCREMENT(COUNT_LCD_12)
-#else
-  #define COUNT_LCD_13 COUNT_LCD_12
-#endif
-#if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(CARTESIO_UI)
-  #define COUNT_LCD_14 INCREMENT(COUNT_LCD_13)
-#else
-  #define COUNT_LCD_14 COUNT_LCD_13
-#endif
-#if ENABLED(RIGIDBOT_PANEL)
-  #define COUNT_LCD_15 INCREMENT(COUNT_LCD_14)
-#else
-  #define COUNT_LCD_15 COUNT_LCD_14
-#endif
-#if ENABLED(RA_CONTROL_PANEL)
-  #define COUNT_LCD_16 INCREMENT(COUNT_LCD_15)
-#else
-  #define COUNT_LCD_16 COUNT_LCD_15
-#endif
-#if ENABLED(LCD_I2C_SAINSMART_YWROBOT)
-  #define COUNT_LCD_17 INCREMENT(COUNT_LCD_16)
-#else
-  #define COUNT_LCD_17 COUNT_LCD_16
-#endif
-#if ENABLED(LCM1602)
-  #define COUNT_LCD_18 INCREMENT(COUNT_LCD_17)
-#else
-  #define COUNT_LCD_18 COUNT_LCD_17
-#endif
-#if ENABLED(LCD_I2C_PANELOLU2)
-  #define COUNT_LCD_19 INCREMENT(COUNT_LCD_18)
-#else
-  #define COUNT_LCD_19 COUNT_LCD_18
-#endif
-#if ENABLED(LCD_I2C_VIKI)
-  #define COUNT_LCD_20 INCREMENT(COUNT_LCD_19)
-#else
-  #define COUNT_LCD_20 COUNT_LCD_19
-#endif
-#if ENABLED(U8GLIB_SSD1306)
-  #define COUNT_LCD_21 INCREMENT(COUNT_LCD_20)
-#else
-  #define COUNT_LCD_21 COUNT_LCD_20
-#endif
-#if ENABLED(SAV_3DLCD)
-  #define COUNT_LCD_22 INCREMENT(COUNT_LCD_21)
-#else
-  #define COUNT_LCD_22 COUNT_LCD_21
-#endif
-#if ENABLED(BQ_LCD_SMART_CONTROLLER)
-  #define COUNT_LCD_23 INCREMENT(COUNT_LCD_22)
-#else
-  #define COUNT_LCD_23 COUNT_LCD_22
-#endif
-#if ENABLED(SAV_3DGLCD)
-  #define COUNT_LCD_24 INCREMENT(COUNT_LCD_23)
-#else
-  #define COUNT_LCD_24 COUNT_LCD_23
-#endif
-#if COUNT_LCD_24 > 1
-  #error "Please select no more than one LCD controller option."
-#endif
+static_assert(1 >= 0
+  #if ENABLED(ULTIMAKERCONTROLLER) \
+      && DISABLED(SAV_3DGLCD) && DISABLED(miniVIKI) && DISABLED(VIKI2) \
+      && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER) && DISABLED(PANEL_ONE)
+    + 1
+  #endif
+  #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) && DISABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    + 1
+  #endif
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && DISABLED(BQ_LCD_SMART_CONTROLLER)
+    + 1
+  #endif
+  #if ENABLED(CARTESIO_UI)
+    + 1
+  #endif
+  #if ENABLED(PANEL_ONE)
+    + 1
+  #endif
+  #if ENABLED(MAKRPANEL)
+    + 1
+  #endif
+  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+    + 1
+  #endif
+  #if ENABLED(VIKI2)
+    + 1
+  #endif
+  #if ENABLED(miniVIKI)
+    + 1
+  #endif
+  #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+    + 1
+  #endif
+  #if ENABLED(G3D_PANEL)
+    + 1
+  #endif
+  #if ENABLED(MINIPANEL)
+    + 1
+  #endif
+  #if ENABLED(REPRAPWORLD_KEYPAD) && DISABLED(CARTESIO_UI)
+    + 1
+  #endif
+  #if ENABLED(RIGIDBOT_PANEL)
+    + 1
+  #endif
+  #if ENABLED(RA_CONTROL_PANEL)
+    + 1
+  #endif
+  #if ENABLED(LCD_I2C_SAINSMART_YWROBOT)
+    + 1
+  #endif
+  #if ENABLED(LCM1602)
+    + 1
+  #endif
+  #if ENABLED(LCD_I2C_PANELOLU2)
+    + 1
+  #endif
+  #if ENABLED(LCD_I2C_VIKI)
+    + 1
+  #endif
+  #if ENABLED(U8GLIB_SSD1306)
+    + 1
+  #endif
+  #if ENABLED(SAV_3DLCD)
+    + 1
+  #endif
+  #if ENABLED(BQ_LCD_SMART_CONTROLLER)
+    + 1
+  #endif
+  #if ENABLED(SAV_3DGLCD)
+    + 1
+  #endif
+  , "Please select no more than one LCD controller option."
+);

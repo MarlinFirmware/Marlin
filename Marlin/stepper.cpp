@@ -147,7 +147,7 @@ volatile long Stepper::endstops_trigsteps[XYZ];
       X2_STEP_WRITE(v); \
     } \
     else { \
-      if (current_block->active_extruder != 0) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
+      if (current_block->active_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
     }
 #else
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
@@ -451,7 +451,7 @@ void Stepper::isr() {
 
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (ENDSTOPS_ENABLED && e_hit) {
+    if (e_hit && ENDSTOPS_ENABLED) {
       endstops.update();
       e_hit--;
     }
@@ -894,7 +894,7 @@ void Stepper::init() {
   #endif
 
   // Init TMC2130 Steppers
-  #if ENABLED(HAVE_TMC2130DRIVER)
+  #if ENABLED(HAVE_TMC2130)
     tmc2130_init();
   #endif
 
