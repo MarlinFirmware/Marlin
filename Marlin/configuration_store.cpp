@@ -168,6 +168,7 @@
   extern void bed_level_virt_interpolate();
 #endif
 
+bool ABL_grid_valid;
 /**
  * Post-process after Retrieve or Reset
  */
@@ -284,6 +285,29 @@ void Config_Postprocess() {
         LOOP_XYZ(i) EEPROM_WRITE(hotend_offset[i][e]);
     #endif
 
+/**
+ *  Bed Leveling
+ *
+ *  leveling_is_on
+ *    0 - leveling is off or the current ABL grid/matrix is invalid
+ *    1 - valid Mesh Leveling 
+ *    2 - valid AUTO_BED_LEVELING_3POINT correction grid
+ *    3 - valid AUTO_BED_LEVELING_LINEAR correction grid 
+ *    4 - valid AUTO_BED_LEVELING_BILINEAR matrix
+ */
+    
+    
+    uint8_t leveling_is_on = false;
+    #if ENABLED(MESH_BED_LEVELING)
+      leveling_is_on = TEST(mbl.status, MBL_STATUS_HAS_MESH_BIT);  //Mesh bed leveling enabled = 1
+    #elif ENABLED(AUTO_BED_LEVELING_3POINT)
+      if (planner.abl_enabled && ABL_grid_valid) leveling_is_on = 2;
+    #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
+      if (planner.abl_enabled && ABL_grid_valid) leveling_is_on = 3;
+    #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+      if (planner.abl_enabled && ABL_grid_valid) leveling_is_on = 4;
+    #endif
+    
     //
     // Mesh Bed Leveling
     //
@@ -291,7 +315,6 @@ void Config_Postprocess() {
     #if ENABLED(MESH_BED_LEVELING)
       // Compile time test that sizeof(mbl.z_values) is as expected
       typedef char c_assert[(sizeof(mbl.z_values) == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS) * sizeof(dummy)) ? 1 : -1];
-      const bool leveling_is_on = TEST(mbl.status, MBL_STATUS_HAS_MESH_BIT);
       const uint8_t mesh_num_x = MESH_NUM_X_POINTS, mesh_num_y = MESH_NUM_Y_POINTS;
       EEPROM_WRITE(leveling_is_on);
       EEPROM_WRITE(mbl.z_offset);
@@ -300,7 +323,6 @@ void Config_Postprocess() {
       EEPROM_WRITE(mbl.z_values);
     #else
       // For disabled MBL write a default mesh
-      const bool leveling_is_on = false;
       dummy = 0.0f;
       const uint8_t mesh_num_x = 3, mesh_num_y = 3;
       EEPROM_WRITE(leveling_is_on);
@@ -541,6 +563,8 @@ void Config_Postprocess() {
    */
   void Config_RetrieveSettings() {
 
+    uint8_t leveling_is_on = false;   // assume false unless proved otherwise (doesn't apply to MESH_BED_LEVELING)
+    
     EEPROM_START();
     eeprom_read_error = false; // If set EEPROM_READ won't write into RAM
 
@@ -609,7 +633,7 @@ void Config_Postprocess() {
       // Mesh (Manual) Bed Leveling
       //
 
-      bool leveling_is_on;
+      uint8_t leveling_is_on;
       uint8_t mesh_num_x, mesh_num_y;
       EEPROM_READ(leveling_is_on);
       EEPROM_READ(dummy);
@@ -644,6 +668,11 @@ void Config_Postprocess() {
 
       #if ABL_PLANAR
         EEPROM_READ(planner.bed_level_matrix);
+        #if ENABLED(AUTO_BED_LEVELING_3POINT)
+          if (leveling_is_on == 2) ABL_grid_valid = true;
+        #elif ENABLED(AUTO_BED_LEVELING_LINEAR)
+          if (leveling_is_on == 3) ABL_grid_valid = true;
+        #endif  
       #else
         for (uint8_t q = 9; q--;) EEPROM_READ(dummy);
       #endif
@@ -664,7 +693,7 @@ void Config_Postprocess() {
           #if ENABLED(ABL_BILINEAR_SUBDIVISION)
             bed_level_virt_interpolate();
           #endif
-          //set_bed_leveling_enabled(leveling_is_on);
+          if (leveling_is_on == 4)  ABL_grid_valid = true;
         }
         else // EEPROM data is stale
       #endif // AUTO_BED_LEVELING_BILINEAR

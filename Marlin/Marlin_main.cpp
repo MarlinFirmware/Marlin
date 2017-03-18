@@ -3448,7 +3448,17 @@ inline void gcode_G4() {
  *  Y   Home to the Y endstop
  *  Z   Home to the Z endstop
  *
+ * Bed leveling
+ *  If there is a valid bed leveling grid then bed leveling is
+ *  turned on after homing is completed - even if it wasn't on
+ *  before G28 was executed.  A valid grid is created either by
+ *  G29 or by M501.  Bed leveling using M501 grids is only
+ *  enabled by the G28 command. Bed leveling using G29 grids is
+ *  enabled within the G29 command.
  */
+ 
+extern bool ABL_grid_valid;
+ 
 inline void gcode_G28() {
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -3627,6 +3637,9 @@ inline void gcode_G28() {
     tool_change(old_tool_index, 0, true);
   #endif
 
+  #if HAS_ABL
+    set_bed_leveling_enabled(ABL_grid_valid);  // (re)enable bed leveling if the grid is valid
+  #endif
   report_current_position();
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -4316,6 +4329,9 @@ inline void gcode_G28() {
         planner.bed_level_matrix.debug("\n\nBed Level Correction Matrix:");
 
       if (!dryrun) {
+        
+        ABL_grid_valid = true;  // let G28 know that the grid is valid so it will be re-enabled after G28 is done
+        
         //
         // Correct the current XYZ position based on the tilted plane.
         //
@@ -4357,6 +4373,9 @@ inline void gcode_G28() {
     #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
       if (!dryrun) {
+        
+        ABL_grid_valid = true;  // let G28 know that the grid is valid so it will be re-enabled after G28 is done
+        
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("G29 uncorrected Z:", current_position[Z_AXIS]);
         #endif
@@ -6971,7 +6990,11 @@ void quickstop_stepper() {
 
     if (code_seen('S')) {
       to_enable = code_value_bool();
-      set_bed_leveling_enabled(to_enable);
+      #if HAS_ABL
+        if (axis_unhomed_error(true, true, true)) to_enable = false;  // Don't enable auto-leveling without homing first
+      #endif  
+      if (!ABL_grid_valid) to_enable = false;  // Don't enable auto-leveling without a valid grid
+      set_bed_leveling_enabled(to_enable && ABL_grid_valid);   // Don't enable auto-leveling without a valid grid/matrix
     }
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
@@ -6997,14 +7020,16 @@ void quickstop_stepper() {
     // V to print the matrix or mesh
     if (code_seen('V')) {
       #if ABL_PLANAR
-        planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
+        if (ABL_grid_valid) planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
+        else SERIAL_PROTOCOLLNPGM("Bed Level Correction Matrix not yet created");
       #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        if (bilinear_grid_spacing[X_AXIS]) {
+        if (bilinear_grid_spacing[X_AXIS] && ABL_grid_valid) {
           print_bilinear_leveling_grid();
           #if ENABLED(ABL_BILINEAR_SUBDIVISION)
             bed_level_virt_print();
           #endif
         }
+        else SERIAL_PROTOCOLLNPGM("Bilinear Grid not yet created");
       #elif ENABLED(MESH_BED_LEVELING)
         if (mbl.has_mesh()) {
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
