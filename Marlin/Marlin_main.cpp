@@ -448,7 +448,7 @@ volatile bool wait_for_heatup = true;
 
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
-const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
+const char axis_codes[XYZE] = {'X', 'Y', 'Z', 'E'};
 
 // Number of characters read in the current line of serial input
 static int serial_count = 0;
@@ -690,7 +690,7 @@ void get_cartesian_from_steppers();
 void set_current_from_steppers_for_axis(const AxisEnum axis);
 
 #if ENABLED(ARC_SUPPORT)
-  void plan_arc(float target[NUM_AXIS], float* offset, uint8_t clockwise);
+  void plan_arc(float target[XYZE], float* offset, uint8_t clockwise);
 #endif
 
 #if ENABLED(BEZIER_CURVE_SUPPORT)
@@ -1333,7 +1333,7 @@ bool get_target_extruder_from_command(int code) {
 
   static float inactive_extruder_x_pos = X2_MAX_POS; // used in mode 0 & 1
   static bool active_extruder_parked = false;        // used in mode 1 & 2
-  static float raised_parked_position[NUM_AXIS];     // used in mode 1
+  static float raised_parked_position[XYZE];         // used in mode 1
   static millis_t delayed_move_time = 0;             // used in mode 1
   static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
   static float duplicate_extruder_temp_offset = 0;   // used in mode 2
@@ -7581,7 +7581,7 @@ inline void gcode_M503() {
    * Report driver currents when no axis specified
    */
   inline void gcode_M906() {
-    uint16_t values[NUM_AXIS];
+    uint16_t values[XYZE];
     LOOP_XYZE(i)
       values[i] = code_seen(axis_codes[i]) ? code_value_int() : 0;
 
@@ -9499,7 +9499,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
    * This calls planner.buffer_line several times, adding
    * small incremental moves for DELTA or SCARA.
    */
-  inline bool prepare_kinematic_move_to(float ltarget[NUM_AXIS]) {
+  inline bool prepare_kinematic_move_to(float ltarget[XYZE]) {
 
     // Get the top feedrate of the move in the XY plane
     float _feedrate_mm_s = MMS_SCALED(feedrate_mm_s);
@@ -9511,7 +9511,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     }
 
     // Get the cartesian distances moved in XYZE
-    float difference[NUM_AXIS];
+    float difference[XYZE];
     LOOP_XYZE(i) difference[i] = ltarget[i] - current_position[i];
 
     // Get the linear distance in XYZ
@@ -9736,7 +9736,7 @@ void prepare_move_to_destination() {
    * options for G2/G3 arc generation. In future these options may be GCode tunable.
    */
   void plan_arc(
-    float logical[NUM_AXIS], // Destination position
+    float logical[XYZE], // Destination position
     float* offset,           // Center of rotation relative to current_position
     uint8_t clockwise        // Clockwise?
   ) {
