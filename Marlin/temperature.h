@@ -29,6 +29,7 @@
 
 #include "planner.h"
 #include "thermistortables.h"
+#include "power.h"
 
 #include "MarlinConfig.h"
 
@@ -324,6 +325,9 @@ class Temperature {
         else if (target_temperature[HOTEND_INDEX] == 0.0f)
           start_preheat_time(HOTEND_INDEX);
       #endif
+      #if ENABLED(AUTO_POWER_CONTROL)
+        powerManager.power_on();
+      #endif
       target_temperature[HOTEND_INDEX] = celsius;
       #if ENABLED(THERMAL_PROTECTION_HOTENDS) && WATCH_TEMP_PERIOD > 0
         start_watching_heater(HOTEND_INDEX);
@@ -331,6 +335,9 @@ class Temperature {
     }
 
     static void setTargetBed(const float& celsius) {
+      #if ENABLED(AUTO_POWER_CONTROL)
+        powerManager.power_on();
+      #endif
       target_temperature_bed = celsius;
       #if ENABLED(THERMAL_PROTECTION_BED) && WATCH_BED_TEMP_PERIOD > 0
         start_watching_bed();
