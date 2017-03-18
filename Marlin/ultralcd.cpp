@@ -1741,8 +1741,8 @@ toggle++;
         refresh_cmd_timeout();
 
         // Limit to software endstops, if enabled
-        float min = (soft_endstops_enabled && min_software_endstops) ? soft_endstop_min[axis] : current_position[axis] - 1000,
-              max = (soft_endstops_enabled && max_software_endstops) ? soft_endstop_max[axis] : current_position[axis] + 1000;
+        float min = (soft_endstops_enabled && MIN_SOFTWARE_ENDSTOPS) ? soft_endstop_min[axis] : current_position[axis] - 1000,
+              max = (soft_endstops_enabled && MAX_SOFTWARE_ENDSTOPS) ? soft_endstop_max[axis] : current_position[axis] + 1000;
 
         // Get the new position
         current_position[axis] += float((int32_t)encoderPosition) * move_menu_scale;

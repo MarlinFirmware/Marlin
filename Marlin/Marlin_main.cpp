@@ -424,7 +424,7 @@ float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DI
 #endif
 
 // Software Endstops are based on the configured limits.
-#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+#if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
   bool soft_endstops_enabled = true;
 #endif
 float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
@@ -6578,10 +6578,10 @@ inline void gcode_M205() {
  */
 inline void gcode_M211() {
   SERIAL_ECHO_START;
-  #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+  #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
     if (code_seen('S')) soft_endstops_enabled = code_value_bool();
   #endif
-  #if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+  #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
     SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
     serialprintPGM(soft_endstops_enabled ? PSTR(MSG_ON) : PSTR(MSG_OFF));
   #else
@@ -9211,18 +9211,18 @@ void ok_to_send() {
   SERIAL_EOL;
 }
 
-#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+#if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
 
   /**
    * Constrain the given coordinates to the software endstops.
    */
   void clamp_to_software_endstops(float target[XYZ]) {
-    #if ENABLED(min_software_endstops)
+    #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
       NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
       NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
       NOLESS(target[Z_AXIS], soft_endstop_min[Z_AXIS]);
     #endif
-    #if ENABLED(max_software_endstops)
+    #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
       NOMORE(target[X_AXIS], soft_endstop_max[X_AXIS]);
       NOMORE(target[Y_AXIS], soft_endstop_max[Y_AXIS]);
       NOMORE(target[Z_AXIS], soft_endstop_max[Z_AXIS]);

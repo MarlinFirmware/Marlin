@@ -316,7 +316,7 @@ extern float current_position[NUM_AXIS];
 extern float soft_endstop_min[XYZ];
 extern float soft_endstop_max[XYZ];
 
-#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
+#if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
   extern bool soft_endstops_enabled;
   void clamp_to_software_endstops(float target[XYZ]);
 #else
