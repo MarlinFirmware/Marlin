@@ -339,7 +339,7 @@ uint16_t max_display_update_time = 0;
     if (_menuLineNr == _thisItemNr) { \
       if (_skipStatic && encoderLine <= _thisItemNr) { \
         encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
-        lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
+        ++encoderLine; \
       } \
       if (lcdDrawUpdate) \
         lcd_implementation_drawmenu_static(_lcdLineNr, PSTR(LABEL), ## __VA_ARGS__); \
@@ -2621,7 +2621,7 @@ KeepDrawing:
         lcd_implementation_hotend_status(_lcdLineNr); \
         if (_skipStatic && encoderLine <= _thisItemNr) { \
           encoderPosition += ENCODER_STEPS_PER_MENU_ITEM; \
-          lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT; \
+          ++encoderLine; \
         } \
         else \
           lcdDrawUpdate = LCDVIEW_CALL_NO_REDRAW; \
