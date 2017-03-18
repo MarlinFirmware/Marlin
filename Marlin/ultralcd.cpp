@@ -833,19 +833,6 @@
         int  last_digit, movement;
         long int rounded;
 
-static int toggle_cnt=0, toggle=0;
-toggle_cnt++;
-if (toggle_cnt>10) {
-toggle_cnt=0;
-pinMode(6, OUTPUT);
-pinMode(65, OUTPUT);
-pinMode(66, OUTPUT);
-if (toggle & 0x01) digitalWrite(6, 1); else digitalWrite(6, 0); 
-if (toggle & 0x02) digitalWrite(65, 1); else digitalWrite(65, 0);
-if ((toggle & 0x04) && UBL_has_control_of_LCD_Panel ) digitalWrite(66, 1); else digitalWrite(66, 0);
-toggle++;
-}
-
         defer_return_to_status = true;
         if (encoderPosition) {                     // If moving the Encoder wheel very slowly, we just go
           if ( (millis() - last_click) > 500L) {   // up or down by 1 position
