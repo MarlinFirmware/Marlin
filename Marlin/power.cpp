@@ -92,7 +92,6 @@ void Power::check() {
         nextPowerCheck = ms + 2500UL;
 
         if (this->is_power_needed()) {
-            this->lastPowerOn = ms;
             this->power_on();
         } else {
             if (!this->lastPowerOn || ELAPSED(ms, this->lastPowerOn + (POWER_TIMEOUT) * 1000UL)) this->power_off();
