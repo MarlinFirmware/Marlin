@@ -848,7 +848,7 @@
    * Increase current every 5s by CURRENT_STEP until stepper temperature prewarn gets triggered,
    * then decrease current by CURRENT_STEP until temperature prewarn is cleared.
    * Adjusting starts from X/Y/Z/E_MAX_CURRENT but will not increase over AUTO_ADJUST_MAX
-   */ 
+   */
   //#define AUTOMATIC_CURRENT_CONTROL
   #define CURRENT_STEP          50  // [mA]
   #define AUTO_ADJUST_MAX     1300  // [mA], 1300mA_rms = 1840mA_peak
@@ -1063,7 +1063,7 @@
  * with DEFAULT_NOMINAL_FILAMENT_DIA as the default diameter.
  *
  * M200 D0 to disable, M200 Dn to set a new diameter.
- */ 
+ */
 //#define VOLUMETRIC_DEFAULT_ON
 
 /**
