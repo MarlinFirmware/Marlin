@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (C) 2016, 2017 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -424,7 +424,7 @@ float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(DEFAULT_NOMINAL_FILAMENT_DI
 #endif
 
 // Software Endstops are based on the configured limits.
-#if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+#if HAS_SOFTWARE_ENDSTOPS
   bool soft_endstops_enabled = true;
 #endif
 float soft_endstop_min[XYZ] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS },
@@ -3463,7 +3463,7 @@ inline void gcode_G28() {
   stepper.synchronize();
 
   // Disable the leveling matrix before homing
-  #if PLANNER_LEVELING
+  #if PLANNER_LEVELING || ENABLED(MESH_BED_LEVELING)
     set_bed_leveling_enabled(false);
   #endif
 
@@ -3475,31 +3475,6 @@ inline void gcode_G28() {
 
   #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
     extruder_duplication_enabled = false;
-  #endif
-
-  /**
-   * For mesh bed leveling deactivate the mesh calculations, will be turned
-   * on again when homing all axis
-   */
-  #if ENABLED(MESH_BED_LEVELING)
-    float pre_home_z = MESH_HOME_SEARCH_Z;
-    if (mbl.active()) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("MBL was active");
-      #endif
-      // Use known Z position if already homed
-      if (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) {
-        set_bed_leveling_enabled(false);
-        pre_home_z = current_position[Z_AXIS];
-      }
-      else {
-        mbl.set_active(false);
-        current_position[Z_AXIS] = pre_home_z;
-      }
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) DEBUG_POS("Set Z to pre_home_z", current_position);
-      #endif
-    }
   #endif
 
   setup_for_endstop_or_probe_move();
@@ -3633,43 +3608,14 @@ inline void gcode_G28() {
 
   // Enable mesh leveling again
   #if ENABLED(MESH_BED_LEVELING)
-    if (mbl.has_mesh()) {
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("MBL has mesh");
-      #endif
+    if (mbl.reactivate()) {
+      set_bed_leveling_enabled(true);
       if (home_all_axis || (axis_homed[X_AXIS] && axis_homed[Y_AXIS] && homeZ)) {
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("MBL Z homing");
-        #endif
-        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
-          #if Z_HOME_DIR > 0
-            + Z_MAX_POS
-          #endif
-        ;
-        SYNC_PLAN_POSITION_KINEMATIC();
-        mbl.set_active(true);
         #if ENABLED(MESH_G28_REST_ORIGIN)
-          current_position[Z_AXIS] = 0.0;
+          current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS);
           set_destination_to_current();
           line_to_destination(homing_feedrate_mm_s[Z_AXIS]);
           stepper.synchronize();
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) DEBUG_POS("MBL Rest Origin", current_position);
-          #endif
-        #else
-          planner.unapply_leveling(current_position);
-          #if ENABLED(DEBUG_LEVELING_FEATURE)
-            if (DEBUGGING(LEVELING)) DEBUG_POS("MBL adjusted MESH_HOME_SEARCH_Z", current_position);
-          #endif
-        #endif
-      }
-      else if ((axis_homed[X_AXIS] && axis_homed[Y_AXIS] && axis_homed[Z_AXIS]) && (homeX || homeY)) {
-        current_position[Z_AXIS] = pre_home_z;
-        SYNC_PLAN_POSITION_KINEMATIC();
-        mbl.set_active(true);
-        planner.unapply_leveling(current_position);
-        #if ENABLED(DEBUG_LEVELING_FEATURE)
-          if (DEBUGGING(LEVELING)) DEBUG_POS("MBL Home X or Y", current_position);
         #endif
       }
     }
@@ -3677,16 +3623,16 @@ inline void gcode_G28() {
 
   clean_up_after_endstop_or_probe_move();
 
-  #if ENABLED(DEBUG_LEVELING_FEATURE)
-    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
-  #endif
-
   // Restore the active tool after homing
   #if HOTENDS > 1
     tool_change(old_tool_index, 0, true);
   #endif
 
   report_current_position();
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("<<< gcode_G28");
+  #endif
 }
 
 #if HAS_PROBING_PROCEDURE
@@ -3703,25 +3649,21 @@ inline void gcode_G28() {
 
   inline void _mbl_goto_xy(const float &x, const float &y) {
     const float old_feedrate_mm_s = feedrate_mm_s;
-    feedrate_mm_s = homing_feedrate_mm_s[Z_AXIS];
 
-    current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
-      #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
-        + Z_CLEARANCE_BETWEEN_PROBES
-      #elif Z_HOMING_HEIGHT > 0
-        + Z_HOMING_HEIGHT
-      #endif
-    ;
-    line_to_current_position();
+    #if MANUAL_PROBE_HEIGHT > 0
+      feedrate_mm_s = homing_feedrate_mm_s[Z_AXIS];
+      current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
+      line_to_current_position();
+    #endif
 
     feedrate_mm_s = MMM_TO_MMS(XY_PROBE_SPEED);
     current_position[X_AXIS] = LOGICAL_X_POSITION(x);
     current_position[Y_AXIS] = LOGICAL_Y_POSITION(y);
     line_to_current_position();
 
-    #if Z_CLEARANCE_BETWEEN_PROBES > 0 || Z_HOMING_HEIGHT > 0
+    #if MANUAL_PROBE_HEIGHT > 0
       feedrate_mm_s = homing_feedrate_mm_s[Z_AXIS];
-      current_position[Z_AXIS] = LOGICAL_Z_POSITION(MESH_HOME_SEARCH_Z);
+      current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + 0.2; // just slightly over the bed
       line_to_current_position();
     #endif
 
@@ -3734,7 +3676,6 @@ inline void gcode_G28() {
 
   void mbl_mesh_report() {
     SERIAL_PROTOCOLLNPGM("Num X,Y: " STRINGIFY(MESH_NUM_X_POINTS) "," STRINGIFY(MESH_NUM_Y_POINTS));
-    SERIAL_PROTOCOLLNPGM("Z search height: " STRINGIFY(MESH_HOME_SEARCH_Z));
     SERIAL_PROTOCOLPGM("Z offset: "); SERIAL_PROTOCOL_F(mbl.z_offset, 5);
     SERIAL_PROTOCOLLNPGM("\nMeasured points:");
     for (uint8_t py = 0; py < MESH_NUM_Y_POINTS; py++) {
@@ -3770,6 +3711,10 @@ inline void gcode_G28() {
   inline void gcode_G29() {
 
     static int probe_index = -1;
+    #if HAS_SOFTWARE_ENDSTOPS
+      static bool enable_soft_endstops;
+    #endif
+
     const MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_byte() : MeshReport;
     if (state < 0 || state > 5) {
       SERIAL_PROTOCOLLNPGM("S out of range (0-5).");
@@ -3801,33 +3746,34 @@ inline void gcode_G28() {
         }
         // For each G29 S2...
         if (probe_index == 0) {
-          // For the initial G29 S2 make Z a positive value (e.g., 4.0)
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
-            #if Z_HOME_DIR > 0
-              + Z_MAX_POS
-            #endif
-          ;
-          SYNC_PLAN_POSITION_KINEMATIC();
+          #if HAS_SOFTWARE_ENDSTOPS
+            // For the initial G29 S2 save software endstop state
+            enable_soft_endstops = soft_endstops_enabled;
+          #endif
         }
         else {
           // For G29 S2 after adjusting Z.
           mbl.set_zigzag_z(probe_index - 1, current_position[Z_AXIS]);
+          #if HAS_SOFTWARE_ENDSTOPS
+            soft_endstops_enabled = enable_soft_endstops;
+          #endif
         }
         // If there's another point to sample, move there with optional lift.
         if (probe_index < (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
           mbl.zigzag(probe_index, px, py);
           _mbl_goto_xy(mbl.get_probe_x(px), mbl.get_probe_y(py));
+
+          #if HAS_SOFTWARE_ENDSTOPS
+            // Disable software endstops to allow manual adjustment
+            // If G29 is not completed, they will not be re-enabled
+            soft_endstops_enabled = false;
+          #endif
+
           probe_index++;
         }
         else {
           // One last "return to the bed" (as originally coded) at completion
-          current_position[Z_AXIS] = MESH_HOME_SEARCH_Z
-            #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
-              + Z_CLEARANCE_BETWEEN_PROBES
-            #elif Z_HOMING_HEIGHT > 0
-              + Z_HOMING_HEIGHT
-            #endif
-          ;
+          current_position[Z_AXIS] = LOGICAL_Z_POSITION(Z_MIN_POS) + MANUAL_PROBE_HEIGHT;
           line_to_current_position();
           stepper.synchronize();
 
@@ -3835,7 +3781,12 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLLNPGM("Mesh probing done.");
           probe_index = -1;
           mbl.set_has_mesh(true);
+          mbl.set_reactivate(true);
           enqueue_and_echo_commands_P(PSTR("G28"));
+          #if HAS_BUZZER
+            lcd_buzz(200, 659);
+            lcd_buzz(200, 698);
+          #endif
         }
         break;
 
@@ -3884,14 +3835,8 @@ inline void gcode_G28() {
         break;
 
       case MeshReset:
-        if (mbl.active()) {
-          current_position[Z_AXIS] -= MESH_HOME_SEARCH_Z;
-          planner.apply_leveling(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
-          mbl.reset();
-          SYNC_PLAN_POSITION_KINEMATIC();
-        }
-        else
-          mbl.reset();
+        reset_bed_level();
+        break;
 
     } // switch(state)
 
@@ -6578,10 +6523,8 @@ inline void gcode_M205() {
  */
 inline void gcode_M211() {
   SERIAL_ECHO_START;
-  #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
+  #if HAS_SOFTWARE_ENDSTOPS
     if (code_seen('S')) soft_endstops_enabled = code_value_bool();
-  #endif
-  #if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
     SERIAL_ECHOPGM(MSG_SOFT_ENDSTOPS);
     serialprintPGM(soft_endstops_enabled ? PSTR(MSG_ON) : PSTR(MSG_OFF));
   #else
@@ -7202,7 +7145,7 @@ void quickstop_stepper() {
           #endif
         }
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      	blm.display_map(0);  // Right now, we only support one type of map
+        blm.display_map(0);  // Right now, we only support one type of map
       #elif ENABLED(MESH_BED_LEVELING)
         if (mbl.has_mesh()) {
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
@@ -8099,7 +8042,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               && (delayed_move_time || current_position[X_AXIS] != xhome)
           ) {
             float raised_z = current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT;
-            #if ENABLED(max_software_endstops)
+            #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
               NOMORE(raised_z, soft_endstop_max[Z_AXIS]);
             #endif
             #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -8150,7 +8093,7 @@ void tool_change(const uint8_t tmp_extruder, const float fr_mm_s/*=0.0*/, bool n
               // record raised toolhead position for use by unpark
               COPY(raised_parked_position, current_position);
               raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
-              #if ENABLED(max_software_endstops)
+              #if ENABLED(MAX_SOFTWARE_ENDSTOPS)
                 NOMORE(raised_parked_position[Z_AXIS], soft_endstop_max[Z_AXIS]);
               #endif
               active_extruder_parked = true;
@@ -9211,12 +9154,12 @@ void ok_to_send() {
   SERIAL_EOL;
 }
 
-#if ENABLED(MIN_SOFTWARE_ENDSTOPS) || ENABLED(MAX_SOFTWARE_ENDSTOPS)
-
+#if HAS_SOFTWARE_ENDSTOPS
   /**
    * Constrain the given coordinates to the software endstops.
    */
   void clamp_to_software_endstops(float target[XYZ]) {
+    if (!soft_endstops_enabled) return;
     #if ENABLED(MIN_SOFTWARE_ENDSTOPS)
       NOLESS(target[X_AXIS], soft_endstop_min[X_AXIS]);
       NOLESS(target[Y_AXIS], soft_endstop_min[Y_AXIS]);
@@ -9885,7 +9828,6 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
           UBL_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
 //		                  (feedrate*(1.0/60.0))*(feedrate_percentage*(1.0/100.0) ), active_extruder);
 		                  MMS_SCALED(feedrate_mm_s), active_extruder);
-
           return false;
         }
         else

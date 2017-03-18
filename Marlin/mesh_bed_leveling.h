@@ -23,6 +23,23 @@
 #include "Marlin.h"
 
 #if ENABLED(MESH_BED_LEVELING)
+
+  enum MeshLevelingState {
+    MeshReport,
+    MeshStart,
+    MeshNext,
+    MeshSet,
+    MeshSetZOffset,
+    MeshReset
+  };
+
+  enum MBLStatus {
+    MBL_STATUS_NONE = 0,
+    MBL_STATUS_HAS_MESH_BIT = 0,
+    MBL_STATUS_ACTIVE_BIT = 1,
+    MBL_STATUS_REACTIVATE_BIT = 2
+  };
+
   #define MESH_X_DIST ((MESH_MAX_X - (MESH_MIN_X))/(MESH_NUM_X_POINTS - 1))
   #define MESH_Y_DIST ((MESH_MAX_Y - (MESH_MIN_Y))/(MESH_NUM_Y_POINTS - 1))
 
@@ -44,6 +61,8 @@
     void set_active(const bool onOff)   { onOff ? SBI(status, MBL_STATUS_ACTIVE_BIT) : CBI(status, MBL_STATUS_ACTIVE_BIT); }
     bool has_mesh() const               { return TEST(status, MBL_STATUS_HAS_MESH_BIT); }
     void set_has_mesh(const bool onOff) { onOff ? SBI(status, MBL_STATUS_HAS_MESH_BIT) : CBI(status, MBL_STATUS_HAS_MESH_BIT); }
+    bool reactivate()                   { bool b = TEST(status, MBL_STATUS_REACTIVATE_BIT); CBI(status, MBL_STATUS_REACTIVATE_BIT); return b; }
+    void set_reactivate(const bool onOff) { onOff ? SBI(status, MBL_STATUS_REACTIVATE_BIT) : CBI(status, MBL_STATUS_REACTIVATE_BIT); }
 
     inline void zigzag(const int8_t index, int8_t &px, int8_t &py) const {
       px = index % (MESH_NUM_X_POINTS);
