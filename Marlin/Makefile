@@ -45,7 +45,7 @@
 #
 #   make ARDUINO_VERSION=10609 AVR_TOOLS_PATH=/root/arduino/hardware/tools/avr/bin/ \
 #   HARDWARE_MOTHERBOARD=33 ARDUINO_INSTALL_DIR=/root/arduino upload
-# 
+#
 # If uploading doesn't work try adding the parameter "AVRDUDE_PROGRAMMER=wiring" or
 # start upload manually (using stk500) like so:
 #
@@ -69,7 +69,7 @@ AVR_TOOLS_PATH ?=
 #Programmer configuration
 UPLOAD_RATE        ?= 57600
 AVRDUDE_PROGRAMMER ?= arduino
-# on most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1 
+# on most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1
 UPLOAD_PORT        ?= /dev/ttyUSB0
 
 #Directory used to build files in, contains all the build files, from object files to the final hex file
