@@ -320,7 +320,7 @@ void lcd_kill_screen() {
   lcd_printPGM(PSTR(MSG_PLEASE_RESET));
 }
 
-static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
+void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
 //
 // Status Screen

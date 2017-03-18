@@ -35,7 +35,7 @@
  * M100 C x Corrupts x locations within the free memory block.   This is useful to check the
  *    correctness of the M100 F and M100 D commands.
  *
- * Initial version by Roxy-3DPrintBoard
+ * Initial version by Roxy-3D
  */
 #define M100_FREE_MEMORY_DUMPER     // Comment out to remove Dump sub-command
 #define M100_FREE_MEMORY_CORRUPTOR    // Comment out to remove Corrupt sub-command
@@ -51,10 +51,9 @@ extern char __bss_end;
 // Utility functions used by M100 to get its work done.
 //
 
+#include "hex_print_routines.h"
+
 char* top_of_stack();
-void prt_hex_nibble(unsigned int);
-void prt_hex_byte(unsigned int);
-void prt_hex_word(unsigned int);
 int how_many_E5s_are_here(char*);
 
 void gcode_M100() {
@@ -209,27 +208,6 @@ void gcode_M100() {
 char* top_of_stack() {
   char x;
   return &x + 1; // x is pulled on return;
-}
-
-//
-// 3 support routines to print hex numbers.  We can print a nibble, byte and word
-//
-
-void prt_hex_nibble(unsigned int n) {
-  if (n <= 9)
-    SERIAL_ECHO(n);
-  else
-    SERIAL_ECHO((char)('A' + n - 10));
-}
-
-void prt_hex_byte(unsigned int b) {
-  prt_hex_nibble((b & 0xf0) >> 4);
-  prt_hex_nibble(b & 0x0f);
-}
-
-void prt_hex_word(unsigned int w) {
-  prt_hex_byte((w & 0xff00) >> 8);
-  prt_hex_byte(w & 0x0ff);
 }
 
 // how_many_E5s_are_here() is a utility function to easily find out how many 0xE5's are
