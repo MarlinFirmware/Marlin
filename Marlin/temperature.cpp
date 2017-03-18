@@ -24,6 +24,8 @@
  * temperature.cpp - temperature control
  */
 
+
+
 #include "Marlin.h"
 #include "ultralcd.h"
 #include "temperature.h"
@@ -666,6 +668,17 @@ float Temperature::get_pid_output(int e) {
  *  - Apply filament width to the extrusion rate (may move)
  *  - Update the heated bed PID output value
  */
+
+/**
+ * The following line SOMETIMES results in the dreaded "unable to find a register to spill in class 'POINTER_REGS'"
+ * compile error.
+ *    thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
+ *
+ * This is due to a bug in the C++ compiler used by the Arduino IDE from 1.6.10 to at least 1.8.1.
+ *
+ * The work around is to add the compiler flag "__attribute__((__optimize__("O2")))" to the declaration for manage_heater()
+ */
+//void Temperature::manage_heater()  __attribute__((__optimize__("O2")));
 void Temperature::manage_heater() {
 
   if (!temp_meas_ready) return;
