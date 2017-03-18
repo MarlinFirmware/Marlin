@@ -40,6 +40,7 @@
 #include "fastio.h"
 #include "utility.h"
 
+
 #ifdef USBCON
   #include "HardwareSerial.h"
   #if ENABLED(BLUETOOTH)
@@ -82,6 +83,7 @@ extern const char errormagic[] PROGMEM;
 #define SERIAL_ECHOLNPGM(x)            SERIAL_PROTOCOLLNPGM(x)
 #define SERIAL_ECHOPAIR(name,value)    SERIAL_PROTOCOLPAIR(name, value)
 #define SERIAL_ECHOLNPAIR(name, value) SERIAL_PROTOCOLLNPAIR(name, value)
+#define SERIAL_ECHO_F(x,y)             SERIAL_PROTOCOL_F(x,y)
 
 #define SERIAL_ERROR_START            (serialprintPGM(errormagic))
 #define SERIAL_ERROR(x)                SERIAL_PROTOCOL(x)
@@ -95,6 +97,7 @@ void serial_echopair_P(const char* s_P, int v);
 void serial_echopair_P(const char* s_P, long v);
 void serial_echopair_P(const char* s_P, float v);
 void serial_echopair_P(const char* s_P, double v);
+void serial_echopair_P(const char* s_P, unsigned int v);
 void serial_echopair_P(const char* s_P, unsigned long v);
 FORCE_INLINE void serial_echopair_P(const char* s_P, uint8_t v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, uint16_t v) { serial_echopair_P(s_P, (int)v); }
