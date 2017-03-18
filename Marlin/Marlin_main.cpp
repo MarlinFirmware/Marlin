@@ -714,7 +714,7 @@ static void report_current_position();
     SERIAL_ECHOPAIR("(", x);
     SERIAL_ECHOPAIR(", ", y);
     SERIAL_ECHOPAIR(", ", z);
-    SERIAL_ECHOPGM(")");
+    SERIAL_CHAR(')');
 
     if (suffix) serialprintPGM(suffix);
     else SERIAL_EOL;
@@ -10589,9 +10589,9 @@ void setup() {
   #endif
 
   #if ENABLED(RGB_LED)
-    pinMode(RGB_LED_R_PIN, OUTPUT);
-    pinMode(RGB_LED_G_PIN, OUTPUT);
-    pinMode(RGB_LED_B_PIN, OUTPUT);
+    SET_OUTPUT(RGB_LED_R_PIN);
+    SET_OUTPUT(RGB_LED_G_PIN);
+    SET_OUTPUT(RGB_LED_B_PIN);
   #endif
 
   lcd_init();
