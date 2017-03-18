@@ -1594,33 +1594,34 @@ void Temperature::isr() {
         #endif
       #endif
     }
-
-    if (soft_pwm_0 <= pwm_count_tmp) WRITE_HEATER_0(0);
-    #if HOTENDS > 1
-      if (soft_pwm_1 <= pwm_count_tmp) WRITE_HEATER_1(0);
+    else {
+      if (soft_pwm_0 <= pwm_count_tmp) WRITE_HEATER_0(0);
+      #if HOTENDS > 1
+        if (soft_pwm_1 <= pwm_count_tmp) WRITE_HEATER_1(0);
+      #endif
       #if HOTENDS > 2
         if (soft_pwm_2 <= pwm_count_tmp) WRITE_HEATER_2(0);
-        #if HOTENDS > 3
-          if (soft_pwm_3 <= pwm_count_tmp) WRITE_HEATER_3(0);
+      #endif
+      #if HOTENDS > 3
+        if (soft_pwm_3 <= pwm_count_tmp) WRITE_HEATER_3(0);
+      #endif
+
+      #if HAS_HEATER_BED
+        if (soft_pwm_BED <= pwm_count_tmp) WRITE_HEATER_BED(0);
+      #endif
+
+      #if ENABLED(FAN_SOFT_PWM)
+        #if HAS_FAN0
+          if (soft_pwm_fan[0] <= pwm_count_tmp) WRITE_FAN(0);
+        #endif
+        #if HAS_FAN1
+          if (soft_pwm_fan[1] <= pwm_count_tmp) WRITE_FAN1(0);
+        #endif
+        #if HAS_FAN2
+          if (soft_pwm_fan[2] <= pwm_count_tmp) WRITE_FAN2(0);
         #endif
       #endif
-    #endif
-
-    #if HAS_HEATER_BED
-      if (soft_pwm_BED <= pwm_count_tmp) WRITE_HEATER_BED(0);
-    #endif
-
-    #if ENABLED(FAN_SOFT_PWM)
-      #if HAS_FAN0
-        if (soft_pwm_fan[0] <= pwm_count_tmp) WRITE_FAN(0);
-      #endif
-      #if HAS_FAN1
-        if (soft_pwm_fan[1] <= pwm_count_tmp) WRITE_FAN1(0);
-      #endif
-      #if HAS_FAN2
-        if (soft_pwm_fan[2] <= pwm_count_tmp) WRITE_FAN2(0);
-      #endif
-    #endif
+    }
 
     // SOFT_PWM_SCALE to frequency:
     //
