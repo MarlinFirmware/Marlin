@@ -7217,10 +7217,12 @@ inline void gcode_M503() {
 
 #if ENABLED(FILAMENT_CHANGE_FEATURE)
 
-  millis_t next_buzz = 0;
-  unsigned long int runout_beep = 0;
+  void filament_change_beep(const bool init=false) {
+    static millis_t next_buzz = 0;
+    static uint16_t runout_beep = 0;
 
-  void filament_change_beep() {
+    if (init) next_buzz = runout_beep = 0;
+
     const millis_t ms = millis();
     if (ELAPSED(ms, next_buzz)) {
       if (runout_beep <= FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS + 5) { // Only beep as long as we're supposed to
@@ -7334,20 +7336,22 @@ inline void gcode_M503() {
     disable_e3();
     delay(100);
 
-    millis_t nozzle_timeout = millis() + FILAMENT_CHANGE_NOZZLE_TIMEOUT * 1000L;
+    millis_t nozzle_timeout = millis() + (millis_t)(FILAMENT_CHANGE_NOZZLE_TIMEOUT) * 1000L;
     bool nozzle_timed_out = false;
     float temps[4];
 
     // Wait for filament insert by user and press button
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
 
+    #if HAS_BUZZER
+      filament_change_beep(true);
+    #endif
+
     idle();
 
-    wait_for_user = true;    // LCD click or M108 will clear this
-    next_buzz = 0;
-    runout_beep = 0;
     HOTEND_LOOP() temps[e] = thermalManager.target_temperature[e]; // Save nozzle temps
 
+    wait_for_user = true;    // LCD click or M108 will clear this
     while (wait_for_user) {
       millis_t current_ms = millis();
       if (nozzle_timed_out)
@@ -7389,9 +7393,11 @@ inline void gcode_M503() {
     if (nozzle_timed_out)
       lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_INSERT);
 
+    #if HAS_BUZZER
+      filament_change_beep(true);
+    #endif
+
     wait_for_user = true;    // LCD click or M108 will clear this
-    next_buzz = 0;
-    runout_beep = 0;
     while (wait_for_user && nozzle_timed_out) {
       #if HAS_BUZZER
         filament_change_beep();
