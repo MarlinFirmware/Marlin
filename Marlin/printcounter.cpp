@@ -120,7 +120,7 @@ void PrintCounter::showStats() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     SERIAL_ECHOPGM(" (");
     SERIAL_ECHO(this->data.printTime);
-    SERIAL_ECHOPGM(")");
+    SERIAL_CHAR(')');
   #endif
 
   elapsed = this->data.longestPrint;
@@ -132,7 +132,7 @@ void PrintCounter::showStats() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     SERIAL_ECHOPGM(" (");
     SERIAL_ECHO(this->data.longestPrint);
-    SERIAL_ECHOPGM(")");
+    SERIAL_CHAR(')');
   #endif
 
   SERIAL_EOL;

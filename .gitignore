@@ -42,7 +42,7 @@ applet/
 *.i
 *.ii
 *.swp
-
+tags
 
 #
 # C++
