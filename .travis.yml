@@ -117,6 +117,12 @@ script:
   - opt_set ABL_GRID_POINTS_Y 16
   - build_marlin
   #
+  # Test a simple build of AUTO_BED_LEVELING_UBL
+  #
+  - restore_configs
+  - opt_enable AUTO_BED_LEVELING_UBL FIX_MOUNTED_PROBE EEPROM_SETTINGS G3D_PANEL
+  - build_marlin
+  #
   # Test a Sled Z Probe
   #
   - restore_configs
