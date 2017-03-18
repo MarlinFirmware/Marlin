@@ -1,3 +1,4 @@
+
 /**
  * Marlin 3D Printer Firmware
  * Copyright (C) 2016 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -231,6 +232,7 @@
  *    60 : 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
  *    66 : 4.7M High Temperature thermistor from Dyze Design
  *    70 : the 100K thermistor found in the bq Hephestos 2
+ *    75 : 100k Generic Silicon Heat Pad with NTC 100K MGB18-104F39050L32 thermistor
  *
  *       1k ohm pullup tables - This is atypical, and requires changing out the 4.7k pullup for 1k.
  *                              (but gives greater accuracy and more stable PID)
@@ -503,6 +505,7 @@
  */
 #define DEFAULT_MAX_ACCELERATION      { 3000, 3000, 100, 10000 }
 
+
 /**
  * Default Acceleration (change/s) change = mm/s
  * Override with M204
@@ -711,9 +714,12 @@
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
+#define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
+#define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
+
 // @section machine
 
-// Travel limits after homing (units are in mm)
+  // Travel limits after homing (units are in mm)
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
@@ -752,8 +758,10 @@
   #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
   #define MESH_NUM_Y_POINTS 3
   #define MANUAL_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
-
+  #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
+  
   //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
+
 
   //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
 
@@ -769,8 +777,8 @@
 #endif  // MESH_BED_LEVELING
 
 //===========================================================================
-//============================ Auto Bed Leveling ============================
-//===========================================================================
+//=============================== Bed Leveling ==============================
+//==========================================================================
 // @section bedlevel
 
 /**
@@ -793,10 +801,23 @@
  *   Probe several points in a grid.
  *   You specify the rectangle and the density of sample points.
  *   The result is a mesh, best for large or uneven beds.
+ *
+ * - UBL Unified Bed Leveling
+ *   A comprehensive bed leveling system that combines features and benefits from previous
+ *   bed leveling system.  The UBL Bed Leveling System also includes an integrated and easy to use
+ *   Mesh Generation, Mesh Validation and Mesh Editing system.
+ *     - Currently, the UBL Bed Leveling System is only checked out for Cartesian Printers.  But with
+ *       that said, it was primarily designed to handle poor quality Delta Printers.  If you feel 
+ *       adventurous and have a Delta, please post an issue if something doesn't work correctly.  
+ *       Initially, you will need to reduce your declared bed size so you have a rectangular area to
+ *       test on.
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
+//#define MESH_BED_LEVELING    
+//#define AUTO_BED_LEVELING_UBL
+
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -804,6 +825,13 @@
  * NOTE: Requires a lot of PROGMEM!
  */
 //#define DEBUG_LEVELING_FEATURE
+
+#if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL) 
+  // Gradually reduce leveling correction until a set height is reached,
+  // at which point movement will be level to the machine's XY plane.
+  // The height can be set with M420 Z<height>
+  #define ENABLE_LEVELING_FADE_HEIGHT
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -825,11 +853,6 @@
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
-    // Gradually reduce leveling correction until a set height is reached,
-    // at which point movement will be level to the machine's XY plane.
-    // The height can be set with M420 Z<height>
-    #define ENABLE_LEVELING_FADE_HEIGHT
-
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
     // Synthesizes intermediate points to produce a more detailed mesh.
@@ -842,10 +865,11 @@
 
   #endif
 
-#elif ENABLED(AUTO_BED_LEVELING_3POINT)
+#elif ENABLED(AUTO_BED_LEVELING_3POINT) 
 
   // 3 arbitrary points to probe.
   // A simple cross-product is used to estimate the plane of the bed.
+
   #define ABL_PROBE_PT_1_X 15
   #define ABL_PROBE_PT_1_Y 180
   #define ABL_PROBE_PT_2_X 15
@@ -853,7 +877,41 @@
   #define ABL_PROBE_PT_3_X 170
   #define ABL_PROBE_PT_3_Y 20
 
-#endif
+#elif ENABLED(MESH_BED_LEVELING)
+
+//===========================================================================
+//=================================== Mesh ==================================
+//===========================================================================
+
+    #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
+    #define MESH_INSET 10        // Mesh inset margin on print area
+    #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
+    #define MESH_NUM_Y_POINTS 3
+
+  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
+
+  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+
+  #if ENABLED(MANUAL_BED_LEVELING)
+    #define MBL_Z_STEP 0.025     // Step size while manually probing Z axis.
+  #endif  // MANUAL_BED_LEVELING
+
+#elif ENABLED(AUTO_BED_LEVELING_UBL)
+
+//===========================================================================
+//========================= Unified Bed Leveling ============================
+//===========================================================================
+    #define UBL_MESH_INSET 1          // Mesh inset margin on print area
+    #define UBL_MESH_NUM_X_POINTS 10  // Don't use more than 15 points per axis, implementation limited.
+    #define UBL_MESH_NUM_Y_POINTS 10
+    #define UBL_PROBE_PT_1_X 39       // These set the probe locations for when UBL does a 3-Point leveling	
+    #define UBL_PROBE_PT_1_Y 180      // of the mesh.
+    #define UBL_PROBE_PT_2_X 39
+    #define UBL_PROBE_PT_2_Y 20
+    #define UBL_PROBE_PT_3_X 180
+    #define UBL_PROBE_PT_3_Y 20
+
+#endif  // BED_LEVELING
 
 /**
  * Commands to execute at the end of G29 probing.
@@ -1435,10 +1493,16 @@
 //
 //#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
 
+// Connector number that the servo is plugged into
+//#define Z_ENDSTOP_SERVO_NR 0
+
+// Angles to deploy and retract the servo
+//#define Z_SERVO_ANGLES {70,0} // Z Servo Deploy and Stow angles
+
 // Delay (in milliseconds) before the next move will start, to give the servo time to reach its target angle.
 // 300ms is a good value but you can try less delay.
 // If the servo can't reach the requested position, increase it.
-#define SERVO_DELAY 300
+//#define SERVO_DELAY 300
 
 // Servo deactivation
 //
@@ -1474,5 +1538,7 @@
   //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
   //#define FILAMENT_LCD_DISPLAY
 #endif
+
+
 
 #endif // CONFIGURATION_H
