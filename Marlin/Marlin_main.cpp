@@ -1256,7 +1256,7 @@ inline bool code_value_bool() { return !code_has_value() || code_value_byte() > 
       case TEMPUNIT_F:
         return (code_value_float() - 32) * 0.5555555556;
       case TEMPUNIT_K:
-        return code_value_float() - 272.15;
+        return code_value_float() - 273.15;
       default:
         return code_value_float();
     }
