@@ -275,27 +275,19 @@ extern volatile bool wait_for_heatup;
 #endif
 
 extern float current_position[NUM_AXIS];
-extern float position_shift[XYZ];
-extern float home_offset[XYZ];
 
-#if HOTENDS > 1
-  extern float hotend_offset[XYZ][HOTENDS];
-#endif
-
-// Software Endstops
-void update_software_endstops(AxisEnum axis);
-#if ENABLED(min_software_endstops) || ENABLED(max_software_endstops)
-  extern bool soft_endstops_enabled;
-  void clamp_to_software_endstops(float target[XYZ]);
+// Workspace offsets
+#if DISABLED(NO_WORKSPACE_OFFSETS)
+  extern float position_shift[XYZ],
+               home_offset[XYZ],
+               workspace_offset[XYZ];
+  #define LOGICAL_POSITION(POS, AXIS) ((POS) + workspace_offset[AXIS])
+  #define RAW_POSITION(POS, AXIS)     ((POS) - workspace_offset[AXIS])
 #else
-  #define soft_endstops_enabled false
-  #define clamp_to_software_endstops(x) NOOP
+  #define LOGICAL_POSITION(POS, AXIS) (POS)
+  #define RAW_POSITION(POS, AXIS)     (POS)
 #endif
-extern float soft_endstop_min[XYZ];
-extern float soft_endstop_max[XYZ];
 
-#define LOGICAL_POSITION(POS, AXIS) ((POS) + home_offset[AXIS] + position_shift[AXIS])
-#define RAW_POSITION(POS, AXIS)     ((POS) - home_offset[AXIS] - position_shift[AXIS])
 #define LOGICAL_X_POSITION(POS)     LOGICAL_POSITION(POS, X_AXIS)
 #define LOGICAL_Y_POSITION(POS)     LOGICAL_POSITION(POS, Y_AXIS)
 #define LOGICAL_Z_POSITION(POS)     LOGICAL_POSITION(POS, Z_AXIS)
@@ -303,6 +295,26 @@ extern float soft_endstop_max[XYZ];
 #define RAW_Y_POSITION(POS)         RAW_POSITION(POS, Y_AXIS)
 #define RAW_Z_POSITION(POS)         RAW_POSITION(POS, Z_AXIS)
 #define RAW_CURRENT_POSITION(AXIS)  RAW_POSITION(current_position[AXIS], AXIS)
+
+#if HOTENDS > 1
+  extern float hotend_offset[XYZ][HOTENDS];
+#endif
+
+// Software Endstops
+extern float soft_endstop_min[XYZ];
+extern float soft_endstop_max[XYZ];
+
+#if HAS_SOFTWARE_ENDSTOPS
+  extern bool soft_endstops_enabled;
+  void clamp_to_software_endstops(float target[XYZ]);
+#else
+  #define soft_endstops_enabled false
+  #define clamp_to_software_endstops(x) NOOP
+#endif
+
+#if DISABLED(NO_WORKSPACE_OFFSETS) || ENABLED(DUAL_X_CARRIAGE) || ENABLED(DELTA)
+  void update_software_endstops(const AxisEnum axis);
+#endif
 
 // GCode support for external objects
 bool code_seen(char);
@@ -320,9 +332,8 @@ float code_value_temp_diff();
                delta_radius,
                delta_diagonal_rod,
                delta_segments_per_second,
-               delta_diagonal_rod_trim_tower_1,
-               delta_diagonal_rod_trim_tower_2,
-               delta_diagonal_rod_trim_tower_3,
+               delta_diagonal_rod_trim[ABC],
+               delta_tower_angle_trim[ABC],
                delta_clip_start_height;
   void recalc_delta_settings(float radius, float diagonal_rod);
 #elif IS_SCARA

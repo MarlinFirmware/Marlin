@@ -210,6 +210,7 @@ class Planner {
     #if ENABLED(LIN_ADVANCE)
       static float position_float[NUM_AXIS];
       static float extruder_advance_k;
+      static float advance_ed_ratio;
     #endif
 
     #if ENABLED(ULTRA_LCD)
@@ -266,7 +267,9 @@ class Planner {
     #endif
 
     #if ENABLED(LIN_ADVANCE)
-      void advance_M905(const float &k);
+      static void set_extruder_advance_k(const float &k) { extruder_advance_k = k; };
+      static float get_extruder_advance_k() { return extruder_advance_k; };
+      static void set_advance_ed_ratio(const float &ratio) { advance_ed_ratio = ratio; };
     #endif
 
     /**
@@ -345,13 +348,7 @@ class Planner {
     static void set_position_mm_kinematic(const float position[NUM_AXIS]);
     static void set_position_mm(const AxisEnum axis, const float &v);
     static FORCE_INLINE void set_z_position_mm(const float &z) { set_position_mm(Z_AXIS, z); }
-    static FORCE_INLINE void set_e_position_mm(const float &e) {
-      set_position_mm(AxisEnum(E_AXIS
-        #if ENABLED(DISTINCT_E_FACTORS)
-          + active_extruder
-        #endif
-      ), e);
-    }
+    static FORCE_INLINE void set_e_position_mm(const float &e) { set_position_mm(AxisEnum(E_AXIS), e); }
 
     /**
      * Sync from the stepper positions. (e.g., after an interrupted move)

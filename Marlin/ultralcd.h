@@ -65,7 +65,10 @@
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
 
   #define LCD_UPDATE_INTERVAL 100
+<<<<<<< HEAD
   #define LCD_TIMEOUT_TO_STATUS 30000 //15000
+=======
+>>>>>>> MarlinFirmware/RCBugFix
 
   #if ENABLED(ULTIPANEL)
 

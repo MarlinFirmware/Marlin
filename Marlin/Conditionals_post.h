@@ -184,7 +184,7 @@
    */
   #if ENABLED(ADVANCE)
     #define EXTRUSION_AREA (0.25 * (D_FILAMENT) * (D_FILAMENT) * M_PI)
-    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_mm[E_AXIS] / (EXTRUSION_AREA))
+    #define STEPS_PER_CUBIC_MM_E (axis_steps_per_mm[E_AXIS_N] / (EXTRUSION_AREA))
   #endif
 
   #if ENABLED(ULTIPANEL) && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
@@ -630,7 +630,7 @@
   #endif
 
   /**
-   * Delta radius/rod trimmers
+   * Delta radius/rod trimmers/angle trimmers
    */
   #if ENABLED(DELTA)
     #ifndef DELTA_RADIUS_TRIM_TOWER_1
@@ -650,6 +650,15 @@
     #endif
     #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_3
       #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
+    #endif
+    #ifndef DELTA_TOWER_ANGLE_TRIM_1
+      #define DELTA_TOWER_ANGLE_TRIM_1 0.0
+    #endif
+    #ifndef DELTA_TOWER_ANGLE_TRIM_2
+      #define DELTA_TOWER_ANGLE_TRIM_2 0.0
+    #endif
+    #ifndef DELTA_TOWER_ANGLE_TRIM_3
+      #define DELTA_TOWER_ANGLE_TRIM_3 0.0
     #endif
   #endif
 
@@ -700,6 +709,11 @@
   #ifndef Z_CLEARANCE_BETWEEN_PROBES
     #define Z_CLEARANCE_BETWEEN_PROBES Z_HOMING_HEIGHT
   #endif
+  #if Z_CLEARANCE_BETWEEN_PROBES > Z_HOMING_HEIGHT
+    #define MANUAL_PROBE_HEIGHT Z_CLEARANCE_BETWEEN_PROBES
+  #else
+    #define MANUAL_PROBE_HEIGHT Z_HOMING_HEIGHT
+  #endif
 
   #if IS_KINEMATIC
     // Check for this in the code instead
@@ -724,6 +738,11 @@
 
   #if ENABLED(SDCARD_SORT_ALPHA)
     #define HAS_FOLDER_SORTING (FOLDER_SORTING || ENABLED(SDSORT_GCODE))
+  #endif
+
+  // LCD timeout to status screen default is 15s
+  #ifndef LCD_TIMEOUT_TO_STATUS
+    #define LCD_TIMEOUT_TO_STATUS 15000
   #endif
 
 #endif // CONDITIONALS_POST_H
