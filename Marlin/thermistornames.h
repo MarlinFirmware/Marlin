@@ -94,4 +94,12 @@
 #elif THERMISTOR_ID == 999
   #define THERMISTOR_NAME "Dummy 2"
 
+//User defined thermistors
+#elif THERMISTOR_ID == 9997
+  #define THERMISTOR_NAME "User 0"
+#elif THERMISTOR_ID == 9998
+  #define THERMISTOR_NAME "User 1"
+#elif THERMISTOR_ID == 9999
+  #define THERMISTOR_NAME "User 2"
+
 #endif // THERMISTOR_ID
