@@ -118,11 +118,20 @@
 #if ANY_THERMISTOR_IS(1047) // Pt1000 with 4k7 pullup
   #include "thermistortable_1047.h"
 #endif
-#if ANY_THERMISTOR_IS(998) // User-defined table 1
+#if ANY_THERMISTOR_IS(998) // Dummy table 1
   #include "thermistortable_998.h"
 #endif
-#if ANY_THERMISTOR_IS(999) // User-defined table 2
+#if ANY_THERMISTOR_IS(999) // Dummy table 2
   #include "thermistortable_999.h"
+#endif
+#if ANY_THERMISTOR_IS(9997) // User-defined table 0
+  #include "thermistortable_9997.h"
+#endif
+#if ANY_THERMISTOR_IS(9998) // User-defined table 1
+  #include "thermistortable_9998.h"
+#endif
+#if ANY_THERMISTOR_IS(9999) // User-defined table 2
+  #include "thermistortable_9999.h"
 #endif
 
 #define _TT_NAME(_N) temptable_ ## _N
