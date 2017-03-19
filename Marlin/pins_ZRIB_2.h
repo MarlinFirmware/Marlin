@@ -24,14 +24,12 @@
   #error "Zrib v2 supports up to 2 hotends. Comment this line to keep going."
 #endif
 
-#ifndef BOARD_NAME
-  #define BOARD_NAME "ZRIB v2"
-#endif
-
-#define IS_RAMPS_EFB
-#define MOSFET_D_PIN 6  //FAN_1_PIN
+#define BOARD_NAME "ZRIB v2"
 
 #include "pins_RAMPS.h"
+
+#undef FAN1_PIN
+#define FAN1_PIN 6
 
 #if HOTENDS == 2
   #undef HEATER_1_PIN
