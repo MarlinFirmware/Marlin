@@ -146,10 +146,10 @@
         Random_Deviation = 0.0,
         Layer_Height = LAYER_HEIGHT;
 
-  bool retracted = false; // We keep track of the state of the nozzle to know if it
-                          // is currently retracted or not.  This allows us to be
-                          // less careful because mis-matched retractions and un-retractions
-                          // won't leave us in a bad state.
+  bool G26_retracted = false; // We keep track of the state of the nozzle to know if it
+                              // is currently retracted or not.  This allows us to be
+                              // less careful because mis-matched retractions and un-retractions
+                              // won't leave us in a bad state.
   #if ENABLED(ULTRA_LCD)
     void lcd_setstatus(const char* message, bool persist);
   #endif
@@ -673,8 +673,8 @@
   }
 
   void retract_filament() {
-    if (!retracted) { // Only retract if we are not already retracted!
-      retracted = true;
+    if (!G26_retracted) { // Only retract if we are not already retracted!
+      G26_retracted = true;
       if (G26_Debug_flag) SERIAL_ECHOLNPGM(" Decided to do retract.");
       move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], -1.0 * Retraction_Multiplier);
       if (G26_Debug_flag) SERIAL_ECHOLNPGM(" Retraction done.");
@@ -682,9 +682,9 @@
   }
 
   void un_retract_filament() {
-    if (retracted) { // Only un-retract if we are retracted.
+    if (G26_retracted) { // Only un-retract if we are retracted.
       move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 1.2 * Retraction_Multiplier);
-      retracted = false;
+      G26_retracted = false;
       if (G26_Debug_flag) SERIAL_ECHOLNPGM(" unretract done.");
     }
   }
