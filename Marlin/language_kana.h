@@ -43,6 +43,8 @@
 #define MSG_MAIN                            "\xd2\xb2\xdd"                                                     // "ﾒｲﾝ" ("Main")
 #define MSG_AUTOSTART                       "\xbc\xde\xc4\xde\xb3\xb6\xb2\xbc"                                 // "ｼﾞﾄﾞｳｶｲｼ" ("Autostart")
 #define MSG_DISABLE_STEPPERS                "\xd3\xb0\xc0\xb0\xc3\xde\xdd\xb9\xde\xdd\x20\xb5\xcc"             // "ﾓｰﾀｰﾃﾞﾝｹﾞﾝ ｵﾌ" ("Disable steppers")
+#define MSG_DEBUG_MENU                      "\xc3\xde\xca\xde\xaf\xb8\xde\xd2\xc6\xad\xb0"                     // "ﾃﾞﾊﾞｯｸﾞﾒﾆｭｰ" ("Debug Menu")
+#define MSG_PROGRESS_BAR_TEST               "\xcc\xdf\xdb\xb8\xde\xda\xbd\xca\xde\xb0\x20\xc3\xbd\xc4"         // "ﾌﾟﾛｸﾞﾚｽﾊﾞｰ ﾃｽﾄ" ("Progress Bar Test")
 #define MSG_AUTO_HOME                       "\xb9\xde\xdd\xc3\xdd\xcc\xaf\xb7"                                 // "ｹﾞﾝﾃﾝﾌｯｷ" ("Auto home")
 #define MSG_AUTO_HOME_X                     "X\xbc\xde\xb8\x20\xb9\xde\xdd\xc3\xdd\xcc\xaf\xb7"                // "Xｼﾞｸ ｹﾞﾝﾃﾝﾌｯｷ" ("Home X")
 #define MSG_AUTO_HOME_Y                     "Y\xbc\xde\xb8\x20\xb9\xde\xdd\xc3\xdd\xcc\xaf\xb7"                // "Yｼﾞｸ ｹﾞﾝﾃﾝﾌｯｷ" ("Home Y")
@@ -72,6 +74,8 @@
 #define MSG_RETRACT                         "\xcb\xb7\xba\xd0\xbe\xaf\xc3\xb2"                                 // "ﾋｷｺﾐｾｯﾃｲ" ("Retract")
 #define MSG_MOVE_AXIS                       "\xbc\xde\xb8\xb2\xc4\xde\xb3"                                     // "ｼﾞｸｲﾄﾞｳ" ("Move axis")
 #define MSG_LEVEL_BED                       "\xcd\xde\xaf\xc4\xde\xda\xcd\xde\xd8\xdd\xb8\xde"                 // "ﾍﾞｯﾄﾞﾚﾍﾞﾘﾝｸﾞ" ("Level bed")
+#define MSG_MOVING                          "\xb2\xc4\xde\xb3\xc1\xad\xb3"                                     // "ｲﾄﾞｳﾁｭｳ" ("Moving...")
+#define MSG_FREE_XY                         "XY\xbc\xde\xb8\x20\xb6\xb2\xce\xb3"                               // "XYｼﾞｸ ｶｲﾎｳ" ("Free XY")
 #define MSG_MOVE_X                          "X\xbc\xde\xb8\x20\xb2\xc4\xde\xb3"                                // "Xｼﾞｸ ｲﾄﾞｳ" ("Move X")
 #define MSG_MOVE_Y                          "Y\xbc\xde\xb8\x20\xb2\xc4\xde\xb3"                                // "Yｼﾞｸ ｲﾄﾞｳ" ("Move Y")
 #define MSG_MOVE_Z                          "Z\xbc\xde\xb8\x20\xb2\xc4\xde\xb3"                                // "Zｼﾞｸ ｲﾄﾞｳ" ("Move Z")
@@ -129,11 +133,19 @@
   #define MSG_YSTEPS                          "Ysteps/mm"
   #define MSG_ZSTEPS                          "Zsteps/mm"
   #define MSG_ESTEPS                          "Esteps/mm"
+  #define MSG_E1STEPS                         "E1steps/mm"
+  #define MSG_E2STEPS                         "E2steps/mm"
+  #define MSG_E3STEPS                         "E3steps/mm"
+  #define MSG_E4STEPS                         "E4steps/mm"
 #else
   #define MSG_XSTEPS                          "Xsteps"
   #define MSG_YSTEPS                          "Ysteps"
   #define MSG_ZSTEPS                          "Zsteps"
   #define MSG_ESTEPS                          "Esteps"
+  #define MSG_E1STEPS                         "E1steps"
+  #define MSG_E2STEPS                         "E2steps"
+  #define MSG_E3STEPS                         "E3steps"
+  #define MSG_E4STEPS                         "E4steps"
 #endif
 #define MSG_TEMPERATURE                     "\xb5\xdd\xc4\xde"                                                 // "ｵﾝﾄﾞ" ("Temperature")
 #define MSG_MOTION                          "\xb3\xba\xde\xb7\xbe\xaf\xc3\xb2"                                 // "ｳｺﾞｷｾｯﾃｲ" ("Motion")
@@ -169,16 +181,16 @@
   #define MSG_CONTROL_RETRACT_SWAP          "\xcb\xb7\xba\xd0\xd8\xae\xb3S mm"                                 // "ﾋｷｺﾐﾘｮｳS mm" ("Swap Re.mm")
   #define MSG_CONTROL_RETRACTF              "\xcb\xb7\xba\xd0\xbf\xb8\xc4\xde mm/s"                            // "ﾋｷｺﾐｿｸﾄﾞ mm/s" ("Retract  V")
   #define MSG_CONTROL_RETRACT_ZLIFT         "\xc9\xbd\xde\xd9\xc0\xb2\xcb mm"                                  // "ﾉｽﾞﾙﾀｲﾋ mm" ("Hop mm")
-  #define MSG_CONTROL_RETRACT_RECOVER       "\xce\xbc\xae\xb3\xd8\xae\xb3 mm"                                  // "ﾎｼｮｳﾘｮｳ mm" ("UnRet +mm")
-  #define MSG_CONTROL_RETRACT_RECOVER_SWAP  "\xce\xbc\xae\xb3\xd8\xae\xb3S mm"                                 // "ﾎｼｮｳﾘｮｳS mm" ("S UnRet+mm")
+  #define MSG_CONTROL_RETRACT_RECOVER       "\xce\xbc\xae\xb3\xd8\xae\xb3 mm"                                  // "ﾎｼｮｳﾘｮｳ mm" ("UnRet mm")
+  #define MSG_CONTROL_RETRACT_RECOVER_SWAP  "\xce\xbc\xae\xb3\xd8\xae\xb3S mm"                                 // "ﾎｼｮｳﾘｮｳS mm" ("S UnRet mm")
   #define MSG_CONTROL_RETRACT_RECOVERF      "\xce\xbc\xae\xb3\xbf\xb8\xc4\xde mm/s"                            // "ﾎｼｮｳｿｸﾄﾞ mm/s" ("UnRet  V")
 #else
   #define MSG_CONTROL_RETRACT               "\xcb\xb7\xba\xd0\xd8\xae\xb3"                                     // "ﾋｷｺﾐﾘｮｳ" ("Retract mm")
   #define MSG_CONTROL_RETRACT_SWAP          "\xcb\xb7\xba\xd0\xd8\xae\xb3S"                                    // "ﾋｷｺﾐﾘｮｳS" ("Swap Re.mm")
   #define MSG_CONTROL_RETRACTF              "\xcb\xb7\xba\xd0\xbf\xb8\xc4\xde"                                 // "ﾋｷｺﾐｿｸﾄﾞ" ("Retract  V")
   #define MSG_CONTROL_RETRACT_ZLIFT         "\xc9\xbd\xde\xd9\xc0\xb2\xcb"                                     // "ﾉｽﾞﾙﾀｲﾋ" ("Hop mm")
-  #define MSG_CONTROL_RETRACT_RECOVER       "\xce\xbc\xae\xb3\xd8\xae\xb3"                                     // "ﾎｼｮｳﾘｮｳ" ("UnRet +mm")
-  #define MSG_CONTROL_RETRACT_RECOVER_SWAP  "\xce\xbc\xae\xb3\xd8\xae\xb3S"                                    // "ﾎｼｮｳﾘｮｳS" ("S UnRet+mm")
+  #define MSG_CONTROL_RETRACT_RECOVER       "\xce\xbc\xae\xb3\xd8\xae\xb3"                                     // "ﾎｼｮｳﾘｮｳ" ("UnRet mm")
+  #define MSG_CONTROL_RETRACT_RECOVER_SWAP  "\xce\xbc\xae\xb3\xd8\xae\xb3S"                                    // "ﾎｼｮｳﾘｮｳS" ("S UnRet mm")
   #define MSG_CONTROL_RETRACT_RECOVERF      "\xce\xbc\xae\xb3\xbf\xb8\xc4\xde"                                 // "ﾎｼｮｳｿｸﾄﾞ" ("UnRet  V")
 #endif
 #define MSG_AUTORETRACT                     "\xbc\xde\xc4\xde\xb3\xcb\xb7\xba\xd0"                             // "ｼﾞﾄﾞｳﾋｷｺﾐ" ("AutoRetr.")

@@ -45,9 +45,34 @@
   #define HOTEND_INDEX  0
   #define EXTRUDER_IDX  0
 #else
+<<<<<<< HEAD
   #define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
   #define HOTEND_INDEX  e
   #define EXTRUDER_IDX  active_extruder
+=======
+#define setTargetHotend2(_celsius) do{}while(0)
+#endif
+#if EXTRUDERS > 3
+#error Invalid number of extruders
+#endif
+
+
+
+int getHeaterPower(int heater);
+void disable_heater();
+void setWatch();
+void updatePID();
+
+#if (defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0) || (defined (THERMAL_RUNAWAY_PROTECTION_BED_PERIOD) && THERMAL_RUNAWAY_PROTECTION_BED_PERIOD > 0)
+void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
+static int thermal_runaway_state_machine[3]; // = {0,0,0};
+static unsigned long thermal_runaway_timer[3]; // = {0,0,0};
+static bool thermal_runaway = false;
+  #if TEMP_SENSOR_BED != 0
+    static int thermal_runaway_bed_state_machine;
+    static unsigned long thermal_runaway_bed_timer;
+  #endif
+>>>>>>> MarlinFirmware/1.0.x
 #endif
 
 class Temperature {

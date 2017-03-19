@@ -25,6 +25,8 @@
 
 #include "MarlinConfig.h"
 
+#define _UxGT(a) a
+
 // Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
 //#define SIMULATE_ROMFONT
 
@@ -45,6 +47,7 @@
 // See also https://github.com/MarlinFirmware/Marlin/wiki/LCD-Language
 
 // Languages
+<<<<<<< HEAD
 // an         Aragonese
 // bg         Bulgarian
 // ca         Catalan
@@ -81,6 +84,51 @@
 #ifdef CUSTOM_MACHINE_NAME
   #undef  MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MACHINE_NAME
+=======
+// en English
+// pl Polish
+// fr French
+// de German
+// es Spanish
+// ru Russian
+// it Italian
+// pt Portuguese
+// fi Finnish
+// an Aragonese
+// nl Dutch
+// ca Catalan
+// eu Basque-Euskera
+// cz Czech
+
+#ifndef LANGUAGE_INCLUDE
+  // pick your language from the list above
+  #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
+#endif
+
+#if defined(USE_AUTOMATIC_VERSIONING)
+  #include "_Version.h"
+#else
+  #include "Default_Version.h"
+#endif
+
+#define PROTOCOL_VERSION "1.0"
+
+#if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
+  #define MACHINE_NAME "Ultimaker"
+  #define FIRMWARE_URL "https://github.com/Ultimaker/Marlin"
+#elif MB(RUMBA)
+  #define MACHINE_NAME "Rumba"
+  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+#elif MB(3DRAG)
+  #define MACHINE_NAME "3Drag"
+  #define FIRMWARE_URL "http://3dprint.elettronicain.it/"
+#elif MB(5DPRINT)
+  #define MACHINE_NAME "Makibox"
+  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+#elif MB(SAV_MKI)
+  #define MACHINE_NAME "SAV MkI"
+  #define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
+>>>>>>> MarlinFirmware/1.0.x
 #else
   #ifdef DEFAULT_MACHINE_NAME
     #undef  MACHINE_NAME
@@ -88,6 +136,22 @@
   #endif
 #endif
 
+<<<<<<< HEAD
+=======
+#ifdef CUSTOM_MACHINE_NAME
+  #undef MACHINE_NAME
+  #define MACHINE_NAME CUSTOM_MACHINE_NAME
+#endif
+
+#ifndef SOURCE_CODE_URL
+  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+#endif
+
+#ifndef DETAILED_BUILD_VERSION
+  #error BUILD_VERSION Information must be specified
+#endif
+
+>>>>>>> MarlinFirmware/1.0.x
 #ifndef MACHINE_UUID
   #define MACHINE_UUID DEFAULT_MACHINE_UUID
 #endif
@@ -130,7 +194,16 @@
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
 #define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
+<<<<<<< HEAD
 #define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID
+=======
+#define MSG_M109_INVALID_EXTRUDER           "M109 Invalid extruder "
+#define MSG_HEATING                         "Heating..."
+#define MSG_HEATING_COMPLETE                "Heating done."
+#define MSG_BED_HEATING                     "Bed Heating."
+#define MSG_BED_DONE                        "Bed done."
+#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " DETAILED_BUILD_VERSION " SOURCE_CODE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
+>>>>>>> MarlinFirmware/1.0.x
 #define MSG_COUNT_X                         " Count X: "
 #define MSG_COUNT_A                         " Count A: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
@@ -151,10 +224,12 @@
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
-#define MSG_ERR_M421_PARAMETERS             "M421 requires XYZ or IJZ parameters"
-#define MSG_ERR_MESH_XY                     "Mesh XY or IJ cannot be resolved"
+#define MSG_ERR_M355_NONE                   "No case light"
+#define MSG_ERR_M421_PARAMETERS             "M421 required parameters missing"
+#define MSG_ERR_MESH_XY                     "Mesh point cannot be resolved"
 #define MSG_ERR_ARC_ARGS                    "G2/G3 bad parameters"
 #define MSG_ERR_PROTECTED_PIN               "Protected Pin"
+#define MSG_ERR_M420_FAILED                 "Failed to enable Bed Leveling"
 #define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
 #define MSG_ERR_M303_DISABLED               "PIDTEMP disabled"
 #define MSG_M119_REPORT                     "Reporting endstop status"
@@ -262,10 +337,10 @@
 #define MSG_N2 " 2"
 #define MSG_N3 " 3"
 #define MSG_N4 " 4"
-#define MSG_E1 " E1"
-#define MSG_E2 " E2"
-#define MSG_E3 " E3"
-#define MSG_E4 " E4"
+#define MSG_E1 "E1"
+#define MSG_E2 "E2"
+#define MSG_E3 "E3"
+#define MSG_E4 "E4"
 #define MSG_MOVE_E1 "1"
 #define MSG_MOVE_E2 "2"
 #define MSG_MOVE_E3 "3"

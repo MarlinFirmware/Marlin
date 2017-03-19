@@ -105,8 +105,8 @@ class Stepper {
     static volatile uint32_t step_events_completed; // The number of step events executed in the current block
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
-      static uint8_t old_OCR0A;
-      static volatile uint8_t eISR_Rate;
+      static uint16_t nextMainISR, nextAdvanceISR, eISR_Rate;
+      #define _NEXT_ISR(T) nextMainISR = T
       #if ENABLED(LIN_ADVANCE)
         static volatile int e_steps[E_STEPPERS];
         static int final_estep_rate;
@@ -119,6 +119,8 @@ class Stepper {
         static long advance_rate, advance, final_advance;
         static long old_advance;
       #endif
+    #else
+      #define _NEXT_ISR(T) OCR1A = T
     #endif // ADVANCE or LIN_ADVANCE
 
     static long acceleration_time, deceleration_time;
@@ -177,6 +179,7 @@ class Stepper {
 
     #if ENABLED(ADVANCE) || ENABLED(LIN_ADVANCE)
       static void advance_isr();
+      static void advance_isr_scheduler();
     #endif
 
     //
@@ -318,8 +321,8 @@ class Stepper {
       return timer;
     }
 
-    // Initializes the trapezoid generator from the current block. Called whenever a new
-    // block begins.
+    // Initialize the trapezoid generator from the current block.
+    // Called whenever a new block begins.
     static FORCE_INLINE void trapezoid_generator_reset() {
 
       static int8_t last_extruder = -1;
@@ -357,8 +360,8 @@ class Stepper {
       step_loops_nominal = step_loops;
       acc_step_rate = current_block->initial_rate;
       acceleration_time = calc_timer(acc_step_rate);
-      OCR1A = acceleration_time;
-      
+      _NEXT_ISR(acceleration_time);
+
       #if ENABLED(LIN_ADVANCE)
         if (current_block->use_advance_lead) {
           current_estep_rate[current_block->active_extruder] = ((unsigned long)acc_step_rate * current_block->abs_adv_steps_multiplier8) >> 17;

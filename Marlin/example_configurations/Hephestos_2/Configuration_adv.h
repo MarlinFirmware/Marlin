@@ -171,7 +171,7 @@
 // Extruder runout prevention.
 // If the machine is idle and the temperature over MINTEMP
 // then extrude some filament every couple of SECONDS.
-//#define EXTRUDER_RUNOUT_PREVENT
+#define EXTRUDER_RUNOUT_PREVENT
 #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
   #define EXTRUDER_RUNOUT_MINTEMP 190
   #define EXTRUDER_RUNOUT_SECONDS 30
@@ -308,13 +308,13 @@
       // Remember: you should set the second extruder x-offset to 0 in your slicer.
 
   // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
-  //    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
-  //                           as long as it supports dual x-carriages. (M605 S0)
-  //    Mode 1: Auto-park mode. The firmware will automatically park and unpark the x-carriages on tool changes so
-  //                           that additional slicer support is not required. (M605 S1)
-  //    Mode 2: Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all
-  //                           actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
-  //                           once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
+  //    Mode 0 (DXC_FULL_CONTROL_MODE): Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
+  //                                    as long as it supports dual x-carriages. (M605 S0)
+  //    Mode 1 (DXC_AUTO_PARK_MODE)   : Auto-park mode. The firmware will automatically park and unpark the x-carriages on tool changes so
+  //                                    that additional slicer support is not required. (M605 S1)
+  //    Mode 2 (DXC_DUPLICATION_MODE) : Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all
+  //                                    actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
+  //                                    once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
 
   // This is the default power-up mode which can be later using M605.
   #define DEFAULT_DUAL_X_CARRIAGE_MODE DXC_FULL_CONTROL_MODE
@@ -335,7 +335,7 @@
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 2
 #define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
-//#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
+#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 // When G28 is called, this option will make Y home before X
 #define HOME_Y_BEFORE_X
@@ -369,7 +369,7 @@
 
 #if ENABLED(ULTIPANEL)
   #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
-  #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
+  //#define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
 #endif
 
 // @section extras
@@ -420,10 +420,10 @@
 // @section lcd
 
 // Include a page of printer information in the LCD Main Menu
-//#define LCD_INFO_MENU
+#define LCD_INFO_MENU
 
 // On the Info Screen, display XY with one decimal place when possible
-//#define LCD_DECIMAL_SMALL_XY
+#define LCD_DECIMAL_SMALL_XY
 
 #if ENABLED(SDSUPPORT)
 
@@ -440,7 +440,7 @@
   #define SDCARD_RATHERRECENTFIRST  //reverse file order of sd card menu display. Its sorted practically after the file system block order.
   // if a file is deleted, it frees a block. hence, the order is not purely chronological. To still have auto0.g accessible, there is again the option to do that.
   // using:
-  #define MENU_ADDAUTOSTART
+  //#define MENU_ADDAUTOSTART
 
   // Show a progress bar on HD44780 LCDs for SD printing
   //#define LCD_PROGRESS_BAR
@@ -454,6 +454,8 @@
     #define PROGRESS_MSG_EXPIRE   0
     // Enable this to show messages for MSG_TIME then hide them
     //#define PROGRESS_MSG_ONCE
+    // Add a menu item to test the progress bar:
+    //#define LCD_PROGRESS_BAR_TEST
   #endif
 
   // This allows hosts to request long names for files and folders with M33
@@ -470,7 +472,7 @@
 #if ENABLED(DOGLCD)
   // A bigger font is available for edit items. Costs 3120 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
-  //#define USE_BIG_EDIT_FONT
+  #define USE_BIG_EDIT_FONT
 
   // A smaller font may be used on the Info Screen. Costs 2300 bytes of PROGMEM.
   // Western only. Not available for Cyrillic, Kana, Turkish, Greek, or Chinese.
@@ -507,36 +509,6 @@
   #define BABYSTEP_MULTIPLICATOR 1 //faster movements
 #endif
 
-//
-// Ensure Smooth Moves
-//
-// Enable this option to prevent the machine from stuttering when printing multiple short segments.
-// This feature uses two strategies to eliminate stuttering:
-//
-// 1. During short segments a Graphical LCD update may take so much time that the planner buffer gets
-//    completely drained. When this happens pauses are introduced between short segments, and print moves
-//    will become jerky until a longer segment provides enough time for the buffer to be filled again.
-//    This jerkiness negatively affects print quality. The ENSURE_SMOOTH_MOVES option addresses the issue
-//    by pausing the LCD until there's enough time to safely update.
-//
-//    NOTE: This will cause the Info Screen to lag and controller buttons may become unresponsive.
-//          Enable ALWAYS_ALLOW_MENU to keep the controller responsive.
-//
-// 2. No block is allowed to take less time than MIN_BLOCK_TIME. That's the time it takes in the main
-//    loop to add a new block to the buffer, check temperatures, etc., including all blocked time due to
-//    interrupts (without LCD update). By enforcing a minimum time-per-move, the buffer is prevented from
-//    draining.
-//
-//#define ENSURE_SMOOTH_MOVES
-#if ENABLED(ENSURE_SMOOTH_MOVES)
-  //#define ALWAYS_ALLOW_MENU      // If enabled, the menu will always be responsive.
-                                   // WARNING: Menu navigation during short moves may cause stuttering!
-  #define LCD_UPDATE_THRESHOLD 135 // (ms) Minimum duration for the current segment to allow an LCD update.
-                                   // Default value is good for graphical LCDs (e.g., REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER).
-                                   // You may try to lower this value until you printer starts stuttering again as if ENSURE_SMOOTH_MOVES is disabled.
-  #define MIN_BLOCK_TIME 6         // (ms) Minimum duration of a single block. You shouldn't need to modify this.
-#endif
-
 // @section extruder
 
 // extruder advance constant (s2/mm3)
@@ -558,14 +530,7 @@
  *
  * Assumption: advance = k * (delta velocity)
  * K=0 means advance disabled.
- * To get a rough start value for calibration, measure your "free filament length"
- * between the hobbed bolt and the nozzle (in cm). Use the formula below that fits
- * your setup, where L is the "free filament length":
- *
- * Filament diameter           |   1.75mm  |    3.0mm   |
- * ----------------------------|-----------|------------|
- * Stiff filament (PLA)        | K=47*L/10 | K=139*L/10 |
- * Softer filament (ABS, nGen) | K=88*L/10 | K=260*L/10 |
+ * See Marlin documentation for calibration instructions.
  */
 //#define LIN_ADVANCE
 
@@ -622,9 +587,9 @@
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ring-buffering.
 #if ENABLED(SDSUPPORT)
-  #define BLOCK_BUFFER_SIZE 16 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+  #define BLOCK_BUFFER_SIZE 32 // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
-  #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
+  #define BLOCK_BUFFER_SIZE 64 // maximize block buffer
 #endif
 
 // @section serial
@@ -640,7 +605,7 @@
 // For debug-echo: 128 bytes for the optimal speed.
 // Other output doesn't need to be that speedy.
 // :[0, 2, 4, 8, 16, 32, 64, 128, 256]
-#define TX_BUFFER_SIZE 0
+#define TX_BUFFER_SIZE 32
 
 // Enable an emergency-command parser to intercept certain commands as they
 // enter the serial receive buffer, so they cannot be blocked.
@@ -677,33 +642,38 @@
   #define RETRACT_RECOVER_FEEDRATE 8     //default feedrate for recovering from retraction (mm/s)
 #endif
 
-// Add support for experimental filament exchange support M600; requires display
-#if ENABLED(ULTIPANEL)
-  // #define FILAMENT_CHANGE_FEATURE             // Enable filament exchange menu and M600 g-code (used for runout sensor too)
-  #if ENABLED(FILAMENT_CHANGE_FEATURE)
-    #define FILAMENT_CHANGE_X_POS 3             // X position of hotend
-    #define FILAMENT_CHANGE_Y_POS 3             // Y position of hotend
-    #define FILAMENT_CHANGE_Z_ADD 10            // Z addition of hotend (lift)
-    #define FILAMENT_CHANGE_XY_FEEDRATE 100     // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
-    #define FILAMENT_CHANGE_Z_FEEDRATE 5        // Z axis feedrate in mm/s (not used for delta printers)
-    #define FILAMENT_CHANGE_RETRACT_LENGTH 2    // Initial retract in mm
-                                                // It is a short retract used immediately after print interrupt before move to filament exchange position
-    #define FILAMENT_CHANGE_RETRACT_FEEDRATE 60 // Initial retract feedrate in mm/s
-    #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload filament length from hotend in mm
-                                                // Longer length for bowden printers to unload filament from whole bowden tube,
-                                                // shorter lenght for printers without bowden to unload filament from extruder only,
-                                                // 0 to disable unloading for manual unloading
-    #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
-    #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
-                                                // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
-                                                // Short or zero length for printers without bowden where loading is not used
-    #define FILAMENT_CHANGE_LOAD_FEEDRATE 10    // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
-    #define FILAMENT_CHANGE_EXTRUDE_LENGTH 50   // Extrude filament length in mm after filament is load over the hotend,
-                                                // 0 to disable for manual extrusion
-                                                // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
-                                                // or until outcoming filament color is not clear for filament color change
-    #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
-  #endif
+/**
+ * Filament Change
+ * Experimental filament change support.
+ * Adds the GCode M600 for initiating filament change.
+ *
+ * Requires an LCD display.
+ * This feature is required for the default FILAMENT_RUNOUT_SCRIPT.
+ */
+//#define FILAMENT_CHANGE_FEATURE
+#if ENABLED(FILAMENT_CHANGE_FEATURE)
+  #define FILAMENT_CHANGE_X_POS 3             // X position of hotend
+  #define FILAMENT_CHANGE_Y_POS 3             // Y position of hotend
+  #define FILAMENT_CHANGE_Z_ADD 10            // Z addition of hotend (lift)
+  #define FILAMENT_CHANGE_XY_FEEDRATE 100     // X and Y axes feedrate in mm/s (also used for delta printers Z axis)
+  #define FILAMENT_CHANGE_Z_FEEDRATE 5        // Z axis feedrate in mm/s (not used for delta printers)
+  #define FILAMENT_CHANGE_RETRACT_LENGTH 2    // Initial retract in mm
+                                              // It is a short retract used immediately after print interrupt before move to filament exchange position
+  #define FILAMENT_CHANGE_RETRACT_FEEDRATE 60 // Initial retract feedrate in mm/s
+  #define FILAMENT_CHANGE_UNLOAD_LENGTH 100   // Unload filament length from hotend in mm
+                                              // Longer length for bowden printers to unload filament from whole bowden tube,
+                                              // shorter lenght for printers without bowden to unload filament from extruder only,
+                                              // 0 to disable unloading for manual unloading
+  #define FILAMENT_CHANGE_UNLOAD_FEEDRATE 10  // Unload filament feedrate in mm/s - filament unloading can be fast
+  #define FILAMENT_CHANGE_LOAD_LENGTH 0       // Load filament length over hotend in mm
+                                              // Longer length for bowden printers to fast load filament into whole bowden tube over the hotend,
+                                              // Short or zero length for printers without bowden where loading is not used
+  #define FILAMENT_CHANGE_LOAD_FEEDRATE 10    // Load filament feedrate in mm/s - filament loading into the bowden tube can be fast
+  #define FILAMENT_CHANGE_EXTRUDE_LENGTH 50   // Extrude filament length in mm after filament is load over the hotend,
+                                              // 0 to disable for manual extrusion
+                                              // Filament can be extruded repeatedly from the filament exchange menu to fill the hotend,
+                                              // or until outcoming filament color is not clear for filament color change
+  #define FILAMENT_CHANGE_EXTRUDE_FEEDRATE 3  // Extrude filament feedrate in mm/s - must be slower than load feedrate
 #endif
 
 /******************************************************************************\
@@ -1097,5 +1067,14 @@
  * Include capabilities in M115 output
  */
 //#define EXTENDED_CAPABILITIES_REPORT
+
+/**
+ * Volumetric extrusion default state
+ * Activate to make volumetric extrusion the default method,
+ * with DEFAULT_NOMINAL_FILAMENT_DIA as the default diameter.
+ *
+ * M200 D0 to disable, M200 Dn to set a new diameter.
+ */ 
+//#define VOLUMETRIC_DEFAULT_ON
 
 #endif // CONFIGURATION_ADV_H
