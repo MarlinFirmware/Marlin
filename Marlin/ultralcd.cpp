@@ -435,7 +435,7 @@ uint16_t max_display_update_time = 0;
         }
         else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms))
           screen = lcd_babystep_z;
-      #endif 
+      #endif
 
       currentScreen = screen;
       encoderPosition = encoder;
