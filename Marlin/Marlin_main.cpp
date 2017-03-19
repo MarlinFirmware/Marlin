@@ -548,7 +548,7 @@ static uint8_t target_extruder;
   float delta[ABC],
         endstop_adj[ABC] = { 0 };
 
-  // these are the default values, can be overriden with M665
+  // these are the default values, can be overridden with M665
   float delta_radius = DELTA_RADIUS,
         delta_tower1_x = -SIN_60 * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1), // front left tower
         delta_tower1_y = -COS_60 * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1),
@@ -5882,7 +5882,7 @@ inline void gcode_M18_M84() {
       if (code_seen('X')) disable_x();
       if (code_seen('Y')) disable_y();
       if (code_seen('Z')) disable_z();
-      #if ((E0_ENABLE_PIN != X_ENABLE_PIN) && (E1_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
+      #if ((E0_ENABLE_PIN != X_ENABLE_PIN) && (E1_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have separate ENABLE_PINS
         if (code_seen('E')) {
           disable_e0();
           disable_e1();

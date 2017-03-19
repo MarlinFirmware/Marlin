@@ -33,7 +33,7 @@
 #  5. Type "make upload", reset your Arduino board, and press enter to
 #     upload your program to the Arduino board.
 #
-# Note that all settings at the top of this file can be overriden from
+# Note that all settings at the top of this file can be overridden from
 # the command line with, for example, "make HARDWARE_MOTHERBOARD=71"
 #
 # To compile for RAMPS (atmega2560) with Arduino 1.6.9 at root/arduino you would use...

@@ -306,7 +306,7 @@ script:
   #
   # REPRAPWORLD_KEYPAD
   #
-  # Cant find configuration details to get it to compile
+  # Can't find configuration details to get it to compile
   #- restore_configs
   #- opt_enable ULTRA_LCD REPRAPWORLD_KEYPAD REPRAPWORLD_KEYPAD_MOVE_STEP
   #- build_marlin
