@@ -1324,14 +1324,12 @@
           mx = blm.map_x_index_to_bed_location(i); // Check if we can probe this mesh location
           my = blm.map_y_index_to_bed_location(j);
 
-          // If we are using the probe as the reference
-          // there are some locations we can't get to.
-          // We prune these out of the list and ignore
-          // them until the next Phase where we do the
+          // If we are using the probe as the reference there are some locations we can't get to.
+          // We prune these out of the list and ignore them until the next Phase where we do the
           // manual nozzle probing.
-          if (probe_as_reference
-            && (mx < (MIN_PROBE_X) || mx > (MAX_PROBE_X))
-            && (my < (MIN_PROBE_Y) || my > (MAX_PROBE_Y))
+	  
+          if (probe_as_reference &&
+            ( mx < (MIN_PROBE_X) || mx > (MAX_PROBE_X) || my < (MIN_PROBE_Y) || my > (MAX_PROBE_Y) )
           ) continue;
 
           dx = px - mx;         // We can get to it. Let's see if it is the
