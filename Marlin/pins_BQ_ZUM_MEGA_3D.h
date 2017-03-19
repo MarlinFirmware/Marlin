@@ -33,15 +33,15 @@
 //
 // Heaters / Fans
 //
-#define RAMPS_D8_PIN  10
-#define RAMPS_D9_PIN  12
-#define RAMPS_D10_PIN  9
+#define RAMPS_D8_PIN   8    // Bed
+#define RAMPS_D9_PIN   12   // Fan to cool the layers printed
+#define RAMPS_D10_PIN  9    // Hotend
 #define MOSFET_D_PIN   7
 
 //
 // Auto fans
 //
-#define ORIG_E0_AUTO_FAN_PIN 11
+#define ORIG_E0_AUTO_FAN_PIN 11    // Fan to cool the hotend
 #define ORIG_E1_AUTO_FAN_PIN  6
 #define ORIG_E2_AUTO_FAN_PIN  6 
 #define ORIG_E3_AUTO_FAN_PIN  6
