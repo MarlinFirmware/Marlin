@@ -33,6 +33,9 @@
 #ifndef WELCOME_MSG
   #define WELCOME_MSG                         MACHINE_NAME " ready."
 #endif
+#ifndef MSG_BACK
+  #define MSG_BACK                            "Back"
+#endif
 #ifndef MSG_SD_INSERTED
   #define MSG_SD_INSERTED                     "Card inserted"
 #endif
@@ -462,7 +465,6 @@
 #ifndef MSG_DELTA_CALIBRATE_CENTER
   #define MSG_DELTA_CALIBRATE_CENTER          "Calibrate Center"
 #endif
-
 #ifndef MSG_INFO_MENU
   #define MSG_INFO_MENU                       "About Printer"
 #endif
@@ -559,6 +561,12 @@
 #ifndef MSG_FILAMENT_CHANGE_OPTION_RESUME
   #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Resume print"
 #endif
+#ifndef MSG_FILAMENT_CHANGE_MINTEMP
+  #define MSG_FILAMENT_CHANGE_MINTEMP         "Minimum Temp is "
+#endif
+#ifndef MSG_FILAMENT_CHANGE_NOZZLE
+  #define MSG_FILAMENT_CHANGE_NOZZLE          " Nozzle: "
+#endif
 
 //
 // Filament Change screens show up to 3 lines on a 4-line display
@@ -578,6 +586,14 @@
     #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert filament"
     #define MSG_FILAMENT_CHANGE_INSERT_2        "and press button"
     #define MSG_FILAMENT_CHANGE_INSERT_3        "to continue..."
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_HEAT_1
+    #define MSG_FILAMENT_CHANGE_HEAT_1          "Press button to"
+    #define MSG_FILAMENT_CHANGE_HEAT_2          "heat nozzle."
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_HEATING_1
+    #define MSG_FILAMENT_CHANGE_HEATING_1       "Heating nozzle"
+    #define MSG_FILAMENT_CHANGE_HEATING_2       "Please wait..."
   #endif
   #ifndef MSG_FILAMENT_CHANGE_LOAD_1
     #define MSG_FILAMENT_CHANGE_LOAD_1          "Wait for"
@@ -600,6 +616,9 @@
   #endif
   #ifndef MSG_FILAMENT_CHANGE_INSERT_1
     #define MSG_FILAMENT_CHANGE_INSERT_1        "Insert and Click"
+  #endif
+  #ifndef MSG_FILAMENT_CHANGE_HEATING_1
+    #define MSG_FILAMENT_CHANGE_HEATING_1       "Heating..."
   #endif
   #ifndef MSG_FILAMENT_CHANGE_LOAD_1
     #define MSG_FILAMENT_CHANGE_LOAD_1          "Loading..."
