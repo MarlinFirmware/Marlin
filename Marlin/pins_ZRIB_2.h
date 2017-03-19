@@ -41,6 +41,10 @@
 //switch Z_MIN_ZMAX and Z_MAX_PIN for auto bed leveling
 #ifdef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
   #undef Z_MIN_PIN
-  #define Z_MIN_PIN 19
+  #define Z_MIN_PIN 19 //Z_MAX_PIN
 #endif
 
+#ifdef FILAMENT_RUNOUT_SENSOR
+  #undef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN 15 //Y_MAX_PIN
+#endif
