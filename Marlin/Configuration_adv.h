@@ -766,6 +766,9 @@
   #define FILAMENT_CHANGE_NUMBER_OF_ALERT_BEEPS  5L  // Number of alert beeps before printer goes quiet
   #define FILAMENT_CHANGE_NO_STEPPER_TIMEOUT         // Enable to have stepper motors hold position during filament change
                                                      // even if it takes longer than DEFAULT_STEPPER_DEACTIVE_TIME.
+  //#define RB_PAUSE_RESUME                       //Enable to go to filament change position on pause 
+                                                  //and return to print position on resume
+                                                  //Currently dependent on filament change feature
 #endif
 
 // @section tmc
