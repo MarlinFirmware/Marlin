@@ -71,6 +71,7 @@ struct matrix_3x3 {
   static matrix_3x3 transpose(matrix_3x3 original);
 
   void set_to_identity();
+  matrix_3x3 get_by_z_factor(float factor); // factor should be 1.0 to 0.0, 1.0 occurs at z == 0.0
 
   void debug(const char title[]);
 };
