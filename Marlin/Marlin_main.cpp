@@ -7610,8 +7610,6 @@ inline void gcode_M503() {
       handle_led_print_event(4);  // Turn RGB LEDs Teal
     #endif
 
-    float lastpos[NUM_AXIS];
-
     // Save current position of all axes
     float lastpos[XYZE];
     COPY(lastpos, current_position);
