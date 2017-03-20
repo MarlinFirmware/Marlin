@@ -128,8 +128,8 @@
 #define MSG_VOLUMETRIC_ENABLED              _UxGT("E in mm3")
 #define MSG_FILAMENT_DIAM                   _UxGT("フィラメントチョッケイ")            // "Fil. Dia."
 #define MSG_CONTRAST                        _UxGT("LCDコントラスト")               // "LCD contrast"
-#define MSG_STORE_EPROM                     _UxGT("メモリヘカクノウ")               // "Store memory"
-#define MSG_LOAD_EPROM                      _UxGT("メモリカラヨミコミ")               // "Load memory"
+#define MSG_STORE_EEPROM                    _UxGT("メモリヘカクノウ")               // "Store memory"
+#define MSG_LOAD_EEPROM                     _UxGT("メモリカラヨミコミ")               // "Load memory"
 #define MSG_RESTORE_FAILSAFE                _UxGT("セッテイリセット")               // "Restore failsafe"
 #define MSG_REFRESH                         _UxGT("リフレッシュ")                  // "Refresh"
 #define MSG_WATCH                           _UxGT("ジョウホウガメン")               // "Info screen"
