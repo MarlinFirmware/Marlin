@@ -708,12 +708,12 @@ void kill_screen(const char* lcd_msg) {
 
   #if ENABLED(MENU_ITEM_CASE_LIGHT)
 
-    extern bool case_light_on;
+    extern uint8_t case_light_brightness;
     extern void update_case_light();
+    int case_light_brightness_int;
 
-    void toggle_case_light() {
-      case_light_on ^= true;
-      lcdDrawUpdate = LCDVIEW_CALL_REDRAW_NEXT;
+    void case_light_level() {
+      case_light_brightness = case_light_brightness_int;
       update_case_light();
     }
 
@@ -800,13 +800,12 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     //
-    // Switch case light on/off
+    // Set case light case light brightness
     //
     #if ENABLED(MENU_ITEM_CASE_LIGHT)
-      if (case_light_on)
-        MENU_ITEM(function, MSG_LIGHTS_OFF, toggle_case_light);
-      else
-        MENU_ITEM(function, MSG_LIGHTS_ON, toggle_case_light);
+      #define MSG_LCD_BRIGHTNESS  _UxGT("LCD brightness")
+      case_light_brightness_int = case_light_brightness;
+      MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(int3, MSG_LCD_BRIGHTNESS, &case_light_brightness_int, 0, 255,case_light_level);
     #endif
 
     #if ENABLED(BLTOUCH)
