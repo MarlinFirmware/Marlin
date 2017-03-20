@@ -3792,10 +3792,8 @@ inline void gcode_G28() {
           mbl.set_has_mesh(true);
           mbl.set_reactivate(true);
           enqueue_and_echo_commands_P(PSTR("G28"));
-          #if HAS_BUZZER
-            lcd_buzz(200, 659);
-            lcd_buzz(200, 698);
-          #endif
+          BUZZ(100, 659);
+          BUZZ(100, 698);
         }
         break;
 
@@ -7289,8 +7287,8 @@ void quickstop_stepper() {
       SYNC_PLAN_POSITION_KINEMATIC();
       report_current_position();
       LCD_MESSAGEPGM(MSG_HOME_OFFSETS_APPLIED);
-      BUZZ(200, 659);
-      BUZZ(200, 698);
+      BUZZ(100, 659);
+      BUZZ(100, 698);
     }
   }
 
@@ -7300,28 +7298,28 @@ void quickstop_stepper() {
  * M500: Store settings in EEPROM
  */
 inline void gcode_M500() {
-  Config_StoreSettings();
+  (void)Config_StoreSettings();
 }
 
 /**
  * M501: Read settings from EEPROM
  */
 inline void gcode_M501() {
-  Config_RetrieveSettings();
+  (void)Config_RetrieveSettings();
 }
 
 /**
  * M502: Revert to default settings
  */
 inline void gcode_M502() {
-  Config_ResetDefault();
+  (void)Config_ResetDefault();
 }
 
 /**
  * M503: print settings currently in memory
  */
 inline void gcode_M503() {
-  Config_PrintSettings(code_seen('S') && !code_value_bool());
+  (void)Config_PrintSettings(code_seen('S') && !code_value_bool());
 }
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
@@ -10696,7 +10694,7 @@ void setup() {
 
   // Load data from EEPROM if available (or use defaults)
   // This also updates variables in the planner, elsewhere
-  Config_RetrieveSettings();
+  (void)Config_RetrieveSettings();
 
   #if DISABLED(NO_WORKSPACE_OFFSETS)
     // Initialize current position based on home_offset
