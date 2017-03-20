@@ -7331,10 +7331,11 @@ void quickstop_stepper() {
     const bool new_status =
       #if ENABLED(MESH_BED_LEVELING)
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        blm.state.active;
+        blm.state.active
       #else
-        planner.abl_enabled;
+        planner.abl_enabled
       #endif
+	;
 
     if (to_enable && !new_status) {
       SERIAL_ERROR_START;
