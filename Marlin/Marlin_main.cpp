@@ -7330,6 +7330,7 @@ void quickstop_stepper() {
 
     const bool new_status =
       #if ENABLED(MESH_BED_LEVELING)
+        mbl.active()
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         blm.state.active
       #else
