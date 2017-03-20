@@ -700,7 +700,7 @@ static bool pwm_status(uint8_t pin) {
     #if defined(TCCR3A) && defined(COM3A1)
       PWM_CASE(3,A);
       PWM_CASE(3,B);
-      #if defined(COM3C1)
+      #ifdef COM3C1
         PWM_CASE(3,C);
       #endif
     #endif
@@ -829,14 +829,14 @@ static void pwm_details(uint8_t pin) {
         else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
         else can_be_used();
         break;
-      #if defined(COM3C1)
+      #ifdef COM3C1
       case TIMER3C:
-          TIMER_PREFIX(3,C,3);
-          if (WGM_TEST2) err_is_counter();
-          else if (TEST(TIMSK3, OCIE3C)) err_is_interrupt();
-          else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
-          else can_be_used();
-          break;
+        TIMER_PREFIX(3,C,3);
+        if (WGM_TEST2) err_is_counter();
+        else if (TEST(TIMSK3, OCIE3C)) err_is_interrupt();
+        else if (TIMSK3 & (_BV(TOIE3) | _BV(ICIE3))) err_prob_interrupt();
+        else can_be_used();
+        break;
       #endif
     #endif
 
