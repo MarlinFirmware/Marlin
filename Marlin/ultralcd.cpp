@@ -444,7 +444,7 @@ uint16_t max_display_update_time = 0;
         }
         else if (screen == lcd_status_screen && currentScreen == lcd_main_menu && PENDING(millis(), doubleclick_expire_ms))
           screen = lcd_babystep_z;
-      #endif 
+      #endif
 
       currentScreen = screen;
       encoderPosition = encoder;
@@ -624,11 +624,18 @@ void kill_screen(const char* lcd_msg) {
     void lcd_sdcard_pause() {
       card.pauseSDPrint();
       print_job_timer.pause();
+      #if ENABLED(PARK_HEAD_ON_PAUSE)
+        enqueue_and_echo_commands_P(PSTR("M125"))
+      #endif
     }
 
     void lcd_sdcard_resume() {
-      card.startFileprint();
-      print_job_timer.start();
+      #if ENABLED(PARK_HEAD_ON_PAUSE)
+        enqueue_and_echo_commands_P(PSTR("M24"))
+      #else
+        card.startFileprint();
+        print_job_timer.start();
+      #endif
     }
 
     void lcd_sdcard_stop() {
@@ -643,7 +650,7 @@ void kill_screen(const char* lcd_msg) {
       lcd_setstatus(MSG_PRINT_ABORTED, true);
     }
 
-  #endif //SDSUPPORT
+  #endif // SDSUPPORT
 
   #if ENABLED(MENU_ITEM_CASE_LIGHT)
 
