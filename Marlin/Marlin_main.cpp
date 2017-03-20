@@ -508,7 +508,13 @@ static uint8_t target_extruder;
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  float z_endstop_adj = 0;
+  float z_endstop_adj =
+    #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
+      Z_DUAL_ENDSTOPS_ADJUSTMENT
+    #else
+      0
+    #endif
+  ;
 #endif
 
 // Extruder offsets
@@ -2281,7 +2287,7 @@ static void clean_up_after_endstop_or_probe_move() {
         if (enable) planner.unapply_leveling(current_position);
       }
 
-    #elif HAS_ABL
+    #elif HAS_ABL && !ENABLED(AUTO_BED_LEVELING_UBL)
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         const bool can_change = (!enable || (bilinear_grid_spacing[0] && bilinear_grid_spacing[1]));
@@ -2302,7 +2308,11 @@ static void clean_up_after_endstop_or_probe_move() {
         else
           planner.unapply_leveling(current_position);
       }
-
+    #elif ENABLED(AUTO_BED_LEVELING_UBL)
+      if (blm.state.EEPROM_storage_slot == 0)  {
+        blm.state.active = enable;
+        blm.store_state();
+      }  
     #endif
   }
 
@@ -7139,6 +7149,8 @@ void quickstop_stepper() {
     const bool new_status =
       #if ENABLED(MESH_BED_LEVELING)
         mbl.active()
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        blm.state.active
       #else
         planner.abl_enabled
       #endif
