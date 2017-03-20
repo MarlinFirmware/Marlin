@@ -872,6 +872,30 @@
 #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(LEDSTRIP)
   #define PRINTER_EVENT_LEDS
   //#define NO_PAUSE_OR_TIMEOUT  // Removes the pause for click or timeout on event 0 (End of print).
+
+  /*  
+   *  0 - Green       - Timed or click to OFF. (Will stay green if NO_PAUSE_OR_TIMEOUT is enabled)
+   *  1 - White       - Used for main printing as a case light.
+   *  2 - Yellow      - Used when homing.
+   *  3 - Purple      - Not currently used.
+   *  4 - Aqua        - Used for filament change.
+   *  5 - Aqua dimmed - Used for filment change hotend timed out.
+   *  6 - Aqua Half   - Used for filament change hotend heating.
+   *  7 - Red         - Not currently used.
+   *  9 - Off         - Used for after homing and leveling.
+   */
+
+  /* Printer events color selection */
+  #define homing                  2
+  #define auto_leveling           7
+  #define manual_leveling         1
+  #define printing                1
+  #define filamentchange          4
+  #define filamentchange_timeout  5
+  #define filemantchange_heat     6
+  #define printing_done           0
+  #define all_off                 9
+
 #endif
 
 

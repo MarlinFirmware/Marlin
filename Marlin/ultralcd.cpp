@@ -1404,7 +1404,7 @@ void kill_screen(const char* lcd_msg) {
           #endif
 
           #if ENABLED(PRINTER_EVENT_LEDS)
-            handle_led_print_event(9); // Turn RGB LEDs off
+            handle_led_print_event(all_off);
           #endif
         }
         else {
@@ -1466,7 +1466,7 @@ KeepDrawing:
         lcd_goto_screen(_lcd_level_goto_next_point);
 
         #if ENABLED(PRINTER_EVENT_LEDS)
-          handle_led_print_event(1);  // Set RGB leds to white
+          handle_led_print_event(manual_leveling);
         #endif
       }
     }

@@ -164,26 +164,26 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
    *  9 - Off         - Used for after homing and after main printing.
    */
 
-        /* OTHER COLORS BY NAME AND VALUE FOR REFERENCE
-         *        COLOR NAME           R   G(U)  B
-         * Candle                     255, 147, 41
-         * 40W Tungsten               255, 197, 143
-         * 100W Tungsten              255, 214, 170
-         * Halogen                    255, 241, 224
-         * Carbon Arc                 255, 250, 244
-         * High Noon Sun              255, 255, 251
-         * Direct Sunlight            255, 255, 255
-         * Overcast Sky               201, 226, 255
-         * Clear Blue Sky             64, 156, 255
-         * Warm Fluorescent           255, 244, 229
-         * Standard Fluorescent       244, 255, 250
-         * Cool White Fluorescent     212, 235, 255
-         * Full Spectrum Fluorescent  255, 244, 242
-         * Grow Light Fluorescent     255, 239, 247
-         * 
-         *      OTHER COLORS
-         * Black Light Fluorescent    167, 0, 255
-         */
+  /* OTHER COLORS BY NAME AND VALUE FOR REFERENCE
+   *        COLOR NAME           R   G(U)  B
+   * Candle                     255, 147, 41
+   * 40W Tungsten               255, 197, 143
+   * 100W Tungsten              255, 214, 170
+   * Halogen                    255, 241, 224
+   * Carbon Arc                 255, 250, 244
+   * High Noon Sun              255, 255, 251
+   * Direct Sunlight            255, 255, 255
+   * Overcast Sky               201, 226, 255
+   * Clear Blue Sky             64, 156, 255
+   * Warm Fluorescent           255, 244, 229
+   * Standard Fluorescent       244, 255, 250
+   * Cool White Fluorescent     212, 235, 255
+   * Full Spectrum Fluorescent  255, 244, 242
+   * Grow Light Fluorescent     255, 239, 247
+   * 
+   *      OTHER COLORS
+   * Black Light Fluorescent    167, 0, 255
+   */
 
   void handle_led_print_event(int code) {
     switch(code) {

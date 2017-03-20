@@ -1805,7 +1805,7 @@ static void clean_up_after_endstop_or_probe_move() {
       #endif
 
       #if ENABLED(PRINTER_EVENT_LEDS)
-        handle_led_print_event(9);  // Turn RGB LEDs off
+        handle_led_print_event(all_off);
       #endif
       return true;
     }
@@ -3492,7 +3492,7 @@ inline void gcode_G28() {
   #endif
 
   #if ENABLED(PRINTER_EVENT_LEDS)
-    handle_led_print_event(2);  // Turn RGB on to Yellow
+    handle_led_print_event(homing);
   #endif
 
   // Wait for planner moves to finish!
@@ -3671,7 +3671,7 @@ inline void gcode_G28() {
   #endif
 
   #if ENABLED(PRINTER_EVENT_LEDS)
-    handle_led_print_event(9);  // Turn RGB LEDs off
+    handle_led_print_event(all_off);
   #endif
 }
 
@@ -3752,7 +3752,7 @@ inline void gcode_G28() {
     SERIAL_PROTOCOLLNPGM("mesh G29");
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(7);  // Set RGBs to Blacklight
+      handle_led_print_event(auto_leveling);
     #endif
 
     static int probe_index = -1;
@@ -3887,7 +3887,7 @@ inline void gcode_G28() {
 
     report_current_position();
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(9);  // Set RGBs Off
+      handle_led_print_event(all_off);
     #endif
   }
 
@@ -3939,7 +3939,7 @@ inline void gcode_G28() {
     SERIAL_PROTOCOLLNPGM("std G29");
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(7);  // Set RGBs to Blacklight
+      handle_led_print_event(auto_leveling);
     #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
@@ -4449,7 +4449,7 @@ inline void gcode_G28() {
       SYNC_PLAN_POSITION_KINEMATIC();
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(9);  // Set RGBs Off
+      handle_led_print_event(all_off);
     #endif
 
   }
@@ -5729,7 +5729,7 @@ inline void gcode_M109() {
     LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(1);  // Set RGBs ALL WHITE
+      handle_led_print_event(printing);
     #endif
   }
 
@@ -6132,7 +6132,7 @@ inline void gcode_M18_M84() {
     }
   }
   #if ENABLED(PRINTER_EVENT_LEDS)
-    handle_led_print_event(0);  // Turn RGB green with click to off or timeout to off
+    handle_led_print_event(printing_done);
   #endif
 }
 
@@ -7608,7 +7608,7 @@ inline void gcode_M503() {
     stepper.synchronize();
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(4);  // Turn RGB LEDs Teal
+      handle_led_print_event(filamentchange);
     #endif
 
     // Save current position of all axes
@@ -7703,7 +7703,7 @@ inline void gcode_M503() {
           lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
 
           #if ENABLED(PRINTER_EVENT_LEDS)
-            handle_led_print_event(5);  // Turn RGB LEDs Teal dimmed
+            handle_led_print_event(filamentchange_timeout);
           #endif
         }
       }
@@ -7714,7 +7714,7 @@ inline void gcode_M503() {
       HOTEND_LOOP() thermalManager.setTargetHotend(temps[e], e);
 
       #if ENABLED(PRINTER_EVENT_LEDS)
-        handle_led_print_event(6);  // Turn RGB LEDs Teal - Half
+        handle_led_print_event(filemantchange_heat);
       #endif
 
     // Show "wait for heating"
@@ -7749,7 +7749,7 @@ inline void gcode_M503() {
     }
 
       #if ENABLED(PRINTER_EVENT_LEDS)
-        handle_led_print_event(4);  // Turn RGB LEDs Teal Full
+        handle_led_print_event(filamentchange);
       #endif
 
     // Show load message
@@ -7792,7 +7792,7 @@ inline void gcode_M503() {
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_RESUME);
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-      handle_led_print_event(1);  // Turn RGB LEDs White
+      handle_led_print_event(printing);
     #endif
 
     // Set extruder to saved position
