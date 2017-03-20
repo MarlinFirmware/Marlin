@@ -7188,7 +7188,7 @@ void quickstop_stepper() {
       #endif
     ;
 
-    if (to_enable && !new_status) {
+    if ((to_enable) && (!new_status)) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_M420_FAILED);
     }
