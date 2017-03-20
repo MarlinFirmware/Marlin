@@ -518,8 +518,13 @@ static uint8_t target_extruder;
   #define ADJUST_DELTA(V) NOOP
 #endif
 
+
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  float z_endstop_adj = 0;
+  #if defined(Z_DUAL_ENDSTOPS_ADJUSTMENT)
+    float z_endstop_adj = Z_DUAL_ENDSTOPS_ADJUSTMENT;
+  #else
+    float z_endstop_adj = 0;
+  #endif
 #endif
 
 // Extruder offsets
@@ -1799,6 +1804,10 @@ static void clean_up_after_endstop_or_probe_move() {
         strcat_P(message, PSTR(" " MSG_FIRST));
         lcd_setstatus(message);
       #endif
+
+      #if ENABLED(PRINTER_EVENT_LEDS)
+        handle_led_print_event(9);  // Turn RGB LEDs off
+      #endif
       return true;
     }
     return false;
@@ -2292,7 +2301,7 @@ static void clean_up_after_endstop_or_probe_move() {
         if (enable) planner.unapply_leveling(current_position);
       }
 
-    #elif HAS_ABL
+    #elif HAS_ABL && !ENABLED(AUTO_BED_LEVELING_UBL)
 
       #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
         const bool can_change = (!enable || (bilinear_grid_spacing[0] && bilinear_grid_spacing[1]));
@@ -2313,9 +2322,13 @@ static void clean_up_after_endstop_or_probe_move() {
         else
           planner.unapply_leveling(current_position);
       }
-
+    #elif ENABLED(AUTO_BED_LEVELING_UBL)
+      if (blm.state.EEPROM_storage_slot == 0)  {
+        blm.state.active = enable;
+        blm.store_state();
+      }  
     #endif
-  }
+}
 
   #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
@@ -3616,11 +3629,6 @@ inline void gcode_G28() {
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(LEVELING)) DEBUG_POS("> (home_all_axis || homeZ) > final", current_position);
         #endif
-
-        //#if ENABLED(PRINTER_EVENT_LEDS)
-        //  handle_led_print_event(9);  // Turn RGBs off
-        //#endif
-
       } // home_all_axis || homeZ
     #endif // Z_HOME_DIR < 0
 
@@ -3742,6 +3750,11 @@ inline void gcode_G28() {
    *
    */
   inline void gcode_G29() {
+    SERIAL_PROTOCOLLNPGM("mesh G29");
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(7);  // Set RGBs to Blacklight
+    #endif
 
     static int probe_index = -1;
     #if HAS_SOFTWARE_ENDSTOPS
@@ -3874,6 +3887,9 @@ inline void gcode_G28() {
     } // switch(state)
 
     report_current_position();
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(9);  // Set RGBs Off
+    #endif
   }
 
 #elif HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
@@ -3921,6 +3937,11 @@ inline void gcode_G28() {
    *
    */
   inline void gcode_G29() {
+    SERIAL_PROTOCOLLNPGM("std G29");
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(7);  // Set RGBs to Blacklight
+    #endif
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
       const bool query = code_seen('Q');
@@ -4427,6 +4448,11 @@ inline void gcode_G28() {
 
     if (planner.abl_enabled)
       SYNC_PLAN_POSITION_KINEMATIC();
+
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(9);  // Set RGBs Off
+    #endif
+
   }
 
 #endif // HAS_ABL && DISABLED(AUTO_BED_LEVELING_UBL)
@@ -5594,9 +5620,10 @@ inline void gcode_M109() {
         #endif
         if(wait_for_heatup) {
           // Gradually change LED strip from violet to red as extruder heats up
-          r = 253;
+          r = 255;
           g = 0;
           b = map(temp, starting_temp_e, theTarget, 255, 0);
+          if(temp >= theTarget) b = 0;
           #if ENABLED(LEDSTRIP)
             #if ENABLED(DEBUG_LEDSTRIP)
               SERIAL_ECHO_START;
@@ -5607,6 +5634,8 @@ inline void gcode_M109() {
             #if ENABLED(DEBUG_LEDSTRIP_FADE)
               SERIAL_ECHO_START;
               SERIAL_ECHO("HOTEND:");
+              SERIAL_ECHOPAIR(" Temp: ", temp);
+              SERIAL_ECHOPAIR(" | Target: ", theTarget);
               SERIAL_ECHOPAIR(" Red: ", r);
               SERIAL_ECHOPAIR(" | Green: ", g);
               SERIAL_ECHOLNPAIR(" | Blue: ", b);
@@ -5752,9 +5781,10 @@ inline void gcode_M109() {
         #endif
         if(wait_for_heatup) {
           // Gradually change LED strip from blue to violet as bed heats up
-          r = map(temp, starting_temp_b, theTarget, 0, 253);
+          r = map(temp, starting_temp_b, theTarget, 0, 255);
           g = 0;
           b = 255;
+          if(temp >= theTarget) r = 255;
           #if ENABLED(LEDSTRIP)
             #if ENABLED(DEBUG_LEDSTRIP)
               SERIAL_ECHO_START;
@@ -5764,11 +5794,12 @@ inline void gcode_M109() {
             #endif
             #if ENABLED(DEBUG_LEDSTRIP_FADE)
               SERIAL_ECHO_START;
-              SERIAL_ECHO("BED:");
+              SERIAL_ECHO("HOTEND:");
+              SERIAL_ECHOPAIR(" Temp: ", temp);
+              SERIAL_ECHOPAIR(" | Target: ", theTarget);
               SERIAL_ECHOPAIR(" Red: ", r);
               SERIAL_ECHOPAIR(" | Green: ", g);
-              SERIAL_ECHOPAIR(" | Blue: ", b);
-              SERIAL_ECHOLNPAIR(" | R_FADE: ", r_fade);
+              SERIAL_ECHOLNPAIR(" | Blue: ", b);
             #endif
             if(r_fade == 0) SendColorsOnLedstrip (r, g, b, 0, 1);
             if((r - r_fade) >= 1) {
@@ -7150,9 +7181,10 @@ void quickstop_stepper() {
 
     const bool new_status =
       #if ENABLED(MESH_BED_LEVELING)
-        mbl.active()
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        blm.state.active
       #else
-        planner.abl_enabled
+        planner.abl_enabled      
       #endif
     ;
 

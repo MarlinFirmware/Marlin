@@ -160,7 +160,7 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
    *  4 - Aqua        - Used for filament change.
    *  5 - Aqua dimmed - Used for filment change hotend timed out.
    *  6 - Aqua Half   - Used for filament change hotend heating.
-   *  7 - Red         - Not currently used.
+   *  7 - Blacklight  - Used for bed leveling.
    *  9 - Off         - Used for after homing and after main printing.
    */
 
@@ -274,12 +274,12 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
         #endif
         SendColorsOnLedstrip (0, 127, 127, 0, 1);
         break;
-      case(7):      // Turn RGB LEDs Red
+      case(7):      // Turn RGB LEDs Blacklight
         #if ENABLED(DEBUG_LEDSTRIP)
           SERIAL_ECHO_START;
           SERIAL_ECHOLNPAIR("PRINTER_EVENT:", 7);
         #endif
-        SendColorsOnLedstrip (255, 0, 0, 0, 1);
+        SendColorsOnLedstrip (167, 0, 255, 0, 1);
         break;
       case(9):      // Turn RGB LEDs off
         #if ENABLED(DEBUG_LEDSTRIP)

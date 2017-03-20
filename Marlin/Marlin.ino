@@ -70,3 +70,7 @@
   #include <SPI.h>
   #include <L6470.h>
 #endif
+
+#if ENABLED(LEDSTRIP)
+  #include <FastLED.h>
+#endif
