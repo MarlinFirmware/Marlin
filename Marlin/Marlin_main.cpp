@@ -10212,35 +10212,35 @@ void prepare_move_to_destination() {
   void setPwmFrequency(uint8_t pin, int val) {
     val &= 0x07;
     switch (digitalPinToTimer(pin)) {
-      #if defined(TCCR0A)
+      #ifdef TCCR0A
         case TIMER0A:
         case TIMER0B:
           // TCCR0B &= ~(_BV(CS00) | _BV(CS01) | _BV(CS02));
           // TCCR0B |= val;
           break;
       #endif
-      #if defined(TCCR1A)
+      #ifdef TCCR1A
         case TIMER1A:
         case TIMER1B:
           // TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
           // TCCR1B |= val;
           break;
       #endif
-      #if defined(TCCR2)
+      #ifdef TCCR2
         case TIMER2:
         case TIMER2:
           TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
           TCCR2 |= val;
           break;
       #endif
-      #if defined(TCCR2A)
+      #ifdef TCCR2A
         case TIMER2A:
         case TIMER2B:
           TCCR2B &= ~(_BV(CS20) | _BV(CS21) | _BV(CS22));
           TCCR2B |= val;
           break;
       #endif
-      #if defined(TCCR3A)
+      #ifdef TCCR3A
         case TIMER3A:
         case TIMER3B:
         case TIMER3C:
@@ -10248,7 +10248,7 @@ void prepare_move_to_destination() {
           TCCR3B |= val;
           break;
       #endif
-      #if defined(TCCR4A)
+      #ifdef TCCR4A
         case TIMER4A:
         case TIMER4B:
         case TIMER4C:
@@ -10256,7 +10256,7 @@ void prepare_move_to_destination() {
           TCCR4B |= val;
           break;
       #endif
-      #if defined(TCCR5A)
+      #ifdef TCCR5A
         case TIMER5A:
         case TIMER5B:
         case TIMER5C:
