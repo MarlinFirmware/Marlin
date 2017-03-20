@@ -504,8 +504,8 @@
           break;
 
         case 10:
-          UBL_has_control_of_LCD_Panel++;     // Debug code... Pan no attention to this stuff
-          SERIAL_ECHO_START;
+          UBL_has_control_of_LCD_Panel++;     // Debug code... Pay no attention to this stuff
+          SERIAL_ECHO_START;                  // it can be removed soon.
           SERIAL_ECHOPGM("Checking G29 has control of LCD Panel:\n");
           while(!G29_lcd_clicked()) {
             idle();
