@@ -54,6 +54,10 @@
     void dontExpireStatus();
   #endif
 
+  #if ENABLED(ADC_KEYPAD)
+	uint8_t get_ADC_keyValue();
+  #endif
+
   #if ENABLED(DOGLCD)
     extern int lcd_contrast;
     void set_lcd_contrast(int value);
@@ -70,14 +74,15 @@
 
     #define BLEN_A 0
     #define BLEN_B 1
+    #define EN_A (_BV(BLEN_A))
+    #define EN_B (_BV(BLEN_B))
+    
     // Encoder click is directly connected
     #if BUTTON_EXISTS(ENC)
       #define BLEN_C 2
+      #define EN_C (_BV(BLEN_C))
     #endif
-    #define EN_A (_BV(BLEN_A))
-    #define EN_B (_BV(BLEN_B))
-    #define EN_C (_BV(BLEN_C))
-
+    
     extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
     void lcd_buttons_update();
     void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
@@ -120,15 +125,37 @@
     #define EN_REPRAPWORLD_KEYPAD_UP      (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_UP))
     #define EN_REPRAPWORLD_KEYPAD_LEFT    (_BV(REPRAPWORLD_BTN_OFFSET + BLEN_REPRAPWORLD_KEYPAD_LEFT))
 
-    #define REPRAPWORLD_KEYPAD_MOVE_Z_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F3)
-    #define REPRAPWORLD_KEYPAD_MOVE_Z_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F2)
-    #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
-    #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)
-    #define REPRAPWORLD_KEYPAD_MOVE_X_RIGHT (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT)
-    #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
-    #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
-    #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
+	#if ENABLED(ADC_KEYPAD)
+	  #define REPRAPWORLD_KEYPAD_MOVE_Z_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F3)
+	  #define REPRAPWORLD_KEYPAD_MOVE_Z_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F2)
+	  #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
+	  #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)
+	  #define REPRAPWORLD_KEYPAD_MOVE_X_RIGHT (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT)
+	  #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
+	  #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
+	  #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
 
+	  #if BUTTON_EXISTS(ENC)
+		#define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE))
+	  #else
+		#define LCD_CLICKED (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
+	  #endif
+	#else
+      #define REPRAPWORLD_KEYPAD_MOVE_Z_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F3)
+      #define REPRAPWORLD_KEYPAD_MOVE_Z_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F2)
+      #define REPRAPWORLD_KEYPAD_MOVE_MENU    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
+      #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_DOWN)
+      #define REPRAPWORLD_KEYPAD_MOVE_X_RIGHT (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_RIGHT)
+      #define REPRAPWORLD_KEYPAD_MOVE_HOME    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_MIDDLE)
+      #define REPRAPWORLD_KEYPAD_MOVE_Y_UP    (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_UP)
+      #define REPRAPWORLD_KEYPAD_MOVE_X_LEFT  (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_LEFT)
+
+	  #if BUTTON_EXISTS(ENC)
+		#define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1))
+	  #else
+		#define LCD_CLICKED (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1)
+	  #endif
+	#endif
     #define REPRAPWORLD_KEYPAD_PRESSED      (buttons_reprapworld_keypad & ( \
                                               EN_REPRAPWORLD_KEYPAD_F3 | \
                                               EN_REPRAPWORLD_KEYPAD_F2 | \
@@ -139,8 +166,6 @@
                                               EN_REPRAPWORLD_KEYPAD_UP | \
                                               EN_REPRAPWORLD_KEYPAD_LEFT) \
                                             )
-
-    #define LCD_CLICKED ((buttons & EN_C) || (buttons_reprapworld_keypad & EN_REPRAPWORLD_KEYPAD_F1))
   #elif ENABLED(NEWPANEL)
     #define LCD_CLICKED (buttons & EN_C)
   #else

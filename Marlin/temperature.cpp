@@ -200,6 +200,11 @@ uint8_t Temperature::soft_pwm[HOTENDS];
   int Temperature::current_raw_filwidth = 0;  //Holds measured filament diameter - one extruder only
 #endif
 
+#ifdef ADC_KEYPAD
+  uint32_t Temperature::current_ADCKey_raw = 0;
+  uint8_t Temperature::ADCKey_count = 0;
+#endif
+
 #if HAS_PID_HEATING
 
   void Temperature::PID_autotune(float temp, int hotend, int ncycles, bool set_result/*=false*/) {
@@ -1512,6 +1517,9 @@ void Temperature::isr() {
   static uint8_t temp_count = 0;
   static TempState temp_state = StartupDelay;
   static uint8_t pwm_count = _BV(SOFT_PWM_SCALE);
+#ifdef ADC_KEYPAD
+  static unsigned int raw_ADCKey_value = 0;
+#endif
 
   // Static members for each heater
   #if ENABLED(SLOW_PWM_HEATERS)
@@ -1847,9 +1855,38 @@ void Temperature::isr() {
           raw_filwidth_value += ((unsigned long)ADC << 7); //add new ADC reading
         }
       #endif
-      temp_state = PrepareTemp_0;
-      temp_count++;
+	  temp_state = Prepare_ADC_KEY;
       break;
+	case Prepare_ADC_KEY:
+		#if PIN_EXISTS(ADC_KEYPAD)
+		  START_ADC(ADC_KEYPAD_PIN);
+		#endif
+		lcd_buttons_update();
+		temp_state = Measure_ADC_KEY;
+		break;
+	case Measure_ADC_KEY:
+		#if ENABLED(ADC_KEYPAD)
+		if (ADCKey_count < 16)
+		{
+			#if PIN_EXISTS(ADC_KEYPAD)
+			raw_ADCKey_value = ADC;
+			#endif
+			if (raw_ADCKey_value > 900)
+			{
+				//ADC Key release
+				ADCKey_count = 0;
+				current_ADCKey_raw = 0;
+			}
+			else
+			{
+				current_ADCKey_raw += raw_ADCKey_value;
+				ADCKey_count++;
+			}
+		}
+		#endif
+		temp_state = PrepareTemp_0;
+		temp_count++;
+		break;
 
     case StartupDelay:
       temp_state = PrepareTemp_0;

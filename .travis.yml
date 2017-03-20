@@ -20,10 +20,10 @@ before_install:
   #
 install:
   #
-  # Install arduino 1.6.10
-  - wget http://downloads-02.arduino.cc/arduino-1.6.10-linux64.tar.xz
-  - tar xf arduino-1.6.10-linux64.tar.xz
-  - sudo mv arduino-1.6.10 /usr/local/share/arduino
+  # Install arduino 1.8.1
+  - wget https://downloads.arduino.cc/arduino-1.8.1-linux64.tar.xz
+  - tar xf arduino-1.8.1-linux64.tar.xz
+  - sudo mv arduino-1.8.1 /usr/local/share/arduino
   - ln -s /usr/local/share/arduino/arduino ${TRAVIS_BUILD_DIR}/buildroot/bin/arduino
   #
   # Install: LiquidCrystal_I2C library
@@ -49,6 +49,10 @@ install:
   # Install: TMC2130 Stepper Motor Controller library
   - git clone https://github.com/teemuatlut/TMC2130Stepper.git
   - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
+  #
+  # Install: Sanguino hardware support for arduino
+  - git clone https://github.com/thijsk/Sanguino.git
+  - sudo mv Sanguino /usr/local/share/arduino/hardware/Sanguino
   #
 before_script:
   #
@@ -332,6 +336,12 @@ script:
   - opt_enable RA_CONTROL_PANEL
   - build_marlin
   #
+  #
+  # ADC Keypad
+  #
+  - restore_configs
+  - opt_enable ADC_KEYPAD
+  - build_marlin
   ######## I2C LCD/PANELS ##############
   #
   # !!!ATTENTION!!!
@@ -406,6 +416,7 @@ script:
   - build_marlin
   - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP
   - build_marlin
+
   #
   # tvrrug Config need to check board type for sanguino atmega644p
   #
@@ -413,6 +424,14 @@ script:
   #- build_marlin
   #
   #
+  
+  #
+  # anet A8 standard config
+  #
+  - restore_configs
+  - use_example_configs "Anet/A8-5buttonkeypad-no_autolevel"
+  - build_marlin_sanguino
+  
   ######## Board Types #############
   #
   # To be added in nightly test branch
