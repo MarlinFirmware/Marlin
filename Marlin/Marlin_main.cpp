@@ -90,7 +90,7 @@
  * M33  - Get the longname version of a path. (Requires LONG_FILENAME_HOST_SUPPORT)
  * M34  - Set SD Card sorting options. (Requires SDCARD_SORT_ALPHA)
  * M42  - Change pin status via gcode: M42 P<pin> S<value>. LED pin assumed if P is omitted.
- * M43  - Monitor pins & report changes - report active pins
+ * M43  - Monitor pins & report changes - servo probe test - report active pins
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  * M75  - Start the print job timer.
  * M76  - Pause the print job timer.
@@ -4938,22 +4938,175 @@ inline void gcode_M42() {
 
   #include "pinsDebug.h"
 
+
+  inline void toggle_pins() {
+    int pin, j, start = 0, I_flag = 0, end = NUM_DIGITAL_PINS - 1, wait = 500, repeat = 1;
+
+    if (code_seen('R'))
+      repeat = code_value_int();
+
+    if (code_seen('S'))
+      start = code_value_int();
+
+    if (code_seen('E'))
+      end = code_value_int();
+
+    if (code_seen('I') )
+      I_flag++;
+
+    if (code_seen('W'))
+      wait = code_value_int();
+
+    for(pin = start; pin <= end; pin++) {
+        if ( I_flag == 0 && pin_is_protected(pin)) {
+          SERIAL_ECHOPAIR("Sensitive Pin: ", pin);
+          SERIAL_ECHOPGM(" untouched.\n");
+        }
+        else {
+          SERIAL_ECHOPAIR("Pulsing Pin: ", pin);
+          pinMode(pin, OUTPUT);
+          for(j = 0; j < repeat; j++) {
+            digitalWrite(pin, 0);
+            idle();
+            delay(wait);
+            digitalWrite(pin, 1);
+            idle();
+            delay(wait);
+            digitalWrite(pin, 0);
+            idle();
+            delay(wait);
+          }
+        }
+      SERIAL_ECHOPGM("\n");
+    }
+    SERIAL_ECHOPGM("Done\n");
+    return;
+  }  // toggle pin(s)
+
+
+  inline void servo_probe_test(){
+    #if !(NUM_SERVOS >= 1 && HAS_SERVO_0)
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("SERVO not setup");
+    #else
+
+      #if !defined(z_servo_angle)
+        const int z_servo_angle[2] = Z_SERVO_ANGLES;
+      #endif
+      uint8_t probe_index = code_seen('P') ? code_value_byte() : 0;
+      SERIAL_PROTOCOLLNPGM("Servo probe test");
+      SERIAL_PROTOCOLLNPAIR(".  using index:  ", probe_index);
+      SERIAL_PROTOCOLLNPAIR(".  deploy angle: ", z_servo_angle[0]);
+      SERIAL_PROTOCOLLNPAIR(".  stow angle:   ", z_servo_angle[1]);
+      bool probe_inverting;
+      #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+        #define PROBE_TEST_PIN Z_MIN_PIN
+        SERIAL_PROTOCOLLNPAIR(". probe uses Z_MIN pin: ", PROBE_TEST_PIN);
+        SERIAL_PROTOCOLLNPGM(". uses Z_MIN_ENDSTOP_INVERTING (ignores Z_MIN_PROBE_ENDSTOP_INVERTING)");
+        SERIAL_PROTOCOLPGM(". Z_MIN_ENDSTOP_INVERTING: ");
+        if (Z_MIN_ENDSTOP_INVERTING) SERIAL_PROTOCOLLNPGM("true");
+        else  SERIAL_PROTOCOLLNPGM("false");
+        probe_inverting = Z_MIN_ENDSTOP_INVERTING;
+      #elif ENABLED(Z_MIN_PROBE_ENDSTOP)
+        #define PROBE_TEST_PIN Z_MIN_PROBE_PIN
+
+        SERIAL_PROTOCOLLNPAIR(". probe uses Z_MIN_PROBE_PIN: ", PROBE_TEST_PIN);
+        SERIAL_PROTOCOLLNPGM(". uses Z_MIN_PROBE_ENDSTOP_INVERTING (ignores Z_MIN_ENDSTOP_INVERTING)");
+        SERIAL_PROTOCOLPGM(". Z_MIN_PROBE_ENDSTOP_INVERTING: ");
+        if (Z_MIN_PROBE_ENDSTOP_INVERTING) SERIAL_PROTOCOLLNPGM("true");
+        else  SERIAL_PROTOCOLLNPGM("false");
+        probe_inverting = Z_MIN_PROBE_ENDSTOP_INVERTING;
+      #else
+        #error "ERROR - probe pin not defined - strange, SANITY_CHECK should have caught this"
+      #endif
+      SERIAL_PROTOCOLLNPGM(". deploy & stow 4 times");
+      pinMode(PROBE_TEST_PIN, INPUT_PULLUP);
+      bool deploy_state;
+      bool stow_state;
+      for (uint8_t i = 0; i < 4; i++) {
+        servo[probe_index].move(z_servo_angle[0]); //deploy
+        safe_delay(500);
+        deploy_state = digitalRead(PROBE_TEST_PIN);
+        servo[probe_index].move(z_servo_angle[1]); //stow
+        safe_delay(500);
+        stow_state = digitalRead(PROBE_TEST_PIN);
+      }
+      if (probe_inverting != deploy_state) SERIAL_PROTOCOLLNPGM("WARNING - INVERTING setting probably backwards");
+      refresh_cmd_timeout();
+      if (deploy_state != stow_state) {
+        SERIAL_PROTOCOLLNPGM("TLTouch detected");         // BLTouch clone?
+        if (deploy_state) {
+          SERIAL_PROTOCOLLNPGM(".  DEPLOYED state: HIGH (logic 1)");
+          SERIAL_PROTOCOLLNPGM(".  STOWED (triggered) state: LOW (logic 0)");
+        }
+        else {
+          SERIAL_PROTOCOLLNPGM(".  DEPLOYED state: LOW (logic 0)");
+          SERIAL_PROTOCOLLNPGM(".  STOWED (triggered) state: HIGH (logic 1)");
+        }
+      }
+      else {                                           // measure active signal length
+        servo[probe_index].move(z_servo_angle[0]); //deploy
+        safe_delay(500);
+        SERIAL_PROTOCOLLNPGM("please trigger probe");
+        uint16_t probe_counter = 0;
+        for (uint16_t j = 0; j < 500*30 && probe_counter == 0 ; j++) {   // allow 30 seconds max for operator to trigger probe
+          safe_delay(2);
+          if ( 0 == j%(500*1)) {refresh_cmd_timeout(); watchdog_reset();}  // beat the dog every 45 seconds
+          if (deploy_state != digitalRead(PROBE_TEST_PIN)) {             // probe triggered
+            for (probe_counter = 1; probe_counter < 50 && (deploy_state != digitalRead(PROBE_TEST_PIN)); probe_counter ++) {
+              safe_delay(2);
+            }
+            if (probe_counter == 50) {
+              SERIAL_PROTOCOLLNPGM("Z Servo Probe detected");   // >= 100mS active time
+            }
+            else if (probe_counter >= 2 ) {
+              SERIAL_PROTOCOLLNPAIR("BLTouch compatible probe detected - pulse width (+/- 4mS): ", probe_counter * 2 );   // allow 4 - 100mS pulse
+            }
+            else {
+              SERIAL_PROTOCOLLNPGM("noise detected - please re-run test");   // less than 2mS pulse
+            }
+            servo[probe_index].move(z_servo_angle[1]); //stow
+          }  // pulse detected
+        }    // for loop waiting for trigger
+        if (probe_counter == 0) SERIAL_PROTOCOLLNPGM("trigger not detected");
+      }      // measure active signal length
+    #endif
+  }        // servo_probe_test
+
   /**
-   * M43: Pin report and debug
+   * M43: Pin debug - report pin state, watch pins, toggle pins and servo probe test/report
    *
-   *      E<bool> Enable / disable background endstop monitoring
-   *               - Machine continues to operate
-   *               - Reports changes to endstops
-   *               - Toggles LED when an endstop changes
+   *  M43         - report name and state of pin(s)
+   *                  P<pin>  Pin to read or watch. If omitted, reads all pins.
+   *                  I       Flag to ignore Marlin's pin protection.
    *
-   *   or
+   *  M43 W       - Watch pins -reporting changes- until reset, click, or M108.
+   *                  P<pin>  Pin to read or watch. If omitted, read/watch all pins.
+   *                  I       Flag to ignore Marlin's pin protection.
    *
-   *      P<pin>  Pin to read or watch. If omitted, read/watch all pins.
-   *      W<bool> Watch pins -reporting changes- until reset, click, or M108.
-   *      I<bool> Flag to ignore Marlin's pin protection.
+   *  M43 E<bool> - Enable / disable background endstop monitoring
+   *                  - Machine continues to operate
+   *                  - Reports changes to endstops
+   *                  - Toggles LED when an endstop changes
+   *                  - Can not reliably catch the 5mS pulse from BLTouch type probes
    *
+   *  M43 T       - Toggle pin(s) and report which pin is being toggled
+   *                  S<pin>  - Start Pin number.   If not given, will default to 0
+   *                  L<pin>  - End Pin number.   If not given, will default to last pin defined for this board
+   *                  I       - Flag to ignore Marlin's pin protection.   Use with caution!!!!
+   *                  R       - Repeat pulses on each pin this number of times before continueing to next pin
+   *                  W       - Wait time (in miliseconds) between pulses.  If not given will default to 500
+   *
+   *  M43 S       - Servo probe test
+   *                  P<index> - Probe index (optional - defaults to 0
    */
+
   inline void gcode_M43() {
+
+    if (code_seen('T')) {   // must be first ot else it's "S" and "E" parameters will execute endstop or servo test
+      toggle_pins();
+      return;
+    }
 
     // Enable or disable endstop monitoring
     if (code_seen('E')) {
@@ -4964,6 +5117,12 @@ inline void gcode_M42() {
       return;
     }
 
+    if (code_seen('S')) {
+      servo_probe_test();
+      return;
+    }
+
+
     // Get the range of pins to test or watch
     int first_pin = 0, last_pin = NUM_DIGITAL_PINS - 1;
     if (code_seen('P')) {
@@ -4971,10 +5130,11 @@ inline void gcode_M42() {
       if (first_pin > NUM_DIGITAL_PINS - 1) return;
     }
 
-    bool ignore_protection = code_seen('I') ? code_value_bool() : false;
+    bool ignore_protection = code_seen('I');
 
     // Watch until click, M108, or reset
-    if (code_seen('W') && code_value_bool()) { // watch digital pins
+    if (code_seen('W')) { // watch digital pins
+      SERIAL_PROTOCOLLNPGM("Watching pins");
       byte pin_state[last_pin - first_pin + 1];
       for (int8_t pin = first_pin; pin <= last_pin; pin++) {
         if (pin_is_protected(pin) && !ignore_protection) continue;
@@ -5016,6 +5176,7 @@ inline void gcode_M42() {
     for (uint8_t pin = first_pin; pin <= last_pin; pin++)
       report_pin_state_extended(pin, ignore_protection);
   }
+
 
 #endif // PINS_DEBUGGING
 
