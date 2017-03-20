@@ -515,7 +515,9 @@ void CardReader::checkautostart(bool force) {
   }
 
   char autoname[10];
-  sprintf_P(autoname, PSTR("auto%i.g"), autostart_index);
+  //To set the filename that will be checked as "dagoma[0-9].g" :
+  //sprintf_P(autoname, PSTR("auto%i.g"), autostart_index);
+  sprintf_P(autoname, PSTR("dagoma%i.g"), autostart_index);
   for (int8_t i = 0; i < (int8_t)strlen(autoname); i++) autoname[i] = tolower(autoname[i]);
 
   dir_t p;
