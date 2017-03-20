@@ -819,7 +819,7 @@ void kill_screen(const char* lcd_msg) {
 
     float Mesh_Edit_Value, Mesh_Edit_Accumulator; // We round Mesh_Edit_Value to 2.5 decimal places.  So we keep a
                                                   // seperate value that doesn't lose precision.
-    static int loop_cnt=0, last_seen_bits;
+       static int loop_cnt=0, last_seen_bits, UBL_encoderPosition=0;
 
     static void _lcd_mesh_fine_tune( const char* msg) {
       static unsigned long last_click=0;
@@ -827,21 +827,24 @@ void kill_screen(const char* lcd_msg) {
       long int rounded;
 
       defer_return_to_status = true;
-      if (encoderPosition) {                     // If moving the Encoder wheel very slowly, we just go
-        if ( (millis() - last_click) > 500L) {   // up or down by 1 position
-          if ( ((int32_t)encoderPosition) > 0 ) {
-            encoderPosition = 1;
-          }
+
+      if (G29_encoderDiff) {                     // If moving the Encoder wheel very slowly, we just go
+        if ( (millis() - last_click) > 200L) {   // up or down by 1 position
+          if ( G29_encoderDiff > 0 ) 
+            UBL_encoderPosition = 1;
           else {
-            encoderPosition = (uint32_t) -1;
+            UBL_encoderPosition = -1;
           }
-        }
+        } else 
+            UBL_encoderPosition = G29_encoderDiff * 2;
+
+        G29_encoderDiff = 0;
         last_click = millis();
 
-        Mesh_Edit_Accumulator += ( (float) ((int32_t)encoderPosition)) * .005 / 2.0 ;
+        Mesh_Edit_Accumulator += ( (float) (UBL_encoderPosition)) * .005 / 2.0 ;
         Mesh_Edit_Value       = Mesh_Edit_Accumulator;
         encoderPosition       = 0;
-        lcdDrawUpdate       = LCDVIEW_REDRAW_NOW;
+        lcdDrawUpdate         = LCDVIEW_REDRAW_NOW;
 
         rounded    = (long int) (Mesh_Edit_Value * 1000.0);
         last_digit = rounded % 5L; //10L;
@@ -853,21 +856,17 @@ void kill_screen(const char* lcd_msg) {
       if (lcdDrawUpdate) {
         lcd_implementation_drawedit(msg, ftostr43sign( (float) Mesh_Edit_Value  ));
       }
-
-      if ( !UBL_has_control_of_LCD_Panel && LCD_CLICKED ) {
-        UBL_has_control_of_LCD_Panel=1;   // We need to lock the normal LCD Panel System outbecause G29 (and G26) are looking for
-        lcd_return_to_status();           // long presses of the Encoder Wheel and the LCD System goes spastic when that happens.
-                                          // We will give back control from those routines when the switch is debounced.
-      }
     }
 
 
     void _lcd_mesh_edit() {
       _lcd_mesh_fine_tune( PSTR("Mesh Editor: "));
+      defer_return_to_status = true;
     }
 
     float lcd_mesh_edit() {
       lcd_goto_screen(_lcd_mesh_edit);
+      defer_return_to_status = true;
       return Mesh_Edit_Value;
     }
 
@@ -875,6 +874,7 @@ void kill_screen(const char* lcd_msg) {
       Mesh_Edit_Value       = inital;
       Mesh_Edit_Accumulator = inital;
       lcd_goto_screen(_lcd_mesh_edit);
+      defer_return_to_status = true;
       return ;
     }
 
@@ -884,6 +884,7 @@ void kill_screen(const char* lcd_msg) {
 
     float lcd_z_offset_edit() {
       lcd_goto_screen(_lcd_z_offset_edit);
+      defer_return_to_status = true;
       return Mesh_Edit_Value;
     }
 
@@ -891,6 +892,7 @@ void kill_screen(const char* lcd_msg) {
       Mesh_Edit_Value       = inital;
       Mesh_Edit_Accumulator = inital;
       lcd_goto_screen(_lcd_z_offset_edit);
+      defer_return_to_status = true;
       return ;
     }
 
