@@ -126,7 +126,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
     SIGNAL (TIMER5_COMPA_vect) { handle_interrupts(_timer5, &TCNT5, &OCR5A); }
   #endif
 
-#else //!WIRING
+#else // WIRING
 
   // Interrupt handlers for Wiring
   #if ENABLED(_useTimer1)
@@ -136,7 +136,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
     void Timer3Service() { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
   #endif
 
-#endif //!WIRING
+#endif // WIRING
 
 
 static void initISR(timer16_Sequence_t timer) {

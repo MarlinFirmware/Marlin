@@ -250,7 +250,7 @@ void Config_Postprocess() {
   /**
    * M500 - Store Configuration
    */
-  bool Config_StoreSettings()  {
+  bool Config_StoreSettings() {
     float dummy = 0.0f;
     char ver[4] = "000";
 
@@ -540,9 +540,9 @@ void Config_Postprocess() {
     }
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      blm.store_state();
-      if (blm.state.EEPROM_storage_slot >= 0)
-        blm.store_mesh(blm.state.EEPROM_storage_slot);
+      ubl.store_state();
+      if (ubl.state.eeprom_storage_slot >= 0)
+        ubl.store_mesh(ubl.state.eeprom_storage_slot);
     #endif
 
     return !eeprom_write_error;
@@ -846,39 +846,39 @@ void Config_Postprocess() {
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        Unified_Bed_Leveling_EEPROM_start = (eeprom_index + 32) & 0xFFF8; // Pad the end of configuration data so it
+        ubl_eeprom_start = (eeprom_index + 32) & 0xFFF8; // Pad the end of configuration data so it
                                                                           // can float up or down a little bit without
                                                                           // disrupting the Unified Bed Leveling data
-        blm.load_state();
+        ubl.load_state();
 
         SERIAL_ECHOPGM(" UBL ");
-        if (!blm.state.active) SERIAL_ECHO("not ");
+        if (!ubl.state.active) SERIAL_ECHO("not ");
         SERIAL_ECHOLNPGM("active!");
 
-        if (!blm.sanity_check()) {
+        if (!ubl.sanity_check()) {
           int tmp_mesh;                                // We want to preserve whether the UBL System is Active
           bool tmp_active;                             // If it is, we want to preserve the Mesh that is being used.
-          tmp_mesh = blm.state.EEPROM_storage_slot;
-          tmp_active = blm.state.active;
+          tmp_mesh = ubl.state.eeprom_storage_slot;
+          tmp_active = ubl.state.active;
           SERIAL_ECHOLNPGM("\nInitializing Bed Leveling State to current firmware settings.\n");
-          blm.state = blm.pre_initialized;             // Initialize with the pre_initialized data structure
-          blm.state.EEPROM_storage_slot = tmp_mesh;    // But then restore some data we don't want mangled
-          blm.state.active = tmp_active;
+          ubl.state = ubl.pre_initialized;             // Initialize with the pre_initialized data structure
+          ubl.state.eeprom_storage_slot = tmp_mesh;    // But then restore some data we don't want mangled
+          ubl.state.active = tmp_active;
         }
         else {
           SERIAL_PROTOCOLPGM("?Unable to enable Unified Bed Leveling.\n");
-          blm.state = blm.pre_initialized;
-          blm.reset();
-          blm.store_state();
+          ubl.state = ubl.pre_initialized;
+          ubl.reset();
+          ubl.store_state();
         }
 
-        if (blm.state.EEPROM_storage_slot >= 0)  {
-          blm.load_mesh(blm.state.EEPROM_storage_slot);
-          SERIAL_ECHOPAIR("Mesh ", blm.state.EEPROM_storage_slot);
+        if (ubl.state.eeprom_storage_slot >= 0) {
+          ubl.load_mesh(ubl.state.eeprom_storage_slot);
+          SERIAL_ECHOPAIR("Mesh ", ubl.state.eeprom_storage_slot);
           SERIAL_ECHOLNPGM(" loaded from storage.");
         }
         else {
-          blm.reset();
+          ubl.reset();
           SERIAL_ECHOPGM("UBL System reset() \n");
         }
       #endif
@@ -1183,19 +1183,19 @@ void Config_ResetDefault() {
     CONFIG_ECHO_START;
 
     SERIAL_ECHOPGM("System is: ");
-    if (blm.state.active)
+    if (ubl.state.active)
        SERIAL_ECHOLNPGM("Active\n");
     else
        SERIAL_ECHOLNPGM("Deactive\n");
 
-    SERIAL_ECHOPAIR("Active Mesh Slot: ", blm.state.EEPROM_storage_slot);
+    SERIAL_ECHOPAIR("Active Mesh Slot: ", ubl.state.eeprom_storage_slot);
     SERIAL_EOL;
 
     SERIAL_ECHOPGM("z_offset: ");
-    SERIAL_ECHO_F(blm.state.z_offset, 6);
+    SERIAL_ECHO_F(ubl.state.z_offset, 6);
     SERIAL_EOL;
 
-    SERIAL_ECHOPAIR("EEPROM can hold ", (int)((E2END - sizeof(blm.state) - Unified_Bed_Leveling_EEPROM_start) / sizeof(z_values)));
+    SERIAL_ECHOPAIR("EEPROM can hold ", (int)((E2END - sizeof(ubl.state) - ubl_eeprom_start) / sizeof(z_values)));
     SERIAL_ECHOLNPGM(" meshes. \n");
 
     SERIAL_ECHOPAIR("\nUBL_MESH_NUM_X_POINTS  ", UBL_MESH_NUM_X_POINTS);
