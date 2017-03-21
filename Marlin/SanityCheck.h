@@ -1024,6 +1024,7 @@ static_assert(1 >= 0
   , "Please select no more than one LCD controller option."
 );
 
+
 #if ENABLED(SPINDLE_ENABLE)
   #if !PIN_EXISTS(SPINDLE_ENABLE)
     #error "SPINDLE_ENABLE requires SPINDLE_ENABLE_PIN."
@@ -1081,4 +1082,3 @@ static_assert(1 >= 0
     #endif
   #endif
 #endif // SPINDLE_ENABLE
-
