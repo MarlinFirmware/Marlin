@@ -113,6 +113,7 @@
    *   Y #  Y coordinate  Specify the starting location of the drawing activity.
    */
 
+  extern bool g26_debug_flag;
   extern bool ubl_has_control_of_lcd_panel;
   extern float feedrate;
   //extern bool relative_mode;
@@ -171,8 +172,7 @@
 
   int8_t prime_flag = 0;
 
-  bool keep_heaters_on = false,
-       g26_debug_flag = false;
+  bool keep_heaters_on = false;
 
   /**
    * G26: Mesh Validation Pattern generation.

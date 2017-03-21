@@ -27,6 +27,7 @@
 
   #include "UBL.h"
   #include "hex_print_routines.h"
+  extern int ubl_eeprom_start;
 
   /**
    * These support functions allow the use of large bit arrays of flags that take very
