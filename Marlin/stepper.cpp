@@ -1250,6 +1250,7 @@ void Stepper::report_positions() {
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
   void Stepper::babystep(const AxisEnum axis, const bool direction) {
+    cli();
     static uint8_t old_pin;
     #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
       static uint32_t pulse_start;
@@ -1336,6 +1337,7 @@ void Stepper::report_positions() {
 
       default: break;
     }
+    sei();
   }
 
 #endif //BABYSTEPPING
