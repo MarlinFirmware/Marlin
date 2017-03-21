@@ -16,6 +16,8 @@
 #define MSG_DISABLE_STEPPERS                "Motoren uit"
 #define MSG_AUTO_HOME                       "Auto home"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#define	MSG_AUTO_LEVELING                   "Auto Nivelleren"
+#define	MSG_LEVELING_TEST                   "Bed Level Test"
 #define MSG_SET_ORIGIN                      "Nulpunt instellen"
 #define MSG_PREHEAT_PLA                     "PLA voorverwarmen"
 #define MSG_PREHEAT_PLA0                    "PLA voorverw. 0"

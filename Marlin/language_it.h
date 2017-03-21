@@ -16,6 +16,8 @@
 #define MSG_DISABLE_STEPPERS                "Disabilita Motori"
 #define MSG_AUTO_HOME                       "Auto Home"
 #define MSG_SET_HOME_OFFSETS                "Setta offset home"
+#define	MSG_AUTO_LEVELING                   "Livellamento auto"
+#define	MSG_LEVELING_TEST                   "Bed Level Test"
 #define MSG_SET_ORIGIN                      "Imposta Origine"
 #define MSG_PREHEAT_PLA                     "Preriscalda PLA"
 #define MSG_PREHEAT_PLA0                    "Preriscalda PLA 1"
