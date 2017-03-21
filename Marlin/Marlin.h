@@ -46,7 +46,7 @@
       #define MYSERIAL Serial
     #endif // BLUETOOTH
   #else
-    #include "MarlinSerial.h"
+    #include "src/HAL/HAL_AVR/MarlinSerial.h"
     #define MYSERIAL customizedSerial
   #endif
 #endif

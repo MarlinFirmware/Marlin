@@ -170,6 +170,7 @@ class MarlinSerial { //: public Stream
     static void println(unsigned long, int = DEC);
     static void println(double, int = 2);
     static void println(void);
+    operator bool() { return true; }
 };
 
 extern MarlinSerial customizedSerial;
