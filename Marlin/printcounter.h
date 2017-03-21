@@ -23,8 +23,7 @@
 #ifndef PRINTCOUNTER_H
 #define PRINTCOUNTER_H
 
-#include "Marlin.h"
-
+#include "macros.h"
 #include "language.h"
 #include "stopwatch.h"
 

@@ -69,6 +69,12 @@
 #ifndef servo_h
 #define servo_h
 
+#if defined(__MK64FX512__) // Teensy3.x
+  #include "HAL_TEENSY35/HAL_Servo_Teensy.h" // Teensy HAL uses an inherited library
+#elif defined(__MK66FX1M0__) // Teensy3.x
+  #include "HAL_TEENSY36/HAL_Servo_Teensy.h" // Teensy HAL uses an inherited library
+#else
+
 #include <inttypes.h>
 
 #if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAM)
@@ -99,5 +105,7 @@ class Servo {
     int8_t min;                       // minimum is this value times 4 added to MIN_PULSE_WIDTH
     int8_t max;                       // maximum is this value times 4 added to MAX_PULSE_WIDTH
 };
+
+#endif // !TEENSY
 
 #endif

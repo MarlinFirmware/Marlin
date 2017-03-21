@@ -17,30 +17,12 @@
  *
  */
 
+#ifndef SPI_PINS_H_
+#define SPI_PINS_H_
 
-#ifndef HAL_SPI_PINS_H_
-#define HAL_SPI_PINS_H_
+#define SCK_PIN		13
+#define MISO_PIN	12
+#define MOSI_PIN	11
+#define SS_PIN		20 //SDSS // A.28, A.29, B.21, C.26, C.29
 
-#ifdef ARDUINO_ARCH_SAM
-
-  #include "HAL_DUE/spi_pins.h"
-
-#elif defined(__MK64FX512__) // Teensy3.x
-
-  #include "HAL_TEENSY35/spi_pins.h"
-
-#elif defined(__MK66FX1M0__) // Teensy3.x
-
-  #include "HAL_TEENSY36/spi_pins.h"
-
-#elif defined(ARDUINO_ARCH_AVR)
-
-  #include "HAL_AVR/spi_pins.h"
-
-#else
-
-  #error Unsupported Platform!
-
-#endif
-
-#endif /* HAL_SPI_PINS_H_ */
+#endif /* SPI_PINS_H_ */
