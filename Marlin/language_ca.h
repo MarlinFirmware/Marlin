@@ -16,6 +16,8 @@
 #define MSG_DISABLE_STEPPERS                "Apagar motors"
 #define MSG_AUTO_HOME                       "Home global"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#define	MSG_AUTO_LEVELING                   "Anivellacio auto"
+#define	MSG_LEVELING_TEST                   "Bed Level Test"
 #define MSG_SET_ORIGIN                      "Establir origen"
 #define MSG_PREHEAT_PLA                     "Preescalfar PLA"
 #define MSG_PREHEAT_PLA0                    "Preescalfar PLA 1"

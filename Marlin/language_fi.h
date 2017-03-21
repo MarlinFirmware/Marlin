@@ -16,6 +16,8 @@
 #define MSG_DISABLE_STEPPERS                "Vapauta moottorit"
 #define MSG_AUTO_HOME                       "Aja referenssiin"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
+#define	MSG_AUTO_LEVELING                   "Auto vaaitus"
+#define	MSG_LEVELING_TEST                   "Bed Level Test"
 #define MSG_SET_ORIGIN                      "Aseta origo"
 #define MSG_PREHEAT_PLA                     "Esilammita PLA"
 #define MSG_PREHEAT_PLA0                    "Esilammita PLA 1"

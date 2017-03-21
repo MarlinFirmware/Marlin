@@ -20,6 +20,8 @@
 #define MSG_DISABLE_STEPPERS                "Uvolnit motory"
 #define MSG_AUTO_HOME                       "Domovska pozice"
 #define MSG_SET_HOME_OFFSETS                "Nastavit ofsety"
+#define	MSG_AUTO_LEVELING                   "Auto vyrovnavani"
+#define	MSG_LEVELING_TEST                   "Test luzku uroven"
 #define MSG_SET_ORIGIN                      "Nastavit pocatek"
 #define MSG_PREHEAT_PLA                     "Zahrat PLA"
 #define MSG_PREHEAT_PLA0                    "Zahrat PLA 1"
