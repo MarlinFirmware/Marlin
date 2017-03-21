@@ -22,7 +22,7 @@
 
 #include "MarlinConfig.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
+#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
   //#include "vector_3.h"
   //#include "qr_solve.h"
 
@@ -39,7 +39,10 @@
   void lcd_return_to_status();
   bool lcd_clicked();
   void lcd_implementation_clear();
-
+  void lcd_mesh_edit_setup(float initial);
+  float lcd_mesh_edit();
+  void lcd_z_offset_edit_setup(float);
+  float lcd_z_offset_edit();
   extern float meshedit_done;
   extern long babysteps_done;
   extern float code_value_float();
@@ -62,6 +65,8 @@
   #define SIZE_OF_LITTLE_RAISE 0
   #define BIG_RAISE_NOT_NEEDED 0
   extern void lcd_quick_feedback();
+  extern int ubl_eeprom_start;
+  extern volatile int ubl_encoderDiff; // This is volatile because it is getting changed at interrupt time.
 
   /**
    *   G29: Unified Bed Leveling by Roxy

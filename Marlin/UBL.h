@@ -81,11 +81,6 @@
     #define MESH_X_DIST ((float(UBL_MESH_MAX_X) - float(UBL_MESH_MIN_X)) / (float(UBL_MESH_NUM_X_POINTS) - 1.0))
     #define MESH_Y_DIST ((float(UBL_MESH_MAX_Y) - float(UBL_MESH_MIN_Y)) / (float(UBL_MESH_NUM_Y_POINTS) - 1.0))
 
-    #if ENABLED(UBL_MESH_EDIT_ENABLED)
-      extern bool g26_debug_flag;
-    #else
-      constexpr bool g26_debug_flag = false;
-    #endif
     extern float last_specified_z;
     extern float fade_scaling_factor_for_current_height;
     extern float z_values[UBL_MESH_NUM_X_POINTS][UBL_MESH_NUM_Y_POINTS];
@@ -339,7 +334,6 @@
     }; // class unified_bed_leveling
 
     extern unified_bed_leveling ubl;
-    extern int ubl_eeprom_start;
 
     #define UBL_LAST_EEPROM_INDEX (E2END - sizeof(unified_bed_leveling::state))
 

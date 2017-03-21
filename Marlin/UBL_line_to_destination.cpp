@@ -31,7 +31,8 @@
 
   extern float destination[XYZE];
   extern void set_current_to_destination();
-
+  extern float destination[];
+  bool g26_debug_flag = false;
   void debug_current_and_destination(char *title) {
 
     // if the title message starts with a '!' it is so important, we are going to
@@ -314,7 +315,7 @@
          * because part of the Mesh is undefined and we don't have the
          * information we need to complete the height correction.
          */
-        if (isnan(z0)) z0 = 0.0;     
+        if (isnan(z0)) z0 = 0.0;
 
         const float y = LOGICAL_Y_POSITION(mesh_index_to_y_location[current_yi]);
 
