@@ -166,6 +166,7 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "UBL.h"
+  int ubl_eeprom_start = -1;
 #endif
 
 #if ENABLED(ABL_BILINEAR_SUBDIVISION)

@@ -113,6 +113,7 @@
    *   Y #  Y coordinate  Specify the starting location of the drawing activity.
    */
 
+  extern bool g26_Debug_flag;
   extern bool ubl_has_control_of_lcd_panel;
   extern float feedrate;
   //extern bool relative_mode;
@@ -173,12 +174,11 @@
 
   int8_t prime_flag = 0;
 
-  bool keep_heaters_on = false,
-       g26_debug_flag = false;
+  bool keep_heaters_on = false;
 
   /**
    * G26: Mesh Validation Pattern generation.
-   * 
+   *
    * Used to interactively edit UBL's Mesh by placing the
    * nozzle in a problem area and doing a G29 P4 R command.
    */
@@ -274,7 +274,7 @@
         xi = location.x_index;  // Just to shrink the next few lines and make them easier to understand
         yi = location.y_index;
 
-        if (g26_debug_flag) {
+        if (g26_Debug_flag) {
           SERIAL_ECHOPGM("   Doing circle at: (xi=");
           SERIAL_ECHO(xi);
           SERIAL_ECHOPGM(", yi=");
@@ -339,7 +339,7 @@
             ye = constrain(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
           #endif
 
-          if (g26_debug_flag) {
+          if (g26_Debug_flag) {
             char ccc, *cptr, seg_msg[50], seg_num[10];
             strcpy(seg_msg, "   segment: ");
             strcpy(seg_num, "    \n");
@@ -472,7 +472,7 @@
               ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
               ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
-              if (g26_debug_flag) {
+              if (g26_Debug_flag) {
                 SERIAL_ECHOPGM(" Connecting with horizontal line (sx=");
                 SERIAL_ECHO(sx);
                 SERIAL_ECHOPGM(", sy=");
@@ -512,7 +512,7 @@
                 ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
                 ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
-                if (g26_debug_flag) {
+                if (g26_Debug_flag) {
                   SERIAL_ECHOPGM(" Connecting with vertical line (sx=");
                   SERIAL_ECHO(sx);
                   SERIAL_ECHOPGM(", sy=");
@@ -540,14 +540,14 @@
 
     bool has_xy_component = (x != current_position[X_AXIS] || y != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
 
-    if (g26_debug_flag) {
+    if (g26_Debug_flag) {
       SERIAL_ECHOPAIR("in move_to()  has_xy_component:", (int)has_xy_component);
       SERIAL_EOL;
     }
 
     if (z != last_z) {
 
-      if (g26_debug_flag) {
+      if (g26_Debug_flag) {
         SERIAL_ECHOPAIR("in move_to()  changing Z to ", (int)z);
         SERIAL_EOL;
       }
@@ -564,7 +564,7 @@
       stepper.synchronize();
       set_destination_to_current();
 
-      if (g26_debug_flag)
+      if (g26_Debug_flag)
         debug_current_and_destination((char*)" in move_to() done with Z move");
     }
 
@@ -572,7 +572,7 @@
     // Yes: a 'normal' movement. No: a retract() or un_retract()
     feed_value = has_xy_component ? PLANNER_XY_FEEDRATE() / 10.0 : planner.max_feedrate_mm_s[E_AXIS] / 1.5;
 
-    if (g26_debug_flag) {
+    if (g26_Debug_flag) {
       SERIAL_ECHOPAIR("in move_to() feed_value for XY:", feed_value);
       SERIAL_EOL;
     }
@@ -581,12 +581,12 @@
     destination[Y_AXIS] = y;
     destination[E_AXIS] += e_delta;
 
-    if (g26_debug_flag)
+    if (g26_Debug_flag)
       debug_current_and_destination((char*)" in move_to() doing last move");
 
     ubl_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0);
 
-    if (g26_debug_flag)
+    if (g26_Debug_flag)
       debug_current_and_destination((char*)" in move_to() after last move");
 
     stepper.synchronize();
@@ -596,9 +596,9 @@
   void retract_filament() {
     if (!g26_retracted) { // Only retract if we are not already retracted!
       g26_retracted = true;
-      if (g26_debug_flag) SERIAL_ECHOLNPGM(" Decided to do retract.");
+      if (g26_Debug_flag) SERIAL_ECHOLNPGM(" Decided to do retract.");
       move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], -1.0 * retraction_multiplier);
-      if (g26_debug_flag) SERIAL_ECHOLNPGM(" Retraction done.");
+      if (g26_Debug_flag) SERIAL_ECHOLNPGM(" Retraction done.");
     }
   }
 
@@ -606,7 +606,7 @@
     if (g26_retracted) { // Only un-retract if we are retracted.
       move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 1.2 * retraction_multiplier);
       g26_retracted = false;
-      if (g26_debug_flag) SERIAL_ECHOLNPGM(" unretract done.");
+      if (g26_Debug_flag) SERIAL_ECHOLNPGM(" unretract done.");
     }
   }
 
@@ -645,7 +645,7 @@
     // On very small lines we don't do the optimization because it just isn't worth it.
     //
     if (dist_end < dist_start && (SIZE_OF_INTERSECTION_CIRCLES) < abs(Line_Length)) {
-      if (g26_debug_flag)
+      if (g26_Debug_flag)
         SERIAL_ECHOLNPGM("  Reversing start and end of print_line_from_here_to_there()");
       print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
       return;
@@ -655,7 +655,7 @@
 
     if (dist_start > 2.0) {
       retract_filament();
-      if (g26_debug_flag)
+      if (g26_Debug_flag)
         SERIAL_ECHOLNPGM("  filament retracted.");
     }
     move_to(sx, sy, sz, 0.0); // Get to the starting point with no extrusion
@@ -663,7 +663,7 @@
     float e_pos_delta = Line_Length * g26_e_axis_feedrate * extrusion_multiplier;
 
     un_retract_filament();
-    if (g26_debug_flag) {
+    if (g26_Debug_flag) {
       SERIAL_ECHOLNPGM("  doing printing move.");
       debug_current_and_destination((char*)"doing final move_to() inside print_line_from_here_to_there()");
     }

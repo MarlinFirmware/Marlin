@@ -883,7 +883,8 @@
     #define MBL_Z_STEP 0.025     // Step size while manually probing Z axis.
   #endif
 
-#endif // BED_LEVELING
+#endif  // BED_LEVELING
+
 
 /**
  * Commands to execute at the end of G29 probing.

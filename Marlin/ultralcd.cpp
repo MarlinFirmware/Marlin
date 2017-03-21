@@ -125,7 +125,8 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     extern bool ubl_has_control_of_lcd_panel;
-    extern uint8_t ubl_encoderDiff;
+    volatile uint8_t ubl_encoderDiff = 0; // Volatile because it's changed by Temperature ISR button update
+    bool ubl_has_control_of_lcd_panel = false;
   #endif
 
   #if HAS_POWER_SWITCH
