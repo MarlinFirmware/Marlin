@@ -44,7 +44,7 @@
  *
  * Note: Update also Version.h !
  */
-#define CONFIGURATION_ADV_H_VERSION 010102
+#define CONFIGURATION_ADV_H_VERSION 010103
 
 // @section temperature
 
@@ -173,7 +173,7 @@
 //#define EXTRUDER_RUNOUT_PREVENT
 #define EXTRUDER_RUNOUT_MINTEMP 190
 #define EXTRUDER_RUNOUT_SECONDS 30
-#define EXTRUDER_RUNOUT_ESTEPS 14   // mm filament
+#define EXTRUDER_RUNOUT_ESTEPS 8   // mm filament
 #define EXTRUDER_RUNOUT_SPEED 1500  // extrusion speed
 #define EXTRUDER_RUNOUT_EXTRUDE 100
 
@@ -194,12 +194,12 @@
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
-//#define FAN_KICKSTART_TIME 100
+#define FAN_KICKSTART_TIME 500
 
 // This defines the minimal speed for the main fan, run in PWM mode
 // to enable uncomment and set minimal PWM speed for reliable running (1-255)
 // if fan speed is [1 - (FAN_MIN_PWM-1)] it is set to FAN_MIN_PWM
-//#define FAN_MIN_PWM 50
+#define FAN_MIN_PWM 50
 
 // @section extruder
 
