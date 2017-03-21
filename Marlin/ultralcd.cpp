@@ -1598,7 +1598,7 @@ KeepDrawing:
     #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
       MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
     #endif
-
+    
     END_MENU();
   }
 
@@ -1935,6 +1935,12 @@ KeepDrawing:
       MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
     #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
+    //
+    //Reset Statistics
+    //
+    #if ENABLED(PRINTCOUNTER)
+    MENU_ITEM(gcode, MSG_RESET_STATS, PSTR("M78 S78"));                                           //Reset all Statistics
+    #endif
     END_MENU();
   }
 
