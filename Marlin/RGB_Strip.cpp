@@ -71,7 +71,7 @@
    */
 
   // Handle the various printer events
-  void handle_led_print_event(int code) {
+  void handle_led_print_event(byte code) {
         
     switch(code) {
       case(0):        // Print Complete

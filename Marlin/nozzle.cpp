@@ -1,5 +1,4 @@
 #include "nozzle.h"
-
 #include "Marlin.h"
 #include "point_t.h"
 
