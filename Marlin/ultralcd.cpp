@@ -606,6 +606,43 @@ void kill_screen(const char* lcd_msg) {
 
 #if ENABLED(ULTIPANEL)
 
+  /**
+   *
+   * Audio feedback for controller clicks
+   *
+   */
+  void lcd_buzz(long duration, uint16_t freq) {
+    #if ENABLED(LCD_USE_I2C_BUZZER)
+      lcd.buzz(duration, freq);
+    #elif PIN_EXISTS(BEEPER)
+      buzzer.tone(duration, freq);
+    #else
+      UNUSED(duration); UNUSED(freq);
+    #endif
+  }
+
+  void lcd_quick_feedback() {
+    lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
+    buttons = 0;
+    next_button_update_ms = millis() + 500;
+
+    // Buzz and wait. The delay is needed for buttons to settle!
+    lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+    #if ENABLED(LCD_USE_I2C_BUZZER)
+      delay(10);
+    #elif PIN_EXISTS(BEEPER)
+      for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
+    #endif
+  }
+
+  void lcd_completion_feedback(const bool good/*=true*/) {
+    if (good) {
+      lcd_buzz(100, 659);
+      lcd_buzz(100, 698);
+    }
+    else lcd_buzz(20, 440);
+  }
+
   inline void line_to_current(AxisEnum axis) {
     planner.buffer_line_kinematic(current_position, MMM_TO_MMS(manual_feedrate_mm_m[axis]), active_extruder);
   }
@@ -1382,10 +1419,7 @@ void kill_screen(const char* lcd_msg) {
           enqueue_and_echo_commands_P(PSTR("G28"));
           lcd_return_to_status();
           //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
-          #if HAS_BUZZER
-            lcd_buzz(200, 659);
-            lcd_buzz(200, 698);
-          #endif
+          lcd_completion_feedback();
         }
         else {
           lcd_goto_screen(_lcd_level_goto_next_point);
@@ -1912,6 +1946,16 @@ KeepDrawing:
    *
    */
 
+  #if ENABLED(EEPROM_SETTINGS)
+    static void lcd_store_settings()   { lcd_completion_feedback(Config_StoreSettings()); }
+    static void lcd_load_settings()    { lcd_completion_feedback(Config_RetrieveSettings()); }
+  #endif
+
+  static void lcd_factory_settings() {
+    Config_ResetDefault();
+    lcd_completion_feedback();
+  }
+
   void lcd_control_menu() {
     START_MENU();
     MENU_BACK(MSG_MAIN);
@@ -1931,10 +1975,11 @@ KeepDrawing:
     #endif
 
     #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
-      MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
+      MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
+      MENU_ITEM(function, MSG_LOAD_EEPROM, lcd_load_settings);
     #endif
-    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
+
+    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, lcd_factory_settings);
     END_MENU();
   }
 
@@ -2175,7 +2220,7 @@ KeepDrawing:
       MENU_ITEM_EDIT(int3, MSG_BED, &lcd_preheat_bed_temp[material], BED_MINTEMP, BED_MAXTEMP - 15);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
-      MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
+      MENU_ITEM(function, MSG_STORE_EEPROM, lcd_store_settings);
     #endif
     END_MENU();
   }
@@ -3002,35 +3047,6 @@ KeepDrawing:
     }
 
   #endif // REPRAPWORLD_KEYPAD
-
-  /**
-   *
-   * Audio feedback for controller clicks
-   *
-   */
-  void lcd_buzz(long duration, uint16_t freq) {
-    #if ENABLED(LCD_USE_I2C_BUZZER)
-      lcd.buzz(duration, freq);
-    #elif PIN_EXISTS(BEEPER)
-      buzzer.tone(duration, freq);
-    #else
-      UNUSED(duration); UNUSED(freq);
-    #endif
-  }
-
-  void lcd_quick_feedback() {
-    lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
-    buttons = 0;
-    next_button_update_ms = millis() + 500;
-
-    // Buzz and wait. The delay is needed for buttons to settle!
-    lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-    #if ENABLED(LCD_USE_I2C_BUZZER)
-      delay(10);
-    #elif PIN_EXISTS(BEEPER)
-      for (int8_t i = 5; i--;) { buzzer.tick(); delay(2); }
-    #endif
-  }
 
   /**
    *
