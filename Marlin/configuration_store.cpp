@@ -250,7 +250,7 @@ void Config_Postprocess() {
   /**
    * M500 - Store Configuration
    */
-  void Config_StoreSettings()  {
+  bool Config_StoreSettings()  {
     float dummy = 0.0f;
     char ver[4] = "000";
 
@@ -538,17 +538,20 @@ void Config_Postprocess() {
       SERIAL_ECHOPAIR("Settings Stored (", eeprom_size - (EEPROM_OFFSET));
       SERIAL_ECHOLNPGM(" bytes)");
     }
+
     #if ENABLED(AUTO_BED_LEVELING_UBL)
       blm.store_state();
       if (blm.state.EEPROM_storage_slot >= 0)
         blm.store_mesh(blm.state.EEPROM_storage_slot);
     #endif
+
+    return !eeprom_write_error;
   }
 
   /**
    * M501 - Retrieve Configuration
    */
-  void Config_RetrieveSettings() {
+  bool Config_RetrieveSettings() {
 
     EEPROM_START();
     eeprom_read_error = false; // If set EEPROM_READ won't write into RAM
@@ -883,13 +886,16 @@ void Config_Postprocess() {
     #if ENABLED(EEPROM_CHITCHAT)
       Config_PrintSettings();
     #endif
+
+    return !eeprom_read_error;
   }
 
 #else // !EEPROM_SETTINGS
 
-  void Config_StoreSettings() {
+  bool Config_StoreSettings() {
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM("EEPROM disabled");
+    return false;
   }
 
 #endif // !EEPROM_SETTINGS
