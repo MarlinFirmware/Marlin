@@ -161,7 +161,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
-  #if defined(SR_STROBE_PIN)
+  #if PIN_EXISTS(SR_STROBE)
     LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN, SR_STROBE_PIN);
   #else
     LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
