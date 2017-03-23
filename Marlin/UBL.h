@@ -312,6 +312,9 @@
        * or if the current Z Height is past the specified 'Fade Height'
        */
       FORCE_INLINE float fade_scaling_factor_for_z(float current_z) {
+      #ifndef ENABLE_LEVELING_FADE_HEIGHT   // if turned off, just return 0.000    Note that we assume the
+        return 0.000;                       // compiler will do 'Dead Code' elimination so there is no need
+      #endif                                // for an #else clause here.
         if (last_specified_z == current_z)
           return fade_scaling_factor_for_current_height;
 
