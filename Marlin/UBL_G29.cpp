@@ -564,7 +564,8 @@
               SERIAL_ECHOPAIR(" J ", y);
               SERIAL_ECHOPGM(" Z ");
               SERIAL_ECHO_F(z_values[x][y], 6);
-              SERIAL_EOL;
+              idle();
+              delay(50);
             }
         return;
       }
