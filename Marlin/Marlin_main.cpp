@@ -311,7 +311,7 @@
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
-  bed_leveling blm;
+  unified_bed_leveling ubl;
 #endif
 
 bool Running = true;
@@ -517,13 +517,14 @@ static uint8_t target_extruder;
   #define ADJUST_DELTA(V) NOOP
 #endif
 
-
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  #if defined(Z_DUAL_ENDSTOPS_ADJUSTMENT)
-    float z_endstop_adj = Z_DUAL_ENDSTOPS_ADJUSTMENT;
-  #else
-    float z_endstop_adj = 0;
-  #endif
+  float z_endstop_adj =
+    #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
+      Z_DUAL_ENDSTOPS_ADJUSTMENT
+    #else
+      0
+    #endif
+  ;
 #endif
 
 // Extruder offsets
@@ -2322,9 +2323,9 @@ static void clean_up_after_endstop_or_probe_move() {
           planner.unapply_leveling(current_position);
       }
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      if (blm.state.EEPROM_storage_slot == 0)  {
-        blm.state.active = enable;
-        blm.store_state();
+      if (ubl.state.eeprom_storage_slot == 0)  {
+        ubl.state.active = enable;
+        ubl.store_state();
       }  
     #endif
 }
@@ -2499,7 +2500,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_PROTOCOLCHAR(' ');
         float offset = fn(x, y);
         if (offset != UNPROBED) {
-          if (offset >= 0) SERIAL_CHAR('+');
+          if (offset >= 0) SERIAL_PROTOCOLCHAR('+');
           SERIAL_PROTOCOL_F(offset, precision);
         }
         else
@@ -3271,7 +3272,9 @@ inline void gcode_G4() {
     #endif
 
     SERIAL_ECHOPGM("Probe: ");
-    #if ENABLED(FIX_MOUNTED_PROBE)
+    #if ENABLED(PROBE_MANUALLY)
+      SERIAL_ECHOLNPGM("PROBE_MANUALLY");
+    #elif ENABLED(FIX_MOUNTED_PROBE)
       SERIAL_ECHOLNPGM("FIX_MOUNTED_PROBE");
     #elif ENABLED(BLTOUCH)
       SERIAL_ECHOLNPGM("BLTOUCH");
@@ -3327,7 +3330,7 @@ inline void gcode_G4() {
       #endif
       if (planner.abl_enabled) {
         SERIAL_ECHOLNPGM(" (enabled)");
-        #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_3POINT) || ENABLED(AUTO_BED_LEVELING_UBL)
+        #if ABL_PLANAR
           float diff[XYZ] = {
             stepper.get_axis_position_mm(X_AXIS) - current_position[X_AXIS],
             stepper.get_axis_position_mm(Y_AXIS) - current_position[Y_AXIS],
@@ -3342,12 +3345,19 @@ inline void gcode_G4() {
           SERIAL_ECHOPGM(" Z");
           if (diff[Z_AXIS] > 0) SERIAL_CHAR('+');
           SERIAL_ECHO(diff[Z_AXIS]);
+        #elif ENABLED(AUTO_BED_LEVELING_UBL)
+          SERIAL_ECHOPAIR("UBL Adjustment Z", stepper.get_axis_position_mm(Z_AXIS) - current_position[Z_AXIS]);
         #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
           SERIAL_ECHOPAIR("ABL Adjustment Z", bilinear_z_offset(current_position));
         #endif
       }
+      else
+        SERIAL_ECHOLNPGM(" (disabled)");
+
       SERIAL_EOL;
+
     #elif ENABLED(MESH_BED_LEVELING)
+
       SERIAL_ECHOPGM("Mesh Bed Leveling");
       if (mbl.active()) {
         float lz = current_position[Z_AXIS];
@@ -3355,9 +3365,12 @@ inline void gcode_G4() {
         SERIAL_ECHOLNPGM(" (enabled)");
         SERIAL_ECHOPAIR("MBL Adjustment Z", lz);
       }
-      SERIAL_EOL;
-    #endif
+      else
+        SERIAL_ECHOPGM(" (disabled)");
 
+      SERIAL_EOL;
+
+    #endif // MESH_BED_LEVELING
   }
 
 #endif // DEBUG_LEVELING_FEATURE
@@ -5393,7 +5406,7 @@ inline void gcode_M104() {
       SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(target_extruder), 1);
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         SERIAL_PROTOCOLPAIR(" (", thermalManager.current_temperature_raw[target_extruder] / OVERSAMPLENR);
-        SERIAL_CHAR(')');
+        SERIAL_PROTOCOLCHAR(')');
       #endif
     #endif
     #if HAS_TEMP_BED
@@ -5403,7 +5416,7 @@ inline void gcode_M104() {
       SERIAL_PROTOCOL_F(thermalManager.degTargetBed(), 1);
       #if ENABLED(SHOW_TEMP_ADC_VALUES)
         SERIAL_PROTOCOLPAIR(" (", thermalManager.current_temperature_bed_raw / OVERSAMPLENR);
-        SERIAL_CHAR(')');
+        SERIAL_PROTOCOLCHAR(')');
       #endif
     #endif
     #if HOTENDS > 1
@@ -5415,7 +5428,7 @@ inline void gcode_M104() {
         SERIAL_PROTOCOL_F(thermalManager.degTargetHotend(e), 1);
         #if ENABLED(SHOW_TEMP_ADC_VALUES)
           SERIAL_PROTOCOLPAIR(" (", thermalManager.current_temperature_raw[e] / OVERSAMPLENR);
-          SERIAL_CHAR(')');
+          SERIAL_PROTOCOLCHAR(')');
         #endif
       }
     #endif
@@ -7312,7 +7325,7 @@ void quickstop_stepper() {
    *
    *       S[bool]   Turns leveling on or off
    *       Z[height] Sets the Z fade height (0 or none to disable)
-   *       V[bool]   Verbose - Print the levelng grid
+   *       V[bool]   Verbose - Print the leveling grid
    */
   inline void gcode_M420() {
     bool to_enable = false;
@@ -7330,7 +7343,7 @@ void quickstop_stepper() {
       #if ENABLED(MESH_BED_LEVELING)
         mbl.active()
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        blm.state.active
+        ubl.state.active
       #else
         planner.abl_enabled
       #endif
@@ -7356,7 +7369,7 @@ void quickstop_stepper() {
           #endif
         }
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        blm.display_map(0);  // Right now, we only support one type of map
+        ubl.display_map(0);  // Right now, we only support one type of map
       #elif ENABLED(MESH_BED_LEVELING)
         if (mbl.has_mesh()) {
           SERIAL_ECHOLNPGM("Mesh Bed Level data:");
@@ -8213,7 +8226,7 @@ inline void gcode_M999() {
 inline void invalid_extruder_error(const uint8_t &e) {
   SERIAL_ECHO_START;
   SERIAL_CHAR('T');
-  SERIAL_PROTOCOL_F(e, DEC);
+  SERIAL_ECHO_F(e, DEC);
   SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
 }
 
@@ -8816,13 +8829,13 @@ void process_next_command() {
       #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        case 49: // M49: Turn on or off G26_Debug_flag for verbose output
-    if (G26_Debug_flag) {
+        case 49: // M49: Turn on or off g26_debug_flag for verbose output
+    if (g26_debug_flag) {
             SERIAL_PROTOCOLPGM("UBL Debug Flag turned off.\n");
-            G26_Debug_flag = 0; }
+            g26_debug_flag = 0; }
     else {
             SERIAL_PROTOCOLPGM("UBL Debug Flag turned on.\n");
-            G26_Debug_flag++; }
+            g26_debug_flag++; }
           break;
       #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
@@ -9955,11 +9968,11 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         }
         else
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        if (blm.state.active) {
+        if (ubl.state.active) {
 
-//        UBL_line_to_destination(MMS_SCALED(feedrate_mm_s));
+//        ubl_line_to_destination(MMS_SCALED(feedrate_mm_s));
 
-          UBL_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS],
+          ubl_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS],
 //                      (feedrate*(1.0/60.0))*(feedrate_percentage*(1.0/100.0) ), active_extruder);
                       MMS_SCALED(feedrate_mm_s), active_extruder);
 
@@ -10398,35 +10411,35 @@ void prepare_move_to_destination() {
   void setPwmFrequency(uint8_t pin, int val) {
     val &= 0x07;
     switch (digitalPinToTimer(pin)) {
-      #if defined(TCCR0A)
+      #ifdef TCCR0A
         case TIMER0A:
         case TIMER0B:
           // TCCR0B &= ~(_BV(CS00) | _BV(CS01) | _BV(CS02));
           // TCCR0B |= val;
           break;
       #endif
-      #if defined(TCCR1A)
+      #ifdef TCCR1A
         case TIMER1A:
         case TIMER1B:
           // TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
           // TCCR1B |= val;
           break;
       #endif
-      #if defined(TCCR2)
+      #ifdef TCCR2
         case TIMER2:
         case TIMER2:
           TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
           TCCR2 |= val;
           break;
       #endif
-      #if defined(TCCR2A)
+      #ifdef TCCR2A
         case TIMER2A:
         case TIMER2B:
           TCCR2B &= ~(_BV(CS20) | _BV(CS21) | _BV(CS22));
           TCCR2B |= val;
           break;
       #endif
-      #if defined(TCCR3A)
+      #ifdef TCCR3A
         case TIMER3A:
         case TIMER3B:
         case TIMER3C:
@@ -10434,7 +10447,7 @@ void prepare_move_to_destination() {
           TCCR3B |= val;
           break;
       #endif
-      #if defined(TCCR4A)
+      #ifdef TCCR4A
         case TIMER4A:
         case TIMER4B:
         case TIMER4C:
@@ -10442,7 +10455,7 @@ void prepare_move_to_destination() {
           TCCR4B |= val;
           break;
       #endif
-      #if defined(TCCR5A)
+      #ifdef TCCR5A
         case TIMER5A:
         case TIMER5B:
         case TIMER5C:
@@ -10686,23 +10699,12 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
       previous_cmd_ms = ms; // refresh_cmd_timeout()
 
-      #if IS_KINEMATIC
-        inverse_kinematics(current_position);
-        ADJUST_DELTA(current_position);
-        planner.buffer_line(
-          delta[A_AXIS], delta[B_AXIS], delta[C_AXIS],
-          current_position[E_AXIS] + EXTRUDER_RUNOUT_EXTRUDE,
-          MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder
-        );
-      #else
-        planner.buffer_line(
-          current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
-          current_position[E_AXIS] + EXTRUDER_RUNOUT_EXTRUDE,
-          MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder
-        );
-      #endif
+      const float olde = current_position[E_AXIS];
+      current_position[E_AXIS] += EXTRUDER_RUNOUT_EXTRUDE;
+      planner.buffer_line_kinematic(current_position, MMM_TO_MMS(EXTRUDER_RUNOUT_SPEED), active_extruder);
+      current_position[E_AXIS] = olde;
+      planner.set_e_position_mm(olde);
       stepper.synchronize();
-      planner.set_e_position_mm(current_position[E_AXIS]);
       #if ENABLED(SWITCHING_EXTRUDER)
         E0_ENABLE_WRITE(oldstatus);
       #else
@@ -10792,17 +10794,20 @@ void kill(const char* lcd_msg) {
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
+  thermalManager.disable_all_heaters();
+  disable_all_steppers();
+            
   #if ENABLED(ULTRA_LCD)
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
   #endif
 
-  delay(500); // Wait a short time
-
+  _delay_ms(250); // Wait a short time
   cli(); // Stop interrupts
-  thermalManager.disable_all_heaters();
-  disable_all_steppers();
+            
+  _delay_ms(250); //Wait to ensure all interrupts routines stopped
+  thermalManager.disable_all_heaters(); //turn off heaters again
 
   #if HAS_POWER_SWITCH
     SET_INPUT(PS_ON_PIN);
