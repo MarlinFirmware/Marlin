@@ -2266,7 +2266,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif // HAS_BED_PROBE
 
-#if PLANNER_LEVELING
+#if PLANNER_LEVELING || ENABLED(AUTO_BED_LEVELING_UBL)
   /**
    * Turn bed leveling on or off, fixing the current
    * position as-needed.
@@ -2309,10 +2309,7 @@ static void clean_up_after_endstop_or_probe_move() {
           planner.unapply_leveling(current_position);
       }
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
-      if (ubl.state.eeprom_storage_slot == 0)  {
         ubl.state.active = enable;
-        ubl.store_state();
-      }  
     #endif
   }
 
@@ -2363,6 +2360,8 @@ static void clean_up_after_endstop_or_probe_move() {
         for (uint8_t x = 0; x < ABL_GRID_MAX_POINTS_X; x++)
           for (uint8_t y = 0; y < ABL_GRID_MAX_POINTS_Y; y++)
             bed_level_grid[x][y] = UNPROBED;
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        ubl.reset();
       #endif
     #endif
   }
@@ -3482,6 +3481,11 @@ inline void gcode_G4() {
  *
  */
 inline void gcode_G28() {
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+  bool bed_leveling_state_at_entry=0;
+    bed_leveling_state_at_entry = ubl.state.active;
+    set_bed_leveling_enabled(false);
+  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -3638,6 +3642,10 @@ inline void gcode_G28() {
   #endif
 
   // Enable mesh leveling again
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+      set_bed_leveling_enabled(bed_leveling_state_at_entry);
+  #endif
+
   #if ENABLED(MESH_BED_LEVELING)
     if (mbl.reactivate()) {
       set_bed_leveling_enabled(true);
@@ -5060,6 +5068,10 @@ inline void gcode_M42() {
    * regenerated.
    */
   inline void gcode_M48() {
+  #if ENABLED(AUTO_BED_LEVELING_UBL)
+  bool bed_leveling_state_at_entry=0;
+    bed_leveling_state_at_entry = ubl.state.active;
+  #endif
 
     if (axis_unhomed_error(true, true, true)) return;
 
@@ -5281,6 +5293,11 @@ inline void gcode_M42() {
     // Re-enable bed level correction if it has been on
     #if HAS_ABL
       set_bed_leveling_enabled(abl_was_enabled);
+    #endif
+
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      set_bed_leveling_enabled(bed_leveling_state_at_entry);
+      ubl.state.active = bed_leveling_state_at_entry;
     #endif
 
     report_current_position();
@@ -8511,7 +8528,7 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if PLANNER_LEVELING
+      #if PLANNER_LEVELING || HAS_ABL
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points,
                  // or provides access to the UBL System if enabled.
           gcode_G29();
