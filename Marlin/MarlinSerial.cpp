@@ -89,7 +89,7 @@ FORCE_INLINE void store_char(unsigned char c) {
     }
   }
 
-  #if defined(M_USARTx_UDRE_vect)
+  #ifdef M_USARTx_UDRE_vect
     ISR(M_USARTx_UDRE_vect) {
       _tx_udr_empty_irq();
     }
@@ -97,7 +97,7 @@ FORCE_INLINE void store_char(unsigned char c) {
 
 #endif // TX_BUFFER_SIZE
 
-#if defined(M_USARTx_RX_vect)
+#ifdef M_USARTx_RX_vect
   ISR(M_USARTx_RX_vect) {
     unsigned char c  =  M_UDRx;
     store_char(c);

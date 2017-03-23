@@ -455,7 +455,7 @@ void Planner::check_axes_activity() {
 
   #if FAN_COUNT > 0
 
-    #if defined(FAN_MIN_PWM)
+    #ifdef FAN_MIN_PWM
       #define CALC_FAN_SPEED(f) (tail_fan_speed[f] ? ( FAN_MIN_PWM + (tail_fan_speed[f] * (255 - FAN_MIN_PWM)) / 255 ) : 0)
     #else
       #define CALC_FAN_SPEED(f) tail_fan_speed[f]
