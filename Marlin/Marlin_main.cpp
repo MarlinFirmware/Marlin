@@ -10595,17 +10595,20 @@ void kill(const char* lcd_msg) {
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
 
+  thermalManager.disable_all_heaters();
+  disable_all_steppers();
+            
   #if ENABLED(ULTRA_LCD)
     kill_screen(lcd_msg);
   #else
     UNUSED(lcd_msg);
   #endif
 
-  delay(500); // Wait a short time
-
+  _delay_ms(250); // Wait a short time
   cli(); // Stop interrupts
-  thermalManager.disable_all_heaters();
-  disable_all_steppers();
+            
+  _delay_ms(250); //Wait to ensure all interrupts routines stopped
+  thermalManager.disable_all_heaters(); //turn off heaters again
 
   #if HAS_POWER_SWITCH
     SET_INPUT(PS_ON_PIN);
