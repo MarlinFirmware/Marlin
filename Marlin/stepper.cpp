@@ -1263,7 +1263,7 @@ void Stepper::report_positions() {
         old_pin = _READ_DIR(X);
         #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
           pulse_start = TCNT0;
-        #endif \
+        #endif 
         START_BABYSTEP_AXIS(X, false);
         #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
           while ((uint32_t)(TCNT0 - pulse_start) < STEP_PULSE_CYCLES - CYCLES_EATEN_BY_BABYSTEP) { /* nada */ }

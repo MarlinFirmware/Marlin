@@ -96,8 +96,7 @@
    *                    specified height, no correction is applied and natural printer kenimatics take over. If no
    *                    number is specified for the command, 10mm is assumed to be reasonable.
    *
-   *   G #   Grid   *   Perform a Grid Based Leveling of the current Mesh using a grid with n points on
-   *   a side.
+   *   G #   Grid   *   Perform a Grid Based Leveling of the current Mesh using a grid with n points on a side.
    *
    *   H #   Height     Specify the Height to raise the nozzle after each manual probe of the bed. The
    *                    default is 5mm.
@@ -266,12 +265,6 @@
    *   kinds of problems. Enabling EEPROM Storage is highly recommended. With EEPROM Storage
    *   of the mesh, you are limited to 3-Point and Grid Leveling. (G29 P0 T and G29 P0 G
    *   respectively.)
-   *
-   *   Z-Probe Sleds are not currently fully supported. There were too many complications caused
-   *   by them to support them in the Unified Bed Leveling code. Support for them will be handled
-   *   better in the upcoming Z-Probe Object that will happen during the Code Clean Up phase. (That
-   *   is what they really are:  A special case of the Z-Probe.)  When a Z-Probe Object appears, it
-   *   should slip in under the Unified Bed Leveling code without major trauma.
    *
    *   When you do a G28 and then a G29 P1 to automatically build your first mesh, you are going to notice
    *   the Unified Bed Leveling probes points further and further away from the starting location. (The
@@ -1076,11 +1069,6 @@
     ubl.state.active = ubl_state_at_invocation;
   }
 
-  void g29_print_line(bool longer=false) {
-    SERIAL_PROTOCOLPGM("  -------------------------------------");
-    if (longer) SERIAL_PROTOCOLPGM("-------------------");
-    SERIAL_PROTOCOLLNPGM("       <----<<<");
-  }
 
   /**
    * Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
@@ -1090,70 +1078,85 @@
     int k = E2END - ubl_eeprom_start;
     statistics_flag++;
 
-    SERIAL_PROTOCOLLNPGM("Version #4: 10/30/2016 branch");
-    SERIAL_PROTOCOLPGM("Unified Bed Leveling System ");
+    SERIAL_PROTOCOLPGM("Unified Bed Leveling System Version 1.00 ");
     if (ubl.state.active)
-      SERIAL_PROTOCOLPGM("Active.");
+      SERIAL_PROTOCOLPGM("Active.\n");
     else
-      SERIAL_PROTOCOLPGM("Inactive.");
-    g29_print_line(); // These are just to help me find this info buried in the clutter
+      SERIAL_PROTOCOLPGM("Inactive.\n");
+    SERIAL_EOL;
+    delay(50);
 
     if (ubl.state.eeprom_storage_slot == 0xFFFF) {
       SERIAL_PROTOCOLPGM("No Mesh Loaded.");
-      g29_print_line(); // These are just to help me find this info buried in the clutter
     }
     else {
       SERIAL_PROTOCOLPGM("Mesh: ");
       prt_hex_word(ubl.state.eeprom_storage_slot);
       SERIAL_PROTOCOLPGM(" Loaded. ");
-      g29_print_line(true); // These are just to help me find this info buried in the clutter
     }
 
-    SERIAL_PROTOCOLPAIR("\ng29_correction_fade_height : ", ubl.state.g29_correction_fade_height );
-    g29_print_line(); // These are just to help me find this info buried in the clutter
+    SERIAL_EOL;
+    delay(50);
+
+    SERIAL_PROTOCOLPAIR("g29_correction_fade_height : ", ubl.state.g29_correction_fade_height );
+    SERIAL_EOL;
 
     idle();
 
     SERIAL_PROTOCOLPGM("z_offset: ");
     SERIAL_PROTOCOL_F(ubl.state.z_offset, 6);
-    g29_print_line(true); // These are just to help me find this info buried in the clutter
+    SERIAL_EOL;
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
       SERIAL_PROTOCOL_F( ubl.map_x_index_to_bed_location(i), 1);
       SERIAL_PROTOCOLPGM("  ");
+      delay(10);
     }
     SERIAL_EOL;
+    delay(50);
+    idle();
+
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < UBL_MESH_NUM_Y_POINTS; i++) {
       SERIAL_PROTOCOL_F( ubl.map_y_index_to_bed_location(i), 1);
       SERIAL_PROTOCOLPGM("  ");
+      delay(10);
     }
     SERIAL_EOL;
+    delay(50);
+    idle();
 
     #if HAS_KILL
       SERIAL_PROTOCOLPAIR("Kill pin on :", KILL_PIN);
       SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
     #endif
+    delay(50);
+    idle();
+    SERIAL_EOL;
 
     SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
+    SERIAL_EOL;
     SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
-
     SERIAL_EOL;
     SERIAL_PROTOCOLPGM("Free EEPROM space starts at: 0x");
     prt_hex_word(ubl_eeprom_start);
     SERIAL_EOL;
+    delay(50);
     idle();
 
     SERIAL_PROTOCOLPGM("end of EEPROM              : ");
     prt_hex_word(E2END);
     SERIAL_EOL;
+    delay(50);
     idle();
 
     SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
     SERIAL_EOL;
     SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values));
     SERIAL_EOL;
+    delay(50);
+    idle();
 
     SERIAL_PROTOCOLPGM("EEPROM free for UBL: 0x");
     prt_hex_word(k);
@@ -1162,40 +1165,27 @@
 
     SERIAL_PROTOCOLPGM("EEPROM can hold 0x");
     prt_hex_word(k / sizeof(z_values));
-    SERIAL_PROTOCOLLNPGM(" meshes.");
+    SERIAL_PROTOCOLLNPGM(" meshes.\n");
+    delay(50);
 
-    SERIAL_PROTOCOLPGM("sizeof(stat)     :");
+    SERIAL_PROTOCOLPGM("sizeof(ubl.state) :");
     prt_hex_word(sizeof(ubl.state));
-    SERIAL_EOL;
     idle();
 
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_NUM_X_POINTS  ", UBL_MESH_NUM_X_POINTS);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_NUM_Y_POINTS  ", UBL_MESH_NUM_Y_POINTS);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_X         ", UBL_MESH_MIN_X);
+    delay(50);
+    idle();
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_Y         ", UBL_MESH_MIN_Y);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MAX_X         ", UBL_MESH_MAX_X);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MAX_Y         ", UBL_MESH_MAX_Y);
+    delay(50);
+    idle();
     SERIAL_PROTOCOLPGM("\nMESH_X_DIST        ");
     SERIAL_PROTOCOL_F(MESH_X_DIST, 6);
     SERIAL_PROTOCOLPGM("\nMESH_Y_DIST        ");
     SERIAL_PROTOCOL_F(MESH_Y_DIST, 6);
-    SERIAL_EOL;
-    idle();
-
-    SERIAL_PROTOCOLPAIR("\nsizeof(block_t): ", (int)sizeof(block_t));
-    SERIAL_PROTOCOLPAIR("\nsizeof(planner.block_buffer): ", (int)sizeof(planner.block_buffer));
-    SERIAL_PROTOCOLPAIR("\nsizeof(char): ", (int)sizeof(char));
-    SERIAL_PROTOCOLPAIR("   sizeof(unsigned char): ", (int)sizeof(unsigned char));
-    SERIAL_PROTOCOLPAIR("\nsizeof(int): ", (int)sizeof(int));
-    SERIAL_PROTOCOLPAIR("   sizeof(unsigned int): ", (int)sizeof(unsigned int));
-    SERIAL_PROTOCOLPAIR("\nsizeof(long): ", (int)sizeof(long));
-    SERIAL_PROTOCOLPAIR("   sizeof(unsigned long int): ", (int)sizeof(unsigned long int));
-    SERIAL_PROTOCOLPAIR("\nsizeof(float): ", (int)sizeof(float));
-    SERIAL_PROTOCOLPAIR("   sizeof(double): ", (int)sizeof(double));
-    SERIAL_PROTOCOLPAIR("\nsizeof(void *): ", (int)sizeof(void *));
-    struct pf { void *p_f(); } ptr_func;
-    SERIAL_PROTOCOLPAIR("   sizeof(struct pf): ", (int)sizeof(pf));
-    SERIAL_PROTOCOLPAIR("   sizeof(void *()): ", (int)sizeof(ptr_func));
     SERIAL_EOL;
 
     idle();
