@@ -66,16 +66,16 @@ vector_3 vector_3::get_normal() {
 float vector_3::get_length() { return sqrt((x * x) + (y * y) + (z * z)); }
 
 void vector_3::normalize() {
-  float length = get_length();
-  x /= length;
-  y /= length;
-  z /= length;
+  const float inv_length = 1.0 / get_length();
+  x *= inv_length;
+  y *= inv_length;
+  z *= inv_length;
 }
 
 void vector_3::apply_rotation(matrix_3x3 matrix) {
-  float resultX = x * matrix.matrix[3 * 0 + 0] + y * matrix.matrix[3 * 1 + 0] + z * matrix.matrix[3 * 2 + 0];
-  float resultY = x * matrix.matrix[3 * 0 + 1] + y * matrix.matrix[3 * 1 + 1] + z * matrix.matrix[3 * 2 + 1];
-  float resultZ = x * matrix.matrix[3 * 0 + 2] + y * matrix.matrix[3 * 1 + 2] + z * matrix.matrix[3 * 2 + 2];
+  const float resultX = x * matrix.matrix[3 * 0 + 0] + y * matrix.matrix[3 * 1 + 0] + z * matrix.matrix[3 * 2 + 0],
+              resultY = x * matrix.matrix[3 * 0 + 1] + y * matrix.matrix[3 * 1 + 1] + z * matrix.matrix[3 * 2 + 1],
+              resultZ = x * matrix.matrix[3 * 0 + 2] + y * matrix.matrix[3 * 1 + 2] + z * matrix.matrix[3 * 2 + 2];
   x = resultX;
   y = resultY;
   z = resultZ;
@@ -92,7 +92,7 @@ void vector_3::debug(const char title[]) {
   SERIAL_EOL;
 }
 
-void apply_rotation_xyz(matrix_3x3 matrix, float& x, float& y, float& z) {
+void apply_rotation_xyz(matrix_3x3 matrix, float &x, float &y, float &z) {
   vector_3 vector = vector_3(x, y, z);
   vector.apply_rotation(matrix);
   x = vector.x;
@@ -144,9 +144,9 @@ matrix_3x3 matrix_3x3::transpose(matrix_3x3 original) {
 
 void matrix_3x3::debug(const char title[]) {
   SERIAL_PROTOCOLLN(title);
-  int count = 0;
-  for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 3; j++) {
+  uint8_t count = 0;
+  for (uint8_t i = 0; i < 3; i++) {
+    for (uint8_t j = 0; j < 3; j++) {
       if (matrix[count] >= 0.0) SERIAL_PROTOCOLCHAR('+');
       SERIAL_PROTOCOL_F(matrix[count], 6);
       SERIAL_PROTOCOLCHAR(' ');
