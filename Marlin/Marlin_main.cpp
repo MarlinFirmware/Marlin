@@ -896,10 +896,6 @@ bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   return false;
 }
 
-void enqueue_and_echo_command_now(const char* cmd) {
-  while (!enqueue_and_echo_command(cmd)) idle();
-}
-
 void setup_killpin() {
   #if HAS_KILL
     SET_INPUT_PULLUP(KILL_PIN);
