@@ -233,10 +233,6 @@
 #include "duration_t.h"
 #include "types.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "UBL.h"
-#endif
-
 #if HAS_ABL
   #include "vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -301,7 +297,13 @@
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "UBL.h"
   unified_bed_leveling ubl;
+#define UBL_MESH_VALID !(   z_values[0][0] == z_values[0][1] && z_values[0][1] == z_values[0][2] \
+                         && z_values[1][0] == z_values[1][1] && z_values[1][1] == z_values[1][2] \
+                         && z_values[2][0] == z_values[2][1] && z_values[2][1] == z_values[2][2] \
+                         && z_values[0][0] == 0 && z_values[1][0] == 0 && z_values[2][0] == 0    \
+                         || isnan(z_values[0][0]))
 #endif
 
 bool Running = true;
@@ -2266,7 +2268,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif // HAS_BED_PROBE
 
-#if PLANNER_LEVELING || ENABLED(AUTO_BED_LEVELING_UBL)
+#if PLANNER_LEVELING
   /**
    * Turn bed leveling on or off, fixing the current
    * position as-needed.
@@ -2309,7 +2311,8 @@ static void clean_up_after_endstop_or_probe_move() {
           planner.unapply_leveling(current_position);
       }
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.state.active = enable;
+      ubl.state.active = enable;
+      //set_current_from_steppers_for_axis(Z_AXIS);
     #endif
   }
 
@@ -3481,11 +3484,6 @@ inline void gcode_G4() {
  *
  */
 inline void gcode_G28() {
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-  bool bed_leveling_state_at_entry=0;
-    bed_leveling_state_at_entry = ubl.state.active;
-    set_bed_leveling_enabled(false);
-  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -3498,7 +3496,10 @@ inline void gcode_G28() {
   stepper.synchronize();
 
   // Disable the leveling matrix before homing
-  #if PLANNER_LEVELING || ENABLED(MESH_BED_LEVELING)
+  #if PLANNER_LEVELING
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      const bool bed_leveling_state_at_entry = ubl.state.active;
+    #endif
     set_bed_leveling_enabled(false);
   #endif
 
@@ -5304,6 +5305,18 @@ inline void gcode_M42() {
   }
 
 #endif // Z_MIN_PROBE_REPEATABILITY_TEST
+
+#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
+
+  inline void gcode_M49() {
+    SERIAL_PROTOCOLPGM("UBL Debug Flag turned ");
+    if ((g26_debug_flag = !g26_debug_flag))
+      SERIAL_PROTOCOLLNPGM("on.");
+    else
+      SERIAL_PROTOCOLLNPGM("off.");
+  }
+
+#endif // AUTO_BED_LEVELING_UBL && UBL_MESH_EDIT_ENABLED
 
 /**
  * M75: Start print timer
@@ -8512,7 +8525,7 @@ void process_next_command() {
           break;
       #endif // INCH_MODE_SUPPORT
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
         case 26: // G26: Mesh Validation Pattern generation
           gcode_G26();
           break;
@@ -8644,16 +8657,11 @@ void process_next_command() {
           break;
       #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
         case 49: // M49: Turn on or off g26_debug_flag for verbose output
-    if (g26_debug_flag) {
-            SERIAL_PROTOCOLPGM("UBL Debug Flag turned off.\n");
-            g26_debug_flag = 0; }
-    else {
-            SERIAL_PROTOCOLPGM("UBL Debug Flag turned on.\n");
-            g26_debug_flag++; }
+          gcode_M49();
           break;
-      #endif // Z_MIN_PROBE_REPEATABILITY_TEST
+      #endif // AUTO_BED_LEVELING_UBL && UBL_MESH_EDIT_ENABLED
 
       case 75: // M75: Start print timer
         gcode_M75(); break;
@@ -9547,7 +9555,7 @@ void get_cartesian_from_steppers() {
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
-  #if PLANNER_LEVELING
+  #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
     planner.unapply_leveling(cartes);
   #endif
   if (axis == ALL_AXES)

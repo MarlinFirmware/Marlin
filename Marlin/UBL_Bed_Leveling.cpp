@@ -24,8 +24,19 @@
 #include "math.h"
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
+
   #include "UBL.h"
   #include "hex_print_routines.h"
+
+  /**
+   * These support functions allow the use of large bit arrays of flags that take very
+   * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
+   * to unsigned long will allow us to go to 32x32 if higher resolution Mesh's are needed
+   * in the future.
+   */
+  void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y) { CBI(bits[y], x); }
+  void bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { SBI(bits[y], x); }
+  bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
 
   /**
    * These variables used to be declared inside the unified_bed_leveling class. We are going to
@@ -51,36 +62,36 @@
   }
 
   void unified_bed_leveling::store_state() {
-    int k = E2END - sizeof(ubl.state);
-    eeprom_write_block((void *)&ubl.state, (void *)k, sizeof(ubl.state));
+    const uint16_t i = UBL_LAST_EEPROM_INDEX;
+    eeprom_write_block((void *)&ubl.state, (void *)i, sizeof(state));
   }
 
   void unified_bed_leveling::load_state() {
-    int k = E2END - sizeof(ubl.state);
-    eeprom_read_block((void *)&ubl.state, (void *)k, sizeof(ubl.state));
+    const uint16_t i = UBL_LAST_EEPROM_INDEX;
+    eeprom_read_block((void *)&ubl.state, (void *)i, sizeof(state));
 
     if (sanity_check())
       SERIAL_PROTOCOLLNPGM("?In load_state() sanity_check() failed.\n");
 
-    /**
-     * These lines can go away in a few weeks.  They are just
-     * to make sure people updating thier firmware won't be using
-     * an incomplete Bed_Leveling.state structure. For speed
-     * we now multiply by the inverse of the Fade Height instead of
-     * dividing by it. Soon... all of the old structures will be
-     * updated, but until then, we try to ease the transition
-     * for our Beta testers.
-     */
-    if (ubl.state.g29_fade_height_multiplier != 1.0 / ubl.state.g29_correction_fade_height) {
-      ubl.state.g29_fade_height_multiplier = 1.0 / ubl.state.g29_correction_fade_height;
-      store_state();
-    }
-
+    #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+      /**
+       * These lines can go away in a few weeks.  They are just
+       * to make sure people updating thier firmware won't be using
+       * an incomplete Bed_Leveling.state structure. For speed
+       * we now multiply by the inverse of the Fade Height instead of
+       * dividing by it. Soon... all of the old structures will be
+       * updated, but until then, we try to ease the transition
+       * for our Beta testers.
+       */
+      if (ubl.state.g29_fade_height_multiplier != 1.0 / ubl.state.g29_correction_fade_height) {
+        ubl.state.g29_fade_height_multiplier = 1.0 / ubl.state.g29_correction_fade_height;
+        store_state();
+      }
+    #endif
   }
 
-  void unified_bed_leveling::load_mesh(int m) {
-    int k = E2END - sizeof(ubl.state),
-        j = (k - ubl_eeprom_start) / sizeof(z_values);
+  void unified_bed_leveling::load_mesh(const int16_t m) {
+    int16_t j = (UBL_LAST_EEPROM_INDEX - ubl_eeprom_start) / sizeof(z_values);
 
     if (m == -1) {
       SERIAL_PROTOCOLLNPGM("?No mesh saved in EEPROM. Zeroing mesh in memory.\n");
@@ -93,7 +104,7 @@
       return;
     }
 
-    j = k - (m + 1) * sizeof(z_values);
+    j = UBL_LAST_EEPROM_INDEX - (m + 1) * sizeof(z_values);
     eeprom_read_block((void *)&z_values , (void *)j, sizeof(z_values));
 
     SERIAL_PROTOCOLPGM("Mesh loaded from slot ");
@@ -103,23 +114,22 @@
     SERIAL_EOL;
   }
 
-  void unified_bed_leveling:: store_mesh(int m) {
-    int k = E2END - sizeof(state),
-        j = (k - ubl_eeprom_start) / sizeof(z_values);
+  void unified_bed_leveling::store_mesh(const int16_t m) {
+    int16_t j = (UBL_LAST_EEPROM_INDEX - ubl_eeprom_start) / sizeof(z_values);
 
     if (m < 0 || m >= j || ubl_eeprom_start <= 0) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
       SERIAL_PROTOCOL(m);
       SERIAL_PROTOCOLLNPGM(" mesh slots available.\n");
       SERIAL_PROTOCOLLNPAIR("E2END     : ", E2END);
-      SERIAL_PROTOCOLLNPAIR("k         : ", k);
+      SERIAL_PROTOCOLLNPAIR("k         : ", (int)UBL_LAST_EEPROM_INDEX);
       SERIAL_PROTOCOLLNPAIR("j         : ", j);
       SERIAL_PROTOCOLLNPAIR("m         : ", m);
       SERIAL_EOL;
       return;
     }
 
-    j = k - (m + 1) * sizeof(z_values);
+    j = UBL_LAST_EEPROM_INDEX - (m + 1) * sizeof(z_values);
     eeprom_write_block((const void *)&z_values, (void *)j, sizeof(z_values));
 
     SERIAL_PROTOCOLPGM("Mesh saved in slot ");
@@ -151,7 +161,7 @@
         z_values[x][y] = NAN;
   }
 
-  void unified_bed_leveling::display_map(int map_type) {
+  void unified_bed_leveling::display_map(const int map_type) {
     float f, current_xi, current_yi;
     int8_t i, j;
     UNUSED(map_type);
@@ -287,9 +297,7 @@
       error_flag++;
     }
 
-    const int k = E2END - sizeof(ubl.state),
-              j = (k - ubl_eeprom_start) / sizeof(z_values);
-
+    const int j = (UBL_LAST_EEPROM_INDEX - ubl_eeprom_start) / sizeof(z_values);
     if (j < 1) {
       SERIAL_PROTOCOLLNPGM("?No EEPROM storage available for a mesh of this size.\n");
       error_flag++;
