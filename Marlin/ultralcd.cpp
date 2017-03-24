@@ -1419,10 +1419,6 @@ void kill_screen(const char* lcd_msg) {
           enqueue_and_echo_commands_P(PSTR("G28"));
           lcd_return_to_status();
           //LCD_MESSAGEPGM(MSG_LEVEL_BED_DONE);
-          #if HAS_BUZZER
-            lcd_buzz(200, 659);
-            lcd_buzz(200, 698);
-          #endif
 
           #if ENABLED(PRINTER_EVENT_LEDS)
             handle_led_print_event(all_off);

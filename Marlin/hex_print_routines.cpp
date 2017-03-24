@@ -27,10 +27,10 @@
 #include "hex_print_routines.h"
 
 void prt_hex_nibble(uint8_t n) {
-  if (n <= 9)
-    SERIAL_ECHO(n);
+  if (n <= 9) 
+    SERIAL_CHAR('0'+n);
   else
-    SERIAL_ECHO((char)('A' + n - 10));
+    SERIAL_CHAR('A' + n - 10);
   delay(3);
 }
 

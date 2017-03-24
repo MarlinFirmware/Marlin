@@ -816,7 +816,9 @@
 #endif // RGB_STRIP
 
 /*  
- *   LEDSTRIP allows the use of an addressable ledstrip on output pin with M150 gcode.
+ *   LEDSTRIP Control
+ *   
+ *   Allows the use of an addressable ledstrip on output pin with M150 gcode.
  *   M150:  Set Status LED Color - Use R-U-B for R-G-B
  *          R for red value (from 0 to 255)
  *          U for green value (from 0 to 255)
@@ -865,9 +867,7 @@
  *  When printing, the LEDs will display printer status
  *  - LEDs will gradually change from blue to violet as the heated bed gets to target temp
  *  - LEDs will gradually change from violet to red as the hotend gets to temperature
- *  - LEDs will change to white to illuminate work surface
- *  - LEDs will change to green once print has finished
- *  - LEDs will turn off after the print has finished and the user has pushed a button 
+ *  - All colors for the different events can be configured below. 
  */
 #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(LEDSTRIP)
   #define PRINTER_EVENT_LEDS
@@ -881,20 +881,20 @@
    *  4 - Aqua        - Used for filament change.
    *  5 - Aqua dimmed - Used for filment change hotend timed out.
    *  6 - Aqua Half   - Used for filament change hotend heating.
-   *  7 - Red         - Not currently used.
+   *  7 - Blacklight  - Used for Auto-leveling.
    *  9 - Off         - Used for after homing and leveling.
    */
 
   /* Printer events color selection */
-  #define homing                  2
-  #define auto_leveling           7
-  #define manual_leveling         1
-  #define printing                1
-  #define filamentchange          4
-  #define filamentchange_timeout  5
-  #define filemantchange_heat     6
-  #define printing_done           0
-  #define all_off                 9
+  #define homing                  2  // Yellow
+  #define auto_leveling           7  // Blacklight
+  #define manual_leveling         1  // White
+  #define printing                1  // White
+  #define filamentchange          4  // Aqua
+  #define filamentchange_timeout  5  // Aqua Dimmed
+  #define filemantchange_heat     6  // Aqua Half
+  #define printing_done           0  // Green
+  #define all_off                 9  // Off
 
 #endif
 
