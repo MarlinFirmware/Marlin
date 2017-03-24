@@ -796,7 +796,7 @@ extern "C" {
   extern void digipot_i2c_init();
 #endif
 
-inline void echo_command(char * const cmd) {
+inline void echo_command(const char* cmd) {
   SERIAL_ECHO_START;
   SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
   SERIAL_CHAR('"');
