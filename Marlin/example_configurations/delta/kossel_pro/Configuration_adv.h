@@ -1062,8 +1062,8 @@
   #define SPINDLE_LASER_ENABLE_INVERT  false   // set to "true" if the on/off function is reversed
   #define SPINDLE_SPEED_LASER_POWER true             // set to true if your controller supports setting the speed/power
   #define SPINDLE_SPEED_LASER_POWER_INVERT  true   // set to "true" if the speed/power goes up when you want it to go slower
-  #define SPINDLE_LASER_POWER_UP_DELAY  5    // delay in seconds to allow the spindle/laser to come up to speed
-  #define SPINDLE_LASER_POWER_DOWN_DELAY  5    // delay in seconds to allow the spindle to stop
+  #define SPINDLE_LASER_POWER_UP_DELAY  5000    // delay in milliseconds to allow the spindle/laser to come up to speed/power
+  #define SPINDLE_LASER_POWER_DOWN_DELAY  5000    // delay in milliseconds to allow the spindle to stop
   #define DIRECTION_CHANGE  true        // set to true if your spindle controller supports changing spindle direction
   #define INVERT_DIRECTION  false
   #define STOP_WHEN_CHANGING_DIRECTION true  // set to true if Marlin should stop the spindle before changing rotation direction
@@ -1082,10 +1082,10 @@
   #define SPEED_POWER_MIN  5000       // SuperPID router controller 0 - 30,000 RPM
   #define SPEED_POWER_MAX 30000       // SuperPID router controller 0 - 30,000 RPM
   
-  #define SPEED_POWER_SLOPE 0.3922    // 0-100%
-  #define SPEED_POWER_INTERCEPT 0     // 0-100%
-  #define SPEED_POWER_MIN  10         // 0-100%
-  #define SPEED_POWER_MAX 100         // 0-100%
+  //#define SPEED_POWER_SLOPE 0.3922    // 0-100%
+  //#define SPEED_POWER_INTERCEPT 0     // 0-100%
+  //#define SPEED_POWER_MIN  10         // 0-100%
+  //#define SPEED_POWER_MAX 100         // 0-100%
 #endif
 /**
  *
