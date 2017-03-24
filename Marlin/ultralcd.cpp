@@ -860,7 +860,7 @@ void kill_screen(const char* lcd_msg) {
 
     static void _lcd_mesh_fine_tune(const char* msg) {
       static millis_t next_click = 0;
-      int16_t last_digit, movement;
+      int16_t last_digit;
       int32_t rounded;
 
       defer_return_to_status = true;

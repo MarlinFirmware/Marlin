@@ -22,6 +22,7 @@
 
 #include "Marlin.h"
 #include "math.h"
+#include "vector_3.h"
 
 #ifndef UNIFIED_BED_LEVELING_H
 #define UNIFIED_BED_LEVELING_H
@@ -32,32 +33,29 @@
     #define UBL_ERR true
 
     typedef struct {
-      int x_index, y_index;
-      float distance; // Not always used. But when populated, it is the distance
-                      // from the search location
+      int8_t x_index, y_index;
+      float distance; // When populated, the distance from the search location
     } mesh_index_pair;
-
-    typedef struct { double dx, dy, dz; } vector;
 
     enum MeshPointType { INVALID, REAL, SET_IN_BITMAP };
 
     bool axis_unhomed_error(bool, bool, bool);
-    void dump(char *str, float f);
+    void dump(char * const str, const float &f);
     bool ubl_lcd_clicked();
-    void probe_entire_mesh(float, float, bool, bool);
+    void probe_entire_mesh(const float&, const float&, const bool, const bool);
+    void debug_current_and_destination(char *title);
     void ubl_line_to_destination(const float&, const float&, const float&, const float&, const float&, uint8_t);
-    void manually_probe_remaining_mesh(float, float, float, float, bool);
-    vector tilt_mesh_based_on_3pts(float, float, float);
-    void new_set_bed_level_equation_3pts(float, float, float);
-    float measure_business_card_thickness(float);
-    mesh_index_pair find_closest_mesh_point_of_type(MeshPointType, float, float, bool, unsigned int[16]);
+    void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
+    vector_3 tilt_mesh_based_on_3pts(const float&, const float&, const float&);
+    float measure_business_card_thickness(const float&);
+    mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16]);
     void find_mean_mesh_height();
     void shift_mesh_height();
     bool g29_parameter_parsing();
     void g29_what_command();
     void g29_eeprom_dump();
     void g29_compare_current_mesh_to_stored_mesh();
-    void fine_tune_mesh(float, float, bool);
+    void fine_tune_mesh(const float&, const float&, const bool);
     void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y);
     void bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
     bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
@@ -83,7 +81,11 @@
     #define MESH_X_DIST ((float(UBL_MESH_MAX_X) - float(UBL_MESH_MIN_X)) / (float(UBL_MESH_NUM_X_POINTS) - 1.0))
     #define MESH_Y_DIST ((float(UBL_MESH_MAX_Y) - float(UBL_MESH_MIN_Y)) / (float(UBL_MESH_NUM_Y_POINTS) - 1.0))
 
-    extern bool g26_debug_flag;
+    #if ENABLED(UBL_MESH_EDIT_ENABLED)
+      extern bool g26_debug_flag;
+    #else
+      constexpr bool g26_debug_flag = false;
+    #endif
     extern float last_specified_z;
     extern float fade_scaling_factor_for_current_height;
     extern float z_values[UBL_MESH_NUM_X_POINTS][UBL_MESH_NUM_Y_POINTS];
@@ -103,12 +105,15 @@
               mesh_x_max = UBL_MESH_MAX_X,
               mesh_y_max = UBL_MESH_MAX_Y,
               mesh_x_dist = MESH_X_DIST,
-              mesh_y_dist = MESH_Y_DIST,
-              g29_correction_fade_height = 10.0,
-              g29_fade_height_multiplier = 1.0 / 10.0; // It is cheaper to do a floating point multiply than a floating
-                                                       // point divide. So, we keep this number in both forms. The first
-                                                       // is for the user. The second one is the one that is actually used
-                                                       // again and again and again during the correction calculations.
+              mesh_y_dist = MESH_Y_DIST;
+
+        #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
+          float g29_correction_fade_height = 10.0,
+                g29_fade_height_multiplier = 1.0 / 10.0; // It is cheaper to do a floating point multiply than a floating
+                                                         // point divide. So, we keep this number in both forms. The first
+                                                         // is for the user. The second one is the one that is actually used
+                                                         // again and again and again during the correction calculations.
+        #endif
 
         unsigned char padding[24];  // This is just to allow room to add state variables without
                                     // changing the location of data structures in the EEPROM.
@@ -122,45 +127,45 @@
       unified_bed_leveling();
       //  ~unified_bed_leveling();  // No destructor because this object never goes away!
 
-      void display_map(int);
+      void display_map(const int);
 
       void reset();
       void invalidate();
 
       void store_state();
       void load_state();
-      void store_mesh(int);
-      void load_mesh(int);
+      void store_mesh(const int16_t);
+      void load_mesh(const int16_t);
 
       bool sanity_check();
 
-      FORCE_INLINE float map_x_index_to_bed_location(int8_t i){ return ((float) UBL_MESH_MIN_X) + (((float) MESH_X_DIST) * (float) i); };
-      FORCE_INLINE float map_y_index_to_bed_location(int8_t i){ return ((float) UBL_MESH_MIN_Y) + (((float) MESH_Y_DIST) * (float) i); };
+      FORCE_INLINE static float map_x_index_to_bed_location(const int8_t i) { return ((float) UBL_MESH_MIN_X) + (((float) MESH_X_DIST) * (float) i); };
+      FORCE_INLINE static float map_y_index_to_bed_location(const int8_t i) { return ((float) UBL_MESH_MIN_Y) + (((float) MESH_Y_DIST) * (float) i); };
 
-      void set_z(const int8_t px, const int8_t py, const float z) { z_values[px][py] = z; }
+      FORCE_INLINE void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 
-      int8_t get_cell_index_x(float x) {
-        int8_t cx = (x - (UBL_MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
+      static int8_t get_cell_index_x(const float &x) {
+        const int8_t cx = (x - (UBL_MESH_MIN_X)) * (1.0 / (MESH_X_DIST));
         return constrain(cx, 0, (UBL_MESH_NUM_X_POINTS) - 1);   // -1 is appropriate if we want all movement to the X_MAX
       }                                                         // position. But with this defined this way, it is possible
                                                                 // to extrapolate off of this point even further out. Probably
                                                                 // that is OK because something else should be keeping that from
                                                                 // happening and should not be worried about at this level.
-      int8_t get_cell_index_y(float y) {
-        int8_t cy = (y - (UBL_MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
+      static int8_t get_cell_index_y(const float &y) {
+        const int8_t cy = (y - (UBL_MESH_MIN_Y)) * (1.0 / (MESH_Y_DIST));
         return constrain(cy, 0, (UBL_MESH_NUM_Y_POINTS) - 1);   // -1 is appropriate if we want all movement to the Y_MAX
       }                                                         // position. But with this defined this way, it is possible
                                                                 // to extrapolate off of this point even further out. Probably
                                                                 // that is OK because something else should be keeping that from
                                                                 // happening and should not be worried about at this level.
 
-      int8_t find_closest_x_index(float x) {
-        int8_t px = (x - (UBL_MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
+      static int8_t find_closest_x_index(const float &x) {
+        const int8_t px = (x - (UBL_MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
         return (px >= 0 && px < (UBL_MESH_NUM_X_POINTS)) ? px : -1;
       }
 
-      int8_t find_closest_y_index(float y) {
-        int8_t py = (y - (UBL_MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
+      static int8_t find_closest_y_index(const float &y) {
+        const int8_t py = (y - (UBL_MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
         return (py >= 0 && py < (UBL_MESH_NUM_Y_POINTS)) ? py : -1;
       }
 
@@ -174,14 +179,14 @@
        *    |<---delta_a---------->|
        *
        *  calc_z0 is the basis for all the Mesh Based correction. It is used to
-       *  find the expected Z Height at a position between two known Z-Height locations
+       *  find the expected Z Height at a position between two known Z-Height locations.
        *
-       *  It is farly expensive with its 4 floating point additions and 2 floating point
+       *  It is fairly expensive with its 4 floating point additions and 2 floating point
        *  multiplications.
        */
-      inline float calc_z0(float a0, float a1, float z1, float a2, float z2) {
-        float delta_z = (z2 - z1);
-        float delta_a = (a0 - a1) / (a2 - a1);
+      static FORCE_INLINE float calc_z0(const float &a0, const float &a1, const float &z1, const float &a2, const float &z2) {
+        const float delta_z = (z2 - z1),
+                    delta_a = (a0 - a1) / (a2 - a1);
         return z1 + delta_a * delta_z;
       }
 
@@ -193,7 +198,7 @@
        * the X index of the x0 intersection available and we don't want to perform any extra floating
        * point operations.
        */
-      inline float get_z_correction_along_horizontal_mesh_line_at_specific_X(float x0, int x1_i, int yi) {
+      inline float get_z_correction_along_horizontal_mesh_line_at_specific_X(const float &x0, const int x1_i, const int yi) {
         if (x1_i < 0 || yi < 0 || x1_i >= UBL_MESH_NUM_X_POINTS || yi >= UBL_MESH_NUM_Y_POINTS) {
           SERIAL_ECHOPAIR("? in get_z_correction_along_horizontal_mesh_line_at_specific_X(x0=", x0);
           SERIAL_ECHOPAIR(",x1_i=", x1_i);
@@ -203,18 +208,18 @@
           return NAN;
         }
 
-        const float a0ma1diva2ma1 = (x0 - mesh_index_to_x_location[x1_i]) * (1.0 / (MESH_X_DIST)),
+        const float xratio = (RAW_X_POSITION(x0) - mesh_index_to_x_location[x1_i]) * (1.0 / (MESH_X_DIST)),
                     z1 = z_values[x1_i][yi],
                     z2 = z_values[x1_i + 1][yi],
                     dz = (z2 - z1);
 
-        return z1 + a0ma1diva2ma1 * dz;
+        return z1 + xratio * dz;
       }
 
       //
       // See comments above for get_z_correction_along_horizontal_mesh_line_at_specific_X
       //
-      inline float get_z_correction_along_vertical_mesh_line_at_specific_Y(float y0, int xi, int y1_i) {
+      inline float get_z_correction_along_vertical_mesh_line_at_specific_Y(const float &y0, const int xi, const int y1_i) {
         if (xi < 0 || y1_i < 0 || xi >= UBL_MESH_NUM_X_POINTS || y1_i >= UBL_MESH_NUM_Y_POINTS) {
           SERIAL_ECHOPAIR("? in get_z_correction_along_vertical_mesh_line_at_specific_X(y0=", y0);
           SERIAL_ECHOPAIR(", x1_i=", xi);
@@ -224,12 +229,12 @@
           return NAN;
         }
 
-        const float a0ma1diva2ma1 = (y0 - mesh_index_to_y_location[y1_i]) * (1.0 / (MESH_Y_DIST)),
+        const float yratio = (RAW_Y_POSITION(y0) - mesh_index_to_y_location[y1_i]) * (1.0 / (MESH_Y_DIST)),
                     z1 = z_values[xi][y1_i],
                     z2 = z_values[xi][y1_i + 1],
                     dz = (z2 - z1);
 
-        return z1 + a0ma1diva2ma1 * dz;
+        return z1 + yratio * dz;
       }
 
       /**
@@ -238,9 +243,9 @@
        * Z-Height at both ends. Then it does a linear interpolation of these heights based
        * on the Y position within the cell.
        */
-      float get_z_correction(float x0, float y0) {
-        int8_t cx = get_cell_index_x(x0),
-        cy = get_cell_index_y(y0);
+      float get_z_correction(const float &x0, const float &y0) const {
+        const int8_t cx = get_cell_index_x(RAW_X_POSITION(x0)),
+                     cy = get_cell_index_y(RAW_Y_POSITION(y0));
 
         if (cx < 0 || cy < 0 || cx >= UBL_MESH_NUM_X_POINTS || cy >= UBL_MESH_NUM_Y_POINTS) {
 
@@ -256,15 +261,15 @@
           return 0.0; // this used to return state.z_offset
         }
 
-        float z1 = calc_z0(x0,
-          map_x_index_to_bed_location(cx), z_values[cx][cy],
-          map_x_index_to_bed_location(cx + 1), z_values[cx + 1][cy]);
-        float z2 = calc_z0(x0,
-          map_x_index_to_bed_location(cx), z_values[cx][cy + 1],
-          map_x_index_to_bed_location(cx + 1), z_values[cx + 1][cy + 1]);
-        float z0 = calc_z0(y0,
-          map_y_index_to_bed_location(cy), z1,
-          map_y_index_to_bed_location(cy + 1), z2);
+        const float z1 = calc_z0(RAW_X_POSITION(x0),
+                      map_x_index_to_bed_location(cx), z_values[cx][cy],
+                      map_x_index_to_bed_location(cx + 1), z_values[cx + 1][cy]),
+                    z2 = calc_z0(RAW_X_POSITION(x0),
+                      map_x_index_to_bed_location(cx), z_values[cx][cy + 1],
+                      map_x_index_to_bed_location(cx + 1), z_values[cx + 1][cy + 1]);
+              float z0 = calc_z0(RAW_Y_POSITION(y0),
+                  map_y_index_to_bed_location(cy), z1,
+                  map_y_index_to_bed_location(cy + 1), z2);
 
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(MESH_ADJUST)) {
@@ -308,27 +313,36 @@
        * factor is going to be the same as the last time the function calculated a value. If so, it just
        * returns it.
        *
-       * If it must do a calcuation, it will return a scaling factor of 0.0 if the UBL System is not active
-       * or if the current Z Height is past the specified 'Fade Height'
+       * It returns a scaling factor of 1.0 if UBL is inactive.
+       * It returns a scaling factor of 0.0 if Z is past the specified 'Fade Height'
        */
-      FORCE_INLINE float fade_scaling_factor_for_z(float current_z) {
-      #ifndef ENABLE_LEVELING_FADE_HEIGHT   // if turned off, just return 0.000    Note that we assume the
-        return 0.000;                       // compiler will do 'Dead Code' elimination so there is no need
-      #endif                                // for an #else clause here.
-        if (last_specified_z == current_z)
-          return fade_scaling_factor_for_current_height;
+      #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-        last_specified_z = current_z;
-        fade_scaling_factor_for_current_height =
-          state.active && current_z < state.g29_correction_fade_height
-          ? 1.0 - (current_z * state.g29_fade_height_multiplier)
-          : 0.0;
-        return fade_scaling_factor_for_current_height;
-      }
-    };
+        FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) const {
+          const float rz = RAW_Z_POSITION(lz);
+          if (last_specified_z != rz) {
+            last_specified_z = rz;
+            fade_scaling_factor_for_current_height =
+              state.active && rz < state.g29_correction_fade_height
+                ? 1.0 - (rz * state.g29_fade_height_multiplier)
+                : 0.0;
+          }
+          return fade_scaling_factor_for_current_height;
+        }
+
+      #else
+
+        static constexpr float fade_scaling_factor_for_z(const float &lz) { UNUSED(lz); return 1.0; }
+
+      #endif
+
+    }; // class unified_bed_leveling
 
     extern unified_bed_leveling ubl;
     extern int ubl_eeprom_start;
 
-#endif // AUTO_BED_LEVELING_UBL
+    #define UBL_LAST_EEPROM_INDEX (E2END - sizeof(unified_bed_leveling::state))
+
+  #endif // AUTO_BED_LEVELING_UBL
+
 #endif // UNIFIED_BED_LEVELING_H
