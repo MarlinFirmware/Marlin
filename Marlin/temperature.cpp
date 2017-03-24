@@ -1729,7 +1729,7 @@ void Temperature::isr() {
       #if HAS_FAN2
         if (soft_pwm_fan[2] <= pwm_count_tmp) WRITE_FAN2(0);
       #endif
-    #endif // FAN_SOFT_PWM
+    #endif //FAN_SOFT_PWM
 
     // SOFT_PWM_SCALE to frequency:
     //
@@ -1743,9 +1743,9 @@ void Temperature::isr() {
 
     // increment slow_pwm_count only every 64th pwm_count,
     // i.e. yielding a PWM frequency of 16/128 Hz (8s).
-    if (((pwm_count >> SOFT_PWM_SCALE) & 0x3F) == 0) {
+    if (((pwm_count >> SOFT_PWM_SCALE) % 64) == 0) {
       slow_pwm_count++;
-      slow_pwm_count &= 0x7F;
+      slow_pwm_count &= 0x7f;
 
       // EXTRUDER 0
       if (state_timer_heater_0 > 0) state_timer_heater_0--;
@@ -1761,7 +1761,7 @@ void Temperature::isr() {
       #if HAS_HEATER_BED
         if (state_timer_heater_BED > 0) state_timer_heater_BED--;
       #endif
-    } // ((pwm_count >> SOFT_PWM_SCALE) & 0x3F) == 0
+    } // (pwm_count % 64) == 0
 
   #endif // SLOW_PWM_HEATERS
 
