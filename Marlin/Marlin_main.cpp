@@ -1993,6 +1993,19 @@ static void clean_up_after_endstop_or_probe_move() {
     }
 
     void set_bltouch_deployed(const bool deploy) {
+      if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
+        bltouch_command(BLTOUCH_RESET);    // try to reset it.
+        bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
+        bltouch_command(BLTOUCH_STOW);     // clear the triggered condition.
+        safe_delay(1500);             // wait for internal self test to complete
+                                           //   measured completion time was 0.65 seconds
+                                           //   after reset, deploy & stow sequence
+        if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM(MSG_STOP_BLTOUCH);
+          stop();                          // punt!
+        }
+      }
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
@@ -2023,8 +2036,11 @@ static void clean_up_after_endstop_or_probe_move() {
     #if ENABLED(BLTOUCH)
       if (deploy && TEST_BLTOUCH()) {      // If BL-Touch says it's triggered
         bltouch_command(BLTOUCH_RESET);    // try to reset it.
-        set_bltouch_deployed(true);        // Also needs to deploy and stow to
-        set_bltouch_deployed(false);       // clear the triggered condition.
+        bltouch_command(BLTOUCH_DEPLOY);   // Also needs to deploy and stow to
+        bltouch_command(BLTOUCH_STOW);     // clear the triggered condition.
+        safe_delay(1500);                  // wait for internal self test to complete
+                                           //   measured completion time was 0.65 seconds
+                                           //   after reset, deploy & stow sequence
         if (TEST_BLTOUCH()) {              // If it still claims to be triggered...
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM(MSG_STOP_BLTOUCH);
