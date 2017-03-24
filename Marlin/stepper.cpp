@@ -535,8 +535,7 @@ void Stepper::isr() {
 
     // If a minimum pulse time was specified get the CPU clock
     #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_CODE
-      static uint32_t pulse_start;
-      pulse_start = TCNT0;
+      uint32_t pulse_start = TCNT0;
     #endif
 
     #if HAS_X_STEP
@@ -802,8 +801,7 @@ void Stepper::isr() {
     for (uint8_t i = 0; i < step_loops; i++) {
 
       #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_E
-        static uint32_t pulse_start;
-        pulse_start = TCNT0;
+        uint32_t pulse_start = TCNT0;
       #endif
 
       START_E_PULSE(0);
@@ -1232,55 +1230,53 @@ void Stepper::report_positions() {
 #if ENABLED(BABYSTEPPING)
 
   #define CYCLES_EATEN_BY_BABYSTEP 60
+
   #define _ENABLE(axis) enable_## axis()
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ
   #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
+  #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
+    #define _SAVE_START (pulse_start = TCNT0)
+    #define _PULSE_WAIT while ((uint32_t)(TCNT0 - pulse_start) < STEP_PULSE_CYCLES - CYCLES_EATEN_BY_BABYSTEP) { /* nada */ }
+  #else
+    #define _SAVE_START NOOP
+    #define _PULSE_WAIT NOOP
+  #endif
+
   #define START_BABYSTEP_AXIS(AXIS, INVERT) { \
+      old_dir = _READ_DIR(AXIS); \
+      _SAVE_START; \
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^direction^INVERT); \
       _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
     }
 
   #define STOP_BABYSTEP_AXIS(AXIS) { \
+      _PULSE_WAIT; \
       _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), true); \
-      _APPLY_DIR(AXIS, old_pin); \
+      _APPLY_DIR(AXIS, old_dir); \
     }
 
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
   void Stepper::babystep(const AxisEnum axis, const bool direction) {
     cli();
-    static uint8_t old_pin;
+    uint8_t old_dir;
     #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
-      static uint32_t pulse_start;
+      uint32_t pulse_start;
     #endif
     
     switch (axis) {
 
       case X_AXIS:
         _ENABLE(x);
-        old_pin = _READ_DIR(X);
-        #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
-          pulse_start = TCNT0;
-        #endif 
         START_BABYSTEP_AXIS(X, false);
-        #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
-          while ((uint32_t)(TCNT0 - pulse_start) < STEP_PULSE_CYCLES - CYCLES_EATEN_BY_BABYSTEP) { /* nada */ }
-        #endif
         STOP_BABYSTEP_AXIS(X);
         break;
 
       case Y_AXIS:
         _ENABLE(y);
-        old_pin = _READ_DIR(Y);
-        #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
-          pulse_start = TCNT0;
-        #endif
         START_BABYSTEP_AXIS(Y, false);
-        #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
-          while ((uint32_t)(TCNT0 - pulse_start) < STEP_PULSE_CYCLES - CYCLES_EATEN_BY_BABYSTEP) { /* nada */ }
-        #endif
         STOP_BABYSTEP_AXIS(Y);
         break;
 
@@ -1289,14 +1285,7 @@ void Stepper::report_positions() {
         #if DISABLED(DELTA)
 
           _ENABLE(z);
-          old_pin = _READ_DIR(Z);
-          #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
-            pulse_start = TCNT0;
-          #endif
           START_BABYSTEP_AXIS(Z, BABYSTEP_INVERT_Z);
-          #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
-            while ((uint32_t)(TCNT0 - pulse_start) < STEP_PULSE_CYCLES - CYCLES_EATEN_BY_BABYSTEP) { /* nada */ }
-          #endif
           STOP_BABYSTEP_AXIS(Z);
 
         #else // DELTA
@@ -1340,7 +1329,7 @@ void Stepper::report_positions() {
     sei();
   }
 
-#endif //BABYSTEPPING
+#endif // BABYSTEPPING
 
 /**
  * Software-controlled Stepper Motor Current
