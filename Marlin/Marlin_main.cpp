@@ -7448,6 +7448,12 @@ inline void gcode_M503() {
     if (code_seen('Z')) {
       float value = code_value_axis_units(Z_AXIS);
       if (Z_PROBE_OFFSET_RANGE_MIN <= value && value <= Z_PROBE_OFFSET_RANGE_MAX) {
+
+#if ENABLED(BABYSTEPPING)
+        if (Planner::abl_enabled)
+          thermalManager.babystep_axis(Z_AXIS, lround((value - zprobe_zoffset) * planner.axis_steps_per_mm[Z_AXIS]));
+#endif // BABYSTEPPING
+
         zprobe_zoffset = value;
         SERIAL_ECHO(zprobe_zoffset);
       }
