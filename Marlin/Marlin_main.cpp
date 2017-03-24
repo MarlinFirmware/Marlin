@@ -4086,6 +4086,12 @@ inline void gcode_G28() {
 
     setup_for_endstop_or_probe_move();
 
+    #if ENABLED(DELTA)
+      // prevent horizontal moves at top level
+      if (current_position[Z_AXIS] > (Z_MAX_POS - Z_MIN_POS)/2)
+        do_blocking_move_to_z((Z_MAX_POS - Z_MIN_POS)/2);
+    #endif
+
     // Deploy the probe. Probe will raise if needed.
     if (DEPLOY_PROBE()) {
       planner.abl_enabled = abl_should_enable;
