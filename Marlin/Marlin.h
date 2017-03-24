@@ -40,7 +40,6 @@
 #include "fastio.h"
 #include "utility.h"
 
-
 #ifdef USBCON
   #include "HardwareSerial.h"
   #if ENABLED(BLUETOOTH)

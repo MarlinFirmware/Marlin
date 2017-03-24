@@ -233,10 +233,6 @@
 #include "duration_t.h"
 #include "types.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
-  #include "UBL.h"
-#endif
-
 #if HAS_ABL
   #include "vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_LINEAR)
@@ -311,7 +307,13 @@
 #endif
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "UBL.h"
   unified_bed_leveling ubl;
+#define UBL_MESH_VALID !(   z_values[0][0] == z_values[0][1] && z_values[0][1] == z_values[0][2] \
+                         && z_values[1][0] == z_values[1][1] && z_values[1][1] == z_values[1][2] \
+                         && z_values[2][0] == z_values[2][1] && z_values[2][1] == z_values[2][2] \
+                         && z_values[0][0] == 0 && z_values[1][0] == 0 && z_values[2][0] == 0    \
+                         || isnan(z_values[0][0]))
 #endif
 
 bool Running = true;
@@ -804,8 +806,48 @@ extern "C" {
   extern void digipot_i2c_init();
 #endif
 
+inline void echo_command(char * const cmd) {
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
+  SERIAL_CHAR('"');
+  SERIAL_EOL;
+}
+
 /**
- * Inject the next "immediate" command, when possible.
+ * Shove a command in RAM to the front of the main command queue.
+ * Return true if the command is successfully added.
+ */
+inline bool _shovecommand(const char* cmd, bool say_ok=false) {
+  if (*cmd == ';' || commands_in_queue >= BUFSIZE) return false;
+  cmd_queue_index_r = (cmd_queue_index_r + BUFSIZE - 1) % BUFSIZE; // Index of the previous slot
+  commands_in_queue++;
+  strcpy(command_queue[cmd_queue_index_r], cmd);
+  send_ok[cmd_queue_index_r] = say_ok;
+  return true;
+}
+
+/**
+ * Shove a command to the front of the queue with Serial Echo
+ * Return true if the command is successfully added.
+ */
+bool shove_and_echo_command(const char* cmd, bool say_ok=false) {
+  if (_shovecommand(cmd, say_ok)) {
+    echo_command(cmd);
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Shove a command onto the front of the queue,
+ * and don't return until successful.
+ */
+void shove_and_echo_command_now(const char* cmd) {
+  while (!shove_and_echo_command(cmd)) idle();
+}
+
+/**
+ * Inject the next "immediate" command, when possible, onto the front of the queue.
  * Return true if any immediate commands remain to inject.
  */
 static bool drain_injected_commands_P() {
@@ -816,14 +858,14 @@ static bool drain_injected_commands_P() {
     cmd[sizeof(cmd) - 1] = '\0';
     while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
     cmd[i] = '\0';
-    if (enqueue_and_echo_command(cmd)) {   // success?
+    if (shove_and_echo_command(cmd)) {     // success?
       if (c)                               // newline char?
-        injected_commands_P += i + 1;        // advance to the next command
+        injected_commands_P += i + 1;      // advance to the next command
       else
-        injected_commands_P = NULL;          // nul char? no more commands
+        injected_commands_P = NULL;        // nul char? no more commands
     }
   }
-  return (injected_commands_P != NULL);      // return whether any more remain
+  return (injected_commands_P != NULL);    // return whether any more remain
 }
 
 /**
@@ -836,6 +878,9 @@ void enqueue_and_echo_commands_P(const char* pgcode) {
   drain_injected_commands_P(); // first command executed asap (when possible)
 }
 
+/**
+ * Clear the Marlin command queue
+ */
 void clear_command_queue() {
   cmd_queue_index_r = cmd_queue_index_w;
   commands_in_queue = 0;
@@ -851,8 +896,9 @@ inline void _commit_command(bool say_ok) {
 }
 
 /**
- * Copy a command directly into the main command buffer, from RAM.
- * Returns true if successfully adds the command
+ * Copy a command from RAM into the main command buffer.
+ * Return true if the command was successfully added.
+ * Return false for a full buffer, or if the 'command' is a comment.
  */
 inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
   if (*cmd == ';' || commands_in_queue >= BUFSIZE) return false;
@@ -861,22 +907,19 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
   return true;
 }
 
-void enqueue_and_echo_command_now(const char* cmd) {
-  while (!enqueue_and_echo_command(cmd)) idle();
-}
-
 /**
  * Enqueue with Serial Echo
  */
 bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   if (_enqueuecommand(cmd, say_ok)) {
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR(MSG_Enqueueing, cmd);
-    SERIAL_CHAR('"');
-    SERIAL_EOL;
+    echo_command(cmd);
     return true;
   }
   return false;
+}
+
+void enqueue_and_echo_command_now(const char* cmd) {
+  while (!enqueue_and_echo_command(cmd)) idle();
 }
 
 void setup_killpin() {
@@ -897,7 +940,6 @@ void setup_killpin() {
 
 #endif
 
-// Set home pin
 void setup_homepin(void) {
   #if HAS_HOME
     SET_INPUT_PULLUP(HOME_PIN);
@@ -986,6 +1028,11 @@ void gcode_line_error(const char* err, bool doFlush = true) {
   serial_count = 0;
 }
 
+/**
+ * Get all commands waiting on the serial port and queue them.
+ * Exit when the buffer is full or when no more characters are
+ * left on the serial port.
+ */
 inline void get_serial_commands() {
   static char serial_line_buffer[MAX_CMD_SIZE];
   static bool serial_comment_mode = false;
@@ -1123,6 +1170,11 @@ inline void get_serial_commands() {
 
 #if ENABLED(SDSUPPORT)
 
+  /**
+   * Get commands from the SD Card until the command buffer is full
+   * or until the end of the file is reached. The special character '#'
+   * can also interrupt buffering.
+   */
   inline void get_sdcard_commands() {
     static bool stop_buffering = false,
                 sd_comment_mode = false;
@@ -1141,7 +1193,7 @@ inline void get_serial_commands() {
     uint16_t sd_count = 0;
     bool card_eof = card.eof();
     while (commands_in_queue < BUFSIZE && !card_eof && !stop_buffering) {
-      int16_t n = card.get();
+      const int16_t n = card.get();
       char sd_char = (char)n;
       card_eof = card.eof();
       if (card_eof || n == -1
@@ -1159,12 +1211,12 @@ inline void get_serial_commands() {
         }
         if (sd_char == '#') stop_buffering = true;
 
-        sd_comment_mode = false; //for new command
+        sd_comment_mode = false; // for new command
 
-        if (!sd_count) continue; //skip empty lines
+        if (!sd_count) continue; // skip empty lines (and comment lines)
 
-        command_queue[cmd_queue_index_w][sd_count] = '\0'; //terminate string
-        sd_count = 0; //clear buffer
+        command_queue[cmd_queue_index_w][sd_count] = '\0'; // terminate string
+        sd_count = 0; // clear sd line buffer
 
         _commit_command(false);
       }
@@ -2023,7 +2075,7 @@ static void clean_up_after_endstop_or_probe_move() {
       safe_delay(375);
     }
 
-    FORCE_INLINE void set_bltouch_deployed(const bool &deploy) {
+    void set_bltouch_deployed(const bool deploy) {
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
@@ -2298,7 +2350,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
         mbl.set_active(enable && mbl.has_mesh());
 
-        if (enable) planner.unapply_leveling(current_position);
+        if (enable && mbl.has_mesh()) planner.unapply_leveling(current_position);
       }
 
     #elif HAS_ABL && !ENABLED(AUTO_BED_LEVELING_UBL)
@@ -3516,7 +3568,10 @@ inline void gcode_G28() {
   stepper.synchronize();
 
   // Disable the leveling matrix before homing
-  #if PLANNER_LEVELING || ENABLED(MESH_BED_LEVELING)
+  #if PLANNER_LEVELING
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      const bool bed_leveling_state_at_entry = ubl.state.active;
+    #endif
     set_bed_leveling_enabled(false);
   #endif
 
@@ -5342,6 +5397,18 @@ inline void gcode_M42() {
   }
 
 #endif // Z_MIN_PROBE_REPEATABILITY_TEST
+
+#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
+
+  inline void gcode_M49() {
+    SERIAL_PROTOCOLPGM("UBL Debug Flag turned ");
+    if ((g26_debug_flag = !g26_debug_flag))
+      SERIAL_PROTOCOLLNPGM("on.");
+    else
+      SERIAL_PROTOCOLLNPGM("off.");
+  }
+
+#endif // AUTO_BED_LEVELING_UBL && UBL_MESH_EDIT_ENABLED
 
 /**
  * M75: Start print timer
@@ -8711,7 +8778,7 @@ void process_next_command() {
           break;
       #endif // INCH_MODE_SUPPORT
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
         case 26: // G26: Mesh Validation Pattern generation
           gcode_G26();
           break;
@@ -8843,16 +8910,11 @@ void process_next_command() {
           break;
       #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL)
+      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
         case 49: // M49: Turn on or off g26_debug_flag for verbose output
-    if (g26_debug_flag) {
-            SERIAL_PROTOCOLPGM("UBL Debug Flag turned off.\n");
-            g26_debug_flag = 0; }
-    else {
-            SERIAL_PROTOCOLPGM("UBL Debug Flag turned on.\n");
-            g26_debug_flag++; }
+          gcode_M49();
           break;
-      #endif // Z_MIN_PROBE_REPEATABILITY_TEST
+      #endif // AUTO_BED_LEVELING_UBL && UBL_MESH_EDIT_ENABLED
 
       case 75: // M75: Start print timer
         gcode_M75(); break;
@@ -9744,7 +9806,7 @@ void get_cartesian_from_steppers() {
  */
 void set_current_from_steppers_for_axis(const AxisEnum axis) {
   get_cartesian_from_steppers();
-  #if PLANNER_LEVELING
+  #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
     planner.unapply_leveling(cartes);
   #endif
   if (axis == ALL_AXES)
@@ -9781,7 +9843,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     float normalized_dist, end[XYZE];
 
     // Split at the left/front border of the right/top square
-    int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+    const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
       destination[X_AXIS] = LOGICAL_X_POSITION(mbl.get_probe_x(gcx));
@@ -9844,7 +9906,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     float normalized_dist, end[XYZE];
 
     // Split at the left/front border of the right/top square
-    int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+    const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
       destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx);
@@ -10485,7 +10547,7 @@ void prepare_move_to_destination() {
 
 float calculate_volumetric_multiplier(float diameter) {
   if (!volumetric_enabled || diameter == 0) return 1.0;
-  return 1.0 / (M_PI * diameter * 0.5 * diameter * 0.5);
+  return 1.0 / (M_PI * sq(diameter * 0.5));
 }
 
 void calculate_volumetric_multipliers() {

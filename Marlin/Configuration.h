@@ -862,6 +862,7 @@
   #define UBL_PROBE_PT_2_Y 20
   #define UBL_PROBE_PT_3_X 180
   #define UBL_PROBE_PT_3_Y 20
+  #define UBL_MESH_EDIT_ENABLED     // Enable G26 mesh editing
 
 #elif ENABLED(MESH_BED_LEVELING)
 
@@ -1423,6 +1424,12 @@
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
 #define SOFT_PWM_SCALE 0
+
+// If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
+// be used to mitigate the associated resolution loss. If enabled,
+// some of the PWM cycles are stretched so on average the wanted
+// duty cycle is attained.
+//#define SOFT_PWM_DITHER
 
 // Temperature status LEDs that display the hotend and bed temperature.
 // If all hotends and bed temperature and temperature setpoint are < 54C then the BLUE led is on.

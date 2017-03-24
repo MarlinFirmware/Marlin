@@ -87,12 +87,12 @@
     }
 
     int8_t probe_index_x(const float &x) const {
-      int8_t px = (x - (MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
+      int8_t px = (x - (MESH_MIN_X) + 0.5 * (MESH_X_DIST)) * (1.0 / (MESH_X_DIST));
       return (px >= 0 && px < (MESH_NUM_X_POINTS)) ? px : -1;
     }
 
     int8_t probe_index_y(const float &y) const {
-      int8_t py = (y - (MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
+      int8_t py = (y - (MESH_MIN_Y) + 0.5 * (MESH_Y_DIST)) * (1.0 / (MESH_Y_DIST));
       return (py >= 0 && py < (MESH_NUM_Y_POINTS)) ? py : -1;
     }
 

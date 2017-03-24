@@ -24,25 +24,27 @@
  * Marlin Firmware -- G26 - Mesh Validation Tool
  */
 
-#define EXTRUSION_MULTIPLIER 1.0    // This is too much clutter for the main Configuration.h file  But
-#define RETRACTION_MULTIPLIER 1.0   // some user have expressed an interest in being able to customize
-#define NOZZLE 0.3                  // these numbers for thier printer so they don't need to type all
-#define FILAMENT 1.75               // the options every time they do a Mesh Validation Print.
-#define LAYER_HEIGHT 0.2
-#define PRIME_LENGTH 10.0           // So, we put these number in an easy to find and change place.
-#define BED_TEMP 60.0
-#define HOTEND_TEMP 205.0
-#define OOZE_AMOUNT 0.3
+#include "MarlinConfig.h"
 
-#include "Marlin.h"
-#include "Configuration.h"
-#include "planner.h"
-#include "stepper.h"
-#include "temperature.h"
-#include "UBL.h"
-#include "ultralcd.h"
+#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
 
-#if ENABLED(AUTO_BED_LEVELING_UBL)
+  #include "Marlin.h"
+  #include "Configuration.h"
+  #include "planner.h"
+  #include "stepper.h"
+  #include "temperature.h"
+  #include "UBL.h"
+  #include "ultralcd.h"
+
+  #define EXTRUSION_MULTIPLIER 1.0    // This is too much clutter for the main Configuration.h file  But
+  #define RETRACTION_MULTIPLIER 1.0   // some user have expressed an interest in being able to customize
+  #define NOZZLE 0.3                  // these numbers for thier printer so they don't need to type all
+  #define FILAMENT 1.75               // the options every time they do a Mesh Validation Print.
+  #define LAYER_HEIGHT 0.2
+  #define PRIME_LENGTH 10.0           // So, we put these number in an easy to find and change place.
+  #define BED_TEMP 60.0
+  #define HOTEND_TEMP 205.0
+  #define OOZE_AMOUNT 0.3
 
   #define SIZE_OF_INTERSECTION_CIRCLES 5
   #define SIZE_OF_CROSS_HAIRS 3 // cross hairs inside the circle.  This number should be
@@ -50,64 +52,64 @@
 
   /**
    *   Roxy's G26 Mesh Validation Tool
-   *  
+   *
    *   G26 Is a Mesh Validation Tool intended to provide support for the Marlin Unified Bed Leveling System.
    *   In order to fully utilize and benefit from the Marlin Unified Bed Leveling System an accurate Mesh must
    *   be defined.  G29 is designed to allow the user to quickly validate the correctness of her Mesh.  It will
    *   first heat the bed and nozzle. It will then print lines and circles along the Mesh Cell boundaries and
    *   the intersections of those lines (respectively).
-   *  
+   *
    *   This action allows the user to immediately see where the Mesh is properly defined and where it needs to
    *   be edited.  The command will generate the Mesh lines closest to the nozzle's starting position.  Alternatively
    *   the user can specify the X and Y position of interest with command parameters.  This allows the user to
    *   focus on a particular area of the Mesh where attention is needed.
-   *  
+   *
    *   B #  Bed   Set the Bed Temperature.  If not specified, a default of 60 C. will be assumed.
-   *  
+   *
    *   C    Current   When searching for Mesh Intersection points to draw, use the current nozzle location
    *        as the base for any distance comparison.
-   *  
+   *
    *   D    Disable   Disable the Unified Bed Leveling System.  In the normal case the user is invoking this
    *        command to see how well a Mesh as been adjusted to match a print surface.  In order to do
    *        this the Unified Bed Leveling System is turned on by the G26 command.  The D parameter
    *        alters the command's normal behaviour and disables the Unified Bed Leveling System even if
    *        it is on.
-   *  
+   *
    *   H #  Hotend    Set the Nozzle Temperature.  If not specified, a default of 205 C. will be assumed.
-   *  
+   *
    *   F #  Filament  Used to specify the diameter of the filament being used.  If not specified
    *        1.75mm filament is assumed.  If you are not getting acceptable results by using the
    *        'correct' numbers, you can scale this number up or down a little bit to change the amount
    *        of filament that is being extruded during the printing of the various lines on the bed.
-   *  
+   *
    *   K    Keep-On   Keep the heaters turned on at the end of the command.
-   *  
+   *
    *   L #  Layer   Layer height.  (Height of nozzle above bed)  If not specified .20mm will be used.
-   *  
+   *
    *   Q #  Multiplier  Retraction Multiplier.  Normally not needed.  Retraction defaults to 1.0mm and
    *        un-retraction is at 1.2mm   These numbers will be scaled by the specified amount
-   *  
+   *
    *   N #  Nozzle    Used to control the size of nozzle diameter.  If not specified, a .4mm nozzle is assumed.
-   *  
+   *
    *   O #  Ooooze    How much your nozzle will Ooooze filament while getting in position to print.  This
    *        is over kill, but using this parameter will let you get the very first 'cicle' perfect
    *        so you have a trophy to peel off of the bed and hang up to show how perfectly you have your
    *        Mesh calibrated.  If not specified, a filament length of .3mm is assumed.
-   *  
+   *
    *   P #  Prime   Prime the nozzle with specified length of filament.  If this parameter is not
    *        given, no prime action will take place.  If the parameter specifies an amount, that much
    *        will be purged before continuing.  If no amount is specified the command will start
    *        purging filament until the user provides an LCD Click and then it will continue with
    *        printing the Mesh.  You can carefully remove the spent filament with a needle nose
    *        pliers while holding the LCD Click wheel in a depressed state.
-   *  
+   *
    *   R #  Random    Randomize the order that the circles are drawn on the bed.  The search for the closest
    *        undrawn cicle is still done.  But the distance to the location for each circle has a
    *        random number of the size specified added to it.  Specifying R50 will give an interesting
    *        deviation from the normal behaviour on a 10 x 10 Mesh.
-   *  
+   *
    *   X #  X coordinate  Specify the starting location of the drawing activity.
-   *  
+   *
    *   Y #  Y coordinate  Specify the starting location of the drawing activity.
    */
 
@@ -156,7 +158,6 @@
 
   float valid_trig_angle(float);
   mesh_index_pair find_closest_circle_to_print(float, float);
-  void debug_current_and_destination(char *title);
   void ubl_line_to_destination(const float&, const float&, const float&, const float&, const float&, uint8_t);
   //uint16_t x_splits = 0xFFFF, uint16_t y_splits = 0xFFFF);  /* needed for the old mesh_buffer_line() routine */
 
@@ -172,19 +173,8 @@
 
   int8_t prime_flag = 0;
 
-  bool keep_heaters_on = false;
-
-  bool g26_debug_flag = false;
-
-  /**
-   * These support functions allow the use of large bit arrays of flags that take very
-   * little RAM. Currently they are limited to being 16x16 in size. Changing the declaration
-   * to unsigned long will allow us to go to 32x32 if higher resolution Mesh's are needed
-   * in the future.
-   */
-  void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y) { CBI(bits[y], x); }
-  void bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { SBI(bits[y], x); }
-  bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
+  bool keep_heaters_on = false,
+       g26_debug_flag = false;
 
   /**
    * G26: Mesh Validation Pattern generation.
@@ -542,78 +532,6 @@
         }
       }
     }
-  }
-
-  void debug_current_and_destination(char *title) {
-    float dx, dy, de, xy_dist, fpmm;
-
-    // if the title message starts with a '!' it is so important, we are going to
-    // ignore the status of the g26_debug_flag
-    if (*title != '!' && !g26_debug_flag) return;
-
-    dx = current_position[X_AXIS] - destination[X_AXIS];
-    dy = current_position[Y_AXIS] - destination[Y_AXIS];
-    de = destination[E_AXIS] - current_position[E_AXIS];
-    if (de == 0.0) return;
-
-    xy_dist = HYPOT(dx, dy);
-    if (xy_dist == 0.0) {
-      return;
-      //SERIAL_ECHOPGM("   FPMM=");
-      //fpmm = de;
-      //SERIAL_PROTOCOL_F(fpmm, 6);
-    }
-    else {
-      SERIAL_ECHOPGM("   fpmm=");
-      fpmm = de / xy_dist;
-      SERIAL_ECHO_F(fpmm, 6);
-    }
-
-    SERIAL_ECHOPGM("    current=( ");
-    SERIAL_ECHO_F(current_position[X_AXIS], 6);
-    SERIAL_ECHOPGM(", ");
-    SERIAL_ECHO_F(current_position[Y_AXIS], 6);
-    SERIAL_ECHOPGM(", ");
-    SERIAL_ECHO_F(current_position[Z_AXIS], 6);
-    SERIAL_ECHOPGM(", ");
-    SERIAL_ECHO_F(current_position[E_AXIS], 6);
-    SERIAL_ECHOPGM(" )   destination=( ");
-    if (current_position[X_AXIS] == destination[X_AXIS])
-      SERIAL_ECHOPGM("-------------");
-    else
-      SERIAL_ECHO_F(destination[X_AXIS], 6);
-
-    SERIAL_ECHOPGM(", ");
-
-    if (current_position[Y_AXIS] == destination[Y_AXIS])
-      SERIAL_ECHOPGM("-------------");
-    else
-      SERIAL_ECHO_F(destination[Y_AXIS], 6);
-
-    SERIAL_ECHOPGM(", ");
-
-    if (current_position[Z_AXIS] == destination[Z_AXIS])
-      SERIAL_ECHOPGM("-------------");
-    else
-      SERIAL_ECHO_F(destination[Z_AXIS], 6);
-
-    SERIAL_ECHOPGM(", ");
-
-    if (current_position[E_AXIS] == destination[E_AXIS])
-      SERIAL_ECHOPGM("-------------");
-    else
-      SERIAL_ECHO_F(destination[E_AXIS], 6);
-
-    SERIAL_ECHOPGM(" )   ");
-    SERIAL_ECHO(title);
-    SERIAL_EOL;
-
-    SET_INPUT_PULLUP(66); // Roxy's Left Switch is on pin 66.  Right Switch is on pin 65
-
-    //if (been_to_2_6) {
-    //while ((digitalRead(66) & 0x01) != 0)
-    //  idle();
-    //}
   }
 
   void move_to(const float &x, const float &y, const float &z, const float &e_delta) {
@@ -1002,4 +920,4 @@
     return UBL_OK;
   }
 
-#endif // AUTO_BED_LEVELING_UBL
+#endif // AUTO_BED_LEVELING_UBL && UBL_MESH_EDIT_ENABLED
