@@ -796,48 +796,8 @@ extern "C" {
   extern void digipot_i2c_init();
 #endif
 
-inline void echo_command(char * const cmd) {
-  SERIAL_ECHO_START;
-  SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
-  SERIAL_CHAR('"');
-  SERIAL_EOL;
-}
-
 /**
- * Shove a command in RAM to the front of the main command queue.
- * Return true if the command is successfully added.
- */
-inline bool _shovecommand(const char* cmd, bool say_ok=false) {
-  if (*cmd == ';' || commands_in_queue >= BUFSIZE) return false;
-  cmd_queue_index_r = (cmd_queue_index_r + BUFSIZE - 1) % BUFSIZE; // Index of the previous slot
-  commands_in_queue++;
-  strcpy(command_queue[cmd_queue_index_r], cmd);
-  send_ok[cmd_queue_index_r] = say_ok;
-  return true;
-}
-
-/**
- * Shove a command to the front of the queue with Serial Echo
- * Return true if the command is successfully added.
- */
-bool shove_and_echo_command(const char* cmd, bool say_ok=false) {
-  if (_shovecommand(cmd, say_ok)) {
-    echo_command(cmd);
-    return true;
-  }
-  return false;
-}
-
-/**
- * Shove a command onto the front of the queue,
- * and don't return until successful.
- */
-void shove_and_echo_command_now(const char* cmd) {
-  while (!shove_and_echo_command(cmd)) idle();
-}
-
-/**
- * Inject the next "immediate" command, when possible, onto the front of the queue.
+ * Inject the next "immediate" command, when possible.
  * Return true if any immediate commands remain to inject.
  */
 static bool drain_injected_commands_P() {
@@ -848,14 +808,14 @@ static bool drain_injected_commands_P() {
     cmd[sizeof(cmd) - 1] = '\0';
     while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
     cmd[i] = '\0';
-    if (shove_and_echo_command(cmd)) {     // success?
+    if (enqueue_and_echo_command(cmd)) {   // success?
       if (c)                               // newline char?
-        injected_commands_P += i + 1;      // advance to the next command
+        injected_commands_P += i + 1;        // advance to the next command
       else
-        injected_commands_P = NULL;        // nul char? no more commands
+        injected_commands_P = NULL;          // nul char? no more commands
     }
   }
-  return (injected_commands_P != NULL);    // return whether any more remain
+  return (injected_commands_P != NULL);      // return whether any more remain
 }
 
 /**
@@ -868,9 +828,6 @@ void enqueue_and_echo_commands_P(const char* pgcode) {
   drain_injected_commands_P(); // first command executed asap (when possible)
 }
 
-/**
- * Clear the Marlin command queue
- */
 void clear_command_queue() {
   cmd_queue_index_r = cmd_queue_index_w;
   commands_in_queue = 0;
@@ -886,9 +843,8 @@ inline void _commit_command(bool say_ok) {
 }
 
 /**
- * Copy a command from RAM into the main command buffer.
- * Return true if the command was successfully added.
- * Return false for a full buffer, or if the 'command' is a comment.
+ * Copy a command directly into the main command buffer, from RAM.
+ * Returns true if successfully adds the command
  */
 inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
   if (*cmd == ';' || commands_in_queue >= BUFSIZE) return false;
@@ -897,19 +853,22 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
   return true;
 }
 
+void enqueue_and_echo_command_now(const char* cmd) {
+  while (!enqueue_and_echo_command(cmd)) idle();
+}
+
 /**
  * Enqueue with Serial Echo
  */
 bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   if (_enqueuecommand(cmd, say_ok)) {
-    echo_command(cmd);
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR(MSG_Enqueueing, cmd);
+    SERIAL_CHAR('"');
+    SERIAL_EOL;
     return true;
   }
   return false;
-}
-
-void enqueue_and_echo_command_now(const char* cmd) {
-  while (!enqueue_and_echo_command(cmd)) idle();
 }
 
 void setup_killpin() {
@@ -930,6 +889,7 @@ void setup_killpin() {
 
 #endif
 
+// Set home pin
 void setup_homepin(void) {
   #if HAS_HOME
     SET_INPUT_PULLUP(HOME_PIN);
@@ -1018,11 +978,6 @@ void gcode_line_error(const char* err, bool doFlush = true) {
   serial_count = 0;
 }
 
-/**
- * Get all commands waiting on the serial port and queue them.
- * Exit when the buffer is full or when no more characters are
- * left on the serial port.
- */
 inline void get_serial_commands() {
   static char serial_line_buffer[MAX_CMD_SIZE];
   static bool serial_comment_mode = false;
@@ -1160,11 +1115,6 @@ inline void get_serial_commands() {
 
 #if ENABLED(SDSUPPORT)
 
-  /**
-   * Get commands from the SD Card until the command buffer is full
-   * or until the end of the file is reached. The special character '#'
-   * can also interrupt buffering.
-   */
   inline void get_sdcard_commands() {
     static bool stop_buffering = false,
                 sd_comment_mode = false;
@@ -1183,7 +1133,7 @@ inline void get_serial_commands() {
     uint16_t sd_count = 0;
     bool card_eof = card.eof();
     while (commands_in_queue < BUFSIZE && !card_eof && !stop_buffering) {
-      const int16_t n = card.get();
+      int16_t n = card.get();
       char sd_char = (char)n;
       card_eof = card.eof();
       if (card_eof || n == -1
@@ -1201,12 +1151,12 @@ inline void get_serial_commands() {
         }
         if (sd_char == '#') stop_buffering = true;
 
-        sd_comment_mode = false; // for new command
+        sd_comment_mode = false; //for new command
 
-        if (!sd_count) continue; // skip empty lines (and comment lines)
+        if (!sd_count) continue; //skip empty lines
 
-        command_queue[cmd_queue_index_w][sd_count] = '\0'; // terminate string
-        sd_count = 0; // clear sd line buffer
+        command_queue[cmd_queue_index_w][sd_count] = '\0'; //terminate string
+        sd_count = 0; //clear buffer
 
         _commit_command(false);
       }
