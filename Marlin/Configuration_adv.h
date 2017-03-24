@@ -502,7 +502,7 @@
 // Implementation of a linear pressure control
 // Assumption: advance = k * (delta velocity)
 // K=0 means advance disabled. A good value for a gregs wade extruder will be around K=75
-#define LIN_ADVANCE
+//#define LIN_ADVANCE
 
 #if ENABLED(LIN_ADVANCE)
   #define LIN_ADVANCE_K 45
