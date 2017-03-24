@@ -174,6 +174,9 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
   #if PIN_EXISTS(E3_AUTO_FAN)
     PIN_SAY(E3_AUTO_FAN_PIN);
   #endif
+  #if PIN_EXISTS(HEATBED_AUTO_FAN)
+    PIN_SAY(HEATBED_AUTO_FAN_PIN);
+  #endif
   #if PIN_EXISTS(E0_DIR)
     PIN_SAY(E0_DIR_PIN);
   #endif

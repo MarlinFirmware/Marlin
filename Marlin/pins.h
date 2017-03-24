@@ -220,6 +220,9 @@
 #ifndef CONTROLLERFAN_PIN
   #define CONTROLLERFAN_PIN  -1
 #endif
+#ifndef HEATBED_AUTO_FAN_PIN 
+  #define HEATBED_AUTO_FAN_PIN -1
+#endif
 
 #ifndef HEATER_0_PIN
   #define HEATER_0_PIN -1

@@ -487,6 +487,30 @@ int Temperature::getHeaterPower(int heater) {
     }
   }
 
+  void Temperature::checkHeatbedAutoFan() {
+    const int8_t fanPin = HEATBED_AUTO_FAN_PIN;
+    if(fanPin <= 0) return; // Early exit with no heatbed fan defined
+
+    static bool fanState = false;
+    int delta_temperature_bed = (int)current_temperature_bed - target_temperature_bed;
+
+    if (delta_temperature_bed > HEATBED_AUTO_FAN_DELTA_TEMPERATURE &&
+        (int)current_temperature_bed > HEATBED_AUTO_FAN_MIN_TEMPERATURE ) {
+      if(!fanState){
+        fanState = true;
+        digitalWrite(fanPin, HEATBED_AUTO_FAN_SPEED);
+        analogWrite(fanPin, HEATBED_AUTO_FAN_SPEED);
+      }
+    } else {
+      if(fanState) {
+        fanState = false;
+        digitalWrite(fanPin, 0);
+        analogWrite(fanPin, 0);
+      }
+    }
+    
+  }
+
 #endif // HAS_AUTO_FAN
 
 //
@@ -753,6 +777,7 @@ void Temperature::manage_heater() {
   #if HAS_AUTO_FAN
     if (ELAPSED(ms, next_auto_fan_check_ms)) { // only need to check fan state very infrequently
       checkExtruderAutoFans();
+      checkHeatbedAutoFan();
       next_auto_fan_check_ms = ms + 2500UL;
     }
   #endif
@@ -1088,6 +1113,9 @@ void Temperature::init() {
     #else
       SET_OUTPUT(E3_AUTO_FAN_PIN);
     #endif
+  #endif
+  #if HAS_HEATBED_AUTO_FAN
+    SET_OUTPUT(HEATBED_AUTO_FAN_PIN);
   #endif
 
   // Use timer0 for temperature measurement

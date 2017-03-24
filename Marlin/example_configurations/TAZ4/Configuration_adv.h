@@ -232,6 +232,16 @@
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
+// Define a automatic fan pin to cooldown heatbed
+// 
+// When the delta temperature between current and target bed temperature is big, 
+// heatbed cooldown fan will automaticly blow to accelerate the cooldown proccess.
+// Useful when you have a PEI build surface.
+#define HEATBED_AUTO_FAN_PIN -1
+#define HEATBED_AUTO_FAN_DELTA_TEMPERATURE 10 // Don't trigger fan on PID temp wave
+#define HEATBED_AUTO_FAN_MIN_TEMPERATURE 30 // Stop fan at room temperature
+#define HEATBED_AUTO_FAN_SPEED 255 // == full speed
+
 // Define a pin to turn case light on/off
 //#define CASE_LIGHT_PIN 4
 #if PIN_EXISTS(CASE_LIGHT)
