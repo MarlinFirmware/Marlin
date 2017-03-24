@@ -594,18 +594,18 @@
         save_ubl_active_state_and_disable();
         //measured_z = probe_pt(x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER, ProbeDeployAndStow, g29_verbose_level);
 
+        ubl_has_control_of_lcd_panel = true;// Grab the LCD Hardware
         measured_z = 1.5;
         do_blocking_move_to_z(measured_z);  // Get close to the bed, but leave some space so we don't damage anything
                                             // The user is not going to be locking in a new Z-Offset very often so
                                             // it won't be that painful to spin the Encoder Wheel for 1.5mm
         lcd_implementation_clear();
         lcd_z_offset_edit_setup(measured_z);
-        wait_for_user = true;
         do {
           measured_z = lcd_z_offset_edit();
           idle();
           do_blocking_move_to_z(measured_z);
-        } while (wait_for_user);
+        } while (!ubl_lcd_clicked());
 
         ubl_has_control_of_lcd_panel++;   // There is a race condition for the Encoder Wheel getting clicked.
                                           // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
@@ -707,14 +707,17 @@
     save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
     DEPLOY_PROBE();
 
-    wait_for_user = true;
     do {
-      if (!wait_for_user) {
-        SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.");
+      if (ubl_lcd_clicked()) {
+        SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
         lcd_quick_feedback();
-        ubl_has_control_of_lcd_panel = false;
         STOW_PROBE();
+        while (ubl_lcd_clicked() ) {
+          idle();
+        }
+        ubl_has_control_of_lcd_panel = false;
         restore_ubl_active_state_and_leave();
+        delay(50);  // Debounce the Encoder wheel
         return;
       }
 
@@ -737,7 +740,6 @@
 
     LEAVE:
 
-    wait_for_user = false;
     STOW_PROBE();
     restore_ubl_active_state_and_leave();
 
@@ -813,8 +815,7 @@
   }
 
   float use_encoder_wheel_to_measure_point() {
-    wait_for_user = true;
-    while (wait_for_user) {     // we need the loop to move the nozzle based on the encoder wheel here!
+    while (!ubl_lcd_clicked()) {     // we need the loop to move the nozzle based on the encoder wheel here!
       idle();
       if (ubl_encoderDiff) {
         do_blocking_move_to_z(current_position[Z_AXIS] + 0.01 * float(ubl_encoderDiff));
@@ -891,8 +892,8 @@
       last_x = xProbe;
       last_y = yProbe;
 
-      wait_for_user = true;
-      while (wait_for_user) {     // we need the loop to move the nozzle based on the encoder wheel here!
+      ubl_has_control_of_lcd_panel = true;
+      while (!ubl_lcd_clicked) {     // we need the loop to move the nozzle based on the encoder wheel here!
         idle();
         if (ubl_encoderDiff) {
           do_blocking_move_to_z(current_position[Z_AXIS] + float(ubl_encoderDiff) / 100.0);
