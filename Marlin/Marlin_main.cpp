@@ -2009,7 +2009,7 @@ static void clean_up_after_endstop_or_probe_move() {
       safe_delay(375);
     }
 
-    FORCE_INLINE void set_bltouch_deployed(const bool &deploy) {
+    void set_bltouch_deployed(const bool deploy) {
       bltouch_command(deploy ? BLTOUCH_DEPLOY : BLTOUCH_STOW);
       #if ENABLED(DEBUG_LEVELING_FEATURE)
         if (DEBUGGING(LEVELING)) {
@@ -2284,7 +2284,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
         mbl.set_active(enable && mbl.has_mesh());
 
-        if (enable) planner.unapply_leveling(current_position);
+        if (enable && mbl.has_mesh()) planner.unapply_leveling(current_position);
       }
 
     #elif HAS_ABL && !ENABLED(AUTO_BED_LEVELING_UBL)
@@ -8528,7 +8528,7 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if PLANNER_LEVELING || HAS_ABL
+      #if PLANNER_LEVELING
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points,
                  // or provides access to the UBL System if enabled.
           gcode_G29();
@@ -9584,7 +9584,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     float normalized_dist, end[XYZE];
 
     // Split at the left/front border of the right/top square
-    int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+    const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
       destination[X_AXIS] = LOGICAL_X_POSITION(mbl.get_probe_x(gcx));
@@ -9647,7 +9647,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     float normalized_dist, end[XYZE];
 
     // Split at the left/front border of the right/top square
-    int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
+    const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
       destination[X_AXIS] = LOGICAL_X_POSITION(bilinear_start[X_AXIS] + ABL_BG_SPACING(X_AXIS) * gcx);
@@ -10288,7 +10288,7 @@ void prepare_move_to_destination() {
 
 float calculate_volumetric_multiplier(float diameter) {
   if (!volumetric_enabled || diameter == 0) return 1.0;
-  return 1.0 / (M_PI * diameter * 0.5 * diameter * 0.5);
+  return 1.0 / (M_PI * sq(diameter * 0.5));
 }
 
 void calculate_volumetric_multipliers() {
