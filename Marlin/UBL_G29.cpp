@@ -1109,7 +1109,7 @@
     const uint16_t k = E2END - ubl.eeprom_start;
 
     SERIAL_PROTOCOLPGM("Unified Bed Leveling System Version 1.00 ");
-    if (ubl.state.active)  
+    if (ubl.state.active)
       SERIAL_PROTOCOLCHAR('A');
     else
       SERIAL_PROTOCOLPGM("In");
@@ -1363,6 +1363,7 @@
 
       do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);    // Move the nozzle to where we are going to edit
       do_blocking_move_to_xy(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy));
+
       float new_z = ubl.z_values[location.x_index][location.y_index];
       
       round_off = (int32_t)(new_z * 1000.0);    // we chop off the last digits just to be clean. We are rounding to the
