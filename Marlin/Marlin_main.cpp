@@ -2332,7 +2332,7 @@ static void clean_up_after_endstop_or_probe_move() {
 
 #endif // HAS_BED_PROBE
 
-#if PLANNER_LEVELING || ENABLED(AUTO_BED_LEVELING_UBL)
+#if PLANNER_LEVELING
   /**
    * Turn bed leveling on or off, fixing the current
    * position as-needed.
@@ -2375,7 +2375,8 @@ static void clean_up_after_endstop_or_probe_move() {
           planner.unapply_leveling(current_position);
       }
     #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.state.active = enable;
+      ubl.state.active = enable;
+      //set_current_from_steppers_for_axis(Z_AXIS);
     #endif
   }
 
@@ -3547,11 +3548,6 @@ inline void gcode_G4() {
  *
  */
 inline void gcode_G28() {
-  #if ENABLED(AUTO_BED_LEVELING_UBL)
-  bool bed_leveling_state_at_entry=0;
-    bed_leveling_state_at_entry = ubl.state.active;
-    set_bed_leveling_enabled(false);
-  #endif
 
   #if ENABLED(DEBUG_LEVELING_FEATURE)
     if (DEBUGGING(LEVELING)) {
@@ -8794,7 +8790,7 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if PLANNER_LEVELING || HAS_ABL
+      #if PLANNER_LEVELING
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points,
                  // or provides access to the UBL System if enabled.
           gcode_G29();
