@@ -199,6 +199,7 @@
       set_current_to_destination();
     }
 
+    ubl_has_control_of_lcd_panel = true; // Take control of the LCD Panel!
     if (turn_on_heaters())     // Turn on the heaters, leave the command if anything
       goto LEAVE;              // has gone wrong.
 
@@ -233,19 +234,30 @@
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0.0);
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], ooze_amount);
 
-    ubl_has_control_of_lcd_panel++; // Take control of the LCD Panel!
+    ubl_has_control_of_lcd_panel = true; // Take control of the LCD Panel!
     debug_current_and_destination((char*)"Starting G26 Mesh Validation Pattern.");
 
-    wait_for_user = true;
+    /**
+     * Declare and generate a sin() & cos() table to be used during the circle drawing.  This will lighten
+     * the CPU load and make the arc drawing faster and more smooth
+     */
+    float sin_table[360 / 30 + 1], cos_table[360 / 30 + 1];
+    for (i = 0; i <= 360 / 30; i++) {
+      cos_table[i] = SIZE_OF_INTERSECTION_CIRCLES * cos(RADIANS(valid_trig_angle(i * 30.0)));
+      sin_table[i] = SIZE_OF_INTERSECTION_CIRCLES * sin(RADIANS(valid_trig_angle(i * 30.0)));
+    }
 
     do {
 
-      if (!wait_for_user) {                                     // Check if the user wants to stop the Mesh Validation
+      if (ubl_lcd_clicked()) {                                  // Check if the user wants to stop the Mesh Validation
         strcpy(lcd_status_message, "Mesh Validation Stopped."); // We can't do lcd_setstatus() without having it continue;
         #if ENABLED(ULTRA_LCD)
           lcd_setstatus("Mesh Validation Stopped.", true);
           lcd_quick_feedback();
         #endif
+        while (ubl_lcd_clicked()) {         // Wait until the user is done pressing the
+          idle();                           // Encoder Wheel if that is why we are leaving
+        }
         goto LEAVE;
       }
 
@@ -309,16 +321,6 @@
           end_angle   = 360.0;
         }
 
-        /**
-         * Declare and generate a sin() & cos() table to be used during the circle drawing.  This will lighten
-         * the CPU load and make the arc drawing faster and more smooth
-         */
-        float sin_table[360 / 30 + 1], cos_table[360 / 30 + 1];
-        for (i = 0; i <= 360 / 30; i++) {
-          cos_table[i] = SIZE_OF_INTERSECTION_CIRCLES * cos(RADIANS(valid_trig_angle(i * 30.0)));
-          sin_table[i] = SIZE_OF_INTERSECTION_CIRCLES * sin(RADIANS(valid_trig_angle(i * 30.0)));
-        }
-
         for (tmp = start_angle; tmp < end_angle - 0.1; tmp += 30.0) {
           int tmp_div_30 = tmp / 30.0;
           if (tmp_div_30 < 0) tmp_div_30 += 360 / 30;
@@ -351,13 +353,16 @@
           }
 
           print_line_from_here_to_there(x, y, layer_height, xe, ye, layer_height);
-        }
-        lcd_init_counter++;
-        if (lcd_init_counter > 10) {
-          lcd_init_counter = 0;
-          lcd_init(); // Some people's LCD Displays are locking up.  This might help them
-        }
 
+        }
+//      lcd_init_counter++;
+//      if (lcd_init_counter > 10) {
+//        lcd_init_counter = 0;
+//        lcd_init(); // Some people's LCD Displays are locking up.  This might help them
+//        ubl_has_control_of_lcd_panel = true;     // Make sure UBL still is controlling the LCD Panel
+//      }
+
+    // If the end point of the line is closer to the nozzle, we are going to
         debug_current_and_destination((char*)"Looking for lines to connect.");
         look_for_lines_to_connect();
         debug_current_and_destination((char*)"Done with line connect.");
@@ -365,21 +370,24 @@
 
       debug_current_and_destination((char*)"Done with current circle.");
 
+    // If the end point of the line is closer to the nozzle, we are going to
+
     }
     while (location.x_index >= 0 && location.y_index >= 0);
 
     LEAVE:
 
-    wait_for_user = false;
-
+    while (ubl_lcd_clicked()) {         // Wait until the user is done pressing the
+      idle();                           // Encoder Wheel if that is why we are leaving
+    }
     retract_filament();
     destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;                             // Raise the nozzle
 
     debug_current_and_destination((char*)"ready to do Z-Raise.");
-    move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Raise the nozzle
+    move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0);   // Raise the nozzle
     debug_current_and_destination((char*)"done doing Z-Raise.");
 
-    destination[X_AXIS] = x_pos;                                                // Move back to the starting position
+    destination[X_AXIS] = x_pos;                                                  // Move back to the starting position
     destination[Y_AXIS] = y_pos;
     destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;                             // Keep the nozzle where it is
 
@@ -538,6 +546,8 @@
     float feed_value;
     static float last_z = -999.99;
 
+
+
     bool has_xy_component = (x != current_position[X_AXIS] || y != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
 
     if (g26_debug_flag) {
@@ -591,6 +601,7 @@
 
     stepper.synchronize();
     set_destination_to_current();
+
   }
 
   void retract_filament() {
@@ -658,16 +669,23 @@
       if (g26_debug_flag)
         SERIAL_ECHOLNPGM("  filament retracted.");
     }
+    // If the end point of the line is closer to the nozzle, we are going to
     move_to(sx, sy, sz, 0.0); // Get to the starting point with no extrusion
+
+    // If the end point of the line is closer to the nozzle, we are going to
 
     float e_pos_delta = Line_Length * g26_e_axis_feedrate * extrusion_multiplier;
 
     un_retract_filament();
+
+    // If the end point of the line is closer to the nozzle, we are going to
     if (g26_debug_flag) {
       SERIAL_ECHOLNPGM("  doing printing move.");
       debug_current_and_destination((char*)"doing final move_to() inside print_line_from_here_to_there()");
     }
     move_to(ex, ey, ez, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
+
+    // If the end point of the line is closer to the nozzle, we are going to
   }
 
   /**
@@ -815,18 +833,18 @@
           lcd_setstatus("G26 Heating Bed.", true);
           lcd_quick_feedback();
       #endif
-          ubl_has_control_of_lcd_panel++;
+          ubl_has_control_of_lcd_panel = true;
           thermalManager.setTargetBed(bed_temp);
-          wait_for_user = true;
           while (abs(thermalManager.degBed() - bed_temp) > 3) {
-            if (!wait_for_user) {
+            if (ubl_lcd_clicked()) {
               strcpy(lcd_status_message, "Leaving G26"); // We can't do lcd_setstatus() without having it continue;
               lcd_setstatus("Leaving G26", true);        // Now we do it right.
+              while (ubl_lcd_clicked())                  // Debounce Encoder Wheel 
+                idle();
               return UBL_ERR;
             }
             idle();
           }
-          wait_for_user = false;
       #if ENABLED(ULTRA_LCD)
         }
         lcd_setstatus("G26 Heating Nozzle.", true);
@@ -836,16 +854,16 @@
 
     // Start heating the nozzle and wait for it to reach temperature.
     thermalManager.setTargetHotend(hotend_temp, 0);
-    wait_for_user = true;
     while (abs(thermalManager.degHotend(0) - hotend_temp) > 3) {
-      if (!wait_for_user) {
+      if (ubl_lcd_clicked()) {
         strcpy(lcd_status_message, "Leaving G26"); // We can't do lcd_setstatus() without having it continue;
         lcd_setstatus("Leaving G26", true);        // Now we do it right.
+        while (ubl_lcd_clicked())                  // Debounce Encoder Wheel 
+          idle();
         return UBL_ERR;
       }
       idle();
     }
-    wait_for_user = false;
 
     #if ENABLED(ULTRA_LCD)
       lcd_setstatus("", true);
@@ -869,9 +887,7 @@
       un_retract_filament();    // Lets make sure the G26 command doesn't think the filament is
                                 // retracted().  We are here because we want to prime the nozzle.
                                 // So let's just unretract just to be sure.
-
-      wait_for_user = true;
-      while (wait_for_user) {
+      while (!ubl_lcd_clicked()) {
         chirp_at_user();
         destination[E_AXIS] += 0.25;
         #ifdef PREVENT_LENGTHY_EXTRUDE
@@ -894,9 +910,10 @@
 
       strcpy(lcd_status_message, "Done Priming"); // We can't do lcd_setstatus() without having it continue;
                                                   // So...  We cheat to get a message up.
+      while (ubl_lcd_clicked())                   // Debounce Encoder Wheel 
+        idle();
 
       #if ENABLED(ULTRA_LCD)
-        ubl_has_control_of_lcd_panel = false;
         lcd_setstatus("Done Priming", true);      // Now we do it right.
         lcd_quick_feedback();
       #endif
@@ -917,6 +934,7 @@
       set_destination_to_current();
       retract_filament();
     }
+
     return UBL_OK;
   }
 
