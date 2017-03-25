@@ -35,7 +35,6 @@
   #include "temperature.h"
   #include "UBL.h"
   #include "ultralcd.h"
-//#include <avr/pgmspace.h>
 
   #define EXTRUSION_MULTIPLIER 1.0    // This is too much clutter for the main Configuration.h file  But
   #define RETRACTION_MULTIPLIER 1.0   // some user have expressed an interest in being able to customize
@@ -854,7 +853,6 @@
     thermalManager.setTargetHotend(hotend_temp, 0);
     while (abs(thermalManager.degHotend(0) - hotend_temp) > 3) {
       if (ubl_lcd_clicked()) {
-        strcpy(lcd_status_message, "Leaving G26");          // We can't do lcd_setstatuspgm() without having it continue;
         lcd_setstatuspgm(PSTR("Leaving G26"), (uint8_t) 99);          // Now we do it right.
         while (ubl_lcd_clicked())                           // Debounce Encoder Wheel 
           idle();
