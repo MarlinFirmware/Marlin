@@ -81,7 +81,7 @@ uint16_t max_display_update_time = 0;
 
 #if ENABLED(DAC_STEPPER_CURRENT)
   #include "stepper_dac.h" //was dac_mcp4728.h MarlinMain uses stepper dac for the m-codes
-  uint16_t driverPercent[XYZE];
+  int16_t driverPercent[XYZE];
 #endif
 
 #if ENABLED(ULTIPANEL)
