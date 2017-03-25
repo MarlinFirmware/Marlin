@@ -49,7 +49,6 @@
   extern bool code_value_bool();
   extern bool code_has_value();
   extern float probe_pt(float x, float y, bool, int);
-  extern float zprobe_zoffset;
   extern bool set_probe_deployed(bool);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
@@ -516,9 +515,9 @@
     }
 
     if (code_seen('T')) {
-      float z1 = probe_pt(ubl_3_point_1_X, ubl_3_point_1_Y, false /*Stow Flag*/, g29_verbose_level) + zprobe_zoffset,
-            z2 = probe_pt(ubl_3_point_2_X, ubl_3_point_2_Y, false /*Stow Flag*/, g29_verbose_level) + zprobe_zoffset,
-            z3 = probe_pt(ubl_3_point_3_X, ubl_3_point_3_Y, true  /*Stow Flag*/, g29_verbose_level) + zprobe_zoffset;
+      float z1 = probe_pt(ubl_3_point_1_X, ubl_3_point_1_Y, false /*Stow Flag*/, g29_verbose_level),
+            z2 = probe_pt(ubl_3_point_2_X, ubl_3_point_2_Y, false /*Stow Flag*/, g29_verbose_level),
+            z3 = probe_pt(ubl_3_point_3_X, ubl_3_point_3_Y, true  /*Stow Flag*/, g29_verbose_level);
 
       //  We need to adjust z1, z2, z3 by the Mesh Height at these points. Just because they are non-zero doesn't mean
       //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
@@ -761,7 +760,7 @@
           goto LEAVE;
         }
         const float measured_z = probe_pt(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy), stow_probe, g29_verbose_level);
-        ubl.z_values[location.x_index][location.y_index] = measured_z + zprobe_zoffset;
+        ubl.z_values[location.x_index][location.y_index] = measured_z;
       }
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);
