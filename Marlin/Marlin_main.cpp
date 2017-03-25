@@ -299,11 +299,13 @@
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "UBL.h"
   unified_bed_leveling ubl;
-#define UBL_MESH_VALID !(   z_values[0][0] == z_values[0][1] && z_values[0][1] == z_values[0][2] \
-                         && z_values[1][0] == z_values[1][1] && z_values[1][1] == z_values[1][2] \
-                         && z_values[2][0] == z_values[2][1] && z_values[2][1] == z_values[2][2] \
-                         && z_values[0][0] == 0 && z_values[1][0] == 0 && z_values[2][0] == 0    \
-                         || isnan(z_values[0][0]))
+  #define UBL_MESH_VALID !(   z_values[0][0] == z_values[0][1] && z_values[0][1] == z_values[0][2] \
+                           && z_values[1][0] == z_values[1][1] && z_values[1][1] == z_values[1][2] \
+                           && z_values[2][0] == z_values[2][1] && z_values[2][1] == z_values[2][2] \
+                           && z_values[0][0] == 0 && z_values[1][0] == 0 && z_values[2][0] == 0    \
+                           || isnan(z_values[0][0]))
+  extern bool g26_Debug_flag;
+  extern int ubl_eeprom_start;
 #endif
 
 bool Running = true;
@@ -5360,7 +5362,7 @@ inline void gcode_M42() {
 
   inline void gcode_M49() {
     SERIAL_PROTOCOLPGM("UBL Debug Flag turned ");
-    if ((g26_debug_flag = !g26_debug_flag))
+    if ((g26_Debug_flag = !g26_Debug_flag))
       SERIAL_PROTOCOLLNPGM("on.");
     else
       SERIAL_PROTOCOLLNPGM("off.");
@@ -7225,8 +7227,58 @@ void quickstop_stepper() {
    *       S[bool]   Turns leveling on or off
    *       Z[height] Sets the Z fade height (0 or none to disable)
    *       V[bool]   Verbose - Print the leveling grid
+   *
+   *       L[index]  Load UBL mesh from index (0 is default)
    */
   inline void gcode_M420() {
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      //
+      // Load a Mesh from the EEPROM
+      //
+
+      if (code_seen('L')) {     // Load Current Mesh Data
+        uint8_t Storage_Slot = code_has_value() ? code_value_int() : ubl.state.eeprom_storage_slot;
+
+        int k = E2END - sizeof(ubl.state);
+        int j = (k - ubl_eeprom_start) / sizeof(z_values);
+
+        if (Storage_Slot < 0 || Storage_Slot >= j || ubl_eeprom_start <= 0) {
+          SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+          return;
+        }
+        ubl.load_mesh(Storage_Slot);
+        ubl.state.eeprom_storage_slot = Storage_Slot;
+        if (Storage_Slot != ubl.state.eeprom_storage_slot)
+          ubl.store_state();
+        ubl.display_map(0);  // Right now, we only support one type of map
+        SERIAL_ECHOLNPAIR("UBL_MESH_VALID =  ", UBL_MESH_VALID);
+        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
+      }
+
+    #endif
+
+    // V to print the matrix or mesh
+    if (code_seen('V')) {
+      #if ABL_PLANAR
+        planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        if (bilinear_grid_spacing[X_AXIS]) {
+          print_bilinear_leveling_grid();
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_print();
+          #endif
+        }
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        ubl.display_map(0);  // Right now, we only support one type of map
+        SERIAL_ECHOLNPAIR("UBL_MESH_VALID =  ", UBL_MESH_VALID);
+        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
+      #elif ENABLED(MESH_BED_LEVELING)
+        if (mbl.has_mesh()) {
+          SERIAL_ECHOLNPGM("Mesh Bed Level data:");
+          mbl_mesh_report();
+        }
+      #endif
+    }
     bool to_enable = false;
 
     if (code_seen('S')) {
@@ -7255,28 +7307,6 @@ void quickstop_stepper() {
 
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPAIR("Bed Leveling ", new_status ? MSG_ON : MSG_OFF);
-
-    // V to print the matrix or mesh
-    if (code_seen('V')) {
-      #if ABL_PLANAR
-        planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
-      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        if (bilinear_grid_spacing[X_AXIS]) {
-          print_bilinear_leveling_grid();
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_print();
-          #endif
-        }
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.display_map(0);  // Right now, we only support one type of map
-      #elif ENABLED(MESH_BED_LEVELING)
-        if (mbl.has_mesh()) {
-          SERIAL_ECHOLNPGM("Mesh Bed Level data:");
-          mbl_mesh_report();
-        }
-      #endif
-    }
-
   }
 #endif
 
@@ -8605,7 +8635,7 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if PLANNER_LEVELING
+      #if PLANNER_LEVELING && !ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points,
                  // or provides access to the UBL System if enabled.
           gcode_G29();
@@ -8722,7 +8752,7 @@ void process_next_command() {
       #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
-        case 49: // M49: Turn on or off g26_debug_flag for verbose output
+        case 49: // M49: Turn on or off g26_Debug_flag for verbose output
           gcode_M49();
           break;
       #endif // AUTO_BED_LEVELING_UBL && UBL_MESH_EDIT_ENABLED
@@ -10686,7 +10716,7 @@ void kill(const char* lcd_msg) {
 
   thermalManager.disable_all_heaters();
   disable_all_steppers();
-            
+
   #if ENABLED(ULTRA_LCD)
     kill_screen(lcd_msg);
   #else
@@ -10695,7 +10725,7 @@ void kill(const char* lcd_msg) {
 
   _delay_ms(250); // Wait a short time
   cli(); // Stop interrupts
-            
+
   _delay_ms(250); //Wait to ensure all interrupts routines stopped
   thermalManager.disable_all_heaters(); //turn off heaters again
 

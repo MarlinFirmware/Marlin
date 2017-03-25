@@ -31,12 +31,13 @@
 
   extern float destination[XYZE];
   extern void set_current_to_destination();
-
+  extern float destination[];
+  bool g26_Debug_flag = false;
   void debug_current_and_destination(char *title) {
 
     // if the title message starts with a '!' it is so important, we are going to
-    // ignore the status of the g26_debug_flag
-    if (*title != '!' && !g26_debug_flag) return;
+    // ignore the status of the g26_Debug_flag
+    if (*title != '!' && !g26_Debug_flag) return;
 
     const float de = destination[E_AXIS] - current_position[E_AXIS];
 
@@ -121,7 +122,7 @@
               cell_dest_xi  = ubl.get_cell_index_x(RAW_X_POSITION(x_end)),
               cell_dest_yi  = ubl.get_cell_index_y(RAW_Y_POSITION(y_end));
 
-    if (g26_debug_flag) {
+    if (g26_Debug_flag) {
       SERIAL_ECHOPGM(" ubl_line_to_destination(xe=");
       SERIAL_ECHO(x_end);
       SERIAL_ECHOPGM(", ye=");
@@ -150,13 +151,14 @@
         planner.buffer_line(x_end, y_end, z_end + ubl.state.z_offset, e_end, feed_rate, extruder);
         set_current_to_destination();
 
-        if (g26_debug_flag)
+        if (g26_Debug_flag)
           debug_current_and_destination((char*)"out of bounds in ubl_line_to_destination()");
 
         return;
       }
 
       FINAL_MOVE:
+
 
       /**
        * Optimize some floating point operations here. We could call float get_z_correction(float x0, float y0) to
@@ -212,7 +214,7 @@
 
       planner.buffer_line(x_end, y_end, z_end + z0 + ubl.state.z_offset, e_end, feed_rate, extruder);
 
-      if (g26_debug_flag)
+      if (g26_Debug_flag)
         debug_current_and_destination((char*)"FINAL_MOVE in ubl_line_to_destination()");
 
       set_current_to_destination();
@@ -276,6 +278,7 @@
         current_yi += dyi;
         const float next_mesh_line_y = LOGICAL_Y_POSITION(mesh_index_to_y_location[current_yi]);
 
+
         /**
          * inf_m_flag? the slope of the line is infinite, we won't do the calculations
          * else, we know the next X is the same so we can recover and continue!
@@ -314,7 +317,7 @@
          * because part of the Mesh is undefined and we don't have the
          * information we need to complete the height correction.
          */
-        if (isnan(z0)) z0 = 0.0;     
+        if (isnan(z0)) z0 = 0.0;
 
         const float y = LOGICAL_Y_POSITION(mesh_index_to_y_location[current_yi]);
 
@@ -339,7 +342,7 @@
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
-      if (g26_debug_flag)
+      if (g26_Debug_flag)
         debug_current_and_destination((char*)"vertical move done in ubl_line_to_destination()");
 
       //
@@ -424,7 +427,7 @@
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
-      if (g26_debug_flag)
+      if (g26_Debug_flag)
         debug_current_and_destination((char*)"horizontal move done in ubl_line_to_destination()");
 
       if (current_position[X_AXIS] != x_end || current_position[Y_AXIS] != y_end)
@@ -488,6 +491,7 @@
 
         z0 *= ubl.fade_scaling_factor_for_z(z_end);
 
+
         /**
          * If part of the Mesh is undefined, it will show up as NAN
          * in z_values[][] and propagate through the
@@ -515,6 +519,7 @@
         // Yes!  Crossing a X Mesh Line next
         //
         float z0 = ubl.get_z_correction_along_vertical_mesh_line_at_specific_Y(y, current_xi + dxi, current_yi - down_flag);
+
 
         /**
          * Debug code to use non-optimized get_z_correction() and to do a sanity check
@@ -563,7 +568,8 @@
       }
     }
 
-    if (g26_debug_flag)
+
+    if (g26_Debug_flag)
       debug_current_and_destination((char*)"generic move done in ubl_line_to_destination()");
 
     if (current_position[0] != x_end || current_position[1] != y_end)
