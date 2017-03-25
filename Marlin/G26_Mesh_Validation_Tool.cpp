@@ -35,6 +35,7 @@
   #include "temperature.h"
   #include "UBL.h"
   #include "ultralcd.h"
+//#include <avr/pgmspace.h>
 
   #define EXTRUSION_MULTIPLIER 1.0    // This is too much clutter for the main Configuration.h file  But
   #define RETRACTION_MULTIPLIER 1.0   // some user have expressed an interest in being able to customize
@@ -127,6 +128,7 @@
   extern bool code_value_bool();
   extern bool code_has_value();
   extern void lcd_init();
+  extern void lcd_setstatuspgm(const char* const message, uint8_t level);
   #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS])) //bob
   bool prepare_move_to_destination_cartesian();
   void line_to_destination();
@@ -152,9 +154,6 @@
                               // is currently retracted or not.  This allows us to be
                               // less careful because mis-matched retractions and un-retractions
                               // won't leave us in a bad state.
-  #if ENABLED(ULTRA_LCD)
-    void lcd_setstatus(const char* message, bool persist);
-  #endif
 
   float valid_trig_angle(float);
   mesh_index_pair find_closest_circle_to_print(float, float);
@@ -235,7 +234,7 @@
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], ooze_amount);
 
     ubl_has_control_of_lcd_panel = true; // Take control of the LCD Panel!
-    debug_current_and_destination((char*)"Starting G26 Mesh Validation Pattern.");
+//  debug_current_and_destination((char*)"Starting G26 Mesh Validation Pattern.");
 
     /**
      * Declare and generate a sin() & cos() table to be used during the circle drawing.  This will lighten
@@ -249,14 +248,18 @@
 
     do {
 
-      if (ubl_lcd_clicked()) {                                  // Check if the user wants to stop the Mesh Validation
-        strcpy(lcd_status_message, "Mesh Validation Stopped."); // We can't do lcd_setstatus() without having it continue;
+      if (ubl_lcd_clicked()) {              // Check if the user wants to stop the Mesh Validation
         #if ENABLED(ULTRA_LCD)
-          lcd_setstatus("Mesh Validation Stopped.", true);
+          lcd_setstatuspgm(PSTR("Mesh Validation Stopped."), (uint8_t) 99);
           lcd_quick_feedback();
         #endif
-        while (ubl_lcd_clicked()) {         // Wait until the user is done pressing the
-          idle();                           // Encoder Wheel if that is why we are leaving
+        while (!ubl_lcd_clicked()) {         // Wait until the user is done pressing the
+          idle();                            // Encoder Wheel if that is why we are leaving
+          lcd_setstatuspgm(PSTR(" "), (uint8_t) 99);
+        }
+        while ( ubl_lcd_clicked()) {         // Wait until the user is done pressing the
+          idle();                            // Encoder Wheel if that is why we are leaving
+          lcd_setstatuspgm(PSTR("Unpress Wheel "), (uint8_t) 99);
         }
         goto LEAVE;
       }
@@ -341,16 +344,16 @@
             ye = constrain(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
           #endif
 
-          if (g26_debug_flag) {
-            char ccc, *cptr, seg_msg[50], seg_num[10];
-            strcpy(seg_msg, "   segment: ");
-            strcpy(seg_num, "    \n");
-            cptr = (char*) "01234567890ABCDEF????????";
-            ccc = cptr[tmp_div_30];
-            seg_num[1] = ccc;
-            strcat(seg_msg, seg_num);
-            debug_current_and_destination(seg_msg);
-          }
+//          if (g26_debug_flag) {
+//            char ccc, *cptr, seg_msg[50], seg_num[10];
+//            strcpy(seg_msg, "   segment: ");
+//            strcpy(seg_num, "    \n");
+//            cptr = (char*) "01234567890ABCDEF????????";
+//            ccc = cptr[tmp_div_30];
+//            seg_num[1] = ccc;
+//            strcat(seg_msg, seg_num);
+//            debug_current_and_destination(seg_msg);
+//          }
 
           print_line_from_here_to_there(x, y, layer_height, xe, ye, layer_height);
 
@@ -363,12 +366,12 @@
 //      }
 
     // If the end point of the line is closer to the nozzle, we are going to
-        debug_current_and_destination((char*)"Looking for lines to connect.");
+//      debug_current_and_destination((char*)"Looking for lines to connect.");
         look_for_lines_to_connect();
-        debug_current_and_destination((char*)"Done with line connect.");
+//      debug_current_and_destination((char*)"Done with line connect.");
       }
 
-      debug_current_and_destination((char*)"Done with current circle.");
+//    debug_current_and_destination((char*)"Done with current circle.");
 
     // If the end point of the line is closer to the nozzle, we are going to
 
@@ -376,23 +379,21 @@
     while (location.x_index >= 0 && location.y_index >= 0);
 
     LEAVE:
+    lcd_setstatuspgm(PSTR("Leaving G26 "), (uint8_t) 99);
 
-    while (ubl_lcd_clicked()) {         // Wait until the user is done pressing the
-      idle();                           // Encoder Wheel if that is why we are leaving
-    }
     retract_filament();
     destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;                             // Raise the nozzle
 
-    debug_current_and_destination((char*)"ready to do Z-Raise.");
+//  debug_current_and_destination((char*)"ready to do Z-Raise.");
     move_to( destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0);   // Raise the nozzle
-    debug_current_and_destination((char*)"done doing Z-Raise.");
+//  debug_current_and_destination((char*)"done doing Z-Raise.");
 
     destination[X_AXIS] = x_pos;                                                  // Move back to the starting position
     destination[Y_AXIS] = y_pos;
     destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;                             // Keep the nozzle where it is
 
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Move back to the starting position
-    debug_current_and_destination((char*)"done doing X/Y move.");
+//  debug_current_and_destination((char*)"done doing X/Y move.");
 
     ubl_has_control_of_lcd_panel = false;     // Give back control of the LCD Panel!
 
@@ -402,7 +403,6 @@
       #endif
       thermalManager.setTargetHotend(0.0, 0);
     }
-    lcd_init(); // Some people's LCD Displays are locking up.  This might help them
   }
 
 
@@ -490,7 +490,7 @@
                 SERIAL_ECHOPGM(", ey=");
                 SERIAL_ECHO(ey);
                 SERIAL_ECHOLNPGM(")");
-                debug_current_and_destination((char*)"Connecting horizontal line.");
+//              debug_current_and_destination((char*)"Connecting horizontal line.");
               }
 
               print_line_from_here_to_there(sx, sy, layer_height, ex, ey, layer_height);
@@ -546,21 +546,19 @@
     float feed_value;
     static float last_z = -999.99;
 
-
-
     bool has_xy_component = (x != current_position[X_AXIS] || y != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
 
-    if (g26_debug_flag) {
-      SERIAL_ECHOPAIR("in move_to()  has_xy_component:", (int)has_xy_component);
-      SERIAL_EOL;
-    }
+//  if (g26_debug_flag) {
+//    SERIAL_ECHOPAIR("in move_to()  has_xy_component:", (int)has_xy_component);
+//    SERIAL_EOL;
+//  }
 
     if (z != last_z) {
+//    if (g26_debug_flag) {
+//      SERIAL_ECHOPAIR("in move_to()  changing Z to ", (int)z);
+//      SERIAL_EOL;
+//    }
 
-      if (g26_debug_flag) {
-        SERIAL_ECHOPAIR("in move_to()  changing Z to ", (int)z);
-        SERIAL_EOL;
-      }
       last_z = z;
       feed_value = planner.max_feedrate_mm_s[Z_AXIS]/(3.0);  // Base the feed rate off of the configured Z_AXIS feed rate
 
@@ -574,8 +572,8 @@
       stepper.synchronize();
       set_destination_to_current();
 
-      if (g26_debug_flag)
-        debug_current_and_destination((char*)" in move_to() done with Z move");
+//    if (g26_debug_flag)
+//      debug_current_and_destination((char*)" in move_to() done with Z move");
     }
 
     // Check if X or Y is involved in the movement.
@@ -591,13 +589,13 @@
     destination[Y_AXIS] = y;
     destination[E_AXIS] += e_delta;
 
-    if (g26_debug_flag)
-      debug_current_and_destination((char*)" in move_to() doing last move");
+//  if (g26_debug_flag)
+//    debug_current_and_destination((char*)" in move_to() doing last move");
 
     ubl_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0);
 
-    if (g26_debug_flag)
-      debug_current_and_destination((char*)" in move_to() after last move");
+//  if (g26_debug_flag)
+//    debug_current_and_destination((char*)" in move_to() after last move");
 
     stepper.synchronize();
     set_destination_to_current();
@@ -607,9 +605,9 @@
   void retract_filament() {
     if (!g26_retracted) { // Only retract if we are not already retracted!
       g26_retracted = true;
-      if (g26_debug_flag) SERIAL_ECHOLNPGM(" Decided to do retract.");
+//    if (g26_debug_flag) SERIAL_ECHOLNPGM(" Decided to do retract.");
       move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], -1.0 * retraction_multiplier);
-      if (g26_debug_flag) SERIAL_ECHOLNPGM(" Retraction done.");
+//    if (g26_debug_flag) SERIAL_ECHOLNPGM(" Retraction done.");
     }
   }
 
@@ -617,7 +615,7 @@
     if (g26_retracted) { // Only un-retract if we are retracted.
       move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 1.2 * retraction_multiplier);
       g26_retracted = false;
-      if (g26_debug_flag) SERIAL_ECHOLNPGM(" unretract done.");
+//    if (g26_debug_flag) SERIAL_ECHOLNPGM(" unretract done.");
     }
   }
 
@@ -656,8 +654,8 @@
     // On very small lines we don't do the optimization because it just isn't worth it.
     //
     if (dist_end < dist_start && (SIZE_OF_INTERSECTION_CIRCLES) < abs(Line_Length)) {
-      if (g26_debug_flag)
-        SERIAL_ECHOLNPGM("  Reversing start and end of print_line_from_here_to_there()");
+//    if (g26_debug_flag)
+//      SERIAL_ECHOLNPGM("  Reversing start and end of print_line_from_here_to_there()");
       print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
       return;
     }
@@ -666,8 +664,8 @@
 
     if (dist_start > 2.0) {
       retract_filament();
-      if (g26_debug_flag)
-        SERIAL_ECHOLNPGM("  filament retracted.");
+//    if (g26_debug_flag)
+//      SERIAL_ECHOLNPGM("  filament retracted.");
     }
     // If the end point of the line is closer to the nozzle, we are going to
     move_to(sx, sy, sz, 0.0); // Get to the starting point with no extrusion
@@ -679,10 +677,10 @@
     un_retract_filament();
 
     // If the end point of the line is closer to the nozzle, we are going to
-    if (g26_debug_flag) {
-      SERIAL_ECHOLNPGM("  doing printing move.");
-      debug_current_and_destination((char*)"doing final move_to() inside print_line_from_here_to_there()");
-    }
+//  if (g26_debug_flag) {
+//    SERIAL_ECHOLNPGM("  doing printing move.");
+//    debug_current_and_destination((char*)"doing final move_to() inside print_line_from_here_to_there()");
+//  }
     move_to(ex, ey, ez, e_pos_delta);  // Get to the ending point with an appropriate amount of extrusion
 
     // If the end point of the line is closer to the nozzle, we are going to
@@ -830,16 +828,16 @@
     #if HAS_TEMP_BED
       #if ENABLED(ULTRA_LCD)
         if (bed_temp > 25) {
-          lcd_setstatus("G26 Heating Bed.", true);
+          lcd_setstatuspgm(PSTR("G26 Heating Bed."), (uint8_t) 99);
           lcd_quick_feedback();
       #endif
           ubl_has_control_of_lcd_panel = true;
           thermalManager.setTargetBed(bed_temp);
           while (abs(thermalManager.degBed() - bed_temp) > 3) {
             if (ubl_lcd_clicked()) {
-              strcpy(lcd_status_message, "Leaving G26"); // We can't do lcd_setstatus() without having it continue;
-              lcd_setstatus("Leaving G26", true);        // Now we do it right.
-              while (ubl_lcd_clicked())                  // Debounce Encoder Wheel 
+              strcpy(lcd_status_message, "Leaving G26");      // We can't do lcd_setstatus() without having it continue;
+              lcd_setstatuspgm(PSTR("Leaving G26"), (uint8_t) 99);      // Now we do it right.
+              while (ubl_lcd_clicked())                       // Debounce Encoder Wheel 
                 idle();
               return UBL_ERR;
             }
@@ -847,7 +845,7 @@
           }
       #if ENABLED(ULTRA_LCD)
         }
-        lcd_setstatus("G26 Heating Nozzle.", true);
+        lcd_setstatuspgm(PSTR("G26 Heating Nozzle."), (uint8_t) 99);
         lcd_quick_feedback();
       #endif
     #endif
@@ -856,9 +854,9 @@
     thermalManager.setTargetHotend(hotend_temp, 0);
     while (abs(thermalManager.degHotend(0) - hotend_temp) > 3) {
       if (ubl_lcd_clicked()) {
-        strcpy(lcd_status_message, "Leaving G26"); // We can't do lcd_setstatus() without having it continue;
-        lcd_setstatus("Leaving G26", true);        // Now we do it right.
-        while (ubl_lcd_clicked())                  // Debounce Encoder Wheel 
+        strcpy(lcd_status_message, "Leaving G26");          // We can't do lcd_setstatuspgm() without having it continue;
+        lcd_setstatuspgm(PSTR("Leaving G26"), (uint8_t) 99);          // Now we do it right.
+        while (ubl_lcd_clicked())                           // Debounce Encoder Wheel 
           idle();
         return UBL_ERR;
       }
@@ -866,7 +864,7 @@
     }
 
     #if ENABLED(ULTRA_LCD)
-      lcd_setstatus("", true);
+      lcd_setstatuspgm(PSTR(""), (uint8_t) 99);
       lcd_quick_feedback();
     #endif
     return UBL_OK;
@@ -879,7 +877,7 @@
     float Total_Prime = 0.0;
 
     if (prime_flag == -1) {  // The user wants to control how much filament gets purged
-      lcd_setstatus("User-Controlled Prime", true);
+      lcd_setstatuspgm(PSTR("User-Controlled Prime"), (uint8_t) 99);
       chirp_at_user();
 
       set_destination_to_current();
@@ -908,19 +906,19 @@
         idle();
       }
 
-      strcpy(lcd_status_message, "Done Priming"); // We can't do lcd_setstatus() without having it continue;
+      strcpy(lcd_status_message, "Done Priming"); // We can't do lcd_setstatuspgm() without having it continue;
                                                   // So...  We cheat to get a message up.
       while (ubl_lcd_clicked())                   // Debounce Encoder Wheel 
         idle();
 
       #if ENABLED(ULTRA_LCD)
-        lcd_setstatus("Done Priming", true);      // Now we do it right.
+        lcd_setstatuspgm(PSTR("Done Priming"), (uint8_t) 99); 
         lcd_quick_feedback();
       #endif
     }
     else {
       #if ENABLED(ULTRA_LCD)
-        lcd_setstatus("Fixed Length Prime.", true);
+        lcd_setstatuspgm(PSTR("Fixed Length Prime."), (uint8_t) 99);
         lcd_quick_feedback();
       #endif
       set_destination_to_current();
