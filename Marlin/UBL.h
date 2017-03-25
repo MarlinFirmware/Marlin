@@ -42,13 +42,13 @@
     bool axis_unhomed_error(bool, bool, bool);
     void dump(char * const str, const float &f);
     bool ubl_lcd_clicked();
-    void probe_entire_mesh(const float&, const float&, const bool, const bool);
+    void probe_entire_mesh(const float&, const float&, const bool, const bool, const bool);
     void debug_current_and_destination(char *title);
     void ubl_line_to_destination(const float&, const float&, const float&, const float&, const float&, uint8_t);
     void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
     vector_3 tilt_mesh_based_on_3pts(const float&, const float&, const float&);
     float measure_business_card_thickness(const float&);
-    mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16]);
+    mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
     void find_mean_mesh_height();
     void shift_mesh_height();
     bool g29_parameter_parsing();
