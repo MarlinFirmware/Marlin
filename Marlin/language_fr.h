@@ -94,8 +94,7 @@
 #define MSG_PID_C                           "PID-C"
 #define MSG_SELECT                          "Selectionner"
 #define MSG_ACC                             "Acceleration"
-#define MSG_VX_JERK                         "Vx-jerk"
-#define MSG_VY_JERK                         "Vy-jerk"
+#define MSG_VXY_JERK                        "Vxy-jerk"
 #define MSG_VZ_JERK                         "Vz-jerk"
 #define MSG_VE_JERK                         "Ve-jerk"
 #define MSG_VMAX                            "Vmax"
@@ -130,7 +129,7 @@
 #define MSG_USERWAIT                        "Atten. de l'util."
 #define MSG_RESUMING                        "Repri. de l'impr."
 #define MSG_PRINT_ABORTED                   "Impr. Annulee"
-#define MSG_NO_MOVE                         "Moteurs bloques."
+#define MSG_NO_MOVE                         "Aucun mouvement."
 #define MSG_KILLED                          "MORT."
 #define MSG_STOPPED                         "STOPPE."
 #define MSG_CONTROL_RETRACT                 "Retraction mm"
@@ -145,8 +144,6 @@
 #define MSG_INIT_SDCARD                     "Init. la carte SD"
 #define MSG_CNG_SDCARD                      "Changer de carte"
 #define MSG_ZPROBE_OUT                      "Z sonde exte. lit"
-#define MSG_BLTOUCH_SELFTEST                "Autotest BLTouch"
-#define MSG_BLTOUCH_RESET                   "RaZ BLTouch"
 #define MSG_HOME                            "Origine"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
 #define MSG_FIRST                           "Premier"
 #define MSG_ZPROBE_ZOFFSET                  "Decalage Z"
@@ -161,7 +158,6 @@
 #define MSG_ERR_MINTEMP                     "Err: TEMP. MIN"
 #define MSG_ERR_MAXTEMP_BED                 "Err: TEMP. MAX LIT"
 #define MSG_ERR_MINTEMP_BED                 "Err: TEMP. MIN LIT"
-#define MSG_ERR_Z_HOMING                    "G28 Z interdit"
 
 #define MSG_HALTED                          "IMPR. STOPPEE"
 #define MSG_PLEASE_RESET                    "RaZ. SVP"
@@ -188,26 +184,24 @@
 #define MSG_INFO_BAUDRATE                   "Baud"
 #define MSG_INFO_PROTOCOL                   "Protocole"
 
-#if LCD_WIDTH >= 20
+
+#if LCD_WIDTH > 19
   #define MSG_INFO_PRINT_COUNT              "Nbre impressions"
   #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
   #define MSG_INFO_PRINT_TIME               "Tps impr. total"
   #define MSG_INFO_PRINT_LONGEST            "Impr. la + longue"
   #define MSG_INFO_PRINT_FILAMENT           "Total filament"
 #else
-  #define MSG_INFO_PRINT_COUNT              "Impressions"
-  #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
-  #define MSG_INFO_PRINT_TIME               "Total"
-  #define MSG_INFO_PRINT_LONGEST            "+ long"
-  #define MSG_INFO_PRINT_FILAMENT           "Filament"
+    #define MSG_INFO_PRINT_COUNT              "Impressions"
+    #define MSG_INFO_COMPLETED_PRINTS         "Terminees"
+    #define MSG_INFO_PRINT_TIME               "Total"
+    #define MSG_INFO_PRINT_LONGEST            "+ long"
+    #define MSG_INFO_PRINT_FILAMENT           "Filament"
 #endif
 
 #define MSG_INFO_MIN_TEMP                   "Temp Min"
 #define MSG_INFO_MAX_TEMP                   "Temp Max"
 #define MSG_INFO_PSU                        "Alimentation"
-#define MSG_DRIVE_STRENGTH                  "Puiss. moteur "
-#define MSG_DAC_PERCENT                     "Driver %"
-#define MSG_DAC_EEPROM_WRITE                "DAC EEPROM sauv."
 
 #define MSG_FILAMENT_CHANGE_HEADER          "CHANGER FILAMENT"
 #define MSG_FILAMENT_CHANGE_OPTION_HEADER   "CHANGER OPTIONS:"
@@ -215,29 +209,31 @@
 #define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Reprendre impr."
 
 #if LCD_HEIGHT >= 4
-  // Up to 3 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1          "Attente Demarrage"
-  #define MSG_FILAMENT_CHANGE_INIT_2          "du filament"
-  #define MSG_FILAMENT_CHANGE_INIT_3          "changer"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "attente de"
-  #define MSG_FILAMENT_CHANGE_UNLOAD_2        "decharger filament"
-  #define MSG_FILAMENT_CHANGE_INSERT_1        "inserer filament"
-  #define MSG_FILAMENT_CHANGE_INSERT_2        "et app. bouton"
-  #define MSG_FILAMENT_CHANGE_INSERT_3        "pour continuer..."
-  #define MSG_FILAMENT_CHANGE_LOAD_1          "attente de"
-  #define MSG_FILAMENT_CHANGE_LOAD_2          "charger filament"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "attente de"
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "extrusion fil."
-  #define MSG_FILAMENT_CHANGE_RESUME_1        "attente impression"
-  #define MSG_FILAMENT_CHANGE_RESUME_2        "pour reprendre"
+    #define MSG_FILAMENT_CHANGE_INIT_1          "Attente Demarrage"
+    #define MSG_FILAMENT_CHANGE_INIT_2          "du filament"
+    #define MSG_FILAMENT_CHANGE_INIT_3          "changer"
+    #define MSG_FILAMENT_CHANGE_UNLOAD_1        "attente de"
+    #define MSG_FILAMENT_CHANGE_UNLOAD_2        "decharger filament"
+    #define MSG_FILAMENT_CHANGE_UNLOAD_3        ""
+    #define MSG_FILAMENT_CHANGE_INSERT_1        "inserer filament"
+    #define MSG_FILAMENT_CHANGE_INSERT_2        "et app. bouton"
+    #define MSG_FILAMENT_CHANGE_INSERT_3        "pour continuer..."
+    #define MSG_FILAMENT_CHANGE_LOAD_1          "attente de"
+    #define MSG_FILAMENT_CHANGE_LOAD_2          "charger filament"
+    #define MSG_FILAMENT_CHANGE_LOAD_3          ""
+    #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "attente de"
+    #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "extrusion fil."
+    #define MSG_FILAMENT_CHANGE_EXTRUDE_3       ""
+    #define MSG_FILAMENT_CHANGE_RESUME_1        "attente impression"
+    #define MSG_FILAMENT_CHANGE_RESUME_2        "pour reprendre"
+    #define MSG_FILAMENT_CHANGE_RESUME_3        ""
 #else // LCD_HEIGHT < 4
-  // Up to 2 lines allowed
-  #define MSG_FILAMENT_CHANGE_INIT_1          "Patientez..."
-  #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Ejection..."
-  #define MSG_FILAMENT_CHANGE_INSERT_1        "Inserer et click"
-  #define MSG_FILAMENT_CHANGE_LOAD_1          "Chargement..."
-  #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extrusion..."
-  #define MSG_FILAMENT_CHANGE_RESUME_1        "Reprise..."
+    #define MSG_FILAMENT_CHANGE_INIT_1          "Patientez..."
+    #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Ejection..."
+    #define MSG_FILAMENT_CHANGE_INSERT_1        "Inserer et click"
+    #define MSG_FILAMENT_CHANGE_LOAD_1          "Chargement..."
+    #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Extrusion..."
+    #define MSG_FILAMENT_CHANGE_RESUME_1        "Reprise..."
 #endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_FR_H

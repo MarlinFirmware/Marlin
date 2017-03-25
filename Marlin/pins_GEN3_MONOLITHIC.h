@@ -60,7 +60,7 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN          0   // Analog Input
+#define TEMP_0_PIN          0
 
 //
 // Heaters
@@ -68,7 +68,7 @@
 #define HEATER_0_PIN       16
 
 //
-// Misc. Functions
+// Etc.
 //
 #define PS_ON_PIN          14 // Alex, does this work on the card?
 

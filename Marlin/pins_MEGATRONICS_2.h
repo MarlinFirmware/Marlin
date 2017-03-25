@@ -76,24 +76,31 @@
 #define E2_ENABLE_PIN      22
 
 //
+// Misc. Functions
+//
+#define SDSS               53
+#define LED_PIN            13
+#define PS_ON_PIN          12
+
+//
 // Temperature Sensors
 //
 #if TEMP_SENSOR_0 == -1
-  #define TEMP_0_PIN        4   // Analog Input
+  #define TEMP_0_PIN        4 // ANALOG NUMBERING
 #else
-  #define TEMP_0_PIN       13   // Analog Input
+  #define TEMP_0_PIN       13 // ANALOG NUMBERING
 #endif
 
 #if TEMP_SENSOR_1 == -1
-  #define TEMP_1_PIN        8   // Analog Input
+  #define TEMP_1_PIN        8 // ANALOG NUMBERING
 #else
-  #define TEMP_1_PIN       15   // Analog Input
+  #define TEMP_1_PIN       15 // ANALOG NUMBERING
 #endif
 
 #if TEMP_SENSOR_BED == -1
-  #define TEMP_BED_PIN      8   // Analog Input
+  #define TEMP_BED_PIN      8 // ANALOG NUMBERING
 #else
-  #define TEMP_BED_PIN     14   // Analog Input
+  #define TEMP_BED_PIN     14 // ANALOG NUMBERING
 #endif
 
 //
@@ -105,13 +112,6 @@
 
 #define FAN_PIN             7
 #define FAN1_PIN            6
-
-//
-// Misc. Functions
-//
-#define SDSS               53
-#define LED_PIN            13
-#define PS_ON_PIN          12
 
 //
 // LCD / Controller

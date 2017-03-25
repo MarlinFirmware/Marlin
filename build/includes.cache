@@ -1,0 +1,177 @@
+[
+  {
+    "Sourcefile": "",
+    "Include": "",
+    "Includepath": "/home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/cores/arduino"
+  },
+  {
+    "Sourcefile": "",
+    "Include": "",
+    "Includepath": "/home/ximidar/Desktop/arduino-1.6.13/hardware/arduino/avr/variants/mega"
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/Marlin.ino.cpp",
+    "Include": "LiquidCrystal.h",
+    "Includepath": "/home/ximidar/Desktop/arduino-1.6.13/libraries/LiquidCrystal/src"
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/Marlin.ino.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/M100_Free_Mem_Chk.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/MarlinSerial.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/Marlin_main.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/Sd2Card.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/SdBaseFile.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/SdFatUtil.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/SdFile.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/SdVolume.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/blinkm.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/cardreader.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/configuration_store.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/dac_mcp4728.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/digipot_mcp4451.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/endstops.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/mesh_bed_leveling.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/planner.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/planner_bezier.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/printcounter.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/qr_solve.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/servo.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/stepper.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/stepper_dac.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/stepper_indirection.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/stopwatch.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/temperature.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/twibus.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/ultralcd.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/utility.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/vector_3.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/tmp/arduino_build_656283/sketch/watchdog.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "/home/ximidar/Desktop/arduino-1.6.13/libraries/LiquidCrystal/src/LiquidCrystal.cpp",
+    "Include": "",
+    "Includepath": ""
+  }
+]

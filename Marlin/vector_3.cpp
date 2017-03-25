@@ -41,7 +41,7 @@
 #include <math.h>
 #include "Marlin.h"
 
-#if HAS_ABL
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
 #include "vector_3.h"
 
 vector_3::vector_3() : x(0), y(0), z(0) { }
@@ -156,5 +156,5 @@ void matrix_3x3::debug(const char title[]) {
   }
 }
 
-#endif // HAS_ABL
+#endif // AUTO_BED_LEVELING_FEATURE
 

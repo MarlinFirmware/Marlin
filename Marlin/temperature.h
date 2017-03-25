@@ -65,10 +65,10 @@ class Temperature {
       static float redundant_temperature;
     #endif
 
-    static uint8_t soft_pwm_bed;
+    static unsigned char soft_pwm_bed;
 
     #if ENABLED(FAN_SOFT_PWM)
-      static uint8_t fanSpeedSoftPwm[FAN_COUNT];
+      static unsigned char fanSpeedSoftPwm[FAN_COUNT];
     #endif
 
     #if ENABLED(PIDTEMP) || ENABLED(PIDTEMPBED)
@@ -157,7 +157,9 @@ class Temperature {
         static int lpq_ptr;
       #endif
 
-      static float pid_error[HOTENDS];
+      static float pid_error[HOTENDS],
+                   temp_iState_min[HOTENDS],
+                   temp_iState_max[HOTENDS];
       static bool pid_reset[HOTENDS];
     #endif
 
@@ -167,7 +169,9 @@ class Temperature {
                    pTerm_bed,
                    iTerm_bed,
                    dTerm_bed,
-                   pid_error_bed;
+                   pid_error_bed,
+                   temp_iState_min_bed,
+                   temp_iState_max_bed;
     #else
       static millis_t next_bed_check_ms;
     #endif
@@ -205,10 +209,10 @@ class Temperature {
       static millis_t next_auto_fan_check_ms;
     #endif
 
-    static uint8_t soft_pwm[HOTENDS];
+    static unsigned char soft_pwm[HOTENDS];
 
     #if ENABLED(FAN_SOFT_PWM)
-      static uint8_t soft_pwm_fan[FAN_COUNT];
+      static unsigned char soft_pwm_fan[FAN_COUNT];
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -372,20 +376,20 @@ class Temperature {
      */
     static void updatePID();
 
-    #if ENABLED(AUTOTEMP)
-      static void autotempShutdown() {
+    static void autotempShutdown() {
+      #if ENABLED(AUTOTEMP)
         if (planner.autotemp_enabled) {
           planner.autotemp_enabled = false;
           if (degTargetHotend(EXTRUDER_IDX) > planner.autotemp_min)
             setTargetHotend(0, EXTRUDER_IDX);
         }
-      }
-    #endif
+      #endif
+    }
 
     #if ENABLED(BABYSTEPPING)
 
-      static void babystep_axis(const AxisEnum axis, const int distance) {
-        #if IS_CORE
+      static void babystep_axis(AxisEnum axis, int distance) {
+        #if ENABLED(COREXY) || ENABLED(COREXZ) || ENABLED(COREYZ)
           #if ENABLED(BABYSTEP_XY)
             switch (axis) {
               case CORE_AXIS_1: // X on CoreXY and CoreXZ, Y on CoreYZ
@@ -393,17 +397,17 @@ class Temperature {
                 babystepsTodo[CORE_AXIS_2] += distance * 2;
                 break;
               case CORE_AXIS_2: // Y on CoreXY, Z on CoreXZ and CoreYZ
-                babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
-                babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+                babystepsTodo[CORE_AXIS_1] += distance * 2;
+                babystepsTodo[CORE_AXIS_2] -= distance * 2;
                 break;
               case NORMAL_AXIS: // Z on CoreXY, Y on CoreXZ, X on CoreYZ
                 babystepsTodo[NORMAL_AXIS] += distance;
                 break;
             }
-          #elif CORE_IS_XZ || CORE_IS_YZ
+          #elif ENABLED(COREXZ) || ENABLED(COREYZ)
             // Only Z stepping needs to be handled here
-            babystepsTodo[CORE_AXIS_1] += CORESIGN(distance * 2);
-            babystepsTodo[CORE_AXIS_2] -= CORESIGN(distance * 2);
+            babystepsTodo[CORE_AXIS_1] += distance * 2;
+            babystepsTodo[CORE_AXIS_2] -= distance * 2;
           #else
             babystepsTodo[Z_AXIS] += distance;
           #endif
