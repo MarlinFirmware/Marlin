@@ -3784,7 +3784,7 @@ inline void gcode_G28() {
    */
   inline void gcode_G29() {
 
-    static int probe_index = -1;
+    static int mbl_probe_index = -1;
     #if HAS_SOFTWARE_ENDSTOPS
       static bool enable_soft_endstops;
     #endif
@@ -3809,17 +3809,17 @@ inline void gcode_G28() {
 
       case MeshStart:
         mbl.reset();
-        probe_index = 0;
+        mbl_probe_index = 0;
         enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
         break;
 
       case MeshNext:
-        if (probe_index < 0) {
+        if (mbl_probe_index < 0) {
           SERIAL_PROTOCOLLNPGM("Start mesh probing with \"G29 S1\" first.");
           return;
         }
         // For each G29 S2...
-        if (probe_index == 0) {
+        if (mbl_probe_index == 0) {
           #if HAS_SOFTWARE_ENDSTOPS
             // For the initial G29 S2 save software endstop state
             enable_soft_endstops = soft_endstops_enabled;
@@ -3827,14 +3827,14 @@ inline void gcode_G28() {
         }
         else {
           // For G29 S2 after adjusting Z.
-          mbl.set_zigzag_z(probe_index - 1, current_position[Z_AXIS]);
+          mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
           #if HAS_SOFTWARE_ENDSTOPS
             soft_endstops_enabled = enable_soft_endstops;
           #endif
         }
         // If there's another point to sample, move there with optional lift.
-        if (probe_index < (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
-          mbl.zigzag(probe_index, px, py);
+        if (mbl_probe_index < (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
+          mbl.zigzag(mbl_probe_index, px, py);
           _mbl_goto_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
 
           #if HAS_SOFTWARE_ENDSTOPS
@@ -3843,7 +3843,7 @@ inline void gcode_G28() {
             soft_endstops_enabled = false;
           #endif
 
-          probe_index++;
+          mbl_probe_index++;
         }
         else {
           // One last "return to the bed" (as originally coded) at completion
@@ -3853,7 +3853,7 @@ inline void gcode_G28() {
 
           // After recording the last point, activate the mbl and home
           SERIAL_PROTOCOLLNPGM("Mesh probing done.");
-          probe_index = -1;
+          mbl_probe_index = -1;
           mbl.set_has_mesh(true);
           mbl.set_reactivate(true);
           enqueue_and_echo_commands_P(PSTR("G28"));
