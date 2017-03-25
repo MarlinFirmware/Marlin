@@ -3503,7 +3503,7 @@ inline void gcode_G4() {
 #endif // Z_SAFE_HOMING
 
 #if ENABLED(PROBE_MANUALLY)
-  static bool g29_in_progress = false;
+  bool g29_in_progress = false;
 #else
   constexpr bool g29_in_progress = false;
 #endif
