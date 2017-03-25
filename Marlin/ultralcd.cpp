@@ -30,8 +30,6 @@
 #include "configuration_store.h"
 #include "utility.h"
 
-extern float zprobe_zoffset;
-
 #if HAS_BUZZER && DISABLED(LCD_USE_I2C_BUZZER)
   #include "buzzer.h"
 #endif
