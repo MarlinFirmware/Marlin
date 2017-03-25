@@ -166,32 +166,34 @@
     int8_t i, j;
     UNUSED(map_type);
 
-    SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
+    if (map_type==0) {
+      SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
 
-    SERIAL_ECHOPAIR("(", 0);
-    SERIAL_ECHOPAIR(", ", UBL_MESH_NUM_Y_POINTS - 1);
-    SERIAL_ECHOPGM(")    ");
+      SERIAL_ECHOPAIR("(", 0);
+      SERIAL_ECHOPAIR(", ", UBL_MESH_NUM_Y_POINTS - 1);
+      SERIAL_ECHOPGM(")    ");
+    }
 
     current_xi = ubl.get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0);
     current_yi = ubl.get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
 
-    for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
-      SERIAL_ECHOPGM("            ");
-      #if TX_BUFFER_SIZE>0
-        MYSERIAL.flushTX();
-      #endif
-      delay(15);
-    }
-
-    SERIAL_ECHOPAIR("(", UBL_MESH_NUM_X_POINTS - 1);
-    SERIAL_ECHOPAIR(",", UBL_MESH_NUM_Y_POINTS - 1);
-    SERIAL_ECHOLNPGM(")");
-
-    //  if (map_type || 1) {
+    if (map_type==0) {
+      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
+        SERIAL_ECHOPGM("            ");
+        #if TX_BUFFER_SIZE>0
+          MYSERIAL.flushTX();
+        #endif
+        delay(15);
+      }
+      
+      SERIAL_ECHOPAIR("(", UBL_MESH_NUM_X_POINTS - 1);
+      SERIAL_ECHOPAIR(",", UBL_MESH_NUM_Y_POINTS - 1);
+      SERIAL_ECHOLNPGM(")");
 
       SERIAL_ECHOPAIR("(", UBL_MESH_MIN_X);
       SERIAL_ECHOPAIR(",", UBL_MESH_MAX_Y);
       SERIAL_CHAR(')');
+      delay(15);
 
       for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
         SERIAL_ECHOPGM("            ");
@@ -204,75 +206,82 @@
       SERIAL_ECHOPAIR("(", UBL_MESH_MAX_X);
       SERIAL_ECHOPAIR(",", UBL_MESH_MAX_Y);
       SERIAL_ECHOLNPGM(")");
-
-    //  }
+      delay(15);
+    }
 
     for (j = UBL_MESH_NUM_Y_POINTS - 1; j >= 0; j--) {
       for (i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
         f = z_values[i][j];
 
         // is the nozzle here?  if so, mark the number
-        SERIAL_CHAR(i == current_xi && j == current_yi ? '[' : ' ');
+        if (map_type==0) 
+          SERIAL_CHAR(i == current_xi && j == current_yi ? '[' : ' ');
 
         if (isnan(f))
-          SERIAL_PROTOCOLPGM("    .    ");
+          if (map_type==0) {
+            SERIAL_PROTOCOLPGM("    .    ");
+          } else 
+            SERIAL_PROTOCOLPGM("NAN");
         else {
           // if we don't do this, the columns won't line up nicely
-          if (f >= 0.0) SERIAL_CHAR(' ');
+          if (f>=0.0 && map_type==0) SERIAL_CHAR(' ');
           SERIAL_PROTOCOL_F(f, 3);
           idle();
         }
+        if (map_type!=0 && i<UBL_MESH_NUM_X_POINTS-1) 
+         SERIAL_PROTOCOLPGM(",");
+
         #if TX_BUFFER_SIZE>0
           MYSERIAL.flushTX();
         #endif
         delay(15);
-        if (i == current_xi && j == current_yi) // is the nozzle here? if so, finish marking the number
-          SERIAL_CHAR(']');
-        else
-          SERIAL_PROTOCOL("  ");
-
-        SERIAL_CHAR(' ');
+        if (map_type==0) {
+          if (i == current_xi && j == current_yi) // is the nozzle here? if so, finish marking the number
+            SERIAL_CHAR(']');
+          else
+            SERIAL_PROTOCOL("  ");
+          SERIAL_CHAR(' ');
+        }
       }
       SERIAL_EOL;
-      if (j) { // we want the (0,0) up tight against the block of numbers
+      if (j && map_type==0) { // we want the (0,0) up tight against the block of numbers
         SERIAL_CHAR(' ');
         SERIAL_EOL;
       }
     }
 
-    //  if (map_type) {
-    SERIAL_ECHOPAIR("(", int(UBL_MESH_MIN_X));
-    SERIAL_ECHOPAIR(",", int(UBL_MESH_MIN_Y));
-    SERIAL_ECHOPGM(")    ");
+    if (map_type==0) {
+      SERIAL_ECHOPAIR("(", int(UBL_MESH_MIN_X));
+      SERIAL_ECHOPAIR(",", int(UBL_MESH_MIN_Y));
+      SERIAL_ECHOPGM(")    ");
 
-    for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++)  {
-      SERIAL_ECHOPGM("            ");
-      #if TX_BUFFER_SIZE>0
-        MYSERIAL.flushTX();
-      #endif
-      delay(15);
+      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++)  {
+        SERIAL_ECHOPGM("            ");
+        #if TX_BUFFER_SIZE>0
+          MYSERIAL.flushTX();
+        #endif
+        delay(15);
+      }
+      SERIAL_ECHOPAIR("(", int(UBL_MESH_MAX_X));
+      SERIAL_ECHOPAIR(",", int(UBL_MESH_MIN_Y));
+      SERIAL_CHAR(')');
+      SERIAL_EOL;
+
+      SERIAL_ECHOPAIR("(", 0);
+      SERIAL_ECHOPAIR(",", 0);
+      SERIAL_ECHOPGM(")       ");
+
+      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
+        SERIAL_ECHOPGM("            ");
+        #if TX_BUFFER_SIZE>0
+          MYSERIAL.flushTX();
+        #endif
+        delay(15);
+      }
+      SERIAL_ECHOPAIR("(", UBL_MESH_NUM_X_POINTS-1);
+      SERIAL_ECHOPAIR(",", 0);
+      SERIAL_ECHOLNPGM(")");
     }
-
-    SERIAL_ECHOPAIR("(", int(UBL_MESH_MAX_X));
-    SERIAL_ECHOPAIR(",", int(UBL_MESH_MIN_Y));
-    SERIAL_CHAR(')');
-    SERIAL_EOL;
-
-    SERIAL_ECHOPAIR("(", 0);
-    SERIAL_ECHOPAIR(",", 0);
-    SERIAL_ECHOPGM(")       ");
-
-    for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
-      SERIAL_ECHOPGM("            ");
-      #if TX_BUFFER_SIZE>0
-        MYSERIAL.flushTX();
-      #endif
-      delay(15);
-    }
-
-    SERIAL_ECHOPAIR("(", UBL_MESH_NUM_X_POINTS-1);
-    SERIAL_ECHOPAIR(",", 0);
-    SERIAL_ECHOLNPGM(")");
   }
 
   bool unified_bed_leveling::sanity_check() {
