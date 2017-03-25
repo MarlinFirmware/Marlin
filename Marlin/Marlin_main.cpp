@@ -2233,7 +2233,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
       }
     #endif
-    return current_position[Z_AXIS];
+    return current_position[Z_AXIS] + zprobe_zoffset;
   }
 
   //
@@ -2287,7 +2287,7 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_PROTOCOLPGM(" Y: ");
       SERIAL_PROTOCOL_F(y, 3);
       SERIAL_PROTOCOLPGM(" Z: ");
-      SERIAL_PROTOCOL_F(FIXFLOAT(measured_z - -zprobe_zoffset), 3);
+      SERIAL_PROTOCOL_F(FIXFLOAT(measured_z), 3);
       SERIAL_EOL;
     }
 
@@ -4408,7 +4408,7 @@ inline void gcode_G28() {
         if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
           && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
         ) {
-          float simple_z = current_position[Z_AXIS] - (measured_z - (-zprobe_zoffset));
+          float simple_z = current_position[Z_AXIS] - measured_z;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               SERIAL_ECHOPAIR("Z from Probe:", simple_z);
@@ -4503,7 +4503,7 @@ inline void gcode_G28() {
     SERIAL_PROTOCOLPGM(" Y: ");
     SERIAL_PROTOCOL(FIXFLOAT(Y_probe_location));
     SERIAL_PROTOCOLPGM(" Z: ");
-    SERIAL_PROTOCOLLN(FIXFLOAT(measured_z - -zprobe_zoffset));
+    SERIAL_PROTOCOLLN(FIXFLOAT(measured_z));
 
     clean_up_after_endstop_or_probe_move();
 
