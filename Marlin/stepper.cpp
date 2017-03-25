@@ -72,6 +72,10 @@ block_t* Stepper::current_block = NULL;  // A pointer to the block currently bei
   bool Stepper::performing_homing = false;
 #endif
 
+#if HAS_MOTOR_CURRENT_PWM
+  int Stepper::motor_current_setting[3] = PWM_MOTOR_CURRENT;
+#endif
+
 // private:
 
 unsigned char Stepper::last_direction_bits = 0;        // The next stepping-bits to be output

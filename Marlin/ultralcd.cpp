@@ -168,6 +168,10 @@ uint8_t lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW; // Set when the LCD needs to 
     #include "mesh_bed_leveling.h"
   #endif
 
+	#if ENABLED(BABYSTEPPING)
+		void lcd_babystep_z();
+	#endif
+	
   // Function pointer to menu functions.
   typedef void (*screenFunc_t)();
 
@@ -626,6 +630,9 @@ void kill_screen(const char* lcd_msg) {
     #endif
 
     if (planner.movesplanned() || IS_SD_PRINTING) {
+      #if ENABLED(BABYSTEPPING)
+      	MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
+      #endif
       MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
     }
     else {

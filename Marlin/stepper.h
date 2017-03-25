@@ -91,6 +91,13 @@ class Stepper {
       static bool performing_homing;
     #endif
 
+	#if HAS_MOTOR_CURRENT_PWM
+      #ifndef PWM_MOTOR_CURRENT
+        #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
+      #endif
+      static int motor_current_setting[3];
+    #endif
+	
   private:
 
     static unsigned char last_direction_bits;        // The next stepping-bits to be output
@@ -130,12 +137,6 @@ class Stepper {
     static volatile long endstops_trigsteps[XYZ];
     static volatile long endstops_stepsTotal, endstops_stepsDone;
 
-    #if HAS_MOTOR_CURRENT_PWM
-      #ifndef PWM_MOTOR_CURRENT
-        #define PWM_MOTOR_CURRENT DEFAULT_PWM_MOTOR_CURRENT
-      #endif
-      static constexpr int motor_current_setting[3] = PWM_MOTOR_CURRENT;
-    #endif
 
     //
     // Positions of stepper motors, in step units

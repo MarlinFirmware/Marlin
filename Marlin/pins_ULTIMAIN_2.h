@@ -66,9 +66,10 @@
 #define MOTOR_CURRENT_PWM_Z_PIN 45
 #define MOTOR_CURRENT_PWM_E_PIN 46
 // Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
+#ifndef MOTOR_CURRENT_PWM_RANGE
 #define MOTOR_CURRENT_PWM_RANGE 2000
 #define DEFAULT_PWM_MOTOR_CURRENT  {1300, 1300, 1250}
-
+#endif
 //
 // Temperature Sensors
 //
@@ -105,6 +106,7 @@
 #define LCD_PINS_D5        21
 #define LCD_PINS_D6         5
 #define LCD_PINS_D7         6
+#define LCD_RESET_PIN 5
 
 // Buttons are directly attached
 #define BTN_EN1            40
