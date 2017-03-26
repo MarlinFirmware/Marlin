@@ -748,7 +748,7 @@
           goto LEAVE;
         }
         const float measured_z = probe_pt(xProbe, yProbe, stow_probe, g29_verbose_level);
-        z_values[location.x_index][location.y_index] = measured_z + Z_PROBE_OFFSET_FROM_EXTRUDER;
+        z_values[location.x_index][location.y_index] = measured_z + zprobe_zoffset;
       }
 
       if (do_ubl_mesh_map) ubl.display_map(map_type);
@@ -1108,7 +1108,10 @@
     statistics_flag++;
 
     SERIAL_PROTOCOLPGM("Unified Bed Leveling System Version 1.00 ");
-    ubl.state.active ? SERIAL_PROTOCOLCHAR('A') : SERIAL_PROTOCOLPGM("In");
+    if (ubl.state.active)  
+      SERIAL_PROTOCOLCHAR('A');
+    else
+      SERIAL_PROTOCOLPGM("In");
     SERIAL_PROTOCOLLNPGM("ctive.\n");
     delay(50);
 
@@ -1120,6 +1123,7 @@
       SERIAL_PROTOCOLPGM(" Loaded.");
     }
     SERIAL_EOL;
+    delay(50);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       SERIAL_PROTOCOLPAIR("g29_correction_fade_height : ", ubl.state.g29_correction_fade_height);
@@ -1129,11 +1133,13 @@
     SERIAL_PROTOCOLPGM("z_offset: ");
     SERIAL_PROTOCOL_F(ubl.state.z_offset, 6);
     SERIAL_EOL;
+    delay(50);
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
       SERIAL_PROTOCOL_F( ubl.map_x_index_to_bed_location(i), 1);
       SERIAL_PROTOCOLPGM("  ");
+      delay(50);
     }
     SERIAL_EOL;
 
@@ -1141,6 +1147,7 @@
     for (uint8_t i = 0; i < UBL_MESH_NUM_Y_POINTS; i++) {
       SERIAL_PROTOCOL_F( ubl.map_y_index_to_bed_location(i), 1);
       SERIAL_PROTOCOLPGM("  ");
+      delay(50);
     }
     SERIAL_EOL;
 
@@ -1149,11 +1156,13 @@
       SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
     #endif
     SERIAL_EOL;
+    delay(50);
 
     SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
     SERIAL_EOL;
     SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
     SERIAL_EOL;
+    delay(50);
     SERIAL_PROTOCOLPGM("Free EEPROM space starts at: 0x");
     prt_hex_word(ubl_eeprom_start);
     SERIAL_EOL;
@@ -1161,34 +1170,42 @@
     SERIAL_PROTOCOLPGM("end of EEPROM              : ");
     prt_hex_word(E2END);
     SERIAL_EOL;
+    delay(50);
 
     SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
     SERIAL_EOL;
     SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values));
     SERIAL_EOL;
+    delay(50);
 
     SERIAL_PROTOCOLPGM("EEPROM free for UBL: 0x");
     prt_hex_word(k);
     SERIAL_EOL;
+    delay(50);
 
     SERIAL_PROTOCOLPGM("EEPROM can hold 0x");
     prt_hex_word(k / sizeof(z_values));
     SERIAL_PROTOCOLLNPGM(" meshes.\n");
+    delay(50);
 
     SERIAL_PROTOCOLPGM("sizeof(ubl.state) :");
     prt_hex_word(sizeof(ubl.state));
 
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_NUM_X_POINTS  ", UBL_MESH_NUM_X_POINTS);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_NUM_Y_POINTS  ", UBL_MESH_NUM_Y_POINTS);
+    delay(50);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_X         ", UBL_MESH_MIN_X);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_Y         ", UBL_MESH_MIN_Y);
+    delay(50);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MAX_X         ", UBL_MESH_MAX_X);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MAX_Y         ", UBL_MESH_MAX_Y);
+    delay(50);
     SERIAL_PROTOCOLPGM("\nMESH_X_DIST        ");
     SERIAL_PROTOCOL_F(MESH_X_DIST, 6);
     SERIAL_PROTOCOLPGM("\nMESH_Y_DIST        ");
     SERIAL_PROTOCOL_F(MESH_Y_DIST, 6);
     SERIAL_EOL;
+    delay(50);
 
     if (!ubl.sanity_check())
       SERIAL_PROTOCOLLNPGM("Unified Bed Leveling sanity checks passed.");
