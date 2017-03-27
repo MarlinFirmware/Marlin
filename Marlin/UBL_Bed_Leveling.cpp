@@ -183,7 +183,7 @@
         #if TX_BUFFER_SIZE>0
           MYSERIAL.flushTX();
         #endif
-        delay(15);
+        safe_delay(15);
       }
       
       SERIAL_ECHOPAIR("(", UBL_MESH_NUM_X_POINTS - 1);
@@ -193,20 +193,20 @@
       SERIAL_ECHOPAIR("(", UBL_MESH_MIN_X);
       SERIAL_ECHOPAIR(",", UBL_MESH_MAX_Y);
       SERIAL_CHAR(')');
-      delay(15);
+      safe_delay(15);
 
       for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
         SERIAL_ECHOPGM("            ");
         #if TX_BUFFER_SIZE>0
           MYSERIAL.flushTX();
         #endif
-        delay(15);
+        safe_delay(15);
       }
 
       SERIAL_ECHOPAIR("(", UBL_MESH_MAX_X);
       SERIAL_ECHOPAIR(",", UBL_MESH_MAX_Y);
       SERIAL_ECHOLNPGM(")");
-      delay(15);
+      safe_delay(15);
     }
 
     for (j = UBL_MESH_NUM_Y_POINTS - 1; j >= 0; j--) {
@@ -234,7 +234,7 @@
         #if TX_BUFFER_SIZE>0
           MYSERIAL.flushTX();
         #endif
-        delay(15);
+        safe_delay(15);
         if (map_type==0) {
           if (i == current_xi && j == current_yi) // is the nozzle here? if so, finish marking the number
             SERIAL_CHAR(']');
@@ -260,7 +260,7 @@
         #if TX_BUFFER_SIZE>0
           MYSERIAL.flushTX();
         #endif
-        delay(15);
+        safe_delay(15);
       }
       SERIAL_ECHOPAIR("(", int(UBL_MESH_MAX_X));
       SERIAL_ECHOPAIR(",", int(UBL_MESH_MIN_Y));
@@ -276,7 +276,7 @@
         #if TX_BUFFER_SIZE>0
           MYSERIAL.flushTX();
         #endif
-        delay(15);
+        safe_delay(15);
       }
       SERIAL_ECHOPAIR("(", UBL_MESH_NUM_X_POINTS-1);
       SERIAL_ECHOPAIR(",", 0);
