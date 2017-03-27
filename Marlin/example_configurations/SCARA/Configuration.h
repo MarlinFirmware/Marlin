@@ -878,6 +878,8 @@
   #define UBL_PROBE_PT_2_Y 20
   #define UBL_PROBE_PT_3_X 180
   #define UBL_PROBE_PT_3_Y 20
+  #define UBL_CIRCULAR_PROBING      // circular probing starting at point nearest nozzle - handles all types of printers
+  //#define UBL_RECTANGULAR_PROBING     // faster but doesn't work with delta printers
   #define UBL_MESH_EDIT_ENABLED     // Enable G26 mesh editing
 
 #elif ENABLED(MESH_BED_LEVELING)
