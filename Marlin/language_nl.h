@@ -126,7 +126,7 @@
 #define MSG_NO_MOVE                         "Geen beweging."
 #define MSG_KILLED                          "Afgebroken. "
 #define MSG_STOPPED                         "Gestopt. "
-#define MSG_CONTROL_RETRACT                 "Retract mm"
+#define MSG_CONTROL_RETRACT                 "Retract mm"  //accepted English term in Dutch
 #define MSG_CONTROL_RETRACT_SWAP            "Ruil Retract mm"
 #define MSG_CONTROL_RETRACTF                "Retract  F"
 #define MSG_CONTROL_RETRACT_ZLIFT           "Hop mm"
@@ -139,13 +139,13 @@
 #define MSG_CNG_SDCARD                      "Verv. SD Kaart"
 #define MSG_ZPROBE_OUT                      "Z probe uit. bed"
 #define MSG_HOME                            "Home"  // Used as MSG_HOME " " MSG_X MSG_Y MSG_Z " " MSG_FIRST
-#define MSG_FIRST                           "first"
-#define MSG_ZPROBE_ZOFFSET                  "Z Offset"
+#define MSG_FIRST                           "Eerst"
+#define MSG_ZPROBE_ZOFFSET                  "Z Offset"  //accepted English term in Dutch
 #define MSG_BABYSTEP_X                      "Babystap X"
 #define MSG_BABYSTEP_Y                      "Babystap Y"
 #define MSG_BABYSTEP_Z                      "Babystap Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop afbr."
-#define MSG_HEATING_FAILED_LCD              "voorverw. fout"
+#define MSG_HEATING_FAILED_LCD              "Voorverw. fout"
 #define MSG_ERR_REDUNDANT_TEMP              "Redun. temp fout"
 #define MSG_THERMAL_RUNAWAY                 "Therm. wegloop"
 #define MSG_ERR_MAXTEMP                     "Err: Max. temp"
@@ -161,5 +161,86 @@
 #define MSG_DELTA_CALIBRATE_Y               "Kalibreer Y"
 #define MSG_DELTA_CALIBRATE_Z               "Kalibreer Z"
 #define MSG_DELTA_CALIBRATE_CENTER          "Kalibreer Midden"
+// updates NL 
+#define MSG_DAC_PERCENT                     "Driver %"  //accepted English term in Dutch
+#define MSG_DAC_EEPROM_WRITE                "DAC Opslaan"
+#define MSG_DRIVE_STRENGTH                  "Motorstroom"
+#define MSG_ERR_Z_HOMING                    "Fout Z homing"
+#define MSG_FILAMENT_CHANGE_OPTION_EXTRUDE  "Extrudeer meer"
+#define MSG_FILAMENT_CHANGE_HEADER          "WISSEL FILAMENT"
+#define MSG_FILAMENT_CHANGE_OPTION_RESUME   "Hervat print"
+#define MSG_HALTED                          "PRINTER GESTOPT"
+#define MSG_INFO_BAUDRATE                   "Baud"
+#define MSG_INFO_BOARD_MENU                 "Board Info" //accepted English term in Dutch
+
+#if LCD_WIDTH >= 20
+  #define MSG_INFO_PRINT_COUNT              "Printed Aantal"
+  #define MSG_INFO_COMPLETED_PRINTS         "Totaal Voltooid"
+  #define MSG_INFO_PRINT_TIME               "Totale Printtijd"
+  #define MSG_INFO_PRINT_LONGEST            "Langste Printtijd"
+  #define MSG_INFO_PRINT_FILAMENT           "Totaal Extrudeert"
+#else
+  #define MSG_INFO_PRINT_COUNT              "Aantal"
+  #define MSG_INFO_COMPLETED_PRINTS         "Voltooid"
+  #define MSG_INFO_PRINT_TIME               "Printtijd "
+  #define MSG_INFO_PRINT_LONGEST            "Langste"
+  #define MSG_INFO_PRINT_FILAMENT           "Extrud."
+#endif
+#define MSG_INFO_EXTRUDERS                  "Extruders"
+#define MSG_INFO_MAX_TEMP                   "Max Temp"
+#define MSG_INFO_MIN_TEMP                   "Min Temp"
+#define MSG_INFO_MENU                       "Over Printer"
+#define MSG_INFO_PRINTER_MENU               "Printer Info"
+#define MSG_INFO_PROTOCOL                   "Protocol"
+#define MSG_INFO_PSU                        "Power Supply"  //accepted English term in Dutch
+#define MSG_INFO_STATS_MENU                 "Printer Stats"
+#define MSG_INFO_THERMISTOR_MENU            "Thermistors"
+#define MSG_LCD_ENDSTOPS                    "Endstops" // Max length 8 characters
+#define MSG_LEVEL_BED                       "Level bed"
+#define MSG_LEVEL_BED_NEXT_POINT            "Volgende Plaats"
+#define MSG_LIGHTS_ON                       "Case licht aan"
+#define MSG_LIGHTS_OFF                      "Case licht uit"
+#define MSG_PLEASE_RESET                    "Reset A.U.B."
+#define MSG_SELECT                          "Selecteer"
+#define MSG_SHORT_DAY                       "d" //  One character only. Keep English standard
+#define MSG_SHORT_HOUR                      "h" //  One character only
+#define MSG_SHORT_MINUTE                    "m" //  One character only
+//
+// Filament Change screens show up to 3 lines on a 4-line display
+//                        ...or up to 2 lines on a 3-line display
+//
+#if LCD_HEIGHT >= 4
+ #define MSG_FILAMENT_CHANGE_INIT_1          "Wacht voor start"
+ #define MSG_FILAMENT_CHANGE_INIT_2          "filament te"
+ #define MSG_FILAMENT_CHANGE_INIT_3          "verwisselen"
+ #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Wacht voor"
+ #define MSG_FILAMENT_CHANGE_UNLOAD_2        "filament uit"
+ #define MSG_FILAMENT_CHANGE_UNLOAD_3        "te laden"
+ #define MSG_FILAMENT_CHANGE_INSERT_1        "Laad filament"
+ #define MSG_FILAMENT_CHANGE_INSERT_2        "en druk knop"
+ #define MSG_FILAMENT_CHANGE_INSERT_3        "om verder..."
+ #define MSG_FILAMENT_CHANGE_LOAD_1          "Wacht voor"
+ #define MSG_FILAMENT_CHANGE_LOAD_2          "filament te"
+ #define MSG_FILAMENT_CHANGE_LOAD_3          "laden"
+ #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Wacht voor"
+ #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "filament te"
+ #define MSG_FILAMENT_CHANGE_EXTRUDE_3       "extruderen"
+ #define MSG_FILAMENT_CHANGE_RESUME_1        "Wacht voor print"
+ #define MSG_FILAMENT_CHANGE_RESUME_2        "om verder"
+ #define MSG_FILAMENT_CHANGE_RESUME_3        "te gaan"
+#else // LCD_HEIGHT < 4
+ #define MSG_FILAMENT_CHANGE_INIT_1          "Wacht voor"
+ #define MSG_FILAMENT_CHANGE_INIT_2          "start..."
+ #define MSG_FILAMENT_CHANGE_UNLOAD_1        "Wacht voor"
+ #define MSG_FILAMENT_CHANGE_UNLOAD_2        "uitladen..."
+ #define MSG_FILAMENT_CHANGE_INSERT_1        "Laad filament"
+ #define MSG_FILAMENT_CHANGE_INSERT_2        "en druk knop"
+ #define MSG_FILAMENT_CHANGE_LOAD_1          "Wacht voor"
+ #define MSG_FILAMENT_CHANGE_LOAD_2          "inladen..."
+ #define MSG_FILAMENT_CHANGE_EXTRUDE_1       "Wacht voor"
+ #define MSG_FILAMENT_CHANGE_EXTRUDE_2       "extrudering"
+ #define MSG_FILAMENT_CHANGE_RESUME_1        "Wacht voor"
+ #define MSG_FILAMENT_CHANGE_RESUME_2        "printing..."
+#endif // LCD_HEIGHT < 4
 
 #endif // LANGUAGE_NL_H
