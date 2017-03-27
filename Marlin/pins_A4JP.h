@@ -28,7 +28,7 @@
   #error "Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu."
 #endif
 
-#define BOARD_NAME "AJ4P"
+#define BOARD_NAME "A4JP"
 
 #define LARGE_FLASH true
 
