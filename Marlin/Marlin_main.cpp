@@ -6172,7 +6172,7 @@ inline void gcode_M81() {
       fanSpeeds[0] = 0;
     #endif
   #endif
-  delay(1000); // Wait 1 second before switching off
+  safe_delay(1000); // Wait 1 second before switching off
   #if HAS_SUICIDE
     stepper.synchronize();
     suicide();
@@ -7772,7 +7772,7 @@ inline void gcode_M503() {
     // Synchronize steppers and then disable extruders steppers for manual filament changing
     stepper.synchronize();
     disable_e_steppers();
-    delay(100);
+    safe_delay(100);
 
     millis_t nozzle_timeout = millis() + (millis_t)(FILAMENT_CHANGE_NOZZLE_TIMEOUT) * 1000L;
     bool nozzle_timed_out = false;
@@ -8311,7 +8311,7 @@ inline void gcode_M999() {
   inline void move_extruder_servo(uint8_t e) {
     const int angles[2] = SWITCHING_EXTRUDER_SERVO_ANGLES;
     MOVE_SERVO(SWITCHING_EXTRUDER_SERVO_NR, angles[e]);
-    delay(500);
+    safe_delay(500);
   }
 #endif
 

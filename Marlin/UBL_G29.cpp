@@ -133,7 +133,10 @@
    *   O     Map   *    Display the Mesh Map Topology.
    *                    The parameter can be specified alone (ie. G29 O) or in combination with many of the
    *                    other commands. The Mesh Map option works with all of the Phase
-   *                    commands (ie. G29 P4 R 5 X 50 Y100 C -.1 O)
+   *                    commands (ie. G29 P4 R 5 X 50 Y100 C -.1 O)  The Map parameter can also of a Map Type
+   *                    specified.  A map type of 0 is the default is user readable.   A map type of 1 can
+   *                    be specified and is suitable to Cut & Paste into Excel to allow graphing of the user's
+   *                    mesh.
    *
    *   N    No Home     G29 normally insists that a G28 has been performed. You can over rule this with an
    *                    N option. In general, you should not do this. This can only be done safely with
@@ -258,6 +261,10 @@
    *
    *   T     3-Point    Perform a 3 Point Bed Leveling on the current Mesh
    *
+   *   U     Unlevel    Perform a probe of the outer perimeter to assist in physically leveling unlevel beds.
+   *                    Only used for G29 P1 O U   It will speed up the probing of the edge of the bed.  This
+   *                    is useful when the entire bed does not need to be probed because it will be adjusted.
+   *
    *   W     What?      Display valuable data the Unified Bed Leveling System knows.
    *
    *   X #   *      *   X Location for this line of commands
@@ -305,7 +312,7 @@
 
   // The simple parameter flags and values are 'static' so parameter parsing can be in a support routine.
   static int g29_verbose_level = 0, phase_value = -1, repetition_cnt = 1,
-             storage_slot = 0, test_pattern = 0;
+             storage_slot = 0, map_type = 0, test_pattern = 0, unlevel_value = -1;
   static bool repeat_flag = UBL_OK, c_flag = false, x_flag = UBL_OK, y_flag = UBL_OK, statistics_flag = UBL_OK, business_card_mode = false;
   static float x_pos = 0.0, y_pos = 0.0, height_value = 5.0, measured_z, card_thickness = 0.0, constant = 0.0;
 
@@ -339,7 +346,7 @@
     if (code_seen('I')) {
       repetition_cnt = code_has_value() ? code_value_int() : 1;
       while (repetition_cnt--) {
-        const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, x_pos, y_pos, 0, NULL);  // The '0' says we want to use the nozzle's position
+        const mesh_index_pair location = find_closest_mesh_point_of_type(REAL, x_pos, y_pos, 0, NULL, false);  // The '0' says we want to use the nozzle's position
         if (location.x_index < 0) {
           SERIAL_PROTOCOLLNPGM("Entire Mesh invalidated.\n");
           break;            // No more invalid Mesh Points to populate
@@ -389,6 +396,16 @@
       }
     }
 
+/*
+    if (code_seen('U')) {
+      unlevel_value = code_value_int();
+//    if (unlevel_value < 0 || unlevel_value > 7) {
+//      SERIAL_PROTOCOLLNPGM("Invalid Unlevel value. (0-4)\n");
+//      return;
+//    }
+    }
+*/
+
     if (code_seen('P')) {
       phase_value = code_value_int();
       if (phase_value < 0 || phase_value > 7) {
@@ -418,7 +435,7 @@
             SERIAL_PROTOCOLLNPGM(")\n");
           }
           probe_entire_mesh(x_pos + X_PROBE_OFFSET_FROM_EXTRUDER, y_pos + Y_PROBE_OFFSET_FROM_EXTRUDER,
-                            code_seen('O') || code_seen('M'), code_seen('E'));
+                            code_seen('O') || code_seen('M'), code_seen('E'), code_seen('U'));
           break;
         //
         // Manually Probe Mesh in areas that can not be reached by the probe
@@ -463,7 +480,7 @@
           // If no repetition is specified, do the whole Mesh
           if (!repeat_flag) repetition_cnt = 9999;
           while (repetition_cnt--) {
-            const mesh_index_pair location = find_closest_mesh_point_of_type(INVALID, x_pos, y_pos, 0, NULL); // The '0' says we want to use the nozzle's position
+            const mesh_index_pair location = find_closest_mesh_point_of_type(INVALID, x_pos, y_pos, 0, NULL, false); // The '0' says we want to use the nozzle's position
             if (location.x_index < 0) break; // No more invalid Mesh Points to populate
             z_values[location.x_index][location.y_index] = height_value;
           }
@@ -488,8 +505,7 @@
           SERIAL_ECHOLNPGM("Checking G29 has control of LCD Panel:");
           wait_for_user = true;
           while (wait_for_user) {
-            idle();
-            delay(250);
+            safe_delay(250);
             SERIAL_ECHO((int)ubl_encoderDiff);
             ubl_encoderDiff = 0;
             SERIAL_EOL;
@@ -639,7 +655,7 @@
           }
         }
         ubl_has_control_of_lcd_panel = false;
-        delay(20); // We don't want any switch noise.
+        safe_delay(20); // We don't want any switch noise.
 
         ubl.state.z_offset = measured_z;
 
@@ -716,7 +732,7 @@
    * Probe all invalidated locations of the mesh that can be reached by the probe.
    * This attempts to fill in locations closest to the nozzle's start location first.
    */
-  void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe) {
+  void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest) {
     mesh_index_pair location;
 
     ubl_has_control_of_lcd_panel++;
@@ -733,11 +749,11 @@
         }
         ubl_has_control_of_lcd_panel = false;
         restore_ubl_active_state_and_leave();
-        delay(50);  // Debounce the Encoder wheel
+        safe_delay(50);  // Debounce the Encoder wheel
         return;
       }
 
-      location = find_closest_mesh_point_of_type(INVALID, lx, ly, 1, NULL);  // the '1' says we want the location to be relative to the probe
+      location = find_closest_mesh_point_of_type(INVALID, lx, ly, 1, NULL, do_furthest );  // the '1' says we want the location to be relative to the probe
       if (location.x_index >= 0 && location.y_index >= 0) {
         const float xProbe = ubl.map_x_index_to_bed_location(location.x_index),
                     yProbe = ubl.map_y_index_to_bed_location(location.y_index);
@@ -747,10 +763,10 @@
           goto LEAVE;
         }
         const float measured_z = probe_pt(xProbe, yProbe, stow_probe, g29_verbose_level);
-        z_values[location.x_index][location.y_index] = measured_z + Z_PROBE_OFFSET_FROM_EXTRUDER;
+        z_values[location.x_index][location.y_index] = measured_z + zprobe_zoffset;
       }
 
-      if (do_ubl_mesh_map) ubl.display_map(1);
+      if (do_ubl_mesh_map) ubl.display_map(map_type);
 
     } while (location.x_index >= 0 && location.y_index >= 0);
 
@@ -878,9 +894,9 @@
     float last_x = -9999.99, last_y = -9999.99;
     mesh_index_pair location;
     do {
-      if (do_ubl_mesh_map) ubl.display_map(1);
+      if (do_ubl_mesh_map) ubl.display_map(map_type);
 
-      location = find_closest_mesh_point_of_type(INVALID, lx, ly, 0, NULL); // The '0' says we want to use the nozzle's position
+      location = find_closest_mesh_point_of_type(INVALID, lx, ly, 0, NULL, false); // The '0' says we want to use the nozzle's position
       // It doesn't matter if the probe can not reach the
       // NAN location. This is a manual probe.
       if (location.x_index < 0 && location.y_index < 0) continue;
@@ -939,7 +955,7 @@
       }
     } while (location.x_index >= 0 && location.y_index >= 0);
 
-    if (do_ubl_mesh_map) ubl.display_map(1);
+    if (do_ubl_mesh_map) ubl.display_map(map_type);
 
     LEAVE:
     restore_ubl_active_state_and_leave();
@@ -961,6 +977,7 @@
     x_pos = current_position[X_AXIS];
     y_pos = current_position[Y_AXIS];
     x_flag = y_flag = repeat_flag = false;
+    map_type = 0;
     constant = 0.0;
     repetition_cnt = 1;
 
@@ -1028,6 +1045,23 @@
         return UBL_ERR;
       }
     }
+
+    if (code_seen('O')) {     // Check if a map type was specified
+      map_type = code_value_int() ? code_has_value() : 0; 
+      if ( map_type<0 || map_type>1) {
+        SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
+        return UBL_ERR;
+      }
+    }
+
+    if (code_seen('M')) {     // Check if a map type was specified
+      map_type = code_value_int() ? code_has_value() : 0; 
+      if ( map_type<0 || map_type>1) {
+        SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
+        return UBL_ERR;
+      }
+    }
+
     return UBL_OK;
   }
 
@@ -1093,9 +1127,12 @@
     statistics_flag++;
 
     SERIAL_PROTOCOLPGM("Unified Bed Leveling System Version 1.00 ");
-    ubl.state.active ? SERIAL_PROTOCOLCHAR('A') : SERIAL_PROTOCOLPGM("In");
+    if (ubl.state.active)  
+      SERIAL_PROTOCOLCHAR('A');
+    else
+      SERIAL_PROTOCOLPGM("In");
     SERIAL_PROTOCOLLNPGM("ctive.\n");
-    delay(50);
+    safe_delay(50);
 
     if (ubl.state.eeprom_storage_slot == -1)
       SERIAL_PROTOCOLPGM("No Mesh Loaded.");
@@ -1105,6 +1142,7 @@
       SERIAL_PROTOCOLPGM(" Loaded.");
     }
     SERIAL_EOL;
+    safe_delay(50);
 
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       SERIAL_PROTOCOLPAIR("g29_correction_fade_height : ", ubl.state.g29_correction_fade_height);
@@ -1114,11 +1152,13 @@
     SERIAL_PROTOCOLPGM("z_offset: ");
     SERIAL_PROTOCOL_F(ubl.state.z_offset, 6);
     SERIAL_EOL;
+    safe_delay(50);
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
       SERIAL_PROTOCOL_F( ubl.map_x_index_to_bed_location(i), 1);
       SERIAL_PROTOCOLPGM("  ");
+      safe_delay(50);
     }
     SERIAL_EOL;
 
@@ -1126,6 +1166,7 @@
     for (uint8_t i = 0; i < UBL_MESH_NUM_Y_POINTS; i++) {
       SERIAL_PROTOCOL_F( ubl.map_y_index_to_bed_location(i), 1);
       SERIAL_PROTOCOLPGM("  ");
+      safe_delay(50);
     }
     SERIAL_EOL;
 
@@ -1134,11 +1175,13 @@
       SERIAL_PROTOCOLLNPAIR("  state:", READ(KILL_PIN));
     #endif
     SERIAL_EOL;
+    safe_delay(50);
 
     SERIAL_PROTOCOLLNPAIR("ubl_state_at_invocation :", ubl_state_at_invocation);
     SERIAL_EOL;
     SERIAL_PROTOCOLLNPAIR("ubl_state_recursion_chk :", ubl_state_recursion_chk);
     SERIAL_EOL;
+    safe_delay(50);
     SERIAL_PROTOCOLPGM("Free EEPROM space starts at: 0x");
     prt_hex_word(ubl_eeprom_start);
     SERIAL_EOL;
@@ -1146,34 +1189,42 @@
     SERIAL_PROTOCOLPGM("end of EEPROM              : ");
     prt_hex_word(E2END);
     SERIAL_EOL;
+    safe_delay(50);
 
     SERIAL_PROTOCOLLNPAIR("sizeof(ubl) :  ", (int)sizeof(ubl));
     SERIAL_EOL;
     SERIAL_PROTOCOLLNPAIR("z_value[][] size: ", (int)sizeof(z_values));
     SERIAL_EOL;
+    safe_delay(50);
 
     SERIAL_PROTOCOLPGM("EEPROM free for UBL: 0x");
     prt_hex_word(k);
     SERIAL_EOL;
+    safe_delay(50);
 
     SERIAL_PROTOCOLPGM("EEPROM can hold 0x");
     prt_hex_word(k / sizeof(z_values));
     SERIAL_PROTOCOLLNPGM(" meshes.\n");
+    safe_delay(50);
 
     SERIAL_PROTOCOLPGM("sizeof(ubl.state) :");
     prt_hex_word(sizeof(ubl.state));
 
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_NUM_X_POINTS  ", UBL_MESH_NUM_X_POINTS);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_NUM_Y_POINTS  ", UBL_MESH_NUM_Y_POINTS);
+    safe_delay(50);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_X         ", UBL_MESH_MIN_X);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MIN_Y         ", UBL_MESH_MIN_Y);
+    safe_delay(50);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MAX_X         ", UBL_MESH_MAX_X);
     SERIAL_PROTOCOLPAIR("\nUBL_MESH_MAX_Y         ", UBL_MESH_MAX_Y);
+    safe_delay(50);
     SERIAL_PROTOCOLPGM("\nMESH_X_DIST        ");
     SERIAL_PROTOCOL_F(MESH_X_DIST, 6);
     SERIAL_PROTOCOLPGM("\nMESH_Y_DIST        ");
     SERIAL_PROTOCOL_F(MESH_Y_DIST, 6);
     SERIAL_EOL;
+    safe_delay(50);
 
     if (!ubl.sanity_check())
       SERIAL_PROTOCOLLNPGM("Unified Bed Leveling sanity checks passed.");
@@ -1237,9 +1288,9 @@
         z_values[x][y] = z_values[x][y] - tmp_z_values[x][y];
   }
 
-  mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType type, const float &lx, const float &ly, const bool probe_as_reference, unsigned int bits[16]) {
-    int i, j;
-    float closest = 99999.99;
+  mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType type, const float &lx, const float &ly, const bool probe_as_reference, unsigned int bits[16], bool far_flag) {
+    int i, j, k, l;
+    float distance, closest = far_flag ? -99999.99 : 99999.99;
     mesh_index_pair return_val;
 
     return_val.x_index = return_val.y_index = -1;
@@ -1274,9 +1325,21 @@
 
           // We can get to it. Let's see if it is the closest location to the nozzle.
           // Add in a weighting factor that considers the current location of the nozzle.
-          const float distance = HYPOT(px - mx, py - my) + HYPOT(current_x - mx, current_y - my) * 0.01;
 
-          if (distance < closest) {
+          distance = HYPOT(px - mx, py - my) + HYPOT(current_x - mx, current_y - my) * 0.1;
+
+	  if (far_flag) {                                    // If doing the far_flag action, we want to be as far as possible
+            for (k = 0; k < UBL_MESH_NUM_X_POINTS; k++) {    // from the starting point and from any other probed points.  We
+              for (l = 0; j < UBL_MESH_NUM_Y_POINTS; l++) {  // want the next point spread out and filling in any blank spaces
+                if ( !isnan(z_values[k][l])) {               // in the mesh.   So we add in some of the distance to every probed 
+                  distance += (i-k)*(i-k)*MESH_X_DIST*.05;   // point we can find.
+                  distance += (j-l)*(j-l)*MESH_Y_DIST*.05;
+		}
+              }
+	    }
+	  }
+
+          if ( (!far_flag&&(distance < closest)) || (far_flag&&(distance > closest)) ) {  // if far_flag, look for furthest away point
             closest = distance;       // We found a closer location with
             return_val.x_index = i;   // the specified type of mesh value.
             return_val.y_index = j;
@@ -1307,9 +1370,9 @@
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
     do_blocking_move_to_xy(lx, ly);
     do {
-      if (do_ubl_mesh_map) ubl.display_map(1);
+      if (do_ubl_mesh_map) ubl.display_map(map_type);
 
-      location = find_closest_mesh_point_of_type( SET_IN_BITMAP, lx,  ly, 0, not_done); // The '0' says we want to use the nozzle's position
+      location = find_closest_mesh_point_of_type( SET_IN_BITMAP, lx,  ly, 0, not_done, false); // The '0' says we want to use the nozzle's position
                                                                                               // It doesn't matter if the probe can not reach this
                                                                                               // location. This is a manual edit of the Mesh Point.
       if (location.x_index < 0 && location.y_index < 0) continue; // abort if we can't find any more points.
@@ -1368,7 +1431,7 @@
         }
       }
 
-      delay(20);                       // We don't want any switch noise.
+      safe_delay(20);                       // We don't want any switch noise.
 
       z_values[location.x_index][location.y_index] = new_z;
 
@@ -1380,7 +1443,7 @@
 
     ubl_has_control_of_lcd_panel = false;
 
-    if (do_ubl_mesh_map) ubl.display_map(1);
+    if (do_ubl_mesh_map) ubl.display_map(map_type);
     restore_ubl_active_state_and_leave();
     do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
 
