@@ -41,88 +41,88 @@
 #define PtLine(T,R0,Rup) { PtAdVal(T,R0,Rup)*OVERSAMPLENR, T },
 
 #if ANY_THERMISTOR_IS(1) // 100k bed thermistor
-  #include "thermistortable_1.h"
+  #include "thermistortable/1.h"
 #endif
 #if ANY_THERMISTOR_IS(2) // 200k bed thermistor
-  #include "thermistortable_2.h"
+  #include "thermistortable/2.h"
 #endif
 #if ANY_THERMISTOR_IS(3) // mendel-parts
-  #include "thermistortable_3.h"
+  #include "thermistortable/3.h"
 #endif
 #if ANY_THERMISTOR_IS(4) // 10k thermistor
-  #include "thermistortable_4.h"
+  #include "thermistortable/4.h"
 #endif
 #if ANY_THERMISTOR_IS(5) // 100k ParCan thermistor (104GT-2)
-  #include "thermistortable_5.h"
+  #include "thermistortable/5.h"
 #endif
 #if ANY_THERMISTOR_IS(6) // 100k Epcos thermistor
-  #include "thermistortable_6.h"
+  #include "thermistortable/6.h"
 #endif
 #if ANY_THERMISTOR_IS(7) // 100k Honeywell 135-104LAG-J01
-  #include "thermistortable_7.h"
+  #include "thermistortable/7.h"
 #endif
 #if ANY_THERMISTOR_IS(71) // 100k Honeywell 135-104LAF-J01
-  #include "thermistortable_71.h"
+  #include "thermistortable/71.h"
 #endif
 #if ANY_THERMISTOR_IS(8) // 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup)
-  #include "thermistortable_8.h"
+  #include "thermistortable/8.h"
 #endif
 #if ANY_THERMISTOR_IS(9) // 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
-  #include "thermistortable_9.h"
+  #include "thermistortable/9.h"
 #endif
 #if ANY_THERMISTOR_IS(10) // 100k RS thermistor 198-961 (4.7k pullup)
-  #include "thermistortable_10.h"
+  #include "thermistortable/10.h"
 #endif
 #if ANY_THERMISTOR_IS(11) // QU-BD silicone bed QWG-104F-3950 thermistor
-  #include "thermistortable_11.h"
+  #include "thermistortable/11.h"
 #endif
 #if ANY_THERMISTOR_IS(13) // Hisens thermistor B25/50 =3950 +/-1%
-  #include "thermistortable_13.h"
+  #include "thermistortable/13.h"
 #endif
 #if ANY_THERMISTOR_IS(20) // PT100 with INA826 amp on Ultimaker v2.0 electronics
-  #include "thermistortable_20.h"
+  #include "thermistortable/20.h"
 #endif
 #if ANY_THERMISTOR_IS(51) // 100k EPCOS (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
-  #include "thermistortable_51.h"
+  #include "thermistortable/51.h"
 #endif
 #if ANY_THERMISTOR_IS(52) // 200k ATC Semitec 204GT-2 (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
-  #include "thermistortable_52.h"
+  #include "thermistortable/52.h"
 #endif
 #if ANY_THERMISTOR_IS(55) // 100k ATC Semitec 104GT-2 (Used on ParCan) (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
-  #include "thermistortable_53.h"
+  #include "thermistortable/53.h"
 #endif
 #if ANY_THERMISTOR_IS(60) // Maker's Tool Works Kapton Bed Thermistor
-  #include "thermistortable_60.h"
+  #include "thermistortable/60.h"
 #endif
 #if ANY_THERMISTOR_IS(66) // DyzeDesign 500°C Thermistor
-  #include "thermistortable_66.h"
+  #include "thermistortable/66.h"
 #endif
 #if ANY_THERMISTOR_IS(12) // 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
-  #include "thermistortable_12.h"
+  #include "thermistortable/12.h"
 #endif
 #if ANY_THERMISTOR_IS(70) // bqh2 stock thermistor
-  #include "thermistortable_70.h"
+  #include "thermistortable/70.h"
 #endif
 #if ANY_THERMISTOR_IS(75) // Many of the generic silicon heat pads use the MGB18-104F39050L32 Thermistor
-  #include "thermistortable_75.h"
+  #include "thermistortable/75.h"
 #endif
 #if ANY_THERMISTOR_IS(110) // Pt100 with 1k0 pullup
-  #include "thermistortable_110.h"
+  #include "thermistortable/110.h"
 #endif
 #if ANY_THERMISTOR_IS(147) // Pt100 with 4k7 pullup
-  #include "thermistortable_147.h"
+  #include "thermistortable/147.h"
 #endif
 #if ANY_THERMISTOR_IS(1010) // Pt1000 with 1k0 pullup
-  #include "thermistortable_1010.h"
+  #include "thermistortable/1010.h"
 #endif
 #if ANY_THERMISTOR_IS(1047) // Pt1000 with 4k7 pullup
-  #include "thermistortable_1047.h"
+  #include "thermistortable/1047.h"
 #endif
 #if ANY_THERMISTOR_IS(998) // User-defined table 1
-  #include "thermistortable_998.h"
+  #include "thermistortable/998.h"
 #endif
 #if ANY_THERMISTOR_IS(999) // User-defined table 2
-  #include "thermistortable_999.h"
+  #include "thermistortable/999.h"
 #endif
 
 #define _TT_NAME(_N) temptable_ ## _N

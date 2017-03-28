@@ -255,9 +255,9 @@
 
 // LCD Menu Messages
 
-#define LANGUAGE_INCL_(M) STRINGIFY_(language_##M.h)
+#define LANGUAGE_INCL_(M) #M
 #define LANGUAGE_INCL(M) LANGUAGE_INCL_(M)
-#define INCLUDE_LANGUAGE LANGUAGE_INCL(LCD_LANGUAGE)
+#define INCLUDE_LANGUAGE LANGUAGE_INCL(language/LCD_LANGUAGE.h)
 
 // Never translate these strings
 #define MSG_X "X"
@@ -297,6 +297,6 @@
   #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #endif
 
-#include "language_en.h"
+#include "language/en.h"
 
 #endif //__LANGUAGE_H
