@@ -9793,33 +9793,42 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     // gives the number of segments
     uint16_t segments = delta_segments_per_second * seconds;
 
-    // For SCARA minimum segment size is 0.5mm
+    // For SCARA minimum segment size is 0.25mm
     #if IS_SCARA
-      NOMORE(segments, cartesian_mm * 2);
+      NOMORE(segments, cartesian_mm * 4);
     #endif
 
     // At least one segment is required
     NOLESS(segments, 1);
 
     // The approximate length of each segment
-    float segment_distance[XYZE] = {
-            difference[X_AXIS] / segments,
-            difference[Y_AXIS] / segments,
-            difference[Z_AXIS] / segments,
-            difference[E_AXIS] / segments
-          };
+    const float inv_segments = 1.0 / float(segments),
+                segment_distance[XYZE] = {
+                  difference[X_AXIS] * inv_segments,
+                  difference[Y_AXIS] * inv_segments,
+                  difference[Z_AXIS] * inv_segments,
+                  difference[E_AXIS] * inv_segments
+                };
 
     // SERIAL_ECHOPAIR("mm=", cartesian_mm);
     // SERIAL_ECHOPAIR(" seconds=", seconds);
     // SERIAL_ECHOLNPAIR(" segments=", segments);
 
-    // Drop one segment so the last move is to the exact target.
-    // If there's only 1 segment, loops will be skipped entirely.
-    --segments;
+    #if IS_SCARA
+      // SCARA needs to scale the feed rate from mm/s to degrees/s
+      const float inv_segment_length = min(10.0, float(segments) / cartesian_mm), // 1/mm/segs
+                  feed_factor = inv_segment_length * _feedrate_mm_s;
+      float oldA = stepper.get_axis_position_degrees(A_AXIS),
+            oldB = stepper.get_axis_position_degrees(B_AXIS);
+    #endif
 
     // Get the logical current position as starting point
     float logical[XYZE];
     COPY(logical, current_position);
+
+    // Drop one segment so the last move is to the exact target.
+    // If there's only 1 segment, loops will be skipped entirely.
+    --segments;
 
     // Calculate and execute the segments
     for (uint16_t s = segments + 1; --s;) {
@@ -9829,13 +9838,37 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       #else
         inverse_kinematics(logical);
       #endif
+
       ADJUST_DELTA(logical); // Adjust Z if bed leveling is enabled
-      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+
+      #if IS_SCARA
+        // For SCARA scale the feed rate from mm/s to degrees/s
+        // Use ratio between the length of the move and the larger angle change
+        const float adiff = abs(delta[A_AXIS] - oldA),
+                    bdiff = abs(delta[B_AXIS] - oldB);
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
+        oldA = delta[A_AXIS];
+        oldB = delta[B_AXIS];
+      #else
+        planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], _feedrate_mm_s, active_extruder);
+      #endif
     }
 
     // Since segment_distance is only approximate,
     // the final move must be to the exact destination.
-    planner.buffer_line_kinematic(ltarget, _feedrate_mm_s, active_extruder);
+
+    #if IS_SCARA
+      // For SCARA scale the feed rate from mm/s to degrees/s
+      // With segments > 1 length is 1 segment, otherwise total length
+      inverse_kinematics(ltarget);
+      ADJUST_DELTA(logical);
+      const float adiff = abs(delta[A_AXIS] - oldA),
+                  bdiff = abs(delta[B_AXIS] - oldB);
+      planner.buffer_line(delta[A_AXIS], delta[B_AXIS], delta[C_AXIS], logical[E_AXIS], max(adiff, bdiff) * feed_factor, active_extruder);
+    #else
+      planner.buffer_line_kinematic(ltarget, _feedrate_mm_s, active_extruder);
+    #endif
+
     return true;
   }
 
