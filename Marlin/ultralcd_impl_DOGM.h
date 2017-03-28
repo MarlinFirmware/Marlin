@@ -61,51 +61,51 @@
 #endif
 
 #if ENABLED(USE_SMALL_INFOFONT)
-  #include "dogm_font_data_6x9_marlin.h"
+  #include "dogm_font_data/6x9_marlin.h"
   #define FONT_STATUSMENU_NAME u8g_font_6x9
 #else
   #define FONT_STATUSMENU_NAME FONT_MENU_NAME
 #endif
 
-#include "dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
+#include "dogm_font_data/Marlin_symbols.h"   // The Marlin special symbols
 #define FONT_SPECIAL_NAME Marlin_symbols
 
 #if DISABLED(SIMULATE_ROMFONT)
   #if ENABLED(DISPLAY_CHARSET_ISO10646_1)
-    #include "dogm_font_data_ISO10646_1.h"
+    #include "dogm_font_data/ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7
   #elif ENABLED(DISPLAY_CHARSET_ISO10646_5)
-    #include "dogm_font_data_ISO10646_5_Cyrillic.h"
+    #include "dogm_font_data/ISO10646_5_Cyrillic.h"
     #define FONT_MENU_NAME ISO10646_5_Cyrillic_5x7
   #elif ENABLED(DISPLAY_CHARSET_ISO10646_KANA)
-    #include "dogm_font_data_ISO10646_Kana.h"
+    #include "dogm_font_data/ISO10646_Kana.h"
     #define FONT_MENU_NAME ISO10646_Kana_5x7
   #elif ENABLED(DISPLAY_CHARSET_ISO10646_GREEK)
-    #include "dogm_font_data_ISO10646_Greek.h"
+    #include "dogm_font_data/ISO10646_Greek.h"
     #define FONT_MENU_NAME ISO10646_Greek_5x7
   #elif ENABLED(DISPLAY_CHARSET_ISO10646_CN)
-    #include "dogm_font_data_ISO10646_CN.h"
+    #include "dogm_font_data/ISO10646_CN.h"
     #define FONT_MENU_NAME ISO10646_CN
     #define TALL_FONT_CORRECTION 1
   #elif ENABLED(DISPLAY_CHARSET_ISO10646_TR)
-    #include "dogm_font_data_ISO10646_1_tr.h"
+    #include "dogm_font_data/ISO10646_1_tr.h"
     #define FONT_MENU_NAME ISO10646_TR
   #else // fall-back
-    #include "dogm_font_data_ISO10646_1.h"
+    #include "dogm_font_data/ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7
   #endif
 #else // SIMULATE_ROMFONT
   #if DISPLAY_CHARSET_HD44780 == JAPANESE
-    #include "dogm_font_data_HD44780_J.h"
+    #include "dogm_font_data/HD44780_J.h"
     #define FONT_MENU_NAME HD44780_J_5x7
   #elif DISPLAY_CHARSET_HD44780 == WESTERN
-    #include "dogm_font_data_HD44780_W.h"
+    #include "dogm_font_data/HD44780_W.h"
     #define FONT_MENU_NAME HD44780_W_5x7
   #elif DISPLAY_CHARSET_HD44780 == CYRILLIC
-    #include "dogm_font_data_HD44780_C.h"
+    #include "dogm_font_data/HD44780_C.h"
     #define FONT_MENU_NAME HD44780_C_5x7
   #else // fall-back
-    #include "dogm_font_data_ISO10646_1.h"
+    #include "dogm_font_data/ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7
   #endif
 #endif // SIMULATE_ROMFONT

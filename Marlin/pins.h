@@ -24,154 +24,154 @@
 #define PINS_H
 
 #if MB(GEN7_CUSTOM)
-  #include "pins_GEN7_CUSTOM.h"
+  #include "pins/GEN7_CUSTOM.h"
 #elif MB(GEN7_12)
-  #include "pins_GEN7_12.h"
+  #include "pins/GEN7_12.h"
 #elif MB(GEN7_13)
-  #include "pins_GEN7_13.h"
+  #include "pins/GEN7_13.h"
 #elif MB(GEN7_14)
-  #include "pins_GEN7_14.h"
+  #include "pins/GEN7_14.h"
 #elif MB(CNCONTROLS_11)
-  #include "pins_CNCONTROLS_11.h"
+  #include "pins/CNCONTROLS_11.h"
 #elif MB(CNCONTROLS_12)
-  #include "pins_CNCONTROLS_12.h"
+  #include "pins/CNCONTROLS_12.h"
 #elif MB(CHEAPTRONIC)
-  #include "pins_CHEAPTRONIC.h"
+  #include "pins/CHEAPTRONIC.h"
 #elif MB(SETHI)
-  #include "pins_SETHI.h"
+  #include "pins/SETHI.h"
 #elif MB(MIGHTYBOARD_REVE)
-  #include "pins_MIGHTYBOARD_REVE.h"
+  #include "pins/MIGHTYBOARD_REVE.h"
 #elif MB(RAMPS_OLD)
-  #include "pins_RAMPS_OLD.h"
+  #include "pins/RAMPS_OLD.h"
 #elif MB(RAMPS_13_EFB)
   #define IS_RAMPS_EFB
-  #include "pins_RAMPS_13.h"
+  #include "pins/RAMPS_13.h"
 #elif MB(RAMPS_13_EEB)
   #define IS_RAMPS_EEB
-  #include "pins_RAMPS_13.h"
+  #include "pins/RAMPS_13.h"
 #elif MB(RAMPS_13_EFF)
   #define IS_RAMPS_EFF
-  #include "pins_RAMPS_13.h"
+  #include "pins/RAMPS_13.h"
 #elif MB(RAMPS_13_EEF)
   #define IS_RAMPS_EEF
-  #include "pins_RAMPS_13.h"
+  #include "pins/RAMPS_13.h"
 #elif MB(RAMPS_13_SF)
   #define IS_RAMPS_SF
-  #include "pins_RAMPS_13.h"
+  #include "pins/RAMPS_13.h"
 #elif MB(RAMPS_14_EFB)
   #define IS_RAMPS_EFB
-  #include "pins_RAMPS.h"
+  #include "pins/RAMPS.h"
 #elif MB(RAMPS_14_EEB)
   #define IS_RAMPS_EEB
-  #include "pins_RAMPS.h"
+  #include "pins/RAMPS.h"
 #elif MB(RAMPS_14_EFF)
   #define IS_RAMPS_EFF
-  #include "pins_RAMPS.h"
+  #include "pins/RAMPS.h"
 #elif MB(RAMPS_14_EEF)
   #define IS_RAMPS_EEF
-  #include "pins_RAMPS.h"
+  #include "pins/RAMPS.h"
 #elif MB(RAMPS_14_SF)
   #define IS_RAMPS_SF
-  #include "pins_RAMPS.h"
+  #include "pins/RAMPS.h"
 #elif MB(GEN6)
-  #include "pins_GEN6.h"
+  #include "pins/GEN6.h"
 #elif MB(GEN6_DELUXE)
-  #include "pins_GEN6_DELUXE.h"
+  #include "pins/GEN6_DELUXE.h"
 #elif MB(SANGUINOLOLU_11)
-  #include "pins_SANGUINOLOLU_11.h"
+  #include "pins/SANGUINOLOLU_11.h"
 #elif MB(SANGUINOLOLU_12)
-  #include "pins_SANGUINOLOLU_12.h"
+  #include "pins/SANGUINOLOLU_12.h"
 #elif MB(MELZI)
-  #include "pins_MELZI.h"
+  #include "pins/MELZI.h"
 #elif MB(STB_11)
-  #include "pins_STB_11.h"
+  #include "pins/STB_11.h"
 #elif MB(AZTEEG_X1)
-  #include "pins_AZTEEG_X1.h"
+  #include "pins/AZTEEG_X1.h"
 #elif MB(MELZI_MAKR3D)
-  #include "pins_MELZI_MAKR3D.h"
+  #include "pins/MELZI_MAKR3D.h"
 #elif MB(AZTEEG_X3)
-  #include "pins_AZTEEG_X3.h"
+  #include "pins/AZTEEG_X3.h"
 #elif MB(AZTEEG_X3_PRO)
-  #include "pins_AZTEEG_X3_PRO.h"
+  #include "pins/AZTEEG_X3_PRO.h"
 #elif MB(ULTIMAKER)
-  #include "pins_ULTIMAKER.h"
+  #include "pins/ULTIMAKER.h"
 #elif MB(ULTIMAKER_OLD)
-  #include "pins_ULTIMAKER_OLD.h"
+  #include "pins/ULTIMAKER_OLD.h"
 #elif MB(ULTIMAIN_2)
-  #include "pins_ULTIMAIN_2.h"
+  #include "pins/ULTIMAIN_2.h"
 #elif MB(3DRAG)
-  #include "pins_3DRAG.h"
+  #include "pins/3DRAG.h"
 #elif MB(K8200)
-  #include "pins_K8200.h"
+  #include "pins/K8200.h"
 #elif MB(K8400)
-  #include "pins_K8400.h"
+  #include "pins/K8400.h"
 #elif MB(TEENSYLU)
-  #include "pins_TEENSYLU.h"
+  #include "pins/TEENSYLU.h"
 #elif MB(RUMBA)
-  #include "pins_RUMBA.h"
+  #include "pins/RUMBA.h"
 #elif MB(PRINTRBOARD)
-  #include "pins_PRINTRBOARD.h"
+  #include "pins/PRINTRBOARD.h"
 #elif MB(PRINTRBOARD_REVF)
-  #include "pins_PRINTRBOARD_REVF.h"
+  #include "pins/PRINTRBOARD_REVF.h"
 #elif MB(BRAINWAVE)
-  #include "pins_BRAINWAVE.h"
+  #include "pins/BRAINWAVE.h"
 #elif MB(BRAINWAVE_PRO)
-  #include "pins_BRAINWAVE_PRO.h"
+  #include "pins/BRAINWAVE_PRO.h"
 #elif MB(SAV_MKI)
-  #include "pins_SAV_MKI.h"
+  #include "pins/SAV_MKI.h"
 #elif MB(TEENSY2)
-  #include "pins_TEENSY2.h"
+  #include "pins/TEENSY2.h"
 #elif MB(GEN3_PLUS)
-  #include "pins_GEN3_PLUS.h"
+  #include "pins/GEN3_PLUS.h"
 #elif MB(GEN3_MONOLITHIC)
-  #include "pins_GEN3_MONOLITHIC.h"
+  #include "pins/GEN3_MONOLITHIC.h"
 #elif MB(MEGATRONICS)
-  #include "pins_MEGATRONICS.h"
+  #include "pins/MEGATRONICS.h"
 #elif MB(MINITRONICS)
-  #include "pins_MINITRONICS.h"
+  #include "pins/MINITRONICS.h"
 #elif MB(MEGATRONICS_2)
-  #include "pins_MEGATRONICS_2.h"
+  #include "pins/MEGATRONICS_2.h"
 #elif MB(MEGATRONICS_3)
-  #include "pins_MEGATRONICS_3.h"
+  #include "pins/MEGATRONICS_3.h"
 #elif MB(MEGATRONICS_31)
   #define MEGATRONICS_31
-  #include "pins_MEGATRONICS_3.h"
+  #include "pins/MEGATRONICS_3.h"
 #elif MB(OMCA_A)
-  #include "pins_OMCA_A.h"
+  #include "pins/OMCA_A.h"
 #elif MB(OMCA)
-  #include "pins_OMCA.h"
+  #include "pins/OMCA.h"
 #elif MB(RAMBO)
-  #include "pins_RAMBO.h"
+  #include "pins/RAMBO.h"
 #elif MB(MINIRAMBO)
-  #include "pins_MINIRAMBO.h"
+  #include "pins/MINIRAMBO.h"
 #elif MB(ELEFU_3)
-  #include "pins_ELEFU_3.h"
+  #include "pins/ELEFU_3.h"
 #elif MB(5DPRINT)
-  #include "pins_5DPRINT.h"
+  #include "pins/5DPRINT.h"
 #elif MB(LEAPFROG)
-  #include "pins_LEAPFROG.h"
+  #include "pins/LEAPFROG.h"
 #elif MB(BAM_DICE)
-  #include "pins_RAMPS.h"
+  #include "pins/RAMPS.h"
 #elif MB(BAM_DICE_DUE)
-  #include "pins_BAM_DICE_DUE.h"
+  #include "pins/BAM_DICE_DUE.h"
 #elif MB(FELIX2)
-  #include "pins_FELIX2.h"
+  #include "pins/FELIX2.h"
 #elif MB(MKS_BASE)
-  #include "pins_MKS_BASE.h"
+  #include "pins/MKS_BASE.h"
 #elif MB(RIGIDBOARD)
-  #include "pins_RIGIDBOARD.h"
+  #include "pins/RIGIDBOARD.h"
 #elif MB(RIGIDBOARD_V2)
-  #include "pins_RIGIDBOARD_V2.h"
+  #include "pins/RIGIDBOARD_V2.h"
 #elif MB(MEGACONTROLLER)
-  #include "pins_MEGACONTROLLER.h"
+  #include "pins/MEGACONTROLLER.h"
 #elif MB(BQ_ZUM_MEGA_3D)
-  #include "pins_BQ_ZUM_MEGA_3D.h"
+  #include "pins/BQ_ZUM_MEGA_3D.h"
 #elif MB(AJ4P)
-  #include "pins_AJ4P.h"
+  #include "pins/AJ4P.h"
 #elif MB(MKS_13)
-  #include "pins_MKS_13.h"
+  #include "pins/MKS_13.h"
 #elif MB(SAINSMART_2IN1)
-  #include "pins_SAINSMART_2IN1.h"
+  #include "pins/SAINSMART_2IN1.h"
 #else
   #error "Unknown MOTHERBOARD value set in Configuration.h"
 #endif
