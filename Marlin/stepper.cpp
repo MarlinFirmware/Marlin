@@ -147,7 +147,7 @@ volatile long Stepper::endstops_trigsteps[XYZ];
       X2_STEP_WRITE(v); \
     } \
     else { \
-      if (current_block->active_extruder != 0) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
+      if (current_block->active_extruder) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
     }
 #else
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
@@ -451,7 +451,7 @@ void Stepper::isr() {
 
 
   #if ENABLED(ENDSTOP_INTERRUPTS_FEATURE)
-    if (ENDSTOPS_ENABLED && e_hit) {
+    if (e_hit && ENDSTOPS_ENABLED) {
       endstops.update();
       e_hit--;
     }
@@ -535,8 +535,7 @@ void Stepper::isr() {
 
     // If a minimum pulse time was specified get the CPU clock
     #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_CODE
-      static uint32_t pulse_start;
-      pulse_start = TCNT0;
+      uint32_t pulse_start = TCNT0;
     #endif
 
     #if HAS_X_STEP
@@ -802,8 +801,7 @@ void Stepper::isr() {
     for (uint8_t i = 0; i < step_loops; i++) {
 
       #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_E
-        static uint32_t pulse_start;
-        pulse_start = TCNT0;
+        uint32_t pulse_start = TCNT0;
       #endif
 
       START_E_PULSE(0);
@@ -894,7 +892,7 @@ void Stepper::init() {
   #endif
 
   // Init TMC2130 Steppers
-  #if ENABLED(HAVE_TMC2130DRIVER)
+  #if ENABLED(HAVE_TMC2130)
     tmc2130_init();
   #endif
 
@@ -1231,40 +1229,64 @@ void Stepper::report_positions() {
 
 #if ENABLED(BABYSTEPPING)
 
+  #define CYCLES_EATEN_BY_BABYSTEP 60
+
   #define _ENABLE(axis) enable_## axis()
   #define _READ_DIR(AXIS) AXIS ##_DIR_READ
   #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
   #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
 
-  #define BABYSTEP_AXIS(axis, AXIS, INVERT) { \
-      _ENABLE(axis); \
-      uint8_t old_pin = _READ_DIR(AXIS); \
+  #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
+    #define _SAVE_START (pulse_start = TCNT0)
+    #define _PULSE_WAIT while ((uint32_t)(TCNT0 - pulse_start) < STEP_PULSE_CYCLES - CYCLES_EATEN_BY_BABYSTEP) { /* nada */ }
+  #else
+    #define _SAVE_START NOOP
+    #define _PULSE_WAIT NOOP
+  #endif
+
+  #define START_BABYSTEP_AXIS(AXIS, INVERT) { \
+      old_dir = _READ_DIR(AXIS); \
+      _SAVE_START; \
       _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^direction^INVERT); \
       _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
-      delayMicroseconds(2); \
+    }
+
+  #define STOP_BABYSTEP_AXIS(AXIS) { \
+      _PULSE_WAIT; \
       _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), true); \
-      _APPLY_DIR(AXIS, old_pin); \
+      _APPLY_DIR(AXIS, old_dir); \
     }
 
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
   void Stepper::babystep(const AxisEnum axis, const bool direction) {
-
+    cli();
+    uint8_t old_dir;
+    #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
+      uint32_t pulse_start;
+    #endif
+    
     switch (axis) {
 
       case X_AXIS:
-        BABYSTEP_AXIS(x, X, false);
+        _ENABLE(x);
+        START_BABYSTEP_AXIS(X, false);
+        STOP_BABYSTEP_AXIS(X);
         break;
 
       case Y_AXIS:
-        BABYSTEP_AXIS(y, Y, false);
+        _ENABLE(y);
+        START_BABYSTEP_AXIS(Y, false);
+        STOP_BABYSTEP_AXIS(Y);
         break;
 
       case Z_AXIS: {
 
         #if DISABLED(DELTA)
 
-          BABYSTEP_AXIS(z, Z, BABYSTEP_INVERT_Z);
+          _ENABLE(z);
+          START_BABYSTEP_AXIS(Z, BABYSTEP_INVERT_Z);
+          STOP_BABYSTEP_AXIS(Z);
 
         #else // DELTA
 
@@ -1281,10 +1303,15 @@ void Stepper::report_positions() {
           Y_DIR_WRITE(INVERT_Y_DIR ^ z_direction);
           Z_DIR_WRITE(INVERT_Z_DIR ^ z_direction);
           //perform step
+          #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
+            pulse_start = TCNT0;
+          #endif
           X_STEP_WRITE(!INVERT_X_STEP_PIN);
           Y_STEP_WRITE(!INVERT_Y_STEP_PIN);
           Z_STEP_WRITE(!INVERT_Z_STEP_PIN);
-          delayMicroseconds(2);
+          #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
+            while ((uint32_t)(TCNT0 - pulse_start) < STEP_PULSE_CYCLES - CYCLES_EATEN_BY_BABYSTEP) { /* nada */ }
+          #endif
           X_STEP_WRITE(INVERT_X_STEP_PIN);
           Y_STEP_WRITE(INVERT_Y_STEP_PIN);
           Z_STEP_WRITE(INVERT_Z_STEP_PIN);
@@ -1299,9 +1326,10 @@ void Stepper::report_positions() {
 
       default: break;
     }
+    sei();
   }
 
-#endif //BABYSTEPPING
+#endif // BABYSTEPPING
 
 /**
  * Software-controlled Stepper Motor Current

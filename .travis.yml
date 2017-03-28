@@ -47,8 +47,8 @@ install:
   # - sudo mv TMC26XStepper /usr/local/share/arduino/libraries/TMC26XStepper
   #
   # Install: TMC2130 Stepper Motor Controller library
-  - git clone https://github.com/MarlinFirmware/Trinamic_TMC2130.git
-  - sudo mv Trinamic_TMC2130/Trinamic_TMC2130 /usr/local/share/arduino/libraries/Trinamic_TMC2130
+  - git clone https://github.com/teemuatlut/TMC2130Stepper.git
+  - sudo mv TMC2130Stepper /usr/local/share/arduino/libraries/TMC2130Stepper
   #
 before_script:
   #
@@ -115,6 +115,12 @@ script:
   - opt_enable AUTO_BED_LEVELING_LINEAR Z_MIN_PROBE_REPEATABILITY_TEST DEBUG_LEVELING_FEATURE
   - opt_set ABL_GRID_POINTS_X 16
   - opt_set ABL_GRID_POINTS_Y 16
+  - build_marlin
+  #
+  # Test a simple build of AUTO_BED_LEVELING_UBL
+  #
+  - restore_configs
+  - opt_enable AUTO_BED_LEVELING_UBL FIX_MOUNTED_PROBE EEPROM_SETTINGS G3D_PANEL
   - build_marlin
   #
   # Test a Sled Z Probe
@@ -195,11 +201,11 @@ script:
   - opt_set MOTHERBOARD BOARD_MINIRAMBO
   - build_marlin
   #
-  # Test FILAMENT_CHANGE_FEATURE and LCD_INFO_MENU
+  # Test FILAMENT_CHANGE_FEATURE, PARK_HEAD_ON_PAUSE, and LCD_INFO_MENU
   #
   - restore_configs
   - opt_enable ULTIMAKERCONTROLLER
-  - opt_enable_adv FILAMENT_CHANGE_FEATURE LCD_INFO_MENU
+  - opt_enable_adv FILAMENT_CHANGE_FEATURE PARK_HEAD_ON_PAUSE LCD_INFO_MENU
   - build_marlin
   #
   # Enable filament sensor
@@ -226,10 +232,10 @@ script:
   - opt_enable COREXY
   - build_marlin
   #
-  # Enable COREXZ
+  # Enable COREYX (swapped)
   #
   - restore_configs
-  - opt_enable COREXZ
+  - opt_enable COREYX
   - build_marlin
   #
   # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
@@ -396,7 +402,9 @@ script:
   # TMC2130 Config
   #
   - restore_configs
-  - opt_enable_adv HAVE_TMC2130DRIVER X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130 E0_IS_TMC2130
+  - opt_enable_adv HAVE_TMC2130 X_IS_TMC2130 Y_IS_TMC2130 Z_IS_TMC2130
+  - build_marlin
+  - opt_enable_adv AUTOMATIC_CURRENT_CONTROL STEALTHCHOP
   - build_marlin
   #
   # tvrrug Config need to check board type for sanguino atmega644p

@@ -161,7 +161,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
-  #if defined(SR_STROBE_PIN)
+  #if PIN_EXISTS(SR_STROBE)
     LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN, SR_STROBE_PIN);
   #else
     LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
@@ -378,7 +378,7 @@ static void lcd_implementation_init(
   lcd.clear();
 }
 
-static void lcd_implementation_clear() { lcd.clear(); }
+void lcd_implementation_clear() { lcd.clear(); }
 
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
 void lcd_printPGM(const char *str) {
@@ -807,7 +807,7 @@ static void lcd_implementation_status_screen() {
     static void lcd_implementation_hotend_status(const uint8_t row) {
       if (row < LCD_HEIGHT) {
         lcd.setCursor(LCD_WIDTH - 9, row);
-        lcd.print(LCD_STR_THERMOMETER[active_extruder]);
+        lcd.print(LCD_STR_THERMOMETER[0]);
         lcd.print(itostr3(thermalManager.degHotend(active_extruder)));
         lcd.print('/');
         lcd.print(itostr3(thermalManager.degTargetHotend(active_extruder)));

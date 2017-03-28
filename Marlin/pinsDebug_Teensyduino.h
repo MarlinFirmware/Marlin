@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 //
 //  some of the pin mapping functions of the Teensduino extension to the Arduino IDE
 //  do not function the same as the other Arduino extensions
