@@ -1063,3 +1063,21 @@ static_assert(1 >= 0
   #endif
   , "Please select no more than one LCD controller option."
 );
+
+#if ENABLED(HAVE_TMC2130) && !( \
+       ENABLED(  X_IS_TMC2130 ) \
+    || ENABLED( X2_IS_TMC2130 ) \
+    || ENABLED(  Y_IS_TMC2130 ) \
+    || ENABLED( Y2_IS_TMC2130 ) \
+    || ENABLED(  Z_IS_TMC2130 ) \
+    || ENABLED( Z2_IS_TMC2130 ) \
+    || ENABLED( E0_IS_TMC2130 ) \
+    || ENABLED( E1_IS_TMC2130 ) \
+    || ENABLED( E2_IS_TMC2130 ) \
+    || ENABLED( E3_IS_TMC2130 ) )
+  #error "Choose at least one TMC2130 stepper."
+#endif
+
+#if ENABLED(HYBRID_THRESHOLD) && DISABLED(STEALTHCHOP)
+  #error "Enable STEALTHCHOP to use HYBRID_THRESHOLD."
+#endif

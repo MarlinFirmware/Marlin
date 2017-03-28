@@ -197,6 +197,8 @@
  * M910 - Commit digipot/DAC value to external EEPROM via I2C. (Requires DAC_STEPPER_CURRENT)
  * M911 - Report stepper driver overtemperature pre-warn condition. (Requires HAVE_TMC2130)
  * M912 - Clear stepper driver overtemperature pre-warn condition flag. (Requires HAVE_TMC2130)
+ * M913 - Set HYBRID_THRESHOLD speed. (Requires HYBRID_THRESHOLD)
+ * M914 - Set SENSORLESS_HOMING sensitivity. (Requires SENSORLESS_HOMING)
  * M350 - Set microstepping mode. (Requires digital microstepping pins.)
  * M351 - Toggle MS1 MS2 pins directly. (Requires digital microstepping pins.)
  *
@@ -642,6 +644,10 @@ static bool send_ok[BUFSIZE];
 #ifdef CHDK
   millis_t chdkHigh = 0;
   bool chdkActive = false;
+#endif
+
+#ifdef AUTOMATIC_CURRENT_CONTROL
+  bool auto_current_control = 0;
 #endif
 
 #if ENABLED(PID_EXTRUSION_SCALING)
@@ -2687,6 +2693,27 @@ static void do_homing_move(const AxisEnum axis, float distance, float fr_mm_s=0.
 }
 
 /**
+ * TMC2130 specific sensorless homing using stallGuard2.
+ * stallGuard2 only works when in spreadCycle mode.
+ * spreadCycle and stealthChop are mutually exclusive.
+ */
+#if ENABLED(SENSORLESS_HOMING)
+  void tmc2130_sensorless_homing(TMC2130Stepper &st, bool enable=true) {
+    #if ENABLED(STEALTHCHOP)
+      if (enable) {
+        st.coolstep_min_speed(1048575);
+        st.stealthChop(0);
+      } else {
+        st.coolstep_min_speed(0);
+        st.stealthChop(1);
+      }
+    #endif
+
+    st.diag1_stall(enable ? 1 : 0);
+  }
+#endif
+
+/**
  * Home an individual "raw axis" to its endstop.
  * This applies to XYZ on Cartesian and Core robots, and
  * to the individual ABC steppers on DELTA and SCARA.
@@ -2732,6 +2759,16 @@ static void homeaxis(const AxisEnum axis) {
   // Set a flag for Z motor locking
   #if ENABLED(Z_DUAL_ENDSTOPS)
     if (axis == Z_AXIS) stepper.set_homing_flag(true);
+  #endif
+
+  // Disable stealthChop if used. Enable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(X_IS_TMC2130)
+      if (axis == X_AXIS) tmc2130_sensorless_homing(stepperX);
+    #endif
+    #if ENABLED(Y_IS_TMC2130)
+      if (axis == Y_AXIS) tmc2130_sensorless_homing(stepperY);
+    #endif
   #endif
 
   // Fast move towards endstop until triggered
@@ -2816,6 +2853,16 @@ static void homeaxis(const AxisEnum axis) {
       if (DEBUGGING(LEVELING)) DEBUG_POS("> AFTER set_axis_is_at_home", current_position);
     #endif
 
+  #endif
+
+  // Re-enable stealthChop if used. Disable diag1 pin on driver.
+  #if ENABLED(SENSORLESS_HOMING)
+    #if ENABLED(X_IS_TMC2130)
+      if (axis == X_AXIS) tmc2130_sensorless_homing(stepperX, false);
+    #endif
+    #if ENABLED(Y_IS_TMC2130)
+      if (axis == Y_AXIS) tmc2130_sensorless_homing(stepperY, false);
+    #endif
   #endif
 
   // Put away the Z probe
@@ -6438,6 +6485,11 @@ inline void gcode_M140() {
       OUT_WRITE(SUICIDE_PIN, HIGH);
     #endif
 
+    #if ENABLED(HAVE_TMC2130)
+      delay(100);
+      tmc2130_init(); // Settings only stick when the driver has power
+    #endif
+
     #if ENABLED(ULTIPANEL)
       powersupply = true;
       LCD_MESSAGEPGM(WELCOME_MSG);
@@ -8313,22 +8365,21 @@ inline void gcode_M503() {
 
 #if ENABLED(HAVE_TMC2130)
 
-  static void tmc2130_print_current(const int mA, const char name) {
+  static void tmc2130_get_current(TMC2130Stepper &st, const char name) {
     SERIAL_CHAR(name);
     SERIAL_ECHOPGM(" axis driver current: ");
-    SERIAL_ECHOLN(mA);
+    SERIAL_ECHOLN(st.getCurrent());
   }
-  static void tmc2130_set_current(const int mA, TMC2130Stepper &st, const char name) {
-    tmc2130_print_current(mA, name);
-    st.setCurrent(mA, 0.11, 0.5);
+  static void tmc2130_set_current(TMC2130Stepper &st, const char name, const int mA) {
+    st.setCurrent(mA, R_SENSE, HOLD_MULTIPLIER);
+    tmc2130_get_current(st, name);
   }
-  static void tmc2130_get_current(TMC2130Stepper &st, const char name) {
-    tmc2130_print_current(st.getCurrent(), name);
-  }
+
   static void tmc2130_report_otpw(TMC2130Stepper &st, const char name) {
     SERIAL_CHAR(name);
     SERIAL_ECHOPGM(" axis temperature prewarn triggered: ");
     serialprintPGM(st.getOTPW() ? PSTR("true") : PSTR("false"));
+    SERIAL_EOL;
   }
   static void tmc2130_clear_otpw(TMC2130Stepper &st, const char name) {
     st.clear_otpw();
@@ -8336,10 +8387,32 @@ inline void gcode_M503() {
     SERIAL_ECHOLNPGM(" prewarn flag cleared");
   }
 
+  static void tmc2130_get_pwmthrs(TMC2130Stepper &st, const char name, const uint16_t spmm) {
+    SERIAL_CHAR(name);
+    SERIAL_ECHOPGM(" stealthChop max speed set to ");
+    SERIAL_ECHOLN(12650000UL*st.microsteps()/(256*st.stealth_max_speed()*spmm));
+  }
+  static void tmc2130_set_pwmthrs(TMC2130Stepper &st, const char name, const int32_t thrs, const uint32_t spmm) {
+    st.stealth_max_speed(12650000UL*st.microsteps()/(256*thrs*spmm));
+    tmc2130_get_pwmthrs(st, name, spmm);
+  }
+
+  static void tmc2130_get_sgt(TMC2130Stepper &st, const char name) {
+    SERIAL_CHAR(name);
+    SERIAL_ECHOPGM(" driver homing sensitivity set to ");
+    SERIAL_ECHOLN(st.sgt());
+  }
+  static void tmc2130_set_sgt(TMC2130Stepper &st, const char name, const int8_t sgt_val) {
+    st.sgt(sgt_val);
+    tmc2130_get_sgt(st, name);
+  }
+
   /**
    * M906: Set motor current in milliamps using axis codes X, Y, Z, E
-   *
    * Report driver currents when no axis specified
+   *
+   * S1: Enable automatic current control
+   * S0: Disable
    */
   inline void gcode_M906() {
     uint16_t values[XYZE];
@@ -8347,20 +8420,24 @@ inline void gcode_M503() {
       values[i] = code_seen(axis_codes[i]) ? code_value_int() : 0;
 
     #if ENABLED(X_IS_TMC2130)
-      if (values[X_AXIS]) tmc2130_set_current(values[X_AXIS], stepperX, 'X');
+      if (values[X_AXIS]) tmc2130_set_current(stepperX, 'X', values[X_AXIS]);
       else tmc2130_get_current(stepperX, 'X');
     #endif
     #if ENABLED(Y_IS_TMC2130)
-      if (values[Y_AXIS]) tmc2130_set_current(values[Y_AXIS], stepperY, 'Y');
+      if (values[Y_AXIS]) tmc2130_set_current(stepperY, 'Y', values[Y_AXIS]);
       else tmc2130_get_current(stepperY, 'Y');
     #endif
     #if ENABLED(Z_IS_TMC2130)
-      if (values[Z_AXIS]) tmc2130_set_current(values[Z_AXIS], stepperZ, 'Z');
+      if (values[Z_AXIS]) tmc2130_set_current(stepperZ, 'Z', values[Z_AXIS]);
       else tmc2130_get_current(stepperZ, 'Z');
     #endif
     #if ENABLED(E0_IS_TMC2130)
-      if (values[E_AXIS]) tmc2130_set_current(values[E_AXIS], stepperE0, 'E');
+      if (values[E_AXIS]) tmc2130_set_current(stepperE0, 'E', values[E_AXIS]);
       else tmc2130_get_current(stepperE0, 'E');
+    #endif
+
+    #if ENABLED(AUTOMATIC_CURRENT_CONTROL)
+      if (code_seen('S')) auto_current_control = code_value_bool();
     #endif
   }
 
@@ -8369,17 +8446,19 @@ inline void gcode_M503() {
    * The flag is held by the library and persist until manually cleared by M912
    */
   inline void gcode_M911() {
+    const bool reportX = code_seen('X'), reportY = code_seen('Y'), reportZ = code_seen('Z'), reportE = code_seen('E'),
+             reportAll = (!reportX && !reportY && !reportZ && !reportE) || (reportX && reportY && reportZ && reportE);
     #if ENABLED(X_IS_TMC2130)
-      tmc2130_report_otpw(stepperX, 'X');
+      if(reportX || reportAll) tmc2130_report_otpw(stepperX, 'X');
     #endif
     #if ENABLED(Y_IS_TMC2130)
-      tmc2130_report_otpw(stepperY, 'Y');
+      if(reportY || reportAll) tmc2130_report_otpw(stepperY, 'Y');
     #endif
     #if ENABLED(Z_IS_TMC2130)
-      tmc2130_report_otpw(stepperZ, 'Z');
+      if(reportZ || reportAll) tmc2130_report_otpw(stepperZ, 'Z');
     #endif
     #if ENABLED(E0_IS_TMC2130)
-      tmc2130_report_otpw(stepperE0, 'E');
+      if(reportE || reportAll) tmc2130_report_otpw(stepperE0, 'E');
     #endif
   }
 
@@ -8387,19 +8466,65 @@ inline void gcode_M503() {
    * M912: Clear TMC2130 stepper driver overtemperature pre-warn flag held by the library
    */
   inline void gcode_M912() {
+    const bool clearX = code_seen('X'), clearY = code_seen('Y'), clearZ = code_seen('Z'), clearE = code_seen('E'),
+             clearAll = (!clearX && !clearY && !clearZ && !clearE) || (clearX && clearY && clearZ && clearE);
     #if ENABLED(X_IS_TMC2130)
-      if (code_seen('X')) tmc2130_clear_otpw(stepperX, 'X');
+      if(clearX || clearAll) tmc2130_clear_otpw(stepperX, 'X');
     #endif
     #if ENABLED(Y_IS_TMC2130)
-      if (code_seen('Y')) tmc2130_clear_otpw(stepperY, 'Y');
+      if(clearY || clearAll) tmc2130_clear_otpw(stepperY, 'Y');
     #endif
     #if ENABLED(Z_IS_TMC2130)
-      if (code_seen('Z')) tmc2130_clear_otpw(stepperZ, 'Z');
+      if(clearZ || clearAll) tmc2130_clear_otpw(stepperZ, 'Z');
     #endif
     #if ENABLED(E0_IS_TMC2130)
-      if (code_seen('E')) tmc2130_clear_otpw(stepperE0, 'E');
+      if(clearE || clearAll) tmc2130_clear_otpw(stepperE0, 'E');
     #endif
   }
+
+  /**
+   * M913: Set HYBRID_THRESHOLD speed.
+   */
+  #if ENABLED(HYBRID_THRESHOLD)
+    inline void gcode_M913() {
+      uint16_t values[XYZE];
+      LOOP_XYZE(i)
+        values[i] = code_seen(axis_codes[i]) ? code_value_int() : 0;
+
+      #if ENABLED(X_IS_TMC2130)
+        if (values[X_AXIS]) tmc2130_set_pwmthrs(stepperX, 'X', values[X_AXIS], planner.axis_steps_per_mm[X_AXIS]);
+        else tmc2130_get_pwmthrs(stepperX, 'X', planner.axis_steps_per_mm[X_AXIS]);
+      #endif
+      #if ENABLED(Y_IS_TMC2130)
+        if (values[Y_AXIS]) tmc2130_set_pwmthrs(stepperY, 'Y', values[Y_AXIS], planner.axis_steps_per_mm[Y_AXIS]);
+        else tmc2130_get_pwmthrs(stepperY, 'Y', planner.axis_steps_per_mm[Y_AXIS]);
+      #endif
+      #if ENABLED(Z_IS_TMC2130)
+        if (values[Z_AXIS]) tmc2130_set_pwmthrs(stepperZ, 'Z', values[Z_AXIS], planner.axis_steps_per_mm[Z_AXIS]);
+        else tmc2130_get_pwmthrs(stepperZ, 'Z', planner.axis_steps_per_mm[Z_AXIS]);
+      #endif
+      #if ENABLED(E0_IS_TMC2130)
+        if (values[E_AXIS]) tmc2130_set_pwmthrs(stepperE0, 'E', values[E_AXIS], planner.axis_steps_per_mm[E_AXIS]);
+        else tmc2130_get_pwmthrs(stepperE0, 'E', planner.axis_steps_per_mm[E_AXIS]);
+      #endif
+    }
+  #endif
+
+  /**
+   * M914: Set SENSORLESS_HOMING sensitivity.
+   */
+  #if ENABLED(SENSORLESS_HOMING)
+    inline void gcode_M914() {
+      #if ENABLED(X_IS_TMC2130)
+        if (code_seen(axis_codes[X_AXIS])) tmc2130_set_sgt(stepperX, 'X', code_value_int());
+        else tmc2130_get_sgt(stepperX, 'X');
+      #endif
+      #if ENABLED(Y_IS_TMC2130)
+        if (code_seen(axis_codes[Y_AXIS])) tmc2130_set_sgt(stepperY, 'Y', code_value_int());
+        else tmc2130_get_sgt(stepperY, 'Y');
+      #endif
+    }
+  #endif
 
 #endif // HAVE_TMC2130
 
@@ -9699,6 +9824,18 @@ void process_next_command() {
         case 912: // M911: Clear TMC2130 prewarn triggered flags
           gcode_M912();
           break;
+
+        #if ENABLED(HYBRID_THRESHOLD)
+          case 913: // M913: Set HYBRID_THRESHOLD speed.
+            gcode_M913();
+            break;
+        #endif
+
+        #if ENABLED(SENSORLESS_HOMING)
+          case 914: // M914: Set SENSORLESS_HOMING sensitivity.
+            gcode_M914();
+            break;
+        #endif
       #endif
 
       #if HAS_MICROSTEPS
@@ -10924,23 +11061,55 @@ void disable_all_steppers() {
   disable_e_steppers();
 }
 
-#if ENABLED(AUTOMATIC_CURRENT_CONTROL)
+#if ENABLED(HAVE_TMC2130)
 
-  void automatic_current_control(const TMC2130Stepper &st) {
-    #if CURRENT_STEP > 0
-      const bool is_otpw = st.checkOT(), // Check otpw even if we don't adjust. Allows for flag inspection.
-                 is_otpw_triggered = st.getOTPW();
+  void automatic_current_control(TMC2130Stepper &st, String axisID) {
+    // Check otpw even if we don't use automatic control. Allows for flag inspection.
+    bool is_otpw = st.checkOT();
 
-      if (!is_otpw && !is_otpw_triggered) {
-        // OTPW bit not triggered yet -> Increase current
-        const uint16_t current = st.getCurrent() + CURRENT_STEP;
-        if (current <= AUTO_ADJUST_MAX) st.SilentStepStick2130(current);
+    // Report if a warning was triggered
+    static bool previous_otpw = false;
+    if (is_otpw && !previous_otpw) {
+      char timestamp[10];
+      duration_t elapsed = print_job_timer.duration();
+      bool has_days = (elapsed.value > 60*60*24L);
+      uint8_t len = elapsed.toDigital(timestamp, has_days);
+      SERIAL_ECHO( timestamp );
+      SERIAL_ECHO(": ");
+      SERIAL_ECHO(axisID);
+      SERIAL_ECHOLNPGM(" driver overtemperature warning!");
+    }
+    previous_otpw = is_otpw;
+
+    #if CURRENT_STEP > 0 && ENABLED(AUTOMATIC_CURRENT_CONTROL)
+      // Return if user has not enabled current control start with M906 S1.
+      if (!auto_current_control) return;
+
+      /*
+       * Decrease current if is_otpw is true.
+       * Bail out if driver is disabled.
+       * Increase current if OTPW has not been triggered yet.
+       **/
+      uint16_t current = st.getCurrent();
+      if (is_otpw) {
+        st.setCurrent(current - CURRENT_STEP, R_SENSE, HOLD_MULTIPLIER);
+        #ifdef REPORT_CURRENT_CHANGE
+          SERIAL_ECHO(axisID);
+          SERIAL_ECHOPAIR(" current decreased to ", st.getCurrent());
+        #endif
+      } else if(!st.isEnabled()) {
+        return;
+      } else if (!is_otpw && !st.getOTPW()) {
+        current += CURRENT_STEP;
+        if (current <= AUTO_ADJUST_MAX) {
+          st.setCurrent(current, R_SENSE, HOLD_MULTIPLIER);
+          #ifdef REPORT_CURRENT_CHANGE
+            SERIAL_ECHO(axisID);
+            SERIAL_ECHOPAIR(" current increased to ", st.getCurrent());
+          #endif
+        }
       }
-      else if (is_otpw && is_otpw_triggered) {
-        // OTPW bit triggered, triggered flag raised -> Decrease current
-        st.SilentStepStick2130((float)st.getCurrent() - CURRENT_STEP);
-      }
-      // OTPW bit cleared (we've cooled down), triggered flag still raised until manually cleared -> Do nothing, we're good
+      SERIAL_EOL;
     #endif
   }
 
@@ -10949,39 +11118,42 @@ void disable_all_steppers() {
     if (ELAPSED(millis(), next_cOT)) {
       next_cOT = millis() + 5000;
       #if ENABLED(X_IS_TMC2130)
-        automatic_current_control(stepperX);
+        automatic_current_control(stepperX, "X");
       #endif
       #if ENABLED(Y_IS_TMC2130)
-        automatic_current_control(stepperY);
+        automatic_current_control(stepperY, "Y");
       #endif
       #if ENABLED(Z_IS_TMC2130)
-        automatic_current_control(stepperZ);
+        automatic_current_control(stepperZ, "Z");
       #endif
       #if ENABLED(X2_IS_TMC2130)
-        automatic_current_control(stepperX2);
+        automatic_current_control(stepperX2, "X2");
       #endif
       #if ENABLED(Y2_IS_TMC2130)
-        automatic_current_control(stepperY2);
+        automatic_current_control(stepperY2, "Y2");
       #endif
       #if ENABLED(Z2_IS_TMC2130)
-        automatic_current_control(stepperZ2);
+        automatic_current_control(stepperZ2, "Z2");
       #endif
       #if ENABLED(E0_IS_TMC2130)
-        automatic_current_control(stepperE0);
+        automatic_current_control(stepperE0, "E0");
       #endif
       #if ENABLED(E1_IS_TMC2130)
-        automatic_current_control(stepperE1);
+        automatic_current_control(stepperE1, "E1");
       #endif
       #if ENABLED(E2_IS_TMC2130)
-        automatic_current_control(stepperE2);
+        automatic_current_control(stepperE2, "E2");
       #endif
       #if ENABLED(E3_IS_TMC2130)
-        automatic_current_control(stepperE3);
+        automatic_current_control(stepperE3, "E3");
+      #endif
+      #if ENABLED(E4_IS_TMC2130)
+        automatic_current_control(stepperE4, "E4");
       #endif
     }
   }
 
-#endif // AUTOMATIC_CURRENT_CONTROL
+#endif // HAVE_TMC2130
 
 /**
  * Manage several activities:
@@ -11179,7 +11351,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     handle_status_leds();
   #endif
 
-  #if ENABLED(AUTOMATIC_CURRENT_CONTROL)
+  #if ENABLED(HAVE_TMC2130)
     checkOverTemp();
   #endif
 
