@@ -489,20 +489,21 @@ int Temperature::getHeaterPower(int heater) {
 
   void Temperature::checkHeatbedAutoFan() {
     const int8_t fanPin = HEATBED_AUTO_FAN_PIN;
-    if(fanPin <= 0) return; // Early exit with no heatbed fan defined
+    if( fanPin <= 0) return; // Early exit with no heatbed fan defined
 
     static bool fanState = false;
-    int delta_temperature_bed = (int)current_temperature_bed - target_temperature_bed;
+    const int delta_temperature_bed = (int)current_temperature_bed - target_temperature_bed;
 
-    if (delta_temperature_bed > HEATBED_AUTO_FAN_DELTA_TEMPERATURE &&
-        (int)current_temperature_bed > HEATBED_AUTO_FAN_MIN_TEMPERATURE ) {
-      if(!fanState){
+    if( delta_temperature_bed > HEATBED_AUTO_FAN_DELTA_TEMPERATURE &&
+        (int)current_temperature_bed > HEATBED_AUTO_FAN_MIN_TEMPERATURE) {
+      if( !fanState){
         fanState = true;
         digitalWrite(fanPin, HEATBED_AUTO_FAN_SPEED);
         analogWrite(fanPin, HEATBED_AUTO_FAN_SPEED);
       }
-    } else {
-      if(fanState) {
+    } else 
+    {
+      if( fanState) {
         fanState = false;
         digitalWrite(fanPin, 0);
         analogWrite(fanPin, 0);
