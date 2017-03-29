@@ -41,7 +41,7 @@
     #include "ledstrip.h"
   #endif
 
-  #include <avr/io.h>
+  #include <math.h>
 
   void lcd_babystep_z();
   void lcd_return_to_status();
@@ -308,7 +308,7 @@
 
   int ubl_eeprom_start = -1;
   bool ubl_has_control_of_lcd_panel = false;
-  volatile uint8_t ubl_encoderDiff = 0; // Volatile because it's changed by Temperature ISR button update
+  volatile int8_t ubl_encoderDiff = 0; // Volatile because it's changed by Temperature ISR button update
 
   // The simple parameter flags and values are 'static' so parameter parsing can be in a support routine.
   static int g29_verbose_level = 0, phase_value = -1, repetition_cnt = 1,
@@ -504,7 +504,7 @@
           SERIAL_ECHO_START;
           SERIAL_ECHOLNPGM("Checking G29 has control of LCD Panel:");
           wait_for_user = true;
-          while (wait_for_user) {
+          while (!ubl_lcd_clicked()) {
             safe_delay(250);
             SERIAL_ECHO((int)ubl_encoderDiff);
             ubl_encoderDiff = 0;
@@ -1330,7 +1330,7 @@
 
 	  if (far_flag) {                                    // If doing the far_flag action, we want to be as far as possible
             for (k = 0; k < UBL_MESH_NUM_X_POINTS; k++) {    // from the starting point and from any other probed points.  We
-              for (l = 0; j < UBL_MESH_NUM_Y_POINTS; l++) {  // want the next point spread out and filling in any blank spaces
+              for (l = 0; l < UBL_MESH_NUM_Y_POINTS; l++) {  // want the next point spread out and filling in any blank spaces
                 if ( !isnan(z_values[k][l])) {               // in the mesh.   So we add in some of the distance to every probed 
                   distance += (i-k)*(i-k)*MESH_X_DIST*.05;   // point we can find.
                   distance += (j-l)*(j-l)*MESH_Y_DIST*.05;
@@ -1390,15 +1390,12 @@
 
       do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);    // Move the nozzle to where we are going to edit
       do_blocking_move_to_xy(xProbe, yProbe);
-      float new_z = z_values[location.x_index][location.y_index] + 0.001;
-
-      round_off = (int32_t)(new_z * 1000.0 + 2.5); // we chop off the last digits just to be clean. We are rounding to the
-      round_off -= (round_off % 5L); // closest 0 or 5 at the 3rd decimal place.
+      float new_z = z_values[location.x_index][location.y_index];
+      
+      round_off = (int32_t)(new_z * 1000.0);    // we chop off the last digits just to be clean. We are rounding to the
       new_z = float(round_off) / 1000.0;
 
-      //SERIAL_ECHOPGM("Mesh Point Currently At:  ");
-      //SERIAL_PROTOCOL_F(new_z, 6);
-      //SERIAL_EOL;
+      ubl_has_control_of_lcd_panel = true;
 
       lcd_implementation_clear();
       lcd_mesh_edit_setup(new_z);
@@ -1407,20 +1404,20 @@
       do {
         new_z = lcd_mesh_edit();
         idle();
-      } while (wait_for_user);
+      } while (!ubl_lcd_clicked());
 
       lcd_return_to_status();
 
-      ubl_has_control_of_lcd_panel++; // There is a race condition for the Encoder Wheel getting clicked.
-                                      // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
-                                      // or here.
+      ubl_has_control_of_lcd_panel = true; // There is a race condition for the Encoder Wheel getting clicked.
+                                           // It could get detected in lcd_mesh_edit (actually _lcd_mesh_fine_tune)
+                                           // or here.
 
       const millis_t nxt = millis() + 1500UL;
       while (ubl_lcd_clicked()) { // debounce and watch for abort
         idle();
         if (ELAPSED(millis(), nxt)) {
           lcd_return_to_status();
-          SERIAL_PROTOCOLLNPGM("\nFine Tuning of Mesh Stopped.");
+//        SERIAL_PROTOCOLLNPGM("\nFine Tuning of Mesh Stopped.");
           do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);
           lcd_setstatus("Mesh Editing Stopped", true);
 
