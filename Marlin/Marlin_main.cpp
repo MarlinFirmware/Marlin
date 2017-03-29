@@ -9385,12 +9385,12 @@ void ok_to_send() {
    * settings have been changed (e.g., by M665).
    */
   void recalc_delta_settings(float radius, float diagonal_rod) {
-    delta_tower[A_AXIS][X_AXIS] = -sin(RADIANS(60 - delta_tower_angle_trim[A_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1), // front left tower
-    delta_tower[A_AXIS][Y_AXIS] = -cos(RADIANS(60 - delta_tower_angle_trim[A_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_1),
-    delta_tower[B_AXIS][X_AXIS] =  sin(RADIANS(60 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2), // front right tower
-    delta_tower[B_AXIS][Y_AXIS] = -cos(RADIANS(60 + delta_tower_angle_trim[B_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_2),
-    delta_tower[C_AXIS][X_AXIS] = -sin(RADIANS(     delta_tower_angle_trim[C_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_3), // back middle tower
-    delta_tower[C_AXIS][Y_AXIS] =  cos(RADIANS(     delta_tower_angle_trim[C_AXIS])) * (delta_radius + DELTA_RADIUS_TRIM_TOWER_3),
+    delta_tower[A_AXIS][X_AXIS] = -sin(RADIANS(60 - delta_tower_angle_trim[A_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_1); // front left tower
+    delta_tower[A_AXIS][Y_AXIS] = -cos(RADIANS(60 - delta_tower_angle_trim[A_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_1);
+    delta_tower[B_AXIS][X_AXIS] =  sin(RADIANS(60 + delta_tower_angle_trim[B_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_2); // front right tower
+    delta_tower[B_AXIS][Y_AXIS] = -cos(RADIANS(60 + delta_tower_angle_trim[B_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_2);
+    delta_tower[C_AXIS][X_AXIS] = -sin(RADIANS(     delta_tower_angle_trim[C_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_3); // back middle tower
+    delta_tower[C_AXIS][Y_AXIS] =  cos(RADIANS(     delta_tower_angle_trim[C_AXIS])) * (radius + DELTA_RADIUS_TRIM_TOWER_3);
     delta_diagonal_rod_2_tower[A_AXIS] = sq(diagonal_rod + delta_diagonal_rod_trim[A_AXIS]);
     delta_diagonal_rod_2_tower[B_AXIS] = sq(diagonal_rod + delta_diagonal_rod_trim[B_AXIS]);
     delta_diagonal_rod_2_tower[C_AXIS] = sq(diagonal_rod + delta_diagonal_rod_trim[C_AXIS]);
