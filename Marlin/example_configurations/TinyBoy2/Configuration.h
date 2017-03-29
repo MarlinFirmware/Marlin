@@ -51,6 +51,22 @@
  */
 #define CONFIGURATION_H_VERSION 010100
 
+/**
+ * Sample configuration file for TinyBoy2 L10/L16
+ *
+ * Compile from Arduino or using make:
+ *
+ * ARDUINO_INSTALL_DIR=/usr/share/java/Arduino-1.6.13/ \
+ *   HARDWARE_MOTHERBOARD=66 \
+ *   PATH=/usr/avr/bin/:$PATH make
+ *
+ * Please choose your hardware options for the TinyBoy2:
+ */
+
+#define TB2_L10
+//#define TB2_L16
+#define TB2_HEATBED_MOD
+
 //===========================================================================
 //============================= Getting Started =============================
 //===========================================================================
@@ -86,7 +102,7 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(StefanB, default config)" // Who made the changes.
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 SHORT_BUILD_VERSION // will be shown during bootup in line 1
 #define STRING_SPLASH_LINE2 WEBSITE_URL         // will be shown during bootup in line 2
@@ -122,7 +138,7 @@
  *
  * :[2400, 9600, 19200, 38400, 57600, 115200, 250000]
  */
-#define BAUDRATE 250000
+#define BAUDRATE 115200
 
 // Enable the Bluetooth serial interface on AT90USB devices
 //#define BLUETOOTH
@@ -130,12 +146,18 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_RAMPS_14_EFB
+  #define MOTHERBOARD BOARD_MELZI
 #endif
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-//#define CUSTOM_MACHINE_NAME "3D Printer"
+#if ENABLED(TB2_L10)
+#define CUSTOM_MACHINE_NAME "TinyBoy2 L10"
+#elif ENABLED(TB2_L16)
+#define CUSTOM_MACHINE_NAME "TinyBoy2 L16"
+#else
+#error "Please select TB2_L10 or TB2_L16"
+#endif
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -231,7 +253,6 @@
  *    60 : 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
  *    66 : 4.7M High Temperature thermistor from Dyze Design
  *    70 : the 100K thermistor found in the bq Hephestos 2
- *    75 : 100k Generic Silicon Heat Pad with NTC 100K MGB18-104F39050L32 thermistor
  *
  *       1k ohm pullup tables - This is atypical, and requires changing out the 4.7k pullup for 1k.
  *                              (but gives greater accuracy and more stable PID)
@@ -250,11 +271,16 @@
  *
  * :{ '0': "Not used", '1':"100k / 4.7k - EPCOS", '2':"200k / 4.7k - ATC Semitec 204GT-2", '3':"Mendel-parts / 4.7k", '4':"10k !! do not use for a hotend. Bad resolution at high temp. !!", '5':"100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '6':"100k / 4.7k EPCOS - Not as accurate as Table 1", '7':"100k / 4.7k Honeywell 135-104LAG-J01", '8':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9':"100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10':"100k / 4.7k RS 198-961", '11':"100k / 4.7k beta 3950 1%", '12':"100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13':"100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '20':"PT100 (Ultimainboard V2.x)", '51':"100k / 1k - EPCOS", '52':"200k / 1k - ATC Semitec 204GT-2", '55':"100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '60':"100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '66':"Dyze Design 4.7M High Temperature thermistor", '70':"the 100K thermistor found in the bq Hephestos 2", '71':"100k / 4.7k Honeywell 135-104LAF-J01", '147':"Pt100 / 4.7k", '1047':"Pt1000 / 4.7k", '110':"Pt100 / 1k (non-standard)", '1010':"Pt1000 / 1k (non standard)", '-3':"Thermocouple + MAX31855 (only for sensor 0)", '-2':"Thermocouple + MAX6675 (only for sensor 0)", '-1':"Thermocouple + AD595",'998':"Dummy 1", '999':"Dummy 2" }
  */
-#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 5
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
-#define TEMP_SENSOR_BED 0
+#if ENABLED(TB2_HEATBED_MOD)
+  // K8200 Heatbed 1206/100k/3950K spare part
+  #define TEMP_SENSOR_BED 7
+#else
+  #define TEMP_SENSOR_BED 0
+#endif
 
 // Dummy thermistor constant temperature readings, for use with 998 and 999
 #define DUMMY_THERMISTOR_998_VALUE 25
@@ -287,11 +313,11 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 275
+#define HEATER_0_MAXTEMP 250
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define HEATER_3_MAXTEMP 275
-#define BED_MAXTEMP 150
+#define BED_MAXTEMP 100
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -315,9 +341,9 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
   // Ultimaker
-  #define  DEFAULT_Kp 22.2
-  #define  DEFAULT_Ki 1.08
-  #define  DEFAULT_Kd 114
+  //#define  DEFAULT_Kp 22.2
+  //#define  DEFAULT_Ki 1.08
+  //#define  DEFAULT_Kd 114
 
   // MakerGear
   //#define  DEFAULT_Kp 7.0
@@ -329,6 +355,16 @@
   //#define  DEFAULT_Ki 2.25
   //#define  DEFAULT_Kd 440
 
+  // TinyBoy2 Extruder - calculated with PID Autotune and tested
+  // "M303 E0 C8 S200"
+  //#define  DEFAULT_Kp 25.63
+  //#define  DEFAULT_Ki 2.66
+  //#define  DEFAULT_Kd 61.73
+
+  // TinyBoy2 Extruder - same, but with fan @ 25% duty
+  #define  DEFAULT_Kp 26.15
+  #define  DEFAULT_Ki 2.71
+  #define  DEFAULT_Kd 63.02
 #endif // PIDTEMP
 
 //===========================================================================
@@ -343,7 +379,7 @@
 // If your configuration is significantly different than this and you don't understand the issues involved, you probably
 // shouldn't use bed PID until someone else verifies your hardware works.
 // If this is enabled, find your own PID constants below.
-//#define PIDTEMPBED
+#define PIDTEMPBED
 
 //#define BED_LIMIT_SWITCHING
 
@@ -359,9 +395,9 @@
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  #define  DEFAULT_bedKp 10.00
-  #define  DEFAULT_bedKi .023
-  #define  DEFAULT_bedKd 305.4
+  //#define  DEFAULT_bedKp 10.00
+  //#define  DEFAULT_bedKi .023
+  //#define  DEFAULT_bedKd 305.4
 
   //120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   //from pidautotune
@@ -370,6 +406,19 @@
   //#define  DEFAULT_bedKd 1675.16
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
+
+  // TinyBoy2 heatbed - calculated with PID Autotune and tested
+  // "M303 E-1 C8 S75"
+  //#define  DEFAULT_bedKp 421.80
+  //#define  DEFAULT_bedKi 82.51
+  //#define  DEFAULT_bedKd 539.06
+
+  // TinyBoy2 heatbed - same, but with fan @ 25% duty
+  // "M303 E-1 C8 S75"
+  #define  DEFAULT_bedKp 267.54
+  #define  DEFAULT_bedKi 52.34
+  #define  DEFAULT_bedKd 341.92
+
 #endif // PIDTEMPBED
 
 // @section extruder
@@ -432,10 +481,11 @@
 // Specify here all the endstop connectors that are connected to any endstop or probe.
 // Almost all printers will be using one per axis. Probes will use one or more of the
 // extra connectors. Leave undefined any used for non-endstop and non-probe purposes.
-#define USE_XMIN_PLUG
+// TB2 has X endstop on max, see also INVERT_X_DIR and X_HOME_DIR
+//#define USE_XMIN_PLUG
 #define USE_YMIN_PLUG
 #define USE_ZMIN_PLUG
-//#define USE_XMAX_PLUG
+#define USE_XMAX_PLUG
 //#define USE_YMAX_PLUG
 //#define USE_ZMAX_PLUG
 
@@ -455,16 +505,16 @@
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 #define X_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Y_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define Z_MIN_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
-#define X_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
+#define Y_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+#define Z_MIN_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
+#define X_MAX_ENDSTOP_INVERTING true // set to true to invert the logic of the endstop.
 #define Y_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MAX_ENDSTOP_INVERTING false // set to true to invert the logic of the endstop.
 #define Z_MIN_PROBE_ENDSTOP_INVERTING false // set to true to invert the logic of the probe.
 
 // Enable this feature if all enabled endstop pins are interrupt-capable.
 // This will remove the need to poll the interrupt pins, saving many CPU cycles.
-//#define ENDSTOP_INTERRUPTS_FEATURE
+#define ENDSTOP_INTERRUPTS_FEATURE
 
 //=============================================================================
 //============================== Movement Settings ============================
@@ -487,14 +537,14 @@
  * Override with M92
  *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 4000, 500 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 100, 100, 6400, 88.16 }
 
 /**
  * Default Max Feed Rate (mm/s)
  * Override with M203
  *                                      X, Y, Z, E0 [, E1[, E2[, E3]]]
  */
-#define DEFAULT_MAX_FEEDRATE          { 300, 300, 5, 25 }
+#define DEFAULT_MAX_FEEDRATE          { 300, 300, 7, 35 }
 
 /**
  * Default Max Acceleration (change/s) change = mm/s
@@ -563,10 +613,6 @@
 //#define Z_PROBE_SLED
 //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-//
-// Allen Key Probe is defined in the Delta example configurations.
-//
-
 // Z Probe to nozzle (X,Y) offset, relative to (0, 0).
 // X and Y offsets must be integers.
 //
@@ -597,6 +643,10 @@
 // Use double touch for probing
 //#define PROBE_DOUBLE_TOUCH
 
+//
+// Allen Key Probe is defined in the Delta example configurations.
+//
+
 // *** PLEASE READ ALL INSTRUCTIONS BELOW FOR SAFETY! ***
 //
 // To continue using the Z-min-endstop for homing, be sure to disable Z_SAFE_HOMING.
@@ -604,7 +654,8 @@
 //
 // To use a separate Z probe, your board must define a Z_MIN_PROBE_PIN.
 //
-// For a servo-based Z probe, just set Z_ENDSTOP_SERVO_NR and Z_SERVO_ANGLES above.
+// For a servo-based Z probe, you must set up servo support below, including
+// NUM_SERVOS, Z_ENDSTOP_SERVO_NR and Z_SERVO_ANGLES.
 //
 // - RAMPS 1.3/1.4 boards may be able to use the 5V, GND, and Aux4->D32 pin.
 // - Use 5V for powered (usu. inductive) sensors.
@@ -688,14 +739,14 @@
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR false
-#define INVERT_Y_DIR true
+#define INVERT_X_DIR true
+#define INVERT_Y_DIR false
 #define INVERT_Z_DIR false
 
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -705,11 +756,15 @@
 //#define Z_HOMING_HEIGHT 4  // (in mm) Minimal z height before homing (G28) for Z clearance above the bed, clamps, ...
                              // Be sure you have this distance over your Z_MAX_POS in case.
 
-// Direction of endstops when homing; 1=MAX, -1=MIN
-// :[-1,1]
-#define X_HOME_DIR -1
+// ENDSTOP SETTINGS:
+// Sets direction of endstops when homing; 1=MAX, -1=MIN
+// :[-1, 1]
+#define X_HOME_DIR 1
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
+
+#define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
+#define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // @section machine
 
@@ -717,14 +772,14 @@
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 200
-#define Y_MAX_POS 200
-#define Z_MAX_POS 200
-
-// If enabled, axes won't move below MIN_POS in response to movement commands.
-#define MIN_SOFTWARE_ENDSTOPS
-// If enabled, axes won't move above MAX_POS in response to movement commands.
-#define MAX_SOFTWARE_ENDSTOPS
+// Tinyboy2: 100mm are marketed, actual length between endstop and end of rail is 98mm
+#define X_MAX_POS 98
+#define Y_MAX_POS 98
+#if ENABLED(TB2_L10)
+  #define Z_MAX_POS 98
+#else
+  #define Z_MAX_POS 158
+#endif
 
 /**
  * Filament Runout Sensor
@@ -742,53 +797,61 @@
 #endif
 
 //===========================================================================
-//=============================== Bed Leveling ==============================
+//============================ Mesh Bed Leveling ============================
+//===========================================================================
+
+//#define MESH_BED_LEVELING    // Enable mesh bed leveling.
+
+#if ENABLED(MESH_BED_LEVELING)
+  #define MESH_INSET 10        // Mesh inset margin on print area
+  #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
+  #define MESH_NUM_Y_POINTS 3
+  #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
+
+  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest at origin [0,0,0]
+
+  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+
+  #if ENABLED(MANUAL_BED_LEVELING)
+    #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
+  #endif  // MANUAL_BED_LEVELING
+
+  // Gradually reduce leveling correction until a set height is reached,
+  // at which point movement will be level to the machine's XY plane.
+  // The height can be set with M420 Z<height>
+  #define ENABLE_LEVELING_FADE_HEIGHT
+
+#endif  // MESH_BED_LEVELING
+
+//===========================================================================
+//============================ Auto Bed Leveling ============================
 //===========================================================================
 // @section bedlevel
 
 /**
- * Choose one of the options below to enable G29 Bed Leveling. The parameters
- * and behavior of G29 will change depending on your selection.
+ * Select one form of Auto Bed Leveling below.
  *
- *  If using a Probe for Z Homing, enable Z_SAFE_HOMING also!
+ *  If you're also using the Probe for Z Homing, it's
+ *  highly recommended to enable Z_SAFE_HOMING also!
  *
- * - AUTO_BED_LEVELING_3POINT
+ * - 3POINT
  *   Probe 3 arbitrary points on the bed (that aren't collinear)
  *   You specify the XY coordinates of all 3 points.
  *   The result is a single tilted plane. Best for a flat bed.
  *
- * - AUTO_BED_LEVELING_LINEAR
+ * - LINEAR
  *   Probe several points in a grid.
  *   You specify the rectangle and the density of sample points.
  *   The result is a single tilted plane. Best for a flat bed.
  *
- * - AUTO_BED_LEVELING_BILINEAR
+ * - BILINEAR
  *   Probe several points in a grid.
  *   You specify the rectangle and the density of sample points.
  *   The result is a mesh, best for large or uneven beds.
- *
- * - AUTO_BED_LEVELING_UBL (Unified Bed Leveling)
- *   A comprehensive bed leveling system combining the features and benefits
- *   of other systems. UBL also includes integrated Mesh Generation, Mesh
- *   Validation and Mesh Editing systems. Currently, UBL is only checked out
- *   for Cartesian Printers. That said, it was primarily designed to correct
- *   poor quality Delta Printers. If you feel adventurous and have a Delta,
- *   please post an issue if something doesn't work correctly. Initially,
- *   you will need to set a reduced bed size so you have a rectangular area
- *   to test on.
- *
- * - MESH_BED_LEVELING
- *   Probe a grid manually
- *   The result is a mesh, suitable for large or uneven beds. (See BILINEAR.)
- *   For machines without a probe, Mesh Bed Leveling provides a method to perform
- *   leveling in steps so you can manually adjust the Z height at each grid-point.
- *   With an LCD controller the process is guided step-by-step.
  */
 //#define AUTO_BED_LEVELING_3POINT
 //#define AUTO_BED_LEVELING_LINEAR
 //#define AUTO_BED_LEVELING_BILINEAR
-//#define AUTO_BED_LEVELING_UBL
-//#define MESH_BED_LEVELING
 
 /**
  * Enable detailed logging of G28, G29, M48, etc.
@@ -796,13 +859,6 @@
  * NOTE: Requires a lot of PROGMEM!
  */
 //#define DEBUG_LEVELING_FEATURE
-
-#if ENABLED(MESH_BED_LEVELING) || ENABLED(AUTO_BED_LEVELING_BILINEAR) || ENABLED(AUTO_BED_LEVELING_UBL)
-  // Gradually reduce leveling correction until a set height is reached,
-  // at which point movement will be level to the machine's XY plane.
-  // The height can be set with M420 Z<height>
-  #define ENABLE_LEVELING_FADE_HEIGHT
-#endif
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR) || ENABLED(AUTO_BED_LEVELING_BILINEAR)
 
@@ -823,6 +879,11 @@
   //#define PROBE_Y_FIRST
 
   #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
+
+    // Gradually reduce leveling correction until a set height is reached,
+    // at which point movement will be level to the machine's XY plane.
+    // The height can be set with M420 Z<height>
+    #define ENABLE_LEVELING_FADE_HEIGHT
 
     //
     // Experimental Subdivision of the grid by Catmull-Rom method.
@@ -847,43 +908,7 @@
   #define ABL_PROBE_PT_3_X 170
   #define ABL_PROBE_PT_3_Y 20
 
-#elif ENABLED(AUTO_BED_LEVELING_UBL)
-
-  //===========================================================================
-  //========================= Unified Bed Leveling ============================
-  //===========================================================================
-
-  #define UBL_MESH_INSET 1          // Mesh inset margin on print area
-  #define UBL_MESH_NUM_X_POINTS 10  // Don't use more than 15 points per axis, implementation limited.
-  #define UBL_MESH_NUM_Y_POINTS 10
-  #define UBL_PROBE_PT_1_X 39       // These set the probe locations for when UBL does a 3-Point leveling
-  #define UBL_PROBE_PT_1_Y 180      // of the mesh.
-  #define UBL_PROBE_PT_2_X 39
-  #define UBL_PROBE_PT_2_Y 20
-  #define UBL_PROBE_PT_3_X 180
-  #define UBL_PROBE_PT_3_Y 20
-  #define UBL_MESH_EDIT_ENABLED     // Enable G26 mesh editing
-
-#elif ENABLED(MESH_BED_LEVELING)
-
-  //===========================================================================
-  //=================================== Mesh ==================================
-  //===========================================================================
-
-  #define MESH_INSET 10          // Mesh inset margin on print area
-  #define MESH_NUM_X_POINTS 3    // Don't use more than 7 points per axis, implementation limited.
-  #define MESH_NUM_Y_POINTS 3
-
-  //#define MESH_G28_REST_ORIGIN // After homing all axes ('G28' or 'G28 XYZ') rest Z at Z_MIN_POS
-
-  //#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
-  #define MANUAL_PROBE_Z_RANGE 4 // Z Range centered on Z_MIN_POS for LCD Z adjustment
-
-  #if ENABLED(MANUAL_BED_LEVELING)
-    #define MBL_Z_STEP 0.025     // Step size while manually probing Z axis.
-  #endif
-
-#endif // BED_LEVELING
+#endif
 
 /**
  * Commands to execute at the end of G29 probing.
@@ -919,8 +944,8 @@
 #endif
 
 // Homing speeds (mm/m)
-#define HOMING_FEEDRATE_XY (50*60)
-#define HOMING_FEEDRATE_Z  (4*60)
+#define HOMING_FEEDRATE_XY (40*60)
+#define HOMING_FEEDRATE_Z  (3*60)
 
 //=============================================================================
 //============================= Additional Features ===========================
@@ -936,7 +961,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-//#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS
 
 #if ENABLED(EEPROM_SETTINGS)
   // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
@@ -975,7 +1000,7 @@
 #define PREHEAT_1_FAN_SPEED     0 // Value from 0 to 255
 
 #define PREHEAT_2_TEMP_HOTEND 240
-#define PREHEAT_2_TEMP_BED    110
+#define PREHEAT_2_TEMP_BED     90 // TB2: ABS default 110, 90 is the maximum temp at 12V supply
 #define PREHEAT_2_FAN_SPEED     0 // Value from 0 to 255
 
 //
@@ -995,7 +1020,7 @@
 //    P2: The nozzle height will be raised by Z-park amount but never going over
 //        the machine's limit of Z_MAX_POS.
 //
-//#define NOZZLE_PARK_FEATURE
+#define NOZZLE_PARK_FEATURE
 
 #if ENABLED(NOZZLE_PARK_FEATURE)
   // Specify a park position as { X, Y, Z }
@@ -1091,7 +1116,7 @@
 //  - Total time printing
 //
 // This information can be viewed by the M78 command.
-//#define PRINTCOUNTER
+#define PRINTCOUNTER
 
 //=============================================================================
 //============================= LCD and SD support ============================
@@ -1154,7 +1179,7 @@
 // SD Card support is disabled by default. If your controller has an SD slot,
 // you must uncomment the following option or it won't work.
 //
-//#define SDSUPPORT
+#define SDSUPPORT
 
 //
 // SD CARD: SPI SPEED
@@ -1171,7 +1196,7 @@
 //
 // Use CRC checks and retries on the SD communication.
 //
-//#define SD_CHECK_AND_RETRY
+#define SD_CHECK_AND_RETRY
 
 //
 // ENCODER SETTINGS
@@ -1179,13 +1204,13 @@
 // This option overrides the default number of encoder pulses needed to
 // produce one step. Should be increased for high-resolution encoders.
 //
-//#define ENCODER_PULSES_PER_STEP 1
+#define ENCODER_PULSES_PER_STEP 4
 
 //
 // Use this option to override the number of step signals required to
 // move between next/prev menu items.
 //
-//#define ENCODER_STEPS_PER_MENU_ITEM 5
+#define ENCODER_STEPS_PER_MENU_ITEM 1
 
 /**
  * Encoder Direction Options
@@ -1408,7 +1433,7 @@
 //
 // TinyBoy2 128x64 OLED / Encoder Panel
 //
-//#define OLED_PANEL_TINYBOY2
+#define OLED_PANEL_TINYBOY2
 
 //=============================================================================
 //=============================== Extra Features ==============================
@@ -1429,12 +1454,6 @@
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
 #define SOFT_PWM_SCALE 0
-
-// If SOFT_PWM_SCALE is set to a value higher than 0, dithering can
-// be used to mitigate the associated resolution loss. If enabled,
-// some of the PWM cycles are stretched so on average the wanted
-// duty cycle is attained.
-//#define SOFT_PWM_DITHER
 
 // Temperature status LEDs that display the hotend and bed temperature.
 // If all hotends and bed temperature and temperature setpoint are < 54C then the BLUE led is on.
@@ -1500,7 +1519,7 @@
 // Uncomment below to enable
 //#define FILAMENT_WIDTH_SENSOR
 
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.00  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1.75  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #define FILAMENT_SENSOR_EXTRUDER_NUM 0   //The number of the extruder that has the filament sensor (0,1,2)
