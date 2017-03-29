@@ -428,7 +428,7 @@ class Temperature {
     #endif
 
     static void checkExtruderAutoFans();
-    static void checkHeatbedAutoFan();
+    static void CheckHeatbedAutoFan();
 
     static float get_pid_output(int e);
 

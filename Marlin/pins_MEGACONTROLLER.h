@@ -116,6 +116,10 @@
 #define FAN1_PIN           35
 #define FAN2_PIN           36
 
+#ifndef HEATBED_AUTO_FAN_PIN
+  #define HEATBED_AUTO_FAN_PIN FAN1_PIN
+#endif
+
 #define CONTROLLERFAN_PIN  FAN2_PIN
 
 #define FAN_SOFT_PWM

@@ -183,6 +183,9 @@
   #define HEATER_BED_PIN RAMPS_D8_PIN
   #if HOTENDS == 1
     #define FAN1_PIN     MOSFET_D_PIN
+    #ifndef HEATBED_AUTO_FAN_PIN
+      #define HEATBED_AUTO_FAN_PIN FAN1_PIN    // if "EFBF" use FAN1 as headbed auto fan
+    #endif
   #else
     #define HEATER_1_PIN MOSFET_D_PIN
   #endif

@@ -125,6 +125,10 @@
 #define FAN_PIN             6
 #define FAN1_PIN            7
 
+#ifndef HEATBED_AUTO_FAN_PIN
+  #define HEATBED_AUTO_FAN_PIN FAN1_PIN
+#endif
+
 //
 // Misc. Functions
 //
