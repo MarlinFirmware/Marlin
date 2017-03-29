@@ -6219,10 +6219,10 @@ inline void gcode_M18_M84() {
         if (code_seen('E')) disable_e_steppers();
       #endif
     }
+    #if ENABLED(PRINTER_EVENT_LEDS)
+      handle_led_print_event(printing_done);
+    #endif
   }
-  #if ENABLED(PRINTER_EVENT_LEDS)
-    handle_led_print_event(printing_done);
-  #endif
 }
 
 /**

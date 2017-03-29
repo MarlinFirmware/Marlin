@@ -1117,7 +1117,6 @@
     ubl.state.active = ubl_state_at_invocation;
   }
 
-
   /**
    * Much of the 'What?' command can be eliminated. But until we are fully debugged, it is
    * good to have the extra information. Soon... we prune this to just a few items
@@ -1127,7 +1126,7 @@
     statistics_flag++;
 
     SERIAL_PROTOCOLPGM("Unified Bed Leveling System Version 1.00 ");
-    if (ubl.state.active)  
+    if (ubl.state.active)
       SERIAL_PROTOCOLCHAR('A');
     else
       SERIAL_PROTOCOLPGM("In");
@@ -1328,16 +1327,16 @@
 
           distance = HYPOT(px - mx, py - my) + HYPOT(current_x - mx, current_y - my) * 0.1;
 
-	  if (far_flag) {                                    // If doing the far_flag action, we want to be as far as possible
+	  	  if (far_flag) {                                    // If doing the far_flag action, we want to be as far as possible
             for (k = 0; k < UBL_MESH_NUM_X_POINTS; k++) {    // from the starting point and from any other probed points.  We
               for (l = 0; l < UBL_MESH_NUM_Y_POINTS; l++) {  // want the next point spread out and filling in any blank spaces
                 if ( !isnan(z_values[k][l])) {               // in the mesh.   So we add in some of the distance to every probed 
                   distance += (i-k)*(i-k)*MESH_X_DIST*.05;   // point we can find.
                   distance += (j-l)*(j-l)*MESH_Y_DIST*.05;
-		}
+			    }
               }
-	    }
-	  }
+	   	    }
+	      }
 
           if ( (!far_flag&&(distance < closest)) || (far_flag&&(distance > closest)) ) {  // if far_flag, look for furthest away point
             closest = distance;       // We found a closer location with
