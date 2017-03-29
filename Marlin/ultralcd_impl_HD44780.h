@@ -782,7 +782,7 @@ static void lcd_implementation_status_screen() {
         return lcd_draw_progress_bar(card.percentDone());
     } //card.isFileOpen
 
-  #elif ENABLED(FILAMENT_LCD_DISPLAY)
+  #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
 
     // Show Filament Diameter and Volumetric Multiplier %
     // After allowing lcd_status_message to show for 5 seconds
@@ -795,7 +795,7 @@ static void lcd_implementation_status_screen() {
       return;
     }
 
-  #endif // FILAMENT_LCD_DISPLAY
+  #endif // FILAMENT_LCD_DISPLAY & SDSUPPORT
 
   lcd_print(lcd_status_message);
 }
