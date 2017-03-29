@@ -224,6 +224,10 @@
     #define LCD_STR_SPECIAL_MAX '\x09'
     // Maximum here is 0x1f because 0x20 is ' ' (space) and the normal charsets begin.
     // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
+
+    // Symbol characters
+    #define LCD_STR_FILAM_DIA   "\xf8"
+    #define LCD_STR_FILAM_MUL   "\xa4"
   #else
     /* Custom characters defined in the first 8 characters of the LCD */
     #define LCD_STR_BEDTEMP     "\x00"  // Print only as a char. This will have 'unexpected' results when used in a string!

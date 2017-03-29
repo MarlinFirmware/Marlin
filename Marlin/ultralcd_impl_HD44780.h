@@ -396,7 +396,7 @@ void lcd_print(char c) { charset_mapper(c); }
   void lcd_erase_line(const int line) {
     lcd.setCursor(0, line);
     for (uint8_t i = LCD_WIDTH + 1; --i;)
-      lcd_print(' ');
+      lcd.print(' ');
   }
 
   // Scroll the PSTR 'text' in a 'len' wide field for 'time' milliseconds at position col,line
@@ -775,14 +775,12 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(LCD_PROGRESS_BAR)
 
-    if (card.isFileOpen()) {
-      // Draw the progress bar if the message has shown long enough
-      // or if there is no message set.
-      if (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])
-        return lcd_draw_progress_bar(card.percentDone());
-    } //card.isFileOpen
+    // Draw the progress bar if the message has shown long enough
+    // or if there is no message set.
+    if (card.isFileOpen() && ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])
+      return lcd_draw_progress_bar(card.percentDone());
 
-  #elif ENABLED(FILAMENT_LCD_DISPLAY)
+  #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
 
     // Show Filament Diameter and Volumetric Multiplier %
     // After allowing lcd_status_message to show for 5 seconds
@@ -795,7 +793,7 @@ static void lcd_implementation_status_screen() {
       return;
     }
 
-  #endif // FILAMENT_LCD_DISPLAY
+  #endif // FILAMENT_LCD_DISPLAY && SDSUPPORT
 
   lcd_print(lcd_status_message);
 }
