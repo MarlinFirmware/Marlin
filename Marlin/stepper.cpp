@@ -1265,7 +1265,7 @@ void Stepper::report_positions() {
     #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
       uint32_t pulse_start;
     #endif
-    
+
     switch (axis) {
 
       case X_AXIS:

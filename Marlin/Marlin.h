@@ -363,7 +363,10 @@ float code_value_temp_diff();
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
-  extern uint8_t host_keepalive_interval;
+  extern MarlinBusyState busy_state;
+  #define KEEPALIVE_STATE(n) do{ busy_state = n; }while(0)
+#else
+  #define KEEPALIVE_STATE(n) NOOP
 #endif
 
 #if FAN_COUNT > 0

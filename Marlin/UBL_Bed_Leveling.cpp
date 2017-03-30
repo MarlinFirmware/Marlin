@@ -38,6 +38,25 @@
   void bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { SBI(bits[y], x); }
   bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
 
+  static void serial_echo_xy(const uint16_t x, const uint16_t y) {
+    SERIAL_CHAR('(');
+    SERIAL_ECHO(x);
+    SERIAL_CHAR(',');
+    SERIAL_ECHO(y);
+    SERIAL_CHAR(')');
+    safe_delay(10);
+  }
+
+  static void serial_echo_10x_spaces() {
+    for (uint8_t i = UBL_MESH_NUM_X_POINTS - 1; --i;) {
+      SERIAL_ECHOPGM("          ");
+      #if TX_BUFFER_SIZE > 0
+        MYSERIAL.flushTX();
+      #endif
+      safe_delay(10);
+    }
+  }
+
   /**
    * These variables used to be declared inside the unified_bed_leveling class. We are going to
    * still declare them within the .cpp file for bed leveling. But there is only one instance of
@@ -105,13 +124,10 @@
     }
 
     j = UBL_LAST_EEPROM_INDEX - (m + 1) * sizeof(z_values);
-    eeprom_read_block((void *)&z_values , (void *)j, sizeof(z_values));
+    eeprom_read_block((void *)&z_values, (void *)j, sizeof(z_values));
 
-    SERIAL_PROTOCOLPGM("Mesh loaded from slot ");
-    SERIAL_PROTOCOL(m);
-    SERIAL_PROTOCOLPGM("  at offset 0x");
-    prt_hex_word(j);
-    SERIAL_EOL;
+    SERIAL_PROTOCOLPAIR("Mesh loaded from slot ", m);
+    SERIAL_PROTOCOLLNPAIR(" at offset 0x", hex_word(j));
   }
 
   void unified_bed_leveling::store_mesh(const int16_t m) {
@@ -132,11 +148,8 @@
     j = UBL_LAST_EEPROM_INDEX - (m + 1) * sizeof(z_values);
     eeprom_write_block((const void *)&z_values, (void *)j, sizeof(z_values));
 
-    SERIAL_PROTOCOLPGM("Mesh saved in slot ");
-    SERIAL_PROTOCOL(m);
-    SERIAL_PROTOCOLPGM("  at offset 0x");
-    prt_hex_word(j);
-    SERIAL_EOL;
+    SERIAL_PROTOCOLPAIR("Mesh saved in slot ", m);
+    SERIAL_PROTOCOLLNPAIR(" at offset 0x", hex_word(j));
   }
 
   void unified_bed_leveling::reset() {
@@ -151,7 +164,7 @@
   }
 
   void unified_bed_leveling::invalidate() {
-    prt_hex_word((unsigned int)this);
+    print_hex_word((uint16_t)this);
     SERIAL_EOL;
 
     state.active = false;
@@ -162,125 +175,76 @@
   }
 
   void unified_bed_leveling::display_map(const int map_type) {
-    float f, current_xi, current_yi;
-    int8_t i, j;
-    UNUSED(map_type);
 
-    if (map_type==0) {
+    const bool map0 = map_type == 0;
+
+    if (map0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
-
-      SERIAL_ECHOPAIR("(", 0);
-      SERIAL_ECHOPAIR(", ", UBL_MESH_NUM_Y_POINTS - 1);
-      SERIAL_ECHOPGM(")    ");
+      serial_echo_xy(0, UBL_MESH_NUM_Y_POINTS - 1);
+      SERIAL_ECHOPGM("    ");
     }
 
-    current_xi = ubl.get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0);
-    current_yi = ubl.get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
-
-    if (map_type==0) {
-      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
-        SERIAL_ECHOPGM("            ");
-        #if TX_BUFFER_SIZE>0
-          MYSERIAL.flushTX();
-        #endif
-        safe_delay(15);
-      }
-      
-      SERIAL_ECHOPAIR("(", UBL_MESH_NUM_X_POINTS - 1);
-      SERIAL_ECHOPAIR(",", UBL_MESH_NUM_Y_POINTS - 1);
-      SERIAL_ECHOLNPGM(")");
-
-      SERIAL_ECHOPAIR("(", UBL_MESH_MIN_X);
-      SERIAL_ECHOPAIR(",", UBL_MESH_MAX_Y);
-      SERIAL_CHAR(')');
-      safe_delay(15);
-
-      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
-        SERIAL_ECHOPGM("            ");
-        #if TX_BUFFER_SIZE>0
-          MYSERIAL.flushTX();
-        #endif
-        safe_delay(15);
-      }
-
-      SERIAL_ECHOPAIR("(", UBL_MESH_MAX_X);
-      SERIAL_ECHOPAIR(",", UBL_MESH_MAX_Y);
-      SERIAL_ECHOLNPGM(")");
-      safe_delay(15);
+    if (map0) {
+      serial_echo_10x_spaces();
+      serial_echo_xy(UBL_MESH_NUM_X_POINTS - 1, UBL_MESH_NUM_Y_POINTS - 1);
+      SERIAL_EOL;
+      serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
+      serial_echo_10x_spaces();
+      serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
+      SERIAL_EOL;
     }
 
-    for (j = UBL_MESH_NUM_Y_POINTS - 1; j >= 0; j--) {
-      for (i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
-        f = z_values[i][j];
+    const float current_xi = ubl.get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
+                current_yi = ubl.get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
+
+    for (uint8_t j = UBL_MESH_NUM_Y_POINTS - 1; j >= 0; j--) {
+      for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
+        const bool is_current = i == current_xi && j == current_yi;
 
         // is the nozzle here?  if so, mark the number
-        if (map_type==0) 
-          SERIAL_CHAR(i == current_xi && j == current_yi ? '[' : ' ');
+        if (map0)
+          SERIAL_CHAR(is_current ? '[' : ' ');
 
-        if (isnan(f))
-          if (map_type==0) {
-            SERIAL_PROTOCOLPGM("    .    ");
-          } else 
-            SERIAL_PROTOCOLPGM("NAN");
+        const float f = z_values[i][j];
+        if (isnan(f)) {
+          serialprintPGM(map0 ? PSTR("    .    ") : PSTR("NAN"));
+        }
         else {
           // if we don't do this, the columns won't line up nicely
-          if (f>=0.0 && map_type==0) SERIAL_CHAR(' ');
+          if (f >= 0.0 && map0) SERIAL_CHAR(' ');
           SERIAL_PROTOCOL_F(f, 3);
           idle();
         }
-        if (map_type!=0 && i<UBL_MESH_NUM_X_POINTS-1) 
-         SERIAL_PROTOCOLPGM(",");
+        if (!map0 && i < UBL_MESH_NUM_X_POINTS - 1)
+         SERIAL_CHAR(',');
 
-        #if TX_BUFFER_SIZE>0
+        #if TX_BUFFER_SIZE > 0
           MYSERIAL.flushTX();
         #endif
         safe_delay(15);
-        if (map_type==0) {
-          if (i == current_xi && j == current_yi) // is the nozzle here? if so, finish marking the number
-            SERIAL_CHAR(']');
-          else
-            SERIAL_PROTOCOL("  ");
+        if (map0) {
+          SERIAL_CHAR(is_current ? ']' : ' ');
           SERIAL_CHAR(' ');
         }
       }
       SERIAL_EOL;
-      if (j && map_type==0) { // we want the (0,0) up tight against the block of numbers
+      if (j && map0) { // we want the (0,0) up tight against the block of numbers
         SERIAL_CHAR(' ');
         SERIAL_EOL;
       }
     }
 
-    if (map_type==0) {
-      SERIAL_ECHOPAIR("(", int(UBL_MESH_MIN_X));
-      SERIAL_ECHOPAIR(",", int(UBL_MESH_MIN_Y));
-      SERIAL_ECHOPGM(")    ");
-
-      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++)  {
-        SERIAL_ECHOPGM("            ");
-        #if TX_BUFFER_SIZE>0
-          MYSERIAL.flushTX();
-        #endif
-        safe_delay(15);
-      }
-      SERIAL_ECHOPAIR("(", int(UBL_MESH_MAX_X));
-      SERIAL_ECHOPAIR(",", int(UBL_MESH_MIN_Y));
-      SERIAL_CHAR(')');
+    if (map0) {
+      serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
+      SERIAL_ECHOPGM("    ");
+      serial_echo_10x_spaces();
+      serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
       SERIAL_EOL;
-
-      SERIAL_ECHOPAIR("(", 0);
-      SERIAL_ECHOPAIR(",", 0);
-      SERIAL_ECHOPGM(")       ");
-
-      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
-        SERIAL_ECHOPGM("            ");
-        #if TX_BUFFER_SIZE>0
-          MYSERIAL.flushTX();
-        #endif
-        safe_delay(15);
-      }
-      SERIAL_ECHOPAIR("(", UBL_MESH_NUM_X_POINTS-1);
-      SERIAL_ECHOPAIR(",", 0);
-      SERIAL_ECHOLNPGM(")");
+      serial_echo_xy(0, 0);
+      SERIAL_ECHOPGM("       ");
+      serial_echo_10x_spaces();
+      serial_echo_xy(UBL_MESH_NUM_X_POINTS - 1, 0);
+      SERIAL_EOL;
     }
   }
 
