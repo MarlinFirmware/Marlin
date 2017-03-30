@@ -2201,45 +2201,57 @@ static void clean_up_after_endstop_or_probe_move() {
     // Prevent stepper_inactive_time from running out and EXTRUDER_RUNOUT_PREVENT from extruding
     refresh_cmd_timeout();
 
-    #if ENABLED(PROBE_DOUBLE_TOUCH)
+    // If the nozzle is above the travel height then 
+    // move down quickly before doing the slow probe
+    float z = LOGICAL_Z_POSITION(Z_CLEARANCE_BETWEEN_PROBES);
+    if (zprobe_zoffset < 0) z -= zprobe_zoffset;
+    if (z < current_position[Z_AXIS])
+      do_blocking_move_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
 
-      // Do a first probe at the fast speed
-      do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_FAST);
-
-      #if ENABLED(DEBUG_LEVELING_FEATURE)
-        float first_probe_z = current_position[Z_AXIS];
-        if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("1st Probe Z:", first_probe_z);
-      #endif
-
-      // move up by the bump distance
-      do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
-
-    #else
-
-      // If the nozzle is above the travel height then
-      // move down quickly before doing the slow probe
-      float z = LOGICAL_Z_POSITION(Z_CLEARANCE_BETWEEN_PROBES);
-      if (zprobe_zoffset < 0) z -= zprobe_zoffset;
-      if (z < current_position[Z_AXIS])
-        do_blocking_move_to_z(z, MMM_TO_MMS(Z_PROBE_SPEED_FAST));
-
-    #endif
-
-    // move down slowly to find bed
+    // Do a first probe 
     do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_SLOW);
+    float first_probe_z = current_position[Z_AXIS];
+    float total_probes_z = current_position[Z_AXIS];
+    int probes = 1;
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
+      if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPAIR("1st Probe Z:", first_probe_z);
     #endif
 
-    // Debug: compare probe heights
-    #if ENABLED(PROBE_DOUBLE_TOUCH) && ENABLED(DEBUG_LEVELING_FEATURE)
-      if (DEBUGGING(LEVELING)) {
-        SERIAL_ECHOPAIR("2nd Probe Z:", current_position[Z_AXIS]);
-        SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
+    #if ENABLED(PROBE_DOUBLE_TOUCH)
+      do {
+
+        first_probe_z = current_position[Z_AXIS];
+
+        // move up by the bump distance
+        do_blocking_move_to_z(current_position[Z_AXIS] + home_bump_mm(Z_AXIS), MMM_TO_MMS(Z_PROBE_SPEED_FAST));
+
+        // move down slowly to find bed
+        do_probe_move(-(Z_MAX_LENGTH) - 10, Z_PROBE_SPEED_SLOW);
+
+        #if ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) DEBUG_POS("<<< run_z_probe", current_position);
+        #endif
+
+        // Debug: compare probe heights
+        #if ENABLED(PROBE_DOUBLE_TOUCH) && ENABLED(DEBUG_LEVELING_FEATURE)
+          if (DEBUGGING(LEVELING)) {
+            SERIAL_ECHOPAIR("2nd Probe Z:", current_position[Z_AXIS]);
+            SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
+          }
+        #endif
+        
+        total_probes_z += current_position[Z_AXIS];
+        probes++;
       }
+      while (abs(first_probe_z - current_position[Z_AXIS]) > PROBING_PRECISION && probes < 10);
     #endif
-    return current_position[Z_AXIS];
+    
+    first_probe_z += current_position[Z_AXIS];
+    first_probe_z /= 2;
+    if (probes >= 10) first_probe_z = total_probes_z / probes;
+    
+    return (first_probe_z);
   }
 
   //
