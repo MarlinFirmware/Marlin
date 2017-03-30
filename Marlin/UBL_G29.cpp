@@ -712,58 +712,193 @@
           z_values[x][y] += constant;
   }
 
+  bool position_is_reachable_UBL(float X_target, float Y_target , bool is_probe) {
+
+    float dx = RAW_X_POSITION(X_target),
+          dy = RAW_Y_POSITION(Y_target);
+
+    #if IS_SCARA
+      #if MIDDLE_DEAD_ZONE_R > 0
+        const float R2 = HYPOT2(dx - SCARA_OFFSET_X, dy - SCARA_OFFSET_Y);
+        return R2 >= sq(float(MIDDLE_DEAD_ZONE_R)) && R2 <= sq(L1 + L2);
+      #else
+        return HYPOT2(dx - SCARA_OFFSET_X, dy - SCARA_OFFSET_Y) <= sq(L1 + L2);
+      #endif
+    #elif ENABLED(DELTA)
+      #if defined(DELTA_RADIUS)
+        #if !defined(DELTA_TRAVEL_RADIUS)
+          #define DELTA_TRAVEL_RADIUS DELTA_RADIUS
+        #endif
+        float radius = DELTA_RADIUS - UBL_MESH_INSET;
+        if (is_probe) {
+          dx -= X_PROBE_OFFSET_FROM_EXTRUDER;
+          dy -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+          radius = DELTA_TRAVEL_RADIUS;
+        }
+        return HYPOT2(dx, dy) <= sq((float)(radius) + 0.001);
+      #else
+        SERIAL_PROTOCOLLNPG("ERROR - DELTA_RADIUS not defined");
+        return false;
+      #endif
+
+    #else
+      float x_min_pos = UBL_MESH_MIN_X;
+      float x_max_pos = UBL_MESH_MAX_X;
+      float y_min_pos = UBL_MESH_MIN_Y;
+      float y_max_pos = UBL_MESH_MAX_Y;
+      if (is_probe) {
+        dx -= X_PROBE_OFFSET_FROM_EXTRUDER;
+        dy -= Y_PROBE_OFFSET_FROM_EXTRUDER;
+        x_min_pos = X_MIN_POS;
+        x_max_pos = X_MAX_POS;
+        y_min_pos = Y_MIN_POS;
+        y_max_pos = Y_MAX_POS;
+      }
+      return dx >= x_min_pos - 0.0001 && dx <= x_max_pos + 0.0001
+          && dy >= y_min_pos - 0.0001 && dy <= y_max_pos + 0.0001;
+    #endif
+  }
   /**
    * Probe all invalidated locations of the mesh that can be reached by the probe.
    * This attempts to fill in locations closest to the nozzle's start location first.
    */
-  void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest) {
-    mesh_index_pair location;
+  #if ENABLED(UBL_CIRCULAR_PROBING)
+    void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest) {
+      mesh_index_pair location;
 
-    ubl_has_control_of_lcd_panel++;
-    save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
-    DEPLOY_PROBE();
+      ubl_has_control_of_lcd_panel++;
+      save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
+      DEPLOY_PROBE();
 
-    do {
-      if (ubl_lcd_clicked()) {
-        SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
-        lcd_quick_feedback();
-        STOW_PROBE();
-        while (ubl_lcd_clicked() ) {
-          idle();
-        }
-        ubl_has_control_of_lcd_panel = false;
-        restore_ubl_active_state_and_leave();
-        safe_delay(50);  // Debounce the Encoder wheel
-        return;
-      }
-
-      location = find_closest_mesh_point_of_type(INVALID, lx, ly, 1, NULL, do_furthest );  // the '1' says we want the location to be relative to the probe
-      if (location.x_index >= 0 && location.y_index >= 0) {
-        const float xProbe = ubl.map_x_index_to_bed_location(location.x_index),
-                    yProbe = ubl.map_y_index_to_bed_location(location.y_index);
-        if (xProbe < MIN_PROBE_X || xProbe > MAX_PROBE_X || yProbe < MIN_PROBE_Y || yProbe > MAX_PROBE_Y) {
-          SERIAL_PROTOCOLLNPGM("?Error: Attempt to probe off the bed.");
+      do {
+        if (ubl_lcd_clicked()) {
+          SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
+          lcd_quick_feedback();
+          STOW_PROBE();
+          while (ubl_lcd_clicked() ) {
+            idle();
+          }
           ubl_has_control_of_lcd_panel = false;
-          goto LEAVE;
+          restore_ubl_active_state_and_leave();
+          safe_delay(50);  // Debounce the Encoder wheel
+          return;
         }
-        const float measured_z = probe_pt(xProbe, yProbe, stow_probe, g29_verbose_level);
-        z_values[location.x_index][location.y_index] = measured_z + zprobe_zoffset;
+
+        location = find_closest_mesh_point_of_type(INVALID, lx, ly, 1, NULL, do_furthest );  // the '1' says we want the location to be relative to the probe
+        if (location.x_index >= 0 && location.y_index >= 0) {
+          const float xProbe = ubl.map_x_index_to_bed_location(location.x_index),
+                      yProbe = ubl.map_y_index_to_bed_location(location.y_index);
+          if (xProbe < MIN_PROBE_X || xProbe > MAX_PROBE_X || yProbe < MIN_PROBE_Y || yProbe > MAX_PROBE_Y) {
+            SERIAL_PROTOCOLLNPGM("?Error: Attempt to probe off the bed.");
+            ubl_has_control_of_lcd_panel = false;
+            goto LEAVE;
+          }
+          const float measured_z = probe_pt(xProbe, yProbe, stow_probe, g29_verbose_level);
+          z_values[location.x_index][location.y_index] = measured_z + zprobe_zoffset;
+        }
+
+        if (do_ubl_mesh_map) ubl.display_map(map_type);
+
+      } while (location.x_index >= 0 && location.y_index >= 0);
+
+      LEAVE:
+
+      STOW_PROBE();
+      restore_ubl_active_state_and_leave();
+
+      do_blocking_move_to_xy(
+        constrain(lx - (X_PROBE_OFFSET_FROM_EXTRUDER), X_MIN_POS, X_MAX_POS),
+        constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), Y_MIN_POS, Y_MAX_POS)
+      );
+    }
+
+  #elif ENABLED(UBL_RECTANGULAR_PROBING)
+
+    void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest) {
+
+      #define PROBE_CHECK true
+      ubl_has_control_of_lcd_panel++;
+      save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
+      DEPLOY_PROBE();
+
+// this is a copy of the G29 AUTO_BED_LEVELING_BILINEAR method/code
+      #undef PROBE_Y_FIRST
+      #if ENABLED(PROBE_Y_FIRST)
+        #define PR_OUTER_VAR xCount
+        #define PR_OUTER_NUM UBL_MESH_NUM_X_POINTS
+        #define PR_INNER_VAR yCount
+        #define PR_INNER_NUM UBL_MESH_NUM_Y_POINTS
+      #else
+        #define PR_OUTER_VAR yCount
+        #define PR_OUTER_NUM UBL_MESH_NUM_Y_POINTS
+        #define PR_INNER_VAR xCount
+        #define PR_INNER_NUM UBL_MESH_NUM_X_POINTS
+      #endif
+
+      bool zig = PR_OUTER_NUM & 1;  // Always end at RIGHT and BACK_PROBE_BED_POSITION
+
+      // Outer loop is Y with PROBE_Y_FIRST disabled
+      for (uint8_t PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_NUM; PR_OUTER_VAR++) {
+
+        int8_t inStart, inStop, inInc;
+
+        if (zig) { // away from origin
+          inStart = 0;
+          inStop = PR_INNER_NUM;
+          inInc = 1;
+        }
+        else {     // towards origin
+          inStart = PR_INNER_NUM - 1;
+          inStop = -1;
+          inInc = -1;
+        }
+
+        zig = !zig; // zag
+
+        // Inner loop is Y with PROBE_Y_FIRST enabled
+        for (int8_t PR_INNER_VAR = inStart; PR_INNER_VAR != inStop; PR_INNER_VAR += inInc) {
+// end of G29 AUTO_BED_LEVELING_BILINEAR method/code
+          if (ubl_lcd_clicked()) {
+            SERIAL_PROTOCOLLNPGM("\nMesh only partially populated.\n");
+            lcd_quick_feedback();
+            STOW_PROBE();
+            while (ubl_lcd_clicked() ) {
+              idle();
+            }
+            ubl_has_control_of_lcd_panel = false;
+            restore_ubl_active_state_and_leave();
+            safe_delay(50);  // Debounce the Encoder wheel
+            return;
+          }
+
+          const float xNozzle = ubl.map_x_index_to_bed_location(xCount),
+                      yNozzle = ubl.map_y_index_to_bed_location(yCount);
+
+          bool Probe_can_reach = position_is_reachable_UBL(xNozzle, yNozzle, PROBE_CHECK);
+          bool Within_bed = position_is_reachable_UBL(xNozzle, yNozzle, !PROBE_CHECK);
+
+          if (Probe_can_reach && Within_bed && isnan(z_values[xCount][yCount])) {
+
+            const float measured_z = probe_pt(xNozzle - X_PROBE_OFFSET_FROM_EXTRUDER, yNozzle - Y_PROBE_OFFSET_FROM_EXTRUDER, stow_probe, g29_verbose_level);
+            z_values[xCount][yCount] = measured_z + zprobe_zoffset;
+
+            if (do_ubl_mesh_map) ubl.display_map(map_type);
+          }
+//          else if (!Within_bed) z_values[xCount][yCount] = ??   //something to flag that this point can't be used
+        }
       }
+      STOW_PROBE();
+      restore_ubl_active_state_and_leave();
 
-      if (do_ubl_mesh_map) ubl.display_map(map_type);
+      do_blocking_move_to_xy(
+        constrain(lx - (X_PROBE_OFFSET_FROM_EXTRUDER), X_MIN_POS, X_MAX_POS),
+        constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), Y_MIN_POS, Y_MAX_POS)
+        );
+    }
+  #else
+    SERIAL_PROTOCOLLNPGM("ERROR - either UBL_RECTANGULAR_PROBING or UBL_CIRCULAR_PROBING must be enabled");
+  #endif  //  end probe_entire_mesh
 
-    } while (location.x_index >= 0 && location.y_index >= 0);
-
-    LEAVE:
-
-    STOW_PROBE();
-    restore_ubl_active_state_and_leave();
-
-    do_blocking_move_to_xy(
-      constrain(lx - (X_PROBE_OFFSET_FROM_EXTRUDER), X_MIN_POS, X_MAX_POS),
-      constrain(ly - (Y_PROBE_OFFSET_FROM_EXTRUDER), Y_MIN_POS, Y_MAX_POS)
-    );
-  }
 
   vector_3 tilt_mesh_based_on_3pts(const float &pt1, const float &pt2, const float &pt3) {
     float c, d, t;
@@ -1027,7 +1162,7 @@
     }
 
     if (code_seen('O')) {     // Check if a map type was specified
-      map_type = code_value_int() ? code_has_value() : 0; 
+      map_type = code_value_int() ? code_has_value() : 0;
       if ( map_type<0 || map_type>1) {
         SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
         return UBL_ERR;
@@ -1035,7 +1170,7 @@
     }
 
     if (code_seen('M')) {     // Check if a map type was specified
-      map_type = code_value_int() ? code_has_value() : 0; 
+      map_type = code_value_int() ? code_has_value() : 0;
       if ( map_type<0 || map_type>1) {
         SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
         return UBL_ERR;
@@ -1107,7 +1242,7 @@
     statistics_flag++;
 
     SERIAL_PROTOCOLPGM("Unified Bed Leveling System Version 1.00 ");
-    if (ubl.state.active)  
+    if (ubl.state.active)
       SERIAL_PROTOCOLCHAR('A');
     else
       SERIAL_PROTOCOLPGM("In");
@@ -1308,16 +1443,16 @@
 
           distance = HYPOT(px - mx, py - my) + HYPOT(current_x - mx, current_y - my) * 0.1;
 
-	  if (far_flag) {                                    // If doing the far_flag action, we want to be as far as possible
+    if (far_flag) {                                    // If doing the far_flag action, we want to be as far as possible
             for (k = 0; k < UBL_MESH_NUM_X_POINTS; k++) {    // from the starting point and from any other probed points.  We
               for (l = 0; l < UBL_MESH_NUM_Y_POINTS; l++) {  // want the next point spread out and filling in any blank spaces
-                if ( !isnan(z_values[k][l])) {               // in the mesh.   So we add in some of the distance to every probed 
+                if ( !isnan(z_values[k][l])) {               // in the mesh.   So we add in some of the distance to every probed
                   distance += (i-k)*(i-k)*MESH_X_DIST*.05;   // point we can find.
                   distance += (j-l)*(j-l)*MESH_Y_DIST*.05;
-		}
+    }
               }
-	    }
-	  }
+      }
+    }
 
           if ( (!far_flag&&(distance < closest)) || (far_flag&&(distance > closest)) ) {  // if far_flag, look for furthest away point
             closest = distance;       // We found a closer location with
@@ -1367,7 +1502,7 @@
       do_blocking_move_to_z(Z_CLEARANCE_DEPLOY_PROBE);    // Move the nozzle to where we are going to edit
       do_blocking_move_to_xy(xProbe, yProbe);
       float new_z = z_values[location.x_index][location.y_index];
-      
+
       round_off = (int32_t)(new_z * 1000.0);    // we chop off the last digits just to be clean. We are rounding to the
       new_z = float(round_off) / 1000.0;
 
