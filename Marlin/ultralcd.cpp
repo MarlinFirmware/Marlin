@@ -47,7 +47,7 @@ extern float zprobe_zoffset;
 
 int lcd_preheat_hotend_temp[2], lcd_preheat_bed_temp[2], lcd_preheat_fan_speed[2];
 
-#if ENABLED(FILAMENT_LCD_DISPLAY)
+#if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
   millis_t previous_lcd_status_ms = 0;
 #endif
 
@@ -125,7 +125,7 @@ uint16_t max_display_update_time = 0;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
     extern bool ubl_has_control_of_lcd_panel;
-    extern uint8_t ubl_encoderDiff;
+    extern int8_t ubl_encoderDiff;
   #endif
 
   #if HAS_POWER_SWITCH
@@ -547,7 +547,7 @@ void lcd_status_screen() {
   #if ENABLED(ULTIPANEL)
 
     if (lcd_clicked) {
-      #if ENABLED(FILAMENT_LCD_DISPLAY)
+      #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
         previous_lcd_status_ms = millis();  // get status message to show up for a while
       #endif
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
@@ -859,21 +859,23 @@ void kill_screen(const char* lcd_msg) {
     static int ubl_encoderPosition = 0;
 
     static void _lcd_mesh_fine_tune(const char* msg) {
-      static millis_t next_click = 0;
+//    static millis_t next_click = 0;             // We are going to accelerate the number speed when the wheel
+//                                                // turns fast.   But that isn't implemented yet
       int16_t last_digit;
       int32_t rounded;
 
       defer_return_to_status = true;
       if (ubl_encoderDiff) {
-        // If moving the Encoder wheel very slowly, move by just 1 position
-        ubl_encoderPosition = ELAPSED(millis(), next_click)
-          ? ubl_encoderDiff > 0 ? 1 : -1
-          : ubl_encoderDiff * 2;
+        if ( ubl_encoderDiff > 0 ) 
+          ubl_encoderPosition = 1;
+        else {
+          ubl_encoderPosition = -1;
+        }
 
         ubl_encoderDiff = 0;
-        next_click = millis() + 200L;
+//      next_click = millis();
 
-        mesh_edit_accumulator += float((int32_t)ubl_encoderPosition) * .005 / 2.0;
+        mesh_edit_accumulator += ( (float) (ubl_encoderPosition)) * .005 / 2.0 ;
         mesh_edit_value = mesh_edit_accumulator;
         encoderPosition = 0;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
@@ -881,12 +883,16 @@ void kill_screen(const char* lcd_msg) {
         rounded = (int32_t)(mesh_edit_value * 1000.0);
         last_digit = rounded % 5L; //10L;
         rounded -= last_digit;
-        last_digit = rounded % 5L; //10L;
         mesh_edit_value = float(rounded) / 1000.0;
       }
 
       if (lcdDrawUpdate)
         lcd_implementation_drawedit(msg, ftostr43sign(mesh_edit_value));
+    }
+
+
+    void _lcd_mesh_edit_NOP() {
+      defer_return_to_status = true;
     }
 
 
@@ -896,13 +902,17 @@ void kill_screen(const char* lcd_msg) {
     }
 
     float lcd_mesh_edit() {
-      lcd_goto_screen(_lcd_mesh_edit);
+      lcd_goto_screen(_lcd_mesh_edit_NOP);
+      _lcd_mesh_fine_tune(PSTR("Mesh Editor: "));
+      defer_return_to_status = true;
       return mesh_edit_value;
     }
 
     void lcd_mesh_edit_setup(float initial) {
       mesh_edit_value = mesh_edit_accumulator = initial;
-      lcd_goto_screen(_lcd_mesh_edit);
+      lcd_goto_screen(_lcd_mesh_edit_NOP);
+      mesh_edit_value = mesh_edit_accumulator = initial;
+      defer_return_to_status = true; 
     }
 
     void _lcd_z_offset_edit() {
@@ -3446,7 +3456,7 @@ void lcd_finishstatus(bool persist=false) {
   #endif
   lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
 
-  #if ENABLED(FILAMENT_LCD_DISPLAY)
+  #if ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
     previous_lcd_status_ms = millis();  //get status message to show up for a while
   #endif
 }
