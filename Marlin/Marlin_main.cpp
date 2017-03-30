@@ -2158,6 +2158,40 @@ static void clean_up_after_endstop_or_probe_move() {
     return false;
   }
 
+    static void do_probe_move(float z, float fr_mm_m) {
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS(">>> do_probe_move", current_position);
+    #endif
+
+    // Deploy BLTouch at the start of any probe
+    #if ENABLED(BLTOUCH)
+      set_bltouch_deployed(true);
+    #endif
+
+    // Move down until probe triggered
+    do_blocking_move_to_z(LOGICAL_Z_POSITION(z), MMM_TO_MMS(fr_mm_m));
+
+    // Retract BLTouch immediately after a probe
+    #if ENABLED(BLTOUCH)
+      set_bltouch_deployed(false);
+    #endif
+
+    // Clear endstop flags
+    endstops.hit_on_purpose();
+
+    // Get Z where the steppers were interrupted
+    set_current_from_steppers_for_axis(Z_AXIS);
+
+    // Tell the planner where we actually are
+    SYNC_PLAN_POSITION_KINEMATIC();
+
+    #if ENABLED(DEBUG_LEVELING_FEATURE)
+      if (DEBUGGING(LEVELING)) DEBUG_POS("<<< do_probe_move", current_position);
+    #endif
+  }
+
+  // Do a single Z probe and return with current_position[Z_AXIS]
+  // at the height where the probe triggered.
   static float run_z_probe() {
 
     #if ENABLED(DEBUG_LEVELING_FEATURE)
