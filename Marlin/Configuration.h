@@ -651,9 +651,10 @@
 // Speed for the first approach when double-probing (with PROBE_DOUBLE_TOUCH)
 #define Z_PROBE_SPEED_FAST HOMING_FEEDRATE_Z
 // Speed for the "accurate" probe of each point
-#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 2)
-// Use double touch for probing
-#define PROBE_DOUBLE_TOUCH
+#define Z_PROBE_SPEED_SLOW (Z_PROBE_SPEED_FAST / 4)
+
+#define PROBE_DOUBLE_TOUCH // Use double touch for probing
+#define PROBING_PRECISION 0.0149 // set the precision for double touch probing
 
 // Allen key retractable z-probe as seen on many Kossel delta printers - http://reprap.org/wiki/Kossel#Automatic_bed_leveling_probe
 // Deploys by touching z-axis belt. Retracts by pushing the probe down. Uses Z_MIN_PIN.
