@@ -862,8 +862,9 @@
   #define UBL_PROBE_PT_2_Y 20
   #define UBL_PROBE_PT_3_X 180
   #define UBL_PROBE_PT_3_Y 20
-  #define UBL_MESH_EDIT_ENABLED     // Enable G26 mesh editing
-
+  #define UBL_CIRCULAR_PROBING          // circular probing starting at mesh point nearest nozzle
+  //#define UBL_RECTANGULAR_PROBING     // probe grid linearly
+  #define UBL_MESH_EDIT_ENABLED     // Enable G29 & G26 mesh editing
 #elif ENABLED(MESH_BED_LEVELING)
 
   //===========================================================================
