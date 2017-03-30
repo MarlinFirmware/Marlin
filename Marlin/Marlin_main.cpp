@@ -655,11 +655,9 @@ static bool send_ok[BUFSIZE];
   static MarlinBusyState busy_state = NOT_BUSY;
   static millis_t next_busy_signal_ms = 0;
   uint8_t host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
-  #define KEEPALIVE_STATE(n) do{ busy_state = n; }while(0)
 #else
-  #define host_keepalive() ;
-  #define KEEPALIVE_STATE(n) ;
-#endif // HOST_KEEPALIVE_FEATURE
+  #define host_keepalive() NOOP
+#endif
 
 static inline float pgm_read_any(const float *p) { return pgm_read_float_near(p); }
 static inline signed char pgm_read_any(const signed char *p) { return pgm_read_byte_near(p); }
@@ -1021,7 +1019,7 @@ inline void get_serial_commands() {
   // send "wait" to indicate Marlin is still waiting.
   #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
     static millis_t last_command_time = 0;
-    millis_t ms = millis();
+    const millis_t ms = millis();
     if (commands_in_queue == 0 && !MYSERIAL.available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(MSG_WAIT);
       last_command_time = ms;
@@ -4700,8 +4698,8 @@ inline void gcode_G92() {
 
     #endif
 
-    wait_for_user = true;
     KEEPALIVE_STATE(PAUSED_FOR_USER);
+    wait_for_user = true;
 
     stepper.synchronize();
     refresh_cmd_timeout();
@@ -5040,7 +5038,7 @@ inline void gcode_M42() {
       if (first_pin > NUM_DIGITAL_PINS - 1) return;
     }
 
-    bool ignore_protection = code_seen('I') ? code_value_bool() : false;
+    const bool ignore_protection = code_seen('I') ? code_value_bool() : false;
 
     // Watch until click, M108, or reset
     if (code_seen('W') && code_value_bool()) { // watch digital pins
@@ -6314,8 +6312,8 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
     #if DISABLED(SDSUPPORT)
       // Wait for lcd click or M108
-      wait_for_user = true;
       KEEPALIVE_STATE(PAUSED_FOR_USER);
+      wait_for_user = true;
       while (wait_for_user) idle();
       KEEPALIVE_STATE(IN_HANDLER);
 
@@ -7581,7 +7579,7 @@ inline void gcode_M503() {
     disable_e_steppers();
     safe_delay(100);
 
-    millis_t nozzle_timeout = millis() + (millis_t)(FILAMENT_CHANGE_NOZZLE_TIMEOUT) * 1000L;
+    const millis_t nozzle_timeout = millis() + (millis_t)(FILAMENT_CHANGE_NOZZLE_TIMEOUT) * 1000UL;
     bool nozzle_timed_out = false;
     float temps[4];
 
@@ -7596,9 +7594,10 @@ inline void gcode_M503() {
 
     HOTEND_LOOP() temps[e] = thermalManager.target_temperature[e]; // Save nozzle temps
 
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;    // LCD click or M108 will clear this
     while (wait_for_user) {
-      millis_t current_ms = millis();
+
       if (nozzle_timed_out)
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
 
@@ -7606,15 +7605,14 @@ inline void gcode_M503() {
         filament_change_beep();
       #endif
 
-      if (current_ms >= nozzle_timeout) {
-        if (!nozzle_timed_out) {
-          nozzle_timed_out = true; // on nozzle timeout remember the nozzles need to be reheated
-          HOTEND_LOOP() thermalManager.setTargetHotend(0, e); // Turn off all the nozzles
-          lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
-        }
+      if (!nozzle_timed_out && ELAPSED(millis(), nozzle_timeout)) {
+        nozzle_timed_out = true; // on nozzle timeout remember the nozzles need to be reheated
+        HOTEND_LOOP() thermalManager.setTargetHotend(0, e); // Turn off all the nozzles
+        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
       }
       idle(true);
     }
+    KEEPALIVE_STATE(IN_HANDLER);
 
     if (nozzle_timed_out)      // Turn nozzles back on if they were turned off
       HOTEND_LOOP() thermalManager.setTargetHotend(temps[e], e);
@@ -7642,6 +7640,7 @@ inline void gcode_M503() {
       filament_change_beep(true);
     #endif
 
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;    // LCD click or M108 will clear this
     while (wait_for_user && nozzle_timed_out) {
       #if HAS_BUZZER
@@ -7649,6 +7648,7 @@ inline void gcode_M503() {
       #endif
       idle(true);
     }
+    KEEPALIVE_STATE(IN_HANDLER);
 
     // Show "load" message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
@@ -10160,9 +10160,9 @@ void prepare_move_to_destination() {
 #if HAS_CONTROLLERFAN
 
   void controllerFan() {
-    static millis_t lastMotorOn = 0; // Last time a motor was turned on
-    static millis_t nextMotorCheck = 0; // Last time the state was checked
-    millis_t ms = millis();
+    static millis_t lastMotorOn = 0, // Last time a motor was turned on
+                    nextMotorCheck = 0; // Last time the state was checked
+    const millis_t ms = millis();
     if (ELAPSED(ms, nextMotorCheck)) {
       nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
       if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_bed > 0
@@ -10495,7 +10495,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   if (commands_in_queue < BUFSIZE) get_available_commands();
 
-  millis_t ms = millis();
+  const millis_t ms = millis();
 
   if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) {
     SERIAL_ERROR_START;
@@ -10709,7 +10709,7 @@ void kill(const char* lcd_msg) {
 
   thermalManager.disable_all_heaters();
   disable_all_steppers();
-            
+
   #if ENABLED(ULTRA_LCD)
     kill_screen(lcd_msg);
   #else
@@ -10718,7 +10718,7 @@ void kill(const char* lcd_msg) {
 
   _delay_ms(250); // Wait a short time
   cli(); // Stop interrupts
-            
+
   _delay_ms(250); //Wait to ensure all interrupts routines stopped
   thermalManager.disable_all_heaters(); //turn off heaters again
 
