@@ -38,26 +38,45 @@
   void bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { SBI(bits[y], x); }
   bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
 
-  /**
-   * These variables used to be declared inside the unified_bed_leveling class. We are going to
-   * still declare them within the .cpp file for bed leveling. But there is only one instance of
-   * the bed leveling object and we can get rid of a level of inderection by not making them
-   * 'member data'. So, in the interest of speed, we do it this way. On a 32-bit CPU they can be
-   * moved back inside the bed leveling class.
-   */
-  float last_specified_z,
-        fade_scaling_factor_for_current_height,
-        z_values[UBL_MESH_NUM_X_POINTS][UBL_MESH_NUM_Y_POINTS],
-        mesh_index_to_x_location[UBL_MESH_NUM_X_POINTS + 1], // +1 just because of paranoia that we might end up on the
-        mesh_index_to_y_location[UBL_MESH_NUM_Y_POINTS + 1]; // the last Mesh Line and that is the start of a whole new cell
+  static void serial_echo_xy(const uint16_t x, const uint16_t y) {
+    SERIAL_CHAR('(');
+    SERIAL_ECHO(x);
+    SERIAL_CHAR(',');
+    SERIAL_ECHO(y);
+    SERIAL_CHAR(')');
+    safe_delay(10);
+  }
+
+  static void serial_echo_10x_spaces() {
+    for (uint8_t i = UBL_MESH_NUM_X_POINTS - 1; --i;) {
+      SERIAL_ECHOPGM("          ");
+      #if TX_BUFFER_SIZE > 0
+        MYSERIAL.flushTX();
+      #endif
+      safe_delay(10);
+    }
+  }
+
+  ubl_state unified_bed_leveling::state, unified_bed_leveling::pre_initialized;
+
+  float unified_bed_leveling::z_values[UBL_MESH_NUM_X_POINTS][UBL_MESH_NUM_Y_POINTS],
+        unified_bed_leveling::last_specified_z,
+        unified_bed_leveling::fade_scaling_factor_for_current_height,
+        unified_bed_leveling::mesh_index_to_xpos[UBL_MESH_NUM_X_POINTS + 1], // +1 safety margin for now, until determinism prevails
+        unified_bed_leveling::mesh_index_to_ypos[UBL_MESH_NUM_Y_POINTS + 1];
+
+  bool unified_bed_leveling::g26_debug_flag = false,
+       unified_bed_leveling::has_control_of_lcd_panel = false;
+
+  int8_t unified_bed_leveling::eeprom_start = -1;
+
+  volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    for (uint8_t i = 0; i <= UBL_MESH_NUM_X_POINTS; i++)  // We go one past what we expect to ever need for safety
-      mesh_index_to_x_location[i] = double(UBL_MESH_MIN_X) + double(MESH_X_DIST) * double(i);
-
-    for (uint8_t i = 0; i <= UBL_MESH_NUM_Y_POINTS; i++)  // We go one past what we expect to ever need for safety
-      mesh_index_to_y_location[i] = double(UBL_MESH_MIN_Y) + double(MESH_Y_DIST) * double(i);
-
+    for (uint8_t i = 0; i < COUNT(mesh_index_to_xpos); i++)
+      mesh_index_to_xpos[i] = UBL_MESH_MIN_X + i * (MESH_X_DIST);
+    for (uint8_t i = 0; i < COUNT(mesh_index_to_ypos); i++)
+      mesh_index_to_ypos[i] = UBL_MESH_MIN_Y + i * (MESH_Y_DIST);
     reset();
   }
 
@@ -76,7 +95,7 @@
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       /**
        * These lines can go away in a few weeks.  They are just
-       * to make sure people updating thier firmware won't be using
+       * to make sure people updating their firmware won't be using
        * an incomplete Bed_Leveling.state structure. For speed
        * we now multiply by the inverse of the Fade Height instead of
        * dividing by it. Soon... all of the old structures will be
@@ -91,7 +110,7 @@
   }
 
   void unified_bed_leveling::load_mesh(const int16_t m) {
-    int16_t j = (UBL_LAST_EEPROM_INDEX - ubl_eeprom_start) / sizeof(z_values);
+    int16_t j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
 
     if (m == -1) {
       SERIAL_PROTOCOLLNPGM("?No mesh saved in EEPROM. Zeroing mesh in memory.\n");
@@ -99,25 +118,22 @@
       return;
     }
 
-    if (m < 0 || m >= j || ubl_eeprom_start <= 0) {
+    if (m < 0 || m >= j || eeprom_start <= 0) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
       return;
     }
 
     j = UBL_LAST_EEPROM_INDEX - (m + 1) * sizeof(z_values);
-    eeprom_read_block((void *)&z_values , (void *)j, sizeof(z_values));
+    eeprom_read_block((void *)&z_values, (void *)j, sizeof(z_values));
 
-    SERIAL_PROTOCOLPGM("Mesh loaded from slot ");
-    SERIAL_PROTOCOL(m);
-    SERIAL_PROTOCOLPGM("  at offset 0x");
-    prt_hex_word(j);
-    SERIAL_EOL;
+    SERIAL_PROTOCOLPAIR("Mesh loaded from slot ", m);
+    SERIAL_PROTOCOLLNPAIR(" at offset 0x", hex_word(j));
   }
 
   void unified_bed_leveling::store_mesh(const int16_t m) {
-    int16_t j = (UBL_LAST_EEPROM_INDEX - ubl_eeprom_start) / sizeof(z_values);
+    int16_t j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
 
-    if (m < 0 || m >= j || ubl_eeprom_start <= 0) {
+    if (m < 0 || m >= j || eeprom_start <= 0) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
       SERIAL_PROTOCOL(m);
       SERIAL_PROTOCOLLNPGM(" mesh slots available.\n");
@@ -132,11 +148,8 @@
     j = UBL_LAST_EEPROM_INDEX - (m + 1) * sizeof(z_values);
     eeprom_write_block((const void *)&z_values, (void *)j, sizeof(z_values));
 
-    SERIAL_PROTOCOLPGM("Mesh saved in slot ");
-    SERIAL_PROTOCOL(m);
-    SERIAL_PROTOCOLPGM("  at offset 0x");
-    prt_hex_word(j);
-    SERIAL_EOL;
+    SERIAL_PROTOCOLPAIR("Mesh saved in slot ", m);
+    SERIAL_PROTOCOLLNPAIR(" at offset 0x", hex_word(j));
   }
 
   void unified_bed_leveling::reset() {
@@ -151,9 +164,6 @@
   }
 
   void unified_bed_leveling::invalidate() {
-    prt_hex_word((unsigned int)this);
-    SERIAL_EOL;
-
     state.active = false;
     state.z_offset = 0;
     for (int x = 0; x < UBL_MESH_NUM_X_POINTS; x++)
@@ -162,172 +172,114 @@
   }
 
   void unified_bed_leveling::display_map(const int map_type) {
-    float f, current_xi, current_yi;
-    int8_t i, j;
-    UNUSED(map_type);
 
-    if (map_type==0) {
+    const bool map0 = map_type == 0;
+
+    if (map0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
-
-      SERIAL_ECHOPAIR("(", 0);
-      SERIAL_ECHOPAIR(", ", UBL_MESH_NUM_Y_POINTS - 1);
-      SERIAL_ECHOPGM(")    ");
+      serial_echo_xy(0, UBL_MESH_NUM_Y_POINTS - 1);
+      SERIAL_ECHOPGM("    ");
     }
 
-    current_xi = ubl.get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0);
-    current_yi = ubl.get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
-
-    if (map_type==0) {
-      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
-        SERIAL_ECHOPGM("            ");
-        #if TX_BUFFER_SIZE>0
-          MYSERIAL.flushTX();
-        #endif
-        safe_delay(15);
-      }
-      
-      SERIAL_ECHOPAIR("(", UBL_MESH_NUM_X_POINTS - 1);
-      SERIAL_ECHOPAIR(",", UBL_MESH_NUM_Y_POINTS - 1);
-      SERIAL_ECHOLNPGM(")");
-
-      SERIAL_ECHOPAIR("(", UBL_MESH_MIN_X);
-      SERIAL_ECHOPAIR(",", UBL_MESH_MAX_Y);
-      SERIAL_CHAR(')');
-      safe_delay(15);
-
-      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
-        SERIAL_ECHOPGM("            ");
-        #if TX_BUFFER_SIZE>0
-          MYSERIAL.flushTX();
-        #endif
-        safe_delay(15);
-      }
-
-      SERIAL_ECHOPAIR("(", UBL_MESH_MAX_X);
-      SERIAL_ECHOPAIR(",", UBL_MESH_MAX_Y);
-      SERIAL_ECHOLNPGM(")");
-      safe_delay(15);
+    if (map0) {
+      serial_echo_10x_spaces();
+      serial_echo_xy(UBL_MESH_NUM_X_POINTS - 1, UBL_MESH_NUM_Y_POINTS - 1);
+      SERIAL_EOL;
+      serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
+      serial_echo_10x_spaces();
+      serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MAX_Y);
+      SERIAL_EOL;
     }
 
-    for (j = UBL_MESH_NUM_Y_POINTS - 1; j >= 0; j--) {
-      for (i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
-        f = z_values[i][j];
+    const float current_xi = ubl.get_cell_index_x(current_position[X_AXIS] + (MESH_X_DIST) / 2.0),
+                current_yi = ubl.get_cell_index_y(current_position[Y_AXIS] + (MESH_Y_DIST) / 2.0);
 
-        // is the nozzle here?  if so, mark the number
-        if (map_type==0) 
-          SERIAL_CHAR(i == current_xi && j == current_yi ? '[' : ' ');
+    for (uint8_t j = UBL_MESH_NUM_Y_POINTS - 1; j >= 0; j--) {
+      for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
+        const bool is_current = i == current_xi && j == current_yi;
 
-        if (isnan(f))
-          if (map_type==0) {
-            SERIAL_PROTOCOLPGM("    .    ");
-          } else 
-            SERIAL_PROTOCOLPGM("NAN");
+        // is the nozzle here? then mark the number
+        if (map0) SERIAL_CHAR(is_current ? '[' : ' ');
+
+        const float f = z_values[i][j];
+        if (isnan(f)) {
+          serialprintPGM(map0 ? PSTR("    .    ") : PSTR("NAN"));
+        }
         else {
           // if we don't do this, the columns won't line up nicely
-          if (f>=0.0 && map_type==0) SERIAL_CHAR(' ');
+          if (map0 && f >= 0.0) SERIAL_CHAR(' ');
           SERIAL_PROTOCOL_F(f, 3);
           idle();
         }
-        if (map_type!=0 && i<UBL_MESH_NUM_X_POINTS-1) 
-         SERIAL_PROTOCOLPGM(",");
+        if (!map0 && i < UBL_MESH_NUM_X_POINTS - 1) SERIAL_CHAR(',');
 
-        #if TX_BUFFER_SIZE>0
+        #if TX_BUFFER_SIZE > 0
           MYSERIAL.flushTX();
         #endif
         safe_delay(15);
-        if (map_type==0) {
-          if (i == current_xi && j == current_yi) // is the nozzle here? if so, finish marking the number
-            SERIAL_CHAR(']');
-          else
-            SERIAL_PROTOCOL("  ");
+        if (map0) {
+          SERIAL_CHAR(is_current ? ']' : ' ');
           SERIAL_CHAR(' ');
         }
       }
       SERIAL_EOL;
-      if (j && map_type==0) { // we want the (0,0) up tight against the block of numbers
+      if (j && map0) { // we want the (0,0) up tight against the block of numbers
         SERIAL_CHAR(' ');
         SERIAL_EOL;
       }
     }
 
-    if (map_type==0) {
-      SERIAL_ECHOPAIR("(", int(UBL_MESH_MIN_X));
-      SERIAL_ECHOPAIR(",", int(UBL_MESH_MIN_Y));
-      SERIAL_ECHOPGM(")    ");
-
-      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++)  {
-        SERIAL_ECHOPGM("            ");
-        #if TX_BUFFER_SIZE>0
-          MYSERIAL.flushTX();
-        #endif
-        safe_delay(15);
-      }
-      SERIAL_ECHOPAIR("(", int(UBL_MESH_MAX_X));
-      SERIAL_ECHOPAIR(",", int(UBL_MESH_MIN_Y));
-      SERIAL_CHAR(')');
+    if (map0) {
+      serial_echo_xy(UBL_MESH_MIN_X, UBL_MESH_MIN_Y);
+      SERIAL_ECHOPGM("    ");
+      serial_echo_10x_spaces();
+      serial_echo_xy(UBL_MESH_MAX_X, UBL_MESH_MIN_Y);
       SERIAL_EOL;
-
-      SERIAL_ECHOPAIR("(", 0);
-      SERIAL_ECHOPAIR(",", 0);
-      SERIAL_ECHOPGM(")       ");
-
-      for (i = 0; i < UBL_MESH_NUM_X_POINTS - 1; i++) {
-        SERIAL_ECHOPGM("            ");
-        #if TX_BUFFER_SIZE>0
-          MYSERIAL.flushTX();
-        #endif
-        safe_delay(15);
-      }
-      SERIAL_ECHOPAIR("(", UBL_MESH_NUM_X_POINTS-1);
-      SERIAL_ECHOPAIR(",", 0);
-      SERIAL_ECHOLNPGM(")");
+      serial_echo_xy(0, 0);
+      SERIAL_ECHOPGM("       ");
+      serial_echo_10x_spaces();
+      serial_echo_xy(UBL_MESH_NUM_X_POINTS - 1, 0);
+      SERIAL_EOL;
     }
   }
 
   bool unified_bed_leveling::sanity_check() {
     uint8_t error_flag = 0;
 
-    if (state.n_x !=  UBL_MESH_NUM_X_POINTS) {
+    if (state.n_x != UBL_MESH_NUM_X_POINTS) {
       SERIAL_PROTOCOLLNPGM("?UBL_MESH_NUM_X_POINTS set wrong\n");
       error_flag++;
     }
-
-    if (state.n_y !=  UBL_MESH_NUM_Y_POINTS) {
+    if (state.n_y != UBL_MESH_NUM_Y_POINTS) {
       SERIAL_PROTOCOLLNPGM("?UBL_MESH_NUM_Y_POINTS set wrong\n");
       error_flag++;
     }
-
-    if (state.mesh_x_min !=  UBL_MESH_MIN_X) {
+    if (state.mesh_x_min != UBL_MESH_MIN_X) {
       SERIAL_PROTOCOLLNPGM("?UBL_MESH_MIN_X set wrong\n");
       error_flag++;
     }
-
-    if (state.mesh_y_min !=  UBL_MESH_MIN_Y) {
+    if (state.mesh_y_min != UBL_MESH_MIN_Y) {
       SERIAL_PROTOCOLLNPGM("?UBL_MESH_MIN_Y set wrong\n");
       error_flag++;
     }
-
-    if (state.mesh_x_max !=  UBL_MESH_MAX_X) {
+    if (state.mesh_x_max != UBL_MESH_MAX_X) {
       SERIAL_PROTOCOLLNPGM("?UBL_MESH_MAX_X set wrong\n");
       error_flag++;
     }
-
-    if (state.mesh_y_max !=  UBL_MESH_MAX_Y) {
+    if (state.mesh_y_max != UBL_MESH_MAX_Y) {
       SERIAL_PROTOCOLLNPGM("?UBL_MESH_MAX_Y set wrong\n");
       error_flag++;
     }
-
-    if (state.mesh_x_dist !=  MESH_X_DIST) {
+    if (state.mesh_x_dist != MESH_X_DIST) {
       SERIAL_PROTOCOLLNPGM("?MESH_X_DIST set wrong\n");
       error_flag++;
     }
-
-    if (state.mesh_y_dist !=  MESH_Y_DIST) {
+    if (state.mesh_y_dist != MESH_Y_DIST) {
       SERIAL_PROTOCOLLNPGM("?MESH_Y_DIST set wrong\n");
       error_flag++;
     }
 
-    const int j = (UBL_LAST_EEPROM_INDEX - ubl_eeprom_start) / sizeof(z_values);
+    const int j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
     if (j < 1) {
       SERIAL_PROTOCOLLNPGM("?No EEPROM storage available for a mesh of this size.\n");
       error_flag++;

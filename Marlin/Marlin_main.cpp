@@ -299,11 +299,11 @@
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "UBL.h"
   unified_bed_leveling ubl;
-#define UBL_MESH_VALID !(   z_values[0][0] == z_values[0][1] && z_values[0][1] == z_values[0][2] \
-                         && z_values[1][0] == z_values[1][1] && z_values[1][1] == z_values[1][2] \
-                         && z_values[2][0] == z_values[2][1] && z_values[2][1] == z_values[2][2] \
-                         && z_values[0][0] == 0 && z_values[1][0] == 0 && z_values[2][0] == 0    \
-                         || isnan(z_values[0][0]))
+  #define UBL_MESH_VALID !( ( ubl.z_values[0][0] == ubl.z_values[0][1] && ubl.z_values[0][1] == ubl.z_values[0][2] \
+                           && ubl.z_values[1][0] == ubl.z_values[1][1] && ubl.z_values[1][1] == ubl.z_values[1][2] \
+                           && ubl.z_values[2][0] == ubl.z_values[2][1] && ubl.z_values[2][1] == ubl.z_values[2][2] \
+                           && ubl.z_values[0][0] == 0 && ubl.z_values[1][0] == 0 && ubl.z_values[2][0] == 0 )  \
+                           || isnan(ubl.z_values[0][0]))
 #endif
 
 bool Running = true;
@@ -652,27 +652,19 @@ static bool send_ok[BUFSIZE];
 #endif
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
-  static MarlinBusyState busy_state = NOT_BUSY;
+  MarlinBusyState busy_state = NOT_BUSY;
   static millis_t next_busy_signal_ms = 0;
   uint8_t host_keepalive_interval = DEFAULT_KEEPALIVE_INTERVAL;
-  #define KEEPALIVE_STATE(n) do{ busy_state = n; }while(0)
 #else
-  #define host_keepalive() ;
-  #define KEEPALIVE_STATE(n) ;
-#endif // HOST_KEEPALIVE_FEATURE
+  #define host_keepalive() NOOP
+#endif
 
-#define DEFINE_PGM_READ_ANY(type, reader)       \
-  static inline type pgm_read_any(const type *p)  \
-  { return pgm_read_##reader##_near(p); }
-
-DEFINE_PGM_READ_ANY(float,       float)
-DEFINE_PGM_READ_ANY(signed char, byte)
+static inline float pgm_read_any(const float *p) { return pgm_read_float_near(p); }
+static inline signed char pgm_read_any(const signed char *p) { return pgm_read_byte_near(p); }
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
-  static const PROGMEM type array##_P[XYZ] =        \
-      { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
-  static inline type array(int axis)          \
-  { return pgm_read_any(&array##_P[axis]); }
+  static const PROGMEM type array##_P[XYZ] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG }; \
+  static inline type array(AxisEnum axis) { return pgm_read_any(&array##_P[axis]); }
 
 XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,   MIN_POS)
 XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,   MAX_POS)
@@ -848,12 +840,8 @@ static bool drain_injected_commands_P() {
     cmd[sizeof(cmd) - 1] = '\0';
     while ((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
     cmd[i] = '\0';
-    if (shove_and_echo_command(cmd)) {     // success?
-      if (c)                               // newline char?
-        injected_commands_P += i + 1;      // advance to the next command
-      else
-        injected_commands_P = NULL;        // nul char? no more commands
-    }
+    if (shove_and_echo_command(cmd))       // success?
+      injected_commands_P = c ? injected_commands_P + i + 1 : NULL; // next command or done
   }
   return (injected_commands_P != NULL);    // return whether any more remain
 }
@@ -1031,7 +1019,7 @@ inline void get_serial_commands() {
   // send "wait" to indicate Marlin is still waiting.
   #if defined(NO_TIMEOUTS) && NO_TIMEOUTS > 0
     static millis_t last_command_time = 0;
-    millis_t ms = millis();
+    const millis_t ms = millis();
     if (commands_in_queue == 0 && !MYSERIAL.available() && ELAPSED(ms, last_command_time + NO_TIMEOUTS)) {
       SERIAL_ECHOLNPGM(MSG_WAIT);
       last_command_time = ms;
@@ -3233,7 +3221,7 @@ inline void gcode_G4() {
    */
   inline void gcode_G12() {
     // Don't allow nozzle cleaning without homing first
-    if (axis_unhomed_error(true, true, true)) { return; }
+    if (axis_unhomed_error(true, true, true)) return;
 
     const uint8_t pattern = code_seen('P') ? code_value_ushort() : 0,
                   strokes = code_seen('S') ? code_value_ushort() : NOZZLE_CLEAN_STROKES,
@@ -3851,7 +3839,7 @@ inline void gcode_G28() {
         // If there's another point to sample, move there with optional lift.
         if (probe_index < (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
           mbl.zigzag(probe_index, px, py);
-          _mbl_goto_xy(mbl.get_probe_x(px), mbl.get_probe_y(py));
+          _mbl_goto_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
 
           #if HAS_SOFTWARE_ENDSTOPS
             // Disable software endstops to allow manual adjustment
@@ -4710,8 +4698,8 @@ inline void gcode_G92() {
 
     #endif
 
-    wait_for_user = true;
     KEEPALIVE_STATE(PAUSED_FOR_USER);
+    wait_for_user = true;
 
     stepper.synchronize();
     refresh_cmd_timeout();
@@ -5050,7 +5038,7 @@ inline void gcode_M42() {
       if (first_pin > NUM_DIGITAL_PINS - 1) return;
     }
 
-    bool ignore_protection = code_seen('I') ? code_value_bool() : false;
+    const bool ignore_protection = code_seen('I') ? code_value_bool() : false;
 
     // Watch until click, M108, or reset
     if (code_seen('W') && code_value_bool()) { // watch digital pins
@@ -5356,17 +5344,15 @@ inline void gcode_M42() {
 
 #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
+#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_EDITING)
 
   inline void gcode_M49() {
+    ubl.g26_debug_flag = !ubl.g26_debug_flag;
     SERIAL_PROTOCOLPGM("UBL Debug Flag turned ");
-    if ((g26_debug_flag = !g26_debug_flag))
-      SERIAL_PROTOCOLLNPGM("on.");
-    else
-      SERIAL_PROTOCOLLNPGM("off.");
+    serialprintPGM(ubl.g26_debug_flag ? PSTR("on.") : PSTR("off."));
   }
 
-#endif // AUTO_BED_LEVELING_UBL && UBL_MESH_EDIT_ENABLED
+#endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_EDITING
 
 /**
  * M75: Start print timer
@@ -6324,8 +6310,8 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
     #if DISABLED(SDSUPPORT)
       // Wait for lcd click or M108
-      wait_for_user = true;
       KEEPALIVE_STATE(PAUSED_FOR_USER);
+      wait_for_user = true;
       while (wait_for_user) idle();
       KEEPALIVE_STATE(IN_HANDLER);
 
@@ -7222,13 +7208,59 @@ void quickstop_stepper() {
   /**
    * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
    *
-   *       S[bool]   Turns leveling on or off
-   *       Z[height] Sets the Z fade height (0 or none to disable)
-   *       V[bool]   Verbose - Print the leveling grid
+   *   S[bool]   Turns leveling on or off
+   *   Z[height] Sets the Z fade height (0 or none to disable)
+   *   V[bool]   Verbose - Print the leveling grid
+   *
+   *   With AUTO_BED_LEVELING_UBL only:
+   *
+   *     L[index]  Load UBL mesh from index (0 is default)
    */
   inline void gcode_M420() {
-    bool to_enable = false;
 
+    #if ENABLED(AUTO_BED_LEVELING_UBL)
+      // L to load a mesh from the EEPROM
+      if (code_seen('L')) {
+        const int8_t storage_slot = code_has_value() ? code_value_int() : ubl.state.eeprom_storage_slot;
+        const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values);
+        if (storage_slot < 0 || storage_slot >= j || ubl.eeprom_start <= 0) {
+          SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
+          return;
+        }
+
+        ubl.load_mesh(storage_slot);
+        if (storage_slot != ubl.state.eeprom_storage_slot) ubl.store_state();
+        ubl.state.eeprom_storage_slot = storage_slot;
+        ubl.display_map(0);  // Right now, we only support one type of map
+        SERIAL_ECHOLNPAIR("UBL_MESH_VALID =  ", UBL_MESH_VALID);
+        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
+      }
+    #endif // AUTO_BED_LEVELING_UBL
+
+    // V to print the matrix or mesh
+    if (code_seen('V')) {
+      #if ABL_PLANAR
+        planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
+      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
+        if (bilinear_grid_spacing[X_AXIS]) {
+          print_bilinear_leveling_grid();
+          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
+            bed_level_virt_print();
+          #endif
+        }
+      #elif ENABLED(AUTO_BED_LEVELING_UBL)
+        ubl.display_map(0);  // Currently only supports one map type
+        SERIAL_ECHOLNPAIR("UBL_MESH_VALID =  ", UBL_MESH_VALID);
+        SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
+      #elif ENABLED(MESH_BED_LEVELING)
+        if (mbl.has_mesh()) {
+          SERIAL_ECHOLNPGM("Mesh Bed Level data:");
+          mbl_mesh_report();
+        }
+      #endif
+    }
+
+    bool to_enable = false;
     if (code_seen('S')) {
       to_enable = code_value_bool();
       set_bed_leveling_enabled(to_enable);
@@ -7255,28 +7287,6 @@ void quickstop_stepper() {
 
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPAIR("Bed Leveling ", new_status ? MSG_ON : MSG_OFF);
-
-    // V to print the matrix or mesh
-    if (code_seen('V')) {
-      #if ABL_PLANAR
-        planner.bed_level_matrix.debug("Bed Level Correction Matrix:");
-      #elif ENABLED(AUTO_BED_LEVELING_BILINEAR)
-        if (bilinear_grid_spacing[X_AXIS]) {
-          print_bilinear_leveling_grid();
-          #if ENABLED(ABL_BILINEAR_SUBDIVISION)
-            bed_level_virt_print();
-          #endif
-        }
-      #elif ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl.display_map(0);  // Right now, we only support one type of map
-      #elif ENABLED(MESH_BED_LEVELING)
-        if (mbl.has_mesh()) {
-          SERIAL_ECHOLNPGM("Mesh Bed Level data:");
-          mbl_mesh_report();
-        }
-      #endif
-    }
-
   }
 #endif
 
@@ -7591,7 +7601,7 @@ inline void gcode_M503() {
     disable_e_steppers();
     safe_delay(100);
 
-    millis_t nozzle_timeout = millis() + (millis_t)(FILAMENT_CHANGE_NOZZLE_TIMEOUT) * 1000L;
+    const millis_t nozzle_timeout = millis() + (millis_t)(FILAMENT_CHANGE_NOZZLE_TIMEOUT) * 1000UL;
     bool nozzle_timed_out = false;
     float temps[4];
 
@@ -7606,9 +7616,10 @@ inline void gcode_M503() {
 
     HOTEND_LOOP() temps[e] = thermalManager.target_temperature[e]; // Save nozzle temps
 
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;    // LCD click or M108 will clear this
     while (wait_for_user) {
-      millis_t current_ms = millis();
+
       if (nozzle_timed_out)
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
 
@@ -7616,15 +7627,14 @@ inline void gcode_M503() {
         filament_change_beep();
       #endif
 
-      if (current_ms >= nozzle_timeout) {
-        if (!nozzle_timed_out) {
-          nozzle_timed_out = true; // on nozzle timeout remember the nozzles need to be reheated
-          HOTEND_LOOP() thermalManager.setTargetHotend(0, e); // Turn off all the nozzles
-          lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
-        }
+      if (!nozzle_timed_out && ELAPSED(millis(), nozzle_timeout)) {
+        nozzle_timed_out = true; // on nozzle timeout remember the nozzles need to be reheated
+        HOTEND_LOOP() thermalManager.setTargetHotend(0, e); // Turn off all the nozzles
+        lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
       }
       idle(true);
     }
+    KEEPALIVE_STATE(IN_HANDLER);
 
     if (nozzle_timed_out)      // Turn nozzles back on if they were turned off
       HOTEND_LOOP() thermalManager.setTargetHotend(temps[e], e);
@@ -7652,6 +7662,7 @@ inline void gcode_M503() {
       filament_change_beep(true);
     #endif
 
+    KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_for_user = true;    // LCD click or M108 will clear this
     while (wait_for_user && nozzle_timed_out) {
       #if HAS_BUZZER
@@ -7659,6 +7670,7 @@ inline void gcode_M503() {
       #endif
       idle(true);
     }
+    KEEPALIVE_STATE(IN_HANDLER);
 
     // Show "load" message
     lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_LOAD);
@@ -8589,7 +8601,7 @@ void process_next_command() {
           break;
       #endif // INCH_MODE_SUPPORT
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
+      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_EDITING)
         case 26: // G26: Mesh Validation Pattern generation
           gcode_G26();
           break;
@@ -8605,7 +8617,7 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if PLANNER_LEVELING
+      #if PLANNER_LEVELING && !ENABLED(AUTO_BED_LEVELING_UBL) || ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_EDITING)
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points,
                  // or provides access to the UBL System if enabled.
           gcode_G29();
@@ -8721,11 +8733,11 @@ void process_next_command() {
           break;
       #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
-      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
-        case 49: // M49: Turn on or off g26_debug_flag for verbose output
+      #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_EDITING)
+        case 49: // M49: Turn on or off G26 debug flag for verbose output
           gcode_M49();
           break;
-      #endif // AUTO_BED_LEVELING_UBL && UBL_MESH_EDIT_ENABLED
+      #endif // AUTO_BED_LEVELING_UBL && UBL_G26_MESH_EDITING
 
       case 75: // M75: Start print timer
         gcode_M75(); break;
@@ -9659,14 +9671,14 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
     const int8_t gcx = max(cx1, cx2), gcy = max(cy1, cy2);
     if (cx2 != cx1 && TEST(x_splits, gcx)) {
       COPY(end, destination);
-      destination[X_AXIS] = LOGICAL_X_POSITION(mbl.get_probe_x(gcx));
+      destination[X_AXIS] = LOGICAL_X_POSITION(mbl.index_to_xpos[gcx]);
       normalized_dist = (destination[X_AXIS] - current_position[X_AXIS]) / (end[X_AXIS] - current_position[X_AXIS]);
       destination[Y_AXIS] = MBL_SEGMENT_END(Y);
       CBI(x_splits, gcx);
     }
     else if (cy2 != cy1 && TEST(y_splits, gcy)) {
       COPY(end, destination);
-      destination[Y_AXIS] = LOGICAL_Y_POSITION(mbl.get_probe_y(gcy));
+      destination[Y_AXIS] = LOGICAL_Y_POSITION(mbl.index_to_ypos[gcy]);
       normalized_dist = (destination[Y_AXIS] - current_position[Y_AXIS]) / (end[Y_AXIS] - current_position[Y_AXIS]);
       destination[X_AXIS] = MBL_SEGMENT_END(X);
       CBI(y_splits, gcy);
@@ -10170,9 +10182,9 @@ void prepare_move_to_destination() {
 #if HAS_CONTROLLERFAN
 
   void controllerFan() {
-    static millis_t lastMotorOn = 0; // Last time a motor was turned on
-    static millis_t nextMotorCheck = 0; // Last time the state was checked
-    millis_t ms = millis();
+    static millis_t lastMotorOn = 0, // Last time a motor was turned on
+                    nextMotorCheck = 0; // Last time the state was checked
+    const millis_t ms = millis();
     if (ELAPSED(ms, nextMotorCheck)) {
       nextMotorCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
       if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || thermalManager.soft_pwm_bed > 0
@@ -10505,7 +10517,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   if (commands_in_queue < BUFSIZE) get_available_commands();
 
-  millis_t ms = millis();
+  const millis_t ms = millis();
 
   if (max_inactive_time && ELAPSED(ms, previous_cmd_ms + max_inactive_time)) {
     SERIAL_ERROR_START;
@@ -10719,7 +10731,7 @@ void kill(const char* lcd_msg) {
 
   thermalManager.disable_all_heaters();
   disable_all_steppers();
-            
+
   #if ENABLED(ULTRA_LCD)
     kill_screen(lcd_msg);
   #else
@@ -10728,7 +10740,7 @@ void kill(const char* lcd_msg) {
 
   _delay_ms(250); // Wait a short time
   cli(); // Stop interrupts
-            
+
   _delay_ms(250); //Wait to ensure all interrupts routines stopped
   thermalManager.disable_all_heaters(); //turn off heaters again
 
