@@ -124,8 +124,7 @@ uint16_t max_display_update_time = 0;
   int32_t lastEncoderMovementMillis;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    extern bool ubl_has_control_of_lcd_panel;
-    extern int8_t ubl_encoderDiff;
+    #include "UBL.h"
   #endif
 
   #if HAS_POWER_SWITCH
@@ -860,9 +859,9 @@ void kill_screen(const char* lcd_msg) {
 
     static void _lcd_mesh_fine_tune(const char* msg) {
       defer_return_to_status = true;
-      if (ubl_encoderDiff) {
-        ubl_encoderPosition = (ubl_encoderDiff > 0) ? 1 : -1;
-        ubl_encoderDiff = 0;
+      if (ubl.encoder_diff) {
+        ubl_encoderPosition = (ubl.encoder_diff > 0) ? 1 : -1;
+        ubl.encoder_diff = 0;
 
         mesh_edit_accumulator += float(ubl_encoderPosition) * 0.005 / 2.0;
         mesh_edit_value = mesh_edit_accumulator;
@@ -3206,7 +3205,7 @@ void lcd_update() {
     lcd_buttons_update();
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      const bool UBL_CONDITION = !ubl_has_control_of_lcd_panel;
+      const bool UBL_CONDITION = !ubl.has_control_of_lcd_panel;
     #else
       constexpr bool UBL_CONDITION = true;
     #endif
@@ -3622,8 +3621,8 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
       }
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        if (ubl_has_control_of_lcd_panel) {
-          ubl_encoderDiff = encoderDiff;    // Make the encoder's rotation available to G29's Mesh Editor
+        if (ubl.has_control_of_lcd_panel) {
+          ubl.encoder_diff = encoderDiff;    // Make the encoder's rotation available to G29's Mesh Editor
           encoderDiff = 0;                  // We are going to lie to the LCD Panel and claim the encoder
                                             // wheel has not turned.
         }
