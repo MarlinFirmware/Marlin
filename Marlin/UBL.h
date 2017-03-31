@@ -81,20 +81,33 @@
     #define MESH_X_DIST ((float(UBL_MESH_MAX_X) - float(UBL_MESH_MIN_X)) / (float(UBL_MESH_NUM_X_POINTS) - 1.0))
     #define MESH_Y_DIST ((float(UBL_MESH_MAX_Y) - float(UBL_MESH_MIN_Y)) / (float(UBL_MESH_NUM_Y_POINTS) - 1.0))
 
-    extern float last_specified_z;
-    extern float fade_scaling_factor_for_current_height;
-    extern float z_values[UBL_MESH_NUM_X_POINTS][UBL_MESH_NUM_Y_POINTS];
     extern float mesh_index_to_x_location[UBL_MESH_NUM_X_POINTS + 1]; // +1 just because of paranoia that we might end up on the
     extern float mesh_index_to_y_location[UBL_MESH_NUM_Y_POINTS + 1]; // the last Mesh Line and that is the start of a whole new cell
 
     class unified_bed_leveling {
+      private:
+
+      float last_specified_z,
+            fade_scaling_factor_for_current_height;
+
       public:
+
+      float z_values[UBL_MESH_NUM_X_POINTS][UBL_MESH_NUM_Y_POINTS];
+
+      bool g26_debug_flag = false,
+           has_control_of_lcd_panel = false;
+
+      int8_t eeprom_start = -1;
+
+      volatile int encoder_diff; // Volatile because it's changed at interrupt time.
+
       struct ubl_state {
         bool active = false;
         float z_offset = 0.0;
-        int eeprom_storage_slot = -1,
-            n_x = UBL_MESH_NUM_X_POINTS,
-            n_y = UBL_MESH_NUM_Y_POINTS;
+        int8_t eeprom_storage_slot = -1,
+               n_x = UBL_MESH_NUM_X_POINTS,
+               n_y = UBL_MESH_NUM_Y_POINTS;
+
         float mesh_x_min = UBL_MESH_MIN_X,
               mesh_y_min = UBL_MESH_MIN_Y,
               mesh_x_max = UBL_MESH_MAX_X,
@@ -104,23 +117,26 @@
 
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
           float g29_correction_fade_height = 10.0,
-                g29_fade_height_multiplier = 1.0 / 10.0; // It is cheaper to do a floating point multiply than a floating
-                                                         // point divide. So, we keep this number in both forms. The first
-                                                         // is for the user. The second one is the one that is actually used
-                                                         // again and again and again during the correction calculations.
+                g29_fade_height_multiplier = 1.0 / 10.0; // It's cheaper to do a floating point multiply than divide,
+                                                         // so keep this value and its reciprocal.
+        #else
+          const float g29_correction_fade_height = 10.0,
+                      g29_fade_height_multiplier = 1.0 / 10.0;
         #endif
 
-        unsigned char padding[24];  // This is just to allow room to add state variables without
-                                    // changing the location of data structures in the EEPROM.
-                                    // This is for compatability with future versions to keep
-                                    // people from having to regenerate thier mesh data.
-                                    //
-                                    // If you change the contents of this struct, please adjust
-                                    // the padding[] to keep the size the same!
+        // If you change this struct, adjust TOTAL_STRUCT_SIZE
+
+        #define TOTAL_STRUCT_SIZE 43 // Total size of the above fields
+
+        // padding provides space to add state variables without
+        // changing the location of data structures in the EEPROM.
+        // This is for compatibility with future versions to keep
+        // users from having to regenerate their mesh data.
+        unsigned char padding[64 - TOTAL_STRUCT_SIZE];
+
       } state, pre_initialized;
 
       unified_bed_leveling();
-      //  ~unified_bed_leveling();  // No destructor because this object never goes away!
 
       void display_map(const int);
 
@@ -269,8 +285,9 @@
         #if ENABLED(DEBUG_LEVELING_FEATURE)
           if (DEBUGGING(MESH_ADJUST)) {
             SERIAL_ECHOPAIR(" raw get_z_correction(", x0);
-            SERIAL_ECHOPAIR(",", y0);
-            SERIAL_ECHOPGM(")=");
+            SERIAL_CHAR(',')
+            SERIAL_ECHO(y0);
+            SERIAL_ECHOPGM(") = ");
             SERIAL_ECHO_F(z0, 6);
           }
         #endif
@@ -291,11 +308,11 @@
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(MESH_ADJUST)) {
-              SERIAL_ECHOPGM("??? Yikes!  NAN in get_z_correction( ");
-              SERIAL_ECHO(x0);
-              SERIAL_ECHOPGM(", ");
+              SERIAL_ECHOPAIR("??? Yikes!  NAN in get_z_correction(", x0);
+              SERIAL_CHAR(',');
               SERIAL_ECHO(y0);
-              SERIAL_ECHOLNPGM(" )");
+              SERIAL_CHAR(')');
+              SERIAL_EOL;
             }
           #endif
         }
@@ -313,7 +330,7 @@
        */
       #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-        FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) const {
+        FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) {
           const float rz = RAW_Z_POSITION(lz);
           if (last_specified_z != rz) {
             last_specified_z = rz;

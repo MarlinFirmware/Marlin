@@ -299,13 +299,11 @@
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #include "UBL.h"
   unified_bed_leveling ubl;
-  #define UBL_MESH_VALID !( ( z_values[0][0] == z_values[0][1] && z_values[0][1] == z_values[0][2] \
-                           && z_values[1][0] == z_values[1][1] && z_values[1][1] == z_values[1][2] \
-                           && z_values[2][0] == z_values[2][1] && z_values[2][1] == z_values[2][2] \
-                           && z_values[0][0] == 0 && z_values[1][0] == 0 && z_values[2][0] == 0 )  \
-                           || isnan(z_values[0][0]))
-  extern bool g26_debug_flag;
-  extern int ubl_eeprom_start;
+  #define UBL_MESH_VALID !( ( ubl.z_values[0][0] == ubl.z_values[0][1] && ubl.z_values[0][1] == ubl.z_values[0][2] \
+                           && ubl.z_values[1][0] == ubl.z_values[1][1] && ubl.z_values[1][1] == ubl.z_values[1][2] \
+                           && ubl.z_values[2][0] == ubl.z_values[2][1] && ubl.z_values[2][1] == ubl.z_values[2][2] \
+                           && ubl.z_values[0][0] == 0 && ubl.z_values[1][0] == 0 && ubl.z_values[2][0] == 0 )  \
+                           || isnan(ubl.z_values[0][0]))
 #endif
 
 bool Running = true;
@@ -5349,11 +5347,9 @@ inline void gcode_M42() {
 #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
 
   inline void gcode_M49() {
+    ubl.g26_debug_flag = !ubl.g26_debug_flag;
     SERIAL_PROTOCOLPGM("UBL Debug Flag turned ");
-    if ((g26_debug_flag = !g26_debug_flag))
-      SERIAL_PROTOCOLLNPGM("on.");
-    else
-      SERIAL_PROTOCOLLNPGM("off.");
+    serialprintPGM(ubl.g26_debug_flag ? PSTR("on.") : PSTR("off."));
   }
 
 #endif // AUTO_BED_LEVELING_UBL && UBL_MESH_EDIT_ENABLED
@@ -7212,11 +7208,13 @@ void quickstop_stepper() {
   /**
    * M420: Enable/Disable Bed Leveling and/or set the Z fade height.
    *
-   *       S[bool]   Turns leveling on or off
-   *       Z[height] Sets the Z fade height (0 or none to disable)
-   *       V[bool]   Verbose - Print the leveling grid
+   *   S[bool]   Turns leveling on or off
+   *   Z[height] Sets the Z fade height (0 or none to disable)
+   *   V[bool]   Verbose - Print the leveling grid
    *
-   *       L[index]  Load UBL mesh from index (0 is default)
+   *   With AUTO_BED_LEVELING_UBL only:
+   *
+   *     L[index]  Load UBL mesh from index (0 is default)
    */
   inline void gcode_M420() {
 
@@ -7224,15 +7222,15 @@ void quickstop_stepper() {
       // L to load a mesh from the EEPROM
       if (code_seen('L')) {
         const int8_t storage_slot = code_has_value() ? code_value_int() : ubl.state.eeprom_storage_slot;
-        const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(z_values);
+        const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values);
         if (storage_slot < 0 || storage_slot >= j || ubl.eeprom_start <= 0) {
           SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
           return;
         }
-        ubl.load_mesh(Storage_Slot);
-        ubl.state.eeprom_storage_slot = Storage_Slot;
-        if (Storage_Slot != ubl.state.eeprom_storage_slot)
-          ubl.store_state();
+
+        ubl.load_mesh(storage_slot);
+        if (storage_slot != ubl.state.eeprom_storage_slot) ubl.store_state();
+        ubl.state.eeprom_storage_slot = storage_slot;
         ubl.display_map(0);  // Right now, we only support one type of map
         SERIAL_ECHOLNPAIR("UBL_MESH_VALID =  ", UBL_MESH_VALID);
         SERIAL_ECHOLNPAIR("eeprom_storage_slot = ", ubl.state.eeprom_storage_slot);
@@ -8736,7 +8734,7 @@ void process_next_command() {
       #endif // Z_MIN_PROBE_REPEATABILITY_TEST
 
       #if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_MESH_EDIT_ENABLED)
-        case 49: // M49: Turn on or off g26_debug_flag for verbose output
+        case 49: // M49: Turn on or off G26 debug flag for verbose output
           gcode_M49();
           break;
       #endif // AUTO_BED_LEVELING_UBL && UBL_MESH_EDIT_ENABLED

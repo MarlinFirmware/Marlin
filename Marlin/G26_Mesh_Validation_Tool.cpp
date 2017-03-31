@@ -38,7 +38,7 @@
 
   #define EXTRUSION_MULTIPLIER 1.0    // This is too much clutter for the main Configuration.h file  But
   #define RETRACTION_MULTIPLIER 1.0   // some user have expressed an interest in being able to customize
-  #define NOZZLE 0.3                  // these numbers for thier printer so they don't need to type all
+  #define NOZZLE 0.3                  // these numbers for their printer so they don't need to type all
   #define FILAMENT 1.75               // the options every time they do a Mesh Validation Print.
   #define LAYER_HEIGHT 0.2
   #define PRIME_LENGTH 10.0           // So, we put these number in an easy to find and change place.
@@ -113,10 +113,7 @@
    *   Y #  Y coordinate  Specify the starting location of the drawing activity.
    */
 
-  extern bool g26_debug_flag;
-  extern bool ubl_has_control_of_lcd_panel;
   extern float feedrate;
-  //extern bool relative_mode;
   extern Planner planner;
   //#if ENABLED(ULTRA_LCD)
     extern char lcd_status_message[];
@@ -197,12 +194,10 @@
       set_current_to_destination();
     }
 
-    ubl_has_control_of_lcd_panel = true; // Take control of the LCD Panel!
+    ubl.has_control_of_lcd_panel = true; // Take control of the LCD Panel!
     if (turn_on_heaters())     // Turn on the heaters, leave the command if anything
       goto LEAVE;              // has gone wrong.
 
-    axis_relative_modes[E_AXIS] = false;    // Get things setup so we can take control of the
-    //relative_mode = false;                  // planner and stepper motors!
     current_position[E_AXIS] = 0.0;
     sync_plan_position_e();
 
@@ -232,7 +227,7 @@
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0.0);
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], ooze_amount);
 
-    ubl_has_control_of_lcd_panel = true; // Take control of the LCD Panel!
+    ubl.has_control_of_lcd_panel = true; // Take control of the LCD Panel!
     //debug_current_and_destination((char*)"Starting G26 Mesh Validation Pattern.");
 
     /**
@@ -292,7 +287,7 @@
         xi = location.x_index;  // Just to shrink the next few lines and make them easier to understand
         yi = location.y_index;
 
-        if (g26_debug_flag) {
+        if (ubl.g26_debug_flag) {
           SERIAL_ECHOPAIR("   Doing circle at: (xi=", xi);
           SERIAL_ECHOPAIR(", yi=", yi);
           SERIAL_CHAR(')');
@@ -346,7 +341,7 @@
             ye = constrain(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
           #endif
 
-          //if (g26_debug_flag) {
+          //if (ubl.g26_debug_flag) {
           //  char ccc, *cptr, seg_msg[50], seg_num[10];
           //  strcpy(seg_msg, "   segment: ");
           //  strcpy(seg_num, "    \n");
@@ -364,7 +359,7 @@
         //if (lcd_init_counter > 10) {
         //  lcd_init_counter = 0;
         //  lcd_init(); // Some people's LCD Displays are locking up.  This might help them
-        //  ubl_has_control_of_lcd_panel = true;     // Make sure UBL still is controlling the LCD Panel
+        //  ubl.has_control_of_lcd_panel = true;     // Make sure UBL still is controlling the LCD Panel
         //}
 
         //debug_current_and_destination((char*)"Looking for lines to connect.");
@@ -394,7 +389,7 @@
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0); // Move back to the starting position
     //debug_current_and_destination((char*)"done doing X/Y move.");
 
-    ubl_has_control_of_lcd_panel = false;     // Give back control of the LCD Panel!
+    ubl.has_control_of_lcd_panel = false;     // Give back control of the LCD Panel!
 
     if (!keep_heaters_on) {
       #if HAS_TEMP_BED
@@ -479,7 +474,7 @@
               ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
               ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
-              if (g26_debug_flag) {
+              if (ubl.g26_debug_flag) {
                 SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=", sx);
                 SERIAL_ECHOPAIR(", sy=", sy);
                 SERIAL_ECHOPAIR(") -> (ex=", ex);
@@ -516,7 +511,7 @@
                 ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
                 ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
-                if (g26_debug_flag) {
+                if (ubl.g26_debug_flag) {
                   SERIAL_ECHOPAIR(" Connecting with vertical line (sx=", sx);
                   SERIAL_ECHOPAIR(", sy=", sy);
                   SERIAL_ECHOPAIR(") -> (ex=", ex);
@@ -541,10 +536,10 @@
 
     bool has_xy_component = (x != current_position[X_AXIS] || y != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
 
-    //if (g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to()  has_xy_component:", (int)has_xy_component);
+    //if (ubl.g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to()  has_xy_component:", (int)has_xy_component);
 
     if (z != last_z) {
-      //if (g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to()  changing Z to ", (int)z);
+      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to()  changing Z to ", (int)z);
 
       last_z = z;
       feed_value = planner.max_feedrate_mm_s[Z_AXIS]/(3.0);  // Base the feed rate off of the configured Z_AXIS feed rate
@@ -559,24 +554,24 @@
       stepper.synchronize();
       set_destination_to_current();
 
-      //if (g26_debug_flag) debug_current_and_destination((char*)" in move_to() done with Z move");
+      //if (ubl.g26_debug_flag) debug_current_and_destination((char*)" in move_to() done with Z move");
     }
 
     // Check if X or Y is involved in the movement.
     // Yes: a 'normal' movement. No: a retract() or un_retract()
     feed_value = has_xy_component ? PLANNER_XY_FEEDRATE() / 10.0 : planner.max_feedrate_mm_s[E_AXIS] / 1.5;
 
-    if (g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to() feed_value for XY:", feed_value);
+    if (ubl.g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to() feed_value for XY:", feed_value);
 
     destination[X_AXIS] = x;
     destination[Y_AXIS] = y;
     destination[E_AXIS] += e_delta;
 
-    //if (g26_debug_flag) debug_current_and_destination((char*)" in move_to() doing last move");
+    //if (ubl.g26_debug_flag) debug_current_and_destination((char*)" in move_to() doing last move");
 
     ubl_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0);
 
-    //if (g26_debug_flag) debug_current_and_destination((char*)" in move_to() after last move");
+    //if (ubl.g26_debug_flag) debug_current_and_destination((char*)" in move_to() after last move");
 
     stepper.synchronize();
     set_destination_to_current();
@@ -586,9 +581,9 @@
   void retract_filament() {
     if (!g26_retracted) { // Only retract if we are not already retracted!
       g26_retracted = true;
-      //if (g26_debug_flag) SERIAL_ECHOLNPGM(" Decided to do retract.");
+      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM(" Decided to do retract.");
       move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], -1.0 * retraction_multiplier);
-      //if (g26_debug_flag) SERIAL_ECHOLNPGM(" Retraction done.");
+      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM(" Retraction done.");
     }
   }
 
@@ -596,7 +591,7 @@
     if (g26_retracted) { // Only un-retract if we are retracted.
       move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 1.2 * retraction_multiplier);
       g26_retracted = false;
-      //if (g26_debug_flag) SERIAL_ECHOLNPGM(" unretract done.");
+      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM(" unretract done.");
     }
   }
 
@@ -633,7 +628,7 @@
     // On very small lines we don't do the optimization because it just isn't worth it.
     //
     if (dist_end < dist_start && (SIZE_OF_INTERSECTION_CIRCLES) < abs(line_length)) {
-      //if (g26_debug_flag) SERIAL_ECHOLNPGM("  Reversing start and end of print_line_from_here_to_there()");
+      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM("  Reversing start and end of print_line_from_here_to_there()");
       print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
       return;
     }
@@ -642,7 +637,7 @@
 
     if (dist_start > 2.0) {
       retract_filament();
-      //if (g26_debug_flag) SERIAL_ECHOLNPGM("  filament retracted.");
+      //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM("  filament retracted.");
     }
     move_to(sx, sy, sz, 0.0); // Get to the starting point with no extrusion
 
@@ -650,7 +645,7 @@
 
     un_retract_filament();
 
-    //if (g26_debug_flag) {
+    //if (ubl.g26_debug_flag) {
     //  SERIAL_ECHOLNPGM("  doing printing move.");
     //  debug_current_and_destination((char*)"doing final move_to() inside print_line_from_here_to_there()");
     //}
@@ -810,7 +805,7 @@
           lcd_setstatuspgm(PSTR("G26 Heating Bed."), 99);
           lcd_quick_feedback();
       #endif
-          ubl_has_control_of_lcd_panel = true;
+          ubl.has_control_of_lcd_panel = true;
           thermalManager.setTargetBed(bed_temp);
           while (abs(thermalManager.degBed() - bed_temp) > 3) {
             if (ubl_lcd_clicked()) return exit_from_g26();
