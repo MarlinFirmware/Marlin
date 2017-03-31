@@ -1445,7 +1445,7 @@ KeepDrawing:
       // _manual_probe_xy runs the menu loop until the move is done
       int8_t px, py;
       mbl.zigzag(manual_probe_index, px, py);
-      _manual_probe_xy(mbl.get_probe_x(px), mbl.get_probe_y(py));
+      _manual_probe_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
 
       // After the blocking function returns, change menus
       lcd_goto_screen(_lcd_level_bed_get_z);
