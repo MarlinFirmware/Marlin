@@ -118,7 +118,7 @@
       return;
     }
 
-    if (m < 0 || m >= j || eeprom_start <= 0) {
+    if (!WITHIN(m, 0, j - 1) || eeprom_start <= 0) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
       return;
     }
@@ -133,7 +133,7 @@
   void unified_bed_leveling::store_mesh(const int16_t m) {
     int16_t j = (UBL_LAST_EEPROM_INDEX - eeprom_start) / sizeof(z_values);
 
-    if (m < 0 || m >= j || eeprom_start <= 0) {
+    if (!WITHIN(m, 0, j - 1) || eeprom_start <= 0) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available to load mesh.\n");
       SERIAL_PROTOCOL(m);
       SERIAL_PROTOCOLLNPGM(" mesh slots available.\n");
@@ -203,7 +203,7 @@
 
         const float f = z_values[i][j];
         if (isnan(f)) {
-          serialprintPGM(map0 ? PSTR("    .    ") : PSTR("NAN"));
+          serialprintPGM(map0 ? PSTR("   .  ") : PSTR("NAN"));
         }
         else {
           // if we don't do this, the columns won't line up nicely

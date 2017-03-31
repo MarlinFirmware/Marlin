@@ -896,10 +896,6 @@ bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   return false;
 }
 
-void enqueue_and_echo_command_now(const char* cmd) {
-  while (!enqueue_and_echo_command(cmd)) idle();
-}
-
 void setup_killpin() {
   #if HAS_KILL
     SET_INPUT_PULLUP(KILL_PIN);
@@ -2237,7 +2233,7 @@ static void clean_up_after_endstop_or_probe_move() {
         SERIAL_ECHOLNPAIR(" Discrepancy:", first_probe_z - current_position[Z_AXIS]);
       }
     #endif
-    return current_position[Z_AXIS];
+    return current_position[Z_AXIS] + zprobe_zoffset;
   }
 
   //
@@ -2291,7 +2287,7 @@ static void clean_up_after_endstop_or_probe_move() {
       SERIAL_PROTOCOLPGM(" Y: ");
       SERIAL_PROTOCOL_F(y, 3);
       SERIAL_PROTOCOLPGM(" Z: ");
-      SERIAL_PROTOCOL_F(measured_z - -zprobe_zoffset + 0.0001, 3);
+      SERIAL_PROTOCOL_F(FIXFLOAT(measured_z), 3);
       SERIAL_EOL;
     }
 
@@ -2569,7 +2565,7 @@ static void clean_up_after_endstop_or_probe_move() {
           ep = ABL_GRID_MAX_POINTS_X - 1;
           ip = ABL_GRID_MAX_POINTS_X - 2;
         }
-        if (y > 0 && y < ABL_TEMP_POINTS_Y - 1)
+        if (WITHIN(y, 1, ABL_TEMP_POINTS_Y - 2))
           return LINEAR_EXTRAPOLATION(
             bed_level_grid[ep][y - 1],
             bed_level_grid[ip][y - 1]
@@ -2585,7 +2581,7 @@ static void clean_up_after_endstop_or_probe_move() {
           ep = ABL_GRID_MAX_POINTS_Y - 1;
           ip = ABL_GRID_MAX_POINTS_Y - 2;
         }
-        if (x > 0 && x < ABL_TEMP_POINTS_X - 1)
+        if (WITHIN(x, 1, ABL_TEMP_POINTS_X - 2))
           return LINEAR_EXTRAPOLATION(
             bed_level_grid[x - 1][ep],
             bed_level_grid[x - 1][ip]
@@ -3028,9 +3024,9 @@ bool position_is_reachable(float target[XYZ]
     return HYPOT2(dx, dy) <= sq((float)(DELTA_PRINTABLE_RADIUS));
   #else
     const float dz = RAW_Z_POSITION(target[Z_AXIS]);
-    return dx >= X_MIN_POS - 0.0001 && dx <= X_MAX_POS + 0.0001
-        && dy >= Y_MIN_POS - 0.0001 && dy <= Y_MAX_POS + 0.0001
-        && dz >= Z_MIN_POS - 0.0001 && dz <= Z_MAX_POS + 0.0001;
+    return WITHIN(dx, X_MIN_POS - 0.0001, X_MAX_POS + 0.0001)
+        && WITHIN(dy, Y_MIN_POS - 0.0001, Y_MAX_POS + 0.0001)
+        && WITHIN(dz, Z_MIN_POS - 0.0001, Z_MAX_POS + 0.0001);
   #endif
 }
 
@@ -3788,13 +3784,13 @@ inline void gcode_G28() {
    */
   inline void gcode_G29() {
 
-    static int probe_index = -1;
+    static int mbl_probe_index = -1;
     #if HAS_SOFTWARE_ENDSTOPS
       static bool enable_soft_endstops;
     #endif
 
     const MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_byte() : MeshReport;
-    if (state < 0 || state > 5) {
+    if (!WITHIN(state, 0, 5)) {
       SERIAL_PROTOCOLLNPGM("S out of range (0-5).");
       return;
     }
@@ -3813,17 +3809,17 @@ inline void gcode_G28() {
 
       case MeshStart:
         mbl.reset();
-        probe_index = 0;
+        mbl_probe_index = 0;
         enqueue_and_echo_commands_P(PSTR("G28\nG29 S2"));
         break;
 
       case MeshNext:
-        if (probe_index < 0) {
+        if (mbl_probe_index < 0) {
           SERIAL_PROTOCOLLNPGM("Start mesh probing with \"G29 S1\" first.");
           return;
         }
         // For each G29 S2...
-        if (probe_index == 0) {
+        if (mbl_probe_index == 0) {
           #if HAS_SOFTWARE_ENDSTOPS
             // For the initial G29 S2 save software endstop state
             enable_soft_endstops = soft_endstops_enabled;
@@ -3831,14 +3827,14 @@ inline void gcode_G28() {
         }
         else {
           // For G29 S2 after adjusting Z.
-          mbl.set_zigzag_z(probe_index - 1, current_position[Z_AXIS]);
+          mbl.set_zigzag_z(mbl_probe_index - 1, current_position[Z_AXIS]);
           #if HAS_SOFTWARE_ENDSTOPS
             soft_endstops_enabled = enable_soft_endstops;
           #endif
         }
         // If there's another point to sample, move there with optional lift.
-        if (probe_index < (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
-          mbl.zigzag(probe_index, px, py);
+        if (mbl_probe_index < (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS)) {
+          mbl.zigzag(mbl_probe_index, px, py);
           _mbl_goto_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
 
           #if HAS_SOFTWARE_ENDSTOPS
@@ -3847,7 +3843,7 @@ inline void gcode_G28() {
             soft_endstops_enabled = false;
           #endif
 
-          probe_index++;
+          mbl_probe_index++;
         }
         else {
           // One last "return to the bed" (as originally coded) at completion
@@ -3857,7 +3853,7 @@ inline void gcode_G28() {
 
           // After recording the last point, activate the mbl and home
           SERIAL_PROTOCOLLNPGM("Mesh probing done.");
-          probe_index = -1;
+          mbl_probe_index = -1;
           mbl.set_has_mesh(true);
           mbl.set_reactivate(true);
           enqueue_and_echo_commands_P(PSTR("G28"));
@@ -3869,7 +3865,7 @@ inline void gcode_G28() {
       case MeshSet:
         if (code_seen('X')) {
           px = code_value_int() - 1;
-          if (px < 0 || px >= MESH_NUM_X_POINTS) {
+          if (!WITHIN(px, 0, MESH_NUM_X_POINTS - 1)) {
             SERIAL_PROTOCOLLNPGM("X out of range (1-" STRINGIFY(MESH_NUM_X_POINTS) ").");
             return;
           }
@@ -3881,7 +3877,7 @@ inline void gcode_G28() {
 
         if (code_seen('Y')) {
           py = code_value_int() - 1;
-          if (py < 0 || py >= MESH_NUM_Y_POINTS) {
+          if (!WITHIN(py, 0, MESH_NUM_Y_POINTS - 1)) {
             SERIAL_PROTOCOLLNPGM("Y out of range (1-" STRINGIFY(MESH_NUM_Y_POINTS) ").");
             return;
           }
@@ -4412,7 +4408,7 @@ inline void gcode_G28() {
         if ( NEAR(current_position[X_AXIS], xProbe - (X_PROBE_OFFSET_FROM_EXTRUDER))
           && NEAR(current_position[Y_AXIS], yProbe - (Y_PROBE_OFFSET_FROM_EXTRUDER))
         ) {
-          float simple_z = current_position[Z_AXIS] - (measured_z - (-zprobe_zoffset));
+          float simple_z = current_position[Z_AXIS] - measured_z;
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(LEVELING)) {
               SERIAL_ECHOPAIR("Z from Probe:", simple_z);
@@ -4503,11 +4499,11 @@ inline void gcode_G28() {
     float measured_z = probe_pt(X_probe_location, Y_probe_location, stow, 1);
 
     SERIAL_PROTOCOLPGM("Bed X: ");
-    SERIAL_PROTOCOL(X_probe_location + 0.0001);
+    SERIAL_PROTOCOL(FIXFLOAT(X_probe_location));
     SERIAL_PROTOCOLPGM(" Y: ");
-    SERIAL_PROTOCOL(Y_probe_location + 0.0001);
+    SERIAL_PROTOCOL(FIXFLOAT(Y_probe_location));
     SERIAL_PROTOCOLPGM(" Z: ");
-    SERIAL_PROTOCOLLN(measured_z - -zprobe_zoffset + 0.0001);
+    SERIAL_PROTOCOLLN(FIXFLOAT(measured_z));
 
     clean_up_after_endstop_or_probe_move();
 
@@ -4971,7 +4967,7 @@ inline void gcode_M42() {
   if (!code_seen('S')) return;
 
   int pin_status = code_value_int();
-  if (pin_status < 0 || pin_status > 255) return;
+  if (!WITHIN(pin_status, 0, 255)) return;
 
   int pin_number = code_seen('P') ? code_value_int() : LED_PIN;
   if (pin_number < 0) return;
@@ -5115,7 +5111,7 @@ inline void gcode_M42() {
     if (axis_unhomed_error(true, true, true)) return;
 
     int8_t verbose_level = code_seen('V') ? code_value_byte() : 1;
-    if (verbose_level < 0 || verbose_level > 4) {
+    if (!WITHIN(verbose_level, 0, 4)) {
       SERIAL_PROTOCOLLNPGM("?Verbose Level not plausible (0-4).");
       return;
     }
@@ -5124,7 +5120,7 @@ inline void gcode_M42() {
       SERIAL_PROTOCOLLNPGM("M48 Z-Probe Repeatability Test");
 
     int8_t n_samples = code_seen('P') ? code_value_byte() : 10;
-    if (n_samples < 4 || n_samples > 50) {
+    if (!WITHIN(n_samples, 4, 50)) {
       SERIAL_PROTOCOLLNPGM("?Sample size not plausible (4-50).");
       return;
     }
@@ -5136,7 +5132,7 @@ inline void gcode_M42() {
 
     float X_probe_location = code_seen('X') ? code_value_axis_units(X_AXIS) : X_current + X_PROBE_OFFSET_FROM_EXTRUDER;
     #if DISABLED(DELTA)
-      if (X_probe_location < LOGICAL_X_POSITION(MIN_PROBE_X) || X_probe_location > LOGICAL_X_POSITION(MAX_PROBE_X)) {
+      if (!WITHIN(X_probe_location, LOGICAL_X_POSITION(MIN_PROBE_X), LOGICAL_X_POSITION(MAX_PROBE_X))) {
         out_of_range_error(PSTR("X"));
         return;
       }
@@ -5144,7 +5140,7 @@ inline void gcode_M42() {
 
     float Y_probe_location = code_seen('Y') ? code_value_axis_units(Y_AXIS) : Y_current + Y_PROBE_OFFSET_FROM_EXTRUDER;
     #if DISABLED(DELTA)
-      if (Y_probe_location < LOGICAL_Y_POSITION(MIN_PROBE_Y) || Y_probe_location > LOGICAL_Y_POSITION(MAX_PROBE_Y)) {
+      if (!WITHIN(Y_probe_location, LOGICAL_Y_POSITION(MIN_PROBE_Y), LOGICAL_Y_POSITION(MAX_PROBE_Y))) {
         out_of_range_error(PSTR("Y"));
         return;
       }
@@ -6795,7 +6791,7 @@ inline void gcode_M226() {
   inline void gcode_M280() {
     if (!code_seen('P')) return;
     int servo_index = code_value_int();
-    if (servo_index >= 0 && servo_index < NUM_SERVOS) {
+    if (WITHIN(servo_index, 0, NUM_SERVOS - 1)) {
       if (code_seen('S'))
         MOVE_SERVO(servo_index, code_value_int());
       else {
@@ -7002,7 +6998,7 @@ inline void gcode_M303() {
 
     float temp = code_seen('S') ? code_value_temp_abs() : (e < 0 ? 70.0 : 150.0);
 
-    if (e >= 0 && e < HOTENDS)
+    if (WITHIN(e, 0, HOTENDS - 1))
       target_extruder = e;
 
     KEEPALIVE_STATE(NOT_BUSY); // don't send "busy: processing" messages during autotune output
@@ -7223,7 +7219,7 @@ void quickstop_stepper() {
       if (code_seen('L')) {
         const int8_t storage_slot = code_has_value() ? code_value_int() : ubl.state.eeprom_storage_slot;
         const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values);
-        if (storage_slot < 0 || storage_slot >= j || ubl.eeprom_start <= 0) {
+        if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
           SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
           return;
         }
@@ -7316,7 +7312,7 @@ void quickstop_stepper() {
       }
     }
     else if (hasI && hasJ && hasZ) {
-      if (px >= 0 && px < MESH_NUM_X_POINTS && py >= 0 && py < MESH_NUM_Y_POINTS)
+      if (WITHIN(px, 0, MESH_NUM_X_POINTS - 1) && WITHIN(py, 0, MESH_NUM_Y_POINTS - 1))
         mbl.set_z(px, py, z);
       else {
         SERIAL_ERROR_START;
@@ -7345,7 +7341,7 @@ void quickstop_stepper() {
     if ((hasZ = code_seen('Z'))) z = code_value_axis_units(Z_AXIS);
 
     if (hasI && hasJ && hasZ) {
-      if (px >= 0 && px < ABL_GRID_MAX_POINTS_X && py >= 0 && py < ABL_GRID_MAX_POINTS_X) {
+      if (WITHIN(px, 0, ABL_GRID_MAX_POINTS_X - 1) && WITHIN(py, 0, ABL_GRID_MAX_POINTS_X - 1)) {
         bed_level_grid[px][py] = z;
         #if ENABLED(ABL_BILINEAR_SUBDIVISION)
           bed_level_virt_interpolate();
@@ -7383,7 +7379,7 @@ void quickstop_stepper() {
       if (axis_homed[i]) {
         float base = (current_position[i] > (soft_endstop_min[i] + soft_endstop_max[i]) * 0.5) ? base_home_pos((AxisEnum)i) : 0,
               diff = current_position[i] - LOGICAL_POSITION(base, i);
-        if (diff > -20 && diff < 20) {
+        if (WITHIN(diff, -20, 20)) {
           set_home_offset((AxisEnum)i, home_offset[i] - diff);
         }
         else {
@@ -7457,7 +7453,7 @@ inline void gcode_M503() {
 
     if (code_seen('Z')) {
       float value = code_value_axis_units(Z_AXIS);
-      if (Z_PROBE_OFFSET_RANGE_MIN <= value && value <= Z_PROBE_OFFSET_RANGE_MAX) {
+      if (WITHIN(value, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX)) {
 
         #if ENABLED(AUTO_BED_LEVELING_BILINEAR)
           // Correct bilinear grid for new probe offset
@@ -9905,11 +9901,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         if (ubl.state.active) {
 
-//        ubl_line_to_destination(MMS_SCALED(feedrate_mm_s));
-
-          ubl_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS],
-//                      (feedrate*(1.0/60.0))*(feedrate_percentage*(1.0/100.0) ), active_extruder);
-                      MMS_SCALED(feedrate_mm_s), active_extruder);
+          ubl_line_to_destination(MMS_SCALED(feedrate_mm_s), active_extruder);
 
           return false;
         }

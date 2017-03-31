@@ -20,6 +20,8 @@
  *
  */
 
+#include "macros.h"
+
 bool endstop_monitor_flag = false;
 
 #if !defined(TIMER1B)    // working with Teensyduino extension so need to re-define some things
@@ -35,7 +37,7 @@ bool endstop_monitor_flag = false;
 #define _ANALOG_PIN_SAY(NAME) { sprintf(buffer, NAME_FORMAT, NAME); SERIAL_ECHO(buffer); pin_is_analog = true; return true; }
 #define ANALOG_PIN_SAY(NAME) if (pin == analogInputToDigitalPin(NAME)) _ANALOG_PIN_SAY(#NAME);
 
-#define IS_ANALOG(P) ((P) >= analogInputToDigitalPin(0) && ((P) <= analogInputToDigitalPin(15) || (P) <= analogInputToDigitalPin(5)))
+#define IS_ANALOG(P) ( WITHIN(P, analogInputToDigitalPin(0), analogInputToDigitalPin(15)) || (P) <= analogInputToDigitalPin(5) )
 
 int digitalRead_mod(int8_t pin) { // same as digitalRead except the PWM stop section has been removed
   uint8_t port = digitalPinToPort(pin);
