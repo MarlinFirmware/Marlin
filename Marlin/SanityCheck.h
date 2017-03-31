@@ -610,19 +610,19 @@ static_assert(1 >= 0
   #elif ENABLED(AUTO_BED_LEVELING_UBL)
     #if DISABLED(EEPROM_SETTINGS)
       #error "AUTO_BED_LEVELING_UBL requires EEPROM_SETTINGS. Please update your configuration."
-    #elif UBL_MESH_NUM_X_POINTS < 3 || UBL_MESH_NUM_X_POINTS > 15 || UBL_MESH_NUM_Y_POINTS < 3 || UBL_MESH_NUM_Y_POINTS > 15
+    #elif !WITHIN(UBL_MESH_NUM_X_POINTS, 3, 15) || !WITHIN(UBL_MESH_NUM_Y_POINTS, 3, 15)
       #error "UBL_MESH_NUM_[XY]_POINTS must be a whole number between 3 and 15."
-    #elif UBL_PROBE_PT_1_X < MIN_PROBE_X || UBL_PROBE_PT_1_X > MAX_PROBE_X
+    #elif !WITHIN(UBL_PROBE_PT_1_X, MIN_PROBE_X, MAX_PROBE_X)
       #error "The given UBL_PROBE_PT_1_X can't be reached by the Z probe."
-    #elif UBL_PROBE_PT_2_X < MIN_PROBE_X || UBL_PROBE_PT_2_X > MAX_PROBE_X
+    #elif !WITHIN(UBL_PROBE_PT_2_X, MIN_PROBE_X, MAX_PROBE_X)
       #error "The given UBL_PROBE_PT_2_X can't be reached by the Z probe."
-    #elif UBL_PROBE_PT_3_X < MIN_PROBE_X || UBL_PROBE_PT_3_X > MAX_PROBE_X
+    #elif !WITHIN(UBL_PROBE_PT_3_X, MIN_PROBE_X, MAX_PROBE_X)
       #error "The given UBL_PROBE_PT_3_X can't be reached by the Z probe."
-    #elif UBL_PROBE_PT_1_Y < MIN_PROBE_Y || UBL_PROBE_PT_1_Y > MAX_PROBE_Y
+    #elif !WITHIN(UBL_PROBE_PT_1_Y, MIN_PROBE_Y, MAX_PROBE_Y)
       #error "The given UBL_PROBE_PT_1_Y can't be reached by the Z probe."
-    #elif UBL_PROBE_PT_2_Y < MIN_PROBE_Y || UBL_PROBE_PT_2_Y > MAX_PROBE_Y
+    #elif !WITHIN(UBL_PROBE_PT_2_Y, MIN_PROBE_Y, MAX_PROBE_Y)
       #error "The given UBL_PROBE_PT_2_Y can't be reached by the Z probe."
-    #elif UBL_PROBE_PT_3_Y < MIN_PROBE_Y || UBL_PROBE_PT_3_Y > MAX_PROBE_Y
+    #elif !WITHIN(UBL_PROBE_PT_3_Y, MIN_PROBE_Y, MAX_PROBE_Y)
       #error "The given UBL_PROBE_PT_3_Y can't be reached by the Z probe."
     #endif
   #else // AUTO_BED_LEVELING_3POINT
