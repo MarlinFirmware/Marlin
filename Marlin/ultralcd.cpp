@@ -1657,8 +1657,8 @@ KeepDrawing:
       current_position[Z_AXIS] = max(Z_HOMING_HEIGHT, Z_CLEARANCE_BETWEEN_PROBES) + (DELTA_PRINTABLE_RADIUS) / 5;
       line_to_current(Z_AXIS);
 
-      current_position[X_AXIS] = a < 0 ? X_HOME_POS : sin(a) * -(DELTA_PRINTABLE_RADIUS);
-      current_position[Y_AXIS] = a < 0 ? Y_HOME_POS : cos(a) *  (DELTA_PRINTABLE_RADIUS);
+      current_position[X_AXIS] = a < 0 ? X_HOME_POS : sin(a) * -(DELTA_CALIBRATION_RADIUS);
+      current_position[Y_AXIS] = a < 0 ? Y_HOME_POS : cos(a) *  (DELTA_CALIBRATION_RADIUS);
       line_to_current(Z_AXIS);
 
       current_position[Z_AXIS] = 4.0;
@@ -1678,6 +1678,9 @@ KeepDrawing:
     void lcd_delta_calibrate_menu() {
       START_MENU();
       MENU_BACK(MSG_MAIN);
+      #ifdef ENABLE_DELTA_AUTO_CALIBRATION  
+        MENU_ITEM(gcode, MSG_DELTA_AUTO_CALIBRATE, PSTR("G33 C")); // AC-version
+      #endif
       MENU_ITEM(submenu, MSG_AUTO_HOME, _lcd_delta_calibrate_home);
       if (axis_homed[Z_AXIS]) {
         MENU_ITEM(submenu, MSG_DELTA_CALIBRATE_X, _goto_tower_x);
