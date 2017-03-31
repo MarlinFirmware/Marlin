@@ -133,8 +133,7 @@ uint16_t max_display_update_time = 0;
   int32_t lastEncoderMovementMillis;
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-    extern bool ubl_has_control_of_lcd_panel;
-    extern int8_t ubl_encoderDiff;
+    #include "UBL.h"
   #endif
 
   #if HAS_POWER_SWITCH
@@ -875,65 +874,45 @@ void kill_screen(const char* lcd_msg) {
     static int ubl_encoderPosition = 0;
 
     static void _lcd_mesh_fine_tune(const char* msg) {
-//    static millis_t next_click = 0;             // We are going to accelerate the number speed when the wheel
-//                                                // turns fast.   But that isn't implemented yet
-      int16_t last_digit;
-      int32_t rounded;
-
       defer_return_to_status = true;
-      if (ubl_encoderDiff) {
-        if ( ubl_encoderDiff > 0 ) 
-          ubl_encoderPosition = 1;
-        else {
-          ubl_encoderPosition = -1;
-        }
+      if (ubl.encoder_diff) {
+        ubl_encoderPosition = (ubl.encoder_diff > 0) ? 1 : -1;
+        ubl.encoder_diff = 0;
 
-        ubl_encoderDiff = 0;
-//      next_click = millis();
-
-        mesh_edit_accumulator += ( (float) (ubl_encoderPosition)) * .005 / 2.0 ;
+        mesh_edit_accumulator += float(ubl_encoderPosition) * 0.005 / 2.0;
         mesh_edit_value = mesh_edit_accumulator;
         encoderPosition = 0;
         lcdDrawUpdate = LCDVIEW_REDRAW_NOW;
 
-        rounded = (int32_t)(mesh_edit_value * 1000.0);
-        last_digit = rounded % 5L; //10L;
-        rounded -= last_digit;
-        mesh_edit_value = float(rounded) / 1000.0;
+        const int32_t rounded = (int32_t)(mesh_edit_value * 1000.0);
+        mesh_edit_value = float(rounded - (rounded % 5L)) / 1000.0;
       }
 
       if (lcdDrawUpdate)
         lcd_implementation_drawedit(msg, ftostr43sign(mesh_edit_value));
     }
 
-
     void _lcd_mesh_edit_NOP() {
       defer_return_to_status = true;
     }
 
-
     void _lcd_mesh_edit() {
       _lcd_mesh_fine_tune(PSTR("Mesh Editor: "));
-      defer_return_to_status = true;
     }
 
     float lcd_mesh_edit() {
       lcd_goto_screen(_lcd_mesh_edit_NOP);
       _lcd_mesh_fine_tune(PSTR("Mesh Editor: "));
-      defer_return_to_status = true;
       return mesh_edit_value;
     }
 
     void lcd_mesh_edit_setup(float initial) {
       mesh_edit_value = mesh_edit_accumulator = initial;
       lcd_goto_screen(_lcd_mesh_edit_NOP);
-      mesh_edit_value = mesh_edit_accumulator = initial;
-      defer_return_to_status = true; 
     }
 
     void _lcd_z_offset_edit() {
       _lcd_mesh_fine_tune(PSTR("Z-Offset: "));
-      defer_return_to_status = true;
     }
 
     float lcd_z_offset_edit() {
@@ -1478,7 +1457,7 @@ KeepDrawing:
       // _manual_probe_xy runs the menu loop until the move is done
       int8_t px, py;
       mbl.zigzag(manual_probe_index, px, py);
-      _manual_probe_xy(mbl.get_probe_x(px), mbl.get_probe_y(py));
+      _manual_probe_xy(mbl.index_to_xpos[px], mbl.index_to_ypos[py]);
 
       // After the blocking function returns, change menus
       lcd_goto_screen(_lcd_level_bed_get_z);
@@ -3308,7 +3287,7 @@ void lcd_update() {
     lcd_buttons_update();
 
     #if ENABLED(AUTO_BED_LEVELING_UBL)
-      const bool UBL_CONDITION = !ubl_has_control_of_lcd_panel;
+      const bool UBL_CONDITION = !ubl.has_control_of_lcd_panel;
     #else
       constexpr bool UBL_CONDITION = true;
     #endif
@@ -3724,8 +3703,8 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
         case encrot3: ENCODER_SPIN(encrot2, encrot0); break;
       }
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        if (ubl_has_control_of_lcd_panel) {
-          ubl_encoderDiff = encoderDiff;    // Make the encoder's rotation available to G29's Mesh Editor
+        if (ubl.has_control_of_lcd_panel) {
+          ubl.encoder_diff = encoderDiff;    // Make the encoder's rotation available to G29's Mesh Editor
           encoderDiff = 0;                  // We are going to lie to the LCD Panel and claim the encoder
                                             // wheel has not turned.
         }

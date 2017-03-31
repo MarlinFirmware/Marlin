@@ -31,12 +31,12 @@
 
   extern float destination[XYZE];
   extern void set_current_to_destination();
-
+  extern float destination[];
   void debug_current_and_destination(char *title) {
 
     // if the title message starts with a '!' it is so important, we are going to
     // ignore the status of the g26_debug_flag
-    if (*title != '!' && !g26_debug_flag) return;
+    if (*title != '!' && !ubl.g26_debug_flag) return;
 
     const float de = destination[E_AXIS] - current_position[E_AXIS];
 
@@ -121,7 +121,7 @@
               cell_dest_xi  = ubl.get_cell_index_x(RAW_X_POSITION(x_end)),
               cell_dest_yi  = ubl.get_cell_index_y(RAW_Y_POSITION(y_end));
 
-    if (g26_debug_flag) {
+    if (ubl.g26_debug_flag) {
       SERIAL_ECHOPGM(" ubl_line_to_destination(xe=");
       SERIAL_ECHO(x_end);
       SERIAL_ECHOPGM(", ye=");
@@ -150,7 +150,7 @@
         planner.buffer_line(x_end, y_end, z_end + ubl.state.z_offset, e_end, feed_rate, extruder);
         set_current_to_destination();
 
-        if (g26_debug_flag)
+        if (ubl.g26_debug_flag)
           debug_current_and_destination((char*)"out of bounds in ubl_line_to_destination()");
 
         return;
@@ -167,16 +167,16 @@
        * to create a 1-over number for us. That will allow us to do a floating point multiply instead of a floating point divide.
        */
 
-      const float xratio = (RAW_X_POSITION(x_end) - mesh_index_to_x_location[cell_dest_xi]) * (1.0 / (MESH_X_DIST)),
-                  z1 = z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
-                      (z_values[cell_dest_xi + 1][cell_dest_yi    ] - z_values[cell_dest_xi][cell_dest_yi    ]),
-                  z2 = z_values[cell_dest_xi    ][cell_dest_yi + 1] + xratio *
-                      (z_values[cell_dest_xi + 1][cell_dest_yi + 1] - z_values[cell_dest_xi][cell_dest_yi + 1]);
+      const float xratio = (RAW_X_POSITION(x_end) - ubl.mesh_index_to_xpos[cell_dest_xi]) * (1.0 / (MESH_X_DIST)),
+                  z1 = ubl.z_values[cell_dest_xi    ][cell_dest_yi    ] + xratio *
+                      (ubl.z_values[cell_dest_xi + 1][cell_dest_yi    ] - ubl.z_values[cell_dest_xi][cell_dest_yi    ]),
+                  z2 = ubl.z_values[cell_dest_xi    ][cell_dest_yi + 1] + xratio *
+                      (ubl.z_values[cell_dest_xi + 1][cell_dest_yi + 1] - ubl.z_values[cell_dest_xi][cell_dest_yi + 1]);
 
       // we are done with the fractional X distance into the cell. Now with the two Z-Heights we have calculated, we
       // are going to apply the Y-Distance into the cell to interpolate the final Z correction.
 
-      const float yratio = (RAW_Y_POSITION(y_end) - mesh_index_to_y_location[cell_dest_yi]) * (1.0 / (MESH_Y_DIST));
+      const float yratio = (RAW_Y_POSITION(y_end) - ubl.mesh_index_to_ypos[cell_dest_yi]) * (1.0 / (MESH_Y_DIST));
 
       float z0 = z1 + (z2 - z1) * yratio;
 
@@ -212,7 +212,7 @@
 
       planner.buffer_line(x_end, y_end, z_end + z0 + ubl.state.z_offset, e_end, feed_rate, extruder);
 
-      if (g26_debug_flag)
+      if (ubl.g26_debug_flag)
         debug_current_and_destination((char*)"FINAL_MOVE in ubl_line_to_destination()");
 
       set_current_to_destination();
@@ -274,7 +274,7 @@
       current_yi += down_flag;  // Line is heading down, we just want to go to the bottom
       while (current_yi != cell_dest_yi + down_flag) {
         current_yi += dyi;
-        const float next_mesh_line_y = LOGICAL_Y_POSITION(mesh_index_to_y_location[current_yi]);
+        const float next_mesh_line_y = LOGICAL_Y_POSITION(ubl.mesh_index_to_ypos[current_yi]);
 
         /**
          * inf_m_flag? the slope of the line is infinite, we won't do the calculations
@@ -314,9 +314,9 @@
          * because part of the Mesh is undefined and we don't have the
          * information we need to complete the height correction.
          */
-        if (isnan(z0)) z0 = 0.0;     
+        if (isnan(z0)) z0 = 0.0;
 
-        const float y = LOGICAL_Y_POSITION(mesh_index_to_y_location[current_yi]);
+        const float y = LOGICAL_Y_POSITION(ubl.mesh_index_to_ypos[current_yi]);
 
         /**
          * Without this check, it is possible for the algorithm to generate a zero length move in the case
@@ -339,7 +339,7 @@
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
-      if (g26_debug_flag)
+      if (ubl.g26_debug_flag)
         debug_current_and_destination((char*)"vertical move done in ubl_line_to_destination()");
 
       //
@@ -365,7 +365,7 @@
                                 // edge of this cell for the first move.
       while (current_xi != cell_dest_xi + left_flag) {
         current_xi += dxi;
-        const float next_mesh_line_x = LOGICAL_X_POSITION(mesh_index_to_x_location[current_xi]),
+        const float next_mesh_line_x = LOGICAL_X_POSITION(ubl.mesh_index_to_xpos[current_xi]),
                     y = m * next_mesh_line_x + c;   // Calculate X at the next Y mesh line
 
         float z0 = ubl.get_z_correction_along_vertical_mesh_line_at_specific_Y(y, current_xi, current_yi);
@@ -401,7 +401,7 @@
          */
         if (isnan(z0)) z0 = 0.0;
 
-        const float x = LOGICAL_X_POSITION(mesh_index_to_x_location[current_xi]);
+        const float x = LOGICAL_X_POSITION(ubl.mesh_index_to_xpos[current_xi]);
 
         /**
          * Without this check, it is possible for the algorithm to generate a zero length move in the case
@@ -424,7 +424,7 @@
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
-      if (g26_debug_flag)
+      if (ubl.g26_debug_flag)
         debug_current_and_destination((char*)"horizontal move done in ubl_line_to_destination()");
 
       if (current_position[X_AXIS] != x_end || current_position[Y_AXIS] != y_end)
@@ -451,8 +451,8 @@
 
     while (xi_cnt > 0 || yi_cnt > 0) {
 
-      const float next_mesh_line_x = LOGICAL_X_POSITION(mesh_index_to_x_location[current_xi + dxi]),
-                  next_mesh_line_y = LOGICAL_Y_POSITION(mesh_index_to_y_location[current_yi + dyi]),
+      const float next_mesh_line_x = LOGICAL_X_POSITION(ubl.mesh_index_to_xpos[current_xi + dxi]),
+                  next_mesh_line_y = LOGICAL_Y_POSITION(ubl.mesh_index_to_ypos[current_yi + dyi]),
                   y = m * next_mesh_line_x + c,   // Calculate Y at the next X mesh line
                   x = (next_mesh_line_y - c) / m; // Calculate X at the next Y mesh line    (we don't have to worry
                                                   // about m being equal to 0.0  If this was the case, we would have
@@ -563,7 +563,7 @@
       }
     }
 
-    if (g26_debug_flag)
+    if (ubl.g26_debug_flag)
       debug_current_and_destination((char*)"generic move done in ubl_line_to_destination()");
 
     if (current_position[0] != x_end || current_position[1] != y_end)

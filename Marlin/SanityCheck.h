@@ -1047,7 +1047,7 @@ static_assert(1 >= 0
   #if ENABLED(LCD_I2C_VIKI)
     + 1
   #endif
-  #if ENABLED(U8GLIB_SSD1306)
+  #if ENABLED(U8GLIB_SSD1306) && DISABLED(OLED_PANEL_TINYBOY2)
     + 1
   #endif
   #if ENABLED(SAV_3DLCD)
@@ -1057,6 +1057,9 @@ static_assert(1 >= 0
     + 1
   #endif
   #if ENABLED(SAV_3DGLCD)
+    + 1
+  #endif
+  #if ENABLED(OLED_PANEL_TINYBOY2)
     + 1
   #endif
   , "Please select no more than one LCD controller option."

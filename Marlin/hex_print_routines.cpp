@@ -26,22 +26,25 @@
 
 #include "hex_print_routines.h"
 
-void prt_hex_nibble(uint8_t n) {
-  if (n <= 9) 
-    SERIAL_CHAR('0'+n);
-  else
-    SERIAL_CHAR('A' + n - 10);
-  delay(3);
+static char _hex[5] = { 0 };
+
+char* hex_byte(const uint8_t b) {
+  _hex[0] = hex_nybble(b >> 4);
+  _hex[1] = hex_nybble(b);
+  _hex[2] = '\0';
+  return _hex;
 }
 
-void prt_hex_byte(uint8_t b) {
-  prt_hex_nibble((b & 0xF0) >> 4);
-  prt_hex_nibble(b & 0x0F);
+char* hex_word(const uint16_t w) {
+  _hex[0] = hex_nybble(w >> 12);
+  _hex[1] = hex_nybble(w >> 8);
+  _hex[2] = hex_nybble(w >> 4);
+  _hex[3] = hex_nybble(w);
+  return _hex;
 }
 
-void prt_hex_word(uint16_t w) {
-  prt_hex_byte((w & 0xFF00) >> 8);
-  prt_hex_byte(w & 0x0FF);
-}
+void print_hex_nybble(const uint8_t n) { SERIAL_CHAR(hex_nybble(n));  }
+void print_hex_byte(const uint8_t b)   { SERIAL_ECHO(hex_byte(b)); }
+void print_hex_word(const uint16_t w)  { SERIAL_ECHO(hex_word(w)); }
 
 #endif // AUTO_BED_LEVELING_UBL || M100_FREE_MEMORY_WATCHER

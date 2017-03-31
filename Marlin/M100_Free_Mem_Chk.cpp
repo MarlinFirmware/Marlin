@@ -76,32 +76,25 @@ void gcode_M100() {
       // We want to start and end the dump on a nice 16 byte boundry even though
       // the values we are using are not 16 byte aligned.
       //
-      SERIAL_ECHOPGM("\nbss_end : ");
-      prt_hex_word((unsigned int) ptr);
-      ptr = (char*)((unsigned long) ptr & 0xfff0);
+      SERIAL_ECHOPAIR("\nbss_end : 0x", hex_word((uint16_t)ptr));
+      ptr = (char*)((uint32_t)ptr & 0xfff0);
       sp = top_of_stack();
-      SERIAL_ECHOPGM("\nStack Pointer : ");
-      prt_hex_word((unsigned int) sp);
-      SERIAL_EOL;
-      sp = (char*)((unsigned long) sp | 0x000f);
+      SERIAL_ECHOLNPAIR("\nStack Pointer : 0x", hex_word((uint16_t)sp));
+      sp = (char*)((uint32_t)sp | 0x000f);
       n = sp - ptr;
       //
       // This is the main loop of the Dump command.
       //
       while (ptr < sp) {
-        prt_hex_word((unsigned int) ptr); // Print the address
+        print_hex_word((uint16_t)ptr); // Print the address
         SERIAL_CHAR(':');
         for (i = 0; i < 16; i++) {      // and 16 data bytes
-          prt_hex_byte(*(ptr + i));
+          print_hex_byte(*(ptr + i));
           SERIAL_CHAR(' ');
         }
         SERIAL_CHAR('|');         // now show where non 0xE5's are
-        for (i = 0; i < 16; i++) {
-          if (*(ptr + i) == (char)0xe5)
-            SERIAL_CHAR(' ');
-          else
-            SERIAL_CHAR('?');
-        }
+        for (i = 0; i < 16; i++)
+          SERIAL_CHAR((*(ptr + i) == (char)0xe5) ? ' ' : '?');
         SERIAL_EOL;
         ptr += 16;
       }
@@ -127,9 +120,7 @@ void gcode_M100() {
         j = how_many_E5s_are_here(ptr + i);
         if (j > 8) {
           SERIAL_ECHOPAIR("Found ", j);
-          SERIAL_ECHOPGM(" bytes free at 0x");
-          prt_hex_word((int) ptr + i);
-          SERIAL_EOL;
+          SERIAL_ECHOLNPAIR(" bytes free at 0x", hex_word((uint16_t)(ptr + i)));
           i += j;
           block_cnt++;
         }
@@ -164,8 +155,7 @@ void gcode_M100() {
       j = n / (x + 1);
       for (i = 1; i <= x; i++) {
         *(ptr + (i * j)) = i;
-        SERIAL_ECHOPGM("\nCorrupting address: 0x");
-        prt_hex_word((unsigned int)(ptr + (i * j)));
+        SERIAL_ECHOPAIR("\nCorrupting address: 0x", hex_word((uint16_t)(ptr + i * j)));
       }
       SERIAL_ECHOLNPGM("\n");
       return;
