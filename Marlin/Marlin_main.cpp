@@ -6521,6 +6521,7 @@ inline void gcode_M205() {
   /**
    * M665: Set delta configurations
    *
+   *    H = diagonal rod // AC-version
    *    L = diagonal rod
    *    R = delta radius
    *    S = segments per second
@@ -6529,6 +6530,7 @@ inline void gcode_M205() {
    *    C = Gamma (Tower 3) diagonal rod trim
    */
   inline void gcode_M665() {
+    if (code_seen('H')) home_offset[Z_AXIS] = code_value_linear_units()- DELTA_HEIGHT; // AC-version
     if (code_seen('L')) delta_diagonal_rod = code_value_linear_units();
     if (code_seen('R')) delta_radius = code_value_linear_units();
     if (code_seen('S')) delta_segments_per_second = code_value_float();
