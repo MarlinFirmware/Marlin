@@ -76,10 +76,10 @@ void gcode_M100() {
       // We want to start and end the dump on a nice 16 byte boundry even though
       // the values we are using are not 16 byte aligned.
       //
-      SERIAL_ECHOPAIR("\nbss_end : ", hex_word((uint16_t)ptr));
+      SERIAL_ECHOPAIR("\nbss_end : 0x", hex_word((uint16_t)ptr));
       ptr = (char*)((uint32_t)ptr & 0xfff0);
       sp = top_of_stack();
-      SERIAL_ECHOLNPAIR("\nStack Pointer : ", hex_word((uint16_t)sp));
+      SERIAL_ECHOLNPAIR("\nStack Pointer : 0x", hex_word((uint16_t)sp));
       sp = (char*)((uint32_t)sp | 0x000f);
       n = sp - ptr;
       //

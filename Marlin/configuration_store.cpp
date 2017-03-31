@@ -846,7 +846,7 @@ void Config_Postprocess() {
       }
 
       #if ENABLED(AUTO_BED_LEVELING_UBL)
-        ubl_eeprom_start = (eeprom_index + 32) & 0xFFF8; // Pad the end of configuration data so it
+        ubl.eeprom_start = (eeprom_index + 32) & 0xFFF8; // Pad the end of configuration data so it
                                                          // can float up or down a little bit without
                                                          // disrupting the Unified Bed Leveling data
         ubl.load_state();
@@ -1232,7 +1232,7 @@ void Config_ResetDefault() {
         SERIAL_ECHO_F(ubl.state.z_offset, 6);
         SERIAL_EOL;
 
-        SERIAL_ECHOPAIR("EEPROM can hold ", (int)((UBL_LAST_EEPROM_INDEX - ubl_eeprom_start) / sizeof(z_values)));
+        SERIAL_ECHOPAIR("EEPROM can hold ", (int)((UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values)));
         SERIAL_ECHOLNPGM(" meshes.\n");
 
         SERIAL_ECHOLNPGM("UBL_MESH_NUM_X_POINTS  " STRINGIFY(UBL_MESH_NUM_X_POINTS));
