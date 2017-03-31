@@ -134,7 +134,7 @@ void safe_delay(millis_t ms) {
     // Convert float to rj string with 1234, _123, -123, _-12, 12.3, _1.2, or -1.2 format
     char *ftostr4sign(const float& fx) {
       int x = fx * 10;
-      if (x <= -100 || x >= 1000) return itostr4sign((int)fx);
+      if (WITHIN(x, -99, 999)) return itostr4sign((int)fx);
       int xx = abs(x);
       conv[0] = x < 0 ? '-' : (xx >= 100 ? DIGIMOD(xx, 100) : ' ');
       conv[1] = DIGIMOD(xx, 10);
