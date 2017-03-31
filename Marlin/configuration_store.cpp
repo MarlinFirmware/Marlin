@@ -47,7 +47,7 @@
  *  100  Version                                    (char x4)
  *  104  EEPROM Checksum                            (uint16_t)
  *
- *  106            E_STEPPERS (uint8_t)
+ *  106            E_STEPPERS                       (uint8_t)
  *  107  M92 XYZE  planner.axis_steps_per_mm        (float x4 ... x8)
  *  123  M203 XYZE planner.max_feedrate_mm_s        (float x4 ... x8)
  *  139  M201 XYZE planner.max_acceleration_mm_per_s2 (uint32_t x4 ... x8)
@@ -300,9 +300,17 @@ void MarlinSettings::postprocess() {
     EEPROM_WRITE(planner.min_segment_time);
     EEPROM_WRITE(planner.max_jerk);
     #if ENABLED(NO_WORKSPACE_OFFSETS)
-      float home_offset[XYZ] = { 0 };
+      const float home_offset[XYZ] = { 0 };
     #endif
-    EEPROM_WRITE(home_offset);
+    #if ENABLED(DELTA)
+      dummy = 0.0;
+      EEPROM_WRITE(dummy);
+      EEPROM_WRITE(dummy);
+      dummy = DELTA_HEIGHT + home_offset[Z_AXIS];
+      EEPROM_WRITE(dummy);
+    #else
+      EEPROM_WRITE(home_offset);
+    #endif
 
     #if HOTENDS > 1
       // Skip hotend 0 which must be 0
@@ -488,7 +496,7 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(dummy);
     }
 
-    // Save TCM2130 Configuration, and placeholder values
+    // Save TMC2130 Configuration, and placeholder values
     uint16_t val;
     #if ENABLED(HAVE_TMC2130)
       #if ENABLED(X_IS_TMC2130)
@@ -547,6 +555,12 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(val);
       #if ENABLED(E3_IS_TMC2130)
         val = stepperE3.getCurrent();
+      #else
+        val = 0;
+      #endif
+      EEPROM_WRITE(val);
+      #if ENABLED(E4_IS_TMC2130)
+        val = stepperE4.getCurrent();
       #else
         val = 0;
       #endif
@@ -643,6 +657,12 @@ void MarlinSettings::postprocess() {
         float home_offset[XYZ];
       #endif
       EEPROM_READ(home_offset);
+
+      #if ENABLED(DELTA)
+        home_offset[X_AXIS] = 0.0;
+        home_offset[Y_AXIS] = 0.0;
+        home_offset[Z_AXIS] -= DELTA_HEIGHT;
+      #endif
 
       #if HOTENDS > 1
         // Skip hotend 0 which must be 0
@@ -1019,6 +1039,9 @@ void MarlinSettings::reset() {
     delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
     COPY(delta_diagonal_rod_trim, drt);
     COPY(delta_tower_angle_trim, dta);
+    #if ENABLED(DELTA)
+      home_offset[Z_AXIS] = 0;
+    #endif
   #elif ENABLED(Z_DUAL_ENDSTOPS)
     float z_endstop_adj =
       #ifdef Z_DUAL_ENDSTOPS_ADJUSTMENT
@@ -1143,7 +1166,7 @@ void MarlinSettings::reset() {
 
   /**
    * M503 - Report current settings in RAM
-   *   
+   *
    * Unless specifically disabled, M503 is available even without EEPROM
    */
   void MarlinSettings::report(bool forReplay) {
@@ -1231,7 +1254,7 @@ void MarlinSettings::reset() {
     SERIAL_ECHOPAIR(" E", planner.max_jerk[E_AXIS]);
     SERIAL_EOL;
 
-    #if DISABLED(NO_WORKSPACE_OFFSETS)
+    #if DISABLED(NO_WORKSPACE_OFFSETS) && DISABLED(DELTA)
       CONFIG_ECHO_START;
       if (!forReplay) {
         SERIAL_ECHOLNPGM("Home offset (mm)");
@@ -1346,11 +1369,12 @@ void MarlinSettings::reset() {
       SERIAL_EOL;
       CONFIG_ECHO_START;
       if (!forReplay) {
-        SERIAL_ECHOLNPGM("Delta settings: L=diagonal rod, R=radius, S=segments-per-second, ABC=diagonal rod trim, IJK=tower angle trim");
+        SERIAL_ECHOLNPGM("Delta settings: L=diagonal_rod, R=radius, H=height, S=segments_per_second, ABC=diagonal_rod_trim_tower_[123]");
         CONFIG_ECHO_START;
       }
       SERIAL_ECHOPAIR("  M665 L", delta_diagonal_rod);
       SERIAL_ECHOPAIR(" R", delta_radius);
+      SERIAL_ECHOPAIR(" H", DELTA_HEIGHT + home_offset[Z_AXIS]);
       SERIAL_ECHOPAIR(" S", delta_segments_per_second);
       SERIAL_ECHOPAIR(" A", delta_diagonal_rod_trim[A_AXIS]);
       SERIAL_ECHOPAIR(" B", delta_diagonal_rod_trim[B_AXIS]);

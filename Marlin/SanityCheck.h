@@ -395,7 +395,7 @@
  * Delta Auto calibration
  */
 #if ENABLED(DELTA_AUTO_CALIBRATION) && ENABLED(NO_WORKSPACE_OFFSETS)
-  #error "To use DELTA_AUTO_CALIBRATION you must disable NO_WORKSPACE_OFFSETS."
+  #error "DELTA_AUTO_CALIBRATION is incompatible with NO_WORKSPACE_OFFSETS."
 #endif
 
 /**
