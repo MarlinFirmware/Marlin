@@ -40,24 +40,24 @@
     enum MeshPointType { INVALID, REAL, SET_IN_BITMAP };
 
     void dump(char * const str, const float &f);
-    bool ubl_lcd_clicked();
-    void probe_entire_mesh(const float&, const float&, const bool, const bool, const bool);
+    BOOL ubl_lcd_clicked();
+    void probe_entire_mesh(const float&, const float&, const BOOL, const BOOL, const BOOL);
     void debug_current_and_destination(char *title);
     void ubl_line_to_destination(const float&, uint8_t);
-    void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
+    void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const BOOL);
     vector_3 tilt_mesh_based_on_3pts(const float&, const float&, const float&);
     float measure_business_card_thickness(const float&);
-    mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const bool, unsigned int[16], bool);
+    mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType, const float&, const float&, const BOOL, unsigned int[16], BOOL);
     void find_mean_mesh_height();
     void shift_mesh_height();
-    bool g29_parameter_parsing();
+    BOOL g29_parameter_parsing();
     void g29_what_command();
     void g29_eeprom_dump();
     void g29_compare_current_mesh_to_stored_mesh();
-    void fine_tune_mesh(const float&, const float&, const bool);
+    void fine_tune_mesh(const float&, const float&, const BOOL);
     void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y);
     void bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
-    bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
+    BOOL is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y);
     char *ftostr43sign(const float&, char);
 
     void gcode_G26();
@@ -81,7 +81,7 @@
     #define MESH_Y_DIST (float(UBL_MESH_MAX_Y - (UBL_MESH_MIN_Y)) / float(UBL_MESH_NUM_Y_POINTS - 1))
 
     typedef struct {
-      bool active = false;
+      BOOL active = false;
       float z_offset = 0.0;
       int8_t eeprom_storage_slot = -1,
              n_x = UBL_MESH_NUM_X_POINTS,
@@ -129,7 +129,7 @@
                      mesh_index_to_xpos[UBL_MESH_NUM_X_POINTS + 1], // +1 safety margin for now, until determinism prevails
                      mesh_index_to_ypos[UBL_MESH_NUM_Y_POINTS + 1];
 
-        static bool g26_debug_flag,
+        static BOOL g26_debug_flag,
                     has_control_of_lcd_panel;
 
         static int8_t eeprom_start;
@@ -148,7 +148,7 @@
         static void store_mesh(const int16_t);
         static void load_mesh(const int16_t);
 
-        static bool sanity_check();
+        static BOOL sanity_check();
 
         static FORCE_INLINE void set_z(const int8_t px, const int8_t py, const float &z) { z_values[px][py] = z; }
 

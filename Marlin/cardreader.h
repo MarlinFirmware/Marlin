@@ -43,11 +43,11 @@ public:
   //files auto[0-9].g on the sd card are performed in a row
   //this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
 
-  void checkautostart(bool x);
-  void openFile(char* name, bool read, bool push_current=false);
+  void checkautostart(BOOL x);
+  void openFile(char* name, BOOL read, BOOL push_current=false);
   void openLogFile(char* name);
   void removeFile(char* name);
-  void closefile(bool store_location=false);
+  void closefile(BOOL store_location=false);
   void release();
   void openAndPrintFile(const char *name);
   void startFileprint();
@@ -73,22 +73,22 @@ public:
     void presort();
     void getfilename_sorted(const uint16_t nr);
     #if ENABLED(SDSORT_GCODE)
-      FORCE_INLINE void setSortOn(bool b) { sort_alpha = b; presort(); }
+      FORCE_INLINE void setSortOn(BOOL b) { sort_alpha = b; presort(); }
       FORCE_INLINE void setSortFolders(int i) { sort_folders = i; presort(); }
-      //FORCE_INLINE void setSortReverse(bool b) { sort_reverse = b; }
+      //FORCE_INLINE void setSortReverse(BOOL b) { sort_reverse = b; }
     #endif
   #endif
 
   FORCE_INLINE void pauseSDPrint() { sdprinting = false; }
-  FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
-  FORCE_INLINE bool eof() { return sdpos >= filesize; }
+  FORCE_INLINE BOOL isFileOpen() { return file.isOpen(); }
+  FORCE_INLINE BOOL eof() { return sdpos >= filesize; }
   FORCE_INLINE int16_t get() { sdpos = file.curPosition(); return (int16_t)file.read(); }
   FORCE_INLINE void setIndex(long index) { sdpos = index; file.seekSet(index); }
   FORCE_INLINE uint8_t percentDone() { return (isFileOpen() && filesize) ? sdpos / ((filesize + 99) / 100) : 0; }
   FORCE_INLINE char* getWorkDirName() { workDir.getFilename(filename); return filename; }
 
 public:
-  bool saving, logging, sdprinting, cardOK, filenameIsDir;
+  BOOL saving, logging, sdprinting, cardOK, filenameIsDir;
   char filename[FILENAME_LENGTH], longFilename[LONG_FILENAME_LENGTH];
   int autostart_index;
 private:
@@ -99,9 +99,9 @@ private:
   #if ENABLED(SDCARD_SORT_ALPHA)
     uint16_t sort_count;        // Count of sorted items in the current directory
     #if ENABLED(SDSORT_GCODE)
-      bool sort_alpha;          // Flag to enable / disable the feature
+      BOOL sort_alpha;          // Flag to enable / disable the feature
       int sort_folders;         // Flag to enable / disable folder sorting
-      //bool sort_reverse;      // Flag to enable / disable reverse sorting
+      //BOOL sort_reverse;      // Flag to enable / disable reverse sorting
     #endif
 
     // By default the sort index is static
@@ -152,7 +152,7 @@ private:
   uint32_t sdpos;
 
   millis_t next_autostart_ms;
-  bool autostart_stilltocheck; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
+  BOOL autostart_stilltocheck; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
 
   LsAction lsAction; //stored for recursion.
   uint16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.

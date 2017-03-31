@@ -91,7 +91,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       createFilename(lfilename, p);
 
       // Allocate enough stack space for the full path to a folder, trailing slash, and nul
-      bool prepend_is_empty = (prepend[0] == '\0');
+      BOOL prepend_is_empty = (prepend[0] == '\0');
       int len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(lfilename) + 1 + 1;
       char path[len];
 
@@ -319,7 +319,7 @@ void CardReader::getAbsFilename(char *t) {
     t[0] = 0;
 }
 
-void CardReader::openFile(char* name, bool read, bool push_current/*=false*/) {
+void CardReader::openFile(char* name, BOOL read, BOOL push_current/*=false*/) {
 
   if (!cardOK) return;
 
@@ -527,7 +527,7 @@ void CardReader::write_command(char *buf) {
   }
 }
 
-void CardReader::checkautostart(bool force) {
+void CardReader::checkautostart(BOOL force) {
   if (!force && (!autostart_stilltocheck || ELAPSED(millis(), next_autostart_ms)))
     return;
 
@@ -546,7 +546,7 @@ void CardReader::checkautostart(bool force) {
 
   root.rewind();
 
-  bool found = false;
+  BOOL found = false;
   while (root.readDir(p, NULL) > 0) {
     for (int8_t i = 0; i < (int8_t)strlen((char*)p.name); i++) p.name[i] = tolower(p.name[i]);
     if (p.name[9] != '~' && strncmp((char*)p.name, autoname, 5) == 0) {
@@ -560,7 +560,7 @@ void CardReader::checkautostart(bool force) {
     autostart_index++;
 }
 
-void CardReader::closefile(bool store_location) {
+void CardReader::closefile(BOOL store_location) {
   file.sync();
   file.close();
   saving = logging = false;
@@ -749,7 +749,7 @@ void CardReader::updir() {
 
         // Bubble Sort
         for (uint16_t i = fileCnt; --i;) {
-          bool didSwap = false;
+          BOOL didSwap = false;
           for (uint16_t j = 0; j < i; ++j) {
             const uint16_t o1 = sort_order[j], o2 = sort_order[j + 1];
 
@@ -780,7 +780,7 @@ void CardReader::updir() {
               getfilename(o1);
               strcpy(name1, LONGEST_FILENAME); // save (or getfilename below will trounce it)
               #if HAS_FOLDER_SORTING
-                bool dir1 = filenameIsDir;
+                BOOL dir1 = filenameIsDir;
               #endif
               getfilename(o2);
               char *name2 = LONGEST_FILENAME; // use the string in-place

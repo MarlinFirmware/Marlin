@@ -58,7 +58,7 @@ class Stopwatch {
      * no timer is currently running.
      * @return true is method was successful
      */
-    bool stop();
+    BOOL stop();
 
     /**
      * @brief Pause the stopwatch
@@ -66,7 +66,7 @@ class Stopwatch {
      * no timer is currently running.
      * @return true is method was successful
      */
-    bool pause();
+    BOOL pause();
 
     /**
      * @brief Starts the stopwatch
@@ -74,7 +74,7 @@ class Stopwatch {
      * timer is already running.
      * @return true is method was successful
      */
-    bool start();
+    BOOL start();
 
     /**
      * @brief Resets the stopwatch
@@ -87,14 +87,14 @@ class Stopwatch {
      * @details Returns true if the timer is currently running, false otherwise.
      * @return true if stopwatch is running
      */
-    bool isRunning();
+    BOOL isRunning();
 
     /**
      * @brief Checks if the timer is paused
      * @details Returns true if the timer is currently paused, false otherwise.
      * @return true if stopwatch is paused
      */
-    bool isPaused();
+    BOOL isPaused();
 
     /**
      * @brief Gets the running time

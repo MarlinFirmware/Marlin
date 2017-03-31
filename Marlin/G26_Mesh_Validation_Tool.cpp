@@ -122,12 +122,12 @@
   extern void set_destination_to_current();
   extern void set_current_to_destination();
   extern float code_value_float();
-  extern bool code_value_bool();
-  extern bool code_has_value();
+  extern BOOL code_value_bool();
+  extern BOOL code_has_value();
   extern void lcd_init();
   extern void lcd_setstatuspgm(const char* const message, uint8_t level);
   #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS])) //bob
-  bool prepare_move_to_destination_cartesian();
+  BOOL prepare_move_to_destination_cartesian();
   void line_to_destination();
   void line_to_destination(float );
   void gcode_G28();
@@ -135,11 +135,11 @@
   void un_retract_filament(float where[XYZE]);
   void retract_filament(float where[XYZE]);
   void look_for_lines_to_connect();
-  bool parse_G26_parameters();
+  BOOL parse_G26_parameters();
   void move_to(const float&, const float&, const float&, const float&) ;
   void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
-  bool turn_on_heaters();
-  bool prime_nozzle();
+  BOOL turn_on_heaters();
+  BOOL prime_nozzle();
   void chirp_at_user();
 
   static uint16_t circle_flags[16], horizontal_mesh_line_flags[16], vertical_mesh_line_flags[16], continue_with_closest = 0;
@@ -147,7 +147,7 @@
         random_deviation = 0.0,
         layer_height = LAYER_HEIGHT;
 
-  bool g26_retracted = false; // We keep track of the state of the nozzle to know if it
+  BOOL g26_retracted = false; // We keep track of the state of the nozzle to know if it
                               // is currently retracted or not.  This allows us to be
                               // less careful because mis-matched retractions and un-retractions
                               // won't leave us in a bad state.
@@ -167,7 +167,7 @@
 
   int8_t prime_flag = 0;
 
-  bool keep_heaters_on = false;
+  BOOL keep_heaters_on = false;
 
   /**
    * G26: Mesh Validation Pattern generation.
@@ -504,7 +504,7 @@
     float feed_value;
     static float last_z = -999.99;
 
-    bool has_xy_component = (x != current_position[X_AXIS] || y != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
+    BOOL has_xy_component = (x != current_position[X_AXIS] || y != current_position[Y_AXIS]); // Check if X or Y is involved in the movement.
 
     //if (ubl.g26_debug_flag) SERIAL_ECHOLNPAIR("in move_to()  has_xy_component:", (int)has_xy_component);
 
@@ -622,7 +622,7 @@
    * parameters it made sense to turn them into static globals and get
    * this code out of sight of the main routine.
    */
-  bool parse_G26_parameters() {
+  BOOL parse_G26_parameters() {
 
     extrusion_multiplier  = EXTRUSION_MULTIPLIER;
     retraction_multiplier = RETRACTION_MULTIPLIER;
@@ -751,7 +751,7 @@
     return UBL_OK;
   }
 
-  bool exit_from_g26() {
+  BOOL exit_from_g26() {
     //strcpy(lcd_status_message, "Leaving G26"); // We can't do lcd_setstatus() without having it continue;
     lcd_reset_alert_level();
     lcd_setstatuspgm(PSTR("Leaving G26"));
@@ -763,7 +763,7 @@
    * Turn on the bed and nozzle heat and
    * wait for them to get up to temperature.
    */
-  bool turn_on_heaters() {
+  BOOL turn_on_heaters() {
     #if HAS_TEMP_BED
       #if ENABLED(ULTRA_LCD)
         if (bed_temp > 25) {
@@ -802,7 +802,7 @@
   /**
    * Prime the nozzle if needed. Return true on error.
    */
-  bool prime_nozzle() {
+  BOOL prime_nozzle() {
     float Total_Prime = 0.0;
 
     if (prime_flag == -1) {  // The user wants to control how much filament gets purged

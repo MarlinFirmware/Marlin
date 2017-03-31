@@ -38,7 +38,7 @@ millis_t PrintCounter::deltaDuration() {
   return this->lastDuration - tmp;
 }
 
-bool PrintCounter::isLoaded() {
+BOOL PrintCounter::isLoaded() {
   return this->loaded;
 }
 
@@ -174,12 +174,12 @@ void PrintCounter::tick() {
 }
 
 // @Override
-bool PrintCounter::start() {
+BOOL PrintCounter::start() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     PrintCounter::debug(PSTR("start"));
   #endif
 
-  bool paused = this->isPaused();
+  BOOL paused = this->isPaused();
 
   if (super::start()) {
     if (!paused) {
@@ -192,7 +192,7 @@ bool PrintCounter::start() {
 }
 
 // @Override
-bool PrintCounter::stop() {
+BOOL PrintCounter::stop() {
   #if ENABLED(DEBUG_PRINTCOUNTER)
     PrintCounter::debug(PSTR("stop"));
   #endif

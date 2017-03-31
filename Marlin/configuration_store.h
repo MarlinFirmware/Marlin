@@ -26,18 +26,18 @@
 #include "MarlinConfig.h"
 
 void Config_ResetDefault();
-bool Config_StoreSettings();
+BOOL Config_StoreSettings();
 
 #if DISABLED(DISABLE_M503)
-  void Config_PrintSettings(bool forReplay=false);
+  void Config_PrintSettings(BOOL forReplay=false);
 #else
-  FORCE_INLINE void Config_PrintSettings(bool forReplay=false) {}
+  FORCE_INLINE void Config_PrintSettings(BOOL forReplay=false) {}
 #endif
 
 #if ENABLED(EEPROM_SETTINGS)
-  bool Config_RetrieveSettings();
+  BOOL Config_RetrieveSettings();
 #else
-  FORCE_INLINE bool Config_RetrieveSettings() { Config_ResetDefault(); Config_PrintSettings(); return true; }
+  FORCE_INLINE BOOL Config_RetrieveSettings() { Config_ResetDefault(); Config_PrintSettings(); return true; }
 #endif
 
 #endif //CONFIGURATION_STORE_H

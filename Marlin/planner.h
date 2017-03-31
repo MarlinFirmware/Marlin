@@ -94,7 +94,7 @@ typedef struct {
 
   // Advance extrusion
   #if ENABLED(LIN_ADVANCE)
-    bool use_advance_lead;
+    BOOL use_advance_lead;
     uint32_t abs_adv_steps_multiplier8; // Factorised by 2^8 to avoid float
   #elif ENABLED(ADVANCE)
     int32_t advance_rate;
@@ -160,7 +160,7 @@ class Planner {
                  min_travel_feedrate_mm_s;
 
     #if HAS_ABL
-      static bool abl_enabled;            // Flag that bed leveling is enabled
+      static BOOL abl_enabled;            // Flag that bed leveling is enabled
       static matrix_3x3 bed_level_matrix; // Transform to compensate for bed level
     #endif
 
@@ -242,7 +242,7 @@ class Planner {
      */
     static uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
-    static bool is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
+    static BOOL is_full() { return (block_buffer_tail == BLOCK_MOD(block_buffer_head + 1)); }
 
     #if PLANNER_LEVELING && DISABLED(AUTO_BED_LEVELING_UBL)
 
@@ -358,7 +358,7 @@ class Planner {
     /**
      * Does the buffer have any blocks queued?
      */
-    static bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
+    static BOOL blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
     /**
      * "Discards" the block and "releases" the memory.
@@ -415,7 +415,7 @@ class Planner {
 
     #if ENABLED(AUTOTEMP)
       static float autotemp_min, autotemp_max, autotemp_factor;
-      static bool autotemp_enabled;
+      static BOOL autotemp_enabled;
       static void getHighESpeed();
       static void autotemp_M104_M109();
     #endif

@@ -44,7 +44,7 @@
 */
 
 /// Read a pin
-#define _READ(IO) ((bool)(DIO ## IO ## _RPORT & MASK(DIO ## IO ## _PIN)))
+#define _READ(IO) ((BOOL)(DIO ## IO ## _RPORT & MASK(DIO ## IO ## _PIN)))
 /// write to a pin
 // On some boards pins > 0x100 are used. These are not converted to atomic actions. An critical section is needed.
 

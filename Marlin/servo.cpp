@@ -227,7 +227,7 @@ static void finISR(timer16_Sequence_t timer) {
   #endif
 }
 
-static bool isTimerActive(timer16_Sequence_t timer) {
+static BOOL isTimerActive(timer16_Sequence_t timer) {
   // returns true if any servo is active on this timer
   for (uint8_t channel = 0; channel < SERVOS_PER_TIMER; channel++) {
     if (SERVO(timer, channel).Pin.isActive)
@@ -305,7 +305,7 @@ int Servo::readMicroseconds() {
   return (this->servoIndex == INVALID_SERVO) ? 0 : ticksToUs(servo_info[this->servoIndex].ticks) + TRIM_DURATION;
 }
 
-bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
+BOOL Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 
 void Servo::move(int value) {
   if (this->attach(0) >= 0) {

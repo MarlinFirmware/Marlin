@@ -57,12 +57,12 @@
 
     static void set_z(const int8_t px, const int8_t py, const float &z) { z_values[py][px] = z; }
 
-    static bool active()                       { return TEST(status, MBL_STATUS_ACTIVE_BIT); }
-    static void set_active(const bool onOff)   { onOff ? SBI(status, MBL_STATUS_ACTIVE_BIT) : CBI(status, MBL_STATUS_ACTIVE_BIT); }
-    static bool has_mesh()                     { return TEST(status, MBL_STATUS_HAS_MESH_BIT); }
-    static void set_has_mesh(const bool onOff) { onOff ? SBI(status, MBL_STATUS_HAS_MESH_BIT) : CBI(status, MBL_STATUS_HAS_MESH_BIT); }
-    static bool reactivate()                   { bool b = TEST(status, MBL_STATUS_REACTIVATE_BIT); CBI(status, MBL_STATUS_REACTIVATE_BIT); return b; }
-    static void set_reactivate(const bool onOff) { onOff ? SBI(status, MBL_STATUS_REACTIVATE_BIT) : CBI(status, MBL_STATUS_REACTIVATE_BIT); }
+    static BOOL active()                       { return TEST(status, MBL_STATUS_ACTIVE_BIT); }
+    static void set_active(const BOOL onOff)   { onOff ? SBI(status, MBL_STATUS_ACTIVE_BIT) : CBI(status, MBL_STATUS_ACTIVE_BIT); }
+    static BOOL has_mesh()                     { return TEST(status, MBL_STATUS_HAS_MESH_BIT); }
+    static void set_has_mesh(const BOOL onOff) { onOff ? SBI(status, MBL_STATUS_HAS_MESH_BIT) : CBI(status, MBL_STATUS_HAS_MESH_BIT); }
+    static BOOL reactivate()                   { BOOL b = TEST(status, MBL_STATUS_REACTIVATE_BIT); CBI(status, MBL_STATUS_REACTIVATE_BIT); return b; }
+    static void set_reactivate(const BOOL onOff) { onOff ? SBI(status, MBL_STATUS_REACTIVATE_BIT) : CBI(status, MBL_STATUS_REACTIVATE_BIT); }
 
     static inline void zigzag(const int8_t index, int8_t &px, int8_t &py) {
       px = index % (MESH_NUM_X_POINTS);

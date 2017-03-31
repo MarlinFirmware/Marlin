@@ -131,7 +131,7 @@ void cubic_b_spline(const float position[NUM_AXIS], const float target[NUM_AXIS]
 
     // First try to reduce the step in order to make it sufficiently
     // close to a linear interpolation.
-    bool did_reduce = false;
+    BOOL did_reduce = false;
     float new_t = t + step;
     NOMORE(new_t, 1.0);
     float new_pos0 = eval_bezier(position[X_AXIS], first0, second0, target[X_AXIS], new_t);

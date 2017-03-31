@@ -84,11 +84,11 @@ class Stepper {
     static block_t* current_block;  // A pointer to the block currently being traced
 
     #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-      static bool abort_on_endstop_hit;
+      static BOOL abort_on_endstop_hit;
     #endif
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      static bool performing_homing;
+      static BOOL performing_homing;
     #endif
 
   private:
@@ -97,7 +97,7 @@ class Stepper {
     static unsigned int cleaning_buffer_counter;
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      static bool locked_z_motor, locked_z2_motor;
+      static BOOL locked_z_motor, locked_z2_motor;
     #endif
 
     // Counter variables for the Bresenham line tracer
@@ -240,7 +240,7 @@ class Stepper {
     //
     // The direction of a single motor
     //
-    static FORCE_INLINE bool motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
+    static FORCE_INLINE BOOL motor_direction(AxisEnum axis) { return TEST(last_direction_bits, axis); }
 
     #if HAS_DIGIPOTSS || HAS_MOTOR_CURRENT_PWM
       static void digitalPotWrite(int address, int value);
@@ -254,13 +254,13 @@ class Stepper {
     #endif
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
-      static FORCE_INLINE void set_homing_flag(bool state) { performing_homing = state; }
-      static FORCE_INLINE void set_z_lock(bool state) { locked_z_motor = state; }
-      static FORCE_INLINE void set_z2_lock(bool state) { locked_z2_motor = state; }
+      static FORCE_INLINE void set_homing_flag(BOOL state) { performing_homing = state; }
+      static FORCE_INLINE void set_z_lock(BOOL state) { locked_z_motor = state; }
+      static FORCE_INLINE void set_z2_lock(BOOL state) { locked_z2_motor = state; }
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static void babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+      static void babystep(const AxisEnum axis, const BOOL direction); // perform a short step with a single stepper motor, outside of any convention
     #endif
 
     static inline void kill_current_block() {

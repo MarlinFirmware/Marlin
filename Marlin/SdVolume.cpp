@@ -36,12 +36,12 @@
   uint32_t SdVolume::cacheBlockNumber_;  // current block number
   cache_t  SdVolume::cacheBuffer_;       // 512 byte cache for Sd2Card
   Sd2Card* SdVolume::sdCard_;            // pointer to SD card object
-  bool     SdVolume::cacheDirty_;        // cacheFlush() will write block if true
+  BOOL     SdVolume::cacheDirty_;        // cacheFlush() will write block if true
   uint32_t SdVolume::cacheMirrorBlock_;  // mirror  block for second FAT
 #endif  // USE_MULTIPLE_CARDS
 //------------------------------------------------------------------------------
 // find a contiguous group of clusters
-bool SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
+BOOL SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
   // start of group
   uint32_t bgnCluster;
   // end of group
@@ -50,7 +50,7 @@ bool SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
   uint32_t fatEnd = clusterCount_ + 1;
 
   // flag to save place to start next search
-  bool setStart;
+  BOOL setStart;
 
   // set search start cluster
   if (*curCluster) {
@@ -114,7 +114,7 @@ fail:
   return false;
 }
 //------------------------------------------------------------------------------
-bool SdVolume::cacheFlush() {
+BOOL SdVolume::cacheFlush() {
   if (cacheDirty_) {
     if (!sdCard_->writeBlock(cacheBlockNumber_, cacheBuffer_.data)) {
       goto fail;
@@ -133,7 +133,7 @@ fail:
   return false;
 }
 //------------------------------------------------------------------------------
-bool SdVolume::cacheRawBlock(uint32_t blockNumber, bool dirty) {
+BOOL SdVolume::cacheRawBlock(uint32_t blockNumber, BOOL dirty) {
   if (cacheBlockNumber_ != blockNumber) {
     if (!cacheFlush()) goto fail;
     if (!sdCard_->readBlock(blockNumber, cacheBuffer_.data)) goto fail;
@@ -146,7 +146,7 @@ fail:
 }
 //------------------------------------------------------------------------------
 // return the size in bytes of a cluster chain
-bool SdVolume::chainSize(uint32_t cluster, uint32_t* size) {
+BOOL SdVolume::chainSize(uint32_t cluster, uint32_t* size) {
   uint32_t s = 0;
   do {
     if (!fatGet(cluster, &cluster)) goto fail;
@@ -159,7 +159,7 @@ fail:
 }
 //------------------------------------------------------------------------------
 // Fetch a FAT entry
-bool SdVolume::fatGet(uint32_t cluster, uint32_t* value) {
+BOOL SdVolume::fatGet(uint32_t cluster, uint32_t* value) {
   uint32_t lba;
   if (cluster > (clusterCount_ + 1)) goto fail;
   if (FAT12_SUPPORT && fatType_ == 12) {
@@ -202,7 +202,7 @@ fail:
 }
 //------------------------------------------------------------------------------
 // Store a FAT entry
-bool SdVolume::fatPut(uint32_t cluster, uint32_t value) {
+BOOL SdVolume::fatPut(uint32_t cluster, uint32_t value) {
   uint32_t lba;
   // error if reserved cluster
   if (cluster < 2) goto fail;
@@ -263,7 +263,7 @@ fail:
 }
 //------------------------------------------------------------------------------
 // free a cluster chain
-bool SdVolume::freeChain(uint32_t cluster) {
+BOOL SdVolume::freeChain(uint32_t cluster) {
   uint32_t next;
 
   // clear free cluster location
@@ -334,7 +334,7 @@ int32_t SdVolume::freeClusterCount() {
  * failure include not finding a valid partition, not finding a valid
  * FAT file system in the specified partition or an I/O error.
  */
-bool SdVolume::init(Sd2Card* dev, uint8_t part) {
+BOOL SdVolume::init(Sd2Card* dev, uint8_t part) {
   uint32_t totalBlocks;
   uint32_t volumeStartBlock = 0;
   fat32_boot_t* fbs;

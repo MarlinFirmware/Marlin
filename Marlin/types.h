@@ -24,5 +24,6 @@
 #define __TYPES_H__
 
 typedef unsigned long millis_t;
+typedef unsigned int BOOL;
 
 #endif

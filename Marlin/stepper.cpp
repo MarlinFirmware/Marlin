@@ -65,11 +65,11 @@ Stepper stepper; // Singleton
 block_t* Stepper::current_block = NULL;  // A pointer to the block currently being traced
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-  bool Stepper::abort_on_endstop_hit = false;
+  BOOL Stepper::abort_on_endstop_hit = false;
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  bool Stepper::performing_homing = false;
+  BOOL Stepper::performing_homing = false;
 #endif
 
 // private:
@@ -78,8 +78,8 @@ unsigned char Stepper::last_direction_bits = 0;        // The next stepping-bits
 unsigned int Stepper::cleaning_buffer_counter = 0;
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
-  bool Stepper::locked_z_motor = false;
-  bool Stepper::locked_z2_motor = false;
+  BOOL Stepper::locked_z_motor = false;
+  BOOL Stepper::locked_z2_motor = false;
 #endif
 
 long Stepper::counter_X = 0,
@@ -460,7 +460,7 @@ void Stepper::isr() {
   #endif
 
   // Take multiple steps per interrupt (For high speed moves)
-  bool all_steps_done = false;
+  BOOL all_steps_done = false;
   for (int8_t i = 0; i < step_loops; i++) {
     #if ENABLED(LIN_ADVANCE)
 
@@ -476,7 +476,7 @@ void Stepper::isr() {
 
       #if ENABLED(MIXING_EXTRUDER)
         // Step mixing steppers proportionally
-        const bool dir = motor_direction(E_AXIS);
+        const BOOL dir = motor_direction(E_AXIS);
         MIXING_STEPPERS_LOOP(j) {
           counter_m[j] += current_block->steps[E_AXIS];
           if (counter_m[j] > 0) {
@@ -501,7 +501,7 @@ void Stepper::isr() {
       #if ENABLED(MIXING_EXTRUDER)
 
         // Step mixing steppers proportionally
-        const bool dir = motor_direction(E_AXIS);
+        const BOOL dir = motor_direction(E_AXIS);
         MIXING_STEPPERS_LOOP(j) {
           counter_m[j] += current_block->steps[E_AXIS];
           if (counter_m[j] > 0) {
@@ -1259,7 +1259,7 @@ void Stepper::report_positions() {
 
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
-  void Stepper::babystep(const AxisEnum axis, const bool direction) {
+  void Stepper::babystep(const AxisEnum axis, const BOOL direction) {
     cli();
     uint8_t old_dir;
     #if STEP_PULSE_CYCLES > CYCLES_EATEN_BY_BABYSTEP
@@ -1290,7 +1290,7 @@ void Stepper::report_positions() {
 
         #else // DELTA
 
-          bool z_direction = direction ^ BABYSTEP_INVERT_Z;
+          BOOL z_direction = direction ^ BABYSTEP_INVERT_Z;
 
           enable_x();
           enable_y();
