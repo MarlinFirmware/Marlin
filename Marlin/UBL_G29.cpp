@@ -750,8 +750,8 @@
       location = find_closest_mesh_point_of_type(INVALID, lx, ly, 1, NULL, do_furthest );  // the '1' says we want the location to be relative to the probe
       if (location.x_index >= 0 && location.y_index >= 0) {
 
-        const float rawx = ubl.map_x_index_to_bed_location(location.x_index),
-                    rawy = ubl.map_y_index_to_bed_location(location.y_index);
+        const float rawx = ubl.mesh_index_to_xpos[location.x_index],
+                    rawy = ubl.mesh_index_to_ypos[location.y_index];
 
         // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
         if (rawx < (MIN_PROBE_X) || rawx > (MAX_PROBE_X) || rawy < (MIN_PROBE_Y) || rawy > (MAX_PROBE_Y)) {
@@ -900,8 +900,8 @@
       // It doesn't matter if the probe can't reach the NAN location. This is a manual probe.
       if (location.x_index < 0 && location.y_index < 0) continue;
 
-      const float rawx = ubl.map_x_index_to_bed_location(location.x_index),
-                  rawy = ubl.map_y_index_to_bed_location(location.y_index);
+      const float rawx = ubl.mesh_index_to_xpos[location.x_index],
+                  rawy = ubl.mesh_index_to_ypos[location.y_index];
 
       // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
       if (rawx < (X_MIN_POS) || rawx > (X_MAX_POS) || rawy < (Y_MIN_POS) || rawy > (Y_MAX_POS)) {
@@ -1137,7 +1137,7 @@
 
     SERIAL_PROTOCOLPGM("X-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(ubl.map_x_index_to_bed_location(i)), 1);
+      SERIAL_PROTOCOL_F(LOGICAL_X_POSITION(ubl.mesh_index_to_xpos[i]), 1);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(50);
     }
@@ -1145,7 +1145,7 @@
 
     SERIAL_PROTOCOLPGM("Y-Axis Mesh Points at: ");
     for (uint8_t i = 0; i < UBL_MESH_NUM_Y_POINTS; i++) {
-      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ubl.map_y_index_to_bed_location(i)), 1);
+      SERIAL_PROTOCOL_F(LOGICAL_Y_POSITION(ubl.mesh_index_to_ypos[i]), 1);
       SERIAL_PROTOCOLPGM("  ");
       safe_delay(50);
     }
@@ -1283,8 +1283,8 @@
 
           // We only get here if we found a Mesh Point of the specified type
 
-          const float rawx = ubl.map_x_index_to_bed_location(i), // Check if we can probe this mesh location
-                      rawy = ubl.map_y_index_to_bed_location(j);
+          const float rawx = ubl.mesh_index_to_xpos[i], // Check if we can probe this mesh location
+                      rawy = ubl.mesh_index_to_ypos[j];
 
           // If using the probe as the reference there are some unreachable locations.
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
@@ -1350,8 +1350,8 @@
       bit_clear(not_done, location.x_index, location.y_index);  // Mark this location as 'adjusted' so we will find a
                                                                 // different location the next time through the loop
 
-      const float rawx = ubl.map_x_index_to_bed_location(location.x_index),
-                  rawy = ubl.map_y_index_to_bed_location(location.y_index);
+      const float rawx = ubl.mesh_index_to_xpos[location.x_index],
+                  rawy = ubl.mesh_index_to_ypos[location.y_index];
 
       // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
       if (rawx < (X_MIN_POS) || rawx > (X_MAX_POS) || rawy < (Y_MIN_POS) || rawy > (Y_MAX_POS)) { // In theory, we don't need this check.

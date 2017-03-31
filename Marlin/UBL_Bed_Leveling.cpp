@@ -57,23 +57,26 @@
     }
   }
 
-  /**
-   * These variables used to be declared inside the unified_bed_leveling class. We are going to
-   * still declare them within the .cpp file for bed leveling. But there is only one instance of
-   * the bed leveling object and we can get rid of a level of inderection by not making them
-   * 'member data'. So, in the interest of speed, we do it this way. On a 32-bit CPU they can be
-   * moved back inside the bed leveling class.
-   */
-  float mesh_index_to_x_location[UBL_MESH_NUM_X_POINTS + 1], // +1 just because of paranoia that we might end up on the
-        mesh_index_to_y_location[UBL_MESH_NUM_Y_POINTS + 1]; // the last Mesh Line and that is the start of a whole new cell
+  ubl_state unified_bed_leveling::state, unified_bed_leveling::pre_initialized;
+
+  float unified_bed_leveling::z_values[UBL_MESH_NUM_X_POINTS][UBL_MESH_NUM_Y_POINTS],
+        unified_bed_leveling::last_specified_z,
+        unified_bed_leveling::fade_scaling_factor_for_current_height,
+        unified_bed_leveling::mesh_index_to_xpos[UBL_MESH_NUM_X_POINTS + 1], // +1 safety margin for now, until determinism prevails
+        unified_bed_leveling::mesh_index_to_ypos[UBL_MESH_NUM_Y_POINTS + 1];
+
+  bool unified_bed_leveling::g26_debug_flag = false,
+       unified_bed_leveling::has_control_of_lcd_panel = false;
+
+  int8_t unified_bed_leveling::eeprom_start = -1;
+
+  volatile int unified_bed_leveling::encoder_diff;
 
   unified_bed_leveling::unified_bed_leveling() {
-    for (uint8_t i = 0; i <= UBL_MESH_NUM_X_POINTS; i++)  // We go one past what we expect to ever need for safety
-      mesh_index_to_x_location[i] = double(UBL_MESH_MIN_X) + double(MESH_X_DIST) * double(i);
-
-    for (uint8_t i = 0; i <= UBL_MESH_NUM_Y_POINTS; i++)  // We go one past what we expect to ever need for safety
-      mesh_index_to_y_location[i] = double(UBL_MESH_MIN_Y) + double(MESH_Y_DIST) * double(i);
-
+    for (uint8_t i = 0; i < COUNT(mesh_index_to_xpos); i++)
+      mesh_index_to_xpos[i] = UBL_MESH_MIN_X + i * (MESH_X_DIST);
+    for (uint8_t i = 0; i < COUNT(mesh_index_to_ypos); i++)
+      mesh_index_to_ypos[i] = UBL_MESH_MIN_Y + i * (MESH_Y_DIST);
     reset();
   }
 
@@ -161,9 +164,6 @@
   }
 
   void unified_bed_leveling::invalidate() {
-    print_hex_word((uint16_t)this);
-    SERIAL_EOL;
-
     state.active = false;
     state.z_offset = 0;
     for (int x = 0; x < UBL_MESH_NUM_X_POINTS; x++)

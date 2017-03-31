@@ -265,8 +265,8 @@
         location = find_closest_circle_to_print(x_pos, y_pos); // Find the closest Mesh Intersection to where we are now.
 
       if (location.x_index >= 0 && location.y_index >= 0) {
-        circle_x = ubl.map_x_index_to_bed_location(location.x_index);
-        circle_y = ubl.map_y_index_to_bed_location(location.y_index);
+        circle_x = ubl.mesh_index_to_xpos[location.x_index];
+        circle_y = ubl.mesh_index_to_ypos[location.y_index];
 
         // Let's do a couple of quick sanity checks.  We can pull this code out later if we never see it catch a problem
         #ifdef DELTA
@@ -415,8 +415,8 @@
     for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
       for (uint8_t j = 0; j < UBL_MESH_NUM_Y_POINTS; j++) {
         if (!is_bit_set(circle_flags, i, j)) {
-          mx = ubl.map_x_index_to_bed_location(i);  // We found a circle that needs to be printed
-          my = ubl.map_y_index_to_bed_location(j);
+          mx = ubl.mesh_index_to_xpos[i];  // We found a circle that needs to be printed
+          my = ubl.mesh_index_to_ypos[j];
 
           dx = X - mx;        // Get the distance to this intersection
           dy = Y - my;
@@ -461,11 +461,11 @@
               // We found two circles that need a horizontal line to connect them
               // Print it!
               //
-              sx = ubl.map_x_index_to_bed_location(i);
+              sx = ubl.mesh_index_to_xpos[i];
               sx = sx + SIZE_OF_INTERSECTION_CIRCLES - SIZE_OF_CROSS_HAIRS; // get the right edge of the circle
-              sy = ubl.map_y_index_to_bed_location(j);
+              sy = ubl.mesh_index_to_ypos[j];
 
-              ex = ubl.map_x_index_to_bed_location(i + 1);
+              ex = ubl.mesh_index_to_xpos[i + 1];
               ex = ex - SIZE_OF_INTERSECTION_CIRCLES + SIZE_OF_CROSS_HAIRS; // get the left edge of the circle
               ey = sy;
 
@@ -498,12 +498,12 @@
                 // We found two circles that need a vertical line to connect them
                 // Print it!
                 //
-                sx = ubl.map_x_index_to_bed_location(i);
-                sy = ubl.map_y_index_to_bed_location(j);
+                sx = ubl.mesh_index_to_xpos[i];
+                sy = ubl.mesh_index_to_ypos[j];
                 sy = sy + SIZE_OF_INTERSECTION_CIRCLES - SIZE_OF_CROSS_HAIRS; // get the top edge of the circle
 
                 ex = sx;
-                ey = ubl.map_y_index_to_bed_location(j + 1);
+                ey = ubl.mesh_index_to_ypos[j + 1];
                 ey = ey - SIZE_OF_INTERSECTION_CIRCLES + SIZE_OF_CROSS_HAIRS; // get the bottom edge of the circle
 
                 sx = constrain(sx, X_MIN_POS + 1, X_MAX_POS - 1);             // This keeps us from bumping the endstops
