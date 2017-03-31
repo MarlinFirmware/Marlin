@@ -130,8 +130,12 @@
   #error "Z_RAISE_PROBE_DEPLOY_STOW and Z_RAISE_BETWEEN_PROBINGS are now Z_CLEARANCE_DEPLOY_PROBE and Z_CLEARANCE_BETWEEN_PROBES. Please update your configuration."
 #elif defined(Z_PROBE_DEPLOY_HEIGHT) || defined(Z_PROBE_TRAVEL_HEIGHT)
   #error "Z_PROBE_DEPLOY_HEIGHT and Z_PROBE_TRAVEL_HEIGHT are now Z_CLEARANCE_DEPLOY_PROBE and Z_CLEARANCE_BETWEEN_PROBES. Please update your configuration."
+#elif defined(MANUAL_BED_LEVELING)
+  #error "MANUAL_BED_LEVELING is now LCD_BED_LEVELING. Please update your configuration."
 #elif defined(MESH_HOME_SEARCH_Z)
-  #error "MESH_HOME_SEARCH_Z is now MANUAL_PROBE_Z_RANGE. Please update your configuration."
+  #error "MESH_HOME_SEARCH_Z is now LCD_PROBE_Z_RANGE. Please update your configuration."
+#elif defined(MANUAL_PROBE_Z_RANGE)
+  #error "MANUAL_PROBE_Z_RANGE is now LCD_PROBE_Z_RANGE. Please update your configuration."
 #elif !defined(MIN_STEPS_PER_SEGMENT)
   #error Please replace "const int dropsegments" with "#define MIN_STEPS_PER_SEGMENT" (and increase by 1) in Configuration_adv.h.
 #elif defined(PREVENT_DANGEROUS_EXTRUDE)
@@ -408,8 +412,6 @@ static_assert(1 >= 0
   #elif MESH_NUM_X_POINTS > 9 || MESH_NUM_Y_POINTS > 9
     #error "MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS must be less than 10."
   #endif
-#elif ENABLED(MANUAL_BED_LEVELING)
-  #error "MANUAL_BED_LEVELING only applies to MESH_BED_LEVELING."
 #endif
 
 /**
@@ -492,7 +494,7 @@ static_assert(1 >= 0
     #if !HAS_Z_MIN_PROBE_PIN
       #error "Z_MIN_PROBE_ENDSTOP requires the Z_MIN_PROBE_PIN to be defined."
     #endif
-  #else
+  #elif DISABLED(PROBE_MANUALLY)
     #error "You must enable either Z_MIN_PROBE_ENDSTOP or Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN to use a probe."
   #endif
 
@@ -523,10 +525,10 @@ static_assert(1 >= 0
 #endif
 
 /**
- * MANUAL_BED_LEVELING requirements
+ * LCD_BED_LEVELING requirements
  */
-#if ENABLED(MANUAL_BED_LEVELING) && DISABLED(MESH_BED_LEVELING)
-  #error "MANUAL_BED_LEVELING requires MESH_BED_LEVELING."
+#if ENABLED(LCD_BED_LEVELING) && DISABLED(MESH_BED_LEVELING) && !(HAS_ABL && ENABLED(PROBE_MANUALLY))
+  #error "LCD_BED_LEVELING requires MESH_BED_LEVELING or PROBE_MANUALLY."
 #endif
 
 /**
