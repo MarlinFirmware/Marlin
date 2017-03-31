@@ -47,8 +47,8 @@
   #define OOZE_AMOUNT 0.3
 
   #define SIZE_OF_INTERSECTION_CIRCLES 5
-  #define SIZE_OF_CROSS_HAIRS 3 // cross hairs inside the circle.  This number should be
-                                // less than SIZE_OR_INTERSECTION_CIRCLES
+  #define SIZE_OF_CROSSHAIRS 3 // crosshairs inside the circle.  This number should be
+                               // less than SIZE_OR_INTERSECTION_CIRCLES
 
   /**
    *   Roxy's G26 Mesh Validation Tool
@@ -132,12 +132,12 @@
   void line_to_destination(float );
   void gcode_G28();
   void sync_plan_position_e();
-  void un_retract_filament();
-  void retract_filament();
+  void un_retract_filament(float where[XYZE]);
+  void retract_filament(float where[XYZE]);
   void look_for_lines_to_connect();
   bool parse_G26_parameters();
   void move_to(const float&, const float&, const float&, const float&) ;
-  void print_line_from_here_to_there(float sx, float sy, float sz, float ex, float ey, float ez);
+  void print_line_from_here_to_there(const float&, const float&, const float&, const float&, const float&, const float&);
   bool turn_on_heaters();
   bool prime_nozzle();
   void chirp_at_user();
@@ -154,8 +154,6 @@
 
   float valid_trig_angle(float);
   mesh_index_pair find_closest_circle_to_print(float, float);
-  void ubl_line_to_destination(const float&, const float&, const float&, const float&, const float&, uint8_t);
-  //uint16_t x_splits = 0xFFFF, uint16_t y_splits = 0xFFFF);  /* needed for the old mesh_buffer_line() routine */
 
   static float extrusion_multiplier = EXTRUSION_MULTIPLIER,
                retraction_multiplier = RETRACTION_MULTIPLIER,
@@ -359,7 +357,7 @@
     lcd_reset_alert_level();
     lcd_setstatuspgm(PSTR("Leaving G26"));
 
-    retract_filament();
+    retract_filament(destination);
     destination[Z_AXIS] = Z_CLEARANCE_BETWEEN_PROBES;
 
     //debug_current_and_destination((char*)"ready to do Z-Raise.");
@@ -445,18 +443,12 @@
               // We found two circles that need a horizontal line to connect them
               // Print it!
               //
-              sx = ubl.mesh_index_to_xpos[i];
-              sx = sx + SIZE_OF_INTERSECTION_CIRCLES - SIZE_OF_CROSS_HAIRS; // get the right edge of the circle
-              sy = ubl.mesh_index_to_ypos[j];
+              sx = ubl.mesh_index_to_xpos[  i  ] + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // right edge
+              ex = ubl.mesh_index_to_xpos[i + 1] - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // left edge
 
-              ex = ubl.mesh_index_to_xpos[i + 1];
-              ex = ex - SIZE_OF_INTERSECTION_CIRCLES + SIZE_OF_CROSS_HAIRS; // get the left edge of the circle
-              ey = sy;
-
-              sx = constrain(sx, X_MIN_POS + 1, X_MAX_POS - 1);             // This keeps us from bumping the endstops
-              sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
+              sx = constrain(sx, X_MIN_POS + 1, X_MAX_POS - 1);
+              sy = ey = constrain(ubl.mesh_index_to_ypos[j], Y_MIN_POS + 1, Y_MAX_POS - 1);
               ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
-              ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
               if (ubl.g26_debug_flag) {
                 SERIAL_ECHOPAIR(" Connecting with horizontal line (sx=", sx);
@@ -468,7 +460,7 @@
                 //debug_current_and_destination((char*)"Connecting horizontal line.");
               }
 
-              print_line_from_here_to_there(sx, sy, layer_height, ex, ey, layer_height);
+              print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), layer_height);
               bit_set(horizontal_mesh_line_flags, i, j);   // Mark it as done so we don't do it again
             }
           }
@@ -482,17 +474,11 @@
                 // We found two circles that need a vertical line to connect them
                 // Print it!
                 //
-                sx = ubl.mesh_index_to_xpos[i];
-                sy = ubl.mesh_index_to_ypos[j];
-                sy = sy + SIZE_OF_INTERSECTION_CIRCLES - SIZE_OF_CROSS_HAIRS; // get the top edge of the circle
+                sy = ubl.mesh_index_to_ypos[  j  ] + (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // top edge
+                ey = ubl.mesh_index_to_ypos[j + 1] - (SIZE_OF_INTERSECTION_CIRCLES - (SIZE_OF_CROSSHAIRS)); // bottom edge
 
-                ex = sx;
-                ey = ubl.mesh_index_to_ypos[j + 1];
-                ey = ey - SIZE_OF_INTERSECTION_CIRCLES + SIZE_OF_CROSS_HAIRS; // get the bottom edge of the circle
-
-                sx = constrain(sx, X_MIN_POS + 1, X_MAX_POS - 1);             // This keeps us from bumping the endstops
+                sx = ex = constrain(ubl.mesh_index_to_xpos[i], X_MIN_POS + 1, X_MAX_POS - 1);
                 sy = constrain(sy, Y_MIN_POS + 1, Y_MAX_POS - 1);
-                ex = constrain(ex, X_MIN_POS + 1, X_MAX_POS - 1);
                 ey = constrain(ey, Y_MIN_POS + 1, Y_MAX_POS - 1);
 
                 if (ubl.g26_debug_flag) {
@@ -504,8 +490,8 @@
                   SERIAL_EOL;
                   debug_current_and_destination((char*)"Connecting vertical line.");
                 }
-                print_line_from_here_to_there(sx, sy, layer_height, ex, ey, layer_height);
-                bit_set( vertical_mesh_line_flags, i, j);   // Mark it as done so we don't do it again
+                print_line_from_here_to_there(LOGICAL_X_POSITION(sx), LOGICAL_Y_POSITION(sy), layer_height, LOGICAL_X_POSITION(ex), LOGICAL_Y_POSITION(ey), layer_height);
+                bit_set(vertical_mesh_line_flags, i, j);   // Mark it as done so we don't do it again
               }
             }
           }
@@ -533,7 +519,7 @@
       destination[Z_AXIS] = z;                          // We know the last_z==z or we wouldn't be in this block of code.
       destination[E_AXIS] = current_position[E_AXIS];
 
-      ubl_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0);
+      ubl_line_to_destination(feed_value, 0);
 
       stepper.synchronize();
       set_destination_to_current();
@@ -553,7 +539,7 @@
 
     //if (ubl.g26_debug_flag) debug_current_and_destination((char*)" in move_to() doing last move");
 
-    ubl_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feed_value, 0);
+    ubl_line_to_destination(feed_value, 0);
 
     //if (ubl.g26_debug_flag) debug_current_and_destination((char*)" in move_to() after last move");
 
@@ -562,18 +548,18 @@
 
   }
 
-  void retract_filament() {
+  void retract_filament(float where[XYZE]) {
     if (!g26_retracted) { // Only retract if we are not already retracted!
       g26_retracted = true;
       //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM(" Decided to do retract.");
-      move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], -1.0 * retraction_multiplier);
+      move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], -1.0 * retraction_multiplier);
       //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM(" Retraction done.");
     }
   }
 
-  void un_retract_filament() {
+  void un_retract_filament(float where[XYZE]) {
     if (g26_retracted) { // Only un-retract if we are retracted.
-      move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 1.2 * retraction_multiplier);
+      move_to(where[X_AXIS], where[Y_AXIS], where[Z_AXIS], 1.2 * retraction_multiplier);
       g26_retracted = false;
       //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM(" unretract done.");
     }
@@ -594,7 +580,7 @@
    * segment of a 'circle'.   The time this requires is very short and is easily saved by the other
    * cases where the optimization comes into play.
    */
-  void print_line_from_here_to_there( float sx, float sy, float sz, float ex, float ey, float ez) {
+  void print_line_from_here_to_there(const float &sx, const float &sy, const float &sz, const float &ex, const float &ey, const float &ez) {
     const float dx_s = current_position[X_AXIS] - sx,   // find our distance from the start of the actual line segment
                 dy_s = current_position[Y_AXIS] - sy,
                 dist_start = HYPOT2(dx_s, dy_s),        // We don't need to do a sqrt(), we can compare the distance^2
@@ -603,31 +589,26 @@
                 dy_e = current_position[Y_AXIS] - ey,
                 dist_end = HYPOT2(dx_e, dy_e),
 
-                dx = ex - sx,
-                dy = ey - sy,
-                line_length = HYPOT(dx, dy);
+                line_length = HYPOT(ex - sx, ey - sy);
 
-    // If the end point of the line is closer to the nozzle, we are going to
-    // flip the direction of this line.   We will print it from the end to the start.
-    // On very small lines we don't do the optimization because it just isn't worth it.
-    //
+    // If the end point of the line is closer to the nozzle, flip the direction,
+    // moving from the end to the start. On very small lines the optimization isn't worth it.
     if (dist_end < dist_start && (SIZE_OF_INTERSECTION_CIRCLES) < abs(line_length)) {
       //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM("  Reversing start and end of print_line_from_here_to_there()");
-      print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
-      return;
+      return print_line_from_here_to_there(ex, ey, ez, sx, sy, sz);
     }
 
-    // Now decide if we should retract.
+    // Decide whether to retract.
 
     if (dist_start > 2.0) {
-      retract_filament();
+      retract_filament(destination);
       //if (ubl.g26_debug_flag) SERIAL_ECHOLNPGM("  filament retracted.");
     }
     move_to(sx, sy, sz, 0.0); // Get to the starting point with no extrusion
 
     const float e_pos_delta = line_length * g26_e_axis_feedrate * extrusion_multiplier;
 
-    un_retract_filament();
+    un_retract_filament(destination);
 
     //if (ubl.g26_debug_flag) {
     //  SERIAL_ECHOLNPGM("  doing printing move.");
@@ -814,6 +795,7 @@
       lcd_setstatuspgm(PSTR(""));
       lcd_quick_feedback();
     #endif
+
     return UBL_OK;
   }
 
@@ -832,9 +814,8 @@
 
       set_destination_to_current();
 
-      un_retract_filament();    // Lets make sure the G26 command doesn't think the filament is
-                                // retracted().  We are here because we want to prime the nozzle.
-                                // So let's just unretract just to be sure.
+      un_retract_filament(destination); // Make sure G26 doesn't think the filament is retracted().
+
       while (!ubl_lcd_clicked()) {
         chirp_at_user();
         destination[E_AXIS] += 0.25;
@@ -842,10 +823,7 @@
           Total_Prime += 0.25;
           if (Total_Prime >= EXTRUDE_MAXLENGTH) return UBL_ERR;
         #endif
-        ubl_line_to_destination(
-          destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS],
-          planner.max_feedrate_mm_s[E_AXIS] / 15.0, 0
-        );
+        ubl_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0, 0);
 
         stepper.synchronize();    // Without this synchronize, the purge is more consistent,
                                   // but because the planner has a buffer, we won't be able
@@ -874,13 +852,10 @@
       #endif
       set_destination_to_current();
       destination[E_AXIS] += prime_length;
-      ubl_line_to_destination(
-        destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS],
-        planner.max_feedrate_mm_s[E_AXIS] / 15.0, 0
-      );
+      ubl_line_to_destination(planner.max_feedrate_mm_s[E_AXIS] / 15.0, 0);
       stepper.synchronize();
       set_destination_to_current();
-      retract_filament();
+      retract_filament(destination);
     }
 
     return UBL_OK;

@@ -203,7 +203,7 @@
 
         const float f = z_values[i][j];
         if (isnan(f)) {
-          serialprintPGM(map0 ? PSTR("    .    ") : PSTR("NAN"));
+          serialprintPGM(map0 ? PSTR("   .  ") : PSTR("NAN"));
         }
         else {
           // if we don't do this, the columns won't line up nicely

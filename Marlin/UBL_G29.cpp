@@ -515,16 +515,23 @@
     }
 
     if (code_seen('T')) {
-      float z1 = probe_pt(ubl_3_point_1_X, ubl_3_point_1_Y, false /*Stow Flag*/, g29_verbose_level),
-            z2 = probe_pt(ubl_3_point_2_X, ubl_3_point_2_Y, false /*Stow Flag*/, g29_verbose_level),
-            z3 = probe_pt(ubl_3_point_3_X, ubl_3_point_3_Y, true  /*Stow Flag*/, g29_verbose_level);
+      const float lx1 = LOGICAL_X_POSITION(ubl_3_point_1_X),
+                  lx2 = LOGICAL_X_POSITION(ubl_3_point_2_X),
+                  lx3 = LOGICAL_X_POSITION(ubl_3_point_3_X),
+                  ly1 = LOGICAL_Y_POSITION(ubl_3_point_1_Y),
+                  ly2 = LOGICAL_Y_POSITION(ubl_3_point_2_Y),
+                  ly3 = LOGICAL_Y_POSITION(ubl_3_point_3_Y);
+
+      float z1 = probe_pt(lx1, ly1, false /*Stow Flag*/, g29_verbose_level),
+            z2 = probe_pt(lx2, ly2, false /*Stow Flag*/, g29_verbose_level),
+            z3 = probe_pt(lx3, ly3, true  /*Stow Flag*/, g29_verbose_level);
 
       //  We need to adjust z1, z2, z3 by the Mesh Height at these points. Just because they are non-zero doesn't mean
       //  the Mesh is tilted!  (We need to compensate each probe point by what the Mesh says that location's height is)
 
-      z1 -= ubl.get_z_correction(ubl_3_point_1_X, ubl_3_point_1_Y);
-      z2 -= ubl.get_z_correction(ubl_3_point_2_X, ubl_3_point_2_Y);
-      z3 -= ubl.get_z_correction(ubl_3_point_3_X, ubl_3_point_3_Y);
+      z1 -= ubl.get_z_correction(lx1, ly1);
+      z2 -= ubl.get_z_correction(lx2, ly2);
+      z3 -= ubl.get_z_correction(lx3, ly3);
 
       do_blocking_move_to_xy((X_MAX_POS - (X_MIN_POS)) / 2.0, (Y_MAX_POS - (Y_MIN_POS)) / 2.0);
       tilt_mesh_based_on_3pts(z1, z2, z3);
@@ -778,17 +785,17 @@
     );
   }
 
-  vector_3 tilt_mesh_based_on_3pts(const float &pt1, const float &pt2, const float &pt3) {
+  vector_3 tilt_mesh_based_on_3pts(const float &z1, const float &z2, const float &z3) {
     float c, d, t;
     int i, j;
 
     vector_3 v1 = vector_3( (ubl_3_point_1_X - ubl_3_point_2_X),
                             (ubl_3_point_1_Y - ubl_3_point_2_Y),
-                            (pt1 - pt2) ),
+                            (z1 - z2) ),
 
              v2 = vector_3( (ubl_3_point_3_X - ubl_3_point_2_X),
                             (ubl_3_point_3_Y - ubl_3_point_2_Y),
-                            (pt3 - pt2) ),
+                            (z3 - z2) ),
 
              normal = vector_3::cross(v1, v2);
 
@@ -810,7 +817,7 @@
     // All of 3 of these points should give us the same d constant
     //
     t = normal.x * ubl_3_point_1_X + normal.y * ubl_3_point_1_Y;
-    d = t + normal.z * pt1;
+    d = t + normal.z * z1;
     c = d - t;
     SERIAL_ECHOPGM("d from 1st point: ");
     SERIAL_ECHO_F(d, 6);
@@ -818,7 +825,7 @@
     SERIAL_ECHO_F(c, 6);
     SERIAL_EOL;
     t = normal.x * ubl_3_point_2_X + normal.y * ubl_3_point_2_Y;
-    d = t + normal.z * pt2;
+    d = t + normal.z * z2;
     c = d - t;
     SERIAL_ECHOPGM("d from 2nd point: ");
     SERIAL_ECHO_F(d, 6);
@@ -826,7 +833,7 @@
     SERIAL_ECHO_F(c, 6);
     SERIAL_EOL;
     t = normal.x * ubl_3_point_3_X + normal.y * ubl_3_point_3_Y;
-    d = t + normal.z * pt3;
+    d = t + normal.z * z3;
     c = d - t;
     SERIAL_ECHOPGM("d from 3rd point: ");
     SERIAL_ECHO_F(d, 6);
