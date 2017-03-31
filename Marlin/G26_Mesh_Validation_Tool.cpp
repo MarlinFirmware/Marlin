@@ -267,7 +267,7 @@
         #endif
 
         // TODO: Change this to use `position_is_reachable`
-        if (circle_x < (X_MIN_POS) || circle_x > (X_MAX_POS) || circle_y < (Y_MIN_POS) || circle_y > (Y_MAX_POS)) {
+        if (!WITHIN(circle_x, X_MIN_POS, X_MAX_POS) || !WITHIN(circle_y, Y_MIN_POS, Y_MAX_POS)) {
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM("Attempt to print off the bed.");
           goto LEAVE;
@@ -638,7 +638,7 @@
 
     if (code_seen('B')) {
       bed_temp = code_value_float();
-      if (bed_temp < 15.0 || bed_temp > 140.0) {
+      if (!WITHIN(bed_temp, 15.0, 140.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified bed temperature not plausible.");
         return UBL_ERR;
       }
@@ -648,7 +648,7 @@
 
     if (code_seen('L')) {
       layer_height = code_value_float();
-      if (layer_height < 0.0 || layer_height > 2.0) {
+      if (!WITHIN(layer_height, 0.0, 2.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified layer height not plausible.");
         return UBL_ERR;
       }
@@ -657,7 +657,7 @@
     if (code_seen('Q')) {
       if (code_has_value()) {
         retraction_multiplier = code_value_float();
-        if (retraction_multiplier < 0.05 || retraction_multiplier > 15.0) {
+        if (!WITHIN(retraction_multiplier, 0.05, 15.0)) {
           SERIAL_PROTOCOLLNPGM("?Specified Retraction Multiplier not plausible.");
           return UBL_ERR;
         }
@@ -670,7 +670,7 @@
 
     if (code_seen('N')) {
       nozzle = code_value_float();
-      if (nozzle < 0.1 || nozzle > 1.0) {
+      if (!WITHIN(nozzle, 0.1, 1.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle size not plausible.");
         return UBL_ERR;
       }
@@ -687,7 +687,7 @@
       else {
         prime_flag++;
         prime_length = code_value_float();
-        if (prime_length < 0.0 || prime_length > 25.0) {
+        if (!WITHIN(prime_length, 0.0, 25.0)) {
           SERIAL_PROTOCOLLNPGM("?Specified prime length not plausible.");
           return UBL_ERR;
         }
@@ -696,7 +696,7 @@
 
     if (code_seen('F')) {
       filament_diameter = code_value_float();
-      if (filament_diameter < 1.0 || filament_diameter > 4.0) {
+      if (!WITHIN(filament_diameter, 1.0, 4.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified filament size not plausible.");
         return UBL_ERR;
       }
@@ -709,7 +709,7 @@
 
     if (code_seen('H')) {
       hotend_temp = code_value_float();
-      if (hotend_temp < 165.0 || hotend_temp > 280.0) {
+      if (!WITHIN(hotend_temp, 165.0, 280.0)) {
         SERIAL_PROTOCOLLNPGM("?Specified nozzle temperature not plausible.");
         return UBL_ERR;
       }
@@ -725,7 +725,7 @@
 
     if (code_seen('X')) {
       x_pos = code_value_float();
-      if (x_pos < X_MIN_POS || x_pos > X_MAX_POS) {
+      if (!WITHIN(x_pos, X_MIN_POS, X_MAX_POS)) {
         SERIAL_PROTOCOLLNPGM("?Specified X coordinate not plausible.");
         return UBL_ERR;
       }
@@ -734,7 +734,7 @@
 
     if (code_seen('Y')) {
       y_pos = code_value_float();
-      if (y_pos < Y_MIN_POS || y_pos > Y_MAX_POS) {
+      if (!WITHIN(y_pos, Y_MIN_POS, Y_MAX_POS)) {
         SERIAL_PROTOCOLLNPGM("?Specified Y coordinate not plausible.");
         return UBL_ERR;
       }
