@@ -786,11 +786,11 @@ void Temperature::manage_heater() {
     #if ENABLED(PIDTEMPBED)
       float pid_output = get_pid_output_bed();
 
-      soft_pwm_bed = current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP ? (int)pid_output >> 1 : 0;
+      soft_pwm_bed = WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP) ? (int)pid_output >> 1 : 0;
 
     #elif ENABLED(BED_LIMIT_SWITCHING)
       // Check if temperature is within the correct band
-      if (current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP) {
+      if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
         if (current_temperature_bed >= target_temperature_bed + BED_HYSTERESIS)
           soft_pwm_bed = 0;
         else if (current_temperature_bed <= target_temperature_bed - (BED_HYSTERESIS))
@@ -802,7 +802,7 @@ void Temperature::manage_heater() {
       }
     #else // !PIDTEMPBED && !BED_LIMIT_SWITCHING
       // Check if temperature is within the correct range
-      if (current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP) {
+      if (WITHIN(current_temperature_bed, BED_MINTEMP, BED_MAXTEMP)) {
         soft_pwm_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
       }
       else {
