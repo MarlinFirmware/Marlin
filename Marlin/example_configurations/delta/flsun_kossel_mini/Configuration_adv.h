@@ -1039,7 +1039,7 @@
 #define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
 
 /**
- * Add M43 command for pins info and testing
+ * Add M43, M44 and M45 commands for pins info and testing
  */
 //#define PINS_DEBUGGING
 
