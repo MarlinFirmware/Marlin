@@ -999,7 +999,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     unsigned long segment_time = lround(1000000.0 / inverse_mm_s);
   #endif
   #if ENABLED(SLOWDOWN)
-    if (moves_queued > 1 && moves_queued < (BLOCK_BUFFER_SIZE) / 2) {
+    if (WITHIN(moves_queued, 2, (BLOCK_BUFFER_SIZE) / 2 - 1)) {
       if (segment_time < min_segment_time) {
         // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
         inverse_mm_s = 1000000.0 / (segment_time + lround(2 * (min_segment_time - segment_time) / moves_queued));

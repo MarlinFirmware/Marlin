@@ -213,7 +213,7 @@ static void lcd_setFont(const char font_nr) {
 }
 
 void lcd_print(const char c) {
-  if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
+  if (WITHIN(c, 1, LCD_STR_SPECIAL_MAX)) {
     u8g.setFont(FONT_SPECIAL_NAME);
     u8g.print(c);
     lcd_setFont(currentfont);
@@ -222,7 +222,7 @@ void lcd_print(const char c) {
 }
 
 char lcd_print_and_count(const char c) {
-  if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
+  if (WITHIN(c, 1, LCD_STR_SPECIAL_MAX)) {
     u8g.setFont(FONT_SPECIAL_NAME);
     u8g.print(c);
     lcd_setFont(currentfont);
@@ -543,7 +543,7 @@ static void lcd_implementation_status_screen() {
   if (page.page == 0) {
     strcpy(xstring, ftostr4sign(current_position[X_AXIS]));
     strcpy(ystring, ftostr4sign(current_position[Y_AXIS]));
-    strcpy(zstring, ftostr52sp(current_position[Z_AXIS] + 0.00001));
+    strcpy(zstring, ftostr52sp(FIXFLOAT(current_position[Z_AXIS])));
     #if ENABLED(FILAMENT_LCD_DISPLAY) && DISABLED(SDSUPPORT)
       strcpy(wstring, ftostr12ns(filament_width_meas));
       strcpy(mstring, itostr3(100.0 * volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
