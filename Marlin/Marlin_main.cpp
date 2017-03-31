@@ -9901,11 +9901,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         if (ubl.state.active) {
 
-//        ubl_line_to_destination(MMS_SCALED(feedrate_mm_s));
-
-          ubl_line_to_destination(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS],
-//                      (feedrate*(1.0/60.0))*(feedrate_percentage*(1.0/100.0) ), active_extruder);
-                      MMS_SCALED(feedrate_mm_s), active_extruder);
+          ubl_line_to_destination(MMS_SCALED(feedrate_mm_s), active_extruder);
 
           return false;
         }
