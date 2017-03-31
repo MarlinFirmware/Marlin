@@ -1680,6 +1680,7 @@ KeepDrawing:
       MENU_BACK(MSG_MAIN);
       #ifdef ENABLE_DELTA_AUTO_CALIBRATION  
         MENU_ITEM(gcode, MSG_DELTA_AUTO_CALIBRATE, PSTR("G33 C")); // AC-version
+        MENU_ITEM(gcode, MSG_DELTA_HEIGHT_CALIBRATE, PSTR("G33 C1")); // AC-version
       #endif
       MENU_ITEM(submenu, MSG_AUTO_HOME, _lcd_delta_calibrate_home);
       if (axis_homed[Z_AXIS]) {

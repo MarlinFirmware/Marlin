@@ -498,6 +498,9 @@
 #ifndef MSG_DELTA_AUTO_CALIBRATE
   #define MSG_DELTA_AUTO_CALIBRATE            _UxGT("Auto Calibration") // AC-version
 #endif
+#ifndef MSG_DELTA_HEIGHT_CALIBRATE
+  #define MSG_DELTA_HEIGHT_CALIBRATE          _UxGT("Set Delta Height") // AC-version
+#endif
 #ifndef MSG_INFO_MENU
   #define MSG_INFO_MENU                       _UxGT("About Printer")
 #endif
