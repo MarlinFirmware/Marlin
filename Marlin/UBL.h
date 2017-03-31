@@ -169,12 +169,12 @@
 
         static int8_t find_closest_x_index(const float &x) {
           const int8_t px = (x - (UBL_MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
-          return (px >= 0 && px < (UBL_MESH_NUM_X_POINTS)) ? px : -1;
+          return WITHIN(px, 0, UBL_MESH_NUM_X_POINTS - 1) ? px : -1;
         }
 
         static int8_t find_closest_y_index(const float &y) {
           const int8_t py = (y - (UBL_MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
-          return (py >= 0 && py < (UBL_MESH_NUM_Y_POINTS)) ? py : -1;
+          return WITHIN(py, 0, UBL_MESH_NUM_Y_POINTS - 1) ? py : -1;
         }
 
         /**

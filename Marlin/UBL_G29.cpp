@@ -341,7 +341,7 @@
     if (code_seen('Q')) {
 
       const int test_pattern = code_has_value() ? code_value_int() : -1;
-      if (test_pattern < 0 || test_pattern > 2) {
+      if (!WITHIN(test_pattern, 0, 2)) {
         SERIAL_PROTOCOLLNPGM("Invalid test_pattern value. (0-2)\n");
         return;
       }
@@ -374,7 +374,7 @@
     /*
     if (code_seen('U')) {
       unlevel_value = code_value_int();
-      //if (unlevel_value < 0 || unlevel_value > 7) {
+      //if (!WITHIN(unlevel_value, 0, 7)) {
       //  SERIAL_PROTOCOLLNPGM("Invalid Unlevel value. (0-4)\n");
       //  return;
       //}
@@ -383,7 +383,7 @@
 
     if (code_seen('P')) {
       phase_value = code_value_int();
-      if (phase_value < 0 || phase_value > 7) {
+      if (!WITHIN(phase_value, 0, 7)) {
         SERIAL_PROTOCOLLNPGM("Invalid Phase value. (0-4)\n");
         return;
       }
@@ -566,7 +566,7 @@
 
       const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values);
 
-      if (storage_slot < 0 || storage_slot >= j || ubl.eeprom_start <= 0) {
+      if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
         SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
         return;
       }
@@ -600,7 +600,7 @@
 
       const int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(ubl.z_values);
 
-      if (storage_slot < 0 || storage_slot >= j || ubl.eeprom_start <= 0) {
+      if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
         SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
         SERIAL_PROTOCOLLNPAIR("?Use 0 to ", j - 1);
         goto LEAVE;
@@ -760,7 +760,7 @@
                     rawy = ubl.mesh_index_to_ypos[location.y_index];
 
         // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
-        if (rawx < (MIN_PROBE_X) || rawx > (MAX_PROBE_X) || rawy < (MIN_PROBE_Y) || rawy > (MAX_PROBE_Y)) {
+        if (!WITHIN(rawx, MIN_PROBE_X, MAX_PROBE_X) || !WITHIN(rawy, MIN_PROBE_Y, MAX_PROBE_Y)) {
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
           ubl.has_control_of_lcd_panel = false;
@@ -910,7 +910,7 @@
                   rawy = ubl.mesh_index_to_ypos[location.y_index];
 
       // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
-      if (rawx < (X_MIN_POS) || rawx > (X_MAX_POS) || rawy < (Y_MIN_POS) || rawy > (Y_MAX_POS)) {
+      if (!WITHIN(rawx, X_MIN_POS, X_MAX_POS) || !WITHIN(rawy, Y_MIN_POS, Y_MAX_POS)) {
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM("Attempt to probe off the bed.");
         ubl.has_control_of_lcd_panel = false;
@@ -982,21 +982,21 @@
     #endif
 
     g29_verbose_level = code_seen('V') ? code_value_int() : 0;
-    if (g29_verbose_level < 0 || g29_verbose_level > 4) {
+    if (!WITHIN(g29_verbose_level, 0, 4)) {
       SERIAL_PROTOCOLLNPGM("Invalid Verbose Level specified. (0-4)\n");
       return UBL_ERR;
     }
 
     x_flag = code_seen('X') && code_has_value();
     x_pos = x_flag ? code_value_float() : current_position[X_AXIS];
-    if (x_pos < LOGICAL_X_POSITION(X_MIN_POS) || x_pos > LOGICAL_X_POSITION(X_MAX_POS)) {
+    if (!WITHIN(RAW_X_POSITION(x_pos), X_MIN_POS, X_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid X location specified.\n");
       return UBL_ERR;
     }
 
     y_flag = code_seen('Y') && code_has_value();
     y_pos = y_flag ? code_value_float() : current_position[Y_AXIS];
-    if (y_pos < LOGICAL_Y_POSITION(Y_MIN_POS) || y_pos > LOGICAL_Y_POSITION(Y_MAX_POS)) {
+    if (!WITHIN(RAW_Y_POSITION(y_pos), Y_MIN_POS, Y_MAX_POS)) {
       SERIAL_PROTOCOLLNPGM("Invalid Y location specified.\n");
       return UBL_ERR;
     }
@@ -1024,7 +1024,7 @@
     #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
       if (code_seen('F') && code_has_value()) {
         const float fh = code_value_float();
-        if (fh < 0.0 || fh > 100.0) {
+        if (!WITHIN(fh, 0.0, 100.0)) {
           SERIAL_PROTOCOLLNPGM("?Bed Level Correction Fade Height Not Plausible.\n");
           return UBL_ERR;
         }
@@ -1041,7 +1041,7 @@
     }
 
     map_type = code_seen('O') && code_has_value() ? code_value_int() : 0;
-    if (map_type < 0 || map_type > 1) {
+    if (!WITHIN(map_type, 0, 1)) {
       SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
       return UBL_ERR;
     }
@@ -1049,7 +1049,7 @@
     /*
     if (code_seen('M')) {     // Check if a map type was specified
       map_type = code_has_value() ? code_value_int() : 0; 
-      if (map_type < 0 || map_type > 1) {
+      if (!WITHIN(map_type, 0, 1)) {
         SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
         return UBL_ERR;
       }
@@ -1249,7 +1249,7 @@
 
     int16_t j = (UBL_LAST_EEPROM_INDEX - ubl.eeprom_start) / sizeof(tmp_z_values);
 
-    if (storage_slot < 0 || storage_slot > j || ubl.eeprom_start <= 0) {
+    if (!WITHIN(storage_slot, 0, j - 1) || ubl.eeprom_start <= 0) {
       SERIAL_PROTOCOLLNPGM("?EEPROM storage not available for use.\n");
       return;
     }
@@ -1296,7 +1296,7 @@
           // Prune them from the list and ignore them till the next Phase (manual nozzle probing).
 
           if (probe_as_reference &&
-            (rawx < (MIN_PROBE_X) || rawx > (MAX_PROBE_X) || rawy < (MIN_PROBE_Y) || rawy > (MAX_PROBE_Y))
+            (!WITHIN(rawx, MIN_PROBE_X, MAX_PROBE_X) || !WITHIN(rawy, MIN_PROBE_Y, MAX_PROBE_Y))
           ) continue;
 
           // Unreachable. Check if it's the closest location to the nozzle.
@@ -1360,7 +1360,7 @@
                   rawy = ubl.mesh_index_to_ypos[location.y_index];
 
       // TODO: Change to use `position_is_reachable` (for SCARA-compatibility)
-      if (rawx < (X_MIN_POS) || rawx > (X_MAX_POS) || rawy < (Y_MIN_POS) || rawy > (Y_MAX_POS)) { // In theory, we don't need this check.
+      if (!WITHIN(rawx, X_MIN_POS, X_MAX_POS) || !WITHIN(rawy, Y_MIN_POS, Y_MAX_POS)) { // In theory, we don't need this check.
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM("Attempt to edit off the bed."); // This really can't happen, but do the check for now
         ubl.has_control_of_lcd_panel = false;
