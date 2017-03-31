@@ -166,8 +166,8 @@ class Sd2Card {
   /** Construct an instance of Sd2Card. */
   Sd2Card() : errorCode_(SD_CARD_ERROR_INIT_NOT_CALLED), type_(0) {}
   uint32_t cardSize();
-  bool erase(uint32_t firstBlock, uint32_t lastBlock);
-  bool eraseSingleBlockEnable();
+  BOOL erase(uint32_t firstBlock, uint32_t lastBlock);
+  BOOL eraseSingleBlockEnable();
   /**
    *  Set SD error code.
    *  \param[in] code value for error code.
@@ -185,9 +185,9 @@ class Sd2Card {
    *
    * \return true for success or false for failure.
    */
-  bool init(uint8_t sckRateID = SPI_FULL_SPEED,
+  BOOL init(uint8_t sckRateID = SPI_FULL_SPEED,
             uint8_t chipSelectPin = SD_CHIP_SELECT_PIN);
-  bool readBlock(uint32_t block, uint8_t* dst);
+  BOOL readBlock(uint32_t block, uint8_t* dst);
   /**
    * Read a card's CID register. The CID contains card identification
    * information such as Manufacturer ID, Product name, Product serial
@@ -197,7 +197,7 @@ class Sd2Card {
    *
    * \return true for success or false for failure.
    */
-  bool readCID(cid_t* cid) {
+  BOOL readCID(cid_t* cid) {
     return readRegister(CMD10, cid);
   }
   /**
@@ -208,21 +208,21 @@ class Sd2Card {
    *
    * \return true for success or false for failure.
    */
-  bool readCSD(csd_t* csd) {
+  BOOL readCSD(csd_t* csd) {
     return readRegister(CMD9, csd);
   }
-  bool readData(uint8_t* dst);
-  bool readStart(uint32_t blockNumber);
-  bool readStop();
-  bool setSckRate(uint8_t sckRateID);
+  BOOL readData(uint8_t* dst);
+  BOOL readStart(uint32_t blockNumber);
+  BOOL readStop();
+  BOOL setSckRate(uint8_t sckRateID);
   /** Return the card type: SD V1, SD V2 or SDHC
    * \return 0 - SD V1, 1 - SD V2, or 3 - SDHC.
    */
   int type() const {return type_;}
-  bool writeBlock(uint32_t blockNumber, const uint8_t* src);
-  bool writeData(const uint8_t* src);
-  bool writeStart(uint32_t blockNumber, uint32_t eraseCount);
-  bool writeStop();
+  BOOL writeBlock(uint32_t blockNumber, const uint8_t* src);
+  BOOL writeData(const uint8_t* src);
+  BOOL writeStart(uint32_t blockNumber, uint32_t eraseCount);
+  BOOL writeStop();
  private:
   //----------------------------------------------------------------------------
   uint8_t chipSelectPin_;
@@ -237,13 +237,13 @@ class Sd2Card {
   }
   uint8_t cardCommand(uint8_t cmd, uint32_t arg);
 
-  bool readData(uint8_t* dst, uint16_t count);
-  bool readRegister(uint8_t cmd, void* buf);
+  BOOL readData(uint8_t* dst, uint16_t count);
+  BOOL readRegister(uint8_t cmd, void* buf);
   void chipSelectHigh();
   void chipSelectLow();
   void type(uint8_t value) {type_ = value;}
-  bool waitNotBusy(uint16_t timeoutMillis);
-  bool writeData(uint8_t token, const uint8_t* src);
+  BOOL waitNotBusy(uint16_t timeoutMillis);
+  BOOL writeData(uint8_t token, const uint8_t* src);
 };
 #endif  // Sd2Card_h
 

@@ -241,7 +241,7 @@
      * component is larger. We use the biggest of the two to preserve precision.
      */
 
-    const bool use_x_dist = adx > ady;
+    const BOOL use_x_dist = adx > ady;
 
     float on_axis_distance = use_x_dist ? dx : dy,
           e_position = end[E_AXIS] - start[E_AXIS],
@@ -255,7 +255,7 @@
     const float m = dy / dx,
                 c = start[Y_AXIS] - m * start[X_AXIS];
 
-    const bool inf_normalized_flag = NEAR_ZERO(on_axis_distance),
+    const BOOL inf_normalized_flag = NEAR_ZERO(on_axis_distance),
                inf_m_flag = NEAR_ZERO(dx);
 
     /**

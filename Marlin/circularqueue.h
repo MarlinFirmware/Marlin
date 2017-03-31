@@ -83,7 +83,7 @@ class CircularQueue {
      * @param   item Item to be added to the queue
      * @return  true if the operation was successful
      */
-    bool enqueue(T const &item) {
+    BOOL enqueue(T const &item) {
       if (this->isFull()) return false;
 
       this->buffer.queue[this->buffer.tail] = item;
@@ -100,7 +100,7 @@ class CircularQueue {
      * @details Returns true if there are no items on the queue, false otherwise.
      * @return  true if queue is empty
      */
-    bool isEmpty() {
+    BOOL isEmpty() {
       return this->buffer.count == 0;
     }
 
@@ -109,7 +109,7 @@ class CircularQueue {
      * @details Returns true if the queue is full, false otherwise.
      * @return  true if queue is full
      */
-    bool isFull() {
+    BOOL isFull() {
       return this->buffer.count == this->buffer.size;
     }
 

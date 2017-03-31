@@ -101,7 +101,7 @@ float Planner::min_feedrate_mm_s,
       Planner::min_travel_feedrate_mm_s;
 
 #if HAS_ABL
-  bool Planner::abl_enabled = false; // Flag that auto bed leveling is enabled
+  BOOL Planner::abl_enabled = false; // Flag that auto bed leveling is enabled
 #endif
 
 #if ABL_PLANAR
@@ -117,7 +117,7 @@ float Planner::min_feedrate_mm_s,
   float Planner::autotemp_max = 250,
         Planner::autotemp_min = 210,
         Planner::autotemp_factor = 0.1;
-  bool Planner::autotemp_enabled = false;
+  BOOL Planner::autotemp_enabled = false;
 #endif
 
 // private:
@@ -1240,7 +1240,7 @@ void Planner::_buffer_line(const float &a, const float &b, const float &c, const
     // then the machine is not coasting anymore and the safe entry / exit velocities shall be used.
 
     // The junction velocity will be shared between successive segments. Limit the junction velocity to their minimum.
-    bool prev_speed_larger = previous_nominal_speed > block->nominal_speed;
+    BOOL prev_speed_larger = previous_nominal_speed > block->nominal_speed;
     float smaller_speed_factor = prev_speed_larger ? (block->nominal_speed / previous_nominal_speed) : (previous_nominal_speed / block->nominal_speed);
     // Pick the smaller of the nominal speeds. Higher speed shall not be achieved at the junction during coasting.
     vmax_junction = prev_speed_larger ? block->nominal_speed : previous_nominal_speed;

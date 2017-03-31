@@ -115,7 +115,7 @@ uint8_t Temperature::soft_pwm_bed;
 #endif
 
 #if ENABLED(PREVENT_COLD_EXTRUSION)
-  bool Temperature::allow_cold_extrude = false;
+  BOOL Temperature::allow_cold_extrude = false;
   float Temperature::extrude_min_temp = EXTRUDE_MINTEMP;
 #endif
 
@@ -126,7 +126,7 @@ uint8_t Temperature::soft_pwm_bed;
   float Temperature::redundant_temperature = 0.0;
 #endif
 
-volatile bool Temperature::temp_meas_ready = false;
+volatile BOOL Temperature::temp_meas_ready = false;
 
 #if ENABLED(PIDTEMP)
   float Temperature::temp_iState[HOTENDS] = { 0 },
@@ -143,7 +143,7 @@ volatile bool Temperature::temp_meas_ready = false;
   #endif
 
   float Temperature::pid_error[HOTENDS];
-  bool Temperature::pid_reset[HOTENDS];
+  BOOL Temperature::pid_reset[HOTENDS];
 #endif
 
 #if ENABLED(PIDTEMPBED)
@@ -202,10 +202,10 @@ uint8_t Temperature::soft_pwm[HOTENDS];
 
 #if HAS_PID_HEATING
 
-  void Temperature::PID_autotune(float temp, int hotend, int ncycles, bool set_result/*=false*/) {
+  void Temperature::PID_autotune(float temp, int hotend, int ncycles, BOOL set_result/*=false*/) {
     float input = 0.0;
     int cycles = 0;
-    bool heating = true;
+    BOOL heating = true;
 
     millis_t temp_ms = millis(), t1 = temp_ms, t2 = temp_ms;
     long t_high = 0, t_low = 0;
@@ -493,7 +493,7 @@ int Temperature::getHeaterPower(int heater) {
 // Temperature Error Handlers
 //
 void Temperature::_temp_error(int e, const char* serial_msg, const char* lcd_msg) {
-  static bool killed = false;
+  static BOOL killed = false;
   if (IsRunning()) {
     SERIAL_ERROR_START;
     serialprintPGM(serial_msg);
@@ -1488,7 +1488,7 @@ void Temperature::set_current_temp_raw() {
  */
 ISR(TIMER0_COMPB_vect) { Temperature::isr(); }
 
-volatile bool Temperature::in_temp_isr = false;
+volatile BOOL Temperature::in_temp_isr = false;
 
 void Temperature::isr() {
   // The stepper ISR can interrupt this ISR. When it does it re-enables this ISR
@@ -1953,7 +1953,7 @@ void Temperature::isr() {
   #endif //BABYSTEPPING
 
   #if ENABLED(PINS_DEBUGGING)
-    extern bool endstop_monitor_flag;
+    extern BOOL endstop_monitor_flag;
     // run the endstop monitor at 15Hz
     static uint8_t endstop_monitor_count = 16;  // offset this check from the others
     if (endstop_monitor_flag) {

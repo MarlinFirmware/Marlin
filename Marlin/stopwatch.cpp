@@ -27,7 +27,7 @@ Stopwatch::Stopwatch() {
   this->reset();
 }
 
-bool Stopwatch::stop() {
+BOOL Stopwatch::stop() {
   #if ENABLED(DEBUG_STOPWATCH)
     Stopwatch::debug(PSTR("stop"));
   #endif
@@ -40,7 +40,7 @@ bool Stopwatch::stop() {
   else return false;
 }
 
-bool Stopwatch::pause() {
+BOOL Stopwatch::pause() {
   #if ENABLED(DEBUG_STOPWATCH)
     Stopwatch::debug(PSTR("pause"));
   #endif
@@ -53,7 +53,7 @@ bool Stopwatch::pause() {
   else return false;
 }
 
-bool Stopwatch::start() {
+BOOL Stopwatch::start() {
   #if ENABLED(DEBUG_STOPWATCH)
     Stopwatch::debug(PSTR("start"));
   #endif
@@ -80,11 +80,11 @@ void Stopwatch::reset() {
   this->accumulator = 0;
 }
 
-bool Stopwatch::isRunning() {
+BOOL Stopwatch::isRunning() {
   return (this->state == RUNNING) ? true : false;
 }
 
-bool Stopwatch::isPaused() {
+BOOL Stopwatch::isPaused() {
   return (this->state == PAUSED) ? true : false;
 }
 

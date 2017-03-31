@@ -110,7 +110,7 @@ void TWIBus::echobuffer(const char prefix[], uint8_t adr) {
   SERIAL_EOL;
 }
 
-bool TWIBus::request(const uint8_t bytes) {
+BOOL TWIBus::request(const uint8_t bytes) {
   if (!this->addr) return false;
 
   #if ENABLED(DEBUG_TWIBUS)

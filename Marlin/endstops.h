@@ -33,7 +33,7 @@ class Endstops {
 
   public:
 
-    static bool enabled, enabled_globally;
+    static BOOL enabled, enabled_globally;
     static volatile char endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
     #if ENABLED(Z_DUAL_ENDSTOPS)
@@ -66,10 +66,10 @@ class Endstops {
     static void M119();
 
     // Enable / disable endstop checking globally
-    static void enable_globally(bool onoff=true) { enabled_globally = enabled = onoff; }
+    static void enable_globally(BOOL onoff=true) { enabled_globally = enabled = onoff; }
 
     // Enable / disable endstop checking
-    static void enable(bool onoff=true) { enabled = onoff; }
+    static void enable(BOOL onoff=true) { enabled = onoff; }
 
     // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
     static void not_homing() { enabled = enabled_globally; }
@@ -79,8 +79,8 @@ class Endstops {
 
     // Enable / disable endstop z-probe checking
     #if HAS_BED_PROBE
-      static volatile bool z_probe_enabled;
-      static void enable_z_probe(bool onoff=true) { z_probe_enabled = onoff; }
+      static volatile BOOL z_probe_enabled;
+      static void enable_z_probe(BOOL onoff=true) { z_probe_enabled = onoff; }
     #endif
 
   private:

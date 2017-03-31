@@ -242,7 +242,7 @@ void Sd2Card::chipSelectLow() {
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
+BOOL Sd2Card::erase(uint32_t firstBlock, uint32_t lastBlock) {
   csd_t csd;
   if (!readCSD(&csd)) goto fail;
   // check for single block erase
@@ -281,7 +281,7 @@ fail:
  * \return The value one, true, is returned if single block erase is supported.
  * The value zero, false, is returned if single block erase is not supported.
  */
-bool Sd2Card::eraseSingleBlockEnable() {
+BOOL Sd2Card::eraseSingleBlockEnable() {
   csd_t csd;
   return readCSD(&csd) ? csd.v1.erase_blk_en : false;
 }
@@ -296,7 +296,7 @@ bool Sd2Card::eraseSingleBlockEnable() {
  * the value zero, false, is returned for failure.  The reason for failure
  * can be determined by calling errorCode() and errorData().
  */
-bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
+BOOL Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
   errorCode_ = type_ = 0;
   chipSelectPin_ = chipSelectPin;
   // 16-bit init start time allows over a minute
@@ -393,7 +393,7 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
+BOOL Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
   // use address if not SDHC card
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
 
@@ -430,7 +430,7 @@ bool Sd2Card::readBlock(uint32_t blockNumber, uint8_t* dst) {
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::readData(uint8_t* dst) {
+BOOL Sd2Card::readData(uint8_t* dst) {
   chipSelectLow();
   return readData(dst, 512);
 }
@@ -480,7 +480,7 @@ static uint16_t CRC_CCITT(const uint8_t* data, size_t n) {
 #endif
 
 //------------------------------------------------------------------------------
-bool Sd2Card::readData(uint8_t* dst, uint16_t count) {
+BOOL Sd2Card::readData(uint8_t* dst, uint16_t count) {
   // wait for start block token
   uint16_t t0 = millis();
   while ((status_ = spiRec()) == 0XFF) {
@@ -523,7 +523,7 @@ fail:
 }
 //------------------------------------------------------------------------------
 /** read CID or CSR register */
-bool Sd2Card::readRegister(uint8_t cmd, void* buf) {
+BOOL Sd2Card::readRegister(uint8_t cmd, void* buf) {
   uint8_t* dst = reinterpret_cast<uint8_t*>(buf);
   if (cardCommand(cmd, 0)) {
     error(SD_CARD_ERROR_READ_REG);
@@ -545,7 +545,7 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::readStart(uint32_t blockNumber) {
+BOOL Sd2Card::readStart(uint32_t blockNumber) {
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
   if (cardCommand(CMD18, blockNumber)) {
     error(SD_CARD_ERROR_CMD18);
@@ -563,7 +563,7 @@ fail:
 * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::readStop() {
+BOOL Sd2Card::readStop() {
   chipSelectLow();
   if (cardCommand(CMD12, 0)) {
     error(SD_CARD_ERROR_CMD12);
@@ -588,7 +588,7 @@ fail:
  * \return The value one, true, is returned for success and the value zero,
  * false, is returned for an invalid value of \a sckRateID.
  */
-bool Sd2Card::setSckRate(uint8_t sckRateID) {
+BOOL Sd2Card::setSckRate(uint8_t sckRateID) {
   if (sckRateID > 6) {
     error(SD_CARD_ERROR_SCK_RATE);
     return false;
@@ -598,7 +598,7 @@ bool Sd2Card::setSckRate(uint8_t sckRateID) {
 }
 //------------------------------------------------------------------------------
 // wait for card to go not busy
-bool Sd2Card::waitNotBusy(uint16_t timeoutMillis) {
+BOOL Sd2Card::waitNotBusy(uint16_t timeoutMillis) {
   uint16_t t0 = millis();
   while (spiRec() != 0XFF) {
     if (((uint16_t)millis() - t0) >= timeoutMillis) goto fail;
@@ -616,7 +616,7 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
+BOOL Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
   // use address if not SDHC card
   if (type() != SD_CARD_TYPE_SDHC) blockNumber <<= 9;
   if (cardCommand(CMD24, blockNumber)) {
@@ -647,7 +647,7 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::writeData(const uint8_t* src) {
+BOOL Sd2Card::writeData(const uint8_t* src) {
   chipSelectLow();
   // wait for previous write to finish
   if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto fail;
@@ -661,7 +661,7 @@ fail:
 }
 //------------------------------------------------------------------------------
 // send one block of data for write block or write multiple blocks
-bool Sd2Card::writeData(uint8_t token, const uint8_t* src) {
+BOOL Sd2Card::writeData(uint8_t token, const uint8_t* src) {
   spiSendBlock(token, src);
 
   spiSend(0xff);  // dummy crc
@@ -689,7 +689,7 @@ fail:
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::writeStart(uint32_t blockNumber, uint32_t eraseCount) {
+BOOL Sd2Card::writeStart(uint32_t blockNumber, uint32_t eraseCount) {
   // send pre-erase count
   if (cardAcmd(ACMD23, eraseCount)) {
     error(SD_CARD_ERROR_ACMD23);
@@ -713,7 +713,7 @@ fail:
 * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool Sd2Card::writeStop() {
+BOOL Sd2Card::writeStop() {
   chipSelectLow();
   if (!waitNotBusy(SD_WRITE_TIMEOUT)) goto fail;
   spiSend(STOP_TRAN_TOKEN);

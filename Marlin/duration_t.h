@@ -51,7 +51,7 @@ struct duration_t {
    * @param value The number of seconds to compare to
    * @return True if both durations are equal
    */
-  bool operator==(const uint32_t &value) const {
+  BOOL operator==(const uint32_t &value) const {
     return (this->value == value);
   }
 
@@ -62,7 +62,7 @@ struct duration_t {
    * @param value The number of seconds to compare to
    * @return False if both durations are equal
    */
-  bool operator!=(const uint32_t &value) const {
+  BOOL operator!=(const uint32_t &value) const {
     return ! this->operator==(value);
   }
 
@@ -145,7 +145,7 @@ struct duration_t {
    *  99:59
    *  11d 12:33
    */
-  uint8_t toDigital(char *buffer, bool with_days=false) const {
+  uint8_t toDigital(char *buffer, BOOL with_days=false) const {
     uint16_t h = uint16_t(this->hour()),
              m = uint16_t(this->minute() % 60UL);
     if (with_days) {

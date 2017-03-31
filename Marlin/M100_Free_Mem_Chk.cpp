@@ -57,7 +57,7 @@ char* top_of_stack();
 int how_many_E5s_are_here(char*);
 
 void gcode_M100() {
-  static bool m100_not_initialized = true;
+  static BOOL m100_not_initialized = true;
   char* sp, *ptr;
   int i, j, n;
   //

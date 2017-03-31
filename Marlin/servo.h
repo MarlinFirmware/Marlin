@@ -70,6 +70,7 @@
 #define servo_h
 
 #include <inttypes.h>
+#include "types.h"
 
 /**
  * Defines for 16 bit timers used with  Servo library
@@ -150,7 +151,7 @@ class Servo {
                                        // if DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DELAY, then detach
     int read();                        // returns current pulse width as an angle between 0 and 180 degrees
     int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
-    bool attached();                   // return true if this servo is attached, otherwise false
+    BOOL attached();                   // return true if this servo is attached, otherwise false
 
   private:
     uint8_t servoIndex;               // index into the channel data for this servo

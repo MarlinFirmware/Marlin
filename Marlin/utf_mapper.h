@@ -152,7 +152,7 @@
 
   char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
-    static bool seen_c2 = false;
+    static BOOL seen_c2 = false;
     uint8_t d = c;
     if ( d >= 0x80u ) { // UTF-8 handling
       if ( (d >= 0xc0u) && (!seen_c2) ) {
@@ -185,9 +185,9 @@
 
   char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
-    static bool seen_c2 = false;
-    static bool seen_c4 = false;
-    static bool seen_c5 = false;
+    static BOOL seen_c2 = false;
+    static BOOL seen_c4 = false;
+    static BOOL seen_c5 = false;
     uint8_t d = c;
     if ( d >= 0x80u ) { // UTF-8 handling
            if ( d == 0xc4u ) {seen_c4 = true; return 0;}
@@ -238,7 +238,7 @@
 
   char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
-    static bool seen_ce = false;
+    static BOOL seen_ce = false;
     uint8_t d = c;
     if ( d >= 0x80 ) { // UTF-8 handling
       if ( (d >= 0xc0) && (!seen_ce) ) {
@@ -269,7 +269,7 @@
 
   char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
-    static bool seen_ce = false;
+    static BOOL seen_ce = false;
     uint8_t d = c;
     if ( d >= 0x80 ) { // UTF-8 handling
       if ( (d >= 0xc0) && (!seen_ce) ) {
@@ -302,7 +302,7 @@
     // it is a Russian alphabet translation
     // except 0401 --> 0xa2 = Ё, 0451 --> 0xb5 = ё
     static uint8_t utf_hi_char; // UTF-8 high part
-    static bool seen_d5 = false;
+    static BOOL seen_d5 = false;
     uint8_t d = c;
     if (d >= 0x80) { // UTF-8 handling
       if (d >= 0xd0 && !seen_d5) {
@@ -337,7 +337,7 @@
 
   char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
-    static bool seen_d5 = false;
+    static BOOL seen_d5 = false;
     uint8_t d = c;
     if (d >= 0x80u) { // UTF-8 handling
       if (d >= 0xd0u && !seen_d5) {
@@ -368,8 +368,8 @@
 
   char charset_mapper(const char c) {
     static uint8_t utf_hi_char; // UTF-8 high part
-    static bool seen_e3 = false;
-    static bool seen_82_83 = false;
+    static BOOL seen_e3 = false;
+    static BOOL seen_82_83 = false;
     uint8_t d = c;
     if (d >= 0x80) { // UTF-8 handling
       if (d == 0xe3 && !seen_e3) {

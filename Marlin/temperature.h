@@ -61,7 +61,7 @@ class Temperature {
                  current_temperature_bed_raw,
                  target_temperature_bed;
 
-    static volatile bool in_temp_isr;
+    static volatile BOOL in_temp_isr;
 
     #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       static float redundant_temperature;
@@ -124,16 +124,16 @@ class Temperature {
     #endif
 
     #if ENABLED(PREVENT_COLD_EXTRUSION)
-      static bool allow_cold_extrude;
+      static BOOL allow_cold_extrude;
       static float extrude_min_temp;
-      static bool tooColdToExtrude(uint8_t e) {
+      static BOOL tooColdToExtrude(uint8_t e) {
         #if HOTENDS == 1
           UNUSED(e);
         #endif
         return allow_cold_extrude ? false : degHotend(HOTEND_INDEX) < extrude_min_temp;
       }
     #else
-      static bool tooColdToExtrude(uint8_t e) { UNUSED(e); return false; }
+      static BOOL tooColdToExtrude(uint8_t e) { UNUSED(e); return false; }
     #endif
 
   private:
@@ -143,7 +143,7 @@ class Temperature {
       static float redundant_temperature;
     #endif
 
-    static volatile bool temp_meas_ready;
+    static volatile BOOL temp_meas_ready;
 
     #if ENABLED(PIDTEMP)
       static float temp_iState[HOTENDS],
@@ -160,7 +160,7 @@ class Temperature {
       #endif
 
       static float pid_error[HOTENDS];
-      static bool pid_reset[HOTENDS];
+      static BOOL pid_reset[HOTENDS];
     #endif
 
     #if ENABLED(PIDTEMPBED)
@@ -248,7 +248,7 @@ class Temperature {
      * Preheating hotends
      */
     #ifdef MILLISECONDS_PREHEAT_TIME
-      static bool is_preheating(uint8_t e) {
+      static BOOL is_preheating(uint8_t e) {
         #if HOTENDS == 1
           UNUSED(e);
         #endif
@@ -337,21 +337,21 @@ class Temperature {
       #endif
     }
 
-    static bool isHeatingHotend(uint8_t e) {
+    static BOOL isHeatingHotend(uint8_t e) {
       #if HOTENDS == 1
         UNUSED(e);
       #endif
       return target_temperature[HOTEND_INDEX] > current_temperature[HOTEND_INDEX];
     }
-    static bool isHeatingBed() { return target_temperature_bed > current_temperature_bed; }
+    static BOOL isHeatingBed() { return target_temperature_bed > current_temperature_bed; }
 
-    static bool isCoolingHotend(uint8_t e) {
+    static BOOL isCoolingHotend(uint8_t e) {
       #if HOTENDS == 1
         UNUSED(e);
       #endif
       return target_temperature[HOTEND_INDEX] < current_temperature[HOTEND_INDEX];
     }
-    static bool isCoolingBed() { return target_temperature_bed < current_temperature_bed; }
+    static BOOL isCoolingBed() { return target_temperature_bed < current_temperature_bed; }
 
     /**
      * The software PWM power for a heater
@@ -367,7 +367,7 @@ class Temperature {
      * Perform auto-tuning for hotend or bed in response to M303
      */
     #if HAS_PID_HEATING
-      static void PID_autotune(float temp, int hotend, int ncycles, bool set_result=false);
+      static void PID_autotune(float temp, int hotend, int ncycles, BOOL set_result=false);
     #endif
 
     /**

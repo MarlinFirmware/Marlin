@@ -163,7 +163,7 @@ class TWIBus {
      * @param bytes the number of bytes to request
      * @return status of the request: true=success, false=fail
      */
-    bool request(const uint8_t bytes);
+    BOOL request(const uint8_t bytes);
 
     /**
      * @brief Capture data from the bus into the buffer.

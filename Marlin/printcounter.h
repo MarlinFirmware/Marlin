@@ -83,7 +83,7 @@ class PrintCounter: public Stopwatch {
      * @details If set to true it indicates if the statistical data was already
      * loaded from the EEPROM.
      */
-    bool loaded = false;
+    BOOL loaded = false;
 
   protected:
     /**
@@ -103,9 +103,9 @@ class PrintCounter: public Stopwatch {
     /**
      * @brief Checks if Print Statistics has been loaded
      * @details Returns true if the statistical data has been loaded.
-     * @return bool
+     * @return BOOL
      */
-    bool isLoaded();
+    BOOL isLoaded();
 
     /**
      * @brief Increments the total filament used
@@ -157,8 +157,8 @@ class PrintCounter: public Stopwatch {
     /**
      * The following functions are being overridden
      */
-    bool start();
-    bool stop();
+    BOOL start();
+    BOOL stop();
     void reset();
 
     #if ENABLED(DEBUG_PRINTCOUNTER)

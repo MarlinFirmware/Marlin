@@ -264,7 +264,7 @@ static void lcd_implementation_init() {
   #endif
 
   #if ENABLED(SHOW_BOOTSCREEN)
-    static bool show_bootscreen = true;
+    static BOOL show_bootscreen = true;
 
     #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
       if (show_bootscreen) {
@@ -335,9 +335,9 @@ FORCE_INLINE void _draw_centered_temp(const int temp, const uint8_t x, const uin
 
 FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater) {
   #if HAS_TEMP_BED
-    bool isBed = heater < 0;
+    BOOL isBed = heater < 0;
   #else
-    const bool isBed = false;
+    const BOOL isBed = false;
   #endif
 
   if (PAGE_UNDER(7))
@@ -360,7 +360,7 @@ FORCE_INLINE void _draw_heater_status(const uint8_t x, const int8_t heater) {
   }
 }
 
-FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink) {
+FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const BOOL blink) {
   if (blink)
     lcd_printPGM(pstr);
   else {
@@ -381,7 +381,7 @@ FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, 
 
 static void lcd_implementation_status_screen() {
 
-  bool blink = lcd_blink();
+  BOOL blink = lcd_blink();
 
   // Status Menu Font
   lcd_setFont(FONT_STATUSMENU);
@@ -498,7 +498,7 @@ static void lcd_implementation_status_screen() {
 
       char buffer[10];
       duration_t elapsed = print_job_timer.duration();
-      bool has_days = (elapsed.value > 60*60*24L);
+      BOOL has_days = (elapsed.value > 60*60*24L);
       uint8_t len = elapsed.toDigital(buffer, has_days);
       u8g.setPrintPos(SD_DURATION_X, 48);
       lcd_print(buffer);
@@ -669,7 +669,7 @@ static void lcd_implementation_status_screen() {
   #endif // FILAMENT_CHANGE_FEATURE
 
   // Set the colors for a menu item based on whether it is selected
-  static void lcd_implementation_mark_as_selected(const uint8_t row, const bool isSelected) {
+  static void lcd_implementation_mark_as_selected(const uint8_t row, const BOOL isSelected) {
     row_y1 = row * row_height + 1;
     row_y2 = row_y1 + row_height - 1;
 
@@ -694,7 +694,7 @@ static void lcd_implementation_status_screen() {
   }
 
   // Draw a static line of text in the same idiom as a menu item
-  static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char* valstr=NULL) {
+  static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const BOOL center=true, const BOOL invert=false, const char* valstr=NULL) {
 
     lcd_implementation_mark_as_selected(row, invert);
 
@@ -719,7 +719,7 @@ static void lcd_implementation_status_screen() {
   }
 
   // Draw a generic menu item
-  static void lcd_implementation_drawmenu_generic(const bool isSelected, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
+  static void lcd_implementation_drawmenu_generic(const BOOL isSelected, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
     UNUSED(pre_char);
 
     lcd_implementation_mark_as_selected(row, isSelected);
@@ -744,7 +744,7 @@ static void lcd_implementation_status_screen() {
   #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
   // Draw a menu item with an editable value
-  static void _drawmenu_setting_edit_generic(const bool isSelected, const uint8_t row, const char* pstr, const char* const data, const bool pgm) {
+  static void _drawmenu_setting_edit_generic(const BOOL isSelected, const uint8_t row, const char* pstr, const char* const data, const BOOL pgm) {
 
     lcd_implementation_mark_as_selected(row, isSelected);
 
@@ -776,7 +776,7 @@ static void lcd_implementation_status_screen() {
   #define lcd_implementation_drawmenu_setting_edit_float51(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr51sign(*(data)))
   #define lcd_implementation_drawmenu_setting_edit_float62(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr62rj(*(data)))
   #define lcd_implementation_drawmenu_setting_edit_long5(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
-  #define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
+  #define lcd_implementation_drawmenu_setting_edit_BOOL(sel, row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
   #define lcd_implementation_drawmenu_setting_edit_callback_int3(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, itostr3(*(data)))
   #define lcd_implementation_drawmenu_setting_edit_callback_float3(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr3(*(data)))
@@ -787,7 +787,7 @@ static void lcd_implementation_status_screen() {
   #define lcd_implementation_drawmenu_setting_edit_callback_float51(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr51sign(*(data)))
   #define lcd_implementation_drawmenu_setting_edit_callback_float62(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr62rj(*(data)))
   #define lcd_implementation_drawmenu_setting_edit_callback_long5(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, ftostr5rj(*(data)))
-  #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
+  #define lcd_implementation_drawmenu_setting_edit_callback_BOOL(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
   void lcd_implementation_drawedit(const char* const pstr, const char* const value=NULL) {
     const uint8_t labellen = lcd_strlen_P(pstr),
@@ -834,7 +834,7 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(SDSUPPORT)
 
-    static void _drawmenu_sd(const bool isSelected, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const bool isDir) {
+    static void _drawmenu_sd(const BOOL isSelected, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const BOOL isDir) {
       UNUSED(pstr);
 
       lcd_implementation_mark_as_selected(row, isSelected);

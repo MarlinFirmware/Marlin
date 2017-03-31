@@ -195,7 +195,7 @@ extern volatile uint8_t buttons;  //an extended version of the last checked butt
 
 static void lcd_set_custom_characters(
   #if ENABLED(LCD_PROGRESS_BAR)
-    const bool info_screen_charset = true
+    const BOOL info_screen_charset = true
   #endif
 ) {
   static byte bedTemp[8] = {
@@ -316,7 +316,7 @@ static void lcd_set_custom_characters(
         B10101,
         B00000
       } };
-      static bool char_mode = false;
+      static BOOL char_mode = false;
       if (info_screen_charset != char_mode) {
         char_mode = info_screen_charset;
         if (info_screen_charset) { // Progress bar characters for info screen
@@ -341,7 +341,7 @@ static void lcd_set_custom_characters(
 
 static void lcd_implementation_init(
   #if ENABLED(LCD_PROGRESS_BAR)
-    const bool info_screen_charset = true
+    const BOOL info_screen_charset = true
   #endif
 ) {
 
@@ -556,7 +556,7 @@ void lcd_kill_screen() {
   lcd_printPGM(PSTR(MSG_PLEASE_RESET));
 }
 
-FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const bool blink) {
+FORCE_INLINE void _draw_axis_label(const AxisEnum axis, const char* const pstr, const BOOL blink) {
   if (blink)
     lcd_printPGM(pstr);
   else {
@@ -685,7 +685,7 @@ static void lcd_implementation_status_screen() {
 
   #if LCD_HEIGHT > 2
 
-    bool blink = lcd_blink();
+    BOOL blink = lcd_blink();
 
     #if LCD_WIDTH < 20
 
@@ -777,7 +777,7 @@ static void lcd_implementation_status_screen() {
 
     // Draw the progress bar if the message has shown long enough
     // or if there is no message set.
-    if (card.isFileOpen() && ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0])
+    if (card.isFileOpen() && (ELAPSED(millis(), progress_bar_ms + PROGRESS_BAR_MSG_TIME) || !lcd_status_message[0]))
       return lcd_draw_progress_bar(card.percentDone());
 
   #elif ENABLED(FILAMENT_LCD_DISPLAY) && ENABLED(SDSUPPORT)
@@ -814,7 +814,7 @@ static void lcd_implementation_status_screen() {
 
   #endif // FILAMENT_CHANGE_FEATURE
 
-  static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const bool center=true, const bool invert=false, const char *valstr=NULL) {
+  static void lcd_implementation_drawmenu_static(const uint8_t row, const char* pstr, const BOOL center=true, const BOOL invert=false, const char *valstr=NULL) {
     UNUSED(invert);
     char c;
     int8_t n = LCD_WIDTH;
@@ -834,7 +834,7 @@ static void lcd_implementation_status_screen() {
     while (n-- > 0) lcd.print(' ');
   }
 
-  static void lcd_implementation_drawmenu_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
+  static void lcd_implementation_drawmenu_generic(const BOOL sel, const uint8_t row, const char* pstr, const char pre_char, const char post_char) {
     char c;
     uint8_t n = LCD_WIDTH - 2;
     lcd.setCursor(0, row);
@@ -847,7 +847,7 @@ static void lcd_implementation_status_screen() {
     lcd.print(post_char);
   }
 
-  static void lcd_implementation_drawmenu_setting_edit_generic(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
+  static void lcd_implementation_drawmenu_setting_edit_generic(const BOOL sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     char c;
     uint8_t n = LCD_WIDTH - 2 - lcd_strlen(data);
     lcd.setCursor(0, row);
@@ -860,7 +860,7 @@ static void lcd_implementation_status_screen() {
     while (n--) lcd.print(' ');
     lcd_print(data);
   }
-  static void lcd_implementation_drawmenu_setting_edit_generic_P(const bool sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
+  static void lcd_implementation_drawmenu_setting_edit_generic_P(const BOOL sel, const uint8_t row, const char* pstr, const char pre_char, const char* const data) {
     char c;
     uint8_t n = LCD_WIDTH - 2 - lcd_strlen_P(data);
     lcd.setCursor(0, row);
@@ -883,7 +883,7 @@ static void lcd_implementation_status_screen() {
   #define lcd_implementation_drawmenu_setting_edit_float51(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', ftostr51sign(*(data)))
   #define lcd_implementation_drawmenu_setting_edit_float62(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', ftostr62rj(*(data)))
   #define lcd_implementation_drawmenu_setting_edit_long5(sel, row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', ftostr5rj(*(data)))
-  #define lcd_implementation_drawmenu_setting_edit_bool(sel, row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
+  #define lcd_implementation_drawmenu_setting_edit_BOOL(sel, row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
   //Add version for callback functions
   #define lcd_implementation_drawmenu_setting_edit_callback_int3(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', itostr3(*(data)))
@@ -895,7 +895,7 @@ static void lcd_implementation_status_screen() {
   #define lcd_implementation_drawmenu_setting_edit_callback_float51(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', ftostr51sign(*(data)))
   #define lcd_implementation_drawmenu_setting_edit_callback_float62(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', ftostr62rj(*(data)))
   #define lcd_implementation_drawmenu_setting_edit_callback_long5(sel, row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(sel, row, pstr, '>', ftostr5rj(*(data)))
-  #define lcd_implementation_drawmenu_setting_edit_callback_bool(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
+  #define lcd_implementation_drawmenu_setting_edit_callback_BOOL(sel, row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(sel, row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
   void lcd_implementation_drawedit(const char* pstr, const char* const value=NULL) {
     lcd.setCursor(1, 1);
@@ -909,7 +909,7 @@ static void lcd_implementation_status_screen() {
 
   #if ENABLED(SDSUPPORT)
 
-    static void lcd_implementation_drawmenu_sd(const bool sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
+    static void lcd_implementation_drawmenu_sd(const BOOL sel, const uint8_t row, const char* const pstr, const char* filename, char* const longFilename, const uint8_t concat, const char post_char) {
       UNUSED(pstr);
       char c;
       uint8_t n = LCD_WIDTH - concat;
@@ -927,11 +927,11 @@ static void lcd_implementation_status_screen() {
       lcd.print(post_char);
     }
 
-    static void lcd_implementation_drawmenu_sdfile(const bool sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
+    static void lcd_implementation_drawmenu_sdfile(const BOOL sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
       lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, ' ');
     }
 
-    static void lcd_implementation_drawmenu_sddirectory(const bool sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
+    static void lcd_implementation_drawmenu_sddirectory(const BOOL sel, const uint8_t row, const char* pstr, const char* filename, char* const longFilename) {
       lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, LCD_STR_FOLDER[0]);
     }
 

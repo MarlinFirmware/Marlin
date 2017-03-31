@@ -37,7 +37,7 @@
 
   void lcd_babystep_z();
   void lcd_return_to_status();
-  bool lcd_clicked();
+  BOOL lcd_clicked();
   void lcd_implementation_clear();
   void lcd_mesh_edit_setup(float initial);
   float lcd_mesh_edit();
@@ -46,13 +46,13 @@
   extern float meshedit_done;
   extern long babysteps_done;
   extern float code_value_float();
-  extern bool code_value_bool();
-  extern bool code_has_value();
-  extern float probe_pt(float x, float y, bool, int);
-  extern bool set_probe_deployed(bool);
+  extern BOOL code_value_bool();
+  extern BOOL code_has_value();
+  extern float probe_pt(float x, float y, BOOL, int);
+  extern BOOL set_probe_deployed(BOOL);
   #define DEPLOY_PROBE() set_probe_deployed(true)
   #define STOW_PROBE() set_probe_deployed(false)
-  bool ProbeStay = true;
+  BOOL ProbeStay = true;
 
   constexpr float ubl_3_point_1_X = UBL_PROBE_PT_1_X,
                   ubl_3_point_1_Y = UBL_PROBE_PT_1_Y,
@@ -303,11 +303,11 @@
   // The simple parameter flags and values are 'static' so parameter parsing can be in a support routine.
   static int g29_verbose_level, phase_value = -1, repetition_cnt,
              storage_slot = 0, map_type; //unlevel_value = -1;
-  static bool repeat_flag, c_flag, x_flag, y_flag;
+  static BOOL repeat_flag, c_flag, x_flag, y_flag;
   static float x_pos, y_pos, measured_z, card_thickness = 0.0, ubl_constant = 0.0;
 
   #if ENABLED(ULTRA_LCD)
-    void lcd_setstatus(const char* message, bool persist);
+    void lcd_setstatus(const char* message, BOOL persist);
   #endif
 
   void gcode_G29() {
@@ -734,7 +734,7 @@
    * Probe all invalidated locations of the mesh that can be reached by the probe.
    * This attempts to fill in locations closest to the nozzle's start location first.
    */
-  void probe_entire_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map, const bool stow_probe, bool do_furthest) {
+  void probe_entire_mesh(const float &lx, const float &ly, const BOOL do_ubl_mesh_map, const BOOL stow_probe, BOOL do_furthest) {
     mesh_index_pair location;
 
     ubl.has_control_of_lcd_panel++;
@@ -890,7 +890,7 @@
     return abs(z1 - z2);
   }
 
-  void manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &card_thickness, const bool do_ubl_mesh_map) {
+  void manually_probe_remaining_mesh(const float &lx, const float &ly, const float &z_clearance, const float &card_thickness, const BOOL do_ubl_mesh_map) {
 
     ubl.has_control_of_lcd_panel++;
     save_ubl_active_state_and_disable();   // we don't do bed level correction because we want the raw data when we probe
@@ -975,7 +975,7 @@
     do_blocking_move_to_xy(lx, ly);
   }
 
-  bool g29_parameter_parsing() {
+  BOOL g29_parameter_parsing() {
     #if ENABLED(ULTRA_LCD)
       lcd_setstatus("Doing G29 UBL !", true);
       lcd_quick_feedback();
@@ -1266,7 +1266,7 @@
         ubl.z_values[x][y] -= tmp_z_values[x][y];
   }
 
-  mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType type, const float &lx, const float &ly, const bool probe_as_reference, unsigned int bits[16], bool far_flag) {
+  mesh_index_pair find_closest_mesh_point_of_type(const MeshPointType type, const float &lx, const float &ly, const BOOL probe_as_reference, unsigned int bits[16], BOOL far_flag) {
     float distance, closest = far_flag ? -99999.99 : 99999.99;
     mesh_index_pair return_val;
 
@@ -1331,7 +1331,7 @@
     return return_val;
   }
 
-  void fine_tune_mesh(const float &lx, const float &ly, const bool do_ubl_mesh_map) {
+  void fine_tune_mesh(const float &lx, const float &ly, const BOOL do_ubl_mesh_map) {
     mesh_index_pair location;
     uint16_t not_done[16];
     int32_t round_off;

@@ -38,7 +38,7 @@ Endstops endstops;
 
 // public:
 
-bool  Endstops::enabled = true,
+BOOL  Endstops::enabled = true,
       Endstops::enabled_globally =
         #if ENABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
           (true)
@@ -57,7 +57,7 @@ volatile char Endstops::endstop_hit_bits; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_P
     Endstops::old_endstop_bits = 0;
 
 #if HAS_BED_PROBE
-  volatile bool Endstops::z_probe_enabled = false;
+  volatile BOOL Endstops::z_probe_enabled = false;
 #endif
 
 /**

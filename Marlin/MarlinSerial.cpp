@@ -42,7 +42,7 @@
   ring_buffer_r rx_buffer  =  { { 0 }, 0, 0 };
   #if TX_BUFFER_SIZE > 0
     ring_buffer_t tx_buffer  =  { { 0 }, 0, 0 };
-    static bool _written;
+    static BOOL _written;
   #endif
 #endif
 
@@ -112,7 +112,7 @@ MarlinSerial::MarlinSerial() { }
 
 void MarlinSerial::begin(long baud) {
   uint16_t baud_setting;
-  bool useU2X = true;
+  BOOL useU2X = true;
 
   #if F_CPU == 16000000UL && SERIAL_PORT == 0
     // hard-coded exception for compatibility with the bootloader shipped
@@ -213,7 +213,7 @@ void MarlinSerial::flush(void) {
   void MarlinSerial::write(uint8_t c) {
     _written = true;
     CRITICAL_SECTION_START;
-      bool emty = (tx_buffer.head == tx_buffer.tail);
+      BOOL emty = (tx_buffer.head == tx_buffer.tail);
     CRITICAL_SECTION_END;
     // If the buffer and the data register is empty, just write the byte
     // to the data register and be done. This shortcut helps

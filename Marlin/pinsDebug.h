@@ -22,7 +22,7 @@
 
 #include "macros.h"
 
-bool endstop_monitor_flag = false;
+BOOL endstop_monitor_flag = false;
 
 #if !defined(TIMER1B)    // working with Teensyduino extension so need to re-define some things
   #include "pinsDebug_Teensyduino.h"
@@ -47,7 +47,7 @@ int digitalRead_mod(int8_t pin) { // same as digitalRead except the PWM stop sec
 /**
  * Report pin name for a given fastio digital pin index
  */
-static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
+static BOOL report_pin_name(int8_t pin, BOOL &pin_is_analog) {
 
   char buffer[30];   // for the sprintf statements
   pin_is_analog = false;   // default to digital pin
@@ -676,7 +676,7 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
  * Print a pin's PWM status.
  * Return true if it's currently a PWM pin.
  */
-static bool pwm_status(uint8_t pin) {
+static BOOL pwm_status(uint8_t pin) {
   char buffer[20];   // for the sprintf statements
 
   switch(digitalPinToTimer(pin)) {
@@ -899,7 +899,7 @@ static void pwm_details(uint8_t pin) {
 inline void report_pin_state(int8_t pin) {
   SERIAL_ECHO((int)pin);
   SERIAL_CHAR(' ');
-  bool dummy;
+  BOOL dummy;
   if (report_pin_name(pin, dummy)) {
     if (pin_is_protected(pin))
       SERIAL_ECHOPGM(" (protected)");
@@ -917,10 +917,10 @@ inline void report_pin_state(int8_t pin) {
   SERIAL_EOL;
 }
 
-bool get_pinMode(int8_t pin) { return *portModeRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin); }
+BOOL get_pinMode(int8_t pin) { return *portModeRegister(digitalPinToPort(pin)) & digitalPinToBitMask(pin); }
 
 // pretty report with PWM info
-inline void report_pin_state_extended(int8_t pin, bool ignore) {
+inline void report_pin_state_extended(int8_t pin, BOOL ignore) {
 
   char buffer[30];   // for the sprintf statements
 
@@ -929,7 +929,7 @@ inline void report_pin_state_extended(int8_t pin, bool ignore) {
   SERIAL_ECHO(buffer);
 
   // report pin name
-  bool analog_pin;
+  BOOL analog_pin;
   report_pin_name(pin, analog_pin);
 
   // report pin state

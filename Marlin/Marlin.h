@@ -100,7 +100,7 @@ void serial_echopair_P(const char* s_P, unsigned int v);
 void serial_echopair_P(const char* s_P, unsigned long v);
 FORCE_INLINE void serial_echopair_P(const char* s_P, uint8_t v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, uint16_t v) { serial_echopair_P(s_P, (int)v); }
-FORCE_INLINE void serial_echopair_P(const char* s_P, bool v) { serial_echopair_P(s_P, (int)v); }
+//FORCE_INLINE void serial_echopair_P(const char* s_P, BOOL v) { serial_echopair_P(s_P, (int)v); }
 FORCE_INLINE void serial_echopair_P(const char* s_P, void *v) { serial_echopair_P(s_P, (unsigned long)v); }
 
 // Things to write to serial from Program memory. Saves 400 to 2k of RAM.
@@ -110,14 +110,14 @@ FORCE_INLINE void serialprintPGM(const char* str) {
 
 void idle(
   #if ENABLED(FILAMENT_CHANGE_FEATURE)
-    bool no_stepper_sleep = false  // pass true to keep steppers from disabling on timeout
+    BOOL no_stepper_sleep = false  // pass true to keep steppers from disabling on timeout
   #endif
 );
 
-void manage_inactivity(bool ignore_stepper_queue = false);
+void manage_inactivity(BOOL ignore_stepper_queue = false);
 
 #if ENABLED(DUAL_X_CARRIAGE) || ENABLED(DUAL_NOZZLE_DUPLICATION_MODE)
-  extern bool extruder_duplication_enabled;
+  extern BOOL extruder_duplication_enabled;
 #endif
 
 #if HAS_X2_ENABLE
@@ -212,7 +212,7 @@ void manage_inactivity(bool ignore_stepper_queue = false);
 #endif // !MIXING_EXTRUDER
 
 #if ENABLED(G38_PROBE_TARGET)
-  extern bool G38_move,        // flag to tell the interrupt handler that a G38 command is being run
+  extern BOOL G38_move,        // flag to tell the interrupt handler that a G38 command is being run
               G38_endstop_hit; // flag from the interrupt handler to indicate if the endstop went active
 #endif
 
@@ -239,11 +239,11 @@ void quickstop_stepper();
 extern uint8_t marlin_debug_flags;
 #define DEBUGGING(F) (marlin_debug_flags & (DEBUG_## F))
 
-extern bool Running;
-inline bool IsRunning() { return  Running; }
-inline bool IsStopped() { return !Running; }
+extern BOOL Running;
+inline BOOL IsRunning() { return  Running; }
+inline BOOL IsStopped() { return !Running; }
 
-bool enqueue_and_echo_command(const char* cmd, bool say_ok=false); //put a single ASCII command at the end of the current buffer or return false when it is full
+BOOL enqueue_and_echo_command(const char* cmd, BOOL say_ok=false); //put a single ASCII command at the end of the current buffer or return false when it is full
 void enqueue_and_echo_commands_P(const char* cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
 void clear_command_queue();
 
@@ -263,17 +263,17 @@ extern int feedrate_percentage;
 #define MMS_TO_MMM(MM_S) ((MM_S)*60.0)
 #define MMS_SCALED(MM_S) ((MM_S)*feedrate_percentage*0.01)
 
-extern bool axis_relative_modes[];
-extern bool volumetric_enabled;
+extern BOOL axis_relative_modes[];
+extern BOOL volumetric_enabled;
 extern int flow_percentage[EXTRUDERS]; // Extrusion factor for each extruder
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-extern bool axis_known_position[XYZ]; // axis[n].is_known
-extern bool axis_homed[XYZ]; // axis[n].is_homed
-extern volatile bool wait_for_heatup;
+extern BOOL axis_known_position[XYZ]; // axis[n].is_known
+extern BOOL axis_homed[XYZ]; // axis[n].is_homed
+extern volatile BOOL wait_for_heatup;
 
 #if ENABLED(EMERGENCY_PARSER) || ENABLED(ULTIPANEL)
-  extern volatile bool wait_for_user;
+  extern volatile BOOL wait_for_user;
 #endif
 
 extern float current_position[NUM_AXIS];
@@ -307,7 +307,7 @@ extern float soft_endstop_min[XYZ];
 extern float soft_endstop_max[XYZ];
 
 #if HAS_SOFTWARE_ENDSTOPS
-  extern bool soft_endstops_enabled;
+  extern BOOL soft_endstops_enabled;
   void clamp_to_software_endstops(float target[XYZ]);
 #else
   #define soft_endstops_enabled false
@@ -319,7 +319,7 @@ extern float soft_endstop_max[XYZ];
 #endif
 
 // GCode support for external objects
-bool code_seen(char);
+BOOL code_seen(char);
 int code_value_int();
 float code_value_temp_abs();
 float code_value_temp_diff();
@@ -346,7 +346,7 @@ float code_value_temp_diff();
   extern int bilinear_grid_spacing[2], bilinear_start[2];
   extern float bed_level_grid[ABL_GRID_MAX_POINTS_X][ABL_GRID_MAX_POINTS_Y];
   float bilinear_z_offset(float logical[XYZ]);
-  void set_bed_leveling_enabled(bool enable=true);
+  void set_bed_leveling_enabled(BOOL enable=true);
 #endif
 
 #if PLANNER_LEVELING
@@ -378,7 +378,7 @@ float code_value_temp_diff();
 #endif
 
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
-  extern bool filament_sensor;         // Flag that filament sensor readings should control extrusion
+  extern BOOL filament_sensor;         // Flag that filament sensor readings should control extrusion
   extern float filament_width_nominal, // Theoretical filament diameter i.e., 3.00 or 1.75
                filament_width_meas;    // Measured filament diameter
   extern int8_t measurement_delay[];   // Ring buffer to delay measurement
@@ -395,8 +395,8 @@ float code_value_temp_diff();
 #endif
 
 #if ENABLED(FWRETRACT)
-  extern bool autoretract_enabled;
-  extern bool retracted[EXTRUDERS]; // extruder[n].retracted
+  extern BOOL autoretract_enabled;
+  extern BOOL retracted[EXTRUDERS]; // extruder[n].retracted
   extern float retract_length, retract_length_swap, retract_feedrate_mm_s, retract_zlift;
   extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate_mm_s;
 #endif
@@ -430,7 +430,7 @@ void do_blocking_move_to_z(const float &z, const float &fr_mm_s=0.0);
 void do_blocking_move_to_xy(const float &x, const float &y, const float &fr_mm_s=0.0);
 
 #if ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED) || HAS_PROBING_PROCEDURE || HOTENDS > 1 || ENABLED(NOZZLE_CLEAN_FEATURE) || ENABLED(NOZZLE_PARK_FEATURE)
-  bool axis_unhomed_error(const bool x, const bool y, const bool z);
+  BOOL axis_unhomed_error(const BOOL x, const BOOL y, const BOOL z);
 #endif
 
 #endif //MARLIN_H

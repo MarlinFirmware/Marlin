@@ -36,15 +36,15 @@
   int lcd_strlen_P(const char* s);
   void lcd_update();
   void lcd_init();
-  bool lcd_hasstatus();
-  void lcd_setstatus(const char* message, const bool persist=false);
+  BOOL lcd_hasstatus();
+  void lcd_setstatus(const char* message, const BOOL persist=false);
   void lcd_setstatuspgm(const char* message, const uint8_t level=0);
   void status_printf(uint8_t level, const char *Status, ...);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
   void lcd_kill_screen();
   void kill_screen(const char* lcd_msg);
-  bool lcd_detected(void);
+  BOOL lcd_detected(void);
 
   #if HAS_BUZZER
     void lcd_buzz(long duration, uint16_t freq);
@@ -81,7 +81,7 @@
     extern volatile uint8_t buttons;  // The last-checked buttons in a bit array.
     void lcd_buttons_update();
     void lcd_quick_feedback();        // Audible feedback for a button click - could also be visual
-    void lcd_completion_feedback(const bool good=true);
+    void lcd_completion_feedback(const BOOL good=true);
 
     #if ENABLED(FILAMENT_CHANGE_FEATURE)
       void lcd_filament_change_show_message(const FilamentChangeMessage message);
@@ -97,7 +97,7 @@
     extern millis_t previous_lcd_status_ms;
   #endif
 
-  bool lcd_blink();
+  BOOL lcd_blink();
 
   #if ENABLED(REPRAPWORLD_KEYPAD) // is also ULTIPANEL and NEWPANEL
 
@@ -151,13 +151,13 @@
 #else //no LCD
   inline void lcd_update() {}
   inline void lcd_init() {}
-  inline bool lcd_hasstatus() { return false; }
-  inline void lcd_setstatus(const char* const message, const bool persist=false) { UNUSED(message); UNUSED(persist); }
+  inline BOOL lcd_hasstatus() { return false; }
+  inline void lcd_setstatus(const char* const message, const BOOL persist=false) { UNUSED(message); UNUSED(persist); }
   inline void lcd_setstatuspgm(const char* const message, const uint8_t level=0) { UNUSED(message); UNUSED(level); }
   inline void status_printf(uint8_t level, const char *status, ...) { UNUSED(level); UNUSED(status); }
   inline void lcd_buttons_update() {}
   inline void lcd_reset_alert_level() {}
-  inline bool lcd_detected() { return true; }
+  inline BOOL lcd_detected() { return true; }
 
   #define LCD_MESSAGEPGM(x) NOOP
   #define LCD_ALERTMESSAGEPGM(x) NOOP

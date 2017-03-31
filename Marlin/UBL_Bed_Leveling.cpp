@@ -36,7 +36,7 @@
    */
   void bit_clear(uint16_t bits[16], uint8_t x, uint8_t y) { CBI(bits[y], x); }
   void bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { SBI(bits[y], x); }
-  bool is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
+  BOOL is_bit_set(uint16_t bits[16], uint8_t x, uint8_t y) { return TEST(bits[y], x); }
 
   static void serial_echo_xy(const uint16_t x, const uint16_t y) {
     SERIAL_CHAR('(');
@@ -65,7 +65,7 @@
         unified_bed_leveling::mesh_index_to_xpos[UBL_MESH_NUM_X_POINTS + 1], // +1 safety margin for now, until determinism prevails
         unified_bed_leveling::mesh_index_to_ypos[UBL_MESH_NUM_Y_POINTS + 1];
 
-  bool unified_bed_leveling::g26_debug_flag = false,
+  BOOL unified_bed_leveling::g26_debug_flag = false,
        unified_bed_leveling::has_control_of_lcd_panel = false;
 
   int8_t unified_bed_leveling::eeprom_start = -1;
@@ -173,7 +173,7 @@
 
   void unified_bed_leveling::display_map(const int map_type) {
 
-    const bool map0 = map_type == 0;
+    const BOOL map0 = map_type == 0;
 
     if (map0) {
       SERIAL_PROTOCOLLNPGM("\nBed Topography Report:\n");
@@ -196,7 +196,7 @@
 
     for (uint8_t j = UBL_MESH_NUM_Y_POINTS - 1; j >= 0; j--) {
       for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
-        const bool is_current = i == current_xi && j == current_yi;
+        const BOOL is_current = i == current_xi && j == current_yi;
 
         // is the nozzle here? then mark the number
         if (map0) SERIAL_CHAR(is_current ? '[' : ' ');
@@ -243,7 +243,7 @@
     }
   }
 
-  bool unified_bed_leveling::sanity_check() {
+  BOOL unified_bed_leveling::sanity_check() {
     uint8_t error_flag = 0;
 
     if (state.n_x != UBL_MESH_NUM_X_POINTS) {

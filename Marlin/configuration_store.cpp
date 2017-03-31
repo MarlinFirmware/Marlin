@@ -36,13 +36,13 @@
  *
  */
 
-#define EEPROM_VERSION "V31"
+#define EEPROM_VERSION "V32"
 
 // Change EEPROM version if these are changed:
 #define EEPROM_OFFSET 100
 
 /**
- * V31 EEPROM Layout:
+ * V32 EEPROM Layout:
  *
  *  100  Version                                   (char x4)
  *  104  EEPROM Checksum                           (uint16_t)
@@ -64,88 +64,88 @@
  *  195  M206 XYZ  home_offset (float x3)
  *  207  M218 XYZ  hotend_offset (float x3 per additional hotend)
  *
- * Mesh bed leveling:
- *  219  M420 S    from mbl.status (bool)
- *  220            mbl.z_offset (float)
- *  224            MESH_NUM_X_POINTS (uint8 as set in firmware)
- *  225            MESH_NUM_Y_POINTS (uint8 as set in firmware)
- *  226 G29 S3 XYZ z_values[][] (float x9, by default, up to float x 81) +288
+ * Mesh bed leveling:                               56 bytes
+ *  219  M420 S    from mbl.status                  (BOOL)
+ *  221            mbl.z_offset                     (float)
+ *  225            MESH_NUM_X_POINTS                (uint8_t)
+ *  226            MESH_NUM_Y_POINTS                (uint8_t)
+ *  227 G29 S3 XYZ z_values[][]                     (float x9, up to float x 81) +288
  *
  * AUTO BED LEVELING
- *  262  M851      zprobe_zoffset (float)
+ *  263  M851      zprobe_zoffset (float)
  *
- * ABL_PLANAR (or placeholder):                    36 bytes
- *  266            planner.bed_level_matrix        (matrix_3x3 = float x9)
+ * ABL_PLANAR (or placeholder):                     36 bytes
+ *  267            planner.bed_level_matrix         (matrix_3x3 = float x9)
  *
- * AUTO_BED_LEVELING_BILINEAR (or placeholder):    47 bytes
- *  302            ABL_GRID_MAX_POINTS_X           (uint8_t)
- *  303            ABL_GRID_MAX_POINTS_Y           (uint8_t)
- *  304            bilinear_grid_spacing           (int x2)   from G29: (B-F)/X, (R-L)/Y
- *  308  G29 L F   bilinear_start                  (int x2)
- *  312            bed_level_grid[][]              (float x9, up to float x256) +988
+ * AUTO_BED_LEVELING_BILINEAR (or placeholder):     47 bytes
+ *  303            ABL_GRID_MAX_POINTS_X            (uint8_t)
+ *  304            ABL_GRID_MAX_POINTS_Y            (uint8_t)
+ *  305            bilinear_grid_spacing            (int x2)
+ *  309  G29 L F   bilinear_start                   (int x2)
+ *  313            bed_level_grid[][]               (float x9, up to float x256) +988
  *
  * DELTA (if deltabot):                             48 bytes
- *  348  M666 XYZ  endstop_adj                      (float x3)
- *  360  M665 R    delta_radius                     (float)
- *  364  M665 L    delta_diagonal_rod               (float)
- *  368  M665 S    delta_segments_per_second        (float)
- *  372  M665 A    delta_diagonal_rod_trim[A]       (float)
- *  376  M665 B    delta_diagonal_rod_trim[B]       (float)
- *  380  M665 C    delta_diagonal_rod_trim[C]       (float)
- *  384  M665 I    delta_tower_angle_trim[A]        (float)
- *  388  M665 J    delta_tower_angle_trim[B]        (float)
- *  392  M665 K    delta_tower_angle_trim[C]        (float)
+ *  349  M666 XYZ  endstop_adj                      (float x3)
+ *  361  M665 R    delta_radius                     (float)
+ *  365  M665 L    delta_diagonal_rod               (float)
+ *  369  M665 S    delta_segments_per_second        (float)
+ *  373  M665 A    delta_diagonal_rod_trim[A]       (float)
+ *  377  M665 B    delta_diagonal_rod_trim[B]       (float)
+ *  381  M665 C    delta_diagonal_rod_trim[C]       (float)
+ *  385  M665 I    delta_tower_angle_trim[A]        (float)
+ *  389  M665 J    delta_tower_angle_trim[B]        (float)
+ *  393  M665 K    delta_tower_angle_trim[C]        (float)
  *
  * Z_DUAL_ENDSTOPS (if not deltabot):              48 bytes
- *  348  M666 Z    z_endstop_adj                   (float)
+ *  349  M666 Z    z_endstop_adj                   (float)
  *  ---            dummy data                      (float x11)
  *
  * ULTIPANEL:                                      6 bytes
- *  396  M145 S0 H lcd_preheat_hotend_temp         (int x2)
- *  400  M145 S0 B lcd_preheat_bed_temp            (int x2)
- *  404  M145 S0 F lcd_preheat_fan_speed           (int x2)
+ *  397  M145 S0 H lcd_preheat_hotend_temp         (int x2)
+ *  401  M145 S0 B lcd_preheat_bed_temp            (int x2)
+ *  405  M145 S0 F lcd_preheat_fan_speed           (int x2)
  *
  * PIDTEMP:                                        66 bytes
- *  408  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]  (float x4)
- *  424  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]  (float x4)
- *  440  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]  (float x4)
- *  456  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]  (float x4)
- *  472  M301 L        lpq_len                     (int)
+ *  409  M301 E0 PIDC  Kp[0], Ki[0], Kd[0], Kc[0]  (float x4)
+ *  425  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]  (float x4)
+ *  441  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]  (float x4)
+ *  457  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]  (float x4)
+ *  473  M301 L        lpq_len                     (int)
  *
  * PIDTEMPBED:                                      12 bytes
- *  474  M304 PID  thermalManager.bedKp, .bedKi, .bedKd (float x3)
+ *  475  M304 PID  thermalManager.bedKp, .bedKi, .bedKd (float x3)
  *
  * DOGLCD:                                          2 bytes
- *  486  M250 C    lcd_contrast                     (int)
+ *  487  M250 C    lcd_contrast                     (int)
  *
- * FWRETRACT:                                       29 bytes
- *  488  M209 S    autoretract_enabled              (bool)
- *  489  M207 S    retract_length                   (float)
- *  493  M207 W    retract_length_swap              (float)
- *  497  M207 F    retract_feedrate_mm_s            (float)
- *  501  M207 Z    retract_zlift                    (float)
- *  505  M208 S    retract_recover_length           (float)
- *  509  M208 W    retract_recover_length_swap      (float)
- *  513  M208 F    retract_recover_feedrate_mm_s    (float)
+ * FWRETRACT:                                       30 bytes
+ *  489  M209 S    autoretract_enabled              (BOOL)
+ *  491  M207 S    retract_length                   (float)
+ *  495  M207 W    retract_length_swap              (float)
+ *  499  M207 F    retract_feedrate_mm_s            (float)
+ *  503  M207 Z    retract_zlift                    (float)
+ *  507  M208 S    retract_recover_length           (float)
+ *  511  M208 W    retract_recover_length_swap      (float)
+ *  515  M208 F    retract_recover_feedrate_mm_s    (float)
  *
- * Volumetric Extrusion:                            17 bytes
- *  517  M200 D    volumetric_enabled               (bool)
- *  518  M200 T D  filament_size                    (float x4) (T0..3)
+ * Volumetric Extrusion:                            18 bytes
+ *  519  M200 D    volumetric_enabled               (BOOL)
+ *  521  M200 T D  filament_size                    (float x4) (T0..3)
  *
  * TMC2130 Stepper Current:                         20 bytes
- *  534  M906 X    stepperX current                 (uint16_t)
- *  536  M906 Y    stepperY current                 (uint16_t)
- *  538  M906 Z    stepperZ current                 (uint16_t)
- *  540  M906 X2   stepperX2 current                (uint16_t)
- *  542  M906 Y2   stepperY2 current                (uint16_t)
- *  544  M906 Z2   stepperZ2 current                (uint16_t)
- *  546  M906 E0   stepperE0 current                (uint16_t)
- *  548  M906 E1   stepperE1 current                (uint16_t)
- *  550  M906 E2   stepperE2 current                (uint16_t)
- *  552  M906 E3   stepperE3 current                (uint16_t)
+ *  537  M906 X    stepperX current                 (uint16_t)
+ *  539  M906 Y    stepperY current                 (uint16_t)
+ *  541  M906 Z    stepperZ current                 (uint16_t)
+ *  543  M906 X2   stepperX2 current                (uint16_t)
+ *  545  M906 Y2   stepperY2 current                (uint16_t)
+ *  547  M906 Z2   stepperZ2 current                (uint16_t)
+ *  549  M906 E0   stepperE0 current                (uint16_t)
+ *  551  M906 E1   stepperE1 current                (uint16_t)
+ *  553  M906 E2   stepperE2 current                (uint16_t)
+ *  555  M906 E3   stepperE3 current                (uint16_t)
  *
- *  554                                Minimum end-point
- * 1875 (554 + 36 + 9 + 288 + 988)     Maximum end-point
+ *  557                                Minimum end-point
+ * 1878 (557 + 36 + 9 + 288 + 988)     Maximum end-point
  *
  */
 #include "Marlin.h"
@@ -206,7 +206,7 @@ void Config_Postprocess() {
   uint16_t eeprom_checksum;
   const char version[4] = EEPROM_VERSION;
 
-  bool eeprom_write_error;
+  BOOL eeprom_write_error;
 
   void _EEPROM_writeData(int &pos, const uint8_t* value, uint16_t size) {
     if (eeprom_write_error) return;
@@ -229,7 +229,7 @@ void Config_Postprocess() {
       value++;
     };
   }
-  bool eeprom_read_error;
+  BOOL eeprom_read_error;
   void _EEPROM_readData(int &pos, uint8_t* value, uint16_t size) {
     do {
       uint8_t c = eeprom_read_byte((unsigned char*)pos);
@@ -250,7 +250,7 @@ void Config_Postprocess() {
   /**
    * M500 - Store Configuration
    */
-  bool Config_StoreSettings() {
+  BOOL Config_StoreSettings() {
     float dummy = 0.0f;
     char ver[4] = "000";
 
@@ -295,7 +295,7 @@ void Config_Postprocess() {
     #if ENABLED(MESH_BED_LEVELING)
       // Compile time test that sizeof(mbl.z_values) is as expected
       typedef char c_assert[(sizeof(mbl.z_values) == (MESH_NUM_X_POINTS) * (MESH_NUM_Y_POINTS) * sizeof(dummy)) ? 1 : -1];
-      const bool leveling_is_on = TEST(mbl.status, MBL_STATUS_HAS_MESH_BIT);
+      const BOOL leveling_is_on = TEST(mbl.status, MBL_STATUS_HAS_MESH_BIT);
       const uint8_t mesh_num_x = MESH_NUM_X_POINTS, mesh_num_y = MESH_NUM_Y_POINTS;
       EEPROM_WRITE(leveling_is_on);
       EEPROM_WRITE(mbl.z_offset);
@@ -304,7 +304,7 @@ void Config_Postprocess() {
       EEPROM_WRITE(mbl.z_values);
     #else
       // For disabled MBL write a default mesh
-      const bool leveling_is_on = false;
+      const BOOL leveling_is_on = false;
       dummy = 0.0f;
       const uint8_t mesh_num_x = 3, mesh_num_y = 3;
       EEPROM_WRITE(leveling_is_on);
@@ -551,7 +551,7 @@ void Config_Postprocess() {
   /**
    * M501 - Retrieve Configuration
    */
-  bool Config_RetrieveSettings() {
+  BOOL Config_RetrieveSettings() {
 
     EEPROM_START();
     eeprom_read_error = false; // If set EEPROM_READ won't write into RAM
@@ -621,7 +621,7 @@ void Config_Postprocess() {
       // Mesh (Manual) Bed Leveling
       //
 
-      bool leveling_is_on;
+      BOOL leveling_is_on;
       uint8_t mesh_num_x, mesh_num_y;
       EEPROM_READ(leveling_is_on);
       EEPROM_READ(dummy);
@@ -857,7 +857,7 @@ void Config_Postprocess() {
 
         if (!ubl.sanity_check()) {
           int tmp_mesh;                                // We want to preserve whether the UBL System is Active
-          bool tmp_active;                             // If it is, we want to preserve the Mesh that is being used.
+          BOOL tmp_active;                             // If it is, we want to preserve the Mesh that is being used.
           tmp_mesh = ubl.state.eeprom_storage_slot;
           tmp_active = ubl.state.active;
           SERIAL_ECHOLNPGM("\nInitializing Bed Leveling State to current firmware settings.\n");
@@ -892,7 +892,7 @@ void Config_Postprocess() {
 
 #else // !EEPROM_SETTINGS
 
-  bool Config_StoreSettings() {
+  BOOL Config_StoreSettings() {
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM("EEPROM disabled");
     return false;
@@ -1081,7 +1081,7 @@ void Config_ResetDefault() {
   /**
    * M503 - Print Configuration
    */
-  void Config_PrintSettings(bool forReplay) {
+  void Config_PrintSettings(BOOL forReplay) {
     // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
 
     CONFIG_ECHO_START;
