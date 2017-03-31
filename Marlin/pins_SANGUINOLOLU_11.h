@@ -188,7 +188,10 @@
     #else
       #define BTN_ENC           30
     #endif
-  #else  // !Panelolu2
+  #elif ENABLED(OLED_PANEL_TINYBOY2)
+    #define BTN_ENC             28
+    #define LCD_SDSS            -1
+  #else  // !Panelolu2, !TinyBoy2
     #define BTN_ENC             16
     #define LCD_SDSS            28 // Smart Controller SD card reader rather than the Melzi
   #endif // !Panelolu2
