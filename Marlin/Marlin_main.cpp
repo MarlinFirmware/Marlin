@@ -572,6 +572,9 @@ static uint8_t target_extruder;
 
 #if ENABLED(DELTA)
 
+  #define SIN_60 0.8660254037844386
+  #define COS_60 0.5
+
   float delta[ABC],
         endstop_adj[ABC] = { 0 };
 
@@ -4619,20 +4622,17 @@ inline void gcode_G28() {
 
           // probe the points
             
-          float Z_Raise = Z_CLEARANCE_DEPLOY_PROBE;
           int center_points = 0;
           if (probe_points != 3)  
           {
-            z_at_Pt[0] += probe_pt(abl_probe_Pt_X[0], abl_probe_Pt_Y[0], Z_Raise);           
-            Z_Raise = Z_CLEARANCE_BETWEEN_PROBES + z_at_Pt[0];
+            z_at_Pt[0] += probe_pt(abl_probe_Pt_X[0], abl_probe_Pt_Y[0], true, 1);           
             center_points = 1;
           }
           if (probe_points >= 3)  
           {
             for (int axis = 3; axis > 0; axis--)
             {
-              z_at_Pt[0] += probe_pt(abl_probe_Pt_X[0] + abl_probe_Pt_X[4*axis-1]/10, abl_probe_Pt_Y[0] + abl_probe_Pt_Y[4*axis-1]/10, Z_Raise);         
-              if (Z_Raise == Z_CLEARANCE_DEPLOY_PROBE) Z_Raise = Z_CLEARANCE_BETWEEN_PROBES + z_at_Pt[0];
+              z_at_Pt[0] += probe_pt(abl_probe_Pt_X[0] + abl_probe_Pt_X[4*axis-1]/10, abl_probe_Pt_Y[0] + abl_probe_Pt_Y[4*axis-1]/10, true, 1);         
             }
             center_points += 3;
             z_at_Pt[0] /= center_points;
@@ -4647,7 +4647,7 @@ inline void gcode_G28() {
           if (probe_points != 1)
           {
             for (int axis = 1; axis < 13; axis += step_axis)
-              z_at_Pt[axis] += probe_pt(abl_probe_Pt_X[axis], abl_probe_Pt_Y[axis], Z_Raise);               
+              z_at_Pt[axis] += probe_pt(abl_probe_Pt_X[axis], abl_probe_Pt_Y[axis], true, 1);               
           }
           if (probe_points == 4) step_axis = 2;
 
