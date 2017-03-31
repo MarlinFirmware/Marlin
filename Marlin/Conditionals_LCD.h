@@ -371,12 +371,12 @@
   /**
    * Set a flag for any enabled probe
    */
-  #define PROBE_SELECTED (ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
+  #define PROBE_SELECTED (ENABLED(PROBE_MANUALLY) || ENABLED(FIX_MOUNTED_PROBE) || ENABLED(Z_PROBE_ALLEN_KEY) || HAS_Z_SERVO_ENDSTOP || ENABLED(Z_PROBE_SLED))
 
   /**
    * Clear probe pin settings when no probe is selected
    */
-  #if !PROBE_SELECTED
+  #if !PROBE_SELECTED || ENABLED(PROBE_MANUALLY)
     #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
     #undef Z_MIN_PROBE_ENDSTOP
   #endif
