@@ -1172,7 +1172,7 @@ void Config_ResetDefault() {
     SERIAL_ECHOPAIR(" E", planner.max_jerk[E_AXIS]);
     SERIAL_EOL;
 
-    #if DISABLED(NO_WORKSPACE_OFFSETS)
+    #if DISABLED(NO_WORKSPACE_OFFSETS)&&DISABLED(DELTA)
       CONFIG_ECHO_START;
       if (!forReplay) {
         SERIAL_ECHOLNPGM("Home offset (mm)");

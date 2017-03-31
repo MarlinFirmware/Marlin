@@ -6776,7 +6776,7 @@ inline void gcode_M205() {
   if (code_seen('E')) planner.max_jerk[E_AXIS] = code_value_axis_units(E_AXIS);
 }
 
-#if DISABLED(NO_WORKSPACE_OFFSETS)
+#if DISABLED(NO_WORKSPACE_OFFSETS)&&DISABLED(DELTA)
 
   /**
    * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
@@ -7626,7 +7626,7 @@ void quickstop_stepper() {
 
 #endif
 
-#if DISABLED(NO_WORKSPACE_OFFSETS)
+#if DISABLED(NO_WORKSPACE_OFFSETS)&&DISABLED(DELTA)
 
   /**
    * M428: Set home_offset based on the distance between the
@@ -9225,7 +9225,7 @@ void process_next_command() {
         gcode_M205();
         break;
 
-      #if DISABLED(NO_WORKSPACE_OFFSETS)
+      #if DISABLED(NO_WORKSPACE_OFFSETS)&&DISABLED(DELTA)
         case 206: // M206: Set home offsets
           gcode_M206();
           break;
@@ -9393,7 +9393,7 @@ void process_next_command() {
           break;
       #endif
 
-      #if DISABLED(NO_WORKSPACE_OFFSETS)
+      #if DISABLED(NO_WORKSPACE_OFFSETS)&&DISABLED(DELTA)
         case 428: // M428: Apply current_position to home_offset
           gcode_M428();
           break;

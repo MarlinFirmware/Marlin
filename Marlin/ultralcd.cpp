@@ -814,7 +814,7 @@ void kill_screen(const char* lcd_msg) {
    *
    */
 
-  #if DISABLED(NO_WORKSPACE_OFFSETS)
+  #if DISABLED(NO_WORKSPACE_OFFSETS)&&DISABLED(DELTA)
     /**
      * Set the home offset based on the current_position
      */
@@ -1551,7 +1551,7 @@ KeepDrawing:
       MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
     #endif
 
-    #if DISABLED(NO_WORKSPACE_OFFSETS)
+    #if DISABLED(NO_WORKSPACE_OFFSETS)&&DISABLED(DELTA)
       //
       // Set Home Offsets
       //
