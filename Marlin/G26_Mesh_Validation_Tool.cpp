@@ -178,15 +178,13 @@
    * nozzle in a problem area and doing a G29 P4 R command.
    */
   void gcode_G26() {
-    float circle_x, circle_y, x, y, xe, ye, tmp,
-          start_angle, end_angle;
-    int   i, xi, yi, lcd_init_counter = 0;
+    float tmp, start_angle, end_angle;
+    int   i, xi, yi;
     mesh_index_pair location;
 
-    if (axis_unhomed_error(true, true, true)) // Don't allow Mesh Validation without homing first
-      gcode_G28();
-
-    if (parse_G26_parameters()) return; // If the paramter parsing did not go OK, we abort the command
+    // Don't allow Mesh Validation without homing first
+    // If the paramter parsing did not go OK, we abort the command
+    if (axis_unhomed_error(true, true, true) || parse_G26_parameters()) return;
 
     if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
       do_blocking_move_to_z(Z_CLEARANCE_BETWEEN_PROBES);
@@ -194,15 +192,12 @@
       set_current_to_destination();
     }
 
-    ubl.has_control_of_lcd_panel = true; // Take control of the LCD Panel!
-    if (turn_on_heaters())     // Turn on the heaters, leave the command if anything
-      goto LEAVE;              // has gone wrong.
+    if (turn_on_heaters()) goto LEAVE;
 
     current_position[E_AXIS] = 0.0;
     sync_plan_position_e();
 
-    if (prime_flag && prime_nozzle())       // if prime_nozzle() returns an error, we just bail out.
-      goto LEAVE;
+    if (prime_flag && prime_nozzle()) goto LEAVE;
 
     /**
      *  Bed is preheated
@@ -214,20 +209,17 @@
      *  It's  "Show Time" !!!
      */
 
-    // Clear all of the flags we need
     ZERO(circle_flags);
     ZERO(horizontal_mesh_line_flags);
     ZERO(vertical_mesh_line_flags);
 
-    //
     // Move nozzle to the specified height for the first layer
-    //
     set_destination_to_current();
     destination[Z_AXIS] = layer_height;
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], 0.0);
     move_to(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], ooze_amount);
 
-    ubl.has_control_of_lcd_panel = true; // Take control of the LCD Panel!
+    ubl.has_control_of_lcd_panel++;
     //debug_current_and_destination((char*)"Starting G26 Mesh Validation Pattern.");
 
     /**
@@ -259,14 +251,13 @@
         goto LEAVE;
       }
 
-      if (continue_with_closest)
-        location = find_closest_circle_to_print(current_position[X_AXIS], current_position[Y_AXIS]);
-      else
-        location = find_closest_circle_to_print(x_pos, y_pos); // Find the closest Mesh Intersection to where we are now.
+      location = continue_with_closest
+        ? find_closest_circle_to_print(current_position[X_AXIS], current_position[Y_AXIS])
+        : find_closest_circle_to_print(x_pos, y_pos); // Find the closest Mesh Intersection to where we are now.
 
       if (location.x_index >= 0 && location.y_index >= 0) {
-        circle_x = ubl.mesh_index_to_xpos[location.x_index];
-        circle_y = ubl.mesh_index_to_ypos[location.y_index];
+        const float circle_x = ubl.mesh_index_to_xpos[location.x_index],
+                    circle_y = ubl.mesh_index_to_ypos[location.y_index];
 
         // Let's do a couple of quick sanity checks.  We can pull this code out later if we never see it catch a problem
         #ifdef DELTA
@@ -324,18 +315,17 @@
         for (tmp = start_angle; tmp < end_angle - 0.1; tmp += 30.0) {
           int tmp_div_30 = tmp / 30.0;
           if (tmp_div_30 < 0) tmp_div_30 += 360 / 30;
-
-          x = circle_x + cos_table[tmp_div_30];    // for speed, these are now a lookup table entry
-          y = circle_y + sin_table[tmp_div_30];
-
           if (tmp_div_30 > 11) tmp_div_30 -= 360 / 30;
-          xe = circle_x + cos_table[tmp_div_30 + 1]; // for speed, these are now a lookup table entry
-          ye = circle_y + sin_table[tmp_div_30 + 1];
+
+          float x = circle_x + cos_table[tmp_div_30],    // for speed, these are now a lookup table entry
+                y = circle_y + sin_table[tmp_div_30],
+                xe = circle_x + cos_table[tmp_div_30 + 1],
+                ye = circle_y + sin_table[tmp_div_30 + 1];
           #ifdef DELTA
             if (HYPOT2(x, y) > sq(DELTA_PRINTABLE_RADIUS))   // Check to make sure this part of
               continue;                                      // the 'circle' is on the bed.  If
           #else                                              // not, we need to skip
-            x  = constrain(x, X_MIN_POS + 1, X_MAX_POS - 1);     // This keeps us from bumping the endstops
+            x  = constrain(x, X_MIN_POS + 1, X_MAX_POS - 1); // This keeps us from bumping the endstops
             y  = constrain(y, Y_MIN_POS + 1, Y_MAX_POS - 1);
             xe = constrain(xe, X_MIN_POS + 1, X_MAX_POS - 1);
             ye = constrain(ye, Y_MIN_POS + 1, Y_MAX_POS - 1);
@@ -352,15 +342,9 @@
           //  debug_current_and_destination(seg_msg);
           //}
 
-          print_line_from_here_to_there(x, y, layer_height, xe, ye, layer_height);
+          print_line_from_here_to_there(LOGICAL_X_POSITION(x), LOGICAL_Y_POSITION(y), layer_height, LOGICAL_X_POSITION(xe), LOGICAL_Y_POSITION(ye), layer_height);
 
         }
-        //lcd_init_counter++;
-        //if (lcd_init_counter > 10) {
-        //  lcd_init_counter = 0;
-        //  lcd_init(); // Some people's LCD Displays are locking up.  This might help them
-        //  ubl.has_control_of_lcd_panel = true;     // Make sure UBL still is controlling the LCD Panel
-        //}
 
         //debug_current_and_destination((char*)"Looking for lines to connect.");
         look_for_lines_to_connect();
@@ -368,8 +352,8 @@
       }
 
       //debug_current_and_destination((char*)"Done with current circle.");
-    }
-    while (location.x_index >= 0 && location.y_index >= 0);
+
+    } while (location.x_index >= 0 && location.y_index >= 0);
 
     LEAVE:
     lcd_reset_alert_level();
@@ -805,7 +789,7 @@
           lcd_setstatuspgm(PSTR("G26 Heating Bed."), 99);
           lcd_quick_feedback();
       #endif
-          ubl.has_control_of_lcd_panel = true;
+          ubl.has_control_of_lcd_panel++;
           thermalManager.setTargetBed(bed_temp);
           while (abs(thermalManager.degBed() - bed_temp) > 3) {
             if (ubl_lcd_clicked()) return exit_from_g26();
@@ -840,6 +824,9 @@
     float Total_Prime = 0.0;
 
     if (prime_flag == -1) {  // The user wants to control how much filament gets purged
+
+      ubl.has_control_of_lcd_panel++;
+
       lcd_setstatuspgm(PSTR("User-Controlled Prime"), 99);
       chirp_at_user();
 
@@ -876,6 +863,9 @@
         lcd_setstatuspgm(PSTR("Done Priming"), 99);
         lcd_quick_feedback();
       #endif
+
+      ubl.has_control_of_lcd_panel = false;
+
     }
     else {
       #if ENABLED(ULTRA_LCD)
