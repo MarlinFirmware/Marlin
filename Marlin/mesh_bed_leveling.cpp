@@ -26,7 +26,20 @@
 
   mesh_bed_leveling mbl;
 
-  mesh_bed_leveling::mesh_bed_leveling() { reset(); }
+  uint8_t mesh_bed_leveling::status;
+
+  float mesh_bed_leveling::z_offset,
+        mesh_bed_leveling::z_values[MESH_NUM_Y_POINTS][MESH_NUM_X_POINTS],
+        mesh_bed_leveling::index_to_xpos[MESH_NUM_X_POINTS],
+        mesh_bed_leveling::index_to_ypos[MESH_NUM_Y_POINTS];
+
+  mesh_bed_leveling::mesh_bed_leveling() {
+    for (uint8_t i = 0; i < MESH_NUM_X_POINTS; ++i)
+      index_to_xpos[i] = MESH_MIN_X + i * (MESH_X_DIST);
+    for (uint8_t i = 0; i < MESH_NUM_Y_POINTS; ++i)
+      index_to_ypos[i] = MESH_MIN_Y + i * (MESH_Y_DIST);
+    reset();
+  }
 
   void mesh_bed_leveling::reset() {
     status = MBL_STATUS_NONE;
