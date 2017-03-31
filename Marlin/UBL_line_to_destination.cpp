@@ -32,12 +32,11 @@
   extern float destination[XYZE];
   extern void set_current_to_destination();
   extern float destination[];
-  bool g26_debug_flag = false;
   void debug_current_and_destination(char *title) {
 
     // if the title message starts with a '!' it is so important, we are going to
     // ignore the status of the g26_debug_flag
-    if (*title != '!' && !g26_debug_flag) return;
+    if (*title != '!' && !ubl.g26_debug_flag) return;
 
     const float de = destination[E_AXIS] - current_position[E_AXIS];
 
@@ -122,7 +121,7 @@
               cell_dest_xi  = ubl.get_cell_index_x(RAW_X_POSITION(x_end)),
               cell_dest_yi  = ubl.get_cell_index_y(RAW_Y_POSITION(y_end));
 
-    if (g26_debug_flag) {
+    if (ubl.g26_debug_flag) {
       SERIAL_ECHOPGM(" ubl_line_to_destination(xe=");
       SERIAL_ECHO(x_end);
       SERIAL_ECHOPGM(", ye=");
@@ -151,7 +150,7 @@
         planner.buffer_line(x_end, y_end, z_end + ubl.state.z_offset, e_end, feed_rate, extruder);
         set_current_to_destination();
 
-        if (g26_debug_flag)
+        if (ubl.g26_debug_flag)
           debug_current_and_destination((char*)"out of bounds in ubl_line_to_destination()");
 
         return;
@@ -213,7 +212,7 @@
 
       planner.buffer_line(x_end, y_end, z_end + z0 + ubl.state.z_offset, e_end, feed_rate, extruder);
 
-      if (g26_debug_flag)
+      if (ubl.g26_debug_flag)
         debug_current_and_destination((char*)"FINAL_MOVE in ubl_line_to_destination()");
 
       set_current_to_destination();
@@ -340,7 +339,7 @@
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
-      if (g26_debug_flag)
+      if (ubl.g26_debug_flag)
         debug_current_and_destination((char*)"vertical move done in ubl_line_to_destination()");
 
       //
@@ -425,7 +424,7 @@
         } //else printf("FIRST MOVE PRUNED  ");
       }
 
-      if (g26_debug_flag)
+      if (ubl.g26_debug_flag)
         debug_current_and_destination((char*)"horizontal move done in ubl_line_to_destination()");
 
       if (current_position[X_AXIS] != x_end || current_position[Y_AXIS] != y_end)
@@ -564,7 +563,7 @@
       }
     }
 
-    if (g26_debug_flag)
+    if (ubl.g26_debug_flag)
       debug_current_and_destination((char*)"generic move done in ubl_line_to_destination()");
 
     if (current_position[0] != x_end || current_position[1] != y_end)
