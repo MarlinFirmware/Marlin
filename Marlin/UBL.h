@@ -43,7 +43,7 @@
     bool ubl_lcd_clicked();
     void probe_entire_mesh(const float&, const float&, const bool, const bool, const bool);
     void debug_current_and_destination(char *title);
-    void ubl_line_to_destination(const float&, const float&, const float&, const float&, const float&, uint8_t);
+    void ubl_line_to_destination(const float&, uint8_t);
     void manually_probe_remaining_mesh(const float&, const float&, const float&, const float&, const bool);
     vector_3 tilt_mesh_based_on_3pts(const float&, const float&, const float&);
     float measure_business_card_thickness(const float&);
@@ -169,12 +169,12 @@
 
         static int8_t find_closest_x_index(const float &x) {
           const int8_t px = (x - (UBL_MESH_MIN_X) + (MESH_X_DIST) * 0.5) * (1.0 / (MESH_X_DIST));
-          return (px >= 0 && px < (UBL_MESH_NUM_X_POINTS)) ? px : -1;
+          return WITHIN(px, 0, UBL_MESH_NUM_X_POINTS - 1) ? px : -1;
         }
 
         static int8_t find_closest_y_index(const float &y) {
           const int8_t py = (y - (UBL_MESH_MIN_Y) + (MESH_Y_DIST) * 0.5) * (1.0 / (MESH_Y_DIST));
-          return (py >= 0 && py < (UBL_MESH_NUM_Y_POINTS)) ? py : -1;
+          return WITHIN(py, 0, UBL_MESH_NUM_Y_POINTS - 1) ? py : -1;
         }
 
         /**
@@ -193,22 +193,16 @@
          *  multiplications.
          */
         static FORCE_INLINE float calc_z0(const float &a0, const float &a1, const float &z1, const float &a2, const float &z2) {
-          const float delta_z = (z2 - z1),
-                      delta_a = (a0 - a1) / (a2 - a1);
-          return z1 + delta_a * delta_z;
+          return z1 + (z2 - z1) * (a0 - a1) / (a2 - a1);
         }
 
         /**
-         * get_z_correction_at_Y_intercept(float x0, int x1_i, int yi) only takes
-         * three parameters. It assumes the x0 point is on a Mesh line denoted by yi. In theory
-         * we could use get_cell_index_x(float x) to obtain the 2nd parameter x1_i but any code calling
-         * the get_z_correction_along_vertical_mesh_line_at_specific_X routine  will already have
-         * the X index of the x0 intersection available and we don't want to perform any extra floating
-         * point operations.
+         * z_correction_for_x_on_horizontal_mesh_line is an optimization for
+         * the rare occasion when a point lies exactly on a Mesh line (denoted by index yi).
          */
-        static inline float get_z_correction_along_horizontal_mesh_line_at_specific_X(const float &x0, const int x1_i, const int yi) {
-          if (x1_i < 0 || yi < 0 || x1_i >= UBL_MESH_NUM_X_POINTS || yi >= UBL_MESH_NUM_Y_POINTS) {
-            SERIAL_ECHOPAIR("? in get_z_correction_along_horizontal_mesh_line_at_specific_X(x0=", x0);
+        static inline float z_correction_for_x_on_horizontal_mesh_line(const float &lx0, const int x1_i, const int yi) {
+          if (!WITHIN(x1_i, 0, UBL_MESH_NUM_X_POINTS - 1) || !WITHIN(yi, 0, UBL_MESH_NUM_Y_POINTS - 1)) {
+            SERIAL_ECHOPAIR("? in z_correction_for_x_on_horizontal_mesh_line(lx0=", lx0);
             SERIAL_ECHOPAIR(",x1_i=", x1_i);
             SERIAL_ECHOPAIR(",yi=", yi);
             SERIAL_CHAR(')');
@@ -216,20 +210,18 @@
             return NAN;
           }
 
-          const float xratio = (RAW_X_POSITION(x0) - mesh_index_to_xpos[x1_i]) * (1.0 / (MESH_X_DIST)),
-                      z1 = z_values[x1_i][yi],
-                      z2 = z_values[x1_i + 1][yi],
-                      dz = (z2 - z1);
+          const float xratio = (RAW_X_POSITION(lx0) - mesh_index_to_xpos[x1_i]) * (1.0 / (MESH_X_DIST)),
+                      z1 = z_values[x1_i][yi];
 
-          return z1 + xratio * dz;
+          return z1 + xratio * (z_values[x1_i + 1][yi] - z1);
         }
 
         //
-        // See comments above for get_z_correction_along_horizontal_mesh_line_at_specific_X
+        // See comments above for z_correction_for_x_on_horizontal_mesh_line
         //
-        static inline float get_z_correction_along_vertical_mesh_line_at_specific_Y(const float &y0, const int xi, const int y1_i) {
-          if (xi < 0 || y1_i < 0 || xi >= UBL_MESH_NUM_X_POINTS || y1_i >= UBL_MESH_NUM_Y_POINTS) {
-            SERIAL_ECHOPAIR("? in get_z_correction_along_vertical_mesh_line_at_specific_X(y0=", y0);
+        static inline float z_correction_for_y_on_vertical_mesh_line(const float &ly0, const int xi, const int y1_i) {
+          if (!WITHIN(xi, 0, UBL_MESH_NUM_X_POINTS - 1) || !WITHIN(y1_i, 0, UBL_MESH_NUM_Y_POINTS - 1)) {
+            SERIAL_ECHOPAIR("? in get_z_correction_along_vertical_mesh_line_at_specific_x(ly0=", ly0);
             SERIAL_ECHOPAIR(", x1_i=", xi);
             SERIAL_ECHOPAIR(", yi=", y1_i);
             SERIAL_CHAR(')');
@@ -237,12 +229,10 @@
             return NAN;
           }
 
-          const float yratio = (RAW_Y_POSITION(y0) - mesh_index_to_ypos[y1_i]) * (1.0 / (MESH_Y_DIST)),
-                      z1 = z_values[xi][y1_i],
-                      z2 = z_values[xi][y1_i + 1],
-                      dz = (z2 - z1);
+          const float yratio = (RAW_Y_POSITION(ly0) - mesh_index_to_ypos[y1_i]) * (1.0 / (MESH_Y_DIST)),
+                      z1 = z_values[xi][y1_i];
 
-          return z1 + yratio * dz;
+          return z1 + yratio * (z_values[xi][y1_i + 1] - z1);
         }
 
         /**
@@ -251,14 +241,14 @@
          * Z-Height at both ends. Then it does a linear interpolation of these heights based
          * on the Y position within the cell.
          */
-        static float get_z_correction(const float &x0, const float &y0) {
-          const int8_t cx = get_cell_index_x(RAW_X_POSITION(x0)),
-                       cy = get_cell_index_y(RAW_Y_POSITION(y0));
+        static float get_z_correction(const float &lx0, const float &ly0) {
+          const int8_t cx = get_cell_index_x(RAW_X_POSITION(lx0)),
+                       cy = get_cell_index_y(RAW_Y_POSITION(ly0));
 
-          if (cx < 0 || cy < 0 || cx >= UBL_MESH_NUM_X_POINTS || cy >= UBL_MESH_NUM_Y_POINTS) {
+          if (!WITHIN(cx, 0, UBL_MESH_NUM_X_POINTS - 1) || !WITHIN(cy, 0, UBL_MESH_NUM_Y_POINTS - 1)) {
 
-            SERIAL_ECHOPAIR("? in get_z_correction(x0=", x0);
-            SERIAL_ECHOPAIR(", y0=", y0);
+            SERIAL_ECHOPAIR("? in get_z_correction(lx0=", lx0);
+            SERIAL_ECHOPAIR(", ly0=", ly0);
             SERIAL_CHAR(')');
             SERIAL_EOL;
 
@@ -269,21 +259,21 @@
             return 0.0; // this used to return state.z_offset
           }
 
-          const float z1 = calc_z0(RAW_X_POSITION(x0),
+          const float z1 = calc_z0(RAW_X_POSITION(lx0),
                         mesh_index_to_xpos[cx], z_values[cx][cy],
                         mesh_index_to_xpos[cx + 1], z_values[cx + 1][cy]),
-                      z2 = calc_z0(RAW_X_POSITION(x0),
+                      z2 = calc_z0(RAW_X_POSITION(lx0),
                         mesh_index_to_xpos[cx], z_values[cx][cy + 1],
                         mesh_index_to_xpos[cx + 1], z_values[cx + 1][cy + 1]);
-                float z0 = calc_z0(RAW_Y_POSITION(y0),
+                float z0 = calc_z0(RAW_Y_POSITION(ly0),
                     mesh_index_to_ypos[cy], z1,
                     mesh_index_to_ypos[cy + 1], z2);
 
           #if ENABLED(DEBUG_LEVELING_FEATURE)
             if (DEBUGGING(MESH_ADJUST)) {
-              SERIAL_ECHOPAIR(" raw get_z_correction(", x0);
+              SERIAL_ECHOPAIR(" raw get_z_correction(", lx0);
               SERIAL_CHAR(',')
-              SERIAL_ECHO(y0);
+              SERIAL_ECHO(ly0);
               SERIAL_ECHOPGM(") = ");
               SERIAL_ECHO_F(z0, 6);
             }
@@ -305,9 +295,9 @@
 
             #if ENABLED(DEBUG_LEVELING_FEATURE)
               if (DEBUGGING(MESH_ADJUST)) {
-                SERIAL_ECHOPAIR("??? Yikes!  NAN in get_z_correction(", x0);
+                SERIAL_ECHOPAIR("??? Yikes!  NAN in get_z_correction(", lx0);
                 SERIAL_CHAR(',');
-                SERIAL_ECHO(y0);
+                SERIAL_ECHO(ly0);
                 SERIAL_CHAR(')');
                 SERIAL_EOL;
               }
@@ -327,7 +317,7 @@
          */
         #if ENABLED(ENABLE_LEVELING_FADE_HEIGHT)
 
-          FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) {
+          static FORCE_INLINE float fade_scaling_factor_for_z(const float &lz) {
             const float rz = RAW_Z_POSITION(lz);
             if (last_specified_z != rz) {
               last_specified_z = rz;
