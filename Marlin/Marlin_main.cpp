@@ -3821,6 +3821,8 @@ inline void gcode_G28() {
    */
   inline void gcode_G29() {
 
+	static int mbl_probe_index = -1;
+
     #if ENABLED(PRINTER_EVENT_LEDS)
       handle_led_print_event(auto_leveling);
     #endif
