@@ -65,6 +65,12 @@ extern const char errormagic[] PROGMEM;
 #define SERIAL_ERRORLN(x)              SERIAL_PROTOCOLLN(x)
 #define SERIAL_ERRORLNPGM(x)           SERIAL_PROTOCOLLNPGM(x)
 
+// These macros compensate for float imprecision
+#define SERIAL_PROTOCOLPAIR_F(name, value)    SERIAL_PROTOCOLPAIR(name, FIXFLOAT(value))
+#define SERIAL_PROTOCOLLNPAIR_F(name, value)  SERIAL_PROTOCOLLNPAIR(name, FIXFLOAT(value))
+#define SERIAL_ECHOPAIR_F(name,value)         SERIAL_ECHOPAIR(name, FIXFLOAT(value))
+#define SERIAL_ECHOLNPAIR_F(name, value)      SERIAL_ECHOLNPAIR(name, FIXFLOAT(value))
+
 void serial_echopair_P(const char* s_P, const char *v);
 void serial_echopair_P(const char* s_P, char v);
 void serial_echopair_P(const char* s_P, int v);
