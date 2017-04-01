@@ -26,6 +26,6 @@
 
 #include "Arduino.h"
  
-void handle_led_print_event(int code);
+void handle_led_print_event(uint8_t code);
  
 #endif

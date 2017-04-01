@@ -206,7 +206,7 @@ void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte powe
    * Black Light Fluorescent    167, 0, 255
    */
 
-  void handle_led_print_event(int code) {
+  void handle_led_print_event(uint8_t code) {
     switch(code) {
       case(0):        // Print Complete
         #if ENABLED(DEBUG_LEDSTRIP)

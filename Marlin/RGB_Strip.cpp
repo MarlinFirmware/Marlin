@@ -28,32 +28,23 @@
 #include "RGB_Strip.h"
 #include "language.h"
 
-#if ENABLED(BLINKM)
-  #include "blinkm.h"
-#endif
 
-#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
+#if ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
  
   void set_rgb_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w) {
 
-    #if ENABLED(BLINKM)
-      // This variant uses i2c to send the RGB components to the device.
-      SendColors(r, g, b);
-    #else
-
       // This variant uses 3 separate pins for the RGB components.
       // If the pins can do PWM then their intensity will be set.
-      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
-      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
-      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
-      analogWrite(RGB_LED_R_PIN, r);
-      analogWrite(RGB_LED_G_PIN, g);
-      analogWrite(RGB_LED_B_PIN, b);
+      digitalWrite(RGB_STRIP_R_PIN, r ? HIGH : LOW);
+      digitalWrite(RGB_STRIP_G_PIN, g ? HIGH : LOW);
+      digitalWrite(RGB_STRIP_B_PIN, b ? HIGH : LOW);
+      analogWrite(RGB_STRIP_R_PIN, r);
+      analogWrite(RGB_STRIP_G_PIN, g);
+      analogWrite(RGB_STRIP_B_PIN, b);
       #if ENABLED(RGBW_STRIP)
-        digitalWrite(RGB_LED_W_PIN, w ? HIGH : LOW);
-        analogWrite(RGB_LED_W_PIN, w);
+        digitalWrite(RGB_STRIP_W_PIN, w ? HIGH : LOW);
+        analogWrite(RGB_STRIP_W_PIN, w);
       #endif
-    #endif
   }
 
   /* OTHER COLORS BY NAME AND VALUE FOR REFERENCE
@@ -92,7 +83,7 @@
    */
 
   // Handle the various printer events
-  void handle_led_print_event(byte code) {
+  void handle_led_print_event(uint8_t code) {
         
     switch(code) {
       case(0):        // Print Complete
@@ -136,10 +127,11 @@
         idle();
         break;
       case(1):      // Turn RGB LEDs White
-        if (RGBW_STRIP)
+        #if ENABLED(RGBW_STRIP)
           set_rgb_color(0, 0, 0, 255);
-        else        
-          set_rgb_color(255, 255, 255);
+        #else        
+          set_rgb_color(255, 255, 255, 0);
+        #endif
         break;
       case(2):      // Turn RGB LEDs Yellow
         set_rgb_color(255, 255, 0, 0);
@@ -164,4 +156,4 @@
         break;
     } // switch(code)
 }
-#endif  // BLINKM || RGB_LED || RGB_STRIP || RGBW_STRIP
+#endif  // RGB_STRIP || RGBW_STRIP

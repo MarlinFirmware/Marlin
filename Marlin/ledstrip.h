@@ -38,5 +38,5 @@
 void SendColorsOnLedstrip (byte red, byte grn, byte blu, byte segment, byte power);
 
 #if ENABLED(PRINTER_EVENT_LEDS)
-  void handle_led_print_event(int code);
+  void handle_led_print_event(uint8_t code);
 #endif

@@ -367,6 +367,25 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
   #if PIN_EXISTS(CASE_LIGHT)
     PIN_SAY(CASE_LIGHT_PIN);
   #endif
+  #if ENABLED(RGB_LED)
+    PIN_SAY(RGB_LED_R_PIN);
+    PIN_SAY(RGB_LED_G_PIN);
+    PIN_SAY(RGB_LED_B_PIN);
+  #endif
+  #if ENABLED(RGB_STRIP)
+    PIN_SAY(RGB_STRIP_R_PIN);
+    PIN_SAY(RGB_STRIP_G_PIN);
+    PIN_SAY(RGB_STRIP_B_PIN);
+    #if PIN_EXISTS(RGBW_STRIP)
+      PIN_SAY(RGB_STRIP_W_PIN);
+    #endif
+  #endif
+  #if ENABLED(LEDSTRIP)
+    PIN_SAY(LEDSTRIP_PIN);
+  #endif
+  #if ENABLED(DHT_ENABLE)
+    PIN_SAY(DHT_PIN);
+  #endif
   #if PIN_EXISTS(MAIN_VOLTAGE_MEASURE)
     PIN_SAY(MAIN_VOLTAGE_MEASURE_PIN);
   #endif
@@ -436,13 +455,13 @@ static bool report_pin_name(int8_t pin, bool &pin_is_analog) {
   #if PIN_EXISTS(SERVO0)
     PIN_SAY(SERVO0_PIN);
   #endif
-  #if PIN_EXISTS(SERVO1)
+  #if PIN_EXISTS(SERVO1) && !ENABLED(RGB_STRIP)
     PIN_SAY(SERVO1_PIN);
   #endif
-  #if PIN_EXISTS(SERVO2)
+  #if PIN_EXISTS(SERVO2) && !ENABLED(RGB_STRIP)
     PIN_SAY(SERVO2_PIN);
   #endif
-  #if PIN_EXISTS(SERVO3)
+  #if PIN_EXISTS(SERVO3) && !ENABLED(RGB_STRIP)
     PIN_SAY(SERVO3_PIN);
   #endif
   #if defined(SHIFT_CLK) && SHIFT_CLK >= 0
