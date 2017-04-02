@@ -1209,9 +1209,9 @@ void kill_screen(const char* lcd_msg) {
         #endif
       #endif
       #if TEMP_SENSOR_BED != 0
-        lcd_preheat_m1_e0();
+        lcd_preheat_m2_e0();
       #else
-        lcd_preheat_m1_e0_only();
+        lcd_preheat_m2_e0_only();
       #endif
     }
 
@@ -1245,7 +1245,6 @@ void kill_screen(const char* lcd_msg) {
           MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H2, lcd_preheat_m1_e1_only);
         #endif
         #if HOTENDS > 2
-          MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H3, lcd_preheat_m1_e2_only);
           #if TEMP_SENSOR_BED != 0
             MENU_ITEM(function, MSG_PREHEAT_1_N MSG_H3, lcd_preheat_m1_e2);
             MENU_ITEM(function, MSG_PREHEAT_1_END " " MSG_E3, lcd_preheat_m1_e2_only);
@@ -1290,7 +1289,6 @@ void kill_screen(const char* lcd_msg) {
           MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H2, lcd_preheat_m2_e1_only);
         #endif
         #if HOTENDS > 2
-          MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H3, lcd_preheat_m2_e2_only);
           #if TEMP_SENSOR_BED != 0
             MENU_ITEM(function, MSG_PREHEAT_2_N MSG_H3, lcd_preheat_m2_e2);
             MENU_ITEM(function, MSG_PREHEAT_2_END " " MSG_E3, lcd_preheat_m2_e2_only);
