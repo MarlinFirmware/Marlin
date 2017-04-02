@@ -128,7 +128,7 @@
   extern bool code_value_bool();
   extern bool code_has_value();
   extern void lcd_init();
-  extern void lcd_setstatuspgm(const char* const message, uint8_t level);
+  extern void lcd_setstatuspgm(const char* const message, const uint8_t level);
   #define PLANNER_XY_FEEDRATE() (min(planner.max_feedrate_mm_s[X_AXIS], planner.max_feedrate_mm_s[Y_AXIS])) //bob
   bool prepare_move_to_destination_cartesian();
   void line_to_destination();
@@ -156,7 +156,7 @@
                               // won't leave us in a bad state.
 
   float valid_trig_angle(float);
-  mesh_index_pair find_closest_circle_to_print(float, float);
+  mesh_index_pair find_closest_circle_to_print(const float&, const float&);
 
   static float extrusion_multiplier = EXTRUSION_MULTIPLIER,
                retraction_multiplier = RETRACTION_MULTIPLIER,
@@ -183,8 +183,8 @@
     int   i, xi, yi;
     mesh_index_pair location;
 
-    // Don't allow Mesh Validation without homing first
-    // If the paramter parsing did not go OK, we abort the command
+    // Don't allow Mesh Validation without homing first,
+    // or if the parameter parsing did not go OK, abort
     if (axis_unhomed_error(true, true, true) || parse_G26_parameters()) return;
 
     if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
@@ -391,8 +391,8 @@
     return d;
   }
 
-  mesh_index_pair find_closest_circle_to_print( float X, float Y) {
-    float f, mx, my, dx, dy, closest = 99999.99;
+  mesh_index_pair find_closest_circle_to_print(const float &X, const float &Y) {
+    float closest = 99999.99;
     mesh_index_pair return_val;
 
     return_val.x_index = return_val.y_index = -1;
@@ -400,28 +400,27 @@
     for (uint8_t i = 0; i < UBL_MESH_NUM_X_POINTS; i++) {
       for (uint8_t j = 0; j < UBL_MESH_NUM_Y_POINTS; j++) {
         if (!is_bit_set(circle_flags, i, j)) {
-          mx = ubl.mesh_index_to_xpos[i];  // We found a circle that needs to be printed
-          my = ubl.mesh_index_to_ypos[j];
+          const float mx = ubl.mesh_index_to_xpos[i],  // We found a circle that needs to be printed
+                      my = ubl.mesh_index_to_ypos[j];
 
-          dx = X - mx;        // Get the distance to this intersection
-          dy = Y - my;
-          f = HYPOT(dx, dy);
+          // Get the distance to this intersection
+          float f = HYPOT(X - mx, Y - my);
 
-          dx = x_pos - mx;                  // It is possible that we are being called with the values
-          dy = y_pos - my;                  // to let us find the closest circle to the start position.
-          f += HYPOT(dx, dy) / 15.0;        // But if this is not the case,
-                                            // we are going to add in a small
-                                            // weighting to the distance calculation to help it choose
-                                            // a better place to continue.
+          // It is possible that we are being called with the values
+          // to let us find the closest circle to the start position.
+          // But if this is not the case, add a small weighting to the
+          // distance calculation to help it choose a better place to continue.
+          f += HYPOT(x_pos - mx, y_pos - my) / 15.0;
 
+          // Add in the specified amount of Random Noise to our search
           if (random_deviation > 1.0)
-            f += random(0.0, random_deviation); // Add in the specified amount of Random Noise to our search
+            f += random(0.0, random_deviation);
 
           if (f < closest) {
             closest = f;              // We found a closer location that is still
             return_val.x_index = i;   // un-printed  --- save the data for it
             return_val.y_index = j;
-            return_val.distance= closest;
+            return_val.distance = closest;
           }
         }
       }
