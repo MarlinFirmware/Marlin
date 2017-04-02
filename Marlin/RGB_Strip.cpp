@@ -29,18 +29,20 @@
 #include "language.h"
 
 
-#if ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(RGBW_STRIP)
  
   void set_rgb_color(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t w) {
 
       // This variant uses 3 separate pins for the RGB components.
       // If the pins can do PWM then their intensity will be set.
-      digitalWrite(RGB_STRIP_R_PIN, r ? HIGH : LOW);
-      digitalWrite(RGB_STRIP_G_PIN, g ? HIGH : LOW);
-      digitalWrite(RGB_STRIP_B_PIN, b ? HIGH : LOW);
-      analogWrite(RGB_STRIP_R_PIN, r);
-      analogWrite(RGB_STRIP_G_PIN, g);
-      analogWrite(RGB_STRIP_B_PIN, b);
+      #if ENABLED(RGB_STRIP)
+        digitalWrite(RGB_STRIP_R_PIN, r ? HIGH : LOW);
+        digitalWrite(RGB_STRIP_G_PIN, g ? HIGH : LOW);
+        digitalWrite(RGB_STRIP_B_PIN, b ? HIGH : LOW);
+        analogWrite(RGB_STRIP_R_PIN, r);
+        analogWrite(RGB_STRIP_G_PIN, g);
+        analogWrite(RGB_STRIP_B_PIN, b);
+      #endif
       #if ENABLED(RGBW_STRIP)
         digitalWrite(RGB_STRIP_W_PIN, w ? HIGH : LOW);
         analogWrite(RGB_STRIP_W_PIN, w);
@@ -100,10 +102,10 @@
             do {
              idle();
              safe_delay(100);
-             if (wait_for_user_timeout == RGB_reset_time / 2)
+             if (wait_for_user_timeout == LED_reset_time / 2)
              SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
              wait_for_user_timeout ++;
-             if (wait_for_user_timeout >= RGB_reset_time) break;
+             if (wait_for_user_timeout >= LED_reset_time) break;
             } while (wait_for_user);
           #endif // ULTRA_LCD
   
@@ -112,10 +114,10 @@
             do {
              idle();
              safe_delay(100);
-             if (wait_for_user_timeout == RGB_reset_time / 2)
+             if (wait_for_user_timeout == LED_reset_time / 2)
              SERIAL_ECHOLNPGM(MSG_BUSY_PAUSED_FOR_USER_OR_TIMEOUT);
              wait_for_user_timeout ++;
-             if (wait_for_user_timeout >= RGB_reset_time) break;
+             if (wait_for_user_timeout >= LED_reset_time) break;
             } while (wait_for_user);
           #endif // DOGLCD
   
@@ -156,4 +158,4 @@
         break;
     } // switch(code)
 }
-#endif  // RGB_STRIP || RGBW_STRIP
+#endif  // BLINKM || RGB_LED || RGB_STRIP || RGBW_STRIP

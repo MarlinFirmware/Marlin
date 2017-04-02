@@ -254,9 +254,10 @@
   #include "watchdog.h"
 #endif
 
-#if ENABLED(BLINKM) || ENABLED(RGB_STRIP)
+#if ENABLED(BLINKM) || ENABLED(RGB_LED)
   #include "blinkm.h"
   #include "Wire.h"
+  #include "RGB_Strip.h"
 #endif
 
 #if ENABLED(RGB_STRIP)
@@ -5898,16 +5899,22 @@ inline void gcode_M105() {
         digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
         digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
         digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
+        analogWrite(RGB_LED_R_PIN, r);
+        analogWrite(RGB_LED_G_PIN, g);
+        analogWrite(RGB_LED_B_PIN, b);
+
+      #else  //RGB_STRIP
+        digitalWrite(RGB_STRIP_R_PIN, r ? HIGH : LOW);
+        digitalWrite(RGB_STRIP_G_PIN, g ? HIGH : LOW);
+        digitalWrite(RGB_STRIP_B_PIN, b ? HIGH : LOW);
+        analogWrite(RGB_STRIP_R_PIN, r);
+        analogWrite(RGB_STRIP_G_PIN, g);
+        analogWrite(RGB_STRIP_B_PIN, b);
           #if ENABLED(RGBW_STRIP)
-            digitalWrite(RGB_LED_W_PIN, w ? HIGH : LOW);
+            digitalWrite(RGB_STRIP_W_PIN, w ? HIGH : LOW);
+            analogWrite(RGB_STRIP_W_PIN, w);
           #endif
       #endif
-      analogWrite(RGB_LED_R_PIN, r);
-      analogWrite(RGB_LED_G_PIN, g);
-      analogWrite(RGB_LED_B_PIN, b);
-        #if ENABLED(RGBW_STRIP)
-          analogWrite(RGB_LED_W_PIN, w);
-        #endif
     #endif
   }
 #endif
@@ -6009,9 +6016,7 @@ inline void gcode_M109() {
     float temp = thermalManager.degHotend(target_extruder);
 
     #if ENABLED(PRINTER_EVENT_LEDS)
-        #if ENABLED(LEDSTRIP)
-          byte r, g, b;
-        #endif
+          byte r, g, b, w;
         if(wait_for_heatup) {
           // Gradually change LED strip from violet to red as extruder heats up
           r = 255;
@@ -6037,7 +6042,7 @@ inline void gcode_M109() {
               SendColorsOnLedstrip (r, g, b, 0, 1);
               safe_delay(100);
           #else
-            set_led_color(r, g, b, w);
+              set_led_color(r, g, b, w);
           #endif
         }
     #endif // PRINTER_EVENT_LEDS
@@ -6170,9 +6175,7 @@ inline void gcode_M109() {
       float temp = thermalManager.degBed();
 
       #if ENABLED(PRINTER_EVENT_LEDS)
-        #if ENABLED(LEDSTRIP)
-          byte r, g, b, r_fade;
-        #endif
+          byte r, g, b, w, r_fade;
         if(wait_for_heatup) {
           // Gradually change LED strip from blue to violet as bed heats up
           r = map(temp, starting_temp_b, theTarget, 0, 255);
@@ -6201,7 +6204,7 @@ inline void gcode_M109() {
               r_fade = r;
             }
           #else
-            set_led_color(r, g, b, w);
+              set_led_color(r, g, b, w);
           #endif
         }
       #endif // PRINTER_EVENT_LEDS
@@ -6759,12 +6762,22 @@ inline void gcode_M121() { endstops.enable_globally(false); }
 
       // This variant uses 3 separate pins for the RGB components.
       // If the pins can do PWM then their intensity will be set.
-      digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
-      digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
-      digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
-      analogWrite(RGB_LED_R_PIN, r);
-      analogWrite(RGB_LED_G_PIN, g);
-      analogWrite(RGB_LED_B_PIN, b);
+      #if !ENABLED(RGB_STRIP)
+        digitalWrite(RGB_LED_R_PIN, r ? HIGH : LOW);
+        digitalWrite(RGB_LED_G_PIN, g ? HIGH : LOW);
+        digitalWrite(RGB_LED_B_PIN, b ? HIGH : LOW);
+        analogWrite(RGB_LED_R_PIN, r);
+        analogWrite(RGB_LED_G_PIN, g);
+        analogWrite(RGB_LED_B_PIN, b);
+
+      #else  //RGB_STRIP
+        digitalWrite(RGB_STRIP_R_PIN, r ? HIGH : LOW);
+        digitalWrite(RGB_STRIP_G_PIN, g ? HIGH : LOW);
+        digitalWrite(RGB_STRIP_B_PIN, b ? HIGH : LOW);
+        analogWrite(RGB_STRIP_R_PIN, r);
+        analogWrite(RGB_STRIP_G_PIN, g);
+        analogWrite(RGB_STRIP_B_PIN, b);
+      #endif
 
     #endif
   }
@@ -8085,9 +8098,9 @@ inline void gcode_M503() {
         HOTEND_LOOP() thermalManager.setTargetHotend(0, e); // Turn off all the nozzles
         lcd_filament_change_show_message(FILAMENT_CHANGE_MESSAGE_CLICK_TO_HEAT_NOZZLE);
 
-	    #if ENABLED(PRINTER_EVENT_LEDS)
-		  handle_led_print_event(filamentchange_timeout);
-		#endif
+        #if ENABLED(PRINTER_EVENT_LEDS)
+          handle_led_print_event(filamentchange_timeout);
+        #endif
       }
       idle(true);
     }
@@ -11413,15 +11426,15 @@ void setup() {
   #endif
 
   #if ENABLED(RGB_STRIP) && ENABLED(LIGHT_ON_POWERUP)
-    digitalWrite(RGB_LED_R_PIN, HIGH);
-    digitalWrite(RGB_LED_G_PIN, HIGH);
-    digitalWrite(RGB_LED_B_PIN, HIGH);
-    analogWrite(RGB_LED_R_PIN, 255);
-    analogWrite(RGB_LED_G_PIN, 255);
-    analogWrite(RGB_LED_B_PIN, 255);
+    digitalWrite(RGB_STRIP_R_PIN, HIGH);
+    digitalWrite(RGB_STRIP_G_PIN, HIGH);
+    digitalWrite(RGB_STRIP_B_PIN, HIGH);
+    analogWrite(RGB_STRIP_R_PIN, 255);
+    analogWrite(RGB_STRIP_G_PIN, 255);
+    analogWrite(RGB_STRIP_B_PIN, 255);
   #elif ENABLED(RGBW_STRIP) && ENABLED(LIGHT_ON_POWERUP)
-    digitalWrite(RGB_LED_W_PIN, HIGH);
-    analogWrite(RGB_LED_W_PIN, 255);
+    digitalWrite(RGB_STRIP_W_PIN, HIGH);
+    analogWrite(RGB_STRIP_W_PIN, 255);
   #endif
 
   #if ENABLED(LEDSTRIP) && ENABLED(LIGHT_ON_POWERUP)

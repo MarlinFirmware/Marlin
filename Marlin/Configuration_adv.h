@@ -801,16 +801,15 @@
 //#define RGB_STRIP
 
 #if ENABLED(RGB_STRIP)
-  #define RGB_LED_R_PIN 4
-  #define RGB_LED_G_PIN 5
-  #define RGB_LED_B_PIN 6
+  #define RGB_STRIP_R_PIN 4
+  #define RGB_STRIP_G_PIN 5
+  #define RGB_STRIP_B_PIN 6
   
   //#define RGBW_STRIP
     #if ENABLED (RGBW_STRIP)
-      #define RGB_LED_W_PIN 44
+      #define RGB_STRIP_W_PIN 44
     #endif
 
-  #define RGB_reset_time 600      // Set time for RGB_Strip to turn off. (600 = 60 secs.)
   //#define LIGHT_ON_POWERUP      // Light the entire strip WHITE on startup.
 
 #endif // RGB_STRIP
@@ -871,6 +870,7 @@
  */
 #if ENABLED(BLINKM) || ENABLED(RGB_LED) || ENABLED(RGB_STRIP) || ENABLED(LEDSTRIP)
   #define PRINTER_EVENT_LEDS
+  #define LED_reset_time 600      // Set time for LEDs to turn off. (600 = 60 secs.)
   //#define NO_PAUSE_OR_TIMEOUT  // Removes the pause for click or timeout on event 0 (End of print).
 
   /*  
