@@ -10175,6 +10175,8 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
   /**
    * Prepare a linear move in a Cartesian setup.
    * If Mesh Bed Leveling is enabled, perform a mesh move.
+   *
+   * Returns true if the caller didn't update current_position.
    */
   inline bool prepare_move_to_destination_cartesian() {
     // Do not use feedrate_percentage for E or Z only moves
@@ -10190,9 +10192,7 @@ void set_current_from_steppers_for_axis(const AxisEnum axis) {
         else
       #elif ENABLED(AUTO_BED_LEVELING_UBL)
         if (ubl.state.active) {
-
           ubl_line_to_destination(MMS_SCALED(feedrate_mm_s), active_extruder);
-
           return false;
         }
         else
