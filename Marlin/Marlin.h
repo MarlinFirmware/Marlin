@@ -40,7 +40,6 @@
 #include "fastio.h"
 #include "utility.h"
 #include "serial.h"
-#include "WString.h"
 
 #if ENABLED(PRINTCOUNTER)
   #include "printcounter.h"
