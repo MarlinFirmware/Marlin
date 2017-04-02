@@ -1990,7 +1990,7 @@ static void clean_up_after_endstop_or_probe_move() {
   #if ENABLED(BLTOUCH)
     void bltouch_command(int angle) {
       servo[Z_ENDSTOP_SERVO_NR].move(angle);  // Give the BL-Touch the command and wait
-      safe_delay(375);
+      safe_delay(BLTOUCH_DELAY);
     }
 
     void set_bltouch_deployed(const bool deploy) {
