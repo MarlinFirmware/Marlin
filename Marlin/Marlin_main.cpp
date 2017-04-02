@@ -61,7 +61,7 @@
  * G30 - Single Z probe, probes bed at X Y location (defaults to current XY location)
  * G31 - Dock sled (Z_PROBE_SLED only)
  * G32 - Undock sled (Z_PROBE_SLED only)
- * G38 - Probe target - similar to G28 except it uses the Z_MIN endstop for all three axes
+ * G38 - Probe target - similar to G28 except it uses the Z_MIN_PROBE for all three axes
  * G90 - Use Absolute Coordinates
  * G91 - Use Relative Coordinates
  * G92 - Set current position to coordinates given
@@ -778,13 +778,6 @@ extern "C" {
   extern void digipot_i2c_init();
 #endif
 
-inline void echo_command(const char* cmd) {
-  SERIAL_ECHO_START;
-  SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
-  SERIAL_CHAR('"');
-  SERIAL_EOL;
-}
-
 /**
  * Inject the next "immediate" command, when possible, onto the front of the queue.
  * Return true if any immediate commands remain to inject.
@@ -847,7 +840,10 @@ inline bool _enqueuecommand(const char* cmd, bool say_ok=false) {
  */
 bool enqueue_and_echo_command(const char* cmd, bool say_ok/*=false*/) {
   if (_enqueuecommand(cmd, say_ok)) {
-    echo_command(cmd);
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR(MSG_ENQUEUEING, cmd);
+    SERIAL_CHAR('"');
+    SERIAL_EOL;
     return true;
   }
   return false;
@@ -1994,7 +1990,7 @@ static void clean_up_after_endstop_or_probe_move() {
   #if ENABLED(BLTOUCH)
     void bltouch_command(int angle) {
       servo[Z_ENDSTOP_SERVO_NR].move(angle);  // Give the BL-Touch the command and wait
-      safe_delay(375);
+      safe_delay(BLTOUCH_DELAY);
     }
 
     void set_bltouch_deployed(const bool deploy) {
@@ -3639,11 +3635,11 @@ inline void gcode_G28() {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  // Enable mesh leveling again
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-      set_bed_leveling_enabled(bed_leveling_state_at_entry);
+    set_bed_leveling_enabled(bed_leveling_state_at_entry);
   #endif
 
+  // Enable mesh leveling again
   #if ENABLED(MESH_BED_LEVELING)
     if (mbl.reactivate()) {
       set_bed_leveling_enabled(true);
@@ -4828,31 +4824,32 @@ inline void gcode_G28() {
     set_current_from_steppers_for_axis(ALL_AXES);
     SYNC_PLAN_POSITION_KINEMATIC();
 
-    // Only do remaining moves if target was hit
     if (G38_endstop_hit) {
 
       G38_pass_fail = true;
 
-      // Move away by the retract distance
-      set_destination_to_current();
-      LOOP_XYZ(i) destination[i] += retract_mm[i];
-      endstops.enable(false);
-      prepare_move_to_destination();
-      stepper.synchronize();
+      #if ENABLED(PROBE_DOUBLE_TOUCH)
+        // Move away by the retract distance
+        set_destination_to_current();
+        LOOP_XYZ(i) destination[i] += retract_mm[i];
+        endstops.enable(false);
+        prepare_move_to_destination();
+        stepper.synchronize();
 
-      feedrate_mm_s /= 4;
+        feedrate_mm_s /= 4;
 
-      // Bump the target more slowly
-      LOOP_XYZ(i) destination[i] -= retract_mm[i] * 2;
+        // Bump the target more slowly
+        LOOP_XYZ(i) destination[i] -= retract_mm[i] * 2;
 
-      endstops.enable(true);
-      G38_move = true;
-      prepare_move_to_destination();
-      stepper.synchronize();
-      G38_move = false;
+        endstops.enable(true);
+        G38_move = true;
+        prepare_move_to_destination();
+        stepper.synchronize();
+        G38_move = false;
 
-      set_current_from_steppers_for_axis(ALL_AXES);
-      SYNC_PLAN_POSITION_KINEMATIC();
+        set_current_from_steppers_for_axis(ALL_AXES);
+        SYNC_PLAN_POSITION_KINEMATIC();
+      #endif
     }
 
     endstops.hit_on_purpose();
@@ -4864,7 +4861,7 @@ inline void gcode_G28() {
    * G38.2 - probe toward workpiece, stop on contact, signal error if failure
    * G38.3 - probe toward workpiece, stop on contact
    *
-   * Like G28 except uses Z min endstop for all axes
+   * Like G28 except uses Z min probe for all axes
    */
   inline void gcode_G38(bool is_38_2) {
     // Get X Y Z E F
