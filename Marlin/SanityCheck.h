@@ -150,6 +150,8 @@
   #error "ABL_GRID_POINTS is now ABL_GRID_MAX_POINTS_X and ABL_GRID_MAX_POINTS_Y. Please update your configuration."
 #elif defined(ABL_GRID_POINTS_X) || defined(ABL_GRID_POINTS_Y)
   #error "ABL_GRID_POINTS_[XY] is now ABL_GRID_MAX_POINTS_[XY]. Please update your configuration."
+#elif defined(UBL_MESH_EDIT_ENABLED)
+  #error "UBL_MESH_EDIT_ENABLED is now UBL_G26_MESH_EDITING. Please update your configuration."
 #elif defined(BEEPER)
   #error "BEEPER is now BEEPER_PIN. Please update your pins definitions."
 #elif defined(SDCARDDETECT)

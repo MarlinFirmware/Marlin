@@ -22,7 +22,7 @@
 
 #include "MarlinConfig.h"
 
-#if ENABLED(AUTO_BED_LEVELING_UBL) && ENABLED(UBL_G26_MESH_EDITING)
+#if ENABLED(AUTO_BED_LEVELING_UBL)
   //#include "vector_3.h"
   //#include "qr_solve.h"
 
@@ -1069,7 +1069,7 @@
 
     /*
     if (code_seen('M')) {     // Check if a map type was specified
-      map_type = code_has_value() ? code_value_int() : 0; 
+      map_type = code_has_value() ? code_value_int() : 0;
       if (!WITHIN(map_type, 0, 1)) {
         SERIAL_PROTOCOLLNPGM("Invalid map type.\n");
         return UBL_ERR;
@@ -1395,7 +1395,7 @@
       do_blocking_move_to_xy(LOGICAL_X_POSITION(rawx), LOGICAL_Y_POSITION(rawy));
 
       float new_z = ubl.z_values[location.x_index][location.y_index];
-      
+
       round_off = (int32_t)(new_z * 1000.0);    // we chop off the last digits just to be clean. We are rounding to the
       new_z = float(round_off) / 1000.0;
 
