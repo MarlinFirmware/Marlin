@@ -183,8 +183,8 @@
     int   i, xi, yi;
     mesh_index_pair location;
 
-    // Don't allow Mesh Validation without homing first
-    // If the paramter parsing did not go OK, we abort the command
+    // Don't allow Mesh Validation without homing first,
+    // or if the parameter parsing did not go OK, abort
     if (axis_unhomed_error(true, true, true) || parse_G26_parameters()) return;
 
     if (current_position[Z_AXIS] < Z_CLEARANCE_BETWEEN_PROBES) {
