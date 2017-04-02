@@ -677,7 +677,7 @@ void kill_screen(const char* lcd_msg) {
         thermalManager.autotempShutdown();
       #endif
       wait_for_heatup = false;
-      lcd_setstatus(MSG_PRINT_ABORTED, true);
+      lcd_setstatuspgm(PSTR(MSG_PRINT_ABORTED), true);
     }
 
   #endif // SDSUPPORT
@@ -3552,13 +3552,13 @@ void lcd_finishstatus(bool persist=false) {
 
 bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
 
-void lcd_setstatus(const char* const message, bool persist) {
+void lcd_setstatus(const char * const message, const bool persist) {
   if (lcd_status_message_level > 0) return;
   strncpy(lcd_status_message, message, 3 * (LCD_WIDTH));
   lcd_finishstatus(persist);
 }
 
-void lcd_setstatuspgm(const char* const message, uint8_t level) {
+void lcd_setstatuspgm(const char * const message, const uint8_t level) {
   if (level < lcd_status_message_level) return;
   lcd_status_message_level = level;
   strncpy_P(lcd_status_message, message, 3 * (LCD_WIDTH));
@@ -3575,7 +3575,7 @@ void status_printf(uint8_t level, const char *status, ...) {
   lcd_finishstatus(level > 0);
 }
 
-void lcd_setalertstatuspgm(const char* const message) {
+void lcd_setalertstatuspgm(const char * const message) {
   lcd_setstatuspgm(message, 1);
   #if ENABLED(ULTIPANEL)
     lcd_return_to_status();
