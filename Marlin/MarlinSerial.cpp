@@ -28,9 +28,8 @@
  * Modified 28 September 2010 by Mark Sproul
  * Modified 14 February 2016 by Andreas Hardtung (added tx buffer)
  */
-#include "MarlinSerial.h"
 
-#include "stepper.h"
+#include "MarlinSerial.h"
 #include "Marlin.h"
 
 // Disable HardwareSerial.cpp to support chips without a UART (Attiny, etc.)
@@ -38,15 +37,16 @@
 #if !defined(USBCON) && (defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H))
 
   #if UART_PRESENT(SERIAL_PORT)
-    ring_buffer_r rx_buffer  =  { { 0 }, 0, 0 };
+    ring_buffer_r rx_buffer = { { 0 }, 0, 0 };
     #if TX_BUFFER_SIZE > 0
-      ring_buffer_t tx_buffer  =  { { 0 }, 0, 0 };
+      ring_buffer_t tx_buffer = { { 0 }, 0, 0 };
       static bool _written;
     #endif
   #endif
 
   #if ENABLED(EMERGENCY_PARSER)
 
+    #include "stepper.h"
     #include "language.h"
 
     // Currently looking for: M108, M112, M410
@@ -134,13 +134,12 @@
       }
     }
 
-  #endif
-
+  #endif // EMERGENCY_PARSER
 
   FORCE_INLINE void store_char(unsigned char c) {
     CRITICAL_SECTION_START;
-      uint8_t h = rx_buffer.head;
-      uint8_t i = (uint8_t)(h + 1)  & (RX_BUFFER_SIZE - 1);
+      const uint8_t h = rx_buffer.head,
+                    i = (uint8_t)(h + 1) & (RX_BUFFER_SIZE - 1);
 
       // if we should be storing the received character into the location
       // just before the tail (meaning that the head would advance to the
@@ -162,8 +161,8 @@
     FORCE_INLINE void _tx_udr_empty_irq(void) {
       // If interrupts are enabled, there must be more data in the output
       // buffer. Send the next byte
-      uint8_t t = tx_buffer.tail;
-      uint8_t c = tx_buffer.buffer[t];
+      const uint8_t t = tx_buffer.tail,
+                    c = tx_buffer.buffer[t];
       tx_buffer.tail = (t + 1) & (TX_BUFFER_SIZE - 1);
 
       M_UDRx = c;
@@ -189,14 +188,14 @@
 
   #ifdef M_USARTx_RX_vect
     ISR(M_USARTx_RX_vect) {
-      unsigned char c  =  M_UDRx;
+      const unsigned char c = M_UDRx;
       store_char(c);
     }
   #endif
 
   // Public Methods
 
-  void MarlinSerial::begin(long baud) {
+  void MarlinSerial::begin(const long baud) {
     uint16_t baud_setting;
     bool useU2X = true;
 
@@ -204,9 +203,7 @@
       // hard-coded exception for compatibility with the bootloader shipped
       // with the Duemilanove and previous boards and the firmware on the 8U2
       // on the Uno and Mega 2560.
-      if (baud == 57600) {
-        useU2X = false;
-      }
+      if (baud == 57600) useU2X = false;
     #endif
 
     if (useU2X) {
@@ -240,14 +237,14 @@
 
   void MarlinSerial::checkRx(void) {
     if (TEST(M_UCSRxA, M_RXCx)) {
-      uint8_t c  =  M_UDRx;
+      const uint8_t c = M_UDRx;
       store_char(c);
     }
   }
 
   int MarlinSerial::peek(void) {
     CRITICAL_SECTION_START;
-      int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.buffer[rx_buffer.tail];
+      const int v = rx_buffer.head == rx_buffer.tail ? -1 : rx_buffer.buffer[rx_buffer.tail];
     CRITICAL_SECTION_END;
     return v;
   }
@@ -255,10 +252,9 @@
   int MarlinSerial::read(void) {
     int v;
     CRITICAL_SECTION_START;
-      uint8_t t = rx_buffer.tail;
-      if (rx_buffer.head == t) {
+      const uint8_t t = rx_buffer.tail;
+      if (rx_buffer.head == t)
         v = -1;
-      }
       else {
         v = rx_buffer.buffer[t];
         rx_buffer.tail = (uint8_t)(t + 1) & (RX_BUFFER_SIZE - 1);
@@ -269,8 +265,8 @@
 
   uint8_t MarlinSerial::available(void) {
     CRITICAL_SECTION_START;
-      uint8_t h = rx_buffer.head,
-              t = rx_buffer.tail;
+      const uint8_t h = rx_buffer.head,
+                    t = rx_buffer.tail;
     CRITICAL_SECTION_END;
     return (uint8_t)(RX_BUFFER_SIZE + h - t) & (RX_BUFFER_SIZE - 1);
   }
@@ -290,13 +286,13 @@
   #if TX_BUFFER_SIZE > 0
     uint8_t MarlinSerial::availableForWrite(void) {
       CRITICAL_SECTION_START;
-        uint8_t h = tx_buffer.head;
-        uint8_t t = tx_buffer.tail;
+        const uint8_t h = tx_buffer.head,
+                      t = tx_buffer.tail;
       CRITICAL_SECTION_END;
       return (uint8_t)(TX_BUFFER_SIZE + h - t) & (TX_BUFFER_SIZE - 1);
     }
 
-    void MarlinSerial::write(uint8_t c) {
+    void MarlinSerial::write(const uint8_t c) {
       _written = true;
       CRITICAL_SECTION_START;
         bool emty = (tx_buffer.head == tx_buffer.tail);
@@ -312,7 +308,7 @@
         CRITICAL_SECTION_END;
         return;
       }
-      uint8_t i = (tx_buffer.head + 1) & (TX_BUFFER_SIZE - 1);
+      const uint8_t i = (tx_buffer.head + 1) & (TX_BUFFER_SIZE - 1);
 
       // If the output buffer is full, there's nothing for it other than to
       // wait for the interrupt handler to empty it a bit
@@ -372,25 +368,24 @@
 
 
   void MarlinSerial::print(char c, int base) {
-    print((long) c, base);
+    print((long)c, base);
   }
 
   void MarlinSerial::print(unsigned char b, int base) {
-    print((unsigned long) b, base);
+    print((unsigned long)b, base);
   }
 
   void MarlinSerial::print(int n, int base) {
-    print((long) n, base);
+    print((long)n, base);
   }
 
   void MarlinSerial::print(unsigned int n, int base) {
-    print((unsigned long) n, base);
+    print((unsigned long)n, base);
   }
 
   void MarlinSerial::print(long n, int base) {
-    if (base == 0) {
+    if (base == 0)
       write(n);
-    }
     else if (base == 10) {
       if (n < 0) {
         print('-');
@@ -398,9 +393,8 @@
       }
       printNumber(n, 10);
     }
-    else {
+    else
       printNumber(n, base);
-    }
   }
 
   void MarlinSerial::print(unsigned long n, int base) {
