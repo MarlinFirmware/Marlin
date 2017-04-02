@@ -3639,11 +3639,11 @@ inline void gcode_G28() {
     do_blocking_move_to_z(delta_clip_start_height);
   #endif
 
-  // Enable mesh leveling again
   #if ENABLED(AUTO_BED_LEVELING_UBL)
-      set_bed_leveling_enabled(bed_leveling_state_at_entry);
+    set_bed_leveling_enabled(bed_leveling_state_at_entry);
   #endif
 
+  // Enable mesh leveling again
   #if ENABLED(MESH_BED_LEVELING)
     if (mbl.reactivate()) {
       set_bed_leveling_enabled(true);
