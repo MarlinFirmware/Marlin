@@ -1044,7 +1044,138 @@
 #define I2C_SLAVE_ADDRESS  0 // Set a value from 8 to 127 to act as a slave
 
 /**
- * Add M43, M44 and M45 commands for pins info and testing
+ * Add M3, M4 and M5 commands for pins info and testing
+ *
+ *  Spindle & Laser control
+ *
+ *  The M3, M4 & M5 g-code commands are used to turn the spindle/laser on and off, to set the
+ *  spindle speed, to set the laser power and to set the spindle rotation direction.
+ *
+ *  SuperPid is a router/spindle speed controller used in the CNC milling community.
+ *  Marlin can be used to turn the spindle on and off.  It can also be used to set
+ *  the spindle speed from 5,000 to 30,000 RPM.
+ *
+ *  You'll need to select a pin for the ON/OFF function and optionally
+ *  choose a 0-5V hardware PWM pin for the speed control and a pin for the rotation direction.
+ */
+
+//#define SPINDLE_LASER_ENABLE
+#if ENABLED(SPINDLE_LASER_ENABLE)
+
+  #define SPINDLE_LASER_ENABLE_INVERT  false   // set to "true" if the on/off function is reversed
+  #define SPINDLE_SPEED_LASER_POWER true             // set to true if your controller supports setting the speed/power
+  #define SPINDLE_SPEED_LASER_POWER_INVERT  true   // set to "true" if the speed/power goes up when you want it to go slower
+  #define SPINDLE_LASER_POWER_UP_DELAY  5000    // delay in milliseconds to allow the spindle/laser to come up to speed/power
+  #define SPINDLE_LASER_POWER_DOWN_DELAY  5000    // delay in milliseconds to allow the spindle to stop
+  #define DIRECTION_CHANGE  true        // set to true if your spindle controller supports changing spindle direction
+  #define INVERT_DIRECTION  false
+  #define STOP_WHEN_CHANGING_DIRECTION true  // set to true if Marlin should stop the spindle before changing rotation direction
+
+  /**
+   *  The M3 & M4 commands use the following equation to convert PWM duty cycle to speed/power
+   *
+   *  SPEED/POWER = PWM duty cycle * SPEED_POWER_SLOPE  +  SPEED_POWER_INTERCEPT
+   *    where PWM duty cycle varies from 0 to 255
+   *
+   *  set the following for your controller (ALL MUST BE SET)
+   */
+
+  #define SPEED_POWER_SLOPE 118.4     // SuperPID router controller 0 - 30,000 RPM
+  #define SPEED_POWER_INTERCEPT 0     // SuperPID router controller 0 - 30,000 RPM
+  #define SPEED_POWER_MIN  5000       // SuperPID router controller 0 - 30,000 RPM
+  #define SPEED_POWER_MAX 30000       // SuperPID router controller 0 - 30,000 RPM
+
+  //#define SPEED_POWER_SLOPE 0.3922    // 0-100%
+  //#define SPEED_POWER_INTERCEPT 0     // 0-100%
+  //#define SPEED_POWER_MIN  10         // 0-100%
+  //#define SPEED_POWER_MAX 100         // 0-100%
+#endif
+/**
+ *
+ *  In the pins.h file for your board you'll need to add the following:
+ *   #define SPINDLE_LASER_ENABLE_PIN xx     // xx is the digital pin number
+ *   #define SPEED_PIN_PIN yy      // yy is the digital pin number - MUST BE A HARDWARE PWM
+ *   #define SPINDLE_DIR_PIN zz        // ZZ is the digital pin number
+ *
+ *  Selecting the pin for SPINDLE_LASER_ENABLE_PIN is fairly easy.  Just select any free digital
+ *  pin with a 0 to 3.3V-5V logic levels.
+ *
+ *  It is HIGHLY RECOMMENDED that an external 1k-10k pull up resistor be connected to the
+ *  SPINDLE_LASER_ENABLE_PIN.  This will prevent the spindle/laser from powering on briefly during
+ *  power up or when the controller is reset (which happens whenever you connect or
+ *  disconnect from most controllers).
+ *
+ *  Picking the PWM pin can be tricky.  There are only 15 hardware PWM pins on an ATMEGA2560.
+ *  Some are used by the system interrupts so are unavailable.  Others are usually hardwired in the
+ *  controller to functions you can't do without.  Fans, servos and some specialized functions
+ *  all want to have a PWM pin.  Usually you'll end up picking a function you can do without,
+ *  commenting that function out (or not enabling it) and assigning it's pin number to the
+ *  speed pin.
+ *
+ *  For all CPUs the hardware PWMs on TIMER1 are not available.  Marlin uses TIMER1 to generate
+ *  interrupts and sets it up in such a way that the none of it's PWMs can be used.
+ *
+ *  Servos also make hardware PWM(s) unavailable.  In this case it's only the "A" PWM that's
+ *  unavailable.  The other hardware PWM(s) on that timer are available for general use.
+ *
+ *  Below is a table that can be used to when selecting the speed pin on a 2560.  Other CPUs
+ *  are a subset of the 2560.
+ *
+ *  ATmega2560 PWM assignments & users
+ *
+ *  There are 16 PWM ports assigned to 15 physical pins.
+ *     Pin 13 has two ports assigned to it.
+ *
+ *      Timer   Digital Normally    Used by         Optional
+ *      & Port   Pin    assigned    system          users
+ *      TIMER3B   2     X_MAX
+ *      TIMER3C   3     X_MIN
+ *      TIMER0B   4     HEATER_4
+ *      TIMER3A   5     HEATER_5                    *servo 0-11 ISR
+ *      TIMER4A   6     HEATER_6                    *servo 12-23 ISR
+ *      TIMER4B   7     LCD
+ *      TIMER4C   8     HOTBED
+ *      TIMER2B   9     HEATER_1
+ *      TIMER2A   10    HEATER_0
+ *      TIMER1A   11    HEATER_7    *stepper ISR
+ *      TIMER1B   12    PS_ON_PIN   *stepper ISR
+ *      TIMER0A   13    LED         LED PWM
+ *      TIMER1C   13                *stepper ISR
+ *      TIMER5C   44    LCD                         stepper motor current XY PWM
+ *      TIMER5B   45    LCD                         stepper motor current Z PWM
+ *      TIMER5A   46    Z_STEP                      stepper motor current E PWM or *servo 24-35 ISR
+ *
+ *   * - These hardware PWMs are not available.  The pin can still be used as a general purpose
+ *       digital I/O.
+ *
+ *  In addition to the above, fans can be assigned to PWM pins.  If you pick a pin that's
+ *  already assigned to a fan then you'll need to delete the fan or change its pin assignment.
+ *  This needs to be done even if FAN_FAST_PWM is disabled.
+ *
+ *  NOTE: Most pins that are hardwired to a heater or a fan usually are driven by a power driver
+ *        MOSFET which has on it's output a pull up through an LED to +12V/+24V. This will
+ *        probably damage your spindle controller unless you add some circuitry.  If there isn't
+ *        a +12V/+24V pull up you'll need an external 1k-10k pull up resistor to the pin.
+ *
+ *
+ *  AT90USB646, 647, 1286 & 1287 PWM assignments
+ *
+ *     As with the 2560, the PWMs on Timer1 are not available.
+ *
+ *     These chips have 10 PWMs assigned to 9 pins.  TIMER0A and TIMER1C are tied to the same pin.
+ *     Most Arduino IDE extensions only make TIMER1C available (Teensyduino included).
+ *
+ *
+ *  ATmega644 & 1284 PWM assignments
+ *
+ *     As with the 2560, the PWMs on Timer1 are not available.
+ *
+ *     All PWMs have their own pins.
+ *
+ */  //end SPINDLE LASER
+ 
+/**
+ * Add M43 command - monitor & report pin changes, report pin status, monitor & report endstop changes (and toggle LED)
  */
 //#define PINS_DEBUGGING
 
